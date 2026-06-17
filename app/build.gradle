@@ -1,0 +1,27 @@
+plugins {
+    id 'com.android.application'
+}
+
+if (file('google-services.json').exists()) {
+    apply plugin: 'com.google.gms.google-services'
+}
+
+android {
+    namespace 'com.dclar.homecenter'
+    compileSdk 33
+
+    defaultConfig {
+        applicationId 'com.dclar.homecenter'
+        minSdk 26
+        targetSdk 33
+        versionCode 5
+        versionName '0.2.1'
+    }
+}
+
+dependencies {
+    implementation platform('com.google.firebase:firebase-bom:32.8.1')
+    implementation 'com.google.firebase:firebase-auth'
+    implementation 'com.google.firebase:firebase-firestore'
+    implementation 'com.google.android.gms:play-services-auth:20.7.0'
+}

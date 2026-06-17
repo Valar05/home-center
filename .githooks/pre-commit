@@ -1,0 +1,3 @@
+#!/data/data/com.termux/files/usr/bin/sh
+set -eu
+sh tools/run_regression_tests.sh

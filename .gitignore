@@ -1,0 +1,15 @@
+/.gradle/
+/build/
+/app/build/
+/.android-sdk/
+/local.properties
+*.apk
+*.jks
+*.keystore
+*secrets*.properties
+*secret*.json
+service-account*.json
+.firebase-token
+/app/google-services.json
+/google-services.json
+/.firebaserc

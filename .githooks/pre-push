@@ -1,0 +1,7 @@
+#!/data/data/com.termux/files/usr/bin/sh
+set -eu
+sh tools/run_regression_tests.sh
+sh tools/build_debug_apk.sh
+if [ "${HOME_CENTER_FIREBASE_DEPLOY_ON_PUSH:-}" = "1" ]; then
+  sh tools/deploy_firebase.sh "${FIREBASE_PROJECT:-}"
+fi

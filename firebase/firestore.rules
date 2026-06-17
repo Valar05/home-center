@@ -1,0 +1,80 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isMember(bucketId) {
+      return signedIn()
+        && exists(/databases/$(database)/documents/households/$(bucketId)/members/$(request.auth.uid));
+    }
+
+    function isGroupMember(bucketId, groupId) {
+      return isMember(bucketId)
+        && groupId is string
+        && groupId.size() > 0
+        && exists(/databases/$(database)/documents/households/$(bucketId)/groups/$(groupId)/members/$(request.auth.uid));
+    }
+
+    function listVisibleData(bucketId, list) {
+      return list.visibility == null
+        || list.visibility == "household"
+        || (list.visibility == "personal" && list.ownerUid == request.auth.uid)
+        || (list.visibility == "group" && isGroupMember(bucketId, list.groupId));
+    }
+
+    function listVisible(bucketId, listId) {
+      return isMember(bucketId)
+        && exists(/databases/$(database)/documents/households/$(bucketId)/lists/$(listId))
+        && listVisibleData(bucketId, get(/databases/$(database)/documents/households/$(bucketId)/lists/$(listId)).data);
+    }
+
+    function validListWrite(bucketId) {
+      return isMember(bucketId)
+        && (
+          request.resource.data.visibility == null
+          || request.resource.data.visibility == "household"
+          || (request.resource.data.visibility == "personal" && request.resource.data.ownerUid == request.auth.uid)
+          || (request.resource.data.visibility == "group" && isGroupMember(bucketId, request.resource.data.groupId))
+        );
+    }
+
+    match /households/{bucketId} {
+      allow create: if signedIn();
+      allow read, update: if isMember(bucketId);
+      allow delete: if false;
+
+      match /members/{uid} {
+        allow create, update: if signedIn() && uid == request.auth.uid;
+        allow read: if isMember(bucketId);
+        allow delete: if false;
+      }
+
+      match /groups/{groupId} {
+        allow create, update: if isMember(bucketId);
+        allow read: if isGroupMember(bucketId, groupId);
+        allow delete: if false;
+
+        match /members/{uid} {
+          allow create, update: if isMember(bucketId) && uid == request.auth.uid;
+          allow read: if isGroupMember(bucketId, groupId);
+          allow delete: if false;
+        }
+      }
+
+      match /lists/{listId} {
+        allow create: if validListWrite(bucketId);
+        allow read: if isMember(bucketId) && listVisibleData(bucketId, resource.data);
+        allow update: if listVisible(bucketId, listId) && validListWrite(bucketId);
+        allow delete: if false;
+
+        match /tasks/{taskId} {
+          allow read, create, update: if isMember(bucketId)
+            && exists(/databases/$(database)/documents/households/$(bucketId)/lists/$(listId));
+          allow delete: if false;
+        }
+      }
+    }
+  }
+}
