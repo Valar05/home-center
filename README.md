@@ -50,6 +50,10 @@ create list pantry
 create personal list meds
 create household list chores
 create group list soccer for kids
+prefer eggs as 18 count
+map eggs to walmart sku 12345
+read shopping preferences
+build walmart cart for shopping
 remove eggs from shopping list
 delete eggs from shopping list
 take eggs off shopping list
@@ -65,6 +69,16 @@ turn off hotspot
 ```
 
 Hotspot commands are parsed but not implemented yet. Home Center speech requests transient Android audio focus so music apps should pause or duck while responses are spoken.
+
+Cartesia realtime speech runs through a local Termux proxy. For that path:
+
+```sh
+source ~/.bashrc
+pip install 'cartesia[websockets]'
+sh tools/run_cartesia_proxy.sh
+```
+
+Set `CARTESIA_PROXY_BASE_URL=http://localhost:8787` in `local.properties` if you want a nondefault endpoint. The app now requires the Cartesia proxy for speech output.
 
 ## Data Model
 
@@ -94,7 +108,7 @@ aapt dump badging app/build/outputs/apk/debug/app-debug.apk | sed -n '1,20p'
 sh tools/check_no_secrets.sh
 ```
 
-`tools/run_regression_tests.sh` is dependency-free. It runs the secret scanner, source-contract checks for the Firestore membership/write flow, and a Java command-parser harness for common voice commands.
+`tools/run_regression_tests.sh` is dependency-free. It runs the secret scanner, source-contract checks for the Firestore membership/write flow, the agent failure matrix from `docs/AGENT_CONTRACT.md`, and a Java command-parser harness for common voice commands.
 
 ## List Visibility
 

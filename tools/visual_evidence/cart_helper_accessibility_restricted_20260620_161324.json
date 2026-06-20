@@ -1,0 +1,13 @@
+{
+  "id": "cart_helper_accessibility_restricted_20260620_161324",
+  "capturePath": "/storage/emulated/0/Pictures/Screenshots/Screenshot_20260620-161324.png",
+  "captureTimestamp": "2026-06-20T16:13:24-05:00",
+  "screen": "Android Accessibility settings list",
+  "expectedVisibleState": "Home Center cart helper is selectable as Off or On, or Home Center clearly routes to a fallback instead of asking for unavailable automation.",
+  "actualVisibleRead": "Home Center cart helper is visible but greyed out and says Controlled by Restricted Setting.",
+  "assertions": {
+    "homeCenterCartHelperVisible": true,
+    "controlledByRestrictedSettingVisible": true,
+    "enableToggleAvailable": false
+  }
+}

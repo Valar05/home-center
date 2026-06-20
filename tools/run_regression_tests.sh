@@ -6,6 +6,9 @@ cd "$ROOT"
 
 sh tools/check_no_secrets.sh
 python3 tools/home_center_regression_tests.py
+python3 tools/agent_harness.py --all
+sh agent-tools/ticktick-list-ingest/tests/run_fixture_smoke.sh
+sh agent-tools/walmart-cart-agent/tests/run_fixture_smoke.sh
 
 tmp="${TMPDIR:-/tmp}/home-center-regression-$$"
 rm -rf "$tmp"

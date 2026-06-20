@@ -1,0 +1,12 @@
+{
+  "storeTargets": {
+    "ranch": {
+      "confidence": "confirmed",
+      "productName": "Hidden Valley Ranch Dressing",
+      "productUrl": "https://www.walmart.com/ip/12345",
+      "quantity": 1,
+      "sku": "12345",
+      "source": "buy_again"
+    }
+  }
+}

@@ -13,3 +13,54 @@ service-account*.json
 /app/google-services.json
 /google-services.json
 /.firebaserc
+# Agent-local TickTick ingest outputs
+/agent-tools/ticktick-list-ingest/data/*.json
+/agent-tools/ticktick-list-ingest/*.env
+/agent-tools/ticktick-list-ingest/*token*
+/.tmp/
+__pycache__/
+/agent-tools/ticktick-list-ingest/.secrets/
+/agent-tools/walmart-cart-agent/data/*.json
+/agent-tools/walmart-cart-agent/data/*.jsonl
+
+# BEGIN CODEX WORKSPACE HYGIENE
+# Credentials and local machine state
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+*_SECRET*
+*secret*.json
+*credentials*.json
+
+# Editor/OS noise
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+
+# Dependency/cache folders
+node_modules/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.cache/
+
+# Local Godot/editor runtime cache
+.godot/
+
+# Local release/build outputs
+release/*.zip
+dist/
+build/
+coverage/
+
+# Local logs
+*.log
+logs/
+# END CODEX WORKSPACE HYGIENE

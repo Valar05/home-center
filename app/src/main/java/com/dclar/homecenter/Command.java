@@ -8,6 +8,10 @@ final class Command {
     static final String MARK_DONE = "mark_done";
     static final String REMOVE_LIST_ITEM = "remove_list_item";
     static final String CREATE_LIST = "create_list";
+    static final String SET_PREFERENCE = "set_preference";
+    static final String SET_STORE_TARGET = "set_store_target";
+    static final String READ_PREFERENCES = "read_preferences";
+    static final String BUILD_CART = "build_cart";
     static final String SET_HOTSPOT = "set_hotspot";
     static final String UNKNOWN = "unknown";
 
@@ -53,6 +57,22 @@ final class Command {
 
     static Command createList(String listName, String visibility, String groupName, String raw) {
         return new Command(CREATE_LIST, null, listName, visibility, groupName, raw);
+    }
+
+    static Command setPreference(String item, String preferredLabel, String listName, String raw) {
+        return new Command(SET_PREFERENCE, item, listName, preferredLabel, null, raw);
+    }
+
+    static Command setStoreTarget(String item, String sku, String listName, String raw) {
+        return new Command(SET_STORE_TARGET, item, listName, sku, null, raw);
+    }
+
+    static Command readPreferences(String listName, String raw) {
+        return new Command(READ_PREFERENCES, null, listName, null, null, raw);
+    }
+
+    static Command buildCart(String listName, String raw) {
+        return new Command(BUILD_CART, null, listName, null, null, raw);
     }
 
     static Command setHotspot(String state, String raw) {

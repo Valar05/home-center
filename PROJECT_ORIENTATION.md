@@ -14,6 +14,12 @@ Home Center is a Java Android app built directly with Gradle from Termux. It is 
 
 Use SDK 33 on this phone. Newer SDK resources have failed with the Termux ARM64 toolchain, so keep compatible dependency pins unless the local Android SDK/aapt2 setup changes.
 
+For the slice-one chat UI and Cartesia proxy, add the config to `local.properties`:
+
+- `GEMINI_API_KEY=...`
+- `GEMINI_MODEL=gemini-2.0-flash` or another model you want to target
+- `CARTESIA_PROXY_BASE_URL=http://localhost:8787` if you want a nondefault proxy endpoint
+
 ```sh
 gradle assembleDebug --no-daemon
 ```

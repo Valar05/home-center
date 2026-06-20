@@ -57,6 +57,28 @@ Each group has `members/{uid}` documents. Group list visibility is allowed only 
   "ownerUid": "firebase uid",
   "groupId": "",
   "groupName": "",
+  "itemPreferences": {
+    "eggs": {
+      "canonicalName": "eggs",
+      "preferredLabel": "18 count",
+      "updatedBy": "firebase uid"
+    }
+  },
+  "storeTargets": {
+    "eggs": {
+      "store": "walmart",
+      "sku": "12345",
+      "productName": "Great Value Large White Eggs, 18 Count",
+      "productUrl": "https://www.walmart.com/ip/12345",
+      "quantity": 1,
+      "unitPreference": "",
+      "source": "buy_again",
+      "confidence": "confirmed",
+      "canonicalName": "eggs",
+      "confirmedAt": "server timestamp",
+      "updatedBy": "firebase uid"
+    }
+  },
   "createdAt": "server timestamp",
   "updatedAt": "server timestamp"
 }
@@ -83,6 +105,8 @@ Each group has `members/{uid}` documents. Group list visibility is allowed only 
 ```
 
 Lists and bucket ids are normalized to lowercase. Leading articles and trailing `list`/`lists` are stripped, so `the shopping list`, `shopping list`, and `shopping` all map to `shopping`. `grocery` and `groceries` also map to `shopping`.
+
+List-level grocery preferences live on the list document as `itemPreferences`. Store-specific Walmart SKU mappings live separately as `storeTargets` so a human-friendly grocery label and a purchase target can evolve independently. Walmart cart-agent review artifacts should feed accepted mappings back into `storeTargets`; unresolved review queues stay local under ignored `agent-tools/walmart-cart-agent/data/` files.
 
 ## Fuzzy removal
 

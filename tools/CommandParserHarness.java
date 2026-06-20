@@ -14,6 +14,9 @@ final class CommandParserHarness {
         assertCommand("create personal list meds", Command.CREATE_LIST, null, "meds", "personal", "");
         assertCommand("create household list chores", Command.CREATE_LIST, null, "chores", "household", "");
         assertCommand("create group list soccer for kids", Command.CREATE_LIST, null, "soccer", "group", "kids");
+        assertCommand("read shopping preferences", Command.READ_PREFERENCES, null, "shopping", null, null);
+        assertCommand("build walmart cart for shopping", Command.BUILD_CART, null, "shopping", null, null);
+        assertCommand("map ranch to walmart target sku=12345|productUrl=https://www.walmart.com/ip/12345|quantity=2", Command.SET_STORE_TARGET, "ranch", "shopping", "sku=12345|producturl=https://www.walmart.com/ip/12345|quantity=2", null);
         assertCommand("next", Command.NEXT_ITEM, null, null, null, null);
         assertCommand("previous item", Command.PREVIOUS_ITEM, null, null, null, null);
         assertCommand("done", Command.MARK_DONE, null, null, null, null);

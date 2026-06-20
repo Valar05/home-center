@@ -1,3 +1,6 @@
 <resources>
     <string name="app_name">Home Center</string>
+    <string name="walmart_cart_accessibility_label">Home Center cart helper</string>
+    <string name="walmart_cart_accessibility_summary">Adds one verified Walmart product to cart when armed from Home Center.</string>
+    <string name="walmart_cart_accessibility_description">Home Center Walmart cart runner checks verified Walmart product pages and clicks one Add to Cart button when armed.</string>
 </resources>

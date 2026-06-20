@@ -50,14 +50,16 @@ final class HomeTaskClient {
     static final class HomeTask {
         final String id;
         final String name;
+        final String displayName;
         final String description;
         final String jsonText;
         final Timestamp dueAt;
         final Timestamp createdAt;
 
-        HomeTask(String id, String name, String description, String jsonText, Timestamp dueAt, Timestamp createdAt) {
+        HomeTask(String id, String name, String displayName, String description, String jsonText, Timestamp dueAt, Timestamp createdAt) {
             this.id = id;
             this.name = name;
+            this.displayName = displayName;
             this.description = description;
             this.jsonText = jsonText;
             this.dueAt = dueAt;
@@ -293,10 +295,19 @@ final class HomeTaskClient {
         DocumentReference householdRef = db.collection("households").document(bucketId);
         DocumentReference listRef = householdRef.collection("lists").document(listId);
         ensureListForAccess(householdRef, listRef, bucketCode, bucketId, listName, user)
-                .continueWithTask(task -> listRef.collection("tasks")
+                .continueWithTask(task -> listRef.get())
+                .addOnSuccessListener(listSnapshot -> listRef.collection("tasks")
                         .whereEqualTo("status", "active")
-                        .get())
-                .addOnSuccessListener(snapshot -> callback.onResult(toListResult(snapshot, normalizeListName(listName))))
+                        .get()
+                        .addOnSuccessListener(snapshot -> callback.onResult(toListResult(snapshot, normalizeListName(listName), listSnapshot)))
+                        .addOnFailureListener(ex -> {
+                            LocalLog.error("firebase.loadActiveTasks", "bucket=" + bucketId + " list=" + listId, ex);
+                            callback.onResult(new ListResult(false,
+                                    "Could not read list: " + shortMessage(ex),
+                                    ex.getClass().getSimpleName() + ": " + ex.getMessage(),
+                                    listName,
+                                    new ArrayList<>()));
+                        }))
                 .addOnFailureListener(ex -> {
                     LocalLog.error("firebase.loadActiveTasks", "bucket=" + bucketId + " list=" + listId, ex);
                     callback.onResult(new ListResult(false,
@@ -366,68 +377,319 @@ final class HomeTaskClient {
         DocumentReference householdRef = db.collection("households").document(bucketId);
         DocumentReference listRef = householdRef.collection("lists").document(listId);
         ensureListForAccess(householdRef, listRef, bucketCode, bucketId, listName, user)
-                .continueWithTask(task -> listRef.collection("tasks")
+                .continueWithTask(task -> listRef.get())
+                .addOnSuccessListener(listSnapshot -> listRef.collection("tasks")
                         .whereEqualTo("status", "active")
-                        .get())
-                .addOnSuccessListener(snapshot -> {
-                    ListResult listResult = toListResult(snapshot, normalizedListName);
-                    if (listResult.tasks.isEmpty()) {
-                        callback.onResult(new Result(false,
-                                normalizedListName + " is empty.",
-                                "empty_list"));
-                        return;
-                    }
-                    Match match = bestMatch(cleanItem, listResult.tasks);
+                        .get()
+                        .addOnSuccessListener(snapshot -> {
+                            ListResult listResult = toListResult(snapshot, normalizedListName, listSnapshot);
+                            if (listResult.tasks.isEmpty()) {
+                                callback.onResult(new Result(false,
+                                        normalizedListName + " is empty.",
+                                        "empty_list"));
+                                return;
+                            }
+                            Match match = bestMatch(cleanItem, listResult.tasks);
                     if (match.task == null || match.score < 58) {
                         callback.onResult(new Result(false,
                                 "I could not find " + cleanItem + " on " + normalizedListName + ".",
                                 "no_match score=" + match.score));
                         return;
                     }
-                    if (match.ambiguous) {
-                        callback.onResult(new Result(false,
-                                "I found more than one close match: " + match.task.name + " and " + match.runnerUp.name + ". Please be more specific.",
-                                "ambiguous_match score=" + match.score + " runner_up=" + match.runnerUpScore));
-                        return;
-                    }
-
-                    Map<String, Object> update = new HashMap<>();
-                    update.put("status", "removed");
-                    update.put("removedAt", FieldValue.serverTimestamp());
-                    update.put("removedBy", user.getUid());
-                    update.put("updatedAt", FieldValue.serverTimestamp());
-                    db.collection("households").document(bucketId)
-                            .collection("lists").document(listId)
-                            .collection("tasks").document(match.task.id)
-                            .set(update, SetOptions.merge())
-                            .addOnSuccessListener(ignored -> callback.onResult(new Result(true,
-                                    match.task.name + " removed from " + normalizedListName + ".",
-                                    "removed_task=" + match.task.id + " match_score=" + match.score)))
-                            .addOnFailureListener(ex -> {
-                                LocalLog.error("firebase.removeTask", "bucket=" + bucketId + " list=" + listId + " task=" + match.task.id, ex);
+                            if (match.ambiguous) {
                                 callback.onResult(new Result(false,
-                                        "Could not remove task: " + shortMessage(ex),
-                                        ex.getClass().getSimpleName() + ": " + ex.getMessage()));
-                            });
-                })
+                                        "I found more than one close match: " + match.task.name + " and " + match.runnerUp.name + ". Please be more specific.",
+                                        "ambiguous_match score=" + match.score + " runner_up=" + match.runnerUpScore));
+                                return;
+                            }
+
+                            Map<String, Object> update = new HashMap<>();
+                            update.put("status", "removed");
+                            update.put("removedAt", FieldValue.serverTimestamp());
+                            update.put("removedBy", user.getUid());
+                            update.put("updatedAt", FieldValue.serverTimestamp());
+                            db.collection("households").document(bucketId)
+                                    .collection("lists").document(listId)
+                                    .collection("tasks").document(match.task.id)
+                                    .set(update, SetOptions.merge())
+                                    .addOnSuccessListener(ignored -> callback.onResult(new Result(true,
+                                            match.task.name + " removed from " + normalizedListName + ".",
+                                            "removed_task=" + match.task.id + " match_score=" + match.score)))
+                                    .addOnFailureListener(ex -> {
+                                        LocalLog.error("firebase.removeTask", "bucket=" + bucketId + " list=" + listId + " task=" + match.task.id, ex);
+                                        callback.onResult(new Result(false,
+                                                "Could not remove task: " + shortMessage(ex),
+                                                ex.getClass().getSimpleName() + ": " + ex.getMessage()));
+                                    });
+                        })
+                        .addOnFailureListener(ex -> {
+                            LocalLog.error("firebase.removeTaskLoad", "bucket=" + bucketId + " list=" + listId + " item=" + cleanItem, ex);
+                            callback.onResult(new Result(false,
+                                    "Could not read list: " + shortMessage(ex),
+                                    ex.getClass().getSimpleName() + ": " + ex.getMessage()));
+                        }));
+    }
+
+    void savePreference(String bucketCode, String listName, String itemName, String preferredLabel, ResultCallback callback) {
+        FirebaseUser user = auth.getCurrentUser();
+        String bucketId = bucketId(bucketCode);
+        String listId = listId(listName);
+        String itemKey = itemFieldKey(itemName);
+        String canonicalName = normalizeItem(itemName);
+        String cleanLabel = preferredLabel == null ? "" : preferredLabel.trim();
+        if (user == null) {
+            callback.onResult(new Result(false, "Sign in with Google first.", "missing_auth"));
+            return;
+        }
+        if (bucketId.isEmpty()) {
+            callback.onResult(new Result(false, "Enter a household bucket code first.", "missing_bucket"));
+            return;
+        }
+        if (listId.isEmpty()) {
+            callback.onResult(new Result(false, "Tell me which list to update.", "missing_list"));
+            return;
+        }
+        if (itemKey.isEmpty()) {
+            callback.onResult(new Result(false, "Tell me which item preference to save.", "missing_item"));
+            return;
+        }
+        if (cleanLabel.isEmpty()) {
+            callback.onResult(new Result(false, "Tell me the preferred grocery label.", "missing_preference"));
+            return;
+        }
+
+        DocumentReference householdRef = db.collection("households").document(bucketId);
+        DocumentReference listRef = householdRef.collection("lists").document(listId);
+        Map<String, Object> record = new HashMap<>();
+        record.put("canonicalName", canonicalName);
+        record.put("preferredLabel", cleanLabel);
+        record.put("updatedAt", FieldValue.serverTimestamp());
+        record.put("updatedBy", user.getUid());
+        ensureListForAccess(householdRef, listRef, bucketCode, bucketId, listName, user)
+                .continueWithTask(task -> listRef.set(java.util.Collections.singletonMap("itemPreferences", java.util.Collections.singletonMap(itemKey, record)), SetOptions.merge()))
+                .addOnSuccessListener(ignored -> callback.onResult(new Result(true,
+                        canonicalName + " preference saved as " + cleanLabel + ".",
+                        "saved_preference=" + itemKey)))
                 .addOnFailureListener(ex -> {
-                    LocalLog.error("firebase.removeTaskLoad", "bucket=" + bucketId + " list=" + listId + " item=" + cleanItem, ex);
+                    LocalLog.error("firebase.savePreference", "bucket=" + bucketId + " list=" + listId + " item=" + canonicalName, ex);
                     callback.onResult(new Result(false,
-                            "Could not read list: " + shortMessage(ex),
+                            "Could not save preference: " + shortMessage(ex),
                             ex.getClass().getSimpleName() + ": " + ex.getMessage()));
                 });
     }
 
-    private ListResult toListResult(QuerySnapshot snapshot, String listName) {
+    void saveStoreTarget(String bucketCode, String listName, String itemName, String targetText, ResultCallback callback) {
+        FirebaseUser user = auth.getCurrentUser();
+        String bucketId = bucketId(bucketCode);
+        String listId = listId(listName);
+        String itemKey = itemFieldKey(itemName);
+        String canonicalName = normalizeItem(itemName);
+        StoreTargetSpec target = parseStoreTargetSpec(targetText);
+        if (user == null) {
+            callback.onResult(new Result(false, "Sign in with Google first.", "missing_auth"));
+            return;
+        }
+        if (bucketId.isEmpty()) {
+            callback.onResult(new Result(false, "Enter a household bucket code first.", "missing_bucket"));
+            return;
+        }
+        if (listId.isEmpty()) {
+            callback.onResult(new Result(false, "Tell me which list to update.", "missing_list"));
+            return;
+        }
+        if (itemKey.isEmpty()) {
+            callback.onResult(new Result(false, "Tell me which item to map.", "missing_item"));
+            return;
+        }
+        if (target.sku.isEmpty() && target.productUrl.isEmpty()) {
+            callback.onResult(new Result(false, "Tell me the Walmart SKU, product URL, or target spec.", "missing_store_target"));
+            return;
+        }
+
+        DocumentReference householdRef = db.collection("households").document(bucketId);
+        DocumentReference listRef = householdRef.collection("lists").document(listId);
+        Map<String, Object> record = new HashMap<>();
+        record.put("store", "walmart");
+        record.put("canonicalName", canonicalName);
+        putIfNotEmpty(record, "sku", target.sku);
+        putIfNotEmpty(record, "productName", target.productName);
+        putIfNotEmpty(record, "productUrl", target.productUrl);
+        putIfNotEmpty(record, "unitPreference", target.unitPreference);
+        putIfNotEmpty(record, "source", target.source);
+        putIfNotEmpty(record, "confidence", target.confidence);
+        if (target.quantity > 0) {
+            record.put("quantity", target.quantity);
+        }
+        record.put("confirmedAt", FieldValue.serverTimestamp());
+        record.put("updatedAt", FieldValue.serverTimestamp());
+        record.put("updatedBy", user.getUid());
+        ensureListForAccess(householdRef, listRef, bucketCode, bucketId, listName, user)
+                .continueWithTask(task -> listRef.set(java.util.Collections.singletonMap("storeTargets", java.util.Collections.singletonMap(itemKey, record)), SetOptions.merge()))
+                .addOnSuccessListener(ignored -> callback.onResult(new Result(true,
+                        canonicalName + " Walmart target saved.",
+                        "saved_store_target=" + itemKey + " sku=" + target.sku + " url=" + target.productUrl)))
+                .addOnFailureListener(ex -> {
+                    LocalLog.error("firebase.saveStoreTarget", "bucket=" + bucketId + " list=" + listId + " item=" + canonicalName, ex);
+                    callback.onResult(new Result(false,
+                            "Could not save Walmart mapping: " + shortMessage(ex),
+                            ex.getClass().getSimpleName() + ": " + ex.getMessage()));
+                });
+    }
+
+    private static final class StoreTargetSpec {
+        String sku = "";
+        String productName = "";
+        String productUrl = "";
+        int quantity = 0;
+        String unitPreference = "";
+        String source = "manual";
+        String confidence = "confirmed";
+    }
+
+    private StoreTargetSpec parseStoreTargetSpec(String value) {
+        StoreTargetSpec spec = new StoreTargetSpec();
+        String clean = value == null ? "" : value.trim();
+        if (clean.isEmpty()) {
+            return spec;
+        }
+        if (!clean.contains("=") && !clean.contains("|")) {
+            spec.sku = clean;
+            return spec;
+        }
+        String[] parts = clean.split("\\|");
+        for (String part : parts) {
+            int eq = part.indexOf('=');
+            if (eq <= 0) {
+                continue;
+            }
+            String key = part.substring(0, eq).trim().toLowerCase(Locale.US).replaceAll("[^a-z0-9]", "");
+            String partValue = part.substring(eq + 1).trim();
+            if (key.equals("sku") || key.equals("productid") || key.equals("itemid")) {
+                spec.sku = partValue;
+            } else if (key.equals("producturl") || key.equals("url") || key.equals("link")) {
+                spec.productUrl = partValue;
+            } else if (key.equals("productname") || key.equals("name") || key.equals("title")) {
+                spec.productName = partValue;
+            } else if (key.equals("quantity") || key.equals("qty")) {
+                spec.quantity = parsePositiveInt(partValue);
+            } else if (key.equals("unitpreference") || key.equals("unit") || key.equals("quantitytext")) {
+                spec.unitPreference = partValue;
+            } else if (key.equals("source")) {
+                spec.source = partValue;
+            } else if (key.equals("confidence")) {
+                spec.confidence = partValue;
+            }
+        }
+        if (spec.sku.isEmpty() && !spec.productUrl.isEmpty()) {
+            java.util.regex.Matcher matcher = java.util.regex.Pattern.compile("/ip/(?:[^/]+/)?([0-9]+)").matcher(spec.productUrl);
+            if (matcher.find()) {
+                spec.sku = matcher.group(1);
+            }
+        }
+        return spec;
+    }
+
+    private int parsePositiveInt(String value) {
+        try {
+            int parsed = Integer.parseInt(value.trim());
+            return parsed > 0 ? parsed : 0;
+        } catch (Exception ex) {
+            return 0;
+        }
+    }
+
+    private void putIfNotEmpty(Map<String, Object> record, String key, String value) {
+        if (value != null && !value.trim().isEmpty()) {
+            record.put(key, value.trim());
+        }
+    }
+
+    void readPreferences(String bucketCode, String listName, ResultCallback callback) {
+        FirebaseUser user = auth.getCurrentUser();
+        String bucketId = bucketId(bucketCode);
+        String listId = listId(listName);
+        String normalizedListName = normalizeListName(listName);
+        if (user == null) {
+            callback.onResult(new Result(false, "Sign in with Google first.", "missing_auth"));
+            return;
+        }
+        if (bucketId.isEmpty()) {
+            callback.onResult(new Result(false, "Enter a household bucket code first.", "missing_bucket"));
+            return;
+        }
+        if (listId.isEmpty()) {
+            callback.onResult(new Result(false, "Tell me which list to read.", "missing_list"));
+            return;
+        }
+
+        DocumentReference householdRef = db.collection("households").document(bucketId);
+        DocumentReference listRef = householdRef.collection("lists").document(listId);
+        ensureListForAccess(householdRef, listRef, bucketCode, bucketId, listName, user)
+                .continueWithTask(task -> listRef.get())
+                .addOnSuccessListener(snapshot -> callback.onResult(new Result(true,
+                        summarizePreferenceCounts(snapshot, normalizedListName),
+                        formatPreferenceSummary(snapshot, normalizedListName))))
+                .addOnFailureListener(ex -> {
+                    LocalLog.error("firebase.readPreferences", "bucket=" + bucketId + " list=" + listId, ex);
+                    callback.onResult(new Result(false,
+                            "Could not read preferences: " + shortMessage(ex),
+                            ex.getClass().getSimpleName() + ": " + ex.getMessage()));
+                });
+    }
+
+    void buildCartDraft(String bucketCode, String listName, ResultCallback callback) {
+        FirebaseUser user = auth.getCurrentUser();
+        String bucketId = bucketId(bucketCode);
+        String listId = listId(listName);
+        String normalizedListName = normalizeListName(listName);
+        if (user == null) {
+            callback.onResult(new Result(false, "Sign in with Google first.", "missing_auth"));
+            return;
+        }
+        if (bucketId.isEmpty()) {
+            callback.onResult(new Result(false, "Enter a household bucket code first.", "missing_bucket"));
+            return;
+        }
+        if (listId.isEmpty()) {
+            callback.onResult(new Result(false, "Tell me which list to export.", "missing_list"));
+            return;
+        }
+
+        DocumentReference householdRef = db.collection("households").document(bucketId);
+        DocumentReference listRef = householdRef.collection("lists").document(listId);
+        ensureListForAccess(householdRef, listRef, bucketCode, bucketId, listName, user)
+                .continueWithTask(task -> listRef.get())
+                .addOnSuccessListener(listSnapshot -> listRef.collection("tasks")
+                        .whereEqualTo("status", "active")
+                        .get()
+                        .addOnSuccessListener(snapshot -> callback.onResult(buildCartDraftResult(snapshot, listSnapshot, bucketId, normalizedListName)))
+                        .addOnFailureListener(ex -> {
+                            LocalLog.error("firebase.buildCartDraft", "bucket=" + bucketId + " list=" + listId, ex);
+                            callback.onResult(new Result(false,
+                                    "Could not read active items: " + shortMessage(ex),
+                                    ex.getClass().getSimpleName() + ": " + ex.getMessage()));
+                        }))
+                .addOnFailureListener(ex -> {
+                    LocalLog.error("firebase.buildCartDraftList", "bucket=" + bucketId + " list=" + listId, ex);
+                    callback.onResult(new Result(false,
+                            "Could not prepare cart draft: " + shortMessage(ex),
+                            ex.getClass().getSimpleName() + ": " + ex.getMessage()));
+                });
+    }
+
+    private ListResult toListResult(QuerySnapshot snapshot, String listName, DocumentSnapshot listSnapshot) {
+
         List<HomeTask> tasks = new ArrayList<>();
         for (DocumentSnapshot doc : snapshot.getDocuments()) {
             String name = doc.getString("name");
             if (name == null || name.trim().isEmpty()) {
                 continue;
             }
+            String cleanName = name.trim();
             tasks.add(new HomeTask(
                     doc.getId(),
-                    name.trim(),
+                    cleanName,
+                    resolveDisplayName(listSnapshot, cleanName),
                     value(doc.getString("description")),
                     value(doc.getString("jsonText")),
                     doc.getTimestamp("dueAt"),
@@ -438,6 +700,149 @@ final class HomeTaskClient {
             return new ListResult(true, listName + " is empty.", "empty_list", listName, tasks);
         }
         return new ListResult(true, listName + " has " + tasks.size() + " active tasks.", "loaded_home_list", listName, tasks);
+    }
+
+    private String itemFieldKey(String value) {
+        String cleaned = normalizeItem(value).replaceAll("[^a-z0-9]+", "_").replaceAll("_+", "_");
+        cleaned = cleaned.replaceAll("^_", "").replaceAll("_$", "");
+        return cleaned;
+    }
+
+    private String resolveDisplayName(DocumentSnapshot listSnapshot, String itemName) {
+        String key = itemFieldKey(itemName);
+        if (key.isEmpty() || listSnapshot == null || !listSnapshot.exists()) {
+            return itemName;
+        }
+        Map<String, Object> prefs = nestedMap(listSnapshot.get("itemPreferences"));
+        Map<String, Object> record = nestedMap(prefs.get(key));
+        String preferred = value(record.get("preferredLabel")).trim();
+        return preferred.isEmpty() ? itemName : preferred;
+    }
+
+    private String summarizePreferenceCounts(DocumentSnapshot listSnapshot, String listName) {
+        Map<String, Object> prefs = nestedMap(listSnapshot == null ? null : listSnapshot.get("itemPreferences"));
+        Map<String, Object> targets = nestedMap(listSnapshot == null ? null : listSnapshot.get("storeTargets"));
+        return listName + " has " + prefs.size() + " item preferences and " + targets.size() + " Walmart mappings.";
+    }
+
+    private String formatPreferenceSummary(DocumentSnapshot listSnapshot, String listName) {
+        Map<String, Object> prefs = nestedMap(listSnapshot == null ? null : listSnapshot.get("itemPreferences"));
+        Map<String, Object> targets = nestedMap(listSnapshot == null ? null : listSnapshot.get("storeTargets"));
+        StringBuilder builder = new StringBuilder();
+        builder.append(listName).append(" preferences");
+        if (prefs.isEmpty() && targets.isEmpty()) {
+            builder.append("\nNo grocery preferences are saved yet.");
+            return builder.toString();
+        }
+        if (!prefs.isEmpty()) {
+            builder.append("\nItem preferences:");
+            ArrayList<String> keys = new ArrayList<>(prefs.keySet());
+            Collections.sort(keys);
+            for (String key : keys) {
+                Map<String, Object> record = nestedMap(prefs.get(key));
+                String canonical = value(record.get("canonicalName"));
+                String preferred = value(record.get("preferredLabel"));
+                builder.append("\n- ").append(canonical.isEmpty() ? key : canonical);
+                if (!preferred.isEmpty()) {
+                    builder.append(" -> ").append(preferred);
+                }
+            }
+        }
+        if (!targets.isEmpty()) {
+            builder.append("\nWalmart mappings:");
+            ArrayList<String> keys = new ArrayList<>(targets.keySet());
+            Collections.sort(keys);
+            for (String key : keys) {
+                Map<String, Object> record = nestedMap(targets.get(key));
+                String canonical = value(record.get("canonicalName"));
+                String sku = value(record.get("sku"));
+                String productName = value(record.get("productName"));
+                String quantity = value(record.get("quantity"));
+                builder.append("\n- ").append(canonical.isEmpty() ? key : canonical).append(" -> SKU ").append(sku);
+                if (!productName.isEmpty()) {
+                    builder.append(" (").append(productName).append(")");
+                }
+                if (!quantity.isEmpty()) {
+                    builder.append(" x ").append(quantity);
+                }
+            }
+        }
+        return builder.toString();
+    }
+
+    private Result buildCartDraftResult(QuerySnapshot snapshot, DocumentSnapshot listSnapshot, String bucketId, String listName) {
+        try {
+            JSONArray items = new JSONArray();
+            JSONArray unmapped = new JSONArray();
+            Map<String, Object> prefs = nestedMap(listSnapshot == null ? null : listSnapshot.get("itemPreferences"));
+            Map<String, Object> targets = nestedMap(listSnapshot == null ? null : listSnapshot.get("storeTargets"));
+            int mappedCount = 0;
+            for (DocumentSnapshot doc : snapshot.getDocuments()) {
+                String rawName = value(doc.getString("name")).trim();
+                if (rawName.isEmpty()) {
+                    continue;
+                }
+                String key = itemFieldKey(rawName);
+                Map<String, Object> prefRecord = nestedMap(prefs.get(key));
+                Map<String, Object> targetRecord = nestedMap(targets.get(key));
+                String preferredLabel = value(prefRecord.get("preferredLabel")).trim();
+                String displayName = preferredLabel.isEmpty() ? rawName : preferredLabel;
+                String sku = value(targetRecord.get("sku")).trim();
+                String productName = value(targetRecord.get("productName")).trim();
+                String productUrl = value(targetRecord.get("productUrl")).trim();
+                String quantity = value(targetRecord.get("quantity")).trim();
+                String unitPreference = value(targetRecord.get("unitPreference")).trim();
+                String source = value(targetRecord.get("source")).trim();
+                String confidence = value(targetRecord.get("confidence")).trim();
+                String storeName = value(targetRecord.get("store")).trim();
+                boolean mapped = !sku.isEmpty();
+                if (mapped) {
+                    mappedCount++;
+                } else {
+                    unmapped.put(displayName);
+                }
+                JSONObject item = new JSONObject();
+                item.put("name", rawName);
+                item.put("preferredLabel", displayName);
+                item.put("store", storeName.isEmpty() ? "walmart" : storeName);
+                item.put("sku", sku);
+                item.put("productName", productName);
+                item.put("productUrl", productUrl);
+                item.put("quantity", quantity);
+                item.put("unitPreference", unitPreference);
+                item.put("source", source);
+                item.put("confidence", confidence);
+                item.put("mapped", mapped);
+                item.put("taskId", doc.getId());
+                items.put(item);
+            }
+
+            JSONObject root = new JSONObject();
+            root.put("bucketId", bucketId);
+            root.put("listName", listName);
+            root.put("generatedAt", new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ", Locale.US).format(new Date()));
+            root.put("itemCount", items.length());
+            root.put("mappedCount", mappedCount);
+            root.put("unmappedCount", unmapped.length());
+            root.put("unmappedItems", unmapped);
+            root.put("items", items);
+            return new Result(true,
+                    "Built a Walmart cart draft for " + items.length() + " item" + (items.length() == 1 ? "" : "s") + ". " + unmapped.length() + " need store mappings.",
+                    root.toString(2));
+        } catch (Exception ex) {
+            LocalLog.error("firebase.buildCartDraftResult", "bucket=" + bucketId + " list=" + listName, ex);
+            return new Result(false,
+                    "Could not build cart draft: " + shortMessage(ex),
+                    ex.getClass().getSimpleName() + ": " + ex.getMessage());
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private Map<String, Object> nestedMap(Object value) {
+        if (value instanceof Map) {
+            return (Map<String, Object>) value;
+        }
+        return new HashMap<>();
     }
 
     private Comparator<HomeTask> taskComparator() {
@@ -760,6 +1165,10 @@ final class HomeTaskClient {
 
     private String value(String text) {
         return text == null ? "" : text;
+    }
+
+    private String value(Object text) {
+        return text == null ? "" : String.valueOf(text);
     }
 
     private String shortMessage(Exception ex) {

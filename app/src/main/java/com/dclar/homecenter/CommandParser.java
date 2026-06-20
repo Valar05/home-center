@@ -14,6 +14,21 @@ final class CommandParser {
     private static final Pattern CREATE_LIST = Pattern.compile(
             "^(?:please\\s+)?create\\s+(?:a\\s+)?list\\s+(.+?)$"
     );
+    private static final Pattern SET_PREFERENCE = Pattern.compile(
+            "^(?:please\\s+)?(?:prefer|set\\s+preference\\s+for|save\\s+preference\\s+for)\\s+(.+?)\\s+(?:as|to)\\s+(.+?)$"
+    );
+    private static final Pattern SET_STORE_TARGET_SPEC = Pattern.compile(
+            "^(?:please\\s+)?(?:map|save)\\s+(.+?)\\s+(?:to|as)\\s+walmart\\s+(?:target|product|item)\\s+(.+?)$"
+    );
+    private static final Pattern SET_STORE_TARGET = Pattern.compile(
+            "^(?:please\\s+)?(?:map|set\\s+sku\\s+for|save\\s+sku\\s+for)\\s+(.+?)\\s+(?:to|as)\\s+(?:walmart\\s+)?sku\\s+(.+?)$"
+    );
+    private static final Pattern READ_PREFERENCES = Pattern.compile(
+            "^(?:please\\s+)?(?:read|show)\\s+(?:the\\s+)?(.+?)\\s+preferences$"
+    );
+    private static final Pattern BUILD_CART = Pattern.compile(
+            "^(?:please\\s+)?(?:build|export|prepare)\\s+(?:the\\s+)?(?:walmart\\s+)?cart\\s+(?:for|from)\\s+(?:the\\s+)?(.+?)$"
+    );
     private static final Pattern ADD_TO_LIST = Pattern.compile(
             "^(?:please\\s+)?add\\s+(.+?)\\s+to\\s+(?:the\\s+)?(.+?)$"
     );
@@ -98,6 +113,31 @@ final class CommandParser {
         Matcher markItemDone = MARK_ITEM_DONE.matcher(cleaned);
         if (markItemDone.matches()) {
             return Command.removeListItem(cleanItem(markItemDone.group(1)), normalizeListName(markItemDone.group(2)), raw);
+        }
+
+        Matcher setPreference = SET_PREFERENCE.matcher(cleaned);
+        if (setPreference.matches()) {
+            return Command.setPreference(cleanItem(setPreference.group(1)), cleanItem(setPreference.group(2)), normalizeListName("shopping"), raw);
+        }
+
+        Matcher setStoreTargetSpec = SET_STORE_TARGET_SPEC.matcher(cleaned);
+        if (setStoreTargetSpec.matches()) {
+            return Command.setStoreTarget(cleanItem(setStoreTargetSpec.group(1)), setStoreTargetSpec.group(2).trim(), normalizeListName("shopping"), raw);
+        }
+
+        Matcher setStoreTarget = SET_STORE_TARGET.matcher(cleaned);
+        if (setStoreTarget.matches()) {
+            return Command.setStoreTarget(cleanItem(setStoreTarget.group(1)), cleanItem(setStoreTarget.group(2)), normalizeListName("shopping"), raw);
+        }
+
+        Matcher readPreferences = READ_PREFERENCES.matcher(cleaned);
+        if (readPreferences.matches()) {
+            return Command.readPreferences(normalizeListName(readPreferences.group(1)), raw);
+        }
+
+        Matcher buildCart = BUILD_CART.matcher(cleaned);
+        if (buildCart.matches()) {
+            return Command.buildCart(normalizeListName(buildCart.group(1)), raw);
         }
 
         Matcher read = READ_LIST.matcher(cleaned);

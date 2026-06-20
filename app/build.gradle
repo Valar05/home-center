@@ -6,16 +6,36 @@ if (file('google-services.json').exists()) {
     apply plugin: 'com.google.gms.google-services'
 }
 
+def localProps = new java.util.Properties()
+def localPropsFile = rootProject.file("local.properties")
+if (localPropsFile.exists()) {
+    localPropsFile.withInputStream { stream ->
+        localProps.load(stream)
+    }
+}
+
+def geminiApiKey = localProps.getProperty("GEMINI_API_KEY", "")
+def geminiModel = localProps.getProperty("GEMINI_MODEL", "gemini-2.5-flash")
+def cartesiaProxyBaseUrl = localProps.getProperty("CARTESIA_PROXY_BASE_URL", "http://localhost:8787")
+
 android {
     namespace 'com.dclar.homecenter'
     compileSdk 33
+
+    buildFeatures {
+        buildConfig true
+    }
 
     defaultConfig {
         applicationId 'com.dclar.homecenter'
         minSdk 26
         targetSdk 33
-        versionCode 5
-        versionName '0.2.1'
+        versionCode 7
+        versionName '0.2.3'
+
+        buildConfigField 'String', 'GEMINI_API_KEY', "\"${geminiApiKey.replace('\\', '\\\\').replace('\"', '\\\"')}\""
+        buildConfigField 'String', 'GEMINI_MODEL', "\"${geminiModel.replace('\\', '\\\\').replace('\"', '\\\"')}\""
+        buildConfigField 'String', 'CARTESIA_PROXY_BASE_URL', "\"${cartesiaProxyBaseUrl.replace('\\', '\\\\').replace('\"', '\\\"')}\""
     }
 }
 
@@ -24,4 +44,6 @@ dependencies {
     implementation 'com.google.firebase:firebase-auth'
     implementation 'com.google.firebase:firebase-firestore'
     implementation 'com.google.android.gms:play-services-auth:20.7.0'
+
+    testImplementation 'junit:junit:4.13.2'
 }
