@@ -1,6 +1,6 @@
 # Project Manifest: home-center
 
-- Generated: 2026-06-20T17:00:50-05:00
+- Generated: 2026-06-20T17:47:30-05:00
 - Workspace path: `/storage/emulated/0/Documents/GodotProjects/home-center`
 - Git repository: yes
 - Git remote: `https://github.com/Valar05/home-center.git`
@@ -18,6 +18,13 @@
 > ## Build
 > Use SDK 33 on this phone. Newer SDK resources have failed with the Termux ARM64 toolchain, so keep compatible dependency pins unless the local Android SDK/aapt2 setup changes.
 > For the slice-one chat UI and Cartesia proxy, add the config to `local.properties`:
+> - `GEMINI_API_KEY=...`
+> - `GEMINI_MODEL=gemini-2.0-flash` or another model you want to target
+> - `CARTESIA_PROXY_BASE_URL=http://localhost:8787` if you want a nondefault proxy endpoint
+> ```sh
+> gradle assembleDebug --no-daemon
+> ```
+> ## Secrets
 
 ## Entrypoints And Validation Clues
 - No standard entrypoint was detected. Inspect top-level files and add project-specific validation commands when known.
@@ -40,6 +47,7 @@
 - `firebase.json`
 - `gradle.properties`
 - `local.properties`
+- `PROJECT_MANIFEST.md`
 - `PROJECT_ORIENTATION.md`
 - `README.md`
 - `settings.gradle`
@@ -49,4 +57,3 @@
 - `.gitignore` contains a Codex workspace hygiene block for credentials, caches, and local build outputs.
 - `.gitattributes` contains a Codex Git LFS block for common binary assets, models, audio, video, archives, fonts, and PDFs.
 - `git lfs install --local` was attempted for this repository during the manifest pass.
-
