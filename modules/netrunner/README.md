@@ -17,6 +17,10 @@ Do not start with full automation. Start with training wheels:
 4. Successful episodes become candidate discoveries.
 5. Repeated discoveries become trusted playbooks.
 
+## Visible v0 acceptance
+
+The first APK should launch directly into Netrunner, load `https://example.com`, accept a typed URL, and expose Back, Forward, Reload, Highlight, Read page title, and Home Center controls.
+
 ## Child systems
 
 - `browser-shell` - embedded browser/webview host.
