@@ -4,11 +4,14 @@ import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.graphics.drawable.GradientDrawable;
+import android.net.Uri;
 import android.os.Bundle;
+import android.text.InputType;
 import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
-import android.webkit.WebChromeClient;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
@@ -17,12 +20,16 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 public final class NetrunnerActivity extends Activity {
-    private EditText urlEdit;
     private WebView webView;
-    private TextView statusView;
+    private EditText urlEdit;
+    private Button backButton;
+    private Button forwardButton;
+    private Button reloadButton;
+    private TextView browserStatus;
     private TextView focusLabel;
     private View focusBox;
 
@@ -33,90 +40,129 @@ public final class NetrunnerActivity extends Activity {
         loadUrl("https://example.com");
     }
 
+    @Override
+    public void onBackPressed() {
+        if (webView != null && webView.canGoBack()) {
+            webView.goBack();
+            syncNavButtons();
+            return;
+        }
+        super.onBackPressed();
+    }
+
+    @Override
+    protected void onDestroy() {
+        if (webView != null) {
+            webView.destroy();
+            webView = null;
+        }
+        super.onDestroy();
+    }
+
     private void buildUi() {
         LinearLayout root = new LinearLayout(this);
         root.setOrientation(LinearLayout.VERTICAL);
-        root.setBackgroundColor(Color.parseColor("#111111"));
-
-        LinearLayout header = new LinearLayout(this);
-        header.setOrientation(LinearLayout.VERTICAL);
-        header.setPadding(dp(12), dp(10), dp(12), dp(8));
-        header.setBackgroundColor(Color.parseColor("#1B1B1B"));
+        root.setBackgroundColor(Color.parseColor("#0E1116"));
+        root.setPadding(dp(14), dp(14), dp(14), dp(14));
 
         TextView title = new TextView(this);
         title.setText("Netrunner");
-        title.setTextColor(Color.WHITE);
-        title.setTextSize(26);
+        title.setTextColor(Color.parseColor("#F6F0E3"));
+        title.setTextSize(28);
         title.setTypeface(Typeface.DEFAULT_BOLD);
         title.setGravity(Gravity.CENTER_HORIZONTAL);
-        header.addView(title, matchWrap());
+        root.addView(title, matchWrap());
 
-        statusView = new TextView(this);
-        statusView.setText("Training wheels browser. Navigate first; learn and automate later.");
-        statusView.setTextColor(Color.parseColor("#D6D6D6"));
-        statusView.setTextSize(13);
-        statusView.setGravity(Gravity.CENTER_HORIZONTAL);
-        header.addView(statusView, matchWrap());
+        browserStatus = new TextView(this);
+        browserStatus.setText("Loading example.com");
+        browserStatus.setTextColor(Color.parseColor("#A8B0BC"));
+        browserStatus.setTextSize(13);
+        browserStatus.setGravity(Gravity.CENTER_HORIZONTAL);
+        browserStatus.setPadding(0, dp(4), 0, dp(10));
+        root.addView(browserStatus, matchWrap());
+
+        LinearLayout urlRow = new LinearLayout(this);
+        urlRow.setOrientation(LinearLayout.HORIZONTAL);
+        urlRow.setGravity(Gravity.CENTER_VERTICAL);
+
+        urlEdit = new EditText(this);
+        urlEdit.setHint("Enter a URL");
+        urlEdit.setSingleLine(true);
+        urlEdit.setTextColor(Color.parseColor("#F6F0E3"));
+        urlEdit.setHintTextColor(Color.parseColor("#8A93A3"));
+        urlEdit.setBackgroundColor(Color.parseColor("#1A202A"));
+        urlEdit.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_URI);
+        urlEdit.setImeOptions(EditorInfo.IME_ACTION_GO);
+        urlEdit.setSelectAllOnFocus(true);
+        urlEdit.setLayoutParams(new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
+        urlRow.addView(urlEdit);
+
+        Button goButton = navButton("Go");
+        LinearLayout.LayoutParams goParams = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT);
+        goParams.setMargins(dp(8), 0, 0, 0);
+        goButton.setLayoutParams(goParams);
+        urlRow.addView(goButton);
+        root.addView(urlRow, matchWrap());
 
         LinearLayout navRow = new LinearLayout(this);
         navRow.setOrientation(LinearLayout.HORIZONTAL);
-        navRow.setGravity(Gravity.CENTER_VERTICAL);
-        navRow.setPadding(0, dp(8), 0, 0);
+        navRow.setPadding(0, dp(10), 0, dp(10));
 
-        Button back = smallButton("Back");
-        back.setOnClickListener(v -> {
-            if (webView != null && webView.canGoBack()) {
-                webView.goBack();
-            }
-        });
-        navRow.addView(back);
+        backButton = navButton("Back");
+        forwardButton = navButton("Forward");
+        reloadButton = navButton("Reload");
+        navRow.addView(backButton, weightedButton());
+        navRow.addView(forwardButton, weightedButton());
+        navRow.addView(reloadButton, weightedButton());
+        root.addView(navRow, matchWrap());
 
-        Button forward = smallButton("Forward");
-        forward.setOnClickListener(v -> {
-            if (webView != null && webView.canGoForward()) {
-                webView.goForward();
-            }
-        });
-        navRow.addView(forward);
+        LinearLayout split = new LinearLayout(this);
+        split.setOrientation(LinearLayout.VERTICAL);
+        split.setLayoutParams(new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                0,
+                1f));
 
-        Button reload = smallButton("Reload");
-        reload.setOnClickListener(v -> {
-            if (webView != null) {
-                webView.reload();
-            }
-        });
-        navRow.addView(reload);
-
-        urlEdit = new EditText(this);
-        urlEdit.setSingleLine(true);
-        urlEdit.setTextColor(Color.WHITE);
-        urlEdit.setHintTextColor(Color.parseColor("#9A9A9A"));
-        urlEdit.setText("https://example.com");
-        urlEdit.setHint("https://example.com");
-        urlEdit.setImeOptions(EditorInfo.IME_ACTION_GO);
-        urlEdit.setSelectAllOnFocus(true);
-        LinearLayout.LayoutParams urlParams = new LinearLayout.LayoutParams(0, dp(52), 1f);
-        urlParams.setMargins(dp(8), 0, dp(8), 0);
-        navRow.addView(urlEdit, urlParams);
-
-        Button go = smallButton("Go");
-        go.setOnClickListener(v -> loadUrl(urlEdit.getText().toString()));
-        navRow.addView(go);
-
-        urlEdit.setOnEditorActionListener((v, actionId, event) -> {
-            if (actionId == EditorInfo.IME_ACTION_GO) {
-                loadUrl(urlEdit.getText().toString());
-                return true;
-            }
-            return false;
-        });
-
-        header.addView(navRow, matchWrap());
-        root.addView(header, matchWrap());
+        LinearLayout browserPane = panel("#131922");
+        browserPane.setLayoutParams(new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                0,
+                3f));
 
         FrameLayout browserFrame = new FrameLayout(this);
         webView = new WebView(this);
-        configureWebView(webView);
+        WebSettings settings = webView.getSettings();
+        settings.setJavaScriptEnabled(true);
+        settings.setDomStorageEnabled(true);
+        settings.setUseWideViewPort(true);
+        settings.setLoadWithOverviewMode(true);
+        settings.setBuiltInZoomControls(true);
+        settings.setDisplayZoomControls(false);
+        webView.setBackgroundColor(Color.WHITE);
+        webView.setWebViewClient(new WebViewClient() {
+            @Override
+            public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
+                if (request != null && request.getUrl() != null) {
+                    loadUrl(request.getUrl().toString());
+                    return true;
+                }
+                return false;
+            }
+
+            @Override
+            public boolean shouldOverrideUrlLoading(WebView view, String url) {
+                loadUrl(url);
+                return true;
+            }
+
+            @Override
+            public void onPageFinished(WebView view, String url) {
+                super.onPageFinished(view, url);
+                syncUrlState(url);
+            }
+        });
         browserFrame.addView(webView, new FrameLayout.LayoutParams(
                 FrameLayout.LayoutParams.MATCH_PARENT,
                 FrameLayout.LayoutParams.MATCH_PARENT));
@@ -126,83 +172,145 @@ public final class NetrunnerActivity extends Activity {
         focusBox.setVisibility(View.GONE);
         browserFrame.addView(focusBox, new FrameLayout.LayoutParams(dp(140), dp(96), Gravity.CENTER));
 
-        root.addView(browserFrame, new LinearLayout.LayoutParams(
+        browserPane.addView(browserFrame, new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 0,
                 1f));
 
-        LinearLayout commandPanel = new LinearLayout(this);
-        commandPanel.setOrientation(LinearLayout.VERTICAL);
-        commandPanel.setPadding(dp(12), dp(10), dp(12), dp(12));
-        commandPanel.setBackgroundColor(Color.parseColor("#202020"));
+        split.addView(browserPane);
+
+        LinearLayout chatPane = panel("#18202B");
+        LinearLayout.LayoutParams chatParams = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                0,
+                2f);
+        chatParams.setMargins(0, dp(10), 0, 0);
+        chatPane.setLayoutParams(chatParams);
+
+        TextView chatTitle = new TextView(this);
+        chatTitle.setText("Chat placeholder");
+        chatTitle.setTextColor(Color.parseColor("#F6F0E3"));
+        chatTitle.setTypeface(Typeface.DEFAULT_BOLD);
+        chatTitle.setTextSize(18);
+        chatPane.addView(chatTitle, matchWrap());
+
+        TextView chatBody = new TextView(this);
+        chatBody.setText(
+                "This pane is reserved for the Netrunner chat layer.\n\n"
+                        + "Browser remains active on the other side of the split.");
+        chatBody.setTextColor(Color.parseColor("#C8D0DB"));
+        chatBody.setTextSize(15);
+        chatBody.setLineSpacing(0f, 1.15f);
+        chatBody.setPadding(0, dp(10), 0, dp(12));
+        ScrollView chatScroll = new ScrollView(this);
+        chatScroll.addView(chatBody);
+        chatPane.addView(chatScroll, new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                0,
+                1f));
+
+        LinearLayout toolRow = new LinearLayout(this);
+        toolRow.setOrientation(LinearLayout.HORIZONTAL);
+        toolRow.setGravity(Gravity.CENTER_VERTICAL);
+
+        Button highlight = navButton("Highlight");
+        Button pageTitle = navButton("Read title");
+        Button homeCenter = navButton("Home Center");
+        toolRow.addView(highlight, weightedButton());
+        toolRow.addView(pageTitle, weightedButton());
+        toolRow.addView(homeCenter, weightedButton());
+        chatPane.addView(toolRow, matchWrap());
 
         focusLabel = new TextView(this);
         focusLabel.setText("Element tools: inspect mode placeholder. Long-press commands land next.");
-        focusLabel.setTextColor(Color.parseColor("#EFEFEF"));
-        focusLabel.setTextSize(14);
-        commandPanel.addView(focusLabel, matchWrap());
+        focusLabel.setTextColor(Color.parseColor("#C8D0DB"));
+        focusLabel.setTextSize(13);
+        focusLabel.setPadding(0, dp(10), 0, 0);
+        chatPane.addView(focusLabel, matchWrap());
 
-        LinearLayout actionRow = new LinearLayout(this);
-        actionRow.setOrientation(LinearLayout.HORIZONTAL);
-        actionRow.setGravity(Gravity.CENTER_VERTICAL);
-        actionRow.setPadding(0, dp(8), 0, 0);
+        split.addView(chatPane);
+        root.addView(split);
 
-        Button inspect = smallButton("Highlight");
-        inspect.setOnClickListener(v -> toggleHighlight());
-        actionRow.addView(inspect);
-
-        Button read = smallButton("Read page title");
-        read.setOnClickListener(v -> readPageTitle());
-        actionRow.addView(read);
-
-        Button homeCenter = smallButton("Home Center");
-        homeCenter.setOnClickListener(v -> startActivity(new Intent(this, MainActivity.class)));
-        actionRow.addView(homeCenter);
-
-        commandPanel.addView(actionRow, matchWrap());
-        root.addView(commandPanel, matchWrap());
-
-        setContentView(root);
-    }
-
-    private void configureWebView(WebView view) {
-        WebSettings settings = view.getSettings();
-        settings.setJavaScriptEnabled(true);
-        settings.setDomStorageEnabled(true);
-        settings.setBuiltInZoomControls(true);
-        settings.setDisplayZoomControls(false);
-        settings.setLoadWithOverviewMode(true);
-        settings.setUseWideViewPort(true);
-        view.setWebChromeClient(new WebChromeClient());
-        view.setWebViewClient(new WebViewClient() {
-            @Override
-            public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
-                return false;
+        goButton.setOnClickListener(v -> loadFromField());
+        urlEdit.setOnEditorActionListener((v, actionId, event) -> {
+            boolean shouldGo = actionId == EditorInfo.IME_ACTION_GO
+                    || (event != null
+                    && event.getAction() == KeyEvent.ACTION_DOWN
+                    && event.getKeyCode() == KeyEvent.KEYCODE_ENTER);
+            if (shouldGo) {
+                loadFromField();
+                return true;
             }
+            return false;
+        });
 
-            @Override
-            public void onPageFinished(WebView view, String url) {
-                super.onPageFinished(view, url);
-                urlEdit.setText(url);
-                statusView.setText("Loaded: " + url);
+        backButton.setOnClickListener(v -> {
+            if (webView != null && webView.canGoBack()) {
+                webView.goBack();
+            }
+            syncNavButtons();
+        });
+        forwardButton.setOnClickListener(v -> {
+            if (webView != null && webView.canGoForward()) {
+                webView.goForward();
+            }
+            syncNavButtons();
+        });
+        reloadButton.setOnClickListener(v -> {
+            if (webView != null) {
+                webView.reload();
             }
         });
+        highlight.setOnClickListener(v -> toggleHighlight());
+        pageTitle.setOnClickListener(v -> readPageTitle());
+        homeCenter.setOnClickListener(v -> startActivity(new Intent(this, MainActivity.class)));
+
+        setContentView(root);
+        syncNavButtons();
+    }
+
+    private void loadFromField() {
+        if (urlEdit == null) {
+            return;
+        }
+        loadUrl(urlEdit.getText().toString());
     }
 
     private void loadUrl(String raw) {
-        String url = raw == null ? "" : raw.trim();
-        if (url.isEmpty()) {
-            url = "https://example.com";
+        if (webView == null) {
+            return;
         }
-        if (!url.startsWith("http://") && !url.startsWith("https://")) {
-            url = "https://" + url;
+        String clean = normalizeUrl(raw);
+        urlEdit.setText(clean);
+        urlEdit.setSelection(urlEdit.length());
+        browserStatus.setText("Loading " + clean);
+        webView.loadUrl(clean);
+        syncNavButtons();
+    }
+
+    private void syncUrlState(String url) {
+        if (urlEdit != null && url != null && !url.isEmpty()) {
+            urlEdit.setText(url);
+            urlEdit.setSelection(urlEdit.length());
         }
-        statusView.setText("Loading: " + url);
-        urlEdit.setText(url);
-        webView.loadUrl(url);
+        if (browserStatus != null) {
+            browserStatus.setText(url == null || url.isEmpty() ? "Ready" : "Loaded " + url);
+        }
+        syncNavButtons();
+    }
+
+    private void syncNavButtons() {
+        if (webView == null) {
+            return;
+        }
+        backButton.setEnabled(webView.canGoBack());
+        forwardButton.setEnabled(webView.canGoForward());
     }
 
     private void toggleHighlight() {
+        if (focusBox == null || focusLabel == null) {
+            return;
+        }
         if (focusBox.getVisibility() == View.VISIBLE) {
             focusBox.setVisibility(View.GONE);
             focusLabel.setText("Highlight hidden.");
@@ -218,20 +326,27 @@ public final class NetrunnerActivity extends Activity {
         if (title == null || title.trim().isEmpty()) {
             title = "No page title available yet.";
         }
-        focusLabel.setText("Page title: " + title);
-        statusView.setText("Page title: " + title);
-    }
-
-    @Override
-    public void onBackPressed() {
-        if (webView != null && webView.canGoBack()) {
-            webView.goBack();
-            return;
+        if (focusLabel != null) {
+            focusLabel.setText("Page title: " + title);
         }
-        super.onBackPressed();
+        if (browserStatus != null) {
+            browserStatus.setText("Page title: " + title);
+        }
     }
 
-    private Button smallButton(String text) {
+    private String normalizeUrl(String raw) {
+        String clean = raw == null ? "" : raw.trim();
+        if (clean.isEmpty()) {
+            return "https://example.com";
+        }
+        Uri parsed = Uri.parse(clean);
+        if (parsed.getScheme() == null || parsed.getScheme().isEmpty()) {
+            clean = "https://" + clean;
+        }
+        return clean;
+    }
+
+    private Button navButton(String text) {
         Button button = new Button(this);
         button.setText(text);
         button.setAllCaps(false);
@@ -244,17 +359,34 @@ public final class NetrunnerActivity extends Activity {
         return button;
     }
 
-    private android.graphics.drawable.GradientDrawable makeFocusBorder() {
-        android.graphics.drawable.GradientDrawable drawable = new android.graphics.drawable.GradientDrawable();
+    private GradientDrawable makeFocusBorder() {
+        GradientDrawable drawable = new GradientDrawable();
         drawable.setColor(Color.TRANSPARENT);
         drawable.setStroke(dp(3), Color.parseColor("#F4C542"));
         return drawable;
+    }
+
+    private LinearLayout panel(String color) {
+        LinearLayout panel = new LinearLayout(this);
+        panel.setOrientation(LinearLayout.VERTICAL);
+        panel.setPadding(dp(12), dp(12), dp(12), dp(12));
+        panel.setBackgroundColor(Color.parseColor(color));
+        return panel;
     }
 
     private LinearLayout.LayoutParams matchWrap() {
         return new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT);
+    }
+
+    private LinearLayout.LayoutParams weightedButton() {
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                0,
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                1f);
+        params.setMargins(0, 0, dp(8), 0);
+        return params;
     }
 
     private int dp(int value) {
