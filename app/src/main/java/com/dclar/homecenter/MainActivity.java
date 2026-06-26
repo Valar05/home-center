@@ -748,10 +748,40 @@ public final class MainActivity extends Activity implements RecognitionListener 
         chatTurns.add(new ChatTurn("user", clean));
         trimChatTurns();
         recordTranscriptTurn("user", clean);
+        if (tryHandleLocalStatusQuestion(clean)) {
+            return;
+        }
         if (tryHandleLocalCommand(clean)) {
             return;
         }
         sendAgentTurn(clean);
+    }
+
+
+    private boolean tryHandleLocalStatusQuestion(String text) {
+        String value = text == null ? "" : text.trim().toLowerCase(Locale.US);
+        boolean asksGoogleDocs = value.contains("google doc") || value.contains("google docs") || value.contains("docs");
+        boolean asksAccess = value.contains("can you see")
+                || value.contains("are you connected")
+                || value.contains("can you access")
+                || value.contains("do you have access")
+                || value.contains("is google connected")
+                || value.contains("is docs connected");
+        if (!asksGoogleDocs || !asksAccess) {
+            return false;
+        }
+        StringBuilder answer = new StringBuilder();
+        answer.append("No. I cannot see your Google Docs from this build right now.\n\n");
+        answer.append("What is real:\n");
+        answer.append("- Google sign-in is active for Home Center sync and lists.\n");
+        answer.append("- GPT-5.5 and web answers can use the configured OpenAI path.\n");
+        answer.append("- Google Docs access requires the Firebase Functions gateway plus the Google OAuth client secret.\n");
+        answer.append("- That gateway is not deployed yet because Google Cloud billing is not enabled for home-center-dclar.\n\n");
+        answer.append("I will not claim I can read or change Docs until that gateway is actually connected.\n\n");
+        answer.append("Next step: enable billing and deploy the Home Center Firebase Functions gateway, then reconnect Google tools.");
+        appendAssistantMessage(answer.toString(), text);
+        speak(answer.toString());
+        return true;
     }
 
     private boolean tryHandleLocalCommand(String text) {
