@@ -16,7 +16,8 @@ if (localPropsFile.exists()) {
 
 def geminiApiKey = localProps.getProperty("GEMINI_API_KEY", "")
 def geminiModel = localProps.getProperty("GEMINI_MODEL", "gemini-2.5-flash")
-def cartesiaProxyBaseUrl = localProps.getProperty("CARTESIA_PROXY_BASE_URL", "http://localhost:8787")
+def agentGatewayBaseUrl = localProps.getProperty("AGENT_GATEWAY_BASE_URL", "")
+def cartesiaProxyBaseUrl = localProps.getProperty("CARTESIA_PROXY_BASE_URL", agentGatewayBaseUrl)
 
 android {
     namespace 'com.dclar.homecenter'
@@ -35,6 +36,7 @@ android {
 
         buildConfigField 'String', 'GEMINI_API_KEY', "\"${geminiApiKey.replace('\\', '\\\\').replace('\"', '\\\"')}\""
         buildConfigField 'String', 'GEMINI_MODEL', "\"${geminiModel.replace('\\', '\\\\').replace('\"', '\\\"')}\""
+        buildConfigField 'String', 'AGENT_GATEWAY_BASE_URL', "\"${agentGatewayBaseUrl.replace('\\', '\\\\').replace('\"', '\\"')}\""
         buildConfigField 'String', 'CARTESIA_PROXY_BASE_URL', "\"${cartesiaProxyBaseUrl.replace('\\', '\\\\').replace('\"', '\\\"')}\""
     }
 }

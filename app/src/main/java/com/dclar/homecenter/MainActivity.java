@@ -45,6 +45,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.common.api.Scope;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.FirebaseAuth;
@@ -135,6 +136,7 @@ public final class MainActivity extends Activity implements RecognitionListener 
     private ScrollView chatScroll;
     private LinearLayout chatLogContainer;
     private GeminiClient geminiClient;
+    private OpenAiAgentClient openAiAgentClient;
 
     private boolean tickTickTokenVisible = false;
     private boolean firebaseConfigured = false;
@@ -177,7 +179,7 @@ public final class MainActivity extends Activity implements RecognitionListener 
         if (coldStart) {
             appendStatus(startupGreeting);
         }
-        appendQuickActionsCard();
+        appendDashboardCard();
         if (coldStart) {
             main.post(() -> speak(startupGreeting));
         }
@@ -206,13 +208,41 @@ public final class MainActivity extends Activity implements RecognitionListener 
             if (firebaseConfigured) {
                 GoogleSignInOptions options = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                         .requestIdToken(clientId)
+                        .requestServerAuthCode(clientId, true)
                         .requestEmail()
+                        .requestScopes(
+                                new Scope("https://www.googleapis.com/auth/drive.file"),
+                                new Scope("https://www.googleapis.com/auth/documents"),
+                                new Scope("https://www.googleapis.com/auth/gmail.modify"),
+                                new Scope("https://www.googleapis.com/auth/calendar.events"))
                         .build();
                 googleSignInClient = GoogleSignIn.getClient(this, options);
             }
         } catch (Exception ex) {
             firebaseConfigured = false;
         }
+    }
+
+
+    private void exchangeGoogleServerAuthCode(GoogleSignInAccount account) {
+        if (openAiAgentClient == null || !openAiAgentClient.isConfigured() || account == null) {
+            return;
+        }
+        String authCode = account.getServerAuthCode();
+        FirebaseUser user = firebaseAuth == null ? null : firebaseAuth.getCurrentUser();
+        if (user == null || authCode == null || authCode.trim().isEmpty()) {
+            return;
+        }
+        user.getIdToken(false)
+                .addOnSuccessListener(token -> executor.execute(() -> {
+                    try {
+                        openAiAgentClient.exchangeGoogleAuthCode(token.getToken(), authCode);
+                        main.post(() -> appendStatus("Google tools connected."));
+                    } catch (Exception ex) {
+                        main.post(() -> appendStatus("Google tools need reconnection: " + shortMessage(ex.getMessage())));
+                    }
+                }))
+                .addOnFailureListener(ex -> appendStatus("Could not verify Google tools connection: " + shortMessage(ex.getMessage())));
     }
 
     private String defaultWebClientId() {
@@ -266,6 +296,7 @@ public final class MainActivity extends Activity implements RecognitionListener 
         firebaseAuth.signInWithCredential(credential)
                 .addOnSuccessListener(result -> {
                     refreshAuthStatus();
+                    exchangeGoogleServerAuthCode(account);
                     if (announce) {
                         speak("Signed in with Google.");
                     } else {
@@ -284,19 +315,52 @@ public final class MainActivity extends Activity implements RecognitionListener 
 
     private void buildUi() {
         SharedPreferences prefs = getSharedPreferences(PREFS, MODE_PRIVATE);
+        initializePortableCommandFields(prefs);
 
         LinearLayout root = new LinearLayout(this);
         root.setOrientation(LinearLayout.VERTICAL);
         root.setPadding(dp(18), dp(18), dp(18), dp(18));
         root.setBackgroundColor(Color.parseColor("#FFF8EC"));
 
+        LinearLayout header = new LinearLayout(this);
+        header.setOrientation(LinearLayout.HORIZONTAL);
+        header.setGravity(Gravity.CENTER_VERTICAL);
+
         TextView title = new TextView(this);
         title.setText("Home Center");
-        title.setTextSize(30);
+        title.setTextSize(26);
         title.setTypeface(Typeface.DEFAULT_BOLD);
         title.setTextColor(Color.parseColor("#1D1B16"));
-        title.setGravity(Gravity.CENTER_HORIZONTAL);
-        root.addView(title, matchWrap());
+        title.setGravity(Gravity.CENTER_VERTICAL);
+        header.addView(title, new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
+
+        googleSignInButton = new Button(this);
+        googleSignInButton.setText("Sign in with Google");
+        googleSignInButton.setAllCaps(false);
+        googleSignInButton.setTextSize(13);
+        googleSignInButton.setContentDescription("Sign in with Google");
+        header.addView(googleSignInButton, new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT));
+
+        Button menuButton = new Button(this);
+        menuButton.setText("Menu");
+        menuButton.setAllCaps(false);
+        menuButton.setTextSize(13);
+        menuButton.setContentDescription("Open Home Center menu");
+        LinearLayout.LayoutParams menuParams = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT);
+        menuParams.setMargins(dp(8), 0, 0, 0);
+        header.addView(menuButton, menuParams);
+        root.addView(header, matchWrap());
+
+        authStatusView = new TextView(this);
+        authStatusView.setTextSize(13);
+        authStatusView.setTextColor(Color.parseColor("#5C574E"));
+        authStatusView.setGravity(Gravity.CENTER_HORIZONTAL);
+        authStatusView.setPadding(0, dp(4), 0, dp(4));
+        root.addView(authStatusView, matchWrap());
 
         statusView = new TextView(this);
         statusView.setTextSize(14);
@@ -333,11 +397,12 @@ public final class MainActivity extends Activity implements RecognitionListener 
         composeRow.setGravity(Gravity.CENTER_VERTICAL);
 
         messageEdit = new EditText(this);
-        messageEdit.setHint("Type a message");
+        messageEdit.setHint("Ask Home Center");
         messageEdit.setSingleLine(true);
         messageEdit.setText(prefs.getString(KEY_DRAFT_MESSAGE, ""));
         messageEdit.setImeOptions(EditorInfo.IME_ACTION_SEND);
         messageEdit.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
+        messageEdit.setContentDescription("Message Home Center");
         messageEdit.setLayoutParams(new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
         composeRow.addView(messageEdit);
 
@@ -366,36 +431,28 @@ public final class MainActivity extends Activity implements RecognitionListener 
         composeRow.addView(stopSpeechButton);
 
         talkButton = new Button(this);
-        talkButton.setText("Talk");
+        talkButton.setText("Talk to Home Center");
         talkButton.setTextSize(30);
         talkButton.setTypeface(Typeface.DEFAULT_BOLD);
         talkButton.setAllCaps(false);
         talkButton.setTextColor(Color.parseColor("#1C1500"));
         talkButton.setBackgroundColor(Color.parseColor("#F4C542"));
+        talkButton.setContentDescription("Talk to Home Center");
         LinearLayout.LayoutParams talkParams = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
-                dp(84));
+                dp(92));
         talkParams.setMargins(0, dp(12), 0, 0);
         talkButton.setLayoutParams(talkParams);
 
         bottomPanel.addView(composeRow, matchWrap());
-        bottomPanel.addView(buildTemplateBlocksPanel());
-        bottomPanel.addView(buildCartReviewPanel());
         bottomPanel.addView(talkButton);
-
         root.addView(bottomPanel, matchWrap());
 
         submitButton.setOnClickListener(v -> submitTypedMessage());
         stopSpeechButton.setOnClickListener(v -> stopSpeechPlayback());
-        if (cartReviewButton != null) {
-            cartReviewButton.setOnClickListener(v -> startCartReviewImport());
-        }
-        if (cartRunnerSettingsButton != null) {
-            cartRunnerSettingsButton.setOnClickListener(v -> openAccessibilitySettings());
-        }
-        if (cartRunnerCheckButton != null) {
-            cartRunnerCheckButton.setOnClickListener(v -> showCartHelperDiagnostics());
-        }
+        talkButton.setOnClickListener(v -> startTalkFlow());
+        googleSignInButton.setOnClickListener(v -> startGoogleSignIn());
+        menuButton.setOnClickListener(v -> showHomeCenterMenu());
         messageEdit.setOnEditorActionListener((v, actionId, event) -> {
             boolean send = actionId == EditorInfo.IME_ACTION_SEND
                     || (event != null && event.getAction() == KeyEvent.ACTION_DOWN && event.getKeyCode() == KeyEvent.KEYCODE_ENTER);
@@ -405,9 +462,152 @@ public final class MainActivity extends Activity implements RecognitionListener 
             }
             return false;
         });
-        talkButton.setOnClickListener(v -> startTalkFlow());
 
         setContentView(root);
+        refreshAuthStatus();
+    }
+
+    private void initializePortableCommandFields(SharedPreferences prefs) {
+        bucketEdit = singleLineEdit("Household bucket", prefs.getString(KEY_BUCKET_CODE, ""));
+        listEdit = singleLineEdit("Default list", prefs.getString(KEY_DEFAULT_LIST, "shopping"));
+        listVisibilityEdit = singleLineEdit("Visibility", "household");
+        groupNameEdit = singleLineEdit("Family group", "");
+        taskNameEdit = singleLineEdit("Task name", "");
+        taskDescriptionEdit = singleLineEdit("Task description", "");
+        taskJsonEdit = singleLineEdit("Task details", "");
+        taskDueEdit = singleLineEdit("Due date", "");
+    }
+
+
+    private void showHomeCenterMenu() {
+        LinearLayout panel = new LinearLayout(this);
+        panel.setOrientation(LinearLayout.VERTICAL);
+        panel.setPadding(dp(20), dp(12), dp(20), dp(4));
+
+        TextView help = new TextView(this);
+        help.setText("Secondary controls. The main screen stays voice-first.");
+        help.setTextSize(14);
+        help.setTextColor(Color.parseColor("#3F3A31"));
+        help.setPadding(0, 0, 0, dp(10));
+        panel.addView(help, matchWrap());
+
+        Button household = button("Household and list", 16, "Set household bucket and default list");
+        Button ticktick = button("TickTick token", 16, "Set TickTick fallback token");
+        Button cartReview = button("Walmart cart review", 16, "Import a Walmart cart review bundle");
+        Button cartHelper = button("Cart helper settings", 16, "Open Android accessibility settings for the cart helper");
+        Button diagnostics = button("Check cart helper", 16, "Check whether the cart helper is installed and enabled");
+        Button netrunner = button("Netrunner browser", 16, "Open the secondary browser tool");
+        Button compact = button("Compact chat", 16, "Compact the current chat history");
+
+        panel.addView(household, matchHeight(dp(52)));
+        panel.addView(ticktick, matchHeight(dp(52)));
+        panel.addView(cartReview, matchHeight(dp(52)));
+        panel.addView(cartHelper, matchHeight(dp(52)));
+        panel.addView(diagnostics, matchHeight(dp(52)));
+        panel.addView(netrunner, matchHeight(dp(52)));
+        panel.addView(compact, matchHeight(dp(52)));
+
+        AlertDialog dialog = new AlertDialog.Builder(this)
+                .setTitle("Home Center menu")
+                .setView(panel)
+                .setNegativeButton("Close", null)
+                .create();
+        household.setOnClickListener(v -> {
+            dialog.dismiss();
+            showHouseholdSettings();
+        });
+        ticktick.setOnClickListener(v -> {
+            dialog.dismiss();
+            showTickTickSettings();
+        });
+        cartReview.setOnClickListener(v -> {
+            dialog.dismiss();
+            startCartReviewImport();
+        });
+        cartHelper.setOnClickListener(v -> {
+            dialog.dismiss();
+            openAccessibilitySettings();
+        });
+        diagnostics.setOnClickListener(v -> {
+            dialog.dismiss();
+            showCartHelperDiagnostics();
+        });
+        netrunner.setOnClickListener(v -> {
+            dialog.dismiss();
+            startActivity(new Intent(this, NetrunnerActivity.class));
+        });
+        compact.setOnClickListener(v -> {
+            dialog.dismiss();
+            compactConversation();
+        });
+        dialog.show();
+    }
+
+    private void showHouseholdSettings() {
+        SharedPreferences prefs = getSharedPreferences(PREFS, MODE_PRIVATE);
+        LinearLayout panel = new LinearLayout(this);
+        panel.setOrientation(LinearLayout.VERTICAL);
+        panel.setPadding(dp(20), dp(12), dp(20), dp(4));
+
+        TextView help = new TextView(this);
+        help.setText("Pick the shared Home Center bucket and default list used by voice commands.");
+        help.setTextSize(14);
+        help.setTextColor(Color.parseColor("#3F3A31"));
+        help.setPadding(0, 0, 0, dp(10));
+        panel.addView(help, matchWrap());
+
+        EditText bucket = singleLineEdit("Household bucket", bucketEdit == null ? prefs.getString(KEY_BUCKET_CODE, "") : bucketEdit.getText().toString());
+        EditText list = singleLineEdit("Default list", listEdit == null ? prefs.getString(KEY_DEFAULT_LIST, "shopping") : listEdit.getText().toString());
+        panel.addView(bucket, matchHeight(dp(64)));
+        panel.addView(list, matchHeight(dp(64)));
+
+        new AlertDialog.Builder(this)
+                .setTitle("Household")
+                .setView(panel)
+                .setNegativeButton("Cancel", null)
+                .setNeutralButton("Join bucket", null)
+                .setPositiveButton("Save", (dialog, which) -> {
+                    bucketEdit.setText(bucket.getText().toString().trim());
+                    listEdit.setText(list.getText().toString().trim().isEmpty() ? "shopping" : list.getText().toString().trim());
+                    saveBucketPrefs();
+                    refreshAuthStatus();
+                    showAssistantMessage("Household settings saved.");
+                })
+                .show()
+                .getButton(AlertDialog.BUTTON_NEUTRAL)
+                .setOnClickListener(v -> {
+                    bucketEdit.setText(bucket.getText().toString().trim());
+                    listEdit.setText(list.getText().toString().trim().isEmpty() ? "shopping" : list.getText().toString().trim());
+                    joinBucket();
+                });
+    }
+
+    private void showTickTickSettings() {
+        SharedPreferences prefs = getSharedPreferences(PREFS, MODE_PRIVATE);
+        LinearLayout panel = new LinearLayout(this);
+        panel.setOrientation(LinearLayout.VERTICAL);
+        panel.setPadding(dp(20), dp(12), dp(20), dp(4));
+
+        TextView help = new TextView(this);
+        help.setText("TickTick is a legacy fallback when Home Center sync is unavailable.");
+        help.setTextSize(14);
+        help.setTextColor(Color.parseColor("#3F3A31"));
+        help.setPadding(0, 0, 0, dp(10));
+        panel.addView(help, matchWrap());
+
+        EditText token = singleLineEdit("TickTick API token", prefs.getString(KEY_TICKTICK_TOKEN, ""));
+        token.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+        panel.addView(token, matchHeight(dp(64)));
+
+        new AlertDialog.Builder(this)
+                .setTitle("TickTick fallback")
+                .setView(panel)
+                .setNegativeButton("Cancel", null)
+                .setPositiveButton("Save", (dialog, which) -> {
+                    prefs.edit().putString(KEY_TICKTICK_TOKEN, token.getText().toString().trim()).apply();
+                    showAssistantMessage("TickTick fallback token saved.");
+                })
+                .show();
     }
 
     private Button button(String text, int size, String description) {
@@ -518,6 +718,7 @@ public final class MainActivity extends Activity implements RecognitionListener 
     private void refreshGeminiClient() {
         GeminiConfig config = effectiveGeminiConfig();
         geminiClient = new GeminiClient(config.apiKey, config.model);
+        openAiAgentClient = new OpenAiAgentClient(BuildConfig.AGENT_GATEWAY_BASE_URL);
         updateBackendStatus();
     }
 
@@ -547,38 +748,102 @@ public final class MainActivity extends Activity implements RecognitionListener 
         chatTurns.add(new ChatTurn("user", clean));
         trimChatTurns();
         recordTranscriptTurn("user", clean);
-        String apiKey = effectiveGeminiApiKey();
-        if (apiKey.isEmpty()) {
-            String message = ChatSystemShape.localFallbackForFailedRequest(clean);
-            setBusy(false);
-            showAssistantMessage(message, clean);
+        if (tryHandleLocalCommand(clean)) {
             return;
         }
+        sendAgentTurn(clean);
+    }
+
+    private boolean tryHandleLocalCommand(String text) {
+        Command command = CommandParser.parse(text);
+        switch (command.action) {
+            case Command.ADD_LIST_ITEM:
+                addListItem(command);
+                return true;
+            case Command.READ_LIST:
+                readList(command.listName);
+                return true;
+            case Command.NEXT_ITEM:
+                speakNextItem();
+                return true;
+            case Command.PREVIOUS_ITEM:
+                speakPreviousItem();
+                return true;
+            case Command.MARK_DONE:
+                markCurrentDone();
+                return true;
+            case Command.REMOVE_LIST_ITEM:
+                removeListItem(command);
+                return true;
+            case Command.CREATE_LIST:
+                createList(command);
+                return true;
+            case Command.SET_PREFERENCE:
+                savePreference(command);
+                return true;
+            case Command.SET_STORE_TARGET:
+                saveStoreTarget(command);
+                return true;
+            case Command.READ_PREFERENCES:
+                readGroceryPreferences(command.listName);
+                return true;
+            case Command.BUILD_CART:
+                buildWalmartCartDraft(command.listName);
+                return true;
+            case Command.SET_HOTSPOT:
+                showAssistantMessage("Hotspot commands are understood, but Android does not allow this app to toggle hotspot directly.");
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    private void sendAgentTurn(String clean) {
+        if (openAiAgentClient == null || !openAiAgentClient.isConfigured()) {
+            showAssistantMessage("The GPT-5.5 gateway is not configured yet. Set AGENT_GATEWAY_BASE_URL in local.properties, rebuild, and sign in with Google.");
+            return;
+        }
+        if (!hasSignedInHomeUser()) {
+            showAssistantMessage("Sign in with Google first. That one sign-in unlocks GPT-5.5, web search, Google tools, Home Center lists, TickTick fallback, and Cartesia narration.");
+            refreshAuthStatus();
+            return;
+        }
+        FirebaseUser user = firebaseAuth.getCurrentUser();
         setBusy(true);
-        setStatus("Thinking...");
-        executor.execute(() -> {
-            String prompt = buildGeminiPrompt(clean);
-            try {
-                String response = geminiClient == null ? "" : geminiClient.generateReply(prompt);
-                if (response == null || response.trim().isEmpty()) {
-                    response = "I did not get a useful reply from Gemini.";
-                }
-                String finalResponse = ChatSystemShape.enforceResponseShape(response.trim(), clean);
-                chatTurns.add(new ChatTurn("assistant", finalResponse));
-                trimChatTurns();
-                main.post(() -> {
+        setStatus("Asking GPT-5.5...");
+        user.getIdToken(false)
+                .addOnSuccessListener(token -> executor.execute(() -> {
+                    try {
+                        OpenAiAgentClient.Reply reply = openAiAgentClient.sendTurn(
+                                token.getToken(),
+                                clean,
+                                recentTranscriptSnapshot(),
+                                conversationSummary,
+                                bucketEdit == null ? "" : bucketEdit.getText().toString(),
+                                listEdit == null ? "shopping" : listEdit.getText().toString());
+                        String finalResponse = reply.text.isEmpty() ? "I did not get a useful reply from the agent gateway." : reply.text;
+                        chatTurns.add(new ChatTurn("assistant", finalResponse));
+                        trimChatTurns();
+                        main.post(() -> {
+                            setBusy(false);
+                            appendAssistantMessage(finalResponse, clean);
+                            if (!reply.status.isEmpty()) {
+                                appendStatus(reply.status);
+                            }
+                            speak(reply.narration.isEmpty() ? finalResponse : reply.narration);
+                        });
+                    } catch (Exception ex) {
+                        main.post(() -> {
+                            LocalLog.info("agent", "gateway_fallback: " + shortMessage(ex.getMessage()));
+                            setBusy(false);
+                            showAssistantMessage("The agent gateway failed: " + shortMessage(ex.getMessage()));
+                        });
+                    }
+                }))
+                .addOnFailureListener(ex -> {
                     setBusy(false);
-                    showAssistantMessage(finalResponse);
+                    showAssistantMessage("Could not verify Google sign-in: " + shortMessage(ex.getMessage()));
                 });
-            } catch (Exception ex) {
-                String message = ChatSystemShape.localFallbackForFailedRequest(clean);
-                main.post(() -> {
-                    LocalLog.info("chat", "gemini_fallback: " + shortMessage(ex.getMessage()));
-                    setBusy(false);
-                    showAssistantMessage(message, clean);
-                });
-            }
-        });
     }
 
     private String buildGeminiPrompt(String latestUserText) {
@@ -1957,11 +2222,10 @@ public final class MainActivity extends Activity implements RecognitionListener 
         if (statusView == null) {
             return;
         }
-        GeminiConfig config = effectiveGeminiConfig();
-        String apiState = config.apiKey.isEmpty()
-                ? "Gemini key missing. Open Gemini key settings."
-                : "Gemini ready: " + config.model + " (" + config.source + ").";
-        statusView.setText(timeStamp() + "  " + apiState + "  History is recorded. Type or talk.");
+        String gatewayState = BuildConfig.AGENT_GATEWAY_BASE_URL == null || BuildConfig.AGENT_GATEWAY_BASE_URL.trim().isEmpty()
+                ? "Agent gateway missing. Set AGENT_GATEWAY_BASE_URL and rebuild."
+                : "GPT-5.5 gateway ready.";
+        statusView.setText(timeStamp() + "  " + gatewayState + "  Type or use Talk.");
     }
 
     private void appendUserMessage(String text, boolean fromVoice) {
@@ -1987,6 +2251,19 @@ public final class MainActivity extends Activity implements RecognitionListener 
         appendChatBubble("Home Center", finalText, false, false);
         recordTranscriptTurn("assistant", finalText);
         speak(finalText);
+    }
+
+
+    private void appendDashboardCard() {
+        if (chatLogContainer == null) {
+            return;
+        }
+        String sync = hasSignedInHomeUser() ? "Google is signed in." : "Sign in with Google to enable the dashboard.";
+        String gateway = BuildConfig.AGENT_GATEWAY_BASE_URL == null || BuildConfig.AGENT_GATEWAY_BASE_URL.trim().isEmpty()
+                ? "GPT-5.5 gateway is not configured yet."
+                : "GPT-5.5, web search, Google tools, lists, TickTick, and Cartesia route through the gateway.";
+        appendChatBubble("Dashboard", startupGreeting + "\n\n" + sync + "\n" + gateway
+                + "\n\nTry: add eggs to shopping, read shopping list, search the web for dinner ideas, or create a Google Doc.", false, true);
     }
 
     private void appendQuickActionsCard() {
