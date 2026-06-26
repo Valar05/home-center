@@ -181,6 +181,9 @@ final class ChatSystemShape {
         if (cleanResponse.isEmpty() || hasNextStep(cleanResponse) || hasNextSteps(cleanResponse)) {
             return cleanResponse;
         }
+        if (isIntegrationStatusIntent(latestUserText) || isIntegrationStatusAnswer(cleanResponse)) {
+            return cleanResponse;
+        }
         String followUp = suggestedNextSteps(latestUserText, cleanResponse);
         if (followUp.isEmpty()) {
             return cleanResponse;
@@ -267,6 +270,40 @@ final class ChatSystemShape {
     private static boolean hasStepOne(String text) {
         String value = safe(text).toLowerCase();
         return value.contains("step 1:") || value.contains("1.");
+    }
+
+    private static boolean isIntegrationStatusIntent(String text) {
+        String value = safe(text).toLowerCase();
+        boolean mentionsIntegration = value.contains("google")
+                || value.contains("drive")
+                || value.contains("docs")
+                || value.contains("gmail")
+                || value.contains("calendar")
+                || value.contains("cartesia")
+                || value.contains("speech")
+                || value.contains("narration")
+                || value.contains("connected")
+                || value.contains("access");
+        boolean asksStatus = value.contains("can you see")
+                || value.contains("can you access")
+                || value.contains("do you have access")
+                || value.contains("are you connected")
+                || value.contains("is google connected")
+                || value.contains("is drive connected")
+                || value.contains("is docs connected")
+                || value.contains("open drive")
+                || value.contains("list contents")
+                || value.contains("brain folder");
+        return mentionsIntegration && asksStatus;
+    }
+
+    private static boolean isIntegrationStatusAnswer(String text) {
+        String value = safe(text).toLowerCase();
+        return value.contains("google drive is not connected")
+                || value.contains("google docs is not connected")
+                || value.contains("google tools are not connected")
+                || value.contains("narration is unavailable")
+                || value.contains("ask drew to connect google");
     }
 
     private static String suggestedNextSteps(String latestUserText, String response) {

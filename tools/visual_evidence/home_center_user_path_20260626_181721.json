@@ -1,0 +1,33 @@
+{
+  "ok": false,
+  "startedAt": "2026-06-26T18:17:21",
+  "package": "com.dclar.homecenter",
+  "expectedVersionName": "0.2.5",
+  "expectedVersionCode": "9",
+  "prompt": "Can you see drive brain folder in Google drive",
+  "appVisualCapture": null,
+  "assertions": {
+    "chatViewLoads": false,
+    "composerVisible": false,
+    "composerInputPathUsed": false,
+    "friendlyDriveCardVisible": false,
+    "noRawProxyInstructionVisible": true,
+    "noSpeechProxyErrorVisible": true,
+    "noStaleDriveSetupVisible": false,
+    "noFoodFallbackVisible": true,
+    "defaultAdminControlsHidden": true,
+    "runtimeVersionMatches": false
+  },
+  "failures": [
+    "chatViewLoads",
+    "composerVisible",
+    "composerInputPathUsed",
+    "friendlyDriveCardVisible",
+    "noStaleDriveSetupVisible",
+    "runtimeVersionMatches",
+    "bad visible text: refresh Google permissions",
+    "bad visible text: connect Google Drive or refresh Google permissions"
+  ],
+  "logTextSample": "user: Can you see drive brain folder in Google drive\n2026-06-26T17:47:27.925-0500 INFO chat assistant: I can\u2019t see your Google Drive from this session right now, so I can\u2019t verify the **brain** folder. Next action: in Home Center, connect Google Drive or refresh Google permissions. After that, say: **\u201cOpen Drive brain folder and list contents.\u201d** Next step: tell me the next thing you want me to do.\n2026-06-26T17:47:28.008-0500 INFO audio paused_external_playback_for_speech\n2026-06-26T17:47:28.471-0500 INFO speech cartesia_proxy_error: Cartesia API returned HTTP 400: Model sunsetted: The requested model has been sunsetted and is no longer available.\n2026-06-26T17:47:28.563-0500 INFO audio resumed_external_playback_after_speech\n2026-06-26T17:47:39.589-0500 INFO app log_init path=/storage/emulated/0/Download/HomeCenter/logs/2026-06-26.txt\n2026-06-26T17:47:39.663-0500 INFO app start\n2026-06-26T17:47:41.123-0500 INFO app log_init path=/storage/emulated/0/Download/HomeCenter/logs/2026-06-26.txt\n2026-06-26T17:47:41.205-0500 INFO app start\n2026-06-26T18:17:22.662-0500 INFO app log_init path=/storage/emulated/0/Download/HomeCenter/logs/2026-06-26.txt\n2026-06-26T18:17:23.313-0500 INFO app start\n2026-06-26T18:17:23.398-0500 INFO audio paused_external_playback_for_speech\n",
+  "logVersionMarkerFound": false
+}

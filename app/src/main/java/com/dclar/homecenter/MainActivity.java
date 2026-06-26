@@ -6,9 +6,12 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
+import android.content.ContentValues;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
 import android.graphics.Typeface;
@@ -19,9 +22,11 @@ import android.media.AudioFormat;
 import android.media.AudioTrack;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.SystemClock;
+import android.provider.MediaStore;
 import android.provider.Settings;
 import android.speech.RecognitionListener;
 import android.speech.RecognizerIntent;
@@ -61,6 +66,7 @@ import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.text.SimpleDateFormat;
 import java.nio.charset.StandardCharsets;
@@ -86,6 +92,7 @@ public final class MainActivity extends Activity implements RecognitionListener 
     private static final String KEY_GEMINI_SOURCE = "gemini_source";
     private static final String KEY_CHAT_TRANSCRIPT = "chat_transcript";
     private static final String KEY_CHAT_SUMMARY = "chat_summary";
+    private static final String EXTRA_SMOKE_PROMPT = "home_center_smoke_prompt";
     private static final int MAX_RECORDED_TURNS = 18;
 
     private SpeechRecognizer recognizer;
@@ -162,12 +169,13 @@ public final class MainActivity extends Activity implements RecognitionListener 
     private final Handler main = new Handler(Looper.getMainLooper());
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
     private final TickTickClient tickTickClient = new TickTickClient();
+    private boolean visualEvidenceEnabled = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         LocalLog.init(this);
-        LocalLog.info("app", "start");
+        LocalLog.info("app", "start versionName=" + BuildConfig.VERSION_NAME + " versionCode=" + BuildConfig.VERSION_CODE);
         initFirebase();
         audioManager = (AudioManager) getSystemService(AUDIO_SERVICE);
         cartesiaSpeechProxyClient = new CartesiaSpeechProxyClient(BuildConfig.CARTESIA_PROXY_BASE_URL, BuildConfig.CARTESIA_API_KEY);
@@ -189,6 +197,34 @@ public final class MainActivity extends Activity implements RecognitionListener 
         } else {
             setStatus("Speech recognition is not available on this device.");
         }
+        runInstalledSmokePromptIfRequested(getIntent());
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent);
+        runInstalledSmokePromptIfRequested(intent);
+    }
+
+    private void runInstalledSmokePromptIfRequested(Intent intent) {
+        if (intent == null || !BuildConfig.DEBUG) {
+            return;
+        }
+        String prompt = intent.getStringExtra(EXTRA_SMOKE_PROMPT);
+        if (prompt == null || prompt.trim().isEmpty()) {
+            return;
+        }
+        visualEvidenceEnabled = true;
+        LocalLog.info("installed_smoke", "prompt_requested: " + shortMessage(prompt));
+        main.postDelayed(() -> {
+            if (messageEdit == null) {
+                LocalLog.warn("installed_smoke", "message composer unavailable");
+                return;
+            }
+            messageEdit.setText(prompt.trim());
+            submitTypedMessage();
+        }, 1200L);
     }
 
     private void initFirebase() {
@@ -761,20 +797,30 @@ public final class MainActivity extends Activity implements RecognitionListener 
     private boolean tryHandleLocalStatusQuestion(String text) {
         String value = text == null ? "" : text.trim().toLowerCase(Locale.US);
         boolean asksGoogleDocs = value.contains("google doc") || value.contains("google docs") || value.contains("docs");
+        boolean asksGoogleDrive = value.contains("google drive") || value.contains("drive") || value.contains("brain folder");
         boolean asksAccess = value.contains("can you see")
                 || value.contains("are you connected")
                 || value.contains("can you access")
                 || value.contains("do you have access")
                 || value.contains("is google connected")
-                || value.contains("is docs connected");
-        if (!asksGoogleDocs || !asksAccess) {
+                || value.contains("is docs connected")
+                || value.contains("is drive connected")
+                || value.contains("open drive")
+                || value.contains("list contents");
+        if (!(asksGoogleDocs || asksGoogleDrive) || !asksAccess) {
             return false;
         }
         StringBuilder answer = new StringBuilder();
-        answer.append("No. Google Docs is not connected yet.\n\n");
+        if (asksGoogleDrive && !asksGoogleDocs) {
+            answer.append("No. Google Drive is not connected yet.\n\n");
+        } else if (asksGoogleDrive) {
+            answer.append("No. Google Drive and Docs are not connected yet.\n\n");
+        } else {
+            answer.append("No. Google Docs is not connected yet.\n\n");
+        }
         answer.append("I can still help with Home Center lists, TickTick fallback, GPT answers, web search, and narration.\n\n");
-        answer.append("I will not claim I can read or change Docs until the owner finishes connecting Google tools.\n\n");
-        answer.append("Next step: ask Drew to connect Google Docs for Home Center.\n");
+        answer.append("I will not claim I can read or change Google files until the owner finishes connecting Google tools.\n\n");
+        answer.append("Next step: ask Drew to connect Google Drive and Docs for Home Center.\n");
         appendAssistantMessage(answer.toString(), text);
         speak(answer.toString());
         return true;
@@ -2018,8 +2064,8 @@ public final class MainActivity extends Activity implements RecognitionListener 
             speakWithCartesia(message, utteranceId, sequence);
             return;
         }
-        LocalLog.info("speech", "cartesia_proxy_unavailable");
-        setStatus("Speech proxy unavailable. Start the Cartesia proxy and try again.");
+        LocalLog.info("speech", "cartesia_unavailable");
+        setStatus("Narration is unavailable right now.");
         abandonSpeechFocusFor(utteranceId);
     }
 
@@ -2099,8 +2145,8 @@ public final class MainActivity extends Activity implements RecognitionListener 
                         if (!isCurrentSpeechSequence(sequence)) {
                             return;
                         }
-                        LocalLog.info("speech", "cartesia_proxy_error: " + shortMessage(ex.getMessage()));
-                        setStatus("Speech proxy error. Start the Cartesia proxy and try again.");
+                        LocalLog.info("speech", "cartesia_error: " + shortMessage(ex.getMessage()));
+                        setStatus("Narration is unavailable right now.");
                         stopCartesiaPlayback();
                         abandonSpeechFocusFor(utteranceId);
                     });
@@ -2551,7 +2597,50 @@ public final class MainActivity extends Activity implements RecognitionListener 
         row.addView(bubble);
 
         chatLogContainer.addView(row);
-        chatLogContainer.post(this::scrollChatToBottom);
+        chatLogContainer.post(() -> {
+            scrollChatToBottom();
+            captureVisualEvidenceIfDebugBuild("chat");
+        });
+    }
+
+    private void captureVisualEvidenceIfDebugBuild(String reason) {
+        if (!BuildConfig.DEBUG || !visualEvidenceEnabled) {
+            return;
+        }
+        main.postDelayed(() -> {
+            try {
+                View root = getWindow() == null ? null : getWindow().getDecorView().getRootView();
+                if (root == null || root.getWidth() <= 0 || root.getHeight() <= 0) {
+                    return;
+                }
+                Bitmap bitmap = Bitmap.createBitmap(root.getWidth(), root.getHeight(), Bitmap.Config.ARGB_8888);
+                Canvas canvas = new Canvas(bitmap);
+                root.draw(canvas);
+                writeVisualEvidenceBitmap(bitmap, reason);
+                bitmap.recycle();
+            } catch (Exception ex) {
+                LocalLog.warn("visual_evidence", "capture_failed: " + shortMessage(ex.getMessage()));
+            }
+        }, 600L);
+    }
+
+    private void writeVisualEvidenceBitmap(Bitmap bitmap, String reason) throws IOException {
+        ContentValues values = new ContentValues();
+        String stamp = new SimpleDateFormat("yyyyMMdd_HHmmss_SSS", Locale.US).format(new Date());
+        values.put(MediaStore.Downloads.DISPLAY_NAME, "home_center_app_" + reason + "_" + stamp + ".png");
+        values.put(MediaStore.Downloads.MIME_TYPE, "image/png");
+        values.put(MediaStore.Downloads.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS + "/HomeCenter/visual-red/");
+        Uri uri = getContentResolver().insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, values);
+        if (uri == null) {
+            throw new IOException("MediaStore insert returned null");
+        }
+        try (OutputStream out = getContentResolver().openOutputStream(uri)) {
+            if (out == null) {
+                throw new IOException("MediaStore output stream returned null");
+            }
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, out);
+        }
+        LocalLog.info("visual_evidence", "captured reason=" + reason + " uri=" + uri);
     }
 
     private GradientDrawable makeBubbleBackground(boolean user, boolean system) {

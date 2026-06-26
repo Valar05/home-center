@@ -123,10 +123,10 @@ final class CartesiaSpeechProxyClient {
 
     private String toDirectJsonPayload(String text) {
         return "{"
-                + "\"model_id\":\"sonic-english\","
+                + "\"model_id\":\"sonic-3.5\","
                 + "\"transcript\":\"" + escapeJson(text) + "\","
-                + "\"voice\":{\"mode\":\"id\",\"id\":\"a0e99841-438c-4a64-b679-ae501e7d6091\"},"
-                + "\"output_format\":{\"container\":\"raw\",\"encoding\":\"pcm_s16le\",\"sample_rate\":22050}"
+                + "\"voice\":{\"mode\":\"id\",\"id\":\"f786b574-daa5-4673-aa0c-cbe3e8534c02\"},"
+                + "\"output_format\":{\"container\":\"raw\",\"encoding\":\"pcm_s16le\",\"sample_rate\":44100}"
                 + "}";
     }
 

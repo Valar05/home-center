@@ -220,10 +220,10 @@ async function synthesizeCartesia(text) {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      model_id: 'sonic-english',
+      model_id: 'sonic-3.5',
       transcript: text,
-      voice: {mode: 'id', id: process.env.CARTESIA_VOICE_ID || 'a0e99841-438c-4a64-b679-ae501e7d6091'},
-      output_format: {container: 'raw', encoding: 'pcm_s16le', sample_rate: 22050},
+      voice: {mode: 'id', id: process.env.CARTESIA_VOICE_ID || 'f786b574-daa5-4673-aa0c-cbe3e8534c02'},
+      output_format: {container: 'raw', encoding: 'pcm_s16le', sample_rate: 44100},
     }),
   });
   if (!response.ok) {
