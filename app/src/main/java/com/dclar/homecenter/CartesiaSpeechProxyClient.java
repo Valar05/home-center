@@ -11,19 +11,36 @@ import java.nio.charset.StandardCharsets;
 
 final class CartesiaSpeechProxyClient {
     private final String baseUrl;
+    private final String apiKey;
 
-    CartesiaSpeechProxyClient(String baseUrl) {
+    CartesiaSpeechProxyClient(String baseUrl, String apiKey) {
         this.baseUrl = baseUrl == null ? "" : baseUrl.trim();
+        this.apiKey = apiKey == null ? "" : apiKey.trim();
     }
 
     boolean isConfigured() {
-        return !baseUrl.isEmpty();
+        return !baseUrl.isEmpty() || !apiKey.isEmpty();
     }
 
     HttpURLConnection openSpeechStream(String text) throws IOException {
-        if (!isConfigured()) {
-            throw new IOException("Cartesia proxy base URL is not configured");
+        IOException proxyFailure = null;
+        if (!baseUrl.isEmpty()) {
+            try {
+                return openProxySpeechStream(text);
+            } catch (IOException ex) {
+                proxyFailure = ex;
+            }
         }
+        if (!apiKey.isEmpty()) {
+            return openDirectSpeechStream(text);
+        }
+        if (proxyFailure != null) {
+            throw proxyFailure;
+        }
+        throw new IOException("Cartesia is not configured in this build");
+    }
+
+    private HttpURLConnection openProxySpeechStream(String text) throws IOException {
         URL url = new URL(resolveEndpoint());
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         connection.setConnectTimeout(5000);
@@ -42,6 +59,31 @@ final class CartesiaSpeechProxyClient {
         int code = connection.getResponseCode();
         if (code != HttpURLConnection.HTTP_OK) {
             throw new IOException("Cartesia proxy returned HTTP " + code + errorSuffix(connection));
+        }
+        return connection;
+    }
+
+    private HttpURLConnection openDirectSpeechStream(String text) throws IOException {
+        URL url = new URL("https://api.cartesia.ai/tts/bytes");
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        connection.setConnectTimeout(8000);
+        connection.setReadTimeout(30000);
+        connection.setRequestMethod("POST");
+        connection.setDoInput(true);
+        connection.setDoOutput(true);
+        connection.setUseCaches(false);
+        connection.setRequestProperty("Authorization", "Bearer " + apiKey);
+        connection.setRequestProperty("Cartesia-Version", "2024-06-10");
+        connection.setRequestProperty("Content-Type", "application/json; charset=utf-8");
+        connection.setRequestProperty("Accept", "application/octet-stream");
+        byte[] body = toDirectJsonPayload(text).getBytes(StandardCharsets.UTF_8);
+        connection.setFixedLengthStreamingMode(body.length);
+        try (OutputStream out = connection.getOutputStream()) {
+            out.write(body);
+        }
+        int code = connection.getResponseCode();
+        if (code != HttpURLConnection.HTTP_OK) {
+            throw new IOException("Cartesia API returned HTTP " + code + errorSuffix(connection));
         }
         return connection;
     }
@@ -77,6 +119,15 @@ final class CartesiaSpeechProxyClient {
 
     private String toJsonPayload(String text) {
         return "{\"text\":\"" + escapeJson(text) + "\"}";
+    }
+
+    private String toDirectJsonPayload(String text) {
+        return "{"
+                + "\"model_id\":\"sonic-english\","
+                + "\"transcript\":\"" + escapeJson(text) + "\","
+                + "\"voice\":{\"mode\":\"id\",\"id\":\"a0e99841-438c-4a64-b679-ae501e7d6091\"},"
+                + "\"output_format\":{\"container\":\"raw\",\"encoding\":\"pcm_s16le\",\"sample_rate\":22050}"
+                + "}";
     }
 
     private String escapeJson(String value) {

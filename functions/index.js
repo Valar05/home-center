@@ -182,7 +182,7 @@ exports.googleAuthCodeExchange = onRequest({secrets: [GOOGLE_OAUTH_CLIENT_ID, GO
   }
 });
 
-exports.agentTurn = onRequest({timeoutSeconds: 120, secrets: [OPENAI_API_KEY, GOOGLE_OAUTH_CLIENT_ID, GOOGLE_OAUTH_CLIENT_SECRET]}, async (req, res) => {
+exports.agentTurn = onRequest({timeoutSeconds: 120, secrets: [OPENAI_API_KEY]}, async (req, res) => {
   if (handleOptions(req, res)) return;
   try {
     const user = await requireUser(req);

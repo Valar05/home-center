@@ -29,18 +29,20 @@ final class OpenAiAgentClient {
     }
 
     private final String baseUrl;
+    private final String apiKey;
 
-    OpenAiAgentClient(String baseUrl) {
+    OpenAiAgentClient(String baseUrl, String apiKey) {
         this.baseUrl = baseUrl == null ? "" : baseUrl.trim();
+        this.apiKey = apiKey == null ? "" : apiKey.trim();
     }
 
     boolean isConfigured() {
-        return !baseUrl.isEmpty();
+        return !baseUrl.isEmpty() || !apiKey.isEmpty();
     }
 
     Reply sendTurn(String idToken, String message, String transcript, String summary, String bucket, String listName) throws IOException {
         if (!isConfigured()) {
-            throw new IOException("Agent gateway is not configured. Add AGENT_GATEWAY_BASE_URL to local.properties and rebuild.");
+            throw new IOException("GPT-5.5 is not configured in this build.");
         }
         JSONObject body = new JSONObject();
         try {
@@ -60,12 +62,110 @@ final class OpenAiAgentClient {
         } catch (JSONException ex) {
             throw new IOException("Could not build agent request: " + ex.getMessage(), ex);
         }
-        JSONObject response = postJson("agentTurn", idToken, body);
-        return new Reply(
-                response.optString("reply", response.optString("text", "")),
-                response.optString("narration", ""),
-                response.optString("status", ""),
-                response.optString("technicalDetails", response.optString("details", "")));
+        if (!baseUrl.isEmpty()) {
+            try {
+                JSONObject response = postJson("agentTurn", idToken, body);
+                return new Reply(
+                        response.optString("reply", response.optString("text", "")),
+                        response.optString("narration", ""),
+                        response.optString("status", ""),
+                        response.optString("technicalDetails", response.optString("details", "")));
+            } catch (IOException ex) {
+                if (apiKey.isEmpty()) {
+                    throw ex;
+                }
+            }
+        }
+        return sendDirectOpenAi(message, transcript, summary, bucket, listName);
+    }
+
+    private Reply sendDirectOpenAi(String message, String transcript, String summary, String bucket, String listName) throws IOException {
+        if (apiKey.isEmpty()) {
+            throw new IOException("OpenAI API key is not configured in this build.");
+        }
+        JSONObject body = new JSONObject();
+        try {
+            body.put("model", "gpt-5.5");
+            body.put("reasoning", new JSONObject().put("effort", "medium"));
+            body.put("text", new JSONObject().put("verbosity", "low"));
+            JSONArray tools = new JSONArray();
+            tools.put(new JSONObject().put("type", "web_search"));
+            body.put("tools", tools);
+            body.put("input", buildDirectPrompt(message, transcript, summary, bucket, listName));
+        } catch (JSONException ex) {
+            throw new IOException("Could not build direct OpenAI request: " + ex.getMessage(), ex);
+        }
+        HttpURLConnection connection = (HttpURLConnection) new URL("https://api.openai.com/v1/responses").openConnection();
+        connection.setRequestMethod("POST");
+        connection.setConnectTimeout(10000);
+        connection.setReadTimeout(45000);
+        connection.setDoInput(true);
+        connection.setDoOutput(true);
+        connection.setUseCaches(false);
+        connection.setRequestProperty("Content-Type", "application/json; charset=utf-8");
+        connection.setRequestProperty("Accept", "application/json");
+        connection.setRequestProperty("Authorization", "Bearer " + apiKey);
+        byte[] payload = body.toString().getBytes(StandardCharsets.UTF_8);
+        connection.setFixedLengthStreamingMode(payload.length);
+        try (OutputStream out = connection.getOutputStream()) {
+            out.write(payload);
+        }
+        int code = connection.getResponseCode();
+        String responseText = readBody(code >= 200 && code < 300 ? connection.getInputStream() : connection.getErrorStream());
+        if (code < 200 || code >= 300) {
+            throw new IOException("OpenAI HTTP " + code + ": " + shortBody(responseText));
+        }
+        try {
+            JSONObject json = new JSONObject(responseText == null || responseText.trim().isEmpty() ? "{}" : responseText);
+            String text = json.optString("output_text", "");
+            if (text.isEmpty()) {
+                text = extractOutputText(json);
+            }
+            return new Reply(text, text, "gpt_5_5_direct_complete", "");
+        } catch (JSONException ex) {
+            throw new IOException("Could not parse OpenAI response: " + ex.getMessage(), ex);
+        }
+    }
+
+    private String buildDirectPrompt(String message, String transcript, String summary, String bucket, String listName) {
+        StringBuilder prompt = new StringBuilder();
+        prompt.append("You are Home Center, a cohesive voice-first life dashboard for a blind user.\n");
+        prompt.append("Use concise, actionable language. Include source names when using web search.\n");
+        prompt.append("For external writes like Google Docs, Gmail, Calendar, or list changes, ask for explicit confirmation.\n");
+        prompt.append("Default bucket: ").append(bucket == null ? "" : bucket).append(". Default list: ").append(listName == null ? "shopping" : listName).append(".\n");
+        if (summary != null && !summary.trim().isEmpty()) {
+            prompt.append("Summary: ").append(summary.trim()).append("\n");
+        }
+        if (transcript != null && !transcript.trim().isEmpty()) {
+            prompt.append("Recent transcript: ").append(transcript.trim()).append("\n");
+        }
+        prompt.append("Latest user request: ").append(message == null ? "" : message.trim());
+        return prompt.toString();
+    }
+
+    private String extractOutputText(JSONObject json) {
+        StringBuilder builder = new StringBuilder();
+        JSONArray output = json.optJSONArray("output");
+        if (output == null) {
+            return "";
+        }
+        for (int i = 0; i < output.length(); i++) {
+            JSONObject item = output.optJSONObject(i);
+            if (item == null) {
+                continue;
+            }
+            JSONArray content = item.optJSONArray("content");
+            if (content == null) {
+                continue;
+            }
+            for (int j = 0; j < content.length(); j++) {
+                JSONObject part = content.optJSONObject(j);
+                if (part != null) {
+                    builder.append(part.optString("text", ""));
+                }
+            }
+        }
+        return builder.toString().trim();
     }
 
     void exchangeGoogleAuthCode(String idToken, String authCode) throws IOException {

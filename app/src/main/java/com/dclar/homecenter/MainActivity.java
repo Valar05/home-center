@@ -170,7 +170,7 @@ public final class MainActivity extends Activity implements RecognitionListener 
         LocalLog.info("app", "start");
         initFirebase();
         audioManager = (AudioManager) getSystemService(AUDIO_SERVICE);
-        cartesiaSpeechProxyClient = new CartesiaSpeechProxyClient(BuildConfig.CARTESIA_PROXY_BASE_URL);
+        cartesiaSpeechProxyClient = new CartesiaSpeechProxyClient(BuildConfig.CARTESIA_PROXY_BASE_URL, BuildConfig.CARTESIA_API_KEY);
         refreshGeminiClient();
         buildUi();
         boolean restoredConversation = restoreConversationHistory();
@@ -718,7 +718,7 @@ public final class MainActivity extends Activity implements RecognitionListener 
     private void refreshGeminiClient() {
         GeminiConfig config = effectiveGeminiConfig();
         geminiClient = new GeminiClient(config.apiKey, config.model);
-        openAiAgentClient = new OpenAiAgentClient(BuildConfig.AGENT_GATEWAY_BASE_URL);
+        openAiAgentClient = new OpenAiAgentClient(BuildConfig.AGENT_GATEWAY_BASE_URL, BuildConfig.OPENAI_API_KEY);
         updateBackendStatus();
     }
 
@@ -800,7 +800,7 @@ public final class MainActivity extends Activity implements RecognitionListener 
 
     private void sendAgentTurn(String clean) {
         if (openAiAgentClient == null || !openAiAgentClient.isConfigured()) {
-            showAssistantMessage("The GPT-5.5 gateway is not configured yet. Set AGENT_GATEWAY_BASE_URL in local.properties, rebuild, and sign in with Google.");
+            showAssistantMessage("GPT-5.5 is not configured in this build.");
             return;
         }
         if (!hasSignedInHomeUser()) {
@@ -2222,10 +2222,13 @@ public final class MainActivity extends Activity implements RecognitionListener 
         if (statusView == null) {
             return;
         }
-        String gatewayState = BuildConfig.AGENT_GATEWAY_BASE_URL == null || BuildConfig.AGENT_GATEWAY_BASE_URL.trim().isEmpty()
-                ? "Agent gateway missing. Set AGENT_GATEWAY_BASE_URL and rebuild."
-                : "GPT-5.5 gateway ready.";
-        statusView.setText(timeStamp() + "  " + gatewayState + "  Type or use Talk.");
+        boolean hasGateway = BuildConfig.AGENT_GATEWAY_BASE_URL != null && !BuildConfig.AGENT_GATEWAY_BASE_URL.trim().isEmpty();
+        boolean hasDirectOpenAi = BuildConfig.OPENAI_API_KEY != null && !BuildConfig.OPENAI_API_KEY.trim().isEmpty();
+        boolean hasCartesia = BuildConfig.CARTESIA_API_KEY != null && !BuildConfig.CARTESIA_API_KEY.trim().isEmpty()
+                || (BuildConfig.CARTESIA_PROXY_BASE_URL != null && !BuildConfig.CARTESIA_PROXY_BASE_URL.trim().isEmpty());
+        String gatewayState = hasGateway ? "GPT-5.5 gateway configured." : (hasDirectOpenAi ? "GPT-5.5 direct fallback ready." : "GPT-5.5 is not configured.");
+        String speechState = hasCartesia ? "Cartesia ready." : "Cartesia is not configured.";
+        statusView.setText(timeStamp() + "  " + gatewayState + "  " + speechState + "  Type or use Talk.");
     }
 
     private void appendUserMessage(String text, boolean fromVoice) {

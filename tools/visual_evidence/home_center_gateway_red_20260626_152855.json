@@ -1,0 +1,13 @@
+{
+  "capturePath": "/storage/emulated/0/Pictures/Screenshots/Screenshot_20260626-152855.png",
+  "captureTimestamp": "2026-06-26T15:28:55-0500",
+  "expectedVisibleState": "Home Center has configured GPT-5.5 gateway and Cartesia narration endpoint without asking for local.properties or a local Cartesia proxy.",
+  "actualVisibleRead": "Home Center is signed in, but status says Speech proxy unavailable and assistant says GPT-5.5 gateway is not configured yet.",
+  "assertions": {
+    "homeCenterVisible": true,
+    "googleSignedInVisible": true,
+    "speechProxyUnavailableVisible": true,
+    "gatewayNotConfiguredVisible": true,
+    "defaultBuildMustDeriveGatewayFromFirebaseConfig": true
+  }
+}
