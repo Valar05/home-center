@@ -771,14 +771,10 @@ public final class MainActivity extends Activity implements RecognitionListener 
             return false;
         }
         StringBuilder answer = new StringBuilder();
-        answer.append("No. I cannot see your Google Docs from this build right now.\n\n");
-        answer.append("What is real:\n");
-        answer.append("- Google sign-in is active for Home Center sync and lists.\n");
-        answer.append("- GPT-5.5 and web answers can use the configured OpenAI path.\n");
-        answer.append("- Google Docs access requires the Firebase Functions gateway plus the Google OAuth client secret.\n");
-        answer.append("- That gateway is not deployed yet because Google Cloud billing is not enabled for home-center-dclar.\n\n");
-        answer.append("I will not claim I can read or change Docs until that gateway is actually connected.\n\n");
-        answer.append("Next step: enable billing and deploy the Home Center Firebase Functions gateway, then reconnect Google tools.");
+        answer.append("No. Google Docs is not connected yet.\n\n");
+        answer.append("I can still help with Home Center lists, TickTick fallback, GPT answers, web search, and narration.\n\n");
+        answer.append("I will not claim I can read or change Docs until the owner finishes connecting Google tools.\n\n");
+        answer.append("Next step: ask Drew to connect Google Docs for Home Center.\n");
         appendAssistantMessage(answer.toString(), text);
         speak(answer.toString());
         return true;

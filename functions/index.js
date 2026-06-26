@@ -7,8 +7,6 @@ admin.initializeApp();
 
 const OPENAI_API_KEY = defineSecret('OPENAI_API_KEY');
 const CARTESIA_API_KEY = defineSecret('CARTESIA_API_KEY');
-const GOOGLE_OAUTH_CLIENT_ID = defineSecret('GOOGLE_OAUTH_CLIENT_ID');
-const GOOGLE_OAUTH_CLIENT_SECRET = defineSecret('GOOGLE_OAUTH_CLIENT_SECRET');
 
 const CORS_HEADERS = {
   'Access-Control-Allow-Origin': '*',
@@ -50,8 +48,8 @@ function userTokenRef(uid) {
 
 function oauthClient() {
   return new google.auth.OAuth2(
-    GOOGLE_OAUTH_CLIENT_ID.value(),
-    GOOGLE_OAUTH_CLIENT_SECRET.value(),
+    process.env.GOOGLE_OAUTH_CLIENT_ID || '',
+    process.env.GOOGLE_OAUTH_CLIENT_SECRET || '',
     'postmessage'
   );
 }
@@ -164,10 +162,14 @@ exports.health = onRequest((req, res) => {
   res.set(CORS_HEADERS).json({ok: true, service: 'home-center-gateway'});
 });
 
-exports.googleAuthCodeExchange = onRequest({secrets: [GOOGLE_OAUTH_CLIENT_ID, GOOGLE_OAUTH_CLIENT_SECRET]}, async (req, res) => {
+exports.googleAuthCodeExchange = onRequest(async (req, res) => {
   if (handleOptions(req, res)) return;
   try {
     const user = await requireUser(req);
+    if (!process.env.GOOGLE_OAUTH_CLIENT_ID || !process.env.GOOGLE_OAUTH_CLIENT_SECRET) {
+      sendJson(res, 503, {error: 'Google tools are not connected by the owner yet'});
+      return;
+    }
     const authCode = safeText(req.body && req.body.authCode, 4096);
     if (!authCode) {
       sendJson(res, 400, {error: 'authCode is required'});
