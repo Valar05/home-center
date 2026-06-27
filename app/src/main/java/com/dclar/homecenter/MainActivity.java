@@ -33,6 +33,7 @@ import android.provider.Settings;
 import android.speech.RecognitionListener;
 import android.speech.RecognizerIntent;
 import android.speech.SpeechRecognizer;
+import android.speech.tts.TextToSpeech;
 import android.text.InputType;
 import android.text.method.PasswordTransformationMethod;
 import android.text.method.SingleLineTransformationMethod;
@@ -87,7 +88,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-public final class MainActivity extends Activity implements RecognitionListener {
+public final class MainActivity extends Activity implements RecognitionListener, TextToSpeech.OnInitListener {
     private static final int REQUEST_RECORD_AUDIO = 1001;
     private static final int REQUEST_GOOGLE_SIGN_IN = 2001;
     private static final int REQUEST_GOOGLE_TOOL_PERMISSIONS = 2002;
@@ -116,6 +117,8 @@ public final class MainActivity extends Activity implements RecognitionListener 
     private static final int COLOR_DANGER = Color.parseColor("#C75B5B");
 
     private SpeechRecognizer recognizer;
+    private TextToSpeech deviceTextToSpeech;
+    private volatile boolean deviceTextToSpeechReady = false;
     private CartesiaSpeechProxyClient cartesiaSpeechProxyClient;
     private AudioManager audioManager;
     private AudioFocusRequest speechFocusRequest;
@@ -230,6 +233,7 @@ public final class MainActivity extends Activity implements RecognitionListener 
         initFirebase();
         audioManager = (AudioManager) getSystemService(AUDIO_SERVICE);
         cartesiaSpeechProxyClient = new CartesiaSpeechProxyClient(BuildConfig.CARTESIA_PROXY_BASE_URL, BuildConfig.CARTESIA_API_KEY);
+        deviceTextToSpeech = new TextToSpeech(this, this);
         googleDriveClient = new GoogleDriveClient(this);
         googleSheetsClient = new GoogleSheetsClient(this);
         googleGmailClient = new GoogleGmailClient(this);
@@ -244,7 +248,7 @@ public final class MainActivity extends Activity implements RecognitionListener 
             appendStatus(startupGreeting);
         }
         if (coldStart) {
-            main.post(() -> speak(startupGreeting));
+            lastSpoken = startupGreeting;
         }
         if (SpeechRecognizer.isRecognitionAvailable(this)) {
             recognizer = SpeechRecognizer.createSpeechRecognizer(this);
@@ -2725,8 +2729,13 @@ public final class MainActivity extends Activity implements RecognitionListener 
     }
 
     private void speak(String message) {
-        lastSpoken = message;
-        setStatus(message);
+        String clean = message == null ? "" : message.trim();
+        if (clean.isEmpty()) {
+            LocalLog.info("speech", "skip_empty_message");
+            return;
+        }
+        lastSpoken = clean;
+        setStatus(clean);
         pauseExternalPlaybackForSpeech();
         requestSpeechFocus();
         String utteranceId = "home_center_" + System.currentTimeMillis();
@@ -2734,14 +2743,12 @@ public final class MainActivity extends Activity implements RecognitionListener 
         long sequence = beginSpeechSequence("new_speech_request");
         if (shouldUseCartesiaProxy()) {
             setSpeechPlaying(true);
-            speakWithCartesia(message, utteranceId, sequence);
+            speakWithCartesia(clean, utteranceId, sequence);
             return;
         }
         String cause = cartesiaUnavailableCause();
         LocalLog.info("speech", "cartesia_unavailable cause=" + cause);
-        setStatus("Narration is unavailable right now: " + cause + ".");
-        setSpeechPlaying(false);
-        abandonSpeechFocusFor(utteranceId);
+        speakWithDeviceTtsFallback(clean, utteranceId, sequence, cause);
     }
 
     private boolean shouldUseCartesiaProxy() {
@@ -2832,10 +2839,8 @@ public final class MainActivity extends Activity implements RecognitionListener 
                         }
                         String cause = speechFailureCause(ex);
                         LocalLog.info("speech", "stop_reason=cartesia_error detail=" + cause);
-                        setStatus("Narration is unavailable right now: " + cause + ".");
                         stopCartesiaPlayback("cartesia_error");
-                        setSpeechPlaying(false);
-                        abandonSpeechFocusFor(utteranceId);
+                        speakWithDeviceTtsFallback(message, utteranceId, sequence, cause);
                     });
                 }
             } finally {
@@ -2881,6 +2886,33 @@ public final class MainActivity extends Activity implements RecognitionListener 
             return "playback failure: " + message;
         }
         return "playback failure: " + message;
+    }
+
+    private void speakWithDeviceTtsFallback(String message, String utteranceId, long sequence, String cartesiaCause) {
+        if (!isCurrentSpeechSequence(sequence)) {
+            LocalLog.info("speech", "device_tts_skip_stale sequence=" + sequence);
+            return;
+        }
+        if (deviceTextToSpeech != null && deviceTextToSpeechReady) {
+            LocalLog.info("speech", "device_tts_fallback cause=" + shortMessage(cartesiaCause));
+            setSpeechPlaying(true);
+            int result = deviceTextToSpeech.speak(message, TextToSpeech.QUEUE_FLUSH, null, utteranceId);
+            if (result != TextToSpeech.ERROR) {
+                main.postDelayed(() -> {
+                    if (isCurrentSpeechSequence(sequence)) {
+                        setSpeechPlaying(false);
+                        abandonSpeechFocusFor(utteranceId);
+                    }
+                }, Math.max(2500L, Math.min(60000L, message.length() * 85L)));
+                return;
+            }
+            LocalLog.warn("speech", "device_tts_speak_failed cause=" + shortMessage(cartesiaCause));
+        } else {
+            LocalLog.warn("speech", "device_tts_unavailable ready=" + deviceTextToSpeechReady + " cause=" + shortMessage(cartesiaCause));
+        }
+        setStatus("Narration is unavailable right now: " + cartesiaCause + ".");
+        setSpeechPlaying(false);
+        abandonSpeechFocusFor(utteranceId);
     }
 
     private byte[] readSpeechPcm(InputStream rawInput, long sequence) throws IOException {
@@ -4011,13 +4043,32 @@ public final class MainActivity extends Activity implements RecognitionListener 
         if (recognizer != null) {
             recognizer.destroy();
         }
+        updateThinkingHaptics(false);
         stopCartesiaPlayback("activity_destroy");
         abandonSpeechFocus();
+        if (deviceTextToSpeech != null) {
+            deviceTextToSpeech.stop();
+            deviceTextToSpeech.shutdown();
+            deviceTextToSpeech = null;
+            deviceTextToSpeechReady = false;
+        }
         if (firebaseAuth != null && authStateListener != null) {
             firebaseAuth.removeAuthStateListener(authStateListener);
         }
         executor.shutdownNow();
         super.onDestroy();
+    }
+
+    @Override
+    public void onInit(int status) {
+        if (status == TextToSpeech.SUCCESS && deviceTextToSpeech != null) {
+            int language = deviceTextToSpeech.setLanguage(Locale.US);
+            deviceTextToSpeechReady = language != TextToSpeech.LANG_MISSING_DATA && language != TextToSpeech.LANG_NOT_SUPPORTED;
+            LocalLog.info("speech", "device_tts_ready=" + deviceTextToSpeechReady + " languageResult=" + language);
+        } else {
+            deviceTextToSpeechReady = false;
+            LocalLog.warn("speech", "device_tts_init_failed status=" + status);
+        }
     }
 
     private LinearLayout.LayoutParams matchWrap() {

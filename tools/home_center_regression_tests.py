@@ -337,6 +337,11 @@ require_contains(main_activity, 'pendingForUi != null', 'confirmation replies ar
 require_contains(main_activity, 'appendAssistantMessageRaw(finalResponse)', 'confirmation replies bypass kitchen next-step shaping')
 require_contains(main_activity, 'private String appendAssistantMessageRaw(String text)', 'raw assistant append path exists for tool confirmations')
 require_absent(main_activity, 'speak(narration == null || narration.trim().isEmpty() ? finalResponse : narration.trim())', 'Cartesia must not read mismatched short narration')
+require_contains(main_activity, 'TextToSpeech.OnInitListener', 'Android has built-in TTS fallback for narration')
+require_contains(main_activity, 'speakWithDeviceTtsFallback(message, utteranceId, sequence, cause)', 'Cartesia failure falls back to device TTS')
+require_contains(main_activity, 'device_tts_fallback cause=', 'Device TTS fallback is logged with Cartesia failure cause')
+require_contains(main_activity, 'lastSpoken = startupGreeting;', 'Startup greeting is remembered without auto-speaking over first response')
+require_absent(main_activity, 'main.post(() -> speak(startupGreeting))', 'Startup must not auto-speak and truncate first real response')
 require_contains(main_activity, 'Long press to copy. Double tap to replay.', 'message interaction is exposed to accessibility')
 
 if failures:
