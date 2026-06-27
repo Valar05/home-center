@@ -798,150 +798,9 @@ public final class MainActivity extends Activity implements RecognitionListener 
         chatTurns.add(new ChatTurn("user", clean));
         trimChatTurns();
         recordTranscriptTurn("user", clean);
-        if (tryHandleLocalStatusQuestion(clean)) {
-            return;
-        }
-        if (tryHandleLocalCommand(clean)) {
-            return;
-        }
         sendAgentTurn(clean);
     }
 
-
-    private boolean tryHandleLocalStatusQuestion(String text) {
-        String value = text == null ? "" : text.trim().toLowerCase(Locale.US);
-        boolean asksGoogleDocs = value.contains("google doc")
-                || value.contains("google docs")
-                || value.contains("docs")
-                || value.contains("document");
-        boolean asksGoogleDrive = isDriveDiagnosticIntent(value);
-        boolean asksAccess = asksGoogleDrive
-                || value.contains("can you see")
-                || value.contains("can home center see")
-                || value.contains("can you read")
-                || value.contains("can home center read")
-                || value.contains("can you open")
-                || value.contains("can home center open")
-                || value.contains("are you connected")
-                || value.contains("is home center connected")
-                || value.contains("can you access")
-                || value.contains("can home center access")
-                || value.contains("do you have access")
-                || value.contains("does home center have access")
-                || value.contains("permission")
-                || value.contains("is google connected")
-                || value.contains("is docs connected")
-                || value.contains("is drive connected")
-                || value.contains("list contents")
-                || value.contains("read google");
-        if (!(asksGoogleDocs || asksGoogleDrive) || !asksAccess) {
-            return false;
-        }
-        checkGoogleDriveStatus(text, asksGoogleDrive, asksGoogleDocs);
-        return true;
-    }
-
-    private boolean isDriveDiagnosticIntent(String value) {
-        boolean mentionsDrive = value.contains("drive")
-                || value.contains("google file")
-                || value.contains("google files")
-                || value.contains("brain folder");
-        boolean driveAction = value.contains("check")
-                || value.contains("list")
-                || value.contains("show")
-                || value.contains("search")
-                || value.contains("open")
-                || value.contains("folder")
-                || value.contains("folder in drive")
-                || value.contains("files")
-                || value.contains("read")
-                || value.contains("see")
-                || value.contains("access");
-        return mentionsDrive && driveAction;
-    }
-
-    private void checkGoogleDriveStatus(String text, boolean asksGoogleDrive, boolean asksGoogleDocs) {
-        if (!asksGoogleDrive) {
-            String answer = localGoogleToolsMissingAnswer(asksGoogleDrive, asksGoogleDocs);
-            appendAssistantMessage(answer, text);
-            speak(answer);
-            return;
-        }
-        if (googleDriveClient == null) {
-            showAssistantMessage("Google Drive diagnostic is not available in this build.", text);
-            return;
-        }
-        GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(this);
-        if (account == null || account.getAccount() == null) {
-            showAssistantMessage("Sign in with Google first.", text);
-            startGoogleSignIn();
-            return;
-        }
-        LocalLog.info("drive", "local_route answerRequest prompt=" + shortMessage(text));
-        appendStatus("Checking Google Drive directly...");
-        executor.execute(() -> {
-            GoogleDriveClient.DriveAnswer answer = googleDriveClient.answerRequest(account, text, lastDriveDocumentId, lastDriveDocumentName);
-            main.post(() -> handleDriveAnswer(answer, text));
-        });
-    }
-
-    private String localGoogleToolsMissingAnswer(boolean asksGoogleDrive, boolean asksGoogleDocs) {
-        StringBuilder answer = new StringBuilder();
-        if (asksGoogleDrive && !asksGoogleDocs) {
-            answer.append("No. Google Drive is not connected yet.\n\n");
-        } else if (asksGoogleDrive) {
-            answer.append("No. Google Drive and Docs are not connected yet.\n\n");
-        } else {
-            answer.append("No. Google Docs is not connected yet.\n\n");
-        }
-        answer.append("I can still help with Home Center lists, TickTick fallback, GPT answers, web search, and narration.\n\n");
-        answer.append("I will not claim I can read, open, list, or change Google files until Drew connects full Google Drive access.");
-        return answer.toString();
-    }
-
-    private boolean tryHandleLocalCommand(String text) {
-        Command command = CommandParser.parse(text);
-        switch (command.action) {
-            case Command.ADD_LIST_ITEM:
-                addListItem(command);
-                return true;
-            case Command.READ_LIST:
-                readList(command.listName);
-                return true;
-            case Command.NEXT_ITEM:
-                speakNextItem();
-                return true;
-            case Command.PREVIOUS_ITEM:
-                speakPreviousItem();
-                return true;
-            case Command.MARK_DONE:
-                markCurrentDone();
-                return true;
-            case Command.REMOVE_LIST_ITEM:
-                removeListItem(command);
-                return true;
-            case Command.CREATE_LIST:
-                createList(command);
-                return true;
-            case Command.SET_PREFERENCE:
-                savePreference(command);
-                return true;
-            case Command.SET_STORE_TARGET:
-                saveStoreTarget(command);
-                return true;
-            case Command.READ_PREFERENCES:
-                readGroceryPreferences(command.listName);
-                return true;
-            case Command.BUILD_CART:
-                buildWalmartCartDraft(command.listName);
-                return true;
-            case Command.SET_HOTSPOT:
-                showAssistantMessage("Hotspot commands are understood, but Android does not allow this app to toggle hotspot directly.");
-                return true;
-            default:
-                return false;
-        }
-    }
 
     private void sendAgentTurn(String clean) {
         if (openAiAgentClient == null || !openAiAgentClient.isConfigured()) {
@@ -957,38 +816,81 @@ public final class MainActivity extends Activity implements RecognitionListener 
         setBusy(true);
         setStatus("Asking GPT-5.5...");
         user.getIdToken(false)
-                .addOnSuccessListener(token -> executor.execute(() -> {
-                    try {
-                        OpenAiAgentClient.Reply reply = openAiAgentClient.sendTurn(
-                                token.getToken(),
-                                clean,
-                                recentTranscriptSnapshot(),
-                                conversationSummary,
-                                bucketEdit == null ? "" : bucketEdit.getText().toString(),
-                                listEdit == null ? "shopping" : listEdit.getText().toString());
-                        String finalResponse = reply.text.isEmpty() ? "I did not get a useful reply from the agent gateway." : reply.text;
-                        chatTurns.add(new ChatTurn("assistant", finalResponse));
-                        trimChatTurns();
-                        main.post(() -> {
-                            setBusy(false);
-                            appendAssistantMessage(finalResponse, clean);
-                            if (!reply.status.isEmpty()) {
-                                appendStatus(reply.status);
-                            }
-                            speak(reply.narration.isEmpty() ? finalResponse : reply.narration);
-                        });
-                    } catch (Exception ex) {
-                        main.post(() -> {
-                            LocalLog.info("agent", "gateway_fallback: " + shortMessage(ex.getMessage()));
-                            setBusy(false);
-                            showAssistantMessage("The agent gateway failed: " + shortMessage(ex.getMessage()));
-                        });
-                    }
-                }))
+                .addOnSuccessListener(token -> executor.execute(() -> runAgentToolLoop(token.getToken(), clean)))
                 .addOnFailureListener(ex -> {
                     setBusy(false);
                     showAssistantMessage("Could not verify Google sign-in: " + shortMessage(ex.getMessage()));
                 });
+    }
+
+    private void runAgentToolLoop(String idToken, String clean) {
+        JSONArray toolResults = new JSONArray();
+        try {
+            OpenAiAgentClient.ToolTurn turn = null;
+            for (int step = 0; step < 6; step++) {
+                turn = openAiAgentClient.sendToolTurn(
+                        idToken,
+                        clean,
+                        recentTranscriptSnapshot(),
+                        conversationSummary,
+                        toolResults);
+                if (turn.requestsTool()) {
+                    JSONObject result = executeRegisteredTool(turn.toolName, turn.arguments);
+                    toolResults.put(new JSONObject()
+                            .put("name", turn.toolName)
+                            .put("arguments", turn.arguments)
+                            .put("result", result));
+                    continue;
+                }
+                finishAgentReply(clean, turn.reply, turn.narration, turn.status);
+                return;
+            }
+            finishAgentReply(clean, "I could not finish that request because the tool plan did not converge.", "I could not finish that request because the tool plan did not converge.", "tool_loop_limit");
+        } catch (Exception ex) {
+            main.post(() -> {
+                LocalLog.info("agent", "tool_loop_failed: " + shortMessage(ex.getMessage()));
+                setBusy(false);
+                showAssistantMessage("The agent gateway failed: " + shortMessage(ex.getMessage()));
+            });
+        }
+    }
+
+    private JSONObject executeRegisteredTool(String toolName, JSONObject arguments) {
+        LocalLog.info("agent", "tool_call " + toolName);
+        if ("drive.search".equals(toolName) || "drive.read".equals(toolName)) {
+            if (googleDriveClient == null) {
+                return toolError(toolName, "drive_unavailable", "Google Drive tool is not available in this build.");
+            }
+            GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(this);
+            return googleDriveClient.runTool(toolName, arguments, account);
+        }
+        return toolError(toolName, "unknown_tool", "No Android tool is registered with that name.");
+    }
+
+    private JSONObject toolError(String toolName, String error, String detail) {
+        JSONObject result = new JSONObject();
+        try {
+            result.put("tool", toolName == null ? "" : toolName);
+            result.put("ok", false);
+            result.put("error", error == null ? "" : error);
+            result.put("detail", detail == null ? "" : detail);
+        } catch (Exception ignored) {
+        }
+        return result;
+    }
+
+    private void finishAgentReply(String clean, String replyText, String narration, String status) {
+        String finalResponse = replyText == null || replyText.trim().isEmpty() ? "I did not get a useful reply from GPT-5.5." : replyText.trim();
+        chatTurns.add(new ChatTurn("assistant", finalResponse));
+        trimChatTurns();
+        main.post(() -> {
+            setBusy(false);
+            appendAssistantMessage(finalResponse, clean);
+            if (status != null && !status.trim().isEmpty()) {
+                appendStatus(status.trim());
+            }
+            speak(narration == null || narration.trim().isEmpty() ? finalResponse : narration.trim());
+        });
     }
 
     private String buildGeminiPrompt(String latestUserText) {
@@ -1040,8 +942,8 @@ public final class MainActivity extends Activity implements RecognitionListener 
         }
         appendStatus("Checking Google Drive directly...");
         executor.execute(() -> {
-            GoogleDriveClient.DriveAnswer answer = googleDriveClient.answerRequest(account, "Check Google drive", lastDriveDocumentId, lastDriveDocumentName);
-            main.post(() -> handleDriveAnswer(answer, "Check Google drive"));
+            GoogleDriveClient.DriveResult result = googleDriveClient.listFirstFiles(account);
+            main.post(() -> handleDriveDiagnosticResult(result, "Check Google Drive"));
         });
     }
 

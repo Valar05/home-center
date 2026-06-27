@@ -14,6 +14,30 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 
 final class OpenAiAgentClient {
+    static final class ToolTurn {
+        final String type;
+        final String reply;
+        final String narration;
+        final String status;
+        final String toolName;
+        final JSONObject arguments;
+        final String technicalDetails;
+
+        ToolTurn(String type, String reply, String narration, String status, String toolName, JSONObject arguments, String technicalDetails) {
+            this.type = type == null ? "" : type.trim();
+            this.reply = reply == null ? "" : reply.trim();
+            this.narration = narration == null ? "" : narration.trim();
+            this.status = status == null ? "" : status.trim();
+            this.toolName = toolName == null ? "" : toolName.trim();
+            this.arguments = arguments == null ? new JSONObject() : arguments;
+            this.technicalDetails = technicalDetails == null ? "" : technicalDetails.trim();
+        }
+
+        boolean requestsTool() {
+            return "tool_call".equals(type) && !toolName.isEmpty();
+        }
+    }
+
     static final class Reply {
         final String text;
         final String narration;
@@ -77,6 +101,66 @@ final class OpenAiAgentClient {
             }
         }
         return sendDirectOpenAi(message, transcript, summary, bucket, listName);
+    }
+
+    ToolTurn sendToolTurn(String idToken, String message, String transcript, String summary, JSONArray toolResults) throws IOException {
+        if (!isConfigured()) {
+            throw new IOException("GPT-5.5 is not configured in this build.");
+        }
+        JSONObject body = new JSONObject();
+        try {
+            body.put("message", message == null ? "" : message);
+            body.put("transcript", transcript == null ? "" : transcript);
+            body.put("summary", summary == null ? "" : summary);
+            body.put("toolResults", toolResults == null ? new JSONArray() : toolResults);
+            JSONArray tools = new JSONArray();
+            tools.put(new JSONObject()
+                    .put("name", "drive.search")
+                    .put("description", "Search or list Google Drive files using structured arguments supplied by GPT.")
+                    .put("arguments", new JSONArray()
+                            .put("query")
+                            .put("folderName")
+                            .put("mimeType")
+                            .put("pageSize")));
+            tools.put(new JSONObject()
+                    .put("name", "drive.read")
+                    .put("description", "Read text content from a Google Drive file by fileId.")
+                    .put("arguments", new JSONArray()
+                            .put("fileId")
+                            .put("mimeType")
+                            .put("name")));
+            body.put("tools", tools);
+        } catch (JSONException ex) {
+            throw new IOException("Could not build tool agent request: " + ex.getMessage(), ex);
+        }
+        if (!baseUrl.isEmpty()) {
+            JSONObject response = postJson("agentToolTurn", idToken, body);
+            return parseToolTurn(response);
+        }
+        throw new IOException("Android tool broker requires the Home Center gateway.");
+    }
+
+    private ToolTurn parseToolTurn(JSONObject response) {
+        JSONObject arguments = response.optJSONObject("arguments");
+        if (arguments == null) {
+            JSONObject tool = response.optJSONObject("tool");
+            if (tool != null) {
+                arguments = tool.optJSONObject("arguments");
+            }
+        }
+        String toolName = response.optString("toolName", response.optString("name", ""));
+        JSONObject tool = response.optJSONObject("tool");
+        if (tool != null && toolName.isEmpty()) {
+            toolName = tool.optString("name", "");
+        }
+        return new ToolTurn(
+                response.optString("type", ""),
+                response.optString("reply", response.optString("text", "")),
+                response.optString("narration", ""),
+                response.optString("status", ""),
+                toolName,
+                arguments == null ? new JSONObject() : arguments,
+                response.optString("technicalDetails", response.optString("details", "")));
     }
 
     private Reply sendDirectOpenAi(String message, String transcript, String summary, String bucket, String listName) throws IOException {

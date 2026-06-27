@@ -158,6 +158,94 @@ function extractOutputText(json) {
   return parts.join('\n').trim();
 }
 
+function extractJsonObject(text) {
+  const raw = safeText(text, 20000);
+  const fenced = raw.match(/```(?:json)?\s*([\s\S]*?)```/i);
+  const candidate = fenced ? fenced[1] : raw;
+  const start = candidate.indexOf('{');
+  const stop = candidate.lastIndexOf('}');
+  if (start < 0 || stop < start) {
+    throw new Error(`Planner did not return JSON: ${raw.slice(0, 240)}`);
+  }
+  return JSON.parse(candidate.slice(start, stop + 1));
+}
+
+async function askOpenAIToolTurn(body) {
+  const message = safeText(body.message, 4000);
+  const summary = safeText(body.summary, 4000);
+  const transcript = safeText(body.transcript, 8000);
+  const toolResults = Array.isArray(body.toolResults) ? body.toolResults.slice(0, 8) : [];
+  const tools = Array.isArray(body.tools) ? body.tools : [];
+  const input = [
+    'You are Home Center. You are the thinker. The Android app is only your hands.',
+    'Return one strict JSON object and no prose outside JSON.',
+    'If you need app data or Google Drive content, request exactly one tool call. Do not guess, do not say you lack access, and do not answer Drive document questions without tool results.',
+    'If a tool succeeds but does not fully answer the user request, continue with another tool call. A successful tool call is not a final answer unless it satisfies the request.',
+    'Hide plumbing. Do not mention tokens, HTTP, file IDs, scopes, timestamps, or diagnostics unless the user explicitly asks for diagnostics.',
+    'Available Android tools: drive.search({query, folderName, mimeType, pageSize}) and drive.read({fileId, mimeType, name}).',
+    'For Google Docs in Drive, search first, then read the selected document, then answer the user request from content.',
+    'JSON schema for tool call: {"type":"tool_call","toolName":"drive.search","arguments":{"query":"Holding Vigil","folderName":"Writing","pageSize":5}}',
+    'JSON schema for final answer: {"type":"final","reply":"...","narration":"...","status":"gpt_5_5_complete"}',
+    summary ? `Conversation summary: ${summary}` : '',
+    transcript ? `Recent transcript: ${transcript}` : '',
+    `Registered tools: ${JSON.stringify(tools).slice(0, 4000)}`,
+    toolResults.length ? `Tool results: ${JSON.stringify(toolResults).slice(0, 16000)}` : 'Tool results: []',
+    `Latest user request: ${message}`,
+  ].filter(Boolean).join('\n\n');
+
+  const response = await fetch('https://api.openai.com/v1/responses', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${OPENAI_API_KEY.value()}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      model: 'gpt-5.5',
+      reasoning: {effort: 'medium'},
+      text: {verbosity: 'low'},
+      tools: [{type: 'web_search'}],
+      input,
+    }),
+  });
+  const json = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    return {
+      type: 'final',
+      reply: `GPT-5.5 gateway error: ${json.error?.message || response.statusText}`,
+      narration: 'GPT-5.5 gateway error.',
+      status: `openai_http_${response.status}`,
+      technicalDetails: JSON.stringify(json).slice(0, 1000),
+    };
+  }
+  const text = json.output_text || extractOutputText(json) || '';
+  try {
+    const parsed = extractJsonObject(text);
+    if (parsed.type === 'tool_call') {
+      return {
+        type: 'tool_call',
+        toolName: safeText(parsed.toolName || parsed.name, 80),
+        arguments: parsed.arguments && typeof parsed.arguments === 'object' ? parsed.arguments : {},
+        status: 'tool_call_requested',
+      };
+    }
+    return {
+      type: 'final',
+      reply: safeText(parsed.reply || parsed.text, 12000) || 'I did not get a useful GPT-5.5 response.',
+      narration: safeText(parsed.narration || parsed.reply || parsed.text, 12000),
+      status: safeText(parsed.status, 160) || 'gpt_5_5_complete',
+    };
+  } catch (err) {
+    return {
+      type: 'final',
+      reply: text || `Planner failed: ${err.message}`,
+      narration: text || 'Planner failed.',
+      status: 'planner_json_error',
+      technicalDetails: String(err.message || err).slice(0, 1000),
+    };
+  }
+}
+
+
 exports.health = onRequest((req, res) => {
   res.set(CORS_HEADERS).json({ok: true, service: 'home-center-gateway'});
 });
@@ -241,6 +329,22 @@ exports.googleDriveProbe = onRequest(async (req, res) => {
       return;
     }
     sendJson(res, err.status || 500, {reply: `Google Drive check failed: ${err.message || String(err)}`, status: 'google_drive_probe_error'});
+  }
+});
+
+
+exports.agentToolTurn = onRequest({timeoutSeconds: 120, secrets: [OPENAI_API_KEY]}, async (req, res) => {
+  if (handleOptions(req, res)) return;
+  try {
+    await requireUser(req);
+    const message = safeText(req.body && req.body.message, 4000);
+    if (!message) {
+      sendJson(res, 400, {type: 'final', reply: 'Tell me what you want Home Center to do.', status: 'missing_message'});
+      return;
+    }
+    sendJson(res, 200, await askOpenAIToolTurn(req.body || {}));
+  } catch (err) {
+    sendJson(res, err.status || 500, {type: 'final', reply: `Gateway failed: ${err.message || String(err)}`, status: 'gateway_error'});
   }
 });
 

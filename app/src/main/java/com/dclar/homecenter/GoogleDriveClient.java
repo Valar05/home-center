@@ -37,95 +37,72 @@ final class GoogleDriveClient {
         return inspect(account, "");
     }
 
-    DriveAnswer answerRequest(GoogleSignInAccount account, String requestText, String lastDocumentId, String lastDocumentName) {
-        DriveResult auth = inspect(account, "");
-        if (!auth.ok && auth.recoverableAuthException != null) {
-            return DriveAnswer.recoverable(auth.error, auth.detail, auth.recoverableAuthException);
+    JSONObject runTool(String toolName, JSONObject arguments, GoogleSignInAccount account) {
+        if ("drive.search".equals(toolName)) {
+            return searchTool(arguments, account);
         }
-        if (!auth.ok) {
-            return DriveAnswer.error(auth.error, auth.detail);
+        if ("drive.read".equals(toolName)) {
+            return readTool(arguments, account);
         }
-        String token;
-        try {
-            token = accessToken(account);
-        } catch (DriveRecoverableException ex) {
-            return DriveAnswer.recoverable("drive_scope_recoverable", "Drive permission needs approval: " + safe(ex.getMessage()), ex.exception);
-        } catch (DriveRuntimeException ex) {
-            return DriveAnswer.error(ex.code, ex.getMessage());
-        }
-        String value = normalized(requestText);
-        boolean wantsContent = value.contains("first sentence")
-                || value.contains("summarize")
-                || value.contains("summary")
-                || value.contains("read chapter")
-                || value.startsWith("read ")
-                || value.startsWith("open ");
-        if (wantsContent) {
-            return answerDocumentRequest(token, requestText, lastDocumentId, lastDocumentName);
-        }
-        return answerFolderOrFileList(token, requestText);
+        return toolError(toolName, "unknown_tool", "Android does not expose that tool.");
     }
 
-    private DriveAnswer answerFolderOrFileList(String token, String requestText) {
-        String folderName = folderNameFrom(requestText);
-        DriveResult result;
+    private JSONObject searchTool(JSONObject arguments, GoogleSignInAccount account) {
+        TokenResult token = tokenForTool(account, "drive.search");
+        if (!token.ok) {
+            return token.json;
+        }
+        String queryText = cleanArg(arguments, "query");
+        String folderName = cleanArg(arguments, "folderName");
+        String mimeType = cleanArg(arguments, "mimeType");
+        int pageSize = Math.max(1, Math.min(10, arguments == null ? 5 : arguments.optInt("pageSize", 5)));
+        String parentId = "";
         if (!folderName.isEmpty()) {
-            String folderQuery = "mimeType='" + FOLDER_MIME_TYPE + "' and name contains '" + escapeQuery(folderName) + "' and trashed=false";
-            DriveResult folders = requestFiles(token, folderQuery, "");
+            DriveResult folders = requestFiles(token.value, "mimeType='" + FOLDER_MIME_TYPE + "' and name contains '" + escapeQuery(folderName) + "' and trashed=false", "", 5);
             if (!folders.ok) {
-                return DriveAnswer.error(folders.error, folders.detail);
+                return resultJson("drive.search", false, folders.error, folders.detail, folders.files, "");
             }
             if (folders.files.isEmpty()) {
-                return DriveAnswer.ok("I could not find a folder named " + folderName + ".", "", "", "");
+                return resultJson("drive.search", true, "", "No folder matched " + folderName + ".", folders.files, "");
             }
-            DriveFile folder = folders.files.get(0);
-            result = requestFiles(token, "'" + escapeQuery(folder.id) + "' in parents and trashed=false", "");
-            if (!result.ok) {
-                return DriveAnswer.error(result.error, result.detail);
-            }
-            return DriveAnswer.ok(listAnswer("Found it. It contains:", result.files), "", folder.id, folder.name);
+            parentId = folders.files.get(0).id;
         }
-        result = requestFiles(token, "trashed=false", "");
-        if (!result.ok) {
-            return DriveAnswer.error(result.error, result.detail);
+        List<String> clauses = new ArrayList<>();
+        clauses.add("trashed=false");
+        if (!parentId.isEmpty()) {
+            clauses.add("'" + escapeQuery(parentId) + "' in parents");
         }
-        return DriveAnswer.ok(listAnswer("I found these Drive files:", result.files), "", "", "");
+        if (!queryText.isEmpty()) {
+            clauses.add("name contains '" + escapeQuery(queryText) + "'");
+        }
+        if (!mimeType.isEmpty()) {
+            clauses.add("mimeType='" + escapeQuery(mimeType) + "'");
+        }
+        DriveResult result = requestFiles(token.value, joinClauses(clauses), "", pageSize);
+        return resultJson("drive.search", result.ok, result.error, result.detail, result.files, "");
     }
 
-    private DriveAnswer answerDocumentRequest(String token, String requestText, String lastDocumentId, String lastDocumentName) {
-        String title = documentTitleFrom(requestText);
-        DriveFile doc = null;
-        if (!title.isEmpty()) {
-            DriveResult search = requestFiles(token, "name contains '" + escapeQuery(title) + "' and trashed=false", "");
-            if (!search.ok) {
-                return DriveAnswer.error(search.error, search.detail);
-            }
-            if (!search.files.isEmpty()) {
-                doc = search.files.get(0);
-            }
+    private JSONObject readTool(JSONObject arguments, GoogleSignInAccount account) {
+        TokenResult token = tokenForTool(account, "drive.read");
+        if (!token.ok) {
+            return token.json;
         }
-        if (doc == null && lastDocumentId != null && !lastDocumentId.trim().isEmpty()) {
-            doc = new DriveFile(lastDocumentId, lastDocumentName == null ? "that document" : lastDocumentName, "application/vnd.google-apps.document", "");
+        String fileId = cleanArg(arguments, "fileId");
+        if (fileId.isEmpty()) {
+            return toolError("drive.read", "missing_file_id", "drive.read requires fileId from a prior drive.search result.");
         }
-        if (doc == null) {
-            return DriveAnswer.ok("I could not find that document in Drive.", "", "", "");
+        String name = cleanArg(arguments, "name");
+        String mimeType = cleanArg(arguments, "mimeType");
+        if (mimeType.isEmpty()) {
+            mimeType = "application/vnd.google-apps.document";
         }
-        String content = readDocumentText(token, doc);
-        if (content.trim().isEmpty()) {
-            return DriveAnswer.ok("I found " + cleanName(doc.name) + ", but it did not contain readable text.", "", doc.id, doc.name);
+        try {
+            DriveFile file = new DriveFile(fileId, name, mimeType, "");
+            return resultJson("drive.read", true, "", "", new ArrayList<>(), readDocumentText(token.value, file))
+                    .put("file", fileJson(file));
+        } catch (Exception ex) {
+            return toolError("drive.read", "document_read_error", safe(ex.getMessage()));
         }
-        String value = normalized(requestText);
-        if (value.contains("first sentence")) {
-            return DriveAnswer.ok("The first sentence is: \"" + firstSentence(content) + "\"", content, doc.id, doc.name);
-        }
-        if (value.contains("summarize") || value.contains("summary")) {
-            return DriveAnswer.ok("Summary: " + simpleSummary(content), content, doc.id, doc.name);
-        }
-        if (value.contains("chapter")) {
-            String chapter = chapterText(content, value);
-            return DriveAnswer.ok(chapter.isEmpty() ? "I found " + cleanName(doc.name) + ", but I could not find that chapter." : chapter, content, doc.id, doc.name);
-        }
-        return DriveAnswer.ok(firstReadableChunk(content), content, doc.id, doc.name);
     }
 
     DriveResult inspect(GoogleSignInAccount account, String requestText) {
@@ -146,19 +123,6 @@ final class GoogleDriveClient {
         if (token == null || token.trim().isEmpty()) {
             return DriveResult.error("token_empty", "Google returned an empty Drive token.");
         }
-        String folderName = folderNameFrom(requestText);
-        if (!folderName.isEmpty()) {
-            String folderQuery = "mimeType='" + FOLDER_MIME_TYPE + "' and name contains '" + escapeQuery(folderName) + "' and trashed=false";
-            DriveResult folders = requestFiles(token, folderQuery, "Searched Drive folders matching " + folderName + ".");
-            if (!folders.ok || folders.files.isEmpty()) {
-                return folders.ok
-                        ? DriveResult.ok(folders.files, "Drive is connected, but I did not find a folder matching " + folderName + ".")
-                        : folders;
-            }
-            DriveFile folder = folders.files.get(0);
-            String childQuery = "'" + escapeQuery(folder.id) + "' in parents and trashed=false";
-            return requestFiles(token, childQuery, "Drive folder " + folder.name + " is visible. First files in that folder:");
-        }
         return requestFiles(token, "trashed=false", "Drive token worked. First files:");
     }
 
@@ -177,10 +141,14 @@ final class GoogleDriveClient {
     }
 
     private DriveResult requestFiles(String token, String query, String detail) {
+        return requestFiles(token, query, detail, 5);
+    }
+
+    private DriveResult requestFiles(String token, String query, String detail, int pageSize) {
         HttpURLConnection connection = null;
         try {
             Uri.Builder builder = Uri.parse(FILES_URL).buildUpon()
-                    .appendQueryParameter("pageSize", "5")
+                    .appendQueryParameter("pageSize", String.valueOf(Math.max(1, Math.min(10, pageSize))))
                     .appendQueryParameter("fields", "files(id,name,mimeType,modifiedTime)")
                     .appendQueryParameter("orderBy", "modifiedTime desc")
                     .appendQueryParameter("supportsAllDrives", "true")
@@ -213,6 +181,78 @@ final class GoogleDriveClient {
         }
     }
 
+    private TokenResult tokenForTool(GoogleSignInAccount account, String toolName) {
+        if (account == null || account.getAccount() == null || account.getEmail() == null || account.getEmail().trim().isEmpty()) {
+            return TokenResult.error(toolError(toolName, "not_signed_in", "Sign in with Google first."));
+        }
+        if (!account.getGrantedScopes().contains(new com.google.android.gms.common.api.Scope(DRIVE_METADATA_SCOPE))) {
+            return TokenResult.error(toolError(toolName, "drive_scope_missing", "Drive readonly scope is missing. Reopen Google sign-in and approve Drive access."));
+        }
+        try {
+            String token = accessToken(account);
+            if (token == null || token.trim().isEmpty()) {
+                return TokenResult.error(toolError(toolName, "token_empty", "Google returned an empty Drive token."));
+            }
+            return TokenResult.ok(token);
+        } catch (DriveRecoverableException ex) {
+            return TokenResult.error(toolError(toolName, "drive_scope_recoverable", "Drive permission needs approval: " + safe(ex.getMessage())));
+        } catch (DriveRuntimeException ex) {
+            return TokenResult.error(toolError(toolName, ex.code, ex.getMessage()));
+        }
+    }
+
+    private static String cleanArg(JSONObject arguments, String name) {
+        return arguments == null ? "" : arguments.optString(name, "").trim();
+    }
+
+    private static String joinClauses(List<String> clauses) {
+        StringBuilder builder = new StringBuilder();
+        for (String clause : clauses) {
+            if (clause == null || clause.trim().isEmpty()) {
+                continue;
+            }
+            if (builder.length() > 0) {
+                builder.append(" and ");
+            }
+            builder.append(clause.trim());
+        }
+        return builder.toString();
+    }
+
+    private static JSONObject resultJson(String toolName, boolean ok, String error, String detail, List<DriveFile> files, String content) {
+        JSONObject json = new JSONObject();
+        try {
+            json.put("tool", toolName);
+            json.put("ok", ok);
+            json.put("error", error == null ? "" : error);
+            json.put("detail", detail == null ? "" : detail);
+            json.put("content", content == null ? "" : content);
+            JSONArray fileArray = new JSONArray();
+            for (DriveFile file : files) {
+                fileArray.put(fileJson(file));
+            }
+            json.put("files", fileArray);
+        } catch (Exception ignored) {
+        }
+        return json;
+    }
+
+    private static JSONObject fileJson(DriveFile file) {
+        JSONObject json = new JSONObject();
+        try {
+            json.put("id", file.id);
+            json.put("name", file.name);
+            json.put("mimeType", file.mimeType);
+            json.put("modifiedTime", file.modifiedTime);
+        } catch (Exception ignored) {
+        }
+        return json;
+    }
+
+    private static JSONObject toolError(String toolName, String error, String detail) {
+        return resultJson(toolName, false, error, detail, new ArrayList<>(), "");
+    }
+
     private static List<DriveFile> parseFiles(String body) throws Exception {
         JSONObject root = new JSONObject(body);
         JSONArray filesJson = root.optJSONArray("files");
@@ -231,25 +271,6 @@ final class GoogleDriveClient {
             }
         }
         return files;
-    }
-
-    private static String folderNameFrom(String text) {
-        String value = text == null ? "" : text.toLowerCase().replaceAll("[^a-z0-9 ]", " ").replaceAll("\\s+", " ").trim();
-        int folderAt = value.indexOf(" folder");
-        if (folderAt < 0) {
-            return "";
-        }
-        String prefix = value.substring(0, folderAt).trim();
-        String[] stopWords = {"can you read", "can you see", "can you open", "do you have access to", "open", "list", "read", "my", "the", "your", "google", "drive"};
-        for (String stop : stopWords) {
-            prefix = prefix.replace(stop, " ");
-        }
-        prefix = prefix.replaceAll("\\s+", " ").trim();
-        if (prefix.isEmpty()) {
-            return "";
-        }
-        String[] words = prefix.split(" ");
-        return words[words.length - 1];
     }
 
     private static String escapeQuery(String value) {
@@ -294,108 +315,6 @@ final class GoogleDriveClient {
         }
     }
 
-    private static String listAnswer(String heading, List<DriveFile> files) {
-        if (files.isEmpty()) {
-            return heading + "\nNo files found.";
-        }
-        StringBuilder answer = new StringBuilder(heading);
-        for (DriveFile file : files) {
-            answer.append("\n- ").append(cleanName(file.name));
-        }
-        return answer.toString();
-    }
-
-    private static String documentTitleFrom(String text) {
-        String value = text == null ? "" : text.trim();
-        String lower = value.toLowerCase();
-        int of = lower.indexOf(" of ");
-        if (of >= 0) {
-            return cleanTitle(value.substring(of + 4));
-        }
-        for (String prefix : new String[]{"summarize ", "open ", "read "}) {
-            if (lower.startsWith(prefix)) {
-                String candidate = value.substring(prefix.length());
-                if (!candidate.toLowerCase().startsWith("chapter")) {
-                    return cleanTitle(candidate);
-                }
-            }
-        }
-        return "";
-    }
-
-    private static String cleanTitle(String value) {
-        return value == null ? "" : value
-                .replaceAll("(?i)\\bin drive\\b", "")
-                .replaceAll("(?i)\\bfrom drive\\b", "")
-                .replaceAll("[?.!]+$", "")
-                .trim();
-    }
-
-    private static String firstSentence(String content) {
-        String clean = normalizeContent(content);
-        int end = sentenceEnd(clean, 0);
-        return end <= 0 ? clean : clean.substring(0, Math.min(end + 1, clean.length())).trim();
-    }
-
-    private static int sentenceEnd(String clean, int start) {
-        for (int i = Math.max(0, start); i < clean.length(); i++) {
-            char c = clean.charAt(i);
-            if (c == '.' || c == '?' || c == '!') {
-                return i;
-            }
-        }
-        return -1;
-    }
-
-    private static String simpleSummary(String content) {
-        String clean = normalizeContent(content);
-        int first = sentenceEnd(clean, 0);
-        if (first < 0) {
-            return firstReadableChunk(clean);
-        }
-        int second = sentenceEnd(clean, first + 1);
-        if (second < 0) {
-            return clean.substring(0, Math.min(first + 1, clean.length())).trim();
-        }
-        return clean.substring(0, Math.min(second + 1, clean.length())).trim();
-    }
-
-    private static String chapterText(String content, String request) {
-        String clean = normalizeContent(content);
-        String chapter = request.replaceAll(".*chapter\\s+", "").replaceAll("[^a-z0-9].*", "").trim();
-        if (chapter.isEmpty()) {
-            return "";
-        }
-        String lower = clean.toLowerCase();
-        int start = lower.indexOf("chapter " + chapter);
-        if (start < 0 && "three".equals(chapter)) {
-            start = lower.indexOf("chapter 3");
-        }
-        if (start < 0) {
-            return "";
-        }
-        int next = lower.indexOf("chapter ", start + 8);
-        String section = next > start ? clean.substring(start, next) : clean.substring(start);
-        return firstReadableChunk(section);
-    }
-
-    private static String firstReadableChunk(String content) {
-        String clean = normalizeContent(content);
-        return clean.length() <= 900 ? clean : clean.substring(0, 900).trim() + "...";
-    }
-
-    private static String normalizeContent(String content) {
-        return content == null ? "" : content.replace('\r', ' ').replace('\n', ' ').replaceAll("\\s+", " ").trim();
-    }
-
-    private static String normalized(String content) {
-        return content == null ? "" : content.toLowerCase().replaceAll("\\s+", " ").trim();
-    }
-
-    private static String cleanName(String name) {
-        return name == null || name.trim().isEmpty() ? "Untitled" : name.trim();
-    }
-
     private static String readBody(InputStream stream) throws IOException {
         if (stream == null) {
             return "";
@@ -420,6 +339,26 @@ final class GoogleDriveClient {
 
     private static String safe(String value) {
         return value == null || value.trim().isEmpty() ? "unknown error" : abbreviate(value);
+    }
+
+    private static final class TokenResult {
+        final boolean ok;
+        final String value;
+        final JSONObject json;
+
+        private TokenResult(boolean ok, String value, JSONObject json) {
+            this.ok = ok;
+            this.value = value == null ? "" : value;
+            this.json = json == null ? new JSONObject() : json;
+        }
+
+        static TokenResult ok(String value) {
+            return new TokenResult(true, value, new JSONObject());
+        }
+
+        static TokenResult error(JSONObject json) {
+            return new TokenResult(false, "", json);
+        }
     }
 
     private static final class DriveRuntimeException extends RuntimeException {
