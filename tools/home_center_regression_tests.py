@@ -133,6 +133,9 @@ require_absent(openai_client, 'google:drive_docs_gmail_calendar', 'legacy capabi
 require_absent(openai_client, '.put("name", "drive.search")', 'OpenAI client must not hardcode advertised tools')
 
 require_contains(functions_index, 'Available tools JSON', 'agentToolTurn prompt is registry-driven')
+require_contains(functions_index, 'OpenAI web_search for public web pages, including public GitHub repositories', 'planner prompt routes public GitHub through web search')
+require_contains(functions_index, 'Do not claim a GitHub tool is required for public GitHub repositories', 'planner prompt forbids false missing-GitHub-tool refusal')
+require_contains(functions_index, 'private repo access, authenticated GitHub writes, issues, pull requests, or repository mutations', 'planner prompt limits GitHub-tool requirement to authenticated operations')
 require_contains(functions_index, 'Google Docs rule: for a request to create a Google Doc, call docs.create', 'planner prompt forces Google Doc creation to docs.create')
 require_contains(functions_index, 'Working memory JSON contains recently created or selected entities', 'planner prompt explains working memory')
 require_contains(functions_index, 'resolve the reference from workingMemory or recent tool results', 'planner prompt requires reference resolution')
