@@ -33,6 +33,7 @@ final class GoogleCalendarClient {
         if (!token.ok) return token.json;
         try {
             if ("calendar.search".equals(toolName)) return searchTool(token.value, arguments);
+            if ("calendar.read".equals(toolName)) return readTool(token.value, arguments);
             if ("calendar.create_event".equals(toolName)) return createEventTool(token.value, arguments);
             if ("calendar.update_event".equals(toolName)) return updateEventTool(token.value, arguments);
             if ("calendar.respond_event".equals(toolName)) return respondEventTool(token.value, arguments, account == null ? "" : account.getEmail());
@@ -53,6 +54,13 @@ final class GoogleCalendarClient {
         putQuery(builder, arguments, "timeMax", "timeMax");
         JSONObject result = getJson(builder.build().toString(), token);
         return baseResult("calendar.search", true).put("events", result.optJSONArray("items") == null ? new JSONArray() : result.optJSONArray("items"));
+    }
+
+    private JSONObject readTool(String token, JSONObject arguments) throws Exception {
+        String eventId = cleanArg(arguments, "eventId");
+        if (eventId.isEmpty()) return toolError("calendar.read", "missing_event_id", "calendar.read requires eventId.");
+        JSONObject event = getJson(BASE_URL + "/" + Uri.encode(eventId), token);
+        return baseResult("calendar.read", true).put("event", event).put("eventId", event.optString("id", eventId));
     }
 
     private JSONObject createEventTool(String token, JSONObject arguments) throws Exception {

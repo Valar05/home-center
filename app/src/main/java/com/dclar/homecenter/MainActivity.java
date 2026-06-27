@@ -163,6 +163,7 @@ public final class MainActivity extends Activity implements RecognitionListener 
     private GeminiClient geminiClient;
     private OpenAiAgentClient openAiAgentClient;
     private GoogleDriveClient googleDriveClient;
+    private GoogleSheetsClient googleSheetsClient;
     private GoogleGmailClient googleGmailClient;
     private GoogleCalendarClient googleCalendarClient;
 
@@ -207,6 +208,7 @@ public final class MainActivity extends Activity implements RecognitionListener 
         audioManager = (AudioManager) getSystemService(AUDIO_SERVICE);
         cartesiaSpeechProxyClient = new CartesiaSpeechProxyClient(BuildConfig.CARTESIA_PROXY_BASE_URL, BuildConfig.CARTESIA_API_KEY);
         googleDriveClient = new GoogleDriveClient(this);
+        googleSheetsClient = new GoogleSheetsClient(this);
         googleGmailClient = new GoogleGmailClient(this);
         googleCalendarClient = new GoogleCalendarClient(this);
         refreshGeminiClient();
@@ -271,18 +273,14 @@ public final class MainActivity extends Activity implements RecognitionListener 
             homeTaskClient = new HomeTaskClient(firebaseAuth, firestore);
             firebaseConfigured = clientId != null && !clientId.isEmpty();
             if (firebaseConfigured) {
-                GoogleSignInOptions options = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                GoogleSignInOptions.Builder signInBuilder = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                         .requestIdToken(clientId)
                         .requestServerAuthCode(clientId, true)
-                        .requestEmail()
-                        .requestScopes(
-                                new Scope(ToolRegistry.DRIVE_SCOPE),
-                                new Scope(ToolRegistry.DOCS_SCOPE),
-                                new Scope(ToolRegistry.GMAIL_MODIFY_SCOPE),
-                                new Scope(ToolRegistry.GMAIL_COMPOSE_SCOPE),
-                                new Scope(ToolRegistry.GMAIL_SEND_SCOPE),
-                                new Scope(ToolRegistry.CALENDAR_EVENTS_SCOPE))
-                        .build();
+                        .requestEmail();
+                for (Scope scope : ToolRegistry.signInScopes()) {
+                    signInBuilder.requestScopes(scope);
+                }
+                GoogleSignInOptions options = signInBuilder.build();
                 googleSignInClient = GoogleSignIn.getClient(this, options);
             }
         } catch (Exception ex) {
@@ -833,7 +831,7 @@ public final class MainActivity extends Activity implements RecognitionListener 
             }
         }
         pendingAgentTurnAfterGoogleReconnect = clean == null ? "" : clean.trim();
-        showAssistantMessage("Google needs one more approval for Drive, Docs, Gmail, and Calendar tools. I am opening Google sign-in now, then I will continue this request.");
+        showAssistantMessage("Google needs one more approval for Drive, Docs, Sheets, Gmail, and Calendar tools. I am opening Google sign-in now, then I will continue this request.");
         startGoogleSignIn();
         return false;
     }
@@ -923,7 +921,7 @@ public final class MainActivity extends Activity implements RecognitionListener 
             return false;
         }
         String tool = result.optString("tool", "");
-        if (!(tool.startsWith("drive.") || tool.startsWith("gmail.") || tool.startsWith("calendar."))) {
+        if (!(tool.startsWith("drive.") || tool.startsWith("docs.") || tool.startsWith("sheets.") || tool.startsWith("gmail.") || tool.startsWith("calendar."))) {
             return false;
         }
         String error = result.optString("error", "").toLowerCase(Locale.US);
@@ -965,11 +963,17 @@ public final class MainActivity extends Activity implements RecognitionListener 
             return toolError(toolName, "confirmation_required", "This write tool requires explicit gateway confirmation.");
         }
         GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(this);
-        if ("drive".equals(definition.group)) {
+        if ("drive".equals(definition.group) || "docs".equals(definition.group)) {
             if (googleDriveClient == null) {
-                return toolError(toolName, "drive_unavailable", "Google Drive tool is not available in this build.");
+                return toolError(toolName, "drive_unavailable", "Google Drive and Docs tools are not available in this build.");
             }
             return googleDriveClient.runTool(toolName, arguments, account);
+        }
+        if ("sheets".equals(definition.group)) {
+            if (googleSheetsClient == null) {
+                return toolError(toolName, "sheets_unavailable", "Google Sheets tool is not available in this build.");
+            }
+            return googleSheetsClient.runTool(toolName, arguments, account);
         }
         if ("gmail".equals(definition.group)) {
             if (googleGmailClient == null) {

@@ -40,25 +40,29 @@ final class GoogleDriveClient {
     }
 
     JSONObject runTool(String toolName, JSONObject arguments, GoogleSignInAccount account) {
-        if ("drive.search".equals(toolName)) return searchTool(arguments, account);
-        if ("drive.read".equals(toolName)) return readTool(arguments, account);
-        if ("drive.create_doc".equals(toolName)) return createDocTool(arguments, account);
-        if ("drive.update_doc".equals(toolName)) return updateDocTool(arguments, account);
-        return toolError(toolName, "unknown_tool", "Android does not expose that tool.");
+        if ("drive.search".equals(toolName)) return searchTool(toolName, arguments, account, "");
+        if ("drive.read_metadata".equals(toolName)) return readMetadataTool(arguments, account);
+        if ("drive.create_folder".equals(toolName)) return createFolderTool(arguments, account);
+        if ("drive.update_metadata".equals(toolName)) return updateMetadataTool(arguments, account);
+        if ("docs.search".equals(toolName)) return searchTool(toolName, arguments, account, DOC_MIME_TYPE);
+        if ("docs.read".equals(toolName)) return readDocTool(arguments, account);
+        if ("docs.create".equals(toolName)) return createDocTool(arguments, account);
+        if ("docs.update".equals(toolName)) return updateDocTool(arguments, account);
+        return toolError(toolName, "unknown_tool", "Android does not expose that Drive or Docs tool.");
     }
 
-    private JSONObject searchTool(JSONObject arguments, GoogleSignInAccount account) {
-        TokenResult token = tokenForTool(account, "drive.search");
+    private JSONObject searchTool(String toolName, JSONObject arguments, GoogleSignInAccount account, String fixedMimeType) {
+        TokenResult token = tokenForTool(account, toolName);
         if (!token.ok) return token.json;
         String queryText = cleanArg(arguments, "query");
         String folderName = cleanArg(arguments, "folderName");
-        String mimeType = cleanArg(arguments, "mimeType");
+        String mimeType = fixedMimeType == null || fixedMimeType.isEmpty() ? cleanArg(arguments, "mimeType") : fixedMimeType;
         int pageSize = Math.max(1, Math.min(10, arguments == null ? 5 : arguments.optInt("pageSize", 5)));
         String parentId = "";
         if (!folderName.isEmpty()) {
             DriveResult folders = requestFiles(token.value, "mimeType='" + FOLDER_MIME_TYPE + "' and name contains '" + escapeQuery(folderName) + "' and trashed=false", "", 5);
-            if (!folders.ok) return resultJson("drive.search", false, folders.error, folders.detail, folders.files, "");
-            if (folders.files.isEmpty()) return resultJson("drive.search", true, "", "No folder matched " + folderName + ".", folders.files, "");
+            if (!folders.ok) return resultJson(toolName, false, folders.error, folders.detail, folders.files, "");
+            if (folders.files.isEmpty()) return resultJson(toolName, true, "", "No folder matched " + folderName + ".", folders.files, "");
             parentId = folders.files.get(0).id;
         }
         List<String> clauses = new ArrayList<>();
@@ -67,27 +71,85 @@ final class GoogleDriveClient {
         if (!queryText.isEmpty()) clauses.add("name contains '" + escapeQuery(queryText) + "'");
         if (!mimeType.isEmpty()) clauses.add("mimeType='" + escapeQuery(mimeType) + "'");
         DriveResult result = requestFiles(token.value, joinClauses(clauses), "", pageSize);
-        return resultJson("drive.search", result.ok, result.error, result.detail, result.files, "");
+        return resultJson(toolName, result.ok, result.error, result.detail, result.files, "");
     }
 
-    private JSONObject readTool(JSONObject arguments, GoogleSignInAccount account) {
-        TokenResult token = tokenForTool(account, "drive.read");
+    private JSONObject readMetadataTool(JSONObject arguments, GoogleSignInAccount account) {
+        TokenResult token = tokenForTool(account, "drive.read_metadata");
         if (!token.ok) return token.json;
         String fileId = cleanArg(arguments, "fileId");
-        if (fileId.isEmpty()) return toolError("drive.read", "missing_file_id", "drive.read requires fileId from a prior drive.search result.");
-        String name = cleanArg(arguments, "name");
-        String mimeType = cleanArg(arguments, "mimeType");
-        if (mimeType.isEmpty()) mimeType = DOC_MIME_TYPE;
+        if (fileId.isEmpty()) return toolError("drive.read_metadata", "missing_file_id", "drive.read_metadata requires fileId from a prior search result.");
         try {
-            DriveFile file = new DriveFile(fileId, name, mimeType, "", "");
-            return resultJson("drive.read", true, "", "", new ArrayList<>(), readDocumentText(token.value, file)).put("file", fileJson(file));
+            JSONObject file = getJson(FILES_URL + "/" + Uri.encode(fileId) + "?fields=id,name,mimeType,modifiedTime,webViewLink,parents", token.value, "application/json");
+            return resultJson("drive.read_metadata", true, "", "", new ArrayList<>(), "").put("file", file);
         } catch (Exception ex) {
-            return toolError("drive.read", "document_read_error", safe(ex.getMessage()));
+            return toolError("drive.read_metadata", "read_metadata_error", safe(ex.getMessage()));
+        }
+    }
+
+    private JSONObject createFolderTool(JSONObject arguments, GoogleSignInAccount account) {
+        TokenResult token = tokenForTool(account, "drive.create_folder");
+        if (!token.ok) return token.json;
+        String name = cleanArg(arguments, "name");
+        String parentId = cleanArg(arguments, "parentId");
+        if (name.isEmpty()) return toolError("drive.create_folder", "missing_name", "drive.create_folder requires name.");
+        try {
+            JSONObject body = new JSONObject().put("name", name).put("mimeType", FOLDER_MIME_TYPE);
+            if (!parentId.isEmpty()) body.put("parents", new JSONArray().put(parentId));
+            JSONObject file = postJson(FILES_URL + "?fields=id,name,mimeType,webViewLink,parents", token.value, body);
+            return resultJson("drive.create_folder", true, "", "drive_folder_created", new ArrayList<>(), "")
+                    .put("status", "drive_folder_created")
+                    .put("file", file)
+                    .put("title", file.optString("name", name));
+        } catch (Exception ex) {
+            return toolError("drive.create_folder", "create_folder_error", safe(ex.getMessage()));
+        }
+    }
+
+    private JSONObject updateMetadataTool(JSONObject arguments, GoogleSignInAccount account) {
+        TokenResult token = tokenForTool(account, "drive.update_metadata");
+        if (!token.ok) return token.json;
+        String fileId = cleanArg(arguments, "fileId");
+        if (fileId.isEmpty()) return toolError("drive.update_metadata", "missing_file_id", "drive.update_metadata requires fileId.");
+        String name = cleanArg(arguments, "name");
+        String addParentId = cleanArg(arguments, "addParentId");
+        String removeParentId = cleanArg(arguments, "removeParentId");
+        if (name.isEmpty() && addParentId.isEmpty() && removeParentId.isEmpty()) {
+            return toolError("drive.update_metadata", "missing_update", "Provide name, addParentId, or removeParentId.");
+        }
+        try {
+            Uri.Builder builder = Uri.parse(FILES_URL + "/" + Uri.encode(fileId)).buildUpon()
+                    .appendQueryParameter("fields", "id,name,mimeType,webViewLink,parents");
+            if (!addParentId.isEmpty()) builder.appendQueryParameter("addParents", addParentId);
+            if (!removeParentId.isEmpty()) builder.appendQueryParameter("removeParents", removeParentId);
+            JSONObject patch = new JSONObject();
+            if (!name.isEmpty()) patch.put("name", name);
+            JSONObject file = patchJson(builder.build().toString(), token.value, patch);
+            return resultJson("drive.update_metadata", true, "", "drive_metadata_updated", new ArrayList<>(), "")
+                    .put("status", "drive_metadata_updated")
+                    .put("file", file)
+                    .put("title", file.optString("name", name));
+        } catch (Exception ex) {
+            return toolError("drive.update_metadata", "update_metadata_error", safe(ex.getMessage()));
+        }
+    }
+
+    private JSONObject readDocTool(JSONObject arguments, GoogleSignInAccount account) {
+        TokenResult token = tokenForTool(account, "docs.read");
+        if (!token.ok) return token.json;
+        String fileId = cleanArg(arguments, "fileId");
+        if (fileId.isEmpty()) return toolError("docs.read", "missing_file_id", "docs.read requires fileId from a prior docs.search result.");
+        String name = cleanArg(arguments, "name");
+        try {
+            DriveFile file = new DriveFile(fileId, name, DOC_MIME_TYPE, "", "");
+            return resultJson("docs.read", true, "", "", new ArrayList<>(), readDocumentText(token.value, file)).put("file", fileJson(file));
+        } catch (Exception ex) {
+            return toolError("docs.read", "document_read_error", safe(ex.getMessage()));
         }
     }
 
     private JSONObject createDocTool(JSONObject arguments, GoogleSignInAccount account) {
-        TokenResult token = tokenForTool(account, "drive.create_doc");
+        TokenResult token = tokenForTool(account, "docs.create");
         if (!token.ok) return token.json;
         String title = cleanArg(arguments, "title");
         String body = cleanArg(arguments, "body");
@@ -96,7 +158,7 @@ final class GoogleDriveClient {
         try {
             JSONObject created = postJson(DOCS_URL, token.value, new JSONObject().put("title", title));
             String documentId = created.optString("documentId", "");
-            if (documentId.isEmpty()) return toolError("drive.create_doc", "missing_document_id", "Google Docs did not return documentId.");
+            if (documentId.isEmpty()) return toolError("docs.create", "missing_document_id", "Google Docs did not return documentId.");
             if (!body.isEmpty()) {
                 JSONArray requests = new JSONArray().put(new JSONObject().put("insertText", new JSONObject()
                         .put("location", new JSONObject().put("index", 1))
@@ -107,26 +169,26 @@ final class GoogleDriveClient {
                 patchJson(FILES_URL + "/" + Uri.encode(documentId) + "?addParents=" + Uri.encode(folderId) + "&fields=id,parents", token.value, new JSONObject());
             }
             JSONObject file = getJson(FILES_URL + "/" + Uri.encode(documentId) + "?fields=id,name,mimeType,webViewLink", token.value, "application/json");
-            return resultJson("drive.create_doc", true, "", "google_doc_created", new ArrayList<>(), "")
+            return resultJson("docs.create", true, "", "google_doc_created", new ArrayList<>(), "")
                     .put("status", "google_doc_created")
                     .put("file", file)
                     .put("title", file.optString("name", title))
                     .put("webViewLink", file.optString("webViewLink", ""));
         } catch (Exception ex) {
-            return toolError("drive.create_doc", "create_doc_error", safe(ex.getMessage()));
+            return toolError("docs.create", "create_doc_error", safe(ex.getMessage()));
         }
     }
 
     private JSONObject updateDocTool(JSONObject arguments, GoogleSignInAccount account) {
-        TokenResult token = tokenForTool(account, "drive.update_doc");
+        TokenResult token = tokenForTool(account, "docs.update");
         if (!token.ok) return token.json;
         String fileId = cleanArg(arguments, "fileId");
-        if (fileId.isEmpty()) return toolError("drive.update_doc", "missing_file_id", "drive.update_doc requires fileId.");
+        if (fileId.isEmpty()) return toolError("docs.update", "missing_file_id", "docs.update requires fileId.");
         String appendText = cleanArg(arguments, "appendText");
         String replaceText = cleanArg(arguments, "replaceText");
         String body = cleanArg(arguments, "body");
         if (appendText.isEmpty() && replaceText.isEmpty() && body.isEmpty()) {
-            return toolError("drive.update_doc", "missing_update", "Provide appendText, replaceText, or body.");
+            return toolError("docs.update", "missing_update", "Provide appendText, replaceText, or body.");
         }
         try {
             int endIndex = documentEndIndex(token.value, fileId);
@@ -151,13 +213,13 @@ final class GoogleDriveClient {
             }
             postJson(DOCS_URL + "/" + Uri.encode(fileId) + ":batchUpdate", token.value, new JSONObject().put("requests", requests));
             JSONObject file = getJson(FILES_URL + "/" + Uri.encode(fileId) + "?fields=id,name,mimeType,webViewLink", token.value, "application/json");
-            return resultJson("drive.update_doc", true, "", "google_doc_updated", new ArrayList<>(), "")
+            return resultJson("docs.update", true, "", "google_doc_updated", new ArrayList<>(), "")
                     .put("status", "google_doc_updated")
                     .put("file", file)
                     .put("title", file.optString("name", ""))
                     .put("webViewLink", file.optString("webViewLink", ""));
         } catch (Exception ex) {
-            return toolError("drive.update_doc", "update_doc_error", safe(ex.getMessage()));
+            return toolError("docs.update", "update_doc_error", safe(ex.getMessage()));
         }
     }
 

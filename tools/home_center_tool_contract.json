@@ -1,0 +1,325 @@
+{
+  "version": "google-cru-v1",
+  "requiredGroups": [
+    "drive",
+    "docs",
+    "sheets",
+    "lists",
+    "gmail",
+    "calendar"
+  ],
+  "tools": [
+    {
+      "name": "drive.search",
+      "group": "drive",
+      "operation": "read",
+      "write": false,
+      "confirmationRequired": false,
+      "scopes": [
+        "https://www.googleapis.com/auth/drive"
+      ],
+      "dispatcher": "GoogleDriveClient"
+    },
+    {
+      "name": "drive.read_metadata",
+      "group": "drive",
+      "operation": "read",
+      "write": false,
+      "confirmationRequired": false,
+      "scopes": [
+        "https://www.googleapis.com/auth/drive"
+      ],
+      "dispatcher": "GoogleDriveClient"
+    },
+    {
+      "name": "drive.create_folder",
+      "group": "drive",
+      "operation": "create",
+      "write": true,
+      "confirmationRequired": true,
+      "scopes": [
+        "https://www.googleapis.com/auth/drive"
+      ],
+      "dispatcher": "GoogleDriveClient"
+    },
+    {
+      "name": "drive.update_metadata",
+      "group": "drive",
+      "operation": "update",
+      "write": true,
+      "confirmationRequired": true,
+      "scopes": [
+        "https://www.googleapis.com/auth/drive"
+      ],
+      "dispatcher": "GoogleDriveClient"
+    },
+    {
+      "name": "docs.search",
+      "group": "docs",
+      "operation": "read",
+      "write": false,
+      "confirmationRequired": false,
+      "scopes": [
+        "https://www.googleapis.com/auth/drive"
+      ],
+      "dispatcher": "GoogleDriveClient"
+    },
+    {
+      "name": "docs.read",
+      "group": "docs",
+      "operation": "read",
+      "write": false,
+      "confirmationRequired": false,
+      "scopes": [
+        "https://www.googleapis.com/auth/drive",
+        "https://www.googleapis.com/auth/documents"
+      ],
+      "dispatcher": "GoogleDriveClient"
+    },
+    {
+      "name": "docs.create",
+      "group": "docs",
+      "operation": "create",
+      "write": true,
+      "confirmationRequired": true,
+      "scopes": [
+        "https://www.googleapis.com/auth/drive",
+        "https://www.googleapis.com/auth/documents"
+      ],
+      "dispatcher": "GoogleDriveClient"
+    },
+    {
+      "name": "docs.update",
+      "group": "docs",
+      "operation": "update",
+      "write": true,
+      "confirmationRequired": true,
+      "scopes": [
+        "https://www.googleapis.com/auth/drive",
+        "https://www.googleapis.com/auth/documents"
+      ],
+      "dispatcher": "GoogleDriveClient"
+    },
+    {
+      "name": "sheets.search",
+      "group": "sheets",
+      "operation": "read",
+      "write": false,
+      "confirmationRequired": false,
+      "scopes": [
+        "https://www.googleapis.com/auth/drive"
+      ],
+      "dispatcher": "GoogleSheetsClient"
+    },
+    {
+      "name": "sheets.read",
+      "group": "sheets",
+      "operation": "read",
+      "write": false,
+      "confirmationRequired": false,
+      "scopes": [
+        "https://www.googleapis.com/auth/spreadsheets"
+      ],
+      "dispatcher": "GoogleSheetsClient"
+    },
+    {
+      "name": "sheets.create",
+      "group": "sheets",
+      "operation": "create",
+      "write": true,
+      "confirmationRequired": true,
+      "scopes": [
+        "https://www.googleapis.com/auth/drive",
+        "https://www.googleapis.com/auth/spreadsheets"
+      ],
+      "dispatcher": "GoogleSheetsClient"
+    },
+    {
+      "name": "sheets.update",
+      "group": "sheets",
+      "operation": "update",
+      "write": true,
+      "confirmationRequired": true,
+      "scopes": [
+        "https://www.googleapis.com/auth/spreadsheets"
+      ],
+      "dispatcher": "GoogleSheetsClient"
+    },
+    {
+      "name": "gmail.search",
+      "group": "gmail",
+      "operation": "read",
+      "write": false,
+      "confirmationRequired": false,
+      "scopes": [
+        "https://www.googleapis.com/auth/gmail.modify"
+      ],
+      "dispatcher": "GoogleGmailClient"
+    },
+    {
+      "name": "gmail.read",
+      "group": "gmail",
+      "operation": "read",
+      "write": false,
+      "confirmationRequired": false,
+      "scopes": [
+        "https://www.googleapis.com/auth/gmail.modify"
+      ],
+      "dispatcher": "GoogleGmailClient"
+    },
+    {
+      "name": "gmail.create_draft",
+      "group": "gmail",
+      "operation": "create",
+      "write": true,
+      "confirmationRequired": false,
+      "scopes": [
+        "https://www.googleapis.com/auth/gmail.compose"
+      ],
+      "dispatcher": "GoogleGmailClient"
+    },
+    {
+      "name": "gmail.update_draft",
+      "group": "gmail",
+      "operation": "update",
+      "write": true,
+      "confirmationRequired": false,
+      "scopes": [
+        "https://www.googleapis.com/auth/gmail.compose"
+      ],
+      "dispatcher": "GoogleGmailClient"
+    },
+    {
+      "name": "gmail.send_draft",
+      "group": "gmail",
+      "operation": "update",
+      "write": true,
+      "confirmationRequired": true,
+      "scopes": [
+        "https://www.googleapis.com/auth/gmail.send"
+      ],
+      "dispatcher": "GoogleGmailClient"
+    },
+    {
+      "name": "gmail.send_email",
+      "group": "gmail",
+      "operation": "create",
+      "write": true,
+      "confirmationRequired": true,
+      "scopes": [
+        "https://www.googleapis.com/auth/gmail.send"
+      ],
+      "dispatcher": "GoogleGmailClient"
+    },
+    {
+      "name": "calendar.search",
+      "group": "calendar",
+      "operation": "read",
+      "write": false,
+      "confirmationRequired": false,
+      "scopes": [
+        "https://www.googleapis.com/auth/calendar.events"
+      ],
+      "dispatcher": "GoogleCalendarClient"
+    },
+    {
+      "name": "calendar.read",
+      "group": "calendar",
+      "operation": "read",
+      "write": false,
+      "confirmationRequired": false,
+      "scopes": [
+        "https://www.googleapis.com/auth/calendar.events"
+      ],
+      "dispatcher": "GoogleCalendarClient"
+    },
+    {
+      "name": "calendar.create_event",
+      "group": "calendar",
+      "operation": "create",
+      "write": true,
+      "confirmationRequired": true,
+      "scopes": [
+        "https://www.googleapis.com/auth/calendar.events"
+      ],
+      "dispatcher": "GoogleCalendarClient"
+    },
+    {
+      "name": "calendar.update_event",
+      "group": "calendar",
+      "operation": "update",
+      "write": true,
+      "confirmationRequired": true,
+      "scopes": [
+        "https://www.googleapis.com/auth/calendar.events"
+      ],
+      "dispatcher": "GoogleCalendarClient"
+    },
+    {
+      "name": "calendar.respond_event",
+      "group": "calendar",
+      "operation": "update",
+      "write": true,
+      "confirmationRequired": true,
+      "scopes": [
+        "https://www.googleapis.com/auth/calendar.events"
+      ],
+      "dispatcher": "GoogleCalendarClient"
+    },
+    {
+      "name": "lists.read",
+      "group": "lists",
+      "operation": "read",
+      "write": false,
+      "confirmationRequired": false,
+      "scopes": [],
+      "dispatcher": "MainActivity"
+    },
+    {
+      "name": "lists.create",
+      "group": "lists",
+      "operation": "create",
+      "write": true,
+      "confirmationRequired": false,
+      "scopes": [],
+      "dispatcher": "MainActivity"
+    },
+    {
+      "name": "lists.add_item",
+      "group": "lists",
+      "operation": "create",
+      "write": true,
+      "confirmationRequired": false,
+      "scopes": [],
+      "dispatcher": "MainActivity"
+    },
+    {
+      "name": "lists.update_item",
+      "group": "lists",
+      "operation": "update",
+      "write": true,
+      "confirmationRequired": false,
+      "scopes": [],
+      "dispatcher": "MainActivity"
+    },
+    {
+      "name": "lists.mark_done",
+      "group": "lists",
+      "operation": "update",
+      "write": true,
+      "confirmationRequired": false,
+      "scopes": [],
+      "dispatcher": "MainActivity"
+    },
+    {
+      "name": "lists.remove_item",
+      "group": "lists",
+      "operation": "update",
+      "write": true,
+      "confirmationRequired": false,
+      "scopes": [],
+      "dispatcher": "MainActivity",
+      "destructive": false
+    }
+  ]
+}

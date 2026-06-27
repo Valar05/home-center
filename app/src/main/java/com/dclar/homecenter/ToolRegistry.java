@@ -14,6 +14,7 @@ import java.util.List;
 final class ToolRegistry {
     static final String DRIVE_SCOPE = "https://www.googleapis.com/auth/drive";
     static final String DOCS_SCOPE = "https://www.googleapis.com/auth/documents";
+    static final String SHEETS_SCOPE = "https://www.googleapis.com/auth/spreadsheets";
     static final String GMAIL_MODIFY_SCOPE = "https://www.googleapis.com/auth/gmail.modify";
     static final String GMAIL_COMPOSE_SCOPE = "https://www.googleapis.com/auth/gmail.compose";
     static final String GMAIL_SEND_SCOPE = "https://www.googleapis.com/auth/gmail.send";
@@ -26,12 +27,30 @@ final class ToolRegistry {
         List<ToolDefinition> tools = new ArrayList<>();
         tools.add(new ToolDefinition("drive.search", "Search or list Google Drive files.", "drive", false, false,
                 Arrays.asList(DRIVE_SCOPE), Arrays.asList("query", "folderName", "mimeType", "pageSize")));
-        tools.add(new ToolDefinition("drive.read", "Read text content from a Google Drive file by fileId.", "drive", false, false,
-                Arrays.asList(DRIVE_SCOPE), Arrays.asList("fileId", "mimeType", "name")));
-        tools.add(new ToolDefinition("drive.create_doc", "Create a Google Doc and optionally insert body text.", "drive", true, true,
+        tools.add(new ToolDefinition("drive.read_metadata", "Read Google Drive file or folder metadata by fileId.", "drive", false, false,
+                Arrays.asList(DRIVE_SCOPE), Arrays.asList("fileId")));
+        tools.add(new ToolDefinition("drive.create_folder", "Create a Google Drive folder.", "drive", true, true,
+                Arrays.asList(DRIVE_SCOPE), Arrays.asList("name", "parentId")));
+        tools.add(new ToolDefinition("drive.update_metadata", "Rename or move a Google Drive file or folder.", "drive", true, true,
+                Arrays.asList(DRIVE_SCOPE), Arrays.asList("fileId", "name", "addParentId", "removeParentId")));
+
+        tools.add(new ToolDefinition("docs.search", "Search Google Docs in Drive.", "docs", false, false,
+                Arrays.asList(DRIVE_SCOPE), Arrays.asList("query", "folderName", "pageSize")));
+        tools.add(new ToolDefinition("docs.read", "Read text content from a Google Doc by fileId.", "docs", false, false,
+                Arrays.asList(DRIVE_SCOPE, DOCS_SCOPE), Arrays.asList("fileId", "name")));
+        tools.add(new ToolDefinition("docs.create", "Create a Google Doc and optionally insert body text.", "docs", true, true,
                 Arrays.asList(DRIVE_SCOPE, DOCS_SCOPE), Arrays.asList("title", "body", "folderId")));
-        tools.add(new ToolDefinition("drive.update_doc", "Update a Google Doc by appending, replacing, or replacing the body.", "drive", true, true,
+        tools.add(new ToolDefinition("docs.update", "Update a Google Doc by appending, replacing, or replacing the body.", "docs", true, true,
                 Arrays.asList(DRIVE_SCOPE, DOCS_SCOPE), Arrays.asList("fileId", "name", "appendText", "replaceText", "body")));
+
+        tools.add(new ToolDefinition("sheets.search", "Search Google Sheets in Drive.", "sheets", false, false,
+                Arrays.asList(DRIVE_SCOPE), Arrays.asList("query", "folderName", "pageSize")));
+        tools.add(new ToolDefinition("sheets.read", "Read values from a Google Sheet range.", "sheets", false, false,
+                Arrays.asList(SHEETS_SCOPE), Arrays.asList("spreadsheetId", "range")));
+        tools.add(new ToolDefinition("sheets.create", "Create a Google Sheet.", "sheets", true, true,
+                Arrays.asList(DRIVE_SCOPE, SHEETS_SCOPE), Arrays.asList("title", "sheetTitle", "values", "folderId")));
+        tools.add(new ToolDefinition("sheets.update", "Update values in a Google Sheet range.", "sheets", true, true,
+                Arrays.asList(SHEETS_SCOPE), Arrays.asList("spreadsheetId", "range", "values")));
 
         tools.add(new ToolDefinition("gmail.search", "Search Gmail messages.", "gmail", false, false,
                 Arrays.asList(GMAIL_MODIFY_SCOPE), Arrays.asList("query", "pageSize")));
@@ -48,6 +67,8 @@ final class ToolRegistry {
 
         tools.add(new ToolDefinition("calendar.search", "Search Google Calendar events.", "calendar", false, false,
                 Arrays.asList(CALENDAR_EVENTS_SCOPE), Arrays.asList("query", "timeMin", "timeMax", "pageSize")));
+        tools.add(new ToolDefinition("calendar.read", "Read a Google Calendar event by eventId.", "calendar", false, false,
+                Arrays.asList(CALENDAR_EVENTS_SCOPE), Arrays.asList("eventId")));
         tools.add(new ToolDefinition("calendar.create_event", "Create a Google Calendar event.", "calendar", true, true,
                 Arrays.asList(CALENDAR_EVENTS_SCOPE), Arrays.asList("title", "startTime", "endTime", "attendees", "location", "description")));
         tools.add(new ToolDefinition("calendar.update_event", "Update a Google Calendar event.", "calendar", true, true,
@@ -82,7 +103,9 @@ final class ToolRegistry {
 
     static JSONArray unavailableToolGroups(GoogleSignInAccount account, boolean listsAvailable) {
         JSONArray array = new JSONArray();
-        addUnavailableGroup(array, "drive", account, Arrays.asList(DRIVE_SCOPE, DOCS_SCOPE));
+        addUnavailableGroup(array, "drive", account, Arrays.asList(DRIVE_SCOPE));
+        addUnavailableGroup(array, "docs", account, Arrays.asList(DRIVE_SCOPE, DOCS_SCOPE));
+        addUnavailableGroup(array, "sheets", account, Arrays.asList(DRIVE_SCOPE, SHEETS_SCOPE));
         addUnavailableGroup(array, "gmail", account, Arrays.asList(GMAIL_MODIFY_SCOPE, GMAIL_COMPOSE_SCOPE, GMAIL_SEND_SCOPE));
         addUnavailableGroup(array, "calendar", account, Arrays.asList(CALENDAR_EVENTS_SCOPE));
         if (!listsAvailable) {
@@ -129,6 +152,7 @@ final class ToolRegistry {
         return Arrays.asList(
                 new Scope(DRIVE_SCOPE),
                 new Scope(DOCS_SCOPE),
+                new Scope(SHEETS_SCOPE),
                 new Scope(GMAIL_MODIFY_SCOPE),
                 new Scope(GMAIL_COMPOSE_SCOPE),
                 new Scope(GMAIL_SEND_SCOPE),

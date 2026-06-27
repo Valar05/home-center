@@ -111,7 +111,7 @@ async function askOpenAI(uid, body) {
   const input = [
     'You are Home Center, a cohesive voice-first life dashboard for a blind user.',
     'Use concise, actionable language. Prefer direct next actions over generic offers.',
-    'Capabilities available through this app when configured: OpenAI GPT-5.5, hosted web search, full Google Drive plus Docs/Gmail/Calendar through server-side tokens, Home Center Firestore lists, TickTick fallback lists, and Cartesia narration. Do not claim Google Drive access unless a Google Drive probe confirms it.',
+    'Capabilities available through this app when configured: OpenAI GPT-5.5, hosted web search, full Google Drive plus Docs/Sheets/Gmail/Calendar through server-side tokens, Home Center Firestore lists, TickTick fallback lists, and Cartesia narration. Do not claim Google Drive access unless a Google Drive probe confirms it.',
     'For external writes such as Google Docs, Gmail drafts/sends, Calendar creates, or list changes, ask for explicit confirmation unless the user already phrased the command with confirm.',
     'If you use web search, include a short source line or source names in the answer.',
     `Default Home Center bucket: ${bucket || 'not selected'}. Default list: ${listName}.`,
@@ -184,8 +184,8 @@ function quoteForConfirmation(value) {
 }
 
 function confirmationAction(toolName, args = {}) {
-  if (toolName === 'drive.create_doc') return 'create';
-  if (toolName === 'drive.update_doc') return 'edit';
+  if (toolName === 'drive.create_folder' || toolName === 'docs.create' || toolName === 'sheets.create' || toolName === 'lists.create' || toolName === 'lists.add_item') return 'create';
+  if (toolName === 'drive.update_metadata' || toolName === 'docs.update' || toolName === 'sheets.update' || toolName === 'lists.update_item' || toolName === 'lists.mark_done' || toolName === 'lists.remove_item') return 'edit';
   if (toolName === 'gmail.send_email' || toolName === 'gmail.send_draft') return 'send';
   if (toolName === 'calendar.create_event') return 'create';
   if (toolName === 'calendar.update_event') return 'edit';
@@ -194,8 +194,12 @@ function confirmationAction(toolName, args = {}) {
 }
 
 function confirmationTitle(toolName) {
-  if (toolName === 'drive.create_doc') return 'Create Google Doc';
-  if (toolName === 'drive.update_doc') return 'Edit Google Doc';
+  if (toolName === 'drive.create_folder') return 'Create Drive Folder';
+  if (toolName === 'drive.update_metadata') return 'Edit Drive Item';
+  if (toolName === 'docs.create') return 'Create Google Doc';
+  if (toolName === 'docs.update') return 'Edit Google Doc';
+  if (toolName === 'sheets.create') return 'Create Google Sheet';
+  if (toolName === 'sheets.update') return 'Edit Google Sheet';
   if (toolName === 'gmail.send_email') return 'Send Email';
   if (toolName === 'gmail.send_draft') return 'Send Draft';
   if (toolName === 'calendar.create_event') return 'Create Calendar Event';
@@ -206,17 +210,29 @@ function confirmationTitle(toolName) {
 
 function confirmationSummary(toolName, args = {}) {
   const a = args || {};
-  if (toolName === 'drive.create_doc') {
+  if (toolName === 'drive.create_folder') {
+    return `Create Drive folder "${quoteForConfirmation(a.name || 'Untitled folder')}".`;
+  }
+  if (toolName === 'drive.update_metadata') {
+    return `Edit Drive item ${quoteForConfirmation(a.name || a.fileId || 'selected file')}.`;
+  }
+  if (toolName === 'docs.create') {
     const title = quoteForConfirmation(a.title || 'Untitled Google Doc');
     const body = quoteForConfirmation(a.body || '');
     return body ? `Create "${title}" with the provided body.` : `Create "${title}".`;
   }
-  if (toolName === 'drive.update_doc') {
+  if (toolName === 'docs.update') {
     const target = quoteForConfirmation(a.name || a.title || 'that document');
     if (a.appendText) return `Append text to "${target}".`;
     if (a.replaceText) return `Replace matching text in "${target}".`;
     if (a.body) return `Replace the body of "${target}".`;
     return `Edit "${target}".`;
+  }
+  if (toolName === 'sheets.create') {
+    return `Create Google Sheet "${quoteForConfirmation(a.title || 'Untitled sheet')}".`;
+  }
+  if (toolName === 'sheets.update') {
+    return `Update Google Sheet range ${quoteForConfirmation(a.range || 'selected range')}.`;
   }
   if (toolName === 'gmail.send_email') {
     return `Send email to ${quoteForConfirmation(a.to)} about "${quoteForConfirmation(a.subject)}".`;
@@ -374,7 +390,7 @@ async function askOpenAIToolTurn(body) {
 
 
 exports.health = onRequest((req, res) => {
-  res.set(CORS_HEADERS).json({ok: true, service: 'home-center-gateway', confirmationFlow: 'short-confirm-v1'});
+  res.set(CORS_HEADERS).json({ok: true, service: 'home-center-gateway', confirmationFlow: 'short-confirm-v1', toolContractVersion: 'google-cru-v1', contractGroups: ['drive', 'docs', 'sheets', 'lists', 'gmail', 'calendar']});
 });
 
 exports.googleAuthCodeExchange = onRequest(async (req, res) => {
