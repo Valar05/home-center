@@ -30,7 +30,7 @@ def fail(message):
     sys.exit(1)
 
 status, health = get_json('health')
-if status != 200 or health.get('service') != 'home-center-gateway':
+if status != 200 or health.get('service') != 'home-center-gateway' or health.get('confirmationFlow') != 'short-confirm-v1':
     fail(f'health bad: status={status} body={health}')
 
 status, headers, body = post_json('tts', {'text': 'Home Center provider smoke.'}, timeout=45)
@@ -47,4 +47,4 @@ status, headers, body = post_json('agentToolTurn', {'message': 'Create a Google 
 if status != 401:
     fail(f'agentToolTurn should require Firebase auth when unauthenticated: status={status} body={body[:200]!r}')
 
-print(f'Home Center provider smoke: OK cartesiaBytes={tts_bytes} driveProbeUnauth=401 agentToolTurnUnauth=401')
+print(f'Home Center provider smoke: OK cartesiaBytes={tts_bytes} confirmationFlow=short-confirm-v1 driveProbeUnauth=401 agentToolTurnUnauth=401')

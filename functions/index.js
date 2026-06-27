@@ -374,7 +374,7 @@ async function askOpenAIToolTurn(body) {
 
 
 exports.health = onRequest((req, res) => {
-  res.set(CORS_HEADERS).json({ok: true, service: 'home-center-gateway'});
+  res.set(CORS_HEADERS).json({ok: true, service: 'home-center-gateway', confirmationFlow: 'short-confirm-v1'});
 });
 
 exports.googleAuthCodeExchange = onRequest(async (req, res) => {
