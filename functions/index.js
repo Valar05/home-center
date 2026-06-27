@@ -393,6 +393,97 @@ function clarificationForUnresolvedReference(body, toolName, args) {
   return 'Which item do you mean?';
 }
 
+function numberWordToInt(value) {
+  const normalized = String(value || '').toLowerCase();
+  const words = {
+    one: 1,
+    two: 2,
+    three: 3,
+    four: 4,
+    five: 5,
+    six: 6,
+    seven: 7,
+    eight: 8,
+    nine: 9,
+    ten: 10,
+    eleven: 11,
+    twelve: 12,
+    thirteen: 13,
+    fourteen: 14,
+    fifteen: 15,
+    twenty: 20,
+    thirty: 30,
+    forty: 40,
+    fifty: 50,
+    sixty: 60,
+  };
+  if (/^\d+$/.test(normalized)) return Number(normalized);
+  return words[normalized] || 0;
+}
+
+function pad2(value) {
+  return String(value).padStart(2, '0');
+}
+
+function formatIsoWithOffset(epochMillis, offsetMillis) {
+  const local = new Date(epochMillis + offsetMillis);
+  const sign = offsetMillis >= 0 ? '+' : '-';
+  const absolute = Math.abs(offsetMillis);
+  const offsetHours = Math.floor(absolute / 3600000);
+  const offsetMinutes = Math.floor((absolute % 3600000) / 60000);
+  return `${local.getUTCFullYear()}-${pad2(local.getUTCMonth() + 1)}-${pad2(local.getUTCDate())}T${pad2(local.getUTCHours())}:${pad2(local.getUTCMinutes())}:${pad2(local.getUTCSeconds())}${sign}${pad2(offsetHours)}:${pad2(offsetMinutes)}`;
+}
+
+function timeContextFromBody(body) {
+  const context = body && typeof body.timeContext === 'object' ? body.timeContext : {};
+  const now = Number(context.nowEpochMillis);
+  return {
+    nowEpochMillis: Number.isFinite(now) && now > 0 ? now : Date.now(),
+    timeZoneId: safeText(context.timeZoneId || 'local', 120),
+    timeZoneOffsetMillis: Number.isFinite(Number(context.timeZoneOffsetMillis)) ? Number(context.timeZoneOffsetMillis) : 0,
+    nowIso: safeText(context.nowIso || '', 80),
+  };
+}
+
+function relativeOffsetMillis(value) {
+  const text = normalizedReferenceLiteral(value).replace(/[.!?]+$/g, '').replace(/\ba\b/g, 'one');
+  if (text === 'now' || text === 'right now') return 0;
+  const match = text.match(/^(?:in\s+)?(\d+|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|twenty|thirty|forty|fifty|sixty)\s*(minute|minutes|min|mins|hour|hours|hr|hrs|day|days)(?:\s+from\s+now)?$/);
+  if (!match) return null;
+  const amount = numberWordToInt(match[1]);
+  if (!amount) return null;
+  const unit = match[2];
+  if (unit.startsWith('min')) return amount * 60000;
+  if (unit.startsWith('h')) return amount * 3600000;
+  if (unit.startsWith('day')) return amount * 86400000;
+  return null;
+}
+
+function looksAbsoluteCalendarTime(value) {
+  return /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/.test(String(value || ''));
+}
+
+function resolveCalendarRelativeTimesFromContext(body, toolName, args) {
+  if (!toolName || !toolName.startsWith('calendar.') || !args || typeof args !== 'object') return args;
+  const context = timeContextFromBody(body);
+  let resolvedStart = false;
+  const startOffset = relativeOffsetMillis(args.startTime);
+  if (startOffset !== null) {
+    const startMs = context.nowEpochMillis + startOffset;
+    args.startTime = formatIsoWithOffset(startMs, context.timeZoneOffsetMillis);
+    resolvedStart = true;
+  }
+  const endOffset = relativeOffsetMillis(args.endTime);
+  if (endOffset !== null) {
+    args.endTime = formatIsoWithOffset(context.nowEpochMillis + endOffset, context.timeZoneOffsetMillis);
+  }
+  if ((toolName === 'calendar.create_event' || toolName === 'calendar.update_event') && resolvedStart && !looksAbsoluteCalendarTime(args.endTime)) {
+    const defaultDurationMillis = /notification|reminder|alert/i.test(`${args.title || ''} ${args.description || ''}`) ? 15 * 60000 : 30 * 60000;
+    args.endTime = formatIsoWithOffset(Date.parse(args.startTime) + defaultDurationMillis, context.timeZoneOffsetMillis);
+  }
+  return args;
+}
+
 async function askOpenAIToolTurn(body) {
   const message = safeText(body.message, 4000);
   const summary = safeText(body.summary, 4000);
@@ -401,6 +492,7 @@ async function askOpenAIToolTurn(body) {
   const tools = Array.isArray(body.tools) ? body.tools : [];
   const unavailableToolGroups = Array.isArray(body.unavailableToolGroups) ? body.unavailableToolGroups : [];
   const workingMemory = body && typeof body.workingMemory === 'object' ? body.workingMemory : {};
+  const timeContext = timeContextFromBody(body);
   const pending = pendingConfirmationFromBody(body, tools);
   if (pending && messageConfirms(message)) {
     pending.arguments._confirmedByGateway = true;
@@ -424,6 +516,8 @@ async function askOpenAIToolTurn(body) {
     'Google Docs rule: for a request to read or edit a Google Doc, use docs.search if needed, then docs.read or docs.update.',
     'Google Sheets rule: for spreadsheet creation or cell edits, use sheets.create, sheets.search, sheets.read, or sheets.update.',
     'Drive rule: use drive.* only for file and folder metadata, folder creation, rename, and move.',
+    'Calendar time rule: timeContext is the device clock. Resolve relative times like five minutes from now, in 2 hours, tomorrow, or later today into absolute RFC3339 dateTime strings before calling calendar tools.',
+    'Calendar time rule: do not ask for an exact time when the user already gave a relative time and timeContext is present. Compute it. If an event has startTime but no endTime, use 15 minutes for reminders/notifications and 30 minutes for ordinary events.',
     'Public web rule: you also have OpenAI web_search for public web pages, including public GitHub repositories. Use web_search for public GitHub repo questions, README discovery, file discovery, and public documentation lookup.',
     'Do not claim a GitHub tool is required for public GitHub repositories. A GitHub tool is only required for private repo access, authenticated GitHub writes, issues, pull requests, or repository mutations.',
     'If a needed app-owned capability is absent, explain the missing capability group from unavailableToolGroups and ask the user to reconnect Google if scopes are missing.',
@@ -438,6 +532,7 @@ async function askOpenAIToolTurn(body) {
     `Available tools JSON: ${JSON.stringify(tools).slice(0, 12000)}`,
     `Unavailable tool groups JSON: ${JSON.stringify(unavailableToolGroups).slice(0, 4000)}`,
     `Working memory JSON: ${JSON.stringify(workingMemory).slice(0, 6000)}`,
+    `Time context JSON: ${JSON.stringify(timeContext).slice(0, 2000)}`,
     toolResults.length ? `Tool results JSON: ${JSON.stringify(toolResults).slice(0, 16000)}` : 'Tool results JSON: []',
     pending ? `Pending confirmation JSON: ${JSON.stringify(pending).slice(0, 4000)}` : '',
     `Latest user request: ${message}`,
@@ -475,6 +570,7 @@ async function askOpenAIToolTurn(body) {
       const tool = toolByName(tools, toolName);
       const args = parsed.arguments && typeof parsed.arguments === 'object' ? parsed.arguments : {};
       resolveToolArgsFromWorkingMemory(body, toolName, args);
+      resolveCalendarRelativeTimesFromContext(body, toolName, args);
       const unresolvedReferenceReply = clarificationForUnresolvedReference(body, toolName, args);
       if (unresolvedReferenceReply) {
         const trace = buildToolTrace(body, tools, parsed, toolName, tool, false);

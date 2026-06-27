@@ -80,6 +80,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.TimeZone;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -882,7 +883,8 @@ public final class MainActivity extends Activity implements RecognitionListener 
                         availableTools,
                         unavailableGroups,
                         cloneJson(pendingToolConfirmation),
-                        workingMemorySnapshot());
+                        workingMemorySnapshot(),
+                        currentTimeContext());
                 LocalLog.info("agent_trace", "step=" + step + " gateway_type=" + turn.type + " status=" + turn.status + " requestedTool=" + turn.toolName + " technicalDetails=" + shortMessage(turn.technicalDetails));
                 if (turn.requestsTool()) {
                     LocalLog.info("agent_trace", "android_received_tool=" + turn.toolName);
@@ -1141,6 +1143,24 @@ public final class MainActivity extends Activity implements RecognitionListener 
             LocalLog.warn("agent", "pending_confirmation_clone_failed: " + shortMessage(ex.getMessage()));
             return null;
         }
+    }
+
+    private JSONObject currentTimeContext() {
+        JSONObject json = new JSONObject();
+        try {
+            long nowMillis = System.currentTimeMillis();
+            TimeZone zone = TimeZone.getDefault();
+            SimpleDateFormat iso = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX", Locale.US);
+            iso.setTimeZone(zone);
+            json.put("nowEpochMillis", nowMillis);
+            json.put("nowIso", iso.format(new Date(nowMillis)));
+            json.put("timeZoneId", zone.getID());
+            json.put("timeZoneOffsetMillis", zone.getOffset(nowMillis));
+            json.put("locale", Locale.getDefault().toLanguageTag());
+        } catch (Exception ex) {
+            LocalLog.warn("agent", "time_context_failed: " + shortMessage(ex.getMessage()));
+        }
+        return json;
     }
 
     private JSONObject workingMemorySnapshot() {

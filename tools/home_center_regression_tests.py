@@ -108,6 +108,12 @@ require_contains(main_activity, 'android_dispatch_result tool=', 'Android logs d
 require_contains(main_activity, 'documentId=', 'Android trace includes documentId')
 require_contains(openai_client, 'body.put("debugTrace", true)', 'Android requests gateway trace details')
 require_contains(openai_client, 'body.put("workingMemory", workingMemory == null ? new JSONObject() : workingMemory)', 'Android sends working memory to gateway')
+require_contains(openai_client, 'body.put("timeContext", timeContext == null ? new JSONObject() : timeContext)', 'Android sends device time context to gateway')
+require_contains(main_activity, 'currentTimeContext()', 'Android builds current time context for agent turns')
+require_contains(main_activity, 'json.put("nowEpochMillis", nowMillis)', 'time context includes epoch millis')
+require_contains(main_activity, 'json.put("nowIso", iso.format(new Date(nowMillis)))', 'time context includes local ISO timestamp')
+require_contains(main_activity, 'json.put("timeZoneId", zone.getID())', 'time context includes timezone id')
+require_contains(main_activity, 'json.put("timeZoneOffsetMillis", zone.getOffset(nowMillis))', 'time context includes timezone offset')
 require_contains(main_activity, 'private final JSONObject workingMemory = new JSONObject()', 'Android has session working memory')
 require_contains(main_activity, 'workingMemorySnapshot()', 'Android snapshots working memory for agent turns')
 require_contains(main_activity, 'updateWorkingMemoryFromToolResult(turn.toolName, turn.arguments, result)', 'Android updates working memory after tool results')
@@ -142,6 +148,14 @@ require_contains(functions_index, 'Working memory JSON contains recently created
 require_contains(functions_index, 'resolve the reference from workingMemory or recent tool results', 'planner prompt requires reference resolution')
 require_contains(functions_index, 'Never use phrases like that document', 'planner prompt forbids literal reference names')
 require_contains(functions_index, 'Working memory JSON: ${JSON.stringify(workingMemory)', 'gateway sends working memory in prompt')
+require_contains(functions_index, 'Time context JSON: ${JSON.stringify(timeContext)', 'gateway sends time context in prompt')
+require_contains(functions_index, 'Calendar time rule: timeContext is the device clock', 'planner prompt has calendar clock contract')
+require_contains(functions_index, 'do not ask for an exact time when the user already gave a relative time', 'planner prompt forbids relative-time punt')
+require_contains(functions_index, 'resolveCalendarRelativeTimesFromContext(body, toolName, args)', 'gateway normalizes relative calendar times before dispatch')
+require_contains(functions_index, 'function relativeOffsetMillis(value)', 'gateway has deterministic relative offset parser')
+require_contains(functions_index, 'five minutes from now', 'calendar relative-time contract covers exact failing phrase')
+require_contains(functions_index, '15 * 60000', 'calendar notification default duration is deterministic')
+require_contains(functions_index, '30 * 60000', 'calendar ordinary event default duration is deterministic')
 require_contains(functions_index, 'UNRESOLVED_REFERENCE_LITERALS', 'gateway has unresolved reference literal guard')
 require_contains(functions_index, "'that document'", 'reference guard covers that document')
 require_contains(functions_index, "'the thing we just made'", 'reference guard covers thing we just made')
@@ -189,6 +203,16 @@ reference_flow_contracts = [
         'source_expectations': [
             'rememberEntity("lastFolder", toolName',
             "toolName === 'drive.update_metadata') args.addParentId = memory.lastFolder.fileId",
+        ],
+    },
+    {
+        'input': 'Create a calendar event called home center notification five minutes from now.',
+        'source_expectations': [
+            'Time context JSON: ${JSON.stringify(timeContext)',
+            'Calendar time rule: timeContext is the device clock',
+            'resolveCalendarRelativeTimesFromContext(body, toolName, args)',
+            'relativeOffsetMillis(args.startTime)',
+            'formatIsoWithOffset(startMs, context.timeZoneOffsetMillis)',
         ],
     },
 ]
