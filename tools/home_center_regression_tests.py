@@ -135,6 +135,25 @@ require_contains(calendar_client, 'attendee_not_found', 'Calendar RSVP has atten
 require_contains(main_activity, 'homeTaskClient.updateTaskByIdOrName', 'List tools can update status/text by id or item text')
 require_contains(build_gradle, 'versionCode', 'Android build declares versionCode')
 
+
+build_ui = method_body(main_activity, 'private void buildUi', '    private void initializePortableCommandFields')
+require_absent(build_ui, 'title.setText("Home Center")', 'default chat view must not duplicate app title')
+require_absent(build_ui, 'talkButton.setText("Mic")', 'default chat view must not show dedicated Mic button')
+require_absent(build_ui, 'bottomPanel.addView(talkButton)', 'default chat composer must not stack a Mic panel')
+require_contains(build_ui, 'messageEdit.setHint("Ask Home Center...")', 'composer prompt is primary input')
+require_contains(build_ui, 'root.addView(chatScroll)', 'chat view contains message list')
+require_contains(build_ui, 'root.addView(bottomPanel, matchWrap())', 'composer is pinned after weighted chat list')
+require_contains(build_ui, 'stopSpeechButton.setVisibility(View.GONE)', 'Stop button is hidden until speech plays')
+require_contains(main_activity, 'private void setSpeechPlaying(boolean playing)', 'speech playback controls Stop visibility')
+require_contains(main_activity, 'setSpeechPlaying(true);', 'Cartesia playback reveals Stop button')
+require_contains(main_activity, 'setSpeechPlaying(false);', 'speech completion hides Stop button')
+require_absent(main_activity, 'appendDashboardCard();', 'startup must not insert dashboard card into chat')
+for color in ['#121212', '#1E1E1E', '#2A2A2A', '#6AA9FF', '#8BC34A', '#FFFFFF', '#B8B8B8', '#C75B5B']:
+    require_contains(main_activity, color, f'dark chat palette includes {color}')
+require_absent(main_activity, 'Home Center sync: signed in as', 'default status must not expose account prose')
+require_absent(main_activity, 'Type or use Talk', 'default status must not reference removed Talk workflow')
+require_contains(main_activity, 'statusView.setText(gptState + " | " + speechState + " | " + model)', 'provider status is compact')
+
 if failures:
     print('Home Center regression tests failed:', file=sys.stderr)
     for item in failures:

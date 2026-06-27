@@ -11,8 +11,8 @@ ARTIFACT_DIR = ROOT / 'tools' / 'visual_evidence'
 DOWNLOAD_CAPTURE_DIR = Path('/storage/emulated/0/Download/HomeCenter/visual-red')
 PACKAGE = 'com.dclar.homecenter'
 ACTIVITY = 'com.dclar.homecenter/.MainActivity'
-EXPECTED_VERSION_NAME = '0.2.7'
-EXPECTED_VERSION_CODE = '11'
+EXPECTED_VERSION_NAME = '0.2.11'
+EXPECTED_VERSION_CODE = '15'
 PROMPTS = [
     'Check Google drive',
     'Can you check my writing folder in drive',

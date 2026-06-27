@@ -99,6 +99,14 @@ public final class MainActivity extends Activity implements RecognitionListener 
     private static final String KEY_CHAT_SUMMARY = "chat_summary";
     private static final String EXTRA_SMOKE_PROMPT = "home_center_smoke_prompt";
     private static final int MAX_RECORDED_TURNS = 18;
+    private static final int COLOR_BACKGROUND = Color.parseColor("#121212");
+    private static final int COLOR_SURFACE = Color.parseColor("#1E1E1E");
+    private static final int COLOR_CARD = Color.parseColor("#2A2A2A");
+    private static final int COLOR_PRIMARY = Color.parseColor("#6AA9FF");
+    private static final int COLOR_ACCENT = Color.parseColor("#8BC34A");
+    private static final int COLOR_TEXT = Color.parseColor("#FFFFFF");
+    private static final int COLOR_SECONDARY = Color.parseColor("#B8B8B8");
+    private static final int COLOR_DANGER = Color.parseColor("#C75B5B");
 
     private SpeechRecognizer recognizer;
     private CartesiaSpeechProxyClient cartesiaSpeechProxyClient;
@@ -108,6 +116,7 @@ public final class MainActivity extends Activity implements RecognitionListener 
     private boolean externalPlaybackPausedForSpeech = false;
     private String activeSpeechUtteranceId = "";
     private volatile long speechSequence = 0L;
+    private volatile boolean speechPlaying = false;
     private volatile AudioTrack activeCartesiaTrack;
     private TextView statusView;
     private TextView authStatusView;
@@ -186,6 +195,8 @@ public final class MainActivity extends Activity implements RecognitionListener 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         LocalLog.init(this);
+        getWindow().setStatusBarColor(COLOR_BACKGROUND);
+        getWindow().setNavigationBarColor(Color.BLACK);
         LocalLog.info("app", "start versionName=" + BuildConfig.VERSION_NAME + " versionCode=" + BuildConfig.VERSION_CODE);
         initFirebase();
         audioManager = (AudioManager) getSystemService(AUDIO_SERVICE);
@@ -201,7 +212,6 @@ public final class MainActivity extends Activity implements RecognitionListener 
         if (coldStart) {
             appendStatus(startupGreeting);
         }
-        appendDashboardCard();
         if (coldStart) {
             main.post(() -> speak(startupGreeting));
         }
@@ -378,25 +388,27 @@ public final class MainActivity extends Activity implements RecognitionListener 
 
         LinearLayout root = new LinearLayout(this);
         root.setOrientation(LinearLayout.VERTICAL);
-        root.setPadding(dp(18), dp(18), dp(18), dp(18));
-        root.setBackgroundColor(Color.parseColor("#FFF8EC"));
+        root.setPadding(dp(12), dp(8), dp(12), dp(10));
+        root.setBackgroundColor(COLOR_BACKGROUND);
 
         LinearLayout header = new LinearLayout(this);
         header.setOrientation(LinearLayout.HORIZONTAL);
         header.setGravity(Gravity.CENTER_VERTICAL);
 
-        TextView title = new TextView(this);
-        title.setText("Home Center");
-        title.setTextSize(26);
-        title.setTypeface(Typeface.DEFAULT_BOLD);
-        title.setTextColor(Color.parseColor("#1D1B16"));
-        title.setGravity(Gravity.CENTER_VERTICAL);
-        header.addView(title, new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
+        authStatusView = new TextView(this);
+        authStatusView.setTextSize(14);
+        authStatusView.setTypeface(Typeface.DEFAULT_BOLD);
+        authStatusView.setTextColor(COLOR_ACCENT);
+        authStatusView.setGravity(Gravity.CENTER_VERTICAL);
+        authStatusView.setPadding(dp(10), dp(6), dp(10), dp(6));
+        header.addView(authStatusView, new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
 
         googleSignInButton = new Button(this);
         googleSignInButton.setText("Sign in with Google");
         googleSignInButton.setAllCaps(false);
         googleSignInButton.setTextSize(13);
+        googleSignInButton.setTextColor(COLOR_TEXT);
+        googleSignInButton.setBackgroundColor(COLOR_PRIMARY);
         googleSignInButton.setContentDescription("Sign in with Google");
         header.addView(googleSignInButton, new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.WRAP_CONTENT,
@@ -406,6 +418,8 @@ public final class MainActivity extends Activity implements RecognitionListener 
         menuButton.setText("Menu");
         menuButton.setAllCaps(false);
         menuButton.setTextSize(13);
+        menuButton.setTextColor(COLOR_TEXT);
+        menuButton.setBackgroundColor(COLOR_CARD);
         menuButton.setContentDescription("Open Home Center menu");
         LinearLayout.LayoutParams menuParams = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.WRAP_CONTENT,
@@ -414,29 +428,22 @@ public final class MainActivity extends Activity implements RecognitionListener 
         header.addView(menuButton, menuParams);
         root.addView(header, matchWrap());
 
-        authStatusView = new TextView(this);
-        authStatusView.setTextSize(13);
-        authStatusView.setTextColor(Color.parseColor("#5C574E"));
-        authStatusView.setGravity(Gravity.CENTER_HORIZONTAL);
-        authStatusView.setPadding(0, dp(4), 0, dp(4));
-        root.addView(authStatusView, matchWrap());
-
-
         statusView = new TextView(this);
-        statusView.setTextSize(14);
-        statusView.setTextColor(Color.parseColor("#6A655A"));
+        statusView.setTextSize(13);
+        statusView.setTextColor(COLOR_SECONDARY);
         statusView.setGravity(Gravity.CENTER_HORIZONTAL);
-        statusView.setPadding(0, dp(2), 0, dp(8));
+        statusView.setPadding(0, dp(2), 0, dp(6));
         root.addView(statusView, matchWrap());
         updateBackendStatus();
 
         chatScroll = new ScrollView(this);
         chatScroll.setFillViewport(true);
+        chatScroll.setBackgroundColor(COLOR_BACKGROUND);
         LinearLayout.LayoutParams chatScrollParams = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 0,
                 1f);
-        chatScrollParams.setMargins(0, dp(6), 0, dp(12));
+        chatScrollParams.setMargins(0, dp(6), 0, dp(8));
         chatScroll.setLayoutParams(chatScrollParams);
 
         chatLogContainer = new LinearLayout(this);
@@ -449,7 +456,7 @@ public final class MainActivity extends Activity implements RecognitionListener 
 
         LinearLayout bottomPanel = new LinearLayout(this);
         bottomPanel.setOrientation(LinearLayout.VERTICAL);
-        bottomPanel.setPadding(dp(14), dp(14), dp(14), dp(14));
+        bottomPanel.setPadding(dp(10), dp(10), dp(10), dp(10));
         bottomPanel.setBackground(makePanelBackground());
 
         LinearLayout composeRow = new LinearLayout(this);
@@ -457,7 +464,9 @@ public final class MainActivity extends Activity implements RecognitionListener 
         composeRow.setGravity(Gravity.CENTER_VERTICAL);
 
         messageEdit = new EditText(this);
-        messageEdit.setHint("Ask Home Center");
+        messageEdit.setHint("Ask Home Center...");
+        messageEdit.setHintTextColor(COLOR_SECONDARY);
+        messageEdit.setTextColor(COLOR_TEXT);
         messageEdit.setSingleLine(true);
         messageEdit.setText(prefs.getString(KEY_DRAFT_MESSAGE, ""));
         messageEdit.setImeOptions(EditorInfo.IME_ACTION_SEND);
@@ -469,8 +478,8 @@ public final class MainActivity extends Activity implements RecognitionListener 
         submitButton = new Button(this);
         submitButton.setText("Send");
         submitButton.setAllCaps(false);
-        submitButton.setTextColor(Color.WHITE);
-        submitButton.setBackgroundColor(Color.parseColor("#2E2E2E"));
+        submitButton.setTextColor(COLOR_BACKGROUND);
+        submitButton.setBackgroundColor(COLOR_ACCENT);
         LinearLayout.LayoutParams sendParams = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.WRAP_CONTENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT);
@@ -479,10 +488,11 @@ public final class MainActivity extends Activity implements RecognitionListener 
         composeRow.addView(submitButton);
 
         stopSpeechButton = new Button(this);
-        stopSpeechButton.setText("Stop speech");
+        stopSpeechButton.setText("Stop");
         stopSpeechButton.setAllCaps(false);
-        stopSpeechButton.setTextColor(Color.WHITE);
-        stopSpeechButton.setBackgroundColor(Color.parseColor("#8F4A3F"));
+        stopSpeechButton.setTextColor(COLOR_TEXT);
+        stopSpeechButton.setBackgroundColor(COLOR_DANGER);
+        stopSpeechButton.setVisibility(View.GONE);
         LinearLayout.LayoutParams stopParams = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.WRAP_CONTENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT);
@@ -490,27 +500,11 @@ public final class MainActivity extends Activity implements RecognitionListener 
         stopSpeechButton.setLayoutParams(stopParams);
         composeRow.addView(stopSpeechButton);
 
-        talkButton = new Button(this);
-        talkButton.setText("Mic");
-        talkButton.setTextSize(24);
-        talkButton.setTypeface(Typeface.DEFAULT_BOLD);
-        talkButton.setAllCaps(false);
-        talkButton.setTextColor(Color.parseColor("#1C1500"));
-        talkButton.setBackgroundColor(Color.parseColor("#F4C542"));
-        talkButton.setContentDescription("Talk to Home Center");
-        LinearLayout.LayoutParams talkParams = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                dp(48));
-        talkParams.setMargins(0, dp(8), 0, 0);
-        talkButton.setLayoutParams(talkParams);
-
         bottomPanel.addView(composeRow, matchWrap());
-        bottomPanel.addView(talkButton);
         root.addView(bottomPanel, matchWrap());
 
         submitButton.setOnClickListener(v -> submitTypedMessage());
         stopSpeechButton.setOnClickListener(v -> stopSpeechPlayback());
-        talkButton.setOnClickListener(v -> startTalkFlow());
         googleSignInButton.setOnClickListener(v -> startGoogleSignIn());
         menuButton.setOnClickListener(v -> showHomeCenterMenu());
         messageEdit.setOnEditorActionListener((v, actionId, event) -> {
@@ -525,6 +519,7 @@ public final class MainActivity extends Activity implements RecognitionListener 
 
         setContentView(root);
         refreshAuthStatus();
+        setSpeechPlaying(false);
     }
 
     private void initializePortableCommandFields(SharedPreferences prefs) {
@@ -545,9 +540,9 @@ public final class MainActivity extends Activity implements RecognitionListener 
         panel.setPadding(dp(20), dp(12), dp(20), dp(4));
 
         TextView help = new TextView(this);
-        help.setText("Secondary controls. The main screen stays voice-first.");
+        help.setText("Secondary controls and diagnostics. Chat stays primary.");
         help.setTextSize(14);
-        help.setTextColor(Color.parseColor("#3F3A31"));
+        help.setTextColor(COLOR_SECONDARY);
         help.setPadding(0, 0, 0, dp(10));
         panel.addView(help, matchWrap());
 
@@ -700,8 +695,8 @@ public final class MainActivity extends Activity implements RecognitionListener 
         button.setAllCaps(false);
         button.setTextSize(12);
         button.setPadding(dp(8), dp(8), dp(8), dp(8));
-        button.setBackgroundColor(Color.parseColor("#FFF1C7"));
-        button.setTextColor(Color.parseColor("#6B4C00"));
+        button.setBackgroundColor(COLOR_CARD);
+        button.setTextColor(COLOR_TEXT);
         button.setMinWidth(0);
         button.setMinHeight(0);
         button.setTag(prompt);
@@ -2202,9 +2197,6 @@ public final class MainActivity extends Activity implements RecognitionListener 
 
     private void setBusy(boolean busyState) {
         busy = busyState;
-        if (talkButton != null) {
-            talkButton.setEnabled(!busyState);
-        }
         if (submitButton != null) {
             submitButton.setEnabled(!busyState);
         }
@@ -2257,24 +2249,29 @@ public final class MainActivity extends Activity implements RecognitionListener 
             return;
         }
         if (!firebaseConfigured) {
-            authStatusView.setText("Home Center sync: Firebase config missing. Add app/google-services.json and rebuild.");
+            authStatusView.setText("Google sign-in needs setup");
+            authStatusView.setTextColor(COLOR_DANGER);
             if (googleSignInButton != null) {
                 googleSignInButton.setVisibility(View.VISIBLE);
             }
+            updateBackendStatus();
             return;
         }
         FirebaseUser user = firebaseAuth == null ? null : firebaseAuth.getCurrentUser();
         if (user == null) {
-            authStatusView.setText("Home Center sync: not signed in.");
+            authStatusView.setText("Sign in with Google");
+            authStatusView.setTextColor(COLOR_PRIMARY);
             if (googleSignInButton != null) {
                 googleSignInButton.setVisibility(View.VISIBLE);
             }
         } else {
-            authStatusView.setText("Home Center sync: signed in as " + homeTaskClient.currentUserLabel() + ".");
+            authStatusView.setText("Connected");
+            authStatusView.setTextColor(COLOR_ACCENT);
             if (googleSignInButton != null) {
                 googleSignInButton.setVisibility(View.GONE);
             }
         }
+        updateBackendStatus();
     }
 
     private void speak(String message) {
@@ -2286,12 +2283,14 @@ public final class MainActivity extends Activity implements RecognitionListener 
         activeSpeechUtteranceId = utteranceId;
         long sequence = beginSpeechSequence("new_speech_request");
         if (shouldUseCartesiaProxy()) {
+            setSpeechPlaying(true);
             speakWithCartesia(message, utteranceId, sequence);
             return;
         }
         String cause = cartesiaUnavailableCause();
         LocalLog.info("speech", "cartesia_unavailable cause=" + cause);
         setStatus("Narration is unavailable right now: " + cause + ".");
+        setSpeechPlaying(false);
         abandonSpeechFocusFor(utteranceId);
     }
 
@@ -2371,6 +2370,7 @@ public final class MainActivity extends Activity implements RecognitionListener 
                 if (isCurrentSpeechSequence(sequence)) {
                     main.post(() -> {
                         LocalLog.info("speech", "stop_reason=stream_complete receivedBytes=" + finalReceivedBytes + " writtenBytes=" + finalWrittenBytes);
+                        setSpeechPlaying(false);
                         abandonSpeechFocusFor(utteranceId);
                     });
                 }
@@ -2384,6 +2384,7 @@ public final class MainActivity extends Activity implements RecognitionListener 
                         LocalLog.info("speech", "stop_reason=cartesia_error detail=" + cause);
                         setStatus("Narration is unavailable right now: " + cause + ".");
                         stopCartesiaPlayback("cartesia_error");
+                        setSpeechPlaying(false);
                         abandonSpeechFocusFor(utteranceId);
                     });
                 }
@@ -2501,6 +2502,7 @@ public final class MainActivity extends Activity implements RecognitionListener 
             stopCartesiaPlaybackLocked("user_stop");
             activeSpeechUtteranceId = "";
         }
+        setSpeechPlaying(false);
         abandonSpeechFocus();
         setStatus("Speech stopped.");
     }
@@ -2584,14 +2586,23 @@ public final class MainActivity extends Activity implements RecognitionListener 
     }
 
     private void setStatus(String message) {
-        if (statusView != null) {
-            statusView.setText(timeStamp() + "\n" + message);
+        if (message != null && !message.trim().isEmpty()) {
+            LocalLog.info("status", shortMessage(message));
         }
+        updateBackendStatus();
     }
 
     private void appendStatus(String message) {
-        if (statusView != null) {
-            statusView.append("\n" + message);
+        if (message != null && !message.trim().isEmpty()) {
+            LocalLog.info("status", shortMessage(message));
+        }
+        updateBackendStatus();
+    }
+
+    private void setSpeechPlaying(boolean playing) {
+        speechPlaying = playing;
+        if (stopSpeechButton != null) {
+            stopSpeechButton.setVisibility(playing ? View.VISIBLE : View.GONE);
         }
     }
 
@@ -2613,9 +2624,10 @@ public final class MainActivity extends Activity implements RecognitionListener 
         boolean hasDirectOpenAi = BuildConfig.OPENAI_API_KEY != null && !BuildConfig.OPENAI_API_KEY.trim().isEmpty();
         boolean hasCartesia = BuildConfig.CARTESIA_API_KEY != null && !BuildConfig.CARTESIA_API_KEY.trim().isEmpty()
                 || (BuildConfig.CARTESIA_PROXY_BASE_URL != null && !BuildConfig.CARTESIA_PROXY_BASE_URL.trim().isEmpty());
-        String gatewayState = hasGateway ? "GPT-5.5 gateway configured." : (hasDirectOpenAi ? "GPT-5.5 direct fallback ready." : "GPT-5.5 is not configured.");
-        String speechState = hasCartesia ? "Cartesia ready." : "Cartesia is not configured.";
-        statusView.setText(timeStamp() + "  " + gatewayState + "  Gemini model: " + effectiveGeminiModel() + ".  " + speechState + "  Type or use Talk.");
+        String gptState = (hasGateway || hasDirectOpenAi) ? "GPT-5.5" : "GPT offline";
+        String speechState = hasCartesia ? "Cartesia" : "Cartesia off";
+        String model = effectiveGeminiModel().toLowerCase(Locale.US).contains("flash") ? "Gemini Flash" : effectiveGeminiModel();
+        statusView.setText(gptState + " | " + speechState + " | " + model);
     }
 
     private void appendUserMessage(String text, boolean fromVoice) {
@@ -2872,8 +2884,8 @@ public final class MainActivity extends Activity implements RecognitionListener 
     private GradientDrawable makeActionCardBackground() {
         GradientDrawable drawable = new GradientDrawable();
         drawable.setCornerRadius(dp(20));
-        drawable.setColor(Color.parseColor("#FFFDF6"));
-        drawable.setStroke(dp(1), Color.parseColor("#E6D9B6"));
+        drawable.setColor(COLOR_SURFACE);
+        drawable.setStroke(dp(1), COLOR_CARD);
         return drawable;
     }
 
@@ -2893,16 +2905,16 @@ public final class MainActivity extends Activity implements RecognitionListener 
         chip.setText(label);
         chip.setTextSize(11);
         chip.setTypeface(Typeface.DEFAULT_BOLD);
-        chip.setTextColor(Color.parseColor(system ? "#7A6F5E" : "#8A6A00"));
+        chip.setTextColor(system ? COLOR_SECONDARY : COLOR_PRIMARY);
         chip.setPadding(dp(6), 0, dp(6), dp(3));
         row.addView(chip);
 
         TextView bubble = new TextView(this);
         bubble.setText(text);
         bubble.setTextSize(16);
-        bubble.setTextColor(Color.parseColor("#1D1B16"));
-        bubble.setPadding(dp(16), dp(12), dp(16), dp(12));
-        bubble.setMaxWidth((int) (getResources().getDisplayMetrics().widthPixels * 0.82f));
+        bubble.setTextColor(COLOR_TEXT);
+        bubble.setPadding(dp(18), dp(14), dp(18), dp(14));
+        bubble.setMaxWidth((int) (getResources().getDisplayMetrics().widthPixels * 0.80f));
         bubble.setBackground(makeBubbleBackground(user, system));
         LinearLayout.LayoutParams bubbleParams = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.WRAP_CONTENT,
@@ -2960,24 +2972,25 @@ public final class MainActivity extends Activity implements RecognitionListener 
 
     private GradientDrawable makeBubbleBackground(boolean user, boolean system) {
         GradientDrawable drawable = new GradientDrawable();
-        drawable.setCornerRadius(dp(20));
+        drawable.setCornerRadius(dp(24));
         if (system) {
-            drawable.setColor(Color.parseColor("#EFE7D9"));
-            drawable.setStroke(dp(1), Color.parseColor("#DDD2C0"));
+            drawable.setColor(COLOR_SURFACE);
+            drawable.setStroke(dp(1), COLOR_CARD);
         } else if (user) {
-            drawable.setColor(Color.parseColor("#FFE08A"));
+            drawable.setColor(Color.parseColor("#254D35"));
+            drawable.setStroke(dp(1), COLOR_ACCENT);
         } else {
-            drawable.setColor(Color.WHITE);
-            drawable.setStroke(dp(1), Color.parseColor("#E4DDD0"));
+            drawable.setColor(COLOR_CARD);
+            drawable.setStroke(dp(1), Color.parseColor("#3A3A3A"));
         }
         return drawable;
     }
 
     private GradientDrawable makePanelBackground() {
         GradientDrawable drawable = new GradientDrawable();
-        drawable.setCornerRadius(dp(24));
-        drawable.setColor(Color.WHITE);
-        drawable.setStroke(dp(1), Color.parseColor("#E4DDD0"));
+        drawable.setCornerRadius(dp(22));
+        drawable.setColor(COLOR_SURFACE);
+        drawable.setStroke(dp(1), COLOR_CARD);
         return drawable;
     }
 
@@ -3462,7 +3475,7 @@ public final class MainActivity extends Activity implements RecognitionListener 
     @Override
     public void onError(int error) {
         LocalLog.info("speech", "recognizer_error: " + error);
-        setStatus("I did not catch that. Tap Talk and try again.");
+        setStatus("I did not catch that. Try again from the keyboard microphone.");
     }
 
     @Override
@@ -3470,7 +3483,7 @@ public final class MainActivity extends Activity implements RecognitionListener 
         ArrayList<String> matches = results.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
         if (matches == null || matches.isEmpty()) {
             LocalLog.info("speech", "recognizer_empty_result");
-            setStatus("I did not hear a command. Tap Talk and try again.");
+            setStatus("I did not hear a command. Try again from the keyboard microphone.");
             return;
         }
         handlePhrase(matches.get(0));
