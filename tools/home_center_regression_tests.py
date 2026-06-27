@@ -140,6 +140,9 @@ require_contains(main_activity, 'Drive, Docs, Sheets, Gmail, Calendar, and Conta
 require_contains(main_activity, 'definition.confirmationRequired', 'Android refuses unconfirmed dangerous tools')
 require_contains(main_activity, 'arguments.optBoolean("_confirmedByGateway", false)', 'Android requires gateway confirmation marker')
 
+require_contains(openai_client, 'Home Center doctrine: Home Center is a life-operations system', 'direct fallback prompt includes doctrine steering')
+require_contains(openai_client, 'The model reasons, the app executes, the storage layer remembers', 'direct fallback prompt includes execution doctrine')
+require_contains(openai_client, 'Never imply a capability that is not advertised by the tool registry', 'direct fallback prompt includes capability honesty doctrine')
 require_contains(openai_client, 'body.put("tools", tools == null ? new JSONArray() : tools)', 'OpenAI client sends registry-provided tools')
 require_contains(openai_client, 'body.put("unavailableToolGroups"', 'OpenAI client sends unavailable capability groups')
 require_contains(openai_client, 'google:drive_docs_sheets_gmail_calendar_contacts', 'legacy capability text includes full Google contract')
@@ -147,6 +150,11 @@ require_absent(openai_client, 'google:drive_docs_gmail_calendar', 'legacy capabi
 require_absent(openai_client, 'google:drive_docs_sheets_gmail_calendar"', 'legacy capability text must not omit Contacts')
 require_absent(openai_client, '.put("name", "drive.search")', 'OpenAI client must not hardcode advertised tools')
 
+require_contains(functions_index, 'HOME_CENTER_DOCTRINE_STEERING', 'gateway defines Home Center doctrine steering')
+require_contains(functions_index, 'Home Center doctrine: Home Center is a life-operations system', 'gateway prompt includes doctrine steering')
+require_contains(functions_index, 'the model reasons, the app executes, the storage layer remembers', 'gateway prompt includes execution doctrine')
+require_contains(functions_index, 'Android owns capabilities and permissions; GPT owns judgment', 'gateway prompt keeps app as hands and GPT as planner')
+require_contains(functions_index, 'never imply a capability that is not advertised by the tool registry', 'gateway prompt includes capability honesty doctrine')
 require_contains(functions_index, 'Available tools JSON', 'agentToolTurn prompt is registry-driven')
 require_contains(functions_index, 'OpenAI web_search for public web pages, including public GitHub repositories', 'planner prompt routes public GitHub through web search')
 require_contains(functions_index, 'Do not claim a GitHub tool is required for public GitHub repositories', 'planner prompt forbids false missing-GitHub-tool refusal')

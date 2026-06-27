@@ -7,7 +7,7 @@ Home Center is a Java Android app built directly with Gradle from Termux. It is 
 
 ## Doctrine
 
-Read `docs/HOME_CENTER_DOCTRINE.md` before changing product direction, agent behavior, memory, research, writing, life-organization, provider-tool, Netrunner, or skill/simulation behavior. This repo-local doctrine is the source of truth; do not require Agent Closet, Drive, web search, or remote docs to recover Home Center's purpose.
+Read [docs/HOME_CENTER_DOCTRINE.md](docs/HOME_CENTER_DOCTRINE.md#L1) before changing product direction, agent behavior, memory, research, writing, life-organization, provider-tool, Netrunner, or skill/simulation behavior. This repo-local doctrine is the source of truth; do not require Agent Closet, Drive, web search, or remote docs to recover Home Center's purpose.
 
 ## Entry Points
 
