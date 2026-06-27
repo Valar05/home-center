@@ -90,9 +90,20 @@ public class ChatSystemShapeTest {
     public void enforceNextStepAppendsAConcreteFollowUp() {
         String response = ChatSystemShape.enforceNextStep(
                 "Roast the potatoes at 425 F for 30 minutes.",
-                "I have potatoes.");
+                "I want to cook potatoes.");
 
         assertTrue(response.contains("Next step:"));
+    }
+
+    @Test
+    public void enforceNextStepDoesNotAppendIngredientPromptsToGeneralAnswers() {
+        String response = ChatSystemShape.enforceNextStep(
+                "I checked June's Holocron. The latest cycle was June 4-10, 2026, and the next estimate is around July 2, 2026.",
+                "okay check out James holocron and tell me when my period should start");
+
+        assertFalse(response.contains("main ingredient"));
+        assertFalse(response.contains("second constraint"));
+        assertFalse(response.contains("Next steps:"));
     }
 
     @Test

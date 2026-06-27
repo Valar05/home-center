@@ -128,6 +128,8 @@ final class ChatSystemShape {
                 || value.contains("cooking")
                 || value.contains("meal")
                 || value.contains("dinner")
+                || value.contains("what to eat")
+                || value.contains("something to eat")
                 || value.contains("what can i make")
                 || value.contains("build me")
                 || value.contains("make me")
@@ -182,6 +184,9 @@ final class ChatSystemShape {
             return cleanResponse;
         }
         if (isIntegrationStatusIntent(latestUserText) || isIntegrationStatusAnswer(cleanResponse)) {
+            return cleanResponse;
+        }
+        if (!shouldForceNextStep(latestUserText, cleanResponse)) {
             return cleanResponse;
         }
         String followUp = suggestedNextSteps(latestUserText, cleanResponse);
@@ -315,6 +320,17 @@ final class ChatSystemShape {
                 || value.contains("google tools are not connected")
                 || value.contains("narration is unavailable")
                 || value.contains("ask drew to connect google");
+    }
+
+    private static boolean shouldForceNextStep(String latestUserText, String response) {
+        String user = safe(latestUserText).toLowerCase();
+        String answer = safe(response);
+        return isRecipeIntent(user)
+                || isBrainstormIntent(user)
+                || user.contains("inventory")
+                || user.contains("pantry")
+                || user.contains("fridge")
+                || answer.contains("?");
     }
 
     private static String suggestedNextSteps(String latestUserText, String response) {
