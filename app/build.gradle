@@ -19,7 +19,7 @@ if (localPropsFile.exists()) {
 def geminiApiKey = localProps.getProperty("GEMINI_API_KEY", "")
 def openAiApiKey = localProps.getProperty("OPENAI_API_KEY", System.getenv("OPENAI_API_KEY") ?: "")
 def cartesiaApiKey = localProps.getProperty("CARTESIA_API_KEY", System.getenv("CARTESIA_API_KEY") ?: "")
-def geminiModel = localProps.getProperty("GEMINI_MODEL", "gemini-2.5-flash")
+def geminiModel = localProps.getProperty("GEMINI_MODEL", "gemini-2.0-flash")
 def firebaseProjectId = ""
 def googleServicesFile = project.file("google-services.json")
 if (googleServicesFile.exists()) {
@@ -42,8 +42,8 @@ android {
         applicationId 'com.dclar.homecenter'
         minSdk 26
         targetSdk 33
-        versionCode 9
-        versionName '0.2.5'
+        versionCode 11
+        versionName '0.2.7'
 
         buildConfigField 'String', 'GEMINI_API_KEY', "\"${geminiApiKey.replace('\\', '\\\\').replace('\"', '\\\"')}\""
         buildConfigField 'String', 'OPENAI_API_KEY', "\"${openAiApiKey.replace('\\', '\\\\').replace('\"', '\\"')}\""

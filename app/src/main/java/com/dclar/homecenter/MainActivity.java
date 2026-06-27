@@ -81,6 +81,7 @@ public final class MainActivity extends Activity implements RecognitionListener 
     private static final int REQUEST_RECORD_AUDIO = 1001;
     private static final int REQUEST_GOOGLE_SIGN_IN = 2001;
     private static final int REQUEST_CART_REVIEW_IMPORT = 3001;
+    private static final int REQUEST_DRIVE_AUTH = 4001;
     private static final String WALMART_PACKAGE = "com.walmart.android";
     private static final String WALMART_BUY_AGAIN_URL = "https://www.walmart.com/my-items";
     private static final String PREFS = "home_center";
@@ -144,6 +145,7 @@ public final class MainActivity extends Activity implements RecognitionListener 
     private LinearLayout chatLogContainer;
     private GeminiClient geminiClient;
     private OpenAiAgentClient openAiAgentClient;
+    private GoogleDriveClient googleDriveClient;
 
     private boolean tickTickTokenVisible = false;
     private boolean firebaseConfigured = false;
@@ -179,6 +181,7 @@ public final class MainActivity extends Activity implements RecognitionListener 
         initFirebase();
         audioManager = (AudioManager) getSystemService(AUDIO_SERVICE);
         cartesiaSpeechProxyClient = new CartesiaSpeechProxyClient(BuildConfig.CARTESIA_PROXY_BASE_URL, BuildConfig.CARTESIA_API_KEY);
+        googleDriveClient = new GoogleDriveClient(this);
         refreshGeminiClient();
         buildUi();
         boolean restoredConversation = restoreConversationHistory();
@@ -247,7 +250,7 @@ public final class MainActivity extends Activity implements RecognitionListener 
                         .requestServerAuthCode(clientId, true)
                         .requestEmail()
                         .requestScopes(
-                                new Scope("https://www.googleapis.com/auth/drive.file"),
+                                new Scope(GoogleDriveClient.DRIVE_METADATA_SCOPE),
                                 new Scope("https://www.googleapis.com/auth/documents"),
                                 new Scope("https://www.googleapis.com/auth/gmail.modify"),
                                 new Scope("https://www.googleapis.com/auth/calendar.events"))
@@ -398,6 +401,7 @@ public final class MainActivity extends Activity implements RecognitionListener 
         authStatusView.setPadding(0, dp(4), 0, dp(4));
         root.addView(authStatusView, matchWrap());
 
+
         statusView = new TextView(this);
         statusView.setTextSize(14);
         statusView.setTextColor(Color.parseColor("#6A655A"));
@@ -532,6 +536,7 @@ public final class MainActivity extends Activity implements RecognitionListener 
         Button cartReview = button("Walmart cart review", 16, "Import a Walmart cart review bundle");
         Button cartHelper = button("Cart helper settings", 16, "Open Android accessibility settings for the cart helper");
         Button diagnostics = button("Check cart helper", 16, "Check whether the cart helper is installed and enabled");
+        Button driveCheck = button("Check Google Drive", 16, "Check whether Home Center can list Google Drive files");
         Button netrunner = button("Netrunner browser", 16, "Open the secondary browser tool");
         Button compact = button("Compact chat", 16, "Compact the current chat history");
 
@@ -540,6 +545,7 @@ public final class MainActivity extends Activity implements RecognitionListener 
         panel.addView(cartReview, matchHeight(dp(52)));
         panel.addView(cartHelper, matchHeight(dp(52)));
         panel.addView(diagnostics, matchHeight(dp(52)));
+        panel.addView(driveCheck, matchHeight(dp(52)));
         panel.addView(netrunner, matchHeight(dp(52)));
         panel.addView(compact, matchHeight(dp(52)));
 
@@ -567,6 +573,10 @@ public final class MainActivity extends Activity implements RecognitionListener 
         diagnostics.setOnClickListener(v -> {
             dialog.dismiss();
             showCartHelperDiagnostics();
+        });
+        driveCheck.setOnClickListener(v -> {
+            dialog.dismiss();
+            checkGoogleDriveDiagnostic();
         });
         netrunner.setOnClickListener(v -> {
             dialog.dismiss();
@@ -693,7 +703,7 @@ public final class MainActivity extends Activity implements RecognitionListener 
         panel.setPadding(dp(20), dp(12), dp(20), dp(4));
 
         TextView help = new TextView(this);
-        help.setText("Paste a Gemini API key. The model is fixed for this app slice.");
+        help.setText("Paste a Gemini API key. Runtime model: " + effectiveGeminiModel() + ".");
         help.setTextSize(14);
         help.setTextColor(Color.parseColor("#3F3A31"));
         help.setPadding(0, 0, 0, dp(10));
@@ -740,7 +750,7 @@ public final class MainActivity extends Activity implements RecognitionListener 
     }
 
     private String fixedGeminiModel() {
-        return "gemini-2.5-flash";
+        return clean(BuildConfig.GEMINI_MODEL).isEmpty() ? "gemini-2.0-flash" : clean(BuildConfig.GEMINI_MODEL);
     }
 
     private String effectiveGeminiApiKey() {
@@ -796,20 +806,73 @@ public final class MainActivity extends Activity implements RecognitionListener 
 
     private boolean tryHandleLocalStatusQuestion(String text) {
         String value = text == null ? "" : text.trim().toLowerCase(Locale.US);
-        boolean asksGoogleDocs = value.contains("google doc") || value.contains("google docs") || value.contains("docs");
-        boolean asksGoogleDrive = value.contains("google drive") || value.contains("drive") || value.contains("brain folder");
+        boolean asksGoogleDocs = value.contains("google doc")
+                || value.contains("google docs")
+                || value.contains("docs")
+                || value.contains("document");
+        boolean asksGoogleDrive = value.contains("google drive")
+                || value.contains("drive")
+                || value.contains("brain folder")
+                || value.contains("google file")
+                || value.contains("google files");
         boolean asksAccess = value.contains("can you see")
+                || value.contains("can home center see")
+                || value.contains("can you read")
+                || value.contains("can home center read")
+                || value.contains("can you open")
+                || value.contains("can home center open")
                 || value.contains("are you connected")
+                || value.contains("is home center connected")
                 || value.contains("can you access")
+                || value.contains("can home center access")
                 || value.contains("do you have access")
+                || value.contains("does home center have access")
+                || value.contains("permission")
                 || value.contains("is google connected")
                 || value.contains("is docs connected")
                 || value.contains("is drive connected")
                 || value.contains("open drive")
-                || value.contains("list contents");
+                || value.contains("list contents")
+                || value.contains("list files")
+                || value.contains("read google");
         if (!(asksGoogleDocs || asksGoogleDrive) || !asksAccess) {
             return false;
         }
+        checkGoogleDriveStatus(text, asksGoogleDrive, asksGoogleDocs);
+        return true;
+    }
+
+    private void checkGoogleDriveStatus(String text, boolean asksGoogleDrive, boolean asksGoogleDocs) {
+        FirebaseUser user = firebaseAuth == null ? null : firebaseAuth.getCurrentUser();
+        if (openAiAgentClient == null || !openAiAgentClient.isConfigured() || user == null) {
+            String answer = localGoogleToolsMissingAnswer(asksGoogleDrive, asksGoogleDocs);
+            appendAssistantMessage(answer, text);
+            speak(answer);
+            return;
+        }
+        appendStatus("Checking Google Drive connection...");
+        user.getIdToken(false)
+                .addOnSuccessListener(token -> executor.execute(() -> {
+                    try {
+                        OpenAiAgentClient.Reply reply = openAiAgentClient.checkGoogleDrive(token.getToken(), text);
+                        String answer = reply.text.isEmpty() ? localGoogleToolsMissingAnswer(asksGoogleDrive, asksGoogleDocs) : reply.text;
+                        main.post(() -> showAssistantMessage(answer, text));
+                    } catch (Exception ex) {
+                        String fallback = localGoogleToolsMissingAnswer(asksGoogleDrive, asksGoogleDocs);
+                        main.post(() -> {
+                            LocalLog.warn("google_drive", "probe_failed: " + shortMessage(ex.getMessage()));
+                            showAssistantMessage(fallback, text);
+                        });
+                    }
+                }))
+                .addOnFailureListener(ex -> {
+                    String fallback = localGoogleToolsMissingAnswer(asksGoogleDrive, asksGoogleDocs);
+                    LocalLog.warn("google_drive", "id_token_failed: " + shortMessage(ex.getMessage()));
+                    showAssistantMessage(fallback, text);
+                });
+    }
+
+    private String localGoogleToolsMissingAnswer(boolean asksGoogleDrive, boolean asksGoogleDocs) {
         StringBuilder answer = new StringBuilder();
         if (asksGoogleDrive && !asksGoogleDocs) {
             answer.append("No. Google Drive is not connected yet.\n\n");
@@ -819,11 +882,8 @@ public final class MainActivity extends Activity implements RecognitionListener 
             answer.append("No. Google Docs is not connected yet.\n\n");
         }
         answer.append("I can still help with Home Center lists, TickTick fallback, GPT answers, web search, and narration.\n\n");
-        answer.append("I will not claim I can read or change Google files until the owner finishes connecting Google tools.\n\n");
-        answer.append("Next step: ask Drew to connect Google Drive and Docs for Home Center.\n");
-        appendAssistantMessage(answer.toString(), text);
-        speak(answer.toString());
-        return true;
+        answer.append("I will not claim I can read, open, list, or change Google files until Drew connects full Google Drive access.");
+        return answer.toString();
     }
 
     private boolean tryHandleLocalCommand(String text) {
@@ -947,6 +1007,62 @@ public final class MainActivity extends Activity implements RecognitionListener 
             return;
         }
         startActivityForResult(googleSignInClient.getSignInIntent(), REQUEST_GOOGLE_SIGN_IN);
+    }
+
+    private void checkGoogleDriveDiagnostic() {
+        if (googleDriveClient == null) {
+            showAssistantMessage("Google Drive diagnostic is not available in this build.");
+            return;
+        }
+        GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(this);
+        if (account == null || account.getAccount() == null) {
+            showAssistantMessage("Sign in with Google first.");
+            startGoogleSignIn();
+            return;
+        }
+        if (!account.getGrantedScopes().contains(new Scope(GoogleDriveClient.DRIVE_METADATA_SCOPE))) {
+            showAssistantMessage("Google Drive permission is missing. I am reopening Google sign-in for Drive metadata access.");
+            startGoogleSignIn();
+            return;
+        }
+        appendStatus("Checking Google Drive directly...");
+        executor.execute(() -> {
+            GoogleDriveClient.DriveResult result = googleDriveClient.listFirstFiles(account);
+            main.post(() -> handleDriveDiagnosticResult(result));
+        });
+    }
+
+    private void handleDriveDiagnosticResult(GoogleDriveClient.DriveResult result) {
+        if (result == null) {
+            showAssistantMessage("Google Drive diagnostic failed: empty result.");
+            return;
+        }
+        if (result.recoverableAuthException != null) {
+            appendStatus("Google Drive permission needs approval: " + shortMessage(result.detail));
+            try {
+                startActivityForResult(result.recoverableAuthException.getIntent(), REQUEST_DRIVE_AUTH);
+            } catch (Exception ex) {
+                showAssistantMessage("Google Drive permission approval failed to open: " + shortMessage(ex.getMessage()));
+            }
+            return;
+        }
+        if (!result.ok) {
+            showAssistantMessage("Google Drive check failed [" + result.error + "]: " + result.detail);
+            return;
+        }
+        StringBuilder answer = new StringBuilder("Google Drive is connected. First files:");
+        if (result.files.isEmpty()) {
+            answer.append("\nNo files returned. ").append(result.detail);
+        } else {
+            for (GoogleDriveClient.DriveFile file : result.files) {
+                String name = file.name == null || file.name.trim().isEmpty() ? "untitled" : file.name.trim();
+                answer.append("\n- ").append(name);
+                if (file.modifiedTime != null && !file.modifiedTime.trim().isEmpty()) {
+                    answer.append(" (").append(file.modifiedTime).append(")");
+                }
+            }
+        }
+        showAssistantMessage(answer.toString());
     }
 
     private void joinBucket() {
@@ -2059,7 +2175,7 @@ public final class MainActivity extends Activity implements RecognitionListener 
         requestSpeechFocus();
         String utteranceId = "home_center_" + System.currentTimeMillis();
         activeSpeechUtteranceId = utteranceId;
-        long sequence = beginSpeechSequence();
+        long sequence = beginSpeechSequence("new_speech_request");
         if (shouldUseCartesiaProxy()) {
             speakWithCartesia(message, utteranceId, sequence);
             return;
@@ -2073,10 +2189,11 @@ public final class MainActivity extends Activity implements RecognitionListener 
         return cartesiaSpeechProxyClient != null && cartesiaSpeechProxyClient.isConfigured();
     }
 
-    private long beginSpeechSequence() {
+    private long beginSpeechSequence(String reason) {
         synchronized (this) {
             speechSequence += 1L;
-            stopCartesiaPlaybackLocked();
+            LocalLog.info("speech", "stop_reason=" + reason + " sequence=" + speechSequence); // includes stop_reason=new_speech_request
+            stopCartesiaPlaybackLocked(reason);
             return speechSequence;
         }
     }
@@ -2091,10 +2208,12 @@ public final class MainActivity extends Activity implements RecognitionListener 
             AudioTrack track = null;
             try {
                 if (!isCurrentSpeechSequence(sequence)) {
+                    LocalLog.info("speech", "stop_reason=stale_sequence sequence=" + sequence);
                     return;
                 }
                 connection = cartesiaSpeechProxyClient.openSpeechStream(message);
                 if (!isCurrentSpeechSequence(sequence)) {
+                    LocalLog.info("speech", "stop_reason=stale_sequence sequence=" + sequence);
                     return;
                 }
                 int minBufferSize = AudioTrack.getMinBufferSize(44100, AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT);
@@ -2116,28 +2235,48 @@ public final class MainActivity extends Activity implements RecognitionListener 
                         .build();
                 synchronized (this) {
                     if (!isCurrentSpeechSequence(sequence)) {
+                        LocalLog.info("speech", "stop_reason=stale_sequence sequence=" + sequence);
                         track.release();
                         return;
                     }
                     activeCartesiaTrack = track;
                     track.play();
                 }
+                long receivedBytes = 0L;
+                long writtenBytes = 0L;
                 try (InputStream input = new BufferedInputStream(connection.getInputStream())) {
                     byte[] buffer = new byte[4096];
                     int read;
                     while (isCurrentSpeechSequence(sequence) && (read = input.read(buffer)) != -1) {
+                        receivedBytes += read;
                         int written = 0;
+                        int zeroWrites = 0;
                         while (written < read && isCurrentSpeechSequence(sequence)) {
                             int count = track.write(buffer, written, read - written);
-                            if (count <= 0) {
-                                throw new IOException("Cartesia audio playback failed");
+                            if (count < 0) {
+                                throw new IOException("Cartesia audio playback failed: write=" + count);
                             }
+                            if (count == 0) {
+                                zeroWrites += 1;
+                                if (zeroWrites > 20) {
+                                    throw new IOException("Cartesia audio playback stalled");
+                                }
+                                SystemClock.sleep(10L);
+                                continue;
+                            }
+                            zeroWrites = 0;
                             written += count;
+                            writtenBytes += count;
                         }
                     }
                 }
+                long finalReceivedBytes = receivedBytes;
+                long finalWrittenBytes = writtenBytes;
                 if (isCurrentSpeechSequence(sequence)) {
-                    main.post(() -> abandonSpeechFocusFor(utteranceId));
+                    main.post(() -> {
+                        LocalLog.info("speech", "stop_reason=stream_complete receivedBytes=" + finalReceivedBytes + " writtenBytes=" + finalWrittenBytes);
+                        abandonSpeechFocusFor(utteranceId);
+                    });
                 }
             } catch (Exception ex) {
                 if (isCurrentSpeechSequence(sequence)) {
@@ -2145,9 +2284,9 @@ public final class MainActivity extends Activity implements RecognitionListener 
                         if (!isCurrentSpeechSequence(sequence)) {
                             return;
                         }
-                        LocalLog.info("speech", "cartesia_error: " + shortMessage(ex.getMessage()));
+                        LocalLog.info("speech", "stop_reason=cartesia_error detail=" + shortMessage(ex.getMessage()));
                         setStatus("Narration is unavailable right now.");
-                        stopCartesiaPlayback();
+                        stopCartesiaPlayback("cartesia_error");
                         abandonSpeechFocusFor(utteranceId);
                     });
                 }
@@ -2175,24 +2314,26 @@ public final class MainActivity extends Activity implements RecognitionListener 
         });
     }
 
-    private void stopCartesiaPlayback() {
+    private void stopCartesiaPlayback(String reason) {
         synchronized (this) {
-            stopCartesiaPlaybackLocked();
+            stopCartesiaPlaybackLocked(reason);
         }
     }
 
     private void stopSpeechPlayback() {
         synchronized (this) {
             speechSequence += 1L;
-            stopCartesiaPlaybackLocked();
+            LocalLog.info("speech", "stop_reason=user_stop sequence=" + speechSequence);
+            stopCartesiaPlaybackLocked("user_stop");
             activeSpeechUtteranceId = "";
         }
         abandonSpeechFocus();
         setStatus("Speech stopped.");
     }
 
-    private void stopCartesiaPlaybackLocked() {
+    private void stopCartesiaPlaybackLocked(String reason) {
         if (activeCartesiaTrack != null) {
+            LocalLog.info("speech", "stopping_active_track reason=" + reason);
             try {
                 activeCartesiaTrack.stop();
             } catch (Exception ignored) {
@@ -2300,7 +2441,7 @@ public final class MainActivity extends Activity implements RecognitionListener 
                 || (BuildConfig.CARTESIA_PROXY_BASE_URL != null && !BuildConfig.CARTESIA_PROXY_BASE_URL.trim().isEmpty());
         String gatewayState = hasGateway ? "GPT-5.5 gateway configured." : (hasDirectOpenAi ? "GPT-5.5 direct fallback ready." : "GPT-5.5 is not configured.");
         String speechState = hasCartesia ? "Cartesia ready." : "Cartesia is not configured.";
-        statusView.setText(timeStamp() + "  " + gatewayState + "  " + speechState + "  Type or use Talk.");
+        statusView.setText(timeStamp() + "  " + gatewayState + "  Gemini model: " + effectiveGeminiModel() + ".  " + speechState + "  Type or use Talk.");
     }
 
     private void appendUserMessage(String text, boolean fromVoice) {
@@ -3077,7 +3218,7 @@ public final class MainActivity extends Activity implements RecognitionListener 
 
         GeminiConfig(String apiKey, String model, String source) {
             this.apiKey = apiKey == null ? "" : apiKey.trim();
-            this.model = model == null || model.trim().isEmpty() ? "gemini-2.5-flash" : model.trim();
+            this.model = model == null || model.trim().isEmpty() ? "gemini-2.0-flash" : model.trim();
             this.source = source == null ? "missing" : source;
         }
     }
@@ -3112,6 +3253,14 @@ public final class MainActivity extends Activity implements RecognitionListener 
             } catch (Exception ex) {
                 refreshAuthStatus();
                 showAssistantMessage("Google sign in failed: " + shortMessage(ex.getMessage()));
+            }
+            return;
+        }
+        if (requestCode == REQUEST_DRIVE_AUTH) {
+            if (resultCode == RESULT_OK) {
+                checkGoogleDriveDiagnostic();
+            } else {
+                showAssistantMessage("Google Drive permission was not approved.");
             }
         }
     }
@@ -3158,7 +3307,7 @@ public final class MainActivity extends Activity implements RecognitionListener 
         if (recognizer != null) {
             recognizer.destroy();
         }
-        stopCartesiaPlayback();
+        stopCartesiaPlayback("activity_destroy");
         abandonSpeechFocus();
         if (firebaseAuth != null && authStateListener != null) {
             firebaseAuth.removeAuthStateListener(authStateListener);

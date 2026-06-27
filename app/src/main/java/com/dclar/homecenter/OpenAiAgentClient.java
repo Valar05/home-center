@@ -181,6 +181,21 @@ final class OpenAiAgentClient {
         postJson("googleAuthCodeExchange", idToken, body);
     }
 
+    Reply checkGoogleDrive(String idToken, String query) throws IOException {
+        JSONObject body = new JSONObject();
+        try {
+            body.put("query", query == null ? "" : query);
+        } catch (JSONException ex) {
+            throw new IOException("Could not build Google Drive probe request: " + ex.getMessage(), ex);
+        }
+        JSONObject response = postJson("googleDriveProbe", idToken, body);
+        return new Reply(
+                response.optString("reply", ""),
+                response.optString("narration", ""),
+                response.optString("status", ""),
+                response.optString("technicalDetails", response.optString("details", "")));
+    }
+
     private JSONObject postJson(String path, String idToken, JSONObject body) throws IOException {
         HttpURLConnection connection = (HttpURLConnection) new URL(resolve(path)).openConnection();
         connection.setRequestMethod("POST");

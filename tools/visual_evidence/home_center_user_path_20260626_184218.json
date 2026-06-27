@@ -1,0 +1,47 @@
+{
+  "ok": false,
+  "startedAt": "2026-06-26T18:42:18",
+  "package": "com.dclar.homecenter",
+  "expectedVersionName": "0.2.7",
+  "expectedVersionCode": "11",
+  "prompts": [
+    "Can you see drive brain folder in Google drive",
+    "Can Home Center read Google Drive?",
+    "Do you have access to my Google Drive brain folder?",
+    "Open my Drive brain folder and list contents"
+  ],
+  "appVisualCapture": "/storage/emulated/0/Download/HomeCenter/visual-red/home_center_app_chat_20260626_184224_456.png",
+  "assertions": {
+    "chatViewLoads": true,
+    "composerVisible": true,
+    "defaultAdminControlsHidden": true,
+    "runtimeVersionMatches": false,
+    "installedBuildFreshEnoughForBehaviorAssertions": false
+  },
+  "promptResults": [
+    {
+      "prompt": "Can you see drive brain folder in Google drive",
+      "startedAtEpoch": 1782517338.1856647,
+      "assertions": {
+        "composerInputPathUsed": true,
+        "friendlyDriveCardVisible": true,
+        "noRawProxyInstructionVisible": true,
+        "noSpeechProxyErrorVisible": true,
+        "noStaleDriveSetupVisible": false,
+        "noFoodFallbackVisible": true
+      },
+      "failures": [
+        "noStaleDriveSetupVisible",
+        "bad visible text: Home Center can read Google Drive"
+      ],
+      "logTextSample": "ri=content://media/external/downloads/286405\n2026-06-26T18:42:21.162-0500 INFO visual_evidence captured reason=chat uri=content://media/external/downloads/286406\n2026-06-26T18:42:21.357-0500 INFO visual_evidence captured reason=chat uri=content://media/external/downloads/286407\n2026-06-26T18:42:21.534-0500 INFO visual_evidence captured reason=chat uri=content://media/external/downloads/286408\n2026-06-26T18:42:21.758-0500 INFO visual_evidence captured reason=chat uri=content://media/external/downloads/286409\n2026-06-26T18:42:21.995-0500 INFO visual_evidence captured reason=chat uri=content://media/external/downloads/286410\n2026-06-26T18:42:22.201-0500 INFO visual_evidence captured reason=chat uri=content://media/external/downloads/286411\n2026-06-26T18:42:22.425-0500 INFO visual_evidence captured reason=chat uri=content://media/external/downloads/286412\n2026-06-26T18:42:22.658-0500 INFO visual_evidence captured reason=chat uri=content://media/external/downloads/286413\n2026-06-26T18:42:22.960-0500 INFO visual_evidence captured reason=chat uri=content://media/external/downloads/286414\n2026-06-26T18:42:23.172-0500 INFO visual_evidence captured reason=chat uri=content://media/external/downloads/286415\n2026-06-26T18:42:23.364-0500 INFO visual_evidence captured reason=chat uri=content://media/external/downloads/286416\n2026-06-26T18:42:23.590-0500 INFO visual_evidence captured reason=chat uri=content://media/external/downloads/286417\n2026-06-26T18:42:23.887-0500 INFO visual_evidence captured reason=chat uri=content://media/external/downloads/286418\n2026-06-26T18:42:24.170-0500 INFO visual_evidence captured reason=chat uri=content://media/external/downloads/286419\n2026-06-26T18:42:24.385-0500 INFO visual_evidence captured reason=chat uri=content://media/external/downloads/286420\n"
+    }
+  ],
+  "failures": [
+    "installedBuildIsStale",
+    "runtimeVersionMatches",
+    "installedBuildFreshEnoughForBehaviorAssertions"
+  ],
+  "logVersionMarkerFound": false,
+  "staleInstall": true
+}

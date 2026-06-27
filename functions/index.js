@@ -79,7 +79,7 @@ function docTitleFrom(message) {
 async function createGoogleDoc(uid, message) {
   const auth = await loadGoogleClient(uid);
   if (!auth) {
-    return {reply: 'Google tools are not connected yet. Sign in with Google again from Home Center so I can connect Drive and Docs.', status: 'google_tools_missing'};
+    return {reply: 'Google Drive is not connected yet. Drew needs to reconnect Google with full Drive access before I can create or read files.', status: 'google_tools_missing'};
   }
   const docs = google.docs({version: 'v1', auth});
   const drive = google.drive({version: 'v3', auth});
@@ -111,7 +111,7 @@ async function askOpenAI(uid, body) {
   const input = [
     'You are Home Center, a cohesive voice-first life dashboard for a blind user.',
     'Use concise, actionable language. Prefer direct next actions over generic offers.',
-    'Capabilities available through this app: OpenAI GPT-5.5, hosted web search, Google Drive/Docs/Gmail/Calendar through server-side tokens, Home Center Firestore lists, TickTick fallback lists, and Cartesia narration.',
+    'Capabilities available through this app when configured: OpenAI GPT-5.5, hosted web search, full Google Drive plus Docs/Gmail/Calendar through server-side tokens, Home Center Firestore lists, TickTick fallback lists, and Cartesia narration. Do not claim Google Drive access unless a Google Drive probe confirms it.',
     'For external writes such as Google Docs, Gmail drafts/sends, Calendar creates, or list changes, ask for explicit confirmation unless the user already phrased the command with confirm.',
     'If you use web search, include a short source line or source names in the answer.',
     `Default Home Center bucket: ${bucket || 'not selected'}. Default list: ${listName}.`,
@@ -181,6 +181,66 @@ exports.googleAuthCodeExchange = onRequest(async (req, res) => {
     sendJson(res, 200, {ok: true, status: 'google_tools_connected'});
   } catch (err) {
     sendJson(res, err.status || 500, {error: err.message || String(err)});
+  }
+});
+
+function isInsufficientDriveScope(err) {
+  const code = err && (err.code || err.status);
+  const message = String((err && err.message) || err || '').toLowerCase();
+  return code === 403 || message.includes('insufficient') || message.includes('permission') || message.includes('scope');
+}
+
+function driveQueryFrom(text) {
+  const value = safeText(text, 300).toLowerCase();
+  if (value.includes('brain')) {
+    return "mimeType='application/vnd.google-apps.folder' and name contains 'brain' and trashed=false";
+  }
+  return "trashed=false";
+}
+
+exports.googleDriveProbe = onRequest(async (req, res) => {
+  if (handleOptions(req, res)) return;
+  try {
+    const user = await requireUser(req);
+    const auth = await loadGoogleClient(user.uid);
+    if (!auth) {
+      sendJson(res, 200, {
+        reply: 'No. Google Drive is not connected yet.\n\nI can still help with Home Center lists, TickTick fallback, GPT answers, web search, and narration.\n\nI will not claim I can read, open, list, or change Google files until Drew connects full Google Drive access.',
+        narration: 'Google Drive is not connected yet.',
+        status: 'google_drive_missing',
+      });
+      return;
+    }
+    const drive = google.drive({version: 'v3', auth});
+    const query = driveQueryFrom(req.body && req.body.query);
+    const result = await drive.files.list({
+      q: query,
+      pageSize: 5,
+      fields: 'files(id,name,mimeType,modifiedTime,webViewLink)',
+      orderBy: 'modifiedTime desc',
+      supportsAllDrives: true,
+      includeItemsFromAllDrives: true,
+    });
+    const files = result.data.files || [];
+    const names = files.map((file) => file.name).filter(Boolean);
+    const suffix = names.length ? ` I found: ${names.join(', ')}.` : ' I did not find matching files in the first Drive probe.';
+    sendJson(res, 200, {
+      reply: `Yes. Google Drive is connected with full Drive access.${suffix}`,
+      narration: names.length ? `Google Drive is connected. I found ${names[0]}.` : 'Google Drive is connected.',
+      status: 'google_drive_connected',
+      files,
+    });
+  } catch (err) {
+    if (isInsufficientDriveScope(err)) {
+      sendJson(res, 200, {
+        reply: 'Google Drive is connected, but not with full Drive access yet. Drew needs to reconnect Google with full Drive permission before I can manage Drive files.',
+        narration: 'Google Drive needs full access before I can manage files.',
+        status: 'google_drive_scope_insufficient',
+        technicalDetails: String(err.message || err).slice(0, 500),
+      });
+      return;
+    }
+    sendJson(res, err.status || 500, {reply: `Google Drive check failed: ${err.message || String(err)}`, status: 'google_drive_probe_error'});
   }
 });
 

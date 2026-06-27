@@ -285,14 +285,25 @@ final class ChatSystemShape {
                 || value.contains("connected")
                 || value.contains("access");
         boolean asksStatus = value.contains("can you see")
+                || value.contains("can home center see")
+                || value.contains("can you read")
+                || value.contains("can home center read")
+                || value.contains("can you open")
+                || value.contains("can home center open")
                 || value.contains("can you access")
+                || value.contains("can home center access")
                 || value.contains("do you have access")
+                || value.contains("does home center have access")
+                || value.contains("permission")
                 || value.contains("are you connected")
+                || value.contains("is home center connected")
                 || value.contains("is google connected")
                 || value.contains("is drive connected")
                 || value.contains("is docs connected")
                 || value.contains("open drive")
                 || value.contains("list contents")
+                || value.contains("list files")
+                || value.contains("read google")
                 || value.contains("brain folder");
         return mentionsIntegration && asksStatus;
     }

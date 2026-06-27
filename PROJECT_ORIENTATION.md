@@ -1,5 +1,7 @@
 # Home Center Orientation
 
+For the live troubleshooting handoff, read `docs/CURRENT_TROUBLESHOOTING_STATE.md` before changing code. It records the current Drive/Cartesia/APK install state and the latest red/green evidence.
+
 Home Center is a Java Android app built directly with Gradle from Termux. It is not a Godot project.
 
 ## Entry Points

@@ -3,6 +3,7 @@ import argparse
 import json
 import os
 import struct
+import traceback
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 try:
@@ -121,11 +122,14 @@ class Handler(BaseHTTPRequestHandler):
             self.send_header("Cache-Control", "no-store")
             self.send_header("X-Audio-Format", "pcm_s16le")
             self.send_header("X-Sample-Rate", str(DEFAULT_SAMPLE_RATE))
+            self.send_header("Connection", "close")
+            self.close_connection = True
             self.end_headers()
             self.wfile.flush()
             tts_stream(text, lambda chunk: self._write_chunk(chunk), model_id=model_id, voice_id=voice_id)
-        except Exception as exc:
-            print(f"cartesia proxy stream error: {exc}")
+        except Exception:
+            traceback.print_exc()
+            self.close_connection = True
             return
 
     def _write_chunk(self, chunk):
