@@ -183,38 +183,81 @@ function quoteForConfirmation(value) {
   return String(value || '').trim().replace(/[\r\n]+/g, ' ').replace(/\s+/g, ' ');
 }
 
-function confirmationReply(toolName, args) {
+function confirmationAction(toolName, args = {}) {
+  if (toolName === 'drive.create_doc') return 'create';
+  if (toolName === 'drive.update_doc') return 'edit';
+  if (toolName === 'gmail.send_email' || toolName === 'gmail.send_draft') return 'send';
+  if (toolName === 'calendar.create_event') return 'create';
+  if (toolName === 'calendar.update_event') return 'edit';
+  if (toolName === 'calendar.respond_event') return 'respond';
+  return 'confirm';
+}
+
+function confirmationTitle(toolName) {
+  if (toolName === 'drive.create_doc') return 'Create Google Doc';
+  if (toolName === 'drive.update_doc') return 'Edit Google Doc';
+  if (toolName === 'gmail.send_email') return 'Send Email';
+  if (toolName === 'gmail.send_draft') return 'Send Draft';
+  if (toolName === 'calendar.create_event') return 'Create Calendar Event';
+  if (toolName === 'calendar.update_event') return 'Edit Calendar Event';
+  if (toolName === 'calendar.respond_event') return 'Respond To Calendar Event';
+  return 'Confirm Action';
+}
+
+function confirmationSummary(toolName, args = {}) {
   const a = args || {};
   if (toolName === 'drive.create_doc') {
-    const title = quoteForConfirmation(a.title || 'Home Center Note');
+    const title = quoteForConfirmation(a.title || 'Untitled Google Doc');
     const body = quoteForConfirmation(a.body || '');
-    return body
-      ? `I can create that. Say: confirm create Google Doc titled ${title} with body ${body}.`
-      : `I can create that. Say: confirm create Google Doc titled ${title}.`;
+    return body ? `Create "${title}" with the provided body.` : `Create "${title}".`;
   }
   if (toolName === 'drive.update_doc') {
     const target = quoteForConfirmation(a.name || a.title || 'that document');
-    if (a.appendText) {
-      return `I can update that. Say: confirm append '${quoteForConfirmation(a.appendText)}' to ${target}.`;
-    }
-    return `I can update that. Say: confirm update ${target}.`;
+    if (a.appendText) return `Append text to "${target}".`;
+    if (a.replaceText) return `Replace matching text in "${target}".`;
+    if (a.body) return `Replace the body of "${target}".`;
+    return `Edit "${target}".`;
   }
   if (toolName === 'gmail.send_email') {
-    return `I can send that email. Say: confirm send email to ${quoteForConfirmation(a.to)} with subject ${quoteForConfirmation(a.subject)}.`;
+    return `Send email to ${quoteForConfirmation(a.to)} about "${quoteForConfirmation(a.subject)}".`;
   }
   if (toolName === 'gmail.send_draft') {
-    return `I can send that draft. Say: confirm send draft ${quoteForConfirmation(a.draftId)}.`;
+    return `Send draft ${quoteForConfirmation(a.draftId)}.`;
   }
   if (toolName === 'calendar.create_event') {
-    return `I can create that calendar event. Say: confirm create calendar event titled ${quoteForConfirmation(a.title)}.`;
+    return `Create event "${quoteForConfirmation(a.title)}".`;
   }
   if (toolName === 'calendar.update_event') {
-    return `I can update that calendar event. Say: confirm update calendar event ${quoteForConfirmation(a.eventId)}.`;
+    return `Edit calendar event ${quoteForConfirmation(a.eventId)}.`;
   }
   if (toolName === 'calendar.respond_event') {
-    return `I can RSVP to that event. Say: confirm respond ${quoteForConfirmation(a.responseStatus)} to calendar event ${quoteForConfirmation(a.eventId)}.`;
+    return `RSVP ${quoteForConfirmation(a.responseStatus)} to calendar event ${quoteForConfirmation(a.eventId)}.`;
   }
-  return 'I can do that. Say the same request again starting with: confirm.';
+  return 'Confirm this action.';
+}
+
+function pendingConfirmation(toolName, args) {
+  return {
+    toolName,
+    arguments: args || {},
+    action: confirmationAction(toolName, args),
+    title: confirmationTitle(toolName),
+    summary: confirmationSummary(toolName, args),
+  };
+}
+
+function confirmationReply(toolName, args) {
+  const action = confirmationAction(toolName, args);
+  return `I can ${action} that. Say "confirm ${action}" or press Confirm.`;
+}
+
+function pendingConfirmationFromBody(body, tools) {
+  const pending = body && typeof body.pendingConfirmation === 'object' ? body.pendingConfirmation : null;
+  if (!pending || typeof pending.toolName !== 'string') return null;
+  const tool = toolByName(tools, pending.toolName);
+  if (!tool || !tool.confirmationRequired) return null;
+  const args = pending.arguments && typeof pending.arguments === 'object' ? pending.arguments : {};
+  return pendingConfirmation(pending.toolName, args);
 }
 
 async function askOpenAIToolTurn(body) {
@@ -224,6 +267,16 @@ async function askOpenAIToolTurn(body) {
   const toolResults = Array.isArray(body.toolResults) ? body.toolResults.slice(0, 8) : [];
   const tools = Array.isArray(body.tools) ? body.tools : [];
   const unavailableToolGroups = Array.isArray(body.unavailableToolGroups) ? body.unavailableToolGroups : [];
+  const pending = pendingConfirmationFromBody(body, tools);
+  if (pending && messageConfirms(message)) {
+    pending.arguments._confirmedByGateway = true;
+    return {
+      type: 'tool_call',
+      toolName: pending.toolName,
+      arguments: pending.arguments,
+      status: 'tool_call_requested',
+    };
+  }
   const input = [
     'You are Home Center. You are the thinker. The Android app is only your hands.',
     'Return one strict JSON object and no prose outside JSON.',
@@ -239,6 +292,7 @@ async function askOpenAIToolTurn(body) {
     `Available tools JSON: ${JSON.stringify(tools).slice(0, 12000)}`,
     `Unavailable tool groups JSON: ${JSON.stringify(unavailableToolGroups).slice(0, 4000)}`,
     toolResults.length ? `Tool results JSON: ${JSON.stringify(toolResults).slice(0, 16000)}` : 'Tool results JSON: []',
+    pending ? `Pending confirmation JSON: ${JSON.stringify(pending).slice(0, 4000)}` : '',
     `Latest user request: ${message}`,
   ].filter(Boolean).join('\n\n');
 
@@ -282,11 +336,13 @@ async function askOpenAIToolTurn(body) {
         };
       }
       if (tool.confirmationRequired && !messageConfirms(message)) {
+        const reply = confirmationReply(toolName, args);
         return {
           type: 'final',
-          reply: confirmationReply(toolName, args),
-          narration: confirmationReply(toolName, args),
+          reply,
+          narration: reply,
           status: 'confirmation_required',
+          pendingConfirmation: pendingConfirmation(toolName, args),
         };
       }
       if (tool.confirmationRequired) {

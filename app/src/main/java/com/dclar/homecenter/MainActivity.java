@@ -180,6 +180,7 @@ public final class MainActivity extends Activity implements RecognitionListener 
     private final List<ChatTurn> chatTurns = new ArrayList<>();
     private String conversationSummary = "";
     private String pendingAgentTurnAfterGoogleReconnect = "";
+    private volatile JSONObject pendingToolConfirmation;
     private String lastDriveDocumentId = "";
     private String lastDriveDocumentName = "";
     private String startupGreeting = "Home Center is ready. Try pantry inventory, what can I make, recipe brainstorm, or rescue meal.";
@@ -872,8 +873,12 @@ public final class MainActivity extends Activity implements RecognitionListener 
                         conversationSummary,
                         toolResults,
                         ToolRegistry.availableTools(account, hasSignedInHomeUser()),
-                        ToolRegistry.unavailableToolGroups(account, hasSignedInHomeUser()));
+                        ToolRegistry.unavailableToolGroups(account, hasSignedInHomeUser()),
+                        cloneJson(pendingToolConfirmation));
                 if (turn.requestsTool()) {
+                    if (turn.arguments.optBoolean("_confirmedByGateway", false)) {
+                        pendingToolConfirmation = null;
+                    }
                     JSONObject result = executeRegisteredTool(turn.toolName, turn.arguments);
                     toolResults.put(new JSONObject()
                             .put("name", turn.toolName)
@@ -881,10 +886,18 @@ public final class MainActivity extends Activity implements RecognitionListener 
                             .put("result", result));
                     continue;
                 }
-                finishAgentReply(clean, turn.reply, turn.narration, turn.status);
+                JSONObject pendingForUi = null;
+                if ("confirmation_required".equals(turn.status) && turn.pendingConfirmation != null) {
+                    pendingToolConfirmation = cloneJson(turn.pendingConfirmation);
+                    pendingForUi = cloneJson(turn.pendingConfirmation);
+                } else if (!"confirmation_required".equals(turn.status)) {
+                    pendingToolConfirmation = null;
+                }
+                finishAgentReply(clean, turn.reply, turn.narration, turn.status, pendingForUi);
                 return;
             }
-            finishAgentReply(clean, "I could not finish that request because the tool plan did not converge.", "I could not finish that request because the tool plan did not converge.", "tool_loop_limit");
+            pendingToolConfirmation = null;
+            finishAgentReply(clean, "I could not finish that request because the tool plan did not converge.", "I could not finish that request because the tool plan did not converge.", "tool_loop_limit", null);
         } catch (Exception ex) {
             main.post(() -> {
                 LocalLog.info("agent", "tool_loop_failed: " + shortMessage(ex.getMessage()));
@@ -1036,18 +1049,97 @@ public final class MainActivity extends Activity implements RecognitionListener 
         return result;
     }
 
-    private void finishAgentReply(String clean, String replyText, String narration, String status) {
+    private void finishAgentReply(String clean, String replyText, String narration, String status, JSONObject pendingConfirmation) {
         String finalResponse = replyText == null || replyText.trim().isEmpty() ? "I did not get a useful reply from GPT-5.5." : replyText.trim();
         chatTurns.add(new ChatTurn("assistant", finalResponse));
         trimChatTurns();
+        JSONObject pendingForUi = cloneJson(pendingConfirmation);
         main.post(() -> {
             setBusy(false);
             appendAssistantMessage(finalResponse, clean);
+            if (pendingForUi != null) {
+                appendPendingConfirmationCard(pendingForUi);
+            }
             if (status != null && !status.trim().isEmpty()) {
                 appendStatus(status.trim());
             }
             speak(narration == null || narration.trim().isEmpty() ? finalResponse : narration.trim());
         });
+    }
+
+    private JSONObject cloneJson(JSONObject json) {
+        if (json == null) {
+            return null;
+        }
+        try {
+            return new JSONObject(json.toString());
+        } catch (Exception ex) {
+            LocalLog.warn("agent", "pending_confirmation_clone_failed: " + shortMessage(ex.getMessage()));
+            return null;
+        }
+    }
+
+    private void appendPendingConfirmationCard(JSONObject pending) {
+        if (chatLogContainer == null || pending == null) {
+            return;
+        }
+        LinearLayout card = new LinearLayout(this);
+        card.setOrientation(LinearLayout.VERTICAL);
+        card.setPadding(dp(16), dp(14), dp(16), dp(14));
+        card.setBackground(makeActionCardBackground());
+        LinearLayout.LayoutParams cardParams = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT);
+        cardParams.setMargins(0, dp(8), 0, dp(8));
+        card.setLayoutParams(cardParams);
+
+        TextView title = new TextView(this);
+        title.setText(pending.optString("title", "Confirm Action"));
+        title.setTextSize(16);
+        title.setTypeface(Typeface.DEFAULT_BOLD);
+        title.setTextColor(COLOR_TEXT);
+        card.addView(title, matchWrap());
+
+        TextView summary = new TextView(this);
+        summary.setText(pending.optString("summary", "Confirm this action."));
+        summary.setTextSize(14);
+        summary.setTextColor(COLOR_SECONDARY);
+        summary.setPadding(0, dp(6), 0, dp(10));
+        card.addView(summary, matchWrap());
+
+        LinearLayout buttons = new LinearLayout(this);
+        buttons.setOrientation(LinearLayout.HORIZONTAL);
+        buttons.setGravity(Gravity.CENTER_VERTICAL);
+
+        Button confirm = button("Confirm", 14, "Confirm and run this action");
+        confirm.setBackgroundColor(COLOR_ACCENT);
+        confirm.setTextColor(COLOR_BACKGROUND);
+        Button cancel = button("Cancel", 14, "Cancel this pending action");
+        cancel.setBackgroundColor(COLOR_CARD);
+        cancel.setTextColor(COLOR_TEXT);
+        buttons.addView(confirm, weightedHeight(dp(46)));
+        buttons.addView(cancel, weightedHeight(dp(46)));
+        card.addView(buttons, matchWrap());
+
+        confirm.setOnClickListener(v -> submitPendingToolConfirmation());
+        cancel.setOnClickListener(v -> cancelPendingToolConfirmation());
+        chatLogContainer.addView(card);
+        chatLogContainer.post(this::scrollChatToBottom);
+    }
+
+    private void submitPendingToolConfirmation() {
+        JSONObject pending = cloneJson(pendingToolConfirmation);
+        if (pending == null) {
+            showAssistantMessage("There is no pending action to confirm.");
+            return;
+        }
+        String action = pending.optString("action", "confirm").trim();
+        submitMessage("confirm " + (action.isEmpty() ? "action" : action), false);
+    }
+
+    private void cancelPendingToolConfirmation() {
+        pendingToolConfirmation = null;
+        showAssistantMessage("Canceled.");
     }
 
     private String buildGeminiPrompt(String latestUserText) {

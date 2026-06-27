@@ -21,15 +21,17 @@ final class OpenAiAgentClient {
         final String status;
         final String toolName;
         final JSONObject arguments;
+        final JSONObject pendingConfirmation;
         final String technicalDetails;
 
-        ToolTurn(String type, String reply, String narration, String status, String toolName, JSONObject arguments, String technicalDetails) {
+        ToolTurn(String type, String reply, String narration, String status, String toolName, JSONObject arguments, JSONObject pendingConfirmation, String technicalDetails) {
             this.type = type == null ? "" : type.trim();
             this.reply = reply == null ? "" : reply.trim();
             this.narration = narration == null ? "" : narration.trim();
             this.status = status == null ? "" : status.trim();
             this.toolName = toolName == null ? "" : toolName.trim();
             this.arguments = arguments == null ? new JSONObject() : arguments;
+            this.pendingConfirmation = pendingConfirmation == null ? null : pendingConfirmation;
             this.technicalDetails = technicalDetails == null ? "" : technicalDetails.trim();
         }
 
@@ -103,7 +105,7 @@ final class OpenAiAgentClient {
         return sendDirectOpenAi(message, transcript, summary, bucket, listName);
     }
 
-    ToolTurn sendToolTurn(String idToken, String message, String transcript, String summary, JSONArray toolResults, JSONArray tools, JSONArray unavailableToolGroups) throws IOException {
+    ToolTurn sendToolTurn(String idToken, String message, String transcript, String summary, JSONArray toolResults, JSONArray tools, JSONArray unavailableToolGroups, JSONObject pendingConfirmation) throws IOException {
         if (!isConfigured()) {
             throw new IOException("GPT-5.5 is not configured in this build.");
         }
@@ -115,6 +117,9 @@ final class OpenAiAgentClient {
             body.put("toolResults", toolResults == null ? new JSONArray() : toolResults);
             body.put("tools", tools == null ? new JSONArray() : tools);
             body.put("unavailableToolGroups", unavailableToolGroups == null ? new JSONArray() : unavailableToolGroups);
+            if (pendingConfirmation != null) {
+                body.put("pendingConfirmation", pendingConfirmation);
+            }
         } catch (JSONException ex) {
             throw new IOException("Could not build tool agent request: " + ex.getMessage(), ex);
         }
@@ -145,6 +150,7 @@ final class OpenAiAgentClient {
                 response.optString("status", ""),
                 toolName,
                 arguments == null ? new JSONObject() : arguments,
+                response.optJSONObject("pendingConfirmation"),
                 response.optString("technicalDetails", response.optString("details", "")));
     }
 
