@@ -880,10 +880,17 @@ public final class MainActivity extends Activity implements RecognitionListener 
                         ToolRegistry.unavailableToolGroups(account, hasSignedInHomeUser()),
                         cloneJson(pendingToolConfirmation));
                 if (turn.requestsTool()) {
+                    JSONObject pendingForRetry = turn.arguments.optBoolean("_confirmedByGateway", false)
+                            ? cloneJson(pendingToolConfirmation)
+                            : null;
+                    JSONObject result = executeRegisteredTool(turn.toolName, turn.arguments);
+                    if (isGoogleToolAuthFailure(result)) {
+                        requestGoogleToolReconnect(clean, pendingForRetry, result);
+                        return;
+                    }
                     if (turn.arguments.optBoolean("_confirmedByGateway", false)) {
                         pendingToolConfirmation = null;
                     }
-                    JSONObject result = executeRegisteredTool(turn.toolName, turn.arguments);
                     toolResults.put(new JSONObject()
                             .put("name", turn.toolName)
                             .put("arguments", turn.arguments)
@@ -909,6 +916,43 @@ public final class MainActivity extends Activity implements RecognitionListener 
                 showAssistantMessage("The agent gateway failed: " + shortMessage(ex.getMessage()));
             });
         }
+    }
+
+    private boolean isGoogleToolAuthFailure(JSONObject result) {
+        if (result == null) {
+            return false;
+        }
+        String tool = result.optString("tool", "");
+        if (!(tool.startsWith("drive.") || tool.startsWith("gmail.") || tool.startsWith("calendar."))) {
+            return false;
+        }
+        String error = result.optString("error", "").toLowerCase(Locale.US);
+        return "scope_missing".equals(error)
+                || "scope_recoverable".equals(error)
+                || "token_auth_error".equals(error)
+                || "token_error".equals(error)
+                || "token_empty".equals(error);
+    }
+
+    private void requestGoogleToolReconnect(String clean, JSONObject pendingForRetry, JSONObject result) {
+        main.post(() -> {
+            setBusy(false);
+            pendingAgentTurnAfterGoogleReconnect = clean == null ? "" : clean.trim();
+            pendingToolConfirmation = cloneJson(pendingForRetry);
+            String detail = result == null ? "Google needs another approval." : shortMessage(result.optString("detail", result.optString("error", "Google needs another approval.")));
+            showAssistantMessage("Google needs one more approval before I can run that action. I am reopening Google sign-in now, then I will retry it. Detail: " + detail);
+            forceGoogleToolReconnect();
+        });
+    }
+
+    private void forceGoogleToolReconnect() {
+        if (!firebaseConfigured || googleSignInClient == null) {
+            startGoogleSignIn();
+            return;
+        }
+        googleSignInClient.signOut()
+                .addOnCompleteListener(task -> startGoogleSignIn())
+                .addOnFailureListener(ex -> startGoogleSignIn());
     }
 
     private JSONObject executeRegisteredTool(String toolName, JSONObject arguments) {

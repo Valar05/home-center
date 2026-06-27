@@ -92,6 +92,11 @@ require_contains(main_activity, 'ToolRegistry.definition(toolName)', 'MainActivi
 require_contains(main_activity, 'pendingAgentTurnAfterGoogleReconnect = clean == null ? "" : clean.trim()', 'missing Google scopes preserve pending user request')
 require_contains(main_activity, 'Google needs one more approval for Drive, Docs, Gmail, and Calendar tools', 'missing Google scopes launch user-facing reconnect')
 require_contains(main_activity, 'sendAgentTurn(pending);', 'Google reconnect resumes pending request')
+require_contains(main_activity, 'isGoogleToolAuthFailure(result)', 'Android intercepts Google tool auth failures before GPT final answer')
+require_contains(main_activity, 'requestGoogleToolReconnect(clean, pendingForRetry, result)', 'Google tool auth failure reopens approval locally')
+require_contains(main_activity, 'pendingToolConfirmation = cloneJson(pendingForRetry)', 'confirmed write payload survives Google reconnect')
+require_contains(main_activity, 'googleSignInClient.signOut()', 'Google reconnect forces fresh scope approval')
+require_contains(main_activity, 'I am reopening Google sign-in now, then I will retry it', 'tool auth failure has user-facing retry path')
 require_contains(main_activity, 'for (Scope scope : ToolRegistry.signInScopes())', 'scope check is registry-driven')
 
 require_contains(main_activity, 'definition.confirmationRequired', 'Android refuses unconfirmed dangerous tools')
