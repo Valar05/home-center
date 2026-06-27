@@ -173,14 +173,94 @@ function extractOutputText(json) {
 
 function extractJsonObject(text) {
   const raw = safeText(text, 20000);
-  const fenced = raw.match(/```(?:json)?\s*([\s\S]*?)```/i);
-  const candidate = fenced ? fenced[1] : raw;
-  const start = candidate.indexOf('{');
-  const stop = candidate.lastIndexOf('}');
-  if (start < 0 || stop < start) {
-    throw new Error(`Planner did not return JSON: ${raw.slice(0, 240)}`);
+  const candidates = [raw];
+  const fencePattern = /```(?:json)?\s*([\s\S]*?)```/ig;
+  let fence;
+  while ((fence = fencePattern.exec(raw)) !== null) {
+    candidates.push(fence[1]);
   }
-  return JSON.parse(candidate.slice(start, stop + 1));
+  for (const candidate of candidates) {
+    const direct = candidate.trim();
+    if (direct.startsWith('{') && direct.endsWith('}')) {
+      try {
+        return JSON.parse(direct);
+      } catch (err) {
+        // Recover below when the model adds prose after a valid tool JSON object.
+      }
+    }
+    const recovered = findBalancedJsonObject(candidate);
+    if (recovered) {
+      return JSON.parse(recovered);
+    }
+  }
+  throw new Error(`Planner did not return JSON: ${raw.slice(0, 240)}`);
+}
+
+function findBalancedJsonObject(text) {
+  const raw = safeText(text, 20000);
+  for (let start = raw.indexOf('{'); start >= 0; start = raw.indexOf('{', start + 1)) {
+    let depth = 0;
+    let inString = false;
+    let escaped = false;
+    for (let i = start; i < raw.length; i += 1) {
+      const ch = raw[i];
+      if (inString) {
+        if (escaped) {
+          escaped = false;
+        } else if (ch === '\\') {
+          escaped = true;
+        } else if (ch === '"') {
+          inString = false;
+        }
+        continue;
+      }
+      if (ch === '"') {
+        inString = true;
+      } else if (ch === '{') {
+        depth += 1;
+      } else if (ch === '}') {
+        depth -= 1;
+        if (depth === 0) {
+          const candidate = raw.slice(start, i + 1);
+          try {
+            const parsed = JSON.parse(candidate);
+            if (parsed && (parsed.type || parsed.toolName || parsed.name || parsed.reply || parsed.text)) {
+              return candidate;
+            }
+          } catch (err) {
+            break;
+          }
+        }
+      }
+    }
+  }
+  return '';
+}
+
+function looksLikeToolCallJson(text) {
+  const raw = safeText(text, 20000);
+  return raw.includes('"type"') && raw.includes('tool_call') && (raw.includes('"toolName"') || raw.includes('"name"'));
+}
+
+function plannerParseFailureReply(text, err) {
+  const technicalDetails = String(err && err.message || err).slice(0, 1000);
+  if (looksLikeToolCallJson(text)) {
+    return {
+      type: 'final',
+      reply: 'I could not safely parse the tool request. Please say that again.',
+      narration: 'I could not safely parse the tool request. Please say that again.',
+      status: 'planner_json_error',
+      technicalDetails,
+    };
+  }
+  const clean = safeText(text, 12000);
+  return {
+    type: 'final',
+    reply: clean || `Planner failed: ${technicalDetails}`,
+    narration: clean || 'Planner failed.',
+    status: 'planner_json_error',
+    technicalDetails,
+  };
 }
 
 
@@ -659,13 +739,7 @@ async function askOpenAIToolTurn(body) {
       status: safeText(parsed.status, 160) || 'gpt_5_5_complete',
     }, trace);
   } catch (err) {
-    return {
-      type: 'final',
-      reply: text || `Planner failed: ${err.message}`,
-      narration: text || 'Planner failed.',
-      status: 'planner_json_error',
-      technicalDetails: String(err.message || err).slice(0, 1000),
-    };
+    return plannerParseFailureReply(text, err);
   }
 }
 

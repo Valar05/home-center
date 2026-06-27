@@ -22,6 +22,8 @@ import android.media.AudioFocusRequest;
 import android.media.AudioManager;
 import android.media.AudioFormat;
 import android.media.AudioTrack;
+import android.media.session.MediaSession;
+import android.media.session.PlaybackState;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -122,6 +124,7 @@ public final class MainActivity extends Activity implements RecognitionListener,
     private CartesiaSpeechProxyClient cartesiaSpeechProxyClient;
     private AudioManager audioManager;
     private AudioFocusRequest speechFocusRequest;
+    private MediaSession speechMediaSession;
     private boolean speechFocusHeld = false;
     private boolean externalPlaybackPausedForSpeech = false;
     private String activeSpeechUtteranceId = "";
@@ -235,6 +238,7 @@ public final class MainActivity extends Activity implements RecognitionListener,
         LocalLog.info("app", "start versionName=" + BuildConfig.VERSION_NAME + " versionCode=" + BuildConfig.VERSION_CODE);
         initFirebase();
         audioManager = (AudioManager) getSystemService(AUDIO_SERVICE);
+        initSpeechMediaSession();
         cartesiaSpeechProxyClient = new CartesiaSpeechProxyClient(BuildConfig.CARTESIA_PROXY_BASE_URL, BuildConfig.CARTESIA_API_KEY);
         deviceTextToSpeech = new TextToSpeech(this, this);
         googleDriveClient = new GoogleDriveClient(this);
@@ -260,6 +264,23 @@ public final class MainActivity extends Activity implements RecognitionListener,
             setStatus("Speech recognition is not available on this device.");
         }
         runInstalledSmokePromptIfRequested(getIntent());
+    }
+
+    private void initSpeechMediaSession() {
+        speechMediaSession = new MediaSession(this, "Home Center Narration");
+        speechMediaSession.setFlags(MediaSession.FLAG_HANDLES_MEDIA_BUTTONS | MediaSession.FLAG_HANDLES_TRANSPORT_CONTROLS);
+        speechMediaSession.setCallback(new MediaSession.Callback() {
+            @Override
+            public void onPause() {
+                stopSpeechPlayback();
+            }
+
+            @Override
+            public void onStop() {
+                stopSpeechPlayback();
+            }
+        });
+        updateSpeechMediaSession(false);
     }
 
     @Override
@@ -1276,22 +1297,41 @@ public final class MainActivity extends Activity implements RecognitionListener,
 
     private void finishAgentReply(String clean, String replyText, String narration, String status, JSONObject pendingConfirmation) {
         String finalResponse = replyText == null || replyText.trim().isEmpty() ? "I did not get a useful reply from GPT-5.5." : replyText.trim();
+        if (looksLikeRawToolCallJson(finalResponse)) {
+            LocalLog.warn("agent", "blocked_raw_tool_call_reply");
+            finalResponse = "I could not safely display that tool request. Please try again.";
+            status = "raw_tool_call_blocked";
+            pendingConfirmation = null;
+        }
         chatTurns.add(new ChatTurn("assistant", finalResponse));
         trimChatTurns();
+        final String responseForUi = finalResponse;
+        final String statusForUi = status;
         JSONObject pendingForUi = cloneJson(pendingConfirmation);
         main.post(() -> {
             setBusy(false);
             String displayedResponse = pendingForUi != null
-                    ? appendAssistantMessageRaw(finalResponse)
-                    : appendAssistantMessage(finalResponse, clean);
+                    ? appendAssistantMessageRaw(responseForUi)
+                    : appendAssistantMessage(responseForUi, clean);
             if (pendingForUi != null) {
                 appendPendingConfirmationCard(pendingForUi);
             }
-            if (status != null && !status.trim().isEmpty()) {
-                appendStatus(status.trim());
+            if (statusForUi != null && !statusForUi.trim().isEmpty()) {
+                appendStatus(statusForUi.trim());
             }
             speak(displayedResponse);
         });
+    }
+
+    private boolean looksLikeRawToolCallJson(String text) {
+        if (text == null) {
+            return false;
+        }
+        String trimmed = text.trim();
+        return trimmed.startsWith("{")
+                && trimmed.contains("\"type\"")
+                && trimmed.contains("tool_call")
+                && (trimmed.contains("\"toolName\"") || trimmed.contains("\"name\""));
     }
 
     private JSONObject cloneJson(JSONObject json) {
@@ -3060,6 +3100,12 @@ public final class MainActivity extends Activity implements RecognitionListener,
             stopCartesiaPlaybackLocked("user_stop");
             activeSpeechUtteranceId = "";
         }
+        if (deviceTextToSpeech != null) {
+            try {
+                deviceTextToSpeech.stop();
+            } catch (Exception ignored) {
+            }
+        }
         setSpeechPlaying(false);
         abandonSpeechFocus();
         setStatus("Speech stopped.");
@@ -3162,6 +3208,20 @@ public final class MainActivity extends Activity implements RecognitionListener,
         if (stopSpeechButton != null) {
             stopSpeechButton.setVisibility(playing ? View.VISIBLE : View.GONE);
         }
+        updateSpeechMediaSession(playing);
+    }
+
+    private void updateSpeechMediaSession(boolean playing) {
+        if (speechMediaSession == null) {
+            return;
+        }
+        long actions = PlaybackState.ACTION_STOP | PlaybackState.ACTION_PAUSE;
+        int state = playing ? PlaybackState.STATE_PLAYING : PlaybackState.STATE_STOPPED;
+        speechMediaSession.setPlaybackState(new PlaybackState.Builder()
+                .setActions(actions)
+                .setState(state, 0L, 1.0f)
+                .build());
+        speechMediaSession.setActive(playing);
     }
 
     private String shortMessage(String message) {
@@ -4121,12 +4181,17 @@ public final class MainActivity extends Activity implements RecognitionListener,
         }
         updateThinkingHaptics(false);
         stopCartesiaPlayback("activity_destroy");
+        updateSpeechMediaSession(false);
         abandonSpeechFocus();
         if (deviceTextToSpeech != null) {
             deviceTextToSpeech.stop();
             deviceTextToSpeech.shutdown();
             deviceTextToSpeech = null;
             deviceTextToSpeechReady = false;
+        }
+        if (speechMediaSession != null) {
+            speechMediaSession.release();
+            speechMediaSession = null;
         }
         if (firebaseAuth != null && authStateListener != null) {
             firebaseAuth.removeAuthStateListener(authStateListener);
