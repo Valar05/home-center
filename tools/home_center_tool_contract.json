@@ -6,7 +6,8 @@
     "sheets",
     "lists",
     "gmail",
-    "calendar"
+    "calendar",
+    "contacts"
   ],
   "tools": [
     {
@@ -265,6 +266,28 @@
         "https://www.googleapis.com/auth/calendar.events"
       ],
       "dispatcher": "GoogleCalendarClient"
+    },
+    {
+      "name": "contacts.search",
+      "group": "contacts",
+      "operation": "read",
+      "write": false,
+      "confirmationRequired": false,
+      "scopes": [
+        "https://www.googleapis.com/auth/contacts.readonly"
+      ],
+      "dispatcher": "GoogleContactsClient"
+    },
+    {
+      "name": "contacts.read",
+      "group": "contacts",
+      "operation": "read",
+      "write": false,
+      "confirmationRequired": false,
+      "scopes": [
+        "https://www.googleapis.com/auth/contacts.readonly"
+      ],
+      "dispatcher": "GoogleContactsClient"
     },
     {
       "name": "lists.read",

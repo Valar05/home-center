@@ -167,6 +167,7 @@ public final class MainActivity extends Activity implements RecognitionListener 
     private GoogleSheetsClient googleSheetsClient;
     private GoogleGmailClient googleGmailClient;
     private GoogleCalendarClient googleCalendarClient;
+    private GoogleContactsClient googleContactsClient;
 
     private boolean tickTickTokenVisible = false;
     private boolean firebaseConfigured = false;
@@ -214,6 +215,7 @@ public final class MainActivity extends Activity implements RecognitionListener 
         googleSheetsClient = new GoogleSheetsClient(this);
         googleGmailClient = new GoogleGmailClient(this);
         googleCalendarClient = new GoogleCalendarClient(this);
+        googleContactsClient = new GoogleContactsClient(this);
         refreshGeminiClient();
         buildUi();
         boolean restoredConversation = restoreConversationHistory();
@@ -834,7 +836,7 @@ public final class MainActivity extends Activity implements RecognitionListener 
             }
         }
         pendingAgentTurnAfterGoogleReconnect = clean == null ? "" : clean.trim();
-        showAssistantMessage("Google needs one more approval for Drive, Docs, Sheets, Gmail, and Calendar tools. I am opening Google sign-in now, then I will continue this request.");
+        showAssistantMessage("Google needs one more approval for Drive, Docs, Sheets, Gmail, Calendar, and Contacts tools. I am opening Google sign-in now, then I will continue this request.");
         startGoogleSignIn();
         return false;
     }
@@ -935,7 +937,7 @@ public final class MainActivity extends Activity implements RecognitionListener 
             return false;
         }
         String tool = result.optString("tool", "");
-        if (!(tool.startsWith("drive.") || tool.startsWith("docs.") || tool.startsWith("sheets.") || tool.startsWith("gmail.") || tool.startsWith("calendar."))) {
+        if (!(tool.startsWith("drive.") || tool.startsWith("docs.") || tool.startsWith("sheets.") || tool.startsWith("gmail.") || tool.startsWith("calendar.") || tool.startsWith("contacts."))) {
             return false;
         }
         String error = result.optString("error", "").toLowerCase(Locale.US);
@@ -1000,6 +1002,12 @@ public final class MainActivity extends Activity implements RecognitionListener 
                 return toolError(toolName, "calendar_unavailable", "Calendar tool is not available in this build.");
             }
             return googleCalendarClient.runTool(toolName, arguments, account);
+        }
+        if ("contacts".equals(definition.group)) {
+            if (googleContactsClient == null) {
+                return toolError(toolName, "contacts_unavailable", "Contacts tool is not available in this build.");
+            }
+            return googleContactsClient.runTool(toolName, arguments, account);
         }
         if ("lists".equals(definition.group)) {
             return executeListTool(toolName, arguments);
@@ -1241,6 +1249,14 @@ public final class MainActivity extends Activity implements RecognitionListener 
             if ("calendar.read".equals(toolName) || "calendar.create_event".equals(toolName) || "calendar.update_event".equals(toolName) || "calendar.respond_event".equals(toolName)) {
                 rememberCalendarEvent(toolName, result.optJSONObject("event"));
             }
+            if ("contacts.search".equals(toolName)) {
+                JSONArray contacts = result.optJSONArray("contacts");
+                if (contacts != null && contacts.length() == 1) rememberContact(toolName, contacts.optJSONObject(0));
+                return;
+            }
+            if ("contacts.read".equals(toolName)) {
+                rememberContact(toolName, result.optJSONObject("contact"));
+            }
         } catch (Exception ex) {
             LocalLog.warn("agent", "working_memory_update_failed tool=" + toolName + " detail=" + shortMessage(ex.getMessage()));
         }
@@ -1276,6 +1292,20 @@ public final class MainActivity extends Activity implements RecognitionListener 
             workingMemory.put("lastEmailDraft", draft);
         }
         LocalLog.info("agent_trace", "working_memory_update lastEmailDraft=" + draft.toString());
+    }
+
+    private void rememberContact(String sourceTool, JSONObject contact) throws Exception {
+        if (contact == null) return;
+        JSONObject memory = new JSONObject();
+        memory.put("resourceName", contact.optString("resourceName", ""));
+        memory.put("displayName", contact.optString("displayName", ""));
+        memory.put("primaryEmail", contact.optString("primaryEmail", ""));
+        memory.put("emailAddresses", contact.optJSONArray("emailAddresses") == null ? new JSONArray() : contact.optJSONArray("emailAddresses"));
+        memory.put("sourceTool", sourceTool);
+        synchronized (workingMemoryLock) {
+            workingMemory.put("lastContact", memory);
+        }
+        LocalLog.info("agent_trace", "working_memory_update lastContact=" + memory.toString());
     }
 
     private void rememberCalendarEvent(String sourceTool, JSONObject event) throws Exception {

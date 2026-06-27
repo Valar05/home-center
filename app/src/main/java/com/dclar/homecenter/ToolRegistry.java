@@ -19,6 +19,7 @@ final class ToolRegistry {
     static final String GMAIL_COMPOSE_SCOPE = "https://www.googleapis.com/auth/gmail.compose";
     static final String GMAIL_SEND_SCOPE = "https://www.googleapis.com/auth/gmail.send";
     static final String CALENDAR_EVENTS_SCOPE = "https://www.googleapis.com/auth/calendar.events";
+    static final String CONTACTS_READONLY_SCOPE = "https://www.googleapis.com/auth/contacts.readonly";
 
     private ToolRegistry() {
     }
@@ -76,6 +77,11 @@ final class ToolRegistry {
         tools.add(new ToolDefinition("calendar.respond_event", "RSVP to a Google Calendar event for the signed-in account.", "calendar", true, true,
                 Arrays.asList(CALENDAR_EVENTS_SCOPE), Arrays.asList("eventId", "responseStatus")));
 
+        tools.add(new ToolDefinition("contacts.search", "Search Google Contacts by name, email, or phone.", "contacts", false, false,
+                Arrays.asList(CONTACTS_READONLY_SCOPE), Arrays.asList("query", "pageSize")));
+        tools.add(new ToolDefinition("contacts.read", "Read a Google Contact by resourceName.", "contacts", false, false,
+                Arrays.asList(CONTACTS_READONLY_SCOPE), Arrays.asList("resourceName")));
+
         tools.add(new ToolDefinition("lists.read", "Read active Home Center list items.", "lists", false, false,
                 Collections.emptyList(), Arrays.asList("listName")));
         tools.add(new ToolDefinition("lists.create", "Create a Home Center list.", "lists", true, false,
@@ -108,6 +114,7 @@ final class ToolRegistry {
         addUnavailableGroup(array, "sheets", account, Arrays.asList(DRIVE_SCOPE, SHEETS_SCOPE));
         addUnavailableGroup(array, "gmail", account, Arrays.asList(GMAIL_MODIFY_SCOPE, GMAIL_COMPOSE_SCOPE, GMAIL_SEND_SCOPE));
         addUnavailableGroup(array, "calendar", account, Arrays.asList(CALENDAR_EVENTS_SCOPE));
+        addUnavailableGroup(array, "contacts", account, Arrays.asList(CONTACTS_READONLY_SCOPE));
         if (!listsAvailable) {
             JSONObject group = new JSONObject();
             try {
@@ -156,7 +163,8 @@ final class ToolRegistry {
                 new Scope(GMAIL_MODIFY_SCOPE),
                 new Scope(GMAIL_COMPOSE_SCOPE),
                 new Scope(GMAIL_SEND_SCOPE),
-                new Scope(CALENDAR_EVENTS_SCOPE));
+                new Scope(CALENDAR_EVENTS_SCOPE),
+                new Scope(CONTACTS_READONLY_SCOPE));
     }
 
     private static void addUnavailableGroup(JSONArray array, String group, GoogleSignInAccount account, List<String> scopes) {

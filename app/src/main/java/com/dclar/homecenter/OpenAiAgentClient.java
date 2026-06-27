@@ -80,7 +80,7 @@ final class OpenAiAgentClient {
             JSONArray capabilities = new JSONArray();
             capabilities.put("openai:gpt-5.5");
             capabilities.put("openai:web_search");
-            capabilities.put("google:drive_docs_sheets_gmail_calendar");
+            capabilities.put("google:drive_docs_sheets_gmail_calendar_contacts");
             capabilities.put("home_center:firestore_lists");
             capabilities.put("ticktick:fallback_lists");
             capabilities.put("cartesia:narration");

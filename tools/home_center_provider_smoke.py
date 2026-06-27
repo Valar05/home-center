@@ -37,7 +37,7 @@ def enabled_google_services(project='home-center-dclar'):
         return None
     result = subprocess.run([
         'gcloud', 'services', 'list', '--enabled', f'--project={project}',
-        '--filter=NAME:(drive.googleapis.com docs.googleapis.com sheets.googleapis.com gmail.googleapis.com calendar-json.googleapis.com)',
+        '--filter=NAME:(drive.googleapis.com docs.googleapis.com sheets.googleapis.com gmail.googleapis.com calendar-json.googleapis.com people.googleapis.com)',
         '--format=value(config.name)',
     ], text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=30, check=False)
     if result.returncode != 0:
@@ -51,13 +51,14 @@ required_google_services = {
     'sheets.googleapis.com',
     'gmail.googleapis.com',
     'calendar-json.googleapis.com',
+    'people.googleapis.com',
 }
 services = enabled_google_services()
 if services is not None and services != required_google_services:
     fail(f'Google API services mismatch: missing={sorted(required_google_services - services)} extra={sorted(services - required_google_services)}')
 
 status, health = get_json('health')
-expected_groups = {'drive', 'docs', 'sheets', 'lists', 'gmail', 'calendar'}
+expected_groups = {'drive', 'docs', 'sheets', 'lists', 'gmail', 'calendar', 'contacts'}
 actual_groups = set(health.get('contractGroups') or [])
 if (status != 200
         or health.get('service') != 'home-center-gateway'
@@ -81,4 +82,4 @@ if status != 401:
     fail(f'agentToolTurn should require Firebase auth when unauthenticated: status={status} body={body[:200]!r}')
 
 service_note = 'googleApis=' + ','.join(sorted(required_google_services)) if services is not None else 'googleApis=not_checked_no_gcloud'
-print(f'Home Center provider smoke: OK cartesiaBytes={tts_bytes} toolContractVersion=google-cru-v1 contractGroups=calendar,docs,drive,gmail,lists,sheets {service_note} driveProbeUnauth=401 agentToolTurnUnauth=401')
+print(f'Home Center provider smoke: OK cartesiaBytes={tts_bytes} toolContractVersion=google-cru-v1 contractGroups=calendar,contacts,docs,drive,gmail,lists,sheets {service_note} driveProbeUnauth=401 agentToolTurnUnauth=401')

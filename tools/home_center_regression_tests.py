@@ -44,6 +44,7 @@ drive_client = read('app/src/main/java/com/dclar/homecenter/GoogleDriveClient.ja
 sheets_client = read('app/src/main/java/com/dclar/homecenter/GoogleSheetsClient.java')
 gmail_client = read('app/src/main/java/com/dclar/homecenter/GoogleGmailClient.java')
 calendar_client = read('app/src/main/java/com/dclar/homecenter/GoogleCalendarClient.java')
+contacts_client = read('app/src/main/java/com/dclar/homecenter/GoogleContactsClient.java')
 tool_registry = read('app/src/main/java/com/dclar/homecenter/ToolRegistry.java')
 functions_index = read('functions/index.js')
 build_gradle = read('app/build.gradle')
@@ -65,7 +66,8 @@ if registered != contract_names:
 
 for group in contract['requiredGroups']:
     ops = {tool['operation'] for tool in contract_tools.values() if tool['group'] == group}
-    for required_op in {'read', 'create', 'update'}:
+    required_ops = {'read'} if group == 'contacts' else {'read', 'create', 'update'}
+    for required_op in required_ops:
         if required_op not in ops:
             fail(f'{group} contract lacks {required_op} operation')
 
@@ -74,6 +76,7 @@ source_by_dispatcher = {
     'GoogleSheetsClient': sheets_client,
     'GoogleGmailClient': gmail_client,
     'GoogleCalendarClient': calendar_client,
+    'GoogleContactsClient': contacts_client,
     'MainActivity': main_activity,
 }
 for name, tool in sorted(contract_tools.items()):
@@ -95,7 +98,7 @@ for source_name, source in source_by_dispatcher.items():
 for source_name, source in {'ToolRegistry': tool_registry, 'GoogleDriveClient': drive_client, 'GoogleSheetsClient': sheets_client}.items():
     require_absent(source, 'drive.readonly', f'{source_name} must not use readonly Drive scope for the write-capable host')
 
-for forbidden in ['drive.delete', 'docs.delete', 'sheets.delete', 'gmail.delete', 'calendar.delete', 'lists.delete']:
+for forbidden in ['drive.delete', 'docs.delete', 'sheets.delete', 'gmail.delete', 'calendar.delete', 'contacts.delete', 'lists.delete']:
     require_absent(tool_registry, forbidden, f'{forbidden} must not be registered')
     require_absent(functions_index, forbidden, f'{forbidden} must not be described by gateway')
 
@@ -122,6 +125,9 @@ require_contains(main_activity, 'rememberEntity("lastFolder", toolName', 'Androi
 require_contains(main_activity, 'rememberEntity("lastSheet", toolName', 'Android stores lastSheet')
 require_contains(main_activity, 'workingMemory.put("lastEmailDraft", draft)', 'Android stores lastEmailDraft')
 require_contains(main_activity, 'workingMemory.put("lastCalendarEvent", memory)', 'Android stores lastCalendarEvent')
+require_contains(main_activity, 'workingMemory.put("lastContact", memory)', 'Android stores lastContact')
+require_contains(main_activity, 'if ("contacts.search".equals(toolName))', 'Android updates working memory from contacts.search')
+require_contains(main_activity, 'rememberContact(toolName, result.optJSONObject("contact"))', 'Android updates working memory from contacts.read')
 require_contains(drive_client, '"google_doc_created"', 'working memory test path includes docs.create success status')
 require_contains(main_activity, 'ToolRegistry.unavailableToolGroups(account, hasSignedInHomeUser())', 'MainActivity reports missing scope groups')
 require_contains(main_activity, '"drive".equals(definition.group) || "docs".equals(definition.group)', 'Docs dispatches through Drive/Docs REST client')
@@ -129,14 +135,16 @@ require_contains(main_activity, '"sheets".equals(definition.group)', 'Sheets dis
 require_contains(main_activity, 'GoogleSheetsClient googleSheetsClient', 'MainActivity owns Sheets client')
 require_contains(main_activity, 'tool.startsWith("docs.")', 'Docs auth failures trigger reconnect')
 require_contains(main_activity, 'tool.startsWith("sheets.")', 'Sheets auth failures trigger reconnect')
-require_contains(main_activity, 'Drive, Docs, Sheets, Gmail, and Calendar tools', 'reconnect copy names full Google contract')
+require_contains(main_activity, 'tool.startsWith("contacts.")', 'Contacts auth failures trigger reconnect')
+require_contains(main_activity, 'Drive, Docs, Sheets, Gmail, Calendar, and Contacts tools', 'reconnect copy names full Google contract')
 require_contains(main_activity, 'definition.confirmationRequired', 'Android refuses unconfirmed dangerous tools')
 require_contains(main_activity, 'arguments.optBoolean("_confirmedByGateway", false)', 'Android requires gateway confirmation marker')
 
 require_contains(openai_client, 'body.put("tools", tools == null ? new JSONArray() : tools)', 'OpenAI client sends registry-provided tools')
 require_contains(openai_client, 'body.put("unavailableToolGroups"', 'OpenAI client sends unavailable capability groups')
-require_contains(openai_client, 'google:drive_docs_sheets_gmail_calendar', 'legacy capability text includes full Google contract')
+require_contains(openai_client, 'google:drive_docs_sheets_gmail_calendar_contacts', 'legacy capability text includes full Google contract')
 require_absent(openai_client, 'google:drive_docs_gmail_calendar', 'legacy capability text must not omit Sheets')
+require_absent(openai_client, 'google:drive_docs_sheets_gmail_calendar"', 'legacy capability text must not omit Contacts')
 require_absent(openai_client, '.put("name", "drive.search")', 'OpenAI client must not hardcode advertised tools')
 
 require_contains(functions_index, 'Available tools JSON', 'agentToolTurn prompt is registry-driven')
@@ -144,6 +152,9 @@ require_contains(functions_index, 'OpenAI web_search for public web pages, inclu
 require_contains(functions_index, 'Do not claim a GitHub tool is required for public GitHub repositories', 'planner prompt forbids false missing-GitHub-tool refusal')
 require_contains(functions_index, 'private repo access, authenticated GitHub writes, issues, pull requests, or repository mutations', 'planner prompt limits GitHub-tool requirement to authenticated operations')
 require_contains(functions_index, 'Google Docs rule: for a request to create a Google Doc, call docs.create', 'planner prompt forces Google Doc creation to docs.create')
+require_contains(functions_index, 'Contacts rule: if the user names a person from contacts, call contacts.search', 'planner prompt searches contacts by name')
+require_contains(functions_index, 'Do not ask for an email address while contacts.search is available', 'planner prompt forbids false missing-contacts refusal')
+require_contains(functions_index, 'Contacts plus Calendar rule: to add a named contact to an event', 'planner prompt chains contacts into calendar attendee updates')
 require_contains(functions_index, 'Working memory JSON contains recently created or selected entities', 'planner prompt explains working memory')
 require_contains(functions_index, 'resolve the reference from workingMemory or recent tool results', 'planner prompt requires reference resolution')
 require_contains(functions_index, 'Never use phrases like that document', 'planner prompt forbids literal reference names')
@@ -166,6 +177,7 @@ require_contains(functions_index, 'args.documentId = memory.lastDocument.fileId'
 require_contains(functions_index, "toolName === 'drive.update_metadata') args.addParentId = memory.lastFolder.fileId", 'remembered folders resolve move destination parent')
 require_contains(functions_index, 'When resolving a remembered document, include both fileId and name', 'planner prompt requires confirmation-friendly resolved document args')
 require_contains(functions_index, 'if (hasCompatibleMemory) return null;', 'compatible memory prevents false missing-reference clarification')
+require_contains(functions_index, 'memory.lastContact && memory.lastContact.primaryEmail', 'gateway can resolve remembered contacts')
 reference_flow_contracts = [
     {
         'input': 'Create a Google Doc called HomeCenter',
@@ -215,6 +227,15 @@ reference_flow_contracts = [
             'formatIsoWithOffset(startMs, context.timeZoneOffsetMillis)',
         ],
     },
+    {
+        'input': 'Add June Wren Clarke from my contacts to the event.',
+        'source_expectations': [
+            'contacts.search',
+            'Contacts plus Calendar rule: to add a named contact to an event',
+            'attendeesToAdd',
+            'workingMemory.put("lastContact", memory)',
+        ],
+    },
 ]
 for case in reference_flow_contracts:
     if not case['input']:
@@ -250,9 +271,12 @@ require_contains(sheets_client, 'SHEETS_URL = "https://sheets.googleapis.com/v4/
 require_contains(sheets_client, '"google_sheet_created"', 'Sheets create returns google_sheet_created status')
 require_contains(sheets_client, '"google_sheet_updated"', 'Sheets update returns google_sheet_updated status')
 require_contains(gmail_client, 'BASE_URL = "https://gmail.googleapis.com/gmail/v1/users/me"', 'Gmail client calls Gmail REST')
+require_contains(contacts_client, 'SEARCH_URL = "https://people.googleapis.com/v1/people:searchContacts"', 'Contacts client calls People API search')
+require_contains(contacts_client, '"contacts.search".equals(toolName)', 'Contacts search dispatcher exists')
+require_contains(contacts_client, 'primaryEmail', 'Contacts client returns primaryEmail for calendar attendees')
 require_contains(calendar_client, 'BASE_URL = "https://www.googleapis.com/calendar/v3/calendars/primary/events"', 'Calendar client calls Calendar REST')
 require_contains(calendar_client, '"calendar.read".equals(toolName)', 'Calendar read dispatcher exists')
-for service in ['drive.googleapis.com', 'docs.googleapis.com', 'sheets.googleapis.com', 'gmail.googleapis.com', 'calendar-json.googleapis.com']:
+for service in ['drive.googleapis.com', 'docs.googleapis.com', 'sheets.googleapis.com', 'gmail.googleapis.com', 'calendar-json.googleapis.com', 'people.googleapis.com']:
     require_contains(provider_smoke, service, f'provider smoke verifies {service} is enabled')
 require_contains(main_activity, 'homeTaskClient.updateTaskByIdOrName', 'List tools can update status/text by id or item text')
 require_contains(build_gradle, 'versionCode', 'Android build declares versionCode')

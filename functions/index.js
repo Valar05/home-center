@@ -111,7 +111,7 @@ async function askOpenAI(uid, body) {
   const input = [
     'You are Home Center, a cohesive voice-first life dashboard for a blind user.',
     'Use concise, actionable language. Prefer direct next actions over generic offers.',
-    'Capabilities available through this app when configured: OpenAI GPT-5.5, hosted web search, full Google Drive plus Docs/Sheets/Gmail/Calendar through server-side tokens, Home Center Firestore lists, TickTick fallback lists, and Cartesia narration. Do not claim Google Drive access unless a Google Drive probe confirms it.',
+    'Capabilities available through this app when configured: OpenAI GPT-5.5, hosted web search, full Google Drive plus Docs/Sheets/Gmail/Calendar/Contacts through server-side tokens, Home Center Firestore lists, TickTick fallback lists, and Cartesia narration. Do not claim Google Drive access unless a Google Drive probe confirms it.',
     'For external writes such as Google Docs, Gmail drafts/sends, Calendar creates, or list changes, ask for explicit confirmation unless the user already phrased the command with confirm.',
     'If you use web search, include a short source line or source names in the answer.',
     `Default Home Center bucket: ${bucket || 'not selected'}. Default list: ${listName}.`,
@@ -377,6 +377,13 @@ function resolveToolArgsFromWorkingMemory(body, toolName, args) {
       if (memory.lastCalendarEvent.title && !args.title) args.title = memory.lastCalendarEvent.title;
     }
   }
+  if (toolName && toolName.startsWith('contacts.') && memory.lastContact) {
+    if (hasLiteralReference || args.email === memory.lastContact.primaryEmail) {
+      if (memory.lastContact.displayName && !args.name) args.name = memory.lastContact.displayName;
+      if (memory.lastContact.primaryEmail && !args.email) args.email = memory.lastContact.primaryEmail;
+      if (memory.lastContact.resourceName && !args.resourceName) args.resourceName = memory.lastContact.resourceName;
+    }
+  }
   return args;
 }
 
@@ -388,7 +395,8 @@ function clarificationForUnresolvedReference(body, toolName, args) {
     (toolName && toolName.startsWith('drive.') && memory.lastFolder && memory.lastFolder.fileId) ||
     (toolName && toolName.startsWith('sheets.') && memory.lastSheet && memory.lastSheet.fileId) ||
     (toolName && toolName.startsWith('gmail.') && memory.lastEmailDraft && memory.lastEmailDraft.draftId) ||
-    (toolName && toolName.startsWith('calendar.') && memory.lastCalendarEvent && memory.lastCalendarEvent.eventId);
+    (toolName && toolName.startsWith('calendar.') && memory.lastCalendarEvent && memory.lastCalendarEvent.eventId) ||
+    (toolName && toolName.startsWith('contacts.') && memory.lastContact && memory.lastContact.primaryEmail);
   if (hasCompatibleMemory) return null;
   return 'Which item do you mean?';
 }
@@ -518,6 +526,8 @@ async function askOpenAIToolTurn(body) {
     'Drive rule: use drive.* only for file and folder metadata, folder creation, rename, and move.',
     'Calendar time rule: timeContext is the device clock. Resolve relative times like five minutes from now, in 2 hours, tomorrow, or later today into absolute RFC3339 dateTime strings before calling calendar tools.',
     'Calendar time rule: do not ask for an exact time when the user already gave a relative time and timeContext is present. Compute it. If an event has startTime but no endTime, use 15 minutes for reminders/notifications and 30 minutes for ordinary events.',
+    'Contacts rule: if the user names a person from contacts, call contacts.search with that name. Do not ask for an email address while contacts.search is available.',
+    'Contacts plus Calendar rule: to add a named contact to an event, search contacts first, use the contact primaryEmail, resolve the target event from workingMemory or calendar.search/read, then call calendar.update_event with attendeesToAdd.',
     'Public web rule: you also have OpenAI web_search for public web pages, including public GitHub repositories. Use web_search for public GitHub repo questions, README discovery, file discovery, and public documentation lookup.',
     'Do not claim a GitHub tool is required for public GitHub repositories. A GitHub tool is only required for private repo access, authenticated GitHub writes, issues, pull requests, or repository mutations.',
     'If a needed app-owned capability is absent, explain the missing capability group from unavailableToolGroups and ask the user to reconnect Google if scopes are missing.',
@@ -632,7 +642,7 @@ async function askOpenAIToolTurn(body) {
 
 
 exports.health = onRequest((req, res) => {
-  res.set(CORS_HEADERS).json({ok: true, service: 'home-center-gateway', confirmationFlow: 'short-confirm-v1', toolContractVersion: 'google-cru-v1', contractGroups: ['drive', 'docs', 'sheets', 'lists', 'gmail', 'calendar']});
+  res.set(CORS_HEADERS).json({ok: true, service: 'home-center-gateway', confirmationFlow: 'short-confirm-v1', toolContractVersion: 'google-cru-v1', contractGroups: ['drive', 'docs', 'sheets', 'lists', 'gmail', 'calendar', 'contacts']});
 });
 
 exports.googleAuthCodeExchange = onRequest(async (req, res) => {
