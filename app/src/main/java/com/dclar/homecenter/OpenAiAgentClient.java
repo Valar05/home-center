@@ -117,6 +117,7 @@ final class OpenAiAgentClient {
             body.put("toolResults", toolResults == null ? new JSONArray() : toolResults);
             body.put("tools", tools == null ? new JSONArray() : tools);
             body.put("unavailableToolGroups", unavailableToolGroups == null ? new JSONArray() : unavailableToolGroups);
+            body.put("debugTrace", true);
             if (pendingConfirmation != null) {
                 body.put("pendingConfirmation", pendingConfirmation);
             }

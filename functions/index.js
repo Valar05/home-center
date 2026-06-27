@@ -276,6 +276,34 @@ function pendingConfirmationFromBody(body, tools) {
   return pendingConfirmation(pending.toolName, args);
 }
 
+function compactToolNames(tools) {
+  return tools.map((tool) => tool && tool.name).filter(Boolean);
+}
+
+function buildToolTrace(body, tools, parsed, toolName, tool, confirmationRequested) {
+  const trace = {
+    prompt: safeText(body && body.message, 4000),
+    availableToolNames: compactToolNames(tools),
+    availableToolsJson: JSON.stringify(tools).slice(0, 12000),
+    parsedPlannerJson: parsed || null,
+    requestedToolName: toolName || '',
+    docsCreateAdvertised: !!toolByName(tools, 'docs.create'),
+    requestedToolFound: !!tool,
+    docsCreateWasRequested: toolName === 'docs.create',
+    confirmationRequested: !!confirmationRequested,
+  };
+  console.log('agentToolTurn trace ' + JSON.stringify(trace));
+  return trace;
+}
+
+function withTrace(body, response, trace) {
+  if (!body || body.debugTrace !== true) return response;
+  return Object.assign({}, response, {
+    trace,
+    technicalDetails: JSON.stringify(trace).slice(0, 12000),
+  });
+}
+
 async function askOpenAIToolTurn(body) {
   const message = safeText(body.message, 4000);
   const summary = safeText(body.summary, 4000);
@@ -286,17 +314,22 @@ async function askOpenAIToolTurn(body) {
   const pending = pendingConfirmationFromBody(body, tools);
   if (pending && messageConfirms(message)) {
     pending.arguments._confirmedByGateway = true;
-    return {
+    const trace = buildToolTrace(body, tools, {type: 'tool_call', toolName: pending.toolName, arguments: pending.arguments, source: 'pending_confirmation'}, pending.toolName, toolByName(tools, pending.toolName), false);
+    return withTrace(body, {
       type: 'tool_call',
       toolName: pending.toolName,
       arguments: pending.arguments,
       status: 'tool_call_requested',
-    };
+    }, trace);
   }
   const input = [
     'You are Home Center. You are the thinker. The Android app is only your hands.',
     'Return one strict JSON object and no prose outside JSON.',
     'If a needed capability appears in the available tools JSON, request that tool. Do not say you cannot do it.',
+    'Google Docs rule: for a request to create a Google Doc, call docs.create with title and body. Do not call Drive tools for document content.',
+    'Google Docs rule: for a request to read or edit a Google Doc, use docs.search if needed, then docs.read or docs.update.',
+    'Google Sheets rule: for spreadsheet creation or cell edits, use sheets.create, sheets.search, sheets.read, or sheets.update.',
+    'Drive rule: use drive.* only for file and folder metadata, folder creation, rename, and move.',
     'If a needed capability is absent, explain the missing capability group from unavailableToolGroups and ask the user to reconnect Google if scopes are missing.',
     'If a tool succeeds but does not fully answer the user request, continue with another tool call. A successful tool call is not a final answer unless it satisfies the request.',
     'Hide plumbing. Do not mention tokens, HTTP, file IDs, scopes, timestamps, or diagnostics unless the user explicitly asks for diagnostics.',
@@ -344,39 +377,43 @@ async function askOpenAIToolTurn(body) {
       const tool = toolByName(tools, toolName);
       const args = parsed.arguments && typeof parsed.arguments === 'object' ? parsed.arguments : {};
       if (!tool) {
-        return {
+        const trace = buildToolTrace(body, tools, parsed, toolName, tool, false);
+        return withTrace(body, {
           type: 'final',
           reply: `That tool is not available in this session: ${toolName}. Reconnect Google if this is a missing Google capability.`,
           narration: `That tool is not available in this session.`,
           status: 'tool_unavailable',
-        };
+        }, trace);
       }
       if (tool.confirmationRequired && !messageConfirms(message)) {
         const reply = confirmationReply(toolName, args);
-        return {
+        const trace = buildToolTrace(body, tools, parsed, toolName, tool, true);
+        return withTrace(body, {
           type: 'final',
           reply,
           narration: reply,
           status: 'confirmation_required',
           pendingConfirmation: pendingConfirmation(toolName, args),
-        };
+        }, trace);
       }
       if (tool.confirmationRequired) {
         args._confirmedByGateway = true;
       }
-      return {
+      const trace = buildToolTrace(body, tools, parsed, toolName, tool, false);
+      return withTrace(body, {
         type: 'tool_call',
         toolName,
         arguments: args,
         status: 'tool_call_requested',
-      };
+      }, trace);
     }
-    return {
+    const trace = buildToolTrace(body, tools, parsed, safeText(parsed.toolName || parsed.name, 80), toolByName(tools, safeText(parsed.toolName || parsed.name, 80)), false);
+    return withTrace(body, {
       type: 'final',
       reply: safeText(parsed.reply || parsed.text, 12000) || 'I did not get a useful GPT-5.5 response.',
       narration: safeText(parsed.narration || parsed.reply || parsed.text, 12000),
       status: safeText(parsed.status, 160) || 'gpt_5_5_complete',
-    };
+    }, trace);
   } catch (err) {
     return {
       type: 'final',

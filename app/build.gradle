@@ -42,8 +42,8 @@ android {
         applicationId 'com.dclar.homecenter'
         minSdk 26
         targetSdk 33
-        versionCode 19
-        versionName '0.2.15'
+        versionCode 20
+        versionName '0.2.16'
 
         buildConfigField 'String', 'GEMINI_API_KEY', "\"${geminiApiKey.replace('\\', '\\\\').replace('\"', '\\\"')}\""
         buildConfigField 'String', 'OPENAI_API_KEY', "\"${openAiApiKey.replace('\\', '\\\\').replace('\"', '\\"')}\""

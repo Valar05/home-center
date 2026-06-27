@@ -156,6 +156,7 @@ final class GoogleDriveClient {
         String folderId = cleanArg(arguments, "folderId");
         if (title.isEmpty()) title = "Home Center Note";
         try {
+            LocalLog.info("agent_trace", "google_docs_api_start tool=docs.create title=" + title);
             JSONObject created = postJson(DOCS_URL, token.value, new JSONObject().put("title", title));
             String documentId = created.optString("documentId", "");
             if (documentId.isEmpty()) return toolError("docs.create", "missing_document_id", "Google Docs did not return documentId.");
@@ -169,12 +170,14 @@ final class GoogleDriveClient {
                 patchJson(FILES_URL + "/" + Uri.encode(documentId) + "?addParents=" + Uri.encode(folderId) + "&fields=id,parents", token.value, new JSONObject());
             }
             JSONObject file = getJson(FILES_URL + "/" + Uri.encode(documentId) + "?fields=id,name,mimeType,webViewLink", token.value, "application/json");
+            LocalLog.info("agent_trace", "google_docs_api_success tool=docs.create documentId=" + documentId + " webViewLink=" + file.optString("webViewLink", ""));
             return resultJson("docs.create", true, "", "google_doc_created", new ArrayList<>(), "")
                     .put("status", "google_doc_created")
                     .put("file", file)
                     .put("title", file.optString("name", title))
                     .put("webViewLink", file.optString("webViewLink", ""));
         } catch (Exception ex) {
+            LocalLog.warn("agent_trace", "google_docs_api_error tool=docs.create detail=" + safe(ex.getMessage()));
             return toolError("docs.create", "create_doc_error", safe(ex.getMessage()));
         }
     }

@@ -868,20 +868,28 @@ public final class MainActivity extends Activity implements RecognitionListener 
             OpenAiAgentClient.ToolTurn turn = null;
             for (int step = 0; step < 6; step++) {
                 GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(this);
+                JSONArray availableTools = ToolRegistry.availableTools(account, hasSignedInHomeUser());
+                JSONArray unavailableGroups = ToolRegistry.unavailableToolGroups(account, hasSignedInHomeUser());
+                LocalLog.info("agent_trace", "step=" + step + " availableTools=" + shortMessage(availableTools.toString()));
                 turn = openAiAgentClient.sendToolTurn(
                         idToken,
                         clean,
                         recentTranscriptSnapshot(),
                         conversationSummary,
                         toolResults,
-                        ToolRegistry.availableTools(account, hasSignedInHomeUser()),
-                        ToolRegistry.unavailableToolGroups(account, hasSignedInHomeUser()),
+                        availableTools,
+                        unavailableGroups,
                         cloneJson(pendingToolConfirmation));
+                LocalLog.info("agent_trace", "step=" + step + " gateway_type=" + turn.type + " status=" + turn.status + " requestedTool=" + turn.toolName + " technicalDetails=" + shortMessage(turn.technicalDetails));
                 if (turn.requestsTool()) {
+                    LocalLog.info("agent_trace", "android_received_tool=" + turn.toolName);
                     JSONObject pendingForRetry = turn.arguments.optBoolean("_confirmedByGateway", false)
                             ? cloneJson(pendingToolConfirmation)
                             : null;
                     JSONObject result = executeRegisteredTool(turn.toolName, turn.arguments);
+                    JSONObject resultFile = result.optJSONObject("file");
+                    String resultDocumentId = resultFile == null ? "" : resultFile.optString("id", "");
+                    LocalLog.info("agent_trace", "android_dispatch_result tool=" + turn.toolName + " ok=" + result.optBoolean("ok", false) + " status=" + result.optString("status", "") + " error=" + result.optString("error", "") + " documentId=" + resultDocumentId + " webViewLink=" + result.optString("webViewLink", ""));
                     if (isGoogleToolAuthFailure(result)) {
                         requestGoogleToolReconnect(clean, pendingForRetry, result);
                         return;
