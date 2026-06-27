@@ -432,6 +432,7 @@ async function askOpenAIToolTurn(body) {
     'Writes with confirmationRequired=true may be requested as tool calls; the gateway will enforce confirmation. Do not invent unsupported delete tools.',
     'JSON schema for tool call: {"type":"tool_call","toolName":"tool.name","arguments":{}}',
     'JSON schema for final answer: {"type":"final","reply":"...","narration":"...","status":"gpt_5_5_complete"}',
+    'Set narration to the same text as reply. The app must not speak a short alternate summary that differs from the visible answer.',
     summary ? `Conversation summary: ${summary}` : '',
     transcript ? `Recent transcript: ${transcript}` : '',
     `Available tools JSON: ${JSON.stringify(tools).slice(0, 12000)}`,
@@ -519,7 +520,7 @@ async function askOpenAIToolTurn(body) {
     return withTrace(body, {
       type: 'final',
       reply: safeText(parsed.reply || parsed.text, 12000) || 'I did not get a useful GPT-5.5 response.',
-      narration: safeText(parsed.narration || parsed.reply || parsed.text, 12000),
+      narration: safeText(parsed.reply || parsed.text, 12000),
       status: safeText(parsed.status, 160) || 'gpt_5_5_complete',
     }, trace);
   } catch (err) {

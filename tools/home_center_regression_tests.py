@@ -47,6 +47,7 @@ calendar_client = read('app/src/main/java/com/dclar/homecenter/GoogleCalendarCli
 tool_registry = read('app/src/main/java/com/dclar/homecenter/ToolRegistry.java')
 functions_index = read('functions/index.js')
 build_gradle = read('app/build.gradle')
+provider_smoke = read('tools/home_center_provider_smoke.py')
 contract = json.loads(read('tools/home_center_tool_contract.json'))
 contract_tools = {tool['name']: tool for tool in contract['tools']}
 contract_names = set(contract_tools)
@@ -202,6 +203,8 @@ require_contains(functions_index, 'docsCreateAdvertised', 'gateway trace records
 require_contains(functions_index, 'docsCreateWasRequested', 'gateway trace records docs.create request')
 require_contains(functions_index, 'parsedPlannerJson', 'gateway trace records parsed planner JSON')
 require_contains(functions_index, 'Unavailable tool groups JSON', 'agentToolTurn sees missing scopes')
+require_contains(functions_index, 'Set narration to the same text as reply', 'gateway prompt forbids mismatched TTS narration')
+require_contains(functions_index, 'narration: safeText(parsed.reply || parsed.text, 12000)', 'gateway returns reply text as narration for installed APK compatibility')
 require_contains(functions_index, 'toolByName(tools, toolName)', 'gateway rejects unadvertised tool calls')
 require_contains(functions_index, 'tool.confirmationRequired && !messageConfirms(message)', 'gateway enforces confirmation outside prompt prose')
 require_contains(functions_index, 'args._confirmedByGateway = true', 'gateway marks confirmed dangerous tool calls')
@@ -225,6 +228,8 @@ require_contains(sheets_client, '"google_sheet_updated"', 'Sheets update returns
 require_contains(gmail_client, 'BASE_URL = "https://gmail.googleapis.com/gmail/v1/users/me"', 'Gmail client calls Gmail REST')
 require_contains(calendar_client, 'BASE_URL = "https://www.googleapis.com/calendar/v3/calendars/primary/events"', 'Calendar client calls Calendar REST')
 require_contains(calendar_client, '"calendar.read".equals(toolName)', 'Calendar read dispatcher exists')
+for service in ['drive.googleapis.com', 'docs.googleapis.com', 'sheets.googleapis.com', 'gmail.googleapis.com', 'calendar-json.googleapis.com']:
+    require_contains(provider_smoke, service, f'provider smoke verifies {service} is enabled')
 require_contains(main_activity, 'homeTaskClient.updateTaskByIdOrName', 'List tools can update status/text by id or item text')
 require_contains(build_gradle, 'versionCode', 'Android build declares versionCode')
 
@@ -252,6 +257,8 @@ require_contains(main_activity, 'clipboard.setPrimaryClip', 'message copy writes
 require_contains(main_activity, 'ViewConfiguration.getDoubleTapTimeout()', 'message replay uses double-tap timing')
 require_contains(main_activity, 'replayMessageText(text)', 'double tap replays message text')
 require_contains(main_activity, 'speak(clean)', 'message replay uses narration path')
+require_contains(main_activity, 'speak(displayedResponse)', 'Cartesia reads the exact displayed assistant response')
+require_absent(main_activity, 'speak(narration == null || narration.trim().isEmpty() ? finalResponse : narration.trim())', 'Cartesia must not read mismatched short narration')
 require_contains(main_activity, 'Long press to copy. Double tap to replay.', 'message interaction is exposed to accessibility')
 
 if failures:

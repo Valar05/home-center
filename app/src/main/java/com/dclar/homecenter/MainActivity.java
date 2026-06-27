@@ -1120,14 +1120,14 @@ public final class MainActivity extends Activity implements RecognitionListener 
         JSONObject pendingForUi = cloneJson(pendingConfirmation);
         main.post(() -> {
             setBusy(false);
-            appendAssistantMessage(finalResponse, clean);
+            String displayedResponse = appendAssistantMessage(finalResponse, clean);
             if (pendingForUi != null) {
                 appendPendingConfirmationCard(pendingForUi);
             }
             if (status != null && !status.trim().isEmpty()) {
                 appendStatus(status.trim());
             }
-            speak(narration == null || narration.trim().isEmpty() ? finalResponse : narration.trim());
+            speak(displayedResponse);
         });
     }
 
@@ -2917,25 +2917,25 @@ public final class MainActivity extends Activity implements RecognitionListener 
         appendChatBubble(fromVoice ? "You (voice)" : "You", text, true, false);
     }
 
-    private void appendAssistantMessage(String text) {
-        appendAssistantMessage(text, null);
+    private String appendAssistantMessage(String text) {
+        return appendAssistantMessage(text, null);
     }
 
-    private void appendAssistantMessage(String text, String latestUserText) {
+    private String appendAssistantMessage(String text, String latestUserText) {
         String finalText = ChatSystemShape.enforceNextStep(text, latestUserText);
         appendChatBubble("Home Center", finalText, false, false);
         recordTranscriptTurn("assistant", finalText);
+        return finalText;
     }
 
-    private void showAssistantMessage(String text) {
-        showAssistantMessage(text, null);
+    private String showAssistantMessage(String text) {
+        return showAssistantMessage(text, null);
     }
 
-    private void showAssistantMessage(String text, String latestUserText) {
-        String finalText = ChatSystemShape.enforceNextStep(text, latestUserText);
-        appendChatBubble("Home Center", finalText, false, false);
-        recordTranscriptTurn("assistant", finalText);
+    private String showAssistantMessage(String text, String latestUserText) {
+        String finalText = appendAssistantMessage(text, latestUserText);
         speak(finalText);
+        return finalText;
     }
 
 

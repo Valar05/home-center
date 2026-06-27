@@ -1,5 +1,7 @@
 #!/data/data/com.termux/files/usr/bin/python3
 import json
+import shutil
+import subprocess
 import sys
 import urllib.error
 import urllib.request
@@ -29,6 +31,31 @@ def fail(message):
     print(f'Home Center provider smoke failed: {message}', file=sys.stderr)
     sys.exit(1)
 
+
+def enabled_google_services(project='home-center-dclar'):
+    if not shutil.which('gcloud'):
+        return None
+    result = subprocess.run([
+        'gcloud', 'services', 'list', '--enabled', f'--project={project}',
+        '--filter=NAME:(drive.googleapis.com docs.googleapis.com sheets.googleapis.com gmail.googleapis.com calendar-json.googleapis.com)',
+        '--format=value(config.name)',
+    ], text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=30, check=False)
+    if result.returncode != 0:
+        fail(f'gcloud services check failed: {result.stderr.strip()}')
+    return {line.strip() for line in result.stdout.splitlines() if line.strip()}
+
+
+required_google_services = {
+    'drive.googleapis.com',
+    'docs.googleapis.com',
+    'sheets.googleapis.com',
+    'gmail.googleapis.com',
+    'calendar-json.googleapis.com',
+}
+services = enabled_google_services()
+if services is not None and services != required_google_services:
+    fail(f'Google API services mismatch: missing={sorted(required_google_services - services)} extra={sorted(services - required_google_services)}')
+
 status, health = get_json('health')
 expected_groups = {'drive', 'docs', 'sheets', 'lists', 'gmail', 'calendar'}
 actual_groups = set(health.get('contractGroups') or [])
@@ -53,4 +80,5 @@ status, headers, body = post_json('agentToolTurn', {'message': 'Create a Google 
 if status != 401:
     fail(f'agentToolTurn should require Firebase auth when unauthenticated: status={status} body={body[:200]!r}')
 
-print(f'Home Center provider smoke: OK cartesiaBytes={tts_bytes} toolContractVersion=google-cru-v1 contractGroups=calendar,docs,drive,gmail,lists,sheets driveProbeUnauth=401 agentToolTurnUnauth=401')
+service_note = 'googleApis=' + ','.join(sorted(required_google_services)) if services is not None else 'googleApis=not_checked_no_gcloud'
+print(f'Home Center provider smoke: OK cartesiaBytes={tts_bytes} toolContractVersion=google-cru-v1 contractGroups=calendar,docs,drive,gmail,lists,sheets {service_note} driveProbeUnauth=401 agentToolTurnUnauth=401')
