@@ -84,6 +84,8 @@ import java.net.HttpURLConnection;
 import java.text.SimpleDateFormat;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -113,6 +115,8 @@ public final class MainActivity extends Activity implements RecognitionListener,
     private static final String KEY_GEMINI_SOURCE = "gemini_source";
     private static final String KEY_CHAT_TRANSCRIPT = "chat_transcript";
     private static final String KEY_CHAT_SUMMARY = "chat_summary";
+    private static final String KEY_CONVERSATIONS_JSON = "conversations_json";
+    private static final String KEY_ACTIVE_CONVERSATION_ID = "active_conversation_id";
     private static final String EXTRA_SMOKE_PROMPT = "home_center_smoke_prompt";
     private static final int MAX_RECORDED_TURNS = 18;
     private static final int COLOR_BACKGROUND = Color.parseColor("#121212");
@@ -203,6 +207,9 @@ public final class MainActivity extends Activity implements RecognitionListener,
     private boolean busy = false;
     private final List<ChatTurn> chatTurns = new ArrayList<>();
     private String conversationSummary = "";
+    private String activeConversationId = "";
+    private String activeConversationTitle = "";
+    private JSONArray activeConversationTags = new JSONArray();
     private String pendingAgentTurnAfterGoogleReconnect = "";
     private volatile JSONObject pendingToolConfirmation;
     private final Object workingMemoryLock = new Object();
@@ -665,8 +672,18 @@ public final class MainActivity extends Activity implements RecognitionListener,
         Button diagnostics = button("Check cart helper", 16, "Check whether the cart helper is installed and enabled");
         Button driveCheck = button("Check Google Drive", 16, "Check whether Home Center can list Google Drive files");
         Button netrunner = button("Netrunner browser", 16, "Open the secondary browser tool");
+        Button newConversation = button("New conversation", 16, "Start a new Home Center conversation");
+        Button conversations = button("Conversations", 16, "Switch between saved conversations");
+        Button renameConversation = button("Rename conversation", 16, "Rename the current conversation");
+        Button editTags = button("Edit tags", 16, "Edit tags for the current conversation");
+        Button searchConversations = button("Search conversations", 16, "Search conversations by text or tag");
         Button compact = button("Compact chat", 16, "Compact the current chat history");
 
+        panel.addView(newConversation, matchHeight(dp(52)));
+        panel.addView(conversations, matchHeight(dp(52)));
+        panel.addView(renameConversation, matchHeight(dp(52)));
+        panel.addView(editTags, matchHeight(dp(52)));
+        panel.addView(searchConversations, matchHeight(dp(52)));
         panel.addView(household, matchHeight(dp(52)));
         panel.addView(ticktick, matchHeight(dp(52)));
         panel.addView(cartReview, matchHeight(dp(52)));
@@ -681,6 +698,26 @@ public final class MainActivity extends Activity implements RecognitionListener,
                 .setView(panel)
                 .setNegativeButton("Close", null)
                 .create();
+        newConversation.setOnClickListener(v -> {
+            dialog.dismiss();
+            createAndSwitchConversation("New conversation");
+        });
+        conversations.setOnClickListener(v -> {
+            dialog.dismiss();
+            showConversationList();
+        });
+        renameConversation.setOnClickListener(v -> {
+            dialog.dismiss();
+            showRenameConversationDialog();
+        });
+        editTags.setOnClickListener(v -> {
+            dialog.dismiss();
+            showEditConversationTagsDialog();
+        });
+        searchConversations.setOnClickListener(v -> {
+            dialog.dismiss();
+            showConversationSearchDialog();
+        });
         household.setOnClickListener(v -> {
             dialog.dismiss();
             showHouseholdSettings();
@@ -4066,20 +4103,32 @@ public final class MainActivity extends Activity implements RecognitionListener,
     }
 
     private void persistChatHistory() {
-        SharedPreferences.Editor editor = getSharedPreferences(PREFS, MODE_PRIVATE).edit();
-        editor.putString(KEY_CHAT_TRANSCRIPT, recentTranscriptSnapshot());
-        if (conversationSummary == null || conversationSummary.trim().isEmpty()) {
-            editor.remove(KEY_CHAT_SUMMARY);
-        } else {
-            editor.putString(KEY_CHAT_SUMMARY, conversationSummary.trim());
+        try {
+            JSONObject root = loadConversationStore();
+            JSONObject conversation = activeConversation(root);
+            conversation.put("summary", conversationSummary == null ? "" : conversationSummary.trim());
+            conversation.put("turns", chatTurnsJson());
+            conversation.put("updatedAt", System.currentTimeMillis());
+            saveConversationStore(root);
+        } catch (Exception ex) {
+            LocalLog.warn("chat", "persist_conversation_failed: " + shortMessage(ex.getMessage()));
         }
-        editor.apply();
     }
 
     private boolean restoreConversationHistory() {
-        SharedPreferences prefs = getSharedPreferences(PREFS, MODE_PRIVATE);
-        conversationSummary = clean(prefs.getString(KEY_CHAT_SUMMARY, ""));
-        String transcript = clean(prefs.getString(KEY_CHAT_TRANSCRIPT, ""));
+        JSONObject root = loadConversationStore();
+        JSONObject conversation = activeConversation(root);
+        long now = System.currentTimeMillis();
+        try {
+            conversation.put("lastOpenedAt", now);
+            saveConversationStore(root);
+        } catch (Exception ignored) {
+        }
+        activeConversationId = conversation.optString("id", "");
+        activeConversationTitle = conversation.optString("title", "New conversation");
+        activeConversationTags = conversation.optJSONArray("tags") == null ? new JSONArray() : conversation.optJSONArray("tags");
+        conversationSummary = clean(conversation.optString("summary", ""));
+        JSONArray turns = conversation.optJSONArray("turns");
         chatTurns.clear();
         if (chatLogContainer != null) {
             chatLogContainer.removeAllViews();
@@ -4089,11 +4138,10 @@ public final class MainActivity extends Activity implements RecognitionListener,
             appendChatBubble("Summary", conversationSummary, false, true);
             restored = true;
         }
-        if (!transcript.isEmpty()) {
-            String[] lines = transcript.split("\n");
+        if (turns != null && turns.length() > 0) {
             boolean cleaned = false;
-            for (String line : lines) {
-                ChatTurn turn = chatTurnFromLine(line);
+            for (int i = 0; i < turns.length(); i++) {
+                ChatTurn turn = chatTurnFromJson(turns.optJSONObject(i));
                 if (turn == null) {
                     continue;
                 }
@@ -4110,7 +4158,7 @@ public final class MainActivity extends Activity implements RecognitionListener,
             }
         }
         if (restored) {
-            appendStatus("Restored previous chat history.");
+            appendStatus("Restored conversation: " + activeConversationTitle + ".");
         }
         return restored;
     }
@@ -4127,6 +4175,450 @@ public final class MainActivity extends Activity implements RecognitionListener,
             return new ChatTurn("assistant", cleanLine.substring(11).trim());
         }
         return null;
+    }
+
+    private ChatTurn chatTurnFromJson(JSONObject json) {
+        if (json == null) {
+            return null;
+        }
+        String role = json.optString("role", "").trim();
+        String text = json.optString("text", "").trim();
+        if (role.isEmpty() || text.isEmpty()) {
+            return null;
+        }
+        return new ChatTurn(role, text);
+    }
+
+    private JSONObject loadConversationStore() {
+        SharedPreferences prefs = getSharedPreferences(PREFS, MODE_PRIVATE);
+        String raw = prefs.getString(KEY_CONVERSATIONS_JSON, "");
+        JSONObject root = null;
+        if (raw != null && !raw.trim().isEmpty()) {
+            try {
+                root = new JSONObject(raw);
+            } catch (Exception ex) {
+                LocalLog.warn("chat", "conversation_store_parse_failed: " + shortMessage(ex.getMessage()));
+            }
+        }
+        if (root == null) {
+            root = new JSONObject();
+        }
+        try {
+            if (root.optJSONArray("conversations") == null) {
+                root.put("conversations", new JSONArray());
+            }
+            migrateLegacyConversationIfNeeded(root, prefs);
+            if (root.optJSONArray("conversations").length() == 0) {
+                JSONObject created = newConversationObject("New conversation");
+                root.optJSONArray("conversations").put(created);
+                activeConversationId = created.optString("id", "");
+                prefs.edit().putString(KEY_ACTIVE_CONVERSATION_ID, activeConversationId).apply();
+            }
+        } catch (Exception ex) {
+            LocalLog.warn("chat", "conversation_store_init_failed: " + shortMessage(ex.getMessage()));
+        }
+        return root;
+    }
+
+    private void migrateLegacyConversationIfNeeded(JSONObject root, SharedPreferences prefs) throws Exception {
+        JSONArray conversations = root.optJSONArray("conversations");
+        if (conversations == null || conversations.length() > 0) {
+            return;
+        }
+        String summary = clean(prefs.getString(KEY_CHAT_SUMMARY, ""));
+        String transcript = clean(prefs.getString(KEY_CHAT_TRANSCRIPT, ""));
+        if (summary.isEmpty() && transcript.isEmpty()) {
+            return;
+        }
+        JSONObject migrated = newConversationObject("Previous conversation");
+        migrated.put("summary", summary);
+        JSONArray turns = new JSONArray();
+        if (!transcript.isEmpty()) {
+            String[] lines = transcript.split("\n");
+            for (String line : lines) {
+                ChatTurn turn = chatTurnFromLine(line);
+                if (turn != null && !ChatSystemShape.isStartupGreeting(turn.text)) {
+                    turns.put(chatTurnJson(turn));
+                }
+            }
+        }
+        migrated.put("turns", turns);
+        conversations.put(migrated);
+        activeConversationId = migrated.optString("id", "");
+        prefs.edit()
+                .putString(KEY_ACTIVE_CONVERSATION_ID, activeConversationId)
+                .remove(KEY_CHAT_TRANSCRIPT)
+                .remove(KEY_CHAT_SUMMARY)
+                .apply();
+    }
+
+    private void saveConversationStore(JSONObject root) {
+        getSharedPreferences(PREFS, MODE_PRIVATE).edit()
+                .putString(KEY_CONVERSATIONS_JSON, root == null ? "{}" : root.toString())
+                .putString(KEY_ACTIVE_CONVERSATION_ID, activeConversationId == null ? "" : activeConversationId)
+                .apply();
+    }
+
+    private JSONObject activeConversation(JSONObject root) {
+        SharedPreferences prefs = getSharedPreferences(PREFS, MODE_PRIVATE);
+        JSONArray conversations = root.optJSONArray("conversations");
+        if (conversations == null) {
+            conversations = new JSONArray();
+            try {
+                root.put("conversations", conversations);
+            } catch (Exception ignored) {
+            }
+        }
+        String activeId = activeConversationId == null || activeConversationId.trim().isEmpty()
+                ? prefs.getString(KEY_ACTIVE_CONVERSATION_ID, "")
+                : activeConversationId;
+        JSONObject found = findConversation(root, activeId);
+        if (found != null) {
+            activeConversationId = found.optString("id", activeId);
+            return found;
+        }
+        JSONObject first = conversations.length() == 0 ? null : conversations.optJSONObject(0);
+        if (first != null) {
+            activeConversationId = first.optString("id", "");
+            return first;
+        }
+        JSONObject created = newConversationObject("New conversation");
+        conversations.put(created);
+        activeConversationId = created.optString("id", "");
+        return created;
+    }
+
+    private JSONObject findConversation(JSONObject root, String conversationId) {
+        if (conversationId == null || conversationId.trim().isEmpty()) {
+            return null;
+        }
+        JSONArray conversations = root.optJSONArray("conversations");
+        if (conversations == null) {
+            return null;
+        }
+        for (int i = 0; i < conversations.length(); i++) {
+            JSONObject conversation = conversations.optJSONObject(i);
+            if (conversation != null && conversationId.equals(conversation.optString("id", ""))) {
+                return conversation;
+            }
+        }
+        return null;
+    }
+
+    private JSONObject newConversationObject(String title) {
+        long now = System.currentTimeMillis();
+        JSONObject json = new JSONObject();
+        try {
+            json.put("id", "conv-" + now + "-" + Math.abs((int) (Math.random() * 100000)));
+            json.put("title", clean(title).isEmpty() ? "New conversation" : clean(title));
+            json.put("tags", new JSONArray());
+            json.put("summary", "");
+            json.put("turns", new JSONArray());
+            json.put("createdAt", now);
+            json.put("updatedAt", now);
+            json.put("lastOpenedAt", now);
+        } catch (Exception ignored) {
+        }
+        return json;
+    }
+
+    private JSONArray chatTurnsJson() {
+        JSONArray array = new JSONArray();
+        int start = Math.max(0, chatTurns.size() - MAX_RECORDED_TURNS);
+        for (int i = start; i < chatTurns.size(); i++) {
+            array.put(chatTurnJson(chatTurns.get(i)));
+        }
+        return array;
+    }
+
+    private JSONObject chatTurnJson(ChatTurn turn) {
+        JSONObject json = new JSONObject();
+        try {
+            json.put("role", turn.role == null ? "" : turn.role);
+            json.put("text", turn.text == null ? "" : turn.text);
+        } catch (Exception ignored) {
+        }
+        return json;
+    }
+
+    private void createAndSwitchConversation(String title) {
+        persistChatHistory();
+        JSONObject root = loadConversationStore();
+        JSONArray conversations = root.optJSONArray("conversations");
+        JSONObject conversation = newConversationObject(title);
+        conversations.put(conversation);
+        activeConversationId = conversation.optString("id", "");
+        saveConversationStore(root);
+        restoreConversationHistory();
+        showAssistantMessage("New conversation started.");
+    }
+
+    private void switchConversation(String conversationId) {
+        persistChatHistory();
+        JSONObject root = loadConversationStore();
+        JSONObject conversation = findConversation(root, conversationId);
+        if (conversation == null) {
+            showAssistantMessage("I could not find that conversation.");
+            return;
+        }
+        activeConversationId = conversationId;
+        try {
+            conversation.put("lastOpenedAt", System.currentTimeMillis());
+            saveConversationStore(root);
+        } catch (Exception ignored) {
+        }
+        restoreConversationHistory();
+    }
+
+    private void showConversationList() {
+        JSONObject root = loadConversationStore();
+        List<JSONObject> conversations = sortedConversations(root);
+        LinearLayout panel = new LinearLayout(this);
+        panel.setOrientation(LinearLayout.VERTICAL);
+        panel.setPadding(dp(20), dp(12), dp(20), dp(4));
+        final AlertDialog[] holder = new AlertDialog[1];
+        for (JSONObject conversation : conversations) {
+            String id = conversation.optString("id", "");
+            Button row = button(conversationRowLabel(conversation), 14, "Open conversation " + conversation.optString("title", ""));
+            panel.addView(row, matchHeight(dp(64)));
+            row.setOnClickListener(v -> {
+                if (holder[0] != null) holder[0].dismiss();
+                switchConversation(id);
+            });
+        }
+        holder[0] = new AlertDialog.Builder(this)
+                .setTitle("Conversations")
+                .setView(panel)
+                .setNegativeButton("Close", null)
+                .create();
+        holder[0].show();
+    }
+
+    private void showRenameConversationDialog() {
+        EditText title = singleLineEdit("Conversation title", activeConversationTitle);
+        new AlertDialog.Builder(this)
+                .setTitle("Rename conversation")
+                .setView(title)
+                .setNegativeButton("Cancel", null)
+                .setPositiveButton("Save", (dialog, which) -> renameActiveConversation(title.getText().toString()))
+                .show();
+    }
+
+    private void renameActiveConversation(String title) {
+        JSONObject root = loadConversationStore();
+        JSONObject conversation = activeConversation(root);
+        try {
+            String cleanTitle = clean(title);
+            conversation.put("title", cleanTitle.isEmpty() ? "New conversation" : cleanTitle);
+            conversation.put("updatedAt", System.currentTimeMillis());
+            activeConversationTitle = conversation.optString("title", "New conversation");
+            saveConversationStore(root);
+            showAssistantMessage("Conversation renamed to " + activeConversationTitle + ".");
+        } catch (Exception ex) {
+            showAssistantMessage("Could not rename conversation: " + shortMessage(ex.getMessage()));
+        }
+    }
+
+    private void showEditConversationTagsDialog() {
+        EditText tags = singleLineEdit("Tags, comma separated", tagsText(activeConversationTags));
+        new AlertDialog.Builder(this)
+                .setTitle("Edit tags")
+                .setView(tags)
+                .setNegativeButton("Cancel", null)
+                .setPositiveButton("Save", (dialog, which) -> saveActiveConversationTags(tags.getText().toString()))
+                .show();
+    }
+
+    private void saveActiveConversationTags(String tagsText) {
+        JSONObject root = loadConversationStore();
+        JSONObject conversation = activeConversation(root);
+        try {
+            JSONArray tags = parseTags(tagsText);
+            conversation.put("tags", tags);
+            conversation.put("updatedAt", System.currentTimeMillis());
+            activeConversationTags = tags;
+            saveConversationStore(root);
+            showAssistantMessage("Conversation tags saved.");
+        } catch (Exception ex) {
+            showAssistantMessage("Could not save tags: " + shortMessage(ex.getMessage()));
+        }
+    }
+
+    private void showConversationSearchDialog() {
+        LinearLayout panel = new LinearLayout(this);
+        panel.setOrientation(LinearLayout.VERTICAL);
+        panel.setPadding(dp(20), dp(12), dp(20), dp(4));
+        EditText query = singleLineEdit("Search text or #tag", "");
+        panel.addView(query, matchHeight(dp(64)));
+        new AlertDialog.Builder(this)
+                .setTitle("Search conversations")
+                .setView(panel)
+                .setNegativeButton("Cancel", null)
+                .setPositiveButton("Search", (dialog, which) -> showConversationSearchResults(query.getText().toString()))
+                .show();
+    }
+
+    private void showConversationSearchResults(String rawQuery) {
+        String query = clean(rawQuery).toLowerCase(Locale.US);
+        if (query.isEmpty()) {
+            showConversationList();
+            return;
+        }
+        JSONObject root = loadConversationStore();
+        List<JSONObject> results = new ArrayList<>();
+        for (JSONObject conversation : sortedConversations(root)) {
+            if (conversationMatches(conversation, query)) {
+                results.add(conversation);
+            }
+        }
+        LinearLayout panel = new LinearLayout(this);
+        panel.setOrientation(LinearLayout.VERTICAL);
+        panel.setPadding(dp(20), dp(12), dp(20), dp(4));
+        if (results.isEmpty()) {
+            TextView empty = new TextView(this);
+            empty.setText("No matching conversations.");
+            empty.setTextColor(COLOR_SECONDARY);
+            empty.setTextSize(16);
+            panel.addView(empty, matchWrap());
+        } else {
+            final AlertDialog[] holder = new AlertDialog[1];
+            for (JSONObject conversation : results) {
+                String id = conversation.optString("id", "");
+                Button row = button(conversationRowLabel(conversation), 14, "Open conversation " + conversation.optString("title", ""));
+                panel.addView(row, matchHeight(dp(64)));
+                row.setOnClickListener(v -> {
+                    if (holder[0] != null) holder[0].dismiss();
+                    switchConversation(id);
+                });
+            }
+            AlertDialog dialog = new AlertDialog.Builder(this)
+                    .setTitle("Search results")
+                    .setView(panel)
+                    .setNegativeButton("Close", null)
+                    .create();
+            holder[0] = dialog;
+            dialog.show();
+            return;
+        }
+        new AlertDialog.Builder(this)
+                .setTitle("Search results")
+                .setView(panel)
+                .setNegativeButton("Close", null)
+                .show();
+    }
+
+    private List<JSONObject> sortedConversations(JSONObject root) {
+        JSONArray array = root.optJSONArray("conversations");
+        List<JSONObject> list = new ArrayList<>();
+        if (array != null) {
+            for (int i = 0; i < array.length(); i++) {
+                JSONObject conversation = array.optJSONObject(i);
+                if (conversation != null) {
+                    list.add(conversation);
+                }
+            }
+        }
+        Collections.sort(list, (left, right) -> Long.compare(right.optLong("lastOpenedAt", 0L), left.optLong("lastOpenedAt", 0L)));
+        return list;
+    }
+
+    private String conversationRowLabel(JSONObject conversation) {
+        String title = conversation.optString("title", "New conversation");
+        String tags = tagsText(conversation.optJSONArray("tags"));
+        String preview = conversationPreview(conversation);
+        String label = title;
+        if (!tags.isEmpty()) {
+            label += "  #" + tags.replace(", ", " #");
+        }
+        if (!preview.isEmpty()) {
+            label += "\n" + preview;
+        }
+        return label;
+    }
+
+    private String conversationPreview(JSONObject conversation) {
+        JSONArray turns = conversation.optJSONArray("turns");
+        if (turns != null && turns.length() > 0) {
+            JSONObject last = turns.optJSONObject(turns.length() - 1);
+            if (last != null) {
+                return shortMessage(last.optString("text", ""));
+            }
+        }
+        return shortMessage(conversation.optString("summary", ""));
+    }
+
+    private boolean conversationMatches(JSONObject conversation, String query) {
+        if (query.startsWith("#")) {
+            String tag = normalizeTag(query.substring(1));
+            JSONArray tags = conversation.optJSONArray("tags");
+            for (int i = 0; tags != null && i < tags.length(); i++) {
+                if (tag.equals(tags.optString(i, ""))) {
+                    return true;
+                }
+            }
+            return false;
+        }
+        String haystack = (conversation.optString("title", "") + "\n"
+                + tagsText(conversation.optJSONArray("tags")) + "\n"
+                + conversation.optString("summary", "") + "\n"
+                + conversationTurnsText(conversation)).toLowerCase(Locale.US);
+        return haystack.contains(query);
+    }
+
+    private String conversationTurnsText(JSONObject conversation) {
+        JSONArray turns = conversation.optJSONArray("turns");
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; turns != null && i < turns.length(); i++) {
+            JSONObject turn = turns.optJSONObject(i);
+            if (turn != null) {
+                builder.append(turn.optString("text", "")).append('\n');
+            }
+        }
+        return builder.toString();
+    }
+
+    private JSONArray parseTags(String raw) {
+        JSONArray array = new JSONArray();
+        String[] parts = (raw == null ? "" : raw).split(",");
+        for (String part : parts) {
+            String tag = normalizeTag(part);
+            if (tag.isEmpty() || jsonArrayContains(array, tag)) {
+                continue;
+            }
+            array.put(tag);
+        }
+        return array;
+    }
+
+    private String normalizeTag(String value) {
+        return clean(value).toLowerCase(Locale.US).replace("#", "").replaceAll("\\s+", "-");
+    }
+
+    private boolean jsonArrayContains(JSONArray array, String value) {
+        for (int i = 0; i < array.length(); i++) {
+            if (value.equals(array.optString(i, ""))) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private String tagsText(JSONArray tags) {
+        if (tags == null || tags.length() == 0) {
+            return "";
+        }
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < tags.length(); i++) {
+            String tag = tags.optString(i, "");
+            if (tag.isEmpty()) {
+                continue;
+            }
+            if (builder.length() > 0) {
+                builder.append(", ");
+            }
+            builder.append(tag);
+        }
+        return builder.toString();
     }
 
     private void applyConversationSummary(String summary) {
