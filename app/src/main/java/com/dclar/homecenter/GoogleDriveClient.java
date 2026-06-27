@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 final class GoogleDriveClient {
-    static final String DRIVE_METADATA_SCOPE = "https://www.googleapis.com/auth/drive.metadata.readonly";
+    static final String DRIVE_METADATA_SCOPE = "https://www.googleapis.com/auth/drive.readonly";
     private static final String TOKEN_SCOPE = "oauth2:" + DRIVE_METADATA_SCOPE;
     private static final String FILES_URL = "https://www.googleapis.com/drive/v3/files";
     private static final String FOLDER_MIME_TYPE = "application/vnd.google-apps.folder";
@@ -35,6 +35,97 @@ final class GoogleDriveClient {
 
     DriveResult listFirstFiles(GoogleSignInAccount account) {
         return inspect(account, "");
+    }
+
+    DriveAnswer answerRequest(GoogleSignInAccount account, String requestText, String lastDocumentId, String lastDocumentName) {
+        DriveResult auth = inspect(account, "");
+        if (!auth.ok && auth.recoverableAuthException != null) {
+            return DriveAnswer.recoverable(auth.error, auth.detail, auth.recoverableAuthException);
+        }
+        if (!auth.ok) {
+            return DriveAnswer.error(auth.error, auth.detail);
+        }
+        String token;
+        try {
+            token = accessToken(account);
+        } catch (DriveRecoverableException ex) {
+            return DriveAnswer.recoverable("drive_scope_recoverable", "Drive permission needs approval: " + safe(ex.getMessage()), ex.exception);
+        } catch (DriveRuntimeException ex) {
+            return DriveAnswer.error(ex.code, ex.getMessage());
+        }
+        String value = normalized(requestText);
+        boolean wantsContent = value.contains("first sentence")
+                || value.contains("summarize")
+                || value.contains("summary")
+                || value.contains("read chapter")
+                || value.startsWith("read ")
+                || value.startsWith("open ");
+        if (wantsContent) {
+            return answerDocumentRequest(token, requestText, lastDocumentId, lastDocumentName);
+        }
+        return answerFolderOrFileList(token, requestText);
+    }
+
+    private DriveAnswer answerFolderOrFileList(String token, String requestText) {
+        String folderName = folderNameFrom(requestText);
+        DriveResult result;
+        if (!folderName.isEmpty()) {
+            String folderQuery = "mimeType='" + FOLDER_MIME_TYPE + "' and name contains '" + escapeQuery(folderName) + "' and trashed=false";
+            DriveResult folders = requestFiles(token, folderQuery, "");
+            if (!folders.ok) {
+                return DriveAnswer.error(folders.error, folders.detail);
+            }
+            if (folders.files.isEmpty()) {
+                return DriveAnswer.ok("I could not find a folder named " + folderName + ".", "", "", "");
+            }
+            DriveFile folder = folders.files.get(0);
+            result = requestFiles(token, "'" + escapeQuery(folder.id) + "' in parents and trashed=false", "");
+            if (!result.ok) {
+                return DriveAnswer.error(result.error, result.detail);
+            }
+            return DriveAnswer.ok(listAnswer("Found it. It contains:", result.files), "", folder.id, folder.name);
+        }
+        result = requestFiles(token, "trashed=false", "");
+        if (!result.ok) {
+            return DriveAnswer.error(result.error, result.detail);
+        }
+        return DriveAnswer.ok(listAnswer("I found these Drive files:", result.files), "", "", "");
+    }
+
+    private DriveAnswer answerDocumentRequest(String token, String requestText, String lastDocumentId, String lastDocumentName) {
+        String title = documentTitleFrom(requestText);
+        DriveFile doc = null;
+        if (!title.isEmpty()) {
+            DriveResult search = requestFiles(token, "name contains '" + escapeQuery(title) + "' and trashed=false", "");
+            if (!search.ok) {
+                return DriveAnswer.error(search.error, search.detail);
+            }
+            if (!search.files.isEmpty()) {
+                doc = search.files.get(0);
+            }
+        }
+        if (doc == null && lastDocumentId != null && !lastDocumentId.trim().isEmpty()) {
+            doc = new DriveFile(lastDocumentId, lastDocumentName == null ? "that document" : lastDocumentName, "application/vnd.google-apps.document", "");
+        }
+        if (doc == null) {
+            return DriveAnswer.ok("I could not find that document in Drive.", "", "", "");
+        }
+        String content = readDocumentText(token, doc);
+        if (content.trim().isEmpty()) {
+            return DriveAnswer.ok("I found " + cleanName(doc.name) + ", but it did not contain readable text.", "", doc.id, doc.name);
+        }
+        String value = normalized(requestText);
+        if (value.contains("first sentence")) {
+            return DriveAnswer.ok("The first sentence is: \"" + firstSentence(content) + "\"", content, doc.id, doc.name);
+        }
+        if (value.contains("summarize") || value.contains("summary")) {
+            return DriveAnswer.ok("Summary: " + simpleSummary(content), content, doc.id, doc.name);
+        }
+        if (value.contains("chapter")) {
+            String chapter = chapterText(content, value);
+            return DriveAnswer.ok(chapter.isEmpty() ? "I found " + cleanName(doc.name) + ", but I could not find that chapter." : chapter, content, doc.id, doc.name);
+        }
+        return DriveAnswer.ok(firstReadableChunk(content), content, doc.id, doc.name);
     }
 
     DriveResult inspect(GoogleSignInAccount account, String requestText) {
@@ -165,6 +256,146 @@ final class GoogleDriveClient {
         return value == null ? "" : value.replace("'", "\\'").trim();
     }
 
+    private String readDocumentText(String token, DriveFile file) {
+        String path;
+        if ("application/vnd.google-apps.document".equals(file.mimeType)) {
+            path = FILES_URL + "/" + Uri.encode(file.id) + "/export";
+        } else {
+            path = FILES_URL + "/" + Uri.encode(file.id);
+        }
+        HttpURLConnection connection = null;
+        try {
+            Uri.Builder builder = Uri.parse(path).buildUpon();
+            if ("application/vnd.google-apps.document".equals(file.mimeType)) {
+                builder.appendQueryParameter("mimeType", "text/plain");
+            } else {
+                builder.appendQueryParameter("alt", "media");
+            }
+            connection = (HttpURLConnection) new URL(builder.build().toString()).openConnection();
+            connection.setRequestMethod("GET");
+            connection.setConnectTimeout(15000);
+            connection.setReadTimeout(30000);
+            connection.setRequestProperty("Authorization", "Bearer " + token);
+            connection.setRequestProperty("Accept", "text/plain");
+            int status = connection.getResponseCode();
+            String body = readBody(status >= 400 ? connection.getErrorStream() : connection.getInputStream());
+            if (status < 200 || status >= 300) {
+                throw new DriveRuntimeException("http_" + status, "Drive document read HTTP " + status + ": " + abbreviate(body));
+            }
+            return body;
+        } catch (DriveRuntimeException ex) {
+            throw ex;
+        } catch (Exception ex) {
+            throw new DriveRuntimeException("document_read_error", "Drive document read failed: " + safe(ex.getMessage()));
+        } finally {
+            if (connection != null) {
+                connection.disconnect();
+            }
+        }
+    }
+
+    private static String listAnswer(String heading, List<DriveFile> files) {
+        if (files.isEmpty()) {
+            return heading + "\nNo files found.";
+        }
+        StringBuilder answer = new StringBuilder(heading);
+        for (DriveFile file : files) {
+            answer.append("\n- ").append(cleanName(file.name));
+        }
+        return answer.toString();
+    }
+
+    private static String documentTitleFrom(String text) {
+        String value = text == null ? "" : text.trim();
+        String lower = value.toLowerCase();
+        int of = lower.indexOf(" of ");
+        if (of >= 0) {
+            return cleanTitle(value.substring(of + 4));
+        }
+        for (String prefix : new String[]{"summarize ", "open ", "read "}) {
+            if (lower.startsWith(prefix)) {
+                String candidate = value.substring(prefix.length());
+                if (!candidate.toLowerCase().startsWith("chapter")) {
+                    return cleanTitle(candidate);
+                }
+            }
+        }
+        return "";
+    }
+
+    private static String cleanTitle(String value) {
+        return value == null ? "" : value
+                .replaceAll("(?i)\\bin drive\\b", "")
+                .replaceAll("(?i)\\bfrom drive\\b", "")
+                .replaceAll("[?.!]+$", "")
+                .trim();
+    }
+
+    private static String firstSentence(String content) {
+        String clean = normalizeContent(content);
+        int end = sentenceEnd(clean, 0);
+        return end <= 0 ? clean : clean.substring(0, Math.min(end + 1, clean.length())).trim();
+    }
+
+    private static int sentenceEnd(String clean, int start) {
+        for (int i = Math.max(0, start); i < clean.length(); i++) {
+            char c = clean.charAt(i);
+            if (c == '.' || c == '?' || c == '!') {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    private static String simpleSummary(String content) {
+        String clean = normalizeContent(content);
+        int first = sentenceEnd(clean, 0);
+        if (first < 0) {
+            return firstReadableChunk(clean);
+        }
+        int second = sentenceEnd(clean, first + 1);
+        if (second < 0) {
+            return clean.substring(0, Math.min(first + 1, clean.length())).trim();
+        }
+        return clean.substring(0, Math.min(second + 1, clean.length())).trim();
+    }
+
+    private static String chapterText(String content, String request) {
+        String clean = normalizeContent(content);
+        String chapter = request.replaceAll(".*chapter\\s+", "").replaceAll("[^a-z0-9].*", "").trim();
+        if (chapter.isEmpty()) {
+            return "";
+        }
+        String lower = clean.toLowerCase();
+        int start = lower.indexOf("chapter " + chapter);
+        if (start < 0 && "three".equals(chapter)) {
+            start = lower.indexOf("chapter 3");
+        }
+        if (start < 0) {
+            return "";
+        }
+        int next = lower.indexOf("chapter ", start + 8);
+        String section = next > start ? clean.substring(start, next) : clean.substring(start);
+        return firstReadableChunk(section);
+    }
+
+    private static String firstReadableChunk(String content) {
+        String clean = normalizeContent(content);
+        return clean.length() <= 900 ? clean : clean.substring(0, 900).trim() + "...";
+    }
+
+    private static String normalizeContent(String content) {
+        return content == null ? "" : content.replace('\r', ' ').replace('\n', ' ').replaceAll("\\s+", " ").trim();
+    }
+
+    private static String normalized(String content) {
+        return content == null ? "" : content.toLowerCase().replaceAll("\\s+", " ").trim();
+    }
+
+    private static String cleanName(String name) {
+        return name == null || name.trim().isEmpty() ? "Untitled" : name.trim();
+    }
+
     private static String readBody(InputStream stream) throws IOException {
         if (stream == null) {
             return "";
@@ -206,6 +437,38 @@ final class GoogleDriveClient {
         DriveRecoverableException(UserRecoverableAuthException exception) {
             super(exception == null ? "approval required" : exception.getMessage());
             this.exception = exception;
+        }
+    }
+
+    static final class DriveAnswer {
+        final boolean ok;
+        final String error;
+        final String answer;
+        final String content;
+        final String documentId;
+        final String documentName;
+        final UserRecoverableAuthException recoverableAuthException;
+
+        private DriveAnswer(boolean ok, String error, String answer, String content, String documentId, String documentName, UserRecoverableAuthException recoverableAuthException) {
+            this.ok = ok;
+            this.error = error;
+            this.answer = answer == null ? "" : answer;
+            this.content = content == null ? "" : content;
+            this.documentId = documentId == null ? "" : documentId;
+            this.documentName = documentName == null ? "" : documentName;
+            this.recoverableAuthException = recoverableAuthException;
+        }
+
+        static DriveAnswer ok(String answer, String content, String documentId, String documentName) {
+            return new DriveAnswer(true, "", answer, content, documentId, documentName, null);
+        }
+
+        static DriveAnswer error(String error, String detail) {
+            return new DriveAnswer(false, error, detail, "", "", "", null);
+        }
+
+        static DriveAnswer recoverable(String error, String detail, UserRecoverableAuthException ex) {
+            return new DriveAnswer(false, error, detail, "", "", "", ex);
         }
     }
 

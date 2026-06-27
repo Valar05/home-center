@@ -218,16 +218,20 @@ require_contains(main_activity, 'can home center read', 'local status guard catc
 require_contains(main_activity, 'isDriveDiagnosticIntent(value)', 'local Drive router uses explicit Drive diagnostic predicate')
 require_contains(main_activity, 'value.contains("check")', 'local Drive router catches exact Check Google drive wording')
 require_contains(main_activity, 'folder in drive', 'local Drive router catches folder-in-Drive wording before GPT')
-require_contains(main_activity, 'local_route inspect', 'local Drive route logs proof before REST call')
+require_contains(main_activity, 'local_route answerRequest', 'local Drive route logs proof before REST call')
 require_ordered(method_body(main_activity, 'private void submitMessage', 'private boolean tryHandleLocalStatusQuestion'), 'tryHandleLocalStatusQuestion(clean)', 'sendAgentTurn(clean)', 'Drive checks are handled before sendAgentTurn can call GPT')
 require_contains(main_activity, 'GoogleDriveClient.DRIVE_METADATA_SCOPE', 'Google sign-in requests Drive metadata scope for direct diagnostic')
-require_contains(drive_client, 'https://www.googleapis.com/auth/drive.metadata.readonly', 'direct Drive diagnostic uses metadata readonly scope')
+require_contains(drive_client, 'https://www.googleapis.com/auth/drive.readonly', 'direct Drive content reader uses readonly scope')
 require_contains(drive_client, 'GoogleAuthUtil.getToken', 'direct Drive diagnostic fetches a real Google access token')
 require_contains(drive_client, 'https://www.googleapis.com/drive/v3/files', 'direct Drive diagnostic calls Drive files REST endpoint')
 require_contains(drive_client, 'appendQueryParameter("pageSize", "5")', 'direct Drive diagnostic limits file listing to 5 items')
 require_contains(drive_client, 'folderNameFrom', 'direct Drive diagnostic can route folder questions to Drive search')
+require_contains(drive_client, 'readDocumentText', 'Drive planner can open and export document text')
+require_contains(drive_client, 'firstSentence', 'Drive planner can answer first-sentence requests')
+require_contains(drive_client, 'simpleSummary', 'Drive planner can summarize a document without stopping at listing')
 require_contains(main_activity, 'Check Google Drive', 'app exposes a user-tappable Drive diagnostic')
-require_contains(main_activity, 'googleDriveClient.inspect(account, text)', 'status questions use direct Drive client instead of server token guesses')
+require_contains(main_activity, 'showDriveAnswer', 'Drive answers bypass generic next-step chatter')
+require_contains(main_activity, 'googleDriveClient.answerRequest(account, text', 'status questions use direct Drive planner instead of server token guesses')
 if 'https://www.googleapis.com/auth/drive.file' in main_activity:
     fail('Google sign-in must not use drive.file scope for Drive diagnostics')
 require_contains(openai_client, 'googleDriveProbe', 'Android client can ask gateway for real Drive connectivity')
@@ -296,3 +300,4 @@ if failures:
     sys.exit(1)
 
 print('Home Center source-contract tests: OK')
+

@@ -166,6 +166,8 @@ public final class MainActivity extends Activity implements RecognitionListener 
     private boolean busy = false;
     private final List<ChatTurn> chatTurns = new ArrayList<>();
     private String conversationSummary = "";
+    private String lastDriveDocumentId = "";
+    private String lastDriveDocumentName = "";
     private String startupGreeting = "Home Center is ready. Try pantry inventory, what can I make, recipe brainstorm, or rescue meal.";
     private final List<CartReviewItem> cartReviewItems = new ArrayList<>();
     private int cartReviewIndex = -1;
@@ -473,8 +475,8 @@ public final class MainActivity extends Activity implements RecognitionListener 
         composeRow.addView(stopSpeechButton);
 
         talkButton = new Button(this);
-        talkButton.setText("Talk to Home Center");
-        talkButton.setTextSize(30);
+        talkButton.setText("Mic");
+        talkButton.setTextSize(24);
         talkButton.setTypeface(Typeface.DEFAULT_BOLD);
         talkButton.setAllCaps(false);
         talkButton.setTextColor(Color.parseColor("#1C1500"));
@@ -482,8 +484,8 @@ public final class MainActivity extends Activity implements RecognitionListener 
         talkButton.setContentDescription("Talk to Home Center");
         LinearLayout.LayoutParams talkParams = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
-                dp(92));
-        talkParams.setMargins(0, dp(12), 0, 0);
+                dp(48));
+        talkParams.setMargins(0, dp(8), 0, 0);
         talkButton.setLayoutParams(talkParams);
 
         bottomPanel.addView(composeRow, matchWrap());
@@ -875,11 +877,11 @@ public final class MainActivity extends Activity implements RecognitionListener 
             startGoogleSignIn();
             return;
         }
-        LocalLog.info("drive", "local_route inspect prompt=" + shortMessage(text));
+        LocalLog.info("drive", "local_route answerRequest prompt=" + shortMessage(text));
         appendStatus("Checking Google Drive directly...");
         executor.execute(() -> {
-            GoogleDriveClient.DriveResult result = googleDriveClient.inspect(account, text);
-            main.post(() -> handleDriveDiagnosticResult(result, text));
+            GoogleDriveClient.DriveAnswer answer = googleDriveClient.answerRequest(account, text, lastDriveDocumentId, lastDriveDocumentName);
+            main.post(() -> handleDriveAnswer(answer, text));
         });
     }
 
@@ -1038,9 +1040,40 @@ public final class MainActivity extends Activity implements RecognitionListener 
         }
         appendStatus("Checking Google Drive directly...");
         executor.execute(() -> {
-            GoogleDriveClient.DriveResult result = googleDriveClient.listFirstFiles(account);
-            main.post(() -> handleDriveDiagnosticResult(result));
+            GoogleDriveClient.DriveAnswer answer = googleDriveClient.answerRequest(account, "Check Google drive", lastDriveDocumentId, lastDriveDocumentName);
+            main.post(() -> handleDriveAnswer(answer, "Check Google drive"));
         });
+    }
+
+    private void showDriveAnswer(String text) {
+        appendChatBubble("Home Center", text, false, false);
+        recordTranscriptTurn("assistant", text);
+        speak(text);
+    }
+
+    private void handleDriveAnswer(GoogleDriveClient.DriveAnswer answer, String latestUserText) {
+        if (answer == null) {
+            showDriveAnswer("Google Drive failed: empty result.");
+            return;
+        }
+        if (answer.recoverableAuthException != null) {
+            appendStatus("Google Drive permission needs approval: " + shortMessage(answer.answer));
+            try {
+                startActivityForResult(answer.recoverableAuthException.getIntent(), REQUEST_DRIVE_AUTH);
+            } catch (Exception ex) {
+                showDriveAnswer("Google Drive permission approval failed to open: " + shortMessage(ex.getMessage()));
+            }
+            return;
+        }
+        if (!answer.ok) {
+            showDriveAnswer("Google Drive failed [" + answer.error + "]: " + answer.answer);
+            return;
+        }
+        if (!answer.documentId.isEmpty()) {
+            lastDriveDocumentId = answer.documentId;
+            lastDriveDocumentName = answer.documentName;
+        }
+        showDriveAnswer(answer.answer);
     }
 
     private void handleDriveDiagnosticResult(GoogleDriveClient.DriveResult result) {
@@ -1057,7 +1090,7 @@ public final class MainActivity extends Activity implements RecognitionListener 
             try {
                 startActivityForResult(result.recoverableAuthException.getIntent(), REQUEST_DRIVE_AUTH);
             } catch (Exception ex) {
-                showAssistantMessage("Google Drive permission approval failed to open: " + shortMessage(ex.getMessage()), latestUserText);
+                showDriveAnswer("Google Drive permission approval failed to open: " + shortMessage(ex.getMessage()));
             }
             return;
         }
@@ -1072,9 +1105,6 @@ public final class MainActivity extends Activity implements RecognitionListener 
             for (GoogleDriveClient.DriveFile file : result.files) {
                 String name = file.name == null || file.name.trim().isEmpty() ? "untitled" : file.name.trim();
                 answer.append("\n- ").append(name);
-                if (file.modifiedTime != null && !file.modifiedTime.trim().isEmpty()) {
-                    answer.append(" (").append(file.modifiedTime).append(")");
-                }
             }
         }
         showAssistantMessage(answer.toString(), latestUserText);
