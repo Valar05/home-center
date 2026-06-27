@@ -14,6 +14,8 @@ ACTIVITY = 'com.dclar.homecenter/.MainActivity'
 EXPECTED_VERSION_NAME = '0.2.7'
 EXPECTED_VERSION_CODE = '11'
 PROMPTS = [
+    'Check Google drive',
+    'Can you check my writing folder in drive',
     'Can you see drive brain folder in Google drive',
     'Can Home Center read Google Drive?',
     'Do you have access to my Google Drive brain folder?',
@@ -36,6 +38,7 @@ BAD_STRINGS = [
     'Connected accounts',
     'Drive permission is active',
     'Home Center can read Google Drive',
+    'no Drive access probe/tool is available here',
     'Google Drive/Docs',
     'Connections',
     'Integrations',

@@ -37,6 +37,16 @@ def require_contains(source, needle, label):
     if needle not in source:
         fail(f"{label}: missing {needle}")
 
+def require_ordered(source, first, second, label):
+    left = source.find(first)
+    right = source.find(second)
+    if left < 0:
+        fail(f"{label}: missing {first}")
+    if right < 0:
+        fail(f"{label}: missing {second}")
+    if left >= 0 and right >= 0 and left > right:
+        fail(f"{label}: {first} must appear before {second}")
+
 home = read('app/src/main/java/com/dclar/homecenter/HomeTaskClient.java')
 add_task = method_body(home, 'void addTask(', 'void loadActiveTasks(')
 load_tasks = method_body(home, 'void loadActiveTasks(', 'void markDone(')
@@ -190,6 +200,9 @@ require_contains(main_activity, 'until Drew connects full Google Drive access', 
 require_contains(main_activity, 'Narration is unavailable right now: ', 'speech failures include exact cause in status')
 require_contains(main_activity, 'speechFailureCause', 'speech failures are classified as proxy/config/API/playback causes')
 require_contains(main_activity, 'AudioTrack.WRITE_BLOCKING', 'Cartesia playback uses blocking writes for full utterances')
+require_contains(main_activity, 'cartesia_pcm_write receivedBytes=', 'Cartesia logs received and written bytes after playback')
+require_contains(main_activity, 'cartesia_debug_pcm path=', 'Cartesia saves PCM debug file for playback failures')
+require_contains(main_activity, 'audio_track_zero_write', 'Cartesia zero-write stalls are logged instead of silently renamed')
 require_contains(main_activity, 'versionName=" + BuildConfig.VERSION_NAME + " versionCode=', 'app startup logs runtime version for installed-path smoke tests')
 require_contains(main_activity, 'captureVisualEvidenceIfDebugBuild', 'debug builds can render app-owned visual evidence without privileged screencap')
 require_contains(main_activity, 'home_center_app_', 'app-owned visual evidence writes PNGs to Downloads')
@@ -202,8 +215,11 @@ require_contains(functions_index, 'f786b574-daa5-4673-aa0c-cbe3e8534c02', 'Fireb
 require_contains(read('tools/home_center_user_path_red_test.py'), 'Can you see drive brain folder in Google drive', 'installed user-path smoke captures the red-build Drive prompt')
 require_contains(read('tools/home_center_user_path_red_test.py'), 'Can Home Center read Google Drive?', 'installed user-path smoke captures the latest screenshot Drive wording')
 require_contains(main_activity, 'can home center read', 'local status guard catches Home Center phrasing before GPT')
-require_contains(main_activity, 'can you check', 'local Drive router catches check-my-folder wording before GPT')
+require_contains(main_activity, 'isDriveDiagnosticIntent(value)', 'local Drive router uses explicit Drive diagnostic predicate')
+require_contains(main_activity, 'value.contains("check")', 'local Drive router catches exact Check Google drive wording')
 require_contains(main_activity, 'folder in drive', 'local Drive router catches folder-in-Drive wording before GPT')
+require_contains(main_activity, 'local_route inspect', 'local Drive route logs proof before REST call')
+require_ordered(method_body(main_activity, 'private void submitMessage', 'private boolean tryHandleLocalStatusQuestion'), 'tryHandleLocalStatusQuestion(clean)', 'sendAgentTurn(clean)', 'Drive checks are handled before sendAgentTurn can call GPT')
 require_contains(main_activity, 'GoogleDriveClient.DRIVE_METADATA_SCOPE', 'Google sign-in requests Drive metadata scope for direct diagnostic')
 require_contains(drive_client, 'https://www.googleapis.com/auth/drive.metadata.readonly', 'direct Drive diagnostic uses metadata readonly scope')
 require_contains(drive_client, 'GoogleAuthUtil.getToken', 'direct Drive diagnostic fetches a real Google access token')

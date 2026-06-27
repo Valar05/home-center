@@ -64,6 +64,8 @@ import org.json.JSONArray;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -810,23 +812,14 @@ public final class MainActivity extends Activity implements RecognitionListener 
                 || value.contains("google docs")
                 || value.contains("docs")
                 || value.contains("document");
-        boolean asksGoogleDrive = value.contains("google drive")
-                || value.contains("drive")
-                || value.contains("brain folder")
-                || value.contains("google file")
-                || value.contains("google files");
-        boolean asksAccess = value.contains("can you see")
+        boolean asksGoogleDrive = isDriveDiagnosticIntent(value);
+        boolean asksAccess = asksGoogleDrive
+                || value.contains("can you see")
                 || value.contains("can home center see")
                 || value.contains("can you read")
                 || value.contains("can home center read")
                 || value.contains("can you open")
                 || value.contains("can home center open")
-                || value.contains("can you check")
-                || value.contains("can home center check")
-                || value.contains("check drive")
-                || value.contains("check my")
-                || value.contains("drive folder")
-                || value.contains("folder in drive")
                 || value.contains("are you connected")
                 || value.contains("is home center connected")
                 || value.contains("can you access")
@@ -837,15 +830,32 @@ public final class MainActivity extends Activity implements RecognitionListener 
                 || value.contains("is google connected")
                 || value.contains("is docs connected")
                 || value.contains("is drive connected")
-                || value.contains("open drive")
                 || value.contains("list contents")
-                || value.contains("list files")
                 || value.contains("read google");
         if (!(asksGoogleDocs || asksGoogleDrive) || !asksAccess) {
             return false;
         }
         checkGoogleDriveStatus(text, asksGoogleDrive, asksGoogleDocs);
         return true;
+    }
+
+    private boolean isDriveDiagnosticIntent(String value) {
+        boolean mentionsDrive = value.contains("drive")
+                || value.contains("google file")
+                || value.contains("google files")
+                || value.contains("brain folder");
+        boolean driveAction = value.contains("check")
+                || value.contains("list")
+                || value.contains("show")
+                || value.contains("search")
+                || value.contains("open")
+                || value.contains("folder")
+                || value.contains("folder in drive")
+                || value.contains("files")
+                || value.contains("read")
+                || value.contains("see")
+                || value.contains("access");
+        return mentionsDrive && driveAction;
     }
 
     private void checkGoogleDriveStatus(String text, boolean asksGoogleDrive, boolean asksGoogleDocs) {
@@ -865,6 +875,7 @@ public final class MainActivity extends Activity implements RecognitionListener 
             startGoogleSignIn();
             return;
         }
+        LocalLog.info("drive", "local_route inspect prompt=" + shortMessage(text));
         appendStatus("Checking Google Drive directly...");
         executor.execute(() -> {
             GoogleDriveClient.DriveResult result = googleDriveClient.inspect(account, text);
@@ -2257,34 +2268,10 @@ public final class MainActivity extends Activity implements RecognitionListener 
                     activeCartesiaTrack = track;
                     track.play();
                 }
-                long receivedBytes = 0L;
-                long writtenBytes = 0L;
-                try (InputStream input = new BufferedInputStream(connection.getInputStream())) {
-                    byte[] buffer = new byte[4096];
-                    int read;
-                    while (isCurrentSpeechSequence(sequence) && (read = input.read(buffer)) != -1) {
-                        receivedBytes += read;
-                        int written = 0;
-                        int zeroWrites = 0;
-                        while (written < read && isCurrentSpeechSequence(sequence)) {
-                            int count = track.write(buffer, written, read - written, AudioTrack.WRITE_BLOCKING);
-                            if (count < 0) {
-                                throw new IOException("Cartesia audio playback failed: write=" + count);
-                            }
-                            if (count == 0) {
-                                zeroWrites += 1;
-                                if (zeroWrites > 100) {
-                                    throw new IOException("Cartesia audio playback stalled");
-                                }
-                                SystemClock.sleep(10L);
-                                continue;
-                            }
-                            zeroWrites = 0;
-                            written += count;
-                            writtenBytes += count;
-                        }
-                    }
-                }
+                byte[] pcm = readSpeechPcm(connection.getInputStream(), sequence);
+                saveSpeechDebugPcm(pcm, "latest-cartesia");
+                long receivedBytes = pcm.length;
+                long writtenBytes = writePcmToTrack(track, pcm, sequence);
                 long finalReceivedBytes = receivedBytes;
                 long finalWrittenBytes = writtenBytes;
                 if (isCurrentSpeechSequence(sequence)) {
@@ -2349,6 +2336,62 @@ public final class MainActivity extends Activity implements RecognitionListener 
             return "playback failure: " + message;
         }
         return "playback failure: " + message;
+    }
+
+    private byte[] readSpeechPcm(InputStream rawInput, long sequence) throws IOException {
+        try (InputStream input = new BufferedInputStream(rawInput); ByteArrayOutputStream output = new ByteArrayOutputStream()) {
+            byte[] buffer = new byte[8192];
+            int read;
+            while (isCurrentSpeechSequence(sequence) && (read = input.read(buffer)) != -1) {
+                output.write(buffer, 0, read);
+            }
+            return output.toByteArray();
+        }
+    }
+
+    private long writePcmToTrack(AudioTrack track, byte[] pcm, long sequence) throws IOException {
+        long writtenBytes = 0L;
+        int offset = 0;
+        int zeroWrites = 0;
+        while (offset < pcm.length && isCurrentSpeechSequence(sequence)) {
+            int count = track.write(pcm, offset, pcm.length - offset, AudioTrack.WRITE_BLOCKING);
+            if (count < 0) {
+                throw new IOException("Cartesia audio playback failed: write=" + count + " receivedBytes=" + pcm.length + " writtenBytes=" + writtenBytes);
+            }
+            if (count == 0) {
+                zeroWrites += 1;
+                LocalLog.warn("speech", "audio_track_zero_write receivedBytes=" + pcm.length + " writtenBytes=" + writtenBytes + " zeroWrites=" + zeroWrites);
+                if (zeroWrites > 500) {
+                    break;
+                }
+                SystemClock.sleep(20L);
+                continue;
+            }
+            zeroWrites = 0;
+            offset += count;
+            writtenBytes += count;
+        }
+        LocalLog.info("speech", "cartesia_pcm_write receivedBytes=" + pcm.length + " writtenBytes=" + writtenBytes);
+        return writtenBytes;
+    }
+
+    private void saveSpeechDebugPcm(byte[] pcm, String name) {
+        if (pcm == null || pcm.length == 0) {
+            return;
+        }
+        try {
+            File dir = new File(getExternalFilesDir(null), "speech-debug");
+            if (!dir.exists() && !dir.mkdirs()) {
+                return;
+            }
+            File file = new File(dir, name + ".pcm");
+            try (FileOutputStream output = new FileOutputStream(file, false)) {
+                output.write(pcm);
+            }
+            LocalLog.info("speech", "cartesia_debug_pcm path=" + file.getAbsolutePath() + " bytes=" + pcm.length);
+        } catch (Exception ex) {
+            LocalLog.warn("speech", "cartesia_debug_pcm_failed " + shortMessage(ex.getMessage()));
+        }
     }
 
     private void stopCartesiaPlayback(String reason) {
