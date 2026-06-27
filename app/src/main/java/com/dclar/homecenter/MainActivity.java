@@ -38,6 +38,7 @@ import android.text.method.PasswordTransformationMethod;
 import android.text.method.SingleLineTransformationMethod;
 import android.view.KeyEvent;
 import android.view.Gravity;
+import android.view.HapticFeedbackConstants;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.inputmethod.EditorInfo;
@@ -89,6 +90,7 @@ import java.util.concurrent.TimeUnit;
 public final class MainActivity extends Activity implements RecognitionListener {
     private static final int REQUEST_RECORD_AUDIO = 1001;
     private static final int REQUEST_GOOGLE_SIGN_IN = 2001;
+    private static final int REQUEST_GOOGLE_TOOL_PERMISSIONS = 2002;
     private static final int REQUEST_CART_REVIEW_IMPORT = 3001;
     private static final int REQUEST_DRIVE_AUTH = 4001;
     private static final String WALMART_PACKAGE = "com.walmart.android";
@@ -175,6 +177,7 @@ public final class MainActivity extends Activity implements RecognitionListener 
     private FirebaseAuth firebaseAuth;
     private FirebaseFirestore firestore;
     private GoogleSignInClient googleSignInClient;
+    private GoogleSignInClient googleIdentitySignInClient;
     private FirebaseAuth.AuthStateListener authStateListener;
     private HomeTaskClient homeTaskClient;
     private String lastSpoken = "Home Center is ready.";
@@ -200,6 +203,21 @@ public final class MainActivity extends Activity implements RecognitionListener 
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
     private final TickTickClient tickTickClient = new TickTickClient();
     private boolean visualEvidenceEnabled = false;
+    private boolean thinkingHapticsActive = false;
+    private final Runnable thinkingHapticPulse = new Runnable() {
+        @Override
+        public void run() {
+            if (!thinkingHapticsActive || !busy) {
+                thinkingHapticsActive = false;
+                return;
+            }
+            View target = submitButton != null ? submitButton : chatLogContainer;
+            if (target != null) {
+                target.performHapticFeedback(HapticFeedbackConstants.CLOCK_TICK);
+            }
+            main.postDelayed(this, 900L);
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -278,15 +296,20 @@ public final class MainActivity extends Activity implements RecognitionListener 
             homeTaskClient = new HomeTaskClient(firebaseAuth, firestore);
             firebaseConfigured = clientId != null && !clientId.isEmpty();
             if (firebaseConfigured) {
-                GoogleSignInOptions.Builder signInBuilder = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                GoogleSignInOptions identityOptions = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                         .requestIdToken(clientId)
-                        .requestServerAuthCode(clientId, true)
+                        .requestServerAuthCode(clientId, false)
+                        .requestEmail()
+                        .build();
+                GoogleSignInOptions.Builder fullSignInBuilder = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                        .requestIdToken(clientId)
+                        .requestServerAuthCode(clientId, false)
                         .requestEmail();
                 for (Scope scope : ToolRegistry.signInScopes()) {
-                    signInBuilder.requestScopes(scope);
+                    fullSignInBuilder.requestScopes(scope);
                 }
-                GoogleSignInOptions options = signInBuilder.build();
-                googleSignInClient = GoogleSignIn.getClient(this, options);
+                googleIdentitySignInClient = GoogleSignIn.getClient(this, identityOptions);
+                googleSignInClient = GoogleSignIn.getClient(this, fullSignInBuilder.build());
             }
         } catch (Exception ex) {
             firebaseConfigured = false;
@@ -337,7 +360,7 @@ public final class MainActivity extends Activity implements RecognitionListener 
     }
 
     private void trySilentGoogleSignIn() {
-        if (!firebaseConfigured || googleSignInClient == null || firebaseAuth == null) {
+        if (!firebaseConfigured || googleIdentitySignInClient == null || firebaseAuth == null) {
             return;
         }
         if (firebaseAuth.getCurrentUser() != null || silentSignInAttempted) {
@@ -346,7 +369,7 @@ public final class MainActivity extends Activity implements RecognitionListener 
         }
         silentSignInAttempted = true;
         appendStatus("Restoring Google sign-in...");
-        googleSignInClient.silentSignIn()
+        googleIdentitySignInClient.silentSignIn()
                 .addOnSuccessListener(account -> signInFirebaseWithGoogle(account, false))
                 .addOnFailureListener(ex -> {
                     appendStatus("Google sign-in restore needs the Sign in button once: " + shortMessage(ex.getMessage()));
@@ -368,12 +391,22 @@ public final class MainActivity extends Activity implements RecognitionListener 
                     refreshAuthStatus();
                     exchangeGoogleServerAuthCode(account);
                     String pending = pendingAgentTurnAfterGoogleReconnect;
-                    pendingAgentTurnAfterGoogleReconnect = "";
+                    if (!hasAllGoogleToolScopes(account)) {
+                        if (announce || (pending != null && !pending.trim().isEmpty())) {
+                            appendStatus("Google identity connected. Requesting tool permissions.");
+                            requestGoogleToolPermissions(account);
+                        } else {
+                            appendStatus("Google sign-in restored. Tool permissions still need approval.");
+                        }
+                        return;
+                    }
                     if (pending != null && !pending.trim().isEmpty()) {
+                        pendingAgentTurnAfterGoogleReconnect = "";
                         appendStatus("Google connected. Continuing the pending request.");
                         sendAgentTurn(pending);
                         return;
                     }
+                    pendingAgentTurnAfterGoogleReconnect = "";
                     if (announce) {
                         speak("Signed in with Google.");
                     } else {
@@ -823,22 +856,37 @@ public final class MainActivity extends Activity implements RecognitionListener 
 
     private boolean ensureGoogleToolScopesForTurn(String clean) {
         GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(this);
-        if (account != null && account.getAccount() != null) {
-            boolean missing = false;
-            for (Scope scope : ToolRegistry.signInScopes()) {
-                if (!account.getGrantedScopes().contains(scope)) {
-                    missing = true;
-                    break;
-                }
-            }
-            if (!missing) {
-                return true;
-            }
+        if (hasAllGoogleToolScopes(account)) {
+            return true;
         }
         pendingAgentTurnAfterGoogleReconnect = clean == null ? "" : clean.trim();
-        showAssistantMessage("Google needs one more approval for Drive, Docs, Sheets, Gmail, Calendar, and Contacts tools. I am opening Google sign-in now, then I will continue this request.");
-        startGoogleSignIn();
+        showAssistantMessage("Google needs one more approval for Drive, Docs, Sheets, Gmail, Calendar, and Contacts tools. I am opening Google permission approval now, then I will continue this request.");
+        requestGoogleToolPermissions(account);
         return false;
+    }
+
+    private boolean hasAllGoogleToolScopes(GoogleSignInAccount account) {
+        if (account == null || account.getAccount() == null) {
+            return false;
+        }
+        for (Scope scope : ToolRegistry.signInScopes()) {
+            if (!account.getGrantedScopes().contains(scope)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private void requestGoogleToolPermissions(GoogleSignInAccount account) {
+        if (account == null) {
+            startGoogleSignIn();
+            return;
+        }
+        List<Scope> scopes = ToolRegistry.signInScopes();
+        if (scopes.isEmpty()) {
+            return;
+        }
+        GoogleSignIn.requestPermissions(this, REQUEST_GOOGLE_TOOL_PERMISSIONS, account, scopes.toArray(new Scope[0]));
     }
 
     private void sendAgentTurn(String clean) {
@@ -965,7 +1013,13 @@ public final class MainActivity extends Activity implements RecognitionListener 
             return;
         }
         googleSignInClient.signOut()
-                .addOnCompleteListener(task -> startGoogleSignIn())
+                .addOnCompleteListener(task -> {
+                    if (googleIdentitySignInClient != null) {
+                        googleIdentitySignInClient.signOut().addOnCompleteListener(identityTask -> startGoogleSignIn());
+                    } else {
+                        startGoogleSignIn();
+                    }
+                })
                 .addOnFailureListener(ex -> startGoogleSignIn());
     }
 
@@ -1409,11 +1463,11 @@ public final class MainActivity extends Activity implements RecognitionListener 
     }
 
     private void startGoogleSignIn() {
-        if (!firebaseConfigured || googleSignInClient == null) {
+        if (!firebaseConfigured || googleIdentitySignInClient == null) {
             speak("Firebase is not configured. Add google services JSON, rebuild, and try again.");
             return;
         }
-        startActivityForResult(googleSignInClient.getSignInIntent(), REQUEST_GOOGLE_SIGN_IN);
+        startActivityForResult(googleIdentitySignInClient.getSignInIntent(), REQUEST_GOOGLE_SIGN_IN);
     }
 
     private void checkGoogleDriveDiagnostic() {
@@ -2532,6 +2586,7 @@ public final class MainActivity extends Activity implements RecognitionListener 
 
     private void setBusy(boolean busyState) {
         busy = busyState;
+        updateThinkingHaptics(busyState);
         if (submitButton != null) {
             submitButton.setEnabled(!busyState);
         }
@@ -2577,6 +2632,20 @@ public final class MainActivity extends Activity implements RecognitionListener 
         if (cartRunnerCheckButton != null) {
             cartRunnerCheckButton.setEnabled(!busyState);
         }
+    }
+
+    private void updateThinkingHaptics(boolean active) {
+        if (!active) {
+            thinkingHapticsActive = false;
+            main.removeCallbacks(thinkingHapticPulse);
+            return;
+        }
+        if (thinkingHapticsActive) {
+            return;
+        }
+        thinkingHapticsActive = true;
+        main.removeCallbacks(thinkingHapticPulse);
+        main.post(thinkingHapticPulse);
     }
 
     private void refreshAuthStatus() {
@@ -3824,6 +3893,24 @@ public final class MainActivity extends Activity implements RecognitionListener 
             } catch (Exception ex) {
                 refreshAuthStatus();
                 showAssistantMessage("Google sign in failed: " + shortMessage(ex.getMessage()));
+            }
+            return;
+        }
+        if (requestCode == REQUEST_GOOGLE_TOOL_PERMISSIONS) {
+            refreshAuthStatus();
+            GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(this);
+            if (!hasAllGoogleToolScopes(account)) {
+                showAssistantMessage("Google permission approval did not finish. Please tap Sign in with Google and approve Drive, Docs, Sheets, Gmail, Calendar, and Contacts.");
+                return;
+            }
+            exchangeGoogleServerAuthCode(account);
+            String pending = pendingAgentTurnAfterGoogleReconnect;
+            pendingAgentTurnAfterGoogleReconnect = "";
+            if (pending != null && !pending.trim().isEmpty()) {
+                appendStatus("Google tools approved. Continuing the pending request.");
+                sendAgentTurn(pending);
+            } else {
+                speak("Google tools approved.");
             }
             return;
         }
