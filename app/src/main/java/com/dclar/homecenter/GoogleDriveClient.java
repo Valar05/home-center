@@ -25,6 +25,7 @@ import java.util.List;
 final class GoogleDriveClient {
     static final String DRIVE_METADATA_SCOPE = ToolRegistry.DRIVE_SCOPE;
     private static final String FILES_URL = "https://www.googleapis.com/drive/v3/files";
+    private static final String FILES_UPLOAD_URL = "https://www.googleapis.com/upload/drive/v3/files";
     private static final String DOCS_URL = "https://docs.googleapis.com/v1/documents";
     private static final String FOLDER_MIME_TYPE = "application/vnd.google-apps.folder";
     private static final String DOC_MIME_TYPE = "application/vnd.google-apps.document";
@@ -44,11 +45,37 @@ final class GoogleDriveClient {
         if ("drive.read_metadata".equals(toolName)) return readMetadataTool(arguments, account);
         if ("drive.create_folder".equals(toolName)) return createFolderTool(arguments, account);
         if ("drive.update_metadata".equals(toolName)) return updateMetadataTool(arguments, account);
+        if ("drive.upload_file".equals(toolName)) return toolError("drive.upload_file", "attachment_missing", "drive.upload_file requires an attached session file.");
         if ("docs.search".equals(toolName)) return searchTool(toolName, arguments, account, DOC_MIME_TYPE);
         if ("docs.read".equals(toolName)) return readDocTool(arguments, account);
         if ("docs.create".equals(toolName)) return createDocTool(arguments, account);
         if ("docs.update".equals(toolName)) return updateDocTool(arguments, account);
         return toolError(toolName, "unknown_tool", "Android does not expose that Drive or Docs tool.");
+    }
+
+    JSONObject uploadAttachedFileTool(JSONObject arguments, GoogleSignInAccount account, JSONObject attachedFile) {
+        TokenResult token = tokenForTool(account, "drive.upload_file");
+        if (!token.ok) return token.json;
+        if (attachedFile == null) return toolError("drive.upload_file", "attachment_missing", "No attached file was available to upload.");
+        String uriValue = attachedFile.optString("uri", "");
+        if (uriValue.trim().isEmpty()) return toolError("drive.upload_file", "attachment_uri_missing", "The attached file cannot be read.");
+        String name = cleanArg(arguments, "name");
+        if (name.isEmpty()) name = attachedFile.optString("displayName", "Home Center attachment");
+        String mimeType = cleanArg(arguments, "mimeType");
+        if (mimeType.isEmpty()) mimeType = attachedFile.optString("mimeType", "application/octet-stream");
+        String folderId = cleanArg(arguments, "folderId");
+        try {
+            JSONObject metadata = new JSONObject().put("name", name);
+            if (!folderId.isEmpty()) metadata.put("parents", new JSONArray().put(folderId));
+            JSONObject file = multipartUploadFile(token.value, Uri.parse(uriValue), metadata, mimeType);
+            return resultJson("drive.upload_file", true, "", "drive_file_uploaded", new ArrayList<>(), "")
+                    .put("status", "drive_file_uploaded")
+                    .put("file", file)
+                    .put("title", file.optString("name", name))
+                    .put("webViewLink", file.optString("webViewLink", ""));
+        } catch (Exception ex) {
+            return toolError("drive.upload_file", "upload_file_error", safe(ex.getMessage()));
+        }
     }
 
     private JSONObject searchTool(String toolName, JSONObject arguments, GoogleSignInAccount account, String fixedMimeType) {
@@ -334,6 +361,52 @@ final class GoogleDriveClient {
     private JSONObject patchJson(String url, String token, JSONObject payload) throws Exception {
         String body = requestText("PATCH", url, token, "application/json", payload == null ? new JSONObject() : payload);
         return new JSONObject(body == null || body.trim().isEmpty() ? "{}" : body);
+    }
+
+    private JSONObject multipartUploadFile(String token, Uri fileUri, JSONObject metadata, String mimeType) throws Exception {
+        String boundary = "home-center-" + System.currentTimeMillis();
+        HttpURLConnection connection = null;
+        try {
+            Uri.Builder builder = Uri.parse(FILES_UPLOAD_URL).buildUpon()
+                    .appendQueryParameter("uploadType", "multipart")
+                    .appendQueryParameter("fields", "id,name,mimeType,webViewLink,parents");
+            connection = (HttpURLConnection) new URL(builder.build().toString()).openConnection();
+            connection.setRequestMethod("POST");
+            connection.setConnectTimeout(15000);
+            connection.setReadTimeout(60000);
+            connection.setDoInput(true);
+            connection.setDoOutput(true);
+            connection.setChunkedStreamingMode(8192);
+            connection.setRequestProperty("Authorization", "Bearer " + token);
+            connection.setRequestProperty("Accept", "application/json");
+            connection.setRequestProperty("Content-Type", "multipart/related; boundary=" + boundary);
+            try (OutputStream out = connection.getOutputStream(); InputStream input = context.getContentResolver().openInputStream(fileUri)) {
+                if (input == null) throw new IOException("empty file");
+                writeUtf8(out, "--" + boundary + "\r\n");
+                writeUtf8(out, "Content-Type: application/json; charset=UTF-8\r\n\r\n");
+                writeUtf8(out, metadata.toString());
+                writeUtf8(out, "\r\n--" + boundary + "\r\n");
+                writeUtf8(out, "Content-Type: " + (mimeType == null || mimeType.trim().isEmpty() ? "application/octet-stream" : mimeType.trim()) + "\r\n\r\n");
+                byte[] buffer = new byte[8192];
+                int read;
+                while ((read = input.read(buffer)) != -1) {
+                    out.write(buffer, 0, read);
+                }
+                writeUtf8(out, "\r\n--" + boundary + "--\r\n");
+            }
+            int status = connection.getResponseCode();
+            String body = readBody(status >= 400 ? connection.getErrorStream() : connection.getInputStream());
+            if (status < 200 || status >= 300) {
+                throw new DriveRuntimeException("http_" + status, "Google Drive upload HTTP " + status + ": " + abbreviate(body));
+            }
+            return new JSONObject(body == null || body.trim().isEmpty() ? "{}" : body);
+        } finally {
+            if (connection != null) connection.disconnect();
+        }
+    }
+
+    private static void writeUtf8(OutputStream out, String text) throws IOException {
+        out.write((text == null ? "" : text).getBytes(StandardCharsets.UTF_8));
     }
 
     private String requestText(String method, String url, String token, String accept, JSONObject payload) {

@@ -120,7 +120,7 @@ async function askOpenAI(uid, body) {
   const transcript = safeText(body.transcript, 8000);
   const bucket = safeText(body.bucket, 120);
   const listName = safeText(body.listName, 120) || 'shopping';
-  const input = [
+  const promptText = [
     'You are Home Center, a cohesive voice-first life dashboard for a blind user.',
     HOME_CENTER_DOCTRINE_STEERING,
     'Use concise, actionable language. Prefer direct next actions over generic offers.',
@@ -277,7 +277,7 @@ function quoteForConfirmation(value) {
 }
 
 function confirmationAction(toolName, args = {}) {
-  if (toolName === 'drive.create_folder' || toolName === 'docs.create' || toolName === 'sheets.create' || toolName === 'lists.create' || toolName === 'lists.add_item') return 'create';
+  if (toolName === 'drive.create_folder' || toolName === 'drive.upload_file' || toolName === 'docs.create' || toolName === 'sheets.create' || toolName === 'lists.create' || toolName === 'lists.add_item') return 'create';
   if (toolName === 'drive.update_metadata' || toolName === 'docs.update' || toolName === 'sheets.update' || toolName === 'lists.update_item' || toolName === 'lists.mark_done' || toolName === 'lists.remove_item') return 'edit';
   if (toolName === 'gmail.send_email' || toolName === 'gmail.send_draft') return 'send';
   if (toolName === 'calendar.create_event') return 'create';
@@ -289,6 +289,7 @@ function confirmationAction(toolName, args = {}) {
 function confirmationTitle(toolName) {
   if (toolName === 'drive.create_folder') return 'Create Drive Folder';
   if (toolName === 'drive.update_metadata') return 'Edit Drive Item';
+  if (toolName === 'drive.upload_file') return 'Upload File To Drive';
   if (toolName === 'docs.create') return 'Create Google Doc';
   if (toolName === 'docs.update') return 'Edit Google Doc';
   if (toolName === 'sheets.create') return 'Create Google Sheet';
@@ -309,6 +310,9 @@ function confirmationSummary(toolName, args = {}) {
   }
   if (toolName === 'drive.update_metadata') {
     return `Edit Drive item ${quoteForConfirmation(a.name || a.fileId || 'selected file')}.`;
+  }
+  if (toolName === 'drive.upload_file') {
+    return `Upload "${quoteForConfirmation(a.name || a.displayName || a.sessionFileId || 'attached file')}" to Google Drive.`;
   }
   if (toolName === 'docs.create') {
     const title = quoteForConfirmation(a.title || 'Untitled Google Doc');
@@ -444,6 +448,19 @@ function resolveToolArgsFromWorkingMemory(body, toolName, args) {
   if (!args || typeof args !== 'object') return {};
   const memory = body && typeof body.workingMemory === 'object' ? body.workingMemory : {};
   const hasLiteralReference = containsUnresolvedReferenceLiteral(args);
+  if (toolName === 'drive.upload_file') {
+    const activeFileIds = Array.isArray(memory.activeFileIds) ? memory.activeFileIds : [];
+    const attachedFiles = Array.isArray(memory.attachedFiles) ? memory.attachedFiles : [];
+    if (!args.sessionFileId && activeFileIds.length === 1) {
+      args.sessionFileId = activeFileIds[0];
+    }
+    const selected = attachedFiles.find((file) => file && file.sessionFileId === args.sessionFileId);
+    if (selected) {
+      if (!args.name) args.name = selected.displayName || '';
+      if (!args.mimeType) args.mimeType = selected.mimeType || '';
+      if (!args.displayName) args.displayName = selected.displayName || '';
+    }
+  }
   if (toolName && toolName.startsWith('docs.') && memory.lastDocument) {
     if (hasLiteralReference || args.fileId === memory.lastDocument.fileId || args.documentId === memory.lastDocument.fileId) {
       fillResolvedEntity(args, memory.lastDocument, 'fileId', 'name');
@@ -492,6 +509,7 @@ function clarificationForUnresolvedReference(body, toolName, args) {
   if (!containsUnresolvedReferenceLiteral(args)) return null;
   const memory = body && typeof body.workingMemory === 'object' ? body.workingMemory : {};
   const hasCompatibleMemory =
+    (toolName === 'drive.upload_file' && Array.isArray(memory.activeFileIds) && memory.activeFileIds.length === 1) ||
     (toolName && toolName.startsWith('docs.') && memory.lastDocument && memory.lastDocument.fileId) ||
     (toolName && toolName.startsWith('drive.') && memory.lastFolder && memory.lastFolder.fileId) ||
     (toolName && toolName.startsWith('sheets.') && memory.lastSheet && memory.lastSheet.fileId) ||
@@ -593,6 +611,26 @@ function resolveCalendarRelativeTimesFromContext(body, toolName, args) {
   return args;
 }
 
+function openAiInputWithAttachments(promptText, attachmentImages) {
+  const images = Array.isArray(attachmentImages) ? attachmentImages : [];
+  if (!images.length) {
+    return promptText;
+  }
+  const content = [{type: 'input_text', text: promptText}];
+  for (const image of images.slice(0, 10)) {
+    const imageUrl = safeText(image && (image.imageUrl || image.dataUrl), 15000000);
+    if (!imageUrl || !imageUrl.startsWith('data:image/')) {
+      continue;
+    }
+    content.push({
+      type: 'input_image',
+      image_url: imageUrl,
+      detail: safeText(image.detail, 20) || 'auto',
+    });
+  }
+  return [{role: 'user', content}];
+}
+
 async function askOpenAIToolTurn(body) {
   const message = safeText(body.message, 4000);
   const summary = safeText(body.summary, 4000);
@@ -602,6 +640,7 @@ async function askOpenAIToolTurn(body) {
   const unavailableToolGroups = Array.isArray(body.unavailableToolGroups) ? body.unavailableToolGroups : [];
   const workingMemory = body && typeof body.workingMemory === 'object' ? body.workingMemory : {};
   const evidenceContext = body && typeof body.evidenceContext === 'object' ? body.evidenceContext : {};
+  const attachmentImages = Array.isArray(body.attachmentImages) ? body.attachmentImages.slice(0, 10) : [];
   const timeContext = timeContextFromBody(body);
   const pending = pendingConfirmationFromBody(body, tools);
   if (pending && messageConfirms(message)) {
@@ -614,7 +653,7 @@ async function askOpenAIToolTurn(body) {
       status: 'tool_call_requested',
     }, trace);
   }
-  const input = [
+  const promptText = [
     'You are Home Center. You are the thinker. The Android app is only your hands.',
     HOME_CENTER_DOCTRINE_STEERING,
     'Return one strict JSON object and no prose outside JSON.',
@@ -626,7 +665,11 @@ async function askOpenAIToolTurn(body) {
     'Google Docs rule: for a request to create a Google Doc, call docs.create with title and body. Do not call Drive tools for document content.',
     'Google Docs rule: for a request to read or edit a Google Doc, use docs.search if needed, then docs.read or docs.update.',
     'Google Sheets rule: for spreadsheet creation or cell edits, use sheets.create, sheets.search, sheets.read, or sheets.update.',
-    'Drive rule: use drive.* only for file and folder metadata, folder creation, rename, and move.',
+    'Attachment rule: workingMemory.attachedFiles is the current session file collection. Use attached textPreview content directly when the user asks about attached text files.',
+    'Attachment rule: image attachments are provided as input_image content. Describe and analyze them directly for accessibility. Do not say image analysis is unavailable when imagePreviewAvailable is true.',
+    'Attachment rule: activeFileIds are the most recent or referenced attachments. Resolve this file, that image, the attachment, or similar references to a sessionFileId before calling a file tool.',
+    'Drive rule: use drive.upload_file only when the user asks to upload an attached session file to Drive. Attaching a file never uploads it automatically.',
+    'Drive rule: use other drive.* tools only for file and folder metadata, folder creation, rename, and move.',
     'Calendar time rule: timeContext is the device clock. Resolve relative times like five minutes from now, in 2 hours, tomorrow, or later today into absolute RFC3339 dateTime strings before calling calendar tools.',
     'Calendar time rule: do not ask for an exact time when the user already gave a relative time and timeContext is present. Compute it. If an event has startTime but no endTime, use 15 minutes for reminders/notifications and 30 minutes for ordinary events.',
     'Contacts rule: if the user names a person from contacts, call contacts.search with that name. Do not ask for an email address while contacts.search is available.',
@@ -650,12 +693,14 @@ async function askOpenAIToolTurn(body) {
     `Available tools JSON: ${JSON.stringify(tools).slice(0, 12000)}`,
     `Unavailable tool groups JSON: ${JSON.stringify(unavailableToolGroups).slice(0, 4000)}`,
     `Working memory JSON: ${JSON.stringify(workingMemory).slice(0, 6000)}`,
+    `Attachment images JSON: ${JSON.stringify(attachmentImages.map((image) => ({sessionFileId: image.sessionFileId, displayName: image.displayName, mimeType: image.mimeType, detail: image.detail || 'auto'}))).slice(0, 3000)}`,
     `Time context JSON: ${JSON.stringify(timeContext).slice(0, 2000)}`,
     `Evidence context JSON: ${JSON.stringify(evidenceContext).slice(0, 12000)}`,
     toolResults.length ? `Tool results JSON: ${JSON.stringify(toolResults).slice(0, 16000)}` : 'Tool results JSON: []',
     pending ? `Pending confirmation JSON: ${JSON.stringify(pending).slice(0, 4000)}` : '',
     `Latest user request: ${message}`,
   ].filter(Boolean).join('\n\n');
+  const input = openAiInputWithAttachments(promptText, attachmentImages);
 
   const response = await fetch('https://api.openai.com/v1/responses', {
     method: 'POST',

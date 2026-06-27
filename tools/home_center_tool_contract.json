@@ -55,6 +55,17 @@
       "dispatcher": "GoogleDriveClient"
     },
     {
+      "name": "drive.upload_file",
+      "group": "drive",
+      "operation": "create",
+      "write": true,
+      "confirmationRequired": true,
+      "scopes": [
+        "https://www.googleapis.com/auth/drive"
+      ],
+      "dispatcher": "GoogleDriveClient"
+    },
+    {
       "name": "docs.search",
       "group": "docs",
       "operation": "read",

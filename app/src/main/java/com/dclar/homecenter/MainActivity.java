@@ -12,6 +12,7 @@ import android.content.ContentValues;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -31,6 +32,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.SystemClock;
 import android.provider.MediaStore;
+import android.provider.OpenableColumns;
 import android.provider.Settings;
 import android.speech.RecognitionListener;
 import android.speech.RecognizerIntent;
@@ -46,6 +48,7 @@ import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.inputmethod.EditorInfo;
 import android.view.accessibility.AccessibilityManager;
+import android.util.Base64;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -96,6 +99,9 @@ public final class MainActivity extends Activity implements RecognitionListener,
     private static final int REQUEST_GOOGLE_TOOL_PERMISSIONS = 2002;
     private static final int REQUEST_CART_REVIEW_IMPORT = 3001;
     private static final int REQUEST_DRIVE_AUTH = 4001;
+    private static final int REQUEST_FILE_ATTACH = 5001;
+    private static final int MAX_ATTACHMENT_PREVIEW_CHARS = 20000;
+    private static final int MAX_IMAGE_ATTACHMENT_BYTES = 8 * 1024 * 1024;
     private static final String WALMART_PACKAGE = "com.walmart.android";
     private static final String WALMART_BUY_AGAIN_URL = "https://www.walmart.com/my-items";
     private static final String PREFS = "home_center";
@@ -153,6 +159,7 @@ public final class MainActivity extends Activity implements RecognitionListener,
     private Button saveTaskButton;
     private Button tickTickShowButton;
     private Button submitButton;
+    private Button attachFileButton;
     private Button stopSpeechButton;
     private TextView workingIndicatorView;
     private Button geminiSettingsButton;
@@ -200,6 +207,10 @@ public final class MainActivity extends Activity implements RecognitionListener,
     private volatile JSONObject pendingToolConfirmation;
     private final Object workingMemoryLock = new Object();
     private final JSONObject workingMemory = new JSONObject();
+    private final Object attachmentLock = new Object();
+    private final JSONArray attachedFiles = new JSONArray();
+    private final JSONArray activeFileIds = new JSONArray();
+    private int nextSessionFileNumber = 1;
     private final Object toolTraceLock = new Object();
     private final JSONArray recentToolTrace = new JSONArray();
     private String lastVisibleStatus = "";
@@ -549,6 +560,20 @@ public final class MainActivity extends Activity implements RecognitionListener,
         composeRow.setOrientation(LinearLayout.HORIZONTAL);
         composeRow.setGravity(Gravity.CENTER_VERTICAL);
 
+        attachFileButton = new Button(this);
+        attachFileButton.setText("📎");
+        attachFileButton.setAllCaps(false);
+        attachFileButton.setTextSize(18);
+        attachFileButton.setTextColor(COLOR_TEXT);
+        attachFileButton.setBackgroundColor(COLOR_CARD);
+        attachFileButton.setContentDescription("Attach file");
+        LinearLayout.LayoutParams attachParams = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT);
+        attachParams.setMargins(0, 0, dp(8), 0);
+        attachFileButton.setLayoutParams(attachParams);
+        composeRow.addView(attachFileButton);
+
         messageEdit = new EditText(this);
         messageEdit.setHint("Ask Home Center...");
         messageEdit.setHintTextColor(COLOR_SECONDARY);
@@ -589,6 +614,7 @@ public final class MainActivity extends Activity implements RecognitionListener,
         bottomPanel.addView(composeRow, matchWrap());
         root.addView(bottomPanel, matchWrap());
 
+        attachFileButton.setOnClickListener(v -> startFileAttach());
         submitButton.setOnClickListener(v -> submitTypedMessage());
         stopSpeechButton.setOnClickListener(v -> stopSpeechPlayback());
         googleSignInButton.setOnClickListener(v -> startGoogleSignIn());
@@ -980,7 +1006,8 @@ public final class MainActivity extends Activity implements RecognitionListener,
                         cloneJson(pendingToolConfirmation),
                         workingMemorySnapshot(),
                         currentTimeContext(),
-                        evidenceContextSnapshot(clean));
+                        evidenceContextSnapshot(clean),
+                        attachmentImagesSnapshot());
                 LocalLog.info("agent_trace", "step=" + step + " gateway_type=" + turn.type + " status=" + turn.status + " requestedTool=" + turn.toolName + " technicalDetails=" + shortMessage(turn.technicalDetails));
                 if (turn.requestsTool()) {
                     LocalLog.info("agent_trace", "android_received_tool=" + turn.toolName);
@@ -1083,6 +1110,15 @@ public final class MainActivity extends Activity implements RecognitionListener,
         if ("drive".equals(definition.group) || "docs".equals(definition.group)) {
             if (googleDriveClient == null) {
                 return toolError(toolName, "drive_unavailable", "Google Drive and Docs tools are not available in this build.");
+            }
+            if ("drive.upload_file".equals(toolName)) {
+                JSONObject file = findAttachedFile(toolArg(arguments, "sessionFileId", ""));
+                if (file == null) {
+                    return toolError(toolName, "attachment_missing", "No attached file matched that sessionFileId.");
+                }
+                JSONObject result = googleDriveClient.uploadAttachedFileTool(arguments, account, file);
+                updateAttachmentAfterDriveUpload(toolArg(arguments, "sessionFileId", ""), result);
+                return result;
             }
             return googleDriveClient.runTool(toolName, arguments, account);
         }
@@ -1852,6 +1888,308 @@ public final class MainActivity extends Activity implements RecognitionListener,
             startActivityForResult(intent, REQUEST_CART_REVIEW_IMPORT);
         } catch (ActivityNotFoundException ex) {
             showAssistantMessage("No file picker is available. Open the review bundle from Downloads and share it with Home Center if needed.");
+        }
+    }
+
+    private void startFileAttach() {
+        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        intent.setType("*/*");
+        intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
+        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION);
+        try {
+            startActivityForResult(intent, REQUEST_FILE_ATTACH);
+        } catch (ActivityNotFoundException ex) {
+            showAssistantMessage("No file picker is available on this device.");
+        }
+    }
+
+    private void importAttachedFiles(Intent data) {
+        if (data == null || (data.getData() == null && data.getClipData() == null)) {
+            showAssistantMessage("No file was selected.");
+            return;
+        }
+        ArrayList<Uri> uris = new ArrayList<>();
+        if (data.getClipData() != null) {
+            ClipData clipData = data.getClipData();
+            for (int i = 0; i < clipData.getItemCount(); i++) {
+                Uri uri = clipData.getItemAt(i).getUri();
+                if (uri != null) {
+                    uris.add(uri);
+                }
+            }
+        } else if (data.getData() != null) {
+            uris.add(data.getData());
+        }
+        synchronized (attachmentLock) {
+            while (activeFileIds.length() > 0) {
+                activeFileIds.remove(0);
+            }
+        }
+        int flags = data.getFlags() & (Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+        int imported = 0;
+        for (Uri uri : uris) {
+            try {
+                if ((flags & Intent.FLAG_GRANT_READ_URI_PERMISSION) != 0) {
+                    getContentResolver().takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                }
+            } catch (Exception ex) {
+                LocalLog.warn("attachment", "persist_permission_failed: " + shortMessage(ex.getMessage()));
+            }
+            try {
+                JSONObject file = buildAttachmentRecord(uri);
+                rememberAttachment(file);
+                appendAttachmentMessage(file);
+                imported += 1;
+            } catch (Exception ex) {
+                showAssistantMessage("Could not attach file: " + shortMessage(ex.getMessage()));
+            }
+        }
+        if (imported > 0) {
+            appendStatus("Attached " + imported + " file" + (imported == 1 ? "" : "s") + ".");
+        }
+    }
+
+    private JSONObject buildAttachmentRecord(Uri uri) throws Exception {
+        AttachmentMetadata metadata = attachmentMetadata(uri);
+        String mimeType = metadata.mimeType == null || metadata.mimeType.trim().isEmpty()
+                ? "application/octet-stream"
+                : metadata.mimeType.trim();
+        String kind = mimeType.toLowerCase(Locale.US).startsWith("image/") ? "image" : (isTextLikeMime(mimeType, metadata.displayName) ? "text" : "file");
+        String sessionFileId;
+        synchronized (attachmentLock) {
+            sessionFileId = "file-" + nextSessionFileNumber++;
+        }
+        JSONObject json = new JSONObject()
+                .put("sessionFileId", sessionFileId)
+                .put("displayName", metadata.displayName)
+                .put("mimeType", mimeType)
+                .put("sizeBytes", metadata.sizeBytes)
+                .put("kind", kind)
+                .put("uri", uri.toString())
+                .put("textPreview", "")
+                .put("contentAvailableToAgent", false)
+                .put("imagePreviewAvailable", false)
+                .put("driveUploaded", false)
+                .put("driveFileId", "")
+                .put("driveWebViewLink", "");
+        if ("text".equals(kind)) {
+            json.put("textPreview", readTextPreviewFromUri(uri, MAX_ATTACHMENT_PREVIEW_CHARS));
+            json.put("contentAvailableToAgent", true);
+        } else if ("image".equals(kind)) {
+            byte[] imageBytes = readBytesFromUri(uri, MAX_IMAGE_ATTACHMENT_BYTES + 1);
+            if (imageBytes.length <= MAX_IMAGE_ATTACHMENT_BYTES) {
+                json.put("imageDataUrl", "data:" + mimeType + ";base64," + Base64.encodeToString(imageBytes, Base64.NO_WRAP));
+                json.put("imagePreviewAvailable", true);
+                json.put("contentAvailableToAgent", true);
+            } else {
+                json.put("textPreview", "Image is too large for inline analysis. Ask to upload it to Drive or choose a smaller image.");
+            }
+        }
+        return json;
+    }
+
+    private AttachmentMetadata attachmentMetadata(Uri uri) {
+        String displayName = "";
+        long sizeBytes = -1L;
+        String mimeType = getContentResolver().getType(uri);
+        try (Cursor cursor = getContentResolver().query(uri, null, null, null, null)) {
+            if (cursor != null && cursor.moveToFirst()) {
+                int nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
+                if (nameIndex >= 0) {
+                    displayName = cursor.getString(nameIndex);
+                }
+                int sizeIndex = cursor.getColumnIndex(OpenableColumns.SIZE);
+                if (sizeIndex >= 0 && !cursor.isNull(sizeIndex)) {
+                    sizeBytes = cursor.getLong(sizeIndex);
+                }
+            }
+        } catch (Exception ex) {
+            LocalLog.warn("attachment", "metadata_failed: " + shortMessage(ex.getMessage()));
+        }
+        if (displayName == null || displayName.trim().isEmpty()) {
+            displayName = "attachment-" + System.currentTimeMillis();
+        }
+        return new AttachmentMetadata(displayName.trim(), mimeType == null ? "" : mimeType.trim(), sizeBytes);
+    }
+
+    private void rememberAttachment(JSONObject file) throws Exception {
+        synchronized (attachmentLock) {
+            attachedFiles.put(file);
+            activeFileIds.put(file.optString("sessionFileId", ""));
+        }
+        updateAttachmentWorkingMemory();
+        LocalLog.info("attachment", "attached sessionFileId=" + file.optString("sessionFileId", "") + " name=" + file.optString("displayName", "") + " kind=" + file.optString("kind", ""));
+    }
+
+    private void updateAttachmentWorkingMemory() throws Exception {
+        synchronized (workingMemoryLock) {
+            workingMemory.put("attachedFiles", sanitizedAttachedFilesSnapshot());
+            workingMemory.put("activeFileIds", activeFileIdsSnapshot());
+        }
+    }
+
+    private JSONArray sanitizedAttachedFilesSnapshot() {
+        JSONArray array = new JSONArray();
+        synchronized (attachmentLock) {
+            for (int i = 0; i < attachedFiles.length(); i++) {
+                JSONObject file = attachedFiles.optJSONObject(i);
+                if (file == null) {
+                    continue;
+                }
+                array.put(sanitizedAttachment(file));
+            }
+        }
+        return array;
+    }
+
+    private JSONArray activeFileIdsSnapshot() {
+        JSONArray array = new JSONArray();
+        synchronized (attachmentLock) {
+            for (int i = 0; i < activeFileIds.length(); i++) {
+                String id = activeFileIds.optString(i, "");
+                if (!id.isEmpty()) {
+                    array.put(id);
+                }
+            }
+        }
+        return array;
+    }
+
+    private JSONObject sanitizedAttachment(JSONObject file) {
+        JSONObject json = new JSONObject();
+        try {
+            json.put("sessionFileId", file.optString("sessionFileId", ""));
+            json.put("displayName", file.optString("displayName", ""));
+            json.put("mimeType", file.optString("mimeType", ""));
+            json.put("sizeBytes", file.optLong("sizeBytes", -1L));
+            json.put("kind", file.optString("kind", ""));
+            json.put("textPreview", file.optString("textPreview", ""));
+            json.put("contentAvailableToAgent", file.optBoolean("contentAvailableToAgent", false));
+            json.put("imagePreviewAvailable", file.optBoolean("imagePreviewAvailable", false));
+            json.put("driveUploaded", file.optBoolean("driveUploaded", false));
+            json.put("driveFileId", file.optString("driveFileId", ""));
+            json.put("driveWebViewLink", file.optString("driveWebViewLink", ""));
+        } catch (Exception ignored) {
+        }
+        return json;
+    }
+
+    private JSONArray attachmentImagesSnapshot() {
+        JSONArray array = new JSONArray();
+        synchronized (attachmentLock) {
+            for (int i = 0; i < attachedFiles.length(); i++) {
+                JSONObject file = attachedFiles.optJSONObject(i);
+                if (file == null || !"image".equals(file.optString("kind", "")) || !file.optBoolean("imagePreviewAvailable", false)) {
+                    continue;
+                }
+                String dataUrl = file.optString("imageDataUrl", "");
+                if (dataUrl.isEmpty()) {
+                    continue;
+                }
+                try {
+                    array.put(new JSONObject()
+                            .put("sessionFileId", file.optString("sessionFileId", ""))
+                            .put("displayName", file.optString("displayName", ""))
+                            .put("mimeType", file.optString("mimeType", ""))
+                            .put("imageUrl", dataUrl)
+                            .put("detail", "auto"));
+                } catch (Exception ignored) {
+                }
+            }
+        }
+        return array;
+    }
+
+    private JSONObject findAttachedFile(String sessionFileId) {
+        if (sessionFileId == null || sessionFileId.trim().isEmpty()) {
+            return null;
+        }
+        synchronized (attachmentLock) {
+            for (int i = 0; i < attachedFiles.length(); i++) {
+                JSONObject file = attachedFiles.optJSONObject(i);
+                if (file != null && sessionFileId.equals(file.optString("sessionFileId", ""))) {
+                    return file;
+                }
+            }
+        }
+        return null;
+    }
+
+    private void updateAttachmentAfterDriveUpload(String sessionFileId, JSONObject result) {
+        if (sessionFileId == null || result == null || !result.optBoolean("ok", false)) {
+            return;
+        }
+        JSONObject uploaded = result.optJSONObject("file");
+        if (uploaded == null) {
+            return;
+        }
+        synchronized (attachmentLock) {
+            JSONObject file = findAttachedFile(sessionFileId);
+            if (file != null) {
+                try {
+                    file.put("driveUploaded", true);
+                    file.put("driveFileId", uploaded.optString("id", ""));
+                    file.put("driveWebViewLink", uploaded.optString("webViewLink", ""));
+                } catch (Exception ignored) {
+                }
+            }
+        }
+        try {
+            updateAttachmentWorkingMemory();
+        } catch (Exception ignored) {
+        }
+    }
+
+    private void appendAttachmentMessage(JSONObject file) {
+        String name = file == null ? "file" : file.optString("displayName", "file");
+        String text = "Attached: " + name;
+        appendAssistantMessageRaw(text);
+        chatTurns.add(new ChatTurn("assistant", text));
+        trimChatTurns();
+        recordTranscriptTurn("assistant", text);
+    }
+
+    private boolean isTextLikeMime(String mimeType, String displayName) {
+        String mime = mimeType == null ? "" : mimeType.toLowerCase(Locale.US);
+        String name = displayName == null ? "" : displayName.toLowerCase(Locale.US);
+        return mime.startsWith("text/")
+                || mime.contains("json")
+                || mime.contains("xml")
+                || mime.contains("csv")
+                || name.endsWith(".md")
+                || name.endsWith(".txt")
+                || name.endsWith(".json")
+                || name.endsWith(".csv")
+                || name.endsWith(".xml")
+                || name.endsWith(".html")
+                || name.endsWith(".css")
+                || name.endsWith(".js");
+    }
+
+    private String readTextPreviewFromUri(Uri uri, int maxChars) throws IOException {
+        String text = readTextFromUri(uri);
+        if (text.length() <= maxChars) {
+            return text;
+        }
+        return text.substring(0, maxChars) + "\n\n[Preview truncated.]";
+    }
+
+    private byte[] readBytesFromUri(Uri uri, int maxBytes) throws IOException {
+        try (InputStream input = getContentResolver().openInputStream(uri); ByteArrayOutputStream output = new ByteArrayOutputStream()) {
+            if (input == null) {
+                throw new IOException("empty file");
+            }
+            byte[] buffer = new byte[8192];
+            int read;
+            while ((read = input.read(buffer)) != -1) {
+                if (output.size() + read > maxBytes) {
+                    output.write(buffer, 0, Math.max(0, maxBytes - output.size()));
+                    break;
+                }
+                output.write(buffer, 0, read);
+            }
+            return output.toByteArray();
         }
     }
 
@@ -2727,6 +3065,10 @@ public final class MainActivity extends Activity implements RecognitionListener,
         updateWorkingUi(busyState);
         if (submitButton != null) {
             submitButton.setEnabled(!busyState);
+        }
+        if (attachFileButton != null) {
+            attachFileButton.setEnabled(!busyState);
+            attachFileButton.setAlpha(busyState ? 0.65f : 1.0f);
         }
         if (saveTaskButton != null) {
             saveTaskButton.setEnabled(!busyState);
@@ -4081,6 +4423,18 @@ public final class MainActivity extends Activity implements RecognitionListener,
         return new SimpleDateFormat("h:mm a", Locale.US).format(new Date());
     }
 
+    private static final class AttachmentMetadata {
+        final String displayName;
+        final String mimeType;
+        final long sizeBytes;
+
+        AttachmentMetadata(String displayName, String mimeType, long sizeBytes) {
+            this.displayName = displayName == null || displayName.trim().isEmpty() ? "attachment" : displayName.trim();
+            this.mimeType = mimeType == null ? "" : mimeType.trim();
+            this.sizeBytes = sizeBytes;
+        }
+    }
+
     private static final class ChatTurn {
         final String role;
         final String text;
@@ -4097,6 +4451,12 @@ public final class MainActivity extends Activity implements RecognitionListener,
         if (requestCode == REQUEST_CART_REVIEW_IMPORT) {
             if (resultCode == RESULT_OK) {
                 importCartReview(data);
+            }
+            return;
+        }
+        if (requestCode == REQUEST_FILE_ATTACH) {
+            if (resultCode == RESULT_OK) {
+                importAttachedFiles(data);
             }
             return;
         }

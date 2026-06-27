@@ -34,6 +34,8 @@ final class ToolRegistry {
                 Arrays.asList(DRIVE_SCOPE), Arrays.asList("name", "parentId")));
         tools.add(new ToolDefinition("drive.update_metadata", "Rename or move a Google Drive file or folder.", "drive", true, true,
                 Arrays.asList(DRIVE_SCOPE), Arrays.asList("fileId", "name", "addParentId", "removeParentId")));
+        tools.add(new ToolDefinition("drive.upload_file", "Upload an attached session file to Google Drive.", "drive", true, true,
+                Arrays.asList(DRIVE_SCOPE), Arrays.asList("sessionFileId", "name", "folderId", "mimeType")));
 
         tools.add(new ToolDefinition("docs.search", "Search Google Docs in Drive.", "docs", false, false,
                 Arrays.asList(DRIVE_SCOPE), Arrays.asList("query", "folderName", "pageSize")));

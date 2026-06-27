@@ -105,7 +105,7 @@ final class OpenAiAgentClient {
         return sendDirectOpenAi(message, transcript, summary, bucket, listName);
     }
 
-    ToolTurn sendToolTurn(String idToken, String message, String transcript, String summary, JSONArray toolResults, JSONArray tools, JSONArray unavailableToolGroups, JSONObject pendingConfirmation, JSONObject workingMemory, JSONObject timeContext, JSONObject evidenceContext) throws IOException {
+    ToolTurn sendToolTurn(String idToken, String message, String transcript, String summary, JSONArray toolResults, JSONArray tools, JSONArray unavailableToolGroups, JSONObject pendingConfirmation, JSONObject workingMemory, JSONObject timeContext, JSONObject evidenceContext, JSONArray attachmentImages) throws IOException {
         if (!isConfigured()) {
             throw new IOException("GPT-5.5 is not configured in this build.");
         }
@@ -120,6 +120,7 @@ final class OpenAiAgentClient {
             body.put("workingMemory", workingMemory == null ? new JSONObject() : workingMemory);
             body.put("timeContext", timeContext == null ? new JSONObject() : timeContext);
             body.put("evidenceContext", evidenceContext == null ? new JSONObject() : evidenceContext);
+            body.put("attachmentImages", attachmentImages == null ? new JSONArray() : attachmentImages);
             body.put("debugTrace", true);
             if (pendingConfirmation != null) {
                 body.put("pendingConfirmation", pendingConfirmation);
