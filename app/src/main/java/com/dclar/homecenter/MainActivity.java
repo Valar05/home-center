@@ -843,33 +843,27 @@ public final class MainActivity extends Activity implements RecognitionListener 
     }
 
     private void checkGoogleDriveStatus(String text, boolean asksGoogleDrive, boolean asksGoogleDocs) {
-        FirebaseUser user = firebaseAuth == null ? null : firebaseAuth.getCurrentUser();
-        if (openAiAgentClient == null || !openAiAgentClient.isConfigured() || user == null) {
+        if (!asksGoogleDrive) {
             String answer = localGoogleToolsMissingAnswer(asksGoogleDrive, asksGoogleDocs);
             appendAssistantMessage(answer, text);
             speak(answer);
             return;
         }
-        appendStatus("Checking Google Drive connection...");
-        user.getIdToken(false)
-                .addOnSuccessListener(token -> executor.execute(() -> {
-                    try {
-                        OpenAiAgentClient.Reply reply = openAiAgentClient.checkGoogleDrive(token.getToken(), text);
-                        String answer = reply.text.isEmpty() ? localGoogleToolsMissingAnswer(asksGoogleDrive, asksGoogleDocs) : reply.text;
-                        main.post(() -> showAssistantMessage(answer, text));
-                    } catch (Exception ex) {
-                        String fallback = localGoogleToolsMissingAnswer(asksGoogleDrive, asksGoogleDocs);
-                        main.post(() -> {
-                            LocalLog.warn("google_drive", "probe_failed: " + shortMessage(ex.getMessage()));
-                            showAssistantMessage(fallback, text);
-                        });
-                    }
-                }))
-                .addOnFailureListener(ex -> {
-                    String fallback = localGoogleToolsMissingAnswer(asksGoogleDrive, asksGoogleDocs);
-                    LocalLog.warn("google_drive", "id_token_failed: " + shortMessage(ex.getMessage()));
-                    showAssistantMessage(fallback, text);
-                });
+        if (googleDriveClient == null) {
+            showAssistantMessage("Google Drive diagnostic is not available in this build.", text);
+            return;
+        }
+        GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(this);
+        if (account == null || account.getAccount() == null) {
+            showAssistantMessage("Sign in with Google first.", text);
+            startGoogleSignIn();
+            return;
+        }
+        appendStatus("Checking Google Drive directly...");
+        executor.execute(() -> {
+            GoogleDriveClient.DriveResult result = googleDriveClient.inspect(account, text);
+            main.post(() -> handleDriveDiagnosticResult(result, text));
+        });
     }
 
     private String localGoogleToolsMissingAnswer(boolean asksGoogleDrive, boolean asksGoogleDocs) {
@@ -1033,8 +1027,12 @@ public final class MainActivity extends Activity implements RecognitionListener 
     }
 
     private void handleDriveDiagnosticResult(GoogleDriveClient.DriveResult result) {
+        handleDriveDiagnosticResult(result, null);
+    }
+
+    private void handleDriveDiagnosticResult(GoogleDriveClient.DriveResult result, String latestUserText) {
         if (result == null) {
-            showAssistantMessage("Google Drive diagnostic failed: empty result.");
+            showAssistantMessage("Google Drive diagnostic failed: empty result.", latestUserText);
             return;
         }
         if (result.recoverableAuthException != null) {
@@ -1042,15 +1040,15 @@ public final class MainActivity extends Activity implements RecognitionListener 
             try {
                 startActivityForResult(result.recoverableAuthException.getIntent(), REQUEST_DRIVE_AUTH);
             } catch (Exception ex) {
-                showAssistantMessage("Google Drive permission approval failed to open: " + shortMessage(ex.getMessage()));
+                showAssistantMessage("Google Drive permission approval failed to open: " + shortMessage(ex.getMessage()), latestUserText);
             }
             return;
         }
         if (!result.ok) {
-            showAssistantMessage("Google Drive check failed [" + result.error + "]: " + result.detail);
+            showAssistantMessage("Google Drive check failed [" + result.error + "]: " + result.detail, latestUserText);
             return;
         }
-        StringBuilder answer = new StringBuilder("Google Drive is connected. First files:");
+        StringBuilder answer = new StringBuilder("Google Drive is connected. ").append(result.detail);
         if (result.files.isEmpty()) {
             answer.append("\nNo files returned. ").append(result.detail);
         } else {
@@ -1062,7 +1060,7 @@ public final class MainActivity extends Activity implements RecognitionListener 
                 }
             }
         }
-        showAssistantMessage(answer.toString());
+        showAssistantMessage(answer.toString(), latestUserText);
     }
 
     private void joinBucket() {

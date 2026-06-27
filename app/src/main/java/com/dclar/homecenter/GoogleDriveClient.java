@@ -1,6 +1,7 @@
 package com.dclar.homecenter;
 
 import android.content.Context;
+import android.net.Uri;
 
 import com.google.android.gms.auth.GoogleAuthException;
 import com.google.android.gms.auth.GoogleAuthUtil;
@@ -23,7 +24,8 @@ import java.util.List;
 final class GoogleDriveClient {
     static final String DRIVE_METADATA_SCOPE = "https://www.googleapis.com/auth/drive.metadata.readonly";
     private static final String TOKEN_SCOPE = "oauth2:" + DRIVE_METADATA_SCOPE;
-    private static final String FILES_URL = "https://www.googleapis.com/drive/v3/files?pageSize=5&fields=files(id,name,mimeType,modifiedTime)";
+    private static final String FILES_URL = "https://www.googleapis.com/drive/v3/files";
+    private static final String FOLDER_MIME_TYPE = "application/vnd.google-apps.folder";
 
     private final Context context;
 
@@ -32,6 +34,10 @@ final class GoogleDriveClient {
     }
 
     DriveResult listFirstFiles(GoogleSignInAccount account) {
+        return inspect(account, "");
+    }
+
+    DriveResult inspect(GoogleSignInAccount account, String requestText) {
         if (account == null || account.getAccount() == null || account.getEmail() == null || account.getEmail().trim().isEmpty()) {
             return DriveResult.error("not_signed_in", "Sign in with Google first.");
         }
@@ -40,22 +46,58 @@ final class GoogleDriveClient {
         }
         String token;
         try {
-            token = GoogleAuthUtil.getToken(context, account.getAccount(), TOKEN_SCOPE);
-        } catch (UserRecoverableAuthException ex) {
-            return DriveResult.recoverable("drive_scope_recoverable", "Drive permission needs approval: " + safe(ex.getMessage()), ex);
-        } catch (IOException ex) {
-            return DriveResult.error("token_io_error", "Could not fetch Drive token: " + safe(ex.getMessage()));
-        } catch (GoogleAuthException ex) {
-            return DriveResult.error("token_auth_error", "Google auth failed for Drive token: " + safe(ex.getMessage()));
-        } catch (Exception ex) {
-            return DriveResult.error("token_error", "Drive token failed: " + safe(ex.getMessage()));
+            token = accessToken(account);
+        } catch (DriveRecoverableException ex) {
+            return DriveResult.recoverable("drive_scope_recoverable", "Drive permission needs approval: " + safe(ex.getMessage()), ex.exception);
+        } catch (DriveRuntimeException ex) {
+            return DriveResult.error(ex.code, ex.getMessage());
         }
         if (token == null || token.trim().isEmpty()) {
             return DriveResult.error("token_empty", "Google returned an empty Drive token.");
         }
+        String folderName = folderNameFrom(requestText);
+        if (!folderName.isEmpty()) {
+            String folderQuery = "mimeType='" + FOLDER_MIME_TYPE + "' and name contains '" + escapeQuery(folderName) + "' and trashed=false";
+            DriveResult folders = requestFiles(token, folderQuery, "Searched Drive folders matching " + folderName + ".");
+            if (!folders.ok || folders.files.isEmpty()) {
+                return folders.ok
+                        ? DriveResult.ok(folders.files, "Drive is connected, but I did not find a folder matching " + folderName + ".")
+                        : folders;
+            }
+            DriveFile folder = folders.files.get(0);
+            String childQuery = "'" + escapeQuery(folder.id) + "' in parents and trashed=false";
+            return requestFiles(token, childQuery, "Drive folder " + folder.name + " is visible. First files in that folder:");
+        }
+        return requestFiles(token, "trashed=false", "Drive token worked. First files:");
+    }
+
+    private String accessToken(GoogleSignInAccount account) {
+        try {
+            return GoogleAuthUtil.getToken(context, account.getAccount(), TOKEN_SCOPE);
+        } catch (UserRecoverableAuthException ex) {
+            throw new DriveRecoverableException(ex);
+        } catch (IOException ex) {
+            throw new DriveRuntimeException("token_io_error", "Could not fetch Drive token: " + safe(ex.getMessage()));
+        } catch (GoogleAuthException ex) {
+            throw new DriveRuntimeException("token_auth_error", "Google auth failed for Drive token: " + safe(ex.getMessage()));
+        } catch (Exception ex) {
+            throw new DriveRuntimeException("token_error", "Drive token failed: " + safe(ex.getMessage()));
+        }
+    }
+
+    private DriveResult requestFiles(String token, String query, String detail) {
         HttpURLConnection connection = null;
         try {
-            connection = (HttpURLConnection) new URL(FILES_URL).openConnection();
+            Uri.Builder builder = Uri.parse(FILES_URL).buildUpon()
+                    .appendQueryParameter("pageSize", "5")
+                    .appendQueryParameter("fields", "files(id,name,mimeType,modifiedTime)")
+                    .appendQueryParameter("orderBy", "modifiedTime desc")
+                    .appendQueryParameter("supportsAllDrives", "true")
+                    .appendQueryParameter("includeItemsFromAllDrives", "true");
+            if (query != null && !query.trim().isEmpty()) {
+                builder.appendQueryParameter("q", query);
+            }
+            connection = (HttpURLConnection) new URL(builder.build().toString()).openConnection();
             connection.setRequestMethod("GET");
             connection.setConnectTimeout(15000);
             connection.setReadTimeout(30000);
@@ -66,23 +108,11 @@ final class GoogleDriveClient {
             if (status < 200 || status >= 300) {
                 return DriveResult.error("http_" + status, "Drive API HTTP " + status + ": " + abbreviate(body));
             }
-            JSONObject root = new JSONObject(body);
-            JSONArray filesJson = root.optJSONArray("files");
-            List<DriveFile> files = new ArrayList<>();
-            if (filesJson != null) {
-                for (int i = 0; i < filesJson.length(); i++) {
-                    JSONObject file = filesJson.optJSONObject(i);
-                    if (file == null) {
-                        continue;
-                    }
-                    files.add(new DriveFile(
-                            file.optString("id", ""),
-                            file.optString("name", ""),
-                            file.optString("mimeType", ""),
-                            file.optString("modifiedTime", "")));
-                }
-            }
-            return DriveResult.ok(files, files.isEmpty() ? "Drive token worked, but no files were returned." : "Drive token worked.");
+            return DriveResult.ok(parseFiles(body), detail);
+        } catch (DriveRecoverableException ex) {
+            return DriveResult.recoverable("drive_scope_recoverable", "Drive permission needs approval: " + safe(ex.getMessage()), ex.exception);
+        } catch (DriveRuntimeException ex) {
+            return DriveResult.error(ex.code, ex.getMessage());
         } catch (Exception ex) {
             return DriveResult.error("drive_request_error", "Drive API request failed: " + safe(ex.getMessage()));
         } finally {
@@ -90,6 +120,49 @@ final class GoogleDriveClient {
                 connection.disconnect();
             }
         }
+    }
+
+    private static List<DriveFile> parseFiles(String body) throws Exception {
+        JSONObject root = new JSONObject(body);
+        JSONArray filesJson = root.optJSONArray("files");
+        List<DriveFile> files = new ArrayList<>();
+        if (filesJson != null) {
+            for (int i = 0; i < filesJson.length(); i++) {
+                JSONObject file = filesJson.optJSONObject(i);
+                if (file == null) {
+                    continue;
+                }
+                files.add(new DriveFile(
+                        file.optString("id", ""),
+                        file.optString("name", ""),
+                        file.optString("mimeType", ""),
+                        file.optString("modifiedTime", "")));
+            }
+        }
+        return files;
+    }
+
+    private static String folderNameFrom(String text) {
+        String value = text == null ? "" : text.toLowerCase().replaceAll("[^a-z0-9 ]", " ").replaceAll("\\s+", " ").trim();
+        int folderAt = value.indexOf(" folder");
+        if (folderAt < 0) {
+            return "";
+        }
+        String prefix = value.substring(0, folderAt).trim();
+        String[] stopWords = {"can you read", "can you see", "can you open", "do you have access to", "open", "list", "read", "my", "the", "your", "google", "drive"};
+        for (String stop : stopWords) {
+            prefix = prefix.replace(stop, " ");
+        }
+        prefix = prefix.replaceAll("\\s+", " ").trim();
+        if (prefix.isEmpty()) {
+            return "";
+        }
+        String[] words = prefix.split(" ");
+        return words[words.length - 1];
+    }
+
+    private static String escapeQuery(String value) {
+        return value == null ? "" : value.replace("'", "\\'").trim();
     }
 
     private static String readBody(InputStream stream) throws IOException {
@@ -116,6 +189,24 @@ final class GoogleDriveClient {
 
     private static String safe(String value) {
         return value == null || value.trim().isEmpty() ? "unknown error" : abbreviate(value);
+    }
+
+    private static final class DriveRuntimeException extends RuntimeException {
+        final String code;
+
+        DriveRuntimeException(String code, String message) {
+            super(message);
+            this.code = code;
+        }
+    }
+
+    private static final class DriveRecoverableException extends RuntimeException {
+        final UserRecoverableAuthException exception;
+
+        DriveRecoverableException(UserRecoverableAuthException exception) {
+            super(exception == null ? "approval required" : exception.getMessage());
+            this.exception = exception;
+        }
     }
 
     static final class DriveResult {
