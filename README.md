@@ -9,6 +9,11 @@ Primary target for this slice:
 - `next`, `previous`, and `done` advance through the active readback list or mark the current Home Center task complete.
 - TickTick remains as a masked legacy fallback when Firebase sync is not configured or not signed in.
 
+
+## Doctrine
+
+Home Center's repo-local product doctrine lives in `docs/HOME_CENTER_DOCTRINE.md`. Read it before changing agent behavior, memory, research, writing, life-organization, Netrunner, provider tools, or skill/simulation features. The app should not depend on a web request or external doctrine store to know its own purpose.
+
 ## Build
 
 ```sh
