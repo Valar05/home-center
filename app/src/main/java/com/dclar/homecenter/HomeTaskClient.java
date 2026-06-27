@@ -430,6 +430,101 @@ final class HomeTaskClient {
                         }));
     }
 
+    void updateTaskByIdOrName(String bucketCode, String listName, String taskId, String itemName, String newText, String status, ResultCallback callback) {
+        FirebaseUser user = auth.getCurrentUser();
+        String bucketId = bucketId(bucketCode);
+        String listId = listId(listName);
+        String normalizedListName = normalizeListName(listName);
+        String cleanTaskId = taskId == null ? "" : taskId.trim();
+        String cleanItem = itemName == null ? "" : itemName.trim();
+        String cleanText = newText == null ? "" : newText.trim();
+        String cleanStatus = status == null ? "" : status.trim().toLowerCase(Locale.US);
+        if (user == null) {
+            callback.onResult(new Result(false, "Sign in with Google first.", "missing_auth"));
+            return;
+        }
+        if (bucketId.isEmpty()) {
+            callback.onResult(new Result(false, "Enter a household bucket code first.", "missing_bucket"));
+            return;
+        }
+        if (listId.isEmpty()) {
+            callback.onResult(new Result(false, "Tell me which list to change.", "missing_list"));
+            return;
+        }
+        if (cleanTaskId.isEmpty() && cleanItem.isEmpty()) {
+            callback.onResult(new Result(false, "Tell me which item to update.", "missing_item"));
+            return;
+        }
+        DocumentReference householdRef = db.collection("households").document(bucketId);
+        DocumentReference listRef = householdRef.collection("lists").document(listId);
+        ensureListForAccess(householdRef, listRef, bucketCode, bucketId, listName, user)
+                .addOnSuccessListener(ignored -> {
+                    if (!cleanTaskId.isEmpty()) {
+                        updateTaskDocument(listRef, cleanTaskId, cleanItem, cleanText, cleanStatus, user, normalizedListName, callback);
+                        return;
+                    }
+                    listRef.get().addOnSuccessListener(listSnapshot -> listRef.collection("tasks")
+                            .whereEqualTo("status", "active")
+                            .get()
+                            .addOnSuccessListener(snapshot -> {
+                                ListResult listResult = toListResult(snapshot, normalizedListName, listSnapshot);
+                                Match match = bestMatch(cleanItem, listResult.tasks);
+                                if (match.task == null || match.score < 58) {
+                                    callback.onResult(new Result(false,
+                                            "I could not find " + cleanItem + " on " + normalizedListName + ".",
+                                            "no_match score=" + match.score));
+                                    return;
+                                }
+                                if (match.ambiguous) {
+                                    callback.onResult(new Result(false,
+                                            "I found more than one close match: " + match.task.name + " and " + match.runnerUp.name + ". Please be more specific.",
+                                            "ambiguous_match score=" + match.score + " runner_up=" + match.runnerUpScore));
+                                    return;
+                                }
+                                updateTaskDocument(listRef, match.task.id, match.task.name, cleanText, cleanStatus, user, normalizedListName, callback);
+                            })
+                            .addOnFailureListener(ex -> callback.onResult(new Result(false,
+                                    "Could not read list: " + shortMessage(ex),
+                                    ex.getClass().getSimpleName() + ": " + ex.getMessage()))))
+                            .addOnFailureListener(ex -> callback.onResult(new Result(false,
+                                    "Could not read list: " + shortMessage(ex),
+                                    ex.getClass().getSimpleName() + ": " + ex.getMessage())));
+                })
+                .addOnFailureListener(ex -> callback.onResult(new Result(false,
+                        "Could not update task: " + shortMessage(ex),
+                        ex.getClass().getSimpleName() + ": " + ex.getMessage())));
+    }
+
+    private void updateTaskDocument(DocumentReference listRef, String taskId, String originalName, String newText, String status, FirebaseUser user, String listName, ResultCallback callback) {
+        Map<String, Object> update = new HashMap<>();
+        if (newText != null && !newText.trim().isEmpty()) {
+            update.put("name", newText.trim());
+        }
+        if ("done".equals(status) || "completed".equals(status)) {
+            update.put("status", "done");
+            update.put("completedAt", FieldValue.serverTimestamp());
+            update.put("completedBy", user.getUid());
+        } else if ("removed".equals(status) || "archived".equals(status)) {
+            update.put("status", "removed");
+            update.put("removedAt", FieldValue.serverTimestamp());
+            update.put("removedBy", user.getUid());
+        } else if ("active".equals(status)) {
+            update.put("status", "active");
+        }
+        update.put("updatedAt", FieldValue.serverTimestamp());
+        if (update.size() <= 1) {
+            callback.onResult(new Result(false, "Tell me what to change on that item.", "missing_update"));
+            return;
+        }
+        listRef.collection("tasks").document(taskId).set(update, SetOptions.merge())
+                .addOnSuccessListener(ignored -> callback.onResult(new Result(true,
+                        (newText == null || newText.trim().isEmpty() ? originalName : newText.trim()) + " updated on " + listName + ".",
+                        "updated_task=" + taskId)))
+                .addOnFailureListener(ex -> callback.onResult(new Result(false,
+                        "Could not update task: " + shortMessage(ex),
+                        ex.getClass().getSimpleName() + ": " + ex.getMessage())));
+    }
+
     void savePreference(String bucketCode, String listName, String itemName, String preferredLabel, ResultCallback callback) {
         FirebaseUser user = auth.getCurrentUser();
         String bucketId = bucketId(bucketCode);

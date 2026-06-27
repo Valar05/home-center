@@ -170,26 +170,75 @@ function extractJsonObject(text) {
   return JSON.parse(candidate.slice(start, stop + 1));
 }
 
+
+function toolByName(tools, name) {
+  return tools.find((tool) => tool && tool.name === name) || null;
+}
+
+function messageConfirms(message) {
+  return /(^|\b)confirm(?:ed|ing)?\b/i.test(message || '');
+}
+
+function quoteForConfirmation(value) {
+  return String(value || '').trim().replace(/[\r\n]+/g, ' ').replace(/\s+/g, ' ');
+}
+
+function confirmationReply(toolName, args) {
+  const a = args || {};
+  if (toolName === 'drive.create_doc') {
+    const title = quoteForConfirmation(a.title || 'Home Center Note');
+    const body = quoteForConfirmation(a.body || '');
+    return body
+      ? `I can create that. Say: confirm create Google Doc titled ${title} with body ${body}.`
+      : `I can create that. Say: confirm create Google Doc titled ${title}.`;
+  }
+  if (toolName === 'drive.update_doc') {
+    const target = quoteForConfirmation(a.name || a.title || 'that document');
+    if (a.appendText) {
+      return `I can update that. Say: confirm append '${quoteForConfirmation(a.appendText)}' to ${target}.`;
+    }
+    return `I can update that. Say: confirm update ${target}.`;
+  }
+  if (toolName === 'gmail.send_email') {
+    return `I can send that email. Say: confirm send email to ${quoteForConfirmation(a.to)} with subject ${quoteForConfirmation(a.subject)}.`;
+  }
+  if (toolName === 'gmail.send_draft') {
+    return `I can send that draft. Say: confirm send draft ${quoteForConfirmation(a.draftId)}.`;
+  }
+  if (toolName === 'calendar.create_event') {
+    return `I can create that calendar event. Say: confirm create calendar event titled ${quoteForConfirmation(a.title)}.`;
+  }
+  if (toolName === 'calendar.update_event') {
+    return `I can update that calendar event. Say: confirm update calendar event ${quoteForConfirmation(a.eventId)}.`;
+  }
+  if (toolName === 'calendar.respond_event') {
+    return `I can RSVP to that event. Say: confirm respond ${quoteForConfirmation(a.responseStatus)} to calendar event ${quoteForConfirmation(a.eventId)}.`;
+  }
+  return 'I can do that. Say the same request again starting with: confirm.';
+}
+
 async function askOpenAIToolTurn(body) {
   const message = safeText(body.message, 4000);
   const summary = safeText(body.summary, 4000);
   const transcript = safeText(body.transcript, 8000);
   const toolResults = Array.isArray(body.toolResults) ? body.toolResults.slice(0, 8) : [];
   const tools = Array.isArray(body.tools) ? body.tools : [];
+  const unavailableToolGroups = Array.isArray(body.unavailableToolGroups) ? body.unavailableToolGroups : [];
   const input = [
     'You are Home Center. You are the thinker. The Android app is only your hands.',
     'Return one strict JSON object and no prose outside JSON.',
-    'If you need app data or Google Drive content, request exactly one tool call. Do not guess, do not say you lack access, and do not answer Drive document questions without tool results.',
+    'If a needed capability appears in the available tools JSON, request that tool. Do not say you cannot do it.',
+    'If a needed capability is absent, explain the missing capability group from unavailableToolGroups and ask the user to reconnect Google if scopes are missing.',
     'If a tool succeeds but does not fully answer the user request, continue with another tool call. A successful tool call is not a final answer unless it satisfies the request.',
     'Hide plumbing. Do not mention tokens, HTTP, file IDs, scopes, timestamps, or diagnostics unless the user explicitly asks for diagnostics.',
-    'Available Android tools: drive.search({query, folderName, mimeType, pageSize}) and drive.read({fileId, mimeType, name}).',
-    'For Google Docs in Drive, search first, then read the selected document, then answer the user request from content.',
-    'JSON schema for tool call: {"type":"tool_call","toolName":"drive.search","arguments":{"query":"Holding Vigil","folderName":"Writing","pageSize":5}}',
+    'Writes with confirmationRequired=true may be requested as tool calls; the gateway will enforce confirmation. Do not invent unsupported delete tools.',
+    'JSON schema for tool call: {"type":"tool_call","toolName":"tool.name","arguments":{}}',
     'JSON schema for final answer: {"type":"final","reply":"...","narration":"...","status":"gpt_5_5_complete"}',
     summary ? `Conversation summary: ${summary}` : '',
     transcript ? `Recent transcript: ${transcript}` : '',
-    `Registered tools: ${JSON.stringify(tools).slice(0, 4000)}`,
-    toolResults.length ? `Tool results: ${JSON.stringify(toolResults).slice(0, 16000)}` : 'Tool results: []',
+    `Available tools JSON: ${JSON.stringify(tools).slice(0, 12000)}`,
+    `Unavailable tool groups JSON: ${JSON.stringify(unavailableToolGroups).slice(0, 4000)}`,
+    toolResults.length ? `Tool results JSON: ${JSON.stringify(toolResults).slice(0, 16000)}` : 'Tool results JSON: []',
     `Latest user request: ${message}`,
   ].filter(Boolean).join('\n\n');
 
@@ -221,10 +270,32 @@ async function askOpenAIToolTurn(body) {
   try {
     const parsed = extractJsonObject(text);
     if (parsed.type === 'tool_call') {
+      const toolName = safeText(parsed.toolName || parsed.name, 80);
+      const tool = toolByName(tools, toolName);
+      const args = parsed.arguments && typeof parsed.arguments === 'object' ? parsed.arguments : {};
+      if (!tool) {
+        return {
+          type: 'final',
+          reply: `That tool is not available in this session: ${toolName}. Reconnect Google if this is a missing Google capability.`,
+          narration: `That tool is not available in this session.`,
+          status: 'tool_unavailable',
+        };
+      }
+      if (tool.confirmationRequired && !messageConfirms(message)) {
+        return {
+          type: 'final',
+          reply: confirmationReply(toolName, args),
+          narration: confirmationReply(toolName, args),
+          status: 'confirmation_required',
+        };
+      }
+      if (tool.confirmationRequired) {
+        args._confirmedByGateway = true;
+      }
       return {
         type: 'tool_call',
-        toolName: safeText(parsed.toolName || parsed.name, 80),
-        arguments: parsed.arguments && typeof parsed.arguments === 'object' ? parsed.arguments : {},
+        toolName,
+        arguments: args,
         status: 'tool_call_requested',
       };
     }
@@ -355,18 +426,6 @@ exports.agentTurn = onRequest({timeoutSeconds: 120, secrets: [OPENAI_API_KEY]}, 
     const message = safeText(req.body && req.body.message, 4000);
     if (!message) {
       sendJson(res, 400, {reply: 'Tell me what you want Home Center to do.', status: 'missing_message'});
-      return;
-    }
-    if (/create\s+(?:a\s+)?google\s+doc/i.test(message) && !wantsConfirmedCreateDoc(message)) {
-      sendJson(res, 200, {
-        reply: 'Create Google Doc\nI can do that. Say: confirm create Google Doc titled <title> with body <text>.',
-        narration: 'I can create that Google Doc after you confirm the title and body.',
-        status: 'confirmation_required',
-      });
-      return;
-    }
-    if (wantsConfirmedCreateDoc(message)) {
-      sendJson(res, 200, await createGoogleDoc(user.uid, message));
       return;
     }
     sendJson(res, 200, await askOpenAI(user.uid, req.body || {}));

@@ -43,4 +43,8 @@ status, headers, body = post_json('googleDriveProbe', {'query': 'Can Home Center
 if status != 401:
     fail(f'googleDriveProbe should require Firebase auth when unauthenticated: status={status} body={body[:200]!r}')
 
-print(f'Home Center provider smoke: OK cartesiaBytes={tts_bytes} driveProbeUnauth=401')
+status, headers, body = post_json('agentToolTurn', {'message': 'Create a Google Doc titled Home Center Write Test with body Tool write test.'}, timeout=20)
+if status != 401:
+    fail(f'agentToolTurn should require Firebase auth when unauthenticated: status={status} body={body[:200]!r}')
+
+print(f'Home Center provider smoke: OK cartesiaBytes={tts_bytes} driveProbeUnauth=401 agentToolTurnUnauth=401')

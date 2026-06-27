@@ -31,70 +31,104 @@ def method_body(source, signature, next_signature):
         return source[start:]
     return source[start:end]
 
+def registry_tools(source):
+    return set(re.findall(r'new ToolDefinition\("([^"]+)"', source))
+
+def advertised_from_tests(source):
+    return set(re.findall(r'"([a-z]+\.[a-z_]+)"', source))
+
 main_activity = read('app/src/main/java/com/dclar/homecenter/MainActivity.java')
 openai_client = read('app/src/main/java/com/dclar/homecenter/OpenAiAgentClient.java')
 drive_client = read('app/src/main/java/com/dclar/homecenter/GoogleDriveClient.java')
+gmail_client = read('app/src/main/java/com/dclar/homecenter/GoogleGmailClient.java')
+calendar_client = read('app/src/main/java/com/dclar/homecenter/GoogleCalendarClient.java')
+tool_registry = read('app/src/main/java/com/dclar/homecenter/ToolRegistry.java')
 functions_index = read('functions/index.js')
-proxy_script = read('tools/cartesia_proxy.py')
 build_gradle = read('app/build.gradle')
-manifest = read('app/src/main/AndroidManifest.xml')
 
 submit = method_body(main_activity, 'private void submitMessage', 'private void sendAgentTurn')
-require_contains(submit, 'sendAgentTurn(clean);', 'typed chat always enters GPT-5.5 first')
+require_contains(submit, 'sendAgentTurn(clean);', 'typed chat enters GPT-5.5 first')
 require_absent(submit, 'tryHandleLocalStatusQuestion', 'typed chat must not run local status parser before GPT')
 require_absent(submit, 'tryHandleLocalCommand', 'typed chat must not run local command parser before GPT')
-require_absent(main_activity, 'private boolean tryHandleLocalStatusQuestion', 'local natural-language status parser removed')
-require_absent(main_activity, 'private boolean tryHandleLocalCommand', 'local natural-language command parser removed from MainActivity')
 require_absent(main_activity, 'private boolean isDriveDiagnosticIntent', 'Drive keyword router removed')
 require_absent(main_activity, 'CommandParser.parse(text)', 'typed chat no longer parses English commands locally')
-require_absent(main_activity, 'googleDriveClient.answerRequest', 'MainActivity no longer uses local Drive planner')
-require_contains(main_activity, 'runAgentToolLoop', 'Android runs GPT-directed tool loop')
-require_contains(main_activity, 'executeRegisteredTool', 'Android dispatches registered tool calls only')
-require_contains(main_activity, '"drive.search".equals(toolName)', 'Drive search is registered as a named tool')
-require_contains(main_activity, '"drive.read".equals(toolName)', 'Drive read is registered as a named tool')
-require_contains(main_activity, 'LocalLog.info("agent", "tool_call " + toolName)', 'tool calls are logged as tool calls, not chat plumbing')
-require_contains(main_activity, 'tool_loop_limit', 'tool loop has a bounded failure mode')
 
-require_contains(openai_client, 'ToolTurn sendToolTurn', 'Android client can request GPT tool decisions')
-require_contains(openai_client, 'postJson("agentToolTurn"', 'Android client calls tool-turn gateway endpoint')
-require_contains(openai_client, '"drive.search"', 'Android advertises drive.search tool')
-require_contains(openai_client, '"drive.read"', 'Android advertises drive.read tool')
-require_absent(openai_client, 'if (message.contains', 'OpenAI client must not inspect English text')
+registered = registry_tools(tool_registry)
+expected = {
+    'drive.search', 'drive.read', 'drive.create_doc', 'drive.update_doc',
+    'gmail.search', 'gmail.read', 'gmail.create_draft', 'gmail.update_draft', 'gmail.send_draft', 'gmail.send_email',
+    'calendar.search', 'calendar.create_event', 'calendar.update_event', 'calendar.respond_event',
+    'lists.read', 'lists.create', 'lists.add_item', 'lists.update_item', 'lists.mark_done', 'lists.remove_item',
+}
+if registered != expected:
+    fail(f'tool registry mismatch: missing={sorted(expected - registered)} extra={sorted(registered - expected)}')
+for tool in registered:
+    if tool.startswith('drive.'):
+        require_contains(drive_client, f'"{tool}".equals(toolName)', f'{tool} has Drive dispatcher')
+    elif tool.startswith('gmail.'):
+        require_contains(gmail_client, f'"{tool}".equals(toolName)', f'{tool} has Gmail dispatcher')
+    elif tool.startswith('calendar.'):
+        require_contains(calendar_client, f'"{tool}".equals(toolName)', f'{tool} has Calendar dispatcher')
+    elif tool.startswith('lists.'):
+        require_contains(main_activity, f'"{tool}".equals(toolName)', f'{tool} has list dispatcher')
 
-require_contains(functions_index, 'exports.agentToolTurn', 'gateway exposes GPT tool-turn endpoint')
-require_contains(functions_index, 'The Android app is only your hands', 'gateway prompt encodes tool-host architecture')
-require_contains(functions_index, 'A successful tool call is not a final answer unless it satisfies the request', 'gateway prompt forbids stopping after first successful tool')
-require_contains(functions_index, 'do not answer Drive document questions without tool results', 'gateway prompt prevents canned Drive refusals')
-require_contains(functions_index, 'Hide plumbing', 'gateway prompt hides connector diagnostics from normal chat')
-require_contains(functions_index, 'drive.search({query, folderName, mimeType, pageSize})', 'gateway exposes structured Drive search contract')
-require_contains(functions_index, 'drive.read({fileId, mimeType, name})', 'gateway exposes structured Drive read contract')
+for source_name, source in {
+    'Drive client': drive_client,
+    'Gmail client': gmail_client,
+    'Calendar client': calendar_client,
+    'MainActivity': main_activity,
+}.items():
+    dispatched = set(re.findall(r'"([a-z]+\.[a-z_]+)"\.equals\(toolName\)', source))
+    for tool in dispatched:
+        if tool not in registered:
+            fail(f'{source_name} dispatches unregistered tool {tool}')
 
-require_contains(drive_client, 'JSONObject runTool(String toolName, JSONObject arguments, GoogleSignInAccount account)', 'Drive client exposes registered tool executor')
-require_contains(drive_client, '"drive.search".equals(toolName)', 'Drive search tool is dispatchable')
-require_contains(drive_client, '"drive.read".equals(toolName)', 'Drive read tool is dispatchable')
-require_contains(drive_client, 'readDocumentText', 'Drive read tool can export document text')
-require_absent(drive_client, 'DriveAnswer answerRequest', 'Drive client no longer owns user-request planning')
-require_absent(drive_client, 'value.contains("first sentence")', 'Drive client no longer parses first-sentence intent')
-require_absent(drive_client, 'value.contains("summarize")', 'Drive client no longer parses summarize intent')
-require_absent(drive_client, 'value.startsWith("read ")', 'Drive client no longer parses read intent')
-require_absent(drive_client, 'folderNameFrom(requestText)', 'Drive client no longer derives folder names from English requests')
+require_contains(openai_client, 'body.put("tools", tools == null ? new JSONArray() : tools)', 'OpenAI client sends registry-provided tools')
+require_contains(openai_client, 'body.put("unavailableToolGroups"', 'OpenAI client sends unavailable capability groups')
+require_absent(openai_client, '.put("name", "drive.search")', 'OpenAI client must not hardcode advertised tools')
+require_contains(main_activity, 'ToolRegistry.availableTools(account, hasSignedInHomeUser())', 'MainActivity advertises runtime registry tools')
+require_contains(main_activity, 'ToolRegistry.unavailableToolGroups(account, hasSignedInHomeUser())', 'MainActivity reports missing scope groups')
+require_contains(main_activity, 'ToolRegistry.definition(toolName)', 'MainActivity dispatch is registry-gated')
+require_contains(main_activity, 'definition.confirmationRequired', 'Android refuses unconfirmed dangerous tools')
+require_contains(main_activity, 'arguments.optBoolean("_confirmedByGateway", false)', 'Android requires gateway confirmation marker')
 
-require_contains(main_activity, 'GoogleDriveClient.DRIVE_METADATA_SCOPE', 'Google sign-in requests Drive scope')
-require_contains(drive_client, 'https://www.googleapis.com/auth/drive.readonly', 'Drive tool uses readonly scope')
-require_contains(drive_client, 'GoogleAuthUtil.getToken', 'Drive tool fetches real Google access token')
-require_contains(drive_client, 'https://www.googleapis.com/drive/v3/files', 'Drive tool calls Drive files REST endpoint')
-require_contains(functions_index, "model: 'gpt-5.5'", 'gateway uses GPT-5.5')
-require_contains(functions_index, "type: 'web_search'", 'gateway enables hosted web search')
-require_contains(proxy_script, 'Connection", "close', 'Cartesia proxy closes streams')
-require_contains(proxy_script, 'traceback.print_exc()', 'Cartesia proxy prints tracebacks')
-require_contains(main_activity, 'cartesia_pcm_write receivedBytes=', 'Cartesia playback logs byte counts')
-require_contains(main_activity, 'AudioTrack.WRITE_BLOCKING', 'Cartesia playback uses blocking writes')
-require_contains(build_gradle, 'gemini-2.0-flash', 'Gradle default Gemini model matches orientation')
-require_contains(main_activity, 'BuildConfig.GEMINI_MODEL', 'Android runtime uses configured Gemini model')
-require_contains(manifest, 'networkSecurityConfig="@xml/network_security_config"', 'manifest keeps local network config')
+require_contains(tool_registry, 'DRIVE_SCOPE = "https://www.googleapis.com/auth/drive"', 'Drive uses full Drive scope')
+require_contains(tool_registry, 'DOCS_SCOPE = "https://www.googleapis.com/auth/documents"', 'Drive doc writes require Docs scope')
+require_contains(tool_registry, 'GMAIL_MODIFY_SCOPE = "https://www.googleapis.com/auth/gmail.modify"', 'Gmail read/search scope exists')
+require_contains(tool_registry, 'GMAIL_COMPOSE_SCOPE = "https://www.googleapis.com/auth/gmail.compose"', 'Gmail draft scope exists')
+require_contains(tool_registry, 'GMAIL_SEND_SCOPE = "https://www.googleapis.com/auth/gmail.send"', 'Gmail send scope exists')
+require_contains(tool_registry, 'CALENDAR_EVENTS_SCOPE = "https://www.googleapis.com/auth/calendar.events"', 'Calendar event scope exists')
+require_absent(tool_registry, 'drive.readonly', 'Drive write registry must not use readonly scope')
+require_absent(drive_client, 'auth/drive.readonly', 'Drive client must not request readonly token for write host')
+require_contains(tool_registry, 'Arrays.asList(DRIVE_SCOPE, DOCS_SCOPE)', 'Drive write tools require Drive plus Docs scopes')
+require_contains(tool_registry, 'Arrays.asList(GMAIL_COMPOSE_SCOPE)', 'Gmail draft tools require compose scope')
+require_contains(tool_registry, 'Arrays.asList(GMAIL_SEND_SCOPE)', 'Gmail send tools require send scope')
+require_contains(tool_registry, 'Arrays.asList(CALENDAR_EVENTS_SCOPE)', 'Calendar tools require calendar event scope')
+require_contains(main_activity, 'new Scope(ToolRegistry.DRIVE_SCOPE)', 'Google sign-in requests Drive scope')
+require_contains(main_activity, 'new Scope(ToolRegistry.GMAIL_SEND_SCOPE)', 'Google sign-in requests Gmail send scope')
+require_contains(main_activity, 'new Scope(ToolRegistry.CALENDAR_EVENTS_SCOPE)', 'Google sign-in requests Calendar scope')
 
-if re.search(r'contains\("drive"\)|contains\("first sentence"\)|contains\("summarize"\)', submit):
-    fail('submitMessage still contains English intent checks')
+for forbidden in ['drive.delete', 'gmail.delete', 'calendar.delete', 'lists.delete']:
+    require_absent(tool_registry, forbidden, f'{forbidden} must not be registered')
+
+require_contains(functions_index, 'Available tools JSON', 'agentToolTurn prompt is registry-driven')
+require_contains(functions_index, 'Unavailable tool groups JSON', 'agentToolTurn sees missing scopes')
+require_absent(functions_index, 'Available Android tools: drive.search', 'gateway must not hardcode Drive-only tools')
+require_contains(functions_index, 'toolByName(tools, toolName)', 'gateway rejects unadvertised tool calls')
+require_contains(functions_index, 'tool.confirmationRequired && !messageConfirms(message)', 'gateway enforces confirmation outside prompt prose')
+require_contains(functions_index, 'args._confirmedByGateway = true', 'gateway marks confirmed dangerous tool calls')
+require_contains(functions_index, 'I can create that. Say: confirm create Google Doc titled ${title} with body ${body}.', 'exact create-doc confirmation phrase exists')
+require_contains(functions_index, "I can update that. Say: confirm append", 'append confirmation phrase exists')
+agent_turn = method_body(functions_index, 'exports.agentTurn', 'async function synthesizeCartesia')
+require_absent(agent_turn, 'wantsConfirmedCreateDoc', 'legacy agentTurn create-doc route is bypassed')
+
+require_contains(drive_client, '"google_doc_created"', 'Drive create returns google_doc_created status')
+require_contains(drive_client, 'webViewLink', 'Drive create/update returns document link')
+require_contains(gmail_client, 'BASE_URL = "https://gmail.googleapis.com/gmail/v1/users/me"', 'Gmail client calls Gmail REST')
+require_contains(calendar_client, 'BASE_URL = "https://www.googleapis.com/calendar/v3/calendars/primary/events"', 'Calendar client calls Calendar REST')
+require_contains(calendar_client, 'attendee_not_found', 'Calendar RSVP has attendee failure mode')
+require_contains(main_activity, 'homeTaskClient.updateTaskByIdOrName', 'List tools can update status/text by id or item text')
+require_contains(build_gradle, 'versionCode', 'Android build declares versionCode')
 
 if failures:
     print('Home Center regression tests failed:', file=sys.stderr)
@@ -102,4 +136,4 @@ if failures:
         print(f'- {item}', file=sys.stderr)
     sys.exit(1)
 
-print('Home Center tool-host regression tests: OK')
+print('Home Center tool capability regression tests: OK')

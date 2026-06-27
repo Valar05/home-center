@@ -103,7 +103,7 @@ final class OpenAiAgentClient {
         return sendDirectOpenAi(message, transcript, summary, bucket, listName);
     }
 
-    ToolTurn sendToolTurn(String idToken, String message, String transcript, String summary, JSONArray toolResults) throws IOException {
+    ToolTurn sendToolTurn(String idToken, String message, String transcript, String summary, JSONArray toolResults, JSONArray tools, JSONArray unavailableToolGroups) throws IOException {
         if (!isConfigured()) {
             throw new IOException("GPT-5.5 is not configured in this build.");
         }
@@ -113,23 +113,8 @@ final class OpenAiAgentClient {
             body.put("transcript", transcript == null ? "" : transcript);
             body.put("summary", summary == null ? "" : summary);
             body.put("toolResults", toolResults == null ? new JSONArray() : toolResults);
-            JSONArray tools = new JSONArray();
-            tools.put(new JSONObject()
-                    .put("name", "drive.search")
-                    .put("description", "Search or list Google Drive files using structured arguments supplied by GPT.")
-                    .put("arguments", new JSONArray()
-                            .put("query")
-                            .put("folderName")
-                            .put("mimeType")
-                            .put("pageSize")));
-            tools.put(new JSONObject()
-                    .put("name", "drive.read")
-                    .put("description", "Read text content from a Google Drive file by fileId.")
-                    .put("arguments", new JSONArray()
-                            .put("fileId")
-                            .put("mimeType")
-                            .put("name")));
-            body.put("tools", tools);
+            body.put("tools", tools == null ? new JSONArray() : tools);
+            body.put("unavailableToolGroups", unavailableToolGroups == null ? new JSONArray() : unavailableToolGroups);
         } catch (JSONException ex) {
             throw new IOException("Could not build tool agent request: " + ex.getMessage(), ex);
         }

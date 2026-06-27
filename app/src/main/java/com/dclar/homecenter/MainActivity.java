@@ -76,8 +76,10 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 public final class MainActivity extends Activity implements RecognitionListener {
     private static final int REQUEST_RECORD_AUDIO = 1001;
@@ -148,6 +150,8 @@ public final class MainActivity extends Activity implements RecognitionListener 
     private GeminiClient geminiClient;
     private OpenAiAgentClient openAiAgentClient;
     private GoogleDriveClient googleDriveClient;
+    private GoogleGmailClient googleGmailClient;
+    private GoogleCalendarClient googleCalendarClient;
 
     private boolean tickTickTokenVisible = false;
     private boolean firebaseConfigured = false;
@@ -186,6 +190,8 @@ public final class MainActivity extends Activity implements RecognitionListener 
         audioManager = (AudioManager) getSystemService(AUDIO_SERVICE);
         cartesiaSpeechProxyClient = new CartesiaSpeechProxyClient(BuildConfig.CARTESIA_PROXY_BASE_URL, BuildConfig.CARTESIA_API_KEY);
         googleDriveClient = new GoogleDriveClient(this);
+        googleGmailClient = new GoogleGmailClient(this);
+        googleCalendarClient = new GoogleCalendarClient(this);
         refreshGeminiClient();
         buildUi();
         boolean restoredConversation = restoreConversationHistory();
@@ -254,10 +260,12 @@ public final class MainActivity extends Activity implements RecognitionListener 
                         .requestServerAuthCode(clientId, true)
                         .requestEmail()
                         .requestScopes(
-                                new Scope(GoogleDriveClient.DRIVE_METADATA_SCOPE),
-                                new Scope("https://www.googleapis.com/auth/documents"),
-                                new Scope("https://www.googleapis.com/auth/gmail.modify"),
-                                new Scope("https://www.googleapis.com/auth/calendar.events"))
+                                new Scope(ToolRegistry.DRIVE_SCOPE),
+                                new Scope(ToolRegistry.DOCS_SCOPE),
+                                new Scope(ToolRegistry.GMAIL_MODIFY_SCOPE),
+                                new Scope(ToolRegistry.GMAIL_COMPOSE_SCOPE),
+                                new Scope(ToolRegistry.GMAIL_SEND_SCOPE),
+                                new Scope(ToolRegistry.CALENDAR_EVENTS_SCOPE))
                         .build();
                 googleSignInClient = GoogleSignIn.getClient(this, options);
             }
@@ -828,12 +836,15 @@ public final class MainActivity extends Activity implements RecognitionListener 
         try {
             OpenAiAgentClient.ToolTurn turn = null;
             for (int step = 0; step < 6; step++) {
+                GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(this);
                 turn = openAiAgentClient.sendToolTurn(
                         idToken,
                         clean,
                         recentTranscriptSnapshot(),
                         conversationSummary,
-                        toolResults);
+                        toolResults,
+                        ToolRegistry.availableTools(account, hasSignedInHomeUser()),
+                        ToolRegistry.unavailableToolGroups(account, hasSignedInHomeUser()));
                 if (turn.requestsTool()) {
                     JSONObject result = executeRegisteredTool(turn.toolName, turn.arguments);
                     toolResults.put(new JSONObject()
@@ -857,14 +868,132 @@ public final class MainActivity extends Activity implements RecognitionListener 
 
     private JSONObject executeRegisteredTool(String toolName, JSONObject arguments) {
         LocalLog.info("agent", "tool_call " + toolName);
-        if ("drive.search".equals(toolName) || "drive.read".equals(toolName)) {
+        ToolRegistry.ToolDefinition definition = ToolRegistry.definition(toolName);
+        if (definition == null) {
+            return toolError(toolName, "unknown_tool", "No Android tool is registered with that name.");
+        }
+        if (definition.confirmationRequired && (arguments == null || !arguments.optBoolean("_confirmedByGateway", false))) {
+            return toolError(toolName, "confirmation_required", "This write tool requires explicit gateway confirmation.");
+        }
+        GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(this);
+        if ("drive".equals(definition.group)) {
             if (googleDriveClient == null) {
                 return toolError(toolName, "drive_unavailable", "Google Drive tool is not available in this build.");
             }
-            GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(this);
             return googleDriveClient.runTool(toolName, arguments, account);
         }
-        return toolError(toolName, "unknown_tool", "No Android tool is registered with that name.");
+        if ("gmail".equals(definition.group)) {
+            if (googleGmailClient == null) {
+                return toolError(toolName, "gmail_unavailable", "Gmail tool is not available in this build.");
+            }
+            return googleGmailClient.runTool(toolName, arguments, account);
+        }
+        if ("calendar".equals(definition.group)) {
+            if (googleCalendarClient == null) {
+                return toolError(toolName, "calendar_unavailable", "Calendar tool is not available in this build.");
+            }
+            return googleCalendarClient.runTool(toolName, arguments, account);
+        }
+        if ("lists".equals(definition.group)) {
+            return executeListTool(toolName, arguments);
+        }
+        return toolError(toolName, "unknown_tool_group", "No Android dispatcher exists for that tool group.");
+    }
+
+    private JSONObject executeListTool(String toolName, JSONObject arguments) {
+        if (!hasHomeClient() || !hasSignedInHomeUser()) {
+            return toolError(toolName, "not_signed_in", "Sign in with Google first.");
+        }
+        String listName = toolArg(arguments, "listName", listEdit == null ? "shopping" : listEdit.getText().toString());
+        String bucket = bucketEdit == null ? "" : bucketEdit.getText().toString();
+        CountDownLatch latch = new CountDownLatch(1);
+        JSONObject[] holder = new JSONObject[]{toolError(toolName, "timeout", "List tool timed out.")};
+        if ("lists.read".equals(toolName)) {
+            homeTaskClient.loadActiveTasks(bucket, listName, result -> {
+                holder[0] = listResultJson(toolName, result);
+                latch.countDown();
+            });
+        } else if ("lists.create".equals(toolName)) {
+            homeTaskClient.createList(bucket, listName, "household", "", result -> {
+                holder[0] = resultJson(toolName, result);
+                latch.countDown();
+            });
+        } else if ("lists.add_item".equals(toolName)) {
+            String text = toolArg(arguments, "text", "");
+            homeTaskClient.addTask(bucket, listName, text, "", "", "", result -> {
+                holder[0] = resultJson(toolName, result);
+                latch.countDown();
+            });
+        } else if ("lists.update_item".equals(toolName)) {
+            homeTaskClient.updateTaskByIdOrName(bucket, listName, toolArg(arguments, "itemId", ""), toolArg(arguments, "itemText", ""), toolArg(arguments, "text", ""), toolArg(arguments, "status", ""), result -> {
+                holder[0] = resultJson(toolName, result);
+                latch.countDown();
+            });
+        } else if ("lists.mark_done".equals(toolName)) {
+            homeTaskClient.updateTaskByIdOrName(bucket, listName, toolArg(arguments, "itemId", ""), toolArg(arguments, "itemText", ""), "", "done", result -> {
+                holder[0] = resultJson(toolName, result);
+                latch.countDown();
+            });
+        } else if ("lists.remove_item".equals(toolName)) {
+            homeTaskClient.updateTaskByIdOrName(bucket, listName, toolArg(arguments, "itemId", ""), toolArg(arguments, "itemText", ""), "", "removed", result -> {
+                holder[0] = resultJson(toolName, result);
+                latch.countDown();
+            });
+        } else {
+            return toolError(toolName, "unknown_tool", "No list dispatcher exists for that tool.");
+        }
+        try {
+            if (!latch.await(35, TimeUnit.SECONDS)) {
+                return toolError(toolName, "timeout", "List tool timed out.");
+            }
+        } catch (InterruptedException ex) {
+            Thread.currentThread().interrupt();
+            return toolError(toolName, "interrupted", "List tool was interrupted.");
+        }
+        return holder[0];
+    }
+
+    private String toolArg(JSONObject arguments, String name, String fallback) {
+        String value = arguments == null ? "" : arguments.optString(name, "").trim();
+        return value.isEmpty() ? fallback : value;
+    }
+
+    private JSONObject resultJson(String toolName, HomeTaskClient.Result result) {
+        JSONObject json = new JSONObject();
+        try {
+            json.put("tool", toolName);
+            json.put("ok", result != null && result.ok);
+            json.put("error", result != null && result.ok ? "" : "list_error");
+            json.put("spokenMessage", result == null ? "" : result.spokenMessage);
+            json.put("detail", result == null ? "empty result" : result.detail);
+        } catch (Exception ignored) {
+        }
+        return json;
+    }
+
+    private JSONObject listResultJson(String toolName, HomeTaskClient.ListResult result) {
+        JSONObject json = new JSONObject();
+        try {
+            json.put("tool", toolName);
+            json.put("ok", result != null && result.ok);
+            json.put("error", result != null && result.ok ? "" : "list_error");
+            json.put("spokenMessage", result == null ? "" : result.spokenMessage);
+            json.put("detail", result == null ? "empty result" : result.detail);
+            json.put("listName", result == null ? "" : result.listName);
+            JSONArray items = new JSONArray();
+            if (result != null) {
+                for (HomeTaskClient.HomeTask task : result.tasks) {
+                    items.put(new JSONObject()
+                            .put("id", task.id)
+                            .put("name", task.name)
+                            .put("displayName", task.displayName)
+                            .put("description", task.description));
+                }
+            }
+            json.put("items", items);
+        } catch (Exception ignored) {
+        }
+        return json;
     }
 
     private JSONObject toolError(String toolName, String error, String detail) {
@@ -936,7 +1065,7 @@ public final class MainActivity extends Activity implements RecognitionListener 
             return;
         }
         if (!account.getGrantedScopes().contains(new Scope(GoogleDriveClient.DRIVE_METADATA_SCOPE))) {
-            showAssistantMessage("Google Drive permission is missing. I am reopening Google sign-in for Drive metadata access.");
+            showAssistantMessage("Google Drive permission is missing. I am reopening Google sign-in for Drive access.");
             startGoogleSignIn();
             return;
         }
