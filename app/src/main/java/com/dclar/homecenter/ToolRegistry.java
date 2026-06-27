@@ -94,6 +94,9 @@ final class ToolRegistry {
                 Collections.emptyList(), Arrays.asList("listName", "itemId", "itemText")));
         tools.add(new ToolDefinition("lists.remove_item", "Soft-remove a Home Center list item by setting status removed.", "lists", true, false,
                 Collections.emptyList(), Arrays.asList("listName", "itemId", "itemText")));
+
+        tools.add(new ToolDefinition("github.create_issue", "Create a GitHub issue in the Home Center repository from captured chat evidence.", "github", true, true,
+                Collections.emptyList(), Arrays.asList("repo", "title", "body", "labels")));
         return tools;
     }
 

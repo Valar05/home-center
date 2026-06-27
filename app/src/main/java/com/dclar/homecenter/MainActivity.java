@@ -197,6 +197,9 @@ public final class MainActivity extends Activity implements RecognitionListener,
     private volatile JSONObject pendingToolConfirmation;
     private final Object workingMemoryLock = new Object();
     private final JSONObject workingMemory = new JSONObject();
+    private final Object toolTraceLock = new Object();
+    private final JSONArray recentToolTrace = new JSONArray();
+    private String lastVisibleStatus = "";
     private String lastDriveDocumentId = "";
     private String lastDriveDocumentName = "";
     private String startupGreeting = "Home Center is ready. Try pantry inventory, what can I make, recipe brainstorm, or rescue meal.";
@@ -955,18 +958,20 @@ public final class MainActivity extends Activity implements RecognitionListener,
                         unavailableGroups,
                         cloneJson(pendingToolConfirmation),
                         workingMemorySnapshot(),
-                        currentTimeContext());
+                        currentTimeContext(),
+                        evidenceContextSnapshot(clean));
                 LocalLog.info("agent_trace", "step=" + step + " gateway_type=" + turn.type + " status=" + turn.status + " requestedTool=" + turn.toolName + " technicalDetails=" + shortMessage(turn.technicalDetails));
                 if (turn.requestsTool()) {
                     LocalLog.info("agent_trace", "android_received_tool=" + turn.toolName);
                     JSONObject pendingForRetry = turn.arguments.optBoolean("_confirmedByGateway", false)
                             ? cloneJson(pendingToolConfirmation)
                             : null;
-                    JSONObject result = executeRegisteredTool(turn.toolName, turn.arguments);
+                    JSONObject result = executeRegisteredTool(turn.toolName, turn.arguments, idToken);
                     updateWorkingMemoryFromToolResult(turn.toolName, turn.arguments, result);
                     JSONObject resultFile = result.optJSONObject("file");
                     String resultDocumentId = resultFile == null ? "" : resultFile.optString("id", "");
                     LocalLog.info("agent_trace", "android_dispatch_result tool=" + turn.toolName + " ok=" + result.optBoolean("ok", false) + " status=" + result.optString("status", "") + " error=" + result.optString("error", "") + " documentId=" + resultDocumentId + " webViewLink=" + result.optString("webViewLink", "") + " workingMemory=" + shortMessage(workingMemorySnapshot().toString()));
+                    rememberToolTrace(turn.toolName, turn.arguments, result);
                     if (isGoogleToolAuthFailure(result)) {
                         requestGoogleToolReconnect(clean, pendingForRetry, result);
                         return;
@@ -1044,7 +1049,7 @@ public final class MainActivity extends Activity implements RecognitionListener,
                 .addOnFailureListener(ex -> startGoogleSignIn());
     }
 
-    private JSONObject executeRegisteredTool(String toolName, JSONObject arguments) {
+    private JSONObject executeRegisteredTool(String toolName, JSONObject arguments, String idToken) {
         LocalLog.info("agent", "tool_call " + toolName);
         ToolRegistry.ToolDefinition definition = ToolRegistry.definition(toolName);
         if (definition == null) {
@@ -1086,6 +1091,18 @@ public final class MainActivity extends Activity implements RecognitionListener,
         }
         if ("lists".equals(definition.group)) {
             return executeListTool(toolName, arguments);
+        }
+        if ("github.create_issue".equals(toolName)) {
+            if (openAiAgentClient == null || !openAiAgentClient.isConfigured()) {
+                return toolError(toolName, "github_unavailable", "GitHub issue creation requires the Home Center gateway.");
+            }
+            try {
+                JSONObject response = openAiAgentClient.createGitHubIssue(idToken, arguments);
+                response.put("tool", toolName);
+                return response;
+            } catch (Exception ex) {
+                return toolError(toolName, "github_error", shortMessage(ex.getMessage()));
+            }
         }
         return toolError(toolName, "unknown_tool_group", "No Android dispatcher exists for that tool group.");
     }
@@ -1146,6 +1163,65 @@ public final class MainActivity extends Activity implements RecognitionListener,
     private String toolArg(JSONObject arguments, String name, String fallback) {
         String value = arguments == null ? "" : arguments.optString(name, "").trim();
         return value.isEmpty() ? fallback : value;
+    }
+
+    private JSONObject evidenceContextSnapshot(String latestUserText) {
+        JSONObject json = new JSONObject();
+        try {
+            json.put("latestUserReport", latestUserText == null ? "" : latestUserText.trim());
+            json.put("recentConversationEvidence", recentConversationEvidence());
+            json.put("recentToolTrace", recentToolTraceSnapshot());
+            json.put("pendingConfirmation", pendingToolConfirmation == null ? new JSONObject() : cloneJson(pendingToolConfirmation));
+            json.put("lastVisibleStatus", lastVisibleStatus == null ? "" : lastVisibleStatus);
+            json.put("appVersionName", BuildConfig.VERSION_NAME);
+            json.put("versionCode", BuildConfig.VERSION_CODE);
+            json.put("providerStatus", statusView == null ? "" : statusView.getText().toString());
+            json.put("signedInState", hasSignedInHomeUser() ? "signed_in" : "signed_out");
+            json.put("timestamp", new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ", Locale.US).format(new Date()));
+        } catch (Exception ignored) {
+        }
+        return json;
+    }
+
+    private JSONArray recentConversationEvidence() {
+        JSONArray array = new JSONArray();
+        int start = Math.max(0, chatTurns.size() - 6);
+        for (int i = start; i < chatTurns.size(); i++) {
+            ChatTurn turn = chatTurns.get(i);
+            try {
+                array.put(new JSONObject().put("role", turn.role).put("text", turn.text));
+            } catch (Exception ignored) {
+            }
+        }
+        return array;
+    }
+
+    private JSONArray recentToolTraceSnapshot() {
+        JSONArray copy = new JSONArray();
+        synchronized (toolTraceLock) {
+            for (int i = 0; i < recentToolTrace.length(); i++) {
+                JSONObject item = recentToolTrace.optJSONObject(i);
+                if (item != null) {
+                    copy.put(cloneJson(item));
+                }
+            }
+        }
+        return copy;
+    }
+
+    private void rememberToolTrace(String toolName, JSONObject arguments, JSONObject result) {
+        synchronized (toolTraceLock) {
+            try {
+                recentToolTrace.put(new JSONObject()
+                        .put("toolName", toolName == null ? "" : toolName)
+                        .put("arguments", arguments == null ? new JSONObject() : cloneJson(arguments))
+                        .put("result", result == null ? new JSONObject() : cloneJson(result)));
+                while (recentToolTrace.length() > 6) {
+                    recentToolTrace.remove(0);
+                }
+            } catch (Exception ignored) {
+            }
+        }
     }
 
     private JSONObject resultJson(String toolName, HomeTaskClient.Result result) {

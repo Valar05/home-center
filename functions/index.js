@@ -7,6 +7,7 @@ admin.initializeApp();
 
 const OPENAI_API_KEY = defineSecret('OPENAI_API_KEY');
 const CARTESIA_API_KEY = defineSecret('CARTESIA_API_KEY');
+const GITHUB_TOKEN = defineSecret('GITHUB_TOKEN');
 
 const CORS_HEADERS = {
   'Access-Control-Allow-Origin': '*',
@@ -212,6 +213,7 @@ function confirmationTitle(toolName) {
   if (toolName === 'docs.update') return 'Edit Google Doc';
   if (toolName === 'sheets.create') return 'Create Google Sheet';
   if (toolName === 'sheets.update') return 'Edit Google Sheet';
+  if (toolName === 'github.create_issue') return 'Create GitHub Issue';
   if (toolName === 'gmail.send_email') return 'Send Email';
   if (toolName === 'gmail.send_draft') return 'Send Draft';
   if (toolName === 'calendar.create_event') return 'Create Calendar Event';
@@ -246,6 +248,10 @@ function confirmationSummary(toolName, args = {}) {
   if (toolName === 'sheets.update') {
     return `Update Google Sheet range ${quoteForConfirmation(a.range || 'selected range')}.`;
   }
+  if (toolName === 'github.create_issue') {
+    const title = quoteForConfirmation(a.title || 'Bug: Home Center feedback');
+    return `${title}\n\nThis will include the last few chat messages and app context.`;
+  }
   if (toolName === 'gmail.send_email') {
     return `Send email to ${quoteForConfirmation(a.to)} about "${quoteForConfirmation(a.subject)}".`;
   }
@@ -275,6 +281,9 @@ function pendingConfirmation(toolName, args) {
 }
 
 function confirmationReply(toolName, args) {
+  if (toolName === 'github.create_issue') {
+    return 'I can create that GitHub issue. Press Confirm or say "confirm create issue".';
+  }
   const action = confirmationAction(toolName, args);
   return `I can ${action} that. Say "confirm ${action}" or press Confirm.`;
 }
@@ -512,6 +521,7 @@ async function askOpenAIToolTurn(body) {
   const tools = Array.isArray(body.tools) ? body.tools : [];
   const unavailableToolGroups = Array.isArray(body.unavailableToolGroups) ? body.unavailableToolGroups : [];
   const workingMemory = body && typeof body.workingMemory === 'object' ? body.workingMemory : {};
+  const evidenceContext = body && typeof body.evidenceContext === 'object' ? body.evidenceContext : {};
   const timeContext = timeContextFromBody(body);
   const pending = pendingConfirmationFromBody(body, tools);
   if (pending && messageConfirms(message)) {
@@ -543,6 +553,10 @@ async function askOpenAIToolTurn(body) {
     'Contacts plus Calendar rule: to add a named contact to an event, search contacts first, use the contact primaryEmail, resolve the target event from workingMemory or calendar.search/read, then call calendar.update_event with attendeesToAdd.',
     'Calendar display rule: in confirmations and final replies, use the event title/summary such as Home Center notification. Do not show eventId values unless the user explicitly asks for technical details.',
     'Public web rule: you also have OpenAI web_search for public web pages, including public GitHub repositories. Use web_search for public GitHub repo questions, README discovery, file discovery, and public documentation lookup.',
+    'Feedback/report rule: if the user asks to report this, file an issue, save this bug, says this is broken, that was wrong, feedback, or send this to GitHub, do not solve the original problem again. Draft a GitHub issue using evidenceContext and call github.create_issue.',
+    'Feedback/report rule: default repo is Valar05/home-center. The issue body must include Summary, User Report, Conversation Evidence, Expected Behavior, Actual Behavior, Suspected Area, Environment, and Raw Debug Context if available.',
+    'Feedback/report rule: preserve exact user wording and exact assistant response from evidenceContext.recentConversationEvidence. If evidence is absent or too vague, ask for a short description and do not call github.create_issue.',
+    'Feedback/report rule: suspected area must be one of GPT/tool planning, Android tool broker, Google Drive/Docs client, confirmation flow, working memory/reference resolution, Cartesia/narration, UI/accessibility, stale APK/install, provider/gateway, unknown.',
     'Do not claim a GitHub tool is required for public GitHub repositories. A GitHub tool is only required for private repo access, authenticated GitHub writes, issues, pull requests, or repository mutations.',
     'If a needed app-owned capability is absent, explain the missing capability group from unavailableToolGroups and ask the user to reconnect Google if scopes are missing.',
     'If a tool succeeds but does not fully answer the user request, continue with another tool call. A successful tool call is not a final answer unless it satisfies the request.',
@@ -557,6 +571,7 @@ async function askOpenAIToolTurn(body) {
     `Unavailable tool groups JSON: ${JSON.stringify(unavailableToolGroups).slice(0, 4000)}`,
     `Working memory JSON: ${JSON.stringify(workingMemory).slice(0, 6000)}`,
     `Time context JSON: ${JSON.stringify(timeContext).slice(0, 2000)}`,
+    `Evidence context JSON: ${JSON.stringify(evidenceContext).slice(0, 12000)}`,
     toolResults.length ? `Tool results JSON: ${JSON.stringify(toolResults).slice(0, 16000)}` : 'Tool results JSON: []',
     pending ? `Pending confirmation JSON: ${JSON.stringify(pending).slice(0, 4000)}` : '',
     `Latest user request: ${message}`,
@@ -656,7 +671,7 @@ async function askOpenAIToolTurn(body) {
 
 
 exports.health = onRequest((req, res) => {
-  res.set(CORS_HEADERS).json({ok: true, service: 'home-center-gateway', confirmationFlow: 'short-confirm-v1', toolContractVersion: 'google-cru-v1', contractGroups: ['drive', 'docs', 'sheets', 'lists', 'gmail', 'calendar', 'contacts']});
+  res.set(CORS_HEADERS).json({ok: true, service: 'home-center-gateway', confirmationFlow: 'short-confirm-v1', toolContractVersion: 'google-github-cru-v1', contractGroups: ['drive', 'docs', 'sheets', 'lists', 'gmail', 'calendar', 'contacts', 'github']});
 });
 
 exports.googleAuthCodeExchange = onRequest(async (req, res) => {
@@ -741,6 +756,59 @@ exports.googleDriveProbe = onRequest(async (req, res) => {
   }
 });
 
+
+async function createGitHubIssue(body) {
+  const token = process.env.GITHUB_TOKEN || '';
+  if (!token) {
+    return {ok: false, error: 'github_token_missing', detail: 'GITHUB_TOKEN secret is not configured for Home Center gateway.'};
+  }
+  const repo = safeText(body.repo, 120) || 'Valar05/home-center';
+  const parts = repo.split('/');
+  if (parts.length !== 2 || !parts[0] || !parts[1]) {
+    return {ok: false, error: 'invalid_repo', detail: 'repo must look like owner/name.'};
+  }
+  const title = safeText(body.title, 200) || 'Bug: Home Center feedback';
+  const issueBody = safeText(body.body, 60000);
+  if (!issueBody) {
+    return {ok: false, error: 'missing_issue_body', detail: 'Issue body is required.'};
+  }
+  const requestedLabels = Array.isArray(body.labels) ? body.labels.map((v) => safeText(v, 40)).filter(Boolean).slice(0, 8) : ['bug', 'feedback', 'home-center'];
+  const headers = {
+    'Authorization': `Bearer ${token}`,
+    'Accept': 'application/vnd.github+json',
+    'Content-Type': 'application/json',
+    'User-Agent': 'home-center-gateway',
+    'X-GitHub-Api-Version': '2022-11-28',
+  };
+  let response = await fetch(`https://api.github.com/repos/${parts[0]}/${parts[1]}/issues`, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify({title, body: issueBody, labels: requestedLabels}),
+  });
+  let json = await response.json().catch(() => ({}));
+  if (response.status === 422 && requestedLabels.length) {
+    response = await fetch(`https://api.github.com/repos/${parts[0]}/${parts[1]}/issues`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({title, body: issueBody}),
+    });
+    json = await response.json().catch(() => ({}));
+  }
+  if (!response.ok) {
+    return {ok: false, error: `github_http_${response.status}`, detail: safeText(json.message || response.statusText, 1000)};
+  }
+  return {ok: true, status: 'github_issue_created', repo, title, issueNumber: json.number || 0, htmlUrl: json.html_url || '', url: json.html_url || ''};
+}
+
+exports.githubCreateIssue = onRequest({timeoutSeconds: 60, secrets: [GITHUB_TOKEN]}, async (req, res) => {
+  if (handleOptions(req, res)) return;
+  try {
+    await requireUser(req);
+    sendJson(res, 200, await createGitHubIssue(req.body || {}));
+  } catch (err) {
+    sendJson(res, err.status || 500, {ok: false, error: 'github_issue_failed', detail: err.message || String(err)});
+  }
+});
 
 exports.agentToolTurn = onRequest({timeoutSeconds: 120, secrets: [OPENAI_API_KEY]}, async (req, res) => {
   if (handleOptions(req, res)) return;

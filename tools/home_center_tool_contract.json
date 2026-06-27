@@ -343,6 +343,15 @@
       "scopes": [],
       "dispatcher": "MainActivity",
       "destructive": false
+    },
+    {
+      "name": "github.create_issue",
+      "group": "github",
+      "operation": "create",
+      "write": true,
+      "confirmationRequired": true,
+      "scopes": [],
+      "dispatcher": "MainActivity"
     }
   ]
 }
