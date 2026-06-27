@@ -821,6 +821,12 @@ public final class MainActivity extends Activity implements RecognitionListener 
                 || value.contains("can home center read")
                 || value.contains("can you open")
                 || value.contains("can home center open")
+                || value.contains("can you check")
+                || value.contains("can home center check")
+                || value.contains("check drive")
+                || value.contains("check my")
+                || value.contains("drive folder")
+                || value.contains("folder in drive")
                 || value.contains("are you connected")
                 || value.contains("is home center connected")
                 || value.contains("can you access")
@@ -2178,13 +2184,24 @@ public final class MainActivity extends Activity implements RecognitionListener 
             speakWithCartesia(message, utteranceId, sequence);
             return;
         }
-        LocalLog.info("speech", "cartesia_unavailable");
-        setStatus("Narration is unavailable right now.");
+        String cause = cartesiaUnavailableCause();
+        LocalLog.info("speech", "cartesia_unavailable cause=" + cause);
+        setStatus("Narration is unavailable right now: " + cause + ".");
         abandonSpeechFocusFor(utteranceId);
     }
 
     private boolean shouldUseCartesiaProxy() {
         return cartesiaSpeechProxyClient != null && cartesiaSpeechProxyClient.isConfigured();
+    }
+
+    private String cartesiaUnavailableCause() {
+        if (cartesiaSpeechProxyClient == null) {
+            return "speech client missing";
+        }
+        if (!cartesiaSpeechProxyClient.isConfigured()) {
+            return "config missing: set CARTESIA_PROXY_BASE_URL or CARTESIA_API_KEY";
+        }
+        return "unknown configuration failure";
     }
 
     private long beginSpeechSequence(String reason) {
@@ -2250,13 +2267,13 @@ public final class MainActivity extends Activity implements RecognitionListener 
                         int written = 0;
                         int zeroWrites = 0;
                         while (written < read && isCurrentSpeechSequence(sequence)) {
-                            int count = track.write(buffer, written, read - written);
+                            int count = track.write(buffer, written, read - written, AudioTrack.WRITE_BLOCKING);
                             if (count < 0) {
                                 throw new IOException("Cartesia audio playback failed: write=" + count);
                             }
                             if (count == 0) {
                                 zeroWrites += 1;
-                                if (zeroWrites > 20) {
+                                if (zeroWrites > 100) {
                                     throw new IOException("Cartesia audio playback stalled");
                                 }
                                 SystemClock.sleep(10L);
@@ -2282,8 +2299,9 @@ public final class MainActivity extends Activity implements RecognitionListener 
                         if (!isCurrentSpeechSequence(sequence)) {
                             return;
                         }
-                        LocalLog.info("speech", "stop_reason=cartesia_error detail=" + shortMessage(ex.getMessage()));
-                        setStatus("Narration is unavailable right now.");
+                        String cause = speechFailureCause(ex);
+                        LocalLog.info("speech", "stop_reason=cartesia_error detail=" + cause);
+                        setStatus("Narration is unavailable right now: " + cause + ".");
                         stopCartesiaPlayback("cartesia_error");
                         abandonSpeechFocusFor(utteranceId);
                     });
@@ -2310,6 +2328,27 @@ public final class MainActivity extends Activity implements RecognitionListener 
                 }
             }
         });
+    }
+
+    private String speechFailureCause(Exception ex) {
+        String message = ex == null ? "unknown playback failure" : shortMessage(ex.getMessage());
+        String lower = message.toLowerCase(Locale.US);
+        if (lower.contains("not configured") || lower.contains("config")) {
+            return "config missing: " + message;
+        }
+        if (lower.contains("proxy returned http")) {
+            return "proxy HTTP error: " + message;
+        }
+        if (lower.contains("api returned http")) {
+            return "Cartesia API error: " + message;
+        }
+        if (lower.contains("connect") || lower.contains("failed to connect") || lower.contains("connection refused")) {
+            return "proxy missing or unreachable: " + message;
+        }
+        if (lower.contains("stalled") || lower.contains("audio track") || lower.contains("write=")) {
+            return "playback failure: " + message;
+        }
+        return "playback failure: " + message;
     }
 
     private void stopCartesiaPlayback(String reason) {
