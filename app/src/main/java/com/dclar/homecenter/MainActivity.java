@@ -1130,7 +1130,9 @@ public final class MainActivity extends Activity implements RecognitionListener 
         JSONObject pendingForUi = cloneJson(pendingConfirmation);
         main.post(() -> {
             setBusy(false);
-            String displayedResponse = appendAssistantMessage(finalResponse, clean);
+            String displayedResponse = pendingForUi != null
+                    ? appendAssistantMessageRaw(finalResponse)
+                    : appendAssistantMessage(finalResponse, clean);
             if (pendingForUi != null) {
                 appendPendingConfirmationCard(pendingForUi);
             }
@@ -2973,6 +2975,11 @@ public final class MainActivity extends Activity implements RecognitionListener 
 
     private String appendAssistantMessage(String text, String latestUserText) {
         String finalText = ChatSystemShape.enforceNextStep(text, latestUserText);
+        return appendAssistantMessageRaw(finalText);
+    }
+
+    private String appendAssistantMessageRaw(String text) {
+        String finalText = text == null ? "" : text.trim();
         appendChatBubble("Home Center", finalText, false, false);
         recordTranscriptTurn("assistant", finalText);
         return finalText;

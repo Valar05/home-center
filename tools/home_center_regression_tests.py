@@ -311,6 +311,9 @@ require_contains(main_activity, 'ViewConfiguration.getDoubleTapTimeout()', 'mess
 require_contains(main_activity, 'replayMessageText(text)', 'double tap replays message text')
 require_contains(main_activity, 'speak(clean)', 'message replay uses narration path')
 require_contains(main_activity, 'speak(displayedResponse)', 'Cartesia reads the exact displayed assistant response')
+require_contains(main_activity, 'pendingForUi != null', 'confirmation replies are detected before response shaping')
+require_contains(main_activity, 'appendAssistantMessageRaw(finalResponse)', 'confirmation replies bypass kitchen next-step shaping')
+require_contains(main_activity, 'private String appendAssistantMessageRaw(String text)', 'raw assistant append path exists for tool confirmations')
 require_absent(main_activity, 'speak(narration == null || narration.trim().isEmpty() ? finalResponse : narration.trim())', 'Cartesia must not read mismatched short narration')
 require_contains(main_activity, 'Long press to copy. Double tap to replay.', 'message interaction is exposed to accessibility')
 
