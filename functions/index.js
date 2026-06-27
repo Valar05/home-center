@@ -244,10 +244,10 @@ function confirmationSummary(toolName, args = {}) {
     return `Create event "${quoteForConfirmation(a.title)}".`;
   }
   if (toolName === 'calendar.update_event') {
-    return `Edit calendar event ${quoteForConfirmation(a.eventId)}.`;
+    return `Edit calendar event ${quoteForConfirmation(a.title || a.name || 'selected event')}.`;
   }
   if (toolName === 'calendar.respond_event') {
-    return `RSVP ${quoteForConfirmation(a.responseStatus)} to calendar event ${quoteForConfirmation(a.eventId)}.`;
+    return `RSVP ${quoteForConfirmation(a.responseStatus)} to calendar event ${quoteForConfirmation(a.title || a.name || 'selected event')}.`;
   }
   return 'Confirm this action.';
 }
@@ -528,6 +528,7 @@ async function askOpenAIToolTurn(body) {
     'Calendar time rule: do not ask for an exact time when the user already gave a relative time and timeContext is present. Compute it. If an event has startTime but no endTime, use 15 minutes for reminders/notifications and 30 minutes for ordinary events.',
     'Contacts rule: if the user names a person from contacts, call contacts.search with that name. Do not ask for an email address while contacts.search is available.',
     'Contacts plus Calendar rule: to add a named contact to an event, search contacts first, use the contact primaryEmail, resolve the target event from workingMemory or calendar.search/read, then call calendar.update_event with attendeesToAdd.',
+    'Calendar display rule: in confirmations and final replies, use the event title/summary such as Home Center notification. Do not show eventId values unless the user explicitly asks for technical details.',
     'Public web rule: you also have OpenAI web_search for public web pages, including public GitHub repositories. Use web_search for public GitHub repo questions, README discovery, file discovery, and public documentation lookup.',
     'Do not claim a GitHub tool is required for public GitHub repositories. A GitHub tool is only required for private repo access, authenticated GitHub writes, issues, pull requests, or repository mutations.',
     'If a needed app-owned capability is absent, explain the missing capability group from unavailableToolGroups and ask the user to reconnect Google if scopes are missing.',

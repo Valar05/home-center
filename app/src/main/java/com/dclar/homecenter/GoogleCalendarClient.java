@@ -60,7 +60,7 @@ final class GoogleCalendarClient {
         String eventId = cleanArg(arguments, "eventId");
         if (eventId.isEmpty()) return toolError("calendar.read", "missing_event_id", "calendar.read requires eventId.");
         JSONObject event = getJson(BASE_URL + "/" + Uri.encode(eventId), token);
-        return baseResult("calendar.read", true).put("event", event).put("eventId", event.optString("id", eventId));
+        return eventResult("calendar.read", event, eventId);
     }
 
     private JSONObject createEventTool(String token, JSONObject arguments) throws Exception {
@@ -73,7 +73,7 @@ final class GoogleCalendarClient {
         event.put("start", new JSONObject().put("dateTime", start));
         event.put("end", new JSONObject().put("dateTime", end));
         JSONObject created = postJson(BASE_URL + "?sendUpdates=all", token, event);
-        return baseResult("calendar.create_event", true).put("event", created).put("eventId", created.optString("id", ""));
+        return eventResult("calendar.create_event", created, created.optString("id", "")).put("status", "calendar_event_created");
     }
 
     private JSONObject updateEventTool(String token, JSONObject arguments) throws Exception {
@@ -93,7 +93,7 @@ final class GoogleCalendarClient {
             patch.put("attendees", mergeAttendees(current.optJSONArray("attendees"), add, remove));
         }
         JSONObject updated = patchJson(BASE_URL + "/" + Uri.encode(eventId) + "?sendUpdates=all", token, patch);
-        return baseResult("calendar.update_event", true).put("event", updated).put("eventId", updated.optString("id", eventId));
+        return eventResult("calendar.update_event", updated, eventId).put("status", "calendar_event_updated");
     }
 
     private JSONObject respondEventTool(String token, JSONObject arguments, String email) throws Exception {
@@ -116,7 +116,7 @@ final class GoogleCalendarClient {
         }
         if (!found) return toolError("calendar.respond_event", "attendee_not_found", "Signed-in email is not an attendee on this event.");
         JSONObject updated = patchJson(BASE_URL + "/" + Uri.encode(eventId) + "?sendUpdates=all", token, new JSONObject().put("attendees", attendees));
-        return baseResult("calendar.respond_event", true).put("event", updated).put("eventId", updated.optString("id", eventId));
+        return eventResult("calendar.respond_event", updated, eventId).put("status", "calendar_event_responded");
     }
 
     private JSONObject eventPatch(JSONObject arguments) throws Exception {
@@ -220,6 +220,7 @@ final class GoogleCalendarClient {
     }
 
     private static JSONObject baseResult(String toolName, boolean ok) throws Exception { return new JSONObject().put("tool", toolName).put("ok", ok).put("error", "").put("detail", ""); }
+    private static JSONObject eventResult(String toolName, JSONObject event, String fallbackEventId) throws Exception { return baseResult(toolName, true).put("event", event == null ? new JSONObject() : event).put("eventId", event == null ? fallbackEventId : event.optString("id", fallbackEventId)).put("title", event == null ? "" : event.optString("summary", "")).put("eventTitle", event == null ? "" : event.optString("summary", "")); }
     private static JSONObject toolError(String toolName, String error, String detail) { JSONObject json = new JSONObject(); try { json.put("tool", toolName).put("ok", false).put("error", error).put("detail", detail == null ? "" : detail); } catch (Exception ignored) {} return json; }
     private static String cleanArg(JSONObject arguments, String name) { return arguments == null ? "" : arguments.optString(name, "").trim(); }
     private static String readBody(InputStream stream) throws IOException { if (stream == null) return ""; try (InputStream input = new BufferedInputStream(stream); ByteArrayOutputStream output = new ByteArrayOutputStream()) { byte[] buffer = new byte[8192]; int read; while ((read = input.read(buffer)) != -1) output.write(buffer, 0, read); return output.toString(StandardCharsets.UTF_8.name()); } }

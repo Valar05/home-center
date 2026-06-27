@@ -155,6 +155,9 @@ require_contains(functions_index, 'Google Docs rule: for a request to create a G
 require_contains(functions_index, 'Contacts rule: if the user names a person from contacts, call contacts.search', 'planner prompt searches contacts by name')
 require_contains(functions_index, 'Do not ask for an email address while contacts.search is available', 'planner prompt forbids false missing-contacts refusal')
 require_contains(functions_index, 'Contacts plus Calendar rule: to add a named contact to an event', 'planner prompt chains contacts into calendar attendee updates')
+require_contains(functions_index, 'Calendar display rule: in confirmations and final replies, use the event title/summary', 'planner prompt forbids calendar event ID display')
+require_contains(functions_index, "Edit calendar event ${quoteForConfirmation(a.title || a.name || 'selected event')}", 'calendar update confirmation uses human event title')
+require_absent(functions_index, 'Edit calendar event ${quoteForConfirmation(a.eventId)}', 'calendar update confirmation must not show eventId')
 require_contains(functions_index, 'Working memory JSON contains recently created or selected entities', 'planner prompt explains working memory')
 require_contains(functions_index, 'resolve the reference from workingMemory or recent tool results', 'planner prompt requires reference resolution')
 require_contains(functions_index, 'Never use phrases like that document', 'planner prompt forbids literal reference names')
@@ -276,6 +279,8 @@ require_contains(contacts_client, '"contacts.search".equals(toolName)', 'Contact
 require_contains(contacts_client, 'primaryEmail', 'Contacts client returns primaryEmail for calendar attendees')
 require_contains(calendar_client, 'BASE_URL = "https://www.googleapis.com/calendar/v3/calendars/primary/events"', 'Calendar client calls Calendar REST')
 require_contains(calendar_client, '"calendar.read".equals(toolName)', 'Calendar read dispatcher exists')
+require_contains(calendar_client, 'eventResult("calendar.update_event", updated, eventId)', 'Calendar update result includes human title')
+require_contains(calendar_client, '.put("eventTitle"', 'Calendar event results expose eventTitle')
 for service in ['drive.googleapis.com', 'docs.googleapis.com', 'sheets.googleapis.com', 'gmail.googleapis.com', 'calendar-json.googleapis.com', 'people.googleapis.com']:
     require_contains(provider_smoke, service, f'provider smoke verifies {service} is enabled')
 require_contains(main_activity, 'homeTaskClient.updateTaskByIdOrName', 'List tools can update status/text by id or item text')
