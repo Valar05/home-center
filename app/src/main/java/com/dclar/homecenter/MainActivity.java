@@ -186,6 +186,8 @@ public final class MainActivity extends Activity implements RecognitionListener 
     private String conversationSummary = "";
     private String pendingAgentTurnAfterGoogleReconnect = "";
     private volatile JSONObject pendingToolConfirmation;
+    private final Object workingMemoryLock = new Object();
+    private final JSONObject workingMemory = new JSONObject();
     private String lastDriveDocumentId = "";
     private String lastDriveDocumentName = "";
     private String startupGreeting = "Home Center is ready. Try pantry inventory, what can I make, recipe brainstorm, or rescue meal.";
@@ -879,7 +881,8 @@ public final class MainActivity extends Activity implements RecognitionListener 
                         toolResults,
                         availableTools,
                         unavailableGroups,
-                        cloneJson(pendingToolConfirmation));
+                        cloneJson(pendingToolConfirmation),
+                        workingMemorySnapshot());
                 LocalLog.info("agent_trace", "step=" + step + " gateway_type=" + turn.type + " status=" + turn.status + " requestedTool=" + turn.toolName + " technicalDetails=" + shortMessage(turn.technicalDetails));
                 if (turn.requestsTool()) {
                     LocalLog.info("agent_trace", "android_received_tool=" + turn.toolName);
@@ -887,9 +890,10 @@ public final class MainActivity extends Activity implements RecognitionListener 
                             ? cloneJson(pendingToolConfirmation)
                             : null;
                     JSONObject result = executeRegisteredTool(turn.toolName, turn.arguments);
+                    updateWorkingMemoryFromToolResult(turn.toolName, turn.arguments, result);
                     JSONObject resultFile = result.optJSONObject("file");
                     String resultDocumentId = resultFile == null ? "" : resultFile.optString("id", "");
-                    LocalLog.info("agent_trace", "android_dispatch_result tool=" + turn.toolName + " ok=" + result.optBoolean("ok", false) + " status=" + result.optString("status", "") + " error=" + result.optString("error", "") + " documentId=" + resultDocumentId + " webViewLink=" + result.optString("webViewLink", ""));
+                    LocalLog.info("agent_trace", "android_dispatch_result tool=" + turn.toolName + " ok=" + result.optBoolean("ok", false) + " status=" + result.optString("status", "") + " error=" + result.optString("error", "") + " documentId=" + resultDocumentId + " webViewLink=" + result.optString("webViewLink", "") + " workingMemory=" + shortMessage(workingMemorySnapshot().toString()));
                     if (isGoogleToolAuthFailure(result)) {
                         requestGoogleToolReconnect(clean, pendingForRetry, result);
                         return;
@@ -1137,6 +1141,133 @@ public final class MainActivity extends Activity implements RecognitionListener 
             LocalLog.warn("agent", "pending_confirmation_clone_failed: " + shortMessage(ex.getMessage()));
             return null;
         }
+    }
+
+    private JSONObject workingMemorySnapshot() {
+        synchronized (workingMemoryLock) {
+            try {
+                return new JSONObject(workingMemory.toString());
+            } catch (Exception ex) {
+                LocalLog.warn("agent", "working_memory_clone_failed: " + shortMessage(ex.getMessage()));
+                return new JSONObject();
+            }
+        }
+    }
+
+    private void updateWorkingMemoryFromToolResult(String toolName, JSONObject arguments, JSONObject result) {
+        if (toolName == null || result == null || !result.optBoolean("ok", false)) {
+            return;
+        }
+        try {
+            if ("docs.create".equals(toolName) || "docs.update".equals(toolName)) {
+                JSONObject file = result.optJSONObject("file");
+                rememberEntity("lastDocument", toolName,
+                        file == null ? "" : file.optString("id", ""),
+                        result.optString("title", file == null ? toolArg(arguments, "name", "") : file.optString("name", toolArg(arguments, "name", ""))),
+                        result.optString("webViewLink", file == null ? "" : file.optString("webViewLink", "")));
+                return;
+            }
+            if ("docs.read".equals(toolName)) {
+                JSONObject file = result.optJSONObject("file");
+                rememberEntity("lastDocument", toolName,
+                        file == null ? toolArg(arguments, "fileId", "") : file.optString("id", toolArg(arguments, "fileId", "")),
+                        file == null ? toolArg(arguments, "name", "") : file.optString("name", toolArg(arguments, "name", "")),
+                        file == null ? "" : file.optString("webViewLink", ""));
+                return;
+            }
+            if ("docs.search".equals(toolName)) {
+                rememberSingleFileResult("lastDocument", toolName, result.optJSONArray("files"));
+                return;
+            }
+            if ("drive.create_folder".equals(toolName)) {
+                JSONObject file = result.optJSONObject("file");
+                rememberEntity("lastFolder", toolName,
+                        file == null ? "" : file.optString("id", ""),
+                        result.optString("title", file == null ? toolArg(arguments, "name", "") : file.optString("name", toolArg(arguments, "name", ""))),
+                        file == null ? "" : file.optString("webViewLink", ""));
+                return;
+            }
+            if ("sheets.create".equals(toolName)) {
+                rememberEntity("lastSheet", toolName,
+                        result.optString("spreadsheetId", ""),
+                        result.optString("title", toolArg(arguments, "title", "")),
+                        result.optString("spreadsheetUrl", ""));
+                return;
+            }
+            if ("sheets.search".equals(toolName)) {
+                rememberSingleFileResult("lastSheet", toolName, result.optJSONArray("files"));
+                return;
+            }
+            if ("sheets.read".equals(toolName) || "sheets.update".equals(toolName)) {
+                JSONObject spreadsheet = result.optJSONObject("spreadsheet");
+                String title = spreadsheet == null || spreadsheet.optJSONObject("properties") == null
+                        ? toolArg(arguments, "name", "")
+                        : spreadsheet.optJSONObject("properties").optString("title", toolArg(arguments, "name", ""));
+                rememberEntity("lastSheet", toolName,
+                        result.optString("spreadsheetId", toolArg(arguments, "spreadsheetId", "")),
+                        title,
+                        spreadsheet == null ? "" : spreadsheet.optString("spreadsheetUrl", ""));
+                return;
+            }
+            if ("gmail.create_draft".equals(toolName) || "gmail.update_draft".equals(toolName)) {
+                rememberDraft(toolName, result.optString("draftId", toolArg(arguments, "draftId", "")), toolArg(arguments, "subject", ""));
+                return;
+            }
+            if ("calendar.search".equals(toolName)) {
+                JSONArray events = result.optJSONArray("events");
+                if (events != null && events.length() == 1) rememberCalendarEvent(toolName, events.optJSONObject(0));
+                return;
+            }
+            if ("calendar.read".equals(toolName) || "calendar.create_event".equals(toolName) || "calendar.update_event".equals(toolName) || "calendar.respond_event".equals(toolName)) {
+                rememberCalendarEvent(toolName, result.optJSONObject("event"));
+            }
+        } catch (Exception ex) {
+            LocalLog.warn("agent", "working_memory_update_failed tool=" + toolName + " detail=" + shortMessage(ex.getMessage()));
+        }
+    }
+
+    private void rememberSingleFileResult(String key, String sourceTool, JSONArray files) throws Exception {
+        if (files == null || files.length() != 1) return;
+        JSONObject file = files.optJSONObject(0);
+        if (file == null) return;
+        rememberEntity(key, sourceTool, file.optString("id", ""), file.optString("name", ""), file.optString("webViewLink", ""));
+    }
+
+    private void rememberEntity(String key, String sourceTool, String fileId, String name, String link) throws Exception {
+        if (fileId == null || fileId.trim().isEmpty()) return;
+        JSONObject entity = new JSONObject()
+                .put("fileId", fileId.trim())
+                .put("name", name == null ? "" : name.trim())
+                .put("webViewLink", link == null ? "" : link.trim())
+                .put("sourceTool", sourceTool == null ? "" : sourceTool);
+        synchronized (workingMemoryLock) {
+            workingMemory.put(key, entity);
+        }
+        LocalLog.info("agent_trace", "working_memory_update " + key + "=" + entity.toString());
+    }
+
+    private void rememberDraft(String sourceTool, String draftId, String subject) throws Exception {
+        if (draftId == null || draftId.trim().isEmpty()) return;
+        JSONObject draft = new JSONObject()
+                .put("draftId", draftId.trim())
+                .put("subject", subject == null ? "" : subject.trim())
+                .put("sourceTool", sourceTool == null ? "" : sourceTool);
+        synchronized (workingMemoryLock) {
+            workingMemory.put("lastEmailDraft", draft);
+        }
+        LocalLog.info("agent_trace", "working_memory_update lastEmailDraft=" + draft.toString());
+    }
+
+    private void rememberCalendarEvent(String sourceTool, JSONObject event) throws Exception {
+        if (event == null || event.optString("id", "").trim().isEmpty()) return;
+        JSONObject memory = new JSONObject()
+                .put("eventId", event.optString("id", "").trim())
+                .put("title", event.optString("summary", ""))
+                .put("sourceTool", sourceTool == null ? "" : sourceTool);
+        synchronized (workingMemoryLock) {
+            workingMemory.put("lastCalendarEvent", memory);
+        }
+        LocalLog.info("agent_trace", "working_memory_update lastCalendarEvent=" + memory.toString());
     }
 
     private void appendPendingConfirmationCard(JSONObject pending) {

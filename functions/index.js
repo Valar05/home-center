@@ -222,7 +222,7 @@ function confirmationSummary(toolName, args = {}) {
     return body ? `Create "${title}" with the provided body.` : `Create "${title}".`;
   }
   if (toolName === 'docs.update') {
-    const target = quoteForConfirmation(a.name || a.title || 'that document');
+    const target = quoteForConfirmation(a.name || a.title || 'selected document');
     if (a.appendText) return `Append text to "${target}".`;
     if (a.replaceText) return `Replace matching text in "${target}".`;
     if (a.body) return `Replace the body of "${target}".`;
@@ -283,6 +283,7 @@ function compactToolNames(tools) {
 function buildToolTrace(body, tools, parsed, toolName, tool, confirmationRequested) {
   const trace = {
     prompt: safeText(body && body.message, 4000),
+    workingMemory: body && typeof body.workingMemory === 'object' ? body.workingMemory : {},
     availableToolNames: compactToolNames(tools),
     availableToolsJson: JSON.stringify(tools).slice(0, 12000),
     parsedPlannerJson: parsed || null,
@@ -304,6 +305,94 @@ function withTrace(body, response, trace) {
   });
 }
 
+const UNRESOLVED_REFERENCE_LITERALS = new Set([
+  'that document',
+  'the document',
+  'that file',
+  'it',
+  'the one',
+  'the previous one',
+  'the one you just created',
+  'the thing we just made',
+]);
+
+function normalizedReferenceLiteral(value) {
+  return String(value || '').trim().toLowerCase().replace(/^['"]|['"]$/g, '').replace(/\s+/g, ' ');
+}
+
+function containsUnresolvedReferenceLiteral(args) {
+  if (!args || typeof args !== 'object') return false;
+  const keys = ['name', 'title', 'fileName', 'folderName', 'subject'];
+  return keys.some((key) => UNRESOLVED_REFERENCE_LITERALS.has(normalizedReferenceLiteral(args[key])));
+}
+
+function shouldFillResolvedValue(value) {
+  return !value || UNRESOLVED_REFERENCE_LITERALS.has(normalizedReferenceLiteral(value));
+}
+
+function fillResolvedEntity(args, entity, idKey, nameKey) {
+  if (!args || !entity || typeof entity !== 'object') return args;
+  if (entity[idKey] && shouldFillResolvedValue(args[idKey])) args[idKey] = entity[idKey];
+  if (entity.name && shouldFillResolvedValue(args.name)) args.name = entity.name;
+  if (entity.title && shouldFillResolvedValue(args.title)) args.title = entity.title;
+  if (entity[nameKey] && shouldFillResolvedValue(args[nameKey])) args[nameKey] = entity[nameKey];
+  return args;
+}
+
+function resolveToolArgsFromWorkingMemory(body, toolName, args) {
+  if (!args || typeof args !== 'object') return {};
+  const memory = body && typeof body.workingMemory === 'object' ? body.workingMemory : {};
+  const hasLiteralReference = containsUnresolvedReferenceLiteral(args);
+  if (toolName && toolName.startsWith('docs.') && memory.lastDocument) {
+    if (hasLiteralReference || args.fileId === memory.lastDocument.fileId || args.documentId === memory.lastDocument.fileId) {
+      fillResolvedEntity(args, memory.lastDocument, 'fileId', 'name');
+      if (memory.lastDocument.fileId && !args.documentId) args.documentId = memory.lastDocument.fileId;
+    }
+  }
+  if (toolName && toolName.startsWith('drive.') && memory.lastFolder) {
+    const targetKeys = ['folderName', 'name', 'title'];
+    const referencesFolder = targetKeys.some((key) => UNRESOLVED_REFERENCE_LITERALS.has(normalizedReferenceLiteral(args[key])));
+    if (referencesFolder || args.addParentId === memory.lastFolder.fileId || args.parentId === memory.lastFolder.fileId || args.folderId === memory.lastFolder.fileId) {
+      if (memory.lastFolder.fileId && !args.addParentId && toolName === 'drive.update_metadata') args.addParentId = memory.lastFolder.fileId;
+      if (memory.lastFolder.fileId && !args.folderId) args.folderId = memory.lastFolder.fileId;
+      if (memory.lastFolder.name && !args.folderName) args.folderName = memory.lastFolder.name;
+    }
+  }
+  if (toolName && toolName.startsWith('sheets.') && memory.lastSheet) {
+    if (hasLiteralReference || args.fileId === memory.lastSheet.fileId || args.spreadsheetId === memory.lastSheet.fileId) {
+      fillResolvedEntity(args, memory.lastSheet, 'fileId', 'name');
+      if (memory.lastSheet.fileId && !args.spreadsheetId) args.spreadsheetId = memory.lastSheet.fileId;
+    }
+  }
+  if (toolName && toolName.startsWith('gmail.') && memory.lastEmailDraft) {
+    const referencesDraft = UNRESOLVED_REFERENCE_LITERALS.has(normalizedReferenceLiteral(args.subject));
+    if (referencesDraft || args.draftId === memory.lastEmailDraft.draftId) {
+      if (memory.lastEmailDraft.draftId && !args.draftId) args.draftId = memory.lastEmailDraft.draftId;
+      if (memory.lastEmailDraft.subject && !args.subject) args.subject = memory.lastEmailDraft.subject;
+    }
+  }
+  if (toolName && toolName.startsWith('calendar.') && memory.lastCalendarEvent) {
+    if (hasLiteralReference || args.eventId === memory.lastCalendarEvent.eventId) {
+      if (memory.lastCalendarEvent.eventId && !args.eventId) args.eventId = memory.lastCalendarEvent.eventId;
+      if (memory.lastCalendarEvent.title && !args.title) args.title = memory.lastCalendarEvent.title;
+    }
+  }
+  return args;
+}
+
+function clarificationForUnresolvedReference(body, toolName, args) {
+  if (!containsUnresolvedReferenceLiteral(args)) return null;
+  const memory = body && typeof body.workingMemory === 'object' ? body.workingMemory : {};
+  const hasCompatibleMemory =
+    (toolName && toolName.startsWith('docs.') && memory.lastDocument && memory.lastDocument.fileId) ||
+    (toolName && toolName.startsWith('drive.') && memory.lastFolder && memory.lastFolder.fileId) ||
+    (toolName && toolName.startsWith('sheets.') && memory.lastSheet && memory.lastSheet.fileId) ||
+    (toolName && toolName.startsWith('gmail.') && memory.lastEmailDraft && memory.lastEmailDraft.draftId) ||
+    (toolName && toolName.startsWith('calendar.') && memory.lastCalendarEvent && memory.lastCalendarEvent.eventId);
+  if (hasCompatibleMemory) return null;
+  return 'Which item do you mean?';
+}
+
 async function askOpenAIToolTurn(body) {
   const message = safeText(body.message, 4000);
   const summary = safeText(body.summary, 4000);
@@ -311,6 +400,7 @@ async function askOpenAIToolTurn(body) {
   const toolResults = Array.isArray(body.toolResults) ? body.toolResults.slice(0, 8) : [];
   const tools = Array.isArray(body.tools) ? body.tools : [];
   const unavailableToolGroups = Array.isArray(body.unavailableToolGroups) ? body.unavailableToolGroups : [];
+  const workingMemory = body && typeof body.workingMemory === 'object' ? body.workingMemory : {};
   const pending = pendingConfirmationFromBody(body, tools);
   if (pending && messageConfirms(message)) {
     pending.arguments._confirmedByGateway = true;
@@ -326,6 +416,10 @@ async function askOpenAIToolTurn(body) {
     'You are Home Center. You are the thinker. The Android app is only your hands.',
     'Return one strict JSON object and no prose outside JSON.',
     'If a needed capability appears in the available tools JSON, request that tool. Do not say you cannot do it.',
+    'Working memory JSON contains recently created or selected entities. Inspect it before selecting a tool.',
+    'If the user says it, that document, that file, the one you just created, the previous one, or similar, resolve the reference from workingMemory or recent tool results before calling a tool.',
+    'Never use phrases like that document, the document, that file, it, the one, or the thing we just made as literal tool argument names or titles. Resolve them to IDs/names or ask which item the user means.',
+    'When resolving a remembered document, include both fileId and name in the tool arguments so confirmation cards can show the real document name.',
     'Google Docs rule: for a request to create a Google Doc, call docs.create with title and body. Do not call Drive tools for document content.',
     'Google Docs rule: for a request to read or edit a Google Doc, use docs.search if needed, then docs.read or docs.update.',
     'Google Sheets rule: for spreadsheet creation or cell edits, use sheets.create, sheets.search, sheets.read, or sheets.update.',
@@ -340,6 +434,7 @@ async function askOpenAIToolTurn(body) {
     transcript ? `Recent transcript: ${transcript}` : '',
     `Available tools JSON: ${JSON.stringify(tools).slice(0, 12000)}`,
     `Unavailable tool groups JSON: ${JSON.stringify(unavailableToolGroups).slice(0, 4000)}`,
+    `Working memory JSON: ${JSON.stringify(workingMemory).slice(0, 6000)}`,
     toolResults.length ? `Tool results JSON: ${JSON.stringify(toolResults).slice(0, 16000)}` : 'Tool results JSON: []',
     pending ? `Pending confirmation JSON: ${JSON.stringify(pending).slice(0, 4000)}` : '',
     `Latest user request: ${message}`,
@@ -376,6 +471,17 @@ async function askOpenAIToolTurn(body) {
       const toolName = safeText(parsed.toolName || parsed.name, 80);
       const tool = toolByName(tools, toolName);
       const args = parsed.arguments && typeof parsed.arguments === 'object' ? parsed.arguments : {};
+      resolveToolArgsFromWorkingMemory(body, toolName, args);
+      const unresolvedReferenceReply = clarificationForUnresolvedReference(body, toolName, args);
+      if (unresolvedReferenceReply) {
+        const trace = buildToolTrace(body, tools, parsed, toolName, tool, false);
+        return withTrace(body, {
+          type: 'final',
+          reply: unresolvedReferenceReply,
+          narration: unresolvedReferenceReply,
+          status: 'reference_unresolved',
+        }, trace);
+      }
       if (!tool) {
         const trace = buildToolTrace(body, tools, parsed, toolName, tool, false);
         return withTrace(body, {

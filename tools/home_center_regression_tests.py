@@ -106,6 +106,16 @@ require_contains(main_activity, 'LocalLog.info("agent_trace", "android_received_
 require_contains(main_activity, 'android_dispatch_result tool=', 'Android logs dispatcher result')
 require_contains(main_activity, 'documentId=', 'Android trace includes documentId')
 require_contains(openai_client, 'body.put("debugTrace", true)', 'Android requests gateway trace details')
+require_contains(openai_client, 'body.put("workingMemory", workingMemory == null ? new JSONObject() : workingMemory)', 'Android sends working memory to gateway')
+require_contains(main_activity, 'private final JSONObject workingMemory = new JSONObject()', 'Android has session working memory')
+require_contains(main_activity, 'workingMemorySnapshot()', 'Android snapshots working memory for agent turns')
+require_contains(main_activity, 'updateWorkingMemoryFromToolResult(turn.toolName, turn.arguments, result)', 'Android updates working memory after tool results')
+require_contains(main_activity, 'rememberEntity("lastDocument", toolName', 'Android stores lastDocument')
+require_contains(main_activity, 'rememberEntity("lastFolder", toolName', 'Android stores lastFolder')
+require_contains(main_activity, 'rememberEntity("lastSheet", toolName', 'Android stores lastSheet')
+require_contains(main_activity, 'workingMemory.put("lastEmailDraft", draft)', 'Android stores lastEmailDraft')
+require_contains(main_activity, 'workingMemory.put("lastCalendarEvent", memory)', 'Android stores lastCalendarEvent')
+require_contains(drive_client, '"google_doc_created"', 'working memory test path includes docs.create success status')
 require_contains(main_activity, 'ToolRegistry.unavailableToolGroups(account, hasSignedInHomeUser())', 'MainActivity reports missing scope groups')
 require_contains(main_activity, '"drive".equals(definition.group) || "docs".equals(definition.group)', 'Docs dispatches through Drive/Docs REST client')
 require_contains(main_activity, '"sheets".equals(definition.group)', 'Sheets dispatcher exists')
@@ -124,6 +134,66 @@ require_absent(openai_client, '.put("name", "drive.search")', 'OpenAI client mus
 
 require_contains(functions_index, 'Available tools JSON', 'agentToolTurn prompt is registry-driven')
 require_contains(functions_index, 'Google Docs rule: for a request to create a Google Doc, call docs.create', 'planner prompt forces Google Doc creation to docs.create')
+require_contains(functions_index, 'Working memory JSON contains recently created or selected entities', 'planner prompt explains working memory')
+require_contains(functions_index, 'resolve the reference from workingMemory or recent tool results', 'planner prompt requires reference resolution')
+require_contains(functions_index, 'Never use phrases like that document', 'planner prompt forbids literal reference names')
+require_contains(functions_index, 'Working memory JSON: ${JSON.stringify(workingMemory)', 'gateway sends working memory in prompt')
+require_contains(functions_index, 'UNRESOLVED_REFERENCE_LITERALS', 'gateway has unresolved reference literal guard')
+require_contains(functions_index, "'that document'", 'reference guard covers that document')
+require_contains(functions_index, "'the thing we just made'", 'reference guard covers thing we just made')
+require_contains(functions_index, "status: 'reference_unresolved'", 'gateway asks clarification instead of executing unresolved literal')
+require_contains(functions_index, 'resolveToolArgsFromWorkingMemory(body, toolName, args)', 'gateway normalizes planner args from working memory before confirmation or dispatch')
+require_contains(functions_index, 'function shouldFillResolvedValue(value)', 'gateway can replace literal reference values')
+require_contains(functions_index, 'args.documentId = memory.lastDocument.fileId', 'remembered documents provide documentId alias')
+require_contains(functions_index, "toolName === 'drive.update_metadata') args.addParentId = memory.lastFolder.fileId", 'remembered folders resolve move destination parent')
+require_contains(functions_index, 'When resolving a remembered document, include both fileId and name', 'planner prompt requires confirmation-friendly resolved document args')
+require_contains(functions_index, 'if (hasCompatibleMemory) return null;', 'compatible memory prevents false missing-reference clarification')
+reference_flow_contracts = [
+    {
+        'input': 'Create a Google Doc called HomeCenter',
+        'source_expectations': [
+            'rememberEntity("lastDocument", toolName',
+            '"google_doc_created"',
+            'docsCreateWasRequested',
+        ],
+    },
+    {
+        'input': 'Replace the body of that document with Brain dump.',
+        'source_expectations': [
+            "'that document'",
+            'resolveToolArgsFromWorkingMemory(body, toolName, args)',
+            'args.documentId = memory.lastDocument.fileId',
+        ],
+    },
+    {
+        'input': 'Append "Second paragraph" to it.',
+        'source_expectations': [
+            "'it'",
+            'rememberSingleFileResult("lastDocument", toolName, result.optJSONArray("files"))',
+            'resolveToolArgsFromWorkingMemory(body, toolName, args)',
+        ],
+    },
+    {
+        'input': 'Update that document.',
+        'source_expectations': [
+            'Which item do you mean?',
+            "status: 'reference_unresolved'",
+        ],
+    },
+    {
+        'input': 'Move HomeCenter into that folder.',
+        'source_expectations': [
+            'rememberEntity("lastFolder", toolName',
+            "toolName === 'drive.update_metadata') args.addParentId = memory.lastFolder.fileId",
+        ],
+    },
+]
+for case in reference_flow_contracts:
+    if not case['input']:
+        fail('working-memory flow test is missing exact user input')
+    for expected in case['source_expectations']:
+        if expected not in functions_index and expected not in main_activity and expected not in drive_client:
+            fail(f"working-memory flow '{case['input']}' is missing source expectation {expected}")
 require_contains(functions_index, 'buildToolTrace(body, tools, parsed, toolName, tool, true)', 'gateway traces confirmation-required tool calls')
 require_contains(functions_index, 'docsCreateAdvertised', 'gateway trace records docs.create advertisement')
 require_contains(functions_index, 'docsCreateWasRequested', 'gateway trace records docs.create request')
