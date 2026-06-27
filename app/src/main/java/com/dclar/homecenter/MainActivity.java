@@ -148,6 +148,7 @@ public final class MainActivity extends Activity implements RecognitionListener 
     private Button tickTickShowButton;
     private Button submitButton;
     private Button stopSpeechButton;
+    private TextView workingIndicatorView;
     private Button geminiSettingsButton;
     private Button promptOneButton;
     private Button promptTwoButton;
@@ -499,6 +500,22 @@ public final class MainActivity extends Activity implements RecognitionListener 
         bottomPanel.setOrientation(LinearLayout.VERTICAL);
         bottomPanel.setPadding(dp(10), dp(10), dp(10), dp(10));
         bottomPanel.setBackground(makePanelBackground());
+
+        workingIndicatorView = new TextView(this);
+        workingIndicatorView.setText("Working...");
+        workingIndicatorView.setTextSize(14);
+        workingIndicatorView.setTypeface(Typeface.DEFAULT_BOLD);
+        workingIndicatorView.setTextColor(COLOR_BACKGROUND);
+        workingIndicatorView.setGravity(Gravity.CENTER_VERTICAL);
+        workingIndicatorView.setPadding(dp(12), dp(8), dp(12), dp(8));
+        workingIndicatorView.setBackgroundColor(COLOR_PRIMARY);
+        workingIndicatorView.setVisibility(View.GONE);
+        workingIndicatorView.setContentDescription("Home Center is working");
+        LinearLayout.LayoutParams workingParams = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT);
+        workingParams.setMargins(0, 0, 0, dp(8));
+        bottomPanel.addView(workingIndicatorView, workingParams);
 
         LinearLayout composeRow = new LinearLayout(this);
         composeRow.setOrientation(LinearLayout.HORIZONTAL);
@@ -2587,6 +2604,7 @@ public final class MainActivity extends Activity implements RecognitionListener 
     private void setBusy(boolean busyState) {
         busy = busyState;
         updateThinkingHaptics(busyState);
+        updateWorkingUi(busyState);
         if (submitButton != null) {
             submitButton.setEnabled(!busyState);
         }
@@ -2631,6 +2649,34 @@ public final class MainActivity extends Activity implements RecognitionListener 
         }
         if (cartRunnerCheckButton != null) {
             cartRunnerCheckButton.setEnabled(!busyState);
+        }
+    }
+
+    private void updateWorkingUi(boolean active) {
+        if (workingIndicatorView != null) {
+            workingIndicatorView.setVisibility(active ? View.VISIBLE : View.GONE);
+            workingIndicatorView.setText(active ? "Working..." : "");
+        }
+        if (submitButton != null) {
+            submitButton.setText(active ? "Working..." : "Send");
+            submitButton.setTextColor(active ? COLOR_TEXT : COLOR_BACKGROUND);
+            submitButton.setBackgroundColor(active ? COLOR_PRIMARY : COLOR_ACCENT);
+            submitButton.setContentDescription(active ? "Home Center is working" : "Send message");
+            submitButton.setAlpha(active ? 0.85f : 1.0f);
+        }
+        if (messageEdit != null) {
+            messageEdit.setEnabled(!active);
+            messageEdit.setHint(active ? "Home Center is working..." : "Ask Home Center...");
+            messageEdit.setAlpha(active ? 0.65f : 1.0f);
+        }
+        if (statusView != null) {
+            if (active) {
+                statusView.setText("Working...");
+                statusView.setTextColor(COLOR_PRIMARY);
+            } else {
+                statusView.setTextColor(COLOR_SECONDARY);
+                updateBackendStatus();
+            }
         }
     }
 
