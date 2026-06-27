@@ -5,6 +5,8 @@ import android.accessibilityservice.AccessibilityServiceInfo;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ActivityNotFoundException;
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.ComponentName;
 import android.content.ContentValues;
 import android.content.Intent;
@@ -37,6 +39,7 @@ import android.text.method.SingleLineTransformationMethod;
 import android.view.KeyEvent;
 import android.view.Gravity;
 import android.view.View;
+import android.view.ViewConfiguration;
 import android.view.inputmethod.EditorInfo;
 import android.view.accessibility.AccessibilityManager;
 import android.widget.Button;
@@ -44,6 +47,7 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
@@ -3008,6 +3012,7 @@ public final class MainActivity extends Activity implements RecognitionListener 
         bubble.setPadding(dp(18), dp(14), dp(18), dp(14));
         bubble.setMaxWidth((int) (getResources().getDisplayMetrics().widthPixels * 0.80f));
         bubble.setBackground(makeBubbleBackground(user, system));
+        wireMessageBubbleInteractions(bubble, text);
         LinearLayout.LayoutParams bubbleParams = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.WRAP_CONTENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT);
@@ -3020,6 +3025,49 @@ public final class MainActivity extends Activity implements RecognitionListener 
             scrollChatToBottom();
             captureVisualEvidenceIfDebugBuild("chat");
         });
+    }
+
+    private void wireMessageBubbleInteractions(TextView bubble, String text) {
+        final long[] lastTapAt = new long[]{0L};
+        bubble.setClickable(true);
+        bubble.setLongClickable(true);
+        bubble.setContentDescription("Message. Long press to copy. Double tap to replay. " + text);
+        bubble.setOnLongClickListener(v -> {
+            copyMessageToClipboard(text);
+            return true;
+        });
+        bubble.setOnClickListener(v -> {
+            long now = SystemClock.uptimeMillis();
+            if (now - lastTapAt[0] <= ViewConfiguration.getDoubleTapTimeout()) {
+                lastTapAt[0] = 0L;
+                replayMessageText(text);
+                return;
+            }
+            lastTapAt[0] = now;
+        });
+    }
+
+    private void copyMessageToClipboard(String text) {
+        String clean = text == null ? "" : text.trim();
+        if (clean.isEmpty()) {
+            return;
+        }
+        ClipboardManager clipboard = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
+        if (clipboard != null) {
+            clipboard.setPrimaryClip(ClipData.newPlainText("Home Center message", clean));
+            Toast.makeText(this, "Message copied", Toast.LENGTH_SHORT).show();
+            LocalLog.info("chat", "message_copied chars=" + clean.length());
+        }
+    }
+
+    private void replayMessageText(String text) {
+        String clean = text == null ? "" : text.trim();
+        if (clean.isEmpty()) {
+            return;
+        }
+        Toast.makeText(this, "Replaying message", Toast.LENGTH_SHORT).show();
+        LocalLog.info("chat", "message_replay chars=" + clean.length());
+        speak(clean);
     }
 
     private void captureVisualEvidenceIfDebugBuild(String reason) {

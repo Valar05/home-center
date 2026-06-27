@@ -160,6 +160,14 @@ for color in ['#121212', '#1E1E1E', '#2A2A2A', '#6AA9FF', '#8BC34A', '#FFFFFF', 
 require_absent(main_activity, 'Home Center sync: signed in as', 'default status must not expose account prose')
 require_absent(main_activity, 'Type or use Talk', 'default status must not reference removed Talk workflow')
 require_contains(main_activity, 'statusView.setText(gptState + " | " + speechState + " | " + model)', 'provider status is compact')
+require_contains(main_activity, 'wireMessageBubbleInteractions(bubble, text)', 'chat bubbles wire copy and replay interactions')
+require_contains(main_activity, 'bubble.setOnLongClickListener', 'message long press copies text')
+require_contains(main_activity, 'ClipData.newPlainText("Home Center message", clean)', 'message copy uses clipboard plain text')
+require_contains(main_activity, 'clipboard.setPrimaryClip', 'message copy writes clipboard')
+require_contains(main_activity, 'ViewConfiguration.getDoubleTapTimeout()', 'message replay uses double-tap timing')
+require_contains(main_activity, 'replayMessageText(text)', 'double tap replays message text')
+require_contains(main_activity, 'speak(clean)', 'message replay uses narration path')
+require_contains(main_activity, 'Long press to copy. Double tap to replay.', 'message interaction is exposed to accessibility')
 
 if failures:
     print('Home Center regression tests failed:', file=sys.stderr)
