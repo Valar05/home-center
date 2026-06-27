@@ -89,6 +89,11 @@ require_absent(openai_client, '.put("name", "drive.search")', 'OpenAI client mus
 require_contains(main_activity, 'ToolRegistry.availableTools(account, hasSignedInHomeUser())', 'MainActivity advertises runtime registry tools')
 require_contains(main_activity, 'ToolRegistry.unavailableToolGroups(account, hasSignedInHomeUser())', 'MainActivity reports missing scope groups')
 require_contains(main_activity, 'ToolRegistry.definition(toolName)', 'MainActivity dispatch is registry-gated')
+require_contains(main_activity, 'pendingAgentTurnAfterGoogleReconnect = clean == null ? "" : clean.trim()', 'missing Google scopes preserve pending user request')
+require_contains(main_activity, 'Google needs one more approval for Drive, Docs, Gmail, and Calendar tools', 'missing Google scopes launch user-facing reconnect')
+require_contains(main_activity, 'sendAgentTurn(pending);', 'Google reconnect resumes pending request')
+require_contains(main_activity, 'for (Scope scope : ToolRegistry.signInScopes())', 'scope check is registry-driven')
+
 require_contains(main_activity, 'definition.confirmationRequired', 'Android refuses unconfirmed dangerous tools')
 require_contains(main_activity, 'arguments.optBoolean("_confirmedByGateway", false)', 'Android requires gateway confirmation marker')
 

@@ -170,6 +170,7 @@ public final class MainActivity extends Activity implements RecognitionListener 
     private boolean busy = false;
     private final List<ChatTurn> chatTurns = new ArrayList<>();
     private String conversationSummary = "";
+    private String pendingAgentTurnAfterGoogleReconnect = "";
     private String lastDriveDocumentId = "";
     private String lastDriveDocumentName = "";
     private String startupGreeting = "Home Center is ready. Try pantry inventory, what can I make, recipe brainstorm, or rescue meal.";
@@ -348,6 +349,13 @@ public final class MainActivity extends Activity implements RecognitionListener 
                 .addOnSuccessListener(result -> {
                     refreshAuthStatus();
                     exchangeGoogleServerAuthCode(account);
+                    String pending = pendingAgentTurnAfterGoogleReconnect;
+                    pendingAgentTurnAfterGoogleReconnect = "";
+                    if (pending != null && !pending.trim().isEmpty()) {
+                        appendStatus("Google connected. Continuing the pending request.");
+                        sendAgentTurn(pending);
+                        return;
+                    }
                     if (announce) {
                         speak("Signed in with Google.");
                     } else {
@@ -810,14 +818,39 @@ public final class MainActivity extends Activity implements RecognitionListener 
     }
 
 
+    private boolean ensureGoogleToolScopesForTurn(String clean) {
+        GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(this);
+        if (account != null && account.getAccount() != null) {
+            boolean missing = false;
+            for (Scope scope : ToolRegistry.signInScopes()) {
+                if (!account.getGrantedScopes().contains(scope)) {
+                    missing = true;
+                    break;
+                }
+            }
+            if (!missing) {
+                return true;
+            }
+        }
+        pendingAgentTurnAfterGoogleReconnect = clean == null ? "" : clean.trim();
+        showAssistantMessage("Google needs one more approval for Drive, Docs, Gmail, and Calendar tools. I am opening Google sign-in now, then I will continue this request.");
+        startGoogleSignIn();
+        return false;
+    }
+
     private void sendAgentTurn(String clean) {
         if (openAiAgentClient == null || !openAiAgentClient.isConfigured()) {
             showAssistantMessage("GPT-5.5 is not configured in this build.");
             return;
         }
         if (!hasSignedInHomeUser()) {
+            pendingAgentTurnAfterGoogleReconnect = clean == null ? "" : clean.trim();
             showAssistantMessage("Sign in with Google first. That one sign-in unlocks GPT-5.5, web search, Google tools, Home Center lists, TickTick fallback, and Cartesia narration.");
             refreshAuthStatus();
+            startGoogleSignIn();
+            return;
+        }
+        if (!ensureGoogleToolScopesForTurn(clean)) {
             return;
         }
         FirebaseUser user = firebaseAuth.getCurrentUser();
