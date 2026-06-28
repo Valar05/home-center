@@ -165,6 +165,8 @@ public final class MainActivity extends Activity implements RecognitionListener,
     private Button submitButton;
     private Button attachFileButton;
     private Button stopSpeechButton;
+    private Button conversationDrawerButton;
+    private TextView conversationTitleView;
     private TextView workingIndicatorView;
     private Button geminiSettingsButton;
     private Button promptOneButton;
@@ -483,13 +485,38 @@ public final class MainActivity extends Activity implements RecognitionListener,
         header.setOrientation(LinearLayout.HORIZONTAL);
         header.setGravity(Gravity.CENTER_VERTICAL);
 
+        conversationDrawerButton = new Button(this);
+        conversationDrawerButton.setText("☰");
+        conversationDrawerButton.setAllCaps(false);
+        conversationDrawerButton.setTextSize(18);
+        conversationDrawerButton.setTextColor(COLOR_TEXT);
+        conversationDrawerButton.setBackgroundColor(COLOR_CARD);
+        conversationDrawerButton.setContentDescription("Open conversations");
+        LinearLayout.LayoutParams drawerParams = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT);
+        drawerParams.setMargins(0, 0, dp(8), 0);
+        header.addView(conversationDrawerButton, drawerParams);
+
+        conversationTitleView = new TextView(this);
+        conversationTitleView.setText("Home Center");
+        conversationTitleView.setTextSize(18);
+        conversationTitleView.setTypeface(Typeface.DEFAULT_BOLD);
+        conversationTitleView.setTextColor(COLOR_TEXT);
+        conversationTitleView.setSingleLine(true);
+        conversationTitleView.setGravity(Gravity.CENTER_VERTICAL);
+        conversationTitleView.setPadding(dp(2), dp(6), dp(8), dp(6));
+        header.addView(conversationTitleView, new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
+
         authStatusView = new TextView(this);
         authStatusView.setTextSize(14);
         authStatusView.setTypeface(Typeface.DEFAULT_BOLD);
         authStatusView.setTextColor(COLOR_ACCENT);
         authStatusView.setGravity(Gravity.CENTER_VERTICAL);
         authStatusView.setPadding(dp(10), dp(6), dp(10), dp(6));
-        header.addView(authStatusView, new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
+        header.addView(authStatusView, new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT));
 
         googleSignInButton = new Button(this);
         googleSignInButton.setText("Sign in with Google");
@@ -622,6 +649,7 @@ public final class MainActivity extends Activity implements RecognitionListener,
         root.addView(bottomPanel, matchWrap());
 
         attachFileButton.setOnClickListener(v -> startFileAttach());
+        conversationDrawerButton.setOnClickListener(v -> showConversationPanel());
         submitButton.setOnClickListener(v -> submitTypedMessage());
         stopSpeechButton.setOnClickListener(v -> stopSpeechPlayback());
         googleSignInButton.setOnClickListener(v -> startGoogleSignIn());
@@ -672,18 +700,8 @@ public final class MainActivity extends Activity implements RecognitionListener,
         Button diagnostics = button("Check cart helper", 16, "Check whether the cart helper is installed and enabled");
         Button driveCheck = button("Check Google Drive", 16, "Check whether Home Center can list Google Drive files");
         Button netrunner = button("Netrunner browser", 16, "Open the secondary browser tool");
-        Button newConversation = button("New conversation", 16, "Start a new Home Center conversation");
-        Button conversations = button("Conversations", 16, "Switch between saved conversations");
-        Button renameConversation = button("Rename conversation", 16, "Rename the current conversation");
-        Button editTags = button("Edit tags", 16, "Edit tags for the current conversation");
-        Button searchConversations = button("Search conversations", 16, "Search conversations by text or tag");
         Button compact = button("Compact chat", 16, "Compact the current chat history");
 
-        panel.addView(newConversation, matchHeight(dp(52)));
-        panel.addView(conversations, matchHeight(dp(52)));
-        panel.addView(renameConversation, matchHeight(dp(52)));
-        panel.addView(editTags, matchHeight(dp(52)));
-        panel.addView(searchConversations, matchHeight(dp(52)));
         panel.addView(household, matchHeight(dp(52)));
         panel.addView(ticktick, matchHeight(dp(52)));
         panel.addView(cartReview, matchHeight(dp(52)));
@@ -698,26 +716,6 @@ public final class MainActivity extends Activity implements RecognitionListener,
                 .setView(panel)
                 .setNegativeButton("Close", null)
                 .create();
-        newConversation.setOnClickListener(v -> {
-            dialog.dismiss();
-            createAndSwitchConversation("New conversation");
-        });
-        conversations.setOnClickListener(v -> {
-            dialog.dismiss();
-            showConversationList();
-        });
-        renameConversation.setOnClickListener(v -> {
-            dialog.dismiss();
-            showRenameConversationDialog();
-        });
-        editTags.setOnClickListener(v -> {
-            dialog.dismiss();
-            showEditConversationTagsDialog();
-        });
-        searchConversations.setOnClickListener(v -> {
-            dialog.dismiss();
-            showConversationSearchDialog();
-        });
         household.setOnClickListener(v -> {
             dialog.dismiss();
             showHouseholdSettings();
@@ -4128,6 +4126,7 @@ public final class MainActivity extends Activity implements RecognitionListener,
         activeConversationTitle = conversation.optString("title", "New conversation");
         activeConversationTags = conversation.optJSONArray("tags") == null ? new JSONArray() : conversation.optJSONArray("tags");
         conversationSummary = clean(conversation.optString("summary", ""));
+        refreshConversationHeader();
         JSONArray turns = conversation.optJSONArray("turns");
         chatTurns.clear();
         if (chatLogContainer != null) {
@@ -4370,13 +4369,77 @@ public final class MainActivity extends Activity implements RecognitionListener,
         restoreConversationHistory();
     }
 
+    private void refreshConversationHeader() {
+        if (conversationTitleView == null) {
+            return;
+        }
+        String title = clean(activeConversationTitle);
+        if (title.isEmpty()) {
+            title = "New conversation";
+        }
+        conversationTitleView.setText(title);
+        conversationTitleView.setContentDescription("Current conversation: " + title);
+    }
+
     private void showConversationList() {
+        showConversationPanel();
+    }
+
+    private void showConversationPanel() {
+        showConversationPanel("");
+    }
+
+    private void showConversationPanel(String rawQuery) {
         JSONObject root = loadConversationStore();
-        List<JSONObject> conversations = sortedConversations(root);
+        String queryText = clean(rawQuery);
+        String query = queryText.toLowerCase(Locale.US);
+        List<JSONObject> conversations = new ArrayList<>();
+        for (JSONObject conversation : sortedConversations(root)) {
+            if (query.isEmpty() || conversationMatches(conversation, query)) {
+                conversations.add(conversation);
+            }
+        }
         LinearLayout panel = new LinearLayout(this);
         panel.setOrientation(LinearLayout.VERTICAL);
         panel.setPadding(dp(20), dp(12), dp(20), dp(4));
         final AlertDialog[] holder = new AlertDialog[1];
+
+        EditText search = singleLineEdit("Search conversations or #tag", queryText);
+        panel.addView(search, matchHeight(dp(58)));
+
+        LinearLayout searchActions = new LinearLayout(this);
+        searchActions.setOrientation(LinearLayout.HORIZONTAL);
+        Button searchButton = button("Search", 14, "Search saved conversations");
+        Button clearButton = button("Clear", 14, "Clear conversation search");
+        searchActions.addView(searchButton, new LinearLayout.LayoutParams(0, dp(48), 1f));
+        LinearLayout.LayoutParams clearParams = new LinearLayout.LayoutParams(0, dp(48), 1f);
+        clearParams.setMargins(dp(8), 0, 0, 0);
+        searchActions.addView(clearButton, clearParams);
+        panel.addView(searchActions, matchWrap());
+
+        Button newConversation = button("New conversation", 16, "Start a new Home Center conversation");
+        Button renameConversation = button("Rename current", 16, "Rename the current conversation");
+        Button editTags = button("Edit tags", 16, "Edit tags for the current conversation");
+        panel.addView(newConversation, matchHeight(dp(52)));
+        panel.addView(renameConversation, matchHeight(dp(52)));
+        panel.addView(editTags, matchHeight(dp(52)));
+
+        TextView section = new TextView(this);
+        section.setText(query.isEmpty() ? "Recent conversations" : "Matching conversations");
+        section.setTextSize(13);
+        section.setTypeface(Typeface.DEFAULT_BOLD);
+        section.setTextColor(COLOR_SECONDARY);
+        section.setPadding(0, dp(12), 0, dp(6));
+        panel.addView(section, matchWrap());
+
+        if (conversations.isEmpty()) {
+            TextView empty = new TextView(this);
+            empty.setText("No matching conversations.");
+            empty.setTextColor(COLOR_SECONDARY);
+            empty.setTextSize(16);
+            empty.setPadding(0, dp(6), 0, dp(6));
+            panel.addView(empty, matchWrap());
+        }
         for (JSONObject conversation : conversations) {
             String id = conversation.optString("id", "");
             Button row = button(conversationRowLabel(conversation), 14, "Open conversation " + conversation.optString("title", ""));
@@ -4386,11 +4449,32 @@ public final class MainActivity extends Activity implements RecognitionListener,
                 switchConversation(id);
             });
         }
+
         holder[0] = new AlertDialog.Builder(this)
                 .setTitle("Conversations")
                 .setView(panel)
                 .setNegativeButton("Close", null)
                 .create();
+        searchButton.setOnClickListener(v -> {
+            if (holder[0] != null) holder[0].dismiss();
+            showConversationPanel(search.getText().toString());
+        });
+        clearButton.setOnClickListener(v -> {
+            if (holder[0] != null) holder[0].dismiss();
+            showConversationPanel("");
+        });
+        newConversation.setOnClickListener(v -> {
+            if (holder[0] != null) holder[0].dismiss();
+            createAndSwitchConversation("New conversation");
+        });
+        renameConversation.setOnClickListener(v -> {
+            if (holder[0] != null) holder[0].dismiss();
+            showRenameConversationDialog();
+        });
+        editTags.setOnClickListener(v -> {
+            if (holder[0] != null) holder[0].dismiss();
+            showEditConversationTagsDialog();
+        });
         holder[0].show();
     }
 
@@ -4413,6 +4497,7 @@ public final class MainActivity extends Activity implements RecognitionListener,
             conversation.put("updatedAt", System.currentTimeMillis());
             activeConversationTitle = conversation.optString("title", "New conversation");
             saveConversationStore(root);
+            refreshConversationHeader();
             showAssistantMessage("Conversation renamed to " + activeConversationTitle + ".");
         } catch (Exception ex) {
             showAssistantMessage("Could not rename conversation: " + shortMessage(ex.getMessage()));
@@ -4445,66 +4530,11 @@ public final class MainActivity extends Activity implements RecognitionListener,
     }
 
     private void showConversationSearchDialog() {
-        LinearLayout panel = new LinearLayout(this);
-        panel.setOrientation(LinearLayout.VERTICAL);
-        panel.setPadding(dp(20), dp(12), dp(20), dp(4));
-        EditText query = singleLineEdit("Search text or #tag", "");
-        panel.addView(query, matchHeight(dp(64)));
-        new AlertDialog.Builder(this)
-                .setTitle("Search conversations")
-                .setView(panel)
-                .setNegativeButton("Cancel", null)
-                .setPositiveButton("Search", (dialog, which) -> showConversationSearchResults(query.getText().toString()))
-                .show();
+        showConversationPanel("");
     }
 
     private void showConversationSearchResults(String rawQuery) {
-        String query = clean(rawQuery).toLowerCase(Locale.US);
-        if (query.isEmpty()) {
-            showConversationList();
-            return;
-        }
-        JSONObject root = loadConversationStore();
-        List<JSONObject> results = new ArrayList<>();
-        for (JSONObject conversation : sortedConversations(root)) {
-            if (conversationMatches(conversation, query)) {
-                results.add(conversation);
-            }
-        }
-        LinearLayout panel = new LinearLayout(this);
-        panel.setOrientation(LinearLayout.VERTICAL);
-        panel.setPadding(dp(20), dp(12), dp(20), dp(4));
-        if (results.isEmpty()) {
-            TextView empty = new TextView(this);
-            empty.setText("No matching conversations.");
-            empty.setTextColor(COLOR_SECONDARY);
-            empty.setTextSize(16);
-            panel.addView(empty, matchWrap());
-        } else {
-            final AlertDialog[] holder = new AlertDialog[1];
-            for (JSONObject conversation : results) {
-                String id = conversation.optString("id", "");
-                Button row = button(conversationRowLabel(conversation), 14, "Open conversation " + conversation.optString("title", ""));
-                panel.addView(row, matchHeight(dp(64)));
-                row.setOnClickListener(v -> {
-                    if (holder[0] != null) holder[0].dismiss();
-                    switchConversation(id);
-                });
-            }
-            AlertDialog dialog = new AlertDialog.Builder(this)
-                    .setTitle("Search results")
-                    .setView(panel)
-                    .setNegativeButton("Close", null)
-                    .create();
-            holder[0] = dialog;
-            dialog.show();
-            return;
-        }
-        new AlertDialog.Builder(this)
-                .setTitle("Search results")
-                .setView(panel)
-                .setNegativeButton("Close", null)
-                .show();
+        showConversationPanel(rawQuery);
     }
 
     private List<JSONObject> sortedConversations(JSONObject root) {
