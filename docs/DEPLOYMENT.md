@@ -3,7 +3,7 @@
 Home Center has two deployment targets:
 
 1. Build and copy the debug APK to Android Downloads.
-2. Deploy Firestore rules and indexes to Firebase.
+2. Deploy Firestore rules/indexes and Firebase Functions to Firebase.
 
 The Firebase deploy path uses the Firebase CLI, not `gcloud`.
 
@@ -58,13 +58,18 @@ Build, verify, copy, and refresh the APK in Downloads:
 sh tools/build_debug_apk.sh
 ```
 
-Deploy Firestore rules and indexes:
+Deploy Firestore rules/indexes and Firebase Functions:
 
 ```sh
 sh tools/deploy_firebase.sh <firebase-project-id>
 ```
 
-Build APK and deploy Firestore in one pass:
+On Android/Termux, `tools/deploy_firebase.sh` stages Functions under
+`${TMPDIR:-/data/data/com.termux/files/usr/tmp}` before deploying. This avoids
+Firebase Functions discovery failures caused by shared storage being mounted
+`noexec`.
+
+Build APK and deploy Firebase in one pass:
 
 ```sh
 sh tools/deploy_all.sh <firebase-project-id>

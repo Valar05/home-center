@@ -10,6 +10,6 @@ sh tools/build_debug_apk.sh
 if [ -n "$PROJECT" ]; then
   sh tools/deploy_firebase.sh "$PROJECT"
 else
-  echo "No Firebase project supplied; APK deploy complete and Firestore deploy skipped."
-  echo "To deploy rules: sh tools/deploy_firebase.sh <firebase-project-id>"
+  echo "No Firebase project supplied; APK deploy complete and Firebase deploy skipped."
+  echo "To deploy Firebase: sh tools/deploy_firebase.sh <firebase-project-id>"
 fi
