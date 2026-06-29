@@ -191,6 +191,7 @@ public final class MainActivity extends Activity implements RecognitionListener,
     private GoogleGmailClient googleGmailClient;
     private GoogleCalendarClient googleCalendarClient;
     private GoogleContactsClient googleContactsClient;
+    private LocalKnowledgeClient localKnowledgeClient;
 
     private boolean tickTickTokenVisible = false;
     private boolean firebaseConfigured = false;
@@ -267,6 +268,7 @@ public final class MainActivity extends Activity implements RecognitionListener,
         googleGmailClient = new GoogleGmailClient(this);
         googleCalendarClient = new GoogleCalendarClient(this);
         googleContactsClient = new GoogleContactsClient(this);
+        localKnowledgeClient = new LocalKnowledgeClient(this);
         refreshGeminiClient();
         buildUi();
         boolean restoredConversation = restoreConversationHistory();
@@ -1215,6 +1217,12 @@ public final class MainActivity extends Activity implements RecognitionListener,
         if ("lists".equals(definition.group)) {
             return executeListTool(toolName, arguments);
         }
+        if ("knowledge".equals(definition.group)) {
+            if (localKnowledgeClient == null) {
+                return toolError(toolName, "knowledge_unavailable", "Local knowledge storage is not available in this build.");
+            }
+            return localKnowledgeClient.runTool(toolName, arguments);
+        }
         if ("github.create_issue".equals(toolName)) {
             if (openAiAgentClient == null || !openAiAgentClient.isConfigured()) {
                 return toolError(toolName, "github_unavailable", "GitHub issue creation requires the Home Center gateway.");
@@ -1551,10 +1559,31 @@ public final class MainActivity extends Activity implements RecognitionListener,
             }
             if ("contacts.read".equals(toolName)) {
                 rememberContact(toolName, result.optJSONObject("contact"));
+                return;
+            }
+            if ("knowledge.append".equals(toolName)) {
+                rememberLocalKnowledge(result);
+                return;
+            }
+            if ("knowledge.read".equals(toolName)) {
+                rememberLocalKnowledge(result);
             }
         } catch (Exception ex) {
             LocalLog.warn("agent", "working_memory_update_failed tool=" + toolName + " detail=" + shortMessage(ex.getMessage()));
         }
+    }
+
+    private void rememberLocalKnowledge(JSONObject result) throws Exception {
+        if (result == null) return;
+        JSONObject memory = new JSONObject()
+                .put("file", result.optString("file", ""))
+                .put("path", result.optString("path", ""))
+                .put("title", result.optString("title", ""))
+                .put("sourceTool", result.optString("tool", ""));
+        synchronized (workingMemoryLock) {
+            workingMemory.put("lastKnowledgeFile", memory);
+        }
+        LocalLog.info("agent_trace", "working_memory_update lastKnowledgeFile=" + memory.toString());
     }
 
     private void rememberSingleFileResult(String key, String sourceTool, JSONArray files) throws Exception {

@@ -97,6 +97,11 @@ final class ToolRegistry {
         tools.add(new ToolDefinition("lists.remove_item", "Soft-remove a Home Center list item by setting status removed.", "lists", true, false,
                 Collections.emptyList(), Arrays.asList("listName", "itemId", "itemText")));
 
+        tools.add(new ToolDefinition("knowledge.read", "Read local Home Center SKILLS.md, AGENTS.md, or MEMORY.md durable notes.", "knowledge", false, false,
+                Collections.emptyList(), Arrays.asList("file")));
+        tools.add(new ToolDefinition("knowledge.append", "Append a durable workflow, workaround, memory, or agent steering note to local Home Center SKILLS.md, AGENTS.md, or MEMORY.md.", "knowledge", true, false,
+                Collections.emptyList(), Arrays.asList("file", "title", "body")));
+
         tools.add(new ToolDefinition("github.create_issue", "Create a GitHub issue in the Home Center repository from captured chat evidence.", "github", true, true,
                 Collections.emptyList(), Arrays.asList("repo", "title", "body", "labels")));
         return tools;

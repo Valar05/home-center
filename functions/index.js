@@ -693,6 +693,8 @@ async function askOpenAIToolTurn(body) {
     'Feedback/report rule: default repo is Valar05/home-center. The issue body must include Summary, User Report, Conversation Evidence, Expected Behavior, Actual Behavior, Suspected Area, Environment, and Raw Debug Context if available.',
     'Feedback/report rule: preserve exact user wording and exact assistant response from evidenceContext.recentConversationEvidence. If evidence is absent or too vague, ask for a short description and do not call github.create_issue.',
     'Feedback/report rule: suspected area must be one of GPT/tool planning, Android tool broker, Google Drive/Docs client, confirmation flow, working memory/reference resolution, Cartesia/narration, UI/accessibility, stale APK/install, provider/gateway, unknown.',
+    'Local knowledge rule: use knowledge.append when the user asks to remember, save, preserve, promote, or make durable a workflow, workaround, agent instruction, skill, or memory. Choose SKILLS.md for repeatable procedures, AGENTS.md for agent steering, and MEMORY.md for durable facts or troubleshooting state.',
+    'Local knowledge rule: use knowledge.read when the user asks what durable skills, agent instructions, or local memory Home Center has stored. Never write secrets, API keys, OAuth tokens, passwords, or Authorization headers to knowledge files.',
     'Latest intent rule: the latest user request controls. If the latest request asks for recommendations, summaries, answers, reading suggestions, or next actions, answer that request from available context and tool results instead of continuing an older workflow.',
     'Document cleanup rule: if the latest request asks to clean up, reorganize, consolidate, or make a document section more organized, use workingMemory.lastDocument or recent docs.read results, then request docs.update with the cleaned structure. Do not stop after describing what cleanup is needed.',
     'Do not claim a GitHub tool is required for public GitHub repositories. A GitHub tool is only required for private repo access, authenticated GitHub writes, issues, pull requests, or repository mutations.',
@@ -808,7 +810,7 @@ async function askOpenAIToolTurn(body) {
 
 
 exports.health = onRequest((req, res) => {
-  res.set(CORS_HEADERS).json({ok: true, service: 'home-center-gateway', confirmationFlow: 'short-confirm-v1', toolContractVersion: 'google-github-cru-v1', contractGroups: ['drive', 'docs', 'sheets', 'lists', 'gmail', 'calendar', 'contacts', 'github']});
+  res.set(CORS_HEADERS).json({ok: true, service: 'home-center-gateway', confirmationFlow: 'short-confirm-v1', toolContractVersion: 'google-github-knowledge-cru-v1', contractGroups: ['drive', 'docs', 'sheets', 'lists', 'gmail', 'calendar', 'contacts', 'github', 'knowledge']});
 });
 
 exports.googleAuthCodeExchange = onRequest(async (req, res) => {

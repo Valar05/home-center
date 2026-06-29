@@ -356,6 +356,24 @@
       "destructive": false
     },
     {
+      "name": "knowledge.read",
+      "group": "knowledge",
+      "operation": "read",
+      "write": false,
+      "confirmationRequired": false,
+      "scopes": [],
+      "dispatcher": "MainActivity"
+    },
+    {
+      "name": "knowledge.append",
+      "group": "knowledge",
+      "operation": "create",
+      "write": true,
+      "confirmationRequired": false,
+      "scopes": [],
+      "dispatcher": "MainActivity"
+    },
+    {
       "name": "github.create_issue",
       "group": "github",
       "operation": "create",

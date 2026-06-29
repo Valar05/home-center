@@ -58,12 +58,12 @@ if services is not None and services != required_google_services:
     fail(f'Google API services mismatch: missing={sorted(required_google_services - services)} extra={sorted(services - required_google_services)}')
 
 status, health = get_json('health')
-expected_groups = {'drive', 'docs', 'sheets', 'lists', 'gmail', 'calendar', 'contacts', 'github'}
+expected_groups = {'drive', 'docs', 'sheets', 'lists', 'gmail', 'calendar', 'contacts', 'github', 'knowledge'}
 actual_groups = set(health.get('contractGroups') or [])
 if (status != 200
         or health.get('service') != 'home-center-gateway'
         or health.get('confirmationFlow') != 'short-confirm-v1'
-        or health.get('toolContractVersion') != 'google-github-cru-v1'
+        or health.get('toolContractVersion') != 'google-github-knowledge-cru-v1'
         or actual_groups != expected_groups):
     fail(f'health bad: status={status} body={health}')
 
@@ -82,4 +82,4 @@ if status != 401:
     fail(f'agentToolTurn should require Firebase auth when unauthenticated: status={status} body={body[:200]!r}')
 
 service_note = 'googleApis=' + ','.join(sorted(required_google_services)) if services is not None else 'googleApis=not_checked_no_gcloud'
-print(f'Home Center provider smoke: OK cartesiaBytes={tts_bytes} toolContractVersion=google-github-cru-v1 contractGroups=calendar,contacts,docs,drive,github,gmail,lists,sheets {service_note} driveProbeUnauth=401 agentToolTurnUnauth=401')
+print(f'Home Center provider smoke: OK cartesiaBytes={tts_bytes} toolContractVersion=google-github-knowledge-cru-v1 contractGroups=calendar,contacts,docs,drive,github,gmail,knowledge,lists,sheets {service_note} driveProbeUnauth=401 agentToolTurnUnauth=401')
