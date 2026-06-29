@@ -99,9 +99,19 @@ for source_name, source in source_by_dispatcher.items():
 for source_name, source in {'ToolRegistry': tool_registry, 'GoogleDriveClient': drive_client, 'GoogleSheetsClient': sheets_client}.items():
     require_absent(source, 'drive.readonly', f'{source_name} must not use readonly Drive scope for the write-capable host')
 
-for forbidden in ['drive.delete', 'docs.delete', 'sheets.delete', 'gmail.delete', 'calendar.delete', 'contacts.delete', 'lists.delete']:
-    require_absent(tool_registry, forbidden, f'{forbidden} must not be registered')
-    require_absent(functions_index, forbidden, f'{forbidden} must not be described by gateway')
+for forbidden in ['gmail.delete', 'calendar.delete', 'contacts.delete', 'lists.delete']:
+    require_absent(tool_registry, f'"{forbidden}"', f'{forbidden} must not be registered')
+    require_absent(functions_index, f"'{forbidden}'", f'{forbidden} must not be described by gateway')
+
+for delete_tool in ['drive.delete', 'docs.delete', 'sheets.delete', 'gmail.trash', 'calendar.delete_event', 'lists.remove_item']:
+    tool = contract_tools.get(delete_tool)
+    if not tool:
+        fail(f'{delete_tool} missing from tool contract')
+        continue
+    if not tool.get('confirmationRequired') or not tool.get('doubleConfirmationRequired'):
+        fail(f'{delete_tool} must require double confirmation')
+    if delete_tool != 'lists.remove_item' and tool.get('operation') != 'delete':
+        fail(f'{delete_tool} must use delete operation')
 
 require_contains(tool_registry, 'SHEETS_SCOPE = "https://www.googleapis.com/auth/spreadsheets"', 'Sheets scope exists')
 require_contains(tool_registry, 'new Scope(SHEETS_SCOPE)', 'Google sign-in scope list includes Sheets')
@@ -151,7 +161,7 @@ require_contains(functions_index, 'This will include the last few chat messages 
 require_contains(functions_index, 'function findBalancedJsonObject(text)', 'Gateway recovers a tool-call JSON object when model adds prose')
 require_contains(functions_index, 'looksLikeToolCallJson(text)', 'Gateway detects raw tool-call JSON parse failures')
 require_contains(functions_index, 'return plannerParseFailureReply(text, err);', 'Gateway never returns raw malformed tool JSON after parse failure')
-require_contains(functions_index, "toolContractVersion: 'google-github-knowledge-cru-v1'", 'Gateway health exposes local-knowledge-capable contract version')
+require_contains(functions_index, "toolContractVersion: 'google-github-knowledge-delete-cru-v1'", 'Gateway health exposes delete-capable contract version')
 require_contains(main_activity, 'googleIdentitySignInClient = GoogleSignIn.getClient(this, identityOptions)', 'Google identity sign-in is separate from tool permissions')
 require_contains(main_activity, 'for (Scope scope : ToolRegistry.signInScopes())', 'Full Google permission client requests registry scopes')
 require_contains(main_activity, 'GoogleSignIn.requestPermissions(this, REQUEST_GOOGLE_TOOL_PERMISSIONS', 'Full Google tool scopes are requested through the explicit permission flow')
@@ -365,7 +375,12 @@ require_contains(functions_index, 'pendingConfirmation: pendingConfirmation(tool
 require_contains(functions_index, 'pendingConfirmationFromBody(body, tools)', 'gateway resumes pending confirmation from Android payload')
 require_contains(functions_index, 'function sanitizeToolArguments(tool, args)', 'gateway sanitizes tool args against advertised schema')
 require_contains(functions_index, "allowed.has(key) || key === '_confirmedByGateway'", 'gateway preserves only schema args and confirmation marker')
-require_contains(functions_index, 'pendingConfirmation(pending.toolName, sanitizeToolArguments(tool, args))', 'pending confirmation cannot preserve stale extra args')
+require_contains(functions_index, "key === '_doubleConfirmedByGateway'", 'gateway preserves double confirmation marker')
+require_contains(functions_index, 'pendingTool.doubleConfirmationRequired', 'gateway detects double-confirm tools')
+require_contains(functions_index, 'double_confirmation_required', 'gateway requires second confirmation for delete tools')
+require_contains(main_activity, 'definition.doubleConfirmationRequired', 'Android enforces double-confirm tools')
+require_contains(main_activity, 'arguments.optBoolean("_doubleConfirmedByGateway", false)', 'Android requires gateway double confirmation marker')
+require_contains(functions_index, 'pendingConfirmation(pending.toolName, sanitizeToolArguments(tool, args)', 'pending confirmation cannot preserve stale extra args')
 require_contains(functions_index, 'const sanitizedArgs = sanitizeToolArguments(tool, args)', 'tool dispatch uses sanitized args')
 require_contains(functions_index, "toolName !== 'drive.update_metadata') args.folderId", 'drive.update_metadata does not leak folderId alias')
 require_contains(functions_index, "toolName !== 'drive.update_metadata') args.folderName", 'drive.update_metadata does not leak folderName alias')

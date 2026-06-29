@@ -1,5 +1,5 @@
 {
-  "version": "google-cru-v1",
+  "version": "google-delete-cru-v1",
   "requiredGroups": [
     "drive",
     "docs",
@@ -66,6 +66,19 @@
       "dispatcher": "GoogleDriveClient"
     },
     {
+      "name": "drive.delete",
+      "group": "drive",
+      "operation": "delete",
+      "write": true,
+      "confirmationRequired": true,
+      "doubleConfirmationRequired": true,
+      "scopes": [
+        "https://www.googleapis.com/auth/drive"
+      ],
+      "dispatcher": "GoogleDriveClient",
+      "destructive": true
+    },
+    {
       "name": "docs.search",
       "group": "docs",
       "operation": "read",
@@ -113,6 +126,19 @@
       "dispatcher": "GoogleDriveClient"
     },
     {
+      "name": "docs.delete",
+      "group": "docs",
+      "operation": "delete",
+      "write": true,
+      "confirmationRequired": true,
+      "doubleConfirmationRequired": true,
+      "scopes": [
+        "https://www.googleapis.com/auth/drive"
+      ],
+      "dispatcher": "GoogleDriveClient",
+      "destructive": true
+    },
+    {
       "name": "sheets.search",
       "group": "sheets",
       "operation": "read",
@@ -156,6 +182,19 @@
         "https://www.googleapis.com/auth/spreadsheets"
       ],
       "dispatcher": "GoogleSheetsClient"
+    },
+    {
+      "name": "sheets.delete",
+      "group": "sheets",
+      "operation": "delete",
+      "write": true,
+      "confirmationRequired": true,
+      "doubleConfirmationRequired": true,
+      "scopes": [
+        "https://www.googleapis.com/auth/drive"
+      ],
+      "dispatcher": "GoogleSheetsClient",
+      "destructive": true
     },
     {
       "name": "gmail.search",
@@ -224,6 +263,19 @@
       "dispatcher": "GoogleGmailClient"
     },
     {
+      "name": "gmail.trash",
+      "group": "gmail",
+      "operation": "delete",
+      "write": true,
+      "confirmationRequired": true,
+      "doubleConfirmationRequired": true,
+      "scopes": [
+        "https://www.googleapis.com/auth/gmail.modify"
+      ],
+      "dispatcher": "GoogleGmailClient",
+      "destructive": true
+    },
+    {
       "name": "calendar.search",
       "group": "calendar",
       "operation": "read",
@@ -277,6 +329,19 @@
         "https://www.googleapis.com/auth/calendar.events"
       ],
       "dispatcher": "GoogleCalendarClient"
+    },
+    {
+      "name": "calendar.delete_event",
+      "group": "calendar",
+      "operation": "delete",
+      "write": true,
+      "confirmationRequired": true,
+      "doubleConfirmationRequired": true,
+      "scopes": [
+        "https://www.googleapis.com/auth/calendar.events"
+      ],
+      "dispatcher": "GoogleCalendarClient",
+      "destructive": true
     },
     {
       "name": "contacts.search",
@@ -350,10 +415,11 @@
       "group": "lists",
       "operation": "update",
       "write": true,
-      "confirmationRequired": false,
+      "confirmationRequired": true,
+      "doubleConfirmationRequired": true,
       "scopes": [],
       "dispatcher": "MainActivity",
-      "destructive": false
+      "destructive": true
     },
     {
       "name": "knowledge.read",

@@ -41,6 +41,7 @@ final class GoogleSheetsClient {
             if ("sheets.read".equals(toolName)) return readTool(token.value, arguments);
             if ("sheets.create".equals(toolName)) return createTool(token.value, arguments);
             if ("sheets.update".equals(toolName)) return updateTool(token.value, arguments);
+            if ("sheets.delete".equals(toolName)) return deleteTool(token.value, arguments);
             return toolError(toolName, "unknown_tool", "Android does not expose that Sheets tool.");
         } catch (Exception ex) {
             return toolError(toolName, "sheets_error", safe(ex.getMessage()));
@@ -121,6 +122,18 @@ final class GoogleSheetsClient {
                 .put("spreadsheetId", spreadsheetId)
                 .put("range", range)
                 .put("updated", updated);
+    }
+
+    private JSONObject deleteTool(String token, JSONObject arguments) throws Exception {
+        String spreadsheetId = cleanArg(arguments, "spreadsheetId");
+        if (spreadsheetId.isEmpty()) return toolError("sheets.delete", "missing_spreadsheet_id", "sheets.delete requires spreadsheetId.");
+        JSONObject file = patchJson(DRIVE_FILES_URL + "/" + Uri.encode(spreadsheetId) + "?fields=id,name,mimeType,trashed,webViewLink", token,
+                new JSONObject().put("trashed", true));
+        return baseResult("sheets.delete", true)
+                .put("status", "google_sheet_trashed")
+                .put("spreadsheetId", spreadsheetId)
+                .put("file", file)
+                .put("title", file.optString("name", cleanArg(arguments, "title")));
     }
 
     private JSONArray valuesArg(JSONObject arguments) {

@@ -1171,6 +1171,9 @@ public final class MainActivity extends Activity implements RecognitionListener,
         if (definition == null) {
             return toolError(toolName, "unknown_tool", "No Android tool is registered with that name.");
         }
+        if (definition.doubleConfirmationRequired && (arguments == null || !arguments.optBoolean("_doubleConfirmedByGateway", false))) {
+            return toolError(toolName, "double_confirmation_required", "This delete tool requires two explicit confirmations.");
+        }
         if (definition.confirmationRequired && (arguments == null || !arguments.optBoolean("_confirmedByGateway", false))) {
             return toolError(toolName, "confirmation_required", "This write tool requires explicit gateway confirmation.");
         }
@@ -1544,6 +1547,15 @@ public final class MainActivity extends Activity implements RecognitionListener,
                 rememberDraft(toolName, result.optString("draftId", toolArg(arguments, "draftId", "")), toolArg(arguments, "subject", ""));
                 return;
             }
+            if ("gmail.read".equals(toolName)) {
+                rememberEmailMessage(toolName, result);
+                return;
+            }
+            if ("gmail.search".equals(toolName)) {
+                JSONArray messages = result.optJSONArray("messages");
+                if (messages != null && messages.length() == 1) rememberEmailMessage(toolName, messages.optJSONObject(0));
+                return;
+            }
             if ("calendar.search".equals(toolName)) {
                 JSONArray events = result.optJSONArray("events");
                 if (events != null && events.length() == 1) rememberCalendarEvent(toolName, events.optJSONObject(0));
@@ -1616,6 +1628,23 @@ public final class MainActivity extends Activity implements RecognitionListener,
             workingMemory.put("lastEmailDraft", draft);
         }
         LocalLog.info("agent_trace", "working_memory_update lastEmailDraft=" + draft.toString());
+    }
+
+    private void rememberEmailMessage(String sourceTool, JSONObject message) throws Exception {
+        if (message == null) return;
+        String messageId = message.optString("messageId", message.optString("id", ""));
+        if (messageId == null || messageId.trim().isEmpty()) return;
+        JSONObject headers = message.optJSONObject("headers");
+        JSONObject memory = new JSONObject()
+                .put("messageId", messageId.trim())
+                .put("threadId", message.optString("threadId", ""))
+                .put("subject", headers == null ? "" : headers.optString("Subject", ""))
+                .put("from", headers == null ? "" : headers.optString("From", ""))
+                .put("sourceTool", sourceTool == null ? "" : sourceTool);
+        synchronized (workingMemoryLock) {
+            workingMemory.put("lastEmailMessage", memory);
+        }
+        LocalLog.info("agent_trace", "working_memory_update lastEmailMessage=" + memory.toString());
     }
 
     private void rememberContact(String sourceTool, JSONObject contact) throws Exception {

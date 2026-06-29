@@ -46,10 +46,12 @@ final class GoogleDriveClient {
         if ("drive.create_folder".equals(toolName)) return createFolderTool(arguments, account);
         if ("drive.update_metadata".equals(toolName)) return updateMetadataTool(arguments, account);
         if ("drive.upload_file".equals(toolName)) return toolError("drive.upload_file", "attachment_missing", "drive.upload_file requires an attached session file.");
+        if ("drive.delete".equals(toolName)) return trashFileTool("drive.delete", arguments, account);
         if ("docs.search".equals(toolName)) return searchTool(toolName, arguments, account, DOC_MIME_TYPE);
         if ("docs.read".equals(toolName)) return readDocTool(arguments, account);
         if ("docs.create".equals(toolName)) return createDocTool(arguments, account);
         if ("docs.update".equals(toolName)) return updateDocTool(arguments, account);
+        if ("docs.delete".equals(toolName)) return trashFileTool("docs.delete", arguments, account);
         return toolError(toolName, "unknown_tool", "Android does not expose that Drive or Docs tool.");
     }
 
@@ -158,6 +160,25 @@ final class GoogleDriveClient {
                     .put("title", file.optString("name", name));
         } catch (Exception ex) {
             return toolError("drive.update_metadata", "update_metadata_error", safe(ex.getMessage()));
+        }
+    }
+
+    private JSONObject trashFileTool(String toolName, JSONObject arguments, GoogleSignInAccount account) {
+        TokenResult token = tokenForTool(account, toolName);
+        if (!token.ok) return token.json;
+        String fileId = cleanArg(arguments, "fileId");
+        if (fileId.isEmpty()) return toolError(toolName, "missing_file_id", toolName + " requires fileId.");
+        try {
+            JSONObject file = patchJson(FILES_URL + "/" + Uri.encode(fileId) + "?fields=id,name,mimeType,trashed,webViewLink", token.value,
+                    new JSONObject().put("trashed", true));
+            String status = "docs.delete".equals(toolName) ? "google_doc_trashed" : "drive_file_trashed";
+            return resultJson(toolName, true, "", status, new ArrayList<>(), "")
+                    .put("status", status)
+                    .put("file", file)
+                    .put("title", file.optString("name", cleanArg(arguments, "name")))
+                    .put("webViewLink", file.optString("webViewLink", ""));
+        } catch (Exception ex) {
+            return toolError(toolName, "trash_file_error", safe(ex.getMessage()));
         }
     }
 

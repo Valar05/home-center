@@ -36,6 +36,8 @@ final class ToolRegistry {
                 Arrays.asList(DRIVE_SCOPE), Arrays.asList("fileId", "name", "addParentId", "removeParentId")));
         tools.add(new ToolDefinition("drive.upload_file", "Upload an attached session file to Google Drive.", "drive", true, true,
                 Arrays.asList(DRIVE_SCOPE), Arrays.asList("sessionFileId", "name", "folderId", "mimeType")));
+        tools.add(new ToolDefinition("drive.delete", "Move a Google Drive file or folder to trash.", "drive", true, true, true,
+                Arrays.asList(DRIVE_SCOPE), Arrays.asList("fileId", "name")));
 
         tools.add(new ToolDefinition("docs.search", "Search Google Docs in Drive.", "docs", false, false,
                 Arrays.asList(DRIVE_SCOPE), Arrays.asList("query", "folderName", "pageSize")));
@@ -45,6 +47,8 @@ final class ToolRegistry {
                 Arrays.asList(DRIVE_SCOPE, DOCS_SCOPE), Arrays.asList("title", "body", "folderId")));
         tools.add(new ToolDefinition("docs.update", "Update a Google Doc by appending, replacing, or replacing the body.", "docs", true, true,
                 Arrays.asList(DRIVE_SCOPE, DOCS_SCOPE), Arrays.asList("fileId", "name", "appendText", "replaceText", "body")));
+        tools.add(new ToolDefinition("docs.delete", "Move a Google Doc to trash.", "docs", true, true, true,
+                Arrays.asList(DRIVE_SCOPE), Arrays.asList("fileId", "name")));
 
         tools.add(new ToolDefinition("sheets.search", "Search Google Sheets in Drive.", "sheets", false, false,
                 Arrays.asList(DRIVE_SCOPE), Arrays.asList("query", "folderName", "pageSize")));
@@ -54,6 +58,8 @@ final class ToolRegistry {
                 Arrays.asList(DRIVE_SCOPE, SHEETS_SCOPE), Arrays.asList("title", "sheetTitle", "values", "folderId")));
         tools.add(new ToolDefinition("sheets.update", "Update values in a Google Sheet range.", "sheets", true, true,
                 Arrays.asList(SHEETS_SCOPE), Arrays.asList("spreadsheetId", "range", "values")));
+        tools.add(new ToolDefinition("sheets.delete", "Move a Google Sheet to trash.", "sheets", true, true, true,
+                Arrays.asList(DRIVE_SCOPE), Arrays.asList("spreadsheetId", "title")));
 
         tools.add(new ToolDefinition("gmail.search", "Search Gmail messages.", "gmail", false, false,
                 Arrays.asList(GMAIL_MODIFY_SCOPE), Arrays.asList("query", "pageSize")));
@@ -67,6 +73,8 @@ final class ToolRegistry {
                 Arrays.asList(GMAIL_SEND_SCOPE), Arrays.asList("draftId")));
         tools.add(new ToolDefinition("gmail.send_email", "Send an email.", "gmail", true, true,
                 Arrays.asList(GMAIL_SEND_SCOPE), Arrays.asList("to", "cc", "bcc", "subject", "body")));
+        tools.add(new ToolDefinition("gmail.trash", "Move a Gmail message to trash.", "gmail", true, true, true,
+                Arrays.asList(GMAIL_MODIFY_SCOPE), Arrays.asList("messageId", "subject")));
 
         tools.add(new ToolDefinition("calendar.search", "Search Google Calendar events.", "calendar", false, false,
                 Arrays.asList(CALENDAR_EVENTS_SCOPE), Arrays.asList("query", "timeMin", "timeMax", "pageSize")));
@@ -78,6 +86,8 @@ final class ToolRegistry {
                 Arrays.asList(CALENDAR_EVENTS_SCOPE), Arrays.asList("eventId", "title", "startTime", "endTime", "attendeesToAdd", "attendeesToRemove", "location", "description")));
         tools.add(new ToolDefinition("calendar.respond_event", "RSVP to a Google Calendar event for the signed-in account.", "calendar", true, true,
                 Arrays.asList(CALENDAR_EVENTS_SCOPE), Arrays.asList("eventId", "responseStatus")));
+        tools.add(new ToolDefinition("calendar.delete_event", "Delete a Google Calendar event.", "calendar", true, true, true,
+                Arrays.asList(CALENDAR_EVENTS_SCOPE), Arrays.asList("eventId", "title")));
 
         tools.add(new ToolDefinition("contacts.search", "Search Google Contacts by name, email, or phone.", "contacts", false, false,
                 Arrays.asList(CONTACTS_READONLY_SCOPE), Arrays.asList("query", "pageSize")));
@@ -94,7 +104,7 @@ final class ToolRegistry {
                 Collections.emptyList(), Arrays.asList("listName", "itemId", "itemText", "text", "status")));
         tools.add(new ToolDefinition("lists.mark_done", "Mark a Home Center list item done.", "lists", true, false,
                 Collections.emptyList(), Arrays.asList("listName", "itemId", "itemText")));
-        tools.add(new ToolDefinition("lists.remove_item", "Soft-remove a Home Center list item by setting status removed.", "lists", true, false,
+        tools.add(new ToolDefinition("lists.remove_item", "Soft-remove a Home Center list item by setting status removed.", "lists", true, true, true,
                 Collections.emptyList(), Arrays.asList("listName", "itemId", "itemText")));
 
         tools.add(new ToolDefinition("knowledge.read", "Read local Home Center SKILLS.md, AGENTS.md, or MEMORY.md durable notes.", "knowledge", false, false,
@@ -208,15 +218,21 @@ final class ToolRegistry {
         final String group;
         final boolean write;
         final boolean confirmationRequired;
+        final boolean doubleConfirmationRequired;
         final List<String> requiredScopes;
         final List<String> arguments;
 
         ToolDefinition(String name, String description, String group, boolean write, boolean confirmationRequired, List<String> requiredScopes, List<String> arguments) {
+            this(name, description, group, write, confirmationRequired, false, requiredScopes, arguments);
+        }
+
+        ToolDefinition(String name, String description, String group, boolean write, boolean confirmationRequired, boolean doubleConfirmationRequired, List<String> requiredScopes, List<String> arguments) {
             this.name = name;
             this.description = description;
             this.group = group;
             this.write = write;
             this.confirmationRequired = confirmationRequired;
+            this.doubleConfirmationRequired = doubleConfirmationRequired;
             this.requiredScopes = requiredScopes;
             this.arguments = arguments;
         }
@@ -236,6 +252,7 @@ final class ToolRegistry {
                 json.put("group", group);
                 json.put("write", write);
                 json.put("confirmationRequired", confirmationRequired);
+                json.put("doubleConfirmationRequired", doubleConfirmationRequired);
                 json.put("requiredScopes", new JSONArray(requiredScopes));
                 json.put("arguments", new JSONArray(arguments));
             } catch (Exception ignored) {

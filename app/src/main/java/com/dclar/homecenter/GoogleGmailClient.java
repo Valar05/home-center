@@ -41,6 +41,7 @@ final class GoogleGmailClient {
             if ("gmail.update_draft".equals(toolName)) return updateDraftTool(token.value, arguments);
             if ("gmail.send_draft".equals(toolName)) return sendDraftTool(token.value, arguments);
             if ("gmail.send_email".equals(toolName)) return sendEmailTool(token.value, arguments);
+            if ("gmail.trash".equals(toolName)) return trashTool(token.value, arguments);
             return toolError(toolName, "unknown_tool", "Android does not expose that Gmail tool.");
         } catch (Exception ex) {
             return toolError(toolName, "gmail_error", safe(ex.getMessage()));
@@ -101,6 +102,16 @@ final class GoogleGmailClient {
     private JSONObject sendEmailTool(String token, JSONObject arguments) throws Exception {
         JSONObject sent = postJson(BASE_URL + "/messages/send", token, new JSONObject().put("raw", rawEmail(arguments)));
         return baseResult("gmail.send_email", true).put("message", sent).put("messageId", sent.optString("id", ""));
+    }
+
+    private JSONObject trashTool(String token, JSONObject arguments) throws Exception {
+        String messageId = cleanArg(arguments, "messageId");
+        if (messageId.isEmpty()) return toolError("gmail.trash", "missing_message_id", "gmail.trash requires messageId.");
+        JSONObject trashed = postJson(BASE_URL + "/messages/" + Uri.encode(messageId) + "/trash", token, new JSONObject());
+        return baseResult("gmail.trash", true)
+                .put("status", "gmail_message_trashed")
+                .put("message", trashed)
+                .put("messageId", trashed.optString("id", messageId));
     }
 
     private JSONObject messageSummary(String token, String messageId) throws Exception {

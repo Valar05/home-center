@@ -277,8 +277,9 @@ function quoteForConfirmation(value) {
 }
 
 function confirmationAction(toolName, args = {}) {
+  if (toolName === 'drive.delete' || toolName === 'docs.delete' || toolName === 'sheets.delete' || toolName === 'gmail.trash' || toolName === 'calendar.delete_event' || toolName === 'lists.remove_item') return 'delete';
   if (toolName === 'drive.create_folder' || toolName === 'drive.upload_file' || toolName === 'docs.create' || toolName === 'sheets.create' || toolName === 'lists.create' || toolName === 'lists.add_item') return 'create';
-  if (toolName === 'drive.update_metadata' || toolName === 'docs.update' || toolName === 'sheets.update' || toolName === 'lists.update_item' || toolName === 'lists.mark_done' || toolName === 'lists.remove_item') return 'edit';
+  if (toolName === 'drive.update_metadata' || toolName === 'docs.update' || toolName === 'sheets.update' || toolName === 'lists.update_item' || toolName === 'lists.mark_done') return 'edit';
   if (toolName === 'gmail.send_email' || toolName === 'gmail.send_draft') return 'send';
   if (toolName === 'calendar.create_event') return 'create';
   if (toolName === 'calendar.update_event') return 'edit';
@@ -290,16 +291,22 @@ function confirmationTitle(toolName) {
   if (toolName === 'drive.create_folder') return 'Create Drive Folder';
   if (toolName === 'drive.update_metadata') return 'Edit Drive Item';
   if (toolName === 'drive.upload_file') return 'Upload File To Drive';
+  if (toolName === 'drive.delete') return 'Delete Drive Item';
   if (toolName === 'docs.create') return 'Create Google Doc';
   if (toolName === 'docs.update') return 'Edit Google Doc';
+  if (toolName === 'docs.delete') return 'Delete Google Doc';
   if (toolName === 'sheets.create') return 'Create Google Sheet';
   if (toolName === 'sheets.update') return 'Edit Google Sheet';
+  if (toolName === 'sheets.delete') return 'Delete Google Sheet';
   if (toolName === 'github.create_issue') return 'Create GitHub Issue';
   if (toolName === 'gmail.send_email') return 'Send Email';
   if (toolName === 'gmail.send_draft') return 'Send Draft';
+  if (toolName === 'gmail.trash') return 'Delete Gmail Message';
   if (toolName === 'calendar.create_event') return 'Create Calendar Event';
   if (toolName === 'calendar.update_event') return 'Edit Calendar Event';
   if (toolName === 'calendar.respond_event') return 'Respond To Calendar Event';
+  if (toolName === 'calendar.delete_event') return 'Delete Calendar Event';
+  if (toolName === 'lists.remove_item') return 'Remove List Item';
   return 'Confirm Action';
 }
 
@@ -314,6 +321,9 @@ function confirmationSummary(toolName, args = {}) {
   if (toolName === 'drive.upload_file') {
     return `Upload "${quoteForConfirmation(a.name || a.displayName || a.sessionFileId || 'attached file')}" to Google Drive.`;
   }
+  if (toolName === 'drive.delete') {
+    return `Move Drive item "${quoteForConfirmation(a.name || a.fileId || 'selected file')}" to trash. This requires two confirmations.`;
+  }
   if (toolName === 'docs.create') {
     const title = quoteForConfirmation(a.title || 'Untitled Google Doc');
     const body = quoteForConfirmation(a.body || '');
@@ -326,11 +336,17 @@ function confirmationSummary(toolName, args = {}) {
     if (a.body) return `Replace the body of "${target}".`;
     return `Edit "${target}".`;
   }
+  if (toolName === 'docs.delete') {
+    return `Move Google Doc "${quoteForConfirmation(a.name || a.title || 'selected document')}" to trash. This requires two confirmations.`;
+  }
   if (toolName === 'sheets.create') {
     return `Create Google Sheet "${quoteForConfirmation(a.title || 'Untitled sheet')}".`;
   }
   if (toolName === 'sheets.update') {
     return `Update Google Sheet range ${quoteForConfirmation(a.range || 'selected range')}.`;
+  }
+  if (toolName === 'sheets.delete') {
+    return `Move Google Sheet "${quoteForConfirmation(a.title || a.name || a.spreadsheetId || 'selected sheet')}" to trash. This requires two confirmations.`;
   }
   if (toolName === 'github.create_issue') {
     const title = quoteForConfirmation(a.title || 'Bug: Home Center feedback');
@@ -342,6 +358,9 @@ function confirmationSummary(toolName, args = {}) {
   if (toolName === 'gmail.send_draft') {
     return `Send draft ${quoteForConfirmation(a.draftId)}.`;
   }
+  if (toolName === 'gmail.trash') {
+    return `Move Gmail message "${quoteForConfirmation(a.subject || a.messageId || 'selected message')}" to trash. This requires two confirmations.`;
+  }
   if (toolName === 'calendar.create_event') {
     return `Create event "${quoteForConfirmation(a.title)}".`;
   }
@@ -351,24 +370,36 @@ function confirmationSummary(toolName, args = {}) {
   if (toolName === 'calendar.respond_event') {
     return `RSVP ${quoteForConfirmation(a.responseStatus)} to calendar event ${quoteForConfirmation(a.title || a.name || 'selected event')}.`;
   }
+  if (toolName === 'calendar.delete_event') {
+    return `Delete calendar event "${quoteForConfirmation(a.title || a.name || 'selected event')}". This requires two confirmations.`;
+  }
+  if (toolName === 'lists.remove_item') {
+    return `Remove "${quoteForConfirmation(a.itemText || a.itemId || 'selected item')}" from ${quoteForConfirmation(a.listName || 'the list')}. This requires two confirmations.`;
+  }
   return 'Confirm this action.';
 }
 
-function pendingConfirmation(toolName, args) {
+function pendingConfirmation(toolName, args, confirmationStage = 1) {
   return {
     toolName,
     arguments: args || {},
     action: confirmationAction(toolName, args),
     title: confirmationTitle(toolName),
     summary: confirmationSummary(toolName, args),
+    confirmationStage,
   };
 }
 
-function confirmationReply(toolName, args) {
+function confirmationReply(toolName, args, stage = 1) {
   if (toolName === 'github.create_issue') {
     return 'I can create that GitHub issue. Press Confirm or say "confirm create issue".';
   }
   const action = confirmationAction(toolName, args);
+  if (action === 'delete') {
+    return stage >= 2
+      ? 'Second confirmation required. Press Confirm again or say "confirm delete" again.'
+      : 'I can delete that. This requires two confirmations. Press Confirm or say "confirm delete".';
+  }
   return `I can ${action} that. Say "confirm ${action}" or press Confirm.`;
 }
 
@@ -378,7 +409,7 @@ function pendingConfirmationFromBody(body, tools) {
   const tool = toolByName(tools, pending.toolName);
   if (!tool || !tool.confirmationRequired) return null;
   const args = pending.arguments && typeof pending.arguments === 'object' ? pending.arguments : {};
-  return pendingConfirmation(pending.toolName, sanitizeToolArguments(tool, args));
+  return pendingConfirmation(pending.toolName, sanitizeToolArguments(tool, args), Number(pending.confirmationStage || 1));
 }
 
 function sanitizeToolArguments(tool, args) {
@@ -386,7 +417,7 @@ function sanitizeToolArguments(tool, args) {
   const allowed = new Set(Array.isArray(tool.arguments) ? tool.arguments : []);
   const sanitized = {};
   for (const [key, value] of Object.entries(args)) {
-    if (allowed.has(key) || key === '_confirmedByGateway') {
+    if (allowed.has(key) || key === '_confirmedByGateway' || key === '_doubleConfirmedByGateway') {
       sanitized[key] = value;
     }
   }
@@ -494,11 +525,17 @@ function resolveToolArgsFromWorkingMemory(body, toolName, args) {
       if (memory.lastSheet.fileId && !args.spreadsheetId) args.spreadsheetId = memory.lastSheet.fileId;
     }
   }
-  if (toolName && toolName.startsWith('gmail.') && memory.lastEmailDraft) {
+  if (toolName && toolName.startsWith('gmail.') && toolName !== 'gmail.trash' && memory.lastEmailDraft) {
     const referencesDraft = UNRESOLVED_REFERENCE_LITERALS.has(normalizedReferenceLiteral(args.subject));
     if (referencesDraft || args.draftId === memory.lastEmailDraft.draftId) {
       if (memory.lastEmailDraft.draftId && !args.draftId) args.draftId = memory.lastEmailDraft.draftId;
       if (memory.lastEmailDraft.subject && !args.subject) args.subject = memory.lastEmailDraft.subject;
+    }
+  }
+  if (toolName === 'gmail.trash' && memory.lastEmailMessage) {
+    if (hasLiteralReference || args.messageId === memory.lastEmailMessage.messageId) {
+      if (memory.lastEmailMessage.messageId && !args.messageId) args.messageId = memory.lastEmailMessage.messageId;
+      if (memory.lastEmailMessage.subject && !args.subject) args.subject = memory.lastEmailMessage.subject;
     }
   }
   if (toolName && toolName.startsWith('calendar.') && memory.lastCalendarEvent) {
@@ -526,6 +563,7 @@ function clarificationForUnresolvedReference(body, toolName, args) {
     (toolName && toolName.startsWith('drive.') && memory.lastFolder && memory.lastFolder.fileId) ||
     (toolName && toolName.startsWith('sheets.') && memory.lastSheet && memory.lastSheet.fileId) ||
     (toolName && toolName.startsWith('gmail.') && memory.lastEmailDraft && memory.lastEmailDraft.draftId) ||
+    (toolName === 'gmail.trash' && memory.lastEmailMessage && memory.lastEmailMessage.messageId) ||
     (toolName && toolName.startsWith('calendar.') && memory.lastCalendarEvent && memory.lastCalendarEvent.eventId) ||
     (toolName && toolName.startsWith('contacts.') && memory.lastContact && memory.lastContact.primaryEmail);
   if (hasCompatibleMemory) return null;
@@ -656,7 +694,23 @@ async function askOpenAIToolTurn(body) {
   const timeContext = timeContextFromBody(body);
   const pending = pendingConfirmationFromBody(body, tools);
   if (pending && messageConfirms(message)) {
+    const pendingTool = toolByName(tools, pending.toolName);
+    if (pendingTool && pendingTool.doubleConfirmationRequired && Number(pending.confirmationStage || 1) < 2) {
+      const nextPending = pendingConfirmation(pending.toolName, pending.arguments, 2);
+      const reply = confirmationReply(pending.toolName, pending.arguments, 2);
+      const trace = buildToolTrace(body, tools, {type: 'tool_call', toolName: pending.toolName, arguments: pending.arguments, source: 'pending_confirmation_stage_1'}, pending.toolName, pendingTool, true);
+      return withTrace(body, {
+        type: 'final',
+        reply,
+        narration: reply,
+        status: 'double_confirmation_required',
+        pendingConfirmation: nextPending,
+      }, trace);
+    }
     pending.arguments._confirmedByGateway = true;
+    if (pendingTool && pendingTool.doubleConfirmationRequired) {
+      pending.arguments._doubleConfirmedByGateway = true;
+    }
     const trace = buildToolTrace(body, tools, {type: 'tool_call', toolName: pending.toolName, arguments: pending.arguments, source: 'pending_confirmation'}, pending.toolName, toolByName(tools, pending.toolName), false);
     return withTrace(body, {
       type: 'tool_call',
@@ -677,6 +731,7 @@ async function askOpenAIToolTurn(body) {
     'Google Docs rule: for a request to create a Google Doc, call docs.create with title and body. Do not call Drive tools for document content.',
     'Google Docs rule: for a request to read or edit a Google Doc, use docs.search if needed, then docs.read or docs.update.',
     'Google Sheets rule: for spreadsheet creation or cell edits, use sheets.create, sheets.search, sheets.read, or sheets.update.',
+    'Delete rule: only use delete/trash/remove tools when the latest user request explicitly asks to delete, trash, remove, or cancel. Use drive.delete, docs.delete, sheets.delete, gmail.trash, calendar.delete_event, or lists.remove_item as appropriate. Search/read first if you need the target ID.',
     'Attachment rule: workingMemory.attachedFiles is the current session file collection. Use attached textPreview content directly when the user asks about attached text files.',
     'Attachment rule: image attachments are provided as input_image content. Describe and analyze them directly for accessibility. Do not say image analysis is unavailable when imagePreviewAvailable is true.',
     'Attachment rule: activeFileIds are the most recent or referenced attachments. Resolve this file, that image, the attachment, or similar references to a sessionFileId before calling a file tool.',
@@ -703,7 +758,7 @@ async function askOpenAIToolTurn(body) {
     'Tool limit recovery rule: when Available tools JSON is empty and Tool results JSON is non-empty, return a final answer using the accumulated tool results. Do not request another tool. Do not say the plan did not converge.',
     'Reading recommendation rule: when the user asks for a new audiobook or reading suggestions and reading-log context is available in transcript, workingMemory, attachments, or tool results, provide concrete recommendations with brief reasons. Do not report an issue unless the latest user request asks to report.',
     'Hide plumbing. Do not mention tokens, HTTP, file IDs, scopes, timestamps, or diagnostics unless the user explicitly asks for diagnostics.',
-    'Writes with confirmationRequired=true may be requested as tool calls; the gateway will enforce confirmation. Do not invent unsupported delete tools.',
+    'Writes with confirmationRequired=true may be requested as tool calls; the gateway will enforce confirmation. Tools with doubleConfirmationRequired=true are delete/trash/remove tools and must receive two explicit confirmations before execution.',
     'JSON schema for tool call: {"type":"tool_call","toolName":"tool.name","arguments":{}}',
     'JSON schema for final answer: {"type":"final","reply":"...","narration":"...","status":"gpt_5_5_complete"}',
     'Set narration to the same text as reply. The app must not speak a short alternate summary that differs from the visible answer.',
@@ -774,6 +829,18 @@ async function askOpenAIToolTurn(body) {
         }, trace);
       }
       const sanitizedArgs = sanitizeToolArguments(tool, args);
+      if (tool.doubleConfirmationRequired) {
+        const stage = messageConfirms(message) ? 2 : 1;
+        const reply = confirmationReply(toolName, sanitizedArgs, stage);
+        const trace = buildToolTrace(body, tools, parsed, toolName, tool, true);
+        return withTrace(body, {
+          type: 'final',
+          reply,
+          narration: reply,
+          status: stage >= 2 ? 'double_confirmation_required' : 'confirmation_required',
+          pendingConfirmation: pendingConfirmation(toolName, sanitizedArgs, stage),
+        }, trace);
+      }
       if (tool.confirmationRequired && !messageConfirms(message)) {
         const reply = confirmationReply(toolName, sanitizedArgs);
         const trace = buildToolTrace(body, tools, parsed, toolName, tool, true);
@@ -810,7 +877,7 @@ async function askOpenAIToolTurn(body) {
 
 
 exports.health = onRequest((req, res) => {
-  res.set(CORS_HEADERS).json({ok: true, service: 'home-center-gateway', confirmationFlow: 'short-confirm-v1', toolContractVersion: 'google-github-knowledge-cru-v1', contractGroups: ['drive', 'docs', 'sheets', 'lists', 'gmail', 'calendar', 'contacts', 'github', 'knowledge']});
+  res.set(CORS_HEADERS).json({ok: true, service: 'home-center-gateway', confirmationFlow: 'short-confirm-v1', toolContractVersion: 'google-github-knowledge-delete-cru-v1', contractGroups: ['drive', 'docs', 'sheets', 'lists', 'gmail', 'calendar', 'contacts', 'github', 'knowledge']});
 });
 
 exports.googleAuthCodeExchange = onRequest(async (req, res) => {

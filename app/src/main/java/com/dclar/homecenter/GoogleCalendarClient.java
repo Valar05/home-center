@@ -37,6 +37,7 @@ final class GoogleCalendarClient {
             if ("calendar.create_event".equals(toolName)) return createEventTool(token.value, arguments);
             if ("calendar.update_event".equals(toolName)) return updateEventTool(token.value, arguments);
             if ("calendar.respond_event".equals(toolName)) return respondEventTool(token.value, arguments, account == null ? "" : account.getEmail());
+            if ("calendar.delete_event".equals(toolName)) return deleteEventTool(token.value, arguments);
             return toolError(toolName, "unknown_tool", "Android does not expose that Calendar tool.");
         } catch (Exception ex) {
             return toolError(toolName, "calendar_error", safe(ex.getMessage()));
@@ -117,6 +118,16 @@ final class GoogleCalendarClient {
         if (!found) return toolError("calendar.respond_event", "attendee_not_found", "Signed-in email is not an attendee on this event.");
         JSONObject updated = patchJson(BASE_URL + "/" + Uri.encode(eventId) + "?sendUpdates=all", token, new JSONObject().put("attendees", attendees));
         return eventResult("calendar.respond_event", updated, eventId).put("status", "calendar_event_responded");
+    }
+
+    private JSONObject deleteEventTool(String token, JSONObject arguments) throws Exception {
+        String eventId = cleanArg(arguments, "eventId");
+        if (eventId.isEmpty()) return toolError("calendar.delete_event", "missing_event_id", "calendar.delete_event requires eventId.");
+        requestText("DELETE", BASE_URL + "/" + Uri.encode(eventId) + "?sendUpdates=all", token, null);
+        return baseResult("calendar.delete_event", true)
+                .put("status", "calendar_event_deleted")
+                .put("eventId", eventId)
+                .put("title", cleanArg(arguments, "title"));
     }
 
     private JSONObject eventPatch(JSONObject arguments) throws Exception {
