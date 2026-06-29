@@ -378,7 +378,19 @@ function pendingConfirmationFromBody(body, tools) {
   const tool = toolByName(tools, pending.toolName);
   if (!tool || !tool.confirmationRequired) return null;
   const args = pending.arguments && typeof pending.arguments === 'object' ? pending.arguments : {};
-  return pendingConfirmation(pending.toolName, args);
+  return pendingConfirmation(pending.toolName, sanitizeToolArguments(tool, args));
+}
+
+function sanitizeToolArguments(tool, args) {
+  if (!tool || !args || typeof args !== 'object') return {};
+  const allowed = new Set(Array.isArray(tool.arguments) ? tool.arguments : []);
+  const sanitized = {};
+  for (const [key, value] of Object.entries(args)) {
+    if (allowed.has(key) || key === '_confirmedByGateway') {
+      sanitized[key] = value;
+    }
+  }
+  return sanitized;
 }
 
 function compactToolNames(tools) {
@@ -472,8 +484,8 @@ function resolveToolArgsFromWorkingMemory(body, toolName, args) {
     const referencesFolder = targetKeys.some((key) => UNRESOLVED_REFERENCE_LITERALS.has(normalizedReferenceLiteral(args[key])));
     if (referencesFolder || args.addParentId === memory.lastFolder.fileId || args.parentId === memory.lastFolder.fileId || args.folderId === memory.lastFolder.fileId) {
       if (memory.lastFolder.fileId && !args.addParentId && toolName === 'drive.update_metadata') args.addParentId = memory.lastFolder.fileId;
-      if (memory.lastFolder.fileId && !args.folderId) args.folderId = memory.lastFolder.fileId;
-      if (memory.lastFolder.name && !args.folderName) args.folderName = memory.lastFolder.name;
+      if (memory.lastFolder.fileId && !args.folderId && toolName !== 'drive.update_metadata') args.folderId = memory.lastFolder.fileId;
+      if (memory.lastFolder.name && !args.folderName && toolName !== 'drive.update_metadata') args.folderName = memory.lastFolder.name;
     }
   }
   if (toolName && toolName.startsWith('sheets.') && memory.lastSheet) {
@@ -677,12 +689,17 @@ async function askOpenAIToolTurn(body) {
     'Calendar display rule: in confirmations and final replies, use the event title/summary such as Home Center notification. Do not show eventId values unless the user explicitly asks for technical details.',
     'Public web rule: you also have OpenAI web_search for public web pages, including public GitHub repositories. Use web_search for public GitHub repo questions, README discovery, file discovery, and public documentation lookup.',
     'Feedback/report rule: if the user asks to report this, file an issue, save this bug, says this is broken, that was wrong, feedback, or send this to GitHub, do not solve the original problem again. Draft a GitHub issue using evidenceContext and call github.create_issue.',
+    'Feedback/report rule: only use github.create_issue when the latest user request explicitly asks to report, file, save feedback, or send to GitHub. Do not treat older report context as the active request.',
     'Feedback/report rule: default repo is Valar05/home-center. The issue body must include Summary, User Report, Conversation Evidence, Expected Behavior, Actual Behavior, Suspected Area, Environment, and Raw Debug Context if available.',
     'Feedback/report rule: preserve exact user wording and exact assistant response from evidenceContext.recentConversationEvidence. If evidence is absent or too vague, ask for a short description and do not call github.create_issue.',
     'Feedback/report rule: suspected area must be one of GPT/tool planning, Android tool broker, Google Drive/Docs client, confirmation flow, working memory/reference resolution, Cartesia/narration, UI/accessibility, stale APK/install, provider/gateway, unknown.',
+    'Latest intent rule: the latest user request controls. If the latest request asks for recommendations, summaries, answers, reading suggestions, or next actions, answer that request from available context and tool results instead of continuing an older workflow.',
+    'Document cleanup rule: if the latest request asks to clean up, reorganize, consolidate, or make a document section more organized, use workingMemory.lastDocument or recent docs.read results, then request docs.update with the cleaned structure. Do not stop after describing what cleanup is needed.',
     'Do not claim a GitHub tool is required for public GitHub repositories. A GitHub tool is only required for private repo access, authenticated GitHub writes, issues, pull requests, or repository mutations.',
     'If a needed app-owned capability is absent, explain the missing capability group from unavailableToolGroups and ask the user to reconnect Google if scopes are missing.',
     'If a tool succeeds but does not fully answer the user request, continue with another tool call. A successful tool call is not a final answer unless it satisfies the request.',
+    'Tool limit recovery rule: when Available tools JSON is empty and Tool results JSON is non-empty, return a final answer using the accumulated tool results. Do not request another tool. Do not say the plan did not converge.',
+    'Reading recommendation rule: when the user asks for a new audiobook or reading suggestions and reading-log context is available in transcript, workingMemory, attachments, or tool results, provide concrete recommendations with brief reasons. Do not report an issue unless the latest user request asks to report.',
     'Hide plumbing. Do not mention tokens, HTTP, file IDs, scopes, timestamps, or diagnostics unless the user explicitly asks for diagnostics.',
     'Writes with confirmationRequired=true may be requested as tool calls; the gateway will enforce confirmation. Do not invent unsupported delete tools.',
     'JSON schema for tool call: {"type":"tool_call","toolName":"tool.name","arguments":{}}',
@@ -754,25 +771,26 @@ async function askOpenAIToolTurn(body) {
           status: 'tool_unavailable',
         }, trace);
       }
+      const sanitizedArgs = sanitizeToolArguments(tool, args);
       if (tool.confirmationRequired && !messageConfirms(message)) {
-        const reply = confirmationReply(toolName, args);
+        const reply = confirmationReply(toolName, sanitizedArgs);
         const trace = buildToolTrace(body, tools, parsed, toolName, tool, true);
         return withTrace(body, {
           type: 'final',
           reply,
           narration: reply,
           status: 'confirmation_required',
-          pendingConfirmation: pendingConfirmation(toolName, args),
+          pendingConfirmation: pendingConfirmation(toolName, sanitizedArgs),
         }, trace);
       }
       if (tool.confirmationRequired) {
-        args._confirmedByGateway = true;
+        sanitizedArgs._confirmedByGateway = true;
       }
       const trace = buildToolTrace(body, tools, parsed, toolName, tool, false);
       return withTrace(body, {
         type: 'tool_call',
         toolName,
-        arguments: args,
+        arguments: sanitizedArgs,
         status: 'tool_call_requested',
       }, trace);
     }
@@ -983,7 +1001,7 @@ async function synthesizeCartesia(text) {
 async function ttsHandler(req, res) {
   if (handleOptions(req, res)) return;
   try {
-    const text = safeText(req.body && req.body.text, 1200);
+    const text = safeText(req.body && req.body.text, 12000);
     if (!text) {
       res.set(CORS_HEADERS).status(400).send('text is required');
       return;

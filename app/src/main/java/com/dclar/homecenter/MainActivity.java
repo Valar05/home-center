@@ -38,6 +38,7 @@ import android.speech.RecognitionListener;
 import android.speech.RecognizerIntent;
 import android.speech.SpeechRecognizer;
 import android.speech.tts.TextToSpeech;
+import android.speech.tts.UtteranceProgressListener;
 import android.text.InputType;
 import android.text.method.PasswordTransformationMethod;
 import android.text.method.SingleLineTransformationMethod;
@@ -1079,7 +1080,7 @@ public final class MainActivity extends Activity implements RecognitionListener,
                 return;
             }
             pendingToolConfirmation = null;
-            finishAgentReply(clean, "I could not finish that request because the tool plan did not converge.", "I could not finish that request because the tool plan did not converge.", "tool_loop_limit", null);
+            finishFromToolResultsAfterLimit(idToken, clean, toolResults);
         } catch (Exception ex) {
             main.post(() -> {
                 LocalLog.info("agent", "tool_loop_failed: " + shortMessage(ex.getMessage()));
@@ -1087,6 +1088,36 @@ public final class MainActivity extends Activity implements RecognitionListener,
                 showAssistantMessage("The agent gateway failed: " + shortMessage(ex.getMessage()));
             });
         }
+    }
+
+    private void finishFromToolResultsAfterLimit(String idToken, String clean, JSONArray toolResults) throws Exception {
+        LocalLog.info("agent_trace", "tool_loop_limit_recovery_start toolResults=" + toolResults.length());
+        OpenAiAgentClient.ToolTurn recovery = openAiAgentClient.sendToolTurn(
+                idToken,
+                clean,
+                recentTranscriptSnapshot(),
+                conversationSummary,
+                toolResults,
+                new JSONArray(),
+                new JSONArray(),
+                null,
+                workingMemorySnapshot(),
+                currentTimeContext(),
+                evidenceContextSnapshot(clean),
+                attachmentImagesSnapshot());
+        LocalLog.info("agent_trace", "tool_loop_limit_recovery status=" + recovery.status + " type=" + recovery.type + " requestedTool=" + recovery.toolName);
+        if (recovery.requestsTool()) {
+            finishAgentReply(clean,
+                    "I found information, but I need you to ask the last step again so I can answer from it.",
+                    "I found information, but I need you to ask the last step again so I can answer from it.",
+                    "tool_loop_limit_recovery_requested_tool",
+                    null);
+            return;
+        }
+        String reply = recovery.reply == null || recovery.reply.trim().isEmpty()
+                ? "I found information, but I could not turn it into a final answer."
+                : recovery.reply;
+        finishAgentReply(clean, reply, reply, "tool_loop_limit_recovered", null);
     }
 
     private boolean isGoogleToolAuthFailure(JSONObject result) {
@@ -3229,6 +3260,7 @@ public final class MainActivity extends Activity implements RecognitionListener,
         }
         lastSpoken = clean;
         setStatus(clean);
+        LocalLog.info("speech", "speech_request displayedResponseLength=" + clean.length() + " ttsTextLength=" + clean.length());
         pauseExternalPlaybackForSpeech();
         requestSpeechFocus();
         String utteranceId = "home_center_" + System.currentTimeMillis();
@@ -3389,14 +3421,9 @@ public final class MainActivity extends Activity implements RecognitionListener,
         if (deviceTextToSpeech != null && deviceTextToSpeechReady) {
             LocalLog.info("speech", "device_tts_fallback cause=" + shortMessage(cartesiaCause));
             setSpeechPlaying(true);
+            configureDeviceTtsCompletionCallbacks();
             int result = deviceTextToSpeech.speak(message, TextToSpeech.QUEUE_FLUSH, null, utteranceId);
             if (result != TextToSpeech.ERROR) {
-                main.postDelayed(() -> {
-                    if (isCurrentSpeechSequence(sequence)) {
-                        setSpeechPlaying(false);
-                        abandonSpeechFocusFor(utteranceId);
-                    }
-                }, Math.max(2500L, Math.min(60000L, message.length() * 85L)));
                 return;
             }
             LocalLog.warn("speech", "device_tts_speak_failed cause=" + shortMessage(cartesiaCause));
@@ -3406,6 +3433,40 @@ public final class MainActivity extends Activity implements RecognitionListener,
         setStatus("Narration is unavailable right now: " + cartesiaCause + ".");
         setSpeechPlaying(false);
         abandonSpeechFocusFor(utteranceId);
+    }
+
+    private void configureDeviceTtsCompletionCallbacks() {
+        if (deviceTextToSpeech == null) {
+            return;
+        }
+        deviceTextToSpeech.setOnUtteranceProgressListener(new UtteranceProgressListener() {
+            @Override
+            public void onStart(String utteranceId) {
+                LocalLog.info("speech", "device_tts_start utteranceId=" + utteranceId);
+            }
+
+            @Override
+            public void onDone(String utteranceId) {
+                main.post(() -> {
+                    if (utteranceId != null && utteranceId.equals(activeSpeechUtteranceId)) {
+                        LocalLog.info("speech", "device_tts_complete utteranceId=" + utteranceId);
+                        setSpeechPlaying(false);
+                        abandonSpeechFocusFor(utteranceId);
+                    }
+                });
+            }
+
+            @Override
+            public void onError(String utteranceId) {
+                main.post(() -> {
+                    if (utteranceId != null && utteranceId.equals(activeSpeechUtteranceId)) {
+                        LocalLog.warn("speech", "device_tts_error utteranceId=" + utteranceId);
+                        setSpeechPlaying(false);
+                        abandonSpeechFocusFor(utteranceId);
+                    }
+                });
+            }
+        });
     }
 
     private byte[] readSpeechPcm(InputStream rawInput, long sequence) throws IOException {
