@@ -3551,7 +3551,7 @@ public final class MainActivity extends Activity implements RecognitionListener,
                 zeroWrites += 1;
                 LocalLog.warn("speech", "audio_track_zero_write receivedBytes=" + pcm.length + " writtenBytes=" + writtenBytes + " zeroWrites=" + zeroWrites);
                 if (zeroWrites > 500) {
-                    break;
+                    throw new IOException("Cartesia audio playback stalled: receivedBytes=" + pcm.length + " writtenBytes=" + writtenBytes);
                 }
                 SystemClock.sleep(20L);
                 continue;
@@ -3559,6 +3559,9 @@ public final class MainActivity extends Activity implements RecognitionListener,
             zeroWrites = 0;
             offset += count;
             writtenBytes += count;
+        }
+        if (offset < pcm.length && isCurrentSpeechSequence(sequence)) {
+            throw new IOException("Cartesia audio playback incomplete: receivedBytes=" + pcm.length + " writtenBytes=" + writtenBytes);
         }
         LocalLog.info("speech", "cartesia_pcm_write receivedBytes=" + pcm.length + " writtenBytes=" + writtenBytes);
         return writtenBytes;
