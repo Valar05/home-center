@@ -1167,7 +1167,10 @@ final class HomeTaskClient {
                 .continueWithTask(task -> {
                     Map<String, Object> list = new HashMap<>();
                     list.put("name", normalizeListName(listName));
+                    list.put("visibility", "household");
+                    list.put("ownerUid", user.getUid());
                     list.put("updatedAt", FieldValue.serverTimestamp());
+                    list.put("updatedBy", user.getUid());
                     LocalLog.info("firebase.ensureList", "bucket=" + bucketId + " list=" + listRef.getId());
                     return listRef.set(list, SetOptions.merge());
                 });
