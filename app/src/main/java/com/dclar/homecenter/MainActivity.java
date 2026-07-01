@@ -103,6 +103,7 @@ public final class MainActivity extends Activity implements RecognitionListener,
     private static final int REQUEST_CART_REVIEW_IMPORT = 3001;
     private static final int REQUEST_DRIVE_AUTH = 4001;
     private static final int REQUEST_FILE_ATTACH = 5001;
+    private static final int MAX_AGENT_TOOL_STEPS = 16;
     private static final int MAX_ATTACHMENT_PREVIEW_CHARS = 20000;
     private static final int MAX_IMAGE_ATTACHMENT_BYTES = 8 * 1024 * 1024;
     private static final String WALMART_PACKAGE = "com.walmart.android";
@@ -1028,7 +1029,7 @@ public final class MainActivity extends Activity implements RecognitionListener,
         JSONArray toolResults = new JSONArray();
         try {
             OpenAiAgentClient.ToolTurn turn = null;
-            for (int step = 0; step < 6; step++) {
+            for (int step = 0; step < MAX_AGENT_TOOL_STEPS; step++) {
                 GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(this);
                 JSONArray availableTools = ToolRegistry.availableTools(account, hasSignedInHomeUser());
                 JSONArray unavailableGroups = ToolRegistry.unavailableToolGroups(account, hasSignedInHomeUser());
@@ -1109,9 +1110,10 @@ public final class MainActivity extends Activity implements RecognitionListener,
                 attachmentImagesSnapshot());
         LocalLog.info("agent_trace", "tool_loop_limit_recovery status=" + recovery.status + " type=" + recovery.type + " requestedTool=" + recovery.toolName);
         if (recovery.requestsTool()) {
+            String fallback = synthesizeToolLoopProgressReply(toolResults);
             finishAgentReply(clean,
-                    "I found information, but I need you to ask the last step again so I can answer from it.",
-                    "I found information, but I need you to ask the last step again so I can answer from it.",
+                    fallback,
+                    fallback,
                     "tool_loop_limit_recovery_requested_tool",
                     null);
             return;
@@ -1119,7 +1121,96 @@ public final class MainActivity extends Activity implements RecognitionListener,
         String reply = recovery.reply == null || recovery.reply.trim().isEmpty()
                 ? "I found information, but I could not turn it into a final answer."
                 : recovery.reply;
+        if (containsForbiddenToolPlanPhrase(reply)) {
+            reply = synthesizeToolLoopProgressReply(toolResults);
+        }
         finishAgentReply(clean, reply, reply, "tool_loop_limit_recovered", null);
+    }
+
+    private boolean containsForbiddenToolPlanPhrase(String value) {
+        String lower = value == null ? "" : value.toLowerCase(Locale.US);
+        return lower.contains("tool plan") && lower.contains("did not converge");
+    }
+
+    private String synthesizeToolLoopProgressReply(JSONArray toolResults) {
+        List<String> successes = new ArrayList<>();
+        String failedTool = "";
+        String failedMessage = "";
+        for (int i = 0; i < toolResults.length(); i++) {
+            JSONObject entry = toolResults.optJSONObject(i);
+            if (entry == null) {
+                continue;
+            }
+            String toolName = entry.optString("name", "tool");
+            JSONObject result = entry.optJSONObject("result");
+            boolean ok = result != null && result.optBoolean("ok", false);
+            if (ok) {
+                if (successes.size() < 8) {
+                    successes.add(toolProgressSummary(toolName, result));
+                }
+            } else if (failedTool.isEmpty()) {
+                failedTool = toolName;
+                failedMessage = result == null ? "the tool did not return a result" : firstNonEmpty(
+                        result.optString("spokenMessage", ""),
+                        result.optString("detail", ""),
+                        result.optString("error", ""),
+                        "the tool failed");
+            }
+        }
+        String succeeded = successes.isEmpty() ? "nothing" : joinSentences(successes);
+        if (!failedTool.isEmpty()) {
+            return "Failed at " + failedTool + ": " + failedMessage
+                    + "\n\nSucceeded before it: " + succeeded
+                    + "\n\nNext action needed: fix that failure, then ask me to continue.";
+        }
+        if (successes.isEmpty()) {
+            return "I stopped before completing the request."
+                    + "\n\nSucceeded before it: nothing."
+                    + "\n\nNext action needed: ask me to continue or narrow the request.";
+        }
+        return "I completed these steps before the tool loop stopped: " + succeeded
+                + "\n\nI stopped before completing the remaining requested steps."
+                + "\n\nNext action needed: ask me to continue from the last completed step.";
+    }
+
+    private String toolProgressSummary(String toolName, JSONObject result) {
+        if (result == null) {
+            return toolName;
+        }
+        String spoken = result.optString("spokenMessage", "").trim();
+        if (!spoken.isEmpty()) {
+            return toolName + " (" + spoken + ")";
+        }
+        JSONObject file = result.optJSONObject("file");
+        if (file != null && !file.optString("name", "").trim().isEmpty()) {
+            return toolName + " (" + file.optString("name").trim() + ")";
+        }
+        String status = result.optString("status", "").trim();
+        if (!status.isEmpty()) {
+            return toolName + " (" + status + ")";
+        }
+        return toolName;
+    }
+
+    private String firstNonEmpty(String first, String second, String third, String fallback) {
+        if (first != null && !first.trim().isEmpty()) return first.trim();
+        if (second != null && !second.trim().isEmpty()) return second.trim();
+        if (third != null && !third.trim().isEmpty()) return third.trim();
+        return fallback;
+    }
+
+    private String joinSentences(List<String> values) {
+        StringBuilder builder = new StringBuilder();
+        for (String value : values) {
+            if (value == null || value.trim().isEmpty()) {
+                continue;
+            }
+            if (builder.length() > 0) {
+                builder.append("; ");
+            }
+            builder.append(value.trim());
+        }
+        return builder.length() == 0 ? "nothing" : builder.toString();
     }
 
     private boolean isGoogleToolAuthFailure(JSONObject result) {

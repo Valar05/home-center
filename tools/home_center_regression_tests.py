@@ -376,7 +376,34 @@ require_contains(functions_index, 'Unavailable tool groups JSON', 'agentToolTurn
 require_contains(functions_index, 'Tool limit recovery rule: when Available tools JSON is empty and Tool results JSON is non-empty', 'gateway can recover final answers from accumulated tool results')
 require_contains(main_activity, 'finishFromToolResultsAfterLimit(idToken, clean, toolResults)', 'Android recovers from tool loop limit through GPT final answer pass')
 require_contains(main_activity, 'tool_loop_limit_recovery_start', 'Android logs tool loop recovery start')
+require_contains(main_activity, 'MAX_AGENT_TOOL_STEPS = 16', 'Android tool loop allows red-build multi-step journeys')
+require_absent(main_activity, 'step < 6', 'Android tool loop must not stop after six tool calls')
+require_contains(main_activity, 'containsForbiddenToolPlanPhrase(reply)', 'Android blocks forbidden convergence phrase from recovery replies')
+require_contains(main_activity, 'synthesizeToolLoopProgressReply(toolResults)', 'Android synthesizes concrete progress report on tool-loop exhaustion')
+require_contains(main_activity, 'Succeeded before it:', 'Android tool-loop fallback reports prior successes')
+require_contains(main_activity, 'Next action needed:', 'Android tool-loop fallback reports a concrete next action')
+require_contains(functions_index, 'sanitizeFinalPlannerReply(body', 'Gateway sanitizes final planner replies before returning them')
+require_contains(functions_index, 'containsForbiddenToolPlanPhrase(reply)', 'Gateway detects forbidden convergence phrase in final planner replies')
+require_contains(functions_index, 'synthesizeToolLoopProgressReply(Array.isArray(body && body.toolResults)', 'Gateway uses accumulated tool results for progress fallback')
+require_contains(functions_index, 'tool_loop_progress_fallback', 'Gateway marks sanitized convergence replies')
 require_absent(main_activity, 'finishAgentReply(clean, "I could not finish that request because the tool plan did not converge."', 'Android must not directly show generic convergence failure')
+red_build_tool_loop_contract = {
+    'input': "Run a red-build self-test. Read my Home Center Live items list. Add this item to Shipyard. Find June's Holocron. Find my Reading Log. Find Final and Vacation of a Lifetime Story Bible. If anything fails, do not say tool plan did not converge.",
+    'source_expectations': [
+        'MAX_AGENT_TOOL_STEPS = 16',
+        'containsForbiddenToolPlanPhrase(reply)',
+        'synthesizeToolLoopProgressReply(toolResults)',
+        'Succeeded before it:',
+        'Next action needed:',
+        'sanitizeFinalPlannerReply(body',
+        'tool_loop_progress_fallback',
+    ],
+}
+if not red_build_tool_loop_contract['input']:
+    fail('red-build tool-loop contract is missing exact user input')
+for expected in red_build_tool_loop_contract['source_expectations']:
+    if expected not in functions_index and expected not in main_activity:
+        fail(f"red-build tool-loop contract is missing source expectation {expected}")
 require_contains(functions_index, 'Set narration to the same text as reply', 'gateway prompt forbids mismatched TTS narration')
 require_contains(functions_index, 'narration: safeText(parsed.reply || parsed.text, 12000)', 'gateway returns reply text as narration for installed APK compatibility')
 require_contains(functions_index, 'toolByName(tools, toolName)', 'gateway rejects unadvertised tool calls')

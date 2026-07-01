@@ -453,6 +453,60 @@ function withTrace(body, response, trace) {
   });
 }
 
+function containsForbiddenToolPlanPhrase(value) {
+  const lower = String(value || '').toLowerCase();
+  return lower.includes('tool plan') && lower.includes('did not converge');
+}
+
+function toolProgressSummary(entry) {
+  const name = safeText(entry && entry.name, 80) || 'tool';
+  const result = entry && typeof entry.result === 'object' ? entry.result : {};
+  const spoken = safeText(result.spokenMessage, 240);
+  if (spoken) return `${name} (${spoken})`;
+  const fileName = result.file && typeof result.file === 'object' ? safeText(result.file.name, 160) : '';
+  if (fileName) return `${name} (${fileName})`;
+  const status = safeText(result.status, 120);
+  if (status) return `${name} (${status})`;
+  return name;
+}
+
+function synthesizeToolLoopProgressReply(toolResults) {
+  const successes = [];
+  let failedTool = '';
+  let failedMessage = '';
+  for (const entry of Array.isArray(toolResults) ? toolResults : []) {
+    const result = entry && typeof entry.result === 'object' ? entry.result : {};
+    if (result.ok === true) {
+      if (successes.length < 8) successes.push(toolProgressSummary(entry));
+      continue;
+    }
+    if (!failedTool) {
+      failedTool = safeText(entry && entry.name, 80) || 'tool';
+      failedMessage = safeText(result.spokenMessage || result.detail || result.error || 'the tool failed', 500);
+    }
+  }
+  const succeeded = successes.length ? successes.join('; ') : 'nothing';
+  if (failedTool) {
+    return `Failed at ${failedTool}: ${failedMessage}\n\nSucceeded before it: ${succeeded}\n\nNext action needed: fix that failure, then ask me to continue.`;
+  }
+  if (!successes.length) {
+    return 'I stopped before completing the request.\n\nSucceeded before it: nothing.\n\nNext action needed: ask me to continue or narrow the request.';
+  }
+  return `I completed these steps before the tool loop stopped: ${succeeded}\n\nI stopped before completing the remaining requested steps.\n\nNext action needed: ask me to continue from the last completed step.`;
+}
+
+function sanitizeFinalPlannerReply(body, response) {
+  if (!response || response.type !== 'final') return response;
+  const reply = safeText(response.reply || response.text, 12000);
+  if (!containsForbiddenToolPlanPhrase(reply)) return response;
+  const replacement = synthesizeToolLoopProgressReply(Array.isArray(body && body.toolResults) ? body.toolResults : []);
+  return Object.assign({}, response, {
+    reply: replacement,
+    narration: replacement,
+    status: 'tool_loop_progress_fallback',
+  });
+}
+
 const UNRESOLVED_REFERENCE_LITERALS = new Set([
   'that document',
   'the document',
@@ -865,12 +919,12 @@ async function askOpenAIToolTurn(body) {
       }, trace);
     }
     const trace = buildToolTrace(body, tools, parsed, safeText(parsed.toolName || parsed.name, 80), toolByName(tools, safeText(parsed.toolName || parsed.name, 80)), false);
-    return withTrace(body, {
+    return withTrace(body, sanitizeFinalPlannerReply(body, {
       type: 'final',
       reply: safeText(parsed.reply || parsed.text, 12000) || 'I did not get a useful GPT-5.5 response.',
       narration: safeText(parsed.reply || parsed.text, 12000),
       status: safeText(parsed.status, 160) || 'gpt_5_5_complete',
-    }, trace);
+    }), trace);
   } catch (err) {
     return plannerParseFailureReply(text, err);
   }
