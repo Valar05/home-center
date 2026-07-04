@@ -507,6 +507,32 @@ function sanitizeFinalPlannerReply(body, response) {
   });
 }
 
+function finalReplyText(parsed, rawText = '') {
+  if (!parsed || typeof parsed !== 'object') return safeText(rawText, 12000);
+  const direct = parsed.reply
+    || parsed.text
+    || parsed.answer
+    || parsed.message
+    || parsed.content
+    || parsed.final
+    || parsed.finalAnswer
+    || parsed.final_response
+    || parsed.response
+    || '';
+  if (typeof direct === 'string' && direct.trim()) return safeText(direct, 12000);
+  if (Array.isArray(parsed.content)) {
+    const joined = parsed.content.map((item) => {
+      if (typeof item === 'string') return item;
+      if (item && typeof item.text === 'string') return item.text;
+      if (item && typeof item.content === 'string') return item.content;
+      return '';
+    }).filter(Boolean).join('\n');
+    if (joined.trim()) return safeText(joined, 12000);
+  }
+  if (rawText && !looksLikeToolCallJson(rawText)) return safeText(rawText, 12000);
+  return '';
+}
+
 const UNRESOLVED_REFERENCE_LITERALS = new Set([
   'that document',
   'the document',
@@ -919,10 +945,11 @@ async function askOpenAIToolTurn(body) {
       }, trace);
     }
     const trace = buildToolTrace(body, tools, parsed, safeText(parsed.toolName || parsed.name, 80), toolByName(tools, safeText(parsed.toolName || parsed.name, 80)), false);
+    const finalReply = finalReplyText(parsed, text);
     return withTrace(body, sanitizeFinalPlannerReply(body, {
       type: 'final',
-      reply: safeText(parsed.reply || parsed.text, 12000) || 'I did not get a useful GPT-5.5 response.',
-      narration: safeText(parsed.reply || parsed.text, 12000),
+      reply: finalReply || 'I could not turn the GPT-5.5 response into a final answer. Please try again.',
+      narration: finalReply || 'I could not turn the GPT-5.5 response into a final answer.',
       status: safeText(parsed.status, 160) || 'gpt_5_5_complete',
     }), trace);
   } catch (err) {

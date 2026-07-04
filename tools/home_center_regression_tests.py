@@ -414,8 +414,13 @@ for expected in red_build_tool_loop_contract['source_expectations']:
     if expected not in functions_index and expected not in main_activity:
         fail(f"red-build tool-loop contract is missing source expectation {expected}")
 require_contains(functions_index, 'Set narration to the same text as reply', 'gateway prompt forbids mismatched TTS narration')
-require_contains(functions_index, 'narration: safeText(parsed.reply || parsed.text, 12000)', 'gateway returns reply text as narration for installed APK compatibility')
+require_contains(functions_index, 'narration: finalReply ||', 'gateway returns normalized final reply text as narration for installed APK compatibility')
 require_contains(functions_index, 'toolByName(tools, toolName)', 'gateway rejects unadvertised tool calls')
+require_contains(functions_index, 'function finalReplyText(parsed, rawText = \'\')', 'gateway normalizes final answer JSON shapes')
+for final_alias in ['parsed.answer', 'parsed.message', 'parsed.content', 'parsed.final', 'parsed.finalAnswer', 'parsed.final_response', 'parsed.response']:
+    require_contains(functions_index, final_alias, f'gateway accepts final reply alias {final_alias}')
+require_contains(functions_index, 'const finalReply = finalReplyText(parsed, text)', 'agentToolTurn uses normalized final reply text')
+require_absent(functions_index, "reply: safeText(parsed.reply || parsed.text, 12000) || 'I did not get a useful GPT-5.5 response.'", 'agentToolTurn must not emit useless valid-response fallback for alternate final JSON fields')
 require_contains(functions_index, 'tool.confirmationRequired && !messageConfirms(message)', 'gateway enforces confirmation outside prompt prose')
 require_contains(functions_index, 'sanitizedArgs._confirmedByGateway = true', 'gateway marks confirmed dangerous tool calls after sanitization')
 require_contains(functions_index, 'Say "confirm ${action}" or press Confirm.', 'confirmation copy uses short confirm phrase')
