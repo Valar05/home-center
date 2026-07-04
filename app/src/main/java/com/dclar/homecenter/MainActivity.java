@@ -138,7 +138,6 @@ public final class MainActivity extends Activity implements RecognitionListener,
     private AudioFocusRequest speechFocusRequest;
     private MediaSession speechMediaSession;
     private boolean speechFocusHeld = false;
-    private boolean externalPlaybackPausedForSpeech = false;
     private String activeSpeechUtteranceId = "";
     private volatile long speechSequence = 0L;
     private volatile boolean speechPlaying = false;
@@ -3410,7 +3409,6 @@ public final class MainActivity extends Activity implements RecognitionListener,
         lastSpoken = clean;
         setStatus(clean);
         LocalLog.info("speech", "speech_request displayedResponseLength=" + clean.length() + " ttsTextLength=" + clean.length());
-        pauseExternalPlaybackForSpeech();
         requestSpeechFocus();
         String utteranceId = "home_center_" + System.currentTimeMillis();
         activeSpeechUtteranceId = utteranceId;
@@ -3501,8 +3499,7 @@ public final class MainActivity extends Activity implements RecognitionListener,
                 if (isCurrentSpeechSequence(sequence)) {
                     main.post(() -> {
                         LocalLog.info("speech", "stop_reason=stream_complete receivedBytes=" + finalReceivedBytes + " writtenBytes=" + finalWrittenBytes);
-                        setSpeechPlaying(false);
-                        abandonSpeechFocusFor(utteranceId);
+                        finishSpeechPlaybackFor(utteranceId, "stream_complete");
                     });
                 }
             } catch (Exception ex) {
@@ -3580,8 +3577,7 @@ public final class MainActivity extends Activity implements RecognitionListener,
             LocalLog.warn("speech", "device_tts_unavailable ready=" + deviceTextToSpeechReady + " cause=" + shortMessage(cartesiaCause));
         }
         setStatus("Narration is unavailable right now: " + cartesiaCause + ".");
-        setSpeechPlaying(false);
-        abandonSpeechFocusFor(utteranceId);
+        finishSpeechPlaybackFor(utteranceId, "speech_unavailable");
     }
 
     private void configureDeviceTtsCompletionCallbacks() {
@@ -3599,8 +3595,7 @@ public final class MainActivity extends Activity implements RecognitionListener,
                 main.post(() -> {
                     if (utteranceId != null && utteranceId.equals(activeSpeechUtteranceId)) {
                         LocalLog.info("speech", "device_tts_complete utteranceId=" + utteranceId);
-                        setSpeechPlaying(false);
-                        abandonSpeechFocusFor(utteranceId);
+                        finishSpeechPlaybackFor(utteranceId, "device_tts_complete");
                     }
                 });
             }
@@ -3610,8 +3605,7 @@ public final class MainActivity extends Activity implements RecognitionListener,
                 main.post(() -> {
                     if (utteranceId != null && utteranceId.equals(activeSpeechUtteranceId)) {
                         LocalLog.warn("speech", "device_tts_error utteranceId=" + utteranceId);
-                        setSpeechPlaying(false);
-                        abandonSpeechFocusFor(utteranceId);
+                        finishSpeechPlaybackFor(utteranceId, "device_tts_error");
                     }
                 });
             }
@@ -3696,8 +3690,7 @@ public final class MainActivity extends Activity implements RecognitionListener,
             } catch (Exception ignored) {
             }
         }
-        setSpeechPlaying(false);
-        abandonSpeechFocus();
+        finishSpeechPlayback("user_stop");
         setStatus("Speech stopped.");
     }
 
@@ -3713,36 +3706,6 @@ public final class MainActivity extends Activity implements RecognitionListener,
         }
     }
 
-    private void pauseExternalPlaybackForSpeech() {
-        if (audioManager == null || externalPlaybackPausedForSpeech) {
-            return;
-        }
-        if (!audioManager.isMusicActive()) {
-            return;
-        }
-        dispatchMediaKey(KeyEvent.KEYCODE_MEDIA_PAUSE);
-        externalPlaybackPausedForSpeech = true;
-        LocalLog.info("audio", "paused_external_playback_for_speech");
-    }
-
-    private void resumeExternalPlaybackAfterSpeech() {
-        if (audioManager == null || !externalPlaybackPausedForSpeech) {
-            return;
-        }
-        dispatchMediaKey(KeyEvent.KEYCODE_MEDIA_PLAY);
-        externalPlaybackPausedForSpeech = false;
-        LocalLog.info("audio", "resumed_external_playback_after_speech");
-    }
-
-    private void dispatchMediaKey(int keyCode) {
-        if (audioManager == null) {
-            return;
-        }
-        long eventTime = System.currentTimeMillis();
-        audioManager.dispatchMediaKeyEvent(new KeyEvent(eventTime, eventTime, KeyEvent.ACTION_DOWN, keyCode, 0));
-        audioManager.dispatchMediaKeyEvent(new KeyEvent(eventTime, eventTime, KeyEvent.ACTION_UP, keyCode, 0));
-    }
-
     private void requestSpeechFocus() {
         if (audioManager == null || speechFocusHeld) {
             return;
@@ -3752,31 +3715,37 @@ public final class MainActivity extends Activity implements RecognitionListener,
                     .setUsage(AudioAttributes.USAGE_ASSISTANCE_ACCESSIBILITY)
                     .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
                     .build();
-            speechFocusRequest = new AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_EXCLUSIVE)
+            speechFocusRequest = new AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN_TRANSIENT)
                     .setAudioAttributes(attributes)
                     .setAcceptsDelayedFocusGain(false)
                     .setOnAudioFocusChangeListener(focusChange -> { })
                     .build();
         }
+        LocalLog.info("audio", "audio_focus_request type=transient");
         speechFocusHeld = audioManager.requestAudioFocus(speechFocusRequest) == AudioManager.AUDIOFOCUS_REQUEST_GRANTED;
     }
 
-    private void abandonSpeechFocusFor(String utteranceId) {
+    private void finishSpeechPlaybackFor(String utteranceId, String reason) {
         if (utteranceId != null && !utteranceId.equals(activeSpeechUtteranceId)) {
             return;
         }
         activeSpeechUtteranceId = "";
+        finishSpeechPlayback(reason);
+    }
+
+    private void finishSpeechPlayback(String reason) {
+        LocalLog.info("audio", "media_key_handoff_disabled reason=" + reason);
+        LocalLog.info("speech", "speech_cleanup reason=" + reason);
+        setSpeechPlaying(false);
         abandonSpeechFocus();
     }
 
     private void abandonSpeechFocus() {
         if (audioManager != null && speechFocusRequest != null && speechFocusHeld) {
             audioManager.abandonAudioFocusRequest(speechFocusRequest);
+            LocalLog.info("audio", "audio_focus_abandoned");
         }
         speechFocusHeld = false;
-        if (activeSpeechUtteranceId.isEmpty()) {
-            resumeExternalPlaybackAfterSpeech();
-        }
     }
 
     private void setStatus(String message) {

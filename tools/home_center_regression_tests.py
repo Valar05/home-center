@@ -21,6 +21,15 @@ def require_absent(source, needle, label):
     if needle in source:
         fail(f"{label}: still contains {needle}")
 
+def require_order(source, needles, label):
+    position = -1
+    for needle in needles:
+        found = source.find(needle, position + 1)
+        if found < 0:
+            fail(f"{label}: missing or out of order {needle}")
+            return
+        position = found
+
 def method_body(source, signature, next_signature):
     start = source.find(signature)
     if start < 0:
@@ -484,6 +493,34 @@ require_contains(main_activity, 'setOnUtteranceProgressListener', 'Device TTS fa
 require_contains(main_activity, 'device_tts_complete utteranceId=', 'Device TTS completion is logged from callback')
 require_contains(main_activity, 'speakWithDeviceTtsFallback(message, utteranceId, sequence, cause)', 'Cartesia failure falls back to device TTS')
 require_contains(main_activity, 'device_tts_fallback cause=', 'Device TTS fallback is logged with Cartesia failure cause')
+require_absent(main_activity, 'AUDIOFOCUS_GAIN_TRANSIENT_EXCLUSIVE', 'Narration must not request exclusive audio focus')
+require_contains(main_activity, 'new AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN_TRANSIENT)', 'Narration uses transient non-exclusive audio focus')
+require_contains(main_activity, 'audio_focus_request type=transient', 'Audio focus request logs transient focus type')
+require_contains(main_activity, 'audio_focus_abandoned', 'Speech cleanup logs abandoned audio focus')
+require_contains(main_activity, 'media_key_handoff_disabled reason=', 'Speech cleanup logs that media-key handoff is disabled')
+require_contains(main_activity, 'speech_cleanup reason=', 'Speech cleanup logs completion reason')
+require_absent(main_activity, 'KEYCODE_MEDIA_PAUSE', 'Narration must not send media pause commands')
+require_absent(main_activity, 'KEYCODE_MEDIA_PLAY', 'Narration must not send media play commands')
+require_absent(main_activity, 'dispatchMediaKeyEvent', 'Narration must not control the previous media player with media keys')
+require_absent(main_activity, 'pauseExternalPlaybackForSpeech', 'Narration must not manually pause external media')
+require_absent(main_activity, 'resumeExternalPlaybackAfterSpeech', 'Narration must not manually resume external media')
+require_absent(main_activity, 'externalPlaybackPausedForSpeech', 'Narration must not track stale external media ownership')
+require_contains(main_activity, 'finishSpeechPlaybackFor(utteranceId, "stream_complete")', 'Cartesia stream completion uses shared speech cleanup')
+require_contains(main_activity, 'finishSpeechPlaybackFor(utteranceId, "speech_unavailable")', 'Speech unavailable path uses shared speech cleanup')
+require_contains(main_activity, 'finishSpeechPlaybackFor(utteranceId, "device_tts_complete")', 'Device TTS completion uses shared speech cleanup')
+require_contains(main_activity, 'finishSpeechPlaybackFor(utteranceId, "device_tts_error")', 'Device TTS error uses shared speech cleanup')
+require_contains(main_activity, 'finishSpeechPlayback("user_stop")', 'Manual stop uses shared speech cleanup')
+finish_speech = method_body(main_activity, 'private void finishSpeechPlayback(String reason)', '    private void abandonSpeechFocus()')
+require_order(finish_speech, [
+    'media_key_handoff_disabled reason=',
+    'speech_cleanup reason=',
+    'setSpeechPlaying(false);',
+    'abandonSpeechFocus();',
+], 'Speech cleanup logs, deactivates media session, and abandons focus without media-key handoff')
+require_order(method_body(main_activity, 'private void updateSpeechMediaSession(boolean playing)', '    private String shortMessage'), [
+    'speechMediaSession.setPlaybackState',
+    'speechMediaSession.setActive(playing);',
+], 'Media session active state follows explicit playback state updates')
 require_contains(functions_index, 'safeText(req.body && req.body.text, 12000)', 'Hosted Cartesia endpoint accepts full long narration text')
 require_absent(functions_index, 'safeText(req.body && req.body.text, 1200)', 'Hosted Cartesia endpoint must not truncate narration at 1200 chars')
 require_contains(main_activity, 'lastSpoken = startupGreeting;', 'Startup greeting is remembered without auto-speaking over first response')
