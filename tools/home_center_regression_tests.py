@@ -387,6 +387,19 @@ require_contains(functions_index, 'docsCreateWasRequested', 'gateway trace recor
 require_contains(functions_index, 'parsedPlannerJson', 'gateway trace records parsed planner JSON')
 require_contains(functions_index, 'Unavailable tool groups JSON', 'agentToolTurn sees missing scopes')
 require_contains(functions_index, 'Tool limit recovery rule: when Available tools JSON is empty and Tool results JSON is non-empty', 'gateway can recover final answers from accumulated tool results')
+require_contains(functions_index, 'function compactToolEvidence(toolResults)', 'gateway compacts accumulated tool results for long recovery tasks')
+require_contains(functions_index, "retentionPolicy: 'latest useful evidence plus failures; long docs compacted with headings and truncated marker'", 'tool evidence digest documents retention policy')
+require_contains(functions_index, 'const latest = entries.slice(-10).map(compactToolResultForPrompt)', 'tool evidence digest keeps latest results instead of earliest results')
+require_contains(functions_index, 'const failures = entries', 'tool evidence digest preserves failures even when older')
+require_contains(functions_index, 'compactTextWithHeadings(result.text)', 'docs.read text is compacted before planner prompt transport')
+require_contains(functions_index, 'originalCharCount: normalized.length', 'compacted docs preserve original character count')
+require_contains(functions_index, 'truncated: normalized.length > maxChars', 'compacted docs mark truncation explicitly')
+require_contains(functions_index, 'Tool evidence digest JSON: ${JSON.stringify(toolEvidenceDigest)', 'gateway sends tool evidence digest to planner')
+require_contains(functions_index, 'Tool results JSON retained only for compatibility; use Tool evidence digest first', 'gateway makes digest primary over raw tool results')
+require_contains(functions_index, 'Holocron/resync recovery rule: when recovering lost conversation, Drive brain, or Holocron context', 'planner prompt handles Holocron resync as recovery task')
+require_contains(functions_index, 'do not stop after partial Google Docs reads', 'planner prompt forbids partial-read stopping in Holocron recovery')
+require_absent(functions_index, 'body.toolResults.slice(0, 8)', 'gateway must not keep only the first eight tool results')
+require_absent(functions_index, 'Tool results JSON: ${JSON.stringify(toolResults).slice(0, 16000)}', 'gateway must not raw-truncate accumulated tool results at 16k')
 require_contains(main_activity, 'finishFromToolResultsAfterLimit(idToken, clean, toolResults)', 'Android recovers from tool loop limit through GPT final answer pass')
 require_contains(main_activity, 'tool_loop_limit_recovery_start', 'Android logs tool loop recovery start')
 require_contains(main_activity, 'MAX_AGENT_TOOL_STEPS = 16', 'Android tool loop allows red-build multi-step journeys')
@@ -417,6 +430,23 @@ if not red_build_tool_loop_contract['input']:
 for expected in red_build_tool_loop_contract['source_expectations']:
     if expected not in functions_index and expected not in main_activity:
         fail(f"red-build tool-loop contract is missing source expectation {expected}")
+holocron_resync_contract = {
+    'input': 'try to resync with Google drive again after losing Holocron conversation history',
+    'source_expectations': [
+        'function compactToolEvidence(toolResults)',
+        'const latest = entries.slice(-10).map(compactToolResultForPrompt)',
+        'Tool evidence digest JSON: ${JSON.stringify(toolEvidenceDigest)',
+        'Holocron/resync recovery rule: when recovering lost conversation, Drive brain, or Holocron context',
+        'do not stop after partial Google Docs reads',
+        'truncated: normalized.length > maxChars',
+        'originalCharCount: normalized.length',
+    ],
+}
+if not holocron_resync_contract['input']:
+    fail('Holocron resync contract is missing exact user input')
+for expected in holocron_resync_contract['source_expectations']:
+    if expected not in functions_index:
+        fail(f"Holocron resync contract is missing source expectation {expected}")
 require_contains(functions_index, 'Set narration to the same text as reply', 'gateway prompt forbids mismatched TTS narration')
 require_contains(functions_index, 'narration: finalReply ||', 'gateway returns normalized final reply text as narration for installed APK compatibility')
 require_contains(functions_index, 'toolByName(tools, toolName)', 'gateway rejects unadvertised tool calls')

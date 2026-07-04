@@ -470,6 +470,86 @@ function toolProgressSummary(entry) {
   return name;
 }
 
+function compactTextWithHeadings(text, maxChars = 1800) {
+  const raw = typeof text === 'string' ? text : '';
+  const normalized = raw.replace(/\r\n/g, '\n').replace(/\n{3,}/g, '\n\n').trim();
+  const headings = [];
+  for (const line of normalized.split('\n')) {
+    const clean = line.trim();
+    if (!clean || clean.length > 140) continue;
+    if (/^(#{1,6}\s+|[A-Z][A-Za-z0-9 /&()'’:-]{2,80}$|\d+\.\s+|[-*]\s+[A-Z])/.test(clean)) {
+      headings.push(clean.replace(/^#{1,6}\s+/, '').replace(/^[-*]\s+/, ''));
+    }
+    if (headings.length >= 24) break;
+  }
+  return {
+    textPreview: safeText(normalized, maxChars),
+    headings,
+    truncated: normalized.length > maxChars,
+    originalCharCount: normalized.length,
+  };
+}
+
+function compactToolResultForPrompt(entry) {
+  const name = safeText(entry && entry.name, 80);
+  const args = entry && typeof entry.arguments === 'object' ? entry.arguments : {};
+  const result = entry && typeof entry.result === 'object' ? entry.result : {};
+  const compact = {
+    name,
+    arguments: args,
+    ok: result.ok === true,
+    error: safeText(result.error, 200),
+    status: safeText(result.status, 200),
+    detail: safeText(result.detail, 600),
+    spokenMessage: safeText(result.spokenMessage, 600),
+  };
+  if (result.file && typeof result.file === 'object') {
+    compact.file = {
+      id: safeText(result.file.id, 160),
+      name: safeText(result.file.name, 240),
+      mimeType: safeText(result.file.mimeType, 160),
+      webViewLink: safeText(result.file.webViewLink, 500),
+    };
+  }
+  if (Array.isArray(result.files)) {
+    compact.files = result.files.slice(0, 12).map((file) => ({
+      id: safeText(file && file.id, 160),
+      name: safeText(file && file.name, 240),
+      mimeType: safeText(file && file.mimeType, 160),
+      webViewLink: safeText(file && file.webViewLink, 500),
+    }));
+    compact.fileCount = result.files.length;
+  }
+  if (typeof result.text === 'string') {
+    compact.document = compactTextWithHeadings(result.text);
+  } else if (typeof result.content === 'string') {
+    compact.document = compactTextWithHeadings(result.content);
+  }
+  return compact;
+}
+
+function compactToolEvidence(toolResults) {
+  const entries = Array.isArray(toolResults) ? toolResults : [];
+  const latest = entries.slice(-10).map(compactToolResultForPrompt);
+  const failures = entries
+    .filter((entry) => !(entry && entry.result && entry.result.ok === true))
+    .slice(0, 4)
+    .map(compactToolResultForPrompt);
+  const seenFailureKeys = new Set(failures.map((entry) => `${entry.name}:${entry.error}:${entry.status}`));
+  const merged = failures.concat(latest.filter((entry) => {
+    const key = `${entry.name}:${entry.error}:${entry.status}`;
+    if (seenFailureKeys.has(key)) return false;
+    seenFailureKeys.add(key);
+    return true;
+  }));
+  return {
+    totalToolResults: entries.length,
+    retainedToolResults: merged.length,
+    retentionPolicy: 'latest useful evidence plus failures; long docs compacted with headings and truncated marker',
+    results: merged,
+  };
+}
+
 function synthesizeToolLoopProgressReply(toolResults) {
   const successes = [];
   let failedTool = '';
@@ -765,7 +845,8 @@ async function askOpenAIToolTurn(body) {
   const message = safeText(body.message, 4000);
   const summary = safeText(body.summary, 4000);
   const transcript = safeText(body.transcript, 8000);
-  const toolResults = Array.isArray(body.toolResults) ? body.toolResults.slice(0, 8) : [];
+  const toolResults = Array.isArray(body.toolResults) ? body.toolResults : [];
+  const toolEvidenceDigest = compactToolEvidence(toolResults);
   const tools = Array.isArray(body.tools) ? body.tools : [];
   const unavailableToolGroups = Array.isArray(body.unavailableToolGroups) ? body.unavailableToolGroups : [];
   const workingMemory = body && typeof body.workingMemory === 'object' ? body.workingMemory : {};
@@ -836,6 +917,8 @@ async function askOpenAIToolTurn(body) {
     'Do not claim a GitHub tool is required for public GitHub repositories. A GitHub tool is only required for private repo access, authenticated GitHub writes, issues, pull requests, or repository mutations.',
     'If a needed app-owned capability is absent, explain the missing capability group from unavailableToolGroups and ask the user to reconnect Google if scopes are missing.',
     'If a tool succeeds but does not fully answer the user request, continue with another tool call. A successful tool call is not a final answer unless it satisfies the request.',
+    'Holocron/resync recovery rule: when recovering lost conversation, Drive brain, or Holocron context, use Tool evidence digest to build a coherent recovery summary. Continue searching/reading until you can state what was recovered, what is still missing, or the exact blocker.',
+    'Holocron/resync recovery rule: do not stop after partial Google Docs reads. If evidence is compacted or truncated, use document names, headings, previews, and follow-up reads/searches to finish the recovery or clearly name the remaining gap.',
     'Tool limit recovery rule: when Available tools JSON is empty and Tool results JSON is non-empty, return a final answer using the accumulated tool results. Do not request another tool. Do not say the plan did not converge.',
     'Reading recommendation rule: when the user asks for a new audiobook or reading suggestions and reading-log context is available in transcript, workingMemory, attachments, or tool results, provide concrete recommendations with brief reasons. Do not report an issue unless the latest user request asks to report.',
     'Hide plumbing. Do not mention tokens, HTTP, file IDs, scopes, timestamps, or diagnostics unless the user explicitly asks for diagnostics.',
@@ -851,7 +934,8 @@ async function askOpenAIToolTurn(body) {
     `Attachment images JSON: ${JSON.stringify(attachmentImages.map((image) => ({sessionFileId: image.sessionFileId, displayName: image.displayName, mimeType: image.mimeType, detail: image.detail || 'auto'}))).slice(0, 3000)}`,
     `Time context JSON: ${JSON.stringify(timeContext).slice(0, 2000)}`,
     `Evidence context JSON: ${JSON.stringify(evidenceContext).slice(0, 12000)}`,
-    toolResults.length ? `Tool results JSON: ${JSON.stringify(toolResults).slice(0, 16000)}` : 'Tool results JSON: []',
+    `Tool evidence digest JSON: ${JSON.stringify(toolEvidenceDigest).slice(0, 50000)}`,
+    toolResults.length ? `Tool results JSON retained only for compatibility; use Tool evidence digest first: ${JSON.stringify(toolEvidenceDigest.results).slice(0, 12000)}` : 'Tool results JSON: []',
     pending ? `Pending confirmation JSON: ${JSON.stringify(pending).slice(0, 4000)}` : '',
     `Latest user request: ${message}`,
   ].filter(Boolean).join('\n\n');
