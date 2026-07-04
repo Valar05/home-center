@@ -55,6 +55,7 @@ gmail_client = read('app/src/main/java/com/dclar/homecenter/GoogleGmailClient.ja
 calendar_client = read('app/src/main/java/com/dclar/homecenter/GoogleCalendarClient.java')
 contacts_client = read('app/src/main/java/com/dclar/homecenter/GoogleContactsClient.java')
 knowledge_client = read('app/src/main/java/com/dclar/homecenter/LocalKnowledgeClient.java')
+local_log = read('app/src/main/java/com/dclar/homecenter/LocalLog.java')
 tool_registry = read('app/src/main/java/com/dclar/homecenter/ToolRegistry.java')
 functions_index = read('functions/index.js')
 build_gradle = read('app/build.gradle')
@@ -69,6 +70,9 @@ require_absent(submit, 'tryHandleLocalStatusQuestion', 'typed chat must not run 
 require_absent(submit, 'tryHandleLocalCommand', 'typed chat must not run local command parser before GPT')
 require_absent(main_activity, 'private boolean isDriveDiagnosticIntent', 'Drive keyword router removed')
 require_absent(main_activity, 'CommandParser.parse(text)', 'typed chat no longer parses English commands locally')
+require_absent(local_log, 'MediaStore', 'LocalLog must not block startup with public MediaStore writes')
+require_absent(local_log, 'ContentResolver', 'LocalLog must not query content providers on the UI-thread log path')
+require_contains(local_log, 'writePrivateFallback(line);', 'LocalLog writes to private app storage only')
 
 registered = registry_tools(tool_registry)
 if registered != contract_names:

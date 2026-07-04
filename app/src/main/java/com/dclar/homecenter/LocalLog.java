@@ -1,29 +1,17 @@
 package com.dclar.homecenter;
 
-import android.content.ContentResolver;
-import android.content.ContentUris;
-import android.content.ContentValues;
 import android.content.Context;
-import android.database.Cursor;
-import android.net.Uri;
-import android.os.Build;
-import android.os.Environment;
-import android.provider.MediaStore;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.OutputStream;
-import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
 final class LocalLog {
     private static final Object LOCK = new Object();
-    private static final String PUBLIC_LOG_RELATIVE_PATH = Environment.DIRECTORY_DOWNLOADS + "/HomeCenter/logs/";
     private static File logDir;
-    private static Context appContext;
 
     private LocalLog() {
     }
@@ -32,7 +20,6 @@ final class LocalLog {
         if (context == null) {
             return;
         }
-        appContext = context.getApplicationContext();
         File base = context.getExternalFilesDir(null);
         if (base == null) {
             base = context.getFilesDir();
@@ -47,9 +34,6 @@ final class LocalLog {
     }
 
     static String currentLogPath() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            return "/storage/emulated/0/" + PUBLIC_LOG_RELATIVE_PATH + dateStamp() + ".txt";
-        }
         synchronized (LOCK) {
             File dir = logDir;
             if (dir == null) {
@@ -77,9 +61,6 @@ final class LocalLog {
                 return;
             }
             String line = logLine(level, area, message, ex);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && writePublicLog(line)) {
-                return;
-            }
             writePrivateFallback(line);
         }
     }
@@ -101,49 +82,6 @@ final class LocalLog {
         }
         builder.append("\n");
         return builder.toString();
-    }
-
-    private static boolean writePublicLog(String line) {
-        if (appContext == null) {
-            return false;
-        }
-        try {
-            Uri uri = findOrCreatePublicLogUri();
-            if (uri == null) {
-                return false;
-            }
-            ContentResolver resolver = appContext.getContentResolver();
-            try (OutputStream stream = resolver.openOutputStream(uri, "wa")) {
-                if (stream == null) {
-                    return false;
-                }
-                stream.write(line.getBytes(StandardCharsets.UTF_8));
-                return true;
-            }
-        } catch (Exception ignored) {
-            return false;
-        }
-    }
-
-    private static Uri findOrCreatePublicLogUri() {
-        ContentResolver resolver = appContext.getContentResolver();
-        Uri collection = MediaStore.Downloads.EXTERNAL_CONTENT_URI;
-        String fileName = dateStamp() + ".txt";
-        String[] projection = {MediaStore.Downloads._ID};
-        String selection = MediaStore.Downloads.DISPLAY_NAME + "=? AND " + MediaStore.Downloads.RELATIVE_PATH + "=?";
-        String[] args = {fileName, PUBLIC_LOG_RELATIVE_PATH};
-        try (Cursor cursor = resolver.query(collection, projection, selection, args, null)) {
-            if (cursor != null && cursor.moveToFirst()) {
-                long id = cursor.getLong(0);
-                return ContentUris.withAppendedId(collection, id);
-            }
-        }
-
-        ContentValues values = new ContentValues();
-        values.put(MediaStore.Downloads.DISPLAY_NAME, fileName);
-        values.put(MediaStore.Downloads.MIME_TYPE, "text/plain");
-        values.put(MediaStore.Downloads.RELATIVE_PATH, PUBLIC_LOG_RELATIVE_PATH);
-        return resolver.insert(collection, values);
     }
 
     private static void writePrivateFallback(String line) {
