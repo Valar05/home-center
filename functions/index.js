@@ -43,6 +43,41 @@ function safeText(value, max = 12000) {
   return text.length > max ? text.slice(0, max) : text;
 }
 
+function errorCategoryFrom(value) {
+  const text = String(value || '').toLowerCase();
+  if (text.includes('timeout') || text.includes('timed out') || text.includes('deadline')) return 'timeout';
+  if (text.includes('fetch') || text.includes('network') || text.includes('econn') || text.includes('enotfound')) return 'network';
+  if (text.includes('401') || text.includes('403') || text.includes('permission') || text.includes('scope') || text.includes('auth')) return 'authorization';
+  if (text.includes('429') || text.includes('rate') || text.includes('quota')) return 'rate_limit';
+  if (text.includes('json') || text.includes('parse') || text.includes('schema')) return 'planner_parse';
+  if (text.includes('tool') || text.includes('unavailable')) return 'tool_contract';
+  return 'provider';
+}
+
+function userFacingFailure(source, detail, status = 'agent_failure') {
+  const cleanDetail = safeText(detail, 700) || 'No technical detail was returned.';
+  const category = errorCategoryFrom(cleanDetail);
+  const sourceLabel = source || 'agent';
+  const workarounds = {
+    timeout: 'Try again with the direct URL or a narrower request. If it repeats, say "report this" and I will file the captured failure.',
+    network: 'Try again, or provide the direct source URL/file name so I can avoid broad search.',
+    authorization: 'Reconnect Google or the relevant provider, then retry the same request.',
+    rate_limit: 'Wait a minute and retry. If the request is urgent, narrow it to one source or one action.',
+    planner_parse: 'Say the request again more directly. If it repeats, report it as an agent parsing bug.',
+    tool_contract: 'Ask for diagnostics or reconnect the missing provider if this should be an available capability.',
+    provider: 'Retry once. If it repeats, say "report this" so I can preserve the exact failure.',
+  };
+  return {
+    type: 'final',
+    reply: `I could not complete that because ${sourceLabel} hit a ${category.replace('_', ' ')} problem.\n\nWhat failed: ${cleanDetail}\n\nWorkaround: ${workarounds[category] || workarounds.provider}`,
+    narration: `I could not complete that because ${sourceLabel} hit a ${category.replace('_', ' ')} problem. ${workarounds[category] || workarounds.provider}`,
+    status,
+    technicalDetails: cleanDetail,
+    errorCategory: category,
+    errorSource: sourceLabel,
+  };
+}
+
 
 const HOME_CENTER_DOCTRINE_STEERING = [
   'Home Center doctrine: Home Center is a life-operations system, not a chatbot with extras.',
@@ -149,11 +184,7 @@ async function askOpenAI(uid, body) {
   });
   const json = await response.json().catch(() => ({}));
   if (!response.ok) {
-    return {
-      reply: `GPT-5.5 gateway error: ${json.error?.message || response.statusText}`,
-      status: `openai_http_${response.status}`,
-      technicalDetails: JSON.stringify(json).slice(0, 1000),
-    };
+    return userFacingFailure('GPT-5.5 provider', json.error?.message || response.statusText || `HTTP ${response.status}`, `openai_http_${response.status}`);
   }
   const reply = json.output_text || extractOutputText(json) || 'I did not get a useful GPT-5.5 response.';
   return {reply, narration: reply, status: 'gpt_5_5_complete'};
@@ -247,20 +278,23 @@ function plannerParseFailureReply(text, err) {
   if (looksLikeToolCallJson(text)) {
     return {
       type: 'final',
-      reply: 'I could not safely parse the tool request. Please say that again.',
-      narration: 'I could not safely parse the tool request. Please say that again.',
+      reply: 'I could not safely parse the tool request.\n\nWhat failed: GPT returned tool-call JSON that did not match the expected schema.\n\nWorkaround: say the request again more directly. If it repeats, say "report this" so I can file the exact agent parsing bug.',
+      narration: 'I could not safely parse the tool request. Say the request again more directly.',
       status: 'planner_json_error',
       technicalDetails,
     };
   }
   const clean = safeText(text, 12000);
-  return {
-    type: 'final',
-    reply: clean || `Planner failed: ${technicalDetails}`,
-    narration: clean || 'Planner failed.',
-    status: 'planner_json_error',
-    technicalDetails,
-  };
+  if (clean) {
+    return {
+      type: 'final',
+      reply: clean,
+      narration: clean,
+      status: 'planner_json_error',
+      technicalDetails,
+    };
+  }
+  return userFacingFailure('GPT-5.5 planner', technicalDetails, 'planner_json_error');
 }
 
 
@@ -904,6 +938,9 @@ async function askOpenAIToolTurn(body) {
     'Contacts plus Calendar rule: to add a named contact to an event, search contacts first, use the contact primaryEmail, resolve the target event from workingMemory or calendar.search/read, then call calendar.update_event with attendeesToAdd.',
     'Calendar display rule: in confirmations and final replies, use the event title/summary such as Home Center notification. Do not show eventId values unless the user explicitly asks for technical details.',
     'Public web rule: you also have OpenAI web_search for public web pages, including public GitHub repositories. Use web_search for public GitHub repo questions, README discovery, file discovery, and public documentation lookup.',
+    'Repository orientation rule: if the user names an owner/repo such as Valar05/tanks-for-the-memories, search the exact GitHub URL github.com/owner/repo and raw.githubusercontent.com/owner/repo before concluding it is unavailable.',
+    'Repository orientation rule: unrelated same-title web results are not evidence that the target repo is unavailable. Say the lookup timed out, search was inconclusive, or direct URL is needed; do not cite unrelated pages as proof.',
+    'Agent error-handling rule: when a task fails, distinguish source of problem: user input missing, provider/network timeout, permission/setup, tool contract/code issue, or uncertain. Include a workaround and say when to report/file an issue.',
     'Feedback/report rule: if the user asks to report this, file an issue, save this bug, says this is broken, that was wrong, feedback, or send this to GitHub, do not solve the original problem again. Draft a GitHub issue using evidenceContext and call github.create_issue.',
     'Feedback/report rule: only use github.create_issue when the latest user request explicitly asks to report, file, save feedback, or send to GitHub. Do not treat older report context as the active request.',
     'Feedback/report rule: default repo is Valar05/home-center. The issue body must include Summary, User Report, Conversation Evidence, Expected Behavior, Actual Behavior, Suspected Area, Environment, and Raw Debug Context if available.',
@@ -957,13 +994,7 @@ async function askOpenAIToolTurn(body) {
   });
   const json = await response.json().catch(() => ({}));
   if (!response.ok) {
-    return {
-      type: 'final',
-      reply: `GPT-5.5 gateway error: ${json.error?.message || response.statusText}`,
-      narration: 'GPT-5.5 gateway error.',
-      status: `openai_http_${response.status}`,
-      technicalDetails: JSON.stringify(json).slice(0, 1000),
-    };
+    return userFacingFailure('GPT-5.5 provider', json.error?.message || response.statusText || `HTTP ${response.status}`, `openai_http_${response.status}`);
   }
   const text = json.output_text || extractOutputText(json) || '';
   try {
@@ -986,10 +1017,14 @@ async function askOpenAIToolTurn(body) {
       }
       if (!tool) {
         const trace = buildToolTrace(body, tools, parsed, toolName, tool, false);
+        const missingGroup = toolName.includes('.') ? toolName.split('.')[0] : '';
+        const unavailable = unavailableToolGroups.find((group) => group && group.group === missingGroup);
+        const unavailableReason = unavailable ? ` Missing capability group: ${missingGroup}, reason: ${safeText(unavailable.reason, 120)}.` : '';
+        const reply = `I could not use ${toolName} because that tool is not available in this session.${unavailableReason}\n\nLikely source: ${unavailable ? 'provider permission/setup' : 'tool contract mismatch'}.\n\nWorkaround: reconnect Google if this is a Google capability, or say "report this" if Home Center advertised the capability but could not execute it.`;
         return withTrace(body, {
           type: 'final',
-          reply: `That tool is not available in this session: ${toolName}. Reconnect Google if this is a missing Google capability.`,
-          narration: `That tool is not available in this session.`,
+          reply,
+          narration: `I could not use ${toolName} because that tool is not available in this session.`,
           status: 'tool_unavailable',
         }, trace);
       }

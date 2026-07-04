@@ -280,6 +280,12 @@ require_contains(functions_index, 'never imply a capability that is not advertis
 require_contains(functions_index, 'Available tools JSON', 'agentToolTurn prompt is registry-driven')
 require_contains(functions_index, 'OpenAI web_search for public web pages, including public GitHub repositories', 'planner prompt routes public GitHub through web search')
 require_contains(functions_index, 'Do not claim a GitHub tool is required for public GitHub repositories', 'planner prompt forbids false missing-GitHub-tool refusal')
+require_contains(functions_index, 'Repository orientation rule: if the user names an owner/repo such as Valar05/tanks-for-the-memories', 'planner prompt handles public GitHub owner/repo orientation')
+require_contains(functions_index, 'search the exact GitHub URL github.com/owner/repo and raw.githubusercontent.com/owner/repo', 'repository orientation uses exact GitHub/raw URLs before failing')
+require_contains(functions_index, 'unrelated same-title web results are not evidence that the target repo is unavailable', 'repository orientation forbids unrelated search-result proof')
+require_contains(functions_index, 'Say the lookup timed out, search was inconclusive, or direct URL is needed', 'repository orientation distinguishes timeout/inconclusive lookup from repo-not-found')
+require_contains(functions_index, 'Agent error-handling rule: when a task fails, distinguish source of problem', 'planner prompt requires source-specific error handling')
+require_contains(functions_index, 'Include a workaround and say when to report/file an issue', 'planner prompt requires workaround and issue-report guidance')
 require_contains(functions_index, 'Latest intent rule: the latest user request controls', 'planner prompt prioritizes latest user intent')
 require_contains(functions_index, 'Document cleanup rule: if the latest request asks to clean up', 'planner prompt turns document cleanup requests into docs.update work')
 require_contains(functions_index, 'Document synthesis/update rule: if the latest request asks to update, rewrite, reflect, merge, copy, append, replace, or revise one Google Doc using content from another Google Doc', 'planner prompt continues doc-to-doc update workflows through docs.update')
@@ -413,6 +419,15 @@ require_contains(functions_index, 'containsForbiddenToolPlanPhrase(reply)', 'Gat
 require_contains(functions_index, 'synthesizeToolLoopProgressReply(Array.isArray(body && body.toolResults)', 'Gateway uses accumulated tool results for progress fallback')
 require_contains(functions_index, 'tool_loop_progress_fallback', 'Gateway marks sanitized convergence replies')
 require_absent(main_activity, 'finishAgentReply(clean, "I could not finish that request because the tool plan did not converge."', 'Android must not directly show generic convergence failure')
+require_contains(functions_index, 'function userFacingFailure(source, detail', 'gateway has structured user-facing failure messages')
+require_contains(functions_index, 'errorSource: sourceLabel', 'gateway failure payload includes error source')
+require_contains(functions_index, 'errorCategory: category', 'gateway failure payload includes error category')
+require_contains(functions_index, 'Workaround:', 'gateway failure copy includes workaround support')
+require_contains(functions_index, 'say "report this"', 'gateway failure copy can promote repeated failures to issues')
+require_contains(main_activity, 'agentFailureMessage("Home Center gateway", ex.getMessage())', 'Android gateway exceptions use structured failure copy')
+require_contains(main_activity, 'What failed:', 'Android failure copy identifies source detail')
+require_contains(main_activity, 'Workaround:', 'Android failure copy includes workaround support')
+require_absent(main_activity, 'showAssistantMessage("The agent gateway failed: " + shortMessage(ex.getMessage()))', 'Android must not show vague gateway failure copy')
 red_build_tool_loop_contract = {
     'input': "Run a red-build self-test. Read my Home Center Live items list. Add this item to Shipyard. Find June's Holocron. Find my Reading Log. Find Final and Vacation of a Lifetime Story Bible. If anything fails, do not say tool plan did not converge.",
     'source_expectations': [
@@ -447,6 +462,24 @@ if not holocron_resync_contract['input']:
 for expected in holocron_resync_contract['source_expectations']:
     if expected not in functions_index:
         fail(f"Holocron resync contract is missing source expectation {expected}")
+repo_orientation_error_contract = {
+    'input': 'Orient to Valar05/tanks-for-the-memories',
+    'source_expectations': [
+        'github.com/owner/repo',
+        'raw.githubusercontent.com/owner/repo',
+        'unrelated same-title web results are not evidence',
+        'lookup timed out',
+        'search was inconclusive',
+        'direct URL is needed',
+        'Agent error-handling rule: when a task fails, distinguish source of problem',
+        'Include a workaround and say when to report/file an issue',
+    ],
+}
+if not repo_orientation_error_contract['input']:
+    fail('repository orientation error contract is missing exact user input')
+for expected in repo_orientation_error_contract['source_expectations']:
+    if expected not in functions_index:
+        fail(f"repository orientation error contract is missing source expectation {expected}")
 require_contains(functions_index, 'Set narration to the same text as reply', 'gateway prompt forbids mismatched TTS narration')
 require_contains(functions_index, 'narration: finalReply ||', 'gateway returns normalized final reply text as narration for installed APK compatibility')
 require_contains(functions_index, 'toolByName(tools, toolName)', 'gateway rejects unadvertised tool calls')

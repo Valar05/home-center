@@ -1087,7 +1087,7 @@ public final class MainActivity extends Activity implements RecognitionListener,
             main.post(() -> {
                 LocalLog.info("agent", "tool_loop_failed: " + shortMessage(ex.getMessage()));
                 setBusy(false);
-                showAssistantMessage("The agent gateway failed: " + shortMessage(ex.getMessage()));
+                showAssistantMessage(agentFailureMessage("Home Center gateway", ex.getMessage()));
             });
         }
     }
@@ -3791,6 +3791,29 @@ public final class MainActivity extends Activity implements RecognitionListener,
             return message.substring(0, 117) + "...";
         }
         return message;
+    }
+
+    private String agentFailureMessage(String source, String detail) {
+        String clean = shortMessage(detail);
+        String lower = clean.toLowerCase(Locale.US);
+        String category = "provider";
+        String workaround = "Retry once. If it repeats, say \"report this\" so I can preserve the exact failure.";
+        if (lower.contains("timeout") || lower.contains("timed out") || lower.contains("deadline")) {
+            category = "timeout";
+            workaround = "Try again with a narrower request or direct URL. If it repeats, say \"report this\".";
+        } else if (lower.contains("network") || lower.contains("fetch") || lower.contains("econn") || lower.contains("enotfound")) {
+            category = "network";
+            workaround = "Try again, or give me the direct source URL/file name so I can avoid broad search.";
+        } else if (lower.contains("401") || lower.contains("403") || lower.contains("auth") || lower.contains("permission") || lower.contains("scope")) {
+            category = "authorization";
+            workaround = "Reconnect Google or the relevant provider, then retry the same request.";
+        } else if (lower.contains("json") || lower.contains("parse") || lower.contains("schema")) {
+            category = "planner parse";
+            workaround = "Say the request again more directly. If it repeats, report it as an agent parsing bug.";
+        }
+        return "I could not complete that because " + source + " hit a " + category + " problem."
+                + "\n\nWhat failed: " + clean
+                + "\n\nWorkaround: " + workaround;
     }
 
     private void updateBackendStatus() {
