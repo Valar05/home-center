@@ -643,8 +643,9 @@ function attachTaskState(response, parsed) {
 
 function isCreativeWritingRequest(message) {
   const text = String(message || '').toLowerCase();
-  return /\b(write|draft|compose|make|create|continue)\b/.test(text)
-    && /\b(scene|story|chapter|prose|draft|passage|moment|dialogue)\b/.test(text);
+  if (/\b(write|draft|compose|continue)\b/.test(text)) return true;
+  return /\b(make|create)\b/.test(text)
+    && /\b(scene|story|chapter|prose|draft|passage|moment|dialogue|first contact|d-day)\b/.test(text);
 }
 
 function creativeReplyNeedsRepair(message, reply) {

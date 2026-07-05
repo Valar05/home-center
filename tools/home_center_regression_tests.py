@@ -522,6 +522,7 @@ for expected in creative_synthesis_contract['source_expectations']:
         fail(f"creative synthesis contract is missing source expectation {expected}")
 require_contains(functions_index, 'function creativeReplyNeedsRepair(message, reply)', 'gateway detects punted creative writing replies')
 require_contains(functions_index, 'askOpenAICreativeRepair(body, finalReply)', 'gateway repairs punted creative writing replies before Android sees them')
+require_contains(functions_index, 'if (/\\b(write|draft|compose|continue)\\b/.test(text)) return true;', 'gateway treats direct write/draft/compose requests as creative even without scene keyword')
 require_contains(functions_index, 'isCreativeWritingRequest(message) && !isExplicitNonCreativeToolRequest(message)', 'gateway bypasses stale tool/report planner for direct creative writing requests')
 require_contains(functions_index, 'source: \'creative_direct\'', 'gateway traces direct creative route')
 require_contains(functions_index, 'creativeDirectApplied: true', 'gateway trace marks direct creative route')
