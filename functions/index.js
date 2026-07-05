@@ -668,6 +668,10 @@ function isExplicitNonCreativeToolRequest(message) {
   return false;
 }
 
+function shouldBlockCreativePlannerToolCall(message) {
+  return isCreativeWritingRequest(message) && !isExplicitNonCreativeToolRequest(message);
+}
+
 function hasAvailableTool(tools, name) {
   return !!toolByName(Array.isArray(tools) ? tools : [], name);
 }
@@ -1231,6 +1235,19 @@ async function askOpenAIToolTurn(body) {
       const toolName = safeText(parsed.toolName || parsed.name, 80);
       const tool = toolByName(tools, toolName);
       const args = parsed.arguments && typeof parsed.arguments === 'object' ? parsed.arguments : {};
+      if (shouldBlockCreativePlannerToolCall(message)) {
+        const repaired = await askOpenAICreativeRepair(body, `Blocked creative planner tool call: ${toolName} ${JSON.stringify(args).slice(0, 2000)}`);
+        const trace = buildToolTrace(body, tools, parsed, toolName, tool, false);
+        if (repaired) {
+          return withTrace(body, repaired, Object.assign({}, trace, {creativeToolCallBlocked: true, creativeRepairApplied: true}));
+        }
+        return withTrace(body, attachTaskState({
+          type: 'final',
+          reply: 'I could not safely turn that writing request into prose. Please try again.',
+          narration: 'I could not safely turn that writing request into prose.',
+          status: 'creative_tool_call_blocked',
+        }, parsed), Object.assign({}, trace, {creativeToolCallBlocked: true}));
+      }
       resolveToolArgsFromWorkingMemory(body, toolName, args);
       resolveCalendarRelativeTimesFromContext(body, toolName, args);
       const unresolvedReferenceReply = clarificationForUnresolvedReference(body, toolName, args);
