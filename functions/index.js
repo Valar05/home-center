@@ -621,6 +621,26 @@ function sanitizeFinalPlannerReply(body, response) {
   });
 }
 
+function taskStateUpdateFromParsed(parsed) {
+  const update = parsed && typeof parsed.taskStateUpdate === 'object' ? parsed.taskStateUpdate : null;
+  if (!update) return null;
+  const status = safeText(update.status, 40);
+  const allowed = new Set(['awaiting_detail', 'awaiting_source', 'in_progress', 'complete', 'cancelled']);
+  if (!allowed.has(status)) return null;
+  const sanitized = {status};
+  for (const key of ['objective', 'originalUserRequest', 'missingDetailQuestion', 'knownContext', 'blockingReason', 'expectedNextAction']) {
+    const value = safeText(update[key], 2000);
+    if (value) sanitized[key] = value;
+  }
+  return sanitized;
+}
+
+function attachTaskState(response, parsed) {
+  const update = taskStateUpdateFromParsed(parsed);
+  if (!update) return response;
+  return Object.assign({}, response, {taskStateUpdate: update});
+}
+
 function finalReplyText(parsed, rawText = '') {
   if (!parsed || typeof parsed !== 'object') return safeText(rawText, 12000);
   const direct = parsed.reply
@@ -920,6 +940,9 @@ async function askOpenAIToolTurn(body) {
     'Return one strict JSON object and no prose outside JSON.',
     'If a needed capability appears in the available tools JSON, request that tool. Do not say you cannot do it.',
     'Working memory JSON contains recently created or selected entities. Inspect it before selecting a tool.',
+    'Active task rule: workingMemory.activeTask is an unfinished user objective. If its status is awaiting_detail or awaiting_source and the latest user request supplies that missing detail/source, resume the originalUserRequest/objective immediately. Do not merely acknowledge the detail/source.',
+    'Active task rule: when you ask a clarifying question, ask for a missing source, hit a blocker, or pause before the objective is complete, include taskStateUpdate with status awaiting_detail, awaiting_source, or in_progress. When the objective is fully answered, include taskStateUpdate status complete. If the user cancels or switches to an unrelated task, include status cancelled.',
+    'Active task rule: after a tool or knowledge write resolves the blocker for activeTask, continue the original task in the same turn. A saved source, found folder, read document, or answered clarification is progress, not completion.',
     'If the user says it, that document, that file, the one you just created, the previous one, or similar, resolve the reference from workingMemory or recent tool results before calling a tool.',
     'Never use phrases like that document, the document, that file, it, the one, or the thing we just made as literal tool argument names or titles. Resolve them to IDs/names or ask which item the user means.',
     'When resolving a remembered document, include both fileId and name in the tool arguments so confirmation cards can show the real document name.',
@@ -962,8 +985,8 @@ async function askOpenAIToolTurn(body) {
     'Reading recommendation rule: when the user asks for a new audiobook or reading suggestions and reading-log context is available in transcript, workingMemory, attachments, or tool results, provide concrete recommendations with brief reasons. Do not report an issue unless the latest user request asks to report.',
     'Hide plumbing. Do not mention tokens, HTTP, file IDs, scopes, timestamps, or diagnostics unless the user explicitly asks for diagnostics.',
     'Writes with confirmationRequired=true may be requested as tool calls; the gateway will enforce confirmation. Tools with doubleConfirmationRequired=true are delete/trash/remove tools and must receive two explicit confirmations before execution.',
-    'JSON schema for tool call: {"type":"tool_call","toolName":"tool.name","arguments":{}}',
-    'JSON schema for final answer: {"type":"final","reply":"...","narration":"...","status":"gpt_5_5_complete"}',
+    'JSON schema for tool call: {"type":"tool_call","toolName":"tool.name","arguments":{},"taskStateUpdate":{"status":"in_progress","objective":"...","originalUserRequest":"...","expectedNextAction":"..."}}',
+    'JSON schema for final answer: {"type":"final","reply":"...","narration":"...","status":"gpt_5_5_complete","taskStateUpdate":{"status":"complete","objective":"..."}}',
     'Set narration to the same text as reply. The app must not speak a short alternate summary that differs from the visible answer.',
     summary ? `Conversation summary: ${summary}` : '',
     transcript ? `Recent transcript: ${transcript}` : '',
@@ -1010,12 +1033,12 @@ async function askOpenAIToolTurn(body) {
       const unresolvedReferenceReply = clarificationForUnresolvedReference(body, toolName, args);
       if (unresolvedReferenceReply) {
         const trace = buildToolTrace(body, tools, parsed, toolName, tool, false);
-        return withTrace(body, {
+        return withTrace(body, attachTaskState({
           type: 'final',
           reply: unresolvedReferenceReply,
           narration: unresolvedReferenceReply,
           status: 'reference_unresolved',
-        }, trace);
+        }, parsed), trace);
       }
       if (!tool) {
         const trace = buildToolTrace(body, tools, parsed, toolName, tool, false);
@@ -1023,56 +1046,56 @@ async function askOpenAIToolTurn(body) {
         const unavailable = unavailableToolGroups.find((group) => group && group.group === missingGroup);
         const unavailableReason = unavailable ? ` Missing capability group: ${missingGroup}, reason: ${safeText(unavailable.reason, 120)}.` : '';
         const reply = `I could not use ${toolName} because that tool is not available in this session.${unavailableReason}\n\nLikely source: ${unavailable ? 'provider permission/setup' : 'tool contract mismatch'}.\n\nWorkaround: reconnect Google if this is a Google capability, or say "report this" if Home Center advertised the capability but could not execute it.`;
-        return withTrace(body, {
+        return withTrace(body, attachTaskState({
           type: 'final',
           reply,
           narration: `I could not use ${toolName} because that tool is not available in this session.`,
           status: 'tool_unavailable',
-        }, trace);
+        }, parsed), trace);
       }
       const sanitizedArgs = sanitizeToolArguments(tool, args);
       if (tool.doubleConfirmationRequired) {
         const stage = messageConfirms(message) ? 2 : 1;
         const reply = confirmationReply(toolName, sanitizedArgs, stage);
         const trace = buildToolTrace(body, tools, parsed, toolName, tool, true);
-        return withTrace(body, {
+        return withTrace(body, attachTaskState({
           type: 'final',
           reply,
           narration: reply,
           status: stage >= 2 ? 'double_confirmation_required' : 'confirmation_required',
           pendingConfirmation: pendingConfirmation(toolName, sanitizedArgs, stage),
-        }, trace);
+        }, parsed), trace);
       }
       if (tool.confirmationRequired && !messageConfirms(message)) {
         const reply = confirmationReply(toolName, sanitizedArgs);
         const trace = buildToolTrace(body, tools, parsed, toolName, tool, true);
-        return withTrace(body, {
+        return withTrace(body, attachTaskState({
           type: 'final',
           reply,
           narration: reply,
           status: 'confirmation_required',
           pendingConfirmation: pendingConfirmation(toolName, sanitizedArgs),
-        }, trace);
+        }, parsed), trace);
       }
       if (tool.confirmationRequired) {
         sanitizedArgs._confirmedByGateway = true;
       }
       const trace = buildToolTrace(body, tools, parsed, toolName, tool, false);
-      return withTrace(body, {
+      return withTrace(body, attachTaskState({
         type: 'tool_call',
         toolName,
         arguments: sanitizedArgs,
         status: 'tool_call_requested',
-      }, trace);
+      }, parsed), trace);
     }
     const trace = buildToolTrace(body, tools, parsed, safeText(parsed.toolName || parsed.name, 80), toolByName(tools, safeText(parsed.toolName || parsed.name, 80)), false);
     const finalReply = finalReplyText(parsed, text);
-    return withTrace(body, sanitizeFinalPlannerReply(body, {
+    return withTrace(body, attachTaskState(sanitizeFinalPlannerReply(body, {
       type: 'final',
       reply: finalReply || 'I could not turn the GPT-5.5 response into a final answer. Please try again.',
       narration: finalReply || 'I could not turn the GPT-5.5 response into a final answer.',
       status: safeText(parsed.status, 160) || 'gpt_5_5_complete',
-    }), trace);
+    }), parsed), trace);
   } catch (err) {
     return plannerParseFailureReply(text, err);
   }

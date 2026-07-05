@@ -25,9 +25,10 @@ final class OpenAiAgentClient {
         final String toolName;
         final JSONObject arguments;
         final JSONObject pendingConfirmation;
+        final JSONObject taskStateUpdate;
         final String technicalDetails;
 
-        ToolTurn(String type, String reply, String narration, String status, String toolName, JSONObject arguments, JSONObject pendingConfirmation, String technicalDetails) {
+        ToolTurn(String type, String reply, String narration, String status, String toolName, JSONObject arguments, JSONObject pendingConfirmation, JSONObject taskStateUpdate, String technicalDetails) {
             this.type = type == null ? "" : type.trim();
             this.reply = reply == null ? "" : reply.trim();
             this.narration = narration == null ? "" : narration.trim();
@@ -35,6 +36,7 @@ final class OpenAiAgentClient {
             this.toolName = toolName == null ? "" : toolName.trim();
             this.arguments = arguments == null ? new JSONObject() : arguments;
             this.pendingConfirmation = pendingConfirmation == null ? null : pendingConfirmation;
+            this.taskStateUpdate = taskStateUpdate == null ? null : taskStateUpdate;
             this.technicalDetails = technicalDetails == null ? "" : technicalDetails.trim();
         }
 
@@ -159,6 +161,7 @@ final class OpenAiAgentClient {
                 toolName,
                 arguments == null ? new JSONObject() : arguments,
                 response.optJSONObject("pendingConfirmation"),
+                response.optJSONObject("taskStateUpdate"),
                 response.optString("technicalDetails", response.optString("details", "")));
     }
 

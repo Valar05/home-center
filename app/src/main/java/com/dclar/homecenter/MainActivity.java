@@ -1047,6 +1047,7 @@ public final class MainActivity extends Activity implements RecognitionListener,
                         evidenceContextSnapshot(clean),
                         attachmentImagesSnapshot());
                 LocalLog.info("agent_trace", "step=" + step + " gateway_type=" + turn.type + " status=" + turn.status + " requestedTool=" + turn.toolName + " technicalDetails=" + shortMessage(turn.technicalDetails));
+                applyTaskStateUpdate(turn.taskStateUpdate);
                 if (turn.requestsTool()) {
                     LocalLog.info("agent_trace", "android_received_tool=" + turn.toolName);
                     JSONObject pendingForRetry = turn.arguments.optBoolean("_confirmedByGateway", false)
@@ -1575,6 +1576,42 @@ public final class MainActivity extends Activity implements RecognitionListener,
                 LocalLog.warn("agent", "working_memory_clone_failed: " + shortMessage(ex.getMessage()));
                 return new JSONObject();
             }
+        }
+    }
+
+    private void applyTaskStateUpdate(JSONObject update) {
+        if (update == null) {
+            return;
+        }
+        try {
+            String status = update.optString("status", "").trim();
+            synchronized (workingMemoryLock) {
+                if ("complete".equals(status) || "cancelled".equals(status)) {
+                    workingMemory.remove("activeTask");
+                    LocalLog.info("agent_trace", "working_memory_clear activeTask status=" + status);
+                    return;
+                }
+                JSONObject task = new JSONObject();
+                putIfPresent(task, "objective", update.optString("objective", ""));
+                putIfPresent(task, "originalUserRequest", update.optString("originalUserRequest", ""));
+                putIfPresent(task, "missingDetailQuestion", update.optString("missingDetailQuestion", ""));
+                putIfPresent(task, "knownContext", update.optString("knownContext", ""));
+                putIfPresent(task, "blockingReason", update.optString("blockingReason", ""));
+                putIfPresent(task, "expectedNextAction", update.optString("expectedNextAction", ""));
+                putIfPresent(task, "status", status);
+                if (task.length() > 0) {
+                    workingMemory.put("activeTask", task);
+                    LocalLog.info("agent_trace", "working_memory_update activeTask=" + shortMessage(task.toString()));
+                }
+            }
+        } catch (Exception ex) {
+            LocalLog.warn("agent", "task_state_update_failed: " + shortMessage(ex.getMessage()));
+        }
+    }
+
+    private void putIfPresent(JSONObject json, String key, String value) throws Exception {
+        if (value != null && !value.trim().isEmpty()) {
+            json.put(key, value.trim());
         }
     }
 
