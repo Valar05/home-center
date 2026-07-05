@@ -9,6 +9,7 @@ sh -n tools/install_debug_apk_shizuku.sh
 python3 tools/home_center_regression_tests.py
 node --check tools/home_center_metal_prompt_smoke.mjs
 node --check tools/home_center_creative_prompt_smoke.mjs
+node --check tools/home_center_turn_contract_smoke.mjs
 node --check tools/home_center_google_tool_setup.mjs
 node tools/home_center_calendar_time_test.js
 python3 tools/agent_harness.py --all
