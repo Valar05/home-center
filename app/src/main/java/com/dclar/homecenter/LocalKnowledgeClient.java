@@ -67,6 +67,7 @@ final class LocalKnowledgeClient {
                     .put("file", fileName)
                     .put("path", file.getAbsolutePath())
                     .put("title", title)
+                    .put("bodyPreview", body.length() > 2000 ? body.substring(0, 2000) : body)
                     .put("bytesWritten", entry.getBytes(StandardCharsets.UTF_8).length);
         } catch (Exception ex) {
             return toolError("knowledge.append", "append_failed", safe(ex.getMessage()));

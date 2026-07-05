@@ -1523,7 +1523,9 @@ public final class MainActivity extends Activity implements RecognitionListener,
     }
 
     private void finishAgentReply(String clean, String replyText, String narration, String status, JSONObject pendingConfirmation) {
-        String finalResponse = replyText == null || replyText.trim().isEmpty() ? "I did not get a useful reply from GPT-5.5." : replyText.trim();
+        String finalResponse = replyText == null || replyText.trim().isEmpty()
+                ? "GPT-5.5 returned an empty response. Please retry or say \"report this\" so I can file the captured failure."
+                : replyText.trim();
         if (looksLikeRawToolCallJson(finalResponse)) {
             LocalLog.warn("agent", "blocked_raw_tool_call_reply");
             finalResponse = "I could not safely display that tool request. Please try again.";
@@ -1594,36 +1596,11 @@ public final class MainActivity extends Activity implements RecognitionListener,
     private JSONObject workingMemorySnapshot() {
         synchronized (workingMemoryLock) {
             try {
-                JSONObject snapshot = new JSONObject(workingMemory.toString());
-                hydrateRememberedWritingContext(snapshot);
-                return snapshot;
+                return new JSONObject(workingMemory.toString());
             } catch (Exception ex) {
                 LocalLog.warn("agent", "working_memory_clone_failed: " + shortMessage(ex.getMessage()));
                 return new JSONObject();
             }
-        }
-    }
-
-    private void hydrateRememberedWritingContext(JSONObject snapshot) {
-        if (snapshot == null || snapshot.has("rememberedWritingContext")) {
-            return;
-        }
-        String evidence = (conversationSummary == null ? "" : conversationSummary) + "\n" + recentTranscriptSnapshot();
-        String lower = evidence.toLowerCase(Locale.US);
-        if (!lower.contains("lexen") || !lower.contains("green") || !lower.contains("doctrine")) {
-            return;
-        }
-        try {
-            JSONObject context = new JSONObject()
-                    .put("topic", "Lexen green commander doctrine")
-                    .put("project", lower.contains("tanks for the memories") ? "Tanks for the Memories" : "")
-                    .put("sourcePolicy", lower.contains("don't scan drive blindly") || lower.contains("do not scan drive blindly")
-                            ? "Ask if unsure; do not scan Drive blindly."
-                            : "")
-                    .put("evidence", shortMessage(evidence));
-            snapshot.put("rememberedWritingContext", context);
-            LocalLog.info("agent_trace", "working_memory_hydrate rememberedWritingContext=" + shortMessage(context.toString()));
-        } catch (Exception ignored) {
         }
     }
 
@@ -1767,10 +1744,31 @@ public final class MainActivity extends Activity implements RecognitionListener,
                 .put("path", result.optString("path", ""))
                 .put("title", result.optString("title", ""))
                 .put("sourceTool", result.optString("tool", ""));
+        String bodyPreview = result.optString("bodyPreview", "");
         synchronized (workingMemoryLock) {
             workingMemory.put("lastKnowledgeFile", memory);
+            if (looksLikeWritingMemory(memory.optString("title", "") + "\n" + bodyPreview)) {
+                JSONObject context = new JSONObject()
+                        .put("title", memory.optString("title", ""))
+                        .put("file", memory.optString("file", ""))
+                        .put("sourceTool", memory.optString("sourceTool", ""))
+                        .put("evidence", shortMessage(bodyPreview));
+                workingMemory.put("rememberedWritingContext", context);
+            }
         }
         LocalLog.info("agent_trace", "working_memory_update lastKnowledgeFile=" + memory.toString());
+    }
+
+    private boolean looksLikeWritingMemory(String text) {
+        String lower = text == null ? "" : text.toLowerCase(Locale.US);
+        return lower.contains("writing")
+                || lower.contains("story")
+                || lower.contains("scene")
+                || lower.contains("draft")
+                || lower.contains("prose")
+                || lower.contains("novel")
+                || lower.contains("manuscript")
+                || lower.contains("character");
     }
 
     private void rememberSingleFileResult(String key, String sourceTool, JSONArray files) throws Exception {

@@ -141,6 +141,7 @@ require_contains(knowledge_client, 'seed("SKILLS.md"', 'Local knowledge seeds SK
 require_contains(knowledge_client, 'seed("AGENTS.md"', 'Local knowledge seeds AGENTS.md')
 require_contains(knowledge_client, 'seed("MEMORY.md"', 'Local knowledge seeds MEMORY.md')
 require_contains(knowledge_client, 'sensitive_content_rejected', 'Local knowledge rejects obvious secrets')
+require_contains(knowledge_client, 'bodyPreview', 'Local knowledge append returns generic body preview for memory hydration')
 require_contains(functions_index, 'Local knowledge rule: use knowledge.append', 'Gateway planner can persist durable workflows and workarounds')
 require_contains(functions_index, 'Choose SKILLS.md for repeatable procedures, AGENTS.md for agent steering, and MEMORY.md for durable facts', 'Gateway planner chooses the right local knowledge file')
 require_contains(functions_index, 'function memoryAppendToolCall(body, tools, toolResults)', 'Gateway enforces durable memory writes before claiming memory is updated')
@@ -250,9 +251,14 @@ require_contains(main_activity, 'json.put("timeZoneId", zone.getID())', 'time co
 require_contains(main_activity, 'json.put("timeZoneOffsetMillis", zone.getOffset(nowMillis))', 'time context includes timezone offset')
 require_contains(main_activity, 'private final JSONObject workingMemory = new JSONObject()', 'Android has session working memory')
 require_contains(main_activity, 'workingMemorySnapshot()', 'Android snapshots working memory for agent turns')
-require_contains(main_activity, 'hydrateRememberedWritingContext(snapshot)', 'Android hydrates promised writing context before sending working memory')
-require_contains(main_activity, 'snapshot.put("rememberedWritingContext"', 'Android sends restored writing context through working memory')
-require_contains(main_activity, 'Lexen green commander doctrine', 'Android recognizes repeated Lexen writing context from evidence')
+require_absent(main_activity, 'hydrateRememberedWritingContext', 'Android must not hydrate memory from hardcoded transcript sniffing')
+require_contains(main_activity, 'workingMemory.put("rememberedWritingContext", context)', 'Android stores generic remembered writing context only from knowledge results')
+require_contains(main_activity, 'looksLikeWritingMemory', 'Android gates remembered writing context through generic writing terms')
+require_absent(main_activity, 'Lexen', 'Android executable code must not hardcode project-specific writing memory')
+require_absent(main_activity, 'Tanks for the Memories', 'Android executable code must not hardcode a personal project name')
+require_absent(functions_index, 'Drew', 'Gateway executable code must not hardcode a user name in product copy')
+require_absent(functions_index, 'lexen', 'Gateway executable code must not hardcode project-specific writing terms')
+require_absent(functions_index, 'normandy', 'Gateway executable code must not hardcode project-specific writing terms')
 require_contains(main_activity, 'applyTaskStateUpdate(turn.taskStateUpdate)', 'Android applies gateway task state update each agent step')
 require_contains(main_activity, 'workingMemory.put("activeTask", task)', 'Android stores unfinished active task state')
 require_contains(main_activity, 'workingMemory.remove("activeTask")', 'Android clears active task only on complete or cancelled')
@@ -515,7 +521,7 @@ for expected in repo_orientation_error_contract['source_expectations']:
     if expected not in functions_index:
         fail(f"repository orientation error contract is missing source expectation {expected}")
 creative_synthesis_contract = {
-    'input': "Generate the next Normandy lexen green commander scene",
+    'input': "Generate the next scene",
     'source_expectations': [
         'Creative writing rule: if the latest request asks to write, draft, compose, generate, narrate, expand, create a scene, continue a story, or synthesize prose',
         'produce the prose directly as a final answer from transcript, workingMemory, attachments, and tool evidence',
@@ -536,7 +542,7 @@ require_contains(functions_index, 'function creativeReplyNeedsRepair(message, re
 require_contains(functions_index, 'askOpenAICreativeRepair(body, finalReply)', 'gateway repairs punted creative writing replies before Android sees them')
 require_contains(functions_index, 'if (/\\b(write|draft|compose|continue|narrate|expand)\\b/.test(text)) return true;', 'gateway treats direct write/draft/compose requests as creative even without scene keyword')
 require_contains(functions_index, '\\b(generate|tell)\\b', 'gateway treats generate/tell plus scene terms as creative')
-require_contains(functions_index, '\\b(scene|story|chapter|prose|draft|passage|moment|dialogue|first contact|d-day|normandy|lexen)\\b', 'gateway recognizes issue 31 creative domain terms')
+require_contains(functions_index, '\\b(scene|story|chapter|prose|draft|passage|moment|dialogue|first contact|d-day)\\b', 'gateway recognizes general creative domain terms without project names')
 require_contains(functions_index, 'function creativeContextToolCall(body, tools, toolResults)', 'gateway has creative context acquisition guard')
 require_contains(functions_index, "toolName: 'docs.read'", 'creative pipeline reads remembered canon document before prose')
 require_contains(functions_index, "toolName: 'knowledge.read'", 'creative pipeline reads remembered durable knowledge before prose')
@@ -553,6 +559,8 @@ require_contains(functions_index, 'Creative writing provider failed before produ
 require_contains(functions_index, 'attachCreativeTaskComplete', 'creative final or failure completes stale active task state')
 require_contains(functions_index, 'creativeDraftFailed: draftFailed', 'gateway traces creative draft failure separately from tool planning')
 require_absent(functions_index, 'creativeDedicatedDraft: true, creativeValidationApplied: true', 'pure creative path must not make a second OpenAI validation call')
+require_absent(functions_index, 'I did not get a useful GPT-5.5 response.', 'gateway must not emit vague useful-response fallback')
+require_absent(main_activity, 'I did not get a useful reply from GPT-5.5.', 'Android must not emit vague useful-response fallback')
 require_contains(functions_index, 'function shouldBlockCreativePlannerToolCall(message)', 'gateway has hard guard against creative planner tool calls')
 require_contains(functions_index, 'Blocked creative planner tool call:', 'gateway converts bad creative tool plans into creative repair input')
 require_contains(functions_index, 'creativeToolCallBlocked: true', 'gateway traces blocked creative tool calls')

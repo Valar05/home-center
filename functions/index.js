@@ -127,7 +127,7 @@ function docTitleFrom(message) {
 async function createGoogleDoc(uid, message) {
   const auth = await loadGoogleClient(uid);
   if (!auth) {
-    return {reply: 'Google Drive is not connected yet. Drew needs to reconnect Google with full Drive access before I can create or read files.', status: 'google_tools_missing'};
+    return {reply: 'Google Drive is not connected yet. Reconnect Google with full Drive access before I can create or read files.', status: 'google_tools_missing'};
   }
   const docs = google.docs({version: 'v1', auth});
   const drive = google.drive({version: 'v3', auth});
@@ -187,7 +187,7 @@ async function askOpenAI(uid, body) {
   if (!response.ok) {
     return userFacingFailure('GPT-5.5 provider', json.error?.message || response.statusText || `HTTP ${response.status}`, `openai_http_${response.status}`);
   }
-  const reply = json.output_text || extractOutputText(json) || 'I did not get a useful GPT-5.5 response.';
+  const reply = json.output_text || extractOutputText(json) || 'GPT-5.5 returned an empty response. Please retry or say "report this" so I can file the captured failure.';
   return {reply, narration: reply, status: 'gpt_5_5_complete'};
 }
 
@@ -657,7 +657,7 @@ function isCreativeWritingRequest(message) {
   const text = String(message || '').toLowerCase();
   if (/\b(write|draft|compose|continue|narrate|expand)\b/.test(text)) return true;
   if (/\b(generate|tell)\b/.test(text)
-      && /\b(scene|story|chapter|prose|draft|passage|moment|dialogue|first contact|d-day|normandy|lexen)\b/.test(text)) return true;
+      && /\b(scene|story|chapter|prose|draft|passage|moment|dialogue|first contact|d-day)\b/.test(text)) return true;
   if (/\bnext\b/.test(text)
       && /\b(scene|story|chapter|passage|moment)\b/.test(text)) return true;
   return /\b(make|create)\b/.test(text)
@@ -1530,7 +1530,7 @@ exports.googleDriveProbe = onRequest(async (req, res) => {
     const auth = await loadGoogleClient(user.uid);
     if (!auth) {
       sendJson(res, 200, {
-        reply: 'No. Google Drive is not connected yet.\n\nI can still help with Home Center lists, TickTick fallback, GPT answers, web search, and narration.\n\nI will not claim I can read, open, list, or change Google files until Drew connects full Google Drive access.',
+        reply: 'No. Google Drive is not connected yet.\n\nI can still help with Home Center lists, TickTick fallback, GPT answers, web search, and narration.\n\nI will not claim I can read, open, list, or change Google files until Google is connected with full Drive access.',
         narration: 'Google Drive is not connected yet.',
         status: 'google_drive_missing',
       });
@@ -1558,7 +1558,7 @@ exports.googleDriveProbe = onRequest(async (req, res) => {
   } catch (err) {
     if (isInsufficientDriveScope(err)) {
       sendJson(res, 200, {
-        reply: 'Google Drive is connected, but not with full Drive access yet. Drew needs to reconnect Google with full Drive permission before I can manage Drive files.',
+        reply: 'Google Drive is connected, but not with full Drive access yet. Reconnect Google with full Drive permission before I can manage Drive files.',
         narration: 'Google Drive needs full access before I can manage files.',
         status: 'google_drive_scope_insufficient',
         technicalDetails: String(err.message || err).slice(0, 500),
