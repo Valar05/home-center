@@ -8,6 +8,8 @@ admin.initializeApp();
 const OPENAI_API_KEY = defineSecret('OPENAI_API_KEY');
 const CARTESIA_API_KEY = defineSecret('CARTESIA_API_KEY');
 const GITHUB_TOKEN = defineSecret('GITHUB_TOKEN');
+const GOOGLE_OAUTH_CLIENT_ID = defineSecret('GOOGLE_OAUTH_CLIENT_ID');
+const GOOGLE_OAUTH_CLIENT_SECRET = defineSecret('GOOGLE_OAUTH_CLIENT_SECRET');
 const CREATIVE_OPENAI_TIMEOUT_MS = 75000;
 
 const CORS_HEADERS = {
@@ -142,8 +144,8 @@ function googleEmailTokenRef(email) {
 
 function oauthClient(redirectUri = 'postmessage') {
   return new google.auth.OAuth2(
-    process.env.GOOGLE_OAUTH_CLIENT_ID || '',
-    process.env.GOOGLE_OAUTH_CLIENT_SECRET || '',
+    GOOGLE_OAUTH_CLIENT_ID.value() || process.env.GOOGLE_OAUTH_CLIENT_ID || '',
+    GOOGLE_OAUTH_CLIENT_SECRET.value() || process.env.GOOGLE_OAUTH_CLIENT_SECRET || '',
     redirectUri
   );
 }
@@ -1552,11 +1554,11 @@ exports.health = onRequest((req, res) => {
   res.set(CORS_HEADERS).json({ok: true, service: 'home-center-gateway', confirmationFlow: 'short-confirm-v1', toolContractVersion: 'google-github-knowledge-delete-cru-v1', contractGroups: ['drive', 'docs', 'sheets', 'lists', 'gmail', 'calendar', 'contacts', 'github', 'knowledge']});
 });
 
-exports.googleAuthCodeExchange = onRequest(async (req, res) => {
+exports.googleAuthCodeExchange = onRequest({timeoutSeconds: 60, secrets: [GOOGLE_OAUTH_CLIENT_ID, GOOGLE_OAUTH_CLIENT_SECRET]}, async (req, res) => {
   if (handleOptions(req, res)) return;
   try {
     const user = await requireUser(req);
-    if (!process.env.GOOGLE_OAUTH_CLIENT_ID || !process.env.GOOGLE_OAUTH_CLIENT_SECRET) {
+    if (!GOOGLE_OAUTH_CLIENT_ID.value() || !GOOGLE_OAUTH_CLIENT_SECRET.value()) {
       sendJson(res, 503, {error: 'Google tools are not connected by the owner yet'});
       return;
     }
@@ -1574,10 +1576,10 @@ exports.googleAuthCodeExchange = onRequest(async (req, res) => {
   }
 });
 
-exports.googleCliAuthExchange = onRequest(async (req, res) => {
+exports.googleCliAuthExchange = onRequest({timeoutSeconds: 60, secrets: [GOOGLE_OAUTH_CLIENT_ID, GOOGLE_OAUTH_CLIENT_SECRET]}, async (req, res) => {
   if (handleOptions(req, res)) return;
   try {
-    if (!process.env.GOOGLE_OAUTH_CLIENT_ID || !process.env.GOOGLE_OAUTH_CLIENT_SECRET) {
+    if (!GOOGLE_OAUTH_CLIENT_ID.value() || !GOOGLE_OAUTH_CLIENT_SECRET.value()) {
       sendJson(res, 503, {ok: false, error: 'google_oauth_not_configured'});
       return;
     }
@@ -1626,7 +1628,7 @@ function driveQueryFrom(text) {
   return "trashed=false";
 }
 
-exports.googleDriveProbe = onRequest(async (req, res) => {
+exports.googleDriveProbe = onRequest({timeoutSeconds: 60, secrets: [GOOGLE_OAUTH_CLIENT_ID, GOOGLE_OAUTH_CLIENT_SECRET]}, async (req, res) => {
   if (handleOptions(req, res)) return;
   try {
     const user = await requireUser(req);
@@ -1987,6 +1989,12 @@ async function runSmokeTurn(host, evidence, state, message, expected = {}) {
       updateSmokeWorkingMemory(state.workingMemory, response.toolName, response.arguments || {}, result);
       toolResults.push({name: response.toolName, arguments: response.arguments || {}, result});
       turn.toolResults.push({name: response.toolName, result});
+      if (!result || !result.ok) throw new Error(`${response.toolName} failed: ${(result && (result.detail || result.error)) || 'unknown error'}`);
+      if (response.arguments && response.arguments._confirmedByGateway) {
+        state.pendingConfirmation = null;
+        state.transcript = `${state.transcript || ''}\nUser: ${message}\nAssistant: ${result.status || result.detail || response.toolName}`.trim().slice(-8000);
+        return response;
+      }
       continue;
     }
     if (response.pendingConfirmation) state.pendingConfirmation = response.pendingConfirmation; else if (response.status !== 'confirmation_required') state.pendingConfirmation = null;
@@ -2040,6 +2048,12 @@ async function runMetalPromptSmoke(user, body) {
     evidence.directDocText = directRead.content;
     evidence.ok = true;
     return evidence;
+  } catch (err) {
+    evidence.ok = false;
+    evidence.error = 'metal_prompt_smoke_failed';
+    evidence.detail = err.message || String(err);
+    evidence.stack = String(err.stack || '');
+    return evidence;
   } finally {
     evidence.cleanup = await host.cleanup().catch((err) => ({ok: false, error: err.message || String(err)}));
   }
@@ -2055,7 +2069,7 @@ exports.githubCreateIssue = onRequest({timeoutSeconds: 60, secrets: [GITHUB_TOKE
   }
 });
 
-exports.metalPromptSmoke = onRequest({timeoutSeconds: 300, secrets: [OPENAI_API_KEY]}, async (req, res) => {
+exports.metalPromptSmoke = onRequest({timeoutSeconds: 300, secrets: [OPENAI_API_KEY, GOOGLE_OAUTH_CLIENT_ID, GOOGLE_OAUTH_CLIENT_SECRET]}, async (req, res) => {
   if (handleOptions(req, res)) return;
   try {
     const user = await requireSmokeUser(req);
@@ -2085,7 +2099,7 @@ exports.agentToolTurn = onRequest({timeoutSeconds: 120, secrets: [OPENAI_API_KEY
   }
 });
 
-exports.agentTurn = onRequest({timeoutSeconds: 120, secrets: [OPENAI_API_KEY]}, async (req, res) => {
+exports.agentTurn = onRequest({timeoutSeconds: 120, secrets: [OPENAI_API_KEY, GOOGLE_OAUTH_CLIENT_ID, GOOGLE_OAUTH_CLIENT_SECRET]}, async (req, res) => {
   if (handleOptions(req, res)) return;
   try {
     const user = await requireUser(req);

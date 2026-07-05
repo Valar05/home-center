@@ -34,9 +34,10 @@ function webClientId() {
 }
 
 function openUrl(url) {
+  console.log(`Consent URL:\n${url}\n`);
   const result = spawnSync('termux-open-url', [url], {stdio: 'ignore'});
   if (result.status === 0) return;
-  console.log(`Open this URL:\n${url}\n`);
+  console.log('Android did not report successful URL open. Open the Consent URL manually.');
 }
 
 function consoleUrl(clientId) {
@@ -84,9 +85,7 @@ function waitForCode(state) {
           return;
         }
         if (url.searchParams.get('state') !== state) {
-          res.writeHead(400).end('State mismatch.');
-          reject(new Error('OAuth state mismatch.'));
-          server.close();
+          res.writeHead(409, {'Content-Type': 'text/plain'}).end('Ignored stale Home Center OAuth callback. Use the newest Google consent tab.');
           return;
         }
         const error = url.searchParams.get('error');
