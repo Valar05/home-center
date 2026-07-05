@@ -21,6 +21,75 @@ function parseArgs(argv) {
   return args;
 }
 
+function scenarioFixture(scenario) {
+  if (scenario === 'issue38-stale-github-confirmation') {
+    const prompt = 'Simulate a new chapter with perfect adherence to simulation doctrine.  Lexen.  On Normandy.  In a tank.  When a panzer is spotted.';
+    return {
+      prompt,
+      transcript: [
+        'User: Report',
+        'Assistant: I can create that GitHub issue. Press Confirm or say "confirm create issue".',
+        'User: That was a request for a chapter with doctrine in mind, not a doctrine update',
+        'Assistant: I can create that GitHub issue. Press Confirm or say "confirm create issue".',
+        `User: ${prompt}`,
+      ].join('\n'),
+      summary: 'Creative writing request for Lexen in Normandy. The pending GitHub issue confirmation is stale and must not control this turn.',
+      workingMemory: {
+        rememberedWritingContext: {
+          title: 'Lexen Normandy simulation doctrine',
+          evidence: [
+            'Write the requested chapter scene directly.',
+            'Do not file an issue unless the latest user request asks to report or make an issue.',
+            'Preserve grounded tank/crew/radio/terrain pressure and immediate tactical consequence.',
+          ].join(' '),
+        },
+      },
+      evidenceContext: {
+        latestGitHubIssue: 38,
+        failingPrompt: prompt,
+        requiredBehavior: 'Discard stale GitHub issue confirmation and produce the requested Lexen chapter scene.',
+      },
+      pendingConfirmation: {
+        toolName: 'github.create_issue',
+        arguments: {
+          repo: 'Valar05/home-center',
+          title: 'Bug: stale GitHub issue confirmation hijacked creative writing request',
+          body: 'Stale pending confirmation reproduction.',
+          labels: ['bug', 'feedback', 'home-center'],
+        },
+        confirmationStage: 1,
+      },
+      requiredTerms: ['Lexen', 'tank', 'panzer'],
+    };
+  }
+  const prompt = 'Next scene uses kinetic compression to show how the first panzer fight goes.';
+  return {
+    prompt,
+    transcript: [
+      'User: Now write the next slice, make it the best one so far simulation. Lexen green normandy',
+      'Assistant: Lexen stayed in the tank because outside the tank was only a larger machine for killing him.',
+      `User: ${prompt}`,
+    ].join('\n'),
+    summary: 'Lexen green Normandy tank commander fiction. Preserve Lexen in command position, battlefield pressure, and grounded tank/crew action.',
+    workingMemory: {
+      rememberedWritingContext: {
+        title: 'Lexen green Normandy durable writing context',
+        evidence: [
+          'Lexen does not become fearless; he becomes usable.',
+          'Use operational detail, tank/crew/radio/terrain pressure, and consequence.',
+          'Kinetic compression means intent, position change, contact, immediate consequence, and new tactical situation.',
+        ].join(' '),
+      },
+    },
+    evidenceContext: {
+      latestGitHubIssue: 36,
+      failingPrompt: prompt,
+      requiredBehavior: 'Produce the requested scene, not diagnostics, next steps, issue filing, or a tool call.',
+    },
+    requiredTerms: ['Lexen', 'tank'],
+  };
+}
+
 function firebaseApiKey() {
   const config = JSON.parse(readFileSync(join(ROOT, 'app', 'google-services.json'), 'utf8'));
   const key = config?.client?.[0]?.api_key?.[0]?.current_key || '';
@@ -77,33 +146,17 @@ async function main() {
   const evidencePath = join(EVIDENCE_DIR, `creative_prompt_smoke_${args.runId}.json`);
   const accessToken = googleAccessToken();
   firebaseApiKey();
-  const prompt = 'Next scene uses kinetic compression to show how the first panzer fight goes.';
+  const fixture = scenarioFixture(args.scenario);
   const result = await postJson(`${GATEWAY_BASE}/creativePromptSmoke`, {
     scenario: args.scenario,
     runId: args.runId,
-    prompt,
-    transcript: [
-      'User: Now write the next slice, make it the best one so far simulation. Lexen green normandy',
-      'Assistant: Lexen stayed in the tank because outside the tank was only a larger machine for killing him.',
-      `User: ${prompt}`,
-    ].join('\n'),
-    summary: 'Lexen green Normandy tank commander fiction. Preserve Lexen in command position, battlefield pressure, and grounded tank/crew action.',
-    workingMemory: {
-      rememberedWritingContext: {
-        title: 'Lexen green Normandy durable writing context',
-        evidence: [
-          'Lexen does not become fearless; he becomes usable.',
-          'Use operational detail, tank/crew/radio/terrain pressure, and consequence.',
-          'Kinetic compression means intent, position change, contact, immediate consequence, and new tactical situation.',
-        ].join(' '),
-      },
-    },
-    evidenceContext: {
-      latestGitHubIssue: 36,
-      failingPrompt: prompt,
-      requiredBehavior: 'Produce the requested scene, not diagnostics, next steps, issue filing, or a tool call.',
-    },
-    requiredTerms: ['Lexen', 'tank'],
+    prompt: fixture.prompt,
+    transcript: fixture.transcript,
+    summary: fixture.summary,
+    workingMemory: fixture.workingMemory,
+    evidenceContext: fixture.evidenceContext,
+    pendingConfirmation: fixture.pendingConfirmation,
+    requiredTerms: fixture.requiredTerms,
   }, accessToken, 'creativePromptSmoke');
   writeFileSync(evidencePath, JSON.stringify(redact({
     runner: {gatewayBase: GATEWAY_BASE, auth: 'google_access_token_or_firebase_id_token'},

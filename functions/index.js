@@ -10,8 +10,8 @@ const CARTESIA_API_KEY = defineSecret('CARTESIA_API_KEY');
 const GITHUB_TOKEN = defineSecret('GITHUB_TOKEN');
 const GOOGLE_OAUTH_CLIENT_ID = defineSecret('GOOGLE_OAUTH_CLIENT_ID');
 const GOOGLE_OAUTH_CLIENT_SECRET = defineSecret('GOOGLE_OAUTH_CLIENT_SECRET');
-const CREATIVE_OPENAI_TIMEOUT_MS = 32000;
-const CREATIVE_SALVAGE_TIMEOUT_MS = 12000;
+const CREATIVE_OPENAI_TIMEOUT_MS = 85000;
+const CREATIVE_SALVAGE_TIMEOUT_MS = 25000;
 
 const CORS_HEADERS = {
   'Access-Control-Allow-Origin': '*',
@@ -105,13 +105,13 @@ function userFacingFailure(source, detail, status = 'agent_failure') {
   const category = errorCategoryFrom(cleanDetail);
   const sourceLabel = source || 'agent';
   const workarounds = {
-    timeout: 'Try again with the direct URL or a narrower request. If it repeats, say "report this" and I will file the captured failure.',
+    timeout: 'Try again with the direct URL or a narrower request. If it repeats, ask me to file a bug and I will preserve the captured failure.',
     network: 'Try again, or provide the direct source URL/file name so I can avoid broad search.',
     authorization: 'Reconnect Google or the relevant provider, then retry the same request.',
     rate_limit: 'Wait a minute and retry. If the request is urgent, narrow it to one source or one action.',
     planner_parse: 'Say the request again more directly. If it repeats, report it as an agent parsing bug.',
     tool_contract: 'Ask for diagnostics or reconnect the missing provider if this should be an available capability.',
-    provider: 'Retry once. If it repeats, say "report this" so I can preserve the exact failure.',
+    provider: 'Retry once. If it repeats, ask me to file a bug so I can preserve the exact failure.',
   };
   return {
     type: 'final',
@@ -373,6 +373,10 @@ function toolByName(tools, name) {
 
 function messageConfirms(message) {
   return /(^|\b)confirm(?:ed|ing)?\b/i.test(message || '');
+}
+
+function messageCancels(message) {
+  return /\b(cancel|never mind|nevermind|stop that|not that|wrong|no)\b/i.test(message || '');
 }
 
 function quoteForConfirmation(value) {
@@ -724,7 +728,7 @@ function attachCreativeTaskComplete(response, message) {
 function isCreativeWritingRequest(message) {
   const text = String(message || '').toLowerCase();
   if (/\b(write|draft|compose|continue|narrate|expand)\b/.test(text)) return true;
-  if (/\b(generate|tell)\b/.test(text)
+  if (/\b(generate|tell|simulate)\b/.test(text)
       && /\b(scene|story|chapter|prose|draft|passage|moment|dialogue|first contact|d-day)\b/.test(text)) return true;
   if (/\bnext\b/.test(text)
       && /\b(scene|story|chapter|passage|moment)\b/.test(text)) return true;
@@ -1374,7 +1378,19 @@ async function askOpenAIToolTurn(body) {
   const evidenceContext = body && typeof body.evidenceContext === 'object' ? body.evidenceContext : {};
   const attachmentImages = Array.isArray(body.attachmentImages) ? body.attachmentImages.slice(0, 10) : [];
   const timeContext = timeContextFromBody(body);
-  const pending = pendingConfirmationFromBody(body, tools);
+  const rawPending = pendingConfirmationFromBody(body, tools);
+  if (rawPending && messageCancels(message)) {
+    const trace = buildToolTrace(body, tools, {type: 'final', status: 'pending_confirmation_cancelled'}, rawPending.toolName, toolByName(tools, rawPending.toolName), false);
+    return withTrace(body, {
+      type: 'final',
+      reply: 'Canceled that pending action.',
+      narration: 'Canceled that pending action.',
+      status: 'pending_confirmation_cancelled',
+      taskStateUpdate: {status: 'cancelled', objective: safeText(rawPending.action || rawPending.toolName, 500)},
+    }, Object.assign({}, trace, {pendingConfirmationCancelled: true}));
+  }
+  const stalePendingIgnored = rawPending && !messageConfirms(message);
+  const pending = rawPending && !stalePendingIgnored ? rawPending : null;
   const forcedMemoryAppend = memoryAppendToolCall(body, tools, toolResults);
   if (forcedMemoryAppend) {
     const trace = buildToolTrace(body, tools, forcedMemoryAppend, forcedMemoryAppend.toolName, toolByName(tools, forcedMemoryAppend.toolName), false);
@@ -1500,6 +1516,7 @@ async function askOpenAIToolTurn(body) {
     `Evidence context JSON: ${JSON.stringify(evidenceContext).slice(0, 12000)}`,
     `Tool evidence digest JSON: ${JSON.stringify(toolEvidenceDigest).slice(0, 50000)}`,
     toolResults.length ? `Tool results JSON retained only for compatibility; use Tool evidence digest first: ${JSON.stringify(toolEvidenceDigest.results).slice(0, 12000)}` : 'Tool results JSON: []',
+    stalePendingIgnored ? 'A stale pending confirmation was discarded because the latest user request was not a confirmation. Do not resume, mention, or act on the discarded action.' : '',
     pending ? `Pending confirmation JSON: ${JSON.stringify(pending).slice(0, 4000)}` : '',
     continuationRequest ? `Latest literal user request: ${message}` : '',
     `Latest user request: ${plannerMessage}`,
@@ -2158,6 +2175,9 @@ async function runCreativePromptSmoke(user, body) {
     timeContext: {nowEpochMillis: Date.now(), nowIso: new Date().toISOString(), timeZoneId: 'UTC'},
     debugTrace: true,
   };
+  if (body && typeof body.pendingConfirmation === 'object') {
+    requestBody.pendingConfirmation = body.pendingConfirmation;
+  }
   const response = await askOpenAIToolTurn(requestBody);
   const elapsedMs = Date.now() - started;
   const reply = finalReplyText(response, '');

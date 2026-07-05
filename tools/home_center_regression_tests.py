@@ -499,7 +499,7 @@ require_contains(functions_index, 'function userFacingFailure(source, detail', '
 require_contains(functions_index, 'errorSource: sourceLabel', 'gateway failure payload includes error source')
 require_contains(functions_index, 'errorCategory: category', 'gateway failure payload includes error category')
 require_contains(functions_index, 'Workaround:', 'gateway failure copy includes workaround support')
-require_contains(functions_index, 'say "report this"', 'gateway failure copy can promote repeated failures to issues')
+require_contains(functions_index, 'ask me to file a bug', 'gateway failure copy can promote repeated failures to issues without seeding report trigger phrases')
 require_contains(functions_index, "userFacingFailure('Home Center gateway', err.message || String(err), 'gateway_error')", 'gateway catch blocks return structured failure copy')
 require_absent(functions_index, "reply: `Gateway failed: ${err.message || String(err)}`", 'gateway catch blocks must not return raw failure copy')
 require_contains(main_activity, 'agentFailureMessage("Home Center gateway", ex.getMessage())', 'Android gateway exceptions use structured failure copy')
@@ -591,7 +591,7 @@ for expected in creative_synthesis_contract['source_expectations']:
 require_contains(functions_index, 'function creativeReplyNeedsRepair(message, reply)', 'gateway detects punted creative writing replies')
 require_contains(functions_index, 'askOpenAICreativeRepair(repairBody, finalReply)', 'gateway repairs punted creative writing replies before Android sees them')
 require_contains(functions_index, 'if (/\\b(write|draft|compose|continue|narrate|expand)\\b/.test(text)) return true;', 'gateway treats direct write/draft/compose requests as creative even without scene keyword')
-require_contains(functions_index, '\\b(generate|tell)\\b', 'gateway treats generate/tell plus scene terms as creative')
+require_contains(functions_index, '\\b(generate|tell|simulate)\\b', 'gateway treats generate/tell/simulate plus scene terms as creative')
 require_contains(functions_index, '\\b(scene|story|chapter|prose|draft|passage|moment|dialogue|first contact|d-day)\\b', 'gateway recognizes general creative domain terms without project names')
 require_contains(functions_index, 'function creativeContextToolCall(body, tools, toolResults)', 'gateway has creative context acquisition guard')
 require_contains(functions_index, "toolName: 'docs.read'", 'creative pipeline reads remembered canon document before prose')
@@ -603,8 +603,8 @@ require_contains(functions_index, 'askOpenAICreativeDraft(creativeBody)', 'gatew
 require_contains(functions_index, 'If workingMemory.rememberedWritingContext exists, treat it as durable writing steering from prior turns.', 'creative draft uses hydrated writing memory directly')
 require_contains(functions_index, 'creativeDedicatedDraft: true', 'gateway traces dedicated creative draft path')
 require_contains(functions_index, 'creativeContextSkippedNoMemory', 'gateway traces creative drafting without remembered context')
-require_contains(functions_index, 'CREATIVE_OPENAI_TIMEOUT_MS = 32000', 'creative drafting returns before mobile gateway stream cutoff')
-require_contains(functions_index, 'CREATIVE_SALVAGE_TIMEOUT_MS = 12000', 'creative drafting has a bounded salvage attempt')
+require_contains(functions_index, 'CREATIVE_OPENAI_TIMEOUT_MS = 85000', 'creative drafting has enough budget for long prose without changing global gateway timeout')
+require_contains(functions_index, 'CREATIVE_SALVAGE_TIMEOUT_MS = 25000', 'creative drafting has a bounded salvage attempt under the function timeout')
 require_contains(functions_index, "max_output_tokens: salvage ? 1400 : 2600", 'creative drafting caps output to avoid stream stalls')
 require_contains(functions_index, "reasoning: {effort: salvage ? 'low' : 'low'}", 'creative drafting avoids slow high-reasoning prose calls')
 require_contains(functions_index, 'creativeDraftPrompt(body, \'salvage\'', 'creative drafting retries with a shorter salvage prompt')
@@ -615,8 +615,12 @@ require_contains(functions_index, 'attachCreativeTaskComplete', 'creative final 
 require_contains(functions_index, 'creativeDraftFailed: draftFailed', 'gateway traces creative draft failure separately from tool planning')
 require_contains(functions_index, 'exports.creativePromptSmoke', 'gateway exposes authenticated creative prompt smoke')
 require_contains(functions_index, 'creativePromptSmoke requires prompt', 'gateway creative smoke accepts fixture text from the runner instead of hardcoding project prose')
+require_contains(functions_index, 'requestBody.pendingConfirmation = body.pendingConfirmation', 'creative smoke can reproduce stale pending confirmation state')
 require_contains(creative_prompt_smoke, 'Next scene uses kinetic compression to show how the first panzer fight goes.', 'creative prompt smoke uses exact issue 36 failing prompt')
 require_contains(creative_prompt_smoke, 'creativePromptSmoke', 'CLI can run creative prompt smoke against deployed gateway')
+require_contains(creative_prompt_smoke, 'issue38-stale-github-confirmation', 'creative smoke includes issue 38 stale confirmation scenario')
+require_contains(creative_prompt_smoke, 'Simulate a new chapter with perfect adherence to simulation doctrine.  Lexen.  On Normandy.  In a tank.  When a panzer is spotted.', 'creative smoke includes exact issue 38 prompt')
+require_contains(creative_prompt_smoke, "toolName: 'github.create_issue'", 'creative smoke sends stale GitHub issue pending confirmation')
 require_contains(run_regression, 'node --check tools/home_center_creative_prompt_smoke.mjs', 'regression harness syntax-checks creative prompt smoke runner')
 require_contains(main_activity, 'gateway connection closed before response', 'Android reports unexpected stream close as gateway connection failure')
 require_absent(functions_index, 'creativeDedicatedDraft: true, creativeValidationApplied: true', 'pure creative path must not make a second OpenAI validation call')
@@ -646,6 +650,27 @@ require_contains(functions_index, 'sanitizedArgs._confirmedByGateway = true', 'g
 require_contains(functions_index, 'Say "confirm ${action}" or press Confirm.', 'confirmation copy uses short confirm phrase')
 require_contains(functions_index, 'pendingConfirmation: pendingConfirmation(toolName, sanitizedArgs)', 'gateway returns sanitized hidden pending confirmation payload')
 require_contains(functions_index, 'pendingConfirmationFromBody(body, tools)', 'gateway resumes pending confirmation from Android payload')
+require_contains(functions_index, 'function messageCancels(message)', 'gateway can cancel stale pending confirmations explicitly')
+require_contains(functions_index, 'const stalePendingIgnored = rawPending && !messageConfirms(message)', 'gateway ignores pending confirmation when latest user request is not a confirmation')
+require_contains(functions_index, 'A stale pending confirmation was discarded because the latest user request was not a confirmation', 'stale pending confirmation is hidden from planner prompt')
+require_absent(functions_index, "JSON.stringify({toolName: rawPending.toolName, action: rawPending.action})", 'discarded pending confirmation details are not leaked into planner prompt')
+require_contains(functions_index, 'pendingConfirmationCancelled', 'gateway traces explicit pending confirmation cancellation')
+issue_38_stale_confirmation_contract = {
+    'inputs': [
+        'That was a request for a chapter with doctrine in mind, not a doctrine update',
+        'Simulate a new chapter with perfect adherence to simulation doctrine.  Lexen.  On Normandy.  In a tank.  When a panzer is spotted.',
+    ],
+    'source_expectations': [
+        'const rawPending = pendingConfirmationFromBody(body, tools)',
+        'const pending = rawPending && !stalePendingIgnored ? rawPending : null',
+        'Latest literal user request',
+    ],
+}
+if not all(issue_38_stale_confirmation_contract['inputs']):
+    fail('issue 38 stale confirmation contract is missing exact user input')
+for expected in issue_38_stale_confirmation_contract['source_expectations']:
+    if expected not in functions_index:
+        fail(f"issue 38 stale confirmation contract is missing source expectation {expected}")
 require_contains(functions_index, 'function sanitizeToolArguments(tool, args)', 'gateway sanitizes tool args against advertised schema')
 require_contains(functions_index, "allowed.has(key) || key === '_confirmedByGateway'", 'gateway preserves only schema args and confirmation marker')
 require_contains(functions_index, "key === '_doubleConfirmedByGateway'", 'gateway preserves double confirmation marker')
