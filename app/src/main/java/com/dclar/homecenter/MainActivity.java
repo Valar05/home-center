@@ -1033,6 +1033,7 @@ public final class MainActivity extends Activity implements RecognitionListener,
                 JSONArray availableTools = ToolRegistry.availableTools(account, hasSignedInHomeUser());
                 JSONArray unavailableGroups = ToolRegistry.unavailableToolGroups(account, hasSignedInHomeUser());
                 LocalLog.info("agent_trace", "step=" + step + " availableTools=" + shortMessage(availableTools.toString()));
+                rememberAgentTrace("gateway_request_started", step, clean, "", "");
                 turn = openAiAgentClient.sendToolTurn(
                         idToken,
                         clean,
@@ -1047,6 +1048,7 @@ public final class MainActivity extends Activity implements RecognitionListener,
                         evidenceContextSnapshot(clean),
                         attachmentImagesSnapshot());
                 LocalLog.info("agent_trace", "step=" + step + " gateway_type=" + turn.type + " status=" + turn.status + " requestedTool=" + turn.toolName + " technicalDetails=" + shortMessage(turn.technicalDetails));
+                rememberAgentTrace("gateway_response_received", step, clean, turn.status, turn.type + (turn.toolName.isEmpty() ? "" : ":" + turn.toolName));
                 applyTaskStateUpdate(turn.taskStateUpdate);
                 if (turn.requestsTool()) {
                     LocalLog.info("agent_trace", "android_received_tool=" + turn.toolName);
@@ -1087,6 +1089,7 @@ public final class MainActivity extends Activity implements RecognitionListener,
         } catch (Exception ex) {
             main.post(() -> {
                 LocalLog.info("agent", "tool_loop_failed: " + shortMessage(ex.getMessage()));
+                rememberAgentTrace("gateway_error", -1, clean, "exception", shortMessage(ex.getMessage()));
                 setBusy(false);
                 showAssistantMessage(agentFailureMessage("Home Center gateway", ex.getMessage()));
             });
@@ -1434,14 +1437,34 @@ public final class MainActivity extends Activity implements RecognitionListener,
         return copy;
     }
 
+    private void rememberAgentTrace(String event, int step, String latestUserText, String status, String detail) {
+        synchronized (toolTraceLock) {
+            try {
+                JSONObject trace = new JSONObject()
+                        .put("event", event == null ? "" : event)
+                        .put("step", step)
+                        .put("latestUserText", latestUserText == null ? "" : shortMessage(latestUserText))
+                        .put("status", status == null ? "" : status)
+                        .put("detail", detail == null ? "" : shortMessage(detail))
+                        .put("timestamp", new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ", Locale.US).format(new Date()));
+                recentToolTrace.put(trace);
+                while (recentToolTrace.length() > 10) {
+                    recentToolTrace.remove(0);
+                }
+            } catch (Exception ignored) {
+            }
+        }
+    }
+
     private void rememberToolTrace(String toolName, JSONObject arguments, JSONObject result) {
         synchronized (toolTraceLock) {
             try {
                 recentToolTrace.put(new JSONObject()
+                        .put("event", "tool_result")
                         .put("toolName", toolName == null ? "" : toolName)
                         .put("arguments", arguments == null ? new JSONObject() : cloneJson(arguments))
                         .put("result", result == null ? new JSONObject() : cloneJson(result)));
-                while (recentToolTrace.length() > 6) {
+                while (recentToolTrace.length() > 10) {
                     recentToolTrace.remove(0);
                 }
             } catch (Exception ignored) {
@@ -1571,11 +1594,36 @@ public final class MainActivity extends Activity implements RecognitionListener,
     private JSONObject workingMemorySnapshot() {
         synchronized (workingMemoryLock) {
             try {
-                return new JSONObject(workingMemory.toString());
+                JSONObject snapshot = new JSONObject(workingMemory.toString());
+                hydrateRememberedWritingContext(snapshot);
+                return snapshot;
             } catch (Exception ex) {
                 LocalLog.warn("agent", "working_memory_clone_failed: " + shortMessage(ex.getMessage()));
                 return new JSONObject();
             }
+        }
+    }
+
+    private void hydrateRememberedWritingContext(JSONObject snapshot) {
+        if (snapshot == null || snapshot.has("rememberedWritingContext")) {
+            return;
+        }
+        String evidence = (conversationSummary == null ? "" : conversationSummary) + "\n" + recentTranscriptSnapshot();
+        String lower = evidence.toLowerCase(Locale.US);
+        if (!lower.contains("lexen") || !lower.contains("green") || !lower.contains("doctrine")) {
+            return;
+        }
+        try {
+            JSONObject context = new JSONObject()
+                    .put("topic", "Lexen green commander doctrine")
+                    .put("project", lower.contains("tanks for the memories") ? "Tanks for the Memories" : "")
+                    .put("sourcePolicy", lower.contains("don't scan drive blindly") || lower.contains("do not scan drive blindly")
+                            ? "Ask if unsure; do not scan Drive blindly."
+                            : "")
+                    .put("evidence", shortMessage(evidence));
+            snapshot.put("rememberedWritingContext", context);
+            LocalLog.info("agent_trace", "working_memory_hydrate rememberedWritingContext=" + shortMessage(context.toString()));
+        } catch (Exception ignored) {
         }
     }
 

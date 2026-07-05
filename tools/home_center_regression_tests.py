@@ -143,6 +143,9 @@ require_contains(knowledge_client, 'seed("MEMORY.md"', 'Local knowledge seeds ME
 require_contains(knowledge_client, 'sensitive_content_rejected', 'Local knowledge rejects obvious secrets')
 require_contains(functions_index, 'Local knowledge rule: use knowledge.append', 'Gateway planner can persist durable workflows and workarounds')
 require_contains(functions_index, 'Choose SKILLS.md for repeatable procedures, AGENTS.md for agent steering, and MEMORY.md for durable facts', 'Gateway planner chooses the right local knowledge file')
+require_contains(functions_index, 'function memoryAppendToolCall(body, tools, toolResults)', 'Gateway enforces durable memory writes before claiming memory is updated')
+require_contains(functions_index, 'memoryWriteEnforced: true', 'Gateway traces forced durable memory writes')
+require_contains(functions_index, 'Persist requested durable memory before claiming it is remembered.', 'Gateway blocks fake memory-done replies')
 require_contains(tool_registry, 'drive.upload_file', 'Drive upload for attached files is registered')
 require_contains(tool_registry, 'Arrays.asList("sessionFileId", "name", "folderId", "mimeType")', 'Drive upload tool uses session file id arguments')
 require_contains(main_activity, 'REQUEST_FILE_ATTACH', 'Android has a file attachment picker request')
@@ -162,6 +165,9 @@ require_contains(drive_client, 'uploadType", "multipart"', 'Drive upload uses mu
 require_contains(main_activity, 'evidenceContextSnapshot(clean)', 'Android sends evidence context to the planner')
 require_contains(main_activity, 'recentConversationEvidence()', 'Android preserves recent conversation evidence')
 require_contains(main_activity, 'recentToolTrace', 'Android preserves recent tool trace evidence')
+require_contains(main_activity, 'rememberAgentTrace("gateway_request_started"', 'Android records gateway request start trace for reports')
+require_contains(main_activity, 'rememberAgentTrace("gateway_response_received"', 'Android records gateway response trace for reports')
+require_contains(main_activity, 'rememberAgentTrace("gateway_error"', 'Android records gateway error trace for reports')
 require_contains(main_activity, 'openAiAgentClient.createGitHubIssue(idToken, arguments)', 'Android dispatches GitHub issue creation through the gateway')
 require_contains(openai_client, 'body.put("evidenceContext"', 'OpenAI client sends Android evidence context')
 require_contains(openai_client, 'postJson("githubCreateIssue"', 'OpenAI client can call GitHub issue gateway')
@@ -244,6 +250,9 @@ require_contains(main_activity, 'json.put("timeZoneId", zone.getID())', 'time co
 require_contains(main_activity, 'json.put("timeZoneOffsetMillis", zone.getOffset(nowMillis))', 'time context includes timezone offset')
 require_contains(main_activity, 'private final JSONObject workingMemory = new JSONObject()', 'Android has session working memory')
 require_contains(main_activity, 'workingMemorySnapshot()', 'Android snapshots working memory for agent turns')
+require_contains(main_activity, 'hydrateRememberedWritingContext(snapshot)', 'Android hydrates promised writing context before sending working memory')
+require_contains(main_activity, 'snapshot.put("rememberedWritingContext"', 'Android sends restored writing context through working memory')
+require_contains(main_activity, 'Lexen green commander doctrine', 'Android recognizes repeated Lexen writing context from evidence')
 require_contains(main_activity, 'applyTaskStateUpdate(turn.taskStateUpdate)', 'Android applies gateway task state update each agent step')
 require_contains(main_activity, 'workingMemory.put("activeTask", task)', 'Android stores unfinished active task state')
 require_contains(main_activity, 'workingMemory.remove("activeTask")', 'Android clears active task only on complete or cancelled')
@@ -510,6 +519,7 @@ creative_synthesis_contract = {
     'source_expectations': [
         'Creative writing rule: if the latest request asks to write, draft, compose, generate, narrate, expand, create a scene, continue a story, or synthesize prose',
         'produce the prose directly as a final answer from transcript, workingMemory, attachments, and tool evidence',
+        'Remembered writing context rule: workingMemory.rememberedWritingContext is durable writing steering restored from prior conversation evidence',
         'Creative context rule: if workingMemory names a remembered canon document or durable knowledge file, use one best available context read before final prose',
         'Creative validation rule: preserve explicit user premises, character roles, POV, vehicle/location relationships, and historical constraints',
         'Do not call docs.search, drive.search, or docs.create unless the latest request explicitly asks to find/read a source document or save/update/create a Google Doc',
@@ -534,6 +544,7 @@ require_contains(functions_index, 'Do not chain multiple context reads before wr
 require_contains(functions_index, 'A remembered document is enough context for this creative turn.', 'creative context acquisition stops after remembered document is already read')
 require_contains(functions_index, 'const pureCreativeRequest = isCreativeWritingRequest(message) && !isExplicitNonCreativeToolRequest(message)', 'gateway routes pure creative requests before generic planner')
 require_contains(functions_index, 'askOpenAICreativeDraft(body)', 'gateway drafts creative prose without generic tool planner')
+require_contains(functions_index, 'If workingMemory.rememberedWritingContext exists, treat it as durable writing steering from prior turns.', 'creative draft uses hydrated writing memory directly')
 require_contains(functions_index, 'creativeDedicatedDraft: true', 'gateway traces dedicated creative draft path')
 require_contains(functions_index, 'creativeContextSkippedNoMemory', 'gateway traces creative drafting without remembered context')
 require_contains(functions_index, 'CREATIVE_OPENAI_TIMEOUT_MS = 75000', 'creative drafting has a timeout below the Firebase function window')

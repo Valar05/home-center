@@ -684,6 +684,40 @@ function isExplicitNonCreativeToolRequest(message) {
   return false;
 }
 
+function isMemoryWriteRequest(message) {
+  const text = String(message || '').toLowerCase();
+  return /\b(remember|update your memory|save this|make durable|future .* references|in the future|store this)\b/.test(text);
+}
+
+function memoryAppendToolCall(body, tools, toolResults) {
+  const message = safeText(body && body.message, 4000);
+  if (!isMemoryWriteRequest(message) || !hasAvailableTool(tools, 'knowledge.append')) return null;
+  if (hasToolResult(toolResults, 'knowledge.append', (entry) => entry && entry.result && entry.result.ok !== false)) return null;
+  const transcript = safeText(body && body.transcript, 8000);
+  const summary = safeText(body && body.summary, 4000);
+  const bodyText = [
+    `User memory request: ${message}`,
+    summary ? `Conversation summary: ${summary}` : '',
+    transcript ? `Recent transcript evidence: ${transcript}` : '',
+  ].filter(Boolean).join('\n\n');
+  return {
+    type: 'tool_call',
+    toolName: 'knowledge.append',
+    arguments: {
+      file: 'MEMORY.md',
+      title: 'User-directed durable memory',
+      body: bodyText,
+    },
+    status: 'tool_call_requested',
+    taskStateUpdate: {
+      status: 'in_progress',
+      objective: message,
+      originalUserRequest: message,
+      expectedNextAction: 'Persist requested durable memory before claiming it is remembered.',
+    },
+  };
+}
+
 function shouldBlockCreativePlannerToolCall(message) {
   return isCreativeWritingRequest(message) && !isExplicitNonCreativeToolRequest(message);
 }
@@ -813,6 +847,7 @@ async function askOpenAICreativeDraft(body) {
     'Draft a Home Center creative-writing response.',
     'The user asked for prose. Produce the requested scene/passage now as a strict JSON final answer.',
     'Use only available transcript, workingMemory, evidence, attachments, and tool evidence. If context is thin, write a short grounded draft around confirmed names/actions and avoid unsupported biography.',
+    'If workingMemory.rememberedWritingContext exists, treat it as durable writing steering from prior turns. Use it directly; do not search Drive for it unless the latest user asks.',
     'Do not ask another clarification question. Do not provide next steps. Do not call tools. Do not report an issue. Do not explain process.',
     'Preserve explicit user premises, character roles, POV, location, command position, vehicle relationships, and historical constraints.',
     'Return JSON only: {"type":"final","reply":"...","narration":"...","status":"creative_draft_complete","taskStateUpdate":{"status":"complete","objective":"..."}}',
@@ -1201,6 +1236,11 @@ async function askOpenAIToolTurn(body) {
   const attachmentImages = Array.isArray(body.attachmentImages) ? body.attachmentImages.slice(0, 10) : [];
   const timeContext = timeContextFromBody(body);
   const pending = pendingConfirmationFromBody(body, tools);
+  const forcedMemoryAppend = memoryAppendToolCall(body, tools, toolResults);
+  if (forcedMemoryAppend) {
+    const trace = buildToolTrace(body, tools, forcedMemoryAppend, forcedMemoryAppend.toolName, toolByName(tools, forcedMemoryAppend.toolName), false);
+    return withTrace(body, forcedMemoryAppend, Object.assign({}, trace, {memoryWriteEnforced: true}));
+  }
   const pureCreativeRequest = isCreativeWritingRequest(message) && !isExplicitNonCreativeToolRequest(message);
   if (pureCreativeRequest) {
     const contextCall = creativeContextToolCall(body, tools, toolResults);
@@ -1287,6 +1327,7 @@ async function askOpenAIToolTurn(body) {
     'Local knowledge rule: use knowledge.append when the user asks to remember, save, preserve, promote, or make durable a workflow, workaround, agent instruction, skill, or memory. Choose SKILLS.md for repeatable procedures, AGENTS.md for agent steering, and MEMORY.md for durable facts or troubleshooting state.',
     'Local knowledge rule: use knowledge.read when the user asks what durable skills, agent instructions, or local memory Home Center has stored. Never write secrets, API keys, OAuth tokens, passwords, or Authorization headers to knowledge files.',
     'Latest intent rule: the latest user request controls. If the latest request asks for recommendations, summaries, answers, reading suggestions, or next actions, answer that request from available context and tool results instead of continuing an older workflow.',
+    'Remembered writing context rule: workingMemory.rememberedWritingContext is durable writing steering restored from prior conversation evidence. Use it directly for writing requests; do not scan Drive blindly when it says not to.',
     'Creative writing rule: if the latest request asks to write, draft, compose, generate, narrate, expand, create a scene, continue a story, or synthesize prose, produce the prose directly as a final answer from transcript, workingMemory, attachments, and tool evidence.',
     'Creative context rule: if workingMemory names a remembered canon document or durable knowledge file, use one best available context read before final prose. Prefer docs.read for lastDocument; use knowledge.read only when no remembered document is available. Do not chain multiple context reads before writing. Do not call docs.search, drive.search, or docs.create unless the latest request explicitly asks to find/read a source document or save/update/create a Google Doc.',
     'Creative validation rule: preserve explicit user premises, character roles, POV, vehicle/location relationships, and historical constraints. Do not move a commander out of their commanded vehicle, invert who controls the vehicle, or replace a grounded premise with symbolism.',
