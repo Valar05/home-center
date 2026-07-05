@@ -29,6 +29,22 @@ find_rish() {
   return 1
 }
 
+bootstrap_rish_from_documents() {
+  src_rish="/storage/emulated/0/Documents/rish"
+  src_dex="/storage/emulated/0/Documents/rish_shizuku.dex"
+  dst_dir="$HOME/bin"
+  if [ ! -f "$src_rish" ] || [ ! -f "$src_dex" ]; then
+    return 1
+  fi
+  mkdir -p "$dst_dir"
+  cp "$src_rish" "$dst_dir/rish"
+  cp "$src_dex" "$dst_dir/rish_shizuku.dex"
+  chmod 700 "$dst_dir/rish" 2>/dev/null || true
+  chmod 400 "$dst_dir/rish_shizuku.dex" 2>/dev/null || true
+  printf '%s\n' "$dst_dir/rish"
+  return 0
+}
+
 if [ ! -f "$APK" ]; then
   echo "APK not found: $APK" >&2
   echo "Run: sh tools/build_debug_apk.sh" >&2
@@ -36,6 +52,9 @@ if [ ! -f "$APK" ]; then
 fi
 
 RISH_BIN="$(find_rish || true)"
+if [ -z "$RISH_BIN" ]; then
+  RISH_BIN="$(bootstrap_rish_from_documents || true)"
+fi
 if [ -z "$RISH_BIN" ]; then
   echo "Shizuku rish is not configured for Termux." >&2
   echo "One-time setup:" >&2
