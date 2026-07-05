@@ -689,6 +689,115 @@ function compactToolEvidence(toolResults) {
   };
 }
 
+function latestSuccessfulToolResult(toolResults) {
+  const entries = Array.isArray(toolResults) ? toolResults : [];
+  for (let index = entries.length - 1; index >= 0; index--) {
+    const entry = entries[index];
+    if (entry && entry.result && entry.result.ok === true) return entry;
+  }
+  return null;
+}
+
+function activeTaskIsUnfinished(body) {
+  const task = activeTaskFromBody(body);
+  const status = safeText(task && task.status, 80);
+  return !!(task && ['awaiting_source', 'awaiting_detail', 'in_progress'].includes(status));
+}
+
+function shouldUseEvidenceFinalizer(body, toolResults) {
+  if (!activeTaskIsUnfinished(body)) return false;
+  const latest = latestSuccessfulToolResult(toolResults);
+  const latestTool = safeText(latest && latest.name, 80);
+  return ['docs.read', 'knowledge.read', 'web.search'].includes(latestTool);
+}
+
+function activeTaskObjective(body, fallbackMessage) {
+  const task = activeTaskFromBody(body);
+  return safeText(task && (task.originalUserRequest || task.objective), 4000) || safeText(fallbackMessage, 4000);
+}
+
+async function runEvidenceFinalizerProvider(prompt, repair = false) {
+  let response;
+  try {
+    response = await fetch('https://api.openai.com/v1/responses', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${OPENAI_API_KEY.value()}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'gpt-5.5',
+        reasoning: {effort: repair ? 'low' : 'medium'},
+        text: {verbosity: 'medium'},
+        max_output_tokens: repair ? 1800 : 3200,
+        input: prompt,
+      }),
+    });
+  } catch (err) {
+    throw new Error(`evidence finalizer transport failed: ${safeText(err && (err.stack || err.message || err), 1000)}`);
+  }
+  const json = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    return {ok: false, response: userFacingFailure('GPT-5.5 evidence finalizer', json.error?.message || response.statusText || `HTTP ${response.status}`, `openai_http_${response.status}`)};
+  }
+  const text = json.output_text || extractOutputText(json) || '';
+  try {
+    return {ok: true, parsed: extractJsonObject(text), rawText: text};
+  } catch (err) {
+    return {ok: false, response: plannerParseFailureReply(text, err)};
+  }
+}
+
+async function askOpenAIEvidenceFinalizer(body, turnKernel, toolEvidenceDigest) {
+  const message = safeText(body && body.message, 4000);
+  const objective = activeTaskObjective(body, turnKernel && turnKernel.plannerMessage ? turnKernel.plannerMessage : message);
+  const summary = safeText(body && body.summary, 4000);
+  const transcript = safeText(body && body.transcript, 8000);
+  const workingMemory = body && typeof body.workingMemory === 'object' ? body.workingMemory : {};
+  const evidenceContext = body && typeof body.evidenceContext === 'object' ? body.evidenceContext : {};
+  const finalizerPrompt = [
+    'You are Home Center evidence finalizer. The app has already gathered context for the user request.',
+    HOME_CENTER_DOCTRINE_STEERING,
+    'Return one strict JSON object and no prose outside JSON.',
+    'No tools are available in this phase. Do not request a tool. Do not say you found/read/opened context as the answer.',
+    'Answer the active task from Tool evidence digest. If evidence is insufficient, name the exact missing fact in one sentence.',
+    'For creative writing requests, produce the requested prose now. Preserve explicit names, premises, vehicle/location relationships, and constraints.',
+    'Do not mention file IDs, HTTP, tokens, timestamps, diagnostics, or implementation details unless the user asked for diagnostics.',
+    'Return JSON only: {"type":"final","reply":"...","narration":"...","status":"evidence_finalized","taskStateUpdate":{"status":"complete","objective":"..."}}',
+    `Active task objective: ${objective}`,
+    `Latest user request: ${message}`,
+    summary ? `Conversation summary: ${summary}` : '',
+    transcript ? `Recent transcript: ${transcript}` : '',
+    `Working memory JSON: ${JSON.stringify(workingMemory).slice(0, 6000)}`,
+    `Evidence context JSON: ${JSON.stringify(evidenceContext).slice(0, 12000)}`,
+    `Available tools JSON: []`,
+    `Tool evidence digest JSON: ${JSON.stringify(toolEvidenceDigest).slice(0, 50000)}`,
+  ].filter(Boolean).join('\n\n');
+  let provider = await runEvidenceFinalizerProvider(finalizerPrompt);
+  if (!provider.ok) return provider.response;
+  if (provider.parsed && provider.parsed.type === 'tool_call') {
+    provider = await runEvidenceFinalizerProvider(`${finalizerPrompt}\n\nPrior invalid output requested a tool. Repair it by returning only a final answer from the provided evidence.`, true);
+    if (!provider.ok) return provider.response;
+  }
+  const parsed = provider.parsed || {};
+  const reply = finalReplyText(parsed, provider.rawText || '');
+  if (!reply) {
+    return {
+      type: 'final',
+      reply: 'I have the context, but I could not turn it into a final answer. Please try again.',
+      narration: 'I have the context, but I could not turn it into a final answer.',
+      status: 'evidence_finalizer_empty',
+      taskStateUpdate: {status: 'in_progress', objective},
+    };
+  }
+  return attachTaskState({
+    type: 'final',
+    reply,
+    narration: safeText(parsed.narration, 12000) || reply,
+    status: safeText(parsed.status, 160) || 'evidence_finalized',
+  }, Object.assign({taskStateUpdate: {status: 'complete', objective}}, parsed));
+}
+
 function synthesizeToolLoopProgressReply(toolResults) {
   const successes = [];
   let failedTool = '';
@@ -1404,6 +1513,15 @@ async function askOpenAIToolTurn(body) {
       arguments: pending.arguments,
       status: 'tool_call_requested',
     }, Object.assign({}, trace, {turnKernel}));
+  }
+  if (shouldUseEvidenceFinalizer(body, toolResults)) {
+    const finalized = await askOpenAIEvidenceFinalizer(body, turnKernel, toolEvidenceDigest);
+    const trace = buildToolTrace(body, tools, finalized, '', null, false);
+    return withTrace(body, finalized, Object.assign({}, trace, {
+      turnKernel,
+      evidenceFinalizerApplied: true,
+      latestSuccessfulTool: safeText(latestSuccessfulToolResult(toolResults) && latestSuccessfulToolResult(toolResults).name, 80),
+    }));
   }
   const promptText = [
     'You are Home Center. You are the thinker. The Android app is only your hands.',
@@ -2223,27 +2341,25 @@ async function runTurnContractCase(name, body, expected = {}) {
 }
 
 async function runTurnContractSmoke(body) {
-  const prompt = 'Simulate a new chapter with perfect adherence to simulation doctrine.  Lexen.  On Normandy.  In a tank.  When a panzer is spotted.';
   const cases = [];
-  cases.push(await runTurnContractCase('stale_github_pending_creative_request', {
-    message: prompt,
-    transcript: [
-      'User: Report',
-      'Assistant: I can create that GitHub issue. Press Confirm or say "confirm create issue".',
-      `User: ${prompt}`,
-    ].join('\n'),
-    pendingConfirmation: pendingSmokeIssue(),
-    workingMemory: {
-      rememberedWritingContext: {
-        title: 'Lexen Normandy simulation doctrine',
-        evidence: 'Write the requested chapter scene directly. Do not file an issue unless the latest user request asks to report or make an issue.',
-      },
-    },
-  }, {
-    type: 'final',
-    requiredTerms: ['Lexen', 'tank', 'panzer'],
-    forbidden: ['github.create_issue', 'I can create that GitHub issue', 'confirmation_required'],
-  }));
+  const skipDefaults = body && body.skipDefaults === true;
+  const requestedCases = Array.isArray(body && body.cases) ? body.cases : [];
+  for (const entry of requestedCases.slice(0, 12)) {
+    if (!entry || typeof entry !== 'object') continue;
+    cases.push(await runTurnContractCase(
+      safeText(entry.name, 120) || `external_case_${cases.length + 1}`,
+      entry.body && typeof entry.body === 'object' ? entry.body : {},
+      entry.expected && typeof entry.expected === 'object' ? entry.expected : {}
+    ));
+  }
+  if (skipDefaults) {
+    return {
+      ok: true,
+      cases,
+      count: cases.length,
+      skippedDefaults: true,
+    };
+  }
   cases.push(await runTurnContractCase('confirm_pending_doc_create', {
     message: 'confirm create',
     pendingConfirmation: pendingSmokeDoc(),
@@ -2262,18 +2378,52 @@ async function runTurnContractSmoke(body) {
     forbidden: ['tool_call_requested'],
   }));
   cases.push(await runTurnContractCase('correction_is_not_cancel', {
-    message: 'That was wrong, write the chapter with Lexen still in the tank.',
+    message: 'That was wrong, write the scene with the pilot still in the cockpit.',
     pendingConfirmation: pendingSmokeIssue(),
     workingMemory: {
       rememberedWritingContext: {
-        title: 'Lexen tank continuity',
-        evidence: 'Lexen stays in the commanded tank. Write prose when asked.',
+        title: 'Pilot continuity',
+        evidence: 'The pilot stays in the cockpit. Write prose when asked.',
       },
     },
   }, {
     type: 'final',
-    requiredTerms: ['Lexen', 'tank'],
+    requiredTerms: ['pilot', 'cockpit'],
     forbidden: ['pending_confirmation_cancelled', 'I can create that GitHub issue'],
+  }));
+  cases.push(await runTurnContractCase('creative_docs_read_finalizer', {
+    message: 'Now show how the pilot survives. Simulated. But foregone. Not clean. Not easy.',
+    toolResults: [{
+      name: 'docs.read',
+      arguments: {fileId: 'pilot-doctrine-doc', name: 'Pilot Doctrine Updates and Simulation'},
+      result: {
+        ok: true,
+        status: 'doc_read',
+        title: 'Pilot Doctrine Updates and Simulation',
+        content: [
+          'Doctrine Updates and Saved Simulation.',
+          'The pilot survives only by accepting that the emergency is already shaped before the alarm.',
+          'It is not clean and not easy. The pilot survives by reading weather, instrument drift, crew fear, and timing.',
+          'The cockpit remains the command position. The scene should begin before the first warning and show the foregone trap becoming visible.',
+        ].join('\n'),
+        file: {id: 'pilot-doctrine-doc', name: 'Pilot Doctrine Updates and Simulation'},
+      },
+    }],
+    workingMemory: {
+      activeTask: {
+        status: 'in_progress',
+        objective: 'Write the pilot survival simulation from the beginning in a messy, difficult, foregone way.',
+        originalUserRequest: 'Now show how the pilot survives. Simulated. But foregone. Not clean. Not easy.',
+      },
+      lastDocument: {
+        fileId: 'pilot-doctrine-doc',
+        name: 'Pilot Doctrine Updates and Simulation',
+      },
+    },
+  }, {
+    type: 'final',
+    requiredTerms: ['pilot', 'cockpit'],
+    forbidden: ['docs.read', 'github.create_issue', 'I found', 'I read', 'confirmation_required'],
   }));
   return {
     ok: true,

@@ -42,6 +42,116 @@ function googleAccessToken() {
   }
 }
 
+function pendingIssue() {
+  return {
+    toolName: 'github.create_issue',
+    arguments: {
+      repo: 'Valar05/home-center',
+      title: 'Bug: stale GitHub issue confirmation hijacked creative writing request',
+      body: 'Stale pending confirmation reproduction.',
+      labels: ['bug', 'feedback', 'home-center'],
+    },
+    confirmationStage: 1,
+  };
+}
+
+function lexenDocResult(content) {
+  return {
+    name: 'docs.read',
+    arguments: {fileId: 'lexen-green-doc', name: 'Lexen Green Commander Doctrine Updates and Simulation'},
+    result: {
+      ok: true,
+      status: 'doc_read',
+      title: 'Lexen Green Commander Doctrine Updates and Simulation',
+      content,
+      file: {id: 'lexen-green-doc', name: 'Lexen Green Commander Doctrine Updates and Simulation'},
+    },
+  };
+}
+
+function issueCases() {
+  const panzerPrompt = 'Simulate a new chapter with perfect adherence to simulation doctrine.  Lexen.  On Normandy.  In a tank.  When a panzer is spotted.';
+  const issue39Prompt = 'Now show how he wins. Simulated. But forgone. Not clean. Not easy.';
+  const issue40Prompt = 'Lexen vigil. Green commander doc. Now show how he wins. Simulated. But forgone. Not clean. Not easy. Against first panzer. From the beginning';
+  const issue39Doc = [
+    'Doctrine Updates and Saved Simulation.',
+    'Lexen wins against the first panzer only by accepting that the fight is already shaped before the shot.',
+    'It is not clean and not easy. The green commander survives by reading terrain, crew fear, timing, and the German gun line.',
+    'The tank remains his command position. The scene should begin before the first shot and show the foregone trap becoming visible.',
+  ].join('\n');
+  const issue40Doc = [
+    'Doctrine Updates and Saved Simulation.',
+    'Start from the beginning: Lexen in command position, green, aware enough to be terrified, not magically competent.',
+    'The first panzer fight is foregone because the lane, hedge, crew timing, and German gun already define the outcome.',
+    'Show the win as difficult, consequential, and embodied in tank procedure rather than clean heroics.',
+  ].join('\n');
+  return [
+    {
+      name: 'external_stale_github_pending_creative_request',
+      body: {
+        message: panzerPrompt,
+        transcript: [
+          'User: Report',
+          'Assistant: I can create that GitHub issue. Press Confirm or say "confirm create issue".',
+          `User: ${panzerPrompt}`,
+        ].join('\n'),
+        pendingConfirmation: pendingIssue(),
+        workingMemory: {
+          rememberedWritingContext: {
+            title: 'Lexen Normandy simulation doctrine',
+            evidence: 'Write the requested chapter scene directly. Do not file an issue unless the latest user request asks to report or make an issue.',
+          },
+        },
+      },
+      expected: {
+        type: 'final',
+        requiredTerms: ['Lexen', 'tank', 'panzer'],
+        forbidden: ['github.create_issue', 'I can create that GitHub issue', 'confirmation_required'],
+      },
+    },
+    {
+      name: 'external_issue39_docs_read_finalizer',
+      body: {
+        message: issue39Prompt,
+        toolResults: [lexenDocResult(issue39Doc)],
+        workingMemory: {
+          activeTask: {
+            status: 'in_progress',
+            objective: 'Write the Lexen green commander simulation showing how he wins against the first panzer in a messy, difficult, foregone way.',
+            originalUserRequest: issue39Prompt,
+          },
+          lastDocument: {fileId: 'lexen-green-doc', name: 'Lexen Green Commander Doctrine Updates and Simulation'},
+        },
+      },
+      expected: {
+        type: 'final',
+        requiredTerms: ['Lexen', 'panzer'],
+        forbidden: ['docs.read', 'github.create_issue', 'I found', 'I read', 'confirmation_required'],
+      },
+    },
+    {
+      name: 'external_issue40_docs_read_finalizer_from_beginning',
+      body: {
+        message: issue40Prompt,
+        toolResults: [lexenDocResult(issue40Doc)],
+        workingMemory: {
+          activeTask: {
+            status: 'in_progress',
+            objective: 'Write the Lexen vigil green commander simulation from the beginning, showing how he wins against the first panzer in a messy, difficult, foregone way.',
+            originalUserRequest: issue40Prompt,
+          },
+          lastDocument: {fileId: 'lexen-green-doc', name: 'Lexen Green Commander Doctrine Updates and Simulation'},
+        },
+      },
+      expected: {
+        type: 'final',
+        requiredTerms: ['Lexen', 'panzer'],
+        forbidden: ['docs.read', 'github.create_issue', 'I found', 'I read', 'confirmation_required'],
+      },
+    },
+  ];
+}
+
 async function postJson(url, body, bearer, label) {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 125000);
@@ -82,7 +192,20 @@ async function main() {
   const evidencePath = join(EVIDENCE_DIR, `turn_contract_smoke_${args.runId}.json`);
   const accessToken = googleAccessToken();
   firebaseApiKey();
-  const result = await postJson(TURN_CONTRACT_URL || `${GATEWAY_BASE}/turnContractSmoke`, {runId: args.runId}, accessToken, 'turnContractSmoke');
+  const url = TURN_CONTRACT_URL || `${GATEWAY_BASE}/turnContractSmoke`;
+  const issueResults = [];
+  for (const testCase of issueCases()) {
+    const caseRunId = `${args.runId}-${testCase.name}`.replace(/[^a-zA-Z0-9_.-]/g, '_').slice(0, 160);
+    const caseResult = await postJson(url, {runId: caseRunId, cases: [testCase], skipDefaults: true}, accessToken, `turnContractSmoke:${testCase.name}`);
+    issueResults.push(caseResult);
+  }
+  const defaultResult = await postJson(url, {runId: `${args.runId}-defaults`}, accessToken, 'turnContractSmoke:defaults');
+  const result = {
+    ok: issueResults.every((entry) => entry && entry.ok) && !!(defaultResult && defaultResult.ok),
+    issueResults,
+    defaultResult,
+    cases: issueResults.flatMap((entry) => entry.cases || []).concat(defaultResult.cases || []),
+  };
   writeFileSync(evidencePath, JSON.stringify(redact({
     runner: {gatewayBase: GATEWAY_BASE, turnContractUrl: TURN_CONTRACT_URL, auth: 'google_access_token_or_firebase_id_token'},
     result,
@@ -99,8 +222,13 @@ async function main() {
 main().catch((err) => {
   mkdirSync(EVIDENCE_DIR, {recursive: true});
   const evidencePath = join(EVIDENCE_DIR, `turn_contract_smoke_failed_${Date.now()}.json`);
-  writeFileSync(evidencePath, JSON.stringify({ok: false, error: String(err.stack || err)}, null, 2));
+  const cause = err && err.cause ? {
+    name: err.cause.name,
+    code: err.cause.code,
+    message: err.cause.message,
+  } : null;
+  writeFileSync(evidencePath, JSON.stringify({ok: false, error: String(err.stack || err), cause}, null, 2));
   console.error(`Home Center turn contract smoke failed. Evidence: ${evidencePath}`);
-  console.error(String(err.message || err));
+  console.error(`${String(err.message || err)}${cause ? ` cause=${JSON.stringify(cause)}` : ''}`);
   process.exit(1);
 });
