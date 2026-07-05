@@ -510,7 +510,7 @@ creative_synthesis_contract = {
     'source_expectations': [
         'Creative writing rule: if the latest request asks to write, draft, compose, create a scene, continue a story, or synthesize prose',
         'produce the prose directly as a final answer from transcript, workingMemory, attachments, and tool evidence',
-        'Creative context rule: if workingMemory names a remembered canon document or durable knowledge file, use docs.read or knowledge.read',
+        'Creative context rule: if workingMemory names a remembered canon document or durable knowledge file, use one best available context read before final prose',
         'Creative validation rule: preserve explicit user premises, character roles, POV, vehicle/location relationships, and historical constraints',
         'Do not call docs.search, drive.search, or docs.create unless the latest request explicitly asks to find/read a source document or save/update/create a Google Doc',
         'after a successful docs.create or docs.update, a new request like "write the scene" is a new writing task',
@@ -528,6 +528,8 @@ require_contains(functions_index, 'if (/\\b(write|draft|compose|continue)\\b/.te
 require_contains(functions_index, 'function creativeContextToolCall(body, tools, toolResults)', 'gateway has creative context acquisition guard')
 require_contains(functions_index, "toolName: 'docs.read'", 'creative pipeline reads remembered canon document before prose')
 require_contains(functions_index, "toolName: 'knowledge.read'", 'creative pipeline reads remembered durable knowledge before prose')
+require_contains(functions_index, 'Do not chain multiple context reads before writing.', 'creative pipeline forbids multi-read stalls before prose')
+require_contains(functions_index, 'A remembered document is enough context for this creative turn.', 'creative context acquisition stops after remembered document is already read')
 require_contains(functions_index, 'creativeContextToolCall: true', 'gateway trace marks creative context tool call')
 require_contains(functions_index, 'function validateCreativeFinal(body, draft)', 'gateway validates creative final prose against premises')
 require_contains(functions_index, 'creativeValidationApplied: true', 'gateway trace marks creative validation')

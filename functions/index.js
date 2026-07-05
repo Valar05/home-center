@@ -701,6 +701,7 @@ function creativeContextToolCall(body, tools, toolResults) {
         },
       };
     }
+    return null; // A remembered document is enough context for this creative turn.
   }
   const lastKnowledge = memory.lastKnowledgeFile && typeof memory.lastKnowledgeFile === 'object' ? memory.lastKnowledgeFile : null;
   if (lastKnowledge && lastKnowledge.file && hasAvailableTool(tools, 'knowledge.read')) {
@@ -1173,7 +1174,7 @@ async function askOpenAIToolTurn(body) {
     'Local knowledge rule: use knowledge.read when the user asks what durable skills, agent instructions, or local memory Home Center has stored. Never write secrets, API keys, OAuth tokens, passwords, or Authorization headers to knowledge files.',
     'Latest intent rule: the latest user request controls. If the latest request asks for recommendations, summaries, answers, reading suggestions, or next actions, answer that request from available context and tool results instead of continuing an older workflow.',
     'Creative writing rule: if the latest request asks to write, draft, compose, create a scene, continue a story, or synthesize prose, produce the prose directly as a final answer from transcript, workingMemory, attachments, and tool evidence.',
-    'Creative context rule: if workingMemory names a remembered canon document or durable knowledge file, use docs.read or knowledge.read to gather that context before final prose. Do not call docs.search, drive.search, or docs.create unless the latest request explicitly asks to find/read a source document or save/update/create a Google Doc.',
+    'Creative context rule: if workingMemory names a remembered canon document or durable knowledge file, use one best available context read before final prose. Prefer docs.read for lastDocument; use knowledge.read only when no remembered document is available. Do not chain multiple context reads before writing. Do not call docs.search, drive.search, or docs.create unless the latest request explicitly asks to find/read a source document or save/update/create a Google Doc.',
     'Creative validation rule: preserve explicit user premises, character roles, POV, vehicle/location relationships, and historical constraints. Do not move a commander out of their commanded vehicle, invert who controls the vehicle, or replace a grounded premise with symbolism.',
     'Creative writing rule: after a successful docs.create or docs.update, a new request like "write the scene" is a new writing task, not permission to keep searching Drive. Write the scene or ask one focused story question if required context is missing.',
     'Document cleanup rule: if the latest request asks to clean up, reorganize, consolidate, or make a document section more organized, use workingMemory.lastDocument or recent docs.read results, then request docs.update with the cleaned structure. Do not stop after describing what cleanup is needed.',
