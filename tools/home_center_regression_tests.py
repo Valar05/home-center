@@ -520,6 +520,11 @@ if not creative_synthesis_contract['input']:
 for expected in creative_synthesis_contract['source_expectations']:
     if expected not in functions_index:
         fail(f"creative synthesis contract is missing source expectation {expected}")
+require_contains(functions_index, 'function creativeReplyNeedsRepair(message, reply)', 'gateway detects punted creative writing replies')
+require_contains(functions_index, 'askOpenAICreativeRepair(body, finalReply)', 'gateway repairs punted creative writing replies before Android sees them')
+require_contains(functions_index, 'Do not ask another clarification question. Do not provide next steps. Do not call tools. Do not report an issue.', 'creative repair forbids another stall/report/tools loop')
+require_contains(functions_index, 'creativeRepairApplied: true', 'gateway trace marks creative repair application')
+require_contains(functions_index, 'If context is thin, write a short grounded draft around confirmed names/actions and avoid unsupported biography.', 'creative repair writes instead of punting on thin context')
 require_contains(functions_index, 'Set narration to the same text as reply', 'gateway prompt forbids mismatched TTS narration')
 require_contains(functions_index, 'narration: finalReply ||', 'gateway returns normalized final reply text as narration for installed APK compatibility')
 require_contains(functions_index, 'toolByName(tools, toolName)', 'gateway rejects unadvertised tool calls')

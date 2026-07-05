@@ -641,6 +641,78 @@ function attachTaskState(response, parsed) {
   return Object.assign({}, response, {taskStateUpdate: update});
 }
 
+function isCreativeWritingRequest(message) {
+  const text = String(message || '').toLowerCase();
+  return /\b(write|draft|compose|make|create|continue)\b/.test(text)
+    && /\b(scene|story|chapter|prose|draft|passage|moment|dialogue)\b/.test(text);
+}
+
+function creativeReplyNeedsRepair(message, reply) {
+  if (!isCreativeWritingRequest(message)) return false;
+  const text = String(reply || '').trim();
+  if (!text) return true;
+  const lower = text.toLowerCase();
+  if (lower.includes('i don’t have enough context') || lower.includes("i don't have enough context")) return true;
+  if (lower.includes('i need more context') || lower.includes('please provide')) return true;
+  if (lower.includes('which exact') || lower.includes('do you mean')) return true;
+  if (lower.includes('next step:') || lower.includes('next steps:')) return true;
+  return text.length < 260;
+}
+
+async function askOpenAICreativeRepair(body, originalReply) {
+  const message = safeText(body.message, 4000);
+  const transcript = safeText(body.transcript, 10000);
+  const summary = safeText(body.summary, 4000);
+  const workingMemory = body && typeof body.workingMemory === 'object' ? body.workingMemory : {};
+  const evidenceContext = body && typeof body.evidenceContext === 'object' ? body.evidenceContext : {};
+  const toolResults = Array.isArray(body.toolResults) ? body.toolResults : [];
+  const digest = compactToolEvidence(toolResults);
+  const prompt = [
+    'Repair a failed Home Center creative-writing response.',
+    'The user asked for prose. Produce the requested scene/passage now as a strict JSON final answer.',
+    'Use only available transcript, workingMemory, evidence, attachments, and tool evidence. If context is thin, write a short grounded draft around confirmed names/actions and avoid unsupported biography.',
+    'Do not ask another clarification question. Do not provide next steps. Do not call tools. Do not report an issue. Do not explain the repair.',
+    'Return JSON only: {"type":"final","reply":"...","narration":"...","status":"creative_repair_complete","taskStateUpdate":{"status":"complete","objective":"..."}}',
+    `Latest user request: ${message}`,
+    summary ? `Conversation summary: ${summary}` : '',
+    transcript ? `Recent transcript: ${transcript}` : '',
+    `Working memory JSON: ${JSON.stringify(workingMemory).slice(0, 8000)}`,
+    `Evidence context JSON: ${JSON.stringify(evidenceContext).slice(0, 12000)}`,
+    `Tool evidence digest JSON: ${JSON.stringify(digest).slice(0, 50000)}`,
+    `Rejected first reply: ${safeText(originalReply, 4000)}`,
+  ].filter(Boolean).join('\n\n');
+  const response = await fetch('https://api.openai.com/v1/responses', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${OPENAI_API_KEY.value()}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      model: 'gpt-5.5',
+      reasoning: {effort: 'medium'},
+      text: {verbosity: 'medium'},
+      input: prompt,
+    }),
+  });
+  const json = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    return null;
+  }
+  try {
+    const parsed = extractJsonObject(json.output_text || extractOutputText(json) || '');
+    const reply = finalReplyText(parsed, '');
+    if (!reply || creativeReplyNeedsRepair(message, reply)) return null;
+    return attachTaskState({
+      type: 'final',
+      reply,
+      narration: safeText(parsed.narration, 12000) || reply,
+      status: safeText(parsed.status, 160) || 'creative_repair_complete',
+    }, parsed);
+  } catch (err) {
+    return null;
+  }
+}
+
 function finalReplyText(parsed, rawText = '') {
   if (!parsed || typeof parsed !== 'object') return safeText(rawText, 12000);
   const direct = parsed.reply
@@ -1090,6 +1162,12 @@ async function askOpenAIToolTurn(body) {
     }
     const trace = buildToolTrace(body, tools, parsed, safeText(parsed.toolName || parsed.name, 80), toolByName(tools, safeText(parsed.toolName || parsed.name, 80)), false);
     const finalReply = finalReplyText(parsed, text);
+    if (creativeReplyNeedsRepair(message, finalReply)) {
+      const repaired = await askOpenAICreativeRepair(body, finalReply);
+      if (repaired) {
+        return withTrace(body, repaired, Object.assign({}, trace, {creativeRepairApplied: true}));
+      }
+    }
     return withTrace(body, attachTaskState(sanitizeFinalPlannerReply(body, {
       type: 'final',
       reply: finalReply || 'I could not turn the GPT-5.5 response into a final answer. Please try again.',
