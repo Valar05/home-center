@@ -204,6 +204,21 @@ It changes the architecture:
 
 A life-operations system is not trustworthy if the actual user path is stale, inaccessible, or unverified.
 
+### Failed Prompts Become Smoke Tests
+
+A red-build prompt is evidence.
+
+When a user reports that a specific prompt failed, preserve the exact prompt and add a smoke path that can replay it before claiming the fix works. Static source checks are useful guardrails, but they do not prove an authenticated tool journey.
+
+For failures involving Google tools, provider permissions, working memory, confirmation, gateway planning, or real provider execution, the acceptance smoke must use a headless real-API smoke, not a mocked planner or stale installed APK. It must exercise the same core path as chat: Firebase ID token, deployed `agentToolTurn`, registered tool contract, real Google API calls, tool-result loopback, and final response.
+
+Drive/Docs prompt smokes must run inside a dedicated Drive sandbox folder. The smoke may create, read, update, and trash only marked smoke-run files under that folder. It must fail if the planner or executor attempts to use unrelated Drive files.
+
+Do not tell the user to retry a prompt failure until either:
+
+- the exact prompt has passed the headless real-API smoke, or
+- the remaining blocker is named with concrete evidence such as missing OAuth login, missing Firebase auth, missing scope, gateway outage, provider error, or unavailable local credentials.
+
 ## Non-Goals
 
 Home Center doctrine should not become:
@@ -244,6 +259,7 @@ This doctrine is working when Home Center:
 - learns from episodes before automating them
 - keeps personalization explicit, scoped, and portable
 - validates the real user path, not just source code
+- turns red-build prompt failures into replayable smoke tests before claiming repair
 
 ## Retrieval Keywords
 

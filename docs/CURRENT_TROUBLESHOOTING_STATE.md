@@ -250,20 +250,26 @@ cp app/build/outputs/apk/debug/app-debug.apk /storage/emulated/0/Download/HomeCe
 am broadcast -a android.intent.action.MEDIA_SCANNER_SCAN_FILE -d file:///storage/emulated/0/Download/HomeCenter-debug.apk >/dev/null 2>&1 || true
 ```
 
-After manual install, validate installed app path:
+After manual install, validate installed UI path:
 
 ```sh
 python3 tools/home_center_user_path_red_test.py
 ```
 
-Only call the build green when the installed-app smoke passes on version `0.2.7` / `11`.
+Only call the installed UI path green when the installed-app smoke passes on the current APK version.
+
+For Google Drive/Docs prompt, confirmation, working-memory, or gateway/tool-loop failures, do not depend on Package Installer state. Run the headless metal prompt smoke instead:
+
+```sh
+node tools/home_center_metal_prompt_smoke.mjs --scenario docs-create-update-read
+```
 
 ## Troubleshooting Rules
 
 - Do not tell the end user to start local proxies, configure APIs, or visit setup docs inside the app.
 - Do not claim Google Drive works unless `googleDriveProbe` confirms it for the signed-in Firebase user.
 - Do not use `drive.file`; this build needs a real Drive metadata diagnostic against existing cloud files, not app-created-file-only access.
-- Do not treat unit/source tests as enough. The installed Android app path must be smoke-tested.
+- Do not treat unit/source tests as enough. UI failures need installed-app smoke; Google prompt/tool failures need the headless real-API metal smoke.
 - If the smoke sees stale text, first verify the installed runtime version before changing prompts.
 - Do not add visible debug markers to the chat UI; use logs and evidence files instead.
 - The default app experience must remain chat-first and accessible.
