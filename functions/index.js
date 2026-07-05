@@ -8,6 +8,7 @@ admin.initializeApp();
 const OPENAI_API_KEY = defineSecret('OPENAI_API_KEY');
 const CARTESIA_API_KEY = defineSecret('CARTESIA_API_KEY');
 const GITHUB_TOKEN = defineSecret('GITHUB_TOKEN');
+const CREATIVE_OPENAI_TIMEOUT_MS = 75000;
 
 const CORS_HEADERS = {
   'Access-Control-Allow-Origin': '*',
@@ -641,6 +642,17 @@ function attachTaskState(response, parsed) {
   return Object.assign({}, response, {taskStateUpdate: update});
 }
 
+function attachCreativeTaskComplete(response, message) {
+  if (!response || response.taskStateUpdate) return response;
+  return Object.assign({}, response, {
+    taskStateUpdate: {
+      status: 'complete',
+      objective: safeText(message, 1000),
+      originalUserRequest: safeText(message, 1000),
+    },
+  });
+}
+
 function isCreativeWritingRequest(message) {
   const text = String(message || '').toLowerCase();
   if (/\b(write|draft|compose|continue|narrate|expand)\b/.test(text)) return true;
@@ -811,47 +823,60 @@ async function askOpenAICreativeDraft(body) {
     `Evidence context JSON: ${JSON.stringify(evidenceContext).slice(0, 12000)}`,
     `Tool evidence digest JSON: ${JSON.stringify(digest).slice(0, 50000)}`,
   ].filter(Boolean).join('\n\n');
-  const response = await fetch('https://api.openai.com/v1/responses', {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${OPENAI_API_KEY.value()}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      model: 'gpt-5.5',
-      reasoning: {effort: 'medium'},
-      text: {verbosity: 'medium'},
-      input: prompt,
-    }),
-  });
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), CREATIVE_OPENAI_TIMEOUT_MS);
+  let response;
+  try {
+    response = await fetch('https://api.openai.com/v1/responses', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${OPENAI_API_KEY.value()}`,
+        'Content-Type': 'application/json',
+      },
+      signal: controller.signal,
+      body: JSON.stringify({
+        model: 'gpt-5.5',
+        reasoning: {effort: 'medium'},
+        text: {verbosity: 'medium'},
+        input: prompt,
+      }),
+    });
+  } catch (err) {
+    const detail = err && err.name === 'AbortError'
+      ? `Timed out after ${CREATIVE_OPENAI_TIMEOUT_MS}ms before producing prose.`
+      : safeText(err && err.message, 500) || 'Provider request failed before producing prose.';
+    return attachCreativeTaskComplete(userFacingFailure('Creative writing provider', detail, err && err.name === 'AbortError' ? 'creative_provider_timeout' : 'creative_provider_error'), message);
+  } finally {
+    clearTimeout(timeout);
+  }
   const json = await response.json().catch(() => ({}));
   if (!response.ok) {
-    return userFacingFailure('Creative writing provider', json.error?.message || response.statusText || `HTTP ${response.status}`, `creative_openai_http_${response.status}`);
+    return attachCreativeTaskComplete(userFacingFailure('Creative writing provider', json.error?.message || response.statusText || `HTTP ${response.status}`, `creative_openai_http_${response.status}`), message);
   }
   try {
     const parsed = extractJsonObject(json.output_text || extractOutputText(json) || '');
     const reply = finalReplyText(parsed, '');
     if (!reply || creativeReplyNeedsRepair(message, reply)) {
-      return {
+      return attachCreativeTaskComplete({
         type: 'final',
-        reply: 'Creative writing provider returned no usable prose. Please try again or say "report this" so I can file the failed prompt with context.',
+        reply: 'Creative writing provider failed before producing prose: empty or unusable output. Please try again or say "report this" so I can file the failed prompt with context.',
         narration: 'Creative writing provider returned no usable prose.',
         status: 'creative_draft_empty',
-      };
+      }, message);
     }
-    return attachTaskState({
+    return attachCreativeTaskComplete(attachTaskState({
       type: 'final',
       reply,
       narration: safeText(parsed.narration, 12000) || reply,
       status: safeText(parsed.status, 160) || 'creative_draft_complete',
-    }, parsed);
+    }, parsed), message);
   } catch (err) {
-    return {
+    return attachCreativeTaskComplete({
       type: 'final',
-      reply: `Creative writing provider returned malformed prose output: ${safeText(err.message, 160)}. Please try again or say "report this" so I can file the failed prompt with context.`,
+      reply: `Creative writing provider failed before producing prose: malformed output (${safeText(err.message, 160)}). Please try again or say "report this" so I can file the failed prompt with context.`,
       narration: 'Creative writing provider returned malformed prose output.',
       status: 'creative_draft_parse_failed',
-    };
+    }, message);
   }
 }
 
@@ -1184,20 +1209,17 @@ async function askOpenAIToolTurn(body) {
       return withTrace(body, contextCall, Object.assign({}, trace, {creativeIntentDetected: true, creativeContextToolCall: true}));
     }
     const draft = await askOpenAICreativeDraft(body);
-    const finalReply = finalReplyText(draft, '');
     const trace = buildToolTrace(body, tools, draft, '', null, false);
     const draftStatus = safeText(draft && draft.status, 160);
-    const draftFailed = draftStatus === 'creative_draft_empty' || draftStatus === 'creative_draft_parse_failed' || draftStatus.startsWith('creative_openai_http_');
-    if (draft && !draftFailed) {
-      const validated = await validateCreativeFinal(body, finalReply);
-      if (validated) {
-        return withTrace(body, validated, Object.assign({}, trace, {creativeIntentDetected: true, creativeDedicatedDraft: true, creativeValidationApplied: true}));
-      }
-    }
+    const draftFailed = draftStatus === 'creative_draft_empty'
+      || draftStatus === 'creative_draft_parse_failed'
+      || draftStatus.startsWith('creative_provider_')
+      || draftStatus.startsWith('creative_openai_http_');
     return withTrace(body, draft, Object.assign({}, trace, {
       creativeIntentDetected: true,
       creativeDedicatedDraft: true,
       creativeContextSkippedNoMemory: toolResults.length === 0,
+      creativeDraftFailed: draftFailed,
       creativeDraftEmpty: draft && (draft.status === 'creative_draft_empty' || draft.status === 'creative_draft_parse_failed'),
     }));
   }
