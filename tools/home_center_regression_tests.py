@@ -506,7 +506,7 @@ for expected in repo_orientation_error_contract['source_expectations']:
     if expected not in functions_index:
         fail(f"repository orientation error contract is missing source expectation {expected}")
 creative_synthesis_contract = {
-    'input': "Alright, the next task is a bit of synthesis. Whiskey is a character in his boot camp. Write the scene where he plays a quiet, but important part in the boot experience with simulation",
+    'input': "Make lexen first cigarette scene with tango",
     'source_expectations': [
         'Creative writing rule: if the latest request asks to write, draft, compose, create a scene, continue a story, or synthesize prose',
         'produce the prose directly as a final answer from transcript, workingMemory, attachments, and tool evidence',
@@ -522,6 +522,9 @@ for expected in creative_synthesis_contract['source_expectations']:
         fail(f"creative synthesis contract is missing source expectation {expected}")
 require_contains(functions_index, 'function creativeReplyNeedsRepair(message, reply)', 'gateway detects punted creative writing replies')
 require_contains(functions_index, 'askOpenAICreativeRepair(body, finalReply)', 'gateway repairs punted creative writing replies before Android sees them')
+require_contains(functions_index, 'isCreativeWritingRequest(message) && !isExplicitNonCreativeToolRequest(message)', 'gateway bypasses stale tool/report planner for direct creative writing requests')
+require_contains(functions_index, 'source: \'creative_direct\'', 'gateway traces direct creative route')
+require_contains(functions_index, 'creativeDirectApplied: true', 'gateway trace marks direct creative route')
 require_contains(functions_index, 'Do not ask another clarification question. Do not provide next steps. Do not call tools. Do not report an issue.', 'creative repair forbids another stall/report/tools loop')
 require_contains(functions_index, 'creativeRepairApplied: true', 'gateway trace marks creative repair application')
 require_contains(functions_index, 'If context is thin, write a short grounded draft around confirmed names/actions and avoid unsupported biography.', 'creative repair writes instead of punting on thin context')

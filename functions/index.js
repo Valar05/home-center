@@ -659,6 +659,14 @@ function creativeReplyNeedsRepair(message, reply) {
   return text.length < 260;
 }
 
+function isExplicitNonCreativeToolRequest(message) {
+  const text = String(message || '').toLowerCase();
+  if (/\b(report|file an issue|github issue|send this to github|feedback|bug)\b/.test(text)) return true;
+  if (/\b(find|search|read|open|upload|save|create a google doc|create google doc|update|append|replace|edit)\b/.test(text)
+      && /\b(drive|doc|docs|document|folder|gmail|email|calendar|sheet|github)\b/.test(text)) return true;
+  return false;
+}
+
 async function askOpenAICreativeRepair(body, originalReply) {
   const message = safeText(body.message, 4000);
   const transcript = safeText(body.transcript, 10000);
@@ -711,6 +719,17 @@ async function askOpenAICreativeRepair(body, originalReply) {
   } catch (err) {
     return null;
   }
+}
+
+async function askOpenAICreativeDirect(body) {
+  const response = await askOpenAICreativeRepair(body, '');
+  if (response) return response;
+  return {
+    type: 'final',
+    reply: 'I could not produce the scene from the available context. Try again with one concrete anchor, or say "report this" and I will file the exact failure.',
+    narration: 'I could not produce the scene from the available context.',
+    status: 'creative_direct_failed',
+  };
 }
 
 function finalReplyText(parsed, rawText = '') {
@@ -980,6 +999,11 @@ async function askOpenAIToolTurn(body) {
   const attachmentImages = Array.isArray(body.attachmentImages) ? body.attachmentImages.slice(0, 10) : [];
   const timeContext = timeContextFromBody(body);
   const pending = pendingConfirmationFromBody(body, tools);
+  if (isCreativeWritingRequest(message) && !isExplicitNonCreativeToolRequest(message)) {
+    const direct = await askOpenAICreativeDirect(body);
+    const trace = buildToolTrace(body, tools, {type: 'final', source: 'creative_direct'}, '', null, false);
+    return withTrace(body, direct, Object.assign({}, trace, {creativeDirectApplied: true}));
+  }
   if (pending && messageConfirms(message)) {
     const pendingTool = toolByName(tools, pending.toolName);
     if (pendingTool && pendingTool.doubleConfirmationRequired && Number(pending.confirmationStage || 1) < 2) {
