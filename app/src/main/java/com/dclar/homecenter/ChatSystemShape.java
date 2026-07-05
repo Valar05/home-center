@@ -372,7 +372,7 @@ final class ChatSystemShape {
         if (answer.contains("?")) {
             return "answer the question the app asked first.";
         }
-        return "tell me the main ingredient or constraint first.";
+        return "tell me the next concrete thing to do first.";
     }
 
     private static String pluralSecondStep(String user, String answer) {
@@ -388,7 +388,7 @@ final class ChatSystemShape {
         if (answer.contains("?")) {
             return "tell me the missing detail the question is asking for.";
         }
-        return "tell me the second constraint or second ingredient.";
+        return "tell me the second concrete thing to do.";
     }
 
     private static String singularNextStep(String user, String answer) {
@@ -405,7 +405,7 @@ final class ChatSystemShape {
             return "pick one idea and I will turn it into Step 1.";
         }
         if (user.contains("help") || user.contains("what should i")) {
-            return "tell me the task, ingredient, or constraint you want to work around.";
+            return "tell me the task or problem you want to work around.";
         }
         if (answer.contains("?")) {
             return "answer that question or tell me the missing detail.";

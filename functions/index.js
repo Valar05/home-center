@@ -949,6 +949,8 @@ async function askOpenAIToolTurn(body) {
     'Local knowledge rule: use knowledge.append when the user asks to remember, save, preserve, promote, or make durable a workflow, workaround, agent instruction, skill, or memory. Choose SKILLS.md for repeatable procedures, AGENTS.md for agent steering, and MEMORY.md for durable facts or troubleshooting state.',
     'Local knowledge rule: use knowledge.read when the user asks what durable skills, agent instructions, or local memory Home Center has stored. Never write secrets, API keys, OAuth tokens, passwords, or Authorization headers to knowledge files.',
     'Latest intent rule: the latest user request controls. If the latest request asks for recommendations, summaries, answers, reading suggestions, or next actions, answer that request from available context and tool results instead of continuing an older workflow.',
+    'Creative writing rule: if the latest request asks to write, draft, compose, create a scene, continue a story, or synthesize prose, produce the prose directly as a final answer from transcript, workingMemory, attachments, and tool evidence. Do not call docs.search, drive.search, or docs.create unless the latest request explicitly asks to find/read a source document or save/update/create a Google Doc.',
+    'Creative writing rule: after a successful docs.create or docs.update, a new request like "write the scene" is a new writing task, not permission to keep searching Drive. Write the scene or ask one focused story question if required context is missing.',
     'Document cleanup rule: if the latest request asks to clean up, reorganize, consolidate, or make a document section more organized, use workingMemory.lastDocument or recent docs.read results, then request docs.update with the cleaned structure. Do not stop after describing what cleanup is needed.',
     'Document synthesis/update rule: if the latest request asks to update, rewrite, reflect, merge, copy, append, replace, or revise one Google Doc using content from another Google Doc, continue after docs.search/docs.read results until you request docs.update for the target document. Do not stop after saying you found or read the documents.',
     'Do not claim a GitHub tool is required for public GitHub repositories. A GitHub tool is only required for private repo access, authenticated GitHub writes, issues, pull requests, or repository mutations.',
@@ -1228,7 +1230,7 @@ exports.agentToolTurn = onRequest({timeoutSeconds: 120, secrets: [OPENAI_API_KEY
     }
     sendJson(res, 200, await askOpenAIToolTurn(req.body || {}));
   } catch (err) {
-    sendJson(res, err.status || 500, {type: 'final', reply: `Gateway failed: ${err.message || String(err)}`, status: 'gateway_error'});
+    sendJson(res, err.status || 500, userFacingFailure('Home Center gateway', err.message || String(err), 'gateway_error'));
   }
 });
 
@@ -1243,7 +1245,7 @@ exports.agentTurn = onRequest({timeoutSeconds: 120, secrets: [OPENAI_API_KEY]}, 
     }
     sendJson(res, 200, await askOpenAI(user.uid, req.body || {}));
   } catch (err) {
-    sendJson(res, err.status || 500, {reply: `Gateway failed: ${err.message || String(err)}`, status: 'gateway_error'});
+    sendJson(res, err.status || 500, userFacingFailure('Home Center gateway', err.message || String(err), 'gateway_error'));
   }
 });
 

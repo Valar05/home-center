@@ -49,6 +49,7 @@ def dispatched_tools(source):
 
 main_activity = read('app/src/main/java/com/dclar/homecenter/MainActivity.java')
 openai_client = read('app/src/main/java/com/dclar/homecenter/OpenAiAgentClient.java')
+chat_system_shape = read('app/src/main/java/com/dclar/homecenter/ChatSystemShape.java')
 drive_client = read('app/src/main/java/com/dclar/homecenter/GoogleDriveClient.java')
 sheets_client = read('app/src/main/java/com/dclar/homecenter/GoogleSheetsClient.java')
 gmail_client = read('app/src/main/java/com/dclar/homecenter/GoogleGmailClient.java')
@@ -424,10 +425,18 @@ require_contains(functions_index, 'errorSource: sourceLabel', 'gateway failure p
 require_contains(functions_index, 'errorCategory: category', 'gateway failure payload includes error category')
 require_contains(functions_index, 'Workaround:', 'gateway failure copy includes workaround support')
 require_contains(functions_index, 'say "report this"', 'gateway failure copy can promote repeated failures to issues')
+require_contains(functions_index, "userFacingFailure('Home Center gateway', err.message || String(err), 'gateway_error')", 'gateway catch blocks return structured failure copy')
+require_absent(functions_index, "reply: `Gateway failed: ${err.message || String(err)}`", 'gateway catch blocks must not return raw failure copy')
 require_contains(main_activity, 'agentFailureMessage("Home Center gateway", ex.getMessage())', 'Android gateway exceptions use structured failure copy')
 require_contains(main_activity, 'What failed:', 'Android failure copy identifies source detail')
 require_contains(main_activity, 'Workaround:', 'Android failure copy includes workaround support')
 require_absent(main_activity, 'showAssistantMessage("The agent gateway failed: " + shortMessage(ex.getMessage()))', 'Android must not show vague gateway failure copy')
+require_contains(openai_client, 'AGENT_READ_TIMEOUT_MS = 130000', 'Android agent read timeout exceeds 120-second Firebase agent function window')
+require_contains(openai_client, 'connection.setReadTimeout(AGENT_READ_TIMEOUT_MS)', 'Android gateway calls use the shared agent read timeout')
+require_absent(openai_client, 'connection.setReadTimeout(45000)', 'Android agent client must not timeout before gateway function window')
+require_absent(chat_system_shape, 'tell me the main ingredient or constraint first.', 'generic next-step fallback must not mention recipe ingredients')
+require_absent(chat_system_shape, 'tell me the second constraint or second ingredient.', 'generic next-step fallback must not mention recipe ingredients')
+require_absent(chat_system_shape, 'tell me the task, ingredient, or constraint you want to work around.', 'generic help fallback must not mention recipe ingredients')
 red_build_tool_loop_contract = {
     'input': "Run a red-build self-test. Read my Home Center Live items list. Add this item to Shipyard. Find June's Holocron. Find my Reading Log. Find Final and Vacation of a Lifetime Story Bible. If anything fails, do not say tool plan did not converge.",
     'source_expectations': [
@@ -480,6 +489,21 @@ if not repo_orientation_error_contract['input']:
 for expected in repo_orientation_error_contract['source_expectations']:
     if expected not in functions_index:
         fail(f"repository orientation error contract is missing source expectation {expected}")
+creative_synthesis_contract = {
+    'input': "Alright, the next task is a bit of synthesis. Whiskey is a character in his boot camp. Write the scene where he plays a quiet, but important part in the boot experience with simulation",
+    'source_expectations': [
+        'Creative writing rule: if the latest request asks to write, draft, compose, create a scene, continue a story, or synthesize prose',
+        'produce the prose directly as a final answer from transcript, workingMemory, attachments, and tool evidence',
+        'Do not call docs.search, drive.search, or docs.create unless the latest request explicitly asks to find/read a source document or save/update/create a Google Doc',
+        'after a successful docs.create or docs.update, a new request like "write the scene" is a new writing task',
+        'not permission to keep searching Drive',
+    ],
+}
+if not creative_synthesis_contract['input']:
+    fail('creative synthesis contract is missing exact user input')
+for expected in creative_synthesis_contract['source_expectations']:
+    if expected not in functions_index:
+        fail(f"creative synthesis contract is missing source expectation {expected}")
 require_contains(functions_index, 'Set narration to the same text as reply', 'gateway prompt forbids mismatched TTS narration')
 require_contains(functions_index, 'narration: finalReply ||', 'gateway returns normalized final reply text as narration for installed APK compatibility')
 require_contains(functions_index, 'toolByName(tools, toolName)', 'gateway rejects unadvertised tool calls')

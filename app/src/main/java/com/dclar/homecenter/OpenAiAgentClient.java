@@ -14,6 +14,9 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 
 final class OpenAiAgentClient {
+    private static final int CONNECT_TIMEOUT_MS = 10000;
+    private static final int AGENT_READ_TIMEOUT_MS = 130000;
+
     static final class ToolTurn {
         final String type;
         final String reply;
@@ -177,8 +180,8 @@ final class OpenAiAgentClient {
         }
         HttpURLConnection connection = (HttpURLConnection) new URL("https://api.openai.com/v1/responses").openConnection();
         connection.setRequestMethod("POST");
-        connection.setConnectTimeout(10000);
-        connection.setReadTimeout(45000);
+        connection.setConnectTimeout(CONNECT_TIMEOUT_MS);
+        connection.setReadTimeout(AGENT_READ_TIMEOUT_MS);
         connection.setDoInput(true);
         connection.setDoOutput(true);
         connection.setUseCaches(false);
@@ -285,8 +288,8 @@ final class OpenAiAgentClient {
     private JSONObject postJson(String path, String idToken, JSONObject body) throws IOException {
         HttpURLConnection connection = (HttpURLConnection) new URL(resolve(path)).openConnection();
         connection.setRequestMethod("POST");
-        connection.setConnectTimeout(10000);
-        connection.setReadTimeout(45000);
+        connection.setConnectTimeout(CONNECT_TIMEOUT_MS);
+        connection.setReadTimeout(AGENT_READ_TIMEOUT_MS);
         connection.setDoInput(true);
         connection.setDoOutput(true);
         connection.setUseCaches(false);
