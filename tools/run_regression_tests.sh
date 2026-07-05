@@ -7,6 +7,7 @@ cd "$ROOT"
 sh tools/check_no_secrets.sh
 python3 tools/home_center_regression_tests.py
 node --check tools/home_center_metal_prompt_smoke.mjs
+node --check tools/home_center_google_tool_setup.mjs
 node tools/home_center_calendar_time_test.js
 python3 tools/agent_harness.py --all
 sh agent-tools/ticktick-list-ingest/tests/run_fixture_smoke.sh

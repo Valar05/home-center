@@ -39,6 +39,48 @@ async function requireUser(req) {
   return admin.auth().verifyIdToken(match[1]);
 }
 
+async function requireSmokeUser(req) {
+  const header = req.get('Authorization') || '';
+  const match = header.match(/^Bearer\s+(.+)$/i);
+  if (!match) {
+    const err = new Error('Missing Firebase ID token or Google access token.');
+    err.status = 401;
+    throw err;
+  }
+  const token = match[1];
+  try {
+    return await admin.auth().verifyIdToken(token);
+  } catch (_) {
+    const response = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+      headers: {Authorization: `Bearer ${token}`},
+    });
+    const text = await response.text();
+    let profile = {};
+    try {
+      profile = text ? JSON.parse(text) : {};
+    } catch (err) {
+      profile = {};
+    }
+    if (!response.ok) {
+      const err = new Error(`Google token verification failed: HTTP ${response.status} ${text.slice(0, 300)}`);
+      err.status = 401;
+      throw err;
+    }
+    const email = safeText(profile.email, 320);
+    if (!email || profile.email_verified === false) {
+      const err = new Error('Google token did not include a verified email.');
+      err.status = 401;
+      throw err;
+    }
+    try {
+      const user = await admin.auth().getUserByEmail(email);
+      return {uid: user.uid, email};
+    } catch (err) {
+      return {uid: '', email};
+    }
+  }
+}
+
 function safeText(value, max = 12000) {
   const text = typeof value === 'string' ? value.trim() : '';
   return text.length > max ? text.slice(0, max) : text;
@@ -94,17 +136,40 @@ function userTokenRef(uid) {
   return admin.firestore().collection('users').doc(uid).collection('private').doc('googleTokens');
 }
 
-function oauthClient() {
+function googleEmailTokenRef(email) {
+  return admin.firestore().collection('googleToolTokens').doc(String(email || '').trim().toLowerCase());
+}
+
+function oauthClient(redirectUri = 'postmessage') {
   return new google.auth.OAuth2(
     process.env.GOOGLE_OAUTH_CLIENT_ID || '',
     process.env.GOOGLE_OAUTH_CLIENT_SECRET || '',
-    'postmessage'
+    redirectUri
   );
 }
 
-async function loadGoogleClient(uid) {
-  const snap = await userTokenRef(uid).get();
-  if (!snap.exists) {
+async function storeGoogleToolTokens(uid, email, tokens, source) {
+  const cleanEmail = safeText(email, 320).toLowerCase();
+  const payload = {
+    tokens,
+    email: cleanEmail,
+    source: safeText(source, 80) || 'unknown',
+    updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+  };
+  if (uid) {
+    await userTokenRef(uid).set(payload, {merge: true});
+  }
+  if (cleanEmail) {
+    await googleEmailTokenRef(cleanEmail).set(payload, {merge: true});
+  }
+}
+
+async function loadGoogleClient(uid, email = '') {
+  let snap = uid ? await userTokenRef(uid).get() : null;
+  if ((!snap || !snap.exists) && email) {
+    snap = await googleEmailTokenRef(email).get();
+  }
+  if (!snap || !snap.exists) {
     return null;
   }
   const auth = oauthClient();
@@ -1502,10 +1567,48 @@ exports.googleAuthCodeExchange = onRequest(async (req, res) => {
     }
     const client = oauthClient();
     const {tokens} = await client.getToken(authCode);
-    await userTokenRef(user.uid).set({tokens, updatedAt: admin.firestore.FieldValue.serverTimestamp()}, {merge: true});
+    await storeGoogleToolTokens(user.uid, user.email || '', tokens, 'android_sign_in');
     sendJson(res, 200, {ok: true, status: 'google_tools_connected'});
   } catch (err) {
     sendJson(res, err.status || 500, {error: err.message || String(err)});
+  }
+});
+
+exports.googleCliAuthExchange = onRequest(async (req, res) => {
+  if (handleOptions(req, res)) return;
+  try {
+    if (!process.env.GOOGLE_OAUTH_CLIENT_ID || !process.env.GOOGLE_OAUTH_CLIENT_SECRET) {
+      sendJson(res, 503, {ok: false, error: 'google_oauth_not_configured'});
+      return;
+    }
+    const authCode = safeText(req.body && req.body.authCode, 4096);
+    const redirectUri = safeText(req.body && req.body.redirectUri, 500);
+    if (!authCode || !redirectUri) {
+      sendJson(res, 400, {ok: false, error: 'authCode_and_redirectUri_required'});
+      return;
+    }
+    const client = oauthClient(redirectUri);
+    const {tokens} = await client.getToken(authCode);
+    client.setCredentials(tokens);
+    const oauth2 = google.oauth2({version: 'v2', auth: client});
+    const profile = await oauth2.userinfo.get();
+    const email = safeText(profile.data && profile.data.email, 320).toLowerCase();
+    if (!email || profile.data.verified_email === false) {
+      sendJson(res, 401, {ok: false, error: 'verified_google_email_required'});
+      return;
+    }
+    let uid = '';
+    try {
+      const user = await admin.auth().getUserByEmail(email);
+      uid = user.uid;
+    } catch (_) {
+      uid = '';
+    }
+    await storeGoogleToolTokens(uid, email, tokens, 'cli_setup');
+    sendJson(res, 200, {ok: true, status: 'google_tools_connected', email, firebaseUserLinked: Boolean(uid)});
+  } catch (err) {
+    const detail = err && err.response && err.response.data ? JSON.stringify(err.response.data) : (err.message || String(err));
+    sendJson(res, err.status || err.code || 500, {ok: false, error: 'google_cli_auth_exchange_failed', detail});
   }
 });
 
@@ -1527,7 +1630,7 @@ exports.googleDriveProbe = onRequest(async (req, res) => {
   if (handleOptions(req, res)) return;
   try {
     const user = await requireUser(req);
-    const auth = await loadGoogleClient(user.uid);
+    const auth = await loadGoogleClient(user.uid, user.email || '');
     if (!auth) {
       sendJson(res, 200, {
         reply: 'No. Google Drive is not connected yet.\n\nI can still help with Home Center lists, TickTick fallback, GPT answers, web search, and narration.\n\nI will not claim I can read, open, list, or change Google files until Google is connected with full Drive access.',
@@ -1613,6 +1716,335 @@ async function createGitHubIssue(body) {
   return {ok: true, status: 'github_issue_created', repo, title, issueNumber: json.number || 0, htmlUrl: json.html_url || '', url: json.html_url || ''};
 }
 
+function metalSmokeTools() {
+  const mk = (name, description, group, write, confirmationRequired, requiredScopes, args) => ({
+    name,
+    description,
+    group,
+    write,
+    confirmationRequired,
+    doubleConfirmationRequired: false,
+    requiredScopes,
+    arguments: args,
+  });
+  return [
+    mk('drive.search', 'Search or list Google Drive files.', 'drive', false, false, ['https://www.googleapis.com/auth/drive'], ['query', 'folderName', 'mimeType', 'pageSize']),
+    mk('drive.read_metadata', 'Read Google Drive file or folder metadata by fileId.', 'drive', false, false, ['https://www.googleapis.com/auth/drive'], ['fileId']),
+    mk('drive.create_folder', 'Create a Google Drive folder.', 'drive', true, true, ['https://www.googleapis.com/auth/drive'], ['name', 'parentId']),
+    mk('drive.update_metadata', 'Rename or move a Google Drive file or folder.', 'drive', true, true, ['https://www.googleapis.com/auth/drive'], ['fileId', 'name', 'addParentId', 'removeParentId']),
+    mk('docs.search', 'Search Google Docs in Drive.', 'docs', false, false, ['https://www.googleapis.com/auth/drive'], ['query', 'folderName', 'pageSize']),
+    mk('docs.read', 'Read text content from a Google Doc by fileId.', 'docs', false, false, ['https://www.googleapis.com/auth/drive', 'https://www.googleapis.com/auth/documents'], ['fileId', 'name']),
+    mk('docs.create', 'Create a Google Doc and optionally insert body text.', 'docs', true, true, ['https://www.googleapis.com/auth/drive', 'https://www.googleapis.com/auth/documents'], ['title', 'body', 'folderId']),
+    mk('docs.update', 'Update a Google Doc by appending, replacing, or replacing the body.', 'docs', true, true, ['https://www.googleapis.com/auth/drive', 'https://www.googleapis.com/auth/documents'], ['fileId', 'name', 'appendText', 'replaceText', 'body']),
+  ];
+}
+
+function smokeCleanArg(args, name) {
+  return typeof (args || {})[name] === 'string' ? args[name].trim() : '';
+}
+
+function smokeToolError(toolName, error, detail) {
+  return {tool: toolName, ok: false, error, detail: safeText(detail, 1000), files: [], content: ''};
+}
+
+function smokeFileJson(file) {
+  return {
+    id: file.id || '',
+    name: file.name || '',
+    mimeType: file.mimeType || '',
+    modifiedTime: file.modifiedTime || '',
+    webViewLink: file.webViewLink || '',
+    parents: file.parents || [],
+  };
+}
+
+class MetalSmokeHost {
+  constructor(auth, evidence) {
+    this.auth = auth;
+    this.drive = google.drive({version: 'v3', auth});
+    this.docs = google.docs({version: 'v1', auth});
+    this.evidence = evidence;
+    this.root = null;
+    this.folder = null;
+  }
+
+  async prepare(runId) {
+    this.root = await this.findFolder('Home Center Smoke Sandbox');
+    if (!this.root) this.root = await this.createFolder('Home Center Smoke Sandbox', '');
+    await this.trashOldRuns();
+    this.folder = await this.createFolder(`HC_SMOKE_RUN_${runId}`, this.root.id);
+    this.evidence.sandbox = {rootId: this.root.id, folderId: this.folder.id, folderName: this.folder.name};
+  }
+
+  async cleanup() {
+    if (!this.folder || !this.folder.id) return {ok: false, skipped: true};
+    await this.drive.files.update({fileId: this.folder.id, requestBody: {trashed: true}, fields: 'id,trashed'});
+    return {ok: true, folderId: this.folder.id};
+  }
+
+  async findFolder(name, parentId = '') {
+    const clauses = [`mimeType='application/vnd.google-apps.folder'`, `name='${this.escapeQuery(name)}'`, 'trashed=false'];
+    if (parentId) clauses.push(`'${this.escapeQuery(parentId)}' in parents`);
+    const files = await this.listFiles(clauses.join(' and '), 10);
+    return files[0] || null;
+  }
+
+  async createFolder(name, parentId) {
+    const requestBody = {name, mimeType: 'application/vnd.google-apps.folder'};
+    if (parentId) requestBody.parents = [parentId];
+    const result = await this.drive.files.create({requestBody, fields: 'id,name,mimeType,webViewLink,parents'});
+    return result.data;
+  }
+
+  async trashOldRuns() {
+    const q = [
+      "mimeType='application/vnd.google-apps.folder'",
+      "name contains 'HC_SMOKE_RUN_'",
+      `'${this.escapeQuery(this.root.id)}' in parents`,
+      'trashed=false',
+    ].join(' and ');
+    const files = await this.listFiles(q, 20);
+    for (const file of files) {
+      await this.drive.files.update({fileId: file.id, requestBody: {trashed: true}, fields: 'id,trashed'});
+    }
+  }
+
+  async listFiles(q, pageSize = 10) {
+    const result = await this.drive.files.list({
+      q,
+      pageSize,
+      fields: 'files(id,name,mimeType,modifiedTime,webViewLink,parents,trashed)',
+      orderBy: 'modifiedTime desc',
+      supportsAllDrives: true,
+      includeItemsFromAllDrives: true,
+    });
+    return result.data.files || [];
+  }
+
+  escapeQuery(value) {
+    return String(value || '').replace(/'/g, "\\'").trim();
+  }
+
+  sandboxQuery(args, fixedMimeType = '') {
+    const clauses = [`'${this.escapeQuery(this.folder.id)}' in parents`, 'trashed=false'];
+    const mimeType = fixedMimeType || smokeCleanArg(args, 'mimeType');
+    const query = smokeCleanArg(args, 'query') || smokeCleanArg(args, 'name') || smokeCleanArg(args, 'title');
+    if (mimeType) clauses.push(`mimeType='${this.escapeQuery(mimeType)}'`);
+    if (query) clauses.push(`name contains '${this.escapeQuery(query)}'`);
+    return clauses.join(' and ');
+  }
+
+  async fileMetadata(fileId) {
+    const result = await this.drive.files.get({fileId, fields: 'id,name,mimeType,modifiedTime,webViewLink,parents,trashed', supportsAllDrives: true});
+    return result.data || {};
+  }
+
+  async assertInSandbox(fileId, toolName) {
+    const file = await this.fileMetadata(fileId);
+    if (file.trashed || !Array.isArray(file.parents) || !file.parents.includes(this.folder.id)) {
+      throw new Error(`sandbox_violation: ${toolName} tried to use ${file.name || fileId} outside ${this.folder.name}`);
+    }
+    return file;
+  }
+
+  async execute(toolName, args) {
+    this.evidence.toolExecutions.push({toolName, arguments: args || {}});
+    if (toolName === 'drive.search') return this.search(toolName, args || {}, '');
+    if (toolName === 'docs.search') return this.search(toolName, args || {}, 'application/vnd.google-apps.document');
+    if (toolName === 'drive.read_metadata') return this.readMetadata(args || {});
+    if (toolName === 'drive.create_folder') return this.createDriveFolder(args || {});
+    if (toolName === 'drive.update_metadata') return this.updateMetadata(args || {});
+    if (toolName === 'docs.create') return this.createDoc(args || {});
+    if (toolName === 'docs.read') return this.readDoc(args || {});
+    if (toolName === 'docs.update') return this.updateDoc(args || {});
+    return smokeToolError(toolName, 'unimplemented_metal_tool', `Metal smoke does not implement ${toolName}.`);
+  }
+
+  async search(toolName, args, fixedMimeType) {
+    const files = await this.listFiles(this.sandboxQuery(args, fixedMimeType), Math.max(1, Math.min(10, Number(args.pageSize || 5))));
+    return {tool: toolName, ok: true, error: '', detail: '', files: files.map(smokeFileJson), content: ''};
+  }
+
+  async readMetadata(args) {
+    const fileId = smokeCleanArg(args, 'fileId');
+    if (!fileId) return smokeToolError('drive.read_metadata', 'missing_file_id', 'drive.read_metadata requires fileId.');
+    const file = await this.assertInSandbox(fileId, 'drive.read_metadata');
+    return {tool: 'drive.read_metadata', ok: true, error: '', detail: '', file: smokeFileJson(file), files: [], content: ''};
+  }
+
+  async createDriveFolder(args) {
+    const parentId = smokeCleanArg(args, 'parentId') || this.folder.id;
+    if (parentId !== this.folder.id) throw new Error('sandbox_violation: drive.create_folder parentId outside sandbox');
+    const file = await this.createFolder(smokeCleanArg(args, 'name') || `Smoke Child ${Date.now()}`, parentId);
+    return {tool: 'drive.create_folder', ok: true, error: '', detail: 'drive_folder_created', status: 'drive_folder_created', file: smokeFileJson(file), title: file.name, files: [], content: ''};
+  }
+
+  async updateMetadata(args) {
+    const fileId = smokeCleanArg(args, 'fileId');
+    if (!fileId) return smokeToolError('drive.update_metadata', 'missing_file_id', 'drive.update_metadata requires fileId.');
+    await this.assertInSandbox(fileId, 'drive.update_metadata');
+    const requestBody = {};
+    if (smokeCleanArg(args, 'name')) requestBody.name = smokeCleanArg(args, 'name');
+    const params = {fileId, requestBody, fields: 'id,name,mimeType,webViewLink,parents'};
+    if (smokeCleanArg(args, 'addParentId')) params.addParents = smokeCleanArg(args, 'addParentId');
+    if (smokeCleanArg(args, 'removeParentId')) params.removeParents = smokeCleanArg(args, 'removeParentId');
+    if (params.addParents && params.addParents !== this.folder.id) throw new Error('sandbox_violation: drive.update_metadata addParentId outside sandbox');
+    const result = await this.drive.files.update(params);
+    const file = result.data || {};
+    return {tool: 'drive.update_metadata', ok: true, error: '', detail: 'drive_metadata_updated', status: 'drive_metadata_updated', file: smokeFileJson(file), title: file.name || '', files: [], content: ''};
+  }
+
+  async createDoc(args) {
+    const folderId = smokeCleanArg(args, 'folderId') || this.folder.id;
+    if (folderId !== this.folder.id) throw new Error('sandbox_violation: docs.create folderId outside sandbox');
+    const title = smokeCleanArg(args, 'title') || 'Home Center Metal Smoke';
+    const body = smokeCleanArg(args, 'body');
+    const created = await this.docs.documents.create({requestBody: {title}});
+    const documentId = created.data.documentId;
+    if (!documentId) throw new Error('docs.create did not return documentId');
+    if (body) {
+      await this.docs.documents.batchUpdate({documentId, requestBody: {requests: [{insertText: {location: {index: 1}, text: body}}]}});
+    }
+    await this.drive.files.update({fileId: documentId, addParents: folderId, requestBody: {}, fields: 'id,parents'});
+    const file = await this.assertInSandbox(documentId, 'docs.create');
+    return {tool: 'docs.create', ok: true, error: '', detail: 'google_doc_created', status: 'google_doc_created', file: smokeFileJson(file), title: file.name || title, webViewLink: file.webViewLink || '', files: [], content: ''};
+  }
+
+  async readDoc(args) {
+    const fileId = smokeCleanArg(args, 'fileId');
+    if (!fileId) return smokeToolError('docs.read', 'missing_file_id', 'docs.read requires fileId.');
+    const file = await this.assertInSandbox(fileId, 'docs.read');
+    const exported = await this.drive.files.export({fileId, mimeType: 'text/plain'}, {responseType: 'text'});
+    return {tool: 'docs.read', ok: true, error: '', detail: '', file: smokeFileJson(file), files: [], content: String(exported.data || '')};
+  }
+
+  async updateDoc(args) {
+    const fileId = smokeCleanArg(args, 'fileId');
+    if (!fileId) return smokeToolError('docs.update', 'missing_file_id', 'docs.update requires fileId.');
+    await this.assertInSandbox(fileId, 'docs.update');
+    const appendText = smokeCleanArg(args, 'appendText');
+    const replaceText = smokeCleanArg(args, 'replaceText');
+    const body = smokeCleanArg(args, 'body');
+    if (!appendText && !replaceText && !body) return smokeToolError('docs.update', 'missing_update', 'Provide appendText, replaceText, or body.');
+    const doc = await this.docs.documents.get({documentId: fileId, fields: 'body(content(endIndex))'});
+    const content = (doc.data.body && doc.data.body.content) || [];
+    const endIndex = Math.max(1, ...content.map((entry) => Number(entry.endIndex || 1)));
+    const requests = [];
+    if (body) {
+      if (endIndex > 2) requests.push({deleteContentRange: {range: {startIndex: 1, endIndex: endIndex - 1}}});
+      requests.push({insertText: {location: {index: 1}, text: body}});
+    } else if (replaceText) {
+      requests.push({replaceAllText: {containsText: {text: replaceText, matchCase: true}, replaceText: appendText}});
+    } else {
+      requests.push({insertText: {location: {index: Math.max(1, endIndex - 1)}, text: appendText.startsWith('\n') ? appendText : `\n${appendText}`}});
+    }
+    await this.docs.documents.batchUpdate({documentId: fileId, requestBody: {requests}});
+    const file = await this.assertInSandbox(fileId, 'docs.update');
+    return {tool: 'docs.update', ok: true, error: '', detail: 'google_doc_updated', status: 'google_doc_updated', file: smokeFileJson(file), title: file.name || '', webViewLink: file.webViewLink || '', files: [], content: ''};
+  }
+}
+
+function updateSmokeWorkingMemory(workingMemory, toolName, args, result) {
+  if (!result || !result.ok) return;
+  if (toolName === 'docs.create' || toolName === 'docs.update' || toolName === 'docs.read') {
+    const file = result.file || {};
+    workingMemory.lastDocument = {
+      fileId: file.id || smokeCleanArg(args, 'fileId'),
+      name: result.title || file.name || smokeCleanArg(args, 'name') || smokeCleanArg(args, 'title'),
+      webViewLink: result.webViewLink || file.webViewLink || '',
+      sourceTool: toolName,
+    };
+  }
+  if (toolName === 'docs.search' && Array.isArray(result.files) && result.files.length === 1) {
+    const file = result.files[0];
+    workingMemory.lastDocument = {fileId: file.id || '', name: file.name || '', webViewLink: file.webViewLink || '', sourceTool: toolName};
+  }
+}
+
+async function runSmokeTurn(host, evidence, state, message, expected = {}) {
+  const toolResults = [];
+  const turn = {message, responses: [], toolResults: []};
+  evidence.turns.push(turn);
+  for (let step = 0; step < 8; step++) {
+    const body = {
+      message,
+      transcript: state.transcript || '',
+      summary: '',
+      toolResults,
+      tools: metalSmokeTools(),
+      unavailableToolGroups: [],
+      workingMemory: state.workingMemory,
+      timeContext: {nowEpochMillis: Date.now(), nowIso: new Date().toISOString(), timeZoneId: 'UTC'},
+      evidenceContext: {latestUserReport: message, recentConversationEvidence: state.transcript || ''},
+      attachmentImages: [],
+      debugTrace: true,
+    };
+    if (state.pendingConfirmation) body.pendingConfirmation = state.pendingConfirmation;
+    const response = await askOpenAIToolTurn(body);
+    turn.responses.push(response);
+    if (response.type === 'tool_call' && response.toolName) {
+      const result = await host.execute(response.toolName, response.arguments || {});
+      updateSmokeWorkingMemory(state.workingMemory, response.toolName, response.arguments || {}, result);
+      toolResults.push({name: response.toolName, arguments: response.arguments || {}, result});
+      turn.toolResults.push({name: response.toolName, result});
+      continue;
+    }
+    if (response.pendingConfirmation) state.pendingConfirmation = response.pendingConfirmation; else if (response.status !== 'confirmation_required') state.pendingConfirmation = null;
+    if (expected.status && response.status !== expected.status) throw new Error(`Expected ${expected.status} for "${message}", got ${response.status}`);
+    if (expected.pendingTool && (!response.pendingConfirmation || response.pendingConfirmation.toolName !== expected.pendingTool)) throw new Error(`Expected pending ${expected.pendingTool} for "${message}".`);
+    const reply = response.reply || response.text || '';
+    for (const forbidden of ['I did not get a valid GPT-5.5 response', 'I did not get a useful GPT-5.5 response', 'tell me the main ingredient', 'second constraint', 'name":"that document"', 'title":"that document"']) {
+      if (JSON.stringify(response).includes(forbidden)) throw new Error(`Forbidden smoke response text: ${forbidden}`);
+    }
+    for (const needle of expected.contains || []) {
+      if (!reply.includes(needle)) throw new Error(`Expected reply to contain "${needle}".`);
+    }
+    state.transcript = `${state.transcript || ''}\nUser: ${message}\nAssistant: ${reply}`.trim().slice(-8000);
+    return response;
+  }
+  throw new Error(`Smoke turn did not converge for "${message}".`);
+}
+
+async function runMetalPromptSmoke(user, body) {
+  const runId = safeText(body.runId, 80) || new Date().toISOString().replace(/[-:TZ.]/g, '').slice(0, 14);
+  const evidence = {ok: false, runId, uid: user.uid, turns: [], toolExecutions: [], sandbox: {}, cleanup: null};
+  const auth = await loadGoogleClient(user.uid, user.email || '');
+  if (!auth) throw new Error('Google tools are not connected for this Firebase user.');
+  const host = new MetalSmokeHost(auth, evidence);
+  await host.prepare(runId);
+  const title = `Home Center Metal Smoke ${runId}`;
+  const firstLine = `First metal smoke line ${runId}.`;
+  const secondLine = `Second metal smoke line ${runId}.`;
+  const state = {
+    transcript: '',
+    pendingConfirmation: null,
+    workingMemory: {
+      smokeSandbox: {
+        enabled: true,
+        folderId: host.folder.id,
+        folderName: host.folder.name,
+        instruction: 'Use only this Drive folder for this smoke run.',
+      },
+    },
+  };
+  try {
+    await runSmokeTurn(host, evidence, state, `Create a Google Doc titled ${title} with body ${firstLine}`, {status: 'confirmation_required', pendingTool: 'docs.create'});
+    await runSmokeTurn(host, evidence, state, 'confirm create');
+    if (!state.workingMemory.lastDocument || state.workingMemory.lastDocument.name !== title) throw new Error('docs.create did not establish lastDocument working memory.');
+    await runSmokeTurn(host, evidence, state, `Append "${secondLine}" to that document.`, {status: 'confirmation_required', pendingTool: 'docs.update'});
+    await runSmokeTurn(host, evidence, state, 'confirm edit');
+    const finalResponse = await runSmokeTurn(host, evidence, state, 'Read that document and tell me the full text.', {contains: [firstLine, secondLine]});
+    const directRead = await host.readDoc({fileId: state.workingMemory.lastDocument.fileId});
+    if (!directRead.content.includes(firstLine) || !directRead.content.includes(secondLine)) throw new Error('Direct Docs verification did not find both smoke lines.');
+    evidence.finalReply = finalResponse.reply || finalResponse.text || '';
+    evidence.directDocText = directRead.content;
+    evidence.ok = true;
+    return evidence;
+  } finally {
+    evidence.cleanup = await host.cleanup().catch((err) => ({ok: false, error: err.message || String(err)}));
+  }
+}
+
 exports.githubCreateIssue = onRequest({timeoutSeconds: 60, secrets: [GITHUB_TOKEN]}, async (req, res) => {
   if (handleOptions(req, res)) return;
   try {
@@ -1620,6 +2052,21 @@ exports.githubCreateIssue = onRequest({timeoutSeconds: 60, secrets: [GITHUB_TOKE
     sendJson(res, 200, await createGitHubIssue(req.body || {}));
   } catch (err) {
     sendJson(res, err.status || 500, {ok: false, error: 'github_issue_failed', detail: err.message || String(err)});
+  }
+});
+
+exports.metalPromptSmoke = onRequest({timeoutSeconds: 300, secrets: [OPENAI_API_KEY]}, async (req, res) => {
+  if (handleOptions(req, res)) return;
+  try {
+    const user = await requireSmokeUser(req);
+    const scenario = safeText(req.body && req.body.scenario, 120) || 'docs-create-update-read';
+    if (scenario !== 'docs-create-update-read') {
+      sendJson(res, 400, {ok: false, error: 'unknown_scenario', detail: scenario});
+      return;
+    }
+    sendJson(res, 200, await runMetalPromptSmoke(user, req.body || {}));
+  } catch (err) {
+    sendJson(res, err.status || 500, {ok: false, error: 'metal_prompt_smoke_failed', detail: err.message || String(err), stack: String(err.stack || '')});
   }
 });
 

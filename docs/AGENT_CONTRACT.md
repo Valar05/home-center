@@ -41,7 +41,10 @@ sh tools/run_regression_tests.sh
 For red-build prompt failures that depend on Google permissions, Drive/Docs state, confirmation, working memory, gateway planning, or provider execution, also run:
 
 ```sh
+node tools/home_center_google_tool_setup.mjs
 node tools/home_center_metal_prompt_smoke.mjs --scenario docs-create-update-read
 ```
 
-That smoke does not depend on Package Installer. It uses local Google OAuth credentials, obtains a real Firebase ID token, calls the deployed `agentToolTurn`, executes real Google Drive/Docs REST calls inside a temporary Drive sandbox folder, confirms writes through the gateway loop, verifies Docs create/update/read state, and trashes only the smoke sandbox folder afterward.
+That smoke does not depend on Package Installer. If the gateway has no stored Google tool token, `tools/home_center_google_tool_setup.mjs` opens Google consent from Termux, captures a localhost OAuth code, and stores the resulting Google tool token through the deployed `googleCliAuthExchange` endpoint. The smoke then uses local Google auth only to prove the Google account identity, calls the deployed `metalPromptSmoke` endpoint, maps that verified email to the stored Google tool token, and runs the same planner loop plus real Google Drive/Docs REST calls inside a temporary Drive sandbox folder. It confirms writes through the gateway loop, verifies Docs create/update/read state, and trashes only the smoke sandbox folder afterward.
+
+If setup reports `redirect_uri_mismatch`, run `node tools/home_center_google_tool_setup.mjs --print-setup`, add the printed Authorized redirect URI to the printed OAuth web client in Google Cloud Console, save, then rerun the setup command.

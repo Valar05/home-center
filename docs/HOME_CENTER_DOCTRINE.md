@@ -210,9 +210,11 @@ A red-build prompt is evidence.
 
 When a user reports that a specific prompt failed, preserve the exact prompt and add a smoke path that can replay it before claiming the fix works. Static source checks are useful guardrails, but they do not prove an authenticated tool journey.
 
-For failures involving Google tools, provider permissions, working memory, confirmation, gateway planning, or real provider execution, the acceptance smoke must use a headless real-API smoke, not a mocked planner or stale installed APK. It must exercise the same core path as chat: Firebase ID token, deployed `agentToolTurn`, registered tool contract, real Google API calls, tool-result loopback, and final response.
+For failures involving Google tools, provider permissions, working memory, confirmation, gateway planning, or real provider execution, the acceptance smoke must use a headless real-API smoke, not a mocked planner or stale installed APK. It must exercise the same core path as chat: verified Home Center user identity, deployed planner, registered tool contract, Home Center's stored Google connection, real Google API calls, tool-result loopback, and final response.
 
 Drive/Docs prompt smokes must run inside a dedicated Drive sandbox folder. The smoke may create, read, update, and trash only marked smoke-run files under that folder. It must fail if the planner or executor attempts to use unrelated Drive files.
+
+If the gateway does not have a stored Google tool credential, bootstrap it with `node tools/home_center_google_tool_setup.mjs` before running the prompt smoke. The setup path is allowed to use a localhost OAuth callback from Termux, but the real smoke must still execute through the deployed Home Center gateway and real Google APIs.
 
 Do not tell the user to retry a prompt failure until either:
 
