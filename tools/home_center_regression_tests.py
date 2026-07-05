@@ -73,11 +73,35 @@ contract_tools = {tool['name']: tool for tool in contract['tools']}
 contract_names = set(contract_tools)
 
 submit = method_body(main_activity, 'private void submitMessage', 'private boolean ensureGoogleToolScopesForTurn')
-require_contains(submit, 'sendAgentTurn(clean);', 'typed chat enters GPT-5.5 first')
+require_contains(submit, 'if (tryHandleLocalCommand(clean))', 'deterministic local commands bypass GPT before agent turn')
+require_order(submit, ['recordTranscriptTurn("user", clean);', 'if (tryHandleLocalCommand(clean))', 'sendAgentTurn(clean);'], 'submit records evidence, tries local bypass, then falls through to GPT')
 require_absent(submit, 'tryHandleLocalStatusQuestion', 'typed chat must not run local status parser before GPT')
-require_absent(submit, 'tryHandleLocalCommand', 'typed chat must not run local command parser before GPT')
 require_absent(main_activity, 'private boolean isDriveDiagnosticIntent', 'Drive keyword router removed')
-require_absent(main_activity, 'CommandParser.parse(text)', 'typed chat no longer parses English commands locally')
+require_contains(main_activity, 'private boolean tryHandleLocalCommand(String raw)', 'Android has a deterministic local-command bypass')
+require_contains(main_activity, 'CommandParser.parse(raw)', 'local bypass uses the existing deterministic command grammar')
+require_contains(main_activity, 'private boolean isSafeLocalCommand(Command command, String raw)', 'local bypass has a safety gate for broad parser patterns')
+require_contains(main_activity, 'local_command_passthrough action=', 'ambiguous local parser matches fall through to GPT')
+require_contains(main_activity, 'case Command.ADD_LIST_ITEM:', 'local bypass handles add-list commands only after safety gating')
+require_contains(main_activity, 'return namesList;', 'broad add/read/remove parser matches require list wording before bypass')
+require_contains(main_activity, 'local_command_bypass action=', 'local bypass logs OpenAI-free execution')
+require_contains(main_activity, 'openaiCalls=0', 'local bypass records zero OpenAI calls')
+require_contains(main_activity, 'direct_tool_finish tool=', 'successful write tool results can finish without an extra GPT summary call')
+require_contains(main_activity, 'MAX_AGENT_TOOL_STEPS = 3', 'Android economy mode caps GPT-directed tool turns')
+require_contains(functions_index, 'function economyToolPalette(message, tools, workingMemory = {}, toolResults = [])', 'gateway filters available tools per request')
+require_contains(functions_index, 'const plannerTools = economyToolPalette(message, tools, workingMemory, toolResults)', 'gateway uses per-request planner tool palette')
+require_contains(functions_index, 'JSON.stringify(plannerTools).slice(0, 12000)', 'gateway prompt sends filtered planner tools, not the whole registry')
+require_contains(functions_index, 'function shouldEnableWebSearch(message, body = {})', 'gateway conditionally enables OpenAI web search')
+require_contains(functions_index, 'webSearchEnabled: openAiTools.length > 0', 'gateway logs whether web search was enabled')
+require_contains(functions_index, "const reasoningEffort = 'low'", 'normal agentToolTurn uses low reasoning by default')
+require_contains(functions_index, 'reasoning: {effort: reasoningEffort}', 'normal agentToolTurn passes the logged low reasoning effort')
+require_contains(functions_index, 'input: promptText', 'legacy Firebase askOpenAI uses the assembled prompt text')
+require_contains(functions_index, "reasoning: {effort: 'low'}", 'legacy Firebase askOpenAI uses low reasoning')
+require_contains(functions_index, 'transcriptChars: transcript.length', 'gateway logs transcript size for cost telemetry')
+require_contains(functions_index, 'summaryChars: summary.length', 'gateway logs summary size for cost telemetry')
+require_contains(openai_client, 'body.put("reasoning", new JSONObject().put("effort", "low"))', 'Android direct fallback uses low reasoning')
+require_contains(openai_client, 'private boolean shouldEnableDirectWebSearch(String message)', 'Android direct fallback gates web search by request')
+require_contains(openai_client, 'if (shouldEnableDirectWebSearch(message))', 'Android direct fallback only enables web_search when needed')
+require_absent(method_body(functions_index, 'async function askOpenAIToolTurn(body)', 'exports.health'), "tools: [{type: 'web_search'}]", 'agentToolTurn must not always enable OpenAI web_search')
 require_absent(local_log, 'MediaStore', 'LocalLog must not block startup with public MediaStore writes')
 require_absent(local_log, 'ContentResolver', 'LocalLog must not query content providers on the UI-thread log path')
 require_contains(local_log, 'writePrivateFallback(line);', 'LocalLog writes to private app storage only')
@@ -214,7 +238,8 @@ require_contains(functions_index, 'GITHUB_TOKEN', 'Gateway uses server-side GitH
 require_contains(functions_index, 'githubCreateIssue', 'Gateway exposes GitHub issue endpoint')
 require_contains(functions_index, 'Feedback/report rule:', 'Gateway planner has feedback report rules')
 require_contains(functions_index, 'only use github.create_issue when the latest user request explicitly asks', 'Gateway report flow is gated by latest explicit report intent')
-require_contains(functions_index, 'Evidence context JSON', 'Gateway planner receives evidence context')
+require_contains(functions_index, 'function shouldIncludeEvidenceContext(message, body = {}, pending = null, toolResults = [])', 'Gateway planner gates evidence context by need')
+require_contains(functions_index, 'includeEvidenceContext ? `Evidence context JSON', 'Gateway planner only sends evidence context when needed')
 require_contains(functions_index, 'Create GitHub Issue', 'GitHub issue confirmation title is human-readable')
 require_contains(functions_index, 'This will include the last few chat messages and app context.', 'GitHub issue confirmation summarizes evidence capture')
 require_contains(functions_index, 'function findBalancedJsonObject(text)', 'Gateway recovers a tool-call JSON object when model adds prose')
@@ -332,6 +357,9 @@ require_absent(openai_client, 'google:drive_docs_sheets_gmail_calendar"', 'legac
 require_absent(openai_client, '.put("name", "drive.search")', 'OpenAI client must not hardcode advertised tools')
 
 require_contains(functions_index, 'HOME_CENTER_DOCTRINE_STEERING', 'gateway defines Home Center doctrine steering')
+require_contains(functions_index, 'function shouldIncludeFullDoctrine(message, body = {})', 'gateway gates full doctrine steering by request type')
+require_contains(functions_index, 'includeFullDoctrine ? HOME_CENTER_DOCTRINE_STEERING', 'gateway does not inject full doctrine into every normal turn')
+require_contains(functions_index, 'Doctrine summary: Home Center reasons with GPT', 'gateway has short doctrine fallback for economy mode')
 require_contains(functions_index, 'Home Center doctrine: Home Center is a life-operations system', 'gateway prompt includes doctrine steering')
 require_contains(functions_index, 'the model reasons, the app executes, the storage layer remembers', 'gateway prompt includes execution doctrine')
 require_contains(functions_index, 'Android owns capabilities and permissions; GPT owns judgment', 'gateway prompt keeps app as hands and GPT as planner')
@@ -463,7 +491,7 @@ for case in reference_flow_contracts:
     for expected in case['source_expectations']:
         if expected not in functions_index and expected not in main_activity and expected not in drive_client:
             fail(f"working-memory flow '{case['input']}' is missing source expectation {expected}")
-require_contains(functions_index, 'buildToolTrace(body, tools, parsed, toolName, tool, true)', 'gateway traces confirmation-required tool calls')
+require_contains(functions_index, 'buildToolTrace(body, plannerTools, parsed, toolName, tool, true)', 'gateway traces confirmation-required tool calls against planner palette')
 require_contains(functions_index, 'docsCreateAdvertised', 'gateway trace records docs.create advertisement')
 require_contains(functions_index, 'docsCreateWasRequested', 'gateway trace records docs.create request')
 require_contains(functions_index, 'parsedPlannerJson', 'gateway trace records parsed planner JSON')
@@ -476,8 +504,9 @@ require_contains(functions_index, 'const failures = entries', 'tool evidence dig
 require_contains(functions_index, 'compactTextWithHeadings(result.text)', 'docs.read text is compacted before planner prompt transport')
 require_contains(functions_index, 'originalCharCount: normalized.length', 'compacted docs preserve original character count')
 require_contains(functions_index, 'truncated: normalized.length > maxChars', 'compacted docs mark truncation explicitly')
-require_contains(functions_index, 'Tool evidence digest JSON: ${JSON.stringify(toolEvidenceDigest)', 'gateway sends tool evidence digest to planner')
-require_contains(functions_index, 'Tool results JSON retained only for compatibility; use Tool evidence digest first', 'gateway makes digest primary over raw tool results')
+require_contains(functions_index, 'const includeToolDigest = toolResults.length > 0', 'gateway only sends tool digest when tool results exist')
+require_contains(functions_index, 'includeToolDigest ? `Tool evidence digest JSON', 'gateway gates tool evidence digest prompt section')
+require_absent(functions_index, 'Tool results JSON retained only for compatibility; use Tool evidence digest first', 'gateway removed compatibility raw tool results prompt section')
 require_contains(functions_index, 'function shouldUseEvidenceFinalizer(body, toolResults)', 'gateway has evidence finalizer trigger after successful context reads')
 require_contains(functions_index, 'askOpenAIEvidenceFinalizer(body, turnKernel, toolEvidenceDigest)', 'gateway finalizes active tasks from accumulated evidence')
 require_contains(functions_index, 'Available tools JSON: []', 'evidence finalizer withholds tools')
@@ -485,13 +514,15 @@ require_contains(functions_index, 'Answer the active task from Tool evidence dig
 require_contains(functions_index, 'evidenceFinalizerApplied: true', 'gateway traces evidence finalizer application')
 require_contains(functions_index, 'latestSuccessfulToolResult(toolResults)', 'gateway detects latest successful context tool result')
 require_contains(functions_index, "['docs.read', 'knowledge.read', 'web.search'].includes(latestTool)", 'evidence finalizer only triggers after content-bearing evidence')
+require_contains(functions_index, 'return isCreativeWritingRequest(message) && !isExplicitNonCreativeToolRequest(message)', 'creative requests finalize after context reads even without activeTask')
+require_contains(functions_index, '|| safeText(body && body.message, 4000)', 'evidence finalizer falls back to latest user request as objective')
 require_contains(functions_index, 'Holocron/resync recovery rule: when recovering lost conversation, Drive brain, or Holocron context', 'planner prompt handles Holocron resync as recovery task')
 require_contains(functions_index, 'do not stop after partial Google Docs reads', 'planner prompt forbids partial-read stopping in Holocron recovery')
 require_absent(functions_index, 'body.toolResults.slice(0, 8)', 'gateway must not keep only the first eight tool results')
 require_absent(functions_index, 'Tool results JSON: ${JSON.stringify(toolResults).slice(0, 16000)}', 'gateway must not raw-truncate accumulated tool results at 16k')
 require_contains(main_activity, 'finishFromToolResultsAfterLimit(idToken, clean, toolResults)', 'Android recovers from tool loop limit through GPT final answer pass')
 require_contains(main_activity, 'tool_loop_limit_recovery_start', 'Android logs tool loop recovery start')
-require_contains(main_activity, 'MAX_AGENT_TOOL_STEPS = 16', 'Android tool loop allows red-build multi-step journeys')
+require_contains(main_activity, 'MAX_AGENT_TOOL_STEPS = 3', 'Android tool loop is capped for economy mode')
 require_absent(main_activity, 'step < 6', 'Android tool loop must not stop after six tool calls')
 require_contains(main_activity, 'containsForbiddenToolPlanPhrase(reply)', 'Android blocks forbidden convergence phrase from recovery replies')
 require_contains(main_activity, 'synthesizeToolLoopProgressReply(toolResults)', 'Android synthesizes concrete progress report on tool-loop exhaustion')
@@ -528,7 +559,7 @@ require_absent(chat_system_shape, 'private static String suggestedNextSteps', 'a
 red_build_tool_loop_contract = {
     'input': "Run a red-build self-test. Read my Home Center Live items list. Add this item to Shipyard. Find June's Holocron. Find my Reading Log. Find Final and Vacation of a Lifetime Story Bible. If anything fails, do not say tool plan did not converge.",
     'source_expectations': [
-        'MAX_AGENT_TOOL_STEPS = 16',
+        'MAX_AGENT_TOOL_STEPS = 3',
         'containsForbiddenToolPlanPhrase(reply)',
         'synthesizeToolLoopProgressReply(toolResults)',
         'Succeeded before it:',
@@ -547,7 +578,7 @@ holocron_resync_contract = {
     'source_expectations': [
         'function compactToolEvidence(toolResults)',
         'const latest = entries.slice(-10).map(compactToolResultForPrompt)',
-        'Tool evidence digest JSON: ${JSON.stringify(toolEvidenceDigest)',
+        'includeToolDigest ? `Tool evidence digest JSON',
         'Holocron/resync recovery rule: when recovering lost conversation, Drive brain, or Holocron context',
         'do not stop after partial Google Docs reads',
         'truncated: normalized.length > maxChars',
@@ -652,10 +683,16 @@ require_contains(functions_index, 'If context is thin, write a short grounded dr
 require_absent(functions_index, 'creativeDirectApplied', 'gateway must not bypass canon gathering with creative direct shortcut')
 require_contains(functions_index, 'Set narration to the same text as reply', 'gateway prompt forbids mismatched TTS narration')
 require_contains(functions_index, 'narration: finalReply ||', 'gateway returns normalized final reply text as narration for installed APK compatibility')
-require_contains(functions_index, 'toolByName(tools, toolName)', 'gateway rejects unadvertised tool calls')
-require_contains(functions_index, 'function finalReplyText(parsed, rawText = \'\')', 'gateway normalizes final answer JSON shapes')
+require_contains(functions_index, 'toolByName(plannerTools, toolName)', 'gateway rejects unadvertised planner tool calls')
+require_contains(functions_index, 'function finalReplyText(parsed, rawText = \'\', depth = 0)', 'gateway normalizes final answer JSON shapes')
 for final_alias in ['parsed.answer', 'parsed.message', 'parsed.content', 'parsed.final', 'parsed.finalAnswer', 'parsed.final_response', 'parsed.response']:
     require_contains(functions_index, final_alias, f'gateway accepts final reply alias {final_alias}')
+require_contains(functions_index, 'return extractJsonObject(nested)', 'gateway unwraps double-encoded planner JSON before falling back to visible text')
+require_contains(functions_index, 'const nestedReply = finalReplyText(nested, \'\', depth + 1)', 'gateway unwraps nested JSON final replies before display or narration')
+require_contains(functions_index, 'function salvageTruncatedFinalJsonObject(text)', 'gateway salvages truncated final JSON replies from long creative responses')
+require_contains(functions_index, 'if (!raw.includes(\'"type"\') || !raw.includes(\'"final"\') || !raw.includes(\'"reply"\')) return null;', 'truncated JSON salvage only applies to final replies, not tool calls')
+require_contains(functions_index, 'narration: finalReplyText({reply: parsed.narration}, \'\', 0) || reply', 'gateway normalizes nested JSON narration before TTS')
+require_contains(turn_contract_smoke, "status: 'evidence_finalized'", 'live turn-contract smoke rejects parser-error finals for evidence finalizer cases')
 require_contains(functions_index, 'const finalReply = finalReplyText(parsed, text)', 'agentToolTurn uses normalized final reply text')
 require_absent(functions_index, "reply: safeText(parsed.reply || parsed.text, 12000) || 'I did not get a useful GPT-5.5 response.'", 'agentToolTurn must not emit useless valid-response fallback for alternate final JSON fields')
 require_contains(functions_index, 'tool.confirmationRequired && !messageConfirms(message)', 'gateway enforces confirmation outside prompt prose')
@@ -675,10 +712,13 @@ require_contains(functions_index, 'confirm_pending_doc_create', 'turn-contract s
 require_contains(functions_index, 'cancel_pending_doc_create', 'turn-contract smoke covers explicit pending cancellation')
 require_contains(functions_index, 'correction_is_not_cancel', 'turn-contract smoke covers correction text that must not cancel new work')
 require_contains(functions_index, 'creative_docs_read_finalizer', 'turn-contract smoke covers creative finalization after docs.read')
+require_contains(functions_index, 'creative_docs_read_finalizer_without_active_task', 'turn-contract smoke covers issue 41 docs.read finalization without activeTask')
 require_contains(turn_contract_smoke, 'external_issue39_docs_read_finalizer', 'turn-contract runner covers issue 39 docs.read finalization')
 require_contains(turn_contract_smoke, 'external_issue40_docs_read_finalizer_from_beginning', 'turn-contract runner covers issue 40 from-beginning docs.read finalization')
+require_contains(turn_contract_smoke, 'external_issue41_docs_read_finalizer_without_active_task', 'turn-contract runner covers issue 41 docs.read finalization without activeTask')
 require_contains(turn_contract_smoke, 'Now show how he wins. Simulated. But forgone. Not clean. Not easy.', 'turn-contract runner includes exact issue 39 prompt')
 require_contains(turn_contract_smoke, 'Lexen vigil. Green commander doc. Now show how he wins. Simulated. But forgone. Not clean. Not easy. Against first panzer. From the beginning', 'turn-contract runner includes exact issue 40 prompt')
+require_contains(turn_contract_smoke, 'Pick it up at an arbitrary point that interests you', 'turn-contract runner includes exact issue 41 prompt')
 issue_38_stale_confirmation_contract = {
     'inputs': [
         'That was a request for a chapter with doctrine in mind, not a doctrine update',

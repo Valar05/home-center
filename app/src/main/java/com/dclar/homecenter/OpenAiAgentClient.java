@@ -172,11 +172,13 @@ final class OpenAiAgentClient {
         JSONObject body = new JSONObject();
         try {
             body.put("model", "gpt-5.5");
-            body.put("reasoning", new JSONObject().put("effort", "medium"));
+            body.put("reasoning", new JSONObject().put("effort", "low"));
             body.put("text", new JSONObject().put("verbosity", "low"));
-            JSONArray tools = new JSONArray();
-            tools.put(new JSONObject().put("type", "web_search"));
-            body.put("tools", tools);
+            if (shouldEnableDirectWebSearch(message)) {
+                JSONArray tools = new JSONArray();
+                tools.put(new JSONObject().put("type", "web_search"));
+                body.put("tools", tools);
+            }
             body.put("input", buildDirectPrompt(message, transcript, summary, bucket, listName));
         } catch (JSONException ex) {
             throw new IOException("Could not build direct OpenAI request: " + ex.getMessage(), ex);
@@ -228,6 +230,11 @@ final class OpenAiAgentClient {
         }
         prompt.append("Latest user request: ").append(message == null ? "" : message.trim());
         return prompt.toString();
+    }
+
+    private boolean shouldEnableDirectWebSearch(String message) {
+        String lower = message == null ? "" : message.trim().toLowerCase();
+        return lower.matches(".*\\b(web|search the web|internet|online|latest|current|today|news|public github|github\\.com|raw\\.githubusercontent\\.com|repo|repository|readme|documentation|docs site|website|url|http://|https://)\\b.*");
     }
 
     private String extractOutputText(JSONObject json) {

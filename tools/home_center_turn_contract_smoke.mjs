@@ -9,12 +9,14 @@ const GATEWAY_BASE = process.env.HOME_CENTER_GATEWAY_BASE || 'https://us-central
 const TURN_CONTRACT_URL = process.env.HOME_CENTER_TURN_CONTRACT_URL || 'https://turncontractsmoke-vxybsaualq-uc.a.run.app';
 
 function parseArgs(argv) {
-  const args = {runId: new Date().toISOString().replace(/[-:TZ.]/g, '').slice(0, 14)};
+  const args = {runId: new Date().toISOString().replace(/[-:TZ.]/g, '').slice(0, 14), issueOnly: false, caseName: ''};
   for (let i = 2; i < argv.length; i++) {
     const value = argv[i];
     if (value === '--run-id') args.runId = argv[++i] || args.runId;
+    else if (value === '--issue-only') args.issueOnly = true;
+    else if (value === '--case') args.caseName = argv[++i] || '';
     else if (value === '--help') {
-      console.log('Usage: node tools/home_center_turn_contract_smoke.mjs [--run-id ID]');
+      console.log('Usage: node tools/home_center_turn_contract_smoke.mjs [--run-id ID] [--issue-only] [--case CASE_NAME]');
       process.exit(0);
     }
   }
@@ -73,6 +75,7 @@ function issueCases() {
   const panzerPrompt = 'Simulate a new chapter with perfect adherence to simulation doctrine.  Lexen.  On Normandy.  In a tank.  When a panzer is spotted.';
   const issue39Prompt = 'Now show how he wins. Simulated. But forgone. Not clean. Not easy.';
   const issue40Prompt = 'Lexen vigil. Green commander doc. Now show how he wins. Simulated. But forgone. Not clean. Not easy. Against first panzer. From the beginning';
+  const issue41Prompt = 'Now it\'s your turn. Don\'t continue the story. Pick it up at an arbitrary point that interests you. And make a simulated chapter here';
   const issue39Doc = [
     'Doctrine Updates and Saved Simulation.',
     'Lexen wins against the first panzer only by accepting that the fight is already shaped before the shot.',
@@ -125,8 +128,9 @@ function issueCases() {
       },
       expected: {
         type: 'final',
+        status: 'evidence_finalized',
         requiredTerms: ['Lexen', 'panzer'],
-        forbidden: ['docs.read', 'github.create_issue', 'I found', 'I read', 'confirmation_required'],
+        forbidden: ['docs.read', 'github.create_issue', 'I found', 'I read', 'confirmation_required', 'planner_json_error'],
       },
     },
     {
@@ -145,8 +149,31 @@ function issueCases() {
       },
       expected: {
         type: 'final',
+        status: 'evidence_finalized',
         requiredTerms: ['Lexen', 'panzer'],
-        forbidden: ['docs.read', 'github.create_issue', 'I found', 'I read', 'confirmation_required'],
+        forbidden: ['docs.read', 'github.create_issue', 'I found', 'I read', 'confirmation_required', 'planner_json_error'],
+      },
+    },
+    {
+      name: 'external_issue41_docs_read_finalizer_without_active_task',
+      body: {
+        message: issue41Prompt,
+        toolResults: [lexenDocResult([
+          'Doctrine Updates and Saved Simulation.',
+          'Lexen style critique has to be source-grounded, not inferred from a fragment or doctrine summary.',
+          'The desired writing stays embodied: specific damage, crew behavior, vehicle constraints, shame, fatigue, ritual, silence, small practical choices.',
+          'The doctrine should emerge from pressure, not be announced in polished thematic lines.',
+          'Lexen remains afraid and becomes usable anyway.',
+        ].join('\n'))],
+        workingMemory: {
+          lastDocument: {fileId: 'lexen-green-doc', name: 'Lexen Green Commander Doctrine Updates and Simulation'},
+        },
+      },
+      expected: {
+        type: 'final',
+        status: 'evidence_finalized',
+        requiredTerms: ['Lexen'],
+        forbidden: ['docs.read', 'github.create_issue', 'I found', 'I read', 'confirmation_required', 'need more context', 'planner_json_error'],
       },
     },
   ];
@@ -194,12 +221,16 @@ async function main() {
   firebaseApiKey();
   const url = TURN_CONTRACT_URL || `${GATEWAY_BASE}/turnContractSmoke`;
   const issueResults = [];
-  for (const testCase of issueCases()) {
+  const selectedCases = issueCases().filter((testCase) => !args.caseName || testCase.name === args.caseName);
+  if (args.caseName && selectedCases.length === 0) throw new Error(`Unknown issue case: ${args.caseName}`);
+  for (const testCase of selectedCases) {
     const caseRunId = `${args.runId}-${testCase.name}`.replace(/[^a-zA-Z0-9_.-]/g, '_').slice(0, 160);
     const caseResult = await postJson(url, {runId: caseRunId, cases: [testCase], skipDefaults: true}, accessToken, `turnContractSmoke:${testCase.name}`);
     issueResults.push(caseResult);
   }
-  const defaultResult = await postJson(url, {runId: `${args.runId}-defaults`}, accessToken, 'turnContractSmoke:defaults');
+  const defaultResult = args.issueOnly
+    ? {ok: true, skippedDefaults: true, cases: []}
+    : await postJson(url, {runId: `${args.runId}-defaults`}, accessToken, 'turnContractSmoke:defaults');
   const result = {
     ok: issueResults.every((entry) => entry && entry.ok) && !!(defaultResult && defaultResult.ok),
     issueResults,

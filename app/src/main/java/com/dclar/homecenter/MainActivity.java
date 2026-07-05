@@ -103,7 +103,7 @@ public final class MainActivity extends Activity implements RecognitionListener,
     private static final int REQUEST_CART_REVIEW_IMPORT = 3001;
     private static final int REQUEST_DRIVE_AUTH = 4001;
     private static final int REQUEST_FILE_ATTACH = 5001;
-    private static final int MAX_AGENT_TOOL_STEPS = 16;
+    private static final int MAX_AGENT_TOOL_STEPS = 3;
     private static final int MAX_ATTACHMENT_PREVIEW_CHARS = 20000;
     private static final int MAX_IMAGE_ATTACHMENT_BYTES = 8 * 1024 * 1024;
     private static final String WALMART_PACKAGE = "com.walmart.android";
@@ -959,7 +959,94 @@ public final class MainActivity extends Activity implements RecognitionListener,
         chatTurns.add(new ChatTurn("user", clean));
         trimChatTurns();
         recordTranscriptTurn("user", clean);
+        if (tryHandleLocalCommand(clean)) {
+            return;
+        }
         sendAgentTurn(clean);
+    }
+
+    private boolean tryHandleLocalCommand(String raw) {
+        Command command = CommandParser.parse(raw);
+        if (command == null || Command.UNKNOWN.equals(command.action)) {
+            return false;
+        }
+        if (!isSafeLocalCommand(command, raw)) {
+            LocalLog.info("ai_cost", "local_command_passthrough action=" + command.action);
+            return false;
+        }
+        LocalLog.info("ai_cost", "local_command_bypass action=" + command.action + " openaiCalls=0");
+        rememberAgentTrace("local_command_bypass", -1, raw, "openai_calls_0", command.action);
+        switch (command.action) {
+            case Command.ADD_LIST_ITEM:
+                addListItem(command);
+                return true;
+            case Command.READ_LIST:
+                readList(command.listName);
+                return true;
+            case Command.NEXT_ITEM:
+                speakNextItem();
+                return true;
+            case Command.PREVIOUS_ITEM:
+                speakPreviousItem();
+                return true;
+            case Command.MARK_DONE:
+                markCurrentDone();
+                return true;
+            case Command.REMOVE_LIST_ITEM:
+                removeListItem(command);
+                return true;
+            case Command.CREATE_LIST:
+                createList(command);
+                return true;
+            case Command.SET_PREFERENCE:
+                savePreference(command);
+                return true;
+            case Command.SET_STORE_TARGET:
+                saveStoreTarget(command);
+                return true;
+            case Command.READ_PREFERENCES:
+                readGroceryPreferences(command.listName);
+                return true;
+            case Command.BUILD_CART:
+                buildWalmartCartDraft(command.listName);
+                return true;
+            case Command.SET_HOTSPOT:
+                showAssistantMessage("Hotspot control is not available from Home Center yet.");
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    private boolean isSafeLocalCommand(Command command, String raw) {
+        String lower = raw == null ? "" : raw.toLowerCase(Locale.US);
+        String listName = command.listName == null ? "" : command.listName.toLowerCase(Locale.US);
+        boolean namesList = lower.contains(" list")
+                || lower.contains("shopping")
+                || lower.contains("grocery")
+                || lower.contains("groceries")
+                || lower.contains("walmart")
+                || "shopping".equals(listName)
+                || "grocery".equals(listName)
+                || "groceries".equals(listName);
+        switch (command.action) {
+            case Command.NEXT_ITEM:
+            case Command.PREVIOUS_ITEM:
+            case Command.MARK_DONE:
+            case Command.CREATE_LIST:
+            case Command.SET_PREFERENCE:
+            case Command.SET_STORE_TARGET:
+            case Command.READ_PREFERENCES:
+            case Command.BUILD_CART:
+            case Command.SET_HOTSPOT:
+                return true;
+            case Command.ADD_LIST_ITEM:
+            case Command.READ_LIST:
+            case Command.REMOVE_LIST_ITEM:
+                return namesList;
+            default:
+                return false;
+        }
     }
 
 
@@ -1028,10 +1115,13 @@ public final class MainActivity extends Activity implements RecognitionListener,
         JSONArray toolResults = new JSONArray();
         try {
             OpenAiAgentClient.ToolTurn turn = null;
+            int openAiCalls = 0;
             for (int step = 0; step < MAX_AGENT_TOOL_STEPS; step++) {
                 GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(this);
                 JSONArray availableTools = ToolRegistry.availableTools(account, hasSignedInHomeUser());
                 JSONArray unavailableGroups = ToolRegistry.unavailableToolGroups(account, hasSignedInHomeUser());
+                openAiCalls++;
+                LocalLog.info("ai_cost", "openai_call step=" + step + " callsThisTurn=" + openAiCalls + " toolResults=" + toolResults.length() + " availableTools=" + availableTools.length());
                 LocalLog.info("agent_trace", "step=" + step + " availableTools=" + shortMessage(availableTools.toString()));
                 rememberAgentTrace("gateway_request_started", step, clean, "", "");
                 turn = openAiAgentClient.sendToolTurn(
@@ -1072,6 +1162,12 @@ public final class MainActivity extends Activity implements RecognitionListener,
                             .put("name", turn.toolName)
                             .put("arguments", turn.arguments)
                             .put("result", result));
+                    if (shouldFinishAfterToolResult(turn.toolName, result)) {
+                        String directReply = directToolResultReply(turn.toolName, result);
+                        LocalLog.info("ai_cost", "direct_tool_finish tool=" + turn.toolName + " openaiCalls=" + openAiCalls);
+                        finishAgentReply(clean, directReply, directReply, result.optString("status", "tool_completed"), null);
+                        return;
+                    }
                     continue;
                 }
                 JSONObject pendingForUi = null;
@@ -1085,6 +1181,7 @@ public final class MainActivity extends Activity implements RecognitionListener,
                 return;
             }
             pendingToolConfirmation = null;
+            LocalLog.info("ai_cost", "tool_loop_limit_recovery openaiCallsBeforeRecovery=" + openAiCalls);
             finishFromToolResultsAfterLimit(idToken, clean, toolResults);
         } catch (Exception ex) {
             main.post(() -> {
@@ -1193,6 +1290,75 @@ public final class MainActivity extends Activity implements RecognitionListener,
             return toolName + " (" + status + ")";
         }
         return toolName;
+    }
+
+    private boolean shouldFinishAfterToolResult(String toolName, JSONObject result) {
+        if (toolName == null || result == null || !result.optBoolean("ok", false)) {
+            return false;
+        }
+        if ("docs.read".equals(toolName)
+                || "docs.search".equals(toolName)
+                || "drive.search".equals(toolName)
+                || "sheets.read".equals(toolName)
+                || "gmail.read".equals(toolName)
+                || "calendar.search".equals(toolName)
+                || "contacts.search".equals(toolName)
+                || "contacts.read".equals(toolName)
+                || "knowledge.read".equals(toolName)) {
+            return false;
+        }
+        return toolName.startsWith("docs.")
+                || toolName.startsWith("drive.")
+                || toolName.startsWith("sheets.")
+                || toolName.startsWith("gmail.")
+                || toolName.startsWith("calendar.")
+                || toolName.startsWith("lists.")
+                || toolName.startsWith("knowledge.")
+                || "github.create_issue".equals(toolName);
+    }
+
+    private String directToolResultReply(String toolName, JSONObject result) {
+        if (result == null) {
+            return "Done.";
+        }
+        String spoken = result.optString("spokenMessage", "").trim();
+        if (!spoken.isEmpty()) {
+            return spoken;
+        }
+        String reply = result.optString("reply", "").trim();
+        if (!reply.isEmpty()) {
+            return reply;
+        }
+        String title = firstNonEmpty(
+                result.optString("title", ""),
+                result.optString("name", ""),
+                result.optString("summary", ""),
+                "");
+        JSONObject file = result.optJSONObject("file");
+        if (title.isEmpty() && file != null) {
+            title = file.optString("name", "").trim();
+        }
+        String link = firstNonEmpty(
+                result.optString("webViewLink", ""),
+                result.optString("htmlLink", ""),
+                file == null ? "" : file.optString("webViewLink", ""),
+                "");
+        String status = result.optString("status", "").trim();
+        String action = status.isEmpty() ? toolName : status.replace('_', ' ');
+        if (toolName != null && toolName.startsWith("docs.create")) {
+            return link.isEmpty()
+                    ? "Created Google Doc: " + (title.isEmpty() ? "Untitled" : title)
+                    : "Created Google Doc: " + (title.isEmpty() ? "Untitled" : title) + "\n" + link;
+        }
+        if (!title.isEmpty()) {
+            return link.isEmpty()
+                    ? "Done: " + title + "."
+                    : "Done: " + title + "\n" + link;
+        }
+        if (!action.isEmpty()) {
+            return "Done: " + action + ".";
+        }
+        return "Done.";
     }
 
     private String firstNonEmpty(String first, String second, String third, String fallback) {

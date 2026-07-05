@@ -90,6 +90,85 @@ function safeText(value, max = 12000) {
   return text.length > max ? text.slice(0, max) : text;
 }
 
+function shouldEnableWebSearch(message, body = {}) {
+  if (body && body.forceWebSearch === true) return true;
+  const text = safeText(message, 4000).toLowerCase();
+  return /\b(web|search the web|internet|online|latest|current|today|news|public github|github\.com|raw\.githubusercontent\.com|repo|repository|readme|documentation|docs site|website|url|http:\/\/|https:\/\/)\b/.test(text);
+}
+
+function economyToolPalette(message, tools, workingMemory = {}, toolResults = []) {
+  if (!Array.isArray(tools) || tools.length === 0) return [];
+  const text = safeText(message, 4000).toLowerCase();
+  const groups = new Set();
+  const add = (group) => groups.add(group);
+  const has = (pattern) => pattern.test(text);
+
+  if (has(/\b(report|file an issue|save this bug|feedback|send this to github|this is broken|that was wrong|bug)\b/)) add('github');
+  if (has(/\b(doc|document|google doc|drive|file|folder|upload|attach|attachment|writing folder|read the first sentence|append|replace the body|open)\b/)) {
+    add('drive');
+    add('docs');
+  }
+  if (has(/\b(sheet|spreadsheet|cell|range|tab)\b/)) {
+    add('drive');
+    add('sheets');
+  }
+  if (has(/\b(email|mail|gmail|draft|send|inbox|message)\b/)) {
+    add('gmail');
+    add('contacts');
+  }
+  if (has(/\b(calendar|event|meeting|appointment|reminder|rsvp|invite|attendee|attendees|minutes from now|hours from now|tomorrow|next week)\b/)) {
+    add('calendar');
+    add('contacts');
+  }
+  if (has(/\b(contact|contacts|phone number|email address)\b/)) add('contacts');
+  if (has(/\b(list|shopping|grocery|groceries|cart|walmart|preference|sku|done|cross off|mark done)\b/)) add('lists');
+  if (has(/\b(remember|save this|make durable|workflow|workaround|skill|skills\.md|agents\.md|memory\.md|doctrine|stored memory|knowledge)\b/)) add('knowledge');
+  if (has(/\b(write|draft|compose|continue|narrate|expand|generate|tell|simulate|scene|story|chapter|prose|dialogue)\b/)) {
+    add('docs');
+    add('knowledge');
+  }
+  if (workingMemory && typeof workingMemory === 'object') {
+    if (workingMemory.lastDocument || workingMemory.rememberedWritingContext) {
+      add('docs');
+      add('knowledge');
+    }
+    if (workingMemory.lastCalendarEvent) add('calendar');
+    if (workingMemory.lastEmailDraft) add('gmail');
+    if (Array.isArray(workingMemory.attachedFiles) && workingMemory.attachedFiles.length) {
+      add('drive');
+      add('docs');
+    }
+  }
+  if (Array.isArray(toolResults) && toolResults.length) {
+    const latest = toolResults[toolResults.length - 1] || {};
+    const name = safeText(latest.name, 120);
+    if (name.includes('.')) add(name.split('.')[0]);
+  }
+  if (groups.size === 0) return [];
+  return tools.filter((tool) => tool && groups.has(tool.group));
+}
+
+function shouldIncludeFullDoctrine(message, body = {}) {
+  const text = safeText(message, 4000).toLowerCase();
+  if (body && body.forceFullDoctrine === true) return true;
+  return /\b(doctrine|agent behavior|steering|instructions|memory\.md|agents\.md|skills\.md|debug|diagnostic|report|feedback|bug|issue|why did|what happened)\b/.test(text);
+}
+
+function shouldIncludeEvidenceContext(message, body = {}, pending = null, toolResults = []) {
+  const text = safeText(message, 4000).toLowerCase();
+  if (body && body.forceEvidenceContext === true) return true;
+  if (pending) return true;
+  if (/\b(report|file an issue|save this bug|feedback|send this to github|this is broken|that was wrong|debug|diagnostic|what happened|why did)\b/.test(text)) return true;
+  return Array.isArray(toolResults) && toolResults.some((entry) => {
+    const result = entry && typeof entry === 'object' ? entry.result : null;
+    return result && result.ok === false;
+  });
+}
+
+function compactPromptText(value, max) {
+  return safeText(value, max);
+}
+
 function errorCategoryFrom(value) {
   const text = String(value || '').toLowerCase();
   if (text.includes('timeout') || text.includes('timed out') || text.includes('deadline')) return 'timeout';
@@ -221,13 +300,14 @@ async function createGoogleDoc(uid, message) {
 
 async function askOpenAI(uid, body) {
   const message = safeText(body.message, 4000);
-  const summary = safeText(body.summary, 4000);
-  const transcript = safeText(body.transcript, 8000);
+  const summary = compactPromptText(body.summary, 1200);
+  const transcript = compactPromptText(body.transcript, 2000);
   const bucket = safeText(body.bucket, 120);
   const listName = safeText(body.listName, 120) || 'shopping';
+  const includeFullDoctrine = shouldIncludeFullDoctrine(message, body);
   const promptText = [
     'You are Home Center, a cohesive voice-first life dashboard for a blind user.',
-    HOME_CENTER_DOCTRINE_STEERING,
+    includeFullDoctrine ? HOME_CENTER_DOCTRINE_STEERING : 'Doctrine summary: Home Center reasons with GPT, executes through app-owned tools, hides plumbing, and asks for confirmation before external writes.',
     'Use concise, actionable language. Prefer direct next actions over generic offers.',
     'Capabilities available through this app when configured: OpenAI GPT-5.5, hosted web search, full Google Drive plus Docs/Sheets/Gmail/Calendar/Contacts through server-side tokens, Home Center Firestore lists, TickTick fallback lists, and Cartesia narration. Do not claim Google Drive access unless a Google Drive probe confirms it.',
     'For external writes such as Google Docs, Gmail drafts/sends, Calendar creates, or list changes, ask for explicit confirmation unless the user already phrased the command with confirm.',
@@ -237,6 +317,7 @@ async function askOpenAI(uid, body) {
     transcript ? `Recent transcript: ${transcript}` : '',
     `Latest user request: ${message}`,
   ].filter(Boolean).join('\n\n');
+  const openAiTools = shouldEnableWebSearch(message, body) ? [{type: 'web_search'}] : [];
 
   const response = await fetch('https://api.openai.com/v1/responses', {
     method: 'POST',
@@ -244,13 +325,12 @@ async function askOpenAI(uid, body) {
       'Authorization': `Bearer ${OPENAI_API_KEY.value()}`,
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({
+    body: JSON.stringify(Object.assign({
       model: 'gpt-5.5',
-      reasoning: {effort: 'medium'},
+      reasoning: {effort: 'low'},
       text: {verbosity: 'low'},
-      tools: [{type: 'web_search'}],
-      input,
-    }),
+      input: promptText,
+    }, openAiTools.length ? {tools: openAiTools} : {})),
   });
   const json = await response.json().catch(() => ({}));
   if (!response.ok) {
@@ -289,12 +369,73 @@ function extractJsonObject(text) {
         // Recover below when the model adds prose after a valid tool JSON object.
       }
     }
+    if (direct.startsWith('"') && direct.endsWith('"')) {
+      try {
+        const nested = JSON.parse(direct);
+        if (typeof nested === 'string' && nested.trim() && nested !== direct) {
+          return extractJsonObject(nested);
+        }
+      } catch (err) {
+        // Recover below when the model double-encodes JSON as a quoted string.
+      }
+    }
     const recovered = findBalancedJsonObject(candidate);
     if (recovered) {
       return JSON.parse(recovered);
     }
+    const salvaged = salvageTruncatedFinalJsonObject(candidate);
+    if (salvaged) return salvaged;
   }
   throw new Error(`Planner did not return JSON: ${raw.slice(0, 240)}`);
+}
+
+function jsonStringFragment(text, key) {
+  const raw = safeText(text, 20000);
+  const marker = `"${key}":"`;
+  const start = raw.indexOf(marker);
+  if (start < 0) return '';
+  let out = '';
+  let escaped = false;
+  for (let i = start + marker.length; i < raw.length; i += 1) {
+    const ch = raw[i];
+    if (escaped) {
+      if (ch === 'n') out += '\n';
+      else if (ch === 'r') out += '\r';
+      else if (ch === 't') out += '\t';
+      else if (ch === 'b') out += '\b';
+      else if (ch === 'f') out += '\f';
+      else if (ch === 'u' && /^[0-9a-fA-F]{4}$/.test(raw.slice(i + 1, i + 5))) {
+        out += String.fromCharCode(parseInt(raw.slice(i + 1, i + 5), 16));
+        i += 4;
+      } else {
+        out += ch;
+      }
+      escaped = false;
+      continue;
+    }
+    if (ch === '\\') {
+      escaped = true;
+      continue;
+    }
+    if (ch === '"') return out;
+    out += ch;
+  }
+  return out.trim() ? out : '';
+}
+
+function salvageTruncatedFinalJsonObject(text) {
+  const raw = safeText(text, 20000).trim();
+  if (!raw.includes('"type"') || !raw.includes('"final"') || !raw.includes('"reply"')) return null;
+  const reply = jsonStringFragment(raw, 'reply');
+  if (!reply.trim()) return null;
+  const narration = jsonStringFragment(raw, 'narration') || reply;
+  const status = jsonStringFragment(raw, 'status');
+  return {
+    type: 'final',
+    reply,
+    narration,
+    status: status && status !== 'planner_json_error' ? status : '',
+  };
 }
 
 function findBalancedJsonObject(text) {
@@ -705,15 +846,19 @@ function activeTaskIsUnfinished(body) {
 }
 
 function shouldUseEvidenceFinalizer(body, toolResults) {
-  if (!activeTaskIsUnfinished(body)) return false;
   const latest = latestSuccessfulToolResult(toolResults);
   const latestTool = safeText(latest && latest.name, 80);
-  return ['docs.read', 'knowledge.read', 'web.search'].includes(latestTool);
+  if (!['docs.read', 'knowledge.read', 'web.search'].includes(latestTool)) return false;
+  if (activeTaskIsUnfinished(body)) return true;
+  const message = safeText(body && body.message, 4000);
+  return isCreativeWritingRequest(message) && !isExplicitNonCreativeToolRequest(message);
 }
 
 function activeTaskObjective(body, fallbackMessage) {
   const task = activeTaskFromBody(body);
-  return safeText(task && (task.originalUserRequest || task.objective), 4000) || safeText(fallbackMessage, 4000);
+  return safeText(task && (task.originalUserRequest || task.objective), 4000)
+      || safeText(body && body.message, 4000)
+      || safeText(fallbackMessage, 4000);
 }
 
 async function runEvidenceFinalizerProvider(prompt, repair = false) {
@@ -793,7 +938,7 @@ async function askOpenAIEvidenceFinalizer(body, turnKernel, toolEvidenceDigest) 
   return attachTaskState({
     type: 'final',
     reply,
-    narration: safeText(parsed.narration, 12000) || reply,
+    narration: finalReplyText({reply: parsed.narration}, '', 0) || reply,
     status: safeText(parsed.status, 160) || 'evidence_finalized',
   }, Object.assign({taskStateUpdate: {status: 'complete', objective}}, parsed));
 }
@@ -1207,7 +1352,7 @@ async function validateCreativeFinal(body, draft) {
   }
 }
 
-function finalReplyText(parsed, rawText = '') {
+function finalReplyText(parsed, rawText = '', depth = 0) {
   if (!parsed || typeof parsed !== 'object') return safeText(rawText, 12000);
   const direct = parsed.reply
     || parsed.text
@@ -1219,7 +1364,19 @@ function finalReplyText(parsed, rawText = '') {
     || parsed.final_response
     || parsed.response
     || '';
-  if (typeof direct === 'string' && direct.trim()) return safeText(direct, 12000);
+  if (typeof direct === 'string' && direct.trim()) {
+    const clean = direct.trim();
+    if (depth < 2 && clean.startsWith('{') && clean.endsWith('}')) {
+      try {
+        const nested = JSON.parse(clean);
+        const nestedReply = finalReplyText(nested, '', depth + 1);
+        if (nestedReply) return nestedReply;
+      } catch (err) {
+        // Return the original text below if it only looks like JSON.
+      }
+    }
+    return safeText(direct, 12000);
+  }
   if (Array.isArray(parsed.content)) {
     const joined = parsed.content.map((item) => {
       if (typeof item === 'string') return item;
@@ -1463,8 +1620,8 @@ function openAiInputWithAttachments(promptText, attachmentImages) {
 
 async function askOpenAIToolTurn(body) {
   const message = safeText(body.message, 4000);
-  const summary = safeText(body.summary, 4000);
-  const transcript = safeText(body.transcript, 8000);
+  const summary = compactPromptText(body.summary, 1200);
+  const transcript = compactPromptText(body.transcript, 2000);
   const toolResults = Array.isArray(body.toolResults) ? body.toolResults : [];
   const toolEvidenceDigest = compactToolEvidence(toolResults);
   const tools = Array.isArray(body.tools) ? body.tools : [];
@@ -1523,9 +1680,28 @@ async function askOpenAIToolTurn(body) {
       latestSuccessfulTool: safeText(latestSuccessfulToolResult(toolResults) && latestSuccessfulToolResult(toolResults).name, 80),
     }));
   }
+  const plannerTools = economyToolPalette(message, tools, workingMemory, toolResults);
+  const openAiTools = shouldEnableWebSearch(message, body) ? [{type: 'web_search'}] : [];
+  const includeFullDoctrine = shouldIncludeFullDoctrine(message, body);
+  const includeEvidenceContext = shouldIncludeEvidenceContext(message, body, pending, toolResults);
+  const includeToolDigest = toolResults.length > 0;
+  const reasoningEffort = 'low';
+  console.info('ai_cost', JSON.stringify({
+    event: 'agent_tool_turn_palette',
+    advertisedTools: tools.length,
+    plannerTools: plannerTools.length,
+    webSearchEnabled: openAiTools.length > 0,
+    toolResults: toolResults.length,
+    doctrineFull: includeFullDoctrine,
+    evidenceContext: includeEvidenceContext,
+    toolDigest: includeToolDigest,
+    transcriptChars: transcript.length,
+    summaryChars: summary.length,
+    reasoningEffort,
+  }));
   const promptText = [
     'You are Home Center. You are the thinker. The Android app is only your hands.',
-    HOME_CENTER_DOCTRINE_STEERING,
+    includeFullDoctrine ? HOME_CENTER_DOCTRINE_STEERING : 'Doctrine summary: Home Center reasons with GPT, executes through app-owned tools, hides plumbing, and asks for confirmation before external writes.',
     'Return one strict JSON object and no prose outside JSON.',
     'If a needed capability appears in the available tools JSON, request that tool. Do not say you cannot do it.',
     'Working memory JSON contains recently created or selected entities. Inspect it before selecting a tool.',
@@ -1550,7 +1726,7 @@ async function askOpenAIToolTurn(body) {
     'Contacts rule: if the user names a person from contacts, call contacts.search with that name. Do not ask for an email address while contacts.search is available.',
     'Contacts plus Calendar rule: to add a named contact to an event, search contacts first, use the contact primaryEmail, resolve the target event from workingMemory or calendar.search/read, then call calendar.update_event with attendeesToAdd.',
     'Calendar display rule: in confirmations and final replies, use the event title/summary such as Home Center notification. Do not show eventId values unless the user explicitly asks for technical details.',
-    'Public web rule: you also have OpenAI web_search for public web pages, including public GitHub repositories. Use web_search for public GitHub repo questions, README discovery, file discovery, and public documentation lookup.',
+    openAiTools.length ? 'Public web rule: you also have OpenAI web_search for public web pages, including public GitHub repositories. Use web_search for public GitHub repo questions, README discovery, file discovery, and public documentation lookup.' : '',
     'Repository orientation rule: if the user names an owner/repo such as Valar05/tanks-for-the-memories, search the exact GitHub URL github.com/owner/repo and raw.githubusercontent.com/owner/repo before concluding it is unavailable.',
     'Repository orientation rule: unrelated same-title web results are not evidence that the target repo is unavailable. Say the lookup timed out, search was inconclusive, or direct URL is needed; do not cite unrelated pages as proof.',
     'Agent error-handling rule: when a task fails, distinguish source of problem: user input missing, provider/network timeout, permission/setup, tool contract/code issue, or uncertain. Include a workaround and say when to report/file an issue.',
@@ -1584,14 +1760,13 @@ async function askOpenAIToolTurn(body) {
     'Set narration to the same text as reply. The app must not speak a short alternate summary that differs from the visible answer.',
     summary ? `Conversation summary: ${summary}` : '',
     transcript ? `Recent transcript: ${transcript}` : '',
-    `Available tools JSON: ${JSON.stringify(tools).slice(0, 12000)}`,
+    `Available tools JSON: ${JSON.stringify(plannerTools).slice(0, 12000)}`,
     `Unavailable tool groups JSON: ${JSON.stringify(unavailableToolGroups).slice(0, 4000)}`,
     `Working memory JSON: ${JSON.stringify(workingMemory).slice(0, 6000)}`,
     `Attachment images JSON: ${JSON.stringify(attachmentImages.map((image) => ({sessionFileId: image.sessionFileId, displayName: image.displayName, mimeType: image.mimeType, detail: image.detail || 'auto'}))).slice(0, 3000)}`,
     `Time context JSON: ${JSON.stringify(timeContext).slice(0, 2000)}`,
-    `Evidence context JSON: ${JSON.stringify(evidenceContext).slice(0, 12000)}`,
-    `Tool evidence digest JSON: ${JSON.stringify(toolEvidenceDigest).slice(0, 50000)}`,
-    toolResults.length ? `Tool results JSON retained only for compatibility; use Tool evidence digest first: ${JSON.stringify(toolEvidenceDigest.results).slice(0, 12000)}` : 'Tool results JSON: []',
+    includeEvidenceContext ? `Evidence context JSON: ${JSON.stringify(evidenceContext).slice(0, 12000)}` : '',
+    includeToolDigest ? `Tool evidence digest JSON: ${JSON.stringify(toolEvidenceDigest).slice(0, 50000)}` : '',
     turnKernel.stalePendingDropped ? 'A stale pending confirmation was discarded by the turn kernel because the latest user request was not a confirmation. Do not resume, mention, or act on the discarded action.' : '',
     pending ? `Pending confirmation JSON: ${JSON.stringify(pending).slice(0, 4000)}` : '',
     continuationRequest ? `Latest literal user request: ${message}` : '',
@@ -1605,13 +1780,12 @@ async function askOpenAIToolTurn(body) {
       'Authorization': `Bearer ${OPENAI_API_KEY.value()}`,
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({
+    body: JSON.stringify(Object.assign({
       model: 'gpt-5.5',
-      reasoning: {effort: 'medium'},
+      reasoning: {effort: reasoningEffort},
       text: {verbosity: 'low'},
-      tools: [{type: 'web_search'}],
       input,
-    }),
+    }, openAiTools.length ? {tools: openAiTools} : {})),
   });
   const json = await response.json().catch(() => ({}));
   if (!response.ok) {
@@ -1622,13 +1796,13 @@ async function askOpenAIToolTurn(body) {
     const parsed = extractJsonObject(text);
     if (parsed.type === 'tool_call') {
       const toolName = safeText(parsed.toolName || parsed.name, 80);
-      const tool = toolByName(tools, toolName);
+      const tool = toolByName(plannerTools, toolName);
       const args = parsed.arguments && typeof parsed.arguments === 'object' ? parsed.arguments : {};
       resolveToolArgsFromWorkingMemory(body, toolName, args);
       resolveCalendarRelativeTimesFromContext(body, toolName, args);
       const unresolvedReferenceReply = clarificationForUnresolvedReference(body, toolName, args);
       if (unresolvedReferenceReply) {
-        const trace = buildToolTrace(body, tools, parsed, toolName, tool, false);
+        const trace = buildToolTrace(body, plannerTools, parsed, toolName, tool, false);
         return withTrace(body, attachTaskState({
           type: 'final',
           reply: unresolvedReferenceReply,
@@ -1637,7 +1811,7 @@ async function askOpenAIToolTurn(body) {
         }, parsed), Object.assign({}, trace, {turnKernel}));
       }
       if (!tool) {
-        const trace = buildToolTrace(body, tools, parsed, toolName, tool, false);
+        const trace = buildToolTrace(body, plannerTools, parsed, toolName, tool, false);
         const missingGroup = toolName.includes('.') ? toolName.split('.')[0] : '';
         const unavailable = unavailableToolGroups.find((group) => group && group.group === missingGroup);
         const unavailableReason = unavailable ? ` Missing capability group: ${missingGroup}, reason: ${safeText(unavailable.reason, 120)}.` : '';
@@ -1653,7 +1827,7 @@ async function askOpenAIToolTurn(body) {
       if (tool.doubleConfirmationRequired) {
         const stage = messageConfirms(message) ? 2 : 1;
         const reply = confirmationReply(toolName, sanitizedArgs, stage);
-        const trace = buildToolTrace(body, tools, parsed, toolName, tool, true);
+        const trace = buildToolTrace(body, plannerTools, parsed, toolName, tool, true);
         return withTrace(body, attachTaskState({
           type: 'final',
           reply,
@@ -1664,7 +1838,7 @@ async function askOpenAIToolTurn(body) {
       }
       if (tool.confirmationRequired && !messageConfirms(message)) {
         const reply = confirmationReply(toolName, sanitizedArgs);
-        const trace = buildToolTrace(body, tools, parsed, toolName, tool, true);
+        const trace = buildToolTrace(body, plannerTools, parsed, toolName, tool, true);
         return withTrace(body, attachTaskState({
           type: 'final',
           reply,
@@ -1676,7 +1850,7 @@ async function askOpenAIToolTurn(body) {
       if (tool.confirmationRequired) {
         sanitizedArgs._confirmedByGateway = true;
       }
-      const trace = buildToolTrace(body, tools, parsed, toolName, tool, false);
+      const trace = buildToolTrace(body, plannerTools, parsed, toolName, tool, false);
       return withTrace(body, attachTaskState({
         type: 'tool_call',
         toolName,
@@ -1684,7 +1858,7 @@ async function askOpenAIToolTurn(body) {
         status: 'tool_call_requested',
       }, parsed), Object.assign({}, trace, {turnKernel}));
     }
-    const trace = buildToolTrace(body, tools, parsed, safeText(parsed.toolName || parsed.name, 80), toolByName(tools, safeText(parsed.toolName || parsed.name, 80)), false);
+    const trace = buildToolTrace(body, plannerTools, parsed, safeText(parsed.toolName || parsed.name, 80), toolByName(plannerTools, safeText(parsed.toolName || parsed.name, 80)), false);
     const finalReply = finalReplyText(parsed, text);
     return withTrace(body, attachTaskState(sanitizeFinalPlannerReply(body, {
       type: 'final',
@@ -2422,8 +2596,39 @@ async function runTurnContractSmoke(body) {
     },
   }, {
     type: 'final',
+    status: 'evidence_finalized',
     requiredTerms: ['pilot', 'cockpit'],
     forbidden: ['docs.read', 'github.create_issue', 'I found', 'I read', 'confirmation_required'],
+  }));
+  cases.push(await runTurnContractCase('creative_docs_read_finalizer_without_active_task', {
+    message: 'Now it is your turn. Do not continue the story. Pick it up at an arbitrary point that interests you. Make a simulated chapter here.',
+    toolResults: [{
+      name: 'docs.read',
+      arguments: {fileId: 'pilot-doctrine-doc', name: 'Pilot Doctrine Updates and Simulation'},
+      result: {
+        ok: true,
+        status: 'doc_read',
+        title: 'Pilot Doctrine Updates and Simulation',
+        content: [
+          'Doctrine Updates and Saved Simulation.',
+          'The pilot stays in the cockpit and the chapter should be source-grounded.',
+          'Use embodied pressure, crew behavior, vehicle constraints, fatigue, practical choices, and silence.',
+          'The doctrine should emerge from the physical situation instead of being announced.',
+        ].join('\n'),
+        file: {id: 'pilot-doctrine-doc', name: 'Pilot Doctrine Updates and Simulation'},
+      },
+    }],
+    workingMemory: {
+      lastDocument: {
+        fileId: 'pilot-doctrine-doc',
+        name: 'Pilot Doctrine Updates and Simulation',
+      },
+    },
+  }, {
+    type: 'final',
+    status: 'evidence_finalized',
+    requiredTerms: ['pilot', 'cockpit'],
+    forbidden: ['docs.read', 'github.create_issue', 'I found', 'I read', 'confirmation_required', 'need more context', 'planner_json_error'],
   }));
   return {
     ok: true,
