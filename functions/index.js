@@ -757,14 +757,41 @@ function isMemoryWriteRequest(message) {
   return /\b(remember|update your memory|save this|make durable|future .* references|in the future|store this)\b/.test(text);
 }
 
+function activeTaskFromBody(body) {
+  const memory = body && typeof body.workingMemory === 'object' ? body.workingMemory : {};
+  return memory.activeTask && typeof memory.activeTask === 'object' ? memory.activeTask : null;
+}
+
+function activeTaskContinuationRequest(body, toolResults) {
+  const task = activeTaskFromBody(body);
+  if (!task) return '';
+  const status = safeText(task.status, 80);
+  if (!['awaiting_source', 'awaiting_detail', 'in_progress'].includes(status)) return '';
+  const latestResult = Array.isArray(toolResults) && toolResults.length ? toolResults[toolResults.length - 1] : null;
+  const latestTool = safeText(latestResult && latestResult.name, 80);
+  const latestOk = !!(latestResult && latestResult.result && latestResult.result.ok === true);
+  if (!latestOk || !['knowledge.append', 'docs.read', 'docs.search', 'drive.search', 'web.search'].includes(latestTool)) return '';
+  return safeText(task.originalUserRequest, 4000) || safeText(task.objective, 4000);
+}
+
 function memoryAppendToolCall(body, tools, toolResults) {
   const message = safeText(body && body.message, 4000);
   if (!isMemoryWriteRequest(message) || !hasAvailableTool(tools, 'knowledge.append')) return null;
   if (hasToolResult(toolResults, 'knowledge.append', (entry) => entry && entry.result && entry.result.ok !== false)) return null;
+  const activeTask = activeTaskFromBody(body);
+  const activeStatus = safeText(activeTask && activeTask.status, 80);
+  const shouldResumeActiveTask = activeTask && ['awaiting_source', 'awaiting_detail', 'in_progress'].includes(activeStatus);
+  const objective = shouldResumeActiveTask
+    ? safeText(activeTask.objective || activeTask.originalUserRequest, 1000)
+    : message;
+  const originalUserRequest = shouldResumeActiveTask
+    ? safeText(activeTask.originalUserRequest || activeTask.objective, 1000)
+    : message;
   const transcript = safeText(body && body.transcript, 8000);
   const summary = safeText(body && body.summary, 4000);
   const bodyText = [
     `User memory request: ${message}`,
+    shouldResumeActiveTask ? `Unfinished active task to resume after saving this memory: ${originalUserRequest}` : '',
     summary ? `Conversation summary: ${summary}` : '',
     transcript ? `Recent transcript evidence: ${transcript}` : '',
   ].filter(Boolean).join('\n\n');
@@ -778,10 +805,12 @@ function memoryAppendToolCall(body, tools, toolResults) {
     },
     status: 'tool_call_requested',
     taskStateUpdate: {
-      status: 'in_progress',
-      objective: message,
-      originalUserRequest: message,
-      expectedNextAction: 'Persist requested durable memory before claiming it is remembered.',
+      status: shouldResumeActiveTask ? activeStatus : 'in_progress',
+      objective,
+      originalUserRequest,
+      expectedNextAction: shouldResumeActiveTask
+        ? 'Persist requested durable memory, then resume the unfinished original task.'
+        : 'Persist requested durable memory before claiming it is remembered.',
     },
   };
 }
@@ -1351,14 +1380,17 @@ async function askOpenAIToolTurn(body) {
     const trace = buildToolTrace(body, tools, forcedMemoryAppend, forcedMemoryAppend.toolName, toolByName(tools, forcedMemoryAppend.toolName), false);
     return withTrace(body, forcedMemoryAppend, Object.assign({}, trace, {memoryWriteEnforced: true}));
   }
-  const pureCreativeRequest = isCreativeWritingRequest(message) && !isExplicitNonCreativeToolRequest(message);
+  const continuationRequest = activeTaskContinuationRequest(body, toolResults);
+  const plannerMessage = continuationRequest || message;
+  const pureCreativeRequest = isCreativeWritingRequest(plannerMessage) && !isExplicitNonCreativeToolRequest(plannerMessage);
   if (pureCreativeRequest) {
-    const contextCall = creativeContextToolCall(body, tools, toolResults);
+    const creativeBody = continuationRequest ? Object.assign({}, body, {message: plannerMessage}) : body;
+    const contextCall = creativeContextToolCall(creativeBody, tools, toolResults);
     if (contextCall) {
       const trace = buildToolTrace(body, tools, contextCall, contextCall.toolName, toolByName(tools, contextCall.toolName), false);
-      return withTrace(body, contextCall, Object.assign({}, trace, {creativeIntentDetected: true, creativeContextToolCall: true}));
+      return withTrace(body, contextCall, Object.assign({}, trace, {creativeIntentDetected: true, creativeContextToolCall: true, activeTaskContinuationApplied: !!continuationRequest}));
     }
-    const draft = await askOpenAICreativeDraft(body);
+    const draft = await askOpenAICreativeDraft(creativeBody);
     const trace = buildToolTrace(body, tools, draft, '', null, false);
     const draftStatus = safeText(draft && draft.status, 160);
     const draftFailed = draftStatus === 'creative_draft_empty'
@@ -1371,6 +1403,7 @@ async function askOpenAIToolTurn(body) {
       creativeContextSkippedNoMemory: toolResults.length === 0,
       creativeDraftFailed: draftFailed,
       creativeDraftEmpty: draft && (draft.status === 'creative_draft_empty' || draft.status === 'creative_draft_parse_failed'),
+      activeTaskContinuationApplied: !!continuationRequest,
     }));
   }
   if (pending && messageConfirms(message)) {
@@ -1408,6 +1441,7 @@ async function askOpenAIToolTurn(body) {
     'Active task rule: workingMemory.activeTask is an unfinished user objective. If its status is awaiting_detail or awaiting_source and the latest user request supplies that missing detail/source, resume the originalUserRequest/objective immediately. Do not merely acknowledge the detail/source.',
     'Active task rule: when you ask a clarifying question, ask for a missing source, hit a blocker, or pause before the objective is complete, include taskStateUpdate with status awaiting_detail, awaiting_source, or in_progress. When the objective is fully answered, include taskStateUpdate status complete. If the user cancels or switches to an unrelated task, include status cancelled.',
     'Active task rule: after a tool or knowledge write resolves the blocker for activeTask, continue the original task in the same turn. A saved source, found folder, read document, or answered clarification is progress, not completion.',
+    continuationRequest ? `Active task continuation override: the latest tool result resolved a blocker. Treat this as the operative user request now: ${continuationRequest}` : '',
     'If the user says it, that document, that file, the one you just created, the previous one, or similar, resolve the reference from workingMemory or recent tool results before calling a tool.',
     'Never use phrases like that document, the document, that file, it, the one, or the thing we just made as literal tool argument names or titles. Resolve them to IDs/names or ask which item the user means.',
     'When resolving a remembered document, include both fileId and name in the tool arguments so confirmation cards can show the real document name.',
@@ -1467,7 +1501,8 @@ async function askOpenAIToolTurn(body) {
     `Tool evidence digest JSON: ${JSON.stringify(toolEvidenceDigest).slice(0, 50000)}`,
     toolResults.length ? `Tool results JSON retained only for compatibility; use Tool evidence digest first: ${JSON.stringify(toolEvidenceDigest.results).slice(0, 12000)}` : 'Tool results JSON: []',
     pending ? `Pending confirmation JSON: ${JSON.stringify(pending).slice(0, 4000)}` : '',
-    `Latest user request: ${message}`,
+    continuationRequest ? `Latest literal user request: ${message}` : '',
+    `Latest user request: ${plannerMessage}`,
   ].filter(Boolean).join('\n\n');
   const input = openAiInputWithAttachments(promptText, attachmentImages);
 
@@ -1571,13 +1606,14 @@ async function askOpenAIToolTurn(body) {
     }
     const trace = buildToolTrace(body, tools, parsed, safeText(parsed.toolName || parsed.name, 80), toolByName(tools, safeText(parsed.toolName || parsed.name, 80)), false);
     const finalReply = finalReplyText(parsed, text);
-    if (creativeReplyNeedsRepair(message, finalReply)) {
-      const repaired = await askOpenAICreativeRepair(body, finalReply);
+    if (creativeReplyNeedsRepair(plannerMessage, finalReply)) {
+      const repairBody = plannerMessage === message ? body : Object.assign({}, body, {message: plannerMessage});
+      const repaired = await askOpenAICreativeRepair(repairBody, finalReply);
       if (repaired) {
         return withTrace(body, repaired, Object.assign({}, trace, {creativeRepairApplied: true}));
       }
     }
-    const validated = await validateCreativeFinal(body, finalReply);
+    const validated = await validateCreativeFinal(plannerMessage === message ? body : Object.assign({}, body, {message: plannerMessage}), finalReply);
     if (validated) {
       return withTrace(body, validated, Object.assign({}, trace, {creativeValidationApplied: true}));
     }
