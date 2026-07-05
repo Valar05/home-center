@@ -506,6 +506,12 @@ require_absent(openai_client, 'connection.setReadTimeout(45000)', 'Android agent
 require_absent(chat_system_shape, 'tell me the main ingredient or constraint first.', 'generic next-step fallback must not mention recipe ingredients')
 require_absent(chat_system_shape, 'tell me the second constraint or second ingredient.', 'generic next-step fallback must not mention recipe ingredients')
 require_absent(chat_system_shape, 'tell me the task, ingredient, or constraint you want to work around.', 'generic help fallback must not mention recipe ingredients')
+require_contains(chat_system_shape, 'removeTrailingNextStepBlock(shaped)', 'response shaping strips routine next-step footers')
+require_contains(chat_system_shape, 'Do not add a routine Next step or Next steps footer.', 'prompts forbid routine next-step footers')
+require_absent(chat_system_shape, 'Always end with a Next step or Next steps block', 'prompts must not require next-step footers')
+require_absent(chat_system_shape, 'Always end with Next steps:', 'brainstorm prompt must not require next-step footers')
+require_absent(chat_system_shape, 'private static boolean shouldForceNextStep', 'app must not force next-step footers')
+require_absent(chat_system_shape, 'private static String suggestedNextSteps', 'app must not synthesize next-step footers')
 red_build_tool_loop_contract = {
     'input': "Run a red-build self-test. Read my Home Center Live items list. Add this item to Shipyard. Find June's Holocron. Find my Reading Log. Find Final and Vacation of a Lifetime Story Bible. If anything fails, do not say tool plan did not converge.",
     'source_expectations': [

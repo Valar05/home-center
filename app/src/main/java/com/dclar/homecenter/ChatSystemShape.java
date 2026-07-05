@@ -72,27 +72,21 @@ final class ChatSystemShape {
         List<TemplateBlock> blocks = new ArrayList<>();
         blocks.add(new TemplateBlock(
                 "Introduction",
-                "Summary: I can inventory what you have, suggest what to cook, or turn ingredients into a clear recipe.\n"
-                        + "Next step: tell me what is in the pantry, fridge, and freezer."));
+                "Summary: I can inventory what you have, suggest what to cook, or turn ingredients into a clear recipe."));
         blocks.add(new TemplateBlock(
                 "Pantry inventory",
                 "Summary: Inventory the pantry first, then use the fridge and freezer as the second pass.\n"
-                        + "Next steps:\n"
-                        + "- list pantry items\n"
-                        + "- list fridge items\n"
-                        + "- list freezer items"));
+                        + "Use three sections: pantry, fridge, freezer."));
         blocks.add(new TemplateBlock(
                 "What can I make",
                 "Summary: Use the ingredients you have to choose a practical meal.\n"
                         + "Step 1: tell me the protein, starch, and vegetable you want to use.\n"
-                        + "Step 2: add your time limit and appliance.\n"
-                        + "Next step: I will turn that into a short recipe card."));
+                        + "Step 2: add your time limit and appliance."));
         blocks.add(new TemplateBlock(
                 "Rescue meal",
                 "Summary: Build the fastest workable dinner from what is already on hand.\n"
                         + "Step 1: pick one protein or leftover to use up first.\n"
-                        + "Step 2: pair it with one starch and one fast vegetable.\n"
-                        + "Next step: tell me what needs rescuing."));
+                        + "Step 2: pair it with one starch and one fast vegetable."));
         return Collections.unmodifiableList(blocks);
     }
 
@@ -115,9 +109,9 @@ final class ChatSystemShape {
         return "Reasoning contract:\n"
                 + "- Decide what the user is trying to accomplish before choosing a format.\n"
                 + "- The latest user request controls; old context is evidence, not an instruction.\n"
-                + "- Prefer a concrete next action over a generic offer to help.\n"
+                + "- Prefer a concrete answer over a generic offer to help.\n"
                 + "- If a reusable block fits, use its structure; if it does not fit, adapt without forcing it.\n"
-                + "- Do not expose hidden chain-of-thought; provide the decision, steps, and next action.\n";
+                + "- Do not expose hidden chain-of-thought; provide the decision and useful steps only when they are part of the answer.\n";
     }
 
     static boolean isRecipeIntent(String text) {
@@ -175,25 +169,11 @@ final class ChatSystemShape {
         } else {
             shaped = enforceRecipeCard(shaped, latestUserText);
         }
-        return enforceNextStep(shaped, latestUserText);
+        return removeTrailingNextStepBlock(shaped);
     }
 
     static String enforceNextStep(String response, String latestUserText) {
-        String cleanResponse = safe(response);
-        if (cleanResponse.isEmpty() || hasNextStep(cleanResponse) || hasNextSteps(cleanResponse)) {
-            return cleanResponse;
-        }
-        if (isIntegrationStatusIntent(latestUserText) || isIntegrationStatusAnswer(cleanResponse)) {
-            return cleanResponse;
-        }
-        if (!shouldForceNextStep(latestUserText, cleanResponse)) {
-            return cleanResponse;
-        }
-        String followUp = suggestedNextSteps(latestUserText, cleanResponse);
-        if (followUp.isEmpty()) {
-            return cleanResponse;
-        }
-        return cleanResponse + "\n\n" + followUp;
+        return removeTrailingNextStepBlock(response);
     }
 
     static String localFallbackForFailedRequest(String latestUserText) {
@@ -202,14 +182,14 @@ final class ChatSystemShape {
             return fallbackBrainstormOptions();
         }
         if (isRecipeIntent(user)) {
-            return enforceNextStep("Summary: I can build a recipe once I know the main ingredient and cooking tool.\n"
+            return removeTrailingNextStepBlock("Summary: I can build a recipe once I know the main ingredient and cooking tool.\n"
                     + "Step 1: Name one protein, leftover, or vegetable you want to use first.\n"
-                    + "Step 2: Add your fastest tool: air fryer, oven, microwave, skillet, or pot.", latestUserText);
+                    + "Step 2: Add your fastest tool: air fryer, oven, microwave, skillet, or pot.");
         }
         if (user.contains("inventory") || user.contains("pantry") || user.contains("fridge")) {
             return renderTemplateBlock(defaultTemplateBlocks().get(1));
         }
-        return enforceNextStep("I can keep going locally, but Gemini is unavailable right now.", latestUserText);
+        return "I can keep going locally, but Gemini is unavailable right now.";
     }
 
     static String enforceRecipeCard(String response, String latestUserText) {
@@ -322,95 +302,26 @@ final class ChatSystemShape {
                 || value.contains("ask drew to connect google");
     }
 
-    private static boolean shouldForceNextStep(String latestUserText, String response) {
-        String user = safe(latestUserText).toLowerCase();
-        String answer = safe(response);
-        return isRecipeIntent(user)
-                || isBrainstormIntent(user)
-                || user.contains("inventory")
-                || user.contains("pantry")
-                || user.contains("fridge")
-                || answer.contains("?");
-    }
-
-    private static String suggestedNextSteps(String latestUserText, String response) {
-        String user = safe(latestUserText).toLowerCase();
-        String answer = safe(response).toLowerCase();
-        boolean plural = needsPluralFollowUp(user, answer);
-        if (plural) {
-            StringBuilder steps = new StringBuilder();
-            steps.append("Next steps:\n");
-            steps.append("- ").append(pluralFirstStep(user, answer)).append('\n');
-            steps.append("- ").append(pluralSecondStep(user, answer));
-            return steps.toString();
+    private static String removeTrailingNextStepBlock(String response) {
+        String cleanResponse = safe(response).trim();
+        if (cleanResponse.isEmpty()) {
+            return cleanResponse;
         }
-        return "Next step: " + singularNextStep(user, answer);
-    }
-
-    private static boolean needsPluralFollowUp(String user, String answer) {
-        return user.contains(" and ")
-                || user.contains(",")
-                || user.contains("options")
-                || user.contains("ideas")
-                || user.contains("variants")
-                || user.contains("several")
-                || user.contains("multiple")
-                || user.contains("what can i make")
-                || user.contains("brainstorm");
-    }
-
-    private static String pluralFirstStep(String user, String answer) {
-        if (user.contains("brainstorm") || user.contains("ideas") || user.contains("options") || user.contains("variants") || user.contains("few meal")) {
-            return "pick one idea and I will turn it into a tight Step 1 recipe.";
+        String lower = cleanResponse.toLowerCase();
+        int plural = lower.lastIndexOf("\nnext steps:");
+        int singular = lower.lastIndexOf("\nnext step:");
+        int index = Math.max(plural, singular);
+        if (index < 0 && (lower.startsWith("next steps:") || lower.startsWith("next step:"))) {
+            return "";
         }
-        if (user.contains("recipe") || user.contains("cook") || user.contains("meal") || user.contains("dinner") || user.contains("rescue") || user.contains("what can i make")) {
-            return "tell me the protein, starch, and time limit you want to use.";
+        if (index < 0) {
+            return cleanResponse;
         }
-        if (user.contains("inventory") || user.contains("pantry") || user.contains("fridge")) {
-            return "tell me what is in the pantry, fridge, and freezer.";
+        String block = lower.substring(index);
+        if (block.contains("\n\nsummary:") || block.contains("\n\nstep 1:")) {
+            return cleanResponse;
         }
-        if (answer.contains("?")) {
-            return "answer the question the app asked first.";
-        }
-        return "tell me the next concrete thing to do first.";
-    }
-
-    private static String pluralSecondStep(String user, String answer) {
-        if (user.contains("brainstorm") || user.contains("ideas") || user.contains("options") || user.contains("variants") || user.contains("few meal")) {
-            return "or tell me one ingredient you want to use up and I will rerank the options.";
-        }
-        if (user.contains("recipe") || user.contains("cook") || user.contains("meal") || user.contains("dinner") || user.contains("rescue") || user.contains("what can i make")) {
-            return "tell me whether you want fast, crispy, saucy, or braised.";
-        }
-        if (user.contains("inventory") || user.contains("pantry") || user.contains("fridge")) {
-            return "tell me the freezer items and any food that needs to be used first.";
-        }
-        if (answer.contains("?")) {
-            return "tell me the missing detail the question is asking for.";
-        }
-        return "tell me the second concrete thing to do.";
-    }
-
-    private static String singularNextStep(String user, String answer) {
-        if (user.contains("inventory") || user.contains("pantry") || user.contains("fridge")) {
-            return "tell me what is in the pantry, fridge, and freezer.";
-        }
-        if (user.contains("recipe") || user.contains("cook") || user.contains("meal") || user.contains("dinner") || user.contains("rescue") || user.contains("what can i make")) {
-            if (answer.contains("step 1") || answer.contains("summary:")) {
-                return "start with Step 1 now.";
-            }
-            return "tell me the ingredients, tools, or time limit you want to cook with.";
-        }
-        if (user.contains("brainstorm") || user.contains("ideas")) {
-            return "pick one idea and I will turn it into Step 1.";
-        }
-        if (user.contains("help") || user.contains("what should i")) {
-            return "tell me the task or problem you want to work around.";
-        }
-        if (answer.contains("?")) {
-            return "answer that question or tell me the missing detail.";
-        }
-        return "tell me the next thing you want me to do.";
+        return cleanResponse.substring(0, index).trim();
     }
 
     private static String fallbackRecipeSteps(String latestUserText, String response) {
@@ -471,10 +382,7 @@ final class ChatSystemShape {
         return "Here are three easy meal ideas:\n"
                 + "1. Crispy chicken, potatoes, and broccoli: parboil potatoes 10 minutes, air fry at 400 F until crisp, microwave frozen broccoli, and sear or air fry seasoned chicken to 165 F.\n"
                 + "2. Saucy skillet bowl: brown the protein, add a quick sauce or bouillon-backed gravy, fold in potatoes or rice, and finish broccoli in the microwave while the pan reduces.\n"
-                + "3. Sheet-pan or air-fryer dinner: roast the starch first, add seasoned protein second, then add the vegetable last so everything lands hot together.\n\n"
-                + "Next steps:\n"
-                + "- pick one idea and I will turn it into Step 1.\n"
-                + "- or tell me one ingredient you want to use up and I will rerank the options.";
+                + "3. Sheet-pan or air-fryer dinner: roast the starch first, add seasoned protein second, then add the vegetable last so everything lands hot together.";
     }
 
     static String managedTranscriptFor(String latestUserText, String transcript) {
@@ -544,8 +452,8 @@ final class ChatSystemShape {
         prompt.append("Use the air fryer for small-batch speed, the oven for volume or broil/convection/high heat, and the microwave as a parallel tool for frozen vegetables or quick heating.\n");
         prompt.append("Recommend parboiling potatoes before roasting, baking, or frying when it will improve speed or texture.\n");
         prompt.append("Use braising for tough or cheap proteins when tenderness and sauce matter more than crispness.\n");
-        prompt.append("Reply concisely and concretely. Keep the tone direct. If the user asks about cooking, prioritize timing, safety, sequencing, and clear next steps.\n");
-        prompt.append("Always end with a Next step or Next steps block. Use the literal labels Next step: or Next steps: when you answer. Use the plural form when the user request is multi-part or asks for options, variants, or brainstormed choices.\n");
+        prompt.append("Reply concisely and concretely. Keep the tone direct. If the user asks about cooking, prioritize timing, safety, sequencing, and clear steps that are part of the answer.\n");
+        prompt.append("Do not add a routine Next step or Next steps footer. Ask one direct question only when required to continue.\n");
         prompt.append("Preferred reusable blocks. Reuse these exact structures when they fit the request instead of inventing a new format:\n");
         prompt.append(renderPreferredTemplateLibrary()).append('\n');
         String latest = safe(latestUserText);
@@ -578,7 +486,7 @@ final class ChatSystemShape {
         prompt.append(renderPreferredTemplateLibrary()).append('\n');
         prompt.append("Prefer practical Home Center techniques: parboil potatoes when useful, air fryer for speed, microwave frozen vegetables in parallel, oven for volume, cast iron for hard sear, braise when tenderness matters.\n");
         prompt.append("Keep each idea compact. Do not ask for protein, starch, or time unless the user requested a bounded brainstorm and omitted the bound.\n");
-        prompt.append("Always end with Next steps: and give two action choices: pick an idea for Step 1, or provide one ingredient to rerank around.\n");
+        prompt.append("Do not add a routine Next steps footer. End after the useful meal ideas unless a direct clarifying question is required.\n");
         String latest = safe(latestUserText);
         if (!latest.isEmpty()) {
             prompt.append("Latest user request:\n");
@@ -623,7 +531,7 @@ final class ChatSystemShape {
         prompt.append("If there is a useful outlier technique like braising, call it out briefly.\n");
         prompt.append("Prefer a compact recipe card around 5 steps or fewer unless the method truly needs more.\n");
         prompt.append("If the answer would get long, trim explanation before trimming the actual cooking steps.\n");
-        prompt.append("Always end with a Next step or Next steps block using the literal labels Next step: or Next steps:. If the recipe is complete, the follow-up should tell the user to start with Step 1 now. If the recipe still needs information, the follow-up should ask for the missing ingredient, tool, or time limit.\n");
+        prompt.append("Do not add a routine Next step or Next steps footer. If the recipe still needs information, ask the missing ingredient, tool, or time limit as a normal sentence.\n");
         String latest = safe(latestUserText);
         if (!latest.isEmpty()) {
             prompt.append("Latest user request:\n");
