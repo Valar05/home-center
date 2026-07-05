@@ -506,10 +506,12 @@ for expected in repo_orientation_error_contract['source_expectations']:
     if expected not in functions_index:
         fail(f"repository orientation error contract is missing source expectation {expected}")
 creative_synthesis_contract = {
-    'input': "Make lexen first cigarette scene with tango",
+    'input': "Enough beating around the bush. Write the squad first contact. Write the tank that was a boat. Write d-day +0",
     'source_expectations': [
         'Creative writing rule: if the latest request asks to write, draft, compose, create a scene, continue a story, or synthesize prose',
         'produce the prose directly as a final answer from transcript, workingMemory, attachments, and tool evidence',
+        'Creative context rule: if workingMemory names a remembered canon document or durable knowledge file, use docs.read or knowledge.read',
+        'Creative validation rule: preserve explicit user premises, character roles, POV, vehicle/location relationships, and historical constraints',
         'Do not call docs.search, drive.search, or docs.create unless the latest request explicitly asks to find/read a source document or save/update/create a Google Doc',
         'after a successful docs.create or docs.update, a new request like "write the scene" is a new writing task',
         'not permission to keep searching Drive',
@@ -523,12 +525,17 @@ for expected in creative_synthesis_contract['source_expectations']:
 require_contains(functions_index, 'function creativeReplyNeedsRepair(message, reply)', 'gateway detects punted creative writing replies')
 require_contains(functions_index, 'askOpenAICreativeRepair(body, finalReply)', 'gateway repairs punted creative writing replies before Android sees them')
 require_contains(functions_index, 'if (/\\b(write|draft|compose|continue)\\b/.test(text)) return true;', 'gateway treats direct write/draft/compose requests as creative even without scene keyword')
-require_contains(functions_index, 'isCreativeWritingRequest(message) && !isExplicitNonCreativeToolRequest(message)', 'gateway bypasses stale tool/report planner for direct creative writing requests')
-require_contains(functions_index, 'source: \'creative_direct\'', 'gateway traces direct creative route')
-require_contains(functions_index, 'creativeDirectApplied: true', 'gateway trace marks direct creative route')
+require_contains(functions_index, 'function creativeContextToolCall(body, tools, toolResults)', 'gateway has creative context acquisition guard')
+require_contains(functions_index, "toolName: 'docs.read'", 'creative pipeline reads remembered canon document before prose')
+require_contains(functions_index, "toolName: 'knowledge.read'", 'creative pipeline reads remembered durable knowledge before prose')
+require_contains(functions_index, 'creativeContextToolCall: true', 'gateway trace marks creative context tool call')
+require_contains(functions_index, 'function validateCreativeFinal(body, draft)', 'gateway validates creative final prose against premises')
+require_contains(functions_index, 'creativeValidationApplied: true', 'gateway trace marks creative validation')
+require_contains(functions_index, 'making a tank commander into infantry outside the tank', 'creative validator guards issue 28 role inversion')
 require_contains(functions_index, 'Do not ask another clarification question. Do not provide next steps. Do not call tools. Do not report an issue.', 'creative repair forbids another stall/report/tools loop')
 require_contains(functions_index, 'creativeRepairApplied: true', 'gateway trace marks creative repair application')
 require_contains(functions_index, 'If context is thin, write a short grounded draft around confirmed names/actions and avoid unsupported biography.', 'creative repair writes instead of punting on thin context')
+require_absent(functions_index, 'creativeDirectApplied', 'gateway must not bypass canon gathering with creative direct shortcut')
 require_contains(functions_index, 'Set narration to the same text as reply', 'gateway prompt forbids mismatched TTS narration')
 require_contains(functions_index, 'narration: finalReply ||', 'gateway returns normalized final reply text as narration for installed APK compatibility')
 require_contains(functions_index, 'toolByName(tools, toolName)', 'gateway rejects unadvertised tool calls')

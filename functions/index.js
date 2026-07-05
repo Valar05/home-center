@@ -668,6 +668,64 @@ function isExplicitNonCreativeToolRequest(message) {
   return false;
 }
 
+function hasAvailableTool(tools, name) {
+  return !!toolByName(Array.isArray(tools) ? tools : [], name);
+}
+
+function hasToolResult(toolResults, name, predicate = null) {
+  return (Array.isArray(toolResults) ? toolResults : []).some((entry) => {
+    if (!entry || entry.name !== name) return false;
+    return predicate ? predicate(entry) : true;
+  });
+}
+
+function creativeContextToolCall(body, tools, toolResults) {
+  const memory = body && typeof body.workingMemory === 'object' ? body.workingMemory : {};
+  const lastDocument = memory.lastDocument && typeof memory.lastDocument === 'object' ? memory.lastDocument : null;
+  if (lastDocument && lastDocument.fileId && hasAvailableTool(tools, 'docs.read')) {
+    const alreadyRead = hasToolResult(toolResults, 'docs.read', (entry) => {
+      const args = entry && typeof entry.arguments === 'object' ? entry.arguments : {};
+      return args.fileId === lastDocument.fileId;
+    });
+    if (!alreadyRead) {
+      return {
+        type: 'tool_call',
+        toolName: 'docs.read',
+        arguments: {fileId: lastDocument.fileId, name: safeText(lastDocument.name, 240)},
+        status: 'tool_call_requested',
+        taskStateUpdate: {
+          status: 'in_progress',
+          objective: safeText(body && body.message, 1000),
+          originalUserRequest: safeText(body && body.message, 1000),
+          expectedNextAction: 'Read remembered canon document before drafting creative prose.',
+        },
+      };
+    }
+  }
+  const lastKnowledge = memory.lastKnowledgeFile && typeof memory.lastKnowledgeFile === 'object' ? memory.lastKnowledgeFile : null;
+  if (lastKnowledge && lastKnowledge.file && hasAvailableTool(tools, 'knowledge.read')) {
+    const alreadyRead = hasToolResult(toolResults, 'knowledge.read', (entry) => {
+      const args = entry && typeof entry.arguments === 'object' ? entry.arguments : {};
+      return safeText(args.file, 80).toLowerCase() === safeText(lastKnowledge.file, 80).toLowerCase();
+    });
+    if (!alreadyRead) {
+      return {
+        type: 'tool_call',
+        toolName: 'knowledge.read',
+        arguments: {file: safeText(lastKnowledge.file, 80)},
+        status: 'tool_call_requested',
+        taskStateUpdate: {
+          status: 'in_progress',
+          objective: safeText(body && body.message, 1000),
+          originalUserRequest: safeText(body && body.message, 1000),
+          expectedNextAction: 'Read remembered durable knowledge before drafting creative prose.',
+        },
+      };
+    }
+  }
+  return null;
+}
+
 async function askOpenAICreativeRepair(body, originalReply) {
   const message = safeText(body.message, 4000);
   const transcript = safeText(body.transcript, 10000);
@@ -722,15 +780,58 @@ async function askOpenAICreativeRepair(body, originalReply) {
   }
 }
 
-async function askOpenAICreativeDirect(body) {
-  const response = await askOpenAICreativeRepair(body, '');
-  if (response) return response;
-  return {
-    type: 'final',
-    reply: 'I could not produce the scene from the available context. Try again with one concrete anchor, or say "report this" and I will file the exact failure.',
-    narration: 'I could not produce the scene from the available context.',
-    status: 'creative_direct_failed',
-  };
+async function validateCreativeFinal(body, draft) {
+  const message = safeText(body.message, 4000);
+  if (!isCreativeWritingRequest(message) || isExplicitNonCreativeToolRequest(message)) return null;
+  const transcript = safeText(body.transcript, 10000);
+  const summary = safeText(body.summary, 4000);
+  const workingMemory = body && typeof body.workingMemory === 'object' ? body.workingMemory : {};
+  const evidenceContext = body && typeof body.evidenceContext === 'object' ? body.evidenceContext : {};
+  const toolResults = Array.isArray(body.toolResults) ? body.toolResults : [];
+  const digest = compactToolEvidence(toolResults);
+  const prompt = [
+    'Validate and, if needed, repair a Home Center creative-writing draft before the user sees it.',
+    'Preserve explicit user premises from latest request, recent transcript, workingMemory, durable knowledge, and tool evidence.',
+    'Reject and rewrite if the draft changes a named character role, POV, location, command position, vehicle relationship, historical constraint, or other canon premise.',
+    'Examples of forbidden failures: making a tank commander into infantry outside the tank; replacing a named commanded vehicle with an unrelated external vehicle; treating a grounded historical constraint as vague symbolism.',
+    'If the draft is valid, return it unchanged. If it violates premises, return a revised draft only. Do not explain validation. Do not ask questions. Do not add next steps. Do not report an issue.',
+    'Return JSON only: {"type":"final","reply":"...","narration":"...","status":"creative_validated","taskStateUpdate":{"status":"complete","objective":"..."}}',
+    `Latest user request: ${message}`,
+    summary ? `Conversation summary: ${summary}` : '',
+    transcript ? `Recent transcript: ${transcript}` : '',
+    `Working memory JSON: ${JSON.stringify(workingMemory).slice(0, 8000)}`,
+    `Evidence context JSON: ${JSON.stringify(evidenceContext).slice(0, 12000)}`,
+    `Tool evidence digest JSON: ${JSON.stringify(digest).slice(0, 50000)}`,
+    `Draft to validate: ${safeText(draft, 12000)}`,
+  ].filter(Boolean).join('\n\n');
+  const response = await fetch('https://api.openai.com/v1/responses', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${OPENAI_API_KEY.value()}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      model: 'gpt-5.5',
+      reasoning: {effort: 'medium'},
+      text: {verbosity: 'medium'},
+      input: prompt,
+    }),
+  });
+  const json = await response.json().catch(() => ({}));
+  if (!response.ok) return null;
+  try {
+    const parsed = extractJsonObject(json.output_text || extractOutputText(json) || '');
+    const reply = finalReplyText(parsed, '');
+    if (!reply || creativeReplyNeedsRepair(message, reply)) return null;
+    return attachTaskState({
+      type: 'final',
+      reply,
+      narration: safeText(parsed.narration, 12000) || reply,
+      status: safeText(parsed.status, 160) || 'creative_validated',
+    }, parsed);
+  } catch (err) {
+    return null;
+  }
 }
 
 function finalReplyText(parsed, rawText = '') {
@@ -1001,9 +1102,11 @@ async function askOpenAIToolTurn(body) {
   const timeContext = timeContextFromBody(body);
   const pending = pendingConfirmationFromBody(body, tools);
   if (isCreativeWritingRequest(message) && !isExplicitNonCreativeToolRequest(message)) {
-    const direct = await askOpenAICreativeDirect(body);
-    const trace = buildToolTrace(body, tools, {type: 'final', source: 'creative_direct'}, '', null, false);
-    return withTrace(body, direct, Object.assign({}, trace, {creativeDirectApplied: true}));
+    const contextCall = creativeContextToolCall(body, tools, toolResults);
+    if (contextCall) {
+      const trace = buildToolTrace(body, tools, contextCall, contextCall.toolName, toolByName(tools, contextCall.toolName), false);
+      return withTrace(body, contextCall, Object.assign({}, trace, {creativeContextToolCall: true}));
+    }
   }
   if (pending && messageConfirms(message)) {
     const pendingTool = toolByName(tools, pending.toolName);
@@ -1069,7 +1172,9 @@ async function askOpenAIToolTurn(body) {
     'Local knowledge rule: use knowledge.append when the user asks to remember, save, preserve, promote, or make durable a workflow, workaround, agent instruction, skill, or memory. Choose SKILLS.md for repeatable procedures, AGENTS.md for agent steering, and MEMORY.md for durable facts or troubleshooting state.',
     'Local knowledge rule: use knowledge.read when the user asks what durable skills, agent instructions, or local memory Home Center has stored. Never write secrets, API keys, OAuth tokens, passwords, or Authorization headers to knowledge files.',
     'Latest intent rule: the latest user request controls. If the latest request asks for recommendations, summaries, answers, reading suggestions, or next actions, answer that request from available context and tool results instead of continuing an older workflow.',
-    'Creative writing rule: if the latest request asks to write, draft, compose, create a scene, continue a story, or synthesize prose, produce the prose directly as a final answer from transcript, workingMemory, attachments, and tool evidence. Do not call docs.search, drive.search, or docs.create unless the latest request explicitly asks to find/read a source document or save/update/create a Google Doc.',
+    'Creative writing rule: if the latest request asks to write, draft, compose, create a scene, continue a story, or synthesize prose, produce the prose directly as a final answer from transcript, workingMemory, attachments, and tool evidence.',
+    'Creative context rule: if workingMemory names a remembered canon document or durable knowledge file, use docs.read or knowledge.read to gather that context before final prose. Do not call docs.search, drive.search, or docs.create unless the latest request explicitly asks to find/read a source document or save/update/create a Google Doc.',
+    'Creative validation rule: preserve explicit user premises, character roles, POV, vehicle/location relationships, and historical constraints. Do not move a commander out of their commanded vehicle, invert who controls the vehicle, or replace a grounded premise with symbolism.',
     'Creative writing rule: after a successful docs.create or docs.update, a new request like "write the scene" is a new writing task, not permission to keep searching Drive. Write the scene or ask one focused story question if required context is missing.',
     'Document cleanup rule: if the latest request asks to clean up, reorganize, consolidate, or make a document section more organized, use workingMemory.lastDocument or recent docs.read results, then request docs.update with the cleaned structure. Do not stop after describing what cleanup is needed.',
     'Document synthesis/update rule: if the latest request asks to update, rewrite, reflect, merge, copy, append, replace, or revise one Google Doc using content from another Google Doc, continue after docs.search/docs.read results until you request docs.update for the target document. Do not stop after saying you found or read the documents.',
@@ -1192,6 +1297,10 @@ async function askOpenAIToolTurn(body) {
       if (repaired) {
         return withTrace(body, repaired, Object.assign({}, trace, {creativeRepairApplied: true}));
       }
+    }
+    const validated = await validateCreativeFinal(body, finalReply);
+    if (validated) {
+      return withTrace(body, validated, Object.assign({}, trace, {creativeValidationApplied: true}));
     }
     return withTrace(body, attachTaskState(sanitizeFinalPlannerReply(body, {
       type: 'final',
