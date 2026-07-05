@@ -5,6 +5,7 @@ ROOT="$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)"
 cd "$ROOT"
 
 sh tools/check_no_secrets.sh
+sh -n tools/install_debug_apk_shizuku.sh
 python3 tools/home_center_regression_tests.py
 node --check tools/home_center_metal_prompt_smoke.mjs
 node --check tools/home_center_google_tool_setup.mjs
