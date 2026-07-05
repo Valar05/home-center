@@ -506,9 +506,9 @@ for expected in repo_orientation_error_contract['source_expectations']:
     if expected not in functions_index:
         fail(f"repository orientation error contract is missing source expectation {expected}")
 creative_synthesis_contract = {
-    'input': "Enough beating around the bush. Write the squad first contact. Write the tank that was a boat. Write d-day +0",
+    'input': "Generate the next Normandy lexen green commander scene",
     'source_expectations': [
-        'Creative writing rule: if the latest request asks to write, draft, compose, create a scene, continue a story, or synthesize prose',
+        'Creative writing rule: if the latest request asks to write, draft, compose, generate, narrate, expand, create a scene, continue a story, or synthesize prose',
         'produce the prose directly as a final answer from transcript, workingMemory, attachments, and tool evidence',
         'Creative context rule: if workingMemory names a remembered canon document or durable knowledge file, use one best available context read before final prose',
         'Creative validation rule: preserve explicit user premises, character roles, POV, vehicle/location relationships, and historical constraints',
@@ -524,12 +524,19 @@ for expected in creative_synthesis_contract['source_expectations']:
         fail(f"creative synthesis contract is missing source expectation {expected}")
 require_contains(functions_index, 'function creativeReplyNeedsRepair(message, reply)', 'gateway detects punted creative writing replies')
 require_contains(functions_index, 'askOpenAICreativeRepair(body, finalReply)', 'gateway repairs punted creative writing replies before Android sees them')
-require_contains(functions_index, 'if (/\\b(write|draft|compose|continue)\\b/.test(text)) return true;', 'gateway treats direct write/draft/compose requests as creative even without scene keyword')
+require_contains(functions_index, 'if (/\\b(write|draft|compose|continue|narrate|expand)\\b/.test(text)) return true;', 'gateway treats direct write/draft/compose requests as creative even without scene keyword')
+require_contains(functions_index, '\\b(generate|tell)\\b', 'gateway treats generate/tell plus scene terms as creative')
+require_contains(functions_index, '\\b(scene|story|chapter|prose|draft|passage|moment|dialogue|first contact|d-day|normandy|lexen)\\b', 'gateway recognizes issue 31 creative domain terms')
 require_contains(functions_index, 'function creativeContextToolCall(body, tools, toolResults)', 'gateway has creative context acquisition guard')
 require_contains(functions_index, "toolName: 'docs.read'", 'creative pipeline reads remembered canon document before prose')
 require_contains(functions_index, "toolName: 'knowledge.read'", 'creative pipeline reads remembered durable knowledge before prose')
 require_contains(functions_index, 'Do not chain multiple context reads before writing.', 'creative pipeline forbids multi-read stalls before prose')
 require_contains(functions_index, 'A remembered document is enough context for this creative turn.', 'creative context acquisition stops after remembered document is already read')
+require_contains(functions_index, 'const pureCreativeRequest = isCreativeWritingRequest(message) && !isExplicitNonCreativeToolRequest(message)', 'gateway routes pure creative requests before generic planner')
+require_contains(functions_index, 'askOpenAICreativeDraft(body)', 'gateway drafts creative prose without generic tool planner')
+require_contains(functions_index, 'creativeDedicatedDraft: true', 'gateway traces dedicated creative draft path')
+require_contains(functions_index, 'creativeContextSkippedNoMemory', 'gateway traces creative drafting without remembered context')
+require_contains(functions_index, 'Creative writing provider returned no usable prose', 'gateway gives descriptive creative empty-output failure')
 require_contains(functions_index, 'function shouldBlockCreativePlannerToolCall(message)', 'gateway has hard guard against creative planner tool calls')
 require_contains(functions_index, 'Blocked creative planner tool call:', 'gateway converts bad creative tool plans into creative repair input')
 require_contains(functions_index, 'creativeToolCallBlocked: true', 'gateway traces blocked creative tool calls')
