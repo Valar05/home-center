@@ -10,7 +10,8 @@ const CARTESIA_API_KEY = defineSecret('CARTESIA_API_KEY');
 const GITHUB_TOKEN = defineSecret('GITHUB_TOKEN');
 const GOOGLE_OAUTH_CLIENT_ID = defineSecret('GOOGLE_OAUTH_CLIENT_ID');
 const GOOGLE_OAUTH_CLIENT_SECRET = defineSecret('GOOGLE_OAUTH_CLIENT_SECRET');
-const CREATIVE_OPENAI_TIMEOUT_MS = 75000;
+const CREATIVE_OPENAI_TIMEOUT_MS = 32000;
+const CREATIVE_SALVAGE_TIMEOUT_MS = 12000;
 
 const CORS_HEADERS = {
   'Access-Control-Allow-Origin': '*',
@@ -902,7 +903,7 @@ async function askOpenAICreativeRepair(body, originalReply) {
   }
 }
 
-async function askOpenAICreativeDraft(body) {
+function creativeDraftPrompt(body, mode, priorFailure = '') {
   const message = safeText(body.message, 4000);
   const transcript = safeText(body.transcript, 10000);
   const summary = safeText(body.summary, 4000);
@@ -910,13 +911,17 @@ async function askOpenAICreativeDraft(body) {
   const evidenceContext = body && typeof body.evidenceContext === 'object' ? body.evidenceContext : {};
   const toolResults = Array.isArray(body.toolResults) ? body.toolResults : [];
   const digest = compactToolEvidence(toolResults);
-  const prompt = [
-    'Draft a Home Center creative-writing response.',
+  const salvage = mode === 'salvage';
+  return [
+    salvage ? 'Salvage a Home Center creative-writing response after the first provider attempt failed.' : 'Draft a Home Center creative-writing response.',
     'The user asked for prose. Produce the requested scene/passage now as a strict JSON final answer.',
-    'Use only available transcript, workingMemory, evidence, attachments, and tool evidence. If context is thin, write a short grounded draft around confirmed names/actions and avoid unsupported biography.',
+    salvage
+      ? 'Write a shorter but complete grounded scene. Do not wait for more context. Prefer 300-600 words that satisfy the explicit prompt.'
+      : 'Use only available transcript, workingMemory, evidence, attachments, and tool evidence. If context is thin, write a short grounded draft around confirmed names/actions and avoid unsupported biography.',
     'If workingMemory.rememberedWritingContext exists, treat it as durable writing steering from prior turns. Use it directly; do not search Drive for it unless the latest user asks.',
     'Do not ask another clarification question. Do not provide next steps. Do not call tools. Do not report an issue. Do not explain process.',
     'Preserve explicit user premises, character roles, POV, location, command position, vehicle relationships, and historical constraints.',
+    'For kinetic compression: Intent -> Position Change -> Contact / Interaction -> Immediate Consequence -> New Tactical Situation.',
     'Return JSON only: {"type":"final","reply":"...","narration":"...","status":"creative_draft_complete","taskStateUpdate":{"status":"complete","objective":"..."}}',
     `Latest user request: ${message}`,
     summary ? `Conversation summary: ${summary}` : '',
@@ -924,9 +929,14 @@ async function askOpenAICreativeDraft(body) {
     `Working memory JSON: ${JSON.stringify(workingMemory).slice(0, 8000)}`,
     `Evidence context JSON: ${JSON.stringify(evidenceContext).slice(0, 12000)}`,
     `Tool evidence digest JSON: ${JSON.stringify(digest).slice(0, 50000)}`,
+    priorFailure ? `Prior provider failure: ${safeText(priorFailure, 1000)}` : '',
   ].filter(Boolean).join('\n\n');
+}
+
+async function runCreativeProviderJson(prompt, timeoutMs, statusFallback, options = {}) {
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), CREATIVE_OPENAI_TIMEOUT_MS);
+  const timeout = setTimeout(() => controller.abort(), timeoutMs);
+  const salvage = options.mode === 'salvage';
   let response;
   try {
     response = await fetch('https://api.openai.com/v1/responses', {
@@ -938,47 +948,80 @@ async function askOpenAICreativeDraft(body) {
       signal: controller.signal,
       body: JSON.stringify({
         model: 'gpt-5.5',
-        reasoning: {effort: 'medium'},
-        text: {verbosity: 'medium'},
+        reasoning: {effort: salvage ? 'low' : 'low'},
+        text: {verbosity: salvage ? 'low' : 'medium'},
+        max_output_tokens: salvage ? 1400 : 2600,
         input: prompt,
       }),
     });
   } catch (err) {
-    const detail = err && err.name === 'AbortError'
-      ? `Timed out after ${CREATIVE_OPENAI_TIMEOUT_MS}ms before producing prose.`
-      : safeText(err && err.message, 500) || 'Provider request failed before producing prose.';
-    return attachCreativeTaskComplete(userFacingFailure('Creative writing provider', detail, err && err.name === 'AbortError' ? 'creative_provider_timeout' : 'creative_provider_error'), message);
+    return {
+      ok: false,
+      status: err && err.name === 'AbortError' ? 'creative_provider_timeout' : 'creative_provider_error',
+      detail: err && err.name === 'AbortError'
+        ? `Timed out after ${timeoutMs}ms before producing prose.`
+        : safeText(err && err.message, 500) || 'Provider request failed before producing prose.',
+    };
   } finally {
     clearTimeout(timeout);
   }
   const json = await response.json().catch(() => ({}));
   if (!response.ok) {
-    return attachCreativeTaskComplete(userFacingFailure('Creative writing provider', json.error?.message || response.statusText || `HTTP ${response.status}`, `creative_openai_http_${response.status}`), message);
+    return {
+      ok: false,
+      status: `creative_openai_http_${response.status}`,
+      detail: json.error?.message || response.statusText || `HTTP ${response.status}`,
+    };
   }
   try {
     const parsed = extractJsonObject(json.output_text || extractOutputText(json) || '');
+    return {ok: true, parsed};
+  } catch (err) {
+    return {
+      ok: false,
+      status: statusFallback || 'creative_draft_parse_failed',
+      detail: `Malformed output: ${safeText(err.message, 160)}`,
+    };
+  }
+}
+
+async function askOpenAICreativeDraft(body) {
+  const message = safeText(body.message, 4000);
+  const prompt = creativeDraftPrompt(body, 'draft');
+  let provider = await runCreativeProviderJson(prompt, CREATIVE_OPENAI_TIMEOUT_MS, 'creative_draft_parse_failed');
+  let usedSalvage = false;
+  if (!provider.ok) {
+    usedSalvage = true;
+    provider = await runCreativeProviderJson(creativeDraftPrompt(body, 'salvage', provider.detail), CREATIVE_SALVAGE_TIMEOUT_MS, 'creative_salvage_parse_failed', {mode: 'salvage'});
+  }
+  if (!provider.ok) {
+    return attachCreativeTaskComplete(userFacingFailure('Creative writing provider', provider.detail, provider.status), message);
+  }
+  try {
+    const parsed = provider.parsed;
     const reply = finalReplyText(parsed, '');
     if (!reply || creativeReplyNeedsRepair(message, reply)) {
-      return attachCreativeTaskComplete({
+      const salvage = await runCreativeProviderJson(creativeDraftPrompt(body, 'salvage', 'empty or unusable output'), CREATIVE_SALVAGE_TIMEOUT_MS, 'creative_salvage_parse_failed', {mode: 'salvage'});
+      if (!salvage.ok) return attachCreativeTaskComplete(userFacingFailure('Creative writing provider', salvage.detail, salvage.status), message);
+      const salvageReply = finalReplyText(salvage.parsed, '');
+      if (!salvageReply || creativeReplyNeedsRepair(message, salvageReply)) {
+        return attachCreativeTaskComplete(userFacingFailure('Creative writing provider', 'Salvage attempt also returned no usable prose.', 'creative_salvage_empty'), message);
+      }
+      return attachCreativeTaskComplete(attachTaskState({
         type: 'final',
-        reply: 'Creative writing provider failed before producing prose: empty or unusable output. Please try again or say "report this" so I can file the failed prompt with context.',
-        narration: 'Creative writing provider returned no usable prose.',
-        status: 'creative_draft_empty',
-      }, message);
+        reply: salvageReply,
+        narration: safeText(salvage.parsed.narration, 12000) || salvageReply,
+        status: safeText(salvage.parsed.status, 160) || 'creative_salvage_complete',
+      }, salvage.parsed), message);
     }
     return attachCreativeTaskComplete(attachTaskState({
       type: 'final',
       reply,
       narration: safeText(parsed.narration, 12000) || reply,
-      status: safeText(parsed.status, 160) || 'creative_draft_complete',
+      status: safeText(parsed.status, 160) || (usedSalvage ? 'creative_salvage_complete' : 'creative_draft_complete'),
     }, parsed), message);
   } catch (err) {
-    return attachCreativeTaskComplete({
-      type: 'final',
-      reply: `Creative writing provider failed before producing prose: malformed output (${safeText(err.message, 160)}). Please try again or say "report this" so I can file the failed prompt with context.`,
-      narration: 'Creative writing provider returned malformed prose output.',
-      status: 'creative_draft_parse_failed',
-    }, message);
+    return attachCreativeTaskComplete(userFacingFailure('Creative writing provider', `Malformed output (${safeText(err.message, 160)}).`, 'creative_draft_parse_failed'), message);
   }
 }
 
@@ -2059,6 +2102,68 @@ async function runMetalPromptSmoke(user, body) {
   }
 }
 
+async function runCreativePromptSmoke(user, body) {
+  const runId = safeText(body.runId, 80) || new Date().toISOString().replace(/[-:TZ.]/g, '').slice(0, 14);
+  const scenario = safeText(body.scenario, 120) || 'creative-writing';
+  const prompt = safeText(body.prompt, 4000);
+  const started = Date.now();
+  if (!prompt) {
+    return {ok: false, error: 'missing_prompt', detail: 'creativePromptSmoke requires prompt', runId, scenario};
+  }
+  const requestBody = {
+    message: prompt,
+    transcript: safeText(body.transcript, 10000),
+    summary: safeText(body.summary, 4000),
+    toolResults: [],
+    tools: [],
+    unavailableToolGroups: [],
+    workingMemory: body && typeof body.workingMemory === 'object' ? body.workingMemory : {},
+    evidenceContext: body && typeof body.evidenceContext === 'object' ? body.evidenceContext : {},
+    timeContext: {nowEpochMillis: Date.now(), nowIso: new Date().toISOString(), timeZoneId: 'UTC'},
+    debugTrace: true,
+  };
+  const response = await askOpenAIToolTurn(requestBody);
+  const elapsedMs = Date.now() - started;
+  const reply = finalReplyText(response, '');
+  const responseText = JSON.stringify(response);
+  const forbidden = [
+    'Next steps',
+    'tell me the main ingredient',
+    'second constraint',
+    'report this',
+    'github.create_issue',
+    'docs.create',
+    'docs.search',
+    'drive.search',
+    'I could not complete',
+    'Creative writing provider failed before producing prose',
+  ];
+  const missing = [];
+  if (response.type !== 'final') missing.push(`expected final response, got ${safeText(response.type, 80)}`);
+  if (!safeText(response.status, 160).startsWith('creative_')) missing.push(`expected creative status, got ${safeText(response.status, 160)}`);
+  if (reply.length < 700) missing.push(`reply too short: ${reply.length}`);
+  const requiredTerms = Array.isArray(body.requiredTerms) ? body.requiredTerms.map((term) => safeText(term, 80)).filter(Boolean).slice(0, 12) : [];
+  for (const term of requiredTerms) {
+    if (!new RegExp(`\\b${term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i').test(reply)) {
+      missing.push(`reply missing required term: ${term}`);
+    }
+  }
+  for (const needle of forbidden) {
+    if (responseText.includes(needle)) missing.push(`forbidden response text: ${needle}`);
+  }
+  return {
+    ok: missing.length === 0,
+    runId,
+    uid: user.uid,
+    scenario,
+    prompt,
+    elapsedMs,
+    status: response.status || '',
+    detail: missing.join('; '),
+    response,
+  };
+}
+
 exports.githubCreateIssue = onRequest({timeoutSeconds: 60, secrets: [GITHUB_TOKEN]}, async (req, res) => {
   if (handleOptions(req, res)) return;
   try {
@@ -2066,6 +2171,16 @@ exports.githubCreateIssue = onRequest({timeoutSeconds: 60, secrets: [GITHUB_TOKE
     sendJson(res, 200, await createGitHubIssue(req.body || {}));
   } catch (err) {
     sendJson(res, err.status || 500, {ok: false, error: 'github_issue_failed', detail: err.message || String(err)});
+  }
+});
+
+exports.creativePromptSmoke = onRequest({timeoutSeconds: 120, secrets: [OPENAI_API_KEY]}, async (req, res) => {
+  if (handleOptions(req, res)) return;
+  try {
+    const user = await requireSmokeUser(req);
+    sendJson(res, 200, await runCreativePromptSmoke(user, req.body || {}));
+  } catch (err) {
+    sendJson(res, err.status || 500, {ok: false, error: 'creative_prompt_smoke_failed', detail: err.message || String(err), stack: String(err.stack || '')});
   }
 });
 

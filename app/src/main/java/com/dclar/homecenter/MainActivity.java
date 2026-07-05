@@ -3881,7 +3881,10 @@ public final class MainActivity extends Activity implements RecognitionListener,
         String lower = clean.toLowerCase(Locale.US);
         String category = "provider";
         String workaround = "Retry once. If it repeats, say \"report this\" so I can preserve the exact failure.";
-        if (lower.contains("timeout") || lower.contains("timed out") || lower.contains("deadline")) {
+        if (lower.contains("unexpected end of stream") || lower.contains("unexpected end")) {
+            category = "gateway connection closed before response";
+            workaround = "Retry once. If it repeats, say \"report this\"; Home Center should return a bounded creative failure instead of stalling.";
+        } else if (lower.contains("timeout") || lower.contains("timed out") || lower.contains("deadline")) {
             category = "timeout";
             workaround = "Try again with a narrower request or direct URL. If it repeats, say \"report this\".";
         } else if (lower.contains("network") || lower.contains("fetch") || lower.contains("econn") || lower.contains("enotfound")) {

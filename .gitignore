@@ -22,6 +22,7 @@ __pycache__/
 /agent-tools/ticktick-list-ingest/.secrets/
 /agent-tools/walmart-cart-agent/data/*.json
 tools/metal_prompt_evidence/
+tools/creative_prompt_evidence/
 /agent-tools/walmart-cart-agent/data/*.jsonl
 
 # BEGIN CODEX WORKSPACE HYGIENE
