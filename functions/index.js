@@ -13,6 +13,7 @@ const GOOGLE_OAUTH_CLIENT_ID = defineSecret('GOOGLE_OAUTH_CLIENT_ID');
 const GOOGLE_OAUTH_CLIENT_SECRET = defineSecret('GOOGLE_OAUTH_CLIENT_SECRET');
 const CREATIVE_OPENAI_TIMEOUT_MS = 85000;
 const CREATIVE_SALVAGE_TIMEOUT_MS = 25000;
+const FINAL_REPLY_MAX_CHARS = 32000;
 
 const CORS_HEADERS = {
   'Access-Control-Allow-Origin': '*',
@@ -1365,7 +1366,7 @@ async function validateCreativeFinal(body, draft) {
 }
 
 function finalReplyText(parsed, rawText = '', depth = 0) {
-  if (!parsed || typeof parsed !== 'object') return safeText(rawText, 12000);
+  if (!parsed || typeof parsed !== 'object') return safeText(rawText, FINAL_REPLY_MAX_CHARS);
   const direct = parsed.reply
     || parsed.text
     || parsed.answer
@@ -1387,7 +1388,7 @@ function finalReplyText(parsed, rawText = '', depth = 0) {
         // Return the original text below if it only looks like JSON.
       }
     }
-    return safeText(direct, 12000);
+    return safeText(direct, FINAL_REPLY_MAX_CHARS);
   }
   if (Array.isArray(parsed.content)) {
     const joined = parsed.content.map((item) => {
@@ -1396,10 +1397,54 @@ function finalReplyText(parsed, rawText = '', depth = 0) {
       if (item && typeof item.content === 'string') return item.content;
       return '';
     }).filter(Boolean).join('\n');
-    if (joined.trim()) return safeText(joined, 12000);
+    if (joined.trim()) return safeText(joined, FINAL_REPLY_MAX_CHARS);
   }
-  if (rawText && !looksLikeToolCallJson(rawText)) return safeText(rawText, 12000);
+  if (rawText && !looksLikeToolCallJson(rawText)) return safeText(rawText, FINAL_REPLY_MAX_CHARS);
   return '';
+}
+
+function finalReplyLooksTruncated(reply) {
+  const text = String(reply || '').trim();
+  if (!text) return false;
+  if (text.length >= FINAL_REPLY_MAX_CHARS) return true;
+  const lower = text.toLowerCase();
+  if (/\b(and|or|but|for|with|without|to|from|because|while|when|if|so|the|a|an|your|his|her|their)$/.test(lower)) return true;
+  const last = text.charAt(text.length - 1);
+  const penultimate = text.length > 1 ? text.charAt(text.length - 2) : '';
+  if ((last === '"' || last === '“' || last === '”') && !'.!?:;)]}'.includes(penultimate)) return true;
+  if ('.!?:;)]}"”’.'.includes(last)) return false;
+  return text.length > 500 && /[A-Za-z0-9]$/.test(text);
+}
+
+async function repairTruncatedFinalReply(body, incompleteReply, promptText) {
+  const message = safeText(body && body.message, 4000);
+  const transcript = safeText(body && body.transcript, 6000);
+  const summary = safeText(body && body.summary, 2000);
+  const evidenceContext = body && typeof body.evidenceContext === 'object' ? body.evidenceContext : {};
+  const repairPrompt = [
+    'You are Home Center response completion repair.',
+    'The previous GPT-5.5 final answer appears cut off. Return one strict JSON object and no prose outside JSON.',
+    'Rewrite the complete answer for the latest user request. Preserve the useful content and finish all sentences, quotes, numbered points, and sections.',
+    'Do not add a routine Next step footer. Do not mention that repair happened unless the user asked for diagnostics.',
+    'Return JSON only: {"type":"final","reply":"...","narration":"...","status":"truncated_final_repaired","taskStateUpdate":{"status":"complete","objective":"..."}}',
+    `Latest user request: ${message}`,
+    summary ? `Conversation summary: ${summary}` : '',
+    transcript ? `Recent transcript: ${transcript}` : '',
+    `Evidence context JSON: ${JSON.stringify(evidenceContext).slice(0, 12000)}`,
+    `Incomplete prior answer: ${safeText(incompleteReply, 12000)}`,
+    promptText ? `Original planner prompt excerpt: ${safeText(promptText, 8000)}` : '',
+  ].filter(Boolean).join('\n\n');
+  const provider = await runEvidenceFinalizerProvider(repairPrompt, true);
+  if (!provider.ok) return null;
+  const parsed = provider.parsed || {};
+  const reply = finalReplyText(parsed, provider.rawText || '');
+  if (!reply || finalReplyLooksTruncated(reply)) return null;
+  return attachTaskState({
+    type: 'final',
+    reply,
+    narration: finalReplyText({reply: parsed.narration}, '', 0) || reply,
+    status: safeText(parsed.status, 160) || 'truncated_final_repaired',
+  }, Object.assign({taskStateUpdate: {status: 'complete', objective: message}}, parsed));
 }
 
 const UNRESOLVED_REFERENCE_LITERALS = new Set([
@@ -1872,6 +1917,16 @@ async function askOpenAIToolTurn(body) {
     }
     const trace = buildToolTrace(body, plannerTools, parsed, safeText(parsed.toolName || parsed.name, 80), toolByName(plannerTools, safeText(parsed.toolName || parsed.name, 80)), false);
     const finalReply = finalReplyText(parsed, text);
+    if (finalReplyLooksTruncated(finalReply)) {
+      const repaired = await repairTruncatedFinalReply(body, finalReply, promptText);
+      if (repaired) {
+        return withTrace(body, repaired, Object.assign({}, buildToolTrace(body, plannerTools, repaired, '', null, false), {
+          turnKernel,
+          truncatedFinalRepaired: true,
+          truncatedFinalChars: finalReply.length,
+        }));
+      }
+    }
     return withTrace(body, attachTaskState(sanitizeFinalPlannerReply(body, {
       type: 'final',
       reply: finalReply || 'I could not turn the GPT-5.5 response into a final answer. Please try again.',
@@ -2584,6 +2639,10 @@ async function runTurnContractCase(name, body, expected = {}) {
   if (expected.minReplyChars) {
     const reply = safeText(response.reply || response.text, 20000);
     assertTurnContract(reply.length >= Number(expected.minReplyChars), `${name}: expected reply length >= ${expected.minReplyChars}, got ${reply.length}`);
+  }
+  if (expected.replyNotTruncated) {
+    const reply = safeText(response.reply || response.text, FINAL_REPLY_MAX_CHARS);
+    assertTurnContract(!finalReplyLooksTruncated(reply), `${name}: visible reply looks truncated: ${reply.slice(-160)}`);
   }
   for (const term of expected.requiredTerms || []) {
     assertTurnContract(new RegExp(`\\b${term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i').test(responseText), `${name}: missing ${term}`);
