@@ -702,6 +702,7 @@ public final class MainActivity extends Activity implements RecognitionListener,
         Button cartHelper = button("Cart helper settings", 16, "Open Android accessibility settings for the cart helper");
         Button diagnostics = button("Check cart helper", 16, "Check whether the cart helper is installed and enabled");
         Button driveCheck = button("Check Google Drive", 16, "Check whether Home Center can list Google Drive files");
+        Button usage = button("Usage dashboard", 16, "Show AI and tool spend by user");
         Button netrunner = button("Netrunner browser", 16, "Open the secondary browser tool");
         Button compact = button("Compact chat", 16, "Compact the current chat history");
 
@@ -711,6 +712,7 @@ public final class MainActivity extends Activity implements RecognitionListener,
         panel.addView(cartHelper, matchHeight(dp(52)));
         panel.addView(diagnostics, matchHeight(dp(52)));
         panel.addView(driveCheck, matchHeight(dp(52)));
+        panel.addView(usage, matchHeight(dp(52)));
         panel.addView(netrunner, matchHeight(dp(52)));
         panel.addView(compact, matchHeight(dp(52)));
 
@@ -742,6 +744,10 @@ public final class MainActivity extends Activity implements RecognitionListener,
         driveCheck.setOnClickListener(v -> {
             dialog.dismiss();
             checkGoogleDriveDiagnostic();
+        });
+        usage.setOnClickListener(v -> {
+            dialog.dismiss();
+            showUsageDashboard();
         });
         netrunner.setOnClickListener(v -> {
             dialog.dismiss();
@@ -819,6 +825,122 @@ public final class MainActivity extends Activity implements RecognitionListener,
                     showAssistantMessage("TickTick fallback token saved.");
                 })
                 .show();
+    }
+
+    private void showUsageDashboard() {
+        if (openAiAgentClient == null || !openAiAgentClient.isConfigured()) {
+            showAssistantMessage("Usage dashboard requires the Home Center gateway.");
+            return;
+        }
+        if (!hasSignedInHomeUser()) {
+            showAssistantMessage("Sign in with Google first to view usage.");
+            startGoogleSignIn();
+            return;
+        }
+        String bucket = bucketValue();
+        if (bucket.isEmpty()) {
+            showAssistantMessage("Select a household bucket before opening usage.");
+            return;
+        }
+        FirebaseUser user = firebaseAuth == null ? null : firebaseAuth.getCurrentUser();
+        if (user == null) {
+            showAssistantMessage("Sign in with Google first to view usage.");
+            return;
+        }
+        setBusy(true);
+        setStatus("Loading usage...");
+        user.getIdToken(false)
+                .addOnSuccessListener(token -> executor.execute(() -> {
+                    try {
+                        JSONObject summary = openAiAgentClient.usageSummary(token.getToken(), bucket, 7);
+                        main.post(() -> {
+                            setBusy(false);
+                            showUsageDashboardDialog(summary);
+                        });
+                    } catch (Exception ex) {
+                        main.post(() -> {
+                            setBusy(false);
+                            showAssistantMessage("Could not load usage dashboard: " + shortMessage(ex.getMessage()));
+                        });
+                    }
+                }))
+                .addOnFailureListener(ex -> {
+                    setBusy(false);
+                    showAssistantMessage("Could not verify Google sign-in: " + shortMessage(ex.getMessage()));
+                });
+    }
+
+    private void showUsageDashboardDialog(JSONObject summary) {
+        LinearLayout panel = new LinearLayout(this);
+        panel.setOrientation(LinearLayout.VERTICAL);
+        panel.setPadding(dp(18), dp(10), dp(18), dp(4));
+        TextView body = new TextView(this);
+        body.setTextColor(COLOR_TEXT);
+        body.setTextSize(15);
+        body.setText(usageDashboardText(summary));
+        panel.addView(body, matchWrap());
+        new AlertDialog.Builder(this)
+                .setTitle("Usage dashboard")
+                .setView(panel)
+                .setNegativeButton("Close", null)
+                .show();
+    }
+
+    private String usageDashboardText(JSONObject summary) {
+        if (summary == null || !summary.optBoolean("ok", false)) {
+            return "Usage is unavailable: " + (summary == null ? "no response" : firstNonEmpty(summary.optString("detail", ""), summary.optString("error", ""), "", "unknown error"));
+        }
+        JSONObject totals = summary.optJSONObject("totals");
+        JSONArray users = summary.optJSONArray("users");
+        JSONArray providers = summary.optJSONArray("providers");
+        StringBuilder builder = new StringBuilder();
+        builder.append("Range: ").append(summary.optString("startDay", "")).append(" to ").append(summary.optString("endDay", "")).append("\n\n");
+        builder.append("Total: $").append(formatMoney(totals == null ? 0 : totals.optDouble("costUsd", 0))).append("\n");
+        builder.append("Calls: ").append(totals == null ? 0 : totals.optInt("calls", 0)).append("\n");
+        builder.append("Tokens: ").append(totals == null ? 0 : totals.optInt("totalTokens", 0)).append("\n");
+        int unpriced = totals == null ? 0 : totals.optInt("unpricedEvents", 0);
+        if (unpriced > 0) {
+            builder.append("Unpriced events: ").append(unpriced).append("\n");
+        }
+        builder.append("\nBy provider\n");
+        if (providers == null || providers.length() == 0) {
+            builder.append("No usage recorded yet.\n");
+        } else {
+            for (int i = 0; i < providers.length(); i++) {
+                JSONObject row = providers.optJSONObject(i);
+                if (row == null) continue;
+                builder.append("- ").append(row.optString("provider", "unknown"))
+                        .append(": $").append(formatMoney(row.optDouble("costUsd", 0)))
+                        .append(" · ").append(row.optInt("calls", 0)).append(" calls");
+                if (row.optInt("unpricedEvents", 0) > 0) {
+                    builder.append(" · ").append(row.optInt("unpricedEvents", 0)).append(" unpriced");
+                }
+                builder.append("\n");
+            }
+        }
+        builder.append("\nBy user\n");
+        if (users == null || users.length() == 0) {
+            builder.append("No user usage recorded yet.\n");
+        } else {
+            for (int i = 0; i < users.length(); i++) {
+                JSONObject row = users.optJSONObject(i);
+                if (row == null) continue;
+                builder.append("- ").append(firstNonEmpty(row.optString("email", ""), row.optString("uid", ""), "", "unknown"))
+                        .append(": $").append(formatMoney(row.optDouble("costUsd", 0)))
+                        .append(" · OpenAI $").append(formatMoney(row.optDouble("openAiCostUsd", 0)))
+                        .append(" · Google/tool $").append(formatMoney(row.optDouble("googleCostUsd", 0)))
+                        .append("\n");
+            }
+        }
+        String note = summary.optString("note", "").trim();
+        if (!note.isEmpty()) {
+            builder.append("\n").append(note);
+        }
+        return builder.toString().trim();
+    }
+
+    private String formatMoney(double value) {
+        return String.format(Locale.US, "%.4f", value);
     }
 
     private Button button(String text, int size, String description) {
@@ -1145,7 +1267,9 @@ public final class MainActivity extends Activity implements RecognitionListener,
                     JSONObject pendingForRetry = turn.arguments.optBoolean("_confirmedByGateway", false)
                             ? cloneJson(pendingToolConfirmation)
                             : null;
+                    long toolStartedAt = SystemClock.elapsedRealtime();
                     JSONObject result = executeRegisteredTool(turn.toolName, turn.arguments, idToken);
+                    recordToolUsageEvent(idToken, turn.toolName, result, SystemClock.elapsedRealtime() - toolStartedAt);
                     updateWorkingMemoryFromToolResult(turn.toolName, turn.arguments, result);
                     JSONObject resultFile = result.optJSONObject("file");
                     String resultDocumentId = resultFile == null ? "" : resultFile.optString("id", "");
@@ -3493,6 +3617,63 @@ public final class MainActivity extends Activity implements RecognitionListener,
             return user.getEmail();
         }
         return user.getUid();
+    }
+
+    private void recordToolUsageEvent(String idToken, String toolName, JSONObject result, long latencyMs) {
+        if (openAiAgentClient == null || !openAiAgentClient.isConfigured() || idToken == null || idToken.trim().isEmpty()) {
+            return;
+        }
+        ToolRegistry.ToolDefinition definition = ToolRegistry.definition(toolName);
+        JSONObject event = new JSONObject();
+        try {
+            event.put("toolName", toolName == null ? "" : toolName);
+            event.put("provider", definition == null ? "tool" : definition.group);
+            event.put("group", definition == null ? "tool" : definition.group);
+            event.put("write", definition != null && definition.write);
+            event.put("destructive", definition != null && definition.doubleConfirmationRequired);
+            event.put("ok", result != null && result.optBoolean("ok", false));
+            event.put("status", result == null ? "no_result" : result.optString("status", result.optString("error", "")));
+            event.put("latencyMs", Math.max(0, latencyMs));
+            event.put("resultCount", safeResultCount(result));
+            event.put("resultBytes", result == null ? 0 : Math.min(200000, result.toString().length()));
+            event.put("bucketId", bucketValue());
+            event.put("conversationId", activeConversationId == null ? "" : activeConversationId);
+        } catch (Exception ignored) {
+        }
+        executor.execute(() -> {
+            try {
+                openAiAgentClient.recordUsageToolEvent(idToken, event);
+            } catch (Exception ex) {
+                LocalLog.warn("usage", "tool_usage_event_failed tool=" + toolName + " detail=" + shortMessage(ex.getMessage()));
+            }
+        });
+    }
+
+    private int safeResultCount(JSONObject result) {
+        if (result == null) {
+            return 0;
+        }
+        JSONArray files = result.optJSONArray("files");
+        if (files != null) {
+            return files.length();
+        }
+        JSONArray messages = result.optJSONArray("messages");
+        if (messages != null) {
+            return messages.length();
+        }
+        JSONArray events = result.optJSONArray("events");
+        if (events != null) {
+            return events.length();
+        }
+        JSONArray contacts = result.optJSONArray("contacts");
+        if (contacts != null) {
+            return contacts.length();
+        }
+        JSONArray items = result.optJSONArray("items");
+        if (items != null) {
+            return items.length();
+        }
+        return result.optJSONObject("file") != null ? 1 : 0;
     }
 
     private boolean hasHomeClient() {

@@ -9,6 +9,9 @@ households/{bucketId}/groups/{groupId}
 households/{bucketId}/groups/{groupId}/members/{uid}
 households/{bucketId}/lists/{listId}
 households/{bucketId}/lists/{listId}/tasks/{taskId}
+usageEvents/{eventId}
+usageDaily/{yyyyMMdd}_{uid}_{provider}
+usagePricing/{provider_sku}
 ```
 
 ## Household
@@ -115,3 +118,53 @@ Voice removal commands match active tasks by normalized item name. Matching hand
 ## Local diagnostics
 
 Diagnostics are local files only and are not part of the Firestore data model. On Android 10+ daily log files are written through the Downloads provider under `/storage/emulated/0/Download/HomeCenter/logs/YYYY-MM-DD.txt`.
+
+## Usage telemetry
+
+Usage telemetry is server-owned metadata for the owner/admin spend dashboard. It must not store prompts, document contents, email bodies, OAuth tokens, API keys, Authorization headers, or raw tool arguments.
+
+`usageEvents/{eventId}` stores one safe metadata event per OpenAI Responses call or local Android tool execution:
+
+```json
+{
+  "eventType": "openai_response",
+  "provider": "openai",
+  "source": "agentToolTurn",
+  "sku": "gpt-5.5",
+  "uid": "firebase uid",
+  "email": "person@example.com",
+  "day": "20260706",
+  "month": "202607",
+  "inputTokens": 1234,
+  "outputTokens": 250,
+  "totalTokens": 1484,
+  "latencyMs": 1200,
+  "status": "ok",
+  "costUsd": 0.0,
+  "unpriced": true
+}
+```
+
+Tool events use `eventType: "tool_call"` and include `toolName`, `write`, `destructive`, `bucketId`, `conversationId`, `resultCount`, and `resultBytes`. Content and raw arguments are intentionally omitted.
+
+`usageDaily/{yyyyMMdd}_{uid}_{provider}` stores dashboard aggregates:
+
+```json
+{
+  "day": "20260706",
+  "month": "202607",
+  "uid": "firebase uid",
+  "email": "person@example.com",
+  "provider": "openai",
+  "totalCostUsd": 0.0,
+  "calls": 12,
+  "inputTokens": 12000,
+  "outputTokens": 2000,
+  "totalTokens": 14000,
+  "toolCalls": 0,
+  "unpricedEvents": 12,
+  "updatedAt": "server timestamp"
+}
+```
+
+`usagePricing/{provider_sku}` stores configurable pricing with effective dates/active flags. Missing pricing records make dashboard rows show unpriced counts instead of invented dollar costs.

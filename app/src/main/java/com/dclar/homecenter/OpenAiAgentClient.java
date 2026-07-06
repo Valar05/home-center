@@ -267,6 +267,21 @@ final class OpenAiAgentClient {
         return postJson("githubCreateIssue", idToken, body);
     }
 
+    void recordUsageToolEvent(String idToken, JSONObject event) throws IOException {
+        postJson("usageToolEvent", idToken, event == null ? new JSONObject() : event);
+    }
+
+    JSONObject usageSummary(String idToken, String bucketId, int days) throws IOException {
+        JSONObject body = new JSONObject();
+        try {
+            body.put("bucketId", bucketId == null ? "" : bucketId.trim());
+            body.put("days", days);
+        } catch (JSONException ex) {
+            throw new IOException("Could not build usage summary request: " + ex.getMessage(), ex);
+        }
+        return postJson("usageSummary", idToken, body);
+    }
+
     void exchangeGoogleAuthCode(String idToken, String authCode) throws IOException {
         if (!isConfigured() || authCode == null || authCode.trim().isEmpty()) {
             return;

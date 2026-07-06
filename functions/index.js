@@ -16,6 +16,9 @@ const CREATIVE_SALVAGE_TIMEOUT_MS = 25000;
 const EVIDENCE_FINALIZER_TIMEOUT_MS = 45000;
 const EVIDENCE_FINALIZER_REPAIR_TIMEOUT_MS = 12000;
 const FINAL_REPLY_MAX_CHARS = 32000;
+const USAGE_PRICING_CACHE_MS = 5 * 60 * 1000;
+const USAGE_TOP_LIMIT = 8;
+const usagePricingCache = new Map();
 
 const CORS_HEADERS = {
   'Access-Control-Allow-Origin': '*',
@@ -91,6 +94,294 @@ async function requireSmokeUser(req) {
 function safeText(value, max = 12000) {
   const text = typeof value === 'string' ? value.trim() : '';
   return text.length > max ? text.slice(0, max) : text;
+}
+
+function safeNumber(value, fallback = 0) {
+  const number = Number(value);
+  return Number.isFinite(number) ? number : fallback;
+}
+
+function usageDayId(date = new Date()) {
+  return date.toISOString().slice(0, 10).replace(/-/g, '');
+}
+
+function usageMonthId(date = new Date()) {
+  return date.toISOString().slice(0, 7).replace('-', '');
+}
+
+function usageKey(value) {
+  return safeText(String(value || ''), 160).toLowerCase().replace(/[^a-z0-9_.-]+/g, '_').replace(/^_+|_+$/g, '') || 'unknown';
+}
+
+function userUsageIdentity(user = {}) {
+  return {
+    uid: safeText(user.uid, 160) || 'unknown',
+    email: safeText(user.email, 320),
+  };
+}
+
+function responseUsage(json = {}) {
+  const usage = json && typeof json.usage === 'object' ? json.usage : {};
+  const inputTokens = safeNumber(usage.input_tokens || usage.prompt_tokens, 0);
+  const outputTokens = safeNumber(usage.output_tokens || usage.completion_tokens, 0);
+  const totalTokens = safeNumber(usage.total_tokens, inputTokens + outputTokens);
+  const inputDetails = usage.input_tokens_details || {};
+  const outputDetails = usage.output_tokens_details || {};
+  return {
+    inputTokens,
+    outputTokens,
+    totalTokens,
+    cachedInputTokens: safeNumber(inputDetails.cached_tokens, 0),
+    reasoningOutputTokens: safeNumber(outputDetails.reasoning_tokens, 0),
+  };
+}
+
+function estimatedInputTokensFromRequest(requestBody = {}) {
+  const input = requestBody.input;
+  if (typeof input === 'string') return Math.ceil(input.length / 4);
+  if (Array.isArray(input)) return Math.ceil(JSON.stringify(input).length / 4);
+  return 0;
+}
+
+async function pricingFor(provider, sku) {
+  const key = `${usageKey(provider)}_${usageKey(sku)}`;
+  const cached = usagePricingCache.get(key);
+  if (cached && Date.now() - cached.loadedAt < USAGE_PRICING_CACHE_MS) return cached.value;
+  const snap = await admin.firestore().collection('usagePricing').doc(key).get();
+  const value = snap.exists ? snap.data() : null;
+  usagePricingCache.set(key, {loadedAt: Date.now(), value});
+  return value;
+}
+
+function costFromPricing(pricing, units) {
+  if (!pricing || pricing.active === false) return {priced: false, costUsd: 0, pricingUnit: ''};
+  const unit = safeText(pricing.unit, 80) || 'per_1m_tokens';
+  const inputTokens = safeNumber(units.inputTokens, 0);
+  const outputTokens = safeNumber(units.outputTokens, 0);
+  let costUsd = 0;
+  if (unit === 'per_1m_tokens') {
+    costUsd += inputTokens * safeNumber(pricing.inputUsdPer1M, 0) / 1000000;
+    costUsd += outputTokens * safeNumber(pricing.outputUsdPer1M, 0) / 1000000;
+  } else if (unit === 'per_call') {
+    costUsd += safeNumber(pricing.usdPerCall, 0);
+  }
+  return {priced: costUsd > 0, costUsd, pricingUnit: unit};
+}
+
+async function recordUsageEvent(event) {
+  try {
+    const clean = Object.assign({}, event || {});
+    const now = new Date();
+    clean.createdAt = admin.firestore.FieldValue.serverTimestamp();
+    clean.day = safeText(clean.day, 16) || usageDayId(now);
+    clean.month = safeText(clean.month, 12) || usageMonthId(now);
+    clean.provider = safeText(clean.provider, 40) || 'unknown';
+    clean.source = safeText(clean.source, 120) || 'unknown';
+    clean.sku = safeText(clean.sku, 160) || 'unknown';
+    clean.uid = safeText(clean.uid, 160) || 'unknown';
+    clean.email = safeText(clean.email, 320);
+    clean.costUsd = safeNumber(clean.costUsd, 0);
+    clean.unpriced = clean.unpriced === true;
+    const db = admin.firestore();
+    const eventRef = db.collection('usageEvents').doc();
+    const aggregateId = `${clean.day}_${usageKey(clean.uid)}_${usageKey(clean.provider)}`;
+    const aggregateRef = db.collection('usageDaily').doc(aggregateId);
+    await db.runTransaction(async (tx) => {
+      tx.set(eventRef, clean);
+      tx.set(aggregateRef, {
+        day: clean.day,
+        month: clean.month,
+        uid: clean.uid,
+        email: clean.email,
+        provider: clean.provider,
+        totalCostUsd: admin.firestore.FieldValue.increment(clean.costUsd),
+        unpricedEvents: admin.firestore.FieldValue.increment(clean.unpriced ? 1 : 0),
+        calls: admin.firestore.FieldValue.increment(safeNumber(clean.calls, 1)),
+        inputTokens: admin.firestore.FieldValue.increment(safeNumber(clean.inputTokens, 0)),
+        outputTokens: admin.firestore.FieldValue.increment(safeNumber(clean.outputTokens, 0)),
+        totalTokens: admin.firestore.FieldValue.increment(safeNumber(clean.totalTokens, 0)),
+        toolCalls: admin.firestore.FieldValue.increment(clean.eventType === 'tool_call' ? 1 : 0),
+        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+      }, {merge: true});
+    });
+  } catch (err) {
+    console.warn('usage_record_failed', safeText(err && (err.stack || err.message || err), 1000));
+  }
+}
+
+async function recordOpenAiUsage(user, source, requestBody, responseJson, meta = {}) {
+  const identity = userUsageIdentity(user);
+  const model = safeText(requestBody && requestBody.model, 120) || 'unknown';
+  const usage = responseUsage(responseJson || {});
+  if (!usage.inputTokens && !usage.outputTokens) {
+    usage.inputTokens = estimatedInputTokensFromRequest(requestBody);
+    usage.totalTokens = usage.inputTokens;
+  }
+  const pricing = await pricingFor('openai', model);
+  const cost = costFromPricing(pricing, usage);
+  await recordUsageEvent(Object.assign({}, identity, usage, {
+    eventType: 'openai_response',
+    provider: 'openai',
+    source,
+    sku: model,
+    model,
+    reasoningEffort: safeText(requestBody && requestBody.reasoning && requestBody.reasoning.effort, 80),
+    toolsEnabled: Array.isArray(requestBody && requestBody.tools) ? requestBody.tools.length : 0,
+    maxOutputTokens: safeNumber(requestBody && requestBody.max_output_tokens, 0),
+    status: safeText(meta.status, 80) || 'unknown',
+    httpStatus: safeNumber(meta.httpStatus, 0),
+    latencyMs: safeNumber(meta.latencyMs, 0),
+    costUsd: cost.costUsd,
+    unpriced: !cost.priced,
+    pricingUnit: cost.pricingUnit,
+  }));
+}
+
+async function fetchOpenAIResponses(user, source, requestBody, fetchOptions = {}) {
+  const started = Date.now();
+  let httpStatus = 0;
+  let json = {};
+  try {
+    const response = await fetch('https://api.openai.com/v1/responses', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${OPENAI_API_KEY.value()}`,
+        'Content-Type': 'application/json',
+      },
+      signal: fetchOptions.signal,
+      body: JSON.stringify(requestBody),
+    });
+    httpStatus = response.status;
+    json = await response.json().catch(() => ({}));
+    await recordOpenAiUsage(user, source, requestBody, json, {
+      status: response.ok ? 'ok' : 'http_error',
+      httpStatus,
+      latencyMs: Date.now() - started,
+    });
+    return {response, json};
+  } catch (err) {
+    await recordOpenAiUsage(user, source, requestBody, {}, {
+      status: err && err.name === 'AbortError' ? 'timeout' : 'transport_error',
+      httpStatus,
+      latencyMs: Date.now() - started,
+    });
+    throw err;
+  }
+}
+
+async function recordToolUsage(user, body = {}) {
+  const identity = userUsageIdentity(user);
+  const provider = safeText(body.provider, 40) || safeText(body.group, 40) || 'tool';
+  const toolName = safeText(body.toolName, 160) || 'unknown';
+  const pricing = await pricingFor(provider, toolName);
+  const cost = costFromPricing(pricing, {inputTokens: 0, outputTokens: 0});
+  await recordUsageEvent(Object.assign({}, identity, {
+    eventType: 'tool_call',
+    provider,
+    source: 'android_tool_dispatch',
+    sku: toolName,
+    toolName,
+    bucketId: usageKey(body.bucketId || body.bucket || ''),
+    conversationId: safeText(body.conversationId, 160),
+    write: body.write === true,
+    destructive: body.destructive === true,
+    status: safeText(body.status, 80) || (body.ok === false ? 'error' : 'ok'),
+    ok: body.ok !== false,
+    latencyMs: safeNumber(body.latencyMs, 0),
+    resultCount: safeNumber(body.resultCount, 0),
+    resultBytes: safeNumber(body.resultBytes, 0),
+    costUsd: cost.costUsd,
+    unpriced: !cost.priced,
+    pricingUnit: cost.pricingUnit,
+  }));
+}
+
+async function canViewHouseholdUsage(user, bucketId) {
+  const uid = safeText(user && user.uid, 160);
+  const cleanBucket = usageKey(bucketId);
+  if (!uid || !cleanBucket) return false;
+  const household = await admin.firestore().collection('households').doc(cleanBucket).get();
+  if (!household.exists) return false;
+  const householdData = household.data() || {};
+  if (safeText(householdData.createdBy, 160) === uid) return true;
+  const member = await household.ref.collection('members').doc(uid).get();
+  if (!member.exists) return false;
+  const role = safeText((member.data() || {}).role, 80).toLowerCase();
+  return role === 'owner' || role === 'admin';
+}
+
+function rangeStartDay(days) {
+  const count = Math.max(1, Math.min(90, safeNumber(days, 7)));
+  const date = new Date(Date.now() - (count - 1) * 86400000);
+  return usageDayId(date);
+}
+
+function money(value) {
+  return Math.round(safeNumber(value, 0) * 10000) / 10000;
+}
+
+async function usageSummaryFor(user, body = {}) {
+  const bucketId = usageKey(body.bucketId || body.bucket || '');
+  const days = Math.max(1, Math.min(90, safeNumber(body.days, 7)));
+  if (!bucketId) return {ok: false, error: 'missing_bucket', detail: 'Select a household bucket before opening usage.'};
+  if (!await canViewHouseholdUsage(user, bucketId)) {
+    return {ok: false, error: 'usage_forbidden', detail: 'Only the household creator or an admin can view usage spend.'};
+  }
+  const startDay = safeText(body.startDay, 16) || rangeStartDay(days);
+  const endDay = safeText(body.endDay, 16) || usageDayId();
+  const snap = await admin.firestore().collection('usageDaily')
+    .where('day', '>=', startDay)
+    .where('day', '<=', endDay)
+    .get();
+  const totals = {costUsd: 0, calls: 0, inputTokens: 0, outputTokens: 0, totalTokens: 0, unpricedEvents: 0};
+  const providers = {};
+  const users = {};
+  snap.forEach((doc) => {
+    const row = doc.data() || {};
+    const uid = safeText(row.uid, 160) || 'unknown';
+    const provider = safeText(row.provider, 40) || 'unknown';
+    const cost = safeNumber(row.totalCostUsd, 0);
+    const calls = safeNumber(row.calls, 0);
+    const inputTokens = safeNumber(row.inputTokens, 0);
+    const outputTokens = safeNumber(row.outputTokens, 0);
+    const totalTokens = safeNumber(row.totalTokens, 0);
+    const unpriced = safeNumber(row.unpricedEvents, 0);
+    totals.costUsd += cost;
+    totals.calls += calls;
+    totals.inputTokens += inputTokens;
+    totals.outputTokens += outputTokens;
+    totals.totalTokens += totalTokens;
+    totals.unpricedEvents += unpriced;
+    if (!providers[provider]) providers[provider] = {provider, costUsd: 0, calls: 0, totalTokens: 0, unpricedEvents: 0};
+    providers[provider].costUsd += cost;
+    providers[provider].calls += calls;
+    providers[provider].totalTokens += totalTokens;
+    providers[provider].unpricedEvents += unpriced;
+    if (!users[uid]) users[uid] = {uid, email: safeText(row.email, 320), costUsd: 0, calls: 0, openAiCostUsd: 0, googleCostUsd: 0, unpricedEvents: 0};
+    users[uid].email = users[uid].email || safeText(row.email, 320);
+    users[uid].costUsd += cost;
+    users[uid].calls += calls;
+    users[uid].unpricedEvents += unpriced;
+    if (provider === 'openai') users[uid].openAiCostUsd += cost;
+    if (provider !== 'openai') users[uid].googleCostUsd += cost;
+  });
+  const providerRows = Object.values(providers).map((row) => Object.assign({}, row, {costUsd: money(row.costUsd)}))
+    .sort((a, b) => b.costUsd - a.costUsd || b.calls - a.calls);
+  const userRows = Object.values(users).map((row) => Object.assign({}, row, {
+    costUsd: money(row.costUsd),
+    openAiCostUsd: money(row.openAiCostUsd),
+    googleCostUsd: money(row.googleCostUsd),
+  })).sort((a, b) => b.costUsd - a.costUsd || b.calls - a.calls);
+  return {
+    ok: true,
+    bucketId,
+    startDay,
+    endDay,
+    totals: Object.assign({}, totals, {costUsd: money(totals.costUsd)}),
+    providers: providerRows.slice(0, USAGE_TOP_LIMIT),
+    users: userRows.slice(0, USAGE_TOP_LIMIT),
+    note: totals.unpricedEvents > 0 ? 'Some usage is unpriced because usagePricing has no active record for that model or tool.' : '',
+  };
 }
 
 function shouldEnableWebSearch(message, body = {}) {
@@ -386,7 +677,7 @@ async function createGoogleDoc(uid, message) {
   };
 }
 
-async function askOpenAI(uid, body) {
+async function askOpenAI(user, body) {
   const message = safeText(body.message, 4000);
   const summary = compactPromptText(body.summary, 1200);
   const transcript = compactPromptText(body.transcript, 2000);
@@ -407,20 +698,13 @@ async function askOpenAI(uid, body) {
   ].filter(Boolean).join('\n\n');
   const openAiTools = shouldEnableWebSearch(message, body) ? [{type: 'web_search'}] : [];
 
-  const response = await fetch('https://api.openai.com/v1/responses', {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${OPENAI_API_KEY.value()}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(Object.assign({
+  const requestBody = Object.assign({
       model: 'gpt-5.5',
       reasoning: {effort: 'low'},
       text: {verbosity: 'low'},
       input: promptText,
-    }, openAiTools.length ? {tools: openAiTools} : {})),
-  });
-  const json = await response.json().catch(() => ({}));
+    }, openAiTools.length ? {tools: openAiTools} : {});
+  const {response, json} = await fetchOpenAIResponses(user, 'agentTurn', requestBody);
   if (!response.ok) {
     return userFacingFailure('GPT-5.5 provider', json.error?.message || response.statusText || `HTTP ${response.status}`, `openai_http_${response.status}`);
   }
@@ -961,27 +1245,22 @@ function activeTaskObjective(body, fallbackMessage) {
       || safeText(fallbackMessage, 4000);
 }
 
-async function runEvidenceFinalizerProvider(prompt, repair = false) {
+async function runEvidenceFinalizerProvider(prompt, repair = false, user = {}) {
   const controller = new AbortController();
   const timeoutMs = repair ? EVIDENCE_FINALIZER_REPAIR_TIMEOUT_MS : EVIDENCE_FINALIZER_TIMEOUT_MS;
   const timeout = setTimeout(() => controller.abort(), timeoutMs);
   let response;
   try {
-    response = await fetch('https://api.openai.com/v1/responses', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${OPENAI_API_KEY.value()}`,
-        'Content-Type': 'application/json',
-      },
-      signal: controller.signal,
-      body: JSON.stringify({
-        model: 'gpt-5.5',
-        reasoning: {effort: 'low'},
-        text: {verbosity: repair ? 'low' : 'medium'},
-        max_output_tokens: repair ? 1200 : 1800,
-        input: prompt,
-      }),
-    });
+    const requestBody = {
+      model: 'gpt-5.5',
+      reasoning: {effort: 'low'},
+      text: {verbosity: repair ? 'low' : 'medium'},
+      max_output_tokens: repair ? 1200 : 1800,
+      input: prompt,
+    };
+    const result = await fetchOpenAIResponses(user, repair ? 'evidence_finalizer_repair' : 'evidence_finalizer', requestBody, {signal: controller.signal});
+    response = result.response;
+    var json = result.json;
   } catch (err) {
     const isTimeout = err && err.name === 'AbortError';
     return {
@@ -995,7 +1274,6 @@ async function runEvidenceFinalizerProvider(prompt, repair = false) {
   } finally {
     clearTimeout(timeout);
   }
-  const json = await response.json().catch(() => ({}));
   if (!response.ok) {
     return {ok: false, response: userFacingFailure('GPT-5.5 evidence finalizer', json.error?.message || response.statusText || `HTTP ${response.status}`, `openai_http_${response.status}`)};
   }
@@ -1007,7 +1285,7 @@ async function runEvidenceFinalizerProvider(prompt, repair = false) {
   }
 }
 
-async function askOpenAIEvidenceFinalizer(body, turnKernel, toolEvidenceDigest) {
+async function askOpenAIEvidenceFinalizer(body, turnKernel, toolEvidenceDigest, user = {}) {
   const message = safeText(body && body.message, 4000);
   const objective = activeTaskObjective(body, turnKernel && turnKernel.plannerMessage ? turnKernel.plannerMessage : message);
   const summary = safeText(body && body.summary, 4000);
@@ -1034,16 +1312,16 @@ async function askOpenAIEvidenceFinalizer(body, turnKernel, toolEvidenceDigest) 
     `Available tools JSON: []`,
     `Tool evidence digest JSON: ${JSON.stringify(toolEvidenceDigest).slice(0, 50000)}`,
   ].filter(Boolean).join('\n\n');
-  let provider = await runEvidenceFinalizerProvider(finalizerPrompt);
+  let provider = await runEvidenceFinalizerProvider(finalizerPrompt, false, user);
   if (!provider.ok) return provider.response;
   if (provider.parsed && provider.parsed.type === 'tool_call') {
-    provider = await runEvidenceFinalizerProvider(`${finalizerPrompt}\n\nPrior invalid output requested a tool. Repair it by returning only a final answer from the provided evidence.`, true);
+    provider = await runEvidenceFinalizerProvider(`${finalizerPrompt}\n\nPrior invalid output requested a tool. Repair it by returning only a final answer from the provided evidence.`, true, user);
     if (!provider.ok) return provider.response;
   }
   const parsed = provider.parsed || {};
   const reply = finalReplyText(parsed, provider.rawText || '');
   if (finalReplyLooksTruncated(reply)) {
-    const repaired = await repairTruncatedFinalReply(body, reply, finalizerPrompt);
+    const repaired = await repairTruncatedFinalReply(body, reply, finalizerPrompt, user);
     if (repaired) return repaired;
   }
   if (!reply) {
@@ -1242,7 +1520,7 @@ function creativeContextToolCall(body, tools, toolResults) {
   return null;
 }
 
-async function askOpenAICreativeRepair(body, originalReply) {
+async function askOpenAICreativeRepair(body, originalReply, user = {}) {
   const message = safeText(body.message, 4000);
   const transcript = safeText(body.transcript, 10000);
   const summary = safeText(body.summary, 4000);
@@ -1264,20 +1542,13 @@ async function askOpenAICreativeRepair(body, originalReply) {
     `Tool evidence digest JSON: ${JSON.stringify(digest).slice(0, 50000)}`,
     `Rejected first reply: ${safeText(originalReply, 4000)}`,
   ].filter(Boolean).join('\n\n');
-  const response = await fetch('https://api.openai.com/v1/responses', {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${OPENAI_API_KEY.value()}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      model: 'gpt-5.5',
-      reasoning: {effort: 'medium'},
-      text: {verbosity: 'medium'},
-      input: prompt,
-    }),
-  });
-  const json = await response.json().catch(() => ({}));
+  const requestBody = {
+    model: 'gpt-5.5',
+    reasoning: {effort: 'medium'},
+    text: {verbosity: 'medium'},
+    input: prompt,
+  };
+  const {response, json} = await fetchOpenAIResponses(user, 'creative_repair', requestBody);
   if (!response.ok) {
     return null;
   }
@@ -1332,21 +1603,16 @@ async function runCreativeProviderJson(prompt, timeoutMs, statusFallback, option
   const salvage = options.mode === 'salvage';
   let response;
   try {
-    response = await fetch('https://api.openai.com/v1/responses', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${OPENAI_API_KEY.value()}`,
-        'Content-Type': 'application/json',
-      },
-      signal: controller.signal,
-      body: JSON.stringify({
-        model: 'gpt-5.5',
-        reasoning: {effort: salvage ? 'low' : 'low'},
-        text: {verbosity: salvage ? 'low' : 'medium'},
-        max_output_tokens: salvage ? 1400 : 2600,
-        input: prompt,
-      }),
-    });
+    const requestBody = {
+      model: 'gpt-5.5',
+      reasoning: {effort: salvage ? 'low' : 'low'},
+      text: {verbosity: salvage ? 'low' : 'medium'},
+      max_output_tokens: salvage ? 1400 : 2600,
+      input: prompt,
+    };
+    const result = await fetchOpenAIResponses(options.user || {}, salvage ? 'creative_provider_salvage' : 'creative_provider', requestBody, {signal: controller.signal});
+    response = result.response;
+    var json = result.json;
   } catch (err) {
     return {
       ok: false,
@@ -1358,7 +1624,6 @@ async function runCreativeProviderJson(prompt, timeoutMs, statusFallback, option
   } finally {
     clearTimeout(timeout);
   }
-  const json = await response.json().catch(() => ({}));
   if (!response.ok) {
     return {
       ok: false,
@@ -1378,14 +1643,14 @@ async function runCreativeProviderJson(prompt, timeoutMs, statusFallback, option
   }
 }
 
-async function askOpenAICreativeDraft(body) {
+async function askOpenAICreativeDraft(body, user = {}) {
   const message = safeText(body.message, 4000);
   const prompt = creativeDraftPrompt(body, 'draft');
-  let provider = await runCreativeProviderJson(prompt, CREATIVE_OPENAI_TIMEOUT_MS, 'creative_draft_parse_failed');
+  let provider = await runCreativeProviderJson(prompt, CREATIVE_OPENAI_TIMEOUT_MS, 'creative_draft_parse_failed', {user});
   let usedSalvage = false;
   if (!provider.ok) {
     usedSalvage = true;
-    provider = await runCreativeProviderJson(creativeDraftPrompt(body, 'salvage', provider.detail), CREATIVE_SALVAGE_TIMEOUT_MS, 'creative_salvage_parse_failed', {mode: 'salvage'});
+    provider = await runCreativeProviderJson(creativeDraftPrompt(body, 'salvage', provider.detail), CREATIVE_SALVAGE_TIMEOUT_MS, 'creative_salvage_parse_failed', {mode: 'salvage', user});
   }
   if (!provider.ok) {
     return attachCreativeTaskComplete(userFacingFailure('Creative writing provider', provider.detail, provider.status), message);
@@ -1394,7 +1659,7 @@ async function askOpenAICreativeDraft(body) {
     const parsed = provider.parsed;
     const reply = finalReplyText(parsed, '');
     if (!reply || creativeReplyNeedsRepair(message, reply)) {
-      const salvage = await runCreativeProviderJson(creativeDraftPrompt(body, 'salvage', 'empty or unusable output'), CREATIVE_SALVAGE_TIMEOUT_MS, 'creative_salvage_parse_failed', {mode: 'salvage'});
+      const salvage = await runCreativeProviderJson(creativeDraftPrompt(body, 'salvage', 'empty or unusable output'), CREATIVE_SALVAGE_TIMEOUT_MS, 'creative_salvage_parse_failed', {mode: 'salvage', user});
       if (!salvage.ok) return attachCreativeTaskComplete(userFacingFailure('Creative writing provider', salvage.detail, salvage.status), message);
       const salvageReply = finalReplyText(salvage.parsed, '');
       if (!salvageReply || creativeReplyNeedsRepair(message, salvageReply)) {
@@ -1418,7 +1683,7 @@ async function askOpenAICreativeDraft(body) {
   }
 }
 
-async function validateCreativeFinal(body, draft) {
+async function validateCreativeFinal(body, draft, user = {}) {
   const message = safeText(body.message, 4000);
   if (!isCreativeWritingRequest(message) || isExplicitNonCreativeToolRequest(message)) return null;
   const transcript = safeText(body.transcript, 10000);
@@ -1442,20 +1707,13 @@ async function validateCreativeFinal(body, draft) {
     `Tool evidence digest JSON: ${JSON.stringify(digest).slice(0, 50000)}`,
     `Draft to validate: ${safeText(draft, 12000)}`,
   ].filter(Boolean).join('\n\n');
-  const response = await fetch('https://api.openai.com/v1/responses', {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${OPENAI_API_KEY.value()}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      model: 'gpt-5.5',
-      reasoning: {effort: 'medium'},
-      text: {verbosity: 'medium'},
-      input: prompt,
-    }),
-  });
-  const json = await response.json().catch(() => ({}));
+  const requestBody = {
+    model: 'gpt-5.5',
+    reasoning: {effort: 'medium'},
+    text: {verbosity: 'medium'},
+    input: prompt,
+  };
+  const {response, json} = await fetchOpenAIResponses(user, 'creative_validation', requestBody);
   if (!response.ok) return null;
   try {
     const parsed = extractJsonObject(json.output_text || extractOutputText(json) || '');
@@ -1527,7 +1785,7 @@ function finalReplyLooksTruncated(reply) {
   return text.length > 500 && /[A-Za-z0-9]$/.test(text);
 }
 
-async function repairTruncatedFinalReply(body, incompleteReply, promptText) {
+async function repairTruncatedFinalReply(body, incompleteReply, promptText, user = {}) {
   const message = safeText(body && body.message, 4000);
   const transcript = safeText(body && body.transcript, 6000);
   const summary = safeText(body && body.summary, 2000);
@@ -1545,7 +1803,7 @@ async function repairTruncatedFinalReply(body, incompleteReply, promptText) {
     `Incomplete prior answer: ${safeText(incompleteReply, 12000)}`,
     promptText ? `Original planner prompt excerpt: ${safeText(promptText, 8000)}` : '',
   ].filter(Boolean).join('\n\n');
-  const provider = await runEvidenceFinalizerProvider(repairPrompt, true);
+  const provider = await runEvidenceFinalizerProvider(repairPrompt, true, user);
   if (!provider.ok) return null;
   const parsed = provider.parsed || {};
   const reply = finalReplyText(parsed, provider.rawText || '');
@@ -1786,7 +2044,7 @@ function openAiInputWithAttachments(promptText, attachmentImages) {
   return [{role: 'user', content}];
 }
 
-async function askOpenAIToolTurn(body) {
+async function askOpenAIToolTurn(body, user = {}) {
   const message = safeText(body.message, 4000);
   const summary = compactPromptText(body.summary, 1200);
   const transcript = compactPromptText(body.transcript, 2000);
@@ -1840,7 +2098,7 @@ async function askOpenAIToolTurn(body) {
     }, Object.assign({}, trace, {turnKernel}));
   }
   if (shouldUseEvidenceFinalizer(body, toolResults)) {
-    const finalized = await askOpenAIEvidenceFinalizer(body, turnKernel, toolEvidenceDigest);
+    const finalized = await askOpenAIEvidenceFinalizer(body, turnKernel, toolEvidenceDigest, user);
     const trace = buildToolTrace(body, tools, finalized, '', null, false);
     return withTrace(body, finalized, Object.assign({}, trace, {
       turnKernel,
@@ -1965,21 +2223,14 @@ async function askOpenAIToolTurn(body) {
   ].filter(Boolean).join('\n\n');
   const input = openAiInputWithAttachments(promptText, attachmentImages);
 
-  const response = await fetch('https://api.openai.com/v1/responses', {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${OPENAI_API_KEY.value()}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(Object.assign({
+  const requestBody = Object.assign({
       model: 'gpt-5.5',
       reasoning: {effort: reasoningEffort},
       text: {verbosity: 'low'},
       max_output_tokens: 700,
       input,
-    }, openAiTools.length ? {tools: openAiTools} : {})),
-  });
-  const json = await response.json().catch(() => ({}));
+    }, openAiTools.length ? {tools: openAiTools} : {});
+  const {response, json} = await fetchOpenAIResponses(user, 'agentToolTurn', requestBody);
   if (!response.ok) {
     return userFacingFailure('GPT-5.5 provider', json.error?.message || response.statusText || `HTTP ${response.status}`, `openai_http_${response.status}`);
   }
@@ -2048,7 +2299,7 @@ async function askOpenAIToolTurn(body) {
     const trace = buildToolTrace(body, plannerTools, parsed, safeText(parsed.toolName || parsed.name, 80), toolByName(plannerTools, safeText(parsed.toolName || parsed.name, 80)), false);
     const finalReply = finalReplyText(parsed, text);
     if (finalReplyLooksTruncated(finalReply)) {
-      const repaired = await repairTruncatedFinalReply(body, finalReply, promptText);
+      const repaired = await repairTruncatedFinalReply(body, finalReply, promptText, user);
       if (repaired) {
         return withTrace(body, repaired, Object.assign({}, buildToolTrace(body, plannerTools, repaired, '', null, false), {
           turnKernel,
@@ -2482,7 +2733,7 @@ function updateSmokeWorkingMemory(workingMemory, toolName, args, result) {
   }
 }
 
-async function runSmokeTurn(host, evidence, state, message, expected = {}) {
+async function runSmokeTurn(host, evidence, state, message, expected = {}, user = {}) {
   const toolResults = [];
   const turn = {message, responses: [], toolResults: []};
   evidence.turns.push(turn);
@@ -2501,7 +2752,7 @@ async function runSmokeTurn(host, evidence, state, message, expected = {}) {
       debugTrace: true,
     };
     if (state.pendingConfirmation) body.pendingConfirmation = state.pendingConfirmation;
-    const response = await askOpenAIToolTurn(body);
+    const response = await askOpenAIToolTurn(body, user);
     turn.responses.push(response);
     if (response.type === 'tool_call' && response.toolName) {
       const result = await host.execute(response.toolName, response.arguments || {});
@@ -2535,7 +2786,7 @@ async function runSmokeTurn(host, evidence, state, message, expected = {}) {
   throw new Error(`Smoke turn did not converge for "${message}".`);
 }
 
-async function runDocsCreateUpdateReadSmoke(host, evidence, runId) {
+async function runDocsCreateUpdateReadSmoke(host, evidence, runId, user = {}) {
   const title = `Home Center Metal Smoke ${runId}`;
   const firstLine = `First metal smoke line ${runId}.`;
   const secondLine = `Second metal smoke line ${runId}.`;
@@ -2551,19 +2802,19 @@ async function runDocsCreateUpdateReadSmoke(host, evidence, runId) {
       },
     },
   };
-  await runSmokeTurn(host, evidence, state, `Create a Google Doc titled ${title} with body ${firstLine}`, {status: 'confirmation_required', pendingTool: 'docs.create'});
-  await runSmokeTurn(host, evidence, state, 'confirm create');
+  await runSmokeTurn(host, evidence, state, `Create a Google Doc titled ${title} with body ${firstLine}`, {status: 'confirmation_required', pendingTool: 'docs.create'}, user);
+  await runSmokeTurn(host, evidence, state, 'confirm create', {}, user);
   if (!state.workingMemory.lastDocument || state.workingMemory.lastDocument.name !== title) throw new Error('docs.create did not establish lastDocument working memory.');
-  await runSmokeTurn(host, evidence, state, `Append "${secondLine}" to that document.`, {status: 'confirmation_required', pendingTool: 'docs.update'});
-  await runSmokeTurn(host, evidence, state, 'confirm edit');
-  const finalResponse = await runSmokeTurn(host, evidence, state, 'Read that document and tell me the full text.', {contains: [firstLine, secondLine]});
+  await runSmokeTurn(host, evidence, state, `Append "${secondLine}" to that document.`, {status: 'confirmation_required', pendingTool: 'docs.update'}, user);
+  await runSmokeTurn(host, evidence, state, 'confirm edit', {}, user);
+  const finalResponse = await runSmokeTurn(host, evidence, state, 'Read that document and tell me the full text.', {contains: [firstLine, secondLine]}, user);
   const directRead = await host.readDoc({fileId: state.workingMemory.lastDocument.fileId});
   if (!directRead.content.includes(firstLine) || !directRead.content.includes(secondLine)) throw new Error('Direct Docs verification did not find both smoke lines.');
   evidence.finalReply = finalResponse.reply || finalResponse.text || '';
   evidence.directDocText = directRead.content;
 }
 
-async function runCreativeDocReadFinalizesSmoke(host, evidence, runId) {
+async function runCreativeDocReadFinalizesSmoke(host, evidence, runId, user = {}) {
   const sourceTitle = `Lexen Green Commander Doctrine Updates and Simulation ${runId}`;
   const sourceContent = [
     'Doctrine Updates and Saved Simulation.',
@@ -2601,7 +2852,7 @@ async function runCreativeDocReadFinalizesSmoke(host, evidence, runId) {
     status: 'evidence_finalized',
     contains: ['Lexen'],
     minReplyChars: 700,
-  });
+  }, user);
   const readCount = evidence.toolExecutions.filter((entry) => entry && entry.toolName === 'docs.read').length;
   if (readCount < 1) throw new Error('Creative docs smoke did not execute docs.read before final prose.');
   const responseText = JSON.stringify(finalResponse);
@@ -2623,9 +2874,9 @@ async function runMetalPromptSmoke(user, body) {
   await host.prepare(runId);
   try {
     if (scenario === 'docs-create-update-read') {
-      await runDocsCreateUpdateReadSmoke(host, evidence, runId);
+      await runDocsCreateUpdateReadSmoke(host, evidence, runId, user);
     } else if (scenario === 'creative-doc-read-finalizes') {
-      await runCreativeDocReadFinalizesSmoke(host, evidence, runId);
+      await runCreativeDocReadFinalizesSmoke(host, evidence, runId, user);
     } else {
       throw new Error(`Unknown metal prompt smoke scenario: ${scenario}`);
     }
@@ -2665,7 +2916,7 @@ async function runCreativePromptSmoke(user, body) {
   if (body && typeof body.pendingConfirmation === 'object') {
     requestBody.pendingConfirmation = body.pendingConfirmation;
   }
-  const response = await askOpenAICreativeDraft(requestBody);
+  const response = await askOpenAICreativeDraft(requestBody, user);
   const elapsedMs = Date.now() - started;
   const reply = finalReplyText(response, '');
   const responseText = JSON.stringify(response);
@@ -2747,7 +2998,7 @@ function assertTurnContract(condition, message) {
   if (!condition) throw new Error(message);
 }
 
-async function runTurnContractCase(name, body, expected = {}) {
+async function runTurnContractCase(name, body, expected = {}, user = {}) {
   const response = await askOpenAIToolTurn(Object.assign({
     transcript: '',
     summary: '',
@@ -2759,7 +3010,7 @@ async function runTurnContractCase(name, body, expected = {}) {
     evidenceContext: {},
     attachmentImages: [],
     debugTrace: true,
-  }, body || {}));
+  }, body || {}), user);
   const responseText = JSON.stringify(response);
   const visibleText = JSON.stringify({
     type: response.type,
@@ -2788,7 +3039,7 @@ async function runTurnContractCase(name, body, expected = {}) {
   return {name, ok: true, response};
 }
 
-async function runTurnContractSmoke(body) {
+async function runTurnContractSmoke(body, user = {}) {
   const cases = [];
   const skipDefaults = body && body.skipDefaults === true;
   const requestedCases = Array.isArray(body && body.cases) ? body.cases : [];
@@ -2797,7 +3048,8 @@ async function runTurnContractSmoke(body) {
     cases.push(await runTurnContractCase(
       safeText(entry.name, 120) || `external_case_${cases.length + 1}`,
       entry.body && typeof entry.body === 'object' ? entry.body : {},
-      entry.expected && typeof entry.expected === 'object' ? entry.expected : {}
+      entry.expected && typeof entry.expected === 'object' ? entry.expected : {},
+      user
     ));
   }
   if (skipDefaults) {
@@ -2816,7 +3068,7 @@ async function runTurnContractSmoke(body) {
     status: 'tool_call_requested',
     toolName: 'docs.create',
     forbidden: ['github.create_issue'],
-  }));
+  }, user));
   cases.push(await runTurnContractCase('cancel_pending_doc_create', {
     message: 'cancel',
     pendingConfirmation: pendingSmokeDoc(),
@@ -2824,7 +3076,7 @@ async function runTurnContractSmoke(body) {
     type: 'final',
     status: 'pending_confirmation_cancelled',
     forbidden: ['tool_call_requested'],
-  }));
+  }, user));
   cases.push(await runTurnContractCase('correction_is_not_cancel', {
     message: 'That was wrong, write the scene with the pilot still in the cockpit.',
     pendingConfirmation: pendingSmokeIssue(),
@@ -2838,7 +3090,7 @@ async function runTurnContractSmoke(body) {
     type: 'final',
     requiredTerms: ['pilot', 'cockpit'],
     forbidden: ['pending_confirmation_cancelled', 'I can create that GitHub issue'],
-  }));
+  }, user));
   cases.push(await runTurnContractCase('creative_docs_read_finalizer', {
     message: 'Now show how the pilot survives. Simulated. But foregone. Not clean. Not easy.',
     toolResults: [{
@@ -2873,7 +3125,7 @@ async function runTurnContractSmoke(body) {
     status: 'evidence_finalized',
     requiredTerms: ['pilot', 'cockpit'],
     forbidden: ['docs.read', 'github.create_issue', 'I found', 'I read', 'confirmation_required'],
-  }));
+  }, user));
   cases.push(await runTurnContractCase('creative_docs_read_finalizer_without_active_task', {
     message: 'Now it is your turn. Do not continue the story. Pick it up at an arbitrary point that interests you. Make a simulated chapter here.',
     toolResults: [{
@@ -2903,7 +3155,7 @@ async function runTurnContractSmoke(body) {
     status: 'evidence_finalized',
     requiredTerms: ['pilot', 'cockpit'],
     forbidden: ['docs.read', 'github.create_issue', 'I found', 'I read', 'confirmation_required', 'need more context', 'planner_json_error'],
-  }));
+  }, user));
   return {
     ok: true,
     runId: safeText(body && body.runId, 80) || '',
@@ -2921,6 +3173,28 @@ exports.githubCreateIssue = onRequest({timeoutSeconds: 60, secrets: [GITHUB_TOKE
   }
 });
 
+exports.usageToolEvent = onRequest({timeoutSeconds: 30}, async (req, res) => {
+  if (handleOptions(req, res)) return;
+  try {
+    const user = await requireUser(req);
+    await recordToolUsage(user, req.body || {});
+    sendJson(res, 200, {ok: true, status: 'usage_recorded'});
+  } catch (err) {
+    sendJson(res, err.status || 500, {ok: false, error: 'usage_tool_event_failed', detail: err.message || String(err)});
+  }
+});
+
+exports.usageSummary = onRequest({timeoutSeconds: 30}, async (req, res) => {
+  if (handleOptions(req, res)) return;
+  try {
+    const user = await requireUser(req);
+    const summary = await usageSummaryFor(user, req.body || {});
+    sendJson(res, summary.ok === false ? (summary.error === 'usage_forbidden' ? 403 : 400) : 200, summary);
+  } catch (err) {
+    sendJson(res, err.status || 500, {ok: false, error: 'usage_summary_failed', detail: err.message || String(err)});
+  }
+});
+
 exports.creativePromptSmoke = onRequest({timeoutSeconds: 120, secrets: [OPENAI_API_KEY]}, async (req, res) => {
   if (handleOptions(req, res)) return;
   try {
@@ -2934,8 +3208,8 @@ exports.creativePromptSmoke = onRequest({timeoutSeconds: 120, secrets: [OPENAI_A
 exports.turnContractSmoke = onRequest({timeoutSeconds: 120, secrets: [OPENAI_API_KEY]}, async (req, res) => {
   if (handleOptions(req, res)) return;
   try {
-    await requireSmokeUser(req);
-    sendJson(res, 200, await runTurnContractSmoke(req.body || {}));
+    const user = await requireSmokeUser(req);
+    sendJson(res, 200, await runTurnContractSmoke(req.body || {}, user));
   } catch (err) {
     sendJson(res, err.status || 500, {ok: false, error: 'turn_contract_smoke_failed', detail: err.message || String(err), stack: String(err.stack || '')});
   }
@@ -2959,13 +3233,13 @@ exports.metalPromptSmoke = onRequest({timeoutSeconds: 300, secrets: [OPENAI_API_
 exports.agentToolTurn = onRequest({timeoutSeconds: 120, secrets: [OPENAI_API_KEY]}, async (req, res) => {
   if (handleOptions(req, res)) return;
   try {
-    await requireUser(req);
+    const user = await requireUser(req);
     const message = safeText(req.body && req.body.message, 4000);
     if (!message) {
       sendJson(res, 400, {type: 'final', reply: 'Tell me what you want Home Center to do.', status: 'missing_message'});
       return;
     }
-    sendJson(res, 200, await askOpenAIToolTurn(req.body || {}));
+    sendJson(res, 200, await askOpenAIToolTurn(req.body || {}, user));
   } catch (err) {
     sendJson(res, err.status || 500, userFacingFailure('Home Center gateway', err.message || String(err), 'gateway_error'));
   }
@@ -2980,7 +3254,7 @@ exports.agentTurn = onRequest({timeoutSeconds: 120, secrets: [OPENAI_API_KEY, GO
       sendJson(res, 400, {reply: 'Tell me what you want Home Center to do.', status: 'missing_message'});
       return;
     }
-    sendJson(res, 200, await askOpenAI(user.uid, req.body || {}));
+    sendJson(res, 200, await askOpenAI(user, req.body || {}));
   } catch (err) {
     sendJson(res, err.status || 500, userFacingFailure('Home Center gateway', err.message || String(err), 'gateway_error'));
   }
