@@ -78,6 +78,13 @@ function issueCases() {
   const issue41Prompt = 'Now it\'s your turn. Don\'t continue the story. Pick it up at an arbitrary point that interests you. And make a simulated chapter here';
   const issue42Prompt = 'Now it\'s your turn.  Don\'t continue the story.  Pick it up at an arbitrary point that I interest you.  And make a simulated chapter here.  Lexen green commander';
   const issue43CritiquePrompt = 'What would get you closer';
+  const issue44Transcript = [
+    'Assistant: I can create that GitHub issue. Press Confirm or say "confirm create issue".',
+    'User: confirm confirm',
+    'Assistant: Done: Assistant response was cut off during Lexen critique follow-up.',
+    `User: ${issue42Prompt}`,
+    `User: ${issue42Prompt}`,
+  ].join('\n');
   const issue39Doc = [
     'Doctrine Updates and Saved Simulation.',
     'Lexen wins against the first panzer only by accepting that the fight is already shaped before the shot.',
@@ -228,6 +235,59 @@ function issueCases() {
         replyNotTruncated: true,
         requiredTerms: ['Lexen'],
         forbidden: ['github.create_issue', 'confirmation_required', 'Next steps', 'Say it so the driver"'],
+      },
+    },
+    {
+      name: 'external_issue44_report_contaminated_prompt_reads_remembered_doc',
+      body: {
+        message: issue42Prompt,
+        transcript: issue44Transcript,
+        workingMemory: {
+          activeTask: {
+            status: 'in_progress',
+            objective: 'Write a simulated Lexen green commander chapter from an arbitrary interesting point',
+            originalUserRequest: issue42Prompt,
+            expectedNextAction: 'Use the remembered Lexen context, then draft the chapter here',
+          },
+          lastDocument: {fileId: 'lexen-green-doc', name: 'Lexen Green Commander Doctrine Updates and Simulation'},
+        },
+      },
+      expected: {
+        type: 'tool_call',
+        status: 'tool_call_requested',
+        toolName: 'docs.read',
+        forbidden: ['github.create_issue', 'confirmation_required', 'I can create that GitHub issue'],
+      },
+    },
+    {
+      name: 'external_issue44_after_docs_read_finalizes_despite_report_history',
+      body: {
+        message: issue42Prompt,
+        transcript: issue44Transcript,
+        toolResults: [lexenDocResult([
+          'Doctrine Updates and Saved Simulation.',
+          'Lexen style critique has to be source-grounded, not inferred from a fragment or doctrine summary.',
+          'The desired writing stays embodied: specific damage, crew behavior, vehicle constraints, shame, fatigue, ritual, silence, small practical choices.',
+          'The doctrine should emerge from pressure, not be announced in polished thematic lines.',
+          'Lexen remains afraid and becomes usable anyway.',
+        ].join('\n'))],
+        workingMemory: {
+          activeTask: {
+            status: 'in_progress',
+            objective: 'Write a simulated Lexen green commander chapter from an arbitrary interesting point',
+            originalUserRequest: issue42Prompt,
+            expectedNextAction: 'Use the remembered Lexen context, then draft the chapter here',
+          },
+          lastDocument: {fileId: 'lexen-green-doc', name: 'Lexen Green Commander Doctrine Updates and Simulation'},
+        },
+      },
+      expected: {
+        type: 'final',
+        status: 'evidence_finalized',
+        requiredTerms: ['Lexen'],
+        minReplyChars: 700,
+        replyNotTruncated: true,
+        forbidden: ['docs.read', 'github.create_issue', 'I found', 'I read', 'confirmation_required', 'need more context', 'planner_json_error', 'I can create that GitHub issue'],
       },
     },
   ];

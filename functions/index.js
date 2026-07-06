@@ -1747,6 +1747,16 @@ async function askOpenAIToolTurn(body) {
       latestSuccessfulTool: safeText(latestSuccessfulToolResult(toolResults) && latestSuccessfulToolResult(toolResults).name, 80),
     }));
   }
+  if (shouldBlockCreativePlannerToolCall(plannerMessage)) {
+    const contextTool = creativeContextToolCall(body, tools, toolResults);
+    if (contextTool) {
+      const trace = buildToolTrace(body, tools, contextTool, contextTool.toolName, toolByName(tools, contextTool.toolName), false);
+      return withTrace(body, contextTool, Object.assign({}, trace, {
+        turnKernel,
+        creativeContextToolCallApplied: true,
+      }));
+    }
+  }
   const plannerTools = economyToolPalette(message, tools, workingMemory, toolResults);
   const openAiTools = shouldEnableWebSearch(message, body) ? [{type: 'web_search'}] : [];
   const includeFullDoctrine = shouldIncludeFullDoctrine(message, body);
@@ -2598,6 +2608,11 @@ function turnContractSmokeTools() {
       name: 'docs.create',
       confirmationRequired: true,
       arguments: ['title', 'body', 'folderId'],
+    },
+    {
+      name: 'docs.read',
+      confirmationRequired: false,
+      arguments: ['fileId', 'name'],
     },
   ];
 }
