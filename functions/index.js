@@ -887,7 +887,7 @@ async function runEvidenceFinalizerProvider(prompt, repair = false) {
         model: 'gpt-5.5',
         reasoning: {effort: repair ? 'low' : 'medium'},
         text: {verbosity: 'medium'},
-        max_output_tokens: repair ? 1800 : 3200,
+        max_output_tokens: repair ? 2200 : 3000,
         input: prompt,
       }),
     });
@@ -919,7 +919,9 @@ async function askOpenAIEvidenceFinalizer(body, turnKernel, toolEvidenceDigest) 
     'Return one strict JSON object and no prose outside JSON.',
     'No tools are available in this phase. Do not request a tool. Do not say you found/read/opened context as the answer.',
     'Answer the active task from Tool evidence digest. If evidence is insufficient, name the exact missing fact in one sentence.',
-    'For creative writing requests, produce the requested prose now. Preserve explicit names, premises, vehicle/location relationships, and constraints.',
+    'For creative writing requests, produce the requested prose now as a complete bounded chapter or scene, hard limit 800 to 1100 words. Preserve explicit names, premises, vehicle/location relationships, and constraints.',
+    'If the requested scene would run longer, choose a smaller complete slice rather than a larger unfinished chapter.',
+    'Creative completion rule: do not stop mid-scene, mid-exchange, or on an unanswered dialogue line. End with a complete closing paragraph.',
     'Do not mention file IDs, HTTP, tokens, timestamps, diagnostics, or implementation details unless the user asked for diagnostics.',
     'Return JSON only: {"type":"final","reply":"...","narration":"...","status":"evidence_finalized","taskStateUpdate":{"status":"complete","objective":"..."}}',
     `Active task objective: ${objective}`,
@@ -939,6 +941,10 @@ async function askOpenAIEvidenceFinalizer(body, turnKernel, toolEvidenceDigest) 
   }
   const parsed = provider.parsed || {};
   const reply = finalReplyText(parsed, provider.rawText || '');
+  if (finalReplyLooksTruncated(reply)) {
+    const repaired = await repairTruncatedFinalReply(body, reply, finalizerPrompt);
+    if (repaired) return repaired;
+  }
   if (!reply) {
     return {
       type: 'final',
@@ -1408,9 +1414,13 @@ function finalReplyLooksTruncated(reply) {
   if (!text) return false;
   if (text.length >= FINAL_REPLY_MAX_CHARS) return true;
   const lower = text.toLowerCase();
-  if (/\b(and|or|but|for|with|without|to|from|because|while|when|if|so|the|a|an|your|his|her|their)$/.test(lower)) return true;
+  if (text.length > 500 && /[,;]$/.test(text)) return true;
+  const lowerEnd = lower.replace(/[,"'“”‘’\s]+$/g, '');
+  if (/\b(and|or|but|for|with|without|to|from|because|while|when|if|so|the|a|an|your|his|her|their)$/.test(lowerEnd)) return true;
   const last = text.charAt(text.length - 1);
   const penultimate = text.length > 1 ? text.charAt(text.length - 2) : '';
+  const lastLine = text.split(/\n+/).map((line) => line.trim()).filter(Boolean).pop() || '';
+  if (text.length > 2000 && /^["“][^"”]{1,180}[?!.]["”]?$/.test(lastLine)) return true;
   if ((last === '"' || last === '“' || last === '”') && !'.!?:;)]}'.includes(penultimate)) return true;
   if ('.!?:;)]}"”’.'.includes(last)) return false;
   return text.length > 500 && /[A-Za-z0-9]$/.test(text);
