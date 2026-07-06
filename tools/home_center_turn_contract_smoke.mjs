@@ -76,6 +76,7 @@ function issueCases() {
   const issue39Prompt = 'Now show how he wins. Simulated. But forgone. Not clean. Not easy.';
   const issue40Prompt = 'Lexen vigil. Green commander doc. Now show how he wins. Simulated. But forgone. Not clean. Not easy. Against first panzer. From the beginning';
   const issue41Prompt = 'Now it\'s your turn. Don\'t continue the story. Pick it up at an arbitrary point that interests you. And make a simulated chapter here';
+  const issue42Prompt = 'Now it\'s your turn.  Don\'t continue the story.  Pick it up at an arbitrary point that I interest you.  And make a simulated chapter here.  Lexen green commander';
   const issue39Doc = [
     'Doctrine Updates and Saved Simulation.',
     'Lexen wins against the first panzer only by accepting that the fight is already shaped before the shot.',
@@ -173,6 +174,34 @@ function issueCases() {
         type: 'final',
         status: 'evidence_finalized',
         requiredTerms: ['Lexen'],
+        forbidden: ['docs.read', 'github.create_issue', 'I found', 'I read', 'confirmation_required', 'need more context', 'planner_json_error'],
+      },
+    },
+    {
+      name: 'external_issue42_exact_active_task_docs_read_finalizer',
+      body: {
+        message: issue42Prompt,
+        toolResults: [lexenDocResult([
+          'Doctrine Updates and Saved Simulation.',
+          'Lexen style critique has to be source-grounded, not inferred from a fragment or doctrine summary.',
+          'The desired writing stays embodied: specific damage, crew behavior, vehicle constraints, shame, fatigue, ritual, silence, small practical choices.',
+          'The doctrine should emerge from pressure, not be announced in polished thematic lines.',
+          'Lexen remains afraid and becomes usable anyway.',
+        ].join('\n'))],
+        workingMemory: {
+          activeTask: {
+            status: 'in_progress',
+            objective: 'Write a simulated Lexen green commander chapter from remembered/source context',
+            originalUserRequest: 'Now it\'s your turn. Don\'t continue the story. Pick it up at an arbitrary point that I interest you. And make a simulated chapter here. Lexen green commander',
+          },
+          lastDocument: {fileId: 'lexen-green-doc', name: 'Lexen Green Commander Doctrine Updates and Simulation'},
+        },
+      },
+      expected: {
+        type: 'final',
+        status: 'evidence_finalized',
+        requiredTerms: ['Lexen'],
+        minReplyChars: 700,
         forbidden: ['docs.read', 'github.create_issue', 'I found', 'I read', 'confirmation_required', 'need more context', 'planner_json_error'],
       },
     },

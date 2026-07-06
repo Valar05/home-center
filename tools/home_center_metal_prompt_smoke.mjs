@@ -14,7 +14,7 @@ function parseArgs(argv) {
     if (value === '--scenario') args.scenario = argv[++i] || args.scenario;
     else if (value === '--run-id') args.runId = argv[++i] || args.runId;
     else if (value === '--help') {
-      console.log('Usage: node tools/home_center_metal_prompt_smoke.mjs [--scenario docs-create-update-read] [--run-id ID]');
+      console.log('Usage: node tools/home_center_metal_prompt_smoke.mjs [--scenario docs-create-update-read|creative-doc-read-finalizes] [--run-id ID]');
       process.exit(0);
     }
   }

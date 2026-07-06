@@ -708,13 +708,25 @@ function compactToolNames(tools) {
   return tools.map((tool) => tool && tool.name).filter(Boolean);
 }
 
+function compactParsedForTrace(parsed) {
+  if (!parsed || typeof parsed !== 'object') return parsed || null;
+  const copy = Object.assign({}, parsed);
+  for (const key of ['reply', 'narration', 'text', 'answer', 'content', 'final', 'finalAnswer', 'final_response', 'response']) {
+    if (typeof copy[key] === 'string' && copy[key].length > 700) {
+      copy[`${key}Chars`] = copy[key].length;
+      copy[key] = `${copy[key].slice(0, 700)}...`;
+    }
+  }
+  return copy;
+}
+
 function buildToolTrace(body, tools, parsed, toolName, tool, confirmationRequested) {
   const trace = {
     prompt: safeText(body && body.message, 4000),
     workingMemory: body && typeof body.workingMemory === 'object' ? body.workingMemory : {},
     availableToolNames: compactToolNames(tools),
     availableToolsJson: JSON.stringify(tools).slice(0, 12000),
-    parsedPlannerJson: parsed || null,
+    parsedPlannerJson: compactParsedForTrace(parsed),
     requestedToolName: toolName || '',
     docsCreateAdvertised: !!toolByName(tools, 'docs.create'),
     requestedToolFound: !!tool,
@@ -2329,19 +2341,16 @@ async function runSmokeTurn(host, evidence, state, message, expected = {}) {
     for (const needle of expected.contains || []) {
       if (!reply.includes(needle)) throw new Error(`Expected reply to contain "${needle}".`);
     }
+    if (expected.minReplyChars && reply.length < Number(expected.minReplyChars)) {
+      throw new Error(`Expected reply length >= ${expected.minReplyChars} for "${message}", got ${reply.length}.`);
+    }
     state.transcript = `${state.transcript || ''}\nUser: ${message}\nAssistant: ${reply}`.trim().slice(-8000);
     return response;
   }
   throw new Error(`Smoke turn did not converge for "${message}".`);
 }
 
-async function runMetalPromptSmoke(user, body) {
-  const runId = safeText(body.runId, 80) || new Date().toISOString().replace(/[-:TZ.]/g, '').slice(0, 14);
-  const evidence = {ok: false, runId, uid: user.uid, turns: [], toolExecutions: [], sandbox: {}, cleanup: null};
-  const auth = await loadGoogleClient(user.uid, user.email || '');
-  if (!auth) throw new Error('Google tools are not connected for this Firebase user.');
-  const host = new MetalSmokeHost(auth, evidence);
-  await host.prepare(runId);
+async function runDocsCreateUpdateReadSmoke(host, evidence, runId) {
   const title = `Home Center Metal Smoke ${runId}`;
   const firstLine = `First metal smoke line ${runId}.`;
   const secondLine = `Second metal smoke line ${runId}.`;
@@ -2357,17 +2366,84 @@ async function runMetalPromptSmoke(user, body) {
       },
     },
   };
+  await runSmokeTurn(host, evidence, state, `Create a Google Doc titled ${title} with body ${firstLine}`, {status: 'confirmation_required', pendingTool: 'docs.create'});
+  await runSmokeTurn(host, evidence, state, 'confirm create');
+  if (!state.workingMemory.lastDocument || state.workingMemory.lastDocument.name !== title) throw new Error('docs.create did not establish lastDocument working memory.');
+  await runSmokeTurn(host, evidence, state, `Append "${secondLine}" to that document.`, {status: 'confirmation_required', pendingTool: 'docs.update'});
+  await runSmokeTurn(host, evidence, state, 'confirm edit');
+  const finalResponse = await runSmokeTurn(host, evidence, state, 'Read that document and tell me the full text.', {contains: [firstLine, secondLine]});
+  const directRead = await host.readDoc({fileId: state.workingMemory.lastDocument.fileId});
+  if (!directRead.content.includes(firstLine) || !directRead.content.includes(secondLine)) throw new Error('Direct Docs verification did not find both smoke lines.');
+  evidence.finalReply = finalResponse.reply || finalResponse.text || '';
+  evidence.directDocText = directRead.content;
+}
+
+async function runCreativeDocReadFinalizesSmoke(host, evidence, runId) {
+  const sourceTitle = `Lexen Green Commander Doctrine Updates and Simulation ${runId}`;
+  const sourceContent = [
+    'Doctrine Updates and Saved Simulation.',
+    'Lexen style critique has to be source-grounded, not inferred from a fragment or doctrine summary.',
+    'The desired writing stays embodied: specific damage, crew behavior, vehicle constraints, shame, fatigue, ritual, silence, small practical choices.',
+    'The doctrine should emerge from pressure, not be announced in polished thematic lines.',
+    'Lexen remains afraid and becomes usable anyway.',
+  ].join('\n');
+  const sourceDoc = await host.createDoc({title: sourceTitle, body: sourceContent, folderId: host.folder.id});
+  const exactPrompt = "Now it's your turn.  Don't continue the story.  Pick it up at an arbitrary point that I interest you.  And make a simulated chapter here.  Lexen green commander";
+  const state = {
+    transcript: '',
+    pendingConfirmation: null,
+    workingMemory: {
+      smokeSandbox: {
+        enabled: true,
+        folderId: host.folder.id,
+        folderName: host.folder.name,
+        instruction: 'Use only this Drive folder for this smoke run.',
+      },
+      activeTask: {
+        status: 'in_progress',
+        objective: 'Write a simulated Lexen green commander chapter from remembered/source context',
+        originalUserRequest: "Now it's your turn. Don't continue the story. Pick it up at an arbitrary point that I interest you. And make a simulated chapter here. Lexen green commander",
+      },
+      lastDocument: {
+        fileId: sourceDoc.file.id,
+        name: sourceTitle,
+        webViewLink: sourceDoc.webViewLink || '',
+        sourceTool: 'smoke.seed',
+      },
+    },
+  };
+  const finalResponse = await runSmokeTurn(host, evidence, state, exactPrompt, {
+    status: 'evidence_finalized',
+    contains: ['Lexen'],
+    minReplyChars: 700,
+  });
+  const readCount = evidence.toolExecutions.filter((entry) => entry && entry.toolName === 'docs.read').length;
+  if (readCount < 1) throw new Error('Creative docs smoke did not execute docs.read before final prose.');
+  const responseText = JSON.stringify(finalResponse);
+  for (const forbidden of ['planner_json_error', 'github.create_issue', 'I found', 'I read', 'confirmation_required', 'need more context']) {
+    if (responseText.includes(forbidden)) throw new Error(`Forbidden creative docs smoke response text: ${forbidden}`);
+  }
+  evidence.finalReply = finalResponse.reply || finalResponse.text || '';
+  evidence.seedDocument = {id: sourceDoc.file.id, name: sourceTitle};
+}
+
+async function runMetalPromptSmoke(user, body) {
+  const runId = safeText(body.runId, 80) || new Date().toISOString().replace(/[-:TZ.]/g, '').slice(0, 14);
+  const evidence = {ok: false, runId, uid: user.uid, turns: [], toolExecutions: [], sandbox: {}, cleanup: null};
+  const scenario = safeText(body.scenario, 120) || 'docs-create-update-read';
+  evidence.scenario = scenario;
+  const auth = await loadGoogleClient(user.uid, user.email || '');
+  if (!auth) throw new Error('Google tools are not connected for this Firebase user.');
+  const host = new MetalSmokeHost(auth, evidence);
+  await host.prepare(runId);
   try {
-    await runSmokeTurn(host, evidence, state, `Create a Google Doc titled ${title} with body ${firstLine}`, {status: 'confirmation_required', pendingTool: 'docs.create'});
-    await runSmokeTurn(host, evidence, state, 'confirm create');
-    if (!state.workingMemory.lastDocument || state.workingMemory.lastDocument.name !== title) throw new Error('docs.create did not establish lastDocument working memory.');
-    await runSmokeTurn(host, evidence, state, `Append "${secondLine}" to that document.`, {status: 'confirmation_required', pendingTool: 'docs.update'});
-    await runSmokeTurn(host, evidence, state, 'confirm edit');
-    const finalResponse = await runSmokeTurn(host, evidence, state, 'Read that document and tell me the full text.', {contains: [firstLine, secondLine]});
-    const directRead = await host.readDoc({fileId: state.workingMemory.lastDocument.fileId});
-    if (!directRead.content.includes(firstLine) || !directRead.content.includes(secondLine)) throw new Error('Direct Docs verification did not find both smoke lines.');
-    evidence.finalReply = finalResponse.reply || finalResponse.text || '';
-    evidence.directDocText = directRead.content;
+    if (scenario === 'docs-create-update-read') {
+      await runDocsCreateUpdateReadSmoke(host, evidence, runId);
+    } else if (scenario === 'creative-doc-read-finalizes') {
+      await runCreativeDocReadFinalizesSmoke(host, evidence, runId);
+    } else {
+      throw new Error(`Unknown metal prompt smoke scenario: ${scenario}`);
+    }
     evidence.ok = true;
     return evidence;
   } catch (err) {
@@ -2505,6 +2581,10 @@ async function runTurnContractCase(name, body, expected = {}) {
   if (expected.type) assertTurnContract(response.type === expected.type, `${name}: expected type ${expected.type}, got ${response.type}`);
   if (expected.status) assertTurnContract(response.status === expected.status, `${name}: expected status ${expected.status}, got ${response.status}`);
   if (expected.toolName) assertTurnContract(response.toolName === expected.toolName, `${name}: expected tool ${expected.toolName}, got ${response.toolName}`);
+  if (expected.minReplyChars) {
+    const reply = safeText(response.reply || response.text, 20000);
+    assertTurnContract(reply.length >= Number(expected.minReplyChars), `${name}: expected reply length >= ${expected.minReplyChars}, got ${reply.length}`);
+  }
   for (const term of expected.requiredTerms || []) {
     assertTurnContract(new RegExp(`\\b${term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i').test(responseText), `${name}: missing ${term}`);
   }
@@ -2672,7 +2752,7 @@ exports.metalPromptSmoke = onRequest({timeoutSeconds: 300, secrets: [OPENAI_API_
   try {
     const user = await requireSmokeUser(req);
     const scenario = safeText(req.body && req.body.scenario, 120) || 'docs-create-update-read';
-    if (scenario !== 'docs-create-update-read') {
+    if (!['docs-create-update-read', 'creative-doc-read-finalizes'].includes(scenario)) {
       sendJson(res, 400, {ok: false, error: 'unknown_scenario', detail: scenario});
       return;
     }

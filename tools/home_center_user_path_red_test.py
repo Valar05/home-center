@@ -2,6 +2,7 @@
 import datetime as dt
 import json
 from pathlib import Path
+import re
 import subprocess
 import sys
 import time
@@ -11,8 +12,6 @@ ARTIFACT_DIR = ROOT / 'tools' / 'visual_evidence'
 DOWNLOAD_CAPTURE_DIR = Path('/storage/emulated/0/Download/HomeCenter/visual-red')
 PACKAGE = 'com.dclar.homecenter'
 ACTIVITY = 'com.dclar.homecenter/.MainActivity'
-EXPECTED_VERSION_NAME = '0.2.14'
-EXPECTED_VERSION_CODE = '18'
 PROMPTS = [
     'Check Google drive',
     'Can you check my writing folder in drive',
@@ -61,6 +60,15 @@ def require_command(name):
         raise RuntimeError(f'missing required Android command: {name}')
 
 
+def expected_build_version():
+    build_gradle = (ROOT / 'app' / 'build.gradle').read_text()
+    name_match = re.search(r"versionName\s+'([^']+)'", build_gradle)
+    code_match = re.search(r'versionCode\s+(\d+)', build_gradle)
+    if not name_match or not code_match:
+        raise RuntimeError('Could not read versionName/versionCode from app/build.gradle')
+    return name_match.group(1), code_match.group(1)
+
+
 def latest_log_text():
     log_dir = Path('/storage/emulated/0/Download/HomeCenter/logs')
     if not log_dir.exists():
@@ -102,7 +110,8 @@ def main():
     failures = []
     prompt_results = []
     capture_start = time.time()
-    expected_version_marker = f'versionName={EXPECTED_VERSION_NAME} versionCode={EXPECTED_VERSION_CODE}'
+    expected_version_name, expected_version_code = expected_build_version()
+    expected_version_marker = f'versionName={expected_version_name} versionCode={expected_version_code}'
     stale_install = False
     for index, prompt in enumerate(PROMPTS):
         prompt_start = time.time()
@@ -162,8 +171,8 @@ def main():
         'ok': not failures,
         'startedAt': started_at,
         'package': PACKAGE,
-        'expectedVersionName': EXPECTED_VERSION_NAME,
-        'expectedVersionCode': EXPECTED_VERSION_CODE,
+        'expectedVersionName': expected_version_name,
+        'expectedVersionCode': expected_version_code,
         'prompts': PROMPTS,
         'appVisualCapture': str(visual_capture) if visual_capture else None,
         'assertions': assertions,
