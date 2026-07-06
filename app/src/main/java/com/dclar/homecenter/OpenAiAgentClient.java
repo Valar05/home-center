@@ -296,6 +296,27 @@ final class OpenAiAgentClient {
     }
 
     private JSONObject postJson(String path, String idToken, JSONObject body) throws IOException {
+        IOException lastError = null;
+        for (int attempt = 1; attempt <= 2; attempt++) {
+            try {
+                return postJsonOnce(path, idToken, body);
+            } catch (IOException ex) {
+                lastError = ex;
+                if (attempt >= 2 || !isTransientGatewayTransportError(ex)) {
+                    throw ex;
+                }
+                try {
+                    Thread.sleep(700);
+                } catch (InterruptedException interrupted) {
+                    Thread.currentThread().interrupt();
+                    throw ex;
+                }
+            }
+        }
+        throw lastError == null ? new IOException("Agent gateway request failed.") : lastError;
+    }
+
+    private JSONObject postJsonOnce(String path, String idToken, JSONObject body) throws IOException {
         HttpURLConnection connection = (HttpURLConnection) new URL(resolve(path)).openConnection();
         connection.setRequestMethod("POST");
         connection.setConnectTimeout(CONNECT_TIMEOUT_MS);
@@ -323,6 +344,15 @@ final class OpenAiAgentClient {
         } catch (JSONException ex) {
             throw new IOException("Could not parse agent gateway response: " + ex.getMessage(), ex);
         }
+    }
+
+    private boolean isTransientGatewayTransportError(IOException ex) {
+        String message = ex == null || ex.getMessage() == null ? "" : ex.getMessage().toLowerCase();
+        return message.contains("software caused connection abort")
+                || message.contains("unexpected end of stream")
+                || message.contains("connection reset")
+                || message.contains("connection closed")
+                || message.contains("stream was reset");
     }
 
     private String resolve(String path) {

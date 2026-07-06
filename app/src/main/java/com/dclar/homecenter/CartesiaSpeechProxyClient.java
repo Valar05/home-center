@@ -23,19 +23,11 @@ final class CartesiaSpeechProxyClient {
     }
 
     HttpURLConnection openSpeechStream(String text) throws IOException {
-        IOException proxyFailure = null;
         if (!baseUrl.isEmpty()) {
-            try {
-                return openProxySpeechStream(text);
-            } catch (IOException ex) {
-                proxyFailure = ex;
-            }
+            return openProxySpeechStream(text);
         }
         if (!apiKey.isEmpty()) {
             return openDirectSpeechStream(text);
-        }
-        if (proxyFailure != null) {
-            throw proxyFailure;
         }
         throw new IOException("Cartesia is not configured in this build");
     }
@@ -44,7 +36,7 @@ final class CartesiaSpeechProxyClient {
         URL url = new URL(resolveEndpoint());
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         connection.setConnectTimeout(5000);
-        connection.setReadTimeout(30000);
+        connection.setReadTimeout(60000);
         connection.setRequestMethod("POST");
         connection.setDoInput(true);
         connection.setDoOutput(true);

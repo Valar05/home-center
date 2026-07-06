@@ -13,6 +13,8 @@ const GOOGLE_OAUTH_CLIENT_ID = defineSecret('GOOGLE_OAUTH_CLIENT_ID');
 const GOOGLE_OAUTH_CLIENT_SECRET = defineSecret('GOOGLE_OAUTH_CLIENT_SECRET');
 const CREATIVE_OPENAI_TIMEOUT_MS = 85000;
 const CREATIVE_SALVAGE_TIMEOUT_MS = 25000;
+const EVIDENCE_FINALIZER_TIMEOUT_MS = 45000;
+const EVIDENCE_FINALIZER_REPAIR_TIMEOUT_MS = 12000;
 const FINAL_REPLY_MAX_CHARS = 32000;
 
 const CORS_HEADERS = {
@@ -875,6 +877,9 @@ function activeTaskObjective(body, fallbackMessage) {
 }
 
 async function runEvidenceFinalizerProvider(prompt, repair = false) {
+  const controller = new AbortController();
+  const timeoutMs = repair ? EVIDENCE_FINALIZER_REPAIR_TIMEOUT_MS : EVIDENCE_FINALIZER_TIMEOUT_MS;
+  const timeout = setTimeout(() => controller.abort(), timeoutMs);
   let response;
   try {
     response = await fetch('https://api.openai.com/v1/responses', {
@@ -883,16 +888,27 @@ async function runEvidenceFinalizerProvider(prompt, repair = false) {
         'Authorization': `Bearer ${OPENAI_API_KEY.value()}`,
         'Content-Type': 'application/json',
       },
+      signal: controller.signal,
       body: JSON.stringify({
         model: 'gpt-5.5',
-        reasoning: {effort: repair ? 'low' : 'medium'},
-        text: {verbosity: 'medium'},
-        max_output_tokens: repair ? 2200 : 3000,
+        reasoning: {effort: 'low'},
+        text: {verbosity: repair ? 'low' : 'medium'},
+        max_output_tokens: repair ? 1200 : 1800,
         input: prompt,
       }),
     });
   } catch (err) {
-    throw new Error(`evidence finalizer transport failed: ${safeText(err && (err.stack || err.message || err), 1000)}`);
+    const isTimeout = err && err.name === 'AbortError';
+    return {
+      ok: false,
+      response: userFacingFailure(
+        'GPT-5.5 evidence finalizer',
+        isTimeout ? `Timed out after ${timeoutMs}ms before producing a final answer.` : safeText(err && (err.stack || err.message || err), 1000),
+        isTimeout ? 'evidence_finalizer_timeout' : 'evidence_finalizer_transport_error',
+      ),
+    };
+  } finally {
+    clearTimeout(timeout);
   }
   const json = await response.json().catch(() => ({}));
   if (!response.ok) {
@@ -919,8 +935,8 @@ async function askOpenAIEvidenceFinalizer(body, turnKernel, toolEvidenceDigest) 
     'Return one strict JSON object and no prose outside JSON.',
     'No tools are available in this phase. Do not request a tool. Do not say you found/read/opened context as the answer.',
     'Answer the active task from Tool evidence digest. If evidence is insufficient, name the exact missing fact in one sentence.',
-    'For creative writing requests, produce the requested prose now as a complete bounded chapter or scene, hard limit 800 to 1100 words. Preserve explicit names, premises, vehicle/location relationships, and constraints.',
-    'If the requested scene would run longer, choose a smaller complete slice rather than a larger unfinished chapter.',
+    'For creative writing requests, produce the requested prose now as a complete bounded scene, hard limit 450 to 700 words. Preserve explicit names, premises, vehicle/location relationships, and constraints.',
+    'If the requested scene would run longer, choose a smaller complete slice rather than a larger unfinished chapter. Prefer complete and prompt-faithful over long.',
     'Creative completion rule: do not stop mid-scene, mid-exchange, or on an unanswered dialogue line. End with a complete closing paragraph.',
     'Do not mention file IDs, HTTP, tokens, timestamps, diagnostics, or implementation details unless the user asked for diagnostics.',
     'Return JSON only: {"type":"final","reply":"...","narration":"...","status":"evidence_finalized","taskStateUpdate":{"status":"complete","objective":"..."}}',
@@ -1818,6 +1834,7 @@ async function askOpenAIToolTurn(body) {
     'Latest intent rule: if the latest request asks for recommendations, summaries, answers, reading suggestions, writing, or next actions, answer that request from available context and tool results instead of continuing an older workflow.',
     'Remembered writing context rule: workingMemory.rememberedWritingContext is durable writing steering restored from prior conversation evidence. Use it directly for writing requests; do not scan Drive blindly when it says not to.',
     'Creative writing rule: if the latest request asks to write, draft, compose, generate, narrate, expand, create a scene, continue a story, or synthesize prose, produce the prose directly as a final answer from transcript, workingMemory, attachments, and tool evidence.',
+    'Creative writing size rule: for direct final creative prose, write a complete 250 to 400 word slice. End cleanly. Do not attempt a long chapter that may cut off mid-sentence.',
     'Creative context rule: if workingMemory names a remembered canon document or durable knowledge file, use one best available context read before final prose. Prefer docs.read for lastDocument; use knowledge.read only when no remembered document is available. Do not chain multiple context reads before writing. Do not call docs.search, drive.search, or docs.create unless the latest request explicitly asks to find/read a source document or save/update/create a Google Doc.',
     'Creative validation rule: preserve explicit user premises, character roles, POV, vehicle/location relationships, and historical constraints. Do not move a commander out of their commanded vehicle, invert who controls the vehicle, or replace a grounded premise with symbolism.',
     'Creative writing rule: after a successful docs.create or docs.update, a new request like "write the scene" is a new writing task, not permission to keep searching Drive. Write the scene or ask one focused story question if required context is missing.',
@@ -1861,6 +1878,7 @@ async function askOpenAIToolTurn(body) {
       model: 'gpt-5.5',
       reasoning: {effort: reasoningEffort},
       text: {verbosity: 'low'},
+      max_output_tokens: 700,
       input,
     }, openAiTools.length ? {tools: openAiTools} : {})),
   });
@@ -2876,8 +2894,8 @@ exports.agentTurn = onRequest({timeoutSeconds: 120, secrets: [OPENAI_API_KEY, GO
   }
 });
 
-async function synthesizeCartesia(text) {
-  const response = await fetch('https://api.cartesia.ai/tts/bytes', {
+async function openCartesiaStream(text) {
+  return fetch('https://api.cartesia.ai/tts/bytes', {
     method: 'POST',
     headers: {
       'Authorization': `Bearer ${CARTESIA_API_KEY.value()}`,
@@ -2891,10 +2909,6 @@ async function synthesizeCartesia(text) {
       output_format: {container: 'raw', encoding: 'pcm_s16le', sample_rate: 44100},
     }),
   });
-  if (!response.ok) {
-    throw new Error(`Cartesia HTTP ${response.status}`);
-  }
-  return Buffer.from(await response.arrayBuffer());
 }
 
 async function ttsHandler(req, res) {
@@ -2905,10 +2919,25 @@ async function ttsHandler(req, res) {
       res.set(CORS_HEADERS).status(400).send('text is required');
       return;
     }
-    const audio = await synthesizeCartesia(text);
+    const audioResponse = await openCartesiaStream(text);
+    if (!audioResponse.ok) {
+      const detail = await audioResponse.text().catch(() => '');
+      throw new Error(`Cartesia HTTP ${audioResponse.status}${detail ? `: ${safeText(detail, 500)}` : ''}`);
+    }
     res.set(CORS_HEADERS);
     res.set('Content-Type', 'application/octet-stream');
-    res.status(200).send(audio);
+    res.set('Cache-Control', 'no-store');
+    res.set('X-Audio-Format', 'pcm_s16le');
+    res.set('X-Sample-Rate', '44100');
+    res.set('Connection', 'close');
+    res.status(200);
+    if (audioResponse.body && typeof audioResponse.body.pipeTo === 'function') {
+      const {Writable} = require('stream');
+      await audioResponse.body.pipeTo(Writable.toWeb(res));
+      return;
+    }
+    const audio = Buffer.from(await audioResponse.arrayBuffer());
+    res.send(audio);
   } catch (err) {
     res.set(CORS_HEADERS).status(500).send(err.message || String(err));
   }
