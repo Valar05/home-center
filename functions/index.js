@@ -168,6 +168,91 @@ function shouldIncludeEvidenceContext(message, body = {}, pending = null, toolRe
   });
 }
 
+function isFeedbackReportRequest(message) {
+  return /\b(report this|report a bug|file an issue|make a new ticket|save this bug|feedback|send this to github|this is broken|that was wrong)\b/i.test(safeText(message, 4000));
+}
+
+function unavailableGroupForTool(toolName, unavailableToolGroups) {
+  const missingGroup = safeText(toolName, 120).includes('.') ? safeText(toolName, 120).split('.')[0] : '';
+  if (!missingGroup || !Array.isArray(unavailableToolGroups)) return null;
+  return unavailableToolGroups.find((group) => group && group.group === missingGroup) || null;
+}
+
+function toolExposureFailureReply(toolName, unavailableGroup) {
+  const cleanTool = safeText(toolName, 120) || 'the requested tool';
+  if (unavailableGroup) {
+    const group = safeText(unavailableGroup.group, 80) || 'requested';
+    const reason = safeText(unavailableGroup.reason, 200) || 'that capability group is not authorized in this session';
+    return {
+      type: 'final',
+      reply: `I could not use ${cleanTool} because the ${group} capability is unavailable: ${reason}.\n\nSource: provider permission/setup.\n\nWorkaround: reconnect or enable the ${group} capability, then retry the same request.`,
+      narration: `I could not use ${cleanTool} because the ${group} capability is unavailable.`,
+      status: 'tool_unavailable_setup',
+    };
+  }
+  return {
+    type: 'final',
+    reply: `I could not use ${cleanTool} because that tool is not exposed in this turn/session.\n\nSource: Home Center tool/session exposure problem, not a user reconnect or account setup problem.\n\nWorkaround: try once more. If it repeats, report this so Home Center can preserve the missing-tool evidence.`,
+    narration: `I could not use ${cleanTool} because that tool is not exposed in this turn/session.`,
+    status: 'tool_not_exposed',
+  };
+}
+
+function reportIssueDraftFallback(body, reason) {
+  const message = safeText(body && body.message, 4000);
+  const evidence = body && typeof body.evidenceContext === 'object' ? body.evidenceContext : {};
+  const turns = Array.isArray(evidence.recentConversationEvidence) ? evidence.recentConversationEvidence.slice(-6) : [];
+  const visible = safeText(evidence.lastVisibleStatus, 1000);
+  const provider = safeText(evidence.providerStatus, 300);
+  const versionName = safeText(evidence.versionName || evidence.appVersion || '', 80);
+  const versionCode = safeText(String(evidence.versionCode || ''), 80);
+  const summary = message ? message.replace(/\s+/g, ' ').slice(0, 120) : 'Home Center feedback';
+  const conversation = turns.length
+    ? turns.map((turn) => {
+      const role = safeText(turn.role || turn.sender || 'unknown', 40);
+      const text = safeText(turn.text || turn.message || turn.content || turn.visibleText || '', 2000);
+      return `### ${role}\n\n${text || '(empty)'}`;
+    }).join('\n\n')
+    : '(No recent conversation evidence was available.)';
+  const bodyText = [
+    '## Summary',
+    summary,
+    '',
+    '## User Report',
+    message || '(No report text was captured.)',
+    '',
+    '## Conversation Evidence',
+    conversation,
+    '',
+    '## Expected Behavior',
+    'Home Center should complete the user request or report the exact missing tool/session exposure problem.',
+    '',
+    '## Actual Behavior',
+    safeText(reason, 500) || 'GitHub issue creation was requested but github.create_issue was not exposed in this turn/session.',
+    '',
+    '## Suspected Area',
+    'provider/gateway',
+    '',
+    '## Environment',
+    `- app versionName: ${versionName || 'unknown'}`,
+    `- versionCode: ${versionCode || 'unknown'}`,
+    `- provider status: ${provider || 'unknown'}`,
+    `- visible status: ${visible || 'unknown'}`,
+  ].join('\n');
+  return {
+    type: 'final',
+    reply: `I cannot create the GitHub issue from this turn because github.create_issue is not exposed in this session. This is a Home Center tool/session exposure problem, not evidence that GitHub needs to be enabled.\n\nHere is the issue draft:\n\nTitle: Bug: ${summary}\n\n${bodyText}`,
+    narration: 'I cannot create the GitHub issue because the issue tool is not exposed in this session. I drafted the issue text instead.',
+    status: 'github_issue_tool_not_exposed_draft',
+    issueDraft: {
+      repo: 'Valar05/home-center',
+      title: `Bug: ${summary}`,
+      body: bodyText,
+      labels: ['bug', 'feedback', 'home-center'],
+    },
+  };
+}
+
 function compactPromptText(value, max) {
   return safeText(value, max);
 }
@@ -193,7 +278,7 @@ function userFacingFailure(source, detail, status = 'agent_failure') {
     authorization: 'Reconnect Google or the relevant provider, then retry the same request.',
     rate_limit: 'Wait a minute and retry. If the request is urgent, narrow it to one source or one action.',
     planner_parse: 'Say the request again more directly. If it repeats, report it as an agent parsing bug.',
-    tool_contract: 'Ask for diagnostics or reconnect the missing provider if this should be an available capability.',
+    tool_contract: 'Ask for diagnostics or report the missing tool exposure. Reconnect only if diagnostics name a missing provider or scope.',
     provider: 'Retry once. If it repeats, ask me to file a bug so I can preserve the exact failure.',
   };
   return {
@@ -1774,6 +1859,16 @@ async function askOpenAIToolTurn(body) {
     }
   }
   const plannerTools = economyToolPalette(message, tools, workingMemory, toolResults);
+  if (isFeedbackReportRequest(plannerMessage) && !toolByName(plannerTools, 'github.create_issue')) {
+    const unavailableGithub = unavailableGroupForTool('github.create_issue', unavailableToolGroups);
+    const response = unavailableGithub
+      ? toolExposureFailureReply('github.create_issue', unavailableGithub)
+      : reportIssueDraftFallback(body, 'github.create_issue is not exposed in Available tools JSON and unavailableToolGroups did not identify GitHub as a missing provider/scope.');
+    const trace = buildToolTrace(body, plannerTools, response, 'github.create_issue', null, false);
+    return withTrace(body, attachTaskState(response, {
+      taskStateUpdate: {status: 'complete', objective: 'Prepare bug report fallback for missing GitHub issue tool'},
+    }), Object.assign({}, trace, {turnKernel, githubIssueDraftFallback: !unavailableGithub}));
+  }
   const openAiTools = shouldEnableWebSearch(message, body) ? [{type: 'web_search'}] : [];
   const includeFullDoctrine = shouldIncludeFullDoctrine(message, body);
   const includeEvidenceContext = shouldIncludeEvidenceContext(message, body, pending, toolResults);
@@ -1824,6 +1919,7 @@ async function askOpenAIToolTurn(body) {
     'Repository orientation rule: unrelated same-title web results are not evidence that the target repo is unavailable. Say the lookup timed out, search was inconclusive, or direct URL is needed; do not cite unrelated pages as proof.',
     'Agent error-handling rule: when a task fails, distinguish source of problem: user input missing, provider/network timeout, permission/setup, tool contract/code issue, or uncertain. Include a workaround and say when to report/file an issue.',
     'Feedback/report rule: if the user asks to report this, file an issue, save this bug, says this is broken, that was wrong, feedback, or send this to GitHub, do not solve the original problem again. Draft a GitHub issue using evidenceContext and call github.create_issue.',
+    'Feedback/report rule: if github.create_issue is absent and unavailableToolGroups does not explicitly name GitHub, draft the issue markdown for the user instead of saying GitHub needs to be enabled.',
     'Feedback/report rule: only use github.create_issue when the latest user request explicitly asks to report, file, save feedback, or send to GitHub. Do not treat older report context as the active request.',
     'Feedback/report rule: default repo is Valar05/home-center. The issue body must include Summary, User Report, Conversation Evidence, Expected Behavior, Actual Behavior, Suspected Area, Environment, and Raw Debug Context if available.',
     'Feedback/report rule: preserve exact user wording and exact assistant response from evidenceContext.recentConversationEvidence. If evidence is absent or too vague, ask for a short description and do not call github.create_issue.',
@@ -1841,7 +1937,8 @@ async function askOpenAIToolTurn(body) {
     'Document cleanup rule: if the latest request asks to clean up, reorganize, consolidate, or make a document section more organized, use workingMemory.lastDocument or recent docs.read results, then request docs.update with the cleaned structure. Do not stop after describing what cleanup is needed.',
     'Document synthesis/update rule: if the latest request asks to update, rewrite, reflect, merge, copy, append, replace, or revise one Google Doc using content from another Google Doc, continue after docs.search/docs.read results until you request docs.update for the target document. Do not stop after saying you found or read the documents.',
     'Do not claim a GitHub tool is required for public GitHub repositories. A GitHub tool is only required for private repo access, authenticated GitHub writes, issues, pull requests, or repository mutations.',
-    'If a needed app-owned capability is absent, explain the missing capability group from unavailableToolGroups and ask the user to reconnect Google if scopes are missing.',
+    'Tool availability rule: if a needed app-owned capability is absent and unavailableToolGroups explicitly names the relevant group or scope, explain that missing provider/scope and ask the user to reconnect or enable that exact group.',
+    'Tool availability rule: if a needed app-owned capability is absent and unavailableToolGroups is empty or inconclusive, say this is a Home Center tool/session exposure problem. Do not tell the user to reconnect Google, enable Drive, enable GitHub, or change account setup from missing tools alone.',
     'If a tool succeeds but does not fully answer the user request, continue with another tool call. A successful tool call is not a final answer unless it satisfies the request.',
     'Holocron/resync recovery rule: when recovering lost conversation, Drive brain, or Holocron context, use Tool evidence digest to build a coherent recovery summary. Continue searching/reading until you can state what was recovered, what is still missing, or the exact blocker.',
     'Holocron/resync recovery rule: do not stop after partial Google Docs reads. If evidence is compacted or truncated, use document names, headings, previews, and follow-up reads/searches to finish the recovery or clearly name the remaining gap.',
@@ -1907,16 +2004,11 @@ async function askOpenAIToolTurn(body) {
       }
       if (!tool) {
         const trace = buildToolTrace(body, plannerTools, parsed, toolName, tool, false);
-        const missingGroup = toolName.includes('.') ? toolName.split('.')[0] : '';
-        const unavailable = unavailableToolGroups.find((group) => group && group.group === missingGroup);
-        const unavailableReason = unavailable ? ` Missing capability group: ${missingGroup}, reason: ${safeText(unavailable.reason, 120)}.` : '';
-        const reply = `I could not use ${toolName} because that tool is not available in this session.${unavailableReason}\n\nLikely source: ${unavailable ? 'provider permission/setup' : 'tool contract mismatch'}.\n\nWorkaround: reconnect Google if this is a Google capability, or say "report this" if Home Center advertised the capability but could not execute it.`;
-        return withTrace(body, attachTaskState({
-          type: 'final',
-          reply,
-          narration: `I could not use ${toolName} because that tool is not available in this session.`,
-          status: 'tool_unavailable',
-        }, parsed), Object.assign({}, trace, {turnKernel}));
+        const unavailable = unavailableGroupForTool(toolName, unavailableToolGroups);
+        const response = toolName === 'github.create_issue' && !unavailable
+          ? reportIssueDraftFallback(body, 'The planner requested github.create_issue, but it was not exposed in Available tools JSON and unavailableToolGroups did not identify GitHub as a missing provider/scope.')
+          : toolExposureFailureReply(toolName, unavailable);
+        return withTrace(body, attachTaskState(response, parsed), Object.assign({}, trace, {turnKernel, unavailableToolGroup: unavailable || null}));
       }
       const sanitizedArgs = sanitizeToolArguments(tool, args);
       if (tool.doubleConfirmationRequired) {
