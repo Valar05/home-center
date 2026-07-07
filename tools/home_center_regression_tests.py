@@ -923,6 +923,18 @@ require_absent(main_activity, 'event.put("content"', 'Tool usage telemetry must 
 require_contains(main_activity, 'lastSpoken = startupGreeting;', 'Startup greeting is remembered without auto-speaking over first response')
 require_absent(main_activity, 'main.post(() -> speak(startupGreeting))', 'Startup must not auto-speak and truncate first real response')
 require_contains(main_activity, 'Long press to copy. Double tap to replay.', 'message interaction is exposed to accessibility')
+require_contains(functions_index, 'function rememberedContextDocToolCall(body, tools, toolResults)', 'gateway has remembered-context document read guard')
+require_contains(functions_index, 'function isRememberedContextInspectionRequest(message)', 'gateway identifies context/Holocron inspection requests before planner answers')
+require_contains(functions_index, 'remembered_context_inspection_reads_doc', 'turn-contract smoke covers remembered context inspection doc read')
+require_contains(functions_index, "message: \"what's in the Writing Hub\"", 'remembered context smoke includes exact Writing Hub request')
+require_contains(functions_index, "hasAvailableTool(tools, 'docs.read')", 'remembered context guard requires docs.read availability')
+require_contains(functions_index, "arguments: {fileId: lastDocument.fileId, name: safeText(lastDocument.name, 240)}", 'remembered context guard reads by remembered document id')
+require_contains(functions_index, 'Read remembered Holocron/context document before answering.', 'remembered context guard marks active task for finalization')
+require_contains(functions_index, 'rememberedContextDocToolCallApplied: true', 'gateway traces remembered context doc reads')
+require_contains(functions_index, 'Context inspection rule: if the user asks what is in, anything in, look at, read, search, or inspect Holocron', 'planner prompt requires remembered context read before answering')
+require_contains(functions_index, 'Context inspection finalizer rule: for non-creative Holocron, Writing Hub, Drive context', 'evidence finalizer distinguishes inspected context from missing context')
+require_contains(functions_index, 'Do not say you lack the document contents unless docs.read failed or was unavailable.', 'evidence finalizer cannot claim missing contents after successful read')
+require_contains(functions_index, 'Creative finalizer rule: for creative writing requests, never mention that you read', 'creative finalizer must not narrate document plumbing')
 
 if failures:
     print('Home Center regression tests failed:', file=sys.stderr)

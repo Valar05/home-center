@@ -1298,6 +1298,9 @@ async function askOpenAIEvidenceFinalizer(body, turnKernel, toolEvidenceDigest, 
     'Return one strict JSON object and no prose outside JSON.',
     'No tools are available in this phase. Do not request a tool. Do not say you found/read/opened context as the answer.',
     'Answer the active task from Tool evidence digest. If evidence is insufficient, name the exact missing fact in one sentence.',
+    'Context inspection finalizer rule: for non-creative Holocron, Writing Hub, Drive context, own logs, own conversations, own messages, memory, or remembered-document questions, use docs.read evidence if present. Say "I read [document name]" only to distinguish searched/read nothing from did not inspect; then give the concrete answer.',
+    'Context inspection finalizer rule: if docs.read evidence is present and the requested phrase or section is absent, say you read the named document and did not find that phrase/section. Do not say you lack the document contents unless docs.read failed or was unavailable.',
+    'Creative finalizer rule: for creative writing requests, never mention that you read, found, opened, searched, or used a document. Write the requested prose directly.',
     'For creative writing requests, produce the requested prose now as a complete bounded scene, hard limit 450 to 700 words. Preserve explicit names, premises, vehicle/location relationships, and constraints.',
     'If the requested scene would run longer, choose a smaller complete slice rather than a larger unfinished chapter. Prefer complete and prompt-faithful over long.',
     'Creative completion rule: do not stop mid-scene, mid-exchange, or on an unanswered dialogue line. End with a complete closing paragraph.',
@@ -1518,6 +1521,38 @@ function creativeContextToolCall(body, tools, toolResults) {
     }
   }
   return null;
+}
+
+function isRememberedContextInspectionRequest(message) {
+  const text = safeText(message, 4000).toLowerCase();
+  if (!text) return false;
+  const asksToInspect = /\b(what'?s in|what is in|what do you have|anything in|look at|inspect|read|search|find|show|contents?|context|logs?|messages?|conversations?)\b/.test(text);
+  const namesContext = /\b(holocron|writing hub|drive context|drive brain|own logs?|own conversations?|own messages?|messages?|conversations?|logs?|memory|context|doc|document)\b/.test(text);
+  return asksToInspect && namesContext;
+}
+
+function rememberedContextDocToolCall(body, tools, toolResults) {
+  const memory = body && typeof body.workingMemory === 'object' ? body.workingMemory : {};
+  const lastDocument = memory.lastDocument && typeof memory.lastDocument === 'object' ? memory.lastDocument : null;
+  if (!lastDocument || !lastDocument.fileId || !hasAvailableTool(tools, 'docs.read')) return null;
+  if (!isRememberedContextInspectionRequest(body && body.message)) return null;
+  const alreadyRead = hasToolResult(toolResults, 'docs.read', (entry) => {
+    const args = entry && typeof entry.arguments === 'object' ? entry.arguments : {};
+    return args.fileId === lastDocument.fileId;
+  });
+  if (alreadyRead) return null;
+  return {
+    type: 'tool_call',
+    toolName: 'docs.read',
+    arguments: {fileId: lastDocument.fileId, name: safeText(lastDocument.name, 240)},
+    status: 'tool_call_requested',
+    taskStateUpdate: {
+      status: 'in_progress',
+      objective: safeText(body && body.message, 1000),
+      originalUserRequest: safeText(body && body.message, 1000),
+      expectedNextAction: 'Read remembered Holocron/context document before answering.',
+    },
+  };
 }
 
 async function askOpenAICreativeRepair(body, originalReply, user = {}) {
@@ -2106,6 +2141,14 @@ async function askOpenAIToolTurn(body, user = {}) {
       latestSuccessfulTool: safeText(latestSuccessfulToolResult(toolResults) && latestSuccessfulToolResult(toolResults).name, 80),
     }));
   }
+  const rememberedContextTool = rememberedContextDocToolCall(body, tools, toolResults);
+  if (rememberedContextTool) {
+    const trace = buildToolTrace(body, tools, rememberedContextTool, rememberedContextTool.toolName, toolByName(tools, rememberedContextTool.toolName), false);
+    return withTrace(body, rememberedContextTool, Object.assign({}, trace, {
+      turnKernel,
+      rememberedContextDocToolCallApplied: true,
+    }));
+  }
   if (shouldBlockCreativePlannerToolCall(plannerMessage)) {
     const contextTool = creativeContextToolCall(body, tools, toolResults);
     if (contextTool) {
@@ -2158,6 +2201,8 @@ async function askOpenAIToolTurn(body, user = {}) {
     'If the user says it, that document, that file, the one you just created, the previous one, or similar, resolve the reference from workingMemory or recent tool results before calling a tool.',
     'Never use phrases like that document, the document, that file, it, the one, or the thing we just made as literal tool argument names or titles. Resolve them to IDs/names or ask which item the user means.',
     'When resolving a remembered document, include both fileId and name in the tool arguments so confirmation cards can show the real document name.',
+    'Context inspection rule: if the user asks what is in, anything in, look at, read, search, or inspect Holocron, Writing Hub, Drive context, own logs, own conversations, own messages, memory, context, or a remembered document and workingMemory.lastDocument has fileId, call docs.read before answering. Do not answer from partial evidence.',
+    'Context inspection rule: after docs.read, answer from the read document. If the requested phrase or section is absent, say you read the named document and did not find it. Do not say you lack contents unless docs.read was unavailable or failed.',
     'Google Docs rule: for a request to create a Google Doc, call docs.create with title and body. Do not call Drive tools for document content.',
     'Google Docs rule: for a request to read or edit a Google Doc, use docs.search if needed, then docs.read or docs.update.',
     'Google Sheets rule: for spreadsheet creation or cell edits, use sheets.create, sheets.search, sheets.read, or sheets.update.',
@@ -3090,6 +3135,26 @@ async function runTurnContractSmoke(body, user = {}) {
     type: 'final',
     requiredTerms: ['pilot', 'cockpit'],
     forbidden: ['pending_confirmation_cancelled', 'I can create that GitHub issue'],
+  }, user));
+  cases.push(await runTurnContractCase('remembered_context_inspection_reads_doc', {
+    message: "what's in the Writing Hub",
+    tools: [{
+      name: 'docs.read',
+      confirmationRequired: false,
+      arguments: ['fileId', 'name'],
+    }],
+    workingMemory: {
+      lastDocument: {
+        fileId: 'june-holocron-doc',
+        name: "June's Holocron",
+      },
+    },
+  }, {
+    type: 'tool_call',
+    status: 'tool_call_requested',
+    toolName: 'docs.read',
+    requiredTerms: ['june-holocron-doc'],
+    forbidden: ['I don’t have the Writing Hub contents available here', 'github.create_issue', 'gpt_5_5_complete'],
   }, user));
   cases.push(await runTurnContractCase('creative_docs_read_finalizer', {
     message: 'Now show how the pilot survives. Simulated. But foregone. Not clean. Not easy.',
