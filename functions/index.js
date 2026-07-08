@@ -398,6 +398,12 @@ function economyToolPalette(message, tools, workingMemory = {}, toolResults = []
   const has = (pattern) => pattern.test(text);
 
   if (has(/\b(report|file an issue|save this bug|feedback|send this to github|this is broken|that was wrong|bug)\b/)) add('github');
+  if (has(/\b(reading log|book log|audiobook log|finished reading|finished listening|book review|audiobook review|review log|rating|score|grade)\b/)
+      || (has(/\b(update|append|add|save|log|record|note)\b/) && has(/\b(book|audiobook|novel|reading|read|recommended|recommendation|review|rating|score|grade|d minus|d-|ff)\b/))) {
+    add('drive');
+    add('docs');
+    add('knowledge');
+  }
   if (has(/\b(doc|document|google doc|drive|file|folder|upload|attach|attachment|writing folder|read the first sentence|append|replace the body|open)\b/)) {
     add('drive');
     add('docs');
@@ -2247,6 +2253,7 @@ async function askOpenAIToolTurn(body, user = {}) {
     'Holocron/resync recovery rule: do not stop after partial Google Docs reads. If evidence is compacted or truncated, use document names, headings, previews, and follow-up reads/searches to finish the recovery or clearly name the remaining gap.',
     'Tool limit recovery rule: when Available tools JSON is empty and Tool results JSON is non-empty, return a final answer using the accumulated tool results. Do not request another tool. Do not say the plan did not converge.',
     'Reading recommendation rule: when the user asks for a new audiobook or reading suggestions and reading-log context is available in transcript, workingMemory, attachments, or tool results, provide concrete recommendations with brief reasons. Do not report an issue unless the latest user request asks to report.',
+    'Reading log update rule: when the user asks to update, append, add, save, log, record, score, grade, or review a book/audiobook/reading-log entry, treat it as a storage write. Use workingMemory.lastDocument if it is the reading log; otherwise use docs.search for Reading Log, then docs.update. If Docs tools are unavailable but knowledge.append is available, save a durable MEMORY.md note instead. Do not answer with only a manual log entry while a writing/storage tool is available.',
     'Hide plumbing. Do not mention tokens, HTTP, file IDs, scopes, timestamps, or diagnostics unless the user explicitly asks for diagnostics.',
     'Writes with confirmationRequired=true may be requested as tool calls; the gateway will enforce confirmation. Tools with doubleConfirmationRequired=true are delete/trash/remove tools and must receive two explicit confirmations before execution.',
     'JSON schema for tool call: {"type":"tool_call","toolName":"tool.name","arguments":{},"taskStateUpdate":{"status":"in_progress","objective":"...","originalUserRequest":"...","expectedNextAction":"..."}}',
