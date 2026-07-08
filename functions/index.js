@@ -397,7 +397,7 @@ function economyToolPalette(message, tools, workingMemory = {}, toolResults = []
   const add = (group) => groups.add(group);
   const has = (pattern) => pattern.test(text);
 
-  if (has(/\b(report|file an issue|save this bug|feedback|send this to github|this is broken|that was wrong|bug)\b/)) add('github');
+  if (has(/\b(report|file an issue|create (?:a )?github issue|make (?:a )?(?:github )?issue|open (?:a )?(?:github )?issue|github issue|new ticket|make a new ticket|create (?:a )?ticket|save this bug|feedback|send this to github|this is broken|that was wrong|bug)\b/)) add('github');
   if (has(/\b(reading log|book log|audiobook log|finished reading|finished listening|book review|audiobook review|review log|rating|score|grade)\b/)
       || (has(/\b(update|append|add|save|log|record|note)\b/) && has(/\b(book|audiobook|novel|reading|read|recommended|recommendation|review|rating|score|grade|d minus|d-|ff)\b/))) {
     add('drive');
@@ -466,7 +466,7 @@ function shouldIncludeEvidenceContext(message, body = {}, pending = null, toolRe
 }
 
 function isFeedbackReportRequest(message) {
-  return /\b(report this|report a bug|file an issue|make a new ticket|save this bug|feedback|send this to github|this is broken|that was wrong)\b/i.test(safeText(message, 4000));
+  return /\b(report this|report a bug|file an issue|create (?:a )?github issue|make (?:a )?(?:github )?issue|open (?:a )?(?:github )?issue|github issue|new ticket|make a new ticket|create (?:a )?ticket|save this bug|feedback|send this to github|this is broken|that was wrong)\b/i.test(safeText(message, 4000));
 }
 
 function unavailableGroupForTool(toolName, unavailableToolGroups) {
