@@ -2096,6 +2096,7 @@ async function askOpenAIToolTurn(body, user = {}) {
   const workingMemory = body && typeof body.workingMemory === 'object' ? body.workingMemory : {};
   const evidenceContext = body && typeof body.evidenceContext === 'object' ? body.evidenceContext : {};
   const attachmentImages = Array.isArray(body.attachmentImages) ? body.attachmentImages.slice(0, 10) : [];
+  const finalOnly = body && body.finalOnly === true;
   const timeContext = timeContextFromBody(body);
   const turnKernel = turnKernelFromBody(body, tools, toolResults);
   const rawPending = turnKernel.rawPending;
@@ -2137,6 +2138,15 @@ async function askOpenAIToolTurn(body, user = {}) {
       arguments: pending.arguments,
       status: 'tool_call_requested',
     }, Object.assign({}, trace, {turnKernel}));
+  }
+  if (finalOnly && toolResults.length > 0) {
+    const finalized = await askOpenAIEvidenceFinalizer(body, turnKernel, toolEvidenceDigest, user);
+    const trace = buildToolTrace(body, tools, finalized, '', null, false);
+    return withTrace(body, finalized, Object.assign({}, trace, {
+      turnKernel,
+      finalOnlyApplied: true,
+      latestSuccessfulTool: safeText(latestSuccessfulToolResult(toolResults) && latestSuccessfulToolResult(toolResults).name, 80),
+    }));
   }
   if (shouldUseEvidenceFinalizer(body, toolResults)) {
     const finalized = await askOpenAIEvidenceFinalizer(body, turnKernel, toolEvidenceDigest, user);

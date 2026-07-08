@@ -88,7 +88,7 @@ require_contains(main_activity, 'return namesList;', 'broad add/read/remove pars
 require_contains(main_activity, 'local_command_bypass action=', 'local bypass logs OpenAI-free execution')
 require_contains(main_activity, 'openaiCalls=0', 'local bypass records zero OpenAI calls')
 require_contains(main_activity, 'direct_tool_finish tool=', 'successful write tool results can finish without an extra GPT summary call')
-require_contains(main_activity, 'MAX_AGENT_TOOL_STEPS = 3', 'Android economy mode caps GPT-directed tool turns')
+require_contains(main_activity, 'MAX_AGENT_TOOL_STEPS = 8', 'Android tool loop allows real multi-step Drive/Docs workflows before recovery')
 require_contains(functions_index, 'function economyToolPalette(message, tools, workingMemory = {}, toolResults = [])', 'gateway filters available tools per request')
 require_contains(functions_index, 'const plannerTools = economyToolPalette(message, tools, workingMemory, toolResults)', 'gateway uses per-request planner tool palette')
 require_contains(functions_index, 'JSON.stringify(plannerTools).slice(0, 12000)', 'gateway prompt sends filtered planner tools, not the whole registry')
@@ -560,8 +560,17 @@ require_absent(functions_index, 'body.toolResults.slice(0, 8)', 'gateway must no
 require_absent(functions_index, 'Tool results JSON: ${JSON.stringify(toolResults).slice(0, 16000)}', 'gateway must not raw-truncate accumulated tool results at 16k')
 require_contains(main_activity, 'finishFromToolResultsAfterLimit(idToken, clean, toolResults)', 'Android recovers from tool loop limit through GPT final answer pass')
 require_contains(main_activity, 'tool_loop_limit_recovery_start', 'Android logs tool loop recovery start')
-require_contains(main_activity, 'MAX_AGENT_TOOL_STEPS = 3', 'Android tool loop is capped for economy mode')
-require_absent(main_activity, 'step < 6', 'Android tool loop must not stop after six tool calls')
+require_contains(main_activity, 'MAX_AGENT_TOOL_STEPS = 8', 'Android tool loop cap matches observed multi-step Drive/Docs workflows')
+require_contains(main_activity, 'tool_loop_limit_recovery_start toolResults=', 'Android logs tool-loop recovery evidence')
+require_contains(main_activity, 'availableTools=" + availableTools.length()', 'Android tool-loop recovery logs available tool count')
+require_contains(main_activity, 'ToolRegistry.availableTools(account, hasSignedInHomeUser())', 'Android tool-loop recovery sends real registry tools')
+require_contains(main_activity, 'ToolRegistry.unavailableToolGroups(account, hasSignedInHomeUser())', 'Android tool-loop recovery sends real unavailable groups')
+require_contains(openai_client, 'body.put("finalOnly", finalOnly)', 'Android marks tool-loop recovery as final-only instead of another planning turn')
+require_contains(main_activity, 'attachmentImagesSnapshot(),\n                true)', 'Android tool-loop recovery requests final-only evidence synthesis')
+require_contains(functions_index, 'const finalOnly = body && body.finalOnly === true', 'gateway reads final-only recovery marker')
+require_contains(functions_index, 'if (finalOnly && toolResults.length > 0)', 'gateway final-only recovery bypasses tool planning')
+require_contains(functions_index, 'finalOnlyApplied: true', 'gateway traces final-only recovery')
+require_absent(method_body(main_activity, 'private void finishFromToolResultsAfterLimit', '    private boolean containsForbiddenToolPlanPhrase'), 'new JSONArray(),\n                new JSONArray(),', 'Android recovery must not manufacture Available tools JSON empty')
 require_contains(main_activity, 'containsForbiddenToolPlanPhrase(reply)', 'Android blocks forbidden convergence phrase from recovery replies')
 require_contains(main_activity, 'synthesizeToolLoopProgressReply(toolResults)', 'Android synthesizes concrete progress report on tool-loop exhaustion')
 require_contains(main_activity, 'Succeeded before it:', 'Android tool-loop fallback reports prior successes')
@@ -601,7 +610,7 @@ require_absent(chat_system_shape, 'private static String suggestedNextSteps', 'a
 red_build_tool_loop_contract = {
     'input': "Run a red-build self-test. Read my Home Center Live items list. Add this item to Shipyard. Find June's Holocron. Find my Reading Log. Find Final and Vacation of a Lifetime Story Bible. If anything fails, do not say tool plan did not converge.",
     'source_expectations': [
-        'MAX_AGENT_TOOL_STEPS = 3',
+        'MAX_AGENT_TOOL_STEPS = 8',
         'containsForbiddenToolPlanPhrase(reply)',
         'synthesizeToolLoopProgressReply(toolResults)',
         'Succeeded before it:',

@@ -103,7 +103,7 @@ public final class MainActivity extends Activity implements RecognitionListener,
     private static final int REQUEST_CART_REVIEW_IMPORT = 3001;
     private static final int REQUEST_DRIVE_AUTH = 4001;
     private static final int REQUEST_FILE_ATTACH = 5001;
-    private static final int MAX_AGENT_TOOL_STEPS = 3;
+    private static final int MAX_AGENT_TOOL_STEPS = 8;
     private static final int MAX_ATTACHMENT_PREVIEW_CHARS = 20000;
     private static final int MAX_IMAGE_ATTACHMENT_BYTES = 8 * 1024 * 1024;
     private static final String WALMART_PACKAGE = "com.walmart.android";
@@ -1258,7 +1258,8 @@ public final class MainActivity extends Activity implements RecognitionListener,
                         workingMemorySnapshot(),
                         currentTimeContext(),
                         evidenceContextSnapshot(clean),
-                        attachmentImagesSnapshot());
+                        attachmentImagesSnapshot(),
+                        false);
                 LocalLog.info("agent_trace", "step=" + step + " gateway_type=" + turn.type + " status=" + turn.status + " requestedTool=" + turn.toolName + " technicalDetails=" + shortMessage(turn.technicalDetails));
                 rememberAgentTrace("gateway_response_received", step, clean, turn.status, turn.type + (turn.toolName.isEmpty() ? "" : ":" + turn.toolName));
                 applyTaskStateUpdate(turn.taskStateUpdate);
@@ -1318,20 +1319,24 @@ public final class MainActivity extends Activity implements RecognitionListener,
     }
 
     private void finishFromToolResultsAfterLimit(String idToken, String clean, JSONArray toolResults) throws Exception {
-        LocalLog.info("agent_trace", "tool_loop_limit_recovery_start toolResults=" + toolResults.length());
+        GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(this);
+        JSONArray availableTools = ToolRegistry.availableTools(account, hasSignedInHomeUser());
+        JSONArray unavailableGroups = ToolRegistry.unavailableToolGroups(account, hasSignedInHomeUser());
+        LocalLog.info("agent_trace", "tool_loop_limit_recovery_start toolResults=" + toolResults.length() + " availableTools=" + availableTools.length());
         OpenAiAgentClient.ToolTurn recovery = openAiAgentClient.sendToolTurn(
                 idToken,
                 clean,
                 recentTranscriptSnapshot(),
                 conversationSummary,
                 toolResults,
-                new JSONArray(),
-                new JSONArray(),
+                availableTools,
+                unavailableGroups,
                 null,
                 workingMemorySnapshot(),
                 currentTimeContext(),
                 evidenceContextSnapshot(clean),
-                attachmentImagesSnapshot());
+                attachmentImagesSnapshot(),
+                true);
         LocalLog.info("agent_trace", "tool_loop_limit_recovery status=" + recovery.status + " type=" + recovery.type + " requestedTool=" + recovery.toolName);
         if (recovery.requestsTool()) {
             String fallback = synthesizeToolLoopProgressReply(toolResults);
