@@ -76,6 +76,25 @@ echo "Streaming $SIZE bytes to $REMOTE_APK"
 "$RISH_BIN" -c "cat > '$REMOTE_APK'" < "$APK"
 
 echo "Installing Home Center through Shizuku shell"
-"$RISH_BIN" -c "pm install -r '$REMOTE_APK'"
+INSTALL_OUTPUT="$("$RISH_BIN" -c "pm install -r '$REMOTE_APK'" 2>&1)"
+printf '%s\n' "$INSTALL_OUTPUT"
+
+if printf '%s\n' "$INSTALL_OUTPUT" | grep -q "INSTALL_FAILED_UPDATE_INCOMPATIBLE"; then
+  if [ "${ALLOW_SIGNATURE_MISMATCH_REINSTALL:-}" != "1" ]; then
+    echo "Install failed because the existing package was signed by a different debug key." >&2
+    echo "To replace it while asking Android to keep app data, rerun with:" >&2
+    echo "ALLOW_SIGNATURE_MISMATCH_REINSTALL=1 sh tools/install_debug_apk_shizuku.sh '$APK'" >&2
+    exit 3
+  fi
+  echo "Signature mismatch detected; uninstalling package with -k to preserve app data before reinstall."
+  "$RISH_BIN" -c "pm uninstall -k com.dclar.homecenter"
+  INSTALL_OUTPUT="$("$RISH_BIN" -c "pm install '$REMOTE_APK'" 2>&1)"
+  printf '%s\n' "$INSTALL_OUTPUT"
+fi
+
+if ! printf '%s\n' "$INSTALL_OUTPUT" | grep -q "^Success"; then
+  echo "Home Center install failed." >&2
+  exit 1
+fi
 
 echo "Installed Home Center from $APK"
