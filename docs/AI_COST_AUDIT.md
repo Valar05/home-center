@@ -34,7 +34,7 @@ flowchart TD
     AndroidTool[Android executeRegisteredTool]
     Google[Google Drive Docs Sheets Gmail Calendar Contacts]
     Lists[Home Center lists / TickTick / knowledge / GitHub issue]
-    Final[Assistant final reply + Cartesia narration]
+    Final[Assistant final reply + hosted ElevenLabs narration]
     Recovery[finishFromToolResultsAfterLimit]
 
     User --> AndroidSubmit

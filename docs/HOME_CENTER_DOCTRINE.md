@@ -230,6 +230,10 @@ Do not tell the user to retry a prompt failure until either:
 - the exact prompt has passed the headless real-API smoke, or
 - the remaining blocker is named with concrete evidence such as missing OAuth login, missing Firebase auth, missing scope, gateway outage, provider error, or unavailable local credentials.
 
+## Engineering Tooling
+
+Home Center's engineering-memory and repository-orientation doctrine lives in `docs/ENGINEERING_TOOLING.md`. Treat that file as the repo-local source of truth for durable engineering workspace behavior: repository truth, evidence before opinion, local-first execution, stateless agents, artifact provenance, workflow records, prompt assets, tool and agent registries, and graph-backed engineering memory.
+
 ## Non-Goals
 
 Home Center doctrine should not become:
@@ -249,6 +253,7 @@ This doctrine is grounded in Home Center repo artifacts:
 - `README.md` defines voice commands, shared lists, Google/Firebase setup, speech, logs, and smoke checks.
 - `PROJECT_ORIENTATION.md` identifies Home Center as a Java Android app and gives local validation commands.
 - `docs/AGENT_CONTRACT.md` requires decision-first behavior, latest-request control, concrete next actions, repair of weak output, and managed context.
+- `docs/ENGINEERING_TOOLING.md` defines Home Center as a durable engineering workspace substrate with repository orientation, artifact cataloging, prompt assets, workflow records, and graph-backed engineering memory.
 - `docs/DATA_MODEL.md` defines household, member, group, list, task, preference, store target, and local diagnostic boundaries.
 - `docs/CURRENT_TROUBLESHOOTING_STATE.md` distinguishes provider truth from sign-in, source green from installed-app green, and user-facing app flow from owner setup chores.
 - `docs/netrunner/vision.md` frames web sessions as accessible task learning with reusable maps.

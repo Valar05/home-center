@@ -1,0 +1,203 @@
+{
+  "type": "engineering.orientation",
+  "nodeId": "engineering.orientation:b6ab1fca199eb861",
+  "generatedAt": "2026-07-10T08:22:27.199Z",
+  "workflowId": "home-center-engineering-tooling-bootstrap",
+  "repository": {
+    "type": "engineering.repository",
+    "nodeId": "engineering.repository:886cf421b93d78e8",
+    "name": "home-center",
+    "path": "/storage/emulated/0/Documents/GodotProjects/home-center",
+    "gitRoot": "/storage/emulated/0/Documents/GodotProjects/home-center",
+    "branch": "main",
+    "commit": "31fa1df1b89a4397f6dcb37ecaafe9a85c057ba5",
+    "dirty": true,
+    "discoveredAt": "2026-07-10T08:22:27.199Z"
+  },
+  "git": {
+    "isGit": true,
+    "root": "/storage/emulated/0/Documents/GodotProjects/home-center",
+    "branch": "main",
+    "commit": "31fa1df1b89a4397f6dcb37ecaafe9a85c057ba5",
+    "dirty": true,
+    "statusShort": [
+      "M PROJECT_ORIENTATION.md",
+      " M README.md",
+      " M app/src/main/java/com/dclar/homecenter/MainActivity.java",
+      " M app/src/main/java/com/dclar/homecenter/OpenAiAgentClient.java",
+      " M docs/HOME_CENTER_DOCTRINE.md",
+      " M functions/home_center_mcp.js",
+      " M functions/index.js",
+      " M tools/home_center_provider_smoke.py",
+      " M tools/home_center_regression_tests.py",
+      " M tools/run_regression_tests.sh",
+      "?? docs/ENGINEERING_TOOLING.md",
+      "?? generated/",
+      "?? prompts/",
+      "?? tools/home_center_artifact_register.mjs",
+      "?? tools/home_center_codex_pair.mjs",
+      "?? tools/home_center_engineering_orient.mjs",
+      "?? tools/ingest_elevenlabs_key.sh"
+    ],
+    "remotes": [
+      "origin\thttps://github.com/Valar05/home-center.git (fetch)",
+      "origin\thttps://github.com/Valar05/home-center.git (push)"
+    ],
+    "recentCommits": [
+      "31fa1df Fix Home Bridge docs create token refresh",
+      "980bf69 Expand Home Bridge GitHub MCP tools",
+      "f09f777 Reconcile Home Bridge MCP surface",
+      "3eabc81 Harden Home Center APK validation path",
+      "da2c019 Fix Android CI AAPT2 override",
+      "3cc8b7b Fix tool-loop recovery tool exposure",
+      "91d0ab0 Recognize GitHub issue report requests",
+      "f770824 Expose storage tools for reading log updates"
+    ]
+  },
+  "docs": [
+    {
+      "path": "agent-tools/secrets/README.md",
+      "title": "Shell Secret Conversion Tools"
+    },
+    {
+      "path": "agent-tools/ticktick-list-ingest/README.md",
+      "title": "TickTick List Ingest Agent Tool"
+    },
+    {
+      "path": "agent-tools/walmart-cart-agent/README.md",
+      "title": "Walmart Cart Agent"
+    },
+    {
+      "path": "docs/AGENT_CONTRACT.md",
+      "title": "Home Center Agent Contract"
+    },
+    {
+      "path": "docs/AI_COST_AUDIT.md",
+      "title": "Home Center AI Cost Audit"
+    },
+    {
+      "path": "docs/CURRENT_TROUBLESHOOTING_STATE.md",
+      "title": "Current Troubleshooting State"
+    },
+    {
+      "path": "docs/DATA_MODEL.md",
+      "title": "Home Center Data Model"
+    },
+    {
+      "path": "docs/DEPLOYMENT.md",
+      "title": "Deployment"
+    },
+    {
+      "path": "docs/DRIVE_BRIDGE_MIGRATION_PLAN.md",
+      "title": "Drive Bridge Migration Plan"
+    },
+    {
+      "path": "docs/ENGINEERING_TOOLING.md",
+      "title": "Home Center Engineering Tooling"
+    },
+    {
+      "path": "docs/FIREBASE_SETUP.md",
+      "title": "Firebase Setup"
+    },
+    {
+      "path": "docs/HOME_CENTER_DOCTRINE.md",
+      "title": "Home Center Doctrine"
+    },
+    {
+      "path": "docs/netrunner/architecture.md",
+      "title": "Netrunner Architecture"
+    },
+    {
+      "path": "docs/netrunner/learning-model.md",
+      "title": "Netrunner Learning Model"
+    },
+    {
+      "path": "docs/netrunner/safety.md",
+      "title": "Netrunner Safety Model"
+    },
+    {
+      "path": "docs/netrunner/vision.md",
+      "title": "Netrunner Vision"
+    },
+    {
+      "path": "docs/SHOPPING_AGENT_PLAN.md",
+      "title": "Home Center Shopping Agent Plan"
+    },
+    {
+      "path": "generated/engineering_memory/README.md",
+      "title": "Home Center Engineering Memory"
+    },
+    {
+      "path": "modules/netrunner/README.md",
+      "title": "Netrunner"
+    },
+    {
+      "path": "PROJECT_MANIFEST.md",
+      "title": "Project Manifest: home-center"
+    },
+    {
+      "path": "PROJECT_ORIENTATION.md",
+      "title": "Home Center Orientation"
+    },
+    {
+      "path": "README.md",
+      "title": "Home Center"
+    },
+    {
+      "path": "services/dionysus-tax/README.md",
+      "title": "Dionysus' Tax"
+    }
+  ],
+  "buildSystems": [
+    {
+      "kind": "gradle",
+      "path": "build.gradle"
+    },
+    {
+      "kind": "gradle-settings",
+      "path": "settings.gradle"
+    },
+    {
+      "kind": "android",
+      "path": "app/build.gradle"
+    },
+    {
+      "kind": "firebase",
+      "path": "firebase.json"
+    },
+    {
+      "kind": "github-actions",
+      "path": ".github/workflows"
+    }
+  ],
+  "validationCommands": [
+    {
+      "command": "sh tools/run_regression_tests.sh",
+      "reason": "project regression harness"
+    },
+    {
+      "command": "gradle test --no-daemon",
+      "reason": "Gradle project present"
+    },
+    {
+      "command": "sh tools/check_no_secrets.sh",
+      "reason": "secret hygiene check"
+    }
+  ],
+  "artifactDirs": [
+    "generated",
+    "tools/chatgpt_connector_evidence",
+    "tools/creative_prompt_evidence",
+    "tools/live_prompt_evidence",
+    "tools/metal_prompt_evidence",
+    "tools/visual_evidence"
+  ],
+  "unsupportedCapabilities": [],
+  "unknowns": [
+    "Open issues, pull requests, cloud workflow state, and provider credentials require connected service queries."
+  ],
+  "artifacts": {
+    "json": "orientations/2026-07-10_08-22-27-199Z_home-center.json",
+    "markdown": "orientations/2026-07-10_08-22-27-199Z_home-center.md"
+  }
+}

@@ -88,7 +88,7 @@ final class OpenAiAgentClient {
             capabilities.put("google:drive_docs_sheets_gmail_calendar_contacts");
             capabilities.put("home_center:firestore_lists");
             capabilities.put("ticktick:fallback_lists");
-            capabilities.put("cartesia:narration");
+            capabilities.put("elevenlabs:hosted_narration");
             body.put("capabilities", capabilities);
         } catch (JSONException ex) {
             throw new IOException("Could not build agent request: " + ex.getMessage(), ex);
@@ -294,6 +294,20 @@ final class OpenAiAgentClient {
             throw new IOException("Could not build Google auth exchange request: " + ex.getMessage(), ex);
         }
         postJson("googleAuthCodeExchange", idToken, body);
+    }
+
+    JSONObject approveTermuxPairing(String idToken, String pairingId, String code) throws IOException {
+        if (!isConfigured()) {
+            throw new IOException("Home Center gateway is not configured in this build.");
+        }
+        JSONObject body = new JSONObject();
+        try {
+            body.put("pairingId", pairingId == null ? "" : pairingId.trim());
+            body.put("code", code == null ? "" : code.trim());
+        } catch (JSONException ex) {
+            throw new IOException("Could not build Termux pairing approval request: " + ex.getMessage(), ex);
+        }
+        return postJson("termuxPairingApprove", idToken, body);
     }
 
     Reply checkGoogleDrive(String idToken, String query) throws IOException {

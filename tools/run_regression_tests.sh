@@ -11,8 +11,13 @@ node --check tools/home_center_metal_prompt_smoke.mjs
 node --check tools/home_center_creative_prompt_smoke.mjs
 node --check tools/home_center_turn_contract_smoke.mjs
 node --check tools/home_center_google_tool_setup.mjs
+node --check tools/home_center_codex_pair.mjs
 node --check tools/drive_bridge_create_tools_test.mjs
 node --check tools/chatgpt_connector_acceptance_gate.mjs
+node tools/home_center_artifact_register.mjs --self-test
+node tools/home_center_engineering_orient.mjs --self-test
+node --check tools/home_center_artifact_register.mjs
+node --check tools/home_center_engineering_orient.mjs
 node tools/drive_bridge_create_tools_test.mjs
 node tools/home_center_calendar_time_test.js
 python3 tools/agent_harness.py --all

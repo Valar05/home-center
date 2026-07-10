@@ -69,9 +69,13 @@ if (status != 200
 
 status, headers, body = post_json('tts', {'text': 'Home Center provider smoke.'}, timeout=45)
 content_type = headers.get('Content-Type', '')
+speech_provider = headers.get('X-Speech-Provider', '')
+speech_voice = headers.get('X-Speech-Voice', '')
 tts_bytes = len(body)
 if status != 200 or tts_bytes < 2048 or not ('audio' in content_type or 'octet-stream' in content_type):
-    fail(f'Cartesia tts bad: status={status} content_type={content_type!r} bytes={tts_bytes} body={body[:160]!r}')
+    fail(f'ElevenLabs tts bad: status={status} content_type={content_type!r} bytes={tts_bytes} body={body[:160]!r}')
+if speech_provider != 'elevenlabs' or speech_voice.lower() != 'brian':
+    fail(f'ElevenLabs tts headers bad: provider={speech_provider!r} voice={speech_voice!r}')
 
 status, headers, body = post_json('googleDriveProbe', {'query': 'Can Home Center read Google Drive?'}, timeout=20)
 if status != 401:
@@ -82,4 +86,4 @@ if status != 401:
     fail(f'agentToolTurn should require Firebase auth when unauthenticated: status={status} body={body[:200]!r}')
 
 service_note = 'googleApis=' + ','.join(sorted(required_google_services)) if services is not None else 'googleApis=not_checked_no_gcloud'
-print(f'Home Center provider smoke: OK cartesiaBytes={tts_bytes} toolContractVersion=google-github-knowledge-delete-cru-v1 contractGroups=calendar,contacts,docs,drive,github,gmail,knowledge,lists,sheets {service_note} driveProbeUnauth=401 agentToolTurnUnauth=401')
+print(f'Home Center provider smoke: OK elevenlabsBytes={tts_bytes} toolContractVersion=google-github-knowledge-delete-cru-v1 contractGroups=calendar,contacts,docs,drive,github,gmail,knowledge,lists,sheets {service_note} driveProbeUnauth=401 agentToolTurnUnauth=401')

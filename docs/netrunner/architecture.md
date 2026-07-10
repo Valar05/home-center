@@ -59,7 +59,7 @@ Executes constrained local actions:
 
 ### Voice engine
 
-Cartesia-backed read aloud.
+ElevenLabs Brian hosted read aloud.
 
 API keys must be entered by the user through Home Center settings and stored in Android Keystore or cloud Secret Manager. Keys must never enter repository files, logs, prompt memory, or shared discovery data.
 
@@ -110,7 +110,7 @@ Never allow global behavior to self-modify directly from one session. Use promot
 1. Build WebView page loader.
 2. Add split chat/browser layout.
 3. Add DOM snapshot endpoint.
-4. Add read-focused-element using Cartesia.
+4. Add read-focused-element using hosted ElevenLabs narration.
 5. Add long-press Element Command Mode.
 6. Add redacted episode recorder.
 7. Add local JSON export for episodes.

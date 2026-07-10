@@ -9,27 +9,21 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 
-final class CartesiaSpeechProxyClient {
+final class HostedSpeechClient {
     private final String baseUrl;
-    private final String apiKey;
-
-    CartesiaSpeechProxyClient(String baseUrl, String apiKey) {
+    HostedSpeechClient(String baseUrl) {
         this.baseUrl = baseUrl == null ? "" : baseUrl.trim();
-        this.apiKey = apiKey == null ? "" : apiKey.trim();
     }
 
     boolean isConfigured() {
-        return !baseUrl.isEmpty() || !apiKey.isEmpty();
+        return !baseUrl.isEmpty();
     }
 
     HttpURLConnection openSpeechStream(String text) throws IOException {
         if (!baseUrl.isEmpty()) {
             return openProxySpeechStream(text);
         }
-        if (!apiKey.isEmpty()) {
-            return openDirectSpeechStream(text);
-        }
-        throw new IOException("Cartesia is not configured in this build");
+        throw new IOException("ElevenLabs speech is not configured in this build");
     }
 
     private HttpURLConnection openProxySpeechStream(String text) throws IOException {
@@ -50,32 +44,7 @@ final class CartesiaSpeechProxyClient {
         }
         int code = connection.getResponseCode();
         if (code != HttpURLConnection.HTTP_OK) {
-            throw new IOException("Cartesia proxy returned HTTP " + code + errorSuffix(connection));
-        }
-        return connection;
-    }
-
-    private HttpURLConnection openDirectSpeechStream(String text) throws IOException {
-        URL url = new URL("https://api.cartesia.ai/tts/bytes");
-        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-        connection.setConnectTimeout(8000);
-        connection.setReadTimeout(30000);
-        connection.setRequestMethod("POST");
-        connection.setDoInput(true);
-        connection.setDoOutput(true);
-        connection.setUseCaches(false);
-        connection.setRequestProperty("Authorization", "Bearer " + apiKey);
-        connection.setRequestProperty("Cartesia-Version", "2024-06-10");
-        connection.setRequestProperty("Content-Type", "application/json; charset=utf-8");
-        connection.setRequestProperty("Accept", "application/octet-stream");
-        byte[] body = toDirectJsonPayload(text).getBytes(StandardCharsets.UTF_8);
-        connection.setFixedLengthStreamingMode(body.length);
-        try (OutputStream out = connection.getOutputStream()) {
-            out.write(body);
-        }
-        int code = connection.getResponseCode();
-        if (code != HttpURLConnection.HTTP_OK) {
-            throw new IOException("Cartesia API returned HTTP " + code + errorSuffix(connection));
+            throw new IOException("ElevenLabs speech endpoint returned HTTP " + code + errorSuffix(connection));
         }
         return connection;
     }
@@ -111,15 +80,6 @@ final class CartesiaSpeechProxyClient {
 
     private String toJsonPayload(String text) {
         return "{\"text\":\"" + escapeJson(text) + "\"}";
-    }
-
-    private String toDirectJsonPayload(String text) {
-        return "{"
-                + "\"model_id\":\"sonic-3.5\","
-                + "\"transcript\":\"" + escapeJson(text) + "\","
-                + "\"voice\":{\"mode\":\"id\",\"id\":\"f786b574-daa5-4673-aa0c-cbe3e8534c02\"},"
-                + "\"output_format\":{\"container\":\"raw\",\"encoding\":\"pcm_s16le\",\"sample_rate\":44100}"
-                + "}";
     }
 
     private String escapeJson(String value) {

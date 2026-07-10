@@ -2,7 +2,7 @@
 
 ## Decision
 
-Bake cart automation into Home Center as a native Android-first shopping assistant, not as a separate web product. The feature extends the existing Home Center shopping-list, Cartesia speech, Firebase sync, local logging, and command parsing systems.
+Bake cart automation into Home Center as a native Android-first shopping assistant, not as a separate web product. The feature extends the existing Home Center shopping-list, hosted speech, Firebase sync, local logging, and command parsing systems.
 
 The product shape is:
 
@@ -15,7 +15,7 @@ Home Center already owns the household command surface:
 - Family voice commands.
 - Shared shopping lists.
 - Shopping preferences and SKU mappings.
-- Cartesia speech output through the local proxy.
+- hosted speech output through the local proxy.
 - Firebase-backed household state.
 - TickTick fallback behavior.
 - Local diagnostic logs.
@@ -55,7 +55,7 @@ Expected behavior:
 4. Search for missing products.
 5. Add approved products to cart.
 6. Pause for login, verification, checkout approval, or ambiguous choices.
-7. Narrate useful milestones through Cartesia.
+7. Narrate useful milestones through hosted speech.
 8. Log each meaningful action locally.
 
 ### Chat + Browser Surface
@@ -116,7 +116,7 @@ Home Center Android app
       -> persistent store sessions
 ```
 
-The bridge can run under Termux initially, matching the existing Cartesia proxy pattern.
+The bridge can run under Termux initially, matching the existing hosted gateway pattern.
 
 ## Agent Model
 
@@ -203,12 +203,12 @@ Magnifier requirements:
 - Can be pinned.
 - Can be dismissed.
 - Works with keyboard / switch style focus.
-- Supports spoken explanation through Cartesia.
+- Supports spoken explanation through hosted speech.
 - Does not cover the thing the user needs to press unless pinned aside.
 
-## Cartesia Integration
+## Hosted Speech Integration
 
-Home Center already has Cartesia speech through a local Termux proxy. The shopping agent should reuse that path.
+Home Center already has hosted speech through the Home Center gateway. The shopping agent should reuse that path.
 
 Voice output priorities:
 
@@ -347,7 +347,7 @@ The first complete slice is done when:
 1. Home Center has a documented shopping-agent module plan.
 2. `build walmart cart for shopping` routes to a shopping-agent intent instead of being a dead-end command.
 3. Shopping mode can display a dedicated blocked state.
-4. Blocked state includes a reason, a resume action, and spoken Cartesia narration.
+4. Blocked state includes a reason, a resume action, and spoken hosted speech narration.
 5. The UI has a reusable focus/magnifier component stub, even if early targeting is manual.
 6. The agent never attempts to bypass CAPTCHA, Cloudflare, login, payment, or final purchase.
 7. Regression tests cover command parsing and at least one blocked-checkpoint response.
@@ -366,7 +366,7 @@ The first complete slice is done when:
 - Add shopping session screen/state.
 - Add blocker panel.
 - Add Resume and Stop buttons.
-- Add Cartesia narration for blocker messages.
+- Add hosted speech narration for blocker messages.
 
 ### Milestone 3: Focus + Magnifier Primitive
 

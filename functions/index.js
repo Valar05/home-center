@@ -10,7 +10,7 @@ const {createHomeCenterMcpApp, createDriveFolderOperation, createGoogleDocOperat
 admin.initializeApp();
 
 const OPENAI_API_KEY = defineSecret('OPENAI_API_KEY');
-const CARTESIA_API_KEY = defineSecret('CARTESIA_API_KEY');
+const ELEVENLABS_API_KEY = defineSecret('ELEVENLABS_API_KEY');
 const GITHUB_TOKEN = defineSecret('GITHUB_TOKEN');
 const GOOGLE_OAUTH_CLIENT_ID = defineSecret('GOOGLE_OAUTH_CLIENT_ID');
 const GOOGLE_OAUTH_CLIENT_SECRET = defineSecret('GOOGLE_OAUTH_CLIENT_SECRET');
@@ -22,6 +22,30 @@ const FINAL_REPLY_MAX_CHARS = 32000;
 const USAGE_PRICING_CACHE_MS = 5 * 60 * 1000;
 const USAGE_TOP_LIMIT = 8;
 const usagePricingCache = new Map();
+const TERMUX_PAIRING_TTL_MS = 10 * 60 * 1000;
+const TERMUX_ACCESS_TOKEN_TTL_MS = 55 * 60 * 1000;
+const TERMUX_REFRESH_TOKEN_TTL_MS = 45 * 24 * 60 * 60 * 1000;
+const TERMUX_SAFE_TOOL_GROUPS = ['drive', 'docs', 'github'];
+const TERMUX_SAFE_TOOLS = [
+  'health',
+  'drive_search',
+  'drive_read',
+  'docs_append',
+  'drive_create_folder',
+  'docs_create',
+  'github_get_repo',
+  'github_read_file',
+  'github_list_issues',
+  'github_get_issue',
+  'github_create_issue',
+  'github_comment_issue',
+  'github_list_pull_requests',
+  'github_get_pull_request',
+  'github_list_pull_request_files',
+  'github_comment_pull_request',
+  'github_list_workflow_runs',
+  'github_get_workflow_run',
+];
 
 const CORS_HEADERS = {
   'Access-Control-Allow-Origin': '*',
@@ -826,17 +850,169 @@ async function storeGoogleToolTokens(uid, email, tokens, source) {
   }
 }
 
-async function loadGoogleClient(uid, email = '') {
+async function loadGoogleToolTokenData(uid, email = '') {
   let snap = uid ? await userTokenRef(uid).get() : null;
   if ((!snap || !snap.exists) && email) {
     snap = await googleEmailTokenRef(email).get();
   }
-  if (!snap || !snap.exists) {
+  return snap && snap.exists ? snap.data() || {} : null;
+}
+
+async function loadGoogleClient(uid, email = '') {
+  const data = await loadGoogleToolTokenData(uid, email);
+  if (!data) {
     return null;
   }
   const auth = oauthClient();
-  auth.setCredentials(snap.data().tokens || {});
+  auth.setCredentials(data.tokens || {});
   return auth;
+}
+
+function hubTokenHash(token) {
+  return crypto.createHash('sha256').update(String(token || '')).digest('hex');
+}
+
+function randomHubToken(bytes = 32) {
+  return crypto.randomBytes(bytes).toString('base64url');
+}
+
+function pairingCode() {
+  return String(crypto.randomInt(0, 1000000)).padStart(6, '0');
+}
+
+function cleanTermuxGroups(groups) {
+  const requested = Array.isArray(groups) ? groups : TERMUX_SAFE_TOOL_GROUPS;
+  const clean = requested.map((group) => safeText(group, 40)).filter((group) => TERMUX_SAFE_TOOL_GROUPS.includes(group));
+  return Array.from(new Set(clean.length ? clean : TERMUX_SAFE_TOOL_GROUPS));
+}
+
+function termuxCollections() {
+  const db = admin.firestore();
+  return {
+    pairings: db.collection('termuxPairingRequests'),
+    accessTokens: db.collection('termuxHubAccessTokens'),
+    refreshTokens: db.collection('termuxHubRefreshTokens'),
+    mcpAccessTokens: db.collection('mcpOAuthAccessTokens'),
+  };
+}
+
+async function requireTermuxHubAccess(req) {
+  const header = req.get('Authorization') || '';
+  const match = header.match(/^Bearer\s+(.+)$/i);
+  if (!match) {
+    const err = new Error('Missing Home Center hub token.');
+    err.status = 401;
+    throw err;
+  }
+  const token = match[1];
+  const hash = hubTokenHash(token);
+  const snap = await termuxCollections().accessTokens.doc(hash).get();
+  if (!snap.exists) {
+    const err = new Error('Invalid Home Center hub token.');
+    err.status = 401;
+    throw err;
+  }
+  const data = snap.data() || {};
+  if (data.revokedAtMs || Number(data.expiresAtMs || 0) <= Date.now()) {
+    const err = new Error('Expired or revoked Home Center hub token.');
+    err.status = 401;
+    throw err;
+  }
+  return {hash, data};
+}
+
+async function issueTermuxHubTokens(pairing, source = 'termux_pairing') {
+  const email = safeText(pairing.email, 320).toLowerCase();
+  const uid = safeText(pairing.uid, 160);
+  const tokenData = await loadGoogleToolTokenData(uid, email);
+  if (!tokenData || !tokenData.tokens) {
+    const err = new Error('Google tools are not connected for this Home Center account.');
+    err.status = 409;
+    throw err;
+  }
+  const accessToken = randomHubToken(32);
+  const refreshToken = randomHubToken(40);
+  const accessHash = hubTokenHash(accessToken);
+  const refreshHash = hubTokenHash(refreshToken);
+  const now = Date.now();
+  const expiresAtMs = now + TERMUX_ACCESS_TOKEN_TTL_MS;
+  const refreshExpiresAtMs = now + TERMUX_REFRESH_TOKEN_TTL_MS;
+  const groups = cleanTermuxGroups(pairing.allowedGroups || pairing.requestedGroups);
+  const accessPayload = {
+    clientId: safeText(pairing.clientId || pairing.pairingId, 160),
+    pairingId: safeText(pairing.pairingId, 160),
+    email,
+    uid,
+    googleTokens: tokenData.tokens,
+    allowedGroups: groups,
+    source,
+    authKind: 'home_center_termux_pairing',
+    refreshTokenHash: refreshHash,
+    createdAtMs: now,
+    expiresAtMs,
+  };
+  await termuxCollections().accessTokens.doc(accessHash).set(accessPayload, {merge: false});
+  await termuxCollections().mcpAccessTokens.doc(accessHash).set(accessPayload, {merge: false});
+  await termuxCollections().refreshTokens.doc(refreshHash).set({
+    clientId: accessPayload.clientId,
+    pairingId: accessPayload.pairingId,
+    email,
+    uid,
+    googleTokens: tokenData.tokens,
+    allowedGroups: groups,
+    source,
+    authKind: 'home_center_termux_pairing',
+    createdAtMs: now,
+    updatedAtMs: now,
+    expiresAtMs: refreshExpiresAtMs,
+  }, {merge: false});
+  return {
+    access_token: accessToken,
+    refresh_token: refreshToken,
+    token_type: 'Bearer',
+    expires_in: Math.floor(TERMUX_ACCESS_TOKEN_TTL_MS / 1000),
+    mcpUrl: 'https://us-central1-home-center-dclar.cloudfunctions.net/homeCenterMcp/mcp',
+    email,
+    allowedGroups: groups,
+    tools: TERMUX_SAFE_TOOLS,
+  };
+}
+
+async function issueTermuxAccessFromRefresh(refreshToken) {
+  const refreshHash = hubTokenHash(refreshToken);
+  const refreshSnap = await termuxCollections().refreshTokens.doc(refreshHash).get();
+  if (!refreshSnap.exists) {
+    const err = new Error('Invalid Home Center refresh token.');
+    err.status = 401;
+    throw err;
+  }
+  const data = refreshSnap.data() || {};
+  if (data.revokedAtMs || Number(data.expiresAtMs || 0) <= Date.now()) {
+    const err = new Error('Expired or revoked Home Center refresh token.');
+    err.status = 401;
+    throw err;
+  }
+  const accessToken = randomHubToken(32);
+  const accessHash = hubTokenHash(accessToken);
+  const now = Date.now();
+  const expiresAtMs = now + TERMUX_ACCESS_TOKEN_TTL_MS;
+  const payload = {
+    clientId: safeText(data.clientId, 160),
+    pairingId: safeText(data.pairingId, 160),
+    email: safeText(data.email, 320).toLowerCase(),
+    uid: safeText(data.uid, 160),
+    googleTokens: data.googleTokens || {},
+    allowedGroups: cleanTermuxGroups(data.allowedGroups),
+    source: 'termux_refresh',
+    authKind: 'home_center_termux_pairing',
+    refreshTokenHash: refreshHash,
+    createdAtMs: now,
+    expiresAtMs,
+  };
+  await termuxCollections().accessTokens.doc(accessHash).set(payload, {merge: false});
+  await termuxCollections().mcpAccessTokens.doc(accessHash).set(payload, {merge: false});
+  await refreshSnap.ref.set({updatedAtMs: now}, {merge: true});
+  return {access_token: accessToken, token_type: 'Bearer', expires_in: Math.floor(TERMUX_ACCESS_TOKEN_TTL_MS / 1000), email: payload.email, allowedGroups: payload.allowedGroups, tools: TERMUX_SAFE_TOOLS};
 }
 
 function wantsConfirmedCreateDoc(message) {
@@ -888,7 +1064,7 @@ async function askOpenAI(user, body) {
     'You are Home Center, a cohesive voice-first life dashboard for a blind user.',
     includeFullDoctrine ? HOME_CENTER_DOCTRINE_STEERING : 'Doctrine summary: Home Center reasons with GPT, executes through app-owned tools, hides plumbing, and asks for confirmation before external writes.',
     'Use concise, actionable language. Prefer direct next actions over generic offers.',
-    'Capabilities available through this app when configured: OpenAI GPT-5.5, hosted web search, full Google Drive plus Docs/Sheets/Gmail/Calendar/Contacts through server-side tokens, Home Center Firestore lists, TickTick fallback lists, and Cartesia narration. Do not claim Google Drive access unless a Google Drive probe confirms it.',
+    'Capabilities available through this app when configured: OpenAI GPT-5.5, hosted web search, full Google Drive plus Docs/Sheets/Gmail/Calendar/Contacts through server-side tokens, Home Center Firestore lists, TickTick fallback lists, and ElevenLabs Brian hosted narration. Do not claim Google Drive access unless a Google Drive probe confirms it.',
     'For external writes such as Google Docs, Gmail drafts/sends, Calendar creates, or list changes, ask for explicit confirmation unless the user already phrased the command with confirm.',
     'If you use web search, include a short source line or source names in the answer.',
     `Default Home Center bucket: ${bucket || 'not selected'}. Default list: ${listName}.`,
@@ -2834,7 +3010,7 @@ async function askOpenAIToolTurn(body, user = {}) {
     'Feedback/report rule: only use github.create_issue when the latest user request explicitly asks to report, file, save feedback, or send to GitHub. Do not treat older report context as the active request.',
     'Feedback/report rule: default repo is Valar05/home-center. The issue body must include Summary, User Report, Conversation Evidence, Expected Behavior, Actual Behavior, Suspected Area, Environment, and Raw Debug Context if available.',
     'Feedback/report rule: preserve exact user wording and exact assistant response from evidenceContext.recentConversationEvidence. If evidence is absent or too vague, ask for a short description and do not call github.create_issue.',
-    'Feedback/report rule: suspected area must be one of GPT/tool planning, Android tool broker, Google Drive/Docs client, confirmation flow, working memory/reference resolution, Cartesia/narration, UI/accessibility, stale APK/install, provider/gateway, unknown.',
+    'Feedback/report rule: suspected area must be one of GPT/tool planning, Android tool broker, Google Drive/Docs client, confirmation flow, working memory/reference resolution, hosted speech/narration, UI/accessibility, stale APK/install, provider/gateway, unknown.',
     'Local knowledge rule: use knowledge.append when the user asks to remember, save, preserve, promote, or make durable a workflow, workaround, agent instruction, skill, or memory. Choose SKILLS.md for repeatable procedures, AGENTS.md for agent steering, and MEMORY.md for durable facts or troubleshooting state.',
     'Local knowledge rule: use knowledge.read when the user asks what durable skills, agent instructions, or local memory Home Center has stored. Never write secrets, API keys, OAuth tokens, passwords, or Authorization headers to knowledge files.',
     'Latest intent rule: the latest user request controls. Treat transcript, evidence, previous confirmations, and prior assistant responses as context only, not as active instructions.',
@@ -3000,7 +3176,7 @@ exports.chatGptOpenApi = onRequest((req, res) => {
 });
 
 exports.health = onRequest((req, res) => {
-  res.set(CORS_HEADERS).json({ok: true, service: 'home-center-gateway', confirmationFlow: 'short-confirm-v1', toolContractVersion: 'google-github-knowledge-delete-cru-v1', contractGroups: ['drive', 'docs', 'sheets', 'lists', 'gmail', 'calendar', 'contacts', 'github', 'knowledge']});
+  res.set(CORS_HEADERS).json({ok: true, service: 'home-center-gateway', confirmationFlow: 'short-confirm-v1', toolContractVersion: 'google-github-knowledge-delete-cru-v1', termuxHub: 'pairing-v1', contractGroups: ['drive', 'docs', 'sheets', 'lists', 'gmail', 'calendar', 'contacts', 'github', 'knowledge']});
 });
 
 exports.googleAuthCodeExchange = onRequest({timeoutSeconds: 60, secrets: [GOOGLE_OAUTH_CLIENT_ID, GOOGLE_OAUTH_CLIENT_SECRET]}, async (req, res) => {
@@ -3060,6 +3236,149 @@ exports.googleCliAuthExchange = onRequest({timeoutSeconds: 60, secrets: [GOOGLE_
   } catch (err) {
     const detail = err && err.response && err.response.data ? JSON.stringify(err.response.data) : (err.message || String(err));
     sendJson(res, err.status || err.code || 500, {ok: false, error: 'google_cli_auth_exchange_failed', detail});
+  }
+});
+
+exports.termuxPairingStart = onRequest({timeoutSeconds: 30}, async (req, res) => {
+  if (handleOptions(req, res)) return;
+  try {
+    if (req.method !== 'POST') {
+      sendJson(res, 405, {ok: false, error: 'post_required'});
+      return;
+    }
+    const pairingId = randomHubToken(18);
+    const code = pairingCode();
+    const now = Date.now();
+    const requestedGroups = cleanTermuxGroups(req.body && req.body.requestedGroups);
+    const deviceName = safeText(req.body && req.body.deviceName, 120) || 'Termux Codex';
+    const clientKind = safeText(req.body && req.body.clientKind, 80) || 'codex-termux';
+    await termuxCollections().pairings.doc(pairingId).set({
+      pairingId,
+      codeHash: hubTokenHash(code),
+      deviceName,
+      clientKind,
+      requestedGroups,
+      status: 'pending',
+      createdAtMs: now,
+      expiresAtMs: now + TERMUX_PAIRING_TTL_MS,
+    }, {merge: false});
+    sendJson(res, 200, {ok: true, pairingId, code, expiresIn: Math.floor(TERMUX_PAIRING_TTL_MS / 1000), requestedGroups});
+  } catch (err) {
+    sendJson(res, err.status || 500, {ok: false, error: 'termux_pairing_start_failed', detail: err.message || String(err)});
+  }
+});
+
+exports.termuxPairingApprove = onRequest({timeoutSeconds: 30}, async (req, res) => {
+  if (handleOptions(req, res)) return;
+  try {
+    const user = await requireUser(req);
+    const pairingId = safeText(req.body && req.body.pairingId, 160);
+    const code = safeText(req.body && req.body.code, 20);
+    const ref = termuxCollections().pairings.doc(pairingId);
+    const snap = pairingId ? await ref.get() : null;
+    if (!snap || !snap.exists) {
+      sendJson(res, 404, {ok: false, error: 'pairing_not_found'});
+      return;
+    }
+    const data = snap.data() || {};
+    if (data.status !== 'pending' || Number(data.expiresAtMs || 0) <= Date.now()) {
+      sendJson(res, 409, {ok: false, error: 'pairing_not_pending'});
+      return;
+    }
+    if (hubTokenHash(code) !== data.codeHash) {
+      sendJson(res, 403, {ok: false, error: 'pairing_code_mismatch'});
+      return;
+    }
+    const tokenData = await loadGoogleToolTokenData(user.uid, user.email || '');
+    if (!tokenData || !tokenData.tokens) {
+      sendJson(res, 409, {ok: false, error: 'google_tools_not_connected', detail: 'Approve Google tools in Home Center before pairing Termux/Codex.'});
+      return;
+    }
+    const now = Date.now();
+    const approved = {
+      status: 'approved',
+      approvedAtMs: now,
+      uid: user.uid,
+      email: safeText(user.email || tokenData.email || '', 320).toLowerCase(),
+      allowedGroups: cleanTermuxGroups(data.requestedGroups),
+      clientId: `termux-${pairingId}`,
+    };
+    await ref.set(approved, {merge: true});
+    sendJson(res, 200, {ok: true, status: 'approved', pairingId, email: approved.email, allowedGroups: approved.allowedGroups});
+  } catch (err) {
+    sendJson(res, err.status || 500, {ok: false, error: 'termux_pairing_approve_failed', detail: err.message || String(err)});
+  }
+});
+
+exports.termuxPairingPoll = onRequest({timeoutSeconds: 30}, async (req, res) => {
+  if (handleOptions(req, res)) return;
+  try {
+    const pairingId = safeText(req.body && req.body.pairingId, 160);
+    const code = safeText(req.body && req.body.code, 20);
+    const ref = termuxCollections().pairings.doc(pairingId);
+    const snap = pairingId ? await ref.get() : null;
+    if (!snap || !snap.exists) {
+      sendJson(res, 404, {ok: false, error: 'pairing_not_found'});
+      return;
+    }
+    const data = snap.data() || {};
+    if (hubTokenHash(code) !== data.codeHash) {
+      sendJson(res, 403, {ok: false, error: 'pairing_code_mismatch'});
+      return;
+    }
+    if (Number(data.expiresAtMs || 0) <= Date.now()) {
+      sendJson(res, 409, {ok: false, error: 'pairing_expired'});
+      return;
+    }
+    if (data.status !== 'approved') {
+      sendJson(res, 202, {ok: true, status: data.status || 'pending'});
+      return;
+    }
+    const issued = await issueTermuxHubTokens(data, 'termux_pairing');
+    await ref.set({status: 'claimed', claimedAtMs: Date.now(), lastAccessTokenIssuedAtMs: Date.now()}, {merge: true});
+    sendJson(res, 200, {ok: true, status: 'paired', ...issued});
+  } catch (err) {
+    sendJson(res, err.status || 500, {ok: false, error: 'termux_pairing_poll_failed', detail: err.message || String(err)});
+  }
+});
+
+exports.termuxTokenRefresh = onRequest({timeoutSeconds: 30}, async (req, res) => {
+  if (handleOptions(req, res)) return;
+  try {
+    const refreshToken = safeText(req.body && req.body.refreshToken, 4096);
+    if (!refreshToken) {
+      sendJson(res, 400, {ok: false, error: 'refresh_token_required'});
+      return;
+    }
+    sendJson(res, 200, {ok: true, ...(await issueTermuxAccessFromRefresh(refreshToken))});
+  } catch (err) {
+    sendJson(res, err.status || 500, {ok: false, error: 'termux_token_refresh_failed', detail: err.message || String(err)});
+  }
+});
+
+exports.termuxTokenRevoke = onRequest({timeoutSeconds: 30}, async (req, res) => {
+  if (handleOptions(req, res)) return;
+  try {
+    const access = await requireTermuxHubAccess(req);
+    const now = Date.now();
+    await termuxCollections().accessTokens.doc(access.hash).set({revokedAtMs: now}, {merge: true});
+    await termuxCollections().mcpAccessTokens.doc(access.hash).set({revokedAtMs: now, expiresAtMs: now - 1}, {merge: true});
+    if (access.data.refreshTokenHash) {
+      await termuxCollections().refreshTokens.doc(access.data.refreshTokenHash).set({revokedAtMs: now}, {merge: true});
+    }
+    sendJson(res, 200, {ok: true, status: 'revoked'});
+  } catch (err) {
+    sendJson(res, err.status || 500, {ok: false, error: 'termux_token_revoke_failed', detail: err.message || String(err)});
+  }
+});
+
+exports.termuxHubTools = onRequest({timeoutSeconds: 30}, async (req, res) => {
+  if (handleOptions(req, res)) return;
+  try {
+    const access = await requireTermuxHubAccess(req);
+    sendJson(res, 200, {ok: true, email: access.data.email || '', allowedGroups: cleanTermuxGroups(access.data.allowedGroups), mcpUrl: 'https://us-central1-home-center-dclar.cloudfunctions.net/homeCenterMcp/mcp', tools: TERMUX_SAFE_TOOLS});
+  } catch (err) {
+    sendJson(res, err.status || 500, {ok: false, error: 'termux_hub_tools_failed', detail: err.message || String(err)});
   }
 });
 
@@ -4317,21 +4636,66 @@ exports.agentTurn = onRequest({timeoutSeconds: 120, secrets: [OPENAI_API_KEY, GO
   }
 });
 
-async function openCartesiaStream(text) {
-  return fetch('https://api.cartesia.ai/tts/bytes', {
+const ELEVENLABS_BRIAN_VOICE_ID = 'nPczCjzI2devNBz1zQrb';
+let cachedElevenLabsBrianVoiceId = '';
+
+async function resolveElevenLabsVoiceId(voiceName, voiceId) {
+  const override = safeText(voiceId || process.env.ELEVENLABS_VOICE_ID, 160);
+  if (override) return override;
+  const requestedName = safeText(voiceName || 'Brian', 80).toLowerCase() || 'brian';
+  if (requestedName === 'brian') return ELEVENLABS_BRIAN_VOICE_ID;
+  if (cachedElevenLabsBrianVoiceId && requestedName === 'brian') return cachedElevenLabsBrianVoiceId;
+  const apiKey = ELEVENLABS_API_KEY.value() || process.env.ELEVENLABS_API_KEY || '';
+  if (!apiKey) throw new Error('ElevenLabs API key is not configured');
+  const response = await fetch('https://api.elevenlabs.io/v1/voices', {
+    method: 'GET',
+    headers: {'xi-api-key': apiKey, 'Accept': 'application/json'},
+  });
+  if (!response.ok) {
+    const detail = await response.text().catch(() => '');
+    throw new Error(`ElevenLabs voices HTTP ${response.status}${detail ? `: ${safeText(detail, 500)}` : ''}`);
+  }
+  const payload = await response.json();
+  const voices = Array.isArray(payload && payload.voices) ? payload.voices : [];
+  const match = voices.find((voice) => String(voice && voice.name || '').trim().toLowerCase() === requestedName);
+  if (!match || !match.voice_id) {
+    throw new Error(`elevenlabs_voice_not_found: ${requestedName}`);
+  }
+  if (requestedName === 'brian') cachedElevenLabsBrianVoiceId = match.voice_id;
+  return match.voice_id;
+}
+
+async function openElevenLabsStream(text, options = {}) {
+  const apiKey = ELEVENLABS_API_KEY.value() || process.env.ELEVENLABS_API_KEY || '';
+  if (!apiKey) throw new Error('ElevenLabs API key is not configured');
+  const voiceName = safeText(options.voiceName || 'Brian', 80) || 'Brian';
+  const voiceId = await resolveElevenLabsVoiceId(voiceName, options.voiceId);
+  return fetch(`https://api.elevenlabs.io/v1/text-to-speech/${encodeURIComponent(voiceId)}/stream?output_format=pcm_24000`, {
     method: 'POST',
     headers: {
-      'Authorization': `Bearer ${CARTESIA_API_KEY.value()}`,
-      'Cartesia-Version': '2024-06-10',
+      'xi-api-key': apiKey,
+      'Accept': 'application/octet-stream',
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      model_id: 'sonic-3.5',
-      transcript: text,
-      voice: {mode: 'id', id: process.env.CARTESIA_VOICE_ID || 'f786b574-daa5-4673-aa0c-cbe3e8534c02'},
-      output_format: {container: 'raw', encoding: 'pcm_s16le', sample_rate: 44100},
+      text,
+      model_id: process.env.ELEVENLABS_MODEL_ID || 'eleven_multilingual_v2',
+      voice_settings: {stability: 0.5, similarity_boost: 0.75},
     }),
   });
+}
+
+
+async function openHostedSpeechStream(text, body) {
+  const provider = safeText(body && body.provider, 40).toLowerCase();
+  if (provider && provider !== 'elevenlabs') {
+    const err = new Error(`unsupported_tts_provider: ${provider}`);
+    err.statusCode = 400;
+    throw err;
+  }
+  const voiceName = safeText(body && body.voiceName, 80) || 'Brian';
+  const voiceId = safeText(body && body.voiceId, 160);
+  return {provider: 'elevenlabs', voiceName, response: await openElevenLabsStream(text, {voiceName, voiceId})};
 }
 
 async function ttsHandler(req, res) {
@@ -4342,16 +4706,19 @@ async function ttsHandler(req, res) {
       res.set(CORS_HEADERS).status(400).send('text is required');
       return;
     }
-    const audioResponse = await openCartesiaStream(text);
+    const speech = await openHostedSpeechStream(text, req.body || {});
+    const audioResponse = speech.response;
     if (!audioResponse.ok) {
       const detail = await audioResponse.text().catch(() => '');
-      throw new Error(`Cartesia HTTP ${audioResponse.status}${detail ? `: ${safeText(detail, 500)}` : ''}`);
+      throw new Error(`ElevenLabs HTTP ${audioResponse.status}${detail ? `: ${safeText(detail, 500)}` : ''}`);
     }
     res.set(CORS_HEADERS);
     res.set('Content-Type', 'application/octet-stream');
     res.set('Cache-Control', 'no-store');
     res.set('X-Audio-Format', 'pcm_s16le');
-    res.set('X-Sample-Rate', '44100');
+    res.set('X-Sample-Rate', '24000');
+    res.set('X-Speech-Provider', speech.provider);
+    res.set('X-Speech-Voice', speech.voiceName || 'Brian');
     res.set('Connection', 'close');
     res.status(200);
     if (audioResponse.body && typeof audioResponse.body.pipeTo === 'function') {
@@ -4362,9 +4729,9 @@ async function ttsHandler(req, res) {
     const audio = Buffer.from(await audioResponse.arrayBuffer());
     res.send(audio);
   } catch (err) {
-    res.set(CORS_HEADERS).status(500).send(err.message || String(err));
+    res.set(CORS_HEADERS).status(err.statusCode || 500).send(err.message || String(err));
   }
 }
 
-exports.tts = onRequest({timeoutSeconds: 60, secrets: [CARTESIA_API_KEY]}, ttsHandler);
-exports.speak = onRequest({timeoutSeconds: 60, secrets: [CARTESIA_API_KEY]}, ttsHandler);
+exports.tts = onRequest({timeoutSeconds: 60, secrets: [ELEVENLABS_API_KEY]}, ttsHandler);
+exports.speak = onRequest({timeoutSeconds: 60, secrets: [ELEVENLABS_API_KEY]}, ttsHandler);

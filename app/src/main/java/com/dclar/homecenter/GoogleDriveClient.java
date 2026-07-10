@@ -40,6 +40,46 @@ final class GoogleDriveClient {
         return inspect(account, "");
     }
 
+    DriveResult listRecentFiles(GoogleSignInAccount account, int pageSize) {
+        TokenResult token = tokenForTool(account, "drive.search");
+        if (!token.ok) return DriveResult.error(token.json.optString("error", "drive_error"), token.json.optString("detail", "Drive failed."));
+        return requestFiles(token.value, "trashed=false", "Recent Drive files", pageSize);
+    }
+
+    DriveResult listFolders(GoogleSignInAccount account, int pageSize) {
+        TokenResult token = tokenForTool(account, "drive.search");
+        if (!token.ok) return DriveResult.error(token.json.optString("error", "drive_error"), token.json.optString("detail", "Drive failed."));
+        return requestFiles(token.value, "mimeType='" + FOLDER_MIME_TYPE + "' and trashed=false", "Recent Drive folders", pageSize);
+    }
+
+    DriveResult listDocs(GoogleSignInAccount account, int pageSize) {
+        TokenResult token = tokenForTool(account, "drive.search");
+        if (!token.ok) return DriveResult.error(token.json.optString("error", "drive_error"), token.json.optString("detail", "Drive failed."));
+        return requestFiles(token.value, "mimeType='" + DOC_MIME_TYPE + "' and trashed=false", "Recent Google Docs", pageSize);
+    }
+
+    DriveResult listNarratableDocs(GoogleSignInAccount account, String folderId, String queryText, String sortMode, int pageSize) {
+        TokenResult token = tokenForTool(account, "drive.search");
+        if (!token.ok) return DriveResult.error(token.json.optString("error", "drive_error"), token.json.optString("detail", "Drive failed."));
+        List<String> clauses = new ArrayList<>();
+        clauses.add("mimeType='" + DOC_MIME_TYPE + "'");
+        clauses.add("trashed=false");
+        String cleanFolderId = folderId == null ? "" : folderId.trim();
+        if (!cleanFolderId.isEmpty()) clauses.add("'" + escapeQuery(cleanFolderId) + "' in parents");
+        String cleanQuery = queryText == null ? "" : queryText.trim();
+        if (!cleanQuery.isEmpty()) clauses.add("name contains '" + escapeQuery(cleanQuery) + "'");
+        String orderBy = "name_asc".equals(sortMode) ? "name" : "modifiedTime desc";
+        return requestFiles(token.value, joinClauses(clauses), "Narratable Google Docs", pageSize, orderBy);
+    }
+
+    DriveResult listFolderChildren(GoogleSignInAccount account, String folderId, int pageSize) {
+        TokenResult token = tokenForTool(account, "drive.search");
+        if (!token.ok) return DriveResult.error(token.json.optString("error", "drive_error"), token.json.optString("detail", "Drive failed."));
+        String cleanFolderId = folderId == null ? "" : folderId.trim();
+        if (cleanFolderId.isEmpty()) return listRecentFiles(account, pageSize);
+        return requestFiles(token.value, "'" + escapeQuery(cleanFolderId) + "' in parents and trashed=false", "Folder contents", pageSize);
+    }
+
     JSONObject runTool(String toolName, JSONObject arguments, GoogleSignInAccount account) {
         if ("drive.search".equals(toolName)) return searchTool(toolName, arguments, account, "");
         if ("drive.read_metadata".equals(toolName)) return readMetadataTool(arguments, account);
@@ -311,11 +351,15 @@ final class GoogleDriveClient {
     }
 
     private DriveResult requestFiles(String token, String query, String detail, int pageSize) {
+        return requestFiles(token, query, detail, pageSize, "modifiedTime desc");
+    }
+
+    private DriveResult requestFiles(String token, String query, String detail, int pageSize, String orderBy) {
         try {
             Uri.Builder builder = Uri.parse(FILES_URL).buildUpon()
-                    .appendQueryParameter("pageSize", String.valueOf(Math.max(1, Math.min(10, pageSize))))
-                    .appendQueryParameter("fields", "files(id,name,mimeType,modifiedTime,webViewLink)")
-                    .appendQueryParameter("orderBy", "modifiedTime desc")
+                    .appendQueryParameter("pageSize", String.valueOf(Math.max(1, Math.min(50, pageSize))))
+                    .appendQueryParameter("fields", "files(id,name,mimeType,modifiedTime,webViewLink,parents)")
+                    .appendQueryParameter("orderBy", orderBy == null || orderBy.trim().isEmpty() ? "modifiedTime desc" : orderBy.trim())
                     .appendQueryParameter("supportsAllDrives", "true")
                     .appendQueryParameter("includeItemsFromAllDrives", "true");
             if (query != null && !query.trim().isEmpty()) builder.appendQueryParameter("q", query);

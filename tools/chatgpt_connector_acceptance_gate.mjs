@@ -6,9 +6,9 @@ import {execFileSync, spawnSync} from 'node:child_process';
 const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
 const DEFAULT_URL = 'https://us-central1-home-center-dclar.cloudfunctions.net/homeBridgeMcp/mcp';
 const EXPECTED_TOOLS = [
-  'health', 'drive_search', 'drive_read', 'docs_append',
-  'capabilities', 'auth_status', 'storage_status', 'audit_status',
-  'drive_list_folder', 'drive_get_metadata', 'drive_create_folder', 'docs_create',
+  'health', 'drive_search', 'drive_read', 'sheets_search', 'sheets_read', 'workbook_import_xlsx', 'docs_append',
+  'capabilities', 'drive_operation', 'auth_status', 'storage_status', 'audit_status',
+  'drive_list_folder', 'drive_get_metadata', 'sheets_create', 'sheets_update_values', 'drive_create_folder', 'docs_create',
   'drive_move', 'drive_rename', 'drive_plan_organize', 'drive_execute_plan',
   'index_folder', 'index_status', 'drive_workflow_run', 'recovery_checkpoint', 'recovery_status', 'audit_log', 'audit_get',
   'github_get_repo', 'github_read_file', 'github_list_branches',

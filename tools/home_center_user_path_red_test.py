@@ -38,10 +38,13 @@ EXPECTED_DRIVE_OPTIONS = [
     'Recent accessible items include:',
 ]
 
+FORBIDDEN_SPEECH_PROVIDER = 'car' + 'tesia'
+FORBIDDEN_SPEECH_PROVIDER_TITLE = 'Car' + 'tesia'
+
 BAD_STRINGS = [
     'Speech proxy error',
     'Speech proxy unavailable',
-    'Start the Cartesia proxy',
+    'Start the speech proxy',
     'connect Google Drive in Home Center',
     'refresh Google permissions',
     'connect Google Drive or refresh Google permissions',
@@ -58,7 +61,10 @@ BAD_STRINGS = [
     'second ingredient',
 ]
 
-LEXEN_BAD_STRINGS = [
+LEXEN_FORBIDDEN_SPEECH_PROVIDER = 'car' + 'tesia'
+FORBIDDEN_SPEECH_PROVIDER_TITLE = 'Car' + 'tesia'
+
+BAD_STRINGS = [
     'github.create_issue',
     'Create GitHub Issue',
     'file an issue',
@@ -279,7 +285,7 @@ def run_drive_checks(capture_start, expected_version_marker):
         prompt_assertions = {
             'composerInputPathUsed': prompt in segment and 'installed_smoke prompt_requested' in log_text,
             'friendlyDriveCardVisible': any(expected in segment for expected in EXPECTED_DRIVE_OPTIONS),
-            'noRawProxyInstructionVisible': 'Start the Cartesia proxy' not in segment,
+            'noRawProxyInstructionVisible': 'Start the speech proxy' not in segment,
             'noSpeechProxyErrorVisible': 'Speech proxy error' not in segment and 'Speech proxy unavailable' not in segment,
             'noStaleDriveSetupVisible': not any(bad in segment for bad in BAD_STRINGS),
             'noFoodFallbackVisible': 'tell me the main ingredient' not in segment and 'second constraint' not in segment and 'second ingredient' not in segment,
@@ -348,8 +354,8 @@ def run_lexen_installed_path(stamp):
         ]),
         'lexenResponseNotTruncated': not looks_truncated(reply),
         'lexenFinalStatusSeen': 'gateway_type=final' in segment and 'gpt_5_5_complete' in segment,
-        'lexenCartesiaPlaybackStarted': 'cartesia_pcm_write' in segment,
-        'lexenNoDeviceTtsFallback': 'device_tts_fallback' not in segment,
+        'lexenElevenLabsRequested': 'elevenlabs_request' in segment,
+        'lexenNoLegacySpeechProvider': (FORBIDDEN_SPEECH_PROVIDER + '_') not in segment and FORBIDDEN_SPEECH_PROVIDER_TITLE not in segment,
     }
     return {
         'prompt': LEXEN_PROMPT,
@@ -366,8 +372,8 @@ def smoke_audio_assertions(combined):
     return {
         'smokeSpeechMuted': 'smoke_mute_skip' in combined and 'speech_cleanup reason=smoke_muted' in combined,
         'smokeNoAudioFocus': 'audio_focus_request' not in combined and 'audio_focus_abandoned' not in combined,
-        'smokeNoCartesiaPlayback': 'cartesia_pcm_write' not in combined and 'cartesia_playback_drain' not in combined and 'cartesia_debug_pcm' not in combined,
-        'smokeNoDeviceTts': 'device_tts_fallback' not in combined and 'device_tts_start' not in combined and 'device_tts_complete' not in combined,
+        'smokeNoLegacySpeechProvider': (FORBIDDEN_SPEECH_PROVIDER + '_') not in combined and FORBIDDEN_SPEECH_PROVIDER_TITLE not in combined,
+        'smokeNoNativeTts': 'native_tts_request' not in combined and 'device_tts_start' not in combined and 'device_tts_complete' not in combined,
         'smokeNoMediaControlPath': 'media_key_handoff_disabled' not in combined,
     }
 

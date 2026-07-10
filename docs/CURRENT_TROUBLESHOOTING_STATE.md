@@ -1,6 +1,46 @@
 # Current Troubleshooting State
 
-Last updated: 2026-06-26 18:43 America/Chicago
+Last updated: 2026-07-10 07:00 America/Chicago
+
+## 2026-07-10 Drive Reader Red-Build Reorientation
+
+The active visual target is no longer a chat-first app. The first viewport must be a Drive file/folder reader. Chat remains available only as a secondary surface behind `Open chat`.
+
+Current visual contract:
+
+- Header and first panel identify the app as `Drive Reader`; Android title-bar `Home Center` must be suppressed.
+- Persisted chat-open state must be cleared on launch so old chat/document cards cannot occupy the first viewport.
+- Recent files, folders, and Google Docs are visible controls on the first screen.
+- The visual list represents Drive objects directly: folder rows open in-place; Google Doc rows open the document reader; other file rows open their Drive link or report unsupported indexing.
+- The architecture is cloud-file first: `GoogleDriveClient` owns recent-file, folder, doc, and folder-child listing methods.
+- No agent automation is required for this slice; automation can target the visual tool later.
+
+## 2026-07-10 ElevenLabs Google Docs Reader Update
+
+The active reader contract is the manual Audible-style Google Docs integration. The old confirm-before-whole-document stream model is canceled. Long documents must not start hidden background voice generation just because text was read or indexed.
+
+Current contract:
+
+- Scope is Google Docs only.
+- Reading a Google Doc ingests and indexes the Drive text snapshot only.
+- The chat card pairs the Drive text version with an ElevenLabs Brian voice version.
+- The only visible voice actions are `Play with Brian` and `Download voice`.
+- Playback may stream the current section while it downloads and preserves the finished WAV section.
+- Replay uses preserved local WAV sections when present.
+- User navigation cannot skip past sections that have not downloaded yet.
+- Stop cancels explicit playback/download intent; no hidden cache generation continues.
+- Operational prompts may use native Android TTS.
+- Rendered assistant responses and Google Doc reader chunks use hosted ElevenLabs Brian only.
+- Hosted ElevenLabs failure pauses the reader at the failed chunk and asks for retry; it must not silently continue with native TTS.
+
+Validation for this slice:
+
+- `python3 tools/home_center_regression_tests.py`: OK.
+- `sh tools/run_regression_tests.sh`: OK.
+- Direct `gradle :app:compileDebugJavaWithJavac --no-daemon`: red because the ambient Termux Gradle is 9.6 and the Android Gradle plugin requires a compatible Gradle version; use the project build script instead.
+- `sh tools/build_debug_apk.sh`: OK. It rebuilt, verified, copied `/storage/emulated/0/Download/HomeCenter-debug.apk`, and installed through Shizuku.
+- Installed package after build: `versionName=0.2.56 versionCode=60 lastUpdateTime=2026-07-10 06:30:36`.
+- Installed UI smoke was not run because the device was on the Android pattern lock screen. Do not treat that as an app failure.
 
 ## Situation
 
@@ -23,9 +63,8 @@ Updated after the red-build review:
 - The app requests `https://www.googleapis.com/auth/drive.metadata.readonly` for the direct diagnostic.
 - The Home Center menu has a `Check Google Drive` action. It lists the first 5 real Drive files or reports the exact token/scope/HTTP failure.
 - Gemini runtime model now comes from `BuildConfig.GEMINI_MODEL`; Gradle default is `gemini-2.0-flash`, matching orientation.
-- Cartesia proxy `/tts` now closes HTTP responses explicitly and prints full tracebacks on stream failure.
-- Android speech logs explicit stop reasons: `new_speech_request`, `user_stop`, `cartesia_error`, `stale_sequence`, and `stream_complete`.
-- `tools/test_cartesia_proxy.sh` writes `home-center-cartesia-test.pcm` under `${TMPDIR:-/tmp}` because this Termux environment cannot write `/tmp` directly.
+- ElevenLabs hosted speech `/tts` now defaults to ElevenLabs Brian, closes HTTP responses explicitly, and reports provider stream failures.
+- Android speech logs explicit stop reasons: `new_speech_request`, `user_stop`, `hosted_speech_error`, `stale_sequence`, and `stream_complete`.
 
 Validation passed for source, APK build, provider/proxy config, and local proxy PCM output. Manual installed-app Drive validation still requires installing the rebuilt APK and tapping `Check Google Drive`.
 
@@ -93,14 +132,14 @@ supportsAllDrives: true
 includeItemsFromAllDrives: true
 ```
 
-### Cartesia Must Be Hosted, Not User-Started
+### ElevenLabs / Hosted Speech Must Be Hosted, Not User-Started
 
-The user should not be told to start a Cartesia proxy. Hosted provider smoke now checks that the Firebase `tts` endpoint returns real audio bytes.
+The user should not be told to start a speech proxy or enter a provider key. Hosted provider smoke checks that the Firebase `tts` endpoint returns real audio bytes from the ElevenLabs Brian provider.
 
 Android playback now logs received and written audio byte counts using:
 
 ```text
-cartesia_playback_complete receivedBytes=... writtenBytes=...
+stream_complete receivedBytes=... writtenBytes=...
 ```
 
 This distinguishes provider-audio success from Android playback failure.
@@ -139,7 +178,7 @@ aapt dump badging app/build/outputs/apk/debug/app-debug.apk | sed -n '1,8p'
 Observed provider smoke output:
 
 ```text
-Home Center provider smoke: OK cartesiaBytes=148176 driveProbeUnauth=401
+Home Center provider smoke: OK hostedSpeechBytes=148176 driveProbeUnauth=401
 ```
 
 Observed APK metadata:

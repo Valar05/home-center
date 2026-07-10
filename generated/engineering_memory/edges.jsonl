@@ -1,0 +1,4 @@
+{"type":"engineering.edge","from":"engineering.orientation:b6ab1fca199eb861","to":"engineering.repository:886cf421b93d78e8","relation":"belongs_to","generatedAt":"2026-07-10T08:22:27.199Z"}
+{"type":"engineering.edge","from":"engineering.orientation:b6ab1fca199eb861","to":"engineering.repository:886cf421b93d78e8","relation":"generated_from","generatedAt":"2026-07-10T08:22:27.199Z"}
+{"type":"engineering.edge","from":"engineering.artifact:050ac47ac00291e6","to":"engineering.repository:886cf421b93d78e8","relation":"generated_from","generatedAt":"2026-07-10T08:22:38.229Z"}
+{"type":"engineering.edge","from":"engineering.workflow_run:2a87ee9ec62cb4c6","to":"engineering.artifact:050ac47ac00291e6","relation":"generated","generatedAt":"2026-07-10T08:22:38.229Z"}

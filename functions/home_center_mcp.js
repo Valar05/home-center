@@ -1,4 +1,5 @@
 const {createHash, randomBytes, randomUUID} = require('node:crypto');
+const {Readable} = require('node:stream');
 const {McpServer} = require('@modelcontextprotocol/sdk/server/mcp.js');
 const {SSEServerTransport} = require('@modelcontextprotocol/sdk/server/sse.js');
 const {StreamableHTTPServerTransport} = require('@modelcontextprotocol/sdk/server/streamableHttp.js');
@@ -18,6 +19,7 @@ const MCP_GOOGLE_CALLBACK = process.env.HOME_CENTER_MCP_GOOGLE_CALLBACK || `${MC
 const MCP_REQUIRED_SCOPES = [
   'https://www.googleapis.com/auth/drive',
   'https://www.googleapis.com/auth/documents',
+  'https://www.googleapis.com/auth/spreadsheets',
 ];
 const MCP_OAUTH_SECURITY_SCHEMES = [{type: 'oauth2', scopes: MCP_REQUIRED_SCOPES}];
 
@@ -198,8 +200,8 @@ async function loadMcpAccessContext(admin, google, googleClientId, googleClientS
   const snap = await oauthCollection(admin, 'mcpOAuthAccessTokens').doc(tokenHash(accessToken)).get();
   if (!snap.exists) return null;
   const data = snap.data() || {};
-  if (safeNumber(data.expiresAtMs, 0) <= Date.now()) {
-    const err = new Error('Home Center OAuth token expired. Reconnect the ChatGPT app.');
+  if (data.revokedAtMs || safeNumber(data.expiresAtMs, 0) <= Date.now()) {
+    const err = new Error(data.revokedAtMs ? 'Home Center OAuth token was revoked. Reconnect the client.' : 'Home Center OAuth token expired. Reconnect the ChatGPT app.');
     err.status = 401;
     err.wwwAuthenticate = oauthChallenge();
     throw err;
@@ -500,7 +502,7 @@ function normalizeRecoveryOperation(operation = {}, index = 0) {
     operationId: safeText(operationId, 160),
     toolName: safeText(operation.toolName || operation.tool, 120),
     requestId,
-    targetId: safeText(operation.targetId || operation.fileId || operation.documentId || operation.folderId, 220),
+    targetId: safeText(operation.targetId || operation.fileId || operation.documentId || operation.spreadsheetId || operation.folderId, 220),
     targetName: safeText(operation.targetName || operation.name || operation.title, 240),
     summary: safeText(operation.summary || operation.intent || operation.callerNote, 1000),
   };
@@ -532,7 +534,7 @@ function mcpToolCallFields(req) {
   const args = params.arguments && typeof params.arguments === 'object' ? params.arguments : {};
   const toolName = body.method === 'tools/call' ? safeText(params.name, 120) : '';
   const targetLabel = safeText(args.name || args.title || args.newName || args.heading || args.callerNote, 240);
-  const targetId = safeText(args.fileId || args.documentId || args.folderId || args.targetFolderId || args.parentFolderId || args.planId, 220);
+  const targetId = safeText(args.fileId || args.documentId || args.spreadsheetId || args.folderId || args.targetFolderId || args.parentFolderId || args.planId, 220);
   return {
     mcpMethod: safeText(body.method, 120),
     toolName,
@@ -601,6 +603,568 @@ async function indexOneFile(admin, drive, file) {
   };
   await ref.set(payload, {merge: false});
   return {fileId: metadata.id, skipped: false, updated: true, metadata: payload};
+}
+
+
+function simulationId(prefix, value) {
+  const supplied = safeText(value, 160);
+  if (supplied) {
+    if (!/^[A-Za-z0-9_.:-]{6,160}$/.test(supplied)) throw Object.assign(new Error(`${prefix} id must be 6-160 chars using letters, numbers, dot, underscore, colon, or dash.`), {status: 400});
+    return supplied;
+  }
+  return `${prefix}-${randomUUID()}`;
+}
+
+function simulationSequence(value) {
+  const sequence = Math.floor(safeNumber(value, -1));
+  if (sequence < 0 || sequence > 1000000) throw Object.assign(new Error('sequence must be an integer from 0 to 1000000.'), {status: 400});
+  return sequence;
+}
+
+function simulationConfidence(value) {
+  const confidence = safeText(value, 40).toLowerCase();
+  return ['high', 'medium', 'low', 'unknown'].includes(confidence) ? confidence : 'unknown';
+}
+
+function simulationTrustLevel(value) {
+  const trust = safeText(value, 80).toLowerCase();
+  return trust || 'unspecified';
+}
+
+function simulationRecordTypeFromHeading(heading, metadata = {}) {
+  const explicit = safeText(metadata.type || metadata.record_type || metadata.recordType, 80).toLowerCase();
+  if (explicit) return explicit.replace(/[^a-z0-9_.:-]/g, '_').slice(0, 80);
+  const h = safeText(heading, 240).toLowerCase();
+  if (/^(entity|character|person|location|organization|object)\b/.test(h)) return 'entity';
+  if (/^(relationship|relation)\b/.test(h)) return 'relationship';
+  if (/^(event|chronology|timeline|historical rail)\b/.test(h)) return 'event';
+  if (/^(rule|constraint|canon|doctrine|prohibited invention)\b/.test(h)) return 'rule';
+  if (/^(conflict|contradictory evidence|contradiction)\b/.test(h)) return 'contradiction';
+  if (/^(unresolved|unknown|question|confidence note)\b/.test(h)) return 'uncertainty';
+  if (/^(source|excerpt|summary)\b/.test(h)) return 'source_note';
+  if (/^(seed|simulation seed|prior outcome)\b/.test(h)) return 'simulation_seed';
+  return 'passage';
+}
+
+function parseMetadataLines(lines) {
+  const metadata = {};
+  let consumed = 0;
+  for (const line of lines) {
+    const match = String(line || '').match(/^([A-Za-z][A-Za-z0-9_. -]{0,80}):\s*(.+)$/);
+    if (!match) break;
+    const key = match[1].trim().toLowerCase().replace(/[ -]+/g, '_');
+    metadata[key] = match[2].trim();
+    consumed += 1;
+  }
+  return {metadata, consumed};
+}
+
+function extractSourceRefs(lines) {
+  const refs = [];
+  let inSources = false;
+  for (const raw of lines) {
+    const line = String(raw || '').trim();
+    if (/^sources?:\s*$/i.test(line)) {
+      inSources = true;
+      continue;
+    }
+    if (inSources && /^-\s+/.test(line)) {
+      refs.push(line.replace(/^-\s+/, '').slice(0, 800));
+      continue;
+    }
+    if (inSources && line && !/^\s/.test(raw || '')) inSources = false;
+  }
+  const inline = lines.join('\n').match(/\[(drive|github|url|doc|source):([^\]]+)\]/gi) || [];
+  for (const item of inline) refs.push(item.slice(1, -1));
+  return Array.from(new Set(refs)).slice(0, 40);
+}
+
+function parseSimulationReference(content) {
+  const text = boundedText(content, 750000);
+  const lines = text.split(/\r?\n/);
+  const sections = [];
+  const stack = [];
+  let current = {heading: 'Root', level: 0, startLine: 1, lines: []};
+  const flush = (endLine) => {
+    const body = current.lines.join('\n').trim();
+    if (!body && current.heading === 'Root') return;
+    const parsed = parseMetadataLines(current.lines.map((line) => String(line || '').trim()).filter(Boolean));
+    const sectionPath = stack.slice(0, current.level ? current.level - 1 : 0).concat(current.heading).filter(Boolean).join(' > ');
+    sections.push({
+      heading: current.heading,
+      level: current.level,
+      sectionPath: sectionPath || current.heading,
+      startLine: current.startLine,
+      endLine,
+      metadata: parsed.metadata,
+      body,
+      sources: extractSourceRefs(current.lines),
+    });
+  };
+  lines.forEach((line, index) => {
+    const match = line.match(/^(#{1,6})\s+(.+)$/);
+    if (match) {
+      flush(index);
+      const level = match[1].length;
+      stack[level - 1] = match[2].trim();
+      stack.length = level;
+      current = {heading: match[2].trim(), level, startLine: index + 1, lines: []};
+    } else {
+      current.lines.push(line);
+    }
+  });
+  flush(lines.length);
+  if (!sections.length && text.trim()) {
+    sections.push({heading: 'Reference', level: 1, sectionPath: 'Reference', startLine: 1, endLine: lines.length, metadata: {}, body: text.trim(), sources: extractSourceRefs(lines)});
+  }
+  return sections;
+}
+
+function tokenizeSimulationText(text, maxTerms = 80) {
+  const stop = new Set(['the', 'and', 'for', 'that', 'with', 'from', 'this', 'into', 'about', 'known', 'there', 'their', 'shall', 'must', 'have', 'been', 'were', 'will', 'would', 'could', 'should']);
+  const counts = new Map();
+  String(text || '').toLowerCase().replace(/[^a-z0-9_ -]/g, ' ').split(/\s+/).forEach((term) => {
+    if (term.length < 3 || stop.has(term)) return;
+    counts.set(term, (counts.get(term) || 0) + 1);
+  });
+  return Array.from(counts.entries()).sort((a, b) => b[1] - a[1]).slice(0, maxTerms).map(([term, count]) => ({term, count}));
+}
+
+function simulationSourceRefKey(ref) {
+  return contentHash(String(ref || '')).slice(0, 32);
+}
+
+function normalizeSimulationSourceRef(ref) {
+  const text = safeText(ref, 800);
+  const match = text.match(/^([A-Za-z0-9_.-]+):(.+)$/);
+  return {raw: text, sourceType: match ? match[1].toLowerCase() : 'reference', externalId: match ? match[2].trim().slice(0, 500) : text};
+}
+
+function simulationOperationRegistry() {
+  return {
+    version: '2026-07-10.simulation-frame-mcp-v1',
+    invocationTool: 'simulation_operation',
+    cachePolicy: 'Use simulation_operation plus this registry for Simulation features so ChatGPT does not need a connector reinstall for each new simulation operation.',
+    operations: {
+      simulation_project_create: {summary: 'Create or idempotently return a simulation project.', write: true, requiresRequestId: true, input: {title: 'string', description: 'optional string', doctrine: 'optional string', projectId: 'optional stable id', requestId: 'string'}},
+      simulation_source_register: {summary: 'Attach a source reference to a simulation project without copying all content.', write: true, requiresRequestId: true, input: {projectId: 'string', sourceType: 'string', externalId: 'optional string', location: 'optional string', title: 'optional string', trustLevel: 'optional string', requestId: 'string'}},
+      simulation_reference_begin: {summary: 'Begin a resumable agent-assembled reference compilation.', write: true, requiresRequestId: true, input: {projectId: 'string', title: 'optional string', format: 'markdown|text|json', requestId: 'string'}},
+      simulation_reference_append: {summary: 'Append one idempotent reference chunk by sequence and hash.', write: true, requiresRequestId: true, input: {compilationId: 'string', sequence: 'number', content: 'string', requestId: 'string'}},
+      simulation_reference_finalize: {summary: 'Finalize a reference compilation and freeze its content hash.', write: true, requiresRequestId: true, input: {compilationId: 'string', requestId: 'string'}},
+      build_simulation_frame: {summary: 'Compile a finalized reference into an immutable indexed simulation frame.', write: true, requiresRequestId: true, input: {projectId: 'string', compilationId: 'string', activate: 'optional boolean', requestId: 'string'}},
+      simulation_frame_status: {summary: 'Read project, compilation, or frame compilation status.', write: false, input: {projectId: 'optional string', compilationId: 'optional string', frameId: 'optional string'}},
+      simulation_frame_query: {summary: 'Retrieve evidence-backed frame records by lexical query and structured filters.', write: false, input: {projectId: 'optional string', frameId: 'optional string', query: 'string', recordTypes: 'optional string[]', limit: 'optional number'}},
+      simulation_frame_get: {summary: 'Read a frame manifest and a bounded record sample.', write: false, input: {frameId: 'string', limit: 'optional number'}},
+      simulation_frame_versions: {summary: 'List immutable frame versions for a project.', write: false, input: {projectId: 'string'}},
+      simulation_context_packet: {summary: 'Package query results into a bounded agent-ready context packet with provenance and invention guards.', write: false, input: {projectId: 'optional string', frameId: 'optional string', query: 'string', maxChars: 'optional number'}},
+      run_simulation_frame: {summary: 'Run a deterministic frame-grounded simulation handoff: retrieve context, conflicts, unknowns, and next-step constraints for an agent continuation.', write: false, input: {projectId: 'optional string', frameId: 'optional string', prompt: 'string', maxChars: 'optional number'}},
+    },
+  };
+}
+
+function supportedSimulationOperationTypes() {
+  return Object.keys(simulationOperationRegistry().operations);
+}
+
+async function existingSimulationAudit(admin, requestId) {
+  const id = safeText(requestId, 160);
+  if (!id) return null;
+  const snap = await mcpCollection(admin, 'simulationAudit').doc(id).get();
+  return snap.exists ? snap.data() : null;
+}
+
+async function simulationAuditWrite(admin, entry) {
+  const requestId = stableRequestId(entry.requestId);
+  const ref = mcpCollection(admin, 'simulationAudit').doc(requestId);
+  const existing = await ref.get();
+  if (existing.exists && existing.data().status === 'success') return {idempotent: true, audit: existing.data()};
+  const payload = {
+    timestampMs: nowMs(),
+    actor: safeText(entry.actor, 320),
+    authKind: safeText(entry.authKind, 80),
+    tool: 'simulation_operation',
+    operation: safeText(entry.operation, 120),
+    requestId,
+    projectId: safeText(entry.projectId, 160),
+    compilationId: safeText(entry.compilationId, 160),
+    frameId: safeText(entry.frameId, 160),
+    contentHash: safeText(entry.contentHash, 160),
+    status: safeText(entry.status, 80) || 'success',
+    warnings: Array.isArray(entry.warnings) ? entry.warnings.map((w) => safeText(w, 500)).filter(Boolean).slice(0, 50) : [],
+    outcome: entry.outcome || null,
+    error: safeText(entry.error, 1000),
+  };
+  await ref.set(payload, {merge: false});
+  return {idempotent: false, audit: payload};
+}
+
+async function requireSimulationProject(admin, projectId) {
+  const id = simulationId('sim-project', projectId);
+  const snap = await mcpCollection(admin, 'simulationProjects').doc(id).get();
+  if (!snap.exists) throw Object.assign(new Error('simulation project not found.'), {status: 404});
+  return snap.data() || {};
+}
+
+async function readCompilationContent(admin, compilationId) {
+  const snap = await mcpCollection(admin, 'simulationReferenceCompilations').doc(simulationId('sim-compilation', compilationId)).get();
+  if (!snap.exists) throw Object.assign(new Error('reference compilation not found.'), {status: 404});
+  const compilation = snap.data() || {};
+  const chunkSnap = await mcpCollection(admin, 'simulationReferenceChunks').where('compilationId', '==', compilation.compilationId).get();
+  const chunks = chunkSnap.docs.map((doc) => doc.data() || {}).sort((a, b) => (a.sequence || 0) - (b.sequence || 0));
+  const content = chunks.map((chunk) => chunk.content || '').join('');
+  return {compilation, chunks, content, contentHash: contentHash(content)};
+}
+
+async function activeSimulationFrameId(admin, projectId) {
+  const project = await requireSimulationProject(admin, projectId);
+  if (!project.activeFrameId) throw Object.assign(new Error('project has no active simulation frame.'), {status: 404});
+  return project.activeFrameId;
+}
+
+async function resolveSimulationFrameId(admin, args = {}) {
+  const frameId = safeText(args.frameId, 160);
+  if (frameId) return simulationId('sim-frame', frameId);
+  const projectId = safeText(args.projectId, 160);
+  if (!projectId) throw Object.assign(new Error('frameId or projectId is required.'), {status: 400});
+  return activeSimulationFrameId(admin, projectId);
+}
+
+async function simulationProjectCreate({admin, user, args = {}}) {
+  const requestId = stableRequestId(args.requestId);
+  const existing = await existingSimulationAudit(admin, requestId);
+  if (existing && existing.status === 'success') return {idempotent: true, audit: existing};
+  const title = safeText(args.title, 240);
+  if (!title) throw Object.assign(new Error('title is required.'), {status: 400});
+  const projectId = simulationId('sim-project', args.projectId);
+  const now = nowMs();
+  const ref = mcpCollection(admin, 'simulationProjects').doc(projectId);
+  const snap = await ref.get();
+  const payload = {
+    projectId,
+    title,
+    description: safeText(args.description, 4000),
+    doctrine: safeText(args.doctrine, 12000),
+    sourceRoots: Array.isArray(args.sourceRoots) ? args.sourceRoots.map((v) => safeText(v, 1000)).filter(Boolean).slice(0, 100) : [],
+    activeFrameId: snap.exists ? safeText(snap.data().activeFrameId, 160) : '',
+    status: safeText(args.status, 80) || 'active',
+    createdAtMs: snap.exists ? snap.data().createdAtMs || now : now,
+    updatedAtMs: now,
+  };
+  await ref.set(payload, {merge: false});
+  const audit = await simulationAuditWrite(admin, {actor: user.email, authKind: user.authKind, operation: 'simulation_project_create', requestId, projectId, outcome: {projectId, title}});
+  return {project: payload, audit: audit.audit};
+}
+
+async function simulationSourceRegister({admin, user, args = {}}) {
+  const requestId = stableRequestId(args.requestId);
+  const existing = await existingSimulationAudit(admin, requestId);
+  if (existing && existing.status === 'success') return {idempotent: true, audit: existing};
+  const projectId = simulationId('sim-project', args.projectId);
+  await requireSimulationProject(admin, projectId);
+  const sourceType = safeText(args.sourceType || args.type, 80).toLowerCase();
+  if (!sourceType) throw Object.assign(new Error('sourceType is required.'), {status: 400});
+  const sourceId = simulationId('sim-source', args.sourceId);
+  const payload = {
+    sourceId,
+    projectId,
+    sourceType,
+    externalId: safeText(args.externalId, 1000),
+    location: safeText(args.location || args.url, 2000),
+    title: safeText(args.title, 500),
+    contentHash: safeText(args.contentHash, 160),
+    sourceOwner: safeText(args.sourceOwner, 320),
+    sourceModifiedAt: safeText(args.sourceModifiedAt, 120),
+    retrievedAtMs: nowMs(),
+    trustLevel: simulationTrustLevel(args.trustLevel || args.trustClassification),
+    userNotes: safeText(args.userNotes || args.notes, 4000),
+    ingestionStatus: 'registered',
+    metadata: args.metadata && typeof args.metadata === 'object' && !Array.isArray(args.metadata) ? args.metadata : {},
+  };
+  await mcpCollection(admin, 'simulationSources').doc(sourceId).set(payload, {merge: false});
+  const audit = await simulationAuditWrite(admin, {actor: user.email, authKind: user.authKind, operation: 'simulation_source_register', requestId, projectId, contentHash: payload.contentHash, outcome: {sourceId, sourceType}});
+  return {source: payload, audit: audit.audit};
+}
+
+async function simulationReferenceBegin({admin, user, args = {}}) {
+  const requestId = stableRequestId(args.requestId);
+  const existing = await existingSimulationAudit(admin, requestId);
+  if (existing && existing.status === 'success') return {idempotent: true, audit: existing};
+  const projectId = simulationId('sim-project', args.projectId);
+  await requireSimulationProject(admin, projectId);
+  const compilationId = simulationId('sim-compilation', args.compilationId);
+  const payload = {
+    compilationId,
+    projectId,
+    status: 'open',
+    title: safeText(args.title, 500) || 'Agent Reference Compilation',
+    format: safeText(args.format, 80) || 'markdown',
+    contentHash: '',
+    createdBy: user.email || '',
+    createdAtMs: nowMs(),
+    finalizedAtMs: 0,
+    chunkCount: 0,
+    totalChars: 0,
+  };
+  await mcpCollection(admin, 'simulationReferenceCompilations').doc(compilationId).set(payload, {merge: false});
+  const audit = await simulationAuditWrite(admin, {actor: user.email, authKind: user.authKind, operation: 'simulation_reference_begin', requestId, projectId, compilationId, outcome: {compilationId}});
+  return {compilation: payload, audit: audit.audit};
+}
+
+async function simulationReferenceAppend({admin, user, args = {}}) {
+  const requestId = stableRequestId(args.requestId);
+  const compilationId = simulationId('sim-compilation', args.compilationId);
+  const sequence = simulationSequence(args.sequence);
+  const content = boundedText(args.content, 250000);
+  if (!content) throw Object.assign(new Error('content is required.'), {status: 400});
+  const hash = contentHash(content);
+  const compRef = mcpCollection(admin, 'simulationReferenceCompilations').doc(compilationId);
+  const compSnap = await compRef.get();
+  if (!compSnap.exists) throw Object.assign(new Error('reference compilation not found.'), {status: 404});
+  const compilation = compSnap.data() || {};
+  if (compilation.status !== 'open') throw Object.assign(new Error('reference compilation is not open for appends.'), {status: 400});
+  const chunkId = `${compilationId}:chunk:${sequence}`;
+  const chunkRef = mcpCollection(admin, 'simulationReferenceChunks').doc(chunkId);
+  const existingChunk = await chunkRef.get();
+  if (existingChunk.exists) {
+    const old = existingChunk.data() || {};
+    if (old.contentHash !== hash) throw Object.assign(new Error('chunk sequence already exists with a different content hash.'), {status: 409});
+    const audit = await simulationAuditWrite(admin, {actor: user.email, authKind: user.authKind, operation: 'simulation_reference_append', requestId, projectId: compilation.projectId, compilationId, contentHash: hash, outcome: {chunkId, idempotentChunk: true}});
+    return {chunk: old, idempotent: true, audit: audit.audit};
+  }
+  const payload = {chunkId, compilationId, projectId: compilation.projectId || '', sequence, content, contentHash: hash, createdAtMs: nowMs(), charCount: content.length};
+  await chunkRef.set(payload, {merge: false});
+  await compRef.set({chunkCount: (compilation.chunkCount || 0) + 1, totalChars: (compilation.totalChars || 0) + content.length, updatedAtMs: nowMs()}, {merge: true});
+  const audit = await simulationAuditWrite(admin, {actor: user.email, authKind: user.authKind, operation: 'simulation_reference_append', requestId, projectId: compilation.projectId, compilationId, contentHash: hash, outcome: {chunkId, sequence}});
+  return {chunk: {...payload, content: ''}, audit: audit.audit};
+}
+
+async function simulationReferenceFinalize({admin, user, args = {}}) {
+  const requestId = stableRequestId(args.requestId);
+  const existing = await existingSimulationAudit(admin, requestId);
+  if (existing && existing.status === 'success') return {idempotent: true, audit: existing};
+  const compilationId = simulationId('sim-compilation', args.compilationId);
+  const {compilation, chunks, contentHash: hash} = await readCompilationContent(admin, compilationId);
+  if (!chunks.length) throw Object.assign(new Error('cannot finalize an empty reference compilation.'), {status: 400});
+  const payload = {status: 'finalized', contentHash: hash, finalizedAtMs: nowMs(), chunkCount: chunks.length, totalChars: chunks.reduce((sum, c) => sum + safeText(c.content, 250000).length, 0)};
+  await mcpCollection(admin, 'simulationReferenceCompilations').doc(compilationId).set(payload, {merge: true});
+  const audit = await simulationAuditWrite(admin, {actor: user.email, authKind: user.authKind, operation: 'simulation_reference_finalize', requestId, projectId: compilation.projectId, compilationId, contentHash: hash, outcome: payload});
+  return {compilation: {...compilation, ...payload}, audit: audit.audit};
+}
+
+async function nextSimulationFrameVersion(admin, projectId) {
+  const snap = await mcpCollection(admin, 'simulationFrames').where('projectId', '==', projectId).get();
+  let max = 0;
+  snap.docs.forEach((doc) => { max = Math.max(max, Math.floor(safeNumber((doc.data() || {}).version, 0))); });
+  return max + 1;
+}
+
+async function buildSimulationFrame({admin, user, args = {}}) {
+  const requestId = stableRequestId(args.requestId);
+  const existing = await existingSimulationAudit(admin, requestId);
+  if (existing && existing.status === 'success') return {idempotent: true, audit: existing};
+  const projectId = simulationId('sim-project', args.projectId);
+  await requireSimulationProject(admin, projectId);
+  const compilationId = simulationId('sim-compilation', args.compilationId);
+  const {compilation, content, contentHash: hash} = await readCompilationContent(admin, compilationId);
+  if (compilation.status !== 'finalized') throw Object.assign(new Error('reference compilation must be finalized before building a frame.'), {status: 400});
+  if (compilation.projectId !== projectId) throw Object.assign(new Error('compilation does not belong to projectId.'), {status: 400});
+  const frameId = simulationId('sim-frame', args.frameId);
+  const version = await nextSimulationFrameVersion(admin, projectId);
+  const sections = parseSimulationReference(content);
+  const sourceRefs = new Map();
+  const records = [];
+  const conflicts = [];
+  const claimIndex = new Map();
+  sections.forEach((section, index) => {
+    const canonicalKey = safeText(section.metadata.id || section.metadata.canonical_key || section.heading.toLowerCase().replace(/[^a-z0-9]+/g, '.').replace(/^\.|\.$/g, ''), 160) || `section.${index + 1}`;
+    const recordType = simulationRecordTypeFromHeading(section.heading, section.metadata);
+    const recordId = `${frameId}:record:${index + 1}`;
+    const record = {
+      recordId,
+      frameId,
+      projectId,
+      recordType,
+      canonicalKey,
+      title: safeText(section.heading, 500),
+      body: boundedText(section.body, 60000),
+      confidence: simulationConfidence(section.metadata.confidence),
+      structuredData: section.metadata,
+      sectionPath: safeText(section.sectionPath, 1000),
+      sourceSpan: {startLine: section.startLine, endLine: section.endLine},
+      sourceRefs: section.sources,
+      createdAtMs: nowMs(),
+    };
+    records.push(record);
+    section.sources.forEach((ref) => sourceRefs.set(simulationSourceRefKey(ref), normalizeSimulationSourceRef(ref)));
+    Object.entries(section.metadata || {}).forEach(([field, value]) => {
+      if (['id', 'type', 'confidence', 'canonical_key'].includes(field)) return;
+      const key = `${canonicalKey}:${field}`;
+      const arr = claimIndex.get(key) || [];
+      arr.push({recordId, value: String(value), sourceRefs: section.sources, sectionPath: section.sectionPath});
+      claimIndex.set(key, arr);
+    });
+  });
+  for (const [key, claims] of claimIndex.entries()) {
+    const values = Array.from(new Set(claims.map((claim) => claim.value)));
+    if (values.length > 1) {
+      const [subjectKey, fieldKey] = key.split(':');
+      conflicts.push({conflictId: `${frameId}:conflict:${conflicts.length + 1}`, frameId, projectId, subjectKey, fieldKey, claims, resolutionStatus: 'unresolved', resolvedValue: '', resolutionNote: '', createdAtMs: nowMs()});
+    }
+  }
+  const warnings = [];
+  if (!records.length) warnings.push('No frame records were parsed from the reference.');
+  const batch = admin.firestore().batch();
+  sourceRefs.forEach((source, key) => {
+    batch.set(mcpCollection(admin, 'simulationSources').doc(`inline-${key}`), {sourceId: `inline-${key}`, projectId, sourceType: source.sourceType, externalId: source.externalId, location: source.raw, title: source.raw, trustLevel: 'compiled_reference', ingestionStatus: 'referenced', retrievedAtMs: nowMs(), metadata: {inlineReference: true}}, {merge: true});
+  });
+  records.forEach((record) => {
+    batch.set(mcpCollection(admin, 'simulationFrameRecords').doc(record.recordId), record, {merge: false});
+    record.sourceRefs.forEach((ref) => {
+      const key = simulationSourceRefKey(ref);
+      batch.set(mcpCollection(admin, 'simulationFrameRecordSources').doc(`${record.recordId}:source:${key}`), {recordId: record.recordId, frameId, projectId, sourceId: `inline-${key}`, compilationId, citationData: normalizeSimulationSourceRef(ref), sectionPath: record.sectionPath, sourceSpan: record.sourceSpan}, {merge: false});
+    });
+    tokenizeSimulationText(`${record.title}\n${record.body}\n${record.canonicalKey}`, 50).forEach(({term, count}) => {
+      batch.set(mcpCollection(admin, 'simulationFrameTerms').doc(`${frameId}:term:${contentHash(term + record.recordId).slice(0, 32)}`), {frameId, projectId, recordId: record.recordId, term, count}, {merge: false});
+    });
+  });
+  conflicts.forEach((conflict) => batch.set(mcpCollection(admin, 'simulationFrameConflicts').doc(conflict.conflictId), conflict, {merge: false}));
+  const manifest = {frameId, projectId, version, sourceCompilationIds: [compilationId], sourceCount: sourceRefs.size, compilationHash: hash, compilerVersion: simulationOperationRegistry().version, recordCountsByType: records.reduce((acc, r) => { acc[r.recordType] = (acc[r.recordType] || 0) + 1; return acc; }, {}), unresolvedConflictCount: conflicts.length, unresolvedIdentityCount: 0, warnings, compileTimestampMs: nowMs(), active: !!args.activate};
+  const frame = {frameId, projectId, version, compilationHash: hash, compilerVersion: simulationOperationRegistry().version, manifest, createdAtMs: nowMs(), activatedAtMs: args.activate ? nowMs() : 0, status: 'compiled'};
+  batch.set(mcpCollection(admin, 'simulationFrames').doc(frameId), frame, {merge: false});
+  if (args.activate === true) batch.set(mcpCollection(admin, 'simulationProjects').doc(projectId), {activeFrameId: frameId, updatedAtMs: nowMs()}, {merge: true});
+  await batch.commit();
+  const audit = await simulationAuditWrite(admin, {actor: user.email, authKind: user.authKind, operation: 'build_simulation_frame', requestId, projectId, compilationId, frameId, contentHash: hash, warnings, outcome: {frameId, version, recordCount: records.length, conflictCount: conflicts.length}});
+  return {frame, manifest, audit: audit.audit};
+}
+
+async function simulationFrameStatus({admin, args = {}}) {
+  const result = {ok: true};
+  const projectId = safeText(args.projectId, 160);
+  const compilationId = safeText(args.compilationId, 160);
+  const frameId = safeText(args.frameId, 160);
+  if (projectId) {
+    const snap = await mcpCollection(admin, 'simulationProjects').doc(simulationId('sim-project', projectId)).get();
+    result.project = snap.exists ? snap.data() : null;
+  }
+  if (compilationId) {
+    const snap = await mcpCollection(admin, 'simulationReferenceCompilations').doc(simulationId('sim-compilation', compilationId)).get();
+    result.compilation = snap.exists ? snap.data() : null;
+  }
+  if (frameId) {
+    const snap = await mcpCollection(admin, 'simulationFrames').doc(simulationId('sim-frame', frameId)).get();
+    result.frame = snap.exists ? snap.data() : null;
+  }
+  return result;
+}
+
+async function querySimulationFrame({admin, args = {}}) {
+  const frameId = await resolveSimulationFrameId(admin, args);
+  const frameSnap = await mcpCollection(admin, 'simulationFrames').doc(frameId).get();
+  if (!frameSnap.exists) throw Object.assign(new Error('simulation frame not found.'), {status: 404});
+  const frame = frameSnap.data() || {};
+  const query = safeText(args.query || args.prompt, 2000).toLowerCase();
+  const queryTerms = tokenizeSimulationText(query, 20).map((item) => item.term);
+  const allowedTypes = Array.isArray(args.recordTypes) ? new Set(args.recordTypes.map((v) => safeText(v, 80)).filter(Boolean)) : null;
+  const limit = chatGptLimit(args.limit, 12, 50);
+  const recordSnap = await mcpCollection(admin, 'simulationFrameRecords').where('frameId', '==', frameId).get();
+  let records = recordSnap.docs.map((doc) => doc.data() || {});
+  if (allowedTypes && allowedTypes.size) records = records.filter((record) => allowedTypes.has(record.recordType));
+  records = records.map((record) => {
+    const haystack = `${record.title || ''}\n${record.body || ''}\n${record.canonicalKey || ''}`.toLowerCase();
+    const matchedTerms = queryTerms.filter((term) => haystack.includes(term));
+    const score = matchedTerms.length * 10 + (query && haystack.includes(query) ? 25 : 0) + (record.recordType === 'rule' ? 1 : 0);
+    return {...record, matchedTerms, score};
+  }).filter((record) => !queryTerms.length || record.score > 0).sort((a, b) => b.score - a.score).slice(0, limit);
+  const conflictSnap = await mcpCollection(admin, 'simulationFrameConflicts').where('frameId', '==', frameId).get();
+  const conflicts = conflictSnap.docs.map((doc) => doc.data() || {}).filter((conflict) => records.some((record) => record.canonicalKey === conflict.subjectKey || record.recordId === conflict.subjectRecordId)).slice(0, 20);
+  return {frameId, projectId: frame.projectId || '', version: frame.version || 0, query, count: records.length, records, conflicts, retrievalExplanation: {matchedTerms: queryTerms, method: 'lexical_firestore_scan_v1'}};
+}
+
+async function simulationFrameGet({admin, args = {}}) {
+  const frameId = simulationId('sim-frame', args.frameId);
+  const frameSnap = await mcpCollection(admin, 'simulationFrames').doc(frameId).get();
+  if (!frameSnap.exists) throw Object.assign(new Error('simulation frame not found.'), {status: 404});
+  const recordsSnap = await mcpCollection(admin, 'simulationFrameRecords').where('frameId', '==', frameId).get();
+  const limit = chatGptLimit(args.limit, 20, 100);
+  return {frame: frameSnap.data(), records: recordsSnap.docs.map((doc) => doc.data()).slice(0, limit)};
+}
+
+async function simulationFrameVersions({admin, args = {}}) {
+  const projectId = simulationId('sim-project', args.projectId);
+  const snap = await mcpCollection(admin, 'simulationFrames').where('projectId', '==', projectId).get();
+  const frames = snap.docs.map((doc) => doc.data() || {}).sort((a, b) => (a.version || 0) - (b.version || 0));
+  return {projectId, count: frames.length, frames: frames.map((frame) => ({frameId: frame.frameId, version: frame.version, status: frame.status, manifest: frame.manifest, createdAtMs: frame.createdAtMs, activatedAtMs: frame.activatedAtMs}))};
+}
+
+async function simulationContextPacket({admin, args = {}}) {
+  const maxChars = Math.max(1000, Math.min(60000, Math.floor(safeNumber(args.maxChars, 12000)) || 12000));
+  const query = await querySimulationFrame({admin, args: {...args, limit: args.limit || 20}});
+  let body = `# Simulation Context Packet\n\nproject_id: ${query.projectId}\nframe_id: ${query.frameId}\nframe_version: ${query.version}\nquery: ${query.query}\n\n## Invention Guard\nUse only cited frame evidence for canon. Preserve conflicts and unknowns; do not silently reconcile contradictions.\n\n`;
+  const groups = {canon: [], entities: [], timeline: [], doctrine: [], other: []};
+  query.records.forEach((record) => {
+    if (record.recordType === 'rule') groups.doctrine.push(record);
+    else if (record.recordType === 'entity') groups.entities.push(record);
+    else if (record.recordType === 'event') groups.timeline.push(record);
+    else groups.other.push(record);
+  });
+  const appendGroup = (title, records) => {
+    if (!records.length || body.length >= maxChars) return;
+    body += `## ${title}\n`;
+    for (const record of records) {
+      if (body.length >= maxChars) break;
+      body += `- ${record.title} (${record.recordType}, ${record.confidence}, ${record.sectionPath})\n  ${safeText(record.body, 1200).replace(/\n/g, ' ')}\n  sources: ${(record.sourceRefs || []).join('; ') || 'compiled reference'}\n`;
+    }
+    body += '\n';
+  };
+  appendGroup('Doctrine And Constraints', groups.doctrine);
+  appendGroup('Entities', groups.entities);
+  appendGroup('Timeline', groups.timeline);
+  appendGroup('Other Evidence', groups.other);
+  if (query.conflicts.length && body.length < maxChars) {
+    body += '## Conflicts\n';
+    query.conflicts.forEach((conflict) => { body += `- ${conflict.subjectKey}.${conflict.fieldKey}: unresolved (${(conflict.claims || []).map((c) => c.value).join(' vs ')})\n`; });
+  }
+  return {...query, maxChars, packet: body.slice(0, maxChars)};
+}
+
+async function runSimulationFrame({admin, args = {}}) {
+  const prompt = safeText(args.prompt || args.query, 4000);
+  if (!prompt) throw Object.assign(new Error('prompt is required.'), {status: 400});
+  const packet = await simulationContextPacket({admin, args: {...args, query: prompt, maxChars: args.maxChars || 16000}});
+  return {
+    runMode: 'deterministic_context_handoff_v1',
+    frameId: packet.frameId,
+    frameVersion: packet.version,
+    prompt,
+    contextPacket: packet.packet,
+    conflictWarnings: packet.conflicts || [],
+    nextAgentInstruction: 'Continue the simulation using the context packet only. If evidence is missing, state the unknown instead of inventing canon. Preserve unresolved conflicts unless the user explicitly resolves them.',
+  };
+}
+
+async function simulationOperationRunOperation({admin, user, args = {}}) {
+  const operation = safeText(args.operation || args.type || args.toolName, 120);
+  if (!operation) throw Object.assign(new Error('operation is required.'), {status: 400});
+  const registry = simulationOperationRegistry();
+  if (!registry.operations[operation]) throw Object.assign(new Error('Unsupported simulation_operation operation: ' + operation), {status: 400});
+  const operationArgs = args.args && typeof args.args === 'object' && !Array.isArray(args.args) ? args.args : {...args};
+  delete operationArgs.operation;
+  delete operationArgs.type;
+  delete operationArgs.toolName;
+  delete operationArgs.args;
+  if (operation === 'simulation_project_create') return {operation, registryVersion: registry.version, result: await simulationProjectCreate({admin, user, args: operationArgs})};
+  if (operation === 'simulation_source_register') return {operation, registryVersion: registry.version, result: await simulationSourceRegister({admin, user, args: operationArgs})};
+  if (operation === 'simulation_reference_begin') return {operation, registryVersion: registry.version, result: await simulationReferenceBegin({admin, user, args: operationArgs})};
+  if (operation === 'simulation_reference_append') return {operation, registryVersion: registry.version, result: await simulationReferenceAppend({admin, user, args: operationArgs})};
+  if (operation === 'simulation_reference_finalize') return {operation, registryVersion: registry.version, result: await simulationReferenceFinalize({admin, user, args: operationArgs})};
+  if (operation === 'build_simulation_frame') return {operation, registryVersion: registry.version, result: await buildSimulationFrame({admin, user, args: operationArgs})};
+  if (operation === 'simulation_frame_status') return {operation, registryVersion: registry.version, result: await simulationFrameStatus({admin, args: operationArgs})};
+  if (operation === 'simulation_frame_query') return {operation, registryVersion: registry.version, result: await querySimulationFrame({admin, args: operationArgs})};
+  if (operation === 'simulation_frame_get') return {operation, registryVersion: registry.version, result: await simulationFrameGet({admin, args: operationArgs})};
+  if (operation === 'simulation_frame_versions') return {operation, registryVersion: registry.version, result: await simulationFrameVersions({admin, args: operationArgs})};
+  if (operation === 'simulation_context_packet') return {operation, registryVersion: registry.version, result: await simulationContextPacket({admin, args: operationArgs})};
+  if (operation === 'run_simulation_frame') return {operation, registryVersion: registry.version, result: await runSimulationFrame({admin, args: operationArgs})};
+  throw Object.assign(new Error('Unsupported simulation operation.'), {status: 400});
 }
 
 
@@ -897,6 +1461,411 @@ async function commentGitHubIssueOperation({admin, user, githubToken, args = {},
   return {...result, audit: audit.audit};
 }
 
+function safeSheetRange(value, fallback = 'A1:Z100') {
+  const range = safeText(value, 240) || fallback;
+  if (!range || /[\r\n{}<>]/.test(range)) {
+    const err = new Error('range contains unsupported characters.');
+    err.status = 400;
+    throw err;
+  }
+  return range;
+}
+
+function safeSheetTitle(value, fallback = 'Sheet1') {
+  const title = safeText(value, 100) || fallback;
+  if (!title || /[\[\]*?:/\\]/.test(title)) {
+    const err = new Error('sheetTitle contains unsupported characters.');
+    err.status = 400;
+    throw err;
+  }
+  return title;
+}
+
+function normalizeSheetCell(value) {
+  if (value === null || value === undefined) return '';
+  if (typeof value === 'number' && Number.isFinite(value)) return value;
+  if (typeof value === 'boolean') return value;
+  return boundedText(String(value), 2000);
+}
+
+function safeSheetValues(values, maxRows = 200, maxColumns = 50) {
+  if (!Array.isArray(values)) return [];
+  return values.slice(0, maxRows).map((row) => {
+    const cells = Array.isArray(row) ? row : [row];
+    return cells.slice(0, maxColumns).map(normalizeSheetCell);
+  });
+}
+
+function cleanSpreadsheet(data = {}) {
+  return {
+    spreadsheetId: data.spreadsheetId || '',
+    spreadsheetUrl: data.spreadsheetUrl || '',
+    title: data.properties && data.properties.title || '',
+    sheets: Array.isArray(data.sheets) ? data.sheets.map((sheet) => ({
+      sheetId: sheet.properties && sheet.properties.sheetId || 0,
+      title: sheet.properties && sheet.properties.title || '',
+      index: sheet.properties && sheet.properties.index || 0,
+      rowCount: sheet.properties && sheet.properties.gridProperties && sheet.properties.gridProperties.rowCount || 0,
+      columnCount: sheet.properties && sheet.properties.gridProperties && sheet.properties.gridProperties.columnCount || 0,
+    })) : [],
+  };
+}
+
+
+function safeWorkbookTitle(value, fallback = 'Imported Workbook') {
+  const title = safeText(value, 240) || fallback;
+  if (!title) throw Object.assign(new Error('title is required.'), {status: 400});
+  return title.replace(/\.xlsx$/i, '') || fallback;
+}
+
+function workbookFileName(value, fallback = 'workbook.xlsx') {
+  const name = safeText(value, 240) || fallback;
+  return /\.xlsx$/i.test(name) ? name : `${name}.xlsx`;
+}
+
+function workbookBufferFromBase64(value) {
+  const raw = safeText(value, 80 * 1024 * 1024);
+  if (!raw) return null;
+  if (!/^[A-Za-z0-9+/=_-]+$/.test(raw)) throw Object.assign(new Error('workbookBase64 must be base64 encoded .xlsx bytes.'), {status: 400});
+  const normalized = raw.replace(/-/g, '+').replace(/_/g, '/');
+  const buffer = Buffer.from(normalized, 'base64');
+  if (!buffer.length) throw Object.assign(new Error('workbookBase64 decoded to an empty file.'), {status: 400});
+  if (buffer.length > 50 * 1024 * 1024) throw Object.assign(new Error('workbookBase64 exceeds the 50 MB bridge import limit.'), {status: 413});
+  return buffer;
+}
+
+function sheetA1Name(title) {
+  return `'${String(title || '').replace(/'/g, "''")}'`;
+}
+
+function populatedCellCount(values = []) {
+  if (!Array.isArray(values)) return 0;
+  let count = 0;
+  for (const row of values) {
+    if (!Array.isArray(row)) continue;
+    for (const cell of row) {
+      if (cell !== null && cell !== undefined && String(cell) !== '') count += 1;
+    }
+  }
+  return count;
+}
+
+function normalizeExpectedCellCounts(value) {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return {};
+  const result = {};
+  for (const [key, raw] of Object.entries(value)) {
+    const title = safeText(key, 100);
+    const count = Math.max(0, Math.floor(safeNumber(raw, 0)));
+    if (title) result[title] = count;
+  }
+  return result;
+}
+
+async function destinationWorkbookCellCounts(sheetsApi, spreadsheetId, sheetNames) {
+  const counts = {};
+  const warnings = [];
+  for (const name of sheetNames) {
+    try {
+      const result = await sheetsApi.spreadsheets.values.get({spreadsheetId, range: sheetA1Name(name)});
+      counts[name] = populatedCellCount(result.data && result.data.values || []);
+    } catch (err) {
+      counts[name] = null;
+      warnings.push(`Could not count populated destination cells for worksheet ${name}: ${safeText(err.message || String(err), 200)}`);
+    }
+  }
+  return {counts, warnings};
+}
+
+async function searchSheetsOperation({google, auth, args = {}}) {
+  const drive = google.drive({version: 'v3', auth});
+  const result = await drive.files.list({
+    q: chatGptDriveSearchQuery({
+      query: args.query || '',
+      folderId: args.folderId || '',
+      mimeTypes: ['application/vnd.google-apps.spreadsheet'],
+    }),
+    pageSize: chatGptLimit(args && args.limit, 20, 50),
+    fields: 'files(id,name,mimeType,modifiedTime,webViewLink,parents)',
+    orderBy: 'modifiedTime desc',
+    supportsAllDrives: true,
+    includeItemsFromAllDrives: true,
+  });
+  return {results: (result.data.files || []).map(chatGptDriveFile)};
+}
+
+async function readSheetOperation({google, auth, args = {}}) {
+  const spreadsheetId = safeDriveFileId(args.spreadsheetId);
+  const range = safeSheetRange(args.range, 'A1:Z100');
+  const sheets = google.sheets({version: 'v4', auth});
+  const values = await sheets.spreadsheets.values.get({spreadsheetId, range});
+  const metadata = await sheets.spreadsheets.get({spreadsheetId, fields: 'spreadsheetId,spreadsheetUrl,properties(title),sheets(properties(sheetId,title,index,gridProperties(rowCount,columnCount)))'});
+  return {
+    spreadsheetId,
+    range: values.data.range || range,
+    majorDimension: values.data.majorDimension || 'ROWS',
+    values: values.data.values || [],
+    spreadsheet: cleanSpreadsheet(metadata.data || {}),
+  };
+}
+
+
+
+async function resolveWorkbookSourceFile(drive, args = {}) {
+  const explicit = safeText(args.sourceFileId || args.fileId, 220);
+  if (explicit) return safeDriveFileId(explicit);
+  const sourceFolderId = safeText(args.sourceFolderId || args.searchFolderId, 220) ? safeDriveFileId(args.sourceFolderId || args.searchFolderId) : '';
+  const fileName = safeText(args.sourceFileName || args.fileName || args.name, 240);
+  const query = safeText(args.sourceQuery || args.query, 240);
+  if (!fileName && !query) return '';
+  const clauses = ['trashed=false'];
+  clauses.push("mimeType='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'");
+  if (sourceFolderId) clauses.push(`'${driveQueryLiteral(sourceFolderId, 220)}' in parents`);
+  if (fileName) clauses.push(`name='${driveQueryLiteral(workbookFileName(fileName), 240)}'`);
+  else if (query) clauses.push(`name contains '${driveQueryLiteral(query, 240)}'`);
+  const result = await drive.files.list({
+    q: clauses.join(' and '),
+    pageSize: 10,
+    fields: 'files(id,name,mimeType,modifiedTime,webViewLink,parents)',
+    orderBy: 'modifiedTime desc',
+    supportsAllDrives: true,
+    includeItemsFromAllDrives: true,
+  });
+  const files = result.data && result.data.files || [];
+  if (!files.length) throw Object.assign(new Error('No .xlsx source workbook matched the supplied sourceFileName/sourceQuery.'), {status: 404});
+  if (files.length > 1 && !fileName) throw Object.assign(new Error('Multiple .xlsx workbooks matched sourceQuery. Provide sourceFileId or a more specific sourceFileName.'), {status: 409, matches: files.map(chatGptDriveFile)});
+  return safeDriveFileId(files[0].id);
+}
+
+async function importXlsxWorkbookOperation({google, admin, auth, user, args = {}}) {
+  const requestId = stableRequestId(args.requestId);
+  const existing = await existingAudit(admin, requestId);
+  if (existing && existing.status === 'success' && existing.result) return {...existing.result, idempotent: true, audit: existing};
+  const drive = google.drive({version: 'v3', auth});
+  const sheetsApi = google.sheets({version: 'v4', auth});
+  const parentFolderId = safeText(args.parentFolderId || args.folderId, 220) ? safeDriveFileId(args.parentFolderId || args.folderId) : '';
+  let sourceFileId = safeText(args.sourceFileId || args.fileId, 220);
+  const warnings = [];
+  let workbookBuffer = workbookBufferFromBase64(args.workbookBase64 || args.uploadedWorkbookBase64 || args.fileBase64);
+  let sourceMetadata = null;
+  let sourceName = workbookFileName(args.fileName || args.name || args.title || 'workbook.xlsx');
+  if (!sourceFileId && !workbookBuffer) sourceFileId = await resolveWorkbookSourceFile(drive, args);
+  if (sourceFileId) {
+    const sourceId = safeDriveFileId(sourceFileId);
+    sourceMetadata = cleanDriveFile((await drive.files.get({fileId: sourceId, fields: driveFields(), supportsAllDrives: true})).data || {});
+    sourceName = workbookFileName(args.fileName || sourceMetadata.name || sourceName);
+    if (!workbookBuffer) {
+      const downloaded = await drive.files.get({fileId: sourceId, alt: 'media', supportsAllDrives: true}, {responseType: 'arraybuffer'});
+      workbookBuffer = Buffer.from(downloaded.data || []);
+    }
+  }
+  if (!workbookBuffer) throw Object.assign(new Error('workbook_import_xlsx requires workbookBase64 or sourceFileId.'), {status: 400});
+  const title = safeWorkbookTitle(args.title || args.titleOverride || sourceName, sourceName.replace(/\.xlsx$/i, ''));
+  const expectedSheetNames = Array.isArray(args.expectedSheetNames) ? args.expectedSheetNames.map((name) => safeSheetTitle(name)).filter(Boolean) : [];
+  const expectedCellCounts = normalizeExpectedCellCounts(args.expectedPopulatedCellCounts || args.sourcePopulatedCellCounts);
+  const created = await drive.files.create({
+    requestBody: {
+      name: title,
+      mimeType: 'application/vnd.google-apps.spreadsheet',
+      ...(parentFolderId ? {parents: [parentFolderId]} : {}),
+    },
+    media: {
+      mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      body: Readable.from(workbookBuffer),
+    },
+    fields: driveFields(),
+    supportsAllDrives: true,
+  });
+  const metadata = cleanDriveFile(created.data || {});
+  const spreadsheetId = safeDriveFileId(metadata.id);
+  let spreadsheet = null;
+  try {
+    spreadsheet = cleanSpreadsheet((await sheetsApi.spreadsheets.get({
+      spreadsheetId,
+      fields: 'spreadsheetId,spreadsheetUrl,properties(title),sheets(properties(sheetId,title,index,gridProperties(rowCount,columnCount,frozenRowCount,frozenColumnCount)))',
+    })).data || {});
+  } catch (err) {
+    warnings.push(`Converted workbook was created, but spreadsheet metadata could not be read: ${safeText(err.message || String(err), 240)}`);
+    spreadsheet = {spreadsheetId, spreadsheetUrl: '', title, sheets: []};
+  }
+  const sheetNames = (spreadsheet.sheets || []).sort((a, b) => a.index - b.index).map((sheet) => sheet.title).filter(Boolean);
+  if (expectedSheetNames.length) {
+    const found = new Set(sheetNames);
+    for (const expected of expectedSheetNames) {
+      if (!found.has(expected)) warnings.push(`Expected worksheet was not found after Drive conversion: ${expected}`);
+    }
+  }
+  const countResult = await destinationWorkbookCellCounts(sheetsApi, spreadsheetId, sheetNames);
+  warnings.push(...countResult.warnings);
+  const populatedCellCounts = countResult.counts;
+  const populatedCellCountDiffs = [];
+  for (const [name, sourceCount] of Object.entries(expectedCellCounts)) {
+    if (!Object.prototype.hasOwnProperty.call(populatedCellCounts, name)) {
+      populatedCellCountDiffs.push({sheetName: name, sourcePopulatedCells: sourceCount, destinationPopulatedCells: null, difference: null, status: 'missing_destination_sheet'});
+      continue;
+    }
+    const destinationCount = populatedCellCounts[name];
+    const difference = destinationCount === null ? null : destinationCount - sourceCount;
+    if (difference !== 0) warnings.push(`Populated cell count differs for ${name}: source=${sourceCount} destination=${destinationCount}`);
+    populatedCellCountDiffs.push({sheetName: name, sourcePopulatedCells: sourceCount, destinationPopulatedCells: destinationCount, difference, status: difference === 0 ? 'matched' : 'different'});
+  }
+  const result = {
+    spreadsheetId,
+    id: spreadsheetId,
+    title,
+    sourceFileId: sourceMetadata && sourceMetadata.id || sourceFileId || '',
+    sourceName,
+    sheetNames,
+    sheetCount: sheetNames.length,
+    populatedCellCounts,
+    populatedCellCountDiffs,
+    warnings,
+    webViewLink: metadata.webViewLink || spreadsheet.spreadsheetUrl || '',
+    spreadsheet,
+    metadata,
+    auditRequestId: requestId,
+  };
+  const audit = await auditWrite(admin, {
+    actor: user.email || user.uid || 'unknown',
+    authKind: user.authKind,
+    tool: 'workbook_import_xlsx',
+    operation: 'workbook.importXlsx',
+    requestId,
+    fileId: spreadsheetId,
+    affectedFileIds: [spreadsheetId],
+    oldMetadata: sourceMetadata,
+    newMetadata: metadata,
+    oldParents: sourceMetadata && sourceMetadata.parents || [],
+    newParents: metadata.parents || [],
+    reversible: false,
+    rollback: null,
+    callerNote: args.callerNote,
+    providerSummary: safeText(args.callerNote, 400) || `Imported Excel workbook ${sourceName} into native Google Sheet ${metadata.name || title}.`,
+    result,
+  });
+  await recordActionAudit(admin, user, 'workbook.importXlsx', spreadsheetId, safeText(args.callerNote, 400) || `Imported Excel workbook ${sourceName} into native Google Sheet ${metadata.name || title}.`, requestId);
+  return {...result, audit: audit.audit};
+}
+
+async function createSheetOperation({google, admin, auth, user, args = {}}) {
+  const requestId = createRequestId(args.requestId);
+  const existing = await existingAudit(admin, requestId);
+  if (existing && existing.status === 'success' && existing.result) return {...existing.result, idempotent: true, audit: existing};
+  const title = safeText(args.title, 240) || 'Home Center Sheet';
+  const sheetTitle = safeSheetTitle(args.sheetTitle, 'Sheet1');
+  const parentFolderId = safeText(args.parentFolderId || args.folderId, 220) ? safeDriveFileId(args.parentFolderId || args.folderId) : '';
+  const initialValues = safeSheetValues(args.values || args.initialValues || [], 200, 50);
+  const sheets = google.sheets({version: 'v4', auth});
+  const drive = google.drive({version: 'v3', auth});
+  const created = await sheets.spreadsheets.create({
+    requestBody: {
+      properties: {title},
+      sheets: [{properties: {title: sheetTitle}}],
+    },
+    fields: 'spreadsheetId,spreadsheetUrl,properties(title),sheets(properties(sheetId,title,index,gridProperties(rowCount,columnCount)))',
+  });
+  const spreadsheetId = safeDriveFileId(created.data && created.data.spreadsheetId);
+  if (initialValues.length) {
+    await sheets.spreadsheets.values.update({
+      spreadsheetId,
+      range: `${sheetTitle}!A1`,
+      valueInputOption: 'USER_ENTERED',
+      requestBody: {range: `${sheetTitle}!A1`, majorDimension: 'ROWS', values: initialValues},
+    });
+  }
+  const beforeMove = await getDriveMetadata(drive, spreadsheetId);
+  let metadata = beforeMove;
+  if (parentFolderId) {
+    metadata = cleanDriveFile((await drive.files.update({
+      fileId: spreadsheetId,
+      addParents: parentFolderId,
+      removeParents: (beforeMove.parents || []).join(','),
+      fields: driveFields(),
+      supportsAllDrives: true,
+    })).data || {});
+  }
+  const spreadsheet = cleanSpreadsheet(created.data || {});
+  const result = {
+    spreadsheetId,
+    id: spreadsheetId,
+    title,
+    sheetTitle,
+    spreadsheetUrl: spreadsheet.spreadsheetUrl || '',
+    webViewLink: metadata.webViewLink || spreadsheet.spreadsheetUrl || '',
+    parentFolderId: (metadata.parents || [])[0] || parentFolderId,
+    spreadsheet,
+    metadata,
+    auditRequestId: requestId,
+  };
+  const audit = await auditWrite(admin, {
+    actor: user.email || user.uid || 'unknown',
+    authKind: user.authKind,
+    tool: 'sheets_create',
+    operation: 'sheets.create',
+    requestId,
+    fileId: spreadsheetId,
+    affectedFileIds: [spreadsheetId],
+    oldMetadata: null,
+    newMetadata: metadata,
+    oldParents: [],
+    newParents: metadata.parents || [],
+    reversible: false,
+    rollback: null,
+    callerNote: args.callerNote,
+    providerSummary: safeText(args.callerNote, 400) || `Created Google Sheet ${metadata.name || title}.`,
+    result,
+  });
+  await recordActionAudit(admin, user, 'sheets.create', spreadsheetId, safeText(args.callerNote, 400) || `Created Google Sheet ${metadata.name || title}.`, requestId);
+  return {...result, audit: audit.audit};
+}
+
+async function updateSheetValuesOperation({google, admin, auth, user, args = {}}) {
+  const requestId = createRequestId(args.requestId);
+  const existing = await existingAudit(admin, requestId);
+  if (existing && existing.status === 'success' && existing.result) return {...existing.result, idempotent: true, audit: existing};
+  const spreadsheetId = safeDriveFileId(args.spreadsheetId);
+  const range = safeSheetRange(args.range, '');
+  if (!range) throw Object.assign(new Error('range is required for sheets_update_values.'), {status: 400});
+  const values = safeSheetValues(args.values || [], 500, 50);
+  if (!values.length) throw Object.assign(new Error('values must include at least one row.'), {status: 400});
+  const sheets = google.sheets({version: 'v4', auth});
+  const drive = google.drive({version: 'v3', auth});
+  const before = await getDriveMetadata(drive, spreadsheetId);
+  const updated = await sheets.spreadsheets.values.update({
+    spreadsheetId,
+    range,
+    valueInputOption: safeText(args.valueInputOption, 40) === 'RAW' ? 'RAW' : 'USER_ENTERED',
+    requestBody: {range, majorDimension: 'ROWS', values},
+  });
+  const after = await getDriveMetadata(drive, spreadsheetId);
+  const result = {
+    spreadsheetId,
+    range,
+    updated: updated.data || {},
+    metadata: after,
+    auditRequestId: requestId,
+  };
+  const audit = await auditWrite(admin, {
+    actor: user.email || user.uid || 'unknown',
+    authKind: user.authKind,
+    tool: 'sheets_update_values',
+    operation: 'sheets.updateValues',
+    requestId,
+    fileId: spreadsheetId,
+    affectedFileIds: [spreadsheetId],
+    oldMetadata: before,
+    newMetadata: after,
+    oldParents: before.parents || [],
+    newParents: after.parents || [],
+    reversible: false,
+    rollback: null,
+    callerNote: args.callerNote,
+    providerSummary: safeText(args.callerNote, 400) || `Updated ${range} in Google Sheet ${after.name || spreadsheetId}.`,
+    result,
+  });
+  await recordActionAudit(admin, user, 'sheets.updateValues', spreadsheetId, safeText(args.callerNote, 400) || `Updated ${range} in Google Sheet ${after.name || spreadsheetId}.`, requestId);
+  return {...result, audit: audit.audit};
+}
+
 async function createDriveFolderOperation({google, admin, auth, user, args = {}}) {
   const requestId = createRequestId(args.requestId);
   const existing = await existingAudit(admin, requestId);
@@ -1143,6 +2112,100 @@ function workflowOperationSummary(operation = {}, index = 0) {
   return String(index + 1) + '. ' + type + (targetName ? ': ' + targetName : '');
 }
 
+
+function driveOperationRegistry() {
+  return {
+    version: '2026-07-10.discoverable-workbook-import-v2',
+    invocationTool: 'drive_operation',
+    cachePolicy: 'New bridge operations should be added here and invoked through drive_operation so ChatGPT does not need a top-level MCP tool refresh for every backend code change. Agents should rediscover this registry through capabilities or health before claiming a bridge operation is unavailable.',
+    operations: {
+      drive_create_folder: {
+        summary: 'Create a Google Drive folder and audit the write.',
+        write: true,
+        requiresRequestId: true,
+        requiredScopes: ['https://www.googleapis.com/auth/drive'],
+        input: {name: 'string', parentFolderId: 'optional string', requestId: 'string', callerNote: 'optional string'},
+      },
+      docs_create: {
+        summary: 'Create a Google Doc, optionally seed text and parent folder, then audit the write.',
+        write: true,
+        requiresRequestId: true,
+        requiredScopes: ['https://www.googleapis.com/auth/drive', 'https://www.googleapis.com/auth/documents'],
+        input: {title: 'string', parentFolderId: 'optional string', initialText: 'optional string', requestId: 'string', callerNote: 'optional string'},
+      },
+      docs_append: {
+        summary: 'Append text to an existing Google Doc and audit the write.',
+        write: true,
+        requiresRequestId: true,
+        requiredScopes: ['https://www.googleapis.com/auth/drive', 'https://www.googleapis.com/auth/documents'],
+        input: {documentId: 'string', heading: 'optional string', text: 'string', requestId: 'string', callerNote: 'optional string'},
+      },
+      workbook_import_xlsx: {
+        summary: 'Migrate a Drive-hosted or client-supplied .xlsx workbook into a native Google Sheets workbook using Google Drive conversion.',
+        write: true,
+        requiresRequestId: true,
+        requiredScopes: ['https://www.googleapis.com/auth/drive', 'https://www.googleapis.com/auth/spreadsheets'],
+        input: {workbookBase64: 'optional complete base64 .xlsx bytes; use only when the client can provide the full file payload', sourceFileId: 'preferred Drive file id for an existing .xlsx', sourceFileName: 'preferred Drive .xlsx filename to resolve when sourceFileId is not known', sourceQuery: 'optional Drive filename query', sourceFolderId: 'optional source folder id for resolving sourceFileName/sourceQuery', fileName: 'optional original filename', title: 'optional native Sheet title override', parentFolderId: 'optional destination folder id', expectedSheetNames: 'optional string[]', expectedPopulatedCellCounts: 'optional object', requestId: 'string', callerNote: 'optional string'},
+        output: {spreadsheetId: 'string', sheetNames: 'string[]', warnings: 'string[]', populatedCellCountDiffs: 'array', audit: 'object'},
+        agentRecipe: {
+          whenUserSays: 'Import or migrate an Excel workbook into Google Sheets.',
+          prefer: 'If the workbook is already in Drive, call drive_operation with operation=workbook_import_xlsx and args.sourceFileId, or args.sourceFileName plus optional sourceFolderId. Do not ask for or synthesize Base64 in chat.',
+          fallback: 'Use workbookBase64 only when the MCP client can provide the complete XLSX bytes. Never pass /mnt/data or another ChatGPT sandbox path as a workbook argument; the bridge cannot read that path. If the file only exists as a ChatGPT attachment and no typed file-bytes handoff is available, first get the workbook into Drive, then import by sourceFileId/sourceFileName.',
+          minimalCall: {operation: 'workbook_import_xlsx', args: {sourceFileName: 'Lexen_Vigil_Judgment_Engine.xlsx', sourceFolderId: 'optional-source-folder-id', parentFolderId: 'destination-folder-id', title: 'Lexen Vigil Judgment Engine', requestId: 'stable-request-id', callerNote: 'Migrate Excel workbook to native Google Sheets'}},
+        },
+      },
+      sheets_create: {
+        summary: 'Create a native Google Sheet, optionally seed values, then audit the write.',
+        write: true,
+        requiresRequestId: true,
+        requiredScopes: ['https://www.googleapis.com/auth/drive', 'https://www.googleapis.com/auth/spreadsheets'],
+        input: {title: 'string', sheetTitle: 'optional string', values: 'optional array[]', parentFolderId: 'optional string', requestId: 'string', callerNote: 'optional string'},
+      },
+      sheets_update_values: {
+        summary: 'Update values in a Google Sheet range and audit the write.',
+        write: true,
+        requiresRequestId: true,
+        requiredScopes: ['https://www.googleapis.com/auth/drive', 'https://www.googleapis.com/auth/spreadsheets'],
+        input: {spreadsheetId: 'string', range: 'string', values: 'array[]', valueInputOption: 'optional USER_ENTERED or RAW', requestId: 'string', callerNote: 'optional string'},
+      },
+      drive_move: {
+        summary: 'Move a Drive file to another folder through an audited workflow operation.',
+        write: true,
+        requiresRequestId: true,
+        requiredScopes: ['https://www.googleapis.com/auth/drive'],
+        input: {fileId: 'string', targetFolderId: 'string', removeFromCurrentParents: 'optional boolean', requestId: 'string', callerNote: 'optional string'},
+      },
+      drive_rename: {
+        summary: 'Rename a Drive file through an audited workflow operation.',
+        write: true,
+        requiresRequestId: true,
+        requiredScopes: ['https://www.googleapis.com/auth/drive'],
+        input: {fileId: 'string', newName: 'string', requestId: 'string', callerNote: 'optional string'},
+      },
+    },
+  };
+}
+
+function supportedDriveOperationTypes() {
+  return Object.keys(driveOperationRegistry().operations);
+}
+
+async function driveOperationRunOperation({google, admin, auth, user, args = {}}) {
+  const operation = safeText(args.operation || args.type || args.toolName, 120);
+  if (!operation) throw Object.assign(new Error('operation is required.'), {status: 400});
+  const registry = driveOperationRegistry();
+  if (!registry.operations[operation]) throw Object.assign(new Error('Unsupported drive_operation operation: ' + operation), {status: 400});
+  const operationArgs = args.args && typeof args.args === 'object' && !Array.isArray(args.args) ? args.args : {...args};
+  delete operationArgs.operation;
+  delete operationArgs.type;
+  delete operationArgs.toolName;
+  delete operationArgs.args;
+  const workflowId = safeOperationBatchId(args.operationBatchId || operationArgs.operationBatchId || operationArgs.requestId || ('drive-operation-' + randomUUID()));
+  const outputs = {};
+  const result = await runDriveWorkflowOperation({google, admin, auth, user, workflowId, operation: {type: operation, ...operationArgs}, index: 0, outputs});
+  return {operation, registryVersion: registry.version, workflowId, completed: result.status === 'completed', outputKey: result.outputKey || '', result: result.result, outputs};
+}
+
 async function runDriveWorkflowOperation({google, admin, auth, user, workflowId, operation, index, outputs}) {
   const type = safeText(operation.type || operation.toolName || operation.tool, 120);
   const requestId = workflowOperationRequestId(workflowId, operation, index);
@@ -1160,6 +2223,21 @@ async function runDriveWorkflowOperation({google, admin, auth, user, workflowId,
   if (type === 'docs_append') {
     const documentId = workflowResolvedId(operation.documentId || operation.documentKey, outputs);
     const result = await appendGoogleDocOperation({google, admin, auth, user, args: {...operation, documentId, requestId, callerNote}});
+    return {index, type, requestId, status: 'completed', result};
+  }
+  if (type === 'workbook_import_xlsx') {
+    const result = await importXlsxWorkbookOperation({google, admin, auth, user, args: {...operation, requestId, callerNote, parentFolderId: workflowResolvedId(operation.parentFolderId || operation.parentFolderKey, outputs)}});
+    outputs[workflowOutputKey(operation, index)] = result.spreadsheetId || result.id || '';
+    return {index, type, requestId, status: 'completed', outputKey: workflowOutputKey(operation, index), result};
+  }
+  if (type === 'sheets_create') {
+    const result = await createSheetOperation({google, admin, auth, user, args: {...operation, requestId, callerNote, parentFolderId: workflowResolvedId(operation.parentFolderId || operation.parentFolderKey, outputs)}});
+    outputs[workflowOutputKey(operation, index)] = result.spreadsheetId || result.id || '';
+    return {index, type, requestId, status: 'completed', outputKey: workflowOutputKey(operation, index), result};
+  }
+  if (type === 'sheets_update_values') {
+    const spreadsheetId = workflowResolvedId(operation.spreadsheetId || operation.spreadsheetKey, outputs);
+    const result = await updateSheetValuesOperation({google, admin, auth, user, args: {...operation, spreadsheetId, requestId, callerNote}});
     return {index, type, requestId, status: 'completed', result};
   }
   if (type === 'drive_move') {
@@ -1202,7 +2280,7 @@ async function driveWorkflowRunOperation({google, admin, auth, user, args = {}})
     operationId: workflowOutputKey(operation, index),
     toolName: operation.type || operation.toolName || operation.tool,
     requestId: workflowOperationRequestId(workflowId, operation, index),
-    targetId: operation.fileId || operation.documentId || operation.folderId || operation.targetFolderId || operation.parentFolderId,
+    targetId: operation.fileId || operation.documentId || operation.spreadsheetId || operation.folderId || operation.targetFolderId || operation.parentFolderId,
     targetName: operation.targetName || operation.name || operation.title || operation.newName || operation.heading,
     summary: operation.summary || workflowOperationSummary(operation, index),
   }, index));
@@ -1262,7 +2340,26 @@ function createHomeCenterMcpServer({google, admin, googleClientId, googleClientS
     inputSchema: {},
     securitySchemes: MCP_OAUTH_SECURITY_SCHEMES,
     _meta: {securitySchemes: MCP_OAUTH_SECURITY_SCHEMES},
-  }, async () => textResult({ok: true, service: 'home-center-drive-bridge', version: '0.1.0'}));
+  }, async () => textResult({
+    ok: true,
+    service: 'home-center-drive-bridge',
+    version: '0.1.0',
+    discoverability: {
+      noReinstallPath: 'No-Reinstall Discovery Contract: use capabilities.operationRegistry/drive_operation for Drive features and capabilities.simulationOperationRegistry/simulation_operation for Simulation features; do not assume a missing operation means the backend cannot do it.',
+      preferredMutationTool: 'drive_operation',
+      preferredSimulationTool: 'simulation_operation',
+      simulation: {
+        operationRegistryVersion: simulationOperationRegistry().version,
+        normalPath: 'Chat assembles large references; simulation_operation ingests chunks, builds immutable frames, queries them, and returns context packets or deterministic run handoffs.',
+      },
+      orientationTool: 'capabilities',
+      workbookImport: {
+        operation: 'workbook_import_xlsx',
+        normalPath: 'Import existing Drive .xlsx files by sourceFileId or sourceFileName/sourceFolderId so ChatGPT does not need to pass Base64.',
+        base64Path: 'Use workbookBase64 only when the MCP client can provide the complete file bytes. Do not pass /mnt/data paths; proxied mounted paths are not Drive file IDs and are not readable by the bridge.',
+      },
+    },
+  }));
 
   server.registerTool('drive_search', {
     title: 'Drive search',
@@ -1321,6 +2418,65 @@ function createHomeCenterMcpServer({google, admin, googleClientId, googleClientS
     return textResult({fileId, name: metadata.name || '', mimeType: metadata.mimeType || '', text, metadata: chatGptDriveFile(metadata)});
   });
 
+
+  server.registerTool('sheets_search', {
+    title: 'Sheets search',
+    description: 'Search Google Sheets visible to the connected Google account. Query is plain text, not raw Drive syntax.',
+    inputSchema: {
+      query: z.string().optional().describe('Plain text to search in sheet names.'),
+      folderId: z.string().optional().describe('Optional parent Drive folder ID.'),
+      limit: z.number().int().min(1).max(50).default(20),
+    },
+    securitySchemes: MCP_OAUTH_SECURITY_SCHEMES,
+    _meta: {securitySchemes: MCP_OAUTH_SECURITY_SCHEMES},
+    annotations: {readOnlyHint: true, openWorldHint: true},
+  }, async (args, extra) => {
+    const {auth} = await requestGoogleContext(extra, google, admin, googleClientId, googleClientSecret);
+    return textResult(await searchSheetsOperation({google, auth, args: args || {}}));
+  });
+
+  server.registerTool('sheets_read', {
+    title: 'Sheets read',
+    description: 'Read values and lightweight metadata from a Google Sheet range.',
+    inputSchema: {
+      spreadsheetId: z.string().describe('Google Sheet spreadsheet ID.'),
+      range: z.string().optional().describe('A1 notation range. Defaults to A1:Z100.'),
+    },
+    securitySchemes: MCP_OAUTH_SECURITY_SCHEMES,
+    _meta: {securitySchemes: MCP_OAUTH_SECURITY_SCHEMES},
+    annotations: {readOnlyHint: true, openWorldHint: true},
+  }, async (args, extra) => {
+    const {auth} = await requestGoogleContext(extra, google, admin, googleClientId, googleClientSecret);
+    return textResult(await readSheetOperation({google, auth, args: args || {}}));
+  });
+
+
+  server.registerTool('workbook_import_xlsx', {
+    title: 'Workbook import XLSX',
+    description: 'Import a Drive-hosted or client-supplied .xlsx workbook into a native Google Sheets workbook using Google Drive conversion. Prefer sourceFileId or sourceFileName/sourceFolderId for ChatGPT workflows; use workbookBase64 only when the client can provide complete file bytes. Preserves worksheet order, names, values, formulas, merges, freeze panes, and formatting where Drive supports them. Writes an audit record.',
+    inputSchema: {
+      workbookBase64: z.string().optional().describe('Complete Base64 encoded .xlsx bytes. Use only when the client can provide the whole uploaded workbook payload; ChatGPT attachment references alone are not enough.'),
+      sourceFileId: z.string().optional().describe('Preferred Drive file ID for an existing .xlsx file to download and convert without passing Base64.'),
+      sourceFileName: z.string().optional().describe('Preferred Drive .xlsx filename to resolve when sourceFileId is not known; pair with sourceFolderId when possible.'),
+      sourceQuery: z.string().optional().describe('Optional Drive filename search query for an existing .xlsx workbook.'),
+      sourceFolderId: z.string().optional().describe('Optional Drive folder ID to search for sourceFileName/sourceQuery.'),
+      fileName: z.string().optional().describe('Original workbook file name.'),
+      parentFolderId: z.string().optional().describe('Optional Drive folder ID for the converted native Google Sheet.'),
+      title: z.string().optional().describe('Optional native Google Sheet title override.'),
+      expectedSheetNames: z.array(z.string()).optional().describe('Optional source worksheet names for post-conversion verification.'),
+      expectedPopulatedCellCounts: z.record(z.string(), z.number()).optional().describe('Optional source populated-cell counts by worksheet name for diff reporting.'),
+      callerNote: z.string().optional().describe('Human-readable summary for the audit log.'),
+      requestId: z.string().describe('Stable idempotency/audit request id. Required.'),
+    },
+    securitySchemes: MCP_OAUTH_SECURITY_SCHEMES,
+    _meta: {securitySchemes: MCP_OAUTH_SECURITY_SCHEMES},
+    annotations: {readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: true},
+  }, async (args, extra) => {
+    const {auth, user} = await requestGoogleContext(extra, google, admin, googleClientId, googleClientSecret);
+    return textResult(await importXlsxWorkbookOperation({google, admin, auth, user, args: args || {}}));
+  });
+
+
   server.registerTool('docs_append', {
     title: 'Docs append',
     description: 'Append text to an existing Google Doc and write an audit record. This is a write action and should be approved by the user.',
@@ -1340,6 +2496,23 @@ function createHomeCenterMcpServer({google, admin, googleClientId, googleClientS
   });
 
 
+  server.registerTool('simulation_operation', {
+    title: 'Simulation operation',
+    description: 'Build, query, and run durable simulation frames from agent-assembled reference compilations. Prefer this stable dispatcher for Simulation features so ChatGPT does not need connector refreshes for every new operation.',
+    inputSchema: {
+      operation: z.enum(supportedSimulationOperationTypes()).describe('Operation name from capabilities.simulationOperationRegistry.operations.'),
+      args: z.record(z.string(), z.any()).optional().describe('Operation-specific arguments. Write operations require requestId inside args.'),
+    },
+    securitySchemes: MCP_OAUTH_SECURITY_SCHEMES,
+    _meta: {securitySchemes: MCP_OAUTH_SECURITY_SCHEMES},
+    annotations: {readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false},
+  }, async (args, extra) => {
+    const {user} = await requestGoogleContext(extra, google, admin, googleClientId, googleClientSecret);
+    return textResult(await simulationOperationRunOperation({admin, user, args: args || {}}));
+  });
+
+
+
   if (process.env.HOME_CENTER_MCP_EXTENDED_TOOLS === 'true') {
 
   server.registerTool('capabilities', {
@@ -1352,32 +2525,66 @@ function createHomeCenterMcpServer({google, admin, googleClientId, googleClientS
   }, async () => textResult({
     service: 'home-center-drive-bridge',
     version: '0.1.0',
+    operationRegistryVersion: driveOperationRegistry().version,
+    simulationOperationRegistryVersion: simulationOperationRegistry().version,
+    topLevelToolCachePolicy: 'Keep top-level MCP tools stable. Add normal bridge features as drive_operation registry operations so ChatGPT connector metadata does not need reinstall for each backend change. If a future agent says a feature is unavailable, it should first call health or capabilities and inspect operationRegistry.',
     transport: 'stateless-streamable-http',
     safety: {
       writesRequireRequestId: true,
       writesRequireApprovedTrue: true,
       dryRunAvailable: ['drive_move', 'drive_rename', 'drive_plan_organize'],
       permanentDeleteAvailable: false,
+      preferredMutationTool: 'drive_operation',
+      preferredSimulationTool: 'simulation_operation',
       batchOperationLimit: 25,
     },
+    operationRegistry: driveOperationRegistry(),
+    simulationOperationRegistry: simulationOperationRegistry(),
+    simulationManual: {
+      purpose: 'Simulation is an MCP-first compiler/runtime index. Chat assembles large evidence-bearing reference compilations; Home Center MCP stores chunks, compiles immutable frames, preserves provenance/conflicts, and returns query/context/run packets.',
+      normalFlow: [
+        'Create or select a simulation project with simulation_project_create.',
+        'Register Drive, Docs, GitHub, URL, local document, note, or prior simulation references with simulation_source_register.',
+        'Begin a reference compilation, append chunks by sequence, finalize it, then call build_simulation_frame.',
+        'Use simulation_frame_query or simulation_context_packet instead of rereading all sources.',
+        'Use run_simulation_frame for deterministic frame-grounded handoff; it does not invent canon or silently resolve conflicts.',
+      ],
+      noSpreadsheetRule: 'Do not route simulation work through workbook import, sheets, tabs, or manual form entry. Simulation frames are provenance-backed compiled context systems.',
+    },
     homeDriveManual: {
-      purpose: 'Home Drive is the durable Google Drive and Docs operating layer. Use it instead of ad hoc Google connector calls when the user wants files found, read, created, moved, renamed, appended, indexed, audited, or organized.',
+      purpose: 'Home Drive is the durable Google Drive, Docs, and Sheets operating layer. Use it instead of ad hoc Google connector calls when the user wants files, documents, or spreadsheets found, read, created, updated, moved, renamed, appended, indexed, audited, or organized.',
       thingProperty: {
         meaning: 'thing is the human named target or subject of the request, such as a project name, folder name, document title, file label, or remembered workflow target. It is not proof of identity by itself.',
         rule: 'Resolve a thing to concrete Drive IDs before writes. Search/list/read metadata first unless the request already supplies a fileId, folderId, or documentId.',
         examples: [
           {thing: 'Lexen WWII folder', resolveWith: 'drive_search or drive_list_folder', thenUse: 'folderId or parentFolderId'},
           {thing: 'Story Bible', resolveWith: 'drive_search plus drive_get_metadata', thenUse: 'documentId for docs_append'},
+          {thing: 'budget sheet', resolveWith: 'sheets_search plus sheets_read', thenUse: 'spreadsheetId for sheets_update_values'},
           {thing: 'all notes in this project', resolveWith: 'drive_list_folder and optional index_folder', thenUse: 'dry-run plan before any move or rename'},
         ],
       },
+      noReinstallDiscovery: {
+        rule: 'No-Reinstall Discovery Contract: do not require connector reinstall for ordinary backend operation additions. The stable discovery surface is health plus capabilities.operationRegistry, and the stable execution surface is drive_operation.',
+        agentInstruction: 'Before saying Home Drive cannot perform a Drive/Docs/Sheets operation, call capabilities and inspect operationRegistry.operations. If the operation exists there, call drive_operation even when the top-level tool list looks stale.',
+        workbookImportShortcut: 'For Excel migration, use operation=workbook_import_xlsx with sourceFileId or sourceFileName/sourceFolderId when the workbook is already in Drive. Base64 is only a client-bytes fallback. /mnt/data and other ChatGPT sandbox paths are forbidden because the bridge cannot read them.',
+      },
+      recipes: {
+        importDriveXlsxAsNativeSheet: {
+          goal: 'Convert a Drive-hosted .xlsx workbook into a native Google Sheets workbook while preserving workbook structure through Google Drive conversion.',
+          discover: 'drive_search query for the workbook name with the Excel MIME type when sourceFileId is unknown.',
+          call: {tool: 'drive_operation', operation: 'workbook_import_xlsx', args: {sourceFileName: 'Lexen_Vigil_Judgment_Engine.xlsx', sourceFolderId: 'optional-source-folder-id', parentFolderId: 'destination-folder-id', title: 'Lexen Vigil Judgment Engine', requestId: 'stable-request-id', callerNote: 'Migrate Excel workbook to native Google Sheets'}},
+          verify: 'Read the returned spreadsheetId with sheets_read or compare returned sheetNames and populatedCellCountDiffs.',
+          forbidden: 'Do not pass /mnt/data/Lexen_Vigil_Judgment_Engine.xlsx or any local sandbox path. Resolve or upload the workbook into Drive first, then call this recipe by Drive ID/name.',
+        },
+      },
       normalFlow: [
-        'Call capabilities when orientation is needed.',
+        'Call health or capabilities when orientation is needed, then prefer drive_operation for newly added operationRegistry operations.',
         'Call auth_status when the user asks whether the bridge is connected.',
         'For discovery, use drive_search for names/text and drive_list_folder for folder contents.',
         'For identity, use drive_get_metadata and parent folders; do not trust names alone for writes.',
-        'For reading, use drive_read for one file or index_folder/index_status for reusable local search state.',
-        'For single writes, use drive_create_folder, docs_create, docs_append, drive_move, or drive_rename with stable requestId values.',
+        'For reading, use drive_read for one file, sheets_read for spreadsheet ranges, or index_folder/index_status for reusable local search state.',
+        'For workbook migration, prefer drive_operation with operation=workbook_import_xlsx and sourceFileId or sourceFileName/sourceFolderId so Google Drive performs native Sheets conversion instead of rebuilding tabs cell-by-cell, requiring chat Base64, or passing unreadable /mnt/data paths.',
+        'For single writes, prefer drive_operation with a registry operation and stable requestId; direct tools remain compatibility aliases.',
         'For bulk organization, create a dry-run plan first, show proposed changes, then execute only with approved=true.',
         'After writes, use audit_log or audit_get to verify what actually happened.',
       ],
@@ -1395,8 +2602,9 @@ function createHomeCenterMcpServer({google, admin, googleClientId, googleClientS
     },
     tools: [
       'health', 'capabilities', 'auth_status', 'storage_status', 'audit_status',
-      'drive_search', 'drive_read', 'drive_list_folder', 'drive_get_metadata',
-      'drive_create_folder', 'docs_create', 'drive_move', 'drive_rename',
+      'drive_search', 'drive_read', 'sheets_search', 'sheets_read', 'drive_list_folder', 'drive_get_metadata',
+      'simulation_operation',
+      'drive_operation', 'drive_create_folder', 'docs_create', 'workbook_import_xlsx', 'sheets_create', 'sheets_update_values', 'drive_move', 'drive_rename',
       'drive_plan_organize', 'drive_execute_plan',
       'index_folder', 'index_status',
       'drive_workflow_run', 'recovery_checkpoint', 'recovery_status',
@@ -1408,6 +2616,23 @@ function createHomeCenterMcpServer({google, admin, googleClientId, googleClientS
       'github_list_workflow_runs', 'github_get_workflow_run',
     ],
   }));
+
+
+  server.registerTool('drive_operation', {
+    title: 'Drive operation',
+    description: 'Run a named Home Drive operation from the runtime operation registry. Prefer this stable tool for new bridge capabilities so ChatGPT does not need a connector reinstall when backend operations are added.',
+    inputSchema: {
+      operation: z.enum(supportedDriveOperationTypes()).describe('Operation name from capabilities.operationRegistry.operations.'),
+      args: z.record(z.string(), z.any()).optional().describe('Operation-specific arguments. Writes require requestId inside args.'),
+      operationBatchId: z.string().optional().describe('Optional stable batch/workflow id for recovery tracking.'),
+    },
+    securitySchemes: MCP_OAUTH_SECURITY_SCHEMES,
+    _meta: {securitySchemes: MCP_OAUTH_SECURITY_SCHEMES},
+    annotations: {readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: true},
+  }, async (args, extra) => {
+    const {auth, user} = await requestGoogleContext(extra, google, admin, googleClientId, googleClientSecret);
+    return textResult(await driveOperationRunOperation({google, admin, auth, user, args: args || {}}));
+  });
 
   server.registerTool('auth_status', {
     title: 'Auth status',
@@ -1431,7 +2656,7 @@ function createHomeCenterMcpServer({google, admin, googleClientId, googleClientS
   }, async () => textResult({
     ok: true,
     provider: 'firestore',
-    collections: ['driveBridgeAudit', 'driveBridgePlans', 'driveBridgeIndex', 'actionAudit', 'mcpOAuthAccessTokens'],
+    collections: ['driveBridgeAudit', 'driveBridgePlans', 'driveBridgeIndex', 'actionAudit', 'mcpOAuthAccessTokens', 'simulationProjects', 'simulationSources', 'simulationReferenceCompilations', 'simulationReferenceChunks', 'simulationFrames', 'simulationFrameRecords', 'simulationFrameRecordSources', 'simulationFrameConflicts', 'simulationFrameTerms', 'simulationAudit', 'simulationRecoveryCheckpoints'],
     mcpTransport: {mode: 'stateless', maxInstances: 20, concurrency: 80},
   }));
 
@@ -1489,6 +2714,46 @@ function createHomeCenterMcpServer({google, admin, googleClientId, googleClientS
     const metadata = await getDriveMetadata(drive, args && args.fileId);
     return textResult({metadata, parentFolders: await resolveParentNames(drive, metadata.parents || [])});
   });
+
+
+  server.registerTool('sheets_create', {
+    title: 'Sheets create',
+    description: 'Create a Google Sheet, optionally place it in a Drive folder, optionally write initial rows, and write an audit record.',
+    inputSchema: {
+      title: z.string().min(1).describe('Spreadsheet title.'),
+      sheetTitle: z.string().optional().describe('Initial sheet tab title. Defaults to Sheet1.'),
+      parentFolderId: z.string().optional().describe('Optional Drive folder ID.'),
+      values: z.array(z.array(z.any())).optional().describe('Optional initial rows written at A1.'),
+      callerNote: z.string().optional().describe('Human-readable summary for the audit log.'),
+      requestId: z.string().optional().describe('Optional idempotency/audit request id.'),
+    },
+    securitySchemes: MCP_OAUTH_SECURITY_SCHEMES,
+    _meta: {securitySchemes: MCP_OAUTH_SECURITY_SCHEMES},
+    annotations: {readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: true},
+  }, async (args, extra) => {
+    const {auth, user} = await requestGoogleContext(extra, google, admin, googleClientId, googleClientSecret);
+    return textResult(await createSheetOperation({google, admin, auth, user, args: args || {}}));
+  });
+
+  server.registerTool('sheets_update_values', {
+    title: 'Sheets update values',
+    description: 'Update values in a Google Sheet range and write an audit record. Does not delete sheets or files.',
+    inputSchema: {
+      spreadsheetId: z.string().describe('Google Sheet spreadsheet ID.'),
+      range: z.string().describe('A1 notation range to update.'),
+      values: z.array(z.array(z.any())).describe('Rows to write.'),
+      valueInputOption: z.enum(['USER_ENTERED', 'RAW']).optional().default('USER_ENTERED'),
+      callerNote: z.string().optional().describe('Human-readable summary for the audit log.'),
+      requestId: z.string().optional().describe('Optional idempotency/audit request id.'),
+    },
+    securitySchemes: MCP_OAUTH_SECURITY_SCHEMES,
+    _meta: {securitySchemes: MCP_OAUTH_SECURITY_SCHEMES},
+    annotations: {readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: true},
+  }, async (args, extra) => {
+    const {auth, user} = await requestGoogleContext(extra, google, admin, googleClientId, googleClientSecret);
+    return textResult(await updateSheetValuesOperation({google, admin, auth, user, args: args || {}}));
+  });
+
 
   server.registerTool('github_get_repo', {
     title: 'GitHub get repo',
@@ -1894,7 +3159,7 @@ function createHomeCenterMcpServer({google, admin, googleClientId, googleClientS
       objective: z.string().optional().describe('Human-readable workflow objective.'),
       approved: z.boolean().optional().default(false).describe('Must be true to execute writes. False stores the checkpoint only.'),
       operations: z.array(z.object({
-        type: z.enum(['drive_create_folder', 'docs_create', 'docs_append', 'drive_move', 'drive_rename']),
+        type: z.enum(['drive_create_folder', 'docs_create', 'docs_append', 'workbook_import_xlsx', 'sheets_create', 'sheets_update_values', 'drive_move', 'drive_rename']),
         requestId: z.string().optional(),
         saveAs: z.string().optional().describe('Output key for created folder/doc ids.'),
         parentFolderId: z.string().optional(),
@@ -1910,6 +3175,14 @@ function createHomeCenterMcpServer({google, admin, googleClientId, googleClientS
         heading: z.string().optional(),
         text: z.string().optional(),
         initialText: z.string().optional(),
+        workbookBase64: z.string().optional(),
+        sourceFileId: z.string().optional(),
+        sourceFileName: z.string().optional(),
+        sourceQuery: z.string().optional(),
+        sourceFolderId: z.string().optional(),
+        fileName: z.string().optional(),
+        expectedSheetNames: z.array(z.string()).optional(),
+        expectedPopulatedCellCounts: z.record(z.string(), z.number()).optional(),
         newName: z.string().optional(),
         removeFromCurrentParents: z.boolean().optional(),
         callerNote: z.string().optional(),
@@ -2031,7 +3304,7 @@ function createHomeCenterMcpServer({google, admin, googleClientId, googleClientS
 
 function createHomeCenterMcpApp({google, admin, googleClientId = () => '', googleClientSecret = () => '', githubToken = () => ''}) {
   const app = express();
-  app.use(express.json({limit: '2mb'}));
+  app.use(express.json({limit: '80mb'}));
   app.use(express.urlencoded({extended: false, limit: '256kb'}));
   const transports = {};
 
@@ -2370,4 +3643,4 @@ function createHomeCenterMcpApp({google, admin, googleClientId = () => '', googl
   return app;
 }
 
-module.exports = {createHomeCenterMcpApp, createHomeCenterMcpServer, createDriveFolderOperation, createGoogleDocOperation, appendGoogleDocOperation, driveWorkflowRunOperation, normalizeRecoveryOperation, summarizeRecoveryOperations, loadMcpAccessContext};
+module.exports = {createHomeCenterMcpApp, createHomeCenterMcpServer, createDriveFolderOperation, createGoogleDocOperation, appendGoogleDocOperation, createSheetOperation, updateSheetValuesOperation, importXlsxWorkbookOperation, driveOperationRunOperation, driveWorkflowRunOperation, simulationOperationRunOperation, simulationOperationRegistry, normalizeRecoveryOperation, summarizeRecoveryOperations, loadMcpAccessContext};

@@ -4,7 +4,7 @@
 
 Home Center contains the active Drive Bridge implementation in Firebase Functions:
 
-- `functions/home_center_mcp.js` owns the MCP app, OAuth metadata, Streamable HTTP transport, Drive/Docs MCP tools, and shared Drive Bridge create helpers.
+- `functions/home_center_mcp.js` owns the MCP app, OAuth metadata, Streamable HTTP transport, Drive/Docs/Sheets MCP tools, and shared Drive Bridge create helpers.
 - `functions/index.js` exports the ChatGPT Action endpoints, hosted OpenAPI endpoint, and real Google sandbox smoke endpoint.
 - `openapi.chatgpt.yaml` and `functions/openapi.chatgpt.yaml` define the Action contract imported by ChatGPT.
 - `tools/drive_bridge_create_tools_test.mjs` verifies folder/doc creation with mocked Google APIs and mocked Firestore audit storage.
@@ -18,8 +18,24 @@ Default public tools:
 - `drive_search`
 - `drive_read`
 - `docs_append`
+- `sheets_search`
+- `sheets_read`
 - `drive_create_folder`
 - `docs_create`
+
+The scalable bridge path is `drive_operation`: call `capabilities` for `operationRegistry`, then invoke operations by name without waiting for ChatGPT to refresh top-level MCP tools. The bridge also exposes audited `workbook_import_xlsx` for Excel workbook migration into native Google Sheets by using Google Drive conversion rather than manual sheet reconstruction. Extended MCP tools also include audited `sheets_create` and `sheets_update_values` when `HOME_CENTER_MCP_EXTENDED_TOOLS=true`. No Sheets delete/trash tool is exposed.
+
+### No-Reinstall Discovery Contract
+
+Future agents should not require a connector reinstall for ordinary Home Drive backend additions. The stable discovery path is:
+
+1. Call `health` if only a minimal tool is available.
+2. Call `capabilities` when available.
+3. Read `capabilities.operationRegistry.operations`.
+4. Execute supported mutations through `drive_operation` with a stable `requestId`.
+
+For Excel migration, the normal ChatGPT path is not Base64 and not a local `/mnt/data` path. If the workbook is already in Drive, call `drive_operation` with `operation=workbook_import_xlsx` and pass `sourceFileId`, or `sourceFileName` plus `sourceFolderId`. Use `workbookBase64` only when the MCP client can provide the complete XLSX bytes. If a workbook exists only as a ChatGPT attachment and the runtime has no typed file-bytes handoff, first place the workbook in Drive, then import it by Drive ID or name.
+
 
 The broader operator tools are behind `HOME_CENTER_MCP_EXTENDED_TOOLS=true` and are not part of the ChatGPT connector surface until separately hardened. The public bridge must not expose delete, trash, or restore tools for this v1 creation flow.
 
@@ -55,6 +71,26 @@ The broader operator tools are behind `HOME_CENTER_MCP_EXTENDED_TOOLS=true` and 
 One shared Drive Bridge implementation sits behind both MCP tools and ChatGPT Action endpoints. Wrappers should stay thin and call the shared helpers so tool behavior, audit, idempotency, and validation do not drift.
 
 ## API / MCP Contract
+
+### Stable Operation Registry
+
+Top-level MCP tools should stay stable. New Drive Bridge mutations should be added as operations in `capabilities.operationRegistry.operations` and invoked through `drive_operation` with `operation` plus operation-specific `args`. Direct top-level tools may remain as compatibility aliases, but future ChatGPT agents should not need to reinstall the connector for every backend operation addition.
+
+
+### `workbook_import_xlsx`
+
+Purpose: migrate an uploaded `.xlsx` workbook into a native Google Sheets spreadsheet.
+
+Behavior:
+
+- Requires `requestId`.
+- Accepts `sourceFileId` for an existing Drive `.xlsx`, `sourceFileName` plus optional `sourceFolderId` for Drive resolution, or `workbookBase64` when a client can provide uploaded bytes.
+- Uses Google Drive conversion with target MIME `application/vnd.google-apps.spreadsheet`; it does not recreate tabs through repeated value updates.
+- Preserves worksheet order, worksheet names, populated values, formulas, merges, freeze panes, and basic formatting to the extent Google Drive conversion supports them.
+- Returns `spreadsheetId`, tab names, warnings, populated-cell counts, optional source/destination count diffs, metadata, and the audit entry.
+- Records `workbook.importXlsx` in `driveBridgeAudit` and `actionAudit`.
+
+Verification: `tools/workbook_import_xlsx_acceptance.py /storage/emulated/0/Download/Lexen_Vigil_Judgment_Engine.xlsx` parses source tabs/cell counts, calls the bridge operation, and reports missing destination tabs or count diffs.
 
 ### `drive_create_folder`
 

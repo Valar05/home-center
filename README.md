@@ -39,6 +39,31 @@ This Termux build compiles with SDK 33 because the local ARM64 `aapt2` works wit
 
 
 
+## Termux / Codex Hub Pairing
+
+Home Center can act as the auth hub for local Termux/Codex connected actions. The Android app remains the human approval surface; Termux receives a revocable Home Center hub token, not raw Google or GitHub provider tokens.
+
+Pair from Termux:
+
+```sh
+cd /storage/emulated/0/Documents/GodotProjects/home-center
+node tools/home_center_codex_pair.mjs
+```
+
+The helper prints a pairing ID and six digit code. In the installed Home Center app, sign in, approve Google tools, tap `Pair Termux Codex`, and enter both values. The helper saves a local config at:
+
+```text
+~/.config/home-center/codex-hub.json
+```
+
+That config contains the Home Center MCP URL and Home Center bearer token. The MCP URL remains:
+
+```text
+https://us-central1-home-center-dclar.cloudfunctions.net/homeCenterMcp/mcp
+```
+
+V1 grants the safe core tool groups only: Drive, Docs, Sheets search/read, and GitHub read/issue/comment tools. Gmail sends, Calendar writes, destructive deletes, workflow dispatch, merges, and broad organizer actions are not part of the Termux/Codex v1 grant.
+
 ## Regular ChatGPT App / MCP Setup
 
 The durable target for normal ChatGPT is the Home Center MCP app, not a one-off Custom GPT Action. The deployed streamable HTTP MCP server URL is:
@@ -61,8 +86,25 @@ Default public MCP tools:
 - `drive_search`
 - `drive_read`
 - `docs_append`
+- `simulation_operation`
+- `sheets_search`
+- `sheets_read`
 - `drive_create_folder`
 - `docs_create`
+
+The scalable Drive bridge path is `drive_operation`: call `capabilities` for `operationRegistry`, then invoke operations by name without waiting for ChatGPT to refresh top-level MCP tools. The scalable Simulation path is `simulation_operation`: call `capabilities` for `simulationOperationRegistry`, then build/query/run simulation frames by operation name. The bridge also exposes audited `workbook_import_xlsx` for Excel-to-native-Google-Sheets migration. It can convert an existing Drive `.xlsx` by `sourceFileId` or `sourceFileName`/`sourceFolderId`, or accept uploaded `.xlsx` bytes when the client can provide them. It uses Google Drive conversion and returns the new spreadsheet ID, tab names, import warnings, populated-cell count diffs when source counts are supplied, and an audit entry. Extended MCP tools also include audited `sheets_create` and `sheets_update_values` when `HOME_CENTER_MCP_EXTENDED_TOOLS=true`. No Sheets delete/trash tool is exposed.
+
+### No-Reinstall Discovery Contract
+
+Future agents should not require a connector reinstall for ordinary Home Drive or Simulation backend additions. The stable discovery path is:
+
+1. Call `health` if only a minimal tool is available.
+2. Call `capabilities` when available.
+3. Read `capabilities.operationRegistry.operations` for Drive or `capabilities.simulationOperationRegistry.operations` for Simulation.
+4. Execute supported Drive mutations through `drive_operation` with a stable `requestId`; execute Simulation project/reference/frame operations through `simulation_operation`.
+
+For Excel migration, the normal ChatGPT path is not Base64 and not a local `/mnt/data` path. If the workbook is already in Drive, call `drive_operation` with `operation=workbook_import_xlsx` and pass `sourceFileId`, or `sourceFileName` plus `sourceFolderId`. Use `workbookBase64` only when the MCP client can provide the complete XLSX bytes. If a workbook exists only as a ChatGPT attachment and the runtime has no typed file-bytes handoff, first place the workbook in Drive, then import it by Drive ID or name.
+
 
 The broader operator tools are gated behind `HOME_CENTER_MCP_EXTENDED_TOOLS=true` until their ChatGPT connector behavior is separately hardened.
 
@@ -86,11 +128,12 @@ Google callback used by the bridge:
 https://us-central1-home-center-dclar.cloudfunctions.net/homeCenterMcp/oauth/google-callback
 ```
 
-The Drive/Docs tools require the resulting Home Center MCP bearer token. The bridge resolves that token to Google Drive/Docs credentials server-side. Write tools use stable request IDs where meaningful and write audit records to Firestore. The public bridge surface does not expose delete, trash, or restore tools.
+The Drive/Docs/Sheets tools require the resulting Home Center MCP bearer token. The bridge resolves that token to Google Drive, Docs, and Sheets credentials server-side. Write tools use stable request IDs where meaningful and write audit records to Firestore. The public bridge surface does not expose delete, trash, or restore tools.
 
 Dead-chat recovery tools are part of the extended MCP surface:
 
-- `drive_workflow_run`: checkpoints and executes a whole approved Drive/Docs workflow in one bridge-owned call. Prefer this for multi-write work so continuity lives in Home Bridge instead of the ChatGPT conversation.
+- `drive_operation`: stable operation-registry runner. Prefer this for new bridge capabilities so connector metadata does not need reinstall for every backend code change.
+- `drive_workflow_run`: checkpoints and executes a whole approved Drive/Docs/Sheets workflow in one bridge-owned call. Prefer this for multi-write work so continuity lives in Home Bridge instead of the ChatGPT conversation.
 - `recovery_checkpoint`: records intended write operations before a multi-write workflow starts.
 - `recovery_status`: compares a checkpoint against `driveBridgeAudit` and `actionAudit` so the next chat can identify completed and missing writes.
 
@@ -241,15 +284,9 @@ turn off hotspot
 
 Hotspot commands are parsed but not implemented yet. Home Center speech requests transient Android audio focus so music apps should pause or duck while responses are spoken.
 
-Cartesia realtime speech runs through a local Termux proxy. For that path:
+ElevenLabs hosted speech runs through the Home Center gateway. The default voice path is ElevenLabs Brian via the Firebase `/tts` endpoint; the Android app should not require the user to start a local speech proxy or enter an API key.
 
-```sh
-source ~/.bashrc
-pip install 'cartesia[websockets]'
-sh tools/run_cartesia_proxy.sh
-```
-
-Set `CARTESIA_PROXY_BASE_URL=http://localhost:8787` in `local.properties` if you want a nondefault endpoint. The app now requires the Cartesia proxy for speech output.
+Set `AGENT_GATEWAY_BASE_URL` in `local.properties` for the deployed Home Center gateway. Operational prompts use native Android TTS; rendered assistant responses and document reader chunks use ElevenLabs Brian through the hosted `/tts` endpoint.
 
 ## Data Model
 
@@ -307,3 +344,10 @@ Home Center writes local-only diagnostic logs by date. Logs are not sent to Fire
 ```
 
 The app also shows the active log path in the status area. Useful entries include app startup, spoken command parsing, bucket/list/user context, Firebase successes, automatic bucket membership repair, and Firebase errors such as `PERMISSION_DENIED`.
+
+
+## Simulation MCP compiler
+
+Simulation is MCP-first in v1. Chat or another agent assembles a large evidence-bearing reference compilation, then calls `simulation_operation` to create a project, register sources, append reference chunks, finalize the compilation, build an immutable frame, query it, generate bounded context packets, or run a deterministic frame-grounded handoff. Do not route this workflow through spreadsheets.
+
+See `docs/SIMULATION_MCP.md` for operation details and acceptance expectations.

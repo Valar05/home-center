@@ -264,7 +264,7 @@ final class ChatSystemShape {
                 || value.contains("docs")
                 || value.contains("gmail")
                 || value.contains("calendar")
-                || value.contains("cartesia")
+                || value.contains("elevenlabs")
                 || value.contains("speech")
                 || value.contains("narration")
                 || value.contains("connected")

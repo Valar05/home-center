@@ -39,12 +39,10 @@ gcloud billing projects link "$PROJECT" --billing-account="$BILLING_ACCOUNT" >/d
 gcloud services enable secretmanager.googleapis.com cloudfunctions.googleapis.com cloudbuild.googleapis.com artifactregistry.googleapis.com run.googleapis.com firebaseextensions.googleapis.com --project "$PROJECT" >/dev/null
 
 OPENAI_VALUE="$(need_env OPENAI_API_KEY)"
-CARTESIA_VALUE="$(need_env CARTESIA_API_KEY)"
 GOOGLE_ID="$(need_env GOOGLE_OAUTH_CLIENT_ID)"
 GOOGLE_SECRET="$(need_env GOOGLE_OAUTH_CLIENT_SECRET)"
 
 set_secret OPENAI_API_KEY "$OPENAI_VALUE"
-set_secret CARTESIA_API_KEY "$CARTESIA_VALUE"
 set_secret GOOGLE_OAUTH_CLIENT_ID "$GOOGLE_ID"
 set_secret GOOGLE_OAUTH_CLIENT_SECRET "$GOOGLE_SECRET"
 

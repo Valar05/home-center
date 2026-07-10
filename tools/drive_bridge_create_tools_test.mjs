@@ -4,7 +4,7 @@ import {createHash} from 'node:crypto';
 import {createRequire} from 'node:module';
 
 const require = createRequire(import.meta.url);
-const {createDriveFolderOperation, createGoogleDocOperation, driveWorkflowRunOperation, createHomeCenterMcpServer, normalizeRecoveryOperation, summarizeRecoveryOperations, loadMcpAccessContext} = require('../functions/home_center_mcp.js');
+const {createDriveFolderOperation, createGoogleDocOperation, createSheetOperation, updateSheetValuesOperation, importXlsxWorkbookOperation, driveOperationRunOperation, driveWorkflowRunOperation, simulationOperationRunOperation, createHomeCenterMcpServer, normalizeRecoveryOperation, summarizeRecoveryOperations, loadMcpAccessContext} = require('../functions/home_center_mcp.js');
 
 function tokenHash(value) {
   return createHash('sha256').update(String(value || '')).digest('hex');
@@ -20,6 +20,17 @@ function fakeAdmin(options = {}) {
     _docs: docs,
     firestore() {
       return {
+        batch() {
+          const writes = [];
+          return {
+            set(ref, payload, options = {}) {
+              writes.push({ref, payload, options});
+            },
+            async commit() {
+              for (const write of writes) await write.ref.set(write.payload, write.options);
+            },
+          };
+        },
         collection(name) {
           return {
             doc(id) {
@@ -42,18 +53,20 @@ function fakeAdmin(options = {}) {
               return {id};
             },
             where(field, op, value) {
+              const run = async () => {
+                maybeFail(name, 'whereGet');
+                const found = [];
+                for (const [key, payload] of docs.entries()) {
+                  if (key.startsWith(name + '/') && payload && payload[field] === value) found.push({data: () => payload});
+                }
+                return {empty: found.length === 0, docs: found};
+              };
               return {
+                async get() {
+                  return run();
+                },
                 limit() {
-                  return {
-                    async get() {
-                      maybeFail(name, 'whereGet');
-                      const found = [];
-                      for (const [key, payload] of docs.entries()) {
-                        if (key.startsWith(name + '/') && payload && payload[field] === value) found.push({data: () => payload});
-                      }
-                      return {empty: found.length === 0, docs: found};
-                    },
-                  };
+                  return {async get() { return run(); }};
                 },
               };
             },
@@ -67,7 +80,7 @@ function fakeAdmin(options = {}) {
 }
 
 function fakeGoogle(options = {}) {
-  const calls = {driveCreate: [], driveUpdate: [], driveGet: [], docsCreate: [], docsGet: [], docsBatchUpdate: []};
+  const calls = {driveCreate: [], driveUpdate: [], driveGet: [], driveList: [], docsCreate: [], docsGet: [], docsBatchUpdate: [], sheetsCreate: [], sheetsValuesGet: [], sheetsValuesUpdate: [], sheetsGet: []};
   let docCounter = 0;
   const fail = options.fail || {};
   const maybeFail = (op) => {
@@ -83,9 +96,17 @@ function fakeGoogle(options = {}) {
     drive() {
       return {
         files: {
+          async list(params) {
+            maybeFail('driveList');
+            calls.driveList.push(params);
+            return {data: {files: options.driveListFiles || []}};
+          },
           async create(params) {
             maybeFail('driveCreate');
             calls.driveCreate.push(params);
+            if (params.requestBody && params.requestBody.mimeType === 'application/vnd.google-apps.spreadsheet') {
+              return {data: {id: options.fixedImportedSpreadsheetId || 'importedSheet123', name: params.requestBody.name, mimeType: params.requestBody.mimeType, webViewLink: 'https://sheets/importedSheet123', parents: params.requestBody.parents || []}};
+            }
             return {data: {id: 'folder12345', name: params.requestBody.name, mimeType: params.requestBody.mimeType, webViewLink: 'https://drive/folder12345', parents: params.requestBody.parents || []}};
           },
           async update(params) {
@@ -96,7 +117,9 @@ function fakeGoogle(options = {}) {
           async get(params) {
             maybeFail('driveGet');
             calls.driveGet.push(params);
+            if (params.alt === 'media') return {data: options.mediaById && options.mediaById[params.fileId] || Buffer.from('xlsx')};
             if (params.fileId === 'folder12345') return {data: {id: 'folder12345', name: 'Workflow Project', mimeType: 'application/vnd.google-apps.folder', webViewLink: 'https://drive/folder12345', parents: []}};
+            if (params.fileId === (options.fixedImportedSpreadsheetId || 'importedSheet123')) return {data: {id: params.fileId, name: 'Imported Workbook', mimeType: 'application/vnd.google-apps.spreadsheet', webViewLink: `https://sheets/${params.fileId}`, parents: ['folder12345']}};
             return {data: {id: params.fileId, name: options.titleById && options.titleById[params.fileId] || 'Created Doc', mimeType: 'application/vnd.google-apps.document', webViewLink: `https://docs/${params.fileId}`, parents: ['folder12345']}};
           },
         },
@@ -122,6 +145,43 @@ function fakeGoogle(options = {}) {
             maybeFail('docsBatchUpdate');
             calls.docsBatchUpdate.push(params);
             return {data: {}};
+          },
+        },
+      };
+    },
+    sheets() {
+      return {
+        spreadsheets: {
+          async create(params) {
+            maybeFail('sheetsCreate');
+            calls.sheetsCreate.push(params);
+            return {data: {spreadsheetId: options.fixedSpreadsheetId || 'sheet123456', spreadsheetUrl: 'https://sheets/sheet123456', properties: {title: params.requestBody.properties.title}, sheets: [{properties: {sheetId: 1, title: params.requestBody.sheets[0].properties.title, index: 0, gridProperties: {rowCount: 1000, columnCount: 26}}}]}};
+          },
+          async get(params) {
+            maybeFail('sheetsGet');
+            calls.sheetsGet.push(params);
+            if (params.spreadsheetId === (options.fixedImportedSpreadsheetId || 'importedSheet123')) {
+              const sheets = options.importedSheetNames || ['README', 'CANON'];
+              return {data: {spreadsheetId: params.spreadsheetId, spreadsheetUrl: `https://sheets/${params.spreadsheetId}`, properties: {title: 'Imported Workbook'}, sheets: sheets.map((title, index) => ({properties: {sheetId: index + 1, title, index, gridProperties: {rowCount: 1000, columnCount: 26, frozenRowCount: index === 0 ? 1 : 0, frozenColumnCount: 0}}}))}};
+            }
+            return {data: {spreadsheetId: params.spreadsheetId, spreadsheetUrl: `https://sheets/${params.spreadsheetId}`, properties: {title: 'Budget'}, sheets: [{properties: {sheetId: 1, title: 'Sheet1', index: 0, gridProperties: {rowCount: 1000, columnCount: 26}}}]}};
+          },
+          values: {
+            async get(params) {
+              maybeFail('sheetsValuesGet');
+              calls.sheetsValuesGet.push(params);
+              const name = String(params.range || '').replace(/^'/, '').replace(/'$/, '').replace(/''/g, "'");
+              const importedValues = options.valuesBySheet || {};
+              if (Object.prototype.hasOwnProperty.call(importedValues, name)) {
+                return {data: {range: params.range, majorDimension: 'ROWS', values: importedValues[name]}};
+              }
+              return {data: {range: params.range, majorDimension: 'ROWS', values: [['Name', 'Amount'], ['Coffee', '5']]}};
+            },
+            async update(params) {
+              maybeFail('sheetsValuesUpdate');
+              calls.sheetsValuesUpdate.push(params);
+              return {data: {spreadsheetId: params.spreadsheetId, updatedRange: params.range, updatedRows: (params.requestBody.values || []).length}};
+            },
           },
         },
       };
@@ -329,6 +389,179 @@ async function testWorkflowRun() {
   assert.equal(google.calls.driveCreate.length, 1);
 }
 
+async function testSheetsCreateAndUpdate() {
+  const admin = fakeAdmin();
+  const google = fakeGoogle({fixedSpreadsheetId: 'sheet123456'});
+  const created = await createSheetOperation({google, admin, auth, user, args: {
+    title: 'Household Budget',
+    sheetTitle: 'Ledger',
+    parentFolderId: 'folder12345',
+    values: [['Item', 'Amount'], ['Coffee', 5]],
+    requestId: 'sheet-create-001',
+    callerNote: 'Create household budget sheet',
+  }});
+  assert.equal(created.spreadsheetId, 'sheet123456');
+  assert.equal(created.sheetTitle, 'Ledger');
+  assert.equal(google.calls.sheetsCreate.length, 1);
+  assert.equal(google.calls.sheetsValuesUpdate.length, 1);
+  assert.equal(google.calls.sheetsValuesUpdate[0].range, 'Ledger!A1');
+  assert.equal(google.calls.driveUpdate.at(-1).addParents, 'folder12345');
+  assert.equal(admin._docs.get('driveBridgeAudit/sheet-create-001').operation, 'sheets.create');
+
+  const replay = await createSheetOperation({google, admin, auth, user, args: {title: 'Duplicate Budget', requestId: 'sheet-create-001'}});
+  assert.equal(replay.idempotent, true);
+  assert.equal(google.calls.sheetsCreate.length, 1);
+
+  const updated = await updateSheetValuesOperation({google, admin, auth, user, args: {
+    spreadsheetId: 'sheet123456',
+    range: 'Ledger!A2:B2',
+    values: [['Tea', 4]],
+    requestId: 'sheet-update-001',
+  }});
+  assert.equal(updated.spreadsheetId, 'sheet123456');
+  assert.equal(updated.range, 'Ledger!A2:B2');
+  assert.equal(google.calls.sheetsValuesUpdate.at(-1).range, 'Ledger!A2:B2');
+  assert.equal(admin._docs.get('driveBridgeAudit/sheet-update-001').operation, 'sheets.updateValues');
+}
+
+async function testWorkbookImportXlsx() {
+  const admin = fakeAdmin();
+  const sheetNames = ['README', 'CANON', 'HISTORICAL_RAILS', 'FACTORS', 'STATE', 'CASES', 'ACTIONS', 'CONTROL', 'ENGINE', 'TRACE', 'SOURCES'];
+  const valuesBySheet = Object.fromEntries(sheetNames.map((name, index) => [name, [['Name', 'Value'], [name, index]]]));
+  const google = fakeGoogle({fixedImportedSpreadsheetId: 'importedSheet123', importedSheetNames: sheetNames, valuesBySheet});
+  const sourceCounts = Object.fromEntries(sheetNames.map((name) => [name, 4]));
+  const imported = await importXlsxWorkbookOperation({google, admin, auth, user, args: {
+    workbookBase64: Buffer.from('fake xlsx bytes').toString('base64'),
+    fileName: 'Lexen_Vigil_Judgment_Engine.xlsx',
+    title: 'Lexen Vigil Judgment Engine',
+    parentFolderId: 'folder12345',
+    expectedSheetNames: sheetNames,
+    expectedPopulatedCellCounts: sourceCounts,
+    requestId: 'workbook-import-001',
+    callerNote: 'Import Lexen workbook',
+  }});
+  assert.equal(imported.spreadsheetId, 'importedSheet123');
+  assert.deepEqual(imported.sheetNames, sheetNames);
+  assert.equal(imported.warnings.length, 0);
+  assert.equal(imported.populatedCellCountDiffs.every((entry) => entry.status === 'matched'), true);
+  assert.equal(google.calls.driveCreate.length, 1);
+  assert.equal(google.calls.driveCreate[0].requestBody.mimeType, 'application/vnd.google-apps.spreadsheet');
+  assert.equal(google.calls.driveCreate[0].media.mimeType, 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+  assert.equal(google.calls.driveCreate[0].requestBody.parents[0], 'folder12345');
+  assert.equal(google.calls.sheetsValuesGet.length, sheetNames.length);
+  assert.equal(admin._docs.get('driveBridgeAudit/workbook-import-001').operation, 'workbook.importXlsx');
+
+  const replay = await importXlsxWorkbookOperation({google, admin, auth, user, args: {workbookBase64: Buffer.from('other').toString('base64'), requestId: 'workbook-import-001'}});
+  assert.equal(replay.idempotent, true);
+  assert.equal(google.calls.driveCreate.length, 1);
+}
+
+async function testWorkbookImportResolvesDriveSourceFile() {
+  const admin = fakeAdmin();
+  const sheetNames = ['README'];
+  const google = fakeGoogle({
+    fixedImportedSpreadsheetId: 'resolvedImport123',
+    importedSheetNames: sheetNames,
+    valuesBySheet: {README: [['A']]},
+    driveListFiles: [{id: 'xlsxSource123', name: 'Lexen_Vigil_Judgment_Engine.xlsx', mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', parents: ['sourceFolder123']}],
+    mediaById: {xlsxSource123: Buffer.from('source xlsx bytes')},
+  });
+  const result = await importXlsxWorkbookOperation({google, admin, auth, user, args: {
+    sourceFileName: 'Lexen_Vigil_Judgment_Engine.xlsx',
+    sourceFolderId: 'sourceFolder123',
+    parentFolderId: 'folder12345',
+    expectedSheetNames: sheetNames,
+    expectedPopulatedCellCounts: {README: 1},
+    requestId: 'workbook-import-resolve-001',
+  }});
+  assert.equal(result.spreadsheetId, 'resolvedImport123');
+  assert.equal(result.sourceFileId, 'xlsxSource123');
+  assert.equal(google.calls.driveList.length, 1);
+  assert.equal(google.calls.driveGet.some((call) => call.fileId === 'xlsxSource123' && call.alt === 'media'), true);
+  assert.equal(admin._docs.get('driveBridgeAudit/workbook-import-resolve-001').operation, 'workbook.importXlsx');
+}
+
+async function testDriveOperationRegistryRunner() {
+  const admin = fakeAdmin();
+  const sheetNames = ['README', 'CANON'];
+  const google = fakeGoogle({fixedImportedSpreadsheetId: 'operationImport123', importedSheetNames: sheetNames, valuesBySheet: {README: [['A']], CANON: [['B']]}});
+  const result = await driveOperationRunOperation({google, admin, auth, user, args: {
+    operation: 'workbook_import_xlsx',
+    operationBatchId: 'drive-operation-workbook-001',
+    args: {
+      workbookBase64: Buffer.from('fake xlsx bytes').toString('base64'),
+      fileName: 'Lexen_Vigil_Judgment_Engine.xlsx',
+      expectedSheetNames: sheetNames,
+      expectedPopulatedCellCounts: {README: 1, CANON: 1},
+      requestId: 'drive-operation-workbook-001:import',
+      callerNote: 'Registry import',
+    },
+  }});
+  assert.equal(result.operation, 'workbook_import_xlsx');
+  assert.equal(result.completed, true);
+  assert.equal(result.result.spreadsheetId, 'operationImport123');
+  assert.deepEqual(result.result.sheetNames, sheetNames);
+  assert.equal(admin._docs.get('driveBridgeAudit/drive-operation-workbook-001:import').operation, 'workbook.importXlsx');
+}
+
+async function testSimulationOperationFrameLifecycle() {
+  const admin = fakeAdmin();
+  const project = await simulationOperationRunOperation({admin, user, args: {operation: 'simulation_project_create', args: {projectId: 'sim-project-lexen', title: 'Lexen WWII', doctrine: 'Preserve uncertainty.', requestId: 'sim-test-project'}}});
+  assert.equal(project.result.project.projectId, 'sim-project-lexen');
+
+  const begin = await simulationOperationRunOperation({admin, user, args: {operation: 'simulation_reference_begin', args: {projectId: 'sim-project-lexen', compilationId: 'sim-compilation-lexen-001', title: 'Lexen reference', requestId: 'sim-test-begin'}}});
+  assert.equal(begin.result.compilation.status, 'open');
+
+  const markdown = `# Project Identity
+purpose: Normandy campaign simulation
+
+## Entity: Lexen Vigil
+id: character.lexen_vigil
+type: character
+confidence: high
+rank_at_normandy: sergeant
+
+Lexen is a Sherman commander at Normandy.
+
+Sources:
+- drive:1abc123
+
+## Entity: Lexen Vigil Alternate
+id: character.lexen_vigil
+type: character
+confidence: medium
+rank_at_normandy: lieutenant
+
+A conflicting note says Lexen is a lieutenant.
+
+Sources:
+- github:Valar05/example/file.md#L1-L4
+`;
+  await simulationOperationRunOperation({admin, user, args: {operation: 'simulation_reference_append', args: {compilationId: 'sim-compilation-lexen-001', sequence: 0, content: markdown, requestId: 'sim-test-append-0'}}});
+  const retry = await simulationOperationRunOperation({admin, user, args: {operation: 'simulation_reference_append', args: {compilationId: 'sim-compilation-lexen-001', sequence: 0, content: markdown, requestId: 'sim-test-append-0-retry'}}});
+  assert.equal(retry.result.idempotent, true);
+
+  const finalized = await simulationOperationRunOperation({admin, user, args: {operation: 'simulation_reference_finalize', args: {compilationId: 'sim-compilation-lexen-001', requestId: 'sim-test-finalize'}}});
+  assert.equal(finalized.result.compilation.status, 'finalized');
+
+  const frame = await simulationOperationRunOperation({admin, user, args: {operation: 'build_simulation_frame', args: {projectId: 'sim-project-lexen', compilationId: 'sim-compilation-lexen-001', frameId: 'sim-frame-lexen-v1', activate: true, requestId: 'sim-test-build'}}});
+  assert.equal(frame.result.frame.frameId, 'sim-frame-lexen-v1');
+  assert.equal(frame.result.manifest.unresolvedConflictCount, 1);
+  assert.equal(admin._docs.get('simulationProjects/sim-project-lexen').activeFrameId, 'sim-frame-lexen-v1');
+
+  const query = await simulationOperationRunOperation({admin, user, args: {operation: 'simulation_frame_query', args: {projectId: 'sim-project-lexen', query: 'Lexen Normandy rank', limit: 5}}});
+  assert.equal(query.result.frameId, 'sim-frame-lexen-v1');
+  assert(query.result.records.length >= 1);
+  assert(query.result.conflicts.length >= 1);
+
+  const packet = await simulationOperationRunOperation({admin, user, args: {operation: 'simulation_context_packet', args: {projectId: 'sim-project-lexen', query: 'Lexen Normandy rank', maxChars: 4000}}});
+  assert(packet.result.packet.includes('Simulation Context Packet'));
+  assert(packet.result.packet.includes('Invention Guard'));
+
+  const run = await simulationOperationRunOperation({admin, user, args: {operation: 'run_simulation_frame', args: {projectId: 'sim-project-lexen', prompt: 'What does Lexen know at Normandy?'}}});
+  assert.equal(run.result.runMode, 'deterministic_context_handoff_v1');
+}
+
 async function testValidation() {
   await assert.rejects(() => createDriveFolderOperation({google: fakeGoogle(), admin: fakeAdmin(), auth, user, args: {}}), /name is required/);
   await assert.rejects(() => createGoogleDocOperation({google: fakeGoogle(), admin: fakeAdmin(), auth, user, args: {}}), /title is required/);
@@ -343,7 +576,11 @@ function testMcpToolSurface() {
     'health',
     'drive_search',
     'drive_read',
+    'sheets_search',
+    'sheets_read',
+    'workbook_import_xlsx',
     'docs_append',
+    'simulation_operation',
     'drive_create_folder',
     'docs_create',
   ]);
@@ -353,6 +590,12 @@ function testMcpToolSurface() {
   const extendedTools = Object.keys(extended._registeredTools);
   assert(extendedTools.includes('drive_move'));
   assert(extendedTools.includes('drive_workflow_run'));
+  assert(extendedTools.includes('drive_operation'));
+  assert(extendedTools.includes('workbook_import_xlsx'));
+  assert(extendedTools.includes('sheets_create'));
+  assert(extendedTools.includes('sheets_update_values'));
+  assert(!extendedTools.includes('sheets_delete'));
+  assert(!extendedTools.includes('sheets_trash'));
   assert(extendedTools.includes('recovery_checkpoint'));
   assert(extendedTools.includes('recovery_status'));
   assert(extendedTools.includes('audit_log'));
@@ -383,6 +626,11 @@ await testCreateDoc();
 await testDocsCreateIncidentPayloads();
 await testDocsCreateSchemaMatchesRuntime();
 await testDocsCreateFailureRecovery();
+await testSheetsCreateAndUpdate();
+await testWorkbookImportXlsx();
+await testWorkbookImportResolvesDriveSourceFile();
+await testDriveOperationRegistryRunner();
+await testSimulationOperationFrameLifecycle();
 await testMcpOAuthRefreshUsesSecretValues();
 function testRecoveryClassification() {
   const normalized = normalizeRecoveryOperation({tool: 'docs_create', requestId: 'doc-req-002', title: 'Recovered Doc', intent: 'Create recovered doc'}, 0);
