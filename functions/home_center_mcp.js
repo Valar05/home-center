@@ -2117,9 +2117,9 @@ function workflowOperationSummary(operation = {}, index = 0) {
 
 function driveOperationRegistry() {
   return {
-    version: '2026-07-10.discoverable-workbook-import-v2',
+    version: '2026-07-10.discoverable-simulation-frame-v1',
     invocationTool: 'drive_operation',
-    cachePolicy: 'New bridge operations should be added here and invoked through drive_operation so ChatGPT does not need a top-level MCP tool refresh for every backend code change. Agents should rediscover this registry through capabilities or health before claiming a bridge operation is unavailable.',
+    cachePolicy: 'New bridge and simulation operations should be added here and invoked through drive_operation so ChatGPT does not need a top-level MCP tool refresh for every backend code change. Agents should rediscover this registry through capabilities or health before claiming an operation is unavailable.',
     operations: {
       drive_create_folder: {
         summary: 'Create a Google Drive folder and audit the write.',
@@ -2184,6 +2184,7 @@ function driveOperationRegistry() {
         requiredScopes: ['https://www.googleapis.com/auth/drive'],
         input: {fileId: 'string', newName: 'string', requestId: 'string', callerNote: 'optional string'},
       },
+      ...simulationOperationRegistry().operations,
     },
   };
 }
@@ -2202,6 +2203,10 @@ async function driveOperationRunOperation({google, admin, auth, user, args = {}}
   delete operationArgs.type;
   delete operationArgs.toolName;
   delete operationArgs.args;
+  if (simulationOperationRegistry().operations[operation]) {
+    const result = await simulationOperationRunOperation({admin, user, args: {operation, args: operationArgs}});
+    return {operation, registryVersion: registry.version, completed: true, result: result.result};
+  }
   const workflowId = safeOperationBatchId(args.operationBatchId || operationArgs.operationBatchId || operationArgs.requestId || ('drive-operation-' + randomUUID()));
   const outputs = {};
   const result = await runDriveWorkflowOperation({google, admin, auth, user, workflowId, operation: {type: operation, ...operationArgs}, index: 0, outputs});
@@ -2347,12 +2352,12 @@ function createHomeCenterMcpServer({google, admin, googleClientId, googleClientS
     service: 'home-center-drive-bridge',
     version: '0.1.0',
     discoverability: {
-      noReinstallPath: 'No-Reinstall Discovery Contract: use capabilities.operationRegistry/drive_operation for Drive features and capabilities.simulationOperationRegistry/simulation_operation for Simulation features; do not assume a missing operation means the backend cannot do it.',
+      noReinstallPath: 'No-Reinstall Discovery Contract: use capabilities.operationRegistry and drive_operation for Drive and Simulation features; do not assume a missing operation means the backend cannot do it.',
       preferredMutationTool: 'drive_operation',
-      preferredSimulationTool: 'simulation_operation',
+      preferredSimulationTool: 'drive_operation',
       simulation: {
         operationRegistryVersion: simulationOperationRegistry().version,
-        normalPath: 'Chat assembles large references; simulation_operation ingests chunks, builds immutable frames, queries them, and returns context packets or deterministic run handoffs.',
+        normalPath: 'Chat assembles large references; drive_operation with simulation_* operations ingests chunks, builds immutable frames, queries them, and returns context packets or deterministic run handoffs.',
       },
       orientationTool: 'capabilities',
       workbookImport: {
@@ -2529,7 +2534,7 @@ function createHomeCenterMcpServer({google, admin, googleClientId, googleClientS
     version: '0.1.0',
     operationRegistryVersion: driveOperationRegistry().version,
     simulationOperationRegistryVersion: simulationOperationRegistry().version,
-    topLevelToolCachePolicy: 'Keep top-level MCP tools stable. Add normal bridge features as drive_operation registry operations so ChatGPT connector metadata does not need reinstall for each backend change. If a future agent says a feature is unavailable, it should first call health or capabilities and inspect operationRegistry.',
+    topLevelToolCachePolicy: 'Keep top-level MCP tools stable. Add normal bridge and simulation features as drive_operation registry operations so ChatGPT connector metadata does not need reinstall for each backend change. If a future agent says a feature is unavailable, it should first call health or capabilities and inspect operationRegistry.',
     transport: 'stateless-streamable-http',
     safety: {
       writesRequireRequestId: true,
@@ -2537,7 +2542,7 @@ function createHomeCenterMcpServer({google, admin, googleClientId, googleClientS
       dryRunAvailable: ['drive_move', 'drive_rename', 'drive_plan_organize'],
       permanentDeleteAvailable: false,
       preferredMutationTool: 'drive_operation',
-      preferredSimulationTool: 'simulation_operation',
+      preferredSimulationTool: 'drive_operation',
       batchOperationLimit: 25,
     },
     operationRegistry: driveOperationRegistry(),
@@ -2547,9 +2552,9 @@ function createHomeCenterMcpServer({google, admin, googleClientId, googleClientS
       normalFlow: [
         'Create or select a simulation project with simulation_project_create.',
         'Register Drive, Docs, GitHub, URL, local document, note, or prior simulation references with simulation_source_register.',
-        'Begin a reference compilation, append chunks by sequence, finalize it, then call build_simulation_frame.',
-        'Use simulation_frame_query or simulation_context_packet instead of rereading all sources.',
-        'Use run_simulation_frame for deterministic frame-grounded handoff; it does not invent canon or silently resolve conflicts.',
+        'Begin a reference compilation, append chunks by sequence, finalize it, then call drive_operation with operation=build_simulation_frame.',
+        'Use drive_operation with operation=simulation_frame_query or operation=simulation_context_packet instead of rereading all sources.',
+        'Use drive_operation with operation=run_simulation_frame for deterministic frame-grounded handoff; it does not invent canon or silently resolve conflicts.',
       ],
       noSpreadsheetRule: 'Do not route simulation work through workbook import, sheets, tabs, or manual form entry. Simulation frames are provenance-backed compiled context systems.',
     },
@@ -2622,9 +2627,9 @@ function createHomeCenterMcpServer({google, admin, googleClientId, googleClientS
 
   server.registerTool('drive_operation', {
     title: 'Drive operation',
-    description: 'Run a named Home Drive operation from the runtime operation registry. Prefer this stable tool for new bridge capabilities so ChatGPT does not need a connector reinstall when backend operations are added.',
+    description: 'Run a named Home Drive or Simulation operation from the runtime operation registry. Prefer this stable tool for new bridge capabilities so ChatGPT does not need a connector reinstall when backend operations are added.',
     inputSchema: {
-      operation: z.enum(supportedDriveOperationTypes()).describe('Operation name from capabilities.operationRegistry.operations.'),
+      operation: z.enum(supportedDriveOperationTypes()).describe('Operation name from capabilities.operationRegistry.operations, including simulation_* frame operations.'),
       args: z.record(z.string(), z.any()).optional().describe('Operation-specific arguments. Writes require requestId inside args.'),
       operationBatchId: z.string().optional().describe('Optional stable batch/workflow id for recovery tracking.'),
     },

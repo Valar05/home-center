@@ -554,6 +554,11 @@ Sources:
   assert(query.result.records.length >= 1);
   assert(query.result.conflicts.length >= 1);
 
+  const routedQuery = await driveOperationRunOperation({google: fakeGoogle(), admin, auth, user, args: {operation: 'simulation_frame_query', args: {projectId: 'sim-project-lexen', query: 'Lexen Normandy rank', limit: 5}}});
+  assert.equal(routedQuery.completed, true);
+  assert.equal(routedQuery.result.frameId, 'sim-frame-lexen-v1');
+  assert(routedQuery.result.records.length >= 1);
+
   const packet = await simulationOperationRunOperation({admin, user, args: {operation: 'simulation_context_packet', args: {projectId: 'sim-project-lexen', query: 'Lexen Normandy rank', maxChars: 4000}}});
   assert(packet.result.packet.includes('Simulation Context Packet'));
   assert(packet.result.packet.includes('Invention Guard'));
