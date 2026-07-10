@@ -190,6 +190,10 @@ function oauthCollection(admin, name) {
   return admin.firestore().collection(name);
 }
 
+function providerValue(value) {
+  return typeof value === 'function' ? value() : value;
+}
+
 async function loadMcpAccessContext(admin, google, googleClientId, googleClientSecret, accessToken) {
   const snap = await oauthCollection(admin, 'mcpOAuthAccessTokens').doc(tokenHash(accessToken)).get();
   if (!snap.exists) return null;
@@ -200,7 +204,7 @@ async function loadMcpAccessContext(admin, google, googleClientId, googleClientS
     err.wwwAuthenticate = oauthChallenge();
     throw err;
   }
-  const auth = googleOAuthClient(google, googleClientId, googleClientSecret);
+  const auth = googleOAuthClient(google, providerValue(googleClientId), providerValue(googleClientSecret));
   auth.setCredentials(data.googleTokens || {});
   auth.on('tokens', async (tokens) => {
     const merged = {...(data.googleTokens || {}), ...tokens};
@@ -611,6 +615,62 @@ function driveBridgeWriteSummary(kind, metadata, parentFolderId = '') {
   return `Wrote ${metadata.name || metadata.id}${parentFolderId ? ` in ${parentFolderId}` : ''}.`;
 }
 
+function bridgeStageError(code, message, stage, status = 400, extra = {}) {
+  const err = new Error(message);
+  err.code = code;
+  err.stage = stage;
+  err.status = status;
+  Object.assign(err, extra);
+  return err;
+}
+
+function providerStatus(err) {
+  return err && (err.status || err.code || (err.response && err.response.status)) || 500;
+}
+
+function providerMessage(err, max = 800) {
+  const responseData = err && err.response && err.response.data;
+  if (responseData && responseData.error && responseData.error.message) return safeText(responseData.error.message, max);
+  if (responseData && responseData.error_description) return safeText(responseData.error_description, max);
+  if (responseData && responseData.error) return safeText(String(responseData.error), max);
+  return safeText(err && err.message || String(err || 'unknown error'), max);
+}
+
+function docsCreateErrorPayload(err, args = {}, partial = null) {
+  const code = safeText(err && err.code, 80) || 'DOCS_CREATE_INTERNAL_ERROR';
+  return {
+    ok: false,
+    error: {
+      code,
+      message: providerMessage(err, 800),
+      stage: safeText(err && err.stage, 120) || 'internal',
+      requestId: safeText(args && args.requestId, 160),
+      googleStatus: err && err.googleStatus || undefined,
+    },
+    partial: partial || err && err.partial || undefined,
+    recoverable: !!(partial || err && err.partial),
+  };
+}
+
+function docsCreateDiagnostic(args = {}, extra = {}) {
+  return {
+    toolName: 'docs_create',
+    requestId: safeText(args.requestId, 160),
+    titleLength: safeText(args.title, 2000).length,
+    initialTextLength: boundedText(args.initialText, 1000000).length,
+    hasParentFolderId: !!safeText(args.parentFolderId, 220),
+    ...extra,
+  };
+}
+
+function logDocsCreate(stage, args = {}, extra = {}) {
+  console.log(JSON.stringify({
+    event: 'docs_create_diagnostic',
+    stage,
+    ...docsCreateDiagnostic(args, extra),
+  }));
+}
+
 function safeGitHubRepo(value, fallback = 'Valar05/home-center') {
   const repo = safeText(value, 160) || fallback;
   if (!/^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/.test(repo)) {
@@ -887,31 +947,90 @@ async function createDriveFolderOperation({google, admin, auth, user, args = {}}
 
 async function createGoogleDocOperation({google, admin, auth, user, args = {}}) {
   const requestId = createRequestId(args.requestId);
-  const existing = await existingAudit(admin, requestId);
-  if (existing && existing.status === 'success' && existing.result) return {...existing.result, idempotent: true, audit: existing};
   const title = safeText(args.title, 240);
-  if (!title) {
-    const err = new Error('title is required.');
-    err.status = 400;
-    throw err;
-  }
+  if (!title) throw bridgeStageError('DOCS_CREATE_INVALID_INPUT', 'title is required.', 'request_validation', 400);
   const parentFolderId = safeText(args.parentFolderId, 220) ? safeDriveFileId(args.parentFolderId) : '';
-  const initialText = boundedText(args.initialText, 12000);
+  const initialText = boundedText(args.initialText, 200000);
   const docs = google.docs({version: 'v1', auth});
   const drive = google.drive({version: 'v3', auth});
-  const created = await docs.documents.create({requestBody: {title}});
-  const documentId = safeDriveFileId(created.data && created.data.documentId);
-  if (initialText) {
-    await docs.documents.batchUpdate({
-      documentId,
-      requestBody: {requests: [{insertText: {location: {index: 1}, text: initialText}}]},
-    });
+  const stateRef = mcpCollection(admin, 'driveBridgeOperationState').doc(requestId);
+  let state = null;
+
+  logDocsCreate('request_accepted', {...args, requestId}, {parentFolderId});
+  let existing;
+  try {
+    existing = await existingAudit(admin, requestId);
+    const stateSnap = await stateRef.get();
+    state = stateSnap.exists ? stateSnap.data() || {} : null;
+  } catch (err) {
+    logDocsCreate('audit_state_read_failed', {...args, requestId}, {errorCode: 'DOCS_CREATE_AUDIT_FAILED', providerStatus: providerStatus(err)});
+    return docsCreateErrorPayload(bridgeStageError('DOCS_CREATE_AUDIT_FAILED', 'Could not read idempotency/audit state before creating the document.', 'idempotency_state_read', 503, {googleStatus: providerStatus(err)}), {...args, requestId});
   }
-  if (parentFolderId) {
-    await drive.files.update({fileId: documentId, addParents: parentFolderId, requestBody: {}, fields: 'id,parents', supportsAllDrives: true});
+  if (existing && existing.status === 'success' && existing.result) {
+    logDocsCreate('idempotent_success', {...args, requestId}, {documentId: existing.fileId || existing.result.documentId || ''});
+    return {...existing.result, idempotent: true, audit: existing};
   }
-  const file = await drive.files.get({fileId: documentId, fields: driveFields(), supportsAllDrives: true});
-  const metadata = cleanDriveFile(file.data || {});
+
+  let documentId = safeText(state && state.documentId, 220);
+  if (!documentId) {
+    try {
+      logDocsCreate('google_create_start', {...args, requestId});
+      const created = await docs.documents.create({requestBody: {title}});
+      documentId = safeDriveFileId(created.data && created.data.documentId);
+      await stateRef.set({requestId, operation: 'docs.create', status: 'file_created', documentId, title, parentFolderId, initialTextLength: initialText.length, actor: user.email || user.uid || 'unknown', createdAtMs: nowMs(), updatedAtMs: nowMs()}, {merge: true});
+      logDocsCreate('google_create_success', {...args, requestId}, {documentId});
+    } catch (err) {
+      logDocsCreate('google_create_failed', {...args, requestId}, {errorCode: 'DOCS_CREATE_GOOGLE_CREATE_FAILED', googleStatus: providerStatus(err)});
+      throw bridgeStageError('DOCS_CREATE_GOOGLE_CREATE_FAILED', providerMessage(err), 'google_create', providerStatus(err), {googleStatus: providerStatus(err)});
+    }
+  } else {
+    logDocsCreate('resume_existing_file', {...args, requestId}, {documentId, previousStatus: safeText(state && state.status, 120)});
+  }
+
+  const partial = {documentId, id: documentId, title, parentFolderId, auditRequestId: requestId};
+  if (initialText && !(state && state.textInserted === true)) {
+    try {
+      logDocsCreate('text_insert_start', {...args, requestId}, {documentId});
+      await docs.documents.batchUpdate({
+        documentId,
+        requestBody: {requests: [{insertText: {location: {index: 1}, text: initialText}}]},
+      });
+      await stateRef.set({status: 'text_inserted', textInserted: true, updatedAtMs: nowMs()}, {merge: true});
+      logDocsCreate('text_insert_success', {...args, requestId}, {documentId});
+    } catch (err) {
+      await stateRef.set({status: 'text_insert_failed', textInserted: false, errorCode: 'DOCS_CREATE_TEXT_INSERT_FAILED', errorStage: 'text_insert', updatedAtMs: nowMs()}, {merge: true}).catch(() => {});
+      logDocsCreate('text_insert_failed', {...args, requestId}, {documentId, errorCode: 'DOCS_CREATE_TEXT_INSERT_FAILED', googleStatus: providerStatus(err)});
+      return docsCreateErrorPayload(bridgeStageError('DOCS_CREATE_TEXT_INSERT_FAILED', providerMessage(err), 'text_insert', providerStatus(err), {googleStatus: providerStatus(err), partial}), {...args, requestId}, partial);
+    }
+  }
+
+  try {
+    if (parentFolderId && !(state && state.parentApplied === true)) {
+      logDocsCreate('parent_move_start', {...args, requestId}, {documentId, parentFolderId});
+      await drive.files.update({fileId: documentId, addParents: parentFolderId, requestBody: {}, fields: 'id,parents', supportsAllDrives: true});
+      await stateRef.set({status: 'parent_applied', parentApplied: true, updatedAtMs: nowMs()}, {merge: true});
+      logDocsCreate('parent_move_success', {...args, requestId}, {documentId, parentFolderId});
+    }
+  } catch (err) {
+    const code = providerStatus(err) === 404 ? 'DOCS_CREATE_PARENT_NOT_FOUND' : 'DOCS_CREATE_GOOGLE_CREATE_FAILED';
+    await stateRef.set({status: 'parent_move_failed', errorCode: code, errorStage: 'parent_move', updatedAtMs: nowMs()}, {merge: true}).catch(() => {});
+    logDocsCreate('parent_move_failed', {...args, requestId}, {documentId, parentFolderId, errorCode: code, googleStatus: providerStatus(err)});
+    return docsCreateErrorPayload(bridgeStageError(code, providerMessage(err), 'parent_move', providerStatus(err), {googleStatus: providerStatus(err), partial}), {...args, requestId}, partial);
+  }
+
+  let metadata;
+  try {
+    logDocsCreate('metadata_read_start', {...args, requestId}, {documentId});
+    const file = await drive.files.get({fileId: documentId, fields: driveFields(), supportsAllDrives: true});
+    metadata = cleanDriveFile(file.data || {});
+    await stateRef.set({status: 'metadata_read', metadata, updatedAtMs: nowMs()}, {merge: true});
+    logDocsCreate('metadata_read_success', {...args, requestId}, {documentId});
+  } catch (err) {
+    await stateRef.set({status: 'metadata_read_failed', errorCode: 'DOCS_CREATE_GOOGLE_CREATE_FAILED', errorStage: 'metadata_read', updatedAtMs: nowMs()}, {merge: true}).catch(() => {});
+    logDocsCreate('metadata_read_failed', {...args, requestId}, {documentId, errorCode: 'DOCS_CREATE_GOOGLE_CREATE_FAILED', googleStatus: providerStatus(err)});
+    return docsCreateErrorPayload(bridgeStageError('DOCS_CREATE_GOOGLE_CREATE_FAILED', providerMessage(err), 'metadata_read', providerStatus(err), {googleStatus: providerStatus(err), partial}), {...args, requestId}, partial);
+  }
+
   const result = {
     documentId,
     id: documentId,
@@ -922,25 +1041,33 @@ async function createGoogleDocOperation({google, admin, auth, user, args = {}}) 
     metadata,
     auditRequestId: requestId,
   };
-  const audit = await auditWrite(admin, {
-    actor: user.email || user.uid || 'unknown',
-    authKind: user.authKind,
-    tool: 'docs_create',
-    operation: 'docs.create',
-    requestId,
-    fileId: documentId,
-    affectedFileIds: [documentId],
-    oldMetadata: null,
-    newMetadata: metadata,
-    oldParents: [],
-    newParents: metadata.parents || [],
-    reversible: false,
-    rollback: null,
-    callerNote: args.callerNote,
-    providerSummary: safeText(args.callerNote, 400) || driveBridgeWriteSummary('docs.create', metadata, parentFolderId),
-    result,
-  });
-  return {...result, audit: audit.audit};
+  try {
+    const audit = await auditWrite(admin, {
+      actor: user.email || user.uid || 'unknown',
+      authKind: user.authKind,
+      tool: 'docs_create',
+      operation: 'docs.create',
+      requestId,
+      fileId: documentId,
+      affectedFileIds: [documentId],
+      oldMetadata: null,
+      newMetadata: metadata,
+      oldParents: [],
+      newParents: metadata.parents || [],
+      reversible: false,
+      rollback: null,
+      callerNote: args.callerNote,
+      providerSummary: safeText(args.callerNote, 400) || driveBridgeWriteSummary('docs.create', metadata, parentFolderId),
+      result,
+    });
+    await stateRef.set({status: 'success', auditWritten: true, updatedAtMs: nowMs()}, {merge: true});
+    logDocsCreate('audit_success', {...args, requestId}, {documentId});
+    return {...result, audit: audit.audit};
+  } catch (err) {
+    await stateRef.set({status: 'audit_failed', auditWritten: false, errorCode: 'DOCS_CREATE_AUDIT_FAILED', errorStage: 'audit_write', updatedAtMs: nowMs()}, {merge: true}).catch(() => {});
+    logDocsCreate('audit_failed', {...args, requestId}, {documentId, errorCode: 'DOCS_CREATE_AUDIT_FAILED', providerStatus: providerStatus(err)});
+    return docsCreateErrorPayload(bridgeStageError('DOCS_CREATE_AUDIT_FAILED', providerMessage(err), 'audit_write', 503, {partial: result}), {...args, requestId}, result);
+  }
 }
 
 
@@ -1573,8 +1700,14 @@ function createHomeCenterMcpServer({google, admin, googleClientId, googleClientS
     _meta: {securitySchemes: MCP_OAUTH_SECURITY_SCHEMES},
     annotations: {readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: true},
   }, async (args, extra) => {
-    const {auth, user} = await requestGoogleContext(extra, google, admin, googleClientId, googleClientSecret);
-    return textResult(await createGoogleDocOperation({google, admin, auth, user, args: args || {}}));
+    const cleanArgs = args || {};
+    try {
+      const {auth, user} = await requestGoogleContext(extra, google, admin, googleClientId, googleClientSecret);
+      return textResult(await createGoogleDocOperation({google, admin, auth, user, args: cleanArgs}));
+    } catch (err) {
+      logDocsCreate('handler_failed', cleanArgs, {errorCode: safeText(err && err.code, 80) || 'DOCS_CREATE_INTERNAL_ERROR', providerStatus: providerStatus(err)});
+      return textResult(docsCreateErrorPayload(err, cleanArgs));
+    }
   });
 
 
@@ -2237,4 +2370,4 @@ function createHomeCenterMcpApp({google, admin, googleClientId = () => '', googl
   return app;
 }
 
-module.exports = {createHomeCenterMcpApp, createHomeCenterMcpServer, createDriveFolderOperation, createGoogleDocOperation, appendGoogleDocOperation, driveWorkflowRunOperation, normalizeRecoveryOperation, summarizeRecoveryOperations};
+module.exports = {createHomeCenterMcpApp, createHomeCenterMcpServer, createDriveFolderOperation, createGoogleDocOperation, appendGoogleDocOperation, driveWorkflowRunOperation, normalizeRecoveryOperation, summarizeRecoveryOperations, loadMcpAccessContext};
