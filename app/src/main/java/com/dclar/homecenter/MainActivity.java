@@ -48,6 +48,7 @@ import android.view.Window;
 import android.view.Gravity;
 import android.view.HapticFeedbackConstants;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.ViewConfiguration;
 import android.view.inputmethod.EditorInfo;
 import android.view.accessibility.AccessibilityManager;
@@ -1621,31 +1622,41 @@ public final class MainActivity extends Activity implements RecognitionListener,
         help.setPadding(0, 0, 0, dp(10));
         panel.addView(help, matchWrap());
 
+        Button termuxPair = button("Pair Termux Codex", 16, "Approve a Termux Codex pairing code for Home Center tools");
         Button household = button("Household and list", 16, "Set household bucket and default list");
         Button ticktick = button("TickTick token", 16, "Set TickTick fallback token");
         Button cartReview = button("Walmart cart review", 16, "Import a Walmart cart review bundle");
         Button cartHelper = button("Cart helper settings", 16, "Open Android accessibility settings for the cart helper");
         Button diagnostics = button("Check cart helper", 16, "Check whether the cart helper is installed and enabled");
         Button driveCheck = button("Check Google Drive", 16, "Check whether Home Center can list Google Drive files");
-        Button termuxPair = button("Pair Termux Codex", 16, "Approve a Termux Codex pairing code for Home Center tools");
         Button usage = button("Usage dashboard", 16, "Show AI and tool spend by user");
         Button netrunner = button("Netrunner browser", 16, "Open the secondary browser tool");
         Button compact = button("Compact chat", 16, "Compact the current chat history");
 
+        panel.addView(termuxPair, matchHeight(dp(56)));
         panel.addView(household, matchHeight(dp(52)));
         panel.addView(ticktick, matchHeight(dp(52)));
         panel.addView(cartReview, matchHeight(dp(52)));
         panel.addView(cartHelper, matchHeight(dp(52)));
         panel.addView(diagnostics, matchHeight(dp(52)));
         panel.addView(driveCheck, matchHeight(dp(52)));
-        panel.addView(termuxPair, matchHeight(dp(52)));
         panel.addView(usage, matchHeight(dp(52)));
         panel.addView(netrunner, matchHeight(dp(52)));
         panel.addView(compact, matchHeight(dp(52)));
 
+        ScrollView scroll = new ScrollView(this);
+        scroll.setFillViewport(false);
+        int menuMaxHeight = Math.max(dp(360), getResources().getDisplayMetrics().heightPixels - dp(140));
+        scroll.addView(panel, new ScrollView.LayoutParams(
+                ScrollView.LayoutParams.MATCH_PARENT,
+                ScrollView.LayoutParams.WRAP_CONTENT));
+        scroll.setLayoutParams(new ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                menuMaxHeight));
+
         AlertDialog dialog = new AlertDialog.Builder(this)
                 .setTitle("Home Center menu")
-                .setView(panel)
+                .setView(scroll)
                 .setNegativeButton("Close", null)
                 .create();
         household.setOnClickListener(v -> {
