@@ -352,6 +352,8 @@ require_contains(functions_index, 'mcpAccessTokens.doc(accessHash)', 'Termux hub
 require_contains(functions_index, 'hubTokenHash(token)', 'Termux hub tokens are stored by hash, not plaintext')
 require_contains(home_center_mcp, 'data.revokedAtMs', 'MCP rejects revoked Home Center hub tokens')
 require_contains(main_activity, 'Pair Termux Codex', 'Android app exposes Termux Codex pairing UI')
+require_contains(main_activity, 'Button termuxPair = button("Pair Termux Codex"', 'Home Center menu exposes Termux Codex pairing')
+require_contains(main_activity, 'termuxPair.setOnClickListener', 'Home Center menu wires Termux Codex pairing button')
 require_contains(main_activity, 'approveTermuxPairing(pairingIdEdit.getText().toString(), codeEdit.getText().toString())', 'Android app approves pairing code through gateway')
 require_contains(openai_client, 'termuxPairingApprove', 'Android gateway client posts Termux pairing approval')
 require_contains(read('tools/home_center_codex_pair.mjs'), 'termuxPairingStart', 'Termux helper starts pairing through Home Center')

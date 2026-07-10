@@ -1627,6 +1627,7 @@ public final class MainActivity extends Activity implements RecognitionListener,
         Button cartHelper = button("Cart helper settings", 16, "Open Android accessibility settings for the cart helper");
         Button diagnostics = button("Check cart helper", 16, "Check whether the cart helper is installed and enabled");
         Button driveCheck = button("Check Google Drive", 16, "Check whether Home Center can list Google Drive files");
+        Button termuxPair = button("Pair Termux Codex", 16, "Approve a Termux Codex pairing code for Home Center tools");
         Button usage = button("Usage dashboard", 16, "Show AI and tool spend by user");
         Button netrunner = button("Netrunner browser", 16, "Open the secondary browser tool");
         Button compact = button("Compact chat", 16, "Compact the current chat history");
@@ -1637,6 +1638,7 @@ public final class MainActivity extends Activity implements RecognitionListener,
         panel.addView(cartHelper, matchHeight(dp(52)));
         panel.addView(diagnostics, matchHeight(dp(52)));
         panel.addView(driveCheck, matchHeight(dp(52)));
+        panel.addView(termuxPair, matchHeight(dp(52)));
         panel.addView(usage, matchHeight(dp(52)));
         panel.addView(netrunner, matchHeight(dp(52)));
         panel.addView(compact, matchHeight(dp(52)));
@@ -1669,6 +1671,10 @@ public final class MainActivity extends Activity implements RecognitionListener,
         driveCheck.setOnClickListener(v -> {
             dialog.dismiss();
             checkGoogleDriveDiagnostic();
+        });
+        termuxPair.setOnClickListener(v -> {
+            dialog.dismiss();
+            showTermuxPairingDialog();
         });
         usage.setOnClickListener(v -> {
             dialog.dismiss();
