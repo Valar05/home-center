@@ -611,6 +611,232 @@ function driveBridgeWriteSummary(kind, metadata, parentFolderId = '') {
   return `Wrote ${metadata.name || metadata.id}${parentFolderId ? ` in ${parentFolderId}` : ''}.`;
 }
 
+function safeGitHubRepo(value, fallback = 'Valar05/home-center') {
+  const repo = safeText(value, 160) || fallback;
+  if (!/^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/.test(repo)) {
+    const err = new Error('repo must look like owner/name.');
+    err.status = 400;
+    throw err;
+  }
+  return repo;
+}
+
+function safeGitHubNumber(value, label = 'number') {
+  const number = Math.floor(safeNumber(value, 0));
+  if (!number || number < 1) {
+    const err = new Error(`${label} must be a positive GitHub issue or pull request number.`);
+    err.status = 400;
+    throw err;
+  }
+  return number;
+}
+
+function safeGitHubRef(value) {
+  const ref = safeText(value, 240);
+  if (!ref) return '';
+  if (!/^[A-Za-z0-9_./-]{1,240}$/.test(ref) || ref.includes('..')) {
+    const err = new Error('ref contains unsupported characters.');
+    err.status = 400;
+    throw err;
+  }
+  return ref;
+}
+
+function safeGitHubPath(value) {
+  const filePath = safeText(value, 1000).replace(/^\/+/, '');
+  if (!filePath || filePath.includes('..')) {
+    const err = new Error('path is required and must not contain parent-directory traversal.');
+    err.status = 400;
+    throw err;
+  }
+  return filePath;
+}
+
+function githubTokenValue(githubToken) {
+  return safeText(typeof githubToken === 'function' ? githubToken() : githubToken, 4096) || safeText(process.env.GITHUB_TOKEN, 4096);
+}
+
+function githubHeaders(token) {
+  return {
+    Authorization: `Bearer ${token}`,
+    Accept: 'application/vnd.github+json',
+    'Content-Type': 'application/json',
+    'User-Agent': 'home-center-mcp',
+    'X-GitHub-Api-Version': '2022-11-28',
+  };
+}
+
+async function githubRequest(githubToken, route, options = {}) {
+  const token = githubTokenValue(githubToken);
+  if (!token) {
+    const err = new Error('GITHUB_TOKEN secret is not configured for Home Center GitHub tools.');
+    err.status = 503;
+    throw err;
+  }
+  const response = await fetch(`https://api.github.com${route}`, {
+    method: options.method || 'GET',
+    headers: githubHeaders(token),
+    body: options.body ? JSON.stringify(options.body) : undefined,
+  });
+  const text = await response.text();
+  let json = null;
+  try {
+    json = text ? JSON.parse(text) : null;
+  } catch (_) {
+    json = text;
+  }
+  if (!response.ok) {
+    const err = new Error(safeText(json && json.message ? json.message : response.statusText, 1000));
+    err.status = response.status;
+    err.github = json;
+    throw err;
+  }
+  return json;
+}
+
+function githubRepoRoute(repo, suffix = '') {
+  const [owner, name] = safeGitHubRepo(repo).split('/');
+  return `/repos/${encodeURIComponent(owner)}/${encodeURIComponent(name)}${suffix}`;
+}
+
+function cleanGitHubUser(user = {}) {
+  return user && typeof user === 'object' ? {login: user.login || '', htmlUrl: user.html_url || ''} : null;
+}
+
+function cleanGitHubRepo(repo = {}) {
+  return {
+    id: repo.id || 0,
+    name: repo.name || '',
+    fullName: repo.full_name || '',
+    private: !!repo.private,
+    description: repo.description || '',
+    defaultBranch: repo.default_branch || '',
+    htmlUrl: repo.html_url || '',
+    updatedAt: repo.updated_at || '',
+    pushedAt: repo.pushed_at || '',
+    openIssuesCount: repo.open_issues_count || 0,
+  };
+}
+
+function cleanGitHubIssue(issue = {}) {
+  return {
+    number: issue.number || 0,
+    title: issue.title || '',
+    state: issue.state || '',
+    htmlUrl: issue.html_url || '',
+    url: issue.html_url || '',
+    user: cleanGitHubUser(issue.user),
+    labels: Array.isArray(issue.labels) ? issue.labels.map((label) => typeof label === 'string' ? label : label.name).filter(Boolean) : [],
+    createdAt: issue.created_at || '',
+    updatedAt: issue.updated_at || '',
+    closedAt: issue.closed_at || '',
+    commentCount: issue.comments || 0,
+    body: safeText(issue.body, 12000),
+    isPullRequest: !!issue.pull_request,
+  };
+}
+
+function cleanGitHubPullRequest(pr = {}) {
+  return {
+    number: pr.number || 0,
+    title: pr.title || '',
+    state: pr.state || '',
+    htmlUrl: pr.html_url || '',
+    url: pr.html_url || '',
+    user: cleanGitHubUser(pr.user),
+    draft: !!pr.draft,
+    merged: !!pr.merged,
+    mergeable: pr.mergeable === null ? null : !!pr.mergeable,
+    base: pr.base ? {ref: pr.base.ref || '', sha: pr.base.sha || ''} : null,
+    head: pr.head ? {ref: pr.head.ref || '', sha: pr.head.sha || ''} : null,
+    createdAt: pr.created_at || '',
+    updatedAt: pr.updated_at || '',
+    body: safeText(pr.body, 12000),
+  };
+}
+
+function cleanGitHubComment(comment = {}) {
+  return {
+    id: comment.id || 0,
+    htmlUrl: comment.html_url || '',
+    user: cleanGitHubUser(comment.user),
+    createdAt: comment.created_at || '',
+    updatedAt: comment.updated_at || '',
+    body: safeText(comment.body, 12000),
+  };
+}
+
+function cleanGitHubPullRequestFile(file = {}) {
+  return {
+    filename: file.filename || '',
+    status: file.status || '',
+    additions: file.additions || 0,
+    deletions: file.deletions || 0,
+    changes: file.changes || 0,
+    blobUrl: file.blob_url || '',
+    rawUrl: file.raw_url || '',
+    patch: safeText(file.patch, 12000),
+  };
+}
+
+function cleanGitHubWorkflowRun(run = {}) {
+  return {
+    id: run.id || 0,
+    name: run.name || '',
+    displayTitle: run.display_title || '',
+    status: run.status || '',
+    conclusion: run.conclusion || '',
+    event: run.event || '',
+    branch: run.head_branch || '',
+    sha: run.head_sha || '',
+    htmlUrl: run.html_url || '',
+    createdAt: run.created_at || '',
+    updatedAt: run.updated_at || '',
+  };
+}
+
+function githubQuery(params = {}) {
+  const pairs = Object.entries(params).filter(([, value]) => value !== undefined && value !== null && value !== '');
+  return pairs.length ? `?${pairs.map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(String(value))}`).join('&')}` : '';
+}
+
+async function createGitHubIssueOperation({admin, user, githubToken, args = {}}) {
+  const requestId = createRequestId(args.requestId);
+  const existing = await existingAudit(admin, requestId);
+  if (existing && existing.status === 'success' && existing.result) return {...existing.result, idempotent: true, audit: existing};
+  const repo = safeGitHubRepo(args.repo);
+  const title = safeText(args.title, 240);
+  const body = safeText(args.body, 60000);
+  if (!title || !body) throw Object.assign(new Error('title and body are required.'), {status: 400});
+  const labels = Array.isArray(args.labels) ? args.labels.map((label) => safeText(label, 60)).filter(Boolean).slice(0, 12) : [];
+  let created;
+  try {
+    created = await githubRequest(githubToken, githubRepoRoute(repo, '/issues'), {method: 'POST', body: {title, body, ...(labels.length ? {labels} : {})}});
+  } catch (err) {
+    if (err.status !== 422 || !labels.length) throw err;
+    created = await githubRequest(githubToken, githubRepoRoute(repo, '/issues'), {method: 'POST', body: {title, body}});
+  }
+  const issue = cleanGitHubIssue(created || {});
+  const result = {repo, issue, issueNumber: issue.number, htmlUrl: issue.htmlUrl, url: issue.htmlUrl, auditRequestId: requestId};
+  const audit = await auditWrite(admin, {actor: user.email || user.uid || 'unknown', authKind: user.authKind, tool: 'github_create_issue', operation: 'github.createIssue', requestId, fileId: `github:${repo}#${issue.number}`, affectedFileIds: [`github:${repo}#${issue.number}`], oldMetadata: null, newMetadata: issue, oldParents: [], newParents: [repo], reversible: false, rollback: null, callerNote: args.callerNote, providerSummary: safeText(args.callerNote, 400) || `Created GitHub issue ${repo}#${issue.number}: ${title}.`, result});
+  return {...result, audit: audit.audit};
+}
+
+async function commentGitHubIssueOperation({admin, user, githubToken, args = {}, tool = 'github_comment_issue', operation = 'github.commentIssue'}) {
+  const requestId = createRequestId(args.requestId);
+  const existing = await existingAudit(admin, requestId);
+  if (existing && existing.status === 'success' && existing.result) return {...existing.result, idempotent: true, audit: existing};
+  const repo = safeGitHubRepo(args.repo);
+  const number = safeGitHubNumber(args.number);
+  const body = safeText(args.body, 60000);
+  if (!body) throw Object.assign(new Error('body is required.'), {status: 400});
+  const created = await githubRequest(githubToken, githubRepoRoute(repo, `/issues/${number}/comments`), {method: 'POST', body: {body}});
+  const comment = cleanGitHubComment(created || {});
+  const result = {repo, number, comment, htmlUrl: comment.htmlUrl, url: comment.htmlUrl, auditRequestId: requestId};
+  const audit = await auditWrite(admin, {actor: user.email || user.uid || 'unknown', authKind: user.authKind, tool, operation, requestId, fileId: `github:${repo}#${number}`, affectedFileIds: [`github:${repo}#${number}`, `github-comment:${comment.id}`], oldMetadata: null, newMetadata: comment, oldParents: [], newParents: [repo], reversible: false, rollback: null, callerNote: args.callerNote, providerSummary: safeText(args.callerNote, 400) || `Commented on ${repo}#${number}.`, result});
+  return {...result, audit: audit.audit};
+}
+
 async function createDriveFolderOperation({google, admin, auth, user, args = {}}) {
   const requestId = createRequestId(args.requestId);
   const existing = await existingAudit(admin, requestId);
@@ -897,7 +1123,7 @@ async function driveWorkflowRunOperation({google, admin, auth, user, args = {}})
   }
 }
 
-function createHomeCenterMcpServer({google, admin, googleClientId, googleClientSecret}) {
+function createHomeCenterMcpServer({google, admin, googleClientId, googleClientSecret, githubToken = () => ''}) {
   const server = new McpServer({
     name: 'home-center-drive-bridge',
     version: '0.1.0',
@@ -1049,6 +1275,10 @@ function createHomeCenterMcpServer({google, admin, googleClientId, googleClientS
       'drive_workflow_run', 'recovery_checkpoint', 'recovery_status',
       'audit_log', 'audit_get',
       'docs_append',
+      'github_get_repo', 'github_read_file', 'github_list_branches',
+      'github_list_issues', 'github_get_issue', 'github_create_issue', 'github_comment_issue',
+      'github_list_pull_requests', 'github_get_pull_request', 'github_list_pull_request_files', 'github_comment_pull_request',
+      'github_list_workflow_runs', 'github_get_workflow_run',
     ],
   }));
 
@@ -1131,6 +1361,194 @@ function createHomeCenterMcpServer({google, admin, googleClientId, googleClientS
     const drive = google.drive({version: 'v3', auth});
     const metadata = await getDriveMetadata(drive, args && args.fileId);
     return textResult({metadata, parentFolders: await resolveParentNames(drive, metadata.parents || [])});
+  });
+
+  server.registerTool('github_get_repo', {
+    title: 'GitHub get repo',
+    description: 'Read authenticated GitHub repository metadata for owner/name.',
+    inputSchema: {repo: z.string().optional().describe('owner/name. Defaults to Valar05/home-center.')},
+    securitySchemes: MCP_OAUTH_SECURITY_SCHEMES,
+    _meta: {securitySchemes: MCP_OAUTH_SECURITY_SCHEMES},
+    annotations: {readOnlyHint: true, openWorldHint: true},
+  }, async (args, extra) => {
+    await requestGoogleContext(extra, google, admin, googleClientId, googleClientSecret);
+    const repo = safeGitHubRepo(args && args.repo);
+    return textResult({repo: cleanGitHubRepo(await githubRequest(githubToken, githubRepoRoute(repo)))});
+  });
+
+  server.registerTool('github_read_file', {
+    title: 'GitHub read file',
+    description: 'Read a text file from an authenticated GitHub repository by path and optional ref.',
+    inputSchema: {repo: z.string().optional(), path: z.string(), ref: z.string().optional()},
+    securitySchemes: MCP_OAUTH_SECURITY_SCHEMES,
+    _meta: {securitySchemes: MCP_OAUTH_SECURITY_SCHEMES},
+    annotations: {readOnlyHint: true, openWorldHint: true},
+  }, async (args, extra) => {
+    await requestGoogleContext(extra, google, admin, googleClientId, googleClientSecret);
+    const repo = safeGitHubRepo(args && args.repo);
+    const filePath = safeGitHubPath(args && args.path).split('/').map(encodeURIComponent).join('/');
+    const ref = safeGitHubRef(args && args.ref);
+    const file = await githubRequest(githubToken, githubRepoRoute(repo, `/contents/${filePath}${githubQuery({ref})}`));
+    if (Array.isArray(file) || file.type !== 'file') throw Object.assign(new Error('path did not resolve to a file.'), {status: 400});
+    const encoding = safeText(file.encoding, 40);
+    const text = encoding === 'base64' ? Buffer.from(String(file.content || '').replace(/\s+/g, ''), 'base64').toString('utf8') : String(file.content || '');
+    return textResult({repo, path: args.path, ref, sha: file.sha || '', htmlUrl: file.html_url || '', text: text.slice(0, 200000)});
+  });
+
+  server.registerTool('github_list_branches', {
+    title: 'GitHub list branches',
+    description: 'List branches in an authenticated GitHub repository.',
+    inputSchema: {repo: z.string().optional(), limit: z.number().int().min(1).max(100).default(50)},
+    securitySchemes: MCP_OAUTH_SECURITY_SCHEMES,
+    _meta: {securitySchemes: MCP_OAUTH_SECURITY_SCHEMES},
+    annotations: {readOnlyHint: true, openWorldHint: true},
+  }, async (args, extra) => {
+    await requestGoogleContext(extra, google, admin, googleClientId, googleClientSecret);
+    const repo = safeGitHubRepo(args && args.repo);
+    const branches = await githubRequest(githubToken, githubRepoRoute(repo, `/branches${githubQuery({per_page: chatGptLimit(args && args.limit, 50, 100)})}`));
+    return textResult({repo, branches: (branches || []).map((branch) => ({name: branch.name || '', sha: branch.commit && branch.commit.sha || '', protected: !!branch.protected}))});
+  });
+
+  server.registerTool('github_list_issues', {
+    title: 'GitHub list issues',
+    description: 'List authenticated GitHub issues. Pull requests are filtered out.',
+    inputSchema: {repo: z.string().optional(), state: z.enum(['open', 'closed', 'all']).optional().default('open'), labels: z.array(z.string()).optional(), limit: z.number().int().min(1).max(100).default(30)},
+    securitySchemes: MCP_OAUTH_SECURITY_SCHEMES,
+    _meta: {securitySchemes: MCP_OAUTH_SECURITY_SCHEMES},
+    annotations: {readOnlyHint: true, openWorldHint: true},
+  }, async (args, extra) => {
+    await requestGoogleContext(extra, google, admin, googleClientId, googleClientSecret);
+    const repo = safeGitHubRepo(args && args.repo);
+    const labels = Array.isArray(args && args.labels) ? args.labels.map((label) => safeText(label, 60)).filter(Boolean).join(',') : '';
+    const issues = await githubRequest(githubToken, githubRepoRoute(repo, `/issues${githubQuery({state: args && args.state || 'open', labels, per_page: chatGptLimit(args && args.limit, 30, 100)})}`));
+    return textResult({repo, issues: (issues || []).filter((issue) => !issue.pull_request).map(cleanGitHubIssue)});
+  });
+
+  server.registerTool('github_get_issue', {
+    title: 'GitHub get issue',
+    description: 'Read an authenticated GitHub issue and its comments.',
+    inputSchema: {repo: z.string().optional(), number: z.number().int().min(1)},
+    securitySchemes: MCP_OAUTH_SECURITY_SCHEMES,
+    _meta: {securitySchemes: MCP_OAUTH_SECURITY_SCHEMES},
+    annotations: {readOnlyHint: true, openWorldHint: true},
+  }, async (args, extra) => {
+    await requestGoogleContext(extra, google, admin, googleClientId, googleClientSecret);
+    const repo = safeGitHubRepo(args && args.repo);
+    const number = safeGitHubNumber(args && args.number);
+    const issue = cleanGitHubIssue(await githubRequest(githubToken, githubRepoRoute(repo, `/issues/${number}`)));
+    const comments = await githubRequest(githubToken, githubRepoRoute(repo, `/issues/${number}/comments${githubQuery({per_page: 50})}`));
+    return textResult({repo, issue, comments: (comments || []).map(cleanGitHubComment)});
+  });
+
+  server.registerTool('github_create_issue', {
+    title: 'GitHub create issue',
+    description: 'Create an authenticated GitHub issue and write an audit record. Does not close, delete, or mutate code.',
+    inputSchema: {repo: z.string().optional(), title: z.string().min(1), body: z.string().min(1), labels: z.array(z.string()).optional(), requestId: z.string().optional(), callerNote: z.string().optional()},
+    securitySchemes: MCP_OAUTH_SECURITY_SCHEMES,
+    _meta: {securitySchemes: MCP_OAUTH_SECURITY_SCHEMES},
+    annotations: {readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: true},
+  }, async (args, extra) => {
+    const {user} = await requestGoogleContext(extra, google, admin, googleClientId, googleClientSecret);
+    return textResult(await createGitHubIssueOperation({admin, user, githubToken, args: args || {}}));
+  });
+
+  server.registerTool('github_comment_issue', {
+    title: 'GitHub comment issue',
+    description: 'Add a comment to an authenticated GitHub issue and write an audit record.',
+    inputSchema: {repo: z.string().optional(), number: z.number().int().min(1), body: z.string().min(1), requestId: z.string().optional(), callerNote: z.string().optional()},
+    securitySchemes: MCP_OAUTH_SECURITY_SCHEMES,
+    _meta: {securitySchemes: MCP_OAUTH_SECURITY_SCHEMES},
+    annotations: {readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: true},
+  }, async (args, extra) => {
+    const {user} = await requestGoogleContext(extra, google, admin, googleClientId, googleClientSecret);
+    return textResult(await commentGitHubIssueOperation({admin, user, githubToken, args: args || {}}));
+  });
+
+  server.registerTool('github_list_pull_requests', {
+    title: 'GitHub list pull requests',
+    description: 'List authenticated GitHub pull requests.',
+    inputSchema: {repo: z.string().optional(), state: z.enum(['open', 'closed', 'all']).optional().default('open'), limit: z.number().int().min(1).max(100).default(30)},
+    securitySchemes: MCP_OAUTH_SECURITY_SCHEMES,
+    _meta: {securitySchemes: MCP_OAUTH_SECURITY_SCHEMES},
+    annotations: {readOnlyHint: true, openWorldHint: true},
+  }, async (args, extra) => {
+    await requestGoogleContext(extra, google, admin, googleClientId, googleClientSecret);
+    const repo = safeGitHubRepo(args && args.repo);
+    const pulls = await githubRequest(githubToken, githubRepoRoute(repo, `/pulls${githubQuery({state: args && args.state || 'open', per_page: chatGptLimit(args && args.limit, 30, 100)})}`));
+    return textResult({repo, pullRequests: (pulls || []).map(cleanGitHubPullRequest)});
+  });
+
+  server.registerTool('github_get_pull_request', {
+    title: 'GitHub get pull request',
+    description: 'Read authenticated GitHub pull request metadata and conversation comments.',
+    inputSchema: {repo: z.string().optional(), number: z.number().int().min(1)},
+    securitySchemes: MCP_OAUTH_SECURITY_SCHEMES,
+    _meta: {securitySchemes: MCP_OAUTH_SECURITY_SCHEMES},
+    annotations: {readOnlyHint: true, openWorldHint: true},
+  }, async (args, extra) => {
+    await requestGoogleContext(extra, google, admin, googleClientId, googleClientSecret);
+    const repo = safeGitHubRepo(args && args.repo);
+    const number = safeGitHubNumber(args && args.number);
+    const pullRequest = cleanGitHubPullRequest(await githubRequest(githubToken, githubRepoRoute(repo, `/pulls/${number}`)));
+    const comments = await githubRequest(githubToken, githubRepoRoute(repo, `/issues/${number}/comments${githubQuery({per_page: 50})}`));
+    return textResult({repo, pullRequest, comments: (comments || []).map(cleanGitHubComment)});
+  });
+
+  server.registerTool('github_list_pull_request_files', {
+    title: 'GitHub list pull request files',
+    description: 'List changed files for an authenticated GitHub pull request.',
+    inputSchema: {repo: z.string().optional(), number: z.number().int().min(1), limit: z.number().int().min(1).max(100).default(100)},
+    securitySchemes: MCP_OAUTH_SECURITY_SCHEMES,
+    _meta: {securitySchemes: MCP_OAUTH_SECURITY_SCHEMES},
+    annotations: {readOnlyHint: true, openWorldHint: true},
+  }, async (args, extra) => {
+    await requestGoogleContext(extra, google, admin, googleClientId, googleClientSecret);
+    const repo = safeGitHubRepo(args && args.repo);
+    const number = safeGitHubNumber(args && args.number);
+    const files = await githubRequest(githubToken, githubRepoRoute(repo, `/pulls/${number}/files${githubQuery({per_page: chatGptLimit(args && args.limit, 100, 100)})}`));
+    return textResult({repo, number, files: (files || []).map(cleanGitHubPullRequestFile)});
+  });
+
+  server.registerTool('github_comment_pull_request', {
+    title: 'GitHub comment pull request',
+    description: 'Add a conversation comment to an authenticated GitHub pull request and write an audit record.',
+    inputSchema: {repo: z.string().optional(), number: z.number().int().min(1), body: z.string().min(1), requestId: z.string().optional(), callerNote: z.string().optional()},
+    securitySchemes: MCP_OAUTH_SECURITY_SCHEMES,
+    _meta: {securitySchemes: MCP_OAUTH_SECURITY_SCHEMES},
+    annotations: {readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: true},
+  }, async (args, extra) => {
+    const {user} = await requestGoogleContext(extra, google, admin, googleClientId, googleClientSecret);
+    return textResult(await commentGitHubIssueOperation({admin, user, githubToken, args: args || {}, tool: 'github_comment_pull_request', operation: 'github.commentPullRequest'}));
+  });
+
+  server.registerTool('github_list_workflow_runs', {
+    title: 'GitHub list workflow runs',
+    description: 'List recent GitHub Actions workflow runs for an authenticated repository.',
+    inputSchema: {repo: z.string().optional(), branch: z.string().optional(), event: z.string().optional(), status: z.string().optional(), limit: z.number().int().min(1).max(100).default(30)},
+    securitySchemes: MCP_OAUTH_SECURITY_SCHEMES,
+    _meta: {securitySchemes: MCP_OAUTH_SECURITY_SCHEMES},
+    annotations: {readOnlyHint: true, openWorldHint: true},
+  }, async (args, extra) => {
+    await requestGoogleContext(extra, google, admin, googleClientId, googleClientSecret);
+    const repo = safeGitHubRepo(args && args.repo);
+    const runs = await githubRequest(githubToken, githubRepoRoute(repo, `/actions/runs${githubQuery({branch: safeGitHubRef(args && args.branch), event: safeText(args && args.event, 80), status: safeText(args && args.status, 80), per_page: chatGptLimit(args && args.limit, 30, 100)})}`));
+    return textResult({repo, workflowRuns: ((runs && runs.workflow_runs) || []).map(cleanGitHubWorkflowRun), totalCount: runs && runs.total_count || 0});
+  });
+
+  server.registerTool('github_get_workflow_run', {
+    title: 'GitHub get workflow run',
+    description: 'Read one GitHub Actions workflow run and its jobs for an authenticated repository.',
+    inputSchema: {repo: z.string().optional(), runId: z.number().int().min(1)},
+    securitySchemes: MCP_OAUTH_SECURITY_SCHEMES,
+    _meta: {securitySchemes: MCP_OAUTH_SECURITY_SCHEMES},
+    annotations: {readOnlyHint: true, openWorldHint: true},
+  }, async (args, extra) => {
+    await requestGoogleContext(extra, google, admin, googleClientId, googleClientSecret);
+    const repo = safeGitHubRepo(args && args.repo);
+    const runId = safeGitHubNumber(args && args.runId, 'runId');
+    const run = cleanGitHubWorkflowRun(await githubRequest(githubToken, githubRepoRoute(repo, `/actions/runs/${runId}`)));
+    const jobs = await githubRequest(githubToken, githubRepoRoute(repo, `/actions/runs/${runId}/jobs${githubQuery({per_page: 100})}`));
+    return textResult({repo, run, jobs: ((jobs && jobs.jobs) || []).map((job) => ({id: job.id || 0, name: job.name || '', status: job.status || '', conclusion: job.conclusion || '', startedAt: job.started_at || '', completedAt: job.completed_at || '', htmlUrl: job.html_url || ''}))});
   });
 
   }
@@ -1478,7 +1896,7 @@ function createHomeCenterMcpServer({google, admin, googleClientId, googleClientS
   return server;
 }
 
-function createHomeCenterMcpApp({google, admin, googleClientId = () => '', googleClientSecret = () => ''}) {
+function createHomeCenterMcpApp({google, admin, googleClientId = () => '', googleClientSecret = () => '', githubToken = () => ''}) {
   const app = express();
   app.use(express.json({limit: '2mb'}));
   app.use(express.urlencoded({extended: false, limit: '256kb'}));
@@ -1764,7 +2182,7 @@ function createHomeCenterMcpApp({google, admin, googleClientId = () => '', googl
     res.on('close', () => {
       delete transports[transport.sessionId];
     });
-    const server = createHomeCenterMcpServer({google, admin, googleClientId, googleClientSecret});
+    const server = createHomeCenterMcpServer({google, admin, googleClientId, googleClientSecret, githubToken});
     await server.connect(transport);
   });
 
@@ -1790,7 +2208,7 @@ function createHomeCenterMcpApp({google, admin, googleClientId = () => '', googl
       res.status(405).json({jsonrpc: '2.0', error: {code: -32000, message: 'Method not allowed.'}, id: null});
       return;
     }
-    const server = createHomeCenterMcpServer({google, admin, googleClientId, googleClientSecret});
+      const server = createHomeCenterMcpServer({google, admin, googleClientId, googleClientSecret, githubToken});
     const transport = new StreamableHTTPServerTransport({sessionIdGenerator: undefined});
     let closed = false;
     const closeTransport = async () => {

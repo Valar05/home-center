@@ -2985,7 +2985,7 @@ async function askOpenAIToolTurn(body, user = {}) {
 }
 
 
-exports.homeCenterMcp = onRequest({timeoutSeconds: 300, secrets: [GOOGLE_OAUTH_CLIENT_ID, GOOGLE_OAUTH_CLIENT_SECRET]}, createHomeCenterMcpApp({google, admin, googleClientId: () => GOOGLE_OAUTH_CLIENT_ID.value() || process.env.GOOGLE_OAUTH_CLIENT_ID || '', googleClientSecret: () => GOOGLE_OAUTH_CLIENT_SECRET.value() || process.env.GOOGLE_OAUTH_CLIENT_SECRET || ''}));
+exports.homeCenterMcp = onRequest({timeoutSeconds: 300, secrets: [GOOGLE_OAUTH_CLIENT_ID, GOOGLE_OAUTH_CLIENT_SECRET, GITHUB_TOKEN]}, createHomeCenterMcpApp({google, admin, googleClientId: () => GOOGLE_OAUTH_CLIENT_ID.value() || process.env.GOOGLE_OAUTH_CLIENT_ID || '', googleClientSecret: () => GOOGLE_OAUTH_CLIENT_SECRET.value() || process.env.GOOGLE_OAUTH_CLIENT_SECRET || '', githubToken: () => GITHUB_TOKEN.value() || process.env.GITHUB_TOKEN || ''}));
 
 exports.chatGptOpenApi = onRequest((req, res) => {
   if (handleOptions(req, res)) return;

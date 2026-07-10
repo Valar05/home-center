@@ -11,6 +11,10 @@ const EXPECTED_TOOLS = [
   'drive_list_folder', 'drive_get_metadata', 'drive_create_folder', 'docs_create',
   'drive_move', 'drive_rename', 'drive_plan_organize', 'drive_execute_plan',
   'index_folder', 'index_status', 'drive_workflow_run', 'recovery_checkpoint', 'recovery_status', 'audit_log', 'audit_get',
+  'github_get_repo', 'github_read_file', 'github_list_branches',
+  'github_list_issues', 'github_get_issue', 'github_create_issue', 'github_comment_issue',
+  'github_list_pull_requests', 'github_get_pull_request', 'github_list_pull_request_files', 'github_comment_pull_request',
+  'github_list_workflow_runs', 'github_get_workflow_run',
 ];
 
 function parseArgs(argv) {

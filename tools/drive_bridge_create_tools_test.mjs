@@ -187,11 +187,31 @@ function testMcpToolSurface() {
 
   process.env.HOME_CENTER_MCP_EXTENDED_TOOLS = 'true';
   const extended = createHomeCenterMcpServer({google: {}, admin: {}, googleClientId: () => '', googleClientSecret: () => ''});
-  assert(Object.keys(extended._registeredTools).includes('drive_move'));
-  assert(Object.keys(extended._registeredTools).includes('drive_workflow_run'));
-  assert(Object.keys(extended._registeredTools).includes('recovery_checkpoint'));
-  assert(Object.keys(extended._registeredTools).includes('recovery_status'));
-  assert(Object.keys(extended._registeredTools).includes('audit_log'));
+  const extendedTools = Object.keys(extended._registeredTools);
+  assert(extendedTools.includes('drive_move'));
+  assert(extendedTools.includes('drive_workflow_run'));
+  assert(extendedTools.includes('recovery_checkpoint'));
+  assert(extendedTools.includes('recovery_status'));
+  assert(extendedTools.includes('audit_log'));
+  for (const toolName of [
+    'github_get_repo',
+    'github_read_file',
+    'github_list_branches',
+    'github_list_issues',
+    'github_get_issue',
+    'github_create_issue',
+    'github_comment_issue',
+    'github_list_pull_requests',
+    'github_get_pull_request',
+    'github_list_pull_request_files',
+    'github_comment_pull_request',
+    'github_list_workflow_runs',
+    'github_get_workflow_run',
+  ]) {
+    assert(extendedTools.includes(toolName), `expected ${toolName}`);
+  }
+  assert(!extendedTools.includes('github_merge_pull_request'));
+  assert(!extendedTools.includes('github_dispatch_workflow'));
   delete process.env.HOME_CENTER_MCP_EXTENDED_TOOLS;
 }
 
