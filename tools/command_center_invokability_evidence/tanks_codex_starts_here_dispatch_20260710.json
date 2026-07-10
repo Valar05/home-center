@@ -1,0 +1,40 @@
+{
+  "ok": true,
+  "generatedAt": "2026-07-10T20:42:30.019Z",
+  "dispatchSurface": "HTTP MCP fallback to deployed Command Center /mcp because native command_center tools were not exposed in this session",
+  "jobId": "job_4fecd034-0179-4cdb-ad21-ea3f033045ef",
+  "status": "completed",
+  "selectedWorkerId": "termux-tanks-oneshot-20260710203036",
+  "artifactCount": 20,
+  "eventTypes": [
+    "job_completed",
+    "artifacts_recorded",
+    "worker_started",
+    "job_leased",
+    "job_created"
+  ],
+  "workerRun": {
+    "outputDir": "/data/data/com.termux/files/usr/tmp/tanks-cc-dispatch/run-clean",
+    "runWorkspace": "/data/data/com.termux/files/usr/tmp/tanks-cc-dispatch/run-clean/workspace",
+    "overlayCommit": "e7b9b22",
+    "overlayCommitMessage": "Record blocked upper glacis one-shot intake"
+  },
+  "workerVerdict": {
+    "status": "blocked",
+    "reason": "Required docs/doctrine/scratch-mode.md is absent in clean checkout; worker stopped before geometry mutation.",
+    "branch": "codex/upper-glacis-recovery-tools",
+    "head": "31dc201",
+    "visualAcceptanceClaimed": false,
+    "pushDeployPrComment": false
+  },
+  "failedSetupRuns": [
+    {
+      "jobId": "job_ca50a9bb-246a-49a4-9229-eff8b0445863",
+      "reason": "inline executor helper quoting/syntax failure before Codex"
+    },
+    {
+      "jobId": "job_092a5e41-0070-4ca5-9021-73a0e621acfb",
+      "reason": ".mjs helper used require in ESM before Codex"
+    }
+  ]
+}

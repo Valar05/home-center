@@ -65,6 +65,8 @@ Executable capabilities are tools with machine-readable metadata. Agents are cap
 
 Workflow definitions should become data, not one-off chat instructions. V1 records workflow runs and their artifacts before attempting a full event automation engine.
 
+Command Center is the cloud MCP dispatch plane for this workflow layer. Its repo-local contract is `docs/COMMAND_CENTER_MCP.md`: ChatGPT dispatches, Command Center persists and supervises, and user-owned Codex workers execute. It is not a frontend, chat UI, planner, primary memory system, or competing agent.
+
 ### State Graph
 
 Engineering memory is a graph. Nodes include repositories, documents, issues, experiments, artifacts, prompts, agents, tools, commits, reviews, workflows, and verification runs. Edges include `created`, `depends_on`, `supersedes`, `references`, `generated`, `reviewed`, `blocks`, `duplicates`, `derived_from`, `verified_by`, and `belongs_to`.

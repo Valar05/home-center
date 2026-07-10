@@ -64,6 +64,18 @@ https://us-central1-home-center-dclar.cloudfunctions.net/homeCenterMcp/mcp
 
 V1 grants the safe core tool groups only: Drive, Docs, Sheets search/read, and GitHub read/issue/comment tools. Gmail sends, Calendar writes, destructive deletes, workflow dispatch, merges, and broad organizer actions are not part of the Termux/Codex v1 grant.
 
+## Command Center MCP
+
+Command Center is a separate cloud MCP control plane for dispatching, supervising, and preserving Codex worker execution. It has no frontend and no independent chat interface. ChatGPT remains the planner and conversational surface; Command Center persists projects, tickets, leases, events, questions, mutation approvals, logs, artifacts, and checkpoints; user-owned Codex workers execute.
+
+The Firebase export is `commandCenterMcp` and its MCP endpoint is:
+
+```text
+https://us-central1-home-center-dclar.cloudfunctions.net/commandCenterMcp/mcp
+```
+
+The v1 implementation is a lifecycle skeleton with a simulated `cloud-codex-primary` worker record. See `docs/COMMAND_CENTER_MCP.md`.
+
 ## Regular ChatGPT App / MCP Setup
 
 The durable target for normal ChatGPT is the Home Center MCP app, not a one-off Custom GPT Action. The deployed streamable HTTP MCP server URL is:

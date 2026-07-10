@@ -1,0 +1,457 @@
+{
+  "ok": true,
+  "mcpUrl": "https://us-central1-home-center-dclar.cloudfunctions.net/commandCenterMcp/mcp",
+  "base": "https://us-central1-home-center-dclar.cloudfunctions.net/commandCenterMcp",
+  "checks": [
+    {
+      "name": "root_live_no_frontend",
+      "ok": true,
+      "status": 200,
+      "root": {
+        "ok": true,
+        "service": "command-center-mcp",
+        "product": "cloud MCP control plane",
+        "endpoints": [
+          "/mcp"
+        ],
+        "hasFrontend": false
+      }
+    },
+    {
+      "name": "protected_resource_matches_mcp_url",
+      "ok": true,
+      "status": 200,
+      "resource": "https://us-central1-home-center-dclar.cloudfunctions.net/commandCenterMcp/mcp"
+    },
+    {
+      "name": "protected_resource_delegates_to_home_center",
+      "ok": true,
+      "authorization_servers": [
+        "https://us-central1-home-center-dclar.cloudfunctions.net/homeCenterMcp"
+      ]
+    },
+    {
+      "name": "authorization_metadata_resolves",
+      "ok": true,
+      "status": 200,
+      "issuer": "https://us-central1-home-center-dclar.cloudfunctions.net/homeCenterMcp"
+    },
+    {
+      "name": "dynamic_registration_available",
+      "ok": true,
+      "registration_endpoint": "https://us-central1-home-center-dclar.cloudfunctions.net/homeCenterMcp/oauth/register"
+    },
+    {
+      "name": "pkce_s256_supported",
+      "ok": true
+    },
+    {
+      "name": "mcp_unauth_challenges",
+      "ok": true,
+      "status": 401,
+      "wwwAuthenticate": "Bearer resource_metadata=\"https://us-central1-home-center-dclar.cloudfunctions.net/commandCenterMcp/.well-known/oauth-protected-resource\""
+    },
+    {
+      "name": "mcp_initialize_200",
+      "ok": true,
+      "status": 200,
+      "contentType": "text/event-stream"
+    },
+    {
+      "name": "tools_list_contains_command_center_surface",
+      "ok": true,
+      "status": 200,
+      "count": 18,
+      "missing": []
+    },
+    {
+      "name": "health_tool_invokable",
+      "ok": true,
+      "status": 200,
+      "health": {
+        "ok": true,
+        "service": "command-center-mcp",
+        "invokable": true,
+        "hasFrontend": false,
+        "commandCenterMcpUrl": "https://us-central1-home-center-dclar.cloudfunctions.net/commandCenterMcp/mcp",
+        "authorizationServer": "https://us-central1-home-center-dclar.cloudfunctions.net/homeCenterMcp"
+      }
+    },
+    {
+      "name": "live_job_create_readback",
+      "ok": true,
+      "jobId": "job_c862a6a2-b2f2-40a3-a357-55a7ffd0da7d"
+    }
+  ],
+  "toolNames": [
+    "command_center.health",
+    "command_center.jobs.answer_question",
+    "command_center.jobs.authorize_mutation",
+    "command_center.jobs.cancel",
+    "command_center.jobs.create",
+    "command_center.jobs.get",
+    "command_center.jobs.get_artifacts",
+    "command_center.jobs.get_events",
+    "command_center.jobs.get_logs",
+    "command_center.jobs.get_summary",
+    "command_center.jobs.list",
+    "command_center.jobs.resume",
+    "command_center.jobs.revise",
+    "command_center.projects.get",
+    "command_center.projects.resolve",
+    "command_center.workers.get_capabilities",
+    "command_center.workers.list",
+    "command_center.workers.register_oneshot"
+  ],
+  "liveJob": {
+    "jobId": "job_c862a6a2-b2f2-40a3-a357-55a7ffd0da7d",
+    "create": {
+      "job": {
+        "jobId": "job_c862a6a2-b2f2-40a3-a357-55a7ffd0da7d",
+        "projectId": "home-center",
+        "title": "Command Center ChatGPT invokability smoke",
+        "objective": "Prove ChatGPT-visible Command Center job creation and readback on the live MCP surface.",
+        "acceptanceCriteria": [
+          "Job created through Command Center MCP",
+          "Job summary can be read back"
+        ],
+        "constraints": [],
+        "scopeExclusions": [],
+        "workerRequirements": [
+          "codex"
+        ],
+        "budgetClass": "small",
+        "mutationPolicy": {
+          "editFiles": "deny",
+          "runTests": "deny",
+          "commit": "deny",
+          "createIssue": "allowed",
+          "createPullRequest": "allowed",
+          "push": "deny",
+          "merge": "deny",
+          "deployPreview": "confirm",
+          "deployProduction": "confirm",
+          "externalProviderWrite": "confirm",
+          "destructive": "deny"
+        },
+        "executionMode": "one_shot",
+        "baseWorkspace": {
+          "baseWorkspaceId": "base-default-oneshot",
+          "kind": "prepared_workspace_snapshot",
+          "snapshotRef": "worker-local://prepared-workspaces/default",
+          "version": "unversioned",
+          "restoreStrategy": "copy_overlay",
+          "immutable": true,
+          "toolchains": []
+        },
+        "requiredArtifacts": [
+          "job-intake.json",
+          "orientation.md",
+          "reasoning-summary.md",
+          "command-log.jsonl",
+          "implementation.patch",
+          "changed-files.json",
+          "verification.json",
+          "final-report.md",
+          "mutation-requests.jsonl"
+        ],
+        "stopConditions": [],
+        "verificationCommands": [],
+        "promptPacketVersion": "command-center-one-shot-v1",
+        "status": "leased",
+        "selectedWorkerId": "cloud-codex-primary",
+        "createdBy": "command-center-smoke@home-center.local",
+        "createdAtMs": 1783712030136,
+        "updatedAtMs": 1783712030136,
+        "simulatedWorker": true
+      },
+      "lease": {
+        "leaseId": "lease_364eb4aa-22a1-44ce-ad33-45a5569c2262",
+        "jobId": "job_c862a6a2-b2f2-40a3-a357-55a7ffd0da7d",
+        "projectId": "home-center",
+        "workerId": "cloud-codex-primary",
+        "status": "active",
+        "acquiredAtMs": 1783712030136,
+        "expiresAtMs": 1783713830136,
+        "heartbeatAtMs": 1783712030136
+      },
+      "events": [
+        {
+          "eventId": "evt_1783712030371_64f3cc54",
+          "type": "job_created",
+          "jobId": "job_c862a6a2-b2f2-40a3-a357-55a7ffd0da7d",
+          "projectId": "home-center",
+          "summary": "Command Center ChatGPT invokability smoke",
+          "requiresHumanDecision": false,
+          "recommendedAction": "",
+          "evidenceRefs": [],
+          "actor": "command-center-smoke@home-center.local",
+          "createdAtMs": 1783712030371,
+          "data": {
+            "workerRequirements": [
+              "codex"
+            ]
+          }
+        },
+        {
+          "eventId": "evt_1783712030427_738cc758",
+          "type": "job_leased",
+          "jobId": "job_c862a6a2-b2f2-40a3-a357-55a7ffd0da7d",
+          "projectId": "home-center",
+          "summary": "Leased to cloud-codex-primary.",
+          "requiresHumanDecision": false,
+          "recommendedAction": "",
+          "evidenceRefs": [],
+          "actor": "command_center",
+          "createdAtMs": 1783712030427,
+          "data": {
+            "worker": {
+              "workerId": "cloud-codex-primary",
+              "engine": "codex",
+              "location": "cloud",
+              "health": "healthy",
+              "capabilities": [
+                "codex",
+                "github",
+                "node",
+                "python",
+                "firebase",
+                "home-drive-mcp",
+                "network",
+                "one-shot-worker",
+                "prepared-workspace"
+              ],
+              "limits": {
+                "concurrentJobs": 2
+              },
+              "simulated": true
+            }
+          }
+        }
+      ],
+      "checkpoint": {
+        "checkpointId": "chk_1783712030592_3d7c2eeb",
+        "jobId": "job_c862a6a2-b2f2-40a3-a357-55a7ffd0da7d",
+        "projectId": "home-center",
+        "objective": "Prove ChatGPT-visible Command Center job creation and readback on the live MCP surface.",
+        "acceptanceCriteriaStatus": [
+          {
+            "criterion": "Job created through Command Center MCP",
+            "status": "pending"
+          },
+          {
+            "criterion": "Job summary can be read back",
+            "status": "pending"
+          }
+        ],
+        "currentPhase": "leased",
+        "repositoryCommit": "",
+        "workingTreeState": "unknown",
+        "filesInspected": [],
+        "filesChanged": [],
+        "decisionsMade": [],
+        "failedApproaches": [],
+        "testsRun": [],
+        "openQuestions": [],
+        "nextAction": "Lease compatible Codex worker and begin repository orientation.",
+        "evidenceRefs": [],
+        "baseWorkspace": {
+          "baseWorkspaceId": "base-default-oneshot",
+          "kind": "prepared_workspace_snapshot",
+          "snapshotRef": "worker-local://prepared-workspaces/default",
+          "version": "unversioned",
+          "restoreStrategy": "copy_overlay",
+          "immutable": true,
+          "toolchains": []
+        },
+        "requiredArtifacts": [
+          "job-intake.json",
+          "orientation.md",
+          "reasoning-summary.md",
+          "command-log.jsonl",
+          "implementation.patch",
+          "changed-files.json",
+          "verification.json",
+          "final-report.md",
+          "mutation-requests.jsonl"
+        ],
+        "executionMode": "one_shot",
+        "createdAtMs": 1783712030592
+      }
+    },
+    "get": {
+      "job": {
+        "jobId": "job_c862a6a2-b2f2-40a3-a357-55a7ffd0da7d",
+        "projectId": "home-center",
+        "title": "Command Center ChatGPT invokability smoke",
+        "objective": "Prove ChatGPT-visible Command Center job creation and readback on the live MCP surface.",
+        "acceptanceCriteria": [
+          "Job created through Command Center MCP",
+          "Job summary can be read back"
+        ],
+        "constraints": [],
+        "scopeExclusions": [],
+        "workerRequirements": [
+          "codex"
+        ],
+        "budgetClass": "small",
+        "mutationPolicy": {
+          "editFiles": "deny",
+          "runTests": "deny",
+          "commit": "deny",
+          "createIssue": "allowed",
+          "createPullRequest": "allowed",
+          "push": "deny",
+          "merge": "deny",
+          "deployPreview": "confirm",
+          "deployProduction": "confirm",
+          "externalProviderWrite": "confirm",
+          "destructive": "deny"
+        },
+        "executionMode": "one_shot",
+        "baseWorkspace": {
+          "baseWorkspaceId": "base-default-oneshot",
+          "kind": "prepared_workspace_snapshot",
+          "snapshotRef": "worker-local://prepared-workspaces/default",
+          "version": "unversioned",
+          "restoreStrategy": "copy_overlay",
+          "immutable": true,
+          "toolchains": []
+        },
+        "requiredArtifacts": [
+          "job-intake.json",
+          "orientation.md",
+          "reasoning-summary.md",
+          "command-log.jsonl",
+          "implementation.patch",
+          "changed-files.json",
+          "verification.json",
+          "final-report.md",
+          "mutation-requests.jsonl"
+        ],
+        "stopConditions": [],
+        "verificationCommands": [],
+        "promptPacketVersion": "command-center-one-shot-v1",
+        "status": "leased",
+        "selectedWorkerId": "cloud-codex-primary",
+        "createdBy": "command-center-smoke@home-center.local",
+        "createdAtMs": 1783712030136,
+        "updatedAtMs": 1783712030136,
+        "simulatedWorker": true
+      }
+    },
+    "summary": {
+      "jobId": "job_c862a6a2-b2f2-40a3-a357-55a7ffd0da7d",
+      "status": "leased",
+      "checkpoint": {
+        "checkpointId": "chk_1783712030592_3d7c2eeb",
+        "jobId": "job_c862a6a2-b2f2-40a3-a357-55a7ffd0da7d",
+        "projectId": "home-center",
+        "objective": "Prove ChatGPT-visible Command Center job creation and readback on the live MCP surface.",
+        "acceptanceCriteriaStatus": [
+          {
+            "criterion": "Job created through Command Center MCP",
+            "status": "pending"
+          },
+          {
+            "criterion": "Job summary can be read back",
+            "status": "pending"
+          }
+        ],
+        "currentPhase": "leased",
+        "repositoryCommit": "",
+        "workingTreeState": "unknown",
+        "filesInspected": [],
+        "filesChanged": [],
+        "decisionsMade": [],
+        "failedApproaches": [],
+        "testsRun": [],
+        "openQuestions": [],
+        "nextAction": "Lease compatible Codex worker and begin repository orientation.",
+        "evidenceRefs": [],
+        "baseWorkspace": {
+          "baseWorkspaceId": "base-default-oneshot",
+          "kind": "prepared_workspace_snapshot",
+          "snapshotRef": "worker-local://prepared-workspaces/default",
+          "version": "unversioned",
+          "restoreStrategy": "copy_overlay",
+          "immutable": true,
+          "toolchains": []
+        },
+        "requiredArtifacts": [
+          "job-intake.json",
+          "orientation.md",
+          "reasoning-summary.md",
+          "command-log.jsonl",
+          "implementation.patch",
+          "changed-files.json",
+          "verification.json",
+          "final-report.md",
+          "mutation-requests.jsonl"
+        ],
+        "executionMode": "one_shot",
+        "createdAtMs": 1783712030592
+      },
+      "job": {
+        "jobId": "job_c862a6a2-b2f2-40a3-a357-55a7ffd0da7d",
+        "projectId": "home-center",
+        "title": "Command Center ChatGPT invokability smoke",
+        "objective": "Prove ChatGPT-visible Command Center job creation and readback on the live MCP surface.",
+        "acceptanceCriteria": [
+          "Job created through Command Center MCP",
+          "Job summary can be read back"
+        ],
+        "constraints": [],
+        "scopeExclusions": [],
+        "workerRequirements": [
+          "codex"
+        ],
+        "budgetClass": "small",
+        "mutationPolicy": {
+          "editFiles": "deny",
+          "runTests": "deny",
+          "commit": "deny",
+          "createIssue": "allowed",
+          "createPullRequest": "allowed",
+          "push": "deny",
+          "merge": "deny",
+          "deployPreview": "confirm",
+          "deployProduction": "confirm",
+          "externalProviderWrite": "confirm",
+          "destructive": "deny"
+        },
+        "executionMode": "one_shot",
+        "baseWorkspace": {
+          "baseWorkspaceId": "base-default-oneshot",
+          "kind": "prepared_workspace_snapshot",
+          "snapshotRef": "worker-local://prepared-workspaces/default",
+          "version": "unversioned",
+          "restoreStrategy": "copy_overlay",
+          "immutable": true,
+          "toolchains": []
+        },
+        "requiredArtifacts": [
+          "job-intake.json",
+          "orientation.md",
+          "reasoning-summary.md",
+          "command-log.jsonl",
+          "implementation.patch",
+          "changed-files.json",
+          "verification.json",
+          "final-report.md",
+          "mutation-requests.jsonl"
+        ],
+        "stopConditions": [],
+        "verificationCommands": [],
+        "promptPacketVersion": "command-center-one-shot-v1",
+        "status": "leased",
+        "selectedWorkerId": "cloud-codex-primary",
+        "createdBy": "command-center-smoke@home-center.local",
+        "createdAtMs": 1783712030136,
+        "updatedAtMs": 1783712030136,
+        "simulatedWorker": true
+      }
+    }
+  },
+  "generatedAt": "2026-07-10T19:33:50.588Z"
+}
