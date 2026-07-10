@@ -66,3 +66,12 @@ coverage/
 *.log
 logs/
 # END CODEX WORKSPACE HYGIENE
+
+# Home Bridge local connector diagnostics
+/.tmp_auth_redirect_body.txt
+/.tmp_oauth_meta.json
+/.tmp_resource_meta.json
+/.tmp_userinfo_body.txt
+tools/chatgpt_connector_evidence/
+tools/live_prompt_evidence/
+tools/visual_evidence/

@@ -95,6 +95,8 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public final class MainActivity extends Activity implements RecognitionListener, TextToSpeech.OnInitListener {
     private static final int REQUEST_RECORD_AUDIO = 1001;
@@ -119,7 +121,12 @@ public final class MainActivity extends Activity implements RecognitionListener,
     private static final String KEY_CHAT_SUMMARY = "chat_summary";
     private static final String KEY_CONVERSATIONS_JSON = "conversations_json";
     private static final String KEY_ACTIVE_CONVERSATION_ID = "active_conversation_id";
+    private static final String KEY_NARRATION_MUTED = "narration_muted";
+    private static final String KEY_LEGACY_CHAT_VISIBLE = "legacy_chat_visible";
     private static final String EXTRA_SMOKE_PROMPT = "home_center_smoke_prompt";
+    private static final Pattern CHAT_URL_PATTERN = Pattern.compile("https?://\\S+|www\\.\\S+");
+    private static final String EXTRA_SMOKE_NEW_CONVERSATION = "home_center_smoke_new_conversation";
+    private static final String EXTRA_SMOKE_MUTE_SPEECH = "home_center_smoke_mute_speech";
     private static final int MAX_RECORDED_TURNS = 18;
     private static final int COLOR_BACKGROUND = Color.parseColor("#121212");
     private static final int COLOR_SURFACE = Color.parseColor("#1E1E1E");
@@ -142,6 +149,7 @@ public final class MainActivity extends Activity implements RecognitionListener,
     private volatile long speechSequence = 0L;
     private volatile boolean speechPlaying = false;
     private volatile AudioTrack activeCartesiaTrack;
+    private volatile long smokeSpeechMutedUntilMillis = 0L;
     private TextView statusView;
     private TextView authStatusView;
     private EditText tokenEdit;
@@ -166,7 +174,10 @@ public final class MainActivity extends Activity implements RecognitionListener,
     private Button submitButton;
     private Button attachFileButton;
     private Button stopSpeechButton;
+    private Button narrationMuteButton;
     private Button conversationDrawerButton;
+    private Button legacyChatToggleButton;
+    private Button googleToolsButton;
     private TextView conversationTitleView;
     private TextView workingIndicatorView;
     private Button geminiSettingsButton;
@@ -184,6 +195,11 @@ public final class MainActivity extends Activity implements RecognitionListener,
     private EditText messageEdit;
     private ScrollView chatScroll;
     private LinearLayout chatLogContainer;
+    private LinearLayout loginShellPanel;
+    private TextView loginShellTitleView;
+    private TextView loginShellDetailView;
+    private TextView loginShellEventView;
+    private LinearLayout composeRow;
     private GeminiClient geminiClient;
     private OpenAiAgentClient openAiAgentClient;
     private GoogleDriveClient googleDriveClient;
@@ -194,6 +210,8 @@ public final class MainActivity extends Activity implements RecognitionListener,
     private LocalKnowledgeClient localKnowledgeClient;
 
     private boolean tickTickTokenVisible = false;
+    private boolean narrationMuted = false;
+    private boolean legacyChatVisible = false;
     private boolean firebaseConfigured = false;
     private boolean silentSignInAttempted = false;
     private FirebaseAuth firebaseAuth;
@@ -322,7 +340,16 @@ public final class MainActivity extends Activity implements RecognitionListener,
             return;
         }
         visualEvidenceEnabled = true;
-        LocalLog.info("installed_smoke", "prompt_requested: " + shortMessage(prompt));
+        boolean newConversation = intent.getBooleanExtra(EXTRA_SMOKE_NEW_CONVERSATION, false);
+        boolean muteSpeech = intent.getBooleanExtra(EXTRA_SMOKE_MUTE_SPEECH, true);
+        if (muteSpeech) {
+            smokeSpeechMutedUntilMillis = SystemClock.elapsedRealtime() + 10L * 60L * 1000L;
+        }
+        LocalLog.info("installed_smoke", "prompt_requested: " + shortMessage(prompt) + " newConversation=" + newConversation + " muteSpeech=" + muteSpeech);
+        if (newConversation) {
+            createAndSwitchConversation("Smoke: " + shortMessage(prompt));
+            clearAgentRuntimeStateForSmoke();
+        }
         main.postDelayed(() -> {
             if (messageEdit == null) {
                 LocalLog.warn("installed_smoke", "message composer unavailable");
@@ -331,6 +358,23 @@ public final class MainActivity extends Activity implements RecognitionListener,
             messageEdit.setText(prompt.trim());
             submitTypedMessage();
         }, 1200L);
+    }
+
+    private void clearAgentRuntimeStateForSmoke() {
+        pendingToolConfirmation = null;
+        synchronized (workingMemoryLock) {
+            JSONArray names = workingMemory.names();
+            if (names != null) {
+                for (int i = names.length() - 1; i >= 0; i--) {
+                    workingMemory.remove(names.optString(i));
+                }
+            }
+        }
+        synchronized (toolTraceLock) {
+            while (recentToolTrace.length() > 0) {
+                recentToolTrace.remove(0);
+            }
+        }
     }
 
     private void initFirebase() {
@@ -477,6 +521,8 @@ public final class MainActivity extends Activity implements RecognitionListener,
 
     private void buildUi() {
         SharedPreferences prefs = getSharedPreferences(PREFS, MODE_PRIVATE);
+        narrationMuted = prefs.getBoolean(KEY_NARRATION_MUTED, false);
+        legacyChatVisible = prefs.getBoolean(KEY_LEGACY_CHAT_VISIBLE, false);
         initializePortableCommandFields(prefs);
 
         LinearLayout root = new LinearLayout(this);
@@ -502,7 +548,7 @@ public final class MainActivity extends Activity implements RecognitionListener,
         header.addView(conversationDrawerButton, drawerParams);
 
         conversationTitleView = new TextView(this);
-        conversationTitleView.setText("Home Center");
+        conversationTitleView.setText("Home Center Login");
         conversationTitleView.setTextSize(18);
         conversationTitleView.setTypeface(Typeface.DEFAULT_BOLD);
         conversationTitleView.setTextColor(COLOR_TEXT);
@@ -533,17 +579,28 @@ public final class MainActivity extends Activity implements RecognitionListener,
                 LinearLayout.LayoutParams.WRAP_CONTENT));
 
         Button menuButton = new Button(this);
-        menuButton.setText("Menu");
+        menuButton.setText("Tools");
         menuButton.setAllCaps(false);
         menuButton.setTextSize(13);
         menuButton.setTextColor(COLOR_TEXT);
         menuButton.setBackgroundColor(COLOR_CARD);
-        menuButton.setContentDescription("Open Home Center menu");
+        menuButton.setContentDescription("Open Home Center tools");
         LinearLayout.LayoutParams menuParams = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.WRAP_CONTENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT);
         menuParams.setMargins(dp(8), 0, 0, 0);
         header.addView(menuButton, menuParams);
+
+        narrationMuteButton = new Button(this);
+        narrationMuteButton.setAllCaps(false);
+        narrationMuteButton.setTextSize(13);
+        narrationMuteButton.setTextColor(COLOR_TEXT);
+        LinearLayout.LayoutParams muteParams = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT);
+        muteParams.setMargins(dp(8), 0, 0, 0);
+        header.addView(narrationMuteButton, muteParams);
+        updateNarrationMuteButton();
         root.addView(header, matchWrap());
 
         statusView = new TextView(this);
@@ -553,6 +610,53 @@ public final class MainActivity extends Activity implements RecognitionListener,
         statusView.setPadding(0, dp(2), 0, dp(6));
         root.addView(statusView, matchWrap());
         updateBackendStatus();
+
+        loginShellPanel = new LinearLayout(this);
+        loginShellPanel.setOrientation(LinearLayout.VERTICAL);
+        loginShellPanel.setPadding(dp(18), dp(18), dp(18), dp(18));
+        loginShellPanel.setBackground(makePanelBackground());
+        LinearLayout.LayoutParams shellParams = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                0,
+                1f);
+        shellParams.setMargins(0, dp(12), 0, dp(10));
+        loginShellPanel.setLayoutParams(shellParams);
+
+        loginShellTitleView = new TextView(this);
+        loginShellTitleView.setText("Google tools login");
+        loginShellTitleView.setTextSize(24);
+        loginShellTitleView.setTypeface(Typeface.DEFAULT_BOLD);
+        loginShellTitleView.setTextColor(COLOR_TEXT);
+        loginShellTitleView.setGravity(Gravity.CENTER_HORIZONTAL);
+        loginShellTitleView.setPadding(0, dp(10), 0, dp(8));
+        loginShellPanel.addView(loginShellTitleView, matchWrap());
+
+        loginShellDetailView = new TextView(this);
+        loginShellDetailView.setTextSize(16);
+        loginShellDetailView.setTextColor(COLOR_SECONDARY);
+        loginShellDetailView.setGravity(Gravity.CENTER_HORIZONTAL);
+        loginShellDetailView.setPadding(dp(4), dp(6), dp(4), dp(18));
+        loginShellPanel.addView(loginShellDetailView, matchWrap());
+
+        loginShellEventView = new TextView(this);
+        loginShellEventView.setTextSize(14);
+        loginShellEventView.setTextColor(COLOR_ACCENT);
+        loginShellEventView.setGravity(Gravity.CENTER_HORIZONTAL);
+        loginShellEventView.setPadding(dp(4), 0, dp(4), dp(14));
+        loginShellPanel.addView(loginShellEventView, matchWrap());
+
+        googleToolsButton = button("Connect Google tools", 18, "Connect Google Drive, Docs, Sheets, Gmail, Calendar, and Contacts");
+        googleToolsButton.setTextColor(COLOR_BACKGROUND);
+        googleToolsButton.setBackgroundColor(COLOR_ACCENT);
+        LinearLayout.LayoutParams toolsParams = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                dp(58));
+        toolsParams.setMargins(0, dp(6), 0, dp(12));
+        loginShellPanel.addView(googleToolsButton, toolsParams);
+
+        legacyChatToggleButton = button("Show legacy chat", 15, "Show or hide the legacy Home Center chat interface");
+        loginShellPanel.addView(legacyChatToggleButton, matchHeight(dp(48)));
+        root.addView(loginShellPanel);
 
         chatScroll = new ScrollView(this);
         chatScroll.setFillViewport(true);
@@ -593,7 +697,7 @@ public final class MainActivity extends Activity implements RecognitionListener,
         workingParams.setMargins(0, 0, 0, dp(8));
         bottomPanel.addView(workingIndicatorView, workingParams);
 
-        LinearLayout composeRow = new LinearLayout(this);
+        composeRow = new LinearLayout(this);
         composeRow.setOrientation(LinearLayout.HORIZONTAL);
         composeRow.setGravity(Gravity.CENTER_VERTICAL);
 
@@ -655,7 +759,10 @@ public final class MainActivity extends Activity implements RecognitionListener,
         conversationDrawerButton.setOnClickListener(v -> showConversationPanel());
         submitButton.setOnClickListener(v -> submitTypedMessage());
         stopSpeechButton.setOnClickListener(v -> stopSpeechPlayback());
+        narrationMuteButton.setOnClickListener(v -> toggleNarrationMute());
         googleSignInButton.setOnClickListener(v -> startGoogleSignIn());
+        googleToolsButton.setOnClickListener(v -> connectGoogleToolsFromShell());
+        legacyChatToggleButton.setOnClickListener(v -> toggleLegacyChatVisible());
         menuButton.setOnClickListener(v -> showHomeCenterMenu());
         messageEdit.setOnEditorActionListener((v, actionId, event) -> {
             boolean send = actionId == EditorInfo.IME_ACTION_SEND
@@ -670,6 +777,55 @@ public final class MainActivity extends Activity implements RecognitionListener,
         setContentView(root);
         refreshAuthStatus();
         setSpeechPlaying(false);
+    }
+
+    private void connectGoogleToolsFromShell() {
+        GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(this);
+        if (account != null && hasAllGoogleToolScopes(account)) {
+            showLoginShellEvent("Refreshing cloud Google token...");
+            exchangeGoogleServerAuthCode(account);
+            appendStatus("Google tools already approved. Refreshing cloud token.");
+            return;
+        }
+        if (account != null && firebaseAuth != null && firebaseAuth.getCurrentUser() != null) {
+            showLoginShellEvent("Opening Google tool permission approval...");
+            appendStatus("Requesting Google tool permissions.");
+            requestGoogleToolPermissions(account);
+            return;
+        }
+        showLoginShellEvent("Opening Google sign-in...");
+        startGoogleSignIn();
+    }
+
+    private void showLoginShellEvent(String message) {
+        if (loginShellEventView != null && message != null && !message.trim().isEmpty()) {
+            loginShellEventView.setText(message.trim());
+            loginShellEventView.setTextColor(message.toLowerCase(Locale.US).contains("fail") || message.toLowerCase(Locale.US).contains("need") ? COLOR_DANGER : COLOR_ACCENT);
+        }
+    }
+
+    private void toggleLegacyChatVisible() {
+        legacyChatVisible = !legacyChatVisible;
+        getSharedPreferences(PREFS, MODE_PRIVATE)
+                .edit()
+                .putBoolean(KEY_LEGACY_CHAT_VISIBLE, legacyChatVisible)
+                .apply();
+        updateLoginShellVisibility();
+    }
+
+    private void updateLoginShellVisibility() {
+        if (chatScroll != null) {
+            chatScroll.setVisibility(legacyChatVisible ? View.VISIBLE : View.GONE);
+        }
+        if (composeRow != null) {
+            composeRow.setVisibility(legacyChatVisible ? View.VISIBLE : View.GONE);
+        }
+        if (legacyChatToggleButton != null) {
+            legacyChatToggleButton.setText(legacyChatVisible ? "Hide legacy chat" : "Show legacy chat");
+        }
+        if (conversationDrawerButton != null) {
+            conversationDrawerButton.setVisibility(legacyChatVisible ? View.VISIBLE : View.GONE);
+        }
     }
 
     private void initializePortableCommandFields(SharedPreferences prefs) {
@@ -690,7 +846,7 @@ public final class MainActivity extends Activity implements RecognitionListener,
         panel.setPadding(dp(20), dp(12), dp(20), dp(4));
 
         TextView help = new TextView(this);
-        help.setText("Secondary controls and diagnostics. Chat stays primary.");
+        help.setText("Secondary controls and diagnostics. Google login is the primary surface.");
         help.setTextSize(14);
         help.setTextColor(COLOR_SECONDARY);
         help.setPadding(0, 0, 0, dp(10));
@@ -1830,8 +1986,15 @@ public final class MainActivity extends Activity implements RecognitionListener,
         chatTurns.add(new ChatTurn("assistant", finalResponse));
         trimChatTurns();
         final String responseForUi = finalResponse;
-        final String statusForUi = status;
         JSONObject pendingForUi = cloneJson(pendingConfirmation);
+        String speechText = narration == null || narration.trim().isEmpty()
+                ? finalResponse
+                : narration.trim();
+        if (pendingForUi != null) {
+            speechText = confirmationSpeechReadbackForPending(pendingForUi);
+        }
+        final String speechForUi = speechText;
+        final String statusForUi = status;
         main.post(() -> {
             setBusy(false);
             String displayedResponse = pendingForUi != null
@@ -1843,7 +2006,7 @@ public final class MainActivity extends Activity implements RecognitionListener,
             if (statusForUi != null && !statusForUi.trim().isEmpty()) {
                 appendStatus(statusForUi.trim());
             }
-            speak(displayedResponse);
+            speak(speechForUi);
         });
     }
 
@@ -2141,6 +2304,50 @@ public final class MainActivity extends Activity implements RecognitionListener,
         LocalLog.info("agent_trace", "working_memory_update lastCalendarEvent=" + memory.toString());
     }
 
+    private String confirmationActionForPending(JSONObject pending) {
+        String action = pending == null ? "action" : pending.optString("action", "").trim();
+        if (!action.isEmpty()) {
+            return action;
+        }
+        String toolName = pending == null ? "" : pending.optString("toolName", "").trim();
+        if ("docs.update".equals(toolName) || toolName.endsWith(".update") || toolName.contains("update")) {
+            return "edit";
+        }
+        if ("docs.create".equals(toolName) || toolName.endsWith(".create") || toolName.contains("create")) {
+            return "create";
+        }
+        if (toolName.contains("delete") || toolName.contains("trash") || toolName.contains("remove")) {
+            return "delete";
+        }
+        return "action";
+    }
+
+    private String confirmationInstructionForPending(JSONObject pending) {
+        String action = confirmationActionForPending(pending);
+        return "Say \"confirm " + action + "\" or press Confirm.";
+    }
+
+    private String confirmationSpeechInstructionForPending(JSONObject pending) {
+        String action = confirmationActionForPending(pending);
+        return "Say confirm " + action + ", or press Confirm.";
+    }
+
+    private String confirmationSpeechReadbackForPending(JSONObject pending) {
+        String action = confirmationActionForPending(pending);
+        String title = pending == null ? "" : pending.optString("title", "").trim();
+        String summary = pending == null ? "" : pending.optString("summary", "").trim();
+        StringBuilder builder = new StringBuilder();
+        builder.append("Confirm ").append(action).append(" required. ");
+        if (!title.isEmpty()) {
+            builder.append(title).append(". ");
+        }
+        if (!summary.isEmpty() && !summary.equals(title)) {
+            builder.append(summary).append(" ");
+        }
+        builder.append(confirmationSpeechInstructionForPending(pending));
+        return builder.toString().trim();
+    }
+
     private void appendPendingConfirmationCard(JSONObject pending) {
         if (chatLogContainer == null || pending == null) {
             return;
@@ -2166,14 +2373,27 @@ public final class MainActivity extends Activity implements RecognitionListener,
         summary.setText(pending.optString("summary", "Confirm this action."));
         summary.setTextSize(14);
         summary.setTextColor(COLOR_SECONDARY);
-        summary.setPadding(0, dp(6), 0, dp(10));
+        summary.setPadding(0, dp(6), 0, dp(6));
         card.addView(summary, matchWrap());
+
+        TextView instruction = new TextView(this);
+        String confirmInstruction = confirmationInstructionForPending(pending);
+        instruction.setText(confirmInstruction);
+        instruction.setTextSize(15);
+        instruction.setTypeface(Typeface.DEFAULT_BOLD);
+        instruction.setTextColor(COLOR_TEXT);
+        instruction.setPadding(0, 0, 0, dp(10));
+        card.addView(instruction, matchWrap());
+        card.setContentDescription(pending.optString("title", "Confirm Action") + ". "
+                + pending.optString("summary", "Confirm this action.") + " " + confirmInstruction);
 
         LinearLayout buttons = new LinearLayout(this);
         buttons.setOrientation(LinearLayout.HORIZONTAL);
         buttons.setGravity(Gravity.CENTER_VERTICAL);
 
-        Button confirm = button("Confirm", 14, "Confirm and run this action");
+        String action = confirmationActionForPending(pending);
+        String confirmLabel = "action".equals(action) ? "Confirm" : "Confirm " + action;
+        Button confirm = button(confirmLabel, 14, confirmInstruction + " Confirm and run this action.");
         confirm.setBackgroundColor(COLOR_ACCENT);
         confirm.setTextColor(COLOR_BACKGROUND);
         Button cancel = button("Cancel", 14, "Cancel this pending action");
@@ -3810,20 +4030,56 @@ public final class MainActivity extends Activity implements RecognitionListener,
             return;
         }
         if (!firebaseConfigured) {
-            authStatusView.setText("Google sign-in needs setup");
+            authStatusView.setText("Setup needed");
             authStatusView.setTextColor(COLOR_DANGER);
             if (googleSignInButton != null) {
                 googleSignInButton.setVisibility(View.VISIBLE);
             }
+            if (loginShellTitleView != null) {
+                loginShellTitleView.setText("Google setup needed");
+            }
+            if (loginShellDetailView != null) {
+                loginShellDetailView.setText("Home Center is now a Google tools login shell, but Firebase/Google config is missing from this build.");
+            }
+            if (googleToolsButton != null) {
+                googleToolsButton.setText("Google setup needed");
+            }
+            updateLoginShellVisibility();
             updateBackendStatus();
             return;
         }
         FirebaseUser user = firebaseAuth == null ? null : firebaseAuth.getCurrentUser();
+        GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(this);
+        boolean hasToolScopes = hasAllGoogleToolScopes(account);
         if (user == null) {
-            authStatusView.setText("Sign in with Google");
+            authStatusView.setText("Not signed in");
             authStatusView.setTextColor(COLOR_PRIMARY);
             if (googleSignInButton != null) {
                 googleSignInButton.setVisibility(View.VISIBLE);
+            }
+            if (loginShellTitleView != null) {
+                loginShellTitleView.setText("Connect Google");
+            }
+            if (loginShellDetailView != null) {
+                loginShellDetailView.setText("Sign in once to connect Home Center, Drive, Docs, Sheets, Gmail, Calendar, and Contacts.");
+            }
+            if (googleToolsButton != null) {
+                googleToolsButton.setText("Sign in with Google");
+            }
+        } else if (!hasToolScopes) {
+            authStatusView.setText("Tools need approval");
+            authStatusView.setTextColor(COLOR_PRIMARY);
+            if (googleSignInButton != null) {
+                googleSignInButton.setVisibility(View.VISIBLE);
+            }
+            if (loginShellTitleView != null) {
+                loginShellTitleView.setText("Approve Google tools");
+            }
+            if (loginShellDetailView != null) {
+                loginShellDetailView.setText("Identity is connected. Approve tool scopes so Home Center can act as the shared Drive and Docs bridge.");
+            }
+            if (googleToolsButton != null) {
+                googleToolsButton.setText("Approve Google tools");
             }
         } else {
             authStatusView.setText("Connected");
@@ -3831,18 +4087,35 @@ public final class MainActivity extends Activity implements RecognitionListener,
             if (googleSignInButton != null) {
                 googleSignInButton.setVisibility(View.GONE);
             }
+            if (loginShellTitleView != null) {
+                loginShellTitleView.setText("Google tools connected");
+            }
+            if (loginShellDetailView != null) {
+                loginShellDetailView.setText("Home Center is connected and ready for Drive, Docs, Sheets, Gmail, Calendar, and Contacts calls.");
+            }
+            if (googleToolsButton != null) {
+                googleToolsButton.setText("Refresh Google token");
+            }
         }
+        updateLoginShellVisibility();
         updateBackendStatus();
     }
 
     private void speak(String message) {
-        String clean = message == null ? "" : message.trim();
+        String clean = sanitizeTextForSpeech(message);
         if (clean.isEmpty()) {
             LocalLog.info("speech", "skip_empty_message");
             return;
         }
         lastSpoken = clean;
         setStatus(clean);
+        if (isSpeechMuted()) {
+            LocalLog.info("speech", (isSmokeSpeechMuted() ? "smoke_mute_skip" : "global_mute_skip")
+                    + " displayedResponseLength=" + clean.length() + " ttsTextLength=" + clean.length());
+            setSpeechPlaying(false);
+            LocalLog.info("speech", "speech_cleanup reason=" + (isSmokeSpeechMuted() ? "smoke_muted" : "global_muted"));
+            return;
+        }
         LocalLog.info("speech", "speech_request displayedResponseLength=" + clean.length() + " ttsTextLength=" + clean.length());
         requestSpeechFocus();
         String utteranceId = "home_center_" + System.currentTimeMillis();
@@ -3856,6 +4129,26 @@ public final class MainActivity extends Activity implements RecognitionListener,
         String cause = cartesiaUnavailableCause();
         LocalLog.info("speech", "cartesia_unavailable cause=" + cause);
         speakWithDeviceTtsFallback(clean, utteranceId, sequence, cause);
+    }
+
+    private boolean isSmokeSpeechMuted() {
+        return BuildConfig.DEBUG && smokeSpeechMutedUntilMillis > SystemClock.elapsedRealtime();
+    }
+
+    private boolean isSpeechMuted() {
+        return narrationMuted || isSmokeSpeechMuted();
+    }
+
+    private String sanitizeTextForSpeech(String message) {
+        String clean = message == null ? "" : message.trim();
+        if (clean.isEmpty()) {
+            return "";
+        }
+        String withoutUrls = clean.replaceAll("https?://\\S+", " Link available in chat. ");
+        withoutUrls = withoutUrls.replaceAll("www\\.\\S+", " Link available in chat. ");
+        withoutUrls = withoutUrls.replaceAll("\\s+", " ").trim();
+        withoutUrls = withoutUrls.replaceAll("(Link available in chat\\.\\s*){2,}", "Link available in chat. ").trim();
+        return withoutUrls;
     }
 
     private boolean shouldUseCartesiaProxy() {
@@ -3929,6 +4222,7 @@ public final class MainActivity extends Activity implements RecognitionListener,
                 saveSpeechDebugPcm(pcm, "latest-cartesia");
                 long receivedBytes = pcm.length;
                 long writtenBytes = writePcmToTrack(track, pcm, sequence);
+                waitForCartesiaPlaybackDrain(track, writtenBytes, sequence);
                 long finalReceivedBytes = receivedBytes;
                 long finalWrittenBytes = writtenBytes;
                 if (isCurrentSpeechSequence(sequence)) {
@@ -4087,6 +4381,33 @@ public final class MainActivity extends Activity implements RecognitionListener,
         return writtenBytes;
     }
 
+    private void waitForCartesiaPlaybackDrain(AudioTrack track, long writtenBytes, long sequence) throws IOException {
+        if (track == null || writtenBytes <= 0 || !isCurrentSpeechSequence(sequence)) {
+            return;
+        }
+        long targetFrames = Math.max(1L, writtenBytes / 2L);
+        long timeoutMs = Math.max(1200L, Math.min(30000L, (targetFrames * 1000L / 44100L) + 1500L));
+        long started = SystemClock.elapsedRealtime();
+        long lastPlayedFrames = Integer.toUnsignedLong(track.getPlaybackHeadPosition());
+        while (isCurrentSpeechSequence(sequence)) {
+            long playedFrames = Integer.toUnsignedLong(track.getPlaybackHeadPosition());
+            lastPlayedFrames = playedFrames;
+            if (playedFrames + 512L >= targetFrames) {
+                LocalLog.info("speech", "cartesia_playback_drain playedFrames=" + playedFrames
+                        + " targetFrames=" + targetFrames
+                        + " waitMs=" + (SystemClock.elapsedRealtime() - started));
+                return;
+            }
+            if (SystemClock.elapsedRealtime() - started > timeoutMs) {
+                throw new IOException("Cartesia audio playback drain timed out: playedFrames="
+                        + playedFrames + " targetFrames=" + targetFrames + " writtenBytes=" + writtenBytes);
+            }
+            SystemClock.sleep(20L);
+        }
+        LocalLog.info("speech", "cartesia_playback_drain_cancelled playedFrames=" + lastPlayedFrames
+                + " targetFrames=" + targetFrames);
+    }
+
     private void saveSpeechDebugPcm(byte[] pcm, String name) {
         if (pcm == null || pcm.length == 0) {
             return;
@@ -4186,6 +4507,7 @@ public final class MainActivity extends Activity implements RecognitionListener,
     private void setStatus(String message) {
         if (message != null && !message.trim().isEmpty()) {
             LocalLog.info("status", shortMessage(message));
+            showLoginShellEvent(shortMessage(message));
         }
         updateBackendStatus();
     }
@@ -4193,6 +4515,7 @@ public final class MainActivity extends Activity implements RecognitionListener,
     private void appendStatus(String message) {
         if (message != null && !message.trim().isEmpty()) {
             LocalLog.info("status", shortMessage(message));
+            showLoginShellEvent(shortMessage(message));
         }
         updateBackendStatus();
     }
@@ -4200,9 +4523,30 @@ public final class MainActivity extends Activity implements RecognitionListener,
     private void setSpeechPlaying(boolean playing) {
         speechPlaying = playing;
         if (stopSpeechButton != null) {
-            stopSpeechButton.setVisibility(playing ? View.VISIBLE : View.GONE);
+            stopSpeechButton.setVisibility(playing && !narrationMuted ? View.VISIBLE : View.GONE);
         }
         updateSpeechMediaSession(playing);
+    }
+
+    private void toggleNarrationMute() {
+        narrationMuted = !narrationMuted;
+        getSharedPreferences(PREFS, MODE_PRIVATE).edit().putBoolean(KEY_NARRATION_MUTED, narrationMuted).apply();
+        LocalLog.info("speech", "narration_mute_toggle muted=" + narrationMuted);
+        if (narrationMuted) {
+            stopSpeechPlayback();
+        } else {
+            updateBackendStatus();
+        }
+        updateNarrationMuteButton();
+    }
+
+    private void updateNarrationMuteButton() {
+        if (narrationMuteButton == null) {
+            return;
+        }
+        narrationMuteButton.setText(narrationMuted ? "Unmute" : "Mute");
+        narrationMuteButton.setContentDescription(narrationMuted ? "Narration muted. Tap to unmute." : "Narration on. Tap to mute.");
+        narrationMuteButton.setBackgroundColor(narrationMuted ? COLOR_DANGER : COLOR_CARD);
     }
 
     private void updateSpeechMediaSession(boolean playing) {
@@ -4263,7 +4607,7 @@ public final class MainActivity extends Activity implements RecognitionListener,
         boolean hasCartesia = BuildConfig.CARTESIA_API_KEY != null && !BuildConfig.CARTESIA_API_KEY.trim().isEmpty()
                 || (BuildConfig.CARTESIA_PROXY_BASE_URL != null && !BuildConfig.CARTESIA_PROXY_BASE_URL.trim().isEmpty());
         String gptState = (hasGateway || hasDirectOpenAi) ? "GPT-5.5" : "GPT offline";
-        String speechState = hasCartesia ? "Cartesia" : "Cartesia off";
+        String speechState = narrationMuted ? "Muted" : (hasCartesia ? "Cartesia" : "Cartesia off");
         String model = effectiveGeminiModel().toLowerCase(Locale.US).contains("flash") ? "Gemini Flash" : effectiveGeminiModel();
         statusView.setText(gptState + " | " + speechState + " | " + model);
     }
@@ -4566,12 +4910,118 @@ public final class MainActivity extends Activity implements RecognitionListener,
         bubbleParams.setMargins(user ? dp(42) : 0, 0, user ? 0 : dp(42), 0);
         bubble.setLayoutParams(bubbleParams);
         row.addView(bubble);
+        if (!user) {
+            appendVisitButtons(row, text);
+        }
 
         chatLogContainer.addView(row);
         chatLogContainer.post(() -> {
             scrollChatToBottom();
             captureVisualEvidenceIfDebugBuild("chat");
         });
+    }
+
+    private void appendVisitButtons(LinearLayout row, String text) {
+        List<String> urls = extractChatUrls(text);
+        if (urls.isEmpty()) {
+            return;
+        }
+        LinearLayout actions = new LinearLayout(this);
+        actions.setOrientation(LinearLayout.VERTICAL);
+        LinearLayout.LayoutParams actionParams = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT);
+        actionParams.setMargins(0, dp(8), dp(42), 0);
+        actions.setLayoutParams(actionParams);
+        for (int i = 0; i < urls.size(); i++) {
+            String url = urls.get(i);
+            Button visit = button(visitButtonLabel(url, urls.size(), i), 16, "Visit link " + urlHostLabel(url));
+            visit.setBackgroundColor(COLOR_ACCENT);
+            visit.setTextColor(COLOR_BACKGROUND);
+            visit.setMinHeight(dp(56));
+            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    dp(56));
+            params.setMargins(0, i == 0 ? 0 : dp(6), 0, 0);
+            actions.addView(visit, params);
+            visit.setOnClickListener(v -> openChatUrl(url));
+        }
+        row.addView(actions);
+    }
+
+    private List<String> extractChatUrls(String text) {
+        List<String> urls = new ArrayList<>();
+        if (text == null || text.trim().isEmpty()) {
+            return urls;
+        }
+        Matcher matcher = CHAT_URL_PATTERN.matcher(text);
+        while (matcher.find()) {
+            String url = trimUrlPunctuation(matcher.group());
+            if (!url.isEmpty() && !urls.contains(url)) {
+                urls.add(url);
+            }
+        }
+        return urls;
+    }
+
+    private String trimUrlPunctuation(String url) {
+        String clean = url == null ? "" : url.trim();
+        while (!clean.isEmpty() && ".,;:)\"'".indexOf(clean.charAt(clean.length() - 1)) >= 0) {
+            clean = clean.substring(0, clean.length() - 1);
+        }
+        return clean;
+    }
+
+    private String visitButtonLabel(String url, int count, int index) {
+        String host = urlHostLabel(url);
+        if (count <= 1) {
+            return "Visit " + host;
+        }
+        return "Visit " + (index + 1) + ": " + host;
+    }
+
+    private String urlHostLabel(String url) {
+        try {
+            String normalized = normalizeChatUrl(url);
+            String host = Uri.parse(normalized).getHost();
+            if (host == null || host.trim().isEmpty()) {
+                return "link";
+            }
+            if (host.startsWith("www.")) {
+                host = host.substring(4);
+            }
+            if (host.equals("docs.google.com")) {
+                return "Google Doc";
+            }
+            return host;
+        } catch (Exception ignored) {
+            return "link";
+        }
+    }
+
+    private String normalizeChatUrl(String url) {
+        String clean = trimUrlPunctuation(url);
+        if (clean.toLowerCase(Locale.US).startsWith("http://") || clean.toLowerCase(Locale.US).startsWith("https://")) {
+            return clean;
+        }
+        return "https://" + clean;
+    }
+
+    private void openChatUrl(String url) {
+        String normalized = normalizeChatUrl(url);
+        if (normalized.trim().isEmpty()) {
+            showAssistantMessage("No link is available.");
+            return;
+        }
+        try {
+            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(normalized));
+            intent.addCategory(Intent.CATEGORY_BROWSABLE);
+            startActivity(intent);
+            appendStatus("Opened link.");
+            LocalLog.info("chat", "visit_link_opened host=" + urlHostLabel(normalized));
+        } catch (Exception ex) {
+            showAssistantMessage("Android could not open that link: " + shortMessage(ex.getMessage()));
+        }
     }
 
     private void wireMessageBubbleInteractions(TextView bubble, String text) {

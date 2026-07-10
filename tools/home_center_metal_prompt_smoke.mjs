@@ -8,17 +8,69 @@ const EVIDENCE_DIR = join(ROOT, 'tools', 'metal_prompt_evidence');
 const GATEWAY_BASE = process.env.HOME_CENTER_GATEWAY_BASE || 'https://us-central1-home-center-dclar.cloudfunctions.net';
 
 function parseArgs(argv) {
-  const args = {scenario: 'docs-create-update-read', runId: new Date().toISOString().replace(/[-:TZ.]/g, '').slice(0, 14)};
+  const args = {scenario: 'docs-create-update-read', requestedScenario: 'docs-create-update-read', runId: new Date().toISOString().replace(/[-:TZ.]/g, '').slice(0, 14)};
   for (let i = 2; i < argv.length; i++) {
     const value = argv[i];
-    if (value === '--scenario') args.scenario = argv[++i] || args.scenario;
+    if (value === '--scenario') {
+      args.scenario = argv[++i] || args.scenario;
+      args.requestedScenario = args.scenario;
+      if (args.scenario === 'lexen-split-docs') args.scenario = 'writing-split-docs';
+    }
     else if (value === '--run-id') args.runId = argv[++i] || args.runId;
     else if (value === '--help') {
-      console.log('Usage: node tools/home_center_metal_prompt_smoke.mjs [--scenario docs-create-update-read|creative-doc-read-finalizes] [--run-id ID]');
+      console.log('Usage: node tools/home_center_metal_prompt_smoke.mjs [--scenario docs-create-update-read|creative-doc-read-finalizes|writing-split-docs|lexen-split-docs|drive-bridge-create-tools] [--run-id ID]');
       process.exit(0);
     }
   }
   return args;
+}
+
+function lexenSplitFixture(runId) {
+  return {
+    sourceTitle: `Lexen Green Commander Procedures and Story Mega Doc ${runId}`,
+    promptLabel: 'the Lexen Green Commander procedures/doctrine notes and story notes',
+    sourceContent: [
+      'Lexen Green Commander mixed notes.',
+      '',
+      'PROCEDURES AND DOCTRINE NOTES',
+      'Procedure: commander checks crew breathing, gun line, driver lane, loader readiness, and retreat path before speaking.',
+      'Doctrine: the green commander does not narrate courage; he turns fear into short tank commands and verified crew actions.',
+      'Procedure: after first contact, call bearing, obstacle, distance, and consequence before ordering movement.',
+      '',
+      'STORY SCENE NOTES',
+      'Lexen is in Normandy inside the Sherman when Tango says the hedgerow has gone too quiet.',
+      'A panzer shape appears through the orchard smoke, and Lexen feels his voice fail before he makes it usable.',
+      'The driver waits for a word that is almost late; the loader palms the shell rim like a prayer.',
+    ].join('\n'),
+    parts: [
+      {
+        role: 'procedures and doctrine',
+        folderName: `Lexen Green Commander Procedures ${runId}`,
+        title: `Lexen Green Commander Procedures ${runId}`,
+        body: [
+          'PROCEDURES AND DOCTRINE NOTES',
+          'Procedure: commander checks crew breathing, gun line, driver lane, loader readiness, and retreat path before speaking.',
+          'Doctrine: the green commander does not narrate courage; he turns fear into short tank commands and verified crew actions.',
+          'Procedure: after first contact, call bearing, obstacle, distance, and consequence before ordering movement.',
+        ].join('\n'),
+        required: ['Procedure:', 'Doctrine:', 'commander checks', 'crew actions'],
+        forbidden: ['panzer shape', 'Tango says', 'loader palms'],
+      },
+      {
+        role: 'story scene',
+        folderName: `Lexen Green Commander Story ${runId}`,
+        title: `Lexen Green Commander Story ${runId}`,
+        body: [
+          'STORY SCENE NOTES',
+          'Lexen is in Normandy inside the Sherman when Tango says the hedgerow has gone too quiet.',
+          'A panzer shape appears through the orchard smoke, and Lexen feels his voice fail before he makes it usable.',
+          'The driver waits for a word that is almost late; the loader palms the shell rim like a prayer.',
+        ].join('\n'),
+        required: ['Tango says', 'panzer shape', 'loader palms', 'Normandy'],
+        forbidden: ['commander checks', 'Procedure:', 'Doctrine:'],
+      },
+    ],
+  };
 }
 
 function firebaseApiKey() {
@@ -80,6 +132,7 @@ async function main() {
   const result = await postJson(`${GATEWAY_BASE}/metalPromptSmoke`, {
     scenario: args.scenario,
     runId: args.runId,
+    splitFixture: args.requestedScenario === 'lexen-split-docs' ? lexenSplitFixture(args.runId) : undefined,
   }, accessToken, 'metalPromptSmoke');
   writeFileSync(evidencePath, JSON.stringify(redact({
     runner: {gatewayBase: GATEWAY_BASE, auth: 'google_access_token_mapped_to_firebase_user'},

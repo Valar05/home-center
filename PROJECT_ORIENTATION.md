@@ -28,8 +28,10 @@ For the slice-one chat UI and Cartesia proxy, add the config to `local.propertie
 - `CARTESIA_PROXY_BASE_URL=http://localhost:8787` if you want a nondefault proxy endpoint
 
 ```sh
-gradle assembleDebug --no-daemon
+sh tools/build_debug_apk.sh
 ```
+
+This script builds, verifies, copies to Downloads, and installs through Shizuku. Use direct Gradle only for compile-only diagnostics.
 
 ## Secrets
 
@@ -38,9 +40,7 @@ Do not commit TickTick tokens, Firebase service account files, keystores, or `ap
 ## Validation
 
 ```sh
-gradle assembleDebug --no-daemon
-apksigner verify --verbose app/build/outputs/apk/debug/app-debug.apk
-aapt dump badging app/build/outputs/apk/debug/app-debug.apk | sed -n '1,20p'
+sh tools/build_debug_apk.sh
 sh tools/check_no_secrets.sh
 ```
 

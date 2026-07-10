@@ -1,0 +1,296 @@
+openapi: 3.1.0
+info:
+  title: Home Center Google Drive Bridge
+  version: 0.1.0
+  description: >-
+    Narrow Google Drive and Docs operations for ChatGPT Actions. Authentication is Google OAuth only:
+    ChatGPT obtains the Google access token and sends it as Authorization: Bearer. The Home Center
+    gateway does not require a separate API key or token-exchange step for these endpoints.
+servers:
+  - url: https://us-central1-home-center-dclar.cloudfunctions.net
+security:
+  - GoogleOAuth: []
+paths:
+  /chatGptDriveSearch:
+    post:
+      operationId: driveSearch
+      summary: Search Google Drive files visible to the signed-in Google account.
+      security:
+        - GoogleOAuth:
+            - https://www.googleapis.com/auth/drive
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              properties:
+                query:
+                  type: string
+                  description: Plain text to search in name and fullText. This is not raw Drive query syntax.
+                mimeTypes:
+                  type: array
+                  items:
+                    type: string
+                  description: Optional MIME type filters.
+                folderId:
+                  type: string
+                  description: Optional parent folder ID.
+                limit:
+                  type: integer
+                  minimum: 1
+                  maximum: 50
+                  default: 20
+      responses:
+        '200':
+          description: Drive search results.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [results]
+                properties:
+                  results:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/DriveFile'
+        '401':
+          $ref: '#/components/responses/AuthError'
+  /chatGptDriveRead:
+    post:
+      operationId: driveRead
+      summary: Read or export a Google Drive file.
+      security:
+        - GoogleOAuth:
+            - https://www.googleapis.com/auth/drive
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [fileId]
+              additionalProperties: false
+              properties:
+                fileId:
+                  type: string
+                exportFormat:
+                  type: string
+                  enum: [text/plain, text/markdown, application/pdf]
+                  default: text/plain
+      responses:
+        '200':
+          description: File text and metadata.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [fileId, name, mimeType, text, metadata]
+                properties:
+                  fileId:
+                    type: string
+                  name:
+                    type: string
+                  mimeType:
+                    type: string
+                  text:
+                    type: string
+                  metadata:
+                    $ref: '#/components/schemas/DriveFile'
+        '401':
+          $ref: '#/components/responses/AuthError'
+  /chatGptDriveCreateFolder:
+    post:
+      operationId: driveCreateFolder
+      summary: Create a Google Drive folder and write an audit record.
+      security:
+        - GoogleOAuth:
+            - https://www.googleapis.com/auth/drive
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name]
+              additionalProperties: false
+              properties:
+                name:
+                  type: string
+                parentFolderId:
+                  type: string
+                requestId:
+                  type: string
+                callerNote:
+                  type: string
+      responses:
+        '200':
+          description: Created folder metadata and audit request ID.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [folderId, name, webViewLink, auditRequestId]
+                properties:
+                  folderId:
+                    type: string
+                  id:
+                    type: string
+                  name:
+                    type: string
+                  webViewLink:
+                    type: string
+                  parentFolderId:
+                    type: string
+                  auditRequestId:
+                    type: string
+                  metadata:
+                    $ref: '#/components/schemas/DriveFile'
+        '401':
+          $ref: '#/components/responses/AuthError'
+  /chatGptDocsCreate:
+    post:
+      operationId: docsCreate
+      summary: Create a Google Doc, optionally place it in a folder, optionally insert initial text, and write an audit record.
+      security:
+        - GoogleOAuth:
+            - https://www.googleapis.com/auth/documents
+            - https://www.googleapis.com/auth/drive
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [title]
+              additionalProperties: false
+              properties:
+                title:
+                  type: string
+                parentFolderId:
+                  type: string
+                initialText:
+                  type: string
+                requestId:
+                  type: string
+                callerNote:
+                  type: string
+      responses:
+        '200':
+          description: Created document metadata and audit request ID.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [documentId, title, webViewLink, auditRequestId]
+                properties:
+                  documentId:
+                    type: string
+                  id:
+                    type: string
+                  title:
+                    type: string
+                  name:
+                    type: string
+                  webViewLink:
+                    type: string
+                  parentFolderId:
+                    type: string
+                  auditRequestId:
+                    type: string
+                  metadata:
+                    $ref: '#/components/schemas/DriveFile'
+        '401':
+          $ref: '#/components/responses/AuthError'
+  /chatGptDocsAppend:
+    post:
+      operationId: docsAppend
+      summary: Append text to an existing Google Doc and write an audit record.
+      security:
+        - GoogleOAuth:
+            - https://www.googleapis.com/auth/documents
+            - https://www.googleapis.com/auth/drive
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [documentId, text]
+              additionalProperties: false
+              properties:
+                documentId:
+                  type: string
+                heading:
+                  type: string
+                text:
+                  type: string
+                callerNote:
+                  type: string
+                  description: Human-readable summary for the audit log.
+                requestId:
+                  type: string
+      responses:
+        '200':
+          description: Append result.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [documentId, revisionSummary, webViewLink]
+                properties:
+                  documentId:
+                    type: string
+                  revisionSummary:
+                    type: string
+                  webViewLink:
+                    type: string
+                  metadata:
+                    $ref: '#/components/schemas/DriveFile'
+        '401':
+          $ref: '#/components/responses/AuthError'
+components:
+  securitySchemes:
+    GoogleOAuth:
+      type: oauth2
+      flows:
+        authorizationCode:
+          authorizationUrl: https://accounts.google.com/o/oauth2/v2/auth
+          tokenUrl: https://oauth2.googleapis.com/token
+          scopes:
+            https://www.googleapis.com/auth/drive: Search, read, create folders, and place Docs in Drive folders.
+            https://www.googleapis.com/auth/documents: Create and append to Google Docs.
+  responses:
+    AuthError:
+      description: Missing or invalid Google OAuth bearer token.
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              ok:
+                type: boolean
+              error:
+                type: string
+              detail:
+                type: string
+  schemas:
+    DriveFile:
+      type: object
+      required: [id, name, mimeType, webViewLink, modifiedTime, parents]
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        mimeType:
+          type: string
+        webViewLink:
+          type: string
+        modifiedTime:
+          type: string
+        parents:
+          type: array
+          items:
+            type: string

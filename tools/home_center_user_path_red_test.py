@@ -1,5 +1,6 @@
 #!/data/data/com.termux/files/usr/bin/python3
 import datetime as dt
+from html import unescape
 import json
 from pathlib import Path
 import re
@@ -19,6 +20,7 @@ LEXEN_PROMPT = (
     "Now it's your turn.  Don't continue the story.  Pick it up at an arbitrary point "
     "that I interest you.  And make a simulated chapter here.  Lexen green commander"
 )
+SCRATCH_DOC_PREFIX = 'Home Center Scratch Sandbox Smoke'
 
 DRIVE_PROMPTS = [
     'Check Google drive',
@@ -113,7 +115,7 @@ def expected_build_version():
 def installed_package_version():
     proc = rish(
         f"dumpsys package {PACKAGE}",
-        timeout=10,
+        timeout=30,
         check=True,
     )
     text = proc.stdout
@@ -142,14 +144,14 @@ def latest_log_text(include_download_logs=True):
     chunks = []
     if RISH:
         today_log = APP_LOG_DIR / f'{dt.datetime.now().strftime("%Y-%m-%d")}.log'
-        proc = rish(f'tail -c 50000 {shlex.quote(str(today_log))}', timeout=10)
+        proc = rish(f'tail -c 150000 {shlex.quote(str(today_log))}', timeout=10)
         if proc.returncode == 0 and proc.stdout:
             chunks.append(proc.stdout)
     if include_download_logs:
         logs = newest_files([(DOWNLOAD_LOG_DIR, '*.txt')])
         for log in logs[:3]:
             chunks.append(log.read_text(errors='replace')[-20000:])
-    return '\n'.join(chunks)[-50000:]
+    return '\n'.join(chunks)[-150000:]
 
 
 def latest_visual_capture(start_time):
@@ -175,21 +177,61 @@ def visible_log_text_since(prompt):
 
 
 def dump_ui_text(stamp):
-    dump_path = f'/sdcard/Download/HomeCenter/visual-red/home_center_ui_{stamp}.xml'
-    proc = rish(f'uiautomator dump {dump_path}', timeout=20)
+    dump_shell_path = f'/sdcard/Download/HomeCenter/visual-red/home_center_ui_{stamp}.xml'
+    dump_read_path = DOWNLOAD_CAPTURE_DIR / f'home_center_ui_{stamp}.xml'
+    rish(f'rm -f {shlex.quote(dump_shell_path)}', timeout=10)
+    proc = rish(f'uiautomator dump {shlex.quote(dump_shell_path)}', timeout=20)
     if proc.returncode != 0:
-        return {'path': dump_path, 'text': '', 'error': proc.stderr.strip() or proc.stdout.strip()}
-    text = Path(dump_path).read_text(errors='replace') if Path(dump_path).exists() else ''
-    matches = re.findall(r'text="([^"]*)"', text)
-    return {'path': dump_path, 'text': '\n'.join(matches), 'error': ''}
+        return {
+            'path': str(dump_read_path),
+            'shellPath': dump_shell_path,
+            'text': '',
+            'xmlSize': 0,
+            'error': proc.stderr.strip() or proc.stdout.strip(),
+        }
+    xml = ''
+    for _ in range(10):
+        if dump_read_path.exists() and dump_read_path.stat().st_size > 0:
+            xml = dump_read_path.read_text(errors='replace')
+            break
+        time.sleep(0.2)
+    if not xml:
+        fallback_shell_path = '/sdcard/window_dump.xml'
+        fallback_read_path = Path('/storage/emulated/0/window_dump.xml')
+        fallback = rish('uiautomator dump', timeout=20)
+        if fallback.returncode == 0:
+            for _ in range(10):
+                if fallback_read_path.exists() and fallback_read_path.stat().st_size > 0:
+                    xml = fallback_read_path.read_text(errors='replace')
+                    dump_shell_path = fallback_shell_path
+                    dump_read_path = fallback_read_path
+                    break
+                time.sleep(0.2)
+    values = []
+    for attr in ['text', 'content-desc']:
+        for match in re.finditer(attr + r'=(["\'])(.*?)\1', xml, flags=re.S):
+            value = unescape(match.group(2)).strip()
+            if value:
+                values.append(value)
+    return {
+        'path': str(dump_read_path),
+        'shellPath': dump_shell_path,
+        'text': '\n'.join(values),
+        'xmlSize': len(xml),
+        'error': '' if xml else 'uiautomator produced no readable XML',
+    }
 
 
-def run_prompt(prompt, wait_seconds=90):
-    rish(f'am force-stop {PACKAGE}', timeout=10)
-    time.sleep(0.5)
-    today_log = APP_LOG_DIR / f'{dt.datetime.now().strftime("%Y-%m-%d")}.log'
-    rish(f': > {shlex.quote(str(today_log))}', timeout=10)
-    rish(f'am start -n {ACTIVITY} --es home_center_smoke_prompt {shlex.quote(prompt)}', timeout=20, check=True)
+def run_prompt(prompt, wait_seconds=90, new_conversation=False, force_stop=True):
+    if force_stop:
+        rish(f'am force-stop {PACKAGE}', timeout=10)
+        time.sleep(0.5)
+        today_log = APP_LOG_DIR / f'{dt.datetime.now().strftime("%Y-%m-%d")}.log'
+        rish(f': > {shlex.quote(str(today_log))}', timeout=10)
+    extra = ' --ez home_center_smoke_mute_speech true'
+    if new_conversation:
+        extra += ' --ez home_center_smoke_new_conversation true'
+    rish(f'am start -n {ACTIVITY} --es home_center_smoke_prompt {shlex.quote(prompt)}{extra}', timeout=20, check=True)
     time.sleep(3)
     deadline = time.time() + wait_seconds
     segment = ''
@@ -199,6 +241,9 @@ def run_prompt(prompt, wait_seconds=90):
         normalized = normalize_text(segment)
         if (
             'tool_loop_final_response' in segment
+            or 'gateway_type=final status=confirmation_required' in segment
+            or 'google_doc_created' in segment
+            or 'google_doc_updated' in segment
             or 'assistant:' in segment and any(bad in normalized for bad in LEXEN_BAD_STRINGS)
             or any(expected in normalized for expected in EXPECTED_DRIVE_OPTIONS)
         ):
@@ -317,6 +362,90 @@ def run_lexen_installed_path(stamp):
     }
 
 
+def smoke_audio_assertions(combined):
+    return {
+        'smokeSpeechMuted': 'smoke_mute_skip' in combined and 'speech_cleanup reason=smoke_muted' in combined,
+        'smokeNoAudioFocus': 'audio_focus_request' not in combined and 'audio_focus_abandoned' not in combined,
+        'smokeNoCartesiaPlayback': 'cartesia_pcm_write' not in combined and 'cartesia_playback_drain' not in combined and 'cartesia_debug_pcm' not in combined,
+        'smokeNoDeviceTts': 'device_tts_fallback' not in combined and 'device_tts_start' not in combined and 'device_tts_complete' not in combined,
+        'smokeNoMediaControlPath': 'media_key_handoff_disabled' not in combined,
+    }
+
+
+def run_issue46_installed_path(stamp):
+    prompt_start = time.time()
+    scratch_title = f'{SCRATCH_DOC_PREFIX} {stamp}'
+    create_prompt = f'Create a Google Doc named {scratch_title} with this body: Scratch sandbox seed {stamp}.'
+    create_segment = run_prompt(create_prompt, wait_seconds=180, force_stop=True)
+    create_confirm_segment = run_prompt('confirm create', wait_seconds=180, force_stop=False)
+    existing_append_text = f'existing conversation scratch update {stamp}'
+    existing_prompt = f'Append this exact smoke note to the Google Doc named {scratch_title}: {existing_append_text}.'
+    existing_segment = run_prompt(existing_prompt, wait_seconds=180, force_stop=False)
+    existing_confirm_segment = run_prompt('confirm edit', wait_seconds=180, force_stop=False)
+    new_append_text = f'new conversation scratch update {stamp}'
+    new_prompt = (
+        f'In a new conversation, find the Google Doc named {scratch_title}, read it, '
+        f'then append this exact smoke note at the very end: {new_append_text}. '
+        'Ask me to confirm the edit before changing the document.'
+    )
+    new_segment = run_prompt(new_prompt, wait_seconds=180, new_conversation=True, force_stop=False)
+    new_confirm_segment = run_prompt('confirm edit', wait_seconds=180, force_stop=False)
+    full_log = latest_log_text(include_download_logs=False)
+    ui = dump_ui_text(stamp)
+    ui_text = ui.get('text', '')
+    segment = '\n'.join([
+        create_segment,
+        create_confirm_segment,
+        existing_segment,
+        existing_confirm_segment,
+        new_segment,
+        new_confirm_segment,
+    ])
+    combined = full_log + '\n' + segment + '\n' + ui_text
+    normalized = normalize_text(combined).lower()
+    ui_normalized = normalize_text(ui_text).lower()
+    reply = assistant_reply_from_segment(segment)
+    audio_assertions = smoke_audio_assertions(combined)
+    assertions = {
+        'issue46ScratchDocPromptVisible': scratch_title in combined,
+        'issue46ScratchDocCreated': 'android_received_tool=docs.create' in combined and 'google_doc_created' in combined,
+        'issue46ScratchExistingEditConfirmed': existing_append_text in combined and combined.count('google_doc_updated') >= 1,
+        'issue46ScratchNewEditConfirmed': new_append_text in combined and combined.count('google_doc_updated') >= 2,
+        'issue46NewConversationUsed': 'newConversation=true' in combined or 'New conversation started.' in combined,
+        'issue46DocsSearchOrReadSeen': 'android_received_tool=docs.search' in combined or 'android_received_tool=docs.read' in combined,
+        'issue46DocsReadSeen': 'android_received_tool=docs.read' in combined or 'android_dispatch_result tool=docs.read ok=true' in combined,
+        'issue46ConfirmationRequired': combined.count('gateway_type=final status=confirmation_required') >= 3 or 'press confirm' in normalized,
+        'issue46PendingEditCopy': 'say \"confirm edit\" or press confirm' in normalized and scratch_title.lower() in normalized,
+        'issue46UiDumpReadable': ui.get('xmlSize', 0) > 0 and not ui.get('error'),
+        'issue46UiShowsScratchResult': scratch_title.lower() in ui_normalized or new_append_text in normalized,
+        **audio_assertions,
+        'issue46NoFalseUnavailable': not any(bad in normalized for bad in [
+            'document editing tools are not available',
+            'editing tools are not available',
+            'docs.update is not exposed',
+            'tool_not_exposed',
+            'could not complete the document update',
+        ]),
+        'issue46NoGatewayFailure': not any(bad in normalized for bad in [
+            'gateway connection closed',
+            'unexpected end of stream',
+            'valid gpt-5.5 response',
+            'tool_loop_failed',
+            'software caused connection abort',
+        ]),
+    }
+    return {
+        'prompt': new_prompt,
+        'scratchTitle': scratch_title,
+        'startedAtEpoch': prompt_start,
+        'assertions': assertions,
+        'failures': [name for name, ok in assertions.items() if not ok],
+        'assistantReply': reply,
+        'logTextSample': combined[-9000:],
+        'uiDump': ui,
+    }
+
+
 def main():
     for command in ['am', 'uiautomator']:
         require_command(command)
@@ -334,6 +463,7 @@ def main():
     capture_start = time.time()
     drive_result = None
     lexen_result = None
+    issue46_result = None
 
     version_assertions = {
         'installedVersionNameMatches': installed_version['versionName'] == expected_version_name,
@@ -347,6 +477,9 @@ def main():
     if scenario in ('all', 'lexen'):
         lexen_result = run_lexen_installed_path(stamp)
         failures.extend(f'lexen: {failure}' for failure in lexen_result['failures'])
+    if scenario in ('all', 'issue46'):
+        issue46_result = run_issue46_installed_path(stamp)
+        failures.extend(f'issue46: {failure}' for failure in issue46_result['failures'])
 
     evidence = {
         'ok': not failures,
@@ -359,6 +492,7 @@ def main():
         'versionAssertions': version_assertions,
         'driveResult': drive_result,
         'lexenResult': lexen_result,
+        'issue46Result': issue46_result,
         'failures': failures,
     }
     evidence_path.write_text(json.dumps(evidence, indent=2))

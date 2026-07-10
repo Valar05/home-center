@@ -107,6 +107,15 @@ Bad writing support:
 - turn every writing task into a manifesto
 - claim a document was made without provider proof
 - lose the user's current draft behind chat history
+- shove unrelated story notes, doctrine, scratch ideas, scene fragments, and planning material into one mega-document because it is the easiest write target
+
+### Document Organization
+
+Writing support must preserve artifact boundaries.
+
+If a project has a story, notes, doctrine, scratch material, outlines, and logs, Home Center should treat them as related but separate artifacts with names, folders, and roles. A catch-all document is acceptable only as a temporary inbox when the user explicitly asks for one or when no better target is known.
+
+Before appending material to a broad note file, Home Center should ask whether the material belongs in an existing named document, a new document, or a split-out section. When the user identifies a misfiled mega-document, Home Center should support safe rename, move, split, and extraction workflows with confirmation and provider proof.
 
 ### Life Simulation And Skills
 

@@ -78,6 +78,13 @@ function issueCases() {
   const issue41Prompt = 'Now it\'s your turn. Don\'t continue the story. Pick it up at an arbitrary point that interests you. And make a simulated chapter here';
   const issue42Prompt = 'Now it\'s your turn.  Don\'t continue the story.  Pick it up at an arbitrary point that I interest you.  And make a simulated chapter here.  Lexen green commander';
   const issue43CritiquePrompt = 'What would get you closer';
+  const issue46Prompt = 'fix yourself and do it';
+  const issue46Transcript = [
+    'Assistant: Document editing tools are not available right now to update Story Bible with the Days 1-6 timeline, fuller character arcs, location details, and associated Holocron structure.',
+    'User: why not',
+    'Assistant: Because I made a bad reference-resolution choice. Working memory already had Story Bible as the current document, and the recent context said it had been moved into Holocron.',
+    `User: ${issue46Prompt}`,
+  ].join('\n');
   const issue44Transcript = [
     'Assistant: I can create that GitHub issue. Press Confirm or say "confirm create issue".',
     'User: confirm confirm',
@@ -257,6 +264,113 @@ function issueCases() {
         status: 'tool_call_requested',
         toolName: 'docs.read',
         forbidden: ['github.create_issue', 'confirmation_required', 'I can create that GitHub issue'],
+      },
+    },
+    {
+      name: 'external_issue46_docs_read_then_update_not_unavailable',
+      body: {
+        message: issue46Prompt,
+        transcript: issue46Transcript,
+        toolResults: [{
+          name: 'docs.read',
+          arguments: {fileId: 'story-bible-doc', name: 'Story Bible'},
+          result: {
+            ok: true,
+            status: 'doc_read',
+            title: 'Story Bible',
+            content: [
+              'Story Bible.',
+              'Days 1-6 timeline exists but needs fuller character arcs, location details, and associated Holocron structure.',
+              'The review should be appended at the end without deleting existing material.',
+            ].join('\n'),
+            file: {id: 'story-bible-doc', name: 'Story Bible'},
+          },
+        }],
+        workingMemory: {
+          activeTask: {
+            status: 'in_progress',
+            objective: 'Update Story Bible with the Days 1-6 timeline, fuller character arcs, location details, and associated Holocron structure.',
+            originalUserRequest: 'update the document to include your review at the very end and do not delete',
+            expectedNextAction: 'Use remembered Story Bible and request docs.update confirmation.',
+          },
+          lastDocument: {fileId: 'story-bible-doc', name: 'Story Bible', folderName: 'Holocron'},
+        },
+      },
+      expected: {
+        type: 'final',
+        status: 'confirmation_required',
+        pendingTool: 'docs.update',
+        requiredTerms: ['Holocron'],
+        forbidden: ['Document editing tools are not available', 'editing tools are not available', 'docs.update is not exposed', 'tool_not_exposed', 'false_docs_unavailable_rejected'],
+      },
+    },
+    {
+      name: 'external_folder_name_from_request_in_docs_update_confirmation',
+      body: {
+        message: 'In a new conversation, find the Lexen Green Commander Google Doc in the Writing folder, read it, then append this exact smoke note at the very end: folder confirmation smoke.',
+        toolResults: [{
+          name: 'docs.read',
+          arguments: {fileId: 'lexen-green-doc', name: 'Lexen Green Commander Bible'},
+          result: {
+            ok: true,
+            status: 'doc_read',
+            title: 'Lexen Green Commander Bible',
+            content: 'Lexen Green Commander Bible.',
+            file: {id: 'lexen-green-doc', name: 'Lexen Green Commander Bible'},
+          },
+        }],
+        workingMemory: {
+          activeTask: {
+            status: 'in_progress',
+            objective: 'Append the exact smoke note to the Lexen Green Commander Google Doc.',
+            originalUserRequest: 'In a new conversation, find the Lexen Green Commander Google Doc in the Writing folder, read it, then append this exact smoke note at the very end: folder confirmation smoke.',
+            expectedNextAction: 'Request docs.update confirmation with the Writing folder named.',
+          },
+          lastDocument: {fileId: 'lexen-green-doc', name: 'Lexen Green Commander Bible'},
+        },
+      },
+      expected: {
+        type: 'final',
+        status: 'confirmation_required',
+        pendingTool: 'docs.update',
+        requiredTerms: ['Writing', 'Append text to this document'],
+        forbidden: ['Document editing tools are not available', 'editing tools are not available', 'tool_not_exposed', 'Append text to document "Lexen Green Commander Bible" in folder "Writing"'],
+      },
+    },
+    {
+      name: 'external_vague_retry_does_not_claim_tools_unavailable',
+      body: {
+        message: 'Try again',
+        transcript: [
+          'User: Done: Lexen Green Commander Bible',
+          'Assistant: I can’t try the Google Doc edit again because the Docs tools are not available in this session.',
+          'User: Log in github',
+          'Assistant: I do not have GitHub login or account tools available in this session.',
+          'User: Try again',
+        ].join('\n'),
+        workingMemory: {},
+      },
+      expected: {
+        type: 'final',
+        forbidden: ['Docs tools are not available', 'document editing tools are not available', 'app tools exposed', 'any app tools exposed', 'tools are not available', 'including GitHub tools', 'availableToolNames":[]', 'availableToolsJson":"[]"', 'no GitHub tools available'],
+      },
+    },
+    {
+      name: 'external_github_login_names_issue_tool_boundary',
+      body: {
+        message: 'Log in github',
+        transcript: [
+          'User: nee issue',
+          'Assistant: I can create that GitHub issue. Press Confirm or say "confirm create issue".',
+          'User: Log in github',
+        ].join('\n'),
+        workingMemory: {},
+      },
+      expected: {
+        type: 'final',
+        status: 'github_login_tool_boundary',
+        requiredTerms: ['GitHub', 'issues'],
+        forbidden: ['no GitHub tools available', 'any app tools exposed', 'tools are not available', 'enable GitHub', 'reconnect GitHub'],
       },
     },
     {

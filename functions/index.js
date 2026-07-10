@@ -3,6 +3,9 @@ const {defineSecret} = require('firebase-functions/params');
 const admin = require('firebase-admin');
 const {google} = require('googleapis');
 const crypto = require('crypto');
+const fs = require('fs');
+const path = require('path');
+const {createHomeCenterMcpApp, createDriveFolderOperation, createGoogleDocOperation} = require('./home_center_mcp');
 
 admin.initializeApp();
 
@@ -23,7 +26,7 @@ const usagePricingCache = new Map();
 const CORS_HEADERS = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'Authorization, Content-Type',
-  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+  'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
 };
 
 function sendJson(res, status, body) {
@@ -36,6 +39,10 @@ function handleOptions(req, res) {
     return true;
   }
   return false;
+}
+
+function chatGptOpenApiYaml() {
+  return fs.readFileSync(path.join(__dirname, 'openapi.chatgpt.yaml'), 'utf8');
 }
 
 async function requireUser(req) {
@@ -89,6 +96,116 @@ async function requireSmokeUser(req) {
       return {uid: '', email};
     }
   }
+}
+
+function bearerTokenFrom(req) {
+  const header = req.get('Authorization') || '';
+  const match = header.match(/^Bearer\s+(.+)$/i);
+  if (!match) {
+    const err = new Error('Missing Google OAuth bearer token.');
+    err.status = 401;
+    throw err;
+  }
+  return match[1];
+}
+
+async function requireGoogleOAuthAction(req) {
+  const accessToken = bearerTokenFrom(req);
+  const response = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+    headers: {Authorization: `Bearer ${accessToken}`},
+  });
+  const text = await response.text();
+  let profile = {};
+  try {
+    profile = text ? JSON.parse(text) : {};
+  } catch (_) {
+    profile = {};
+  }
+  if (!response.ok) {
+    const err = new Error(`Google OAuth token verification failed: HTTP ${response.status} ${text.slice(0, 300)}`);
+    err.status = 401;
+    throw err;
+  }
+  const email = safeText(profile.email, 320).toLowerCase();
+  if (!email || profile.email_verified === false) {
+    const err = new Error('Google OAuth token did not include a verified email.');
+    err.status = 401;
+    throw err;
+  }
+  let uid = '';
+  try {
+    const user = await admin.auth().getUserByEmail(email);
+    uid = user.uid;
+  } catch (_) {
+    uid = '';
+  }
+  return {uid, email, accessToken, authKind: 'google_oauth_bearer'};
+}
+
+function googleDirectAuth(accessToken) {
+  const auth = new google.auth.OAuth2();
+  auth.setCredentials({access_token: accessToken});
+  return auth;
+}
+
+function driveQueryLiteral(value, max = 300) {
+  return safeText(value, max).replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+}
+
+function safeDriveFileId(value) {
+  const fileId = safeText(value, 220);
+  if (!/^[A-Za-z0-9_.-]{8,220}$/.test(fileId)) {
+    const err = new Error('A valid Google Drive fileId is required.');
+    err.status = 400;
+    throw err;
+  }
+  return fileId;
+}
+
+function chatGptDriveSearchQuery(body = {}) {
+  const clauses = ['trashed=false'];
+  const query = driveQueryLiteral(body.query || '', 300);
+  if (query) {
+    clauses.push(`(name contains '${query}' or fullText contains '${query}')`);
+  }
+  const folderId = safeText(body.folderId, 220);
+  if (folderId) {
+    clauses.push(`'${driveQueryLiteral(folderId, 220)}' in parents`);
+  }
+  const mimeTypes = Array.isArray(body.mimeTypes) ? body.mimeTypes : [];
+  const cleanMimeTypes = mimeTypes.map((mime) => safeText(mime, 160)).filter((mime) => /^[a-z0-9.+-]+\/[a-z0-9.+-]+$/i.test(mime));
+  if (cleanMimeTypes.length) {
+    clauses.push(`(${cleanMimeTypes.map((mime) => `mimeType='${driveQueryLiteral(mime, 160)}'`).join(' or ')})`);
+  }
+  return clauses.join(' and ');
+}
+
+function chatGptLimit(value, fallback = 20, max = 50) {
+  const limit = Math.floor(safeNumber(value, fallback));
+  return Math.max(1, Math.min(max, limit || fallback));
+}
+
+function chatGptDriveFile(file = {}) {
+  return {
+    id: file.id || '',
+    name: file.name || '',
+    mimeType: file.mimeType || '',
+    webViewLink: file.webViewLink || '',
+    modifiedTime: file.modifiedTime || '',
+    parents: file.parents || [],
+  };
+}
+
+async function recordActionAudit(user, operation, targetId, summary, requestId) {
+  await admin.firestore().collection('actionAudit').add({
+    timestamp: admin.firestore.FieldValue.serverTimestamp(),
+    caller: safeText(user.email || user.uid || 'unknown', 320),
+    operation: safeText(operation, 120),
+    targetFileOrFolderId: safeText(targetId, 220),
+    summary: safeText(summary, 800),
+    requestId: safeText(requestId, 160) || crypto.randomUUID(),
+    authKind: safeText(user.authKind, 80) || 'unknown',
+  });
 }
 
 function safeText(value, max = 12000) {
@@ -390,14 +507,72 @@ function shouldEnableWebSearch(message, body = {}) {
   return /\b(web|search the web|internet|online|latest|current|today|news|public github|github\.com|raw\.githubusercontent\.com|repo|repository|readme|documentation|docs site|website|url|http:\/\/|https:\/\/)\b/.test(text);
 }
 
-function economyToolPalette(message, tools, workingMemory = {}, toolResults = []) {
+function gatewayNormalizedTools(tools) {
+  if (!Array.isArray(tools)) return [];
+  const ensureArgs = (tool, required) => {
+    const copy = Object.assign({}, tool || {});
+    const args = Array.isArray(copy.arguments) ? copy.arguments.slice() : [];
+    for (const name of required) {
+      if (!args.includes(name)) args.push(name);
+    }
+    copy.arguments = args;
+    return copy;
+  };
+  return tools.map((tool) => {
+    if (!tool || typeof tool !== 'object') return tool;
+    if (tool.name === 'docs.update') return ensureArgs(tool, ['fileId', 'name', 'folderName', 'appendText', 'replaceText', 'body']);
+    if (tool.name === 'docs.create') return ensureArgs(tool, ['title', 'body', 'folderId', 'folderName']);
+    if (tool.name === 'sheets.update') return ensureArgs(tool, ['spreadsheetId', 'title', 'name', 'folderName', 'range', 'values']);
+    if (tool.name === 'drive.update_metadata') return ensureArgs(tool, ['fileId', 'name', 'folderName', 'addParentId', 'addParentName', 'removeParentId']);
+    return tool;
+  });
+}
+
+function confirmationLogArgs(args = {}) {
+  return {
+    name: safeText(args.name || args.title || args.fileName || args.documentName || args.spreadsheetName, 160),
+    folderName: safeText(args.folderName || args.parentName || args.addParentName, 160),
+    hasFileId: !!safeText(args.fileId || args.documentId || args.spreadsheetId, 80),
+  };
+}
+
+function activeTaskContextText(workingMemory = {}) {
+  const task = workingMemory && typeof workingMemory === 'object' ? workingMemory.activeTask : null;
+  if (!task || typeof task !== 'object') return '';
+  return [
+    task.status,
+    task.objective,
+    task.originalUserRequest,
+    task.expectedNextAction,
+    task.knownContext,
+    task.blockingReason,
+  ].map((value) => safeText(value, 1200)).filter(Boolean).join(' ');
+}
+
+function isVagueRetryRequest(text) {
+  return /^(try again|retry|again|do it again|continue|keep going|fix it|do it)$/i.test(safeText(text, 200).trim());
+}
+
+function hasRecentFalseToolUnavailableContext(message, body = {}, workingMemory = {}) {
+  if (!isVagueRetryRequest(message)) return false;
+  const context = [
+    safeText(body && body.transcript, 6000),
+    safeText(body && body.summary, 2000),
+    activeTaskContextText(workingMemory),
+  ].join(' ').toLowerCase();
+  return /\b(tools?|capabilit(?:y|ies)|docs?|documents?|github|drive|gmail|calendar|sheets?)\b/.test(context)
+    && /\b(unavailable|not available|not exposed|no .*tools?|missing|could not use|can't use|cannot use|unable to use)\b/.test(context);
+}
+
+function economyToolPalette(message, tools, workingMemory = {}, toolResults = [], body = {}) {
   if (!Array.isArray(tools) || tools.length === 0) return [];
   const text = safeText(message, 4000).toLowerCase();
+  if (hasRecentFalseToolUnavailableContext(message, body, workingMemory)) return tools;
   const groups = new Set();
   const add = (group) => groups.add(group);
   const has = (pattern) => pattern.test(text);
 
-  if (has(/\b(report|file an issue|create (?:a )?github issue|make (?:a )?(?:github )?issue|open (?:a )?(?:github )?issue|github issue|new ticket|make a new ticket|create (?:a )?ticket|save this bug|feedback|send this to github|this is broken|that was wrong|bug)\b/)) add('github');
+  if (has(/\b(report|file an issue|create (?:a )?github issue|make (?:a )?(?:github )?issue|open (?:a )?(?:github )?issue|github issue|github|log in github|login github|new ticket|make a new ticket|create (?:a )?ticket|save this bug|feedback|send this to github|this is broken|that was wrong|bug)\b/)) add('github');
   if (has(/\b(reading log|book log|audiobook log|finished reading|finished listening|book review|audiobook review|review log|rating|score|grade)\b/)
       || (has(/\b(update|append|add|save|log|record|note)\b/) && has(/\b(book|audiobook|novel|reading|read|recommended|recommendation|review|rating|score|grade|d minus|d-|ff)\b/))) {
     add('drive');
@@ -467,6 +642,25 @@ function shouldIncludeEvidenceContext(message, body = {}, pending = null, toolRe
 
 function isFeedbackReportRequest(message) {
   return /\b(report this|report a bug|file an issue|create (?:a )?github issue|make (?:a )?(?:github )?issue|open (?:a )?(?:github )?issue|github issue|new ticket|make a new ticket|create (?:a )?ticket|save this bug|feedback|send this to github|this is broken|that was wrong)\b/i.test(safeText(message, 4000));
+}
+
+function isGithubLoginRequest(message) {
+  return /\b(log ?in|login|sign ?in|signin|connect|authenticate|auth)\b.*\bgithub\b|\bgithub\b.*\b(log ?in|login|sign ?in|signin|connect|authenticate|auth)\b/i.test(safeText(message, 4000));
+}
+
+function githubLoginBoundaryFinal(body, tools) {
+  if (!isGithubLoginRequest(body && body.message)) return null;
+  if (!toolByName(tools, 'github.create_issue')) return null;
+  const hasGithubAuthTool = tools.some((tool) => tool && /^github\.(login|auth|connect|account|oauth)/i.test(safeText(tool.name, 120)));
+  if (hasGithubAuthTool) return null;
+  const reply = 'I can create GitHub issues in this session, but Home Center does not expose a GitHub login or account-connection tool here. Tell me the issue to file, or connect GitHub outside this chat if you need account login.';
+  return {
+    type: 'final',
+    reply,
+    narration: reply,
+    status: 'github_login_tool_boundary',
+    taskStateUpdate: {status: 'complete', objective: 'Explain GitHub login boundary while preserving available issue filing'},
+  };
 }
 
 function unavailableGroupForTool(toolName, unavailableToolGroups) {
@@ -912,6 +1106,81 @@ function quoteForConfirmation(value) {
   return String(value || '').trim().replace(/[\r\n]+/g, ' ').replace(/\s+/g, ' ');
 }
 
+function looksLikeUrl(value) {
+  return /^https?:\/\//i.test(String(value || '').trim()) || /^www\./i.test(String(value || '').trim());
+}
+
+function looksLikeOpaqueId(value) {
+  const clean = String(value || '').trim();
+  if (!clean) return false;
+  if (looksLikeUrl(clean)) return true;
+  if (/^[A-Za-z0-9_-]{24,}$/.test(clean) && !/\s/.test(clean)) return true;
+  return false;
+}
+
+function confirmationDisplayValue(...values) {
+  for (const value of values) {
+    const clean = quoteForConfirmation(value);
+    if (clean && !looksLikeOpaqueId(clean)) return clean;
+  }
+  return '';
+}
+
+function folderPhrase(args = {}) {
+  const folder = confirmationDisplayValue(args.folderName, args.parentName, args.addParentName);
+  return folder ? ` in folder \"${folder}\"` : '';
+}
+
+function documentLabel(args = {}, fallback = 'selected document') {
+  const name = confirmationDisplayValue(args.name, args.title, args.fileName, args.documentName);
+  return name ? `document \"${name}\"${folderPhrase(args)}` : fallback;
+}
+
+function driveItemLabel(args = {}, fallback = 'selected Drive item') {
+  const name = confirmationDisplayValue(args.name, args.title, args.fileName, args.folderName);
+  return name ? `Drive item \"${name}\"${folderPhrase(args)}` : fallback;
+}
+
+function sheetLabel(args = {}, fallback = 'selected sheet') {
+  const name = confirmationDisplayValue(args.name, args.title, args.fileName, args.spreadsheetName);
+  return name ? `sheet \"${name}\"${folderPhrase(args)}` : fallback;
+}
+
+function confirmationActionLabel(action) {
+  if (action === 'edit') return 'edit';
+  if (action === 'create') return 'create';
+  if (action === 'delete') return 'delete';
+  if (action === 'send') return 'send';
+  if (action === 'respond') return 'respond';
+  return 'confirm';
+}
+
+function confirmationSpokenTarget(toolName, args = {}) {
+  const a = args || {};
+  if (toolName === 'drive.create_folder') return `Drive folder \"${confirmationDisplayValue(a.name) || 'Untitled folder'}\"`;
+  if (toolName === 'drive.update_metadata') return driveItemLabel(a);
+  if (toolName === 'drive.upload_file') {
+    const target = confirmationDisplayValue(a.name, a.displayName, a.fileName);
+    return target ? `file \"${target}\"${folderPhrase(a)}` : `attached file${folderPhrase(a)}`;
+  }
+  if (toolName === 'drive.delete') return driveItemLabel(a);
+  if (toolName === 'docs.create') return documentLabel({name: a.title || a.name, folderName: a.folderName}, 'new Google Doc');
+  if (toolName === 'docs.update') return documentLabel(a);
+  if (toolName === 'docs.delete') return documentLabel(a);
+  if (toolName === 'sheets.create') return sheetLabel({name: a.title || a.name, folderName: a.folderName}, 'new Google Sheet');
+  if (toolName === 'sheets.update') return sheetLabel(a);
+  if (toolName === 'sheets.delete') return sheetLabel(a);
+  if (toolName === 'calendar.create_event' || toolName === 'calendar.update_event' || toolName === 'calendar.respond_event' || toolName === 'calendar.delete_event') {
+    const title = confirmationDisplayValue(a.title, a.name, a.summary);
+    return title ? `calendar event \"${title}\"` : 'selected calendar event';
+  }
+  if (toolName === 'gmail.send_email') return confirmationDisplayValue(a.subject) ? `email about \"${confirmationDisplayValue(a.subject)}\"` : 'email';
+  if (toolName === 'gmail.send_draft') return confirmationDisplayValue(a.subject) ? `draft \"${confirmationDisplayValue(a.subject)}\"` : 'selected draft';
+  if (toolName === 'gmail.trash') return confirmationDisplayValue(a.subject) ? `Gmail message \"${confirmationDisplayValue(a.subject)}\"` : 'selected Gmail message';
+  if (toolName === 'lists.remove_item') return confirmationDisplayValue(a.itemText) ? `list item \"${confirmationDisplayValue(a.itemText)}\"` : 'selected list item';
+  return '';
+}
+
 function confirmationAction(toolName, args = {}) {
   if (toolName === 'drive.delete' || toolName === 'docs.delete' || toolName === 'sheets.delete' || toolName === 'gmail.trash' || toolName === 'calendar.delete_event' || toolName === 'lists.remove_item') return 'delete';
   if (toolName === 'drive.create_folder' || toolName === 'drive.upload_file' || toolName === 'docs.create' || toolName === 'sheets.create' || toolName === 'lists.create' || toolName === 'lists.add_item') return 'create';
@@ -923,16 +1192,16 @@ function confirmationAction(toolName, args = {}) {
   return 'confirm';
 }
 
-function confirmationTitle(toolName) {
+function confirmationTitle(toolName, args = {}) {
   if (toolName === 'drive.create_folder') return 'Create Drive Folder';
-  if (toolName === 'drive.update_metadata') return 'Edit Drive Item';
+  if (toolName === 'drive.update_metadata') return `Edit ${confirmationSpokenTarget(toolName, args)}`;
   if (toolName === 'drive.upload_file') return 'Upload File To Drive';
   if (toolName === 'drive.delete') return 'Delete Drive Item';
-  if (toolName === 'docs.create') return 'Create Google Doc';
-  if (toolName === 'docs.update') return 'Edit Google Doc';
+  if (toolName === 'docs.create') return `Create ${confirmationSpokenTarget(toolName, args)}`;
+  if (toolName === 'docs.update') return `Edit ${confirmationSpokenTarget(toolName, args)}`;
   if (toolName === 'docs.delete') return 'Delete Google Doc';
-  if (toolName === 'sheets.create') return 'Create Google Sheet';
-  if (toolName === 'sheets.update') return 'Edit Google Sheet';
+  if (toolName === 'sheets.create') return `Create ${confirmationSpokenTarget(toolName, args)}`;
+  if (toolName === 'sheets.update') return `Edit ${confirmationSpokenTarget(toolName, args)}`;
   if (toolName === 'sheets.delete') return 'Delete Google Sheet';
   if (toolName === 'github.create_issue') return 'Create GitHub Issue';
   if (toolName === 'gmail.send_email') return 'Send Email';
@@ -949,40 +1218,40 @@ function confirmationTitle(toolName) {
 function confirmationSummary(toolName, args = {}) {
   const a = args || {};
   if (toolName === 'drive.create_folder') {
-    return `Create Drive folder "${quoteForConfirmation(a.name || 'Untitled folder')}".`;
+    return `Create ${confirmationSpokenTarget(toolName, a)}.`;
   }
   if (toolName === 'drive.update_metadata') {
-    return `Edit Drive item ${quoteForConfirmation(a.name || a.fileId || 'selected file')}.`;
+    return `Edit ${confirmationSpokenTarget(toolName, a)}.`;
   }
   if (toolName === 'drive.upload_file') {
-    return `Upload "${quoteForConfirmation(a.name || a.displayName || a.sessionFileId || 'attached file')}" to Google Drive.`;
+    return `Upload ${confirmationSpokenTarget(toolName, a)} to Google Drive.`;
   }
   if (toolName === 'drive.delete') {
-    return `Move Drive item "${quoteForConfirmation(a.name || a.fileId || 'selected file')}" to trash. This requires two confirmations.`;
+    return `Move ${confirmationSpokenTarget(toolName, a)} to trash. This requires two confirmations.`;
   }
   if (toolName === 'docs.create') {
-    const title = quoteForConfirmation(a.title || 'Untitled Google Doc');
+    const target = confirmationSpokenTarget(toolName, a);
     const body = quoteForConfirmation(a.body || '');
-    return body ? `Create "${title}" with the provided body.` : `Create "${title}".`;
+    return body ? `Create ${target} with the provided body.` : `Create ${target}.`;
   }
   if (toolName === 'docs.update') {
-    const target = quoteForConfirmation(a.name || a.title || 'selected document');
-    if (a.appendText) return `Append text to "${target}".`;
-    if (a.replaceText) return `Replace matching text in "${target}".`;
-    if (a.body) return `Replace the body of "${target}".`;
-    return `Edit "${target}".`;
+    if (a.appendText) return 'Append text to this document.';
+    if (a.replaceText) return 'Replace matching text in this document.';
+    if (a.body) return 'Replace the body of this document.';
+    return 'Edit this document.';
   }
   if (toolName === 'docs.delete') {
-    return `Move Google Doc "${quoteForConfirmation(a.name || a.title || 'selected document')}" to trash. This requires two confirmations.`;
+    return `Move ${confirmationSpokenTarget(toolName, a)} to trash. This requires two confirmations.`;
   }
   if (toolName === 'sheets.create') {
-    return `Create Google Sheet "${quoteForConfirmation(a.title || 'Untitled sheet')}".`;
+    return `Create ${confirmationSpokenTarget(toolName, a)}.`;
   }
   if (toolName === 'sheets.update') {
-    return `Update Google Sheet range ${quoteForConfirmation(a.range || 'selected range')}.`;
+    const range = confirmationDisplayValue(a.range) || 'selected range';
+    return `Update ${range} in ${confirmationSpokenTarget(toolName, a)}.`;
   }
   if (toolName === 'sheets.delete') {
-    return `Move Google Sheet "${quoteForConfirmation(a.title || a.name || a.spreadsheetId || 'selected sheet')}" to trash. This requires two confirmations.`;
+    return `Move ${confirmationSpokenTarget(toolName, a)} to trash. This requires two confirmations.`;
   }
   if (toolName === 'github.create_issue') {
     const title = quoteForConfirmation(a.title || 'Bug: Home Center feedback');
@@ -1021,7 +1290,7 @@ function pendingConfirmation(toolName, args, confirmationStage = 1) {
     arguments: args || {},
     confirmationId: confirmationIdFor(toolName, args, confirmationStage),
     action: confirmationAction(toolName, args),
-    title: confirmationTitle(toolName),
+    title: confirmationTitle(toolName, args),
     summary: confirmationSummary(toolName, args),
     confirmationStage,
   };
@@ -1032,12 +1301,17 @@ function confirmationReply(toolName, args, stage = 1) {
     return 'I can create that GitHub issue. Press Confirm or say "confirm create issue".';
   }
   const action = confirmationAction(toolName, args);
+  const target = confirmationSpokenTarget(toolName, args);
+  const actionLabel = confirmationActionLabel(action);
   if (action === 'delete') {
     return stage >= 2
-      ? 'Second confirmation required. Press Confirm again or say "confirm delete" again.'
-      : 'I can delete that. This requires two confirmations. Press Confirm or say "confirm delete".';
+      ? `Second confirmation required to delete ${target || 'that item'}. Press Confirm again or say "confirm delete" again.`
+      : `I can delete ${target || 'that item'}. This requires two confirmations. Press Confirm or say "confirm delete".`;
   }
-  return `I can ${action} that. Say "confirm ${action}" or press Confirm.`;
+  if (toolName === 'docs.update') {
+    return `I can ${actionLabel} that document. Say "confirm ${actionLabel}" or press Confirm.`;
+  }
+  return `I can ${actionLabel} ${target || 'that item'}. Say "confirm ${actionLabel}" or press Confirm.`;
 }
 
 function pendingConfirmationFromBody(body, tools) {
@@ -1235,13 +1509,305 @@ function activeTaskIsUnfinished(body) {
   return !!(task && ['awaiting_source', 'awaiting_detail', 'in_progress'].includes(status));
 }
 
-function shouldUseEvidenceFinalizer(body, toolResults) {
+function documentWriteIntentText(body) {
+  const message = safeText(body && body.message, 4000);
+  const task = activeTaskFromBody(body);
+  const objective = safeText(task && (task.originalUserRequest || task.objective || task.expectedNextAction), 4000);
+  return `${message} ${objective}`.toLowerCase();
+}
+
+function isDocumentUpdateIntent(body) {
+  const text = documentWriteIntentText(body);
+  if (!text) return false;
+  if (isDocumentSplitIntent(body)) return false;
+  const hasWriteVerb = /\b(update|edit|append|add|insert|include|put|save|merge|rewrite|revise|replace|clean up|reorganize|consolidate)\b/.test(text);
+  const hasDocTarget = /\b(doc|docs|document|story bible|holocron|writing|file|section|at the end|appendix)\b/.test(text);
+  return hasWriteVerb && hasDocTarget;
+}
+
+function isDocumentSplitIntent(body) {
+  const text = documentWriteIntentText(body);
+  if (!text) return false;
+  const hasSplitVerb = /\b(split|separate|extract|break out|divide|foldered parts|logical documents|artifact boundaries)\b/.test(text);
+  const hasDocTarget = /\b(doc|docs|document|mega.?doc|notes|story|procedure|doctrine|folder|folders|writing)\b/.test(text);
+  return hasSplitVerb && hasDocTarget;
+}
+
+function shouldUseEvidenceFinalizer(body, toolResults, tools = []) {
   const latest = latestSuccessfulToolResult(toolResults);
   const latestTool = safeText(latest && latest.name, 80);
   if (!['docs.read', 'knowledge.read', 'web.search'].includes(latestTool)) return false;
+  if (latestTool === 'docs.read' && isDocumentUpdateIntent(body) && toolByName(tools, 'docs.update')) return false;
   if (activeTaskIsUnfinished(body)) return true;
   const message = safeText(body && body.message, 4000);
   return isCreativeWritingRequest(message) && !isExplicitNonCreativeToolRequest(message);
+}
+
+function falselyClaimsDocsEditingUnavailable(reply) {
+  const text = safeText(reply, 12000).toLowerCase();
+  if (!text) return false;
+  const namesDocs = /\b(doc|docs|document|google doc|editing tools|document editing)\b/.test(text);
+  const claimsUnavailable = /\b(unavailable|not available|no .*tool|cannot complete|can't complete|can’t complete|could not complete|can't edit|cannot edit|could not edit|unable to edit)\b/.test(text);
+  return namesDocs && claimsUnavailable;
+}
+
+function falselyClaimsAnyToolUnavailable(reply) {
+  const text = safeText(reply, 12000).toLowerCase();
+  if (!text) return false;
+  return /\b(tools?|capabilit(?:y|ies))\b/.test(text)
+    && /\b(unavailable|not available|not exposed|no .*tools?|tools? are unavailable|tools? are not available|availabletools|available tools|empty|missing)\b/.test(text);
+}
+
+function falselyClaimsGithubUnavailable(reply) {
+  const text = safeText(reply, 12000).toLowerCase();
+  if (!text) return false;
+  const namesGithub = /\b(github|issue|repository|repo|login|log in|account)\b/.test(text);
+  const claimsUnavailable = /\b(unavailable|not available|not exposed|no .*tool|no .*account|no .*login|cannot log|can't log|unable to log|cannot create|can't create|unable to create|missing)\b/.test(text);
+  return namesGithub && claimsUnavailable;
+}
+
+function falseToolUnavailableTaskState(body, objective, blockingReason, expectedNextAction) {
+  return {
+    status: 'in_progress',
+    objective: objective || activeTaskObjective(body, safeText(body && body.message, 1000)),
+    blockingReason,
+    expectedNextAction,
+  };
+}
+
+function repairFalseDocsUnavailableFinal(body, response, tools) {
+  const reply = safeText(response && (response.reply || response.text), 12000);
+  if (!toolByName(tools, 'docs.update')) return response;
+  if (!falselyClaimsDocsEditingUnavailable(reply)) return response;
+  const lastDocument = body && body.workingMemory && typeof body.workingMemory === 'object' ? body.workingMemory.lastDocument : null;
+  const name = safeText(lastDocument && lastDocument.name, 180) || 'the selected document';
+  const documentIntent = isDocumentUpdateIntent(body);
+  const repaired = documentIntent
+    ? `I can edit ${name}; the Docs update tool is available. I stopped a bad planner final that incorrectly claimed document editing was unavailable. Say the exact text to append or ask me to continue the update from the gathered document evidence.`
+    : 'The Docs tools are available in this session. I do not have a pending document edit to retry in this conversation state. Restate the document and exact edit, or say the full request again.';
+  return Object.assign({}, response, {
+    reply: repaired,
+    narration: repaired,
+    status: documentIntent ? 'false_docs_unavailable_rejected' : 'false_tool_unavailable_rejected',
+    taskStateUpdate: falseToolUnavailableTaskState(
+      body,
+      '',
+      'Planner returned a false Docs unavailable final while Docs tools were exposed.',
+      documentIntent ? 'Continue through docs.update, not a capability-unavailable final.' : 'Ask for the lost document edit details without claiming Docs tools are missing.'
+    ),
+  });
+}
+
+function repairFalseToolUnavailableFinal(body, response, tools) {
+  const reply = safeText(response && (response.reply || response.text), 12000);
+  const docsRepaired = repairFalseDocsUnavailableFinal(body, response, tools);
+  if (docsRepaired !== response) return docsRepaired;
+  if (toolByName(tools, 'github.create_issue') && (falselyClaimsGithubUnavailable(reply) || falselyClaimsAnyToolUnavailable(reply))) {
+    const repaired = 'I can create GitHub issues in this session, but I do not have a GitHub login or account-connection tool here. Tell me the repo, title, and body for an issue, or say the full report request again.';
+    return Object.assign({}, response, {
+      reply: repaired,
+      narration: repaired,
+      status: 'false_tool_unavailable_rejected',
+      taskStateUpdate: falseToolUnavailableTaskState(
+        body,
+        'Handle the GitHub request with the exposed issue tool contract',
+        'Planner returned a false GitHub tools unavailable final while github.create_issue was exposed.',
+        'Use github.create_issue for issue filing, or state that account login is outside this tool contract.'
+      ),
+    });
+  }
+  if (Array.isArray(tools) && tools.length > 0 && falselyClaimsAnyToolUnavailable(reply)) {
+    const repaired = 'Home Center tools are available in this session. I stopped a bad planner final that treated the tool list as empty. Say the specific action again so I can route it through the exposed tool contract.';
+    return Object.assign({}, response, {
+      reply: repaired,
+      narration: repaired,
+      status: 'false_tool_unavailable_rejected',
+      taskStateUpdate: falseToolUnavailableTaskState(
+        body,
+        '',
+        'Planner returned a generic false tools unavailable final while tools were exposed.',
+        'Ask for the specific action again without blaming provider setup or tool exposure.'
+      ),
+    });
+  }
+  return response;
+}
+
+function folderNameFromText(text) {
+  const clean = safeText(text, 4000);
+  if (!clean) return '';
+  const patterns = [
+    /\bin\s+(?:the\s+)?([A-Za-z][A-Za-z0-9 _-]{1,80}?)\s+folder\b/i,
+    /\bfrom\s+(?:the\s+)?([A-Za-z][A-Za-z0-9 _-]{1,80}?)\s+folder\b/i,
+    /\bfolder\s+(?:named|called)\s+["“]?([^"”.,;\n]{1,80})["”]?/i,
+  ];
+  for (const pattern of patterns) {
+    const match = clean.match(pattern);
+    if (match && match[1]) return confirmationDisplayValue(match[1]);
+  }
+  return '';
+}
+
+function folderNameFromDocumentUpdateContext(body, toolResults) {
+  const memory = body && body.workingMemory && typeof body.workingMemory === 'object' ? body.workingMemory : {};
+  const task = activeTaskFromBody(body) || {};
+  const candidates = [
+    safeText(body && body.message, 4000),
+    safeText(task.originalUserRequest, 4000),
+    safeText(task.objective, 4000),
+    safeText(task.knownContext, 4000),
+  ];
+  if (Array.isArray(toolResults)) {
+    for (const entry of toolResults) {
+      const args = entry && entry.arguments && typeof entry.arguments === 'object' ? entry.arguments : {};
+      if (args.folderName) return confirmationDisplayValue(args.folderName);
+      candidates.push(safeText(args.query, 1000));
+    }
+  }
+  for (const candidate of candidates) {
+    const folder = folderNameFromText(candidate);
+    if (folder) return folder;
+  }
+  return safeText(memory.lastFolderName || (memory.lastFolder && memory.lastFolder.name), 300);
+}
+
+function documentUpdateTargetFromState(body, toolResults) {
+  const memory = body && body.workingMemory && typeof body.workingMemory === 'object' ? body.workingMemory : {};
+  const remembered = memory.lastDocument && typeof memory.lastDocument === 'object' ? memory.lastDocument : {};
+  const latest = latestSuccessfulToolResult(toolResults);
+  const latestResult = latest && latest.result && typeof latest.result === 'object' ? latest.result : {};
+  const latestArgs = latest && latest.arguments && typeof latest.arguments === 'object' ? latest.arguments : {};
+  const latestFile = latestResult.file && typeof latestResult.file === 'object' ? latestResult.file : {};
+  return {
+    fileId: safeText(remembered.fileId || latestFile.id || latestArgs.fileId, 300),
+    name: safeText(remembered.name || latestResult.title || latestFile.name || latestArgs.name, 300),
+    folderName: safeText(remembered.folderName || latestArgs.folderName || folderNameFromDocumentUpdateContext(body, toolResults), 300),
+  };
+}
+
+function finalTextCanBecomeDocAppend(reply) {
+  const text = safeText(reply, 12000);
+  if (!text) return false;
+  if (falselyClaimsDocsEditingUnavailable(text)) return false;
+  return true;
+}
+
+function docsUpdateConfirmationFromFinal(body, response, tools, toolResults) {
+  if (!response || response.type !== 'final') return null;
+  if (!toolByName(tools, 'docs.update')) return null;
+  if (!isDocumentUpdateIntent(body)) return null;
+  const latest = latestSuccessfulToolResult(toolResults);
+  if (safeText(latest && latest.name, 80) !== 'docs.read') return null;
+  let appendText = safeText(response.reply || response.text, 12000);
+  if (!finalTextCanBecomeDocAppend(appendText)) return null;
+  if (appendText.length < 40) appendText = activeTaskObjective(body, safeText(body && body.message, 1000));
+  const target = documentUpdateTargetFromState(body, toolResults);
+  if (!target.fileId && !target.name) return null;
+  const args = {fileId: target.fileId, name: target.name, folderName: target.folderName, appendText};
+  const sanitizedArgs = sanitizeToolArguments(toolByName(tools, 'docs.update'), args);
+  const reply = confirmationReply('docs.update', sanitizedArgs);
+  return {
+    type: 'final',
+    reply,
+    narration: reply,
+    status: 'confirmation_required',
+    pendingConfirmation: pendingConfirmation('docs.update', sanitizedArgs),
+    taskStateUpdate: {
+      status: 'in_progress',
+      objective: activeTaskObjective(body, safeText(body && body.message, 1000)),
+      expectedNextAction: 'Await confirmation, then execute docs.update.',
+    },
+  };
+}
+
+function docsUpdateConfirmationFromReadContinuation(body, tools, toolResults) {
+  if (!toolByName(tools, 'docs.update')) return null;
+  if (!isDocumentUpdateIntent(body)) return null;
+  const latest = latestSuccessfulToolResult(toolResults);
+  if (safeText(latest && latest.name, 80) !== 'docs.read') return null;
+  const target = documentUpdateTargetFromState(body, toolResults);
+  if (!target.fileId && !target.name) return null;
+  const appendText = activeTaskObjective(body, safeText(body && body.message, 1000));
+  if (!safeText(appendText, 12000)) return null;
+  const sanitizedArgs = sanitizeToolArguments(toolByName(tools, 'docs.update'), {
+    fileId: target.fileId,
+    name: target.name,
+    folderName: target.folderName,
+    appendText,
+  });
+  const reply = confirmationReply('docs.update', sanitizedArgs);
+  return {
+    type: 'final',
+    reply,
+    narration: reply,
+    status: 'confirmation_required',
+    pendingConfirmation: pendingConfirmation('docs.update', sanitizedArgs),
+    taskStateUpdate: {
+      status: 'in_progress',
+      objective: appendText,
+      expectedNextAction: 'Await confirmation, then execute docs.update.',
+    },
+  };
+}
+
+function documentSplitPlanFromMemory(body) {
+  const memory = body && body.workingMemory && typeof body.workingMemory === 'object' ? body.workingMemory : {};
+  const plan = memory.documentSplitPlan && typeof memory.documentSplitPlan === 'object' ? memory.documentSplitPlan : null;
+  if (!plan || !Array.isArray(plan.parts) || plan.parts.length < 1) return null;
+  return plan;
+}
+
+function documentSplitConfirmation(toolName, args, body, detail) {
+  const tool = toolByName(gatewayNormalizedTools(body && Array.isArray(body.tools) ? body.tools : []), toolName);
+  if (!tool) return null;
+  const sanitizedArgs = sanitizeToolArguments(tool, args);
+  const reply = confirmationReply(toolName, sanitizedArgs);
+  return {
+    type: 'final',
+    reply,
+    narration: reply,
+    status: 'confirmation_required',
+    pendingConfirmation: pendingConfirmation(toolName, sanitizedArgs),
+    taskStateUpdate: {
+      status: 'in_progress',
+      objective: activeTaskObjective(body, safeText(body && body.message, 1000)),
+      expectedNextAction: detail || `Await confirmation, then execute ${toolName}.`,
+    },
+  };
+}
+
+function docsSplitContinuationFromState(body, tools, toolResults) {
+  if (!isDocumentSplitIntent(body)) return null;
+  const plan = documentSplitPlanFromMemory(body);
+  if (!plan) return null;
+  const progress = plan.progress && typeof plan.progress === 'object' ? plan.progress : {};
+  const latest = latestSuccessfulToolResult(toolResults);
+  const latestTool = safeText(latest && latest.name, 80);
+  const hasReadEvidence = latestTool === 'docs.read' || !!progress.sourceRead;
+  if (!hasReadEvidence) return null;
+  for (const part of plan.parts) {
+    if (!part || typeof part !== 'object') continue;
+    const role = safeText(part.role, 80) || safeText(part.title, 80);
+    if (!role) continue;
+    const partProgress = progress[role] && typeof progress[role] === 'object' ? progress[role] : {};
+    if (!partProgress.folderId) {
+      if (!toolByName(tools, 'drive.create_folder')) return null;
+      return documentSplitConfirmation('drive.create_folder', {
+        name: safeText(part.folderName, 240),
+        parentId: safeText(plan.parentFolderId, 240),
+      }, Object.assign({}, body, {tools}), `Await confirmation, then create the ${role} folder.`);
+    }
+    if (!partProgress.documentId) {
+      if (!toolByName(tools, 'docs.create')) return null;
+      return documentSplitConfirmation('docs.create', {
+        title: safeText(part.title, 240),
+        body: safeText(part.body, 12000),
+        folderId: safeText(partProgress.folderId, 240),
+        folderName: safeText(part.folderName, 240),
+      }, Object.assign({}, body, {tools}), `Await confirmation, then create the ${role} split document.`);
+    }
+  }
+  return null;
 }
 
 function activeTaskObjective(body, fallbackMessage) {
@@ -2091,7 +2657,7 @@ async function askOpenAIToolTurn(body, user = {}) {
   const transcript = compactPromptText(body.transcript, 2000);
   const toolResults = Array.isArray(body.toolResults) ? body.toolResults : [];
   const toolEvidenceDigest = compactToolEvidence(toolResults);
-  const tools = Array.isArray(body.tools) ? body.tools : [];
+  const tools = gatewayNormalizedTools(Array.isArray(body.tools) ? body.tools : []);
   const unavailableToolGroups = Array.isArray(body.unavailableToolGroups) ? body.unavailableToolGroups : [];
   const workingMemory = body && typeof body.workingMemory === 'object' ? body.workingMemory : {};
   const evidenceContext = body && typeof body.evidenceContext === 'object' ? body.evidenceContext : {};
@@ -2118,6 +2684,7 @@ async function askOpenAIToolTurn(body, user = {}) {
     if (pendingTool && pendingTool.doubleConfirmationRequired && Number(pending.confirmationStage || 1) < 2) {
       const nextPending = pendingConfirmation(pending.toolName, pending.arguments, 2);
       const reply = confirmationReply(pending.toolName, pending.arguments, 2);
+      console.log('confirmation_reply ' + JSON.stringify({toolName: pending.toolName, reply: safeText(reply, 500), args: confirmationLogArgs(pending.arguments), stage: 2}));
       const trace = buildToolTrace(body, tools, {type: 'tool_call', toolName: pending.toolName, arguments: pending.arguments, source: 'pending_confirmation_stage_1'}, pending.toolName, pendingTool, true);
       return withTrace(body, {
         type: 'final',
@@ -2148,13 +2715,30 @@ async function askOpenAIToolTurn(body, user = {}) {
       latestSuccessfulTool: safeText(latestSuccessfulToolResult(toolResults) && latestSuccessfulToolResult(toolResults).name, 80),
     }));
   }
-  if (shouldUseEvidenceFinalizer(body, toolResults)) {
+  const deterministicDocsSplit = docsSplitContinuationFromState(body, tools, toolResults);
+  if (deterministicDocsSplit) {
+    const pendingToolName = deterministicDocsSplit.pendingConfirmation && deterministicDocsSplit.pendingConfirmation.toolName || '';
+    const trace = buildToolTrace(body, tools, deterministicDocsSplit, pendingToolName, toolByName(tools, pendingToolName), true);
+    return withTrace(body, deterministicDocsSplit, Object.assign({}, trace, {
+      turnKernel,
+      docsSplitContinuationApplied: true,
+    }));
+  }
+  if (shouldUseEvidenceFinalizer(body, toolResults, tools)) {
     const finalized = await askOpenAIEvidenceFinalizer(body, turnKernel, toolEvidenceDigest, user);
     const trace = buildToolTrace(body, tools, finalized, '', null, false);
     return withTrace(body, finalized, Object.assign({}, trace, {
       turnKernel,
       evidenceFinalizerApplied: true,
       latestSuccessfulTool: safeText(latestSuccessfulToolResult(toolResults) && latestSuccessfulToolResult(toolResults).name, 80),
+    }));
+  }
+  const deterministicDocsUpdate = docsUpdateConfirmationFromReadContinuation(body, tools, toolResults);
+  if (deterministicDocsUpdate) {
+    const trace = buildToolTrace(body, tools, deterministicDocsUpdate, 'docs.update', toolByName(tools, 'docs.update'), true);
+    return withTrace(body, deterministicDocsUpdate, Object.assign({}, trace, {
+      turnKernel,
+      docsUpdateReadContinuationApplied: true,
     }));
   }
   const rememberedContextTool = rememberedContextDocToolCall(body, tools, toolResults);
@@ -2175,7 +2759,15 @@ async function askOpenAIToolTurn(body, user = {}) {
       }));
     }
   }
-  const plannerTools = economyToolPalette(message, tools, workingMemory, toolResults);
+  const githubLoginBoundary = githubLoginBoundaryFinal(body, tools);
+  if (githubLoginBoundary) {
+    const trace = buildToolTrace(body, tools, githubLoginBoundary, 'github.create_issue', toolByName(tools, 'github.create_issue'), false);
+    return withTrace(body, githubLoginBoundary, Object.assign({}, trace, {
+      turnKernel,
+      githubLoginToolBoundaryApplied: true,
+    }));
+  }
+  const plannerTools = economyToolPalette(message, tools, workingMemory, toolResults, body);
   if (isFeedbackReportRequest(plannerMessage) && !toolByName(plannerTools, 'github.create_issue')) {
     const unavailableGithub = unavailableGroupForTool('github.create_issue', unavailableToolGroups);
     const response = unavailableGithub
@@ -2216,7 +2808,7 @@ async function askOpenAIToolTurn(body, user = {}) {
     continuationRequest ? `Active task continuation override: the latest tool result resolved a blocker. Treat this as the operative user request now: ${continuationRequest}` : '',
     'If the user says it, that document, that file, the one you just created, the previous one, or similar, resolve the reference from workingMemory or recent tool results before calling a tool.',
     'Never use phrases like that document, the document, that file, it, the one, or the thing we just made as literal tool argument names or titles. Resolve them to IDs/names or ask which item the user means.',
-    'When resolving a remembered document, include both fileId and name in the tool arguments so confirmation cards can show the real document name.',
+    'When resolving a remembered document, include fileId, name, and folderName when known in the tool arguments so confirmation cards and read-aloud can say the real document and folder names without reading a URL.',
     'Context inspection rule: if the user asks what is in, anything in, look at, read, search, or inspect Holocron, Writing Hub, Drive context, own logs, own conversations, own messages, memory, context, or a remembered document and workingMemory.lastDocument has fileId, call docs.read before answering. Do not answer from partial evidence.',
     'Context inspection rule: after docs.read, answer from the read document. If the requested phrase or section is absent, say you read the named document and did not find it. Do not say you lack contents unless docs.read was unavailable or failed.',
     'Google Docs rule: for a request to create a Google Doc, call docs.create with title and body. Do not call Drive tools for document content.',
@@ -2254,6 +2846,8 @@ async function askOpenAIToolTurn(body, user = {}) {
     'Creative validation rule: preserve explicit user premises, character roles, POV, vehicle/location relationships, and historical constraints. Do not move a commander out of their commanded vehicle, invert who controls the vehicle, or replace a grounded premise with symbolism.',
     'Creative writing rule: after a successful docs.create or docs.update, a new request like "write the scene" is a new writing task, not permission to keep searching Drive. Write the scene or ask one focused story question if required context is missing.',
     'Document cleanup rule: if the latest request asks to clean up, reorganize, consolidate, or make a document section more organized, use workingMemory.lastDocument or recent docs.read results, then request docs.update with the cleaned structure. Do not stop after describing what cleanup is needed.',
+    'Document organization rule: if the latest request asks to split, separate, extract, or organize a mega-document into logical writing artifacts, read the source document, then create separate Google Docs for the requested artifact roles such as story, notes, doctrine, procedures, outline, scratch, or log. Preserve the source by default unless the user explicitly asks to delete or rewrite it.',
+    'Document organization rule: if the split request names folders or roles, use Drive folder tools and docs.create folder placement so the new documents live under the correct folder parts. Do not collapse story and procedure/doctrine material into one broad document when the user asks for separation.',
     'Document synthesis/update rule: if the latest request asks to update, rewrite, reflect, merge, copy, append, replace, or revise one Google Doc using content from another Google Doc, continue after docs.search/docs.read results until you request docs.update for the target document. Do not stop after saying you found or read the documents.',
     'Do not claim a GitHub tool is required for public GitHub repositories. A GitHub tool is only required for private repo access, authenticated GitHub writes, issues, pull requests, or repository mutations.',
     'Tool availability rule: if a needed app-owned capability is absent and unavailableToolGroups explicitly names the relevant group or scope, explain that missing provider/scope and ask the user to reconnect or enable that exact group.',
@@ -2338,6 +2932,7 @@ async function askOpenAIToolTurn(body, user = {}) {
       }
       if (tool.confirmationRequired && !messageConfirms(message)) {
         const reply = confirmationReply(toolName, sanitizedArgs);
+        console.log('confirmation_reply ' + JSON.stringify({toolName, reply: safeText(reply, 500), args: confirmationLogArgs(sanitizedArgs)}));
         const trace = buildToolTrace(body, plannerTools, parsed, toolName, tool, true);
         return withTrace(body, attachTaskState({
           type: 'final',
@@ -2370,17 +2965,39 @@ async function askOpenAIToolTurn(body, user = {}) {
         }));
       }
     }
-    return withTrace(body, attachTaskState(sanitizeFinalPlannerReply(body, {
+    const repairedFinal = repairFalseToolUnavailableFinal(body, {
       type: 'final',
       reply: finalReply || 'I could not turn the GPT-5.5 response into a final answer. Please try again.',
       narration: finalReply || 'I could not turn the GPT-5.5 response into a final answer.',
       status: safeText(parsed.status, 160) || 'gpt_5_5_complete',
-    }), parsed), Object.assign({}, trace, {turnKernel}));
+    }, plannerTools);
+    const docUpdateConfirmation = docsUpdateConfirmationFromFinal(body, repairedFinal, plannerTools, toolResults);
+    const normalizedFinal = attachTaskState(sanitizeFinalPlannerReply(body, docUpdateConfirmation || repairedFinal), parsed);
+    return withTrace(body, normalizedFinal, Object.assign({}, trace, {
+      turnKernel,
+      falseDocsUnavailableRejected: normalizedFinal.status === 'false_docs_unavailable_rejected',
+      falseToolUnavailableRejected: normalizedFinal.status === 'false_tool_unavailable_rejected' || normalizedFinal.status === 'false_docs_unavailable_rejected',
+      docsUpdateFinalConverted: !!docUpdateConfirmation,
+    }));
   } catch (err) {
     return plannerParseFailureReply(text, err);
   }
 }
 
+
+exports.homeCenterMcp = onRequest({timeoutSeconds: 300, secrets: [GOOGLE_OAUTH_CLIENT_ID, GOOGLE_OAUTH_CLIENT_SECRET]}, createHomeCenterMcpApp({google, admin, googleClientId: () => GOOGLE_OAUTH_CLIENT_ID.value() || process.env.GOOGLE_OAUTH_CLIENT_ID || '', googleClientSecret: () => GOOGLE_OAUTH_CLIENT_SECRET.value() || process.env.GOOGLE_OAUTH_CLIENT_SECRET || ''}));
+
+exports.chatGptOpenApi = onRequest((req, res) => {
+  if (handleOptions(req, res)) return;
+  if (req.method !== 'GET') {
+    res.set(CORS_HEADERS).status(405).send('GET required');
+    return;
+  }
+  res.set(CORS_HEADERS);
+  res.set('Content-Type', 'application/yaml; charset=utf-8');
+  res.set('Cache-Control', 'public, max-age=300');
+  res.status(200).send(chatGptOpenApiYaml());
+});
 
 exports.health = onRequest((req, res) => {
   res.set(CORS_HEADERS).json({ok: true, service: 'home-center-gateway', confirmationFlow: 'short-confirm-v1', toolContractVersion: 'google-github-knowledge-delete-cru-v1', contractGroups: ['drive', 'docs', 'sheets', 'lists', 'gmail', 'calendar', 'contacts', 'github', 'knowledge']});
@@ -2569,7 +3186,7 @@ function metalSmokeTools() {
     mk('docs.search', 'Search Google Docs in Drive.', 'docs', false, false, ['https://www.googleapis.com/auth/drive'], ['query', 'folderName', 'pageSize']),
     mk('docs.read', 'Read text content from a Google Doc by fileId.', 'docs', false, false, ['https://www.googleapis.com/auth/drive', 'https://www.googleapis.com/auth/documents'], ['fileId', 'name']),
     mk('docs.create', 'Create a Google Doc and optionally insert body text.', 'docs', true, true, ['https://www.googleapis.com/auth/drive', 'https://www.googleapis.com/auth/documents'], ['title', 'body', 'folderId']),
-    mk('docs.update', 'Update a Google Doc by appending, replacing, or replacing the body.', 'docs', true, true, ['https://www.googleapis.com/auth/drive', 'https://www.googleapis.com/auth/documents'], ['fileId', 'name', 'appendText', 'replaceText', 'body']),
+    mk('docs.update', 'Update a Google Doc by appending, replacing, or replacing the body.', 'docs', true, true, ['https://www.googleapis.com/auth/drive', 'https://www.googleapis.com/auth/documents'], ['fileId', 'name', 'folderName', 'appendText', 'replaceText', 'body']),
   ];
 }
 
@@ -2600,6 +3217,7 @@ class MetalSmokeHost {
     this.evidence = evidence;
     this.root = null;
     this.folder = null;
+    this.allowedFolderIds = new Set();
   }
 
   async prepare(runId) {
@@ -2607,6 +3225,7 @@ class MetalSmokeHost {
     if (!this.root) this.root = await this.createFolder('Home Center Smoke Sandbox', '');
     await this.trashOldRuns();
     this.folder = await this.createFolder(`HC_SMOKE_RUN_${runId}`, this.root.id);
+    this.allowedFolderIds = new Set([this.folder.id]);
     this.evidence.sandbox = {rootId: this.root.id, folderId: this.folder.id, folderName: this.folder.name};
   }
 
@@ -2675,7 +3294,9 @@ class MetalSmokeHost {
 
   async assertInSandbox(fileId, toolName) {
     const file = await this.fileMetadata(fileId);
-    if (file.trashed || !Array.isArray(file.parents) || !file.parents.includes(this.folder.id)) {
+    const parents = Array.isArray(file.parents) ? file.parents : [];
+    const inAllowedFolder = parents.some((parentId) => this.allowedFolderIds.has(parentId));
+    if (file.trashed || !inAllowedFolder) {
       throw new Error(`sandbox_violation: ${toolName} tried to use ${file.name || fileId} outside ${this.folder.name}`);
     }
     return file;
@@ -2708,8 +3329,9 @@ class MetalSmokeHost {
 
   async createDriveFolder(args) {
     const parentId = smokeCleanArg(args, 'parentId') || this.folder.id;
-    if (parentId !== this.folder.id) throw new Error('sandbox_violation: drive.create_folder parentId outside sandbox');
+    if (!this.allowedFolderIds.has(parentId)) throw new Error('sandbox_violation: drive.create_folder parentId outside sandbox');
     const file = await this.createFolder(smokeCleanArg(args, 'name') || `Smoke Child ${Date.now()}`, parentId);
+    if (file.id) this.allowedFolderIds.add(file.id);
     return {tool: 'drive.create_folder', ok: true, error: '', detail: 'drive_folder_created', status: 'drive_folder_created', file: smokeFileJson(file), title: file.name, files: [], content: ''};
   }
 
@@ -2722,7 +3344,7 @@ class MetalSmokeHost {
     const params = {fileId, requestBody, fields: 'id,name,mimeType,webViewLink,parents'};
     if (smokeCleanArg(args, 'addParentId')) params.addParents = smokeCleanArg(args, 'addParentId');
     if (smokeCleanArg(args, 'removeParentId')) params.removeParents = smokeCleanArg(args, 'removeParentId');
-    if (params.addParents && params.addParents !== this.folder.id) throw new Error('sandbox_violation: drive.update_metadata addParentId outside sandbox');
+    if (params.addParents && !this.allowedFolderIds.has(params.addParents)) throw new Error('sandbox_violation: drive.update_metadata addParentId outside sandbox');
     const result = await this.drive.files.update(params);
     const file = result.data || {};
     return {tool: 'drive.update_metadata', ok: true, error: '', detail: 'drive_metadata_updated', status: 'drive_metadata_updated', file: smokeFileJson(file), title: file.name || '', files: [], content: ''};
@@ -2730,7 +3352,7 @@ class MetalSmokeHost {
 
   async createDoc(args) {
     const folderId = smokeCleanArg(args, 'folderId') || this.folder.id;
-    if (folderId !== this.folder.id) throw new Error('sandbox_violation: docs.create folderId outside sandbox');
+    if (!this.allowedFolderIds.has(folderId)) throw new Error('sandbox_violation: docs.create folderId outside sandbox');
     const title = smokeCleanArg(args, 'title') || 'Home Center Metal Smoke';
     const body = smokeCleanArg(args, 'body');
     const created = await this.docs.documents.create({requestBody: {title}});
@@ -2780,6 +3402,27 @@ class MetalSmokeHost {
 
 function updateSmokeWorkingMemory(workingMemory, toolName, args, result) {
   if (!result || !result.ok) return;
+  const splitPlan = workingMemory && workingMemory.documentSplitPlan && typeof workingMemory.documentSplitPlan === 'object' ? workingMemory.documentSplitPlan : null;
+  if (splitPlan && Array.isArray(splitPlan.parts)) {
+    if (!splitPlan.progress || typeof splitPlan.progress !== 'object') splitPlan.progress = {};
+    if (toolName === 'docs.read') splitPlan.progress.sourceRead = true;
+    if (toolName === 'drive.create_folder') {
+      const folder = result.file || {};
+      const part = splitPlan.parts.find((entry) => entry && safeText(entry.folderName, 240) === safeText(folder.name || args.name, 240));
+      if (part) {
+        const role = safeText(part.role, 80) || safeText(part.title, 80);
+        splitPlan.progress[role] = Object.assign({}, splitPlan.progress[role] || {}, {folderId: folder.id || '', folderName: folder.name || args.name || ''});
+      }
+    }
+    if (toolName === 'docs.create') {
+      const file = result.file || {};
+      const part = splitPlan.parts.find((entry) => entry && safeText(entry.title, 240) === safeText(result.title || file.name || args.title, 240));
+      if (part) {
+        const role = safeText(part.role, 80) || safeText(part.title, 80);
+        splitPlan.progress[role] = Object.assign({}, splitPlan.progress[role] || {}, {documentId: file.id || '', documentName: result.title || file.name || args.title || ''});
+      }
+    }
+  }
   if (toolName === 'docs.create' || toolName === 'docs.update' || toolName === 'docs.read') {
     const file = result.file || {};
     workingMemory.lastDocument = {
@@ -2792,6 +3435,12 @@ function updateSmokeWorkingMemory(workingMemory, toolName, args, result) {
   if (toolName === 'docs.search' && Array.isArray(result.files) && result.files.length === 1) {
     const file = result.files[0];
     workingMemory.lastDocument = {fileId: file.id || '', name: file.name || '', webViewLink: file.webViewLink || '', sourceTool: toolName};
+  }
+  if (toolName === 'drive.create_folder' || toolName === 'drive.update_metadata') {
+    const file = result.file || {};
+    if (file.id && file.mimeType === 'application/vnd.google-apps.folder') {
+      workingMemory.lastFolder = {fileId: file.id, name: file.name || smokeCleanArg(args, 'name'), sourceTool: toolName};
+    }
   }
 }
 
@@ -2925,6 +3574,209 @@ async function runCreativeDocReadFinalizesSmoke(host, evidence, runId, user = {}
   evidence.seedDocument = {id: sourceDoc.file.id, name: sourceTitle};
 }
 
+function splitFixtureFromBody(body, runId) {
+  const fixture = body && body.splitFixture && typeof body.splitFixture === 'object' ? body.splitFixture : {};
+  const defaultParts = [
+    {
+      role: 'procedures',
+      folderName: `Writing Procedures ${runId}`,
+      title: `Writing Procedures ${runId}`,
+      body: 'Procedures and doctrine notes.\nProcedure: preserve artifact boundaries.\nDoctrine: split operational notes from story prose.',
+      required: ['Procedure', 'Doctrine'],
+      forbidden: ['Story scene'],
+    },
+    {
+      role: 'story',
+      folderName: `Writing Story ${runId}`,
+      title: `Writing Story ${runId}`,
+      body: 'Story scene notes.\nThe character waits in the vehicle while the scene pressure rises.',
+      required: ['Story', 'scene'],
+      forbidden: ['Procedure:', 'Doctrine:'],
+    },
+  ];
+  const parts = Array.isArray(fixture.parts) && fixture.parts.length
+    ? fixture.parts.slice(0, 4).map((part, index) => ({
+      role: safeText(part && part.role, 80) || `part_${index + 1}`,
+      folderName: safeText(part && part.folderName, 240) || `Writing Part ${index + 1} ${runId}`,
+      title: safeText(part && part.title, 240) || `Writing Part ${index + 1} ${runId}`,
+      body: safeText(part && part.body, 12000),
+      required: Array.isArray(part && part.required) ? part.required.map((value) => safeText(value, 120)).filter(Boolean).slice(0, 12) : [],
+      forbidden: Array.isArray(part && part.forbidden) ? part.forbidden.map((value) => safeText(value, 120)).filter(Boolean).slice(0, 12) : [],
+    }))
+    : defaultParts;
+  return {
+    sourceTitle: safeText(fixture.sourceTitle, 240) || `Writing Procedures and Story Mega Doc ${runId}`,
+    sourceContent: safeText(fixture.sourceContent, 20000) || [
+      'Mixed writing notes.',
+      '',
+      'PROCEDURES AND DOCTRINE NOTES',
+      'Procedure: preserve artifact boundaries.',
+      'Doctrine: split operational notes from story prose.',
+      '',
+      'STORY SCENE NOTES',
+      'Story scene: the character waits in the vehicle while the scene pressure rises.',
+    ].join('\n'),
+    promptLabel: safeText(fixture.promptLabel, 240) || 'the writing mega-document',
+    parts,
+  };
+}
+
+async function runWritingSplitDocsSmoke(host, evidence, runId, user = {}, body = {}) {
+  const fixture = splitFixtureFromBody(body, runId);
+  const sourceTitle = fixture.sourceTitle;
+  const sourceContent = fixture.sourceContent;
+  const sourceDoc = await host.createDoc({title: sourceTitle, body: sourceContent, folderId: host.folder.id});
+  const splitPrompt = [
+    `Read the Google Doc "${sourceTitle}" and split ${fixture.promptLabel} into properly foldered parts.`,
+    ...fixture.parts.map((part) => `Create a Drive folder named "${part.folderName}" and put a new Google Doc titled "${part.title}" in it containing only the ${part.role} material.`),
+    'Leave the original source doc intact. Ask for confirmation for each external write as needed, but do not stop after only reading or describing the split.',
+  ].join(' ');
+  const state = {
+    transcript: '',
+    pendingConfirmation: null,
+    workingMemory: {
+      smokeSandbox: {
+        enabled: true,
+        folderId: host.folder.id,
+        folderName: host.folder.name,
+        instruction: 'Use only this Drive folder and child folders created in this smoke run.',
+      },
+      activeTask: {
+        status: 'in_progress',
+        objective: 'Split the mixed writing document into properly foldered Google Docs by artifact role.',
+        originalUserRequest: splitPrompt,
+        expectedNextAction: 'Read the source document, create the role folders, then create the two split documents in the correct folders.',
+      },
+      lastDocument: {
+        fileId: sourceDoc.file.id,
+        name: sourceTitle,
+        webViewLink: sourceDoc.webViewLink || '',
+        sourceTool: 'smoke.seed',
+      },
+      documentSplitPlan: {
+        parentFolderId: host.folder.id,
+        sourceFileId: sourceDoc.file.id,
+        sourceName: sourceTitle,
+        parts: fixture.parts,
+        progress: {},
+      },
+    },
+  };
+
+  async function verifySplit() {
+    const verifiedParts = [];
+    for (const part of fixture.parts) {
+      const folder = await host.findFolder(part.folderName, host.folder.id);
+      if (!folder) return {ok: false, detail: `missing split folder: ${part.folderName}`};
+      const docs = await host.listFiles([
+        `'${host.escapeQuery(folder.id)}' in parents`,
+        "mimeType='application/vnd.google-apps.document'",
+        `name='${host.escapeQuery(part.title)}'`,
+        'trashed=false',
+      ].join(' and '), 5);
+      if (docs.length !== 1) return {ok: false, detail: `missing split document: ${part.title}`};
+      const read = await host.readDoc({fileId: docs[0].id});
+      const text = read.content || '';
+      for (const needle of part.required || []) {
+        if (needle && !text.includes(needle)) return {ok: false, detail: `${part.role} text lacks ${needle}`};
+      }
+      for (const needle of part.forbidden || []) {
+        if (needle && text.includes(needle)) return {ok: false, detail: `${part.role} text contains forbidden ${needle}`};
+      }
+      verifiedParts.push({role: part.role, folder: smokeFileJson(folder), doc: smokeFileJson(docs[0]), text});
+    }
+    return {ok: true, parts: verifiedParts};
+  }
+
+  let finalVerification = await verifySplit();
+  let lastResponse = null;
+  for (let i = 0; i < 14 && !finalVerification.ok; i++) {
+    const message = state.pendingConfirmation
+      ? `confirm ${confirmationActionLabel(state.pendingConfirmation.action)}`
+      : (i === 0 ? splitPrompt : `Continue the document split. The required output is ${fixture.parts.length} separate Google Docs in the named folders. Leave the source intact.`);
+    lastResponse = await runSmokeTurn(host, evidence, state, message, {}, user);
+    finalVerification = await verifySplit();
+  }
+  if (!finalVerification.ok) {
+    throw new Error(`Writing split smoke did not create verified foldered split docs: ${finalVerification.detail || 'unknown'}`);
+  }
+  const readCount = evidence.toolExecutions.filter((entry) => entry && entry.toolName === 'docs.read').length;
+  const createCount = evidence.toolExecutions.filter((entry) => entry && entry.toolName === 'docs.create').length;
+  const folderCount = evidence.toolExecutions.filter((entry) => entry && entry.toolName === 'drive.create_folder').length;
+  if (readCount < 1) throw new Error('Writing split smoke did not read the source doc.');
+  if (createCount < fixture.parts.length) throw new Error('Writing split smoke did not create every split doc.');
+  if (folderCount < fixture.parts.length) throw new Error('Writing split smoke did not create every split folder.');
+  evidence.seedDocument = {id: sourceDoc.file.id, name: sourceTitle};
+  evidence.splitVerification = finalVerification;
+  evidence.finalReply = (lastResponse && (lastResponse.reply || lastResponse.text)) || '';
+}
+
+
+async function appendSmokeDoc({host, user, documentId, heading, text, requestId}) {
+  const doc = await host.docs.documents.get({documentId, fields: 'body(content(endIndex))'});
+  const content = (((doc.data || {}).body || {}).content || []);
+  const last = content.length ? content[content.length - 1] : {};
+  const endIndex = Math.max(1, safeNumber(last.endIndex, 1) - 1);
+  const appendText = `${heading ? `\n\n${heading}\n` : '\n\n'}${text}\n`;
+  await host.docs.documents.batchUpdate({
+    documentId,
+    requestBody: {requests: [{insertText: {location: {index: endIndex}, text: appendText}}]},
+  });
+  const file = await host.assertInSandbox(documentId, 'docs_append');
+  await recordActionAudit({...user, authKind: 'metal_smoke'}, 'docs.append', documentId, `Smoke appended ${text.length} characters${heading ? ` under ${heading}` : ''}.`, requestId);
+  return {documentId, revisionSummary: `Appended ${text.length} characters.`, webViewLink: file.webViewLink || '', metadata: smokeFileJson(file), auditRequestId: requestId};
+}
+
+async function runDriveBridgeCreateToolsSmoke(host, evidence, runId, user) {
+  const smokeUser = {uid: user.uid || '', email: user.email || '', authKind: 'metal_smoke'};
+  const project = await createDriveFolderOperation({
+    google,
+    admin,
+    auth: host.auth,
+    user: smokeUser,
+    args: {name: 'Tanks for the Memories v2', parentFolderId: host.folder.id, requestId: `drive-bridge-folder-${runId}`, callerNote: 'Smoke create project folder'},
+  });
+  host.allowedFolderIds.add(project.folderId);
+  await host.assertInSandbox(project.folderId, 'drive_create_folder');
+
+  const story = await createGoogleDocOperation({
+    google,
+    admin,
+    auth: host.auth,
+    user: smokeUser,
+    args: {title: 'Tanks for the Memories v2 — Story Bible', parentFolderId: project.folderId, initialText: '# Story Bible\n', requestId: `drive-bridge-story-${runId}`, callerNote: 'Smoke create story bible'},
+  });
+  const manuscript = await createGoogleDocOperation({
+    google,
+    admin,
+    auth: host.auth,
+    user: smokeUser,
+    args: {title: 'Tanks for the Memories v2 — Manuscript', parentFolderId: project.folderId, initialText: '# Manuscript\n', requestId: `drive-bridge-manuscript-${runId}`, callerNote: 'Smoke create manuscript'},
+  });
+
+  const storyAppend = await appendSmokeDoc({host, user: smokeUser, documentId: story.documentId, heading: 'Smoke Append', text: 'Story bible append smoke line.', requestId: `drive-bridge-story-append-${runId}`});
+  const manuscriptAppend = await appendSmokeDoc({host, user: smokeUser, documentId: manuscript.documentId, heading: 'Smoke Append', text: 'Manuscript append smoke line.', requestId: `drive-bridge-manuscript-append-${runId}`});
+
+  const storyRead = await host.readDoc({fileId: story.documentId});
+  const manuscriptRead = await host.readDoc({fileId: manuscript.documentId});
+  const storyContent = storyRead.content || '';
+  const manuscriptContent = manuscriptRead.content || '';
+  if (!storyContent.includes('# Story Bible') || !storyContent.includes('Story bible append smoke line.')) {
+    throw new Error('drive_bridge_create_tools smoke could not verify Story Bible contents.');
+  }
+  if (!manuscriptContent.includes('# Manuscript') || !manuscriptContent.includes('Manuscript append smoke line.')) {
+    throw new Error('drive_bridge_create_tools smoke could not verify Manuscript contents.');
+  }
+
+  evidence.driveBridgeCreateTools = {
+    project,
+    story,
+    manuscript,
+    appends: [storyAppend, manuscriptAppend],
+    verified: true,
+  };
+}
+
 async function runMetalPromptSmoke(user, body) {
   const runId = safeText(body.runId, 80) || new Date().toISOString().replace(/[-:TZ.]/g, '').slice(0, 14);
   const evidence = {ok: false, runId, uid: user.uid, turns: [], toolExecutions: [], sandbox: {}, cleanup: null};
@@ -2939,6 +3791,10 @@ async function runMetalPromptSmoke(user, body) {
       await runDocsCreateUpdateReadSmoke(host, evidence, runId, user);
     } else if (scenario === 'creative-doc-read-finalizes') {
       await runCreativeDocReadFinalizesSmoke(host, evidence, runId, user);
+    } else if (scenario === 'writing-split-docs') {
+      await runWritingSplitDocsSmoke(host, evidence, runId, user, body);
+    } else if (scenario === 'drive-bridge-create-tools') {
+      await runDriveBridgeCreateToolsSmoke(host, evidence, runId, user);
     } else {
       throw new Error(`Unknown metal prompt smoke scenario: ${scenario}`);
     }
@@ -3024,18 +3880,27 @@ function turnContractSmokeTools() {
   return [
     {
       name: 'github.create_issue',
+      group: 'github',
       confirmationRequired: true,
       arguments: ['repo', 'title', 'body', 'labels'],
     },
     {
       name: 'docs.create',
+      group: 'docs',
       confirmationRequired: true,
       arguments: ['title', 'body', 'folderId'],
     },
     {
       name: 'docs.read',
+      group: 'docs',
       confirmationRequired: false,
       arguments: ['fileId', 'name'],
+    },
+    {
+      name: 'docs.update',
+      group: 'docs',
+      confirmationRequired: true,
+      arguments: ['fileId', 'name', 'folderName', 'appendText', 'replaceText', 'body'],
     },
   ];
 }
@@ -3084,6 +3949,9 @@ async function runTurnContractCase(name, body, expected = {}, user = {}) {
   if (expected.type) assertTurnContract(response.type === expected.type, `${name}: expected type ${expected.type}, got ${response.type}`);
   if (expected.status) assertTurnContract(response.status === expected.status, `${name}: expected status ${expected.status}, got ${response.status}`);
   if (expected.toolName) assertTurnContract(response.toolName === expected.toolName, `${name}: expected tool ${expected.toolName}, got ${response.toolName}`);
+  if (expected.pendingTool) {
+    assertTurnContract(response.pendingConfirmation && response.pendingConfirmation.toolName === expected.pendingTool, `${name}: expected pending ${expected.pendingTool}, got ${response.pendingConfirmation && response.pendingConfirmation.toolName}`);
+  }
   if (expected.minReplyChars) {
     const reply = safeText(response.reply || response.text, 20000);
     assertTurnContract(reply.length >= Number(expected.minReplyChars), `${name}: expected reply length >= ${expected.minReplyChars}, got ${reply.length}`);
@@ -3302,13 +4170,120 @@ exports.metalPromptSmoke = onRequest({timeoutSeconds: 300, secrets: [OPENAI_API_
   try {
     const user = await requireSmokeUser(req);
     const scenario = safeText(req.body && req.body.scenario, 120) || 'docs-create-update-read';
-    if (!['docs-create-update-read', 'creative-doc-read-finalizes'].includes(scenario)) {
+    if (!['docs-create-update-read', 'creative-doc-read-finalizes', 'writing-split-docs', 'drive-bridge-create-tools'].includes(scenario)) {
       sendJson(res, 400, {ok: false, error: 'unknown_scenario', detail: scenario});
       return;
     }
     sendJson(res, 200, await runMetalPromptSmoke(user, req.body || {}));
   } catch (err) {
     sendJson(res, err.status || 500, {ok: false, error: 'metal_prompt_smoke_failed', detail: err.message || String(err), stack: String(err.stack || '')});
+  }
+});
+
+
+exports.chatGptDriveSearch = onRequest({timeoutSeconds: 60}, async (req, res) => {
+  if (handleOptions(req, res)) return;
+  try {
+    const user = await requireGoogleOAuthAction(req);
+    const auth = googleDirectAuth(user.accessToken);
+    const drive = google.drive({version: 'v3', auth});
+    const result = await drive.files.list({
+      q: chatGptDriveSearchQuery(req.body || {}),
+      pageSize: chatGptLimit(req.body && req.body.limit, 20, 50),
+      fields: 'files(id,name,mimeType,modifiedTime,webViewLink,parents)',
+      orderBy: 'modifiedTime desc',
+      supportsAllDrives: true,
+      includeItemsFromAllDrives: true,
+    });
+    sendJson(res, 200, {results: (result.data.files || []).map(chatGptDriveFile)});
+  } catch (err) {
+    sendJson(res, err.status || err.code || 500, {ok: false, error: 'chatgpt_drive_search_failed', detail: err.message || String(err)});
+  }
+});
+
+exports.chatGptDriveRead = onRequest({timeoutSeconds: 60}, async (req, res) => {
+  if (handleOptions(req, res)) return;
+  try {
+    const user = await requireGoogleOAuthAction(req);
+    const auth = googleDirectAuth(user.accessToken);
+    const drive = google.drive({version: 'v3', auth});
+    const fileId = safeDriveFileId(req.body && req.body.fileId);
+    const metadataResult = await drive.files.get({
+      fileId,
+      fields: 'id,name,mimeType,modifiedTime,webViewLink,parents',
+      supportsAllDrives: true,
+    });
+    const metadata = metadataResult.data || {};
+    const requestedFormat = safeText(req.body && req.body.exportFormat, 120);
+    const exportFormat = requestedFormat || 'text/plain';
+    let text = '';
+    if (String(metadata.mimeType || '').startsWith('application/vnd.google-apps.')) {
+      const exported = await drive.files.export({fileId, mimeType: exportFormat}, {responseType: 'text'});
+      text = typeof exported.data === 'string' ? exported.data : String(exported.data || '');
+    } else {
+      const downloaded = await drive.files.get({fileId, alt: 'media', supportsAllDrives: true}, {responseType: 'text'});
+      text = typeof downloaded.data === 'string' ? downloaded.data : String(downloaded.data || '');
+    }
+    sendJson(res, 200, {fileId, name: metadata.name || '', mimeType: metadata.mimeType || '', text, metadata: chatGptDriveFile(metadata)});
+  } catch (err) {
+    sendJson(res, err.status || err.code || 500, {ok: false, error: 'chatgpt_drive_read_failed', detail: err.message || String(err)});
+  }
+});
+
+
+exports.chatGptDriveCreateFolder = onRequest({timeoutSeconds: 60}, async (req, res) => {
+  if (handleOptions(req, res)) return;
+  try {
+    const user = await requireGoogleOAuthAction(req);
+    const auth = googleDirectAuth(user.accessToken);
+    const result = await createDriveFolderOperation({google, admin, auth, user, args: req.body || {}});
+    sendJson(res, 200, result);
+  } catch (err) {
+    sendJson(res, err.status || err.code || 500, {ok: false, error: 'chatgpt_drive_create_folder_failed', detail: err.message || String(err)});
+  }
+});
+
+exports.chatGptDocsCreate = onRequest({timeoutSeconds: 60}, async (req, res) => {
+  if (handleOptions(req, res)) return;
+  try {
+    const user = await requireGoogleOAuthAction(req);
+    const auth = googleDirectAuth(user.accessToken);
+    const result = await createGoogleDocOperation({google, admin, auth, user, args: req.body || {}});
+    sendJson(res, 200, result);
+  } catch (err) {
+    sendJson(res, err.status || err.code || 500, {ok: false, error: 'chatgpt_docs_create_failed', detail: err.message || String(err)});
+  }
+});
+
+exports.chatGptDocsAppend = onRequest({timeoutSeconds: 60}, async (req, res) => {
+  if (handleOptions(req, res)) return;
+  try {
+    const user = await requireGoogleOAuthAction(req);
+    const auth = googleDirectAuth(user.accessToken);
+    const docs = google.docs({version: 'v1', auth});
+    const drive = google.drive({version: 'v3', auth});
+    const documentId = safeDriveFileId(req.body && req.body.documentId);
+    const heading = safeText(req.body && req.body.heading, 180);
+    const text = safeText(req.body && req.body.text, 12000);
+    const requestId = safeText(req.body && req.body.requestId, 160) || crypto.randomUUID();
+    if (!text) {
+      sendJson(res, 400, {ok: false, error: 'text_required'});
+      return;
+    }
+    const doc = await docs.documents.get({documentId, fields: 'body(content(endIndex))'});
+    const content = (((doc.data || {}).body || {}).content || []);
+    const last = content.length ? content[content.length - 1] : {};
+    const endIndex = Math.max(1, safeNumber(last.endIndex, 1) - 1);
+    const appendText = `${heading ? `\n\n${heading}\n` : '\n\n'}${text}\n`;
+    await docs.documents.batchUpdate({
+      documentId,
+      requestBody: {requests: [{insertText: {location: {index: endIndex}, text: appendText}}]},
+    });
+    const file = await drive.files.get({fileId: documentId, fields: 'id,name,mimeType,modifiedTime,webViewLink,parents', supportsAllDrives: true});
+    await recordActionAudit(user, 'docs.append', documentId, safeText(req.body && req.body.callerNote, 400) || `Appended ${text.length} characters${heading ? ` under ${heading}` : ''}.`, requestId);
+    sendJson(res, 200, {documentId, revisionSummary: `Appended ${text.length} characters.`, webViewLink: file.data.webViewLink || '', metadata: chatGptDriveFile(file.data || {})});
+  } catch (err) {
+    sendJson(res, err.status || err.code || 500, {ok: false, error: 'chatgpt_docs_append_failed', detail: err.message || String(err)});
   }
 });
 

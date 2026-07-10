@@ -46,7 +46,7 @@ final class ToolRegistry {
         tools.add(new ToolDefinition("docs.create", "Create a Google Doc and optionally insert body text.", "docs", true, true,
                 Arrays.asList(DRIVE_SCOPE, DOCS_SCOPE), Arrays.asList("title", "body", "folderId")));
         tools.add(new ToolDefinition("docs.update", "Update a Google Doc by appending, replacing, or replacing the body.", "docs", true, true,
-                Arrays.asList(DRIVE_SCOPE, DOCS_SCOPE), Arrays.asList("fileId", "name", "appendText", "replaceText", "body")));
+                Arrays.asList(DRIVE_SCOPE, DOCS_SCOPE), Arrays.asList("fileId", "name", "folderName", "appendText", "replaceText", "body")));
         tools.add(new ToolDefinition("docs.delete", "Move a Google Doc to trash.", "docs", true, true, true,
                 Arrays.asList(DRIVE_SCOPE), Arrays.asList("fileId", "name")));
 
