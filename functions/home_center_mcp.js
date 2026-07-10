@@ -12,8 +12,9 @@ const {z} = require('zod/v4');
 const DEFAULT_MCP_PUBLIC_BASE = 'https://us-central1-home-center-dclar.cloudfunctions.net/homeCenterMcp';
 const MCP_PUBLIC_BASE = process.env.HOME_CENTER_MCP_PUBLIC_BASE || DEFAULT_MCP_PUBLIC_BASE;
 const MCP_RESOURCE = `${MCP_PUBLIC_BASE}/mcp`;
-const MCP_RESOURCE_METADATA = `${MCP_PUBLIC_BASE}/oauth-protected-resource-v2`;
+const MCP_RESOURCE_METADATA = `${MCP_PUBLIC_BASE}/.well-known/oauth-protected-resource`;
 const MCP_LEGACY_RESOURCE_METADATA = `${MCP_PUBLIC_BASE}/oauth-protected-resource`;
+const MCP_COMPAT_RESOURCE_METADATA = `${MCP_PUBLIC_BASE}/oauth-protected-resource-v2`;
 const MCP_AUTHORIZATION_SERVER_METADATA = `${MCP_PUBLIC_BASE}/.well-known/oauth-authorization-server`;
 const MCP_GOOGLE_CALLBACK = process.env.HOME_CENTER_MCP_GOOGLE_CALLBACK || `${MCP_PUBLIC_BASE}/oauth/google-callback`;
 const MCP_REQUIRED_SCOPES = [
@@ -297,6 +298,7 @@ function oauthProtectedResourceMetadata() {
     scopes_supported: MCP_REQUIRED_SCOPES,
     bearer_methods_supported: ['header'],
     resource_documentation: `${MCP_PUBLIC_BASE}/`,
+    metadata_aliases: [MCP_LEGACY_RESOURCE_METADATA, MCP_COMPAT_RESOURCE_METADATA],
   };
 }
 

@@ -203,6 +203,8 @@ require_absent(home_center_mcp, "req.headers['mcp-session-id']", 'MCP streamable
 require_absent(home_center_mcp, 'Bad Request: No valid MCP session', 'MCP streamable HTTP must not fail cross-instance session lookup')
 require_absent(home_center_mcp, 'onsessioninitialized', 'MCP streamable HTTP must not store session state in process memory')
 require_contains(home_center_mcp, 'authorization_servers: [MCP_PUBLIC_BASE]', 'MCP OAuth metadata advertises Home Center as the authorization server')
+require_contains(home_center_mcp, 'const MCP_RESOURCE_METADATA = `${MCP_PUBLIC_BASE}/.well-known/oauth-protected-resource`', 'MCP OAuth challenge points at the standard protected-resource metadata URL')
+require_contains(home_center_mcp, 'metadata_aliases: [MCP_LEGACY_RESOURCE_METADATA, MCP_COMPAT_RESOURCE_METADATA]', 'MCP protected resource metadata preserves legacy challenge aliases')
 require_contains(home_center_mcp, "app.get('/oauth-protected-resource'", 'MCP app serves OAuth protected resource metadata')
 require_contains(home_center_mcp, "app.get('/.well-known/oauth-protected-resource'", 'MCP app serves OAuth protected resource well-known metadata')
 require_contains(home_center_mcp, "app.get('/.well-known/oauth-authorization-server'", 'MCP app serves OAuth authorization server metadata')
