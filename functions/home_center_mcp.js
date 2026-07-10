@@ -17,6 +17,7 @@ const MCP_LEGACY_RESOURCE_METADATA = `${MCP_PUBLIC_BASE}/oauth-protected-resourc
 const MCP_COMPAT_RESOURCE_METADATA = `${MCP_PUBLIC_BASE}/oauth-protected-resource-v2`;
 const MCP_AUTHORIZATION_SERVER_METADATA = `${MCP_PUBLIC_BASE}/.well-known/oauth-authorization-server`;
 const MCP_GOOGLE_CALLBACK = process.env.HOME_CENTER_MCP_GOOGLE_CALLBACK || `${MCP_PUBLIC_BASE}/oauth/google-callback`;
+const COMMAND_CENTER_MCP_URL = process.env.COMMAND_CENTER_MCP_URL || 'https://us-central1-home-center-dclar.cloudfunctions.net/commandCenterMcp/mcp';
 const MCP_REQUIRED_SCOPES = [
   'https://www.googleapis.com/auth/drive',
   'https://www.googleapis.com/auth/documents',
@@ -260,6 +261,122 @@ function jsonText(value) {
 
 function textResult(value) {
   return {content: [{type: 'text', text: typeof value === 'string' ? value : jsonText(value)}]};
+}
+
+function parseJsonPayload(text, label) {
+  try {
+    return JSON.parse(text);
+  } catch (err) {
+    throw new Error(`${label} did not return JSON: ${String(text || '').slice(0, 500)}`);
+  }
+}
+
+function parseMcpPayload(text, label) {
+  const dataLines = String(text || '').split(/\r?\n/)
+    .filter((line) => line.startsWith('data:'))
+    .map((line) => line.slice(5).trim());
+  return parseJsonPayload(dataLines.length ? dataLines.join('\n') : text, label);
+}
+
+function commandCenterOperationRegistry() {
+  return {
+    version: '2026-07-10.home-center-command-center-dispatch-v1',
+    invocationTool: 'command_center_operation',
+    commandCenterMcpUrl: COMMAND_CENTER_MCP_URL,
+    purpose: 'Expose Command Center dispatch through the already-installed Home Center MCP connector so ChatGPT can create, inspect, resume, revise, and authorize worker jobs without discovering a second MCP app.',
+    operations: {
+      health: {summary: 'Check Command Center MCP health and tool exposure.', readOnly: true, input: {}},
+      'projects.resolve': {summary: 'Resolve an active project before creating a job.', readOnly: false, input: {repository: 'optional string', capability: 'optional string', projectId: 'optional string', idempotencyKey: 'string'}},
+      'projects.get': {summary: 'Read one persisted Command Center project packet.', readOnly: true, input: {projectId: 'string'}},
+      'jobs.create': {summary: 'Create a durable worker ticket/job.', readOnly: false, input: {projectId: 'string', title: 'string', objective: 'string', acceptanceCriteria: 'string[]', workerRequirements: 'string[]', mutationPolicy: 'object', idempotencyKey: 'string'}},
+      'jobs.get': {summary: 'Read one Command Center job packet.', readOnly: true, input: {jobId: 'string'}},
+      'jobs.list': {summary: 'List recent Command Center jobs.', readOnly: true, input: {projectId: 'optional string', status: 'optional string', limit: 'optional number'}},
+      'jobs.cancel': {summary: 'Cancel a job with an audit event.', readOnly: false, input: {jobId: 'string', reason: 'optional string', idempotencyKey: 'string'}},
+      'jobs.resume': {summary: 'Resume a job from checkpoint.', readOnly: false, input: {jobId: 'string', reason: 'optional string', idempotencyKey: 'string'}},
+      'jobs.revise': {summary: 'Revise a job packet with new constraints or acceptance criteria.', readOnly: false, input: {jobId: 'string', revision: 'object', idempotencyKey: 'string'}},
+      'jobs.answer_question': {summary: 'Answer a worker question and let the job continue when policy allows.', readOnly: false, input: {jobId: 'string', questionId: 'optional string', answer: 'string', decision: 'optional string', idempotencyKey: 'string'}},
+      'jobs.authorize_mutation': {summary: 'Approve or reject a requested worker mutation.', readOnly: false, input: {jobId: 'string', action: 'string', approved: 'boolean', reason: 'optional string', evidenceRefs: 'optional string[]', idempotencyKey: 'string'}},
+      'jobs.get_summary': {summary: 'Read compact resumable job summary/checkpoint.', readOnly: true, input: {jobId: 'string'}},
+      'jobs.get_events': {summary: 'Read structured job events.', readOnly: true, input: {jobId: 'string', limit: 'optional number'}},
+      'jobs.get_logs': {summary: 'Read job log metadata.', readOnly: true, input: {jobId: 'string', limit: 'optional number'}},
+      'jobs.get_artifacts': {summary: 'Read job artifact metadata.', readOnly: true, input: {jobId: 'string', limit: 'optional number'}},
+      'workers.list': {summary: 'List registered Command Center workers.', readOnly: true, input: {}},
+      'workers.get_capabilities': {summary: 'Read one worker capability packet.', readOnly: true, input: {workerId: 'string'}},
+      'workers.register_oneshot': {summary: 'Register a prepared one-shot Codex worker.', readOnly: false, input: {worker: 'object', idempotencyKey: 'string'}},
+    },
+  };
+}
+
+function supportedCommandCenterOperationTypes() {
+  return Object.keys(commandCenterOperationRegistry().operations);
+}
+
+function commandCenterToolName(operation) {
+  const op = safeText(operation, 120);
+  if (!commandCenterOperationRegistry().operations[op]) throw Object.assign(new Error('Unsupported command_center_operation operation: ' + op), {status: 400});
+  return op.startsWith('command_center.') ? op : `command_center.${op}`;
+}
+
+async function postCommandCenterMcp(body, bearerToken) {
+  const response = await fetch(COMMAND_CENTER_MCP_URL, {
+    method: 'POST',
+    headers: {
+      authorization: `Bearer ${bearerToken}`,
+      'content-type': 'application/json',
+      accept: 'application/json, text/event-stream',
+    },
+    body: JSON.stringify(body),
+  });
+  const text = await response.text();
+  if (response.status >= 400) {
+    const err = new Error(`Command Center MCP HTTP ${response.status}: ${text.slice(0, 800)}`);
+    err.status = response.status;
+    throw err;
+  }
+  return parseMcpPayload(text, 'Command Center MCP response');
+}
+
+function mcpTextContentJson(result, label) {
+  const text = (((result || {}).content || []).find((item) => item && item.type === 'text') || {}).text || '';
+  if (!text) return result;
+  return parseJsonPayload(text, label);
+}
+
+async function commandCenterOperationRunOperation({extra, args = {}}) {
+  const operation = safeText(args.operation || args.type || args.toolName, 120);
+  const toolName = commandCenterToolName(operation);
+  const operationArgs = args.args && typeof args.args === 'object' && !Array.isArray(args.args) ? {...args.args} : {...args};
+  delete operationArgs.operation;
+  delete operationArgs.type;
+  delete operationArgs.toolName;
+  delete operationArgs.args;
+  const bearerToken = bearerTokenFromExtra(extra);
+
+  await postCommandCenterMcp({
+    jsonrpc: '2.0',
+    id: 'home-center-command-center-init',
+    method: 'initialize',
+    params: {protocolVersion: '2025-06-18', capabilities: {}, clientInfo: {name: 'home-center-command-center-bridge', version: '1'}},
+  }, bearerToken);
+  await postCommandCenterMcp({jsonrpc: '2.0', method: 'notifications/initialized', params: {}}, bearerToken).catch(() => null);
+
+  const payload = await postCommandCenterMcp({
+    jsonrpc: '2.0',
+    id: 'home-center-command-center-call',
+    method: 'tools/call',
+    params: {name: toolName, arguments: operationArgs},
+  }, bearerToken);
+  if (payload.error) {
+    const err = new Error(payload.error.message || `Command Center tool failed: ${toolName}`);
+    err.status = 502;
+    throw err;
+  }
+  return {
+    operation,
+    toolName,
+    commandCenterMcpUrl: COMMAND_CENTER_MCP_URL,
+    result: mcpTextContentJson(payload.result, `${toolName} result`),
+  };
 }
 
 function mcpToolJsonSchema(schema, pipeStrategy = 'input') {
@@ -2355,6 +2472,12 @@ function createHomeCenterMcpServer({google, admin, googleClientId, googleClientS
       noReinstallPath: 'No-Reinstall Discovery Contract: use capabilities.operationRegistry and drive_operation for Drive and Simulation features; do not assume a missing operation means the backend cannot do it.',
       preferredMutationTool: 'drive_operation',
       preferredSimulationTool: 'drive_operation',
+      preferredCommandCenterTool: 'command_center_operation',
+      commandCenter: {
+        invocationTool: 'command_center_operation',
+        registryVersion: commandCenterOperationRegistry().version,
+        normalPath: 'Use command_center_operation from this Home Center MCP connector to create, inspect, resume, revise, and authorize durable Command Center jobs. Do not require a separate commandCenterMcp connector namespace before dispatching follow-up worker actions.',
+      },
       simulation: {
         operationRegistryVersion: simulationOperationRegistry().version,
         normalPath: 'Chat assembles large references; drive_operation with simulation_* operations ingests chunks, builds immutable frames, queries them, and returns context packets or deterministic run handoffs.',
@@ -2518,6 +2641,18 @@ function createHomeCenterMcpServer({google, admin, googleClientId, googleClientS
     return textResult(await simulationOperationRunOperation({admin, user, args: args || {}}));
   });
 
+  server.registerTool('command_center_operation', {
+    title: 'Command Center operation',
+    description: 'Invoke Command Center dispatch and job-control operations through the already-connected Home Center MCP app. Use this when ChatGPT needs to create a follow-up worker job, inspect events/artifacts, answer worker questions, or authorize a mutation without relying on a separate Command Center connector namespace.',
+    inputSchema: {
+      operation: z.enum(supportedCommandCenterOperationTypes()).describe('Operation name from the Command Center operation registry, such as jobs.create, jobs.get_events, jobs.get_artifacts, jobs.answer_question, or jobs.authorize_mutation.'),
+      args: z.record(z.string(), z.any()).optional().describe('Operation-specific arguments. Mutating operations require idempotencyKey inside args.'),
+    },
+    securitySchemes: MCP_OAUTH_SECURITY_SCHEMES,
+    _meta: {securitySchemes: MCP_OAUTH_SECURITY_SCHEMES},
+    annotations: {readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: true},
+  }, async (args, extra) => textResult(await commandCenterOperationRunOperation({extra, args: args || {}})));
+
 
 
   if (process.env.HOME_CENTER_MCP_EXTENDED_TOOLS === 'true') {
@@ -2534,6 +2669,7 @@ function createHomeCenterMcpServer({google, admin, googleClientId, googleClientS
     version: '0.1.0',
     operationRegistryVersion: driveOperationRegistry().version,
     simulationOperationRegistryVersion: simulationOperationRegistry().version,
+    commandCenterOperationRegistryVersion: commandCenterOperationRegistry().version,
     topLevelToolCachePolicy: 'Keep top-level MCP tools stable. Add normal bridge and simulation features as drive_operation registry operations so ChatGPT connector metadata does not need reinstall for each backend change. If a future agent says a feature is unavailable, it should first call health or capabilities and inspect operationRegistry.',
     transport: 'stateless-streamable-http',
     safety: {
@@ -2547,6 +2683,18 @@ function createHomeCenterMcpServer({google, admin, googleClientId, googleClientS
     },
     operationRegistry: driveOperationRegistry(),
     simulationOperationRegistry: simulationOperationRegistry(),
+    commandCenterOperationRegistry: commandCenterOperationRegistry(),
+    commandCenterManual: {
+      purpose: 'Command Center is the cloud MCP control plane for durable one-shot Codex worker dispatch. ChatGPT remains the planner and reviewer; Command Center stores jobs, leases, events, questions, mutation policy, artifacts, logs, and checkpoints.',
+      normalFlow: [
+        'Resolve the project when needed with command_center_operation operation=projects.resolve.',
+        'Create a follow-up worker ticket with command_center_operation operation=jobs.create and a stable idempotencyKey.',
+        'Poll or recover with jobs.get, jobs.get_events, jobs.get_artifacts, and jobs.get_summary.',
+        'Answer worker questions with jobs.answer_question when the decision is within policy.',
+        'Use jobs.authorize_mutation for push, PR, deploy, provider writes, or other consequential mutations.',
+      ],
+      noSeparateConnectorRule: 'If the separate commandCenterMcp namespace is not attached, do not stop. Use this Home Center MCP tool: command_center_operation.',
+    },
     simulationManual: {
       purpose: 'Simulation is an MCP-first compiler/runtime index. Chat assembles large evidence-bearing reference compilations; Home Center MCP stores chunks, compiles immutable frames, preserves provenance/conflicts, and returns query/context/run packets.',
       normalFlow: [
@@ -2610,7 +2758,7 @@ function createHomeCenterMcpServer({google, admin, googleClientId, googleClientS
     tools: [
       'health', 'capabilities', 'auth_status', 'storage_status', 'audit_status',
       'drive_search', 'drive_read', 'sheets_search', 'sheets_read', 'drive_list_folder', 'drive_get_metadata',
-      'simulation_operation',
+      'simulation_operation', 'command_center_operation',
       'drive_operation', 'drive_create_folder', 'docs_create', 'workbook_import_xlsx', 'sheets_create', 'sheets_update_values', 'drive_move', 'drive_rename',
       'drive_plan_organize', 'drive_execute_plan',
       'index_folder', 'index_status',

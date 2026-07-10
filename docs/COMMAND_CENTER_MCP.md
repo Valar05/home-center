@@ -153,24 +153,35 @@ Do not put Codex login secrets in ticket data. Worker authentication and quota a
 
 ## ChatGPT Invokability Acceptance
 
-The only accepted product endpoint is ChatGPT invoking the remote MCP app:
+The accepted normal ChatGPT path is the already-connected Home Center MCP app exposing Command Center through a stable dispatcher:
+
+```text
+https://us-central1-home-center-dclar.cloudfunctions.net/homeCenterMcp/mcp
+tool: command_center_operation
+```
+
+This is the loop-closing path. If ChatGPT cannot see a separate `commandCenterMcp` tool namespace, it must not stop; it should call Home Center `command_center_operation`.
+
+Normal flow:
+
+1. Call Home Center `health`; it advertises `preferredCommandCenterTool=command_center_operation`.
+2. Call `command_center_operation` with `operation=health`; the bridged Command Center health result must return `ok=true` and `invokable=true`.
+3. Resolve a project with `operation=projects.resolve` when needed.
+4. Create a follow-up worker action with `operation=jobs.create`.
+5. Recover or supervise with `operation=jobs.get`, `jobs.get_events`, `jobs.get_artifacts`, and `jobs.get_summary`.
+6. Continue the job with `jobs.answer_question` or `jobs.authorize_mutation` when policy allows.
+
+The standalone Command Center endpoint remains available for direct MCP clients and worker-control tooling:
 
 ```text
 https://us-central1-home-center-dclar.cloudfunctions.net/commandCenterMcp/mcp
 ```
 
-Setup path:
-
-1. In ChatGPT, add a custom remote MCP app with the `/mcp` URL above.
-2. Complete OAuth through Home Center. The Command Center protected-resource metadata delegates authorization to `homeCenterMcp`.
-3. First call `command_center.health`; it must return `ok=true` and `invokable=true`.
-4. Then call `command_center.projects.resolve` for `home-center`.
-5. Create one harmless job with `command_center.jobs.create`, then read it back with `command_center.jobs.get` and `command_center.jobs.get_summary`.
-
 Local/live protocol gate:
 
 ```sh
 node tools/command_center_chatgpt_invokability_gate.mjs
+node tools/command_center_home_bridge_invokability_gate.mjs
 ```
 
 With a real Home Center MCP OAuth bearer token, the gate can also create/read the live smoke job:
@@ -206,3 +217,8 @@ tools/command_center_invokability_evidence/command_center_invokability_command-c
 ```
 
 That evidence verifies protected-resource metadata, Home Center OAuth delegation, the unauthenticated MCP challenge, Streamable HTTP initialize, tool listing, and a successful `command_center.health` tool call. The local regression suite also runs the one-shot worker self-test, proving the prepared-workspace copy and required artifact contract.
+
+Home Center bridge revision `homecentermcp-00025-xuf` also exposes `command_center_operation` directly through the normal Home Center MCP app. Red/green evidence:
+
+- Red before deploy: `tools/command_center_invokability_evidence/command_center_home_bridge_invokability_predeploy-red-20260710.json` recorded `Tool command_center_operation not found`.
+- Green after deploy: `tools/command_center_invokability_evidence/command_center_home_bridge_invokability_postdeploy-green-20260710.json` recorded tool discovery and `operation=health` execution through Home Center MCP.

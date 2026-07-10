@@ -68,6 +68,15 @@ V1 grants the safe core tool groups only: Drive, Docs, Sheets search/read, and G
 
 Command Center is a separate cloud MCP control plane for dispatching, supervising, and preserving Codex worker execution. It has no frontend and no independent chat interface. ChatGPT remains the planner and conversational surface; Command Center persists projects, tickets, leases, events, questions, mutation approvals, logs, artifacts, and checkpoints; user-owned Codex workers execute.
 
+Normal ChatGPT invocation should use the already-connected Home Center MCP app first:
+
+```text
+tool: command_center_operation
+operation: jobs.create | jobs.get | jobs.get_events | jobs.get_artifacts | jobs.answer_question | jobs.authorize_mutation
+```
+
+This avoids a dead-end where ChatGPT can see Home Center tools but cannot discover a separate `commandCenterMcp` namespace. The standalone Command Center MCP endpoint still exists for direct MCP clients and worker-control tooling.
+
 The Firebase export is `commandCenterMcp` and its MCP endpoint is:
 
 ```text
