@@ -96,6 +96,17 @@ async function main() {
   const healthContent = toolContentJson(healthJson, 'command_center_operation health content');
   add('command_center_operation_health_invokable', health.status === 200 && healthContent.result?.ok === true && healthContent.result?.invokable === true, {status: health.status, content: healthContent});
 
+  const bucket = await postMcp(args.mcpUrl, args.bearerToken, {
+    jsonrpc: '2.0',
+    id: 13,
+    method: 'tools/call',
+    params: {name: 'command_center_operation', arguments: {operation: 'bucket.get_layout', args: {}}},
+  });
+  const bucketJson = parseMcpResponse(bucket.text, 'command_center_operation bucket layout');
+  const bucketContent = toolContentJson(bucketJson, 'command_center_operation bucket layout content');
+  const lanes = Object.keys(bucketContent.result?.layout?.lanes || {});
+  add('command_center_operation_bucket_layout_invokable', bucket.status === 200 && lanes.includes('memory/current-condensed') && lanes.includes('skills/promoted') && lanes.includes('notes/cross-repo'), {status: bucket.status, lanes});
+
   const result = {
     ok: checks.every((check) => check.ok),
     mcpUrl: args.mcpUrl,
