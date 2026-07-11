@@ -39,6 +39,8 @@ The Firebase export is `commandCenterMcp`; the Streamable HTTP endpoint is:
 https://us-central1-home-center-dclar.cloudfunctions.net/commandCenterMcp/mcp
 ```
 
+Command Center delegates auth through the Home Center OAuth bridge. If Google returns `disallowed_useragent` during a ChatGPT connector refresh, treat it as a blocked embedded-browser sign-in, not as a Command Center runtime failure. The Home Center `/oauth/authorize` endpoint serves a secure-browser handoff page for embedded user agents so the same OAuth request can be opened in Chrome or another system browser. A plain auth refresh may reuse stale connector/browser state; reconnect the connector through the handoff path when this happens.
+
 V1 exposes these typed tools:
 
 - `command_center.projects.resolve`

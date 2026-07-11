@@ -190,6 +190,62 @@ function redirectWithParams(base, params) {
   return url.toString();
 }
 
+function htmlEscape(value) {
+  return String(value || '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function likelyEmbeddedOAuthUserAgent(userAgent) {
+  const ua = String(userAgent || '').toLowerCase();
+  if (!ua) return false;
+  const embeddedMarkers = [
+    '; wv)',
+    '; wv ',
+    ' wv;',
+    'version/4.0 chrome/',
+    'fbav/',
+    'fban/',
+    'instagram',
+    'line/',
+    'twitter',
+    'linkedinapp',
+    'electron',
+    'chatgpt',
+  ];
+  return embeddedMarkers.some((marker) => ua.includes(marker));
+}
+
+function renderSecureBrowserOAuthHandoff(googleAuthUrl) {
+  const safeUrl = htmlEscape(googleAuthUrl);
+  return `<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Open Home Center Sign-In</title>
+  <style>
+    body { font-family: system-ui, sans-serif; margin: 0; padding: 32px; line-height: 1.5; color: #17212b; background: #f7f8fa; }
+    main { max-width: 680px; margin: 0 auto; background: #fff; border: 1px solid #d8dee4; border-radius: 8px; padding: 24px; }
+    a.button { display: inline-block; margin: 12px 0; padding: 12px 16px; border-radius: 6px; background: #0969da; color: #fff; text-decoration: none; font-weight: 700; }
+    code { display: block; overflow-wrap: anywhere; white-space: normal; background: #f6f8fa; padding: 12px; border-radius: 6px; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Open Home Center sign-in in a secure browser</h1>
+    <p>Google blocked this sign-in surface because it looks like an embedded browser. Open the same authorization request in Chrome or another system browser to continue connecting Home Center.</p>
+    <p><a class="button" href="${safeUrl}" target="_blank" rel="noopener noreferrer">Continue in secure browser</a></p>
+    <p>If the button stays inside this app, copy this link into Chrome:</p>
+    <code>${safeUrl}</code>
+  </main>
+</body>
+</html>`;
+}
+
 function oauthCollection(admin, name) {
   return admin.firestore().collection(name);
 }
@@ -3650,6 +3706,12 @@ function createHomeCenterMcpApp({google, admin, googleClientId = () => '', googl
         scope: ['openid', 'email', ...MCP_REQUIRED_SCOPES],
         state: flowState,
       });
+      if (likelyEmbeddedOAuthUserAgent(req.get('User-Agent'))) {
+        connectorLog('authorize_secure_browser_handoff', req, {googleCallbackHost: redirectHost(MCP_GOOGLE_CALLBACK)});
+        res.set('Cache-Control', 'no-store');
+        res.status(200).type('html').send(renderSecureBrowserOAuthHandoff(url));
+        return;
+      }
       connectorLog('authorize_redirect_google', req, {googleCallbackHost: redirectHost(MCP_GOOGLE_CALLBACK)});
       res.redirect(url);
     } catch (err) {
