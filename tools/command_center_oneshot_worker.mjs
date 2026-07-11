@@ -3,7 +3,7 @@ import crypto from 'node:crypto';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import {spawnSync} from 'node:child_process';
+import {spawn, spawnSync} from 'node:child_process';
 
 const DEFAULT_COMMAND_CENTER_BASE = 'https://us-central1-home-center-dclar.cloudfunctions.net/commandCenterMcp';
 const DEFAULT_CONFIG_PATH = path.join(os.homedir(), '.config', 'home-center', 'command-center-worker.json');
@@ -18,6 +18,16 @@ const REQUIRED_ARTIFACTS = [
   'final-report.md',
   'mutation-requests.jsonl',
 ];
+const OPTIONAL_POSTMORTEM_ARTIFACTS = [
+  'stdout-transcript.txt',
+  'stderr-transcript.txt',
+  'event-transcript.jsonl',
+  'executor-status.json',
+  'artifact-upload-summary.json',
+];
+const DEFAULT_EXECUTOR_HEARTBEAT_MS = 25000;
+const DEFAULT_EXECUTOR_BATCH_MS = 5000;
+const DEFAULT_EXECUTOR_BATCH_LINES = 20;
 
 function parseArgs(argv) {
   const args = {mode: '', outputDir: '', baseWorkspace: '', jobPacket: '', command: '', executorCommand: '', manifest: '', config: DEFAULT_CONFIG_PATH, mcpUrl: DEFAULT_COMMAND_CENTER_BASE + '/mcp', commandCenterBase: DEFAULT_COMMAND_CENTER_BASE, workerId: '', mcpToken: process.env.HOME_CENTER_COMMAND_CENTER_BEARER_TOKEN || '', selfTest: false, deep: false};
@@ -72,6 +82,28 @@ function writeFile(file, data) {
 
 function writeJson(file, data) {
   writeFile(file, JSON.stringify(data, null, 2));
+}
+
+function appendFile(file, data) {
+  fs.mkdirSync(path.dirname(file), {recursive: true});
+  fs.appendFileSync(file, String(data || ''));
+}
+
+function redactSecrets(value) {
+  let text = String(value ?? '');
+  text = text.replace(/Bearer\s+[A-Za-z0-9._~+/=-]{12,}/gi, 'Bearer [REDACTED]');
+  text = text.replace(/\bccw_[A-Za-z0-9_-]{12,}(?:_[A-Za-z0-9_-]{12,})?\b/g, '[REDACTED_WORKER_TOKEN]');
+  text = text.replace(/\bgh[pousr]_[A-Za-z0-9_]{20,}\b/g, '[REDACTED_GITHUB_TOKEN]');
+  text = text.replace(/\bya29\.[A-Za-z0-9._-]{20,}\b/g, '[REDACTED_GOOGLE_TOKEN]');
+  text = text.replace(/\bAIza[A-Za-z0-9_-]{20,}\b/g, '[REDACTED_GOOGLE_API_KEY]');
+  text = text.replace(/\b[A-Za-z0-9_-]{20,}\.[A-Za-z0-9_-]{20,}\.[A-Za-z0-9_-]{20,}\b/g, '[REDACTED_JWT]');
+  text = text.replace(/((?:TOKEN|SECRET|KEY|AUTH|PASSWORD|CREDENTIAL)[A-Z0-9_ -]*\s*[=:]\s*)[^\s"'`]+/gi, '$1[REDACTED]');
+  text = text.replace(/((?:token|secret|key|auth|password|credential)[A-Za-z0-9_ -]*["']?\s*:\s*["'])[^\n"']+(["'])/g, '$1[REDACTED]$2');
+  return text;
+}
+
+function cleanLines(text, maxLineChars = 1200) {
+  return String(text || '').split(/\r?\n/).map((line) => redactSecrets(line).slice(0, maxLineChars));
 }
 
 function readConfig(configPath) {
@@ -191,6 +223,9 @@ function writeRequiredArtifacts({outputDir, runWorkspace, jobPacket, commandResu
   writeFile(path.join(outputDir, 'final-report.md'), ['# Final Report', '', 'Status: ' + (ok ? 'completed' : 'failed'), 'Artifacts: ' + REQUIRED_ARTIFACTS.length, 'Residual risk: review command output, patch, and mutation requests before consequential mutation.'].join('\n'));
   if (!fs.existsSync(path.join(outputDir, 'mutation-requests.jsonl'))) writeFile(path.join(outputDir, 'mutation-requests.jsonl'), '');
   const artifacts = REQUIRED_ARTIFACTS.map((name) => artifactRecord(outputDir, name));
+  for (const name of OPTIONAL_POSTMORTEM_ARTIFACTS) {
+    if (fs.existsSync(path.join(outputDir, name))) artifacts.push(artifactRecord(outputDir, name, 'postmortem', false));
+  }
   if (fs.existsSync(path.join(outputDir, 'codex-prompt.md'))) artifacts.push(artifactRecord(outputDir, 'codex-prompt.md', 'prompt', false));
   return artifacts;
 }
@@ -286,7 +321,186 @@ async function workerPost(base, token, route, body = {}) {
   return json;
 }
 
-function localRun({args, manifest = {}, jobPacket, outputDir}) {
+function executorCommandMetadata(command, cwd, outputDir) {
+  return {
+    command: redactSecrets(command),
+    cwd,
+    outputDir,
+    shell: true,
+  };
+}
+
+async function runStreamingExecutor({command, cwd, env = {}, outputDir, jobPacket = {}, manifest = {}, eventPoster = null}) {
+  const job = jobPacket.job || jobPacket;
+  const jobId = job.jobId || '';
+  const projectId = job.projectId || manifest.projectId || '';
+  const workerId = manifest.workerId || '';
+  const startedAt = new Date().toISOString();
+  const startedAtMs = Date.now();
+  const stdoutPath = path.join(outputDir, 'stdout-transcript.txt');
+  const stderrPath = path.join(outputDir, 'stderr-transcript.txt');
+  const eventTranscriptPath = path.join(outputDir, 'event-transcript.jsonl');
+  const statusPath = path.join(outputDir, 'executor-status.json');
+  const heartbeatMs = Math.max(1000, Number(process.env.COMMAND_CENTER_EXECUTOR_HEARTBEAT_MS || DEFAULT_EXECUTOR_HEARTBEAT_MS));
+  const batchMs = Math.max(250, Number(process.env.COMMAND_CENTER_EXECUTOR_BATCH_MS || DEFAULT_EXECUTOR_BATCH_MS));
+  const batchLines = Math.max(1, Number(process.env.COMMAND_CENTER_EXECUTOR_BATCH_LINES || DEFAULT_EXECUTOR_BATCH_LINES));
+  const stats = {stdoutLines: 0, stderrLines: 0, stdoutBytes: 0, stderrBytes: 0, eventsPosted: 0, eventPostFailures: 0};
+  let child = null;
+  let lastOutputAtMs = Date.now();
+  let cloudChain = Promise.resolve();
+
+  const postCloud = (payload) => {
+    if (!eventPoster) return;
+    cloudChain = cloudChain.then(async () => {
+      try {
+        await eventPoster(payload);
+        stats.eventsPosted += 1;
+      } catch (err) {
+        stats.eventPostFailures += 1;
+        appendFile(eventTranscriptPath, JSON.stringify({createdAt: new Date().toISOString(), type: 'event_post_failed', error: redactSecrets(err.message || String(err)), failedType: payload.type}) + '\n');
+      }
+    });
+  };
+
+  const emitEvent = (type, summary, data = {}) => {
+    const event = {
+      type,
+      summary: redactSecrets(summary),
+      data: JSON.parse(JSON.stringify(data, (_key, value) => typeof value === 'string' ? redactSecrets(value) : value)),
+      createdAt: new Date().toISOString(),
+      jobId,
+      projectId,
+    };
+    appendFile(eventTranscriptPath, JSON.stringify(event) + '\n');
+    postCloud({type, summary: event.summary, data: event.data});
+  };
+
+  const stdoutBatch = [];
+  const stderrBatch = [];
+  let stdoutRemainder = '';
+  let stderrRemainder = '';
+
+  const flushBatch = (stream, reason) => {
+    const batch = stream === 'stdout' ? stdoutBatch : stderrBatch;
+    if (!batch.length) return;
+    const lines = batch.splice(0, batch.length);
+    emitEvent(`executor_${stream}`, `${stream} ${lines.length} line(s)`, {stream, reason, lines, lineCount: lines.length});
+  };
+
+  const batchTimer = setInterval(() => {
+    flushBatch('stdout', 'timer');
+    flushBatch('stderr', 'timer');
+  }, batchMs);
+
+  const appendChunk = (stream, chunk) => {
+    const raw = chunk.toString('utf8');
+    const transcriptPath = stream === 'stdout' ? stdoutPath : stderrPath;
+    appendFile(transcriptPath, redactSecrets(raw));
+    if (stream === 'stdout') stats.stdoutBytes += Buffer.byteLength(raw);
+    else stats.stderrBytes += Buffer.byteLength(raw);
+    lastOutputAtMs = Date.now();
+    const combined = (stream === 'stdout' ? stdoutRemainder : stderrRemainder) + raw;
+    const parts = combined.split(/\r?\n/);
+    const remainder = parts.pop() || '';
+    if (stream === 'stdout') stdoutRemainder = remainder;
+    else stderrRemainder = remainder;
+    for (const line of cleanLines(parts.join('\n')).filter((item) => item.length || parts.length)) {
+      if (stream === 'stdout') {
+        stdoutBatch.push(line);
+        stats.stdoutLines += 1;
+        if (stdoutBatch.length >= batchLines) flushBatch('stdout', 'line_limit');
+      } else {
+        stderrBatch.push(line);
+        stats.stderrLines += 1;
+        if (stderrBatch.length >= batchLines) flushBatch('stderr', 'line_limit');
+      }
+    }
+  };
+
+  return await new Promise((resolve) => {
+    let finished = false;
+    let cancelled = false;
+    const finish = async (status) => {
+      if (finished) return;
+      finished = true;
+      clearInterval(batchTimer);
+      clearInterval(heartbeatTimer);
+      if (stdoutRemainder) {
+        stdoutBatch.push(redactSecrets(stdoutRemainder).slice(0, 1200));
+        stats.stdoutLines += 1;
+        stdoutRemainder = '';
+      }
+      if (stderrRemainder) {
+        stderrBatch.push(redactSecrets(stderrRemainder).slice(0, 1200));
+        stats.stderrLines += 1;
+        stderrRemainder = '';
+      }
+      flushBatch('stdout', 'finish');
+      flushBatch('stderr', 'finish');
+      const endedAtMs = Date.now();
+      const payload = {
+        command: redactSecrets(command),
+        cwd,
+        startedAt,
+        endedAt: new Date(endedAtMs).toISOString(),
+        exitCode: status.exitCode,
+        signal: status.signal || '',
+        cancelled,
+        durationMs: endedAtMs - startedAtMs,
+        stdout: '',
+        stderr: status.error ? redactSecrets(status.error) : '',
+        stdoutPath,
+        stderrPath,
+        eventTranscriptPath,
+        stats,
+      };
+      writeJson(statusPath, payload);
+      emitEvent(status.exitCode === 0 && !cancelled ? 'executor_finished' : (cancelled ? 'executor_cancelled' : 'executor_failed'), status.summary, {exitCode: status.exitCode, signal: status.signal || '', durationMs: payload.durationMs, stats});
+      await cloudChain;
+      resolve(payload);
+    };
+
+    const heartbeatTimer = setInterval(() => {
+      emitEvent('executor_heartbeat', 'Executor heartbeat.', {elapsedMs: Date.now() - startedAtMs, lastOutputAgeMs: Date.now() - lastOutputAtMs, pid: child?.pid || 0, stats});
+    }, heartbeatMs);
+
+    const cancel = (signal) => {
+      cancelled = true;
+      emitEvent('executor_cancelled', `Worker received ${signal}; terminating executor.`, {signal, pid: child?.pid || 0, elapsedMs: Date.now() - startedAtMs});
+      try { if (child && !child.killed) child.kill('SIGTERM'); } catch (_) {}
+      setTimeout(() => {
+        try { if (child && !child.killed) child.kill('SIGKILL'); } catch (_) {}
+      }, 5000).unref?.();
+    };
+    process.once('SIGINT', cancel);
+    process.once('SIGTERM', cancel);
+
+    try {
+      child = spawn(command, {cwd, shell: true, env: {...process.env, ...env}});
+    } catch (err) {
+      process.removeListener('SIGINT', cancel);
+      process.removeListener('SIGTERM', cancel);
+      finish({exitCode: 1, error: err.message || String(err), summary: 'Executor spawn failed.'});
+      return;
+    }
+
+    emitEvent('executor_started', 'Executor started.', {...executorCommandMetadata(command, cwd, outputDir), pid: child.pid || 0, startedAt});
+    child.stdout.on('data', (chunk) => appendChunk('stdout', chunk));
+    child.stderr.on('data', (chunk) => appendChunk('stderr', chunk));
+    child.on('error', (err) => {
+      process.removeListener('SIGINT', cancel);
+      process.removeListener('SIGTERM', cancel);
+      finish({exitCode: 1, error: err.message || String(err), summary: 'Executor failed before exit.'});
+    });
+    child.on('close', (code, signal) => {
+      process.removeListener('SIGINT', cancel);
+      process.removeListener('SIGTERM', cancel);
+      finish({exitCode: typeof code === 'number' ? code : (signal ? 130 : 1), signal, summary: `Executor exited with code ${typeof code === 'number' ? code : 'unknown'}${signal ? ` signal ${signal}` : ''}.`});
+    });
+  });
+}
+
+async function localRun({args, manifest = {}, jobPacket, outputDir, eventPoster = null}) {
   const baseWorkspace = args.baseWorkspace || manifest.repoPath || manifest.path;
   if (!baseWorkspace) throw new Error('No base workspace path was provided.');
   const runWorkspace = path.join(outputDir, 'workspace');
@@ -298,12 +512,14 @@ function localRun({args, manifest = {}, jobPacket, outputDir}) {
   const commandResults = [];
   const executor = args.executorCommand || args.command;
   if (executor) {
-    commandResults.push(run(executor, runWorkspace, {COMMAND_CENTER_JOB_PACKET: path.join(outputDir, 'job-intake.json'), COMMAND_CENTER_PROMPT_PACKET: promptPath, COMMAND_CENTER_ARTIFACT_DIR: outputDir}));
+    commandResults.push(await runStreamingExecutor({command: executor, cwd: runWorkspace, env: {COMMAND_CENTER_JOB_PACKET: path.join(outputDir, 'job-intake.json'), COMMAND_CENTER_PROMPT_PACKET: promptPath, COMMAND_CENTER_ARTIFACT_DIR: outputDir}, outputDir, jobPacket, manifest, eventPoster}));
   } else {
     commandResults.push({command: 'NO_EXECUTOR_CONFIGURED', cwd: runWorkspace, startedAt: new Date().toISOString(), endedAt: new Date().toISOString(), exitCode: 78, stdout: '', stderr: 'No callable Codex executor command configured. Failing honestly instead of faking implementation.'});
   }
   const status = commandResults.every((item) => item.exitCode === 0) ? 'completed' : 'failed';
   const artifacts = writeRequiredArtifacts({outputDir, runWorkspace, jobPacket, commandResults, manifest, status});
+  writeJson(path.join(outputDir, 'artifact-upload-summary.json'), {status: 'not_uploaded_local_run', artifactCount: artifacts.length, generatedAt: new Date().toISOString()});
+  artifacts.push(artifactRecord(outputDir, 'artifact-upload-summary.json', 'upload-summary', false));
   writeJson(path.join(outputDir, 'artifacts.json'), {artifacts});
   console.log(JSON.stringify({ok: status === 'completed', status, outputDir, runWorkspace, artifacts: artifacts.length}, null, 2));
   return {status, artifacts, outputDir, runWorkspace, commandResults};
@@ -319,14 +535,22 @@ async function runOnce(args) {
   }
   const jobId = lease.packet.job.jobId;
   const outputDir = path.resolve(args.outputDir || path.join(os.tmpdir(), 'command-center-worker', jobId));
-  const result = localRun({args: {...args, executorCommand: args.executorCommand || config.executorCommand}, manifest, jobPacket: lease.packet, outputDir});
-  await workerPost(config.commandCenterBase || args.commandCenterBase, config.workerToken, '/worker/artifacts', {jobId, artifacts: result.artifacts});
+  const commandCenterBase = config.commandCenterBase || args.commandCenterBase;
+  const eventPoster = (event) => workerPost(commandCenterBase, config.workerToken, '/worker/events', {jobId, ...event});
+  const result = await localRun({args: {...args, executorCommand: args.executorCommand || config.executorCommand}, manifest, jobPacket: lease.packet, outputDir, eventPoster});
+  const uploaded = await workerPost(commandCenterBase, config.workerToken, '/worker/artifacts', {jobId, artifacts: result.artifacts});
+  writeJson(path.join(outputDir, 'artifact-upload-summary.json'), {status: 'uploaded', artifactCount: result.artifacts.length, uploadedArtifactIds: (uploaded.artifacts || []).map((artifact) => artifact.artifactId), generatedAt: new Date().toISOString()});
+  const uploadSummary = artifactRecord(outputDir, 'artifact-upload-summary.json', 'upload-summary', false);
+  const uploadSummaryIndex = result.artifacts.findIndex((artifact) => artifact.name === 'artifact-upload-summary.json');
+  if (uploadSummaryIndex >= 0) result.artifacts[uploadSummaryIndex] = uploadSummary;
+  else result.artifacts.push(uploadSummary);
+  await eventPoster({type: 'artifact_upload_summary', summary: `Uploaded ${result.artifacts.length} worker artifact(s).`, data: {artifactCount: result.artifacts.length, uploadedArtifactIds: (uploaded.artifacts || []).map((artifact) => artifact.artifactId)}});
   await workerPost(config.commandCenterBase || args.commandCenterBase, config.workerToken, '/worker/checkpoint', {jobId, currentPhase: result.status, workingTreeState: result.commandResults.every((item) => item.exitCode === 0) ? 'verified' : 'failed', filesChanged: readJson(path.join(outputDir, 'changed-files.json'), {}).changedFiles?.map((item) => item.path) || [], testsRun: result.commandResults.map((item) => item.command), evidenceRefs: result.artifacts.map((item) => item.uri), nextAction: result.status === 'completed' ? 'ChatGPT review completion evidence.' : 'Review failure report and revise job or worker configuration.'});
   await workerPost(config.commandCenterBase || args.commandCenterBase, config.workerToken, '/worker/complete', {jobId, status: result.status, finalReport: fs.readFileSync(path.join(outputDir, 'final-report.md'), 'utf8'), artifacts: result.artifacts});
   return result.status === 'completed' ? 0 : 1;
 }
 
-function runSelfTest() {
+async function runSelfTest() {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'cc-oneshot-selftest-'));
   const base = path.join(root, 'base');
   const packet = path.join(root, 'packet.json');
@@ -339,22 +563,40 @@ function runSelfTest() {
   writeJson(manifestPath, {projectId: 'self-test', repoPath: base, orientationFiles: ['README.md'], toolChecks: [{name: 'node', command: 'node --version'}], capabilities: ['codex', 'one-shot-worker', 'prepared-workspace']});
   const prepareCode = prepareBase({manifest: manifestPath, outputDir: path.join(root, 'prepare'), deep: false});
   if (prepareCode !== 0) throw new Error('self-test prepare-base failed');
-  const result = localRun({args: {baseWorkspace: base, command: 'printf changed > README.md'}, manifest: readJson(manifestPath), jobPacket: readJson(packet), outputDir: out});
+  const result = await localRun({args: {baseWorkspace: base, command: 'printf changed > README.md'}, manifest: readJson(manifestPath), jobPacket: readJson(packet), outputDir: out});
   const missing = REQUIRED_ARTIFACTS.filter((name) => !fs.existsSync(path.join(out, name)));
   if (result.status !== 'completed' || missing.length) throw new Error('self-test failed; missing: ' + missing.join(', '));
-  console.log('Command Center one-shot worker self-test: OK (' + out + ')');
+  const streamOut = path.join(root, 'stream-out');
+  const oldHeartbeat = process.env.COMMAND_CENTER_EXECUTOR_HEARTBEAT_MS;
+  const oldBatch = process.env.COMMAND_CENTER_EXECUTOR_BATCH_MS;
+  process.env.COMMAND_CENTER_EXECUTOR_HEARTBEAT_MS = '700';
+  process.env.COMMAND_CENTER_EXECUTOR_BATCH_MS = '250';
+  const streamCommand = 'node -e "console.log(\'stream-one\'); setTimeout(()=>console.error(\'stream-two\'),300); setTimeout(()=>console.log(\'stream-three\'),1700); setTimeout(()=>process.exit(0),2400)"';
+  const streamResult = await localRun({args: {baseWorkspace: base, command: streamCommand}, manifest: readJson(manifestPath), jobPacket: readJson(packet), outputDir: streamOut});
+  if (oldHeartbeat === undefined) delete process.env.COMMAND_CENTER_EXECUTOR_HEARTBEAT_MS; else process.env.COMMAND_CENTER_EXECUTOR_HEARTBEAT_MS = oldHeartbeat;
+  if (oldBatch === undefined) delete process.env.COMMAND_CENTER_EXECUTOR_BATCH_MS; else process.env.COMMAND_CENTER_EXECUTOR_BATCH_MS = oldBatch;
+  if (streamResult.status !== 'completed') throw new Error('streaming self-test executor failed');
+  const eventRows = fs.readFileSync(path.join(streamOut, 'event-transcript.jsonl'), 'utf8').trim().split(/\r?\n/).filter(Boolean).map((line) => JSON.parse(line));
+  const eventTypes = eventRows.map((event) => event.type);
+  for (const requiredType of ['executor_started', 'executor_stdout', 'executor_stderr', 'executor_heartbeat', 'executor_finished']) {
+    if (!eventTypes.includes(requiredType)) throw new Error('streaming self-test missing event: ' + requiredType);
+  }
+  if (!fs.readFileSync(path.join(streamOut, 'stdout-transcript.txt'), 'utf8').includes('stream-one')) throw new Error('streaming self-test missing stdout transcript');
+  if (!fs.readFileSync(path.join(streamOut, 'stderr-transcript.txt'), 'utf8').includes('stream-two')) throw new Error('streaming self-test missing stderr transcript');
+  if (!fs.existsSync(path.join(streamOut, 'executor-status.json'))) throw new Error('streaming self-test missing executor status');
+  console.log('Command Center one-shot worker self-test: OK (' + out + ', ' + streamOut + ')');
   return 0;
 }
 
 async function main(argv = process.argv.slice(2)) {
   const args = parseArgs(argv);
-  if (args.mode === 'self-test') return runSelfTest();
+  if (args.mode === 'self-test') return await runSelfTest();
   if (args.mode === 'prepare-base') return prepareBase(args);
   if (args.mode === 'register') return registerWorker(args);
   if (args.mode === 'run-once') return runOnce(args);
   if (args.mode === 'run-local') {
     if (!args.baseWorkspace || !args.jobPacket || !args.outputDir) throw new Error('run-local requires --base-workspace, --job-packet, and --output-dir');
-    const result = localRun({args, manifest: {}, jobPacket: readJson(args.jobPacket, {}), outputDir: path.resolve(args.outputDir)});
+    const result = await localRun({args, manifest: {}, jobPacket: readJson(args.jobPacket, {}), outputDir: path.resolve(args.outputDir)});
     return result.status === 'completed' ? 0 : 1;
   }
   throw new Error('Unknown mode: ' + args.mode);

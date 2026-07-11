@@ -11,6 +11,7 @@ node --check functions/command_center_mcp.js
 node --check tools/command_center_mcp_contract_test.mjs
 node --check tools/command_center_chatgpt_invokability_gate.mjs
 node --check tools/command_center_oneshot_worker.mjs
+node --check tools/command_center_verbose_worker_smoke.mjs
 node tools/command_center_mcp_contract_test.mjs
 node tools/command_center_oneshot_worker.mjs --self-test
 node --check functions/index.js

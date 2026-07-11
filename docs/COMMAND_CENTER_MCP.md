@@ -123,6 +123,41 @@ If no executor command is configured, the worker emits the required artifacts an
 
 The first project manifest is `tools/command_center_base_manifests/tanks-for-the-memories.json`. It records the local Tanks repo path, orientation files, tool checks, Debian proot Blender deep check, capabilities, and mutation defaults.
 
+## Verbose Worker Execution
+
+One-shot executor output must stream while the child process is alive. The worker uses streaming `spawn` for configured executor commands; `spawnSync` is reserved for short internal checks such as git status, tool checks, and local setup commands.
+
+During execution the worker emits these Command Center events through `/worker/events`:
+
+- `executor_started`
+- `executor_stdout`
+- `executor_stderr`
+- `executor_heartbeat`
+- `executor_finished`
+- `executor_failed`
+- `executor_cancelled`
+- `artifact_upload_summary`
+
+Stdout and stderr are batched by 20 lines or 5 seconds, whichever happens first. The worker emits a heartbeat every 25 seconds while the child is alive. Heartbeat events update job and lease freshness so long Codex jobs do not appear stuck during quiet phases.
+
+The worker redacts token-like strings, bearer headers, worker tokens, GitHub tokens, Google/OAuth-looking tokens, API keys, and environment-style secret assignments before writing local transcripts or cloud events. It never logs the full environment.
+
+Every executor run leaves local postmortem artifacts:
+
+- `stdout-transcript.txt`
+- `stderr-transcript.txt`
+- `event-transcript.jsonl`
+- `executor-status.json`
+- `artifact-upload-summary.json`
+
+Live smoke command:
+
+```sh
+node tools/command_center_verbose_worker_smoke.mjs --run-id verbose-worker-$(date +%Y%m%d%H%M%S)
+```
+
+The smoke registers a temporary one-shot worker, creates a unique-capability job, runs a long fake executor, polls `command_center.jobs.get_events` while the child is still alive, and fails unless stdout/stderr/heartbeat events are visible in cloud readback before `executor_finished`.
+
 ## Firestore Collections
 
 V1 state is stored in these collections:

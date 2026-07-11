@@ -586,6 +586,7 @@ function testMcpToolSurface() {
     'workbook_import_xlsx',
     'docs_append',
     'simulation_operation',
+    'command_center_operation',
     'drive_create_folder',
     'docs_create',
   ]);

@@ -692,7 +692,27 @@ function createCommandCenterMcpApp({admin}) {
       const caller = await workerCallerFromRequest(admin, req);
       const jobId = cleanJobId(req.body && req.body.jobId);
       const job = await getJob(admin, jobId);
+      if (job.selectedWorkerId !== caller.workerId) {
+        const err = new Error('Worker cannot attach events to a job it does not own.');
+        err.status = 403;
+        throw err;
+      }
       const event = await appendEvent(admin, {type: req.body.type || 'worker_event', jobId, projectId: job.projectId, actor: caller.workerId, summary: req.body.summary || '', evidenceRefs: req.body.evidenceRefs || [], requiresHumanDecision: req.body.requiresHumanDecision === true, recommendedAction: req.body.recommendedAction || '', data: safeObject(req.body.data)});
+      await recordLog(admin, jobId, job.projectId, req.body.summary || req.body.type || 'worker_event', {type: event.type, actor: caller.workerId, ...(safeObject(req.body.data))});
+      if (event.type === 'executor_heartbeat') {
+        await collection(admin, COMMAND_CENTER_COLLECTIONS.jobs).doc(jobId).set({updatedAtMs: Date.now(), lastWorkerHeartbeatAtMs: Date.now()}, {merge: true});
+        const leaseSnap = await collection(admin, COMMAND_CENTER_COLLECTIONS.leases).where('jobId', '==', jobId).limit(10).get();
+        const batch = admin.firestore().batch();
+        let leaseUpdates = 0;
+        leaseSnap.forEach((doc) => {
+          const lease = doc.data() || {};
+          if (lease.workerId === caller.workerId && lease.status === 'active') {
+            leaseUpdates += 1;
+            batch.set(doc.ref, {heartbeatAtMs: Date.now()}, {merge: true});
+          }
+        });
+        if (leaseUpdates) await batch.commit();
+      }
       res.json({ok: true, event});
     } catch (err) {
       sendWorkerError(res, err);
