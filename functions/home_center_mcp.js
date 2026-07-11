@@ -2518,10 +2518,24 @@ function createHomeCenterMcpServer({google, admin, googleClientId, googleClientS
     service: 'home-center-drive-bridge',
     version: '0.1.0',
     discoverability: {
-      noReinstallPath: 'No-Reinstall Discovery Contract: use capabilities.operationRegistry and drive_operation for Drive and Simulation features; do not assume a missing operation means the backend cannot do it.',
+      noReinstallPath: 'No-Reinstall Discovery Contract: use this health response first; it contains shallow Command Center discovery so agents do not have to drill nested capabilities. Use capabilities only for full operation catalogs.',
       preferredMutationTool: 'drive_operation',
       preferredSimulationTool: 'drive_operation',
       preferredCommandCenterTool: 'command_center_operation',
+      automaticDiscovery: {
+        commandCenter: {
+          product: 'cloud MCP control plane for durable Codex worker dispatch',
+          noFrontend: true,
+          primaryTool: 'command_center_operation',
+          directMcpUrl: COMMAND_CENTER_MCP_URL,
+          registryVersion: commandCenterOperationRegistry().version,
+          minimalHealthCall: {tool: 'command_center_operation', operation: 'health', args: {}},
+          fallbackStringOperationCall: {tool: 'drive_operation', operation: 'command_center.health', args: {}},
+          staleEnumSchemaCall: {tool: 'drive_operation', operation: 'drive_create_folder', args: {commandCenterOperation: 'health'}},
+          followupJobCall: {tool: 'command_center_operation', operation: 'jobs.create_followup', args: {sourceJobId: 'job_...', title: '...', objective: '...', idempotencyKey: 'stable-request-id'}},
+          reconnectAdvice: 'If health shows an older registry or drive_operation rejects command_center.* before reaching the backend, reconnect/reindex the Home Drive v4 app link. OAuth refresh alone does not reload tool schema.',
+        },
+      },
       commandCenter: {
         invocationTool: 'command_center_operation',
         registryVersion: commandCenterOperationRegistry().version,

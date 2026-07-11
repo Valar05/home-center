@@ -283,9 +283,11 @@ tool: command_center_operation
 
 This is the loop-closing path. If ChatGPT cannot see a separate `commandCenterMcp` tool namespace, it must not stop; it should call Home Center `command_center_operation`.
 
+Automatic discovery must be shallow. Agents should call Home Center `health` first and read `discoverability.automaticDiscovery.commandCenter`. Do not require drilling through nested `capabilities` to learn that Command Center exists. That health packet includes the direct MCP URL, registry version, normal invocation tool, string-capable `drive_operation` fallback, stale enum-schema tunnel, and reconnect advice.
+
 Normal flow:
 
-1. Call Home Center `health`; it advertises `preferredCommandCenterTool=command_center_operation`.
+1. Call Home Center `health`; it advertises `discoverability.automaticDiscovery.commandCenter`.
 2. Call `command_center_operation` with `operation=health`; the bridged Command Center health result must return `ok=true` and `invokable=true`.
 3. Resolve a project with `operation=projects.resolve` when needed.
 4. Create a follow-up worker action with `operation=jobs.create`.

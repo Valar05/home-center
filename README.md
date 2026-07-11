@@ -77,13 +77,24 @@ operation: jobs.create | jobs.get | jobs.get_events | jobs.get_artifacts | jobs.
 
 This avoids a dead-end where ChatGPT can see Home Center tools but cannot discover a separate `commandCenterMcp` namespace. The standalone Command Center MCP endpoint still exists for direct MCP clients and worker-control tooling.
 
+Automatic discovery must start at Home Center `health`, not nested `capabilities`. The health response includes `discoverability.automaticDiscovery.commandCenter` with:
+
+- the primary tool: `command_center_operation`;
+- the direct Command Center MCP URL;
+- a minimal `operation=health` call;
+- the string-capable `drive_operation operation=command_center.health` fallback;
+- the stale enum-schema tunnel: `drive_operation operation=drive_create_folder` with `args.commandCenterOperation`;
+- reconnect advice when a mounted connector still reports an older registry.
+
+If ChatGPT still sees the older `Home Drive v4` schema after OAuth refresh, reconnect or reindex the app/link. OAuth refresh updates credentials only; it does not necessarily reload tool metadata.
+
 The Firebase export is `commandCenterMcp` and its MCP endpoint is:
 
 ```text
 https://us-central1-home-center-dclar.cloudfunctions.net/commandCenterMcp/mcp
 ```
 
-The v1 implementation is a lifecycle skeleton with a simulated `cloud-codex-primary` worker record. See `docs/COMMAND_CENTER_MCP.md`.
+The current implementation supports durable one-shot worker dispatch, streaming executor events, persisted artifacts, handoff synthesis, linked follow-up jobs, and the Command Center knowledge bucket. See `docs/COMMAND_CENTER_MCP.md`.
 
 ## Regular ChatGPT App / MCP Setup
 
