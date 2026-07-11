@@ -20,9 +20,35 @@ const COMMAND_CENTER_COLLECTIONS = Object.freeze({
   artifacts: 'commandCenterArtifacts',
   logs: 'commandCenterLogs',
   checkpoints: 'commandCenterCheckpoints',
+  bucketObjects: 'commandCenterBucketObjects',
   baseWorkspaces: 'commandCenterBaseWorkspaces',
   workerTokens: 'commandCenterWorkerTokens',
   idempotency: 'commandCenterIdempotency',
+});
+const COMMAND_CENTER_DEFAULT_BUCKET_ID = 'command-center';
+const COMMAND_CENTER_BUCKET_KINDS = Object.freeze([
+  'memory.past_log',
+  'memory.current_condensed',
+  'skill.scratch',
+  'skill.promoted',
+  'note.cross_repo',
+]);
+const COMMAND_CENTER_BUCKET_LAYOUT = Object.freeze({
+  bucketId: COMMAND_CENTER_DEFAULT_BUCKET_ID,
+  purpose: 'Command Center managed knowledge bucket for durable execution memory, skills, and cross-repository notes.',
+  storagePolicy: {
+    metadataStore: COMMAND_CENTER_COLLECTIONS.bucketObjects,
+    largeObjectRefs: 'Use objectUri for Cloud Storage, Drive, GitHub, or local artifact refs; do not inline secrets.',
+    inlineBodyMaxChars: 64000,
+    secretPolicy: 'No bearer tokens, worker tokens, OAuth secrets, private keys, passwords, or reusable credentials.',
+  },
+  lanes: {
+    'memory/past-logs': {kind: 'memory.past_log', role: 'append-only historical execution logs and evidence summaries'},
+    'memory/current-condensed': {kind: 'memory.current_condensed', role: 'latest compact resumable state per job or project'},
+    'skills/scratch': {kind: 'skill.scratch', role: 'unpromoted candidate procedures captured from runs'},
+    'skills/promoted': {kind: 'skill.promoted', role: 'reviewed reusable procedures with acceptance evidence'},
+    'notes/cross-repo': {kind: 'note.cross_repo', role: 'project-spanning engineering notes and links'},
+  },
 });
 const COMMAND_CENTER_ALLOWED_STATUSES = ['queued', 'leased', 'running', 'question', 'awaiting_mutation_authorization', 'completed', 'failed', 'canceled'];
 const COMMAND_CENTER_EXECUTION_MODES = ['one_shot'];
@@ -75,6 +101,10 @@ function safeBoolean(value, fallback = false) {
 
 function hashText(value, length = 16) {
   return createHash('sha256').update(String(value || '')).digest('hex').slice(0, length);
+}
+
+function fullHash(value) {
+  return createHash('sha256').update(String(value || '')).digest('hex');
 }
 
 function tokenDigest(value) {
@@ -225,6 +255,104 @@ function cleanJobId(value) {
   return jobId;
 }
 
+function cleanBucketId(value) {
+  const bucketId = slug(safeText(value, 120) || COMMAND_CENTER_DEFAULT_BUCKET_ID, COMMAND_CENTER_DEFAULT_BUCKET_ID);
+  if (!/^[a-z0-9][a-z0-9-]{1,118}[a-z0-9]$/.test(bucketId)) {
+    const err = new Error('A valid bucketId is required.');
+    err.status = 400;
+    throw err;
+  }
+  return bucketId;
+}
+
+function cleanBucketKind(value) {
+  const kind = safeText(value, 80);
+  if (!COMMAND_CENTER_BUCKET_KINDS.includes(kind)) {
+    const err = new Error(`bucket kind must be one of: ${COMMAND_CENTER_BUCKET_KINDS.join(', ')}`);
+    err.status = 400;
+    throw err;
+  }
+  return kind;
+}
+
+function bucketLaneForKind(kind) {
+  for (const [lane, spec] of Object.entries(COMMAND_CENTER_BUCKET_LAYOUT.lanes)) {
+    if (spec.kind === kind) return lane;
+  }
+  return 'notes/cross-repo';
+}
+
+function cleanBucketPath(value, kind, fallbackTitle = '') {
+  const lane = bucketLaneForKind(kind);
+  const requested = safeText(value, 500).replace(/\\/g, '/').replace(/^\/+/, '');
+  const suffix = slug(fallbackTitle || kind, 'entry');
+  const candidate = requested || `${lane}/${suffix}.md`;
+  const parts = candidate.split('/').map((part) => slug(part.replace(/\.[a-z0-9]+$/i, ''), 'entry')).filter(Boolean);
+  const extension = /\.(json|jsonl|md|txt)$/i.test(candidate) ? candidate.match(/\.(json|jsonl|md|txt)$/i)[0].toLowerCase() : '.md';
+  const clean = parts.join('/');
+  return clean.startsWith(lane + '/') ? clean + extension : `${lane}/${clean}${extension}`;
+}
+
+function containsForbiddenSecret(text) {
+  const value = String(text || '');
+  return /Bearer\s+[A-Za-z0-9._~+/=-]{12,}/i.test(value)
+    || /\bccw_[A-Za-z0-9_-]{12,}(?:_[A-Za-z0-9_-]{12,})?\b/.test(value)
+    || /\bgh[pousr]_[A-Za-z0-9_]{20,}\b/.test(value)
+    || /\bya29\.[A-Za-z0-9._-]{20,}\b/.test(value)
+    || /\bAIza[A-Za-z0-9_-]{20,}\b/.test(value)
+    || /\b[A-Za-z0-9_-]{20,}\.[A-Za-z0-9_-]{20,}\.[A-Za-z0-9_-]{20,}\b/.test(value)
+    || /(?:TOKEN|SECRET|PASSWORD|CREDENTIAL)\s*[=:]\s*["']?[^"'\s]{12,}/i.test(value);
+}
+
+function cleanBucketObject(args = {}, caller = {}) {
+  const kind = cleanBucketKind(args.kind);
+  const bucketId = cleanBucketId(args.bucketId);
+  const title = safeText(args.title, 300) || kind;
+  const body = safeText(args.body, COMMAND_CENTER_BUCKET_LAYOUT.storagePolicy.inlineBodyMaxChars);
+  const objectUri = safeText(args.objectUri, 1000);
+  if (containsForbiddenSecret([title, args.summary, body, objectUri, ...(Array.isArray(args.sourceRefs) ? args.sourceRefs : []), ...(Array.isArray(args.evidenceRefs) ? args.evidenceRefs : [])].join('\n'))) {
+    const err = new Error('Command Center bucket objects must not contain reusable secrets or bearer credentials.');
+    err.status = 400;
+    throw err;
+  }
+  const objectPath = cleanBucketPath(args.path, kind, title);
+  const nowMs = Date.now();
+  const projectId = args.projectId ? cleanProjectId(args.projectId) : '';
+  const jobId = args.jobId ? cleanJobId(args.jobId) : '';
+  const contentHash = body ? fullHash(body) : safeText(args.contentHash, 128);
+  const objectId = safeText(args.objectId, 180) || `bucket_${hashText(`${bucketId}:${objectPath}:${contentHash || nowMs}`, 32)}`;
+  return {
+    objectId,
+    bucketId,
+    kind,
+    lane: bucketLaneForKind(kind),
+    path: objectPath,
+    title,
+    summary: safeText(args.summary, 2000),
+    body,
+    objectUri,
+    contentHash,
+    projectId,
+    repository: safeText(args.repository, 240),
+    jobId,
+    sourceRefs: safeList(args.sourceRefs, 80, 800),
+    evidenceRefs: safeList(args.evidenceRefs, 80, 800),
+    tags: safeList(args.tags, 80, 120),
+    promotionState: kind === 'skill.promoted' ? 'promoted' : safeText(args.promotionState, 80) || (kind === 'skill.scratch' ? 'scratch' : 'active'),
+    supersedes: safeList(args.supersedes, 40, 180),
+    createdBy: safeText(args.createdBy, 160) || caller.actor || 'command_center',
+    updatedBy: caller.actor || safeText(args.updatedBy, 160),
+    createdAtMs: nowMs,
+    updatedAtMs: nowMs,
+    provenance: {
+      actor: caller.actor || safeText(args.actor, 160),
+      source: safeText(args.source, 200) || 'command_center.bucket.put_object',
+      idempotencyKey: safeText(args.idempotencyKey, 180),
+      noSecrets: true,
+    },
+  };
+}
+
 function cleanWorker(worker) {
   const data = safeObject(worker);
   return {
@@ -279,7 +407,127 @@ async function recordLog(admin, jobId, projectId, message, data = {}) {
   const logId = `log_${Date.now()}_${randomUUID().slice(0, 8)}`;
   const payload = {logId, jobId, projectId, message: safeText(message, 4000), data: safeObject(data), createdAtMs: Date.now()};
   await collection(admin, COMMAND_CENTER_COLLECTIONS.logs).doc(logId).set(payload);
+  await upsertBucketObject(admin, {
+    bucketId: COMMAND_CENTER_DEFAULT_BUCKET_ID,
+    kind: 'memory.past_log',
+    title: `Log ${logId}`,
+    path: `memory/past-logs/${projectId || 'unknown-project'}/${jobId || 'unknown-job'}/${logId}.json`,
+    summary: payload.message,
+    body: JSON.stringify(payload, null, 2),
+    projectId,
+    jobId,
+    sourceRefs: [`log://${jobId}/${logId}`],
+    evidenceRefs: [`log://${jobId}/${logId}`],
+    tags: ['log', 'execution'],
+    source: 'command_center.recordLog',
+  }, {actor: 'command_center'});
   return payload;
+}
+
+async function upsertBucketObject(admin, args, caller) {
+  const payload = cleanBucketObject(args, caller);
+  const ref = collection(admin, COMMAND_CENTER_COLLECTIONS.bucketObjects).doc(payload.objectId);
+  const existing = await ref.get();
+  const existingData = existing.exists ? existing.data() || {} : {};
+  await ref.set({
+    ...payload,
+    createdAtMs: existingData.createdAtMs || payload.createdAtMs,
+    createdBy: existingData.createdBy || payload.createdBy,
+  }, {merge: true});
+  return {...payload, createdAtMs: existingData.createdAtMs || payload.createdAtMs, createdBy: existingData.createdBy || payload.createdBy};
+}
+
+async function putBucketObject(admin, caller, args) {
+  return idempotentMutation(admin, caller, requireIdempotencyKey(args.idempotencyKey), 'bucket.put_object', async () => {
+    const object = await upsertBucketObject(admin, args, caller);
+    const eventJobId = object.jobId || '';
+    if (eventJobId) {
+      await appendEvent(admin, {type: 'bucket_object_written', jobId: eventJobId, projectId: object.projectId, actor: caller.actor, summary: object.title, evidenceRefs: [`bucket://${object.bucketId}/${object.path}`], data: {objectId: object.objectId, kind: object.kind, path: object.path}});
+    }
+    return {object, bucketLayout: COMMAND_CENTER_BUCKET_LAYOUT};
+  });
+}
+
+async function getBucketObject(admin, args) {
+  const objectId = safeText(args.objectId, 180);
+  if (!objectId) {
+    const err = new Error('objectId is required.');
+    err.status = 400;
+    throw err;
+  }
+  const snap = await collection(admin, COMMAND_CENTER_COLLECTIONS.bucketObjects).doc(objectId).get();
+  return snap.exists ? {found: true, object: snap.data()} : {found: false, objectId};
+}
+
+async function listBucketObjects(admin, args = {}) {
+  const bucketId = cleanBucketId(args.bucketId);
+  const kind = args.kind ? cleanBucketKind(args.kind) : '';
+  const projectId = args.projectId ? cleanProjectId(args.projectId) : '';
+  const jobId = args.jobId ? cleanJobId(args.jobId) : '';
+  const repository = safeText(args.repository, 240);
+  const tag = safeText(args.tag, 120);
+  const limit = Math.max(1, Math.min(Number(args.limit) || 50, 100));
+  const snap = await collection(admin, COMMAND_CENTER_COLLECTIONS.bucketObjects).limit(250).get();
+  const objects = [];
+  snap.forEach((doc) => {
+    const object = doc.data() || {};
+    if (object.bucketId !== bucketId) return;
+    if (kind && object.kind !== kind) return;
+    if (projectId && object.projectId !== projectId) return;
+    if (jobId && object.jobId !== jobId) return;
+    if (repository && object.repository !== repository) return;
+    if (tag && !(Array.isArray(object.tags) && object.tags.includes(tag))) return;
+    objects.push(object);
+  });
+  objects.sort((a, b) => Number(b.updatedAtMs || 0) - Number(a.updatedAtMs || 0));
+  return {bucketId, objects: objects.slice(0, limit), layout: COMMAND_CENTER_BUCKET_LAYOUT};
+}
+
+async function promoteBucketSkill(admin, caller, args) {
+  return idempotentMutation(admin, caller, requireIdempotencyKey(args.idempotencyKey), 'bucket.promote_skill', async () => {
+    const source = await getBucketObject(admin, {objectId: args.objectId});
+    if (!source.found || source.object.kind !== 'skill.scratch') {
+      const err = new Error('Only existing skill.scratch bucket objects can be promoted.');
+      err.status = 400;
+      throw err;
+    }
+    const promoted = await upsertBucketObject(admin, {
+      ...source.object,
+      objectId: '',
+      kind: 'skill.promoted',
+      path: args.path || source.object.path.replace(/^skills\/scratch\//, 'skills/promoted/'),
+      title: args.title || source.object.title,
+      summary: args.summary || source.object.summary,
+      body: args.body || source.object.body,
+      promotionState: 'promoted',
+      supersedes: [source.object.objectId, ...(source.object.supersedes || [])],
+      evidenceRefs: [...(source.object.evidenceRefs || []), ...safeList(args.evidenceRefs, 40, 800)],
+      tags: Array.from(new Set([...(source.object.tags || []), 'promoted'])),
+      source: 'command_center.bucket.promote_skill',
+      idempotencyKey: args.idempotencyKey,
+    }, caller);
+    await collection(admin, COMMAND_CENTER_COLLECTIONS.bucketObjects).doc(source.object.objectId).set({promotionState: 'promoted_to_superseded', promotedObjectId: promoted.objectId, updatedAtMs: Date.now(), updatedBy: caller.actor}, {merge: true});
+    return {sourceObjectId: source.object.objectId, promoted};
+  });
+}
+
+async function recordCurrentMemorySnapshot(admin, checkpoint) {
+  const title = `Current summary ${checkpoint.jobId || checkpoint.projectId}`;
+  return upsertBucketObject(admin, {
+    objectId: `bucket_${hashText(`${COMMAND_CENTER_DEFAULT_BUCKET_ID}:current:${checkpoint.jobId || checkpoint.projectId}`, 32)}`,
+    bucketId: COMMAND_CENTER_DEFAULT_BUCKET_ID,
+    kind: 'memory.current_condensed',
+    title,
+    path: `memory/current-condensed/${checkpoint.projectId || 'unknown-project'}/${checkpoint.jobId || 'project'}.json`,
+    summary: checkpoint.nextAction || checkpoint.currentPhase || title,
+    body: JSON.stringify(checkpoint, null, 2),
+    projectId: checkpoint.projectId,
+    jobId: checkpoint.jobId,
+    sourceRefs: [`checkpoint://${checkpoint.jobId}/${checkpoint.checkpointId}`],
+    evidenceRefs: checkpoint.evidenceRefs || [],
+    tags: ['checkpoint', 'current-summary'],
+    source: 'command_center.recordCurrentMemorySnapshot',
+  }, {actor: 'command_center'});
 }
 
 async function recordCheckpoint(admin, job) {
@@ -307,6 +555,7 @@ async function recordCheckpoint(admin, job) {
     createdAtMs: Date.now(),
   };
   await collection(admin, COMMAND_CENTER_COLLECTIONS.checkpoints).doc(checkpointId).set(payload);
+  await recordCurrentMemorySnapshot(admin, payload);
   return payload;
 }
 
@@ -629,6 +878,56 @@ function createCommandCenterMcpServer({admin}) {
   server.registerTool('command_center.jobs.get_events', {title: 'Get Command Center job events', description: 'Read structured job events generated from Command Center state, not another chat agent.', inputSchema: {jobId: z.string(), limit: z.number().optional()}}, async (args) => textResult({events: await listByJob(admin, COMMAND_CENTER_COLLECTIONS.events, cleanJobId(args.jobId), Math.max(1, Math.min(Number(args.limit) || 50, 100)))}));
   server.registerTool('command_center.jobs.get_logs', {title: 'Get Command Center job logs', description: 'Read append-only log metadata for a job.', inputSchema: {jobId: z.string(), limit: z.number().optional()}}, async (args) => textResult({logs: await listByJob(admin, COMMAND_CENTER_COLLECTIONS.logs, cleanJobId(args.jobId), Math.max(1, Math.min(Number(args.limit) || 50, 100)))}));
   server.registerTool('command_center.jobs.get_artifacts', {title: 'Get Command Center job artifacts', description: 'Read artifact metadata and object references for a job.', inputSchema: {jobId: z.string(), limit: z.number().optional()}}, async (args) => textResult({artifacts: await listByJob(admin, COMMAND_CENTER_COLLECTIONS.artifacts, cleanJobId(args.jobId), Math.max(1, Math.min(Number(args.limit) || 50, 100)))}));
+
+  server.registerTool('command_center.bucket.get_layout', {
+    title: 'Get Command Center bucket layout',
+    description: 'Read the managed Command Center knowledge bucket lanes for durable memory, skills, and cross-repo notes.',
+    inputSchema: {},
+  }, async () => textResult({layout: COMMAND_CENTER_BUCKET_LAYOUT, kinds: COMMAND_CENTER_BUCKET_KINDS}));
+
+  server.registerTool('command_center.bucket.put_object', {
+    title: 'Put Command Center bucket object',
+    description: 'Create or update a durable Command Center bucket object. Use this for execution memory, scratch/promoted skills, and cross-repo notes. Do not store secrets.',
+    inputSchema: {
+      idempotencyKey: z.string(),
+      bucketId: z.string().optional(),
+      objectId: z.string().optional(),
+      kind: z.enum(COMMAND_CENTER_BUCKET_KINDS),
+      path: z.string().optional(),
+      title: z.string(),
+      summary: z.string().optional(),
+      body: z.string().optional(),
+      objectUri: z.string().optional(),
+      contentHash: z.string().optional(),
+      projectId: z.string().optional(),
+      repository: z.string().optional(),
+      jobId: z.string().optional(),
+      sourceRefs: z.array(z.string()).optional(),
+      evidenceRefs: z.array(z.string()).optional(),
+      tags: z.array(z.string()).optional(),
+      promotionState: z.string().optional(),
+      supersedes: z.array(z.string()).optional(),
+    },
+  }, async (args, extra) => textResult(await putBucketObject(admin, await callerFromExtra(admin, extra), args || {})));
+
+  server.registerTool('command_center.bucket.get_object', {
+    title: 'Get Command Center bucket object',
+    description: 'Read one Command Center bucket object by id.',
+    inputSchema: {objectId: z.string()},
+  }, async (args) => textResult(await getBucketObject(admin, args || {})));
+
+  server.registerTool('command_center.bucket.list_objects', {
+    title: 'List Command Center bucket objects',
+    description: 'List durable Command Center bucket memory, skills, and cross-repo notes with optional filters.',
+    inputSchema: {bucketId: z.string().optional(), kind: z.enum(COMMAND_CENTER_BUCKET_KINDS).optional(), projectId: z.string().optional(), repository: z.string().optional(), jobId: z.string().optional(), tag: z.string().optional(), limit: z.number().optional()},
+  }, async (args) => textResult(await listBucketObjects(admin, args || {})));
+
+  server.registerTool('command_center.bucket.promote_skill', {
+    title: 'Promote Command Center scratch skill',
+    description: 'Promote a scratch skill bucket object into the promoted skill lane while preserving provenance and supersession links.',
+    inputSchema: {idempotencyKey: z.string(), objectId: z.string(), path: z.string().optional(), title: z.string().optional(), summary: z.string().optional(), body: z.string().optional(), evidenceRefs: z.array(z.string()).optional()},
+  }, async (args, extra) => textResult(await promoteBucketSkill(admin, await callerFromExtra(admin, extra), args || {})));
+
   server.registerTool('command_center.workers.register_oneshot', {
     title: 'Register one-shot Command Center worker',
     description: 'Register a user-owned one-shot Codex worker and return a worker token once. Store it only on the worker host.',
@@ -772,7 +1071,8 @@ function createCommandCenterMcpApp({admin}) {
         createdAtMs: Date.now(),
       };
       await collection(admin, COMMAND_CENTER_COLLECTIONS.checkpoints).doc(checkpoint.checkpointId).set(checkpoint);
-      res.json({ok: true, checkpoint});
+      const memoryObject = await recordCurrentMemorySnapshot(admin, checkpoint);
+      res.json({ok: true, checkpoint, memoryObject});
     } catch (err) {
       sendWorkerError(res, err);
     }
@@ -826,4 +1126,19 @@ function createCommandCenterMcpApp({admin}) {
   return app;
 }
 
-module.exports = {COMMAND_CENTER_COLLECTIONS, COMMAND_CENTER_DEFAULT_WORKERS, COMMAND_CENTER_REQUIRED_ARTIFACTS, COMMAND_CENTER_DEFAULT_BASE_WORKSPACE, createCommandCenterMcpApp, createCommandCenterMcpServer, cleanBaseWorkspace, cleanMutationPolicy, cleanOneShotExecution, selectWorker};
+module.exports = {
+  COMMAND_CENTER_COLLECTIONS,
+  COMMAND_CENTER_DEFAULT_WORKERS,
+  COMMAND_CENTER_REQUIRED_ARTIFACTS,
+  COMMAND_CENTER_DEFAULT_BASE_WORKSPACE,
+  COMMAND_CENTER_DEFAULT_BUCKET_ID,
+  COMMAND_CENTER_BUCKET_KINDS,
+  COMMAND_CENTER_BUCKET_LAYOUT,
+  createCommandCenterMcpApp,
+  createCommandCenterMcpServer,
+  cleanBaseWorkspace,
+  cleanMutationPolicy,
+  cleanOneShotExecution,
+  cleanBucketObject,
+  selectWorker,
+};
