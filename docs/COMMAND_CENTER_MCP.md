@@ -120,7 +120,7 @@ The handoff packet answers:
 
 Acceptance criteria are not automatically passed by executor exit code. Unknown criteria default to `not_evaluated` in `acceptance-matrix.json` unless the worker records explicit criterion evidence.
 
-Corrective work should use `command_center.jobs.create_followup` with `sourceJobId`. A follow-up job records `sourceJobId`, `followupOf`, and source evidence refs, then receives its own lease, events, artifacts, checkpoints, bucket objects, and final handoff. Do not revise or overwrite the old job to continue execution history.
+Corrective work should use `command_center.jobs.create_followup` with `sourceJobId`. Through the Home Center bridge, call `command_center_operation` with `operation=jobs.create_followup`; if a ChatGPT session only exposes the older stable `drive_operation` tool, call `drive_operation` with `operation=command_center.jobs.create_followup`. A follow-up job records `sourceJobId`, `followupOf`, and source evidence refs, then receives its own lease, events, artifacts, checkpoints, bucket objects, and final handoff. Do not revise or overwrite the old job to continue execution history.
 
 ## Prepared Base Workspaces
 

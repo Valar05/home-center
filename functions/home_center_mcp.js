@@ -280,7 +280,7 @@ function parseMcpPayload(text, label) {
 
 function commandCenterOperationRegistry() {
   return {
-    version: '2026-07-11.home-center-command-center-handoff-v1',
+    version: '2026-07-11.home-center-command-center-handoff-v2',
     invocationTool: 'command_center_operation',
     commandCenterMcpUrl: COMMAND_CENTER_MCP_URL,
     purpose: 'Expose Command Center dispatch and managed knowledge-bucket operations through the already-installed Home Center MCP connector so ChatGPT can create, inspect, resume, revise, authorize, and preserve worker knowledge without discovering a second MCP app.',
@@ -319,7 +319,8 @@ function supportedCommandCenterOperationTypes() {
 }
 
 function commandCenterToolName(operation) {
-  const op = safeText(operation, 120);
+  const raw = safeText(operation, 120);
+  const op = raw.startsWith('command_center.') ? raw.slice('command_center.'.length) : raw;
   if (!commandCenterOperationRegistry().operations[op]) throw Object.assign(new Error('Unsupported command_center_operation operation: ' + op), {status: 400});
   return op.startsWith('command_center.') ? op : `command_center.${op}`;
 }
@@ -2238,12 +2239,24 @@ function workflowOperationSummary(operation = {}, index = 0) {
   return String(index + 1) + '. ' + type + (targetName ? ': ' + targetName : '');
 }
 
+function commandCenterDriveOperationEntries() {
+  return Object.fromEntries(Object.entries(commandCenterOperationRegistry().operations).map(([operation, meta]) => {
+    const prefixed = `command_center.${operation}`;
+    return [prefixed, {
+      ...meta,
+      summary: 'Command Center bridge: ' + meta.summary,
+      commandCenterOperation: operation,
+      invocationTool: 'drive_operation',
+      preferredNativeTool: 'command_center_operation',
+    }];
+  }));
+}
 
 function driveOperationRegistry() {
   return {
-    version: '2026-07-10.discoverable-simulation-frame-v1',
+    version: '2026-07-11.command-center-drive-operation-v1',
     invocationTool: 'drive_operation',
-    cachePolicy: 'New bridge and simulation operations should be added here and invoked through drive_operation so ChatGPT does not need a top-level MCP tool refresh for every backend code change. Agents should rediscover this registry through capabilities or health before claiming an operation is unavailable.',
+    cachePolicy: 'New bridge, simulation, and Command Center operations should be invokable through drive_operation so ChatGPT does not need a top-level MCP tool refresh for every backend code change. Agents should rediscover this registry through capabilities or health before claiming an operation is unavailable.',
     operations: {
       drive_create_folder: {
         summary: 'Create a Google Drive folder and audit the write.',
@@ -2309,6 +2322,7 @@ function driveOperationRegistry() {
         input: {fileId: 'string', newName: 'string', requestId: 'string', callerNote: 'optional string'},
       },
       ...simulationOperationRegistry().operations,
+      ...commandCenterDriveOperationEntries(),
     },
   };
 }
@@ -2317,7 +2331,7 @@ function supportedDriveOperationTypes() {
   return Object.keys(driveOperationRegistry().operations);
 }
 
-async function driveOperationRunOperation({google, admin, auth, user, args = {}}) {
+async function driveOperationRunOperation({google, admin, auth, user, extra = null, args = {}}) {
   const operation = safeText(args.operation || args.type || args.toolName, 120);
   if (!operation) throw Object.assign(new Error('operation is required.'), {status: 400});
   const registry = driveOperationRegistry();
@@ -2327,6 +2341,10 @@ async function driveOperationRunOperation({google, admin, auth, user, args = {}}
   delete operationArgs.type;
   delete operationArgs.toolName;
   delete operationArgs.args;
+  if (operation.startsWith('command_center.')) {
+    const result = await commandCenterOperationRunOperation({extra, args: {operation, args: operationArgs}});
+    return {operation, registryVersion: registry.version, completed: true, result: result.result};
+  }
   if (simulationOperationRegistry().operations[operation]) {
     const result = await simulationOperationRunOperation({admin, user, args: {operation, args: operationArgs}});
     return {operation, registryVersion: registry.version, completed: true, result: result.result};
@@ -2637,7 +2655,7 @@ function createHomeCenterMcpServer({google, admin, googleClientId, googleClientS
     title: 'Simulation operation',
     description: 'Build, query, and run durable simulation frames from agent-assembled reference compilations. Prefer this stable dispatcher for Simulation features so ChatGPT does not need connector refreshes for every new operation.',
     inputSchema: {
-      operation: z.enum(supportedSimulationOperationTypes()).describe('Operation name from capabilities.simulationOperationRegistry.operations.'),
+      operation: z.string().describe('Operation name from capabilities.simulationOperationRegistry.operations. Runtime registry validation rejects unsupported names.'),
       args: z.record(z.string(), z.any()).optional().describe('Operation-specific arguments. Write operations require requestId inside args.'),
     },
     securitySchemes: MCP_OAUTH_SECURITY_SCHEMES,
@@ -2652,7 +2670,7 @@ function createHomeCenterMcpServer({google, admin, googleClientId, googleClientS
     title: 'Command Center operation',
     description: 'Invoke Command Center dispatch and job-control operations through the already-connected Home Center MCP app. Use this when ChatGPT needs to create a follow-up worker job, inspect events/artifacts, answer worker questions, or authorize a mutation without relying on a separate Command Center connector namespace.',
     inputSchema: {
-      operation: z.enum(supportedCommandCenterOperationTypes()).describe('Operation name from the Command Center operation registry, such as jobs.create, jobs.get_events, jobs.get_artifacts, jobs.answer_question, or jobs.authorize_mutation.'),
+      operation: z.string().describe('Operation name from the Command Center operation registry, such as jobs.create, jobs.get_events, jobs.get_artifacts, jobs.answer_question, or jobs.authorize_mutation. Runtime registry validation rejects unsupported names.'),
       args: z.record(z.string(), z.any()).optional().describe('Operation-specific arguments. Mutating operations require idempotencyKey inside args.'),
     },
     securitySchemes: MCP_OAUTH_SECURITY_SCHEMES,
@@ -2782,9 +2800,9 @@ function createHomeCenterMcpServer({google, admin, googleClientId, googleClientS
 
   server.registerTool('drive_operation', {
     title: 'Drive operation',
-    description: 'Run a named Home Drive or Simulation operation from the runtime operation registry. Prefer this stable tool for new bridge capabilities so ChatGPT does not need a connector reinstall when backend operations are added.',
+    description: 'Run a named Home Drive, Simulation, or command_center.* operation from the runtime operation registry. Prefer this stable tool for new bridge capabilities so ChatGPT does not need a connector reinstall when backend operations are added.',
     inputSchema: {
-      operation: z.enum(supportedDriveOperationTypes()).describe('Operation name from capabilities.operationRegistry.operations, including simulation_* frame operations.'),
+      operation: z.string().describe('Operation name from capabilities.operationRegistry.operations, including simulation_* frame operations and command_center.* compatibility operations. Runtime registry validation rejects unsupported names.'),
       args: z.record(z.string(), z.any()).optional().describe('Operation-specific arguments. Writes require requestId inside args.'),
       operationBatchId: z.string().optional().describe('Optional stable batch/workflow id for recovery tracking.'),
     },
@@ -2793,7 +2811,7 @@ function createHomeCenterMcpServer({google, admin, googleClientId, googleClientS
     annotations: {readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: true},
   }, async (args, extra) => {
     const {auth, user} = await requestGoogleContext(extra, google, admin, googleClientId, googleClientSecret);
-    return textResult(await driveOperationRunOperation({google, admin, auth, user, args: args || {}}));
+    return textResult(await driveOperationRunOperation({google, admin, auth, user, extra, args: args || {}}));
   });
 
   server.registerTool('auth_status', {
