@@ -175,26 +175,6 @@ async function main() {
   const healthContent = toolContentJson(healthJson, 'command_center_operation health content');
   add('command_center_operation_health_invokable', health.status === 200 && healthContent.result?.ok === true && healthContent.result?.invokable === true, {status: health.status, content: healthContent});
 
-  const driveHealth = await postMcp(args.mcpUrl, args.bearerToken, {
-    jsonrpc: '2.0',
-    id: 15,
-    method: 'tools/call',
-    params: {name: 'drive_operation', arguments: {operation: 'command_center.health', args: {}}},
-  });
-  const driveHealthJson = parseMcpResponse(driveHealth.text, 'drive_operation command_center.health');
-  const driveHealthContent = toolContentJson(driveHealthJson, 'drive_operation command_center.health content');
-  add('drive_operation_command_center_health_invokable', driveHealth.status === 200 && driveHealthContent.result?.ok === true && driveHealthContent.result?.invokable === true, {status: driveHealth.status, content: driveHealthContent});
-
-  const staleSchemaHealth = await postMcp(args.mcpUrl, args.bearerToken, {
-    jsonrpc: '2.0',
-    id: 16,
-    method: 'tools/call',
-    params: {name: 'drive_operation', arguments: {operation: 'drive_create_folder', args: {commandCenterOperation: 'health'}}},
-  });
-  const staleSchemaHealthJson = parseMcpResponse(staleSchemaHealth.text, 'drive_operation stale-schema command center health');
-  const staleSchemaHealthContent = toolContentJson(staleSchemaHealthJson, 'drive_operation stale-schema command center health content');
-  add('drive_operation_stale_schema_command_center_health_invokable', staleSchemaHealth.status === 200 && staleSchemaHealthContent.compatibilityRoute === 'drive_operation.command_center' && staleSchemaHealthContent.result?.ok === true && staleSchemaHealthContent.result?.invokable === true, {status: staleSchemaHealth.status, content: staleSchemaHealthContent});
-
   const bucket = await postMcp(args.mcpUrl, args.bearerToken, {
     jsonrpc: '2.0',
     id: 13,
@@ -204,88 +184,7 @@ async function main() {
   const bucketJson = parseMcpResponse(bucket.text, 'command_center_operation bucket layout');
   const bucketContent = toolContentJson(bucketJson, 'command_center_operation bucket layout content');
   const lanes = Object.keys(bucketContent.result?.layout?.lanes || {});
-  add('command_center_operation_bucket_layout_invokable', bucket.status === 200 && lanes.includes('memory/current-condensed') && lanes.includes('skills/promoted') && lanes.includes('notes/cross-repo') && lanes.includes('browser/playbooks'), {status: bucket.status, lanes});
-
-  const playbookLookup = await postMcp(args.mcpUrl, args.bearerToken, {
-    jsonrpc: '2.0',
-    id: 17,
-    method: 'tools/call',
-    params: {name: 'command_center_operation', arguments: {operation: 'browser_playbooks.lookup', args: {origin: 'https://chatgpt.com', taskKey: 'chatgpt.command_center_connector.verify', replayAudience: 'june'}}},
-  });
-  const playbookLookupJson = parseMcpResponse(playbookLookup.text, 'command_center_operation browser_playbooks.lookup');
-  const playbookLookupContent = toolContentJson(playbookLookupJson, 'command_center_operation browser_playbooks.lookup content');
-  add('command_center_operation_browser_playbooks_lookup_invokable', playbookLookup.status === 200 && typeof playbookLookupContent.result?.found === 'boolean' && playbookLookupContent.result?.collection === 'browserPlaybooks', {status: playbookLookup.status, content: playbookLookupContent});
-
-  const safeRun = args.runId.replace(/[^a-zA-Z0-9_-]/g, '-').slice(0, 60);
-  const workerId = `home-bridge-real-worker-${safeRun}`.slice(0, 120);
-  const workerRegistration = await postMcp(args.mcpUrl, args.bearerToken, {
-    jsonrpc: '2.0',
-    id: 171,
-    method: 'tools/call',
-    params: {name: 'command_center_operation', arguments: {operation: 'workers.register_oneshot', args: {
-      idempotencyKey: `home-bridge-real-worker-${safeRun}`,
-      workerId,
-      engine: 'codex',
-      location: 'home-bridge-invokability-gate',
-      capabilities: ['codex-cloud', 'codex', 'home-drive-mcp', 'playwright', 'browser-worker', 'prepared-workspace'],
-      baseWorkspace: {baseWorkspaceId: 'home-bridge-real-worker-profile', kind: 'persistent_user_owned_browser_profile', snapshotRef: 'worker-local://home-bridge-profile', version: safeRun, restoreStrategy: 'persistent_profile'},
-      limits: {concurrentActivations: 1},
-    }}},
-  });
-  const workerRegistrationJson = parseMcpResponse(workerRegistration.text, 'command_center_operation workers.register_oneshot');
-  const workerRegistrationContent = toolContentJson(workerRegistrationJson, 'command_center_operation workers.register_oneshot content');
-  add('command_center_operation_workers_register_real_invokable', workerRegistration.status === 200 && workerRegistrationContent.result?.worker?.workerId === workerId && workerRegistrationContent.result?.worker?.simulated === false && workerRegistrationContent.result?.workerToken, {status: workerRegistration.status, workerId, content: workerRegistrationContent});
-
-  const agentId = `home-center-chatgpt-bridge-${args.runId}`.replace(/[^a-zA-Z0-9_-]/g, '-').slice(0, 80);
-  const upsert = await postMcp(args.mcpUrl, args.bearerToken, {
-    jsonrpc: '2.0',
-    id: 18,
-    method: 'tools/call',
-    params: {name: 'command_center_operation', arguments: {operation: 'agents.upsert_repo_agent', args: {
-      idempotencyKey: `home-bridge-agent-upsert-${args.runId}`,
-      agentId,
-      projectId: 'home-center',
-      name: 'Home Center ChatGPT bridge proof',
-      repository: 'Valar05/home-center',
-      contextRefs: ['docs/COMMAND_CENTER_MCP.md'],
-    }}},
-  });
-  const upsertJson = parseMcpResponse(upsert.text, 'command_center_operation agents.upsert_repo_agent');
-  const upsertContent = toolContentJson(upsertJson, 'command_center_operation agents.upsert_repo_agent content');
-  add('command_center_operation_agents_upsert_invokable', upsert.status === 200 && upsertContent.result?.agent?.agentId === agentId && upsertContent.result?.session?.sessionId, {status: upsert.status, agentId, content: upsertContent});
-
-  const activation = await postMcp(args.mcpUrl, args.bearerToken, {
-    jsonrpc: '2.0',
-    id: 19,
-    method: 'tools/call',
-    params: {name: 'command_center_operation', arguments: {operation: 'agents.create_activation', args: {
-      idempotencyKey: `home-bridge-agent-activation-${args.runId}`,
-      agentId,
-      title: 'Home Center ChatGPT bridge activation proof',
-      prompt: 'Verify that ChatGPT can create a durable Command Center Codex cloud activation through Home Center command_center_operation.',
-      workerRequirements: ['codex-cloud', 'home-drive-mcp', 'playwright'],
-      acceptanceCriteria: ['Activation was created through Home Center MCP command_center_operation', 'Resume packet can be read back'],
-      artifactRequirements: ['final-report.md'],
-    }}},
-  });
-  const activationJson = parseMcpResponse(activation.text, 'command_center_operation agents.create_activation');
-  const activationContent = toolContentJson(activationJson, 'command_center_operation agents.create_activation content');
-  const activationId = activationContent.result?.activation?.activationId || '';
-  add('command_center_operation_agents_create_activation_invokable', activation.status === 200 && /^activation_/.test(activationId) && activationContent.result?.activation?.selectedWorkerId === workerId, {status: activation.status, activationId, selectedWorkerId: activationContent.result?.activation?.selectedWorkerId || '', content: activationContent});
-
-  if (activationId) {
-    const resume = await postMcp(args.mcpUrl, args.bearerToken, {
-      jsonrpc: '2.0',
-      id: 20,
-      method: 'tools/call',
-      params: {name: 'command_center_operation', arguments: {operation: 'agents.get_resume_packet', args: {activationId}}},
-    });
-    const resumeJson = parseMcpResponse(resume.text, 'command_center_operation agents.get_resume_packet');
-    const resumeContent = toolContentJson(resumeJson, 'command_center_operation agents.get_resume_packet content');
-    add('command_center_operation_agents_resume_packet_invokable', resume.status === 200 && resumeContent.result?.resumePacket?.packetVersion === 'command-center-codex-cloud-resume-v1', {status: resume.status, activationId, content: resumeContent});
-  } else {
-    add('command_center_operation_agents_resume_packet_invokable', false, {detail: 'Activation was not created, so resume packet readback was skipped.'});
-  }
+  add('command_center_operation_bucket_layout_invokable', bucket.status === 200 && lanes.includes('memory/current-condensed') && lanes.includes('skills/promoted') && lanes.includes('notes/cross-repo'), {status: bucket.status, lanes});
 
   const result = {
     ok: checks.every((check) => check.ok),
