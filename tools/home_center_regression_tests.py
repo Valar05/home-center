@@ -323,6 +323,9 @@ require_contains(command_center_mcp, "server.registerTool('command_center.projec
 require_contains(command_center_mcp, "server.registerTool('command_center.projects.get'", 'Command Center MCP exposes project get tool')
 require_contains(home_center_mcp, "server.registerTool('command_center_operation'", 'Home Center bridge exposes stable Command Center operation tool')
 require_contains(home_center_mcp, 'managed knowledge-bucket operations', 'Home Center Command Center bridge purpose includes bucket operations')
+require_contains(home_center_mcp, 'commandCenterDriveOperationEntries', 'Home Center drive_operation exposes Command Center compatibility entries')
+require_contains(home_center_mcp, "operation.startsWith('command_center.')", 'Home Center drive_operation routes command_center operations')
+require_contains(home_center_mcp, "operation: z.string().describe('Operation name from capabilities.operationRegistry.operations", 'Home Center drive_operation accepts registry strings instead of cached enums')
 for command_center_bridge_operation in ['jobs.create_followup', 'jobs.get_handoff', 'bucket.get_layout', 'bucket.put_object', 'bucket.get_object', 'bucket.list_objects', 'bucket.promote_skill']:
     require_contains(home_center_mcp, f"'{command_center_bridge_operation}'", f'Home Center command_center_operation bridge exposes {command_center_bridge_operation}')
 for command_center_tool in ['command_center.jobs.create', 'command_center.jobs.create_followup', 'command_center.jobs.get', 'command_center.jobs.list', 'command_center.jobs.cancel', 'command_center.jobs.resume', 'command_center.jobs.revise', 'command_center.jobs.answer_question', 'command_center.jobs.authorize_mutation', 'command_center.jobs.get_summary', 'command_center.jobs.get_handoff', 'command_center.jobs.get_events', 'command_center.jobs.get_logs', 'command_center.jobs.get_artifacts', 'command_center.workers.list', 'command_center.workers.get_capabilities']:

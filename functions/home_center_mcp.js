@@ -453,7 +453,7 @@ function parseMcpPayload(text, label) {
 
 function commandCenterOperationRegistry() {
   return {
-    version: '2026-07-11.home-center-command-center-handoff-v1',
+    version: '2026-07-11.home-center-command-center-handoff-v2',
     invocationTool: 'command_center_operation',
     commandCenterMcpUrl: COMMAND_CENTER_MCP_URL,
     purpose: 'Expose Command Center dispatch and managed knowledge-bucket operations through the already-installed Home Center MCP connector so ChatGPT can create, inspect, resume, revise, authorize, and preserve worker knowledge without discovering a second MCP app.',
@@ -2568,7 +2568,7 @@ function commandCenterDriveOperationEntries() {
 
 function driveOperationRegistry() {
   return {
-    version: '2026-07-13.context-sync-publish-v1',
+    version: '2026-07-11.command-center-drive-operation-v1',
     invocationTool: 'drive_operation',
     cachePolicy: 'New bridge, simulation, and Command Center operations should be invokable through drive_operation so ChatGPT does not need a top-level MCP tool refresh for every backend code change. Agents should rediscover this registry through capabilities or health before claiming an operation is unavailable.',
     operations: {
@@ -2658,21 +2658,6 @@ function supportedDriveOperationTypes() {
   return Object.keys(driveOperationRegistry().operations);
 }
 
-function commandCenterCompatOperation(args = {}) {
-  const nested = args.args && typeof args.args === 'object' && !Array.isArray(args.args) ? args.args : {};
-  return safeText(
-    nested.commandCenterOperation ||
-    nested.command_center_operation ||
-    nested.commandCenterTool ||
-    nested.command_center_tool ||
-    args.commandCenterOperation ||
-    args.command_center_operation ||
-    args.commandCenterTool ||
-    args.command_center_tool,
-    120
-  );
-}
-
 async function driveOperationRunOperation({google, admin, auth, user, extra = null, args = {}}) {
   const operation = safeText(args.operation || args.type || args.toolName, 120);
   if (!operation) throw Object.assign(new Error('operation is required.'), {status: 400});
@@ -2683,15 +2668,6 @@ async function driveOperationRunOperation({google, admin, auth, user, extra = nu
   delete operationArgs.type;
   delete operationArgs.toolName;
   delete operationArgs.args;
-  const compatCommandCenterOperation = commandCenterCompatOperation(args);
-  if (compatCommandCenterOperation) {
-    delete operationArgs.commandCenterOperation;
-    delete operationArgs.command_center_operation;
-    delete operationArgs.commandCenterTool;
-    delete operationArgs.command_center_tool;
-    const result = await commandCenterOperationRunOperation({extra, args: {operation: compatCommandCenterOperation, args: operationArgs}});
-    return {operation, compatibilityRoute: 'drive_operation.command_center', commandCenterOperation: compatCommandCenterOperation, registryVersion: registry.version, completed: true, result: result.result};
-  }
   if (operation.startsWith('command_center.')) {
     const result = await commandCenterOperationRunOperation({extra, args: {operation, args: operationArgs}});
     return {operation, registryVersion: registry.version, completed: true, result: result.result};
