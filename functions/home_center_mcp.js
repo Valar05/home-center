@@ -184,6 +184,17 @@ function pkceChallenge(verifier) {
 
 function redirectWithParams(base, params) {
   const url = new URL(base);
+  if (url.hostname === 'chatgpt.com' && url.hash && url.hash.includes('Connectors')) {
+    const hash = url.hash.slice(1);
+    const question = hash.indexOf('?');
+    const route = question >= 0 ? hash.slice(0, question) : hash;
+    const search = new URLSearchParams(question >= 0 ? hash.slice(question + 1) : '');
+    for (const [key, value] of Object.entries(params)) {
+      if (value !== undefined && value !== null && value !== '') search.set(key, String(value));
+    }
+    url.hash = `${route}?${search.toString()}`;
+    return url.toString();
+  }
   for (const [key, value] of Object.entries(params)) {
     if (value !== undefined && value !== null && value !== '') url.searchParams.set(key, String(value));
   }

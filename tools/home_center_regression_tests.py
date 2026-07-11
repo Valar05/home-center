@@ -286,6 +286,8 @@ require_contains(home_center_mcp, 'authorize_secure_browser_handoff', 'MCP OAuth
 require_contains(home_center_mcp, 'renderSecureBrowserOAuthHandoff(url, flowState)', 'MCP OAuth serves an external-browser handoff page for blocked user agents')
 require_contains(home_center_mcp, 'Google blocked this sign-in surface because it looks like an embedded browser', 'MCP OAuth handoff explains disallowed_useragent recovery')
 require_contains(home_center_mcp, "res.set('Cache-Control', 'no-store')", 'MCP OAuth handoff is not cached')
+require_contains(home_center_mcp, "url.hostname === 'chatgpt.com' && url.hash && url.hash.includes('Connectors')", 'MCP OAuth places callback params inside ChatGPT mobile connector hash routes')
+require_contains(home_center_mcp, "url.hash = `${route}?${search.toString()}`", 'MCP OAuth preserves ChatGPT connector hash route when returning code and state')
 require_contains(home_center_mcp, "app.get('/oauth/handoff-status'", 'MCP OAuth handoff lets the original ChatGPT auth surface poll completion')
 require_contains(home_center_mcp, "app.get('/oauth/handoff-complete'", 'MCP OAuth handoff completes the final redirect from the original ChatGPT auth surface')
 require_contains(home_center_mcp, 'google_callback_handoff_ready', 'MCP OAuth Google callback stores handoff approval instead of redirecting Chrome to ChatGPT')
