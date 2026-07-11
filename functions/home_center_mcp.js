@@ -2810,6 +2810,10 @@ function createHomeCenterMcpServer({google, admin, googleClientId, googleClientS
     _meta: {securitySchemes: MCP_OAUTH_SECURITY_SCHEMES},
     annotations: {readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: true},
   }, async (args, extra) => {
+    const operation = safeText((args || {}).operation || (args || {}).type || (args || {}).toolName, 120);
+    if (operation.startsWith('command_center.')) {
+      return textResult(await driveOperationRunOperation({google, admin, auth: null, user: null, extra, args: args || {}}));
+    }
     const {auth, user} = await requestGoogleContext(extra, google, admin, googleClientId, googleClientSecret);
     return textResult(await driveOperationRunOperation({google, admin, auth, user, extra, args: args || {}}));
   });
