@@ -252,42 +252,8 @@ function likelyEmbeddedOAuthUserAgent(userAgent) {
   return embeddedMarkers.some((marker) => ua.includes(marker));
 }
 
-function isChatgptConnectorRedirectUri(redirectUri) {
-  try {
-    const url = new URL(String(redirectUri || ''));
-    return url.hostname === 'chatgpt.com' && url.pathname.startsWith('/connector/oauth/');
-  } catch (_) {
-    return false;
-  }
-}
-
-function shouldUseConnectorHandoff(req, redirectUri) {
-  const ua = String(req && req.get ? req.get('User-Agent') : '').toLowerCase();
-  if (!isChatgptConnectorRedirectUri(redirectUri)) return likelyEmbeddedOAuthUserAgent(ua);
-  if (likelyEmbeddedOAuthUserAgent(ua)) return true;
-  return ua.includes('android') || ua.includes('mobile');
-}
-
-function mcpMountedPath(pathname) {
-  const cleanPath = String(pathname || '').startsWith('/') ? String(pathname || '') : `/${pathname || ''}`;
-  try {
-    const basePath = new URL(MCP_PUBLIC_BASE).pathname.replace(/\/$/, '');
-    return `${basePath}${cleanPath}`;
-  } catch (_) {
-    return cleanPath;
-  }
-}
-
-function renderSecureBrowserOAuthHandoff(googleAuthUrl, flowState, mode = 'secure-browser') {
+function renderSecureBrowserOAuthHandoff(googleAuthUrl) {
   const safeUrl = htmlEscape(googleAuthUrl);
-  const chatgptMobile = mode === 'chatgpt-mobile';
-  const title = chatgptMobile ? 'Complete Home Center sign-in' : 'Open Home Center sign-in in a secure browser';
-  const body = chatgptMobile
-    ? 'Keep this page open. Complete Google sign-in in the browser tab that opens, then return here if ChatGPT does not resume automatically. This page will finish the ChatGPT connector.'
-    : 'Google blocked this sign-in surface because it looks like an embedded browser. Open Google sign-in in Chrome or another system browser, then return here. This page will finish the ChatGPT connector automatically.';
-  const button = chatgptMobile ? 'Continue with Google' : 'Continue in secure browser';
-  const handoffStatusPath = mcpMountedPath('/oauth/handoff-status');
-  const handoffCompletePath = mcpMountedPath('/oauth/handoff-complete');
   return `<!doctype html>
 <html lang="en">
 <head>
@@ -303,62 +269,12 @@ function renderSecureBrowserOAuthHandoff(googleAuthUrl, flowState, mode = 'secur
 </head>
 <body>
   <main>
-    <h1>${htmlEscape(title)}</h1>
-    <p>${htmlEscape(body)}</p>
-    <p><a class="button" href="${safeUrl}" target="_blank" rel="noopener noreferrer">${htmlEscape(button)}</a></p>
+    <h1>Open Home Center sign-in in a secure browser</h1>
+    <p>Google blocked this sign-in surface because it looks like an embedded browser. Open the same authorization request in Chrome or another system browser to continue connecting Home Center.</p>
+    <p><a class="button" href="${safeUrl}" target="_blank" rel="noopener noreferrer">Continue in secure browser</a></p>
     <p>If the button stays inside this app, copy this link into Chrome:</p>
     <code>${safeUrl}</code>
-    <p id="handoff-status">Waiting for secure-browser sign-in...</p>
   </main>
-  <script>
-    const flowState = ${JSON.stringify(flowState)};
-    const handoffStatusPath = ${JSON.stringify(handoffStatusPath)};
-    const handoffCompletePath = ${JSON.stringify(handoffCompletePath)};
-    async function pollHandoff() {
-      try {
-        const response = await fetch(handoffStatusPath + '?state=' + encodeURIComponent(flowState), {cache: 'no-store'});
-        const data = await response.json();
-        const status = document.getElementById('handoff-status');
-        if (data.status === 'complete') {
-          status.textContent = 'Sign-in approved. Returning to ChatGPT...';
-          window.location.href = handoffCompletePath + '?state=' + encodeURIComponent(flowState);
-          return;
-        }
-        if (data.status === 'error' || data.status === 'expired') {
-          status.textContent = data.message || 'Sign-in could not be completed. Reconnect the connector and try again.';
-          return;
-        }
-      } catch (_) {}
-      setTimeout(pollHandoff, 2000);
-    }
-    setTimeout(pollHandoff, 1000);
-  </script>
-</body>
-</html>`;
-}
-
-function renderSecureBrowserOAuthComplete(message, finishPath = '') {
-  const safeFinishPath = finishPath ? htmlEscape(finishPath) : '';
-  const finishLink = safeFinishPath ? `<p><a href="${safeFinishPath}" style="display:inline-block;margin:12px 0;padding:12px 16px;border-radius:6px;background:#0969da;color:#fff;text-decoration:none;font-weight:700;">Finish connector</a></p>` : '';
-  const autoFinish = finishPath ? `<script>setTimeout(function(){ window.location.href = ${JSON.stringify(finishPath)}; }, 1500);</script>` : '';
-  return `<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Home Center Sign-In Complete</title>
-  <style>
-    body { font-family: system-ui, sans-serif; margin: 0; padding: 32px; line-height: 1.5; color: #17212b; background: #f7f8fa; }
-    main { max-width: 680px; margin: 0 auto; background: #fff; border: 1px solid #d8dee4; border-radius: 8px; padding: 24px; }
-  </style>
-</head>
-<body>
-  <main>
-    <h1>Home Center sign-in complete</h1>
-    <p>${htmlEscape(message || 'Return to ChatGPT to finish connecting the connector.')}</p>
-    ${finishLink}
-  </main>
-  ${autoFinish}
 </body>
 </html>`;
 }
@@ -3989,14 +3905,13 @@ function createHomeCenterMcpApp({google, admin, googleClientId = () => '', googl
         scope: ['openid', 'email', ...MCP_REQUIRED_SCOPES],
         state: flowState,
       });
-      if (browserHandoff) {
-        const redirectMode = chatgptConnector ? 'chatgpt_mobile_handoff' : 'secure_browser_handoff';
-        connectorLog('authorize_secure_browser_handoff', req, {googleCallbackHost: redirectHost(MCP_GOOGLE_CALLBACK), redirectMode, chatgptConnector, oauthFlowId});
+      if (likelyEmbeddedOAuthUserAgent(req.get('User-Agent'))) {
+        connectorLog('authorize_secure_browser_handoff', req, {googleCallbackHost: redirectHost(MCP_GOOGLE_CALLBACK)});
         res.set('Cache-Control', 'no-store');
-        res.status(200).type('html').send(renderSecureBrowserOAuthHandoff(url, flowState, chatgptConnector ? 'chatgpt-mobile' : 'secure-browser'));
+        res.status(200).type('html').send(renderSecureBrowserOAuthHandoff(url));
         return;
       }
-      connectorLog('authorize_redirect_google', req, {googleCallbackHost: redirectHost(MCP_GOOGLE_CALLBACK), redirectMode: 'direct', chatgptConnector, oauthFlowId});
+      connectorLog('authorize_redirect_google', req, {googleCallbackHost: redirectHost(MCP_GOOGLE_CALLBACK)});
       res.redirect(url);
     } catch (err) {
       connectorLog('authorize_error', req, {error: safeText(err.message || String(err), 300)});
