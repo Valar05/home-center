@@ -219,7 +219,7 @@ function likelyEmbeddedOAuthUserAgent(userAgent) {
   return embeddedMarkers.some((marker) => ua.includes(marker));
 }
 
-function renderSecureBrowserOAuthHandoff(googleAuthUrl) {
+function renderSecureBrowserOAuthHandoff(googleAuthUrl, flowState) {
   const safeUrl = htmlEscape(googleAuthUrl);
   return `<!doctype html>
 <html lang="en">
@@ -237,10 +237,53 @@ function renderSecureBrowserOAuthHandoff(googleAuthUrl) {
 <body>
   <main>
     <h1>Open Home Center sign-in in a secure browser</h1>
-    <p>Google blocked this sign-in surface because it looks like an embedded browser. Open the same authorization request in Chrome or another system browser to continue connecting Home Center.</p>
+    <p>Google blocked this sign-in surface because it looks like an embedded browser. Open Google sign-in in Chrome or another system browser, then return here. This page will finish the ChatGPT connector automatically.</p>
     <p><a class="button" href="${safeUrl}" target="_blank" rel="noopener noreferrer">Continue in secure browser</a></p>
     <p>If the button stays inside this app, copy this link into Chrome:</p>
     <code>${safeUrl}</code>
+    <p id="handoff-status">Waiting for secure-browser sign-in...</p>
+  </main>
+  <script>
+    const flowState = ${JSON.stringify(flowState)};
+    async function pollHandoff() {
+      try {
+        const response = await fetch('/oauth/handoff-status?state=' + encodeURIComponent(flowState), {cache: 'no-store'});
+        const data = await response.json();
+        const status = document.getElementById('handoff-status');
+        if (data.status === 'complete') {
+          status.textContent = 'Sign-in approved. Returning to ChatGPT...';
+          window.location.href = '/oauth/handoff-complete?state=' + encodeURIComponent(flowState);
+          return;
+        }
+        if (data.status === 'error' || data.status === 'expired') {
+          status.textContent = data.message || 'Sign-in could not be completed. Reconnect the connector and try again.';
+          return;
+        }
+      } catch (_) {}
+      setTimeout(pollHandoff, 2000);
+    }
+    setTimeout(pollHandoff, 1000);
+  </script>
+</body>
+</html>`;
+}
+
+function renderSecureBrowserOAuthComplete(message) {
+  return `<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Home Center Sign-In Complete</title>
+  <style>
+    body { font-family: system-ui, sans-serif; margin: 0; padding: 32px; line-height: 1.5; color: #17212b; background: #f7f8fa; }
+    main { max-width: 680px; margin: 0 auto; background: #fff; border: 1px solid #d8dee4; border-radius: 8px; padding: 24px; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Home Center sign-in complete</h1>
+    <p>${htmlEscape(message || 'Return to ChatGPT to finish connecting the connector.')}</p>
   </main>
 </body>
 </html>`;
@@ -3677,6 +3720,7 @@ function createHomeCenterMcpApp({google, admin, googleClientId = () => '', googl
       const state = safeText(req.query.state, 1200);
       const codeChallenge = safeText(req.query.code_challenge, 300);
       const method = safeText(req.query.code_challenge_method, 20) || 'plain';
+      const embeddedHandoff = likelyEmbeddedOAuthUserAgent(req.get('User-Agent'));
       if (responseType !== 'code' || !clientId || !redirectUri) {
         res.status(400).send('invalid_request');
         return;
@@ -3696,6 +3740,7 @@ function createHomeCenterMcpApp({google, admin, googleClientId = () => '', googl
         state,
         codeChallenge,
         codeChallengeMethod: method,
+        browserHandoff: embeddedHandoff,
         createdAtMs: Date.now(),
         expiresAtMs: Date.now() + 10 * 60 * 1000,
       });
@@ -3706,10 +3751,10 @@ function createHomeCenterMcpApp({google, admin, googleClientId = () => '', googl
         scope: ['openid', 'email', ...MCP_REQUIRED_SCOPES],
         state: flowState,
       });
-      if (likelyEmbeddedOAuthUserAgent(req.get('User-Agent'))) {
+      if (embeddedHandoff) {
         connectorLog('authorize_secure_browser_handoff', req, {googleCallbackHost: redirectHost(MCP_GOOGLE_CALLBACK)});
         res.set('Cache-Control', 'no-store');
-        res.status(200).type('html').send(renderSecureBrowserOAuthHandoff(url));
+        res.status(200).type('html').send(renderSecureBrowserOAuthHandoff(url, flowState));
         return;
       }
       connectorLog('authorize_redirect_google', req, {googleCallbackHost: redirectHost(MCP_GOOGLE_CALLBACK)});
@@ -3732,12 +3777,27 @@ function createHomeCenterMcpApp({google, admin, googleClientId = () => '', googl
         return;
       }
       const stateData = stateSnap.data() || {};
-      await stateSnap.ref.delete();
       if (error) {
+        if (stateData.browserHandoff) {
+          await stateSnap.ref.set({handoffError: error, updatedAtMs: Date.now()}, {merge: true});
+          connectorLog('google_callback_handoff_error', req, {googleError: error});
+          res.set('Cache-Control', 'no-store');
+          res.status(200).type('html').send(renderSecureBrowserOAuthComplete('Google sign-in did not complete. Return to ChatGPT and reconnect the connector.'));
+          return;
+        }
+        await stateSnap.ref.delete();
         res.redirect(redirectWithParams(stateData.redirectUri, {error, state: stateData.state}));
         return;
       }
       if (!googleCode || safeNumber(stateData.expiresAtMs, 0) <= Date.now()) {
+        if (stateData.browserHandoff) {
+          await stateSnap.ref.set({handoffError: 'invalid_grant', updatedAtMs: Date.now()}, {merge: true});
+          connectorLog('google_callback_handoff_invalid', req, {expired: safeNumber(stateData.expiresAtMs, 0) <= Date.now()});
+          res.set('Cache-Control', 'no-store');
+          res.status(200).type('html').send(renderSecureBrowserOAuthComplete('This sign-in attempt expired. Return to ChatGPT and reconnect the connector.'));
+          return;
+        }
+        await stateSnap.ref.delete();
         res.redirect(redirectWithParams(stateData.redirectUri, {error: 'invalid_grant', state: stateData.state}));
         return;
       }
@@ -3748,7 +3808,27 @@ function createHomeCenterMcpApp({google, admin, googleClientId = () => '', googl
       const profile = await oauth2.userinfo.get();
       const email = safeText(profile.data && profile.data.email, 320).toLowerCase();
       if (!email || profile.data.verified_email === false) {
+        if (stateData.browserHandoff) {
+          await stateSnap.ref.set({handoffError: 'verified_google_email_required', updatedAtMs: Date.now()}, {merge: true});
+          connectorLog('google_callback_handoff_unverified_email', req, {});
+          res.set('Cache-Control', 'no-store');
+          res.status(200).type('html').send(renderSecureBrowserOAuthComplete('Google sign-in requires a verified email. Return to ChatGPT and reconnect the connector.'));
+          return;
+        }
+        await stateSnap.ref.delete();
         res.redirect(redirectWithParams(stateData.redirectUri, {error: 'access_denied', error_description: 'verified_google_email_required', state: stateData.state}));
+        return;
+      }
+      if (stateData.browserHandoff) {
+        await stateSnap.ref.set({
+          googleTokens: tokens,
+          email,
+          googleCompletedAtMs: Date.now(),
+          updatedAtMs: Date.now(),
+        }, {merge: true});
+        connectorLog('google_callback_handoff_ready', req, {emailHash: tokenHashPrefix(email)});
+        res.set('Cache-Control', 'no-store');
+        res.status(200).type('html').send(renderSecureBrowserOAuthComplete('Return to ChatGPT. The connector page should finish automatically within a few seconds.'));
         return;
       }
       const code = randomToken(32);
@@ -3763,10 +3843,78 @@ function createHomeCenterMcpApp({google, admin, googleClientId = () => '', googl
         createdAtMs: Date.now(),
         expiresAtMs: Date.now() + 10 * 60 * 1000,
       });
+      await stateSnap.ref.delete();
       connectorLog('google_callback_success', req, {redirectHost: redirectHost(stateData.redirectUri), emailHash: tokenHashPrefix(email)});
       res.redirect(redirectWithParams(stateData.redirectUri, {code, state: stateData.state}));
     } catch (err) {
       connectorLog('google_callback_error', req, {error: safeText(err.message || String(err), 300)});
+      res.status(500).send(err.message || String(err));
+    }
+  });
+
+  app.get('/oauth/handoff-status', async (req, res) => {
+    try {
+      const flowState = safeText(req.query.state, 300);
+      const stateSnap = flowState ? await oauthCollection(admin, 'mcpOAuthStates').doc(flowState).get() : null;
+      res.set('Cache-Control', 'no-store');
+      if (!stateSnap || !stateSnap.exists) {
+        res.status(404).json({status: 'error', message: 'Sign-in state was not found. Reconnect the connector and try again.'});
+        return;
+      }
+      const stateData = stateSnap.data() || {};
+      if (!stateData.browserHandoff) {
+        res.status(400).json({status: 'error', message: 'This sign-in flow is not a browser handoff.'});
+        return;
+      }
+      if (safeNumber(stateData.expiresAtMs, 0) <= Date.now()) {
+        res.json({status: 'expired', message: 'This sign-in attempt expired. Reconnect the connector and try again.'});
+        return;
+      }
+      if (stateData.handoffError) {
+        res.json({status: 'error', message: 'Google sign-in did not complete. Reconnect the connector and try again.'});
+        return;
+      }
+      if (stateData.googleTokens && stateData.email) {
+        res.json({status: 'complete'});
+        return;
+      }
+      res.json({status: 'pending'});
+    } catch (err) {
+      connectorLog('handoff_status_error', req, {error: safeText(err.message || String(err), 300)});
+      res.status(500).json({status: 'error', message: 'Home Center could not read sign-in status.'});
+    }
+  });
+
+  app.get('/oauth/handoff-complete', async (req, res) => {
+    try {
+      const flowState = safeText(req.query.state, 300);
+      const stateSnap = flowState ? await oauthCollection(admin, 'mcpOAuthStates').doc(flowState).get() : null;
+      if (!stateSnap || !stateSnap.exists) {
+        res.status(400).send('invalid_oauth_state');
+        return;
+      }
+      const stateData = stateSnap.data() || {};
+      if (!stateData.browserHandoff || !stateData.googleTokens || !stateData.email || safeNumber(stateData.expiresAtMs, 0) <= Date.now()) {
+        res.status(400).send('invalid_oauth_state');
+        return;
+      }
+      const code = randomToken(32);
+      await oauthCollection(admin, 'mcpOAuthCodes').doc(tokenHash(code)).set({
+        clientId: stateData.clientId,
+        redirectUri: stateData.redirectUri,
+        state: stateData.state,
+        codeChallenge: stateData.codeChallenge || '',
+        codeChallengeMethod: stateData.codeChallengeMethod || '',
+        googleTokens: stateData.googleTokens,
+        email: safeText(stateData.email, 320).toLowerCase(),
+        createdAtMs: Date.now(),
+        expiresAtMs: Date.now() + 10 * 60 * 1000,
+      });
+      await stateSnap.ref.delete();
+      connectorLog('handoff_complete_redirect', req, {redirectHost: redirectHost(stateData.redirectUri), emailHash: tokenHashPrefix(stateData.email)});
+      res.redirect(redirectWithParams(stateData.redirectUri, {code, state: stateData.state}));
+    } catch (err) {
+      connectorLog('handoff_complete_error', req, {error: safeText(err.message || String(err), 300)});
       res.status(500).send(err.message || String(err));
     }
   });
