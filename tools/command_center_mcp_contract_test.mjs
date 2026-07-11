@@ -11,11 +11,6 @@ const {
   COMMAND_CENTER_DEFAULT_PROJECTS,
   COMMAND_CENTER_REQUIRED_ARTIFACTS,
   COMMAND_CENTER_DEFAULT_BASE_WORKSPACE,
-  COMMAND_CENTER_ALLOWED_STATUSES,
-  COMMAND_CENTER_TERMINAL_JOB_STATUSES,
-  COMMAND_CENTER_AGENT_ACTIVATION_STATUSES,
-  COMMAND_CENTER_CODEX_CLOUD_SURFACE,
-  COMMAND_CENTER_DURABLE_SESSION_RESTORE_STRATEGIES,
   COMMAND_CENTER_DEFAULT_BUCKET_ID,
   COMMAND_CENTER_BUCKET_KINDS,
   COMMAND_CENTER_BUCKET_LAYOUT,
@@ -23,20 +18,6 @@ const {
   cleanMutationPolicy,
   cleanOneShotExecution,
   cleanBucketObject,
-  cleanRepoAgent,
-  cleanAgentSession,
-  cleanActivationTask,
-  cleanCodexCloudRef,
-  buildAgentResumePacket,
-  cleanBrowserPlaybook,
-  cleanProjectPacket,
-  ownerKeyFromActor,
-  ownerKeyFromCaller,
-  assertOwnerAccess,
-  recordsVisibleToCaller,
-  deriveWorkerLiveness,
-  isTerminalJobStatus,
-  staleJobCandidate,
   selectWorker,
 } = require('../functions/command_center_mcp');
 
@@ -52,12 +33,6 @@ const requiredCollections = [
   'logs',
   'checkpoints',
   'bucketObjects',
-  'appControlProfiles',
-  'appControlRuns',
-  'browserSessions',
-  'browserEpisodes',
-  'browserDiscoveries',
-  'browserPlaybooks',
   'baseWorkspaces',
   'repoAgents',
   'agentSessions',
@@ -329,5 +304,39 @@ assert.match(householdPlaybook.householdLearningContract, /First successful hous
 assert(commandCenterSource.includes("server.registerTool('command_center.jobs.create_followup'"));
 assert(commandCenterSource.includes('synthesizeJobHandoff'));
 assert(commandCenterSource.includes('createFollowupJob'));
+
+assert.equal(COMMAND_CENTER_DEFAULT_BUCKET_ID, 'command-center');
+for (const kind of ['memory.past_log', 'memory.current_condensed', 'skill.scratch', 'skill.promoted', 'note.cross_repo']) {
+  assert(COMMAND_CENTER_BUCKET_KINDS.includes(kind));
+}
+assert.equal(COMMAND_CENTER_BUCKET_LAYOUT.lanes['memory/past-logs'].kind, 'memory.past_log');
+assert.equal(COMMAND_CENTER_BUCKET_LAYOUT.lanes['memory/current-condensed'].kind, 'memory.current_condensed');
+assert.equal(COMMAND_CENTER_BUCKET_LAYOUT.lanes['skills/scratch'].kind, 'skill.scratch');
+assert.equal(COMMAND_CENTER_BUCKET_LAYOUT.lanes['skills/promoted'].kind, 'skill.promoted');
+assert.equal(COMMAND_CENTER_BUCKET_LAYOUT.lanes['notes/cross-repo'].kind, 'note.cross_repo');
+assert.match(COMMAND_CENTER_BUCKET_LAYOUT.storagePolicy.secretPolicy, /No bearer tokens/);
+
+const bucketObject = cleanBucketObject({
+  idempotencyKey: 'bucket-test-001',
+  kind: 'skill.scratch',
+  title: 'Long running executor observation',
+  body: 'Capture stdout batches and heartbeat evidence before promoting.',
+  projectId: 'home-center',
+  repository: 'Valar05/home-center',
+  jobId: 'job_12345678',
+  tags: ['worker', 'streaming'],
+}, {actor: 'tester@example.com'});
+assert.equal(bucketObject.bucketId, 'command-center');
+assert.equal(bucketObject.kind, 'skill.scratch');
+assert.equal(bucketObject.lane, 'skills/scratch');
+assert.match(bucketObject.path, /^skills\/scratch\//);
+assert.equal(bucketObject.projectId, 'home-center');
+assert.equal(bucketObject.jobId, 'job_12345678');
+assert.equal(bucketObject.provenance.noSecrets, true);
+assert.throws(() => cleanBucketObject({
+  kind: 'note.cross_repo',
+  title: 'bad',
+  body: 'Authorization: ' + 'Bearer ' + 'abcdefghijklmnopqrstuvwxyz',
+}, {actor: 'tester@example.com'}), /must not contain reusable secrets/);
 
 console.log('Command Center MCP contract test: OK');

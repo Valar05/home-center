@@ -86,13 +86,6 @@ V1 exposes these typed tools:
 - `command_center.jobs.get_events`
 - `command_center.jobs.get_logs`
 - `command_center.jobs.get_artifacts`
-- `command_center.agents.upsert_repo_agent`
-- `command_center.agents.create_activation`
-- `command_center.agents.get_resume_packet`
-- `command_center.agents.record_codex_cloud_ref`
-- `command_center.agents.record_artifact`
-- `command_center.agents.complete_activation`
-- `command_center.agents.get_handoff`
 - `command_center.bucket.get_layout`
 - `command_center.bucket.put_object`
 - `command_center.bucket.get_object`
@@ -246,6 +239,43 @@ node tools/command_center_verbose_worker_smoke.mjs --run-id verbose-worker-$(dat
 
 The smoke registers a temporary one-shot worker, creates a unique-capability job, runs a long fake executor, polls `command_center.jobs.get_events` while the child is still alive, and fails unless stdout/stderr/heartbeat events are visible in cloud readback before `executor_finished`.
 
+## Managed Knowledge Bucket
+
+Command Center owns a managed logical bucket named `command-center`. It is not a chat transcript and not a dashboard. It is the durable organization surface for execution memory, reusable skills, and cross-repository notes.
+
+The bucket metadata lives in `commandCenterBucketObjects`. Large payloads may live elsewhere and be referenced by `objectUri`, such as `gs://`, Drive, GitHub, or worker-local artifact refs. Bucket records must never inline reusable credentials, bearer tokens, worker tokens, OAuth secrets, private keys, passwords, or raw unredacted environment dumps.
+
+Bucket lanes:
+
+- `memory/past-logs`: append-only historical execution logs and evidence summaries.
+- `memory/current-condensed`: latest compact resumable state per job or project.
+- `skills/scratch`: unpromoted candidate procedures captured from runs.
+- `skills/promoted`: reviewed reusable procedures with acceptance evidence.
+- `notes/cross-repo`: project-spanning engineering notes and links.
+
+Bucket object kinds:
+
+- `memory.past_log`
+- `memory.current_condensed`
+- `skill.scratch`
+- `skill.promoted`
+- `note.cross_repo`
+
+Automatic writes:
+
+- `recordLog` mirrors Command Center job logs into `memory/past-logs/<projectId>/<jobId>/...`.
+- `recordCheckpoint` and worker `/worker/checkpoint` mirror compact resumable execution state into `memory/current-condensed/<projectId>/<jobId>.json`.
+
+Manual MCP tools:
+
+- `command_center.bucket.get_layout` returns the current lane and storage policy.
+- `command_center.bucket.put_object` writes a typed bucket object with provenance, project/repository/job links, tags, source refs, evidence refs, content hash, and optional `objectUri`.
+- `command_center.bucket.get_object` reads one bucket object by id.
+- `command_center.bucket.list_objects` lists bucket objects by kind, project, repository, job, tag, or bucket id.
+- `command_center.bucket.promote_skill` promotes an existing `skill.scratch` object into `skills/promoted` while preserving supersession links and evidence.
+
+The bucket is deliberately broad enough for cross-repo notes, but narrow enough to preserve artifact boundaries. Do not collapse unrelated repo notes, scratch doctrine, job logs, and promoted skills into a single mega-document.
+
 ## Firestore Collections
 
 V1 state is stored in these collections:
@@ -261,12 +291,6 @@ V1 state is stored in these collections:
 - `commandCenterLogs`
 - `commandCenterCheckpoints`
 - `commandCenterBucketObjects`
-- `appControlProfiles`
-- `appControlRuns`
-- `browserSessions`
-- `browserEpisodes`
-- `browserDiscoveries`
-- `browserPlaybooks`
 - `commandCenterBaseWorkspaces`
 - `commandCenterWorkerTokens`
 - `commandCenterIdempotency`
@@ -309,12 +333,8 @@ Normal flow:
 3. Resolve a project with `operation=projects.resolve` when needed.
 4. Create a follow-up worker action with `operation=jobs.create`.
 5. Recover or supervise with `operation=jobs.get`, `jobs.get_events`, `jobs.get_artifacts`, and `jobs.get_summary`.
-6. Review with `operation=jobs.get_handoff`.
-7. Continue the job with `jobs.answer_question` or `jobs.authorize_mutation` when policy allows.
-8. Create corrective new invocations with `jobs.create_followup`, never by rewriting the old job.
-9. Preserve reusable execution learning with `bucket.put_object`, inspect it with `bucket.list_objects`, and promote proven scratch procedures with `bucket.promote_skill`.
-10. Publish and inspect installed-app control profiles with `app_control.seed_profiles`, `app_control.list_profiles`, `app_control.get_profile`, `app_control.put_profile`, and `app_control.record_run`.
-11. Run browser hands through Playwright-backed operations: `browser_sessions.create`, `browser_sessions.observe`, `browser_sessions.act`, `browser_sessions.record_episode`, `browser_discoveries.list`, and `browser_discoveries.promote`.
+6. Continue the job with `jobs.answer_question` or `jobs.authorize_mutation` when policy allows.
+7. Preserve reusable execution learning with `bucket.put_object`, inspect it with `bucket.list_objects`, and promote proven scratch procedures with `bucket.promote_skill`.
 
 The standalone Command Center endpoint remains available for direct MCP clients and worker-control tooling:
 

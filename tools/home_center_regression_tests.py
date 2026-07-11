@@ -334,18 +334,9 @@ require_contains(command_center_mcp, "server.registerTool('command_center.projec
 require_contains(command_center_mcp, "server.registerTool('command_center.projects.get'", 'Command Center MCP exposes project get tool')
 require_contains(home_center_mcp, "server.registerTool('command_center_operation'", 'Home Center bridge exposes stable Command Center operation tool')
 require_contains(home_center_mcp, 'managed knowledge-bucket operations', 'Home Center Command Center bridge purpose includes bucket operations')
-require_contains(home_center_mcp, 'automaticDiscovery', 'Home Center health exposes shallow automatic discovery notes')
-require_contains(home_center_mcp, 'minimalHealthCall', 'Home Center health names shallow Command Center health call')
-require_contains(home_center_mcp, 'staleEnumSchemaCall', 'Home Center health names stale enum-schema Command Center tunnel')
-require_contains(home_center_mcp, 'OAuth refresh alone does not reload tool schema', 'Home Center health explains reconnect versus auth refresh')
-require_contains(home_center_mcp, 'commandCenterDriveOperationEntries', 'Home Center drive_operation exposes Command Center compatibility entries')
-require_contains(home_center_mcp, "operation.startsWith('command_center.')", 'Home Center drive_operation routes command_center operations')
-require_contains(home_center_mcp, 'commandCenterCompatOperation', 'Home Center drive_operation supports stale enum schema Command Center tunnel')
-require_contains(home_center_mcp, "compatibilityRoute: 'drive_operation.command_center'", 'Home Center stale schema tunnel is explicit in results')
-require_contains(home_center_mcp, "operation: z.string().describe('Operation name from capabilities.operationRegistry.operations", 'Home Center drive_operation accepts registry strings instead of cached enums')
-for command_center_bridge_operation in ['jobs.create_followup', 'jobs.get_handoff', 'bucket.get_layout', 'bucket.put_object', 'bucket.get_object', 'bucket.list_objects', 'bucket.promote_skill']:
+for command_center_bridge_operation in ['bucket.get_layout', 'bucket.put_object', 'bucket.get_object', 'bucket.list_objects', 'bucket.promote_skill']:
     require_contains(home_center_mcp, f"'{command_center_bridge_operation}'", f'Home Center command_center_operation bridge exposes {command_center_bridge_operation}')
-for command_center_tool in ['command_center.jobs.create', 'command_center.jobs.create_followup', 'command_center.jobs.get', 'command_center.jobs.list', 'command_center.jobs.reconcile_stale', 'command_center.jobs.cancel', 'command_center.jobs.resume', 'command_center.jobs.revise', 'command_center.jobs.answer_question', 'command_center.jobs.authorize_mutation', 'command_center.jobs.get_summary', 'command_center.jobs.get_handoff', 'command_center.jobs.get_events', 'command_center.jobs.get_logs', 'command_center.jobs.get_artifacts', 'command_center.workers.list', 'command_center.workers.get_capabilities']:
+for command_center_tool in ['command_center.jobs.create', 'command_center.jobs.get', 'command_center.jobs.list', 'command_center.jobs.cancel', 'command_center.jobs.resume', 'command_center.jobs.revise', 'command_center.jobs.answer_question', 'command_center.jobs.authorize_mutation', 'command_center.jobs.get_summary', 'command_center.jobs.get_events', 'command_center.jobs.get_logs', 'command_center.jobs.get_artifacts', 'command_center.workers.list', 'command_center.workers.get_capabilities']:
     require_contains(command_center_mcp, f"server.registerTool('{command_center_tool}'", f'Command Center MCP exposes {command_center_tool}')
 for command_center_bucket_tool in ['command_center.bucket.get_layout', 'command_center.bucket.put_object', 'command_center.bucket.get_object', 'command_center.bucket.list_objects', 'command_center.bucket.promote_skill']:
     require_contains(command_center_mcp, f"server.registerTool('{command_center_bucket_tool}'", f'Command Center MCP exposes {command_center_bucket_tool}')
@@ -358,12 +349,9 @@ for command_center_bucket_lane in ['memory/past-logs', 'memory/current-condensed
 require_contains(command_center_mcp, 'recordCurrentMemorySnapshot(admin, payload)', 'Command Center checkpoints write condensed current memory bucket objects')
 require_contains(command_center_mcp, "kind: 'memory.past_log'", 'Command Center logs mirror into past-log bucket objects')
 require_contains(command_center_mcp, 'Only existing skill.scratch bucket objects can be promoted.', 'Command Center skill promotion preserves scratch-to-promoted gate')
-require_contains(command_center_mcp, 'synthesizeJobHandoff', 'Command Center can synthesize review handoff packets')
-require_contains(command_center_mcp, 'createFollowupJob', 'Command Center can create linked follow-up invocations')
-require_contains(command_center_mcp, 'job_followup_created', 'Command Center records follow-up creation events')
 require_contains(command_center_contract, 'cleanBucketObject', 'Command Center contract test covers bucket object cleanup')
 require_contains(command_center_contract, "COMMAND_CENTER_BUCKET_LAYOUT.lanes['skills/promoted']", 'Command Center contract test covers promoted skill lane')
-require_contains(command_center_mcp, "workerId: 'cloud-codex-primary'", 'Command Center v1 has a non-routable cloud Codex placeholder record')
+require_contains(command_center_mcp, "workerId: 'cloud-codex-primary'", 'Command Center v1 has a simulated cloud Codex worker record')
 require_contains(command_center_mcp, "engine: 'codex'", 'Command Center workers are Codex capability records')
 require_contains(command_center_mcp, "health: 'placeholder'", 'Default cloud Codex record is not reported as a healthy worker')
 require_contains(command_center_mcp, 'routable: false', 'Default cloud Codex placeholder is not routable')
