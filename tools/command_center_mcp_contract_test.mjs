@@ -1,8 +1,10 @@
 #!/usr/bin/env node
 import assert from 'node:assert/strict';
+import fs from 'node:fs';
 import {createRequire} from 'node:module';
 
 const require = createRequire(import.meta.url);
+const commandCenterSource = fs.readFileSync(new URL('../functions/command_center_mcp.js', import.meta.url), 'utf8');
 const {
   COMMAND_CENTER_COLLECTIONS,
   COMMAND_CENTER_DEFAULT_WORKERS,
@@ -103,5 +105,10 @@ assert.throws(() => cleanBucketObject({
   title: 'bad',
   body: 'Authorization: ' + 'Bearer ' + 'abcdefghijklmnopqrstuvwxyz',
 }, {actor: 'tester@example.com'}), /must not contain reusable secrets/);
+
+assert(commandCenterSource.includes("server.registerTool('command_center.jobs.get_handoff'"));
+assert(commandCenterSource.includes("server.registerTool('command_center.jobs.create_followup'"));
+assert(commandCenterSource.includes('synthesizeJobHandoff'));
+assert(commandCenterSource.includes('createFollowupJob'));
 
 console.log('Command Center MCP contract test: OK');

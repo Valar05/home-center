@@ -10,6 +10,7 @@ const EXPECTED_TOOLS = [
   'command_center.projects.resolve',
   'command_center.projects.get',
   'command_center.jobs.create',
+  'command_center.jobs.create_followup',
   'command_center.jobs.get',
   'command_center.jobs.list',
   'command_center.jobs.cancel',
@@ -18,6 +19,7 @@ const EXPECTED_TOOLS = [
   'command_center.jobs.answer_question',
   'command_center.jobs.authorize_mutation',
   'command_center.jobs.get_summary',
+  'command_center.jobs.get_handoff',
   'command_center.jobs.get_events',
   'command_center.jobs.get_logs',
   'command_center.jobs.get_artifacts',
@@ -176,8 +178,18 @@ async function main() {
     const jobId = created.job?.jobId || '';
     const get = await callTool(args.mcpUrl, realToken, 21, 'command_center.jobs.get', {jobId});
     const summary = await callTool(args.mcpUrl, realToken, 22, 'command_center.jobs.get_summary', {jobId});
-    liveJob = {jobId, create: contentJson(create.json, 'jobs.create result'), get: contentJson(get.json, 'jobs.get result'), summary: contentJson(summary.json, 'jobs.get_summary result')};
-    add('live_job_create_readback', !!jobId && liveJob.get.job?.jobId === jobId && liveJob.summary.jobId === jobId, {jobId});
+    const handoff = await callTool(args.mcpUrl, realToken, 23, 'command_center.jobs.get_handoff', {jobId});
+    const followup = await callTool(args.mcpUrl, realToken, 24, 'command_center.jobs.create_followup', {
+      idempotencyKey: `invokability-followup-${runId}`,
+      sourceJobId: jobId,
+      title: 'Command Center follow-up invokability smoke',
+      objective: 'Prove linked follow-up job creation from a source handoff.',
+      acceptanceCriteria: ['Follow-up job records sourceJobId'],
+      mutationPolicy: {editFiles: 'deny', runTests: 'deny', commit: 'deny', push: 'deny', merge: 'deny'},
+    });
+    liveJob = {jobId, create: contentJson(create.json, 'jobs.create result'), get: contentJson(get.json, 'jobs.get result'), summary: contentJson(summary.json, 'jobs.get_summary result'), handoff: contentJson(handoff.json, 'jobs.get_handoff result'), followup: contentJson(followup.json, 'jobs.create_followup result')};
+    add('live_job_create_readback', !!jobId && liveJob.get.job?.jobId === jobId && liveJob.summary.jobId === jobId && liveJob.handoff.handoff?.job?.jobId === jobId, {jobId});
+    add('live_followup_create_readback', liveJob.followup.job?.sourceJobId === jobId && liveJob.followup.job?.followupOf?.jobId === jobId, {sourceJobId: jobId, followupJobId: liveJob.followup.job?.jobId || ''});
   } else if (args.createJob) {
     add('live_job_create_readback', false, {detail: 'No real Home Center MCP OAuth bearer token was available.'});
   }

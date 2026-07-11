@@ -647,6 +647,138 @@ async function createJob(admin, caller, args) {
   });
 }
 
+async function synthesizeJobHandoff(admin, jobId) {
+  const job = await getJob(admin, jobId);
+  const [checkpoint, events, logs, artifacts, bucketRows] = await Promise.all([
+    getLatestCheckpoint(admin, jobId),
+    listByJob(admin, COMMAND_CENTER_COLLECTIONS.events, jobId, 100),
+    listByJob(admin, COMMAND_CENTER_COLLECTIONS.logs, jobId, 100),
+    listByJob(admin, COMMAND_CENTER_COLLECTIONS.artifacts, jobId, 100),
+    listBucketObjects(admin, {bucketId: COMMAND_CENTER_DEFAULT_BUCKET_ID, jobId, limit: 50}),
+  ]);
+  const newestEvent = events[0] || null;
+  const artifactNames = new Set(artifacts.map((artifact) => artifact.name).filter(Boolean));
+  const missingRequiredArtifacts = (job.requiredArtifacts || COMMAND_CENTER_REQUIRED_ARTIFACTS).filter((name) => !artifactNames.has(name));
+  const nowMs = Date.now();
+  const acceptanceCriteria = Array.isArray(job.acceptanceCriteria) ? job.acceptanceCriteria : [];
+  const checkpointCriteria = Array.isArray(checkpoint && checkpoint.acceptanceCriteriaStatus) ? checkpoint.acceptanceCriteriaStatus : [];
+  const checkpointByCriterion = new Map(checkpointCriteria.map((item) => [safeText(item.criterion, 1000), item]));
+  const acceptanceMatrix = acceptanceCriteria.map((criterion) => {
+    const existing = checkpointByCriterion.get(criterion) || {};
+    return {
+      criterion,
+      status: safeText(existing.status, 80) || 'not_evaluated',
+      evidenceRefs: safeList(existing.evidenceRefs, 40, 800),
+      notes: safeText(existing.notes, 1000) || 'No explicit criterion-level worker verdict recorded.',
+      blockingReason: safeText(existing.blockingReason, 1000),
+    };
+  });
+  const executorEvents = events.filter((event) => /^executor_/.test(event.type || ''));
+  const heartbeatEvent = events.find((event) => event.type === 'executor_heartbeat') || null;
+  const mutationRequests = artifacts.filter((artifact) => artifact.name === 'mutation-requests.jsonl');
+  return {
+    packetVersion: 'command-center-handoff-v1',
+    generatedAtMs: nowMs,
+    job: {
+      jobId,
+      projectId: job.projectId,
+      title: job.title || '',
+      objective: job.objective || '',
+      status: job.status,
+      selectedWorkerId: job.selectedWorkerId || '',
+      workerRequirements: safeList(job.workerRequirements, 40, 120),
+      requiredArtifacts: safeList(job.requiredArtifacts || COMMAND_CENTER_REQUIRED_ARTIFACTS, 80, 120),
+      sourceJobId: job.sourceJobId || '',
+      followupOf: job.followupOf || null,
+      mutationPolicy: cleanMutationPolicy(job.mutationPolicy),
+      baseWorkspace: job.baseWorkspace || COMMAND_CENTER_DEFAULT_BASE_WORKSPACE,
+    },
+    review: {
+      recommendedNextAction: job.status === 'completed' ? 'Review completion evidence and authorize only policy-approved consequential mutations.' : 'Create a linked follow-up invocation after reviewing the failure evidence.',
+      correctability: {
+        preferredOperation: 'command_center.jobs.create_followup',
+        sourceJobId: jobId,
+        carryForwardEvidenceRefs: artifacts.map((artifact) => artifact.uri).filter(Boolean).slice(0, 40),
+      },
+      residualRisks: missingRequiredArtifacts.length ? ['Some required artifacts are missing.'] : ['Acceptance criteria still require reviewer judgment; artifact presence is not acceptance.'],
+    },
+    counters: {
+      eventCount: events.length,
+      logCount: logs.length,
+      artifactCount: artifacts.length,
+      bucketObjectCount: bucketRows.objects.length,
+      executorEventCount: executorEvents.length,
+      lastEventType: newestEvent ? newestEvent.type : '',
+      lastHeartbeatAgeMs: heartbeatEvent ? nowMs - Number(heartbeatEvent.createdAtMs || nowMs) : null,
+      terminal: ['completed', 'failed', 'canceled'].includes(job.status),
+      missingRequiredArtifacts,
+    },
+    checkpoint,
+    acceptanceMatrix,
+    artifacts: artifacts.map((artifact) => ({artifactId: artifact.artifactId, name: artifact.name, kind: artifact.kind, uri: artifact.uri, sha256: artifact.sha256, required: artifact.required === true})),
+    events: events.slice(0, 20).map((event) => ({eventId: event.eventId, type: event.type, summary: event.summary, createdAtMs: event.createdAtMs, actor: event.actor, evidenceRefs: event.evidenceRefs || []})),
+    logs: logs.slice(0, 20).map((log) => ({logId: log.logId, message: log.message, createdAtMs: log.createdAtMs})),
+    bucketObjects: bucketRows.objects.map((object) => ({objectId: object.objectId, kind: object.kind, path: object.path, title: object.title, summary: object.summary, updatedAtMs: object.updatedAtMs})),
+    mutationRequests,
+  };
+}
+
+async function createFollowupJob(admin, caller, args) {
+  return idempotentMutation(admin, caller, requireIdempotencyKey(args.idempotencyKey), 'jobs.create_followup', async () => {
+    const sourceJobId = cleanJobId(args.sourceJobId);
+    const sourceHandoff = await synthesizeJobHandoff(admin, sourceJobId);
+    const sourceJob = sourceHandoff.job;
+    const projectId = args.projectId ? cleanProjectId(args.projectId) : cleanProjectId(sourceJob.projectId);
+    const workers = await workerRecords(admin);
+    const workerRequirements = safeList(args.workerRequirements, 40, 120);
+    const inheritedWorkerRequirements = safeList(sourceJob.workerRequirements, 40, 120);
+    const worker = selectWorker(workers, workerRequirements.length ? workerRequirements : inheritedWorkerRequirements);
+    const execution = cleanOneShotExecution({
+      ...args,
+      baseWorkspace: args.baseWorkspace || sourceJob.baseWorkspace,
+      requiredArtifacts: args.requiredArtifacts || sourceJob.requiredArtifacts,
+    });
+    const nowMs = Date.now();
+    const jobId = `job_${randomUUID()}`;
+    const job = {
+      jobId,
+      projectId,
+      title: safeText(args.title, 300) || `Follow up: ${sourceJob.title || sourceJobId}`,
+      objective: safeText(args.objective, 4000) || `Follow up on ${sourceJobId}.`,
+      acceptanceCriteria: safeList(args.acceptanceCriteria, 80, 1000),
+      constraints: safeList(args.constraints, 80, 1000),
+      scopeExclusions: safeList(args.scopeExclusions, 80, 1000),
+      workerRequirements: workerRequirements.length ? workerRequirements : inheritedWorkerRequirements,
+      budgetClass: safeText(args.budgetClass, 80) || 'small',
+      mutationPolicy: cleanMutationPolicy(args.mutationPolicy || sourceJob.mutationPolicy),
+      ...execution,
+      sourceJobId,
+      followupOf: {
+        jobId: sourceJobId,
+        status: sourceJob.status,
+        title: sourceJob.title || '',
+        handoffRef: `handoff://${sourceJobId}`,
+      },
+      sourceEvidenceRefs: sourceHandoff.review.correctability.carryForwardEvidenceRefs,
+      status: 'leased',
+      selectedWorkerId: worker.workerId,
+      createdBy: caller.actor,
+      createdAtMs: nowMs,
+      updatedAtMs: nowMs,
+      simulatedWorker: worker.simulated === true,
+    };
+    const lease = {leaseId: `lease_${randomUUID()}`, jobId, projectId, workerId: worker.workerId, status: 'active', acquiredAtMs: nowMs, expiresAtMs: nowMs + 30 * 60 * 1000, heartbeatAtMs: nowMs};
+    await collection(admin, COMMAND_CENTER_COLLECTIONS.jobs).doc(jobId).set(job);
+    await collection(admin, COMMAND_CENTER_COLLECTIONS.leases).doc(lease.leaseId).set(lease);
+    const createdEvent = await appendEvent(admin, {type: 'job_created', jobId, projectId, actor: caller.actor, summary: job.title, data: {workerRequirements: job.workerRequirements, sourceJobId}});
+    const followupEvent = await appendEvent(admin, {type: 'job_followup_created', jobId, projectId, actor: caller.actor, summary: `Linked follow-up for ${sourceJobId}.`, evidenceRefs: [`handoff://${sourceJobId}`], data: {sourceJobId, sourceStatus: sourceJob.status}});
+    const leasedEvent = await appendEvent(admin, {type: 'job_leased', jobId, projectId, actor: 'command_center', summary: `Leased to ${worker.workerId}.`, data: {worker}});
+    await recordLog(admin, jobId, projectId, 'Command Center created linked follow-up job from source handoff.', {sourceJobId, workerId: worker.workerId, sourceStatus: sourceJob.status});
+    const checkpoint = await recordCheckpoint(admin, job);
+    return {job, lease, events: [createdEvent, followupEvent, leasedEvent], checkpoint, sourceHandoff};
+  });
+}
+
 async function reviseJob(admin, caller, args) {
   return idempotentMutation(admin, caller, requireIdempotencyKey(args.idempotencyKey), 'jobs.revise', async () => {
     const jobId = cleanJobId(args.jobId);
@@ -842,6 +974,12 @@ function createCommandCenterMcpServer({admin}) {
     inputSchema: {idempotencyKey: z.string(), projectId: z.string(), title: z.string(), objective: z.string(), acceptanceCriteria: z.array(z.string()).optional(), constraints: z.array(z.string()).optional(), scopeExclusions: z.array(z.string()).optional(), workerRequirements: z.array(z.string()).optional(), budgetClass: z.string().optional(), mutationPolicy: z.record(z.string(), z.string()).optional(), baseWorkspace: z.record(z.string(), z.any()).optional(), requiredArtifacts: z.array(z.string()).optional(), verificationCommands: z.array(z.string()).optional(), stopConditions: z.array(z.string()).optional()},
   }, async (args, extra) => textResult(await createJob(admin, await callerFromExtra(admin, extra), args || {})));
 
+  server.registerTool('command_center.jobs.create_followup', {
+    title: 'Create Command Center follow-up job',
+    description: 'Create a new linked invocation from a source job handoff. This does not rewrite old job history.',
+    inputSchema: {idempotencyKey: z.string(), sourceJobId: z.string(), projectId: z.string().optional(), title: z.string(), objective: z.string(), acceptanceCriteria: z.array(z.string()).optional(), constraints: z.array(z.string()).optional(), scopeExclusions: z.array(z.string()).optional(), workerRequirements: z.array(z.string()).optional(), budgetClass: z.string().optional(), mutationPolicy: z.record(z.string(), z.string()).optional(), baseWorkspace: z.record(z.string(), z.any()).optional(), requiredArtifacts: z.array(z.string()).optional(), verificationCommands: z.array(z.string()).optional(), stopConditions: z.array(z.string()).optional()},
+  }, async (args, extra) => textResult(await createFollowupJob(admin, await callerFromExtra(admin, extra), args || {})));
+
   server.registerTool('command_center.jobs.get', {title: 'Get Command Center job', description: 'Read one Command Center job packet.', inputSchema: {jobId: z.string()}}, async (args) => textResult({job: await getJob(admin, cleanJobId(args.jobId))}));
 
   server.registerTool('command_center.jobs.list', {
@@ -872,9 +1010,10 @@ function createCommandCenterMcpServer({admin}) {
 
   server.registerTool('command_center.jobs.get_summary', {title: 'Get Command Center job summary', description: 'Read compact resumable worker-state checkpoint plus job status.', inputSchema: {jobId: z.string()}}, async (args) => {
     const jobId = cleanJobId(args.jobId);
-    const job = await getJob(admin, jobId);
-    return textResult({jobId, status: job.status, checkpoint: await getLatestCheckpoint(admin, jobId), job});
+    const handoff = await synthesizeJobHandoff(admin, jobId);
+    return textResult({jobId, status: handoff.job.status, checkpoint: handoff.checkpoint, counters: handoff.counters, recommendedNextAction: handoff.review.recommendedNextAction, job: await getJob(admin, jobId)});
   });
+  server.registerTool('command_center.jobs.get_handoff', {title: 'Get Command Center job handoff', description: 'Read a compact review/correction packet synthesized from job state, events, logs, artifacts, checkpoints, and bucket objects.', inputSchema: {jobId: z.string()}}, async (args) => textResult({handoff: await synthesizeJobHandoff(admin, cleanJobId(args.jobId))}));
   server.registerTool('command_center.jobs.get_events', {title: 'Get Command Center job events', description: 'Read structured job events generated from Command Center state, not another chat agent.', inputSchema: {jobId: z.string(), limit: z.number().optional()}}, async (args) => textResult({events: await listByJob(admin, COMMAND_CENTER_COLLECTIONS.events, cleanJobId(args.jobId), Math.max(1, Math.min(Number(args.limit) || 50, 100)))}));
   server.registerTool('command_center.jobs.get_logs', {title: 'Get Command Center job logs', description: 'Read append-only log metadata for a job.', inputSchema: {jobId: z.string(), limit: z.number().optional()}}, async (args) => textResult({logs: await listByJob(admin, COMMAND_CENTER_COLLECTIONS.logs, cleanJobId(args.jobId), Math.max(1, Math.min(Number(args.limit) || 50, 100)))}));
   server.registerTool('command_center.jobs.get_artifacts', {title: 'Get Command Center job artifacts', description: 'Read artifact metadata and object references for a job.', inputSchema: {jobId: z.string(), limit: z.number().optional()}}, async (args) => textResult({artifacts: await listByJob(admin, COMMAND_CENTER_COLLECTIONS.artifacts, cleanJobId(args.jobId), Math.max(1, Math.min(Number(args.limit) || 50, 100)))}));

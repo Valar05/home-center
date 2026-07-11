@@ -24,6 +24,8 @@ const OPTIONAL_POSTMORTEM_ARTIFACTS = [
   'event-transcript.jsonl',
   'executor-status.json',
   'artifact-upload-summary.json',
+  'acceptance-matrix.json',
+  'handoff-packet.json',
 ];
 const DEFAULT_EXECUTOR_HEARTBEAT_MS = 25000;
 const DEFAULT_EXECUTOR_BATCH_MS = 5000;
@@ -72,6 +74,11 @@ function printHelp() {
 function readJson(file, fallback = {}) {
   if (!file || !fs.existsSync(file)) return fallback;
   return JSON.parse(fs.readFileSync(file, 'utf8'));
+}
+
+function readText(file, fallback = '') {
+  if (!file || !fs.existsSync(file)) return fallback;
+  return fs.readFileSync(file, 'utf8');
 }
 
 function writeFile(file, data) {
@@ -140,6 +147,114 @@ function sha256(file) {
 function artifactRecord(outputDir, name, kind = 'file', required = true) {
   const file = path.join(outputDir, name);
   return {name, kind, required, uri: file, sha256: fs.existsSync(file) ? sha256(file) : '', metadata: {localPath: file}};
+}
+
+function parseJsonLines(text) {
+  return String(text || '').split(/\r?\n/).filter(Boolean).map((line) => {
+    try { return JSON.parse(line); } catch (_) { return {raw: line}; }
+  });
+}
+
+function summarizeCommandResult(item) {
+  return {
+    command: redactSecrets(item.command || ''),
+    cwd: item.cwd || '',
+    exitCode: typeof item.exitCode === 'number' ? item.exitCode : 1,
+    startedAt: item.startedAt || '',
+    endedAt: item.endedAt || '',
+    durationMs: item.durationMs || 0,
+    signal: item.signal || '',
+    cancelled: item.cancelled === true,
+    stdoutPath: item.stdoutPath || '',
+    stderrPath: item.stderrPath || '',
+    eventTranscriptPath: item.eventTranscriptPath || '',
+    stats: item.stats || {},
+  };
+}
+
+function buildAcceptanceMatrix(job, commandResults, artifacts) {
+  const criteria = Array.isArray(job.acceptanceCriteria) ? job.acceptanceCriteria : [];
+  return {
+    generatedAt: new Date().toISOString(),
+    statusPolicy: 'Criteria default to not_evaluated unless a worker emits explicit criterion evidence.',
+    overallExecutorStatus: commandResults.every((item) => item.exitCode === 0) ? 'executor_completed' : 'executor_failed',
+    criteria: criteria.map((criterion) => ({
+      criterion,
+      status: 'not_evaluated',
+      evidenceRefs: artifacts.map((artifact) => artifact.uri).filter(Boolean).slice(0, 20),
+      notes: 'Worker preserved evidence, but did not explicitly mark this criterion as pass/fail.',
+      blockingReason: '',
+    })),
+  };
+}
+
+function buildHandoffPacket({outputDir, runWorkspace, jobPacket, manifest, commandResults, artifacts, status, gitStatus, changedFiles, verification}) {
+  const job = jobPacket.job || jobPacket;
+  const eventTranscript = parseJsonLines(readText(path.join(outputDir, 'event-transcript.jsonl')));
+  const mutationRequests = parseJsonLines(readText(path.join(outputDir, 'mutation-requests.jsonl')));
+  const executorStatus = readJson(path.join(outputDir, 'executor-status.json'), {});
+  const acceptanceMatrix = readJson(path.join(outputDir, 'acceptance-matrix.json'), {});
+  const latestEvent = eventTranscript[eventTranscript.length - 1] || null;
+  const requiredArtifactNames = new Set(REQUIRED_ARTIFACTS);
+  const presentNames = new Set(artifacts.map((artifact) => artifact.name));
+  return {
+    packetVersion: 'command-center-handoff-v1',
+    generatedAt: new Date().toISOString(),
+    job: {
+      jobId: job.jobId || '',
+      projectId: job.projectId || manifest.projectId || '',
+      title: job.title || '',
+      objective: job.objective || '',
+      status,
+      workerId: manifest.workerId || '',
+      selectedWorkerId: job.selectedWorkerId || '',
+      mutationPolicy: job.mutationPolicy || {},
+      baseWorkspace: job.baseWorkspace || manifest.baseWorkspace || manifestBaseWorkspace(manifest),
+      sourceJobId: job.sourceJobId || '',
+      followupOf: job.followupOf || null,
+    },
+    review: {
+      recommendedNextAction: status === 'completed' ? 'Review handoff evidence and authorize only policy-approved consequential mutations.' : 'Create a linked follow-up invocation after reviewing failure evidence.',
+      residualRisks: [
+        'Acceptance criteria are not automatically passed by executor exit code.',
+        'Consequential mutations require separate authorization under the job mutation policy.',
+      ],
+      correctability: {
+        preferredOperation: 'command_center.jobs.create_followup',
+        sourceJobId: job.jobId || '',
+        carryForwardEvidenceRefs: artifacts.map((artifact) => artifact.uri).filter(Boolean).slice(0, 40),
+      },
+    },
+    execution: {
+      runWorkspace,
+      gitStatus,
+      changedFiles,
+      commandResults: commandResults.map(summarizeCommandResult),
+      executorStatus,
+      verification,
+      acceptanceMatrix,
+      mutationRequests,
+    },
+    observability: {
+      eventCount: eventTranscript.length,
+      latestEvent,
+      artifactCount: artifacts.length,
+      requiredArtifactsPresent: Array.from(requiredArtifactNames).filter((name) => presentNames.has(name)),
+      missingRequiredArtifacts: Array.from(requiredArtifactNames).filter((name) => !presentNames.has(name)),
+    },
+    artifacts: artifacts.map((artifact) => ({
+      name: artifact.name,
+      kind: artifact.kind,
+      required: artifact.required === true,
+      uri: artifact.uri,
+      sha256: artifact.sha256,
+    })),
+    bucket: {
+      suggestedCurrentSummaryKind: 'memory.current_condensed',
+      suggestedPastLogKind: 'memory.past_log',
+      suggestedSkillCandidateKind: 'skill.scratch',
+    },
+  };
 }
 
 function copyBaseWorkspace(baseWorkspace, runWorkspace) {
@@ -223,7 +338,14 @@ function writeRequiredArtifacts({outputDir, runWorkspace, jobPacket, commandResu
   writeFile(path.join(outputDir, 'final-report.md'), ['# Final Report', '', 'Status: ' + (ok ? 'completed' : 'failed'), 'Artifacts: ' + REQUIRED_ARTIFACTS.length, 'Residual risk: review command output, patch, and mutation requests before consequential mutation.'].join('\n'));
   if (!fs.existsSync(path.join(outputDir, 'mutation-requests.jsonl'))) writeFile(path.join(outputDir, 'mutation-requests.jsonl'), '');
   const artifacts = REQUIRED_ARTIFACTS.map((name) => artifactRecord(outputDir, name));
+  const acceptanceMatrix = buildAcceptanceMatrix(job, commandResults, artifacts);
+  writeJson(path.join(outputDir, 'acceptance-matrix.json'), acceptanceMatrix);
+  artifacts.push(artifactRecord(outputDir, 'acceptance-matrix.json', 'review', false));
+  const handoffPacket = buildHandoffPacket({outputDir, runWorkspace, jobPacket, manifest, commandResults, artifacts, status: ok ? 'completed' : 'failed', gitStatus, changedFiles, verification});
+  writeJson(path.join(outputDir, 'handoff-packet.json'), handoffPacket);
+  artifacts.push(artifactRecord(outputDir, 'handoff-packet.json', 'handoff', false));
   for (const name of OPTIONAL_POSTMORTEM_ARTIFACTS) {
+    if (name === 'acceptance-matrix.json' || name === 'handoff-packet.json') continue;
     if (fs.existsSync(path.join(outputDir, name))) artifacts.push(artifactRecord(outputDir, name, 'postmortem', false));
   }
   if (fs.existsSync(path.join(outputDir, 'codex-prompt.md'))) artifacts.push(artifactRecord(outputDir, 'codex-prompt.md', 'prompt', false));
@@ -566,6 +688,12 @@ async function runSelfTest() {
   const result = await localRun({args: {baseWorkspace: base, command: 'printf changed > README.md'}, manifest: readJson(manifestPath), jobPacket: readJson(packet), outputDir: out});
   const missing = REQUIRED_ARTIFACTS.filter((name) => !fs.existsSync(path.join(out, name)));
   if (result.status !== 'completed' || missing.length) throw new Error('self-test failed; missing: ' + missing.join(', '));
+  for (const reviewArtifact of ['acceptance-matrix.json', 'handoff-packet.json']) {
+    if (!fs.existsSync(path.join(out, reviewArtifact))) throw new Error('self-test missing review artifact: ' + reviewArtifact);
+  }
+  const handoffPacket = readJson(path.join(out, 'handoff-packet.json'), {});
+  if (handoffPacket.packetVersion !== 'command-center-handoff-v1') throw new Error('self-test handoff packet version mismatch');
+  if (handoffPacket.review?.correctability?.preferredOperation !== 'command_center.jobs.create_followup') throw new Error('self-test handoff packet missing follow-up operation');
   const streamOut = path.join(root, 'stream-out');
   const oldHeartbeat = process.env.COMMAND_CENTER_EXECUTOR_HEARTBEAT_MS;
   const oldBatch = process.env.COMMAND_CENTER_EXECUTOR_BATCH_MS;
@@ -584,6 +712,8 @@ async function runSelfTest() {
   if (!fs.readFileSync(path.join(streamOut, 'stdout-transcript.txt'), 'utf8').includes('stream-one')) throw new Error('streaming self-test missing stdout transcript');
   if (!fs.readFileSync(path.join(streamOut, 'stderr-transcript.txt'), 'utf8').includes('stream-two')) throw new Error('streaming self-test missing stderr transcript');
   if (!fs.existsSync(path.join(streamOut, 'executor-status.json'))) throw new Error('streaming self-test missing executor status');
+  if (!fs.existsSync(path.join(streamOut, 'handoff-packet.json'))) throw new Error('streaming self-test missing handoff packet');
+  if (!fs.existsSync(path.join(streamOut, 'acceptance-matrix.json'))) throw new Error('streaming self-test missing acceptance matrix');
   console.log('Command Center one-shot worker self-test: OK (' + out + ', ' + streamOut + ')');
   return 0;
 }

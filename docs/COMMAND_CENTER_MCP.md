@@ -44,6 +44,7 @@ V1 exposes these typed tools:
 - `command_center.projects.resolve`
 - `command_center.projects.get`
 - `command_center.jobs.create`
+- `command_center.jobs.create_followup`
 - `command_center.jobs.get`
 - `command_center.jobs.list`
 - `command_center.jobs.cancel`
@@ -52,6 +53,7 @@ V1 exposes these typed tools:
 - `command_center.jobs.answer_question`
 - `command_center.jobs.authorize_mutation`
 - `command_center.jobs.get_summary`
+- `command_center.jobs.get_handoff`
 - `command_center.jobs.get_events`
 - `command_center.jobs.get_logs`
 - `command_center.jobs.get_artifacts`
@@ -71,6 +73,7 @@ These are typed MCP operations. Command Center does not interpret chat prompts; 
 The first implementation now models workers as one-shot executions over prepared base workspaces. A worker is not a blank slate and does not install heavy tools such as Blender during normal job execution.
 
 - `jobs.create` persists a one-shot ticket, selects a compatible worker, creates a lease, writes events, writes logs, and records a checkpoint.
+- `jobs.create_followup` creates a new linked invocation from a prior job handoff; it never rewrites the source job.
 - Every job records `executionMode=one_shot`, a `baseWorkspace` snapshot contract, required artifacts, verification commands, stop conditions, and mutation policy.
 - `workers.register_oneshot` registers a user-owned worker and returns a worker token once. Command Center stores only the token hash.
 - The worker gateway exposes `/worker/lease`, `/worker/events`, `/worker/artifacts`, `/worker/checkpoint`, and `/worker/complete` for registered workers.
@@ -78,6 +81,7 @@ The first implementation now models workers as one-shot executions over prepared
 - `jobs.answer_question` records the answer and resumes the job.
 - `jobs.authorize_mutation` records approval or rejection under the ticket mutation policy.
 - `jobs.get_summary` returns the latest checkpoint-style resumable worker state.
+- `jobs.get_handoff` returns a bounded review/correction packet synthesized from job state, events, logs, artifacts, checkpoints, and bucket objects.
 
 
 ## One-Shot Artifact Contract
@@ -94,7 +98,29 @@ Every one-shot worker run must produce these artifacts, even on failure:
 - `final-report.md`
 - `mutation-requests.jsonl`
 
+The worker also emits review-oriented postmortem artifacts:
+
+- `acceptance-matrix.json`
+- `handoff-packet.json`
+
 Tool-specific outputs such as Blender renders, GLB exports, GitHub Pages builds, screenshots, APKs, and logs are additional artifacts. The required artifacts are the minimum reasoning/implementation surface that lets ChatGPT review the job without relying on worker chat history.
+
+## Review And Correction Handoff
+
+Every worker run must produce a `handoff-packet.json` artifact. Command Center also exposes `command_center.jobs.get_handoff` so ChatGPT can retrieve a review packet even when the local artifact URI is not directly readable from the cloud.
+
+The handoff packet answers:
+
+- what job ran, on which worker/base workspace, under which mutation policy;
+- what changed, which commands ran, and what verification recorded;
+- which events, logs, artifacts, checkpoints, and bucket objects support the result;
+- which acceptance criteria are explicitly evaluated versus still `not_evaluated`;
+- what the recommended next action is;
+- how to create a corrective linked invocation.
+
+Acceptance criteria are not automatically passed by executor exit code. Unknown criteria default to `not_evaluated` in `acceptance-matrix.json` unless the worker records explicit criterion evidence.
+
+Corrective work should use `command_center.jobs.create_followup` with `sourceJobId`. A follow-up job records `sourceJobId`, `followupOf`, and source evidence refs, then receives its own lease, events, artifacts, checkpoints, bucket objects, and final handoff. Do not revise or overwrite the old job to continue execution history.
 
 ## Prepared Base Workspaces
 
@@ -247,8 +273,10 @@ Normal flow:
 3. Resolve a project with `operation=projects.resolve` when needed.
 4. Create a follow-up worker action with `operation=jobs.create`.
 5. Recover or supervise with `operation=jobs.get`, `jobs.get_events`, `jobs.get_artifacts`, and `jobs.get_summary`.
-6. Continue the job with `jobs.answer_question` or `jobs.authorize_mutation` when policy allows.
-7. Preserve reusable execution learning with `bucket.put_object`, inspect it with `bucket.list_objects`, and promote proven scratch procedures with `bucket.promote_skill`.
+6. Review with `operation=jobs.get_handoff`.
+7. Continue the job with `jobs.answer_question` or `jobs.authorize_mutation` when policy allows.
+8. Create corrective new invocations with `jobs.create_followup`, never by rewriting the old job.
+9. Preserve reusable execution learning with `bucket.put_object`, inspect it with `bucket.list_objects`, and promote proven scratch procedures with `bucket.promote_skill`.
 
 The standalone Command Center endpoint remains available for direct MCP clients and worker-control tooling:
 

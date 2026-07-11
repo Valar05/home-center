@@ -280,7 +280,7 @@ function parseMcpPayload(text, label) {
 
 function commandCenterOperationRegistry() {
   return {
-    version: '2026-07-11.home-center-command-center-bucket-v1',
+    version: '2026-07-11.home-center-command-center-handoff-v1',
     invocationTool: 'command_center_operation',
     commandCenterMcpUrl: COMMAND_CENTER_MCP_URL,
     purpose: 'Expose Command Center dispatch and managed knowledge-bucket operations through the already-installed Home Center MCP connector so ChatGPT can create, inspect, resume, revise, authorize, and preserve worker knowledge without discovering a second MCP app.',
@@ -289,6 +289,7 @@ function commandCenterOperationRegistry() {
       'projects.resolve': {summary: 'Resolve an active project before creating a job.', readOnly: false, input: {repository: 'optional string', capability: 'optional string', projectId: 'optional string', idempotencyKey: 'string'}},
       'projects.get': {summary: 'Read one persisted Command Center project packet.', readOnly: true, input: {projectId: 'string'}},
       'jobs.create': {summary: 'Create a durable worker ticket/job.', readOnly: false, input: {projectId: 'string', title: 'string', objective: 'string', acceptanceCriteria: 'string[]', workerRequirements: 'string[]', mutationPolicy: 'object', idempotencyKey: 'string'}},
+      'jobs.create_followup': {summary: 'Create a new linked invocation from a source job handoff without rewriting the old job.', readOnly: false, input: {sourceJobId: 'string', title: 'string', objective: 'string', acceptanceCriteria: 'optional string[]', constraints: 'optional string[]', mutationPolicy: 'optional object', idempotencyKey: 'string'}},
       'jobs.get': {summary: 'Read one Command Center job packet.', readOnly: true, input: {jobId: 'string'}},
       'jobs.list': {summary: 'List recent Command Center jobs.', readOnly: true, input: {projectId: 'optional string', status: 'optional string', limit: 'optional number'}},
       'jobs.cancel': {summary: 'Cancel a job with an audit event.', readOnly: false, input: {jobId: 'string', reason: 'optional string', idempotencyKey: 'string'}},
@@ -297,6 +298,7 @@ function commandCenterOperationRegistry() {
       'jobs.answer_question': {summary: 'Answer a worker question and let the job continue when policy allows.', readOnly: false, input: {jobId: 'string', questionId: 'optional string', answer: 'string', decision: 'optional string', idempotencyKey: 'string'}},
       'jobs.authorize_mutation': {summary: 'Approve or reject a requested worker mutation.', readOnly: false, input: {jobId: 'string', action: 'string', approved: 'boolean', reason: 'optional string', evidenceRefs: 'optional string[]', idempotencyKey: 'string'}},
       'jobs.get_summary': {summary: 'Read compact resumable job summary/checkpoint.', readOnly: true, input: {jobId: 'string'}},
+      'jobs.get_handoff': {summary: 'Read review/correction handoff synthesized from job state, events, logs, artifacts, checkpoints, and bucket objects.', readOnly: true, input: {jobId: 'string'}},
       'jobs.get_events': {summary: 'Read structured job events.', readOnly: true, input: {jobId: 'string', limit: 'optional number'}},
       'jobs.get_logs': {summary: 'Read job log metadata.', readOnly: true, input: {jobId: 'string', limit: 'optional number'}},
       'jobs.get_artifacts': {summary: 'Read job artifact metadata.', readOnly: true, input: {jobId: 'string', limit: 'optional number'}},

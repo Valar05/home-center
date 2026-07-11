@@ -193,9 +193,9 @@ require_contains(command_center_mcp, "server.registerTool('command_center.projec
 require_contains(command_center_mcp, "server.registerTool('command_center.projects.get'", 'Command Center MCP exposes project get tool')
 require_contains(home_center_mcp, "server.registerTool('command_center_operation'", 'Home Center bridge exposes stable Command Center operation tool')
 require_contains(home_center_mcp, 'managed knowledge-bucket operations', 'Home Center Command Center bridge purpose includes bucket operations')
-for command_center_bridge_operation in ['bucket.get_layout', 'bucket.put_object', 'bucket.get_object', 'bucket.list_objects', 'bucket.promote_skill']:
+for command_center_bridge_operation in ['jobs.create_followup', 'jobs.get_handoff', 'bucket.get_layout', 'bucket.put_object', 'bucket.get_object', 'bucket.list_objects', 'bucket.promote_skill']:
     require_contains(home_center_mcp, f"'{command_center_bridge_operation}'", f'Home Center command_center_operation bridge exposes {command_center_bridge_operation}')
-for command_center_tool in ['command_center.jobs.create', 'command_center.jobs.get', 'command_center.jobs.list', 'command_center.jobs.cancel', 'command_center.jobs.resume', 'command_center.jobs.revise', 'command_center.jobs.answer_question', 'command_center.jobs.authorize_mutation', 'command_center.jobs.get_summary', 'command_center.jobs.get_events', 'command_center.jobs.get_logs', 'command_center.jobs.get_artifacts', 'command_center.workers.list', 'command_center.workers.get_capabilities']:
+for command_center_tool in ['command_center.jobs.create', 'command_center.jobs.create_followup', 'command_center.jobs.get', 'command_center.jobs.list', 'command_center.jobs.cancel', 'command_center.jobs.resume', 'command_center.jobs.revise', 'command_center.jobs.answer_question', 'command_center.jobs.authorize_mutation', 'command_center.jobs.get_summary', 'command_center.jobs.get_handoff', 'command_center.jobs.get_events', 'command_center.jobs.get_logs', 'command_center.jobs.get_artifacts', 'command_center.workers.list', 'command_center.workers.get_capabilities']:
     require_contains(command_center_mcp, f"server.registerTool('{command_center_tool}'", f'Command Center MCP exposes {command_center_tool}')
 for command_center_bucket_tool in ['command_center.bucket.get_layout', 'command_center.bucket.put_object', 'command_center.bucket.get_object', 'command_center.bucket.list_objects', 'command_center.bucket.promote_skill']:
     require_contains(command_center_mcp, f"server.registerTool('{command_center_bucket_tool}'", f'Command Center MCP exposes {command_center_bucket_tool}')
@@ -208,6 +208,9 @@ for command_center_bucket_lane in ['memory/past-logs', 'memory/current-condensed
 require_contains(command_center_mcp, 'recordCurrentMemorySnapshot(admin, payload)', 'Command Center checkpoints write condensed current memory bucket objects')
 require_contains(command_center_mcp, "kind: 'memory.past_log'", 'Command Center logs mirror into past-log bucket objects')
 require_contains(command_center_mcp, 'Only existing skill.scratch bucket objects can be promoted.', 'Command Center skill promotion preserves scratch-to-promoted gate')
+require_contains(command_center_mcp, 'synthesizeJobHandoff', 'Command Center can synthesize review handoff packets')
+require_contains(command_center_mcp, 'createFollowupJob', 'Command Center can create linked follow-up invocations')
+require_contains(command_center_mcp, 'job_followup_created', 'Command Center records follow-up creation events')
 require_contains(command_center_contract, 'cleanBucketObject', 'Command Center contract test covers bucket object cleanup')
 require_contains(command_center_contract, "COMMAND_CENTER_BUCKET_LAYOUT.lanes['skills/promoted']", 'Command Center contract test covers promoted skill lane')
 require_contains(command_center_mcp, "workerId: 'cloud-codex-primary'", 'Command Center v1 has a simulated cloud Codex worker record')
@@ -444,6 +447,9 @@ require_contains(command_center_oneshot_worker, 'redactSecrets', 'One-shot worke
 require_contains(command_center_oneshot_worker, 'stdout-transcript.txt', 'One-shot worker preserves stdout transcript artifacts')
 require_contains(command_center_oneshot_worker, 'stderr-transcript.txt', 'One-shot worker preserves stderr transcript artifacts')
 require_contains(command_center_oneshot_worker, 'event-transcript.jsonl', 'One-shot worker preserves event transcript artifacts')
+require_contains(command_center_oneshot_worker, 'handoff-packet.json', 'One-shot worker preserves review handoff packet artifacts')
+require_contains(command_center_oneshot_worker, 'acceptance-matrix.json', 'One-shot worker preserves acceptance matrix artifacts')
+require_contains(command_center_oneshot_worker, 'command_center.jobs.create_followup', 'One-shot handoff packet names follow-up invocation path')
 require_contains(command_center_oneshot_worker, "args.mode === 'register'", 'One-shot worker supports registration mode')
 require_contains(command_center_oneshot_worker, "args.mode === 'prepare-base'", 'One-shot worker supports base preparation mode')
 require_contains(command_center_oneshot_worker, "args.mode === 'run-once'", 'One-shot worker supports remote lease run mode')
