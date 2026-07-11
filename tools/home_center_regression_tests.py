@@ -325,6 +325,8 @@ require_contains(home_center_mcp, "server.registerTool('command_center_operation
 require_contains(home_center_mcp, 'managed knowledge-bucket operations', 'Home Center Command Center bridge purpose includes bucket operations')
 require_contains(home_center_mcp, 'commandCenterDriveOperationEntries', 'Home Center drive_operation exposes Command Center compatibility entries')
 require_contains(home_center_mcp, "operation.startsWith('command_center.')", 'Home Center drive_operation routes command_center operations')
+require_contains(home_center_mcp, 'commandCenterCompatOperation', 'Home Center drive_operation supports stale enum schema Command Center tunnel')
+require_contains(home_center_mcp, "compatibilityRoute: 'drive_operation.command_center'", 'Home Center stale schema tunnel is explicit in results')
 require_contains(home_center_mcp, "operation: z.string().describe('Operation name from capabilities.operationRegistry.operations", 'Home Center drive_operation accepts registry strings instead of cached enums')
 for command_center_bridge_operation in ['jobs.create_followup', 'jobs.get_handoff', 'bucket.get_layout', 'bucket.put_object', 'bucket.get_object', 'bucket.list_objects', 'bucket.promote_skill']:
     require_contains(home_center_mcp, f"'{command_center_bridge_operation}'", f'Home Center command_center_operation bridge exposes {command_center_bridge_operation}')

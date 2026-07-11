@@ -182,6 +182,16 @@ async function main() {
   const driveHealthContent = toolContentJson(driveHealthJson, 'drive_operation command_center.health content');
   add('drive_operation_command_center_health_invokable', driveHealth.status === 200 && driveHealthContent.result?.ok === true && driveHealthContent.result?.invokable === true, {status: driveHealth.status, content: driveHealthContent});
 
+  const staleSchemaHealth = await postMcp(args.mcpUrl, args.bearerToken, {
+    jsonrpc: '2.0',
+    id: 16,
+    method: 'tools/call',
+    params: {name: 'drive_operation', arguments: {operation: 'drive_create_folder', args: {commandCenterOperation: 'health'}}},
+  });
+  const staleSchemaHealthJson = parseMcpResponse(staleSchemaHealth.text, 'drive_operation stale-schema command center health');
+  const staleSchemaHealthContent = toolContentJson(staleSchemaHealthJson, 'drive_operation stale-schema command center health content');
+  add('drive_operation_stale_schema_command_center_health_invokable', staleSchemaHealth.status === 200 && staleSchemaHealthContent.compatibilityRoute === 'drive_operation.command_center' && staleSchemaHealthContent.result?.ok === true && staleSchemaHealthContent.result?.invokable === true, {status: staleSchemaHealth.status, content: staleSchemaHealthContent});
+
   const bucket = await postMcp(args.mcpUrl, args.bearerToken, {
     jsonrpc: '2.0',
     id: 13,

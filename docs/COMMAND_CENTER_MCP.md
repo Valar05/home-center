@@ -149,7 +149,24 @@ The handoff packet answers:
 
 Acceptance criteria are not automatically passed by executor exit code. Unknown criteria default to `not_evaluated` in `acceptance-matrix.json` unless the worker records explicit criterion evidence.
 
-Corrective work should use `command_center.jobs.create_followup` with `sourceJobId`. Through the Home Center bridge, call `command_center_operation` with `operation=jobs.create_followup`; if a ChatGPT session only exposes the older stable `drive_operation` tool, call `drive_operation` with `operation=command_center.jobs.create_followup`. A follow-up job records `sourceJobId`, `followupOf`, and source evidence refs, then receives its own lease, events, artifacts, checkpoints, bucket objects, and final handoff. Do not revise or overwrite the old job to continue execution history.
+Corrective work should use `command_center.jobs.create_followup` with `sourceJobId`. Through the Home Center bridge, call `command_center_operation` with `operation=jobs.create_followup`; if a ChatGPT session exposes string-capable `drive_operation`, call `drive_operation` with `operation=command_center.jobs.create_followup`.
+
+Some ChatGPT connector mounts cache the older `drive_operation.operation` enum even after OAuth refresh. For that stale-schema case only, use the explicit compatibility tunnel:
+
+```json
+{
+  "operation": "drive_create_folder",
+  "args": {
+    "commandCenterOperation": "jobs.create_followup",
+    "sourceJobId": "job_...",
+    "title": "...",
+    "objective": "...",
+    "idempotencyKey": "..."
+  }
+}
+```
+
+The compatibility route activates only when `commandCenterOperation` is present; otherwise `drive_create_folder` remains the normal Drive folder operation. A follow-up job records `sourceJobId`, `followupOf`, and source evidence refs, then receives its own lease, events, artifacts, checkpoints, bucket objects, and final handoff. Do not revise or overwrite the old job to continue execution history.
 
 ## Prepared Base Workspaces
 
