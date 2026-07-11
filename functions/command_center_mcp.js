@@ -3397,18 +3397,8 @@ function createCommandCenterMcpApp({admin}) {
       }
       const event = await appendEvent(admin, {type: req.body.type || 'worker_event', jobId, projectId: job.projectId, actor: caller.workerId, summary: req.body.summary || '', evidenceRefs: req.body.evidenceRefs || [], requiresHumanDecision: req.body.requiresHumanDecision === true, recommendedAction: req.body.recommendedAction || '', data: safeObject(req.body.data)});
       await recordLog(admin, jobId, job.projectId, req.body.summary || req.body.type || 'worker_event', {type: event.type, actor: caller.workerId, ...(safeObject(req.body.data))});
-      if (event.type === 'executor_started') {
-        await collection(admin, COMMAND_CENTER_COLLECTIONS.jobs).doc(jobId).set({
-          status: 'executing',
-          updatedAtMs: Date.now(),
-          executorStartedAtMs: Date.now(),
-          executorIdentity: safeText(req.body.executorId || safeObject(req.body.data).executorId, 180),
-          executorPid: Number(req.body.pid || safeObject(req.body.data).pid || 0) || 0,
-        }, {merge: true});
-      }
       if (event.type === 'executor_heartbeat') {
         await collection(admin, COMMAND_CENTER_COLLECTIONS.jobs).doc(jobId).set({updatedAtMs: Date.now(), lastWorkerHeartbeatAtMs: Date.now()}, {merge: true});
-        await collection(admin, COMMAND_CENTER_COLLECTIONS.workers).doc(caller.workerId).set({lastHeartbeatAtMs: Date.now(), health: 'healthy', routable: true, simulated: false}, {merge: true});
         const leaseSnap = await collection(admin, COMMAND_CENTER_COLLECTIONS.leases).where('jobId', '==', jobId).limit(10).get();
         const batch = admin.firestore().batch();
         let leaseUpdates = 0;
@@ -3420,17 +3410,6 @@ function createCommandCenterMcpApp({admin}) {
           }
         });
         if (leaseUpdates) await batch.commit();
-      }
-      if (event.type === 'executor_finished' || event.type === 'executor_failed') {
-        const activationSnap = await collection(admin, COMMAND_CENTER_COLLECTIONS.jobActivations).where('jobId', '==', jobId).limit(10).get();
-        const batch = admin.firestore().batch();
-        activationSnap.forEach((doc) => {
-          const activation = doc.data() || {};
-          if (activation.workerId === caller.workerId && ['requested', 'accepted'].includes(activation.status)) {
-            batch.set(doc.ref, {status: event.type === 'executor_finished' ? 'completed' : 'failed', updatedAtMs: Date.now(), finishedAtMs: Date.now()}, {merge: true});
-          }
-        });
-        await batch.commit();
       }
       res.json({ok: true, event});
     } catch (err) {

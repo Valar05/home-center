@@ -15,8 +15,6 @@ function parseArgs(argv) {
     evidenceDir: DEFAULT_EVIDENCE_DIR,
     runId: new Date().toISOString().replace(/[-:.TZ]/g, '').slice(0, 14),
     token: process.env.HOME_CENTER_COMMAND_CENTER_BEARER_TOKEN || process.env.HOME_CENTER_MCP_BEARER_TOKEN || '',
-    requireCodexCloud: false,
-    executorCommand: '',
   };
   for (let i = 0; i < argv.length; i += 1) {
     const arg = argv[i];
@@ -25,10 +23,8 @@ function parseArgs(argv) {
     else if (arg === '--evidence-dir') args.evidenceDir = argv[++i];
     else if (arg === '--run-id') args.runId = argv[++i];
     else if (arg === '--token') args.token = argv[++i];
-    else if (arg === '--require-codex-cloud') args.requireCodexCloud = true;
-    else if (arg === '--executor-command') args.executorCommand = argv[++i];
     else if (arg === '--help') {
-      console.log('Usage: node tools/command_center_verbose_worker_smoke.mjs [--run-id ID] [--token TOKEN] [--evidence-dir DIR] [--require-codex-cloud] [--executor-command CMD]');
+      console.log('Usage: node tools/command_center_verbose_worker_smoke.mjs [--run-id ID] [--token TOKEN] [--evidence-dir DIR]');
       process.exit(0);
     }
   }
@@ -106,16 +102,13 @@ async function main() {
 
   const uniqueCapability = `verbose-worker-smoke-${args.runId}`;
   const workerId = `verbose-worker-${args.runId}`;
-  const nonce = `CLOUD_CODEX_NONCE_${args.runId.replace(/[^A-Za-z0-9_]/g, '_')}`;
-  const capabilities = ['codex', 'one-shot-worker', 'prepared-workspace', uniqueCapability];
-  if (args.requireCodexCloud) capabilities.push('codex-cloud');
   const manifest = {
     projectId: 'home-center',
     workerId,
     repoPath: base,
     orientationFiles: ['README.md'],
     toolChecks: [{name: 'node', command: 'node --version'}],
-    capabilities,
+    capabilities: ['codex', 'one-shot-worker', 'prepared-workspace', uniqueCapability],
     baseWorkspaceId: `verbose-base-${args.runId}`,
   };
   writeJson(manifestPath, manifest);
@@ -126,15 +119,7 @@ async function main() {
     "setTimeout(()=>console.log('verbose smoke stdout after quiet period'), 30000)",
     "setTimeout(()=>process.exit(0), 32000)",
   ].join('; ');
-  const cloudPrompt = [
-    `Print exactly this nonce in your final answer: ${nonce}`,
-    'This is a read-only Command Center live acceptance smoke.',
-    'Do not edit files, do not call external mutation tools, and do not register workers.',
-  ].join('\n');
-  const codexCommand = `echo ${JSON.stringify(`codex cloud smoke stderr ${nonce}`)} >&2; codex exec --json --sandbox read-only --skip-git-repo-check -C ${JSON.stringify(base)} ${JSON.stringify(cloudPrompt)}`;
-  const executorCommand = args.executorCommand || (args.requireCodexCloud
-    ? `sh -c ${JSON.stringify(codexCommand)}`
-    : `node -e ${JSON.stringify(executorScript)}`);
+  const executorCommand = `node -e ${JSON.stringify(executorScript)}`;
 
   run(`node tools/command_center_oneshot_worker.mjs register --manifest ${JSON.stringify(manifestPath)} --config ${JSON.stringify(configPath)} --worker-id ${JSON.stringify(workerId)} --executor-command ${JSON.stringify(executorCommand)}`, process.cwd(), {HOME_CENTER_COMMAND_CENTER_BEARER_TOKEN: token});
 
@@ -144,23 +129,18 @@ async function main() {
     title: 'Verbose worker streaming smoke',
     objective: 'Prove Command Center worker executor output streams to cloud events before child exit.',
     acceptanceCriteria: [
-      ...(args.requireCodexCloud ? [`real Codex executor stdout includes ${nonce}`] : []),
       'executor_started is visible through jobs.get_events',
       'stdout appears before executor_finished',
       'stderr appears before executor_finished',
       'heartbeat appears before executor_finished',
       'artifacts upload after completion',
     ],
-    workerRequirements: args.requireCodexCloud ? ['codex-cloud', uniqueCapability] : [uniqueCapability],
+    workerRequirements: [uniqueCapability],
     mutationPolicy: {editFiles: 'deny', runTests: 'deny', commit: 'deny', push: 'deny', merge: 'deny', externalProviderWrite: 'deny', destructive: 'deny'},
   });
   const jobId = created.job.jobId;
 
-  const child = spawn('node', ['tools/command_center_oneshot_worker.mjs', 'run-once', '--config', configPath, '--output-dir', runOut], {
-    cwd: process.cwd(),
-    stdio: ['ignore', 'pipe', 'pipe'],
-    env: {...process.env, ...(args.requireCodexCloud ? {COMMAND_CENTER_EXECUTOR_HEARTBEAT_MS: '2000'} : {})},
-  });
+  const child = spawn('node', ['tools/command_center_oneshot_worker.mjs', 'run-once', '--config', configPath, '--output-dir', runOut], {cwd: process.cwd(), stdio: ['ignore', 'pipe', 'pipe']});
   let childStdout = '';
   let childStderr = '';
   child.stdout.on('data', (chunk) => { childStdout += redact(chunk.toString('utf8')); });
@@ -200,20 +180,16 @@ async function main() {
   const beforeFinish = (type) => finalEvents.some((event) => event.type === type && Number(event.createdAtMs || 0) < finishedAt);
   const requiredBeforeFinish = ['executor_started', 'executor_stdout', 'executor_stderr', 'executor_heartbeat'];
   const missingBeforeFinish = requiredBeforeFinish.filter((type) => !beforeFinish(type));
-  const stdoutText = finalEvents.filter((event) => event.type === 'executor_stdout').map((event) => JSON.stringify(event.data || {})).join('\n');
-  const nonceSeen = !args.requireCodexCloud || stdoutText.includes(nonce);
   const artifactNames = artifacts.map((artifact) => artifact.name).sort();
   const requiredArtifacts = ['command-log.jsonl', 'stdout-transcript.txt', 'stderr-transcript.txt', 'event-transcript.jsonl', 'executor-status.json', 'artifact-upload-summary.json'];
   const missingArtifacts = requiredArtifacts.filter((name) => !artifactNames.includes(name));
   const evidence = {
-    ok: sawStreamingBeforeExit && childExit?.code === 0 && summary.status === 'completed' && missingBeforeFinish.length === 0 && missingArtifacts.length === 0 && nonceSeen,
+    ok: sawStreamingBeforeExit && childExit?.code === 0 && summary.status === 'completed' && missingBeforeFinish.length === 0 && missingArtifacts.length === 0,
     generatedAt: new Date().toISOString(),
     runId: args.runId,
     jobId,
     workerId,
     uniqueCapability,
-    requireCodexCloud: args.requireCodexCloud,
-    nonce,
     childExit,
     serviceReadback: {
       status: summary.status,
@@ -222,7 +198,6 @@ async function main() {
       finalTypes,
       missingBeforeFinish,
       missingArtifacts,
-      nonceSeen,
       sawStreamingBeforeExit,
     },
     pollingSnapshots: snapshots,

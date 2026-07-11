@@ -226,7 +226,7 @@ During execution the worker emits these Command Center events through `/worker/e
 - `executor_cancelled`
 - `artifact_upload_summary`
 
-Stdout and stderr are batched by 20 lines or 5 seconds, whichever happens first. The worker emits a heartbeat every 25 seconds while the child is alive. Heartbeat events update job, lease, and worker freshness so long Codex jobs do not appear stuck during quiet phases. `executor_started` moves the job to `executing` and records PID/process evidence. `executor_finished` is required before a worker may mark a job `completed`.
+Stdout and stderr are batched by 20 lines or 5 seconds, whichever happens first. The worker emits a heartbeat every 25 seconds while the child is alive. Heartbeat events update job and lease freshness so long Codex jobs do not appear stuck during quiet phases.
 
 The worker redacts token-like strings, bearer headers, worker tokens, GitHub tokens, Google/OAuth-looking tokens, API keys, and environment-style secret assignments before writing local transcripts or cloud events. It never logs the full environment.
 
@@ -245,43 +245,6 @@ node tools/command_center_verbose_worker_smoke.mjs --run-id verbose-worker-$(dat
 ```
 
 The smoke registers a temporary one-shot worker, creates a unique-capability job, runs a long fake executor, polls `command_center.jobs.get_events` while the child is still alive, and fails unless stdout/stderr/heartbeat events are visible in cloud readback before `executor_finished`.
-
-## Managed Knowledge Bucket
-
-Command Center owns a managed logical bucket named `command-center`. It is not a chat transcript and not a dashboard. It is the durable organization surface for execution memory, reusable skills, and cross-repository notes.
-
-The bucket metadata lives in `commandCenterBucketObjects`. Large payloads may live elsewhere and be referenced by `objectUri`, such as `gs://`, Drive, GitHub, or worker-local artifact refs. Bucket records must never inline reusable credentials, bearer tokens, worker tokens, OAuth secrets, private keys, passwords, or raw unredacted environment dumps.
-
-Bucket lanes:
-
-- `memory/past-logs`: append-only historical execution logs and evidence summaries.
-- `memory/current-condensed`: latest compact resumable state per job or project.
-- `skills/scratch`: unpromoted candidate procedures captured from runs.
-- `skills/promoted`: reviewed reusable procedures with acceptance evidence.
-- `notes/cross-repo`: project-spanning engineering notes and links.
-
-Bucket object kinds:
-
-- `memory.past_log`
-- `memory.current_condensed`
-- `skill.scratch`
-- `skill.promoted`
-- `note.cross_repo`
-
-Automatic writes:
-
-- `recordLog` mirrors Command Center job logs into `memory/past-logs/<projectId>/<jobId>/...`.
-- `recordCheckpoint` and worker `/worker/checkpoint` mirror compact resumable execution state into `memory/current-condensed/<projectId>/<jobId>.json`.
-
-Manual MCP tools:
-
-- `command_center.bucket.get_layout` returns the current lane and storage policy.
-- `command_center.bucket.put_object` writes a typed bucket object with provenance, project/repository/job links, tags, source refs, evidence refs, content hash, and optional `objectUri`.
-- `command_center.bucket.get_object` reads one bucket object by id.
-- `command_center.bucket.list_objects` lists bucket objects by kind, project, repository, job, tag, or bucket id.
-- `command_center.bucket.promote_skill` promotes an existing `skill.scratch` object into `skills/promoted` while preserving supersession links and evidence.
-
-The bucket is deliberately broad enough for cross-repo notes, but narrow enough to preserve artifact boundaries. Do not collapse unrelated repo notes, scratch doctrine, job logs, and promoted skills into a single mega-document.
 
 ## Firestore Collections
 
