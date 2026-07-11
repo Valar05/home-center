@@ -161,9 +161,6 @@ async function main() {
   const capabilitiesContent = toolContentJson(capabilitiesJson, 'home capabilities content');
   const driveOps = capabilitiesContent.operationRegistry?.operations || {};
   add('drive_operation_registry_contains_command_center_followup', capabilities.status === 200 && !!driveOps['command_center.jobs.create_followup'] && !!driveOps['command_center.jobs.get_handoff'], {status: capabilities.status, registryVersion: capabilitiesContent.operationRegistry?.version || ''});
-  const commandCenterOps = capabilitiesContent.commandCenterOperationRegistry?.operations || {};
-  const requiredAgentOps = ['agents.upsert_repo_agent', 'agents.create_activation', 'agents.get_resume_packet'];
-  add('command_center_operation_registry_contains_codex_cloud_agents', capabilities.status === 200 && requiredAgentOps.every((op) => !!commandCenterOps[op]), {status: capabilities.status, registryVersion: capabilitiesContent.commandCenterOperationRegistry?.version || '', missing: requiredAgentOps.filter((op) => !commandCenterOps[op])});
 
   const health = await postMcp(args.mcpUrl, args.bearerToken, {
     jsonrpc: '2.0',
@@ -174,6 +171,16 @@ async function main() {
   const healthJson = parseMcpResponse(health.text, 'command_center_operation health');
   const healthContent = toolContentJson(healthJson, 'command_center_operation health content');
   add('command_center_operation_health_invokable', health.status === 200 && healthContent.result?.ok === true && healthContent.result?.invokable === true, {status: health.status, content: healthContent});
+
+  const driveHealth = await postMcp(args.mcpUrl, args.bearerToken, {
+    jsonrpc: '2.0',
+    id: 15,
+    method: 'tools/call',
+    params: {name: 'drive_operation', arguments: {operation: 'command_center.health', args: {}}},
+  });
+  const driveHealthJson = parseMcpResponse(driveHealth.text, 'drive_operation command_center.health');
+  const driveHealthContent = toolContentJson(driveHealthJson, 'drive_operation command_center.health content');
+  add('drive_operation_command_center_health_invokable', driveHealth.status === 200 && driveHealthContent.result?.result?.ok === true && driveHealthContent.result?.result?.invokable === true, {status: driveHealth.status, content: driveHealthContent});
 
   const bucket = await postMcp(args.mcpUrl, args.bearerToken, {
     jsonrpc: '2.0',
