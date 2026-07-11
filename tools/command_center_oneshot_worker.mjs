@@ -24,6 +24,8 @@ const OPTIONAL_POSTMORTEM_ARTIFACTS = [
   'event-transcript.jsonl',
   'executor-status.json',
   'artifact-upload-summary.json',
+  'acceptance-matrix.json',
+  'handoff-packet.json',
 ];
 const DEFAULT_EXECUTOR_HEARTBEAT_MS = 25000;
 const DEFAULT_EXECUTOR_BATCH_MS = 5000;
@@ -336,7 +338,14 @@ function writeRequiredArtifacts({outputDir, runWorkspace, jobPacket, commandResu
   writeFile(path.join(outputDir, 'final-report.md'), ['# Final Report', '', 'Status: ' + (ok ? 'completed' : 'failed'), 'Artifacts: ' + REQUIRED_ARTIFACTS.length, 'Residual risk: review command output, patch, and mutation requests before consequential mutation.'].join('\n'));
   if (!fs.existsSync(path.join(outputDir, 'mutation-requests.jsonl'))) writeFile(path.join(outputDir, 'mutation-requests.jsonl'), '');
   const artifacts = REQUIRED_ARTIFACTS.map((name) => artifactRecord(outputDir, name));
+  const acceptanceMatrix = buildAcceptanceMatrix(job, commandResults, artifacts);
+  writeJson(path.join(outputDir, 'acceptance-matrix.json'), acceptanceMatrix);
+  artifacts.push(artifactRecord(outputDir, 'acceptance-matrix.json', 'review', false));
+  const handoffPacket = buildHandoffPacket({outputDir, runWorkspace, jobPacket, manifest, commandResults, artifacts, status: ok ? 'completed' : 'failed', gitStatus, changedFiles, verification});
+  writeJson(path.join(outputDir, 'handoff-packet.json'), handoffPacket);
+  artifacts.push(artifactRecord(outputDir, 'handoff-packet.json', 'handoff', false));
   for (const name of OPTIONAL_POSTMORTEM_ARTIFACTS) {
+    if (name === 'acceptance-matrix.json' || name === 'handoff-packet.json') continue;
     if (fs.existsSync(path.join(outputDir, name))) artifacts.push(artifactRecord(outputDir, name, 'postmortem', false));
   }
   if (fs.existsSync(path.join(outputDir, 'codex-prompt.md'))) artifacts.push(artifactRecord(outputDir, 'codex-prompt.md', 'prompt', false));
@@ -684,6 +693,12 @@ async function runSelfTest() {
   const result = await localRun({args: {baseWorkspace: base, command: 'printf changed > README.md'}, manifest: readJson(manifestPath), jobPacket: readJson(packet), outputDir: out});
   const missing = REQUIRED_ARTIFACTS.filter((name) => !fs.existsSync(path.join(out, name)));
   if (result.status !== 'completed' || missing.length) throw new Error('self-test failed; missing: ' + missing.join(', '));
+  for (const reviewArtifact of ['acceptance-matrix.json', 'handoff-packet.json']) {
+    if (!fs.existsSync(path.join(out, reviewArtifact))) throw new Error('self-test missing review artifact: ' + reviewArtifact);
+  }
+  const handoffPacket = readJson(path.join(out, 'handoff-packet.json'), {});
+  if (handoffPacket.packetVersion !== 'command-center-handoff-v1') throw new Error('self-test handoff packet version mismatch');
+  if (handoffPacket.review?.correctability?.preferredOperation !== 'command_center.jobs.create_followup') throw new Error('self-test handoff packet missing follow-up operation');
   const streamOut = path.join(root, 'stream-out');
   const oldHeartbeat = process.env.COMMAND_CENTER_EXECUTOR_HEARTBEAT_MS;
   const oldBatch = process.env.COMMAND_CENTER_EXECUTOR_BATCH_MS;
@@ -702,6 +717,8 @@ async function runSelfTest() {
   if (!fs.readFileSync(path.join(streamOut, 'stdout-transcript.txt'), 'utf8').includes('stream-one')) throw new Error('streaming self-test missing stdout transcript');
   if (!fs.readFileSync(path.join(streamOut, 'stderr-transcript.txt'), 'utf8').includes('stream-two')) throw new Error('streaming self-test missing stderr transcript');
   if (!fs.existsSync(path.join(streamOut, 'executor-status.json'))) throw new Error('streaming self-test missing executor status');
+  if (!fs.existsSync(path.join(streamOut, 'handoff-packet.json'))) throw new Error('streaming self-test missing handoff packet');
+  if (!fs.existsSync(path.join(streamOut, 'acceptance-matrix.json'))) throw new Error('streaming self-test missing acceptance matrix');
   console.log('Command Center one-shot worker self-test: OK (' + out + ', ' + streamOut + ')');
   return 0;
 }

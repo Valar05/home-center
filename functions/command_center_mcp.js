@@ -1340,14 +1340,14 @@ async function createJob(admin, caller, args) {
   });
 }
 
-async function synthesizeJobHandoff(admin, jobId, caller = null) {
-  const job = await getJob(admin, jobId, caller);
+async function synthesizeJobHandoff(admin, jobId) {
+  const job = await getJob(admin, jobId);
   const [checkpoint, events, logs, artifacts, bucketRows] = await Promise.all([
     getLatestCheckpoint(admin, jobId),
     listByJob(admin, COMMAND_CENTER_COLLECTIONS.events, jobId, 100),
     listByJob(admin, COMMAND_CENTER_COLLECTIONS.logs, jobId, 100),
     listByJob(admin, COMMAND_CENTER_COLLECTIONS.artifacts, jobId, 100),
-    listBucketObjects(admin, {bucketId: COMMAND_CENTER_DEFAULT_BUCKET_ID, jobId, limit: 50}, caller),
+    listBucketObjects(admin, {bucketId: COMMAND_CENTER_DEFAULT_BUCKET_ID, jobId, limit: 50}),
   ]);
   const newestEvent = events[0] || null;
   const artifactNames = new Set(artifacts.map((artifact) => artifact.name).filter(Boolean));
@@ -1369,9 +1369,6 @@ async function synthesizeJobHandoff(admin, jobId, caller = null) {
   const executorEvents = events.filter((event) => /^executor_/.test(event.type || ''));
   const heartbeatEvent = events.find((event) => event.type === 'executor_heartbeat') || null;
   const mutationRequests = artifacts.filter((artifact) => artifact.name === 'mutation-requests.jsonl');
-  const unevaluatedCriteria = acceptanceMatrix.filter((item) => item.status === 'not_evaluated' || item.status === 'pending');
-  const failedCriteria = acceptanceMatrix.filter((item) => item.status === 'failed');
-  const usageSummary = safeObject(checkpoint && checkpoint.usageSummary);
   return {
     packetVersion: 'command-center-handoff-v1',
     generatedAtMs: nowMs,
@@ -1384,7 +1381,6 @@ async function synthesizeJobHandoff(admin, jobId, caller = null) {
       selectedWorkerId: job.selectedWorkerId || '',
       workerRequirements: safeList(job.workerRequirements, 40, 120),
       requiredArtifacts: safeList(job.requiredArtifacts || COMMAND_CENTER_REQUIRED_ARTIFACTS, 80, 120),
-      executionMode: safeText(job.executionMode, 80) || 'one_shot',
       sourceJobId: job.sourceJobId || '',
       followupOf: job.followupOf || null,
       mutationPolicy: cleanMutationPolicy(job.mutationPolicy),
@@ -1397,13 +1393,7 @@ async function synthesizeJobHandoff(admin, jobId, caller = null) {
         sourceJobId: jobId,
         carryForwardEvidenceRefs: artifacts.map((artifact) => artifact.uri).filter(Boolean).slice(0, 40),
       },
-      residualRisks: [
-        ...(missingRequiredArtifacts.length ? ['Some required artifacts are missing.'] : []),
-        ...(unevaluatedCriteria.length ? ['Some acceptance criteria are not explicitly evaluated.'] : []),
-        ...(failedCriteria.length ? ['Some acceptance criteria failed.'] : []),
-        ...(usageSummary.warnings || []),
-      ],
-      acceptanceReviewState: failedCriteria.length ? 'failed' : (unevaluatedCriteria.length ? 'review_incomplete' : 'evaluated'),
+      residualRisks: missingRequiredArtifacts.length ? ['Some required artifacts are missing.'] : ['Acceptance criteria still require reviewer judgment; artifact presence is not acceptance.'],
     },
     counters: {
       eventCount: events.length,
@@ -1413,12 +1403,9 @@ async function synthesizeJobHandoff(admin, jobId, caller = null) {
       executorEventCount: executorEvents.length,
       lastEventType: newestEvent ? newestEvent.type : '',
       lastHeartbeatAgeMs: heartbeatEvent ? nowMs - Number(heartbeatEvent.createdAtMs || nowMs) : null,
-      terminal: isTerminalJobStatus(job.status),
+      terminal: ['completed', 'failed', 'canceled'].includes(job.status),
       missingRequiredArtifacts,
-      unevaluatedAcceptanceCriteria: unevaluatedCriteria.length,
-      failedAcceptanceCriteria: failedCriteria.length,
     },
-    usageSummary,
     checkpoint,
     acceptanceMatrix,
     artifacts: artifacts.map((artifact) => ({artifactId: artifact.artifactId, name: artifact.name, kind: artifact.kind, uri: artifact.uri, sha256: artifact.sha256, required: artifact.required === true})),
@@ -1432,20 +1419,13 @@ async function synthesizeJobHandoff(admin, jobId, caller = null) {
 async function createFollowupJob(admin, caller, args) {
   return idempotentMutation(admin, caller, requireIdempotencyKey(args.idempotencyKey), 'jobs.create_followup', async () => {
     const sourceJobId = cleanJobId(args.sourceJobId);
-    const sourceHandoff = await synthesizeJobHandoff(admin, sourceJobId, caller);
+    const sourceHandoff = await synthesizeJobHandoff(admin, sourceJobId);
     const sourceJob = sourceHandoff.job;
     const projectId = args.projectId ? cleanProjectId(args.projectId) : cleanProjectId(sourceJob.projectId);
-    const workers = recordsVisibleToCaller(await workerRecords(admin), caller);
+    const workers = await workerRecords(admin);
     const workerRequirements = safeList(args.workerRequirements, 40, 120);
     const inheritedWorkerRequirements = safeList(sourceJob.workerRequirements, 40, 120);
-    let worker = null;
-    let selectionFailure = null;
-    try {
-      worker = selectWorker(workers, workerRequirements.length ? workerRequirements : inheritedWorkerRequirements);
-    } catch (err) {
-      if (!workerSelectionFailure(err)) throw err;
-      selectionFailure = err;
-    }
+    const worker = selectWorker(workers, workerRequirements.length ? workerRequirements : inheritedWorkerRequirements);
     const execution = cleanOneShotExecution({
       ...args,
       baseWorkspace: args.baseWorkspace || sourceJob.baseWorkspace,
@@ -1473,487 +1453,23 @@ async function createFollowupJob(admin, caller, args) {
         handoffRef: `handoff://${sourceJobId}`,
       },
       sourceEvidenceRefs: sourceHandoff.review.correctability.carryForwardEvidenceRefs,
-      status: worker ? 'leased' : 'queued',
-      selectedWorkerId: worker ? worker.workerId : '',
+      status: 'leased',
+      selectedWorkerId: worker.workerId,
       createdBy: caller.actor,
-      ownerKey: ownerKeyFromCaller(caller),
       createdAtMs: nowMs,
       updatedAtMs: nowMs,
-      simulatedWorker: worker ? worker.simulated === true : false,
-      routingDiagnostic: selectionFailure ? selectionFailure.message : '',
+      simulatedWorker: worker.simulated === true,
     };
+    const lease = {leaseId: `lease_${randomUUID()}`, jobId, projectId, workerId: worker.workerId, status: 'active', acquiredAtMs: nowMs, expiresAtMs: nowMs + 30 * 60 * 1000, heartbeatAtMs: nowMs};
     await collection(admin, COMMAND_CENTER_COLLECTIONS.jobs).doc(jobId).set(job);
+    await collection(admin, COMMAND_CENTER_COLLECTIONS.leases).doc(lease.leaseId).set(lease);
     const createdEvent = await appendEvent(admin, {type: 'job_created', jobId, projectId, actor: caller.actor, summary: job.title, data: {workerRequirements: job.workerRequirements, sourceJobId}});
     const followupEvent = await appendEvent(admin, {type: 'job_followup_created', jobId, projectId, actor: caller.actor, summary: `Linked follow-up for ${sourceJobId}.`, evidenceRefs: [`handoff://${sourceJobId}`], data: {sourceJobId, sourceStatus: sourceJob.status}});
-    if (!worker) {
-      const queuedEvent = await appendEvent(admin, {type: 'job_queued_no_worker', jobId, projectId, actor: 'command_center', summary: selectionFailure.message, data: {requirements: selectionFailure.requirements || job.workerRequirements}});
-      await recordLog(admin, jobId, projectId, 'Command Center queued follow-up because no real worker was currently eligible.', {sourceJobId, workerRequirements: job.workerRequirements, diagnostic: selectionFailure.message});
-      const checkpoint = await recordCheckpoint(admin, job);
-      return {job, lease: null, activation: null, events: [createdEvent, followupEvent, queuedEvent], checkpoint, sourceHandoff};
-    }
-    const lease = {leaseId: `lease_${randomUUID()}`, jobId, projectId, workerId: worker.workerId, status: 'active', acquiredAtMs: nowMs, expiresAtMs: nowMs + 30 * 60 * 1000, heartbeatAtMs: nowMs};
-    await collection(admin, COMMAND_CENTER_COLLECTIONS.leases).doc(lease.leaseId).set(lease);
     const leasedEvent = await appendEvent(admin, {type: 'job_leased', jobId, projectId, actor: 'command_center', summary: `Leased to ${worker.workerId}.`, data: {worker}});
-    const activationResult = await requestJobActivation(admin, job, lease, worker);
-    if (activationResult.activation && activationResult.accepted === false) job.status = 'failed';
     await recordLog(admin, jobId, projectId, 'Command Center created linked follow-up job from source handoff.', {sourceJobId, workerId: worker.workerId, sourceStatus: sourceJob.status});
     const checkpoint = await recordCheckpoint(admin, job);
-    return {job, lease, activation: activationResult.activation, events: [createdEvent, followupEvent, leasedEvent, ...activationResult.events], checkpoint, sourceHandoff};
+    return {job, lease, events: [createdEvent, followupEvent, leasedEvent], checkpoint, sourceHandoff};
   });
-}
-
-async function getRepoAgent(admin, agentId) {
-  const snap = await collection(admin, COMMAND_CENTER_COLLECTIONS.repoAgents).doc(cleanAgentId(agentId)).get();
-  if (!snap.exists) {
-    const err = new Error('Command Center repo agent not found.');
-    err.status = 404;
-    throw err;
-  }
-  return snap.data() || {};
-}
-
-async function getAgentSession(admin, sessionId) {
-  const snap = await collection(admin, COMMAND_CENTER_COLLECTIONS.agentSessions).doc(cleanSessionId(sessionId)).get();
-  if (!snap.exists) {
-    const err = new Error('Command Center agent session not found.');
-    err.status = 404;
-    throw err;
-  }
-  return snap.data() || {};
-}
-
-async function getAgentActivation(admin, activationId) {
-  const snap = await collection(admin, COMMAND_CENTER_COLLECTIONS.agentActivations).doc(cleanActivationId(activationId)).get();
-  if (!snap.exists) {
-    const err = new Error('Command Center agent activation not found.');
-    err.status = 404;
-    throw err;
-  }
-  return snap.data() || {};
-}
-
-function buildAgentResumePacket(agent, session, activation, snapshot = null) {
-  return {
-    packetVersion: 'command-center-codex-cloud-resume-v1',
-    generatedAtMs: Date.now(),
-    executionSurface: COMMAND_CENTER_CODEX_CLOUD_SURFACE,
-    workerSessionContract: {
-      durable: true,
-      repositoryOptional: true,
-      repoRequired: session.repoRequired === true,
-      storage: 'gcs_workspace_snapshot_plus_command_center_metadata',
-      restoreStrategy: session.restoreStrategy || 'gcs_snapshot',
-    },
-    agent: {agentId: agent.agentId, projectId: agent.projectId, repository: agent.repository || '', name: agent.name, purpose: agent.purpose, contextRefs: agent.contextRefs || []},
-    session: {
-      sessionId: session.sessionId,
-      sessionKind: session.sessionKind || 'durable_worker_session',
-      workerFamily: session.workerFamily || 'cloud-run-debian-codex',
-      runtime: session.runtime || 'cloud-run-debian',
-      projectId: session.projectId,
-      repository: session.repository || '',
-      title: session.title,
-      purpose: session.purpose,
-      currentSummary: session.currentSummary || '',
-      contextRefs: session.contextRefs || [],
-      artifactRefs: session.artifactRefs || [],
-      openQuestions: session.openQuestions || [],
-      mutationState: session.mutationState || {},
-      currentWorkspaceSnapshotRef: session.currentWorkspaceSnapshotRef || '',
-      currentWorkspaceSnapshotDigest: session.currentWorkspaceSnapshotDigest || '',
-    },
-    activation: {activationId: activation.activationId, status: activation.status, task: activation.task, artifactRefs: activation.artifactRefs || [], codexCloudRefIds: activation.codexCloudRefIds || [], selectedWorkerId: activation.selectedWorkerId || '', workerRequirements: activation.workerRequirements || [], realWorkerRequired: activation.realWorkerRequired === true},
-    snapshotRef: snapshot ? `agent-context-snapshot://${snapshot.snapshotId}` : '',
-    workspaceSnapshot: {
-      restoreRef: activation.restoreWorkspaceSnapshotRef || session.currentWorkspaceSnapshotRef || '',
-      restoreDigest: activation.restoreWorkspaceSnapshotDigest || session.currentWorkspaceSnapshotDigest || '',
-      nextSnapshotRequired: Array.isArray(activation.workerRequirements) && activation.workerRequirements.includes('durable-session'),
-    },
-    bridgeInstructions: [
-      'Restore the durable worker session workspace before execution; a lease without restored session state is not execution.',
-      'Use the cloud worker credential boundary; do not export cookies, tokens, or session state.',
-      'Record a real Codex cloud task URL/ref when one exists, but keep this resume packet usable without it.',
-      'Upload final report, next workspace snapshot ref, and evidence artifacts; do not claim success from stdout alone.',
-    ],
-  };
-}
-
-async function recordAgentContextSnapshot(admin, agent, session, activation, caller) {
-  const snapshotId = `agent_snapshot_${hashText(`${agent.agentId}:${session.sessionId}:${activation.activationId}:${Date.now()}`, 32)}`;
-  const payload = {
-    snapshotId,
-    agentId: agent.agentId,
-    sessionId: session.sessionId,
-    activationId: activation.activationId,
-    projectId: agent.projectId,
-    repository: agent.repository,
-    sessionKind: session.sessionKind || 'durable_worker_session',
-    workerFamily: session.workerFamily || 'cloud-run-debian-codex',
-    runtime: session.runtime || 'cloud-run-debian',
-    restoreWorkspaceSnapshotRef: activation.restoreWorkspaceSnapshotRef || session.currentWorkspaceSnapshotRef || '',
-    nextWorkspaceSnapshotRef: activation.nextWorkspaceSnapshotRef || '',
-    currentSummary: session.currentSummary || '',
-    prompt: activation.task && activation.task.prompt || '',
-    contextRefs: [...safeList(agent.contextRefs, 80, 800), ...safeList(session.contextRefs, 80, 800)],
-    artifactRefs: [...safeList(session.artifactRefs, 120, 800), ...safeList(activation.artifactRefs, 120, 800)],
-    createdBy: caller.actor || 'command_center',
-    createdAtMs: Date.now(),
-  };
-  await collection(admin, COMMAND_CENTER_COLLECTIONS.agentContextSnapshots).doc(snapshotId).set(payload, {merge: true});
-  await upsertBucketObject(admin, {
-    objectId: `bucket_${hashText(`agent-current:${agent.agentId}:${session.sessionId}`, 32)}`,
-    kind: 'memory.current_condensed',
-    title: `Codex cloud resume state: ${agent.name}`,
-    path: `memory/current-condensed/${agent.projectId}/codex-cloud-${session.sessionId}.json`,
-    summary: activation.task && activation.task.title || 'Codex cloud activation resume state',
-    body: JSON.stringify(payload, null, 2),
-    projectId: agent.projectId,
-    repository: agent.repository,
-    sourceRefs: [`repo-agent://${agent.agentId}`, `agent-session://${session.sessionId}`, `agent-activation://${activation.activationId}`],
-    tags: ['codex-cloud', 'resume-packet', 'current-summary'],
-    source: 'command_center.recordAgentContextSnapshot',
-  }, caller);
-  return payload;
-}
-
-async function upsertRepoAgent(admin, caller, args) {
-  return idempotentMutation(admin, caller, requireIdempotencyKey(args.idempotencyKey), 'agents.upsert_repo_agent', async () => {
-    const agent = cleanRepoAgent(args, caller);
-    const ref = collection(admin, COMMAND_CENTER_COLLECTIONS.repoAgents).doc(agent.agentId);
-    const existing = await ref.get();
-    await ref.set({...agent, createdAtMs: existing.exists ? Number((existing.data() || {}).createdAtMs || agent.createdAtMs) : agent.createdAtMs}, {merge: true});
-    const session = cleanAgentSession({agentId: agent.agentId, projectId: agent.projectId, sessionId: args.sessionId, title: args.sessionTitle || `${agent.name} Codex cloud session`, purpose: args.sessionPurpose, contextRefs: args.contextRefs}, agent, caller);
-    await collection(admin, COMMAND_CENTER_COLLECTIONS.agentSessions).doc(session.sessionId).set(session, {merge: true});
-    const bucketObject = await upsertBucketObject(admin, {
-      objectId: `bucket_${hashText(`repo-agent:${agent.agentId}`, 32)}`,
-      kind: 'memory.current_condensed',
-      title: `Repo agent: ${agent.name}`,
-      path: `memory/current-condensed/${agent.projectId}/repo-agent-${agent.agentId}.json`,
-      summary: agent.purpose,
-      body: JSON.stringify({agent, session, codexCloudSurface: COMMAND_CENTER_CODEX_CLOUD_SURFACE}, null, 2),
-      projectId: agent.projectId,
-      repository: agent.repository,
-      sourceRefs: [`repo-agent://${agent.agentId}`],
-      tags: ['repo-agent', 'codex-cloud', 'current-summary'],
-      source: 'command_center.agents.upsert_repo_agent',
-    }, caller);
-    return {agent, session, bucketObject};
-  });
-}
-
-async function createAgentActivation(admin, caller, args) {
-  return idempotentMutation(admin, caller, requireIdempotencyKey(args.idempotencyKey), 'agents.create_activation', async () => {
-    const projectId = cleanProjectId(args.projectId || args.name || 'general-worker-session', args.repository || '');
-    const syntheticAgent = {
-      agentId: cleanAgentId(args.agentId || `${projectId}-worker`, projectId, args.repository || ''),
-      projectId,
-      repository: safeText(args.repository, 240),
-      name: safeText(args.name, 240) || projectId,
-      purpose: safeText(args.purpose, 2000) || 'Durable repo-optional worker session owner.',
-      contextRefs: safeList(args.contextRefs, 80, 800),
-    };
-    const agent = args.agentId ? await getRepoAgent(admin, args.agentId) : syntheticAgent;
-    if (!args.agentId) await collection(admin, COMMAND_CENTER_COLLECTIONS.repoAgents).doc(agent.agentId).set({...agent, agentType: 'durable_worker_session_owner', repositoryOptional: true, status: 'active', createdBy: caller.actor, updatedBy: caller.actor, createdAtMs: Date.now(), updatedAtMs: Date.now()}, {merge: true});
-    const session = args.sessionId ? await getAgentSession(admin, args.sessionId) : cleanAgentSession({
-      agentId: agent.agentId,
-      projectId: agent.projectId,
-      repository: agent.repository,
-      title: args.sessionTitle || `${agent.name} durable worker session`,
-      purpose: args.sessionPurpose,
-      workerFamily: args.workerFamily,
-      runtime: args.runtime,
-      currentWorkspaceSnapshotRef: args.currentWorkspaceSnapshotRef,
-      currentWorkspaceSnapshotDigest: args.currentWorkspaceSnapshotDigest,
-      restoreStrategy: args.restoreStrategy,
-      contextRefs: args.contextRefs,
-      openQuestions: args.openQuestions,
-      preferredWorkerIds: args.preferredWorkerIds,
-    }, agent, caller);
-    if (!args.sessionId) await collection(admin, COMMAND_CENTER_COLLECTIONS.agentSessions).doc(session.sessionId).set(session, {merge: true});
-    const task = cleanActivationTask(args);
-    if (!task.prompt) {
-      const err = new Error('A real Codex cloud activation prompt is required.');
-      err.status = 400;
-      throw err;
-    }
-	    const nowMs = Date.now();
-	    const activationId = cleanActivationId(args.activationId);
-	    const workerRequirements = activationWorkerRequirements(args, task);
-	    const worker = selectWorker(recordsVisibleToCaller(await workerRecords(admin), caller), workerRequirements, {requireActivationChannel: false});
-	    const activation = {
-	      activationId,
-	      agentId: agent.agentId,
-	      sessionId: session.sessionId,
-	      projectId: agent.projectId,
-	      repository: agent.repository,
-	      sessionKind: session.sessionKind || 'durable_worker_session',
-	      workerFamily: session.workerFamily || 'cloud-run-debian-codex',
-	      runtime: session.runtime || 'cloud-run-debian',
-	      status: 'queued',
-	      executionSurface: COMMAND_CENTER_CODEX_CLOUD_SURFACE.surfaceId,
-	      realWorkerRequired: true,
-	      workerRequirements,
-	      restoreWorkspaceSnapshotRef: session.currentWorkspaceSnapshotRef || '',
-	      restoreWorkspaceSnapshotDigest: session.currentWorkspaceSnapshotDigest || '',
-	      nextWorkspaceSnapshotRequired: workerRequirements.includes('durable-session'),
-	      selectedWorkerId: worker.workerId,
-	      selectedWorker: {workerId: worker.workerId, engine: worker.engine, location: worker.location, capabilities: worker.capabilities || [], simulated: worker.simulated === true, routable: worker.routable !== false, runtime: worker.runtime || {}, cloudRunJob: worker.cloudRunJob || {}, sessionPolicy: worker.sessionPolicy || {}},
-	      task,
-	      createdBy: caller.actor,
-	      createdAtMs: nowMs,
-      updatedAtMs: nowMs,
-      codexCloudRefIds: [],
-      artifactRefs: [],
-      bucketObjectIds: [],
-      handoffSummary: '',
-    };
-	    await collection(admin, COMMAND_CENTER_COLLECTIONS.agentActivations).doc(activationId).set(activation);
-	    await collection(admin, COMMAND_CENTER_COLLECTIONS.agentSessions).doc(session.sessionId).set({latestActivationId: activationId, updatedAtMs: nowMs, updatedBy: caller.actor}, {merge: true});
-	    const snapshot = await recordAgentContextSnapshot(admin, agent, session, activation, caller);
-	    const channel = normalizeActivationChannel(worker.activation);
-	    let cloudRunActivation = null;
-	    if (channel.mode === 'cloud_run_job') {
-	      cloudRunActivation = await invokeCloudRunJobActivation(worker, activation, session);
-	      const cloudRunState = activationStateFromResult(cloudRunActivation);
-	      await collection(admin, COMMAND_CENTER_COLLECTIONS.agentActivations).doc(activationId).set({
-	        status: cloudRunState.accepted ? 'queued' : 'failed',
-	        cloudRunOperationName: cloudRunActivation.executorId || '',
-	        activationDiagnostic: cloudRunState.diagnostic,
-	        updatedAtMs: Date.now(),
-	      }, {merge: true});
-	      if (!cloudRunState.accepted) {
-	        const err = new Error(`Cloud Run worker activation failed: ${cloudRunState.diagnostic}`);
-	        err.status = 502;
-	        throw err;
-	      }
-	    }
-	    await upsertBucketObject(admin, {
-	      kind: 'memory.current_condensed',
-	      title: `Real worker selected for activation ${activationId}`,
-	      path: `memory/current-condensed/${agent.projectId}/activation-${activationId}-worker.json`,
-	      summary: `Activation requires a real worker and selected ${worker.workerId}.`,
-	      body: JSON.stringify({activationId, sessionId: session.sessionId, selectedWorkerId: worker.workerId, workerRequirements, selectedWorker: activation.selectedWorker, restoreWorkspaceSnapshotRef: activation.restoreWorkspaceSnapshotRef, cloudRunOperationName: cloudRunActivation && cloudRunActivation.executorId || ''}, null, 2),
-	      projectId: agent.projectId,
-	      repository: agent.repository,
-	      sourceRefs: [`agent-activation://${activationId}`, `worker://${worker.workerId}`],
-	      tags: ['codex-cloud', 'real-worker', 'activation'],
-	      source: 'command_center.agents.create_activation',
-	    }, caller);
-	    return {activation, agent, session, resumePacket: buildAgentResumePacket(agent, session, activation, snapshot)};
-	  });
-	}
-
-async function getAgentResumePacket(admin, args) {
-  const activation = await getAgentActivation(admin, args.activationId);
-  const [agent, session] = await Promise.all([getRepoAgent(admin, activation.agentId), getAgentSession(admin, activation.sessionId)]);
-  const snap = await collection(admin, COMMAND_CENTER_COLLECTIONS.agentContextSnapshots).where('activationId', '==', activation.activationId).limit(10).get();
-  const snapshots = [];
-  snap.forEach((doc) => snapshots.push(doc.data()));
-  snapshots.sort((a, b) => Number(b.createdAtMs || 0) - Number(a.createdAtMs || 0));
-  return {resumePacket: buildAgentResumePacket(agent, session, activation, snapshots[0] || null)};
-}
-
-async function recordCodexCloudRef(admin, caller, args) {
-  return idempotentMutation(admin, caller, requireIdempotencyKey(args.idempotencyKey), 'agents.record_codex_cloud_ref', async () => {
-    const activation = await getAgentActivation(admin, args.activationId);
-    const ref = {...cleanCodexCloudRef(args), activationId: activation.activationId, agentId: activation.agentId, sessionId: activation.sessionId, projectId: activation.projectId, repository: activation.repository, recordedBy: caller.actor, createdAtMs: Date.now(), updatedAtMs: Date.now()};
-    await collection(admin, COMMAND_CENTER_COLLECTIONS.codexCloudRefs).doc(ref.codexCloudRefId).set(ref, {merge: true});
-    const refs = Array.from(new Set([...(activation.codexCloudRefIds || []), ref.codexCloudRefId]));
-    await collection(admin, COMMAND_CENTER_COLLECTIONS.agentActivations).doc(activation.activationId).set({status: args.activationStatus || 'running', codexCloudRefIds: refs, updatedAtMs: Date.now()}, {merge: true});
-    await collection(admin, COMMAND_CENTER_COLLECTIONS.agentSessions).doc(activation.sessionId).set({latestCodexCloudRefId: ref.codexCloudRefId, updatedAtMs: Date.now()}, {merge: true});
-    return {codexCloudRef: ref, activationId: activation.activationId};
-  });
-}
-
-async function recordAgentArtifact(admin, caller, args) {
-  return idempotentMutation(admin, caller, requireIdempotencyKey(args.idempotencyKey), 'agents.record_artifact', async () => {
-    const activation = await getAgentActivation(admin, args.activationId);
-    const name = safeText(args.name, 240) || 'codex-cloud-artifact';
-    const uri = safeText(args.uri || args.objectUri, 1200);
-    const body = safeText(args.body, 64000);
-    if (containsForbiddenSecret([name, uri, body, args.summary].join('\n'))) {
-      const err = new Error('Agent artifacts must not contain reusable secrets or bearer credentials.');
-      err.status = 400;
-      throw err;
-    }
-    const artifact = {
-      artifactId: safeText(args.artifactId, 180) || `agent_artifact_${hashText(`${activation.activationId}:${name}:${Date.now()}`, 32)}`,
-      activationId: activation.activationId,
-      agentId: activation.agentId,
-      sessionId: activation.sessionId,
-      projectId: activation.projectId,
-      repository: activation.repository,
-      name,
-      kind: safeText(args.kind, 120) || 'report',
-      uri,
-      body,
-      summary: safeText(args.summary, 2000),
-      sha256: safeText(args.sha256, 128) || (body ? fullHash(body) : ''),
-      required: args.required === true,
-      evidenceRefs: safeList(args.evidenceRefs, 80, 800),
-      createdBy: caller.actor,
-      createdAtMs: Date.now(),
-    };
-    await collection(admin, COMMAND_CENTER_COLLECTIONS.agentArtifacts).doc(artifact.artifactId).set(artifact, {merge: true});
-    const refs = Array.from(new Set([...(activation.artifactRefs || []), `agent-artifact://${artifact.artifactId}`]));
-    await collection(admin, COMMAND_CENTER_COLLECTIONS.agentActivations).doc(activation.activationId).set({artifactRefs: refs, updatedAtMs: Date.now()}, {merge: true});
-    await collection(admin, COMMAND_CENTER_COLLECTIONS.agentSessions).doc(activation.sessionId).set({artifactRefs: refs, updatedAtMs: Date.now()}, {merge: true});
-    return {artifact};
-  });
-}
-
-async function synthesizeAgentHandoff(admin, activationId) {
-  const activation = await getAgentActivation(admin, activationId);
-  const [agent, session] = await Promise.all([getRepoAgent(admin, activation.agentId), getAgentSession(admin, activation.sessionId)]);
-  const [artifactSnap, refSnap, snapshotSnap] = await Promise.all([
-    collection(admin, COMMAND_CENTER_COLLECTIONS.agentArtifacts).where('activationId', '==', activation.activationId).limit(100).get(),
-    collection(admin, COMMAND_CENTER_COLLECTIONS.codexCloudRefs).where('activationId', '==', activation.activationId).limit(20).get(),
-    collection(admin, COMMAND_CENTER_COLLECTIONS.agentContextSnapshots).where('activationId', '==', activation.activationId).limit(20).get(),
-  ]);
-  const artifacts = [];
-  artifactSnap.forEach((doc) => artifacts.push(doc.data()));
-  artifacts.sort((a, b) => Number(b.createdAtMs || 0) - Number(a.createdAtMs || 0));
-  const codexCloudRefs = [];
-  refSnap.forEach((doc) => codexCloudRefs.push(doc.data()));
-  codexCloudRefs.sort((a, b) => Number(b.createdAtMs || 0) - Number(a.createdAtMs || 0));
-  const snapshots = [];
-  snapshotSnap.forEach((doc) => snapshots.push(doc.data()));
-  snapshots.sort((a, b) => Number(b.createdAtMs || 0) - Number(a.createdAtMs || 0));
-  return {
-    packetVersion: 'command-center-codex-cloud-handoff-v1',
-    generatedAtMs: Date.now(),
-    agent: {agentId: agent.agentId, projectId: agent.projectId, repository: agent.repository, name: agent.name},
-    session: {sessionId: session.sessionId, status: session.status, title: session.title, currentSummary: session.currentSummary || ''},
-    activation: {activationId: activation.activationId, status: activation.status, task: activation.task, finalSummary: activation.finalSummary || '', handoffSummary: activation.handoffSummary || ''},
-    codexCloudRefs: codexCloudRefs.map((ref) => ({codexCloudRefId: ref.codexCloudRefId, surface: ref.surface, url: ref.url, status: ref.status, title: ref.title, summary: ref.summary, evidenceRefs: ref.evidenceRefs || []})),
-    artifacts: artifacts.map((artifact) => ({artifactId: artifact.artifactId, name: artifact.name, kind: artifact.kind, uri: artifact.uri, summary: artifact.summary, sha256: artifact.sha256, required: artifact.required === true})),
-    latestSnapshot: snapshots[0] || null,
-    review: {
-      realCodexCloudRequired: true,
-      credentialBoundary: COMMAND_CENTER_CODEX_CLOUD_SURFACE.credentialPolicy,
-      recommendedNextAction: activation.status === 'completed' ? 'Review Codex cloud report and create a follow-up activation for implementation.' : 'Resume or repair the Codex cloud bridge using this handoff and resume packet.',
-    },
-  };
-}
-
-async function completeAgentActivation(admin, caller, args) {
-  return idempotentMutation(admin, caller, requireIdempotencyKey(args.idempotencyKey), 'agents.complete_activation', async () => {
-    const activation = await getAgentActivation(admin, args.activationId);
-    const status = COMMAND_CENTER_AGENT_ACTIVATION_STATUSES.includes(args.status) ? args.status : (args.failed === true ? 'failed' : 'completed');
-    if (!['completed', 'failed', 'canceled', 'needs_human'].includes(status)) {
-      const err = new Error('Activation completion status must be completed, failed, canceled, or needs_human.');
-      err.status = 400;
-      throw err;
-    }
-    const finalSummary = safeText(args.finalSummary || args.summary, 8000);
-    if (containsForbiddenSecret(finalSummary)) {
-      const err = new Error('Activation summaries must not contain reusable secrets or bearer credentials.');
-      err.status = 400;
-      throw err;
-    }
-    const nextWorkspaceSnapshotRef = safeText(args.nextWorkspaceSnapshotRef || args.workspaceSnapshotRef, 1200);
-    const nextWorkspaceSnapshotDigest = safeText(args.nextWorkspaceSnapshotDigest || args.workspaceSnapshotDigest, 160);
-    if (status === 'completed' && activation.nextWorkspaceSnapshotRequired === true && !nextWorkspaceSnapshotRef) {
-      const err = new Error('Durable worker session completion requires nextWorkspaceSnapshotRef.');
-      err.status = 409;
-      throw err;
-    }
-    if (status === 'completed' && (!Array.isArray(activation.artifactRefs) || !activation.artifactRefs.length)) {
-      const err = new Error('Durable Codex worker activation completion requires at least one artifact.');
-      err.status = 409;
-      throw err;
-    }
-    const updates = {status, finalSummary, handoffSummary: safeText(args.handoffSummary, 4000) || finalSummary, nextWorkspaceSnapshotRef, nextWorkspaceSnapshotDigest, updatedAtMs: Date.now(), completedAtMs: Date.now(), completedBy: caller.actor};
-    await collection(admin, COMMAND_CENTER_COLLECTIONS.agentActivations).doc(activation.activationId).set(updates, {merge: true});
-    await collection(admin, COMMAND_CENTER_COLLECTIONS.agentSessions).doc(activation.sessionId).set({status: status === 'completed' ? 'active' : status, currentSummary: finalSummary, latestActivationId: activation.activationId, currentWorkspaceSnapshotRef: nextWorkspaceSnapshotRef || activation.restoreWorkspaceSnapshotRef || '', currentWorkspaceSnapshotDigest: nextWorkspaceSnapshotDigest || activation.restoreWorkspaceSnapshotDigest || '', updatedAtMs: Date.now(), updatedBy: caller.actor}, {merge: true});
-    const bucketObject = await upsertBucketObject(admin, {
-      kind: 'memory.past_log',
-      title: `Codex cloud activation ${status}: ${activation.task && activation.task.title || activation.activationId}`,
-      path: `memory/past-logs/${activation.projectId}/${activation.activationId}.md`,
-      summary: finalSummary,
-      body: finalSummary,
-      projectId: activation.projectId,
-      repository: activation.repository,
-      sourceRefs: [`agent-activation://${activation.activationId}`, ...(activation.codexCloudRefIds || []).map((id) => `codex-cloud-ref://${id}`)],
-      evidenceRefs: activation.artifactRefs || [],
-      tags: ['codex-cloud', 'activation', status],
-      source: 'command_center.agents.complete_activation',
-    }, caller);
-    return {activationId: activation.activationId, status, bucketObject, handoff: await synthesizeAgentHandoff(admin, activation.activationId)};
-  });
-}
-
-
-function staleJobCutoffMs(args = {}) {
-  const requested = Number(args.olderThanMs || 0) || COMMAND_CENTER_RECONCILE_DEFAULT_OLDER_THAN_MS;
-  return Math.max(60 * 1000, Math.min(requested, 7 * 24 * 60 * 60 * 1000));
-}
-
-function staleJobClockMs(job) {
-  return Number(job.lastWorkerHeartbeatAtMs || job.executorStartedAtMs || job.workerAcceptedLeaseAtMs || job.updatedAtMs || job.createdAtMs || 0) || 0;
-}
-
-function staleJobCandidate(job, nowMs, olderThanMs, statuses) {
-  const status = safeText(job.status, 80);
-  if (!statuses.includes(status)) return null;
-  const clockMs = staleJobClockMs(job);
-  const ageMs = clockMs > 0 ? nowMs - clockMs : Number.POSITIVE_INFINITY;
-  if (ageMs < olderThanMs) return null;
-  return {
-    jobId: job.jobId,
-    projectId: job.projectId,
-    status,
-    selectedWorkerId: job.selectedWorkerId || '',
-    createdAtMs: Number(job.createdAtMs || 0) || 0,
-    updatedAtMs: Number(job.updatedAtMs || 0) || 0,
-    lastWorkerHeartbeatAtMs: Number(job.lastWorkerHeartbeatAtMs || 0) || 0,
-    staleAgeMs: Number.isFinite(ageMs) ? ageMs : null,
-    reason: `nonterminal job stale for at least ${olderThanMs}ms`,
-  };
-}
-
-async function reconcileStaleJobs(admin, caller, args = {}) {
-  const dryRun = args.dryRun !== false;
-  const nowMs = Date.now();
-  const statuses = safeList(args.statuses, 20, 80).filter((status) => ['leased', 'executing', 'running', 'activating'].includes(status));
-  const targetStatuses = statuses.length ? statuses : ['leased', 'executing', 'running', 'activating'];
-  const olderThanMs = staleJobCutoffMs(args);
-  const limit = Math.max(1, Math.min(Number(args.limit) || 50, 500));
-  if (!dryRun) requireIdempotencyKey(args.idempotencyKey);
-  const snap = await collection(admin, COMMAND_CENTER_COLLECTIONS.jobs).orderBy('createdAtMs', 'desc').limit(limit).get();
-  const candidates = [];
-  snap.forEach((doc) => {
-    const candidate = staleJobCandidate(doc.data() || {}, nowMs, olderThanMs, targetStatuses);
-    if (candidate) candidates.push(candidate);
-  });
-  const reconciled = [];
-  if (!dryRun) {
-    for (const candidate of candidates) {
-      await collection(admin, COMMAND_CENTER_COLLECTIONS.jobs).doc(candidate.jobId).set({
-        status: 'expired',
-        updatedAtMs: nowMs,
-        expiredAtMs: nowMs,
-        reconciledAtMs: nowMs,
-        reconciledBy: caller.actor,
-        reconcileReason: candidate.reason,
-        previousStatus: candidate.status,
-      }, {merge: true});
-      const leaseSnap = await collection(admin, COMMAND_CENTER_COLLECTIONS.leases).where('jobId', '==', candidate.jobId).limit(20).get();
-      const batch = admin.firestore().batch();
-      let expiredLeases = 0;
-      leaseSnap.forEach((doc) => {
-        const lease = doc.data() || {};
-        if (lease.status === 'active') {
-          expiredLeases += 1;
-          batch.set(doc.ref, {status: 'expired', expiredAtMs: nowMs, updatedAtMs: nowMs, expirationReason: candidate.reason}, {merge: true});
-        }
-      });
-      if (expiredLeases) await batch.commit();
-      const event = await appendEvent(admin, {type: 'job_expired', jobId: candidate.jobId, projectId: candidate.projectId, actor: caller.actor, summary: candidate.reason, data: {...candidate, expiredLeases}});
-      reconciled.push({...candidate, expiredLeases, eventId: event.eventId});
-    }
-  }
-  return {dryRun, olderThanMs, statuses: targetStatuses, scanned: snap.size, candidates, reconciled};
 }
 
 async function reviseJob(admin, caller, args) {
@@ -2435,10 +1951,10 @@ function createCommandCenterMcpServer({admin}) {
   server.registerTool('command_center.jobs.create_followup', {
     title: 'Create Command Center follow-up job',
     description: 'Create a new linked invocation from a source job handoff. This does not rewrite old job history.',
-    inputSchema: {idempotencyKey: z.string(), sourceJobId: z.string(), projectId: z.string().optional(), title: z.string(), objective: z.string(), acceptanceCriteria: z.array(z.string()).optional(), constraints: z.array(z.string()).optional(), scopeExclusions: z.array(z.string()).optional(), workerRequirements: z.array(z.string()).optional(), budgetClass: z.string().optional(), mutationPolicy: z.record(z.string(), z.string()).optional(), executionMode: z.string().optional(), baseWorkspace: z.record(z.string(), z.any()).optional(), requiredArtifacts: z.array(z.string()).optional(), verificationCommands: z.array(z.string()).optional(), stopConditions: z.array(z.string()).optional()},
+    inputSchema: {idempotencyKey: z.string(), sourceJobId: z.string(), projectId: z.string().optional(), title: z.string(), objective: z.string(), acceptanceCriteria: z.array(z.string()).optional(), constraints: z.array(z.string()).optional(), scopeExclusions: z.array(z.string()).optional(), workerRequirements: z.array(z.string()).optional(), budgetClass: z.string().optional(), mutationPolicy: z.record(z.string(), z.string()).optional(), baseWorkspace: z.record(z.string(), z.any()).optional(), requiredArtifacts: z.array(z.string()).optional(), verificationCommands: z.array(z.string()).optional(), stopConditions: z.array(z.string()).optional()},
   }, async (args, extra) => textResult(await createFollowupJob(admin, await callerFromExtra(admin, extra), args || {})));
 
-  server.registerTool('command_center.jobs.get', {title: 'Get Command Center job', description: 'Read one Command Center job packet.', inputSchema: {jobId: z.string()}}, async (args, extra) => textResult({job: await getJob(admin, cleanJobId(args.jobId), await callerFromExtra(admin, extra))}));
+  server.registerTool('command_center.jobs.get', {title: 'Get Command Center job', description: 'Read one Command Center job packet.', inputSchema: {jobId: z.string()}}, async (args) => textResult({job: await getJob(admin, cleanJobId(args.jobId))}));
 
   server.registerTool('command_center.jobs.list', {
     title: 'List Command Center jobs',
@@ -2486,9 +2002,10 @@ function createCommandCenterMcpServer({admin}) {
   server.registerTool('command_center.jobs.get_summary', {title: 'Get Command Center job summary', description: 'Read compact resumable worker-state checkpoint plus job status.', inputSchema: {jobId: z.string()}}, async (args, extra) => {
     const c = await callerFromExtra(admin, extra);
     const jobId = cleanJobId(args.jobId);
-    const handoff = await synthesizeJobHandoff(admin, jobId, c);
-    return textResult({jobId, status: handoff.job.status, checkpoint: handoff.checkpoint, counters: handoff.counters, recommendedNextAction: handoff.review.recommendedNextAction, job: await getJob(admin, jobId, c)});
+    const handoff = await synthesizeJobHandoff(admin, jobId);
+    return textResult({jobId, status: handoff.job.status, checkpoint: handoff.checkpoint, counters: handoff.counters, recommendedNextAction: handoff.review.recommendedNextAction, job: await getJob(admin, jobId)});
   });
+  server.registerTool('command_center.jobs.get_handoff', {title: 'Get Command Center job handoff', description: 'Read a compact review/correction packet synthesized from job state, events, logs, artifacts, checkpoints, and bucket objects.', inputSchema: {jobId: z.string()}}, async (args) => textResult({handoff: await synthesizeJobHandoff(admin, cleanJobId(args.jobId))}));
   server.registerTool('command_center.jobs.get_events', {title: 'Get Command Center job events', description: 'Read structured job events generated from Command Center state, not another chat agent.', inputSchema: {jobId: z.string(), limit: z.number().optional()}}, async (args) => textResult({events: await listByJob(admin, COMMAND_CENTER_COLLECTIONS.events, cleanJobId(args.jobId), Math.max(1, Math.min(Number(args.limit) || 50, 100)))}));
   server.registerTool('command_center.jobs.get_logs', {title: 'Get Command Center job logs', description: 'Read append-only log metadata for a job.', inputSchema: {jobId: z.string(), limit: z.number().optional()}}, async (args) => textResult({logs: await listByJob(admin, COMMAND_CENTER_COLLECTIONS.logs, cleanJobId(args.jobId), Math.max(1, Math.min(Number(args.limit) || 50, 100)))}));
   server.registerTool('command_center.jobs.get_artifacts', {title: 'Get Command Center job artifacts', description: 'Read artifact metadata and object references for a job.', inputSchema: {jobId: z.string(), limit: z.number().optional()}}, async (args) => textResult({artifacts: await listByJob(admin, COMMAND_CENTER_COLLECTIONS.artifacts, cleanJobId(args.jobId), Math.max(1, Math.min(Number(args.limit) || 50, 100)))}));

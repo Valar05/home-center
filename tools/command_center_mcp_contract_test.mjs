@@ -339,4 +339,9 @@ assert.throws(() => cleanBucketObject({
   body: 'Authorization: ' + 'Bearer ' + 'abcdefghijklmnopqrstuvwxyz',
 }, {actor: 'tester@example.com'}), /must not contain reusable secrets/);
 
+assert(commandCenterSource.includes("server.registerTool('command_center.jobs.get_handoff'"));
+assert(commandCenterSource.includes("server.registerTool('command_center.jobs.create_followup'"));
+assert(commandCenterSource.includes('synthesizeJobHandoff'));
+assert(commandCenterSource.includes('createFollowupJob'));
+
 console.log('Command Center MCP contract test: OK');

@@ -101,9 +101,7 @@ These are typed MCP operations. Command Center does not interpret chat prompts; 
 
 The first implementation now models workers as one-shot executions over prepared base workspaces. A worker is not a blank slate and does not install heavy tools such as Blender during normal job execution.
 
-- `jobs.create` persists a one-shot ticket, selects a compatible live worker, creates a lease, writes events, writes logs, records a checkpoint, and requests activation when the worker declares a push activation channel.
-- A lease is not execution. Real `codex-cloud` workers must expose either a verified push activation channel or a live poll channel before they are eligible for leasing; metadata such as `simulated:false`, `routable:true`, or `health:"healthy"` is not enough.
-- Job activation records live in `commandCenterJobActivations` and emit `activation_requested`, then `activation_accepted` or `activation_rejected`. Rejection marks the lease and job failed with diagnostics instead of leaving the job indefinitely `leased`. Poll workers record acceptance only when `/worker/lease` is actually claimed.
+- `jobs.create` persists a one-shot ticket, selects a compatible worker, creates a lease, writes events, writes logs, and records a checkpoint.
 - `jobs.create_followup` creates a new linked invocation from a prior job handoff; it never rewrites the source job.
 - Every job records `executionMode=one_shot`, a `baseWorkspace` snapshot contract, required artifacts, verification commands, stop conditions, and mutation policy.
 - `workers.register_oneshot` registers a user-owned worker and returns a worker token once. Command Center stores only the token hash.
@@ -151,24 +149,7 @@ The handoff packet answers:
 
 Acceptance criteria are not automatically passed by executor exit code. Unknown criteria default to `not_evaluated` in `acceptance-matrix.json` unless the worker records explicit criterion evidence.
 
-Corrective work should use `command_center.jobs.create_followup` with `sourceJobId`. Through the Home Center bridge, call `command_center_operation` with `operation=jobs.create_followup`; if a ChatGPT session exposes string-capable `drive_operation`, call `drive_operation` with `operation=command_center.jobs.create_followup`.
-
-Some ChatGPT connector mounts cache the older `drive_operation.operation` enum even after OAuth refresh. For that stale-schema case only, use the explicit compatibility tunnel:
-
-```json
-{
-  "operation": "drive_create_folder",
-  "args": {
-    "commandCenterOperation": "jobs.create_followup",
-    "sourceJobId": "job_...",
-    "title": "...",
-    "objective": "...",
-    "idempotencyKey": "..."
-  }
-}
-```
-
-The compatibility route activates only when `commandCenterOperation` is present; otherwise `drive_create_folder` remains the normal Drive folder operation. A follow-up job records `sourceJobId`, `followupOf`, and source evidence refs, then receives its own lease, events, artifacts, checkpoints, bucket objects, and final handoff. Do not revise or overwrite the old job to continue execution history.
+Corrective work should use `command_center.jobs.create_followup` with `sourceJobId`. A follow-up job records `sourceJobId`, `followupOf`, and source evidence refs, then receives its own lease, events, artifacts, checkpoints, bucket objects, and final handoff. Do not revise or overwrite the old job to continue execution history.
 
 ## Prepared Base Workspaces
 
@@ -333,8 +314,10 @@ Normal flow:
 3. Resolve a project with `operation=projects.resolve` when needed.
 4. Create a follow-up worker action with `operation=jobs.create`.
 5. Recover or supervise with `operation=jobs.get`, `jobs.get_events`, `jobs.get_artifacts`, and `jobs.get_summary`.
-6. Continue the job with `jobs.answer_question` or `jobs.authorize_mutation` when policy allows.
-7. Preserve reusable execution learning with `bucket.put_object`, inspect it with `bucket.list_objects`, and promote proven scratch procedures with `bucket.promote_skill`.
+6. Review with `operation=jobs.get_handoff`.
+7. Continue the job with `jobs.answer_question` or `jobs.authorize_mutation` when policy allows.
+8. Create corrective new invocations with `jobs.create_followup`, never by rewriting the old job.
+9. Preserve reusable execution learning with `bucket.put_object`, inspect it with `bucket.list_objects`, and promote proven scratch procedures with `bucket.promote_skill`.
 
 The standalone Command Center endpoint remains available for direct MCP clients and worker-control tooling:
 
