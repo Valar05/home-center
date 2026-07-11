@@ -116,7 +116,7 @@ async function main() {
   });
   const driveHealthJson = parseMcpResponse(driveHealth.text, 'drive_operation command_center.health');
   const driveHealthContent = toolContentJson(driveHealthJson, 'drive_operation command_center.health content');
-  add('drive_operation_command_center_health_invokable', driveHealth.status === 200 && driveHealthContent.result?.result?.ok === true && driveHealthContent.result?.result?.invokable === true, {status: driveHealth.status, content: driveHealthContent});
+  add('drive_operation_command_center_health_invokable', driveHealth.status === 200 && driveHealthContent.result?.ok === true && driveHealthContent.result?.invokable === true, {status: driveHealth.status, content: driveHealthContent});
 
   const bucket = await postMcp(args.mcpUrl, args.bearerToken, {
     jsonrpc: '2.0',
