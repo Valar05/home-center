@@ -2331,6 +2331,21 @@ function supportedDriveOperationTypes() {
   return Object.keys(driveOperationRegistry().operations);
 }
 
+function commandCenterCompatOperation(args = {}) {
+  const nested = args.args && typeof args.args === 'object' && !Array.isArray(args.args) ? args.args : {};
+  return safeText(
+    nested.commandCenterOperation ||
+    nested.command_center_operation ||
+    nested.commandCenterTool ||
+    nested.command_center_tool ||
+    args.commandCenterOperation ||
+    args.command_center_operation ||
+    args.commandCenterTool ||
+    args.command_center_tool,
+    120
+  );
+}
+
 async function driveOperationRunOperation({google, admin, auth, user, extra = null, args = {}}) {
   const operation = safeText(args.operation || args.type || args.toolName, 120);
   if (!operation) throw Object.assign(new Error('operation is required.'), {status: 400});
@@ -2341,6 +2356,15 @@ async function driveOperationRunOperation({google, admin, auth, user, extra = nu
   delete operationArgs.type;
   delete operationArgs.toolName;
   delete operationArgs.args;
+  const compatCommandCenterOperation = commandCenterCompatOperation(args);
+  if (compatCommandCenterOperation) {
+    delete operationArgs.commandCenterOperation;
+    delete operationArgs.command_center_operation;
+    delete operationArgs.commandCenterTool;
+    delete operationArgs.command_center_tool;
+    const result = await commandCenterOperationRunOperation({extra, args: {operation: compatCommandCenterOperation, args: operationArgs}});
+    return {operation, compatibilityRoute: 'drive_operation.command_center', commandCenterOperation: compatCommandCenterOperation, registryVersion: registry.version, completed: true, result: result.result};
+  }
   if (operation.startsWith('command_center.')) {
     const result = await commandCenterOperationRunOperation({extra, args: {operation, args: operationArgs}});
     return {operation, registryVersion: registry.version, completed: true, result: result.result};
@@ -2811,7 +2835,7 @@ function createHomeCenterMcpServer({google, admin, googleClientId, googleClientS
     annotations: {readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: true},
   }, async (args, extra) => {
     const operation = safeText((args || {}).operation || (args || {}).type || (args || {}).toolName, 120);
-    if (operation.startsWith('command_center.')) {
+    if (operation.startsWith('command_center.') || commandCenterCompatOperation(args || {})) {
       return textResult(await driveOperationRunOperation({google, admin, auth: null, user: null, extra, args: args || {}}));
     }
     const {auth, user} = await requestGoogleContext(extra, google, admin, googleClientId, googleClientSecret);
