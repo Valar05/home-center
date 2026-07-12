@@ -30,6 +30,18 @@ const EXPECTED_TOOLS = [
   'command_center.bucket.get_object',
   'command_center.bucket.list_objects',
   'command_center.bucket.promote_skill',
+  'command_center.app_control.seed_profiles',
+  'command_center.app_control.put_profile',
+  'command_center.app_control.get_profile',
+  'command_center.app_control.list_profiles',
+  'command_center.app_control.record_run',
+  'command_center.browser_sessions.create',
+  'command_center.browser_sessions.observe',
+  'command_center.browser_sessions.act',
+  'command_center.browser_sessions.record_episode',
+  'command_center.browser_discoveries.list',
+  'command_center.browser_discoveries.promote',
+  'command_center.browser_playbooks.lookup',
   'command_center.workers.register_oneshot',
   'command_center.workers.list',
   'command_center.workers.get_capabilities',
@@ -166,10 +178,25 @@ async function main() {
   const healthJson = contentJson(health.json, 'command_center.health result');
   add('health_tool_invokable', health.response.status === 200 && healthJson.ok === true && healthJson.invokable === true, {status: health.response.status, health: healthJson});
 
+  const dispatcherHealth = await callTool(args.mcpUrl, protocolToken, 15, 'command_center_operation', {operation: 'health', args: {}});
+  const dispatcherHealthJson = contentJson(dispatcherHealth.json, 'command_center_operation health result');
+  add('command_center_operation_dispatcher_invokable', dispatcherHealth.response.status === 200 && dispatcherHealthJson.result?.ok === true && dispatcherHealthJson.result?.invokable === true, {status: dispatcherHealth.response.status, dispatcherHealth: dispatcherHealthJson});
+
   const bucketLayout = await callTool(args.mcpUrl, protocolToken, 13, 'command_center.bucket.get_layout', {});
   const bucketLayoutJson = contentJson(bucketLayout.json, 'command_center.bucket.get_layout result');
   const lanes = Object.keys(bucketLayoutJson.layout?.lanes || {});
-  add('bucket_layout_invokable', bucketLayout.response.status === 200 && lanes.includes('memory/current-condensed') && lanes.includes('skills/promoted') && lanes.includes('notes/cross-repo'), {status: bucketLayout.response.status, lanes});
+  add('bucket_layout_invokable', bucketLayout.response.status === 200 && lanes.includes('memory/current-condensed') && lanes.includes('skills/promoted') && lanes.includes('notes/cross-repo') && lanes.includes('browser/playbooks'), {status: bucketLayout.response.status, lanes});
+
+  const lookup = await callTool(args.mcpUrl, protocolToken, 14, 'command_center.browser_playbooks.lookup', {origin: 'https://chatgpt.com', taskKey: 'chatgpt.command_center_connector.verify', replayAudience: 'june'});
+  const lookupJson = contentJson(lookup.json, 'command_center.browser_playbooks.lookup result');
+  add('browser_playbooks_lookup_invokable', lookup.response.status === 200 && typeof lookupJson.found === 'boolean' && lookupJson.collection === 'browserPlaybooks', {status: lookup.response.status, lookup: lookupJson});
+
+  const agentToolNames = [
+    'command_center.agents.upsert_repo_agent',
+    'command_center.agents.create_activation',
+    'command_center.agents.get_resume_packet',
+  ];
+  add('codex_cloud_agent_tools_discoverable', agentToolNames.every((name) => names.includes(name)), {agentToolNames, missing: agentToolNames.filter((name) => !names.includes(name))});
 
   const realToken = args.bearerToken || await maybeLoadTokenFromFile();
   let liveJob = null;

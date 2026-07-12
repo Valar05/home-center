@@ -318,18 +318,6 @@ public final class MainActivity extends Activity implements RecognitionListener,
     private boolean driveBrowserPollActive = false;
     private final List<DriveFolderCrumb> driveFolderStack = new ArrayList<>();
     private DocumentReaderState activeDocumentReader;
-    private String driveSpeechProvider = DEFAULT_DRIVE_SPEECH_PROVIDER;
-    private String driveSpeechModelId = DEFAULT_DRIVE_SPEECH_MODEL;
-    private String driveNarratorVoiceName = DEFAULT_DRIVE_NARRATOR_VOICE;
-    private String driveNarratorVoiceId = "";
-    private String driveDialogueVoiceName = DEFAULT_DRIVE_NARRATOR_VOICE;
-    private String driveDialogueVoiceId = "";
-    private String driveNotesVoiceName = DEFAULT_DRIVE_NARRATOR_VOICE;
-    private String driveNotesVoiceId = "";
-    private CharacterVoiceRegistry driveCharacterRegistry = CharacterVoiceRegistry.defaults();
-    private List<VoiceCatalogEntry> driveVoiceCatalog = new ArrayList<>();
-    private String driveCharacterRegistryDocId = "";
-    private long driveCharacterRegistryLoadedAt = 0L;
     private String startupGreeting = "Home Center is ready. Try pantry inventory, what can I make, recipe brainstorm, or rescue meal.";
     private final List<CartReviewItem> cartReviewItems = new ArrayList<>();
     private int cartReviewIndex = -1;
@@ -621,7 +609,6 @@ public final class MainActivity extends Activity implements RecognitionListener,
                         }
                         return;
                     }
-                    loadDriveRecentFiles();
                     if (hasPendingTermuxPairing()) {
                         appendStatus("Google connected. Approving Termux Codex through Shizuku.");
                         continuePendingTermuxPairing("google_sign_in_complete");
@@ -1000,7 +987,6 @@ public final class MainActivity extends Activity implements RecognitionListener,
         driveFoldersButton.setOnClickListener(v -> cycleDriveSortMode());
         driveDocsButton.setOnClickListener(v -> cycleDriveFilterMode());
         driveParentButton.setOnClickListener(v -> loadDriveRecentFiles());
-        driveSpeechSettingsButton.setOnClickListener(v -> showDriveNarrationSpeechSettingsDialog());
         driveReaderPlayerDownloadButton.setOnClickListener(v -> renderDocumentAudio());
         driveReaderPlayerStopButton.setOnClickListener(v -> stopDocumentReader("stopped"));
         driveReaderPlayerSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -1254,7 +1240,7 @@ public final class MainActivity extends Activity implements RecognitionListener,
     private String driveBrowserSummary(int count) {
         String sort = "name_asc".equals(driveSortMode) ? "A to Z" : "date modified";
         String filter = "voice_cached".equals(driveFilterMode) ? "voice cached" : "Google Docs";
-        return count + " narratable docs | " + filter + " | " + sort + " | " + driveVoiceSummary();
+        return count + " narratable docs | " + filter + " | " + sort;
     }
 
     private void refreshDriveReaderPlayer() {
@@ -1285,29 +1271,6 @@ public final class MainActivity extends Activity implements RecognitionListener,
         if (driveReaderPlayerStopButton != null) {
             boolean active = reader.renderRequested || reader.downloadRequested || reader.playbackRequested || speechPlaying;
             driveReaderPlayerStopButton.setVisibility(active ? View.VISIBLE : View.GONE);
-        }
-        setDriveRenderInteractionEnabled(!reader.renderRequested);
-    }
-
-    private void setDriveRenderInteractionEnabled(boolean enabled) {
-        if (driveRecentButton != null) driveRecentButton.setEnabled(enabled);
-        if (driveFoldersButton != null) driveFoldersButton.setEnabled(enabled);
-        if (driveDocsButton != null) driveDocsButton.setEnabled(enabled);
-        if (driveParentButton != null) driveParentButton.setEnabled(enabled);
-        if (driveSpeechSettingsButton != null) driveSpeechSettingsButton.setEnabled(enabled);
-        if (driveBrowserList != null) {
-            setViewTreeEnabled(driveBrowserList, enabled);
-            driveBrowserList.setAlpha(enabled ? 1f : 0.55f);
-        }
-    }
-
-    private void setViewTreeEnabled(View view, boolean enabled) {
-        if (view == null) return;
-        view.setEnabled(enabled);
-        if (!(view instanceof ViewGroup)) return;
-        ViewGroup group = (ViewGroup) view;
-        for (int i = 0; i < group.getChildCount(); i++) {
-            setViewTreeEnabled(group.getChildAt(i), enabled);
         }
     }
 
@@ -3080,44 +3043,6 @@ public final class MainActivity extends Activity implements RecognitionListener,
         }
     }
 
-    private void ingestStructuredDocumentSpeakers(DocumentReaderState reader, String documentText) {
-        if (reader == null) return;
-        List<CandidateSpeakerProfile> candidates = CandidateSpeakerProfile.extract(documentText, reader.fileId, reader.name);
-        if (candidates.isEmpty()) return;
-        CharacterVoiceRegistry.MergeResult merged = driveCharacterRegistry.mergeCandidates(candidates, driveVoiceCatalog);
-        if (merged.added <= 0) return;
-        try {
-            JSONObject registryJson = driveCharacterRegistry.toJson();
-            getSharedPreferences(PREFS, MODE_PRIVATE).edit().putString(KEY_DRIVE_CHARACTER_REGISTRY_JSON, registryJson.toString()).apply();
-            setDriveBrowserStatus("Ingested " + merged.added + " speaker profile" + (merged.added == 1 ? "" : "s") + " from " + reader.name + ".", false);
-            appendStatus("Drive Narrate ingested speakers: " + merged.names + ". Defaults are overrideable in Speech.");
-            persistDriveCharacterRegistryDocument();
-        } catch (Exception ex) {
-            LocalLog.warn("doc_audio", "speaker_profile_cache_failed " + shortMessage(ex.getMessage()));
-        }
-    }
-
-    private void persistDriveCharacterRegistryDocument() {
-        GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(this);
-        if (account == null || googleDriveClient == null || driveCharacterRegistryDocId == null || driveCharacterRegistryDocId.trim().isEmpty()) return;
-        executor.execute(() -> {
-            try {
-                JSONObject args = new JSONObject()
-                        .put("fileId", driveCharacterRegistryDocId)
-                        .put("name", DRIVE_CHARACTER_REGISTRY_TITLE)
-                        .put("body", driveCharacterRegistry.toMarkdown());
-                JSONObject update = googleDriveClient.runTool("docs.update", args, account);
-                if (!update.optBoolean("ok", false)) {
-                    LocalLog.warn("doc_audio", "speaker_profile_registry_update_failed error=" + shortMessage(update.optString("error", "")) + " detail=" + shortMessage(update.optString("detail", "")));
-                    return;
-                }
-                LocalLog.info("doc_audio", "speaker_profile_registry_updated entries=" + driveCharacterRegistry.size());
-            } catch (Exception ex) {
-                LocalLog.warn("doc_audio", "speaker_profile_registry_update_failed " + shortMessage(ex.getMessage()));
-            }
-        });
-    }
-
     private void resetDriveReaderPlaybackForNewContent(DocumentReaderState reader) {
         if (reader == null) return;
         reader.paused = true;
@@ -3461,7 +3386,7 @@ public final class MainActivity extends Activity implements RecognitionListener,
                 }
                 return true;
             }
-            if (reader != activeDocumentReader && playAfterDownload) return false;
+            if (reader != activeDocumentReader && playAfterDownload) return;
             reader.audioEntry.markDownloading(sectionIndex);
             LocalLog.info("doc_audio", "doc_audio_download_start fileId=" + reader.fileId + " textHash=" + reader.textHash + " section=" + sectionIndex + " play=" + playAfterDownload);
             if (playAfterDownload) {
@@ -3507,7 +3432,7 @@ public final class MainActivity extends Activity implements RecognitionListener,
             if (playAfterDownload && reader.playbackRequested && !reader.paused) {
                 main.post(() -> {
                     if (reader != activeDocumentReader) return;
-                    setDriveBrowserStatus("Playing " + reader.name + " with " + activeSpeechVoiceName(reader, sectionIndex) + ": section " + (sectionIndex + 1) + " of " + reader.chunkCount() + ".", false);
+                    setDriveBrowserStatus("Playing " + reader.name + " with Brian: section " + (sectionIndex + 1) + " of " + reader.chunkCount() + ".", false);
                     refreshDriveReaderPlayer();
                     playDownloadedDocumentSection(reader, sectionIndex);
                 });
@@ -9122,18 +9047,7 @@ public final class MainActivity extends Activity implements RecognitionListener,
         String summaryText() {
             return "Google Doc reader: " + name
                     + "\nText version: Drive snapshot " + textHash + " (" + charCount + " chars, " + chunkCount() + " chunks)."
-                    + "\nVoice version: " + voiceProviderLabel() + " role voices (" + voiceSummary() + "); first chunk is a short autoplay preview, full artifact saved by Render.";
-        }
-
-        DocumentReaderState withClearedAudioEntry() {
-            audioEntry = null;
-            downloadedSections = 0;
-            renderRequested = false;
-            downloadRequested = false;
-            playbackRequested = false;
-            paused = true;
-            status = "speech profile changed";
-            return this;
+                    + "\nVoice version: ElevenLabs Brian chunks; first chunk is a short autoplay preview, full artifact saved by Render.";
         }
 
         JSONObject toMetadata() {
@@ -9260,7 +9174,6 @@ public final class MainActivity extends Activity implements RecognitionListener,
                 return;
             }
             exchangeGoogleServerAuthCode(account);
-            loadDriveRecentFiles();
             if (hasPendingTermuxPairing()) {
                 appendStatus("Google tools approved. Approving Termux Codex through Shizuku.");
                 continuePendingTermuxPairing("google_tool_permissions_complete");

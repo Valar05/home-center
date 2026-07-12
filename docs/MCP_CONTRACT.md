@@ -2,7 +2,6 @@
 
 She-Raw exposes these tools through `sheRawMcp`:
 
-- `she_raw_operation`
 - `she_raw_consult`
 - `she_raw_critique`
 - `she_raw_introspect`
@@ -24,20 +23,6 @@ She-Raw exposes these tools through `sheRawMcp`:
 
 All tools use authenticated MCP transport. Writes preserve audit events and do not mutate external repositories.
 
-## No-Reinstall Operation Pump
-
-`she_raw_operation` is the stable no-reinstall dispatcher. It accepts `{operation, args}` and runs operations from `she_raw_manual.operationRegistry.operations` / `she_raw_health.operation_registry.operations`.
-
-Use this tool first when ChatGPT's connector metadata may be stale. If `she_raw_brain` is hidden in the visible connector schema, call:
-
-```json
-{"operation":"brain.invoke","args":{"brainId":"prospector","conversationKey":"stable-chat-key","commandState":"idle","boundedContext":"short context","question":"optional question"}}
-```
-
-Backend success through `she_raw_operation` proves the service pump works. It does not prove ChatGPT's visible connector schema is fresh unless ChatGPT actually invokes the operation tool.
-
-`operation="road.check"` is the recovery lane when the host is unsure how to use She-Raw. It is read-only and returns `road_status`, `usable_now`, `preferred_tool`, `next_calls`, `degraded_lanes`, `blocked_lanes`, `do_not_do`, and `proof_required`. Use it before creating any new worker, connector, service, Agent Closet entry, or Command Center dispatch.
-
 
 
 
@@ -58,13 +43,6 @@ She-Raw is the MCP runtime and default voice. She-Raw itself is not a brain jar 
 `she_raw_list_brains` returns available jars and their source provenance. `she_raw_brain` invokes one jar through She-Raw MCP and returns a durable `srbrain_*` invocation. Quartermaster, Prospector, Foreman, Auditor, Holocron, Wallfly, Sommelier, and Command Center are jars behind She-Raw, not standalone MCP services or Command Center workers.
 
 Agent Closet is allowed as source/provenance for the role definitions. She-Raw MCP owns invocation, response shaping, persistence, learning, and the Command Center execution gate.
-
-
-## Bikini Bottom Brain Jar
-
-`bikini_bottom` is one brain jar behind She-Raw MCP. It must be invoked through `she_raw_brain` or `she_raw_operation` with `operation=brain.invoke`; do not create six character agents or a Command Center worker.
-
-The jar is a detachable function-cast simulator. The symbols compress functions only after observations are stated, and the final judgment must be plain operational language that remains coherent after removing character names.
 
 ## Lockout Matrix
 

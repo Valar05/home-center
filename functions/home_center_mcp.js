@@ -252,8 +252,42 @@ function likelyEmbeddedOAuthUserAgent(userAgent) {
   return embeddedMarkers.some((marker) => ua.includes(marker));
 }
 
-function renderSecureBrowserOAuthHandoff(googleAuthUrl, flowState) {
+function isChatgptConnectorRedirectUri(redirectUri) {
+  try {
+    const url = new URL(String(redirectUri || ''));
+    return url.hostname === 'chatgpt.com' && url.pathname.startsWith('/connector/oauth/');
+  } catch (_) {
+    return false;
+  }
+}
+
+function shouldUseConnectorHandoff(req, redirectUri) {
+  const ua = String(req && req.get ? req.get('User-Agent') : '').toLowerCase();
+  if (!isChatgptConnectorRedirectUri(redirectUri)) return likelyEmbeddedOAuthUserAgent(ua);
+  if (likelyEmbeddedOAuthUserAgent(ua)) return true;
+  return ua.includes('android') || ua.includes('mobile');
+}
+
+function mcpMountedPath(pathname) {
+  const cleanPath = String(pathname || '').startsWith('/') ? String(pathname || '') : `/${pathname || ''}`;
+  try {
+    const basePath = new URL(MCP_PUBLIC_BASE).pathname.replace(/\/$/, '');
+    return `${basePath}${cleanPath}`;
+  } catch (_) {
+    return cleanPath;
+  }
+}
+
+function renderSecureBrowserOAuthHandoff(googleAuthUrl, flowState, mode = 'secure-browser') {
   const safeUrl = htmlEscape(googleAuthUrl);
+  const chatgptMobile = mode === 'chatgpt-mobile';
+  const title = chatgptMobile ? 'Complete Home Center sign-in' : 'Open Home Center sign-in in a secure browser';
+  const body = chatgptMobile
+    ? 'Keep this page open. Complete Google sign-in in the browser tab that opens, then return here if ChatGPT does not resume automatically. This page will finish the ChatGPT connector.'
+    : 'Google blocked this sign-in surface because it looks like an embedded browser. Open Google sign-in in Chrome or another system browser, then return here. This page will finish the ChatGPT connector automatically.';
+  const button = chatgptMobile ? 'Continue with Google' : 'Continue in secure browser';
+  const handoffStatusPath = mcpMountedPath('/oauth/handoff-status');
+  const handoffCompletePath = mcpMountedPath('/oauth/handoff-complete');
   return `<!doctype html>
 <html lang="en">
 <head>
@@ -269,23 +303,25 @@ function renderSecureBrowserOAuthHandoff(googleAuthUrl, flowState) {
 </head>
 <body>
   <main>
-    <h1>Open Home Center sign-in in a secure browser</h1>
-    <p>Google blocked this sign-in surface because it looks like an embedded browser. Open Google sign-in in Chrome or another system browser, then return here. This page will finish the ChatGPT connector automatically.</p>
-    <p><a class="button" href="${safeUrl}" target="_blank" rel="noopener noreferrer">Continue in secure browser</a></p>
+    <h1>${htmlEscape(title)}</h1>
+    <p>${htmlEscape(body)}</p>
+    <p><a class="button" href="${safeUrl}" target="_blank" rel="noopener noreferrer">${htmlEscape(button)}</a></p>
     <p>If the button stays inside this app, copy this link into Chrome:</p>
     <code>${safeUrl}</code>
     <p id="handoff-status">Waiting for secure-browser sign-in...</p>
   </main>
   <script>
     const flowState = ${JSON.stringify(flowState)};
+    const handoffStatusPath = ${JSON.stringify(handoffStatusPath)};
+    const handoffCompletePath = ${JSON.stringify(handoffCompletePath)};
     async function pollHandoff() {
       try {
-        const response = await fetch('/oauth/handoff-status?state=' + encodeURIComponent(flowState), {cache: 'no-store'});
+        const response = await fetch(handoffStatusPath + '?state=' + encodeURIComponent(flowState), {cache: 'no-store'});
         const data = await response.json();
         const status = document.getElementById('handoff-status');
         if (data.status === 'complete') {
           status.textContent = 'Sign-in approved. Returning to ChatGPT...';
-          window.location.href = '/oauth/handoff-complete?state=' + encodeURIComponent(flowState);
+          window.location.href = handoffCompletePath + '?state=' + encodeURIComponent(flowState);
           return;
         }
         if (data.status === 'error' || data.status === 'expired') {
@@ -301,7 +337,10 @@ function renderSecureBrowserOAuthHandoff(googleAuthUrl, flowState) {
 </html>`;
 }
 
-function renderSecureBrowserOAuthComplete(message) {
+function renderSecureBrowserOAuthComplete(message, finishPath = '') {
+  const safeFinishPath = finishPath ? htmlEscape(finishPath) : '';
+  const finishLink = safeFinishPath ? `<p><a href="${safeFinishPath}" style="display:inline-block;margin:12px 0;padding:12px 16px;border-radius:6px;background:#0969da;color:#fff;text-decoration:none;font-weight:700;">Finish connector</a></p>` : '';
+  const autoFinish = finishPath ? `<script>setTimeout(function(){ window.location.href = ${JSON.stringify(finishPath)}; }, 1500);</script>` : '';
   return `<!doctype html>
 <html lang="en">
 <head>
@@ -317,7 +356,9 @@ function renderSecureBrowserOAuthComplete(message) {
   <main>
     <h1>Home Center sign-in complete</h1>
     <p>${htmlEscape(message || 'Return to ChatGPT to finish connecting the connector.')}</p>
+    ${finishLink}
   </main>
+  ${autoFinish}
 </body>
 </html>`;
 }
@@ -412,7 +453,7 @@ function parseMcpPayload(text, label) {
 
 function commandCenterOperationRegistry() {
   return {
-    version: '2026-07-11.home-center-command-center-handoff-v2',
+    version: '2026-07-11.home-center-browser-playbooks-v2',
     invocationTool: 'command_center_operation',
     commandCenterMcpUrl: COMMAND_CENTER_MCP_URL,
     purpose: 'Expose Command Center dispatch and managed knowledge-bucket operations through the already-installed Home Center MCP connector so ChatGPT can create, inspect, resume, revise, authorize, and preserve worker knowledge without discovering a second MCP app.',
@@ -436,11 +477,30 @@ function commandCenterOperationRegistry() {
       'jobs.get_events': {summary: 'Read structured job events.', readOnly: true, input: {jobId: 'string', limit: 'optional number'}},
       'jobs.get_logs': {summary: 'Read job log metadata.', readOnly: true, input: {jobId: 'string', limit: 'optional number'}},
       'jobs.get_artifacts': {summary: 'Read job artifact metadata.', readOnly: true, input: {jobId: 'string', limit: 'optional number'}},
+      'agents.upsert_repo_agent': {summary: 'Create or update a durable repo/project agent identity for real OpenAI Codex cloud activations.', readOnly: false, input: {projectId: 'string', agentId: 'optional string', repository: 'optional string', contextRefs: 'optional string[]', idempotencyKey: 'string'}},
+      'agents.create_activation': {summary: 'Create a dormant-to-active task packet for the real OpenAI Codex cloud surface.', readOnly: false, input: {agentId: 'string', sessionId: 'optional string', prompt: 'string', acceptanceCriteria: 'optional string[]', artifactRequirements: 'optional string[]', idempotencyKey: 'string'}},
+      'agents.get_resume_packet': {summary: 'Read the durable packet a bridge uses to start or resume the real Codex cloud surface.', readOnly: true, input: {activationId: 'string'}},
+      'agents.record_codex_cloud_ref': {summary: 'Record the real ChatGPT/OpenAI Codex cloud task URL or resume handle for an activation.', readOnly: false, input: {activationId: 'string', url: 'optional string', status: 'optional string', idempotencyKey: 'string'}},
+      'agents.record_artifact': {summary: 'Record a redacted artifact from a real Codex cloud activation.', readOnly: false, input: {activationId: 'string', name: 'string', uri: 'optional string', body: 'optional string', idempotencyKey: 'string'}},
+      'agents.complete_activation': {summary: 'Mark a Codex cloud activation terminal and write durable Command Center memory.', readOnly: false, input: {activationId: 'string', status: 'completed|failed|canceled|needs_human', finalSummary: 'optional string', idempotencyKey: 'string'}},
+      'agents.get_handoff': {summary: 'Read a ChatGPT-reviewable handoff for a real Codex cloud activation.', readOnly: true, input: {activationId: 'string'}},
       'bucket.get_layout': {summary: 'Read Command Center managed knowledge bucket lanes and storage policy.', readOnly: true, input: {}},
       'bucket.put_object': {summary: 'Write durable execution memory, scratch/promoted skills, or cross-repo notes. Secrets are rejected.', readOnly: false, input: {kind: 'memory.past_log|memory.current_condensed|skill.scratch|skill.promoted|note.cross_repo', title: 'string', summary: 'optional string', body: 'optional string', objectUri: 'optional string', projectId: 'optional string', repository: 'optional string', jobId: 'optional string', tags: 'optional string[]', evidenceRefs: 'optional string[]', idempotencyKey: 'string'}},
       'bucket.get_object': {summary: 'Read one Command Center bucket object by id.', readOnly: true, input: {objectId: 'string'}},
       'bucket.list_objects': {summary: 'List Command Center bucket objects by kind, project, repository, job, or tag.', readOnly: true, input: {kind: 'optional string', projectId: 'optional string', repository: 'optional string', jobId: 'optional string', tag: 'optional string', limit: 'optional number'}},
       'bucket.promote_skill': {summary: 'Promote a scratch skill bucket object into the promoted skill lane with provenance.', readOnly: false, input: {objectId: 'string', evidenceRefs: 'optional string[]', idempotencyKey: 'string'}},
+      'app_control.seed_profiles': {summary: 'Publish built-in app-control seed profiles into Home Center cloud Firestore and managed bucket.', readOnly: false, input: {idempotencyKey: 'string'}},
+      'app_control.put_profile': {summary: 'Create or update a cloud app-control profile versioned by Android package and app version.', readOnly: false, input: {profile: 'object', idempotencyKey: 'string'}},
+      'app_control.get_profile': {summary: 'Read one cloud app-control profile by profileId.', readOnly: true, input: {profileId: 'string'}},
+      'app_control.list_profiles': {summary: 'List cloud app-control profiles by package, workflow, or status.', readOnly: true, input: {packageName: 'optional string', workflow: 'optional string', status: 'optional string', limit: 'optional number'}},
+      'app_control.record_run': {summary: 'Record redacted app-control execution evidence, timings, frame-lane status, and learned fixes.', readOnly: false, input: {profileId: 'string', workflow: 'string', status: 'optional string', elapsedMs: 'optional number', uiActionCount: 'optional number', frameLane: 'optional object', evidenceRefs: 'optional string[]', idempotencyKey: 'string'}},
+      'browser_sessions.create': {summary: 'Create a Playwright desktop Chromium browser-hands session.', readOnly: false, input: {intent: 'string', startUrl: 'optional string', surface: 'optional object', idempotencyKey: 'string'}},
+      'browser_sessions.observe': {summary: 'Read browser-hands session state and recent episodes.', readOnly: true, input: {sessionId: 'string', limit: 'optional number'}},
+      'browser_sessions.act': {summary: 'Request or record a constrained browser action; sensitive actions are human-blocked.', readOnly: false, input: {sessionId: 'string', action: 'string', target: 'optional object', reason: 'optional string', idempotencyKey: 'string'}},
+      'browser_sessions.record_episode': {summary: 'Record a redacted browser-hands invocation and candidate discoveries.', readOnly: false, input: {sessionId: 'string', origin: 'optional string', outcome: 'optional string', actions: 'optional object[]', discoveryCandidates: 'optional object[]', idempotencyKey: 'string'}},
+      'browser_discoveries.list': {summary: 'List browser discoveries by origin, task, or state.', readOnly: true, input: {origin: 'optional string', task: 'optional string', state: 'optional string', limit: 'optional number'}},
+      'browser_discoveries.promote': {summary: 'Promote a validated browser discovery into trusted household playbook guidance.', readOnly: false, input: {discoveryId: 'string', guidance: 'optional string', playbook: 'optional object', evidenceRefs: 'optional string[]', idempotencyKey: 'string'}},
+      'browser_playbooks.lookup': {summary: 'Lookup a trusted Playwright DOM/accessibility browser playbook by origin, taskKey, shareScope, or replayAudience.', readOnly: true, input: {origin: 'optional string', taskKey: 'optional string', task: 'optional string', shareScope: 'optional string', replayAudience: 'optional string', limit: 'optional number'}},
       'workers.list': {summary: 'List registered Command Center workers.', readOnly: true, input: {}},
       'workers.get_capabilities': {summary: 'Read one worker capability packet.', readOnly: true, input: {workerId: 'string'}},
       'workers.wake': {summary: 'Invoke a configured real Cloud Run worker so liveness can be proven by heartbeat.', readOnly: false, input: {workerId: 'string', activationId: 'optional string', sessionId: 'optional string', projectId: 'optional string', reason: 'optional string', runLabel: 'optional string', idempotencyKey: 'string'}},
@@ -3913,7 +3973,9 @@ function createHomeCenterMcpApp({google, admin, googleClientId = () => '', googl
       const state = safeText(req.query.state, 1200);
       const codeChallenge = safeText(req.query.code_challenge, 300);
       const method = safeText(req.query.code_challenge_method, 20) || 'plain';
-      const embeddedHandoff = likelyEmbeddedOAuthUserAgent(req.get('User-Agent'));
+      const browserHandoff = shouldUseConnectorHandoff(req, redirectUri);
+      const chatgptConnector = isChatgptConnectorRedirectUri(redirectUri);
+      const oauthFlowId = tokenHashPrefix(`${clientId}:${state}:${Date.now()}:${randomUUID()}`);
       if (responseType !== 'code' || !clientId || !redirectUri) {
         res.status(400).send('invalid_request');
         return;
@@ -3933,7 +3995,9 @@ function createHomeCenterMcpApp({google, admin, googleClientId = () => '', googl
         state,
         codeChallenge,
         codeChallengeMethod: method,
-        browserHandoff: embeddedHandoff,
+        browserHandoff,
+        chatgptConnector,
+        oauthFlowId,
         createdAtMs: Date.now(),
         expiresAtMs: Date.now() + 10 * 60 * 1000,
       });
@@ -3944,13 +4008,14 @@ function createHomeCenterMcpApp({google, admin, googleClientId = () => '', googl
         scope: ['openid', 'email', ...MCP_REQUIRED_SCOPES],
         state: flowState,
       });
-      if (embeddedHandoff) {
-        connectorLog('authorize_secure_browser_handoff', req, {googleCallbackHost: redirectHost(MCP_GOOGLE_CALLBACK)});
+      if (browserHandoff) {
+        const redirectMode = chatgptConnector ? 'chatgpt_mobile_handoff' : 'secure_browser_handoff';
+        connectorLog('authorize_secure_browser_handoff', req, {googleCallbackHost: redirectHost(MCP_GOOGLE_CALLBACK), redirectMode, chatgptConnector, oauthFlowId});
         res.set('Cache-Control', 'no-store');
-        res.status(200).type('html').send(renderSecureBrowserOAuthHandoff(url, flowState));
+        res.status(200).type('html').send(renderSecureBrowserOAuthHandoff(url, flowState, chatgptConnector ? 'chatgpt-mobile' : 'secure-browser'));
         return;
       }
-      connectorLog('authorize_redirect_google', req, {googleCallbackHost: redirectHost(MCP_GOOGLE_CALLBACK)});
+      connectorLog('authorize_redirect_google', req, {googleCallbackHost: redirectHost(MCP_GOOGLE_CALLBACK), redirectMode: 'direct', chatgptConnector, oauthFlowId});
       res.redirect(url);
     } catch (err) {
       connectorLog('authorize_error', req, {error: safeText(err.message || String(err), 300)});
@@ -3973,7 +4038,7 @@ function createHomeCenterMcpApp({google, admin, googleClientId = () => '', googl
       if (error) {
         if (stateData.browserHandoff) {
           await stateSnap.ref.set({handoffError: error, updatedAtMs: Date.now()}, {merge: true});
-          connectorLog('google_callback_handoff_error', req, {googleError: error});
+          connectorLog('google_callback_handoff_error', req, {googleError: error, clientIdPrefix: safeText(stateData.clientId, 80).slice(0, 28), redirectHost: redirectHost(stateData.redirectUri), oauthFlowId: stateData.oauthFlowId || '', chatgptConnector: !!stateData.chatgptConnector});
           res.set('Cache-Control', 'no-store');
           res.status(200).type('html').send(renderSecureBrowserOAuthComplete('Google sign-in did not complete. Return to ChatGPT and reconnect the connector.'));
           return;
@@ -3985,7 +4050,7 @@ function createHomeCenterMcpApp({google, admin, googleClientId = () => '', googl
       if (!googleCode || safeNumber(stateData.expiresAtMs, 0) <= Date.now()) {
         if (stateData.browserHandoff) {
           await stateSnap.ref.set({handoffError: 'invalid_grant', updatedAtMs: Date.now()}, {merge: true});
-          connectorLog('google_callback_handoff_invalid', req, {expired: safeNumber(stateData.expiresAtMs, 0) <= Date.now()});
+          connectorLog('google_callback_handoff_invalid', req, {expired: safeNumber(stateData.expiresAtMs, 0) <= Date.now(), clientIdPrefix: safeText(stateData.clientId, 80).slice(0, 28), redirectHost: redirectHost(stateData.redirectUri), oauthFlowId: stateData.oauthFlowId || '', chatgptConnector: !!stateData.chatgptConnector});
           res.set('Cache-Control', 'no-store');
           res.status(200).type('html').send(renderSecureBrowserOAuthComplete('This sign-in attempt expired. Return to ChatGPT and reconnect the connector.'));
           return;
@@ -4003,7 +4068,7 @@ function createHomeCenterMcpApp({google, admin, googleClientId = () => '', googl
       if (!email || profile.data.verified_email === false) {
         if (stateData.browserHandoff) {
           await stateSnap.ref.set({handoffError: 'verified_google_email_required', updatedAtMs: Date.now()}, {merge: true});
-          connectorLog('google_callback_handoff_unverified_email', req, {});
+          connectorLog('google_callback_handoff_unverified_email', req, {clientIdPrefix: safeText(stateData.clientId, 80).slice(0, 28), redirectHost: redirectHost(stateData.redirectUri), oauthFlowId: stateData.oauthFlowId || '', chatgptConnector: !!stateData.chatgptConnector});
           res.set('Cache-Control', 'no-store');
           res.status(200).type('html').send(renderSecureBrowserOAuthComplete('Google sign-in requires a verified email. Return to ChatGPT and reconnect the connector.'));
           return;
@@ -4019,9 +4084,9 @@ function createHomeCenterMcpApp({google, admin, googleClientId = () => '', googl
           googleCompletedAtMs: Date.now(),
           updatedAtMs: Date.now(),
         }, {merge: true});
-        connectorLog('google_callback_handoff_ready', req, {emailHash: tokenHashPrefix(email)});
+        connectorLog('google_callback_handoff_ready', req, {clientIdPrefix: safeText(stateData.clientId, 80).slice(0, 28), redirectHost: redirectHost(stateData.redirectUri), oauthFlowId: stateData.oauthFlowId || '', chatgptConnector: !!stateData.chatgptConnector, emailHash: tokenHashPrefix(email)});
         res.set('Cache-Control', 'no-store');
-        res.status(200).type('html').send(renderSecureBrowserOAuthComplete('Return to ChatGPT. The connector page should finish automatically within a few seconds.'));
+        res.status(200).type('html').send(renderSecureBrowserOAuthComplete('Home Center approved Google sign-in. Finishing the ChatGPT connector now...', `${mcpMountedPath('/oauth/handoff-complete')}?state=${encodeURIComponent(flowState)}`));
         return;
       }
       const code = randomToken(32);
@@ -4039,7 +4104,7 @@ function createHomeCenterMcpApp({google, admin, googleClientId = () => '', googl
         expiresAtMs: Date.now() + 10 * 60 * 1000,
       });
       await stateSnap.ref.delete();
-      connectorLog('google_callback_success', req, {redirectHost: redirectHost(stateData.redirectUri), emailHash: tokenHashPrefix(email)});
+      connectorLog('google_callback_success', req, {clientIdPrefix: safeText(stateData.clientId, 80).slice(0, 28), redirectHost: redirectHost(stateData.redirectUri), oauthFlowId: stateData.oauthFlowId || '', chatgptConnector: !!stateData.chatgptConnector, emailHash: tokenHashPrefix(email)});
       res.redirect(redirectWithParams(stateData.redirectUri, {code, state: stateData.state}));
     } catch (err) {
       connectorLog('google_callback_error', req, {error: safeText(err.message || String(err), 300)});
@@ -4073,6 +4138,10 @@ function createHomeCenterMcpApp({google, admin, googleClientId = () => '', googl
         res.json({status: 'complete'});
         return;
       }
+      if (stateData.handoffRedirectUrl) {
+        res.json({status: 'complete'});
+        return;
+      }
       res.json({status: 'pending'});
     } catch (err) {
       connectorLog('handoff_status_error', req, {error: safeText(err.message || String(err), 300)});
@@ -4089,6 +4158,11 @@ function createHomeCenterMcpApp({google, admin, googleClientId = () => '', googl
         return;
       }
       const stateData = stateSnap.data() || {};
+      if (stateData.handoffRedirectUrl && safeNumber(stateData.expiresAtMs, 0) > Date.now()) {
+        connectorLog('handoff_complete_replay_redirect', req, {clientIdPrefix: safeText(stateData.clientId, 80).slice(0, 28), redirectHost: redirectHost(stateData.redirectUri), oauthFlowId: stateData.oauthFlowId || '', chatgptConnector: !!stateData.chatgptConnector, emailHash: tokenHashPrefix(stateData.email)});
+        res.redirect(stateData.handoffRedirectUrl);
+        return;
+      }
       if (!stateData.browserHandoff || !stateData.googleTokens || !stateData.email || safeNumber(stateData.expiresAtMs, 0) <= Date.now()) {
         res.status(400).send('invalid_oauth_state');
         return;
@@ -4102,12 +4176,22 @@ function createHomeCenterMcpApp({google, admin, googleClientId = () => '', googl
         codeChallengeMethod: stateData.codeChallengeMethod || '',
         googleTokens: stateData.googleTokens,
         email: safeText(stateData.email, 320).toLowerCase(),
+        oauthFlowId: stateData.oauthFlowId || '',
+        chatgptConnector: !!stateData.chatgptConnector,
+        flowState,
         createdAtMs: Date.now(),
         expiresAtMs: Date.now() + 10 * 60 * 1000,
       });
-      await stateSnap.ref.delete();
-      connectorLog('handoff_complete_redirect', req, {redirectHost: redirectHost(stateData.redirectUri), emailHash: tokenHashPrefix(stateData.email)});
-      res.redirect(redirectWithParams(stateData.redirectUri, {code, state: stateData.state}));
+      const handoffRedirectUrl = redirectWithParams(stateData.redirectUri, {code, state: stateData.state});
+      await stateSnap.ref.set({
+        handoffCompletedAtMs: Date.now(),
+        handoffRedirectUrl,
+        googleTokens: stateData.googleTokens,
+        email: stateData.email,
+        updatedAtMs: Date.now(),
+      }, {merge: true});
+      connectorLog('handoff_complete_redirect', req, {clientIdPrefix: safeText(stateData.clientId, 80).slice(0, 28), redirectHost: redirectHost(stateData.redirectUri), oauthFlowId: stateData.oauthFlowId || '', chatgptConnector: !!stateData.chatgptConnector, emailHash: tokenHashPrefix(stateData.email)});
+      res.redirect(handoffRedirectUrl);
     } catch (err) {
       connectorLog('handoff_complete_error', req, {error: safeText(err.message || String(err), 300)});
       res.status(500).send(err.message || String(err));

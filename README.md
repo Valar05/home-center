@@ -86,8 +86,6 @@ Home Center should own installed-app automation profiles. Termux/Shizuku scripts
 
 Command Center is a separate cloud MCP control plane for dispatching, supervising, and preserving Codex worker execution. It has no frontend and no independent chat interface. ChatGPT remains the planner and conversational surface; Command Center persists projects, tickets, leases, events, questions, mutation approvals, logs, artifacts, and checkpoints; user-owned Codex workers execute.
 
-Portable Command Center execution uses durable worker sessions as the hard gate: a Cloud Run Debian worker must restore a Command Center/GCS workspace snapshot before execution and write the next snapshot before completed success. Cloud workers do not require a repository, and one repository may have multiple workers with different capabilities or policies.
-
 Termux can debug ChatGPT MCP app/plugin installation with the one-command Playwright Chrome debugger:
 
 ```sh
@@ -416,10 +414,6 @@ The app also shows the active log path in the status area. Useful entries includ
 ## She-Raw MCP
 
 She-Raw is a cloud consultation service exposed as `sheRawMcp`. It is not a chat UI, not a Command Center worker, and not an Agent Closet entry. ChatGPT calls it for explicit consultation, critique, introspection, corrections, ambient checks, recreational disruption, corpus search, active-rule inspection, health, and named brain jars such as Quartermaster or Prospector through `she_raw_brain`.
-
-The stable no-reinstall path is `she_raw_operation`. Call `she_raw_manual` or `she_raw_health` for `operationRegistry`, then use `she_raw_operation` with registry operations such as `brain.invoke`, `corpus.search`, `consult`, `correct`, or `introspect`. If ChatGPT's visible schema is stale and hides `she_raw_brain`, invoke Prospector through `she_raw_operation` with `operation="brain.invoke"`. OAuth refresh may update credentials without refreshing tool metadata; backend success and ChatGPT-visible proof must be reported separately.
-
-If the She-Raw path itself feels misrouted, do not create a worker, connector, service, or Agent Closet entry. Call `she_raw_operation` with `operation="road.check"` first. It returns the preferred tool, degraded lanes, blocked lanes, exact next-call packets, and the proof required to show the road is usable.
 
 The deployed endpoint shape is:
 

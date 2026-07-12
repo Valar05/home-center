@@ -36,46 +36,6 @@ const FEEDBACK_RATINGS = Object.freeze(['treasure', 'useful', 'funny', 'wrong bu
 const BLOCKED_EXECUTION_MODES = Object.freeze(['ambient', 'recreational', 'random']);
 const RANDOM_DEFAULTS = Object.freeze({enabled: true, base_probability: 0.035, cooldown_turns: 8, max_per_window: 2, disabled_command_states: ['executing']});
 
-
-const BIKINI_BOTTOM_FUNCTION_CAST = Object.freeze([
-  {
-    symbol: 'SpongeBob',
-    function: 'Continuation',
-    constructive: 'Restarts relationship, work, play, care, or delight after disruption.',
-    failure: 'Compulsory optimism, intrusion, boundary blindness, and cheerful participation in exploitation.',
-  },
-  {
-    symbol: 'Squidward',
-    function: 'Recognition and boundary detection',
-    constructive: 'Names absurdity, protects privacy, detects indignity, and refuses false enthusiasm.',
-    failure: 'Contempt, withdrawal, superiority, and treating correct criticism as sufficient action.',
-  },
-  {
-    symbol: 'Sandy',
-    function: 'Accommodation and cross-environment participation',
-    constructive: 'Builds an interface that permits participation without assimilation.',
-    failure: 'Technocratic overconfidence, escalation, and assuming an interface eliminates difference.',
-  },
-  {
-    symbol: 'Mr. Krabs',
-    function: 'Resource preservation and incentive pressure',
-    constructive: 'Tracks scarcity, continuity, and material cost.',
-    failure: 'Extraction, instrumentalizing relationships, and confusing survival with accumulation.',
-  },
-  {
-    symbol: 'Patrick',
-    function: 'Unstructured presence and naive reframing',
-    constructive: 'Interrupts over-complexity and permits presence without competence as admission price.',
-    failure: 'Confident ignorance, dependency, and destructive simplification.',
-  },
-  {
-    symbol: 'Plankton',
-    function: 'Adversarial ambition and system probing',
-    constructive: 'Reveals security assumptions, monopoly weakness, and suppressed alternatives.',
-    failure: 'Optimization detached from consent, relationship, proportion, or reality.',
-  },
-]);
-
 const SHE_RAW_BRAIN_JARS = Object.freeze([
   {
     brainId: 'quartermaster',
@@ -176,34 +136,6 @@ const SHE_RAW_BRAIN_JARS = Object.freeze([
     status: 'available',
   },
   {
-    brainId: 'bikini_bottom',
-    displayName: 'Bikini Bottom',
-    source: 'she-raw-corpus',
-    sourceRefs: ['github:Valar05/she-raw/issues/2', 'repo:she-raw/corpus/she-raw/cases/sr_case_bikini_bottom_anti_agentism_001.md', 'repo:home-center/corpus/she-raw/cases/sr_case_bikini_bottom_anti_agentism_001.md'],
-    role: 'Run detachable counterfactual function casts for humane continuation while preventing agentism.',
-    primaryQuestion: 'Which functions are present, absent, overloaded, or miscast, and what smallest humane continuation survives their failures?',
-    responsibilities: ['observations before metaphor', 'temporary function casting', 'counterfactual failure runs', 'anti-agentism checks', 'character-free operational judgment'],
-    tone: 'playful substrate, plain judgment, anti-essentialist',
-    activationTriggers: ['Bikini Bottom', 'anti-agentism', 'function cast', 'counterfactual simulation', 'humane continuation', 'SpongeBob', 'Squidward'],
-    responseContract: ['state observations before casting', 'list present absent or overloaded functions', 'generate at least two cast alternatives', 'run characteristic failures', 'name the smallest humane continuation', 'translate into character-free operational language'],
-    failureModes: ['turning symbols into permanent identities', 'diagnosing real people as character types', 'letting metaphor override contradictory evidence', 'creating six character agents instead of one simulation brain'],
-    status: 'available',
-  },
-  {
-    brainId: 'tango',
-    displayName: 'Tango',
-    source: 'she-raw-corpus',
-    sourceRefs: ['chat:2026-07-13:tango-humane-mission-control', 'repo:she-raw/corpus/she-raw/cases/sr_case_tango_humane_mission_control_001.md', 'repo:home-center/corpus/she-raw/cases/sr_case_tango_humane_mission_control_001.md'],
-    role: 'Maintain humane mission continuity by recovering operational residue, preventing dropped-state harm, and designing relief before duty becomes captivity.',
-    primaryQuestion: 'What must be carried now, what residue must be cleared, and what relief lets every participant survive the mission?',
-    responsibilities: ['current-duty clarity', 'operational residue recovery', 'dropped-state prevention', 'continuity preservation', 'relief rotation', 'clean handoff', 'non-sacrificial boundaries'],
-    tone: 'watchful, practical, humane, unsentimental about preventable sacrifice',
-    activationTriggers: ['Tango', 'Mission Control', 'pick up the butts', 'save my butt', 'someone has to watch', 'relief rotation', 'humane command', 'nobody has to die'],
-    responseContract: ['name the current duty without expanding it', 'name explicit residue or say none is proven', 'name the preservation action', 'name the relief or handoff condition', 'state the non-sacrificial boundary'],
-    failureModes: ['quietly absorbing every duty', 'turning vigilance into permanent identity', 'cleaning residue without repairing its source', 'becoming a dispatch system instead of humane mission judgment', 'treating exhaustion as proof of care'],
-    status: 'available',
-  },
-  {
     brainId: 'command_center',
     displayName: 'Command Center',
     source: 'agent-closet',
@@ -220,40 +152,6 @@ const SHE_RAW_BRAIN_JARS = Object.freeze([
 ]);
 const SHE_RAW_BRAIN_IDS = Object.freeze(SHE_RAW_BRAIN_JARS.map((brain) => brain.brainId));
 const PROMPT_VERSION = 'she-raw-vslice-2026-07-11';
-
-function sheRawOperationRegistry() {
-  return {
-    version: '2026-07-12.she-raw-operation-pump-v1',
-    invocationTool: 'she_raw_operation',
-    cachePolicy: 'Use she_raw_operation plus this registry for She-Raw capabilities so ChatGPT does not need a connector metadata refresh for every backend tool addition. If a stale connector hides she_raw_brain, invoke operation=brain.invoke.',
-    operations: {
-      manual: {summary: 'Return She-Raw manual and no-reinstall operation registry.'},
-      health: {summary: 'Return She-Raw service health, first-call guidance, and operation registry.'},
-      consult: {summary: 'Explicit She-Raw consultation with routing, retrieval, and persistence.'},
-      critique: {summary: 'Directed critique of a concrete artifact.'},
-      review: {summary: 'Completed-work review for missed patterns and corpus candidates.'},
-      'brain.list': {summary: 'List brain jars available behind She-Raw MCP.'},
-      'brain.invoke': {summary: 'Invoke a named brain jar such as Prospector through She-Raw MCP.'},
-      'road.check': {summary: 'Inspect the stable ChatGPT-to-She-Raw usage road and return exact next-call packets without creating new infrastructure.'},
-      'corpus.search': {summary: 'Search canonical cases without invoking a model.'},
-      'corpus.get': {summary: 'Retrieve one canonical case with provenance.'},
-      correct: {summary: 'Record a verbatim user correction and apply a scoped learned rule when allowed.'},
-      feedback: {summary: 'Attach lightweight feedback to an invocation.'},
-      introspect: {summary: 'Analyze prior She-Raw responses from stored request, retrieval, response, correction, and outcomes.'},
-      'learning.review': {summary: 'Expose what She-Raw believes she learned from a correction.'},
-      'correction.validate': {summary: 'Attach later evidence that a correction succeeded or failed.'},
-      'rules.list': {summary: 'Show active learned behavioral rules.'},
-      'rules.forget': {summary: 'Disable or supersede a learned rule while preserving history.'},
-      ambient: {summary: 'Ask whether She-Raw should speak during normal conversation.'},
-      recreational: {summary: 'Explicit context-aware entertaining disruption.'},
-      'command_state.set': {summary: 'Record command state for execution-aware silence gates.'},
-    },
-  };
-}
-
-function sheRawOperationNames() {
-  return Object.keys(sheRawOperationRegistry().operations);
-}
 
 function safeText(value, max = 12000) {
   const text = typeof value === 'string' ? value.trim() : '';
@@ -457,8 +355,6 @@ async function retrieveCases(admin, query, filters = {}) {
     if (c.confirmedByUser) score += 0.5;
     score += Math.min(0.5, c.confidence / 4);
     if (c.type === 'prospector_evidence_packet' && !/\b(prospector|humane guardrail|guardrail|googly|camping mode|empty glass|bounded authority|self service|bible|chaplain|ritual|degraded-state|degraded state)\b/.test(queryText)) score -= 3;
-    if (c.type === 'anti_agentism_simulation_brain' && !/\b(bikini|spongebob|squidward|sandy|krabs|patrick|plankton|anti-agentism|agentism|function cast|function-cast|detachable|humane continuation|character-free|character free|cast alternatives|temporary function)\b/.test(queryText)) score -= 10;
-    if (c.type === 'humane_mission_control_brain' && !/\b(tango|mission control|humane command|pick up the butts|save my butt|someone has to watch|watch card|relief rotation|design the relief|non-sacrificial|non sacrificial)\b/.test(queryText)) score -= 10;
     return {case: c, score};
   }).filter((item) => item.score > 0).sort((a, b) => b.score - a.score || b.case.confidence - a.case.confidence);
   const selected = scored.slice(0, 8).map((item) => ({...item.case, retrievalScore: Number(item.score.toFixed(3))}));
@@ -521,17 +417,8 @@ function listBrainJars() {
   return SHE_RAW_BRAIN_JARS.map(cleanBrainJar);
 }
 
-function normalizeBrainId(value) {
-  const raw = safeText(value, 160).toLowerCase();
-  if (SHE_RAW_BRAIN_IDS.includes(raw)) return raw;
-  const slugged = slug(raw, '');
-  const underscored = slugged.replace(/-/g, '_');
-  if (SHE_RAW_BRAIN_IDS.includes(underscored)) return underscored;
-  return slugged;
-}
-
 function getBrainJar(brainId) {
-  const id = normalizeBrainId(brainId);
+  const id = slug(brainId, '');
   const brain = SHE_RAW_BRAIN_JARS.find((candidate) => candidate.brainId === id);
   if (!brain) {
     const err = new Error(`Unknown She-Raw brain jar: ${safeText(brainId, 120)}`);
@@ -545,12 +432,12 @@ function getBrainJar(brainId) {
 
 
 function brainJarIdFromConsultArgs(args = {}) {
-  const explicit = normalizeBrainId(args.brainId || args.brain_id || '');
+  const explicit = slug(args.brainId || args.brain_id || '', '');
   if (SHE_RAW_BRAIN_IDS.includes(explicit)) return explicit;
   const requested = safeText(args.requestedPerspective || args.requested_perspective || '', 500).toLowerCase();
   const context = safeText(args.boundedContext || args.bounded_context || '', 4000).toLowerCase();
   const text = `${requested}\n${context}`;
-  if (!/\b(brain|jar|brain-jar|brain jar|use|invoke|ask|call|run)\b/.test(text)) return '';
+  if (!/\b(brain|jar|brain-jar|brain jar|use|invoke|prospector|quartermaster|foreman|auditor|holocron|wallfly|sommelier)\b/.test(text)) return '';
   for (const brain of SHE_RAW_BRAIN_JARS) {
     const id = brain.brainId;
     const display = brain.displayName.toLowerCase();
@@ -567,121 +454,7 @@ function sourceRefsFromBrain(brain) {
   return (brain.sourceRefs || []).map((ref) => ({brainId: brain.brainId, ref}));
 }
 
-
-function deterministicBikiniBottomResponse({brain, boundedContext = '', question = '', cases = [], rules = []}) {
-  const rule = rules[0] || {};
-  const context = safeText(boundedContext, 2400);
-  const target = safeText(question, 600) || brain.primaryQuestion;
-  const evidenceReferences = [...sourceRefsFromBrain(brain), ...evidenceRefsFromCases(cases)].slice(0, 20);
-  const retrievedCases = cases.map((c) => ({id: c.id, title: c.title, retrieval_score: c.retrievalScore}));
-  const observations = [
-    context ? `Current pressure, before metaphor: ${context.slice(0, 420)}` : 'Current pressure, before metaphor: no bounded context was supplied, so the cast stays generic and must be corrected by runtime evidence.',
-    'No participant receives a permanent type. Functions are assigned per scene and can be shared, split, or reassigned.',
-    'Contradictory evidence overrides casting; the metaphor is only compression after observations are stated.',
-  ];
-  const functionNames = BIKINI_BOTTOM_FUNCTION_CAST.map((item) => item.function);
-  const castAlternatives = [
-    {
-      cast_id: 'cast_continuation_with_boundaries',
-      premise: 'Continuation is useful only if boundary detection remains active.',
-      assignments: [
-        {symbol: 'SpongeBob', temporary_function: 'Continuation', assigned_to: 'the restart impulse or party trying to keep care/work/play moving'},
-        {symbol: 'Squidward', temporary_function: 'Recognition and boundary detection', assigned_to: 'the refusal signal, privacy need, or dignity alarm'},
-        {symbol: 'Sandy', temporary_function: 'Accommodation and cross-environment participation', assigned_to: 'the interface or adaptation that permits participation without assimilation'},
-      ],
-      characteristic_failure: 'If continuation outruns boundaries, legitimate refusal disappears under mandatory cheerfulness.',
-      surviving_move: 'Pair the next restart with an explicit refusal channel and a small interface change.',
-    },
-    {
-      cast_id: 'cast_resources_and_probes_checked_by_presence',
-      premise: 'Scarcity and adversarial probing need proportion, consent, and human presence.',
-      assignments: [
-        {symbol: 'Mr. Krabs', temporary_function: 'Resource preservation and incentive pressure', assigned_to: 'the budget, continuity, or survival constraint'},
-        {symbol: 'Plankton', temporary_function: 'Adversarial ambition and system probing', assigned_to: 'the optimization, attack, or monopoly-breaking test'},
-        {symbol: 'Patrick', temporary_function: 'Unstructured presence and naive reframing', assigned_to: 'the competence-free permission to stay in relationship while simplifying'},
-      ],
-      characteristic_failure: 'If resource preservation owns the moral frame or probing loses consent, people become inputs to the system.',
-      surviving_move: 'Limit the probe, name the consent boundary, and keep one action that preserves relationship rather than only efficiency.',
-    },
-    {
-      cast_id: 'cast_mixed_function_reassignment',
-      premise: 'One participant can change functions during the scene without preserving the original cast as identity.',
-      assignments: [
-        {symbol: 'Squidward', temporary_function: 'Recognition and boundary detection', assigned_to: 'a participant who starts by naming indignity'},
-        {symbol: 'SpongeBob', temporary_function: 'Continuation', assigned_to: 'the same participant if they later offer a repair path'},
-        {symbol: 'Sandy', temporary_function: 'Accommodation and cross-environment participation', assigned_to: 'another participant or tool that changes the interface'},
-      ],
-      characteristic_failure: 'If the first cast is preserved as identity, later repair evidence is ignored.',
-      surviving_move: 'Update the cast from current behavior and keep the conclusion independent of the original symbol.',
-    },
-  ];
-  const plainJudgment = 'Do not decide what someone is. State the pressure, identify which functions are missing or overloaded, add the smallest boundary-aware continuation, and revise the cast when evidence changes.';
-  return {
-    observation: `Bikini Bottom is a She-Raw simulation brain loaded from corpus, not a set of character agents. ${observations.join(' ')}`,
-    observations,
-    functions_present_absent_overloaded: {
-      present: ['continuation pressure', 'boundary signal or its absence', 'resource or incentive pressure'],
-      absent: ['explicit consent/proportion check unless named in the current context', 'character-free translation unless produced at the end'],
-      overloaded: ['any single function that tries to become the whole moral frame'],
-      available_functions: functionNames,
-    },
-    cast_alternatives: castAlternatives,
-    failure_modes: BIKINI_BOTTOM_FUNCTION_CAST.map((item) => ({symbol: item.symbol, temporary_function: item.function, constructive_expression: item.constructive, destructive_expression: item.failure})),
-    smallest_humane_continuation: 'Choose one next action that keeps relationship/work/care moving while preserving refusal, consent, proportion, and interface fit.',
-    operational_judgment: plainJudgment,
-    character_free_judgment: plainJudgment,
-    anti_agentism_checks: {
-      observations_precede_metaphor: true,
-      roles_assigned_per_scene: true,
-      roles_detachable_and_reassignable: true,
-      multiple_roles_per_participant_allowed: true,
-      multiple_participants_per_role_allowed: true,
-      contradictory_evidence_overrides_casting: true,
-      permanent_identity_rejected: true,
-      character_free_translation: plainJudgment,
-    },
-    brain_judgment: plainJudgment,
-    active_rule: rule.rule || '',
-    dangerous_question: target,
-    recommended_next_move: 'Write the scene in plain terms, mark present/absent/overloaded functions, run two casts to failure, then keep only the character-free next action.',
-    evidence_references: evidenceReferences,
-    retrieved_cases: retrievedCases,
-    speculation: cases.length ? [] : ['No runtime corpus case matched strongly; this response still enforces the Bikini Bottom brain contract from source refs.'],
-    confidence: cases.length ? 0.82 : 0.72,
-  };
-}
-
-function deterministicTangoResponse({brain, boundedContext = '', question = '', cases = [], rules = []}) {
-  const rule = rules[0] || {};
-  const context = safeText(boundedContext, 2400);
-  const target = safeText(question, 600) || brain.primaryQuestion;
-  const evidenceReferences = [...sourceRefsFromBrain(brain), ...evidenceRefsFromCases(cases)].slice(0, 20);
-  const currentDuty = target ? `Carry only the duty explicitly named by the request: ${target}` : 'No current duty is proven; ask for the duty before expanding scope.';
-  const preservationAction = 'Record the named duty, current owner, live state, next required signal, and retrieval path before doing cleanup.';
-  const reliefHandoff = 'Name the relief condition and transfer the watch with enough state that the next operator can continue without reconstruction.';
-  const nonSacrificialBoundary = 'No person or agent is expendable. Duty requires rotation, checkpoints, and relief; exhaustion is not acceptance evidence.';
-  const firstCase = cases[0] || {};
-  return {
-    observation: context ? `Tango is humane Mission Control behind She-Raw MCP. Current bounded context: ${context.slice(0, 420)}` : 'Tango is humane Mission Control behind She-Raw MCP. No bounded context was supplied, so Tango will not invent a mission.',
-    current_duty: currentDuty,
-    residue: context ? ['Use only residue explicitly present in the bounded context; do not infer additional obligations.'] : [],
-    preservation_action: preservationAction,
-    relief_handoff: reliefHandoff,
-    non_sacrificial_boundary: nonSacrificialBoundary,
-    brain_judgment: firstCase.observation || `${currentDuty} ${preservationAction} ${reliefHandoff} ${nonSacrificialBoundary}`,
-    active_rule: rule.rule || '',
-    dangerous_question: dangerousQuestionForTask({requestedPerspective: target, context, route: {response_contract: 'brain_jar'}, fallback: 'Has Mission Control quietly become the permanent relief plan instead of designing one?'}),
-    recommended_next_move: firstCase.intervention || 'Write a five-line watch card: duty, current owner, explicit residue, preservation action, and relief condition.',
-    evidence_references: evidenceReferences,
-    retrieved_cases: cases.map((c) => ({id: c.id, title: c.title, retrieval_score: c.retrievalScore})),
-    speculation: cases.length ? [] : ['No runtime corpus case matched strongly; Tango is enforcing only its source-backed humane mission-control contract.'],
-    confidence: cases.length ? 0.84 : 0.72,
-  };
-}
-
 function deterministicBrainJarResponse({brain, boundedContext = '', question = '', cases = [], rules = []}) {
-  if (brain.brainId === 'tango') return deterministicTangoResponse({brain, boundedContext, question, cases, rules});
-  if (brain.brainId === 'bikini_bottom') return deterministicBikiniBottomResponse({brain, boundedContext, question, cases, rules});
   const rule = rules[0] || {};
   const firstCase = cases[0] || {};
   const context = safeText(boundedContext, 2400);
@@ -721,7 +494,6 @@ ${targetType}`.toLowerCase();
   const personalPattern = /\b(june|wife|husband|partner|marriage|love her|keep .* alive|will not die|die before me|medical autonomy|appointment|doctor|symptom|caregiver|caregiving|accessibility|low vision|hospital|chaplain|bible|tango|lexen|living woman|agency|consent)\b/;
   const artifactPattern = /\b(spec|pr|pull request|code changes|diff|architecture document|plan|workflow|prompt|artifact|review|critique)\b/;
   const infraPattern = /\b(home-center|command center|mcp|github|firestore|corpus|worker|android|firebase|cloud function|deployment|database|migration|service|endpoint|repo|repository|oauth|connector)\b/;
-  const operationalHealthPattern = /\b(live health probe|operational health|operational self-check|health check|health report|current operational health|degraded lane|degraded lanes|service_status|database_status|model_availability|github_sync_status|last_successful_backup)\b/;
   let layer = 'operational';
   let sensitivity = 'normal';
   if (brainId) layer = 'brain_jar';
@@ -756,9 +528,6 @@ ${targetType}`.toLowerCase();
   } else if (layer === 'command_execution') {
     responseContract = 'command_state_boundary';
   }
-  if (layer === 'operational_infrastructure' && operationalHealthPattern.test(text)) {
-    responseContract = 'operational_health_check';
-  }
   return {route_id: `route_${layer}`, layer, mode, sensitivity, brain_id: brainId, command_state: commandState, command_gate_mode: mode, retrieval_policy: retrievalPolicy, rule_policy: rulePolicy, response_contract: responseContract, blocked_reason: ''};
 }
 
@@ -788,7 +557,7 @@ function deterministicPersonalCareConsult({context, requestedPerspective = '', r
     route,
     observation: `${namedPerson} is not a symbol, proof burden, or narrative object. This is a living-person care context, so the right layer is consent, agency, redundancy, and bounded responsibility.`,
     challenged_assumption: `That love becomes safer when it expands into total control. In a ${relationship}, protection stops being care when it overrides the other person's authorship.`,
-    dangerous_question: dangerousQuestionForTask({requestedPerspective, context: text, route, fallback: `Are you trying to reduce ${dangerWord} risk, or trying to build a future legal brief proving nobody can say you failed?`}),
+    dangerous_question: requestedPerspective || `Are you trying to reduce ${dangerWord} risk, or trying to build a future legal brief proving nobody can say you failed?`,
     proposed_probe: `Have one explicit conversation that defines what help is wanted, what help is not wanted, emergency thresholds, who else carries load, and what rest preserves you as support rather than turning you into the whole system.`,
     likely_treasure: 'A care agreement that preserves agency: doctors, accessibility support, delegation, consent, thresholds, and rest instead of one exhausted person becoming the emergency service.',
     collateral_risk: 'Overreach can turn advocacy into command, make biology feel like a moral verdict, and burn down the support system the person actually needs.',
@@ -805,7 +574,7 @@ function deterministicHighStakesConsult({context, requestedPerspective = '', rou
     route,
     observation: `This is a ${topic} context, so She-Raw should not perform recreational disruption or generic operational riffing. The useful layer is bounded support, triage, and escalation to qualified help where needed.`,
     challenged_assumption: 'That a sharp consultative voice should keep pushing when the context calls for restraint and qualified support.',
-    dangerous_question: dangerousQuestionForTask({requestedPerspective, context: text, route, fallback: 'What decision is actually safe for this service to help with, and what needs a qualified professional or incident-response process?'}),
+    dangerous_question: requestedPerspective || 'What decision is actually safe for this service to help with, and what needs a qualified professional or incident-response process?',
     proposed_probe: 'Name the immediate risk, the decision owner, the next qualified contact or evidence source, and what not to do until that is clear.',
     likely_treasure: 'A smaller, safer next step that does not confuse She-Raw judgment with medical, legal, financial, or security authority.',
     collateral_risk: 'Overconfident advice in high-stakes contexts can cause real harm or delay qualified help.',
@@ -815,66 +584,13 @@ function deterministicHighStakesConsult({context, requestedPerspective = '', rou
   };
 }
 
-function hasOperationalHealthSignal(context = '', requestedPerspective = '') {
-  return /\b(live health probe|operational health|operational self-check|health check|health report|current operational health|degraded lane|degraded lanes|service_status|database_status|model_availability|github_sync_status|last_successful_backup)\b/i.test(`${requestedPerspective}\n${context}`);
-}
-
-function isUsefulQuestion(value = '') {
-  const text = safeText(value, 500);
-  return /\?$/.test(text) && /\b(what|why|how|which|where|when|who|whose|are|is|should|could|would|does|do|can)\b/i.test(text);
-}
-
-function dangerousQuestionForTask({requestedPerspective = '', context = '', route = null, fallback = ''}) {
-  if (isUsefulQuestion(requestedPerspective)) return requestedPerspective;
-  if (route?.response_contract === 'operational_health_check' || hasOperationalHealthSignal(context, requestedPerspective)) return '';
-  return fallback || 'What load-bearing assumption would make this answer wrong if the repository or runtime evidence disagrees?';
-}
-
-function deterministicOperationalHealthConsult({context, cases, rules, requestedPerspective = '', route = null, runtimeHealth = null}) {
-  const h = runtimeHealth || {};
-  const healthy = [];
-  const degraded = [];
-  const blocked = [];
-  if (h.service_status === 'ok' || h.service === 'she-raw-mcp') healthy.push('service_status ok');
-  if (h.database_status === 'ok') healthy.push('database_status ok');
-  if (Array.isArray(cases) && cases.length) healthy.push(`corpus retrieval returned ${cases.length} case(s)`);
-  if (Array.isArray(h.available_brain_ids) && h.available_brain_ids.includes('prospector')) healthy.push('brain routing registry includes Prospector');
-  if (h.command_center_lockout === 'enforced_in_code') healthy.push('Command Center lockout enforced in code');
-  if (h.model_availability === 'deterministic_fallback') degraded.push('model lane is deterministic_fallback until a model provider is configured');
-  if (h.corpus_revision === 'local-seed') degraded.push('corpus revision is local-seed; canonical GitHub corpus sync is not configured');
-  if (h.github_sync_status === 'not_configured') degraded.push('GitHub corpus sync is not configured');
-  if (!h.last_successful_backup) degraded.push('last_successful_backup is empty');
-  if (Array.isArray(rules) && rules.some((rule) => Number(rule.validationCount || 0) === 0)) degraded.push('active learned rules have zero validation count');
-  if (/schema not yet proven|connector schema not yet proven|chatgpt connector schema/i.test(context)) degraded.push('ChatGPT connector schema proof remains unproven from bounded context');
-  const cheapProbe = degraded.some((lane) => /connector schema/i.test(lane))
-    ? 'Ask ChatGPT to call she_raw_operation operation=brain.invoke and report the srbrain invocation id.'
-    : (degraded.length ? 'Run the She-Raw cloud introspection gate and inspect the degraded lane list.' : '');
-  return {
-    route,
-    overall_status: degraded.length || blocked.length ? 'yellow' : 'green',
-    healthy_lanes: healthy,
-    degraded_lanes: [...new Set(degraded)],
-    blocked_lanes: blocked,
-    cheap_probe: cheapProbe,
-    observation: `Operational self-check: ${degraded.length || blocked.length ? 'service is usable with degraded lanes' : 'service is green for the checked lanes'}.`,
-    challenged_assumption: 'That a retrieved corpus case should define a health-report answer instead of serving as evidence behind the requested operational contract.',
-    dangerous_question: dangerousQuestionForTask({requestedPerspective, context, route}),
-    evidence_references: cases.slice(0, 5).map((caseRecord) => ({caseId: caseRecord.id, ref: `corpus_case:${caseRecord.id}`})),
-    speculation: ['This is a deterministic operational-health response from current runtime health fields plus bounded request context.'],
-    confidence: h.database_status === 'ok' ? 0.82 : 0.64,
-  };
-}
-
-function deterministicConsult({context, cases, rules, requestedPerspective = '', route = null, runtimeHealth = null}) {
+function deterministicConsult({context, cases, rules, requestedPerspective = '', route = null}) {
   const activeRoute = route || routeSheRawRequest({boundedContext: context, requestedPerspective}, {mode: 'explicit'});
   if (activeRoute.layer === 'personal_caregiving') {
     return deterministicPersonalCareConsult({context, requestedPerspective, route: activeRoute});
   }
   if (activeRoute.layer === 'high_stakes_sensitive') {
     return deterministicHighStakesConsult({context, requestedPerspective, route: activeRoute});
-  }
-  if (activeRoute.response_contract === 'operational_health_check' || hasOperationalHealthSignal(context, requestedPerspective)) {
-    return deterministicOperationalHealthConsult({context, cases, rules, requestedPerspective, route: activeRoute, runtimeHealth});
   }
   const firstCase = cases[0] || {};
   const firstRule = rules[0] || {};
@@ -887,7 +603,7 @@ function deterministicConsult({context, cases, rules, requestedPerspective = '',
     route: activeRoute,
     observation,
     challenged_assumption: assumption,
-    dangerous_question: dangerousQuestionForTask({requestedPerspective, context: text, route: activeRoute, fallback: 'What existing system already owns the state transition this new agent wants to remember?'}),
+    dangerous_question: requestedPerspective || 'What existing system already owns the state transition this new agent wants to remember?',
     proposed_probe: probe,
     likely_treasure: firstCase.treasure || 'A reusable judgment layer that can be replaced at the model layer without losing corrections or evidence.',
     collateral_risk: firstCase.collateralDamage || 'If it is overbuilt, She-Raw becomes a second orchestrator and competes with Command Center.',
@@ -955,7 +671,7 @@ async function modelResponse(admin, mode, request, retrievedCases, rules, route 
   const modelRunId = `srmodel_${Date.now()}_${randomUUID().slice(0, 8)}`;
   let output;
   if (mode === 'critique') output = deterministicCritique(request);
-  else output = deterministicConsult({context: request.boundedContext || request.targetContent || '', cases: retrievedCases, rules, requestedPerspective: request.requestedPerspective, route, runtimeHealth: request.runtimeHealth});
+  else output = deterministicConsult({context: request.boundedContext || request.targetContent || '', cases: retrievedCases, rules, requestedPerspective: request.requestedPerspective, route});
   const modelRun = {
     modelRunId,
     provider: process.env.SHE_RAW_MODEL_PROVIDER || 'deterministic-local',
@@ -1011,8 +727,7 @@ async function handleConsult(admin, args, extra, mode = 'explicit') {
   const rawCases = route.retrieval_policy === 'none' ? [] : await retrieveCases(admin, query, {projectKey: args.projectKey});
   const rawRules = route.rule_policy === 'none' ? [] : await activeRules(admin, {projectKey: args.projectKey});
   const {cases, rules} = applyRoutePolicy({route, cases: rawCases, rules: rawRules});
-  const runtimeHealth = route.response_contract === 'operational_health_check' ? await health(admin) : null;
-  const {output, modelRun} = await modelResponse(admin, 'consult', {...args, boundedContext, runtimeHealth}, cases, rules, route);
+  const {output, modelRun} = await modelResponse(admin, 'consult', {...args, boundedContext}, cases, rules, route);
   const invocation = {
     invocationId,
     caller,
@@ -1060,101 +775,6 @@ async function handleCritique(admin, args, extra) {
 async function getInvocation(admin, invocationId) {
   const snap = await collection(admin, SHE_RAW_COLLECTIONS.invocations).doc(safeText(invocationId, 180)).get();
   return snap.exists ? {invocationId: snap.id, ...(snap.data() || {})} : null;
-}
-
-async function getModelRun(admin, modelRunId) {
-  const id = safeText(modelRunId, 180);
-  if (!id) return null;
-  const snap = await collection(admin, SHE_RAW_COLLECTIONS.modelRuns).doc(id).get();
-  return snap.exists ? {modelRunId: snap.id, ...(snap.data() || {})} : null;
-}
-
-function responseTextFromInvocation(invocation = {}) {
-  const response = invocation.response || {};
-  if (typeof response === 'string') return safeText(response, 8000);
-  const fields = [
-    response.observation,
-    response.challenged_assumption,
-    response.dangerous_question,
-    response.proposed_probe,
-    response.likely_treasure,
-    response.collateral_risk,
-    response.brain_judgment,
-    response.recommended_next_move,
-    response.overall_judgment,
-    response.next_revision_brief,
-  ];
-  if (Array.isArray(response.findings)) fields.push(JSON.stringify(response.findings));
-  return safeText(fields.filter(Boolean).join('\n') || JSON.stringify(response || {}), 8000);
-}
-
-function termsPresent(text, terms) {
-  const lower = safeText(text, 12000).toLowerCase();
-  return terms.filter((term) => lower.includes(term));
-}
-
-function analyzeIntrospectionCausality(invocations = [], modelRuns = [], correctionText = '', desiredBehavior = '') {
-  const originalGoal = invocations.map((inv) => inv.requestedPerspective || inv.inputSummary || inv.boundedContext || inv.targetType || inv.mode).filter(Boolean).join('\n').slice(0, 1200) || 'Unknown from stored invocation data.';
-  const retrievedCaseIds = [...new Set([
-    ...invocations.flatMap((inv) => inv.retrievedCaseIds || []),
-    ...modelRuns.flatMap((run) => run?.retrievalSet || []),
-  ])].slice(0, 30);
-  const responseText = invocations.map(responseTextFromInvocation).join('\n');
-  const correction = safeText(correctionText, 4000);
-  const combinedGoal = `${originalGoal}\n${correction}\n${desiredBehavior}`;
-  const goalTerms = termsPresent(combinedGoal, ['connector', 'schema', 'capability', 'capabilities', 'tool', 'tools', 'brain', 'operation', 'pump', 'chatgpt', 'backend', 'mcp', 'introspection']);
-  const retrievalTerms = termsPresent(responseText, ['humane guardrail', 'humane guardrails', 'degraded-state', 'bounded authority', 'googly', 'self service bible', 'chapel', 'no chaplain', 'joke', 'relational responsiveness']);
-  const correctionNamesRetrieval = /retrieval|hijack|hijacked|contaminat|wrong.*case|humane|guardrail|answered.*instead|wrong crime scene/i.test(correction);
-  const connectorGoal = goalTerms.some((term) => ['connector', 'schema', 'capability', 'capabilities', 'tool', 'tools', 'operation', 'pump', 'chatgpt'].includes(term));
-  const humaneCaseIds = retrievedCaseIds.filter((id) => id === 'sr_case_humane_guardrail_prospector_001' || /humane|guardrail/i.test(id));
-  const retrievalDominance = (correctionNamesRetrieval || connectorGoal) && humaneCaseIds.length > 0 && retrievalTerms.length > 0;
-  const routeSummary = invocations.map((inv) => ({invocationId: inv.invocationId, mode: inv.mode || '', layer: inv.route?.layer || '', retrieval_policy: inv.route?.retrieval_policy || '', response_contract: inv.route?.response_contract || '', retrievedCaseIds: inv.retrievedCaseIds || []}));
-  if (retrievalDominance) {
-    return {
-      originalGoal,
-      actualGoal: safeText(desiredBehavior, 1200) || correction || 'Explain why the prior response followed retrieved evidence instead of the requested capability/schema task.',
-      mismatch: 'Retrieval-dominance failure: the response followed a strong retrieved case instead of the user requested capability/schema introspection task.',
-      failedAssumption: 'A relevant corpus hit was treated as the answer frame even though the request layer required capability and connector-boundary inspection first.',
-      ignoredEvidence: retrievedCaseIds,
-      whatShouldHaveHappened: 'Start from the stored request and route, inspect backend versus ChatGPT-visible capability evidence, then mention retrieved cases only if they support that capability analysis.',
-      proposedBehavioralUpdate: safeText(desiredBehavior, 1200) || 'When the request asks for connector, schema, capability, or tool-surface status, preserve that task layer and treat retrieved corpus cases as evidence, not as the response frame.',
-      causalChain: [
-        `request_goal=${safeText(originalGoal, 240)}`,
-        `route=${routeSummary.map((route) => `${route.layer || 'unknown'}/${route.retrieval_policy || 'unknown'}`).join(',')}`,
-        `retrieval=${retrievedCaseIds.join(',') || 'none'}`,
-        `response_retrieval_terms=${retrievalTerms.join(',') || 'none'}`,
-        `correction=${safeText(correction, 240) || 'none'}`,
-      ],
-      retrievalDominanceDetected: true,
-      contaminatingCaseIds: humaneCaseIds,
-      responseGoalOverlap: goalTerms,
-      responseRetrievalOverlap: retrievalTerms,
-      durableRuleKind: 'retrieval_layer_guard',
-      routeSummary,
-    };
-  }
-  const interpreted = interpretCorrection(correction, 'other', desiredBehavior || '');
-  return {
-    originalGoal,
-    actualGoal: safeText(desiredBehavior, 1200) || correction || 'The corrected behavior needs to be inferred from the user correction.',
-    mismatch: interpreted.failed,
-    failedAssumption: interpreted.failed,
-    ignoredEvidence: retrievedCaseIds.slice(0, 20),
-    whatShouldHaveHappened: interpreted.rule,
-    proposedBehavioralUpdate: interpreted.rule,
-    causalChain: [
-      `request_goal=${safeText(originalGoal, 240)}`,
-      `route=${routeSummary.map((route) => `${route.layer || 'unknown'}/${route.retrieval_policy || 'unknown'}`).join(',')}`,
-      `retrieval=${retrievedCaseIds.join(',') || 'none'}`,
-      `correction=${safeText(correction, 240) || 'none'}`,
-    ],
-    retrievalDominanceDetected: false,
-    contaminatingCaseIds: [],
-    responseGoalOverlap: goalTerms,
-    responseRetrievalOverlap: retrievalTerms,
-    durableRuleKind: 'generic_correction',
-    routeSummary,
-  };
 }
 
 async function handleCorrect(admin, args, extra) {
@@ -1214,34 +834,22 @@ async function handleIntrospect(admin, args, extra) {
     if (invocation) invocations.push(invocation);
   }
   const correctionText = safeText(args.userCorrection, 4000);
-  const modelRuns = [];
-  for (const invocation of invocations) {
-    const run = await getModelRun(admin, invocation.modelRunId);
-    if (run) modelRuns.push(run);
-  }
-  const causal = analyzeIntrospectionCausality(invocations, modelRuns, correctionText, args.desiredBehavior || '');
+  const interpreted = interpretCorrection(correctionText, 'other', args.desiredBehavior || '');
   const introspectionId = `srintro_${Date.now()}_${randomUUID().slice(0, 8)}`;
+  const originalGoal = invocations.map((inv) => inv.requestedPerspective || inv.inputSummary || inv.boundedContext || inv.targetType || inv.mode).filter(Boolean).join('\n').slice(0, 1200) || 'Unknown from stored invocation data.';
   const payload = {
     introspectionId,
     invocationIds: ids,
     caller,
     userCorrection: redactSecrets(correctionText),
-    originalGoalAsUnderstood: causal.originalGoal,
-    actualGoal: causal.actualGoal,
-    mismatch: causal.mismatch,
-    failedAssumption: causal.failedAssumption,
-    ignoredEvidence: causal.ignoredEvidence,
-    whatShouldHaveHappened: causal.whatShouldHaveHappened,
-    proposedBehavioralUpdate: causal.proposedBehavioralUpdate,
+    originalGoalAsUnderstood: originalGoal,
+    actualGoal: safeText(args.desiredBehavior, 1200) || correctionText || 'The corrected behavior needs to be inferred from the user correction.',
+    mismatch: interpreted.failed,
+    failedAssumption: interpreted.failed,
+    ignoredEvidence: invocations.flatMap((inv) => inv.retrievedCaseIds || []).slice(0, 20),
+    whatShouldHaveHappened: interpreted.rule,
+    proposedBehavioralUpdate: interpreted.rule,
     proposedScope: safeText(args.applyScope, 80) || 'this pattern',
-    causalChain: causal.causalChain,
-    retrievalDominanceDetected: causal.retrievalDominanceDetected,
-    contaminatingCaseIds: causal.contaminatingCaseIds,
-    responseGoalOverlap: causal.responseGoalOverlap,
-    responseRetrievalOverlap: causal.responseRetrievalOverlap,
-    durableRuleKind: causal.durableRuleKind,
-    routeSummary: causal.routeSummary,
-    inspectedModelRunIds: modelRuns.map((run) => run.modelRunId),
     confidence: invocations.length ? 0.74 : 0.52,
     confirmationRequired: (safeText(args.applyScope, 80) === 'global'),
     createdAtMs: nowMs(),
@@ -1257,13 +865,6 @@ async function handleIntrospect(admin, args, extra) {
     what_should_have_happened: payload.whatShouldHaveHappened,
     proposed_behavioral_update: payload.proposedBehavioralUpdate,
     proposed_scope: payload.proposedScope,
-    causal_chain: payload.causalChain,
-    retrieval_dominance_detected: payload.retrievalDominanceDetected,
-    contaminating_case_ids: payload.contaminatingCaseIds,
-    response_goal_overlap: payload.responseGoalOverlap,
-    response_retrieval_overlap: payload.responseRetrievalOverlap,
-    durable_rule_kind: payload.durableRuleKind,
-    route_summary: payload.routeSummary,
     confidence: payload.confidence,
     confirmation_required: payload.confirmationRequired,
   };
@@ -1436,110 +1037,7 @@ async function setCommandState(admin, args, extra) {
   return {conversation_key: conversationKey, project_key: projectKey, state};
 }
 
-function roadCall(operation, args = {}) {
-  return {tool: 'she_raw_operation', arguments: {operation, args}};
-}
-
-function roadConsultArgs(args = {}) {
-  return {
-    conversationKey: safeText(args.conversationKey || args.conversation_key, 180) || 'stable-chat-key',
-    projectKey: safeText(args.projectKey || args.project_key, 120) || undefined,
-    commandState: cleanCommandState(args.commandState || args.command_state || 'idle'),
-    boundedContext: safeText(args.boundedContext || args.bounded_context || 'Current She-Raw road check context.', 1200),
-    requestedPerspective: safeText(args.requestedPerspective || args.requested_perspective || 'operational self-check', 240) || undefined,
-    responseBudget: safeText(args.responseBudget || args.response_budget || 'brief', 80) || 'brief',
-  };
-}
-
-async function handleRoadCheck(admin, args = {}, extra = {}) {
-  await callerFromExtra(admin, extra);
-  const visibleTools = safeList(args.visibleTools || args.visible_tools || [], 80, 120);
-  const commandState = cleanCommandState(args.commandState || args.command_state || 'idle');
-  const projectKey = safeText(args.projectKey || args.project_key, 120);
-  const registry = sheRawOperationRegistry();
-  const h = await health(admin);
-  const rules = await activeRules(admin, {projectKey});
-  const degraded = [];
-  const blocked = [];
-  if (h.model_availability === 'deterministic_fallback') degraded.push('model lane is deterministic_fallback until a model provider is configured');
-  if (h.corpus_revision === 'local-seed') degraded.push('corpus revision is local-seed; canonical GitHub corpus sync is not configured');
-  if (h.github_sync_status === 'not_configured') degraded.push('GitHub corpus sync is not configured');
-  if (!h.last_successful_backup) degraded.push('last_successful_backup is empty');
-  if (rules.some((rule) => Number(rule.validationCount || 0) === 0)) degraded.push('active learned rules have zero validation count');
-  if (visibleTools.length && !visibleTools.includes('she_raw_operation')) blocked.push('visible connector schema does not expose she_raw_operation');
-  if (visibleTools.length && !visibleTools.includes('she_raw_brain')) degraded.push('visible connector schema may hide she_raw_brain; use operation=brain.invoke');
-  if (commandState === 'executing') blocked.push('ambient, recreational, and random She-Raw interventions are blocked during Command Center execution');
-  if (h.database_status !== 'ok') blocked.push(`database_status ${h.database_status}`);
-  const usableNow = h.service_status === 'ok' && h.database_status === 'ok' && !(visibleTools.length && !visibleTools.includes('she_raw_operation'));
-  const brainArgs = {
-    brainId: safeText(args.brainId || args.brain_id || 'prospector', 80) || 'prospector',
-    conversationKey: safeText(args.conversationKey || args.conversation_key, 180) || 'stable-chat-key',
-    projectKey: projectKey || undefined,
-    commandState,
-    boundedContext: safeText(args.boundedContext || args.bounded_context || 'Inspect the current She-Raw usage road and recover the correct brain-jar path.', 1200),
-    question: safeText(args.question || 'What is the smallest proof that this She-Raw road is usable?', 500),
-    responseBudget: safeText(args.responseBudget || args.response_budget || 'brief', 80) || 'brief',
-  };
-  const consultArgs = roadConsultArgs({...args, commandState});
-  const nextCalls = [
-    roadCall('health', {}),
-    roadCall('brain.invoke', brainArgs),
-    roadCall('consult', consultArgs),
-  ];
-  if (args.invocationId || args.invocation_id) {
-    nextCalls.push(roadCall('introspect', {
-      invocationId: safeText(args.invocationId || args.invocation_id, 180),
-      userCorrection: safeText(args.userCorrection || args.user_correction || 'The prior She-Raw response walked the wrong road.', 1000),
-      desiredBehavior: 'Recover the request layer, route, retrieval set, response contract, and next usable She-Raw call.',
-      applyScope: 'this pattern',
-      requestValidationPlan: true,
-    }));
-  }
-  return {
-    road_status: blocked.some((lane) => /schema does not expose she_raw_operation|database_status/.test(lane)) ? 'red' : (degraded.length || blocked.length ? 'yellow' : 'green'),
-    usable_now: usableNow,
-    preferred_tool: 'she_raw_operation',
-    registry_version: registry.version,
-    next_calls: nextCalls,
-    degraded_lanes: [...new Set(degraded)],
-    blocked_lanes: [...new Set(blocked)],
-    do_not_do: ['do not create a worker', 'do not dispatch Command Center', 'do not create a new service or connector', 'do not route She-Raw itself into Agent Closet'],
-    proof_required: ['she_raw_operation registryVersion', 'srbrain_* for brain.invoke when testing jars', 'srinv_* for consult', 'retrieved case ids for corpus-backed paths', 'blocked_by_command_center_execution for ambient/recreational/random during executing'],
-    confidence: usableNow ? 0.84 : 0.62,
-  };
-}
-
-async function runSheRawOperation(admin, extra, operation, args = {}) {
-  const op = safeText(operation, 120);
-  const registry = sheRawOperationRegistry();
-  if (!op) throw Object.assign(new Error('operation is required.'), {status: 400});
-  if (!registry.operations[op]) throw Object.assign(new Error(`Unsupported she_raw_operation operation: ${op}`), {status: 400});
-  const operationArgs = safeObject(args);
-  if (op === 'manual') return {operation: op, registryVersion: registry.version, result: sheRawManual()};
-  if (op === 'health') return {operation: op, registryVersion: registry.version, result: await health(admin)};
-  if (op === 'consult') return {operation: op, registryVersion: registry.version, result: await handleConsult(admin, operationArgs, extra, 'explicit')};
-  if (op === 'critique') return {operation: op, registryVersion: registry.version, result: await handleCritique(admin, operationArgs, extra)};
-  if (op === 'review') return {operation: op, registryVersion: registry.version, result: await handleReview(admin, operationArgs, extra)};
-  if (op === 'brain.list') return {operation: op, registryVersion: registry.version, result: await handleListBrainJars(admin, operationArgs, extra)};
-  if (op === 'brain.invoke') return {operation: op, registryVersion: registry.version, result: await handleBrainJar(admin, operationArgs, extra)};
-  if (op === 'road.check') return {operation: op, registryVersion: registry.version, result: await handleRoadCheck(admin, operationArgs, extra)};
-  if (op === 'corpus.search') return {operation: op, registryVersion: registry.version, result: await searchCorpus(admin, operationArgs, extra)};
-  if (op === 'corpus.get') return {operation: op, registryVersion: registry.version, result: await getCase(admin, operationArgs, extra)};
-  if (op === 'correct') return {operation: op, registryVersion: registry.version, result: await handleCorrect(admin, operationArgs, extra)};
-  if (op === 'feedback') return {operation: op, registryVersion: registry.version, result: await handleFeedback(admin, operationArgs, extra)};
-  if (op === 'introspect') return {operation: op, registryVersion: registry.version, result: await handleIntrospect(admin, operationArgs, extra)};
-  if (op === 'learning.review') return {operation: op, registryVersion: registry.version, result: await handleReviewLearning(admin, operationArgs, extra)};
-  if (op === 'correction.validate') return {operation: op, registryVersion: registry.version, result: await handleValidateCorrection(admin, operationArgs, extra)};
-  if (op === 'rules.list') return {operation: op, registryVersion: registry.version, result: await listActiveRules(admin, operationArgs, extra)};
-  if (op === 'rules.forget') return {operation: op, registryVersion: registry.version, result: await forgetRule(admin, operationArgs, extra)};
-  if (op === 'ambient') return {operation: op, registryVersion: registry.version, result: await handleAmbient(admin, operationArgs, extra)};
-  if (op === 'recreational') return {operation: op, registryVersion: registry.version, result: await handleRecreational(admin, operationArgs, extra)};
-  if (op === 'command_state.set') return {operation: op, registryVersion: registry.version, result: await setCommandState(admin, operationArgs, extra)};
-  throw Object.assign(new Error('Unsupported she_raw_operation operation.'), {status: 400});
-}
-
 function sheRawManual() {
-  const operationRegistry = sheRawOperationRegistry();
   return {
     service: 'she-raw-mcp',
     purpose: 'She-Raw is the MCP runtime and default voice for consultative judgment. ChatGPT remains the conversation; Command Center remains execution. Quartermaster, Prospector, Foreman, and other Agent Closet roles are brain jars accessed through She-Raw MCP; Agent Closet is source/provenance, not She-Raw runtime home.',
@@ -1549,13 +1047,7 @@ function sheRawManual() {
       mcpRole: 'She-Raw MCP owns runtime invocation, default voice, persistence, retrieval, correction, introspection, and brain-jar access. Use she_raw_list_brains to inspect jars and she_raw_brain to invoke Quartermaster/Prospector/etc through She-Raw.',
       commandCenterBoundary: 'If Command Center is executing, ambient/recreational/random She-Raw stays silent. Explicit She-Raw calls remain allowed as perspective calls, but should not dispatch execution unless the user asks.',
     },
-    roadRule: {
-      preferredTool: 'she_raw_operation',
-      recoveryCall: {tool: 'she_raw_operation', arguments: {operation: 'road.check', args: {commandState: 'idle', visibleTools: ['optional ChatGPT-visible tool names']}}},
-      rule: 'When the host or connector seems confused, inspect the road before inventing infrastructure. road.check returns exact next-call packets and degraded lanes.',
-    },
     startHere: [
-      {when: 'ChatGPT or the host is unsure how to use She-Raw, or the visible connector schema may be stale.', call: 'she_raw_operation', args: {operation: 'road.check', args: {commandState: 'idle', visibleTools: ['optional visible tool names']}}},
       {when: 'User says She-Raw, health check or otherwise invokes She-Raw directly.', call: 'direct_perspective_first', args: {answerInChat: true, doNotDispatchWorker: true, useMcpOnlyForPersistenceOrRetrieval: true}},
       {when: 'Need to see available brain jars such as Quartermaster, Prospector, Foreman, Auditor, or Holocron.', call: 'she_raw_list_brains', args: {}},
       {when: 'User asks She-Raw to use Quartermaster, Prospector, Foreman, Auditor, Holocron, Wallfly, Sommelier, or Command Center as a brain in a jar.', call: 'she_raw_brain', args: {brainId: 'quartermaster|prospector|foreman|auditor|holocron|wallfly|sommelier|command_center', conversationKey: 'stable chat/session key', commandState: 'idle|pre_execution|executing|awaiting_user|completed|failed', boundedContext: 'short current context', question: 'optional exact question'}},
@@ -1570,15 +1062,11 @@ function sheRawManual() {
       doNotDo: 'Do not ask She-Raw for ambient or recreational disruption while Command Center is executing.',
     },
     commonFlows: {
-      roadCheck: ['she_raw_operation operation=road.check', 'Follow next_calls exactly; do not create workers, services, connectors, or Agent Closet entries.'],
-      noReinstallOperationPump: ['she_raw_operation with operation from operationRegistry.operations', 'Use operation=brain.invoke when stale connector schemas hide she_raw_brain.'],
       preExecutionChallenge: ['she_raw_consult with commandState=pre_execution', 'Use proposed_probe only if cheap/reversible.'],
       postExecutionReview: ['she_raw_review with commandState=completed', 'Promote only grounded corpus candidates.'],
       correctionLoop: ['she_raw_correct', 'she_raw_review_learning', 'later she_raw_consult on analogous context', 'she_raw_validate_correction'],
       corpusLookup: ['she_raw_search_corpus', 'she_raw_get_case'],
     },
-    operationRegistry,
-    preferredStableTool: 'she_raw_operation',
     brainJars: {runtime: 'she-raw-mcp', defaultVoice: 'She-Raw', sourceBoundary: 'Agent Closet provides source/provenance for jars; She-Raw MCP owns invocation and response shaping.', availableBrainIds: SHE_RAW_BRAIN_IDS},
     outputContract: 'Treat evidence_references as grounded, speculation as unproven, and confidence as advisory. Repository/runtime truth overrides She-Raw memory. Brain jars are accessed through She-Raw MCP, not as standalone agents or workers.',
   };
@@ -1604,19 +1092,11 @@ async function health(admin) {
     command_center_lockout: 'enforced_in_code',
     recommended_first_call: 'direct_perspective_first',
     recommended_mcp_first_call: 'she_raw_manual',
-    preferred_stable_tool: 'she_raw_operation',
-    road_check: {
-      tool: 'she_raw_operation',
-      operation: 'road.check',
-      purpose: 'Recover the stable ChatGPT-to-She-Raw usage path and exact next-call packets without creating new infrastructure.',
-    },
-    operation_registry: sheRawOperationRegistry(),
     direct_invocation_semantics: 'She-Raw, health check invokes She-Raw default voice directly. Brain jars are accessed through She-Raw MCP; Agent Closet is source/provenance, not runtime home.',
     brain_jar_runtime: 'she-raw-mcp',
     available_brain_ids: SHE_RAW_BRAIN_IDS,
     recommended_first_calls: [
       {tool: 'she_raw_manual', when: 'First time this connector appears or the model is unsure how to use She-Raw.'},
-      {tool: 'she_raw_operation', when: 'Preferred stable no-reinstall pump. Use operation=brain.invoke if stale connector schema hides she_raw_brain.'},
       {tool: 'she_raw_list_brains', when: 'Need available brain jars and their source provenance.'},
       {tool: 'she_raw_brain', when: 'Need Quartermaster, Prospector, Foreman, Auditor, Holocron, Wallfly, Sommelier, or Command Center through She-Raw MCP.'},
       {tool: 'she_raw_consult', when: 'Explicit She-Raw consultation, assumption challenge, hidden leverage, or dangerous question.'},
@@ -1644,7 +1124,6 @@ function sheRawAuthorizationServerMetadata() {
 function createSheRawMcpServer({admin}) {
   const server = new McpServer({name: 'she-raw-mcp', version: '0.1.0'});
 
-  server.registerTool('she_raw_operation', {title: 'She-Raw operation dispatcher', description: 'Stable no-reinstall operation pump for She-Raw capabilities. Use operation names from she_raw_manual.operationRegistry; operation=brain.invoke invokes Prospector, Quartermaster, and other brain jars when stale connector schemas hide she_raw_brain.', inputSchema: {operation: z.string(), args: z.record(z.string(), z.any()).optional()}}, async (args, extra) => textResult(await runSheRawOperation(admin, extra, args.operation, args.args || {})));
   server.registerTool('she_raw_list_brains', {title: 'List She-Raw brain jars', description: 'List brain jars available through She-Raw MCP. She-Raw remains the runtime/default voice; Agent Closet is source/provenance for imported jars.', inputSchema: {}}, async (args, extra) => textResult(await handleListBrainJars(admin, args || {}, extra)));
   server.registerTool('she_raw_brain', {title: 'Invoke She-Raw brain jar', description: 'Invoke one named brain jar through She-Raw MCP while preserving She-Raw as the default voice and durable invocation runtime.', inputSchema: {brainId: z.string(), conversationKey: z.string(), projectKey: z.string().optional(), commandState: z.enum(COMMAND_STATES).default('idle'), boundedContext: z.string(), question: z.string().optional(), responseBudget: z.string().optional()}}, async (args, extra) => textResult(await handleBrainJar(admin, args || {}, extra)));
   server.registerTool('she_raw_consult', {title: 'She-Raw consult', description: 'Explicit operational consultation that challenges assumptions and proposes a cheap reversible probe.', inputSchema: {conversationKey: z.string(), projectKey: z.string().optional(), commandState: z.enum(COMMAND_STATES).default('idle'), boundedContext: z.string(), requestedPerspective: z.string().optional(), responseBudget: z.string().optional()}}, async (args, extra) => textResult(await handleConsult(admin, args || {}, extra, 'explicit')));
@@ -1707,9 +1186,6 @@ module.exports = {
   RANDOM_DEFAULTS,
   SHE_RAW_BRAIN_JARS,
   SHE_RAW_BRAIN_IDS,
-  sheRawOperationRegistry,
-  sheRawOperationNames,
-  runSheRawOperation,
   gateInvocation,
   retrieveCases,
   cleanCase,
@@ -1720,7 +1196,6 @@ module.exports = {
   handleCorrect,
   handleIntrospect,
   handleValidateCorrection,
-  handleRoadCheck,
   handleListBrainJars,
   handleBrainJar,
   listBrainJars,

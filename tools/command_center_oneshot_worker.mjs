@@ -603,7 +603,7 @@ async function runStreamingExecutor({command, cwd, env = {}, outputDir, jobPacke
     process.once('SIGTERM', cancel);
 
     try {
-      child = spawn(command, {cwd, shell: true, env: {...process.env, ...env}});
+      child = spawn(command, {cwd, shell: true, env: {...process.env, ...env}, stdio: ['ignore', 'pipe', 'pipe']});
     } catch (err) {
       process.removeListener('SIGINT', cancel);
       process.removeListener('SIGTERM', cancel);
