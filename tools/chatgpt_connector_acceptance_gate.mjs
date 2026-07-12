@@ -4,13 +4,14 @@ import path from 'node:path';
 import {execFileSync, spawnSync} from 'node:child_process';
 
 const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
-const DEFAULT_URL = 'https://us-central1-home-center-dclar.cloudfunctions.net/homeBridgeMcp/mcp';
+const DEFAULT_URL = 'https://us-central1-home-center-dclar.cloudfunctions.net/homeCenterMcp/mcp';
 const EXPECTED_TOOLS = [
   'health', 'drive_search', 'drive_read', 'sheets_search', 'sheets_read', 'workbook_import_xlsx', 'docs_append',
   'capabilities', 'drive_operation', 'auth_status', 'storage_status', 'audit_status',
   'drive_list_folder', 'drive_get_metadata', 'sheets_create', 'sheets_update_values', 'drive_create_folder', 'docs_create',
   'drive_move', 'drive_rename', 'drive_plan_organize', 'drive_execute_plan',
   'index_folder', 'index_status', 'drive_workflow_run', 'recovery_checkpoint', 'recovery_status', 'audit_log', 'audit_get',
+  'simulation_operation', 'command_center_operation',
   'github_get_repo', 'github_read_file', 'github_list_branches',
   'github_list_issues', 'github_get_issue', 'github_create_issue', 'github_comment_issue',
   'github_list_pull_requests', 'github_get_pull_request', 'github_list_pull_request_files', 'github_comment_pull_request',
@@ -18,16 +19,20 @@ const EXPECTED_TOOLS = [
 ];
 
 function parseArgs(argv) {
-  const args = {url: DEFAULT_URL, ui: true, uiWaitMs: 90000, runId: new Date().toISOString().replace(/[-:.TZ]/g, '').slice(0, 14)};
+  const args = {url: DEFAULT_URL, ui: true, uiOnly: false, uiWaitMs: 90000, runId: new Date().toISOString().replace(/[-:.TZ]/g, '').slice(0, 14), json: false, sinceMinutes: 0, requireOauthTokenExchange: false};
   for (let i = 0; i < argv.length; i += 1) {
     const arg = argv[i];
     if (arg === '--url') args.url = argv[++i];
     else if (arg === '--run-id') args.runId = argv[++i];
     else if (arg === '--ui') args.ui = true;
     else if (arg === '--no-ui') args.ui = false;
+    else if (arg === '--ui-only') { args.ui = true; args.uiOnly = true; }
     else if (arg === '--ui-wait-ms') args.uiWaitMs = Number(argv[++i]);
+    else if (arg === '--since-minutes') args.sinceMinutes = Number(argv[++i]);
+    else if (arg === '--require-oauth-token-exchange') args.requireOauthTokenExchange = true;
+    else if (arg === '--json') args.json = true;
     else if (arg === '--help') {
-      console.log('Usage: node tools/chatgpt_connector_acceptance_gate.mjs [--url MCP_URL] [--ui|--no-ui] [--ui-wait-ms N] [--run-id ID]');
+      console.log('Usage: node tools/chatgpt_connector_acceptance_gate.mjs [--url MCP_URL] [--ui|--no-ui|--ui-only] [--ui-wait-ms N] [--since-minutes N] [--require-oauth-token-exchange] [--run-id ID] [--json]');
       process.exit(0);
     }
   }
@@ -168,7 +173,7 @@ async function uiGate(mcpUrl, waitMs, artifactDir, runId) {
     finalText = text;
     finalXmlPath = readPath;
     const lower = text.toLowerCase();
-    const mentionsBridge = /home bridge|home center drive bridge|drive bridge|homebridgemcp|home center bridge/i.test(text);
+    const mentionsBridge = /home bridge|home center|home center drive bridge|drive bridge|homebridgemcp|homecentermcp|command center/i.test(text);
     const disconnected = /disconnected|couldn't connect|could not connect|problem connecting|connection failed|reconnect/i.test(text);
     const connected = /connected|enabled/i.test(text);
     if (mentionsBridge && disconnected) break;
@@ -176,7 +181,7 @@ async function uiGate(mcpUrl, waitMs, artifactDir, runId) {
     await new Promise((resolve) => setTimeout(resolve, 5000));
   }
   const lower = finalText.toLowerCase();
-  const mentionsBridge = /home bridge|home center drive bridge|drive bridge|homebridgemcp|home center bridge/i.test(finalText);
+  const mentionsBridge = /home bridge|home center|home center drive bridge|drive bridge|homebridgemcp|homecentermcp|command center/i.test(finalText);
   const disconnected = /disconnected|couldn't connect|could not connect|problem connecting|connection failed|reconnect/i.test(finalText);
   const connected = /connected|enabled/i.test(finalText);
   add('chatgpt_ui_mentions_bridge', mentionsBridge, {xmlPath: finalXmlPath});
@@ -201,17 +206,57 @@ function connectorEventCount(entries) {
 }
 
 function connectorLogState(entries = []) {
-  const events = entries.map((entry) => String(entry?.jsonPayload?.event || entry?.jsonPayload?.message || entry?.textPayload || ''));
-  const methods = entries.map((entry) => String(entry?.jsonPayload?.mcpMethod || ''));
-  const tokenSuccess = events.includes('mcp_connector_token_success') || events.includes('mcp_connector_token_refresh_success');
+  const rows = entries.map((entry) => {
+    const payload = entry?.jsonPayload || {};
+    const userAgent = String(entry?.httpRequest?.userAgent || '');
+    return {
+      event: String(payload.event || payload.message || entry?.textPayload || ''),
+      mcpMethod: String(payload.mcpMethod || ''),
+      toolName: String(payload.toolName || ''),
+      redirectHost: String(payload.redirectHost || ''),
+      redirectPath: String(payload.redirectPath || ''),
+      redirectMode: String(payload.redirectMode || ''),
+      userAgentClass: String(payload.userAgentClass || ''),
+      oauthFlowId: String(payload.oauthFlowId || ''),
+      chatgptConnector: !!payload.chatgptConnector,
+      userAgent,
+      localProbe: /node|home-bridge-acceptance-gate|command_center_home_bridge_invokability/i.test(userAgent),
+    };
+  });
+  const events = rows.map((row) => row.event);
+  const methods = rows.map((row) => row.mcpMethod);
+  const authorizationCodeTokenSuccess = events.includes('mcp_connector_token_success');
+  const tokenSuccess = authorizationCodeTokenSuccess || events.includes('mcp_connector_token_refresh_success');
   const userinfoSuccess = events.includes('mcp_connector_userinfo_success');
-  const mcpActive = events.includes('mcp_connector_mcp_success') || methods.includes('initialize') || methods.includes('tools/call');
+  const mcpActive = rows.some((row) => row.event === 'mcp_connector_mcp_success' || row.mcpMethod === 'initialize' || row.mcpMethod === 'tools/list' || row.mcpMethod === 'tools/call');
+  const nonLocalMcpActive = rows.some((row) => !row.localProbe && (row.event === 'mcp_connector_mcp_success' || row.mcpMethod === 'initialize' || row.mcpMethod === 'tools/list' || row.mcpMethod === 'tools/call'));
+  const chatgptAuthorize = rows.some((row) => row.event === 'mcp_connector_authorize_start' && row.redirectHost === 'chatgpt.com' && row.redirectPath.startsWith('/connector/oauth/'));
+  const callbackSuccess = events.includes('mcp_connector_google_callback_success');
+  const handoffReady = events.includes('mcp_connector_google_callback_handoff_ready');
+  const handoffComplete = events.includes('mcp_connector_handoff_complete_redirect');
+  const tokenStart = events.includes('mcp_connector_token_start');
+  const callbackWithoutToken = chatgptAuthorize && (callbackSuccess || handoffReady || handoffComplete) && !authorizationCodeTokenSuccess;
   return {
     connected: mcpActive,
     mcpActive,
+    nonLocalMcpActive,
     oauthOnlyDead: tokenSuccess && userinfoSuccess && !mcpActive,
+    chatgptAuthorize,
+    callbackSuccess,
+    handoffReady,
+    handoffComplete,
+    tokenStart,
     tokenSuccess,
+    authorizationCodeTokenSuccess,
     userinfoSuccess,
+    callbackWithoutToken,
+    oauthFailures: [
+      ...(chatgptAuthorize ? [] : ['missing_chatgpt_authorize']),
+      ...((callbackSuccess || handoffReady || handoffComplete) ? [] : ['missing_google_callback_or_handoff']),
+      ...(tokenStart ? [] : ['missing_oauth_token_request']),
+      ...(authorizationCodeTokenSuccess ? [] : ['missing_oauth_token_success']),
+      ...(nonLocalMcpActive ? [] : ['missing_non_local_authenticated_mcp_activity']),
+    ],
     toolCalls: entries.filter((entry) => entry?.jsonPayload?.mcpMethod === 'tools/call').map((entry) => ({toolName: entry.jsonPayload.toolName || '', requestId: entry.jsonPayload.requestId || '', targetId: entry.jsonPayload.targetId || '', targetLabel: entry.jsonPayload.targetLabel || ''})),
   };
 }
@@ -241,19 +286,33 @@ async function main() {
   const args = parseArgs(process.argv.slice(2));
   const artifactDir = path.join(ROOT, 'tools', 'chatgpt_connector_evidence');
   ensureDir(artifactDir);
-  const startedAt = new Date().toISOString();
+  const startedAt = args.sinceMinutes > 0 ? new Date(Date.now() - args.sinceMinutes * 60 * 1000).toISOString() : new Date().toISOString();
   const serviceName = new URL(args.url).pathname.split('/').filter(Boolean)[0].toLowerCase();
-  const protocol = await protocolPreflight(args.url);
+  const protocol = args.uiOnly ? {ok: null, skipped: true} : await protocolPreflight(args.url);
   const ui = args.ui ? await uiGate(args.url, args.uiWaitMs, artifactDir, args.runId) : {ok: null, skipped: true};
   const logs = cloudLogs(serviceName, startedAt);
   const logState = connectorLogState(logs.entries || []);
   const evidence = {runId: args.runId, startedAt, finishedAt: new Date().toISOString(), mcpUrl: args.url, serviceName, protocol, ui, logsSummary: {ok: logs.ok, count: logs.entries?.length || 0, error: logs.error || '', state: logState}, logs};
   const evidencePath = path.join(artifactDir, `chatgpt_connector_acceptance_${args.runId}.json`);
   fs.writeFileSync(evidencePath, JSON.stringify(evidence, null, 2));
-  const ok = protocol.ok && (args.ui ? ui.ok : true);
-  console.log(`ChatGPT connector acceptance gate: ${ok ? 'OK' : 'FAILED'} evidence=${evidencePath}`);
-  if (!protocol.ok) console.log(`Protocol failures: ${protocol.checks.filter((check) => !check.ok).map((check) => check.name).join(', ')}`);
-  if (args.ui && !ui.ok) console.log(`UI failures: ${ui.checks.filter((check) => !check.ok).map((check) => check.name).join(', ')}`);
+  const oauthOk = !args.requireOauthTokenExchange || (logs.ok && logState.chatgptAuthorize && (logState.callbackSuccess || logState.handoffReady || logState.handoffComplete) && logState.tokenStart && logState.authorizationCodeTokenSuccess && logState.nonLocalMcpActive);
+  const ok = (args.uiOnly ? true : protocol.ok) && (args.ui ? ui.ok : true) && oauthOk;
+  const summary = {
+    ok,
+    evidencePath,
+    protocolFailures: protocol.checks ? protocol.checks.filter((check) => !check.ok).map((check) => check.name) : [],
+    uiFailures: args.ui && ui.checks ? ui.checks.filter((check) => !check.ok).map((check) => check.name) : [],
+    oauthFailures: args.requireOauthTokenExchange && !oauthOk ? logState.oauthFailures : [],
+    logs: evidence.logsSummary,
+  };
+  if (args.json) {
+    console.log(JSON.stringify(summary));
+  } else {
+    console.log(`ChatGPT connector acceptance gate: ${ok ? 'OK' : 'FAILED'} evidence=${evidencePath}`);
+    if (!args.uiOnly && !protocol.ok) console.log(`Protocol failures: ${summary.protocolFailures.join(', ')}`);
+    if (args.ui && !ui.ok) console.log(`UI failures: ${summary.uiFailures.join(', ')}`);
+    if (args.requireOauthTokenExchange && !oauthOk) console.log(`OAuth failures: ${summary.oauthFailures.join(', ')}`);
+  }
   if (!ok) process.exit(1);
 }
 

@@ -115,11 +115,19 @@ public final class MainActivity extends Activity implements RecognitionListener,
     private static final int MAX_AGENT_TOOL_STEPS = 8;
     private static final int MAX_ATTACHMENT_PREVIEW_CHARS = 20000;
     private static final int MAX_IMAGE_ATTACHMENT_BYTES = 8 * 1024 * 1024;
+    private static final int DOC_READER_FIRST_CHUNK_CHARS = 520;
     private static final int DOC_READER_TARGET_CHARS = 2200;
     private static final int DOC_READER_MIN_CHARS = 900;
     private static final int DOC_READER_PREVIEW_CHARS = 700;
     private static final int DOC_READER_AUTOPLAY_MAX_CHUNKS = 3;
     private static final String WALMART_PACKAGE = "com.walmart.android";
+    private static final String TERMUX_PACKAGE = "com.termux";
+    private static final String SHIZUKU_PACKAGE = "moe.shizuku.privileged.api";
+    private static final String TERMUX_FDROID_URL = "https://f-droid.org/packages/com.termux/";
+    private static final String TERMUX_GITHUB_RELEASES_URL = "https://github.com/termux/termux-app/releases";
+    private static final String SHIZUKU_DOWNLOAD_URL = "https://shizuku.rikka.app/download/";
+    private static final String SHIZUKU_SETUP_URL = "https://shizuku.rikka.app/guide/setup/";
+    private static final String RISH_SETUP_URL = "https://github.com/RikkaApps/Shizuku-API/tree/master/rish";
     private static final String WALMART_BUY_AGAIN_URL = "https://www.walmart.com/my-items";
     private static final String PREFS = "home_center";
     private static final String KEY_TICKTICK_TOKEN = "ticktick_token";
@@ -138,6 +146,9 @@ public final class MainActivity extends Activity implements RecognitionListener,
     private static final Pattern CHAT_URL_PATTERN = Pattern.compile("https?://\\S+|www\\.\\S+");
     private static final String EXTRA_SMOKE_NEW_CONVERSATION = "home_center_smoke_new_conversation";
     private static final String EXTRA_SMOKE_MUTE_SPEECH = "home_center_smoke_mute_speech";
+    private static final String EXTRA_TERMUX_PAIRING_ID = "home_center_termux_pairing_id";
+    private static final String EXTRA_TERMUX_PAIRING_CODE = "home_center_termux_pairing_code";
+    private static final String EXTRA_TERMUX_PAIRING_AUTO = "home_center_termux_pairing_auto";
     private static final int MAX_RECORDED_TURNS = 18;
     private static final int COLOR_BACKGROUND = Color.parseColor("#121212");
     private static final int COLOR_SURFACE = Color.parseColor("#1E1E1E");
@@ -216,18 +227,12 @@ public final class MainActivity extends Activity implements RecognitionListener,
     private TextView driveBrowserPathView;
     private TextView driveBrowserStatusView;
     private LinearLayout driveReaderPlayerPanel;
-    private TextView driveReaderPlayerTitleView;
-    private TextView driveReaderPlayerMetaView;
-    private TextView driveReaderPlayerPreviewView;
     private TextView driveReaderPlayerPlayheadView;
     private SeekBar driveReaderPlayerSeekBar;
     private TextView driveReaderPlayerTimeView;
-    private LinearLayout driveReaderIndexRow;
     private boolean driveReaderUserSeeking;
-    private Button driveReaderPlayerPrevButton;
-    private Button driveReaderPlayerPlayButton;
-    private Button driveReaderPlayerNextButton;
     private Button driveReaderPlayerDownloadButton;
+    private Button driveReaderPlayerStopButton;
     private LinearLayout driveBrowserList;
     private Button driveRecentButton;
     private Button driveFoldersButton;
@@ -267,6 +272,9 @@ public final class MainActivity extends Activity implements RecognitionListener,
     private String activeConversationTitle = "";
     private JSONArray activeConversationTags = new JSONArray();
     private String pendingAgentTurnAfterGoogleReconnect = "";
+    private String pendingTermuxPairingId = "";
+    private String pendingTermuxPairingCode = "";
+    private boolean pendingTermuxPairingApprovalRunning = false;
     private volatile JSONObject pendingToolConfirmation;
     private final Object workingMemoryLock = new Object();
     private final JSONObject workingMemory = new JSONObject();
@@ -286,7 +294,6 @@ public final class MainActivity extends Activity implements RecognitionListener,
     private String driveFilterMode = "docs_all";
     private final List<DriveFolderCrumb> driveFolderStack = new ArrayList<>();
     private DocumentReaderState activeDocumentReader;
-    private GoogleDriveClient.DriveFile queuedDriveNarrationFile;
     private String startupGreeting = "Home Center is ready. Try pantry inventory, what can I make, recipe brainstorm, or rescue meal.";
     private final List<CartReviewItem> cartReviewItems = new ArrayList<>();
     private int cartReviewIndex = -1;
@@ -351,6 +358,7 @@ public final class MainActivity extends Activity implements RecognitionListener,
             setStatus("Speech recognition is not available on this device.");
         }
         runInstalledSmokePromptIfRequested(getIntent());
+        handleTermuxPairingIntent(getIntent());
     }
 
     private void initSpeechMediaSession() {
@@ -375,6 +383,22 @@ public final class MainActivity extends Activity implements RecognitionListener,
         super.onNewIntent(intent);
         setIntent(intent);
         runInstalledSmokePromptIfRequested(intent);
+        handleTermuxPairingIntent(intent);
+    }
+
+    private void handleTermuxPairingIntent(Intent intent) {
+        if (intent == null || !intent.getBooleanExtra(EXTRA_TERMUX_PAIRING_AUTO, false)) {
+            return;
+        }
+        String pairingId = intent.getStringExtra(EXTRA_TERMUX_PAIRING_ID);
+        String code = intent.getStringExtra(EXTRA_TERMUX_PAIRING_CODE);
+        if (pairingId == null || pairingId.trim().isEmpty() || code == null || code.trim().isEmpty()) {
+            return;
+        }
+        pendingTermuxPairingId = pairingId.trim();
+        pendingTermuxPairingCode = code.trim();
+        LocalLog.info("termux_pairing", "shizuku_intent_received pairingId=" + shortMessage(pendingTermuxPairingId));
+        main.postDelayed(() -> continuePendingTermuxPairing("shizuku_intent"), 350L);
     }
 
     private void runInstalledSmokePromptIfRequested(Intent intent) {
@@ -540,6 +564,11 @@ public final class MainActivity extends Activity implements RecognitionListener,
                         } else {
                             appendStatus("Google sign-in restored. Tool permissions still need approval.");
                         }
+                        return;
+                    }
+                    if (hasPendingTermuxPairing()) {
+                        appendStatus("Google connected. Approving Termux Codex through Shizuku.");
+                        continuePendingTermuxPairing("google_sign_in_complete");
                         return;
                     }
                     if (pending != null && !pending.trim().isEmpty()) {
@@ -753,45 +782,26 @@ public final class MainActivity extends Activity implements RecognitionListener,
                 LinearLayout.LayoutParams.WRAP_CONTENT);
         playerParams.setMargins(0, dp(4), 0, dp(8));
 
-        driveReaderPlayerTitleView = new TextView(this);
-        driveReaderPlayerTitleView.setTextSize(14);
-        driveReaderPlayerTitleView.setTypeface(Typeface.DEFAULT_BOLD);
-        driveReaderPlayerTitleView.setTextColor(COLOR_TEXT);
-        driveReaderPlayerTitleView.setSingleLine(true);
-        driveReaderPlayerTitleView.setEllipsize(TextUtils.TruncateAt.END);
-        driveReaderPlayerPanel.addView(driveReaderPlayerTitleView, matchWrap());
+        driveReaderPlayerDownloadButton = button("RENDER", 24, "Render the full Google Doc audio artifact");
+        driveReaderPlayerDownloadButton.setTextColor(COLOR_BACKGROUND);
+        driveReaderPlayerDownloadButton.setBackgroundColor(COLOR_ACCENT);
+        driveReaderPlayerDownloadButton.setTypeface(Typeface.DEFAULT_BOLD);
+        driveReaderPlayerPanel.addView(driveReaderPlayerDownloadButton, matchHeight(dp(82)));
 
-        driveReaderPlayerMetaView = new TextView(this);
-        driveReaderPlayerMetaView.setTextSize(11);
-        driveReaderPlayerMetaView.setTextColor(COLOR_SECONDARY);
-        driveReaderPlayerMetaView.setPadding(0, dp(2), 0, dp(4));
-        driveReaderPlayerPanel.addView(driveReaderPlayerMetaView, matchWrap());
-
-        LinearLayout playerButtons = new LinearLayout(this);
-        playerButtons.setOrientation(LinearLayout.HORIZONTAL);
-        driveReaderPlayerPrevButton = button("Prev", 12, "Go to the previous downloaded section");
-        driveReaderPlayerPlayButton = button("Play", 12, "Play or pause the current narrated section");
-        driveReaderPlayerNextButton = button("Next", 12, "Go to the next downloaded section");
-        driveReaderPlayerDownloadButton = button("Render document", 12, "Render and save the whole document audio artifact");
-        playerButtons.addView(driveReaderPlayerPrevButton, weightedHeight(dp(38)));
-        playerButtons.addView(driveReaderPlayerPlayButton, weightedHeight(dp(38)));
-        playerButtons.addView(driveReaderPlayerNextButton, weightedHeight(dp(38)));
-        playerButtons.addView(driveReaderPlayerDownloadButton, weightedHeight(dp(38)));
-        driveReaderPlayerPanel.addView(playerButtons, matchWrap());
-
-        driveReaderIndexRow = new LinearLayout(this);
-        driveReaderIndexRow.setOrientation(LinearLayout.HORIZONTAL);
-        driveReaderIndexRow.setPadding(0, dp(6), 0, dp(2));
-        driveReaderPlayerPanel.addView(driveReaderIndexRow, matchWrap());
+        driveReaderPlayerStopButton = button("STOP", 18, "Stop the current narration or render");
+        driveReaderPlayerStopButton.setTextColor(COLOR_TEXT);
+        driveReaderPlayerStopButton.setBackgroundColor(COLOR_DANGER);
+        driveReaderPlayerStopButton.setTypeface(Typeface.DEFAULT_BOLD);
+        driveReaderPlayerPanel.addView(driveReaderPlayerStopButton, matchHeight(dp(46)));
 
         driveReaderPlayerSeekBar = new SeekBar(this);
         driveReaderPlayerSeekBar.setMax(1000);
         driveReaderPlayerPanel.addView(driveReaderPlayerSeekBar, new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
-                dp(36)));
+                dp(48)));
 
         driveReaderPlayerTimeView = new TextView(this);
-        driveReaderPlayerTimeView.setTextSize(11);
+        driveReaderPlayerTimeView.setTextSize(12);
         driveReaderPlayerTimeView.setTextColor(COLOR_SECONDARY);
         driveReaderPlayerTimeView.setGravity(Gravity.CENTER_HORIZONTAL);
         driveReaderPlayerPanel.addView(driveReaderPlayerTimeView, matchWrap());
@@ -800,16 +810,9 @@ public final class MainActivity extends Activity implements RecognitionListener,
         driveReaderPlayerPlayheadView.setTextSize(12);
         driveReaderPlayerPlayheadView.setTypeface(Typeface.DEFAULT_BOLD);
         driveReaderPlayerPlayheadView.setTextColor(COLOR_ACCENT);
-        driveReaderPlayerPlayheadView.setPadding(0, dp(4), 0, dp(2));
+        driveReaderPlayerPlayheadView.setGravity(Gravity.CENTER_HORIZONTAL);
+        driveReaderPlayerPlayheadView.setPadding(0, dp(4), 0, 0);
         driveReaderPlayerPanel.addView(driveReaderPlayerPlayheadView, matchWrap());
-
-        driveReaderPlayerPreviewView = new TextView(this);
-        driveReaderPlayerPreviewView.setTextSize(12);
-        driveReaderPlayerPreviewView.setTextColor(COLOR_SECONDARY);
-        driveReaderPlayerPreviewView.setMaxLines(1);
-        driveReaderPlayerPreviewView.setEllipsize(TextUtils.TruncateAt.END);
-        driveReaderPlayerPreviewView.setPadding(0, 0, 0, dp(4));
-        driveReaderPlayerPanel.addView(driveReaderPlayerPreviewView, matchWrap());
         loginShellPanel.addView(driveReaderPlayerPanel, playerParams);
 
         ScrollView driveBrowserScroll = new ScrollView(this);
@@ -939,10 +942,8 @@ public final class MainActivity extends Activity implements RecognitionListener,
         driveFoldersButton.setOnClickListener(v -> cycleDriveSortMode());
         driveDocsButton.setOnClickListener(v -> cycleDriveFilterMode());
         driveParentButton.setOnClickListener(v -> loadDriveRecentFiles());
-        driveReaderPlayerPrevButton.setOnClickListener(v -> moveDocumentReader(-1));
-        driveReaderPlayerPlayButton.setOnClickListener(v -> toggleDriveReaderPlayback());
-        driveReaderPlayerNextButton.setOnClickListener(v -> moveDocumentReader(1));
         driveReaderPlayerDownloadButton.setOnClickListener(v -> renderDocumentAudio());
+        driveReaderPlayerStopButton.setOnClickListener(v -> stopDocumentReader("stopped"));
         driveReaderPlayerSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
@@ -1142,28 +1143,6 @@ public final class MainActivity extends Activity implements RecognitionListener,
         return count + " narratable docs | " + filter + " | " + sort;
     }
 
-    private boolean isDocumentNarrationUnderway() {
-        DocumentReaderState reader = activeDocumentReader;
-        return busy || (reader != null && ((reader.playbackRequested && !reader.paused) || reader.downloadRequested || reader.renderRequested || speechPlaying));
-    }
-
-    private void queueDriveNarration(GoogleDriveClient.DriveFile file) {
-        if (file == null) return;
-        queuedDriveNarrationFile = file;
-        setDriveBrowserStatus("Queued " + safeDisplayName(file.name) + " after the current narration.", false);
-        LocalLog.info("doc_audio", "drive_narrate_queued fileId=" + shortMessage(file.id));
-        refreshDriveReaderPlayer();
-    }
-
-    private void startQueuedDriveNarrationIfReady() {
-        if (isDocumentNarrationUnderway()) return;
-        GoogleDriveClient.DriveFile file = queuedDriveNarrationFile;
-        if (file == null) return;
-        queuedDriveNarrationFile = null;
-        setDriveBrowserStatus("Starting queued narration: " + safeDisplayName(file.name) + ".", false);
-        openDriveBrowserFile(file);
-    }
-
     private void refreshDriveReaderPlayer() {
         DocumentReaderState reader = activeDocumentReader;
         if (driveReaderPlayerPanel == null) return;
@@ -1175,120 +1154,51 @@ public final class MainActivity extends Activity implements RecognitionListener,
         driveReaderPlayerPanel.setVisibility(View.VISIBLE);
         reader.downloadedSections = countDownloadedSections(reader);
         int total = Math.max(1, reader.chunkCount());
-        int current = Math.max(0, Math.min(total - 1, reader.currentIndex));
-        if (driveReaderPlayerTitleView != null) driveReaderPlayerTitleView.setText(reader.name);
-        if (driveReaderPlayerMetaView != null) {
-            JSONObject manifest = reader.audioEntry == null ? new JSONObject() : reader.audioEntry.readManifest();
-            JSONObject sample = manifest.optJSONObject("sample");
-            String sampleState = sample == null ? "not_downloaded" : sample.optString("audioStatus", "not_downloaded");
-            String queued = queuedDriveNarrationFile == null ? "" : " | queued: " + safeDisplayName(queuedDriveNarrationFile.name);
-            driveReaderPlayerMetaView.setText("Text " + reader.textHash + " | " + reader.charCount + " chars | sample " + sampleState + " | rendered " + reader.downloadedSections + "/" + total + queued);
-        }
-        refreshDriveReaderIndexRow(reader);
-        long pcmBytes = activeTargetPcmBytes(reader);
-        long offset = Math.max(0L, Math.min(pcmBytes, reader.playbackOffsetBytes));
+        long pcmBytes = visiblePlayheadPcmBytes(reader);
+        long offset = Math.max(0L, Math.min(pcmBytes, visiblePlayheadOffsetBytes(reader, pcmBytes)));
         int seekProgress = pcmBytes <= 0L ? 0 : Math.round((offset * 1000f) / pcmBytes);
         if (driveReaderPlayerSeekBar != null && !driveReaderUserSeeking) driveReaderPlayerSeekBar.setProgress(Math.max(0, Math.min(1000, seekProgress)));
         if (driveReaderPlayerTimeView != null) driveReaderPlayerTimeView.setText(playbackTimeLabel(offset, pcmBytes, activeTargetSampleRate(reader)));
         if (driveReaderPlayerPlayheadView != null) {
             String state = reader.paused ? "Paused" : (reader.playbackRequested ? "Playing" : "Ready");
-            driveReaderPlayerPlayheadView.setText(state + " | " + activeTargetLabel(reader) + " | " + reader.status);
-        }
-        if (driveReaderPlayerPreviewView != null) driveReaderPlayerPreviewView.setText(reader.previewText());
-        boolean hasPrevious = "section".equals(reader.playbackTargetKind) && current > 0;
-        boolean hasNext = "section".equals(reader.playbackTargetKind) && current + 1 < total;
-        boolean nextDownloaded = hasNext && reader.audioEntry != null && reader.audioEntry.isDownloaded(current + 1);
-        if (driveReaderPlayerPrevButton != null) driveReaderPlayerPrevButton.setEnabled(hasPrevious);
-        if (driveReaderPlayerNextButton != null) driveReaderPlayerNextButton.setEnabled(nextDownloaded);
-        if (driveReaderPlayerPlayButton != null) {
-            driveReaderPlayerPlayButton.setText(reader.paused || !reader.playbackRequested ? "Play" : "Pause");
-            driveReaderPlayerPlayButton.setEnabled(activeTargetFile(reader) != null && activeTargetFile(reader).exists());
+            driveReaderPlayerPlayheadView.setText(safeDisplayName(reader.name) + " | " + state + " | " + activeTargetLabel(reader) + " | " + reader.downloadedSections + "/" + total);
         }
         if (driveReaderPlayerDownloadButton != null) {
-            driveReaderPlayerDownloadButton.setText(reader.downloadedSections >= total ? "Rendered" : (reader.renderRequested ? "Rendering" : "Render document"));
+            driveReaderPlayerDownloadButton.setText(reader.downloadedSections >= total ? "RENDERED" : (reader.renderRequested ? "RENDERING" : "RENDER"));
             driveReaderPlayerDownloadButton.setEnabled(reader.downloadedSections < total && !reader.renderRequested);
         }
-    }
-
-    private void refreshDriveReaderIndexRow(DocumentReaderState reader) {
-        if (driveReaderIndexRow == null || reader == null) return;
-        driveReaderIndexRow.removeAllViews();
-        boolean sampleReady = reader.audioEntry != null && reader.audioEntry.isSampleDownloaded();
-        Button sample = button("Sample", 11, "Play the saved Brian sample");
-        sample.setEnabled(sampleReady);
-        sample.setBackgroundColor("sample".equals(reader.playbackTargetKind) ? COLOR_ACCENT : COLOR_CARD);
-        sample.setTextColor("sample".equals(reader.playbackTargetKind) ? Color.WHITE : COLOR_TEXT);
-        sample.setOnClickListener(v -> selectDriveReaderTarget("sample", 0, true));
-        driveReaderIndexRow.addView(sample, weightedHeight(dp(34)));
-        int limit = Math.min(reader.chunkCount(), 12);
-        for (int i = 0; i < limit; i++) {
-            final int section = i;
-            boolean ready = reader.audioEntry != null && reader.audioEntry.isDownloaded(section);
-            Button chip = button(String.valueOf(section + 1), 11, "Play section " + (section + 1));
-            boolean selected = "section".equals(reader.playbackTargetKind) && reader.playbackTargetIndex == section;
-            chip.setEnabled(ready);
-            chip.setBackgroundColor(selected ? COLOR_ACCENT : COLOR_CARD);
-            chip.setTextColor(selected ? Color.WHITE : (ready ? COLOR_TEXT : COLOR_SECONDARY));
-            chip.setOnClickListener(v -> selectDriveReaderTarget("section", section, true));
-            driveReaderIndexRow.addView(chip, weightedHeight(dp(34)));
+        if (driveReaderPlayerStopButton != null) {
+            boolean active = reader.renderRequested || reader.downloadRequested || reader.playbackRequested || speechPlaying;
+            driveReaderPlayerStopButton.setVisibility(active ? View.VISIBLE : View.GONE);
         }
-    }
-
-    private void selectDriveReaderTarget(String kind, int index, boolean play) {
-        DocumentReaderState reader = activeDocumentReader;
-        if (reader == null) return;
-        ensureGoogleDocAudioEntry(reader);
-        if ("section".equals(kind)) {
-            int section = Math.max(0, Math.min(reader.chunkCount() - 1, index));
-            if (reader.audioEntry == null || !reader.audioEntry.isDownloaded(section)) {
-                appendStatus("That section has not rendered yet.");
-                return;
-            }
-            reader.currentIndex = section;
-            reader.playbackTargetKind = "section";
-            reader.playbackTargetIndex = section;
-        } else {
-            if (reader.audioEntry == null || !reader.audioEntry.isSampleDownloaded()) {
-                appendStatus("The sample is not saved yet.");
-                return;
-            }
-            reader.playbackTargetKind = "sample";
-            reader.playbackTargetIndex = 0;
-        }
-        reader.playbackOffsetBytes = 0L;
-        reader.paused = !play;
-        reader.playbackRequested = play;
-        refreshDriveReaderPlayer();
-        if (play) playDocumentAudioTarget(reader, reader.playbackTargetKind, reader.playbackTargetIndex, 0L);
     }
 
     private void scrubDriveReaderTo(int progress) {
         DocumentReaderState reader = activeDocumentReader;
         if (reader == null) return;
-        long pcmBytes = activeTargetPcmBytes(reader);
+        long pcmBytes = visiblePlayheadPcmBytes(reader);
         long offset = pcmBytes <= 0L ? 0L : Math.max(0L, Math.min(pcmBytes, Math.round((progress / 1000.0) * pcmBytes)));
         offset -= (offset & 1L);
-        reader.playbackOffsetBytes = offset;
-        reader.status = "scrubbed " + activeTargetLabel(reader) + " to " + playbackClock(offset, activeTargetSampleRate(reader));
-        boolean restart = reader.playbackRequested && !reader.paused;
-        refreshDriveReaderPlayer();
-        if (restart) {
-            stopHostedSpeechPlayback("reader_scrub");
-            playDocumentAudioTarget(reader, reader.playbackTargetKind, reader.playbackTargetIndex, offset);
+        if (pcmBytes <= 0L) {
+            reader.playbackOffsetBytes = 0L;
+            reader.status = "nothing rendered yet";
+            refreshDriveReaderPlayer();
+            return;
         }
+        stopHostedSpeechPlayback("reader_scrub");
+        playDocumentAudioAtVisibleOffset(reader, offset);
     }
 
     private void updateDriveReaderSeekPreview(int progress) {
         DocumentReaderState reader = activeDocumentReader;
         if (reader == null || driveReaderPlayerTimeView == null) return;
-        long pcmBytes = activeTargetPcmBytes(reader);
+        long pcmBytes = visiblePlayheadPcmBytes(reader);
         long offset = pcmBytes <= 0L ? 0L : Math.max(0L, Math.min(pcmBytes, Math.round((progress / 1000.0) * pcmBytes)));
         driveReaderPlayerTimeView.setText(playbackTimeLabel(offset, pcmBytes, activeTargetSampleRate(reader)));
     }
 
     private File activeTargetFile(DocumentReaderState reader) {
         if (reader == null || reader.audioEntry == null) return null;
-        if ("sample".equals(reader.playbackTargetKind)) return reader.audioEntry.sampleFile();
         return reader.audioEntry.sectionFile(Math.max(0, Math.min(reader.chunkCount() - 1, reader.playbackTargetIndex)));
     }
 
@@ -1297,12 +1207,63 @@ public final class MainActivity extends Activity implements RecognitionListener,
         return file != null && file.exists() ? Math.max(0L, file.length() - 44L) : 0L;
     }
 
+    private long visiblePlayheadPcmBytes(DocumentReaderState reader) {
+        if (reader == null || reader.audioEntry == null) return 0L;
+        long total = 0L;
+        for (int i = 0; i < reader.chunkCount(); i++) {
+            File file = reader.audioEntry.sectionFile(i);
+            if (file != null && file.exists()) total += Math.max(0L, file.length() - 44L);
+        }
+        return total > 0L ? total : activeTargetPcmBytes(reader);
+    }
+
+    private long visiblePlayheadOffsetBytes(DocumentReaderState reader, long totalPcmBytes) {
+        if (reader == null || reader.audioEntry == null) return 0L;
+        if (!reader.playbackRequested || reader.paused) return 0L;
+        long prior = renderedPcmBeforeSection(reader, reader.playbackTargetIndex);
+        long current = Math.max(0L, Math.min(reader.activePlaybackPcmBytes, reader.playbackOffsetBytes));
+        return Math.max(0L, Math.min(totalPcmBytes, prior + current));
+    }
+
+    private long renderedPcmBeforeSection(DocumentReaderState reader, int sectionIndex) {
+        if (reader == null || reader.audioEntry == null) return 0L;
+        long total = 0L;
+        int limit = Math.max(0, Math.min(reader.chunkCount(), sectionIndex));
+        for (int i = 0; i < limit; i++) {
+            File file = reader.audioEntry.sectionFile(i);
+            if (file != null && file.exists()) total += Math.max(0L, file.length() - 44L);
+        }
+        return total;
+    }
+
+    private void playDocumentAudioAtVisibleOffset(DocumentReaderState reader, long visibleOffsetBytes) {
+        if (reader == null || reader.audioEntry == null) return;
+        long remaining = Math.max(0L, visibleOffsetBytes);
+        for (int i = 0; i < reader.chunkCount(); i++) {
+            File file = reader.audioEntry.sectionFile(i);
+            long length = file != null && file.exists() ? Math.max(0L, file.length() - 44L) : 0L;
+            if (length <= 0L) continue;
+            if (remaining <= length || i == reader.chunkCount() - 1) {
+                reader.currentIndex = i;
+                reader.playbackTargetKind = "section";
+                reader.playbackTargetIndex = i;
+                reader.playbackOffsetBytes = Math.max(0L, Math.min(length, remaining));
+                reader.status = "scrubbed to " + activeTargetLabel(reader) + " " + playbackClock(reader.playbackOffsetBytes, activeTargetSampleRate(reader));
+                playDocumentAudioTarget(reader, "section", i, reader.playbackOffsetBytes);
+                return;
+            }
+            remaining -= length;
+        }
+        reader.status = "nothing rendered at that position";
+        refreshDriveReaderPlayer();
+    }
+
     private int activeTargetSampleRate(DocumentReaderState reader) {
         return GoogleDocAudioLibrary.DEFAULT_SAMPLE_RATE;
     }
 
     private String activeTargetLabel(DocumentReaderState reader) {
-        if (reader == null || "sample".equals(reader.playbackTargetKind)) return "Sample";
+        if (reader == null) return "Section 1";
         return "Section " + (Math.max(0, reader.playbackTargetIndex) + 1) + " of " + reader.chunkCount();
     }
 
@@ -1335,7 +1296,6 @@ public final class MainActivity extends Activity implements RecognitionListener,
             driveBrowserStatusView.setTextColor(danger ? COLOR_DANGER : COLOR_SECONDARY);
         }
     }
-
 
     private void addDriveGridCards(List<GoogleDriveClient.DriveFile> files) {
         if (driveBrowserList == null || files == null) return;
@@ -1410,10 +1370,7 @@ public final class MainActivity extends Activity implements RecognitionListener,
             return;
         }
         if (isDriveGoogleDoc(file)) {
-            if (isDocumentNarrationUnderway()) {
-                queueDriveNarration(file);
-                return;
-            }
+            replaceActiveDocumentReader("switching documents");
             readDocumentById(file.id, file.name, "Drive Reader", true);
             return;
         }
@@ -1499,6 +1456,39 @@ public final class MainActivity extends Activity implements RecognitionListener,
     }
 
     private void approveTermuxPairing(String pairingId, String code) {
+        approveTermuxPairing(pairingId, code, "manual_dialog");
+    }
+
+    private boolean hasPendingTermuxPairing() {
+        return pendingTermuxPairingId != null && !pendingTermuxPairingId.trim().isEmpty()
+                && pendingTermuxPairingCode != null && !pendingTermuxPairingCode.trim().isEmpty();
+    }
+
+    private void continuePendingTermuxPairing(String reason) {
+        if (!hasPendingTermuxPairing() || pendingTermuxPairingApprovalRunning) {
+            return;
+        }
+        if (!hasSignedInHomeUser()) {
+            showAssistantMessage("Google sign-in is the only remaining approval for Shizuku-driven Termux Codex pairing.");
+            startGoogleSignIn();
+            return;
+        }
+        GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(this);
+        if (!hasAllGoogleToolScopes(account)) {
+            showAssistantMessage("Google tool permission is the only remaining approval for Shizuku-driven Termux Codex pairing.");
+            requestGoogleToolPermissions(account);
+            return;
+        }
+        approveTermuxPairing(pendingTermuxPairingId, pendingTermuxPairingCode, reason);
+    }
+
+    private void clearPendingTermuxPairing() {
+        pendingTermuxPairingId = "";
+        pendingTermuxPairingCode = "";
+        pendingTermuxPairingApprovalRunning = false;
+    }
+
+    private void approveTermuxPairing(String pairingId, String code, String source) {
         if (openAiAgentClient == null || !openAiAgentClient.isConfigured()) {
             showAssistantMessage("Home Center gateway is not configured in this build.");
             return;
@@ -1508,29 +1498,186 @@ public final class MainActivity extends Activity implements RecognitionListener,
             showAssistantMessage("Sign in with Google first.");
             return;
         }
+        pendingTermuxPairingApprovalRunning = true;
         setBusy(true);
         appendStatus("Approving Termux Codex pairing...");
+        LocalLog.info("termux_pairing", "approve_start source=" + shortMessage(source));
         user.getIdToken(false)
                 .addOnSuccessListener(token -> executor.execute(() -> {
                     try {
                         JSONObject response = openAiAgentClient.approveTermuxPairing(token.getToken(), pairingId, code);
                         main.post(() -> {
                             setBusy(false);
+                            clearPendingTermuxPairing();
                             String email = response.optString("email", "this account");
                             showAssistantMessage("Termux Codex paired for " + email + ". Safe Home Center tools are now available from Termux.");
                             appendStatus("Termux Codex paired.");
                         });
                     } catch (Exception ex) {
                         main.post(() -> {
+                            pendingTermuxPairingApprovalRunning = false;
                             setBusy(false);
                             showAssistantMessage("Termux Codex pairing failed: " + shortMessage(ex.getMessage()));
                         });
                     }
                 }))
                 .addOnFailureListener(ex -> {
+                    pendingTermuxPairingApprovalRunning = false;
                     setBusy(false);
                     showAssistantMessage("Could not verify Google sign-in: " + shortMessage(ex.getMessage()));
                 });
+    }
+
+    private void showShizukuAutomationSetup() {
+        LinearLayout panel = new LinearLayout(this);
+        panel.setOrientation(LinearLayout.VERTICAL);
+        panel.setPadding(dp(18), dp(10), dp(18), dp(4));
+
+        TextView summary = new TextView(this);
+        summary.setText("One guided setup path for Termux, @mmmbuto Codex, Shizuku, rish, and Home Center pairing. Shizuku launches pairing automatically; Android only stops for real install, Shizuku, or Google approval.");
+        summary.setTextColor(COLOR_TEXT);
+        summary.setTextSize(15);
+        summary.setPadding(0, 0, 0, dp(10));
+        panel.addView(summary, matchWrap());
+
+        TextView status = new TextView(this);
+        status.setText(shizukuAutomationStatusText());
+        status.setTextColor(COLOR_SECONDARY);
+        status.setTextSize(14);
+        status.setPadding(0, 0, 0, dp(12));
+        panel.addView(status, matchWrap());
+
+        Button termux = button(packageInstalled(TERMUX_PACKAGE) ? "Open Termux" : "Install Termux", 15, "Open Termux or the official Termux install page");
+        Button shizuku = button(packageInstalled(SHIZUKU_PACKAGE) ? "Open Shizuku" : "Install Shizuku", 15, "Open Shizuku or the official Shizuku download page");
+        Button setup = button("Open Shizuku pairing guide", 15, "Open the official Shizuku wireless debugging setup guide");
+        Button copyProbe = button("Copy one-click Termux command", 15, "Copy the Home Center setup command that installs, verifies, and launches pairing through Shizuku");
+        Button pair = button("Manual pairing fallback", 15, "Open the manual pairing dialog only if Shizuku launch is unavailable");
+        Button refresh = button("Refresh checks", 15, "Refresh installed package checks");
+        Button diagnostics = button("Copy readiness JSON shape", 15, "Copy the readiness contract used by the Termux probe");
+
+        panel.addView(termux, matchHeight(dp(52)));
+        panel.addView(shizuku, matchHeight(dp(52)));
+        panel.addView(setup, matchHeight(dp(52)));
+        panel.addView(copyProbe, matchHeight(dp(52)));
+        panel.addView(pair, matchHeight(dp(52)));
+        panel.addView(refresh, matchHeight(dp(52)));
+        panel.addView(diagnostics, matchHeight(dp(52)));
+
+        ScrollView scroll = new ScrollView(this);
+        scroll.addView(panel, new ScrollView.LayoutParams(
+                ScrollView.LayoutParams.MATCH_PARENT,
+                ScrollView.LayoutParams.WRAP_CONTENT));
+        scroll.setLayoutParams(new ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                Math.max(dp(420), getResources().getDisplayMetrics().heightPixels - dp(130))));
+
+        AlertDialog dialog = new AlertDialog.Builder(this)
+                .setTitle("Enable Shizuku Automation")
+                .setView(scroll)
+                .setNegativeButton("Close", null)
+                .create();
+        termux.setOnClickListener(v -> openPackageOrUrl(TERMUX_PACKAGE, TERMUX_FDROID_URL));
+        shizuku.setOnClickListener(v -> openPackageOrUrl(SHIZUKU_PACKAGE, SHIZUKU_DOWNLOAD_URL));
+        setup.setOnClickListener(v -> openUrl(SHIZUKU_SETUP_URL));
+        copyProbe.setOnClickListener(v -> {
+            copyToClipboard("Home Center Shizuku setup", shizukuAutomationTermuxCommand());
+            Toast.makeText(this, "Termux setup command copied.", Toast.LENGTH_SHORT).show();
+        });
+        pair.setOnClickListener(v -> {
+            dialog.dismiss();
+            showTermuxPairingDialog();
+        });
+        refresh.setOnClickListener(v -> status.setText(shizukuAutomationStatusText()));
+        diagnostics.setOnClickListener(v -> {
+            copyToClipboard("Home Center readiness JSON", shizukuAutomationReadinessContract());
+            Toast.makeText(this, "Readiness JSON shape copied.", Toast.LENGTH_SHORT).show();
+        });
+        dialog.show();
+    }
+
+    private String shizukuAutomationStatusText() {
+        boolean termuxInstalled = packageInstalled(TERMUX_PACKAGE);
+        boolean shizukuInstalled = packageInstalled(SHIZUKU_PACKAGE);
+        StringBuilder builder = new StringBuilder();
+        builder.append("Checking device\n");
+        builder.append(termuxInstalled ? "OK " : "Needs ").append("Termux app").append(termuxInstalled ? " installed" : " from F-Droid or official GitHub releases").append("\n");
+        builder.append(shizukuInstalled ? "OK " : "Needs ").append("Shizuku app").append(shizukuInstalled ? " installed" : " installed and started").append("\n");
+        builder.append("Termux packages: verified by the copied Termux command\n");
+        builder.append("Codex package: @mmmbuto/codex-cli-termux verified by Termux\n");
+        builder.append("rish bridge: verified by Termux with a harmless id probe\n");
+        builder.append("Home Center pairing: Shizuku launches the pairing approval automatically after readiness is green");
+        return builder.toString();
+    }
+
+    private String shizukuAutomationTermuxCommand() {
+        return "cd /storage/emulated/0/Documents/GodotProjects/home-center && sh tools/home_center_shizuku_setup_probe.sh --install-approved --install-codex-approved --auto-pair";
+    }
+
+    private String shizukuAutomationReadinessContract() {
+        try {
+            JSONObject root = new JSONObject();
+            root.put("status", "ready | blocked | partial");
+            root.put("termux", new JSONObject()
+                    .put("installed", true)
+                    .put("source_ok", true)
+                    .put("packages_ok", true));
+            root.put("codex", new JSONObject()
+                    .put("installed", true)
+                    .put("package", "@mmmbuto/codex-cli-termux")
+                    .put("home_center_runner_ok", true));
+            root.put("shizuku", new JSONObject()
+                    .put("installed", true)
+                    .put("service_running", true)
+                    .put("authorized", true));
+            root.put("rish", new JSONObject()
+                    .put("installed", true)
+                    .put("probe_ok", true));
+            root.put("automation_probe", new JSONObject()
+                    .put("package_inspection_ok", true)
+                    .put("foreground_inspection_ok", true));
+            root.put("human_actions_required", new JSONArray());
+            root.put("blockers", new JSONArray());
+            root.put("diagnostics_path", "generated/shizuku_setup/home_center_shizuku_readiness.json");
+            return root.toString(2);
+        } catch (Exception ex) {
+            return "{}";
+        }
+    }
+
+    private boolean packageInstalled(String packageName) {
+        try {
+            getPackageManager().getPackageInfo(packageName, 0);
+            return true;
+        } catch (Exception ex) {
+            return false;
+        }
+    }
+
+    private void openPackageOrUrl(String packageName, String fallbackUrl) {
+        Intent launch = getPackageManager().getLaunchIntentForPackage(packageName);
+        if (launch != null) {
+            startActivity(launch);
+            return;
+        }
+        openUrl(fallbackUrl);
+    }
+
+    private void openUrl(String url) {
+        try {
+            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+            intent.addCategory(Intent.CATEGORY_BROWSABLE);
+            startActivity(intent);
+        } catch (ActivityNotFoundException ex) {
+            copyToClipboard("Home Center setup URL", url);
+            Toast.makeText(this, "No browser available. URL copied.", Toast.LENGTH_LONG).show();
+        }
+    }
+
+    private void copyToClipboard(String label, String text) {
+        ClipboardManager clipboard = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
+        if (clipboard != null) {
+            clipboard.setPrimaryClip(ClipData.newPlainText(label, text));
+        }
     }
 
     private void connectGoogleToolsFromShell() {
@@ -1622,6 +1769,7 @@ public final class MainActivity extends Activity implements RecognitionListener,
         help.setPadding(0, 0, 0, dp(10));
         panel.addView(help, matchWrap());
 
+        Button shizukuAutomation = button("Enable Shizuku Automation", 16, "Install and verify Termux, Codex, Shizuku, and rish automation");
         Button termuxPair = button("Pair Termux Codex", 16, "Approve a Termux Codex pairing code for Home Center tools");
         Button household = button("Household and list", 16, "Set household bucket and default list");
         Button ticktick = button("TickTick token", 16, "Set TickTick fallback token");
@@ -1633,6 +1781,7 @@ public final class MainActivity extends Activity implements RecognitionListener,
         Button netrunner = button("Netrunner browser", 16, "Open the secondary browser tool");
         Button compact = button("Compact chat", 16, "Compact the current chat history");
 
+        panel.addView(shizukuAutomation, matchHeight(dp(56)));
         panel.addView(termuxPair, matchHeight(dp(56)));
         panel.addView(household, matchHeight(dp(52)));
         panel.addView(ticktick, matchHeight(dp(52)));
@@ -1659,6 +1808,10 @@ public final class MainActivity extends Activity implements RecognitionListener,
                 .setView(scroll)
                 .setNegativeButton("Close", null)
                 .create();
+        shizukuAutomation.setOnClickListener(v -> {
+            dialog.dismiss();
+            showShizukuAutomationSetup();
+        });
         household.setOnClickListener(v -> {
             dialog.dismiss();
             showHouseholdSettings();
@@ -1685,7 +1838,7 @@ public final class MainActivity extends Activity implements RecognitionListener,
         });
         termuxPair.setOnClickListener(v -> {
             dialog.dismiss();
-            showTermuxPairingDialog();
+            showShizukuAutomationSetup();
         });
         usage.setOnClickListener(v -> {
             dialog.dismiss();
@@ -2393,6 +2546,21 @@ public final class MainActivity extends Activity implements RecognitionListener,
         beginDocumentReader(file, content, false);
     }
 
+    private void replaceActiveDocumentReader(String reason) {
+        if (activeDocumentReader != null) {
+            activeDocumentReader.cancelRequested = true;
+            activeDocumentReader.renderRequested = false;
+            activeDocumentReader.downloadRequested = false;
+            activeDocumentReader.playbackRequested = false;
+            activeDocumentReader.paused = true;
+            activeDocumentReader.status = reason == null ? "replaced" : reason;
+        }
+        stopSpeechPlayback();
+        activeDocumentReader = null;
+        setBusy(false);
+        refreshDriveReaderPlayer();
+    }
+
     private void beginDocumentReader(JSONObject file, String content, boolean autoPlay) {
         String text = content == null ? "" : content.trim();
         if (text.isEmpty()) {
@@ -2404,17 +2572,36 @@ public final class MainActivity extends Activity implements RecognitionListener,
         lastDriveDocumentId = activeDocumentReader.fileId;
         lastDriveDocumentName = activeDocumentReader.name;
         ensureGoogleDocAudioEntry(activeDocumentReader);
-        activeDocumentReader.paused = true;
-        activeDocumentReader.playbackRequested = false;
-        activeDocumentReader.status = "indexed text; sample pending; " + activeDocumentReader.downloadedSections + " of " + activeDocumentReader.chunkCount() + " rendered sections saved";
+        resetDriveReaderPlaybackForNewContent(activeDocumentReader);
+        activeDocumentReader.status = "indexed text; " + activeDocumentReader.downloadedSections + " of " + activeDocumentReader.chunkCount() + " rendered sections saved";
         refreshDriveReaderPlayer();
         appendDocumentReaderArtifact(activeDocumentReader);
         if (autoPlay) {
-            setDriveBrowserStatus("Generating saved Brian sample for " + activeDocumentReader.name + ".", false);
-            appendStatus("Generating saved Brian sample for " + activeDocumentReader.name + ". Use Render document to save the whole audio artifact.");
-            documentRenderExecutor.execute(() -> generateDocumentSample(activeDocumentReader, true));
+            activeDocumentReader.playbackRequested = true;
+            activeDocumentReader.paused = false;
+            activeDocumentReader.previewOnlyPlayback = true;
+            setDriveBrowserStatus("Rendering first chunk for " + activeDocumentReader.name + ".", false);
+            documentRenderExecutor.execute(() -> generateDocumentSection(activeDocumentReader, 0, true));
         } else {
-            appendStatus("Indexed " + activeDocumentReader.name + ": " + activeDocumentReader.charCount + " chars in " + activeDocumentReader.chunkCount() + " sections. Use Render document to save the whole audio artifact.");
+            appendStatus("Indexed " + activeDocumentReader.name + ": " + activeDocumentReader.charCount + " chars in " + activeDocumentReader.chunkCount() + " sections. Use Render to save the audio artifact.");
+        }
+    }
+
+    private void resetDriveReaderPlaybackForNewContent(DocumentReaderState reader) {
+        if (reader == null) return;
+        reader.paused = true;
+        reader.playbackRequested = false;
+        reader.previewOnlyPlayback = false;
+        reader.currentIndex = 0;
+        reader.playbackTargetKind = "section";
+        reader.playbackTargetIndex = 0;
+        reader.playbackOffsetBytes = 0L;
+        reader.activePlaybackStartOffsetBytes = 0L;
+        reader.activePlaybackWrittenBytes = 0L;
+        reader.activePlaybackPcmBytes = 0L;
+        reader.activePlaybackSampleRate = activeTargetSampleRate(reader);
+        if (driveReaderPlayerSeekBar != null && !driveReaderUserSeeking) {
+            driveReaderPlayerSeekBar.setProgress(0);
         }
     }
 
@@ -2423,10 +2610,12 @@ public final class MainActivity extends Activity implements RecognitionListener,
         String clean = text == null ? "" : text.replaceAll("\\s+", " ").trim();
         int index = 0;
         while (index < clean.length()) {
-            int end = Math.min(clean.length(), index + DOC_READER_TARGET_CHARS);
+            int target = chunks.isEmpty() ? DOC_READER_FIRST_CHUNK_CHARS : DOC_READER_TARGET_CHARS;
+            int minimum = chunks.isEmpty() ? Math.min(180, DOC_READER_FIRST_CHUNK_CHARS) : DOC_READER_MIN_CHARS;
+            int end = Math.min(clean.length(), index + target);
             if (end < clean.length()) {
                 int sentence = Math.max(clean.lastIndexOf(". ", end), Math.max(clean.lastIndexOf("! ", end), clean.lastIndexOf("? ", end)));
-                if (sentence > index + DOC_READER_MIN_CHARS) {
+                if (sentence > index + minimum) {
                     end = sentence + 1;
                 }
             }
@@ -2511,17 +2700,6 @@ public final class MainActivity extends Activity implements RecognitionListener,
         voiceVersion.setPadding(0, 0, 0, dp(8));
         card.addView(voiceVersion, matchWrap());
 
-        if (activateButtons) {
-            Button play = readerControlButton("Play with Brian", this::playDocumentReader, true);
-            play.setTextSize(15);
-            play.setBackgroundColor(COLOR_ACCENT);
-            play.setTextColor(COLOR_BACKGROUND);
-            card.addView(play, matchHeight(dp(48)));
-            Button download = readerControlButton("Download voice", this::downloadDocumentVoice, true);
-            download.setTextSize(14);
-            card.addView(download, matchHeight(dp(44)));
-        }
-
         chatLogContainer.addView(card);
         chatLogContainer.post(this::scrollChatToBottom);
     }
@@ -2571,18 +2749,12 @@ public final class MainActivity extends Activity implements RecognitionListener,
             return;
         }
         ensureGoogleDocAudioEntry(reader);
-        if (reader.audioEntry != null && reader.audioEntry.isSampleDownloaded()) {
-            reader.playbackTargetKind = "sample";
-            reader.playbackTargetIndex = 0;
-            playDocumentAudioTarget(reader, "sample", 0, reader.playbackOffsetBytes);
-        } else {
-            reader.playbackTargetKind = "section";
-            reader.playbackTargetIndex = reader.currentIndex;
-            reader.playbackRequested = true;
-            reader.paused = false;
-            refreshDriveReaderPlayer();
-            playOrDownloadCurrentSection(true);
-        }
+        reader.playbackTargetKind = "section";
+        reader.playbackTargetIndex = reader.currentIndex;
+        reader.playbackRequested = true;
+        reader.paused = false;
+        refreshDriveReaderPlayer();
+        playOrDownloadCurrentSection(true);
     }
 
     private void downloadDocumentVoice() {
@@ -2605,12 +2777,14 @@ public final class MainActivity extends Activity implements RecognitionListener,
         appendStatus("Rendering and saving " + reader.name + ". You can listen or leave; the audio artifact remains the work product.");
         documentRenderExecutor.execute(() -> {
             for (int i = 0; i < reader.chunkCount(); i++) {
+                if (reader != activeDocumentReader || reader.cancelRequested || !reader.renderRequested) break;
                 if (!reader.audioEntry.isDownloaded(i)) {
                     generateDocumentSection(reader, i, false);
                 }
+                if (reader != activeDocumentReader || reader.cancelRequested || !reader.renderRequested) break;
                 reader.downloadedSections = countDownloadedSections(reader);
                 reader.status = "rendering audio artifact, " + reader.downloadedSections + " of " + reader.chunkCount() + " sections saved";
-                main.post(this::refreshDriveReaderPlayer);
+                main.post(() -> { if (reader == activeDocumentReader) refreshDriveReaderPlayer(); });
             }
             reader.downloadedSections = countDownloadedSections(reader);
             reader.renderRequested = false;
@@ -2623,95 +2797,12 @@ public final class MainActivity extends Activity implements RecognitionListener,
                 }
             }
             main.post(() -> {
+                if (reader != activeDocumentReader) return;
                 refreshDriveReaderPlayer();
                 setDriveBrowserStatus(reader.status + ": " + reader.name + ".", reader.downloadedSections < reader.chunkCount());
                 appendStatus(reader.status + ": " + reader.name + ".");
-                startQueuedDriveNarrationIfReady();
             });
         });
-    }
-
-    private void generateDocumentSample(DocumentReaderState reader, boolean playAfterSave) {
-        if (reader == null) return;
-        ensureGoogleDocAudioEntry(reader);
-        if (reader.audioEntry == null) return;
-        if (reader.audioEntry.isSampleDownloaded()) {
-            if (playAfterSave) main.post(() -> playDocumentSample(reader));
-            return;
-        }
-        HttpURLConnection connection = null;
-        RandomAccessFile output = null;
-        long pcmBytes = 0L;
-        int sampleRate = GoogleDocAudioLibrary.DEFAULT_SAMPLE_RATE;
-        try {
-            reader.audioEntry.markSampleDownloading();
-            reader.status = "generating saved sample";
-            main.post(this::refreshDriveReaderPlayer);
-            String sampleText = sampleSpeechText(reader);
-            connection = hostedSpeechClient.openSpeechStream(sampleText);
-            sampleRate = hostedSpeechSampleRate(connection);
-            File part = reader.audioEntry.samplePartFile();
-            File parent = part.getParentFile();
-            if (parent != null && !parent.exists()) parent.mkdirs();
-            output = new RandomAccessFile(part, "rw");
-            output.setLength(0L);
-            GoogleDocAudioLibrary.writeWavHeader(output, sampleRate, 0L);
-            try (InputStream input = new BufferedInputStream(connection.getInputStream())) {
-                byte[] buffer = new byte[8192];
-                int read;
-                while ((read = input.read(buffer)) != -1) {
-                    output.write(buffer, 0, read);
-                    pcmBytes += read;
-                }
-            }
-            if ((pcmBytes & 1L) == 1L) {
-                output.write(0);
-                pcmBytes += 1L;
-            }
-            GoogleDocAudioLibrary.writeWavHeader(output, sampleRate, pcmBytes);
-            output.close();
-            output = null;
-            File wav = reader.audioEntry.sampleFile();
-            if (wav.exists() && !wav.delete()) throw new IOException("could not replace old sample audio");
-            if (!part.renameTo(wav)) throw new IOException("could not finalize sample audio");
-            reader.audioEntry.markSampleDownloaded(pcmBytes, sampleRate);
-            reader.status = "sample saved; render document for full audio artifact";
-            reader.playbackTargetKind = "sample";
-            reader.playbackTargetIndex = 0;
-            reader.playbackOffsetBytes = 0L;
-            main.post(() -> {
-                refreshDriveReaderPlayer();
-                setDriveBrowserStatus("Saved Brian sample for " + reader.name + ".", false);
-                if (playAfterSave) playDocumentSample(reader);
-            });
-        } catch (Exception ex) {
-            reader.audioEntry.markSampleFailed(shortMessage(ex.getMessage()));
-            reader.status = "sample failed: " + shortMessage(ex.getMessage());
-            LocalLog.warn("doc_audio", "doc_audio_sample_failed detail=" + shortMessage(ex.getMessage()));
-            main.post(() -> {
-                refreshDriveReaderPlayer();
-                setDriveBrowserStatus("Sample generation failed: " + speechFailureCause(ex) + ".", true);
-            });
-        } finally {
-            if (output != null) {
-                try { output.close(); } catch (Exception ignored) { }
-            }
-            if (connection != null) connection.disconnect();
-        }
-    }
-
-    private String sampleSpeechText(DocumentReaderState reader) {
-        String source = reader == null || reader.chunks.isEmpty() ? "" : reader.chunks.get(0);
-        String clean = source == null ? "" : source.replaceAll("\\s+", " ").trim();
-        if (clean.length() > 520) clean = clean.substring(0, 520);
-        return "Sample from " + (reader == null ? "Google Doc" : reader.name) + ". " + clean;
-    }
-
-    private void playDocumentSample(DocumentReaderState reader) {
-        if (reader == null || reader.audioEntry == null || !reader.audioEntry.isSampleDownloaded()) return;
-        reader.playbackTargetKind = "sample";
-        reader.playbackTargetIndex = 0;
-        playDocumentAudioTarget(reader, "sample", 0, reader.playbackOffsetBytes);
     }
 
     private void playDocumentAudioTarget(DocumentReaderState reader, String kind, int index, long offsetBytes) {
@@ -2719,24 +2810,14 @@ public final class MainActivity extends Activity implements RecognitionListener,
         ensureGoogleDocAudioEntry(reader);
         File wav;
         int section = Math.max(0, Math.min(reader.chunkCount() - 1, index));
-        if ("sample".equals(kind)) {
-            if (reader.audioEntry == null || !reader.audioEntry.isSampleDownloaded()) {
-                appendStatus("The sample is not saved yet.");
-                return;
-            }
-            wav = reader.audioEntry.sampleFile();
-            reader.playbackTargetKind = "sample";
-            reader.playbackTargetIndex = 0;
-        } else {
-            if (reader.audioEntry == null || !reader.audioEntry.isDownloaded(section)) {
-                appendStatus("That section has not rendered yet.");
-                return;
-            }
-            wav = reader.audioEntry.sectionFile(section);
-            reader.currentIndex = section;
-            reader.playbackTargetKind = "section";
-            reader.playbackTargetIndex = section;
+        if (reader.audioEntry == null || !reader.audioEntry.isDownloaded(section)) {
+            appendStatus("That section has not rendered yet.");
+            return;
         }
+        wav = reader.audioEntry.sectionFile(section);
+        reader.currentIndex = section;
+        reader.playbackTargetKind = "section";
+        reader.playbackTargetIndex = section;
         long pcmBytes = wav == null || !wav.exists() ? 0L : Math.max(0L, wav.length() - 44L);
         long offset = Math.max(0L, Math.min(pcmBytes, offsetBytes));
         offset -= (offset & 1L);
@@ -2755,7 +2836,7 @@ public final class MainActivity extends Activity implements RecognitionListener,
         long sequence = beginSpeechSequence("new_google_doc_audio_playback");
         setSpeechPlaying(true);
         refreshDriveReaderPlayer();
-        String label = "sample".equals(reader.playbackTargetKind) ? "sample" : "section=" + reader.playbackTargetIndex;
+        String label = "section=" + reader.playbackTargetIndex;
         final long playbackOffset = offset;
         documentAudioExecutor.execute(() -> playWavFile(wav, GoogleDocAudioLibrary.DEFAULT_SAMPLE_RATE, utteranceId, sequence, label, playbackOffset));
     }
@@ -2834,12 +2915,15 @@ public final class MainActivity extends Activity implements RecognitionListener,
         long pcmBytes = 0L;
         int sampleRate = GoogleDocAudioLibrary.DEFAULT_SAMPLE_RATE;
         try {
-            if (reader == null || reader.audioEntry == null || reader.audioEntry.isDownloaded(sectionIndex)) {
+            if (reader == null || reader.audioEntry == null || reader.cancelRequested || reader.audioEntry.isDownloaded(sectionIndex)) {
                 if (reader != null && playAfterDownload) {
-                    main.post(() -> playDownloadedDocumentSection(reader, sectionIndex));
+                    main.post(() -> {
+                    if (reader == activeDocumentReader) playDownloadedDocumentSection(reader, sectionIndex);
+                });
                 }
                 return;
             }
+            if (reader != activeDocumentReader && playAfterDownload) return;
             reader.audioEntry.markDownloading(sectionIndex);
             LocalLog.info("doc_audio", "doc_audio_download_start fileId=" + reader.fileId + " textHash=" + reader.textHash + " section=" + sectionIndex + " play=" + playAfterDownload);
             if (playAfterDownload) {
@@ -2874,9 +2958,12 @@ public final class MainActivity extends Activity implements RecognitionListener,
             if (!part.renameTo(wav)) throw new IOException("could not finalize section audio");
             reader.audioEntry.markDownloaded(sectionIndex, pcmBytes, sampleRate);
             reader.downloadedSections = countDownloadedSections(reader);
-            main.post(this::refreshDriveReaderPlayer);
+            main.post(() -> {
+                if (reader == activeDocumentReader && !reader.cancelRequested) refreshDriveReaderPlayer();
+            });
             if (playAfterDownload && reader.playbackRequested && !reader.paused) {
                 main.post(() -> {
+                    if (reader != activeDocumentReader) return;
                     setDriveBrowserStatus("Playing " + reader.name + " with Brian: section " + (sectionIndex + 1) + " of " + reader.chunkCount() + ".", false);
                     refreshDriveReaderPlayer();
                     playDownloadedDocumentSection(reader, sectionIndex);
@@ -2920,14 +3007,14 @@ public final class MainActivity extends Activity implements RecognitionListener,
             reader.status = "paused at " + activeTargetLabel(reader) + " " + playbackClock(reader.playbackOffsetBytes, reader.activePlaybackSampleRate);
             refreshDriveReaderPlayer();
             appendStatus("Playback stopped at " + reader.name + ": " + activeTargetLabel(reader) + ".");
-            startQueuedDriveNarrationIfReady();
             return;
         }
-        if ("sample".equals(reader.playbackTargetKind)) {
+        if (reader.previewOnlyPlayback) {
+            reader.previewOnlyPlayback = false;
             reader.paused = true;
             reader.playbackRequested = false;
             reader.playbackOffsetBytes = 0L;
-            reader.status = "sample complete";
+            reader.status = "first chunk complete";
             refreshDriveReaderPlayer();
             return;
         }
@@ -2937,7 +3024,6 @@ public final class MainActivity extends Activity implements RecognitionListener,
             refreshDriveReaderPlayer();
             setDriveBrowserStatus("Finished reading " + reader.name + ".", false);
             appendStatus("Finished reading " + reader.name + ".");
-            startQueuedDriveNarrationIfReady();
             return;
         }
         int next = reader.currentIndex + 1;
@@ -2984,7 +3070,8 @@ public final class MainActivity extends Activity implements RecognitionListener,
         activeDocumentReader.paused = true;
         activeDocumentReader.playbackRequested = false;
         activeDocumentReader.downloadRequested = false;
-        queuedDriveNarrationFile = null;
+        activeDocumentReader.renderRequested = false;
+        activeDocumentReader.cancelRequested = true;
         activeDocumentReader.status = status == null ? "stopped" : status;
         refreshDriveReaderPlayer();
         stopSpeechPlayback();
@@ -7912,8 +7999,10 @@ public final class MainActivity extends Activity implements RecognitionListener,
         boolean playbackRequested;
         boolean downloadRequested;
         boolean renderRequested;
+        boolean previewOnlyPlayback;
+        boolean cancelRequested;
         int downloadedSections;
-        String playbackTargetKind = "sample";
+        String playbackTargetKind = "section";
         int playbackTargetIndex = 0;
         long playbackOffsetBytes = 0L;
         long activePlaybackStartOffsetBytes = 0L;
@@ -7936,8 +8025,10 @@ public final class MainActivity extends Activity implements RecognitionListener,
             this.playbackRequested = false;
             this.downloadRequested = false;
             this.renderRequested = false;
+            this.previewOnlyPlayback = false;
+            this.cancelRequested = false;
             this.downloadedSections = 0;
-            this.playbackTargetKind = "sample";
+            this.playbackTargetKind = "section";
             this.playbackTargetIndex = 0;
             this.playbackOffsetBytes = 0L;
         }
@@ -7960,8 +8051,10 @@ public final class MainActivity extends Activity implements RecognitionListener,
             this.playbackRequested = false;
             this.downloadRequested = false;
             this.renderRequested = false;
+            this.previewOnlyPlayback = false;
+            this.cancelRequested = false;
             this.downloadedSections = 0;
-            this.playbackTargetKind = "sample";
+            this.playbackTargetKind = "section";
             this.playbackTargetIndex = 0;
             this.playbackOffsetBytes = 0L;
         }
@@ -7995,7 +8088,7 @@ public final class MainActivity extends Activity implements RecognitionListener,
         String summaryText() {
             return "Google Doc reader: " + name
                     + "\nText version: Drive snapshot " + textHash + " (" + charCount + " chars, " + chunkCount() + " chunks)."
-                    + "\nVoice version: ElevenLabs Brian sample saved on ingest; full audio artifact saved by Render document.";
+                    + "\nVoice version: ElevenLabs Brian chunks; first chunk is a short autoplay preview, full artifact saved by Render.";
         }
 
         JSONObject toMetadata() {
@@ -8099,6 +8192,11 @@ public final class MainActivity extends Activity implements RecognitionListener,
                 return;
             }
             exchangeGoogleServerAuthCode(account);
+            if (hasPendingTermuxPairing()) {
+                appendStatus("Google tools approved. Approving Termux Codex through Shizuku.");
+                continuePendingTermuxPairing("google_tool_permissions_complete");
+                return;
+            }
             String pending = pendingAgentTurnAfterGoogleReconnect;
             pendingAgentTurnAfterGoogleReconnect = "";
             if (pending != null && !pending.trim().isEmpty()) {

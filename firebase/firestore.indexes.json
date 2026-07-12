@@ -1,4 +1,46 @@
 {
-  "indexes": [],
+  "indexes": [
+    {
+      "collectionGroup": "commandCenterJobs",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {"fieldPath": "projectId", "order": "ASCENDING"},
+        {"fieldPath": "createdAtMs", "order": "DESCENDING"}
+      ]
+    },
+    {
+      "collectionGroup": "commandCenterJobs",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {"fieldPath": "projectId", "order": "ASCENDING"},
+        {"fieldPath": "status", "order": "ASCENDING"},
+        {"fieldPath": "createdAtMs", "order": "DESCENDING"}
+      ]
+    },
+    {
+      "collectionGroup": "commandCenterEvents",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {"fieldPath": "jobId", "order": "ASCENDING"},
+        {"fieldPath": "createdAtMs", "order": "ASCENDING"}
+      ]
+    },
+    {
+      "collectionGroup": "commandCenterLogs",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {"fieldPath": "jobId", "order": "ASCENDING"},
+        {"fieldPath": "createdAtMs", "order": "ASCENDING"}
+      ]
+    },
+    {
+      "collectionGroup": "commandCenterArtifacts",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {"fieldPath": "jobId", "order": "ASCENDING"},
+        {"fieldPath": "createdAtMs", "order": "ASCENDING"}
+      ]
+    }
+  ],
   "fieldOverrides": []
 }

@@ -1,0 +1,16 @@
+#!/bin/sh
+if [ "$1" = "path" ]; then
+  case "$2" in
+    com.termux)
+      [ "${HC_FAKE_MISSING_TERMUX:-0}" = "1" ] && exit 1
+      echo "package:/data/app/com.termux/base.apk"
+      exit 0
+      ;;
+    moe.shizuku.privileged.api)
+      [ "${HC_FAKE_MISSING_SHIZUKU:-0}" = "1" ] && exit 1
+      echo "package:/data/app/moe.shizuku.privileged.api/base.apk"
+      exit 0
+      ;;
+  esac
+fi
+exit 1

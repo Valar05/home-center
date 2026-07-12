@@ -1,0 +1,4 @@
+#!/bin/sh
+[ "${HC_FAKE_AM_FAIL:-0}" = "1" ] && exit 44
+echo "Starting: Intent { fake }"
+exit 0

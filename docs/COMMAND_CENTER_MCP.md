@@ -41,6 +41,31 @@ https://us-central1-home-center-dclar.cloudfunctions.net/commandCenterMcp/mcp
 
 Command Center delegates auth through the Home Center OAuth bridge. If Google returns `disallowed_useragent` during a ChatGPT connector refresh, treat it as a blocked embedded-browser sign-in, not as a Command Center runtime failure. The Home Center `/oauth/authorize` endpoint serves a secure-browser handoff page for embedded user agents. Chrome or another system browser completes only the Google sign-in; the original ChatGPT auth page polls `/oauth/handoff-status` and then redirects through `/oauth/handoff-complete` so ChatGPT receives the authorization code from its own connector surface and can call `/oauth/token`. A plain auth refresh may reuse stale connector/browser state; reconnect the connector through the handoff path when this happens.
 
+## Real Codex Cloud Agent Model
+
+`Codex in the cloud` means the real OpenAI Codex cloud surface at `https://chatgpt.com/codex/`, logged into Drew's account and consuming real Codex quota. It does not mean a generic Firebase/Cloud Run code module and it does not mean Command Center's simulated `cloud-codex-primary` registry placeholder.
+
+Command Center owns durable state around Codex cloud:
+
+- `repoAgents`: durable repo/project/domain identities that own long-lived context.
+- `agentSessions`: resumable Codex-style threads under a repo agent.
+- `agentActivations`: dormant-to-active task packets created from a prompt, repo state, prior session, or follow-up.
+- `codexCloudRefs`: recorded real Codex cloud task URLs/resume handles.
+- `agentArtifacts`: final reports, bridge transcripts, evidence refs, and redacted outputs.
+- `agentContextSnapshots`: compact packets used to resume the real Codex cloud surface.
+
+The Codex cloud bridge may use a persistent browser profile on a user-owned host, but Command Center must never store ChatGPT/OpenAI passwords, cookies, OAuth tokens, browser session blobs, bearer tokens, or reusable credentials. It stores only durable refs, summaries, artifacts, hashes, and redacted evidence.
+
+Activation is fail-closed. `agents.create_activation` must select a healthy, routable, non-simulated worker that satisfies the activation's `workerRequirements`; the default `cloud-codex-primary` record is only a non-routable placeholder and cannot be leased for real work. Worker bridges claim activations through `POST /agent/claim`, heartbeat through `POST /agent/heartbeat`, record real Codex task refs through `POST /agent/codex-ref`, attach artifacts through `POST /agent/artifacts`, and finish through `POST /agent/complete`.
+
+The red-build gate for this path is:
+
+```sh
+node tools/command_center_real_capability_gate.mjs --json --run-id <run-id>
+```
+
+Without `REAL_CODEX_CLOUD_URL` or `--codex-url https://chatgpt.com/codex/...`, the gate may prove the worker substrate but must remain red on `real_codex_cloud_ref_recorded`. Full green requires a real ChatGPT Codex cloud task URL consuming Drew's quota.
+
 V1 exposes these typed tools:
 
 - `command_center.projects.resolve`
@@ -59,6 +84,13 @@ V1 exposes these typed tools:
 - `command_center.jobs.get_events`
 - `command_center.jobs.get_logs`
 - `command_center.jobs.get_artifacts`
+- `command_center.agents.upsert_repo_agent`
+- `command_center.agents.create_activation`
+- `command_center.agents.get_resume_packet`
+- `command_center.agents.record_codex_cloud_ref`
+- `command_center.agents.record_artifact`
+- `command_center.agents.complete_activation`
+- `command_center.agents.get_handoff`
 - `command_center.bucket.get_layout`
 - `command_center.bucket.put_object`
 - `command_center.bucket.get_object`
@@ -74,7 +106,9 @@ These are typed MCP operations. Command Center does not interpret chat prompts; 
 
 The first implementation now models workers as one-shot executions over prepared base workspaces. A worker is not a blank slate and does not install heavy tools such as Blender during normal job execution.
 
-- `jobs.create` persists a one-shot ticket, selects a compatible worker, creates a lease, writes events, writes logs, and records a checkpoint.
+- `jobs.create` persists a one-shot ticket, selects a compatible live worker, creates a lease, writes events, writes logs, records a checkpoint, and requests activation when the worker declares a push activation channel.
+- A lease is not execution. Real `codex-cloud` workers must expose either a verified push activation channel or a live poll channel before they are eligible for leasing; metadata such as `simulated:false`, `routable:true`, or `health:"healthy"` is not enough.
+- Job activation records live in `commandCenterJobActivations` and emit `activation_requested`, then `activation_accepted` or `activation_rejected`. Rejection marks the lease and job failed with diagnostics instead of leaving the job indefinitely `leased`. Poll workers record acceptance only when `/worker/lease` is actually claimed.
 - `jobs.create_followup` creates a new linked invocation from a prior job handoff; it never rewrites the source job.
 - Every job records `executionMode=one_shot`, a `baseWorkspace` snapshot contract, required artifacts, verification commands, stop conditions, and mutation policy.
 - `workers.register_oneshot` registers a user-owned worker and returns a worker token once. Command Center stores only the token hash.
@@ -157,6 +191,8 @@ Registered workers authenticate with short-lived bearer tokens whose hashes are 
 - `POST /worker/checkpoint` records resumable execution state.
 - `POST /worker/complete` marks the job completed or failed and records final artifact refs.
 
+For completed jobs, Command Center requires real executor evidence before accepting terminal success: `executor_started`, `executor_finished`, and at least one artifact whose origin is the executor workspace. Failed terminal states are allowed without success evidence so blockers can be recorded honestly.
+
 Consequential mutations still flow through `command_center.jobs.authorize_mutation`; workers cannot self-approve push, merge, deploy, delete, or external-provider writes.
 
 
@@ -188,7 +224,7 @@ During execution the worker emits these Command Center events through `/worker/e
 - `executor_cancelled`
 - `artifact_upload_summary`
 
-Stdout and stderr are batched by 20 lines or 5 seconds, whichever happens first. The worker emits a heartbeat every 25 seconds while the child is alive. Heartbeat events update job and lease freshness so long Codex jobs do not appear stuck during quiet phases.
+Stdout and stderr are batched by 20 lines or 5 seconds, whichever happens first. The worker emits a heartbeat every 25 seconds while the child is alive. Heartbeat events update job, lease, and worker freshness so long Codex jobs do not appear stuck during quiet phases. `executor_started` moves the job to `executing` and records PID/process evidence. `executor_finished` is required before a worker may mark a job `completed`.
 
 The worker redacts token-like strings, bearer headers, worker tokens, GitHub tokens, Google/OAuth-looking tokens, API keys, and environment-style secret assignments before writing local transcripts or cloud events. It never logs the full environment.
 
@@ -260,6 +296,12 @@ V1 state is stored in these collections:
 - `commandCenterLogs`
 - `commandCenterCheckpoints`
 - `commandCenterBucketObjects`
+- `appControlProfiles`
+- `appControlRuns`
+- `browserSessions`
+- `browserEpisodes`
+- `browserDiscoveries`
+- `browserPlaybooks`
 - `commandCenterBaseWorkspaces`
 - `commandCenterWorkerTokens`
 - `commandCenterIdempotency`
@@ -283,6 +325,14 @@ https://us-central1-home-center-dclar.cloudfunctions.net/homeCenterMcp/mcp
 tool: command_center_operation
 ```
 
+Before claiming a ChatGPT plugin/MCP app installation is broken or unavailable, run the Termux debugger:
+
+```sh
+node tools/debug_chatgpt_plugin_install.mjs
+```
+
+That command treats Playwright Chromium desktop ChatGPT as the primary visible install surface. Android ChatGPT app or Shizuku UI evidence is fallback only.
+
 This is the loop-closing path. If ChatGPT cannot see a separate `commandCenterMcp` tool namespace, it must not stop; it should call Home Center `command_center_operation`.
 
 Automatic discovery must be shallow. Agents should call Home Center `health` first and read `discoverability.automaticDiscovery.commandCenter`. Do not require drilling through nested `capabilities` to learn that Command Center exists. That health packet includes the direct MCP URL, registry version, normal invocation tool, string-capable `drive_operation` fallback, stale enum-schema tunnel, and reconnect advice.
@@ -298,6 +348,8 @@ Normal flow:
 7. Continue the job with `jobs.answer_question` or `jobs.authorize_mutation` when policy allows.
 8. Create corrective new invocations with `jobs.create_followup`, never by rewriting the old job.
 9. Preserve reusable execution learning with `bucket.put_object`, inspect it with `bucket.list_objects`, and promote proven scratch procedures with `bucket.promote_skill`.
+10. Publish and inspect installed-app control profiles with `app_control.seed_profiles`, `app_control.list_profiles`, `app_control.get_profile`, `app_control.put_profile`, and `app_control.record_run`.
+11. Run browser hands through Playwright-backed operations: `browser_sessions.create`, `browser_sessions.observe`, `browser_sessions.act`, `browser_sessions.record_episode`, `browser_discoveries.list`, and `browser_discoveries.promote`.
 
 The standalone Command Center endpoint remains available for direct MCP clients and worker-control tooling:
 

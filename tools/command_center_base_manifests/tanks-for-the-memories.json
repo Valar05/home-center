@@ -20,6 +20,7 @@
   "limits": {
     "concurrentJobs": 1
   },
+  "defaultExecutorCommand": "sh /storage/emulated/0/Documents/GodotProjects/home-center/tools/command_center_codex_executor.sh",
   "orientationFiles": [
     "PROJECT_ORIENTATION.md",
     "REPO_DOCTRINE.md",

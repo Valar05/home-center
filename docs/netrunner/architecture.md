@@ -9,7 +9,7 @@ Netrunner is a Home Center child capability with two halves:
 
 ### Browser shell
 
-A borrowed browser surface, preferably Android WebView first, with a path to Chromium Custom Tabs or Playwright-backed desktop experimentation later.
+A Playwright desktop Chromium browser-worker is the primary browser surface for v1. Android WebView/Chrome remains useful for visible manual lanes, but Playwright is the first-class automation and learning runtime. Playwright does not run inside Android/Termux Node; on Android phones, Home Center runs it through Debian/proot with Debian-native `/usr/bin/node` and `/usr/bin/chromium`. Desktop/cloud workers are fallback capacity, not the proof target for on-device operation.
 
 Responsibilities:
 
@@ -107,11 +107,9 @@ Never allow global behavior to self-modify directly from one session. Use promot
 
 ## Recommended first implementation path
 
-1. Build WebView page loader.
-2. Add split chat/browser layout.
-3. Add DOM snapshot endpoint.
-4. Add read-focused-element using hosted ElevenLabs narration.
-5. Add long-press Element Command Mode.
-6. Add redacted episode recorder.
-7. Add local JSON export for episodes.
-8. Add cloud ingestion later.
+1. Build and validate the `browser-worker/` Playwright desktop Chromium runtime on device through Debian/proot.
+2. Expose browser session, action, episode, discovery, and promotion operations through Command Center.
+3. Record a redacted browser episode for every invocation before any final answer.
+4. Add Netrunner UI affordances for narration, focus, magnifier, resume, and stop.
+5. Use Android Shizuku/Chrome only as a device fallback or manual subframe lane.
+6. Promote discoveries to trusted playbooks only after repeat evidence or explicit approval.

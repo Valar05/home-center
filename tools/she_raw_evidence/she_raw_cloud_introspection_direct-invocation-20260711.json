@@ -1,0 +1,262 @@
+{
+  "ok": false,
+  "mcpUrl": "https://us-central1-home-center-dclar.cloudfunctions.net/sheRawMcp/mcp",
+  "base": "https://us-central1-home-center-dclar.cloudfunctions.net/sheRawMcp",
+  "revisionEvidence": "gcloud functions deploy sheRawMcp returned ACTIVE before this gate was run",
+  "checks": [
+    {
+      "name": "root_live_no_frontend",
+      "ok": true,
+      "status": 200,
+      "root": {
+        "ok": true,
+        "service": "she-raw-mcp",
+        "product": "persistent consultative judgment service",
+        "endpoints": [
+          "/mcp"
+        ],
+        "hasFrontend": false
+      }
+    },
+    {
+      "name": "mcp_unauth_challenges",
+      "ok": true,
+      "status": 401,
+      "wwwAuthenticate": "Bearer resource_metadata=\"https://us-central1-home-center-dclar.cloudfunctions.net/sheRawMcp/.well-known/oauth-protected-resource\""
+    },
+    {
+      "name": "mcp_initialize_200",
+      "ok": true,
+      "status": 200,
+      "contentType": "text/event-stream"
+    },
+    {
+      "name": "tools_list_contains_she_raw_surface",
+      "ok": true,
+      "status": 200,
+      "count": 17,
+      "missing": []
+    },
+    {
+      "name": "manual_tool_invokable",
+      "ok": true,
+      "status": 200,
+      "startHereCount": 6
+    },
+    {
+      "name": "health_tool_invokable",
+      "ok": false,
+      "status": 200,
+      "health": {
+        "service_status": "ok",
+        "service": "she-raw-mcp",
+        "database_status": "ok",
+        "corpus_revision": "local-seed",
+        "github_sync_status": "not_configured",
+        "model_availability": "deterministic_fallback",
+        "last_successful_backup": "",
+        "migration_version": "firestore-vslice-001",
+        "command_center_lockout": "enforced_in_code",
+        "recommended_first_call": "direct_perspective_first",
+        "recommended_mcp_first_call": "she_raw_manual",
+        "direct_invocation_semantics": "She-Raw, health check invokes the perspective directly. MCP is backing memory, not the body.",
+        "recommended_first_calls": [
+          {
+            "tool": "she_raw_manual",
+            "when": "First time this connector appears or the model is unsure how to use She-Raw."
+          },
+          {
+            "tool": "she_raw_consult",
+            "when": "Explicit She-Raw consultation, assumption challenge, hidden leverage, or dangerous question."
+          },
+          {
+            "tool": "she_raw_critique",
+            "when": "Directed critique of a concrete artifact."
+          },
+          {
+            "tool": "she_raw_correct",
+            "when": "User corrects a She-Raw response."
+          },
+          {
+            "tool": "she_raw_introspect",
+            "when": "Analyze a prior She-Raw invocation after correction."
+          }
+        ],
+        "manual": {
+          "service": "she-raw-mcp",
+          "purpose": "She-Raw is a consultative judgment perspective. ChatGPT remains the conversation; Command Center remains execution. The invocation is the runtime: when Drew says She-Raw, health check, invoke the perspective directly first; use this MCP only when persistence, retrieval, correction, introspection, or audit state is needed.",
+          "invocationSemantics": {
+            "directInvocationRule": "She-Raw is an invoked cognitive organ before she is infrastructure. Do not create a worker, job, service, project, connector, or deployment just because the user invoked the perspective.",
+            "healthCheckMeaning": "She-Raw, health check means answer in She-Raw perspective now: status, detected pattern, dangerous question, assumption attack, critique, directed improvement, persistence state, and host routing diagnosis.",
+            "mcpRole": "MCP is backing memory and tool surface, not the runtime body. Use she_raw_correct to store corrections, she_raw_introspect to inspect stored invocations, and she_raw_consult only when explicit tool-backed consultation is useful.",
+            "commandCenterBoundary": "If Command Center is executing, ambient/recreational/random She-Raw stays silent. Explicit She-Raw calls remain allowed as perspective calls, but should not dispatch execution unless the user asks."
+          },
+          "startHere": [
+            {
+              "when": "User says She-Raw, health check or otherwise invokes the perspective directly.",
+              "call": "direct_perspective_first",
+              "args": {
+                "answerInChat": true,
+                "doNotDispatchWorker": true,
+                "useMcpOnlyForPersistenceOrRetrieval": true
+              }
+            },
+            {
+              "when": "User explicitly asks for tool-backed She-Raw consultation, corpus-backed challenge, dangerous question, hidden leverage, or assumption attack.",
+              "call": "she_raw_consult",
+              "args": {
+                "conversationKey": "stable chat/session key",
+                "projectKey": "optional repo/project key",
+                "commandState": "idle|pre_execution|executing|awaiting_user|completed|failed",
+                "boundedContext": "short current context",
+                "requestedPerspective": "optional angle",
+                "responseBudget": "brief|normal"
+              }
+            },
+            {
+              "when": "User asks for review/critique of a spec, PR, plan, prompt, artifact, or workflow.",
+              "call": "she_raw_critique",
+              "args": {
+                "targetType": "plan|pull_request|code_changes|workflow|prompt|architecture_document",
+                "targetContent": "bounded artifact text or summary",
+                "critiqueGoal": "what the critique should optimize for",
+                "criteria": "rules to judge against",
+                "severity": "gentle|standard|hard|hostile_fixture",
+                "maxFindings": 5,
+                "scopeChallengeAllowed": true
+              }
+            },
+            {
+              "when": "User corrects She-Raw or says the prior intervention was wrong, generic, funny, mistimed, or wrong-layer.",
+              "call": "she_raw_correct",
+              "args": {
+                "invocationId": "prior She-Raw invocation id if known",
+                "correctionText": "verbatim user correction",
+                "correctionType": "wrong layer|goal misread|bad recommendation|good joke|other",
+                "scope": "this invocation|this project|this pattern|global"
+              }
+            },
+            {
+              "when": "Need She-Raw to analyze her own stored response after a correction.",
+              "call": "she_raw_introspect",
+              "args": {
+                "invocationId": "prior invocation id",
+                "userCorrection": "verbatim correction",
+                "desiredBehavior": "optional target behavior",
+                "applyScope": "this invocation|this project|this pattern"
+              }
+            },
+            {
+              "when": "Normal conversation and no active execution; ask whether She-Raw should speak.",
+              "call": "she_raw_ambient",
+              "args": {
+                "conversationKey": "stable chat/session key",
+                "commandState": "idle",
+                "boundedContext": "short current context"
+              }
+            }
+          ],
+          "commandCenterLockout": {
+            "rule": "During commandState=executing, ambient, recreational, and random interventions are blocked in code. Explicit consult and requested critique checkpoints are allowed.",
+            "doNotDo": "Do not ask She-Raw for ambient or recreational disruption while Command Center is executing."
+          },
+          "commonFlows": {
+            "preExecutionChallenge": [
+              "she_raw_consult with commandState=pre_execution",
+              "Use proposed_probe only if cheap/reversible."
+            ],
+            "postExecutionReview": [
+              "she_raw_review with commandState=completed",
+              "Promote only grounded corpus candidates."
+            ],
+            "correctionLoop": [
+              "she_raw_correct",
+              "she_raw_review_learning",
+              "later she_raw_consult on analogous context",
+              "she_raw_validate_correction"
+            ],
+            "corpusLookup": [
+              "she_raw_search_corpus",
+              "she_raw_get_case"
+            ]
+          },
+          "outputContract": "Treat evidence_references as grounded, speculation as unproven, and confidence as advisory. Repository/runtime truth overrides She-Raw memory. Direct invocation semantics override connector-shaped overengineering."
+        }
+      }
+    },
+    {
+      "name": "cloud_consult_invocation_recorded",
+      "ok": true,
+      "status": 200,
+      "consult": {
+        "invocation_id": "srinv_1783818603721_20077922",
+        "observation": "The persistent service owns policy; the worker only executes.",
+        "challenged_assumption": "The worker should decide consultation policy.",
+        "dangerous_question": "cloud brain instantiation audit",
+        "proposed_probe": "Move judgment policy into She-Raw and leave Command Center as dispatch.",
+        "confidence": 0.78,
+        "evidence_reference_count": 2
+      }
+    },
+    {
+      "name": "cloud_introspection_on_instantiation",
+      "ok": true,
+      "status": 200,
+      "introspection": {
+        "introspection_id": "srintro_1783818604816_c0a49703",
+        "original_goal_as_understood": "cloud brain instantiation audit",
+        "actual_goal": "Ground the answer in the deployed Cloud Function MCP invocation, stored invocation ID, and health result. Do not claim hidden chain-of-thought access.",
+        "mismatch": "The response did not map the user correction into a durable behavior change.",
+        "failed_assumption": "The response did not map the user correction into a durable behavior change.",
+        "what_should_have_happened": "Ground the answer in the deployed Cloud Function MCP invocation, stored invocation ID, and health result. Do not claim hidden chain-of-thought access.",
+        "proposed_behavioral_update": "Ground the answer in the deployed Cloud Function MCP invocation, stored invocation ID, and health result. Do not claim hidden chain-of-thought access.",
+        "proposed_scope": "this invocation",
+        "confidence": 0.74,
+        "confirmation_required": false
+      }
+    }
+  ],
+  "toolNames": [
+    "she_raw_ambient",
+    "she_raw_consult",
+    "she_raw_correct",
+    "she_raw_critique",
+    "she_raw_feedback",
+    "she_raw_forget_rule",
+    "she_raw_get_case",
+    "she_raw_health",
+    "she_raw_introspect",
+    "she_raw_list_active_rules",
+    "she_raw_manual",
+    "she_raw_recreational",
+    "she_raw_review",
+    "she_raw_review_learning",
+    "she_raw_search_corpus",
+    "she_raw_set_command_state",
+    "she_raw_validate_correction"
+  ],
+  "cloudBrain": {
+    "consult": {
+      "invocation_id": "srinv_1783818603721_20077922",
+      "observation": "The persistent service owns policy; the worker only executes.",
+      "challenged_assumption": "The worker should decide consultation policy.",
+      "dangerous_question": "cloud brain instantiation audit",
+      "proposed_probe": "Move judgment policy into She-Raw and leave Command Center as dispatch.",
+      "confidence": 0.78,
+      "evidence_reference_count": 2
+    },
+    "introspection": {
+      "introspection_id": "srintro_1783818604816_c0a49703",
+      "original_goal_as_understood": "cloud brain instantiation audit",
+      "actual_goal": "Ground the answer in the deployed Cloud Function MCP invocation, stored invocation ID, and health result. Do not claim hidden chain-of-thought access.",
+      "mismatch": "The response did not map the user correction into a durable behavior change.",
+      "failed_assumption": "The response did not map the user correction into a durable behavior change.",
+      "what_should_have_happened": "Ground the answer in the deployed Cloud Function MCP invocation, stored invocation ID, and health result. Do not claim hidden chain-of-thought access.",
+      "proposed_behavioral_update": "Ground the answer in the deployed Cloud Function MCP invocation, stored invocation ID, and health result. Do not claim hidden chain-of-thought access.",
+      "proposed_scope": "this invocation",
+      "confidence": 0.74,
+      "confirmation_required": false
+    }
+  },
+  "generatedAt": "2026-07-12T01:10:04.429Z"
+}

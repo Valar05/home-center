@@ -1,0 +1,133 @@
+{
+  "ok": true,
+  "generatedAt": "2026-07-12T02:31:15.317Z",
+  "runId": "real-cloud-exec-20260712-04",
+  "jobId": "job_5903de24-91d6-485c-8635-2901a98ac89c",
+  "workerId": "verbose-worker-real-cloud-exec-20260712-04",
+  "uniqueCapability": "verbose-worker-smoke-real-cloud-exec-20260712-04",
+  "requireCodexCloud": true,
+  "nonce": "CLOUD_CODEX_NONCE_real_cloud_exec_20260712_04",
+  "childExit": {
+    "code": 0,
+    "signal": null
+  },
+  "serviceReadback": {
+    "status": "completed",
+    "eventCount": 16,
+    "artifactCount": 34,
+    "finalTypes": [
+      "job_completed",
+      "artifact_upload_summary",
+      "artifacts_recorded",
+      "executor_finished",
+      "executor_stdout",
+      "executor_heartbeat",
+      "executor_stderr",
+      "executor_stdout",
+      "executor_heartbeat",
+      "executor_heartbeat",
+      "executor_started",
+      "activation_accepted",
+      "worker_started",
+      "activation_requested",
+      "job_leased",
+      "job_created"
+    ],
+    "missingBeforeFinish": [],
+    "missingArtifacts": [],
+    "nonceSeen": true,
+    "sawStreamingBeforeExit": true
+  },
+  "pollingSnapshots": [
+    {
+      "atMs": 1783823453689,
+      "childExited": false,
+      "eventCount": 3,
+      "types": [
+        "activation_requested",
+        "job_leased",
+        "job_created"
+      ]
+    },
+    {
+      "atMs": 1783823457244,
+      "childExited": false,
+      "eventCount": 6,
+      "types": [
+        "executor_started",
+        "activation_accepted",
+        "worker_started",
+        "activation_requested",
+        "job_leased",
+        "job_created"
+      ]
+    },
+    {
+      "atMs": 1783823462363,
+      "childExited": false,
+      "eventCount": 11,
+      "types": [
+        "executor_heartbeat",
+        "executor_stderr",
+        "executor_stdout",
+        "executor_heartbeat",
+        "executor_heartbeat",
+        "executor_started",
+        "activation_accepted",
+        "worker_started",
+        "activation_requested",
+        "job_leased",
+        "job_created"
+      ]
+    },
+    {
+      "atMs": 1783823465942,
+      "childExited": false,
+      "eventCount": 14,
+      "types": [
+        "artifacts_recorded",
+        "executor_finished",
+        "executor_stdout",
+        "executor_heartbeat",
+        "executor_stderr",
+        "executor_stdout",
+        "executor_heartbeat",
+        "executor_heartbeat",
+        "executor_started",
+        "activation_accepted",
+        "worker_started",
+        "activation_requested",
+        "job_leased",
+        "job_created"
+      ]
+    },
+    {
+      "atMs": 1783823469653,
+      "childExited": true,
+      "eventCount": 16,
+      "types": [
+        "job_completed",
+        "artifact_upload_summary",
+        "artifacts_recorded",
+        "executor_finished",
+        "executor_stdout",
+        "executor_heartbeat",
+        "executor_stderr",
+        "executor_stdout",
+        "executor_heartbeat",
+        "executor_heartbeat",
+        "executor_started",
+        "activation_accepted",
+        "worker_started",
+        "activation_requested",
+        "job_leased",
+        "job_created"
+      ]
+    }
+  ],
+  "localRun": {
+    "outputDir": "/data/data/com.termux/files/usr/tmp/cc-verbose-worker-real-cloud-exec-20260712-04-2Ya3Vq/run",
+    "childStdout": "{\n  \"ok\": true,\n  \"status\": \"completed\",\n  \"outputDir\": \"/data/data/com.termux/files/usr/tmp/cc-verbose-worker-real-cloud-exec-20260712-04-2Ya3Vq/run\",\n  \"runWorkspace\": \"/data/data/com.termux/files/usr/tmp/cc-verbose-worker-real-cloud-exec-20260712-04-2Ya3Vq/run/workspace\",\n  \"artifacts\": 17\n}\n",
+    "childStderr": ""
+  }
+}

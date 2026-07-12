@@ -7,6 +7,7 @@ const fs = require('fs');
 const path = require('path');
 const {createHomeCenterMcpApp, createDriveFolderOperation, createGoogleDocOperation} = require('./home_center_mcp');
 const {createCommandCenterMcpApp} = require('./command_center_mcp');
+const {createSheRawMcpApp} = require('./she_raw_mcp');
 
 admin.initializeApp();
 
@@ -3165,6 +3166,8 @@ async function askOpenAIToolTurn(body, user = {}) {
 exports.homeCenterMcp = onRequest({timeoutSeconds: 300, secrets: [GOOGLE_OAUTH_CLIENT_ID, GOOGLE_OAUTH_CLIENT_SECRET, GITHUB_TOKEN]}, createHomeCenterMcpApp({google, admin, googleClientId: () => GOOGLE_OAUTH_CLIENT_ID.value() || process.env.GOOGLE_OAUTH_CLIENT_ID || '', googleClientSecret: () => GOOGLE_OAUTH_CLIENT_SECRET.value() || process.env.GOOGLE_OAUTH_CLIENT_SECRET || '', githubToken: () => GITHUB_TOKEN.value() || process.env.GITHUB_TOKEN || ''}));
 
 exports.commandCenterMcp = onRequest({timeoutSeconds: 300}, createCommandCenterMcpApp({admin}));
+
+exports.sheRawMcp = onRequest({timeoutSeconds: 300}, createSheRawMcpApp({admin}));
 
 exports.chatGptOpenApi = onRequest((req, res) => {
   if (handleOptions(req, res)) return;

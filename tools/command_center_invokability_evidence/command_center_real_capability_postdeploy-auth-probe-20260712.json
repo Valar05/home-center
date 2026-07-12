@@ -1,0 +1,476 @@
+{
+  "ok": false,
+  "mode": "real_worker_substrate_red_until_codex_url",
+  "mcpUrl": "https://us-central1-home-center-dclar.cloudfunctions.net/homeCenterMcp/mcp",
+  "commandCenterBase": "https://us-central1-home-center-dclar.cloudfunctions.net/commandCenterMcp",
+  "workerId": "codex-cloud-primary-real-postdeploy-auth-probe-20260712",
+  "activationId": "activation_b1c592a2-3c2a-447e-943d-79660f17832e",
+  "checks": [
+    {
+      "name": "real_worker_registered",
+      "ok": true,
+      "status": 200,
+      "worker": {
+        "workerId": "codex-cloud-primary-real-postdeploy-auth-probe-20260712",
+        "engine": "codex",
+        "location": "user-owned-codex-cloud-bridge",
+        "health": "healthy",
+        "capabilities": [
+          "codex-cloud",
+          "codex",
+          "home-drive-mcp",
+          "playwright",
+          "browser-worker",
+          "prepared-workspace"
+        ],
+        "baseWorkspaces": [
+          {
+            "baseWorkspaceId": "codex-cloud-bridge-profile",
+            "kind": "persistent_user_owned_browser_profile",
+            "snapshotRef": "worker-local://codex-cloud-profile",
+            "version": "postdeploy-auth-probe-20260712",
+            "restoreStrategy": "persistent_profile",
+            "immutable": true,
+            "toolchains": []
+          }
+        ],
+        "limits": {
+          "concurrentActivations": 1
+        },
+        "activation": {
+          "mode": "poll",
+          "endpoint": "",
+          "authRef": "",
+          "verifiedAtMs": 1783823122190
+        },
+        "simulated": false,
+        "routable": true,
+        "lastHeartbeatAtMs": 1783823122190,
+        "oneShot": true
+      }
+    },
+    {
+      "name": "home_drive_bound_to_real_worker",
+      "ok": true,
+      "status": 200,
+      "project": {
+        "projectId": "home-drive",
+        "name": "Home Drive",
+        "repository": "Valar05/home-center",
+        "capability": "home-drive-mcp",
+        "repositoryBinding": {
+          "kind": "github_repository",
+          "repository": "Valar05/home-center",
+          "path": "services/home-drive"
+        },
+        "activeTickets": [],
+        "currentBranch": "",
+        "projectPacketRefs": [],
+        "recentRelevantOutcomes": [],
+        "availableWorkers": [
+          "codex-cloud-primary-real-postdeploy-auth-probe-20260712"
+        ],
+        "durable": true,
+        "updatedAtMs": 1783823126107,
+        "createdAtMs": 1783812147323,
+        "createdBy": "dclarke1005@gmail.com",
+        "updatedBy": "dclarke1005@gmail.com"
+      }
+    },
+    {
+      "name": "repo_agent_upserted",
+      "ok": true,
+      "status": 200,
+      "agent": {
+        "agentId": "home-center-real-capability-postdeploy-auth-probe-20260712",
+        "agentType": "repo_agent",
+        "projectId": "home-drive",
+        "name": "Home Drive real capability proof",
+        "repository": "Valar05/home-center",
+        "domain": "",
+        "purpose": "Durable Command Center context owner for real OpenAI Codex cloud activations.",
+        "status": "active",
+        "codexCloudSurface": {
+          "surfaceId": "openai-codex-cloud",
+          "role": "real OpenAI Codex cloud agent surface consuming Drew account quota; Command Center stores durable refs and artifacts only",
+          "launchUrl": "https://chatgpt.com/codex/",
+          "credentialPolicy": "Persistent login may live only in a user-owned browser profile on the bridge host. Do not copy cookies, passwords, OAuth tokens, or session blobs into Command Center."
+        },
+        "contextRefs": [
+          "docs/COMMAND_CENTER_MCP.md"
+        ],
+        "preferredTools": [],
+        "validationRules": [],
+        "openQuestions": [],
+        "createdBy": "dclarke1005@gmail.com",
+        "updatedBy": "dclarke1005@gmail.com",
+        "createdAtMs": 1783823128556,
+        "updatedAtMs": 1783823128556
+      }
+    },
+    {
+      "name": "activation_selected_real_worker",
+      "ok": true,
+      "status": 200,
+      "activation": {
+        "activationId": "activation_b1c592a2-3c2a-447e-943d-79660f17832e",
+        "agentId": "home-center-real-capability-postdeploy-auth-probe-20260712",
+        "sessionId": "session_b1e70db0-6243-42b1-a5cb-287fe4e1d1fa",
+        "projectId": "home-drive",
+        "repository": "Valar05/home-center",
+        "status": "queued",
+        "executionSurface": "openai-codex-cloud",
+        "realWorkerRequired": true,
+        "workerRequirements": [
+          "codex-cloud",
+          "home-drive-mcp",
+          "playwright"
+        ],
+        "selectedWorkerId": "codex-cloud-primary-real-postdeploy-auth-probe-20260712",
+        "selectedWorker": {
+          "workerId": "codex-cloud-primary-real-postdeploy-auth-probe-20260712",
+          "engine": "codex",
+          "location": "user-owned-codex-cloud-bridge",
+          "capabilities": [
+            "codex-cloud",
+            "codex",
+            "home-drive-mcp",
+            "playwright",
+            "browser-worker",
+            "prepared-workspace"
+          ],
+          "simulated": false,
+          "routable": true
+        },
+        "task": {
+          "taskType": "codex_cloud",
+          "title": "Real capability red-build proof",
+          "prompt": "Claim this activation from a real user-owned Codex cloud bridge worker. Do not use simulated workers.",
+          "trigger": "chatgpt",
+          "inputs": {},
+          "acceptanceCriteria": [
+            "A non-simulated worker was selected",
+            "Worker token claimed activation",
+            "Worker recorded artifact and final handoff"
+          ],
+          "constraints": [],
+          "artifactRequirements": [
+            "final-report.md"
+          ],
+          "executionPolicy": {}
+        },
+        "createdBy": "dclarke1005@gmail.com",
+        "createdAtMs": 1783823132607,
+        "updatedAtMs": 1783823132607,
+        "codexCloudRefIds": [],
+        "artifactRefs": [],
+        "bucketObjectIds": [],
+        "handoffSummary": ""
+      }
+    },
+    {
+      "name": "worker_claimed_activation",
+      "ok": true,
+      "status": 200,
+      "claim": {
+        "ok": true,
+        "claimed": true,
+        "activation": {
+          "activationId": "activation_b1c592a2-3c2a-447e-943d-79660f17832e",
+          "agentId": "home-center-real-capability-postdeploy-auth-probe-20260712",
+          "sessionId": "session_b1e70db0-6243-42b1-a5cb-287fe4e1d1fa",
+          "projectId": "home-drive",
+          "repository": "Valar05/home-center",
+          "status": "claimed",
+          "executionSurface": "openai-codex-cloud",
+          "realWorkerRequired": true,
+          "workerRequirements": [
+            "codex-cloud",
+            "home-drive-mcp",
+            "playwright"
+          ],
+          "selectedWorkerId": "codex-cloud-primary-real-postdeploy-auth-probe-20260712",
+          "selectedWorker": {
+            "workerId": "codex-cloud-primary-real-postdeploy-auth-probe-20260712",
+            "engine": "codex",
+            "location": "user-owned-codex-cloud-bridge",
+            "capabilities": [
+              "codex-cloud",
+              "codex",
+              "home-drive-mcp",
+              "playwright",
+              "browser-worker",
+              "prepared-workspace"
+            ],
+            "simulated": false,
+            "routable": true
+          },
+          "task": {
+            "taskType": "codex_cloud",
+            "title": "Real capability red-build proof",
+            "prompt": "Claim this activation from a real user-owned Codex cloud bridge worker. Do not use simulated workers.",
+            "trigger": "chatgpt",
+            "inputs": {},
+            "acceptanceCriteria": [
+              "A non-simulated worker was selected",
+              "Worker token claimed activation",
+              "Worker recorded artifact and final handoff"
+            ],
+            "constraints": [],
+            "artifactRequirements": [
+              "final-report.md"
+            ],
+            "executionPolicy": {}
+          },
+          "createdBy": "dclarke1005@gmail.com",
+          "createdAtMs": 1783823132607,
+          "updatedAtMs": 1783823134008,
+          "codexCloudRefIds": [],
+          "artifactRefs": [],
+          "bucketObjectIds": [],
+          "handoffSummary": "",
+          "claimedByWorkerId": "codex-cloud-primary-real-postdeploy-auth-probe-20260712",
+          "workerClaimedAtMs": 1783823134008,
+          "lastWorkerHeartbeatAtMs": 1783823134008
+        },
+        "resumePacket": {
+          "packetVersion": "command-center-codex-cloud-resume-v1",
+          "generatedAtMs": 1783823134457,
+          "executionSurface": {
+            "surfaceId": "openai-codex-cloud",
+            "role": "real OpenAI Codex cloud agent surface consuming Drew account quota; Command Center stores durable refs and artifacts only",
+            "launchUrl": "https://chatgpt.com/codex/",
+            "credentialPolicy": "Persistent login may live only in a user-owned browser profile on the bridge host. Do not copy cookies, passwords, OAuth tokens, or session blobs into Command Center."
+          },
+          "agent": {
+            "agentId": "home-center-real-capability-postdeploy-auth-probe-20260712",
+            "projectId": "home-drive",
+            "repository": "Valar05/home-center",
+            "name": "Home Drive real capability proof",
+            "purpose": "Durable Command Center context owner for real OpenAI Codex cloud activations.",
+            "contextRefs": [
+              "docs/COMMAND_CENTER_MCP.md"
+            ]
+          },
+          "session": {
+            "sessionId": "session_b1e70db0-6243-42b1-a5cb-287fe4e1d1fa",
+            "title": "Home Drive real capability proof Codex cloud session",
+            "purpose": "Resumable Codex cloud task thread.",
+            "currentSummary": "",
+            "contextRefs": [],
+            "artifactRefs": []
+          },
+          "activation": {
+            "activationId": "activation_b1c592a2-3c2a-447e-943d-79660f17832e",
+            "status": "claimed",
+            "task": {
+              "taskType": "codex_cloud",
+              "title": "Real capability red-build proof",
+              "prompt": "Claim this activation from a real user-owned Codex cloud bridge worker. Do not use simulated workers.",
+              "trigger": "chatgpt",
+              "inputs": {},
+              "acceptanceCriteria": [
+                "A non-simulated worker was selected",
+                "Worker token claimed activation",
+                "Worker recorded artifact and final handoff"
+              ],
+              "constraints": [],
+              "artifactRequirements": [
+                "final-report.md"
+              ],
+              "executionPolicy": {}
+            },
+            "artifactRefs": [],
+            "codexCloudRefIds": [],
+            "selectedWorkerId": "codex-cloud-primary-real-postdeploy-auth-probe-20260712",
+            "workerRequirements": [
+              "codex-cloud",
+              "home-drive-mcp",
+              "playwright"
+            ],
+            "realWorkerRequired": true
+          },
+          "snapshotRef": "agent-context-snapshot://agent_snapshot_e839c45fd13bd1d64431528f3f786d6f",
+          "bridgeInstructions": [
+            "Open or resume the real OpenAI Codex cloud surface at https://chatgpt.com/codex/.",
+            "Use the logged-in user-owned account/session on the bridge host; do not export cookies, tokens, or session state.",
+            "Record the Codex cloud task URL/ref back to Command Center before waiting for completion.",
+            "Upload final report and evidence artifacts; do not claim success from stdout alone."
+          ]
+        }
+      }
+    },
+    {
+      "name": "worker_heartbeat_recorded",
+      "ok": true,
+      "status": 200,
+      "heartbeat": {
+        "ok": true,
+        "activationId": "activation_b1c592a2-3c2a-447e-943d-79660f17832e",
+        "status": "running",
+        "workerId": "codex-cloud-primary-real-postdeploy-auth-probe-20260712"
+      }
+    },
+    {
+      "name": "real_codex_cloud_ref_recorded",
+      "ok": false,
+      "status": 0,
+      "codexRef": {
+        "skipped": true
+      },
+      "skippedReason": "Set REAL_CODEX_CLOUD_URL or pass --codex-url to prove Drew quota Codex task."
+    },
+    {
+      "name": "worker_artifact_recorded",
+      "ok": true,
+      "status": 200,
+      "artifact": {
+        "ok": true,
+        "activationId": "activation_b1c592a2-3c2a-447e-943d-79660f17832e",
+        "artifacts": [
+          {
+            "artifactId": "agent_artifact_f18f4898500f672b97c23124db3baed0",
+            "activationId": "activation_b1c592a2-3c2a-447e-943d-79660f17832e",
+            "agentId": "home-center-real-capability-postdeploy-auth-probe-20260712",
+            "sessionId": "session_b1e70db0-6243-42b1-a5cb-287fe4e1d1fa",
+            "projectId": "home-drive",
+            "repository": "Valar05/home-center",
+            "name": "final-report.md",
+            "kind": "final_report",
+            "uri": "",
+            "body": "Real worker codex-cloud-primary-real-postdeploy-auth-probe-20260712 claimed activation activation_b1c592a2-3c2a-447e-943d-79660f17832e.",
+            "summary": "Worker claim and heartbeat proof.",
+            "sha256": "fbb02a5cfe9483aa4012d09713c2622b8fa4b574ee901b1a9c95ec686a20f107",
+            "required": true,
+            "evidenceRefs": [],
+            "createdBy": "codex-cloud-primary-real-postdeploy-auth-probe-20260712",
+            "createdAtMs": 1783823135633
+          }
+        ]
+      }
+    },
+    {
+      "name": "activation_terminal_handoff_recorded",
+      "ok": true,
+      "status": 200,
+      "complete": {
+        "ok": true,
+        "activationId": "activation_b1c592a2-3c2a-447e-943d-79660f17832e",
+        "status": "needs_human",
+        "bucketObject": {
+          "objectId": "bucket_d3c5a7b215313f69cf600b60a6ae3a09",
+          "bucketId": "command-center",
+          "kind": "memory.past_log",
+          "lane": "memory/past-logs",
+          "path": "memory/past-logs/home-drive/activation-b1c592a2-3c2a-447e-943d-79660f17832e.md",
+          "title": "Codex cloud activation needs_human: Real capability red-build proof",
+          "summary": "Real worker substrate proved. Awaiting actual Codex cloud task URL to prove Drew quota execution.",
+          "body": "Real worker substrate proved. Awaiting actual Codex cloud task URL to prove Drew quota execution.",
+          "objectUri": "",
+          "contentHash": "c1b649dd69d09729deb539f58014f642be90d77cbd8811b2d0ebd8f0ddbb31f0",
+          "projectId": "home-drive",
+          "repository": "Valar05/home-center",
+          "jobId": "",
+          "sourceRefs": [
+            "agent-activation://activation_b1c592a2-3c2a-447e-943d-79660f17832e"
+          ],
+          "evidenceRefs": [
+            "agent-artifact://agent_artifact_f18f4898500f672b97c23124db3baed0"
+          ],
+          "tags": [
+            "codex-cloud",
+            "activation",
+            "needs_human"
+          ],
+          "promotionState": "active",
+          "supersedes": [],
+          "createdBy": "codex-cloud-primary-real-postdeploy-auth-probe-20260712",
+          "updatedBy": "codex-cloud-primary-real-postdeploy-auth-probe-20260712",
+          "createdAtMs": 1783823136672,
+          "updatedAtMs": 1783823136672,
+          "provenance": {
+            "actor": "codex-cloud-primary-real-postdeploy-auth-probe-20260712",
+            "source": "command_center.agents.complete_activation",
+            "idempotencyKey": "",
+            "noSecrets": true
+          }
+        },
+        "handoff": {
+          "packetVersion": "command-center-codex-cloud-handoff-v1",
+          "generatedAtMs": 1783823137106,
+          "agent": {
+            "agentId": "home-center-real-capability-postdeploy-auth-probe-20260712",
+            "projectId": "home-drive",
+            "repository": "Valar05/home-center",
+            "name": "Home Drive real capability proof"
+          },
+          "session": {
+            "sessionId": "session_b1e70db0-6243-42b1-a5cb-287fe4e1d1fa",
+            "status": "needs_human",
+            "title": "Home Drive real capability proof Codex cloud session",
+            "currentSummary": "Real worker substrate proved. Awaiting actual Codex cloud task URL to prove Drew quota execution."
+          },
+          "activation": {
+            "activationId": "activation_b1c592a2-3c2a-447e-943d-79660f17832e",
+            "status": "needs_human",
+            "task": {
+              "taskType": "codex_cloud",
+              "title": "Real capability red-build proof",
+              "prompt": "Claim this activation from a real user-owned Codex cloud bridge worker. Do not use simulated workers.",
+              "trigger": "chatgpt",
+              "inputs": {},
+              "acceptanceCriteria": [
+                "A non-simulated worker was selected",
+                "Worker token claimed activation",
+                "Worker recorded artifact and final handoff"
+              ],
+              "constraints": [],
+              "artifactRequirements": [
+                "final-report.md"
+              ],
+              "executionPolicy": {}
+            },
+            "finalSummary": "Real worker substrate proved. Awaiting actual Codex cloud task URL to prove Drew quota execution.",
+            "handoffSummary": "Review real capability gate evidence."
+          },
+          "codexCloudRefs": [],
+          "artifacts": [
+            {
+              "artifactId": "agent_artifact_f18f4898500f672b97c23124db3baed0",
+              "name": "final-report.md",
+              "kind": "final_report",
+              "uri": "",
+              "summary": "Worker claim and heartbeat proof.",
+              "sha256": "fbb02a5cfe9483aa4012d09713c2622b8fa4b574ee901b1a9c95ec686a20f107",
+              "required": true
+            }
+          ],
+          "latestSnapshot": {
+            "agentId": "home-center-real-capability-postdeploy-auth-probe-20260712",
+            "contextRefs": [
+              "docs/COMMAND_CENTER_MCP.md"
+            ],
+            "snapshotId": "agent_snapshot_e839c45fd13bd1d64431528f3f786d6f",
+            "createdAtMs": 1783823134216,
+            "createdBy": "codex-cloud-primary-real-postdeploy-auth-probe-20260712",
+            "sessionId": "session_b1e70db0-6243-42b1-a5cb-287fe4e1d1fa",
+            "repository": "Valar05/home-center",
+            "projectId": "home-drive",
+            "prompt": "Claim this activation from a real user-owned Codex cloud bridge worker. Do not use simulated workers.",
+            "currentSummary": "",
+            "activationId": "activation_b1c592a2-3c2a-447e-943d-79660f17832e",
+            "artifactRefs": []
+          },
+          "review": {
+            "realCodexCloudRequired": true,
+            "credentialBoundary": "Persistent login may live only in a user-owned browser profile on the bridge host. Do not copy cookies, passwords, OAuth tokens, or session blobs into Command Center.",
+            "recommendedNextAction": "Resume or repair the Codex cloud bridge using this handoff and resume packet."
+          }
+        }
+      }
+    }
+  ],
+  "tokenSource": "/data/data/com.termux/files/home/.config/home-center/codex-hub.json",
+  "tokenRefreshed": true,
+  "generatedAt": "2026-07-12T02:25:36.728Z"
+}

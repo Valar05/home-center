@@ -1,0 +1,357 @@
+{
+  "ok": false,
+  "generatedAt": "2026-07-12T02:27:11.943Z",
+  "runId": "real-cloud-exec-20260712-02",
+  "jobId": "job_82615cde-62d8-4109-bb96-8ce595b64f19",
+  "workerId": "verbose-worker-real-cloud-exec-20260712-02",
+  "uniqueCapability": "verbose-worker-smoke-real-cloud-exec-20260712-02",
+  "requireCodexCloud": true,
+  "nonce": "CLOUD_CODEX_NONCE_real_cloud_exec_20260712_02",
+  "childExit": {
+    "code": 1,
+    "signal": null
+  },
+  "serviceReadback": {
+    "status": "failed",
+    "eventCount": 11,
+    "artifactCount": 32,
+    "finalTypes": [
+      "job_failed",
+      "artifact_upload_summary",
+      "artifacts_recorded",
+      "executor_failed",
+      "executor_stderr",
+      "executor_started",
+      "activation_accepted",
+      "worker_started",
+      "activation_requested",
+      "job_leased",
+      "job_created"
+    ],
+    "missingBeforeFinish": [
+      "executor_stdout",
+      "executor_heartbeat"
+    ],
+    "missingArtifacts": [
+      "stdout-transcript.txt"
+    ],
+    "nonceSeen": false,
+    "sawStreamingBeforeExit": false
+  },
+  "pollingSnapshots": [
+    {
+      "atMs": 1783823158503,
+      "childExited": false,
+      "eventCount": 3,
+      "types": [
+        "activation_requested",
+        "job_leased",
+        "job_created"
+      ]
+    },
+    {
+      "atMs": 1783823162142,
+      "childExited": false,
+      "eventCount": 6,
+      "types": [
+        "executor_started",
+        "activation_accepted",
+        "worker_started",
+        "activation_requested",
+        "job_leased",
+        "job_created"
+      ]
+    },
+    {
+      "atMs": 1783823165938,
+      "childExited": false,
+      "eventCount": 9,
+      "types": [
+        "artifacts_recorded",
+        "executor_failed",
+        "executor_stderr",
+        "executor_started",
+        "activation_accepted",
+        "worker_started",
+        "activation_requested",
+        "job_leased",
+        "job_created"
+      ]
+    },
+    {
+      "atMs": 1783823169741,
+      "childExited": true,
+      "eventCount": 11,
+      "types": [
+        "job_failed",
+        "artifact_upload_summary",
+        "artifacts_recorded",
+        "executor_failed",
+        "executor_stderr",
+        "executor_started",
+        "activation_accepted",
+        "worker_started",
+        "activation_requested",
+        "job_leased",
+        "job_created"
+      ]
+    },
+    {
+      "atMs": 1783823173537,
+      "childExited": true,
+      "eventCount": 11,
+      "types": [
+        "job_failed",
+        "artifact_upload_summary",
+        "artifacts_recorded",
+        "executor_failed",
+        "executor_stderr",
+        "executor_started",
+        "activation_accepted",
+        "worker_started",
+        "activation_requested",
+        "job_leased",
+        "job_created"
+      ]
+    },
+    {
+      "atMs": 1783823177472,
+      "childExited": true,
+      "eventCount": 11,
+      "types": [
+        "job_failed",
+        "artifact_upload_summary",
+        "artifacts_recorded",
+        "executor_failed",
+        "executor_stderr",
+        "executor_started",
+        "activation_accepted",
+        "worker_started",
+        "activation_requested",
+        "job_leased",
+        "job_created"
+      ]
+    },
+    {
+      "atMs": 1783823182048,
+      "childExited": true,
+      "eventCount": 11,
+      "types": [
+        "job_failed",
+        "artifact_upload_summary",
+        "artifacts_recorded",
+        "executor_failed",
+        "executor_stderr",
+        "executor_started",
+        "activation_accepted",
+        "worker_started",
+        "activation_requested",
+        "job_leased",
+        "job_created"
+      ]
+    },
+    {
+      "atMs": 1783823186030,
+      "childExited": true,
+      "eventCount": 11,
+      "types": [
+        "job_failed",
+        "artifact_upload_summary",
+        "artifacts_recorded",
+        "executor_failed",
+        "executor_stderr",
+        "executor_started",
+        "activation_accepted",
+        "worker_started",
+        "activation_requested",
+        "job_leased",
+        "job_created"
+      ]
+    },
+    {
+      "atMs": 1783823189653,
+      "childExited": true,
+      "eventCount": 11,
+      "types": [
+        "job_failed",
+        "artifact_upload_summary",
+        "artifacts_recorded",
+        "executor_failed",
+        "executor_stderr",
+        "executor_started",
+        "activation_accepted",
+        "worker_started",
+        "activation_requested",
+        "job_leased",
+        "job_created"
+      ]
+    },
+    {
+      "atMs": 1783823193345,
+      "childExited": true,
+      "eventCount": 11,
+      "types": [
+        "job_failed",
+        "artifact_upload_summary",
+        "artifacts_recorded",
+        "executor_failed",
+        "executor_stderr",
+        "executor_started",
+        "activation_accepted",
+        "worker_started",
+        "activation_requested",
+        "job_leased",
+        "job_created"
+      ]
+    },
+    {
+      "atMs": 1783823197143,
+      "childExited": true,
+      "eventCount": 11,
+      "types": [
+        "job_failed",
+        "artifact_upload_summary",
+        "artifacts_recorded",
+        "executor_failed",
+        "executor_stderr",
+        "executor_started",
+        "activation_accepted",
+        "worker_started",
+        "activation_requested",
+        "job_leased",
+        "job_created"
+      ]
+    },
+    {
+      "atMs": 1783823200944,
+      "childExited": true,
+      "eventCount": 11,
+      "types": [
+        "job_failed",
+        "artifact_upload_summary",
+        "artifacts_recorded",
+        "executor_failed",
+        "executor_stderr",
+        "executor_started",
+        "activation_accepted",
+        "worker_started",
+        "activation_requested",
+        "job_leased",
+        "job_created"
+      ]
+    },
+    {
+      "atMs": 1783823204757,
+      "childExited": true,
+      "eventCount": 11,
+      "types": [
+        "job_failed",
+        "artifact_upload_summary",
+        "artifacts_recorded",
+        "executor_failed",
+        "executor_stderr",
+        "executor_started",
+        "activation_accepted",
+        "worker_started",
+        "activation_requested",
+        "job_leased",
+        "job_created"
+      ]
+    },
+    {
+      "atMs": 1783823208449,
+      "childExited": true,
+      "eventCount": 11,
+      "types": [
+        "job_failed",
+        "artifact_upload_summary",
+        "artifacts_recorded",
+        "executor_failed",
+        "executor_stderr",
+        "executor_started",
+        "activation_accepted",
+        "worker_started",
+        "activation_requested",
+        "job_leased",
+        "job_created"
+      ]
+    },
+    {
+      "atMs": 1783823213332,
+      "childExited": true,
+      "eventCount": 11,
+      "types": [
+        "job_failed",
+        "artifact_upload_summary",
+        "artifacts_recorded",
+        "executor_failed",
+        "executor_stderr",
+        "executor_started",
+        "activation_accepted",
+        "worker_started",
+        "activation_requested",
+        "job_leased",
+        "job_created"
+      ]
+    },
+    {
+      "atMs": 1783823217129,
+      "childExited": true,
+      "eventCount": 11,
+      "types": [
+        "job_failed",
+        "artifact_upload_summary",
+        "artifacts_recorded",
+        "executor_failed",
+        "executor_stderr",
+        "executor_started",
+        "activation_accepted",
+        "worker_started",
+        "activation_requested",
+        "job_leased",
+        "job_created"
+      ]
+    },
+    {
+      "atMs": 1783823220934,
+      "childExited": true,
+      "eventCount": 11,
+      "types": [
+        "job_failed",
+        "artifact_upload_summary",
+        "artifacts_recorded",
+        "executor_failed",
+        "executor_stderr",
+        "executor_started",
+        "activation_accepted",
+        "worker_started",
+        "activation_requested",
+        "job_leased",
+        "job_created"
+      ]
+    },
+    {
+      "atMs": 1783823225058,
+      "childExited": true,
+      "eventCount": 11,
+      "types": [
+        "job_failed",
+        "artifact_upload_summary",
+        "artifacts_recorded",
+        "executor_failed",
+        "executor_stderr",
+        "executor_started",
+        "activation_accepted",
+        "worker_started",
+        "activation_requested",
+        "job_leased",
+        "job_created"
+      ]
+    }
+  ],
+  "localRun": {
+    "outputDir": "/data/data/com.termux/files/usr/tmp/cc-verbose-worker-real-cloud-exec-20260712-02-NelvRQ/run",
+    "childStdout": "{\n  \"ok\": false,\n  \"status\": \"failed\",\n  \"outputDir\": \"/data/data/com.termux/files/usr/tmp/cc-verbose-worker-real-cloud-exec-20260712-02-NelvRQ/run\",\n  \"runWorkspace\": \"/data/data/com.termux/files/usr/tmp/cc-verbose-worker-real-cloud-exec-20260712-02-NelvRQ/run/workspace\",\n  \"artifacts\": 16\n}\n",
+    "childStderr": ""
+  }
+}

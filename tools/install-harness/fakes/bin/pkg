@@ -1,0 +1,3 @@
+#!/bin/sh
+# Fake Termux pkg for install harness tests.
+exit 0

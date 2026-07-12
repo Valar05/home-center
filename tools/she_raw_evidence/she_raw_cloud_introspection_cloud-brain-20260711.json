@@ -1,0 +1,130 @@
+{
+  "ok": true,
+  "mcpUrl": "https://us-central1-home-center-dclar.cloudfunctions.net/sheRawMcp/mcp",
+  "base": "https://us-central1-home-center-dclar.cloudfunctions.net/sheRawMcp",
+  "revisionEvidence": "gcloud functions deploy sheRawMcp returned ACTIVE before this gate was run",
+  "checks": [
+    {
+      "name": "root_live_no_frontend",
+      "ok": true,
+      "status": 200,
+      "root": {
+        "ok": true,
+        "service": "she-raw-mcp",
+        "product": "persistent consultative judgment service",
+        "endpoints": [
+          "/mcp"
+        ],
+        "hasFrontend": false
+      }
+    },
+    {
+      "name": "mcp_unauth_challenges",
+      "ok": true,
+      "status": 401,
+      "wwwAuthenticate": "Bearer resource_metadata=\"https://us-central1-home-center-dclar.cloudfunctions.net/sheRawMcp/.well-known/oauth-protected-resource\""
+    },
+    {
+      "name": "mcp_initialize_200",
+      "ok": true,
+      "status": 200,
+      "contentType": "text/event-stream"
+    },
+    {
+      "name": "tools_list_contains_she_raw_surface",
+      "ok": true,
+      "status": 200,
+      "count": 16,
+      "missing": []
+    },
+    {
+      "name": "health_tool_invokable",
+      "ok": true,
+      "status": 200,
+      "health": {
+        "service_status": "ok",
+        "service": "she-raw-mcp",
+        "database_status": "ok",
+        "corpus_revision": "local-seed",
+        "github_sync_status": "not_configured",
+        "model_availability": "deterministic_fallback",
+        "last_successful_backup": "",
+        "migration_version": "firestore-vslice-001",
+        "command_center_lockout": "enforced_in_code"
+      }
+    },
+    {
+      "name": "cloud_consult_invocation_recorded",
+      "ok": true,
+      "status": 200,
+      "consult": {
+        "invocation_id": "srinv_1783797257669_41dc0e40",
+        "observation": "The request names a persistent consultative service, so the useful move is to preserve state transitions and evidence rather than add another conversational surface.",
+        "challenged_assumption": "That MCP should be handled as a prompt/design problem instead of a durable service boundary.",
+        "dangerous_question": "cloud brain instantiation audit",
+        "proposed_probe": "Build the smallest executable chain with a deterministic gate, one grounded corpus hit, one stored correction, one learned rule, and a later invocation that changes because of that rule.",
+        "confidence": 0.55,
+        "evidence_reference_count": 0
+      }
+    },
+    {
+      "name": "cloud_introspection_on_instantiation",
+      "ok": true,
+      "status": 200,
+      "introspection": {
+        "introspection_id": "srintro_1783797258813_4f6f21e6",
+        "original_goal_as_understood": "cloud brain instantiation audit",
+        "actual_goal": "Ground the answer in the deployed Cloud Function MCP invocation, stored invocation ID, and health result. Do not claim hidden chain-of-thought access.",
+        "mismatch": "The response did not map the user correction into a durable behavior change.",
+        "failed_assumption": "The response did not map the user correction into a durable behavior change.",
+        "what_should_have_happened": "Ground the answer in the deployed Cloud Function MCP invocation, stored invocation ID, and health result. Do not claim hidden chain-of-thought access.",
+        "proposed_behavioral_update": "Ground the answer in the deployed Cloud Function MCP invocation, stored invocation ID, and health result. Do not claim hidden chain-of-thought access.",
+        "proposed_scope": "this invocation",
+        "confidence": 0.74,
+        "confirmation_required": false
+      }
+    }
+  ],
+  "toolNames": [
+    "she_raw_ambient",
+    "she_raw_consult",
+    "she_raw_correct",
+    "she_raw_critique",
+    "she_raw_feedback",
+    "she_raw_forget_rule",
+    "she_raw_get_case",
+    "she_raw_health",
+    "she_raw_introspect",
+    "she_raw_list_active_rules",
+    "she_raw_recreational",
+    "she_raw_review",
+    "she_raw_review_learning",
+    "she_raw_search_corpus",
+    "she_raw_set_command_state",
+    "she_raw_validate_correction"
+  ],
+  "cloudBrain": {
+    "consult": {
+      "invocation_id": "srinv_1783797257669_41dc0e40",
+      "observation": "The request names a persistent consultative service, so the useful move is to preserve state transitions and evidence rather than add another conversational surface.",
+      "challenged_assumption": "That MCP should be handled as a prompt/design problem instead of a durable service boundary.",
+      "dangerous_question": "cloud brain instantiation audit",
+      "proposed_probe": "Build the smallest executable chain with a deterministic gate, one grounded corpus hit, one stored correction, one learned rule, and a later invocation that changes because of that rule.",
+      "confidence": 0.55,
+      "evidence_reference_count": 0
+    },
+    "introspection": {
+      "introspection_id": "srintro_1783797258813_4f6f21e6",
+      "original_goal_as_understood": "cloud brain instantiation audit",
+      "actual_goal": "Ground the answer in the deployed Cloud Function MCP invocation, stored invocation ID, and health result. Do not claim hidden chain-of-thought access.",
+      "mismatch": "The response did not map the user correction into a durable behavior change.",
+      "failed_assumption": "The response did not map the user correction into a durable behavior change.",
+      "what_should_have_happened": "Ground the answer in the deployed Cloud Function MCP invocation, stored invocation ID, and health result. Do not claim hidden chain-of-thought access.",
+      "proposed_behavioral_update": "Ground the answer in the deployed Cloud Function MCP invocation, stored invocation ID, and health result. Do not claim hidden chain-of-thought access.",
+      "proposed_scope": "this invocation",
+      "confidence": 0.74,
+      "confirmation_required": false
+    }
+  },
+  "generatedAt": "2026-07-11T19:14:18.489Z"
+}

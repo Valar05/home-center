@@ -6,9 +6,11 @@ import {homedir} from 'node:os';
 const DEFAULT_MCP_URL = 'https://us-central1-home-center-dclar.cloudfunctions.net/commandCenterMcp/mcp';
 const DEFAULT_EVIDENCE_DIR = 'tools/command_center_invokability_evidence';
 const EXPECTED_TOOLS = [
+  'command_center_operation',
   'command_center.health',
   'command_center.projects.resolve',
   'command_center.projects.get',
+  'command_center.projects.upsert',
   'command_center.jobs.create',
   'command_center.jobs.create_followup',
   'command_center.jobs.get',
@@ -28,9 +30,28 @@ const EXPECTED_TOOLS = [
   'command_center.bucket.get_object',
   'command_center.bucket.list_objects',
   'command_center.bucket.promote_skill',
+  'command_center.app_control.seed_profiles',
+  'command_center.app_control.put_profile',
+  'command_center.app_control.get_profile',
+  'command_center.app_control.list_profiles',
+  'command_center.app_control.record_run',
+  'command_center.browser_sessions.create',
+  'command_center.browser_sessions.observe',
+  'command_center.browser_sessions.act',
+  'command_center.browser_sessions.record_episode',
+  'command_center.browser_discoveries.list',
+  'command_center.browser_discoveries.promote',
+  'command_center.browser_playbooks.lookup',
   'command_center.workers.register_oneshot',
   'command_center.workers.list',
   'command_center.workers.get_capabilities',
+  'command_center.agents.upsert_repo_agent',
+  'command_center.agents.create_activation',
+  'command_center.agents.get_resume_packet',
+  'command_center.agents.record_codex_cloud_ref',
+  'command_center.agents.record_artifact',
+  'command_center.agents.complete_activation',
+  'command_center.agents.get_handoff',
 ];
 
 function parseArgs(argv) {
@@ -41,6 +62,7 @@ function parseArgs(argv) {
     bearerToken: process.env.HOME_CENTER_COMMAND_CENTER_BEARER_TOKEN || process.env.HOME_CENTER_MCP_BEARER_TOKEN || '',
     requireRealToken: false,
     createJob: false,
+    json: false,
   };
   for (let i = 0; i < argv.length; i += 1) {
     const arg = argv[i];
@@ -50,8 +72,9 @@ function parseArgs(argv) {
     else if (arg === '--bearer-token') args.bearerToken = argv[++i];
     else if (arg === '--require-real-token') args.requireRealToken = true;
     else if (arg === '--create-job') args.createJob = true;
+    else if (arg === '--json') args.json = true;
     else if (arg === '--help') {
-      console.log('Usage: node tools/command_center_chatgpt_invokability_gate.mjs [--mcp-url URL] [--bearer-token TOKEN] [--require-real-token] [--create-job] [--run-id ID]');
+      console.log('Usage: node tools/command_center_chatgpt_invokability_gate.mjs [--mcp-url URL] [--bearer-token TOKEN] [--require-real-token] [--create-job] [--run-id ID] [--json]');
       process.exit(0);
     }
   }
@@ -155,10 +178,25 @@ async function main() {
   const healthJson = contentJson(health.json, 'command_center.health result');
   add('health_tool_invokable', health.response.status === 200 && healthJson.ok === true && healthJson.invokable === true, {status: health.response.status, health: healthJson});
 
+  const dispatcherHealth = await callTool(args.mcpUrl, protocolToken, 15, 'command_center_operation', {operation: 'health', args: {}});
+  const dispatcherHealthJson = contentJson(dispatcherHealth.json, 'command_center_operation health result');
+  add('command_center_operation_dispatcher_invokable', dispatcherHealth.response.status === 200 && dispatcherHealthJson.result?.ok === true && dispatcherHealthJson.result?.invokable === true, {status: dispatcherHealth.response.status, dispatcherHealth: dispatcherHealthJson});
+
   const bucketLayout = await callTool(args.mcpUrl, protocolToken, 13, 'command_center.bucket.get_layout', {});
   const bucketLayoutJson = contentJson(bucketLayout.json, 'command_center.bucket.get_layout result');
   const lanes = Object.keys(bucketLayoutJson.layout?.lanes || {});
-  add('bucket_layout_invokable', bucketLayout.response.status === 200 && lanes.includes('memory/current-condensed') && lanes.includes('skills/promoted') && lanes.includes('notes/cross-repo'), {status: bucketLayout.response.status, lanes});
+  add('bucket_layout_invokable', bucketLayout.response.status === 200 && lanes.includes('memory/current-condensed') && lanes.includes('skills/promoted') && lanes.includes('notes/cross-repo') && lanes.includes('browser/playbooks'), {status: bucketLayout.response.status, lanes});
+
+  const lookup = await callTool(args.mcpUrl, protocolToken, 14, 'command_center.browser_playbooks.lookup', {origin: 'https://chatgpt.com', taskKey: 'chatgpt.command_center_connector.verify', replayAudience: 'june'});
+  const lookupJson = contentJson(lookup.json, 'command_center.browser_playbooks.lookup result');
+  add('browser_playbooks_lookup_invokable', lookup.response.status === 200 && typeof lookupJson.found === 'boolean' && lookupJson.collection === 'browserPlaybooks', {status: lookup.response.status, lookup: lookupJson});
+
+  const agentToolNames = [
+    'command_center.agents.upsert_repo_agent',
+    'command_center.agents.create_activation',
+    'command_center.agents.get_resume_packet',
+  ];
+  add('codex_cloud_agent_tools_discoverable', agentToolNames.every((name) => names.includes(name)), {agentToolNames, missing: agentToolNames.filter((name) => !names.includes(name))});
 
   const realToken = args.bearerToken || await maybeLoadTokenFromFile();
   let liveJob = null;
@@ -197,7 +235,8 @@ async function main() {
   const result = {ok: checks.every((check) => check.ok), mcpUrl: args.mcpUrl, base, checks, toolNames: names, liveJob, generatedAt: new Date().toISOString()};
   const evidencePath = path.join(evidenceDir, `command_center_invokability_${args.runId}.json`);
   fs.writeFileSync(evidencePath, JSON.stringify(result, null, 2) + '\n');
-  console.log(JSON.stringify({ok: result.ok, evidencePath, failed: checks.filter((check) => !check.ok)}, null, 2));
+  const summary = {ok: result.ok, evidencePath, failed: checks.filter((check) => !check.ok)};
+  console.log(JSON.stringify(summary, null, args.json ? 0 : 2));
   if (!result.ok) process.exit(1);
 }
 

@@ -6,13 +6,24 @@ cd "$ROOT"
 
 sh tools/check_no_secrets.sh
 sh -n tools/install_debug_apk_shizuku.sh
+sh -n tools/home_center_shizuku_setup_probe.sh
+sh -n tools/docker_install_smoke.sh
 python3 tools/home_center_regression_tests.py
 node --check functions/command_center_mcp.js
+node --check functions/she_raw_mcp.js
 node --check tools/command_center_mcp_contract_test.mjs
+node --check tools/command_center_cloud_activation_contract_test.mjs
 node --check tools/command_center_chatgpt_invokability_gate.mjs
+node --check tools/command_center_home_bridge_invokability_gate.mjs
+node --check tools/command_center_real_capability_gate.mjs
 node --check tools/command_center_oneshot_worker.mjs
 node --check tools/command_center_verbose_worker_smoke.mjs
 node tools/command_center_mcp_contract_test.mjs
+node tools/command_center_cloud_activation_contract_test.mjs
+node --check tools/she_raw_contract_test.mjs
+node tools/she_raw_contract_test.mjs
+node --check tools/she_raw_cloud_introspection_gate.mjs
+node --check tools/she_raw_seed_corpus_firestore.mjs
 node tools/command_center_oneshot_worker.mjs --self-test
 node --check functions/index.js
 node --check tools/home_center_metal_prompt_smoke.mjs
@@ -20,8 +31,21 @@ node --check tools/home_center_creative_prompt_smoke.mjs
 node --check tools/home_center_turn_contract_smoke.mjs
 node --check tools/home_center_google_tool_setup.mjs
 node --check tools/home_center_codex_pair.mjs
+node --check tools/home_center_install_contract_test.mjs
+node tools/home_center_install_contract_test.mjs
 node --check tools/drive_bridge_create_tools_test.mjs
 node --check tools/chatgpt_connector_acceptance_gate.mjs
+sh -n tools/connect_chatgpt_home_center_fast.sh
+sh -n tools/shizuku_live_playwright_chatgpt_home_center.sh
+node --check browser-worker/src/chatgpt_clean_slate_verify.mjs
+node --check tools/browser_worker_contract_test.mjs
+node tools/browser_worker_contract_test.mjs
+node --check tools/chrome_frame_learning_envelope.mjs
+node --check tools/submit_chrome_frame_learning.mjs
+node --check tools/chrome_frame_learning_contract_test.mjs
+node --check tools/chatgpt_connector_frame_learning_contract_test.mjs
+node tools/chrome_frame_learning_contract_test.mjs
+node tools/chatgpt_connector_frame_learning_contract_test.mjs
 node tools/home_center_artifact_register.mjs --self-test
 node tools/home_center_engineering_orient.mjs --self-test
 node --check tools/home_center_artifact_register.mjs

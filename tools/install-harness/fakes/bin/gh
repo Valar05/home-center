@@ -1,0 +1,3 @@
+#!/bin/sh
+echo "gh fake"
+exit 0

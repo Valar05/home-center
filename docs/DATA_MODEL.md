@@ -12,6 +12,12 @@ households/{bucketId}/lists/{listId}/tasks/{taskId}
 usageEvents/{eventId}
 usageDaily/{yyyyMMdd}_{uid}_{provider}
 usagePricing/{provider_sku}
+appControlProfiles/{profileId}
+appControlRuns/{runId}
+browserSessions/{sessionId}
+browserEpisodes/{episodeId}
+browserDiscoveries/{discoveryId}
+browserPlaybooks/{playbookId}
 ```
 
 ## Household
@@ -168,3 +174,22 @@ Tool events use `eventType: "tool_call"` and include `toolName`, `write`, `destr
 ```
 
 `usagePricing/{provider_sku}` stores configurable pricing with effective dates/active flags. Missing pricing records make dashboard rows show unpriced counts instead of invented dollar costs.
+
+## App control profiles
+
+Installed-app automation knowledge belongs in Home Center, not in terminal-only scripts. App profiles are keyed by package and installed app version so app-specific selectors, windowing behavior, hacks, and fixes can be reused across paired devices. The bucket is cloud-owned: seed data ships in `functions/app_control_seed/`, then `command_center_operation` publishes and reads profiles from Firestore; see `docs/APP_CONTROL_BUCKET.md`.
+
+`appControlProfiles/{profileId}` stores candidate or trusted profile metadata, capability flags, selector hints, workflow names, and failure fixes. `appControlRuns/{runId}` stores safe run metadata such as package/version, profile id, executor type, foreground mode, elapsed time, UI action count, status, and evidence path. Raw screenshots, XML, prompts, private page text, tokens, and credentials should not be copied into telemetry documents.
+
+
+## Browser hands learning
+
+`browserSessions/{sessionId}` stores Playwright desktop Chromium browser-hand session intent, surface, safety mode, and learning policy.
+
+`browserEpisodes/{episodeId}` stores redacted observations from every browser invocation: intent, origin, URL, title, accessibility summary, visible text summary, focused element, constrained action trace, blockers, redaction report, and candidate discoveries.
+
+`browserDiscoveries/{discoveryId}` stores reusable claims extracted from episodes. Discoveries start as `candidate` and become globally trusted only through promotion.
+
+`browserPlaybooks/{playbookId}` stores promoted `origin + taskKey` site/task playbooks used by future browser hands invocations. A playbook may be household-shared, for example Drew's verified first use of a website can become June's automatic second use through Home Center. Trusted playbooks store Playwright DOM/accessibility selector ladders, page signatures, success assertions, safety gates, learnedBy/shareScope/replayAudience metadata, and evidence refs. Coordinate-only playbooks are not trusted automation.
+
+Raw passwords, payment details, cookies, bearer tokens, account secrets, and raw form values must not be stored in any browser learning document.
