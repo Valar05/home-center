@@ -1798,6 +1798,21 @@ async function upsertProject(admin, caller, args) {
   });
 }
 
+function isConcreteArtifactRequirement(name) {
+  const text = safeText(name, 240);
+  if (!text) return false;
+  if (/^(https?:|gs:\/\/|drive:\/\/|artifact:\/\/|agent-artifact:\/\/)/i.test(text)) return true;
+  if (/^[A-Za-z0-9._/-]+\.[A-Za-z0-9][A-Za-z0-9._-]*$/.test(text)) return true;
+  if (/^[A-Za-z0-9._\/-]+\/[A-Za-z0-9._\/-]+\.[A-Za-z0-9][A-Za-z0-9._-]*$/.test(text)) return true;
+  return false;
+}
+
+function missingConcreteArtifacts(requiredArtifacts = [], artifactNames = new Set()) {
+  return safeList(requiredArtifacts, 80, 240)
+    .filter(isConcreteArtifactRequirement)
+    .filter((name) => !artifactNames.has(name));
+}
+
 async function createJob(admin, caller, args) {
   return idempotentMutation(admin, caller, requireIdempotencyKey(args.idempotencyKey), 'jobs.create', async () => {
     const projectId = cleanProjectId(args.projectId, args.repository || 'project');
@@ -1873,7 +1888,7 @@ async function synthesizeJobHandoff(admin, jobId, caller = null) {
   ]);
   const newestEvent = events[0] || null;
   const artifactNames = new Set(artifacts.map((artifact) => artifact.name).filter(Boolean));
-  const missingRequiredArtifacts = (job.requiredArtifacts || COMMAND_CENTER_REQUIRED_ARTIFACTS).filter((name) => !artifactNames.has(name));
+  const missingRequiredArtifacts = missingConcreteArtifacts(job.requiredArtifacts || COMMAND_CENTER_REQUIRED_ARTIFACTS, artifactNames);
   const nowMs = Date.now();
   const acceptanceCriteria = Array.isArray(job.acceptanceCriteria) ? job.acceptanceCriteria : [];
   const checkpointCriteria = Array.isArray(checkpoint && checkpoint.acceptanceCriteriaStatus) ? checkpoint.acceptanceCriteriaStatus : [];
@@ -2821,6 +2836,7 @@ async function runCommandCenterOperation(admin, extra, operation, args = {}) {
 
 async function recordArtifact(admin, jobId, projectId, artifact, ownerKey = '') {
   const artifactId = safeText(artifact.artifactId, 180) || `artifact_${Date.now()}_${randomUUID().slice(0, 8)}`;
+  const body = redactSecretText(safeText(artifact.body, 200000));
   const payload = {
     artifactId,
     jobId,
@@ -2833,6 +2849,8 @@ async function recordArtifact(admin, jobId, projectId, artifact, ownerKey = '') 
     required: artifact.required === true,
     origin: safeText(artifact.origin || safeObject(artifact.metadata).origin, 120) || 'executor_workspace',
     workspacePath: safeText(artifact.workspacePath || safeObject(artifact.metadata).workspacePath, 1000),
+    body,
+    bodyTruncated: Boolean(artifact.bodyTruncated),
     createdAtMs: Date.now(),
     metadata: safeObject(artifact.metadata),
   };
@@ -3606,5 +3624,7 @@ module.exports = {
   buildJobActivation,
   activationStateFromResult,
   shouldAcceptWorkerCompletion,
+  isConcreteArtifactRequirement,
+  missingConcreteArtifacts,
   wakeWorker,
 };

@@ -41,6 +41,8 @@ const {
   isTerminalJobStatus,
   staleJobCandidate,
   selectWorker,
+  isConcreteArtifactRequirement,
+  missingConcreteArtifacts,
 } = require('../functions/command_center_mcp');
 
 const requiredCollections = [
@@ -157,6 +159,18 @@ assert.equal(policy.destructive, 'deny');
 assert(COMMAND_CENTER_REQUIRED_ARTIFACTS.includes('job-intake.json'));
 assert(COMMAND_CENTER_REQUIRED_ARTIFACTS.includes('implementation.patch'));
 assert(COMMAND_CENTER_REQUIRED_ARTIFACTS.includes('final-report.md'));
+assert.equal(isConcreteArtifactRequirement('final-report.md'), true);
+assert.equal(isConcreteArtifactRequirement('reports/final-report.md'), true);
+assert.equal(isConcreteArtifactRequirement('gs://bucket/path/final-report.md'), true);
+assert.equal(isConcreteArtifactRequirement('draft PR URLs for she-raw and home-center'), false);
+assert.deepEqual(
+  missingConcreteArtifacts(['final-report.md', 'draft PR URLs for she-raw and home-center'], new Set(['final-report.md'])),
+  []
+);
+assert.deepEqual(
+  missingConcreteArtifacts(['final-report.md', 'verification.json'], new Set(['final-report.md'])),
+  ['verification.json']
+);
 assert.equal(COMMAND_CENTER_DEFAULT_BASE_WORKSPACE.restoreStrategy, 'copy_overlay');
 assert.equal(cleanBaseWorkspace({baseWorkspaceId: 'tank-base', snapshotRef: 'worker-local://tank'}).baseWorkspaceId, 'tank-base');
 assert.equal(normalizeGithubRepositoryRef('github://Valar05/agent-closet'), 'Valar05/agent-closet');

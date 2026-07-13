@@ -591,6 +591,19 @@ function captureRepositoryArtifacts(packet, codex, restore, verificationResults,
   return {changedFiles, diffHasContent, newCommitCreated, baseCommit, headCommit: head, branch: branch.stdout.trim()};
 }
 
+const ARTIFACT_BODY_LIMIT_BYTES = 200000;
+const ARTIFACT_BODY_DENYLIST = new Set(['stdout-transcript.txt', 'stderr-transcript.txt']);
+
+function safeArtifactBody(rel) {
+  if (ARTIFACT_BODY_DENYLIST.has(rel)) return {};
+  const file = path.join(workspaceRoot, rel);
+  if (!fs.existsSync(file)) return {};
+  const stat = fs.statSync(file);
+  if (!stat.isFile()) return {};
+  const body = fs.readFileSync(file, 'utf8').slice(0, ARTIFACT_BODY_LIMIT_BYTES);
+  return {body: redact(body), bodyTruncated: stat.size > ARTIFACT_BODY_LIMIT_BYTES};
+}
+
 function artifactFor(rel, kind, required = true, summary = '') {
   const file = path.join(workspaceRoot, rel);
   return {
@@ -602,6 +615,7 @@ function artifactFor(rel, kind, required = true, summary = '') {
     required,
     sha256: fileSha256(file),
     summary,
+    ...safeArtifactBody(rel),
   };
 }
 
@@ -666,7 +680,7 @@ async function runOneShotJob() {
   const finalReport = acceptance.accepted ? baseFinalReport : `${baseFinalReport}\n\n## Command Center Acceptance Failures\n\n${acceptance.failures.map((failure) => `- ${failure}`).join('\n')}\n`;
   writeText('final-report.md', finalReport);
   const artifacts = [
-    {name: 'job-intake.json', kind: 'job_intake', uri: path.join(workspaceRoot, 'job-intake.json'), workspacePath: 'job-intake.json', origin: 'executor_workspace', required: true, summary: 'One-shot job packet claimed by Cloud Run worker.'},
+    {name: 'job-intake.json', kind: 'job_intake', uri: path.join(workspaceRoot, 'job-intake.json'), workspacePath: 'job-intake.json', origin: 'executor_workspace', required: true, summary: 'One-shot job packet claimed by Cloud Run worker.', ...safeArtifactBody('job-intake.json')},
     artifactFor('orientation.md', 'orientation', true, 'Repository orientation and restore evidence.'),
     artifactFor('reasoning-summary.md', 'reasoning_summary', true, 'Codex final message or execution summary.'),
     artifactFor('command-log.jsonl', 'command_log', true, 'Codex and verification command transcript.'),
