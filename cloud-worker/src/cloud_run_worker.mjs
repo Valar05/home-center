@@ -13,6 +13,7 @@ const jobId = env.COMMAND_CENTER_JOB_ID || '';
 const snapshotBucket = env.COMMAND_CENTER_WORKSPACE_SNAPSHOT_BUCKET || '';
 const workspaceRoot = env.COMMAND_CENTER_WORKSPACE_DIR || '/workspace/session';
 const codexHome = env.CODEX_HOME || path.join(os.homedir(), '.command-center-codex-home');
+const codexHomeArchive = env.COMMAND_CENTER_CODEX_HOME_TGZ_PATH || '/var/secrets/command-center-codex-home/codex-home.tgz';
 
 function required(name, value) {
   if (!value) throw new Error(`${name} is required`);
@@ -40,12 +41,18 @@ async function post(endpoint, body) {
   return json;
 }
 
+function processEnv(overrides = {}, options = {}) {
+  const merged = {...process.env, ...overrides};
+  for (const name of options.omit || []) delete merged[name];
+  return merged;
+}
+
 function run(command, cwd = workspaceRoot, options = {}) {
   const result = spawnSync(command, {
     cwd,
     shell: true,
     encoding: 'utf8',
-    env: {...process.env, ...(options.env || {})},
+    env: processEnv(options.env || {}, options),
     maxBuffer: 20 * 1024 * 1024,
   });
   return {
@@ -59,6 +66,24 @@ function run(command, cwd = workspaceRoot, options = {}) {
 
 function ensureWorkspace() {
   fs.mkdirSync(workspaceRoot, {recursive: true});
+}
+
+function prepareCodexHome() {
+  fs.mkdirSync(codexHome, {recursive: true});
+  if (fs.existsSync(codexHomeArchive)) {
+    const before = run(`find ${JSON.stringify(codexHome)} -mindepth 1 -maxdepth 1 | head -n 1`, '/', {omit: ['OPENAI_API_KEY']});
+    if (!before.stdout.trim()) {
+      const unpack = run(`tar -xzf ${JSON.stringify(codexHomeArchive)} -C ${JSON.stringify(codexHome)}`, '/', {omit: ['OPENAI_API_KEY']});
+      if (unpack.exitCode !== 0) throw new Error(`Codex home restore failed: ${unpack.stderr || unpack.stdout}`);
+    }
+    return {mode: 'codex_home_archive', codexHome};
+  }
+  if (!env.OPENAI_API_KEY) return {mode: 'missing', codexHome};
+  const login = run('sh -lc \'printf %s "$OPENAI_API_KEY" | codex login --with-api-key\'', workspaceRoot, {env: {CODEX_HOME: codexHome}});
+  fs.writeFileSync(path.join(workspaceRoot, 'codex-login-stdout.txt'), login.stdout);
+  fs.writeFileSync(path.join(workspaceRoot, 'codex-login-stderr.txt'), login.stderr);
+  if (login.exitCode !== 0) return {mode: 'api_key_login_failed', codexHome, login};
+  return {mode: 'api_key_login', codexHome};
 }
 
 function restoreWorkspace(ref, repository) {
@@ -174,16 +199,24 @@ function runCodexPrompt(prompt, options = {}) {
     fs.writeFileSync(path.join(workspaceRoot, 'final-report.md'), `# Final Report\n\n${report}\n`);
     return {exitCode: 0, stdout: report, stderr: '', command: 'dry-run'};
   }
-  fs.mkdirSync(codexHome, {recursive: true});
-  const login = run('sh -lc \'printf %s "$OPENAI_API_KEY" | codex login --with-api-key\'', workspaceRoot, {env: {CODEX_HOME: codexHome}});
-  fs.writeFileSync(path.join(workspaceRoot, 'codex-login-stdout.txt'), login.stdout);
-  fs.writeFileSync(path.join(workspaceRoot, 'codex-login-stderr.txt'), login.stderr);
-  if (login.exitCode !== 0) {
-    fs.writeFileSync(path.join(workspaceRoot, 'final-report.md'), `# Final Report\n\nCodex login failed with exit code ${login.exitCode}.\n\nSee codex-login-stderr.txt.\n`);
-    return login;
+  const codexAuth = prepareCodexHome();
+  if (codexAuth.login && codexAuth.login.exitCode !== 0) {
+    fs.writeFileSync(path.join(workspaceRoot, 'final-report.md'), `# Final Report
+
+Codex login failed with exit code ${codexAuth.login.exitCode}.
+
+See codex-login-stderr.txt.
+`);
+    return codexAuth.login;
   }
+  if (codexAuth.mode === 'missing') {
+    const result = {command: 'codex auth preflight', cwd: workspaceRoot, exitCode: 78, stdout: '', stderr: 'No Codex home archive or OPENAI_API_KEY was configured.'};
+    fs.writeFileSync(path.join(workspaceRoot, 'final-report.md'), '# Final Report\n\nCodex authentication was not configured.\n');
+    return result;
+  }
+  fs.writeFileSync(path.join(workspaceRoot, 'codex-auth-mode.txt'), `${codexAuth.mode}\n`);
   fs.writeFileSync(path.join(workspaceRoot, 'codex-prompt.md'), prompt);
-  const result = run(`codex exec --json --skip-git-repo-check --dangerously-bypass-approvals-and-sandbox --output-last-message ${JSON.stringify(path.join(workspaceRoot, 'codex-last-message.md'))} - < ${JSON.stringify(path.join(workspaceRoot, 'codex-prompt.md'))}`, workspaceRoot, {env: {CODEX_HOME: codexHome}});
+  const result = run(`codex exec --json --skip-git-repo-check --dangerously-bypass-approvals-and-sandbox --output-last-message ${JSON.stringify(path.join(workspaceRoot, 'codex-last-message.md'))} - < ${JSON.stringify(path.join(workspaceRoot, 'codex-prompt.md'))}`, workspaceRoot, {env: {CODEX_HOME: codexHome}, omit: codexAuth.mode === 'codex_home_archive' ? ['OPENAI_API_KEY'] : []});
   fs.writeFileSync(path.join(workspaceRoot, 'codex-stdout.jsonl'), result.stdout);
   fs.writeFileSync(path.join(workspaceRoot, 'codex-stderr.txt'), result.stderr);
   const nonce = options.nonce || '';
@@ -267,14 +300,22 @@ async function runCodexPromptStreaming(prompt, options = {}) {
     fs.writeFileSync(path.join(workspaceRoot, 'final-report.md'), `# Final Report\n\n${report}\n`);
     return {exitCode: 0, stdout: report, stderr: '', command: 'dry-run'};
   }
-  fs.mkdirSync(codexHome, {recursive: true});
-  const login = run('sh -lc \'printf %s "$OPENAI_API_KEY" | codex login --with-api-key\'', workspaceRoot, {env: {CODEX_HOME: codexHome}});
-  fs.writeFileSync(path.join(workspaceRoot, 'codex-login-stdout.txt'), login.stdout);
-  fs.writeFileSync(path.join(workspaceRoot, 'codex-login-stderr.txt'), login.stderr);
-  if (login.exitCode !== 0) {
-    fs.writeFileSync(path.join(workspaceRoot, 'final-report.md'), `# Final Report\n\nCodex login failed with exit code ${login.exitCode}.\n\nSee codex-login-stderr.txt.\n`);
-    return login;
+  const codexAuth = prepareCodexHome();
+  if (codexAuth.login && codexAuth.login.exitCode !== 0) {
+    fs.writeFileSync(path.join(workspaceRoot, 'final-report.md'), `# Final Report
+
+Codex login failed with exit code ${codexAuth.login.exitCode}.
+
+See codex-login-stderr.txt.
+`);
+    return codexAuth.login;
   }
+  if (codexAuth.mode === 'missing') {
+    const result = {command: 'codex auth preflight', cwd: workspaceRoot, exitCode: 78, stdout: '', stderr: 'No Codex home archive or OPENAI_API_KEY was configured.'};
+    fs.writeFileSync(path.join(workspaceRoot, 'final-report.md'), '# Final Report\n\nCodex authentication was not configured.\n');
+    return result;
+  }
+  fs.writeFileSync(path.join(workspaceRoot, 'codex-auth-mode.txt'), `${codexAuth.mode}\n`);
   fs.writeFileSync(path.join(workspaceRoot, 'codex-prompt.md'), prompt);
   fs.writeFileSync(path.join(workspaceRoot, 'stdout-transcript.txt'), '');
   fs.writeFileSync(path.join(workspaceRoot, 'stderr-transcript.txt'), '');
@@ -292,6 +333,7 @@ async function runCodexPromptStreaming(prompt, options = {}) {
   ], {
     cwd: workspaceRoot,
     env: {CODEX_HOME: codexHome},
+    omit: codexAuth.mode === 'codex_home_archive' ? ['OPENAI_API_KEY'] : [],
     stdin: prompt,
     transcriptPath: 'transcript.txt',
     onChunk: (streamName, text, meta) => {
