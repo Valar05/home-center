@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 import assert from 'node:assert/strict';
+import fs from 'node:fs';
 import {createRequire} from 'node:module';
 
 const require = createRequire(import.meta.url);
@@ -8,6 +9,7 @@ const {
   COMMAND_CENTER_ALLOWED_STATUSES,
   COMMAND_CENTER_JOB_ACTIVATION_STATUSES,
   COMMAND_CENTER_COMPLETION_EVENT_LOOKBACK_LIMIT,
+  COMMAND_CENTER_DURABLE_SESSION_RESTORE_STRATEGIES,
   isWorkerLeaseEligible,
   selectWorker,
   normalizeActivationChannel,
@@ -24,6 +26,7 @@ const requiredLifecycleEvents = ['activation_requested', 'activation_accepted', 
 assert(requiredLifecycleEvents.includes('activation_requested'));
 assert(requiredLifecycleEvents.includes('executor_finished'));
 assert.equal(COMMAND_CENTER_COMPLETION_EVENT_LOOKBACK_LIMIT >= 1000, true);
+assert(COMMAND_CENTER_DURABLE_SESSION_RESTORE_STRATEGIES.includes('gcs_snapshot'));
 
 const nowMs = Date.now();
 const liveCloudWorker = {
@@ -46,7 +49,7 @@ const noActivatorWorker = {
   capabilities: ['codex-cloud'],
 };
 assert.equal(isWorkerLeaseEligible(noActivatorWorker, ['codex-cloud'], {nowMs}).eligible, false);
-assert.match(isWorkerLeaseEligible(noActivatorWorker, ['codex-cloud'], {nowMs}).reason, /activation channel/);
+assert.match(isWorkerLeaseEligible(noActivatorWorker, ['codex-cloud'], {nowMs}).reason, /heartbeat missing|activation channel/);
 assert.throws(
   () => selectWorker([noActivatorWorker], ['codex-cloud'], {nowMs}),
   /No live real Command Center worker satisfies requirements: codex-cloud/
@@ -58,6 +61,27 @@ assert.match(isWorkerLeaseEligible(staleWorker, ['codex-cloud'], {nowMs}).reason
 
 const livePollWorker = {...liveCloudWorker, workerId: 'poll-cloud', activation: {mode: 'poll', verifiedAtMs: nowMs - 1000}, lastHeartbeatAtMs: nowMs - 1000};
 assert.equal(isWorkerLeaseEligible(livePollWorker, ['codex-cloud'], {nowMs}).eligible, true);
+
+const cloudRunSessionWorker = {
+  workerId: 'cloud-run-debian-primary',
+  health: 'healthy',
+  simulated: false,
+  routable: true,
+  capabilities: ['codex', 'cloud-run-debian', 'durable-session', 'prepared-workspace'],
+  activation: {mode: 'cloud_run_job', verifiedAtMs: nowMs - 1000},
+  lastHeartbeatAtMs: nowMs - 1000,
+  cloudRunJob: {projectId: 'home-center-dclar', region: 'us-central1', jobName: 'command-center-debian-worker'},
+  sessionPolicy: {durable: true, snapshotStore: 'gcs'},
+};
+assert.equal(isWorkerLeaseEligible(cloudRunSessionWorker, ['cloud-run-debian', 'durable-session'], {nowMs}).eligible, true);
+assert.equal(selectWorker([liveCloudWorker, cloudRunSessionWorker], ['cloud-run-debian', 'durable-session'], {nowMs}).workerId, 'cloud-run-debian-primary');
+const heartbeatProvenCloudRunWorker = {...cloudRunSessionWorker, activation: {mode: 'cloud_run_job', verifiedAtMs: nowMs - 60 * 60 * 1000}, lastHeartbeatAtMs: nowMs - 1000};
+assert.equal(isWorkerLeaseEligible(heartbeatProvenCloudRunWorker, ['cloud-run-debian', 'durable-session'], {nowMs}).eligible, true);
+const coldActivatableCloudRunWorker = {...cloudRunSessionWorker, activation: {mode: 'cloud_run_job', verifiedAtMs: nowMs - 60 * 60 * 1000}, lastHeartbeatAtMs: 0};
+assert.equal(isWorkerLeaseEligible(coldActivatableCloudRunWorker, ['cloud-run-debian', 'durable-session'], {nowMs}).eligible, true);
+assert.equal(selectWorker([coldActivatableCloudRunWorker], ['cloud-run-debian', 'durable-session'], {nowMs}).workerId, 'cloud-run-debian-primary');
+assert.equal(isWorkerLeaseEligible({...cloudRunSessionWorker, sessionPolicy: {durable: true, snapshotStore: 'local'}}, ['cloud-run-debian', 'durable-session'], {nowMs}).eligible, false);
+assert.match(isWorkerLeaseEligible({...cloudRunSessionWorker, activation: {mode: 'poll', verifiedAtMs: nowMs}}, ['cloud-run-debian', 'durable-session'], {nowMs}).reason, /cloud_run_job/);
 
 const simulatedWorker = {...liveCloudWorker, workerId: 'simulated', simulated: true};
 assert.equal(isWorkerLeaseEligible(simulatedWorker, ['codex-cloud'], {nowMs}).eligible, false);
@@ -106,5 +130,15 @@ assert.match(shouldAcceptWorkerCompletion({
   artifacts: [{artifactId: 'art_1', origin: 'command_center'}],
 }).reason, /executor workspace/);
 assert.equal(shouldAcceptWorkerCompletion({requestedStatus: 'failed', events: [], artifacts: []}).ok, true);
+
+
+const cloudWorkerSource = fs.readFileSync(new URL('../cloud-worker/src/cloud_run_worker.mjs', import.meta.url), 'utf8');
+assert(cloudWorkerSource.includes('async function runOneShotJob()'));
+assert(cloudWorkerSource.includes("post('/worker/lease', {jobId, executorId})"));
+assert(cloudWorkerSource.includes("executor_started"));
+assert(cloudWorkerSource.includes("executor_heartbeat"));
+assert(cloudWorkerSource.includes("executor_finished"));
+assert(cloudWorkerSource.includes("noop-proof.txt"));
+assert(cloudWorkerSource.includes("origin: 'executor_workspace'"));
 
 console.log('Command Center cloud activation contract test: OK');

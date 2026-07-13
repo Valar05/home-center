@@ -453,7 +453,7 @@ function parseMcpPayload(text, label) {
 
 function commandCenterOperationRegistry() {
   return {
-    version: '2026-07-11.home-center-browser-playbooks-v2',
+    version: '2026-07-12.command-center-worker-wake-v1',
     invocationTool: 'command_center_operation',
     commandCenterMcpUrl: COMMAND_CENTER_MCP_URL,
     purpose: 'Expose Command Center dispatch and managed knowledge-bucket operations through the already-installed Home Center MCP connector so ChatGPT can create, inspect, resume, revise, authorize, and preserve worker knowledge without discovering a second MCP app.',
@@ -478,11 +478,11 @@ function commandCenterOperationRegistry() {
       'jobs.get_logs': {summary: 'Read job log metadata.', readOnly: true, input: {jobId: 'string', limit: 'optional number'}},
       'jobs.get_artifacts': {summary: 'Read job artifact metadata.', readOnly: true, input: {jobId: 'string', limit: 'optional number'}},
       'agents.upsert_repo_agent': {summary: 'Create or update a durable repo/project agent identity for real OpenAI Codex cloud activations.', readOnly: false, input: {projectId: 'string', agentId: 'optional string', repository: 'optional string', contextRefs: 'optional string[]', idempotencyKey: 'string'}},
-      'agents.create_activation': {summary: 'Create a dormant-to-active task packet for the real OpenAI Codex cloud surface.', readOnly: false, input: {agentId: 'string', sessionId: 'optional string', prompt: 'string', acceptanceCriteria: 'optional string[]', artifactRequirements: 'optional string[]', idempotencyKey: 'string'}},
+      'agents.create_activation': {summary: 'Create a dormant-to-active packet for a durable Codex worker session. Repo binding is optional; Cloud Run Debian workers restore/write GCS workspace snapshots.', readOnly: false, input: {agentId: 'optional string', projectId: 'optional string', repository: 'optional string', sessionId: 'optional string', prompt: 'string', workerRequirements: 'optional string[]', currentWorkspaceSnapshotRef: 'optional string', acceptanceCriteria: 'optional string[]', artifactRequirements: 'optional string[]', idempotencyKey: 'string'}},
       'agents.get_resume_packet': {summary: 'Read the durable packet a bridge uses to start or resume the real Codex cloud surface.', readOnly: true, input: {activationId: 'string'}},
       'agents.record_codex_cloud_ref': {summary: 'Record the real ChatGPT/OpenAI Codex cloud task URL or resume handle for an activation.', readOnly: false, input: {activationId: 'string', url: 'optional string', status: 'optional string', idempotencyKey: 'string'}},
       'agents.record_artifact': {summary: 'Record a redacted artifact from a real Codex cloud activation.', readOnly: false, input: {activationId: 'string', name: 'string', uri: 'optional string', body: 'optional string', idempotencyKey: 'string'}},
-      'agents.complete_activation': {summary: 'Mark a Codex cloud activation terminal and write durable Command Center memory.', readOnly: false, input: {activationId: 'string', status: 'completed|failed|canceled|needs_human', finalSummary: 'optional string', idempotencyKey: 'string'}},
+      'agents.complete_activation': {summary: 'Mark a durable Codex worker activation terminal and write Command Center memory. Completed durable sessions require artifact evidence and next snapshot when requested.', readOnly: false, input: {activationId: 'string', status: 'completed|failed|canceled|needs_human', finalSummary: 'optional string', nextWorkspaceSnapshotRef: 'optional string', idempotencyKey: 'string'}},
       'agents.get_handoff': {summary: 'Read a ChatGPT-reviewable handoff for a real Codex cloud activation.', readOnly: true, input: {activationId: 'string'}},
       'bucket.get_layout': {summary: 'Read Command Center managed knowledge bucket lanes and storage policy.', readOnly: true, input: {}},
       'bucket.put_object': {summary: 'Write durable execution memory, scratch/promoted skills, or cross-repo notes. Secrets are rejected.', readOnly: false, input: {kind: 'memory.past_log|memory.current_condensed|skill.scratch|skill.promoted|note.cross_repo', title: 'string', summary: 'optional string', body: 'optional string', objectUri: 'optional string', projectId: 'optional string', repository: 'optional string', jobId: 'optional string', tags: 'optional string[]', evidenceRefs: 'optional string[]', idempotencyKey: 'string'}},
@@ -2587,7 +2587,7 @@ function commandCenterDriveOperationEntries() {
 
 function driveOperationRegistry() {
   return {
-    version: '2026-07-11.command-center-drive-operation-v1',
+    version: '2026-07-13.context-sync-publish-v1',
     invocationTool: 'drive_operation',
     cachePolicy: 'New bridge, simulation, and Command Center operations should be invokable through drive_operation so ChatGPT does not need a top-level MCP tool refresh for every backend code change. Agents should rediscover this registry through capabilities or health before claiming an operation is unavailable.',
     operations: {

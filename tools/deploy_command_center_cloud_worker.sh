@@ -12,8 +12,6 @@ WORKER_TOKEN_SECRET="${COMMAND_CENTER_WORKER_TOKEN_SECRET:-COMMAND_CENTER_CLOUD_
 OPENAI_SECRET="${COMMAND_CENTER_OPENAI_SECRET:-OPENAI_API_KEY}"
 GITHUB_SECRET="${COMMAND_CENTER_GITHUB_SECRET:-GITHUB_TOKEN}"
 SERVICE_ACCOUNT="${COMMAND_CENTER_WORKER_SERVICE_ACCOUNT:-}"
-CPU="${COMMAND_CENTER_WORKER_CPU:-1}"
-MEMORY="${COMMAND_CENTER_WORKER_MEMORY:-2Gi}"
 
 gcloud services enable run.googleapis.com cloudbuild.googleapis.com artifactregistry.googleapis.com secretmanager.googleapis.com storage.googleapis.com --project "$PROJECT" >/dev/null
 
@@ -51,8 +49,6 @@ gcloud run jobs deploy "$JOB" \
   --image "$IMAGE" \
   --tasks 1 \
   --max-retries 0 \
-  --cpu "$CPU" \
-  --memory "$MEMORY" \
   --task-timeout 3600 \
   --set-env-vars "COMMAND_CENTER_BASE=https://us-central1-${PROJECT}.cloudfunctions.net/commandCenterMcp,COMMAND_CENTER_WORKSPACE_SNAPSHOT_BUCKET=${SNAPSHOT_BUCKET}" \
   --set-secrets "COMMAND_CENTER_WORKER_TOKEN=${WORKER_TOKEN_SECRET}:latest,OPENAI_API_KEY=${OPENAI_SECRET}:latest,GH_TOKEN=${GITHUB_SECRET}:latest" \
@@ -62,7 +58,5 @@ cat <<EOF
 Cloud worker image deployed:
   image: ${IMAGE}
   job: ${JOB}
-  cpu: ${CPU}
-  memory: ${MEMORY}
   snapshot bucket: gs://${SNAPSHOT_BUCKET}
 EOF
