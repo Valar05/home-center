@@ -117,18 +117,34 @@ assert.equal(activationStateFromResult(null).status, 'rejected');
 assert.equal(shouldAcceptWorkerCompletion({
   requestedStatus: 'completed',
   events: [{type: 'executor_started'}, {type: 'executor_finished'}],
-  artifacts: [{artifactId: 'art_1', origin: 'executor_workspace'}],
+  artifacts: [
+    {name: 'job-intake.json', origin: 'executor_workspace'},
+    {name: 'orientation.md', origin: 'executor_workspace'},
+    {name: 'reasoning-summary.md', origin: 'executor_workspace'},
+    {name: 'command-log.jsonl', origin: 'executor_workspace'},
+    {name: 'acceptance.json', origin: 'executor_workspace'},
+    {name: 'implementation.patch', origin: 'executor_workspace'},
+    {name: 'changed-files.json', origin: 'executor_workspace'},
+    {name: 'verification.json', origin: 'executor_workspace'},
+    {name: 'final-report.md', origin: 'executor_workspace'},
+    {name: 'mutation-requests.jsonl', origin: 'executor_workspace'},
+  ],
 }).ok, true);
 assert.equal(shouldAcceptWorkerCompletion({
   requestedStatus: 'completed',
   events: [{type: 'executor_started'}],
-  artifacts: [{artifactId: 'art_1', origin: 'executor_workspace'}],
+  artifacts: [{name: 'job-intake.json', origin: 'executor_workspace'}],
 }).ok, false);
 assert.match(shouldAcceptWorkerCompletion({
   requestedStatus: 'completed',
   events: [{type: 'executor_started'}, {type: 'executor_finished'}],
-  artifacts: [{artifactId: 'art_1', origin: 'command_center'}],
+  artifacts: [{name: 'job-intake.json', origin: 'command_center'}],
 }).reason, /executor workspace/);
+assert.match(shouldAcceptWorkerCompletion({
+  requestedStatus: 'completed',
+  events: [{type: 'executor_started'}, {type: 'executor_finished'}],
+  artifacts: [{name: 'noop-proof.txt', origin: 'executor_workspace'}],
+}).reason, /noop-proof/);
 assert.equal(shouldAcceptWorkerCompletion({requestedStatus: 'failed', events: [], artifacts: []}).ok, true);
 
 
@@ -138,7 +154,25 @@ assert(cloudWorkerSource.includes("post('/worker/lease', {jobId, executorId})"))
 assert(cloudWorkerSource.includes("executor_started"));
 assert(cloudWorkerSource.includes("executor_heartbeat"));
 assert(cloudWorkerSource.includes("executor_finished"));
-assert(cloudWorkerSource.includes("noop-proof.txt"));
+assert(cloudWorkerSource.includes("executor_stdout"));
+assert(cloudWorkerSource.includes("executor_stderr"));
+assert(!cloudWorkerSource.includes("noop-proof.txt"));
+assert(cloudWorkerSource.includes("restoreJobWorkspace(job)"));
+assert(cloudWorkerSource.includes("runCodexPromptStreaming"));
+assert(cloudWorkerSource.includes("implementation.patch"));
+assert(cloudWorkerSource.includes("changed-files.json"));
+assert(cloudWorkerSource.includes("verification.json"));
+assert(cloudWorkerSource.includes("acceptance.json"));
+assert(cloudWorkerSource.includes("command-center-git-askpass.sh"));
+assert(cloudWorkerSource.includes("GIT_ASKPASS"));
+assert(cloudWorkerSource.includes(").trim()"));
+assert(cloudWorkerSource.includes("process.env.GH_TOKEN = token"));
+assert(cloudWorkerSource.includes("git ls-remote"));
+assert(cloudWorkerSource.includes("GitHub auth preflight failed"));
+assert(cloudWorkerSource.includes("Mutation ticket produced no uncommitted diff"));
+assert(cloudWorkerSource.includes("Ticket required push/PR evidence"));
+assert(cloudWorkerSource.includes("stdout-transcript.txt"));
+assert(cloudWorkerSource.includes("stderr-transcript.txt"));
 assert(cloudWorkerSource.includes("origin: 'executor_workspace'"));
 
 console.log('Command Center cloud activation contract test: OK');

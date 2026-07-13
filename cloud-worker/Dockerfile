@@ -8,7 +8,7 @@ RUN apt-get update \
   && echo "deb [signed-by=/etc/apt/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" > /etc/apt/sources.list.d/google-cloud-sdk.list \
   && curl -fsSL https://deb.nodesource.com/setup_22.x | bash - \
   && apt-get update \
-  && apt-get install -y --no-install-recommends nodejs google-cloud-cli \
+  && apt-get install -y --no-install-recommends nodejs google-cloud-cli gh \
   && npm install -g @openai/codex \
   && rm -rf /var/lib/apt/lists/*
 
