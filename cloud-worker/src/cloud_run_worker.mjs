@@ -412,11 +412,11 @@ function buildAcceptanceMatrix(job, acceptance, verificationResults, gitEvidence
   const criteria = Array.isArray(job.acceptanceCriteria) ? job.acceptanceCriteria : [];
   if (!criteria.length) return [];
   const refsForCriterion = (text) => {
-    if (/worker|non-simulated|cloud run|executor|pid|identity|start|finish|heartbeat|stdout|stderr|stream/i.test(text)) {
-      return ['job-intake.json', 'command-log.jsonl', 'stdout-transcript.txt', 'stderr-transcript.txt'];
-    }
     if (/nonce|hello-world|hello world|file contains|output/i.test(text)) {
       return ['pulse-proof.json', 'verification.json', 'stdout-transcript.txt', 'final-report.md'];
+    }
+    if (/worker|non-simulated|cloud run|executor|pid|identity|start|finish|heartbeat|stdout|stderr|stream/i.test(text)) {
+      return ['job-intake.json', 'command-log.jsonl', 'stdout-transcript.txt', 'stderr-transcript.txt'];
     }
     if (/acceptance[- ]matrix|criterion|criteria/i.test(text)) {
       return ['acceptance-matrix.json'];
@@ -443,15 +443,15 @@ function buildAcceptanceMatrix(job, acceptance, verificationResults, gitEvidence
     let status = acceptance.accepted ? 'not_evaluated' : 'manual_review_required';
     const notes = [];
     const evidenceRefs = refsForCriterion(text);
-    if (/test|verification|build|smoke/i.test(text)) {
+    if (/nonce|hello-world|hello world|file contains|output/i.test(text)) {
+      status = acceptance.accepted ? 'passed' : 'failed';
+      notes.push(status === 'passed' ? 'Nonce-bearing output is covered by verification and final report evidence.' : 'Nonce output was missing or invalid.');
+    } else if (/test|verification|build|smoke/i.test(text)) {
       status = verificationResults.every((result) => result.exitCode === 0) ? 'passed' : 'failed';
       notes.push(status === 'passed' ? 'Verification commands passed.' : 'One or more verification commands failed.');
     } else if (/worker|non-simulated|cloud run|executor|pid|identity|start|finish|heartbeat|stdout|stderr|stream/i.test(text)) {
       status = acceptance.accepted ? 'passed' : 'failed';
       notes.push(status === 'passed' ? 'Executor lifecycle evidence is recorded in worker events and transcripts.' : 'Executor lifecycle evidence did not satisfy acceptance.');
-    } else if (/nonce|hello-world|hello world|file contains|output/i.test(text)) {
-      status = acceptance.accepted ? 'passed' : 'failed';
-      notes.push(status === 'passed' ? 'Nonce-bearing output is covered by verification and final report evidence.' : 'Nonce output was missing or invalid.');
     } else if (/acceptance[- ]matrix|criterion|criteria/i.test(text)) {
       status = acceptance.accepted ? 'passed' : 'failed';
       notes.push(status === 'passed' ? 'Criterion-level acceptance matrix was emitted.' : 'Acceptance matrix was not sufficient.');
@@ -610,7 +610,7 @@ function executionModeFromJob(job = {}) {
 function nonceFromJob(job = {}, prefix = 'nonce') {
   const text = [job.objective || '', job.title || '', ...(job.acceptanceCriteria || [])].join('\n');
   const explicit = text.match(/\b(?:nonce|marker)\s*[:=]\s*([A-Za-z0-9_.:-]{6,120})/i);
-  if (explicit) return explicit[1];
+  if (explicit) return explicit[1].replace(/[.。,:;!?]+$/g, '');
   return `${prefix}_${String(job.jobId || jobId).replace(/[^A-Za-z0-9_-]/g, '').slice(-16)}`;
 }
 
