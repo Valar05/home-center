@@ -202,6 +202,8 @@ assert(cloudWorkerSource.includes("process.env.GH_TOKEN = token"));
 assert(cloudWorkerSource.includes("git ls-remote"));
 assert(cloudWorkerSource.includes("GitHub auth preflight failed"));
 assert(cloudWorkerSource.includes("Mutation ticket produced no uncommitted diff"));
+assert(cloudWorkerSource.includes('function mutationRelevantArtifactText'));
+assert(cloudWorkerSource.includes('defaultEvidenceArtifacts'));
 assert(cloudWorkerSource.includes("Ticket required push/PR evidence"));
 assert(cloudWorkerSource.includes("stdout-transcript.txt"));
 assert(cloudWorkerSource.includes("stderr-transcript.txt"));

@@ -433,15 +433,19 @@ function runVerificationCommands(commands = []) {
   return results;
 }
 
+function mutationRelevantArtifactText(job = {}) {
+  const defaultEvidenceArtifacts = new Set(['job-intake.json', 'orientation.md', 'reasoning-summary.md', 'command-log.jsonl', 'stdout-transcript.txt', 'stderr-transcript.txt', 'acceptance.json', 'acceptance-matrix.json', 'usage-summary.json', 'implementation.patch', 'changed-files.json', 'verification.json', 'mutation-requests.jsonl', 'final-report.md']);
+  return (job.requiredArtifacts || []).filter((artifact) => !defaultEvidenceArtifacts.has(String(artifact || '').trim())).join('\n');
+}
+
 function isMutationTicket(job = {}) {
   const text = [
     job.objective || '',
     ...(job.acceptanceCriteria || []),
-    ...(job.requiredArtifacts || []),
+    mutationRelevantArtifactText(job),
   ].join('\n');
   return /fix|repair|implement|add red|red test|patch|changed-file|commit|push|pull request|\bPR\b|draft PR|build|readback/i.test(text);
 }
-
 function requiresPullRequest(job = {}) {
   const text = [
     job.objective || '',
