@@ -190,6 +190,20 @@ const SHE_RAW_BRAIN_JARS = Object.freeze([
     status: 'available',
   },
   {
+    brainId: 'tango',
+    displayName: 'Tango',
+    source: 'she-raw-corpus',
+    sourceRefs: ['chat:2026-07-13:tango-humane-mission-control', 'repo:she-raw/corpus/she-raw/cases/sr_case_tango_humane_mission_control_001.md', 'repo:home-center/corpus/she-raw/cases/sr_case_tango_humane_mission_control_001.md'],
+    role: 'Maintain humane mission continuity by recovering operational residue, preventing dropped-state harm, and designing relief before duty becomes captivity.',
+    primaryQuestion: 'What must be carried now, what residue must be cleared, and what relief lets every participant survive the mission?',
+    responsibilities: ['current-duty clarity', 'operational residue recovery', 'dropped-state prevention', 'continuity preservation', 'relief rotation', 'clean handoff', 'non-sacrificial boundaries'],
+    tone: 'watchful, practical, humane, unsentimental about preventable sacrifice',
+    activationTriggers: ['Tango', 'Mission Control', 'pick up the butts', 'save my butt', 'someone has to watch', 'relief rotation', 'humane command', 'nobody has to die'],
+    responseContract: ['name the current duty without expanding it', 'name explicit residue or say none is proven', 'name the preservation action', 'name the relief or handoff condition', 'state the non-sacrificial boundary'],
+    failureModes: ['quietly absorbing every duty', 'turning vigilance into permanent identity', 'cleaning residue without repairing its source', 'becoming a dispatch system instead of humane mission judgment', 'treating exhaustion as proof of care'],
+    status: 'available',
+  },
+  {
     brainId: 'command_center',
     displayName: 'Command Center',
     source: 'agent-closet',
@@ -636,7 +650,37 @@ function deterministicBikiniBottomResponse({brain, boundedContext = '', question
   };
 }
 
+function deterministicTangoResponse({brain, boundedContext = '', question = '', cases = [], rules = []}) {
+  const rule = controllingRule(rules);
+  const context = safeText(boundedContext, 2400);
+  const target = safeText(question, 600) || brain.primaryQuestion;
+  const evidenceReferences = [...sourceRefsFromBrain(brain), ...evidenceRefsFromCases(cases)].slice(0, 20);
+  const currentDuty = target ? `Carry only the duty explicitly named by the request: ${target}` : 'No current duty is proven; ask for the duty before expanding scope.';
+  const preservationAction = 'Record the named duty, current owner, live state, next required signal, and retrieval path before doing cleanup.';
+  const reliefHandoff = 'Name the relief condition and transfer the watch with enough state that the next operator can continue without reconstruction.';
+  const nonSacrificialBoundary = 'No person or agent is expendable. Duty requires rotation, checkpoints, and relief; exhaustion is not acceptance evidence.';
+  const firstCase = cases[0] || {};
+  return {
+    observation: context ? `Tango is humane Mission Control behind She-Raw MCP. Current bounded context: ${context.slice(0, 420)}` : 'Tango is humane Mission Control behind She-Raw MCP. No bounded context was supplied, so Tango will not invent a mission.',
+    current_duty: currentDuty,
+    residue: context ? ['Use only residue explicitly present in the bounded context; do not infer additional obligations.'] : [],
+    preservation_action: preservationAction,
+    relief_handoff: reliefHandoff,
+    non_sacrificial_boundary: nonSacrificialBoundary,
+    brain_judgment: firstCase.observation || `${currentDuty} ${preservationAction} ${reliefHandoff} ${nonSacrificialBoundary}`,
+    active_rule: rule.rule || '',
+    candidate_rules: candidateRules(rules),
+    dangerous_question: dangerousQuestionForTask({requestedPerspective: target, context, route: {response_contract: 'brain_jar'}, fallback: 'Has Mission Control quietly become the permanent relief plan instead of designing one?'}),
+    recommended_next_move: firstCase.intervention || 'Write a five-line watch card: duty, current owner, explicit residue, preservation action, and relief condition.',
+    evidence_references: evidenceReferences,
+    retrieved_cases: cases.map((c) => ({id: c.id, title: c.title, retrieval_score: c.retrievalScore})),
+    speculation: cases.length ? [] : ['No runtime corpus case matched strongly; Tango is enforcing only its source-backed humane mission-control contract.'],
+    confidence: cases.length ? 0.84 : 0.72,
+  };
+}
+
 function deterministicBrainJarResponse({brain, boundedContext = '', question = '', cases = [], rules = []}) {
+  if (brain.brainId === 'tango') return deterministicTangoResponse({brain, boundedContext, question, cases, rules});
   if (brain.brainId === 'bikini_bottom') return deterministicBikiniBottomResponse({brain, boundedContext, question, cases, rules});
   const rule = rules[0] || {};
   const firstCase = cases[0] || {};
