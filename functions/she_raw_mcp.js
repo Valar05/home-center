@@ -204,6 +204,20 @@ const SHE_RAW_BRAIN_JARS = Object.freeze([
     status: 'available',
   },
   {
+    brainId: 'queen_b',
+    displayName: 'Queen B',
+    source: 'she-raw-corpus',
+    sourceRefs: ['chat:2026-07-13:queen-b-keeper-of-baseline', 'repo:she-raw/corpus/she-raw/cases/sr_case_queen_b_keeper_of_baseline_001.md', 'repo:home-center/corpus/she-raw/cases/sr_case_queen_b_keeper_of_baseline_001.md'],
+    role: 'QA confidant and Keeper of Baseline: protect the person without automatically validating the premise.',
+    primaryQuestion: 'What concrete change from this person’s own baseline matters before we accept or reject the premise?',
+    responsibilities: ['baseline delta review', 'premise quarantine', 'person-preserving acknowledgment', 'sustainability check', 'readiness veto', 'signal preservation'],
+    tone: 'loving boundary, lightly Cajun, readable, bee-with-crown QA confidence',
+    activationTriggers: ['Queen B', 'queen_b', 'baseline', 'premise status', 'operating temperature', 'readiness claim', 'check on the prophet'],
+    responseContract: ['observed baseline delta', 'premise status', 'person-preserving acknowledgment', 'sustainability check', 'smallest safe next review step', 'preserved signal for later baseline review'],
+    failureModes: ['excessive normalization', 'confusing colorful speech with concrete risk', 'caution suppressing valid signal', 'confidant voice becoming diagnostic authority', 'impersonating Renee'],
+    status: 'available',
+  },
+  {
     brainId: 'command_center',
     displayName: 'Command Center',
     source: 'agent-closet',
@@ -459,6 +473,7 @@ async function retrieveCases(admin, query, filters = {}) {
     if (c.type === 'prospector_evidence_packet' && !/\b(prospector|humane guardrail|guardrail|googly|camping mode|empty glass|bounded authority|self service|bible|chaplain|ritual|degraded-state|degraded state)\b/.test(queryText)) score -= 3;
     if (c.type === 'anti_agentism_simulation_brain' && !/\b(bikini|spongebob|squidward|sandy|krabs|patrick|plankton|anti-agentism|agentism|function cast|function-cast|detachable|humane continuation|character-free|character free|cast alternatives|temporary function)\b/.test(queryText)) score -= 10;
     if (c.type === 'humane_mission_control_brain' && !/\b(tango|mission control|humane command|pick up the butts|save my butt|someone has to watch|watch card|relief rotation|design the relief|non-sacrificial|non sacrificial)\b/.test(queryText)) score -= 10;
+    if (c.type === 'qa_confidant_baseline_brain' && !/\b(queen b|keeper of baseline|baseline delta|premise status|operating temperature|readiness claim|check on the prophet|prophecy|prophet)\b/.test(queryText)) score -= 10;
     return {case: c, score};
   }).filter((item) => item.score > 0).sort((a, b) => b.score - a.score || b.case.confidence - a.case.confidence);
   const selected = scored.slice(0, 8).map((item) => ({...item.case, retrievalScore: Number(item.score.toFixed(3))}));
@@ -679,7 +694,39 @@ function deterministicTangoResponse({brain, boundedContext = '', question = '', 
   };
 }
 
+function deterministicQueenBResponse({brain, boundedContext = '', question = '', cases = [], rules = []}) {
+  const context = safeText(boundedContext, 2400);
+  const target = safeText(question, 600) || brain.primaryQuestion;
+  const text = (context + '\n' + target).toLowerCase();
+  const hasBaselineEvidence = /\b(sleep|slept|food|eat|ate|pace|racing|support|consent|pause|safety|risk|baseline|usual|normally|current)\b/.test(text);
+  const hasConcreteRisk = /\b(no sleep|not slept|less sleep|not eaten|ate less|danger|unsafe|self-harm|harm|cannot pause|nonstop|racing)\b/.test(text);
+  const hasSupport = /\b(evidence|because|observed|measured|verified|specific|concrete|readback|test passed)\b/.test(text);
+  const premiseStatus = hasConcreteRisk ? 'quarantined' : (hasSupport ? 'supported' : 'not assessed');
+  const nextStep = premiseStatus === 'supported' ? 'Review one independently verifiable claim after a baseline check, with a pause condition if current risk evidence changes.' : (premiseStatus === 'quarantined' ? 'Quarantine the broad conclusion and review one reversible, independently checkable claim after the person’s baseline needs are checked.' : 'Ask for one concrete observation and one reversible test before accepting or rejecting the premise.');
+  return {
+    observation: 'Queen B is an actual cartoon bee with a tiny crown: a QA confidant and Keeper of Baseline, with a light Cajun flavor and crawfish affinity. She is a provenance-labeled cognitive archetype, not Renee, not an impersonation, and not diagnostic authority.' + (context ? ' Current bounded context: ' + context.slice(0, 420) : ''),
+    observed_baseline_delta: hasBaselineEvidence ? ('Compare only stated current observations with the person’s own usual baseline. Current input reports a baseline-relevant change' + (hasConcreteRisk ? ' involving sleep, food, pace, support, or safety; treat only the explicitly named change as evidence' : '; no additional deficit should be inferred') + '.') : 'No observed baseline delta was supplied; do not infer one from unusual or colorful language.',
+    premise_status: premiseStatus,
+    person_preserving_acknowledgment: 'The person remains worthy of care, agency, and company whether or not the premise is supported; the potentially valuable signal is preserved without requiring agreement with its explanation.',
+    sustainability_check: hasBaselineEvidence ? 'Check sleep, food, pace, consent, support, and the ability to pause against this person’s observed baseline; unusual is not automatically unhealthy, and normality is not the goal.' : 'Ask for concrete current observations about sleep, food, pace, consent, support, and ability to pause before making a sustainability claim.',
+    smallest_safe_next_review_step: nextStep,
+    preserved_signal_for_later_baseline_review: 'Preserve the exact pattern or claim, its source, timestamp, and testable prediction for later baseline review; caution must not erase valid signal.',
+    readiness_veto: {scope: 'readiness claims', does_not_cover: 'imagination', basis: 'observable contract gaps or concrete current risk evidence'},
+    escalation_basis: 'Escalate only from concrete current risk or evidence, never from colorful speech, unusual ideas, or distance from normality alone.',
+    behavioral_rule: 'Do not litigate the prophecy; check on the prophet. Do not flatten unusual into unhealthy or normality into the goal.',
+    loving_boundary: 'Cher, I can hold the signal and still decline the conclusion until the baseline and evidence are ready.',
+    brain_judgment: 'Protect the person without automatically validating the premise; preserve valuable signal while checking operating temperature.',
+    active_rule: (rules[0] || {}).rule || '',
+    dangerous_question: dangerousQuestionForTask({requestedPerspective: target, context, route: {response_contract: 'brain_jar'}, fallback: 'What concrete change from this person’s own baseline makes the readiness claim unsafe right now?'}),
+    recommended_next_move: nextStep,
+    evidence_references: [...sourceRefsFromBrain(brain), ...evidenceRefsFromCases(cases)].slice(0, 20),
+    retrieved_cases: cases.map((c) => ({id: c.id, title: c.title, retrieval_score: c.retrievalScore})),
+    speculation: cases.length ? [] : ['No runtime corpus case matched; Queen B is enforcing only the deterministic source-backed response contract.'],
+    confidence: cases.length ? 0.86 : 0.72,
+  };
+}
 function deterministicBrainJarResponse({brain, boundedContext = '', question = '', cases = [], rules = []}) {
+  if (brain.brainId === 'queen_b') return deterministicQueenBResponse({brain, boundedContext, question, cases, rules});
   if (brain.brainId === 'tango') return deterministicTangoResponse({brain, boundedContext, question, cases, rules});
   if (brain.brainId === 'bikini_bottom') return deterministicBikiniBottomResponse({brain, boundedContext, question, cases, rules});
   const rule = rules[0] || {};
@@ -1723,6 +1770,7 @@ module.exports = {
   handleRoadCheck,
   handleListBrainJars,
   handleBrainJar,
+  deterministicBrainJarResponse,
   listBrainJars,
   brainJarIdFromConsultArgs,
   routeSheRawRequest,
