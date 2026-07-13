@@ -366,21 +366,73 @@ function runVerificationCommands(commands = []) {
 }
 
 function isMutationTicket(job = {}) {
-  const text = [
+  const text = stripNegativeMutationLanguage([
     job.objective || '',
     ...(job.acceptanceCriteria || []),
-    ...(job.requiredArtifacts || []),
-  ].join('\n');
+  ].join('\n'));
   return /fix|repair|implement|add red|red test|patch|changed-file|commit|push|pull request|\bPR\b|draft PR|build|readback/i.test(text);
 }
 
 function requiresPullRequest(job = {}) {
-  const text = [
+  const text = stripNegativeMutationLanguage([
     job.objective || '',
     ...(job.acceptanceCriteria || []),
-    ...(job.requiredArtifacts || []),
-  ].join('\n');
+  ].join('\n'));
   return /pull request|\bPR\b|draft PR|push/i.test(text);
+}
+
+function stripNegativeMutationLanguage(text) {
+  return String(text || '')
+    .replace(/\b(do not|don't|no|without|must not)\b[^.\n;]*(commit|push|pull request|\bPR\b|draft PR|deploy|deployment|external mutation|external provider)[^.\n;]*/gi, '')
+    .replace(/\b(no|without)\s+(GitHub mutation|Drive mutation|deployment mutation|worker-registration|project-registration mutation|external mutations?)[^.\n;]*/gi, '');
+}
+
+function parseCodexUsageSummary(text) {
+  const source = String(text || '');
+  const pick = (patterns) => {
+    for (const pattern of patterns) {
+      const match = source.match(pattern);
+      if (match) return Number(String(match[1]).replace(/,/g, '')) || 0;
+    }
+    return 0;
+  };
+  const inputTokens = pick([/\binput tokens?\D+([0-9][0-9,]*)/i, /\binput_tokens["'\s:]+([0-9][0-9,]*)/i]);
+  const cachedInputTokens = pick([/\bcached input tokens?\D+([0-9][0-9,]*)/i, /\bcached_input_tokens["'\s:]+([0-9][0-9,]*)/i]);
+  const outputTokens = pick([/\boutput tokens?\D+([0-9][0-9,]*)/i, /\boutput_tokens["'\s:]+([0-9][0-9,]*)/i]);
+  return {
+    inputTokens,
+    cachedInputTokens,
+    outputTokens,
+    cachedInputRatio: inputTokens > 0 ? cachedInputTokens / inputTokens : 0,
+    warnings: inputTokens > 500000 ? [`High Codex input token usage: ${inputTokens}.`] : [],
+  };
+}
+
+function buildAcceptanceMatrix(job, acceptance, verificationResults, gitEvidence) {
+  const criteria = Array.isArray(job.acceptanceCriteria) ? job.acceptanceCriteria : [];
+  if (!criteria.length) return [];
+  const evidenceRefs = ['acceptance.json', 'verification.json', 'changed-files.json', 'implementation.patch', 'final-report.md'];
+  return criteria.map((criterion) => {
+    const text = String(criterion || '');
+    let status = acceptance.accepted ? 'passed' : 'manual_review_required';
+    const notes = [];
+    if (/test|verification|build|smoke/i.test(text)) {
+      status = verificationResults.every((result) => result.exitCode === 0) ? 'passed' : 'failed';
+      notes.push(status === 'passed' ? 'Verification commands passed.' : 'One or more verification commands failed.');
+    } else if (/patch|diff|change|implement|fix|commit/i.test(text)) {
+      status = gitEvidence.diffHasContent || gitEvidence.newCommitCreated ? 'passed' : 'failed';
+      notes.push(status === 'passed' ? 'Repository mutation evidence exists.' : 'No diff or new commit was produced.');
+    } else if (/pull request|\bPR\b|push/i.test(text)) {
+      const transcript = [readFileIfExists('codex-last-message.md'), readFileIfExists('final-report.md')].join('\n');
+      status = /https:\/\/github\.com\/[^\s)]+\/pull\/\d+/i.test(transcript) ? 'passed' : 'failed';
+      notes.push(status === 'passed' ? 'Pull request URL was found in worker report.' : 'No pull request URL was found in worker report.');
+    } else if (!acceptance.accepted) {
+      notes.push('Overall acceptance failed; this criterion needs reviewer judgment.');
+    } else {
+      notes.push('Overall worker acceptance passed; no narrower deterministic rule matched this criterion.');
+    }
+    return {criterion: text, status, evidenceRefs, notes: notes.join(' '), blockingReason: status === 'failed' ? acceptance.failures.join('; ') : ''};
+  });
 }
 
 function assessJobAcceptance(packet, codex, verificationResults, gitEvidence) {
@@ -407,6 +459,9 @@ function assessJobAcceptance(packet, codex, verificationResults, gitEvidence) {
     failures.push('Ticket required push/PR evidence but no GitHub pull request URL was produced.');
   }
   const accepted = failures.length === 0;
+  const usageSummary = parseCodexUsageSummary(transcript);
+  const result = {accepted, failures};
+  const acceptanceMatrix = buildAcceptanceMatrix(job, result, verificationResults, gitEvidence);
   writeJsonFile('acceptance.json', {
     accepted,
     failures,
@@ -415,8 +470,15 @@ function assessJobAcceptance(packet, codex, verificationResults, gitEvidence) {
     gitEvidence,
     codexExitCode: codex.exitCode,
     verificationPassed: verificationResults.every((result) => result.exitCode === 0),
+    usageSummary,
   });
-  return {accepted, failures};
+  writeJsonFile('acceptance-matrix.json', {
+    statusPolicy: 'Every job acceptance criterion receives an explicit worker verdict when criteria are present.',
+    criteria: acceptanceMatrix,
+    usageSummary,
+  });
+  writeJsonFile('usage-summary.json', usageSummary);
+  return {accepted, failures, acceptanceMatrix, usageSummary};
 }
 
 function captureRepositoryArtifacts(packet, codex, restore, verificationResults, baseCommit = '') {
@@ -536,13 +598,15 @@ async function runOneShotJob() {
   const finalReport = acceptance.accepted ? baseFinalReport : `${baseFinalReport}\n\n## Command Center Acceptance Failures\n\n${acceptance.failures.map((failure) => `- ${failure}`).join('\n')}\n`;
   writeText('final-report.md', finalReport);
   const artifacts = [
-    {name: 'job-intake.json', kind: 'job_intake', uri: path.join(workspaceRoot, 'job-intake.json'), workspacePath: 'job-intake.json', origin: 'executor_workspace', required: true, summary: 'One-shot job packet claimed by Cloud Run worker.'},
+    artifactFor('job-intake.json', 'job_intake', true, 'One-shot job packet claimed by Cloud Run worker.'),
     artifactFor('orientation.md', 'orientation', true, 'Repository orientation and restore evidence.'),
     artifactFor('reasoning-summary.md', 'reasoning_summary', true, 'Codex final message or execution summary.'),
     artifactFor('command-log.jsonl', 'command_log', true, 'Codex and verification command transcript.'),
     artifactFor('stdout-transcript.txt', 'stdout_transcript', false, 'Streamed Codex stdout transcript.'),
     artifactFor('stderr-transcript.txt', 'stderr_transcript', false, 'Streamed Codex stderr transcript.'),
     artifactFor('acceptance.json', 'acceptance', true, 'Worker-side acceptance verdict for real mutation completion.'),
+    artifactFor('acceptance-matrix.json', 'acceptance_matrix', true, 'Criterion-level worker acceptance verdicts.'),
+    artifactFor('usage-summary.json', 'usage_summary', false, 'Codex token usage summary parsed from executor output when available.'),
     artifactFor('implementation.patch', 'implementation_patch', true, 'Repository diff or latest commit patch evidence.'),
     artifactFor('changed-files.json', 'changed_files', true, 'Git status, branch, commit, and remote evidence.'),
     artifactFor('verification.json', 'verification', true, 'Verification command results.'),
@@ -556,6 +620,8 @@ async function runOneShotJob() {
     decisionsMade: ['Claimed a specific Command Center job by COMMAND_CENTER_JOB_ID.', 'Restored a repository workspace.', 'Invoked real Codex executor.', 'Captured patch/status/verification artifacts.'],
     testsRun: ['worker lease', 'executor events', 'artifact record', 'checkpoint write', ...verificationResults.map((result) => `${result.command} -> ${result.exitCode}`)],
     evidenceRefs: artifacts.map((artifact) => artifact.workspacePath),
+    acceptanceCriteriaStatus: acceptance.acceptanceMatrix,
+    usageSummary: acceptance.usageSummary,
     failedApproaches: acceptance.failures,
     nextAction: status === 'completed' ? 'Inspect job events, logs, artifacts, checkpoint, and completion status.' : 'Fix the reported acceptance failures before claiming real cloud hands completion.',
   });

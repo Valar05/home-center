@@ -30,6 +30,10 @@ const {
   buildAgentResumePacket,
   cleanBrowserPlaybook,
   cleanProjectPacket,
+  ownerKeyFromActor,
+  ownerKeyFromCaller,
+  assertOwnerAccess,
+  recordsVisibleToCaller,
   deriveWorkerLiveness,
   isTerminalJobStatus,
   staleJobCandidate,
@@ -107,7 +111,14 @@ const nowMs = Date.now();
 const realHomeDriveWorker = {workerId: 'home-drive-primary', health: 'healthy', lastHeartbeatAtMs: nowMs, simulated: false, capabilities: ['codex', 'home-drive-mcp', 'one-shot-worker', 'prepared-workspace']};
 const staleHomeDriveWorker = {workerId: 'home-drive-stale', health: 'healthy', lastHeartbeatAtMs: nowMs - 10 * 60 * 1000, simulated: false, capabilities: ['codex', 'home-drive-mcp', 'one-shot-worker', 'prepared-workspace']};
 const simulatedHomeDriveWorker = {workerId: 'cloud-codex-primary', health: 'healthy', lastHeartbeatAtMs: nowMs, simulated: true, capabilities: ['codex', 'home-drive-mcp', 'one-shot-worker', 'prepared-workspace']};
+const retiredHomeDriveWorker = {...realHomeDriveWorker, workerId: 'home-drive-retired', status: 'retired', retiredAtMs: nowMs};
 assert.equal(selectWorker([simulatedHomeDriveWorker, realHomeDriveWorker], ['home-drive-mcp'], {nowMs}).workerId, 'home-drive-primary');
+assert.equal(deriveWorkerLiveness(retiredHomeDriveWorker, nowMs).health, 'healthy');
+assert.equal(selectWorker([retiredHomeDriveWorker, realHomeDriveWorker], ['home-drive-mcp'], {nowMs}).workerId, 'home-drive-primary');
+assert.throws(
+  () => selectWorker([retiredHomeDriveWorker], ['home-drive-mcp'], {nowMs}),
+  /No live real Command Center worker satisfies requirements: home-drive-mcp/
+);
 assert.equal(deriveWorkerLiveness(staleHomeDriveWorker, nowMs).health, 'stale');
 assert.equal(deriveWorkerLiveness(realHomeDriveWorker, nowMs).registryHealth, 'healthy');
 assert.throws(
@@ -121,6 +132,12 @@ assert.throws(
 );
 const fallback = selectWorker([{workerId: 'termux', health: 'healthy', lastHeartbeatAtMs: nowMs, simulated: false, capabilities: ['android']}], [], {nowMs});
 assert.equal(fallback.workerId, 'termux');
+const ownerA = {actor: 'a@example.com', ownerKey: ownerKeyFromActor('a@example.com')};
+const ownerB = {actor: 'b@example.com', ownerKey: ownerKeyFromActor('b@example.com')};
+assert.equal(ownerKeyFromCaller(ownerA), ownerKeyFromActor('a@example.com'));
+assert.doesNotThrow(() => assertOwnerAccess({ownerKey: ownerA.ownerKey}, ownerA, 'job'));
+assert.throws(() => assertOwnerAccess({ownerKey: ownerA.ownerKey}, ownerB, 'job'), /not found for this Command Center owner/);
+assert.deepEqual(recordsVisibleToCaller([{workerId: 'public'}, {workerId: 'a', ownerKey: ownerA.ownerKey}, {workerId: 'b', ownerKey: ownerB.ownerKey}], ownerA).map((worker) => worker.workerId), ['public', 'a']);
 assert(COMMAND_CENTER_ALLOWED_STATUSES.includes('expired'));
 assert(COMMAND_CENTER_TERMINAL_JOB_STATUSES.includes('expired'));
 assert.equal(isTerminalJobStatus('expired'), true);
@@ -257,12 +274,18 @@ assert(commandCenterSource.includes("lease: null, activation: null"));
 assert(commandCenterSource.includes("requiredIndex: {collectionGroup: COMMAND_CENTER_COLLECTIONS.jobs"));
 assert(commandCenterSource.includes("['leased', 'executing', 'running', 'activating']"));
 assert(commandCenterSource.includes("status: 'expired'"));
-assert(commandCenterSource.includes("const worker = selectWorker(await workerRecords(admin), workerRequirements, {requireActivationChannel: false})"));
+assert(commandCenterSource.includes("selectWorker(recordsVisibleToCaller(await workerRecords(admin), caller), workerRequirements, {requireActivationChannel: false})"));
 assert(commandCenterSource.includes("realWorkerRequired: true"));
 assert(commandCenterSource.includes("selectedWorkerId: worker.workerId"));
 assert(commandCenterSource.includes("Durable Codex worker activation completion requires at least one artifact."));
 assert(commandCenterSource.includes("Durable worker session completion requires nextWorkspaceSnapshotRef."));
 assert(commandCenterSource.includes("activation: z.record(z.string(), z.any()).optional(), runtime: z.record(z.string(), z.any()).optional(), cloudRunJob: z.record(z.string(), z.any()).optional(), sessionPolicy: z.record(z.string(), z.any()).optional()"));
+assert(commandCenterSource.includes("case 'workers.retire'"));
+assert(commandCenterSource.includes("server.registerTool('command_center.workers.retire'"));
+assert(commandCenterSource.includes("queryOwnedCollection(admin, COMMAND_CENTER_COLLECTIONS.jobs"));
+assert(commandCenterSource.includes("ownerKey: ownerKeyFromCaller(caller)"));
+assert(commandCenterSource.includes("repository: safeText(args.repository, 240)"));
+assert(commandCenterSource.includes("'acceptance-matrix.json'"));
 assert(commandCenterSource.includes("app.post('/agent/claim'"));
 assert(commandCenterSource.includes("app.post('/agent/heartbeat'"));
 assert(commandCenterSource.includes("app.post('/agent/codex-ref'"));
