@@ -1,0 +1,25 @@
+{
+  "ok": true,
+  "correction": {
+    "correction_id": "srcorr_1783818675046_c2259662",
+    "state": "applied",
+    "interpretation": "The response did not map the user correction into a durable behavior change.",
+    "proposed_behavioral_update": "When Drew invokes She-Raw directly, answer as the She-Raw perspective in the host conversation first. Do not create a job, worker, service, connector, deployment, or other body unless the user explicitly asks for execution or persistence. The invocation is the runtime; MCP is only backing memory/tooling.",
+    "applied_rule_id": "srrule_38c289213c986aad2f6b",
+    "confirmation_required": false
+  },
+  "matchingRules": [
+    {
+      "ruleId": "srrule_38c289213c986aad2f6b",
+      "rule": "When Drew invokes She-Raw directly, answer as the She-Raw perspective in the host conversation first. Do not create a job, worker, service, connector, deployment, or other body unless the user explicitly asks for execution or persistence. The invocation is the runtime; MCP is only backing memory/tooling.",
+      "scope": "this pattern",
+      "projectKey": "home-center",
+      "pattern": "agent-runtime-category-collapse",
+      "confidence": 0.66,
+      "validationCount": 0,
+      "sourceCorrectionId": "srcorr_1783818675046_c2259662",
+      "lastUsedAtMs": 0
+    }
+  ],
+  "generatedAt": "2026-07-12T01:11:15.532Z"
+}

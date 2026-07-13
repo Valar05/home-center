@@ -1,0 +1,47 @@
+{
+  "sessionId": "google_search_1783787138363",
+  "intent": "Search Google for scrambled eggs recipe in desktop Chrome mode and capture reusable browser-hands learning.",
+  "origin": "https://www.google.com",
+  "url": "https://www.google.com/sorry/index?continue=https://www.google.com/search%3Fq%3Dscrambled%2520eggs%2520recipe%26sei%3DhW5SaovdLIW-xc8P6-6f4Aw&q=EgRenJaEGIbdydIGIjB70jUwt4a5QslQoNPW9Wa94GOGUOaLhiddnNHS3O_WDbi53zAIFNqdz9dlOvNRFpgyAVJaAUM",
+  "title": "https://www.google.com/search?q=scrambled%20eggs%20recipe&sei=hW5SaovdLIW-xc8P6-6f4Aw",
+  "surface": {
+    "runtime": "playwright",
+    "browser": "chromium",
+    "mode": "desktop",
+    "userAgentMode": "desktop",
+    "viewport": {
+      "width": 1366,
+      "height": 900
+    },
+    "executablePath": "/usr/bin/chromium"
+  },
+  "outcome": "observed",
+  "accessibilitySummary": "{}",
+  "visibleTextSummary": "About this page\n\nOur systems have detected unusual traffic from your computer network. This page checks to see if it's really you sending the requests, and not a robot. Why did this happen?\n\n\n\nIP address: 94.156.150.132\nTime: 2026-07-11T16:25:43Z\nURL: https://www.google.com/search?q=scrambled%20eggs%20recipe&sei=hW5SaovdLIW-xc8P6-6f4Aw",
+  "focusedElement": {},
+  "actions": [
+    {
+      "type": "goto",
+      "url": "https://www.google.com/search?q=scrambled%20eggs%20recipe",
+      "status": "ok"
+    },
+    {
+      "type": "wait",
+      "ms": 1500,
+      "status": "ok"
+    }
+  ],
+  "blockers": [],
+  "redactionReport": {
+    "formValues": "redacted",
+    "secretsStored": false
+  },
+  "discoveryCandidates": [
+    {
+      "task": "form_navigation",
+      "safetyClass": "normal",
+      "claim": "Page has form controls; preserve labels, roles, and focused-element narration for manual web-hands mode."
+    }
+  ],
+  "evidenceRefs": []
+}

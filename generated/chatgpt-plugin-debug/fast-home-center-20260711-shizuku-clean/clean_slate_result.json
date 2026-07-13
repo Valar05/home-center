@@ -1,0 +1,105 @@
+{
+  "ok": false,
+  "status": "blocked_chatgpt_auth",
+  "reason": "ChatGPT web is behind human/browser verification.",
+  "nextAction": "Complete ChatGPT sign-in/verification in the persistent Playwright profile, then rerun.",
+  "runId": "fast-home-center-20260711-shizuku-clean",
+  "generatedAt": "2026-07-11T23:40:23.291Z",
+  "startUrl": "https://chatgpt.com/#settings/Plugins",
+  "expectedConnectors": {
+    "homeMcpUrl": "https://us-central1-home-center-dclar.cloudfunctions.net/homeCenterMcp/mcp",
+    "commandCenterMcpUrl": "https://us-central1-home-center-dclar.cloudfunctions.net/commandCenterMcp/mcp"
+  },
+  "surface": {
+    "runtime": "playwright",
+    "browser": "chromium",
+    "mode": "desktop",
+    "persistentProfile": "/tmp/home-center-chatgpt-playwright-profile",
+    "executablePath": "/usr/bin/chromium",
+    "viewport": {
+      "width": 1366,
+      "height": 900
+    },
+    "headless": true
+  },
+  "promptMode": "noop",
+  "cleanSlateScope": "connector_state_only_no_cloud_bucket_deletion",
+  "events": [
+    {
+      "phase": "settings_classification",
+      "classification": {
+        "status": "blocked_chatgpt_auth",
+        "reason": "ChatGPT web is behind human/browser verification.",
+        "blockers": [
+          "human verification"
+        ]
+      },
+      "connectors": {
+        "matches": [],
+        "landmarks": []
+      }
+    }
+  ],
+  "artifacts": [
+    {
+      "name": "settings",
+      "screenshotPath": "/mnt/sdcard/Documents/GodotProjects/home-center/generated/chatgpt-plugin-debug/fast-home-center-20260711-shizuku-clean/settings.png",
+      "url": "https://chatgpt.com/#settings/Plugins",
+      "title": "Just a moment...",
+      "visibleTextSummary": "",
+      "landmarks": [
+        {
+          "tag": "div",
+          "role": "main",
+          "text": "",
+          "name": "",
+          "type": "",
+          "href": "",
+          "id": "",
+          "testId": "",
+          "selectorLadder": [],
+          "bounds": [
+            533,
+            467,
+            833,
+            532
+          ]
+        },
+        {
+          "tag": "h2",
+          "role": "",
+          "text": "",
+          "name": "",
+          "type": "",
+          "href": "",
+          "id": "XSAlK9",
+          "testId": "",
+          "selectorLadder": [],
+          "bounds": [
+            533,
+            467,
+            833,
+            467
+          ]
+        },
+        {
+          "tag": "input",
+          "role": "",
+          "text": "[redacted-input]",
+          "name": "cf-turnstile-response",
+          "type": "hidden",
+          "href": "",
+          "id": "cf-chl-widget-2ap9o_response",
+          "testId": "",
+          "selectorLadder": [],
+          "bounds": [
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -67,6 +67,8 @@ Workflow definitions should become data, not one-off chat instructions. V1 recor
 
 Command Center is the cloud MCP dispatch plane for this workflow layer. Its repo-local contract is `docs/COMMAND_CENTER_MCP.md`: ChatGPT dispatches, Command Center persists and supervises, and user-owned Codex workers execute. It is not a frontend, chat UI, planner, primary memory system, or competing agent.
 
+Command Center's managed knowledge bucket is the durable organization surface for execution memory and cross-repository engineering learning. It separates `memory/past-logs`, `memory/current-condensed`, `skills/scratch`, `skills/promoted`, and `notes/cross-repo` so worker evidence, resumable state, candidate procedures, promoted skills, and repo-spanning notes do not collapse into one catch-all document.
+
 ### State Graph
 
 Engineering memory is a graph. Nodes include repositories, documents, issues, experiments, artifacts, prompts, agents, tools, commits, reviews, workflows, and verification runs. Edges include `created`, `depends_on`, `supersedes`, `references`, `generated`, `reviewed`, `blocks`, `duplicates`, `derived_from`, `verified_by`, and `belongs_to`.

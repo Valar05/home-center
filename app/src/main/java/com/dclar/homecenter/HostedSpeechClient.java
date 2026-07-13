@@ -9,6 +9,9 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 final class HostedSpeechClient {
     private final String baseUrl;
     HostedSpeechClient(String baseUrl) {
@@ -20,13 +23,61 @@ final class HostedSpeechClient {
     }
 
     HttpURLConnection openSpeechStream(String text) throws IOException {
+        return openProxySpeechStream(text);
+    }
+
+    HttpURLConnection openSpeechStream(String text, String modelId, String voiceName, String voiceId, String role) throws IOException {
+        return openSpeechStream(text, "cartesia", modelId, voiceName, voiceId, role, "", "", "");
+    }
+
+    HttpURLConnection openSpeechStream(String text, String provider, String modelId, String voiceName, String voiceId, String role) throws IOException {
+        return openSpeechStream(text, provider, modelId, voiceName, voiceId, role, "", "", "");
+    }
+
+    HttpURLConnection openSpeechStream(String text, String provider, String modelId, String voiceName, String voiceId, String role, String characterId, String voiceAlias, String acousticDirection) throws IOException {
         if (!baseUrl.isEmpty()) {
-            return openProxySpeechStream(text);
+            return openProxySpeechStream(text, provider, modelId, voiceName, voiceId, role, characterId, voiceAlias, acousticDirection);
         }
-        throw new IOException("ElevenLabs speech is not configured in this build");
+        throw new IOException("Hosted speech is not configured in this build");
+    }
+
+    JSONArray searchVoices(String query, int limit) throws IOException {
+        return searchVoices("cartesia", query, limit);
+    }
+
+    JSONArray searchVoices(String provider, String query, int limit) throws IOException {
+        if (baseUrl.isEmpty()) {
+            throw new IOException("Hosted speech is not configured in this build");
+        }
+        String cleanProvider = provider == null || provider.trim().isEmpty() ? "cartesia" : provider.trim().toLowerCase();
+        String endpoint = resolveVoicesEndpoint() + "?provider=" + java.net.URLEncoder.encode(cleanProvider, "UTF-8")
+                + "&q=" + java.net.URLEncoder.encode(query == null ? "" : query, "UTF-8")
+                + "&limit=" + Math.max(1, Math.min(200, limit));
+        HttpURLConnection connection = (HttpURLConnection) new URL(endpoint).openConnection();
+        connection.setConnectTimeout(5000);
+        connection.setReadTimeout(60000);
+        connection.setRequestMethod("GET");
+        connection.setRequestProperty("Accept", "application/json");
+        int code = connection.getResponseCode();
+        if (code != HttpURLConnection.HTTP_OK) {
+            throw new IOException("Hosted voice search returned HTTP " + code + errorSuffix(connection));
+        }
+        try (InputStream input = connection.getInputStream()) {
+            JSONObject payload = new JSONObject(new String(readAll(input), StandardCharsets.UTF_8));
+            JSONArray voices = payload.optJSONArray("voices");
+            return voices == null ? new JSONArray() : voices;
+        } catch (Exception ex) {
+            throw new IOException("Could not parse hosted voice search: " + ex.getMessage(), ex);
+        } finally {
+            connection.disconnect();
+        }
     }
 
     private HttpURLConnection openProxySpeechStream(String text) throws IOException {
+        return openProxySpeechStream(text, "cartesia", "", "", "", "", "", "", "");
+    }
+
+    private HttpURLConnection openProxySpeechStream(String text, String provider, String modelId, String voiceName, String voiceId, String role, String characterId, String voiceAlias, String acousticDirection) throws IOException {
         URL url = new URL(resolveEndpoint());
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         connection.setConnectTimeout(5000);
@@ -37,14 +88,14 @@ final class HostedSpeechClient {
         connection.setUseCaches(false);
         connection.setRequestProperty("Content-Type", "application/json; charset=utf-8");
         connection.setRequestProperty("Accept", "application/octet-stream");
-        byte[] body = toJsonPayload(text).getBytes(StandardCharsets.UTF_8);
+        byte[] body = toJsonPayload(text, provider, modelId, voiceName, voiceId, role, characterId, voiceAlias, acousticDirection).getBytes(StandardCharsets.UTF_8);
         connection.setFixedLengthStreamingMode(body.length);
         try (OutputStream out = connection.getOutputStream()) {
             out.write(body);
         }
         int code = connection.getResponseCode();
         if (code != HttpURLConnection.HTTP_OK) {
-            throw new IOException("ElevenLabs speech endpoint returned HTTP " + code + errorSuffix(connection));
+            throw new IOException("Hosted speech endpoint returned HTTP " + code + errorSuffix(connection));
         }
         return connection;
     }
@@ -54,6 +105,13 @@ final class HostedSpeechClient {
             return baseUrl + "tts";
         }
         return baseUrl + "/tts";
+    }
+
+    private String resolveVoicesEndpoint() {
+        if (baseUrl.endsWith("/")) {
+            return baseUrl + "ttsVoices";
+        }
+        return baseUrl + "/ttsVoices";
     }
 
     private String errorSuffix(HttpURLConnection connection) {
@@ -78,8 +136,33 @@ final class HostedSpeechClient {
         }
     }
 
-    private String toJsonPayload(String text) {
-        return "{\"text\":\"" + escapeJson(text) + "\"}";
+    private String toJsonPayload(String text, String provider, String modelId, String voiceName, String voiceId, String role, String characterId, String voiceAlias, String acousticDirection) {
+        StringBuilder builder = new StringBuilder();
+        builder.append("{\"text\":\"").append(escapeJson(text)).append("\"");
+        appendJsonField(builder, "provider", provider == null || provider.trim().isEmpty() ? "cartesia" : provider.trim().toLowerCase());
+        appendJsonField(builder, "modelId", modelId);
+        appendJsonField(builder, "voiceName", voiceName);
+        appendJsonField(builder, "voiceId", voiceId);
+        appendJsonField(builder, "role", role);
+        appendJsonField(builder, "characterId", characterId);
+        appendJsonField(builder, "voiceAlias", voiceAlias);
+        appendJsonField(builder, "acousticDirection", acousticDirection);
+        builder.append('}');
+        return builder.toString();
+    }
+
+    private void appendJsonField(StringBuilder builder, String key, String value) {
+        String clean = value == null ? "" : value.trim();
+        if (clean.isEmpty()) return;
+        builder.append(",\"").append(key).append("\":\"").append(escapeJson(clean)).append("\"");
+    }
+
+    private byte[] readAll(InputStream input) throws IOException {
+        java.io.ByteArrayOutputStream output = new java.io.ByteArrayOutputStream();
+        byte[] buffer = new byte[8192];
+        int read;
+        while ((read = input.read(buffer)) != -1) output.write(buffer, 0, read);
+        return output.toByteArray();
     }
 
     private String escapeJson(String value) {

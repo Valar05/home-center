@@ -1,0 +1,69 @@
+{
+  "ok": false,
+  "status": "unknown",
+  "reason": "ChatGPT loaded, but the page did not expose plugin installation state.",
+  "runId": "plugin-debug-live-20260711",
+  "url": "https://chatgpt.com/",
+  "title": "Just a moment...",
+  "startUrl": "https://chatgpt.com/",
+  "surface": {
+    "runtime": "playwright",
+    "browser": "chromium",
+    "mode": "desktop",
+    "executablePath": "/usr/bin/chromium",
+    "viewport": {
+      "width": 1366,
+      "height": 900
+    },
+    "headless": true
+  },
+  "visibleTextSummary": "",
+  "accessibilitySummary": "{}",
+  "landmarks": [
+    {
+      "tag": "div",
+      "role": "main",
+      "text": "",
+      "name": "",
+      "type": "",
+      "href": "",
+      "bounds": [
+        533,
+        467,
+        833,
+        532
+      ]
+    },
+    {
+      "tag": "h2",
+      "role": "",
+      "text": "",
+      "name": "",
+      "type": "",
+      "href": "",
+      "bounds": [
+        533,
+        467,
+        833,
+        467
+      ]
+    },
+    {
+      "tag": "input",
+      "role": "",
+      "text": "[redacted-input]",
+      "name": "cf-turnstile-response",
+      "type": "hidden",
+      "href": "",
+      "bounds": [
+        0,
+        0,
+        0,
+        0
+      ]
+    }
+  ],
+  "blockers": [],
+  "screenshotPath": "/mnt/sdcard/Documents/GodotProjects/home-center/generated/chatgpt-plugin-debug/plugin-debug-live-20260711.png",
+  "generatedAt": "2026-07-11T16:41:48.784Z"
+}

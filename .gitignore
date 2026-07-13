@@ -75,3 +75,16 @@ logs/
 tools/chatgpt_connector_evidence/
 tools/live_prompt_evidence/
 tools/visual_evidence/
+
+# Local quarantine and generated runtime state
+/.repo_quarantine/
+generated/backend_automation/
+generated/home_center_scheduler/
+generated/home_drive_voice_profiles/
+tools/command_center_invokability_evidence/cloud_run_live_acceptance_*.json
+tools/command_center_invokability_evidence/cloud_run_worker_proof_*.json
+tools/command_center_invokability_evidence/command_center_home_bridge_invokability_live-after-cloud-worker-schema.json
+tools/command_center_invokability_evidence/command_center_invokability_live-after-cloud-worker-schema.json
+tools/command_center_invokability_evidence/command_center_invokability_live-worker-list-check-*.json
+tools/she_raw_evidence/she_raw_cloud_introspection_*.json
+tools/she_raw_evidence/she_raw_operational_health_contract_fix_*.json

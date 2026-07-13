@@ -219,6 +219,14 @@ A red-build prompt is evidence.
 
 When a user reports that a specific prompt failed, preserve the exact prompt and add a smoke path that can replay it before claiming the fix works. Static source checks are useful guardrails, but they do not prove an authenticated tool journey.
 
+### Concrete Prompt Authority
+
+Specific, repeated, concrete prompting is binding evidence. If a user repeats a concrete requirement, correction, noun, workflow boundary, or failure report, Home Center and its agents must promote that wording from conversational context into an explicit contract before mutating anything. Repetition is escalation, not style or noise.
+
+The required contract is a Prompt Contract Ledger: latest user command, repeated prompt text that must be honored verbatim, forbidden stale premise, required artifact or action, accepted evidence lane, and what would count as high treason, false green, or ignored prompting.
+
+The repeated prompt must be satisfied exactly, converted into a failing acceptance smoke, or reported as blocked with concrete evidence. Do not substitute nearby proof for the named thing. A smoke test is not a feature. A simulated worker is not a real worker. A proxy mesh is not a saber. A local screenshot is not cloud visual truth. A summary is not the requested artifact. A stale plan is not revived by `Implement the plan`.
+
 For failures involving Google tools, provider permissions, working memory, confirmation, gateway planning, or real provider execution, the acceptance smoke must use a headless real-API smoke, not a mocked planner or stale installed APK. It must exercise the same core path as chat: verified Home Center user identity, deployed planner, registered tool contract, Home Center's stored Google connection, real Google API calls, tool-result loopback, and final response.
 
 Drive/Docs prompt smokes must run inside a dedicated Drive sandbox folder. The smoke may create, read, update, and trash only marked smoke-run files under that folder. It must fail if the planner or executor attempts to use unrelated Drive files.

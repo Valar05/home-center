@@ -1,0 +1,31 @@
+{
+  "version": 1,
+  "description": "Durable Home Center local maintenance jobs for tmux scheduler.",
+  "jobs": [
+    {
+      "id": "home-drive-profile-refresh",
+      "description": "Refresh durable Home Drive character voice profiles from exported Drive docs.",
+      "enabled": true,
+      "intervalSeconds": 21600,
+      "timeoutSeconds": 900,
+      "command": ["sh", "tools/home_drive_profile_refresh_loop.sh", "--once"],
+      "env": {"HOME_DRIVE_PROFILE_REFRESH_ONCE": "1"}
+    },
+    {
+      "id": "shizuku-readiness",
+      "description": "Non-mutating Shizuku/rish readiness report for Android automation access.",
+      "enabled": true,
+      "intervalSeconds": 21600,
+      "timeoutSeconds": 120,
+      "command": ["sh", "tools/home_center_shizuku_setup_probe.sh", "--report-only", "--no-network-install"]
+    },
+    {
+      "id": "backend-automation-introspect",
+      "description": "Introspect Command Center and Home Center backend automation operations from repo source.",
+      "enabled": true,
+      "intervalSeconds": 21600,
+      "timeoutSeconds": 120,
+      "command": ["node", "tools/home_center_backend_automation_introspect.mjs"]
+    }
+  ]
+}

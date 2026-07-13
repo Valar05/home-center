@@ -1,0 +1,62 @@
+{
+  "projectId": "command-center-cloud-workers",
+  "version": "2026-07-12-cloud-run-debian-durable-session-v1",
+  "workerId": "cloud-run-debian-codex-primary",
+  "location": "gcp-cloud-run-job",
+  "repoPath": "",
+  "baseWorkspaceId": "cloud-run-debian-empty-or-snapshot",
+  "capabilities": [
+    "codex",
+    "cloud-run-debian",
+    "durable-session",
+    "prepared-workspace",
+    "github",
+    "node",
+    "python",
+    "gcs-workspace-snapshot"
+  ],
+  "limits": {
+    "concurrentJobs": 1,
+    "concurrentActivations": 1
+  },
+  "activation": {
+    "mode": "cloud_run_job"
+  },
+  "runtime": {
+    "kind": "debian-container",
+    "compute": "cloud-run-job",
+    "deviceIndependent": true
+  },
+  "cloudRunJob": {
+    "projectId": "home-center-dclar",
+    "region": "us-central1",
+    "jobName": "command-center-debian-worker"
+  },
+  "sessionPolicy": {
+    "durable": true,
+    "snapshotStore": "gcs",
+    "repoRequired": false,
+    "restoreStrategies": [
+      "gcs_snapshot",
+      "git_clean_clone",
+      "empty_workspace",
+      "artifact_bundle"
+    ]
+  },
+  "repositoryAffinity": [],
+  "mutationDefaults": {
+    "editFiles": "allowed",
+    "runTests": "allowed",
+    "commit": "allowed",
+    "createPullRequest": "allowed",
+    "push": "confirm",
+    "deployPreview": "confirm",
+    "merge": "confirm",
+    "destructive": "deny"
+  },
+  "notes": [
+    "This worker is not tied to Android, Termux, Shizuku, or a specific repository.",
+    "A repository may register multiple workers with different capabilities or policies.",
+    "Durability is Command Center metadata plus GCS workspace snapshots."
+  ]
+}

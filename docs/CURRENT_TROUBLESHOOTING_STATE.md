@@ -23,12 +23,15 @@ Current contract:
 
 - Scope is Google Docs only.
 - Reading a Google Doc ingests and indexes the Drive text snapshot only.
-- The chat card pairs the Drive text version with an ElevenLabs Brian voice version.
-- The only visible voice actions are `Play with Brian` and `Download voice`.
-- Playback may stream the current section while it downloads and preserves the finished WAV section.
-- Replay uses preserved local WAV sections when present.
-- User navigation cannot skip past sections that have not downloaded yet.
-- Stop cancels explicit playback/download intent; no hidden cache generation continues.
+- The chat card pairs the Drive text version with an ElevenLabs Brian voice version, but it does not expose separate playback/download controls.
+- The Drive narration surface shows a very large `RENDER` button, a tile-local `STOP` button while active, and one playhead.
+- The first chunk is part of the normal chunk list, deliberately short, and autoplayed after ingest.
+- Autoplay stops after that first chunk; full-document voice generation requires the explicit render button.
+- Playback/rendering preserves local WAV sections when present.
+- The playhead duration represents already-rendered document audio across sections, not only the first chunk.
+- User scrubbing can jump anywhere inside already-rendered sections; it must not pretend unrendered sections exist.
+- Tapping a different Google Doc replaces the active reader immediately instead of queueing stale narration.
+- Stop cancels explicit playback/download/render intent; stale workers must not refresh or resume the replaced player.
 - Operational prompts may use native Android TTS.
 - Rendered assistant responses and Google Doc reader chunks use hosted ElevenLabs Brian only.
 - Hosted ElevenLabs failure pauses the reader at the failed chunk and asks for retry; it must not silently continue with native TTS.

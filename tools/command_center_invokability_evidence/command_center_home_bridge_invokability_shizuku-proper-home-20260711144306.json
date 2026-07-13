@@ -1,0 +1,219 @@
+{
+  "ok": true,
+  "mcpUrl": "https://us-central1-home-center-dclar.cloudfunctions.net/homeCenterMcp/mcp",
+  "checks": [
+    {
+      "name": "home_mcp_requires_auth",
+      "ok": true,
+      "status": 401,
+      "wwwAuthenticate": "Bearer resource_metadata=\"https://us-central1-home-center-dclar.cloudfunctions.net/homeCenterMcp/.well-known/oauth-protected-resource\", scope=\"https://www.googleapis.com/auth/drive https://www.googleapis.com/auth/documents https://www.googleapis.com/auth/spreadsheets\""
+    },
+    {
+      "name": "home_mcp_initialize_200",
+      "ok": true,
+      "status": 200,
+      "contentType": "text/event-stream"
+    },
+    {
+      "name": "home_tools_list_contains_command_center_operation",
+      "ok": true,
+      "status": 200,
+      "count": 44,
+      "toolNames": [
+        "audit_get",
+        "audit_log",
+        "audit_status",
+        "auth_status",
+        "capabilities",
+        "command_center_operation",
+        "docs_append",
+        "docs_create",
+        "drive_create_folder",
+        "drive_execute_plan",
+        "drive_get_metadata",
+        "drive_list_folder",
+        "drive_move",
+        "drive_operation",
+        "drive_plan_organize",
+        "drive_read",
+        "drive_rename",
+        "drive_search",
+        "drive_workflow_run",
+        "github_comment_issue",
+        "github_comment_pull_request",
+        "github_create_issue",
+        "github_get_issue",
+        "github_get_pull_request",
+        "github_get_repo",
+        "github_get_workflow_run",
+        "github_list_branches",
+        "github_list_issues",
+        "github_list_pull_request_files",
+        "github_list_pull_requests",
+        "github_list_workflow_runs",
+        "github_read_file",
+        "health",
+        "index_folder",
+        "index_status",
+        "recovery_checkpoint",
+        "recovery_status",
+        "sheets_create",
+        "sheets_read",
+        "sheets_search",
+        "sheets_update_values",
+        "simulation_operation",
+        "storage_status",
+        "workbook_import_xlsx"
+      ]
+    },
+    {
+      "name": "home_tools_list_contains_drive_operation",
+      "ok": true,
+      "status": 200
+    },
+    {
+      "name": "drive_operation_registry_contains_command_center_followup",
+      "ok": true,
+      "status": 200,
+      "registryVersion": "2026-07-11.command-center-drive-operation-v1"
+    },
+    {
+      "name": "command_center_operation_health_invokable",
+      "ok": true,
+      "status": 200,
+      "content": {
+        "operation": "health",
+        "toolName": "command_center.health",
+        "commandCenterMcpUrl": "https://us-central1-home-center-dclar.cloudfunctions.net/commandCenterMcp/mcp",
+        "result": {
+          "ok": true,
+          "service": "command-center-mcp",
+          "invokable": true,
+          "hasFrontend": false,
+          "commandCenterMcpUrl": "https://us-central1-home-center-dclar.cloudfunctions.net/commandCenterMcp/mcp",
+          "authorizationServer": "https://us-central1-home-center-dclar.cloudfunctions.net/homeCenterMcp"
+        }
+      }
+    },
+    {
+      "name": "drive_operation_command_center_health_invokable",
+      "ok": true,
+      "status": 200,
+      "content": {
+        "operation": "command_center.health",
+        "registryVersion": "2026-07-11.command-center-drive-operation-v1",
+        "completed": true,
+        "result": {
+          "ok": true,
+          "service": "command-center-mcp",
+          "invokable": true,
+          "hasFrontend": false,
+          "commandCenterMcpUrl": "https://us-central1-home-center-dclar.cloudfunctions.net/commandCenterMcp/mcp",
+          "authorizationServer": "https://us-central1-home-center-dclar.cloudfunctions.net/homeCenterMcp"
+        }
+      }
+    },
+    {
+      "name": "drive_operation_stale_schema_command_center_health_invokable",
+      "ok": true,
+      "status": 200,
+      "content": {
+        "operation": "drive_create_folder",
+        "compatibilityRoute": "drive_operation.command_center",
+        "commandCenterOperation": "health",
+        "registryVersion": "2026-07-11.command-center-drive-operation-v1",
+        "completed": true,
+        "result": {
+          "ok": true,
+          "service": "command-center-mcp",
+          "invokable": true,
+          "hasFrontend": false,
+          "commandCenterMcpUrl": "https://us-central1-home-center-dclar.cloudfunctions.net/commandCenterMcp/mcp",
+          "authorizationServer": "https://us-central1-home-center-dclar.cloudfunctions.net/homeCenterMcp"
+        }
+      }
+    },
+    {
+      "name": "command_center_operation_bucket_layout_invokable",
+      "ok": true,
+      "status": 200,
+      "lanes": [
+        "memory/past-logs",
+        "memory/current-condensed",
+        "skills/scratch",
+        "skills/promoted",
+        "notes/cross-repo",
+        "app-control/profiles",
+        "app-control/runs",
+        "app-control/frame-lanes",
+        "browser/sessions",
+        "browser/episodes",
+        "browser/discoveries",
+        "browser/playbooks"
+      ]
+    },
+    {
+      "name": "command_center_operation_browser_playbooks_lookup_invokable",
+      "ok": true,
+      "status": 200,
+      "content": {
+        "operation": "browser_playbooks.lookup",
+        "toolName": "command_center.browser_playbooks.lookup",
+        "commandCenterMcpUrl": "https://us-central1-home-center-dclar.cloudfunctions.net/commandCenterMcp/mcp",
+        "result": {
+          "found": false,
+          "collection": "browserPlaybooks",
+          "playbook": null,
+          "playbooks": []
+        }
+      }
+    }
+  ],
+  "toolNames": [
+    "audit_get",
+    "audit_log",
+    "audit_status",
+    "auth_status",
+    "capabilities",
+    "command_center_operation",
+    "docs_append",
+    "docs_create",
+    "drive_create_folder",
+    "drive_execute_plan",
+    "drive_get_metadata",
+    "drive_list_folder",
+    "drive_move",
+    "drive_operation",
+    "drive_plan_organize",
+    "drive_read",
+    "drive_rename",
+    "drive_search",
+    "drive_workflow_run",
+    "github_comment_issue",
+    "github_comment_pull_request",
+    "github_create_issue",
+    "github_get_issue",
+    "github_get_pull_request",
+    "github_get_repo",
+    "github_get_workflow_run",
+    "github_list_branches",
+    "github_list_issues",
+    "github_list_pull_request_files",
+    "github_list_pull_requests",
+    "github_list_workflow_runs",
+    "github_read_file",
+    "health",
+    "index_folder",
+    "index_status",
+    "recovery_checkpoint",
+    "recovery_status",
+    "sheets_create",
+    "sheets_read",
+    "sheets_search",
+    "sheets_update_values",
+    "simulation_operation",
+    "storage_status",
+    "workbook_import_xlsx"
+  ],
+  "generatedAt": "2026-07-11T19:43:17.149Z"
+}

@@ -43,14 +43,23 @@ This Termux build compiles with SDK 33 because the local ARM64 `aapt2` works wit
 
 Home Center can act as the auth hub for local Termux/Codex connected actions. The Android app remains the human approval surface; Termux receives a revocable Home Center hub token, not raw Google or GitHub provider tokens.
 
-Pair from Termux:
+Pair from Termux through the Shizuku-driven setup path:
 
 ```sh
 cd /storage/emulated/0/Documents/GodotProjects/home-center
-node tools/home_center_codex_pair.mjs
+sh tools/home_center_shizuku_setup_probe.sh --install-approved --install-codex-approved --auto-pair
 ```
 
-The helper prints a pairing ID and six digit code. In the installed Home Center app, sign in, approve Google tools, tap `Pair Termux Codex`, and enter both values. The helper saves a local config at:
+The setup probe installs or verifies Termux packages, verifies `@mmmbuto/codex-cli-termux`, probes `rish`, creates the Home Center pairing request, and launches Home Center through Shizuku with the pairing extras. On an already signed-in and scoped Home Center install, no manual code entry is needed. Android still stops for real download/install, Shizuku authorization, or Google permission approval when those are missing. The helper saves a local config at:
+
+The install contract can be checked in a blank container before touching a phone:
+
+```sh
+sh tools/docker_install_smoke.sh
+```
+
+That Docker smoke uses fake `pkg`, `pm`, `rish`, `am`, `codex`, and pairing endpoints to prove the setup script handles ready, missing, blocked, and auto-pair states without leaking pairing codes or tokens. It does not replace the real-device Shizuku acceptance step; the phone still owns actual downloads, Android package visibility, Shizuku authorization, and Home Center approval. For environments without Docker, run the same contract directly with `node tools/home_center_install_contract_test.mjs`.
+
 
 ```text
 ~/.config/home-center/codex-hub.json
@@ -64,9 +73,34 @@ https://us-central1-home-center-dclar.cloudfunctions.net/homeCenterMcp/mcp
 
 V1 grants the safe core tool groups only: Drive, Docs, Sheets search/read, and GitHub read/issue/comment tools. Gmail sends, Calendar writes, destructive deletes, workflow dispatch, merges, and broad organizer actions are not part of the Termux/Codex v1 grant.
 
+
+## Browser Hands
+
+Home Center treats Playwright desktop Chromium as a first-class app function for accessible web hands and reusable learning. On Android, the worker runs on device through Debian/proot with Debian-native Node and Chromium; cloud workers are fallback capacity, not the proof target. The `browser-worker/` package owns the browser runtime; Command Center owns session, episode, discovery, and playbook state. See `docs/BROWSER_HANDS.md`.
+
+## App Control Profiles
+
+Home Center should own installed-app automation profiles. Termux/Shizuku scripts are bootstrap and diagnostic tools; repeated workflows should become app-versioned Home Center profiles that can run through a paired Android worker on Drew's phone, June's phone, or another household device. See `docs/APP_CONTROL_BUCKET.md`; the app-control bucket is Home Center cloud state exposed through `command_center_operation`, with seed data under `functions/app_control_seed/`.
+
 ## Command Center MCP
 
 Command Center is a separate cloud MCP control plane for dispatching, supervising, and preserving Codex worker execution. It has no frontend and no independent chat interface. ChatGPT remains the planner and conversational surface; Command Center persists projects, tickets, leases, events, questions, mutation approvals, logs, artifacts, and checkpoints; user-owned Codex workers execute.
+
+Portable Command Center execution uses durable worker sessions as the hard gate: a Cloud Run Debian worker must restore a Command Center/GCS workspace snapshot before execution and write the next snapshot before completed success. Cloud workers do not require a repository, and one repository may have multiple workers with different capabilities or policies.
+
+Termux can debug ChatGPT MCP app/plugin installation with the one-command Playwright Chrome debugger:
+
+```sh
+node tools/debug_chatgpt_plugin_install.mjs
+```
+
+This uses Debian/proot Playwright Chromium for ChatGPT page evidence, then combines Home Center MCP, Command Center MCP, pairing, and Cloud Run connector-log checks. See `docs/CHATGPT_PLUGIN_INSTALL_DEBUG.md`.
+
+If ChatGPT requires human verification, do not launch a full-phone app takeover. Use the bounded Chrome frame helper only. The helper writes a Home Center learning envelope so Termux and Home Center remain the same workflow with different inputs:
+
+```sh
+sh tools/launch_chatgpt_chrome_frame.sh https://chatgpt.com/
+```
 
 Normal ChatGPT invocation should use the already-connected Home Center MCP app first:
 
@@ -77,13 +111,24 @@ operation: jobs.create | jobs.get | jobs.get_events | jobs.get_artifacts | jobs.
 
 This avoids a dead-end where ChatGPT can see Home Center tools but cannot discover a separate `commandCenterMcp` namespace. The standalone Command Center MCP endpoint still exists for direct MCP clients and worker-control tooling.
 
+Automatic discovery must start at Home Center `health`, not nested `capabilities`. The health response includes `discoverability.automaticDiscovery.commandCenter` with:
+
+- the primary tool: `command_center_operation`;
+- the direct Command Center MCP URL;
+- a minimal `operation=health` call;
+- the string-capable `drive_operation operation=command_center.health` fallback;
+- the stale enum-schema tunnel: `drive_operation operation=drive_create_folder` with `args.commandCenterOperation`;
+- reconnect advice when a mounted connector still reports an older registry.
+
+If ChatGPT still sees the older `Home Drive v4` schema after OAuth refresh, reconnect or reindex the app/link. OAuth refresh updates credentials only; it does not necessarily reload tool metadata.
+
 The Firebase export is `commandCenterMcp` and its MCP endpoint is:
 
 ```text
 https://us-central1-home-center-dclar.cloudfunctions.net/commandCenterMcp/mcp
 ```
 
-The v1 implementation is a lifecycle skeleton with a simulated `cloud-codex-primary` worker record. See `docs/COMMAND_CENTER_MCP.md`.
+The current implementation supports durable one-shot worker dispatch, streaming executor events, persisted artifacts, handoff synthesis, linked follow-up jobs, and the Command Center knowledge bucket. See `docs/COMMAND_CENTER_MCP.md`.
 
 ## Regular ChatGPT App / MCP Setup
 
@@ -366,6 +411,23 @@ Home Center writes local-only diagnostic logs by date. Logs are not sent to Fire
 
 The app also shows the active log path in the status area. Useful entries include app startup, spoken command parsing, bucket/list/user context, Firebase successes, automatic bucket membership repair, and Firebase errors such as `PERMISSION_DENIED`.
 
+
+
+## She-Raw MCP
+
+She-Raw is a cloud consultation service exposed as `sheRawMcp`. It is not a chat UI, not a Command Center worker, and not an Agent Closet entry. ChatGPT calls it for explicit consultation, critique, introspection, corrections, ambient checks, recreational disruption, corpus search, active-rule inspection, health, and named brain jars such as Quartermaster or Prospector through `she_raw_brain`.
+
+The stable no-reinstall path is `she_raw_operation`. Call `she_raw_manual` or `she_raw_health` for `operationRegistry`, then use `she_raw_operation` with registry operations such as `brain.invoke`, `corpus.search`, `consult`, `correct`, or `introspect`. If ChatGPT's visible schema is stale and hides `she_raw_brain`, invoke Prospector through `she_raw_operation` with `operation="brain.invoke"`. OAuth refresh may update credentials without refreshing tool metadata; backend success and ChatGPT-visible proof must be reported separately.
+
+If the She-Raw path itself feels misrouted, do not create a worker, connector, service, or Agent Closet entry. Call `she_raw_operation` with `operation="road.check"` first. It returns the preferred tool, degraded lanes, blocked lanes, exact next-call packets, and the proof required to show the road is usable.
+
+The deployed endpoint shape is:
+
+```text
+https://us-central1-home-center-dclar.cloudfunctions.net/sheRawMcp/mcp
+```
+
+See `docs/SHE_RAW_API.md`, `docs/ARCHITECTURE_SHE_RAW.md`, `docs/MCP_CONTRACT.md`, `docs/CORPUS_SCHEMA.md`, `docs/LEARNING_PIPELINE.md`, `docs/INTROSPECTION.md`, `docs/COMMAND_CENTER_BOUNDARY.md`, and `docs/SECURITY_SHE_RAW.md`. The executable vertical slice is covered by `node tools/she_raw_contract_test.mjs`.
 
 ## Simulation MCP compiler
 

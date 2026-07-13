@@ -1,0 +1,25 @@
+#!/bin/sh
+if [ "${HC_FAKE_RISH_FAIL:-0}" = "1" ]; then
+  echo "fake rish failure" >&2
+  exit 42
+fi
+if [ "$1" = "-c" ]; then
+  cmd="$2"
+  case "$cmd" in
+    *"am start"*)
+      if [ "${HC_FAKE_AM_FAIL:-0}" = "1" ]; then
+        echo "fake am start failure" >&2
+        exit 43
+      fi
+      echo "Starting: Intent { fake home center pairing }"
+      exit 0
+      ;;
+  esac
+fi
+echo "uid=2000(shell) gid=2000(shell) groups=2000(shell) context=u:r:shell:s0"
+if [ "${HC_FAKE_MISSING_SHIZUKU:-0}" != "1" ]; then
+  echo "package:/data/app/moe.shizuku.privileged.api/base.apk"
+fi
+echo "  mCurrentFocus=Window{u0 com.dclar.homecenter/com.dclar.homecenter.MainActivity}"
+echo "  mFocusedApp=ActivityRecord{u0 com.dclar.homecenter/.MainActivity}"
+exit 0

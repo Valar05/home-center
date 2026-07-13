@@ -73,9 +73,17 @@ speech_provider = headers.get('X-Speech-Provider', '')
 speech_voice = headers.get('X-Speech-Voice', '')
 tts_bytes = len(body)
 if status != 200 or tts_bytes < 2048 or not ('audio' in content_type or 'octet-stream' in content_type):
-    fail(f'ElevenLabs tts bad: status={status} content_type={content_type!r} bytes={tts_bytes} body={body[:160]!r}')
-if speech_provider != 'elevenlabs' or speech_voice.lower() != 'brian':
-    fail(f'ElevenLabs tts headers bad: provider={speech_provider!r} voice={speech_voice!r}')
+    fail(f'Cartesia tts bad: status={status} content_type={content_type!r} bytes={tts_bytes} body={body[:160]!r}')
+if speech_provider != 'cartesia':
+    fail(f'Cartesia tts headers bad: provider={speech_provider!r} voice={speech_voice!r}')
+
+status, voices = get_json('ttsVoices?provider=cartesia&limit=20', timeout=30)
+voice_rows = voices.get('voices') or []
+if status != 200 or voices.get('provider') != 'cartesia' or not isinstance(voice_rows, list) or not voice_rows:
+    fail(f'Cartesia voice catalog bad: status={status} body={voices}')
+first_voice = voice_rows[0]
+if not first_voice.get('name') or 'voiceId' not in first_voice or 'category' not in first_voice or 'labels' not in first_voice:
+    fail(f'Cartesia voice metadata shape bad: first={first_voice}')
 
 status, headers, body = post_json('googleDriveProbe', {'query': 'Can Home Center read Google Drive?'}, timeout=20)
 if status != 401:
@@ -86,4 +94,4 @@ if status != 401:
     fail(f'agentToolTurn should require Firebase auth when unauthenticated: status={status} body={body[:200]!r}')
 
 service_note = 'googleApis=' + ','.join(sorted(required_google_services)) if services is not None else 'googleApis=not_checked_no_gcloud'
-print(f'Home Center provider smoke: OK elevenlabsBytes={tts_bytes} toolContractVersion=google-github-knowledge-delete-cru-v1 contractGroups=calendar,contacts,docs,drive,github,gmail,knowledge,lists,sheets {service_note} driveProbeUnauth=401 agentToolTurnUnauth=401')
+print(f'Home Center provider smoke: OK cartesiaBytes={tts_bytes} voices={len(voice_rows)} toolContractVersion=google-github-knowledge-delete-cru-v1 contractGroups=calendar,contacts,docs,drive,github,gmail,knowledge,lists,sheets {service_note} driveProbeUnauth=401 agentToolTurnUnauth=401')
