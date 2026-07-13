@@ -2,6 +2,7 @@
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+import {assessAcceptanceEvidence, classifyVerificationCommand, pullRequestRequired, repositoryMutationRequired} from './acceptance_policy.mjs';
 import {createHash} from 'node:crypto';
 import {spawn, spawnSync} from 'node:child_process';
 
@@ -358,27 +359,23 @@ function appendCommandLog(entries) {
 function runVerificationCommands(commands = []) {
   const results = [];
   for (const command of commands.slice(0, 12)) {
-    if (!command || /^run repository-defined /i.test(command)) continue;
+    const classification = classifyVerificationCommand(command);
+    if (!classification.safe) {
+      results.push({command, status: 'skipped', skipReason: classification.reason, exitCode: 0, stdout: '', stderr: '', ranAt: new Date().toISOString()});
+      continue;
+    }
     const result = run(command, workspaceRoot);
-    results.push({...result, ranAt: new Date().toISOString()});
+    results.push({...result, status: 'executed', skipReason: '', ranAt: new Date().toISOString()});
   }
   return results;
 }
 
 function isMutationTicket(job = {}) {
-  const text = stripNegativeMutationLanguage([
-    job.objective || '',
-    ...(job.acceptanceCriteria || []),
-  ].join('\n'));
-  return /fix|repair|implement|add red|red test|patch|changed-file|commit|push|pull request|\bPR\b|draft PR|build|readback/i.test(text);
+  return repositoryMutationRequired(job);
 }
 
 function requiresPullRequest(job = {}) {
-  const text = stripNegativeMutationLanguage([
-    job.objective || '',
-    ...(job.acceptanceCriteria || []),
-  ].join('\n'));
-  return /pull request|\bPR\b|draft PR|push/i.test(text);
+  return pullRequestRequired(job);
 }
 
 function stripNegativeMutationLanguage(text) {
@@ -479,28 +476,9 @@ function buildAcceptanceMatrix(job, acceptance, verificationResults, gitEvidence
 
 function assessJobAcceptance(packet, codex, verificationResults, gitEvidence) {
   const job = packet.job || {};
-  const transcript = [
-    codex.stdout || '',
-    codex.stderr || '',
-    readFileIfExists('codex-last-message.md'),
-    readFileIfExists('final-report.md'),
-  ].join('\n');
-  const failures = [];
-  if (codex.exitCode !== 0) failures.push(`Codex exited ${codex.exitCode}.`);
-  if (codex.acceptanceError) failures.push(codex.acceptanceError);
-  for (const result of verificationResults) {
-    if (result.exitCode !== 0) failures.push(`Verification failed: ${result.command} exited ${result.exitCode}.`);
-  }
-  if (/blocked by|blocked:|cannot push|cannot open|invalid\s+GH_TOKEN|token .*invalid|authentication failed|auth status.*failed/i.test(transcript)) {
-    failures.push('Codex reported a blocker or authentication failure instead of completing the mutation.');
-  }
-  if (isMutationTicket(job) && !gitEvidence.diffHasContent && !gitEvidence.newCommitCreated) {
-    failures.push('Mutation ticket produced no uncommitted diff and no new commit relative to the restored base commit.');
-  }
-  if (requiresPullRequest(job) && !/https:\/\/github\.com\/[^\s)]+\/pull\/\d+/i.test(transcript)) {
-    failures.push('Ticket required push/PR evidence but no GitHub pull request URL was produced.');
-  }
-  const accepted = failures.length === 0;
+  const finalResult = [readFileIfExists('codex-last-message.md'), readFileIfExists('final-report.md')].join('\n');
+  const {accepted, failures} = assessAcceptanceEvidence({job, codexExitCode: codex.exitCode, codexAcceptanceError: codex.acceptanceError, finalResult, verificationResults, gitEvidence});
+  const transcript = finalResult;
   const usageSummary = parseCodexUsageSummary(transcript);
   const result = {accepted, failures};
   const acceptanceMatrix = buildAcceptanceMatrix(job, result, verificationResults, gitEvidence);
@@ -548,7 +526,7 @@ function captureRepositoryArtifacts(packet, codex, restore, verificationResults,
   writeJsonFile('verification.json', {
     codexExitCode: codex.exitCode,
     codexAcceptanceError: codex.acceptanceError || '',
-    verificationResults: verificationResults.map((item) => ({command: item.command, exitCode: item.exitCode, stdoutTail: item.stdout.slice(-4000), stderrTail: item.stderr.slice(-4000)})),
+    verificationResults: verificationResults.map((item) => ({command: item.command, status: item.status || 'executed', skipReason: item.skipReason || '', exitCode: item.exitCode, stdoutTail: item.stdout.slice(-4000), stderrTail: item.stderr.slice(-4000)})),
     allVerificationPassed: verificationResults.every((item) => item.exitCode === 0),
   });
   writeText('reasoning-summary.md', readFileIfExists('codex-last-message.md') || `Codex exit code: ${codex.exitCode}\n`);
@@ -706,7 +684,7 @@ async function runCodexSmokeJob(packet, executorId) {
   writeJsonFile('verification.json', {
     codexExitCode: codex.exitCode,
     codexAcceptanceError: codex.acceptanceError || '',
-    verificationResults: verificationResults.map((item) => ({command: item.command, exitCode: item.exitCode, stdoutTail: item.stdout.slice(-4000), stderrTail: item.stderr.slice(-4000)})),
+    verificationResults: verificationResults.map((item) => ({command: item.command, status: item.status || 'executed', skipReason: item.skipReason || '', exitCode: item.exitCode, stdoutTail: item.stdout.slice(-4000), stderrTail: item.stderr.slice(-4000)})),
     allVerificationPassed: verificationResults.every((item) => item.exitCode === 0),
     nonce,
   });
