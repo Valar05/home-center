@@ -65,6 +65,23 @@ function run(command, cwd = workspaceRoot, options = {}) {
   };
 }
 
+function runFile(command, args = [], cwd = workspaceRoot, options = {}) {
+  const result = spawnSync(command, args, {
+    cwd,
+    shell: false,
+    encoding: 'utf8',
+    env: {...process.env, ...(options.env || {})},
+    maxBuffer: 20 * 1024 * 1024,
+  });
+  return {
+    command: [command, ...args].join(' '),
+    cwd,
+    exitCode: result.status ?? 1,
+    stdout: redact(result.stdout || ''),
+    stderr: redact(result.stderr || ''),
+  };
+}
+
 function ensureWorkspace() {
   fs.mkdirSync(workspaceRoot, {recursive: true});
 }
@@ -92,7 +109,18 @@ function prepareCodexAuth() {
   if (!codexHomeBundle || !fs.existsSync(codexHomeBundle)) {
     throw new Error(`Subscription Codex auth bundle is missing at ${codexHomeBundle}.`);
   }
-  const unpack = run(`tar -xzf ${JSON.stringify(codexHomeBundle)} -C ${JSON.stringify(codexHome)}`, '/');
+  let bundlePath = codexHomeBundle;
+  const stat = fs.statSync(bundlePath);
+  if (stat.isDirectory()) {
+    const candidates = ['codex-home.tgz', 'latest', '1']
+      .map((name) => path.join(bundlePath, name))
+      .filter((candidate) => fs.existsSync(candidate) && fs.statSync(candidate).isFile());
+    if (!candidates.length) {
+      throw new Error(`Subscription Codex auth bundle path is a directory without codex-home.tgz, latest, or 1: ${bundlePath}.`);
+    }
+    bundlePath = candidates[0];
+  }
+  const unpack = runFile('tar', ['-xzf', bundlePath, '-C', codexHome], '/');
   if (unpack.exitCode !== 0) throw new Error(`Subscription Codex auth bundle unpack failed: ${unpack.stderr || unpack.stdout}`);
   const authJson = path.join(codexHome, 'auth.json');
   const configToml = path.join(codexHome, 'config.toml');
