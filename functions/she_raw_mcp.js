@@ -651,7 +651,7 @@ function deterministicBikiniBottomResponse({brain, boundedContext = '', question
 }
 
 function deterministicTangoResponse({brain, boundedContext = '', question = '', cases = [], rules = []}) {
-  const rule = controllingRule(rules);
+  const rule = rules[0] || {};
   const context = safeText(boundedContext, 2400);
   const target = safeText(question, 600) || brain.primaryQuestion;
   const evidenceReferences = [...sourceRefsFromBrain(brain), ...evidenceRefsFromCases(cases)].slice(0, 20);
@@ -669,7 +669,6 @@ function deterministicTangoResponse({brain, boundedContext = '', question = '', 
     non_sacrificial_boundary: nonSacrificialBoundary,
     brain_judgment: firstCase.observation || `${currentDuty} ${preservationAction} ${reliefHandoff} ${nonSacrificialBoundary}`,
     active_rule: rule.rule || '',
-    candidate_rules: candidateRules(rules),
     dangerous_question: dangerousQuestionForTask({requestedPerspective: target, context, route: {response_contract: 'brain_jar'}, fallback: 'Has Mission Control quietly become the permanent relief plan instead of designing one?'}),
     recommended_next_move: firstCase.intervention || 'Write a five-line watch card: duty, current owner, explicit residue, preservation action, and relief condition.',
     evidence_references: evidenceReferences,
