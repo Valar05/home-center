@@ -1,0 +1,10 @@
+{
+  "name": "home-center-command-center-cloud-worker",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Debian Cloud Run Job worker for durable Command Center Codex sessions.",
+  "scripts": {
+    "check": "node --check src/cloud_run_worker.mjs"
+  }
+}

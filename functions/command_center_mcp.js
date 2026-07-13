@@ -78,13 +78,22 @@ const COMMAND_CENTER_BUCKET_LAYOUT = Object.freeze({
     'browser/playbooks': {kind: 'browser.playbook', role: 'promoted site and task guidance for accessible browser hands'},
   },
 });
-const COMMAND_CENTER_ALLOWED_STATUSES = ['queued', 'activating', 'leased', 'executing', 'running', 'question', 'awaiting_mutation_authorization', 'completed', 'failed', 'canceled'];
+const COMMAND_CENTER_ALLOWED_STATUSES = ['queued', 'activating', 'leased', 'executing', 'running', 'question', 'awaiting_mutation_authorization', 'completed', 'failed', 'canceled', 'expired'];
 const COMMAND_CENTER_AGENT_ACTIVATION_STATUSES = ['queued', 'claimed', 'running', 'needs_human', 'completed', 'failed', 'canceled'];
 const COMMAND_CENTER_JOB_ACTIVATION_STATUSES = Object.freeze(['requested', 'accepted', 'rejected', 'timed_out', 'completed', 'failed']);
 const COMMAND_CENTER_WORKER_HEARTBEAT_FRESH_MS = 2 * 60 * 1000;
 const COMMAND_CENTER_ACTIVATION_VERIFIED_FRESH_MS = 10 * 60 * 1000;
 const COMMAND_CENTER_ACTIVATION_TIMEOUT_MS = 60 * 1000;
+const COMMAND_CENTER_COLD_START_HEARTBEAT_DEADLINE_MS = 2 * 60 * 1000;
 const COMMAND_CENTER_COMPLETION_EVENT_LOOKBACK_LIMIT = 1000;
+const COMMAND_CENTER_TERMINAL_JOB_STATUSES = Object.freeze(['completed', 'failed', 'canceled', 'expired']);
+const COMMAND_CENTER_RECONCILE_DEFAULT_OLDER_THAN_MS = 30 * 60 * 1000;
+
+function isTerminalJobStatus(status) {
+  return COMMAND_CENTER_TERMINAL_JOB_STATUSES.includes(safeText(status, 80));
+}
+
+const COMMAND_CENTER_DURABLE_SESSION_RESTORE_STRATEGIES = Object.freeze(['gcs_snapshot', 'git_clean_clone', 'empty_workspace', 'artifact_bundle']);
 const COMMAND_CENTER_CODEX_CLOUD_SURFACE = Object.freeze({
   surfaceId: 'openai-codex-cloud',
   role: 'real OpenAI Codex cloud agent surface consuming Drew account quota; Command Center stores durable refs and artifacts only',
@@ -360,18 +369,35 @@ function cleanRepoAgent(args = {}, caller = {}) {
 function cleanAgentSession(args = {}, agent = {}, caller = {}) {
   const sessionId = cleanSessionId(args.sessionId);
   const nowMs = Date.now();
+  const repository = safeText(args.repository || agent.repository, 240);
+  const projectId = cleanProjectId(args.projectId || agent.projectId || args.name || agent.name || 'general-worker-session', repository);
+  const agentId = cleanAgentId(args.agentId || agent.agentId || `${projectId}-worker-session`, projectId, repository);
+  const restoreStrategy = safeText(args.restoreStrategy || safeObject(args.workspaceSnapshot).restoreStrategy, 80) || 'gcs_snapshot';
   return {
     sessionId,
-    agentId: cleanAgentId(args.agentId || agent.agentId, agent.projectId, agent.repository),
-    projectId: cleanProjectId(args.projectId || agent.projectId, agent.repository),
-    title: safeText(args.title, 300) || 'Codex cloud session',
-    purpose: safeText(args.purpose, 2000) || 'Resumable Codex cloud task thread.',
+    sessionKind: safeText(args.sessionKind, 80) || 'durable_worker_session',
+    agentId,
+    projectId,
+    repository,
+    repositoryOptional: true,
+    repoRequired: args.repoRequired === true,
+    workerFamily: safeText(args.workerFamily, 120) || 'cloud-run-debian-codex',
+    runtime: safeText(args.runtime, 120) || 'cloud-run-debian',
+    title: safeText(args.title, 300) || 'Durable Codex worker session',
+    purpose: safeText(args.purpose, 2000) || 'Resumable Codex worker session with durable workspace and context.',
     status: safeText(args.status, 80) || 'active',
     latestActivationId: safeText(args.latestActivationId, 180),
     latestCodexCloudRefId: safeText(args.latestCodexCloudRefId, 180),
+    currentWorkspaceSnapshotRef: safeText(args.currentWorkspaceSnapshotRef || safeObject(args.workspaceSnapshot).snapshotRef, 1200),
+    currentWorkspaceSnapshotDigest: safeText(args.currentWorkspaceSnapshotDigest || safeObject(args.workspaceSnapshot).sha256, 160),
+    restoreStrategy: COMMAND_CENTER_DURABLE_SESSION_RESTORE_STRATEGIES.includes(restoreStrategy) ? restoreStrategy : 'gcs_snapshot',
+    workspaceState: safeObject(args.workspaceState),
+    mutationState: safeObject(args.mutationState),
     currentSummary: safeText(args.currentSummary, 8000),
     contextRefs: safeList(args.contextRefs, 80, 800),
     artifactRefs: safeList(args.artifactRefs, 120, 800),
+    openQuestions: safeList(args.openQuestions, 80, 1000),
+    preferredWorkerIds: safeList(args.preferredWorkerIds, 80, 160),
     createdBy: safeText(args.createdBy, 160) || caller.actor || 'command_center',
     updatedBy: caller.actor || safeText(args.updatedBy, 160),
     createdAtMs: Number(args.createdAtMs || 0) || nowMs,
@@ -530,20 +556,77 @@ function cleanBucketObject(args = {}, caller = {}) {
   };
 }
 
+function deriveWorkerLiveness(worker, nowMs = Date.now()) {
+  const data = safeObject(worker);
+  const registryHealth = safeText(data.registryHealth || data.health, 80) || 'unknown';
+  const lastHeartbeatAtMs = Number(data.lastHeartbeatAtMs || 0) || 0;
+  const heartbeatAgeMs = lastHeartbeatAtMs > 0 ? Math.max(0, nowMs - lastHeartbeatAtMs) : null;
+  const heartbeatFresh = lastHeartbeatAtMs > 0 && heartbeatAgeMs <= COMMAND_CENTER_WORKER_HEARTBEAT_FRESH_MS;
+  const activation = normalizeActivationChannel(data.activation);
+  const activationAgeMs = activation.verifiedAtMs > 0 ? Math.max(0, nowMs - activation.verifiedAtMs) : null;
+  const activationFresh = activation.verifiedAtMs > 0 && activationAgeMs <= COMMAND_CENTER_ACTIVATION_VERIFIED_FRESH_MS;
+  const cloudRunJob = safeObject(data.cloudRunJob);
+  const sessionPolicy = safeObject(data.sessionPolicy);
+  const cloudRunConfigured = activation.mode === 'cloud_run_job'
+    && !!cloudRunJob.projectId
+    && !!cloudRunJob.region
+    && !!cloudRunJob.jobName
+    && sessionPolicy.durable === true
+    && sessionPolicy.snapshotStore === 'gcs';
+  const registryRoutable = data.registryRoutable !== false && (data.routable !== false || cloudRunConfigured);
+  const activatable = data.simulated !== true && registryHealth === 'healthy' && registryRoutable && cloudRunConfigured;
+  const effectiveHealth = registryHealth === 'healthy'
+    ? (heartbeatFresh ? 'healthy' : (activatable ? 'activatable' : 'stale'))
+    : registryHealth;
+  const livenessReason = registryHealth !== 'healthy'
+    ? `registry health is ${registryHealth}`
+    : (heartbeatFresh
+      ? 'heartbeat fresh'
+      : (activatable ? 'cloud_run_job activation channel configured' : (lastHeartbeatAtMs > 0 ? 'heartbeat stale' : 'heartbeat missing')));
+  return {
+    registryHealth,
+    registryRoutable,
+    health: effectiveHealth,
+    lastHeartbeatAtMs,
+    heartbeatAgeMs,
+    heartbeatFresh,
+    activationAgeMs,
+    activationFresh,
+    activatable,
+    livenessState: heartbeatFresh ? 'live' : (activatable ? 'activatable' : (lastHeartbeatAtMs > 0 ? 'stale' : 'registered')),
+    livenessReason,
+    routable: registryRoutable && (effectiveHealth === 'healthy' || effectiveHealth === 'activatable'),
+  };
+}
+
 function cleanWorker(worker) {
   const data = safeObject(worker);
+  const liveness = deriveWorkerLiveness(data);
   return {
     workerId: safeText(data.workerId, 120),
     engine: safeText(data.engine, 80) || 'codex',
     location: safeText(data.location, 80) || 'cloud',
-    health: safeText(data.health, 80) || 'unknown',
+    registryHealth: liveness.registryHealth,
+    health: liveness.health,
+    livenessState: liveness.livenessState,
+    livenessReason: liveness.livenessReason,
+    heartbeatAgeMs: liveness.heartbeatAgeMs,
+    heartbeatFresh: liveness.heartbeatFresh,
+    activationAgeMs: liveness.activationAgeMs,
+    activationFresh: liveness.activationFresh,
+    activatable: liveness.activatable,
     capabilities: safeList(data.capabilities, 80, 120),
     baseWorkspaces: Array.isArray(data.baseWorkspaces) ? data.baseWorkspaces.slice(0, 20).map(cleanBaseWorkspace) : [],
     limits: safeObject(data.limits),
     activation: normalizeActivationChannel(data.activation),
+    runtime: safeObject(data.runtime),
+    cloudRunJob: safeObject(data.cloudRunJob),
+    sessionPolicy: safeObject(data.sessionPolicy),
+    repositoryAffinity: safeList(data.repositoryAffinity, 80, 240),
     simulated: data.simulated === true,
-    routable: data.routable !== false,
-    lastHeartbeatAtMs: Number(data.lastHeartbeatAtMs || 0) || 0,
+    registryRoutable: liveness.registryRoutable,
+    routable: liveness.routable,
+    lastHeartbeatAtMs: liveness.lastHeartbeatAtMs,
     oneShot: data.oneShot !== false,
   };
 }
@@ -579,7 +662,7 @@ function normalizeActivationChannel(value = {}) {
   const data = safeObject(value);
   const mode = safeText(data.mode, 40) || (safeText(data.endpoint, 1000) ? 'push' : '');
   return {
-    mode: ['push', 'poll'].includes(mode) ? mode : '',
+    mode: ['push', 'poll', 'cloud_run_job'].includes(mode) ? mode : '',
     endpoint: safeText(data.endpoint || data.url, 1200),
     authRef: safeText(data.authRef || data.secretRef || data.tokenRef, 240),
     verifiedAtMs: Number(data.verifiedAtMs || data.lastVerifiedAtMs || 0) || 0,
@@ -591,9 +674,9 @@ function isWorkerLeaseEligible(worker, requirements, options = {}) {
   const requireActivationChannel = options.requireActivationChannel !== false;
   const reqs = safeList(requirements, 40, 120).map((req) => req.toLowerCase());
   const caps = new Set((worker.capabilities || []).map((cap) => String(cap).toLowerCase()));
+  const liveness = deriveWorkerLiveness(worker, nowMs);
   if (worker.simulated === true) return {eligible: false, reason: 'worker is simulated'};
-  if (worker.routable === false) return {eligible: false, reason: 'worker is not routable'};
-  if (safeText(worker.health, 40) !== 'healthy') return {eligible: false, reason: `worker health is ${safeText(worker.health, 40) || 'unknown'}`};
+  if (worker.registryRoutable === false) return {eligible: false, reason: 'worker is not routable'};
   const missing = reqs.filter((req) => !caps.has(req));
   if (missing.length) return {eligible: false, reason: `missing capabilities: ${missing.join(', ')}`};
   const requiresCloudActivation = reqs.includes('codex-cloud') || caps.has('codex-cloud');
@@ -608,6 +691,19 @@ function isWorkerLeaseEligible(worker, requirements, options = {}) {
     if (requireActivationChannel && !hasPushActivation && !hasPollActivation) return {eligible: false, reason: 'codex-cloud worker has no verified push activation channel or live poll channel'};
     if (!heartbeatFresh && !activationFresh) return {eligible: false, reason: 'codex-cloud worker heartbeat or activation verification is stale'};
   }
+  const requiresCloudRun = reqs.includes('cloud-run-debian') || reqs.includes('durable-session') || caps.has('cloud-run-debian');
+  if (requiresCloudRun) {
+    const activation = normalizeActivationChannel(worker.activation);
+    const heartbeatFresh = Number(worker.lastHeartbeatAtMs || 0) > 0 && nowMs - Number(worker.lastHeartbeatAtMs || 0) <= COMMAND_CENTER_WORKER_HEARTBEAT_FRESH_MS;
+    if (activation.mode !== 'cloud_run_job') return {eligible: false, reason: 'durable cloud sessions require a cloud_run_job activation channel'};
+    if (!safeObject(worker.cloudRunJob).jobName || !safeObject(worker.cloudRunJob).region || !safeObject(worker.cloudRunJob).projectId) return {eligible: false, reason: 'cloud_run_job worker requires projectId, region, and jobName'};
+    if (safeObject(worker.sessionPolicy).durable !== true) return {eligible: false, reason: 'cloud_run_job worker must advertise durable session policy'};
+    if (safeObject(worker.sessionPolicy).snapshotStore !== 'gcs') return {eligible: false, reason: 'durable cloud sessions require gcs snapshot storage'};
+    if (liveness.registryHealth !== 'healthy') return {eligible: false, reason: liveness.livenessReason};
+    if (!heartbeatFresh && !liveness.activatable) return {eligible: false, reason: 'cloud_run_job worker is neither live nor activatable'};
+    return {eligible: true, reason: heartbeatFresh ? 'live cloud_run_job worker' : 'activatable cloud_run_job worker'};
+  }
+  if (liveness.health !== 'healthy') return {eligible: false, reason: liveness.livenessReason};
   return {eligible: true, reason: 'eligible'};
 }
 
@@ -621,6 +717,10 @@ function selectWorker(workers, requirements, options = {}) {
   err.code = 'NO_REAL_WORKER_AVAILABLE';
   err.requirements = reqs;
   throw err;
+}
+
+function workerSelectionFailure(err) {
+  return err && err.code === 'NO_REAL_WORKER_AVAILABLE';
 }
 
 function activationWorkerRequirements(args = {}, task = {}) {
@@ -1325,8 +1425,55 @@ function activationStateFromResult(result) {
   return {status: 'rejected', accepted: false, diagnostic: safeText(result && (result.error || result.diagnostic || result.message), 1000) || 'Activation endpoint rejected or did not return acceptance.', executorId: ''};
 }
 
+async function googleCloudAccessToken() {
+  const response = await fetch('http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/token', {headers: {'Metadata-Flavor': 'Google'}});
+  const text = await response.text();
+  if (!response.ok) throw new Error(`Metadata token request failed: ${response.status} ${text.slice(0, 200)}`);
+  const json = JSON.parse(text);
+  if (!json.access_token) throw new Error('Metadata token response did not contain access_token.');
+  return json.access_token;
+}
+
+async function invokeCloudRunJobActivation(worker, activation, session = {}) {
+  const cloudRunJob = safeObject(worker.cloudRunJob);
+  const projectId = safeText(cloudRunJob.projectId, 120);
+  const region = safeText(cloudRunJob.region, 80);
+  const jobName = safeText(cloudRunJob.jobName, 160);
+  if (!projectId || !region || !jobName) return {ok: false, accepted: false, error: 'cloud_run_job activation requires projectId, region, and jobName.'};
+  const token = await googleCloudAccessToken();
+  const response = await fetch(`https://run.googleapis.com/v2/projects/${projectId}/locations/${region}/jobs/${jobName}:run`, {
+    method: 'POST',
+    headers: {authorization: `Bearer ${token}`, 'content-type': 'application/json'},
+    body: JSON.stringify({
+      validateOnly: false,
+      overrides: {
+        containerOverrides: [{
+          env: [
+            {name: 'COMMAND_CENTER_ACTIVATION_ID', value: safeText(activation.activationId, 180)},
+            {name: 'COMMAND_CENTER_JOB_ID', value: safeText(activation.jobId, 180)},
+            {name: 'COMMAND_CENTER_SESSION_ID', value: safeText(activation.sessionId || session.sessionId, 180)},
+            {name: 'COMMAND_CENTER_SELECTED_WORKER_ID', value: safeText(worker.workerId, 120)},
+            {name: 'COMMAND_CENTER_BASE', value: COMMAND_CENTER_PUBLIC_BASE},
+            {name: 'COMMAND_CENTER_RESTORE_WORKSPACE_SNAPSHOT_REF', value: safeText(activation.restoreWorkspaceSnapshotRef || session.currentWorkspaceSnapshotRef, 1200)},
+            {name: 'COMMAND_CENTER_PROJECT_ID', value: safeText(activation.projectId || session.projectId, 120)},
+            {name: 'COMMAND_CENTER_REPOSITORY', value: safeText(activation.repository || session.repository, 240)},
+            {name: 'COMMAND_CENTER_WAKE_ONLY', value: activation.wakeOnly === true || safeObject(safeObject(activation.task).executionPolicy).wakeOnly === true ? '1' : ''},
+            {name: 'COMMAND_CENTER_CODEX_EXECUTOR_DRY_RUN', value: activation.wakeOnly === true || safeObject(safeObject(activation.task).executionPolicy).dryRun === true ? '1' : ''},
+          ],
+        }],
+      },
+    }),
+  });
+  const text = await response.text();
+  let payload = {};
+  try { payload = text ? JSON.parse(text) : {}; } catch (_err) { payload = {summary: text.slice(0, 1000)}; }
+  if (!response.ok) return {ok: false, accepted: false, error: payload.error || payload.message || `Cloud Run Job activation failed: HTTP ${response.status}`};
+  return {ok: true, accepted: true, executorId: safeText(payload.name, 300), diagnostic: `Cloud Run Job ${jobName} invoked.`, response: payload};
+}
+
 async function invokeJobActivator(jobActivation, job, lease, worker) {
   const channel = normalizeActivationChannel(worker.activation);
+  if (channel.mode === 'cloud_run_job') return invokeCloudRunJobActivation(worker, {...jobActivation, jobId: job.jobId, projectId: job.projectId, repository: job.repository || ''}, {});
   if (channel.mode !== 'push' || !channel.endpoint) return {ok: false, accepted: false, error: 'Worker has no push activation endpoint.'};
   const headers = {'content-type': 'application/json'};
   if (channel.authRef && process.env[channel.authRef]) headers.authorization = `Bearer ${process.env[channel.authRef]}`;
@@ -1354,6 +1501,123 @@ async function invokeJobActivator(jobActivation, job, lease, worker) {
   }
 }
 
+
+async function wakeWorker(admin, caller, args = {}) {
+  return idempotentMutation(admin, caller, requireIdempotencyKey(args.idempotencyKey), 'workers.wake', async () => {
+    const workerId = safeText(args.workerId, 120);
+    if (!workerId) {
+      const err = new Error('workerId is required.');
+      err.status = 400;
+      throw err;
+    }
+    const worker = (await workerRecords(admin)).find((candidate) => candidate.workerId === workerId) || null;
+    if (!worker) {
+      const err = new Error(`Command Center worker not found: ${workerId}`);
+      err.status = 404;
+      throw err;
+    }
+    if (worker.simulated === true) {
+      const err = new Error('Cannot wake a simulated Command Center worker.');
+      err.status = 409;
+      throw err;
+    }
+    const channel = normalizeActivationChannel(worker.activation);
+    if (channel.mode !== 'cloud_run_job') {
+      const err = new Error('workers.wake currently supports cloud_run_job workers only.');
+      err.status = 409;
+      throw err;
+    }
+    const cloudRunJob = safeObject(worker.cloudRunJob);
+    if (!cloudRunJob.projectId || !cloudRunJob.region || !cloudRunJob.jobName) {
+      const err = new Error('cloud_run_job worker requires projectId, region, and jobName before wake.');
+      err.status = 409;
+      throw err;
+    }
+    if (safeObject(worker.sessionPolicy).durable !== true || safeObject(worker.sessionPolicy).snapshotStore !== 'gcs') {
+      const err = new Error('cloud_run_job wake requires durable gcs sessionPolicy.');
+      err.status = 409;
+      throw err;
+    }
+    const nowMs = Date.now();
+    const runLabel = slug(args.runLabel || args.reason || `wake-${workerId}-${nowMs}`, 'wake');
+    const projectId = cleanProjectId(args.projectId || 'command-center-workers');
+    const agent = cleanRepoAgent({
+      agentId: args.agentId || `${projectId}-wake-agent`,
+      projectId,
+      name: args.name || 'Command Center worker wake agent',
+      purpose: 'Owns bounded wake-only Cloud Run worker liveness activations.',
+      contextRefs: ['docs/COMMAND_CENTER_MCP.md', 'cloud-worker/src/cloud_run_worker.mjs'],
+    }, caller);
+    const session = cleanAgentSession({
+      sessionId: args.sessionId || `session_${runLabel}_${hashText(workerId, 10)}`,
+      agentId: agent.agentId,
+      projectId: agent.projectId,
+      title: `Worker wake ${workerId}`,
+      purpose: `Wake ${workerId} and prove live heartbeat without granting registry health by assertion.`,
+      workerFamily: safeText(worker.workerFamily, 120) || 'cloud-run-debian-codex',
+      runtime: 'cloud-run-debian',
+      preferredWorkerIds: [workerId],
+      currentWorkspaceSnapshotRef: safeText(args.currentWorkspaceSnapshotRef, 1200),
+      restoreStrategy: 'gcs_snapshot',
+    }, agent, caller);
+    const activationId = cleanActivationId(args.activationId || `activation_wake_${hashText(`${workerId}:${runLabel}:${nowMs}`, 24)}`);
+    const task = cleanActivationTask({
+      title: `Wake ${workerId}`,
+      prompt: safeText(args.prompt, 12000) || 'Wake-only Command Center worker liveness check. Restore minimal workspace, emit heartbeat, record final report, and exit.',
+      trigger: 'workers.wake',
+      acceptanceCriteria: ['Real Cloud Run worker claims this activation.', 'Worker emits a fresh heartbeat.', 'Worker records a wake final report artifact.'],
+      artifactRequirements: ['final-report.md'],
+      executionPolicy: {wakeOnly: true, dryRun: true},
+    });
+    const activation = {
+      activationId,
+      agentId: agent.agentId,
+      sessionId: session.sessionId,
+      projectId: agent.projectId,
+      repository: '',
+      sessionKind: session.sessionKind || 'durable_worker_session',
+      workerFamily: session.workerFamily || 'cloud-run-debian-codex',
+      runtime: session.runtime || 'cloud-run-debian',
+      status: 'queued',
+      executionSurface: COMMAND_CENTER_CODEX_CLOUD_SURFACE.surfaceId,
+      realWorkerRequired: true,
+      workerRequirements: ['cloud-run-debian', 'durable-session', 'gcs-workspace-snapshot'],
+      restoreWorkspaceSnapshotRef: session.currentWorkspaceSnapshotRef || '',
+      restoreWorkspaceSnapshotDigest: session.currentWorkspaceSnapshotDigest || '',
+      nextWorkspaceSnapshotRequired: true,
+      wakeOnly: true,
+      selectedWorkerId: worker.workerId,
+      selectedWorker: {workerId: worker.workerId, engine: worker.engine, location: worker.location, capabilities: worker.capabilities || [], simulated: worker.simulated === true, routable: worker.routable !== false, runtime: worker.runtime || {}, cloudRunJob: worker.cloudRunJob || {}, sessionPolicy: worker.sessionPolicy || {}},
+      task,
+      createdBy: caller.actor,
+      createdAtMs: nowMs,
+      updatedAtMs: nowMs,
+      codexCloudRefIds: [],
+      artifactRefs: [],
+      bucketObjectIds: [],
+      handoffSummary: '',
+    };
+    await collection(admin, COMMAND_CENTER_COLLECTIONS.repoAgents).doc(agent.agentId).set(agent, {merge: true});
+    await collection(admin, COMMAND_CENTER_COLLECTIONS.agentSessions).doc(session.sessionId).set({...session, latestActivationId: activationId}, {merge: true});
+    await collection(admin, COMMAND_CENTER_COLLECTIONS.agentActivations).doc(activationId).set(activation, {merge: true});
+    await recordAgentContextSnapshot(admin, agent, session, activation, caller);
+    const result = await invokeCloudRunJobActivation(worker, {...activation, wakeOnly: true}, session);
+    const state = activationStateFromResult(result);
+    await collection(admin, COMMAND_CENTER_COLLECTIONS.agentActivations).doc(activationId).set({
+      status: state.accepted ? 'queued' : 'failed',
+      cloudRunOperationName: state.executorId,
+      activationDiagnostic: state.diagnostic,
+      updatedAtMs: Date.now(),
+    }, {merge: true});
+    if (!state.accepted) {
+      const err = new Error(`Cloud Run worker wake failed: ${state.diagnostic}`);
+      err.status = 502;
+      throw err;
+    }
+    return {ok: true, workerId, activationId, sessionId: session.sessionId, cloudRunOperationName: state.executorId, diagnostic: state.diagnostic, livenessBeforeWake: deriveWorkerLiveness(worker, nowMs)};
+  });
+}
+
 async function requestJobActivation(admin, job, lease, worker) {
   const channel = normalizeActivationChannel(worker.activation);
   const activation = buildJobActivation(job, lease, worker);
@@ -1367,7 +1631,7 @@ async function requestJobActivation(admin, job, lease, worker) {
     data: {activationId: activation.activationId, leaseId: lease.leaseId, workerId: worker.workerId, endpoint: channel.endpoint},
   });
   if (channel.mode === 'poll') return {activation, events: [requestedEvent], accepted: true};
-  if (channel.mode !== 'push') return {activation, events: [requestedEvent], accepted: false};
+  if (!['push', 'cloud_run_job'].includes(channel.mode)) return {activation, events: [requestedEvent], accepted: false};
   const result = await invokeJobActivator(activation, job, lease, worker);
   const state = activationStateFromResult(result);
   const update = {
@@ -1450,7 +1714,14 @@ async function createJob(admin, caller, args) {
     const projectId = cleanProjectId(args.projectId, args.repository || 'project');
     const jobId = `job_${randomUUID()}`;
     const workers = await workerRecords(admin);
-    const worker = selectWorker(workers, args.workerRequirements);
+    let worker = null;
+    let selectionFailure = null;
+    try {
+      worker = selectWorker(workers, args.workerRequirements);
+    } catch (err) {
+      if (!workerSelectionFailure(err)) throw err;
+      selectionFailure = err;
+    }
     const nowMs = Date.now();
     const job = {
       jobId,
@@ -1464,17 +1735,24 @@ async function createJob(admin, caller, args) {
       budgetClass: safeText(args.budgetClass, 80) || 'small',
       mutationPolicy: cleanMutationPolicy(args.mutationPolicy),
       ...cleanOneShotExecution(args),
-      status: 'leased',
-      selectedWorkerId: worker.workerId,
+      status: worker ? 'leased' : 'queued',
+      selectedWorkerId: worker ? worker.workerId : '',
       createdBy: caller.actor,
       createdAtMs: nowMs,
       updatedAtMs: nowMs,
-      simulatedWorker: worker.simulated === true,
+      simulatedWorker: worker ? worker.simulated === true : false,
+      routingDiagnostic: selectionFailure ? selectionFailure.message : '',
     };
-    const lease = {leaseId: `lease_${randomUUID()}`, jobId, projectId, workerId: worker.workerId, status: 'active', acquiredAtMs: nowMs, expiresAtMs: nowMs + 30 * 60 * 1000, heartbeatAtMs: nowMs};
     await collection(admin, COMMAND_CENTER_COLLECTIONS.jobs).doc(jobId).set(job);
-    await collection(admin, COMMAND_CENTER_COLLECTIONS.leases).doc(lease.leaseId).set(lease);
     const createdEvent = await appendEvent(admin, {type: 'job_created', jobId, projectId, actor: caller.actor, summary: job.title, data: {workerRequirements: job.workerRequirements}});
+    if (!worker) {
+      const queuedEvent = await appendEvent(admin, {type: 'job_queued_no_worker', jobId, projectId, actor: 'command_center', summary: selectionFailure.message, data: {requirements: selectionFailure.requirements || job.workerRequirements}});
+      await recordLog(admin, jobId, projectId, 'Command Center queued job because no real worker was currently eligible.', {workerRequirements: job.workerRequirements, diagnostic: selectionFailure.message});
+      const checkpoint = await recordCheckpoint(admin, job);
+      return {job, lease: null, activation: null, events: [createdEvent, queuedEvent], checkpoint};
+    }
+    const lease = {leaseId: `lease_${randomUUID()}`, jobId, projectId, workerId: worker.workerId, status: 'active', acquiredAtMs: nowMs, expiresAtMs: nowMs + 30 * 60 * 1000, heartbeatAtMs: nowMs};
+    await collection(admin, COMMAND_CENTER_COLLECTIONS.leases).doc(lease.leaseId).set(lease);
     const leasedEvent = await appendEvent(admin, {type: 'job_leased', jobId, projectId, actor: 'command_center', summary: `Leased to ${worker.workerId}.`, data: {worker}});
     const activationResult = await requestJobActivation(admin, job, lease, worker);
     if (activationResult.activation && activationResult.accepted === false) job.status = 'failed';
@@ -1547,7 +1825,7 @@ async function synthesizeJobHandoff(admin, jobId) {
       executorEventCount: executorEvents.length,
       lastEventType: newestEvent ? newestEvent.type : '',
       lastHeartbeatAgeMs: heartbeatEvent ? nowMs - Number(heartbeatEvent.createdAtMs || nowMs) : null,
-      terminal: ['completed', 'failed', 'canceled'].includes(job.status),
+      terminal: isTerminalJobStatus(job.status),
       missingRequiredArtifacts,
     },
     checkpoint,
@@ -1569,7 +1847,14 @@ async function createFollowupJob(admin, caller, args) {
     const workers = await workerRecords(admin);
     const workerRequirements = safeList(args.workerRequirements, 40, 120);
     const inheritedWorkerRequirements = safeList(sourceJob.workerRequirements, 40, 120);
-    const worker = selectWorker(workers, workerRequirements.length ? workerRequirements : inheritedWorkerRequirements);
+    let worker = null;
+    let selectionFailure = null;
+    try {
+      worker = selectWorker(workers, workerRequirements.length ? workerRequirements : inheritedWorkerRequirements);
+    } catch (err) {
+      if (!workerSelectionFailure(err)) throw err;
+      selectionFailure = err;
+    }
     const execution = cleanOneShotExecution({
       ...args,
       baseWorkspace: args.baseWorkspace || sourceJob.baseWorkspace,
@@ -1597,18 +1882,25 @@ async function createFollowupJob(admin, caller, args) {
         handoffRef: `handoff://${sourceJobId}`,
       },
       sourceEvidenceRefs: sourceHandoff.review.correctability.carryForwardEvidenceRefs,
-      status: 'leased',
-      selectedWorkerId: worker.workerId,
+      status: worker ? 'leased' : 'queued',
+      selectedWorkerId: worker ? worker.workerId : '',
       createdBy: caller.actor,
       createdAtMs: nowMs,
       updatedAtMs: nowMs,
-      simulatedWorker: worker.simulated === true,
+      simulatedWorker: worker ? worker.simulated === true : false,
+      routingDiagnostic: selectionFailure ? selectionFailure.message : '',
     };
-    const lease = {leaseId: `lease_${randomUUID()}`, jobId, projectId, workerId: worker.workerId, status: 'active', acquiredAtMs: nowMs, expiresAtMs: nowMs + 30 * 60 * 1000, heartbeatAtMs: nowMs};
     await collection(admin, COMMAND_CENTER_COLLECTIONS.jobs).doc(jobId).set(job);
-    await collection(admin, COMMAND_CENTER_COLLECTIONS.leases).doc(lease.leaseId).set(lease);
     const createdEvent = await appendEvent(admin, {type: 'job_created', jobId, projectId, actor: caller.actor, summary: job.title, data: {workerRequirements: job.workerRequirements, sourceJobId}});
     const followupEvent = await appendEvent(admin, {type: 'job_followup_created', jobId, projectId, actor: caller.actor, summary: `Linked follow-up for ${sourceJobId}.`, evidenceRefs: [`handoff://${sourceJobId}`], data: {sourceJobId, sourceStatus: sourceJob.status}});
+    if (!worker) {
+      const queuedEvent = await appendEvent(admin, {type: 'job_queued_no_worker', jobId, projectId, actor: 'command_center', summary: selectionFailure.message, data: {requirements: selectionFailure.requirements || job.workerRequirements}});
+      await recordLog(admin, jobId, projectId, 'Command Center queued follow-up because no real worker was currently eligible.', {sourceJobId, workerRequirements: job.workerRequirements, diagnostic: selectionFailure.message});
+      const checkpoint = await recordCheckpoint(admin, job);
+      return {job, lease: null, activation: null, events: [createdEvent, followupEvent, queuedEvent], checkpoint, sourceHandoff};
+    }
+    const lease = {leaseId: `lease_${randomUUID()}`, jobId, projectId, workerId: worker.workerId, status: 'active', acquiredAtMs: nowMs, expiresAtMs: nowMs + 30 * 60 * 1000, heartbeatAtMs: nowMs};
+    await collection(admin, COMMAND_CENTER_COLLECTIONS.leases).doc(lease.leaseId).set(lease);
     const leasedEvent = await appendEvent(admin, {type: 'job_leased', jobId, projectId, actor: 'command_center', summary: `Leased to ${worker.workerId}.`, data: {worker}});
     const activationResult = await requestJobActivation(admin, job, lease, worker);
     if (activationResult.activation && activationResult.accepted === false) job.status = 'failed';
@@ -1653,15 +1945,43 @@ function buildAgentResumePacket(agent, session, activation, snapshot = null) {
     packetVersion: 'command-center-codex-cloud-resume-v1',
     generatedAtMs: Date.now(),
     executionSurface: COMMAND_CENTER_CODEX_CLOUD_SURFACE,
-    agent: {agentId: agent.agentId, projectId: agent.projectId, repository: agent.repository, name: agent.name, purpose: agent.purpose, contextRefs: agent.contextRefs || []},
-    session: {sessionId: session.sessionId, title: session.title, purpose: session.purpose, currentSummary: session.currentSummary || '', contextRefs: session.contextRefs || [], artifactRefs: session.artifactRefs || []},
+    workerSessionContract: {
+      durable: true,
+      repositoryOptional: true,
+      repoRequired: session.repoRequired === true,
+      storage: 'gcs_workspace_snapshot_plus_command_center_metadata',
+      restoreStrategy: session.restoreStrategy || 'gcs_snapshot',
+    },
+    agent: {agentId: agent.agentId, projectId: agent.projectId, repository: agent.repository || '', name: agent.name, purpose: agent.purpose, contextRefs: agent.contextRefs || []},
+    session: {
+      sessionId: session.sessionId,
+      sessionKind: session.sessionKind || 'durable_worker_session',
+      workerFamily: session.workerFamily || 'cloud-run-debian-codex',
+      runtime: session.runtime || 'cloud-run-debian',
+      projectId: session.projectId,
+      repository: session.repository || '',
+      title: session.title,
+      purpose: session.purpose,
+      currentSummary: session.currentSummary || '',
+      contextRefs: session.contextRefs || [],
+      artifactRefs: session.artifactRefs || [],
+      openQuestions: session.openQuestions || [],
+      mutationState: session.mutationState || {},
+      currentWorkspaceSnapshotRef: session.currentWorkspaceSnapshotRef || '',
+      currentWorkspaceSnapshotDigest: session.currentWorkspaceSnapshotDigest || '',
+    },
     activation: {activationId: activation.activationId, status: activation.status, task: activation.task, artifactRefs: activation.artifactRefs || [], codexCloudRefIds: activation.codexCloudRefIds || [], selectedWorkerId: activation.selectedWorkerId || '', workerRequirements: activation.workerRequirements || [], realWorkerRequired: activation.realWorkerRequired === true},
     snapshotRef: snapshot ? `agent-context-snapshot://${snapshot.snapshotId}` : '',
+    workspaceSnapshot: {
+      restoreRef: activation.restoreWorkspaceSnapshotRef || session.currentWorkspaceSnapshotRef || '',
+      restoreDigest: activation.restoreWorkspaceSnapshotDigest || session.currentWorkspaceSnapshotDigest || '',
+      nextSnapshotRequired: Array.isArray(activation.workerRequirements) && activation.workerRequirements.includes('durable-session'),
+    },
     bridgeInstructions: [
-      'Open or resume the real OpenAI Codex cloud surface at https://chatgpt.com/codex/.',
-      'Use the logged-in user-owned account/session on the bridge host; do not export cookies, tokens, or session state.',
-      'Record the Codex cloud task URL/ref back to Command Center before waiting for completion.',
-      'Upload final report and evidence artifacts; do not claim success from stdout alone.',
+      'Restore the durable worker session workspace before execution; a lease without restored session state is not execution.',
+      'Use the cloud worker credential boundary; do not export cookies, tokens, or session state.',
+      'Record a real Codex cloud task URL/ref when one exists, but keep this resume packet usable without it.',
+      'Upload final report, next workspace snapshot ref, and evidence artifacts; do not claim success from stdout alone.',
     ],
   };
 }
@@ -1675,6 +1995,11 @@ async function recordAgentContextSnapshot(admin, agent, session, activation, cal
     activationId: activation.activationId,
     projectId: agent.projectId,
     repository: agent.repository,
+    sessionKind: session.sessionKind || 'durable_worker_session',
+    workerFamily: session.workerFamily || 'cloud-run-debian-codex',
+    runtime: session.runtime || 'cloud-run-debian',
+    restoreWorkspaceSnapshotRef: activation.restoreWorkspaceSnapshotRef || session.currentWorkspaceSnapshotRef || '',
+    nextWorkspaceSnapshotRef: activation.nextWorkspaceSnapshotRef || '',
     currentSummary: session.currentSummary || '',
     prompt: activation.task && activation.task.prompt || '',
     contextRefs: [...safeList(agent.contextRefs, 80, 800), ...safeList(session.contextRefs, 80, 800)],
@@ -1726,8 +2051,32 @@ async function upsertRepoAgent(admin, caller, args) {
 
 async function createAgentActivation(admin, caller, args) {
   return idempotentMutation(admin, caller, requireIdempotencyKey(args.idempotencyKey), 'agents.create_activation', async () => {
-    const agent = await getRepoAgent(admin, args.agentId);
-    const session = args.sessionId ? await getAgentSession(admin, args.sessionId) : cleanAgentSession({agentId: agent.agentId, projectId: agent.projectId, title: `${agent.name} Codex cloud session`}, agent, caller);
+    const projectId = cleanProjectId(args.projectId || args.name || 'general-worker-session', args.repository || '');
+    const syntheticAgent = {
+      agentId: cleanAgentId(args.agentId || `${projectId}-worker`, projectId, args.repository || ''),
+      projectId,
+      repository: safeText(args.repository, 240),
+      name: safeText(args.name, 240) || projectId,
+      purpose: safeText(args.purpose, 2000) || 'Durable repo-optional worker session owner.',
+      contextRefs: safeList(args.contextRefs, 80, 800),
+    };
+    const agent = args.agentId ? await getRepoAgent(admin, args.agentId) : syntheticAgent;
+    if (!args.agentId) await collection(admin, COMMAND_CENTER_COLLECTIONS.repoAgents).doc(agent.agentId).set({...agent, agentType: 'durable_worker_session_owner', repositoryOptional: true, status: 'active', createdBy: caller.actor, updatedBy: caller.actor, createdAtMs: Date.now(), updatedAtMs: Date.now()}, {merge: true});
+    const session = args.sessionId ? await getAgentSession(admin, args.sessionId) : cleanAgentSession({
+      agentId: agent.agentId,
+      projectId: agent.projectId,
+      repository: agent.repository,
+      title: args.sessionTitle || `${agent.name} durable worker session`,
+      purpose: args.sessionPurpose,
+      workerFamily: args.workerFamily,
+      runtime: args.runtime,
+      currentWorkspaceSnapshotRef: args.currentWorkspaceSnapshotRef,
+      currentWorkspaceSnapshotDigest: args.currentWorkspaceSnapshotDigest,
+      restoreStrategy: args.restoreStrategy,
+      contextRefs: args.contextRefs,
+      openQuestions: args.openQuestions,
+      preferredWorkerIds: args.preferredWorkerIds,
+    }, agent, caller);
     if (!args.sessionId) await collection(admin, COMMAND_CENTER_COLLECTIONS.agentSessions).doc(session.sessionId).set(session, {merge: true});
     const task = cleanActivationTask(args);
     if (!task.prompt) {
@@ -1745,12 +2094,18 @@ async function createAgentActivation(admin, caller, args) {
 	      sessionId: session.sessionId,
 	      projectId: agent.projectId,
 	      repository: agent.repository,
+	      sessionKind: session.sessionKind || 'durable_worker_session',
+	      workerFamily: session.workerFamily || 'cloud-run-debian-codex',
+	      runtime: session.runtime || 'cloud-run-debian',
 	      status: 'queued',
 	      executionSurface: COMMAND_CENTER_CODEX_CLOUD_SURFACE.surfaceId,
 	      realWorkerRequired: true,
 	      workerRequirements,
+	      restoreWorkspaceSnapshotRef: session.currentWorkspaceSnapshotRef || '',
+	      restoreWorkspaceSnapshotDigest: session.currentWorkspaceSnapshotDigest || '',
+	      nextWorkspaceSnapshotRequired: workerRequirements.includes('durable-session'),
 	      selectedWorkerId: worker.workerId,
-	      selectedWorker: {workerId: worker.workerId, engine: worker.engine, location: worker.location, capabilities: worker.capabilities || [], simulated: worker.simulated === true, routable: worker.routable !== false},
+	      selectedWorker: {workerId: worker.workerId, engine: worker.engine, location: worker.location, capabilities: worker.capabilities || [], simulated: worker.simulated === true, routable: worker.routable !== false, runtime: worker.runtime || {}, cloudRunJob: worker.cloudRunJob || {}, sessionPolicy: worker.sessionPolicy || {}},
 	      task,
 	      createdBy: caller.actor,
 	      createdAtMs: nowMs,
@@ -1763,12 +2118,29 @@ async function createAgentActivation(admin, caller, args) {
 	    await collection(admin, COMMAND_CENTER_COLLECTIONS.agentActivations).doc(activationId).set(activation);
 	    await collection(admin, COMMAND_CENTER_COLLECTIONS.agentSessions).doc(session.sessionId).set({latestActivationId: activationId, updatedAtMs: nowMs, updatedBy: caller.actor}, {merge: true});
 	    const snapshot = await recordAgentContextSnapshot(admin, agent, session, activation, caller);
+	    const channel = normalizeActivationChannel(worker.activation);
+	    let cloudRunActivation = null;
+	    if (channel.mode === 'cloud_run_job') {
+	      cloudRunActivation = await invokeCloudRunJobActivation(worker, activation, session);
+	      const cloudRunState = activationStateFromResult(cloudRunActivation);
+	      await collection(admin, COMMAND_CENTER_COLLECTIONS.agentActivations).doc(activationId).set({
+	        status: cloudRunState.accepted ? 'queued' : 'failed',
+	        cloudRunOperationName: cloudRunActivation.executorId || '',
+	        activationDiagnostic: cloudRunState.diagnostic,
+	        updatedAtMs: Date.now(),
+	      }, {merge: true});
+	      if (!cloudRunState.accepted) {
+	        const err = new Error(`Cloud Run worker activation failed: ${cloudRunState.diagnostic}`);
+	        err.status = 502;
+	        throw err;
+	      }
+	    }
 	    await upsertBucketObject(admin, {
 	      kind: 'memory.current_condensed',
 	      title: `Real worker selected for activation ${activationId}`,
 	      path: `memory/current-condensed/${agent.projectId}/activation-${activationId}-worker.json`,
 	      summary: `Activation requires a real worker and selected ${worker.workerId}.`,
-	      body: JSON.stringify({activationId, selectedWorkerId: worker.workerId, workerRequirements, selectedWorker: activation.selectedWorker}, null, 2),
+	      body: JSON.stringify({activationId, sessionId: session.sessionId, selectedWorkerId: worker.workerId, workerRequirements, selectedWorker: activation.selectedWorker, restoreWorkspaceSnapshotRef: activation.restoreWorkspaceSnapshotRef, cloudRunOperationName: cloudRunActivation && cloudRunActivation.executorId || ''}, null, 2),
 	      projectId: agent.projectId,
 	      repository: agent.repository,
 	      sourceRefs: [`agent-activation://${activationId}`, `worker://${worker.workerId}`],
@@ -1887,14 +2259,21 @@ async function completeAgentActivation(admin, caller, args) {
       err.status = 400;
       throw err;
     }
-    if (status === 'completed' && (!Array.isArray(activation.codexCloudRefIds) || !activation.codexCloudRefIds.length || !Array.isArray(activation.artifactRefs) || !activation.artifactRefs.length)) {
-      const err = new Error('Real Codex cloud activation completion requires at least one Codex cloud ref and one artifact.');
+    const nextWorkspaceSnapshotRef = safeText(args.nextWorkspaceSnapshotRef || args.workspaceSnapshotRef, 1200);
+    const nextWorkspaceSnapshotDigest = safeText(args.nextWorkspaceSnapshotDigest || args.workspaceSnapshotDigest, 160);
+    if (status === 'completed' && activation.nextWorkspaceSnapshotRequired === true && !nextWorkspaceSnapshotRef) {
+      const err = new Error('Durable worker session completion requires nextWorkspaceSnapshotRef.');
       err.status = 409;
       throw err;
     }
-    const updates = {status, finalSummary, handoffSummary: safeText(args.handoffSummary, 4000) || finalSummary, updatedAtMs: Date.now(), completedAtMs: Date.now(), completedBy: caller.actor};
+    if (status === 'completed' && (!Array.isArray(activation.artifactRefs) || !activation.artifactRefs.length)) {
+      const err = new Error('Durable Codex worker activation completion requires at least one artifact.');
+      err.status = 409;
+      throw err;
+    }
+    const updates = {status, finalSummary, handoffSummary: safeText(args.handoffSummary, 4000) || finalSummary, nextWorkspaceSnapshotRef, nextWorkspaceSnapshotDigest, updatedAtMs: Date.now(), completedAtMs: Date.now(), completedBy: caller.actor};
     await collection(admin, COMMAND_CENTER_COLLECTIONS.agentActivations).doc(activation.activationId).set(updates, {merge: true});
-    await collection(admin, COMMAND_CENTER_COLLECTIONS.agentSessions).doc(activation.sessionId).set({status: status === 'completed' ? 'active' : status, currentSummary: finalSummary, latestActivationId: activation.activationId, updatedAtMs: Date.now(), updatedBy: caller.actor}, {merge: true});
+    await collection(admin, COMMAND_CENTER_COLLECTIONS.agentSessions).doc(activation.sessionId).set({status: status === 'completed' ? 'active' : status, currentSummary: finalSummary, latestActivationId: activation.activationId, currentWorkspaceSnapshotRef: nextWorkspaceSnapshotRef || activation.restoreWorkspaceSnapshotRef || '', currentWorkspaceSnapshotDigest: nextWorkspaceSnapshotDigest || activation.restoreWorkspaceSnapshotDigest || '', updatedAtMs: Date.now(), updatedBy: caller.actor}, {merge: true});
     const bucketObject = await upsertBucketObject(admin, {
       kind: 'memory.past_log',
       title: `Codex cloud activation ${status}: ${activation.task && activation.task.title || activation.activationId}`,
@@ -1912,12 +2291,85 @@ async function completeAgentActivation(admin, caller, args) {
   });
 }
 
+
+function staleJobCutoffMs(args = {}) {
+  const requested = Number(args.olderThanMs || 0) || COMMAND_CENTER_RECONCILE_DEFAULT_OLDER_THAN_MS;
+  return Math.max(60 * 1000, Math.min(requested, 7 * 24 * 60 * 60 * 1000));
+}
+
+function staleJobClockMs(job) {
+  return Number(job.lastWorkerHeartbeatAtMs || job.executorStartedAtMs || job.workerAcceptedLeaseAtMs || job.updatedAtMs || job.createdAtMs || 0) || 0;
+}
+
+function staleJobCandidate(job, nowMs, olderThanMs, statuses) {
+  const status = safeText(job.status, 80);
+  if (!statuses.includes(status)) return null;
+  const clockMs = staleJobClockMs(job);
+  const ageMs = clockMs > 0 ? nowMs - clockMs : Number.POSITIVE_INFINITY;
+  if (ageMs < olderThanMs) return null;
+  return {
+    jobId: job.jobId,
+    projectId: job.projectId,
+    status,
+    selectedWorkerId: job.selectedWorkerId || '',
+    createdAtMs: Number(job.createdAtMs || 0) || 0,
+    updatedAtMs: Number(job.updatedAtMs || 0) || 0,
+    lastWorkerHeartbeatAtMs: Number(job.lastWorkerHeartbeatAtMs || 0) || 0,
+    staleAgeMs: Number.isFinite(ageMs) ? ageMs : null,
+    reason: `nonterminal job stale for at least ${olderThanMs}ms`,
+  };
+}
+
+async function reconcileStaleJobs(admin, caller, args = {}) {
+  const dryRun = args.dryRun !== false;
+  const nowMs = Date.now();
+  const statuses = safeList(args.statuses, 20, 80).filter((status) => ['leased', 'executing', 'running', 'activating'].includes(status));
+  const targetStatuses = statuses.length ? statuses : ['leased', 'executing', 'running', 'activating'];
+  const olderThanMs = staleJobCutoffMs(args);
+  const limit = Math.max(1, Math.min(Number(args.limit) || 50, 500));
+  if (!dryRun) requireIdempotencyKey(args.idempotencyKey);
+  const snap = await collection(admin, COMMAND_CENTER_COLLECTIONS.jobs).orderBy('createdAtMs', 'desc').limit(limit).get();
+  const candidates = [];
+  snap.forEach((doc) => {
+    const candidate = staleJobCandidate(doc.data() || {}, nowMs, olderThanMs, targetStatuses);
+    if (candidate) candidates.push(candidate);
+  });
+  const reconciled = [];
+  if (!dryRun) {
+    for (const candidate of candidates) {
+      await collection(admin, COMMAND_CENTER_COLLECTIONS.jobs).doc(candidate.jobId).set({
+        status: 'expired',
+        updatedAtMs: nowMs,
+        expiredAtMs: nowMs,
+        reconciledAtMs: nowMs,
+        reconciledBy: caller.actor,
+        reconcileReason: candidate.reason,
+        previousStatus: candidate.status,
+      }, {merge: true});
+      const leaseSnap = await collection(admin, COMMAND_CENTER_COLLECTIONS.leases).where('jobId', '==', candidate.jobId).limit(20).get();
+      const batch = admin.firestore().batch();
+      let expiredLeases = 0;
+      leaseSnap.forEach((doc) => {
+        const lease = doc.data() || {};
+        if (lease.status === 'active') {
+          expiredLeases += 1;
+          batch.set(doc.ref, {status: 'expired', expiredAtMs: nowMs, updatedAtMs: nowMs, expirationReason: candidate.reason}, {merge: true});
+        }
+      });
+      if (expiredLeases) await batch.commit();
+      const event = await appendEvent(admin, {type: 'job_expired', jobId: candidate.jobId, projectId: candidate.projectId, actor: caller.actor, summary: candidate.reason, data: {...candidate, expiredLeases}});
+      reconciled.push({...candidate, expiredLeases, eventId: event.eventId});
+    }
+  }
+  return {dryRun, olderThanMs, statuses: targetStatuses, scanned: snap.size, candidates, reconciled};
+}
+
 async function reviseJob(admin, caller, args) {
   return idempotentMutation(admin, caller, requireIdempotencyKey(args.idempotencyKey), 'jobs.revise', async () => {
     const jobId = cleanJobId(args.jobId);
     const job = await getJob(admin, jobId);
-    if (job.status === 'canceled' || job.status === 'completed') {
-      const err = new Error('Cannot revise a completed or canceled Command Center job.');
+    if (isTerminalJobStatus(job.status)) {
+      const err = new Error('Cannot revise a terminal Command Center job.');
       err.status = 409;
       throw err;
     }
@@ -1991,10 +2443,14 @@ async function registerOneShotWorker(admin, caller, args) {
       location: args.location || 'local',
       health: 'healthy',
       capabilities: safeList(args.capabilities, 80, 120),
-      baseWorkspaces: Array.isArray(args.baseWorkspaces) ? args.baseWorkspaces : [args.baseWorkspace || COMMAND_CENTER_DEFAULT_BASE_WORKSPACE],
-      limits: safeObject(args.limits),
-      activation: requestedActivation.mode ? {...requestedActivation, verifiedAtMs: requestedActivation.verifiedAtMs || nowMs} : {mode: 'poll', verifiedAtMs: nowMs},
-      lastHeartbeatAtMs: nowMs,
+	      baseWorkspaces: Array.isArray(args.baseWorkspaces) ? args.baseWorkspaces : [args.baseWorkspace || COMMAND_CENTER_DEFAULT_BASE_WORKSPACE],
+	      limits: safeObject(args.limits),
+	      activation: requestedActivation.mode ? {...requestedActivation, verifiedAtMs: requestedActivation.verifiedAtMs || nowMs} : {mode: 'poll', verifiedAtMs: nowMs},
+	      runtime: safeObject(args.runtime),
+	      cloudRunJob: safeObject(args.cloudRunJob),
+	      sessionPolicy: safeObject(args.sessionPolicy),
+	      repositoryAffinity: safeList(args.repositoryAffinity, 80, 240),
+	      lastHeartbeatAtMs: nowMs,
       simulated: false,
       oneShot: true,
     });
@@ -2013,8 +2469,30 @@ async function runCommandCenterOperation(admin, extra, operation, args = {}) {
   const op = normalizeCommandCenterOperationName(operation);
   const caller = async () => callerFromExtra(admin, extra);
   switch (op) {
-    case 'health':
-      return {ok: true, service: 'command-center-mcp', invokable: true, hasFrontend: false, commandCenterMcpUrl: COMMAND_CENTER_RESOURCE, authorizationServer: HOME_CENTER_AUTHORIZATION_SERVER_BASE};
+    case 'health': {
+      const workers = await workerRecords(admin);
+      const liveWorkers = workers.filter((worker) => worker.livenessState === 'live' && worker.routable === true);
+      const activatableWorkers = workers.filter((worker) => worker.livenessState === 'activatable' && worker.routable === true);
+      const staleWorkers = workers.filter((worker) => worker.registryHealth === 'healthy' && worker.health !== 'healthy');
+      const jobSnap = await collection(admin, COMMAND_CENTER_COLLECTIONS.jobs).orderBy('createdAtMs', 'desc').limit(250).get();
+      const nowMs = Date.now();
+      const nonterminalStatuses = ['queued', 'activating', 'leased', 'executing', 'running', 'question', 'awaiting_mutation_authorization'];
+      const jobsByStatus = {};
+      let nonterminal = 0;
+      let stale = 0;
+      let oldestNonterminalAgeMs = null;
+      jobSnap.forEach((doc) => {
+        const job = doc.data() || {};
+        const status = safeText(job.status, 80) || 'unknown';
+        jobsByStatus[status] = (jobsByStatus[status] || 0) + 1;
+        if (!nonterminalStatuses.includes(status)) return;
+        nonterminal += 1;
+        const ageMs = nowMs - (Number(job.createdAtMs || 0) || nowMs);
+        oldestNonterminalAgeMs = oldestNonterminalAgeMs === null ? ageMs : Math.max(oldestNonterminalAgeMs, ageMs);
+        if (staleJobCandidate(job, nowMs, COMMAND_CENTER_RECONCILE_DEFAULT_OLDER_THAN_MS, ['leased', 'executing', 'running', 'activating'])) stale += 1;
+      });
+      return {ok: true, service: 'command-center-mcp', invokable: true, hasFrontend: false, commandCenterMcpUrl: COMMAND_CENTER_RESOURCE, authorizationServer: HOME_CENTER_AUTHORIZATION_SERVER_BASE, workerLiveness: {total: workers.length, live: liveWorkers.length, activatable: activatableWorkers.length, stale: staleWorkers.length, liveWorkerIds: liveWorkers.map((worker) => worker.workerId), activatableWorkerIds: activatableWorkers.map((worker) => worker.workerId), staleWorkerIds: staleWorkers.map((worker) => worker.workerId)}, queue: {sampled: jobSnap.size, byStatus: jobsByStatus, nonterminal, stale, oldestNonterminalAgeMs}};
+    }
     case 'projects.resolve':
       return resolveProject(admin, args || {});
     case 'projects.get': {
@@ -2033,14 +2511,26 @@ async function runCommandCenterOperation(admin, extra, operation, args = {}) {
     case 'jobs.get':
       return {job: await getJob(admin, cleanJobId(args.jobId))};
     case 'jobs.list': {
-      let query = collection(admin, COMMAND_CENTER_COLLECTIONS.jobs);
-      if (args.projectId) query = query.where('projectId', '==', cleanProjectId(args.projectId));
-      if (args.status) query = query.where('status', '==', args.status);
-      const snap = await query.orderBy('createdAtMs', 'desc').limit(Math.max(1, Math.min(Number(args.limit) || 20, 50))).get();
-      const jobs = [];
-      snap.forEach((doc) => jobs.push(doc.data()));
-      return {jobs};
+      try {
+        let query = collection(admin, COMMAND_CENTER_COLLECTIONS.jobs);
+        if (args.projectId) query = query.where('projectId', '==', cleanProjectId(args.projectId));
+        if (args.status) query = query.where('status', '==', args.status);
+        query = query.orderBy('createdAtMs', 'desc');
+        if (args.status && !args.projectId) query = query.orderBy(admin.firestore.FieldPath.documentId(), 'desc');
+        const snap = await query.limit(Math.max(1, Math.min(Number(args.limit) || 20, 50))).get();
+        const jobs = [];
+        snap.forEach((doc) => jobs.push(doc.data()));
+        return {jobs};
+      } catch (err) {
+        const message = safeText(err && err.message, 2000);
+        if (/index|FAILED_PRECONDITION|requires an index/i.test(message)) {
+          return {jobs: [], error: 'missing_firestore_index', diagnostic: message, requiredIndex: {collectionGroup: COMMAND_CENTER_COLLECTIONS.jobs, fields: ['status ASC', 'createdAtMs DESC', '__name__ DESC']}};
+        }
+        throw err;
+      }
     }
+    case 'jobs.reconcile_stale':
+      return reconcileStaleJobs(admin, await caller(), args || {});
     case 'jobs.cancel':
       return transitionJob(admin, await caller(), args || {}, 'canceled', 'jobs.cancel');
     case 'jobs.resume':
@@ -2090,6 +2580,8 @@ async function runCommandCenterOperation(admin, extra, operation, args = {}) {
       return promoteBucketSkill(admin, await caller(), args || {});
     case 'workers.register_oneshot':
       return registerOneShotWorker(admin, await caller(), args || {});
+    case 'workers.wake':
+      return wakeWorker(admin, await caller(), args || {});
     case 'workers.list':
       return {workers: await workerRecords(admin)};
     case 'workers.get_capabilities': {
@@ -2172,7 +2664,13 @@ async function workerCallerFromRequest(admin, req) {
   return {workerId: safeText(data.workerId, 120), tokenHash: hashText(match[1], 24)};
 }
 
-async function leasedJobForWorker(admin, workerId) {
+async function leasedJobForWorker(admin, workerId, requestedJobId = '') {
+  const targetJobId = safeText(requestedJobId, 140);
+  if (targetJobId) {
+    const job = await getJob(admin, cleanJobId(targetJobId));
+    if (job.selectedWorkerId !== workerId || job.status !== 'leased') return null;
+    return job;
+  }
   const snap = await collection(admin, COMMAND_CENTER_COLLECTIONS.jobs).where('selectedWorkerId', '==', workerId).limit(25).get();
   const jobs = [];
   snap.forEach((doc) => {
@@ -2306,11 +2804,19 @@ function createCommandCenterMcpServer({admin}) {
     let query = collection(admin, COMMAND_CENTER_COLLECTIONS.jobs);
     if (args.projectId) query = query.where('projectId', '==', cleanProjectId(args.projectId));
     if (args.status) query = query.where('status', '==', args.status);
-    const snap = await query.orderBy('createdAtMs', 'desc').limit(Math.max(1, Math.min(Number(args.limit) || 20, 50))).get();
+    query = query.orderBy('createdAtMs', 'desc');
+    if (args.status && !args.projectId) query = query.orderBy(admin.firestore.FieldPath.documentId(), 'desc');
+    const snap = await query.limit(Math.max(1, Math.min(Number(args.limit) || 20, 50))).get();
     const jobs = [];
     snap.forEach((doc) => jobs.push(doc.data()));
     return textResult({jobs});
   });
+
+  server.registerTool('command_center.jobs.reconcile_stale', {
+    title: 'Reconcile stale Command Center jobs',
+    description: 'Dry-run or expire stale nonterminal jobs and active leases with audit events.',
+    inputSchema: {idempotencyKey: z.string().optional(), dryRun: z.boolean().optional(), olderThanMs: z.number().optional(), statuses: z.array(z.string()).optional(), limit: z.number().optional()},
+  }, async (args, extra) => textResult(await reconcileStaleJobs(admin, await callerFromExtra(admin, extra), args || {})));
 
   server.registerTool('command_center.jobs.cancel', {title: 'Cancel Command Center job', description: 'Cancel a durable job and preserve the audit event.', inputSchema: {idempotencyKey: z.string(), jobId: z.string(), reason: z.string().optional()}}, async (args, extra) => textResult(await transitionJob(admin, await callerFromExtra(admin, extra), args || {}, 'canceled', 'jobs.cancel')));
   server.registerTool('command_center.jobs.resume', {title: 'Resume Command Center job', description: 'Resume a job from its latest checkpoint.', inputSchema: {idempotencyKey: z.string(), jobId: z.string(), reason: z.string().optional()}}, async (args, extra) => textResult(await transitionJob(admin, await callerFromExtra(admin, extra), args || {}, 'running', 'jobs.resume')));
@@ -2342,8 +2848,8 @@ function createCommandCenterMcpServer({admin}) {
 
   server.registerTool('command_center.agents.create_activation', {
     title: 'Create Codex cloud activation',
-    description: 'Create a dormant-to-active execution packet for the real OpenAI Codex cloud surface. The bridge must record a real Codex cloud ref before claiming execution.',
-    inputSchema: {idempotencyKey: z.string(), activationId: z.string().optional(), agentId: z.string(), sessionId: z.string().optional(), title: z.string().optional(), prompt: z.string(), taskType: z.string().optional(), trigger: z.string().optional(), inputs: z.record(z.string(), z.any()).optional(), acceptanceCriteria: z.array(z.string()).optional(), constraints: z.array(z.string()).optional(), artifactRequirements: z.array(z.string()).optional(), workerRequirements: z.array(z.string()).optional(), executionPolicy: z.record(z.string(), z.any()).optional()},
+    description: 'Create a dormant-to-active execution packet for a durable Codex worker session. Repo binding is optional; real Codex cloud refs are attached when available.',
+    inputSchema: {idempotencyKey: z.string(), activationId: z.string().optional(), agentId: z.string().optional(), projectId: z.string().optional(), name: z.string().optional(), repository: z.string().optional(), sessionId: z.string().optional(), sessionTitle: z.string().optional(), sessionPurpose: z.string().optional(), workerFamily: z.string().optional(), runtime: z.string().optional(), currentWorkspaceSnapshotRef: z.string().optional(), currentWorkspaceSnapshotDigest: z.string().optional(), restoreStrategy: z.string().optional(), openQuestions: z.array(z.string()).optional(), preferredWorkerIds: z.array(z.string()).optional(), title: z.string().optional(), prompt: z.string(), taskType: z.string().optional(), trigger: z.string().optional(), inputs: z.record(z.string(), z.any()).optional(), acceptanceCriteria: z.array(z.string()).optional(), constraints: z.array(z.string()).optional(), artifactRequirements: z.array(z.string()).optional(), workerRequirements: z.array(z.string()).optional(), executionPolicy: z.record(z.string(), z.any()).optional(), contextRefs: z.array(z.string()).optional()},
   }, async (args, extra) => textResult(await createAgentActivation(admin, await callerFromExtra(admin, extra), args || {})));
 
   server.registerTool('command_center.agents.get_resume_packet', {
@@ -2366,8 +2872,8 @@ function createCommandCenterMcpServer({admin}) {
 
   server.registerTool('command_center.agents.complete_activation', {
     title: 'Complete Codex cloud activation',
-    description: 'Mark a Codex cloud activation terminal and write durable Command Center memory. Requires artifact/ref evidence; does not infer success from bridge stdout.',
-    inputSchema: {idempotencyKey: z.string(), activationId: z.string(), status: z.enum(['completed', 'failed', 'canceled', 'needs_human']).optional(), failed: z.boolean().optional(), finalSummary: z.string().optional(), summary: z.string().optional(), handoffSummary: z.string().optional()},
+    description: 'Mark a durable Codex worker activation terminal and write Command Center memory. Completed durable sessions require artifact evidence and, when required, a next workspace snapshot.',
+    inputSchema: {idempotencyKey: z.string(), activationId: z.string(), status: z.enum(['completed', 'failed', 'canceled', 'needs_human']).optional(), failed: z.boolean().optional(), finalSummary: z.string().optional(), summary: z.string().optional(), handoffSummary: z.string().optional(), nextWorkspaceSnapshotRef: z.string().optional(), nextWorkspaceSnapshotDigest: z.string().optional(), workspaceSnapshotRef: z.string().optional(), workspaceSnapshotDigest: z.string().optional()},
   }, async (args, extra) => textResult(await completeAgentActivation(admin, await callerFromExtra(admin, extra), args || {})));
 
   server.registerTool('command_center.agents.get_handoff', {
@@ -2428,7 +2934,7 @@ function createCommandCenterMcpServer({admin}) {
   server.registerTool('command_center.workers.register_oneshot', {
     title: 'Register one-shot Command Center worker',
     description: 'Register a user-owned one-shot Codex worker and return a worker token once. Store it only on the worker host.',
-    inputSchema: {idempotencyKey: z.string(), workerId: z.string(), engine: z.string().optional(), location: z.string().optional(), capabilities: z.array(z.string()).optional(), baseWorkspace: z.record(z.string(), z.any()).optional(), baseWorkspaces: z.array(z.record(z.string(), z.any())).optional(), limits: z.record(z.string(), z.any()).optional(), activation: z.record(z.string(), z.any()).optional()},
+    inputSchema: {idempotencyKey: z.string(), workerId: z.string(), engine: z.string().optional(), location: z.string().optional(), capabilities: z.array(z.string()).optional(), baseWorkspace: z.record(z.string(), z.any()).optional(), baseWorkspaces: z.array(z.record(z.string(), z.any())).optional(), limits: z.record(z.string(), z.any()).optional(), activation: z.record(z.string(), z.any()).optional(), runtime: z.record(z.string(), z.any()).optional(), cloudRunJob: z.record(z.string(), z.any()).optional(), sessionPolicy: z.record(z.string(), z.any()).optional(), repositoryAffinity: z.array(z.string()).optional()},
   }, async (args, extra) => textResult(await registerOneShotWorker(admin, await callerFromExtra(admin, extra), args || {})));
 
   server.registerTool('command_center.app_control.seed_profiles', {
@@ -2503,6 +3009,12 @@ function createCommandCenterMcpServer({admin}) {
     description: 'Find a trusted Playwright DOM/accessibility playbook by origin, task, and household replay audience.',
     inputSchema: {origin: z.string().optional(), taskKey: z.string().optional(), task: z.string().optional(), shareScope: z.string().optional(), replayAudience: z.string().optional(), limit: z.number().optional()},
   }, async (args) => textResult(await lookupBrowserPlaybook(admin, args || {})));
+
+  server.registerTool('command_center.workers.wake', {
+    title: 'Wake Command Center worker',
+    description: 'Invoke a configured real Cloud Run worker so liveness can be proven by heartbeat, without marking registry health directly.',
+    inputSchema: {idempotencyKey: z.string(), workerId: z.string(), activationId: z.string().optional(), sessionId: z.string().optional(), projectId: z.string().optional(), reason: z.string().optional(), runLabel: z.string().optional(), currentWorkspaceSnapshotRef: z.string().optional()},
+  }, async (args, extra) => textResult(await wakeWorker(admin, await callerFromExtra(admin, extra), args || {})));
 
   server.registerTool('command_center.workers.list', {title: 'List Command Center workers', description: 'List registered Codex workers and their health/capability metadata.', inputSchema: {}}, async () => textResult({workers: await workerRecords(admin)}));
   server.registerTool('command_center.workers.get_capabilities', {title: 'Get Command Center worker capabilities', description: 'Read capability metadata for one registered worker.', inputSchema: {workerId: z.string()}}, async (args) => {
@@ -2623,7 +3135,7 @@ function createCommandCenterMcpApp({admin}) {
   app.post('/worker/lease', async (req, res) => {
     try {
       const caller = await workerCallerFromRequest(admin, req);
-      const job = await leasedJobForWorker(admin, caller.workerId);
+      const job = await leasedJobForWorker(admin, caller.workerId, req.body && req.body.jobId);
       if (!job) {
         res.json({ok: true, leased: false});
         return;
@@ -2827,6 +3339,8 @@ module.exports = {
   COMMAND_CENTER_AGENT_ACTIVATION_STATUSES,
   COMMAND_CENTER_JOB_ACTIVATION_STATUSES,
   COMMAND_CENTER_COMPLETION_EVENT_LOOKBACK_LIMIT,
+  COMMAND_CENTER_TERMINAL_JOB_STATUSES,
+  COMMAND_CENTER_DURABLE_SESSION_RESTORE_STRATEGIES,
   COMMAND_CENTER_CODEX_CLOUD_SURFACE,
   COMMAND_CENTER_DEFAULT_BUCKET_ID,
   COMMAND_CENTER_BUCKET_KINDS,
@@ -2848,9 +3362,13 @@ module.exports = {
   cleanOneShotExecution,
   cleanBucketObject,
   normalizeActivationChannel,
+  deriveWorkerLiveness,
+  isTerminalJobStatus,
+  staleJobCandidate,
   isWorkerLeaseEligible,
   selectWorker,
   buildJobActivation,
   activationStateFromResult,
   shouldAcceptWorkerCompletion,
+  wakeWorker,
 };

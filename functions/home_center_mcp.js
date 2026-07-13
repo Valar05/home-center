@@ -453,7 +453,7 @@ function parseMcpPayload(text, label) {
 
 function commandCenterOperationRegistry() {
   return {
-    version: '2026-07-11.home-center-browser-playbooks-v2',
+    version: '2026-07-12.command-center-worker-wake-v1',
     invocationTool: 'command_center_operation',
     commandCenterMcpUrl: COMMAND_CENTER_MCP_URL,
     purpose: 'Expose Command Center dispatch and managed knowledge-bucket operations through the already-installed Home Center MCP connector so ChatGPT can create, inspect, resume, revise, authorize, and preserve worker knowledge without discovering a second MCP app.',
@@ -466,6 +466,7 @@ function commandCenterOperationRegistry() {
       'jobs.create_followup': {summary: 'Create a new linked invocation from a source job handoff without rewriting the old job.', readOnly: false, input: {sourceJobId: 'string', title: 'string', objective: 'string', acceptanceCriteria: 'optional string[]', constraints: 'optional string[]', mutationPolicy: 'optional object', idempotencyKey: 'string'}},
       'jobs.get': {summary: 'Read one Command Center job packet.', readOnly: true, input: {jobId: 'string'}},
       'jobs.list': {summary: 'List recent Command Center jobs.', readOnly: true, input: {projectId: 'optional string', status: 'optional string', limit: 'optional number'}},
+      'jobs.reconcile_stale': {summary: 'Dry-run or expire stale nonterminal Command Center jobs and leases.', readOnly: false, input: {dryRun: 'optional boolean', olderThanMs: 'optional number', statuses: 'optional string[]', limit: 'optional number', idempotencyKey: 'required when dryRun=false'}},
       'jobs.cancel': {summary: 'Cancel a job with an audit event.', readOnly: false, input: {jobId: 'string', reason: 'optional string', idempotencyKey: 'string'}},
       'jobs.resume': {summary: 'Resume a job from checkpoint.', readOnly: false, input: {jobId: 'string', reason: 'optional string', idempotencyKey: 'string'}},
       'jobs.revise': {summary: 'Revise a job packet with new constraints or acceptance criteria.', readOnly: false, input: {jobId: 'string', revision: 'object', idempotencyKey: 'string'}},
@@ -477,11 +478,11 @@ function commandCenterOperationRegistry() {
       'jobs.get_logs': {summary: 'Read job log metadata.', readOnly: true, input: {jobId: 'string', limit: 'optional number'}},
       'jobs.get_artifacts': {summary: 'Read job artifact metadata.', readOnly: true, input: {jobId: 'string', limit: 'optional number'}},
       'agents.upsert_repo_agent': {summary: 'Create or update a durable repo/project agent identity for real OpenAI Codex cloud activations.', readOnly: false, input: {projectId: 'string', agentId: 'optional string', repository: 'optional string', contextRefs: 'optional string[]', idempotencyKey: 'string'}},
-      'agents.create_activation': {summary: 'Create a dormant-to-active task packet for the real OpenAI Codex cloud surface.', readOnly: false, input: {agentId: 'string', sessionId: 'optional string', prompt: 'string', acceptanceCriteria: 'optional string[]', artifactRequirements: 'optional string[]', idempotencyKey: 'string'}},
+      'agents.create_activation': {summary: 'Create a dormant-to-active packet for a durable Codex worker session. Repo binding is optional; Cloud Run Debian workers restore/write GCS workspace snapshots.', readOnly: false, input: {agentId: 'optional string', projectId: 'optional string', repository: 'optional string', sessionId: 'optional string', prompt: 'string', workerRequirements: 'optional string[]', currentWorkspaceSnapshotRef: 'optional string', acceptanceCriteria: 'optional string[]', artifactRequirements: 'optional string[]', idempotencyKey: 'string'}},
       'agents.get_resume_packet': {summary: 'Read the durable packet a bridge uses to start or resume the real Codex cloud surface.', readOnly: true, input: {activationId: 'string'}},
       'agents.record_codex_cloud_ref': {summary: 'Record the real ChatGPT/OpenAI Codex cloud task URL or resume handle for an activation.', readOnly: false, input: {activationId: 'string', url: 'optional string', status: 'optional string', idempotencyKey: 'string'}},
       'agents.record_artifact': {summary: 'Record a redacted artifact from a real Codex cloud activation.', readOnly: false, input: {activationId: 'string', name: 'string', uri: 'optional string', body: 'optional string', idempotencyKey: 'string'}},
-      'agents.complete_activation': {summary: 'Mark a Codex cloud activation terminal and write durable Command Center memory.', readOnly: false, input: {activationId: 'string', status: 'completed|failed|canceled|needs_human', finalSummary: 'optional string', idempotencyKey: 'string'}},
+      'agents.complete_activation': {summary: 'Mark a durable Codex worker activation terminal and write Command Center memory. Completed durable sessions require artifact evidence and next snapshot when requested.', readOnly: false, input: {activationId: 'string', status: 'completed|failed|canceled|needs_human', finalSummary: 'optional string', nextWorkspaceSnapshotRef: 'optional string', idempotencyKey: 'string'}},
       'agents.get_handoff': {summary: 'Read a ChatGPT-reviewable handoff for a real Codex cloud activation.', readOnly: true, input: {activationId: 'string'}},
       'bucket.get_layout': {summary: 'Read Command Center managed knowledge bucket lanes and storage policy.', readOnly: true, input: {}},
       'bucket.put_object': {summary: 'Write durable execution memory, scratch/promoted skills, or cross-repo notes. Secrets are rejected.', readOnly: false, input: {kind: 'memory.past_log|memory.current_condensed|skill.scratch|skill.promoted|note.cross_repo', title: 'string', summary: 'optional string', body: 'optional string', objectUri: 'optional string', projectId: 'optional string', repository: 'optional string', jobId: 'optional string', tags: 'optional string[]', evidenceRefs: 'optional string[]', idempotencyKey: 'string'}},
@@ -502,6 +503,7 @@ function commandCenterOperationRegistry() {
       'browser_playbooks.lookup': {summary: 'Lookup a trusted Playwright DOM/accessibility browser playbook by origin, taskKey, shareScope, or replayAudience.', readOnly: true, input: {origin: 'optional string', taskKey: 'optional string', task: 'optional string', shareScope: 'optional string', replayAudience: 'optional string', limit: 'optional number'}},
       'workers.list': {summary: 'List registered Command Center workers.', readOnly: true, input: {}},
       'workers.get_capabilities': {summary: 'Read one worker capability packet.', readOnly: true, input: {workerId: 'string'}},
+      'workers.wake': {summary: 'Invoke a configured real Cloud Run worker so liveness can be proven by heartbeat.', readOnly: false, input: {workerId: 'string', activationId: 'optional string', sessionId: 'optional string', projectId: 'optional string', reason: 'optional string', runLabel: 'optional string', idempotencyKey: 'string'}},
       'workers.register_oneshot': {summary: 'Register a prepared one-shot Codex worker.', readOnly: false, input: {worker: 'object', idempotencyKey: 'string'}},
     },
   };
@@ -2360,6 +2362,144 @@ async function createGoogleDocOperation({google, admin, auth, user, args = {}}) 
 }
 
 
+
+function decodeSnapshotContent(args = {}) {
+  const hasBase64 = typeof args.contentBase64 === 'string' && args.contentBase64.trim();
+  const hasText = typeof args.content === 'string';
+  if (hasBase64 && hasText) {
+    const err = new Error('Provide either content or contentBase64, not both.');
+    err.status = 400;
+    throw err;
+  }
+  if (hasBase64) {
+    try {
+      return Buffer.from(String(args.contentBase64).trim(), 'base64');
+    } catch (_) {
+      const err = new Error('contentBase64 must be valid Base64.');
+      err.status = 400;
+      throw err;
+    }
+  }
+  if (hasText) return Buffer.from(args.content, 'utf8');
+  const err = new Error('content or contentBase64 is required.');
+  err.status = 400;
+  throw err;
+}
+
+function sha256Hex(buffer) {
+  return createHash('sha256').update(buffer).digest('hex');
+}
+
+function verifySnapshotDigest(buffer, args = {}) {
+  const actualByteCount = buffer.length;
+  const actualSha256 = sha256Hex(buffer);
+  const expectedByteCount = args.byteCount === undefined || args.byteCount === null || args.byteCount === '' ? null : Math.floor(safeNumber(args.byteCount, -1));
+  const expectedSha256 = safeText(args.sha256 || args.expectedSha256, 128).toLowerCase();
+  if (expectedByteCount !== null && expectedByteCount !== actualByteCount) {
+    const err = new Error(`byteCount mismatch: expected ${expectedByteCount}, got ${actualByteCount}.`);
+    err.status = 400;
+    throw err;
+  }
+  if (expectedSha256 && expectedSha256 !== actualSha256) {
+    const err = new Error(`sha256 mismatch: expected ${expectedSha256}, got ${actualSha256}.`);
+    err.status = 400;
+    throw err;
+  }
+  return {byteCount: actualByteCount, sha256: actualSha256};
+}
+
+function mediaBuffer(data) {
+  if (Buffer.isBuffer(data)) return data;
+  if (data instanceof ArrayBuffer) return Buffer.from(data);
+  if (ArrayBuffer.isView(data)) return Buffer.from(data.buffer, data.byteOffset, data.byteLength);
+  return Buffer.from(String(data || ''), 'utf8');
+}
+
+async function publishContextSnapshotOperation({google, admin, auth, user, args = {}}) {
+  const requestId = createRequestId(args.requestId);
+  const existing = await existingAudit(admin, requestId);
+  if (existing && existing.status === 'success' && existing.result) return {...existing.result, idempotent: true, audit: existing};
+
+  const name = safeText(args.name || args.fileName || args.title, 240);
+  if (!name) {
+    const err = new Error('name is required.');
+    err.status = 400;
+    throw err;
+  }
+  const parentFolderId = safeText(args.parentFolderId, 220) ? safeDriveFileId(args.parentFolderId) : '';
+  const targetFileId = safeText(args.fileId || args.targetFileId, 220) ? safeDriveFileId(args.fileId || args.targetFileId) : '';
+  const mimeType = safeText(args.mimeType, 160) || 'text/markdown';
+  if (!/^[a-z0-9.+-]+\/[a-z0-9.+-]+$/i.test(mimeType)) {
+    const err = new Error('mimeType must be a valid MIME type.');
+    err.status = 400;
+    throw err;
+  }
+
+  const content = decodeSnapshotContent(args);
+  const digest = verifySnapshotDigest(content, args);
+  const drive = google.drive({version: 'v3', auth});
+  const before = targetFileId ? await getDriveMetadata(drive, targetFileId) : null;
+  const media = {mimeType, body: Readable.from([content])};
+  const requestBody = {name, mimeType, ...(parentFolderId && !targetFileId ? {parents: [parentFolderId]} : {})};
+  const writeResult = targetFileId
+    ? await drive.files.update({fileId: targetFileId, requestBody: {name, mimeType}, media, fields: driveFields(), supportsAllDrives: true})
+    : await drive.files.create({requestBody, media, fields: driveFields(), supportsAllDrives: true});
+  const metadata = cleanDriveFile(writeResult.data || {});
+  const fileId = safeDriveFileId(metadata.id || targetFileId);
+  if (parentFolderId && targetFileId) {
+    const parents = metadata.parents || [];
+    if (!parents.includes(parentFolderId)) {
+      await drive.files.update({fileId, addParents: parentFolderId, requestBody: {}, fields: 'id,parents', supportsAllDrives: true});
+    }
+  }
+  const after = await getDriveMetadata(drive, fileId).catch(() => metadata);
+  const readback = await drive.files.get({fileId, alt: 'media', supportsAllDrives: true}, {responseType: 'arraybuffer'});
+  const readbackBuffer = mediaBuffer(readback.data);
+  const readbackDigest = {byteCount: readbackBuffer.length, sha256: sha256Hex(readbackBuffer)};
+  const verified = readbackDigest.byteCount === digest.byteCount && readbackDigest.sha256 === digest.sha256;
+  if (!verified) {
+    const err = new Error(`Drive readback verification failed for ${name}: wrote ${digest.byteCount}/${digest.sha256}, read ${readbackDigest.byteCount}/${readbackDigest.sha256}.`);
+    err.status = 502;
+    throw err;
+  }
+
+  const result = {
+    fileId,
+    id: fileId,
+    name: after.name || metadata.name || name,
+    mimeType: after.mimeType || metadata.mimeType || mimeType,
+    webViewLink: after.webViewLink || metadata.webViewLink || '',
+    parentFolderId: ((after.parents || metadata.parents || [])[0]) || parentFolderId,
+    byteCount: digest.byteCount,
+    sha256: digest.sha256,
+    readbackByteCount: readbackDigest.byteCount,
+    readbackSha256: readbackDigest.sha256,
+    verified: true,
+    metadata: after,
+    auditRequestId: requestId,
+  };
+  const audit = await auditWrite(admin, {
+    actor: user.email || user.uid || 'unknown',
+    authKind: user.authKind,
+    tool: 'context_sync.publish_snapshot',
+    operation: 'contextSync.publishSnapshot',
+    requestId,
+    fileId,
+    affectedFileIds: [fileId],
+    oldMetadata: before,
+    newMetadata: after,
+    oldParents: before ? before.parents || [] : [],
+    newParents: after.parents || [],
+    reversible: false,
+    rollback: null,
+    callerNote: args.callerNote,
+    providerSummary: safeText(args.callerNote, 400) || `Published ${name} (${digest.byteCount} bytes, sha256 ${digest.sha256}).`,
+    result,
+  });
+  await recordActionAudit(admin, user, 'contextSync.publishSnapshot', fileId, safeText(args.callerNote, 400) || `Published ${name} (${digest.byteCount} bytes).`, requestId);
+  return {...result, audit: audit.audit};
+}
+
 async function appendGoogleDocOperation({google, admin, auth, user, args = {}}) {
   const requestId = createRequestId(args.requestId);
   const existing = await existingAudit(admin, requestId);
@@ -2447,7 +2587,7 @@ function commandCenterDriveOperationEntries() {
 
 function driveOperationRegistry() {
   return {
-    version: '2026-07-11.command-center-drive-operation-v1',
+    version: '2026-07-13.context-sync-publish-v1',
     invocationTool: 'drive_operation',
     cachePolicy: 'New bridge, simulation, and Command Center operations should be invokable through drive_operation so ChatGPT does not need a top-level MCP tool refresh for every backend code change. Agents should rediscover this registry through capabilities or health before claiming an operation is unavailable.',
     operations: {
@@ -2471,6 +2611,19 @@ function driveOperationRegistry() {
         requiresRequestId: true,
         requiredScopes: ['https://www.googleapis.com/auth/drive', 'https://www.googleapis.com/auth/documents'],
         input: {documentId: 'string', heading: 'optional string', text: 'string', requestId: 'string', callerNote: 'optional string'},
+      },
+      'context_sync.publish_snapshot': {
+        summary: 'Publish a durable text/Markdown snapshot file to Drive, verify byte count and SHA-256 by media readback, and audit the write.',
+        write: true,
+        requiresRequestId: true,
+        requiredScopes: ['https://www.googleapis.com/auth/drive'],
+        input: {name: 'string', parentFolderId: 'optional string', fileId: 'optional existing Drive file id to replace', content: 'optional UTF-8 text content', contentBase64: 'optional Base64 bytes; use instead of content', mimeType: 'optional MIME type, default text/markdown', byteCount: 'optional expected byte count', sha256: 'optional expected SHA-256 hex', requestId: 'string', callerNote: 'optional string'},
+        output: {fileId: 'string', byteCount: 'number', sha256: 'string', readbackByteCount: 'number', readbackSha256: 'string', verified: 'boolean', audit: 'object'},
+        agentRecipe: {
+          whenUserSays: 'Back up or sync Codex context, AGENTS.md, skills, memories, manifests, or other local text snapshots to Drive.',
+          prefer: 'Call drive_operation with operation=context_sync.publish_snapshot. Use Home Center MCP only; do not use rclone for this workflow.',
+          verification: 'Pass byteCount and sha256 from the local manifest. Treat verified=true as the acceptance signal because the operation reads the Drive media back and hashes it.',
+        },
       },
       workbook_import_xlsx: {
         summary: 'Migrate a Drive-hosted or client-supplied .xlsx workbook into a native Google Sheets workbook using Google Drive conversion.',
@@ -2590,6 +2743,12 @@ async function runDriveWorkflowOperation({google, admin, auth, user, workflowId,
     const documentId = workflowResolvedId(operation.documentId || operation.documentKey, outputs);
     const result = await appendGoogleDocOperation({google, admin, auth, user, args: {...operation, documentId, requestId, callerNote}});
     return {index, type, requestId, status: 'completed', result};
+  }
+  if (type === 'context_sync.publish_snapshot') {
+    const fileId = workflowResolvedId(operation.fileId || operation.targetFileId || operation.fileKey, outputs);
+    const result = await publishContextSnapshotOperation({google, admin, auth, user, args: {...operation, fileId, requestId, callerNote, parentFolderId: workflowResolvedId(operation.parentFolderId || operation.parentFolderKey, outputs)}});
+    outputs[workflowOutputKey(operation, index)] = result.fileId || result.id || '';
+    return {index, type, requestId, status: 'completed', outputKey: workflowOutputKey(operation, index), result};
   }
   if (type === 'workbook_import_xlsx') {
     const result = await importXlsxWorkbookOperation({google, admin, auth, user, args: {...operation, requestId, callerNote, parentFolderId: workflowResolvedId(operation.parentFolderId || operation.parentFolderKey, outputs)}});
@@ -4200,4 +4359,4 @@ function createHomeCenterMcpApp({google, admin, googleClientId = () => '', googl
   return app;
 }
 
-module.exports = {createHomeCenterMcpApp, createHomeCenterMcpServer, createDriveFolderOperation, createGoogleDocOperation, appendGoogleDocOperation, createSheetOperation, updateSheetValuesOperation, importXlsxWorkbookOperation, driveOperationRunOperation, driveWorkflowRunOperation, simulationOperationRunOperation, simulationOperationRegistry, normalizeRecoveryOperation, summarizeRecoveryOperations, loadMcpAccessContext};
+module.exports = {createHomeCenterMcpApp, createHomeCenterMcpServer, createDriveFolderOperation, createGoogleDocOperation, appendGoogleDocOperation, publishContextSnapshotOperation, createSheetOperation, updateSheetValuesOperation, importXlsxWorkbookOperation, driveOperationRunOperation, driveWorkflowRunOperation, simulationOperationRunOperation, simulationOperationRegistry, normalizeRecoveryOperation, summarizeRecoveryOperations, loadMcpAccessContext};

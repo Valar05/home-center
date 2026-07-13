@@ -13,6 +13,7 @@ admin.initializeApp();
 
 const OPENAI_API_KEY = defineSecret('OPENAI_API_KEY');
 const ELEVENLABS_API_KEY = defineSecret('ELEVENLABS_API_KEY');
+const CARTESIA_API_KEY = defineSecret('CARTESIA_API_KEY');
 const GITHUB_TOKEN = defineSecret('GITHUB_TOKEN');
 const GOOGLE_OAUTH_CLIENT_ID = defineSecret('GOOGLE_OAUTH_CLIENT_ID');
 const GOOGLE_OAUTH_CLIENT_SECRET = defineSecret('GOOGLE_OAUTH_CLIENT_SECRET');
@@ -4643,14 +4644,18 @@ exports.agentTurn = onRequest({timeoutSeconds: 120, secrets: [OPENAI_API_KEY, GO
 });
 
 const ELEVENLABS_BRIAN_VOICE_ID = 'nPczCjzI2devNBz1zQrb';
+const CARTESIA_VERSION = '2026-03-01';
+const CARTESIA_DEFAULT_MODEL_ID = 'sonic-3.5';
+const CARTESIA_DEFAULT_VOICE_NAME = 'Cartesia Narrator';
 let cachedElevenLabsBrianVoiceId = '';
+let cachedElevenLabsVoices = null;
+let cachedElevenLabsVoicesAtMs = 0;
+let cachedCartesiaVoices = null;
+let cachedCartesiaVoicesAtMs = 0;
 
-async function resolveElevenLabsVoiceId(voiceName, voiceId) {
-  const override = safeText(voiceId || process.env.ELEVENLABS_VOICE_ID, 160);
-  if (override) return override;
-  const requestedName = safeText(voiceName || 'Brian', 80).toLowerCase() || 'brian';
-  if (requestedName === 'brian') return ELEVENLABS_BRIAN_VOICE_ID;
-  if (cachedElevenLabsBrianVoiceId && requestedName === 'brian') return cachedElevenLabsBrianVoiceId;
+async function listElevenLabsVoices() {
+  const now = Date.now();
+  if (cachedElevenLabsVoices && now - cachedElevenLabsVoicesAtMs < 10 * 60 * 1000) return cachedElevenLabsVoices;
   const apiKey = ELEVENLABS_API_KEY.value() || process.env.ELEVENLABS_API_KEY || '';
   if (!apiKey) throw new Error('ElevenLabs API key is not configured');
   const response = await fetch('https://api.elevenlabs.io/v1/voices', {
@@ -4662,7 +4667,30 @@ async function resolveElevenLabsVoiceId(voiceName, voiceId) {
     throw new Error(`ElevenLabs voices HTTP ${response.status}${detail ? `: ${safeText(detail, 500)}` : ''}`);
   }
   const payload = await response.json();
-  const voices = Array.isArray(payload && payload.voices) ? payload.voices : [];
+  cachedElevenLabsVoices = Array.isArray(payload && payload.voices) ? payload.voices : [];
+  cachedElevenLabsVoicesAtMs = now;
+  return cachedElevenLabsVoices;
+}
+
+function normalizeElevenLabsVoice(voice) {
+  const labels = voice && voice.labels && typeof voice.labels === 'object' ? voice.labels : {};
+  return {
+    voiceId: safeText(voice && voice.voice_id, 160),
+    name: safeText(voice && voice.name, 120),
+    category: safeText(voice && voice.category, 80),
+    description: safeText(voice && (voice.description || labels.description || labels.accent || labels.age || labels.gender), 300),
+    previewUrl: safeText(voice && voice.preview_url, 500),
+    labels,
+  };
+}
+
+async function resolveElevenLabsVoiceId(voiceName, voiceId) {
+  const override = safeText(voiceId || process.env.ELEVENLABS_VOICE_ID, 160);
+  if (override) return override;
+  const requestedName = safeText(voiceName || 'Brian', 80).toLowerCase() || 'brian';
+  if (requestedName === 'brian') return ELEVENLABS_BRIAN_VOICE_ID;
+  if (cachedElevenLabsBrianVoiceId && requestedName === 'brian') return cachedElevenLabsBrianVoiceId;
+  const voices = await listElevenLabsVoices();
   const match = voices.find((voice) => String(voice && voice.name || '').trim().toLowerCase() === requestedName);
   if (!match || !match.voice_id) {
     throw new Error(`elevenlabs_voice_not_found: ${requestedName}`);
@@ -4676,6 +4704,7 @@ async function openElevenLabsStream(text, options = {}) {
   if (!apiKey) throw new Error('ElevenLabs API key is not configured');
   const voiceName = safeText(options.voiceName || 'Brian', 80) || 'Brian';
   const voiceId = await resolveElevenLabsVoiceId(voiceName, options.voiceId);
+  const modelId = safeText(options.modelId || process.env.ELEVENLABS_MODEL_ID || 'eleven_multilingual_v2', 120) || 'eleven_multilingual_v2';
   return fetch(`https://api.elevenlabs.io/v1/text-to-speech/${encodeURIComponent(voiceId)}/stream?output_format=pcm_24000`, {
     method: 'POST',
     headers: {
@@ -4685,23 +4714,150 @@ async function openElevenLabsStream(text, options = {}) {
     },
     body: JSON.stringify({
       text,
-      model_id: process.env.ELEVENLABS_MODEL_ID || 'eleven_multilingual_v2',
+      model_id: modelId,
       voice_settings: {stability: 0.5, similarity_boost: 0.75},
     }),
   });
 }
 
 
+async function listCartesiaVoices() {
+  const now = Date.now();
+  if (cachedCartesiaVoices && now - cachedCartesiaVoicesAtMs < 10 * 60 * 1000) return cachedCartesiaVoices;
+  const apiKey = CARTESIA_API_KEY.value() || process.env.CARTESIA_API_KEY || '';
+  if (!apiKey) throw new Error('Cartesia API key is not configured');
+  const response = await fetch('https://api.cartesia.ai/voices', {
+    method: 'GET',
+    headers: {
+      'X-API-Key': apiKey,
+      'Cartesia-Version': CARTESIA_VERSION,
+      'Accept': 'application/json',
+    },
+  });
+  if (!response.ok) {
+    const detail = await response.text().catch(() => '');
+    throw new Error(`Cartesia voices HTTP ${response.status}${detail ? `: ${safeText(detail, 500)}` : ''}`);
+  }
+  const payload = await response.json();
+  const rows = Array.isArray(payload)
+    ? payload
+    : (Array.isArray(payload && payload.voices)
+      ? payload.voices
+      : (Array.isArray(payload && payload.data) ? payload.data : []));
+  cachedCartesiaVoices = rows;
+  cachedCartesiaVoicesAtMs = now;
+  return cachedCartesiaVoices;
+}
+
+function normalizeCartesiaVoice(voice) {
+  const labels = voice && voice.labels && typeof voice.labels === 'object' ? voice.labels : {};
+  const id = voice && (voice.id || voice.voice_id);
+  const name = voice && (voice.name || voice.display_name);
+  const description = voice && (voice.description || voice.use_case || labels.description || labels.gender || labels.age || labels.accent);
+  return {
+    voiceId: safeText(id, 160),
+    name: safeText(name, 120),
+    category: safeText((voice && (voice.category || voice.type || voice.use_case)) || 'cartesia', 80),
+    description: safeText(description, 300),
+    previewUrl: safeText(voice && (voice.preview_url || voice.previewUrl), 500),
+    labels,
+  };
+}
+
+async function resolveCartesiaVoiceId(voiceName, voiceId) {
+  const override = safeText(voiceId || process.env.CARTESIA_VOICE_ID || process.env.CARTESIA_DEFAULT_VOICE_ID, 160);
+  if (override) return override;
+  const requestedName = safeText(voiceName || process.env.CARTESIA_VOICE_NAME || '', 120).toLowerCase();
+  const voices = await listCartesiaVoices();
+  const normalized = voices.map(normalizeCartesiaVoice).filter((voice) => voice.voiceId);
+  if (requestedName) {
+    const exact = normalized.find((voice) => voice.name.toLowerCase() === requestedName);
+    if (exact) return exact.voiceId;
+    const partial = normalized.find((voice) => `${voice.name} ${voice.description} ${voice.category}`.toLowerCase().includes(requestedName));
+    if (partial) return partial.voiceId;
+  }
+  const narrator = normalized.find((voice) => `${voice.name} ${voice.description} ${voice.category}`.toLowerCase().includes('narrat'));
+  if (narrator) return narrator.voiceId;
+  if (normalized[0]) return normalized[0].voiceId;
+  throw new Error('cartesia_voice_not_found');
+}
+
+async function openCartesiaStream(text, options = {}) {
+  const apiKey = CARTESIA_API_KEY.value() || process.env.CARTESIA_API_KEY || '';
+  if (!apiKey) throw new Error('Cartesia API key is not configured');
+  const voiceName = safeText(options.voiceName || process.env.CARTESIA_VOICE_NAME || CARTESIA_DEFAULT_VOICE_NAME, 120) || CARTESIA_DEFAULT_VOICE_NAME;
+  const voiceId = await resolveCartesiaVoiceId(voiceName, options.voiceId);
+  const modelId = safeText(options.modelId || process.env.CARTESIA_MODEL_ID || CARTESIA_DEFAULT_MODEL_ID, 120) || CARTESIA_DEFAULT_MODEL_ID;
+  return {
+    voiceName,
+    modelId,
+    response: await fetch('https://api.cartesia.ai/tts/bytes', {
+      method: 'POST',
+      headers: {
+        'X-API-Key': apiKey,
+        'Cartesia-Version': CARTESIA_VERSION,
+        'Accept': 'application/octet-stream',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model_id: modelId,
+        transcript: text,
+        voice: {mode: 'id', id: voiceId},
+        output_format: {
+          container: 'raw',
+          encoding: 'pcm_s16le',
+          sample_rate: 24000,
+        },
+      }),
+    }),
+  };
+}
+
 async function openHostedSpeechStream(text, body) {
-  const provider = safeText(body && body.provider, 40).toLowerCase();
-  if (provider && provider !== 'elevenlabs') {
+  const provider = safeText(body && body.provider, 40).toLowerCase() || 'cartesia';
+  if (provider !== 'cartesia' && provider !== 'elevenlabs') {
     const err = new Error(`unsupported_tts_provider: ${provider}`);
     err.statusCode = 400;
     throw err;
   }
-  const voiceName = safeText(body && body.voiceName, 80) || 'Brian';
+  const defaultVoiceName = provider === 'elevenlabs' ? 'Brian' : CARTESIA_DEFAULT_VOICE_NAME;
+  const defaultModelId = provider === 'elevenlabs' ? 'eleven_multilingual_v2' : CARTESIA_DEFAULT_MODEL_ID;
+  const voiceName = safeText(body && body.voiceName, 120) || defaultVoiceName;
   const voiceId = safeText(body && body.voiceId, 160);
-  return {provider: 'elevenlabs', voiceName, response: await openElevenLabsStream(text, {voiceName, voiceId})};
+  const modelId = safeText(body && body.modelId, 120) || defaultModelId;
+  const role = safeText(body && body.role, 40);
+  const characterId = safeText(body && body.characterId, 80);
+  const voiceAlias = safeText(body && body.voiceAlias, 120);
+  const acousticDirection = safeText(body && body.acousticDirection, 300);
+  if (provider === 'cartesia') {
+    const cartesia = await openCartesiaStream(text, {voiceName, voiceId, modelId});
+    return {provider: 'cartesia', voiceName: cartesia.voiceName, modelId: cartesia.modelId, role, characterId, voiceAlias, acousticDirection, response: cartesia.response};
+  }
+  return {provider: 'elevenlabs', voiceName, modelId, role, characterId, voiceAlias, acousticDirection, response: await openElevenLabsStream(text, {voiceName, voiceId, modelId})};
+}
+
+async function ttsVoicesHandler(req, res) {
+  if (handleOptions(req, res)) return;
+  try {
+    const provider = safeText((req.query && req.query.provider) || (req.body && req.body.provider), 40).toLowerCase() || 'cartesia';
+    if (provider !== 'cartesia' && provider !== 'elevenlabs') {
+      sendJson(res, 400, {error: 'unsupported_tts_provider', detail: provider});
+      return;
+    }
+    const query = safeText((req.query && req.query.q) || (req.body && req.body.q), 120).toLowerCase();
+    const limitRaw = Number((req.query && req.query.limit) || (req.body && req.body.limit) || 80);
+    const limit = Math.max(1, Math.min(200, Number.isFinite(limitRaw) ? limitRaw : 80));
+    const rawVoices = provider === 'elevenlabs' ? await listElevenLabsVoices() : await listCartesiaVoices();
+    const normalizer = provider === 'elevenlabs' ? normalizeElevenLabsVoice : normalizeCartesiaVoice;
+    const voices = rawVoices.map(normalizer).filter((voice) => {
+      if (!query) return true;
+      const haystack = `${voice.name} ${voice.category} ${voice.description} ${JSON.stringify(voice.labels || {})}`.toLowerCase();
+      return haystack.includes(query);
+    }).slice(0, limit);
+    sendJson(res, 200, {provider, query, limit, voices});
+  } catch (err) {
+    sendJson(res, err.statusCode || 500, {error: 'tts_voices_failed', detail: err.message || String(err)});
+  }
 }
 
 async function ttsHandler(req, res) {
@@ -4716,7 +4872,7 @@ async function ttsHandler(req, res) {
     const audioResponse = speech.response;
     if (!audioResponse.ok) {
       const detail = await audioResponse.text().catch(() => '');
-      throw new Error(`ElevenLabs HTTP ${audioResponse.status}${detail ? `: ${safeText(detail, 500)}` : ''}`);
+      throw new Error(`${speech.provider} HTTP ${audioResponse.status}${detail ? `: ${safeText(detail, 500)}` : ''}`);
     }
     res.set(CORS_HEADERS);
     res.set('Content-Type', 'application/octet-stream');
@@ -4724,7 +4880,12 @@ async function ttsHandler(req, res) {
     res.set('X-Audio-Format', 'pcm_s16le');
     res.set('X-Sample-Rate', '24000');
     res.set('X-Speech-Provider', speech.provider);
-    res.set('X-Speech-Voice', speech.voiceName || 'Brian');
+    res.set('X-Speech-Voice', speech.voiceName || (speech.provider === 'elevenlabs' ? 'Brian' : CARTESIA_DEFAULT_VOICE_NAME));
+    res.set('X-Speech-Model', speech.modelId || (speech.provider === 'elevenlabs' ? 'eleven_multilingual_v2' : CARTESIA_DEFAULT_MODEL_ID));
+    if (speech.role) res.set('X-Speech-Role', speech.role);
+    if (speech.characterId) res.set('X-Speech-Character', speech.characterId);
+    if (speech.voiceAlias) res.set('X-Speech-Voice-Alias', speech.voiceAlias);
+    if (speech.acousticDirection) res.set('X-Speech-Acoustic-Direction', speech.acousticDirection);
     res.set('Connection', 'close');
     res.status(200);
     if (audioResponse.body && typeof audioResponse.body.pipeTo === 'function') {
@@ -4739,5 +4900,6 @@ async function ttsHandler(req, res) {
   }
 }
 
-exports.tts = onRequest({timeoutSeconds: 60, secrets: [ELEVENLABS_API_KEY]}, ttsHandler);
-exports.speak = onRequest({timeoutSeconds: 60, secrets: [ELEVENLABS_API_KEY]}, ttsHandler);
+exports.tts = onRequest({timeoutSeconds: 60, secrets: [ELEVENLABS_API_KEY, CARTESIA_API_KEY]}, ttsHandler);
+exports.speak = onRequest({timeoutSeconds: 60, secrets: [ELEVENLABS_API_KEY, CARTESIA_API_KEY]}, ttsHandler);
+exports.ttsVoices = onRequest({timeoutSeconds: 60, secrets: [ELEVENLABS_API_KEY, CARTESIA_API_KEY]}, ttsVoicesHandler);

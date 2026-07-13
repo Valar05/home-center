@@ -11,8 +11,11 @@ const {
   COMMAND_CENTER_DEFAULT_PROJECTS,
   COMMAND_CENTER_REQUIRED_ARTIFACTS,
   COMMAND_CENTER_DEFAULT_BASE_WORKSPACE,
+  COMMAND_CENTER_ALLOWED_STATUSES,
+  COMMAND_CENTER_TERMINAL_JOB_STATUSES,
   COMMAND_CENTER_AGENT_ACTIVATION_STATUSES,
   COMMAND_CENTER_CODEX_CLOUD_SURFACE,
+  COMMAND_CENTER_DURABLE_SESSION_RESTORE_STRATEGIES,
   COMMAND_CENTER_DEFAULT_BUCKET_ID,
   COMMAND_CENTER_BUCKET_KINDS,
   COMMAND_CENTER_BUCKET_LAYOUT,
@@ -27,6 +30,9 @@ const {
   buildAgentResumePacket,
   cleanBrowserPlaybook,
   cleanProjectPacket,
+  deriveWorkerLiveness,
+  isTerminalJobStatus,
+  staleJobCandidate,
   selectWorker,
 } = require('../functions/command_center_mcp');
 
@@ -97,16 +103,30 @@ const cleanedHomeDrive = cleanProjectPacket({...homeDriveProject, idempotencyKey
 assert.equal(cleanedHomeDrive.projectId, 'home-drive');
 assert.equal(cleanedHomeDrive.repositoryBinding.kind, 'github_repository');
 
-const realHomeDriveWorker = {workerId: 'home-drive-primary', health: 'healthy', simulated: false, capabilities: ['codex', 'home-drive-mcp', 'one-shot-worker', 'prepared-workspace']};
-const simulatedHomeDriveWorker = {workerId: 'cloud-codex-primary', health: 'healthy', simulated: true, capabilities: ['codex', 'home-drive-mcp', 'one-shot-worker', 'prepared-workspace']};
-assert.equal(selectWorker([simulatedHomeDriveWorker, realHomeDriveWorker], ['home-drive-mcp']).workerId, 'home-drive-primary');
+const nowMs = Date.now();
+const realHomeDriveWorker = {workerId: 'home-drive-primary', health: 'healthy', lastHeartbeatAtMs: nowMs, simulated: false, capabilities: ['codex', 'home-drive-mcp', 'one-shot-worker', 'prepared-workspace']};
+const staleHomeDriveWorker = {workerId: 'home-drive-stale', health: 'healthy', lastHeartbeatAtMs: nowMs - 10 * 60 * 1000, simulated: false, capabilities: ['codex', 'home-drive-mcp', 'one-shot-worker', 'prepared-workspace']};
+const simulatedHomeDriveWorker = {workerId: 'cloud-codex-primary', health: 'healthy', lastHeartbeatAtMs: nowMs, simulated: true, capabilities: ['codex', 'home-drive-mcp', 'one-shot-worker', 'prepared-workspace']};
+assert.equal(selectWorker([simulatedHomeDriveWorker, realHomeDriveWorker], ['home-drive-mcp'], {nowMs}).workerId, 'home-drive-primary');
+assert.equal(deriveWorkerLiveness(staleHomeDriveWorker, nowMs).health, 'stale');
+assert.equal(deriveWorkerLiveness(realHomeDriveWorker, nowMs).registryHealth, 'healthy');
+assert.throws(
+  () => selectWorker([staleHomeDriveWorker], ['home-drive-mcp'], {nowMs}),
+  /No live real Command Center worker satisfies requirements: home-drive-mcp/
+);
 
 assert.throws(
-  () => selectWorker([{workerId: 'termux', health: 'healthy', simulated: false, capabilities: ['android']}], ['codex']),
+  () => selectWorker([{workerId: 'termux', health: 'healthy', lastHeartbeatAtMs: nowMs, simulated: false, capabilities: ['android']}], ['codex'], {nowMs}),
   /No live real Command Center worker satisfies requirements: codex/
 );
-const fallback = selectWorker([{workerId: 'termux', health: 'healthy', simulated: false, capabilities: ['android']}], []);
+const fallback = selectWorker([{workerId: 'termux', health: 'healthy', lastHeartbeatAtMs: nowMs, simulated: false, capabilities: ['android']}], [], {nowMs});
 assert.equal(fallback.workerId, 'termux');
+assert(COMMAND_CENTER_ALLOWED_STATUSES.includes('expired'));
+assert(COMMAND_CENTER_TERMINAL_JOB_STATUSES.includes('expired'));
+assert.equal(isTerminalJobStatus('expired'), true);
+assert.equal(staleJobCandidate({jobId: 'job_stale', projectId: 'home-center', status: 'executing', updatedAtMs: nowMs - 3600000}, nowMs, 1800000, ['leased', 'executing', 'running', 'activating']).jobId, 'job_stale');
+assert.equal(staleJobCandidate({jobId: 'job_running_stale', projectId: 'home-center', status: 'running', updatedAtMs: nowMs - 3600000}, nowMs, 1800000, ['leased', 'executing', 'running', 'activating']).jobId, 'job_running_stale');
+assert.equal(staleJobCandidate({jobId: 'job_fresh', status: 'executing', updatedAtMs: nowMs - 1000}, nowMs, 1800000, ['leased', 'executing', 'running', 'activating']), null);
 
 const policy = cleanMutationPolicy({editFiles: 'allowed', push: 'confirm'});
 assert.equal(policy.editFiles, 'allowed');
@@ -169,6 +189,7 @@ assert.throws(() => cleanBucketObject({
 
 assert(COMMAND_CENTER_AGENT_ACTIVATION_STATUSES.includes('needs_human'));
 assert.equal(COMMAND_CENTER_CODEX_CLOUD_SURFACE.surfaceId, 'openai-codex-cloud');
+assert(COMMAND_CENTER_DURABLE_SESSION_RESTORE_STRATEGIES.includes('gcs_snapshot'));
 assert.match(COMMAND_CENTER_CODEX_CLOUD_SURFACE.launchUrl, /^https:\/\/chatgpt\.com\/codex/);
 assert.match(COMMAND_CENTER_CODEX_CLOUD_SURFACE.credentialPolicy, /Do not copy cookies/);
 const repoAgent = cleanRepoAgent({
@@ -182,6 +203,21 @@ assert.equal(repoAgent.agentType, 'repo_agent');
 assert.equal(repoAgent.codexCloudSurface.surfaceId, 'openai-codex-cloud');
 const session = cleanAgentSession({sessionId: 'session_home_center', title: 'Home Center Codex'}, repoAgent, {actor: 'tester@example.com'});
 assert.equal(session.agentId, 'home-center');
+assert.equal(session.sessionKind, 'durable_worker_session');
+assert.equal(session.repositoryOptional, true);
+assert.equal(session.runtime, 'cloud-run-debian');
+assert.equal(session.restoreStrategy, 'gcs_snapshot');
+const repoLessSession = cleanAgentSession({
+  sessionId: 'session_general_research',
+  projectId: 'general-research',
+  title: 'General research worker',
+  workerFamily: 'cloud-run-debian-research',
+  currentWorkspaceSnapshotRef: 'gs://home-center-worker-sessions/general/snapshot-a.tgz',
+}, {}, {actor: 'tester@example.com'});
+assert.equal(repoLessSession.repository, '');
+assert.equal(repoLessSession.projectId, 'general-research');
+assert.equal(repoLessSession.workerFamily, 'cloud-run-debian-research');
+assert.equal(repoLessSession.currentWorkspaceSnapshotRef, 'gs://home-center-worker-sessions/general/snapshot-a.tgz');
 const task = cleanActivationTask({title: 'Inspect bridge', prompt: 'Inspect the durable Codex cloud bridge.', acceptanceCriteria: ['Report exact next files.']});
 assert.equal(task.taskType, 'codex_cloud');
 assert.match(task.prompt, /durable Codex cloud bridge/);
@@ -192,7 +228,9 @@ assert.throws(() => cleanCodexCloudRef({url: 'https://chatgpt.com/codex/tasks/ab
 const resumePacket = buildAgentResumePacket(repoAgent, session, {activationId: 'activation_12345678', status: 'queued', task, artifactRefs: [], codexCloudRefIds: []});
 assert.equal(resumePacket.packetVersion, 'command-center-codex-cloud-resume-v1');
 assert.equal(resumePacket.executionSurface.surfaceId, 'openai-codex-cloud');
-assert(resumePacket.bridgeInstructions.some((line) => line.includes('real OpenAI Codex cloud surface')));
+assert.equal(resumePacket.workerSessionContract.durable, true);
+assert.equal(resumePacket.workerSessionContract.repositoryOptional, true);
+assert(resumePacket.bridgeInstructions.some((line) => line.includes('Restore the durable worker session workspace')));
 assert.equal(resumePacket.activation.realWorkerRequired, false);
 
 assert(commandCenterSource.includes("server.registerTool('command_center.jobs.get_handoff'"));
@@ -206,12 +244,25 @@ assert(commandCenterSource.includes("server.registerTool('command_center.agents.
 assert(commandCenterSource.includes("server.registerTool('command_center.agents.record_artifact'"));
 assert(commandCenterSource.includes("server.registerTool('command_center.agents.complete_activation'"));
 assert(commandCenterSource.includes("server.registerTool('command_center.agents.get_handoff'"));
-assert(commandCenterSource.includes('real OpenAI Codex cloud surface'));
+assert(commandCenterSource.includes("server.registerTool('command_center.workers.wake'"));
+assert(commandCenterSource.includes("case 'workers.wake'"));
+assert(commandCenterSource.includes('Restore the durable worker session workspace'));
 assert(commandCenterSource.includes('activationWorkerRequirements'));
+assert(commandCenterSource.includes('deriveWorkerLiveness'));
+assert(commandCenterSource.includes('reconcileStaleJobs'));
+assert(commandCenterSource.includes("livenessState: heartbeatFresh ? 'live'"));
+assert(commandCenterSource.includes("activatable: activatableWorkers.length"));
+assert(commandCenterSource.includes("type: 'job_queued_no_worker'"));
+assert(commandCenterSource.includes("lease: null, activation: null"));
+assert(commandCenterSource.includes("requiredIndex: {collectionGroup: COMMAND_CENTER_COLLECTIONS.jobs"));
+assert(commandCenterSource.includes("['leased', 'executing', 'running', 'activating']"));
+assert(commandCenterSource.includes("status: 'expired'"));
 assert(commandCenterSource.includes("const worker = selectWorker(await workerRecords(admin), workerRequirements, {requireActivationChannel: false})"));
 assert(commandCenterSource.includes("realWorkerRequired: true"));
 assert(commandCenterSource.includes("selectedWorkerId: worker.workerId"));
-assert(commandCenterSource.includes("Real Codex cloud activation completion requires at least one Codex cloud ref and one artifact."));
+assert(commandCenterSource.includes("Durable Codex worker activation completion requires at least one artifact."));
+assert(commandCenterSource.includes("Durable worker session completion requires nextWorkspaceSnapshotRef."));
+assert(commandCenterSource.includes("activation: z.record(z.string(), z.any()).optional(), runtime: z.record(z.string(), z.any()).optional(), cloudRunJob: z.record(z.string(), z.any()).optional(), sessionPolicy: z.record(z.string(), z.any()).optional()"));
 assert(commandCenterSource.includes("app.post('/agent/claim'"));
 assert(commandCenterSource.includes("app.post('/agent/heartbeat'"));
 assert(commandCenterSource.includes("app.post('/agent/codex-ref'"));

@@ -421,6 +421,11 @@ async function registerWorker(args) {
     capabilities: manifest.capabilities || ['codex', 'one-shot-worker', 'prepared-workspace'],
     baseWorkspace: manifestBaseWorkspace(manifest),
     limits: manifest.limits || {concurrentJobs: 1},
+    activation: manifest.activation,
+    runtime: manifest.runtime,
+    cloudRunJob: manifest.cloudRunJob,
+    sessionPolicy: manifest.sessionPolicy,
+    repositoryAffinity: manifest.repositoryAffinity,
   });
   const config = {
     commandCenterBase: args.commandCenterBase,

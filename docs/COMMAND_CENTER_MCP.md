@@ -45,18 +45,20 @@ Command Center delegates auth through the Home Center OAuth bridge. If Google re
 
 `Codex in the cloud` means the real OpenAI Codex cloud surface at `https://chatgpt.com/codex/`, logged into Drew's account and consuming real Codex quota. It does not mean a generic Firebase/Cloud Run code module and it does not mean Command Center's simulated `cloud-codex-primary` registry placeholder.
 
-Command Center owns durable state around Codex cloud:
+Command Center owns durable state around Codex cloud and portable workers:
 
 - `repoAgents`: durable repo/project/domain identities that own long-lived context.
-- `agentSessions`: resumable Codex-style threads under a repo agent.
+- `agentSessions`: durable worker sessions. A session may be repo-bound, project-bound, task-bound, or repo-less.
 - `agentActivations`: dormant-to-active task packets created from a prompt, repo state, prior session, or follow-up.
 - `codexCloudRefs`: recorded real Codex cloud task URLs/resume handles.
 - `agentArtifacts`: final reports, bridge transcripts, evidence refs, and redacted outputs.
 - `agentContextSnapshots`: compact packets used to resume the real Codex cloud surface.
 
+Durable Codex worker sessions are a hard gate for portable execution. A Cloud Run Debian worker activation must restore a session workspace/context before execution and write a next workspace snapshot before completed success. Cloud workers do not require a repository, and a repository may have multiple workers with different capabilities, credentials, runtime images, or policies.
+
 The Codex cloud bridge may use a persistent browser profile on a user-owned host, but Command Center must never store ChatGPT/OpenAI passwords, cookies, OAuth tokens, browser session blobs, bearer tokens, or reusable credentials. It stores only durable refs, summaries, artifacts, hashes, and redacted evidence.
 
-Activation is fail-closed. `agents.create_activation` must select a healthy, routable, non-simulated worker that satisfies the activation's `workerRequirements`; the default `cloud-codex-primary` record is only a non-routable placeholder and cannot be leased for real work. Worker bridges claim activations through `POST /agent/claim`, heartbeat through `POST /agent/heartbeat`, record real Codex task refs through `POST /agent/codex-ref`, attach artifacts through `POST /agent/artifacts`, and finish through `POST /agent/complete`.
+Activation is fail-closed. `agents.create_activation` must select a healthy, routable, non-simulated worker that satisfies the activation's `workerRequirements`; the default `cloud-codex-primary` record is only a non-routable placeholder and cannot be leased for real work. For `cloud-run-debian` / `durable-session` workers, the selected worker must advertise a `cloud_run_job` activation channel, GCS snapshot storage, and Cloud Run Job metadata. Command Center invokes the Cloud Run Job with non-secret activation/session metadata; the worker token stays in Secret Manager on the job. Worker bridges claim activations through `POST /agent/claim`, heartbeat through `POST /agent/heartbeat`, record real Codex task refs through `POST /agent/codex-ref` when available, attach artifacts through `POST /agent/artifacts`, and finish through `POST /agent/complete`.
 
 The red-build gate for this path is:
 

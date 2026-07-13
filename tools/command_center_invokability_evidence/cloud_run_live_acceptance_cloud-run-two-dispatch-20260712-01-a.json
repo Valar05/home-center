@@ -1,0 +1,142 @@
+{
+  "ok": true,
+  "runId": "cloud-run-two-dispatch-20260712-01-a",
+  "activationId": "activation_cloud-run-two-dispatch-20260712-01-a",
+  "sessionId": "session_cloud-run-two-dispatch-20260712-01-a",
+  "nonce": "NONCE_cloud-run-two-dispatch-20260712-01-a",
+  "startedAt": "2026-07-13T02:00:19.047Z",
+  "steps": [
+    {
+      "name": "upsert_repo_agent",
+      "agentId": "cloud-run-debian-codex-acceptance",
+      "sessionId": "session_cloud-run-two-dispatch-20260712-01-a"
+    },
+    {
+      "name": "create_activation",
+      "selectedWorkerId": "cloud-run-debian-codex-primary",
+      "status": "queued",
+      "cloudRunOperationName": ""
+    },
+    {
+      "name": "poll_resume_packet",
+      "status": "queued",
+      "artifactRefs": [],
+      "snapshotRef": ""
+    },
+    {
+      "name": "poll_resume_packet",
+      "status": "queued",
+      "artifactRefs": [],
+      "snapshotRef": ""
+    },
+    {
+      "name": "poll_resume_packet",
+      "status": "queued",
+      "artifactRefs": [],
+      "snapshotRef": ""
+    },
+    {
+      "name": "poll_resume_packet",
+      "status": "queued",
+      "artifactRefs": [],
+      "snapshotRef": ""
+    },
+    {
+      "name": "poll_resume_packet",
+      "status": "queued",
+      "artifactRefs": [],
+      "snapshotRef": ""
+    },
+    {
+      "name": "poll_resume_packet",
+      "status": "queued",
+      "artifactRefs": [],
+      "snapshotRef": ""
+    },
+    {
+      "name": "poll_resume_packet",
+      "status": "queued",
+      "artifactRefs": [],
+      "snapshotRef": ""
+    },
+    {
+      "name": "poll_resume_packet",
+      "status": "queued",
+      "artifactRefs": [],
+      "snapshotRef": ""
+    },
+    {
+      "name": "poll_resume_packet",
+      "status": "queued",
+      "artifactRefs": [],
+      "snapshotRef": ""
+    },
+    {
+      "name": "poll_resume_packet",
+      "status": "queued",
+      "artifactRefs": [],
+      "snapshotRef": ""
+    },
+    {
+      "name": "poll_resume_packet",
+      "status": "queued",
+      "artifactRefs": [],
+      "snapshotRef": ""
+    },
+    {
+      "name": "poll_resume_packet",
+      "status": "queued",
+      "artifactRefs": [],
+      "snapshotRef": ""
+    },
+    {
+      "name": "poll_resume_packet",
+      "status": "queued",
+      "artifactRefs": [],
+      "snapshotRef": ""
+    },
+    {
+      "name": "poll_resume_packet",
+      "status": "running",
+      "artifactRefs": [],
+      "snapshotRef": ""
+    },
+    {
+      "name": "poll_resume_packet",
+      "status": "running",
+      "artifactRefs": [
+        "agent-artifact://agent_artifact_956c9154d94be8c03b95bfaa66bbb128"
+      ],
+      "snapshotRef": ""
+    },
+    {
+      "name": "poll_resume_packet",
+      "status": "completed",
+      "artifactRefs": [
+        "agent-artifact://agent_artifact_956c9154d94be8c03b95bfaa66bbb128"
+      ],
+      "snapshotRef": "gs://home-center-dclar-command-center-worker-sessions/sessions/session_cloud-run-two-dispatch-20260712-01-a/activation_cloud-run-two-dispatch-20260712-01-a/workspace.tgz"
+    }
+  ],
+  "finalStatus": "completed",
+  "artifactRefs": [
+    "agent-artifact://agent_artifact_956c9154d94be8c03b95bfaa66bbb128"
+  ],
+  "snapshotRef": "gs://home-center-dclar-command-center-worker-sessions/sessions/session_cloud-run-two-dispatch-20260712-01-a/activation_cloud-run-two-dispatch-20260712-01-a/workspace.tgz",
+  "extractDir": "/data/data/com.termux/files/usr/tmp/cloud-run-two-dispatch-20260712-01-a",
+  "files": [
+    "SESSION.md",
+    "codex-last-message.md",
+    "codex-login-stderr.txt",
+    "codex-login-stdout.txt",
+    "codex-prompt.md",
+    "codex-resume-packet.json",
+    "codex-stderr.txt",
+    "codex-stdout.jsonl",
+    "final-report.md",
+    "hello-world.txt"
+  ],
+  "helloText": "NONCE_cloud-run-two-dispatch-20260712-01-a",
+  "authStateFiles": [],
+  "completedAt": "2026-07-13T02:04:47.760Z"
+}
