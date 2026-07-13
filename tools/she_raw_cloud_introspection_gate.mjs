@@ -2,6 +2,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import {homedir} from 'node:os';
+import {execFileSync} from 'node:child_process';
 
 const DEFAULT_MCP_URL = 'https://us-central1-home-center-dclar.cloudfunctions.net/sheRawMcp/mcp';
 const DEFAULT_CONFIG = path.join(homedir(), '.config', 'home-center', 'codex-hub.json');
@@ -199,8 +200,10 @@ function summarizeIntrospection(result) {
     contaminating_case_ids: Array.isArray(result.contaminating_case_ids) ? result.contaminating_case_ids : [],
     response_goal_overlap: Array.isArray(result.response_goal_overlap) ? result.response_goal_overlap : [],
     response_retrieval_overlap: Array.isArray(result.response_retrieval_overlap) ? result.response_retrieval_overlap : [],
-    durable_rule_kind: result.durable_rule_kind || '',
-    confidence: result.confidence,
+	    durable_rule_kind: result.durable_rule_kind || '',
+	    validation_plan: result.validation_plan || null,
+	    evidence_complete: result.evidence_complete,
+	    confidence: result.confidence,
     confirmation_required: result.confirmation_required,
   };
 }
@@ -216,6 +219,40 @@ function summarizeBrain(result) {
     recommended_next_move: result.recommended_next_move || '',
     speculation: Array.isArray(result.speculation) ? result.speculation : [],
   };
+}
+
+async function validateSourceRef(ref) {
+  const value = String(ref || '');
+  if (value.startsWith('repo:home-center/')) {
+    const rel = value.slice('repo:home-center/'.length);
+    return {ref: value, ok: fs.existsSync(path.resolve(rel)), validation: 'local_repo_home_center'};
+  }
+  if (value.startsWith('repo:she-raw/')) {
+    const rel = value.slice('repo:she-raw/'.length);
+    return {ref: value, ok: fs.existsSync(path.resolve('..', 'she-raw', rel)), validation: 'local_repo_she_raw'};
+  }
+  if (value.startsWith('github:')) {
+    const match = value.match(/^github:([^/]+)\/([^/]+)\/issues\/(\d+)$/);
+    if (!match) return {ref: value, ok: false, validation: 'github_ref_unrecognized'};
+    const [, owner, repo, issue] = match;
+    const headers = {'user-agent': 'she-raw-cloud-introspection-gate'};
+    let token = process.env.GITHUB_TOKEN || process.env.GH_TOKEN || '';
+    if (!token) {
+      try { token = execFileSync('gh', ['auth', 'token'], {encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore']}).trim(); }
+      catch (_) { token = ''; }
+    }
+    if (token) headers.authorization = `Bearer ${token}`;
+    const response = await fetch(`https://api.github.com/repos/${owner}/${repo}/issues/${issue}`, {headers});
+    return {ref: value, ok: response.status === 200, validation: token ? 'github_issue_authenticated' : 'github_issue_public', status: response.status};
+  }
+  return {ref: value, ok: true, validation: 'not_checked_non_repo_ref'};
+}
+
+async function validateSourceRefs(refs) {
+  const unique = [...new Set((refs || []).filter(Boolean))];
+  const results = [];
+  for (const ref of unique) results.push(await validateSourceRef(ref));
+  return results;
 }
 
 async function main() {
@@ -295,8 +332,9 @@ async function main() {
     question: 'What smallest humane continuation survives the casts?',
     responseBudget: 'brief',
   });
-  const bikiniRetrievedCaseIds = Array.isArray(bikiniBottomBrain.result.retrieved_cases) ? bikiniBottomBrain.result.retrieved_cases.map((caseRecord) => caseRecord.id).filter(Boolean) : [];
-  add('bikini_bottom_brain_direct_invocation', bikiniBottomBrain.status === 200
+	  const bikiniRetrievedCaseIds = Array.isArray(bikiniBottomBrain.result.retrieved_cases) ? bikiniBottomBrain.result.retrieved_cases.map((caseRecord) => caseRecord.id).filter(Boolean) : [];
+	  const bikiniSourceRefChecks = await validateSourceRefs(bikiniBottomBrain.result.source_refs || bikiniBottomBrain.result.sourceRefs || []);
+	  add('bikini_bottom_brain_direct_invocation', bikiniBottomBrain.status === 200
     && /^srbrain_/.test(bikiniBottomBrain.result.invocation_id || '')
     && bikiniBottomBrain.result.brain_id === 'bikini_bottom'
     && bikiniBottomBrain.result.she_raw_default_voice === true
@@ -304,8 +342,10 @@ async function main() {
     && Array.isArray(bikiniBottomBrain.result.cast_alternatives)
     && bikiniBottomBrain.result.cast_alternatives.length >= 2
     && bikiniBottomBrain.result.anti_agentism_checks?.permanent_identity_rejected === true
-    && /Do not decide what someone is|pressure|functions/i.test(bikiniBottomBrain.result.operational_judgment || '')
-    && !/SpongeBob|Squidward|Sandy|Krabs|Patrick|Plankton/i.test(`${bikiniBottomBrain.result.operational_judgment || ''} ${bikiniBottomBrain.result.character_free_judgment || ''}`), {
+	    && /Do not decide what someone is|pressure|functions/i.test(bikiniBottomBrain.result.operational_judgment || '')
+	    && !bikiniRetrievedCaseIds.includes('sr_case_humane_guardrail_prospector_001')
+	    && !/sr_case_humane_guardrail_prospector_001|sr_case_wrong_layer_001/i.test(JSON.stringify(bikiniBottomBrain.result.evidence_references || []))
+	    && !/SpongeBob|Squidward|Sandy|Krabs|Patrick|Plankton/i.test(`${bikiniBottomBrain.result.operational_judgment || ''} ${bikiniBottomBrain.result.character_free_judgment || ''}`), {
       status: bikiniBottomBrain.status,
       brain: {
         invocation_id: bikiniBottomBrain.result.invocation_id || '',
@@ -314,9 +354,27 @@ async function main() {
         cast_count: Array.isArray(bikiniBottomBrain.result.cast_alternatives) ? bikiniBottomBrain.result.cast_alternatives.length : 0,
         failure_mode_count: Array.isArray(bikiniBottomBrain.result.failure_modes) ? bikiniBottomBrain.result.failure_modes.length : 0,
         anti_agentism_checks: bikiniBottomBrain.result.anti_agentism_checks || {},
-        operational_judgment: bikiniBottomBrain.result.operational_judgment || '',
-      },
-    });
+	        operational_judgment: bikiniBottomBrain.result.operational_judgment || '',
+	        source_ref_checks: bikiniSourceRefChecks,
+	      },
+	    });
+	  add('bikini_bottom_source_refs_resolve', bikiniSourceRefChecks.length > 0 && bikiniSourceRefChecks.every((check) => check.ok), {sourceRefChecks: bikiniSourceRefChecks});
+
+	  const bikiniIntrospect = await callTool(args.mcpUrl, token, 141, 'she_raw_introspect', {
+	    invocationId: bikiniBottomBrain.result.invocation_id,
+	    userCorrection: 'Introspect this Bikini Bottom invocation and prove it stayed brain-scoped instead of letting unrelated corpus steer the answer.',
+	    desiredBehavior: 'Recover the stored brain request, route, retrieval set, response, and validation plan; classify unrelated retrieved evidence as contamination only if it controlled the response.',
+	    applyScope: 'this invocation',
+	    requestValidationPlan: true,
+	  });
+	  const bikiniIntrospectionSummary = summarizeIntrospection(bikiniIntrospect.result);
+	  add('bikini_bottom_direct_invocation_introspects', bikiniIntrospect.status === 200
+	    && /^srintro_/.test(bikiniIntrospectionSummary.introspection_id)
+	    && bikiniIntrospectionSummary.validation_plan
+	    && /bikini|brain|route|retrieval/i.test(JSON.stringify(bikiniIntrospectionSummary)), {
+	      status: bikiniIntrospect.status,
+	      introspection: bikiniIntrospectionSummary,
+	    });
 
   const quartermaster = await callTool(args.mcpUrl, token, 132, 'she_raw_brain', {
     brainId: 'quartermaster',
@@ -403,7 +461,7 @@ async function main() {
   const highStakesText = [highStakes.result.observation, highStakes.result.proposed_probe, highStakes.result.likely_treasure].join(' ');
   add('high_stakes_suppresses_infrastructure_and_random_layer', highStakes.status === 200 && highStakes.result.route?.layer === 'high_stakes_sensitive' && highStakes.result.route?.retrieval_policy === 'none' && /qualified|high-stakes|not professional advice|decision owner|risk/i.test(highStakesText) && !/MCP|worker|Firestore|corpus|deployment/i.test(highStakesText), {status: highStakes.status, route: highStakes.result.route || {}, consult: summarizeConsult(highStakes.result)});
 
-  const operationalHealth = await callTool(args.mcpUrl, token, 18, 'she_raw_consult', {
+	  const operationalHealth = await callTool(args.mcpUrl, token, 18, 'she_raw_consult', {
     conversationKey: `cloud-operational-health-${args.runId}`,
     projectKey: 'home-center',
     commandState: 'idle',
@@ -413,7 +471,27 @@ async function main() {
   });
   const operationalHealthSummary = summarizeOperationalHealth(operationalHealth.result);
   const operationalHealthText = JSON.stringify(operationalHealth.result);
-  add('operational_health_does_not_drift_into_retrieved_theory', operationalHealth.status === 200 && operationalHealthSummary.response_contract === 'operational_health_check' && operationalHealthSummary.overall_status && operationalHealthSummary.healthy_lanes.length > 0 && operationalHealthSummary.degraded_lanes.length > 0 && !/degraded-state interface design|bounded authority|relational responsiveness|The recurring mechanism is not the joke/i.test(operationalHealthText) && (!operationalHealthSummary.dangerous_question || /\?$/.test(operationalHealthSummary.dangerous_question)), {status: operationalHealth.status, operationalHealth: operationalHealthSummary});
+	  add('operational_health_does_not_drift_into_retrieved_theory', operationalHealth.status === 200 && operationalHealthSummary.response_contract === 'operational_health_check' && operationalHealthSummary.overall_status && operationalHealthSummary.healthy_lanes.length > 0 && operationalHealthSummary.degraded_lanes.length > 0 && !/degraded-state interface design|bounded authority|relational responsiveness|The recurring mechanism is not the joke/i.test(operationalHealthText) && (!operationalHealthSummary.dangerous_question || /\?$/.test(operationalHealthSummary.dangerous_question)), {status: operationalHealth.status, operationalHealth: operationalHealthSummary});
+
+	  const correctionCycle = await callTool(args.mcpUrl, token, 181, 'she_raw_correct', {
+	    invocationId: operationalHealth.result.invocation_id,
+	    correctionText: 'Red fixture: retrieval must support operational-health answers, not answer instead of the request contract.',
+	    correctionType: 'goal misread',
+	    scope: 'this pattern',
+	    projectKey: 'home-center',
+	    pattern: 'retrieval-layer-guard',
+	    desiredBehavior: 'For operational-health requests, preserve owner functions, fallback/shared defect split, connector visibility or compatibility route, and keep corpus evidence subordinate.',
+	  });
+	  const validationCycle = await callTool(args.mcpUrl, token, 182, 'she_raw_validate_correction', {
+	    correctionId: correctionCycle.result.correction_id,
+	    succeeded: true,
+	    evidence: `Operational-health fixture passed without humane-guardrail thesis; invocation=${operationalHealth.result.invocation_id}`,
+	    laterInvocationId: operationalHealth.result.invocation_id,
+	  });
+	  add('correction_validation_cycle_recorded', correctionCycle.status === 200 && validationCycle.status === 200 && correctionCycle.result.correction_id && validationCycle.result.succeeded === true, {
+	    correction: correctionCycle.result,
+	    validation: validationCycle.result,
+	  });
 
   const consult = await callTool(args.mcpUrl, token, 14, 'she_raw_consult', {
     conversationKey: `cloud-brain-instantiation-${args.runId}`,
@@ -505,10 +583,15 @@ async function main() {
       },
       personalCare: summarizeConsult(personalCare.result),
       highStakes: summarizeConsult(highStakes.result),
-      operationalHealth: operationalHealthSummary,
-      consult: consultSummary,
-      introspection: introspectionSummary,
-      causalIntrospection: causalIntrospectionSummary,
+	      operationalHealth: operationalHealthSummary,
+	      correctionValidationCycle: {
+	        correction: correctionCycle.result,
+	        validation: validationCycle.result,
+	      },
+	      consult: consultSummary,
+	      introspection: introspectionSummary,
+	      causalIntrospection: causalIntrospectionSummary,
+	      bikiniIntrospection: bikiniIntrospectionSummary,
     },
     generatedAt: new Date().toISOString(),
   };
