@@ -699,6 +699,24 @@ function queryOwnedCollection(admin, collectionName, caller) {
   return collection(admin, collectionName).where('ownerKey', '==', ownerKeyFromCaller(caller));
 }
 
+function commandCenterJobsListRequiredIndex(args = {}) {
+  const fields = ['ownerKey ASC'];
+  if (args.projectId) fields.push('projectId ASC');
+  if (args.status) fields.push('status ASC');
+  fields.push('createdAtMs DESC');
+  if (args.status && !args.projectId) fields.push('__name__ DESC');
+  return {collectionGroup: COMMAND_CENTER_COLLECTIONS.jobs, fields};
+}
+
+function commandCenterJobsListIndexError(args = {}, err = null) {
+  return {
+    jobs: [],
+    error: 'missing_firestore_index',
+    diagnostic: safeText(err && err.message, 2000),
+    requiredIndex: commandCenterJobsListRequiredIndex(args),
+  };
+}
+
 function normalizeActivationChannel(value = {}) {
   const data = safeObject(value);
   const mode = safeText(data.mode, 40) || (safeText(data.endpoint, 1000) ? 'push' : '');
@@ -2634,7 +2652,7 @@ async function runCommandCenterOperation(admin, extra, operation, args = {}) {
       } catch (err) {
         const message = safeText(err && err.message, 2000);
         if (/index|FAILED_PRECONDITION|requires an index/i.test(message)) {
-          return {jobs: [], error: 'missing_firestore_index', diagnostic: message, requiredIndex: {collectionGroup: COMMAND_CENTER_COLLECTIONS.jobs, fields: ['status ASC', 'createdAtMs DESC', '__name__ DESC']}};
+          return commandCenterJobsListIndexError(args, err);
         }
         throw err;
       }
@@ -2930,16 +2948,24 @@ function createCommandCenterMcpServer({admin}) {
     description: 'List recent Command Center jobs, optionally filtered by project or status.',
     inputSchema: {projectId: z.string().optional(), status: z.enum(COMMAND_CENTER_ALLOWED_STATUSES).optional(), limit: z.number().optional()},
   }, async (args, extra) => {
-    const c = await callerFromExtra(admin, extra);
-    let query = queryOwnedCollection(admin, COMMAND_CENTER_COLLECTIONS.jobs, c);
-    if (args.projectId) query = query.where('projectId', '==', cleanProjectId(args.projectId));
-    if (args.status) query = query.where('status', '==', args.status);
-    query = query.orderBy('createdAtMs', 'desc');
-    if (args.status && !args.projectId) query = query.orderBy(admin.firestore.FieldPath.documentId(), 'desc');
-    const snap = await query.limit(Math.max(1, Math.min(Number(args.limit) || 20, 50))).get();
-    const jobs = [];
-    snap.forEach((doc) => jobs.push(doc.data()));
-    return textResult({jobs});
+    try {
+      const c = await callerFromExtra(admin, extra);
+      let query = queryOwnedCollection(admin, COMMAND_CENTER_COLLECTIONS.jobs, c);
+      if (args.projectId) query = query.where('projectId', '==', cleanProjectId(args.projectId));
+      if (args.status) query = query.where('status', '==', args.status);
+      query = query.orderBy('createdAtMs', 'desc');
+      if (args.status && !args.projectId) query = query.orderBy(admin.firestore.FieldPath.documentId(), 'desc');
+      const snap = await query.limit(Math.max(1, Math.min(Number(args.limit) || 20, 50))).get();
+      const jobs = [];
+      snap.forEach((doc) => jobs.push(doc.data()));
+      return textResult({jobs});
+    } catch (err) {
+      const message = safeText(err && err.message, 2000);
+      if (/index|FAILED_PRECONDITION|requires an index/i.test(message)) {
+        return textResult(commandCenterJobsListIndexError(args, err));
+      }
+      throw err;
+    }
   });
 
   server.registerTool('command_center.jobs.reconcile_stale', {
