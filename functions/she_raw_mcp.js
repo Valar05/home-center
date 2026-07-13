@@ -458,6 +458,7 @@ async function retrieveCases(admin, query, filters = {}) {
     score += Math.min(0.5, c.confidence / 4);
     if (c.type === 'prospector_evidence_packet' && !/\b(prospector|humane guardrail|guardrail|googly|camping mode|empty glass|bounded authority|self service|bible|chaplain|ritual|degraded-state|degraded state)\b/.test(queryText)) score -= 3;
     if (c.type === 'anti_agentism_simulation_brain' && !/\b(bikini|spongebob|squidward|sandy|krabs|patrick|plankton|anti-agentism|agentism|function cast|function-cast|detachable|humane continuation|character-free|character free|cast alternatives|temporary function)\b/.test(queryText)) score -= 10;
+    if (c.type === 'humane_mission_control_brain' && !/\b(tango|mission control|humane command|pick up the butts|save my butt|someone has to watch|watch card|relief rotation|design the relief|non-sacrificial|non sacrificial)\b/.test(queryText)) score -= 10;
     return {case: c, score};
   }).filter((item) => item.score > 0).sort((a, b) => b.score - a.score || b.case.confidence - a.case.confidence);
   const selected = scored.slice(0, 8).map((item) => ({...item.case, retrievalScore: Number(item.score.toFixed(3))}));
