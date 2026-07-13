@@ -1,13 +1,42 @@
 const MUTATION_COMMAND = /(?:^|\s)(?:gcloud\s+(?:run\s+deploy|functions\s+deploy|projects\s+add-iam-policy-binding)|firebase\s+deploy|git\s+(?:push|commit|merge|rebase|reset|checkout|switch|clean|tag)|gh\s+pr\s+(?:create|merge|close|edit)|npm\s+(?:publish|install|uninstall)|yarn\s+(?:add|remove|publish)|pnpm\s+(?:add|remove|publish)|kubectl\s+(?:apply|create|delete|patch|set|rollout)|terraform\s+(?:apply|destroy|import)|docker\s+(?:push|build)|rm\b|mv\b|cp\b|sed\s+-i\b|tee\b|curl\b[^\n]*(?:-X|--request)\s*(?:POST|PUT|PATCH|DELETE))|\b(?:deploy|publish|release|migration|seed)[-_./a-z0-9]*\.(?:m?js|cjs|sh|ts)\b/i;
 
-const SAFE_EXECUTABLE = /^(?:node\s+(?:--check\s+\S+|\S*(?:test|check|lint|read[_-]?only|status|health|probe)\S*\.m?js\b)|npm\s+(?:test|run\s+(?:test|check|lint|typecheck)\b)|npx\s+(?:eslint|tsc|vitest|jest)\b|git\s+(?:status|diff|log|show|rev-parse|branch|remote)\b|rg\b|grep\b|find\b|cat\b|head\b|tail\b|ls\b|pwd\b|test\b|sh\s+-n\b|bash\s+-n\b)/i;
+const SAFE_EXECUTABLE = /^(?:node\s+(?:--check\s+\S+|\S*(?:test|check|lint|read[_-]?only|status|health|probe)\S*\.m?js\b)|npm\s+(?:(?:--prefix\s+\S+\s+)?run\s+(?:test|check|lint|typecheck)\b|test\b)|npx\s+(?:eslint|tsc|vitest|jest)\b|git\s+(?:status|diff|log|show|rev-parse|branch|remote)\b|rg\b|grep\b|find\b|cat\b|head\b|tail\b|ls\b|pwd\b|test\b|sh\s+-n\b|bash\s+-n\b)/i;
+
+// Verification commands are passed to a shell. Reject expansion and control
+// syntax before checking the executable allowlist so an allowlisted prefix
+// cannot smuggle additional reads, writes, or commands into the shell.
+const UNSAFE_SHELL_SYNTAX = /[\r\n;&|><`$*?\[\]{}~()\\#]/;
 
 export function classifyVerificationCommand(value) {
   const command = String(value || '').trim();
   if (!command || /^run repository-defined /i.test(command)) return {safe: false, reason: 'prose_instruction'};
   if (MUTATION_COMMAND.test(command)) return {safe: false, reason: 'mutation_command'};
-  if (!SAFE_EXECUTABLE.test(command) || /[\r\n;&|><]/.test(command)) return {safe: false, reason: 'prose_instruction'};
+  if (UNSAFE_SHELL_SYNTAX.test(command)) return {safe: false, reason: 'unsafe_shell_syntax'};
+  if (!SAFE_EXECUTABLE.test(command)) {
+    return {safe: false, reason: /^[A-Z][a-z]+(?:\s|$)/.test(command) ? 'prose_instruction' : 'unapproved_executable'};
+  }
   return {safe: true, reason: ''};
+}
+
+export function summarizeVerificationResults(verificationResults = []) {
+  const requestedCount = verificationResults.length;
+  const executed = verificationResults.filter((result) => result.status !== 'skipped');
+  const executedCount = executed.length;
+  const skippedCount = requestedCount - executedCount;
+  const allExecutedChecksPassed = executedCount > 0 && executed.every((result) => result.exitCode === 0);
+  const allRequestedCommandsExecuted = executedCount === requestedCount;
+  return {
+    requestedCount,
+    executedCount,
+    skippedCount,
+    allExecutedChecksPassed,
+    allRequestedCommandsExecuted,
+    allVerificationPassed: allExecutedChecksPassed && allRequestedCommandsExecuted,
+  };
+}
+
+export function verificationCriterionPassed(verificationResults = []) {
+  return summarizeVerificationResults(verificationResults).allVerificationPassed;
 }
 
 function policyAllowsRepositoryMutation(job = {}) {

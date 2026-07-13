@@ -4,6 +4,8 @@ import {
   assessAcceptanceEvidence,
   classifyVerificationCommand,
   repositoryMutationRequired,
+  summarizeVerificationResults,
+  verificationCriterionPassed,
 } from '../src/acceptance_policy.mjs';
 
 const deploymentOnlyJob = {
@@ -21,10 +23,47 @@ The redundant IAM policy binding substep returned PERMISSION_DENIED; the service
 
 assert.equal(repositoryMutationRequired(deploymentOnlyJob), false);
 assert.deepEqual(classifyVerificationCommand('node tools/read_only_contract_test.mjs'), {safe: true, reason: ''});
+assert.deepEqual(classifyVerificationCommand('npm --prefix cloud-worker run check'), {safe: true, reason: ''});
 assert.deepEqual(classifyVerificationCommand('Verify the live endpoint and record the revision.'), {safe: false, reason: 'prose_instruction'});
 assert.deepEqual(classifyVerificationCommand('gcloud run deploy command-center-worker --source .'), {safe: false, reason: 'mutation_command'});
 assert.deepEqual(classifyVerificationCommand('node tools/deploy_worker.mjs'), {safe: false, reason: 'mutation_command'});
-assert.deepEqual(classifyVerificationCommand('npm run build'), {safe: false, reason: 'prose_instruction'});
+assert.deepEqual(classifyVerificationCommand('npm run build'), {safe: false, reason: 'unapproved_executable'});
+assert.deepEqual(classifyVerificationCommand('python tools/check.py'), {safe: false, reason: 'unapproved_executable'});
+for (const command of [
+  'node tools/read_only_contract_test.mjs $(touch /tmp/never)',
+  'node tools/read_only_contract_test.mjs `touch /tmp/never`',
+  'node tools/read_only_contract_test.mjs $HOME',
+  'node tools/read_only_contract_test.mjs ${HOME}',
+  'node tools/read_only_contract_test.mjs $((1 + 1))',
+  'node tools/read_only_contract_test.mjs <(cat /etc/passwd)',
+  'node tools/read_only_contract_test.mjs *.mjs',
+  'node tools/read_only_contract_test.mjs {one,two}',
+  'node tools/read_only_contract_test.mjs ~/fixture',
+  'node tools/read_only_contract_test.mjs (cat /etc/passwd)',
+  'node tools/read_only_contract_test.mjs fixture\\ name',
+  'node tools/read_only_contract_test.mjs # ignored suffix',
+]) {
+  assert.deepEqual(classifyVerificationCommand(command), {safe: false, reason: 'unsafe_shell_syntax'}, command);
+}
+
+const mixedVerification = summarizeVerificationResults([
+  {command: 'node tools/read_only_contract_test.mjs', status: 'executed', exitCode: 0},
+  {command: 'npm run build', status: 'skipped', skipReason: 'unapproved_executable', exitCode: 0},
+]);
+assert.deepEqual(mixedVerification, {
+  requestedCount: 2,
+  executedCount: 1,
+  skippedCount: 1,
+  allExecutedChecksPassed: true,
+  allRequestedCommandsExecuted: false,
+  allVerificationPassed: false,
+});
+assert.equal(summarizeVerificationResults([
+  {command: 'Verify the endpoint.', status: 'skipped', skipReason: 'prose_instruction', exitCode: 0},
+]).allVerificationPassed, false);
+assert.equal(verificationCriterionPassed([
+  {command: 'Verify the endpoint.', status: 'skipped', skipReason: 'prose_instruction', exitCode: 0},
+]), false, 'a skipped-only verification criterion must not pass the acceptance matrix');
 
 const accepted = assessAcceptanceEvidence({
   job: deploymentOnlyJob,

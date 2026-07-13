@@ -2,7 +2,7 @@
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import {assessAcceptanceEvidence, classifyVerificationCommand, pullRequestRequired, repositoryMutationRequired} from './acceptance_policy.mjs';
+import {assessAcceptanceEvidence, classifyVerificationCommand, pullRequestRequired, repositoryMutationRequired, summarizeVerificationResults, verificationCriterionPassed} from './acceptance_policy.mjs';
 import {createHash} from 'node:crypto';
 import {spawn, spawnSync} from 'node:child_process';
 
@@ -444,8 +444,8 @@ function buildAcceptanceMatrix(job, acceptance, verificationResults, gitEvidence
       status = acceptance.accepted ? 'passed' : 'failed';
       notes.push(status === 'passed' ? 'Nonce-bearing output is covered by verification and final report evidence.' : 'Nonce output was missing or invalid.');
     } else if (/test|verification|build|smoke/i.test(text)) {
-      status = verificationResults.every((result) => result.exitCode === 0) ? 'passed' : 'failed';
-      notes.push(status === 'passed' ? 'Verification commands passed.' : 'One or more verification commands failed.');
+      status = verificationCriterionPassed(verificationResults) ? 'passed' : 'failed';
+      notes.push(status === 'passed' ? 'All requested verification commands executed and passed.' : 'One or more verification commands failed or were skipped.');
     } else if (/worker|non-simulated|cloud run|executor|pid|identity|start|finish|heartbeat|stdout|stderr|stream/i.test(text)) {
       status = acceptance.accepted ? 'passed' : 'failed';
       notes.push(status === 'passed' ? 'Executor lifecycle evidence is recorded in worker events and transcripts.' : 'Executor lifecycle evidence did not satisfy acceptance.');
@@ -480,6 +480,7 @@ function assessJobAcceptance(packet, codex, verificationResults, gitEvidence) {
   const {accepted, failures} = assessAcceptanceEvidence({job, codexExitCode: codex.exitCode, codexAcceptanceError: codex.acceptanceError, finalResult, verificationResults, gitEvidence});
   const transcript = finalResult;
   const usageSummary = parseCodexUsageSummary(transcript);
+  const verificationSummary = summarizeVerificationResults(verificationResults);
   const result = {accepted, failures};
   const acceptanceMatrix = buildAcceptanceMatrix(job, result, verificationResults, gitEvidence);
   writeJsonFile('acceptance.json', {
@@ -489,7 +490,8 @@ function assessJobAcceptance(packet, codex, verificationResults, gitEvidence) {
     requiresPullRequest: requiresPullRequest(job),
     gitEvidence,
     codexExitCode: codex.exitCode,
-    verificationPassed: verificationResults.every((result) => result.exitCode === 0),
+    verificationPassed: verificationSummary.allVerificationPassed,
+    verificationSummary,
     usageSummary,
   });
   writeJsonFile('acceptance-matrix.json', {
@@ -523,11 +525,12 @@ function captureRepositoryArtifacts(packet, codex, restore, verificationResults,
     latestCommit: run('git log -1 --oneline', workspaceRoot).stdout.trim(),
     remote: remote.stdout,
   });
+  const verificationSummary = summarizeVerificationResults(verificationResults);
   writeJsonFile('verification.json', {
     codexExitCode: codex.exitCode,
     codexAcceptanceError: codex.acceptanceError || '',
     verificationResults: verificationResults.map((item) => ({command: item.command, status: item.status || 'executed', skipReason: item.skipReason || '', exitCode: item.exitCode, stdoutTail: item.stdout.slice(-4000), stderrTail: item.stderr.slice(-4000)})),
-    allVerificationPassed: verificationResults.every((item) => item.exitCode === 0),
+    ...verificationSummary,
   });
   writeText('reasoning-summary.md', readFileIfExists('codex-last-message.md') || `Codex exit code: ${codex.exitCode}\n`);
   writeText('orientation.md', [
@@ -601,7 +604,7 @@ function writeAcceptanceArtifacts(job, acceptance, verificationResults = [], git
     mutationTicket: false,
     requiresPullRequest: false,
     gitEvidence,
-    verificationPassed: verificationResults.every((result) => result.exitCode === 0),
+    verificationPassed: summarizeVerificationResults(verificationResults).allVerificationPassed,
     usageSummary,
   });
   writeJsonFile('acceptance-matrix.json', {
@@ -685,7 +688,7 @@ async function runCodexSmokeJob(packet, executorId) {
     codexExitCode: codex.exitCode,
     codexAcceptanceError: codex.acceptanceError || '',
     verificationResults: verificationResults.map((item) => ({command: item.command, status: item.status || 'executed', skipReason: item.skipReason || '', exitCode: item.exitCode, stdoutTail: item.stdout.slice(-4000), stderrTail: item.stderr.slice(-4000)})),
-    allVerificationPassed: verificationResults.every((item) => item.exitCode === 0),
+    ...summarizeVerificationResults(verificationResults),
     nonce,
   });
   const failures = [];
