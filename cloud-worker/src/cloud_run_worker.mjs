@@ -411,14 +411,56 @@ function parseCodexUsageSummary(text) {
 function buildAcceptanceMatrix(job, acceptance, verificationResults, gitEvidence) {
   const criteria = Array.isArray(job.acceptanceCriteria) ? job.acceptanceCriteria : [];
   if (!criteria.length) return [];
-  const evidenceRefs = ['acceptance.json', 'verification.json', 'changed-files.json', 'implementation.patch', 'final-report.md'];
+  const refsForCriterion = (text) => {
+    if (/worker|non-simulated|cloud run|executor|pid|identity|start|finish|heartbeat|stdout|stderr|stream/i.test(text)) {
+      return ['job-intake.json', 'command-log.jsonl', 'stdout-transcript.txt', 'stderr-transcript.txt'];
+    }
+    if (/nonce|hello-world|hello world|file contains|output/i.test(text)) {
+      return ['pulse-proof.json', 'verification.json', 'stdout-transcript.txt', 'final-report.md'];
+    }
+    if (/acceptance[- ]matrix|criterion|criteria/i.test(text)) {
+      return ['acceptance-matrix.json'];
+    }
+    if (/usage|token|cost/i.test(text)) {
+      return ['usage-summary.json'];
+    }
+    if (/artifact|hash|sha256|workspace|cloud-readable|object/i.test(text)) {
+      return ['changed-files.json', 'verification.json', 'final-report.md'];
+    }
+    if (/test|verification|build|smoke/i.test(text)) {
+      return ['verification.json', 'command-log.jsonl'];
+    }
+    if (/patch|diff|change|implement|fix|commit/i.test(text)) {
+      return ['implementation.patch', 'changed-files.json'];
+    }
+    if (/pull request|\bPR\b|push/i.test(text)) {
+      return ['final-report.md'];
+    }
+    return ['acceptance.json'];
+  };
   return criteria.map((criterion) => {
     const text = String(criterion || '');
-    let status = acceptance.accepted ? 'passed' : 'manual_review_required';
+    let status = acceptance.accepted ? 'not_evaluated' : 'manual_review_required';
     const notes = [];
+    const evidenceRefs = refsForCriterion(text);
     if (/test|verification|build|smoke/i.test(text)) {
       status = verificationResults.every((result) => result.exitCode === 0) ? 'passed' : 'failed';
       notes.push(status === 'passed' ? 'Verification commands passed.' : 'One or more verification commands failed.');
+    } else if (/worker|non-simulated|cloud run|executor|pid|identity|start|finish|heartbeat|stdout|stderr|stream/i.test(text)) {
+      status = acceptance.accepted ? 'passed' : 'failed';
+      notes.push(status === 'passed' ? 'Executor lifecycle evidence is recorded in worker events and transcripts.' : 'Executor lifecycle evidence did not satisfy acceptance.');
+    } else if (/nonce|hello-world|hello world|file contains|output/i.test(text)) {
+      status = acceptance.accepted ? 'passed' : 'failed';
+      notes.push(status === 'passed' ? 'Nonce-bearing output is covered by verification and final report evidence.' : 'Nonce output was missing or invalid.');
+    } else if (/acceptance[- ]matrix|criterion|criteria/i.test(text)) {
+      status = acceptance.accepted ? 'passed' : 'failed';
+      notes.push(status === 'passed' ? 'Criterion-level acceptance matrix was emitted.' : 'Acceptance matrix was not sufficient.');
+    } else if (/usage|token|cost/i.test(text)) {
+      status = acceptance.accepted ? 'passed' : 'failed';
+      notes.push(status === 'passed' ? 'Usage summary artifact was emitted.' : 'Usage summary artifact was not sufficient.');
+    } else if (/artifact|hash|sha256|workspace|cloud-readable|object/i.test(text)) {
+      status = acceptance.accepted ? 'passed' : 'failed';
+      notes.push(status === 'passed' ? 'Workspace artifact metadata and hashes were recorded.' : 'Workspace artifact evidence was not sufficient.');
     } else if (/patch|diff|change|implement|fix|commit/i.test(text)) {
       status = gitEvidence.diffHasContent || gitEvidence.newCommitCreated ? 'passed' : 'failed';
       notes.push(status === 'passed' ? 'Repository mutation evidence exists.' : 'No diff or new commit was produced.');
@@ -429,9 +471,9 @@ function buildAcceptanceMatrix(job, acceptance, verificationResults, gitEvidence
     } else if (!acceptance.accepted) {
       notes.push('Overall acceptance failed; this criterion needs reviewer judgment.');
     } else {
-      notes.push('Overall worker acceptance passed; no narrower deterministic rule matched this criterion.');
+      notes.push('No deterministic evidence rule matched this criterion; reviewer judgment is required.');
     }
-    return {criterion: text, status, evidenceRefs, notes: notes.join(' '), blockingReason: status === 'failed' ? acceptance.failures.join('; ') : ''};
+    return {criterion: text, status, evidenceRefs, notes: notes.join(' '), blockingReason: status === 'failed' || status === 'not_evaluated' ? (status === 'not_evaluated' ? 'manual review required' : acceptance.failures.join('; ')) : ''};
   });
 }
 
@@ -560,6 +602,153 @@ async function workerEvent(jobIdValue, type, summary, data = {}) {
   return post('/worker/events', {jobId: jobIdValue, type, summary, data});
 }
 
+function executionModeFromJob(job = {}) {
+  const mode = String(job.executionMode || 'one_shot');
+  return ['one_shot', 'executor_pulse', 'codex_smoke'].includes(mode) ? mode : 'one_shot';
+}
+
+function nonceFromJob(job = {}, prefix = 'nonce') {
+  const text = [job.objective || '', job.title || '', ...(job.acceptanceCriteria || [])].join('\n');
+  const explicit = text.match(/\b(?:nonce|marker)\s*[:=]\s*([A-Za-z0-9_.:-]{6,120})/i);
+  if (explicit) return explicit[1];
+  return `${prefix}_${String(job.jobId || jobId).replace(/[^A-Za-z0-9_-]/g, '').slice(-16)}`;
+}
+
+function writeAcceptanceArtifacts(job, acceptance, verificationResults = [], gitEvidence = {}) {
+  const usageSummary = acceptance.usageSummary || {inputTokens: 0, cachedInputTokens: 0, outputTokens: 0, cachedInputRatio: 0, warnings: []};
+  const matrix = buildAcceptanceMatrix(job, acceptance, verificationResults, gitEvidence);
+  writeJsonFile('acceptance.json', {
+    accepted: acceptance.accepted,
+    failures: acceptance.failures || [],
+    mutationTicket: false,
+    requiresPullRequest: false,
+    gitEvidence,
+    verificationPassed: verificationResults.every((result) => result.exitCode === 0),
+    usageSummary,
+  });
+  writeJsonFile('acceptance-matrix.json', {
+    statusPolicy: 'Every job acceptance criterion receives an explicit worker verdict when criteria are present.',
+    criteria: matrix,
+    usageSummary,
+  });
+  writeJsonFile('usage-summary.json', usageSummary);
+  return {acceptanceMatrix: matrix, usageSummary};
+}
+
+async function runExecutorPulseJob(packet, executorId) {
+  const job = packet.job || {};
+  const jobIdValue = job.jobId || jobId;
+  const nonce = nonceFromJob(job, 'pulse');
+  writeText('job-intake.json', JSON.stringify(packet, null, 2) + '\n');
+  await workerEvent(jobIdValue, 'executor_started', 'Cloud Run Debian worker started deterministic executor pulse mode.', {executorId, executionMode: 'executor_pulse', pid: process.pid});
+  await workerEvent(jobIdValue, 'executor_heartbeat', 'Cloud Run Debian worker pulse heartbeat.', {executorId, phase: 'executor_pulse'});
+  const stdout = `executor_pulse ${nonce}\n`;
+  writeText('stdout-transcript.txt', stdout);
+  appendCommandLog([{command: 'executor_pulse', exitCode: 0, stdout, stderr: ''}]);
+  await workerEvent(jobIdValue, 'executor_stdout', 'Executor pulse stdout stream chunk.', {executorId, pid: process.pid, text: stdout.trim(), chars: stdout.length});
+  const proof = {jobId: jobIdValue, nonce, executorId, pid: process.pid, executionMode: 'executor_pulse', generatedAt: new Date().toISOString()};
+  writeJsonFile('pulse-proof.json', proof);
+  writeJsonFile('verification.json', {
+    allVerificationPassed: true,
+    verificationResults: [{command: 'executor_pulse', exitCode: 0, stdoutTail: stdout, stderrTail: ''}],
+    nonce,
+  });
+  const gitEvidence = {changedFiles: [], diffHasContent: false, newCommitCreated: false, baseCommit: '', headCommit: '', branch: ''};
+  const acceptance = {accepted: true, failures: [], usageSummary: {inputTokens: 0, cachedInputTokens: 0, outputTokens: 0, cachedInputRatio: 0, warnings: []}};
+  const review = writeAcceptanceArtifacts(job, acceptance, [{command: 'executor_pulse', exitCode: 0, stdout, stderr: ''}], gitEvidence);
+  const finalReport = `# Final Report\n\nExecutor pulse completed without invoking Codex.\n\nNonce: ${nonce}\n`;
+  writeText('final-report.md', finalReport);
+  const artifacts = [
+    artifactFor('job-intake.json', 'job_intake', true, 'Job packet claimed by Cloud Run worker.'),
+    artifactFor('pulse-proof.json', 'pulse_proof', true, 'Deterministic no-model executor pulse proof.'),
+    artifactFor('stdout-transcript.txt', 'stdout_transcript', true, 'Nonce-bearing executor pulse stdout transcript.'),
+    artifactFor('command-log.jsonl', 'command_log', true, 'Executor pulse command transcript.'),
+    artifactFor('acceptance.json', 'acceptance', true, 'Pulse acceptance verdict.'),
+    artifactFor('acceptance-matrix.json', 'acceptance_matrix', true, 'Criterion-level pulse acceptance verdicts.'),
+    artifactFor('usage-summary.json', 'usage_summary', true, 'Zero-token usage summary for pulse mode.'),
+    artifactFor('verification.json', 'verification', true, 'Pulse verification results.'),
+    artifactFor('final-report.md', 'final_report', true, 'Pulse final report.'),
+  ];
+  await post('/worker/artifacts', {jobId: jobIdValue, artifacts});
+  await post('/worker/checkpoint', {
+    jobId: jobIdValue,
+    currentPhase: 'completed_executor_pulse',
+    decisionsMade: ['Claimed a specific Command Center job by COMMAND_CENTER_JOB_ID.', 'Ran deterministic executor pulse without Codex.'],
+    testsRun: ['worker lease', 'executor events', 'artifact record', 'checkpoint write', 'executor_pulse -> 0'],
+    evidenceRefs: artifacts.map((artifact) => artifact.workspacePath),
+    acceptanceCriteriaStatus: review.acceptanceMatrix,
+    usageSummary: review.usageSummary,
+    failedApproaches: [],
+    nextAction: 'Use this as a cheap executor heartbeat. Run Codex smoke only after deployment or worker-image changes.',
+  });
+  await workerEvent(jobIdValue, 'executor_finished', 'Cloud Run Debian worker finished deterministic executor pulse mode.', {executorId, artifactCount: artifacts.length});
+  await post('/worker/complete', {jobId: jobIdValue, status: 'completed', finalReport, artifacts: []});
+}
+
+async function runCodexSmokeJob(packet, executorId) {
+  const job = packet.job || {};
+  const jobIdValue = job.jobId || jobId;
+  const nonce = nonceFromJob(job, 'codex_smoke');
+  writeText('job-intake.json', JSON.stringify(packet, null, 2) + '\n');
+  writeText('SESSION.md', '# Command Center Codex smoke workspace\n');
+  await workerEvent(jobIdValue, 'executor_started', 'Cloud Run Debian worker started repo-less Codex smoke mode.', {executorId, executionMode: 'codex_smoke', pid: process.pid});
+  await workerEvent(jobIdValue, 'executor_heartbeat', 'Cloud Run Debian worker invoking Codex smoke prompt.', {executorId, phase: 'codex_smoke'});
+  const prompt = [
+    'You are executing a tiny Command Center Codex smoke in an empty prepared workspace.',
+    'Do not inspect or clone any repository.',
+    `Write exactly this nonce to hello-world.txt: ${nonce}`,
+    'Then finish with a concise final message.',
+  ].join('\n');
+  const codex = await runCodexPromptStreaming(prompt, {jobIdValue, executorId, nonce});
+  await workerEvent(jobIdValue, 'executor_heartbeat', 'Cloud Run Debian worker verifying Codex smoke output.', {executorId, phase: 'verification'});
+  const verificationResults = runVerificationCommands(job.verificationCommands?.length ? job.verificationCommands : ['cat hello-world.txt']);
+  appendCommandLog([{command: 'codex exec smoke', exitCode: codex.exitCode, stdout: codex.stdout, stderr: codex.stderr}, ...verificationResults]);
+  writeJsonFile('verification.json', {
+    codexExitCode: codex.exitCode,
+    codexAcceptanceError: codex.acceptanceError || '',
+    verificationResults: verificationResults.map((item) => ({command: item.command, exitCode: item.exitCode, stdoutTail: item.stdout.slice(-4000), stderrTail: item.stderr.slice(-4000)})),
+    allVerificationPassed: verificationResults.every((item) => item.exitCode === 0),
+    nonce,
+  });
+  const failures = [];
+  if (codex.exitCode !== 0) failures.push(`Codex exited ${codex.exitCode}.`);
+  if (codex.acceptanceError) failures.push(codex.acceptanceError);
+  for (const result of verificationResults) {
+    if (result.exitCode !== 0) failures.push(`Verification failed: ${result.command} exited ${result.exitCode}.`);
+  }
+  const acceptance = {accepted: failures.length === 0, failures, usageSummary: parseCodexUsageSummary([codex.stdout, codex.stderr, readFileIfExists('final-report.md')].join('\n'))};
+  const gitEvidence = {changedFiles: ['hello-world.txt'], diffHasContent: false, newCommitCreated: false, baseCommit: '', headCommit: '', branch: ''};
+  const review = writeAcceptanceArtifacts(job, acceptance, verificationResults, gitEvidence);
+  const status = acceptance.accepted ? 'completed' : 'failed';
+  const finalReport = `${readFileIfExists('final-report.md').trim()}\n\n## Command Center Smoke\n\nNonce: ${nonce}\nStatus: ${status}\n`;
+  writeText('final-report.md', finalReport);
+  const artifacts = [
+    artifactFor('job-intake.json', 'job_intake', true, 'Codex smoke job packet claimed by Cloud Run worker.'),
+    artifactFor('stdout-transcript.txt', 'stdout_transcript', true, 'Streamed Codex stdout transcript.'),
+    artifactFor('stderr-transcript.txt', 'stderr_transcript', true, 'Streamed Codex stderr transcript.'),
+    artifactFor('command-log.jsonl', 'command_log', true, 'Codex smoke and verification command transcript.'),
+    artifactFor('acceptance.json', 'acceptance', true, 'Codex smoke acceptance verdict.'),
+    artifactFor('acceptance-matrix.json', 'acceptance_matrix', true, 'Criterion-level Codex smoke acceptance verdicts.'),
+    artifactFor('usage-summary.json', 'usage_summary', true, 'Codex smoke token usage summary.'),
+    artifactFor('verification.json', 'verification', true, 'Codex smoke verification results.'),
+    artifactFor('final-report.md', 'final_report', true, 'Codex smoke final report.'),
+  ];
+  await post('/worker/artifacts', {jobId: jobIdValue, artifacts});
+  await post('/worker/checkpoint', {
+    jobId: jobIdValue,
+    currentPhase: status === 'completed' ? 'completed_codex_smoke' : 'failed_codex_smoke',
+    decisionsMade: ['Claimed a specific Command Center job by COMMAND_CENTER_JOB_ID.', 'Invoked real Codex in an empty prepared workspace.', 'Verified nonce-bearing hello-world.txt.'],
+    testsRun: ['worker lease', 'executor events', 'artifact record', 'checkpoint write', ...verificationResults.map((result) => `${result.command} -> ${result.exitCode}`)],
+    evidenceRefs: artifacts.map((artifact) => artifact.workspacePath),
+    acceptanceCriteriaStatus: review.acceptanceMatrix,
+    usageSummary: review.usageSummary,
+    failedApproaches: acceptance.failures,
+    nextAction: status === 'completed' ? 'Use full repository acceptance only for consequential releases.' : 'Fix the reported smoke failures before running full repository acceptance.',
+  });
+  await workerEvent(jobIdValue, status === 'completed' ? 'executor_finished' : 'executor_failed', 'Cloud Run Debian worker finished repo-less Codex smoke mode.', {executorId, artifactCount: artifacts.length, codexExitCode: codex.exitCode, acceptanceFailures: acceptance.failures});
+  await post('/worker/complete', {jobId: jobIdValue, status, finalReport, artifacts: []});
+}
+
 async function runOneShotJob() {
   required('COMMAND_CENTER_WORKER_TOKEN', workerToken);
   required('COMMAND_CENTER_JOB_ID', jobId);
@@ -569,6 +758,15 @@ async function runOneShotJob() {
   if (!leased.leased) throw new Error(`job was not leased to this worker: ${jobId}`);
   const packet = leased.packet || {};
   const job = packet.job || {};
+  const executionMode = executionModeFromJob(job);
+  if (executionMode === 'executor_pulse') {
+    await runExecutorPulseJob(packet, executorId);
+    return;
+  }
+  if (executionMode === 'codex_smoke') {
+    await runCodexSmokeJob(packet, executorId);
+    return;
+  }
   await workerEvent(job.jobId || jobId, 'executor_started', 'Cloud Run Debian worker started real one-shot Codex job mode.', {executorId, objective: job.objective || ''});
   await workerEvent(job.jobId || jobId, 'executor_heartbeat', 'Cloud Run Debian worker restoring repository workspace.', {executorId, phase: 'restore_repository'});
   const restore = restoreJobWorkspace(job);

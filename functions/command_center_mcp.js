@@ -100,7 +100,7 @@ const COMMAND_CENTER_CODEX_CLOUD_SURFACE = Object.freeze({
   launchUrl: 'https://chatgpt.com/codex/',
   credentialPolicy: 'Persistent login may live only in a user-owned browser profile on the bridge host. Do not copy cookies, passwords, OAuth tokens, or session blobs into Command Center.',
 });
-const COMMAND_CENTER_EXECUTION_MODES = ['one_shot'];
+const COMMAND_CENTER_EXECUTION_MODES = ['one_shot', 'executor_pulse', 'codex_smoke'];
 const COMMAND_CENTER_REQUIRED_ARTIFACTS = Object.freeze([
   'job-intake.json',
   'orientation.md',
@@ -111,6 +111,28 @@ const COMMAND_CENTER_REQUIRED_ARTIFACTS = Object.freeze([
   'verification.json',
   'final-report.md',
   'mutation-requests.jsonl',
+]);
+const COMMAND_CENTER_EXECUTOR_PULSE_ARTIFACTS = Object.freeze([
+  'job-intake.json',
+  'pulse-proof.json',
+  'stdout-transcript.txt',
+  'command-log.jsonl',
+  'acceptance.json',
+  'acceptance-matrix.json',
+  'usage-summary.json',
+  'verification.json',
+  'final-report.md',
+]);
+const COMMAND_CENTER_CODEX_SMOKE_ARTIFACTS = Object.freeze([
+  'job-intake.json',
+  'stdout-transcript.txt',
+  'stderr-transcript.txt',
+  'command-log.jsonl',
+  'acceptance.json',
+  'acceptance-matrix.json',
+  'usage-summary.json',
+  'verification.json',
+  'final-report.md',
 ]);
 const COMMAND_CENTER_DEFAULT_BASE_WORKSPACE = Object.freeze({
   baseWorkspaceId: 'base-default-oneshot',
@@ -293,9 +315,23 @@ function cleanMutationPolicy(policy) {
   };
 }
 
-function cleanRequiredArtifacts(value) {
+function requiredArtifactsForExecutionMode(mode) {
+  if (mode === 'executor_pulse') return COMMAND_CENTER_EXECUTOR_PULSE_ARTIFACTS;
+  if (mode === 'codex_smoke') return COMMAND_CENTER_CODEX_SMOKE_ARTIFACTS;
+  return COMMAND_CENTER_REQUIRED_ARTIFACTS;
+}
+
+function cleanExecutionMode(value) {
+  const mode = safeText(value, 80) || 'one_shot';
+  if (COMMAND_CENTER_EXECUTION_MODES.includes(mode)) return mode;
+  const err = new Error(`Unsupported executionMode: ${mode}.`);
+  err.status = 400;
+  throw err;
+}
+
+function cleanRequiredArtifacts(value, mode = 'one_shot') {
   const requested = safeList(value, 60, 180);
-  const names = new Set([...COMMAND_CENTER_REQUIRED_ARTIFACTS, ...requested]);
+  const names = new Set([...requiredArtifactsForExecutionMode(mode), ...requested]);
   return Array.from(names);
 }
 
@@ -313,10 +349,11 @@ function cleanBaseWorkspace(value) {
 }
 
 function cleanOneShotExecution(args = {}) {
+  const executionMode = cleanExecutionMode(args.executionMode);
   return {
-    executionMode: 'one_shot',
+    executionMode,
     baseWorkspace: cleanBaseWorkspace(args.baseWorkspace),
-    requiredArtifacts: cleanRequiredArtifacts(args.requiredArtifacts),
+    requiredArtifacts: cleanRequiredArtifacts(args.requiredArtifacts, executionMode),
     stopConditions: safeList(args.stopConditions, 40, 500),
     verificationCommands: safeList(args.verificationCommands, 40, 500),
     promptPacketVersion: 'command-center-one-shot-v1',
@@ -1733,9 +1770,22 @@ function shouldAcceptWorkerCompletion({requestedStatus, events = [], artifacts =
   const types = new Set(events.map((event) => event.type));
   if (!types.has('executor_started')) return {ok: false, reason: 'completed jobs require executor_started evidence'};
   if (!types.has('executor_finished')) return {ok: false, reason: 'completed jobs require executor_finished evidence'};
+  if (!types.has('executor_heartbeat')) return {ok: false, reason: 'completed jobs require executor_heartbeat evidence'};
   const workspaceArtifact = artifacts.some((artifact) => artifact.origin === 'executor_workspace' || safeObject(artifact.metadata).origin === 'executor_workspace');
   if (!workspaceArtifact) return {ok: false, reason: 'completed jobs require at least one artifact from the executor workspace'};
   const artifactNames = new Set(artifacts.map((artifact) => safeText(artifact.name, 240)).filter(Boolean));
+  const mode = cleanExecutionMode(job.executionMode);
+  if (mode === 'executor_pulse') {
+    const missing = COMMAND_CENTER_EXECUTOR_PULSE_ARTIFACTS.filter((name) => !artifactNames.has(name));
+    if (missing.length) return {ok: false, reason: `completed executor pulse jobs require artifacts: ${missing.join(', ')}`};
+    return {ok: true, reason: 'executor pulse completion has deterministic executor evidence'};
+  }
+  if (mode === 'codex_smoke') {
+    if (!types.has('executor_stdout') && !types.has('executor_stderr')) return {ok: false, reason: 'completed Codex smoke jobs require streamed stdout or stderr evidence'};
+    const missing = COMMAND_CENTER_CODEX_SMOKE_ARTIFACTS.filter((name) => !artifactNames.has(name));
+    if (missing.length) return {ok: false, reason: `completed Codex smoke jobs require artifacts: ${missing.join(', ')}`};
+    return {ok: true, reason: 'Codex smoke completion has executor and usage evidence'};
+  }
   if (artifactNames.has('noop-proof.txt')) return {ok: false, reason: 'completed repository jobs cannot be proven by noop-proof.txt'};
   const requiredExecutionArtifacts = ['job-intake.json', 'orientation.md', 'reasoning-summary.md', 'command-log.jsonl', 'acceptance.json', 'acceptance-matrix.json', 'implementation.patch', 'changed-files.json', 'verification.json', 'final-report.md', 'mutation-requests.jsonl'];
   const missing = requiredExecutionArtifacts.filter((name) => !artifactNames.has(name));
@@ -1888,6 +1938,7 @@ async function synthesizeJobHandoff(admin, jobId, caller = null) {
       selectedWorkerId: job.selectedWorkerId || '',
       workerRequirements: safeList(job.workerRequirements, 40, 120),
       requiredArtifacts: safeList(job.requiredArtifacts || COMMAND_CENTER_REQUIRED_ARTIFACTS, 80, 120),
+      executionMode: safeText(job.executionMode, 80) || 'one_shot',
       sourceJobId: job.sourceJobId || '',
       followupOf: job.followupOf || null,
       mutationPolicy: cleanMutationPolicy(job.mutationPolicy),
@@ -2932,13 +2983,13 @@ function createCommandCenterMcpServer({admin}) {
   server.registerTool('command_center.jobs.create', {
     title: 'Create Command Center job',
     description: 'Create a durable execution ticket, select a compatible worker, lease it, and write initial events/checkpoint state.',
-    inputSchema: {idempotencyKey: z.string(), projectId: z.string(), title: z.string(), objective: z.string(), acceptanceCriteria: z.array(z.string()).optional(), constraints: z.array(z.string()).optional(), scopeExclusions: z.array(z.string()).optional(), workerRequirements: z.array(z.string()).optional(), budgetClass: z.string().optional(), mutationPolicy: z.record(z.string(), z.string()).optional(), baseWorkspace: z.record(z.string(), z.any()).optional(), requiredArtifacts: z.array(z.string()).optional(), verificationCommands: z.array(z.string()).optional(), stopConditions: z.array(z.string()).optional()},
+    inputSchema: {idempotencyKey: z.string(), projectId: z.string(), title: z.string(), objective: z.string(), acceptanceCriteria: z.array(z.string()).optional(), constraints: z.array(z.string()).optional(), scopeExclusions: z.array(z.string()).optional(), workerRequirements: z.array(z.string()).optional(), budgetClass: z.string().optional(), mutationPolicy: z.record(z.string(), z.string()).optional(), executionMode: z.string().optional(), baseWorkspace: z.record(z.string(), z.any()).optional(), requiredArtifacts: z.array(z.string()).optional(), verificationCommands: z.array(z.string()).optional(), stopConditions: z.array(z.string()).optional()},
   }, async (args, extra) => textResult(await createJob(admin, await callerFromExtra(admin, extra), args || {})));
 
   server.registerTool('command_center.jobs.create_followup', {
     title: 'Create Command Center follow-up job',
     description: 'Create a new linked invocation from a source job handoff. This does not rewrite old job history.',
-    inputSchema: {idempotencyKey: z.string(), sourceJobId: z.string(), projectId: z.string().optional(), title: z.string(), objective: z.string(), acceptanceCriteria: z.array(z.string()).optional(), constraints: z.array(z.string()).optional(), scopeExclusions: z.array(z.string()).optional(), workerRequirements: z.array(z.string()).optional(), budgetClass: z.string().optional(), mutationPolicy: z.record(z.string(), z.string()).optional(), baseWorkspace: z.record(z.string(), z.any()).optional(), requiredArtifacts: z.array(z.string()).optional(), verificationCommands: z.array(z.string()).optional(), stopConditions: z.array(z.string()).optional()},
+    inputSchema: {idempotencyKey: z.string(), sourceJobId: z.string(), projectId: z.string().optional(), title: z.string(), objective: z.string(), acceptanceCriteria: z.array(z.string()).optional(), constraints: z.array(z.string()).optional(), scopeExclusions: z.array(z.string()).optional(), workerRequirements: z.array(z.string()).optional(), budgetClass: z.string().optional(), mutationPolicy: z.record(z.string(), z.string()).optional(), executionMode: z.string().optional(), baseWorkspace: z.record(z.string(), z.any()).optional(), requiredArtifacts: z.array(z.string()).optional(), verificationCommands: z.array(z.string()).optional(), stopConditions: z.array(z.string()).optional()},
   }, async (args, extra) => textResult(await createFollowupJob(admin, await callerFromExtra(admin, extra), args || {})));
 
   server.registerTool('command_center.jobs.get', {title: 'Get Command Center job', description: 'Read one Command Center job packet.', inputSchema: {jobId: z.string()}}, async (args, extra) => textResult({job: await getJob(admin, cleanJobId(args.jobId), await callerFromExtra(admin, extra))}));

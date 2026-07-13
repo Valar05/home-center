@@ -161,6 +161,15 @@ assert.equal(oneShot.executionMode, 'one_shot');
 assert(oneShot.requiredArtifacts.includes('render.png'));
 assert(oneShot.requiredArtifacts.includes('job-intake.json'));
 assert.equal(oneShot.verificationCommands[0], 'npm test');
+const pulse = cleanOneShotExecution({executionMode: 'executor_pulse'});
+assert.equal(pulse.executionMode, 'executor_pulse');
+assert(pulse.requiredArtifacts.includes('pulse-proof.json'));
+assert(!pulse.requiredArtifacts.includes('implementation.patch'));
+const smoke = cleanOneShotExecution({executionMode: 'codex_smoke'});
+assert.equal(smoke.executionMode, 'codex_smoke');
+assert(smoke.requiredArtifacts.includes('usage-summary.json'));
+assert(!smoke.requiredArtifacts.includes('implementation.patch'));
+assert.throws(() => cleanOneShotExecution({executionMode: 'scripted_simulation'}), /Unsupported executionMode/);
 
 assert.equal(COMMAND_CENTER_DEFAULT_BUCKET_ID, 'command-center');
 for (const kind of ['memory.past_log', 'memory.current_condensed', 'skill.scratch', 'skill.promoted', 'note.cross_repo', 'app_control.profile', 'app_control.run', 'app_control.frame_lane', 'browser.session', 'browser.episode', 'browser.discovery', 'browser.playbook']) {

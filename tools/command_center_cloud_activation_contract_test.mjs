@@ -116,7 +116,7 @@ assert.equal(activationStateFromResult(null).status, 'rejected');
 
 assert.equal(shouldAcceptWorkerCompletion({
   requestedStatus: 'completed',
-  events: [{type: 'executor_started'}, {type: 'executor_finished'}],
+  events: [{type: 'executor_started'}, {type: 'executor_heartbeat'}, {type: 'executor_finished'}],
   artifacts: [
     {name: 'job-intake.json', origin: 'executor_workspace'},
     {name: 'orientation.md', origin: 'executor_workspace'},
@@ -138,17 +138,17 @@ assert.equal(shouldAcceptWorkerCompletion({
 }).ok, false);
 assert.match(shouldAcceptWorkerCompletion({
   requestedStatus: 'completed',
-  events: [{type: 'executor_started'}, {type: 'executor_finished'}],
+  events: [{type: 'executor_started'}, {type: 'executor_heartbeat'}, {type: 'executor_finished'}],
   artifacts: [{name: 'job-intake.json', origin: 'command_center'}],
 }).reason, /executor workspace/);
 assert.match(shouldAcceptWorkerCompletion({
   requestedStatus: 'completed',
-  events: [{type: 'executor_started'}, {type: 'executor_finished'}],
+  events: [{type: 'executor_started'}, {type: 'executor_heartbeat'}, {type: 'executor_finished'}],
   artifacts: [{name: 'noop-proof.txt', origin: 'executor_workspace'}],
 }).reason, /noop-proof/);
 assert.match(shouldAcceptWorkerCompletion({
   requestedStatus: 'completed',
-  events: [{type: 'executor_started'}, {type: 'executor_finished'}],
+  events: [{type: 'executor_started'}, {type: 'executor_heartbeat'}, {type: 'executor_finished'}],
   artifacts: [
     {name: 'job-intake.json', origin: 'executor_workspace'},
     {name: 'orientation.md', origin: 'executor_workspace'},
@@ -162,11 +162,46 @@ assert.match(shouldAcceptWorkerCompletion({
     {name: 'mutation-requests.jsonl', origin: 'executor_workspace'},
   ],
 }).reason, /acceptance-matrix\.json/);
+assert.equal(shouldAcceptWorkerCompletion({
+  requestedStatus: 'completed',
+  job: {executionMode: 'executor_pulse'},
+  events: [{type: 'executor_started'}, {type: 'executor_heartbeat'}, {type: 'executor_stdout'}, {type: 'executor_finished'}],
+  artifacts: [
+    {name: 'job-intake.json', origin: 'executor_workspace'},
+    {name: 'pulse-proof.json', origin: 'executor_workspace'},
+    {name: 'stdout-transcript.txt', origin: 'executor_workspace'},
+    {name: 'command-log.jsonl', origin: 'executor_workspace'},
+    {name: 'acceptance.json', origin: 'executor_workspace'},
+    {name: 'acceptance-matrix.json', origin: 'executor_workspace'},
+    {name: 'usage-summary.json', origin: 'executor_workspace'},
+    {name: 'verification.json', origin: 'executor_workspace'},
+    {name: 'final-report.md', origin: 'executor_workspace'},
+  ],
+}).ok, true);
+assert.match(shouldAcceptWorkerCompletion({
+  requestedStatus: 'completed',
+  job: {executionMode: 'codex_smoke'},
+  events: [{type: 'executor_started'}, {type: 'executor_heartbeat'}, {type: 'executor_finished'}],
+  artifacts: [
+    {name: 'job-intake.json', origin: 'executor_workspace'},
+    {name: 'stdout-transcript.txt', origin: 'executor_workspace'},
+    {name: 'stderr-transcript.txt', origin: 'executor_workspace'},
+    {name: 'command-log.jsonl', origin: 'executor_workspace'},
+    {name: 'acceptance.json', origin: 'executor_workspace'},
+    {name: 'acceptance-matrix.json', origin: 'executor_workspace'},
+    {name: 'usage-summary.json', origin: 'executor_workspace'},
+    {name: 'verification.json', origin: 'executor_workspace'},
+    {name: 'final-report.md', origin: 'executor_workspace'},
+  ],
+}).reason, /streamed stdout or stderr/);
 assert.equal(shouldAcceptWorkerCompletion({requestedStatus: 'failed', events: [], artifacts: []}).ok, true);
 
 
 const cloudWorkerSource = fs.readFileSync(new URL('../cloud-worker/src/cloud_run_worker.mjs', import.meta.url), 'utf8');
 assert(cloudWorkerSource.includes('async function runOneShotJob()'));
+assert(cloudWorkerSource.includes('async function runExecutorPulseJob('));
+assert(cloudWorkerSource.includes('async function runCodexSmokeJob('));
+assert(cloudWorkerSource.includes('No deterministic evidence rule matched this criterion'));
 assert(cloudWorkerSource.includes("post('/worker/lease', {jobId, executorId})"));
 assert(cloudWorkerSource.includes("executor_started"));
 assert(cloudWorkerSource.includes("executor_heartbeat"));

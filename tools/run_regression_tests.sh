@@ -20,6 +20,7 @@ node --check functions/she_raw_mcp.js
 node --check tools/command_center_mcp_contract_test.mjs
 node --check tools/command_center_cloud_activation_contract_test.mjs
 node --check tools/command_center_two_dispatch_acceptance.mjs
+node --check tools/command_center_health_ladder.mjs
 node --check tools/command_center_chatgpt_invokability_gate.mjs
 node --check tools/command_center_home_bridge_invokability_gate.mjs
 node --check tools/command_center_real_capability_gate.mjs
