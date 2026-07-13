@@ -2014,13 +2014,21 @@ async function requestJobActivation(admin, job, lease, worker) {
   return {activation: {...activation, ...update}, events: [requestedEvent, resultEvent], accepted: state.accepted};
 }
 
-function shouldAcceptWorkerCompletion({requestedStatus, events = [], artifacts = []}) {
+function shouldAcceptWorkerCompletion({requestedStatus, events = [], artifacts = [], job = {}}) {
   if (requestedStatus === 'failed') return {ok: true, reason: 'failed completions are diagnostic terminal states'};
   const types = new Set(events.map((event) => event.type));
   if (!types.has('executor_started')) return {ok: false, reason: 'completed jobs require executor_started evidence'};
   if (!types.has('executor_finished')) return {ok: false, reason: 'completed jobs require executor_finished evidence'};
   const workspaceArtifact = artifacts.some((artifact) => artifact.origin === 'executor_workspace' || safeObject(artifact.metadata).origin === 'executor_workspace');
   if (!workspaceArtifact) return {ok: false, reason: 'completed jobs require at least one artifact from the executor workspace'};
+  const artifactNames = new Set(artifacts.map((artifact) => safeText(artifact.name, 240)).filter(Boolean));
+  if (artifactNames.has('noop-proof.txt')) return {ok: false, reason: 'completed repository jobs cannot be proven by noop-proof.txt'};
+  const requiredExecutionArtifacts = ['job-intake.json', 'orientation.md', 'reasoning-summary.md', 'command-log.jsonl', 'acceptance.json', 'implementation.patch', 'changed-files.json', 'verification.json', 'final-report.md', 'mutation-requests.jsonl'];
+  const missing = requiredExecutionArtifacts.filter((name) => !artifactNames.has(name));
+  if (missing.length) return {ok: false, reason: `completed repository jobs require execution artifacts: ${missing.join(', ')}`};
+  if (safeList(job.requiredArtifacts, 80, 180).some((name) => /red|patch|verification|pr|commit|build|readback/i.test(name)) && !artifactNames.has('implementation.patch')) {
+    return {ok: false, reason: 'completed mutation tickets require implementation.patch evidence'};
+  }
   return {ok: true, reason: 'completion has executor evidence'};
 }
 
@@ -3660,14 +3668,15 @@ function createCommandCenterMcpApp({admin}) {
       for (const artifact of artifacts.slice(0, 80)) written.push(await recordArtifact(admin, jobId, job.projectId, artifact));
       const events = await listByJob(admin, COMMAND_CENTER_COLLECTIONS.events, jobId, COMMAND_CENTER_COMPLETION_EVENT_LOOKBACK_LIMIT);
       const allArtifacts = [...(await listByJob(admin, COMMAND_CENTER_COLLECTIONS.artifacts, jobId, COMMAND_CENTER_COMPLETION_EVENT_LOOKBACK_LIMIT)), ...written];
-      const completionGate = shouldAcceptWorkerCompletion({requestedStatus: status, events, artifacts: allArtifacts});
+      const completionGate = shouldAcceptWorkerCompletion({requestedStatus: status, events, artifacts: allArtifacts, job});
       if (!completionGate.ok) {
         const err = new Error(`Worker completion rejected: ${completionGate.reason}`);
         err.status = 409;
         throw err;
       }
-      await collection(admin, COMMAND_CENTER_COLLECTIONS.jobs).doc(jobId).set({status, updatedAtMs: Date.now(), completedAtMs: Date.now(), finalReport, completionArtifactIds: written.map((artifact) => artifact.artifactId)}, {merge: true});
-      const event = await appendEvent(admin, {type: `job_${status}`, jobId, projectId: job.projectId, actor: caller.workerId, summary: finalReport || `One-shot worker marked job ${status}.`, data: {artifactIds: written.map((artifact) => artifact.artifactId)}});
+      const completionArtifactIds = Array.from(new Set(allArtifacts.map((artifact) => artifact.artifactId).filter(Boolean)));
+      await collection(admin, COMMAND_CENTER_COLLECTIONS.jobs).doc(jobId).set({status, updatedAtMs: Date.now(), completedAtMs: Date.now(), finalReport, completionArtifactIds}, {merge: true});
+      const event = await appendEvent(admin, {type: `job_${status}`, jobId, projectId: job.projectId, actor: caller.workerId, summary: finalReport || `One-shot worker marked job ${status}.`, data: {artifactIds: completionArtifactIds}});
       res.json({ok: true, status, event, artifacts: written});
     } catch (err) {
       sendWorkerError(res, err);
