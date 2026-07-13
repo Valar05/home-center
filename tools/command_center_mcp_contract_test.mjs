@@ -43,6 +43,7 @@ const {
   selectWorker,
   isConcreteArtifactRequirement,
   missingConcreteArtifacts,
+  redactArtifactBodyText,
 } = require('../functions/command_center_mcp');
 
 const requiredCollections = [
@@ -171,6 +172,8 @@ assert.deepEqual(
   missingConcreteArtifacts(['final-report.md', 'verification.json'], new Set(['final-report.md'])),
   ['verification.json']
 );
+assert.equal(redactArtifactBodyText('Bearer abcdefghijklmnop'), 'Bearer [REDACTED]');
+assert.equal(redactArtifactBodyText('token gho_abcdefghijklmnopqrstuvwxyz123456'), 'token [REDACTED_GITHUB_TOKEN]');
 assert.equal(COMMAND_CENTER_DEFAULT_BASE_WORKSPACE.restoreStrategy, 'copy_overlay');
 assert.equal(cleanBaseWorkspace({baseWorkspaceId: 'tank-base', snapshotRef: 'worker-local://tank'}).baseWorkspaceId, 'tank-base');
 assert.equal(normalizeGithubRepositoryRef('github://Valar05/agent-closet'), 'Valar05/agent-closet');

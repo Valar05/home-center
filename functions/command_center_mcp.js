@@ -1798,6 +1798,15 @@ async function upsertProject(admin, caller, args) {
   });
 }
 
+function redactArtifactBodyText(value) {
+  return String(value || '')
+    .replace(/Bearer\s+[A-Za-z0-9._~+\/=-]{12,}/gi, 'Bearer [REDACTED]')
+    .replace(/\bya29\.[A-Za-z0-9._-]{20,}/g, '[REDACTED_GOOGLE_TOKEN]')
+    .replace(/\bgh[oOupsr]_[A-Za-z0-9_]{20,}/g, '[REDACTED_GITHUB_TOKEN]')
+    .replace(/\bccw_[A-Za-z0-9_-]{12,}(?:_[A-Za-z0-9_-]{12,})?\b/g, '[REDACTED_WORKER_TOKEN]')
+    .replace(/\b(sk-[A-Za-z0-9_-]{20,})\b/g, '[REDACTED_OPENAI_KEY]');
+}
+
 function isConcreteArtifactRequirement(name) {
   const text = safeText(name, 240);
   if (!text) return false;
@@ -2836,7 +2845,7 @@ async function runCommandCenterOperation(admin, extra, operation, args = {}) {
 
 async function recordArtifact(admin, jobId, projectId, artifact, ownerKey = '') {
   const artifactId = safeText(artifact.artifactId, 180) || `artifact_${Date.now()}_${randomUUID().slice(0, 8)}`;
-  const body = redactSecretText(safeText(artifact.body, 200000));
+  const body = redactArtifactBodyText(safeText(artifact.body, 200000));
   const payload = {
     artifactId,
     jobId,
@@ -3626,5 +3635,6 @@ module.exports = {
   shouldAcceptWorkerCompletion,
   isConcreteArtifactRequirement,
   missingConcreteArtifacts,
+  redactArtifactBodyText,
   wakeWorker,
 };
