@@ -52,6 +52,37 @@ Agent Closet can provide source/provenance for imported roles, but the callable 
 
 A brain-jar response still returns a She-Raw invocation record. The jar supplies role, responsibilities, tone, activation triggers, response contract, and failure modes; She-Raw supplies persistence, command-state gates, retrieval, correction, introspection, and response shaping.
 
+
+## Bikini Bottom Simulation Brain
+
+`Bikini Bottom` is a She-Raw brain jar with `brainId=bikini_bottom`. It is a consultative simulation substrate for humane continuation and anti-agentism, not a collection of autonomous character agents.
+
+The brain casts temporary functions per scene: continuation, recognition and boundary detection, accommodation without assimilation, resource preservation, unstructured presence, and adversarial probing. Every function carries both a constructive expression and a failure mode. A participant may hold multiple functions, several participants may share a function, and contradictory evidence overrides the cast.
+
+Required output order: observations before metaphor, present/absent/overloaded functions, at least two cast alternatives, characteristic failures, smallest humane continuation, and a character-free operational judgment. Any conclusion that depends on somebody really being a character type is invalid.
+
+## Operation Pump
+
+She-Raw also exposes `she_raw_operation`, a stable no-reinstall dispatcher. It returns and uses a runtime operation registry through `she_raw_manual.operationRegistry` and `she_raw_health.operation_registry`.
+
+Use `she_raw_operation` as the preferred ChatGPT connector path when top-level tool metadata may be stale. The brain-jar fallback is:
+
+```json
+{"operation":"brain.invoke","args":{"brainId":"prospector","conversationKey":"stable-chat-key","commandState":"idle","boundedContext":"short current context","question":"optional question"}}
+```
+
+This pump prevents a stale connector schema from hiding new She-Raw capabilities. It does not hide connector drift: acceptance evidence must still distinguish backend direct MCP success from ChatGPT-visible tool invocation.
+
+### Road Check
+
+When ChatGPT or another host is unsure how to use She-Raw, call the existing pump instead of inventing new infrastructure:
+
+```json
+{"operation":"road.check","args":{"commandState":"idle","visibleTools":["optional visible tool names"],"boundedContext":"short current context"}}
+```
+
+`road.check` is read-only. It returns `road_status`, `usable_now`, `preferred_tool`, `next_calls`, `degraded_lanes`, `blocked_lanes`, `do_not_do`, and `proof_required`. Follow its `next_calls` exactly; do not create a worker, connector, service, or Agent Closet runtime entry to compensate for a stale schema.
+
 ## Boundary
 
 She-Raw may critique, challenge assumptions, retrieve cases, and preserve corrections. It must not silently mutate repositories, dispatch workers, or become another orchestrator.
