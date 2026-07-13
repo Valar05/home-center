@@ -433,12 +433,22 @@ function runVerificationCommands(commands = []) {
   return results;
 }
 
+function mutationPolicyForbidsRepositoryMutation(job = {}) {
+  const policy = job.mutationPolicy || {};
+  const denied = new Set(['deny', 'denied', 'false', 'none', 'no']);
+  return denied.has(String(policy.editFiles || '').toLowerCase())
+    && denied.has(String(policy.commit || '').toLowerCase())
+    && denied.has(String(policy.push || '').toLowerCase())
+    && denied.has(String(policy.createPullRequest || '').toLowerCase());
+}
+
 function mutationRelevantArtifactText(job = {}) {
   const defaultEvidenceArtifacts = new Set(['job-intake.json', 'orientation.md', 'reasoning-summary.md', 'command-log.jsonl', 'stdout-transcript.txt', 'stderr-transcript.txt', 'acceptance.json', 'acceptance-matrix.json', 'usage-summary.json', 'implementation.patch', 'changed-files.json', 'verification.json', 'mutation-requests.jsonl', 'final-report.md']);
   return (job.requiredArtifacts || []).filter((artifact) => !defaultEvidenceArtifacts.has(String(artifact || '').trim())).join('\n');
 }
 
 function isMutationTicket(job = {}) {
+  if (mutationPolicyForbidsRepositoryMutation(job)) return false;
   const text = [
     job.objective || '',
     ...(job.acceptanceCriteria || []),
@@ -447,6 +457,8 @@ function isMutationTicket(job = {}) {
   return /fix|repair|implement|add red|red test|patch|changed-file|commit|push|pull request|\bPR\b|draft PR|build|readback/i.test(text);
 }
 function requiresPullRequest(job = {}) {
+  const policy = job.mutationPolicy || {};
+  if (String(policy.createPullRequest || '').toLowerCase() === 'deny') return false;
   const text = [
     job.objective || '',
     ...(job.acceptanceCriteria || []),
