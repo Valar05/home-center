@@ -4,7 +4,7 @@ import {createHash} from 'node:crypto';
 import {createRequire} from 'node:module';
 
 const require = createRequire(import.meta.url);
-const {createDriveFolderOperation, createGoogleDocOperation, createSheetOperation, updateSheetValuesOperation, importXlsxWorkbookOperation, driveOperationRunOperation, driveWorkflowRunOperation, simulationOperationRunOperation, createHomeCenterMcpServer, normalizeRecoveryOperation, summarizeRecoveryOperations, loadMcpAccessContext} = require('../functions/home_center_mcp.js');
+const {createDriveFolderOperation, createGoogleDocOperation, publishContextSnapshotOperation, createSheetOperation, updateSheetValuesOperation, importXlsxWorkbookOperation, driveOperationRunOperation, driveWorkflowRunOperation, simulationOperationRunOperation, createHomeCenterMcpServer, normalizeRecoveryOperation, summarizeRecoveryOperations, loadMcpAccessContext} = require('../functions/home_center_mcp.js');
 
 function tokenHash(value) {
   return createHash('sha256').update(String(value || '')).digest('hex');
@@ -79,8 +79,28 @@ function fakeAdmin(options = {}) {
   return api;
 }
 
+
+async function collectFakeMediaBody(body) {
+  if (!body) return Buffer.alloc(0);
+  if (Buffer.isBuffer(body)) return body;
+  if (typeof body === 'string') return Buffer.from(body, 'utf8');
+  if (body instanceof ArrayBuffer) return Buffer.from(body);
+  if (ArrayBuffer.isView(body)) return Buffer.from(body.buffer, body.byteOffset, body.byteLength);
+  const chunks = [];
+  if (typeof body[Symbol.asyncIterator] === 'function') {
+    for await (const chunk of body) chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(String(chunk), 'utf8'));
+    return Buffer.concat(chunks);
+  }
+  if (typeof body[Symbol.iterator] === 'function') {
+    for (const chunk of body) chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(String(chunk), 'utf8'));
+    return Buffer.concat(chunks);
+  }
+  return Buffer.from(String(body || ''), 'utf8');
+}
+
 function fakeGoogle(options = {}) {
   const calls = {driveCreate: [], driveUpdate: [], driveGet: [], driveList: [], docsCreate: [], docsGet: [], docsBatchUpdate: [], sheetsCreate: [], sheetsValuesGet: [], sheetsValuesUpdate: [], sheetsGet: []};
+  const mediaById = options.mediaById || {};
   let docCounter = 0;
   const fail = options.fail || {};
   const maybeFail = (op) => {
@@ -107,19 +127,26 @@ function fakeGoogle(options = {}) {
             if (params.requestBody && params.requestBody.mimeType === 'application/vnd.google-apps.spreadsheet') {
               return {data: {id: options.fixedImportedSpreadsheetId || 'importedSheet123', name: params.requestBody.name, mimeType: params.requestBody.mimeType, webViewLink: 'https://sheets/importedSheet123', parents: params.requestBody.parents || []}};
             }
+            if (params.media) {
+              const id = options.fixedFileId || 'snapshotFile123';
+              mediaById[id] = await collectFakeMediaBody(params.media.body);
+              return {data: {id, name: params.requestBody.name, mimeType: params.requestBody.mimeType, webViewLink: `https://drive/${id}`, parents: params.requestBody.parents || []}};
+            }
             return {data: {id: 'folder12345', name: params.requestBody.name, mimeType: params.requestBody.mimeType, webViewLink: 'https://drive/folder12345', parents: params.requestBody.parents || []}};
           },
           async update(params) {
             maybeFail('driveUpdate');
             calls.driveUpdate.push(params);
-            return {data: {id: params.fileId, parents: params.addParents ? [params.addParents] : []}};
+            if (params.media) mediaById[params.fileId] = await collectFakeMediaBody(params.media.body);
+            return {data: {id: params.fileId, name: params.requestBody && params.requestBody.name || options.titleById && options.titleById[params.fileId] || 'Updated File', mimeType: params.requestBody && params.requestBody.mimeType || 'text/markdown', webViewLink: `https://drive/${params.fileId}`, parents: params.addParents ? [params.addParents] : ['folder12345']}};
           },
           async get(params) {
             maybeFail('driveGet');
             calls.driveGet.push(params);
-            if (params.alt === 'media') return {data: options.mediaById && options.mediaById[params.fileId] || Buffer.from('xlsx')};
+            if (params.alt === 'media') return {data: mediaById[params.fileId] || Buffer.from('xlsx')};
             if (params.fileId === 'folder12345') return {data: {id: 'folder12345', name: 'Workflow Project', mimeType: 'application/vnd.google-apps.folder', webViewLink: 'https://drive/folder12345', parents: []}};
             if (params.fileId === (options.fixedImportedSpreadsheetId || 'importedSheet123')) return {data: {id: params.fileId, name: 'Imported Workbook', mimeType: 'application/vnd.google-apps.spreadsheet', webViewLink: `https://sheets/${params.fileId}`, parents: ['folder12345']}};
+            if (mediaById[params.fileId]) return {data: {id: params.fileId, name: options.titleById && options.titleById[params.fileId] || 'Snapshot File', mimeType: 'text/markdown', webViewLink: `https://drive/${params.fileId}`, parents: ['folder12345']}};
             return {data: {id: params.fileId, name: options.titleById && options.titleById[params.fileId] || 'Created Doc', mimeType: 'application/vnd.google-apps.document', webViewLink: `https://docs/${params.fileId}`, parents: ['folder12345']}};
           },
         },
@@ -389,6 +416,62 @@ async function testWorkflowRun() {
   assert.equal(google.calls.driveCreate.length, 1);
 }
 
+
+async function testContextSyncPublishSnapshot() {
+  const admin = fakeAdmin();
+  const google = fakeGoogle({fixedFileId: 'snapshotFile123'});
+  const content = `# Snapshot\n\nDurable content.\n`;
+  const sha256 = createHash('sha256').update(content).digest('hex');
+  const result = await publishContextSnapshotOperation({google, admin, auth, user, args: {
+    name: 'AGENTS.md',
+    parentFolderId: 'folder12345',
+    content,
+    byteCount: Buffer.byteLength(content),
+    sha256,
+    requestId: 'context-sync-publish-001',
+    callerNote: 'Publish AGENTS snapshot',
+  }});
+  assert.equal(result.fileId, 'snapshotFile123');
+  assert.equal(result.byteCount, Buffer.byteLength(content));
+  assert.equal(result.sha256, sha256);
+  assert.equal(result.readbackSha256, sha256);
+  assert.equal(result.verified, true);
+  assert.equal(google.calls.driveCreate.length, 1);
+  assert.equal(google.calls.driveCreate[0].media.mimeType, 'text/markdown');
+  assert.equal(admin._docs.get('driveBridgeAudit/context-sync-publish-001').operation, 'contextSync.publishSnapshot');
+
+  const replay = await publishContextSnapshotOperation({google, admin, auth, user, args: {name: 'AGENTS.md', content: 'changed', requestId: 'context-sync-publish-001'}});
+  assert.equal(replay.idempotent, true);
+  assert.equal(google.calls.driveCreate.length, 1);
+
+  await assert.rejects(() => publishContextSnapshotOperation({google: fakeGoogle(), admin: fakeAdmin(), auth, user, args: {name: 'Bad Hash', content, sha256: '0'.repeat(64), requestId: 'context-sync-bad-hash'}}), /sha256 mismatch/);
+}
+
+async function testDriveOperationContextSyncPublishSnapshot() {
+  const admin = fakeAdmin();
+  const google = fakeGoogle({fixedFileId: 'snapshotFile456'});
+  const content = `Skills snapshot\n`;
+  const sha256 = createHash('sha256').update(content).digest('hex');
+  const result = await driveOperationRunOperation({google, admin, auth, user, args: {
+    operation: 'context_sync.publish_snapshot',
+    operationBatchId: 'context-sync-operation-001',
+    args: {
+      name: 'SKILLS.md',
+      parentFolderId: 'folder12345',
+      content,
+      byteCount: Buffer.byteLength(content),
+      sha256,
+      requestId: 'context-sync-operation-001:skills',
+      callerNote: 'Registry publish',
+    },
+  }});
+  assert.equal(result.operation, 'context_sync.publish_snapshot');
+  assert.equal(result.completed, true);
+  assert.equal(result.result.fileId, 'snapshotFile456');
+  assert.equal(result.result.verified, true);
+  assert.equal(admin._docs.get('driveBridgeAudit/context-sync-operation-001:skills').operation, 'contextSync.publishSnapshot');
+}
+
 async function testSheetsCreateAndUpdate() {
   const admin = fakeAdmin();
   const google = fakeGoogle({fixedSpreadsheetId: 'sheet123456'});
@@ -502,7 +585,10 @@ async function testDriveOperationRegistryRunner() {
   assert.equal(result.result.spreadsheetId, 'operationImport123');
   assert.deepEqual(result.result.sheetNames, sheetNames);
   assert.equal(admin._docs.get('driveBridgeAudit/drive-operation-workbook-001:import').operation, 'workbook.importXlsx');
+  const registry = createHomeCenterMcpServer({google: {}, admin: {}, googleClientId: () => '', googleClientSecret: () => ''})._registeredTools.health;
+  assert(registry, 'health tool exists for registry discovery');
 }
+
 
 async function testSimulationOperationFrameLifecycle() {
   const admin = fakeAdmin();
@@ -597,6 +683,7 @@ function testMcpToolSurface() {
   assert(extendedTools.includes('drive_move'));
   assert(extendedTools.includes('drive_workflow_run'));
   assert(extendedTools.includes('drive_operation'));
+  assert(minimal._registeredTools.health, 'minimal server exposes health for registry discovery');
   assert(extendedTools.includes('workbook_import_xlsx'));
   assert(extendedTools.includes('sheets_create'));
   assert(extendedTools.includes('sheets_update_values'));
@@ -632,6 +719,8 @@ await testCreateDoc();
 await testDocsCreateIncidentPayloads();
 await testDocsCreateSchemaMatchesRuntime();
 await testDocsCreateFailureRecovery();
+await testContextSyncPublishSnapshot();
+await testDriveOperationContextSyncPublishSnapshot();
 await testSheetsCreateAndUpdate();
 await testWorkbookImportXlsx();
 await testWorkbookImportResolvesDriveSourceFile();

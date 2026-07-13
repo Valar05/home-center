@@ -92,6 +92,38 @@ const SHE_RAW_SEED_CASES = [
       'Example transfer: a Baptist hospital chapel with no chaplain and a self-service Bible is a humane-guardrail failure if the institution provides a symbol but no responsive authority, telemetry, escalation path, or relational uptake.',
     ].join('\n'),
   },
+
+  {
+    id: 'sr_case_bikini_bottom_anti_agentism_001',
+    status: 'canonical',
+    type: 'anti_agentism_simulation_brain',
+    title: 'Bikini Bottom is a detachable function cast, not character identity',
+    sourceDate: '2026-07-13',
+    sourceRefs: ['github:Valar05/she-raw/issues/2', 'repo:she-raw/corpus/she-raw/cases/sr_case_bikini_bottom_anti_agentism_001.md', 'repo:home-center/corpus/she-raw/cases/sr_case_bikini_bottom_anti_agentism_001.md'],
+    situation: 'She-Raw needs a usable simulation brain that can cast competing functions into an absurd world without turning named characters, people, or brain jars into stable autonomous essences.',
+    acceptedAssumption: 'A familiar ensemble metaphor is useful because a participant can be treated as really being a character type.',
+    observation: 'Bikini Bottom is useful only when the role remains detachable from the actor: state current pressure and observed behavior before character shorthand, assign functions per scene, let evidence override the cast, and translate the conclusion back into character-free operational language.',
+    intervention: 'Add a She-Raw brain jar named Bikini Bottom that runs counterfactual function casts for humane continuation with constructive and destructive expressions for every function.',
+    outcome: 'She-Raw can test at least two plausible casts, run each until its failure mode appears, and recommend the smallest humane continuation without diagnosing anyone as a permanent type.',
+    treasure: 'Cheap counterfactual machinery for absurd, socially legible situations where no complete moral avatar exists and the answer must survive removal of cartoon names.',
+    collateralDamage: 'If the metaphor becomes identity, the system reproduces agentism by substituting presumed character nature for current evidence, context, consent, and judgment.',
+    lesson: 'Simulate the function; do not enthrone the character.',
+    confidence: 0.93,
+    confirmedByUser: true,
+    domains: ['she-raw', 'brain-jar', 'simulation', 'anti-agentism', 'humane-continuation'],
+    patterns: ['detachable-function-cast', 'observations-before-metaphor', 'evidence-over-casting', 'character-free-judgment', 'smallest-humane-continuation'],
+    body: [
+      'Function cast:',
+      'SpongeBob: continuation; failure is compulsory optimism, intrusion, boundary blindness, cheerful participation in exploitation.',
+      'Squidward: recognition and boundary detection; failure is contempt, withdrawal, superiority, and treating correct criticism as sufficient action.',
+      'Sandy: accommodation and cross-environment participation; failure is technocratic overconfidence and assuming an interface eliminates difference.',
+      'Mr. Krabs: resource preservation and incentive pressure; failure is extraction and confusing survival with accumulation.',
+      'Patrick: unstructured presence and naive reframing; failure is confident ignorance, dependency, and destructive simplification.',
+      'Plankton: adversarial ambition and system probing; failure is optimization detached from consent, relationship, proportion, or reality.',
+      'Protocol: observations first, present/absent/overloaded functions, at least two casts, failure modes, smallest humane continuation, plain-language operational judgment, discard permanent character identity.',
+      'Fixtures: continuation without boundaries; boundaries without continuation; accommodation mistaken for assimilation; resource preservation owning the moral frame; adversarial probing without consent; mixed-function reassignment.',
+    ].join('\n'),
+  },
 ];
 
 module.exports = {SHE_RAW_SEED_CASES};

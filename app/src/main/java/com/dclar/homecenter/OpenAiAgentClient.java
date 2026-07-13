@@ -88,7 +88,8 @@ final class OpenAiAgentClient {
             capabilities.put("google:drive_docs_sheets_gmail_calendar_contacts");
             capabilities.put("home_center:firestore_lists");
             capabilities.put("ticktick:fallback_lists");
-            capabilities.put("elevenlabs:hosted_narration");
+            capabilities.put("cartesia:default_hosted_narration");
+            capabilities.put("elevenlabs:explicit_render_only");
             body.put("capabilities", capabilities);
         } catch (JSONException ex) {
             throw new IOException("Could not build agent request: " + ex.getMessage(), ex);

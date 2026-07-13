@@ -7,17 +7,26 @@ cd "$ROOT"
 sh tools/check_no_secrets.sh
 sh -n tools/install_debug_apk_shizuku.sh
 sh -n tools/home_center_shizuku_setup_probe.sh
+sh -n tools/home_drive_profile_refresh_loop.sh
+sh -n tools/home_drive_profile_refresh_tmux.sh
+sh -n tools/home_center_scheduler_tmux.sh
+python3 -m py_compile tools/home_center_scheduler.py
+node --check tools/home_center_backend_automation_introspect.mjs
+python3 -m py_compile tools/home_drive_speaker_profile_scan.py
 sh -n tools/docker_install_smoke.sh
 python3 tools/home_center_regression_tests.py
 node --check functions/command_center_mcp.js
 node --check functions/she_raw_mcp.js
 node --check tools/command_center_mcp_contract_test.mjs
 node --check tools/command_center_cloud_activation_contract_test.mjs
+node --check tools/command_center_two_dispatch_acceptance.mjs
 node --check tools/command_center_chatgpt_invokability_gate.mjs
 node --check tools/command_center_home_bridge_invokability_gate.mjs
 node --check tools/command_center_real_capability_gate.mjs
 node --check tools/command_center_oneshot_worker.mjs
 node --check tools/command_center_verbose_worker_smoke.mjs
+node --check cloud-worker/src/cloud_run_worker.mjs
+sh -n tools/deploy_command_center_cloud_worker.sh
 node tools/command_center_mcp_contract_test.mjs
 node tools/command_center_cloud_activation_contract_test.mjs
 node --check tools/she_raw_contract_test.mjs

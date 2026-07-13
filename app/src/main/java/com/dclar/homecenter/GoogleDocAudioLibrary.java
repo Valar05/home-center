@@ -18,8 +18,7 @@ import java.util.Locale;
 
 final class GoogleDocAudioLibrary {
     static final int DEFAULT_SAMPLE_RATE = 24000;
-    private static final String PROVIDER = "ElevenLabs";
-    private static final String VOICE = "Brian";
+    private static final String PROVIDER = "Cartesia";
 
     private final File root;
     private final File indexFile;
@@ -33,9 +32,10 @@ final class GoogleDocAudioLibrary {
         indexFile = new File(root, "index.json");
     }
 
-    Entry ingest(String fileId, String title, String modifiedTime, String textHash, int charCount, List<String> sections) {
-        File dir = new File(new File(root, safePart(fileId == null || fileId.trim().isEmpty() ? "unknown-doc" : fileId.trim())), safePart(textHash));
-        Entry entry = new Entry(dir, fileId, title, modifiedTime, textHash, charCount, sections == null ? 0 : sections.size());
+    Entry ingest(String fileId, String title, String modifiedTime, String textHash, int charCount, List<String> sections, String speechProfileKey, String speechProfileJson) {
+        String profileKey = speechProfileKey == null || speechProfileKey.trim().isEmpty() ? "default-cartesia" : speechProfileKey.trim();
+        File dir = new File(new File(root, safePart(fileId == null || fileId.trim().isEmpty() ? "unknown-doc" : fileId.trim())), safePart(textHash + "-" + profileKey));
+        Entry entry = new Entry(dir, fileId, title, modifiedTime, textHash, charCount, sections == null ? 0 : sections.size(), profileKey, speechProfileJson);
         entry.ensureManifest(sections);
         updateIndex(entry);
         return entry;
@@ -142,8 +142,10 @@ final class GoogleDocAudioLibrary {
         final String textHash;
         final int charCount;
         final int sectionCount;
+        final String speechProfileKey;
+        final String speechProfileJson;
 
-        Entry(File dir, String fileId, String title, String modifiedTime, String textHash, int charCount, int sectionCount) {
+        Entry(File dir, String fileId, String title, String modifiedTime, String textHash, int charCount, int sectionCount, String speechProfileKey, String speechProfileJson) {
             this.dir = dir;
             this.manifestFile = new File(dir, "manifest.json");
             this.fileId = fileId == null ? "" : fileId;
@@ -152,6 +154,8 @@ final class GoogleDocAudioLibrary {
             this.textHash = textHash == null ? "" : textHash;
             this.charCount = charCount;
             this.sectionCount = Math.max(1, sectionCount);
+            this.speechProfileKey = speechProfileKey == null ? "default-cartesia" : speechProfileKey;
+            this.speechProfileJson = speechProfileJson == null || speechProfileJson.trim().isEmpty() ? "{}" : speechProfileJson;
         }
 
         synchronized void ensureManifest(List<String> sectionsText) {
@@ -189,7 +193,8 @@ final class GoogleDocAudioLibrary {
                         .put("charCount", charCount)
                         .put("sectionCount", sectionCount)
                         .put("voiceProvider", PROVIDER)
-                        .put("voiceName", VOICE)
+                        .put("speechProfileKey", speechProfileKey)
+                        .put("speechProfile", new JSONObject(speechProfileJson))
                         .put("ingestedAt", old.optString("ingestedAt", now()))
                         .put("updatedAt", now())
                         .put("sample", old.optJSONObject("sample") == null ? new JSONObject()
@@ -302,8 +307,12 @@ final class GoogleDocAudioLibrary {
         }
 
         synchronized void markDownloaded(int index, long pcmBytes, int sampleRate) {
-            mark(index, "downloaded", pcmBytes, sampleRate, "");
-            LocalLog.info("doc_audio", "doc_audio_section_downloaded fileId=" + fileId + " textHash=" + textHash + " section=" + index + " pcmBytes=" + pcmBytes);
+            markDownloaded(index, pcmBytes, sampleRate, "", "", "");
+        }
+
+        synchronized void markDownloaded(int index, long pcmBytes, int sampleRate, String characterId, String voiceAlias, String acousticDirection) {
+            mark(index, "downloaded", pcmBytes, sampleRate, "", characterId, voiceAlias, acousticDirection);
+            LocalLog.info("doc_audio", "doc_audio_section_downloaded fileId=" + fileId + " textHash=" + textHash + " section=" + index + " pcmBytes=" + pcmBytes + " characterId=" + safe(characterId));
         }
 
         synchronized void markFailed(int index, String detail) {
@@ -311,6 +320,10 @@ final class GoogleDocAudioLibrary {
         }
 
         private void mark(int index, String status, long pcmBytes, int sampleRate, String error) {
+            mark(index, status, pcmBytes, sampleRate, error, "", "", "");
+        }
+
+        private void mark(int index, String status, long pcmBytes, int sampleRate, String error, String characterId, String voiceAlias, String acousticDirection) {
             try {
                 JSONObject manifest = readManifest();
                 JSONArray sections = manifest.optJSONArray("sections");
@@ -323,6 +336,9 @@ final class GoogleDocAudioLibrary {
                         .put("sampleRate", sampleRate)
                         .put("pcmBytes", pcmBytes)
                         .put("updatedAt", now());
+                if (characterId != null && !characterId.trim().isEmpty()) section.put("characterId", safe(characterId));
+                if (voiceAlias != null && !voiceAlias.trim().isEmpty()) section.put("voiceAlias", safe(voiceAlias));
+                if (acousticDirection != null && !acousticDirection.trim().isEmpty()) section.put("acousticDirection", safe(acousticDirection));
                 if (error != null && !error.trim().isEmpty()) section.put("error", safe(error));
                 sections.put(index, section);
                 manifest.put("sections", sections)
@@ -344,6 +360,7 @@ final class GoogleDocAudioLibrary {
                     .put("title", title)
                     .put("modifiedTime", modifiedTime)
                     .put("textHash", textHash)
+                    .put("speechProfileKey", speechProfileKey)
                     .put("charCount", charCount)
                     .put("sectionCount", sectionCount)
                     .put("manifestPath", manifestFile.getAbsolutePath())
