@@ -14,6 +14,8 @@ const {
   COMMAND_CENTER_ALLOWED_STATUSES,
   COMMAND_CENTER_TERMINAL_JOB_STATUSES,
   COMMAND_CENTER_AGENT_ACTIVATION_STATUSES,
+  COMMAND_CENTER_OPENAI_AUTH_MODES,
+  COMMAND_CENTER_BUDGET_POLICIES,
   COMMAND_CENTER_CODEX_CLOUD_SURFACE,
   COMMAND_CENTER_DURABLE_SESSION_RESTORE_STRATEGIES,
   COMMAND_CENTER_DEFAULT_BUCKET_ID,
@@ -21,6 +23,10 @@ const {
   COMMAND_CENTER_BUCKET_LAYOUT,
   cleanBaseWorkspace,
   cleanMutationPolicy,
+  normalizeOpenAiAuthMode,
+  normalizeBudgetPolicy,
+  evaluateUsageAgainstBudget,
+  sheRawCostReadback,
   cleanOneShotExecution,
   cleanBucketObject,
   cleanRepoAgent,
@@ -156,6 +162,28 @@ assert(COMMAND_CENTER_REQUIRED_ARTIFACTS.includes('implementation.patch'));
 assert(COMMAND_CENTER_REQUIRED_ARTIFACTS.includes('final-report.md'));
 assert.equal(COMMAND_CENTER_DEFAULT_BASE_WORKSPACE.restoreStrategy, 'copy_overlay');
 assert.equal(cleanBaseWorkspace({baseWorkspaceId: 'tank-base', snapshotRef: 'worker-local://tank'}).baseWorkspaceId, 'tank-base');
+assert(COMMAND_CENTER_OPENAI_AUTH_MODES.includes('api_key_metered'));
+assert.equal(normalizeOpenAiAuthMode('api_key_metered'), 'api_key_metered');
+assert.equal(normalizeOpenAiAuthMode('bogus'), 'unknown');
+assert.equal(COMMAND_CENTER_BUDGET_POLICIES.small.maxRetries, 0);
+assert.equal(COMMAND_CENTER_BUDGET_POLICIES.small.maxFollowups, 0);
+const smallBudget = normalizeBudgetPolicy({budgetClass: 'small'});
+assert.equal(smallBudget.budgetClass, 'small');
+assert.equal(smallBudget.approvalRequiredAtInputTokens, 500000);
+const anomalousSmall = evaluateUsageAgainstBudget(
+  {inputTokens: 1518200, cachedInputTokens: 1470973, outputTokens: 5735},
+  smallBudget,
+  {openAiAuthMode: 'api_key_metered'}
+);
+assert.equal(anomalousSmall.budgetAnomalous, true);
+assert.equal(anomalousSmall.uncachedInputTokens, 47227);
+assert(anomalousSmall.states.includes('budget_anomalous'));
+assert(anomalousSmall.states.includes('api_key_metered'));
+assert.equal(anomalousSmall.requiresAuthorizationBeforeRetryOrFollowup, true);
+const readback = sheRawCostReadback({authMeter: {openAiAuthMode: 'unknown'}, budgetPolicy: smallBudget, usageSummary: anomalousSmall});
+assert.equal(readback.voice, 'she-raw');
+assert.equal(readback.authenticationMeter.openAiAuthMode, 'unknown');
+assert.equal(readback.retryPolicy.unknownAuthRequiresExplicitAuthorization, true);
 const oneShot = cleanOneShotExecution({requiredArtifacts: ['render.png'], verificationCommands: ['npm test']});
 assert.equal(oneShot.executionMode, 'one_shot');
 assert(oneShot.requiredArtifacts.includes('render.png'));
@@ -293,7 +321,9 @@ assert(commandCenterSource.includes("realWorkerRequired: true"));
 assert(commandCenterSource.includes("selectedWorkerId: worker.workerId"));
 assert(commandCenterSource.includes("Durable Codex worker activation completion requires at least one artifact."));
 assert(commandCenterSource.includes("Durable worker session completion requires nextWorkspaceSnapshotRef."));
-assert(commandCenterSource.includes("activation: z.record(z.string(), z.any()).optional(), runtime: z.record(z.string(), z.any()).optional(), cloudRunJob: z.record(z.string(), z.any()).optional(), sessionPolicy: z.record(z.string(), z.any()).optional()"));
+assert(commandCenterSource.includes("openAiAuthMode: z.enum(COMMAND_CENTER_OPENAI_AUTH_MODES).optional()"));
+assert(commandCenterSource.includes("authMeter: z.record(z.string(), z.any()).optional()"));
+assert(commandCenterSource.includes("cloudRunJob: z.record(z.string(), z.any()).optional(), sessionPolicy: z.record(z.string(), z.any()).optional()"));
 assert(commandCenterSource.includes("case 'workers.retire'"));
 assert(commandCenterSource.includes("server.registerTool('command_center.workers.retire'"));
 assert(commandCenterSource.includes("queryOwnedCollection(admin, COMMAND_CENTER_COLLECTIONS.jobs"));

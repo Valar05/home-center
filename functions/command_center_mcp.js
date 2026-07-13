@@ -88,6 +88,57 @@ const COMMAND_CENTER_COLD_START_HEARTBEAT_DEADLINE_MS = 2 * 60 * 1000;
 const COMMAND_CENTER_COMPLETION_EVENT_LOOKBACK_LIMIT = 1000;
 const COMMAND_CENTER_TERMINAL_JOB_STATUSES = Object.freeze(['completed', 'failed', 'canceled', 'expired']);
 const COMMAND_CENTER_RECONCILE_DEFAULT_OLDER_THAN_MS = 30 * 60 * 1000;
+const COMMAND_CENTER_OPENAI_AUTH_MODES = Object.freeze(['chatgpt_subscription', 'api_key_metered', 'unknown']);
+const COMMAND_CENTER_BUDGET_POLICIES = Object.freeze({
+  small: Object.freeze({
+    budgetClass: 'small',
+    wallClockMs: 45 * 60 * 1000,
+    maxRetries: 0,
+    maxFollowups: 0,
+    maxConcurrency: 1,
+    inputWarningTokens: 100000,
+    inputAnomalyTokens: 500000,
+    hardStopInputTokens: 900000,
+    approvalRequiredAtInputTokens: 500000,
+    extendedExecutionAuthorized: false,
+  }),
+  medium: Object.freeze({
+    budgetClass: 'medium',
+    wallClockMs: 2 * 60 * 60 * 1000,
+    maxRetries: 1,
+    maxFollowups: 1,
+    maxConcurrency: 1,
+    inputWarningTokens: 250000,
+    inputAnomalyTokens: 750000,
+    hardStopInputTokens: 1500000,
+    approvalRequiredAtInputTokens: 750000,
+    extendedExecutionAuthorized: false,
+  }),
+  large: Object.freeze({
+    budgetClass: 'large',
+    wallClockMs: 6 * 60 * 60 * 1000,
+    maxRetries: 1,
+    maxFollowups: 2,
+    maxConcurrency: 1,
+    inputWarningTokens: 500000,
+    inputAnomalyTokens: 1500000,
+    hardStopInputTokens: 3000000,
+    approvalRequiredAtInputTokens: 1500000,
+    extendedExecutionAuthorized: true,
+  }),
+  long_running_authorized: Object.freeze({
+    budgetClass: 'long_running_authorized',
+    wallClockMs: 12 * 60 * 60 * 1000,
+    maxRetries: 1,
+    maxFollowups: 3,
+    maxConcurrency: 1,
+    inputWarningTokens: 750000,
+    inputAnomalyTokens: 2000000,
+    hardStopInputTokens: 5000000,
+    approvalRequiredAtInputTokens: 2000000,
+    extendedExecutionAuthorized: true,
+  }),
+});
 
 function isTerminalJobStatus(status) {
   return COMMAND_CENTER_TERMINAL_JOB_STATUSES.includes(safeText(status, 80));
@@ -185,6 +236,108 @@ function safeObject(value) {
 
 function safeBoolean(value, fallback = false) {
   return typeof value === 'boolean' ? value : fallback;
+}
+
+function normalizeOpenAiAuthMode(value) {
+  const mode = safeText(value, 80).toLowerCase();
+  return COMMAND_CENTER_OPENAI_AUTH_MODES.includes(mode) ? mode : 'unknown';
+}
+
+function authMeterFromWorker(worker = {}) {
+  const runtime = safeObject(worker.runtime);
+  return {
+    openAiAuthMode: normalizeOpenAiAuthMode(worker.openAiAuthMode || worker.authMeter?.openAiAuthMode || runtime.openAiAuthMode || runtime.openaiAuthMode),
+    source: safeText(worker.openAiAuthMode || worker.authMeter?.openAiAuthMode || runtime.openAiAuthMode || runtime.openaiAuthMode, 80) ? 'worker_registry' : 'not_reported',
+    credentialExposed: false,
+  };
+}
+
+function normalizeBudgetPolicy(args = {}) {
+  const policyArgs = safeObject(args.budgetPolicy);
+  const requestedClass = safeText(policyArgs.budgetClass || args.budgetClass, 80).toLowerCase() || 'small';
+  const base = COMMAND_CENTER_BUDGET_POLICIES[requestedClass] || COMMAND_CENTER_BUDGET_POLICIES.small;
+  const numberOverride = (name) => {
+    const value = Number(policyArgs[name]);
+    return Number.isFinite(value) && value >= 0 ? value : base[name];
+  };
+  return {
+    ...base,
+    budgetClass: base.budgetClass,
+    wallClockMs: numberOverride('wallClockMs'),
+    maxRetries: numberOverride('maxRetries'),
+    maxFollowups: numberOverride('maxFollowups'),
+    maxConcurrency: Math.max(1, numberOverride('maxConcurrency')),
+    inputWarningTokens: numberOverride('inputWarningTokens'),
+    inputAnomalyTokens: numberOverride('inputAnomalyTokens'),
+    hardStopInputTokens: numberOverride('hardStopInputTokens'),
+    approvalRequiredAtInputTokens: numberOverride('approvalRequiredAtInputTokens'),
+    extendedExecutionAuthorized: policyArgs.extendedExecutionAuthorized === true || base.extendedExecutionAuthorized === true || args.extendedExecutionAuthorized === true,
+    justification: safeText(policyArgs.justification || args.budgetJustification, 1000),
+    stopConditions: safeList(policyArgs.stopConditions || args.stopConditions, 20, 500),
+    expectedArtifacts: safeList(policyArgs.expectedArtifacts || args.requiredArtifacts, 40, 180),
+  };
+}
+
+function evaluateUsageAgainstBudget(usageSummary = {}, budgetPolicy = {}, authMeter = {}) {
+  const policy = normalizeBudgetPolicy({budgetClass: budgetPolicy.budgetClass || 'small', budgetPolicy});
+  const inputTokens = Number(usageSummary.inputTokens || 0);
+  const cachedInputTokens = Number(usageSummary.cachedInputTokens || 0);
+  const elapsedMs = Number(usageSummary.elapsedMs || 0);
+  const uncachedInputTokens = Math.max(0, inputTokens - cachedInputTokens);
+  const warnings = safeList(usageSummary.warnings, 20, 500);
+  const states = [];
+  const wallClockMs = Number(policy.wallClockMs || 0);
+  if (inputTokens >= policy.inputWarningTokens) warnings.push(`Input token warning threshold crossed: ${inputTokens}/${policy.inputWarningTokens}.`);
+  if (elapsedMs > 0 && wallClockMs > 0 && elapsedMs >= wallClockMs) {
+    warnings.push(`Wall-clock budget crossed: ${elapsedMs}/${wallClockMs} ms.`);
+    states.push('wall_clock_over_budget');
+  }
+  if (inputTokens >= policy.inputAnomalyTokens) states.push('budget_anomalous');
+  if (inputTokens >= policy.approvalRequiredAtInputTokens) states.push('requires_authorization_before_retry_or_followup');
+  if (normalizeOpenAiAuthMode(authMeter.openAiAuthMode) === 'unknown') states.push('auth_meter_unknown');
+  if (normalizeOpenAiAuthMode(authMeter.openAiAuthMode) === 'api_key_metered') states.push('api_key_metered');
+  return {
+    budgetClass: policy.budgetClass,
+    inputTokens,
+    cachedInputTokens,
+    uncachedInputTokens,
+    outputTokens: Number(usageSummary.outputTokens || 0),
+    elapsedMs,
+    cachedInputRatio: inputTokens > 0 ? cachedInputTokens / inputTokens : 0,
+    warnings: Array.from(new Set(warnings)),
+    states: Array.from(new Set(states)),
+    budgetAnomalous: states.includes('budget_anomalous'),
+    requiresAuthorizationBeforeRetryOrFollowup: states.includes('requires_authorization_before_retry_or_followup') || states.includes('auth_meter_unknown'),
+  };
+}
+
+function sheRawCostReadback({authMeter = {}, budgetPolicy = {}, retryPolicy = {}, usageSummary = null, materialCostUncertainty = true} = {}) {
+  return {
+    voice: 'she-raw',
+    authenticationMeter: {
+      openAiAuthMode: normalizeOpenAiAuthMode(authMeter.openAiAuthMode),
+      credentialExposed: false,
+    },
+    budgetClass: safeText(budgetPolicy.budgetClass, 80) || 'small',
+    effectiveLimits: {
+      wallClockMs: Number(budgetPolicy.wallClockMs || 0),
+      maxRetries: Number(budgetPolicy.maxRetries || 0),
+      maxFollowups: Number(budgetPolicy.maxFollowups || 0),
+      maxConcurrency: Number(budgetPolicy.maxConcurrency || 1),
+      inputWarningTokens: Number(budgetPolicy.inputWarningTokens || 0),
+      approvalRequiredAtInputTokens: Number(budgetPolicy.approvalRequiredAtInputTokens || 0),
+      hardStopInputTokens: Number(budgetPolicy.hardStopInputTokens || 0),
+    },
+    retryPolicy: {
+      maxRetries: Number(retryPolicy.maxRetries ?? budgetPolicy.maxRetries ?? 0),
+      requiresFailureReference: true,
+      apiMeteredRequiresExplicitAuthorization: true,
+      unknownAuthRequiresExplicitAuthorization: true,
+    },
+    extendedExecutionAuthorized: budgetPolicy.extendedExecutionAuthorized === true,
+    materialCostUncertainty: materialCostUncertainty === true,
+    usageSummary: usageSummary || null,
+  };
 }
 
 function hashText(value, length = 16) {
@@ -683,6 +836,8 @@ function cleanWorker(worker) {
     limits: safeObject(data.limits),
     activation: normalizeActivationChannel(data.activation),
     runtime: safeObject(data.runtime),
+    openAiAuthMode: normalizeOpenAiAuthMode(data.openAiAuthMode || data.authMeter?.openAiAuthMode || safeObject(data.runtime).openAiAuthMode || safeObject(data.runtime).openaiAuthMode),
+    authMeter: authMeterFromWorker(data),
     cloudRunJob: safeObject(data.cloudRunJob),
     sessionPolicy: safeObject(data.sessionPolicy),
     repositoryAffinity: safeList(data.repositoryAffinity, 80, 240),
@@ -1853,6 +2008,9 @@ async function createJob(admin, caller, args) {
       selectionFailure = err;
     }
     const nowMs = Date.now();
+    const budgetPolicy = normalizeBudgetPolicy(args);
+    const authMeter = worker ? authMeterFromWorker(worker) : {openAiAuthMode: 'unknown', source: 'no_worker_selected', credentialExposed: false};
+    const retryPolicy = {maxRetries: budgetPolicy.maxRetries, retryCount: 0, followupCount: 0, requiresFailureReference: true};
     const job = {
       jobId,
       projectId,
@@ -1863,7 +2021,12 @@ async function createJob(admin, caller, args) {
       constraints: safeList(args.constraints, 80, 1000),
       scopeExclusions: safeList(args.scopeExclusions, 80, 1000),
       workerRequirements: safeList(args.workerRequirements, 40, 120),
-      budgetClass: safeText(args.budgetClass, 80) || 'small',
+      budgetClass: budgetPolicy.budgetClass,
+      budgetPolicy,
+      retryPolicy,
+      authMeter,
+      costState: {status: 'not_measured', budgetAnomalous: false, requiresAuthorizationBeforeRetryOrFollowup: authMeter.openAiAuthMode === 'unknown'},
+      sheRawPreDispatchReadback: sheRawCostReadback({authMeter, budgetPolicy, retryPolicy}),
       mutationPolicy: cleanMutationPolicy(args.mutationPolicy),
       ...cleanOneShotExecution(args),
       status: worker ? 'leased' : 'queued',
@@ -1876,7 +2039,7 @@ async function createJob(admin, caller, args) {
       routingDiagnostic: selectionFailure ? selectionFailure.message : '',
     };
     await collection(admin, COMMAND_CENTER_COLLECTIONS.jobs).doc(jobId).set(job);
-    const createdEvent = await appendEvent(admin, {type: 'job_created', jobId, projectId, actor: caller.actor, summary: job.title, data: {workerRequirements: job.workerRequirements}});
+    const createdEvent = await appendEvent(admin, {type: 'job_created', jobId, projectId, actor: caller.actor, summary: job.title, data: {workerRequirements: job.workerRequirements, authMeter, budgetPolicy, sheRawReadback: job.sheRawPreDispatchReadback}});
     if (!worker) {
       const queuedEvent = await appendEvent(admin, {type: 'job_queued_no_worker', jobId, projectId, actor: 'command_center', summary: selectionFailure.message, data: {requirements: selectionFailure.requirements || job.workerRequirements}});
       await recordLog(admin, jobId, projectId, 'Command Center queued job because no real worker was currently eligible.', {workerRequirements: job.workerRequirements, diagnostic: selectionFailure.message});
@@ -1926,6 +2089,16 @@ async function synthesizeJobHandoff(admin, jobId, caller = null) {
   const unevaluatedCriteria = acceptanceMatrix.filter((item) => item.status === 'not_evaluated' || item.status === 'pending');
   const failedCriteria = acceptanceMatrix.filter((item) => item.status === 'failed');
   const usageSummary = safeObject(checkpoint && checkpoint.usageSummary);
+  const budgetPolicy = normalizeBudgetPolicy({budgetClass: job.budgetClass || 'small', budgetPolicy: job.budgetPolicy || {}});
+  const authMeter = safeObject(usageSummary.authMeter || job.authMeter);
+  const usageEvaluation = evaluateUsageAgainstBudget(usageSummary, budgetPolicy, authMeter);
+  const sheRawPostCompletionReadback = sheRawCostReadback({
+    authMeter,
+    budgetPolicy,
+    retryPolicy: safeObject(job.retryPolicy),
+    usageSummary: usageEvaluation,
+    materialCostUncertainty: authMeter.openAiAuthMode === 'unknown',
+  });
   return {
     packetVersion: 'command-center-handoff-v1',
     generatedAtMs: nowMs,
@@ -1939,6 +2112,12 @@ async function synthesizeJobHandoff(admin, jobId, caller = null) {
       workerRequirements: safeList(job.workerRequirements, 40, 120),
       requiredArtifacts: safeList(job.requiredArtifacts || COMMAND_CENTER_REQUIRED_ARTIFACTS, 80, 120),
       executionMode: safeText(job.executionMode, 80) || 'one_shot',
+      budgetClass: safeText(job.budgetClass, 80) || 'small',
+      budgetPolicy: normalizeBudgetPolicy({budgetClass: job.budgetClass || 'small', budgetPolicy: job.budgetPolicy || {}}),
+      retryPolicy: safeObject(job.retryPolicy),
+      authMeter: safeObject(job.authMeter),
+      costState: safeObject(job.costState),
+      sheRawPreDispatchReadback: safeObject(job.sheRawPreDispatchReadback),
       sourceJobId: job.sourceJobId || '',
       followupOf: job.followupOf || null,
       mutationPolicy: cleanMutationPolicy(job.mutationPolicy),
@@ -1955,7 +2134,8 @@ async function synthesizeJobHandoff(admin, jobId, caller = null) {
         ...(missingRequiredArtifacts.length ? ['Some required artifacts are missing.'] : []),
         ...(unevaluatedCriteria.length ? ['Some acceptance criteria are not explicitly evaluated.'] : []),
         ...(failedCriteria.length ? ['Some acceptance criteria failed.'] : []),
-        ...(usageSummary.warnings || []),
+        ...(usageEvaluation.warnings || []),
+        ...(usageEvaluation.budgetAnomalous ? ['Budget anomaly recorded; require authorization before retry or follow-up.'] : []),
       ],
       acceptanceReviewState: failedCriteria.length ? 'failed' : (unevaluatedCriteria.length ? 'review_incomplete' : 'evaluated'),
     },
@@ -1972,7 +2152,8 @@ async function synthesizeJobHandoff(admin, jobId, caller = null) {
       unevaluatedAcceptanceCriteria: unevaluatedCriteria.length,
       failedAcceptanceCriteria: failedCriteria.length,
     },
-    usageSummary,
+    usageSummary: usageEvaluation,
+    sheRawPostCompletionReadback,
     checkpoint,
     acceptanceMatrix,
     artifacts: artifacts.map((artifact) => ({artifactId: artifact.artifactId, name: artifact.name, kind: artifact.kind, uri: artifact.uri, sha256: artifact.sha256, required: artifact.required === true})),
@@ -1983,11 +2164,44 @@ async function synthesizeJobHandoff(admin, jobId, caller = null) {
   };
 }
 
+function assertFollowupBudgetAllowed(sourceHandoff, args = {}) {
+  const sourceJob = sourceHandoff.job || {};
+  const sourceBudget = normalizeBudgetPolicy({budgetClass: sourceJob.budgetPolicy?.budgetClass || sourceJob.budgetClass || 'small', budgetPolicy: sourceJob.budgetPolicy || {}});
+  const sourceUsage = safeObject(sourceHandoff.usageSummary);
+  const sourceAuth = safeObject(sourceJob.authMeter || sourceUsage.authMeter);
+  const evaluation = evaluateUsageAgainstBudget(sourceUsage, sourceBudget, sourceAuth);
+  const retryJustification = safeText(args.retryJustification || args.followupJustification || args.reason, 1000);
+  const explicitAuthorization = args.retryAuthorized === true || args.followupAuthorized === true || args.extendedExecutionAuthorized === true || safeObject(args.budgetPolicy).extendedExecutionAuthorized === true;
+  const followupDepth = Number(sourceJob.retryPolicy?.followupCount || 0) + 1;
+  if (followupDepth > Number(sourceBudget.maxFollowups || 0) && !explicitAuthorization) {
+    const err = new Error(`Follow-up blocked by budget policy: ${sourceBudget.budgetClass} allows ${sourceBudget.maxFollowups} unattended follow-up(s).`);
+    err.status = 409;
+    throw err;
+  }
+  if ((sourceAuth.openAiAuthMode === 'unknown' || sourceAuth.openAiAuthMode === 'api_key_metered') && !explicitAuthorization) {
+    const err = new Error(`Follow-up blocked by authentication meter policy: ${sourceAuth.openAiAuthMode || 'unknown'} requires explicit authorization.`);
+    err.status = 409;
+    throw err;
+  }
+  if (evaluation.requiresAuthorizationBeforeRetryOrFollowup && !explicitAuthorization) {
+    const err = new Error('Follow-up blocked by cost policy: prior usage requires explicit authorization before retry or follow-up.');
+    err.status = 409;
+    throw err;
+  }
+  if (!retryJustification && sourceJob.status === 'failed') {
+    const err = new Error('Retry/follow-up blocked: provide retryJustification referencing the preceding failure and why repetition can succeed.');
+    err.status = 400;
+    throw err;
+  }
+  return {sourceBudget, sourceUsageEvaluation: evaluation, followupDepth, explicitAuthorization, retryJustification};
+}
+
 async function createFollowupJob(admin, caller, args) {
   return idempotentMutation(admin, caller, requireIdempotencyKey(args.idempotencyKey), 'jobs.create_followup', async () => {
     const sourceJobId = cleanJobId(args.sourceJobId);
     const sourceHandoff = await synthesizeJobHandoff(admin, sourceJobId, caller);
     const sourceJob = sourceHandoff.job;
+    const followupBudgetGate = assertFollowupBudgetAllowed(sourceHandoff, args);
     const projectId = args.projectId ? cleanProjectId(args.projectId) : cleanProjectId(sourceJob.projectId);
     const workers = recordsVisibleToCaller(await workerRecords(admin), caller);
     const workerRequirements = safeList(args.workerRequirements, 40, 120);
@@ -2007,6 +2221,9 @@ async function createFollowupJob(admin, caller, args) {
     });
     const nowMs = Date.now();
     const jobId = `job_${randomUUID()}`;
+    const budgetPolicy = normalizeBudgetPolicy({...args, budgetClass: args.budgetClass || sourceJob.budgetClass || 'small'});
+    const authMeter = worker ? authMeterFromWorker(worker) : {openAiAuthMode: 'unknown', source: 'no_worker_selected', credentialExposed: false};
+    const retryPolicy = {maxRetries: budgetPolicy.maxRetries, retryCount: 0, followupCount: followupBudgetGate.followupDepth, requiresFailureReference: true, sourceJobId};
     const job = {
       jobId,
       projectId,
@@ -2016,7 +2233,13 @@ async function createFollowupJob(admin, caller, args) {
       constraints: safeList(args.constraints, 80, 1000),
       scopeExclusions: safeList(args.scopeExclusions, 80, 1000),
       workerRequirements: workerRequirements.length ? workerRequirements : inheritedWorkerRequirements,
-      budgetClass: safeText(args.budgetClass, 80) || 'small',
+      budgetClass: budgetPolicy.budgetClass,
+      budgetPolicy,
+      retryPolicy,
+      authMeter,
+      costState: {status: 'not_measured', budgetAnomalous: false, requiresAuthorizationBeforeRetryOrFollowup: authMeter.openAiAuthMode === 'unknown'},
+      sheRawPreDispatchReadback: sheRawCostReadback({authMeter, budgetPolicy, retryPolicy, materialCostUncertainty: true}),
+      sourceUsageEvaluation: followupBudgetGate.sourceUsageEvaluation,
       mutationPolicy: cleanMutationPolicy(args.mutationPolicy || sourceJob.mutationPolicy),
       ...execution,
       sourceJobId,
@@ -2037,8 +2260,8 @@ async function createFollowupJob(admin, caller, args) {
       routingDiagnostic: selectionFailure ? selectionFailure.message : '',
     };
     await collection(admin, COMMAND_CENTER_COLLECTIONS.jobs).doc(jobId).set(job);
-    const createdEvent = await appendEvent(admin, {type: 'job_created', jobId, projectId, actor: caller.actor, summary: job.title, data: {workerRequirements: job.workerRequirements, sourceJobId}});
-    const followupEvent = await appendEvent(admin, {type: 'job_followup_created', jobId, projectId, actor: caller.actor, summary: `Linked follow-up for ${sourceJobId}.`, evidenceRefs: [`handoff://${sourceJobId}`], data: {sourceJobId, sourceStatus: sourceJob.status}});
+    const createdEvent = await appendEvent(admin, {type: 'job_created', jobId, projectId, actor: caller.actor, summary: job.title, data: {workerRequirements: job.workerRequirements, sourceJobId, authMeter, budgetPolicy, sheRawReadback: job.sheRawPreDispatchReadback}});
+    const followupEvent = await appendEvent(admin, {type: 'job_followup_created', jobId, projectId, actor: caller.actor, summary: `Linked follow-up for ${sourceJobId}.`, evidenceRefs: [`handoff://${sourceJobId}`], data: {sourceJobId, sourceStatus: sourceJob.status, followupBudgetGate}});
     if (!worker) {
       const queuedEvent = await appendEvent(admin, {type: 'job_queued_no_worker', jobId, projectId, actor: 'command_center', summary: selectionFailure.message, data: {requirements: selectionFailure.requirements || job.workerRequirements}});
       await recordLog(admin, jobId, projectId, 'Command Center queued follow-up because no real worker was currently eligible.', {sourceJobId, workerRequirements: job.workerRequirements, diagnostic: selectionFailure.message});
@@ -2594,6 +2817,7 @@ async function registerOneShotWorker(admin, caller, args) {
 	      baseWorkspaces: Array.isArray(args.baseWorkspaces) ? args.baseWorkspaces : [args.baseWorkspace || COMMAND_CENTER_DEFAULT_BASE_WORKSPACE],
 	      limits: safeObject(args.limits),
 	      activation: requestedActivation.mode ? {...requestedActivation, verifiedAtMs: requestedActivation.verifiedAtMs || nowMs} : {mode: 'poll', verifiedAtMs: nowMs},
+	      openAiAuthMode: normalizeOpenAiAuthMode(args.openAiAuthMode || args.authMeter?.openAiAuthMode || safeObject(args.runtime).openAiAuthMode),
 	      runtime: safeObject(args.runtime),
 	      cloudRunJob: safeObject(args.cloudRunJob),
 	      sessionPolicy: safeObject(args.sessionPolicy),
@@ -2919,6 +3143,9 @@ function jobPacket(job, checkpoint = null) {
     packetVersion: 'command-center-one-shot-v1',
     job,
     checkpoint,
+    sheRawPreDispatchReadback: safeObject(job.sheRawPreDispatchReadback),
+    budgetPolicy: normalizeBudgetPolicy({budgetClass: job.budgetClass || 'small', budgetPolicy: job.budgetPolicy || {}}),
+    authMeter: safeObject(job.authMeter),
     promptContract: {
       mode: 'one_shot',
       noChatHistoryDependency: true,
@@ -2983,13 +3210,13 @@ function createCommandCenterMcpServer({admin}) {
   server.registerTool('command_center.jobs.create', {
     title: 'Create Command Center job',
     description: 'Create a durable execution ticket, select a compatible worker, lease it, and write initial events/checkpoint state.',
-    inputSchema: {idempotencyKey: z.string(), projectId: z.string(), title: z.string(), objective: z.string(), acceptanceCriteria: z.array(z.string()).optional(), constraints: z.array(z.string()).optional(), scopeExclusions: z.array(z.string()).optional(), workerRequirements: z.array(z.string()).optional(), budgetClass: z.string().optional(), mutationPolicy: z.record(z.string(), z.string()).optional(), executionMode: z.string().optional(), baseWorkspace: z.record(z.string(), z.any()).optional(), requiredArtifacts: z.array(z.string()).optional(), verificationCommands: z.array(z.string()).optional(), stopConditions: z.array(z.string()).optional()},
+    inputSchema: {idempotencyKey: z.string(), projectId: z.string(), title: z.string(), objective: z.string(), acceptanceCriteria: z.array(z.string()).optional(), constraints: z.array(z.string()).optional(), scopeExclusions: z.array(z.string()).optional(), workerRequirements: z.array(z.string()).optional(), budgetClass: z.string().optional(), budgetPolicy: z.record(z.string(), z.any()).optional(), budgetJustification: z.string().optional(), extendedExecutionAuthorized: z.boolean().optional(), mutationPolicy: z.record(z.string(), z.string()).optional(), executionMode: z.string().optional(), baseWorkspace: z.record(z.string(), z.any()).optional(), requiredArtifacts: z.array(z.string()).optional(), verificationCommands: z.array(z.string()).optional(), stopConditions: z.array(z.string()).optional()},
   }, async (args, extra) => textResult(await createJob(admin, await callerFromExtra(admin, extra), args || {})));
 
   server.registerTool('command_center.jobs.create_followup', {
     title: 'Create Command Center follow-up job',
     description: 'Create a new linked invocation from a source job handoff. This does not rewrite old job history.',
-    inputSchema: {idempotencyKey: z.string(), sourceJobId: z.string(), projectId: z.string().optional(), title: z.string(), objective: z.string(), acceptanceCriteria: z.array(z.string()).optional(), constraints: z.array(z.string()).optional(), scopeExclusions: z.array(z.string()).optional(), workerRequirements: z.array(z.string()).optional(), budgetClass: z.string().optional(), mutationPolicy: z.record(z.string(), z.string()).optional(), executionMode: z.string().optional(), baseWorkspace: z.record(z.string(), z.any()).optional(), requiredArtifacts: z.array(z.string()).optional(), verificationCommands: z.array(z.string()).optional(), stopConditions: z.array(z.string()).optional()},
+    inputSchema: {idempotencyKey: z.string(), sourceJobId: z.string(), projectId: z.string().optional(), title: z.string(), objective: z.string(), acceptanceCriteria: z.array(z.string()).optional(), constraints: z.array(z.string()).optional(), scopeExclusions: z.array(z.string()).optional(), workerRequirements: z.array(z.string()).optional(), budgetClass: z.string().optional(), budgetPolicy: z.record(z.string(), z.any()).optional(), budgetJustification: z.string().optional(), extendedExecutionAuthorized: z.boolean().optional(), retryAuthorized: z.boolean().optional(), followupAuthorized: z.boolean().optional(), retryJustification: z.string().optional(), followupJustification: z.string().optional(), mutationPolicy: z.record(z.string(), z.string()).optional(), executionMode: z.string().optional(), baseWorkspace: z.record(z.string(), z.any()).optional(), requiredArtifacts: z.array(z.string()).optional(), verificationCommands: z.array(z.string()).optional(), stopConditions: z.array(z.string()).optional()},
   }, async (args, extra) => textResult(await createFollowupJob(admin, await callerFromExtra(admin, extra), args || {})));
 
   server.registerTool('command_center.jobs.get', {title: 'Get Command Center job', description: 'Read one Command Center job packet.', inputSchema: {jobId: z.string()}}, async (args, extra) => textResult({job: await getJob(admin, cleanJobId(args.jobId), await callerFromExtra(admin, extra))}));
@@ -3154,7 +3381,7 @@ function createCommandCenterMcpServer({admin}) {
   server.registerTool('command_center.workers.register_oneshot', {
     title: 'Register one-shot Command Center worker',
     description: 'Register a user-owned one-shot Codex worker and return a worker token once. Store it only on the worker host.',
-    inputSchema: {idempotencyKey: z.string(), workerId: z.string(), engine: z.string().optional(), location: z.string().optional(), capabilities: z.array(z.string()).optional(), baseWorkspace: z.record(z.string(), z.any()).optional(), baseWorkspaces: z.array(z.record(z.string(), z.any())).optional(), limits: z.record(z.string(), z.any()).optional(), activation: z.record(z.string(), z.any()).optional(), runtime: z.record(z.string(), z.any()).optional(), cloudRunJob: z.record(z.string(), z.any()).optional(), sessionPolicy: z.record(z.string(), z.any()).optional(), repositoryAffinity: z.array(z.string()).optional()},
+    inputSchema: {idempotencyKey: z.string(), workerId: z.string(), engine: z.string().optional(), location: z.string().optional(), capabilities: z.array(z.string()).optional(), baseWorkspace: z.record(z.string(), z.any()).optional(), baseWorkspaces: z.array(z.record(z.string(), z.any())).optional(), limits: z.record(z.string(), z.any()).optional(), activation: z.record(z.string(), z.any()).optional(), runtime: z.record(z.string(), z.any()).optional(), openAiAuthMode: z.enum(COMMAND_CENTER_OPENAI_AUTH_MODES).optional(), authMeter: z.record(z.string(), z.any()).optional(), cloudRunJob: z.record(z.string(), z.any()).optional(), sessionPolicy: z.record(z.string(), z.any()).optional(), repositoryAffinity: z.array(z.string()).optional()},
   }, async (args, extra) => textResult(await registerOneShotWorker(admin, await callerFromExtra(admin, extra), args || {})));
 
   server.registerTool('command_center.app_control.seed_profiles', {
@@ -3365,7 +3592,13 @@ function createCommandCenterMcpApp({admin}) {
         res.json({ok: true, leased: false});
         return;
       }
-      await collection(admin, COMMAND_CENTER_COLLECTIONS.jobs).doc(job.jobId).set({updatedAtMs: Date.now(), workerAcceptedLeaseAtMs: Date.now()}, {merge: true});
+      const reportedAuthMeter = {
+        openAiAuthMode: normalizeOpenAiAuthMode(req.body && req.body.openAiAuthMode),
+        source: normalizeOpenAiAuthMode(req.body && req.body.openAiAuthMode) === 'unknown' ? 'worker_not_reported' : 'worker_reported',
+        credentialExposed: false,
+      };
+      const authUpdate = reportedAuthMeter.openAiAuthMode === 'unknown' ? {} : {authMeter: reportedAuthMeter};
+      await collection(admin, COMMAND_CENTER_COLLECTIONS.jobs).doc(job.jobId).set({updatedAtMs: Date.now(), workerAcceptedLeaseAtMs: Date.now(), ...authUpdate}, {merge: true});
       const activationSnap = await collection(admin, COMMAND_CENTER_COLLECTIONS.jobActivations).where('jobId', '==', job.jobId).limit(10).get();
       const batch = admin.firestore().batch();
       let acceptedActivations = 0;
@@ -3377,9 +3610,10 @@ function createCommandCenterMcpApp({admin}) {
         }
       });
       if (acceptedActivations) await batch.commit();
-      await appendEvent(admin, {type: 'worker_started', jobId: job.jobId, projectId: job.projectId, actor: caller.workerId, summary: 'One-shot worker accepted lease.', data: {baseWorkspace: job.baseWorkspace}});
+      const effectiveJob = authUpdate.authMeter ? {...job, authMeter: reportedAuthMeter} : job;
+      await appendEvent(admin, {type: 'worker_started', jobId: job.jobId, projectId: job.projectId, actor: caller.workerId, summary: 'One-shot worker accepted lease.', data: {baseWorkspace: job.baseWorkspace, authMeter: reportedAuthMeter, budgetPolicy: job.budgetPolicy || {}}});
       await appendEvent(admin, {type: 'activation_accepted', jobId: job.jobId, projectId: job.projectId, actor: caller.workerId, summary: 'Worker accepted queued activation by claiming the lease.', data: {workerId: caller.workerId}});
-      res.json({ok: true, leased: true, packet: jobPacket(job, await getLatestCheckpoint(admin, job.jobId))});
+      res.json({ok: true, leased: true, packet: jobPacket(effectiveJob, await getLatestCheckpoint(admin, job.jobId))});
     } catch (err) {
       sendWorkerError(res, err);
     }
@@ -3468,6 +3702,18 @@ function createCommandCenterMcpApp({admin}) {
         err.status = 403;
         throw err;
       }
+      const requestBody = safeObject(req.body);
+      const requestUsage = safeObject(requestBody.usageSummary);
+      const authMeter = safeObject(requestBody.authMeter || requestUsage.authMeter || job.authMeter);
+      const budgetPolicy = normalizeBudgetPolicy({budgetClass: job.budgetClass || 'small', budgetPolicy: job.budgetPolicy || {}});
+      const usageEvaluation = evaluateUsageAgainstBudget(requestUsage, budgetPolicy, authMeter);
+      const sheRawPostCompletionReadback = sheRawCostReadback({
+        authMeter,
+        budgetPolicy,
+        retryPolicy: safeObject(job.retryPolicy),
+        usageSummary: usageEvaluation,
+        materialCostUncertainty: normalizeOpenAiAuthMode(authMeter.openAiAuthMode) === 'unknown',
+      });
       const checkpoint = {
         checkpointId: `chk_${Date.now()}_${randomUUID().slice(0, 8)}`,
         jobId,
@@ -3475,7 +3721,16 @@ function createCommandCenterMcpApp({admin}) {
         ownerKey: safeText(job.ownerKey, 80),
         objective: job.objective || '',
         acceptanceCriteriaStatus: Array.isArray(req.body.acceptanceCriteriaStatus) ? req.body.acceptanceCriteriaStatus : [],
-        usageSummary: safeObject(req.body.usageSummary),
+        usageSummary: usageEvaluation,
+        authMeter,
+        budgetPolicy,
+        costState: {
+          status: usageEvaluation.budgetAnomalous ? 'budget_anomalous' : 'measured',
+          budgetAnomalous: usageEvaluation.budgetAnomalous,
+          requiresAuthorizationBeforeRetryOrFollowup: usageEvaluation.requiresAuthorizationBeforeRetryOrFollowup,
+          states: usageEvaluation.states,
+        },
+        sheRawPostCompletionReadback,
         currentPhase: safeText(req.body.currentPhase, 120) || job.status,
         repositoryCommit: safeText(req.body.repositoryCommit, 160),
         workingTreeState: safeText(req.body.workingTreeState, 120),
@@ -3493,6 +3748,13 @@ function createCommandCenterMcpApp({admin}) {
         createdAtMs: Date.now(),
       };
       await collection(admin, COMMAND_CENTER_COLLECTIONS.checkpoints).doc(checkpoint.checkpointId).set(checkpoint);
+      await collection(admin, COMMAND_CENTER_COLLECTIONS.jobs).doc(jobId).set({
+        updatedAtMs: Date.now(),
+        authMeter,
+        costState: checkpoint.costState,
+        latestUsageSummary: usageEvaluation,
+        sheRawPostCompletionReadback,
+      }, {merge: true});
       const memoryObject = await recordCurrentMemorySnapshot(admin, checkpoint);
       res.json({ok: true, checkpoint, memoryObject});
     } catch (err) {
@@ -3568,6 +3830,8 @@ module.exports = {
   COMMAND_CENTER_JOB_ACTIVATION_STATUSES,
   COMMAND_CENTER_COMPLETION_EVENT_LOOKBACK_LIMIT,
   COMMAND_CENTER_TERMINAL_JOB_STATUSES,
+  COMMAND_CENTER_OPENAI_AUTH_MODES,
+  COMMAND_CENTER_BUDGET_POLICIES,
   COMMAND_CENTER_DURABLE_SESSION_RESTORE_STRATEGIES,
   COMMAND_CENTER_CODEX_CLOUD_SURFACE,
   COMMAND_CENTER_DEFAULT_BUCKET_ID,
@@ -3587,6 +3851,10 @@ module.exports = {
   createCommandCenterMcpServer,
   cleanBaseWorkspace,
   cleanMutationPolicy,
+  normalizeOpenAiAuthMode,
+  normalizeBudgetPolicy,
+  evaluateUsageAgainstBudget,
+  sheRawCostReadback,
   cleanOneShotExecution,
   cleanBucketObject,
   ownerKeyFromActor,

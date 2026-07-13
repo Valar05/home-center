@@ -13,6 +13,7 @@ const jobId = env.COMMAND_CENTER_JOB_ID || '';
 const snapshotBucket = env.COMMAND_CENTER_WORKSPACE_SNAPSHOT_BUCKET || '';
 const workspaceRoot = env.COMMAND_CENTER_WORKSPACE_DIR || '/workspace/session';
 const codexHome = env.CODEX_HOME || path.join(os.homedir(), '.command-center-codex-home');
+const OPENAI_AUTH_MODES = ['chatgpt_subscription', 'api_key_metered', 'unknown'];
 
 function required(name, value) {
   if (!value) throw new Error(`${name} is required`);
@@ -25,6 +26,66 @@ function redact(text) {
     .replace(/\bccw_[A-Za-z0-9_-]{12,}(?:_[A-Za-z0-9_-]{12,})?\b/g, '[REDACTED_WORKER_TOKEN]')
     .replace(/\b[A-Za-z0-9_-]{20,}\.[A-Za-z0-9_-]{20,}\.[A-Za-z0-9_-]{20,}\b/g, '[REDACTED_JWT]')
     .replace(/(OPENAI_API_KEY|GITHUB_TOKEN|GH_TOKEN)=\\S+/g, '$1=[REDACTED]');
+}
+
+function normalizeOpenAiAuthMode(value) {
+  const mode = String(value || '').trim().toLowerCase();
+  return OPENAI_AUTH_MODES.includes(mode) ? mode : 'unknown';
+}
+
+function detectOpenAiAuthMode() {
+  const explicit = normalizeOpenAiAuthMode(env.COMMAND_CENTER_OPENAI_AUTH_MODE || env.OPENAI_AUTH_MODE);
+  if (explicit !== 'unknown') return explicit;
+  if (String(env.OPENAI_API_KEY || '').trim()) return 'api_key_metered';
+  for (const rel of ['auth.json', 'codex.json', 'config.json']) {
+    if (fs.existsSync(path.join(codexHome, rel))) return 'chatgpt_subscription';
+  }
+  return 'unknown';
+}
+
+function budgetPolicyFromJob(job = {}) {
+  const policy = job.budgetPolicy && typeof job.budgetPolicy === 'object' ? job.budgetPolicy : {};
+  const budgetClass = String(policy.budgetClass || job.budgetClass || 'small').trim() || 'small';
+  const defaults = {
+    small: {wallClockMs: 45 * 60 * 1000, maxRetries: 0, maxFollowups: 0, maxConcurrency: 1, inputWarningTokens: 100000, inputAnomalyTokens: 500000, approvalRequiredAtInputTokens: 500000, hardStopInputTokens: 900000, extendedExecutionAuthorized: false},
+    medium: {wallClockMs: 2 * 60 * 60 * 1000, maxRetries: 1, maxFollowups: 1, maxConcurrency: 1, inputWarningTokens: 250000, inputAnomalyTokens: 750000, approvalRequiredAtInputTokens: 750000, hardStopInputTokens: 1500000, extendedExecutionAuthorized: false},
+    large: {wallClockMs: 6 * 60 * 60 * 1000, maxRetries: 1, maxFollowups: 2, maxConcurrency: 1, inputWarningTokens: 500000, inputAnomalyTokens: 1500000, approvalRequiredAtInputTokens: 1500000, hardStopInputTokens: 3000000, extendedExecutionAuthorized: true},
+    long_running_authorized: {wallClockMs: 12 * 60 * 60 * 1000, maxRetries: 1, maxFollowups: 3, maxConcurrency: 1, inputWarningTokens: 750000, inputAnomalyTokens: 2000000, approvalRequiredAtInputTokens: 2000000, hardStopInputTokens: 5000000, extendedExecutionAuthorized: true},
+  };
+  return {budgetClass, ...(defaults[budgetClass] || defaults.small), ...policy};
+}
+
+function evaluateBudgetUsage(usage, job = {}, authMeter = {}) {
+  const policy = budgetPolicyFromJob(job);
+  const inputTokens = Number(usage.inputTokens || 0);
+  const cachedInputTokens = Number(usage.cachedInputTokens || 0);
+  const elapsedMs = Number(usage.elapsedMs || 0);
+  const warnings = Array.isArray(usage.warnings) ? [...usage.warnings] : [];
+  const states = [];
+  const wallClockMs = Number(policy.wallClockMs || 0);
+  if (inputTokens >= Number(policy.inputWarningTokens || 0)) warnings.push(`Input token warning threshold crossed: ${inputTokens}/${policy.inputWarningTokens}.`);
+  if (elapsedMs > 0 && wallClockMs > 0 && elapsedMs >= wallClockMs) {
+    warnings.push(`Wall-clock budget crossed: ${elapsedMs}/${wallClockMs} ms.`);
+    states.push('wall_clock_over_budget');
+  }
+  if (inputTokens >= Number(policy.inputAnomalyTokens || 0)) states.push('budget_anomalous');
+  if (inputTokens >= Number(policy.approvalRequiredAtInputTokens || 0)) states.push('requires_authorization_before_retry_or_followup');
+  if (normalizeOpenAiAuthMode(authMeter.openAiAuthMode) === 'unknown') states.push('auth_meter_unknown');
+  if (normalizeOpenAiAuthMode(authMeter.openAiAuthMode) === 'api_key_metered') states.push('api_key_metered');
+  return {
+    ...usage,
+    inputTokens,
+    cachedInputTokens,
+    uncachedInputTokens: Math.max(0, inputTokens - cachedInputTokens),
+    elapsedMs,
+    cachedInputRatio: inputTokens > 0 ? cachedInputTokens / inputTokens : 0,
+    budgetPolicy: policy,
+    authMeter,
+    warnings: Array.from(new Set(warnings)),
+    states: Array.from(new Set(states)),
+    budgetAnomalous: states.includes('budget_anomalous'),
+    requiresAuthorizationBeforeRetryOrFollowup: states.includes('requires_authorization_before_retry_or_followup') || states.includes('auth_meter_unknown'),
+  };
 }
 
 async function post(endpoint, body) {
@@ -327,6 +388,12 @@ function jobPrompt(packet, restore) {
     '',
     `Constraints:\n${(job.constraints || []).map((item) => `- ${item}`).join('\n')}`,
     '',
+    `Budget policy:\n${JSON.stringify(job.budgetPolicy || {budgetClass: job.budgetClass || 'small'}, null, 2)}`,
+    '',
+    `Authentication meter:\n${JSON.stringify(job.authMeter || {openAiAuthMode: 'unknown', credentialExposed: false}, null, 2)}`,
+    '',
+    'If token usage crosses a warning or approval threshold, finish the current safe turn when possible, checkpoint evidence, and do not start a retry or follow-up yourself.',
+    '',
     `Verification commands requested:\n${(job.verificationCommands || []).map((item) => `- ${item}`).join('\n')}`,
     '',
     'Required final artifacts are generated by the worker after Codex exits: implementation.patch, changed-files.json, verification.json, command-log.jsonl, final-report.md, mutation-requests.jsonl, and job-intake.json.',
@@ -387,7 +454,7 @@ function stripNegativeMutationLanguage(text) {
     .replace(/\b(no|without)\s+(GitHub mutation|Drive mutation|deployment mutation|worker-registration|project-registration mutation|external mutations?)[^.\n;]*/gi, '');
 }
 
-function parseCodexUsageSummary(text) {
+function parseCodexUsageSummary(text, job = {}, authMeter = {}) {
   const source = String(text || '');
   const pick = (patterns) => {
     for (const pattern of patterns) {
@@ -399,13 +466,12 @@ function parseCodexUsageSummary(text) {
   const inputTokens = pick([/\binput tokens?\D+([0-9][0-9,]*)/i, /\binput_tokens["'\s:]+([0-9][0-9,]*)/i]);
   const cachedInputTokens = pick([/\bcached input tokens?\D+([0-9][0-9,]*)/i, /\bcached_input_tokens["'\s:]+([0-9][0-9,]*)/i]);
   const outputTokens = pick([/\boutput tokens?\D+([0-9][0-9,]*)/i, /\boutput_tokens["'\s:]+([0-9][0-9,]*)/i]);
-  return {
+  return evaluateBudgetUsage({
     inputTokens,
     cachedInputTokens,
     outputTokens,
-    cachedInputRatio: inputTokens > 0 ? cachedInputTokens / inputTokens : 0,
     warnings: inputTokens > 500000 ? [`High Codex input token usage: ${inputTokens}.`] : [],
-  };
+  }, job, authMeter);
 }
 
 function buildAcceptanceMatrix(job, acceptance, verificationResults, gitEvidence) {
@@ -477,7 +543,7 @@ function buildAcceptanceMatrix(job, acceptance, verificationResults, gitEvidence
   });
 }
 
-function assessJobAcceptance(packet, codex, verificationResults, gitEvidence) {
+function assessJobAcceptance(packet, codex, verificationResults, gitEvidence, authMeter = {}) {
   const job = packet.job || {};
   const transcript = [
     codex.stdout || '',
@@ -501,7 +567,7 @@ function assessJobAcceptance(packet, codex, verificationResults, gitEvidence) {
     failures.push('Ticket required push/PR evidence but no GitHub pull request URL was produced.');
   }
   const accepted = failures.length === 0;
-  const usageSummary = parseCodexUsageSummary(transcript);
+  const usageSummary = parseCodexUsageSummary(transcript, job, authMeter);
   const result = {accepted, failures};
   const acceptanceMatrix = buildAcceptanceMatrix(job, result, verificationResults, gitEvidence);
   writeJsonFile('acceptance.json', {
@@ -614,8 +680,8 @@ function nonceFromJob(job = {}, prefix = 'nonce') {
   return `${prefix}_${String(job.jobId || jobId).replace(/[^A-Za-z0-9_-]/g, '').slice(-16)}`;
 }
 
-function writeAcceptanceArtifacts(job, acceptance, verificationResults = [], gitEvidence = {}) {
-  const usageSummary = acceptance.usageSummary || {inputTokens: 0, cachedInputTokens: 0, outputTokens: 0, cachedInputRatio: 0, warnings: []};
+function writeAcceptanceArtifacts(job, acceptance, verificationResults = [], gitEvidence = {}, authMeter = {}) {
+  const usageSummary = acceptance.usageSummary || evaluateBudgetUsage({inputTokens: 0, cachedInputTokens: 0, outputTokens: 0, warnings: []}, job, authMeter);
   const matrix = buildAcceptanceMatrix(job, acceptance, verificationResults, gitEvidence);
   writeJsonFile('acceptance.json', {
     accepted: acceptance.accepted,
@@ -636,7 +702,9 @@ function writeAcceptanceArtifacts(job, acceptance, verificationResults = [], git
 }
 
 async function runExecutorPulseJob(packet, executorId) {
+  const startedAtMs = Date.now();
   const job = packet.job || {};
+  const authMeter = {openAiAuthMode: detectOpenAiAuthMode(), source: 'worker_runtime', credentialExposed: false};
   const jobIdValue = job.jobId || jobId;
   const nonce = nonceFromJob(job, 'pulse');
   writeText('job-intake.json', JSON.stringify(packet, null, 2) + '\n');
@@ -654,8 +722,10 @@ async function runExecutorPulseJob(packet, executorId) {
     nonce,
   });
   const gitEvidence = {changedFiles: [], diffHasContent: false, newCommitCreated: false, baseCommit: '', headCommit: '', branch: ''};
-  const acceptance = {accepted: true, failures: [], usageSummary: {inputTokens: 0, cachedInputTokens: 0, outputTokens: 0, cachedInputRatio: 0, warnings: []}};
-  const review = writeAcceptanceArtifacts(job, acceptance, [{command: 'executor_pulse', exitCode: 0, stdout, stderr: ''}], gitEvidence);
+  const acceptance = {accepted: true, failures: [], usageSummary: evaluateBudgetUsage({inputTokens: 0, cachedInputTokens: 0, outputTokens: 0, warnings: []}, job, authMeter)};
+  acceptance.usageSummary.elapsedMs = Date.now() - startedAtMs;
+  acceptance.usageSummary = evaluateBudgetUsage(acceptance.usageSummary, job, authMeter);
+  const review = writeAcceptanceArtifacts(job, acceptance, [{command: 'executor_pulse', exitCode: 0, stdout, stderr: ''}], gitEvidence, authMeter);
   const finalReport = `# Final Report\n\nExecutor pulse completed without invoking Codex.\n\nNonce: ${nonce}\n`;
   writeText('final-report.md', finalReport);
   const artifacts = [
@@ -678,6 +748,7 @@ async function runExecutorPulseJob(packet, executorId) {
     evidenceRefs: artifacts.map((artifact) => artifact.workspacePath),
     acceptanceCriteriaStatus: review.acceptanceMatrix,
     usageSummary: review.usageSummary,
+    authMeter,
     failedApproaches: [],
     nextAction: 'Use this as a cheap executor heartbeat. Run Codex smoke only after deployment or worker-image changes.',
   });
@@ -686,7 +757,9 @@ async function runExecutorPulseJob(packet, executorId) {
 }
 
 async function runCodexSmokeJob(packet, executorId) {
+  const startedAtMs = Date.now();
   const job = packet.job || {};
+  const authMeter = {openAiAuthMode: detectOpenAiAuthMode(), source: 'worker_runtime', credentialExposed: false};
   const jobIdValue = job.jobId || jobId;
   const nonce = nonceFromJob(job, 'codex_smoke');
   writeText('job-intake.json', JSON.stringify(packet, null, 2) + '\n');
@@ -716,9 +789,11 @@ async function runCodexSmokeJob(packet, executorId) {
   for (const result of verificationResults) {
     if (result.exitCode !== 0) failures.push(`Verification failed: ${result.command} exited ${result.exitCode}.`);
   }
-  const acceptance = {accepted: failures.length === 0, failures, usageSummary: parseCodexUsageSummary([codex.stdout, codex.stderr, readFileIfExists('final-report.md')].join('\n'))};
+  const acceptance = {accepted: failures.length === 0, failures, usageSummary: parseCodexUsageSummary([codex.stdout, codex.stderr, readFileIfExists('final-report.md')].join('\n'), job, authMeter)};
+  acceptance.usageSummary.elapsedMs = Date.now() - startedAtMs;
+  acceptance.usageSummary = evaluateBudgetUsage(acceptance.usageSummary, job, authMeter);
   const gitEvidence = {changedFiles: ['hello-world.txt'], diffHasContent: false, newCommitCreated: false, baseCommit: '', headCommit: '', branch: ''};
-  const review = writeAcceptanceArtifacts(job, acceptance, verificationResults, gitEvidence);
+  const review = writeAcceptanceArtifacts(job, acceptance, verificationResults, gitEvidence, authMeter);
   const status = acceptance.accepted ? 'completed' : 'failed';
   const finalReport = `${readFileIfExists('final-report.md').trim()}\n\n## Command Center Smoke\n\nNonce: ${nonce}\nStatus: ${status}\n`;
   writeText('final-report.md', finalReport);
@@ -742,6 +817,7 @@ async function runCodexSmokeJob(packet, executorId) {
     evidenceRefs: artifacts.map((artifact) => artifact.workspacePath),
     acceptanceCriteriaStatus: review.acceptanceMatrix,
     usageSummary: review.usageSummary,
+    authMeter,
     failedApproaches: acceptance.failures,
     nextAction: status === 'completed' ? 'Use full repository acceptance only for consequential releases.' : 'Fix the reported smoke failures before running full repository acceptance.',
   });
@@ -750,11 +826,13 @@ async function runCodexSmokeJob(packet, executorId) {
 }
 
 async function runOneShotJob() {
+  const startedAtMs = Date.now();
   required('COMMAND_CENTER_WORKER_TOKEN', workerToken);
   required('COMMAND_CENTER_JOB_ID', jobId);
   ensureWorkspace();
   const executorId = `${os.hostname() || 'cloud-run'}:${process.env.CLOUD_RUN_EXECUTION || process.pid}`;
-  const leased = await post('/worker/lease', {jobId, executorId});
+  const authMeter = {openAiAuthMode: detectOpenAiAuthMode(), source: 'worker_runtime', credentialExposed: false};
+  const leased = await post('/worker/lease', {jobId, executorId, openAiAuthMode: authMeter.openAiAuthMode});
   if (!leased.leased) throw new Error(`job was not leased to this worker: ${jobId}`);
   const packet = leased.packet || {};
   const job = packet.job || {};
@@ -782,7 +860,9 @@ async function runOneShotJob() {
     ...verificationResults,
   ]);
   const gitEvidence = captureRepositoryArtifacts(packet, codex, restore, verificationResults, baseCommit);
-  const acceptance = assessJobAcceptance(packet, codex, verificationResults, gitEvidence);
+  const acceptance = assessJobAcceptance(packet, codex, verificationResults, gitEvidence, authMeter);
+  acceptance.usageSummary.elapsedMs = Date.now() - startedAtMs;
+  acceptance.usageSummary = evaluateBudgetUsage(acceptance.usageSummary, job, authMeter);
   const status = acceptance.accepted ? 'completed' : 'failed';
   const codexFinalMessage = readFileIfExists('codex-last-message.md').trim();
   const existingFinalReport = readFileIfExists('final-report.md').trim();
@@ -820,6 +900,7 @@ async function runOneShotJob() {
     evidenceRefs: artifacts.map((artifact) => artifact.workspacePath),
     acceptanceCriteriaStatus: acceptance.acceptanceMatrix,
     usageSummary: acceptance.usageSummary,
+    authMeter,
     failedApproaches: acceptance.failures,
     nextAction: status === 'completed' ? 'Inspect job events, logs, artifacts, checkpoint, and completion status.' : 'Fix the reported acceptance failures before claiming real cloud hands completion.',
   });
