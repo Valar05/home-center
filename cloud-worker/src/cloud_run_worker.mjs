@@ -68,13 +68,30 @@ function ensureWorkspace() {
   fs.mkdirSync(workspaceRoot, {recursive: true});
 }
 
+function materializeCodexHomeArchive() {
+  if (!fs.existsSync(codexHomeArchive)) return '';
+  const raw = fs.readFileSync(codexHomeArchive);
+  if (raw[0] === 0x1f && raw[1] === 0x8b) return codexHomeArchive;
+  const encoded = raw.toString('utf8').trim();
+  if (/^[A-Za-z0-9+/=\r\n]+$/.test(encoded) && encoded.length > 64) {
+    const decoded = Buffer.from(encoded, 'base64');
+    if (decoded[0] === 0x1f && decoded[1] === 0x8b) {
+      const decodedPath = path.join(os.tmpdir(), 'command-center-codex-home-decoded.tgz');
+      fs.writeFileSync(decodedPath, decoded, {mode: 0o600});
+      return decodedPath;
+    }
+  }
+  return codexHomeArchive;
+}
+
 function prepareCodexHome() {
   fs.mkdirSync(codexHome, {recursive: true});
-  if (fs.existsSync(codexHomeArchive)) {
+  const archivePath = materializeCodexHomeArchive();
+  if (archivePath) {
     const before = run(`find ${JSON.stringify(codexHome)} -mindepth 1 -maxdepth 1 | head -n 1`, '/', {omit: ['OPENAI_API_KEY']});
     if (!before.stdout.trim()) {
-      const unpack = run(`tar -xzf ${JSON.stringify(codexHomeArchive)} -C ${JSON.stringify(codexHome)}`, '/', {omit: ['OPENAI_API_KEY']});
-      if (unpack.exitCode !== 0) throw new Error(`Codex home restore failed: ${unpack.stderr || unpack.stdout}`);
+      const unpack = run(`tar -xzf ${JSON.stringify(archivePath)} -C ${JSON.stringify(codexHome)}`, '/', {omit: ['OPENAI_API_KEY']});
+      if (unpack.exitCode !== 0) throw new Error(`Codex home restore failed from mounted archive: ${unpack.stderr || unpack.stdout}`);
     }
     return {mode: 'codex_home_archive', codexHome};
   }
@@ -85,7 +102,6 @@ function prepareCodexHome() {
   if (login.exitCode !== 0) return {mode: 'api_key_login_failed', codexHome, login};
   return {mode: 'api_key_login', codexHome};
 }
-
 function restoreWorkspace(ref, repository) {
   ensureWorkspace();
   if (ref && ref.startsWith('gs://')) {
@@ -710,7 +726,10 @@ main().catch(async (err) => {
   const message = redact(err && err.stack || err && err.message || String(err)).slice(0, 4000);
   try {
     if (workerToken && activationId && !jobId) await post('/agent/complete', {activationId, status: 'failed', finalSummary: message});
-    if (workerToken && jobId) await post('/worker/events', {jobId, type: 'executor_finished', summary: `Cloud Run worker failed: ${message.slice(0, 1000)}`, data: {failed: true}});
+    if (workerToken && jobId) {
+      await post('/worker/events', {jobId, type: 'executor_failed', summary: `Cloud Run worker failed: ${message.slice(0, 1000)}`, data: {failed: true}});
+      await post('/worker/complete', {jobId, status: 'failed', finalReport: '# Final Report\n\nCloud Run worker failed before completing lifecycle.\n\n' + message.slice(0, 3000), artifacts: []});
+    }
   } catch (_) {}
   console.error(message);
   process.exit(1);
