@@ -123,6 +123,7 @@ assert.equal(shouldAcceptWorkerCompletion({
     {name: 'reasoning-summary.md', origin: 'executor_workspace'},
     {name: 'command-log.jsonl', origin: 'executor_workspace'},
     {name: 'acceptance.json', origin: 'executor_workspace'},
+    {name: 'acceptance-matrix.json', origin: 'executor_workspace'},
     {name: 'implementation.patch', origin: 'executor_workspace'},
     {name: 'changed-files.json', origin: 'executor_workspace'},
     {name: 'verification.json', origin: 'executor_workspace'},
@@ -145,6 +146,22 @@ assert.match(shouldAcceptWorkerCompletion({
   events: [{type: 'executor_started'}, {type: 'executor_finished'}],
   artifacts: [{name: 'noop-proof.txt', origin: 'executor_workspace'}],
 }).reason, /noop-proof/);
+assert.match(shouldAcceptWorkerCompletion({
+  requestedStatus: 'completed',
+  events: [{type: 'executor_started'}, {type: 'executor_finished'}],
+  artifacts: [
+    {name: 'job-intake.json', origin: 'executor_workspace'},
+    {name: 'orientation.md', origin: 'executor_workspace'},
+    {name: 'reasoning-summary.md', origin: 'executor_workspace'},
+    {name: 'command-log.jsonl', origin: 'executor_workspace'},
+    {name: 'acceptance.json', origin: 'executor_workspace'},
+    {name: 'implementation.patch', origin: 'executor_workspace'},
+    {name: 'changed-files.json', origin: 'executor_workspace'},
+    {name: 'verification.json', origin: 'executor_workspace'},
+    {name: 'final-report.md', origin: 'executor_workspace'},
+    {name: 'mutation-requests.jsonl', origin: 'executor_workspace'},
+  ],
+}).reason, /acceptance-matrix\.json/);
 assert.equal(shouldAcceptWorkerCompletion({requestedStatus: 'failed', events: [], artifacts: []}).ok, true);
 
 
@@ -158,11 +175,18 @@ assert(cloudWorkerSource.includes("executor_stdout"));
 assert(cloudWorkerSource.includes("executor_stderr"));
 assert(!cloudWorkerSource.includes("noop-proof.txt"));
 assert(cloudWorkerSource.includes("restoreJobWorkspace(job)"));
+assert(cloudWorkerSource.includes('function repositoryFromGithubRef'));
+assert(cloudWorkerSource.includes('parts.length >= 2 ? `${parts[0]}/${parts[1]}`'));
+assert(!cloudWorkerSource.includes("replace(/^github:\\\\/\\\\//, '').replace(/\\\\/.*$/, '')"));
 assert(cloudWorkerSource.includes("runCodexPromptStreaming"));
 assert(cloudWorkerSource.includes("implementation.patch"));
 assert(cloudWorkerSource.includes("changed-files.json"));
 assert(cloudWorkerSource.includes("verification.json"));
 assert(cloudWorkerSource.includes("acceptance.json"));
+assert(cloudWorkerSource.includes("acceptance-matrix.json"));
+assert(cloudWorkerSource.includes("usage-summary.json"));
+assert(cloudWorkerSource.includes("acceptanceCriteriaStatus: acceptance.acceptanceMatrix"));
+assert(cloudWorkerSource.includes("usageSummary: acceptance.usageSummary"));
 assert(cloudWorkerSource.includes("command-center-git-askpass.sh"));
 assert(cloudWorkerSource.includes("GIT_ASKPASS"));
 assert(cloudWorkerSource.includes(").trim()"));
