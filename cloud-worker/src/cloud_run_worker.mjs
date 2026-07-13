@@ -112,13 +112,22 @@ function prepareCodexAuth() {
   let bundlePath = codexHomeBundle;
   const stat = fs.statSync(bundlePath);
   if (stat.isDirectory()) {
-    const candidates = ['codex-home.tgz', 'latest', '1']
+    const candidates = ['codex-home.tgz', 'codex-home.tgz.b64', 'latest', '1']
       .map((name) => path.join(bundlePath, name))
       .filter((candidate) => fs.existsSync(candidate) && fs.statSync(candidate).isFile());
     if (!candidates.length) {
-      throw new Error(`Subscription Codex auth bundle path is a directory without codex-home.tgz, latest, or 1: ${bundlePath}.`);
+      throw new Error(`Subscription Codex auth bundle path is a directory without codex-home.tgz, codex-home.tgz.b64, latest, or 1: ${bundlePath}.`);
     }
     bundlePath = candidates[0];
+  }
+  const raw = fs.readFileSync(bundlePath);
+  if (!(raw[0] === 0x1f && raw[1] === 0x8b)) {
+    const decoded = Buffer.from(raw.toString('utf8').trim(), 'base64');
+    if (!(decoded[0] === 0x1f && decoded[1] === 0x8b)) {
+      throw new Error('Subscription Codex auth bundle is neither gzip nor base64-wrapped gzip.');
+    }
+    bundlePath = path.join(os.tmpdir(), 'command-center-codex-home.tgz');
+    fs.writeFileSync(bundlePath, decoded, {mode: 0o600});
   }
   const unpack = runFile('tar', ['-xzf', bundlePath, '-C', codexHome], '/');
   if (unpack.exitCode !== 0) throw new Error(`Subscription Codex auth bundle unpack failed: ${unpack.stderr || unpack.stdout}`);

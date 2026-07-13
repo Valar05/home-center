@@ -7,6 +7,7 @@ CODEX_SOURCE_HOME="${CODEX_SOURCE_HOME:-$HOME/.codex}"
 TMP_ROOT="${TMPDIR:-/data/data/com.termux/files/usr/tmp}/command-center-codex-home-secret-$$"
 STAGE="$TMP_ROOT/codex-home"
 ARCHIVE="$TMP_ROOT/codex-home.tgz"
+PAYLOAD="$TMP_ROOT/codex-home.tgz.b64"
 
 cleanup() {
   rm -rf "$TMP_ROOT"
@@ -28,18 +29,20 @@ done
 
 (cd "$STAGE" && tar -czf "$ARCHIVE" auth.json config.toml)
 SHA256="$(sha256sum "$ARCHIVE" | awk '{print $1}')"
+base64 -w 0 "$ARCHIVE" > "$PAYLOAD"
 
 if ! gcloud secrets describe "$SECRET" --project "$PROJECT" >/dev/null 2>&1; then
   gcloud secrets create "$SECRET" --project "$PROJECT" --replication-policy automatic >/dev/null
 fi
 
-gcloud secrets versions add "$SECRET" --project "$PROJECT" --data-file "$ARCHIVE" >/dev/null
+gcloud secrets versions add "$SECRET" --project "$PROJECT" --data-file "$PAYLOAD" >/dev/null
 
 cat <<EOF
 Command Center Codex auth bundle stored.
   project: $PROJECT
   secret: $SECRET
   files: auth.json config.toml
-  sha256: $SHA256
+  archive_sha256: $SHA256
+  transport: base64-wrapped-tgz
   contents_printed: false
 EOF
