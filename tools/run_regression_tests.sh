@@ -28,6 +28,7 @@ node --check tools/command_center_oneshot_worker.mjs
 node --check tools/command_center_verbose_worker_smoke.mjs
 node --check cloud-worker/src/cloud_run_worker.mjs
 sh -n tools/deploy_command_center_cloud_worker.sh
+sh -n tools/prepare_command_center_codex_home_secret.sh
 node tools/command_center_mcp_contract_test.mjs
 node tools/command_center_cloud_activation_contract_test.mjs
 node --check tools/she_raw_contract_test.mjs

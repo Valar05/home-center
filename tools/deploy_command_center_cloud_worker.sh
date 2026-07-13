@@ -9,7 +9,7 @@ JOB="${COMMAND_CENTER_CLOUD_WORKER_JOB:-command-center-debian-worker}"
 IMAGE="${REGION}-docker.pkg.dev/${PROJECT}/${REPOSITORY}/debian-codex:latest"
 SNAPSHOT_BUCKET="${COMMAND_CENTER_WORKSPACE_SNAPSHOT_BUCKET:-${PROJECT}-command-center-worker-sessions}"
 WORKER_TOKEN_SECRET="${COMMAND_CENTER_WORKER_TOKEN_SECRET:-COMMAND_CENTER_CLOUD_WORKER_TOKEN}"
-OPENAI_SECRET="${COMMAND_CENTER_OPENAI_SECRET:-OPENAI_API_KEY}"
+CODEX_HOME_SECRET="${COMMAND_CENTER_CODEX_HOME_SECRET:-COMMAND_CENTER_CODEX_HOME_TGZ}"
 GITHUB_SECRET="${COMMAND_CENTER_GITHUB_SECRET:-GITHUB_TOKEN}"
 SERVICE_ACCOUNT="${COMMAND_CENTER_WORKER_SERVICE_ACCOUNT:-}"
 CPU="${COMMAND_CENTER_WORKER_CPU:-1}"
@@ -24,6 +24,19 @@ Missing Secret Manager secret ${WORKER_TOKEN_SECRET}.
 First register the worker and store the returned workerToken in that secret:
   node tools/command_center_oneshot_worker.mjs register --manifest tools/command_center_base_manifests/cloud-run-debian-codex.json --config /tmp/cloud-run-debian-codex-worker.json
   # then add the workerToken value to Secret Manager secret ${WORKER_TOKEN_SECRET}
+
+Rerun this deploy script after the secret exists.
+EOF
+  exit 2
+fi
+
+
+if ! gcloud secrets describe "$CODEX_HOME_SECRET" --project "$PROJECT" >/dev/null 2>&1; then
+  cat >&2 <<EOF
+Missing Secret Manager secret ${CODEX_HOME_SECRET}.
+
+Create it from the local subscription-backed Codex home without printing contents:
+  sh tools/prepare_command_center_codex_home_secret.sh ${PROJECT}
 
 Rerun this deploy script after the secret exists.
 EOF
@@ -54,8 +67,8 @@ gcloud run jobs deploy "$JOB" \
   --cpu "$CPU" \
   --memory "$MEMORY" \
   --task-timeout 3600 \
-  --set-env-vars "COMMAND_CENTER_BASE=https://us-central1-${PROJECT}.cloudfunctions.net/commandCenterMcp,COMMAND_CENTER_WORKSPACE_SNAPSHOT_BUCKET=${SNAPSHOT_BUCKET}" \
-  --set-secrets "COMMAND_CENTER_WORKER_TOKEN=${WORKER_TOKEN_SECRET}:latest,OPENAI_API_KEY=${OPENAI_SECRET}:latest,GH_TOKEN=${GITHUB_SECRET}:latest" \
+  --set-env-vars "COMMAND_CENTER_BASE=https://us-central1-${PROJECT}.cloudfunctions.net/commandCenterMcp,COMMAND_CENTER_WORKSPACE_SNAPSHOT_BUCKET=${SNAPSHOT_BUCKET},COMMAND_CENTER_OPENAI_AUTH_MODE=chatgpt_subscription,COMMAND_CENTER_CODEX_HOME_BUNDLE=/secrets/codex-home/codex-home.tgz" \
+  --set-secrets "COMMAND_CENTER_WORKER_TOKEN=${WORKER_TOKEN_SECRET}:latest,GH_TOKEN=${GITHUB_SECRET}:latest,/secrets/codex-home/codex-home.tgz=${CODEX_HOME_SECRET}:latest" \
   $SERVICE_ACCOUNT_ARG
 
 cat <<EOF
@@ -65,4 +78,5 @@ Cloud worker image deployed:
   cpu: ${CPU}
   memory: ${MEMORY}
   snapshot bucket: gs://${SNAPSHOT_BUCKET}
+  codex auth secret: ${CODEX_HOME_SECRET}
 EOF

@@ -14,6 +14,13 @@ const jobId = env.COMMAND_CENTER_JOB_ID || '';
 const snapshotBucket = env.COMMAND_CENTER_WORKSPACE_SNAPSHOT_BUCKET || '';
 const workspaceRoot = env.COMMAND_CENTER_WORKSPACE_DIR || '/workspace/session';
 const codexHome = env.CODEX_HOME || path.join(os.homedir(), '.command-center-codex-home');
+const codexAuthMode = normalizeCodexAuthMode(env.COMMAND_CENTER_OPENAI_AUTH_MODE || env.OPENAI_AUTH_MODE || 'chatgpt_subscription');
+const codexHomeBundle = env.COMMAND_CENTER_CODEX_HOME_BUNDLE || env.CODEX_HOME_BUNDLE || '/secrets/codex-home/codex-home.tgz';
+
+function normalizeCodexAuthMode(value) {
+  const mode = String(value || '').trim().toLowerCase();
+  return ['chatgpt_subscription', 'api_key_metered'].includes(mode) ? mode : 'chatgpt_subscription';
+}
 
 function required(name, value) {
   if (!value) throw new Error(`${name} is required`);
@@ -60,6 +67,59 @@ function run(command, cwd = workspaceRoot, options = {}) {
 
 function ensureWorkspace() {
   fs.mkdirSync(workspaceRoot, {recursive: true});
+}
+
+function codexAuthEvidence(extra = {}) {
+  return {
+    openAiAuthMode: codexAuthMode,
+    codexHome,
+    bundlePathConfigured: codexAuthMode === 'chatgpt_subscription' ? Boolean(codexHomeBundle) : false,
+    credentialContentsExposed: false,
+    ...extra,
+  };
+}
+
+function prepareCodexAuth() {
+  fs.mkdirSync(codexHome, {recursive: true, mode: 0o700});
+  if (codexAuthMode === 'api_key_metered') {
+    if (!String(env.OPENAI_API_KEY || '').trim()) throw new Error('OPENAI_API_KEY is required for api_key_metered Codex auth mode.');
+    const login = run(`sh -lc 'printf %s "$OPENAI_API_KEY" | codex login --with-api-key'`, workspaceRoot, {env: {CODEX_HOME: codexHome}});
+    fs.writeFileSync(path.join(workspaceRoot, 'codex-login-stdout.txt'), login.stdout);
+    fs.writeFileSync(path.join(workspaceRoot, 'codex-login-stderr.txt'), login.stderr);
+    if (login.exitCode !== 0) throw new Error(`Codex API-key login failed with exit code ${login.exitCode}. See codex-login-stderr.txt.`);
+    return codexAuthEvidence({source: 'openai_api_key_secret'});
+  }
+  if (!codexHomeBundle || !fs.existsSync(codexHomeBundle)) {
+    throw new Error(`Subscription Codex auth bundle is missing at ${codexHomeBundle}.`);
+  }
+  const unpack = run(`tar -xzf ${JSON.stringify(codexHomeBundle)} -C ${JSON.stringify(codexHome)}`, '/');
+  if (unpack.exitCode !== 0) throw new Error(`Subscription Codex auth bundle unpack failed: ${unpack.stderr || unpack.stdout}`);
+  const authJson = path.join(codexHome, 'auth.json');
+  const configToml = path.join(codexHome, 'config.toml');
+  if (!fs.existsSync(authJson) || !fs.existsSync(configToml)) {
+    throw new Error('Subscription Codex auth bundle must contain auth.json and config.toml.');
+  }
+  fs.chmodSync(codexHome, 0o700);
+  for (const rel of ['auth.json', 'config.toml']) fs.chmodSync(path.join(codexHome, rel), 0o600);
+  return codexAuthEvidence({source: 'codex_home_secret_bundle'});
+}
+
+function codexTurnCompleted(result) {
+  const transcript = `${result.stdout || ''}
+${result.stderr || ''}`;
+  return /"type"\s*:\s*"turn\.completed"|turn\.completed/i.test(transcript);
+}
+
+function codexQuotaError(result) {
+  const transcript = `${result.stdout || ''}
+${result.stderr || ''}`;
+  return /quota exceeded|check your plan and billing details/i.test(transcript);
+}
+
+function codexExecutableFailure(result) {
+  if (codexQuotaError(result)) return 'Codex authentication reached quota error; worker credential is not executable for this lane.';
+  if (!codexTurnCompleted(result)) return 'Codex run did not emit turn.completed; activation accepted is not executable proof.';
+  return '';
 }
 
 function restoreWorkspace(ref, repository) {
@@ -165,22 +225,30 @@ function runCodexPrompt(prompt, options = {}) {
     fs.writeFileSync(path.join(workspaceRoot, 'final-report.md'), `# Final Report\n\n${report}\n`);
     return {exitCode: 0, stdout: report, stderr: '', command: 'dry-run'};
   }
-  fs.mkdirSync(codexHome, {recursive: true});
-  const login = run('sh -lc \'printf %s "$OPENAI_API_KEY" | codex login --with-api-key\'', workspaceRoot, {env: {CODEX_HOME: codexHome}});
-  fs.writeFileSync(path.join(workspaceRoot, 'codex-login-stdout.txt'), login.stdout);
-  fs.writeFileSync(path.join(workspaceRoot, 'codex-login-stderr.txt'), login.stderr);
-  if (login.exitCode !== 0) {
-    fs.writeFileSync(path.join(workspaceRoot, 'final-report.md'), `# Final Report\n\nCodex login failed with exit code ${login.exitCode}.\n\nSee codex-login-stderr.txt.\n`);
-    return login;
+  let authEvidence = {};
+  try {
+    authEvidence = prepareCodexAuth();
+  } catch (err) {
+    const message = redact(err.message || String(err));
+    fs.writeFileSync(path.join(workspaceRoot, 'codex-auth-evidence.json'), JSON.stringify(codexAuthEvidence({error: message}), null, 2) + '\n');
+    fs.writeFileSync(path.join(workspaceRoot, 'final-report.md'), `# Final Report
+
+Codex authentication failed before execution.
+
+${message}
+`);
+    return {exitCode: 78, stdout: '', stderr: message, command: 'prepare-codex-auth'};
   }
+  fs.writeFileSync(path.join(workspaceRoot, 'codex-auth-evidence.json'), JSON.stringify(authEvidence, null, 2) + '\n');
   fs.writeFileSync(path.join(workspaceRoot, 'codex-prompt.md'), prompt);
   const result = run(`codex exec --json --skip-git-repo-check --dangerously-bypass-approvals-and-sandbox --output-last-message ${JSON.stringify(path.join(workspaceRoot, 'codex-last-message.md'))} - < ${JSON.stringify(path.join(workspaceRoot, 'codex-prompt.md'))}`, workspaceRoot, {env: {CODEX_HOME: codexHome}});
   fs.writeFileSync(path.join(workspaceRoot, 'codex-stdout.jsonl'), result.stdout);
   fs.writeFileSync(path.join(workspaceRoot, 'codex-stderr.txt'), result.stderr);
+  const executableError = codexExecutableFailure(result);
   const nonce = options.nonce || '';
   const helloPath = path.join(workspaceRoot, 'hello-world.txt');
   const helloText = fs.existsSync(helloPath) ? fs.readFileSync(helloPath, 'utf8').trim() : '';
-  const acceptanceError = nonce && helloText !== nonce ? `Acceptance failed: hello-world.txt was ${helloText ? 'present with unexpected content' : 'not created'}. Expected ${nonce}.` : '';
+  const acceptanceError = executableError || (nonce && helloText !== nonce ? `Acceptance failed: hello-world.txt was ${helloText ? 'present with unexpected content' : 'not created'}. Expected ${nonce}.` : '');
   const exitCode = result.exitCode === 0 && acceptanceError ? 70 : result.exitCode;
   fs.writeFileSync(path.join(workspaceRoot, 'final-report.md'), `# Final Report\n\nExit code: ${exitCode}\n\n${acceptanceError || 'Worker acceptance checks passed.'}\n\nSee codex-stdout.jsonl and codex-stderr.txt.\n`);
   return {...result, exitCode, acceptanceError};
@@ -258,14 +326,21 @@ async function runCodexPromptStreaming(prompt, options = {}) {
     fs.writeFileSync(path.join(workspaceRoot, 'final-report.md'), `# Final Report\n\n${report}\n`);
     return {exitCode: 0, stdout: report, stderr: '', command: 'dry-run'};
   }
-  fs.mkdirSync(codexHome, {recursive: true});
-  const login = run('sh -lc \'printf %s "$OPENAI_API_KEY" | codex login --with-api-key\'', workspaceRoot, {env: {CODEX_HOME: codexHome}});
-  fs.writeFileSync(path.join(workspaceRoot, 'codex-login-stdout.txt'), login.stdout);
-  fs.writeFileSync(path.join(workspaceRoot, 'codex-login-stderr.txt'), login.stderr);
-  if (login.exitCode !== 0) {
-    fs.writeFileSync(path.join(workspaceRoot, 'final-report.md'), `# Final Report\n\nCodex login failed with exit code ${login.exitCode}.\n\nSee codex-login-stderr.txt.\n`);
-    return login;
+  let authEvidence = {};
+  try {
+    authEvidence = prepareCodexAuth();
+  } catch (err) {
+    const message = redact(err.message || String(err));
+    fs.writeFileSync(path.join(workspaceRoot, 'codex-auth-evidence.json'), JSON.stringify(codexAuthEvidence({error: message}), null, 2) + '\n');
+    fs.writeFileSync(path.join(workspaceRoot, 'final-report.md'), `# Final Report
+
+Codex authentication failed before execution.
+
+${message}
+`);
+    return {exitCode: 78, stdout: '', stderr: message, command: 'prepare-codex-auth'};
   }
+  fs.writeFileSync(path.join(workspaceRoot, 'codex-auth-evidence.json'), JSON.stringify(authEvidence, null, 2) + '\n');
   fs.writeFileSync(path.join(workspaceRoot, 'codex-prompt.md'), prompt);
   fs.writeFileSync(path.join(workspaceRoot, 'stdout-transcript.txt'), '');
   fs.writeFileSync(path.join(workspaceRoot, 'stderr-transcript.txt'), '');
@@ -298,10 +373,11 @@ async function runCodexPromptStreaming(prompt, options = {}) {
   });
   fs.writeFileSync(path.join(workspaceRoot, 'codex-stdout.jsonl'), result.stdout);
   fs.writeFileSync(path.join(workspaceRoot, 'codex-stderr.txt'), result.stderr);
+  const executableError = codexExecutableFailure(result);
   const nonce = options.nonce || '';
   const helloPath = path.join(workspaceRoot, 'hello-world.txt');
   const helloText = fs.existsSync(helloPath) ? fs.readFileSync(helloPath, 'utf8').trim() : '';
-  const acceptanceError = nonce && helloText !== nonce ? `Acceptance failed: hello-world.txt was ${helloText ? 'present with unexpected content' : 'not created'}. Expected ${nonce}.` : '';
+  const acceptanceError = executableError || (nonce && helloText !== nonce ? `Acceptance failed: hello-world.txt was ${helloText ? 'present with unexpected content' : 'not created'}. Expected ${nonce}.` : '');
   const exitCode = result.exitCode === 0 && acceptanceError ? 70 : result.exitCode;
   fs.writeFileSync(path.join(workspaceRoot, 'final-report.md'), `# Final Report\n\nExit code: ${exitCode}\n\n${acceptanceError || 'Worker acceptance checks passed.'}\n\nSee codex-stdout.jsonl, codex-stderr.txt, stdout-transcript.txt, and stderr-transcript.txt.\n`);
   return {...result, exitCode, acceptanceError};
