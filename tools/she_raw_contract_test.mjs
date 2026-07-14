@@ -69,6 +69,7 @@ assert(SHE_RAW_BRAIN_IDS.includes('prospector'));
 assert(SHE_RAW_BRAIN_IDS.includes('foreman'));
 assert(SHE_RAW_BRAIN_IDS.includes('bikini_bottom'));
 assert(SHE_RAW_BRAIN_IDS.includes('queen_b'));
+assert(SHE_RAW_BRAIN_IDS.includes('patrickgor'));
 assert(!SHE_RAW_BRAIN_IDS.includes('she_raw'));
 const operationRegistry = sheRawOperationRegistry();
 assert.equal(operationRegistry.invocationTool, 'she_raw_operation');
@@ -82,6 +83,7 @@ assert(brainJars.some((brain) => brain.brainId === 'quartermaster' && brain.sour
 assert(brainJars.some((brain) => brain.brainId === 'prospector'));
 assert(brainJars.some((brain) => brain.brainId === 'bikini_bottom' && brain.source === 'she-raw-corpus'));
 assert(brainJars.some((brain) => brain.brainId === 'queen_b' && brain.source === 'she-raw-corpus'));
+assert(brainJars.some((brain) => brain.brainId === 'patrickgor' && brain.source === 'she-raw-corpus'));
 assert(brainJars.every((brain) => brain.brainId !== 'she_raw'));
 assert.equal(brainJarIdFromConsultArgs({requestedPerspective: 'Prospector brain health', boundedContext: 'Use the Prospector jar.'}), 'prospector');
 assert.equal(brainJarIdFromConsultArgs({requestedPerspective: 'ordinary Command Center planning', boundedContext: 'No brain jar request here.'}), '');
@@ -125,6 +127,8 @@ const bikiniCorpusHits = await retrieveCases(admin, 'Bikini Bottom anti-agentism
 assert(bikiniCorpusHits.some((caseRecord) => caseRecord.id === 'sr_case_bikini_bottom_anti_agentism_001'));
 const queenBCorpusHits = await retrieveCases(admin, 'Queen B QA confidant release confidence receipts broad contract mirror false green', {});
 assert(queenBCorpusHits.some((caseRecord) => caseRecord.id === 'sr_case_queen_b_qa_confidant_001'));
+const patrickgorCorpusHits = await retrieveCases(admin, 'Patrickgor PatrickGPT autocorrect created a monster digest the mutation convert it into honey', {});
+assert(patrickgorCorpusHits.some((caseRecord) => caseRecord.id === 'sr_case_patrickgor_typo_digestive_transformation_001'));
 
 const blocked = await handleConsult(admin, {conversationKey: 'conv-1', commandState: 'executing', boundedContext: 'ambient check'}, extra, 'ambient');
 assert.equal(blocked.blocked, true);
@@ -329,6 +333,25 @@ assert(!queenB.retrieved_cases.some((caseRecord) => caseRecord.id === 'sr_case_t
 assert.match(queenB.release_judgment + queenB.confidence_read, /not releasable|broad contract|mirror|receipts/i);
 assert.equal(queenB.qa_checks.broad_contract_must_pass, true);
 assert.equal(queenB.qa_checks.mirror_evidence_required, true);
+
+const patrickgor = await handleBrainJar(admin, {
+  brainId: 'patrickgor',
+  conversationKey: 'conv-patrickgor',
+  projectKey: 'she-raw',
+  commandState: 'idle',
+  boundedContext: 'Patrickgor was supposed to be PatrickGPT, but autocorrect created a monster. Keep the mutation and digest it carefully.',
+  question: 'What did the mistake create that the intended input could not?',
+}, extra);
+assert.match(patrickgor.invocation_id, /^srbrain_/);
+assert.equal(patrickgor.brain_id, 'patrickgor');
+assert.equal(patrickgor.intended_input, 'PatrickGPT');
+assert.equal(patrickgor.mutation, 'Patrickgor');
+assert.match(patrickgor.provenance_status, /correction preserved/i);
+assert.match(patrickgor.honey_artifact, /explicit-only|labeled artifact|digest/i);
+assert.match(patrickgor.boundary, /exact identifiers|living people|medical|standalone agent/i);
+assert(patrickgor.retrieved_cases.some((caseRecord) => caseRecord.id === 'sr_case_patrickgor_typo_digestive_transformation_001'));
+assert(!patrickgor.retrieved_cases.some((caseRecord) => caseRecord.id === 'sr_case_bikini_bottom_anti_agentism_001'));
+
 
 const prospectorViaConsult = await handleConsult(admin, {conversationKey: 'conv-1', projectKey: 'home-center', commandState: 'idle', boundedContext: 'Prospector brain health: inspect whether the jar is actually plumbed.', requestedPerspective: 'Prospector brain'}, extra, 'explicit');
 assert.match(prospectorViaConsult.invocation_id, /^srbrain_/);
