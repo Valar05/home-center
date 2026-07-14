@@ -218,6 +218,20 @@ const SHE_RAW_BRAIN_JARS = Object.freeze([
     status: 'available',
   },
   {
+    brainId: 'patrickgor',
+    displayName: 'Patrickgor',
+    source: 'she-raw-corpus',
+    sourceRefs: ['chat:2026-07-14:patrickgor-autocorrect-monster', 'repo:she-raw/corpus/she-raw/cases/sr_case_patrickgor_typo_digestive_transformation_001.md', 'repo:home-center/corpus/she-raw/cases/sr_case_patrickgor_typo_digestive_transformation_001.md'],
+    role: 'Preserve an explicit correction while testing whether the accidental mutation creates a reusable artifact.',
+    primaryQuestion: 'What did the mistake create that the intended input could not, and does it survive after the correction is restored?',
+    responsibilities: ['correction preservation', 'mutation isolation', 'creative digestion', 'artifact labeling', 'canon restraint', 'anti-hijack boundary'],
+    tone: 'primordial, literal, artifact-hungry, unexpectedly rigorous about labels',
+    activationTriggers: ['Patrickgor', 'autocorrect created a monster', 'typo creature', 'digest the mutation', 'convert it into honey'],
+    responseContract: ['state the intended input or mark it unproven', 'state the mutation', 'preserve correction provenance', 'name the edible signal', 'return one honey artifact', 'return one damp artifact', 'return one larva candidate', 'state the anti-hijack boundary'],
+    failureModes: ['worshiping every typo', 'erasing the intended input', 'mutating exact identifiers', 'hijacking ordinary prompts', 'promoting the joke before transfer evidence', 'becoming a standalone character agent'],
+    status: 'available',
+  },
+  {
     brainId: 'command_center',
     displayName: 'Command Center',
     source: 'agent-closet',
@@ -474,6 +488,7 @@ async function retrieveCases(admin, query, filters = {}) {
     if (c.type === 'anti_agentism_simulation_brain' && !/\b(bikini|spongebob|squidward|sandy|krabs|patrick|plankton|anti-agentism|agentism|function cast|function-cast|detachable|humane continuation|character-free|character free|cast alternatives|temporary function)\b/.test(queryText)) score -= 10;
     if (c.type === 'humane_mission_control_brain' && !/\b(tango|mission control|humane command|pick up the butts|save my butt|someone has to watch|watch card|relief rotation|design the relief|non-sacrificial|non sacrificial)\b/.test(queryText)) score -= 10;
     if (c.type === 'qa_confidant_brain' && !/\b(queen b|queen_b|qa confidant|confidence check|release claim|receipts|false green|broad contract|mirror test|red test|rehearsal|not releasable)\b/.test(queryText)) score -= 10;
+    if (c.type === 'typo_digestive_transformation_brain' && !/\b(patrickgor|patrickgpt|autocorrect|typo creature|typo-born|digest the mutation|convert it into honey|damp artifact|larva candidate)\b/.test(queryText)) score -= 10;
     return {case: c, score};
   }).filter((item) => item.score > 0).sort((a, b) => b.score - a.score || b.case.confidence - a.case.confidence);
   const selected = scored.slice(0, 8).map((item) => ({...item.case, retrievalScore: Number(item.score.toFixed(3)), supportKind: 'supporting_evidence'}));
@@ -634,6 +649,7 @@ function caseMatchesBrain(caseRecord = {}, brain = null) {
   const display = String(brain.displayName || '').toLowerCase();
   if (brainId === 'bikini_bottom') return caseRecord.id === 'sr_case_bikini_bottom_anti_agentism_001' || caseRecord.type === 'anti_agentism_simulation_brain' || /\bbikini bottom|anti-agentism|detachable function cast|character-free judgment\b/.test(text);
   if (brainId === 'queen_b') return caseRecord.id === 'sr_case_queen_b_qa_confidant_001' || caseRecord.type === 'qa_confidant_brain' || /\bqueen b|qa confidant|release confidence|missing receipts|false green\b/.test(text);
+  if (brainId === 'patrickgor') return caseRecord.id === 'sr_case_patrickgor_typo_digestive_transformation_001' || caseRecord.type === 'typo_digestive_transformation_brain' || /\bpatrickgor|patrickgpt|autocorrect created a monster|digestive transformation|convert it into honey\b/.test(text);
   if (brainId === 'prospector') return /\b(prospector|ore|mine|humane guardrail|degraded-state|bounded authority)\b/.test(text);
   return text.includes(brainId.replace(/_/g, ' ')) || (!!display && text.includes(display));
 }
@@ -813,7 +829,58 @@ function deterministicQueenBResponse({brain, boundedContext = '', question = '',
   };
 }
 
+function deterministicPatrickgorResponse({brain, boundedContext = '', question = '', cases = [], rules = []}) {
+  const rule = controllingRule(rules);
+  const context = safeText(boundedContext, 2400);
+  const target = safeText(question, 600) || brain.primaryQuestion;
+  const combined = context + '\n' + target;
+  const intendedMatch = combined.match(/(?:supposed|meant|intended)\s+to\s+be\s+["']?([a-z0-9_-]+)/i);
+  const mutationMatch = combined.match(/\bpatrickgor\b/i);
+  const intendedInput = intendedMatch ? intendedMatch[1] : 'unproven';
+  const mutation = mutationMatch ? 'Patrickgor' : 'unproven';
+  const evidenceReferences = [...sourceRefsFromBrain(brain), ...evidenceRefsFromCases(cases)].slice(0, 20);
+  const correctionPreserved = intendedInput !== 'unproven';
+  const edibleSignal = mutation === 'Patrickgor'
+    ? 'The autocorrect mutation adds mass, appetite, ancient provenance, and a digestive artifact loop that PatrickGPT did not contain.'
+    : 'No explicit mutation was supplied. Do not manufacture a creature from ordinary text.';
+  const honeyArtifact = mutation === 'Patrickgor'
+    ? 'Patrickgor is an explicit-only transformation brain: lick the accidental phrase, preserve the correction, digest the new relational structure, and return a labeled artifact.'
+    : 'No honey produced because the mutation itself is unproven.';
+  return {
+    observation: context ? 'Patrickgor received an explicitly bounded mutation request: ' + context.slice(0, 420) : 'Patrickgor was invoked without bounded mutation context.',
+    intended_input: intendedInput,
+    mutation,
+    provenance_status: correctionPreserved
+      ? 'Correction preserved. The intended input remains authoritative for literal interpretation; the mutation is evaluated separately for creative capability.'
+      : 'Intended input is unproven. Ask for or preserve the correction before promoting the mutation.',
+    edible_signal: edibleSignal,
+    honey_artifact: honeyArtifact,
+    damp_artifact: mutation === 'Patrickgor'
+      ? 'The amusing monster description is evidence of generativity, but humor alone does not earn canon or routing authority.'
+      : 'No damp artifact produced.',
+    larva_candidate: mutation === 'Patrickgor'
+      ? 'Test whether typo digestion transfers to another explicit correction without erasing the original term or hijacking a precise task.'
+      : 'No larva candidate produced.',
+    jar_label: mutation === 'Patrickgor'
+      ? 'PATRICKGOR — TYPO-BORN DIGESTIVE TRANSFORMATION — EXPLICIT INVOCATION ONLY'
+      : 'UNLABELED MUTATION — DO NOT INGEST',
+    boundary: 'Never mutate exact identifiers, code symbols, URLs, living people\'s names, medical or legal language, safety instructions, or an ordinary prompt without explicit creative invocation. Patrickgor is one jar behind She-Raw MCP, not a standalone agent and not a replacement for Patrick or Bikini Bottom.',
+    brain_judgment: correctionPreserved && mutation !== 'unproven'
+      ? 'Keep both truths: the correction owns literal meaning; the mutation earns only the artifacts it can actually produce.'
+      : 'Do not promote the monster until correction provenance and a bounded mutation are present.',
+    active_rule: rule.rule || '',
+    candidate_rules: candidateRules(rules),
+    dangerous_question: dangerousQuestionForTask({requestedPerspective: target, context, route: {response_contract: 'brain_jar'}, fallback: 'Did the mutation create transferable capability, or are we rewarding a funny error because it arrived loudly?'}),
+    recommended_next_move: 'Preserve the intended term, run one bounded mutation, label honey/damp/larva separately, and discard the creature if it cannot transfer without hijacking literal truth.',
+    evidence_references: evidenceReferences,
+    retrieved_cases: cases.map((c) => ({id: c.id, title: c.title, retrieval_score: c.retrievalScore})),
+    speculation: cases.length ? [] : ['No Patrickgor corpus case matched strongly; no creative mutation should be promoted from this invocation.'],
+    confidence: cases.length && correctionPreserved && mutation !== 'unproven' ? 0.9 : 0.58,
+  };
+}
+
 function deterministicBrainJarResponse({brain, boundedContext = '', question = '', cases = [], rules = []}) {
+  if (brain.brainId === 'patrickgor') return deterministicPatrickgorResponse({brain, boundedContext, question, cases, rules});
   if (brain.brainId === 'queen_b') return deterministicQueenBResponse({brain, boundedContext, question, cases, rules});
   if (brain.brainId === 'tango') return deterministicTangoResponse({brain, boundedContext, question, cases, rules});
   if (brain.brainId === 'bikini_bottom') return deterministicBikiniBottomResponse({brain, boundedContext, question, cases, rules});
