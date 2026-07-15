@@ -1,14 +1,14 @@
 {
-  "status": "ready",
-  "generated_at": "2026-07-11T19:07:29Z",
-  "termux": {"installed": true, "source_ok": true, "packages_ok": true},
+  "status": "partial",
+  "generated_at": "2026-07-15T16:32:13Z",
+  "termux": {"installed": false, "source_ok": true, "packages_ok": true},
   "codex": {"installed": true, "package": "@mmmbuto/codex-cli-termux", "version": "codex-cli 0.144.1", "home_center_runner_ok": true},
   "shizuku": {"installed": true, "service_running": true, "authorized": true},
   "rish": {"installed": true, "probe_ok": true, "path": "/data/data/com.termux/files/home/bin/rish"},
   "automation_probe": {"package_inspection_ok": true, "foreground_inspection_ok": true},
-  "pairing": {"attempted": true, "paired": true},
-  "human_actions_required": [],
+  "pairing": {"attempted": false, "paired": false},
+  "human_actions_required": ["Install Termux from F-Droid or official GitHub releases"],
   "blockers": [],
-  "diagnostics": {"pkg_log": "", "rish_log": "uid=2000(shell) gid=2000(shell) groups=2000(shell),1004(input),1007(log),1011(adb),1015(sdcard_rw),1028(sdcard_r),1078(ext_data_rw),1079(ext_obb_rw),3001(net_bt_admin),3002(net_bt),3003(inet),3006(net_bw_stats),3009(readproc),3011(uhid),3012(readtracefs) context=u:r:shell:s0 package:/data/app/~~qdhzXlUj3pOZO3HwabA9Fw==/moe.shizuku.privileged.api-UNfP_0lI2bri-mdwrWsWQQ==/base.apk   mCurrentFocus=Window{d606596 u0 com.termux/com.termux.app.TermuxActivity}   mFocusedApp=ActivityRecord{29789175 u0 com.termux/.app.TermuxActivity t6764}", "pair_log": "Paired Home Center through Shizuku; config saved under ~/.config/home-center/codex-hub.json."},
+  "diagnostics": {"pkg_log": "", "rish_log": "uid=2000(shell) gid=2000(shell) groups=2000(shell),1004(input),1007(log),1011(adb),1015(sdcard_rw),1028(sdcard_r),1078(ext_data_rw),1079(ext_obb_rw),3001(net_bt_admin),3002(net_bt),3003(inet),3006(net_bw_stats),3009(readproc),3011(uhid),3012(readtracefs) context=u:r:shell:s0 package:/data/app/~~qdhzXlUj3pOZO3HwabA9Fw==/moe.shizuku.privileged.api-UNfP_0lI2bri-mdwrWsWQQ==/base.apk   mCurrentFocus=Window{71096f7 u0 com.openai.chatgpt/com.openai.chatgpt.MainActivity}   mFocusedApp=ActivityRecord{215464877 u0 com.openai.chatgpt/.MainActivity t6997}", "pair_log": ""},
   "diagnostics_path": "/storage/emulated/0/Documents/GodotProjects/home-center/generated/shizuku_setup/home_center_shizuku_readiness.json"
 }
