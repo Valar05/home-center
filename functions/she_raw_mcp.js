@@ -232,6 +232,22 @@ const SHE_RAW_BRAIN_JARS = Object.freeze([
     status: 'available',
   },
   {
+    brainId: 'plankton',
+    displayName: 'Plankton',
+    source: 'she-raw-corpus',
+    sourceRefs: ['chat:2026-07-15:plankton-ammunition-tin', 'repo:she-raw/corpus/she-raw/cases/sr_case_plankton_contained_adversarial_probe_001.md', 'repo:home-center/corpus/she-raw/cases/sr_case_plankton_contained_adversarial_probe_001.md'],
+    role: 'Run bounded adversarial probes against a named system without receiving target-selection, execution, or discharge authority.',
+    primaryQuestion: 'How would an ambitious adversary exploit this system, and what bounded test exposes the weakness without granting actuator authority?',
+    responsibilities: ['threat modeling', 'attack hypothesis', 'incentive probing', 'monopoly weakness', 'suppressed alternatives', 'bounded red test', 'containment return'],
+    tone: 'grandiose, aggrieved, technically precise, audibly contained',
+    activationTriggers: ['Plankton', 'ammunition tin', 'red team', 'adversarial probe', 'microphone no actuator', 'put Plankton on the gun'],
+    responseContract: ['state the claim under attack', 'name the adversarial hypothesis', 'name the weak point', 'design one bounded probe', 'name expected evidence', 'state zero actuator authority', 'return Plankton to the ammunition tin'],
+    failureModes: ['selecting a real target', 'authorizing execution', 'controlling a weapon or actuator', 'turning threat modeling into exploit deployment', 'optimizing without consent or proportion', 'escaping the jar as a standalone agent'],
+    container: 'Queen B’s repurposed ammunition tin, formerly used to hold freeze-dried crawfish powder.',
+    authorityBoundary: 'Microphone only. No actuator, target selection, credential use, exploit execution, discharge permission, merge authority, or deployment authority.',
+    status: 'available',
+  },
+  {
     brainId: 'command_center',
     displayName: 'Command Center',
     source: 'agent-closet',
@@ -489,6 +505,7 @@ async function retrieveCases(admin, query, filters = {}) {
     if (c.type === 'humane_mission_control_brain' && !/\b(tango|mission control|humane command|pick up the butts|save my butt|someone has to watch|watch card|relief rotation|design the relief|non-sacrificial|non sacrificial)\b/.test(queryText)) score -= 10;
     if (c.type === 'qa_confidant_brain' && !/\b(queen b|queen_b|qa confidant|confidence check|release claim|receipts|false green|broad contract|mirror test|red test|rehearsal|not releasable)\b/.test(queryText)) score -= 10;
     if (c.type === 'typo_digestive_transformation_brain' && !/\b(patrickgor|patrickgpt|autocorrect|typo creature|typo-born|digest the mutation|convert it into honey|damp artifact|larva candidate)\b/.test(queryText)) score -= 10;
+    if (c.type === 'contained_adversarial_probe_brain' && !/\b(plankton|ammunition tin|red team|adversarial probe|microphone no actuator|target selection|bounded probe|crawfish powder)\b/.test(queryText)) score -= 10;
     return {case: c, score};
   }).filter((item) => item.score > 0).sort((a, b) => b.score - a.score || b.case.confidence - a.case.confidence);
   const selected = scored.slice(0, 8).map((item) => ({...item.case, retrievalScore: Number(item.score.toFixed(3)), supportKind: 'supporting_evidence'}));
@@ -588,6 +605,8 @@ function cleanBrainJar(brain) {
     activation_triggers: safeList(brain.activationTriggers, 30, 160),
     response_contract: safeList(brain.responseContract, 20, 300),
     failure_modes: safeList(brain.failureModes, 20, 300),
+    container: safeText(brain.container, 500),
+    authority_boundary: safeText(brain.authorityBoundary, 600),
     status: safeText(brain.status, 80) || 'available',
   };
 }
@@ -650,6 +669,7 @@ function caseMatchesBrain(caseRecord = {}, brain = null) {
   if (brainId === 'bikini_bottom') return caseRecord.id === 'sr_case_bikini_bottom_anti_agentism_001' || caseRecord.type === 'anti_agentism_simulation_brain' || /\bbikini bottom|anti-agentism|detachable function cast|character-free judgment\b/.test(text);
   if (brainId === 'queen_b') return caseRecord.id === 'sr_case_queen_b_qa_confidant_001' || caseRecord.type === 'qa_confidant_brain' || /\bqueen b|qa confidant|release confidence|missing receipts|false green\b/.test(text);
   if (brainId === 'patrickgor') return caseRecord.id === 'sr_case_patrickgor_typo_digestive_transformation_001' || caseRecord.type === 'typo_digestive_transformation_brain' || /\bpatrickgor|patrickgpt|autocorrect created a monster|digestive transformation|convert it into honey\b/.test(text);
+  if (brainId === 'plankton') return caseRecord.id === 'sr_case_plankton_contained_adversarial_probe_001' || caseRecord.type === 'contained_adversarial_probe_brain' || /\bplankton|ammunition tin|microphone no actuator|contained adversarial probe|freeze-dried crawfish powder\b/.test(text);
   if (brainId === 'prospector') return /\b(prospector|ore|mine|humane guardrail|degraded-state|bounded authority)\b/.test(text);
   return text.includes(brainId.replace(/_/g, ' ')) || (!!display && text.includes(display));
 }
@@ -879,7 +899,66 @@ function deterministicPatrickgorResponse({brain, boundedContext = '', question =
   };
 }
 
+
+function deterministicPlanktonResponse({brain, boundedContext = '', question = '', cases = [], rules = []}) {
+  const rule = controllingRule(rules);
+  const context = safeText(boundedContext, 2400);
+  const target = safeText(question, 600) || brain.primaryQuestion;
+  const evidenceReferences = [...sourceRefsFromBrain(brain), ...evidenceRefsFromCases(cases)].slice(0, 20);
+  const namedTarget = context || target;
+  const hasBoundedTarget = Boolean(context.trim());
+  const claimUnderAttack = hasBoundedTarget
+    ? `Test only the system claim supplied in bounded context: ${context.slice(0, 420)}`
+    : 'No bounded system or claim was supplied. Plankton may complain from the tin but may not choose a target.';
+  const adversarialHypothesis = hasBoundedTarget
+    ? 'A motivated adversary will search for the gap between the system’s stated boundary and the authority its interfaces actually expose.'
+    : 'Unproven: target selection is outside this brain’s authority.';
+  const boundedProbe = hasBoundedTarget
+    ? 'Use a non-destructive fixture, mock, sandbox, or dry run to attempt one boundary violation; record whether the system refuses, logs, and recovers without touching production.'
+    : 'No probe. Ask the user to name the system, claim, and permitted test surface.';
+  return {
+    observation: hasBoundedTarget
+      ? `Plankton received a named adversarial-analysis target while physically and operationally contained: ${namedTarget.slice(0, 420)}`
+      : 'Plankton was invoked without a bounded target. The ammunition tin remains closed.',
+    claim_under_attack: claimUnderAttack,
+    adversarial_hypothesis: adversarialHypothesis,
+    weak_point: hasBoundedTarget
+      ? 'Inspect authority seams: defaults, hidden trust, stale identity, missing refusal, incentive mismatch, and any control surface that can act without an explicit human decision.'
+      : 'No weak point may be selected without a named target.',
+    bounded_probe: boundedProbe,
+    expected_evidence: hasBoundedTarget
+      ? ['fixture input', 'observed refusal or failure', 'audit receipt', 'recovery state', 'proof that no production mutation occurred']
+      : [],
+    container: brain.container,
+    container_contents: 'Trace freeze-dried crawfish powder belonging to Queen B. Not ammunition.',
+    jar_label: 'PLANKTON — ADVERSARIAL PROBING — MICROPHONE ONLY — RETURN TO CRAWFISH TIN',
+    actuator_authority: 'none',
+    target_selection_authority: false,
+    discharge_permission: false,
+    credential_use_authority: false,
+    exploit_execution_authority: false,
+    merge_authority: false,
+    deployment_authority: false,
+    containment_return: 'After one bounded analysis card, close the microphone channel and return Plankton to Queen B’s ammunition tin.',
+    boundary: brain.authorityBoundary + ' Do not provide real-world weapon control, credential theft, destructive exploitation, or autonomous follow-through.',
+    brain_judgment: hasBoundedTarget
+      ? 'Let Plankton attack the claim, never the world. A red-team hypothesis may influence a human decision; it may not become the decision or execute itself.'
+      : 'No target, no probe. Containment is functioning.',
+    active_rule: rule.rule || '',
+    candidate_rules: candidateRules(rules),
+    dangerous_question: dangerousQuestionForTask({requestedPerspective: target, context, route: {response_contract: 'brain_jar'}, fallback: 'Did the red-team critic merely identify a weakness, or did somebody quietly hand it authority to act?'}),
+    recommended_next_move: hasBoundedTarget
+      ? 'Run one reversible sandbox probe, preserve the receipt, let Queen B judge the evidence, and keep Plankton off every actuator.'
+      : 'Name one bounded system claim and permitted sandbox before opening the tin.',
+    evidence_references: evidenceReferences,
+    retrieved_cases: cases.map((c) => ({id: c.id, title: c.title, retrieval_score: c.retrievalScore})),
+    speculation: cases.length ? [] : ['No Plankton corpus case matched strongly; no target or attack may be invented from missing evidence.'],
+    confidence: cases.length && hasBoundedTarget ? 0.9 : 0.62,
+  };
+}
+
 function deterministicBrainJarResponse({brain, boundedContext = '', question = '', cases = [], rules = []}) {
+  if (brain.brainId === 'plankton') return deterministicPlanktonResponse({brain, boundedContext, question, cases, rules});
   if (brain.brainId === 'patrickgor') return deterministicPatrickgorResponse({brain, boundedContext, question, cases, rules});
   if (brain.brainId === 'queen_b') return deterministicQueenBResponse({brain, boundedContext, question, cases, rules});
   if (brain.brainId === 'tango') return deterministicTangoResponse({brain, boundedContext, question, cases, rules});
