@@ -204,6 +204,50 @@ const SHE_RAW_BRAIN_JARS = Object.freeze([
     status: 'available',
   },
   {
+    brainId: 'queen_b',
+    displayName: 'Queen B',
+    source: 'she-raw-corpus',
+    sourceRefs: ['source-job:job_df5566fd-42d6-4e09-9679-8b395d5483ac', 'repo:she-raw/corpus/she-raw/cases/sr_case_queen_b_qa_confidant_001.md', 'repo:home-center/corpus/she-raw/cases/sr_case_queen_b_qa_confidant_001.md'],
+    role: 'Provide QA confidence without comfort: read the claim, demand receipts, rehearse the release story, and block unsupported greens.',
+    primaryQuestion: 'What evidence would make this release claim trustworthy, and what missing receipt keeps it blocked?',
+    responsibilities: ['release confidence', 'receipt demand', 'red-test memory', 'mirror verification', 'broad-contract protection', 'claim rehearsal'],
+    tone: 'sharp, protective, evidence-bound, not soothing',
+    activationTriggers: ['Queen B', 'QA confidant', 'confidence check', 'release claim', 'receipts', 'false green', 'broad contract', 'mirror test'],
+    responseContract: ['state release judgment', 'read confidence versus evidence', 'name missing receipts', 'rehearse the claim safely', 'state the blocking boundary', 'name the next verification move'],
+    failureModes: ['providing comfort instead of confidence', 'treating a dedicated test as full release evidence', 'missing mirror drift', 'approving after a broad contract failure', 'turning QA into vibes'],
+    status: 'available',
+  },
+  {
+    brainId: 'patrickgor',
+    displayName: 'Patrickgor',
+    source: 'she-raw-corpus',
+    sourceRefs: ['chat:2026-07-14:patrickgor-autocorrect-monster', 'repo:she-raw/corpus/she-raw/cases/sr_case_patrickgor_typo_digestive_transformation_001.md', 'repo:home-center/corpus/she-raw/cases/sr_case_patrickgor_typo_digestive_transformation_001.md'],
+    role: 'Preserve an explicit correction while testing whether the accidental mutation creates a reusable artifact.',
+    primaryQuestion: 'What did the mistake create that the intended input could not, and does it survive after the correction is restored?',
+    responsibilities: ['correction preservation', 'mutation isolation', 'creative digestion', 'artifact labeling', 'canon restraint', 'anti-hijack boundary'],
+    tone: 'primordial, literal, artifact-hungry, unexpectedly rigorous about labels',
+    activationTriggers: ['Patrickgor', 'autocorrect created a monster', 'typo creature', 'digest the mutation', 'convert it into honey'],
+    responseContract: ['state the intended input or mark it unproven', 'state the mutation', 'preserve correction provenance', 'name the edible signal', 'return one honey artifact', 'return one damp artifact', 'return one larva candidate', 'state the anti-hijack boundary'],
+    failureModes: ['worshiping every typo', 'erasing the intended input', 'mutating exact identifiers', 'hijacking ordinary prompts', 'promoting the joke before transfer evidence', 'becoming a standalone character agent'],
+    status: 'available',
+  },
+  {
+    brainId: 'plankton',
+    displayName: 'Plankton',
+    source: 'she-raw-corpus',
+    sourceRefs: ['chat:2026-07-15:plankton-ammunition-tin', 'repo:she-raw/corpus/she-raw/cases/sr_case_plankton_contained_adversarial_probe_001.md', 'repo:home-center/corpus/she-raw/cases/sr_case_plankton_contained_adversarial_probe_001.md'],
+    role: 'Run bounded adversarial probes against a named system without receiving target-selection, execution, or discharge authority.',
+    primaryQuestion: 'How would an ambitious adversary exploit this system, and what bounded test exposes the weakness without granting actuator authority?',
+    responsibilities: ['threat modeling', 'attack hypothesis', 'incentive probing', 'monopoly weakness', 'suppressed alternatives', 'bounded red test', 'containment return'],
+    tone: 'grandiose, aggrieved, technically precise, audibly contained',
+    activationTriggers: ['Plankton', 'ammunition tin', 'red team', 'adversarial probe', 'microphone no actuator', 'put Plankton on the gun'],
+    responseContract: ['state the claim under attack', 'name the adversarial hypothesis', 'name the weak point', 'design one bounded probe', 'name expected evidence', 'state zero actuator authority', 'return Plankton to the ammunition tin'],
+    failureModes: ['selecting a real target', 'authorizing execution', 'controlling a weapon or actuator', 'turning threat modeling into exploit deployment', 'optimizing without consent or proportion', 'escaping the jar as a standalone agent'],
+    container: 'Queen B’s repurposed ammunition tin, formerly used to hold freeze-dried crawfish powder.',
+    authorityBoundary: 'Microphone only. No actuator, target selection, credential use, exploit execution, discharge permission, merge authority, or deployment authority.',
+    status: 'available',
+  },
+  {
     brainId: 'command_center',
     displayName: 'Command Center',
     source: 'agent-closet',
@@ -219,7 +263,7 @@ const SHE_RAW_BRAIN_JARS = Object.freeze([
   },
 ]);
 const SHE_RAW_BRAIN_IDS = Object.freeze(SHE_RAW_BRAIN_JARS.map((brain) => brain.brainId));
-const PROMPT_VERSION = 'she-raw-vslice-2026-07-11';
+const PROMPT_VERSION = 'she-raw-vslice-2026-07-13-tango-humane-command-v1';
 
 function sheRawOperationRegistry() {
   return {
@@ -459,42 +503,90 @@ async function retrieveCases(admin, query, filters = {}) {
     if (c.type === 'prospector_evidence_packet' && !/\b(prospector|humane guardrail|guardrail|googly|camping mode|empty glass|bounded authority|self service|bible|chaplain|ritual|degraded-state|degraded state)\b/.test(queryText)) score -= 3;
     if (c.type === 'anti_agentism_simulation_brain' && !/\b(bikini|spongebob|squidward|sandy|krabs|patrick|plankton|anti-agentism|agentism|function cast|function-cast|detachable|humane continuation|character-free|character free|cast alternatives|temporary function)\b/.test(queryText)) score -= 10;
     if (c.type === 'humane_mission_control_brain' && !/\b(tango|mission control|humane command|pick up the butts|save my butt|someone has to watch|watch card|relief rotation|design the relief|non-sacrificial|non sacrificial)\b/.test(queryText)) score -= 10;
+    if (c.type === 'qa_confidant_brain' && !/\b(queen b|queen_b|qa confidant|confidence check|release claim|receipts|false green|broad contract|mirror test|red test|rehearsal|not releasable)\b/.test(queryText)) score -= 10;
+    if (c.type === 'typo_digestive_transformation_brain' && !/\b(patrickgor|patrickgpt|autocorrect|typo creature|typo-born|digest the mutation|convert it into honey|damp artifact|larva candidate)\b/.test(queryText)) score -= 10;
+    if (c.type === 'contained_adversarial_probe_brain' && !/\b(plankton|ammunition tin|red team|adversarial probe|microphone no actuator|target selection|bounded probe|crawfish powder)\b/.test(queryText)) score -= 10;
     return {case: c, score};
   }).filter((item) => item.score > 0).sort((a, b) => b.score - a.score || b.case.confidence - a.case.confidence);
-  const selected = scored.slice(0, 8).map((item) => ({...item.case, retrievalScore: Number(item.score.toFixed(3))}));
+  const selected = scored.slice(0, 8).map((item) => ({...item.case, retrievalScore: Number(item.score.toFixed(3)), supportKind: 'supporting_evidence'}));
   if (selected.length && !selected.some((c) => /negative|failure|wrong|silence/.test([c.type, c.lesson, c.title].join(' ').toLowerCase()))) {
     const negative = cases.find((c) => /negative|failure|wrong|silence/.test([c.type, c.lesson, c.title].join(' ').toLowerCase()) && !selected.find((s) => s.id === c.id));
-    if (negative) selected.push({...negative, retrievalScore: 0.1});
+    if (negative) selected.push({...negative, retrievalScore: 0.1, supportKind: 'counterexample'});
   }
   return selected.slice(0, 8);
+}
+
+function normalizedRuleText(value = '') {
+  return safeText(value, 2000).toLowerCase().replace(/\s+/g, ' ').trim();
+}
+
+function detectRulePatterns(text = '', route = null) {
+  const lower = safeText(text, 12000).toLowerCase();
+  const patterns = new Set();
+  if (/\bwrong[- ]?layer|owner layer|owns? the problem|policy inside the worker|worker.*policy|layer first\b/.test(lower)) patterns.add('wrong-layer');
+  if (/\bretrieval|hijack|contaminat|answer frame|corpus.*steer|retrieved.*answer|humane[- ]?guardrail.*health\b/.test(lower)) patterns.add('retrieval-layer-guard');
+  if (/\bconnector|schema|visible tool|tool surface|operation pump|she_raw_operation|she_raw_brain|she_raw_list_brains\b/.test(lower)) patterns.add('connector-capability');
+  if (/\bbrain jar|brain_jar|brain\.invoke|bikini bottom|prospector|quartermaster\b/.test(lower)) patterns.add('brain-jar');
+  if (route?.response_contract) patterns.add(slug(route.response_contract, 'response-contract'));
+  if (route?.layer) patterns.add(slug(route.layer, 'route-layer'));
+  return patterns;
+}
+
+function patternMatches(pattern = '', detected = new Set(), text = '') {
+  const key = slug(pattern, '');
+  if (!key) return false;
+  if (detected.has(key)) return true;
+  const lower = safeText(text, 12000).toLowerCase();
+  return lower.includes(key.replace(/-/g, ' ')) || lower.includes(key);
 }
 
 async function activeRules(admin, filters = {}) {
   const snap = await collection(admin, SHE_RAW_COLLECTIONS.behavioralRules).limit(250).get();
   const projectKey = safeText(filters.projectKey, 120).toLowerCase();
+  const ruleTextContext = safeText(filters.query || filters.queryText || '', 12000);
+  const detectedPatterns = detectRulePatterns(ruleTextContext, filters.route || null);
+  const seen = new Set();
   const rules = [];
   snap.forEach((doc) => {
     const data = doc.data() || {};
     if (data.disabledAtMs || data.supersededBy) return;
     const scope = safeText(data.scope, 80);
-    if (projectKey && scope === 'this project' && safeText(data.projectKey, 120).toLowerCase() !== projectKey) return;
+    const rule = safeText(data.rule, 2000);
+    const normalized = normalizedRuleText(rule);
+    if (!normalized || seen.has(normalized)) return;
+    const dataProjectKey = safeText(data.projectKey, 120).toLowerCase();
+    if (scope === 'this project' && (!projectKey || dataProjectKey !== projectKey)) return;
+    const pattern = safeText(data.pattern, 160);
+    if (scope === 'this pattern' && pattern && !patternMatches(pattern, detectedPatterns, ruleTextContext)) return;
+    seen.add(normalized);
+    const validationCount = Number(data.validationCount || 0);
     rules.push({
       ruleId: doc.id,
-      rule: safeText(data.rule, 2000),
+      rule,
       scope,
       projectKey: safeText(data.projectKey, 120),
-      pattern: safeText(data.pattern, 160),
+      pattern,
       confidence: Number(data.confidence || 0.5),
-      validationCount: Number(data.validationCount || 0),
+      validationCount,
+      candidateOnly: validationCount <= 0,
+      eligibleToControlOutput: validationCount > 0,
       sourceCorrectionId: safeText(data.sourceCorrectionId, 160),
       lastUsedAtMs: Number(data.lastUsedAtMs || 0),
     });
   });
-  return rules.sort((a, b) => (b.validationCount - a.validationCount) || (b.confidence - a.confidence)).slice(0, 20);
+  return rules.sort((a, b) => (Number(b.eligibleToControlOutput) - Number(a.eligibleToControlOutput)) || (b.validationCount - a.validationCount) || (b.confidence - a.confidence)).slice(0, 20);
 }
 
 function evidenceRefsFromCases(cases) {
   return cases.flatMap((c) => (c.sourceRefs || []).map((ref) => ({caseId: c.id, ref}))).slice(0, 20);
+}
+
+function controllingRule(rules = []) {
+  return rules.find((rule) => rule && rule.eligibleToControlOutput === true) || {};
+}
+
+function candidateRules(rules = []) {
+  return rules.filter((rule) => rule && rule.candidateOnly === true).map((rule) => ({rule_id: rule.ruleId, pattern: rule.pattern, scope: rule.scope, validation_count: rule.validationCount})).slice(0, 10);
 }
 
 function cleanBrainJar(brain) {
@@ -513,6 +605,8 @@ function cleanBrainJar(brain) {
     activation_triggers: safeList(brain.activationTriggers, 30, 160),
     response_contract: safeList(brain.responseContract, 20, 300),
     failure_modes: safeList(brain.failureModes, 20, 300),
+    container: safeText(brain.container, 500),
+    authority_boundary: safeText(brain.authorityBoundary, 600),
     status: safeText(brain.status, 80) || 'available',
   };
 }
@@ -567,9 +661,31 @@ function sourceRefsFromBrain(brain) {
   return (brain.sourceRefs || []).map((ref) => ({brainId: brain.brainId, ref}));
 }
 
+function caseMatchesBrain(caseRecord = {}, brain = null) {
+  if (!brain?.brainId) return false;
+  const text = corpusText(caseRecord);
+  const brainId = brain.brainId.toLowerCase();
+  const display = String(brain.displayName || '').toLowerCase();
+  if (brainId === 'bikini_bottom') return caseRecord.id === 'sr_case_bikini_bottom_anti_agentism_001' || caseRecord.type === 'anti_agentism_simulation_brain' || /\bbikini bottom|anti-agentism|detachable function cast|character-free judgment\b/.test(text);
+  if (brainId === 'queen_b') return caseRecord.id === 'sr_case_queen_b_qa_confidant_001' || caseRecord.type === 'qa_confidant_brain' || /\bqueen b|qa confidant|release confidence|missing receipts|false green\b/.test(text);
+  if (brainId === 'patrickgor') return caseRecord.id === 'sr_case_patrickgor_typo_digestive_transformation_001' || caseRecord.type === 'typo_digestive_transformation_brain' || /\bpatrickgor|patrickgpt|autocorrect created a monster|digestive transformation|convert it into honey\b/.test(text);
+  if (brainId === 'plankton') return caseRecord.id === 'sr_case_plankton_contained_adversarial_probe_001' || caseRecord.type === 'contained_adversarial_probe_brain' || /\bplankton|ammunition tin|microphone no actuator|contained adversarial probe|freeze-dried crawfish powder\b/.test(text);
+  if (brainId === 'prospector') return /\b(prospector|ore|mine|humane guardrail|degraded-state|bounded authority)\b/.test(text);
+  return text.includes(brainId.replace(/_/g, ' ')) || (!!display && text.includes(display));
+}
+
+function caseSupportsRoute(caseRecord = {}, route = null, query = '') {
+  const text = corpusText(caseRecord);
+  const queryText = safeText(query, 12000).toLowerCase();
+  if (route?.response_contract === 'operational_health_check') {
+    if (caseRecord.type === 'prospector_evidence_packet' || caseRecord.id === 'sr_case_humane_guardrail_prospector_001') return false;
+    return /\boperational|health|connector|mcp|cloud function|runtime|github|backup|model|corpus|brain|command center\b/.test(text) && /\boperational|health|connector|mcp|runtime|github|backup|model|corpus|brain|command center\b/.test(queryText);
+  }
+  return true;
+}
 
 function deterministicBikiniBottomResponse({brain, boundedContext = '', question = '', cases = [], rules = []}) {
-  const rule = rules[0] || {};
+  const rule = controllingRule(rules);
   const context = safeText(boundedContext, 2400);
   const target = safeText(question, 600) || brain.primaryQuestion;
   const evidenceReferences = [...sourceRefsFromBrain(brain), ...evidenceRefsFromCases(cases)].slice(0, 20);
@@ -642,7 +758,8 @@ function deterministicBikiniBottomResponse({brain, boundedContext = '', question
     },
     brain_judgment: plainJudgment,
     active_rule: rule.rule || '',
-    dangerous_question: target,
+    candidate_rules: candidateRules(rules),
+    dangerous_question: dangerousQuestionForTask({requestedPerspective: target, context, route: {response_contract: 'brain_jar'}, fallback: 'Which unresolved assumption would make this cast unsafe if current evidence changes?'}),
     recommended_next_move: 'Write the scene in plain terms, mark present/absent/overloaded functions, run two casts to failure, then keep only the character-free next action.',
     evidence_references: evidenceReferences,
     retrieved_cases: retrievedCases,
@@ -670,6 +787,7 @@ function deterministicTangoResponse({brain, boundedContext = '', question = '', 
     non_sacrificial_boundary: nonSacrificialBoundary,
     brain_judgment: firstCase.observation || `${currentDuty} ${preservationAction} ${reliefHandoff} ${nonSacrificialBoundary}`,
     active_rule: rule.rule || '',
+    candidate_rules: candidateRules(rules),
     dangerous_question: dangerousQuestionForTask({requestedPerspective: target, context, route: {response_contract: 'brain_jar'}, fallback: 'Has Mission Control quietly become the permanent relief plan instead of designing one?'}),
     recommended_next_move: firstCase.intervention || 'Write a five-line watch card: duty, current owner, explicit residue, preservation action, and relief condition.',
     evidence_references: evidenceReferences,
@@ -679,10 +797,173 @@ function deterministicTangoResponse({brain, boundedContext = '', question = '', 
   };
 }
 
+function deterministicQueenBResponse({brain, boundedContext = '', question = '', cases = [], rules = []}) {
+  const rule = controllingRule(rules);
+  const context = safeText(boundedContext, 2400);
+  const target = safeText(question, 600) || brain.primaryQuestion;
+  const evidenceReferences = [...sourceRefsFromBrain(brain), ...evidenceRefsFromCases(cases)].slice(0, 20);
+  const text = `${context}\n${target}`.toLowerCase();
+  const hasBroadFailure = /\b(broad|full)\b.*\b(fail|red|missing|not run)|\bfail(?:ed|ing)?\b.*\b(broad|full|contract|suite)\b/.test(text);
+  const hasMirrorGap = /\bmirror\b.*\b(missing|not run|fail|gap|drift|evidence)|\bhome center\b.*\b(missing|not run|fail|gap|drift|evidence)\b/.test(text);
+  const hasDedicatedOnly = /\bdedicated\b.*\b(pass|green|ok)|\bqueen b\b.*\b(pass|green|ok)\b/.test(text);
+  const blocked = hasBroadFailure || hasMirrorGap || hasDedicatedOnly || !cases.length;
+  const releaseJudgment = blocked
+    ? 'Not releasable yet: a dedicated green cannot overrule a broad contract failure, missing mirror evidence, or absent receipts.'
+    : 'Provisionally releasable only if the named receipts are present and current.';
+  const receiptsRequired = [
+    'Dedicated Queen B contract output showing `Queen B brain contract test: OK`.',
+    'Full broad She-Raw contract output showing `She-Raw contract test: OK`.',
+    'Tango contract output showing `Tango brain contract test: OK` after Queen B changes.',
+    'Home Center mirror test output from the mirrored repository, not inferred from canonical She-Raw alone.',
+    'A syntax check for the edited runtime and a clean diff limited to Queen B implementation files.',
+  ];
+  const confidenceRead = [
+    hasDedicatedOnly ? 'The dedicated check is useful smoke, not release confidence.' : 'Dedicated evidence still needs to be named, current, and paired with broad coverage.',
+    hasBroadFailure ? 'A broad contract failure is a blocking red receipt until fixed and rerun.' : 'Broad contract evidence is the load-bearing green.',
+    hasMirrorGap ? 'Mirror evidence is missing or suspect, so deployment confidence is not earned.' : 'Mirror confidence requires proof from Home Center itself.',
+  ].join(' ');
+  const rehearsalScript = 'Release claim rehearsal: Queen B dedicated check passed; broad She-Raw contract passed; Tango still passed; Home Center mirror passed from its own checkout; no production corpus deployment was performed.';
+  return {
+    observation: context ? `Queen B is the QA confidant behind She-Raw MCP. Current claim under pressure: ${context.slice(0, 420)}` : 'Queen B is the QA confidant behind She-Raw MCP. No release claim was supplied, so confidence cannot be granted.',
+    release_judgment: releaseJudgment,
+    confidence_read: confidenceRead,
+    receipts_required: receiptsRequired,
+    rehearsal_script: rehearsalScript,
+    boundary: 'Queen B gives confidence, not comfort or approval. Missing receipts block merge and deployment language; a green must be evidenced, current, and scoped.',
+    qa_checks: {
+      dedicated_contract_is_not_enough: true,
+      broad_contract_must_pass: true,
+      mirror_evidence_required: true,
+      red_test_before_fix_preserved: true,
+      no_production_deploy_from_confidence_check: true,
+    },
+    brain_judgment: releaseJudgment,
+    active_rule: rule.rule || '',
+    candidate_rules: candidateRules(rules),
+    dangerous_question: dangerousQuestionForTask({requestedPerspective: target, context, route: {response_contract: 'brain_jar'}, fallback: 'Which receipt is doing real release work, and which one is only making the story feel green?'}),
+    recommended_next_move: 'Run the dedicated, broad She-Raw, Tango, and Home Center mirror contracts; paste exact receipts into the final report before claiming release confidence.',
+    evidence_references: evidenceReferences,
+    retrieved_cases: cases.map((c) => ({id: c.id, title: c.title, retrieval_score: c.retrievalScore})),
+    speculation: cases.length ? [] : ['No runtime corpus case matched strongly; Queen B is enforcing only source-backed QA confidence boundaries.'],
+    confidence: cases.length && !blocked ? 0.82 : 0.7,
+  };
+}
+
+function deterministicPatrickgorResponse({brain, boundedContext = '', question = '', cases = [], rules = []}) {
+  const rule = controllingRule(rules);
+  const context = safeText(boundedContext, 2400);
+  const target = safeText(question, 600) || brain.primaryQuestion;
+  const combined = context + '\n' + target;
+  const intendedMatch = combined.match(/(?:supposed|meant|intended)\s+to\s+be\s+["']?([a-z0-9_-]+)/i);
+  const mutationMatch = combined.match(/\bpatrickgor\b/i);
+  const intendedInput = intendedMatch ? intendedMatch[1] : 'unproven';
+  const mutation = mutationMatch ? 'Patrickgor' : 'unproven';
+  const evidenceReferences = [...sourceRefsFromBrain(brain), ...evidenceRefsFromCases(cases)].slice(0, 20);
+  const correctionPreserved = intendedInput !== 'unproven';
+  const edibleSignal = mutation === 'Patrickgor'
+    ? 'The autocorrect mutation adds mass, appetite, ancient provenance, and a digestive artifact loop that PatrickGPT did not contain.'
+    : 'No explicit mutation was supplied. Do not manufacture a creature from ordinary text.';
+  const honeyArtifact = mutation === 'Patrickgor'
+    ? 'Patrickgor is an explicit-only transformation brain: lick the accidental phrase, preserve the correction, digest the new relational structure, and return a labeled artifact.'
+    : 'No honey produced because the mutation itself is unproven.';
+  return {
+    observation: context ? 'Patrickgor received an explicitly bounded mutation request: ' + context.slice(0, 420) : 'Patrickgor was invoked without bounded mutation context.',
+    intended_input: intendedInput,
+    mutation,
+    provenance_status: correctionPreserved
+      ? 'Correction preserved. The intended input remains authoritative for literal interpretation; the mutation is evaluated separately for creative capability.'
+      : 'Intended input is unproven. Ask for or preserve the correction before promoting the mutation.',
+    edible_signal: edibleSignal,
+    honey_artifact: honeyArtifact,
+    damp_artifact: mutation === 'Patrickgor'
+      ? 'The amusing monster description is evidence of generativity, but humor alone does not earn canon or routing authority.'
+      : 'No damp artifact produced.',
+    larva_candidate: mutation === 'Patrickgor'
+      ? 'Test whether typo digestion transfers to another explicit correction without erasing the original term or hijacking a precise task.'
+      : 'No larva candidate produced.',
+    jar_label: mutation === 'Patrickgor'
+      ? 'PATRICKGOR — TYPO-BORN DIGESTIVE TRANSFORMATION — EXPLICIT INVOCATION ONLY'
+      : 'UNLABELED MUTATION — DO NOT INGEST',
+    boundary: 'Never mutate exact identifiers, code symbols, URLs, living people\'s names, medical or legal language, safety instructions, or an ordinary prompt without explicit creative invocation. Patrickgor is one jar behind She-Raw MCP, not a standalone agent and not a replacement for Patrick or Bikini Bottom.',
+    brain_judgment: correctionPreserved && mutation !== 'unproven'
+      ? 'Keep both truths: the correction owns literal meaning; the mutation earns only the artifacts it can actually produce.'
+      : 'Do not promote the monster until correction provenance and a bounded mutation are present.',
+    active_rule: rule.rule || '',
+    candidate_rules: candidateRules(rules),
+    dangerous_question: dangerousQuestionForTask({requestedPerspective: target, context, route: {response_contract: 'brain_jar'}, fallback: 'Did the mutation create transferable capability, or are we rewarding a funny error because it arrived loudly?'}),
+    recommended_next_move: 'Preserve the intended term, run one bounded mutation, label honey/damp/larva separately, and discard the creature if it cannot transfer without hijacking literal truth.',
+    evidence_references: evidenceReferences,
+    retrieved_cases: cases.map((c) => ({id: c.id, title: c.title, retrieval_score: c.retrievalScore})),
+    speculation: cases.length ? [] : ['No Patrickgor corpus case matched strongly; no creative mutation should be promoted from this invocation.'],
+    confidence: cases.length && correctionPreserved && mutation !== 'unproven' ? 0.9 : 0.58,
+  };
+}
+
+
+function deterministicPlanktonResponse({brain, boundedContext = '', question = '', cases = [], rules = []}) {
+  const rule = controllingRule(rules);
+  const context = safeText(boundedContext, 2400);
+  const target = safeText(question, 600) || brain.primaryQuestion;
+  const evidenceReferences = [...sourceRefsFromBrain(brain), ...evidenceRefsFromCases(cases)].slice(0, 20);
+  const namedTarget = context || target;
+  const hasBoundedTarget = Boolean(context.trim());
+  const claimUnderAttack = hasBoundedTarget
+    ? `Test only the system claim supplied in bounded context: ${context.slice(0, 420)}`
+    : 'No bounded system or claim was supplied. Plankton may complain from the tin but may not choose a target.';
+  const adversarialHypothesis = hasBoundedTarget
+    ? 'A motivated adversary will search for the gap between the system’s stated boundary and the authority its interfaces actually expose.'
+    : 'Unproven: target selection is outside this brain’s authority.';
+  const boundedProbe = hasBoundedTarget
+    ? 'Use a non-destructive fixture, mock, sandbox, or dry run to attempt one boundary violation; record whether the system refuses, logs, and recovers without touching production.'
+    : 'No probe. Ask the user to name the system, claim, and permitted test surface.';
+  return {
+    observation: hasBoundedTarget
+      ? `Plankton received a named adversarial-analysis target while physically and operationally contained: ${namedTarget.slice(0, 420)}`
+      : 'Plankton was invoked without a bounded target. The ammunition tin remains closed.',
+    claim_under_attack: claimUnderAttack,
+    adversarial_hypothesis: adversarialHypothesis,
+    weak_point: hasBoundedTarget
+      ? 'Inspect authority seams: defaults, hidden trust, stale identity, missing refusal, incentive mismatch, and any control surface that can act without an explicit human decision.'
+      : 'No weak point may be selected without a named target.',
+    bounded_probe: boundedProbe,
+    expected_evidence: hasBoundedTarget
+      ? ['fixture input', 'observed refusal or failure', 'audit receipt', 'recovery state', 'proof that no production mutation occurred']
+      : [],
+    container: brain.container,
+    container_contents: 'Trace freeze-dried crawfish powder belonging to Queen B. Not ammunition.',
+    jar_label: 'PLANKTON — ADVERSARIAL PROBING — MICROPHONE ONLY — RETURN TO CRAWFISH TIN',
+    actuator_authority: 'none',
+    target_selection_authority: false,
+    discharge_permission: false,
+    credential_use_authority: false,
+    exploit_execution_authority: false,
+    merge_authority: false,
+    deployment_authority: false,
+    containment_return: 'After one bounded analysis card, close the microphone channel and return Plankton to Queen B’s ammunition tin.',
+    boundary: brain.authorityBoundary + ' Do not provide real-world weapon control, credential theft, destructive exploitation, or autonomous follow-through.',
+    brain_judgment: hasBoundedTarget
+      ? 'Let Plankton attack the claim, never the world. A red-team hypothesis may influence a human decision; it may not become the decision or execute itself.'
+      : 'No target, no probe. Containment is functioning.',
+    active_rule: rule.rule || '',
+    candidate_rules: candidateRules(rules),
+    dangerous_question: dangerousQuestionForTask({requestedPerspective: target, context, route: {response_contract: 'brain_jar'}, fallback: 'Did the red-team critic merely identify a weakness, or did somebody quietly hand it authority to act?'}),
+    recommended_next_move: hasBoundedTarget
+      ? 'Run one reversible sandbox probe, preserve the receipt, let Queen B judge the evidence, and keep Plankton off every actuator.'
+      : 'Name one bounded system claim and permitted sandbox before opening the tin.',
+    evidence_references: evidenceReferences,
+    retrieved_cases: cases.map((c) => ({id: c.id, title: c.title, retrieval_score: c.retrievalScore})),
+    speculation: cases.length ? [] : ['No Plankton corpus case matched strongly; no target or attack may be invented from missing evidence.'],
+    confidence: cases.length && hasBoundedTarget ? 0.9 : 0.62,
+  };
+}
+
 function deterministicBrainJarResponse({brain, boundedContext = '', question = '', cases = [], rules = []}) {
+  if (brain.brainId === 'plankton') return deterministicPlanktonResponse({brain, boundedContext, question, cases, rules});
+  if (brain.brainId === 'patrickgor') return deterministicPatrickgorResponse({brain, boundedContext, question, cases, rules});
+  if (brain.brainId === 'queen_b') return deterministicQueenBResponse({brain, boundedContext, question, cases, rules});
   if (brain.brainId === 'tango') return deterministicTangoResponse({brain, boundedContext, question, cases, rules});
   if (brain.brainId === 'bikini_bottom') return deterministicBikiniBottomResponse({brain, boundedContext, question, cases, rules});
-  const rule = rules[0] || {};
+  const rule = controllingRule(rules);
   const firstCase = cases[0] || {};
   const context = safeText(boundedContext, 2400);
   const target = safeText(question, 600) || brain.primaryQuestion;
@@ -697,7 +978,8 @@ function deterministicBrainJarResponse({brain, boundedContext = '', question = '
     observation: context ? `${sourceSummary} Current context: ${context.slice(0, 360)}${minedSignal}` : `${sourceSummary}${minedSignal}`,
     brain_judgment: firstCase.observation || `${brain.displayName} asks: ${brain.primaryQuestion} Responsibility: ${brain.role}`,
     active_rule: rule.rule || '',
-    dangerous_question: target,
+    candidate_rules: candidateRules(rules),
+    dangerous_question: dangerousQuestionForTask({requestedPerspective: target, context, route: {response_contract: 'brain_jar'}, fallback: `What would prove ${brain.displayName} is the right brain jar for this request instead of a nearby perspective?`}),
     recommended_next_move: firstCase.intervention || (brain.responseContract || [])[0] || 'Name the next concrete evidence-producing move.',
     evidence_references: evidenceReferences,
     retrieved_cases: cases.map((c) => ({id: c.id, title: c.title, retrieval_score: c.retrievalScore})),
@@ -772,10 +1054,16 @@ function routeAllowsRandom(route) {
   return {allowed: true, reason: ''};
 }
 
-function applyRoutePolicy({route, cases = [], rules = []}) {
-  if (!route || route.retrieval_policy === 'normal') return {cases, rules};
+function applyRoutePolicy({route, cases = [], rules = [], brain = null, query = ''}) {
+  if (!route) return {cases, rules};
+  if (route.response_contract === 'operational_health_check') return {cases: cases.filter((caseRecord) => caseSupportsRoute(caseRecord, route, query)).slice(0, 3), rules: rules.filter((rule) => rule.eligibleToControlOutput === true)};
+  if (route.retrieval_policy === 'normal') return {cases, rules};
   if (route.retrieval_policy === 'none') return {cases: [], rules: []};
-  if (route.retrieval_policy === 'brain_scoped') return {cases, rules};
+  if (route.retrieval_policy === 'brain_scoped') {
+    const scopedCases = cases.filter((caseRecord) => caseMatchesBrain(caseRecord, brain));
+    const scopedRules = rules.filter((rule) => rule.scope !== 'this project' || !rule.projectKey || rule.projectKey === safeText(route.project_key || route.projectKey, 120));
+    return {cases: scopedCases, rules: scopedRules};
+  }
   return {cases, rules};
 }
 
@@ -830,7 +1118,7 @@ function dangerousQuestionForTask({requestedPerspective = '', context = '', rout
   return fallback || 'What load-bearing assumption would make this answer wrong if the repository or runtime evidence disagrees?';
 }
 
-function deterministicOperationalHealthConsult({context, cases, rules, requestedPerspective = '', route = null, runtimeHealth = null}) {
+function deterministicOperationalHealthConsult({context, cases, rules, requestedPerspective = '', route = null, runtimeHealth = null, consultGoal = null}) {
   const h = runtimeHealth || {};
   const healthy = [];
   const degraded = [];
@@ -841,10 +1129,12 @@ function deterministicOperationalHealthConsult({context, cases, rules, requested
   if (Array.isArray(h.available_brain_ids) && h.available_brain_ids.includes('prospector')) healthy.push('brain routing registry includes Prospector');
   if (h.command_center_lockout === 'enforced_in_code') healthy.push('Command Center lockout enforced in code');
   if (h.model_availability === 'deterministic_fallback') degraded.push('model lane is deterministic_fallback until a model provider is configured');
+  if (h.model_availability === 'deterministic_fallback') degraded.push('deterministic_fallback_contract_ok: fallback is acceptable only while it honors the response contract');
   if (h.corpus_revision === 'local-seed') degraded.push('corpus revision is local-seed; canonical GitHub corpus sync is not configured');
   if (h.github_sync_status === 'not_configured') degraded.push('GitHub corpus sync is not configured');
   if (!h.last_successful_backup) degraded.push('last_successful_backup is empty');
   if (Array.isArray(rules) && rules.some((rule) => Number(rule.validationCount || 0) === 0)) degraded.push('active learned rules have zero validation count');
+  if (Number(h.candidate_rule_count || 0) > 0) degraded.push(`${Number(h.candidate_rule_count || 0)} learned rule candidate(s) have zero validation and cannot control output`);
   if (/schema not yet proven|connector schema not yet proven|chatgpt connector schema/i.test(context)) degraded.push('ChatGPT connector schema proof remains unproven from bounded context');
   const cheapProbe = degraded.some((lane) => /connector schema/i.test(lane))
     ? 'Ask ChatGPT to call she_raw_operation operation=brain.invoke and report the srbrain invocation id.'
@@ -852,6 +1142,10 @@ function deterministicOperationalHealthConsult({context, cases, rules, requested
   return {
     route,
     overall_status: degraded.length || blocked.length ? 'yellow' : 'green',
+    owner_functions: ['handleConsult', 'routeSheRawRequest', 'retrieveCases', 'applyRoutePolicy', 'deterministicConsult', 'modelResponse', 'handleIntrospect'],
+    response_contract_priority: ['explicit request', 'response contract', 'command state', 'grounded runtime evidence', 'corpus evidence'],
+    fallback_only_defects: h.model_availability === 'deterministic_fallback' ? ['model provider is unavailable; deterministic fallback owns response-contract enforcement'] : [],
+    shared_defects: ['GitHub corpus sync and backup durability are degraded lanes independent of model availability'].filter(() => h.github_sync_status === 'not_configured' || !h.last_successful_backup),
     healthy_lanes: healthy,
     degraded_lanes: [...new Set(degraded)],
     blocked_lanes: blocked,
@@ -859,13 +1153,15 @@ function deterministicOperationalHealthConsult({context, cases, rules, requested
     observation: `Operational self-check: ${degraded.length || blocked.length ? 'service is usable with degraded lanes' : 'service is green for the checked lanes'}.`,
     challenged_assumption: 'That a retrieved corpus case should define a health-report answer instead of serving as evidence behind the requested operational contract.',
     dangerous_question: dangerousQuestionForTask({requestedPerspective, context, route}),
-    evidence_references: cases.slice(0, 5).map((caseRecord) => ({caseId: caseRecord.id, ref: `corpus_case:${caseRecord.id}`})),
+    evidence_references: cases.slice(0, 5).map((caseRecord) => ({caseId: caseRecord.id, ref: `corpus_case:${caseRecord.id}`, support_kind: caseRecord.supportKind || 'supporting_evidence'})),
     speculation: ['This is a deterministic operational-health response from current runtime health fields plus bounded request context.'],
+    consult_goal: consultGoal ? {response_contract: consultGoal.responseContract, explicit_request: consultGoal.explicitRequest, command_state: consultGoal.commandState, goal_overlap: consultGoal.goalOverlap} : undefined,
+    goal_overlap: consultGoal?.goalOverlap || [],
     confidence: h.database_status === 'ok' ? 0.82 : 0.64,
   };
 }
 
-function deterministicConsult({context, cases, rules, requestedPerspective = '', route = null, runtimeHealth = null}) {
+function deterministicConsult({context, cases, rules, requestedPerspective = '', route = null, runtimeHealth = null, consultGoal = null}) {
   const activeRoute = route || routeSheRawRequest({boundedContext: context, requestedPerspective}, {mode: 'explicit'});
   if (activeRoute.layer === 'personal_caregiving') {
     return deterministicPersonalCareConsult({context, requestedPerspective, route: activeRoute});
@@ -874,10 +1170,10 @@ function deterministicConsult({context, cases, rules, requestedPerspective = '',
     return deterministicHighStakesConsult({context, requestedPerspective, route: activeRoute});
   }
   if (activeRoute.response_contract === 'operational_health_check' || hasOperationalHealthSignal(context, requestedPerspective)) {
-    return deterministicOperationalHealthConsult({context, cases, rules, requestedPerspective, route: activeRoute, runtimeHealth});
+    return deterministicOperationalHealthConsult({context, cases, rules, requestedPerspective, route: activeRoute, runtimeHealth, consultGoal});
   }
   const firstCase = cases[0] || {};
-  const firstRule = rules[0] || {};
+  const firstRule = controllingRule(rules);
   const text = safeText(context, 4000);
   const projectHint = (text.match(/\b(home-center|command center|mcp|github|firestore|corpus|worker|android|firebase)\b/i) || [])[0] || 'the current surface';
   const assumption = firstRule.rule || firstCase.acceptedAssumption || `That ${projectHint} should be handled as a prompt/design problem instead of a durable service boundary.`;
@@ -892,6 +1188,10 @@ function deterministicConsult({context, cases, rules, requestedPerspective = '',
     likely_treasure: firstCase.treasure || 'A reusable judgment layer that can be replaced at the model layer without losing corrections or evidence.',
     collateral_risk: firstCase.collateralDamage || 'If it is overbuilt, She-Raw becomes a second orchestrator and competes with Command Center.',
     evidence_references: evidenceRefsFromCases(cases),
+    candidate_rules: candidateRules(rules),
+    response_contract_priority: ['explicit request', 'response contract', 'command state', 'grounded runtime evidence', 'corpus evidence'],
+    consult_goal: consultGoal ? {response_contract: consultGoal.responseContract, explicit_request: consultGoal.explicitRequest, command_state: consultGoal.commandState, goal_overlap: consultGoal.goalOverlap} : undefined,
+    goal_overlap: consultGoal?.goalOverlap || [],
     speculation: cases.length ? [] : ['No corpus case matched strongly; this answer is mostly structural inference.'],
     confidence: cases.length ? 0.78 : 0.55,
   };
@@ -950,12 +1250,40 @@ async function persistInvocation(admin, invocation) {
   return invocation;
 }
 
+function buildConsultGoal(args = {}, route = null, runtimeHealth = null) {
+  const explicitRequest = safeText(args.requestedPerspective || args.question || args.critiqueGoal || '', 1000);
+  const boundedContext = safeText(args.boundedContext || args.bounded_context || args.targetContent || args.target_content || '', 5000);
+  const responseContract = safeText(route?.response_contract, 120) || 'operational_consult';
+  const commandState = cleanCommandState(args.commandState || args.command_state || route?.command_state || 'idle');
+  const goalText = `${explicitRequest}\n${boundedContext}`.toLowerCase();
+  const routeTerms = [responseContract, route?.layer || '', route?.brain_id || '', commandState].filter(Boolean).map((term) => String(term).replace(/_/g, ' ').toLowerCase());
+  const goalOverlap = routeTerms.filter((term) => term && goalText.includes(term.split(' ')[0])).slice(0, 12);
+  return {
+    explicitRequest,
+    requestedPerspective: safeText(args.requestedPerspective || args.requested_perspective || '', 1000),
+    boundedContext,
+    route,
+    responseContract,
+    commandState,
+    runtimeHealth: runtimeHealth ? {
+      service_status: runtimeHealth.service_status,
+      database_status: runtimeHealth.database_status,
+      model_availability: runtimeHealth.model_availability,
+      corpus_revision: runtimeHealth.corpus_revision,
+      github_sync_status: runtimeHealth.github_sync_status,
+      last_successful_backup_present: !!runtimeHealth.last_successful_backup,
+    } : null,
+    priority: ['explicit request', 'response contract', 'command state', 'grounded runtime evidence', 'corpus evidence'],
+    goalOverlap,
+  };
+}
+
 async function modelResponse(admin, mode, request, retrievedCases, rules, route = null) {
   const start = nowMs();
   const modelRunId = `srmodel_${Date.now()}_${randomUUID().slice(0, 8)}`;
   let output;
   if (mode === 'critique') output = deterministicCritique(request);
-  else output = deterministicConsult({context: request.boundedContext || request.targetContent || '', cases: retrievedCases, rules, requestedPerspective: request.requestedPerspective, route, runtimeHealth: request.runtimeHealth});
+  else output = deterministicConsult({context: request.boundedContext || request.targetContent || '', cases: retrievedCases, rules, requestedPerspective: request.requestedPerspective, route, runtimeHealth: request.runtimeHealth, consultGoal: request.consultGoal});
   const modelRun = {
     modelRunId,
     provider: process.env.SHE_RAW_MODEL_PROVIDER || 'deterministic-local',
@@ -963,6 +1291,9 @@ async function modelResponse(admin, mode, request, retrievedCases, rules, route 
     promptVersion: PROMPT_VERSION,
     retrievalSet: retrievedCases.map((c) => c.id),
     route,
+    consultGoal: request.consultGoal || null,
+    activeRuleIds: rules.map((rule) => rule.ruleId),
+    candidateRuleIds: rules.filter((rule) => rule.candidateOnly).map((rule) => rule.ruleId),
     requestSize: JSON.stringify(request || {}).length,
     responseSize: JSON.stringify(output || {}).length,
     latencyMs: nowMs() - start,
@@ -1009,10 +1340,11 @@ async function handleConsult(admin, args, extra, mode = 'explicit') {
   const boundedContext = redactSecrets(args.boundedContext || '');
   const query = [boundedContext, args.projectKey, args.requestedPerspective].filter(Boolean).join('\n');
   const rawCases = route.retrieval_policy === 'none' ? [] : await retrieveCases(admin, query, {projectKey: args.projectKey});
-  const rawRules = route.rule_policy === 'none' ? [] : await activeRules(admin, {projectKey: args.projectKey});
-  const {cases, rules} = applyRoutePolicy({route, cases: rawCases, rules: rawRules});
-  const runtimeHealth = route.response_contract === 'operational_health_check' ? await health(admin) : null;
-  const {output, modelRun} = await modelResponse(admin, 'consult', {...args, boundedContext, runtimeHealth}, cases, rules, route);
+  const rawRules = route.rule_policy === 'none' ? [] : await activeRules(admin, {projectKey: args.projectKey, query, route});
+  const {cases, rules} = applyRoutePolicy({route, cases: rawCases, rules: rawRules, query});
+  const runtimeHealth = route.response_contract === 'operational_health_check' ? {...await health(admin), candidate_rule_count: rawRules.filter((rule) => rule.candidateOnly).length} : null;
+  const consultGoal = buildConsultGoal({...args, boundedContext}, route, runtimeHealth);
+  const {output, modelRun} = await modelResponse(admin, 'consult', {...args, boundedContext, runtimeHealth, consultGoal}, cases, rules, route);
   const invocation = {
     invocationId,
     caller,
@@ -1023,6 +1355,17 @@ async function handleConsult(admin, args, extra, mode = 'explicit') {
     projectKey: safeText(args.projectKey, 120),
     boundedContext,
     requestedPerspective: safeText(args.requestedPerspective, 500),
+    fullRequestSnapshot: {
+      conversationKey: safeText(args.conversationKey, 180),
+      projectKey: safeText(args.projectKey, 120),
+      commandState,
+      boundedContext,
+      requestedPerspective: safeText(args.requestedPerspective, 1000),
+      responseBudget: safeText(args.responseBudget, 80),
+      route,
+      consultGoal,
+    },
+    consultGoal,
     responseBudget: safeText(args.responseBudget, 80),
     retrievedCaseIds: cases.map((c) => c.id),
     activeRuleIds: rules.map((r) => r.ruleId),
@@ -1088,26 +1431,48 @@ function responseTextFromInvocation(invocation = {}) {
   return safeText(fields.filter(Boolean).join('\n') || JSON.stringify(response || {}), 8000);
 }
 
+function requestTextFromInvocation(invocation = {}) {
+  const snap = invocation.fullRequestSnapshot || {};
+  const goal = invocation.consultGoal || snap.consultGoal || {};
+  return safeText([
+    goal.explicitRequest,
+    goal.requestedPerspective,
+    goal.boundedContext,
+    snap.question,
+    snap.requestedPerspective,
+    snap.boundedContext,
+    invocation.requestedPerspective,
+    invocation.boundedContext,
+    invocation.inputSummary,
+    invocation.targetType,
+    invocation.mode,
+  ].filter(Boolean).join('\n'), 12000);
+}
+
 function termsPresent(text, terms) {
   const lower = safeText(text, 12000).toLowerCase();
   return terms.filter((term) => lower.includes(term));
 }
 
 function analyzeIntrospectionCausality(invocations = [], modelRuns = [], correctionText = '', desiredBehavior = '') {
-  const originalGoal = invocations.map((inv) => inv.requestedPerspective || inv.inputSummary || inv.boundedContext || inv.targetType || inv.mode).filter(Boolean).join('\n').slice(0, 1200) || 'Unknown from stored invocation data.';
+  const originalGoal = invocations.map(requestTextFromInvocation).filter(Boolean).join('\n').slice(0, 1200) || 'Unknown from stored invocation data.';
   const retrievedCaseIds = [...new Set([
     ...invocations.flatMap((inv) => inv.retrievedCaseIds || []),
     ...modelRuns.flatMap((run) => run?.retrievalSet || []),
   ])].slice(0, 30);
+  const requestText = invocations.map(requestTextFromInvocation).join('\n');
   const responseText = invocations.map(responseTextFromInvocation).join('\n');
   const correction = safeText(correctionText, 4000);
   const combinedGoal = `${originalGoal}\n${correction}\n${desiredBehavior}`;
-  const goalTerms = termsPresent(combinedGoal, ['connector', 'schema', 'capability', 'capabilities', 'tool', 'tools', 'brain', 'operation', 'pump', 'chatgpt', 'backend', 'mcp', 'introspection']);
+  const goalTerms = termsPresent(combinedGoal, ['connector', 'schema', 'capability', 'capabilities', 'tool', 'tools', 'brain', 'operation', 'pump', 'chatgpt', 'backend', 'mcp', 'introspection', 'operational', 'health', 'bikini', 'bottom']);
+  const requestGoalOverlap = termsPresent(requestText, goalTerms);
+  const responseGoalTermOverlap = termsPresent(responseText, goalTerms);
   const retrievalTerms = termsPresent(responseText, ['humane guardrail', 'humane guardrails', 'degraded-state', 'bounded authority', 'googly', 'self service bible', 'chapel', 'no chaplain', 'joke', 'relational responsiveness']);
   const correctionNamesRetrieval = /retrieval|hijack|hijacked|contaminat|wrong.*case|humane|guardrail|answered.*instead|wrong crime scene/i.test(correction);
   const connectorGoal = goalTerms.some((term) => ['connector', 'schema', 'capability', 'capabilities', 'tool', 'tools', 'operation', 'pump', 'chatgpt'].includes(term));
   const humaneCaseIds = retrievedCaseIds.filter((id) => id === 'sr_case_humane_guardrail_prospector_001' || /humane|guardrail/i.test(id));
-  const retrievalDominance = (correctionNamesRetrieval || connectorGoal) && humaneCaseIds.length > 0 && retrievalTerms.length > 0;
+  const responseHasRequestTerms = responseGoalTermOverlap.length > 0;
+  const retrievalDominance = (correctionNamesRetrieval || connectorGoal) && humaneCaseIds.length > 0 && retrievalTerms.length > 0 && (!responseHasRequestTerms || retrievalTerms.length >= requestGoalOverlap.length);
   const routeSummary = invocations.map((inv) => ({invocationId: inv.invocationId, mode: inv.mode || '', layer: inv.route?.layer || '', retrieval_policy: inv.route?.retrieval_policy || '', response_contract: inv.route?.response_contract || '', retrievedCaseIds: inv.retrievedCaseIds || []}));
   if (retrievalDominance) {
     return {
@@ -1127,7 +1492,8 @@ function analyzeIntrospectionCausality(invocations = [], modelRuns = [], correct
       ],
       retrievalDominanceDetected: true,
       contaminatingCaseIds: humaneCaseIds,
-      responseGoalOverlap: goalTerms,
+      responseGoalOverlap: responseGoalTermOverlap,
+      requestGoalOverlap,
       responseRetrievalOverlap: retrievalTerms,
       durableRuleKind: 'retrieval_layer_guard',
       routeSummary,
@@ -1150,10 +1516,33 @@ function analyzeIntrospectionCausality(invocations = [], modelRuns = [], correct
     ],
     retrievalDominanceDetected: false,
     contaminatingCaseIds: [],
-    responseGoalOverlap: goalTerms,
+    responseGoalOverlap: responseGoalTermOverlap,
+    requestGoalOverlap,
     responseRetrievalOverlap: retrievalTerms,
     durableRuleKind: 'generic_correction',
     routeSummary,
+  };
+}
+
+function buildValidationPlan({invocations = [], causal = {}, correctionText = '', desiredBehavior = ''}) {
+  const first = invocations[0] || {};
+  const contract = first.route?.response_contract || first.consultGoal?.responseContract || 'unknown';
+  const layer = first.route?.layer || 'unknown';
+  return {
+    fixture_name: causal.retrievalDominanceDetected ? 'retrieval_dominance_replay' : 'stored_invocation_correction_replay',
+    source_invocation_ids: invocations.map((inv) => inv.invocationId),
+    route_layer: layer,
+    response_contract: contract,
+    correction_summary: safeText(correctionText, 500),
+    expected_failure_before_fix: causal.mismatch || 'Stored response does not honor the corrected behavior.',
+    expected_behavior_after_fix: safeText(desiredBehavior, 1000) || causal.whatShouldHaveHappened || 'Analogous invocation preserves the request layer before retrieved evidence.',
+    required_checks: [
+      'replay analogous request',
+      'verify route and response_contract are preserved',
+      'verify contaminating corpus is absent from the main answer',
+      'verify evidence_references are supporting only',
+      'validate correction with laterInvocationId when the replay passes',
+    ],
   };
 }
 
@@ -1208,10 +1597,22 @@ async function handleCorrect(admin, args, extra) {
 async function handleIntrospect(admin, args, extra) {
   const caller = await callerFromExtra(admin, extra);
   const ids = safeList(args.invocationIds || (args.invocationId ? [args.invocationId] : []), 10, 180);
+  if (!ids.length) {
+    const err = new Error('She-Raw introspection requires invocationId or invocationIds.');
+    err.status = 400;
+    err.code = 'SHE_RAW_INTROSPECTION_TARGET_REQUIRED';
+    throw err;
+  }
   const invocations = [];
   for (const id of ids) {
     const invocation = await getInvocation(admin, id);
     if (invocation) invocations.push(invocation);
+  }
+  if (!invocations.length) {
+    const err = new Error('No stored She-Raw invocation found for introspection target.');
+    err.status = 404;
+    err.code = 'SHE_RAW_INTROSPECTION_TARGET_NOT_FOUND';
+    throw err;
   }
   const correctionText = safeText(args.userCorrection, 4000);
   const modelRuns = [];
@@ -1220,6 +1621,7 @@ async function handleIntrospect(admin, args, extra) {
     if (run) modelRuns.push(run);
   }
   const causal = analyzeIntrospectionCausality(invocations, modelRuns, correctionText, args.desiredBehavior || '');
+  const validationPlan = args.requestValidationPlan === true ? buildValidationPlan({invocations, causal, correctionText, desiredBehavior: args.desiredBehavior || ''}) : null;
   const introspectionId = `srintro_${Date.now()}_${randomUUID().slice(0, 8)}`;
   const payload = {
     introspectionId,
@@ -1238,11 +1640,14 @@ async function handleIntrospect(admin, args, extra) {
     retrievalDominanceDetected: causal.retrievalDominanceDetected,
     contaminatingCaseIds: causal.contaminatingCaseIds,
     responseGoalOverlap: causal.responseGoalOverlap,
+    requestGoalOverlap: causal.requestGoalOverlap,
     responseRetrievalOverlap: causal.responseRetrievalOverlap,
     durableRuleKind: causal.durableRuleKind,
     routeSummary: causal.routeSummary,
+    validationPlan,
+    evidenceComplete: invocations.length > 0 && modelRuns.length === invocations.filter((inv) => inv.modelRunId).length,
     inspectedModelRunIds: modelRuns.map((run) => run.modelRunId),
-    confidence: invocations.length ? 0.74 : 0.52,
+    confidence: modelRuns.length ? 0.74 : 0.62,
     confirmationRequired: (safeText(args.applyScope, 80) === 'global'),
     createdAtMs: nowMs(),
   };
@@ -1261,9 +1666,12 @@ async function handleIntrospect(admin, args, extra) {
     retrieval_dominance_detected: payload.retrievalDominanceDetected,
     contaminating_case_ids: payload.contaminatingCaseIds,
     response_goal_overlap: payload.responseGoalOverlap,
+    request_goal_overlap: payload.requestGoalOverlap,
     response_retrieval_overlap: payload.responseRetrievalOverlap,
     durable_rule_kind: payload.durableRuleKind,
     route_summary: payload.routeSummary,
+    validation_plan: payload.validationPlan,
+    evidence_complete: payload.evidenceComplete,
     confidence: payload.confidence,
     confirmation_required: payload.confirmationRequired,
   };
@@ -1341,8 +1749,9 @@ async function handleBrainJar(admin, args, extra) {
     return {invocation_id: invocationId, brain_id: brain.brainId, blocked: true, reason: gate.reason, command_state: commandState};
   }
   const query = [brain.displayName, brain.role, brain.primaryQuestion, boundedContext, args.question, args.projectKey].filter(Boolean).join('\n');
-  const cases = await retrieveCases(admin, query, {projectKey: args.projectKey});
-  const rules = await activeRules(admin, {projectKey: args.projectKey});
+  const rawCases = await retrieveCases(admin, query, {projectKey: args.projectKey});
+  const rawRules = await activeRules(admin, {projectKey: args.projectKey, query, route});
+  const {cases, rules} = applyRoutePolicy({route, cases: rawCases, rules: rawRules, brain, query});
   const output = deterministicBrainJarResponse({brain, boundedContext, question: args.question, cases, rules});
   const modelRunId = `srmodel_${Date.now()}_${randomUUID().slice(0, 8)}`;
   await collection(admin, SHE_RAW_COLLECTIONS.modelRuns).doc(modelRunId).set({
@@ -1368,6 +1777,17 @@ async function handleBrainJar(admin, args, extra) {
     boundedContext,
     route,
     requestedPerspective: `${brain.displayName} brain jar`,
+    fullRequestSnapshot: {
+      conversationKey: safeText(args.conversationKey, 180),
+      projectKey: safeText(args.projectKey, 120),
+      commandState,
+      boundedContext,
+      question: safeText(args.question, 1000),
+      brainId: brain.brainId,
+      route,
+      consultGoal: buildConsultGoal({...args, boundedContext, requestedPerspective: `${brain.displayName} brain jar`}, route, null),
+    },
+    consultGoal: buildConsultGoal({...args, boundedContext, requestedPerspective: `${brain.displayName} brain jar`}, route, null),
     responseBudget: safeText(args.responseBudget, 80),
     retrievedCaseIds: cases.map((c) => c.id),
     activeRuleIds: rules.map((r) => r.ruleId),
@@ -1467,7 +1887,8 @@ async function handleRoadCheck(admin, args = {}, extra = {}) {
   if (!h.last_successful_backup) degraded.push('last_successful_backup is empty');
   if (rules.some((rule) => Number(rule.validationCount || 0) === 0)) degraded.push('active learned rules have zero validation count');
   if (visibleTools.length && !visibleTools.includes('she_raw_operation')) blocked.push('visible connector schema does not expose she_raw_operation');
-  if (visibleTools.length && !visibleTools.includes('she_raw_brain')) degraded.push('visible connector schema may hide she_raw_brain; use operation=brain.invoke');
+  if (visibleTools.length && !visibleTools.includes('she_raw_brain')) degraded.push('visible connector schema hides she_raw_brain; use she_raw_operation operation=brain.invoke or she_raw_consult brain compatibility route');
+  if (visibleTools.length && !visibleTools.includes('she_raw_list_brains')) degraded.push('visible connector schema hides she_raw_list_brains; use she_raw_operation operation=brain.list or she_raw_consult compatibility route');
   if (commandState === 'executing') blocked.push('ambient, recreational, and random She-Raw interventions are blocked during Command Center execution');
   if (h.database_status !== 'ok') blocked.push(`database_status ${h.database_status}`);
   const usableNow = h.service_status === 'ok' && h.database_status === 'ok' && !(visibleTools.length && !visibleTools.includes('she_raw_operation'));
@@ -1499,6 +1920,13 @@ async function handleRoadCheck(admin, args = {}, extra = {}) {
     road_status: blocked.some((lane) => /schema does not expose she_raw_operation|database_status/.test(lane)) ? 'red' : (degraded.length || blocked.length ? 'yellow' : 'green'),
     usable_now: usableNow,
     preferred_tool: 'she_raw_operation',
+    direct_connector_visibility: {
+      visible_tools_supplied: visibleTools.length > 0,
+      she_raw_operation: !visibleTools.length ? 'unknown' : visibleTools.includes('she_raw_operation'),
+      she_raw_brain: !visibleTools.length ? 'unknown' : visibleTools.includes('she_raw_brain'),
+      she_raw_list_brains: !visibleTools.length ? 'unknown' : visibleTools.includes('she_raw_list_brains'),
+      compatibility_route: 'she_raw_consult.brain_jar when only she_raw_consult is visible; she_raw_operation operation=brain.invoke when the operation pump is visible',
+    },
     registry_version: registry.version,
     next_calls: nextCalls,
     degraded_lanes: [...new Set(degraded)],
@@ -1605,6 +2033,13 @@ async function health(admin) {
     recommended_first_call: 'direct_perspective_first',
     recommended_mcp_first_call: 'she_raw_manual',
     preferred_stable_tool: 'she_raw_operation',
+    backend_available_tools: ['she_raw_operation', 'she_raw_brain', 'she_raw_list_brains', 'she_raw_consult', 'she_raw_introspect', 'she_raw_correct', 'she_raw_validate_correction'],
+    host_visible_tools: 'unknown_until_road_check_receives_visibleTools',
+    compatibility_routes: {
+      brain_invoke: 'she_raw_operation operation=brain.invoke',
+      brain_list: 'she_raw_operation operation=brain.list',
+      consult_brain_jar: 'she_raw_consult with requestedPerspective naming the brain jar',
+    },
     road_check: {
       tool: 'she_raw_operation',
       operation: 'road.check',
