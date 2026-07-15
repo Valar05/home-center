@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -39,6 +40,49 @@ final class GoogleDocAudioLibrary {
         entry.ensureManifest(sections);
         updateIndex(entry);
         return entry;
+    }
+
+    List<Entry> completedEntriesFromManifests() {
+        List<Entry> entries = new ArrayList<>();
+        collectCompletedEntries(root, entries);
+        return entries;
+    }
+
+    private void collectCompletedEntries(File dir, List<Entry> entries) {
+        if (dir == null || entries == null || !dir.exists()) return;
+        File manifest = new File(dir, "manifest.json");
+        if (manifest.exists()) {
+            try (FileInputStream input = new FileInputStream(manifest)) {
+                JSONObject json = new JSONObject(new String(readAll(input), StandardCharsets.UTF_8));
+                int sectionCount = Math.max(1, json.optInt("sectionCount", 1));
+                Entry entry = new Entry(
+                        dir,
+                        json.optString("fileId", ""),
+                        json.optString("title", "Google Doc"),
+                        json.optString("modifiedTime", ""),
+                        json.optString("textHash", ""),
+                        json.optInt("charCount", 0),
+                        sectionCount,
+                        json.optString("speechProfileKey", "default-cartesia"),
+                        json.optJSONObject("speechProfile") == null ? "{}" : json.optJSONObject("speechProfile").toString());
+                boolean complete = true;
+                for (int i = 0; i < sectionCount; i++) {
+                    if (!entry.isDownloaded(i)) {
+                        complete = false;
+                        break;
+                    }
+                }
+                if (complete) entries.add(entry);
+            } catch (Exception ex) {
+                LocalLog.warn("doc_audio", "cached_manifest_scan_failed " + safe(ex.getMessage()));
+            }
+            return;
+        }
+        File[] children = dir.listFiles();
+        if (children == null) return;
+        for (File child : children) {
+            if (child != null && child.isDirectory()) collectCompletedEntries(child, entries);
+        }
     }
 
     private void updateIndex(Entry entry) {
@@ -277,6 +321,47 @@ final class GoogleDocAudioLibrary {
                 writeManifest(manifest);
             } catch (Exception ex) {
                 LocalLog.warn("doc_audio", "sample_mark_failed " + safe(ex.getMessage()));
+            }
+        }
+
+        synchronized void clearRenderedSections() {
+            try {
+                JSONObject manifest = readManifest();
+                JSONArray sections = manifest.optJSONArray("sections");
+                if (sections == null) sections = new JSONArray();
+                for (int i = 0; i < sectionCount; i++) {
+                    deleteIfExists(sectionFile(i));
+                    deleteIfExists(partFile(i));
+                    JSONObject section = sectionAt(sections, i);
+                    section.put("index", i)
+                            .put("label", "section " + (i + 1))
+                            .put("audioStatus", "pending")
+                            .put("audioPath", sectionFile(i).getAbsolutePath())
+                            .put("sampleRate", DEFAULT_SAMPLE_RATE)
+                            .put("pcmBytes", 0L)
+                            .put("updatedAt", now());
+                    section.remove("characterId");
+                    section.remove("voiceAlias");
+                    section.remove("acousticDirection");
+                    section.remove("error");
+                    sections.put(i, section);
+                }
+                manifest.put("sections", sections)
+                        .put("downloadedSections", 0)
+                        .put("rendering", false)
+                        .put("rerenderedAt", now())
+                        .put("updatedAt", now());
+                manifest.remove("renderedAt");
+                writeManifest(manifest);
+                LocalLog.info("doc_audio", "doc_audio_sections_cleared fileId=" + safe(fileId) + " textHash=" + safe(textHash) + " sections=" + sectionCount);
+            } catch (Exception ex) {
+                LocalLog.warn("doc_audio", "rendered_sections_clear_failed " + safe(ex.getMessage()));
+            }
+        }
+
+        private void deleteIfExists(File file) {
+            if (file != null && file.exists() && !file.delete()) {
+                LocalLog.warn("doc_audio", "audio_cache_delete_failed path=" + safe(file.getAbsolutePath()));
             }
         }
 

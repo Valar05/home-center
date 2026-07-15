@@ -90,6 +90,7 @@ import java.io.RandomAccessFile;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
+import java.security.MessageDigest;
 import java.text.SimpleDateFormat;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -113,6 +114,7 @@ public final class MainActivity extends Activity implements RecognitionListener,
     private static final int REQUEST_CART_REVIEW_IMPORT = 3001;
     private static final int REQUEST_DRIVE_AUTH = 4001;
     private static final int REQUEST_FILE_ATTACH = 5001;
+    private static final long DRIVE_HANDOFF_REFRESH_DELAY_MS = 900L;
     private static final int MAX_AGENT_TOOL_STEPS = 8;
     private static final int MAX_ATTACHMENT_PREVIEW_CHARS = 20000;
     private static final int MAX_IMAGE_ATTACHMENT_BYTES = 8 * 1024 * 1024;
@@ -250,6 +252,7 @@ public final class MainActivity extends Activity implements RecognitionListener,
     private TextView driveReaderPlayerTimeView;
     private boolean driveReaderUserSeeking;
     private Button driveReaderPlayerDownloadButton;
+    private Button driveReaderPlayerRerenderButton;
     private Button driveReaderPlayerStopButton;
     private LinearLayout driveBrowserList;
     private Button driveRecentButton;
@@ -315,6 +318,9 @@ public final class MainActivity extends Activity implements RecognitionListener,
     private String currentDriveBrowserFolderId = "";
     private String currentDriveBrowserTitle = "Narratable Docs";
     private boolean driveBrowserRequestInFlight = false;
+    private boolean pendingManualDriveRefresh = false;
+    private boolean driveBrowserHasRenderedList = false;
+    private long lastDriveHandoffAtMs = 0L;
     private boolean driveBrowserPollActive = false;
     private final List<DriveFolderCrumb> driveFolderStack = new ArrayList<>();
     private DocumentReaderState activeDocumentReader;
@@ -375,6 +381,7 @@ public final class MainActivity extends Activity implements RecognitionListener,
         initSpeechMediaSession();
         hostedSpeechClient = new HostedSpeechClient(BuildConfig.AGENT_GATEWAY_BASE_URL);
         googleDocAudioLibrary = new GoogleDocAudioLibrary(this);
+        documentAudioExecutor.execute(this::reconcileCachedRenderedDocuments);
         deviceTextToSpeech = new TextToSpeech(this, this);
         googleDriveClient = new GoogleDriveClient(this);
         googleSheetsClient = new GoogleSheetsClient(this);
@@ -425,6 +432,9 @@ public final class MainActivity extends Activity implements RecognitionListener,
     protected void onResume() {
         super.onResume();
         scheduleDriveBrowserPoll();
+        if (lastDriveHandoffAtMs > 0L && SystemClock.elapsedRealtime() - lastDriveHandoffAtMs > 400L) {
+            scheduleDriveRefreshAfterHandoff("resume_after_browser_handoff");
+        }
     }
 
     @Override
@@ -621,7 +631,7 @@ public final class MainActivity extends Activity implements RecognitionListener,
                         }
                         return;
                     }
-                    loadDriveRecentFiles();
+                    scheduleDriveRefreshAfterHandoff("google_sign_in_complete");
                     if (hasPendingTermuxPairing()) {
                         appendStatus("Google connected. Approving Termux Codex through Shizuku.");
                         continuePendingTermuxPairing("google_sign_in_complete");
@@ -846,6 +856,12 @@ public final class MainActivity extends Activity implements RecognitionListener,
         driveReaderPlayerDownloadButton.setTypeface(Typeface.DEFAULT_BOLD);
         driveReaderPlayerPanel.addView(driveReaderPlayerDownloadButton, matchHeight(dp(82)));
 
+        driveReaderPlayerRerenderButton = button("RERENDER", 18, "Discard cached sections and rerender this Google Doc with current voices");
+        driveReaderPlayerRerenderButton.setTextColor(COLOR_TEXT);
+        driveReaderPlayerRerenderButton.setBackgroundColor(COLOR_CARD);
+        driveReaderPlayerRerenderButton.setTypeface(Typeface.DEFAULT_BOLD);
+        driveReaderPlayerPanel.addView(driveReaderPlayerRerenderButton, matchHeight(dp(52)));
+
         driveReaderPlayerStopButton = button("STOP", 18, "Stop the current narration or render");
         driveReaderPlayerStopButton.setTextColor(COLOR_TEXT);
         driveReaderPlayerStopButton.setBackgroundColor(COLOR_DANGER);
@@ -999,9 +1015,10 @@ public final class MainActivity extends Activity implements RecognitionListener,
         driveRecentButton.setOnClickListener(v -> showDriveSearchDialog());
         driveFoldersButton.setOnClickListener(v -> cycleDriveSortMode());
         driveDocsButton.setOnClickListener(v -> cycleDriveFilterMode());
-        driveParentButton.setOnClickListener(v -> loadDriveRecentFiles());
+        driveParentButton.setOnClickListener(v -> manualRefreshDriveBrowser("button"));
         driveSpeechSettingsButton.setOnClickListener(v -> showDriveNarrationSpeechSettingsDialog());
         driveReaderPlayerDownloadButton.setOnClickListener(v -> renderDocumentAudio());
+        driveReaderPlayerRerenderButton.setOnClickListener(v -> rerenderDocumentAudio());
         driveReaderPlayerStopButton.setOnClickListener(v -> stopDocumentReader("stopped"));
         driveReaderPlayerSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
@@ -1120,6 +1137,10 @@ public final class MainActivity extends Activity implements RecognitionListener,
     }
 
     private void loadDriveBrowser(String mode, String folderId, String title, boolean fromPoll) {
+        loadDriveBrowser(mode, folderId, title, fromPoll, false);
+    }
+
+    private void loadDriveBrowser(String mode, String folderId, String title, boolean fromPoll, boolean preserveCurrentList) {
         String normalizedMode = mode == null || mode.trim().isEmpty() ? "docs" : mode.trim();
         String normalizedFolderId = folderId == null ? "" : folderId.trim();
         String normalizedTitle = title == null || title.trim().isEmpty() ? "Narratable Docs" : title.trim();
@@ -1151,8 +1172,8 @@ public final class MainActivity extends Activity implements RecognitionListener,
         if (fromPoll) {
             setDriveBrowserStatus("Checking Drive for new docs...", false);
         } else {
-            setDriveBrowserStatus("Loading " + normalizedTitle + "...", false);
-            if (driveBrowserList != null) {
+            setDriveBrowserStatus((preserveCurrentList ? "Refreshing " : "Loading ") + normalizedTitle + "...", false);
+            if (driveBrowserList != null && !(preserveCurrentList && driveBrowserHasRenderedList)) {
                 driveBrowserList.removeAllViews();
                 driveBrowserList.addView(driveLoadingRow("Loading " + normalizedTitle + "..."), matchWrap());
             }
@@ -1189,6 +1210,32 @@ public final class MainActivity extends Activity implements RecognitionListener,
         loadDriveBrowser(currentDriveBrowserMode, currentDriveBrowserFolderId, currentDriveBrowserTitle, true);
     }
 
+    private void manualRefreshDriveBrowser(String reason) {
+        if (busy || driveBrowserRequestInFlight) {
+            pendingManualDriveRefresh = true;
+            setDriveBrowserStatus("Refresh queued. Waiting for current Drive request...", false);
+            scheduleDriveBrowserPoll();
+            return;
+        }
+        pendingManualDriveRefresh = false;
+        setDriveBrowserStatus("Refreshing Drive...", false);
+        loadDriveBrowser(currentDriveBrowserMode, currentDriveBrowserFolderId, currentDriveBrowserTitle, false, true);
+    }
+
+    private void runQueuedDriveRefreshIfNeeded() {
+        if (!pendingManualDriveRefresh) return;
+        pendingManualDriveRefresh = false;
+        main.postDelayed(() -> manualRefreshDriveBrowser("queued"), 250L);
+    }
+
+    private void scheduleDriveRefreshAfterHandoff(String reason) {
+        lastDriveHandoffAtMs = 0L;
+        pendingManualDriveRefresh = true;
+        setDriveBrowserStatus("Returning from Google approval. Refreshing Drive...", false);
+        main.removeCallbacks(driveBrowserPollRunnable);
+        main.postDelayed(() -> manualRefreshDriveBrowser(reason), DRIVE_HANDOFF_REFRESH_DELAY_MS);
+    }
+
     private TextView driveLoadingRow(String text) {
         TextView row = new TextView(this);
         row.setText(text);
@@ -1202,6 +1249,7 @@ public final class MainActivity extends Activity implements RecognitionListener,
     private void renderDriveBrowserMessage(String message, boolean danger) {
         setDriveBrowserStatus(message, danger);
         if (driveBrowserList == null) return;
+        if (driveBrowserHasRenderedList && danger) return;
         driveBrowserList.removeAllViews();
         driveBrowserList.addView(driveLoadingRow(message), matchWrap());
     }
@@ -1209,28 +1257,32 @@ public final class MainActivity extends Activity implements RecognitionListener,
     private void renderDriveBrowserResult(String mode, String title, GoogleDriveClient.DriveResult result, boolean fromPoll) {
         driveBrowserRequestInFlight = false;
         if (result == null) {
-            renderDriveBrowserMessage("Drive request returned no result.", true);
+            renderDriveBrowserMessage("Drive request returned no result. Tap Refresh to retry.", true);
             scheduleDriveBrowserPoll();
+            runQueuedDriveRefreshIfNeeded();
             return;
         }
         if (!result.ok) {
             if (result.recoverableAuthException != null) {
                 stopDriveBrowserPolling();
-                setDriveBrowserStatus("Drive permission needs approval.", true);
+                setDriveBrowserStatus("Drive permission needs approval. Approve Drive, then tap Refresh.", true);
                 try {
+                    lastDriveHandoffAtMs = SystemClock.elapsedRealtime();
                     startActivityForResult(result.recoverableAuthException.getIntent(), REQUEST_DRIVE_AUTH);
                 } catch (Exception ex) {
                     renderDriveBrowserMessage("Drive permission approval failed to open: " + shortMessage(ex.getMessage()), true);
                 }
                 return;
             }
-            renderDriveBrowserMessage("Drive failed [" + result.error + "]: " + result.detail, true);
+            renderDriveBrowserMessage("Drive failed [" + result.error + "]: " + result.detail + ". Tap Refresh to retry.", true);
             scheduleDriveBrowserPoll();
+            runQueuedDriveRefreshIfNeeded();
             return;
         }
         if (driveBrowserPathView != null) {
             driveBrowserPathView.setText(drivePathLabel(mode, title));
         }
+        driveBrowserHasRenderedList = true;
         if (driveBrowserList != null) {
             driveBrowserList.removeAllViews();
             if (result.files.isEmpty()) {
@@ -1239,8 +1291,9 @@ public final class MainActivity extends Activity implements RecognitionListener,
                 addDriveGridCards(result.files);
             }
         }
-        setDriveBrowserStatus(driveBrowserSummary(result.files.size()) + " | auto-refresh 30s", false);
+        setDriveBrowserStatus(driveBrowserSummary(result.files.size()) + " | auto-refresh 30s | manual refresh ready", false);
         scheduleDriveBrowserPoll();
+        runQueuedDriveRefreshIfNeeded();
     }
 
     private String drivePathLabel(String mode, String title) {
@@ -1282,6 +1335,11 @@ public final class MainActivity extends Activity implements RecognitionListener,
             driveReaderPlayerDownloadButton.setText(reader.downloadedSections >= total ? "RENDERED" : (reader.renderRequested ? "RENDERING" : "RENDER"));
             driveReaderPlayerDownloadButton.setEnabled(reader.downloadedSections < total && !reader.renderRequested);
         }
+        if (driveReaderPlayerRerenderButton != null) {
+            driveReaderPlayerRerenderButton.setVisibility(reader.downloadedSections > 0 ? View.VISIBLE : View.GONE);
+            driveReaderPlayerRerenderButton.setEnabled(!reader.renderRequested);
+            driveReaderPlayerRerenderButton.setText(reader.renderRequested ? "RERENDERING" : "RERENDER");
+        }
         if (driveReaderPlayerStopButton != null) {
             boolean active = reader.renderRequested || reader.downloadRequested || reader.playbackRequested || speechPlaying;
             driveReaderPlayerStopButton.setVisibility(active ? View.VISIBLE : View.GONE);
@@ -1293,7 +1351,7 @@ public final class MainActivity extends Activity implements RecognitionListener,
         if (driveRecentButton != null) driveRecentButton.setEnabled(enabled);
         if (driveFoldersButton != null) driveFoldersButton.setEnabled(enabled);
         if (driveDocsButton != null) driveDocsButton.setEnabled(enabled);
-        if (driveParentButton != null) driveParentButton.setEnabled(enabled);
+        if (driveParentButton != null) driveParentButton.setEnabled(true);
         if (driveSpeechSettingsButton != null) driveSpeechSettingsButton.setEnabled(enabled);
         if (driveBrowserList != null) {
             setViewTreeEnabled(driveBrowserList, enabled);
@@ -1613,8 +1671,18 @@ public final class MainActivity extends Activity implements RecognitionListener,
     private String driveSpeechProfileKey() {
         String raw = driveSpeechProvider + "|" + driveSpeechModelId + "|n=" + driveNarratorVoiceName + ":" + driveNarratorVoiceId
                 + "|d=" + driveDialogueVoiceName + ":" + driveDialogueVoiceId
-                + "|notes=" + driveNotesVoiceName + ":" + driveNotesVoiceId;
+                + "|notes=" + driveNotesVoiceName + ":" + driveNotesVoiceId
+                + "|registry=" + driveCharacterRegistryFingerprint()
+                + "|compiler=" + MarkdownNarrationDocument.COMPILER_ID;
         return Integer.toHexString(raw.hashCode()) + "-" + raw.replaceAll("[^A-Za-z0-9_.-]", "_");
+    }
+
+    private String driveCharacterRegistryFingerprint() {
+        try {
+            return driveCharacterRegistry == null ? "no-registry" : Integer.toHexString(driveCharacterRegistry.toJson().toString().hashCode());
+        } catch (Exception ex) {
+            return "registry-error";
+        }
     }
 
     private String driveSpeechProfileJson() {
@@ -1815,11 +1883,20 @@ public final class MainActivity extends Activity implements RecognitionListener,
     private String activeSpeechVoiceName(DocumentReaderState reader, int sectionIndex) {
         CharacterVoiceRule rule = characterRuleForSection(reader, sectionIndex);
         String alias = resolvedProviderVoiceAlias(rule);
-        if (!alias.isEmpty()) return alias;
+        if (!alias.isEmpty()) {
+            if (isVoiceIdAlias(alias)) return "";
+            return alias;
+        }
         String role = speechRoleForSection(reader, sectionIndex);
         if ("dialogue".equals(role)) return firstNonEmpty(driveDialogueVoiceName, driveNarratorVoiceName, DEFAULT_DRIVE_NARRATOR_VOICE);
         if ("notes".equals(role)) return firstNonEmpty(driveNotesVoiceName, driveNarratorVoiceName, DEFAULT_DRIVE_NARRATOR_VOICE);
         return firstNonEmpty(driveNarratorVoiceName, DEFAULT_DRIVE_NARRATOR_VOICE);
+    }
+
+    private String activeSpeechVoiceLabel(DocumentReaderState reader, int sectionIndex) {
+        String name = activeSpeechVoiceName(reader, sectionIndex);
+        String id = activeSpeechVoiceId(reader, sectionIndex);
+        return firstNonEmpty(name, id, DEFAULT_DRIVE_NARRATOR_VOICE);
     }
 
     private String resolvedProviderVoiceAlias(CharacterVoiceRule rule) {
@@ -1828,14 +1905,34 @@ public final class MainActivity extends Activity implements RecognitionListener,
         if (alias.isEmpty()) return "";
         String normalizedAlias = CharacterVoiceRule.normalizeId(alias);
         if (normalizedAlias.isEmpty()) return "";
-        if (normalizedAlias.equals(rule.characterId)) return "";
-        if (normalizedAlias.equals(CharacterVoiceRule.normalizeId(rule.characterName))) return "";
-        if (normalizedAlias.equals(CharacterVoiceRule.normalizeId(rule.aliases))) return "";
         if (normalizedAlias.contains("voice-actor") || normalizedAlias.contains("voice_actor")) return "";
         return alias;
     }
 
+    private boolean isVoiceIdAlias(String alias) {
+        return alias != null && alias.trim().toLowerCase(Locale.US).startsWith("voice_id:");
+    }
+
+    private String voiceIdFromAlias(String alias) {
+        if (!isVoiceIdAlias(alias)) return "";
+        return alias.trim().substring("voice_id:".length()).trim();
+    }
+
+    private boolean voiceCatalogContainsProviderName(String alias) {
+        if (alias == null || alias.trim().isEmpty() || driveVoiceCatalog == null) return false;
+        String clean = alias.trim();
+        for (VoiceCatalogEntry entry : driveVoiceCatalog) {
+            if (entry != null && clean.equalsIgnoreCase(entry.name)) return true;
+        }
+        return false;
+    }
+
     private String activeSpeechVoiceId(DocumentReaderState reader, int sectionIndex) {
+        CharacterVoiceRule rule = characterRuleForSection(reader, sectionIndex);
+        String alias = resolvedProviderVoiceAlias(rule);
+        if (!alias.isEmpty()) {
+            return voiceIdFromAlias(alias);
+        }
         String role = speechRoleForSection(reader, sectionIndex);
         if ("dialogue".equals(role)) return driveDialogueVoiceId == null ? "" : driveDialogueVoiceId;
         if ("notes".equals(role)) return driveNotesVoiceId == null ? "" : driveNotesVoiceId;
@@ -1881,6 +1978,7 @@ public final class MainActivity extends Activity implements RecognitionListener,
                     .putString(KEY_DRIVE_CHARACTER_REGISTRY_DOC_ID, driveCharacterRegistryDocId)
                     .putLong(KEY_DRIVE_CHARACTER_REGISTRY_LOADED_AT, driveCharacterRegistryLoadedAt)
                     .apply();
+            refreshActiveReaderSpeechProfileForRegistryChange("character_registry_loaded");
             LocalLog.info("doc_audio", "character_registry_loaded fileId=" + shortMessage(driveCharacterRegistryDocId) + " entries=" + parsed.size());
         } catch (Exception ex) {
             LocalLog.warn("doc_audio", "character_registry_refresh_failed " + shortMessage(ex.getMessage()));
@@ -1908,7 +2006,12 @@ public final class MainActivity extends Activity implements RecognitionListener,
     }
 
     private String stripVoiceTags(String text) {
-        return text == null ? "" : text.replaceAll("(?i)\\[(voice|speaker):[^\\]]+\\]", "").replaceAll("\\s+", " ").trim();
+        return stripSpeakerCueForSpeech(text == null ? "" : text.replaceAll("(?i)\\[(voice|speaker):[^\\]]+\\]", ""));
+    }
+
+    private String stripSpeakerCueForSpeech(String text) {
+        if (text == null) return "";
+        return text.replaceFirst("^\\s*[A-Za-z][A-Za-z0-9 .\\'\\-]{1,48}\\s*:\\s+", "").replaceAll("\\s+", " ").trim();
     }
 
     private void showTermuxPairingDialog() {
@@ -3059,25 +3162,33 @@ public final class MainActivity extends Activity implements RecognitionListener,
             showAssistantMessage("That Google Doc is empty, so there is nothing to read aloud.");
             return;
         }
-        activeDocumentReader = new DocumentReaderState(file, text, chunkDocumentReaderText(text));
+        MarkdownNarrationDocument narrationDocument = compileDriveMarkdownNarration(text);
+        activeDocumentReader = new DocumentReaderState(file, text, narrationDocument);
         activeDocumentReader.applySpeechProfile(driveSpeechProvider, driveSpeechModelId, driveNarratorVoiceName, driveDialogueVoiceName, driveNotesVoiceName, driveSpeechProfileKey());
         ingestStructuredDocumentSpeakers(activeDocumentReader, text);
         lastDriveDocumentId = activeDocumentReader.fileId;
         lastDriveDocumentName = activeDocumentReader.name;
         ensureGoogleDocAudioEntry(activeDocumentReader);
         resetDriveReaderPlaybackForNewContent(activeDocumentReader);
-        activeDocumentReader.status = "indexed text; " + activeDocumentReader.downloadedSections + " of " + activeDocumentReader.chunkCount() + " rendered sections saved";
+        activeDocumentReader.status = driveReaderReadyStatus(activeDocumentReader);
         refreshDriveReaderPlayer();
         appendDocumentReaderArtifact(activeDocumentReader);
         if (autoPlay) {
             activeDocumentReader.playbackRequested = true;
             activeDocumentReader.paused = false;
             activeDocumentReader.previewOnlyPlayback = true;
-            setDriveBrowserStatus("Rendering first chunk for " + activeDocumentReader.name + ".", false);
+            setDriveBrowserStatus("Rendering preview for " + activeDocumentReader.name + ".", false);
             documentRenderExecutor.execute(() -> generateDocumentSection(activeDocumentReader, 0, true));
         } else {
-            appendStatus("Indexed " + activeDocumentReader.name + ": " + activeDocumentReader.charCount + " chars in " + activeDocumentReader.chunkCount() + " sections. Use Render to save the audio artifact.");
+            appendStatus("Indexed " + activeDocumentReader.name + ". Use Render to save the audio artifact.");
         }
+    }
+
+    private void refreshActiveReaderSpeechProfileForRegistryChange(String reason) {
+        if (activeDocumentReader == null) return;
+        activeDocumentReader.applySpeechProfile(driveSpeechProvider, driveSpeechModelId, driveNarratorVoiceName, driveDialogueVoiceName, driveNotesVoiceName, driveSpeechProfileKey());
+        activeDocumentReader.withClearedAudioEntry();
+        LocalLog.info("doc_audio", "doc_audio_profile_invalidated reason=" + firstNonEmpty(reason, "registry_changed") + " profile=" + activeDocumentReader.speechProfileKey);
     }
 
     private void ingestStructuredDocumentSpeakers(DocumentReaderState reader, String documentText) {
@@ -3089,6 +3200,7 @@ public final class MainActivity extends Activity implements RecognitionListener,
         try {
             JSONObject registryJson = driveCharacterRegistry.toJson();
             getSharedPreferences(PREFS, MODE_PRIVATE).edit().putString(KEY_DRIVE_CHARACTER_REGISTRY_JSON, registryJson.toString()).apply();
+            refreshActiveReaderSpeechProfileForRegistryChange("speaker_profile_ingested");
             setDriveBrowserStatus("Ingested " + merged.added + " speaker profile" + (merged.added == 1 ? "" : "s") + " from " + reader.name + ".", false);
             appendStatus("Drive Narrate ingested speakers: " + merged.names + ". Defaults are overrideable in Speech.");
             persistDriveCharacterRegistryDocument();
@@ -3136,30 +3248,12 @@ public final class MainActivity extends Activity implements RecognitionListener,
         }
     }
 
+    private MarkdownNarrationDocument compileDriveMarkdownNarration(String text) {
+        return MarkdownNarrationDocument.compile(text, DOC_READER_FIRST_CHUNK_CHARS, DOC_READER_TARGET_CHARS, DOC_READER_MIN_CHARS);
+    }
+
     private List<String> chunkDocumentReaderText(String text) {
-        List<String> chunks = new ArrayList<>();
-        String clean = text == null ? "" : text.replaceAll("\\s+", " ").trim();
-        int index = 0;
-        while (index < clean.length()) {
-            int target = chunks.isEmpty() ? DOC_READER_FIRST_CHUNK_CHARS : DOC_READER_TARGET_CHARS;
-            int minimum = chunks.isEmpty() ? Math.min(180, DOC_READER_FIRST_CHUNK_CHARS) : DOC_READER_MIN_CHARS;
-            int end = Math.min(clean.length(), index + target);
-            if (end < clean.length()) {
-                int sentence = Math.max(clean.lastIndexOf(". ", end), Math.max(clean.lastIndexOf("! ", end), clean.lastIndexOf("? ", end)));
-                if (sentence > index + minimum) {
-                    end = sentence + 1;
-                }
-            }
-            String chunk = clean.substring(index, end).trim();
-            if (!chunk.isEmpty()) {
-                chunks.add(chunk);
-            }
-            index = end;
-            while (index < clean.length() && Character.isWhitespace(clean.charAt(index))) {
-                index++;
-            }
-        }
-        return chunks.isEmpty() ? Collections.singletonList(clean) : chunks;
+        return compileDriveMarkdownNarration(text).chunks;
     }
 
     private void appendDocumentReaderArtifact(DocumentReaderState reader) {
@@ -3250,6 +3344,11 @@ public final class MainActivity extends Activity implements RecognitionListener,
         return button;
     }
 
+    private String driveReaderReadyStatus(DocumentReaderState reader) {
+        if (reader == null) return "ready";
+        return countDownloadedSections(reader) > 0 ? "ready with cached audio" : "ready to render";
+    }
+
     private void ensureGoogleDocAudioEntry(DocumentReaderState reader) {
         if (reader == null || reader.audioEntry != null || googleDocAudioLibrary == null) {
             return;
@@ -3257,7 +3356,7 @@ public final class MainActivity extends Activity implements RecognitionListener,
         reader.audioEntry = googleDocAudioLibrary.ingest(reader.fileId, reader.name, reader.modifiedTime, reader.textHash, reader.charCount, reader.chunks, driveSpeechProfileKey(), driveSpeechProfileJson());
         JSONObject manifest = reader.audioEntry.readManifest();
         reader.downloadedSections = manifest.optInt("downloadedSections", countDownloadedSections(reader));
-        reader.status = "indexed text, " + reader.downloadedSections + " of " + reader.chunkCount() + " audio sections downloaded";
+        reader.status = driveReaderReadyStatus(reader);
     }
 
     private int countDownloadedSections(DocumentReaderState reader) {
@@ -3293,19 +3392,39 @@ public final class MainActivity extends Activity implements RecognitionListener,
     }
 
     private void renderDocumentAudio() {
+        renderDocumentAudio(false);
+    }
+
+    private void rerenderDocumentAudio() {
+        renderDocumentAudio(true);
+    }
+
+    private void renderDocumentAudio(boolean forceRerender) {
         DocumentReaderState reader = activeDocumentReader;
         if (reader == null) {
             showAssistantMessage("No Google Doc is indexed yet.");
             return;
         }
         ensureGoogleDocAudioEntry(reader);
+        reader.cancelRequested = false;
+        if (forceRerender) {
+            stopHostedSpeechPlayback("rerender_document_audio");
+            reader.playbackRequested = false;
+            reader.downloadRequested = false;
+            reader.paused = true;
+            reader.playbackOffsetBytes = 0L;
+            reader.exportedWavPath = "";
+            reader.audioEntry.clearRenderedSections();
+            reader.downloadedSections = 0;
+            LocalLog.info("doc_audio", "doc_audio_rerender_requested fileId=" + shortMessage(reader.fileId) + " textHash=" + reader.textHash + " profile=" + reader.speechProfileKey);
+        }
         reader.renderRequested = true;
         reader.downloadRequested = false;
-        reader.status = "rendering audio artifact, " + reader.downloadedSections + " of " + reader.chunkCount() + " sections saved";
+        reader.status = forceRerender ? "rerendering audio artifact" : "rendering audio artifact";
         reader.audioEntry.markRendering(true);
         refreshDriveReaderPlayer();
-        setDriveBrowserStatus("Rendering and saving " + reader.name + " with " + driveVoiceSummary() + ".", false);
-        appendStatus("Rendering and saving " + reader.name + ". You can listen or leave; the audio artifact remains the work product.");
+        setDriveBrowserStatus((forceRerender ? "Rerendering and saving " : "Rendering and saving ") + reader.name + " with " + driveVoiceSummary() + ".", false);
+        appendStatus((forceRerender ? "Rerendering and saving " : "Rendering and saving ") + reader.name + ". You can listen or leave; the audio artifact remains the work product.");
         documentRenderExecutor.execute(() -> {
             for (int i = 0; i < reader.chunkCount(); i++) {
                 if (reader != activeDocumentReader || reader.cancelRequested || !reader.renderRequested) break;
@@ -3317,30 +3436,187 @@ public final class MainActivity extends Activity implements RecognitionListener,
                 }
                 if (reader != activeDocumentReader || reader.cancelRequested || !reader.renderRequested) break;
                 reader.downloadedSections = countDownloadedSections(reader);
-                reader.status = "rendering audio artifact, " + reader.downloadedSections + " of " + reader.chunkCount() + " sections saved";
+                reader.status = forceRerender ? "rerendering audio artifact" : "rendering audio artifact";
                 main.post(() -> { if (reader == activeDocumentReader) refreshDriveReaderPlayer(); });
             }
             reader.downloadedSections = countDownloadedSections(reader);
             reader.renderRequested = false;
+            String savedWavPath = "";
+            String exportError = "";
             if (reader.downloadedSections >= reader.chunkCount()) {
-                reader.status = "rendered audio artifact complete";
+                try {
+                    savedWavPath = exportRenderedDocumentWav(reader, forceRerender);
+                    reader.exportedWavPath = savedWavPath;
+                    reader.status = "rendered audio artifact complete";
+                } catch (Exception ex) {
+                    exportError = shortMessage(ex.getMessage());
+                    reader.status = "render complete; WAV export failed";
+                    LocalLog.warn("doc_audio", "document_wav_export_failed fileId=" + shortMessage(reader.fileId) + " textHash=" + reader.textHash + " detail=" + exportError);
+                }
             } else if (reader.status == null || !reader.status.startsWith("render blocked,")) {
-                reader.status = "render incomplete, " + reader.downloadedSections + " of " + reader.chunkCount() + " sections saved";
+                reader.status = "render incomplete";
             }
             if (reader.audioEntry != null) {
-                if (reader.downloadedSections >= reader.chunkCount()) {
+                if (reader.downloadedSections >= reader.chunkCount() && exportError.isEmpty()) {
                     reader.audioEntry.markRenderComplete();
                 } else {
                     reader.audioEntry.markRendering(false);
                 }
             }
+            String finalSavedWavPath = savedWavPath;
+            String finalExportError = exportError;
             main.post(() -> {
                 if (reader != activeDocumentReader) return;
                 refreshDriveReaderPlayer();
-                setDriveBrowserStatus(reader.status + ": " + reader.name + ".", reader.downloadedSections < reader.chunkCount());
-                appendStatus(reader.status + ": " + reader.name + ".");
+                boolean danger = reader.downloadedSections < reader.chunkCount() || !finalExportError.isEmpty();
+                setDriveBrowserStatus(reader.status + ": " + reader.name + (finalSavedWavPath.isEmpty() ? "." : ". Saved WAV: " + finalSavedWavPath), danger);
+                appendStatus(reader.status + ": " + reader.name + (finalSavedWavPath.isEmpty() ? "." : ". Saved WAV: " + finalSavedWavPath));
+                if (!finalExportError.isEmpty()) appendStatus("WAV export failed: " + finalExportError);
             });
         });
+    }
+
+    private void reconcileCachedRenderedDocuments() {
+        if (googleDocAudioLibrary == null) return;
+        int exported = 0;
+        int failed = 0;
+        for (GoogleDocAudioLibrary.Entry entry : googleDocAudioLibrary.completedEntriesFromManifests()) {
+            try {
+                exportRenderedEntryWav(entry, entry.title, entry.textHash, entry.sectionCount, entry.fileId);
+                exported += 1;
+            } catch (Exception ex) {
+                failed += 1;
+                LocalLog.warn("doc_audio", "cached_document_reconcile_failed fileId=" + shortMessage(entry.fileId) + " textHash=" + entry.textHash + " detail=" + shortMessage(ex.getMessage()));
+            }
+        }
+        if (exported > 0 || failed > 0) {
+            int finalExported = exported;
+            int finalFailed = failed;
+            main.post(() -> appendStatus("Recovered cached document WAVs: " + finalExported + " saved" + (finalFailed > 0 ? ", " + finalFailed + " failed" : "") + "."));
+        }
+    }
+
+    private String exportRenderedDocumentWav(DocumentReaderState reader) throws IOException {
+        return exportRenderedDocumentWav(reader, false);
+    }
+
+    private String exportRenderedDocumentWav(DocumentReaderState reader, boolean forceNewFile) throws IOException {
+        if (reader == null || reader.audioEntry == null) throw new IOException("no rendered document audio");
+        return exportRenderedEntryWav(reader.audioEntry, reader.name, reader.textHash, reader.chunkCount(), reader.fileId, !forceNewFile);
+    }
+
+    private String exportRenderedEntryWav(GoogleDocAudioLibrary.Entry entry, String title, String textHash, int sectionCount, String fileId) throws IOException {
+        return exportRenderedEntryWav(entry, title, textHash, sectionCount, fileId, true);
+    }
+
+    private String exportRenderedEntryWav(GoogleDocAudioLibrary.Entry entry, String title, String textHash, int sectionCount, String fileId, boolean reuseExisting) throws IOException {
+        if (entry == null) throw new IOException("no rendered document audio");
+        int safeSectionCount = Math.max(1, sectionCount);
+        int sampleRate = GoogleDocAudioLibrary.DEFAULT_SAMPLE_RATE;
+        long pcmBytes = 0L;
+        for (int i = 0; i < safeSectionCount; i++) {
+            File section = entry.sectionFile(i);
+            if (section == null || !section.exists() || section.length() <= 44L) {
+                throw new IOException("section " + (i + 1) + " is not rendered");
+            }
+            pcmBytes += Math.max(0L, section.length() - 44L);
+        }
+        if (pcmBytes <= 0L) throw new IOException("rendered audio is empty");
+        String fileName = safeFileName(title) + "-" + firstNonEmpty(textHash, String.valueOf(System.currentTimeMillis()), "", "audio") + ".wav";
+        long expectedBytes = 44L + pcmBytes;
+        String existingPath = reuseExisting ? existingRenderedDownloadPath(fileName, expectedBytes) : "";
+        if (!existingPath.isEmpty()) {
+            LocalLog.info("doc_audio", "document_wav_export_reused fileId=" + shortMessage(fileId) + " textHash=" + textHash + " path=" + existingPath + " bytes=" + expectedBytes);
+            return existingPath;
+        }
+        ContentValues values = new ContentValues();
+        values.put(MediaStore.Downloads.DISPLAY_NAME, fileName);
+        values.put(MediaStore.Downloads.MIME_TYPE, "audio/wav");
+        values.put(MediaStore.Downloads.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS + "/HomeCenter/audio/");
+        Uri uri = getContentResolver().insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, values);
+        if (uri == null) throw new IOException("MediaStore insert returned null");
+        try (OutputStream output = getContentResolver().openOutputStream(uri, "w")) {
+            if (output == null) throw new IOException("MediaStore output stream returned null");
+            output.write(wavHeaderBytes(sampleRate, pcmBytes));
+            for (int i = 0; i < safeSectionCount; i++) {
+                copyWavPcm(entry.sectionFile(i), output);
+            }
+        }
+        String path = "Downloads/HomeCenter/audio/" + fileName;
+        LocalLog.info("doc_audio", "document_wav_exported fileId=" + shortMessage(fileId) + " textHash=" + textHash + " path=" + path + " pcmBytes=" + pcmBytes);
+        return path;
+    }
+
+    private String existingRenderedDownloadPath(String fileName, long expectedBytes) {
+        String relativePath = Environment.DIRECTORY_DOWNLOADS + "/HomeCenter/audio/";
+        String[] projection = new String[]{MediaStore.Downloads.DISPLAY_NAME, MediaStore.Downloads.SIZE};
+        String selection = MediaStore.Downloads.RELATIVE_PATH + "=? AND " + MediaStore.Downloads.DISPLAY_NAME + "=?";
+        String[] args = new String[]{relativePath, fileName};
+        try (Cursor cursor = getContentResolver().query(MediaStore.Downloads.EXTERNAL_CONTENT_URI, projection, selection, args, null)) {
+            if (cursor == null) return "";
+            while (cursor.moveToNext()) {
+                long size = cursor.isNull(1) ? -1L : cursor.getLong(1);
+                if (expectedBytes <= 0L || size == expectedBytes) {
+                    return "Downloads/HomeCenter/audio/" + fileName;
+                }
+            }
+        } catch (Exception ex) {
+            LocalLog.warn("doc_audio", "document_wav_existing_check_failed name=" + shortMessage(fileName) + " detail=" + shortMessage(ex.getMessage()));
+        }
+        return "";
+    }
+
+    private void copyWavPcm(File wav, OutputStream output) throws IOException {
+        try (InputStream input = new BufferedInputStream(new FileInputStream(wav))) {
+            long skipped = 0L;
+            while (skipped < 44L) {
+                long step = input.skip(44L - skipped);
+                if (step <= 0L) {
+                    if (input.read() == -1) throw new IOException("invalid wav header");
+                    step = 1L;
+                }
+                skipped += step;
+            }
+            byte[] buffer = new byte[8192];
+            int read;
+            while ((read = input.read(buffer)) != -1) output.write(buffer, 0, read);
+        }
+    }
+
+    private byte[] wavHeaderBytes(int sampleRate, long pcmBytes) throws IOException {
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream(44);
+        bytes.write(new byte[]{'R','I','F','F'});
+        writeLeInt(bytes, 36L + Math.max(0L, pcmBytes));
+        bytes.write(new byte[]{'W','A','V','E'});
+        bytes.write(new byte[]{'f','m','t',' '});
+        writeLeInt(bytes, 16L);
+        writeLeShort(bytes, 1);
+        writeLeShort(bytes, 1);
+        writeLeInt(bytes, sampleRate);
+        writeLeInt(bytes, sampleRate * 2L);
+        writeLeShort(bytes, 2);
+        writeLeShort(bytes, 16);
+        bytes.write(new byte[]{'d','a','t','a'});
+        writeLeInt(bytes, Math.max(0L, pcmBytes));
+        return bytes.toByteArray();
+    }
+
+    private void writeLeInt(OutputStream output, long value) throws IOException {
+        output.write((int) (value & 0xff));
+        output.write((int) ((value >> 8) & 0xff));
+        output.write((int) ((value >> 16) & 0xff));
+        output.write((int) ((value >> 24) & 0xff));
+    }
+
+    private void writeLeShort(OutputStream output, int value) throws IOException {
+        output.write(value & 0xff);
+        output.write((value >> 8) & 0xff);
+    }
+
+    private String safeFileName(String value) {
+        String clean = value == null ? "" : value.trim().replaceAll("[^A-Za-z0-9_.-]+", "-").replaceAll("^-|-$", "");
+        if (clean.isEmpty()) clean = "google-doc-audio";
+        return clean.length() > 80 ? clean.substring(0, 80) : clean;
     }
 
     private void playDocumentAudioTarget(DocumentReaderState reader, String kind, int index, long offsetBytes) {
@@ -3349,7 +3625,7 @@ public final class MainActivity extends Activity implements RecognitionListener,
         File wav;
         int section = Math.max(0, Math.min(reader.chunkCount() - 1, index));
         if (reader.audioEntry == null || !reader.audioEntry.isDownloaded(section)) {
-            appendStatus("That section has not rendered yet.");
+            appendStatus("That audio is not rendered yet.");
             return;
         }
         wav = reader.audioEntry.sectionFile(section);
@@ -3430,12 +3706,12 @@ public final class MainActivity extends Activity implements RecognitionListener,
             return;
         }
         if (!allowDownload) {
-            appendStatus("That section has not downloaded yet.");
+            appendStatus("That audio is not rendered yet.");
             return;
         }
         refreshDriveReaderPlayer();
-        setDriveBrowserStatus("Downloading " + reader.name + " with " + activeSpeechVoiceName(reader, section) + ": section " + (section + 1) + " of " + reader.chunkCount() + ".", false);
-        appendStatus("Downloading " + reader.name + " with " + activeSpeechVoiceName(reader, section) + ": section " + (section + 1) + " of " + reader.chunkCount() + ".");
+        setDriveBrowserStatus("Rendering audio for " + reader.name + " with " + activeSpeechVoiceLabel(reader, section) + ".", false);
+        appendStatus("Rendering audio for " + reader.name + " with " + activeSpeechVoiceLabel(reader, section) + ".");
         documentAudioExecutor.execute(() -> generateDocumentSection(reader, section, true));
     }
 
@@ -3465,7 +3741,7 @@ public final class MainActivity extends Activity implements RecognitionListener,
             reader.audioEntry.markDownloading(sectionIndex);
             LocalLog.info("doc_audio", "doc_audio_download_start fileId=" + reader.fileId + " textHash=" + reader.textHash + " section=" + sectionIndex + " play=" + playAfterDownload);
             if (playAfterDownload) {
-                main.post(() -> setDriveBrowserStatus("Downloading " + reader.name + " with " + activeSpeechVoiceName(reader, sectionIndex) + ": section " + (sectionIndex + 1) + " of " + reader.chunkCount() + ".", false));
+                main.post(() -> setDriveBrowserStatus("Rendering audio for " + reader.name + " with " + activeSpeechVoiceLabel(reader, sectionIndex) + ".", false));
             }
             CharacterVoiceRule voiceRule = characterRuleForSection(reader, sectionIndex);
             String speechRole = speechRoleForSection(reader, sectionIndex);
@@ -3507,7 +3783,7 @@ public final class MainActivity extends Activity implements RecognitionListener,
             if (playAfterDownload && reader.playbackRequested && !reader.paused) {
                 main.post(() -> {
                     if (reader != activeDocumentReader) return;
-                    setDriveBrowserStatus("Playing " + reader.name + " with " + activeSpeechVoiceName(reader, sectionIndex) + ": section " + (sectionIndex + 1) + " of " + reader.chunkCount() + ".", false);
+                    setDriveBrowserStatus("Playing " + reader.name + " with " + activeSpeechVoiceLabel(reader, sectionIndex) + ".", false);
                     refreshDriveReaderPlayer();
                     playDownloadedDocumentSection(reader, sectionIndex);
                 });
@@ -3542,12 +3818,20 @@ public final class MainActivity extends Activity implements RecognitionListener,
     }
 
     private String sectionSpeechText(DocumentReaderState reader, int sectionIndex) {
-        CharacterVoiceRule rule = characterRuleForSection(reader, sectionIndex);
-        String prefix = "Reading " + reader.name + ", section " + (sectionIndex + 1) + " of " + reader.chunkCount() + ". ";
-        if (!rule.characterId.isEmpty()) {
-            prefix += "Voice orientation: " + rule.characterName + "; " + rule.acousticDirection + ". ";
-        }
-        return prefix + stripVoiceTags(reader.chunks.get(sectionIndex));
+        if (reader == null || reader.chunks == null || reader.chunks.isEmpty()) return "";
+        int safeIndex = Math.max(0, Math.min(reader.chunks.size() - 1, sectionIndex));
+        return stripReaderMetadataForSpeech(stripVoiceTags(reader.chunks.get(safeIndex)));
+    }
+
+    private String stripReaderMetadataForSpeech(String text) {
+        String clean = text == null ? "" : text.trim();
+        if (clean.isEmpty()) return "";
+        clean = clean.replaceAll("(?i)voice orientation\\s*:[^\\n.]*[\\n.]?", " ");
+        clean = clean.replaceAll("(?i)acoustic direction\\s*:[^\\n.]*[\\n.]?", " ");
+        clean = clean.replaceAll("(?i)rendering directive\\s*:[^\\n.]*[\\n.]?", " ");
+        clean = clean.replaceAll("(?i)artificial voice pitch; satisfying acoustic distortion", " ");
+        clean = clean.replaceAll("\\s+", " ").trim();
+        return clean;
     }
 
     private void continueDocumentReaderAfterSpeech(String utteranceId, String reason) {
@@ -3569,7 +3853,7 @@ public final class MainActivity extends Activity implements RecognitionListener,
             reader.paused = true;
             reader.playbackRequested = false;
             reader.playbackOffsetBytes = 0L;
-            reader.status = "first chunk complete";
+            reader.status = "preview complete";
             refreshDriveReaderPlayer();
             return;
         }
@@ -3641,7 +3925,7 @@ public final class MainActivity extends Activity implements RecognitionListener,
         ensureGoogleDocAudioEntry(activeDocumentReader);
         int next = Math.max(0, Math.min(activeDocumentReader.chunkCount() - 1, activeDocumentReader.currentIndex + delta));
         if (delta > 0 && activeDocumentReader.audioEntry != null && !activeDocumentReader.audioEntry.isDownloaded(next)) {
-            appendStatus("That section has not downloaded yet.");
+            appendStatus("That audio is not rendered yet.");
             return;
         }
         activeDocumentReader.currentIndex = next;
@@ -3784,6 +4068,7 @@ public final class MainActivity extends Activity implements RecognitionListener,
         if (scopes.isEmpty()) {
             return;
         }
+        lastDriveHandoffAtMs = SystemClock.elapsedRealtime();
         GoogleSignIn.requestPermissions(this, REQUEST_GOOGLE_TOOL_PERMISSIONS, account, scopes.toArray(new Scope[0]));
     }
 
@@ -4888,6 +5173,7 @@ public final class MainActivity extends Activity implements RecognitionListener,
             speak("Firebase is not configured. Add google services JSON, rebuild, and try again.");
             return;
         }
+        lastDriveHandoffAtMs = SystemClock.elapsedRealtime();
         startActivityForResult(googleIdentitySignInClient.getSignInIntent(), REQUEST_GOOGLE_SIGN_IN);
     }
 
@@ -8568,7 +8854,7 @@ public final class MainActivity extends Activity implements RecognitionListener,
             Matcher tagMatcher = Pattern.compile("(?i)\\[(?:speaker|voice):([^\\]]+)\\]").matcher(raw);
             while (tagMatcher.find()) add(found, tagMatcher.group(1), sourceId, sourceName, "tag");
             String[] lines = raw.split("\\r?\\n");
-            Pattern heading = Pattern.compile("^\\s*([A-Z][A-Z0-9 '\\-]{1,38})\\s*:\\s+\\S.*$");
+            Pattern heading = Pattern.compile("^\\s*([A-Z][A-Z0-9 .\\'\\-]{1,48})\\s*:\\s+\\S.*$");
             for (String line : lines) {
                 Matcher matcher = heading.matcher(line == null ? "" : line);
                 if (matcher.matches()) add(found, matcher.group(1), sourceId, sourceName, "speaker-heading");
@@ -8991,6 +9277,274 @@ public final class MainActivity extends Activity implements RecognitionListener,
         }
     }
 
+    private static final class MarkdownNarrationDocument {
+        static final String COMPILER_ID = "drive-markdown-narrator-v4-dialogue-attribution";
+        private static final Pattern SPEAKER_CUE_PATTERN = Pattern.compile("^\\s*([A-Za-z][A-Za-z0-9 .\\'\\-]{1,48})\\s*:\\s+(.+)$");
+        private static final Pattern TRAILING_ATTRIBUTION_PATTERN = Pattern.compile("^\\s*[\\\"“](.+?)[\\\"”][,!?\\.]*\\s+([A-Z][A-Za-z0-9 .\\'\\-]{1,48})\\s+(?:said|asked|replied|answered|called|whispered|shouted|muttered|continued|said softly|said quietly)\\b.*$", Pattern.CASE_INSENSITIVE);
+        private static final Pattern SAID_BEFORE_QUOTE_PATTERN = Pattern.compile("^\\s*([A-Z][A-Za-z0-9 .\\'\\-]{1,48})\\s+(?:said|asked|replied|answered|called|whispered|shouted|muttered|continued)\\b[^\\\"“]*[\\\"“](.+?)[\\\"”].*$", Pattern.CASE_INSENSITIVE);
+        private static final Pattern SAID_NAME_BEFORE_QUOTE_PATTERN = Pattern.compile("^\\s*(?:said|asked|replied|answered|called|whispered|shouted|muttered|continued)\\s+([A-Z][A-Za-z0-9 .\\'\\-]{1,48})\\b[^\\\"“]*[\\\"“](.+?)[\\\"”].*$", Pattern.CASE_INSENSITIVE);
+        final String speechText;
+        final List<String> chunks;
+        final List<String> sectionLabels;
+        final List<String> sectionHashes;
+        final int semanticCueCount;
+
+        MarkdownNarrationDocument(String speechText, List<String> chunks, List<String> sectionLabels, List<String> sectionHashes, int semanticCueCount) {
+            this.speechText = speechText == null ? "" : speechText;
+            this.chunks = chunks == null || chunks.isEmpty() ? Collections.singletonList(this.speechText) : chunks;
+            this.sectionLabels = sectionLabels == null ? new ArrayList<>() : sectionLabels;
+            this.sectionHashes = sectionHashes == null ? new ArrayList<>() : sectionHashes;
+            this.semanticCueCount = Math.max(0, semanticCueCount);
+        }
+
+        static MarkdownNarrationDocument compile(String markdown, int firstChunkChars, int targetChars, int minChars) {
+            String raw = markdown == null ? "" : markdown.replace("\r\n", "\n").replace('\r', '\n');
+            List<String> speechBlocks = new ArrayList<>();
+            int cues = 0;
+            boolean inCode = false;
+            String[] lines = raw.split("\n", -1);
+            StringBuilder paragraph = new StringBuilder();
+            for (String originalLine : lines) {
+                String line = originalLine == null ? "" : originalLine;
+                String trimmed = line.trim();
+                if (trimmed.startsWith("```") || trimmed.startsWith("~~~")) {
+                    flushParagraph(paragraph, speechBlocks);
+                    inCode = !inCode;
+                    if (inCode) {
+                        speechBlocks.add("Code block.");
+                        cues += 1;
+                    }
+                    continue;
+                }
+                if (trimmed.isEmpty()) {
+                    flushParagraph(paragraph, speechBlocks);
+                    continue;
+                }
+                if (inCode) {
+                    String code = cleanInlineMarkdownForSpeech(trimmed);
+                    if (!code.isEmpty()) speechBlocks.add("Code: " + code + ".");
+                    continue;
+                }
+                Matcher heading = Pattern.compile("^\\s{0,3}(#{1,6})\\s+(.+?)\\s*#*\\s*$").matcher(line);
+                if (heading.matches()) {
+                    flushParagraph(paragraph, speechBlocks);
+                    int level = heading.group(1).length();
+                    String title = cleanInlineMarkdownForSpeech(heading.group(2));
+                    if (!title.isEmpty()) {
+                        speechBlocks.add((level <= 1 ? "Title: " : level == 2 ? "Section: " : "Subsection: ") + title + ".");
+                        cues += 1;
+                    }
+                    continue;
+                }
+                if (trimmed.matches("^([-*_])\\s*(\\1\\s*){2,}$")) {
+                    flushParagraph(paragraph, speechBlocks);
+                    speechBlocks.add("Break.");
+                    cues += 1;
+                    continue;
+                }
+                Matcher bullet = Pattern.compile("^\\s*(?:[-*+]\\s+|\\d+[.)]\\s+)(.+)$").matcher(line);
+                if (bullet.matches()) {
+                    flushParagraph(paragraph, speechBlocks);
+                    String item = cleanInlineMarkdownForSpeech(bullet.group(1));
+                    if (!item.isEmpty()) {
+                        speechBlocks.add("List item: " + item + ".");
+                        cues += 1;
+                    }
+                    continue;
+                }
+                Matcher quote = Pattern.compile("^\\s*>+\\s*(.+)$").matcher(line);
+                if (quote.matches()) {
+                    flushParagraph(paragraph, speechBlocks);
+                    String quoted = cleanInlineMarkdownForSpeech(quote.group(1));
+                    if (!quoted.isEmpty()) {
+                        speechBlocks.add("Quoted note: " + quoted + ".");
+                        cues += 1;
+                    }
+                    continue;
+                }
+                Matcher speaker = SPEAKER_CUE_PATTERN.matcher(line);
+                if (speaker.matches()) {
+                    flushParagraph(paragraph, speechBlocks);
+                    String speakerName = cleanSpeakerNameForTag(speaker.group(1));
+                    String utterance = cleanInlineMarkdownForSpeech(speaker.group(2));
+                    if (!speakerName.isEmpty() && !utterance.isEmpty()) {
+                        speechBlocks.add("[speaker:" + speakerName + "] " + utterance);
+                        cues += 1;
+                    }
+                    continue;
+                }
+                if (tryAppendAttributedDialogue(line, paragraph, speechBlocks)) {
+                    cues += 1;
+                    continue;
+                }
+                String clean = cleanInlineMarkdownForSpeech(trimmed);
+                if (!clean.isEmpty()) {
+                    if (paragraph.length() > 0) paragraph.append(' ');
+                    paragraph.append(clean);
+                }
+            }
+            flushParagraph(paragraph, speechBlocks);
+            String speech = joinBlocks(speechBlocks);
+            List<String> chunks = chunkSpeechBlocks(speechBlocks, firstChunkChars, targetChars, minChars);
+            List<String> labels = new ArrayList<>();
+            List<String> hashes = new ArrayList<>();
+            for (int i = 0; i < chunks.size(); i++) {
+                labels.add("section " + (i + 1));
+                hashes.add(stableTextHash(chunks.get(i)));
+            }
+            return new MarkdownNarrationDocument(speech, chunks, labels, hashes, cues);
+        }
+
+        private static void flushParagraph(StringBuilder paragraph, List<String> speechBlocks) {
+            if (paragraph.length() <= 0) return;
+            String clean = paragraph.toString().replaceAll("\\s+", " ").trim();
+            if (!clean.isEmpty()) speechBlocks.add(clean);
+            paragraph.setLength(0);
+        }
+        private static boolean tryAppendAttributedDialogue(String line, StringBuilder paragraph, List<String> speechBlocks) {
+            String raw = line == null ? "" : line.trim();
+            Matcher trailing = TRAILING_ATTRIBUTION_PATTERN.matcher(raw);
+            if (trailing.matches()) {
+                return appendDialogueTurn(trailing.group(2), trailing.group(1), paragraph, speechBlocks);
+            }
+            Matcher speakerFirst = SAID_BEFORE_QUOTE_PATTERN.matcher(raw);
+            if (speakerFirst.matches()) {
+                return appendDialogueTurn(speakerFirst.group(1), speakerFirst.group(2), paragraph, speechBlocks);
+            }
+            Matcher saidFirst = SAID_NAME_BEFORE_QUOTE_PATTERN.matcher(raw);
+            if (saidFirst.matches()) {
+                return appendDialogueTurn(saidFirst.group(1), saidFirst.group(2), paragraph, speechBlocks);
+            }
+            return false;
+        }
+
+        private static boolean appendDialogueTurn(String speaker, String utterance, StringBuilder paragraph, List<String> speechBlocks) {
+            String speakerName = cleanSpeakerNameForTag(speaker);
+            String spoken = cleanInlineMarkdownForSpeech(utterance);
+            if (speakerName.isEmpty() || spoken.isEmpty()) return false;
+            flushParagraph(paragraph, speechBlocks);
+            speechBlocks.add("[speaker:" + speakerName + "] " + spoken);
+            return true;
+        }
+
+        private static String cleanSpeakerNameForTag(String value) {
+            String clean = cleanInlineMarkdownForSpeech(value);
+            clean = clean.replaceAll("(?i)^(said|asked|replied|answered|called|whispered|shouted|muttered|continued)\\s+", "");
+            clean = clean.replaceAll("(?i)\\b(said|asked|replied|answered|called|whispered|shouted|muttered|continued)$", "");
+            clean = clean.replaceAll("\\s+", " ").trim();
+            String id = CharacterVoiceRule.normalizeId(clean);
+            if (id.equals("voice") || id.equals("speaker") || id.equals("narrator") || id.equals("section") || id.equals("title") || id.equals("note")) return "";
+            return clean.length() < 2 || clean.length() > 48 ? "" : clean;
+        }
+
+
+        private static String joinBlocks(List<String> blocks) {
+            StringBuilder out = new StringBuilder();
+            for (String block : blocks) {
+                String clean = block == null ? "" : block.replaceAll("\\s+", " ").trim();
+                if (clean.isEmpty()) continue;
+                if (out.length() > 0) out.append("\n\n");
+                out.append(clean);
+            }
+            return out.toString().trim();
+        }
+
+        private static List<String> chunkSpeechBlocks(List<String> blocks, int firstChunkChars, int targetChars, int minChars) {
+            List<String> chunks = new ArrayList<>();
+            StringBuilder current = new StringBuilder();
+            if (blocks != null) {
+                for (String block : blocks) {
+                    String clean = block == null ? "" : block.replaceAll("\\s+", " ").trim();
+                    if (clean.isEmpty()) continue;
+                    boolean speakerTurn = clean.toLowerCase(Locale.US).startsWith("[speaker:");
+                    if (speakerTurn) {
+                        flushChunk(current, chunks);
+                        chunks.addAll(splitLongChunk(clean, chunks.isEmpty() ? firstChunkChars : targetChars, minChars));
+                        continue;
+                    }
+                    int target = chunks.isEmpty() && current.length() == 0 ? firstChunkChars : targetChars;
+                    if (current.length() > 0 && current.length() + 1 + clean.length() > target) {
+                        flushChunk(current, chunks);
+                    }
+                    if (clean.length() > targetChars) {
+                        flushChunk(current, chunks);
+                        chunks.addAll(splitLongChunk(clean, chunks.isEmpty() ? firstChunkChars : targetChars, minChars));
+                    } else {
+                        if (current.length() > 0) current.append(' ');
+                        current.append(clean);
+                    }
+                }
+            }
+            flushChunk(current, chunks);
+            return chunks.isEmpty() ? Collections.singletonList("") : chunks;
+        }
+
+        private static void flushChunk(StringBuilder current, List<String> chunks) {
+            String clean = current == null ? "" : current.toString().replaceAll("\\s+", " ").trim();
+            if (!clean.isEmpty()) chunks.add(clean);
+            if (current != null) current.setLength(0);
+        }
+
+        private static List<String> splitLongChunk(String speech, int targetChars, int minChars) {
+            List<String> chunks = new ArrayList<>();
+            String clean = speech == null ? "" : speech.replaceAll("\\s+", " ").trim();
+            int index = 0;
+            while (index < clean.length()) {
+                int target = chunks.isEmpty() ? Math.max(180, targetChars) : targetChars;
+                int minimum = chunks.isEmpty() ? Math.min(180, target) : minChars;
+                int end = Math.min(clean.length(), index + target);
+                if (end < clean.length()) {
+                    int sentence = Math.max(clean.lastIndexOf(". ", end), Math.max(clean.lastIndexOf("! ", end), clean.lastIndexOf("? ", end)));
+                    if (sentence > index + minimum) end = sentence + 1;
+                }
+                String chunk = clean.substring(index, end).trim();
+                if (!chunk.isEmpty()) chunks.add(chunk);
+                index = end;
+                while (index < clean.length() && Character.isWhitespace(clean.charAt(index))) index++;
+            }
+            return chunks;
+        }
+
+        private static String cleanInlineMarkdownForSpeech(String text) {
+            String clean = text == null ? "" : text;
+            clean = clean.replaceAll("!\\[([^\\]]*)\\]\\([^)]*\\)", "$1");
+            clean = clean.replaceAll("\\[([^\\]]+)\\]\\([^)]*\\)", "$1");
+            clean = clean.replaceAll("`([^`]+)`", "$1");
+            clean = clean.replaceAll("\\*\\*([^*]+)\\*\\*", "$1");
+            clean = clean.replaceAll("__([^_]+)__", "$1");
+            clean = clean.replaceAll("\\*([^*]+)\\*", "$1");
+            clean = clean.replaceAll("_([^_]+)_", "$1");
+            clean = clean.replaceAll("^\\s{0,3}#{1,6}\\s*", "");
+            clean = clean.replaceAll("\\s+#+\\s*$", "");
+            clean = clean.replaceAll("\\s+", " ").trim();
+            return clean;
+        }
+    }
+
+    private static String stableTextHash(String value) {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] bytes = digest.digest((value == null ? "" : value).getBytes(StandardCharsets.UTF_8));
+            StringBuilder out = new StringBuilder();
+            for (int i = 0; i < Math.min(8, bytes.length); i++) {
+                out.append(String.format(Locale.US, "%02x", bytes[i] & 0xff));
+            }
+            return out.toString();
+        } catch (Exception ex) {
+            return Integer.toHexString((value == null ? "" : value).hashCode());
+        }
+    }
+
+    private static List<String> jsonStringArray(JSONArray array) {
+        List<String> values = new ArrayList<>();
+        if (array == null) return values;
+        for (int i = 0; i < array.length(); i++) {
+            String value = array.optString(i, "").trim();
+            if (!value.isEmpty()) values.add(value);
+        }
+        return values;
+    }
+
     private static final class DocumentReaderState {
         final String fileId;
         final String name;
@@ -9026,16 +9580,25 @@ public final class MainActivity extends Activity implements RecognitionListener,
         String activeCharacterId = "";
         String activeVoiceAlias = "";
         String activeAcousticDirection = "";
+        String exportedWavPath = "";
+        String narrationCompiler = "drive-markdown-narrator-v1";
+        int semanticCueCount = 0;
+        List<String> sectionLabels = new ArrayList<>();
+        List<String> sectionHashes = new ArrayList<>();
 
-        DocumentReaderState(JSONObject file, String content, List<String> chunks) {
+        DocumentReaderState(JSONObject file, String content, MarkdownNarrationDocument narrationDocument) {
             this.fileId = file == null ? "" : file.optString("id", "").trim();
             this.name = file == null ? "Google Doc" : firstNonEmptyStatic(file.optString("name", ""), "Google Doc");
             this.modifiedTime = file == null ? "" : file.optString("modifiedTime", "").trim();
             this.webViewLink = file == null ? "" : file.optString("webViewLink", "").trim();
             String clean = content == null ? "" : content.trim();
             this.charCount = clean.length();
-            this.textHash = Integer.toHexString(clean.hashCode());
-            this.chunks = chunks == null || chunks.isEmpty() ? Collections.singletonList(clean) : chunks;
+            this.textHash = stableTextHash(clean);
+            MarkdownNarrationDocument compiled = narrationDocument == null ? MarkdownNarrationDocument.compile(clean, DOC_READER_FIRST_CHUNK_CHARS, DOC_READER_TARGET_CHARS, DOC_READER_MIN_CHARS) : narrationDocument;
+            this.chunks = compiled.chunks == null || compiled.chunks.isEmpty() ? Collections.singletonList(compiled.speechText) : compiled.chunks;
+            this.semanticCueCount = compiled.semanticCueCount;
+            this.sectionLabels = compiled.sectionLabels == null ? new ArrayList<>() : compiled.sectionLabels;
+            this.sectionHashes = compiled.sectionHashes == null ? new ArrayList<>() : compiled.sectionHashes;
             this.currentIndex = 0;
             this.paused = false;
             this.status = "ready";
@@ -9121,8 +9684,8 @@ public final class MainActivity extends Activity implements RecognitionListener,
 
         String summaryText() {
             return "Google Doc reader: " + name
-                    + "\nText version: Drive snapshot " + textHash + " (" + charCount + " chars, " + chunkCount() + " chunks)."
-                    + "\nVoice version: " + voiceProviderLabel() + " role voices (" + voiceSummary() + "); first chunk is a short autoplay preview, full artifact saved by Render.";
+                    + "\nText version: Drive snapshot " + textHash + " (" + charCount + " chars)."
+                    + "\nVoice version: " + voiceProviderLabel() + " role voices (" + voiceSummary() + "); full artifact saved by Render.";
         }
 
         DocumentReaderState withClearedAudioEntry() {
@@ -9148,6 +9711,10 @@ public final class MainActivity extends Activity implements RecognitionListener,
                 json.put("textHash", textHash);
                 json.put("chunkCount", chunkCount());
                 json.put("currentIndex", currentIndex);
+                json.put("narrationCompiler", narrationCompiler);
+                json.put("semanticCueCount", semanticCueCount);
+                json.put("sectionLabels", new JSONArray(sectionLabels));
+                json.put("sectionHashes", new JSONArray(sectionHashes));
                 json.put("voiceProvider", voiceProvider);
                 json.put("voiceName", narratorVoiceName);
                 json.put("speechModelId", speechModelId);
@@ -9155,6 +9722,7 @@ public final class MainActivity extends Activity implements RecognitionListener,
                 json.put("activeCharacterId", activeCharacterId);
                 json.put("activeVoiceAlias", activeVoiceAlias);
                 json.put("activeAcousticDirection", activeAcousticDirection);
+                json.put("exportedWavPath", exportedWavPath);
                 json.put("voiceRoles", new JSONObject()
                         .put("narrator", narratorVoiceName)
                         .put("dialogue", dialogueVoiceName)
@@ -9166,7 +9734,7 @@ public final class MainActivity extends Activity implements RecognitionListener,
                     String chunk = chunks.get(i);
                     previews.put(new JSONObject()
                             .put("index", i)
-                            .put("startLabel", "chunk " + (i + 1))
+                            .put("startLabel", "part " + (i + 1))
                             .put("preview", chunk.length() > 180 ? chunk.substring(0, 180) + "..." : chunk));
                 }
                 json.put("chunkPreviews", previews);
@@ -9198,6 +9766,11 @@ public final class MainActivity extends Activity implements RecognitionListener,
                     roles == null ? json.optString("voiceName", DEFAULT_DRIVE_NARRATOR_VOICE) : roles.optString("dialogue", DEFAULT_DRIVE_NARRATOR_VOICE),
                     roles == null ? json.optString("voiceName", DEFAULT_DRIVE_NARRATOR_VOICE) : roles.optString("notes", DEFAULT_DRIVE_NARRATOR_VOICE),
                     json.optString("speechProfileKey", "default-cartesia"));
+            state.narrationCompiler = json.optString("narrationCompiler", MarkdownNarrationDocument.COMPILER_ID);
+            state.semanticCueCount = json.optInt("semanticCueCount", 0);
+            state.sectionLabels = jsonStringArray(json.optJSONArray("sectionLabels"));
+            state.sectionHashes = jsonStringArray(json.optJSONArray("sectionHashes"));
+            state.exportedWavPath = json.optString("exportedWavPath", "");
             return state;
         }
 
@@ -9260,7 +9833,7 @@ public final class MainActivity extends Activity implements RecognitionListener,
                 return;
             }
             exchangeGoogleServerAuthCode(account);
-            loadDriveRecentFiles();
+            scheduleDriveRefreshAfterHandoff("google_tool_permissions_complete");
             if (hasPendingTermuxPairing()) {
                 appendStatus("Google tools approved. Approving Termux Codex through Shizuku.");
                 continuePendingTermuxPairing("google_tool_permissions_complete");
@@ -9279,9 +9852,9 @@ public final class MainActivity extends Activity implements RecognitionListener,
         if (requestCode == REQUEST_DRIVE_AUTH) {
             if (resultCode == RESULT_OK) {
                 checkGoogleDriveDiagnostic();
-                loadDriveRecentFiles();
+                scheduleDriveRefreshAfterHandoff("drive_auth_complete");
             } else {
-                showAssistantMessage("Google Drive permission was not approved.");
+                showAssistantMessage("Google Drive permission was not approved. Tap Refresh to retry.");
             }
         }
     }

@@ -4813,6 +4813,68 @@ async function openCartesiaStream(text, options = {}) {
   };
 }
 
+function shouldApplySatisfyingAcousticDistortion(acousticDirection) {
+  const clean = safeText(acousticDirection, 300).toLowerCase();
+  return clean.includes('satisfying acoustic distortion') || clean.includes('acoustic distortion') || clean.includes('artificial voice pitch');
+}
+
+function createSatisfyingAcousticDistortionTransform() {
+  const {Transform} = require('stream');
+  let carry = null;
+  return new Transform({
+    transform(chunk, encoding, callback) {
+      try {
+        let input = Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk, encoding);
+        if (carry !== null) {
+          input = Buffer.concat([Buffer.from([carry]), input]);
+          carry = null;
+        }
+        if ((input.length & 1) === 1) {
+          carry = input[input.length - 1];
+          input = input.subarray(0, input.length - 1);
+        }
+        const out = Buffer.allocUnsafe(input.length);
+        const drive = 1.85;
+        const wet = 0.18;
+        const norm = Math.tanh(drive);
+        for (let i = 0; i < input.length; i += 2) {
+          const sample = input.readInt16LE(i) / 32768;
+          const saturated = Math.tanh(sample * drive) / norm;
+          const mixed = sample * (1 - wet) + saturated * wet;
+          const clipped = Math.max(-1, Math.min(0.999969, mixed));
+          out.writeInt16LE(Math.round(clipped * 32767), i);
+        }
+        callback(null, out);
+      } catch (err) {
+        callback(err);
+      }
+    },
+    flush(callback) {
+      carry = null;
+      callback();
+    },
+  });
+}
+
+async function pipeSpeechResponse(audioResponse, res, acousticDirection) {
+  if (!audioResponse.body || typeof audioResponse.body.pipeTo !== 'function') return false;
+  const {Readable, Writable} = require('stream');
+  if (!shouldApplySatisfyingAcousticDistortion(acousticDirection)) {
+    await audioResponse.body.pipeTo(Writable.toWeb(res));
+    return true;
+  }
+  res.set('X-Speech-Acoustic-Effect', 'soft_saturation_v1');
+  await new Promise((resolve, reject) => {
+    Readable.fromWeb(audioResponse.body)
+      .pipe(createSatisfyingAcousticDistortionTransform())
+      .on('error', reject)
+      .pipe(res)
+      .on('finish', resolve)
+      .on('error', reject);
+  });
+  return true;
+}
+
 async function openHostedSpeechStream(text, body) {
   const provider = safeText(body && body.provider, 40).toLowerCase() || 'cartesia';
   if (provider !== 'cartesia' && provider !== 'elevenlabs') {
@@ -4888,11 +4950,7 @@ async function ttsHandler(req, res) {
     if (speech.acousticDirection) res.set('X-Speech-Acoustic-Direction', speech.acousticDirection);
     res.set('Connection', 'close');
     res.status(200);
-    if (audioResponse.body && typeof audioResponse.body.pipeTo === 'function') {
-      const {Writable} = require('stream');
-      await audioResponse.body.pipeTo(Writable.toWeb(res));
-      return;
-    }
+    if (await pipeSpeechResponse(audioResponse, res, speech.acousticDirection)) return;
     const audio = Buffer.from(await audioResponse.arrayBuffer());
     res.send(audio);
   } catch (err) {

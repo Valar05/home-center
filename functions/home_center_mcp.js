@@ -1,5 +1,7 @@
 const {createHash, randomBytes, randomUUID} = require('node:crypto');
 const {Readable} = require('node:stream');
+const fs = require('node:fs');
+const path = require('node:path');
 const {McpServer} = require('@modelcontextprotocol/sdk/server/mcp.js');
 const {SSEServerTransport} = require('@modelcontextprotocol/sdk/server/sse.js');
 const {StreamableHTTPServerTransport} = require('@modelcontextprotocol/sdk/server/streamableHttp.js');
@@ -2585,6 +2587,189 @@ function commandCenterDriveOperationEntries() {
   }));
 }
 
+
+const DROOBIEDOO_CONTEXT_INDEX_PATH = path.join(__dirname, 'context_sources', 'droobiedoo_context_index.json');
+const DROOBIEDOO_CONTEXT_OPERATIONS = Object.freeze({
+  'droobiedoo.context_health': {summary: 'Read Droobiedoo index health, freshness, relationship, and read-only boundary metadata.', write: false, input: {maxAgeDays: 'optional number'}},
+  'droobiedoo.context_search': {summary: 'Search Droobiedoo projects, skills, doctrine, reports, artifacts, and provenance.', write: false, input: {query: 'string', kinds: 'optional string[]', limit: 'optional number', maxAgeDays: 'optional number'}},
+  'droobiedoo.project_resolve': {summary: 'Resolve a project or workspace context name to Droobiedoo evidence and related entries.', write: false, input: {query: 'string', limit: 'optional number', maxAgeDays: 'optional number'}},
+  'droobiedoo.task_context_packet': {summary: 'Build a bounded read-only task context packet from Droobiedoo evidence with provenance and invention guards.', write: false, input: {query: 'string', limit: 'optional number', maxChars: 'optional number', maxAgeDays: 'optional number'}},
+  'droobiedoo.skill_match': {summary: 'Find Droobiedoo skills that match a task or project query.', write: false, input: {query: 'string', limit: 'optional number', maxAgeDays: 'optional number'}},
+  'droobiedoo.artifact_search': {summary: 'Search Droobiedoo reports, generated artifacts, backups, and tool artifacts.', write: false, input: {query: 'string', limit: 'optional number', maxAgeDays: 'optional number'}},
+  'droobiedoo.provenance_lookup': {summary: 'Look up Droobiedoo provenance by path, id, or lexical query.', write: false, input: {path: 'optional string', id: 'optional string', query: 'optional string', limit: 'optional number', maxAgeDays: 'optional number'}},
+});
+
+function droobiedooContextOperationEntries() {
+  return DROOBIEDOO_CONTEXT_OPERATIONS;
+}
+
+function loadDroobiedooContextIndex() {
+  const raw = fs.readFileSync(DROOBIEDOO_CONTEXT_INDEX_PATH, 'utf8');
+  const index = JSON.parse(raw);
+  if (index.schemaVersion !== 'droobiedoo.context-index.v1') {
+    throw Object.assign(new Error('Unsupported Droobiedoo context index schema.'), {status: 500});
+  }
+  return index;
+}
+
+function droobiedooNowMs(args = {}) {
+  const override = safeNumber(args.nowMs, 0);
+  return override > 0 ? override : Date.now();
+}
+
+function droobiedooFreshness(index, args = {}) {
+  const generatedAt = safeText(index.generatedAt || (index.freshness && index.freshness.generatedAt), 80);
+  const generatedMs = generatedAt ? Date.parse(generatedAt) : 0;
+  const maxAgeDays = Math.max(0, Math.min(3650, safeNumber(args.maxAgeDays, index.freshness && index.freshness.maxAgeDays ? index.freshness.maxAgeDays : 14)));
+  const ageMs = generatedMs ? Math.max(0, droobiedooNowMs(args) - generatedMs) : Number.POSITIVE_INFINITY;
+  const maxAgeMs = maxAgeDays * 24 * 60 * 60 * 1000;
+  const staleReasons = [];
+  if (!generatedMs) staleReasons.push('missing-generatedAt');
+  if (ageMs > maxAgeMs) staleReasons.push('generatedAt-older-than-maxAgeDays');
+  const warnings = Array.isArray(index.freshness && index.freshness.warnings) ? index.freshness.warnings.map((w) => safeText(w, 500)).filter(Boolean) : [];
+  if (index.git && index.git.dirty) warnings.push('Droobiedoo source had local changes when indexed.');
+  return {
+    generatedAt,
+    ageDays: Number.isFinite(ageMs) ? Number((ageMs / (24 * 60 * 60 * 1000)).toFixed(4)) : null,
+    maxAgeDays,
+    isStale: staleReasons.length > 0,
+    staleReasons,
+    sourceHead: safeText(index.git && index.git.head, 120) || safeText(index.freshness && index.freshness.sourceHead, 120),
+    sourceBranch: safeText(index.git && index.git.branch, 120),
+    sourceDirty: !!(index.git && index.git.dirty),
+    warnings: [...new Set(warnings)].slice(0, 20),
+  };
+}
+
+function droobiedooTokens(value) {
+  return safeText(value, 20000).toLowerCase().split(/[^a-z0-9_.-]+/).filter((token) => token.length >= 2);
+}
+
+function droobiedooEntryHaystack(entry) {
+  return [entry.id, entry.kind, entry.title, entry.path, entry.skillName, entry.summary, ...(Array.isArray(entry.tags) ? entry.tags : [])].map((part) => safeText(part, 3000).toLowerCase()).join(' ');
+}
+
+function droobiedooScoreEntry(entry, queryTokens) {
+  if (!queryTokens.length) return 1;
+  const haystack = droobiedooEntryHaystack(entry);
+  let score = 0;
+  for (const token of queryTokens) {
+    if (!haystack.includes(token)) continue;
+    score += 1;
+    const title = safeText(entry.title, 300).toLowerCase();
+    const entryPath = safeText(entry.path, 500).toLowerCase();
+    if (title.includes(token)) score += 3;
+    if (entryPath.includes(token)) score += 2;
+    if ((entry.kind || '') === token) score += 2;
+  }
+  return score;
+}
+
+function droobiedooResultEntry(entry) {
+  return {
+    id: entry.id,
+    kind: entry.kind,
+    title: entry.title,
+    path: entry.path,
+    tags: entry.tags || [],
+    skillName: entry.skillName || '',
+    summary: safeText(entry.summary, 900),
+    sha256: entry.sha256,
+    sizeBytes: entry.sizeBytes,
+    modifiedTime: entry.modifiedTime,
+    readOnly: entry.readOnly !== false,
+    remoteCallable: entry.remoteCallable !== false,
+    provenance: entry.provenance || null,
+    remoteExposure: entry.remoteExposure || null,
+  };
+}
+
+function searchDroobiedooContextIndex(index, args = {}) {
+  const query = safeText(args.query || args.project || args.task || '', 1200);
+  const queryTokens = droobiedooTokens(query);
+  const kinds = Array.isArray(args.kinds) ? new Set(args.kinds.map((kind) => safeText(kind, 80)).filter(Boolean)) : null;
+  const limit = chatGptLimit(args.limit, 10, 50);
+  return (Array.isArray(index.entries) ? index.entries : [])
+    .filter((entry) => !kinds || kinds.has(entry.kind))
+    .map((entry) => ({entry, score: droobiedooScoreEntry(entry, queryTokens)}))
+    .filter((item) => item.score > 0)
+    .sort((a, b) => b.score - a.score || safeText(a.entry.path, 500).localeCompare(safeText(b.entry.path, 500)))
+    .slice(0, limit)
+    .map((item) => ({score: item.score, ...droobiedooResultEntry(item.entry)}));
+}
+
+function droobiedooContextHealth(index, args = {}) {
+  return {
+    schemaVersion: index.schemaVersion,
+    sourceRepo: index.sourceRepo,
+    generatedAt: index.generatedAt,
+    counts: index.counts || {},
+    readOnly: index.readOnly !== false,
+    remoteMutationAllowed: !!index.remoteMutationAllowed,
+    forbiddenRemoteTools: Array.isArray(index.forbiddenRemoteTools) ? index.forbiddenRemoteTools : [],
+    freshness: droobiedooFreshness(index, args),
+    relationships: index.relationships || {},
+    operationPrefix: 'droobiedoo.',
+  };
+}
+
+function droobiedooTaskContextPacket(index, args = {}) {
+  const maxChars = Math.max(1000, Math.min(24000, safeNumber(args.maxChars, 8000)));
+  const query = safeText(args.query || args.task || args.prompt || '', 1200);
+  const matches = searchDroobiedooContextIndex(index, {...args, query, limit: chatGptLimit(args.limit, 12, 30)});
+  const grouped = {};
+  let usedChars = 0;
+  const selected = [];
+  for (const match of matches) {
+    const cost = JSON.stringify(match).length;
+    if (usedChars + cost > maxChars && selected.length) continue;
+    usedChars += cost;
+    selected.push(match);
+    if (!grouped[match.kind]) grouped[match.kind] = [];
+    grouped[match.kind].push(match);
+  }
+  return {
+    source: 'droobiedoo',
+    query,
+    readOnly: true,
+    remoteMutationAllowed: false,
+    freshness: droobiedooFreshness(index, args),
+    relationships: index.relationships || {},
+    guards: [
+      'Use Droobiedoo as context and provenance only.',
+      'Do not expose or call scripts/sync_workspace_artifacts.py as a remote mutation tool.',
+      'Use Home Center or Command Center for execution; Droobiedoo does not dispatch work.',
+      'Use She-Raw as the consultative runtime/default voice when a voice is needed.',
+    ],
+    groupedEntries: grouped,
+    entries: selected,
+    provenance: selected.map((entry) => ({path: entry.path, sha256: entry.sha256, sourceRepo: entry.provenance && entry.provenance.sourceRepo})),
+  };
+}
+
+function runDroobiedooContextOperation(operation, args = {}) {
+  const index = loadDroobiedooContextIndex();
+  if (operation === 'droobiedoo.context_health') return droobiedooContextHealth(index, args);
+  if (operation === 'droobiedoo.context_search') return {query: safeText(args.query, 1200), freshness: droobiedooFreshness(index, args), results: searchDroobiedooContextIndex(index, args)};
+  if (operation === 'droobiedoo.project_resolve') return {query: safeText(args.query || args.project, 1200), freshness: droobiedooFreshness(index, args), results: searchDroobiedooContextIndex(index, {...args, query: args.query || args.project, kinds: ['project', 'doctrine', 'report', 'artifact']})};
+  if (operation === 'droobiedoo.task_context_packet') return droobiedooTaskContextPacket(index, args);
+  if (operation === 'droobiedoo.skill_match') return {query: safeText(args.query || args.task, 1200), freshness: droobiedooFreshness(index, args), results: searchDroobiedooContextIndex(index, {...args, query: args.query || args.task, kinds: ['skill']})};
+  if (operation === 'droobiedoo.artifact_search') return {query: safeText(args.query, 1200), freshness: droobiedooFreshness(index, args), results: searchDroobiedooContextIndex(index, {...args, kinds: ['artifact', 'report', 'provenance', 'tool']})};
+  if (operation === 'droobiedoo.provenance_lookup') {
+    const entries = Array.isArray(index.entries) ? index.entries : [];
+    const id = safeText(args.id, 300);
+    const requestedPath = safeText(args.path, 1000);
+    let results = [];
+    if (id || requestedPath) {
+      results = entries.filter((entry) => (!id || entry.id === id) && (!requestedPath || entry.path === requestedPath)).slice(0, chatGptLimit(args.limit, 10, 50)).map(droobiedooResultEntry);
+    } else {
+      results = searchDroobiedooContextIndex(index, {...args, kinds: null});
+    }
+    return {query: safeText(args.query || requestedPath || id, 1200), freshness: droobiedooFreshness(index, args), results};
+  }
+  throw Object.assign(new Error('Unsupported Droobiedoo context operation: ' + operation), {status: 400});
+}
+
 function driveOperationRegistry() {
   return {
     version: '2026-07-13.context-sync-publish-v1',
@@ -2667,6 +2852,7 @@ function driveOperationRegistry() {
         requiredScopes: ['https://www.googleapis.com/auth/drive'],
         input: {fileId: 'string', newName: 'string', requestId: 'string', callerNote: 'optional string'},
       },
+      ...droobiedooContextOperationEntries(),
       ...simulationOperationRegistry().operations,
       ...commandCenterDriveOperationEntries(),
     },
@@ -2710,6 +2896,10 @@ async function driveOperationRunOperation({google, admin, auth, user, extra = nu
     delete operationArgs.command_center_tool;
     const result = await commandCenterOperationRunOperation({extra, args: {operation: compatCommandCenterOperation, args: operationArgs}});
     return {operation, compatibilityRoute: 'drive_operation.command_center', commandCenterOperation: compatCommandCenterOperation, registryVersion: registry.version, completed: true, result: result.result};
+  }
+  if (operation.startsWith('droobiedoo.')) {
+    const result = runDroobiedooContextOperation(operation, operationArgs);
+    return {operation, registryVersion: registry.version, completed: true, result};
   }
   if (operation.startsWith('command_center.')) {
     const result = await commandCenterOperationRunOperation({extra, args: {operation, args: operationArgs}});
@@ -4359,4 +4549,4 @@ function createHomeCenterMcpApp({google, admin, googleClientId = () => '', googl
   return app;
 }
 
-module.exports = {createHomeCenterMcpApp, createHomeCenterMcpServer, createDriveFolderOperation, createGoogleDocOperation, appendGoogleDocOperation, publishContextSnapshotOperation, createSheetOperation, updateSheetValuesOperation, importXlsxWorkbookOperation, driveOperationRunOperation, driveWorkflowRunOperation, simulationOperationRunOperation, simulationOperationRegistry, normalizeRecoveryOperation, summarizeRecoveryOperations, loadMcpAccessContext};
+module.exports = {createHomeCenterMcpApp, createHomeCenterMcpServer, createDriveFolderOperation, createGoogleDocOperation, appendGoogleDocOperation, publishContextSnapshotOperation, createSheetOperation, updateSheetValuesOperation, importXlsxWorkbookOperation, driveOperationRunOperation, driveWorkflowRunOperation, simulationOperationRunOperation, simulationOperationRegistry, droobiedooContextOperationEntries, loadDroobiedooContextIndex, searchDroobiedooContextIndex, runDroobiedooContextOperation, normalizeRecoveryOperation, summarizeRecoveryOperations, loadMcpAccessContext};

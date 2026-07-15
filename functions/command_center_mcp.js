@@ -214,7 +214,29 @@ async function callerFromExtra(admin, extra) {
     throw err;
   }
   const email = safeText(data.email, 320).toLowerCase();
-  return {authKind: 'home_center_mcp_oauth', tokenHash: hashText(token, 24), actor: email || `mcp:${hashText(token, 12)}`};
+  const actor = email || `mcp:${hashText(token, 12)}`;
+  return {authKind: 'home_center_mcp_oauth', tokenHash: hashText(token, 24), actor, ownerKey: ownerKeyFromActor(actor)};
+}
+
+function ownerKeyFromActor(actor) {
+  return `owner_${hashText(safeText(actor, 320).toLowerCase() || 'anonymous', 32)}`;
+}
+
+function ownerKeyFromCaller(caller = {}) {
+  return safeText(caller.ownerKey, 80) || ownerKeyFromActor(caller.actor || caller.tokenHash || 'command_center');
+}
+
+function attachOwnerKey(payload, caller = {}) {
+  return {...payload, ownerKey: ownerKeyFromCaller(caller)};
+}
+
+function assertOwnerAccess(record = {}, caller = {}, noun = 'Command Center record') {
+  const recordOwner = safeText(record.ownerKey, 80);
+  if (!recordOwner) return;
+  if (recordOwner === ownerKeyFromCaller(caller)) return;
+  const err = new Error(`${noun} not found for this Command Center owner.`);
+  err.status = 404;
+  throw err;
 }
 function hasBearerAuthorization(req) {
   const header = req && typeof req.get === 'function' ? req.get('Authorization') : '';
@@ -301,6 +323,33 @@ function cleanOneShotExecution(args = {}) {
   };
 }
 
+function normalizeGithubRepositoryRef(value) {
+  const raw = safeText(value, 1000)
+    .replace(/^github:\/\//i, '')
+    .replace(/^https:\/\/github\.com\//i, '')
+    .split(/[?#]/)[0]
+    .replace(/\.git$/i, '');
+  const parts = raw.split('/').filter(Boolean);
+  return parts.length >= 2 ? `${parts[0]}/${parts[1]}` : '';
+}
+
+function repositoryFromBaseWorkspace(baseWorkspace = {}) {
+  const workspace = safeObject(baseWorkspace);
+  return normalizeGithubRepositoryRef(workspace.repository) || normalizeGithubRepositoryRef(workspace.snapshotRef);
+}
+
+function repositoryFromProject(project = {}) {
+  const binding = safeObject(project.repositoryBinding);
+  return normalizeGithubRepositoryRef(project.repository) || normalizeGithubRepositoryRef(binding.repository) || repositoryFromBaseWorkspace(project.baseWorkspace);
+}
+
+function resolveJobRepository(args = {}, project = {}, baseWorkspace = {}) {
+  return normalizeGithubRepositoryRef(args.repository)
+    || repositoryFromProject(project)
+    || repositoryFromBaseWorkspace(args.baseWorkspace)
+    || repositoryFromBaseWorkspace(baseWorkspace);
+}
+
 function cleanProjectId(value, repository = '') {
   const projectId = slug(safeText(value, 120) || repository, 'project');
   if (!/^[a-z0-9][a-z0-9-]{1,118}[a-z0-9]$/.test(projectId)) {
@@ -361,6 +410,7 @@ function cleanRepoAgent(args = {}, caller = {}) {
     openQuestions: safeList(args.openQuestions, 80, 500),
     createdBy: safeText(args.createdBy, 160) || caller.actor || 'command_center',
     updatedBy: caller.actor || safeText(args.updatedBy, 160),
+    ownerKey: ownerKeyFromCaller(caller),
     createdAtMs: Number(args.createdAtMs || 0) || nowMs,
     updatedAtMs: nowMs,
   };
@@ -400,6 +450,7 @@ function cleanAgentSession(args = {}, agent = {}, caller = {}) {
     preferredWorkerIds: safeList(args.preferredWorkerIds, 80, 160),
     createdBy: safeText(args.createdBy, 160) || caller.actor || 'command_center',
     updatedBy: caller.actor || safeText(args.updatedBy, 160),
+    ownerKey: ownerKeyFromCaller(caller),
     createdAtMs: Number(args.createdAtMs || 0) || nowMs,
     updatedAtMs: nowMs,
   };
@@ -545,6 +596,7 @@ function cleanBucketObject(args = {}, caller = {}) {
     supersedes: safeList(args.supersedes, 40, 180),
     createdBy: safeText(args.createdBy, 160) || caller.actor || 'command_center',
     updatedBy: caller.actor || safeText(args.updatedBy, 160),
+    ownerKey: ownerKeyFromCaller(caller),
     createdAtMs: nowMs,
     updatedAtMs: nowMs,
     provenance: {
@@ -602,6 +654,7 @@ function deriveWorkerLiveness(worker, nowMs = Date.now()) {
 function cleanWorker(worker) {
   const data = safeObject(worker);
   const liveness = deriveWorkerLiveness(data);
+  const retired = data.retiredAtMs || data.retired === true || safeText(data.status, 80) === 'retired';
   return {
     workerId: safeText(data.workerId, 120),
     engine: safeText(data.engine, 80) || 'codex',
@@ -624,9 +677,14 @@ function cleanWorker(worker) {
     sessionPolicy: safeObject(data.sessionPolicy),
     repositoryAffinity: safeList(data.repositoryAffinity, 80, 240),
     simulated: data.simulated === true,
-    registryRoutable: liveness.registryRoutable,
-    routable: liveness.routable,
+    registryRoutable: retired ? false : liveness.registryRoutable,
+    routable: retired ? false : liveness.routable,
     lastHeartbeatAtMs: liveness.lastHeartbeatAtMs,
+    status: retired ? 'retired' : (safeText(data.status, 80) || 'active'),
+    retiredAtMs: Number(data.retiredAtMs || 0) || 0,
+    retiredBy: safeText(data.retiredBy, 160),
+    retireReason: safeText(data.retireReason, 1000),
+    ownerKey: safeText(data.ownerKey, 80),
     oneShot: data.oneShot !== false,
   };
 }
@@ -658,6 +716,16 @@ async function workerRecords(admin) {
   return Array.from(byId.values()).filter((worker) => worker.workerId);
 }
 
+function recordsVisibleToCaller(records, caller = null) {
+  if (!caller) return records;
+  const ownerKey = ownerKeyFromCaller(caller);
+  return records.filter((record) => !safeText(record.ownerKey, 80) || record.ownerKey === ownerKey);
+}
+
+function queryOwnedCollection(admin, collectionName, caller) {
+  return collection(admin, collectionName).where('ownerKey', '==', ownerKeyFromCaller(caller));
+}
+
 function normalizeActivationChannel(value = {}) {
   const data = safeObject(value);
   const mode = safeText(data.mode, 40) || (safeText(data.endpoint, 1000) ? 'push' : '');
@@ -676,6 +744,7 @@ function isWorkerLeaseEligible(worker, requirements, options = {}) {
   const caps = new Set((worker.capabilities || []).map((cap) => String(cap).toLowerCase()));
   const liveness = deriveWorkerLiveness(worker, nowMs);
   if (worker.simulated === true) return {eligible: false, reason: 'worker is simulated'};
+  if (worker.status === 'retired' || worker.retiredAtMs) return {eligible: false, reason: 'worker is retired'};
   if (worker.registryRoutable === false) return {eligible: false, reason: 'worker is not routable'};
   const missing = reqs.filter((req) => !caps.has(req));
   if (missing.length) return {eligible: false, reason: `missing capabilities: ${missing.join(', ')}`};
@@ -775,12 +844,14 @@ async function upsertBucketObject(admin, args, caller) {
   const ref = collection(admin, COMMAND_CENTER_COLLECTIONS.bucketObjects).doc(payload.objectId);
   const existing = await ref.get();
   const existingData = existing.exists ? existing.data() || {} : {};
+  if (existing.exists) assertOwnerAccess(existingData, caller, 'Command Center bucket object');
   await ref.set({
     ...payload,
     createdAtMs: existingData.createdAtMs || payload.createdAtMs,
     createdBy: existingData.createdBy || payload.createdBy,
+    ownerKey: existingData.ownerKey || payload.ownerKey,
   }, {merge: true});
-  return {...payload, createdAtMs: existingData.createdAtMs || payload.createdAtMs, createdBy: existingData.createdBy || payload.createdBy};
+  return {...payload, createdAtMs: existingData.createdAtMs || payload.createdAtMs, createdBy: existingData.createdBy || payload.createdBy, ownerKey: existingData.ownerKey || payload.ownerKey};
 }
 
 async function putBucketObject(admin, caller, args) {
@@ -794,7 +865,7 @@ async function putBucketObject(admin, caller, args) {
   });
 }
 
-async function getBucketObject(admin, args) {
+async function getBucketObject(admin, args, caller = null) {
   const objectId = safeText(args.objectId, 180);
   if (!objectId) {
     const err = new Error('objectId is required.');
@@ -802,10 +873,13 @@ async function getBucketObject(admin, args) {
     throw err;
   }
   const snap = await collection(admin, COMMAND_CENTER_COLLECTIONS.bucketObjects).doc(objectId).get();
-  return snap.exists ? {found: true, object: snap.data()} : {found: false, objectId};
+  if (!snap.exists) return {found: false, objectId};
+  const object = snap.data() || {};
+  if (caller) assertOwnerAccess(object, caller, 'Command Center bucket object');
+  return {found: true, object};
 }
 
-async function listBucketObjects(admin, args = {}) {
+async function listBucketObjects(admin, args = {}, caller = null) {
   const bucketId = cleanBucketId(args.bucketId);
   const kind = args.kind ? cleanBucketKind(args.kind) : '';
   const projectId = args.projectId ? cleanProjectId(args.projectId) : '';
@@ -817,6 +891,7 @@ async function listBucketObjects(admin, args = {}) {
   const objects = [];
   snap.forEach((doc) => {
     const object = doc.data() || {};
+    if (caller && safeText(object.ownerKey, 80) && object.ownerKey !== ownerKeyFromCaller(caller)) return;
     if (object.bucketId !== bucketId) return;
     if (kind && object.kind !== kind) return;
     if (projectId && object.projectId !== projectId) return;
@@ -1336,7 +1411,7 @@ async function recordCurrentMemorySnapshot(admin, checkpoint) {
     evidenceRefs: checkpoint.evidenceRefs || [],
     tags: ['checkpoint', 'current-summary'],
     source: 'command_center.recordCurrentMemorySnapshot',
-  }, {actor: 'command_center'});
+  }, {actor: 'command_center', ownerKey: safeText(checkpoint.ownerKey, 80) || ownerKeyFromActor('command_center')});
 }
 
 async function recordCheckpoint(admin, job) {
@@ -1345,6 +1420,7 @@ async function recordCheckpoint(admin, job) {
     checkpointId,
     jobId: job.jobId,
     projectId: job.projectId,
+    ownerKey: safeText(job.ownerKey, 80),
     objective: job.objective || '',
     acceptanceCriteriaStatus: (job.acceptanceCriteria || []).map((criterion) => ({criterion, status: 'pending'})),
     currentPhase: job.status || 'queued',
@@ -1369,12 +1445,13 @@ async function recordCheckpoint(admin, job) {
 }
 
 async function idempotentMutation(admin, caller, idempotencyKey, operation, fn) {
-  const idemId = `${caller.tokenHash}_${hashText(operation + ':' + idempotencyKey, 32)}`;
+  const ownerKey = ownerKeyFromCaller(caller);
+  const idemId = `${ownerKey}_${hashText(operation + ':' + idempotencyKey, 32)}`;
   const ref = collection(admin, COMMAND_CENTER_COLLECTIONS.idempotency).doc(idemId);
   const snap = await ref.get();
   if (snap.exists) return {idempotentReplay: true, ...(snap.data().response || {})};
   const response = await fn();
-  await ref.set({idempotencyKey, operation, caller: caller.actor, createdAtMs: Date.now(), response});
+  await ref.set({idempotencyKey, operation, caller: caller.actor, ownerKey, createdAtMs: Date.now(), response});
   return response;
 }
 
@@ -1386,14 +1463,16 @@ async function getLatestCheckpoint(admin, jobId) {
   return checkpoints[0] || null;
 }
 
-async function getJob(admin, jobId) {
+async function getJob(admin, jobId, caller = null) {
   const snap = await collection(admin, COMMAND_CENTER_COLLECTIONS.jobs).doc(jobId).get();
   if (!snap.exists) {
     const err = new Error('Command Center job not found.');
     err.status = 404;
     throw err;
   }
-  return snap.data() || {};
+  const job = snap.data() || {};
+  if (caller) assertOwnerAccess(job, caller, 'Command Center job');
+  return job;
 }
 
 function buildJobActivation(job, lease, worker, options = {}) {
@@ -1667,7 +1746,7 @@ function shouldAcceptWorkerCompletion({requestedStatus, events = [], artifacts =
   if (!workspaceArtifact) return {ok: false, reason: 'completed jobs require at least one artifact from the executor workspace'};
   const artifactNames = new Set(artifacts.map((artifact) => safeText(artifact.name, 240)).filter(Boolean));
   if (artifactNames.has('noop-proof.txt')) return {ok: false, reason: 'completed repository jobs cannot be proven by noop-proof.txt'};
-  const requiredExecutionArtifacts = ['job-intake.json', 'orientation.md', 'reasoning-summary.md', 'command-log.jsonl', 'acceptance.json', 'implementation.patch', 'changed-files.json', 'verification.json', 'final-report.md', 'mutation-requests.jsonl'];
+  const requiredExecutionArtifacts = ['job-intake.json', 'orientation.md', 'reasoning-summary.md', 'command-log.jsonl', 'acceptance.json', 'acceptance-matrix.json', 'implementation.patch', 'changed-files.json', 'verification.json', 'final-report.md', 'mutation-requests.jsonl'];
   const missing = requiredExecutionArtifacts.filter((name) => !artifactNames.has(name));
   if (missing.length) return {ok: false, reason: `completed repository jobs require execution artifacts: ${missing.join(', ')}`};
   if (safeList(job.requiredArtifacts, 80, 180).some((name) => /red|patch|verification|pr|commit|build|readback/i.test(name)) && !artifactNames.has('implementation.patch')) {
@@ -1706,11 +1785,13 @@ async function upsertProject(admin, caller, args) {
     const ref = collection(admin, COMMAND_CENTER_COLLECTIONS.projects).doc(packet.projectId);
     const existing = await ref.get();
     const existingData = existing.exists ? existing.data() || {} : {};
+    if (existing.exists) assertOwnerAccess(existingData, caller, 'Command Center project');
     const project = {
       ...packet,
       createdAtMs: existingData.createdAtMs || packet.createdAtMs,
       createdBy: existingData.createdBy || caller.actor,
       updatedBy: caller.actor,
+      ownerKey: existingData.ownerKey || ownerKeyFromCaller(caller),
     };
     await ref.set(project, {merge: true});
     return {project, created: !existing.exists};
@@ -1720,8 +1801,16 @@ async function upsertProject(admin, caller, args) {
 async function createJob(admin, caller, args) {
   return idempotentMutation(admin, caller, requireIdempotencyKey(args.idempotencyKey), 'jobs.create', async () => {
     const projectId = cleanProjectId(args.projectId, args.repository || 'project');
+    const projectResolution = await resolveProject(admin, {...args, projectId});
+    const project = projectResolution.project || {};
+    if (project.ownerKey) assertOwnerAccess(project, caller, 'Command Center project');
+    const execution = cleanOneShotExecution({
+      ...args,
+      baseWorkspace: args.baseWorkspace || project.baseWorkspace,
+    });
+    const repository = resolveJobRepository(args, project, execution.baseWorkspace);
     const jobId = `job_${randomUUID()}`;
-    const workers = await workerRecords(admin);
+    const workers = recordsVisibleToCaller(await workerRecords(admin), caller);
     let worker = null;
     let selectionFailure = null;
     try {
@@ -1742,10 +1831,13 @@ async function createJob(admin, caller, args) {
       workerRequirements: safeList(args.workerRequirements, 40, 120),
       budgetClass: safeText(args.budgetClass, 80) || 'small',
       mutationPolicy: cleanMutationPolicy(args.mutationPolicy),
-      ...cleanOneShotExecution(args),
+      repository,
+      projectRepository: repositoryFromProject(project),
+      ...execution,
       status: worker ? 'leased' : 'queued',
       selectedWorkerId: worker ? worker.workerId : '',
       createdBy: caller.actor,
+      ownerKey: ownerKeyFromCaller(caller),
       createdAtMs: nowMs,
       updatedAtMs: nowMs,
       simulatedWorker: worker ? worker.simulated === true : false,
@@ -1770,14 +1862,14 @@ async function createJob(admin, caller, args) {
   });
 }
 
-async function synthesizeJobHandoff(admin, jobId) {
-  const job = await getJob(admin, jobId);
+async function synthesizeJobHandoff(admin, jobId, caller = null) {
+  const job = await getJob(admin, jobId, caller);
   const [checkpoint, events, logs, artifacts, bucketRows] = await Promise.all([
     getLatestCheckpoint(admin, jobId),
     listByJob(admin, COMMAND_CENTER_COLLECTIONS.events, jobId, 100),
     listByJob(admin, COMMAND_CENTER_COLLECTIONS.logs, jobId, 100),
     listByJob(admin, COMMAND_CENTER_COLLECTIONS.artifacts, jobId, 100),
-    listBucketObjects(admin, {bucketId: COMMAND_CENTER_DEFAULT_BUCKET_ID, jobId, limit: 50}),
+    listBucketObjects(admin, {bucketId: COMMAND_CENTER_DEFAULT_BUCKET_ID, jobId, limit: 50}, caller),
   ]);
   const newestEvent = events[0] || null;
   const artifactNames = new Set(artifacts.map((artifact) => artifact.name).filter(Boolean));
@@ -1799,6 +1891,9 @@ async function synthesizeJobHandoff(admin, jobId) {
   const executorEvents = events.filter((event) => /^executor_/.test(event.type || ''));
   const heartbeatEvent = events.find((event) => event.type === 'executor_heartbeat') || null;
   const mutationRequests = artifacts.filter((artifact) => artifact.name === 'mutation-requests.jsonl');
+  const unevaluatedCriteria = acceptanceMatrix.filter((item) => item.status === 'not_evaluated' || item.status === 'pending');
+  const failedCriteria = acceptanceMatrix.filter((item) => item.status === 'failed');
+  const usageSummary = safeObject(checkpoint && checkpoint.usageSummary);
   return {
     packetVersion: 'command-center-handoff-v1',
     generatedAtMs: nowMs,
@@ -1814,6 +1909,7 @@ async function synthesizeJobHandoff(admin, jobId) {
       sourceJobId: job.sourceJobId || '',
       followupOf: job.followupOf || null,
       mutationPolicy: cleanMutationPolicy(job.mutationPolicy),
+      repository: job.repository || '',
       baseWorkspace: job.baseWorkspace || COMMAND_CENTER_DEFAULT_BASE_WORKSPACE,
     },
     review: {
@@ -1823,7 +1919,13 @@ async function synthesizeJobHandoff(admin, jobId) {
         sourceJobId: jobId,
         carryForwardEvidenceRefs: artifacts.map((artifact) => artifact.uri).filter(Boolean).slice(0, 40),
       },
-      residualRisks: missingRequiredArtifacts.length ? ['Some required artifacts are missing.'] : ['Acceptance criteria still require reviewer judgment; artifact presence is not acceptance.'],
+      residualRisks: [
+        ...(missingRequiredArtifacts.length ? ['Some required artifacts are missing.'] : []),
+        ...(unevaluatedCriteria.length ? ['Some acceptance criteria are not explicitly evaluated.'] : []),
+        ...(failedCriteria.length ? ['Some acceptance criteria failed.'] : []),
+        ...(usageSummary.warnings || []),
+      ],
+      acceptanceReviewState: failedCriteria.length ? 'failed' : (unevaluatedCriteria.length ? 'review_incomplete' : 'evaluated'),
     },
     counters: {
       eventCount: events.length,
@@ -1835,7 +1937,10 @@ async function synthesizeJobHandoff(admin, jobId) {
       lastHeartbeatAgeMs: heartbeatEvent ? nowMs - Number(heartbeatEvent.createdAtMs || nowMs) : null,
       terminal: isTerminalJobStatus(job.status),
       missingRequiredArtifacts,
+      unevaluatedAcceptanceCriteria: unevaluatedCriteria.length,
+      failedAcceptanceCriteria: failedCriteria.length,
     },
+    usageSummary,
     checkpoint,
     acceptanceMatrix,
     artifacts: artifacts.map((artifact) => ({artifactId: artifact.artifactId, name: artifact.name, kind: artifact.kind, uri: artifact.uri, sha256: artifact.sha256, required: artifact.required === true})),
@@ -1849,10 +1954,13 @@ async function synthesizeJobHandoff(admin, jobId) {
 async function createFollowupJob(admin, caller, args) {
   return idempotentMutation(admin, caller, requireIdempotencyKey(args.idempotencyKey), 'jobs.create_followup', async () => {
     const sourceJobId = cleanJobId(args.sourceJobId);
-    const sourceHandoff = await synthesizeJobHandoff(admin, sourceJobId);
+    const sourceHandoff = await synthesizeJobHandoff(admin, sourceJobId, caller);
     const sourceJob = sourceHandoff.job;
     const projectId = args.projectId ? cleanProjectId(args.projectId) : cleanProjectId(sourceJob.projectId);
-    const workers = await workerRecords(admin);
+    const projectResolution = await resolveProject(admin, {...args, projectId, repository: args.repository || sourceJob.repository});
+    const project = projectResolution.project || {};
+    if (project.ownerKey) assertOwnerAccess(project, caller, 'Command Center project');
+    const workers = recordsVisibleToCaller(await workerRecords(admin), caller);
     const workerRequirements = safeList(args.workerRequirements, 40, 120);
     const inheritedWorkerRequirements = safeList(sourceJob.workerRequirements, 40, 120);
     let worker = null;
@@ -1865,9 +1973,10 @@ async function createFollowupJob(admin, caller, args) {
     }
     const execution = cleanOneShotExecution({
       ...args,
-      baseWorkspace: args.baseWorkspace || sourceJob.baseWorkspace,
+      baseWorkspace: args.baseWorkspace || sourceJob.baseWorkspace || project.baseWorkspace,
       requiredArtifacts: args.requiredArtifacts || sourceJob.requiredArtifacts,
     });
+    const repository = resolveJobRepository({...args, repository: args.repository || sourceJob.repository}, project, execution.baseWorkspace);
     const nowMs = Date.now();
     const jobId = `job_${randomUUID()}`;
     const job = {
@@ -1881,6 +1990,8 @@ async function createFollowupJob(admin, caller, args) {
       workerRequirements: workerRequirements.length ? workerRequirements : inheritedWorkerRequirements,
       budgetClass: safeText(args.budgetClass, 80) || 'small',
       mutationPolicy: cleanMutationPolicy(args.mutationPolicy || sourceJob.mutationPolicy),
+      repository,
+      projectRepository: repositoryFromProject(project),
       ...execution,
       sourceJobId,
       followupOf: {
@@ -1893,6 +2004,7 @@ async function createFollowupJob(admin, caller, args) {
       status: worker ? 'leased' : 'queued',
       selectedWorkerId: worker ? worker.workerId : '',
       createdBy: caller.actor,
+      ownerKey: ownerKeyFromCaller(caller),
       createdAtMs: nowMs,
       updatedAtMs: nowMs,
       simulatedWorker: worker ? worker.simulated === true : false,
@@ -2095,7 +2207,7 @@ async function createAgentActivation(admin, caller, args) {
 	    const nowMs = Date.now();
 	    const activationId = cleanActivationId(args.activationId);
 	    const workerRequirements = activationWorkerRequirements(args, task);
-	    const worker = selectWorker(await workerRecords(admin), workerRequirements, {requireActivationChannel: false});
+	    const worker = selectWorker(recordsVisibleToCaller(await workerRecords(admin), caller), workerRequirements, {requireActivationChannel: false});
 	    const activation = {
 	      activationId,
 	      agentId: agent.agentId,
@@ -2375,7 +2487,7 @@ async function reconcileStaleJobs(admin, caller, args = {}) {
 async function reviseJob(admin, caller, args) {
   return idempotentMutation(admin, caller, requireIdempotencyKey(args.idempotencyKey), 'jobs.revise', async () => {
     const jobId = cleanJobId(args.jobId);
-    const job = await getJob(admin, jobId);
+    const job = await getJob(admin, jobId, caller);
     if (isTerminalJobStatus(job.status)) {
       const err = new Error('Cannot revise a terminal Command Center job.');
       err.status = 409;
@@ -2394,10 +2506,25 @@ async function reviseJob(admin, caller, args) {
   });
 }
 
+async function activeLeaseForJob(admin, jobId, selectedWorkerId = '') {
+  const snap = await collection(admin, COMMAND_CENTER_COLLECTIONS.leases).where('jobId', '==', jobId).limit(20).get();
+  const nowMs = Date.now();
+  const leases = [];
+  snap.forEach((doc) => {
+    const lease = doc.data() || {};
+    if (lease.status !== 'active') return;
+    if (selectedWorkerId && lease.workerId !== selectedWorkerId) return;
+    if (Number(lease.expiresAtMs || 0) > 0 && Number(lease.expiresAtMs || 0) <= nowMs) return;
+    leases.push(lease);
+  });
+  leases.sort((a, b) => Number(b.heartbeatAtMs || b.acquiredAtMs || 0) - Number(a.heartbeatAtMs || a.acquiredAtMs || 0));
+  return leases[0] || null;
+}
+
 async function transitionJob(admin, caller, args, status, operation) {
   return idempotentMutation(admin, caller, requireIdempotencyKey(args.idempotencyKey), operation, async () => {
     const jobId = cleanJobId(args.jobId);
-    const job = await getJob(admin, jobId);
+    const job = await getJob(admin, jobId, caller);
     const updates = {status, updatedAtMs: Date.now(), lastTransitionBy: caller.actor};
     await collection(admin, COMMAND_CENTER_COLLECTIONS.jobs).doc(jobId).set(updates, {merge: true});
     const event = await appendEvent(admin, {type: `job_${status}`, jobId, projectId: job.projectId, actor: caller.actor, summary: safeText(args.reason, 1000) || `Job ${status}.`});
@@ -2405,10 +2532,27 @@ async function transitionJob(admin, caller, args, status, operation) {
   });
 }
 
+async function resumeJob(admin, caller, args) {
+  return idempotentMutation(admin, caller, requireIdempotencyKey(args.idempotencyKey), 'jobs.resume', async () => {
+    const jobId = cleanJobId(args.jobId);
+    const job = await getJob(admin, jobId, caller);
+    const lease = await activeLeaseForJob(admin, jobId, job.selectedWorkerId);
+    if (!job.selectedWorkerId || !lease) {
+      const event = await appendEvent(admin, {type: 'job_resume_blocked', jobId, projectId: job.projectId, actor: caller.actor, summary: 'Resume blocked: job has no active worker lease.', data: {selectedWorkerId: job.selectedWorkerId || '', currentStatus: job.status}});
+      await recordLog(admin, jobId, job.projectId, 'Command Center refused to mark job running without an active lease.', {selectedWorkerId: job.selectedWorkerId || '', currentStatus: job.status});
+      return {jobId, resumed: false, status: job.status, reason: 'missing_active_lease', event};
+    }
+    const updates = {status: 'running', updatedAtMs: Date.now(), lastTransitionBy: caller.actor, resumedAtMs: Date.now(), resumeLeaseId: lease.leaseId};
+    await collection(admin, COMMAND_CENTER_COLLECTIONS.jobs).doc(jobId).set(updates, {merge: true});
+    const event = await appendEvent(admin, {type: 'job_running', jobId, projectId: job.projectId, actor: caller.actor, summary: safeText(args.reason, 1000) || 'Job resumed with active lease.', data: {leaseId: lease.leaseId, workerId: lease.workerId}});
+    return {jobId, status: 'running', resumed: true, lease, event};
+  });
+}
+
 async function answerQuestion(admin, caller, args) {
   return idempotentMutation(admin, caller, requireIdempotencyKey(args.idempotencyKey), 'jobs.answer_question', async () => {
     const jobId = cleanJobId(args.jobId);
-    const job = await getJob(admin, jobId);
+    const job = await getJob(admin, jobId, caller);
     const questionId = safeText(args.questionId, 140) || `question_${randomUUID()}`;
     const answer = {questionId, jobId, projectId: job.projectId, answer: safeText(args.answer, 4000), answeredBy: caller.actor, createdAtMs: Date.now(), decision: safeText(args.decision, 200)};
     await collection(admin, COMMAND_CENTER_COLLECTIONS.questions).doc(questionId).set(answer, {merge: true});
@@ -2421,7 +2565,7 @@ async function answerQuestion(admin, caller, args) {
 async function authorizeMutation(admin, caller, args) {
   return idempotentMutation(admin, caller, requireIdempotencyKey(args.idempotencyKey), 'jobs.authorize_mutation', async () => {
     const jobId = cleanJobId(args.jobId);
-    const job = await getJob(admin, jobId);
+    const job = await getJob(admin, jobId, caller);
     const action = safeText(args.action, 200);
     const decision = args.approved === true ? 'approved' : 'rejected';
     const authId = `mut_${randomUUID()}`;
@@ -2442,6 +2586,8 @@ async function registerOneShotWorker(admin, caller, args) {
       throw err;
     }
     const nowMs = Date.now();
+    const existing = await collection(admin, COMMAND_CENTER_COLLECTIONS.workers).doc(workerId).get();
+    if (existing.exists) assertOwnerAccess(existing.data() || {}, caller, 'Command Center worker');
     const workerToken = `ccw_${randomUUID()}_${randomUUID()}`;
     const tokenHash = tokenDigest(workerToken);
     const requestedActivation = normalizeActivationChannel(args.activation);
@@ -2459,13 +2605,39 @@ async function registerOneShotWorker(admin, caller, args) {
 	      sessionPolicy: safeObject(args.sessionPolicy),
 	      repositoryAffinity: safeList(args.repositoryAffinity, 80, 240),
 	      lastHeartbeatAtMs: nowMs,
+      ownerKey: ownerKeyFromCaller(caller),
       simulated: false,
       oneShot: true,
     });
     if (!worker.capabilities.length) worker.capabilities = ['codex', 'one-shot-worker', 'prepared-workspace'];
     await collection(admin, COMMAND_CENTER_COLLECTIONS.workers).doc(workerId).set({...worker, registeredBy: caller.actor, updatedAtMs: nowMs, createdAtMs: nowMs}, {merge: true});
-    await collection(admin, COMMAND_CENTER_COLLECTIONS.workerTokens).doc(tokenHash).set({workerId, createdBy: caller.actor, createdAtMs: nowMs, expiresAtMs: nowMs + 90 * 24 * 60 * 60 * 1000, authKind: 'command_center_worker_token'}, {merge: false});
+    await collection(admin, COMMAND_CENTER_COLLECTIONS.workerTokens).doc(tokenHash).set({workerId, ownerKey: ownerKeyFromCaller(caller), createdBy: caller.actor, createdAtMs: nowMs, expiresAtMs: nowMs + 90 * 24 * 60 * 60 * 1000, authKind: 'command_center_worker_token'}, {merge: false});
     return {worker, workerToken, tokenType: 'Bearer', expiresIn: 90 * 24 * 60 * 60, warning: 'Store this worker token only on the worker host. Command Center stores only its hash.'};
+  });
+}
+
+async function retireWorker(admin, caller, args) {
+  return idempotentMutation(admin, caller, requireIdempotencyKey(args.idempotencyKey), 'workers.retire', async () => {
+    const workerId = safeText(args.workerId, 120);
+    if (!workerId) {
+      const err = new Error('workerId is required.');
+      err.status = 400;
+      throw err;
+    }
+    const ref = collection(admin, COMMAND_CENTER_COLLECTIONS.workers).doc(workerId);
+    const snap = await ref.get();
+    if (!snap.exists) {
+      const err = new Error('Command Center worker not found.');
+      err.status = 404;
+      throw err;
+    }
+    const existing = cleanWorker({workerId, ...(snap.data() || {})});
+    assertOwnerAccess(existing, caller, 'Command Center worker');
+    const nowMs = Date.now();
+    const update = {status: 'retired', retiredAtMs: nowMs, retiredBy: caller.actor, retireReason: safeText(args.reason, 1000) || 'Retired stale Command Center worker registration.', routable: false, registryRoutable: false, updatedAtMs: nowMs};
+    await ref.set(update, {merge: true});
+    const worker = cleanWorker({...existing, ...update});
+    return {worker, retired: true};
   });
 }
 
@@ -2504,9 +2676,14 @@ async function runCommandCenterOperation(admin, extra, operation, args = {}) {
     case 'projects.resolve':
       return resolveProject(admin, args || {});
     case 'projects.get': {
+      const c = await caller();
       const projectId = cleanProjectId(args.projectId);
       const snap = await collection(admin, COMMAND_CENTER_COLLECTIONS.projects).doc(projectId).get();
-      if (snap.exists) return {projectId, found: true, project: {projectId, ...(snap.data() || {})}};
+      if (snap.exists) {
+        const project = {projectId, ...(snap.data() || {})};
+        assertOwnerAccess(project, c, 'Command Center project');
+        return {projectId, found: true, project};
+      }
       if (COMMAND_CENTER_DEFAULT_PROJECTS[projectId]) return {projectId, found: true, defaultProject: true, project: COMMAND_CENTER_DEFAULT_PROJECTS[projectId]};
       return {projectId, found: false};
     }
@@ -2517,10 +2694,10 @@ async function runCommandCenterOperation(admin, extra, operation, args = {}) {
     case 'jobs.create_followup':
       return createFollowupJob(admin, await caller(), args || {});
     case 'jobs.get':
-      return {job: await getJob(admin, cleanJobId(args.jobId))};
+      return {job: await getJob(admin, cleanJobId(args.jobId), await caller())};
     case 'jobs.list': {
       try {
-        let query = collection(admin, COMMAND_CENTER_COLLECTIONS.jobs);
+        let query = queryOwnedCollection(admin, COMMAND_CENTER_COLLECTIONS.jobs, await caller());
         if (args.projectId) query = query.where('projectId', '==', cleanProjectId(args.projectId));
         if (args.status) query = query.where('status', '==', args.status);
         query = query.orderBy('createdAtMs', 'desc');
@@ -2542,7 +2719,7 @@ async function runCommandCenterOperation(admin, extra, operation, args = {}) {
     case 'jobs.cancel':
       return transitionJob(admin, await caller(), args || {}, 'canceled', 'jobs.cancel');
     case 'jobs.resume':
-      return transitionJob(admin, await caller(), args || {}, 'running', 'jobs.resume');
+      return resumeJob(admin, await caller(), args || {});
     case 'jobs.revise':
       return reviseJob(admin, await caller(), args || {});
     case 'jobs.answer_question':
@@ -2551,17 +2728,27 @@ async function runCommandCenterOperation(admin, extra, operation, args = {}) {
       return authorizeMutation(admin, await caller(), args || {});
     case 'jobs.get_summary': {
       const jobId = cleanJobId(args.jobId);
-      const handoff = await synthesizeJobHandoff(admin, jobId);
-      return {jobId, status: handoff.job.status, checkpoint: handoff.checkpoint, counters: handoff.counters, recommendedNextAction: handoff.review.recommendedNextAction, job: await getJob(admin, jobId)};
+      const c = await caller();
+      const handoff = await synthesizeJobHandoff(admin, jobId, c);
+      return {jobId, status: handoff.job.status, checkpoint: handoff.checkpoint, counters: handoff.counters, recommendedNextAction: handoff.review.recommendedNextAction, job: await getJob(admin, jobId, c)};
     }
     case 'jobs.get_handoff':
-      return {handoff: await synthesizeJobHandoff(admin, cleanJobId(args.jobId))};
-    case 'jobs.get_events':
-      return {events: await listByJob(admin, COMMAND_CENTER_COLLECTIONS.events, cleanJobId(args.jobId), Math.max(1, Math.min(Number(args.limit) || 50, 100)))};
-    case 'jobs.get_logs':
-      return {logs: await listByJob(admin, COMMAND_CENTER_COLLECTIONS.logs, cleanJobId(args.jobId), Math.max(1, Math.min(Number(args.limit) || 50, 100)))};
-    case 'jobs.get_artifacts':
-      return {artifacts: await listByJob(admin, COMMAND_CENTER_COLLECTIONS.artifacts, cleanJobId(args.jobId), Math.max(1, Math.min(Number(args.limit) || 50, 100)))};
+      return {handoff: await synthesizeJobHandoff(admin, cleanJobId(args.jobId), await caller())};
+    case 'jobs.get_events': {
+      const jobId = cleanJobId(args.jobId);
+      await getJob(admin, jobId, await caller());
+      return {events: await listByJob(admin, COMMAND_CENTER_COLLECTIONS.events, jobId, Math.max(1, Math.min(Number(args.limit) || 50, 100)))};
+    }
+    case 'jobs.get_logs': {
+      const jobId = cleanJobId(args.jobId);
+      await getJob(admin, jobId, await caller());
+      return {logs: await listByJob(admin, COMMAND_CENTER_COLLECTIONS.logs, jobId, Math.max(1, Math.min(Number(args.limit) || 50, 100)))};
+    }
+    case 'jobs.get_artifacts': {
+      const jobId = cleanJobId(args.jobId);
+      await getJob(admin, jobId, await caller());
+      return {artifacts: await listByJob(admin, COMMAND_CENTER_COLLECTIONS.artifacts, jobId, Math.max(1, Math.min(Number(args.limit) || 50, 100)))};
+    }
     case 'agents.upsert_repo_agent':
       return upsertRepoAgent(admin, await caller(), args || {});
     case 'agents.create_activation':
@@ -2581,20 +2768,23 @@ async function runCommandCenterOperation(admin, extra, operation, args = {}) {
     case 'bucket.put_object':
       return putBucketObject(admin, await caller(), args || {});
     case 'bucket.get_object':
-      return getBucketObject(admin, args || {});
+      return getBucketObject(admin, args || {}, await caller());
     case 'bucket.list_objects':
-      return listBucketObjects(admin, args || {});
+      return listBucketObjects(admin, args || {}, await caller());
     case 'bucket.promote_skill':
       return promoteBucketSkill(admin, await caller(), args || {});
     case 'workers.register_oneshot':
       return registerOneShotWorker(admin, await caller(), args || {});
     case 'workers.wake':
       return wakeWorker(admin, await caller(), args || {});
+    case 'workers.retire':
+      return retireWorker(admin, await caller(), args || {});
     case 'workers.list':
-      return {workers: await workerRecords(admin)};
+      return {workers: recordsVisibleToCaller(await workerRecords(admin), await caller())};
     case 'workers.get_capabilities': {
+      const c = await caller();
       const workerId = safeText(args.workerId, 120);
-      const workers = await workerRecords(admin);
+      const workers = recordsVisibleToCaller(await workerRecords(admin), c);
       return {worker: workers.find((worker) => worker.workerId === workerId) || null};
     }
     case 'app_control.seed_profiles':
@@ -2629,12 +2819,13 @@ async function runCommandCenterOperation(admin, extra, operation, args = {}) {
   }
 }
 
-async function recordArtifact(admin, jobId, projectId, artifact) {
+async function recordArtifact(admin, jobId, projectId, artifact, ownerKey = '') {
   const artifactId = safeText(artifact.artifactId, 180) || `artifact_${Date.now()}_${randomUUID().slice(0, 8)}`;
   const payload = {
     artifactId,
     jobId,
     projectId,
+    ownerKey: safeText(ownerKey, 80),
     name: safeText(artifact.name, 240),
     kind: safeText(artifact.kind, 120) || 'file',
     uri: safeText(artifact.uri, 1000),
@@ -2776,10 +2967,15 @@ function createCommandCenterMcpServer({admin}) {
     title: 'Get Command Center project',
     description: 'Read one durable Command Center project registry entry.',
     inputSchema: {projectId: z.string()},
-  }, async (args) => {
+  }, async (args, extra) => {
+    const c = await callerFromExtra(admin, extra);
     const projectId = cleanProjectId(args.projectId);
     const snap = await collection(admin, COMMAND_CENTER_COLLECTIONS.projects).doc(projectId).get();
-    if (snap.exists) return textResult({projectId, found: true, project: {projectId, ...(snap.data() || {})}});
+    if (snap.exists) {
+      const project = {projectId, ...(snap.data() || {})};
+      assertOwnerAccess(project, c, 'Command Center project');
+      return textResult({projectId, found: true, project});
+    }
     if (COMMAND_CENTER_DEFAULT_PROJECTS[projectId]) return textResult({projectId, found: true, defaultProject: true, project: COMMAND_CENTER_DEFAULT_PROJECTS[projectId]});
     return textResult({projectId, found: false});
   });
@@ -2802,14 +2998,15 @@ function createCommandCenterMcpServer({admin}) {
     inputSchema: {idempotencyKey: z.string(), sourceJobId: z.string(), projectId: z.string().optional(), title: z.string(), objective: z.string(), acceptanceCriteria: z.array(z.string()).optional(), constraints: z.array(z.string()).optional(), scopeExclusions: z.array(z.string()).optional(), workerRequirements: z.array(z.string()).optional(), budgetClass: z.string().optional(), mutationPolicy: z.record(z.string(), z.string()).optional(), baseWorkspace: z.record(z.string(), z.any()).optional(), requiredArtifacts: z.array(z.string()).optional(), verificationCommands: z.array(z.string()).optional(), stopConditions: z.array(z.string()).optional()},
   }, async (args, extra) => textResult(await createFollowupJob(admin, await callerFromExtra(admin, extra), args || {})));
 
-  server.registerTool('command_center.jobs.get', {title: 'Get Command Center job', description: 'Read one Command Center job packet.', inputSchema: {jobId: z.string()}}, async (args) => textResult({job: await getJob(admin, cleanJobId(args.jobId))}));
+  server.registerTool('command_center.jobs.get', {title: 'Get Command Center job', description: 'Read one Command Center job packet.', inputSchema: {jobId: z.string()}}, async (args, extra) => textResult({job: await getJob(admin, cleanJobId(args.jobId), await callerFromExtra(admin, extra))}));
 
   server.registerTool('command_center.jobs.list', {
     title: 'List Command Center jobs',
     description: 'List recent Command Center jobs, optionally filtered by project or status.',
     inputSchema: {projectId: z.string().optional(), status: z.enum(COMMAND_CENTER_ALLOWED_STATUSES).optional(), limit: z.number().optional()},
-  }, async (args) => {
-    let query = collection(admin, COMMAND_CENTER_COLLECTIONS.jobs);
+  }, async (args, extra) => {
+    const c = await callerFromExtra(admin, extra);
+    let query = queryOwnedCollection(admin, COMMAND_CENTER_COLLECTIONS.jobs, c);
     if (args.projectId) query = query.where('projectId', '==', cleanProjectId(args.projectId));
     if (args.status) query = query.where('status', '==', args.status);
     query = query.orderBy('createdAtMs', 'desc');
@@ -2838,15 +3035,28 @@ function createCommandCenterMcpServer({admin}) {
   server.registerTool('command_center.jobs.answer_question', {title: 'Answer Command Center job question', description: 'Record ChatGPT or human answer to a worker question and resume when appropriate.', inputSchema: {idempotencyKey: z.string(), jobId: z.string(), questionId: z.string().optional(), answer: z.string(), decision: z.string().optional()}}, async (args, extra) => textResult(await answerQuestion(admin, await callerFromExtra(admin, extra), args || {})));
   server.registerTool('command_center.jobs.authorize_mutation', {title: 'Authorize Command Center mutation', description: 'Approve or reject a requested worker mutation under the ticket mutation policy. Workers cannot silently elevate permissions.', inputSchema: {idempotencyKey: z.string(), jobId: z.string(), action: z.string(), approved: z.boolean(), reason: z.string().optional(), evidenceRefs: z.array(z.string()).optional()}}, async (args, extra) => textResult(await authorizeMutation(admin, await callerFromExtra(admin, extra), args || {})));
 
-  server.registerTool('command_center.jobs.get_summary', {title: 'Get Command Center job summary', description: 'Read compact resumable worker-state checkpoint plus job status.', inputSchema: {jobId: z.string()}}, async (args) => {
+  server.registerTool('command_center.jobs.get_summary', {title: 'Get Command Center job summary', description: 'Read compact resumable worker-state checkpoint plus job status.', inputSchema: {jobId: z.string()}}, async (args, extra) => {
+    const c = await callerFromExtra(admin, extra);
     const jobId = cleanJobId(args.jobId);
-    const handoff = await synthesizeJobHandoff(admin, jobId);
-    return textResult({jobId, status: handoff.job.status, checkpoint: handoff.checkpoint, counters: handoff.counters, recommendedNextAction: handoff.review.recommendedNextAction, job: await getJob(admin, jobId)});
+    const handoff = await synthesizeJobHandoff(admin, jobId, c);
+    return textResult({jobId, status: handoff.job.status, checkpoint: handoff.checkpoint, counters: handoff.counters, recommendedNextAction: handoff.review.recommendedNextAction, job: await getJob(admin, jobId, c)});
   });
-  server.registerTool('command_center.jobs.get_handoff', {title: 'Get Command Center job handoff', description: 'Read a compact review/correction packet synthesized from job state, events, logs, artifacts, checkpoints, and bucket objects.', inputSchema: {jobId: z.string()}}, async (args) => textResult({handoff: await synthesizeJobHandoff(admin, cleanJobId(args.jobId))}));
-  server.registerTool('command_center.jobs.get_events', {title: 'Get Command Center job events', description: 'Read structured job events generated from Command Center state, not another chat agent.', inputSchema: {jobId: z.string(), limit: z.number().optional()}}, async (args) => textResult({events: await listByJob(admin, COMMAND_CENTER_COLLECTIONS.events, cleanJobId(args.jobId), Math.max(1, Math.min(Number(args.limit) || 50, 100)))}));
-  server.registerTool('command_center.jobs.get_logs', {title: 'Get Command Center job logs', description: 'Read append-only log metadata for a job.', inputSchema: {jobId: z.string(), limit: z.number().optional()}}, async (args) => textResult({logs: await listByJob(admin, COMMAND_CENTER_COLLECTIONS.logs, cleanJobId(args.jobId), Math.max(1, Math.min(Number(args.limit) || 50, 100)))}));
-  server.registerTool('command_center.jobs.get_artifacts', {title: 'Get Command Center job artifacts', description: 'Read artifact metadata and object references for a job.', inputSchema: {jobId: z.string(), limit: z.number().optional()}}, async (args) => textResult({artifacts: await listByJob(admin, COMMAND_CENTER_COLLECTIONS.artifacts, cleanJobId(args.jobId), Math.max(1, Math.min(Number(args.limit) || 50, 100)))}));
+  server.registerTool('command_center.jobs.get_handoff', {title: 'Get Command Center job handoff', description: 'Read a compact review/correction packet synthesized from job state, events, logs, artifacts, checkpoints, and bucket objects.', inputSchema: {jobId: z.string()}}, async (args, extra) => textResult({handoff: await synthesizeJobHandoff(admin, cleanJobId(args.jobId), await callerFromExtra(admin, extra))}));
+  server.registerTool('command_center.jobs.get_events', {title: 'Get Command Center job events', description: 'Read structured job events generated from Command Center state, not another chat agent.', inputSchema: {jobId: z.string(), limit: z.number().optional()}}, async (args, extra) => {
+    const jobId = cleanJobId(args.jobId);
+    await getJob(admin, jobId, await callerFromExtra(admin, extra));
+    return textResult({events: await listByJob(admin, COMMAND_CENTER_COLLECTIONS.events, jobId, Math.max(1, Math.min(Number(args.limit) || 50, 100)))});
+  });
+  server.registerTool('command_center.jobs.get_logs', {title: 'Get Command Center job logs', description: 'Read append-only log metadata for a job.', inputSchema: {jobId: z.string(), limit: z.number().optional()}}, async (args, extra) => {
+    const jobId = cleanJobId(args.jobId);
+    await getJob(admin, jobId, await callerFromExtra(admin, extra));
+    return textResult({logs: await listByJob(admin, COMMAND_CENTER_COLLECTIONS.logs, jobId, Math.max(1, Math.min(Number(args.limit) || 50, 100)))});
+  });
+  server.registerTool('command_center.jobs.get_artifacts', {title: 'Get Command Center job artifacts', description: 'Read artifact metadata and object references for a job.', inputSchema: {jobId: z.string(), limit: z.number().optional()}}, async (args, extra) => {
+    const jobId = cleanJobId(args.jobId);
+    await getJob(admin, jobId, await callerFromExtra(admin, extra));
+    return textResult({artifacts: await listByJob(admin, COMMAND_CENTER_COLLECTIONS.artifacts, jobId, Math.max(1, Math.min(Number(args.limit) || 50, 100)))});
+  });
 
   server.registerTool('command_center.agents.upsert_repo_agent', {
     title: 'Upsert Command Center repo agent',
@@ -2925,13 +3135,13 @@ function createCommandCenterMcpServer({admin}) {
     title: 'Get Command Center bucket object',
     description: 'Read one Command Center bucket object by id.',
     inputSchema: {objectId: z.string()},
-  }, async (args) => textResult(await getBucketObject(admin, args || {})));
+  }, async (args, extra) => textResult(await getBucketObject(admin, args || {}, await callerFromExtra(admin, extra))));
 
   server.registerTool('command_center.bucket.list_objects', {
     title: 'List Command Center bucket objects',
     description: 'List durable Command Center bucket memory, skills, and cross-repo notes with optional filters.',
     inputSchema: {bucketId: z.string().optional(), kind: z.enum(COMMAND_CENTER_BUCKET_KINDS).optional(), projectId: z.string().optional(), repository: z.string().optional(), jobId: z.string().optional(), tag: z.string().optional(), limit: z.number().optional()},
-  }, async (args) => textResult(await listBucketObjects(admin, args || {})));
+  }, async (args, extra) => textResult(await listBucketObjects(admin, args || {}, await callerFromExtra(admin, extra))));
 
   server.registerTool('command_center.bucket.promote_skill', {
     title: 'Promote Command Center scratch skill',
@@ -3024,12 +3234,17 @@ function createCommandCenterMcpServer({admin}) {
     inputSchema: {idempotencyKey: z.string(), workerId: z.string(), activationId: z.string().optional(), sessionId: z.string().optional(), projectId: z.string().optional(), reason: z.string().optional(), runLabel: z.string().optional(), currentWorkspaceSnapshotRef: z.string().optional()},
   }, async (args, extra) => textResult(await wakeWorker(admin, await callerFromExtra(admin, extra), args || {})));
 
-  server.registerTool('command_center.workers.list', {title: 'List Command Center workers', description: 'List registered Codex workers and their health/capability metadata.', inputSchema: {}}, async () => textResult({workers: await workerRecords(admin)}));
-  server.registerTool('command_center.workers.get_capabilities', {title: 'Get Command Center worker capabilities', description: 'Read capability metadata for one registered worker.', inputSchema: {workerId: z.string()}}, async (args) => {
+  server.registerTool('command_center.workers.list', {title: 'List Command Center workers', description: 'List registered Codex workers and their health/capability metadata.', inputSchema: {}}, async (_args, extra) => textResult({workers: recordsVisibleToCaller(await workerRecords(admin), await callerFromExtra(admin, extra))}));
+  server.registerTool('command_center.workers.get_capabilities', {title: 'Get Command Center worker capabilities', description: 'Read capability metadata for one registered worker.', inputSchema: {workerId: z.string()}}, async (args, extra) => {
     const workerId = safeText(args.workerId, 120);
-    const workers = await workerRecords(admin);
+    const workers = recordsVisibleToCaller(await workerRecords(admin), await callerFromExtra(admin, extra));
     return textResult({worker: workers.find((worker) => worker.workerId === workerId) || null});
   });
+  server.registerTool('command_center.workers.retire', {
+    title: 'Retire Command Center worker',
+    description: 'Quarantine a stale worker registration without deleting audit history.',
+    inputSchema: {idempotencyKey: z.string(), workerId: z.string(), reason: z.string().optional()},
+  }, async (args, extra) => textResult(await retireWorker(admin, await callerFromExtra(admin, extra), args || {})));
   return server;
 }
 
@@ -3233,7 +3448,7 @@ function createCommandCenterMcpApp({admin}) {
       }
       const artifacts = (Array.isArray(req.body.artifacts) ? req.body.artifacts : [req.body.artifact]).filter(Boolean);
       const written = [];
-      for (const artifact of artifacts.slice(0, 80)) written.push(await recordArtifact(admin, jobId, job.projectId, artifact));
+      for (const artifact of artifacts.slice(0, 80)) written.push(await recordArtifact(admin, jobId, job.projectId, artifact, job.ownerKey));
       await appendEvent(admin, {type: 'artifacts_recorded', jobId, projectId: job.projectId, actor: caller.workerId, summary: `Recorded ${written.length} artifact(s).`, data: {artifactIds: written.map((artifact) => artifact.artifactId)}});
       res.json({ok: true, artifacts: written});
     } catch (err) {
@@ -3255,8 +3470,10 @@ function createCommandCenterMcpApp({admin}) {
         checkpointId: `chk_${Date.now()}_${randomUUID().slice(0, 8)}`,
         jobId,
         projectId: job.projectId,
+        ownerKey: safeText(job.ownerKey, 80),
         objective: job.objective || '',
         acceptanceCriteriaStatus: Array.isArray(req.body.acceptanceCriteriaStatus) ? req.body.acceptanceCriteriaStatus : [],
+        usageSummary: safeObject(req.body.usageSummary),
         currentPhase: safeText(req.body.currentPhase, 120) || job.status,
         repositoryCommit: safeText(req.body.repositoryCommit, 160),
         workingTreeState: safeText(req.body.workingTreeState, 120),
@@ -3295,7 +3512,7 @@ function createCommandCenterMcpApp({admin}) {
       const finalReport = safeText(req.body.finalReport, 8000);
       const artifacts = Array.isArray(req.body.artifacts) ? req.body.artifacts : [];
       const written = [];
-      for (const artifact of artifacts.slice(0, 80)) written.push(await recordArtifact(admin, jobId, job.projectId, artifact));
+      for (const artifact of artifacts.slice(0, 80)) written.push(await recordArtifact(admin, jobId, job.projectId, artifact, job.ownerKey));
       const events = await listByJob(admin, COMMAND_CENTER_COLLECTIONS.events, jobId, COMMAND_CENTER_COMPLETION_EVENT_LOOKBACK_LIMIT);
       const allArtifacts = [...(await listByJob(admin, COMMAND_CENTER_COLLECTIONS.artifacts, jobId, COMMAND_CENTER_COMPLETION_EVENT_LOOKBACK_LIMIT)), ...written];
       const completionGate = shouldAcceptWorkerCompletion({requestedStatus: status, events, artifacts: allArtifacts, job});
@@ -3370,6 +3587,16 @@ module.exports = {
   cleanMutationPolicy,
   cleanOneShotExecution,
   cleanBucketObject,
+  ownerKeyFromActor,
+  ownerKeyFromCaller,
+  attachOwnerKey,
+  assertOwnerAccess,
+  recordsVisibleToCaller,
+  normalizeGithubRepositoryRef,
+  repositoryFromBaseWorkspace,
+  repositoryFromProject,
+  resolveJobRepository,
+  activeLeaseForJob,
   normalizeActivationChannel,
   deriveWorkerLiveness,
   isTerminalJobStatus,
