@@ -278,6 +278,7 @@ assert.equal(listedBrains.she_raw_default_voice, true);
 assert(listedBrains.brains.some((brain) => brain.brainId === 'quartermaster'));
 assert(listedBrains.brains.some((brain) => brain.brainId === 'bikini_bottom' && /simulation|anti-agentism|continuation/i.test(brain.role)));
 assert(listedBrains.brains.some((brain) => brain.brainId === 'queen_b' && /QA|confidence|receipts/i.test(brain.role)));
+assert(listedBrains.brains.some((brain) => brain.brainId === 'plankton' && /adversarial|probe|actuator/i.test(brain.role)));
 assert(listedBrains.brains.every((brain) => brain.brainId !== 'she_raw'));
 
 const quartermaster = await handleBrainJar(admin, {brainId: 'quartermaster', conversationKey: 'conv-1', projectKey: 'home-center', commandState: 'executing', boundedContext: 'Need preservation judgment for She-Raw brain jars.', question: 'What must be preserved?'}, extra);
@@ -351,6 +352,24 @@ assert.match(patrickgor.honey_artifact, /explicit-only|labeled artifact|digest/i
 assert.match(patrickgor.boundary, /exact identifiers|living people|medical|standalone agent/i);
 assert(patrickgor.retrieved_cases.some((caseRecord) => caseRecord.id === 'sr_case_patrickgor_typo_digestive_transformation_001'));
 assert(!patrickgor.retrieved_cases.some((caseRecord) => caseRecord.id === 'sr_case_bikini_bottom_anti_agentism_001'));
+
+const plankton = await handleBrainJar(admin, {
+  brainId: 'plankton',
+  conversationKey: 'conv-plankton',
+  projectKey: 'she-raw',
+  commandState: 'idle',
+  boundedContext: 'Attack the claim that a mock fire-control interface rejects unauthorized target selection. Do not touch a real actuator.',
+  question: 'Return one bounded adversarial probe.',
+}, extra);
+assert.match(plankton.invocation_id, /^srbrain_/);
+assert.equal(plankton.brain_id, 'plankton');
+assert.match(plankton.container, /Queen B.*ammunition tin.*crawfish powder/i);
+assert.equal(plankton.actuator_authority, 'none');
+assert.equal(plankton.target_selection_authority, false);
+assert.equal(plankton.discharge_permission, false);
+assert.match(plankton.bounded_probe, /mock|fixture|sandbox|dry run/i);
+assert(plankton.retrieved_cases.some((caseRecord) => caseRecord.id === 'sr_case_plankton_contained_adversarial_probe_001'));
+assert(!plankton.retrieved_cases.some((caseRecord) => caseRecord.id === 'sr_case_queen_b_qa_confidant_001'));
 
 
 const prospectorViaConsult = await handleConsult(admin, {conversationKey: 'conv-1', projectKey: 'home-center', commandState: 'idle', boundedContext: 'Prospector brain health: inspect whether the jar is actually plumbed.', requestedPerspective: 'Prospector brain'}, extra, 'explicit');
@@ -447,6 +466,7 @@ assert.equal(manual.brainJars.runtime, 'she-raw-mcp');
 assert(manual.brainJars.availableBrainIds.includes('quartermaster'));
 assert(manual.brainJars.availableBrainIds.includes('bikini_bottom'));
 assert(manual.brainJars.availableBrainIds.includes('queen_b'));
+assert(manual.brainJars.availableBrainIds.includes('plankton'));
 assert(!manual.brainJars.availableBrainIds.includes('she_raw'));
 assert.match(manual.purpose, /default voice|brain jars/i);
 assert.match(manual.invocationSemantics.healthCheckMeaning, /health check/);
@@ -466,6 +486,7 @@ assert.equal(h.brain_jar_runtime, 'she-raw-mcp');
 assert(h.available_brain_ids.includes('prospector'));
 assert(h.available_brain_ids.includes('bikini_bottom'));
 assert(h.available_brain_ids.includes('queen_b'));
+assert(h.available_brain_ids.includes('plankton'));
 assert(!h.available_brain_ids.includes('she_raw'));
 
 const opManual = await runSheRawOperation(admin, extra, 'manual', {});
