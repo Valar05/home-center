@@ -8757,6 +8757,9 @@ public final class MainActivity extends Activity implements RecognitionListener,
             StringBuilder fingerprint = new StringBuilder();
             for (VoiceRenderSegment segment : this.segments) {
                 fingerprint.append(segment.rule == null ? "" : segment.rule.characterId)
+                        .append('\u001f').append(segment.rule == null ? "" : segment.rule.voiceAlias)
+                        .append('\u001f').append(segment.rule == null ? "" : segment.rule.narrationRole)
+                        .append('\u001f').append(segment.rule == null ? "" : segment.rule.acousticDirection)
                         .append('\u001f').append(segment.text).append('\u001e');
             }
             this.planId = Integer.toHexString(fingerprint.toString().hashCode());
