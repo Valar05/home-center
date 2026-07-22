@@ -8852,7 +8852,7 @@ public final class MainActivity extends Activity implements RecognitionListener,
             List<VoiceMarker> markers = new ArrayList<>();
             String lower = source.toLowerCase(Locale.US);
             for (CharacterVoiceRule rule : rules) {
-                for (String tag : rule.matchTags) {
+                for (String tag : rule.renderMarkers()) {
                     String marker = tag == null ? "" : tag.trim();
                     if (!isStructuralVoiceMarker(marker)) continue;
                     String needle = marker.toLowerCase(Locale.US);
@@ -9082,6 +9082,17 @@ public final class MainActivity extends Activity implements RecognitionListener,
                     parsedTags,
                     json.optString("acousticDirection", ""),
                     json.optString("notes", ""));
+        }
+
+        List<String> renderMarkers() {
+            List<String> markers = new ArrayList<>(matchTags);
+            markers.add(characterName + ":");
+            String[] aliasParts = aliases.split(",");
+            for (String alias : aliasParts) {
+                String clean = alias == null ? "" : alias.trim();
+                if (!clean.isEmpty()) markers.add(clean + ":");
+            }
+            return markers;
         }
 
         JSONObject toJson() throws Exception {
