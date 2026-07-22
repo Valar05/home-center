@@ -27,7 +27,7 @@ final class ToolRegistry {
     static List<ToolDefinition> allTools() {
         List<ToolDefinition> tools = new ArrayList<>();
         tools.add(new ToolDefinition("drive.search", "Search or list Google Drive files.", "drive", false, false,
-                Arrays.asList(DRIVE_SCOPE), Arrays.asList("query", "folderName", "mimeType", "pageSize")));
+                Arrays.asList(DRIVE_SCOPE), Arrays.asList("query", "folderName", "parentId", "mimeType", "pageSize")));
         tools.add(new ToolDefinition("drive.read_metadata", "Read Google Drive file or folder metadata by fileId.", "drive", false, false,
                 Arrays.asList(DRIVE_SCOPE), Arrays.asList("fileId")));
         tools.add(new ToolDefinition("drive.create_folder", "Create a Google Drive folder.", "drive", true, true,
@@ -40,7 +40,7 @@ final class ToolRegistry {
                 Arrays.asList(DRIVE_SCOPE), Arrays.asList("fileId", "name")));
 
         tools.add(new ToolDefinition("docs.search", "Search Google Docs in Drive.", "docs", false, false,
-                Arrays.asList(DRIVE_SCOPE), Arrays.asList("query", "folderName", "pageSize")));
+                Arrays.asList(DRIVE_SCOPE), Arrays.asList("query", "folderName", "parentId", "pageSize")));
         tools.add(new ToolDefinition("docs.read", "Read text content from a Google Doc by fileId.", "docs", false, false,
                 Arrays.asList(DRIVE_SCOPE, DOCS_SCOPE), Arrays.asList("fileId", "name")));
         tools.add(new ToolDefinition("docs.create", "Create a Google Doc and optionally insert body text.", "docs", true, true,

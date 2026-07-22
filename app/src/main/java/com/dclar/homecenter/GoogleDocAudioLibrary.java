@@ -8,6 +8,8 @@ import org.json.JSONObject;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.charset.StandardCharsets;
@@ -34,12 +36,66 @@ final class GoogleDocAudioLibrary {
     }
 
     Entry ingest(String fileId, String title, String modifiedTime, String textHash, int charCount, List<String> sections, String speechProfileKey, String speechProfileJson) {
+        return ingest(fileId, title, modifiedTime, textHash, charCount, sections, null, null, speechProfileKey, speechProfileJson);
+    }
+
+    Entry ingest(String fileId, String title, String modifiedTime, String textHash, int charCount, List<String> sections, List<String> sectionLabels, List<String> sectionHashes, String speechProfileKey, String speechProfileJson) {
         String profileKey = speechProfileKey == null || speechProfileKey.trim().isEmpty() ? "default-cartesia" : speechProfileKey.trim();
         File dir = new File(new File(root, safePart(fileId == null || fileId.trim().isEmpty() ? "unknown-doc" : fileId.trim())), safePart(textHash + "-" + profileKey));
         Entry entry = new Entry(dir, fileId, title, modifiedTime, textHash, charCount, sections == null ? 0 : sections.size(), profileKey, speechProfileJson);
-        entry.ensureManifest(sections);
+        entry.ensureManifest(sections, sectionLabels, sectionHashes);
+        entry.restoreCompatiblePartialRenderFrom(bestCompatiblePartialEntry(entry));
+        entry.ensureManifest(sections, sectionLabels, sectionHashes);
         updateIndex(entry);
         return entry;
+    }
+
+    private Entry bestCompatiblePartialEntry(Entry target) {
+        if (target == null || target.fileId.isEmpty() || target.textHash.isEmpty()) return null;
+        File docRoot = new File(root, safePart(target.fileId));
+        File[] candidates = docRoot.listFiles();
+        if (candidates == null) return null;
+        Entry best = null;
+        int bestDownloads = 0;
+        long bestUpdated = 0L;
+        String prefix = safePart(target.textHash + "-");
+        for (File candidateDir : candidates) {
+            if (candidateDir == null || !candidateDir.isDirectory() || candidateDir.equals(target.dir)) continue;
+            if (!candidateDir.getName().startsWith(prefix)) continue;
+            File manifestFile = new File(candidateDir, "manifest.json");
+            if (!manifestFile.exists()) continue;
+            try (FileInputStream input = new FileInputStream(manifestFile)) {
+                JSONObject json = new JSONObject(new String(readAll(input), StandardCharsets.UTF_8));
+                if (!target.fileId.equals(json.optString("fileId", ""))) continue;
+                if (!target.textHash.equals(json.optString("textHash", ""))) continue;
+                int sectionCount = Math.max(1, json.optInt("sectionCount", target.sectionCount));
+                String candidateProfileJson = json.optJSONObject("speechProfile") == null ? "{}" : json.optJSONObject("speechProfile").toString();
+                if (!partialRenderProfilesCompatible(target.speechProfileJson, candidateProfileJson)) continue;
+                Entry candidate = new Entry(candidateDir, target.fileId, target.title, target.modifiedTime, target.textHash, target.charCount, Math.max(target.sectionCount, sectionCount), json.optString("speechProfileKey", "default-cartesia"), candidateProfileJson);
+                int downloads = candidate.downloadedFileCount();
+                long updated = manifestFile.lastModified();
+                if (downloads > bestDownloads || (downloads == bestDownloads && downloads > 0 && updated > bestUpdated)) {
+                    best = candidate;
+                    bestDownloads = downloads;
+                    bestUpdated = updated;
+                }
+            } catch (Exception ex) {
+                LocalLog.warn("doc_audio", "compatible_partial_scan_failed " + safe(ex.getMessage()));
+            }
+        }
+        return bestDownloads > 0 ? best : null;
+    }
+
+    private boolean partialRenderProfilesCompatible(String targetProfileJson, String candidateProfileJson) {
+        try {
+            JSONObject target = new JSONObject(targetProfileJson == null || targetProfileJson.trim().isEmpty() ? "{}" : targetProfileJson);
+            JSONObject candidate = new JSONObject(candidateProfileJson == null || candidateProfileJson.trim().isEmpty() ? "{}" : candidateProfileJson);
+            boolean targetSplit = target.optBoolean("voiceSplitRendering", false) || "voice_split_character_render".equals(target.optString("workflow", ""));
+            boolean candidateSplit = candidate.optBoolean("voiceSplitRendering", false) || "voice_split_character_render".equals(candidate.optString("workflow", ""));
+            return targetSplit == candidateSplit;
+        } catch (Exception ex) {
+            return false;
+        }
     }
 
     List<Entry> completedEntriesFromManifests() {
@@ -203,6 +259,10 @@ final class GoogleDocAudioLibrary {
         }
 
         synchronized void ensureManifest(List<String> sectionsText) {
+            ensureManifest(sectionsText, null, null);
+        }
+
+        synchronized void ensureManifest(List<String> sectionsText, List<String> sectionLabels, List<String> sectionHashes) {
             try {
                 if (!dir.exists()) dir.mkdirs();
                 JSONObject old = readManifest();
@@ -219,7 +279,9 @@ final class GoogleDocAudioLibrary {
                     cursor = end + 1;
                     sections.put(new JSONObject()
                             .put("index", i)
-                            .put("label", "section " + (i + 1))
+                            .put("label", sectionLabel(sectionLabels, i))
+                            .put("capstone", sectionCapstone(sectionLabels, text))
+                            .put("sectionHash", sectionHash(sectionHashes, text, i))
                             .put("textStart", start)
                             .put("textEnd", end)
                             .put("preview", preview(text))
@@ -248,6 +310,8 @@ final class GoogleDocAudioLibrary {
                                 .put("pcmBytes", sampleFile().exists() ? Math.max(0L, sampleFile().length() - 44L) : 0L)
                                 : old.optJSONObject("sample"))
                         .put("rendering", old.optBoolean("rendering", false))
+                        .put("renderIntent", old.optJSONObject("renderIntent") == null ? new JSONObject() : old.optJSONObject("renderIntent"))
+                        .put("playback", old.optJSONObject("playback") == null ? new JSONObject() : old.optJSONObject("playback"))
                         .put("downloadedSections", downloadedCount(sections))
                         .put("sections", sections));
                 LocalLog.info("doc_audio", "doc_audio_ingested fileId=" + fileId + " textHash=" + textHash + " sections=" + sectionCount);
@@ -265,6 +329,49 @@ final class GoogleDocAudioLibrary {
             } catch (Exception ex) {
                 return new JSONObject();
             }
+        }
+
+        synchronized void restoreCompatiblePartialRenderFrom(Entry source) {
+            if (source == null || source.dir.equals(dir) || downloadedFileCount() > 0) return;
+            try {
+                if (!dir.exists()) dir.mkdirs();
+                int copied = 0;
+                for (int i = 0; i < Math.min(sectionCount, source.sectionCount); i++) {
+                    File from = source.sectionFile(i);
+                    File to = sectionFile(i);
+                    if (from.exists() && from.length() > 44L && !to.exists()) {
+                        Files.copy(from.toPath(), to.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                        copied += 1;
+                    }
+                }
+                if (copied <= 0) return;
+                JSONObject current = readManifest();
+                JSONObject old = source.readManifest();
+                JSONObject oldPlayback = old.optJSONObject("playback");
+                if (oldPlayback != null && current.optJSONObject("playback") == null) {
+                    current.put("playback", oldPlayback);
+                }
+                JSONObject oldRenderIntent = old.optJSONObject("renderIntent");
+                if (oldRenderIntent != null && current.optJSONObject("renderIntent") == null) {
+                    current.put("renderIntent", oldRenderIntent);
+                }
+                current.put("restoredFromCompatiblePartialRender", new JSONObject()
+                        .put("sourceManifestPath", source.manifestFile.getAbsolutePath())
+                        .put("sourceSpeechProfileKey", source.speechProfileKey)
+                        .put("copiedSections", copied)
+                        .put("restoredAt", now()))
+                        .put("updatedAt", now());
+                writeManifest(current);
+                LocalLog.info("doc_audio", "compatible_partial_render_restored fileId=" + safe(fileId) + " textHash=" + safe(textHash) + " copiedSections=" + copied + " sourceProfile=" + safe(source.speechProfileKey));
+            } catch (Exception ex) {
+                LocalLog.warn("doc_audio", "compatible_partial_restore_failed " + safe(ex.getMessage()));
+            }
+        }
+
+        int downloadedFileCount() {
+            int count = 0;
+            for (int i = 0; i < sectionCount; i++) if (isDownloaded(i)) count += 1;
+            return count;
         }
 
         boolean isDownloaded(int index) {
@@ -334,7 +441,9 @@ final class GoogleDocAudioLibrary {
                     deleteIfExists(partFile(i));
                     JSONObject section = sectionAt(sections, i);
                     section.put("index", i)
-                            .put("label", "section " + (i + 1))
+                            .put("label", section.optString("label", "section " + (i + 1)))
+                            .put("capstone", section.optString("capstone", "body"))
+                            .put("sectionHash", section.optString("sectionHash", ""))
                             .put("audioStatus", "pending")
                             .put("audioPath", sectionFile(i).getAbsolutePath())
                             .put("sampleRate", DEFAULT_SAMPLE_RATE)
@@ -366,12 +475,39 @@ final class GoogleDocAudioLibrary {
         }
 
         synchronized void markRendering(boolean rendering) {
+            markRendering(rendering, false);
+        }
+
+        synchronized void markRendering(boolean rendering, boolean userRequested) {
             try {
                 JSONObject manifest = readManifest();
                 manifest.put("rendering", rendering).put("updatedAt", now());
+                if (userRequested) {
+                    manifest.put("renderIntent", new JSONObject()
+                            .put("status", rendering ? "accepted" : "stopped")
+                            .put("cloudside", true)
+                            .put("persistAudioRegardlessOfPlayback", true)
+                            .put("requestedAt", now()));
+                }
                 writeManifest(manifest);
             } catch (Exception ex) {
                 LocalLog.warn("doc_audio", "render_mark_failed " + safe(ex.getMessage()));
+            }
+        }
+
+        synchronized void markPlaybackPosition(int sectionIndex, long offsetBytes, long visibleOffsetBytes, String status) {
+            try {
+                JSONObject manifest = readManifest();
+                JSONObject playback = new JSONObject()
+                        .put("sectionIndex", Math.max(0, sectionIndex))
+                        .put("offsetBytes", Math.max(0L, offsetBytes))
+                        .put("visibleOffsetBytes", Math.max(0L, visibleOffsetBytes))
+                        .put("status", status == null ? "saved" : safe(status))
+                        .put("updatedAt", now());
+                manifest.put("playback", playback).put("updatedAt", now());
+                writeManifest(manifest);
+            } catch (Exception ex) {
+                LocalLog.warn("doc_audio", "playback_mark_failed " + safe(ex.getMessage()));
             }
         }
 
@@ -415,13 +551,16 @@ final class GoogleDocAudioLibrary {
                 if (sections == null) sections = new JSONArray();
                 JSONObject section = sectionAt(sections, index);
                 section.put("index", index)
-                        .put("label", "section " + (index + 1))
+                        .put("label", section.optString("label", "section " + (index + 1)))
+                        .put("capstone", section.optString("capstone", "body"))
+                        .put("sectionHash", section.optString("sectionHash", ""))
                         .put("audioStatus", status)
                         .put("audioPath", sectionFile(index).getAbsolutePath())
                         .put("sampleRate", sampleRate)
                         .put("pcmBytes", pcmBytes)
                         .put("updatedAt", now());
                 if (characterId != null && !characterId.trim().isEmpty()) section.put("characterId", safe(characterId));
+                section.put("cloudsideGenerated", "downloaded".equals(status) || "downloading".equals(status));
                 if (voiceAlias != null && !voiceAlias.trim().isEmpty()) section.put("voiceAlias", safe(voiceAlias));
                 if (acousticDirection != null && !acousticDirection.trim().isEmpty()) section.put("acousticDirection", safe(acousticDirection));
                 if (error != null && !error.trim().isEmpty()) section.put("error", safe(error));
@@ -470,6 +609,34 @@ final class GoogleDocAudioLibrary {
         private String preview(String text) {
             String clean = text == null ? "" : text.replaceAll("\\s+", " ").trim();
             return clean.length() > 180 ? clean.substring(0, 180) + "..." : clean;
+        }
+
+        private String sectionLabel(List<String> labels, int index) {
+            if (labels != null && index >= 0 && index < labels.size()) {
+                String label = safe(labels.get(index));
+                if (!label.isEmpty()) return label;
+            }
+            return "section " + (index + 1);
+        }
+
+        private String sectionHash(List<String> hashes, String text, int index) {
+            if (hashes != null && index >= 0 && index < hashes.size()) {
+                String hash = safe(hashes.get(index));
+                if (!hash.isEmpty()) return hash;
+            }
+            return Integer.toHexString((text == null ? "" : text).hashCode());
+        }
+
+        private String sectionCapstone(List<String> labels, String text) {
+            String clean = (text == null ? "" : text).trim().toLowerCase(Locale.US);
+            if (clean.startsWith("title:")) return "title";
+            if (clean.startsWith("section:")) return "section";
+            if (clean.startsWith("subsection:")) return "subsection";
+            if (clean.startsWith("[speaker:") || clean.startsWith("[voice:")) return "dialogue";
+            if (clean.startsWith("list item:")) return "list";
+            if (clean.startsWith("quoted note:") || clean.startsWith("code:")) return "note";
+            if (clean.startsWith("break.")) return "break";
+            return "body";
         }
     }
 }
