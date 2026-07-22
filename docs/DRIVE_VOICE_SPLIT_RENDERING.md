@@ -1,14 +1,23 @@
-# Drive Voice Split Rendering
+# Drive Narrate Automatic Voice Planning
 
-Voice Split Rendering is a separate Home Center Drive structure for character-specific narration renders. It uses the existing Drive/Docs reader, the Home Drive Character Voice Orientation Registry, and the Google Doc audio cache. It does not change simple Drive Narrate into automatic character voice routing.
+Drive Narrate has one user-facing render path. Opening and rendering a Google Doc automatically builds a voice plan from the Home Drive Character Voice Orientation Registry, then generation follows that plan for each chunk. There is no separate Split Voice render button or command.
 
 ## Owner
 
 What existing tool or system should own this capability?
 
-The existing Home Center Drive/Docs reader owns source document intake, `app/src/main/assets/home_drive_character_voice_registry.md` owns speaker-to-voice orientation, and `GoogleDocAudioLibrary` owns saved section audio manifests. The new folder is only a Drive workspace and plan handoff around those systems.
+The existing Home Center Drive/Docs reader owns source document intake and render orchestration, `app/src/main/assets/home_drive_character_voice_registry.md` owns speaker-to-voice orientation, and `GoogleDocAudioLibrary` owns saved section audio manifests. The Drive workspace stores plan/render artifacts around those systems; it is not a separate user flow.
 
-## Drive Folder
+## Render Contract
+
+- Every `RENDER`, `RERENDER`, autoplay first chunk, and playback-triggered section generation uses the registry voice-plan speech profile.
+- `CHARACTER:` labels, aliases, `[voice:*]`, and `[speaker:*]` create speaker boundaries.
+- Each section stores the resolved `SectionVoiceAssignment` before generation and reuses that assignment for provider voice selection.
+- Old role-default or single-voice cache entries are incompatible with the registry voice-plan profile and cannot restore into the new render.
+- The Drive narration profile remains authoritative for provider, model, narrator, dialogue default, notes default, and registry fingerprint.
+- Unknown voices are marked in the plan; Home Center does not perform voice interpolation as a separate product.
+
+## Drive Workspace
 
 Root folder:
 
@@ -27,14 +36,4 @@ Subfolders:
 99 Failed Runs
 ```
 
-## Flow
-
-1. Open a Google Doc in Home Center so the app compiles semantic chunks and ingests structured speaker cues.
-2. Tap `VOICE SPLIT` or type `prepare voice split plan`.
-3. Home Center creates or reuses the Drive workspace and writes a split plan into `02 Split Plans`.
-4. The plan marks each section with source hash, capstone, speaker id, registry voice alias, provider voice alias, fallback role voice, and status.
-5. Character-specific chunk generation can only proceed from a resolved plan. Unknown voices stay `needs_voice_assignment`.
-
-## Boundary
-
-Simple Drive Narrate continues to use selected role defaults: narrator, dialogue default, and notes default. Character-specific rendering is a separate Voice Split workflow. No automatic voice interpolation is allowed; the existing voice registry or an explicit selected voice must provide the assignment.
+The workspace preserves generated plans, chunks, final mixes, registry snapshots, and failed runs. The app surface still exposes one render path.
