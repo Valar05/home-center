@@ -1640,6 +1640,8 @@ require_contains(main_activity, 'plannedVoiceRules.size() == chunks.size()', 'Re
 require_contains(main_activity, 'baseSpeechProfileKey + "-split-" + renderPlanId', 'Voice split plan identity invalidates single-voice and stale-profile audio caches')
 require_contains(main_activity, 'render_plan_created fileId=', 'Render plan creation records runtime evidence')
 require_contains(main_activity, 'appendRenderSegments(segments, source.substring(cursor, marker.offset), current)', 'Voice split plan cuts the document at registered voice markers')
+require_contains(main_activity, 'for (String tag : rule.renderMarkers())', 'Voice split plan derives script cues from Drive profile character names and aliases')
+require_contains(main_activity, 'markers.add(characterName + ":")', 'Separate Drive profiles match ordinary CHARACTER: script lines without inline voice tags')
 require_contains(main_activity, 'return planned == null ? driveCharacterRegistry.match', 'Section rendering follows the planned voice instead of rematching a mixed chunk')
 require_contains(main_activity, 'documentRenderExecutor.execute', 'Full document audio rendering is independent from user playback executor')
 require_contains(main_activity, 'boolean generated = generateDocumentSection(reader, i, false)', 'Drive render loop observes per-section generation failures')
