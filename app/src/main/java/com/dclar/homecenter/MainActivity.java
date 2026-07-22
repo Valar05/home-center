@@ -1904,7 +1904,8 @@ public final class MainActivity extends Activity implements RecognitionListener,
         if (reader == null || reader.chunks == null || sectionIndex < 0 || sectionIndex >= reader.chunks.size()) {
             return driveCharacterRegistry.defaultNarrator();
         }
-        return driveCharacterRegistry.match(reader.chunks.get(sectionIndex));
+        CharacterVoiceRule planned = reader.plannedVoiceRule(sectionIndex);
+        return planned == null ? driveCharacterRegistry.match(reader.chunks.get(sectionIndex)) : planned;
     }
 
     private String stripVoiceTags(String text) {
@@ -3254,7 +3255,7 @@ public final class MainActivity extends Activity implements RecognitionListener,
         if (reader == null || reader.audioEntry != null || googleDocAudioLibrary == null) {
             return;
         }
-        reader.audioEntry = googleDocAudioLibrary.ingest(reader.fileId, reader.name, reader.modifiedTime, reader.textHash, reader.charCount, reader.chunks, driveSpeechProfileKey(), driveSpeechProfileJson());
+        reader.audioEntry = googleDocAudioLibrary.ingest(reader.fileId, reader.name, reader.modifiedTime, reader.textHash, reader.charCount, reader.chunks, reader.speechProfileKey, driveSpeechProfileJson());
         JSONObject manifest = reader.audioEntry.readManifest();
         reader.downloadedSections = manifest.optInt("downloadedSections", countDownloadedSections(reader));
         reader.status = "indexed text, " + reader.downloadedSections + " of " + reader.chunkCount() + " audio sections downloaded";
@@ -3298,7 +3299,7 @@ public final class MainActivity extends Activity implements RecognitionListener,
             showAssistantMessage("No Google Doc is indexed yet.");
             return;
         }
-        ensureGoogleDocAudioEntry(reader);
+        VoiceRenderPlan renderPlan = prepareDocumentRenderPlan(reader);
         reader.renderRequested = true;
         reader.downloadRequested = false;
         reader.status = "rendering audio artifact, " + reader.downloadedSections + " of " + reader.chunkCount() + " sections saved";
@@ -3341,6 +3342,18 @@ public final class MainActivity extends Activity implements RecognitionListener,
                 appendStatus(reader.status + ": " + reader.name + ".");
             });
         });
+    }
+
+    private VoiceRenderPlan prepareDocumentRenderPlan(DocumentReaderState reader) {
+        VoiceRenderPlan plan = driveCharacterRegistry.buildRenderPlan(reader == null ? "" : reader.sourceText);
+        if (reader == null) return plan;
+        reader.applyRenderPlan(plan);
+        ensureGoogleDocAudioEntry(reader);
+        LocalLog.info("doc_audio", "render_plan_created fileId=" + reader.fileId
+                + " planId=" + plan.planId
+                + " segments=" + plan.segments.size()
+                + " voices=" + plan.voiceCount());
+        return plan;
     }
 
     private void playDocumentAudioTarget(DocumentReaderState reader, String kind, int index, long offsetBytes) {
@@ -3453,6 +3466,9 @@ public final class MainActivity extends Activity implements RecognitionListener,
         long pcmBytes = 0L;
         int sampleRate = GoogleDocAudioLibrary.DEFAULT_SAMPLE_RATE;
         try {
+            if (reader != null && !reader.hasRenderPlan()) {
+                prepareDocumentRenderPlan(reader);
+            }
             if (reader == null || reader.audioEntry == null || reader.cancelRequested || reader.audioEntry.isDownloaded(sectionIndex)) {
                 if (reader != null && playAfterDownload) {
                     main.post(() -> {
@@ -8710,6 +8726,52 @@ public final class MainActivity extends Activity implements RecognitionListener,
     }
 
 
+    private static final class VoiceMarker {
+        final int offset;
+        final int length;
+        final CharacterVoiceRule rule;
+
+        VoiceMarker(int offset, int length, CharacterVoiceRule rule) {
+            this.offset = offset;
+            this.length = length;
+            this.rule = rule;
+        }
+    }
+
+    private static final class VoiceRenderSegment {
+        final String text;
+        final CharacterVoiceRule rule;
+
+        VoiceRenderSegment(String text, CharacterVoiceRule rule) {
+            this.text = text == null ? "" : text;
+            this.rule = rule;
+        }
+    }
+
+    private static final class VoiceRenderPlan {
+        final String planId;
+        final List<VoiceRenderSegment> segments;
+
+        VoiceRenderPlan(List<VoiceRenderSegment> segments) {
+            this.segments = segments == null ? new ArrayList<>() : segments;
+            StringBuilder fingerprint = new StringBuilder();
+            for (VoiceRenderSegment segment : this.segments) {
+                fingerprint.append(segment.rule == null ? "" : segment.rule.characterId)
+                        .append('\u001f').append(segment.text).append('\u001e');
+            }
+            this.planId = Integer.toHexString(fingerprint.toString().hashCode());
+        }
+
+        int voiceCount() {
+            List<String> ids = new ArrayList<>();
+            for (VoiceRenderSegment segment : segments) {
+                String id = segment.rule == null ? "" : segment.rule.characterId;
+                if (!ids.contains(id)) ids.add(id);
+            }
+            return ids.size();
+        }
+    }
+
     private static final class CharacterVoiceRegistry {
         final List<CharacterVoiceRule> rules;
 
@@ -8780,6 +8842,73 @@ public final class MainActivity extends Activity implements RecognitionListener,
                 }
             }
             return defaultNarrator();
+        }
+
+        VoiceRenderPlan buildRenderPlan(String documentText) {
+            String source = documentText == null ? "" : documentText.trim();
+            List<VoiceMarker> markers = new ArrayList<>();
+            String lower = source.toLowerCase(Locale.US);
+            for (CharacterVoiceRule rule : rules) {
+                for (String tag : rule.matchTags) {
+                    String marker = tag == null ? "" : tag.trim();
+                    if (!isStructuralVoiceMarker(marker)) continue;
+                    String needle = marker.toLowerCase(Locale.US);
+                    int offset = 0;
+                    while (offset < lower.length()) {
+                        int found = lower.indexOf(needle, offset);
+                        if (found < 0) break;
+                        markers.add(new VoiceMarker(found, marker.length(), rule));
+                        offset = found + Math.max(1, needle.length());
+                    }
+                }
+            }
+            Collections.sort(markers, (left, right) -> {
+                if (left.offset != right.offset) return Integer.compare(left.offset, right.offset);
+                return Integer.compare(right.length, left.length);
+            });
+
+            List<VoiceRenderSegment> segments = new ArrayList<>();
+            CharacterVoiceRule current = defaultNarrator();
+            int cursor = 0;
+            int consumedMarkerOffset = -1;
+            for (VoiceMarker marker : markers) {
+                if (marker.offset == consumedMarkerOffset || marker.offset < cursor) continue;
+                appendRenderSegments(segments, source.substring(cursor, marker.offset), current);
+                current = marker.rule;
+                cursor = marker.offset;
+                consumedMarkerOffset = marker.offset;
+            }
+            appendRenderSegments(segments, source.substring(Math.min(cursor, source.length())), current);
+            if (segments.isEmpty()) {
+                appendRenderSegments(segments, source, defaultNarrator());
+            }
+            return new VoiceRenderPlan(segments);
+        }
+
+        private boolean isStructuralVoiceMarker(String marker) {
+            String lower = marker == null ? "" : marker.trim().toLowerCase(Locale.US);
+            return (lower.startsWith("[voice:") && lower.endsWith("]"))
+                    || (lower.startsWith("[speaker:") && lower.endsWith("]"))
+                    || lower.endsWith(":");
+        }
+
+        private void appendRenderSegments(List<VoiceRenderSegment> target, String text, CharacterVoiceRule rule) {
+            String clean = text == null ? "" : text.replaceAll("\\s+", " ").trim();
+            int index = 0;
+            while (index < clean.length()) {
+                int desired = target.isEmpty() ? DOC_READER_FIRST_CHUNK_CHARS : DOC_READER_TARGET_CHARS;
+                int minimum = target.isEmpty() ? Math.min(180, DOC_READER_FIRST_CHUNK_CHARS) : DOC_READER_MIN_CHARS;
+                int end = Math.min(clean.length(), index + desired);
+                if (end < clean.length()) {
+                    int sentence = Math.max(clean.lastIndexOf(". ", end),
+                            Math.max(clean.lastIndexOf("! ", end), clean.lastIndexOf("? ", end)));
+                    if (sentence > index + minimum) end = sentence + 1;
+                }
+                String section = clean.substring(index, end).trim();
+                if (!section.isEmpty()) target.add(new VoiceRenderSegment(section, rule));
+                index = end;
+                while (index < clean.length() && Character.isWhitespace(clean.charAt(index))) index++;
+            }
         }
 
         boolean hasEntries() { return rules != null && !rules.isEmpty(); }
@@ -8998,7 +9127,9 @@ public final class MainActivity extends Activity implements RecognitionListener,
         final String webViewLink;
         final int charCount;
         final String textHash;
+        final String sourceText;
         final List<String> chunks;
+        final List<CharacterVoiceRule> plannedVoiceRules = new ArrayList<>();
         int currentIndex;
         boolean paused;
         String status;
@@ -9023,6 +9154,8 @@ public final class MainActivity extends Activity implements RecognitionListener,
         String dialogueVoiceName = DEFAULT_DRIVE_NARRATOR_VOICE;
         String notesVoiceName = DEFAULT_DRIVE_NARRATOR_VOICE;
         String speechProfileKey = "default-cartesia";
+        String baseSpeechProfileKey = "default-cartesia";
+        String renderPlanId = "";
         String activeCharacterId = "";
         String activeVoiceAlias = "";
         String activeAcousticDirection = "";
@@ -9035,7 +9168,8 @@ public final class MainActivity extends Activity implements RecognitionListener,
             String clean = content == null ? "" : content.trim();
             this.charCount = clean.length();
             this.textHash = Integer.toHexString(clean.hashCode());
-            this.chunks = chunks == null || chunks.isEmpty() ? Collections.singletonList(clean) : chunks;
+            this.sourceText = clean;
+            this.chunks = new ArrayList<>(chunks == null || chunks.isEmpty() ? Collections.singletonList(clean) : chunks);
             this.currentIndex = 0;
             this.paused = false;
             this.status = "ready";
@@ -9056,7 +9190,39 @@ public final class MainActivity extends Activity implements RecognitionListener,
             this.narratorVoiceName = firstNonEmptyStatic(narratorVoice, DEFAULT_DRIVE_NARRATOR_VOICE);
             this.dialogueVoiceName = firstNonEmptyStatic(dialogueVoice, this.narratorVoiceName);
             this.notesVoiceName = firstNonEmptyStatic(notesVoice, this.narratorVoiceName);
-            this.speechProfileKey = firstNonEmptyStatic(profileKey, "default-cartesia");
+            this.baseSpeechProfileKey = firstNonEmptyStatic(profileKey, "default-cartesia");
+            this.speechProfileKey = this.baseSpeechProfileKey;
+        }
+
+        synchronized void applyRenderPlan(VoiceRenderPlan plan) {
+            if (plan == null || plan.segments.isEmpty()) return;
+            boolean changed = !plan.planId.equals(renderPlanId);
+            chunks.clear();
+            plannedVoiceRules.clear();
+            for (VoiceRenderSegment segment : plan.segments) {
+                chunks.add(segment.text);
+                plannedVoiceRules.add(segment.rule);
+            }
+            renderPlanId = plan.planId;
+            speechProfileKey = baseSpeechProfileKey + "-split-" + renderPlanId;
+            currentIndex = Math.max(0, Math.min(chunks.size() - 1, currentIndex));
+            if (changed) {
+                audioEntry = null;
+                downloadedSections = 0;
+                playbackTargetIndex = Math.max(0, Math.min(chunks.size() - 1, playbackTargetIndex));
+                playbackOffsetBytes = 0L;
+            }
+        }
+
+        synchronized boolean hasRenderPlan() {
+            return !renderPlanId.isEmpty()
+                    && !chunks.isEmpty()
+                    && plannedVoiceRules.size() == chunks.size();
+        }
+
+        synchronized CharacterVoiceRule plannedVoiceRule(int sectionIndex) {
+            if (!hasRenderPlan() || sectionIndex < 0 || sectionIndex >= plannedVoiceRules.size()) return null;
+            return plannedVoiceRules.get(sectionIndex);
         }
 
         String voiceProviderLabel() {
@@ -9074,6 +9240,7 @@ public final class MainActivity extends Activity implements RecognitionListener,
             this.webViewLink = webViewLink == null ? "" : webViewLink;
             this.charCount = charCount;
             this.textHash = textHash == null ? "" : textHash;
+            this.sourceText = "";
             this.chunks = new ArrayList<>();
             for (int i = 0; i < Math.max(1, chunkCount); i++) {
                 JSONObject preview = previews == null ? null : previews.optJSONObject(i);
@@ -9152,6 +9319,7 @@ public final class MainActivity extends Activity implements RecognitionListener,
                 json.put("voiceName", narratorVoiceName);
                 json.put("speechModelId", speechModelId);
                 json.put("speechProfileKey", speechProfileKey);
+                json.put("renderPlanId", renderPlanId);
                 json.put("activeCharacterId", activeCharacterId);
                 json.put("activeVoiceAlias", activeVoiceAlias);
                 json.put("activeAcousticDirection", activeAcousticDirection);
