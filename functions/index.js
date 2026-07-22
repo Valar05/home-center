@@ -4646,7 +4646,10 @@ exports.agentTurn = onRequest({timeoutSeconds: 120, secrets: [OPENAI_API_KEY, GO
 const ELEVENLABS_BRIAN_VOICE_ID = 'nPczCjzI2devNBz1zQrb';
 const CARTESIA_VERSION = '2026-03-01';
 const CARTESIA_DEFAULT_MODEL_ID = 'sonic-3.5';
-const CARTESIA_DEFAULT_VOICE_NAME = 'Cartesia Narrator';
+const CARTESIA_LEGACY_NARRATOR_VOICE_ID = 'db6b0ed5-d5d3-463d-ae85-518a07d3c2b4';
+const CARTESIA_LEGACY_NARRATOR_VOICE_NAME = 'Skylar - Friendly Guide';
+const CARTESIA_DEFAULT_VOICE_NAME = CARTESIA_LEGACY_NARRATOR_VOICE_NAME;
+const CARTESIA_LEGACY_NARRATOR_ALIASES = new Set(['cartesia narrator', 'narrator', 'she-raw', 'sheraw']);
 let cachedElevenLabsBrianVoiceId = '';
 let cachedElevenLabsVoices = null;
 let cachedElevenLabsVoicesAtMs = 0;
@@ -4764,29 +4767,39 @@ function normalizeCartesiaVoice(voice) {
   };
 }
 
-async function resolveCartesiaVoiceId(voiceName, voiceId) {
+async function resolveCartesiaVoice(voiceName, voiceId) {
   const override = safeText(voiceId || process.env.CARTESIA_VOICE_ID || process.env.CARTESIA_DEFAULT_VOICE_ID, 160);
-  if (override) return override;
-  const requestedName = safeText(voiceName || process.env.CARTESIA_VOICE_NAME || '', 120).toLowerCase();
+  if (override) return {voiceId: override, voiceName: safeText(voiceName || CARTESIA_DEFAULT_VOICE_NAME, 120) || CARTESIA_DEFAULT_VOICE_NAME};
+  const requestedLabel = safeText(voiceName || process.env.CARTESIA_VOICE_NAME || CARTESIA_DEFAULT_VOICE_NAME, 120) || CARTESIA_DEFAULT_VOICE_NAME;
+  const requestedName = requestedLabel.toLowerCase();
+  if (CARTESIA_LEGACY_NARRATOR_ALIASES.has(requestedName)) {
+    return {voiceId: CARTESIA_LEGACY_NARRATOR_VOICE_ID, voiceName: CARTESIA_LEGACY_NARRATOR_VOICE_NAME};
+  }
   const voices = await listCartesiaVoices();
   const normalized = voices.map(normalizeCartesiaVoice).filter((voice) => voice.voiceId);
   if (requestedName) {
     const exact = normalized.find((voice) => voice.name.toLowerCase() === requestedName);
-    if (exact) return exact.voiceId;
+    if (exact) return {voiceId: exact.voiceId, voiceName: exact.name};
     const partial = normalized.find((voice) => `${voice.name} ${voice.description} ${voice.category}`.toLowerCase().includes(requestedName));
-    if (partial) return partial.voiceId;
+    if (partial) return {voiceId: partial.voiceId, voiceName: partial.name};
   }
   const narrator = normalized.find((voice) => `${voice.name} ${voice.description} ${voice.category}`.toLowerCase().includes('narrat'));
-  if (narrator) return narrator.voiceId;
-  if (normalized[0]) return normalized[0].voiceId;
+  if (narrator) return {voiceId: narrator.voiceId, voiceName: narrator.name || CARTESIA_DEFAULT_VOICE_NAME};
+  if (normalized[0]) return {voiceId: normalized[0].voiceId, voiceName: normalized[0].name || CARTESIA_DEFAULT_VOICE_NAME};
   throw new Error('cartesia_voice_not_found');
+}
+
+async function resolveCartesiaVoiceId(voiceName, voiceId) {
+  return (await resolveCartesiaVoice(voiceName, voiceId)).voiceId;
 }
 
 async function openCartesiaStream(text, options = {}) {
   const apiKey = CARTESIA_API_KEY.value() || process.env.CARTESIA_API_KEY || '';
   if (!apiKey) throw new Error('Cartesia API key is not configured');
-  const voiceName = safeText(options.voiceName || process.env.CARTESIA_VOICE_NAME || CARTESIA_DEFAULT_VOICE_NAME, 120) || CARTESIA_DEFAULT_VOICE_NAME;
-  const voiceId = await resolveCartesiaVoiceId(voiceName, options.voiceId);
+  const requestedVoiceName = safeText(options.voiceName || process.env.CARTESIA_VOICE_NAME || CARTESIA_DEFAULT_VOICE_NAME, 120) || CARTESIA_DEFAULT_VOICE_NAME;
+  const resolvedVoice = await resolveCartesiaVoice(requestedVoiceName, options.voiceId);
+  const voiceName = resolvedVoice.voiceName || requestedVoiceName || CARTESIA_DEFAULT_VOICE_NAME;
+  const voiceId = resolvedVoice.voiceId;
   const modelId = safeText(options.modelId || process.env.CARTESIA_MODEL_ID || CARTESIA_DEFAULT_MODEL_ID, 120) || CARTESIA_DEFAULT_MODEL_ID;
   return {
     voiceName,

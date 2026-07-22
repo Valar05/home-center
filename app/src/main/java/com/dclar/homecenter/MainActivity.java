@@ -27,6 +27,7 @@ import android.media.AudioTrack;
 import android.media.session.MediaSession;
 import android.media.session.PlaybackState;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -123,6 +124,10 @@ public final class MainActivity extends Activity implements RecognitionListener,
     private static final int DOC_READER_MIN_CHARS = 900;
     private static final int DOC_READER_PREVIEW_CHARS = 700;
     private static final int DOC_READER_AUTOPLAY_MAX_CHUNKS = 3;
+    private static final int DOC_READER_PLAYBACK_BUFFER_CHUNKS = 3;
+    private static final long DOC_READER_PLAYBACK_RETRY_DELAY_MS = 2500L;
+    private static final long DOC_READER_FALSE_PLAYING_RECHECK_MS = 350L;
+    private static final long DOC_READER_FALSE_PLAYING_COOLDOWN_MS = 1500L;
     private static final long DRIVE_BROWSER_POLL_INTERVAL_MS = 30000L;
     private static final String WALMART_PACKAGE = "com.walmart.android";
     private static final String TERMUX_PACKAGE = "com.termux";
@@ -159,9 +164,25 @@ public final class MainActivity extends Activity implements RecognitionListener,
     private static final String KEY_DRIVE_CHARACTER_REGISTRY_LOADED_AT = "drive_character_registry_loaded_at";
     private static final String KEY_DRIVE_VOICE_CATALOG_JSON = "drive_voice_catalog_json";
     private static final String DRIVE_CHARACTER_REGISTRY_TITLE = "Home Drive Character Voice Orientation Registry";
+    private static final String DRIVE_VOICE_SPLIT_FOLDER_TITLE = "Home Center Voice Split Rendering";
+    private static final String DRIVE_VOICE_SPLIT_README_TITLE = "Voice Split Rendering - Folder Contract";
+    private static final String[] DRIVE_VOICE_SPLIT_SUBFOLDERS = new String[] {
+            "01 Intake Documents",
+            "02 Split Plans",
+            "03 Rendered Chunks",
+            "04 Final Mixes",
+            "05 Voice Registry Snapshots",
+            "99 Failed Runs"
+    };
     private static final String DEFAULT_DRIVE_SPEECH_PROVIDER = "cartesia";
     private static final String DEFAULT_DRIVE_SPEECH_MODEL = "sonic-3.5";
-    private static final String DEFAULT_DRIVE_NARRATOR_VOICE = "Cartesia Narrator";
+    private static final String DEFAULT_DRIVE_NARRATOR_VOICE = "Skylar - Friendly Guide";
+    private static final String DEFAULT_DRIVE_NARRATOR_VOICE_ID = "db6b0ed5-d5d3-463d-ae85-518a07d3c2b4";
+    private static final String[] DRIVE_SPLIT_FALLBACK_DIALOGUE_VOICES = new String[] {
+            "Chris - Charming, Down-to-Earth",
+            "Daniel - Steady Broadcaster",
+            "Roger - Laid-Back, Casual, Resonant"
+    };
     private static final String EXTRA_SMOKE_PROMPT = "home_center_smoke_prompt";
     private static final Pattern CHAT_URL_PATTERN = Pattern.compile("https?://\\S+|www\\.\\S+");
     private static final String EXTRA_SMOKE_NEW_CONVERSATION = "home_center_smoke_new_conversation";
@@ -187,6 +208,8 @@ public final class MainActivity extends Activity implements RecognitionListener,
     private AudioManager audioManager;
     private AudioFocusRequest speechFocusRequest;
     private MediaSession speechMediaSession;
+    private boolean driveNarrationForegroundRunning = false;
+    private String driveNarrationForegroundTitle = "";
     private boolean speechFocusHeld = false;
     private String activeSpeechUtteranceId = "";
     private volatile long speechSequence = 0L;
@@ -251,9 +274,12 @@ public final class MainActivity extends Activity implements RecognitionListener,
     private SeekBar driveReaderPlayerSeekBar;
     private TextView driveReaderPlayerTimeView;
     private boolean driveReaderUserSeeking;
+    private Button driveReaderPlayerPlayPauseButton;
     private Button driveReaderPlayerDownloadButton;
     private Button driveReaderPlayerRerenderButton;
+    private Button driveReaderPlayerVoiceSplitRenderButton;
     private Button driveReaderPlayerStopButton;
+    private Button driveReaderPlayerCloseButton;
     private LinearLayout driveBrowserList;
     private Button driveRecentButton;
     private Button driveFoldersButton;
@@ -416,16 +442,111 @@ public final class MainActivity extends Activity implements RecognitionListener,
         speechMediaSession.setFlags(MediaSession.FLAG_HANDLES_MEDIA_BUTTONS | MediaSession.FLAG_HANDLES_TRANSPORT_CONTROLS);
         speechMediaSession.setCallback(new MediaSession.Callback() {
             @Override
+            public void onPlay() {
+                main.post(() -> handleSpeechMediaPlay());
+            }
+
+            @Override
             public void onPause() {
-                stopSpeechPlayback();
+                main.post(() -> handleSpeechMediaPause());
             }
 
             @Override
             public void onStop() {
-                stopSpeechPlayback();
+                main.post(() -> handleSpeechMediaStop());
+            }
+
+            @Override
+            public void onSkipToNext() {
+                main.post(() -> handleSpeechMediaSkip(1));
+            }
+
+            @Override
+            public void onSkipToPrevious() {
+                main.post(() -> handleSpeechMediaSkip(-1));
+            }
+
+            @Override
+            public boolean onMediaButtonEvent(Intent mediaButtonIntent) {
+                KeyEvent event = mediaButtonIntent == null ? null : mediaButtonIntent.getParcelableExtra(Intent.EXTRA_KEY_EVENT);
+                if (event == null || event.getAction() != KeyEvent.ACTION_UP) {
+                    return true;
+                }
+                int keyCode = event.getKeyCode();
+                if (keyCode == KeyEvent.KEYCODE_MEDIA_PLAY || keyCode == KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE || keyCode == KeyEvent.KEYCODE_HEADSETHOOK) {
+                    main.post(() -> handleSpeechMediaPlayPause());
+                    return true;
+                }
+                if (keyCode == KeyEvent.KEYCODE_MEDIA_PAUSE) {
+                    main.post(() -> handleSpeechMediaPause());
+                    return true;
+                }
+                if (keyCode == KeyEvent.KEYCODE_MEDIA_NEXT) {
+                    main.post(() -> handleSpeechMediaSkip(1));
+                    return true;
+                }
+                if (keyCode == KeyEvent.KEYCODE_MEDIA_PREVIOUS) {
+                    main.post(() -> handleSpeechMediaSkip(-1));
+                    return true;
+                }
+                return super.onMediaButtonEvent(mediaButtonIntent);
             }
         });
         updateSpeechMediaSession(false);
+    }
+
+
+    private void handleSpeechMediaPlayPause() {
+        if (activeDocumentReader != null) {
+            if (activeDocumentReader.paused || !activeDocumentReader.playbackRequested) {
+                resumeDocumentReader();
+            } else if (!isDocumentAudioPlaybackLive(activeDocumentReader)) {
+                reconcileDocumentPlaybackIfNeeded(activeDocumentReader, "media_button_false_playing");
+            } else {
+                pauseDocumentReader();
+            }
+            refreshDriveReaderPlayer();
+            return;
+        }
+        if (speechPlaying) {
+            stopSpeechPlayback();
+        } else {
+            updateSpeechMediaSession(false);
+        }
+    }
+
+    private void handleSpeechMediaPlay() {
+        if (activeDocumentReader != null) {
+            resumeDocumentReader();
+            refreshDriveReaderPlayer();
+            return;
+        }
+        updateSpeechMediaSession(speechPlaying);
+    }
+
+    private void handleSpeechMediaPause() {
+        if (activeDocumentReader != null && activeDocumentReader.playbackRequested && !activeDocumentReader.paused) {
+            pauseDocumentReader();
+            refreshDriveReaderPlayer();
+            return;
+        }
+        stopSpeechPlayback();
+    }
+
+    private void handleSpeechMediaStop() {
+        if (activeDocumentReader != null) {
+            stopDocumentReader("stopped");
+            return;
+        }
+        stopSpeechPlayback();
+    }
+
+    private void handleSpeechMediaSkip(int delta) {
+        if (activeDocumentReader != null) {
+            moveDocumentReader(delta);
+            return;
+        }
+        updateSpeechMediaSession(speechPlaying);
     }
 
     @Override
@@ -850,6 +971,12 @@ public final class MainActivity extends Activity implements RecognitionListener,
                 LinearLayout.LayoutParams.WRAP_CONTENT);
         playerParams.setMargins(0, dp(4), 0, dp(8));
 
+        driveReaderPlayerPlayPauseButton = button("PLAY", 24, "Play or pause this Google Doc narration");
+        driveReaderPlayerPlayPauseButton.setTextColor(COLOR_BACKGROUND);
+        driveReaderPlayerPlayPauseButton.setBackgroundColor(COLOR_PRIMARY);
+        driveReaderPlayerPlayPauseButton.setTypeface(Typeface.DEFAULT_BOLD);
+        driveReaderPlayerPanel.addView(driveReaderPlayerPlayPauseButton, matchHeight(dp(70)));
+
         driveReaderPlayerDownloadButton = button("RENDER", 24, "Render the full Google Doc audio artifact");
         driveReaderPlayerDownloadButton.setTextColor(COLOR_BACKGROUND);
         driveReaderPlayerDownloadButton.setBackgroundColor(COLOR_ACCENT);
@@ -862,11 +989,23 @@ public final class MainActivity extends Activity implements RecognitionListener,
         driveReaderPlayerRerenderButton.setTypeface(Typeface.DEFAULT_BOLD);
         driveReaderPlayerPanel.addView(driveReaderPlayerRerenderButton, matchHeight(dp(52)));
 
+        driveReaderPlayerVoiceSplitRenderButton = button("SPLIT VOICE", 20, "Generate and play this Google Doc with split voices from the voice registry");
+        driveReaderPlayerVoiceSplitRenderButton.setTextColor(COLOR_TEXT);
+        driveReaderPlayerVoiceSplitRenderButton.setBackgroundColor(COLOR_ACCENT);
+        driveReaderPlayerVoiceSplitRenderButton.setTypeface(Typeface.DEFAULT_BOLD);
+        driveReaderPlayerPanel.addView(driveReaderPlayerVoiceSplitRenderButton, matchHeight(dp(82)));
+
         driveReaderPlayerStopButton = button("STOP", 18, "Stop the current narration or render");
         driveReaderPlayerStopButton.setTextColor(COLOR_TEXT);
         driveReaderPlayerStopButton.setBackgroundColor(COLOR_DANGER);
         driveReaderPlayerStopButton.setTypeface(Typeface.DEFAULT_BOLD);
         driveReaderPlayerPanel.addView(driveReaderPlayerStopButton, matchHeight(dp(46)));
+
+        driveReaderPlayerCloseButton = button("CLOSE", 18, "Close this Google Doc reader view without deleting saved audio");
+        driveReaderPlayerCloseButton.setTextColor(COLOR_TEXT);
+        driveReaderPlayerCloseButton.setBackgroundColor(COLOR_CARD);
+        driveReaderPlayerCloseButton.setTypeface(Typeface.DEFAULT_BOLD);
+        driveReaderPlayerPanel.addView(driveReaderPlayerCloseButton, matchHeight(dp(46)));
 
         driveReaderPlayerSeekBar = new SeekBar(this);
         driveReaderPlayerSeekBar.setMax(1000);
@@ -1017,9 +1156,12 @@ public final class MainActivity extends Activity implements RecognitionListener,
         driveDocsButton.setOnClickListener(v -> cycleDriveFilterMode());
         driveParentButton.setOnClickListener(v -> manualRefreshDriveBrowser("button"));
         driveSpeechSettingsButton.setOnClickListener(v -> showDriveNarrationSpeechSettingsDialog());
+        driveReaderPlayerPlayPauseButton.setOnClickListener(v -> toggleDriveReaderPlayback());
         driveReaderPlayerDownloadButton.setOnClickListener(v -> renderDocumentAudio());
         driveReaderPlayerRerenderButton.setOnClickListener(v -> rerenderDocumentAudio());
+        driveReaderPlayerVoiceSplitRenderButton.setOnClickListener(v -> renderVoiceSplitDocumentAudio(false));
         driveReaderPlayerStopButton.setOnClickListener(v -> stopDocumentReader("stopped"));
+        driveReaderPlayerCloseButton.setOnClickListener(v -> closeDocumentReaderView("closed"));
         driveReaderPlayerSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
@@ -1312,6 +1454,7 @@ public final class MainActivity extends Activity implements RecognitionListener,
 
     private void refreshDriveReaderPlayer() {
         DocumentReaderState reader = activeDocumentReader;
+        updateDriveNarrationForegroundService();
         if (driveReaderPlayerPanel == null) return;
         if (reader == null) {
             driveReaderPlayerPanel.setVisibility(View.GONE);
@@ -1331,6 +1474,12 @@ public final class MainActivity extends Activity implements RecognitionListener,
             String state = reader.paused ? "Paused" : (reader.playbackRequested ? "Playing" : "Ready");
             driveReaderPlayerPlayheadView.setText(safeDisplayName(reader.name) + " | " + state + " | " + activeTargetLabel(reader) + " | " + reader.downloadedSections + "/" + total);
         }
+        if (driveReaderPlayerPlayPauseButton != null) {
+            boolean playable = reader.downloadedSections > 0 || reader.playbackRequested;
+            driveReaderPlayerPlayPauseButton.setVisibility(playable ? View.VISIBLE : View.GONE);
+            driveReaderPlayerPlayPauseButton.setText(!reader.paused && reader.playbackRequested ? "PAUSE" : "PLAY");
+            driveReaderPlayerPlayPauseButton.setEnabled(playable);
+        }
         if (driveReaderPlayerDownloadButton != null) {
             driveReaderPlayerDownloadButton.setText(reader.downloadedSections >= total ? "RENDERED" : (reader.renderRequested ? "RENDERING" : "RENDER"));
             driveReaderPlayerDownloadButton.setEnabled(reader.downloadedSections < total && !reader.renderRequested);
@@ -1344,7 +1493,12 @@ public final class MainActivity extends Activity implements RecognitionListener,
             boolean active = reader.renderRequested || reader.downloadRequested || reader.playbackRequested || speechPlaying;
             driveReaderPlayerStopButton.setVisibility(active ? View.VISIBLE : View.GONE);
         }
+        if (driveReaderPlayerCloseButton != null) {
+            driveReaderPlayerCloseButton.setVisibility(View.VISIBLE);
+            driveReaderPlayerCloseButton.setEnabled(true);
+        }
         setDriveRenderInteractionEnabled(!reader.renderRequested);
+        reconcileDocumentPlaybackIfNeeded(reader, "player_refresh");
     }
 
     private void setDriveRenderInteractionEnabled(boolean enabled) {
@@ -1415,7 +1569,6 @@ public final class MainActivity extends Activity implements RecognitionListener,
 
     private long visiblePlayheadOffsetBytes(DocumentReaderState reader, long totalPcmBytes) {
         if (reader == null || reader.audioEntry == null) return 0L;
-        if (!reader.playbackRequested || reader.paused) return 0L;
         long prior = renderedPcmBeforeSection(reader, reader.playbackTargetIndex);
         long current = Math.max(0L, Math.min(reader.activePlaybackPcmBytes, reader.playbackOffsetBytes));
         return Math.max(0L, Math.min(totalPcmBytes, prior + current));
@@ -1445,6 +1598,7 @@ public final class MainActivity extends Activity implements RecognitionListener,
                 reader.playbackTargetIndex = i;
                 reader.playbackOffsetBytes = Math.max(0L, Math.min(length, remaining));
                 reader.status = "scrubbed to " + activeTargetLabel(reader) + " " + playbackClock(reader.playbackOffsetBytes, activeTargetSampleRate(reader));
+                persistDocumentPlaybackPosition(reader, reader.status);
                 playDocumentAudioTarget(reader, "section", i, reader.playbackOffsetBytes);
                 return;
             }
@@ -1479,7 +1633,11 @@ public final class MainActivity extends Activity implements RecognitionListener,
             return;
         }
         if (!reader.paused && reader.playbackRequested) {
-            pauseDocumentReader();
+            if (!isDocumentAudioPlaybackLive(reader)) {
+                reconcileDocumentPlaybackIfNeeded(reader, "play_button_false_playing");
+            } else {
+                pauseDocumentReader();
+            }
         } else {
             resumeDocumentReader();
         }
@@ -1623,11 +1781,11 @@ public final class MainActivity extends Activity implements RecognitionListener,
         driveSpeechProvider = normalizeDriveSpeechProvider(prefs.getString(KEY_DRIVE_SPEECH_PROVIDER, DEFAULT_DRIVE_SPEECH_PROVIDER));
         driveSpeechModelId = firstNonEmpty(prefs.getString(KEY_DRIVE_SPEECH_MODEL, DEFAULT_DRIVE_SPEECH_MODEL), DEFAULT_DRIVE_SPEECH_MODEL);
         driveNarratorVoiceName = firstNonEmpty(prefs.getString(KEY_DRIVE_SPEECH_NARRATOR_VOICE_NAME, DEFAULT_DRIVE_NARRATOR_VOICE), DEFAULT_DRIVE_NARRATOR_VOICE);
-        driveNarratorVoiceId = prefs.getString(KEY_DRIVE_SPEECH_NARRATOR_VOICE_ID, "");
+        driveNarratorVoiceId = defaultNarratorVoiceIdFor(driveNarratorVoiceName, prefs.getString(KEY_DRIVE_SPEECH_NARRATOR_VOICE_ID, ""));
         driveDialogueVoiceName = firstNonEmpty(prefs.getString(KEY_DRIVE_SPEECH_DIALOGUE_VOICE_NAME, driveNarratorVoiceName), driveNarratorVoiceName);
-        driveDialogueVoiceId = prefs.getString(KEY_DRIVE_SPEECH_DIALOGUE_VOICE_ID, "");
+        driveDialogueVoiceId = defaultNarratorVoiceIdFor(driveDialogueVoiceName, prefs.getString(KEY_DRIVE_SPEECH_DIALOGUE_VOICE_ID, ""));
         driveNotesVoiceName = firstNonEmpty(prefs.getString(KEY_DRIVE_SPEECH_NOTES_VOICE_NAME, driveNarratorVoiceName), driveNarratorVoiceName);
-        driveNotesVoiceId = prefs.getString(KEY_DRIVE_SPEECH_NOTES_VOICE_ID, "");
+        driveNotesVoiceId = defaultNarratorVoiceIdFor(driveNotesVoiceName, prefs.getString(KEY_DRIVE_SPEECH_NOTES_VOICE_ID, ""));
         driveCharacterRegistryDocId = prefs.getString(KEY_DRIVE_CHARACTER_REGISTRY_DOC_ID, "");
         driveCharacterRegistryLoadedAt = prefs.getLong(KEY_DRIVE_CHARACTER_REGISTRY_LOADED_AT, 0L);
         String cachedRegistry = prefs.getString(KEY_DRIVE_CHARACTER_REGISTRY_JSON, "");
@@ -1664,16 +1822,27 @@ public final class MainActivity extends Activity implements RecognitionListener,
         return "elevenlabs".equals(driveSpeechProvider) ? "ElevenLabs render-only" : "Cartesia";
     }
 
+    private String defaultNarratorVoiceIdFor(String voiceName, String savedVoiceId) {
+        String saved = savedVoiceId == null ? "" : savedVoiceId.trim();
+        if (!saved.isEmpty()) return saved;
+        return DEFAULT_DRIVE_NARRATOR_VOICE.equalsIgnoreCase(voiceName == null ? "" : voiceName.trim()) ? DEFAULT_DRIVE_NARRATOR_VOICE_ID : "";
+    }
+
     private String driveVoiceSummary() {
-        return "Narrator " + driveNarratorVoiceName + ", Dialogue " + driveDialogueVoiceName + ", Notes " + driveNotesVoiceName;
+        return "Narrator " + driveNarratorVoiceName + ", Dialogue default " + driveDialogueVoiceName + ", Notes default " + driveNotesVoiceName;
     }
 
     private String driveSpeechProfileKey() {
+        return driveSpeechProfileKey(false);
+    }
+
+    private String driveSpeechProfileKey(boolean voiceSplitRendering) {
         String raw = driveSpeechProvider + "|" + driveSpeechModelId + "|n=" + driveNarratorVoiceName + ":" + driveNarratorVoiceId
                 + "|d=" + driveDialogueVoiceName + ":" + driveDialogueVoiceId
                 + "|notes=" + driveNotesVoiceName + ":" + driveNotesVoiceId
                 + "|registry=" + driveCharacterRegistryFingerprint()
-                + "|compiler=" + MarkdownNarrationDocument.COMPILER_ID;
+                + "|compiler=" + MarkdownNarrationDocument.COMPILER_ID
+                + "|workflow=" + (voiceSplitRendering ? "voice_split_character_render" : "drive_narrate_role_defaults");
         return Integer.toHexString(raw.hashCode()) + "-" + raw.replaceAll("[^A-Za-z0-9_.-]", "_");
     }
 
@@ -1686,10 +1855,16 @@ public final class MainActivity extends Activity implements RecognitionListener,
     }
 
     private String driveSpeechProfileJson() {
+        return driveSpeechProfileJson(false);
+    }
+
+    private String driveSpeechProfileJson(boolean voiceSplitRendering) {
         try {
             return new JSONObject()
                     .put("provider", driveSpeechProvider)
                     .put("modelId", driveSpeechModelId)
+                    .put("workflow", voiceSplitRendering ? "voice_split_character_render" : "drive_narrate_role_defaults")
+                    .put("voiceSplitRendering", voiceSplitRendering)
                     .put("roles", new JSONObject()
                             .put("narrator", roleVoiceJson(driveNarratorVoiceName, driveNarratorVoiceId))
                             .put("dialogue", roleVoiceJson(driveDialogueVoiceName, driveDialogueVoiceId))
@@ -1727,6 +1902,11 @@ public final class MainActivity extends Activity implements RecognitionListener,
         results.setTextColor(COLOR_SECONDARY);
         results.setTextSize(12);
         results.setPadding(0, dp(8), 0, dp(8));
+        TextView speakerNotice = new TextView(this);
+        speakerNotice.setText("Speaker profiles are metadata only here. Drive Narrate uses the selected narrator, dialogue default, and notes default voices. Character-specific cloud rendering starts from the separate Voice Split workspace and plan.");
+        speakerNotice.setTextColor(COLOR_SECONDARY);
+        speakerNotice.setTextSize(12);
+        speakerNotice.setPadding(0, dp(8), 0, dp(4));
         panel.addView(providerEdit, matchHeight(dp(58)));
         panel.addView(modelEdit, matchHeight(dp(58)));
         panel.addView(narratorEdit, matchHeight(dp(58)));
@@ -1740,7 +1920,10 @@ public final class MainActivity extends Activity implements RecognitionListener,
         actions.addView(search, weightedHeight(dp(46)));
         actions.addView(preview, weightedHeight(dp(46)));
         panel.addView(actions, matchWrap());
+        Button voiceSplitFolder = button("Voice Split Folder", 12, "Create the separate Drive workspace for character-specific voice split rendering");
+        panel.addView(voiceSplitFolder, matchHeight(dp(46)));
         panel.addView(results, matchWrap());
+        panel.addView(speakerNotice, matchWrap());
         AlertDialog dialog = new AlertDialog.Builder(this)
                 .setTitle("Drive Narrate speech")
                 .setView(panel)
@@ -1756,6 +1939,7 @@ public final class MainActivity extends Activity implements RecognitionListener,
                 .show();
         search.setOnClickListener(v -> searchSpeechVoicesForDialog(providerEdit.getText().toString(), searchEdit.getText().toString(), results, narratorEdit, dialogueEdit, notesEdit));
         preview.setOnClickListener(v -> previewSpeechVoice(providerEdit.getText().toString(), modelEdit.getText().toString(), narratorEdit.getText().toString(), "narrator"));
+        voiceSplitFolder.setOnClickListener(v -> createDriveVoiceSplitFolderStructure());
     }
 
     private void searchSpeechVoicesForDialog(String providerInput, String query, TextView results, EditText narratorEdit, EditText dialogueEdit, EditText notesEdit) {
@@ -1877,19 +2061,32 @@ public final class MainActivity extends Activity implements RecognitionListener,
 
     private String speechRoleForSection(DocumentReaderState reader, int sectionIndex) {
         CharacterVoiceRule rule = characterRuleForSection(reader, sectionIndex);
+        if (reader != null && reader.voiceSplitRenderingMode) return splitSpeechRole(reader, sectionIndex, rule);
         return firstNonEmpty(rule.narrationRole, "narrator").toLowerCase(Locale.US);
     }
 
     private String activeSpeechVoiceName(DocumentReaderState reader, int sectionIndex) {
-        CharacterVoiceRule rule = characterRuleForSection(reader, sectionIndex);
-        String alias = resolvedProviderVoiceAlias(rule);
-        if (!alias.isEmpty()) {
-            if (isVoiceIdAlias(alias)) return "";
-            return alias;
+        CharacterVoiceRule splitRule = characterRuleForSection(reader, sectionIndex);
+        if (reader != null && reader.voiceSplitRenderingMode) {
+            return splitProviderVoiceName(reader, sectionIndex, splitRule);
         }
         String role = speechRoleForSection(reader, sectionIndex);
         if ("dialogue".equals(role)) return firstNonEmpty(driveDialogueVoiceName, driveNarratorVoiceName, DEFAULT_DRIVE_NARRATOR_VOICE);
         if ("notes".equals(role)) return firstNonEmpty(driveNotesVoiceName, driveNarratorVoiceName, DEFAULT_DRIVE_NARRATOR_VOICE);
+        return firstNonEmpty(driveNarratorVoiceName, DEFAULT_DRIVE_NARRATOR_VOICE);
+    }
+
+    private String splitFallbackVoiceName(DocumentReaderState reader, int sectionIndex, CharacterVoiceRule rule) {
+        String role = rule == null ? "" : firstNonEmpty(rule.narrationRole, "narrator").toLowerCase(Locale.US);
+        String characterId = rule == null ? "" : CharacterVoiceRule.normalizeId(rule.characterId);
+        boolean explicitCast = reader != null && sectionIndex >= 0 && sectionIndex < reader.chunks.size() && driveCharacterRegistry != null && driveCharacterRegistry.hasExplicitCastSignal(reader.chunks.get(sectionIndex), rule);
+        if (("dialogue".equals(role) || "notes".equals(role)) && !"she-raw".equals(characterId)) {
+            int ordinal = driveCharacterRegistry == null ? sectionIndex : driveCharacterRegistry.dialogueOrdinal(characterId);
+            return DRIVE_SPLIT_FALLBACK_DIALOGUE_VOICES[Math.floorMod(ordinal, DRIVE_SPLIT_FALLBACK_DIALOGUE_VOICES.length)];
+        }
+        if (!explicitCast && reader != null && reader.voiceSplitRenderingMode && sectionIndex > 0) {
+            return DRIVE_SPLIT_FALLBACK_DIALOGUE_VOICES[Math.floorMod(sectionIndex - 1, DRIVE_SPLIT_FALLBACK_DIALOGUE_VOICES.length)];
+        }
         return firstNonEmpty(driveNarratorVoiceName, DEFAULT_DRIVE_NARRATOR_VOICE);
     }
 
@@ -1927,11 +2124,14 @@ public final class MainActivity extends Activity implements RecognitionListener,
         return false;
     }
 
+    private VoiceCatalogEntry catalogVoiceForRule(CharacterVoiceRule rule) {
+        return null;
+    }
+
     private String activeSpeechVoiceId(DocumentReaderState reader, int sectionIndex) {
-        CharacterVoiceRule rule = characterRuleForSection(reader, sectionIndex);
-        String alias = resolvedProviderVoiceAlias(rule);
-        if (!alias.isEmpty()) {
-            return voiceIdFromAlias(alias);
+        if (reader != null && reader.voiceSplitRenderingMode) {
+            CharacterVoiceRule rule = characterRuleForSection(reader, sectionIndex);
+            return splitProviderVoiceId(reader, sectionIndex, rule);
         }
         String role = speechRoleForSection(reader, sectionIndex);
         if ("dialogue".equals(role)) return driveDialogueVoiceId == null ? "" : driveDialogueVoiceId;
@@ -1999,10 +2199,58 @@ public final class MainActivity extends Activity implements RecognitionListener,
     }
 
     private CharacterVoiceRule characterRuleForSection(DocumentReaderState reader, int sectionIndex) {
+        if (reader != null && reader.voiceSplitRenderingMode) {
+            SectionVoiceAssignment assignment = reader.voiceSplitAssignmentAt(sectionIndex);
+            if (assignment != null && assignment.rule != null) return assignment.rule;
+        }
         if (reader == null || reader.chunks == null || sectionIndex < 0 || sectionIndex >= reader.chunks.size()) {
             return driveCharacterRegistry.defaultNarrator();
         }
         return driveCharacterRegistry.match(reader.chunks.get(sectionIndex));
+    }
+
+    private void materializeVoiceSplitPlan(DocumentReaderState reader) {
+        if (reader == null) return;
+        reader.voiceSplitAssignments.clear();
+        for (int i = 0; i < reader.chunkCount(); i++) {
+            String chunk = reader.chunks.get(i);
+            CharacterVoiceRule matched = driveCharacterRegistry.match(chunk);
+            boolean explicitCast = driveCharacterRegistry.hasExplicitCastSignal(chunk, matched);
+            CharacterVoiceRule rule = matched;
+            String providerAlias = activeSpeechVoiceName(reader, i);
+            String voiceName = providerAlias.isEmpty() || isVoiceIdAlias(providerAlias) ? splitFallbackVoiceName(reader, i, rule) : providerAlias;
+            String voiceId = isVoiceIdAlias(providerAlias) ? voiceIdFromAlias(providerAlias) : "";
+            if ("she-raw".equals(rule.characterId) && !explicitCast && i > 0) {
+                int lane = Math.floorMod(i - 1, DRIVE_SPLIT_FALLBACK_DIALOGUE_VOICES.length);
+                voiceName = DRIVE_SPLIT_FALLBACK_DIALOGUE_VOICES[lane];
+                rule = CharacterVoiceRule.synthetic("split-male-lane-" + (lane + 1), "Male Voice " + (lane + 1), voiceName, "dialogue", "split fallback male lane " + (lane + 1));
+                voiceId = "";
+            }
+            reader.voiceSplitAssignments.add(new SectionVoiceAssignment(rule, voiceName, voiceId, firstNonEmpty(rule.narrationRole, "narrator"), explicitCast));
+        }
+        LocalLog.info("doc_audio", "voice_split_plan_materialized fileId=" + shortMessage(reader.fileId) + " sections=" + reader.voiceSplitAssignments.size() + " speakers=" + reader.voiceSplitSpeakerSummary());
+    }
+
+    private String splitProviderVoiceName(DocumentReaderState reader, int sectionIndex, CharacterVoiceRule rule) {
+        SectionVoiceAssignment assignment = reader == null ? null : reader.voiceSplitAssignmentAt(sectionIndex);
+        if (assignment != null && !assignment.voiceName.isEmpty()) return assignment.voiceName;
+        String alias = resolvedProviderVoiceAlias(rule);
+        if (isVoiceIdAlias(alias)) return "";
+        if (!alias.isEmpty()) return alias;
+        return splitFallbackVoiceName(reader, sectionIndex, rule);
+    }
+
+    private String splitProviderVoiceId(DocumentReaderState reader, int sectionIndex, CharacterVoiceRule rule) {
+        SectionVoiceAssignment assignment = reader == null ? null : reader.voiceSplitAssignmentAt(sectionIndex);
+        if (assignment != null && !assignment.voiceId.isEmpty()) return assignment.voiceId;
+        String alias = resolvedProviderVoiceAlias(rule);
+        return isVoiceIdAlias(alias) ? voiceIdFromAlias(alias) : "";
+    }
+
+    private String splitSpeechRole(DocumentReaderState reader, int sectionIndex, CharacterVoiceRule rule) {
+        SectionVoiceAssignment assignment = reader == null ? null : reader.voiceSplitAssignmentAt(sectionIndex);
+        if (assignment != null && !assignment.role.isEmpty()) return assignment.role;
+        return firstNonEmpty(rule == null ? "" : rule.narrationRole, "narrator").toLowerCase(Locale.US);
     }
 
     private String stripVoiceTags(String text) {
@@ -2915,12 +3163,32 @@ public final class MainActivity extends Activity implements RecognitionListener,
             stopDocumentReader("stopped");
             return true;
         }
+        if (lower.equals("close") || lower.equals("close document") || lower.equals("close reader") || lower.equals("close document reader")) {
+            closeDocumentReaderView("closed");
+            return true;
+        }
         if (lower.equals("pause reading") || lower.equals("pause document") || lower.equals("pause reader")) {
             pauseDocumentReader();
             return true;
         }
         if (lower.equals("download voice") || lower.equals("download document voice") || lower.equals("save voice file")) {
             downloadDocumentVoice();
+            return true;
+        }
+        if (lower.equals("create voice split folder") || lower.equals("create voice split workspace") || lower.equals("voice split folder")) {
+            createDriveVoiceSplitFolderStructure();
+            return true;
+        }
+        if (lower.equals("prepare voice split") || lower.equals("prepare voice split plan") || lower.equals("create voice split plan")) {
+            prepareVoiceSplitRenderingPlanForActiveDocument();
+            return true;
+        }
+        if (lower.equals("render voice split") || lower.equals("split render") || lower.equals("render split doc") || lower.equals("render voice split doc")) {
+            renderVoiceSplitDocumentAudio(false);
+            return true;
+        }
+        if (lower.equals("rerender voice split") || lower.equals("rerender split doc")) {
+            renderVoiceSplitDocumentAudio(true);
             return true;
         }
         if (lower.equals("resume reading") || lower.equals("continue reading") || lower.equals("play document") || lower.equals("play with brian") || lower.equals("resume document")) {
@@ -3169,16 +3437,18 @@ public final class MainActivity extends Activity implements RecognitionListener,
         lastDriveDocumentId = activeDocumentReader.fileId;
         lastDriveDocumentName = activeDocumentReader.name;
         ensureGoogleDocAudioEntry(activeDocumentReader);
-        resetDriveReaderPlaybackForNewContent(activeDocumentReader);
+        if (!activeDocumentReader.playbackRestoredFromManifest) {
+            resetDriveReaderPlaybackForNewContent(activeDocumentReader);
+        }
         activeDocumentReader.status = driveReaderReadyStatus(activeDocumentReader);
         refreshDriveReaderPlayer();
         appendDocumentReaderArtifact(activeDocumentReader);
         if (autoPlay) {
             activeDocumentReader.playbackRequested = true;
             activeDocumentReader.paused = false;
-            activeDocumentReader.previewOnlyPlayback = true;
-            setDriveBrowserStatus("Rendering preview for " + activeDocumentReader.name + ".", false);
-            documentRenderExecutor.execute(() -> generateDocumentSection(activeDocumentReader, 0, true));
+            activeDocumentReader.previewOnlyPlayback = false;
+            setDriveBrowserStatus("Reading title and preparing " + activeDocumentReader.name + ".", false);
+            playDocumentTitleIntroThenContinue(activeDocumentReader);
         } else {
             appendStatus("Indexed " + activeDocumentReader.name + ". Use Render to save the audio artifact.");
         }
@@ -3193,14 +3463,16 @@ public final class MainActivity extends Activity implements RecognitionListener,
 
     private void ingestStructuredDocumentSpeakers(DocumentReaderState reader, String documentText) {
         if (reader == null) return;
-        List<CandidateSpeakerProfile> candidates = CandidateSpeakerProfile.extract(documentText, reader.fileId, reader.name);
+        StringBuilder candidateText = new StringBuilder(documentText == null ? "" : documentText);
+        if (reader.chunks != null) for (String chunk : reader.chunks) candidateText.append('\n').append(chunk == null ? "" : chunk);
+        List<CandidateSpeakerProfile> candidates = CandidateSpeakerProfile.extract(candidateText.toString(), reader.fileId, reader.name);
         if (candidates.isEmpty()) return;
         CharacterVoiceRegistry.MergeResult merged = driveCharacterRegistry.mergeCandidates(candidates, driveVoiceCatalog);
         if (merged.added <= 0) return;
         try {
             JSONObject registryJson = driveCharacterRegistry.toJson();
             getSharedPreferences(PREFS, MODE_PRIVATE).edit().putString(KEY_DRIVE_CHARACTER_REGISTRY_JSON, registryJson.toString()).apply();
-            refreshActiveReaderSpeechProfileForRegistryChange("speaker_profile_ingested");
+            LocalLog.info("doc_audio", "speaker_profile_registry_ingested_no_reader_reset entries=" + driveCharacterRegistry.size() + " names=" + merged.names);
             setDriveBrowserStatus("Ingested " + merged.added + " speaker profile" + (merged.added == 1 ? "" : "s") + " from " + reader.name + ".", false);
             appendStatus("Drive Narrate ingested speakers: " + merged.names + ". Defaults are overrideable in Speech.");
             persistDriveCharacterRegistryDocument();
@@ -3228,6 +3500,319 @@ public final class MainActivity extends Activity implements RecognitionListener,
                 LocalLog.warn("doc_audio", "speaker_profile_registry_update_failed " + shortMessage(ex.getMessage()));
             }
         });
+    }
+
+    private void createDriveVoiceSplitFolderStructure() {
+        GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(this);
+        if (!ensureDriveVoiceSplitAccess(account)) return;
+        setBusy(true);
+        setDriveBrowserStatus("Creating Voice Split Rendering Drive workspace.", false);
+        executor.execute(() -> {
+            try {
+                JSONObject workspace = ensureDriveVoiceSplitWorkspace(account);
+                String rootId = workspace.optString("rootId", "");
+                String readmeId = ensureVoiceSplitReadmeDoc(account, rootId);
+                LocalLog.info("doc_audio", "voice_split_workspace_ready rootId=" + shortMessage(rootId) + " readmeId=" + shortMessage(readmeId));
+                main.post(() -> {
+                    setBusy(false);
+                    setDriveBrowserStatus("Voice Split Rendering workspace is ready in Drive.", false);
+                    showAssistantMessage("Created or found " + DRIVE_VOICE_SPLIT_FOLDER_TITLE + ". Use Split Voice on an open document to write the narrator/character plan before character-specific cloud rendering.");
+                });
+            } catch (Exception ex) {
+                main.post(() -> {
+                    setBusy(false);
+                    setDriveBrowserStatus("Voice Split workspace failed: " + shortMessage(ex.getMessage()), true);
+                    showAssistantMessage("Voice Split workspace failed: " + shortMessage(ex.getMessage()));
+                });
+            }
+        });
+    }
+
+    private void prepareVoiceSplitRenderingPlanForActiveDocument() {
+        DocumentReaderState reader = activeDocumentReader;
+        if (reader == null) {
+            showAssistantMessage("Open a Google Doc first, then use Split Voice.");
+            return;
+        }
+        buildVoiceSplitRenderingPlan(reader, true);
+    }
+
+    private void buildVoiceSplitRenderingPlan(DocumentReaderState reader, boolean announce) {
+        if (reader == null) return;
+        GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(this);
+        if (account == null || googleDriveClient == null || !hasAllGoogleToolScopes(account)) {
+            LocalLog.warn("doc_audio", "voice_split_plan_skipped_missing_drive_access fileId=" + shortMessage(reader.fileId));
+            if (announce) ensureDriveVoiceSplitAccess(account);
+            return;
+        }
+        if (announce) {
+            setBusy(true);
+            setDriveBrowserStatus("Preparing Split Voice plan for " + reader.name + ".", false);
+        }
+        executor.execute(() -> {
+            try {
+                JSONObject workspace = ensureDriveVoiceSplitWorkspace(account);
+                String planFolderId = folderIdFromWorkspace(workspace, "02 Split Plans");
+                JSONObject plan = voiceSplitRenderingPlanJson(reader);
+                String title = "Voice Split Plan - " + safeDriveTitle(reader.name);
+                JSONObject created = googleDriveClient.runTool("docs.create", new JSONObject()
+                        .put("title", title)
+                        .put("folderId", planFolderId)
+                        .put("body", voiceSplitRenderingPlanMarkdown(reader, plan)), account);
+                if (!created.optBoolean("ok", false)) throw new IOException(firstNonEmpty(created.optString("detail", ""), created.optString("error", ""), "plan doc create failed"));
+                String link = created.optString("webViewLink", "");
+                LocalLog.info("doc_audio", "voice_split_plan_created fileId=" + reader.fileId + " textHash=" + reader.textHash + " planLink=" + shortMessage(link));
+                if (announce) main.post(() -> {
+                    setBusy(false);
+                    setDriveBrowserStatus("Split Voice plan saved for " + reader.name + ".", false);
+                    showAssistantMessage("Split Voice plan saved: " + title + (link.isEmpty() ? "" : "\n" + link));
+                });
+            } catch (Exception ex) {
+                LocalLog.warn("doc_audio", "voice_split_plan_failed fileId=" + shortMessage(reader.fileId) + " detail=" + shortMessage(ex.getMessage()));
+                if (announce) main.post(() -> {
+                    setBusy(false);
+                    setDriveBrowserStatus("Split Voice plan failed: " + shortMessage(ex.getMessage()), true);
+                    showAssistantMessage("Split Voice plan failed: " + shortMessage(ex.getMessage()));
+                });
+            }
+        });
+    }
+
+    private boolean ensureDriveVoiceSplitAccess(GoogleSignInAccount account) {
+        if (account == null || googleDriveClient == null) {
+            showAssistantMessage("Sign in with Google first, then create the Voice Split workspace.");
+            startGoogleSignIn();
+            return false;
+        }
+        if (!hasAllGoogleToolScopes(account)) {
+            showAssistantMessage("Approve Google Drive and Docs tools first, then create the Voice Split workspace.");
+            requestGoogleToolPermissions(account);
+            return false;
+        }
+        return true;
+    }
+
+    private JSONObject ensureDriveVoiceSplitWorkspace(GoogleSignInAccount account) throws Exception {
+        JSONObject root = ensureDriveFolder(account, DRIVE_VOICE_SPLIT_FOLDER_TITLE, "");
+        String rootId = root.optString("id", "");
+        JSONArray folders = new JSONArray();
+        for (String name : DRIVE_VOICE_SPLIT_SUBFOLDERS) {
+            JSONObject folder = ensureDriveFolder(account, name, rootId);
+            folders.put(folder);
+        }
+        return new JSONObject()
+                .put("rootId", rootId)
+                .put("rootName", root.optString("name", DRIVE_VOICE_SPLIT_FOLDER_TITLE))
+                .put("folders", folders);
+    }
+
+    private JSONObject ensureDriveFolder(GoogleSignInAccount account, String name, String parentId) throws Exception {
+        String existingId = findDriveItemId(account, name, "application/vnd.google-apps.folder", parentId);
+        if (!existingId.isEmpty()) return new JSONObject().put("id", existingId).put("name", name).put("reused", true).put("parentId", parentId == null ? "" : parentId);
+        JSONObject create = googleDriveClient.runTool("drive.create_folder", new JSONObject().put("name", name).put("parentId", parentId == null ? "" : parentId), account);
+        if (!create.optBoolean("ok", false)) throw new IOException(firstNonEmpty(create.optString("detail", ""), create.optString("error", ""), "folder create failed"));
+        JSONObject file = create.optJSONObject("file");
+        if (file == null || file.optString("id", "").trim().isEmpty()) throw new IOException("folder create returned no id");
+        return new JSONObject().put("id", file.optString("id", "")).put("name", file.optString("name", name)).put("reused", false).put("parentId", parentId == null ? "" : parentId);
+    }
+
+    private String findDriveItemId(GoogleSignInAccount account, String name, String mimeType, String parentId) throws Exception {
+        JSONObject args = new JSONObject().put("query", name).put("mimeType", mimeType).put("pageSize", 10);
+        if (parentId != null && !parentId.trim().isEmpty()) args.put("parentId", parentId.trim());
+        JSONObject search = googleDriveClient.runTool("drive.search", args, account);
+        if (!search.optBoolean("ok", false)) return "";
+        JSONArray files = search.optJSONArray("files");
+        if (files == null) return "";
+        for (int i = 0; i < files.length(); i++) {
+            JSONObject file = files.optJSONObject(i);
+            if (file == null || !name.equalsIgnoreCase(file.optString("name", "").trim())) continue;
+            if (parentId != null && !parentId.trim().isEmpty() && !jsonArrayContainsTrimmed(file.optJSONArray("parents"), parentId.trim())) continue;
+            return file.optString("id", "").trim();
+        }
+        return "";
+    }
+
+    private String ensureVoiceSplitReadmeDoc(GoogleSignInAccount account, String rootId) throws Exception {
+        String existingId = findDriveItemId(account, DRIVE_VOICE_SPLIT_README_TITLE, "application/vnd.google-apps.document", rootId);
+        if (!existingId.isEmpty()) return existingId;
+        JSONObject created = googleDriveClient.runTool("docs.create", new JSONObject()
+                .put("title", DRIVE_VOICE_SPLIT_README_TITLE)
+                .put("folderId", rootId)
+                .put("body", voiceSplitFolderContractText()), account);
+        if (!created.optBoolean("ok", false)) throw new IOException(firstNonEmpty(created.optString("detail", ""), created.optString("error", ""), "readme create failed"));
+        JSONObject file = created.optJSONObject("file");
+        return file == null ? "" : file.optString("id", "");
+    }
+
+    private String folderIdFromWorkspace(JSONObject workspace, String name) {
+        JSONArray folders = workspace == null ? null : workspace.optJSONArray("folders");
+        if (folders == null) return workspace == null ? "" : workspace.optString("rootId", "");
+        for (int i = 0; i < folders.length(); i++) {
+            JSONObject folder = folders.optJSONObject(i);
+            if (folder != null && name.equalsIgnoreCase(folder.optString("name", ""))) return folder.optString("id", "");
+        }
+        return workspace.optString("rootId", "");
+    }
+
+    private JSONObject voiceSplitRenderingPlanJson(DocumentReaderState reader) throws Exception {
+        if (reader != null && reader.voiceSplitAssignments.isEmpty()) materializeVoiceSplitPlan(reader);
+        JSONArray speakers = new JSONArray();
+        JSONArray sections = new JSONArray();
+        for (int i = 0; reader != null && i < reader.chunkCount(); i++) {
+            CharacterVoiceRule rule = characterRuleForSection(reader, i);
+            SectionVoiceAssignment assignment = reader.voiceSplitAssignmentAt(i);
+            String providerAlias = assignment == null ? activeSpeechVoiceName(reader, i) : assignment.voiceName;
+            boolean voiceResolved = !providerAlias.isEmpty() || (assignment != null && !assignment.voiceId.isEmpty());
+            if (!speakerArrayContains(speakers, rule.characterId)) {
+                speakers.put(new JSONObject()
+                        .put("speakerId", rule.characterId)
+                        .put("displayName", rule.characterName)
+                        .put("role", firstNonEmpty(rule.narrationRole, "narrator"))
+                        .put("registryVoiceAlias", rule.voiceAlias)
+                        .put("providerVoiceAlias", providerAlias)
+                        .put("voiceResolved", voiceResolved)
+                        .put("acousticDirection", rule.acousticDirection)
+                        .put("matchTags", new JSONArray(rule.matchTags)));
+            }
+            String text = reader.chunks.get(i);
+            sections.put(new JSONObject()
+                    .put("index", i)
+                    .put("label", sectionLabelAt(reader, i))
+                    .put("capstone", voiceSplitCapstoneForText(text))
+                    .put("sectionHash", sectionHashAt(reader, i))
+                    .put("speakerId", rule.characterId)
+                    .put("speaker", rule.characterName)
+                    .put("role", speechRoleForSection(reader, i))
+                    .put("registryVoiceAlias", rule.voiceAlias)
+                    .put("providerVoiceAlias", providerAlias)
+                    .put("voiceResolved", voiceResolved)
+                    .put("fallbackRoleVoice", activeSpeechVoiceName(reader, i))
+                    .put("status", voiceResolved ? "ready_for_cloud_render" : "needs_voice_assignment")
+                    .put("textPreview", previewForPlan(text)));
+        }
+        return new JSONObject()
+                .put("type", "voice_split_rendering_plan")
+                .put("version", 1)
+                .put("status", "draft_agent_breakdown")
+                .put("workflowBoundary", "separate_voice_split_rendering_workspace")
+                .put("cloudsideGeneration", true)
+                .put("noAutomaticVoiceInterpolation", true)
+                .put("sourceDocument", new JSONObject()
+                        .put("fileId", reader.fileId)
+                        .put("title", reader.name)
+                        .put("modifiedTime", reader.modifiedTime)
+                        .put("textHash", reader.textHash)
+                        .put("charCount", reader.charCount)
+                        .put("chunkCount", reader.chunkCount()))
+                .put("registry", new JSONObject()
+                        .put("title", DRIVE_CHARACTER_REGISTRY_TITLE)
+                        .put("documentId", driveCharacterRegistryDocId)
+                        .put("fingerprint", driveCharacterRegistryFingerprint()))
+                .put("speech", new JSONObject()
+                        .put("provider", driveSpeechProvider)
+                        .put("modelId", driveSpeechModelId)
+                        .put("roleDefaults", new JSONObject()
+                                .put("narrator", driveNarratorVoiceName)
+                                .put("dialogue", driveDialogueVoiceName)
+                                .put("notes", driveNotesVoiceName)))
+                .put("speakers", speakers)
+                .put("sections", sections);
+    }
+
+    private String voiceSplitRenderingPlanMarkdown(DocumentReaderState reader, JSONObject plan) {
+        StringBuilder out = new StringBuilder();
+        out.append("# Voice Split Plan - ").append(reader == null ? "Google Doc" : reader.name).append("\n\n");
+        out.append("This is the first-stage agent breakdown for character-specific cloud rendering. It does not change the simple Drive Narrate role-default player.\n\n");
+        out.append("Source document: ").append(reader == null ? "" : reader.name).append("\n");
+        out.append("Text hash: ").append(reader == null ? "" : reader.textHash).append("\n");
+        out.append("Registry: ").append(DRIVE_CHARACTER_REGISTRY_TITLE).append("\n");
+        out.append("Provider/model: ").append(driveSpeechProvider).append(" / ").append(driveSpeechModelId).append("\n\n");
+        out.append("## Required Next Step\n\n");
+        out.append("Resolve every section with status needs_voice_assignment before character-specific chunk generation. Do not auto-interpolate voices; use explicit registry aliases or selected role defaults.\n\n");
+        out.append("## Plan JSON\n\n```json\n");
+        try {
+            out.append(plan == null ? "{}" : plan.toString(2));
+        } catch (Exception ex) {
+            out.append(plan == null ? "{}" : plan.toString());
+        }
+        out.append("\n```\n");
+        return out.toString();
+    }
+
+    private String voiceSplitFolderContractText() {
+        StringBuilder out = new StringBuilder();
+        out.append("# Voice Split Rendering - Folder Contract\n\n");
+        out.append("Voice Split Rendering is a separate Home Center Drive workflow for character-specific cloud rendering. Simple Drive Narrate remains role-default playback and must not secretly route per-character provider voices.\n\n");
+        out.append("## Folders\n\n");
+        for (String folder : DRIVE_VOICE_SPLIT_SUBFOLDERS) out.append("- ").append(folder).append("\n");
+        out.append("\n## Flow\n\n");
+        out.append("1. Intake keeps source documents or links.\n");
+        out.append("2. Split Plans stores the agent breakdown: narrators, character ids, registry voice aliases, section hashes, capstones, and unresolved voices.\n");
+        out.append("3. Rendered Chunks stores cloud-generated per-section audio after the plan is resolved.\n");
+        out.append("4. Final Mixes stores assembled audio artifacts.\n");
+        out.append("5. Voice Registry Snapshots stores the registry fingerprint used for a render.\n");
+        out.append("6. Failed Runs keeps aborted provider runs without losing partial sections.\n\n");
+        out.append("## Rendering Rules\n\n");
+        out.append("- Generation is cloudside. Browser playback is only a player for saved audio.\n");
+        out.append("- The existing Home Drive Character Voice Orientation Registry is the source of character voice assignment.\n");
+        out.append("- No separate voice interpolation happens here. Unknown characters are marked unresolved until a voice is explicitly assigned.\n");
+        out.append("- Section hashes, capstones, speaker ids, provider voice aliases, and audio paths must be preserved in the plan/manifest.\n");
+        return out.toString();
+    }
+
+    private boolean speakerArrayContains(JSONArray speakers, String speakerId) {
+        String clean = speakerId == null ? "" : speakerId.trim();
+        for (int i = 0; speakers != null && i < speakers.length(); i++) {
+            JSONObject speaker = speakers.optJSONObject(i);
+            if (speaker != null && clean.equals(speaker.optString("speakerId", ""))) return true;
+        }
+        return false;
+    }
+
+    private boolean jsonArrayContainsTrimmed(JSONArray array, String value) {
+        String clean = value == null ? "" : value.trim();
+        for (int i = 0; array != null && i < array.length(); i++) {
+            if (clean.equals(array.optString(i, "").trim())) return true;
+        }
+        return false;
+    }
+
+    private String sectionLabelAt(DocumentReaderState reader, int index) {
+        if (reader != null && reader.sectionLabels != null && index >= 0 && index < reader.sectionLabels.size()) {
+            String label = reader.sectionLabels.get(index);
+            if (label != null && !label.trim().isEmpty()) return label.trim();
+        }
+        return "section " + (index + 1);
+    }
+
+    private String sectionHashAt(DocumentReaderState reader, int index) {
+        if (reader != null && reader.sectionHashes != null && index >= 0 && index < reader.sectionHashes.size()) {
+            String hash = reader.sectionHashes.get(index);
+            if (hash != null && !hash.trim().isEmpty()) return hash.trim();
+        }
+        return reader == null || index < 0 || index >= reader.chunkCount() ? "" : stableTextHash(reader.chunks.get(index));
+    }
+
+    private String voiceSplitCapstoneForText(String text) {
+        String clean = (text == null ? "" : text).trim().toLowerCase(Locale.US);
+        if (clean.startsWith("title:")) return "title";
+        if (clean.startsWith("section:")) return "section";
+        if (clean.startsWith("subsection:")) return "subsection";
+        if (clean.startsWith("[speaker:") || clean.startsWith("[voice:")) return "dialogue";
+        if (clean.startsWith("list item:")) return "list";
+        if (clean.startsWith("quoted note:") || clean.startsWith("code:")) return "note";
+        if (clean.startsWith("break.")) return "break";
+        return "body";
+    }
+
+    private String previewForPlan(String text) {
+        String clean = text == null ? "" : text.replaceAll("\\s+", " ").trim();
+        return clean.length() > 220 ? clean.substring(0, 220) + "..." : clean;
+    }
+
+    private String safeDriveTitle(String value) {
+        String clean = value == null ? "Google Doc" : value.replaceAll("[\\r\\n]+", " ").replaceAll("[\\\\/:*?\"<>|]+", " ").replaceAll("\\s+", " ").trim();
+        return clean.isEmpty() ? "Google Doc" : clean;
     }
 
     private void resetDriveReaderPlaybackForNewContent(DocumentReaderState reader) {
@@ -3353,9 +3938,10 @@ public final class MainActivity extends Activity implements RecognitionListener,
         if (reader == null || reader.audioEntry != null || googleDocAudioLibrary == null) {
             return;
         }
-        reader.audioEntry = googleDocAudioLibrary.ingest(reader.fileId, reader.name, reader.modifiedTime, reader.textHash, reader.charCount, reader.chunks, driveSpeechProfileKey(), driveSpeechProfileJson());
+        reader.audioEntry = googleDocAudioLibrary.ingest(reader.fileId, reader.name, reader.modifiedTime, reader.textHash, reader.charCount, reader.chunks, reader.sectionLabels, reader.sectionHashes, reader.speechProfileKey, driveSpeechProfileJson(reader.voiceSplitRenderingMode));
         JSONObject manifest = reader.audioEntry.readManifest();
         reader.downloadedSections = manifest.optInt("downloadedSections", countDownloadedSections(reader));
+        restoreDocumentPlaybackPosition(reader, manifest);
         reader.status = driveReaderReadyStatus(reader);
     }
 
@@ -3372,6 +3958,66 @@ public final class MainActivity extends Activity implements RecognitionListener,
         return count;
     }
 
+    private void restoreDocumentPlaybackPosition(DocumentReaderState reader, JSONObject manifest) {
+        if (reader == null || manifest == null) return;
+        JSONObject playback = manifest.optJSONObject("playback");
+        if (playback == null || playback.length() == 0) {
+            restorePartialRenderCheckpoint(reader, manifest);
+            return;
+        }
+        reader.playbackRestoredFromManifest = true;
+        int section = Math.max(0, Math.min(reader.chunkCount() - 1, playback.optInt("sectionIndex", reader.currentIndex)));
+        applyRestoredPlaybackTarget(reader, section, playback.optLong("offsetBytes", 0L), firstNonEmpty(playback.optString("status", ""), "restored playback position"));
+    }
+
+    private void restorePartialRenderCheckpoint(DocumentReaderState reader, JSONObject manifest) {
+        if (reader == null || reader.audioEntry == null) return;
+        int downloaded = Math.max(manifest.optInt("downloadedSections", 0), countDownloadedSections(reader));
+        if (downloaded <= 0) return;
+        int firstMissing = firstMissingRenderedSection(reader);
+        int section = firstMissing >= 0 ? firstMissing : Math.max(0, Math.min(reader.chunkCount() - 1, downloaded - 1));
+        String status = firstMissing >= 0
+                ? "restored partial render at section " + (section + 1)
+                : "restored completed render at section " + (section + 1);
+        applyRestoredPlaybackTarget(reader, section, 0L, status);
+        persistDocumentPlaybackPosition(reader, status);
+        LocalLog.info("doc_audio", "partial_render_checkpoint_restored fileId=" + shortMessage(reader.fileId) + " section=" + section + " downloaded=" + downloaded);
+    }
+
+    private int firstMissingRenderedSection(DocumentReaderState reader) {
+        if (reader == null || reader.audioEntry == null) return -1;
+        for (int i = 0; i < reader.chunkCount(); i++) {
+            if (!reader.audioEntry.isDownloaded(i)) return i;
+        }
+        return -1;
+    }
+
+    private void applyRestoredPlaybackTarget(DocumentReaderState reader, int section, long offsetBytes, String status) {
+        if (reader == null) return;
+        int safeSection = Math.max(0, Math.min(reader.chunkCount() - 1, section));
+        reader.playbackRestoredFromManifest = true;
+        reader.currentIndex = safeSection;
+        reader.playbackTargetKind = "section";
+        reader.playbackTargetIndex = safeSection;
+        File cachedSection = reader.audioEntry == null ? null : reader.audioEntry.sectionFile(safeSection);
+        long pcmBytes = cachedSection != null && cachedSection.exists() ? Math.max(0L, cachedSection.length() - 44L) : 0L;
+        reader.activePlaybackPcmBytes = pcmBytes;
+        reader.activePlaybackSampleRate = activeTargetSampleRate(reader);
+        reader.activePlaybackStartOffsetBytes = 0L;
+        reader.activePlaybackWrittenBytes = 0L;
+        reader.playbackOffsetBytes = Math.max(0L, Math.min(pcmBytes, offsetBytes));
+        reader.paused = true;
+        reader.playbackRequested = false;
+        reader.status = firstNonEmpty(status, "restored playback position");
+    }
+
+    private void persistDocumentPlaybackPosition(DocumentReaderState reader, String status) {
+        if (reader == null || reader.audioEntry == null) return;
+        long total = visiblePlayheadPcmBytes(reader);
+        long visible = visiblePlayheadOffsetBytes(reader, total);
+        reader.audioEntry.markPlaybackPosition(reader.playbackTargetIndex, reader.playbackOffsetBytes, visible, status);
+    }
+
     private void playDocumentReader() {
         DocumentReaderState reader = activeDocumentReader;
         if (reader == null) {
@@ -3382,6 +4028,8 @@ public final class MainActivity extends Activity implements RecognitionListener,
         reader.playbackTargetKind = "section";
         reader.playbackTargetIndex = reader.currentIndex;
         reader.playbackRequested = true;
+        reader.cancelRequested = false;
+        reader.previewOnlyPlayback = false;
         reader.paused = false;
         refreshDriveReaderPlayer();
         playOrDownloadCurrentSection(true);
@@ -3389,6 +4037,52 @@ public final class MainActivity extends Activity implements RecognitionListener,
 
     private void downloadDocumentVoice() {
         renderDocumentAudio();
+    }
+
+    private void configureReaderSpeechProfile(DocumentReaderState reader, boolean voiceSplitRendering) {
+        if (reader == null) return;
+        String nextKey = driveSpeechProfileKey(voiceSplitRendering);
+        if (!nextKey.equals(reader.speechProfileKey) || reader.voiceSplitRenderingMode != voiceSplitRendering) {
+            reader.applySpeechProfile(driveSpeechProvider, driveSpeechModelId, driveNarratorVoiceName, driveDialogueVoiceName, driveNotesVoiceName, nextKey, voiceSplitRendering);
+            reader.audioEntry = null;
+            reader.downloadedSections = 0;
+            reader.exportedWavPath = "";
+            reader.playbackOffsetBytes = 0L;
+            reader.playbackTargetIndex = Math.max(0, Math.min(reader.chunkCount() - 1, reader.currentIndex));
+        }
+    }
+
+    private void renderVoiceSplitDocumentAudio(boolean forceRerender) {
+        DocumentReaderState reader = activeDocumentReader;
+        if (reader == null) {
+            showAssistantMessage("Open a Google Doc first, then use Split Voice.");
+            return;
+        }
+        configureReaderSpeechProfile(reader, true);
+        materializeVoiceSplitPlan(reader);
+        buildVoiceSplitRenderingPlan(reader, false);
+        renderDocumentAudio(true, true);
+        reader.playbackRequested = true;
+        reader.paused = false;
+        reader.previewOnlyPlayback = false;
+        reader.cancelRequested = false;
+        playOrDownloadCurrentSection(true);
+    }
+
+    private String voiceSplitUnresolvedSummary(DocumentReaderState reader) {
+        List<String> unresolved = new ArrayList<>();
+        for (int i = 0; reader != null && i < reader.chunkCount(); i++) {
+            CharacterVoiceRule rule = characterRuleForSection(reader, i);
+            String alias = resolvedProviderVoiceAlias(rule);
+            if (alias.isEmpty()) {
+                String label = rule == null ? "section " + (i + 1) : rule.characterName + " section " + (i + 1);
+                unresolved.add(label);
+                if (unresolved.size() >= 4) break;
+            }
+        }
+        if (unresolved.isEmpty()) return "";
+        String suffix = unresolved.size() >= 4 ? ", ..." : "";
+        return TextUtils.join(", ", unresolved) + suffix;
     }
 
     private void renderDocumentAudio() {
@@ -3400,11 +4094,16 @@ public final class MainActivity extends Activity implements RecognitionListener,
     }
 
     private void renderDocumentAudio(boolean forceRerender) {
+        renderDocumentAudio(forceRerender, false);
+    }
+
+    private void renderDocumentAudio(boolean forceRerender, boolean voiceSplitRendering) {
         DocumentReaderState reader = activeDocumentReader;
         if (reader == null) {
             showAssistantMessage("No Google Doc is indexed yet.");
             return;
         }
+        configureReaderSpeechProfile(reader, voiceSplitRendering);
         ensureGoogleDocAudioEntry(reader);
         reader.cancelRequested = false;
         if (forceRerender) {
@@ -3412,7 +4111,6 @@ public final class MainActivity extends Activity implements RecognitionListener,
             reader.playbackRequested = false;
             reader.downloadRequested = false;
             reader.paused = true;
-            reader.playbackOffsetBytes = 0L;
             reader.exportedWavPath = "";
             reader.audioEntry.clearRenderedSections();
             reader.downloadedSections = 0;
@@ -3420,11 +4118,11 @@ public final class MainActivity extends Activity implements RecognitionListener,
         }
         reader.renderRequested = true;
         reader.downloadRequested = false;
-        reader.status = forceRerender ? "rerendering audio artifact" : "rendering audio artifact";
-        reader.audioEntry.markRendering(true);
+        reader.status = voiceSplitRendering ? (forceRerender ? "rerendering split voice artifact" : "rendering split voice artifact") : (forceRerender ? "rerendering audio artifact" : "rendering audio artifact");
+        reader.audioEntry.markRendering(true, true);
         refreshDriveReaderPlayer();
-        setDriveBrowserStatus((forceRerender ? "Rerendering and saving " : "Rendering and saving ") + reader.name + " with " + driveVoiceSummary() + ".", false);
-        appendStatus((forceRerender ? "Rerendering and saving " : "Rendering and saving ") + reader.name + ". You can listen or leave; the audio artifact remains the work product.");
+        setDriveBrowserStatus((forceRerender ? "Rerendering and saving " : "Rendering and saving ") + reader.name + " with " + (voiceSplitRendering ? "Split Voice registry voices" : driveVoiceSummary()) + ".", false);
+        appendStatus((forceRerender ? "Rerendering and saving " : "Rendering and saving ") + reader.name + (voiceSplitRendering ? " as a Split Voice render" : "") + ". You can listen or leave; the audio artifact remains the work product.");
         documentRenderExecutor.execute(() -> {
             for (int i = 0; i < reader.chunkCount(); i++) {
                 if (reader != activeDocumentReader || reader.cancelRequested || !reader.renderRequested) break;
@@ -3436,7 +4134,7 @@ public final class MainActivity extends Activity implements RecognitionListener,
                 }
                 if (reader != activeDocumentReader || reader.cancelRequested || !reader.renderRequested) break;
                 reader.downloadedSections = countDownloadedSections(reader);
-                reader.status = forceRerender ? "rerendering audio artifact" : "rendering audio artifact";
+                reader.status = voiceSplitRendering ? (forceRerender ? "rerendering split voice artifact" : "rendering split voice artifact") : (forceRerender ? "rerendering audio artifact" : "rendering audio artifact");
                 main.post(() -> { if (reader == activeDocumentReader) refreshDriveReaderPlayer(); });
             }
             reader.downloadedSections = countDownloadedSections(reader);
@@ -3445,9 +4143,9 @@ public final class MainActivity extends Activity implements RecognitionListener,
             String exportError = "";
             if (reader.downloadedSections >= reader.chunkCount()) {
                 try {
-                    savedWavPath = exportRenderedDocumentWav(reader, forceRerender);
+                    savedWavPath = exportRenderedDocumentWav(reader, forceRerender || voiceSplitRendering, voiceSplitRendering);
                     reader.exportedWavPath = savedWavPath;
-                    reader.status = "rendered audio artifact complete";
+                    reader.status = voiceSplitRendering ? "split voice render complete" : "rendered audio artifact complete";
                 } catch (Exception ex) {
                     exportError = shortMessage(ex.getMessage());
                     reader.status = "render complete; WAV export failed";
@@ -3501,8 +4199,13 @@ public final class MainActivity extends Activity implements RecognitionListener,
     }
 
     private String exportRenderedDocumentWav(DocumentReaderState reader, boolean forceNewFile) throws IOException {
+        return exportRenderedDocumentWav(reader, forceNewFile, false);
+    }
+
+    private String exportRenderedDocumentWav(DocumentReaderState reader, boolean forceNewFile, boolean voiceSplitRendering) throws IOException {
         if (reader == null || reader.audioEntry == null) throw new IOException("no rendered document audio");
-        return exportRenderedEntryWav(reader.audioEntry, reader.name, reader.textHash, reader.chunkCount(), reader.fileId, !forceNewFile);
+        String exportTitle = voiceSplitRendering ? reader.name + " voice-split" : reader.name;
+        return exportRenderedEntryWav(reader.audioEntry, exportTitle, reader.textHash, reader.chunkCount(), reader.fileId, !forceNewFile);
     }
 
     private String exportRenderedEntryWav(GoogleDocAudioLibrary.Entry entry, String title, String textHash, int sectionCount, String fileId) throws IOException {
@@ -3522,12 +4225,18 @@ public final class MainActivity extends Activity implements RecognitionListener,
             pcmBytes += Math.max(0L, section.length() - 44L);
         }
         if (pcmBytes <= 0L) throw new IOException("rendered audio is empty");
-        String fileName = safeFileName(title) + "-" + firstNonEmpty(textHash, String.valueOf(System.currentTimeMillis()), "", "audio") + ".wav";
+        String hash = firstNonEmpty(textHash, String.valueOf(System.currentTimeMillis()), "", "audio");
+        String fileName = safeFileName(title) + "-" + hash + (reuseExisting ? "" : "-" + System.currentTimeMillis()) + ".wav";
         long expectedBytes = 44L + pcmBytes;
         String existingPath = reuseExisting ? existingRenderedDownloadPath(fileName, expectedBytes) : "";
         if (!existingPath.isEmpty()) {
             LocalLog.info("doc_audio", "document_wav_export_reused fileId=" + shortMessage(fileId) + " textHash=" + textHash + " path=" + existingPath + " bytes=" + expectedBytes);
             return existingPath;
+        }
+        String existingNamedPath = reuseExisting ? existingRenderedDownloadPath(fileName, -1L) : "";
+        if (!existingNamedPath.isEmpty()) {
+            LocalLog.warn("doc_audio", "document_wav_export_existing_name_reused fileId=" + shortMessage(fileId) + " textHash=" + textHash + " path=" + existingNamedPath + " expectedBytes=" + expectedBytes);
+            return existingNamedPath;
         }
         ContentValues values = new ContentValues();
         values.put(MediaStore.Downloads.DISPLAY_NAME, fileName);
@@ -3619,6 +4328,71 @@ public final class MainActivity extends Activity implements RecognitionListener,
         return clean.length() > 80 ? clean.substring(0, 80) : clean;
     }
 
+    private void playDocumentTitleIntroThenContinue(DocumentReaderState reader) {
+        if (reader == null) return;
+        ensureGoogleDocAudioEntry(reader);
+        if (reader.titleIntroPlayed) {
+            playOrDownloadCurrentSection(true);
+            return;
+        }
+        if (!shouldUseHostedSpeech()) {
+            reader.titleIntroPlayed = true;
+            playOrDownloadCurrentSection(true);
+            return;
+        }
+        String titleText = readerTitleSpeech(reader.name);
+        String utteranceId = "home_center_doc_title_" + System.currentTimeMillis();
+        activeSpeechUtteranceId = utteranceId;
+        requestSpeechFocus();
+        long sequence = beginSpeechSequence("new_google_doc_title_intro");
+        setSpeechPlaying(true);
+        refreshDriveReaderPlayer();
+        documentAudioExecutor.execute(() -> playDocumentTitleIntroStream(reader, titleText, utteranceId, sequence));
+    }
+
+    private void playDocumentTitleIntroStream(DocumentReaderState reader, String titleText, String utteranceId, long sequence) {
+        HttpURLConnection connection = null;
+        AudioTrack track = null;
+        try {
+            if (!isCurrentSpeechSequence(sequence)) return;
+            connection = hostedSpeechClient.openSpeechStream(titleText, driveSpeechProvider, driveSpeechModelId, driveNarratorVoiceName, driveNarratorVoiceId, "narrator", "title", driveNarratorVoiceName, "");
+            int sampleRate = hostedSpeechSampleRate(connection);
+            track = createHostedSpeechTrack(sampleRate);
+            synchronized (this) {
+                if (!isCurrentSpeechSequence(sequence)) {
+                    track.release();
+                    return;
+                }
+                activeHostedSpeechTrack = track;
+                track.play();
+            }
+            byte[] pcm = readSpeechPcm(connection.getInputStream(), sequence);
+            long written = writePcmToTrack(track, pcm, sequence);
+            waitForHostedSpeechPlaybackDrain(track, written, sampleRate, sequence);
+            if (isCurrentSpeechSequence(sequence)) {
+                main.post(() -> {
+                    if (reader != activeDocumentReader || reader.paused || !reader.playbackRequested || reader.cancelRequested) return;
+                    reader.titleIntroPlayed = true;
+                    finishSpeechPlaybackFor(utteranceId, "stream_complete");
+                    playOrDownloadCurrentSection(true);
+                });
+            }
+        } catch (Exception ex) {
+            if (isCurrentSpeechSequence(sequence)) {
+                main.post(() -> {
+                    if (reader != activeDocumentReader || reader.paused || !reader.playbackRequested || reader.cancelRequested) return;
+                    reader.titleIntroPlayed = true;
+                    LocalLog.warn("doc_audio", "title_intro_failed " + shortMessage(ex.getMessage()));
+                    finishSpeechPlaybackFor(utteranceId, "hosted_speech_error");
+                    playOrDownloadCurrentSection(true);
+                });
+            }
+        } finally {
+            releaseHostedTrackIfActive(track);
+            if (connection != null) connection.disconnect();
+        }
+    }
+
     private void playDocumentAudioTarget(DocumentReaderState reader, String kind, int index, long offsetBytes) {
         if (reader == null) return;
         ensureGoogleDocAudioEntry(reader);
@@ -3641,6 +4415,8 @@ public final class MainActivity extends Activity implements RecognitionListener,
         reader.playbackRequested = true;
         reader.paused = false;
         reader.playbackOffsetBytes = offset;
+        reader.playbackReconcileScheduled = false;
+        reader.nextPlaybackReconcileAtMs = SystemClock.elapsedRealtime() + DOC_READER_FALSE_PLAYING_COOLDOWN_MS;
         reader.activePlaybackStartOffsetBytes = offset;
         reader.activePlaybackWrittenBytes = 0L;
         reader.activePlaybackPcmBytes = pcmBytes;
@@ -3650,6 +4426,7 @@ public final class MainActivity extends Activity implements RecognitionListener,
         long sequence = beginSpeechSequence("new_google_doc_audio_playback");
         setSpeechPlaying(true);
         refreshDriveReaderPlayer();
+        ensurePlaybackBufferAhead(reader);
         String label = "section=" + reader.playbackTargetIndex;
         final long playbackOffset = offset;
         documentAudioExecutor.execute(() -> playWavFile(wav, GoogleDocAudioLibrary.DEFAULT_SAMPLE_RATE, utteranceId, sequence, label, playbackOffset));
@@ -3676,6 +4453,7 @@ public final class MainActivity extends Activity implements RecognitionListener,
                     DocumentReaderState reader = activeDocumentReader;
                     if (reader != null && utteranceId.equals(reader.utteranceId)) {
                         reader.playbackOffsetBytes = Math.max(0L, Math.min(reader.activePlaybackPcmBytes, reader.activePlaybackStartOffsetBytes + finalWritten));
+                        persistDocumentPlaybackPosition(reader, "played section");
                     }
                     refreshDriveReaderPlayer();
                     finishSpeechPlaybackFor(utteranceId, "stream_complete");
@@ -3694,6 +4472,69 @@ public final class MainActivity extends Activity implements RecognitionListener,
         }
     }
 
+    private void restartDocumentPlaybackFromSavedPosition(DocumentReaderState reader, String reason) {
+        if (reader == null || reader != activeDocumentReader || reader.paused || !reader.playbackRequested || reader.cancelRequested) return;
+        ensureGoogleDocAudioEntry(reader);
+        if (reader.audioEntry != null) {
+            int target = Math.max(0, Math.min(reader.chunkCount() - 1, reader.playbackTargetIndex));
+            if (reader.audioEntry.isDownloaded(target)) {
+                long offset = Math.max(0L, Math.min(activeTargetPcmBytes(reader), reader.playbackOffsetBytes));
+                LocalLog.warn("doc_audio", "doc_audio_false_playing_restart fileId=" + shortMessage(reader.fileId)
+                        + " section=" + target
+                        + " offsetBytes=" + offset
+                        + " reason=" + shortMessage(reason));
+                playDocumentAudioTarget(reader, "section", target, offset);
+                return;
+            }
+        }
+        long total = visiblePlayheadPcmBytes(reader);
+        if (total > 0L) {
+            long visible = Math.max(0L, Math.min(Math.max(0L, total - 2L), visiblePlayheadOffsetBytes(reader, total)));
+            LocalLog.warn("doc_audio", "doc_audio_false_playing_visible_restart fileId=" + shortMessage(reader.fileId)
+                    + " visibleBytes=" + visible
+                    + " totalBytes=" + total
+                    + " reason=" + shortMessage(reason));
+            playDocumentAudioAtVisibleOffset(reader, visible);
+            return;
+        }
+        LocalLog.warn("doc_audio", "doc_audio_false_playing_buffer_restart fileId=" + shortMessage(reader.fileId)
+                + " section=" + reader.playbackTargetIndex
+                + " reason=" + shortMessage(reason));
+        playOrDownloadCurrentSection(true);
+    }
+
+    private boolean isDocumentAudioPlaybackLive(DocumentReaderState reader) {
+        if (reader == null || reader != activeDocumentReader || reader.paused || !reader.playbackRequested || reader.cancelRequested) return false;
+        if (!speechPlaying || reader.utteranceId == null || !reader.utteranceId.equals(activeSpeechUtteranceId)) return false;
+        synchronized (this) {
+            if (activeHostedSpeechTrack == null) return false;
+            try {
+                return activeHostedSpeechTrack.getPlayState() == AudioTrack.PLAYSTATE_PLAYING;
+            } catch (Exception ignored) {
+                return false;
+            }
+        }
+    }
+
+    private void reconcileDocumentPlaybackIfNeeded(DocumentReaderState reader, String reason) {
+        if (reader == null || reader != activeDocumentReader || reader.paused || !reader.playbackRequested || reader.cancelRequested) return;
+        if (isDocumentAudioPlaybackLive(reader)) return;
+        long now = SystemClock.elapsedRealtime();
+        if (reader.playbackReconcileScheduled || reader.nextPlaybackReconcileAtMs > now) return;
+        reader.playbackReconcileScheduled = true;
+        reader.nextPlaybackReconcileAtMs = now + DOC_READER_FALSE_PLAYING_COOLDOWN_MS;
+        LocalLog.warn("doc_audio", "doc_audio_false_playing_detected fileId=" + shortMessage(reader.fileId)
+                + " section=" + reader.playbackTargetIndex
+                + " downloaded=" + reader.downloadedSections
+                + " reason=" + shortMessage(reason));
+        main.postDelayed(() -> {
+            reader.playbackReconcileScheduled = false;
+            if (reader != activeDocumentReader || reader.paused || !reader.playbackRequested || reader.cancelRequested) return;
+            if (isDocumentAudioPlaybackLive(reader)) return;
+            restartDocumentPlaybackFromSavedPosition(reader, reason);
+        }, DOC_READER_FALSE_PLAYING_RECHECK_MS);
+    }
+
     private void playOrDownloadCurrentSection(boolean allowDownload) {
         DocumentReaderState reader = activeDocumentReader;
         if (reader == null) {
@@ -3701,14 +4542,19 @@ public final class MainActivity extends Activity implements RecognitionListener,
         }
         ensureGoogleDocAudioEntry(reader);
         int section = reader.currentIndex;
+        reader.playbackTargetKind = "section";
+        reader.playbackTargetIndex = Math.max(0, Math.min(reader.chunkCount() - 1, section));
         if (reader.audioEntry.isDownloaded(section)) {
-            playDownloadedDocumentSection(reader, section);
+            long offset = reader.playbackTargetIndex == section ? reader.playbackOffsetBytes : 0L;
+            playDocumentAudioTarget(reader, "section", section, offset);
             return;
         }
         if (!allowDownload) {
             appendStatus("That audio is not rendered yet.");
             return;
         }
+        reader.playbackOffsetBytes = 0L;
+        persistDocumentPlaybackPosition(reader, "waiting for section render");
         refreshDriveReaderPlayer();
         setDriveBrowserStatus("Rendering audio for " + reader.name + " with " + activeSpeechVoiceLabel(reader, section) + ".", false);
         appendStatus("Rendering audio for " + reader.name + " with " + activeSpeechVoiceLabel(reader, section) + ".");
@@ -3726,13 +4572,17 @@ public final class MainActivity extends Activity implements RecognitionListener,
     private boolean generateDocumentSection(DocumentReaderState reader, int sectionIndex, boolean playAfterDownload) {
         HttpURLConnection connection = null;
         RandomAccessFile output = null;
+        File part = null;
         long pcmBytes = 0L;
         int sampleRate = GoogleDocAudioLibrary.DEFAULT_SAMPLE_RATE;
         try {
             if (reader == null || reader.audioEntry == null || reader.cancelRequested || reader.audioEntry.isDownloaded(sectionIndex)) {
                 if (reader != null && playAfterDownload) {
                     main.post(() -> {
-                    if (reader == activeDocumentReader) playDownloadedDocumentSection(reader, sectionIndex);
+                    if (reader == activeDocumentReader) {
+                        long offset = reader.playbackTargetIndex == sectionIndex ? reader.playbackOffsetBytes : 0L;
+                        playDocumentAudioTarget(reader, "section", sectionIndex, offset);
+                    }
                 });
                 }
                 return true;
@@ -3750,9 +4600,10 @@ public final class MainActivity extends Activity implements RecognitionListener,
             reader.activeAcousticDirection = voiceRule.acousticDirection;
             connection = hostedSpeechClient.openSpeechStream(sectionSpeechText(reader, sectionIndex), driveSpeechProvider, driveSpeechModelId, activeSpeechVoiceName(reader, sectionIndex), activeSpeechVoiceId(reader, sectionIndex), speechRole, voiceRule.characterId, voiceRule.voiceAlias, voiceRule.acousticDirection);
             sampleRate = hostedSpeechSampleRate(connection);
-            File part = reader.audioEntry.partFile(sectionIndex);
-            File parent = part.getParentFile();
+            File wav = reader.audioEntry.sectionFile(sectionIndex);
+            File parent = wav == null ? null : wav.getParentFile();
             if (parent != null && !parent.exists()) parent.mkdirs();
+            part = new File(parent, wav.getName() + "." + SystemClock.elapsedRealtime() + "." + Thread.currentThread().getId() + ".part");
             output = new RandomAccessFile(part, "rw");
             output.setLength(0L);
             GoogleDocAudioLibrary.writeWavHeader(output, sampleRate, 0L);
@@ -3772,10 +4623,23 @@ public final class MainActivity extends Activity implements RecognitionListener,
             GoogleDocAudioLibrary.writeWavHeader(output, sampleRate, pcmBytes);
             output.close();
             output = null;
-            File wav = reader.audioEntry.sectionFile(sectionIndex);
-            if (wav.exists() && !wav.delete()) throw new IOException("could not replace old section audio");
-            if (!part.renameTo(wav)) throw new IOException("could not finalize section audio");
-            reader.audioEntry.markDownloaded(sectionIndex, pcmBytes, sampleRate, voiceRule.characterId, activeSpeechVoiceName(reader, sectionIndex), voiceRule.acousticDirection);
+            if (wav.exists() && wav.length() > 44L) {
+                long existingPcmBytes = Math.max(0L, wav.length() - 44L);
+                if (part.exists() && !part.delete()) LocalLog.warn("doc_audio", "audio_cache_part_delete_failed path=" + shortMessage(part.getAbsolutePath()));
+                reader.audioEntry.markDownloaded(sectionIndex, existingPcmBytes, sampleRate, voiceRule.characterId, activeSpeechVoiceName(reader, sectionIndex), voiceRule.acousticDirection);
+                LocalLog.info("doc_audio", "doc_audio_section_race_reused section=" + sectionIndex + " pcmBytes=" + existingPcmBytes);
+            } else if (!part.renameTo(wav)) {
+                if (wav.exists() && wav.length() > 44L) {
+                    long existingPcmBytes = Math.max(0L, wav.length() - 44L);
+                    if (part.exists() && !part.delete()) LocalLog.warn("doc_audio", "audio_cache_part_delete_failed path=" + shortMessage(part.getAbsolutePath()));
+                    reader.audioEntry.markDownloaded(sectionIndex, existingPcmBytes, sampleRate, voiceRule.characterId, activeSpeechVoiceName(reader, sectionIndex), voiceRule.acousticDirection);
+                    LocalLog.info("doc_audio", "doc_audio_section_race_reused section=" + sectionIndex + " pcmBytes=" + existingPcmBytes);
+                } else {
+                    throw new IOException("could not finalize section audio");
+                }
+            } else {
+                reader.audioEntry.markDownloaded(sectionIndex, pcmBytes, sampleRate, voiceRule.characterId, activeSpeechVoiceName(reader, sectionIndex), voiceRule.acousticDirection);
+            }
             reader.downloadedSections = countDownloadedSections(reader);
             main.post(() -> {
                 if (reader == activeDocumentReader && !reader.cancelRequested) refreshDriveReaderPlayer();
@@ -3786,6 +4650,7 @@ public final class MainActivity extends Activity implements RecognitionListener,
                     setDriveBrowserStatus("Playing " + reader.name + " with " + activeSpeechVoiceLabel(reader, sectionIndex) + ".", false);
                     refreshDriveReaderPlayer();
                     playDownloadedDocumentSection(reader, sectionIndex);
+                    ensurePlaybackBufferAhead(reader);
                 });
             }
             return true;
@@ -3802,10 +4667,17 @@ public final class MainActivity extends Activity implements RecognitionListener,
             if (playAfterDownload) {
                 main.post(() -> {
                     String cause = speechFailureCause(ex);
-                    setDriveBrowserStatus("Hosted narration failed: " + cause + ".", true);
-                    setStatus("Hosted narration failed: " + cause + ".");
-                    setSpeechPlaying(false);
-                    refreshDriveReaderPlayer();
+                    if (reader == activeDocumentReader && reader.playbackRequested && !reader.paused && !reader.cancelRequested) {
+                        reader.status = "buffering; retrying section " + (sectionIndex + 1) + ": " + cause;
+                        setDriveBrowserStatus(reader.status + ".", false);
+                        refreshDriveReaderPlayer();
+                        retryDocumentPlayback(reader, reader.status);
+                    } else {
+                        setDriveBrowserStatus("Hosted narration failed: " + cause + ".", true);
+                        setStatus("Hosted narration failed: " + cause + ".");
+                        setSpeechPlaying(false);
+                        refreshDriveReaderPlayer();
+                    }
                 });
             }
             return false;
@@ -3813,8 +4685,37 @@ public final class MainActivity extends Activity implements RecognitionListener,
             if (output != null) {
                 try { output.close(); } catch (Exception ignored) { }
             }
+            if (part != null && part.exists() && (reader == null || reader.audioEntry == null || !reader.audioEntry.isDownloaded(sectionIndex))) {
+                if (!part.delete()) LocalLog.warn("doc_audio", "audio_cache_part_delete_failed path=" + shortMessage(part.getAbsolutePath()));
+            }
             if (connection != null) connection.disconnect();
         }
+    }
+
+    private void ensurePlaybackBufferAhead(DocumentReaderState reader) {
+        if (reader == null || reader.audioEntry == null || reader.paused || !reader.playbackRequested || reader.cancelRequested) return;
+        int start = Math.max(0, reader.playbackTargetIndex + 1);
+        int end = Math.min(reader.chunkCount() - 1, reader.playbackTargetIndex + DOC_READER_PLAYBACK_BUFFER_CHUNKS);
+        if (start > end) return;
+        documentRenderExecutor.execute(() -> {
+            for (int i = start; i <= end; i++) {
+                if (reader != activeDocumentReader || reader.paused || !reader.playbackRequested || reader.cancelRequested) return;
+                if (reader.audioEntry != null && !reader.audioEntry.isDownloaded(i)) {
+                    generateDocumentSection(reader, i, false);
+                }
+            }
+        });
+    }
+
+    private void retryDocumentPlayback(DocumentReaderState reader, String reason) {
+        if (reader == null || reader.playbackRetryScheduled) return;
+        reader.playbackRetryScheduled = true;
+        LocalLog.info("doc_audio", "doc_audio_playback_retry_scheduled fileId=" + shortMessage(reader.fileId) + " section=" + reader.playbackTargetIndex + " reason=" + shortMessage(reason));
+        main.postDelayed(() -> {
+            reader.playbackRetryScheduled = false;
+            if (reader != activeDocumentReader || reader.paused || !reader.playbackRequested || reader.cancelRequested) return;
+            playOrDownloadCurrentSection(true);
+        }, DOC_READER_PLAYBACK_RETRY_DELAY_MS);
     }
 
     private String sectionSpeechText(DocumentReaderState reader, int sectionIndex) {
@@ -3840,23 +4741,14 @@ public final class MainActivity extends Activity implements RecognitionListener,
             return;
         }
         if (!"stream_complete".equals(reason)) {
-            reader.paused = true;
-            reader.playbackRequested = false;
             reader.playbackOffsetBytes = Math.max(0L, Math.min(reader.activePlaybackPcmBytes, reader.activePlaybackStartOffsetBytes + reader.activePlaybackWrittenBytes));
-            reader.status = "paused at " + activeTargetLabel(reader) + " " + playbackClock(reader.playbackOffsetBytes, reader.activePlaybackSampleRate);
+            reader.status = "retrying " + activeTargetLabel(reader) + " " + playbackClock(reader.playbackOffsetBytes, reader.activePlaybackSampleRate);
+            persistDocumentPlaybackPosition(reader, reader.status);
             refreshDriveReaderPlayer();
-            appendStatus("Playback stopped at " + reader.name + ": " + activeTargetLabel(reader) + ".");
+            retryDocumentPlayback(reader, "playback interrupted: " + reason);
             return;
         }
-        if (reader.previewOnlyPlayback) {
-            reader.previewOnlyPlayback = false;
-            reader.paused = true;
-            reader.playbackRequested = false;
-            reader.playbackOffsetBytes = 0L;
-            reader.status = "preview complete";
-            refreshDriveReaderPlayer();
-            return;
-        }
+        reader.previewOnlyPlayback = false;
         if (reader.currentIndex + 1 >= reader.chunkCount()) {
             reader.playbackRequested = false;
             reader.status = "complete";
@@ -3868,14 +4760,23 @@ public final class MainActivity extends Activity implements RecognitionListener,
         int next = reader.currentIndex + 1;
         if (reader.audioEntry != null && !reader.audioEntry.isDownloaded(next)) {
             reader.currentIndex = next;
+            reader.playbackTargetKind = "section";
+            reader.playbackTargetIndex = next;
+            reader.playbackOffsetBytes = 0L;
+            persistDocumentPlaybackPosition(reader, "waiting for section render");
             refreshDriveReaderPlayer();
             appendStatus("Waiting for section " + (next + 1) + " to download.");
             playOrDownloadCurrentSection(true);
             return;
         }
         reader.currentIndex = next;
+        reader.playbackTargetKind = "section";
+        reader.playbackTargetIndex = next;
+        reader.playbackOffsetBytes = 0L;
+        persistDocumentPlaybackPosition(reader, "advancing section");
         refreshDriveReaderPlayer();
-        main.postDelayed(() -> playOrDownloadCurrentSection(false), 250L);
+        ensurePlaybackBufferAhead(reader);
+        main.postDelayed(() -> playOrDownloadCurrentSection(true), 250L);
     }
 
     private void pauseDocumentReader() {
@@ -3887,6 +4788,7 @@ public final class MainActivity extends Activity implements RecognitionListener,
         activeDocumentReader.paused = true;
         activeDocumentReader.playbackRequested = false;
         activeDocumentReader.status = "paused at " + activeTargetLabel(activeDocumentReader) + " " + playbackClock(activeDocumentReader.playbackOffsetBytes, activeDocumentReader.activePlaybackSampleRate);
+        persistDocumentPlaybackPosition(activeDocumentReader, activeDocumentReader.status);
         refreshDriveReaderPlayer();
         stopSpeechPlayback();
         appendStatus(activeDocumentReader.status + ".");
@@ -3898,7 +4800,17 @@ public final class MainActivity extends Activity implements RecognitionListener,
             showAssistantMessage("No Google Doc is indexed yet.");
             return;
         }
-        playDocumentAudioTarget(reader, reader.playbackTargetKind, reader.playbackTargetIndex, reader.playbackOffsetBytes);
+        reader.playbackRequested = true;
+        reader.paused = false;
+        reader.cancelRequested = false;
+        reader.playbackReconcileScheduled = false;
+        long total = visiblePlayheadPcmBytes(reader);
+        if (total > 0L) {
+            long visible = Math.max(0L, Math.min(total, visiblePlayheadOffsetBytes(reader, total)));
+            playDocumentAudioAtVisibleOffset(reader, visible);
+        } else {
+            playOrDownloadCurrentSection(true);
+        }
     }
 
     private void stopDocumentReader(String status) {
@@ -3911,10 +4823,34 @@ public final class MainActivity extends Activity implements RecognitionListener,
         activeDocumentReader.downloadRequested = false;
         activeDocumentReader.renderRequested = false;
         activeDocumentReader.cancelRequested = true;
+        activeDocumentReader.playbackReconcileScheduled = false;
         activeDocumentReader.status = status == null ? "stopped" : status;
+        persistDocumentPlaybackPosition(activeDocumentReader, activeDocumentReader.status);
         refreshDriveReaderPlayer();
         stopSpeechPlayback();
         appendStatus("Document reader " + activeDocumentReader.status + ".");
+    }
+
+    private void closeDocumentReaderView(String status) {
+        if (activeDocumentReader == null) {
+            showAssistantMessage("No document reader is active.");
+            return;
+        }
+        DocumentReaderState reader = activeDocumentReader;
+        reader.paused = true;
+        reader.playbackRequested = false;
+        reader.downloadRequested = false;
+        reader.renderRequested = false;
+        reader.cancelRequested = true;
+        reader.playbackReconcileScheduled = false;
+        reader.status = status == null ? "closed" : status;
+        persistDocumentPlaybackPosition(reader, reader.status);
+        finishSpeechPlayback("document_reader_close");
+        activeDocumentReader = null;
+        refreshDriveReaderPlayer();
+        setDriveRenderInteractionEnabled(true);
+        setDriveBrowserStatus("Closed " + safeDisplayName(reader.name) + ". Saved audio and playback position are preserved.", false);
+        appendStatus("Closed document reader for " + safeDisplayName(reader.name) + ".");
     }
 
     private void moveDocumentReader(int delta) {
@@ -3996,6 +4932,7 @@ public final class MainActivity extends Activity implements RecognitionListener,
         if (reader == null || !isCurrentSpeechSequence(sequence)) return;
         reader.activePlaybackWrittenBytes = Math.max(0L, writtenBytes);
         reader.playbackOffsetBytes = Math.max(0L, Math.min(reader.activePlaybackPcmBytes, reader.activePlaybackStartOffsetBytes + reader.activePlaybackWrittenBytes));
+        persistDocumentPlaybackPosition(reader, "playing");
         main.post(this::refreshDriveReaderPlayer);
     }
 
@@ -7230,13 +8167,13 @@ public final class MainActivity extends Activity implements RecognitionListener,
                     .setUsage(AudioAttributes.USAGE_ASSISTANCE_ACCESSIBILITY)
                     .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
                     .build();
-            speechFocusRequest = new AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN_TRANSIENT)
+            speechFocusRequest = new AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN)
                     .setAudioAttributes(attributes)
                     .setAcceptsDelayedFocusGain(false)
                     .setOnAudioFocusChangeListener(focusChange -> { })
                     .build();
         }
-        LocalLog.info("audio", "audio_focus_request type=transient");
+        LocalLog.info("audio", "audio_focus_request type=gain");
         speechFocusHeld = audioManager.requestAudioFocus(speechFocusRequest) == AudioManager.AUDIOFOCUS_REQUEST_GRANTED;
     }
 
@@ -7291,6 +8228,7 @@ public final class MainActivity extends Activity implements RecognitionListener,
             stopSpeechButton.setVisibility(playing && !narrationMuted ? View.VISIBLE : View.GONE);
         }
         updateSpeechMediaSession(playing);
+        refreshDriveReaderPlayer();
     }
 
     private void toggleNarrationMute() {
@@ -7314,17 +8252,72 @@ public final class MainActivity extends Activity implements RecognitionListener,
         narrationMuteButton.setBackgroundColor(narrationMuted ? COLOR_DANGER : COLOR_CARD);
     }
 
+    private void updateDriveNarrationForegroundService() {
+        DocumentReaderState reader = activeDocumentReader;
+        boolean shouldRun = reader != null && !reader.cancelRequested && ((reader.playbackRequested && !reader.paused) || reader.renderRequested);
+        if (reader != null && reader.playbackRequested && !reader.paused && !reader.cancelRequested) {
+            reconcileDocumentPlaybackIfNeeded(reader, "foreground_service_update");
+        }
+        String title = reader == null ? "" : safeDisplayName(reader.name);
+        if (shouldRun) {
+            if (!driveNarrationForegroundRunning || !title.equals(driveNarrationForegroundTitle)) {
+                Intent intent = new Intent(this, NarrationForegroundService.class)
+                        .setAction(NarrationForegroundService.ACTION_START)
+                        .putExtra(NarrationForegroundService.EXTRA_TITLE, title);
+                try {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                        startForegroundService(intent);
+                    } else {
+                        startService(intent);
+                    }
+                    driveNarrationForegroundRunning = true;
+                    driveNarrationForegroundTitle = title;
+                    LocalLog.info("doc_audio", "drive_narration_foreground_start title=" + shortMessage(title));
+                } catch (Exception ex) {
+                    LocalLog.warn("doc_audio", "drive_narration_foreground_start_failed " + shortMessage(ex.getMessage()));
+                }
+            }
+            return;
+        }
+        if (driveNarrationForegroundRunning) {
+            Intent intent = new Intent(this, NarrationForegroundService.class).setAction(NarrationForegroundService.ACTION_STOP);
+            try {
+                startService(intent);
+            } catch (Exception ignored) {
+                stopService(new Intent(this, NarrationForegroundService.class));
+            }
+            driveNarrationForegroundRunning = false;
+            driveNarrationForegroundTitle = "";
+            LocalLog.info("doc_audio", "drive_narration_foreground_stop");
+        }
+    }
+
     private void updateSpeechMediaSession(boolean playing) {
         if (speechMediaSession == null) {
             return;
         }
-        long actions = PlaybackState.ACTION_STOP | PlaybackState.ACTION_PAUSE;
+        DocumentReaderState reader = activeDocumentReader;
+        long actions = PlaybackState.ACTION_STOP;
         int state = playing ? PlaybackState.STATE_PLAYING : PlaybackState.STATE_STOPPED;
+        boolean active = playing;
+        if (reader != null) {
+            active = true;
+            actions |= PlaybackState.ACTION_PLAY_PAUSE | PlaybackState.ACTION_SKIP_TO_NEXT | PlaybackState.ACTION_SKIP_TO_PREVIOUS;
+            if (reader.paused || !reader.playbackRequested) {
+                actions |= PlaybackState.ACTION_PLAY;
+                state = PlaybackState.STATE_PAUSED;
+            } else {
+                actions |= PlaybackState.ACTION_PAUSE;
+                state = PlaybackState.STATE_PLAYING;
+            }
+        } else {
+            actions |= playing ? PlaybackState.ACTION_PAUSE : PlaybackState.ACTION_PLAY;
+        }
         speechMediaSession.setPlaybackState(new PlaybackState.Builder()
                 .setActions(actions)
                 .setState(state, 0L, 1.0f)
                 .build());
-        speechMediaSession.setActive(playing);
+        speechMediaSession.setActive(active);
     }
 
     private String shortMessage(String message) {
@@ -9065,11 +10058,68 @@ public final class MainActivity extends Activity implements RecognitionListener,
                     if (!tag.isEmpty() && lower.contains(tag.toLowerCase(Locale.US))) return rule;
                 }
             }
+            for (CharacterVoiceRule rule : rules) {
+                if (hasExplicitCastSignal(text, rule)) return rule;
+            }
             return defaultNarrator();
+        }
+
+        boolean hasExplicitCastSignal(String text, CharacterVoiceRule rule) {
+            if (rule == null) return false;
+            String lower = text == null ? "" : text.toLowerCase(Locale.US);
+            if (lower.isEmpty()) return false;
+            for (String alias : rule.searchAliases()) {
+                if (containsNameToken(lower, alias)) return true;
+            }
+            return false;
+        }
+
+        private boolean containsNameToken(String lowerText, String value) {
+            String clean = value == null ? "" : value.trim().toLowerCase(Locale.US);
+            if (clean.length() < 2) return false;
+            String pattern = "(^|[^a-z0-9])" + Pattern.quote(clean) + "([^a-z0-9]|$)";
+            return Pattern.compile(pattern, Pattern.CASE_INSENSITIVE).matcher(lowerText).find();
         }
 
         boolean hasEntries() { return rules != null && !rules.isEmpty(); }
         int size() { return rules == null ? 0 : rules.size(); }
+
+        boolean hasDialogueEntries() { return dialogueCount() > 0; }
+
+        int dialogueCount() {
+            int count = 0;
+            if (rules != null) for (CharacterVoiceRule rule : rules) if (isAuditionable(rule)) count++;
+            return count;
+        }
+
+        List<CharacterVoiceRule> dialogueRules(int limit) {
+            List<CharacterVoiceRule> values = new ArrayList<>();
+            if (rules == null) return values;
+            for (CharacterVoiceRule rule : rules) {
+                if (!isAuditionable(rule)) continue;
+                values.add(rule);
+                if (limit > 0 && values.size() >= limit) break;
+            }
+            return values;
+        }
+
+        int dialogueOrdinal(String characterId) {
+            String clean = CharacterVoiceRule.normalizeId(characterId);
+            int ordinal = 0;
+            if (rules == null) return 0;
+            for (CharacterVoiceRule rule : rules) {
+                if (!isAuditionable(rule)) continue;
+                if (rule.characterId.equals(clean)) return ordinal;
+                ordinal++;
+            }
+            return Math.max(0, ordinal);
+        }
+
+        private boolean isAuditionable(CharacterVoiceRule rule) {
+            if (rule == null) return false;
+            String role = rule.narrationRole == null ? "" : rule.narrationRole.trim().toLowerCase(Locale.US);
+            return ("dialogue".equals(role) || "notes".equals(role)) && !"she-raw".equals(rule.characterId);
+        }
 
         MergeResult mergeCandidates(List<CandidateSpeakerProfile> candidates, List<VoiceCatalogEntry> catalog) {
             int added = 0;
@@ -9205,6 +10255,12 @@ public final class MainActivity extends Activity implements RecognitionListener,
             this.notes = notes == null ? "" : notes.trim();
         }
 
+        static CharacterVoiceRule synthetic(String characterId, String characterName, String voiceAlias, String narrationRole, String notes) {
+            List<String> tags = new ArrayList<>();
+            tags.add("[voice:" + normalizeId(characterId) + "]");
+            return new CharacterVoiceRule(normalizeId(characterId), characterName, characterName, voiceAlias, narrationRole, true, tags, "split voice fallback lane", notes);
+        }
+
         static CharacterVoiceRule fromCells(String[] cells) {
             String character = cell(cells, 1);
             if (character.isEmpty()) return null;
@@ -9257,6 +10313,22 @@ public final class MainActivity extends Activity implements RecognitionListener,
             return index >= 0 && index < cells.length ? cells[index].trim() : "";
         }
 
+        List<String> searchAliases() {
+            List<String> values = new ArrayList<>();
+            addSearchAlias(values, characterName);
+            addSearchAlias(values, characterId.replace('-', ' '));
+            String[] parts = (aliases == null ? "" : aliases).split(",");
+            for (String part : parts) addSearchAlias(values, part);
+            return values;
+        }
+
+        private static void addSearchAlias(List<String> values, String value) {
+            String clean = value == null ? "" : value.replaceAll("\\[[^\\]]+\\]", " ").replaceAll("[^A-Za-z0-9 .\'-]+", " ").replaceAll("\\s+", " ").trim();
+            if (clean.length() < 2) return;
+            for (String existing : values) if (existing.equalsIgnoreCase(clean)) return;
+            values.add(clean);
+        }
+
         private static List<String> parseTags(String text) {
             List<String> tags = new ArrayList<>();
             String[] parts = (text == null ? "" : text).split(",");
@@ -9280,9 +10352,10 @@ public final class MainActivity extends Activity implements RecognitionListener,
     private static final class MarkdownNarrationDocument {
         static final String COMPILER_ID = "drive-markdown-narrator-v4-dialogue-attribution";
         private static final Pattern SPEAKER_CUE_PATTERN = Pattern.compile("^\\s*([A-Za-z][A-Za-z0-9 .\\'\\-]{1,48})\\s*:\\s+(.+)$");
-        private static final Pattern TRAILING_ATTRIBUTION_PATTERN = Pattern.compile("^\\s*[\\\"“](.+?)[\\\"”][,!?\\.]*\\s+([A-Z][A-Za-z0-9 .\\'\\-]{1,48})\\s+(?:said|asked|replied|answered|called|whispered|shouted|muttered|continued|said softly|said quietly)\\b.*$", Pattern.CASE_INSENSITIVE);
-        private static final Pattern SAID_BEFORE_QUOTE_PATTERN = Pattern.compile("^\\s*([A-Z][A-Za-z0-9 .\\'\\-]{1,48})\\s+(?:said|asked|replied|answered|called|whispered|shouted|muttered|continued)\\b[^\\\"“]*[\\\"“](.+?)[\\\"”].*$", Pattern.CASE_INSENSITIVE);
-        private static final Pattern SAID_NAME_BEFORE_QUOTE_PATTERN = Pattern.compile("^\\s*(?:said|asked|replied|answered|called|whispered|shouted|muttered|continued)\\s+([A-Z][A-Za-z0-9 .\\'\\-]{1,48})\\b[^\\\"“]*[\\\"“](.+?)[\\\"”].*$", Pattern.CASE_INSENSITIVE);
+        private static final Pattern SPEAKER_DASH_PATTERN = Pattern.compile("^\\s*([A-Za-z][A-Za-z0-9 .\\'\\-]{1,48})\\s*(?:[-–—]|\\|)\\s+(.+)$");
+        private static final Pattern TRAILING_ATTRIBUTION_PATTERN = Pattern.compile("^\\s*[\\\"“](.+?)[\\\"”][,!?\\.]*\\s+([A-Z][A-Za-z0-9 .\\'\\-]{1,48})\\s+(?:said|says|asked|asks|replied|replies|answered|answers|called|calls|whispered|whispers|shouted|shouts|muttered|mutters|continued|continues|snapped|snaps|sighed|sighs|said softly|said quietly)\\b.*$", Pattern.CASE_INSENSITIVE);
+        private static final Pattern SAID_BEFORE_QUOTE_PATTERN = Pattern.compile("^\\s*([A-Z][A-Za-z0-9 .\\'\\-]{1,48})\\s+(?:said|says|asked|asks|replied|replies|answered|answers|called|calls|whispered|whispers|shouted|shouts|muttered|mutters|continued|continues|snapped|snaps|sighed|sighs)\\b[^\\\"“]*[\\\"“](.+?)[\\\"”].*$", Pattern.CASE_INSENSITIVE);
+        private static final Pattern SAID_NAME_BEFORE_QUOTE_PATTERN = Pattern.compile("^\\s*(?:said|says|asked|asks|replied|replies|answered|answers|called|calls|whispered|whispers|shouted|shouts|muttered|mutters|continued|continues|snapped|snaps|sighed|sighs)\\s+([A-Z][A-Za-z0-9 .\\'\\-]{1,48})\\b[^\\\"“]*[\\\"“](.+?)[\\\"”].*$", Pattern.CASE_INSENSITIVE);
         final String speechText;
         final List<String> chunks;
         final List<String> sectionLabels;
@@ -9358,6 +10431,17 @@ public final class MainActivity extends Activity implements RecognitionListener,
                     String quoted = cleanInlineMarkdownForSpeech(quote.group(1));
                     if (!quoted.isEmpty()) {
                         speechBlocks.add("Quoted note: " + quoted + ".");
+                        cues += 1;
+                    }
+                    continue;
+                }
+                Matcher dashSpeaker = SPEAKER_DASH_PATTERN.matcher(line);
+                if (dashSpeaker.matches()) {
+                    flushParagraph(paragraph, speechBlocks);
+                    String speakerName = cleanSpeakerNameForTag(dashSpeaker.group(1));
+                    String utterance = cleanInlineMarkdownForSpeech(dashSpeaker.group(2));
+                    if (!speakerName.isEmpty() && !utterance.isEmpty()) {
+                        speechBlocks.add("[speaker:" + speakerName + "] " + utterance);
                         cues += 1;
                     }
                     continue;
@@ -9545,6 +10629,38 @@ public final class MainActivity extends Activity implements RecognitionListener,
         return values;
     }
 
+    private static String readerTitleSpeech(String name) {
+        String clean = name == null ? "" : name.trim();
+        return "Title. " + (clean.isEmpty() ? "Google Doc" : clean) + ".";
+    }
+
+    private static final class SectionVoiceAssignment {
+        final CharacterVoiceRule rule;
+        final String voiceName;
+        final String voiceId;
+        final String role;
+        final boolean explicitCast;
+
+        SectionVoiceAssignment(CharacterVoiceRule rule, String voiceName, String voiceId, String role, boolean explicitCast) {
+            this.rule = rule;
+            this.voiceName = voiceName == null ? "" : voiceName.trim();
+            this.voiceId = voiceId == null ? "" : voiceId.trim();
+            this.role = CharacterVoiceRule.firstNonEmptyStatic(role, "narrator").toLowerCase(Locale.US);
+            this.explicitCast = explicitCast;
+        }
+
+        JSONObject toJson() throws Exception {
+            return new JSONObject()
+                    .put("speakerId", rule == null ? "" : rule.characterId)
+                    .put("speaker", rule == null ? "" : rule.characterName)
+                    .put("role", role)
+                    .put("voiceName", voiceName)
+                    .put("voiceId", voiceId)
+                    .put("explicitCast", explicitCast)
+                    .put("acousticDirection", rule == null ? "" : rule.acousticDirection);
+        }
+    }
+
     private static final class DocumentReaderState {
         final String fileId;
         final String name;
@@ -9563,6 +10679,11 @@ public final class MainActivity extends Activity implements RecognitionListener,
         boolean renderRequested;
         boolean previewOnlyPlayback;
         boolean cancelRequested;
+        boolean playbackRestoredFromManifest;
+        boolean playbackRetryScheduled;
+        boolean playbackReconcileScheduled;
+        long nextPlaybackReconcileAtMs;
+        boolean titleIntroPlayed;
         int downloadedSections;
         String playbackTargetKind = "section";
         int playbackTargetIndex = 0;
@@ -9577,6 +10698,7 @@ public final class MainActivity extends Activity implements RecognitionListener,
         String dialogueVoiceName = DEFAULT_DRIVE_NARRATOR_VOICE;
         String notesVoiceName = DEFAULT_DRIVE_NARRATOR_VOICE;
         String speechProfileKey = "default-cartesia";
+        boolean voiceSplitRenderingMode = false;
         String activeCharacterId = "";
         String activeVoiceAlias = "";
         String activeAcousticDirection = "";
@@ -9585,6 +10707,7 @@ public final class MainActivity extends Activity implements RecognitionListener,
         int semanticCueCount = 0;
         List<String> sectionLabels = new ArrayList<>();
         List<String> sectionHashes = new ArrayList<>();
+        List<SectionVoiceAssignment> voiceSplitAssignments = new ArrayList<>();
 
         DocumentReaderState(JSONObject file, String content, MarkdownNarrationDocument narrationDocument) {
             this.fileId = file == null ? "" : file.optString("id", "").trim();
@@ -9607,6 +10730,11 @@ public final class MainActivity extends Activity implements RecognitionListener,
             this.renderRequested = false;
             this.previewOnlyPlayback = false;
             this.cancelRequested = false;
+            this.playbackRestoredFromManifest = false;
+            this.playbackRetryScheduled = false;
+            this.playbackReconcileScheduled = false;
+            this.nextPlaybackReconcileAtMs = 0L;
+            this.titleIntroPlayed = false;
             this.downloadedSections = 0;
             this.playbackTargetKind = "section";
             this.playbackTargetIndex = 0;
@@ -9614,12 +10742,17 @@ public final class MainActivity extends Activity implements RecognitionListener,
         }
 
         void applySpeechProfile(String provider, String modelId, String narratorVoice, String dialogueVoice, String notesVoice, String profileKey) {
+            applySpeechProfile(provider, modelId, narratorVoice, dialogueVoice, notesVoice, profileKey, false);
+        }
+
+        void applySpeechProfile(String provider, String modelId, String narratorVoice, String dialogueVoice, String notesVoice, String profileKey, boolean voiceSplitRendering) {
             this.voiceProvider = normalizeDriveSpeechProviderStatic(provider);
             this.speechModelId = firstNonEmptyStatic(modelId, DEFAULT_DRIVE_SPEECH_MODEL);
             this.narratorVoiceName = firstNonEmptyStatic(narratorVoice, DEFAULT_DRIVE_NARRATOR_VOICE);
             this.dialogueVoiceName = firstNonEmptyStatic(dialogueVoice, this.narratorVoiceName);
             this.notesVoiceName = firstNonEmptyStatic(notesVoice, this.narratorVoiceName);
             this.speechProfileKey = firstNonEmptyStatic(profileKey, "default-cartesia");
+            this.voiceSplitRenderingMode = voiceSplitRendering;
         }
 
         String voiceProviderLabel() {
@@ -9627,7 +10760,8 @@ public final class MainActivity extends Activity implements RecognitionListener,
         }
 
         String voiceSummary() {
-            return "Narrator " + narratorVoiceName + ", Dialogue " + dialogueVoiceName + ", Notes " + notesVoiceName;
+            String base = "Narrator " + narratorVoiceName + ", Dialogue " + dialogueVoiceName + ", Notes " + notesVoiceName;
+            return voiceSplitRenderingMode ? "Split Voice registry voices; fallback roles " + base : base;
         }
 
         private DocumentReaderState(String fileId, String name, String modifiedTime, String webViewLink, int charCount, String textHash, int chunkCount, int currentIndex, String status, JSONArray previews) {
@@ -9650,6 +10784,11 @@ public final class MainActivity extends Activity implements RecognitionListener,
             this.renderRequested = false;
             this.previewOnlyPlayback = false;
             this.cancelRequested = false;
+            this.playbackRestoredFromManifest = false;
+            this.playbackRetryScheduled = false;
+            this.playbackReconcileScheduled = false;
+            this.nextPlaybackReconcileAtMs = 0L;
+            this.titleIntroPlayed = false;
             this.downloadedSections = 0;
             this.playbackTargetKind = "section";
             this.playbackTargetIndex = 0;
@@ -9658,6 +10797,22 @@ public final class MainActivity extends Activity implements RecognitionListener,
 
         int chunkCount() {
             return chunks.size();
+        }
+
+        SectionVoiceAssignment voiceSplitAssignmentAt(int index) {
+            return index >= 0 && index < voiceSplitAssignments.size() ? voiceSplitAssignments.get(index) : null;
+        }
+
+        String voiceSplitSpeakerSummary() {
+            List<String> names = new ArrayList<>();
+            for (SectionVoiceAssignment assignment : voiceSplitAssignments) {
+                if (assignment == null || assignment.rule == null) continue;
+                String value = assignment.rule.characterId + ":" + assignment.voiceName;
+                boolean seen = false;
+                for (String existing : names) if (existing.equals(value)) seen = true;
+                if (!seen) names.add(value);
+            }
+            return TextUtils.join(",", names);
         }
 
         String sourceLine() {
@@ -9719,9 +10874,13 @@ public final class MainActivity extends Activity implements RecognitionListener,
                 json.put("voiceName", narratorVoiceName);
                 json.put("speechModelId", speechModelId);
                 json.put("speechProfileKey", speechProfileKey);
+                json.put("voiceSplitRenderingMode", voiceSplitRenderingMode);
                 json.put("activeCharacterId", activeCharacterId);
                 json.put("activeVoiceAlias", activeVoiceAlias);
                 json.put("activeAcousticDirection", activeAcousticDirection);
+                JSONArray splitPlan = new JSONArray();
+                for (SectionVoiceAssignment assignment : voiceSplitAssignments) splitPlan.put(assignment.toJson());
+                json.put("voiceSplitAssignments", splitPlan);
                 json.put("exportedWavPath", exportedWavPath);
                 json.put("voiceRoles", new JSONObject()
                         .put("narrator", narratorVoiceName)
@@ -9765,7 +10924,8 @@ public final class MainActivity extends Activity implements RecognitionListener,
                     roles == null ? json.optString("voiceName", DEFAULT_DRIVE_NARRATOR_VOICE) : roles.optString("narrator", DEFAULT_DRIVE_NARRATOR_VOICE),
                     roles == null ? json.optString("voiceName", DEFAULT_DRIVE_NARRATOR_VOICE) : roles.optString("dialogue", DEFAULT_DRIVE_NARRATOR_VOICE),
                     roles == null ? json.optString("voiceName", DEFAULT_DRIVE_NARRATOR_VOICE) : roles.optString("notes", DEFAULT_DRIVE_NARRATOR_VOICE),
-                    json.optString("speechProfileKey", "default-cartesia"));
+                    json.optString("speechProfileKey", "default-cartesia"),
+                    json.optBoolean("voiceSplitRenderingMode", false));
             state.narrationCompiler = json.optString("narrationCompiler", MarkdownNarrationDocument.COMPILER_ID);
             state.semanticCueCount = json.optInt("semanticCueCount", 0);
             state.sectionLabels = jsonStringArray(json.optJSONArray("sectionLabels"));
@@ -9904,6 +11064,8 @@ public final class MainActivity extends Activity implements RecognitionListener,
         updateThinkingHaptics(false);
         stopDriveBrowserPolling();
         stopHostedSpeechPlayback("activity_destroy");
+        stopService(new Intent(this, NarrationForegroundService.class));
+        driveNarrationForegroundRunning = false;
         updateSpeechMediaSession(false);
         abandonSpeechFocus();
         if (deviceTextToSpeech != null) {

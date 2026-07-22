@@ -125,10 +125,13 @@ final class GoogleDriveClient {
         if (!token.ok) return token.json;
         String queryText = cleanArg(arguments, "query");
         String folderName = cleanArg(arguments, "folderName");
+        String parentIdArg = cleanArg(arguments, "parentId");
         String mimeType = fixedMimeType == null || fixedMimeType.isEmpty() ? cleanArg(arguments, "mimeType") : fixedMimeType;
         int pageSize = Math.max(1, Math.min(10, arguments == null ? 5 : arguments.optInt("pageSize", 5)));
         String parentId = "";
-        if (!folderName.isEmpty()) {
+        if (!parentIdArg.isEmpty()) {
+            parentId = parentIdArg;
+        } else if (!folderName.isEmpty()) {
             DriveResult folders = requestFiles(token.value, "mimeType='" + FOLDER_MIME_TYPE + "' and name contains '" + escapeQuery(folderName) + "' and trashed=false", "", 5);
             if (!folders.ok) return resultJson(toolName, false, folders.error, folders.detail, folders.files, "");
             if (folders.files.isEmpty()) return resultJson(toolName, true, "", "No folder matched " + folderName + ".", folders.files, "");
@@ -475,32 +478,55 @@ final class GoogleDriveClient {
     }
 
     private String requestText(String method, String url, String token, String accept, JSONObject payload) {
-        HttpURLConnection connection = null;
-        try {
-            connection = (HttpURLConnection) new URL(url).openConnection();
-            connection.setRequestMethod(method);
-            connection.setConnectTimeout(15000);
-            connection.setReadTimeout(30000);
-            connection.setRequestProperty("Authorization", "Bearer " + token);
-            connection.setRequestProperty("Accept", accept == null ? "application/json" : accept);
-            if (payload != null) {
-                byte[] bytes = payload.toString().getBytes(StandardCharsets.UTF_8);
-                connection.setDoOutput(true);
-                connection.setRequestProperty("Content-Type", "application/json; charset=utf-8");
-                connection.setFixedLengthStreamingMode(bytes.length);
-                try (OutputStream out = connection.getOutputStream()) { out.write(bytes); }
+        Exception lastFailure = null;
+        for (int attempt = 1; attempt <= 3; attempt++) {
+            HttpURLConnection connection = null;
+            try {
+                connection = (HttpURLConnection) new URL(url).openConnection();
+                connection.setRequestMethod(method);
+                connection.setConnectTimeout(15000);
+                connection.setReadTimeout(30000);
+                connection.setRequestProperty("Authorization", "Bearer " + token);
+                connection.setRequestProperty("Accept", accept == null ? "application/json" : accept);
+                if (payload != null) {
+                    byte[] bytes = payload.toString().getBytes(StandardCharsets.UTF_8);
+                    connection.setDoOutput(true);
+                    connection.setRequestProperty("Content-Type", "application/json; charset=utf-8");
+                    connection.setFixedLengthStreamingMode(bytes.length);
+                    try (OutputStream out = connection.getOutputStream()) { out.write(bytes); }
+                }
+                int status = connection.getResponseCode();
+                String body = readBody(status >= 400 ? connection.getErrorStream() : connection.getInputStream());
+                if (status < 200 || status >= 300) throw new DriveRuntimeException("http_" + status, "Google API HTTP " + status + ": " + abbreviate(body));
+                return body;
+            } catch (DriveRuntimeException ex) {
+                throw ex;
+            } catch (Exception ex) {
+                lastFailure = ex;
+                if (attempt >= 3 || !isTransientNetworkFailure(ex)) {
+                    break;
+                }
+                try {
+                    Thread.sleep(350L * attempt);
+                } catch (InterruptedException interrupted) {
+                    Thread.currentThread().interrupt();
+                    break;
+                }
+            } finally {
+                if (connection != null) connection.disconnect();
             }
-            int status = connection.getResponseCode();
-            String body = readBody(status >= 400 ? connection.getErrorStream() : connection.getInputStream());
-            if (status < 200 || status >= 300) throw new DriveRuntimeException("http_" + status, "Google API HTTP " + status + ": " + abbreviate(body));
-            return body;
-        } catch (DriveRuntimeException ex) {
-            throw ex;
-        } catch (Exception ex) {
-            throw new DriveRuntimeException("request_error", "Google API request failed: " + safe(ex.getMessage()));
-        } finally {
-            if (connection != null) connection.disconnect();
         }
+        throw new DriveRuntimeException("request_error", "Google API request failed after retry: " + safe(lastFailure == null ? "unknown network error" : lastFailure.getMessage()));
+    }
+
+    private static boolean isTransientNetworkFailure(Exception ex) {
+        String message = ex == null || ex.getMessage() == null ? "" : ex.getMessage().toLowerCase();
+        return message.contains("unable to resolve host")
+                || message.contains("no address associated")
+                || message.contains("software caused connection abort")
+                || message.contains("connection reset")
+                || message.contains("timed out")
+                || message.contains("timeout");
     }
 
     private static List<DriveFile> parseFiles(JSONObject root) {
