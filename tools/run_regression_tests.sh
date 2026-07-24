@@ -5,6 +5,7 @@ ROOT="$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)"
 cd "$ROOT"
 
 sh tools/check_no_secrets.sh
+sh tools/test_voice_script_planner.sh
 sh -n tools/install_debug_apk_shizuku.sh
 sh -n tools/home_center_shizuku_setup_probe.sh
 sh -n tools/home_drive_profile_refresh_loop.sh
