@@ -40,6 +40,9 @@ const {
   deriveWorkerLiveness,
   isTerminalJobStatus,
   staleJobCandidate,
+  activationStartTimeoutCandidate,
+  workerConcurrencyLimit,
+  selectWorkerCandidates,
   selectWorker,
 } = require('../functions/command_center_mcp');
 
@@ -116,6 +119,10 @@ const staleHomeDriveWorker = {workerId: 'home-drive-stale', health: 'healthy', l
 const simulatedHomeDriveWorker = {workerId: 'cloud-codex-primary', health: 'healthy', lastHeartbeatAtMs: nowMs, simulated: true, capabilities: ['codex', 'home-drive-mcp', 'one-shot-worker', 'prepared-workspace']};
 const retiredHomeDriveWorker = {...realHomeDriveWorker, workerId: 'home-drive-retired', status: 'retired', retiredAtMs: nowMs};
 assert.equal(selectWorker([simulatedHomeDriveWorker, realHomeDriveWorker], ['home-drive-mcp'], {nowMs}).workerId, 'home-drive-primary');
+assert.equal(workerConcurrencyLimit({limits: {concurrentJobs: 3}}), 3);
+const workerCandidates = selectWorkerCandidates([simulatedHomeDriveWorker, staleHomeDriveWorker, realHomeDriveWorker], ['home-drive-mcp'], {nowMs});
+assert.deepEqual(workerCandidates.map((candidate) => [candidate.workerId, candidate.eligible]), [['cloud-codex-primary', false], ['home-drive-stale', false], ['home-drive-primary', true]]);
+assert.match(workerCandidates.find((candidate) => candidate.workerId === 'home-drive-stale').reason, /stale/);
 assert.equal(deriveWorkerLiveness(retiredHomeDriveWorker, nowMs).health, 'healthy');
 assert.equal(selectWorker([retiredHomeDriveWorker, realHomeDriveWorker], ['home-drive-mcp'], {nowMs}).workerId, 'home-drive-primary');
 assert.throws(
@@ -146,7 +153,16 @@ assert(COMMAND_CENTER_TERMINAL_JOB_STATUSES.includes('expired'));
 assert.equal(isTerminalJobStatus('expired'), true);
 assert.equal(staleJobCandidate({jobId: 'job_stale', projectId: 'home-center', status: 'executing', updatedAtMs: nowMs - 3600000}, nowMs, 1800000, ['leased', 'executing', 'running', 'activating']).jobId, 'job_stale');
 assert.equal(staleJobCandidate({jobId: 'job_running_stale', projectId: 'home-center', status: 'running', updatedAtMs: nowMs - 3600000}, nowMs, 1800000, ['leased', 'executing', 'running', 'activating']).jobId, 'job_running_stale');
+const staleQueued = staleJobCandidate({jobId: 'job_queued_stale', projectId: 'home-center', status: 'queued', selectedWorkerId: '', routingDiagnostic: 'No compatible Command Center worker currently has free capacity', updatedAtMs: nowMs - 3600000}, nowMs, 1800000, ['queued', 'leased', 'executing', 'running', 'activating']);
+assert.equal(staleQueued.jobId, 'job_queued_stale');
+assert.equal(staleQueued.status, 'queued');
+assert.match(staleQueued.reason, /queued job had no eligible worker/);
 assert.equal(staleJobCandidate({jobId: 'job_fresh', status: 'executing', updatedAtMs: nowMs - 1000}, nowMs, 1800000, ['leased', 'executing', 'running', 'activating']), null);
+
+const acceptedActivation = {activationId: 'job_activation_job_timeout_1', jobId: 'job_timeout', leaseId: 'lease_timeout', workerId: 'cloud-run-debian-primary', status: 'accepted', acceptedAtMs: nowMs - 180000};
+assert.equal(activationStartTimeoutCandidate({jobId: 'job_timeout', projectId: 'home-center', status: 'leased', selectedWorkerId: 'cloud-run-debian-primary'}, [acceptedActivation], nowMs, 120000).jobId, 'job_timeout');
+assert.equal(activationStartTimeoutCandidate({jobId: 'job_started', status: 'leased', executorStartedAtMs: nowMs - 1000}, [{...acceptedActivation, jobId: 'job_started'}], nowMs, 120000), null);
+assert.equal(activationStartTimeoutCandidate({jobId: 'job_recent', status: 'leased'}, [{...acceptedActivation, jobId: 'job_recent', acceptedAtMs: nowMs - 1000}], nowMs, 120000), null);
 
 const policy = cleanMutationPolicy({editFiles: 'allowed', push: 'confirm'});
 assert.equal(policy.editFiles, 'allowed');
@@ -159,6 +175,10 @@ assert(COMMAND_CENTER_REQUIRED_ARTIFACTS.includes('implementation.patch'));
 assert(COMMAND_CENTER_REQUIRED_ARTIFACTS.includes('final-report.md'));
 assert.equal(COMMAND_CENTER_DEFAULT_BASE_WORKSPACE.restoreStrategy, 'copy_overlay');
 assert.equal(cleanBaseWorkspace({baseWorkspaceId: 'tank-base', snapshotRef: 'worker-local://tank'}).baseWorkspaceId, 'tank-base');
+assert.equal(normalizeGithubRepositoryRef('worker-local://prepared-workspaces/default'), '');
+assert.equal(normalizeGithubRepositoryRef('gs://bucket/workspace.tgz'), '');
+assert.equal(resolveJobRepository({}, {}, {snapshotRef: 'worker-local://prepared-workspaces/default'}), '');
+assert.equal(resolveJobRepository({baseWorkspace: {snapshotRef: 'worker-local://prepared-workspaces/default'}}, {}, {}), '');
 assert.equal(normalizeGithubRepositoryRef('github://Valar05/agent-closet'), 'Valar05/agent-closet');
 assert.equal(normalizeGithubRepositoryRef('https://github.com/Valar05/agent-closet.git'), 'Valar05/agent-closet');
 const agentClosetProject = cleanProjectPacket({
@@ -264,6 +284,10 @@ assert(resumePacket.bridgeInstructions.some((line) => line.includes('Restore the
 assert.equal(resumePacket.activation.realWorkerRequired, false);
 
 assert(commandCenterSource.includes("server.registerTool('command_center.jobs.get_handoff'"));
+assert(commandCenterSource.includes("server.registerTool('command_center.jobs.dispatch_queued'"));
+assert(commandCenterSource.includes("case 'jobs.dispatch_queued'"));
+assert(commandCenterSource.includes("type: 'job_dispatched_from_queue'"));
+assert(commandCenterSource.includes('retryExpired'));
 assert(commandCenterSource.includes("server.registerTool('command_center_operation'"));
 assert(commandCenterSource.includes('runCommandCenterOperation'));
 assert(commandCenterSource.includes("server.registerTool('command_center.projects.upsert'"));
@@ -285,8 +309,8 @@ assert(commandCenterSource.includes("activatable: activatableWorkers.length"));
 assert(commandCenterSource.includes("type: 'job_queued_no_worker'"));
 assert(commandCenterSource.includes("lease: null, activation: null"));
 assert(commandCenterSource.includes("requiredIndex: {collectionGroup: COMMAND_CENTER_COLLECTIONS.jobs"));
-assert(commandCenterSource.includes("['leased', 'executing', 'running', 'activating']"));
-assert(commandCenterSource.includes("status: 'expired'"));
+assert(commandCenterSource.includes("['queued', 'leased', 'executing', 'running', 'activating']"));
+assert(commandCenterSource.includes("status: 'failed'"));
 assert(commandCenterSource.includes("selectWorker(recordsVisibleToCaller(await workerRecords(admin), caller), workerRequirements, {requireActivationChannel: false})"));
 assert(commandCenterSource.includes("realWorkerRequired: true"));
 assert(commandCenterSource.includes("selectedWorkerId: worker.workerId"));
@@ -334,4 +358,11 @@ assert(!commandCenterSource.includes("case 'jobs.resume':\n      return transiti
 assert(commandCenterSource.includes("type: 'job_resume_blocked'"));
 assert(commandCenterSource.includes("reason: 'missing_active_lease'"));
 
+
+assert(commandCenterSource.includes('releaseActiveLeasesForJob'));
+assert(commandCenterSource.includes("event.type === 'executor_failed' && !isTerminalJobStatus(job.status)"));
+assert(commandCenterSource.includes('failJobTerminal(admin, job, caller.workerId'));
+assert(commandCenterSource.includes("status: 'failed',"));
+assert(commandCenterSource.includes('recentEndToEndExecutionProbeCompleted'));
+assert(commandCenterSource.includes('accepted activation did not produce executor_started'));
 console.log('Command Center MCP contract test: OK');

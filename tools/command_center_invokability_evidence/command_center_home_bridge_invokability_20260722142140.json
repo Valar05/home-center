@@ -1,0 +1,730 @@
+{
+  "ok": true,
+  "mcpUrl": "https://us-central1-home-center-dclar.cloudfunctions.net/homeCenterMcp/mcp",
+  "tokenSource": "[redacted]",
+  "tokenRefreshed": "[redacted]",
+  "tokenLoadReason": "[redacted]",
+  "checks": [
+    {
+      "name": "home_mcp_requires_auth",
+      "ok": true,
+      "status": 401,
+      "wwwAuthenticate": "Bearer resource_metadata=\"https://us-central1-home-center-dclar.cloudfunctions.net/homeCenterMcp/.well-known/oauth-protected-resource\", scope=\"https://www.googleapis.com/auth/drive https://www.googleapis.com/auth/documents https://www.googleapis.com/auth/spreadsheets\""
+    },
+    {
+      "name": "home_mcp_initialize_200",
+      "ok": true,
+      "status": 200,
+      "contentType": "text/event-stream"
+    },
+    {
+      "name": "home_tools_list_contains_command_center_operation",
+      "ok": true,
+      "status": 200,
+      "count": 44,
+      "toolNames": [
+        "audit_get",
+        "audit_log",
+        "audit_status",
+        "auth_status",
+        "capabilities",
+        "command_center_operation",
+        "docs_append",
+        "docs_create",
+        "drive_create_folder",
+        "drive_execute_plan",
+        "drive_get_metadata",
+        "drive_list_folder",
+        "drive_move",
+        "drive_operation",
+        "drive_plan_organize",
+        "drive_read",
+        "drive_rename",
+        "drive_search",
+        "drive_workflow_run",
+        "github_comment_issue",
+        "github_comment_pull_request",
+        "github_create_issue",
+        "github_get_issue",
+        "github_get_pull_request",
+        "github_get_repo",
+        "github_get_workflow_run",
+        "github_list_branches",
+        "github_list_issues",
+        "github_list_pull_request_files",
+        "github_list_pull_requests",
+        "github_list_workflow_runs",
+        "github_read_file",
+        "health",
+        "index_folder",
+        "index_status",
+        "recovery_checkpoint",
+        "recovery_status",
+        "sheets_create",
+        "sheets_read",
+        "sheets_search",
+        "sheets_update_values",
+        "simulation_operation",
+        "storage_status",
+        "workbook_import_xlsx"
+      ]
+    },
+    {
+      "name": "home_tools_list_contains_drive_operation",
+      "ok": true,
+      "status": 200
+    },
+    {
+      "name": "drive_operation_registry_contains_command_center_followup",
+      "ok": true,
+      "status": 200,
+      "registryVersion": "2026-07-13.context-sync-publish-v1"
+    },
+    {
+      "name": "command_center_operation_registry_contains_codex_cloud_agents",
+      "ok": true,
+      "status": 200,
+      "registryVersion": "2026-07-12.command-center-worker-wake-v1",
+      "missing": []
+    },
+    {
+      "name": "command_center_operation_health_invokable",
+      "ok": true,
+      "status": 200,
+      "content": {
+        "operation": "health",
+        "toolName": "command_center.health",
+        "commandCenterMcpUrl": "https://us-central1-home-center-dclar.cloudfunctions.net/commandCenterMcp/mcp",
+        "result": {
+          "ok": true,
+          "service": "command-center-mcp",
+          "invokable": true,
+          "hasFrontend": false,
+          "commandCenterMcpUrl": "https://us-central1-home-center-dclar.cloudfunctions.net/commandCenterMcp/mcp",
+          "authorizationServer": "https://us-central1-home-center-dclar.cloudfunctions.net/homeCenterMcp"
+        }
+      }
+    },
+    {
+      "name": "drive_operation_command_center_health_invokable",
+      "ok": true,
+      "status": 200,
+      "content": {
+        "operation": "command_center.health",
+        "registryVersion": "2026-07-13.context-sync-publish-v1",
+        "completed": true,
+        "result": {
+          "ok": true,
+          "service": "command-center-mcp",
+          "invokable": true,
+          "hasFrontend": false,
+          "commandCenterMcpUrl": "https://us-central1-home-center-dclar.cloudfunctions.net/commandCenterMcp/mcp",
+          "authorizationServer": "https://us-central1-home-center-dclar.cloudfunctions.net/homeCenterMcp"
+        }
+      }
+    },
+    {
+      "name": "drive_operation_stale_schema_command_center_health_invokable",
+      "ok": true,
+      "status": 200,
+      "content": {
+        "operation": "drive_create_folder",
+        "compatibilityRoute": "drive_operation.command_center",
+        "commandCenterOperation": "health",
+        "registryVersion": "2026-07-13.context-sync-publish-v1",
+        "completed": true,
+        "result": {
+          "ok": true,
+          "service": "command-center-mcp",
+          "invokable": true,
+          "hasFrontend": false,
+          "commandCenterMcpUrl": "https://us-central1-home-center-dclar.cloudfunctions.net/commandCenterMcp/mcp",
+          "authorizationServer": "https://us-central1-home-center-dclar.cloudfunctions.net/homeCenterMcp"
+        }
+      }
+    },
+    {
+      "name": "command_center_operation_bucket_layout_invokable",
+      "ok": true,
+      "status": 200,
+      "lanes": [
+        "memory/past-logs",
+        "memory/current-condensed",
+        "skills/scratch",
+        "skills/promoted",
+        "notes/cross-repo",
+        "app-control/profiles",
+        "app-control/runs",
+        "app-control/frame-lanes",
+        "browser/sessions",
+        "browser/episodes",
+        "browser/discoveries",
+        "browser/playbooks"
+      ]
+    },
+    {
+      "name": "command_center_operation_browser_playbooks_lookup_invokable",
+      "ok": true,
+      "status": 200,
+      "content": {
+        "operation": "browser_playbooks.lookup",
+        "toolName": "command_center.browser_playbooks.lookup",
+        "commandCenterMcpUrl": "https://us-central1-home-center-dclar.cloudfunctions.net/commandCenterMcp/mcp",
+        "result": {
+          "found": false,
+          "collection": "browserPlaybooks",
+          "playbook": null,
+          "playbooks": []
+        }
+      }
+    },
+    {
+      "name": "command_center_operation_workers_register_real_invokable",
+      "ok": true,
+      "status": 200,
+      "workerId": "home-bridge-real-worker-20260722142140",
+      "content": {
+        "operation": "workers.register_oneshot",
+        "toolName": "command_center.workers.register_oneshot",
+        "commandCenterMcpUrl": "https://us-central1-home-center-dclar.cloudfunctions.net/commandCenterMcp/mcp",
+        "result": {
+          "worker": {
+            "workerId": "home-bridge-real-worker-20260722142140",
+            "engine": "codex",
+            "location": "home-bridge-invokability-gate",
+            "registryHealth": "healthy",
+            "health": "healthy",
+            "livenessState": "live",
+            "livenessReason": "heartbeat fresh",
+            "heartbeatAgeMs": 119,
+            "heartbeatFresh": true,
+            "activationAgeMs": 119,
+            "activationFresh": true,
+            "activatable": false,
+            "capabilities": [
+              "codex-cloud",
+              "codex",
+              "home-drive-mcp",
+              "playwright",
+              "browser-worker",
+              "prepared-workspace"
+            ],
+            "baseWorkspaces": [
+              {
+                "baseWorkspaceId": "home-bridge-real-worker-profile",
+                "kind": "persistent_user_owned_browser_profile",
+                "snapshotRef": "worker-local://home-bridge-profile",
+                "version": "20260722142140",
+                "restoreStrategy": "persistent_profile",
+                "immutable": true,
+                "toolchains": []
+              }
+            ],
+            "limits": {
+              "concurrentActivations": 1
+            },
+            "activation": {
+              "mode": "poll",
+              "endpoint": "",
+              "authRef": "",
+              "verifiedAtMs": 1784730125574
+            },
+            "runtime": {},
+            "cloudRunJob": {},
+            "sessionPolicy": {},
+            "repositoryAffinity": [],
+            "simulated": false,
+            "registryRoutable": true,
+            "routable": true,
+            "lastHeartbeatAtMs": 1784730125574,
+            "status": "active",
+            "retiredAtMs": 0,
+            "retiredBy": "",
+            "retireReason": "",
+            "ownerKey": "owner_4d27b7e75b7c82c17ff779ccbbd24137",
+            "oneShot": true
+          },
+          "workerToken": "[redacted]",
+          "tokenType": "[redacted]",
+          "expiresIn": 7776000,
+          "warning": "Store this worker token only on the worker host. Command Center stores only its hash."
+        }
+      }
+    },
+    {
+      "name": "command_center_operation_agents_upsert_invokable",
+      "ok": true,
+      "status": 200,
+      "agentId": "home-center-chatgpt-bridge-20260722142140",
+      "content": {
+        "operation": "agents.upsert_repo_agent",
+        "toolName": "command_center.agents.upsert_repo_agent",
+        "commandCenterMcpUrl": "https://us-central1-home-center-dclar.cloudfunctions.net/commandCenterMcp/mcp",
+        "result": {
+          "agent": {
+            "agentId": "home-center-chatgpt-bridge-20260722142140",
+            "agentType": "repo_agent",
+            "projectId": "home-center",
+            "name": "Home Center ChatGPT bridge proof",
+            "repository": "Valar05/home-center",
+            "domain": "",
+            "purpose": "Durable Command Center context owner for real OpenAI Codex cloud activations.",
+            "status": "active",
+            "codexCloudSurface": {
+              "surfaceId": "openai-codex-cloud",
+              "role": "real OpenAI Codex cloud agent surface consuming Drew account quota; Command Center stores durable refs and artifacts only",
+              "launchUrl": "https://chatgpt.com/codex/",
+              "credentialPolicy": "Persistent login may live only in a user-owned browser profile on the bridge host. Do not copy cookies, passwords, OAuth tokens, or session blobs into Command Center."
+            },
+            "contextRefs": [
+              "docs/COMMAND_CENTER_MCP.md"
+            ],
+            "preferredTools": [],
+            "validationRules": [],
+            "openQuestions": [],
+            "createdBy": "dclarke1005@gmail.com",
+            "updatedBy": "dclarke1005@gmail.com",
+            "ownerKey": "owner_4d27b7e75b7c82c17ff779ccbbd24137",
+            "createdAtMs": 1784730129829,
+            "updatedAtMs": 1784730129829
+          },
+          "session": {
+            "sessionId": "session_ded26eea-ecf6-4b49-96cc-d491480ee352",
+            "sessionKind": "durable_worker_session",
+            "agentId": "home-center-chatgpt-bridge-20260722142140",
+            "projectId": "home-center",
+            "repository": "Valar05/home-center",
+            "repositoryOptional": true,
+            "repoRequired": false,
+            "workerFamily": "cloud-run-debian-codex",
+            "runtime": "cloud-run-debian",
+            "title": "Home Center ChatGPT bridge proof Codex cloud session",
+            "purpose": "Resumable Codex worker session with durable workspace and context.",
+            "status": "active",
+            "latestActivationId": "",
+            "latestCodexCloudRefId": "",
+            "currentWorkspaceSnapshotRef": "",
+            "currentWorkspaceSnapshotDigest": "",
+            "restoreStrategy": "gcs_snapshot",
+            "workspaceState": {},
+            "mutationState": {},
+            "currentSummary": "",
+            "contextRefs": [
+              "docs/COMMAND_CENTER_MCP.md"
+            ],
+            "artifactRefs": [],
+            "openQuestions": [],
+            "preferredWorkerIds": [],
+            "createdBy": "dclarke1005@gmail.com",
+            "updatedBy": "dclarke1005@gmail.com",
+            "ownerKey": "owner_4d27b7e75b7c82c17ff779ccbbd24137",
+            "createdAtMs": 1784730130067,
+            "updatedAtMs": 1784730130067
+          },
+          "bucketObject": {
+            "objectId": "bucket_02a0b65e10ec570db3518d86ab7a399a",
+            "bucketId": "command-center",
+            "kind": "memory.current_condensed",
+            "lane": "memory/current-condensed",
+            "path": "memory/current-condensed/home-center/repo-agent-home-center-chatgpt-bridge-20260722142140.json",
+            "title": "Repo agent: Home Center ChatGPT bridge proof",
+            "summary": "Durable Command Center context owner for real OpenAI Codex cloud activations.",
+            "body": "{\n  \"agent\": {\n    \"agentId\": \"home-center-chatgpt-bridge-20260722142140\",\n    \"agentType\": \"repo_agent\",\n    \"projectId\": \"home-center\",\n    \"name\": \"Home Center ChatGPT bridge proof\",\n    \"repository\": \"Valar05/home-center\",\n    \"domain\": \"\",\n    \"purpose\": \"Durable Command Center context owner for real OpenAI Codex cloud activations.\",\n    \"status\": \"active\",\n    \"codexCloudSurface\": {\n      \"surfaceId\": \"openai-codex-cloud\",\n      \"role\": \"real OpenAI Codex cloud agent surface consuming Drew account quota; Command Center stores durable refs and artifacts only\",\n      \"launchUrl\": \"https://chatgpt.com/codex/\",\n      \"credentialPolicy\": \"Persistent login may live only in a user-owned browser profile on the bridge host. Do not copy cookies, passwords, OAuth tokens, or session blobs into Command Center.\"\n    },\n    \"contextRefs\": [\n      \"docs/COMMAND_CENTER_MCP.md\"\n    ],\n    \"preferredTools\": [],\n    \"validationRules\": [],\n    \"openQuestions\": [],\n    \"createdBy\": \"dclarke1005@gmail.com\",\n    \"updatedBy\": \"dclarke1005@gmail.com\",\n    \"ownerKey\": \"owner_4d27b7e75b7c82c17ff779ccbbd24137\",\n    \"createdAtMs\": 1784730129829,\n    \"updatedAtMs\": 1784730129829\n  },\n  \"session\": {\n    \"sessionId\": \"session_ded26eea-ecf6-4b49-96cc-d491480ee352\",\n    \"sessionKind\": \"durable_worker_session\",\n    \"agentId\": \"home-center-chatgpt-bridge-20260722142140\",\n    \"projectId\": \"home-center\",\n    \"repository\": \"Valar05/home-center\",\n    \"repositoryOptional\": true,\n    \"repoRequired\": false,\n    \"workerFamily\": \"cloud-run-debian-codex\",\n    \"runtime\": \"cloud-run-debian\",\n    \"title\": \"Home Center ChatGPT bridge proof Codex cloud session\",\n    \"purpose\": \"Resumable Codex worker session with durable workspace and context.\",\n    \"status\": \"active\",\n    \"latestActivationId\": \"\",\n    \"latestCodexCloudRefId\": \"\",\n    \"currentWorkspaceSnapshotRef\": \"\",\n    \"currentWorkspaceSnapshotDigest\": \"\",\n    \"restoreStrategy\": \"gcs_snapshot\",\n    \"workspaceState\": {},\n    \"mutationState\": {},\n    \"currentSummary\": \"\",\n    \"contextRefs\": [\n      \"docs/COMMAND_CENTER_MCP.md\"\n    ],\n    \"artifactRefs\": [],\n    \"openQuestions\": [],\n    \"preferredWorkerIds\": [],\n    \"createdBy\": \"dclarke1005@gmail.com\",\n    \"updatedBy\": \"dclarke1005@gmail.com\",\n    \"ownerKey\": \"owner_4d27b7e75b7c82c17ff779ccbbd24137\",\n    \"createdAtMs\": 1784730130067,\n    \"updatedAtMs\": 1784730130067\n  },\n  \"codexCloudSurface\": {\n    \"surfaceId\": \"openai-codex-cloud\",\n    \"role\": \"real OpenAI Codex cloud agent surface consuming Drew account quota; Command Center stores durable refs and artifacts only\",\n    \"launchUrl\": \"https://chatgpt.com/codex/\",\n    \"credentialPolicy\": \"Persistent login may live only in a user-owned browser profile on the bridge host. Do not copy cookies, passwords, OAuth tokens, or session blobs into Command Center.\"\n  }\n}",
+            "objectUri": "",
+            "contentHash": "00ba81076bbcd609cdb9ed51ca6e5cb49fb46e0d568a31d6f0f0a2b44d7e11a8",
+            "projectId": "home-center",
+            "repository": "Valar05/home-center",
+            "jobId": "",
+            "sourceRefs": [
+              "repo-agent://home-center-chatgpt-bridge-20260722142140"
+            ],
+            "evidenceRefs": [],
+            "tags": [
+              "repo-agent",
+              "codex-cloud",
+              "current-summary"
+            ],
+            "promotionState": "active",
+            "supersedes": [],
+            "createdBy": "dclarke1005@gmail.com",
+            "updatedBy": "dclarke1005@gmail.com",
+            "ownerKey": "owner_4d27b7e75b7c82c17ff779ccbbd24137",
+            "createdAtMs": 1784730130136,
+            "updatedAtMs": 1784730130136,
+            "provenance": {
+              "actor": "dclarke1005@gmail.com",
+              "source": "command_center.agents.upsert_repo_agent",
+              "idempotencyKey": "",
+              "noSecrets": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "command_center_operation_agents_create_activation_invokable",
+      "ok": true,
+      "status": 200,
+      "activationId": "activation_e3a153dd-f889-4b04-9139-4aa6189bc6c6",
+      "selectedWorkerId": "home-bridge-real-worker-20260722142140",
+      "content": {
+        "operation": "agents.create_activation",
+        "toolName": "command_center.agents.create_activation",
+        "commandCenterMcpUrl": "https://us-central1-home-center-dclar.cloudfunctions.net/commandCenterMcp/mcp",
+        "result": {
+          "activation": {
+            "activationId": "activation_e3a153dd-f889-4b04-9139-4aa6189bc6c6",
+            "agentId": "home-center-chatgpt-bridge-20260722142140",
+            "sessionId": "session_b98b9e96-bae8-4e76-865c-4456ff981e49",
+            "projectId": "home-center",
+            "repository": "Valar05/home-center",
+            "sessionKind": "durable_worker_session",
+            "workerFamily": "cloud-run-debian-codex",
+            "runtime": "cloud-run-debian",
+            "status": "queued",
+            "executionSurface": "openai-codex-cloud",
+            "realWorkerRequired": true,
+            "workerRequirements": [
+              "codex-cloud",
+              "home-drive-mcp",
+              "playwright"
+            ],
+            "restoreWorkspaceSnapshotRef": "",
+            "restoreWorkspaceSnapshotDigest": "",
+            "nextWorkspaceSnapshotRequired": false,
+            "selectedWorkerId": "home-bridge-real-worker-20260722142140",
+            "selectedWorker": {
+              "workerId": "home-bridge-real-worker-20260722142140",
+              "engine": "codex",
+              "location": "home-bridge-invokability-gate",
+              "capabilities": [
+                "codex-cloud",
+                "codex",
+                "home-drive-mcp",
+                "playwright",
+                "browser-worker",
+                "prepared-workspace"
+              ],
+              "simulated": false,
+              "routable": true,
+              "runtime": {},
+              "cloudRunJob": {},
+              "sessionPolicy": {}
+            },
+            "task": {
+              "taskType": "codex_cloud",
+              "title": "Home Center ChatGPT bridge activation proof",
+              "prompt": "Verify that ChatGPT can create a durable Command Center Codex cloud activation through Home Center command_center_operation.",
+              "trigger": "chatgpt",
+              "inputs": {},
+              "acceptanceCriteria": [
+                "Activation was created through Home Center MCP command_center_operation",
+                "Resume packet can be read back"
+              ],
+              "constraints": [],
+              "artifactRequirements": [
+                "final-report.md"
+              ],
+              "executionPolicy": {}
+            },
+            "createdBy": "dclarke1005@gmail.com",
+            "createdAtMs": 1784730131636,
+            "updatedAtMs": 1784730131636,
+            "codexCloudRefIds": [],
+            "artifactRefs": [],
+            "bucketObjectIds": [],
+            "handoffSummary": ""
+          },
+          "agent": {
+            "agentId": "home-center-chatgpt-bridge-20260722142140",
+            "codexCloudSurface": {
+              "role": "real OpenAI Codex cloud agent surface consuming Drew account quota; Command Center stores durable refs and artifacts only",
+              "surfaceId": "openai-codex-cloud",
+              "launchUrl": "https://chatgpt.com/codex/",
+              "credentialPolicy": "Persistent login may live only in a user-owned browser profile on the bridge host. Do not copy cookies, passwords, OAuth tokens, or session blobs into Command Center."
+            },
+            "agentType": "repo_agent",
+            "updatedBy": "dclarke1005@gmail.com",
+            "validationRules": [],
+            "createdAtMs": 1784730129829,
+            "purpose": "Durable Command Center context owner for real OpenAI Codex cloud activations.",
+            "preferredTools": [],
+            "openQuestions": [],
+            "repository": "Valar05/home-center",
+            "ownerKey": "owner_4d27b7e75b7c82c17ff779ccbbd24137",
+            "contextRefs": [
+              "docs/COMMAND_CENTER_MCP.md"
+            ],
+            "createdBy": "dclarke1005@gmail.com",
+            "updatedAtMs": 1784730129829,
+            "domain": "",
+            "name": "Home Center ChatGPT bridge proof",
+            "projectId": "home-center",
+            "status": "active"
+          },
+          "session": {
+            "sessionId": "session_b98b9e96-bae8-4e76-865c-4456ff981e49",
+            "sessionKind": "durable_worker_session",
+            "agentId": "home-center-chatgpt-bridge-20260722142140",
+            "projectId": "home-center",
+            "repository": "Valar05/home-center",
+            "repositoryOptional": true,
+            "repoRequired": false,
+            "workerFamily": "cloud-run-debian-codex",
+            "runtime": "cloud-run-debian",
+            "title": "Home Center ChatGPT bridge proof durable worker session",
+            "purpose": "Resumable Codex worker session with durable workspace and context.",
+            "status": "active",
+            "latestActivationId": "",
+            "latestCodexCloudRefId": "",
+            "currentWorkspaceSnapshotRef": "",
+            "currentWorkspaceSnapshotDigest": "",
+            "restoreStrategy": "gcs_snapshot",
+            "workspaceState": {},
+            "mutationState": {},
+            "currentSummary": "",
+            "contextRefs": [],
+            "artifactRefs": [],
+            "openQuestions": [],
+            "preferredWorkerIds": [],
+            "createdBy": "dclarke1005@gmail.com",
+            "updatedBy": "dclarke1005@gmail.com",
+            "ownerKey": "owner_4d27b7e75b7c82c17ff779ccbbd24137",
+            "createdAtMs": 1784730131551,
+            "updatedAtMs": 1784730131551
+          },
+          "resumePacket": {
+            "packetVersion": "command-center-codex-cloud-resume-v1",
+            "generatedAtMs": 1784730132730,
+            "executionSurface": {
+              "surfaceId": "openai-codex-cloud",
+              "role": "real OpenAI Codex cloud agent surface consuming Drew account quota; Command Center stores durable refs and artifacts only",
+              "launchUrl": "https://chatgpt.com/codex/",
+              "credentialPolicy": "Persistent login may live only in a user-owned browser profile on the bridge host. Do not copy cookies, passwords, OAuth tokens, or session blobs into Command Center."
+            },
+            "workerSessionContract": {
+              "durable": true,
+              "repositoryOptional": true,
+              "repoRequired": false,
+              "storage": "gcs_workspace_snapshot_plus_command_center_metadata",
+              "restoreStrategy": "gcs_snapshot"
+            },
+            "agent": {
+              "agentId": "home-center-chatgpt-bridge-20260722142140",
+              "projectId": "home-center",
+              "repository": "Valar05/home-center",
+              "name": "Home Center ChatGPT bridge proof",
+              "purpose": "Durable Command Center context owner for real OpenAI Codex cloud activations.",
+              "contextRefs": [
+                "docs/COMMAND_CENTER_MCP.md"
+              ]
+            },
+            "session": {
+              "sessionId": "session_b98b9e96-bae8-4e76-865c-4456ff981e49",
+              "sessionKind": "durable_worker_session",
+              "workerFamily": "cloud-run-debian-codex",
+              "runtime": "cloud-run-debian",
+              "projectId": "home-center",
+              "repository": "Valar05/home-center",
+              "title": "Home Center ChatGPT bridge proof durable worker session",
+              "purpose": "Resumable Codex worker session with durable workspace and context.",
+              "currentSummary": "",
+              "contextRefs": [],
+              "artifactRefs": [],
+              "openQuestions": [],
+              "mutationState": {},
+              "currentWorkspaceSnapshotRef": "",
+              "currentWorkspaceSnapshotDigest": ""
+            },
+            "activation": {
+              "activationId": "activation_e3a153dd-f889-4b04-9139-4aa6189bc6c6",
+              "status": "queued",
+              "task": {
+                "taskType": "codex_cloud",
+                "title": "Home Center ChatGPT bridge activation proof",
+                "prompt": "Verify that ChatGPT can create a durable Command Center Codex cloud activation through Home Center command_center_operation.",
+                "trigger": "chatgpt",
+                "inputs": {},
+                "acceptanceCriteria": [
+                  "Activation was created through Home Center MCP command_center_operation",
+                  "Resume packet can be read back"
+                ],
+                "constraints": [],
+                "artifactRequirements": [
+                  "final-report.md"
+                ],
+                "executionPolicy": {}
+              },
+              "artifactRefs": [],
+              "codexCloudRefIds": [],
+              "selectedWorkerId": "home-bridge-real-worker-20260722142140",
+              "workerRequirements": [
+                "codex-cloud",
+                "home-drive-mcp",
+                "playwright"
+              ],
+              "realWorkerRequired": true
+            },
+            "snapshotRef": "agent-context-snapshot://agent_snapshot_ede87dd40ad43c7d355a120e2f92dc85",
+            "workspaceSnapshot": {
+              "restoreRef": "",
+              "restoreDigest": "",
+              "nextSnapshotRequired": false
+            },
+            "bridgeInstructions": [
+              "Restore the durable worker session workspace before execution; a lease without restored session state is not execution.",
+              "Use the cloud worker credential boundary; do not export cookies, tokens, or session state.",
+              "Record a real Codex cloud task URL/ref when one exists, but keep this resume packet usable without it.",
+              "Upload final report, next workspace snapshot ref, and evidence artifacts; do not claim success from stdout alone."
+            ]
+          }
+        }
+      }
+    },
+    {
+      "name": "command_center_operation_agents_resume_packet_invokable",
+      "ok": true,
+      "status": 200,
+      "activationId": "activation_e3a153dd-f889-4b04-9139-4aa6189bc6c6",
+      "content": {
+        "operation": "agents.get_resume_packet",
+        "toolName": "command_center.agents.get_resume_packet",
+        "commandCenterMcpUrl": "https://us-central1-home-center-dclar.cloudfunctions.net/commandCenterMcp/mcp",
+        "result": {
+          "resumePacket": {
+            "packetVersion": "command-center-codex-cloud-resume-v1",
+            "generatedAtMs": 1784730134111,
+            "executionSurface": {
+              "surfaceId": "openai-codex-cloud",
+              "role": "real OpenAI Codex cloud agent surface consuming Drew account quota; Command Center stores durable refs and artifacts only",
+              "launchUrl": "https://chatgpt.com/codex/",
+              "credentialPolicy": "Persistent login may live only in a user-owned browser profile on the bridge host. Do not copy cookies, passwords, OAuth tokens, or session blobs into Command Center."
+            },
+            "workerSessionContract": {
+              "durable": true,
+              "repositoryOptional": true,
+              "repoRequired": false,
+              "storage": "gcs_workspace_snapshot_plus_command_center_metadata",
+              "restoreStrategy": "gcs_snapshot"
+            },
+            "agent": {
+              "agentId": "home-center-chatgpt-bridge-20260722142140",
+              "projectId": "home-center",
+              "repository": "Valar05/home-center",
+              "name": "Home Center ChatGPT bridge proof",
+              "purpose": "Durable Command Center context owner for real OpenAI Codex cloud activations.",
+              "contextRefs": [
+                "docs/COMMAND_CENTER_MCP.md"
+              ]
+            },
+            "session": {
+              "sessionId": "session_b98b9e96-bae8-4e76-865c-4456ff981e49",
+              "sessionKind": "durable_worker_session",
+              "workerFamily": "cloud-run-debian-codex",
+              "runtime": "cloud-run-debian",
+              "projectId": "home-center",
+              "repository": "Valar05/home-center",
+              "title": "Home Center ChatGPT bridge proof durable worker session",
+              "purpose": "Resumable Codex worker session with durable workspace and context.",
+              "currentSummary": "",
+              "contextRefs": [],
+              "artifactRefs": [],
+              "openQuestions": [],
+              "mutationState": {},
+              "currentWorkspaceSnapshotRef": "",
+              "currentWorkspaceSnapshotDigest": ""
+            },
+            "activation": {
+              "activationId": "activation_e3a153dd-f889-4b04-9139-4aa6189bc6c6",
+              "status": "queued",
+              "task": {
+                "taskType": "codex_cloud",
+                "title": "Home Center ChatGPT bridge activation proof",
+                "prompt": "Verify that ChatGPT can create a durable Command Center Codex cloud activation through Home Center command_center_operation.",
+                "trigger": "chatgpt",
+                "inputs": {},
+                "acceptanceCriteria": [
+                  "Activation was created through Home Center MCP command_center_operation",
+                  "Resume packet can be read back"
+                ],
+                "constraints": [],
+                "artifactRequirements": [
+                  "final-report.md"
+                ],
+                "executionPolicy": {}
+              },
+              "artifactRefs": [],
+              "codexCloudRefIds": [],
+              "selectedWorkerId": "home-bridge-real-worker-20260722142140",
+              "workerRequirements": [
+                "codex-cloud",
+                "home-drive-mcp",
+                "playwright"
+              ],
+              "realWorkerRequired": true
+            },
+            "snapshotRef": "agent-context-snapshot://agent_snapshot_ede87dd40ad43c7d355a120e2f92dc85",
+            "workspaceSnapshot": {
+              "restoreRef": "",
+              "restoreDigest": "",
+              "nextSnapshotRequired": false
+            },
+            "bridgeInstructions": [
+              "Restore the durable worker session workspace before execution; a lease without restored session state is not execution.",
+              "Use the cloud worker credential boundary; do not export cookies, tokens, or session state.",
+              "Record a real Codex cloud task URL/ref when one exists, but keep this resume packet usable without it.",
+              "Upload final report, next workspace snapshot ref, and evidence artifacts; do not claim success from stdout alone."
+            ]
+          }
+        }
+      }
+    }
+  ],
+  "toolNames": [
+    "audit_get",
+    "audit_log",
+    "audit_status",
+    "auth_status",
+    "capabilities",
+    "command_center_operation",
+    "docs_append",
+    "docs_create",
+    "drive_create_folder",
+    "drive_execute_plan",
+    "drive_get_metadata",
+    "drive_list_folder",
+    "drive_move",
+    "drive_operation",
+    "drive_plan_organize",
+    "drive_read",
+    "drive_rename",
+    "drive_search",
+    "drive_workflow_run",
+    "github_comment_issue",
+    "github_comment_pull_request",
+    "github_create_issue",
+    "github_get_issue",
+    "github_get_pull_request",
+    "github_get_repo",
+    "github_get_workflow_run",
+    "github_list_branches",
+    "github_list_issues",
+    "github_list_pull_request_files",
+    "github_list_pull_requests",
+    "github_list_workflow_runs",
+    "github_read_file",
+    "health",
+    "index_folder",
+    "index_status",
+    "recovery_checkpoint",
+    "recovery_status",
+    "sheets_create",
+    "sheets_read",
+    "sheets_search",
+    "sheets_update_values",
+    "simulation_operation",
+    "storage_status",
+    "workbook_import_xlsx"
+  ],
+  "generatedAt": "2026-07-22T14:22:12.493Z"
+}

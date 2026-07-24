@@ -92,7 +92,9 @@ final class GoogleDocAudioLibrary {
             JSONObject candidate = new JSONObject(candidateProfileJson == null || candidateProfileJson.trim().isEmpty() ? "{}" : candidateProfileJson);
             boolean targetSplit = target.optBoolean("voiceSplitRendering", false) || "voice_split_character_render".equals(target.optString("workflow", ""));
             boolean candidateSplit = candidate.optBoolean("voiceSplitRendering", false) || "voice_split_character_render".equals(candidate.optString("workflow", ""));
-            return targetSplit == candidateSplit;
+            int targetResolverVersion = target.optInt("voiceResolverVersion", 1);
+            int candidateResolverVersion = candidate.optInt("voiceResolverVersion", 1);
+            return targetSplit == candidateSplit && targetResolverVersion == candidateResolverVersion;
         } catch (Exception ex) {
             return false;
         }
@@ -451,6 +453,8 @@ final class GoogleDocAudioLibrary {
                             .put("updatedAt", now());
                     section.remove("characterId");
                     section.remove("voiceAlias");
+                    section.remove("resolvedVoiceName");
+                    section.remove("resolvedVoiceId");
                     section.remove("acousticDirection");
                     section.remove("error");
                     sections.put(i, section);
@@ -532,8 +536,12 @@ final class GoogleDocAudioLibrary {
         }
 
         synchronized void markDownloaded(int index, long pcmBytes, int sampleRate, String characterId, String voiceAlias, String acousticDirection) {
-            mark(index, "downloaded", pcmBytes, sampleRate, "", characterId, voiceAlias, acousticDirection);
-            LocalLog.info("doc_audio", "doc_audio_section_downloaded fileId=" + fileId + " textHash=" + textHash + " section=" + index + " pcmBytes=" + pcmBytes + " characterId=" + safe(characterId));
+            markDownloaded(index, pcmBytes, sampleRate, characterId, voiceAlias, acousticDirection, "", "");
+        }
+
+        synchronized void markDownloaded(int index, long pcmBytes, int sampleRate, String characterId, String voiceAlias, String acousticDirection, String resolvedVoiceName, String resolvedVoiceId) {
+            mark(index, "downloaded", pcmBytes, sampleRate, "", characterId, voiceAlias, acousticDirection, resolvedVoiceName, resolvedVoiceId);
+            LocalLog.info("doc_audio", "doc_audio_section_downloaded fileId=" + fileId + " textHash=" + textHash + " section=" + index + " pcmBytes=" + pcmBytes + " characterId=" + safe(characterId) + " requestedVoice=" + safe(voiceAlias) + " resolvedVoice=" + safe(resolvedVoiceName) + " resolvedVoiceId=" + safe(resolvedVoiceId));
         }
 
         synchronized void markFailed(int index, String detail) {
@@ -545,6 +553,10 @@ final class GoogleDocAudioLibrary {
         }
 
         private void mark(int index, String status, long pcmBytes, int sampleRate, String error, String characterId, String voiceAlias, String acousticDirection) {
+            mark(index, status, pcmBytes, sampleRate, error, characterId, voiceAlias, acousticDirection, "", "");
+        }
+
+        private void mark(int index, String status, long pcmBytes, int sampleRate, String error, String characterId, String voiceAlias, String acousticDirection, String resolvedVoiceName, String resolvedVoiceId) {
             try {
                 JSONObject manifest = readManifest();
                 JSONArray sections = manifest.optJSONArray("sections");
@@ -562,6 +574,8 @@ final class GoogleDocAudioLibrary {
                 if (characterId != null && !characterId.trim().isEmpty()) section.put("characterId", safe(characterId));
                 section.put("cloudsideGenerated", "downloaded".equals(status) || "downloading".equals(status));
                 if (voiceAlias != null && !voiceAlias.trim().isEmpty()) section.put("voiceAlias", safe(voiceAlias));
+                if (resolvedVoiceName != null && !resolvedVoiceName.trim().isEmpty()) section.put("resolvedVoiceName", safe(resolvedVoiceName));
+                if (resolvedVoiceId != null && !resolvedVoiceId.trim().isEmpty()) section.put("resolvedVoiceId", safe(resolvedVoiceId));
                 if (acousticDirection != null && !acousticDirection.trim().isEmpty()) section.put("acousticDirection", safe(acousticDirection));
                 if (error != null && !error.trim().isEmpty()) section.put("error", safe(error));
                 sections.put(index, section);

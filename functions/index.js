@@ -4648,7 +4648,9 @@ const CARTESIA_VERSION = '2026-03-01';
 const CARTESIA_DEFAULT_MODEL_ID = 'sonic-3.5';
 const CARTESIA_LEGACY_NARRATOR_VOICE_ID = 'db6b0ed5-d5d3-463d-ae85-518a07d3c2b4';
 const CARTESIA_LEGACY_NARRATOR_VOICE_NAME = 'Skylar - Friendly Guide';
-const CARTESIA_DEFAULT_VOICE_NAME = CARTESIA_LEGACY_NARRATOR_VOICE_NAME;
+const CARTESIA_KATIE_VOICE_ID = 'f786b574-daa5-4673-aa0c-cbe3e8534c02';
+const CARTESIA_KATIE_VOICE_NAME = 'Katie - Friendly Fixer';
+const CARTESIA_DEFAULT_VOICE_NAME = CARTESIA_KATIE_VOICE_NAME;
 const CARTESIA_LEGACY_NARRATOR_ALIASES = new Set(['cartesia narrator', 'narrator', 'she-raw', 'sheraw']);
 let cachedElevenLabsBrianVoiceId = '';
 let cachedElevenLabsVoices = null;
@@ -4768,25 +4770,31 @@ function normalizeCartesiaVoice(voice) {
 }
 
 async function resolveCartesiaVoice(voiceName, voiceId) {
-  const override = safeText(voiceId || process.env.CARTESIA_VOICE_ID || process.env.CARTESIA_DEFAULT_VOICE_ID, 160);
-  if (override) return {voiceId: override, voiceName: safeText(voiceName || CARTESIA_DEFAULT_VOICE_NAME, 120) || CARTESIA_DEFAULT_VOICE_NAME};
-  const requestedLabel = safeText(voiceName || process.env.CARTESIA_VOICE_NAME || CARTESIA_DEFAULT_VOICE_NAME, 120) || CARTESIA_DEFAULT_VOICE_NAME;
+  const explicitVoiceId = safeText(voiceId, 160);
+  if (explicitVoiceId) return {voiceId: explicitVoiceId, voiceName: safeText(voiceName || CARTESIA_DEFAULT_VOICE_NAME, 120) || CARTESIA_DEFAULT_VOICE_NAME};
+  const explicitVoiceName = safeText(voiceName, 120);
+  const envVoiceId = safeText(process.env.CARTESIA_VOICE_ID || process.env.CARTESIA_DEFAULT_VOICE_ID, 160);
+  if (!explicitVoiceName && envVoiceId) {
+    return {voiceId: envVoiceId, voiceName: safeText(process.env.CARTESIA_VOICE_NAME || CARTESIA_DEFAULT_VOICE_NAME, 120) || CARTESIA_DEFAULT_VOICE_NAME};
+  }
+  const requestedLabel = explicitVoiceName || safeText(process.env.CARTESIA_VOICE_NAME || CARTESIA_DEFAULT_VOICE_NAME, 120) || CARTESIA_DEFAULT_VOICE_NAME;
   const requestedName = requestedLabel.toLowerCase();
+  if (requestedName === CARTESIA_DEFAULT_VOICE_NAME.toLowerCase()) {
+    return {voiceId: CARTESIA_KATIE_VOICE_ID, voiceName: CARTESIA_DEFAULT_VOICE_NAME};
+  }
   if (CARTESIA_LEGACY_NARRATOR_ALIASES.has(requestedName)) {
-    return {voiceId: CARTESIA_LEGACY_NARRATOR_VOICE_ID, voiceName: CARTESIA_LEGACY_NARRATOR_VOICE_NAME};
+    return {voiceId: CARTESIA_KATIE_VOICE_ID, voiceName: CARTESIA_DEFAULT_VOICE_NAME};
   }
   const voices = await listCartesiaVoices();
   const normalized = voices.map(normalizeCartesiaVoice).filter((voice) => voice.voiceId);
-  if (requestedName) {
-    const exact = normalized.find((voice) => voice.name.toLowerCase() === requestedName);
-    if (exact) return {voiceId: exact.voiceId, voiceName: exact.name};
-    const partial = normalized.find((voice) => `${voice.name} ${voice.description} ${voice.category}`.toLowerCase().includes(requestedName));
-    if (partial) return {voiceId: partial.voiceId, voiceName: partial.name};
+  const exact = normalized.find((voice) => voice.name.toLowerCase() === requestedName);
+  if (exact) return {voiceId: exact.voiceId, voiceName: exact.name};
+  if (explicitVoiceName) {
+    throw new Error(`cartesia_voice_not_found: ${requestedLabel}`);
   }
-  const narrator = normalized.find((voice) => `${voice.name} ${voice.description} ${voice.category}`.toLowerCase().includes('narrat'));
-  if (narrator) return {voiceId: narrator.voiceId, voiceName: narrator.name || CARTESIA_DEFAULT_VOICE_NAME};
-  if (normalized[0]) return {voiceId: normalized[0].voiceId, voiceName: normalized[0].name || CARTESIA_DEFAULT_VOICE_NAME};
-  throw new Error('cartesia_voice_not_found');
+  const defaultExact = normalized.find((voice) => voice.name.toLowerCase() === CARTESIA_DEFAULT_VOICE_NAME.toLowerCase());
+  if (defaultExact) return {voiceId: defaultExact.voiceId, voiceName: defaultExact.name};
+  throw new Error(`cartesia_voice_not_found: ${CARTESIA_DEFAULT_VOICE_NAME}`);
 }
 
 async function resolveCartesiaVoiceId(voiceName, voiceId) {
@@ -4803,6 +4811,7 @@ async function openCartesiaStream(text, options = {}) {
   const modelId = safeText(options.modelId || process.env.CARTESIA_MODEL_ID || CARTESIA_DEFAULT_MODEL_ID, 120) || CARTESIA_DEFAULT_MODEL_ID;
   return {
     voiceName,
+    voiceId,
     modelId,
     response: await fetch('https://api.cartesia.ai/tts/bytes', {
       method: 'POST',
@@ -4906,7 +4915,7 @@ async function openHostedSpeechStream(text, body) {
   const acousticDirection = safeText(body && body.acousticDirection, 300);
   if (provider === 'cartesia') {
     const cartesia = await openCartesiaStream(text, {voiceName, voiceId, modelId});
-    return {provider: 'cartesia', voiceName: cartesia.voiceName, modelId: cartesia.modelId, role, characterId, voiceAlias, acousticDirection, response: cartesia.response};
+    return {provider: 'cartesia', voiceName: cartesia.voiceName, voiceId: cartesia.voiceId, modelId: cartesia.modelId, role, characterId, voiceAlias, acousticDirection, response: cartesia.response};
   }
   return {provider: 'elevenlabs', voiceName, modelId, role, characterId, voiceAlias, acousticDirection, response: await openElevenLabsStream(text, {voiceName, voiceId, modelId})};
 }
@@ -4956,6 +4965,7 @@ async function ttsHandler(req, res) {
     res.set('X-Sample-Rate', '24000');
     res.set('X-Speech-Provider', speech.provider);
     res.set('X-Speech-Voice', speech.voiceName || (speech.provider === 'elevenlabs' ? 'Brian' : CARTESIA_DEFAULT_VOICE_NAME));
+    if (speech.voiceId) res.set('X-Speech-Voice-Id', speech.voiceId);
     res.set('X-Speech-Model', speech.modelId || (speech.provider === 'elevenlabs' ? 'eleven_multilingual_v2' : CARTESIA_DEFAULT_MODEL_ID));
     if (speech.role) res.set('X-Speech-Role', speech.role);
     if (speech.characterId) res.set('X-Speech-Character', speech.characterId);

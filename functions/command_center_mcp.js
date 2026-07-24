@@ -324,13 +324,16 @@ function cleanOneShotExecution(args = {}) {
 }
 
 function normalizeGithubRepositoryRef(value) {
-  const raw = safeText(value, 1000)
-    .replace(/^github:\/\//i, '')
-    .replace(/^https:\/\/github\.com\//i, '')
-    .split(/[?#]/)[0]
-    .replace(/\.git$/i, '');
+  const text = safeText(value, 1000);
+  if (!text || /^(worker-local|gs|file):\/\//i.test(text)) return '';
+  let raw = text.split(/[?#]/)[0].replace(/\.git$/i, '');
+  if (/^github:\/\//i.test(raw)) raw = raw.replace(/^github:\/\//i, '');
+  else if (/^https:\/\/github\.com\//i.test(raw)) raw = raw.replace(/^https:\/\/github\.com\//i, '');
+  else if (/^[a-z][a-z0-9+.-]*:\/\//i.test(raw)) return '';
   const parts = raw.split('/').filter(Boolean);
-  return parts.length >= 2 ? `${parts[0]}/${parts[1]}` : '';
+  if (parts.length < 2) return '';
+  if (!/^[A-Za-z0-9_.-]+$/.test(parts[0]) || !/^[A-Za-z0-9_.-]+$/.test(parts[1])) return '';
+  return `${parts[0]}/${parts[1]}`;
 }
 
 function repositoryFromBaseWorkspace(baseWorkspace = {}) {
@@ -776,15 +779,78 @@ function isWorkerLeaseEligible(worker, requirements, options = {}) {
   return {eligible: true, reason: 'eligible'};
 }
 
+function workerConcurrencyLimit(worker = {}) {
+  const limits = safeObject(worker.limits);
+  const raw = Number(limits.concurrentJobs || limits.maxConcurrentJobs || limits.concurrentActivations || limits.maxConcurrentActivations || 1) || 1;
+  return Math.max(1, Math.min(raw, 100));
+}
+
+function selectWorkerCandidates(workers, requirements, options = {}) {
+  const reqs = safeList(requirements, 40, 120).map((req) => req.toLowerCase());
+  return (Array.isArray(workers) ? workers : []).map((worker) => {
+    const eligibility = isWorkerLeaseEligible(worker, reqs, options);
+    return {
+      worker,
+      workerId: worker && worker.workerId || '',
+      eligible: eligibility.eligible === true,
+      reason: eligibility.reason || '',
+      concurrencyLimit: workerConcurrencyLimit(worker),
+    };
+  });
+}
+
 function selectWorker(workers, requirements, options = {}) {
   const reqs = safeList(requirements, 40, 120).map((req) => req.toLowerCase());
-  const compatible = workers.filter((worker) => isWorkerLeaseEligible(worker, reqs, options).eligible);
+  const compatible = selectWorkerCandidates(workers, reqs, options).filter((candidate) => candidate.eligible).map((candidate) => candidate.worker);
   const selected = compatible[0] || null;
   if (selected) return selected;
   const err = new Error(reqs.length ? `No live real Command Center worker satisfies requirements: ${reqs.join(', ')}` : 'No live real Command Center worker is currently routable.');
   err.status = 409;
   err.code = 'NO_REAL_WORKER_AVAILABLE';
   err.requirements = reqs;
+  err.workerDiagnostics = selectWorkerCandidates(workers, reqs, options).map((candidate) => ({workerId: candidate.workerId, eligible: candidate.eligible, reason: candidate.reason}));
+  throw err;
+}
+
+async function activeLeaseCountsByWorker(admin) {
+  const snap = await collection(admin, COMMAND_CENTER_COLLECTIONS.leases).where('status', '==', 'active').limit(500).get();
+  const counts = new Map();
+  snap.forEach((doc) => {
+    const lease = doc.data() || {};
+    const workerId = safeText(lease.workerId, 120);
+    if (!workerId) return;
+    const expiresAtMs = Number(lease.expiresAtMs || 0) || 0;
+    if (expiresAtMs > 0 && expiresAtMs <= Date.now()) return;
+    counts.set(workerId, (counts.get(workerId) || 0) + 1);
+  });
+  return counts;
+}
+
+async function selectWorkerForJob(admin, workers, requirements, options = {}) {
+  const reqs = safeList(requirements, 40, 120).map((req) => req.toLowerCase());
+  const counts = await activeLeaseCountsByWorker(admin);
+  const candidates = selectWorkerCandidates(workers, reqs, options).map((candidate, index) => {
+    const activeLeases = counts.get(candidate.workerId) || 0;
+    const capacityRemaining = candidate.concurrencyLimit - activeLeases;
+    return {...candidate, index, activeLeases, capacityRemaining, loadRatio: activeLeases / Math.max(1, candidate.concurrencyLimit)};
+  });
+  const compatible = candidates
+    .filter((candidate) => candidate.eligible && candidate.capacityRemaining > 0)
+    .sort((a, b) => a.loadRatio - b.loadRatio || a.activeLeases - b.activeLeases || a.index - b.index);
+  const selected = compatible[0] || null;
+  if (selected) {
+    return {
+      worker: selected.worker,
+      eligibleWorkerIds: candidates.filter((candidate) => candidate.eligible).map((candidate) => candidate.workerId),
+      selectedWorkerLoad: {workerId: selected.workerId, activeLeases: selected.activeLeases, concurrencyLimit: selected.concurrencyLimit, capacityRemaining: selected.capacityRemaining},
+      workerDiagnostics: candidates.map((candidate) => ({workerId: candidate.workerId, eligible: candidate.eligible, reason: candidate.reason, activeLeases: candidate.activeLeases, concurrencyLimit: candidate.concurrencyLimit, capacityRemaining: candidate.capacityRemaining})),
+    };
+  }
+  const err = new Error(reqs.length ? `No compatible Command Center worker currently has free capacity for requirements: ${reqs.join(', ')}` : 'No live real Command Center worker currently has free capacity.');
+  err.status = 409;
+  err.code = 'NO_REAL_WORKER_AVAILABLE';
+  err.requirements = reqs;
+  err.workerDiagnostics = candidates.map((candidate) => ({workerId: candidate.workerId, eligible: candidate.eligible, reason: candidate.reason, activeLeases: candidate.activeLeases, concurrencyLimit: candidate.concurrencyLimit, capacityRemaining: candidate.capacityRemaining}));
   throw err;
 }
 
@@ -816,6 +882,48 @@ async function appendEvent(admin, event) {
   };
   await collection(admin, COMMAND_CENTER_COLLECTIONS.events).doc(eventId).set(payload);
   return payload;
+}
+
+async function releaseActiveLeasesForJob(admin, jobId, workerId = '', status = 'released', reason = '') {
+  const nowMs = Date.now();
+  const snap = await collection(admin, COMMAND_CENTER_COLLECTIONS.leases).where('jobId', '==', jobId).limit(20).get();
+  const batch = admin.firestore().batch();
+  let released = 0;
+  snap.forEach((doc) => {
+    const lease = doc.data() || {};
+    if (lease.status !== 'active') return;
+    if (workerId && lease.workerId !== workerId) return;
+    released += 1;
+    batch.set(doc.ref, {status, releasedAtMs: nowMs, updatedAtMs: nowMs, releaseReason: reason}, {merge: true});
+  });
+  if (released) await batch.commit();
+  return released;
+}
+
+async function failJobTerminal(admin, job, actor, reason, data = {}) {
+  const nowMs = Date.now();
+  const jobId = cleanJobId(job.jobId);
+  const projectId = cleanProjectId(job.projectId || 'project');
+  const finalReport = safeText(data.finalReport, 8000) || `Command Center worker failed: ${safeText(reason, 4000)}`;
+  const releasedLeases = await releaseActiveLeasesForJob(admin, jobId, job.selectedWorkerId || '', 'failed', reason);
+  await collection(admin, COMMAND_CENTER_COLLECTIONS.jobs).doc(jobId).set({
+    status: 'failed',
+    updatedAtMs: nowMs,
+    failedAtMs: nowMs,
+    completedAtMs: nowMs,
+    finalReport,
+    failureReason: safeText(reason, 2000),
+  }, {merge: true});
+  const event = await appendEvent(admin, {
+    type: 'job_failed',
+    jobId,
+    projectId,
+    actor: safeText(actor, 160) || 'command_center',
+    summary: finalReport,
+    data: {...safeObject(data), releasedLeases},
+  });
+  await recordLog(admin, jobId, projectId, reason, {terminalFailure: true, releasedLeases, ...safeObject(data)});
+  return {status: 'failed', event, releasedLeases};
 }
 
 async function recordLog(admin, jobId, projectId, message, data = {}) {
@@ -1737,8 +1845,44 @@ async function requestJobActivation(admin, job, lease, worker) {
   return {activation: {...activation, ...update}, events: [requestedEvent, resultEvent], accepted: state.accepted};
 }
 
+function artifactNamesAndKinds(artifacts = []) {
+  return {
+    names: new Set(artifacts.map((artifact) => safeText(artifact.name, 240)).filter(Boolean)),
+    kinds: new Set(artifacts.map((artifact) => safeText(artifact.kind, 120)).filter(Boolean)),
+  };
+}
+
+function jobRequestsVisualQa(job = {}) {
+  const requirements = safeList(job.workerRequirements, 80, 120).map((item) => item.toLowerCase());
+  const requiredArtifacts = safeList(job.requiredArtifacts, 80, 180).map((item) => item.toLowerCase());
+  const titleObjective = String((job.title || '') + ' ' + (job.objective || '')).toLowerCase();
+  return requirements.some((item) => ['browser-worker', 'playwright', 'cloud-visual-truth', 'visual-qa'].includes(item))
+    || requiredArtifacts.some((item) => /visual|screenshot|browser.episode|episode/.test(item))
+    || /visual qa|cloud visual|screenshot|final render/.test(titleObjective);
+}
+
+function shouldAcceptVisualQaCompletion({artifacts = []}) {
+  const {names, kinds} = artifactNamesAndKinds(artifacts);
+  const hasManifest = names.has('visual_qa_manifest.json') || kinds.has('visual_qa_manifest');
+  const hasScreenshot = names.has('screenshot.png') || kinds.has('screenshot');
+  const hasEpisode = names.has('browser_episode.json') || kinds.has('browser_episode');
+  const screenshot = artifacts.find((artifact) => artifact.name === 'screenshot.png' || artifact.kind === 'screenshot') || {};
+  const manifest = artifacts.find((artifact) => artifact.name === 'visual_qa_manifest.json' || artifact.kind === 'visual_qa_manifest') || {};
+  if (!hasManifest) return {ok: false, reason: 'completed visual QA jobs require visual_qa_manifest.json'};
+  if (!hasScreenshot) return {ok: false, reason: 'completed visual QA jobs require screenshot.png'};
+  if (!hasEpisode) return {ok: false, reason: 'completed visual QA jobs require browser_episode.json'};
+  if (!/^[a-f0-9]{64}$/i.test(safeText(screenshot.sha256, 128))) return {ok: false, reason: 'completed visual QA jobs require screenshot.png sha256'};
+  const manifestMeta = safeObject(manifest.metadata);
+  const screenshotMeta = safeObject(screenshot.metadata);
+  if (safeText(manifestMeta.captureKind || screenshotMeta.captureKind, 120) !== 'command-center-cloud-screenshot') {
+    return {ok: false, reason: 'completed visual QA jobs require command-center-cloud-screenshot captureKind metadata'};
+  }
+  return {ok: true, reason: 'completion has browser-worker visual QA evidence'};
+}
+
 function shouldAcceptWorkerCompletion({requestedStatus, events = [], artifacts = [], job = {}}) {
   if (requestedStatus === 'failed') return {ok: true, reason: 'failed completions are diagnostic terminal states'};
+  if (jobRequestsVisualQa(job)) return shouldAcceptVisualQaCompletion({artifacts});
   const types = new Set(events.map((event) => event.type));
   if (!types.has('executor_started')) return {ok: false, reason: 'completed jobs require executor_started evidence'};
   if (!types.has('executor_finished')) return {ok: false, reason: 'completed jobs require executor_finished evidence'};
@@ -1748,7 +1892,7 @@ function shouldAcceptWorkerCompletion({requestedStatus, events = [], artifacts =
   if (artifactNames.has('noop-proof.txt')) return {ok: false, reason: 'completed repository jobs cannot be proven by noop-proof.txt'};
   const requiredExecutionArtifacts = ['job-intake.json', 'orientation.md', 'reasoning-summary.md', 'command-log.jsonl', 'acceptance.json', 'acceptance-matrix.json', 'implementation.patch', 'changed-files.json', 'verification.json', 'final-report.md', 'mutation-requests.jsonl'];
   const missing = requiredExecutionArtifacts.filter((name) => !artifactNames.has(name));
-  if (missing.length) return {ok: false, reason: `completed repository jobs require execution artifacts: ${missing.join(', ')}`};
+  if (missing.length) return {ok: false, reason: 'completed repository jobs require execution artifacts: ' + missing.join(', ')};
   if (safeList(job.requiredArtifacts, 80, 180).some((name) => /red|patch|verification|pr|commit|build|readback/i.test(name)) && !artifactNames.has('implementation.patch')) {
     return {ok: false, reason: 'completed mutation tickets require implementation.patch evidence'};
   }
@@ -1812,9 +1956,11 @@ async function createJob(admin, caller, args) {
     const jobId = `job_${randomUUID()}`;
     const workers = recordsVisibleToCaller(await workerRecords(admin), caller);
     let worker = null;
+    let selection = null;
     let selectionFailure = null;
     try {
-      worker = selectWorker(workers, args.workerRequirements);
+      selection = await selectWorkerForJob(admin, workers, args.workerRequirements);
+      worker = selection.worker;
     } catch (err) {
       if (!workerSelectionFailure(err)) throw err;
       selectionFailure = err;
@@ -1836,6 +1982,11 @@ async function createJob(admin, caller, args) {
       ...execution,
       status: worker ? 'leased' : 'queued',
       selectedWorkerId: worker ? worker.workerId : '',
+      eligibleWorkerIds: selection ? selection.eligibleWorkerIds : [],
+      workerDiagnostics: selection ? selection.workerDiagnostics : (selectionFailure && selectionFailure.workerDiagnostics || []),
+      selectedWorkerLoad: selection ? selection.selectedWorkerLoad : {},
+      dispatchAttemptCount: worker ? 1 : 0,
+      recoverable: true,
       createdBy: caller.actor,
       ownerKey: ownerKeyFromCaller(caller),
       createdAtMs: nowMs,
@@ -1846,14 +1997,14 @@ async function createJob(admin, caller, args) {
     await collection(admin, COMMAND_CENTER_COLLECTIONS.jobs).doc(jobId).set(job);
     const createdEvent = await appendEvent(admin, {type: 'job_created', jobId, projectId, actor: caller.actor, summary: job.title, data: {workerRequirements: job.workerRequirements}});
     if (!worker) {
-      const queuedEvent = await appendEvent(admin, {type: 'job_queued_no_worker', jobId, projectId, actor: 'command_center', summary: selectionFailure.message, data: {requirements: selectionFailure.requirements || job.workerRequirements}});
-      await recordLog(admin, jobId, projectId, 'Command Center queued job because no real worker was currently eligible.', {workerRequirements: job.workerRequirements, diagnostic: selectionFailure.message});
+      const queuedEvent = await appendEvent(admin, {type: 'job_queued_no_worker', jobId, projectId, actor: 'command_center', summary: selectionFailure.message, data: {requirements: selectionFailure.requirements || job.workerRequirements, workerDiagnostics: job.workerDiagnostics}});
+      await recordLog(admin, jobId, projectId, 'Command Center queued job because no real worker was currently eligible.', {workerRequirements: job.workerRequirements, diagnostic: selectionFailure.message, workerDiagnostics: job.workerDiagnostics});
       const checkpoint = await recordCheckpoint(admin, job);
       return {job, lease: null, activation: null, events: [createdEvent, queuedEvent], checkpoint};
     }
     const lease = {leaseId: `lease_${randomUUID()}`, jobId, projectId, workerId: worker.workerId, status: 'active', acquiredAtMs: nowMs, expiresAtMs: nowMs + 30 * 60 * 1000, heartbeatAtMs: nowMs};
     await collection(admin, COMMAND_CENTER_COLLECTIONS.leases).doc(lease.leaseId).set(lease);
-    const leasedEvent = await appendEvent(admin, {type: 'job_leased', jobId, projectId, actor: 'command_center', summary: `Leased to ${worker.workerId}.`, data: {worker}});
+    const leasedEvent = await appendEvent(admin, {type: 'job_leased', jobId, projectId, actor: 'command_center', summary: `Leased to ${worker.workerId}.`, data: {worker, eligibleWorkerIds: job.eligibleWorkerIds, selectedWorkerLoad: job.selectedWorkerLoad}});
     const activationResult = await requestJobActivation(admin, job, lease, worker);
     if (activationResult.activation && activationResult.accepted === false) job.status = 'failed';
     await recordLog(admin, jobId, projectId, 'Command Center created and leased one-shot job from prepared workspace contract.', {workerId: worker.workerId, executionMode: job.executionMode, baseWorkspace: job.baseWorkspace.baseWorkspaceId});
@@ -1964,9 +2115,12 @@ async function createFollowupJob(admin, caller, args) {
     const workerRequirements = safeList(args.workerRequirements, 40, 120);
     const inheritedWorkerRequirements = safeList(sourceJob.workerRequirements, 40, 120);
     let worker = null;
+    let selection = null;
     let selectionFailure = null;
+    const effectiveWorkerRequirements = workerRequirements.length ? workerRequirements : inheritedWorkerRequirements;
     try {
-      worker = selectWorker(workers, workerRequirements.length ? workerRequirements : inheritedWorkerRequirements);
+      selection = await selectWorkerForJob(admin, workers, effectiveWorkerRequirements);
+      worker = selection.worker;
     } catch (err) {
       if (!workerSelectionFailure(err)) throw err;
       selectionFailure = err;
@@ -1987,7 +2141,7 @@ async function createFollowupJob(admin, caller, args) {
       acceptanceCriteria: safeList(args.acceptanceCriteria, 80, 1000),
       constraints: safeList(args.constraints, 80, 1000),
       scopeExclusions: safeList(args.scopeExclusions, 80, 1000),
-      workerRequirements: workerRequirements.length ? workerRequirements : inheritedWorkerRequirements,
+      workerRequirements: effectiveWorkerRequirements,
       budgetClass: safeText(args.budgetClass, 80) || 'small',
       mutationPolicy: cleanMutationPolicy(args.mutationPolicy || sourceJob.mutationPolicy),
       repository,
@@ -2003,6 +2157,11 @@ async function createFollowupJob(admin, caller, args) {
       sourceEvidenceRefs: sourceHandoff.review.correctability.carryForwardEvidenceRefs,
       status: worker ? 'leased' : 'queued',
       selectedWorkerId: worker ? worker.workerId : '',
+      eligibleWorkerIds: selection ? selection.eligibleWorkerIds : [],
+      workerDiagnostics: selection ? selection.workerDiagnostics : (selectionFailure && selectionFailure.workerDiagnostics || []),
+      selectedWorkerLoad: selection ? selection.selectedWorkerLoad : {},
+      dispatchAttemptCount: worker ? 1 : 0,
+      recoverable: true,
       createdBy: caller.actor,
       ownerKey: ownerKeyFromCaller(caller),
       createdAtMs: nowMs,
@@ -2014,14 +2173,14 @@ async function createFollowupJob(admin, caller, args) {
     const createdEvent = await appendEvent(admin, {type: 'job_created', jobId, projectId, actor: caller.actor, summary: job.title, data: {workerRequirements: job.workerRequirements, sourceJobId}});
     const followupEvent = await appendEvent(admin, {type: 'job_followup_created', jobId, projectId, actor: caller.actor, summary: `Linked follow-up for ${sourceJobId}.`, evidenceRefs: [`handoff://${sourceJobId}`], data: {sourceJobId, sourceStatus: sourceJob.status}});
     if (!worker) {
-      const queuedEvent = await appendEvent(admin, {type: 'job_queued_no_worker', jobId, projectId, actor: 'command_center', summary: selectionFailure.message, data: {requirements: selectionFailure.requirements || job.workerRequirements}});
-      await recordLog(admin, jobId, projectId, 'Command Center queued follow-up because no real worker was currently eligible.', {sourceJobId, workerRequirements: job.workerRequirements, diagnostic: selectionFailure.message});
+      const queuedEvent = await appendEvent(admin, {type: 'job_queued_no_worker', jobId, projectId, actor: 'command_center', summary: selectionFailure.message, data: {requirements: selectionFailure.requirements || job.workerRequirements, workerDiagnostics: job.workerDiagnostics}});
+      await recordLog(admin, jobId, projectId, 'Command Center queued follow-up because no real worker was currently eligible.', {sourceJobId, workerRequirements: job.workerRequirements, diagnostic: selectionFailure.message, workerDiagnostics: job.workerDiagnostics});
       const checkpoint = await recordCheckpoint(admin, job);
       return {job, lease: null, activation: null, events: [createdEvent, followupEvent, queuedEvent], checkpoint, sourceHandoff};
     }
     const lease = {leaseId: `lease_${randomUUID()}`, jobId, projectId, workerId: worker.workerId, status: 'active', acquiredAtMs: nowMs, expiresAtMs: nowMs + 30 * 60 * 1000, heartbeatAtMs: nowMs};
     await collection(admin, COMMAND_CENTER_COLLECTIONS.leases).doc(lease.leaseId).set(lease);
-    const leasedEvent = await appendEvent(admin, {type: 'job_leased', jobId, projectId, actor: 'command_center', summary: `Leased to ${worker.workerId}.`, data: {worker}});
+    const leasedEvent = await appendEvent(admin, {type: 'job_leased', jobId, projectId, actor: 'command_center', summary: `Leased to ${worker.workerId}.`, data: {worker, eligibleWorkerIds: job.eligibleWorkerIds, selectedWorkerLoad: job.selectedWorkerLoad}});
     const activationResult = await requestJobActivation(admin, job, lease, worker);
     if (activationResult.activation && activationResult.accepted === false) job.status = 'failed';
     await recordLog(admin, jobId, projectId, 'Command Center created linked follow-up job from source handoff.', {sourceJobId, workerId: worker.workerId, sourceStatus: sourceJob.status});
@@ -2427,6 +2586,11 @@ function staleJobCandidate(job, nowMs, olderThanMs, statuses) {
   const clockMs = staleJobClockMs(job);
   const ageMs = clockMs > 0 ? nowMs - clockMs : Number.POSITIVE_INFINITY;
   if (ageMs < olderThanMs) return null;
+  const routingDiagnostic = safeText(job.routingDiagnostic, 1000);
+  const queuedWithoutWorker = status === 'queued' && !(job.selectedWorkerId || '').trim();
+  const reason = queuedWithoutWorker
+    ? `queued job had no eligible worker for at least ${olderThanMs}ms${routingDiagnostic ? `: ${routingDiagnostic}` : ''}`
+    : `nonterminal job stale for at least ${olderThanMs}ms`;
   return {
     jobId: job.jobId,
     projectId: job.projectId,
@@ -2435,16 +2599,66 @@ function staleJobCandidate(job, nowMs, olderThanMs, statuses) {
     createdAtMs: Number(job.createdAtMs || 0) || 0,
     updatedAtMs: Number(job.updatedAtMs || 0) || 0,
     lastWorkerHeartbeatAtMs: Number(job.lastWorkerHeartbeatAtMs || 0) || 0,
+    routingDiagnostic,
     staleAgeMs: Number.isFinite(ageMs) ? ageMs : null,
-    reason: `nonterminal job stale for at least ${olderThanMs}ms`,
+    reason,
   };
+}
+
+function activationStartTimeoutCandidate(job = {}, activations = [], nowMs = Date.now(), timeoutMs = COMMAND_CENTER_COLD_START_HEARTBEAT_DEADLINE_MS) {
+  if (isTerminalJobStatus(job.status)) return null;
+  if (!['leased', 'activating'].includes(safeText(job.status, 80))) return null;
+  if (Number(job.executorStartedAtMs || 0) > 0 || Number(job.workerAcceptedLeaseAtMs || 0) > 0) return null;
+  const accepted = activations
+    .filter((activation) => activation.jobId === job.jobId && activation.status === 'accepted')
+    .sort((a, b) => Number(b.acceptedAtMs || b.updatedAtMs || 0) - Number(a.acceptedAtMs || a.updatedAtMs || 0))[0] || null;
+  if (!accepted) return null;
+  const acceptedAtMs = Number(accepted.acceptedAtMs || accepted.updatedAtMs || 0) || 0;
+  const ageMs = acceptedAtMs > 0 ? nowMs - acceptedAtMs : Number.POSITIVE_INFINITY;
+  if (ageMs < timeoutMs) return null;
+  return {
+    jobId: job.jobId,
+    projectId: job.projectId,
+    status: job.status,
+    selectedWorkerId: job.selectedWorkerId || accepted.workerId || '',
+    activationId: accepted.activationId || '',
+    leaseId: accepted.leaseId || '',
+    acceptedAtMs,
+    activationAgeMs: Number.isFinite(ageMs) ? ageMs : null,
+    reason: `accepted activation did not produce executor_started within ${timeoutMs}ms`,
+  };
+}
+
+async function reconcileActivationStartTimeouts(admin, actor = 'command_center', args = {}) {
+  const nowMs = Date.now();
+  const timeoutMs = Math.max(30 * 1000, Math.min(Number(args.timeoutMs || 0) || COMMAND_CENTER_COLD_START_HEARTBEAT_DEADLINE_MS, 30 * 60 * 1000));
+  const limit = Math.max(1, Math.min(Number(args.limit) || 100, 500));
+  const jobSnap = await collection(admin, COMMAND_CENTER_COLLECTIONS.jobs).orderBy('createdAtMs', 'desc').limit(limit).get();
+  const activationSnap = await collection(admin, COMMAND_CENTER_COLLECTIONS.jobActivations).orderBy('requestedAtMs', 'desc').limit(limit * 2).get();
+  const activations = [];
+  activationSnap.forEach((doc) => activations.push(doc.data() || {}));
+  const candidates = [];
+  jobSnap.forEach((doc) => {
+    const candidate = activationStartTimeoutCandidate(doc.data() || {}, activations, nowMs, timeoutMs);
+    if (candidate) candidates.push(candidate);
+  });
+  const reconciled = [];
+  for (const candidate of candidates) {
+    const job = await getJob(admin, candidate.jobId);
+    if (isTerminalJobStatus(job.status) || Number(job.executorStartedAtMs || 0) > 0 || Number(job.workerAcceptedLeaseAtMs || 0) > 0) continue;
+    await collection(admin, COMMAND_CENTER_COLLECTIONS.jobActivations).doc(candidate.activationId).set({status: 'timed_out', timedOutAtMs: nowMs, updatedAtMs: nowMs, diagnostic: candidate.reason}, {merge: true});
+    const result = await failJobTerminal(admin, job, actor, candidate.reason, {activationId: candidate.activationId, leaseId: candidate.leaseId, activationTimedOut: true});
+    reconciled.push({...candidate, releasedLeases: result.releasedLeases, eventId: result.event.eventId});
+  }
+  return {timeoutMs, scanned: jobSnap.size, candidates, reconciled};
 }
 
 async function reconcileStaleJobs(admin, caller, args = {}) {
   const dryRun = args.dryRun !== false;
   const nowMs = Date.now();
-  const statuses = safeList(args.statuses, 20, 80).filter((status) => ['leased', 'executing', 'running', 'activating'].includes(status));
-  const targetStatuses = statuses.length ? statuses : ['leased', 'executing', 'running', 'activating'];
+  const staleReconcileStatuses = ['queued', 'leased', 'executing', 'running', 'activating'];
+  const statuses = safeList(args.statuses, 20, 80).filter((status) => staleReconcileStatuses.includes(status));
+  const targetStatuses = statuses.length ? statuses : staleReconcileStatuses;
   const olderThanMs = staleJobCutoffMs(args);
   const limit = Math.max(1, Math.min(Number(args.limit) || 50, 500));
   if (!dryRun) requireIdempotencyKey(args.idempotencyKey);
@@ -2473,15 +2687,94 @@ async function reconcileStaleJobs(admin, caller, args = {}) {
         const lease = doc.data() || {};
         if (lease.status === 'active') {
           expiredLeases += 1;
-          batch.set(doc.ref, {status: 'expired', expiredAtMs: nowMs, updatedAtMs: nowMs, expirationReason: candidate.reason}, {merge: true});
+          batch.set(doc.ref, {status: 'expired', expiredAtMs: nowMs, updatedAtMs: nowMs, expirationReason: candidate.reason, releaseReason: candidate.reason}, {merge: true});
         }
       });
       if (expiredLeases) await batch.commit();
-      const event = await appendEvent(admin, {type: 'job_expired', jobId: candidate.jobId, projectId: candidate.projectId, actor: caller.actor, summary: candidate.reason, data: {...candidate, expiredLeases}});
-      reconciled.push({...candidate, expiredLeases, eventId: event.eventId});
+      const event = await appendEvent(admin, {type: 'job_expired', jobId: candidate.jobId, projectId: candidate.projectId, actor: caller.actor, summary: candidate.reason, data: {...candidate, status: 'expired', expiredLeases, reconciledFromStale: true}});
+      await recordLog(admin, candidate.jobId, candidate.projectId, 'Command Center expired stale nonterminal job.', {...candidate, expiredLeases, previousStatus: candidate.status});
+      reconciled.push({...candidate, status: 'expired', expiredLeases, eventId: event.eventId});
     }
   }
   return {dryRun, olderThanMs, statuses: targetStatuses, scanned: snap.size, candidates, reconciled};
+}
+
+async function dispatchQueuedJobsInner(admin, caller, args = {}, dryRun = true) {
+  const nowMs = Date.now();
+  const limit = Math.max(1, Math.min(Number(args.limit) || 25, 100));
+  const maxDispatch = Math.max(1, Math.min(Number(args.maxDispatch) || 10, 50));
+  const retryExpired = args.retryExpired === true;
+  const targetStatuses = retryExpired ? ['queued', 'expired'] : ['queued'];
+  const workers = recordsVisibleToCaller(await workerRecords(admin), caller);
+  const snap = await queryOwnedCollection(admin, COMMAND_CENTER_COLLECTIONS.jobs, caller).orderBy('createdAtMs', 'desc').limit(limit).get();
+  const candidates = [];
+  const dispatched = [];
+  for (const doc of snap.docs) {
+    const job = doc.data() || {};
+    const status = safeText(job.status, 80);
+    if (!targetStatuses.includes(status)) continue;
+    if (isTerminalJobStatus(status) && !(retryExpired && status === 'expired')) continue;
+    if (status === 'expired' && !(job.recoverable === true || job.previousStatus === 'queued')) continue;
+    const activeLease = await activeLeaseForJob(admin, job.jobId, job.selectedWorkerId || '');
+    if (activeLease) {
+      candidates.push({jobId: job.jobId, projectId: job.projectId, status, dispatchable: false, reason: 'active lease already exists', selectedWorkerId: job.selectedWorkerId || ''});
+      continue;
+    }
+    let selection = null;
+    let selectionFailure = null;
+    try {
+      selection = await selectWorkerForJob(admin, workers, job.workerRequirements || []);
+    } catch (err) {
+      if (!workerSelectionFailure(err)) throw err;
+      selectionFailure = err;
+    }
+    if (!selection) {
+      candidates.push({jobId: job.jobId, projectId: job.projectId, status, dispatchable: false, reason: selectionFailure.message, workerDiagnostics: selectionFailure.workerDiagnostics || []});
+      continue;
+    }
+    const candidate = {jobId: job.jobId, projectId: job.projectId, status, dispatchable: true, selectedWorkerId: selection.worker.workerId, eligibleWorkerIds: selection.eligibleWorkerIds, selectedWorkerLoad: selection.selectedWorkerLoad};
+    candidates.push(candidate);
+    if (dryRun || dispatched.length >= maxDispatch) continue;
+    const refreshed = await getJob(admin, job.jobId, caller);
+    const refreshedStatus = safeText(refreshed.status, 80);
+    if (!targetStatuses.includes(refreshedStatus)) continue;
+    if (refreshedStatus === 'expired' && !(retryExpired && (refreshed.recoverable === true || refreshed.previousStatus === 'queued'))) continue;
+    const refreshedActiveLease = await activeLeaseForJob(admin, refreshed.jobId, refreshed.selectedWorkerId || '');
+    if (refreshedActiveLease) continue;
+    const refreshedSelection = await selectWorkerForJob(admin, workers, refreshed.workerRequirements || []);
+    const worker = refreshedSelection.worker;
+    const dispatchAttemptCount = Number(refreshed.dispatchAttemptCount || 0) + 1;
+    const lease = {leaseId: `lease_${randomUUID()}`, jobId: refreshed.jobId, projectId: refreshed.projectId, workerId: worker.workerId, status: 'active', acquiredAtMs: nowMs, expiresAtMs: nowMs + 30 * 60 * 1000, heartbeatAtMs: nowMs, dispatchAttemptCount, recoveredFromStatus: refreshedStatus};
+    const updates = {
+      status: 'leased',
+      selectedWorkerId: worker.workerId,
+      eligibleWorkerIds: refreshedSelection.eligibleWorkerIds,
+      workerDiagnostics: refreshedSelection.workerDiagnostics,
+      selectedWorkerLoad: refreshedSelection.selectedWorkerLoad,
+      dispatchAttemptCount,
+      lastDispatchAtMs: nowMs,
+      lastDispatchBy: caller.actor,
+      previousStatus: refreshedStatus,
+      routingDiagnostic: '',
+      updatedAtMs: nowMs,
+      recoverable: true,
+    };
+    await collection(admin, COMMAND_CENTER_COLLECTIONS.leases).doc(lease.leaseId).set(lease);
+    await collection(admin, COMMAND_CENTER_COLLECTIONS.jobs).doc(refreshed.jobId).set(updates, {merge: true});
+    const dispatchEvent = await appendEvent(admin, {type: 'job_dispatched_from_queue', jobId: refreshed.jobId, projectId: refreshed.projectId, actor: caller.actor, summary: `Dispatched recoverable job to ${worker.workerId}.`, data: {leaseId: lease.leaseId, workerId: worker.workerId, recoveredFromStatus: refreshedStatus, dispatchAttemptCount, eligibleWorkerIds: refreshedSelection.eligibleWorkerIds, selectedWorkerLoad: refreshedSelection.selectedWorkerLoad}});
+    const leasedEvent = await appendEvent(admin, {type: 'job_leased', jobId: refreshed.jobId, projectId: refreshed.projectId, actor: 'command_center', summary: `Leased to ${worker.workerId}.`, data: {worker, eligibleWorkerIds: refreshedSelection.eligibleWorkerIds, selectedWorkerLoad: refreshedSelection.selectedWorkerLoad, recoveredFromStatus: refreshedStatus}});
+    const activationResult = await requestJobActivation(admin, {...refreshed, ...updates}, lease, worker);
+    await recordLog(admin, refreshed.jobId, refreshed.projectId, 'Command Center dispatched queued recoverable job.', {workerId: worker.workerId, leaseId: lease.leaseId, recoveredFromStatus: refreshedStatus, dispatchAttemptCount});
+    const checkpoint = await recordCheckpoint(admin, {...refreshed, ...updates});
+    dispatched.push({jobId: refreshed.jobId, projectId: refreshed.projectId, status: activationResult.accepted === false ? 'failed' : 'leased', workerId: worker.workerId, leaseId: lease.leaseId, dispatchAttemptCount, eventIds: [dispatchEvent.eventId, leasedEvent.eventId, ...activationResult.events.map((event) => event.eventId)], activation: activationResult.activation, checkpoint});
+  }
+  return {dryRun, retryExpired, statuses: targetStatuses, scanned: snap.size, candidates, dispatched};
+}
+
+async function dispatchQueuedJobs(admin, caller, args = {}) {
+  const dryRun = args.dryRun !== false;
+  if (dryRun) return dispatchQueuedJobsInner(admin, caller, args, true);
+  return idempotentMutation(admin, caller, requireIdempotencyKey(args.idempotencyKey), 'jobs.dispatch_queued', async () => dispatchQueuedJobsInner(admin, caller, args, false));
 }
 
 async function reviseJob(admin, caller, args) {
@@ -2641,6 +2934,35 @@ async function retireWorker(admin, caller, args) {
   });
 }
 
+async function recentEndToEndExecutionProbe(admin, jobSnap = null) {
+  const nowMs = Date.now();
+  const maxAgeMs = 24 * 60 * 60 * 1000;
+  const snap = jobSnap || await collection(admin, COMMAND_CENTER_COLLECTIONS.jobs).orderBy('createdAtMs', 'desc').limit(250).get();
+  const candidates = [];
+  snap.forEach((doc) => {
+    const job = doc.data() || {};
+    const requirements = safeList(job.workerRequirements, 80, 120).map((item) => item.toLowerCase());
+    const titleObjective = `${job.title || ''} ${job.objective || ''}`.toLowerCase();
+    const ageMs = nowMs - (Number(job.completedAtMs || job.updatedAtMs || job.createdAtMs || 0) || 0);
+    const repoFree = !safeText(job.repository, 240) && (requirements.includes('cloud-run-debian') || requirements.includes('durable-session'));
+    const probeNamed = /no-op proof|harmless|repository-free|end-to-end|worker proof/.test(titleObjective);
+    if (job.status === 'completed' && ageMs >= 0 && ageMs <= maxAgeMs && repoFree && probeNamed) candidates.push(job);
+  });
+  candidates.sort((a, b) => Number(b.completedAtMs || b.updatedAtMs || 0) - Number(a.completedAtMs || a.updatedAtMs || 0));
+  for (const job of candidates.slice(0, 10)) {
+    const [events, artifacts] = await Promise.all([
+      listByJob(admin, COMMAND_CENTER_COLLECTIONS.events, job.jobId, 100),
+      listByJob(admin, COMMAND_CENTER_COLLECTIONS.artifacts, job.jobId, 100),
+    ]);
+    const types = new Set(events.map((event) => event.type));
+    const names = new Set(artifacts.map((artifact) => artifact.name));
+    if (types.has('executor_started') && types.has('executor_finished') && (types.has('executor_stdout') || types.has('executor_heartbeat')) && names.has('command-log.jsonl') && names.has('final-report.md')) {
+      return {ok: true, jobId: job.jobId, completedAtMs: Number(job.completedAtMs || job.updatedAtMs || 0), workerId: job.selectedWorkerId || '', eventTypes: Array.from(types).sort(), artifactNames: Array.from(names).sort().slice(0, 40)};
+    }
+  }
+  return {ok: false, reason: 'no recent completed repository-free real-worker probe with executor_started, command evidence, executor_finished, command-log.jsonl, and final-report.md'};
+}
+
 function normalizeCommandCenterOperationName(value) {
   return safeText(value, 180).replace(/^command_center\./, '');
 }
@@ -2650,6 +2972,7 @@ async function runCommandCenterOperation(admin, extra, operation, args = {}) {
   const caller = async () => callerFromExtra(admin, extra);
   switch (op) {
     case 'health': {
+      const activationTimeouts = await reconcileActivationStartTimeouts(admin, 'command_center_health', {limit: 250});
       const workers = await workerRecords(admin);
       const liveWorkers = workers.filter((worker) => worker.livenessState === 'live' && worker.routable === true);
       const activatableWorkers = workers.filter((worker) => worker.livenessState === 'activatable' && worker.routable === true);
@@ -2669,9 +2992,10 @@ async function runCommandCenterOperation(admin, extra, operation, args = {}) {
         nonterminal += 1;
         const ageMs = nowMs - (Number(job.createdAtMs || 0) || nowMs);
         oldestNonterminalAgeMs = oldestNonterminalAgeMs === null ? ageMs : Math.max(oldestNonterminalAgeMs, ageMs);
-        if (staleJobCandidate(job, nowMs, COMMAND_CENTER_RECONCILE_DEFAULT_OLDER_THAN_MS, ['leased', 'executing', 'running', 'activating'])) stale += 1;
+        if (staleJobCandidate(job, nowMs, COMMAND_CENTER_RECONCILE_DEFAULT_OLDER_THAN_MS, ['queued', 'leased', 'executing', 'running', 'activating'])) stale += 1;
       });
-      return {ok: true, service: 'command-center-mcp', invokable: true, hasFrontend: false, commandCenterMcpUrl: COMMAND_CENTER_RESOURCE, authorizationServer: HOME_CENTER_AUTHORIZATION_SERVER_BASE, workerLiveness: {total: workers.length, live: liveWorkers.length, activatable: activatableWorkers.length, stale: staleWorkers.length, liveWorkerIds: liveWorkers.map((worker) => worker.workerId), activatableWorkerIds: activatableWorkers.map((worker) => worker.workerId), staleWorkerIds: staleWorkers.map((worker) => worker.workerId)}, queue: {sampled: jobSnap.size, byStatus: jobsByStatus, nonterminal, stale, oldestNonterminalAgeMs}};
+      const recentProbe = await recentEndToEndExecutionProbe(admin, jobSnap);
+      return {ok: true, service: 'command-center-mcp', invokable: true, hasFrontend: false, commandCenterMcpUrl: COMMAND_CENTER_RESOURCE, authorizationServer: HOME_CENTER_AUTHORIZATION_SERVER_BASE, healthPlanes: {controlPlaneReachable: true, routableWorkerRegistered: activatableWorkers.length > 0 || liveWorkers.length > 0, recentEndToEndExecutionProbeCompleted: recentProbe.ok}, recentEndToEndExecutionProbe: recentProbe, activationTimeoutReconciliation: {candidates: activationTimeouts.candidates.length, reconciled: activationTimeouts.reconciled.length, timeoutMs: activationTimeouts.timeoutMs}, workerLiveness: {total: workers.length, live: liveWorkers.length, activatable: activatableWorkers.length, stale: staleWorkers.length, liveWorkerIds: liveWorkers.map((worker) => worker.workerId), activatableWorkerIds: activatableWorkers.map((worker) => worker.workerId), staleWorkerIds: staleWorkers.map((worker) => worker.workerId)}, queue: {sampled: jobSnap.size, byStatus: jobsByStatus, nonterminal, stale, oldestNonterminalAgeMs}};
     }
     case 'projects.resolve':
       return resolveProject(admin, args || {});
@@ -2716,6 +3040,8 @@ async function runCommandCenterOperation(admin, extra, operation, args = {}) {
     }
     case 'jobs.reconcile_stale':
       return reconcileStaleJobs(admin, await caller(), args || {});
+    case 'jobs.dispatch_queued':
+      return dispatchQueuedJobs(admin, await caller(), args || {});
     case 'jobs.cancel':
       return transitionJob(admin, await caller(), args || {}, 'canceled', 'jobs.cancel');
     case 'jobs.resume':
@@ -2829,10 +3155,14 @@ async function recordArtifact(admin, jobId, projectId, artifact, ownerKey = '') 
     name: safeText(artifact.name, 240),
     kind: safeText(artifact.kind, 120) || 'file',
     uri: safeText(artifact.uri, 1000),
+    objectUri: safeText(artifact.objectUri || artifact.objectURL || artifact.gcsUri, 1000),
+    downloadUrl: safeText(artifact.downloadUrl || artifact.signedUrl || artifact.url, 1000),
+    contentType: safeText(artifact.contentType, 160),
     sha256: safeText(artifact.sha256, 128),
     required: artifact.required === true,
     origin: safeText(artifact.origin || safeObject(artifact.metadata).origin, 120) || 'executor_workspace',
     workspacePath: safeText(artifact.workspacePath || safeObject(artifact.metadata).workspacePath, 1000),
+    body: safeText(artifact.body, 64000),
     createdAtMs: Date.now(),
     metadata: safeObject(artifact.metadata),
   };
@@ -3022,6 +3352,12 @@ function createCommandCenterMcpServer({admin}) {
     description: 'Dry-run or expire stale nonterminal jobs and active leases with audit events.',
     inputSchema: {idempotencyKey: z.string().optional(), dryRun: z.boolean().optional(), olderThanMs: z.number().optional(), statuses: z.array(z.string()).optional(), limit: z.number().optional()},
   }, async (args, extra) => textResult(await reconcileStaleJobs(admin, await callerFromExtra(admin, extra), args || {})));
+
+  server.registerTool('command_center.jobs.dispatch_queued', {
+    title: 'Dispatch queued Command Center jobs',
+    description: 'Dry-run or lease queued recoverable jobs to the least-loaded compatible worker; retry expired jobs only when requested.',
+    inputSchema: {idempotencyKey: z.string().optional(), dryRun: z.boolean().optional(), retryExpired: z.boolean().optional(), limit: z.number().optional(), maxDispatch: z.number().optional()},
+  }, async (args, extra) => textResult(await dispatchQueuedJobs(admin, await callerFromExtra(admin, extra), args || {})));
 
   server.registerTool('command_center.jobs.cancel', {title: 'Cancel Command Center job', description: 'Cancel a durable job and preserve the audit event.', inputSchema: {idempotencyKey: z.string(), jobId: z.string(), reason: z.string().optional()}}, async (args, extra) => textResult(await transitionJob(admin, await callerFromExtra(admin, extra), args || {}, 'canceled', 'jobs.cancel')));
   server.registerTool('command_center.jobs.resume', {title: 'Resume Command Center job', description: 'Resume a job from its latest checkpoint.', inputSchema: {idempotencyKey: z.string(), jobId: z.string(), reason: z.string().optional()}}, async (args, extra) => textResult(await transitionJob(admin, await callerFromExtra(admin, extra), args || {}, 'running', 'jobs.resume')));
@@ -3429,6 +3765,9 @@ function createCommandCenterMcpApp({admin}) {
           }
         });
         await batch.commit();
+        if (event.type === 'executor_failed' && !isTerminalJobStatus(job.status)) {
+          await failJobTerminal(admin, job, caller.workerId, event.summary || 'executor_failed', {executorEventId: event.eventId, executorEventData: event.data});
+        }
       }
       res.json({ok: true, event});
     } catch (err) {
@@ -3522,9 +3861,10 @@ function createCommandCenterMcpApp({admin}) {
         throw err;
       }
       const completionArtifactIds = Array.from(new Set(allArtifacts.map((artifact) => artifact.artifactId).filter(Boolean)));
+      const releasedLeases = await releaseActiveLeasesForJob(admin, jobId, caller.workerId, status, `worker_complete_${status}`);
       await collection(admin, COMMAND_CENTER_COLLECTIONS.jobs).doc(jobId).set({status, updatedAtMs: Date.now(), completedAtMs: Date.now(), finalReport, completionArtifactIds}, {merge: true});
-      const event = await appendEvent(admin, {type: `job_${status}`, jobId, projectId: job.projectId, actor: caller.workerId, summary: finalReport || `One-shot worker marked job ${status}.`, data: {artifactIds: completionArtifactIds}});
-      res.json({ok: true, status, event, artifacts: written});
+      const event = await appendEvent(admin, {type: `job_${status}`, jobId, projectId: job.projectId, actor: caller.workerId, summary: finalReport || `One-shot worker marked job ${status}.`, data: {artifactIds: completionArtifactIds, releasedLeases}});
+      res.json({ok: true, status, event, artifacts: written, releasedLeases});
     } catch (err) {
       sendWorkerError(res, err);
     }
@@ -3601,7 +3941,12 @@ module.exports = {
   deriveWorkerLiveness,
   isTerminalJobStatus,
   staleJobCandidate,
+  activationStartTimeoutCandidate,
   isWorkerLeaseEligible,
+  workerConcurrencyLimit,
+  selectWorkerCandidates,
+  selectWorkerForJob,
+  activeLeaseCountsByWorker,
   selectWorker,
   buildJobActivation,
   activationStateFromResult,

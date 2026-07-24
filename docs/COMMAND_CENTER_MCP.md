@@ -79,6 +79,8 @@ V1 exposes these typed tools:
 - `command_center.jobs.cancel`
 - `command_center.jobs.resume`
 - `command_center.jobs.revise`
+- `command_center.jobs.reconcile_stale`
+- `command_center.jobs.dispatch_queued`
 - `command_center.jobs.answer_question`
 - `command_center.jobs.authorize_mutation`
 - `command_center.jobs.get_summary`
@@ -108,10 +110,11 @@ These are typed MCP operations. Command Center does not interpret chat prompts; 
 
 The first implementation now models workers as one-shot executions over prepared base workspaces. A worker is not a blank slate and does not install heavy tools such as Blender during normal job execution.
 
-- `jobs.create` persists a one-shot ticket, selects a compatible live worker, creates a lease, writes events, writes logs, records a checkpoint, and requests activation when the worker declares a push activation channel.
+- `jobs.create` persists a one-shot ticket, records every compatible worker candidate, selects the least-loaded compatible live worker, creates a lease, writes events, writes logs, records a checkpoint, and requests activation when the worker declares an activation channel.
 - A lease is not execution. Real `codex-cloud` workers must expose either a verified push activation channel or a live poll channel before they are eligible for leasing; metadata such as `simulated:false`, `routable:true`, or `health:"healthy"` is not enough.
 - Job activation records live in `commandCenterJobActivations` and emit `activation_requested`, then `activation_accepted` or `activation_rejected`. Rejection marks the lease and job failed with diagnostics instead of leaving the job indefinitely `leased`. Poll workers record acceptance only when `/worker/lease` is actually claimed.
 - `jobs.create_followup` creates a new linked invocation from a prior job handoff; it never rewrites the source job.
+- `jobs.dispatch_queued` dry-runs or leases recoverable queued work against the current worker registry. It uses active lease counts and each worker's declared concurrency limit, records `eligibleWorkerIds`, `workerDiagnostics`, `selectedWorkerLoad`, and `dispatchAttemptCount`, and emits `job_dispatched_from_queue` before normal activation. Expired queued jobs are retried only when `retryExpired=true`.
 - Every job records `executionMode=one_shot`, a `baseWorkspace` snapshot contract, required artifacts, verification commands, stop conditions, and mutation policy.
 - `workers.register_oneshot` registers a user-owned worker and returns a worker token once. Command Center stores only the token hash.
 - The worker gateway exposes `/worker/lease`, `/worker/events`, `/worker/artifacts`, `/worker/checkpoint`, and `/worker/complete` for registered workers.
