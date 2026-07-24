@@ -22,7 +22,7 @@ assert.equal(COMMAND_CENTER_COLLECTIONS.jobActivations, 'commandCenterJobActivat
 assert(COMMAND_CENTER_ALLOWED_STATUSES.includes('activating'));
 assert(COMMAND_CENTER_ALLOWED_STATUSES.includes('executing'));
 assert.deepEqual(COMMAND_CENTER_JOB_ACTIVATION_STATUSES, ['requested', 'accepted', 'rejected', 'timed_out', 'completed', 'failed']);
-const requiredLifecycleEvents = ['activation_requested', 'activation_accepted', 'activation_rejected', 'executor_started', 'executor_heartbeat', 'executor_finished'];
+const requiredLifecycleEvents = ['activation_requested', 'activation_accepted', 'activation_rejected', 'executor_started', 'executor_heartbeat', 'executor_finished', 'executor_failed'];
 assert(requiredLifecycleEvents.includes('activation_requested'));
 assert(requiredLifecycleEvents.includes('executor_finished'));
 assert.equal(COMMAND_CENTER_COMPLETION_EVENT_LOOKBACK_LIMIT >= 1000, true);
@@ -131,6 +131,25 @@ assert.equal(shouldAcceptWorkerCompletion({
     {name: 'mutation-requests.jsonl', origin: 'executor_workspace'},
   ],
 }).ok, true);
+
+assert.equal(shouldAcceptWorkerCompletion({
+  requestedStatus: 'completed',
+  events: [{type: 'executor_started'}, {type: 'executor_stdout'}, {type: 'executor_finished'}],
+  artifacts: [
+    {name: 'job-intake.json', origin: 'executor_workspace'},
+    {name: 'orientation.md', origin: 'executor_workspace'},
+    {name: 'reasoning-summary.md', origin: 'executor_workspace'},
+    {name: 'command-log.jsonl', origin: 'executor_workspace'},
+    {name: 'acceptance.json', origin: 'executor_workspace'},
+    {name: 'acceptance-matrix.json', origin: 'executor_workspace'},
+    {name: 'implementation.patch', origin: 'executor_workspace'},
+    {name: 'changed-files.json', origin: 'executor_workspace'},
+    {name: 'verification.json', origin: 'executor_workspace'},
+    {name: 'final-report.md', origin: 'executor_workspace'},
+    {name: 'mutation-requests.jsonl', origin: 'executor_workspace'},
+  ],
+  job: {repository: '', baseWorkspace: {snapshotRef: 'worker-local://'}, workerRequirements: ['cloud-run-debian']},
+}).ok, true);
 assert.equal(shouldAcceptWorkerCompletion({
   requestedStatus: 'completed',
   events: [{type: 'executor_started'}],
@@ -176,7 +195,12 @@ assert(cloudWorkerSource.includes("executor_stderr"));
 assert(!cloudWorkerSource.includes("noop-proof.txt"));
 assert(cloudWorkerSource.includes("restoreJobWorkspace(job)"));
 assert(cloudWorkerSource.includes('function repositoryFromGithubRef'));
-assert(cloudWorkerSource.includes('parts.length >= 2 ? `${parts[0]}/${parts[1]}`'));
+assert(cloudWorkerSource.includes('runRepositoryFreeJob'));
+assert(cloudWorkerSource.includes('worker_local_empty_workspace'));
+assert(cloudWorkerSource.includes('Repository-free command evidence'));
+assert(cloudWorkerSource.includes("type: 'executor_failed'"));
+assert(!cloudWorkerSource.includes('repositoryFromText'));
+assert(cloudWorkerSource.includes('parts.length < 2'));
 assert(!cloudWorkerSource.includes("replace(/^github:\\\\/\\\\//, '').replace(/\\\\/.*$/, '')"));
 assert(cloudWorkerSource.includes("runCodexPromptStreaming"));
 assert(cloudWorkerSource.includes("implementation.patch"));

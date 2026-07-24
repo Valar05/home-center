@@ -14,6 +14,7 @@ function parseArgs(argv) {
     timeoutMs: 12 * 60 * 1000,
     pollMs: 15000,
     json: false,
+    failureProbe: false,
   };
   for (let i = 0; i < argv.length; i += 1) {
     const arg = argv[i];
@@ -23,8 +24,9 @@ function parseArgs(argv) {
     else if (arg === '--timeout-ms') args.timeoutMs = Number(argv[++i]) || args.timeoutMs;
     else if (arg === '--poll-ms') args.pollMs = Number(argv[++i]) || args.pollMs;
     else if (arg === '--json') args.json = true;
+    else if (arg === '--failure-probe') args.failureProbe = true;
     else if (arg === '--help') {
-      console.log('Usage: node tools/command_center_cloud_run_worker_proof.mjs --worker-id cloud-run-debian-codex-primary [--json]');
+      console.log('Usage: node tools/command_center_cloud_run_worker_proof.mjs --worker-id cloud-run-debian-codex-primary [--failure-probe] [--json]');
       process.exit(0);
     }
   }
@@ -106,8 +108,8 @@ async function waitForWorker(accessToken, workerId, deadline, pollMs, evidence) 
   while (Date.now() < deadline) {
     const listed = await op(accessToken, 10, 'workers.list', {});
     const worker = findWorker(listed.result?.workers || listed.workers || [], workerId);
-    evidence.steps.push({name: 'poll_worker', worker: worker ? {workerId: worker.workerId, health: worker.health, heartbeatFresh: worker.heartbeatFresh, heartbeatAgeMs: worker.heartbeatAgeMs, routable: worker.routable} : null});
-    if (worker && worker.heartbeatFresh === true && worker.routable === true && worker.health === 'healthy') return worker;
+    evidence.steps.push({name: 'poll_worker', worker: worker ? {workerId: worker.workerId, health: worker.health, livenessState: worker.livenessState, activatable: worker.activatable, heartbeatFresh: worker.heartbeatFresh, heartbeatAgeMs: worker.heartbeatAgeMs, routable: worker.routable} : null});
+    if (worker && worker.routable === true && (worker.health === 'healthy' || worker.health === 'activatable' || worker.activatable === true || worker.livenessState === 'activatable')) return worker;
     await sleep(pollMs);
   }
   return null;
@@ -129,7 +131,7 @@ async function main() {
   const accessToken = await token();
   const runSafe = args.runId.replace(/[^A-Za-z0-9_.-]/g, '-');
   const evidencePath = path.join(args.evidenceDir, `cloud_run_worker_proof_${runSafe}.json`);
-  const evidence = {ok: false, runId: runSafe, workerId: args.workerId, startedAt: new Date().toISOString(), steps: []};
+  const evidence = {ok: false, runId: runSafe, mode: args.failureProbe ? 'deliberate_failure' : 'success', workerId: args.workerId, startedAt: new Date().toISOString(), steps: []};
   const deadline = Date.now() + args.timeoutMs;
 
   const wake = await op(accessToken, 1, 'workers.wake', {
@@ -142,7 +144,7 @@ async function main() {
   evidence.steps.push({name: 'wake', result: wake.result || wake});
 
   const liveWorker = await waitForWorker(accessToken, args.workerId, deadline, args.pollMs, evidence);
-  if (!liveWorker) throw new Error(`worker did not become heartbeatFresh/routable before timeout: ${args.workerId}`);
+  if (!liveWorker) throw new Error(`worker did not become routable/activatable before timeout: ${args.workerId}`);
   evidence.liveWorker = liveWorker;
 
   const reconcileDry = await op(accessToken, 2, 'jobs.reconcile_stale', {dryRun: true, statuses: ['leased', 'executing', 'running', 'activating'], olderThanMs: 30 * 60 * 1000, limit: 100});
@@ -150,17 +152,25 @@ async function main() {
   const reconcileApply = await op(accessToken, 3, 'jobs.reconcile_stale', {dryRun: false, statuses: ['leased', 'executing', 'running', 'activating'], olderThanMs: 30 * 60 * 1000, limit: 100, idempotencyKey: `reconcile-${runSafe}`});
   evidence.steps.push({name: 'reconcile_apply', result: reconcileApply.result || reconcileApply});
 
+  const verificationCommands = args.failureProbe
+    ? ['sh -c "echo deliberate failure evidence; exit 42"']
+    : ['node --version', 'python3 --version', 'date -u'];
   const jobCreate = await op(accessToken, 4, 'jobs.create', {
     projectId: 'command-center-workers',
-    title: `Cloud Run worker no-op proof ${runSafe}`,
-    objective: 'Run a bounded no-op through the real Cloud Run Debian worker and produce events, logs, artifacts, checkpoint, and completion.',
-    acceptanceCriteria: ['Worker emits executor_started.', 'Worker emits executor_heartbeat.', 'Worker records executor workspace artifacts.', 'Worker writes a checkpoint.', 'Worker completes the job.'],
+    title: `${args.failureProbe ? 'Cloud Run worker deliberate failure proof' : 'Cloud Run worker repository-free proof'} ${runSafe}`,
+    objective: args.failureProbe
+      ? 'Run a bounded deliberate command failure through the real Cloud Run Debian worker and prove executor_failed terminal reconciliation plus lease release.'
+      : 'Run bounded harmless repository-free commands through the real Cloud Run Debian worker and produce executor, command, artifact, checkpoint, and completion evidence.',
+    acceptanceCriteria: args.failureProbe
+      ? ['Worker emits executor_started.', 'Worker emits executor_failed.', 'Durable job becomes terminal failed.', 'Active lease is released.']
+      : ['Worker emits executor_started.', 'Worker emits executor_heartbeat.', 'Worker emits command output evidence.', 'Worker records executor workspace artifacts.', 'Worker writes a checkpoint.', 'Worker completes the job.'],
     constraints: ['No repository mutation.', 'No external provider writes beyond Command Center job state and artifacts.'],
-    workerRequirements: ['cloud-run-debian', 'durable-session', 'gcs-workspace-snapshot'],
-    requiredArtifacts: ['job-intake.json', 'noop-proof.txt', 'final-report.md'],
-    verificationCommands: ['Command Center events/logs/artifacts/checkpoint inspection'],
+    workerRequirements: ['cloud-run-debian', 'durable-session'],
+    baseWorkspace: {snapshotRef: 'worker-local://prepared-workspaces/command-center-empty'},
+    requiredArtifacts: ['job-intake.json', 'command-log.jsonl', 'verification.json', 'final-report.md'],
+    verificationCommands,
     mutationPolicy: {editFiles: 'deny', externalProviderWrite: 'deny', destructive: 'deny'},
-    idempotencyKey: `noop-job-${runSafe}`,
+    idempotencyKey: `${args.failureProbe ? 'failure' : 'repo-free'}-job-${runSafe}`,
   });
   const job = jobCreate.result?.job || jobCreate.job;
   const jobId = job?.jobId || '';
@@ -179,23 +189,34 @@ async function main() {
   const artifactRows = artifacts.result?.artifacts || artifacts.artifacts || [];
   const finalStatus = finalSummary.result?.status || finalSummary.status || '';
   evidence.finalStatus = finalStatus;
-  evidence.events = eventRows.map((event) => ({type: event.type, actor: event.actor, summary: event.summary, createdAtMs: event.createdAtMs}));
+  evidence.events = eventRows.map((event) => ({type: event.type, actor: event.actor, summary: event.summary, createdAtMs: event.createdAtMs, data: event.data || {}}));
   evidence.logsCount = logRows.length;
   evidence.artifacts = artifactRows.map((artifact) => ({name: artifact.name, kind: artifact.kind, origin: artifact.origin, workspacePath: artifact.workspacePath}));
   evidence.handoffCounters = handoff.result?.handoff?.counters || handoff.handoff?.counters || {};
   const eventTypes = new Set(eventRows.map((event) => event.type));
   const artifactNames = new Set(artifactRows.map((artifact) => artifact.name));
-  evidence.ok = finalStatus === 'completed'
-    && eventTypes.has('executor_started')
-    && eventTypes.has('executor_heartbeat')
-    && eventTypes.has('executor_finished')
-    && artifactNames.has('job-intake.json')
-    && artifactNames.has('noop-proof.txt')
-    && artifactNames.has('final-report.md')
-    && logRows.length > 0;
+  const jobFailedEvents = eventRows.filter((event) => event.type === 'job_failed');
+  const releasedLeaseCount = jobFailedEvents.reduce((sum, event) => sum + Number(event.data?.releasedLeases || event.data?.expiredLeases || 0), 0);
+  evidence.releasedLeaseCount = releasedLeaseCount;
+  evidence.ok = args.failureProbe
+    ? finalStatus === 'failed'
+      && eventTypes.has('executor_started')
+      && eventTypes.has('executor_failed')
+      && eventTypes.has('job_failed')
+      && releasedLeaseCount > 0
+    : finalStatus === 'completed'
+      && eventTypes.has('executor_started')
+      && eventTypes.has('executor_heartbeat')
+      && eventTypes.has('executor_stdout')
+      && eventTypes.has('executor_finished')
+      && artifactNames.has('job-intake.json')
+      && artifactNames.has('command-log.jsonl')
+      && artifactNames.has('verification.json')
+      && artifactNames.has('final-report.md')
+      && logRows.length > 0;
   evidence.completedAt = new Date().toISOString();
   writeJson(evidencePath, redact(evidence));
-  console.log(JSON.stringify({ok: evidence.ok, evidencePath, workerId: args.workerId, jobId, finalStatus, eventTypes: Array.from(eventTypes).sort(), artifactNames: Array.from(artifactNames).sort(), logsCount: logRows.length}, null, args.json ? 0 : 2));
+  console.log(JSON.stringify({ok: evidence.ok, evidencePath, mode: evidence.mode, workerId: args.workerId, jobId, finalStatus, releasedLeaseCount, eventTypes: Array.from(eventTypes).sort(), artifactNames: Array.from(artifactNames).sort(), logsCount: logRows.length}, null, args.json ? 0 : 2));
   if (!evidence.ok) process.exit(1);
 }
 

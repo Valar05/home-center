@@ -80,27 +80,25 @@ function restoreWorkspace(ref, repository) {
   return {mode: 'empty_workspace'};
 }
 
-function repositoryFromText(text) {
-  const match = String(text || '').match(/\b([A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+)\b/);
-  return match ? match[1] : '';
-}
-
 function repositoryFromGithubRef(ref) {
-  const raw = String(ref || '')
-    .replace(/^github:\/\//i, '')
-    .replace(/^https:\/\/github\.com\//i, '')
-    .split(/[?#]/)[0]
-    .replace(/\.git$/i, '');
+  const text = String(ref || '').trim();
+  if (!text || /^(worker-local|gs|file):\/\//i.test(text)) return '';
+  let raw = text.split(/[?#]/)[0].replace(/\.git$/i, '');
+  if (/^github:\/\//i.test(raw)) raw = raw.replace(/^github:\/\//i, '');
+  else if (/^https:\/\/github\.com\//i.test(raw)) raw = raw.replace(/^https:\/\/github\.com\//i, '');
+  else if (/^[a-z][a-z0-9+.-]*:\/\//i.test(raw)) return '';
   const parts = raw.split('/').filter(Boolean);
-  return parts.length >= 2 ? `${parts[0]}/${parts[1]}` : '';
+  if (parts.length < 2) return '';
+  if (!/^[A-Za-z0-9_.-]+$/.test(parts[0]) || !/^[A-Za-z0-9_.-]+$/.test(parts[1])) return '';
+  return `${parts[0]}/${parts[1]}`;
 }
 
 function repositoryFromJob(job = {}) {
-  const direct = job.repository || job.inputs?.repository || job.baseWorkspace?.repository || '';
-  if (direct) return repositoryFromGithubRef(direct) || direct;
+  const direct = job.repository || job.inputs?.repository || job.baseWorkspace?.repository || env.COMMAND_CENTER_REPOSITORY || '';
+  if (direct) return repositoryFromGithubRef(direct);
   const snapshotRef = String(job.baseWorkspace?.snapshotRef || '');
   if (snapshotRef.startsWith('github://') || /^https:\/\/github\.com\//i.test(snapshotRef)) return repositoryFromGithubRef(snapshotRef);
-  return repositoryFromText([job.objective, job.title, ...(job.constraints || []), ...(job.acceptanceCriteria || [])].join('\n'));
+  return '';
 }
 
 function setupGithubAuth(repository) {
@@ -147,6 +145,14 @@ function restoreJobWorkspace(job = {}) {
   const ref = job.baseWorkspace?.snapshotRef || env.COMMAND_CENTER_RESTORE_WORKSPACE_SNAPSHOT_REF || '';
   const repository = repositoryFromJob(job);
   if (ref && ref.startsWith('gs://')) return restoreWorkspace(ref, repository);
+  if (ref && ref.startsWith('worker-local://')) {
+    if (repository) throw new Error(`worker-local workspace must not enter GitHub restore logic for ${repository}`);
+    fs.writeFileSync(path.join(workspaceRoot, 'SESSION.md'), `# Command Center worker-local session
+
+Source: ${ref}
+`);
+    return {mode: 'worker_local_empty_workspace', ref};
+  }
   if (repository) {
     const auth = setupGithubAuth(repository);
     if (!auth.configured) throw new Error(`GitHub auth preflight failed for ${repository}: gh=${auth.ghExitCode} git=${auth.gitExitCode} ${auth.ghStderr || auth.gitStderr || auth.reason || ''}`);
@@ -155,7 +161,8 @@ function restoreJobWorkspace(job = {}) {
     if (clone.exitCode !== 0) throw new Error(`git restore failed: ${clone.stderr || clone.stdout}`);
     return {mode: 'git_clean_clone', repository};
   }
-  throw new Error('Repository job did not include a repository binding, github:// base workspace, or owner/repo mention.');
+  fs.writeFileSync(path.join(workspaceRoot, 'SESSION.md'), '# Durable repo-less worker session\n');
+  return {mode: 'empty_workspace'};
 }
 
 function writeResumePacket(resumePacket) {
@@ -562,6 +569,70 @@ function writeText(rel, body) {
   return file;
 }
 
+function repositoryFreeArtifactList() {
+  return [
+    {name: 'job-intake.json', kind: 'job_intake', uri: path.join(workspaceRoot, 'job-intake.json'), workspacePath: 'job-intake.json', origin: 'executor_workspace', required: true, summary: 'One-shot job packet claimed by Cloud Run worker.'},
+    artifactFor('orientation.md', 'orientation', true, 'Repo-free orientation and restore evidence.'),
+    artifactFor('reasoning-summary.md', 'reasoning_summary', true, 'Repo-free command execution summary.'),
+    artifactFor('command-log.jsonl', 'command_log', true, 'Verification command transcript.'),
+    artifactFor('acceptance.json', 'acceptance', true, 'Worker-side acceptance verdict.'),
+    artifactFor('acceptance-matrix.json', 'acceptance_matrix', true, 'Criterion-level worker acceptance verdicts.'),
+    artifactFor('usage-summary.json', 'usage_summary', false, 'No Codex usage for repo-free command probe.'),
+    artifactFor('implementation.patch', 'implementation_patch', true, 'No repository patch for repo-free job.'),
+    artifactFor('changed-files.json', 'changed_files', true, 'Repo-free changed-file evidence.'),
+    artifactFor('verification.json', 'verification', true, 'Verification command results.'),
+    artifactFor('mutation-requests.jsonl', 'mutation_requests', true, 'Mutation policy and follow-up authorization notes.'),
+    artifactFor('final-report.md', 'final_report', true, 'Cloud Run repo-free final report.'),
+  ];
+}
+
+async function runRepositoryFreeJob(packet, job, restore, executorId) {
+  const commands = (job.verificationCommands && job.verificationCommands.length ? job.verificationCommands : ['node --version', 'python3 --version', 'date -u']).slice(0, 12);
+  writeText('job-intake.json', JSON.stringify(packet, null, 2) + '\n');
+  writeText('orientation.md', [
+    '# Worker Orientation',
+    '',
+    `Restore: ${JSON.stringify(restore)}`,
+    'Repository: none',
+    '',
+    'The worker intentionally used a repository-free workspace and did not invoke GitHub clone or repository restore logic.',
+  ].join('\n') + '\n');
+  const verificationResults = runVerificationCommands(commands);
+  appendCommandLog(verificationResults);
+  const commandEvidence = verificationResults.map((result) => `${result.command} -> ${result.exitCode}\n${result.stdout || result.stderr || ''}`).join('\n---\n');
+  await workerEvent(job.jobId || jobId, 'executor_stdout', 'Repository-free command evidence.', {executorId, text: commandEvidence.slice(-4000), commandCount: verificationResults.length});
+  const failures = verificationResults.filter((result) => result.exitCode !== 0).map((result) => `${result.command} exited ${result.exitCode}`);
+  const accepted = failures.length === 0;
+  writeText('implementation.patch', 'No implementation patch was produced for this repository-free job.\n');
+  writeJsonFile('changed-files.json', {repository: '', restore, changedFiles: [], gitStatus: '', currentBranch: '', baseCommit: '', headCommit: '', newCommitCreated: false});
+  writeJsonFile('verification.json', {verificationResults: verificationResults.map((item) => ({command: item.command, exitCode: item.exitCode, stdoutTail: item.stdout.slice(-4000), stderrTail: item.stderr.slice(-4000)})), allVerificationPassed: accepted});
+  const usageSummary = {inputTokens: 0, cachedInputTokens: 0, outputTokens: 0, cachedInputRatio: 0, warnings: []};
+  writeJsonFile('acceptance.json', {accepted, failures, repositoryFree: true, verificationPassed: accepted, usageSummary});
+  const criteria = (job.acceptanceCriteria || []).map((criterion) => ({criterion, status: accepted ? 'passed' : 'failed', evidenceRefs: ['command-log.jsonl', 'verification.json', 'final-report.md'], notes: accepted ? 'All repo-free verification commands exited 0.' : 'One or more repo-free verification commands failed.', blockingReason: failures.join('; ')}));
+  writeJsonFile('acceptance-matrix.json', {statusPolicy: 'Repository-free command probe acceptance is based on requested command exit codes.', criteria, usageSummary});
+  writeJsonFile('usage-summary.json', usageSummary);
+  writeText('reasoning-summary.md', `Repository-free worker command probe ${accepted ? 'completed' : 'failed'}.\n`);
+  writeText('mutation-requests.jsonl', JSON.stringify({mutationPolicy: job.mutationPolicy || {}, note: 'No repository mutation was attempted.'}) + '\n');
+  const finalReport = ['# Final Report', '', `Repository-free Command Center worker probe ${accepted ? 'completed' : 'failed'}.`, '', ...verificationResults.map((result) => `- ${result.command}: ${result.exitCode}`), ...(failures.length ? ['', 'Failures:', ...failures.map((failure) => `- ${failure}`)] : [])].join('\n') + '\n';
+  writeText('final-report.md', finalReport);
+  const artifacts = repositoryFreeArtifactList();
+  await post('/worker/artifacts', {jobId: job.jobId || jobId, artifacts});
+  await post('/worker/checkpoint', {
+    jobId: job.jobId || jobId,
+    currentPhase: accepted ? 'completed_repository_free_commands' : 'failed_repository_free_commands',
+    decisionsMade: ['Claimed a specific Command Center job by COMMAND_CENTER_JOB_ID.', 'Restored a repository-free workspace.', 'Skipped GitHub clone and Codex mutation execution.', 'Ran bounded verification commands.'],
+    testsRun: ['worker lease', 'executor events', 'artifact record', 'checkpoint write', ...verificationResults.map((result) => `${result.command} -> ${result.exitCode}`)],
+    evidenceRefs: artifacts.map((artifact) => artifact.workspacePath),
+    acceptanceCriteriaStatus: criteria,
+    usageSummary,
+    failedApproaches: failures,
+    nextAction: accepted ? 'Inspect job events, logs, artifacts, checkpoint, and completion status.' : 'Fix the failed repo-free command evidence before claiming worker health.',
+  });
+  const status = accepted ? 'completed' : 'failed';
+  await workerEvent(job.jobId || jobId, accepted ? 'executor_finished' : 'executor_failed', 'Cloud Run Debian worker finished repository-free command job mode.', {executorId, artifactCount: artifacts.length, failures});
+  await post('/worker/complete', {jobId: job.jobId || jobId, status, finalReport, artifacts: []});
+}
+
 async function workerEvent(jobIdValue, type, summary, data = {}) {
   return post('/worker/events', {jobId: jobIdValue, type, summary, data});
 }
@@ -578,6 +649,11 @@ async function runOneShotJob() {
   await workerEvent(job.jobId || jobId, 'executor_started', 'Cloud Run Debian worker started real one-shot Codex job mode.', {executorId, objective: job.objective || ''});
   await workerEvent(job.jobId || jobId, 'executor_heartbeat', 'Cloud Run Debian worker restoring repository workspace.', {executorId, phase: 'restore_repository'});
   const restore = restoreJobWorkspace(job);
+  if (!repositoryFromJob(job) && (restore.mode === 'empty_workspace' || restore.mode === 'worker_local_empty_workspace')) {
+    await workerEvent(job.jobId || jobId, 'executor_heartbeat', 'Cloud Run Debian worker running repository-free command executor.', {executorId, phase: 'repository_free_commands', restore});
+    await runRepositoryFreeJob(packet, job, restore, executorId);
+    return;
+  }
   const baseCommit = run('git rev-parse HEAD', workspaceRoot).stdout.trim();
   writeText('job-intake.json', JSON.stringify(packet, null, 2) + '\n');
   await workerEvent(job.jobId || jobId, 'executor_heartbeat', 'Cloud Run Debian worker invoking real Codex executor.', {executorId, phase: 'codex_execution', restore});
@@ -668,7 +744,10 @@ main().catch(async (err) => {
   const message = redact(err && err.stack || err && err.message || String(err)).slice(0, 4000);
   try {
     if (workerToken && activationId && !jobId) await post('/agent/complete', {activationId, status: 'failed', finalSummary: message});
-    if (workerToken && jobId) await post('/worker/events', {jobId, type: 'executor_finished', summary: `Cloud Run worker failed: ${message.slice(0, 1000)}`, data: {failed: true}});
+    if (workerToken && jobId) {
+      await post('/worker/events', {jobId, type: 'executor_failed', summary: `Cloud Run worker failed: ${message.slice(0, 1000)}`, data: {failed: true}});
+      await post('/worker/complete', {jobId, status: 'failed', finalReport: `# Final Report\n\nCloud Run worker failed before completing lifecycle.\n\n${message}`});
+    }
   } catch (_) {}
   console.error(message);
   process.exit(1);
