@@ -180,7 +180,7 @@ public final class MainActivity extends Activity implements RecognitionListener,
     private static final String DEFAULT_DRIVE_NARRATOR_VOICE_ID = "f786b574-daa5-4673-aa0c-cbe3e8534c02";
     private static final String LEGACY_DRIVE_NARRATOR_VOICE = "Skylar - Friendly Guide";
     private static final String LEGACY_DRIVE_NARRATOR_VOICE_ID = "db6b0ed5-d5d3-463d-ae85-518a07d3c2b4";
-    private static final int DRIVE_VOICE_RESOLVER_VERSION = 4;
+    private static final int DRIVE_VOICE_RESOLVER_VERSION = 5;
     private static final String[] DRIVE_SPLIT_FALLBACK_DIALOGUE_VOICES = new String[] {
             "Clive - Measured Expert",
             "Daniel - Modern Assistant",
@@ -2140,6 +2140,9 @@ public final class MainActivity extends Activity implements RecognitionListener,
     private String splitFallbackVoiceName(DocumentReaderState reader, int sectionIndex, CharacterVoiceRule rule) {
         String role = rule == null ? "" : firstNonEmpty(rule.narrationRole, "narrator").toLowerCase(Locale.US);
         String characterId = rule == null ? "" : CharacterVoiceRule.normalizeId(rule.characterId);
+        if (VoiceScriptPlanner.DEFAULT_DIALOGUE_SPEAKER.equals(characterId)) {
+            return firstNonEmpty(driveDialogueVoiceName, driveNarratorVoiceName, DEFAULT_DRIVE_NARRATOR_VOICE);
+        }
         if (("dialogue".equals(role) || "notes".equals(role)) && !"she-raw".equals(characterId)) {
             int ordinal = driveCharacterRegistry == null ? sectionIndex : driveCharacterRegistry.dialogueOrdinal(characterId);
             return DRIVE_SPLIT_FALLBACK_DIALOGUE_VOICES[Math.floorMod(ordinal, DRIVE_SPLIT_FALLBACK_DIALOGUE_VOICES.length)];
@@ -2276,7 +2279,9 @@ public final class MainActivity extends Activity implements RecognitionListener,
             CharacterVoiceRule rule = matched;
             String providerAlias = activeSpeechVoiceName(reader, i);
             String voiceName = providerAlias.isEmpty() || isVoiceIdAlias(providerAlias) ? splitFallbackVoiceName(reader, i, rule) : providerAlias;
-            String voiceId = isVoiceIdAlias(providerAlias) ? voiceIdFromAlias(providerAlias) : cartesiaVoiceIdForName(voiceName);
+            String voiceId = VoiceScriptPlanner.DEFAULT_DIALOGUE_SPEAKER.equals(rule.characterId) && driveDialogueVoiceId != null && !driveDialogueVoiceId.trim().isEmpty()
+                    ? driveDialogueVoiceId.trim()
+                    : isVoiceIdAlias(providerAlias) ? voiceIdFromAlias(providerAlias) : cartesiaVoiceIdForName(voiceName);
             reader.voiceSplitAssignments.add(new SectionVoiceAssignment(rule, voiceName, voiceId, firstNonEmpty(rule.narrationRole, "narrator"), explicitCast));
         }
         LocalLog.info("doc_audio", "voice_split_plan_materialized fileId=" + shortMessage(reader.fileId) + " sections=" + reader.voiceSplitAssignments.size() + " speakers=" + reader.voiceSplitSpeakerSummary());
@@ -9893,7 +9898,8 @@ public final class MainActivity extends Activity implements RecognitionListener,
             String clean = cleanName(name);
             if (clean.length() < 2 || clean.length() > 48) return;
             String id = CharacterVoiceRule.normalizeId(clean);
-            if ("voice".equals(id) || "speaker".equals(id) || "narrator".equals(id) || "section".equals(id)) return;
+            if ("voice".equals(id) || "speaker".equals(id) || "narrator".equals(id) || "section".equals(id)
+                    || VoiceScriptPlanner.DEFAULT_DIALOGUE_SPEAKER.equals(id)) return;
             for (CandidateSpeakerProfile existing : found) {
                 if (existing.characterId.equals(id)) return;
             }
@@ -10105,33 +10111,49 @@ public final class MainActivity extends Activity implements RecognitionListener,
         }
 
         CharacterVoiceRule match(String text) {
-            String lower = text == null ? "" : text.toLowerCase(Locale.US);
-            for (CharacterVoiceRule rule : rules) {
-                for (String tag : rule.matchTags) {
-                    if (!tag.isEmpty() && lower.contains(tag.toLowerCase(Locale.US))) return rule;
-                }
-            }
-            for (CharacterVoiceRule rule : rules) {
-                if (hasExplicitCastSignal(text, rule)) return rule;
-            }
-            return defaultNarrator();
+            String speakerId = VoiceScriptPlanner.structuralSpeakerId(text);
+            if (speakerId.isEmpty()) return defaultNarrator();
+            CharacterVoiceRule matched = structuralRule(speakerId);
+            return matched == null ? dialogueDefault() : matched;
         }
 
         boolean hasExplicitCastSignal(String text, CharacterVoiceRule rule) {
-            if (rule == null) return false;
-            String lower = text == null ? "" : text.toLowerCase(Locale.US);
-            if (lower.isEmpty()) return false;
-            for (String alias : rule.searchAliases()) {
-                if (containsNameToken(lower, alias)) return true;
+            String speakerId = VoiceScriptPlanner.structuralSpeakerId(text);
+            if (speakerId.isEmpty() || VoiceScriptPlanner.DEFAULT_DIALOGUE_SPEAKER.equals(speakerId) || rule == null) {
+                return false;
             }
-            return false;
+            return rule.characterId.equals(speakerId);
         }
 
-        private boolean containsNameToken(String lowerText, String value) {
-            String clean = value == null ? "" : value.trim().toLowerCase(Locale.US);
-            if (clean.length() < 2) return false;
-            String pattern = "(^|[^a-z0-9])" + Pattern.quote(clean) + "([^a-z0-9]|$)";
-            return Pattern.compile(pattern, Pattern.CASE_INSENSITIVE).matcher(lowerText).find();
+        private CharacterVoiceRule structuralRule(String speakerId) {
+            String clean = CharacterVoiceRule.normalizeId(speakerId);
+            for (CharacterVoiceRule rule : rules) {
+                if (rule == null) continue;
+                if (rule.characterId.equals(clean)
+                        || CharacterVoiceRule.normalizeId(rule.characterName).equals(clean)
+                        || CharacterVoiceRule.normalizeId(rule.aliases).equals(clean)) {
+                    return rule;
+                }
+                for (String alias : rule.searchAliases()) {
+                    if (CharacterVoiceRule.normalizeId(alias).equals(clean)) return rule;
+                }
+            }
+            return null;
+        }
+
+        private CharacterVoiceRule dialogueDefault() {
+            List<String> tags = new ArrayList<>();
+            tags.add("[speaker:" + VoiceScriptPlanner.DEFAULT_DIALOGUE_SPEAKER + "]");
+            return new CharacterVoiceRule(
+                    VoiceScriptPlanner.DEFAULT_DIALOGUE_SPEAKER,
+                    "Dialogue default",
+                    "Dialogue default",
+                    "",
+                    "dialogue",
+                    false,
+                    tags,
+                    "",
+                    "balanced quote without an explicit or grammatical speaker attribution");
         }
 
         boolean hasEntries() { return rules != null && !rules.isEmpty(); }
@@ -10403,7 +10425,7 @@ public final class MainActivity extends Activity implements RecognitionListener,
     }
 
     private static final class MarkdownNarrationDocument {
-        static final String COMPILER_ID = "drive-markdown-narrator-v5-inline-dialogue-attribution";
+        static final String COMPILER_ID = "drive-markdown-narrator-v6-structural-quote-boundaries";
         private static final Pattern SPEAKER_CUE_PATTERN = Pattern.compile("^\\s*([A-Za-z][A-Za-z0-9 .\\'\\-]{1,48})\\s*:\\s+(.+)$");
         private static final Pattern SPEAKER_DASH_PATTERN = Pattern.compile("^\\s*([A-Za-z][A-Za-z0-9 .\\'\\-]{1,48})\\s*(?:[-–—]|\\|)\\s+(.+)$");
         private static final String DIALOGUE_VERBS = "said|says|asked|asks|replied|replies|answered|answers|called|calls|whispered|whispers|shouted|shouts|muttered|mutters|continued|continues|snapped|snaps|sighed|sighs|said softly|said quietly";
@@ -10491,6 +10513,17 @@ public final class MainActivity extends Activity implements RecognitionListener,
                     }
                     continue;
                 }
+                Matcher explicitSpeaker = Pattern.compile("^\\s*\\[(?:speaker|voice):([^\\]]+)\\]\\s*(.*)$", Pattern.CASE_INSENSITIVE).matcher(line);
+                if (explicitSpeaker.matches()) {
+                    flushParagraph(paragraph, speechBlocks);
+                    String speakerName = cleanSpeakerNameForTag(explicitSpeaker.group(1));
+                    String utterance = cleanInlineMarkdownForSpeech(explicitSpeaker.group(2));
+                    if (!speakerName.isEmpty() && !utterance.isEmpty()) {
+                        speechBlocks.add("[speaker:" + speakerName + "] " + utterance);
+                        cues += 1;
+                    }
+                    continue;
+                }
                 Matcher dashSpeaker = SPEAKER_DASH_PATTERN.matcher(line);
                 if (dashSpeaker.matches()) {
                     flushParagraph(paragraph, speechBlocks);
@@ -10542,28 +10575,20 @@ public final class MainActivity extends Activity implements RecognitionListener,
             paragraph.setLength(0);
         }
         private static boolean tryAppendAttributedDialogue(String line, StringBuilder paragraph, List<String> speechBlocks) {
-            String raw = line == null ? "" : line.trim();
-            Matcher trailing = TRAILING_ATTRIBUTION_PATTERN.matcher(raw);
-            if (trailing.matches()) {
-                return appendDialogueTurn(trailing.group(2), trailing.group(1), paragraph, speechBlocks);
+            List<VoiceScriptPlanner.Segment> segments = VoiceScriptPlanner.splitQuotedLine(line);
+            if (segments.isEmpty()) return false;
+            for (VoiceScriptPlanner.Segment segment : segments) {
+                if (segment.dialogue) {
+                    appendDialogueTurn(segment.speakerId, segment.text, paragraph, speechBlocks);
+                } else {
+                    String narration = cleanInlineMarkdownForSpeech(segment.text);
+                    if (!narration.isEmpty()) {
+                        if (paragraph.length() > 0) paragraph.append(' ');
+                        paragraph.append(narration);
+                    }
+                }
             }
-            Matcher speakerFirst = SAID_BEFORE_QUOTE_PATTERN.matcher(raw);
-            if (speakerFirst.matches()) {
-                return appendDialogueTurn(speakerFirst.group(1), speakerFirst.group(2), paragraph, speechBlocks);
-            }
-            Matcher saidFirst = SAID_NAME_BEFORE_QUOTE_PATTERN.matcher(raw);
-            if (saidFirst.matches()) {
-                return appendDialogueTurn(saidFirst.group(1), saidFirst.group(2), paragraph, speechBlocks);
-            }
-            Matcher inlineTrailing = INLINE_TRAILING_ATTRIBUTION_PATTERN.matcher(raw);
-            if (inlineTrailing.matches()) {
-                return appendInlineDialogueTurn(inlineTrailing.group(1), inlineTrailing.group(3), inlineTrailing.group(2), inlineTrailing.group(4), paragraph, speechBlocks);
-            }
-            Matcher inlineSpeakerFirst = INLINE_SAID_BEFORE_QUOTE_PATTERN.matcher(raw);
-            if (inlineSpeakerFirst.matches()) {
-                return appendInlineDialogueTurn(inlineSpeakerFirst.group(1), inlineSpeakerFirst.group(2), inlineSpeakerFirst.group(3), inlineSpeakerFirst.group(4), paragraph, speechBlocks);
-            }
-            return false;
+            return true;
         }
 
         private static boolean appendInlineDialogueTurn(String prefix, String speaker, String utterance, String suffix, StringBuilder paragraph, List<String> speechBlocks) {
