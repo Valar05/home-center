@@ -1,4 +1,4 @@
-const {createHash, randomBytes, randomUUID} = require('node:crypto');
+const {createHash, createSign, randomBytes, randomUUID} = require('node:crypto');
 const {Readable} = require('node:stream');
 const {McpServer} = require('@modelcontextprotocol/sdk/server/mcp.js');
 const {SSEServerTransport} = require('@modelcontextprotocol/sdk/server/sse.js');
@@ -1495,6 +1495,10 @@ function createRequestId(value) {
   return supplied ? stableRequestId(supplied) : randomUUID();
 }
 
+function createGitHubAdminRequestId(value) {
+  return stableRequestId(value);
+}
+
 function driveBridgeWriteSummary(kind, metadata, parentFolderId = '') {
   if (kind === 'drive.createFolder') return `Created Drive folder ${metadata.name || metadata.id}.`;
   if (kind === 'docs.create') return `Created Google Doc ${metadata.name || metadata.id}.`;
@@ -1602,13 +1606,14 @@ function githubTokenValue(githubToken) {
   return safeText(typeof githubToken === 'function' ? githubToken() : githubToken, 4096) || safeText(process.env.GITHUB_TOKEN, 4096);
 }
 
-function githubHeaders(token) {
+function githubHeaders(token, extra = {}) {
   return {
     Authorization: `Bearer ${token}`,
     Accept: 'application/vnd.github+json',
     'Content-Type': 'application/json',
     'User-Agent': 'home-center-mcp',
     'X-GitHub-Api-Version': '2022-11-28',
+    ...extra,
   };
 }
 
@@ -2572,6 +2577,416 @@ function workflowOperationSummary(operation = {}, index = 0) {
   return String(index + 1) + '. ' + type + (targetName ? ': ' + targetName : '');
 }
 
+function githubAdminEnabled() {
+  return process.env.HOME_CENTER_GITHUB_ADMIN_ENABLED === 'true';
+}
+
+function githubAdminSecretValue(githubAdmin = {}, key, envKey, max = 12000) {
+  let value = '';
+  try {
+    value = githubAdmin && typeof githubAdmin[key] === 'function' ? githubAdmin[key]() : githubAdmin && githubAdmin[key];
+  } catch (_) {
+    value = '';
+  }
+  return safeText(value, max) || safeText(process.env[envKey] || '', max);
+}
+
+function githubAdminOwners(githubAdmin = {}) {
+  const raw = githubAdminSecretValue(githubAdmin, 'allowedOwners', 'HOME_CENTER_GITHUB_ADMIN_OWNERS', 2000) || 'Valar05';
+  return raw.split(',').map((owner) => safeText(owner, 120)).filter((owner) => /^[A-Za-z0-9_.-]{1,120}$/.test(owner));
+}
+
+function safeGitHubOwner(value) {
+  const owner = safeText(value, 120);
+  if (!/^[A-Za-z0-9_.-]{1,120}$/.test(owner)) throw Object.assign(new Error('owner must be a GitHub owner/login.'), {status: 400, code: 'github_admin_invalid_owner'});
+  return owner;
+}
+
+function safeGitHubRepoName(value) {
+  const name = safeText(value, 120);
+  if (!/^[A-Za-z0-9_.-]{1,120}$/.test(name)) throw Object.assign(new Error('name must be a GitHub repository name.'), {status: 400, code: 'github_admin_invalid_repo_name'});
+  return name;
+}
+
+function requireGitHubAdminEnabled() {
+  if (githubAdminEnabled()) return;
+  throw Object.assign(new Error('GitHub admin mutations are disabled. Set HOME_CENTER_GITHUB_ADMIN_ENABLED=true and configure the GitHub App secrets.'), {status: 403, code: 'github_admin_disabled'});
+}
+
+function githubAdminConfiguration(githubAdmin = {}) {
+  const appId = githubAdminSecretValue(githubAdmin, 'appId', 'GITHUB_APP_ID', 120);
+  const installationId = githubAdminSecretValue(githubAdmin, 'installationId', 'GITHUB_APP_INSTALLATION_ID', 120);
+  const privateKeyConfigured = !!githubAdminSecretValue(githubAdmin, 'privateKey', 'GITHUB_APP_PRIVATE_KEY', 12000);
+  const bootstrapConfigured = !!(
+    githubAdminSecretValue(githubAdmin, 'bootstrapToken', 'GITHUB_BOOTSTRAP_TOKEN', 4096) ||
+    githubAdminSecretValue(githubAdmin, 'adminToken', 'GITHUB_ADMIN_TOKEN', 4096)
+  );
+  return {
+    runtimeEnabled: githubAdminEnabled(),
+    appIdConfigured: !!appId,
+    installationIdConfigured: !!installationId,
+    privateKeyConfigured,
+    appConfigured: !!(appId && installationId && privateKeyConfigured),
+    bootstrapConfigured,
+  };
+}
+
+function githubAdminDisabledReasons(config = {}, probe = null) {
+  const reasons = [];
+  if (!config.runtimeEnabled) reasons.push({code: 'runtime_flag_disabled', message: 'HOME_CENTER_GITHUB_ADMIN_ENABLED is not true.'});
+  if (!config.appConfigured) {
+    const missing = [];
+    if (!config.appIdConfigured) missing.push('GITHUB_APP_ID');
+    if (!config.installationIdConfigured) missing.push('GITHUB_APP_INSTALLATION_ID');
+    if (!config.privateKeyConfigured) missing.push('GITHUB_APP_PRIVATE_KEY');
+    reasons.push({code: 'github_app_credentials_missing', message: `Missing GitHub App credential configuration: ${missing.join(', ') || 'unknown'}.`});
+  }
+  if (probe && !probe.ok) reasons.push({code: probe.code || 'github_admin_installation_probe_failed', message: probe.message || 'GitHub App installation authority probe failed.', providerStatus: probe.providerStatus || 0});
+  return reasons;
+}
+
+function githubAdminProbeFailure(err) {
+  return {
+    ok: false,
+    code: safeText(err && err.code, 120) || 'github_admin_installation_probe_failed',
+    providerStatus: safeNumber(err && err.status, 0),
+    message: safeText(err && err.message, 500) || 'GitHub App installation authority probe failed.',
+  };
+}
+
+function requireGitHubAdminOwner(githubAdmin, owner) {
+  const clean = safeGitHubOwner(owner);
+  const allowed = githubAdminOwners(githubAdmin);
+  if (!allowed.includes(clean)) {
+    throw Object.assign(new Error(`GitHub owner ${clean} is outside the Home Center GitHub admin allowlist.`), {status: 403, code: 'github_admin_owner_not_allowed', allowedOwners: allowed});
+  }
+  return clean;
+}
+
+function base64UrlJson(value) {
+  return Buffer.from(JSON.stringify(value)).toString('base64url');
+}
+
+function normalizeGithubPrivateKey(value) {
+  return safeText(value, 12000).replace(/\\n/g, '\n');
+}
+
+function createGitHubAppJwt(appId, privateKey) {
+  const now = Math.floor(Date.now() / 1000);
+  const header = base64UrlJson({alg: 'RS256', typ: 'JWT'});
+  const payload = base64UrlJson({iat: now - 60, exp: now + 540, iss: String(appId)});
+  const signingInput = `${header}.${payload}`;
+  const signer = createSign('RSA-SHA256');
+  signer.update(signingInput);
+  signer.end();
+  return `${signingInput}.${signer.sign(normalizeGithubPrivateKey(privateKey), 'base64url')}`;
+}
+
+async function githubAdminInstallationToken(githubAdmin = {}) {
+  const appId = githubAdminSecretValue(githubAdmin, 'appId', 'GITHUB_APP_ID', 120);
+  const installationId = githubAdminSecretValue(githubAdmin, 'installationId', 'GITHUB_APP_INSTALLATION_ID', 120);
+  const privateKey = githubAdminSecretValue(githubAdmin, 'privateKey', 'GITHUB_APP_PRIVATE_KEY', 12000);
+  if (!appId || !installationId || !privateKey) {
+    const err = new Error('GitHub App credentials are not configured for Home Center GitHub admin tools. Required: GITHUB_APP_ID, GITHUB_APP_INSTALLATION_ID, GITHUB_APP_PRIVATE_KEY.');
+    err.status = 503;
+    err.code = 'github_admin_app_credentials_missing';
+    throw err;
+  }
+  const jwt = createGitHubAppJwt(appId, privateKey);
+  const response = await fetch(`https://api.github.com/app/installations/${encodeURIComponent(installationId)}/access_tokens`, {
+    method: 'POST',
+    headers: githubHeaders(jwt),
+  });
+  const text = await response.text();
+  const json = text ? JSON.parse(text) : null;
+  if (!response.ok || !json || !json.token) {
+    const err = new Error(safeText(json && json.message || response.statusText, 1000));
+    err.status = response.status || 502;
+    err.code = 'github_admin_installation_token_failed';
+    err.github = json;
+    throw err;
+  }
+  return json.token;
+}
+
+async function githubAdminToken(githubAdmin = {}, options = {}) {
+  const preferBootstrap = !!options.preferBootstrap;
+  const bootstrap = githubAdminSecretValue(githubAdmin, 'bootstrapToken', 'GITHUB_BOOTSTRAP_TOKEN', 4096) || githubAdminSecretValue(githubAdmin, 'adminToken', 'GITHUB_ADMIN_TOKEN', 4096);
+  if (preferBootstrap) {
+    if (!bootstrap) throw Object.assign(new Error('This GitHub admin operation requires GITHUB_BOOTSTRAP_TOKEN or GITHUB_ADMIN_TOKEN.'), {status: 503, code: 'github_admin_bootstrap_token_missing'});
+    return {token: bootstrap, mode: 'bootstrap_token'};
+  }
+  return {token: await githubAdminInstallationToken(githubAdmin), mode: 'github_app_installation'};
+}
+
+async function githubAdminRequest(githubAdmin, route, options = {}) {
+  const tokenInfo = await githubAdminToken(githubAdmin, options);
+  const response = await fetch(`https://api.github.com${route}`, {
+    method: options.method || 'GET',
+    headers: githubHeaders(tokenInfo.token, options.accept ? {Accept: options.accept} : {}),
+    body: options.body ? JSON.stringify(options.body) : undefined,
+  });
+  const text = await response.text();
+  let json = null;
+  try { json = text ? JSON.parse(text) : null; } catch (_) { json = text; }
+  if (!response.ok) {
+    const err = new Error(safeText(json && json.message ? json.message : response.statusText, 1000));
+    err.status = response.status;
+    err.code = response.status === 403 ? 'github_admin_permission_denied' : response.status === 404 ? 'github_admin_not_found' : `github_admin_http_${response.status}`;
+    err.github = json;
+    err.authMode = tokenInfo.mode;
+    throw err;
+  }
+  return {json, status: response.status, authMode: tokenInfo.mode, appError: tokenInfo.appError || null};
+}
+
+function githubAdminRouteForRepo(repo, suffix = '') {
+  return githubRepoRoute(repo, suffix);
+}
+
+function cleanGitHubAdminRepo(repo = {}) {
+  return cleanGitHubRepo(repo);
+}
+
+function cleanGitHubAdminCommit(commit = {}) {
+  return {sha: commit.sha || '', htmlUrl: commit.html_url || '', message: commit.commit && commit.commit.message || ''};
+}
+
+function cleanGitHubAdminBranch(branch = {}) {
+  return {ref: branch.ref || '', sha: branch.object && branch.object.sha || '', url: branch.url || ''};
+}
+
+async function githubAdminAuthStatusOperation({githubAdmin = {}}) {
+  const owners = githubAdminOwners(githubAdmin);
+  const config = githubAdminConfiguration(githubAdmin);
+  let probe = null;
+  if (config.runtimeEnabled && config.appConfigured) {
+    try {
+      await githubAdminInstallationToken(githubAdmin);
+      probe = {ok: true, code: 'github_admin_installation_authority_verified'};
+    } catch (err) {
+      probe = githubAdminProbeFailure(err);
+    }
+  }
+  const enabled = !!(config.runtimeEnabled && config.appConfigured && probe && probe.ok);
+  return {
+    ok: true,
+    enabled,
+    authority: 'home_center_github_admin_v1',
+    configured: config.appConfigured,
+    runtimeEnabled: config.runtimeEnabled,
+    authenticated: !!(probe && probe.ok),
+    authorized: enabled,
+    providerReachable: !!(probe && probe.ok),
+    primaryCredential: config.appConfigured ? 'github_app_installation' : '',
+    fallbackCredentialConfigured: config.bootstrapConfigured,
+    appConfigured: config.appConfigured,
+    allowedOwners: owners,
+    mutationRequiresRequestId: true,
+    secretsExposed: false,
+    disabledReasons: enabled ? [] : githubAdminDisabledReasons(config, probe),
+    diagnostics: {
+      appIdConfigured: config.appIdConfigured,
+      installationIdConfigured: config.installationIdConfigured,
+      privateKeyConfigured: config.privateKeyConfigured,
+      installationProbe: probe ? {ok: !!probe.ok, code: probe.code || '', providerStatus: probe.providerStatus || 0} : {ok: false, code: config.runtimeEnabled && config.appConfigured ? 'not_run' : 'not_applicable', providerStatus: 0},
+    },
+    supportedOperations: ['github_admin.auth_status', 'github_admin.repos.create', 'github_admin.repos.configure', 'github_admin.branches.create', 'github_admin.files.upsert', 'github_admin.pull_requests.create', 'github_admin.pull_requests.merge', 'github_admin.workflows.dispatch'],
+  };
+}
+
+async function githubAdminCreateRepoOperation({admin, user, githubAdmin, args = {}}) {
+  requireGitHubAdminEnabled();
+  const requestId = createGitHubAdminRequestId(args.requestId);
+  const existing = await existingAudit(admin, requestId);
+  if (existing && existing.status === 'success' && existing.result) return {...existing.result, idempotent: true, audit: existing};
+  const owner = requireGitHubAdminOwner(githubAdmin, args.owner || 'Valar05');
+  const name = safeGitHubRepoName(args.name);
+  const ownerType = safeText(args.ownerType || args.scope || 'org', 20).toLowerCase();
+  if (!['org', 'user'].includes(ownerType)) throw Object.assign(new Error('ownerType must be org or user.'), {status: 400, code: 'github_admin_invalid_owner_type'});
+  const visibility = safeText(args.visibility || 'private', 20).toLowerCase();
+  if (!['private', 'public', 'internal'].includes(visibility)) throw Object.assign(new Error('visibility must be private, public, or internal.'), {status: 400, code: 'github_admin_invalid_visibility'});
+  const body = {name, description: safeText(args.description, 1000), private: visibility === 'private', visibility, auto_init: args.autoInit === true};
+  if (safeText(args.homepage, 1000)) body.homepage = safeText(args.homepage, 1000);
+  const route = ownerType === 'user' ? '/user/repos' : `/orgs/${encodeURIComponent(owner)}/repos`;
+  const {json, authMode, status} = await githubAdminRequest(githubAdmin, route, {method: 'POST', body, preferBootstrap: ownerType === 'user'});
+  const repo = cleanGitHubAdminRepo(json || {});
+  const result = {repo, repoFullName: repo.fullName, htmlUrl: repo.htmlUrl, status, authMode, auditRequestId: requestId};
+  const audit = await auditWrite(admin, {actor: user.email || user.uid || 'unknown', authKind: user.authKind, tool: 'github_admin.repos.create', operation: 'github.admin.repos.create', requestId, fileId: `github:${repo.fullName || owner + '/' + name}`, affectedFileIds: [`github:${repo.fullName || owner + '/' + name}`], oldMetadata: null, newMetadata: repo, oldParents: [], newParents: [owner], reversible: false, rollback: null, callerNote: args.callerNote, providerSummary: `Created GitHub repository ${repo.fullName || owner + '/' + name}.`, result});
+  return {...result, audit: audit.audit};
+}
+
+async function githubAdminConfigureRepoOperation({admin, user, githubAdmin, args = {}}) {
+  requireGitHubAdminEnabled();
+  const requestId = createGitHubAdminRequestId(args.requestId);
+  const existing = await existingAudit(admin, requestId);
+  if (existing && existing.status === 'success' && existing.result) return {...existing.result, idempotent: true, audit: existing};
+  const repo = safeGitHubRepo(args.repo);
+  requireGitHubAdminOwner(githubAdmin, repo.split('/')[0]);
+  const body = {};
+  ['description', 'homepage', 'default_branch'].forEach((key) => { if (safeText(args[key], 1000)) body[key] = safeText(args[key], 1000); });
+  ['has_issues', 'has_projects', 'has_wiki', 'allow_squash_merge', 'allow_merge_commit', 'allow_rebase_merge', 'delete_branch_on_merge', 'allow_auto_merge'].forEach((key) => { if (typeof args[key] === 'boolean') body[key] = args[key]; });
+  if (!Object.keys(body).length) throw Object.assign(new Error('at least one repository setting is required.'), {status: 400, code: 'github_admin_no_repo_settings'});
+  const before = cleanGitHubAdminRepo((await githubAdminRequest(githubAdmin, githubAdminRouteForRepo(repo))).json || {});
+  const {json, authMode, status} = await githubAdminRequest(githubAdmin, githubAdminRouteForRepo(repo), {method: 'PATCH', body});
+  const after = cleanGitHubAdminRepo(json || {});
+  const result = {repo, before, after, status, authMode, auditRequestId: requestId};
+  const audit = await auditWrite(admin, {actor: user.email || user.uid || 'unknown', authKind: user.authKind, tool: 'github_admin.repos.configure', operation: 'github.admin.repos.configure', requestId, fileId: `github:${repo}`, affectedFileIds: [`github:${repo}`], oldMetadata: before, newMetadata: after, oldParents: [], newParents: [], reversible: false, rollback: null, callerNote: args.callerNote, providerSummary: `Configured GitHub repository ${repo}.`, result});
+  return {...result, audit: audit.audit};
+}
+
+async function githubAdminCreateBranchOperation({admin, user, githubAdmin, args = {}}) {
+  requireGitHubAdminEnabled();
+  const requestId = createGitHubAdminRequestId(args.requestId);
+  const existing = await existingAudit(admin, requestId);
+  if (existing && existing.status === 'success' && existing.result) return {...existing.result, idempotent: true, audit: existing};
+  const repo = safeGitHubRepo(args.repo);
+  requireGitHubAdminOwner(githubAdmin, repo.split('/')[0]);
+  const branch = safeGitHubRef(args.branch);
+  const fromBranch = safeGitHubRef(args.fromBranch || args.base || 'main');
+  if (!branch) throw Object.assign(new Error('branch is required.'), {status: 400, code: 'github_admin_branch_required'});
+  const base = (await githubAdminRequest(githubAdmin, githubAdminRouteForRepo(repo, `/git/ref/heads/${encodeURIComponent(fromBranch)}`))).json || {};
+  const sha = safeText(args.sha, 80) || base.object && base.object.sha;
+  if (!sha) throw Object.assign(new Error('base branch did not resolve to a commit SHA.'), {status: 404, code: 'github_admin_base_branch_missing'});
+  const {json, authMode, status} = await githubAdminRequest(githubAdmin, githubAdminRouteForRepo(repo, '/git/refs'), {method: 'POST', body: {ref: `refs/heads/${branch}`, sha}});
+  const created = cleanGitHubAdminBranch(json || {});
+  const result = {repo, branch, fromBranch, sha, ref: created, status, authMode, auditRequestId: requestId};
+  const audit = await auditWrite(admin, {actor: user.email || user.uid || 'unknown', authKind: user.authKind, tool: 'github_admin.branches.create', operation: 'github.admin.branches.create', requestId, fileId: `github:${repo}:refs/heads/${branch}`, affectedFileIds: [`github:${repo}:refs/heads/${branch}`], oldMetadata: null, newMetadata: created, oldParents: [], newParents: [repo], reversible: false, rollback: null, callerNote: args.callerNote, providerSummary: `Created GitHub branch ${repo}:${branch}.`, result});
+  return {...result, audit: audit.audit};
+}
+
+async function githubAdminUpsertFileOperation({admin, user, githubAdmin, args = {}}) {
+  requireGitHubAdminEnabled();
+  const requestId = createGitHubAdminRequestId(args.requestId);
+  const existing = await existingAudit(admin, requestId);
+  if (existing && existing.status === 'success' && existing.result) return {...existing.result, idempotent: true, audit: existing};
+  const repo = safeGitHubRepo(args.repo);
+  requireGitHubAdminOwner(githubAdmin, repo.split('/')[0]);
+  const filePath = safeGitHubPath(args.path);
+  const branch = safeGitHubRef(args.branch || 'main');
+  const message = safeText(args.message || `Home Center update ${filePath}`, 240);
+  const content = boundedText(args.content, 2000000);
+  const contentBase64 = safeText(args.contentBase64, 3000000) || Buffer.from(content, 'utf8').toString('base64');
+  if (!contentBase64) throw Object.assign(new Error('content or contentBase64 is required.'), {status: 400, code: 'github_admin_file_content_required'});
+  let sha = safeText(args.sha, 120);
+  let before = null;
+  if (!sha) {
+    try {
+      before = (await githubAdminRequest(githubAdmin, githubAdminRouteForRepo(repo, `/contents/${filePath.split('/').map(encodeURIComponent).join('/')}${githubQuery({ref: branch})}`))).json;
+      sha = before && before.sha || '';
+    } catch (err) {
+      if (err.status !== 404) throw err;
+    }
+  }
+  const body = {message, content: contentBase64, branch};
+  if (sha) body.sha = sha;
+  const {json, authMode, status} = await githubAdminRequest(githubAdmin, githubAdminRouteForRepo(repo, `/contents/${filePath.split('/').map(encodeURIComponent).join('/')}`), {method: 'PUT', body});
+  const commit = cleanGitHubAdminCommit(json && json.commit || {});
+  const result = {repo, path: filePath, branch, commit, contentSha: json && json.content && json.content.sha || '', status, authMode, auditRequestId: requestId};
+  const audit = await auditWrite(admin, {actor: user.email || user.uid || 'unknown', authKind: user.authKind, tool: 'github_admin.files.upsert', operation: 'github.admin.files.upsert', requestId, fileId: `github:${repo}/${filePath}`, affectedFileIds: [`github:${repo}/${filePath}`, `github:${repo}@${commit.sha}`], oldMetadata: before ? {sha: before.sha || ''} : null, newMetadata: {sha: result.contentSha, commit}, oldParents: [branch], newParents: [branch], reversible: false, rollback: null, callerNote: args.callerNote, providerSummary: `Upserted ${repo}/${filePath} on ${branch}.`, result});
+  return {...result, audit: audit.audit};
+}
+
+async function githubAdminCreatePullRequestOperation({admin, user, githubAdmin, args = {}}) {
+  requireGitHubAdminEnabled();
+  const requestId = createGitHubAdminRequestId(args.requestId);
+  const existing = await existingAudit(admin, requestId);
+  if (existing && existing.status === 'success' && existing.result) return {...existing.result, idempotent: true, audit: existing};
+  const repo = safeGitHubRepo(args.repo);
+  requireGitHubAdminOwner(githubAdmin, repo.split('/')[0]);
+  const title = safeText(args.title, 240);
+  const head = safeGitHubRef(args.head);
+  const base = safeGitHubRef(args.base || 'main');
+  if (!title || !head || !base) throw Object.assign(new Error('title, head, and base are required.'), {status: 400, code: 'github_admin_pr_input_required'});
+  const {json, authMode, status} = await githubAdminRequest(githubAdmin, githubAdminRouteForRepo(repo, '/pulls'), {method: 'POST', body: {title, head, base, body: safeText(args.body, 60000), draft: args.draft === true}});
+  const pullRequest = cleanGitHubPullRequest(json || {});
+  const result = {repo, pullRequest, number: pullRequest.number, htmlUrl: pullRequest.htmlUrl, status, authMode, auditRequestId: requestId};
+  const audit = await auditWrite(admin, {actor: user.email || user.uid || 'unknown', authKind: user.authKind, tool: 'github_admin.pull_requests.create', operation: 'github.admin.pull_requests.create', requestId, fileId: `github:${repo}#${pullRequest.number}`, affectedFileIds: [`github:${repo}#${pullRequest.number}`], oldMetadata: null, newMetadata: pullRequest, oldParents: [base], newParents: [head], reversible: false, rollback: null, callerNote: args.callerNote, providerSummary: `Created GitHub PR ${repo}#${pullRequest.number}: ${title}.`, result});
+  return {...result, audit: audit.audit};
+}
+
+async function githubAdminCheckMergePreconditions(githubAdmin, repo, number, args = {}) {
+  const pullRequest = cleanGitHubPullRequest((await githubAdminRequest(githubAdmin, githubAdminRouteForRepo(repo, `/pulls/${number}`))).json || {});
+  const expectedHeadSha = safeText(args.expectedHeadSha || args.headSha, 80);
+  if (!expectedHeadSha) throw Object.assign(new Error('expectedHeadSha is required for PR merge.'), {status: 400, code: 'github_admin_expected_head_sha_required'});
+  if (!pullRequest.head || pullRequest.head.sha !== expectedHeadSha) throw Object.assign(new Error('PR head SHA changed; refusing to merge stale review.'), {status: 409, code: 'github_admin_head_sha_mismatch', currentHeadSha: pullRequest.head && pullRequest.head.sha || '', expectedHeadSha});
+  if (pullRequest.draft) throw Object.assign(new Error('Draft pull requests cannot be merged by Home Center.'), {status: 409, code: 'github_admin_pr_is_draft'});
+  if (args.requireGreenChecks === false) return {pullRequest, combinedStatus: null};
+  const status = (await githubAdminRequest(githubAdmin, githubAdminRouteForRepo(repo, `/commits/${expectedHeadSha}/status`))).json || {};
+  if (status.state !== 'success' && !(args.allowNoChecks === true && Array.isArray(status.statuses) && !status.statuses.length)) {
+    throw Object.assign(new Error(`Required commit statuses are not green: ${status.state || 'unknown'}.`), {status: 409, code: 'github_admin_checks_not_green', combinedState: status.state || 'unknown'});
+  }
+  return {pullRequest, combinedStatus: {state: status.state || '', totalCount: status.total_count || 0}};
+}
+
+async function githubAdminMergePullRequestOperation({admin, user, githubAdmin, args = {}}) {
+  requireGitHubAdminEnabled();
+  const requestId = createGitHubAdminRequestId(args.requestId);
+  const existing = await existingAudit(admin, requestId);
+  if (existing && existing.status === 'success' && existing.result) return {...existing.result, idempotent: true, audit: existing};
+  const repo = safeGitHubRepo(args.repo);
+  requireGitHubAdminOwner(githubAdmin, repo.split('/')[0]);
+  const number = safeGitHubNumber(args.number || args.pullNumber, 'pullNumber');
+  const method = safeText(args.mergeMethod || 'squash', 20).toLowerCase();
+  if (!['merge', 'squash', 'rebase'].includes(method)) throw Object.assign(new Error('mergeMethod must be merge, squash, or rebase.'), {status: 400, code: 'github_admin_invalid_merge_method'});
+  const preflight = await githubAdminCheckMergePreconditions(githubAdmin, repo, number, args);
+  const body = {merge_method: method, sha: safeText(args.expectedHeadSha || args.headSha, 80)};
+  if (safeText(args.commitTitle, 240)) body.commit_title = safeText(args.commitTitle, 240);
+  if (safeText(args.commitMessage, 60000)) body.commit_message = safeText(args.commitMessage, 60000);
+  const {json, authMode, status} = await githubAdminRequest(githubAdmin, githubAdminRouteForRepo(repo, `/pulls/${number}/merge`), {method: 'PUT', body});
+  const result = {repo, number, mergeMethod: method, merged: !!(json && json.merged), sha: json && json.sha || '', message: json && json.message || '', preflight, status, authMode, auditRequestId: requestId};
+  const audit = await auditWrite(admin, {actor: user.email || user.uid || 'unknown', authKind: user.authKind, tool: 'github_admin.pull_requests.merge', operation: 'github.admin.pull_requests.merge', requestId, fileId: `github:${repo}#${number}`, affectedFileIds: [`github:${repo}#${number}`, `github:${repo}@${result.sha}`], oldMetadata: preflight.pullRequest, newMetadata: result, oldParents: [preflight.pullRequest.head && preflight.pullRequest.head.ref || ''], newParents: [preflight.pullRequest.base && preflight.pullRequest.base.ref || ''], reversible: false, rollback: null, callerNote: args.callerNote, providerSummary: `Merged GitHub PR ${repo}#${number} with ${method}.`, result});
+  return {...result, audit: audit.audit};
+}
+
+async function githubAdminDispatchWorkflowOperation({admin, user, githubAdmin, args = {}}) {
+  requireGitHubAdminEnabled();
+  const requestId = createGitHubAdminRequestId(args.requestId);
+  const existing = await existingAudit(admin, requestId);
+  if (existing && existing.status === 'success' && existing.result) return {...existing.result, idempotent: true, audit: existing};
+  const repo = safeGitHubRepo(args.repo);
+  requireGitHubAdminOwner(githubAdmin, repo.split('/')[0]);
+  const workflowId = safeText(args.workflowId || args.workflowFile, 240);
+  const ref = safeGitHubRef(args.ref || 'main');
+  if (!workflowId || /[\\?#]/.test(workflowId)) throw Object.assign(new Error('workflowId is required and must be a workflow file name or numeric workflow id.'), {status: 400, code: 'github_admin_invalid_workflow_id'});
+  const inputs = args.inputs && typeof args.inputs === 'object' && !Array.isArray(args.inputs) ? args.inputs : {};
+  const {authMode, status} = await githubAdminRequest(githubAdmin, githubAdminRouteForRepo(repo, `/actions/workflows/${encodeURIComponent(workflowId)}/dispatches`), {method: 'POST', body: {ref, inputs}});
+  const result = {repo, workflowId, ref, dispatched: true, status, authMode, auditRequestId: requestId};
+  const audit = await auditWrite(admin, {actor: user.email || user.uid || 'unknown', authKind: user.authKind, tool: 'github_admin.workflows.dispatch', operation: 'github.admin.workflows.dispatch', requestId, fileId: `github:${repo}:workflow:${workflowId}`, affectedFileIds: [`github:${repo}:workflow:${workflowId}`], oldMetadata: null, newMetadata: result, oldParents: [repo], newParents: [ref], reversible: false, rollback: null, callerNote: args.callerNote, providerSummary: `Dispatched GitHub workflow ${workflowId} in ${repo} at ${ref}.`, result});
+  return {...result, audit: audit.audit};
+}
+
+async function githubAdminOperationRunOperation({admin, user, githubAdmin = {}, args = {}}) {
+  const operation = safeText(args.operation || args.type || args.toolName, 120);
+  const operationArgs = args.args && typeof args.args === 'object' && !Array.isArray(args.args) ? args.args : {...args};
+  delete operationArgs.operation;
+  delete operationArgs.type;
+  delete operationArgs.toolName;
+  delete operationArgs.args;
+  if (operation === 'github_admin.auth_status') return githubAdminAuthStatusOperation({githubAdmin, args: operationArgs});
+  if (operation === 'github_admin.repos.create') return githubAdminCreateRepoOperation({admin, user, githubAdmin, args: operationArgs});
+  if (operation === 'github_admin.repos.configure') return githubAdminConfigureRepoOperation({admin, user, githubAdmin, args: operationArgs});
+  if (operation === 'github_admin.branches.create') return githubAdminCreateBranchOperation({admin, user, githubAdmin, args: operationArgs});
+  if (operation === 'github_admin.files.upsert') return githubAdminUpsertFileOperation({admin, user, githubAdmin, args: operationArgs});
+  if (operation === 'github_admin.pull_requests.create') return githubAdminCreatePullRequestOperation({admin, user, githubAdmin, args: operationArgs});
+  if (operation === 'github_admin.pull_requests.merge') return githubAdminMergePullRequestOperation({admin, user, githubAdmin, args: operationArgs});
+  if (operation === 'github_admin.workflows.dispatch') return githubAdminDispatchWorkflowOperation({admin, user, githubAdmin, args: operationArgs});
+  throw Object.assign(new Error('Unsupported GitHub admin operation: ' + operation), {status: 400, code: 'github_admin_unsupported_operation'});
+}
+
+function githubAdminOperationEntries() {
+  return {
+    'github_admin.auth_status': {summary: 'Inspect Home Center GitHub admin authority without exposing secrets.', write: false, input: {}},
+    'github_admin.repos.create': {summary: 'Create a repository through the configured GitHub App/admin authority and audit the mutation.', write: true, requiresRequestId: true, requiredPermissions: ['Administration: write'], input: {owner: 'string', ownerType: 'org|user', name: 'string', visibility: 'private|public|internal', description: 'optional string', autoInit: 'optional boolean', requestId: 'string'}},
+    'github_admin.repos.configure': {summary: 'Update safe repository settings through GitHub admin authority and audit the mutation.', write: true, requiresRequestId: true, requiredPermissions: ['Administration: write'], input: {repo: 'owner/name', description: 'optional string', default_branch: 'optional string', mergeSettings: 'optional booleans', requestId: 'string'}},
+    'github_admin.branches.create': {summary: 'Create a branch from an existing branch or explicit SHA.', write: true, requiresRequestId: true, requiredPermissions: ['Contents: write'], input: {repo: 'owner/name', branch: 'string', fromBranch: 'optional string', sha: 'optional commit SHA', requestId: 'string'}},
+    'github_admin.files.upsert': {summary: 'Create or update one repository file on a branch.', write: true, requiresRequestId: true, requiredPermissions: ['Contents: write', 'Workflows: write when path is .github/workflows/*'], input: {repo: 'owner/name', path: 'string', branch: 'string', message: 'string', content: 'string or contentBase64', sha: 'optional expected blob SHA', requestId: 'string'}},
+    'github_admin.pull_requests.create': {summary: 'Open a pull request from head to base.', write: true, requiresRequestId: true, requiredPermissions: ['Pull requests: write'], input: {repo: 'owner/name', title: 'string', head: 'branch', base: 'branch', body: 'optional string', draft: 'optional boolean', requestId: 'string'}},
+    'github_admin.pull_requests.merge': {summary: 'Merge a pull request only when expectedHeadSha matches and required checks are green.', write: true, requiresRequestId: true, requiredPermissions: ['Contents: write'], input: {repo: 'owner/name', pullNumber: 'number', expectedHeadSha: 'required SHA', mergeMethod: 'merge|squash|rebase', requireGreenChecks: 'optional boolean default true', allowNoChecks: 'optional boolean', requestId: 'string'}},
+    'github_admin.workflows.dispatch': {summary: 'Dispatch a GitHub Actions workflow by workflow id/file and ref.', write: true, requiresRequestId: true, requiredPermissions: ['Actions: write'], input: {repo: 'owner/name', workflowId: 'string or number', ref: 'branch/tag/SHA', inputs: 'optional object', requestId: 'string'}},
+  };
+}
+
 function commandCenterDriveOperationEntries() {
   return Object.fromEntries(Object.entries(commandCenterOperationRegistry().operations).map(([operation, meta]) => {
     const prefixed = `command_center.${operation}`;
@@ -2667,6 +3082,7 @@ function driveOperationRegistry() {
         requiredScopes: ['https://www.googleapis.com/auth/drive'],
         input: {fileId: 'string', newName: 'string', requestId: 'string', callerNote: 'optional string'},
       },
+      ...githubAdminOperationEntries(),
       ...simulationOperationRegistry().operations,
       ...commandCenterDriveOperationEntries(),
     },
@@ -2692,7 +3108,7 @@ function commandCenterCompatOperation(args = {}) {
   );
 }
 
-async function driveOperationRunOperation({google, admin, auth, user, extra = null, args = {}}) {
+async function driveOperationRunOperation({google, admin, auth, user, extra = null, githubAdmin = {}, args = {}}) {
   const operation = safeText(args.operation || args.type || args.toolName, 120);
   if (!operation) throw Object.assign(new Error('operation is required.'), {status: 400});
   const registry = driveOperationRegistry();
@@ -2714,6 +3130,10 @@ async function driveOperationRunOperation({google, admin, auth, user, extra = nu
   if (operation.startsWith('command_center.')) {
     const result = await commandCenterOperationRunOperation({extra, args: {operation, args: operationArgs}});
     return {operation, registryVersion: registry.version, completed: true, result: result.result};
+  }
+  if (githubAdminOperationEntries()[operation]) {
+    const result = await githubAdminOperationRunOperation({admin, user, githubAdmin, args: {operation, args: operationArgs}});
+    return {operation, registryVersion: registry.version, completed: true, result};
   }
   if (simulationOperationRegistry().operations[operation]) {
     const result = await simulationOperationRunOperation({admin, user, args: {operation, args: operationArgs}});
@@ -2853,7 +3273,7 @@ async function driveWorkflowRunOperation({google, admin, auth, user, args = {}})
   }
 }
 
-function createHomeCenterMcpServer({google, admin, googleClientId, googleClientSecret, githubToken = () => ''}) {
+function createHomeCenterMcpServer({google, admin, googleClientId, googleClientSecret, githubToken = () => '', githubAdmin = {}}) {
   const server = new McpServer({
     name: 'home-center-drive-bridge',
     version: '0.1.0',
@@ -3202,10 +3622,10 @@ function createHomeCenterMcpServer({google, admin, googleClientId, googleClientS
   }, async (args, extra) => {
     const operation = safeText((args || {}).operation || (args || {}).type || (args || {}).toolName, 120);
     if (operation.startsWith('command_center.') || commandCenterCompatOperation(args || {})) {
-      return textResult(await driveOperationRunOperation({google, admin, auth: null, user: null, extra, args: args || {}}));
+      return textResult(await driveOperationRunOperation({google, admin, auth: null, user: null, extra, githubAdmin, args: args || {}}));
     }
     const {auth, user} = await requestGoogleContext(extra, google, admin, googleClientId, googleClientSecret);
-    return textResult(await driveOperationRunOperation({google, admin, auth, user, extra, args: args || {}}));
+    return textResult(await driveOperationRunOperation({google, admin, auth, user, extra, githubAdmin, args: args || {}}));
   });
 
   server.registerTool('auth_status', {
@@ -3328,6 +3748,103 @@ function createHomeCenterMcpServer({google, admin, googleClientId, googleClientS
     return textResult(await updateSheetValuesOperation({google, admin, auth, user, args: args || {}}));
   });
 
+
+  server.registerTool('github_admin_auth_status', {
+    title: 'GitHub admin auth status',
+    description: 'Inspect Home Center GitHub admin authority without exposing secrets.',
+    inputSchema: {},
+    securitySchemes: MCP_OAUTH_SECURITY_SCHEMES,
+    _meta: {securitySchemes: MCP_OAUTH_SECURITY_SCHEMES},
+    annotations: {readOnlyHint: true, openWorldHint: true},
+  }, async (_args, extra) => {
+    const {user} = await requestGoogleContext(extra, google, admin, googleClientId, googleClientSecret);
+    return textResult({actor: user.email || '', result: await githubAdminAuthStatusOperation({githubAdmin})});
+  });
+
+  server.registerTool('github_admin_create_repo', {
+    title: 'GitHub admin create repo',
+    description: 'Create a GitHub repository through the configured Home Center GitHub admin authority and audit the mutation.',
+    inputSchema: {owner: z.string(), ownerType: z.enum(['org', 'user']).optional().default('org'), name: z.string(), visibility: z.enum(['private', 'public', 'internal']).optional().default('private'), description: z.string().optional(), autoInit: z.boolean().optional(), requestId: z.string(), callerNote: z.string().optional()},
+    securitySchemes: MCP_OAUTH_SECURITY_SCHEMES,
+    _meta: {securitySchemes: MCP_OAUTH_SECURITY_SCHEMES},
+    annotations: {readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: true},
+  }, async (args, extra) => {
+    const {user} = await requestGoogleContext(extra, google, admin, googleClientId, googleClientSecret);
+    return textResult(await githubAdminCreateRepoOperation({admin, user, githubAdmin, args: args || {}}));
+  });
+
+
+  server.registerTool('github_admin_configure_repo', {
+    title: 'GitHub admin configure repo',
+    description: 'Update safe repository settings through GitHub admin authority and audit the mutation.',
+    inputSchema: {repo: z.string(), description: z.string().optional(), homepage: z.string().optional(), default_branch: z.string().optional(), has_issues: z.boolean().optional(), has_projects: z.boolean().optional(), has_wiki: z.boolean().optional(), allow_squash_merge: z.boolean().optional(), allow_merge_commit: z.boolean().optional(), allow_rebase_merge: z.boolean().optional(), delete_branch_on_merge: z.boolean().optional(), allow_auto_merge: z.boolean().optional(), requestId: z.string(), callerNote: z.string().optional()},
+    securitySchemes: MCP_OAUTH_SECURITY_SCHEMES,
+    _meta: {securitySchemes: MCP_OAUTH_SECURITY_SCHEMES},
+    annotations: {readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: true},
+  }, async (args, extra) => {
+    const {user} = await requestGoogleContext(extra, google, admin, googleClientId, googleClientSecret);
+    return textResult(await githubAdminConfigureRepoOperation({admin, user, githubAdmin, args: args || {}}));
+  });
+
+  server.registerTool('github_admin_create_branch', {
+    title: 'GitHub admin create branch',
+    description: 'Create a branch from an existing branch or explicit SHA and audit the mutation.',
+    inputSchema: {repo: z.string(), branch: z.string(), fromBranch: z.string().optional(), sha: z.string().optional(), requestId: z.string(), callerNote: z.string().optional()},
+    securitySchemes: MCP_OAUTH_SECURITY_SCHEMES,
+    _meta: {securitySchemes: MCP_OAUTH_SECURITY_SCHEMES},
+    annotations: {readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: true},
+  }, async (args, extra) => {
+    const {user} = await requestGoogleContext(extra, google, admin, googleClientId, googleClientSecret);
+    return textResult(await githubAdminCreateBranchOperation({admin, user, githubAdmin, args: args || {}}));
+  });
+
+  server.registerTool('github_admin_upsert_file', {
+    title: 'GitHub admin upsert file',
+    description: 'Create or update one repository file on a branch and audit the commit.',
+    inputSchema: {repo: z.string(), path: z.string(), branch: z.string().optional(), message: z.string().optional(), content: z.string().optional(), contentBase64: z.string().optional(), sha: z.string().optional(), requestId: z.string(), callerNote: z.string().optional()},
+    securitySchemes: MCP_OAUTH_SECURITY_SCHEMES,
+    _meta: {securitySchemes: MCP_OAUTH_SECURITY_SCHEMES},
+    annotations: {readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: true},
+  }, async (args, extra) => {
+    const {user} = await requestGoogleContext(extra, google, admin, googleClientId, googleClientSecret);
+    return textResult(await githubAdminUpsertFileOperation({admin, user, githubAdmin, args: args || {}}));
+  });
+
+  server.registerTool('github_admin_create_pull_request', {
+    title: 'GitHub admin create pull request',
+    description: 'Open a pull request and audit the mutation.',
+    inputSchema: {repo: z.string(), title: z.string(), head: z.string(), base: z.string().optional(), body: z.string().optional(), draft: z.boolean().optional(), requestId: z.string(), callerNote: z.string().optional()},
+    securitySchemes: MCP_OAUTH_SECURITY_SCHEMES,
+    _meta: {securitySchemes: MCP_OAUTH_SECURITY_SCHEMES},
+    annotations: {readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: true},
+  }, async (args, extra) => {
+    const {user} = await requestGoogleContext(extra, google, admin, googleClientId, googleClientSecret);
+    return textResult(await githubAdminCreatePullRequestOperation({admin, user, githubAdmin, args: args || {}}));
+  });
+
+  server.registerTool('github_admin_merge_pull_request', {
+    title: 'GitHub admin merge pull request',
+    description: 'Merge a pull request only when expectedHeadSha matches and required checks are green, then audit the mutation.',
+    inputSchema: {repo: z.string(), pullNumber: z.number().int().min(1), expectedHeadSha: z.string(), mergeMethod: z.enum(['merge', 'squash', 'rebase']).optional().default('squash'), requireGreenChecks: z.boolean().optional(), allowNoChecks: z.boolean().optional(), commitTitle: z.string().optional(), commitMessage: z.string().optional(), requestId: z.string(), callerNote: z.string().optional()},
+    securitySchemes: MCP_OAUTH_SECURITY_SCHEMES,
+    _meta: {securitySchemes: MCP_OAUTH_SECURITY_SCHEMES},
+    annotations: {readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: true},
+  }, async (args, extra) => {
+    const {user} = await requestGoogleContext(extra, google, admin, googleClientId, googleClientSecret);
+    return textResult(await githubAdminMergePullRequestOperation({admin, user, githubAdmin, args: args || {}}));
+  });
+
+  server.registerTool('github_admin_dispatch_workflow', {
+    title: 'GitHub admin dispatch workflow',
+    description: 'Dispatch a GitHub Actions workflow by workflow id/file and ref, then audit the mutation.',
+    inputSchema: {repo: z.string(), workflowId: z.string(), ref: z.string().optional(), inputs: z.record(z.string(), z.any()).optional(), requestId: z.string(), callerNote: z.string().optional()},
+    securitySchemes: MCP_OAUTH_SECURITY_SCHEMES,
+    _meta: {securitySchemes: MCP_OAUTH_SECURITY_SCHEMES},
+    annotations: {readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: true},
+  }, async (args, extra) => {
+    const {user} = await requestGoogleContext(extra, google, admin, googleClientId, googleClientSecret);
+    return textResult(await githubAdminDispatchWorkflowOperation({admin, user, githubAdmin, args: args || {}}));
+  });
 
   server.registerTool('github_get_repo', {
     title: 'GitHub get repo',
@@ -3876,7 +4393,7 @@ function createHomeCenterMcpServer({google, admin, googleClientId, googleClientS
   return server;
 }
 
-function createHomeCenterMcpApp({google, admin, googleClientId = () => '', googleClientSecret = () => '', githubToken = () => ''}) {
+function createHomeCenterMcpApp({google, admin, googleClientId = () => '', googleClientSecret = () => '', githubToken = () => '', githubAdmin = {}}) {
   const app = express();
   app.use(express.json({limit: '80mb'}));
   app.use(express.urlencoded({extended: false, limit: '256kb'}));
@@ -4304,7 +4821,7 @@ function createHomeCenterMcpApp({google, admin, googleClientId = () => '', googl
     res.on('close', () => {
       delete transports[transport.sessionId];
     });
-    const server = createHomeCenterMcpServer({google, admin, googleClientId, googleClientSecret, githubToken});
+    const server = createHomeCenterMcpServer({google, admin, googleClientId, googleClientSecret, githubToken, githubAdmin});
     await server.connect(transport);
   });
 
@@ -4330,7 +4847,7 @@ function createHomeCenterMcpApp({google, admin, googleClientId = () => '', googl
       res.status(405).json({jsonrpc: '2.0', error: {code: -32000, message: 'Method not allowed.'}, id: null});
       return;
     }
-      const server = createHomeCenterMcpServer({google, admin, googleClientId, googleClientSecret, githubToken});
+      const server = createHomeCenterMcpServer({google, admin, googleClientId, googleClientSecret, githubToken, githubAdmin});
     const transport = new StreamableHTTPServerTransport({sessionIdGenerator: undefined});
     let closed = false;
     const closeTransport = async () => {
@@ -4359,4 +4876,4 @@ function createHomeCenterMcpApp({google, admin, googleClientId = () => '', googl
   return app;
 }
 
-module.exports = {createHomeCenterMcpApp, createHomeCenterMcpServer, createDriveFolderOperation, createGoogleDocOperation, appendGoogleDocOperation, publishContextSnapshotOperation, createSheetOperation, updateSheetValuesOperation, importXlsxWorkbookOperation, driveOperationRunOperation, driveWorkflowRunOperation, simulationOperationRunOperation, simulationOperationRegistry, normalizeRecoveryOperation, summarizeRecoveryOperations, loadMcpAccessContext};
+module.exports = {createHomeCenterMcpApp, createHomeCenterMcpServer, createDriveFolderOperation, createGoogleDocOperation, appendGoogleDocOperation, publishContextSnapshotOperation, createSheetOperation, updateSheetValuesOperation, importXlsxWorkbookOperation, driveOperationRunOperation, driveWorkflowRunOperation, simulationOperationRunOperation, simulationOperationRegistry, normalizeRecoveryOperation, summarizeRecoveryOperations, loadMcpAccessContext, githubAdminOperationEntries, githubAdminOperationRunOperation, createGitHubAppJwt};

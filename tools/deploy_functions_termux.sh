@@ -12,6 +12,20 @@ else
   FUNCTIONS="commandCenterMcp homeCenterMcp"
 fi
 
+secret_exists() {
+  gcloud secrets describe "$1" --project="$PROJECT" >/dev/null 2>&1
+}
+
+home_center_mcp_secrets_arg() {
+  secrets="GOOGLE_OAUTH_CLIENT_ID=GOOGLE_OAUTH_CLIENT_ID:latest,GOOGLE_OAUTH_CLIENT_SECRET=GOOGLE_OAUTH_CLIENT_SECRET:latest,GITHUB_TOKEN=GITHUB_TOKEN:latest"
+  for secret in GITHUB_BOOTSTRAP_TOKEN GITHUB_APP_ID GITHUB_APP_INSTALLATION_ID GITHUB_APP_PRIVATE_KEY; do
+    if secret_exists "$secret"; then
+      secrets="$secrets,$secret=$secret:latest"
+    fi
+  done
+  printf '%s' "$secrets"
+}
+
 deploy_command_center_mcp() {
   gcloud functions deploy commandCenterMcp \
     --gen2 \
@@ -36,8 +50,8 @@ deploy_home_center_mcp() {
     --trigger-http \
     --allow-unauthenticated \
     --timeout=300s \
-    --set-env-vars=HOME_CENTER_MCP_EXTENDED_TOOLS=true \
-    --set-secrets=GOOGLE_OAUTH_CLIENT_ID=GOOGLE_OAUTH_CLIENT_ID:latest,GOOGLE_OAUTH_CLIENT_SECRET=GOOGLE_OAUTH_CLIENT_SECRET:latest,GITHUB_TOKEN=GITHUB_TOKEN:latest
+    --set-env-vars=HOME_CENTER_MCP_EXTENDED_TOOLS=true,HOME_CENTER_GITHUB_ADMIN_ENABLED="${HOME_CENTER_GITHUB_ADMIN_ENABLED:-true}",HOME_CENTER_GITHUB_ADMIN_OWNERS="${HOME_CENTER_GITHUB_ADMIN_OWNERS:-Valar05}" \
+    --set-secrets="$(home_center_mcp_secrets_arg)"
 }
 
 deploy_she_raw_mcp() {
