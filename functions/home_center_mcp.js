@@ -8,6 +8,7 @@ const {normalizeObjectSchema} = require('./node_modules/@modelcontextprotocol/sd
 const {toJsonSchemaCompat} = require('./node_modules/@modelcontextprotocol/sdk/dist/cjs/server/zod-json-schema-compat.js');
 const express = require('express');
 const {z} = require('zod/v4');
+const {agentMailOperationRegistry, agentMailOperationRunOperation} = require('./agent_mail');
 
 const DEFAULT_MCP_PUBLIC_BASE = 'https://us-central1-home-center-dclar.cloudfunctions.net/homeCenterMcp';
 const MCP_PUBLIC_BASE = process.env.HOME_CENTER_MCP_PUBLIC_BASE || DEFAULT_MCP_PUBLIC_BASE;
@@ -3002,7 +3003,7 @@ function commandCenterDriveOperationEntries() {
 
 function driveOperationRegistry() {
   return {
-    version: '2026-07-13.context-sync-publish-v1',
+    version: '2026-07-25.agent-mail-v1',
     invocationTool: 'drive_operation',
     cachePolicy: 'New bridge, simulation, and Command Center operations should be invokable through drive_operation so ChatGPT does not need a top-level MCP tool refresh for every backend code change. Agents should rediscover this registry through capabilities or health before claiming an operation is unavailable.',
     operations: {
@@ -3083,6 +3084,7 @@ function driveOperationRegistry() {
         input: {fileId: 'string', newName: 'string', requestId: 'string', callerNote: 'optional string'},
       },
       ...githubAdminOperationEntries(),
+      ...agentMailOperationRegistry().operations,
       ...simulationOperationRegistry().operations,
       ...commandCenterDriveOperationEntries(),
     },
@@ -3134,6 +3136,10 @@ async function driveOperationRunOperation({google, admin, auth, user, extra = nu
   if (githubAdminOperationEntries()[operation]) {
     const result = await githubAdminOperationRunOperation({admin, user, githubAdmin, args: {operation, args: operationArgs}});
     return {operation, registryVersion: registry.version, completed: true, result};
+  }
+  if (agentMailOperationRegistry().operations[operation]) {
+    const result = await agentMailOperationRunOperation({admin, user, args: {operation, args: operationArgs}});
+    return {operation, registryVersion: registry.version, completed: true, result: result.result};
   }
   if (simulationOperationRegistry().operations[operation]) {
     const result = await simulationOperationRunOperation({admin, user, args: {operation, args: operationArgs}});
@@ -3312,6 +3318,12 @@ function createHomeCenterMcpServer({google, admin, googleClientId, googleClientS
         invocationTool: 'command_center_operation',
         registryVersion: commandCenterOperationRegistry().version,
         normalPath: 'Use command_center_operation from this Home Center MCP connector to create, inspect, resume, revise, and authorize durable Command Center jobs. Do not require a separate commandCenterMcp connector namespace before dispatching follow-up worker actions.',
+      },
+      agentMail: {
+        invocationTool: 'drive_operation',
+        registryVersion: agentMailOperationRegistry().version,
+        inboxCall: {tool: 'drive_operation', operation: 'agent_mail.inbox', args: {spaceId: 'holocron', agentId: 'eve'}},
+        authorityBoundary: agentMailOperationRegistry().authorityBoundary,
       },
       simulation: {
         operationRegistryVersion: simulationOperationRegistry().version,
@@ -3505,6 +3517,7 @@ function createHomeCenterMcpServer({google, admin, googleClientId, googleClientS
     operationRegistryVersion: driveOperationRegistry().version,
     simulationOperationRegistryVersion: simulationOperationRegistry().version,
     commandCenterOperationRegistryVersion: commandCenterOperationRegistry().version,
+    agentMailOperationRegistryVersion: agentMailOperationRegistry().version,
     topLevelToolCachePolicy: 'Keep top-level MCP tools stable. Add normal bridge and simulation features as drive_operation registry operations so ChatGPT connector metadata does not need reinstall for each backend change. If a future agent says a feature is unavailable, it should first call health or capabilities and inspect operationRegistry.',
     transport: 'stateless-streamable-http',
     safety: {
