@@ -1179,6 +1179,7 @@ async function auditWrite(admin, entry) {
     status: safeText(entry.status, 80) || 'success',
     providerSummary: safeText(entry.providerSummary, 1000),
     result: entry.result || null,
+    inputSha256: safeText(entry.inputSha256, 128),
     error: safeText(entry.error, 1000),
   };
   await ref.set(payload, {merge: false});
@@ -3459,7 +3460,7 @@ function runDroobiedooContextOperation(operation, args = {}) {
 
 function driveOperationRegistry() {
   return {
-    version: '2026-07-24.cartesia-segment-stitch-v1',
+    version: '2026-07-25.audio-render-speech-sequence-v1',
     invocationTool: 'drive_operation',
     cachePolicy: 'New bridge and simulation operations should be invokable through drive_operation so ChatGPT does not need a top-level MCP tool refresh for every backend code change. Cartesia TTS is a direct Home Center MCP provider operation; it must not be routed through Command Center jobs or workers.',
     operations: {
@@ -3509,12 +3510,12 @@ function driveOperationRegistry() {
         write: true,
         requiresRequestId: true,
         requiredScopes: ['https://www.googleapis.com/auth/drive'],
-        input: {scriptText: 'required JSON audio recipe DSL; no imports, network, shell, process, filesystem, or arbitrary code execution; supports speech and audition nodes with text, character or voiceName/voiceId, modelId, emotion, speed, volume, pitchSemitones', sources: 'optional object binding friendly names to inline contentBase64 or drive:// refs; WAV sources decode to clips', settings: 'optional deterministic renderer settings including seed, sampleRate, timeoutMs, allowClipping, speechDefaults', idempotencyKey: 'string alias for requestId', requestId: 'string', parentFolderId: 'optional Drive folder id', callerNote: 'optional string'},
-        output: {ok: 'true', status: 'completed', renderer: 'home-center-deterministic-audio-v1', primaryOutput: 'inline playable audio plus durable Drive ref', speech: 'Cartesia speech provenance with resolved character profile, emotion, speed, volume, pitch, duration ratio, and take metadata', outputs: 'array with name, MIME, duration, sampleRate, channels, codec, bytes, SHA-256, readback hash, peak, LUFS, clipping, durable ref, ChatGPT file ref', manifest: 'verified JSON manifest artifact', noAgentRuntime: 'true'},
+        input: {scriptText: 'required JSON audio recipe DSL; no imports, network, shell, process, filesystem, or arbitrary code execution; supports speech, audition, and speech_sequence nodes with text, speaker, character or voiceName/voiceId, modelId, emotion, speed, volume, pitchSemitones, pauseMs, master, and bounded concurrency', sources: 'optional object binding friendly names to inline contentBase64 or drive:// refs; WAV sources decode to clips', settings: 'optional deterministic renderer settings including seed, sampleRate, timeoutMs, allowClipping, speechDefaults, speechConcurrency', returnInlineAudio: 'optional boolean; defaults true for small audio, set false for long-form responses so durable resource links remain authoritative', idempotencyKey: 'string alias for requestId', requestId: 'string', parentFolderId: 'optional Drive folder id', callerNote: 'optional string'},
+        output: {ok: 'true', status: 'completed', renderer: 'home-center-deterministic-audio-v1', primaryOutput: 'inline playable audio plus durable Drive ref', speech: 'Cartesia speech provenance with resolved character profile, exact segment speaker ownership, emotion, speed, volume, pitch, duration ratio, sequence metadata, and take metadata', outputs: 'array with name, MIME, duration, sampleRate, channels, codec, bytes, SHA-256, readback hash, peak, LUFS, clipping, durable ref, ChatGPT file ref', manifest: 'verified JSON manifest artifact', noAgentRuntime: 'true'},
         agentRecipe: {
           whenUserSays: 'Render procedural sound effects, ambience, foley, layered audio beds, stems, waveform, or spectrogram directly from ChatGPT.',
-          prefer: 'Call drive_operation with operation=audio.render. Keep scriptText as the Home Center JSON audio DSL; use speech/audition recipe nodes for direct Cartesia speech and separate emotional contexts. Do not use Command Center, Codex, workers, GitHub Actions, or a newly exposed top-level MCP tool.',
-          verification: 'Treat ok=true/status=completed, verified output/readback hashes, non-silent metrics, and the returned structured audio block as the acceptance signal.',
+          prefer: 'Call drive_operation with operation=audio.render. Keep scriptText as the Home Center JSON audio DSL; use speech/audition/speech_sequence recipe nodes for direct Cartesia speech, separate emotional contexts, and long-form attributed dialogue. Do not use Command Center, Codex, workers, GitHub Actions, or a newly exposed top-level MCP tool.',
+          verification: 'Treat ok=true/status=completed, verified output/readback hashes, non-silent metrics, and the returned text receipt plus resource_link as authoritative. Inline audio is optional and size-bounded.',
         },
       },
       'audio.render_artifacts': {
@@ -3523,6 +3524,13 @@ function driveOperationRegistry() {
         requiredScopes: ['https://www.googleapis.com/auth/drive'],
         input: {artifactRefs: 'array of drive:// refs returned by audio.render', expected: 'optional array with durableRef/ref, byteCount, and sha256 values from the render receipt', decodeCheck: 'optional boolean; when true Home Center decodes WAV directly and encoded audio with deployed FFmpeg after authorized Drive readback'},
         output: {ok: 'boolean', artifactCount: 'number', decodeCheck: 'boolean', artifacts: 'array with name, MIME, byteCount, sha256, match booleans, WAV/OGG/PNG header evidence, and optional decodeCheck evidence'},
+      },
+      'audio.render_status': {
+        summary: 'Read the idempotency/audit status for an audio.render request without invoking Cartesia, writing Drive, Command Center, Codex, workers, or agents. Use after a client timeout before retrying long-form speech.',
+        write: false,
+        requiredScopes: [],
+        input: {requestId: 'audio.render idempotency key / requestId'},
+        output: {ok: 'boolean', status: 'missing|running|completed|failed', requestId: 'string', result: 'completed receipt when available'},
       },
       'tts.synthesize': {
         summary: 'Synthesize one or more speaker segments with Cartesia directly, stitch them into one audio file, save it as a private Drive artifact, verify readback byte count and SHA-256, and audit the write. No Command Center job or worker is involved.',
@@ -3651,6 +3659,13 @@ async function driveOperationRunOperation({google, admin, auth, user, extra = nu
   }
   if (operation === 'audio.render_artifacts') {
     const result = await inspectAudioArtifactsOperation({google, auth, args: operationArgs});
+    return {operation, registryVersion: registry.version, completed: true, result};
+  }
+  if (operation === 'audio.render_status') {
+    const requestId = createRequestId(operationArgs.requestId || operationArgs.idempotencyKey);
+    const audit = await existingAudit(admin, requestId);
+    const status = !audit ? 'missing' : audit.status === 'success' ? 'completed' : safeText(audit.status, 80) || 'completed';
+    const result = {ok: status !== 'missing', operation: 'audio.render_status', requestId, status, result: audit && audit.result || null, inputSha256: audit && audit.inputSha256 || '', audit: audit ? {...audit, result: null} : null};
     return {operation, registryVersion: registry.version, completed: true, result};
   }
   const workflowId = safeOperationBatchId(args.operationBatchId || operationArgs.operationBatchId || operationArgs.requestId || ('drive-operation-' + randomUUID()));
