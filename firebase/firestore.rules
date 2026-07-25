@@ -100,3 +100,7 @@ service cloud.firestore {
           && request.resource.data.sourceHash == resource.data.sourceHash
           && request.resource.data.createdByUid == resource.data.createdByUid;
         allow delete: if false;
+      }
+    }
+  }
+}
