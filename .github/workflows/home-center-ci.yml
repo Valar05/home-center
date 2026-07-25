@@ -30,7 +30,7 @@ jobs:
           distribution: temurin
           java-version: '17'
       - name: Install system validation tools
-        run: sudo apt-get update && sudo apt-get install -y ripgrep
+        run: sudo apt-get update && sudo apt-get install -y ripgrep imagemagick
       - name: Install function dependencies
         run: npm --prefix functions ci
       - name: Install optional package dependencies when lockfiles exist
