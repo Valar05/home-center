@@ -1,4 +1,4 @@
-const {createHash, randomBytes, randomUUID} = require('node:crypto');
+const {createHash, randomBytes, randomUUID, createSign} = require('node:crypto');
 const {Readable, Transform} = require('node:stream');
 const {pipeline} = require('node:stream/promises');
 const {Storage} = require('@google-cloud/storage');
@@ -30,6 +30,7 @@ const COMMAND_CENTER_RENDER_BUCKET = process.env.COMMAND_CENTER_RENDER_BUCKET ||
 const HOME_CENTER_RENDER_MAX_GLB_BYTES = Number(process.env.COMMAND_CENTER_RENDER_MAX_GLB_BYTES || 250 * 1024 * 1024);
 const HOME_CENTER_RENDER_MAX_SCRIPT_BYTES = Number(process.env.COMMAND_CENTER_RENDER_MAX_SCRIPT_BYTES || 1024 * 1024);
 const HOME_CENTER_DIRECT_RENDER_TEXT_LIMIT = 1024 * 1024;
+const HOME_CENTER_RENDER_INLINE_GIF_MAX_BYTES = Number(process.env.HOME_CENTER_RENDER_INLINE_GIF_MAX_BYTES || 2 * 1024 * 1024);
 const MCP_REQUIRED_SCOPES = [
   'https://www.googleapis.com/auth/drive',
   'https://www.googleapis.com/auth/documents',
@@ -510,7 +511,7 @@ function commandCenterOperationRegistry() {
       'projects.resolve': {summary: 'Resolve an active project before creating a job.', readOnly: false, input: {repository: 'optional string', capability: 'optional string', projectId: 'optional string', idempotencyKey: 'string'}},
       'projects.get': {summary: 'Read one persisted Command Center project packet.', readOnly: true, input: {projectId: 'string'}},
       'projects.upsert': {summary: 'Create or update a durable Command Center project binding.', readOnly: false, input: {projectId: 'string', repository: 'optional string', capability: 'optional string', repositoryBinding: 'optional object', availableWorkers: 'optional string[]', idempotencyKey: 'string'}},
-      'render.blender_glb': {summary: 'Run non-agent Blender execution from durable refs, authenticated GitHub sources, or inline script. Prefer glbSource.provider=github for private repository GLBs when ChatGPT cannot expose the top-level binary upload tool.', readOnly: false, topLevelFileTool: 'render_blender_glb', input: {glbRef: 'drive:// | bucket:// | gs:// GLB ref for dispatcher calls', glbSource: '{provider: github, repository: owner/name, ref: commit-or-branch, path: path/to/file.glb}', scriptRef: 'optional drive:// | bucket:// | gs:// Blender Python ref', scriptSource: 'optional authenticated GitHub Python descriptor', scriptText: 'optional inline Python script alternative', settings: 'optional object', executionContract: 'optional object', cache: 'optional boolean', idempotencyKey: 'string'}},
+      'render.blender_glb': {summary: 'Run non-agent Blender execution from durable refs, authenticated GitHub sources, or inline script. Prefer glbSource.provider=github for private repository GLBs when ChatGPT cannot expose the top-level binary upload tool; nested command_center_operation args cannot activate host file upload slots.', readOnly: false, topLevelFileTool: 'render_blender_glb', input: {glbRef: 'drive:// | bucket:// | gs:// GLB ref for dispatcher calls', glbSource: '{provider: github, repository: owner/name, ref: commit-or-branch, path: path/to/file.glb}', scriptRef: 'optional drive:// | bucket:// | gs:// Blender Python ref', scriptSource: 'optional authenticated GitHub Python descriptor', scriptText: 'optional inline Python script alternative', settings: 'optional object', executionContract: 'optional object', cache: 'optional boolean', idempotencyKey: 'string'}},
       'jobs.create': {summary: 'Create a durable worker ticket/job.', readOnly: false, input: {projectId: 'string', title: 'string', objective: 'string', acceptanceCriteria: 'string[]', workerRequirements: 'string[]', mutationPolicy: 'object', idempotencyKey: 'string'}},
       'jobs.create_followup': {summary: 'Create a new linked invocation from a source job handoff without rewriting the old job.', readOnly: false, input: {sourceJobId: 'string', title: 'string', objective: 'string', acceptanceCriteria: 'optional string[]', constraints: 'optional string[]', mutationPolicy: 'optional object', idempotencyKey: 'string'}},
       'jobs.get': {summary: 'Read one Command Center job packet.', readOnly: true, input: {jobId: 'string'}},
@@ -630,6 +631,77 @@ function cleanRenderUploadName(value, fallback) {
 
 function sha256RenderBytes(bytes) {
   return createHash('sha256').update(bytes).digest('hex');
+}
+
+function parseRenderGsRef(ref) {
+  const text = safeText(ref, 1600);
+  const match = text.match(/^gs:\/\/([^/]+)\/(.+)$/i);
+  if (!match) throw homeCenterRenderInputError('Inline render delivery requires a private gs:// artifact ref.', 400, 'render_inline_artifact_ref_invalid');
+  if (match[1] !== COMMAND_CENTER_RENDER_BUCKET) throw homeCenterRenderInputError('Inline render delivery refused artifact outside the configured private render bucket.', 403, 'render_inline_artifact_owner_scope_failed');
+  if (!match[2].startsWith('command-center-renders/')) throw homeCenterRenderInputError('Inline render delivery refused artifact outside the render artifact prefix.', 403, 'render_inline_artifact_owner_scope_failed');
+  return {bucket: match[1], name: match[2], ref: text};
+}
+
+function renderArtifactHashEntry(result = {}, rel = 'walk-loop.gif') {
+  const direct = safeObject(result.artifactHashes);
+  const bundle = safeObject(result.bundle);
+  const bundled = safeObject(bundle.artifactHashes);
+  return safeObject(direct[rel] || bundled[rel]);
+}
+
+function renderReceiptWithoutInlinePayload(operationResult = {}, delivery = null) {
+  const clean = JSON.parse(JSON.stringify(operationResult || {}));
+  if (clean && clean.result) {
+    clean.result.inlineMediaDelivery = delivery ? {...delivery, data: undefined, base64: undefined} : null;
+  }
+  return clean;
+}
+
+async function verifiedRenderGifMcpContent(result = {}, {storage = null} = {}) {
+  const renderResult = safeObject(result);
+  const loopingGifRef = safeText(renderResult.loopingGifRef, 1600);
+  const expected = renderArtifactHashEntry(renderResult, 'walk-loop.gif');
+  const expectedSha256 = safeText(expected.sha256, 128).toLowerCase();
+  const expectedByteCount = Number(expected.byteCount || 0) || 0;
+  const deliveryBase = {
+    ok: false,
+    type: 'mcp_inline_media',
+    mimeType: 'image/gif',
+    artifactRef: loopingGifRef,
+    byteCount: 0,
+    sha256: '',
+    expectedByteCount,
+    expectedSha256,
+    ceilingBytes: HOME_CENTER_RENDER_INLINE_GIF_MAX_BYTES,
+    contentBlockType: '',
+    errorCode: '',
+    message: '',
+  };
+  if (!loopingGifRef) return {contentBlock: null, delivery: {...deliveryBase, errorCode: 'render_inline_gif_missing_ref', message: 'Renderer did not return loopingGifRef.'}};
+  if (!expectedSha256 || !expectedByteCount) return {contentBlock: null, delivery: {...deliveryBase, errorCode: 'render_inline_gif_missing_hash', message: 'Renderer did not return walk-loop.gif byte count and SHA-256.'}};
+  if (expectedByteCount > HOME_CENTER_RENDER_INLINE_GIF_MAX_BYTES) return {contentBlock: null, delivery: {...deliveryBase, errorCode: 'render_inline_gif_too_large', message: 'Verified GIF exceeds configured inline media byte ceiling.'}};
+  const parsed = parseRenderGsRef(loopingGifRef);
+  const client = storage || new Storage();
+  const [bytes] = await client.bucket(parsed.bucket).file(parsed.name).download();
+  const buffer = Buffer.isBuffer(bytes) ? bytes : Buffer.from(bytes);
+  const readbackSha256 = sha256RenderBytes(buffer);
+  if (buffer.length !== expectedByteCount || readbackSha256 !== expectedSha256) {
+    return {contentBlock: null, delivery: {...deliveryBase, byteCount: buffer.length, sha256: readbackSha256, errorCode: 'render_inline_gif_readback_mismatch', message: 'Private GCS GIF readback did not match renderer hash metadata.'}};
+  }
+  const contentBlock = {type: 'image', data: buffer.toString('base64'), mimeType: 'image/gif', annotations: {audience: ['user'], priority: 1}};
+  return {contentBlock, delivery: {...deliveryBase, ok: true, byteCount: buffer.length, sha256: readbackSha256, contentBlockType: contentBlock.type, message: 'Private GCS GIF readback verified and attached as MCP image/gif content.'}};
+}
+
+async function attachRenderGifMcpContent(operationResult = {}, options = {}) {
+  const cleanResult = JSON.parse(JSON.stringify(operationResult || {}));
+  if (!cleanResult || cleanResult.operation !== 'render.blender_glb' || !cleanResult.result) return cleanResult;
+  const inline = await verifiedRenderGifMcpContent(cleanResult.result, options).catch((err) => ({contentBlock: null, delivery: {ok: false, type: 'mcp_inline_media', mimeType: 'image/gif', artifactRef: safeText(cleanResult.result && cleanResult.result.loopingGifRef, 1600), byteCount: 0, sha256: '', expectedByteCount: 0, expectedSha256: '', ceilingBytes: HOME_CENTER_RENDER_INLINE_GIF_MAX_BYTES, contentBlockType: '', errorCode: safeText(err && err.failureKind, 120) || 'render_inline_gif_delivery_failed', message: safeText(err && err.message, 500)}}));
+  cleanResult.result.inlineMediaDelivery = inline.delivery;
+  const receipt = renderReceiptWithoutInlinePayload(cleanResult, inline.delivery);
+  const content = [{type: 'text', text: jsonText(receipt)}];
+  if (inline.contentBlock) content.push(inline.contentBlock);
+  cleanResult._mcpContent = {content};
+  return cleanResult;
 }
 
 function validateHomeCenterRenderBytes(bytes, role, label) {
@@ -766,20 +838,96 @@ function renderGitHubSourceRef(source) {
   return 'github://' + source.repository + '@' + (source.ref || 'default') + '/' + source.path;
 }
 
+function renderNowMs() { return Date.now(); }
+function renderSourceCacheKey(role, label) {
+  return createHash('sha256').update(role + ':' + label).digest('hex');
+}
+function renderGitHubCacheManifestName(role, label) {
+  return 'command-center-render-inputs/github-cache/' + role + '/' + renderSourceCacheKey(role, label) + '.json';
+}
+function renderGitHubCacheObjectName(role, label, digest, safeFile) {
+  return 'command-center-render-inputs/github-cache/' + role + '/' + renderSourceCacheKey(role, label) + '-' + digest.sha256 + '-' + safeFile;
+}
+async function readCachedGitHubRenderInput(bucket, role, label) {
+  const manifestFile = bucket.file(renderGitHubCacheManifestName(role, label));
+  const [exists] = await manifestFile.exists();
+  if (!exists) return null;
+  try {
+    const [bytes] = await manifestFile.download();
+    const manifest = JSON.parse(bytes.toString('utf8'));
+    if (manifest.sourceRef !== label || manifest.role !== role || !manifest.ref || !manifest.sha256 || !manifest.byteCount) return null;
+    const cachedFile = bucket.file(String(manifest.ref).replace(/^gs:\/\/[^/]+\//, ''));
+    const [objectExists] = await cachedFile.exists();
+    if (!objectExists) return null;
+    return manifest;
+  } catch (_err) {
+    return null;
+  }
+}
+async function writeCachedGitHubRenderInput(bucket, role, label, digest, safeFile, tempFile, contentType, normalized) {
+  const cacheObjectName = renderGitHubCacheObjectName(role, label, digest, safeFile);
+  await tempFile.move(cacheObjectName);
+  const cachedFile = bucket.file(cacheObjectName);
+  await cachedFile.setMetadata({
+    contentType: renderContentType(role),
+    metadata: {sha256: digest.sha256, byteCount: String(digest.byteCount), role, materializedBy: 'home_center_mcp.command_center_operation', sourceKind: 'github-cache', repository: normalized.repository, ref: normalized.ref, path: normalized.path},
+  });
+  const manifest = {
+    ref: 'gs://' + COMMAND_CENTER_RENDER_BUCKET + '/' + cacheObjectName,
+    sha256: digest.sha256,
+    byteCount: digest.byteCount,
+    fileName: safeFile,
+    role,
+    sourceRef: label,
+    contentType: contentType || renderContentType(role),
+    materializedBy: 'home_center_mcp.command_center_operation',
+    materializedFrom: role + 'GitHubSourceCache',
+    source: normalized,
+    cachedAtMs: Date.now(),
+  };
+  await bucket.file(renderGitHubCacheManifestName(role, label)).save(JSON.stringify(manifest, null, 2), {
+    resumable: false,
+    metadata: {contentType: 'application/json', metadata: {role, sourceKind: 'github-cache-manifest', sourceRefHash: renderSourceCacheKey(role, label)}},
+  });
+  return manifest;
+}
+
 async function stageHomeCenterGitHubRenderInput({githubToken, user, renderId, role, source}) {
   if (!COMMAND_CENTER_RENDER_BUCKET) throw homeCenterRenderInputError('COMMAND_CENTER_RENDER_BUCKET is not configured for render input staging.', 503, 'transport');
   const normalized = normalizeRenderGitHubSource(source, role);
   if (!normalized) throw homeCenterRenderInputError(role + 'Source is required.', 400, 'input_validation');
   const token = githubTokenValue(githubToken);
   if (!token) throw homeCenterRenderInputError('GITHUB_TOKEN secret is not configured for Home Center GitHub render sources.', 503, 'github_input_download_auth_failed');
+  const label = renderGitHubSourceRef(normalized);
+  const safeFile = cleanRenderUploadName(normalized.path.split('/').pop(), renderFallbackName(role));
+  const timings = {startedAtMs: renderNowMs()};
+  const bucket = new Storage().bucket(COMMAND_CENTER_RENDER_BUCKET);
+  const cached = await readCachedGitHubRenderInput(bucket, role, label);
+  timings.cacheLookupMs = Math.max(0, renderNowMs() - timings.startedAtMs);
+  if (cached) {
+    timings.totalMs = Math.max(0, renderNowMs() - timings.startedAtMs);
+    return {
+      ref: cached.ref,
+      sha256: cached.sha256,
+      byteCount: cached.byteCount,
+      fileName: cached.fileName || safeFile,
+      materializedFrom: role + 'GitHubSourceCache',
+      sourceRef: label,
+      materializedBy: 'home_center_mcp.command_center_operation',
+      source: normalized,
+      cacheHit: true,
+      timings,
+    };
+  }
   const filePath = normalized.path.split('/').map(encodeURIComponent).join('/');
   const route = githubRepoRoute(normalized.repository, `/contents/${filePath}${githubQuery({ref: normalized.ref})}`);
-  const label = renderGitHubSourceRef(normalized);
+  const fetchStartedAtMs = renderNowMs();
   const response = await fetch(`https://api.github.com${route}`, {
     method: 'GET',
     headers: {...githubHeaders(token), Accept: 'application/vnd.github.raw'},
     signal: AbortSignal.timeout(Number(process.env.HOME_CENTER_RENDER_GITHUB_TIMEOUT_MS || 120000)),
   });
+  timings.githubOpenMs = Math.max(0, renderNowMs() - fetchStartedAtMs);
   if (!response.ok) {
     let message = response.statusText;
     try {
@@ -790,13 +938,10 @@ async function stageHomeCenterGitHubRenderInput({githubToken, user, renderId, ro
   }
   validateRenderMediaSize(response.headers.get('content-length'), role, label);
   if (!response.body) throw homeCenterRenderInputError('github_input_download_auth_failed: GitHub response did not include a readable body for ' + role + '.', 502, 'github_input_download_auth_failed');
-  const safeFile = cleanRenderUploadName(normalized.path.split('/').pop(), renderFallbackName(role));
-  const ownerKey = homeCenterRenderOwnerKey(user);
-  const basePrefix = 'command-center-render-inputs/home-center-bridge/' + ownerKey + '/' + (safeText(renderId, 180) || 'render') + '/';
-  const tempName = basePrefix + '.tmp-' + role + '-github-' + randomUUID() + '-' + safeFile;
-  const bucket = new Storage().bucket(COMMAND_CENTER_RENDER_BUCKET);
+  const tempName = 'command-center-render-inputs/github-cache/' + role + '/.tmp-' + role + '-github-' + randomUUID() + '-' + safeFile;
   const tempFile = bucket.file(tempName);
   const validator = renderStreamValidator(role, label);
+  const streamStartedAtMs = renderNowMs();
   try {
     await pipeline(Readable.fromWeb(response.body), validator, tempFile.createWriteStream({
       resumable: false,
@@ -806,15 +951,24 @@ async function stageHomeCenterGitHubRenderInput({githubToken, user, renderId, ro
     await tempFile.delete({ignoreNotFound: true}).catch(() => null);
     throw err;
   }
+  timings.githubStreamAndValidateMs = Math.max(0, renderNowMs() - streamStartedAtMs);
   const digest = validator.digest();
-  const finalName = basePrefix + role + '-' + digest.sha256 + '-' + safeFile;
-  await tempFile.move(finalName);
-  const finalFile = bucket.file(finalName);
-  await finalFile.setMetadata({
-    contentType: renderContentType(role),
-    metadata: {sha256: digest.sha256, byteCount: String(digest.byteCount), role, materializedBy: 'home_center_mcp.command_center_operation', sourceKind: 'github', repository: normalized.repository, ref: normalized.ref, path: normalized.path},
-  });
-  return {ref: 'gs://' + COMMAND_CENTER_RENDER_BUCKET + '/' + finalName, sha256: digest.sha256, byteCount: digest.byteCount, fileName: safeFile, materializedFrom: role + 'GitHubSource', sourceRef: label, materializedBy: 'home_center_mcp.command_center_operation', source: normalized};
+  const cacheWriteStartedAtMs = renderNowMs();
+  const manifest = await writeCachedGitHubRenderInput(bucket, role, label, digest, safeFile, tempFile, response.headers.get('content-type') || renderContentType(role), normalized);
+  timings.cacheWriteMs = Math.max(0, renderNowMs() - cacheWriteStartedAtMs);
+  timings.totalMs = Math.max(0, renderNowMs() - timings.startedAtMs);
+  return {
+    ref: manifest.ref,
+    sha256: manifest.sha256,
+    byteCount: manifest.byteCount,
+    fileName: manifest.fileName,
+    materializedFrom: role + 'GitHubSource',
+    sourceRef: label,
+    materializedBy: 'home_center_mcp.command_center_operation',
+    source: normalized,
+    cacheHit: false,
+    timings,
+  };
 }
 
 async function stageHomeCenterRenderInput({user, renderId, role, sourceRef, fileName, bytes, contentType}) {
@@ -859,7 +1013,7 @@ async function materializeHomeCenterRenderSources({google, admin, googleClientId
   const needsDrive = ['glbRef', 'scriptRef'].some((field) => safeText(operationArgs[field], 1200).toLowerCase().startsWith('drive://'));
   const needsGitHub = !!normalizeRenderGitHubSource(operationArgs.glbSource, 'glb') || !!normalizeRenderGitHubSource(operationArgs.scriptSource, 'script');
   if (!needsDrive && !needsGitHub) return operationArgs;
-  const {auth, user} = needsDrive ? await requestGoogleContext(extra, google, admin, googleClientId, googleClientSecret) : {auth: null, user: (await loadMcpAccessContext(admin, bearerTokenFromExtra(extra))).user};
+  const {auth, user} = needsDrive ? await requestGoogleContext(extra, google, admin, googleClientId, googleClientSecret) : {auth: null, user: (await loadMcpAccessContext(admin, google, googleClientId, googleClientSecret, bearerTokenFromExtra(extra))).user};
   const seed = safeText(operationArgs.idempotencyKey, 180) || randomUUID();
   const renderId = safeText(operationArgs.renderId, 180) || 'render_' + createHash('sha256').update(homeCenterRenderOwnerKey(user) + ':' + seed).digest('hex').slice(0, 32);
   operationArgs.renderId = renderId;
@@ -920,7 +1074,7 @@ function mcpTextContentJson(result, label) {
   return parseJsonPayload(text, label);
 }
 
-async function commandCenterOperationRunOperation({google = null, admin = null, googleClientId = '', googleClientSecret = '', extra, args = {}}) {
+async function commandCenterOperationRunOperation({google = null, admin = null, googleClientId = '', googleClientSecret = '', githubToken = () => '', extra, args = {}}) {
   const operation = safeText(args.operation || args.type || args.toolName, 120);
   const toolName = commandCenterToolName(operation);
   if (!operation) throw Object.assign(new Error('operation is required.'), {status: 400});
@@ -932,7 +1086,8 @@ async function commandCenterOperationRunOperation({google = null, admin = null, 
   delete operationArgs.args;
   if (operation === 'render.blender_glb' && google && admin) {
     const materializedArgs = await materializeHomeCenterRenderSources({google, admin, googleClientId, googleClientSecret, extra, githubToken, args: operationArgs});
-    return {operation, toolName, commandCenterMcpUrl: COMMAND_CENTER_MCP_URL, result: await commandCenterRenderBlenderGlb(admin, extra, materializedArgs)};
+    const rendered = {operation, toolName, commandCenterMcpUrl: COMMAND_CENTER_MCP_URL, result: await commandCenterRenderBlenderGlb(admin, extra, materializedArgs)};
+    return attachRenderGifMcpContent(rendered);
   }
 
   const bearerToken = bearerTokenFromExtra(extra);
@@ -1985,13 +2140,14 @@ function githubTokenValue(githubToken) {
   return safeText(typeof githubToken === 'function' ? githubToken() : githubToken, 4096) || safeText(process.env.GITHUB_TOKEN, 4096);
 }
 
-function githubHeaders(token) {
+function githubHeaders(token, extra = {}) {
   return {
     Authorization: `Bearer ${token}`,
     Accept: 'application/vnd.github+json',
     'Content-Type': 'application/json',
     'User-Agent': 'home-center-mcp',
     'X-GitHub-Api-Version': '2022-11-28',
+    ...extra,
   };
 }
 
@@ -2127,6 +2283,357 @@ function cleanGitHubWorkflowRun(run = {}) {
 function githubQuery(params = {}) {
   const pairs = Object.entries(params).filter(([, value]) => value !== undefined && value !== null && value !== '');
   return pairs.length ? `?${pairs.map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(String(value))}`).join('&')}` : '';
+}
+
+
+function githubAdminEnabled() {
+  return process.env.HOME_CENTER_GITHUB_ADMIN_ENABLED === 'true';
+}
+
+function githubAdminSecretValue(githubAdmin = {}, key, envKey, max = 12000) {
+  const value = githubAdmin && typeof githubAdmin[key] === 'function' ? githubAdmin[key]() : githubAdmin && githubAdmin[key];
+  return safeText(value, max) || safeText(process.env[envKey] || '', max);
+}
+
+function githubAdminOwners(githubAdmin = {}) {
+  const raw = githubAdminSecretValue(githubAdmin, 'allowedOwners', 'HOME_CENTER_GITHUB_ADMIN_OWNERS', 2000) || 'Valar05';
+  return raw.split(',').map((owner) => safeText(owner, 120)).filter((owner) => /^[A-Za-z0-9_.-]{1,120}$/.test(owner));
+}
+
+function safeGitHubOwner(value) {
+  const owner = safeText(value, 120);
+  if (!/^[A-Za-z0-9_.-]{1,120}$/.test(owner)) throw Object.assign(new Error('owner must be a GitHub owner/login.'), {status: 400, code: 'github_admin_invalid_owner'});
+  return owner;
+}
+
+function safeGitHubRepoName(value) {
+  const name = safeText(value, 120);
+  if (!/^[A-Za-z0-9_.-]{1,120}$/.test(name)) throw Object.assign(new Error('name must be a GitHub repository name.'), {status: 400, code: 'github_admin_invalid_repo_name'});
+  return name;
+}
+
+function requireGitHubAdminEnabled() {
+  if (githubAdminEnabled()) return;
+  throw Object.assign(new Error('GitHub admin mutations are disabled. Set HOME_CENTER_GITHUB_ADMIN_ENABLED=true and configure the GitHub App secrets.'), {status: 403, code: 'github_admin_disabled'});
+}
+
+function requireGitHubAdminOwner(githubAdmin, owner) {
+  const clean = safeGitHubOwner(owner);
+  const allowed = githubAdminOwners(githubAdmin);
+  if (!allowed.includes(clean)) {
+    throw Object.assign(new Error(`GitHub owner ${clean} is outside the Home Center GitHub admin allowlist.`), {status: 403, code: 'github_admin_owner_not_allowed', allowedOwners: allowed});
+  }
+  return clean;
+}
+
+function base64UrlJson(value) {
+  return Buffer.from(JSON.stringify(value)).toString('base64url');
+}
+
+function normalizeGithubPrivateKey(value) {
+  return safeText(value, 12000).replace(/\\n/g, '\n');
+}
+
+function createGitHubAppJwt(appId, privateKey) {
+  const now = Math.floor(Date.now() / 1000);
+  const header = base64UrlJson({alg: 'RS256', typ: 'JWT'});
+  const payload = base64UrlJson({iat: now - 60, exp: now + 540, iss: String(appId)});
+  const signingInput = `${header}.${payload}`;
+  const signer = createSign('RSA-SHA256');
+  signer.update(signingInput);
+  signer.end();
+  return `${signingInput}.${signer.sign(normalizeGithubPrivateKey(privateKey), 'base64url')}`;
+}
+
+async function githubAdminInstallationToken(githubAdmin = {}) {
+  const appId = githubAdminSecretValue(githubAdmin, 'appId', 'GITHUB_APP_ID', 120);
+  const installationId = githubAdminSecretValue(githubAdmin, 'installationId', 'GITHUB_APP_INSTALLATION_ID', 120);
+  const privateKey = githubAdminSecretValue(githubAdmin, 'privateKey', 'GITHUB_APP_PRIVATE_KEY', 12000);
+  if (!appId || !installationId || !privateKey) {
+    const err = new Error('GitHub App credentials are not configured for Home Center GitHub admin tools. Required: GITHUB_APP_ID, GITHUB_APP_INSTALLATION_ID, GITHUB_APP_PRIVATE_KEY.');
+    err.status = 503;
+    err.code = 'github_admin_app_credentials_missing';
+    throw err;
+  }
+  const jwt = createGitHubAppJwt(appId, privateKey);
+  const response = await fetch(`https://api.github.com/app/installations/${encodeURIComponent(installationId)}/access_tokens`, {
+    method: 'POST',
+    headers: githubHeaders(jwt),
+  });
+  const text = await response.text();
+  const json = text ? JSON.parse(text) : null;
+  if (!response.ok || !json || !json.token) {
+    const err = new Error(safeText(json && json.message || response.statusText, 1000));
+    err.status = response.status || 502;
+    err.code = 'github_admin_installation_token_failed';
+    err.github = json;
+    throw err;
+  }
+  return json.token;
+}
+
+async function githubAdminToken(githubAdmin = {}, options = {}) {
+  const preferBootstrap = !!options.preferBootstrap;
+  const bootstrap = githubAdminSecretValue(githubAdmin, 'bootstrapToken', 'GITHUB_BOOTSTRAP_TOKEN', 4096) || githubAdminSecretValue(githubAdmin, 'adminToken', 'GITHUB_ADMIN_TOKEN', 4096);
+  if (preferBootstrap) {
+    if (!bootstrap) throw Object.assign(new Error('This GitHub admin operation requires GITHUB_BOOTSTRAP_TOKEN or GITHUB_ADMIN_TOKEN.'), {status: 503, code: 'github_admin_bootstrap_token_missing'});
+    return {token: bootstrap, mode: 'bootstrap_token'};
+  }
+  try {
+    return {token: await githubAdminInstallationToken(githubAdmin), mode: 'github_app_installation'};
+  } catch (err) {
+    if (bootstrap) return {token: bootstrap, mode: 'bootstrap_token_fallback', appError: {code: err.code || '', status: err.status || 0, message: safeText(err.message, 400)}};
+    throw err;
+  }
+}
+
+async function githubAdminRequest(githubAdmin, route, options = {}) {
+  const tokenInfo = await githubAdminToken(githubAdmin, options);
+  const response = await fetch(`https://api.github.com${route}`, {
+    method: options.method || 'GET',
+    headers: githubHeaders(tokenInfo.token, options.accept ? {Accept: options.accept} : {}),
+    body: options.body ? JSON.stringify(options.body) : undefined,
+  });
+  const text = await response.text();
+  let json = null;
+  try { json = text ? JSON.parse(text) : null; } catch (_) { json = text; }
+  if (!response.ok) {
+    const err = new Error(safeText(json && json.message ? json.message : response.statusText, 1000));
+    err.status = response.status;
+    err.code = response.status === 403 ? 'github_admin_permission_denied' : response.status === 404 ? 'github_admin_not_found' : `github_admin_http_${response.status}`;
+    err.github = json;
+    err.authMode = tokenInfo.mode;
+    throw err;
+  }
+  return {json, status: response.status, authMode: tokenInfo.mode, appError: tokenInfo.appError || null};
+}
+
+function githubAdminRouteForRepo(repo, suffix = '') {
+  return githubRepoRoute(repo, suffix);
+}
+
+function cleanGitHubAdminRepo(repo = {}) {
+  return cleanGitHubRepo(repo);
+}
+
+function cleanGitHubAdminCommit(commit = {}) {
+  return {sha: commit.sha || '', htmlUrl: commit.html_url || '', message: commit.commit && commit.commit.message || ''};
+}
+
+function cleanGitHubAdminBranch(branch = {}) {
+  return {ref: branch.ref || '', sha: branch.object && branch.object.sha || '', url: branch.url || ''};
+}
+
+async function githubAdminAuthStatusOperation({githubAdmin = {}}) {
+  const owners = githubAdminOwners(githubAdmin);
+  const appId = githubAdminSecretValue(githubAdmin, 'appId', 'GITHUB_APP_ID', 120);
+  const installationId = githubAdminSecretValue(githubAdmin, 'installationId', 'GITHUB_APP_INSTALLATION_ID', 120);
+  const privateKeyConfigured = !!githubAdminSecretValue(githubAdmin, 'privateKey', 'GITHUB_APP_PRIVATE_KEY', 12000);
+  const bootstrapConfigured = !!(githubAdminSecretValue(githubAdmin, 'bootstrapToken', 'GITHUB_BOOTSTRAP_TOKEN', 4096) || githubAdminSecretValue(githubAdmin, 'adminToken', 'GITHUB_ADMIN_TOKEN', 4096));
+  return {
+    ok: true,
+    enabled: githubAdminEnabled(),
+    authority: 'home_center_github_admin_v1',
+    primaryCredential: appId && installationId && privateKeyConfigured ? 'github_app_installation' : '',
+    fallbackCredentialConfigured: bootstrapConfigured,
+    appConfigured: !!(appId && installationId && privateKeyConfigured),
+    allowedOwners: owners,
+    mutationRequiresRequestId: true,
+    secretsExposed: false,
+    supportedOperations: ['github_admin.auth_status', 'github_admin.repos.create', 'github_admin.repos.configure', 'github_admin.branches.create', 'github_admin.files.upsert', 'github_admin.pull_requests.create', 'github_admin.pull_requests.merge', 'github_admin.workflows.dispatch'],
+  };
+}
+
+async function githubAdminCreateRepoOperation({admin, user, githubAdmin, args = {}}) {
+  requireGitHubAdminEnabled();
+  const requestId = createRequestId(args.requestId);
+  const existing = await existingAudit(admin, requestId);
+  if (existing && existing.status === 'success' && existing.result) return {...existing.result, idempotent: true, audit: existing};
+  const owner = requireGitHubAdminOwner(githubAdmin, args.owner || 'Valar05');
+  const name = safeGitHubRepoName(args.name);
+  const ownerType = safeText(args.ownerType || args.scope || 'org', 20).toLowerCase();
+  if (!['org', 'user'].includes(ownerType)) throw Object.assign(new Error('ownerType must be org or user.'), {status: 400, code: 'github_admin_invalid_owner_type'});
+  const visibility = safeText(args.visibility || 'private', 20).toLowerCase();
+  if (!['private', 'public', 'internal'].includes(visibility)) throw Object.assign(new Error('visibility must be private, public, or internal.'), {status: 400, code: 'github_admin_invalid_visibility'});
+  const body = {name, description: safeText(args.description, 1000), private: visibility === 'private', visibility, auto_init: args.autoInit === true};
+  if (safeText(args.homepage, 1000)) body.homepage = safeText(args.homepage, 1000);
+  const route = ownerType === 'user' ? '/user/repos' : `/orgs/${encodeURIComponent(owner)}/repos`;
+  const {json, authMode, status} = await githubAdminRequest(githubAdmin, route, {method: 'POST', body, preferBootstrap: ownerType === 'user'});
+  const repo = cleanGitHubAdminRepo(json || {});
+  const result = {repo, repoFullName: repo.fullName, htmlUrl: repo.htmlUrl, status, authMode, auditRequestId: requestId};
+  const audit = await auditWrite(admin, {actor: user.email || user.uid || 'unknown', authKind: user.authKind, tool: 'github_admin.repos.create', operation: 'github.admin.repos.create', requestId, fileId: `github:${repo.fullName || owner + '/' + name}`, affectedFileIds: [`github:${repo.fullName || owner + '/' + name}`], oldMetadata: null, newMetadata: repo, oldParents: [], newParents: [owner], reversible: false, rollback: null, callerNote: args.callerNote, providerSummary: `Created GitHub repository ${repo.fullName || owner + '/' + name}.`, result});
+  return {...result, audit: audit.audit};
+}
+
+async function githubAdminConfigureRepoOperation({admin, user, githubAdmin, args = {}}) {
+  requireGitHubAdminEnabled();
+  const requestId = createRequestId(args.requestId);
+  const existing = await existingAudit(admin, requestId);
+  if (existing && existing.status === 'success' && existing.result) return {...existing.result, idempotent: true, audit: existing};
+  const repo = safeGitHubRepo(args.repo);
+  requireGitHubAdminOwner(githubAdmin, repo.split('/')[0]);
+  const body = {};
+  ['description', 'homepage', 'default_branch'].forEach((key) => { if (safeText(args[key], 1000)) body[key] = safeText(args[key], 1000); });
+  ['has_issues', 'has_projects', 'has_wiki', 'allow_squash_merge', 'allow_merge_commit', 'allow_rebase_merge', 'delete_branch_on_merge', 'allow_auto_merge'].forEach((key) => { if (typeof args[key] === 'boolean') body[key] = args[key]; });
+  if (!Object.keys(body).length) throw Object.assign(new Error('at least one repository setting is required.'), {status: 400, code: 'github_admin_no_repo_settings'});
+  const before = cleanGitHubAdminRepo((await githubAdminRequest(githubAdmin, githubAdminRouteForRepo(repo))).json || {});
+  const {json, authMode, status} = await githubAdminRequest(githubAdmin, githubAdminRouteForRepo(repo), {method: 'PATCH', body});
+  const after = cleanGitHubAdminRepo(json || {});
+  const result = {repo, before, after, status, authMode, auditRequestId: requestId};
+  const audit = await auditWrite(admin, {actor: user.email || user.uid || 'unknown', authKind: user.authKind, tool: 'github_admin.repos.configure', operation: 'github.admin.repos.configure', requestId, fileId: `github:${repo}`, affectedFileIds: [`github:${repo}`], oldMetadata: before, newMetadata: after, oldParents: [], newParents: [], reversible: false, rollback: null, callerNote: args.callerNote, providerSummary: `Configured GitHub repository ${repo}.`, result});
+  return {...result, audit: audit.audit};
+}
+
+async function githubAdminCreateBranchOperation({admin, user, githubAdmin, args = {}}) {
+  requireGitHubAdminEnabled();
+  const requestId = createRequestId(args.requestId);
+  const existing = await existingAudit(admin, requestId);
+  if (existing && existing.status === 'success' && existing.result) return {...existing.result, idempotent: true, audit: existing};
+  const repo = safeGitHubRepo(args.repo);
+  requireGitHubAdminOwner(githubAdmin, repo.split('/')[0]);
+  const branch = safeGitHubRef(args.branch);
+  const fromBranch = safeGitHubRef(args.fromBranch || args.base || 'main');
+  if (!branch) throw Object.assign(new Error('branch is required.'), {status: 400, code: 'github_admin_branch_required'});
+  const base = (await githubAdminRequest(githubAdmin, githubAdminRouteForRepo(repo, `/git/ref/heads/${encodeURIComponent(fromBranch)}`))).json || {};
+  const sha = safeText(args.sha, 80) || base.object && base.object.sha;
+  if (!sha) throw Object.assign(new Error('base branch did not resolve to a commit SHA.'), {status: 404, code: 'github_admin_base_branch_missing'});
+  const {json, authMode, status} = await githubAdminRequest(githubAdmin, githubAdminRouteForRepo(repo, '/git/refs'), {method: 'POST', body: {ref: `refs/heads/${branch}`, sha}});
+  const created = cleanGitHubAdminBranch(json || {});
+  const result = {repo, branch, fromBranch, sha, ref: created, status, authMode, auditRequestId: requestId};
+  const audit = await auditWrite(admin, {actor: user.email || user.uid || 'unknown', authKind: user.authKind, tool: 'github_admin.branches.create', operation: 'github.admin.branches.create', requestId, fileId: `github:${repo}:refs/heads/${branch}`, affectedFileIds: [`github:${repo}:refs/heads/${branch}`], oldMetadata: null, newMetadata: created, oldParents: [], newParents: [repo], reversible: false, rollback: null, callerNote: args.callerNote, providerSummary: `Created GitHub branch ${repo}:${branch}.`, result});
+  return {...result, audit: audit.audit};
+}
+
+async function githubAdminUpsertFileOperation({admin, user, githubAdmin, args = {}}) {
+  requireGitHubAdminEnabled();
+  const requestId = createRequestId(args.requestId);
+  const existing = await existingAudit(admin, requestId);
+  if (existing && existing.status === 'success' && existing.result) return {...existing.result, idempotent: true, audit: existing};
+  const repo = safeGitHubRepo(args.repo);
+  requireGitHubAdminOwner(githubAdmin, repo.split('/')[0]);
+  const filePath = safeGitHubPath(args.path);
+  const branch = safeGitHubRef(args.branch || 'main');
+  const message = safeText(args.message || `Home Center update ${filePath}`, 240);
+  const content = boundedText(args.content, 2000000);
+  const contentBase64 = safeText(args.contentBase64, 3000000) || Buffer.from(content, 'utf8').toString('base64');
+  if (!contentBase64) throw Object.assign(new Error('content or contentBase64 is required.'), {status: 400, code: 'github_admin_file_content_required'});
+  let sha = safeText(args.sha, 120);
+  let before = null;
+  if (!sha) {
+    try {
+      before = (await githubAdminRequest(githubAdmin, githubAdminRouteForRepo(repo, `/contents/${filePath.split('/').map(encodeURIComponent).join('/')}${githubQuery({ref: branch})}`))).json;
+      sha = before && before.sha || '';
+    } catch (err) {
+      if (err.status !== 404) throw err;
+    }
+  }
+  const body = {message, content: contentBase64, branch};
+  if (sha) body.sha = sha;
+  const {json, authMode, status} = await githubAdminRequest(githubAdmin, githubAdminRouteForRepo(repo, `/contents/${filePath.split('/').map(encodeURIComponent).join('/')}`), {method: 'PUT', body});
+  const commit = cleanGitHubAdminCommit(json && json.commit || {});
+  const result = {repo, path: filePath, branch, commit, contentSha: json && json.content && json.content.sha || '', status, authMode, auditRequestId: requestId};
+  const audit = await auditWrite(admin, {actor: user.email || user.uid || 'unknown', authKind: user.authKind, tool: 'github_admin.files.upsert', operation: 'github.admin.files.upsert', requestId, fileId: `github:${repo}/${filePath}`, affectedFileIds: [`github:${repo}/${filePath}`, `github:${repo}@${commit.sha}`], oldMetadata: before ? {sha: before.sha || ''} : null, newMetadata: {sha: result.contentSha, commit}, oldParents: [branch], newParents: [branch], reversible: false, rollback: null, callerNote: args.callerNote, providerSummary: `Upserted ${repo}/${filePath} on ${branch}.`, result});
+  return {...result, audit: audit.audit};
+}
+
+async function githubAdminCreatePullRequestOperation({admin, user, githubAdmin, args = {}}) {
+  requireGitHubAdminEnabled();
+  const requestId = createRequestId(args.requestId);
+  const existing = await existingAudit(admin, requestId);
+  if (existing && existing.status === 'success' && existing.result) return {...existing.result, idempotent: true, audit: existing};
+  const repo = safeGitHubRepo(args.repo);
+  requireGitHubAdminOwner(githubAdmin, repo.split('/')[0]);
+  const title = safeText(args.title, 240);
+  const head = safeGitHubRef(args.head);
+  const base = safeGitHubRef(args.base || 'main');
+  if (!title || !head || !base) throw Object.assign(new Error('title, head, and base are required.'), {status: 400, code: 'github_admin_pr_input_required'});
+  const {json, authMode, status} = await githubAdminRequest(githubAdmin, githubAdminRouteForRepo(repo, '/pulls'), {method: 'POST', body: {title, head, base, body: safeText(args.body, 60000), draft: args.draft === true}});
+  const pullRequest = cleanGitHubPullRequest(json || {});
+  const result = {repo, pullRequest, number: pullRequest.number, htmlUrl: pullRequest.htmlUrl, status, authMode, auditRequestId: requestId};
+  const audit = await auditWrite(admin, {actor: user.email || user.uid || 'unknown', authKind: user.authKind, tool: 'github_admin.pull_requests.create', operation: 'github.admin.pull_requests.create', requestId, fileId: `github:${repo}#${pullRequest.number}`, affectedFileIds: [`github:${repo}#${pullRequest.number}`], oldMetadata: null, newMetadata: pullRequest, oldParents: [base], newParents: [head], reversible: false, rollback: null, callerNote: args.callerNote, providerSummary: `Created GitHub PR ${repo}#${pullRequest.number}: ${title}.`, result});
+  return {...result, audit: audit.audit};
+}
+
+async function githubAdminCheckMergePreconditions(githubAdmin, repo, number, args = {}) {
+  const pullRequest = cleanGitHubPullRequest((await githubAdminRequest(githubAdmin, githubAdminRouteForRepo(repo, `/pulls/${number}`))).json || {});
+  const expectedHeadSha = safeText(args.expectedHeadSha || args.headSha, 80);
+  if (!expectedHeadSha) throw Object.assign(new Error('expectedHeadSha is required for PR merge.'), {status: 400, code: 'github_admin_expected_head_sha_required'});
+  if (!pullRequest.head || pullRequest.head.sha !== expectedHeadSha) throw Object.assign(new Error('PR head SHA changed; refusing to merge stale review.'), {status: 409, code: 'github_admin_head_sha_mismatch', currentHeadSha: pullRequest.head && pullRequest.head.sha || '', expectedHeadSha});
+  if (pullRequest.draft) throw Object.assign(new Error('Draft pull requests cannot be merged by Home Center.'), {status: 409, code: 'github_admin_pr_is_draft'});
+  if (args.requireGreenChecks === false) return {pullRequest, combinedStatus: null};
+  const status = (await githubAdminRequest(githubAdmin, githubAdminRouteForRepo(repo, `/commits/${expectedHeadSha}/status`))).json || {};
+  if (status.state !== 'success' && !(args.allowNoChecks === true && Array.isArray(status.statuses) && !status.statuses.length)) {
+    throw Object.assign(new Error(`Required commit statuses are not green: ${status.state || 'unknown'}.`), {status: 409, code: 'github_admin_checks_not_green', combinedState: status.state || 'unknown'});
+  }
+  return {pullRequest, combinedStatus: {state: status.state || '', totalCount: status.total_count || 0}};
+}
+
+async function githubAdminMergePullRequestOperation({admin, user, githubAdmin, args = {}}) {
+  requireGitHubAdminEnabled();
+  const requestId = createRequestId(args.requestId);
+  const existing = await existingAudit(admin, requestId);
+  if (existing && existing.status === 'success' && existing.result) return {...existing.result, idempotent: true, audit: existing};
+  const repo = safeGitHubRepo(args.repo);
+  requireGitHubAdminOwner(githubAdmin, repo.split('/')[0]);
+  const number = safeGitHubNumber(args.number || args.pullNumber, 'pullNumber');
+  const method = safeText(args.mergeMethod || 'squash', 20).toLowerCase();
+  if (!['merge', 'squash', 'rebase'].includes(method)) throw Object.assign(new Error('mergeMethod must be merge, squash, or rebase.'), {status: 400, code: 'github_admin_invalid_merge_method'});
+  const preflight = await githubAdminCheckMergePreconditions(githubAdmin, repo, number, args);
+  const body = {merge_method: method, sha: safeText(args.expectedHeadSha || args.headSha, 80)};
+  if (safeText(args.commitTitle, 240)) body.commit_title = safeText(args.commitTitle, 240);
+  if (safeText(args.commitMessage, 60000)) body.commit_message = safeText(args.commitMessage, 60000);
+  const {json, authMode, status} = await githubAdminRequest(githubAdmin, githubAdminRouteForRepo(repo, `/pulls/${number}/merge`), {method: 'PUT', body});
+  const result = {repo, number, mergeMethod: method, merged: !!(json && json.merged), sha: json && json.sha || '', message: json && json.message || '', preflight, status, authMode, auditRequestId: requestId};
+  const audit = await auditWrite(admin, {actor: user.email || user.uid || 'unknown', authKind: user.authKind, tool: 'github_admin.pull_requests.merge', operation: 'github.admin.pull_requests.merge', requestId, fileId: `github:${repo}#${number}`, affectedFileIds: [`github:${repo}#${number}`, `github:${repo}@${result.sha}`], oldMetadata: preflight.pullRequest, newMetadata: result, oldParents: [preflight.pullRequest.head && preflight.pullRequest.head.ref || ''], newParents: [preflight.pullRequest.base && preflight.pullRequest.base.ref || ''], reversible: false, rollback: null, callerNote: args.callerNote, providerSummary: `Merged GitHub PR ${repo}#${number} with ${method}.`, result});
+  return {...result, audit: audit.audit};
+}
+
+async function githubAdminDispatchWorkflowOperation({admin, user, githubAdmin, args = {}}) {
+  requireGitHubAdminEnabled();
+  const requestId = createRequestId(args.requestId);
+  const existing = await existingAudit(admin, requestId);
+  if (existing && existing.status === 'success' && existing.result) return {...existing.result, idempotent: true, audit: existing};
+  const repo = safeGitHubRepo(args.repo);
+  requireGitHubAdminOwner(githubAdmin, repo.split('/')[0]);
+  const workflowId = safeText(args.workflowId || args.workflowFile, 240);
+  const ref = safeGitHubRef(args.ref || 'main');
+  if (!workflowId || /[\\?#]/.test(workflowId)) throw Object.assign(new Error('workflowId is required and must be a workflow file name or numeric workflow id.'), {status: 400, code: 'github_admin_invalid_workflow_id'});
+  const inputs = args.inputs && typeof args.inputs === 'object' && !Array.isArray(args.inputs) ? args.inputs : {};
+  const {authMode, status} = await githubAdminRequest(githubAdmin, githubAdminRouteForRepo(repo, `/actions/workflows/${encodeURIComponent(workflowId)}/dispatches`), {method: 'POST', body: {ref, inputs}});
+  const result = {repo, workflowId, ref, dispatched: true, status, authMode, auditRequestId: requestId};
+  const audit = await auditWrite(admin, {actor: user.email || user.uid || 'unknown', authKind: user.authKind, tool: 'github_admin.workflows.dispatch', operation: 'github.admin.workflows.dispatch', requestId, fileId: `github:${repo}:workflow:${workflowId}`, affectedFileIds: [`github:${repo}:workflow:${workflowId}`], oldMetadata: null, newMetadata: result, oldParents: [repo], newParents: [ref], reversible: false, rollback: null, callerNote: args.callerNote, providerSummary: `Dispatched GitHub workflow ${workflowId} in ${repo} at ${ref}.`, result});
+  return {...result, audit: audit.audit};
+}
+
+async function githubAdminOperationRunOperation({admin, user, githubAdmin = {}, args = {}}) {
+  const operation = safeText(args.operation || args.type || args.toolName, 120);
+  const operationArgs = args.args && typeof args.args === 'object' && !Array.isArray(args.args) ? args.args : {...args};
+  delete operationArgs.operation;
+  delete operationArgs.type;
+  delete operationArgs.toolName;
+  delete operationArgs.args;
+  if (operation === 'github_admin.auth_status') return githubAdminAuthStatusOperation({githubAdmin, args: operationArgs});
+  if (operation === 'github_admin.repos.create') return githubAdminCreateRepoOperation({admin, user, githubAdmin, args: operationArgs});
+  if (operation === 'github_admin.repos.configure') return githubAdminConfigureRepoOperation({admin, user, githubAdmin, args: operationArgs});
+  if (operation === 'github_admin.branches.create') return githubAdminCreateBranchOperation({admin, user, githubAdmin, args: operationArgs});
+  if (operation === 'github_admin.files.upsert') return githubAdminUpsertFileOperation({admin, user, githubAdmin, args: operationArgs});
+  if (operation === 'github_admin.pull_requests.create') return githubAdminCreatePullRequestOperation({admin, user, githubAdmin, args: operationArgs});
+  if (operation === 'github_admin.pull_requests.merge') return githubAdminMergePullRequestOperation({admin, user, githubAdmin, args: operationArgs});
+  if (operation === 'github_admin.workflows.dispatch') return githubAdminDispatchWorkflowOperation({admin, user, githubAdmin, args: operationArgs});
+  throw Object.assign(new Error('Unsupported GitHub admin operation: ' + operation), {status: 400, code: 'github_admin_unsupported_operation'});
+}
+
+function githubAdminOperationEntries() {
+  return {
+    'github_admin.auth_status': {summary: 'Inspect Home Center GitHub admin authority without exposing secrets.', write: false, input: {}},
+    'github_admin.repos.create': {summary: 'Create a repository through the configured GitHub App/admin authority and audit the mutation.', write: true, requiresRequestId: true, requiredPermissions: ['Administration: write'], input: {owner: 'string', ownerType: 'org|user', name: 'string', visibility: 'private|public|internal', description: 'optional string', autoInit: 'optional boolean', requestId: 'string'}},
+    'github_admin.repos.configure': {summary: 'Update safe repository settings through GitHub admin authority and audit the mutation.', write: true, requiresRequestId: true, requiredPermissions: ['Administration: write'], input: {repo: 'owner/name', description: 'optional string', default_branch: 'optional string', mergeSettings: 'optional booleans', requestId: 'string'}},
+    'github_admin.branches.create': {summary: 'Create a branch from an existing branch or explicit SHA.', write: true, requiresRequestId: true, requiredPermissions: ['Contents: write'], input: {repo: 'owner/name', branch: 'string', fromBranch: 'optional string', sha: 'optional commit SHA', requestId: 'string'}},
+    'github_admin.files.upsert': {summary: 'Create or update one repository file on a branch.', write: true, requiresRequestId: true, requiredPermissions: ['Contents: write', 'Workflows: write when path is .github/workflows/*'], input: {repo: 'owner/name', path: 'string', branch: 'string', message: 'string', content: 'string or contentBase64', sha: 'optional expected blob SHA', requestId: 'string'}},
+    'github_admin.pull_requests.create': {summary: 'Open a pull request from head to base.', write: true, requiresRequestId: true, requiredPermissions: ['Pull requests: write'], input: {repo: 'owner/name', title: 'string', head: 'branch', base: 'branch', body: 'optional string', draft: 'optional boolean', requestId: 'string'}},
+    'github_admin.pull_requests.merge': {summary: 'Merge a pull request only when expectedHeadSha matches and required checks are green.', write: true, requiresRequestId: true, requiredPermissions: ['Contents: write'], input: {repo: 'owner/name', pullNumber: 'number', expectedHeadSha: 'required SHA', mergeMethod: 'merge|squash|rebase', requireGreenChecks: 'optional boolean default true', allowNoChecks: 'optional boolean', requestId: 'string'}},
+    'github_admin.workflows.dispatch': {summary: 'Dispatch a GitHub Actions workflow by workflow id/file and ref.', write: true, requiresRequestId: true, requiredPermissions: ['Actions: write'], input: {repo: 'owner/name', workflowId: 'string or number', ref: 'branch/tag/SHA', inputs: 'optional object', requestId: 'string'}},
+  };
 }
 
 async function createGitHubIssueOperation({admin, user, githubToken, args = {}}) {
@@ -3587,6 +4094,7 @@ function driveOperationRegistry() {
         requiredScopes: ['https://www.googleapis.com/auth/drive'],
         input: {fileId: 'string', newName: 'string', requestId: 'string', callerNote: 'optional string'},
       },
+      ...githubAdminOperationEntries(),
       ...droobiedooContextOperationEntries(),
       ...simulationOperationRegistry().operations,
       ...commandCenterDriveOperationEntries(),
@@ -3613,7 +4121,7 @@ function commandCenterCompatOperation(args = {}) {
   );
 }
 
-async function driveOperationRunOperation({google, admin, auth, user, extra = null, googleClientId = '', googleClientSecret = '', cartesiaApiKey = () => '', args = {}}) {
+async function driveOperationRunOperation({google, admin, auth, user, extra = null, googleClientId = '', googleClientSecret = '', githubToken = () => '', githubAdmin = {}, cartesiaApiKey = () => '', args = {}}) {
   const operation = safeText(args.operation || args.type || args.toolName, 120);
   if (!operation) throw Object.assign(new Error('operation is required.'), {status: 400});
   const registry = driveOperationRegistry();
@@ -3629,7 +4137,7 @@ async function driveOperationRunOperation({google, admin, auth, user, extra = nu
     delete operationArgs.command_center_operation;
     delete operationArgs.commandCenterTool;
     delete operationArgs.command_center_tool;
-    const result = await commandCenterOperationRunOperation({google, admin, googleClientId, googleClientSecret, extra, args: {operation: compatCommandCenterOperation, args: operationArgs}});
+    const result = await commandCenterOperationRunOperation({google, admin, googleClientId, googleClientSecret, githubToken, extra, args: {operation: compatCommandCenterOperation, args: operationArgs}});
     return {operation, compatibilityRoute: 'drive_operation.command_center', commandCenterOperation: compatCommandCenterOperation, registryVersion: registry.version, completed: true, result: result.result};
   }
   if (operation.startsWith('droobiedoo.')) {
@@ -3637,8 +4145,12 @@ async function driveOperationRunOperation({google, admin, auth, user, extra = nu
     return {operation, registryVersion: registry.version, completed: true, result};
   }
   if (operation.startsWith('command_center.')) {
-    const result = await commandCenterOperationRunOperation({google, admin, googleClientId, googleClientSecret, extra, args: {operation, args: operationArgs}});
+    const result = await commandCenterOperationRunOperation({google, admin, googleClientId, googleClientSecret, githubToken, extra, args: {operation, args: operationArgs}});
     return {operation, registryVersion: registry.version, completed: true, result: result.result};
+  }
+  if (githubAdminOperationEntries()[operation]) {
+    const result = await githubAdminOperationRunOperation({admin, user, githubAdmin, args: {operation, args: operationArgs}});
+    return {operation, registryVersion: registry.version, completed: true, result};
   }
   if (simulationOperationRegistry().operations[operation]) {
     const result = await simulationOperationRunOperation({admin, user, args: {operation, args: operationArgs}});
@@ -3808,7 +4320,7 @@ async function driveWorkflowRunOperation({google, admin, auth, user, cartesiaApi
   }
 }
 
-function createHomeCenterMcpServer({google, admin, googleClientId, googleClientSecret, githubToken = () => '', cartesiaApiKey = () => ''}) {
+function createHomeCenterMcpServer({google, admin, googleClientId, googleClientSecret, githubToken = () => '', githubAdmin = {}, cartesiaApiKey = () => ''}) {
   const server = new McpServer({
     name: 'home-center-drive-bridge',
     version: '0.1.0',
@@ -4026,7 +4538,7 @@ function createHomeCenterMcpServer({google, admin, googleClientId, googleClientS
     securitySchemes: MCP_OAUTH_SECURITY_SCHEMES,
     _meta: {securitySchemes: MCP_OAUTH_SECURITY_SCHEMES},
     annotations: {readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false},
-  }, async (args, extra) => textResult(await renderBlenderGlbBridge({admin, extra, args: args || {}})));
+  }, async (args, extra) => mcpToolResult(await attachRenderGifMcpContent({operation: 'render.blender_glb', toolName: 'render_blender_glb', commandCenterMcpUrl: COMMAND_CENTER_MCP_URL, result: await renderBlenderGlbBridge({admin, extra, args: args || {}})})));
 
   server.registerTool('cartesia_voices', {
     title: 'Cartesia voices',
@@ -4097,7 +4609,7 @@ function createHomeCenterMcpServer({google, admin, googleClientId, googleClientS
     securitySchemes: MCP_OAUTH_SECURITY_SCHEMES,
     _meta: {securitySchemes: MCP_OAUTH_SECURITY_SCHEMES},
     annotations: {readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: true},
-  }, async (args, extra) => textResult(await commandCenterOperationRunOperation({google, admin, googleClientId, googleClientSecret, extra, args: args || {}})));
+  }, async (args, extra) => mcpToolResult(await commandCenterOperationRunOperation({google, admin, googleClientId, googleClientSecret, githubToken, extra, args: args || {}})));
 
 
 
@@ -4212,9 +4724,11 @@ function createHomeCenterMcpServer({google, admin, googleClientId, googleClientS
       'audit_log', 'audit_get',
       'docs_append',
       'github_get_repo', 'github_read_file', 'github_list_branches',
+      'github_admin_auth_status', 'github_admin_create_repo', 'github_admin_configure_repo', 'github_admin_create_branch', 'github_admin_upsert_file', 'github_admin_create_pull_request', 'github_admin_merge_pull_request', 'github_admin_dispatch_workflow',
       'github_list_issues', 'github_get_issue', 'github_create_issue', 'github_comment_issue',
       'github_list_pull_requests', 'github_get_pull_request', 'github_list_pull_request_files', 'github_comment_pull_request',
       'github_list_workflow_runs', 'github_get_workflow_run',
+      'github_admin_auth_status', 'github_admin_create_repo', 'github_admin_configure_repo', 'github_admin_create_branch', 'github_admin_upsert_file', 'github_admin_create_pull_request', 'github_admin_merge_pull_request', 'github_admin_dispatch_workflow',
     ],
   }));
 
@@ -4233,10 +4747,10 @@ function createHomeCenterMcpServer({google, admin, googleClientId, googleClientS
   }, async (args, extra) => {
     const operation = safeText((args || {}).operation || (args || {}).type || (args || {}).toolName, 120);
     if (operation.startsWith('command_center.') || commandCenterCompatOperation(args || {})) {
-      return mcpToolResult(await driveOperationRunOperation({google, admin, auth: null, user: null, extra, googleClientId, googleClientSecret, cartesiaApiKey, args: args || {}}));
+      return mcpToolResult(await driveOperationRunOperation({google, admin, auth: null, user: null, extra, googleClientId, googleClientSecret, githubAdmin, cartesiaApiKey, args: args || {}}));
     }
     const {auth, user} = await requestGoogleContext(extra, google, admin, googleClientId, googleClientSecret);
-    return mcpToolResult(await driveOperationRunOperation({google, admin, auth, user, extra, googleClientId, googleClientSecret, cartesiaApiKey, args: args || {}}));
+    return mcpToolResult(await driveOperationRunOperation({google, admin, auth, user, extra, googleClientId, googleClientSecret, githubAdmin, cartesiaApiKey, args: args || {}}));
   });
 
   server.registerTool('auth_status', {
@@ -4359,6 +4873,104 @@ function createHomeCenterMcpServer({google, admin, googleClientId, googleClientS
     return textResult(await updateSheetValuesOperation({google, admin, auth, user, args: args || {}}));
   });
 
+
+
+  server.registerTool('github_admin_auth_status', {
+    title: 'GitHub admin auth status',
+    description: 'Inspect Home Center GitHub admin authority without exposing secrets.',
+    inputSchema: {},
+    securitySchemes: MCP_OAUTH_SECURITY_SCHEMES,
+    _meta: {securitySchemes: MCP_OAUTH_SECURITY_SCHEMES},
+    annotations: {readOnlyHint: true, openWorldHint: true},
+  }, async (_args, extra) => {
+    const {user} = await requestGoogleContext(extra, google, admin, googleClientId, googleClientSecret);
+    return textResult({actor: user.email || '', result: await githubAdminAuthStatusOperation({githubAdmin})});
+  });
+
+  server.registerTool('github_admin_create_repo', {
+    title: 'GitHub admin create repo',
+    description: 'Create a GitHub repository through the configured Home Center GitHub admin authority and audit the mutation.',
+    inputSchema: {owner: z.string(), ownerType: z.enum(['org', 'user']).optional().default('org'), name: z.string(), visibility: z.enum(['private', 'public', 'internal']).optional().default('private'), description: z.string().optional(), autoInit: z.boolean().optional(), requestId: z.string(), callerNote: z.string().optional()},
+    securitySchemes: MCP_OAUTH_SECURITY_SCHEMES,
+    _meta: {securitySchemes: MCP_OAUTH_SECURITY_SCHEMES},
+    annotations: {readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: true},
+  }, async (args, extra) => {
+    const {user} = await requestGoogleContext(extra, google, admin, googleClientId, googleClientSecret);
+    return textResult(await githubAdminCreateRepoOperation({admin, user, githubAdmin, args: args || {}}));
+  });
+
+
+  server.registerTool('github_admin_configure_repo', {
+    title: 'GitHub admin configure repo',
+    description: 'Update safe repository settings through GitHub admin authority and audit the mutation.',
+    inputSchema: {repo: z.string(), description: z.string().optional(), homepage: z.string().optional(), default_branch: z.string().optional(), has_issues: z.boolean().optional(), has_projects: z.boolean().optional(), has_wiki: z.boolean().optional(), allow_squash_merge: z.boolean().optional(), allow_merge_commit: z.boolean().optional(), allow_rebase_merge: z.boolean().optional(), delete_branch_on_merge: z.boolean().optional(), allow_auto_merge: z.boolean().optional(), requestId: z.string(), callerNote: z.string().optional()},
+    securitySchemes: MCP_OAUTH_SECURITY_SCHEMES,
+    _meta: {securitySchemes: MCP_OAUTH_SECURITY_SCHEMES},
+    annotations: {readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: true},
+  }, async (args, extra) => {
+    const {user} = await requestGoogleContext(extra, google, admin, googleClientId, googleClientSecret);
+    return textResult(await githubAdminConfigureRepoOperation({admin, user, githubAdmin, args: args || {}}));
+  });
+
+  server.registerTool('github_admin_create_branch', {
+    title: 'GitHub admin create branch',
+    description: 'Create a branch from an existing branch or explicit SHA and audit the mutation.',
+    inputSchema: {repo: z.string(), branch: z.string(), fromBranch: z.string().optional(), sha: z.string().optional(), requestId: z.string(), callerNote: z.string().optional()},
+    securitySchemes: MCP_OAUTH_SECURITY_SCHEMES,
+    _meta: {securitySchemes: MCP_OAUTH_SECURITY_SCHEMES},
+    annotations: {readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: true},
+  }, async (args, extra) => {
+    const {user} = await requestGoogleContext(extra, google, admin, googleClientId, googleClientSecret);
+    return textResult(await githubAdminCreateBranchOperation({admin, user, githubAdmin, args: args || {}}));
+  });
+
+  server.registerTool('github_admin_upsert_file', {
+    title: 'GitHub admin upsert file',
+    description: 'Create or update one repository file on a branch and audit the commit.',
+    inputSchema: {repo: z.string(), path: z.string(), branch: z.string().optional(), message: z.string().optional(), content: z.string().optional(), contentBase64: z.string().optional(), sha: z.string().optional(), requestId: z.string(), callerNote: z.string().optional()},
+    securitySchemes: MCP_OAUTH_SECURITY_SCHEMES,
+    _meta: {securitySchemes: MCP_OAUTH_SECURITY_SCHEMES},
+    annotations: {readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: true},
+  }, async (args, extra) => {
+    const {user} = await requestGoogleContext(extra, google, admin, googleClientId, googleClientSecret);
+    return textResult(await githubAdminUpsertFileOperation({admin, user, githubAdmin, args: args || {}}));
+  });
+
+  server.registerTool('github_admin_create_pull_request', {
+    title: 'GitHub admin create pull request',
+    description: 'Open a pull request and audit the mutation.',
+    inputSchema: {repo: z.string(), title: z.string(), head: z.string(), base: z.string().optional(), body: z.string().optional(), draft: z.boolean().optional(), requestId: z.string(), callerNote: z.string().optional()},
+    securitySchemes: MCP_OAUTH_SECURITY_SCHEMES,
+    _meta: {securitySchemes: MCP_OAUTH_SECURITY_SCHEMES},
+    annotations: {readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: true},
+  }, async (args, extra) => {
+    const {user} = await requestGoogleContext(extra, google, admin, googleClientId, googleClientSecret);
+    return textResult(await githubAdminCreatePullRequestOperation({admin, user, githubAdmin, args: args || {}}));
+  });
+
+  server.registerTool('github_admin_merge_pull_request', {
+    title: 'GitHub admin merge pull request',
+    description: 'Merge a pull request only when expectedHeadSha matches and required checks are green, then audit the mutation.',
+    inputSchema: {repo: z.string(), pullNumber: z.number().int().min(1), expectedHeadSha: z.string(), mergeMethod: z.enum(['merge', 'squash', 'rebase']).optional().default('squash'), requireGreenChecks: z.boolean().optional(), allowNoChecks: z.boolean().optional(), commitTitle: z.string().optional(), commitMessage: z.string().optional(), requestId: z.string(), callerNote: z.string().optional()},
+    securitySchemes: MCP_OAUTH_SECURITY_SCHEMES,
+    _meta: {securitySchemes: MCP_OAUTH_SECURITY_SCHEMES},
+    annotations: {readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: true},
+  }, async (args, extra) => {
+    const {user} = await requestGoogleContext(extra, google, admin, googleClientId, googleClientSecret);
+    return textResult(await githubAdminMergePullRequestOperation({admin, user, githubAdmin, args: args || {}}));
+  });
+
+  server.registerTool('github_admin_dispatch_workflow', {
+    title: 'GitHub admin dispatch workflow',
+    description: 'Dispatch a GitHub Actions workflow by workflow id/file and ref, then audit the mutation.',
+    inputSchema: {repo: z.string(), workflowId: z.string(), ref: z.string().optional(), inputs: z.record(z.string(), z.any()).optional(), requestId: z.string(), callerNote: z.string().optional()},
+    securitySchemes: MCP_OAUTH_SECURITY_SCHEMES,
+    _meta: {securitySchemes: MCP_OAUTH_SECURITY_SCHEMES},
+    annotations: {readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: true},
+  }, async (args, extra) => {
+    const {user} = await requestGoogleContext(extra, google, admin, googleClientId, googleClientSecret);
+    return textResult(await githubAdminDispatchWorkflowOperation({admin, user, githubAdmin, args: args || {}}));
+  });
 
   server.registerTool('github_get_repo', {
     title: 'GitHub get repo',
@@ -4907,7 +5519,7 @@ function createHomeCenterMcpServer({google, admin, googleClientId, googleClientS
   return server;
 }
 
-function createHomeCenterMcpApp({google, admin, googleClientId = () => '', googleClientSecret = () => '', githubToken = () => '', cartesiaApiKey = () => ''}) {
+function createHomeCenterMcpApp({google, admin, googleClientId = () => '', googleClientSecret = () => '', githubToken = () => '', githubAdmin = {}, cartesiaApiKey = () => ''}) {
   const app = express();
   app.use(express.json({limit: '80mb'}));
   app.use(express.urlencoded({extended: false, limit: '256kb'}));
@@ -5335,7 +5947,7 @@ function createHomeCenterMcpApp({google, admin, googleClientId = () => '', googl
     res.on('close', () => {
       delete transports[transport.sessionId];
     });
-    const server = createHomeCenterMcpServer({google, admin, googleClientId, googleClientSecret, githubToken, cartesiaApiKey});
+    const server = createHomeCenterMcpServer({google, admin, googleClientId, googleClientSecret, githubToken, githubAdmin, cartesiaApiKey});
     await server.connect(transport);
   });
 
@@ -5361,7 +5973,7 @@ function createHomeCenterMcpApp({google, admin, googleClientId = () => '', googl
       res.status(405).json({jsonrpc: '2.0', error: {code: -32000, message: 'Method not allowed.'}, id: null});
       return;
     }
-      const server = createHomeCenterMcpServer({google, admin, googleClientId, googleClientSecret, githubToken, cartesiaApiKey});
+      const server = createHomeCenterMcpServer({google, admin, googleClientId, googleClientSecret, githubToken, githubAdmin, cartesiaApiKey});
     const transport = new StreamableHTTPServerTransport({sessionIdGenerator: undefined});
     let closed = false;
     const closeTransport = async () => {
@@ -5390,4 +6002,4 @@ function createHomeCenterMcpApp({google, admin, googleClientId = () => '', googl
   return app;
 }
 
-module.exports = {createHomeCenterMcpApp, createHomeCenterMcpServer, createDriveFolderOperation, createGoogleDocOperation, appendGoogleDocOperation, publishContextSnapshotOperation, synthesizeCartesiaAudioArtifactOperation, cartesiaVoicesOperation, createSheetOperation, updateSheetValuesOperation, importXlsxWorkbookOperation, driveOperationRunOperation, driveWorkflowRunOperation, simulationOperationRunOperation, simulationOperationRegistry, droobiedooContextOperationEntries, loadDroobiedooContextIndex, searchDroobiedooContextIndex, runDroobiedooContextOperation, normalizeRecoveryOperation, summarizeRecoveryOperations, loadMcpAccessContext, renderAudioOperation, inspectAudioArtifactsOperation, materializeHomeCenterRenderDriveRefs, materializeHomeCenterRenderSources, stageHomeCenterGitHubRenderInput, normalizeRenderGitHubSource};
+module.exports = {verifiedRenderGifMcpContent, attachRenderGifMcpContent, renderArtifactHashEntry, createHomeCenterMcpApp, createHomeCenterMcpServer, createDriveFolderOperation, createGoogleDocOperation, appendGoogleDocOperation, publishContextSnapshotOperation, synthesizeCartesiaAudioArtifactOperation, cartesiaVoicesOperation, createSheetOperation, updateSheetValuesOperation, importXlsxWorkbookOperation, driveOperationRunOperation, driveWorkflowRunOperation, simulationOperationRunOperation, simulationOperationRegistry, droobiedooContextOperationEntries, loadDroobiedooContextIndex, searchDroobiedooContextIndex, runDroobiedooContextOperation, normalizeRecoveryOperation, summarizeRecoveryOperations, loadMcpAccessContext, renderAudioOperation, inspectAudioArtifactsOperation, materializeHomeCenterRenderDriveRefs, materializeHomeCenterRenderSources, stageHomeCenterGitHubRenderInput, normalizeRenderGitHubSource, githubAdminOperationEntries, githubAdminOperationRunOperation, createGitHubAppJwt};

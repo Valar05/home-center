@@ -1,0 +1,42 @@
+{
+  "schema": "home-center-vanguard-walk-render-v1",
+  "sourcePolicy": "exact imported GLB animation only; no retarget, reinterpretation, or re-authoring",
+  "action": "WalkSwordCarryV2",
+  "requestedSemanticAction": "WalkSwordCarryV2",
+  "activeSemanticAction": "WalkSwordCarryV2",
+  "importedActionName": "WalkSwordCarryV2_rig",
+  "resolvedActiveAction": "WalkSwordCarryV2_rig",
+  "actionResolution": "gltf_importer_suffix",
+  "blenderAction": "WalkSwordCarryV2_rig",
+  "expectedAction": "WalkSwordCarryV2",
+  "frameCount": 8,
+  "expectedFrameCount": 8,
+  "authoredTotalMs": 820,
+  "frameDurationsMs": [
+    110,
+    90,
+    100,
+    110,
+    110,
+    90,
+    100,
+    110
+  ],
+  "sampledActionFrames": [
+    0.0,
+    0.875,
+    1.75,
+    2.625,
+    3.5,
+    4.375,
+    5.25,
+    6.125
+  ],
+  "subframeSampling": true,
+  "camera": "fixed side orthographic",
+  "transparentBackground": true,
+  "embeddedSwordPresent": true,
+  "embeddedSwordCount": 1,
+  "weaponRPresent": true,
+  "samples": 16
+}

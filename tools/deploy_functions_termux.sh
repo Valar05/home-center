@@ -26,6 +26,20 @@ deploy_command_center_mcp() {
     --set-env-vars=LOG_EXECUTION_ID=true,COMMAND_CENTER_RENDER_SERVICE_URL="${COMMAND_CENTER_RENDER_SERVICE_URL:-https://command-center-blender-render-vxybsaualq-uc.a.run.app}",COMMAND_CENTER_RENDER_BUCKET="${COMMAND_CENTER_RENDER_BUCKET:-home-center-dclar-command-center-renders}"
 }
 
+secret_exists() {
+  gcloud secrets describe "$1" --project "$PROJECT" >/dev/null 2>&1
+}
+
+home_center_mcp_secrets_arg() {
+  secrets="GOOGLE_OAUTH_CLIENT_ID=GOOGLE_OAUTH_CLIENT_ID:latest,GOOGLE_OAUTH_CLIENT_SECRET=GOOGLE_OAUTH_CLIENT_SECRET:latest,GITHUB_TOKEN=GITHUB_TOKEN:latest,GITHUB_BOOTSTRAP_TOKEN=GITHUB_BOOTSTRAP_TOKEN:latest,CARTESIA_API_KEY=CARTESIA_API_KEY:latest"
+  for optional_secret in GITHUB_APP_ID GITHUB_APP_INSTALLATION_ID GITHUB_APP_PRIVATE_KEY; do
+    if secret_exists "$optional_secret"; then
+      secrets="$secrets,$optional_secret=$optional_secret:latest"
+    fi
+  done
+  printf '%s' "$secrets"
+}
+
 deploy_home_center_mcp() {
   gcloud functions deploy homeCenterMcp \
     --gen2 \
@@ -40,7 +54,7 @@ deploy_home_center_mcp() {
     --memory=1Gi \
     --cpu=1 \
     --set-env-vars=HOME_CENTER_MCP_EXTENDED_TOOLS=true,COMMAND_CENTER_RENDER_SERVICE_URL="${COMMAND_CENTER_RENDER_SERVICE_URL:-https://command-center-blender-render-vxybsaualq-uc.a.run.app}",COMMAND_CENTER_RENDER_BUCKET="${COMMAND_CENTER_RENDER_BUCKET:-home-center-dclar-command-center-renders}",COMMAND_CENTER_MCP_URL="${COMMAND_CENTER_MCP_URL:-https://us-central1-home-center-dclar.cloudfunctions.net/commandCenterMcp/mcp}" \
-    --set-secrets=GOOGLE_OAUTH_CLIENT_ID=GOOGLE_OAUTH_CLIENT_ID:latest,GOOGLE_OAUTH_CLIENT_SECRET=GOOGLE_OAUTH_CLIENT_SECRET:latest,GITHUB_TOKEN=GITHUB_TOKEN:latest,CARTESIA_API_KEY=CARTESIA_API_KEY:latest
+    --set-secrets="$(home_center_mcp_secrets_arg)"
 }
 
 deploy_she_raw_mcp() {
