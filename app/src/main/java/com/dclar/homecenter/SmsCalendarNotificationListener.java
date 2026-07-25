@@ -3,6 +3,7 @@ package com.dclar.homecenter;
 import android.app.Notification;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.service.notification.NotificationListenerService;
@@ -108,8 +109,14 @@ public final class SmsCalendarNotificationListener extends NotificationListenerS
                 Notification.MessagingStyle.Message.getMessagesFromBundleArray(bundles);
         if (messages == null || messages.isEmpty()) return new NotificationMessage(fallbackSender, "", fallbackBody);
         Notification.MessagingStyle.Message latest = messages.get(messages.size() - 1);
-        String sender = latest.getSenderPerson() == null ? fallbackSender : charSequence(latest.getSenderPerson().getName());
-        String senderAddress = latest.getSenderPerson() == null ? "" : safeSenderAddress(latest.getSenderPerson().getUri());
+        String sender = fallbackSender;
+        String senderAddress = "";
+        if (Build.VERSION.SDK_INT >= 28 && latest.getSenderPerson() != null) {
+            sender = charSequence(latest.getSenderPerson().getName());
+            senderAddress = safeSenderAddress(latest.getSenderPerson().getUri());
+        } else if (latest.getSender() != null) {
+            sender = charSequence(latest.getSender());
+        }
         String body = charSequence(latest.getText());
         return new NotificationMessage(sender.isEmpty() ? fallbackSender : sender, senderAddress,
                 body.isEmpty() ? fallbackBody : body);
