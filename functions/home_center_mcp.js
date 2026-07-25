@@ -20,7 +20,7 @@ const {renderAudioOperation, inspectAudioArtifactsOperation, uploadVerified: upl
 const DEFAULT_MCP_PUBLIC_BASE = 'https://us-central1-home-center-dclar.cloudfunctions.net/homeCenterMcp';
 const MCP_PUBLIC_BASE = process.env.HOME_CENTER_MCP_PUBLIC_BASE || DEFAULT_MCP_PUBLIC_BASE;
 const HOME_CENTER_MCP_SERVER_VERSION = '0.1.1';
-const HOME_CENTER_CONNECTOR_SCHEMA_REVISION = '2026-07-25.blender-direct-file-catalog-v1';
+const HOME_CENTER_CONNECTOR_SCHEMA_REVISION = '2026-07-25.blender-direct-file-catalog-v2';
 const HOME_CENTER_REGISTRY_VERSION = HOME_CENTER_CONNECTOR_SCHEMA_REVISION;
 const HOME_CENTER_DIRECT_FILE_TOOLS = Object.freeze(['render_blender_glb']);
 const MCP_RESOURCE = `${MCP_PUBLIC_BASE}/mcp`;
@@ -1131,6 +1131,50 @@ function mcpToolJsonSchema(schema, pipeStrategy = 'input') {
   return toJsonSchemaCompat(objectSchema, {strictUnions: true, pipeStrategy});
 }
 
+function hostFileUploadInputSchema({description, contentMediaType}) {
+  return {
+    type: 'string',
+    format: 'binary',
+    contentMediaType,
+    description,
+  };
+}
+
+function renderBlenderGlbCatalogInputSchema() {
+  return {
+    type: 'object',
+    properties: {
+      idempotencyKey: {
+        type: 'string',
+        description: 'Stable idempotency key for this render request.',
+      },
+      renderId: {
+        type: 'string',
+        description: 'Optional caller-provided render id.',
+      },
+      glbFile: hostFileUploadInputSchema({
+        contentMediaType: 'model/gltf-binary',
+        description: 'Required top-level host-file upload containing a binary GLB model. Do not pass a path, URL, Base64 string, ref, or JSON descriptor.',
+      }),
+      scriptFile: hostFileUploadInputSchema({
+        contentMediaType: 'text/x-python',
+        description: 'Required top-level host-file upload containing the Blender Python render script. Do not pass a path, URL, Base64 string, ref, or JSON descriptor.',
+      }),
+      cache: {
+        type: 'boolean',
+        description: 'Use cached render artifacts when the backend cache key already exists. Defaults to true.',
+      },
+    },
+    required: ['idempotencyKey', 'glbFile', 'scriptFile'],
+    additionalProperties: false,
+  };
+}
+
+function publishedToolInputSchema(name, schema, pipeStrategy = 'input') {
+  if (name === 'render_blender_glb') return renderBlenderGlbCatalogInputSchema();
+  return mcpToolJsonSchema(schema, pipeStrategy);
+}
+
 function installAuthenticatedToolsListHandler(server) {
   server.server.setRequestHandler(ListToolsRequestSchema, () => ({
     tools: Object.entries(server._registeredTools)
@@ -1141,7 +1185,7 @@ function installAuthenticatedToolsListHandler(server) {
           name,
           title: tool.title,
           description: tool.description,
-          inputSchema: mcpToolJsonSchema(tool.inputSchema, 'input'),
+          inputSchema: publishedToolInputSchema(name, tool.inputSchema, 'input'),
           securitySchemes,
           annotations: tool.annotations,
           execution: tool.execution,
@@ -4359,8 +4403,8 @@ function createHomeCenterMcpServer({google, admin, googleClientId, googleClientS
       render_blender_glb: {
         required: ['idempotencyKey', 'glbFile', 'scriptFile'],
         binaryInputs: {
-          glbFile: {type: 'string', format: 'binary', contentEncoding: 'binary'},
-          scriptFile: {type: 'string', format: 'binary', contentEncoding: 'binary'},
+          glbFile: {type: 'string', format: 'binary', contentMediaType: 'model/gltf-binary'},
+          scriptFile: {type: 'string', format: 'binary', contentMediaType: 'text/x-python'},
         },
         dispatcherForRefsAndInlineScripts: 'command_center_operation operation=render.blender_glb',
       },
