@@ -1,0 +1,297 @@
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
+import crypto from 'node:crypto';
+import {spawnSync} from 'node:child_process';
+import {Storage} from '@google-cloud/storage';
+import {google} from 'googleapis';
+
+const storage = new Storage();
+const TOOL_VERSION = process.env.RENDER_TOOL_VERSION || 'command-center-blender-render-v1';
+const CACHE_BUCKET = process.env.RENDER_CACHE_BUCKET || process.env.COMMAND_CENTER_RENDER_BUCKET || '';
+const MAX_GLB_BYTES = Number(process.env.RENDER_MAX_GLB_BYTES || 250 * 1024 * 1024);
+const MAX_SCRIPT_BYTES = Number(process.env.RENDER_MAX_SCRIPT_BYTES || 1024 * 1024);
+const MAX_OUTPUT_BYTES = Number(process.env.RENDER_MAX_OUTPUT_BYTES || 400 * 1024 * 1024);
+const MAX_OUTPUT_FILE_BYTES = Number(process.env.RENDER_MAX_OUTPUT_FILE_BYTES || 180 * 1024 * 1024);
+const RENDER_TIMEOUT_MS = Number(process.env.RENDER_TIMEOUT_MS || 600000);
+const REQUIRED_BUNDLE_KINDS = [
+  'rendered_frames', 'contact_sheet', 'three_d_artifact', 'native_pose_animation_data', 'script_input_hashes',
+  'blender_version_settings', 'stdout_stderr', 'fixed_camera_renders', 'diagnostic_view_renders', 'validation_manifest',
+  'original_script',
+];
+
+function typedError(message, status = 400, failureKind = 'input_validation') {
+  const err = new Error(message);
+  err.status = status;
+  err.failureKind = failureKind;
+  return err;
+}
+function sha256Buffer(buffer) { return crypto.createHash('sha256').update(buffer).digest('hex'); }
+function sha256File(file) { return sha256Buffer(fs.readFileSync(file)); }
+function stableJson(value) {
+  if (Array.isArray(value)) return '[' + value.map(stableJson).join(',') + ']';
+  if (value && typeof value === 'object') return '{' + Object.keys(value).sort().map((key) => JSON.stringify(key) + ':' + stableJson(value[key])).join(',') + '}';
+  return JSON.stringify(value);
+}
+function safeName(value) { return String(value || 'render').replace(/[^A-Za-z0-9_.-]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 100) || 'render'; }
+function parseGs(ref) { const m = String(ref).match(/^gs:\/\/([^/]+)\/(.+)$/); if (!m) throw typedError('Invalid gs ref: ' + ref, 400, 'input_validation'); return {bucket: m[1], name: m[2]}; }
+async function uploadFile(localPath, cacheKey, relPath, contentType = '') {
+  if (!CACHE_BUCKET) return 'file://' + localPath;
+  const dest = `command-center-renders/${cacheKey}/${relPath}`;
+  await storage.bucket(CACHE_BUCKET).upload(localPath, {destination: dest, metadata: contentType ? {contentType, metadata: {sha256: sha256File(localPath)}} : {metadata: {sha256: sha256File(localPath)}}});
+  return `gs://${CACHE_BUCKET}/${dest}`;
+}
+function driveFileId(ref) { const raw = String(ref).replace(/^drive:\/\//i, ''); return raw.split(/[?#/]/).filter(Boolean).pop() || raw; }
+function providerStatus(err) {
+  return Number(err && (err.status || err.code || err.response?.status)) || 0;
+}
+function redactedProviderMessage(err) {
+  const status = providerStatus(err);
+  const text = String(err && err.message || err || '').replace(/Bearer\s+[A-Za-z0-9._~+\/-]+/gi, 'Bearer [redacted]').slice(0, 240);
+  return status ? 'HTTP ' + status + (text ? ': ' + text : '') : text;
+}
+async function downloadGs(ref) {
+  try {
+    const {bucket, name} = parseGs(ref);
+    const [buf] = await storage.bucket(bucket).file(name).download();
+    return buf;
+  } catch (err) {
+    throw typedError('render_input_gcs_read_auth_failed: renderer could not read staged GCS input (' + redactedProviderMessage(err) + ').', providerStatus(err) || 403, 'render_input_gcs_read_auth_failed');
+  }
+}
+async function downloadDrive(ref, token) {
+  if (!token) throw typedError('drive_input_download_auth_failed: Drive render input requires a user Google OAuth access token.', 401, 'drive_input_download_auth_failed');
+  try {
+    const auth = new google.auth.OAuth2();
+    auth.setCredentials({access_token: token});
+    const drive = google.drive({version: 'v3', auth});
+    const res = await drive.files.get({fileId: driveFileId(ref), alt: 'media', supportsAllDrives: true}, {responseType: 'arraybuffer'});
+    return Buffer.from(res.data);
+  } catch (err) {
+    throw typedError('drive_input_download_auth_failed: renderer could not download Drive input (' + redactedProviderMessage(err) + ').', providerStatus(err) || 401, 'drive_input_download_auth_failed');
+  }
+}
+function bucketInputFor(ref, bucketInputs) {
+  const raw = String(ref).replace(/^bucket:\/\//i, '').replace(/^command-center\//i, '');
+  const objectId = raw.split(/[?#]/)[0].split('/').filter(Boolean).pop() || raw;
+  return (bucketInputs || []).find((item) => item.objectId === objectId || item.path === raw || item.objectUri === ref);
+}
+function decodeUploadObject(upload, role) {
+  if (!upload || typeof upload !== 'object') return null;
+  const base64 = upload.base64 || upload.contentBase64 || upload.dataBase64 || upload.data || '';
+  if (!base64) return null;
+  return Buffer.from(String(base64), 'base64');
+}
+async function resolveRef(ref, request, role) {
+  const direct = role === 'glb' ? decodeUploadObject(request.glbUpload, role) : decodeUploadObject(request.scriptUpload, role);
+  if (direct) return direct;
+  if (/^gs:\/\//i.test(ref)) return downloadGs(ref);
+  if (/^drive:\/\//i.test(ref)) return downloadDrive(ref, request.googleOAuthAccessToken || '');
+  if (/^bucket:\/\//i.test(ref)) {
+    const item = bucketInputFor(ref, request.bucketInputs || []);
+    if (!item) throw typedError('Bucket input was not provided by Command Center for ' + role + ': ' + ref, 404, 'transport');
+    if (item.body) return Buffer.from(item.body, 'utf8');
+    if (item.objectUri && /^gs:\/\//i.test(item.objectUri)) return downloadGs(item.objectUri);
+    if (item.objectUri && /^drive:\/\//i.test(item.objectUri)) return downloadDrive(item.objectUri, request.googleOAuthAccessToken || '');
+    throw typedError('Bucket input has no supported body/objectUri for ' + role + ': ' + ref, 400, 'transport');
+  }
+  throw typedError('Unsupported ref for ' + role + ': ' + ref, 400, 'input_validation');
+}
+function validateGlbBytes(bytes, label) {
+  if (!Buffer.isBuffer(bytes) || bytes.length < 12) throw typedError(label + ' is too small to be a GLB file.');
+  if (bytes.length > MAX_GLB_BYTES) throw typedError(label + ' exceeds max GLB size ' + MAX_GLB_BYTES + ' bytes.', 413, 'input_validation');
+  if (bytes.slice(0, 4).toString('ascii') !== 'glTF') throw typedError(label + ' is not a GLB: missing glTF magic.');
+  if (bytes.readUInt32LE(4) !== 2) throw typedError(label + ' must be GLB version 2.');
+  if (bytes.readUInt32LE(8) > bytes.length) throw typedError(label + ' declares more bytes than were supplied.');
+}
+function validateScriptBytes(bytes, label) {
+  if (!Buffer.isBuffer(bytes) || bytes.length === 0) throw typedError(label + ' is empty.');
+  if (bytes.length > MAX_SCRIPT_BYTES) throw typedError(label + ' exceeds max script size ' + MAX_SCRIPT_BYTES + ' bytes.', 413, 'input_validation');
+  if (bytes.includes(0)) throw typedError(label + ' must be a text Python script, not binary data.');
+}
+function listFiles(dir) {
+  const out = [];
+  const stack = [dir];
+  while (stack.length) {
+    const cur = stack.pop();
+    if (!fs.existsSync(cur)) continue;
+    for (const ent of fs.readdirSync(cur, {withFileTypes: true})) {
+      const full = path.join(cur, ent.name);
+      if (ent.isDirectory()) stack.push(full); else out.push(full);
+    }
+  }
+  return out.sort();
+}
+function enforceOutputLimits(dir) {
+  let total = 0;
+  for (const file of listFiles(dir)) {
+    const size = fs.statSync(file).size;
+    if (size > MAX_OUTPUT_FILE_BYTES) throw typedError('Renderer output file exceeds limit: ' + path.basename(file), 413, 'artifact_publication');
+    total += size;
+    if (total > MAX_OUTPUT_BYTES) throw typedError('Renderer outputs exceed total limit ' + MAX_OUTPUT_BYTES + ' bytes.', 413, 'artifact_publication');
+  }
+}
+function contentType(file) {
+  const ext = path.extname(file).toLowerCase();
+  if (ext === '.png') return 'image/png';
+  if (ext === '.jpg' || ext === '.jpeg') return 'image/jpeg';
+  if (ext === '.glb') return 'model/gltf-binary';
+  if (ext === '.blend') return 'application/octet-stream';
+  if (ext === '.json') return 'application/json';
+  if (ext === '.py') return 'text/x-python';
+  if (ext === '.txt' || ext === '.log') return 'text/plain';
+  return 'application/octet-stream';
+}
+async function cachedManifest(cacheKey) {
+  if (!CACHE_BUCKET) return null;
+  const file = storage.bucket(CACHE_BUCKET).file(`command-center-renders/${cacheKey}/validation-manifest.json`);
+  const [exists] = await file.exists();
+  if (!exists) return null;
+  const [buf] = await file.download();
+  const manifest = JSON.parse(buf.toString('utf8'));
+  return {...manifest, cacheHit: true};
+}
+function makeContactSheet(frames, outPath) {
+  if (!frames.length) return false;
+  const montage = spawnSync('montage', [...frames, '-geometry', '480x360+8+8', '-background', '#111111', outPath], {encoding: 'utf8', timeout: 60000});
+  if (montage.status === 0 && fs.existsSync(outPath)) return true;
+  fs.copyFileSync(frames[0], outPath);
+  return true;
+}
+function localManifestPath(outputDir, value) {
+  if (!value) return '';
+  const resolved = path.resolve(outputDir, value);
+  const absolute = path.isAbsolute(value) ? path.normalize(value) : resolved;
+  const relative = path.relative(outputDir, absolute);
+  if (relative.startsWith('..') || path.isAbsolute(relative)) return '';
+  return absolute;
+}
+function existingManifestFiles(outputDir, values) {
+  return (Array.isArray(values) ? values : []).map((value) => localManifestPath(outputDir, value)).filter((file) => file && fs.existsSync(file));
+}
+function writePythonNetworkWrapper(wrapperPath) {
+  fs.writeFileSync(wrapperPath, `import os, runpy, socket, sys\n\nclass _NetworkDisabled(Exception):\n    pass\n\ndef _blocked(*args, **kwargs):\n    raise RuntimeError('Network and process escape are disabled inside Command Center Blender render scripts')\n\nsocket.socket = _blocked\nsocket.create_connection = _blocked\nos.system = _blocked\nos.popen = _blocked\ntry:\n    import numpy as _np\n    if not hasattr(_np, 'bool'):\n        _np.bool = bool\nexcept Exception:\n    pass\nfor name in ['http.client', 'urllib.request', 'urllib3', 'requests', 'ftplib', 'smtplib', 'subprocess']:\n    sys.modules[name] = None\nif '--' not in sys.argv or len(sys.argv[sys.argv.index('--') + 1:]) < 5:\n    raise SystemExit('Usage after --: user_script glb output_dir settings_json manifest_json')\nargs = sys.argv[sys.argv.index('--') + 1:]\nscript = args[0]\nsys.argv = [script, '--'] + args[1:]\nrunpy.run_path(script, run_name='__main__')\n`, 'utf8');
+}
+function blenderResultFailureKind(result) {
+  if (result.error && String(result.error.message || '').toLowerCase().includes('timeout')) return 'timeout';
+  if (result.signal === 'SIGTERM' || result.signal === 'SIGKILL') return 'timeout';
+  return 'blender_execution';
+}
+function parseScriptManifest(scriptManifestPath, result) {
+  if (!fs.existsSync(scriptManifestPath)) {
+    return {scriptManifest: {}, failureKind: result.status === 0 ? 'artifact_publication' : blenderResultFailureKind(result), manifestError: 'Blender script did not produce script-output-manifest.json.'};
+  }
+  try {
+    return {scriptManifest: JSON.parse(fs.readFileSync(scriptManifestPath, 'utf8')), failureKind: '', manifestError: ''};
+  } catch (err) {
+    return {scriptManifest: {}, failureKind: 'artifact_publication', manifestError: 'Blender script manifest was not valid JSON: ' + (err.message || String(err))};
+  }
+}
+
+export async function renderBundle(request = {}) {
+  const work = fs.mkdtempSync(path.join(os.tmpdir(), 'cc-blender-render-'));
+  const inputDir = path.join(work, 'input');
+  const outputDir = path.join(work, 'output');
+  fs.mkdirSync(inputDir, {recursive: true}); fs.mkdirSync(outputDir, {recursive: true});
+  let manifest = null;
+  try {
+    const glbBytes = await resolveRef(request.glbRef || '', request, 'glb');
+    const scriptBytes = await resolveRef(request.scriptRef || '', request, 'script');
+    validateGlbBytes(glbBytes, 'glb input');
+    validateScriptBytes(scriptBytes, 'script input');
+    const glbPath = path.join(inputDir, 'input.glb');
+    const scriptPath = path.join(inputDir, 'render.py');
+    const wrapperPath = path.join(inputDir, 'network_disabled_wrapper.py');
+    fs.writeFileSync(glbPath, glbBytes); fs.writeFileSync(scriptPath, scriptBytes); writePythonNetworkWrapper(wrapperPath);
+    const glbHash = sha256Buffer(glbBytes);
+    const scriptHash = sha256Buffer(scriptBytes);
+    const settings = request.settings || {};
+    const blenderVersion = spawnSync('blender', ['--background', '--version'], {encoding: 'utf8', timeout: 30000});
+    const blenderVersionText = (blenderVersion.stdout || blenderVersion.stderr || '').split('\n').slice(0, 3).join('\n');
+    const cacheKey = crypto.createHash('sha256').update(stableJson({glbHash, scriptHash, settings, executionContract: request.executionContract || {}, blenderVersion: blenderVersionText, toolVersion: TOOL_VERSION})).digest('hex');
+    if (request.cache !== false) {
+      const hit = await cachedManifest(cacheKey);
+      if (hit) return {...hit, ok: true, status: 'completed', cacheHit: true, renderId: request.renderId || hit.renderId || '', cacheKey};
+    }
+    const settingsPath = path.join(inputDir, 'settings.json');
+    const scriptManifestPath = path.join(outputDir, 'script-output-manifest.json');
+    fs.writeFileSync(settingsPath, JSON.stringify(settings, null, 2));
+    const stdoutPath = path.join(outputDir, 'stdout.txt');
+    const stderrPath = path.join(outputDir, 'stderr.txt');
+    const blenderEnv = {...process.env, LIBGL_ALWAYS_SOFTWARE: '1'};
+    const result = spawnSync('blender', ['--background', '--python-exit-code', '88', '--python', wrapperPath, '--', scriptPath, glbPath, outputDir, settingsPath, scriptManifestPath], {encoding: 'utf8', timeout: RENDER_TIMEOUT_MS, maxBuffer: 80 * 1024 * 1024, env: blenderEnv});
+    fs.writeFileSync(stdoutPath, result.stdout || ''); fs.writeFileSync(stderrPath, result.stderr || result.error?.message || '');
+    const parsed = parseScriptManifest(scriptManifestPath, result);
+    const scriptManifest = parsed.scriptManifest;
+    const frames = existingManifestFiles(outputDir, scriptManifest.renderedFrames || []);
+    const fixed = existingManifestFiles(outputDir, scriptManifest.fixedCameraRenders || []);
+    const diagnostics = existingManifestFiles(outputDir, scriptManifest.diagnosticViewRenders || []);
+    const contactSheet = path.join(outputDir, 'contact-sheet.png');
+    makeContactSheet([...frames, ...diagnostics], contactSheet);
+    const outputFilesBeforeHashes = listFiles(outputDir);
+    const hashesPath = path.join(outputDir, 'script-input-hashes.json');
+    const outputHashes = {};
+    for (const file of outputFilesBeforeHashes) outputHashes[path.relative(outputDir, file)] = {sha256: sha256File(file), byteCount: fs.statSync(file).size};
+    fs.writeFileSync(hashesPath, JSON.stringify({
+      glbRef: request.glbRef || '', scriptRef: request.scriptRef || '', glbHash, scriptHash,
+      settingsHash: sha256Buffer(Buffer.from(stableJson(settings))), toolVersion: TOOL_VERSION,
+      stagedInputs: request.stagedInputs || [], outputHashes,
+    }, null, 2));
+    const blenderSettingsPath = path.join(outputDir, 'blender-version-settings.json');
+    fs.writeFileSync(blenderSettingsPath, JSON.stringify({blenderVersion: blenderVersionText, settings, renderToolVersion: TOOL_VERSION, exitCode: result.status, signal: result.signal || ''}, null, 2));
+    enforceOutputLimits(outputDir);
+    const validation = {
+      schema: 'command-center.blender-render.validation.v1',
+      atomicOperation: 'GLB + script + execution contract -> durable 3D artifact + visual evidence',
+      framesAreInsufficient: true,
+      presentBundleKinds: [],
+      glbHash,
+      scriptHash,
+      cacheKey,
+      blenderExitCode: result.status,
+      blenderSignal: result.signal || '',
+      failureKind: parsed.failureKind || (result.status === 0 ? '' : blenderResultFailureKind(result)),
+      manifestError: parsed.manifestError || '',
+    };
+    const refs = {renderedFrames: [], fixedCameraRenders: [], diagnosticViewRenders: [], threeDArtifacts: [], nativePoseAnimationData: []};
+    const add = async (kind, local, rel, key, ctype) => {
+      if (!local || !fs.existsSync(local)) return '';
+      const uri = await uploadFile(local, cacheKey, rel, ctype || contentType(local));
+      if (!validation.presentBundleKinds.includes(kind)) validation.presentBundleKinds.push(kind);
+      if (key) refs[key] = Array.isArray(refs[key]) ? [...refs[key], uri] : uri;
+      return uri;
+    };
+    for (const [i, f] of frames.entries()) await add('rendered_frames', f, `frames/${i}-${safeName(path.basename(f))}`, 'renderedFrames');
+    for (const [i, f] of fixed.entries()) await add('fixed_camera_renders', f, `fixed/${i}-${safeName(path.basename(f))}`, 'fixedCameraRenders');
+    for (const [i, f] of diagnostics.entries()) await add('diagnostic_view_renders', f, `diagnostic/${i}-${safeName(path.basename(f))}`, 'diagnosticViewRenders');
+    refs.contactSheet = await add('contact_sheet', contactSheet, 'contact-sheet.png', '', 'image/png');
+    refs.modifiedBlend = await add('three_d_artifact', localManifestPath(outputDir, scriptManifest.modifiedBlend), 'modified.blend', 'threeDArtifacts');
+    refs.animatedGlb = await add('three_d_artifact', localManifestPath(outputDir, scriptManifest.animatedGlb), 'animated.glb', 'threeDArtifacts');
+    refs.nativePoseAnimationData = [await add('native_pose_animation_data', localManifestPath(outputDir, scriptManifest.nativePoseAnimationData), 'native-pose-animation.json', '', 'application/json')].filter(Boolean);
+    refs.originalScript = await add('original_script', scriptPath, 'original-script.py', '', 'text/x-python');
+    refs.scriptInputHashes = await add('script_input_hashes', hashesPath, 'script-input-hashes.json', '', 'application/json');
+    refs.blenderVersionSettings = await add('blender_version_settings', blenderSettingsPath, 'blender-version-settings.json', '', 'application/json');
+    refs.stdout = await add('stdout_stderr', stdoutPath, 'stdout.txt', '', 'text/plain');
+    refs.stderr = await add('stdout_stderr', stderrPath, 'stderr.txt', '', 'text/plain');
+    if (!validation.presentBundleKinds.includes('validation_manifest')) validation.presentBundleKinds.push('validation_manifest');
+    const missing = REQUIRED_BUNDLE_KINDS.filter((kind) => !validation.presentBundleKinds.includes(kind));
+    validation.ok = result.status === 0 && missing.length === 0 && !validation.failureKind;
+    validation.missingBundleKinds = missing;
+    manifest = {ok: validation.ok, status: validation.ok ? 'completed' : 'failed', failureKind: validation.ok ? '' : (validation.failureKind || 'artifact_publication'), cacheHit: false, renderId: request.renderId || '', cacheKey, refs, validationManifest: validation, bundle: {refs, validationManifest: validation}, renderRefs: refs.renderedFrames, contactSheetRef: refs.contactSheet, threeDArtifactRefs: refs.threeDArtifacts, modifiedBlendRef: refs.modifiedBlend, animatedGlbRef: refs.animatedGlb, nativeDataRefs: refs.nativePoseAnimationData, originalScriptRef: refs.originalScript, scriptInputHashesRef: refs.scriptInputHashes, blenderVersionSettingsRef: refs.blenderVersionSettings, stdoutRef: refs.stdout, stderrRef: refs.stderr, fixedCameraRenderRefs: refs.fixedCameraRenders, diagnosticRenderRefs: refs.diagnosticViewRenders};
+    const manifestPath = path.join(outputDir, 'validation-manifest.json');
+    fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2));
+    refs.validationManifest = await uploadFile(manifestPath, cacheKey, 'validation-manifest.json', 'application/json');
+    manifest.manifestRef = refs.validationManifest;
+    manifest.validationManifestRef = refs.validationManifest;
+    manifest.refs = refs;
+    if (CACHE_BUCKET) await storage.bucket(CACHE_BUCKET).file(`command-center-renders/${cacheKey}/validation-manifest.json`).save(JSON.stringify(manifest, null, 2), {contentType: 'application/json'});
+    return manifest;
+  } catch (err) {
+    if (manifest) return manifest;
+    throw err;
+  } finally {
+    if (CACHE_BUCKET) fs.rmSync(work, {recursive: true, force: true});
+  }
+}
+
+export {decodeUploadObject, validateGlbBytes, validateScriptBytes, sha256Buffer};

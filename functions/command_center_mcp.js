@@ -1,4 +1,5 @@
 const {createHash, randomUUID} = require('node:crypto');
+const {Storage} = require('@google-cloud/storage');
 const express = require('express');
 const {z} = require('zod/v4');
 const {McpServer} = require('@modelcontextprotocol/sdk/server/mcp.js');
@@ -37,6 +38,7 @@ const COMMAND_CENTER_COLLECTIONS = Object.freeze({
   agentContextSnapshots: 'commandCenterAgentContextSnapshots',
   jobActivations: 'commandCenterJobActivations',
   workerTokens: 'commandCenterWorkerTokens',
+  renderRequests: 'commandCenterRenderRequests',
   idempotency: 'commandCenterIdempotency',
 });
 const COMMAND_CENTER_DEFAULT_BUCKET_ID = 'command-center';
@@ -88,6 +90,28 @@ const COMMAND_CENTER_COLD_START_HEARTBEAT_DEADLINE_MS = 2 * 60 * 1000;
 const COMMAND_CENTER_COMPLETION_EVENT_LOOKBACK_LIMIT = 1000;
 const COMMAND_CENTER_TERMINAL_JOB_STATUSES = Object.freeze(['completed', 'failed', 'canceled', 'expired']);
 const COMMAND_CENTER_RECONCILE_DEFAULT_OLDER_THAN_MS = 30 * 60 * 1000;
+const COMMAND_CENTER_WORKER_PROTOCOL_VERSION = 'command-center-worker-v2';
+const COMMAND_CENTER_MIN_RUNNER_VERSION = 'command-center-runner-v2';
+const COMMAND_CENTER_LEGACY_WORKER_IDS = Object.freeze(['termux-tanks-oneshot']);
+const COMMAND_CENTER_PROOF_EXCLUDED_WORKER_IDS = Object.freeze(['termux-tanks-oneshot']);
+const COMMAND_CENTER_RENDER_TOOL_VERSION = 'command-center-blender-render-v1';
+const COMMAND_CENTER_RENDER_DEFAULT_SERVICE_URL = process.env.COMMAND_CENTER_RENDER_SERVICE_URL || '';
+const COMMAND_CENTER_RENDER_BUCKET = process.env.COMMAND_CENTER_RENDER_BUCKET || process.env.RENDER_CACHE_BUCKET || (process.env.GCLOUD_PROJECT ? `${process.env.GCLOUD_PROJECT}-command-center-renders` : 'home-center-dclar-command-center-renders');
+const COMMAND_CENTER_RENDER_MAX_GLB_BYTES = Number(process.env.COMMAND_CENTER_RENDER_MAX_GLB_BYTES || 250 * 1024 * 1024);
+const COMMAND_CENTER_RENDER_MAX_SCRIPT_BYTES = Number(process.env.COMMAND_CENTER_RENDER_MAX_SCRIPT_BYTES || 1024 * 1024);
+const COMMAND_CENTER_RENDER_REQUIRED_BUNDLE_KINDS = Object.freeze([
+  'rendered_frames',
+  'contact_sheet',
+  'three_d_artifact',
+  'native_pose_animation_data',
+  'script_input_hashes',
+  'blender_version_settings',
+  'stdout_stderr',
+  'fixed_camera_renders',
+  'diagnostic_view_renders',
+  'validation_manifest',
+  'original_script',
+]);
 
 function isTerminalJobStatus(status) {
   return COMMAND_CENTER_TERMINAL_JOB_STATUSES.includes(safeText(status, 80));
@@ -171,6 +195,10 @@ function hashText(value, length = 16) {
 
 function fullHash(value) {
   return createHash('sha256').update(String(value || '')).digest('hex');
+}
+
+function sha256Bytes(value) {
+  return createHash('sha256').update(Buffer.isBuffer(value) ? value : Buffer.from(value || '')).digest('hex');
 }
 
 function tokenDigest(value) {
@@ -611,6 +639,33 @@ function cleanBucketObject(args = {}, caller = {}) {
   };
 }
 
+function workerStableIdentity(worker = {}) {
+  const data = safeObject(worker);
+  return safeText(data.workerInstallationId || data.installationId || data.stableWorkerIdentity || data.hostIdentity || data.machineId || data.workerIdentity || data.workerId, 180);
+}
+
+function workerApiKeyProbeAllowsCodex(worker = {}) {
+  const data = safeObject(worker);
+  const runtime = safeObject(data.runtime);
+  const probe = safeObject(runtime.apiKeyCapabilityProbe || runtime.openAiApiKeyProbe || data.apiKeyCapabilityProbe);
+  const authMode = safeText(runtime.codexAuth || runtime.authMode || runtime.openAiAuthMode, 80);
+  const apiKeyBacked = authMode === 'api_key' || authMode === 'openai_api_key' || data.location === 'gcp-cloud-run-job' || safeText(data.location, 80).includes('cloud-run');
+  if (!apiKeyBacked) return {ok: true, reason: 'not api-key-backed'};
+  if (probe.ok === true || probe.status === 'ok' || runtime.openAiApiKeyProbeOk === true) return {ok: true, reason: 'api-key capability probe passed'};
+  const reason = safeText(probe.failureKind || probe.code || probe.reason || runtime.apiKeyCapabilityProbeStatus, 240) || 'api-key capability probe missing';
+  return {ok: false, reason};
+}
+
+function workerRoutingPriority(worker = {}) {
+  const location = safeText(worker.location, 120).toLowerCase();
+  const runtime = safeObject(worker.runtime);
+  const activation = normalizeActivationChannel(worker.activation);
+  if (location.includes('termux') || runtime.codexAuth === 'chatgpt_saved_login') return 0;
+  if (location.includes('local') || activation.mode === 'poll') return 10;
+  if (location.includes('cloud-run') || runtime.codexAuth === 'api_key' || runtime.authMode === 'api_key') return 50;
+  return 20;
+}
+
 function deriveWorkerLiveness(worker, nowMs = Date.now()) {
   const data = safeObject(worker);
   const registryHealth = safeText(data.registryHealth || data.health, 80) || 'unknown';
@@ -654,6 +709,134 @@ function deriveWorkerLiveness(worker, nowMs = Date.now()) {
   };
 }
 
+
+function cleanWorkerIdentity(data = {}) {
+  const workerId = safeText(data.workerId, 120);
+  const stableWorkerIdentity = workerStableIdentity(data) || workerId;
+  const installation = safeText(data.workerInstallationId || data.installationId, 180);
+  const instance = safeText(data.workerInstanceId || data.instanceId, 180);
+  const runnerVersion = safeText(data.runnerVersion || safeObject(data.runtime).runnerVersion, 80);
+  const protocolVersion = safeText(data.protocolVersion || safeObject(data.runtime).protocolVersion, 80);
+  const legacyIdentity = !installation || !instance || !runnerVersion || !protocolVersion;
+  return {
+    workerInstallationId: installation || (stableWorkerIdentity ? `legacy-${hashText(stableWorkerIdentity, 24)}` : ''),
+    workerId,
+    workerInstanceId: instance,
+    stableWorkerIdentity,
+    runnerVersion,
+    protocolVersion,
+    ownerKey: safeText(data.ownerKey, 80),
+    legacyIdentity,
+    identityStatus: legacyIdentity ? 'legacy_incomplete' : 'v2_complete',
+  };
+}
+
+function cleanPreparedWorkspaces(data = {}) {
+  const raw = Array.isArray(data.preparedWorkspaces) ? data.preparedWorkspaces : (Array.isArray(data.baseWorkspaces) ? data.baseWorkspaces : []);
+  return raw.slice(0, 40).map((item) => cleanBaseWorkspace(item));
+}
+
+function workerRoutabilityDiagnostic(worker = {}, nowMs = Date.now()) {
+  const data = safeObject(worker);
+  const identity = cleanWorkerIdentity(data);
+  const liveness = deriveWorkerLiveness(data, nowMs);
+  const caps = safeList(data.capabilities, 120, 120).map((item) => item.toLowerCase());
+  const runtime = safeObject(data.runtime);
+  if (data.simulated === true) return {routable: false, code: 'simulated_worker', reason: 'simulated placeholder is not executable'};
+  if (data.status === 'retired' || data.retiredAtMs) return {routable: false, code: 'retired_worker', reason: 'worker registration is retired'};
+  if (COMMAND_CENTER_LEGACY_WORKER_IDS.includes(identity.workerId)) return {routable: false, code: 'legacy_project_specific_worker', reason: 'project-specific one-shot worker identity is quarantined from generic routing'};
+  if (identity.legacyIdentity) return {routable: false, code: 'legacy_identity_incomplete', reason: 'worker has no complete v2 installation/instance identity'};
+  if (identity.protocolVersion !== COMMAND_CENTER_WORKER_PROTOCOL_VERSION) return {routable: false, code: 'protocol_version_mismatch', reason: `worker protocol ${identity.protocolVersion || 'missing'} does not match ${COMMAND_CENTER_WORKER_PROTOCOL_VERSION}`};
+  if (!liveness.heartbeatFresh && !liveness.activatable) return {routable: false, code: 'stale_heartbeat', reason: liveness.livenessReason || 'heartbeat is stale or missing'};
+  if (data.registryRoutable === false || data.routable === false) return {routable: false, code: 'registry_unroutable', reason: 'registry marks worker unroutable'};
+  if (caps.includes('codex') && runtime.codexAuth === 'api_key') {
+    const probe = workerApiKeyProbeAllowsCodex(data);
+    if (!probe.ok) return {routable: false, code: 'api_key_capability_unavailable', reason: probe.reason};
+  }
+  return {routable: liveness.routable === true, code: liveness.routable ? 'routable' : 'not_routable', reason: liveness.routable ? 'fresh v2 worker' : liveness.livenessReason};
+}
+
+function compactWorkerCensus(worker = {}, activeLeases = 0, nowMs = Date.now()) {
+  const identity = cleanWorkerIdentity(worker);
+  const liveness = deriveWorkerLiveness(worker, nowMs);
+  const routability = workerRoutabilityDiagnostic(worker, nowMs);
+  return {
+    workerId: identity.workerId,
+    workerInstallationId: identity.workerInstallationId,
+    workerInstanceId: identity.workerInstanceId,
+    stableWorkerIdentity: identity.stableWorkerIdentity,
+    location: safeText(worker.location, 80) || 'unknown',
+    real: worker.simulated !== true,
+    simulated: worker.simulated === true,
+    status: worker.status === 'retired' || worker.retiredAtMs ? 'retired' : (liveness.heartbeatFresh ? 'active' : (liveness.activatable ? 'activatable' : 'stale')),
+    routable: routability.routable,
+    routabilityCode: routability.code,
+    routabilityReason: routability.reason,
+    heartbeatAgeMs: liveness.heartbeatAgeMs,
+    heartbeatSeq: Number(worker.heartbeatSeq || 0) || 0,
+    processStartAtMs: Number(worker.processStartAtMs || 0) || 0,
+    lastHeartbeatAtMs: liveness.lastHeartbeatAtMs,
+    lastAcceptedLeaseAtMs: Number(worker.lastAcceptedLeaseAtMs || 0) || 0,
+    runnerVersion: identity.runnerVersion,
+    protocolVersion: identity.protocolVersion,
+    ownerKey: identity.ownerKey,
+    capabilities: safeList(worker.capabilities, 120, 120),
+    preparedWorkspaces: cleanPreparedWorkspaces(worker).map((workspace) => ({baseWorkspaceId: workspace.baseWorkspaceId, snapshotRef: workspace.snapshotRef, restoreStrategy: workspace.restoreStrategy, repository: repositoryFromBaseWorkspace(workspace)})),
+    authenticationMode: safeText(safeObject(worker.runtime).codexAuth || safeObject(worker.runtime).authMode || safeObject(worker.runtime).openAiAuthMode, 80),
+    activeLeases,
+    capacity: {activeLeases, concurrencyLimit: workerConcurrencyLimit(worker), capacityRemaining: Math.max(0, workerConcurrencyLimit(worker) - activeLeases)},
+    duplicateOf: safeText(worker.duplicateOf, 120),
+    supersededBy: safeText(worker.supersededBy, 120),
+    legacyIdentity: identity.legacyIdentity,
+  };
+}
+
+function filterWorkerCensus(workers = [], args = {}, activeLeaseCounts = new Map(), nowMs = Date.now()) {
+  let rows = workers.map((worker) => compactWorkerCensus(worker, activeLeaseCounts.get(worker.workerId) || 0, nowMs));
+  if (args.active === true) rows = rows.filter((row) => row.status === 'active');
+  if (args.stale === true) rows = rows.filter((row) => row.status === 'stale');
+  if (args.retired === true) rows = rows.filter((row) => row.status === 'retired');
+  if (args.routable === true) rows = rows.filter((row) => row.routable === true);
+  if (args.routable === false) rows = rows.filter((row) => row.routable === false);
+  const owner = safeText(args.owner || args.ownerKey, 80);
+  if (owner) rows = rows.filter((row) => row.ownerKey === owner);
+  const capability = safeText(args.capability, 120).toLowerCase();
+  if (capability) rows = rows.filter((row) => row.capabilities.map((cap) => cap.toLowerCase()).includes(capability));
+  const location = safeText(args.location, 80).toLowerCase();
+  if (location) rows = rows.filter((row) => row.location.toLowerCase().includes(location));
+  return rows;
+}
+
+function explainWorkerCandidate(worker = {}, requirements = [], activeLeaseCount = 0, options = {}) {
+  const nowMs = Number(options.nowMs || 0) || Date.now();
+  const leaseEligibility = isWorkerLeaseEligible(worker, requirements, options);
+  const routability = workerRoutabilityDiagnostic(worker, nowMs);
+  const capacity = workerConcurrencyLimit(worker);
+  const capacityRemaining = Math.max(0, capacity - activeLeaseCount);
+  const eligible = leaseEligibility.eligible === true && routability.routable === true && capacityRemaining > 0;
+  return {
+    workerId: safeText(worker.workerId, 120),
+    workerInstallationId: cleanWorkerIdentity(worker).workerInstallationId,
+    workerInstanceId: cleanWorkerIdentity(worker).workerInstanceId,
+    included: eligible,
+    excluded: !eligible,
+    reason: eligible ? 'included' : (routability.routable ? (capacityRemaining <= 0 ? 'capacity exhausted' : leaseEligibility.reason) : routability.reason),
+    reasonCode: eligible ? 'included' : (routability.routable ? (capacityRemaining <= 0 ? 'capacity_exhausted' : 'requirements_not_met') : routability.code),
+    leaseEligibility: leaseEligibility.reason,
+    routability,
+    activeLeases: activeLeaseCount,
+    concurrencyLimit: capacity,
+    capacityRemaining,
+  };
+}
+
+function proofEligibleWorker(worker = {}, activeLeaseCount = 0, nowMs = Date.now()) {
+  const explanation = explainWorkerCandidate(worker, ['codex', 'one-shot-worker'], activeLeaseCount, {nowMs});
+  if (COMMAND_CENTER_PROOF_EXCLUDED_WORKER_IDS.includes(safeText(worker.workerId, 120))) return {...explanation, included: false, excluded: true, reason: 'excluded by proof policy', reasonCode: 'proof_excluded_worker'};
+  if (worker.simulated === true) return {...explanation, included: false, excluded: true, reason: 'simulated workers excluded from proof', reasonCode: 'simulated_worker'};
+  return explanation;
+}
+
 function cleanWorker(worker) {
   const data = safeObject(worker);
   const liveness = deriveWorkerLiveness(data);
@@ -679,6 +862,17 @@ function cleanWorker(worker) {
     cloudRunJob: safeObject(data.cloudRunJob),
     sessionPolicy: safeObject(data.sessionPolicy),
     repositoryAffinity: safeList(data.repositoryAffinity, 80, 240),
+    preparedWorkspaces: cleanPreparedWorkspaces(data),
+    workerInstallationId: cleanWorkerIdentity(data).workerInstallationId,
+    workerInstanceId: cleanWorkerIdentity(data).workerInstanceId,
+    stableWorkerIdentity: cleanWorkerIdentity(data).stableWorkerIdentity,
+    runnerVersion: cleanWorkerIdentity(data).runnerVersion,
+    protocolVersion: cleanWorkerIdentity(data).protocolVersion,
+    identityStatus: cleanWorkerIdentity(data).identityStatus,
+    legacyIdentity: cleanWorkerIdentity(data).legacyIdentity,
+    heartbeatSeq: Number(data.heartbeatSeq || 0) || 0,
+    processStartAtMs: Number(data.processStartAtMs || 0) || 0,
+    lastAcceptedLeaseAtMs: Number(data.lastAcceptedLeaseAtMs || 0) || 0,
     simulated: data.simulated === true,
     registryRoutable: retired ? false : liveness.registryRoutable,
     routable: retired ? false : liveness.routable,
@@ -712,11 +906,27 @@ function cleanProjectPacket(args = {}) {
   };
 }
 
+function dedupeWorkerRecords(workers = [], nowMs = Date.now()) {
+  const byIdentity = new Map();
+  for (const worker of workers.filter((item) => item && item.workerId)) {
+    const identity = workerStableIdentity(worker) || worker.workerId;
+    const liveness = deriveWorkerLiveness(worker, nowMs);
+    const score = (worker.status === 'retired' || worker.retiredAtMs ? -100000 : 0)
+      + (liveness.heartbeatFresh ? 10000 : 0)
+      + (liveness.routable ? 1000 : 0)
+      + (liveness.activatable ? 100 : 0)
+      + Math.min(Number(worker.lastHeartbeatAtMs || 0) || 0, nowMs) / 10000000000000;
+    const current = byIdentity.get(identity);
+    if (!current || score > current.score) byIdentity.set(identity, {worker, score});
+  }
+  return Array.from(byIdentity.values()).map((entry) => entry.worker);
+}
+
 async function workerRecords(admin) {
-  const snap = await collection(admin, COMMAND_CENTER_COLLECTIONS.workers).limit(50).get();
+  const snap = await collection(admin, COMMAND_CENTER_COLLECTIONS.workers).limit(100).get();
   const byId = new Map(COMMAND_CENTER_DEFAULT_WORKERS.map((worker) => [worker.workerId, worker]));
   snap.forEach((doc) => byId.set(doc.id, cleanWorker({workerId: doc.id, ...(doc.data() || {})})));
-  return Array.from(byId.values()).filter((worker) => worker.workerId);
+  return dedupeWorkerRecords(Array.from(byId.values()).filter((worker) => worker.workerId));
 }
 
 function recordsVisibleToCaller(records, caller = null) {
@@ -748,9 +958,15 @@ function isWorkerLeaseEligible(worker, requirements, options = {}) {
   const liveness = deriveWorkerLiveness(worker, nowMs);
   if (worker.simulated === true) return {eligible: false, reason: 'worker is simulated'};
   if (worker.status === 'retired' || worker.retiredAtMs) return {eligible: false, reason: 'worker is retired'};
+  const route = workerRoutabilityDiagnostic(worker, nowMs);
+  if (!route.routable) return {eligible: false, reason: route.reason};
   if (worker.registryRoutable === false) return {eligible: false, reason: 'worker is not routable'};
   const missing = reqs.filter((req) => !caps.has(req));
   if (missing.length) return {eligible: false, reason: `missing capabilities: ${missing.join(', ')}`};
+  if (reqs.includes('codex') || caps.has('codex')) {
+    const probe = workerApiKeyProbeAllowsCodex(worker);
+    if (!probe.ok) return {eligible: false, reason: `codex api-key capability unavailable: ${probe.reason}`};
+  }
   const requiresCloudActivation = reqs.includes('codex-cloud') || caps.has('codex-cloud');
   if (requiresCloudActivation) {
     const activation = normalizeActivationChannel(worker.activation);
@@ -801,7 +1017,10 @@ function selectWorkerCandidates(workers, requirements, options = {}) {
 
 function selectWorker(workers, requirements, options = {}) {
   const reqs = safeList(requirements, 40, 120).map((req) => req.toLowerCase());
-  const compatible = selectWorkerCandidates(workers, reqs, options).filter((candidate) => candidate.eligible).map((candidate) => candidate.worker);
+  const compatible = selectWorkerCandidates(workers, reqs, options)
+    .filter((candidate) => candidate.eligible)
+    .sort((a, b) => workerRoutingPriority(a.worker) - workerRoutingPriority(b.worker))
+    .map((candidate) => candidate.worker);
   const selected = compatible[0] || null;
   if (selected) return selected;
   const err = new Error(reqs.length ? `No live real Command Center worker satisfies requirements: ${reqs.join(', ')}` : 'No live real Command Center worker is currently routable.');
@@ -836,7 +1055,7 @@ async function selectWorkerForJob(admin, workers, requirements, options = {}) {
   });
   const compatible = candidates
     .filter((candidate) => candidate.eligible && candidate.capacityRemaining > 0)
-    .sort((a, b) => a.loadRatio - b.loadRatio || a.activeLeases - b.activeLeases || a.index - b.index);
+    .sort((a, b) => a.loadRatio - b.loadRatio || a.activeLeases - b.activeLeases || workerRoutingPriority(a.worker) - workerRoutingPriority(b.worker) || a.index - b.index);
   const selected = compatible[0] || null;
   if (selected) {
     return {
@@ -863,6 +1082,333 @@ function activationWorkerRequirements(args = {}, task = {}) {
   const raw = args.workerRequirements || policy.workerRequirements || task.workerRequirements || args.requiredWorkerCapabilities || policy.requiredWorkerCapabilities || task.requiredWorkerCapabilities;
   const reqs = safeList(raw, 40, 120);
   return reqs.length ? reqs : ['codex-cloud'];
+}
+
+function normalizeRenderRef(value, fieldName = 'ref') {
+  const ref = safeText(value, 1200);
+  if (!ref) {
+    const err = new Error(fieldName + ' is required.');
+    err.status = 400;
+    err.failureKind = 'input_validation';
+    throw err;
+  }
+  if (!/^(drive|bucket|gs):\/\//i.test(ref)) {
+    const err = new Error(fieldName + ' must be a drive://, bucket://, or gs:// ref.');
+    err.status = 400;
+    err.failureKind = 'input_validation';
+    throw err;
+  }
+  return ref;
+}
+
+function renderInputError(message, status = 400, failureKind = 'input_validation') {
+  const err = new Error(message);
+  err.status = status;
+  err.failureKind = failureKind;
+  return err;
+}
+
+function cleanUploadFileName(value, fallback) {
+  const clean = safeText(value, 240).replace(/\\/g, '/').split('/').pop().replace(/[^A-Za-z0-9_.-]+/g, '-').replace(/^-+|-+$/g, '');
+  return clean || fallback;
+}
+
+function isFileLike(value) {
+  return value && typeof value === 'object' && typeof value.arrayBuffer === 'function' && typeof value.name === 'string';
+}
+
+async function bytesFromFileLike(value, role) {
+  if (!isFileLike(value)) throw renderInputError(role + ' must be an uploaded MCP file, not a local path or JSON object.');
+  const arrayBuffer = await value.arrayBuffer();
+  return Buffer.from(arrayBuffer);
+}
+
+function validateGlbBytes(bytes, label) {
+  if (!Buffer.isBuffer(bytes) || bytes.length < 12) throw renderInputError(label + ' is too small to be a GLB file.');
+  if (bytes.length > COMMAND_CENTER_RENDER_MAX_GLB_BYTES) throw renderInputError(label + ' exceeds max GLB size ' + COMMAND_CENTER_RENDER_MAX_GLB_BYTES + ' bytes.', 413, 'input_validation');
+  if (bytes.slice(0, 4).toString('ascii') !== 'glTF') throw renderInputError(label + ' is not a GLB: missing glTF magic.');
+  const version = bytes.readUInt32LE(4);
+  const declaredLength = bytes.readUInt32LE(8);
+  if (version !== 2) throw renderInputError(label + ' must be GLB version 2.');
+  if (declaredLength > bytes.length) throw renderInputError(label + ' declares more bytes than were uploaded.');
+}
+
+function validateScriptBytes(bytes, label) {
+  if (!Buffer.isBuffer(bytes) || bytes.length === 0) throw renderInputError(label + ' is empty.');
+  if (bytes.length > COMMAND_CENTER_RENDER_MAX_SCRIPT_BYTES) throw renderInputError(label + ' exceeds max script size ' + COMMAND_CENTER_RENDER_MAX_SCRIPT_BYTES + ' bytes.', 413, 'input_validation');
+  if (bytes.includes(0)) throw renderInputError(label + ' must be a text Python script, not binary data.');
+}
+
+function renderStorage() {
+  return new Storage();
+}
+
+async function stageRenderUpload({caller, renderId, role, fileName, bytes, contentType}) {
+  if (!COMMAND_CENTER_RENDER_BUCKET) throw renderInputError('COMMAND_CENTER_RENDER_BUCKET is not configured for uploaded render files.', 503, 'transport');
+  const hash = sha256Bytes(bytes);
+  const safeRole = role === 'glb' ? 'glb' : 'script';
+  const safeFile = cleanUploadFileName(fileName, safeRole === 'glb' ? 'input.glb' : 'render.py');
+  const objectName = `command-center-render-inputs/${ownerKeyFromCaller(caller)}/${safeText(renderId, 180) || 'render'}/${safeRole}-${hash}-${safeFile}`;
+  await renderStorage().bucket(COMMAND_CENTER_RENDER_BUCKET).file(objectName).save(bytes, {
+    resumable: false,
+    metadata: {
+      contentType: contentType || (safeRole === 'glb' ? 'model/gltf-binary' : 'text/x-python'),
+      metadata: {sha256: hash, role: safeRole, renderer: COMMAND_CENTER_RENDER_TOOL_VERSION},
+    },
+  });
+  return {ref: `gs://${COMMAND_CENTER_RENDER_BUCKET}/${objectName}`, sha256: hash, byteCount: bytes.length, fileName: safeFile, materializedFrom: safeRole + 'File'};
+}
+
+function hasInlineScript(args) {
+  return safeText(args.scriptText || args.inlineScript || args.script, COMMAND_CENTER_RENDER_MAX_SCRIPT_BYTES + 1).length > 0;
+}
+
+function renderSourceCount(...values) {
+  return values.filter(Boolean).length;
+}
+
+function normalizeRenderSettings(value = {}) {
+  const src = safeObject(value);
+  const settings = {
+    width: Math.max(64, Math.min(Number(src.width || 1280) || 1280, 4096)),
+    height: Math.max(64, Math.min(Number(src.height || 960) || 960, 4096)),
+    camera: safeText(src.camera, 120) || 'front_3q',
+    outputName: safeText(src.outputName, 180) || 'render.png',
+    fixedCameras: safeList(src.fixedCameras || ['front_3q'], 12, 120),
+    diagnosticViews: safeList(src.diagnosticViews || ['front', 'side', 'top'], 12, 120),
+  };
+  return {...settings, renderOptions: safeObject(src.renderOptions)};
+}
+
+function stableJson(value) {
+  if (Array.isArray(value)) return '[' + value.map(stableJson).join(',') + ']';
+  if (value && typeof value === 'object') return '{' + Object.keys(value).sort().map((key) => JSON.stringify(key) + ':' + stableJson(value[key])).join(',') + '}';
+  return JSON.stringify(value);
+}
+
+function cleanRenderContract(value = {}) {
+  const src = safeObject(value);
+  return {
+    contractVersion: safeText(src.contractVersion, 80) || 'glb-script-durable-3d-artifact-v1',
+    atomicOperation: 'GLB + script + execution contract -> durable 3D artifact + visual evidence',
+    requireBundleKinds: COMMAND_CENTER_RENDER_REQUIRED_BUNDLE_KINDS,
+    framesAreInsufficient: true,
+    preserve3dTruth: true,
+  };
+}
+
+function renderCacheLookupKey(args = {}) {
+  return fullHash(stableJson({
+    toolVersion: COMMAND_CENTER_RENDER_TOOL_VERSION,
+    glbRef: normalizeRenderRef(args.glbRef, 'glbRef'),
+    scriptRef: normalizeRenderRef(args.scriptRef, 'scriptRef'),
+    settings: normalizeRenderSettings(args.settings),
+    executionContract: cleanRenderContract(args.executionContract),
+  }));
+}
+
+function cleanRenderResult(serviceResult = {}, fallback = {}) {
+  const result = safeObject(serviceResult);
+  const bundle = safeObject(result.bundle);
+  const refs = safeObject(result.refs || bundle.refs);
+  const validation = safeObject(result.validation || bundle.validationManifest);
+  const renderRefs = safeList(result.renderRefs || refs.renderedFrames, 60, 1200);
+  const diagnosticRenderRefs = safeList(result.diagnosticRenderRefs || refs.diagnosticViewRenders, 60, 1200);
+  const fixedCameraRenderRefs = safeList(result.fixedCameraRenderRefs || refs.fixedCameraRenders, 60, 1200);
+  const threeDArtifactRefs = safeList(result.threeDArtifactRefs || refs.threeDArtifacts, 20, 1200);
+  const nativeDataRefs = safeList(result.nativeDataRefs || refs.nativePoseAnimationData, 20, 1200);
+  return {
+    ok: result.ok === true,
+    cacheHit: result.cacheHit === true,
+    renderId: safeText(result.renderId || fallback.renderId, 180),
+    cacheKey: safeText(result.cacheKey || fallback.cacheKey, 128),
+    status: safeText(result.status, 80) || (result.ok === true ? 'completed' : 'failed'),
+    renderRefs,
+    contactSheetRef: safeText(result.contactSheetRef || refs.contactSheet, 1200),
+    threeDArtifactRefs,
+    modifiedBlendRef: safeText(result.modifiedBlendRef || refs.modifiedBlend, 1200),
+    animatedGlbRef: safeText(result.animatedGlbRef || refs.animatedGlb, 1200),
+    nativeDataRefs,
+    originalScriptRef: safeText(result.originalScriptRef || refs.originalScript, 1200),
+    scriptInputHashesRef: safeText(result.scriptInputHashesRef || refs.scriptInputHashes, 1200),
+    blenderVersionSettingsRef: safeText(result.blenderVersionSettingsRef || refs.blenderVersionSettings, 1200),
+    stdoutRef: safeText(result.stdoutRef || refs.stdout, 1200),
+    stderrRef: safeText(result.stderrRef || refs.stderr, 1200),
+    fixedCameraRenderRefs,
+    diagnosticRenderRefs,
+    manifestRef: safeText(result.manifestRef || refs.validationManifest, 1200),
+    validationManifestRef: safeText(result.validationManifestRef || refs.validationManifest, 1200),
+    validation,
+    bundle,
+    error: safeText(result.error || result.message, 2000),
+    failureKind: safeText(result.failureKind, 80),
+  };
+}
+
+async function invokeRenderService(payload) {
+  const serviceUrl = COMMAND_CENTER_RENDER_DEFAULT_SERVICE_URL;
+  if (!serviceUrl) {
+    const err = new Error('COMMAND_CENTER_RENDER_SERVICE_URL is not configured for render.blender_glb.');
+    err.status = 503;
+    throw err;
+  }
+  const baseUrl = serviceUrl.replace(/\/+$/, '');
+  const identityToken = await googleCloudIdentityToken(baseUrl);
+  const response = await fetch(baseUrl + '/render/glb', {
+    method: 'POST',
+    headers: {authorization: `Bearer ${identityToken}`, 'content-type': 'application/json'},
+    body: JSON.stringify(payload),
+  });
+  const text = await response.text();
+  let json = {};
+  try { json = text ? JSON.parse(text) : {}; } catch (_err) { json = {ok: false, error: text.slice(0, 2000)}; }
+  if (!response.ok) {
+    const failureKind = json.failureKind || (response.status === 401 || response.status === 403 ? 'render_service_invocation_auth_failed' : 'transport');
+    const err = new Error(json.error || json.message || (failureKind + ': Blender render service failed: HTTP ' + response.status));
+    err.status = response.status;
+    err.failureKind = failureKind;
+    err.serviceResult = {...json, failureKind};
+    throw err;
+  }
+  return json;
+}
+
+function renderRecordId(cacheKey, caller = {}) {
+  return 'render_' + hashText(ownerKeyFromCaller(caller) + ':' + cacheKey, 32);
+}
+
+function cleanRenderStagedInputs(inputs = []) {
+  return (Array.isArray(inputs) ? inputs : []).slice(0, 12).map((input) => {
+    const item = safeObject(input);
+    return {
+      ref: safeText(item.ref, 1200),
+      sha256: safeText(item.sha256, 128),
+      byteCount: Number(item.byteCount || 0) || 0,
+      fileName: safeText(item.fileName, 240),
+      materializedFrom: safeText(item.materializedFrom, 80),
+      materializedBy: safeText(item.materializedBy, 120),
+      sourceRef: safeText(item.sourceRef, 1200),
+    };
+  }).filter((item) => item.ref || item.sha256 || item.byteCount || item.fileName);
+}
+
+function cleanBucketInputObjects(objects = []) {
+  return (Array.isArray(objects) ? objects : []).slice(0, 10).map((object) => ({
+    objectId: safeText(object.objectId, 180),
+    bucketId: safeText(object.bucketId, 120),
+    kind: safeText(object.kind, 80),
+    path: safeText(object.path, 500),
+    body: safeText(object.body, COMMAND_CENTER_BUCKET_LAYOUT.storagePolicy.inlineBodyMaxChars),
+    objectUri: safeText(object.objectUri, 1000),
+    contentHash: safeText(object.contentHash, 128),
+  }));
+}
+
+async function resolveRenderBucketInputs(admin, refs = [], caller = {}) {
+  const objects = [];
+  for (const ref of refs) {
+    const text = safeText(ref, 1200);
+    if (!text.toLowerCase().startsWith('bucket://')) continue;
+    const raw = text.replace(/^bucket:\/\//i, '').replace(/^command-center\//i, '');
+    const objectId = raw.split(/[?#]/)[0].split('/').filter(Boolean).pop() || raw;
+    const found = await getBucketObject(admin, {objectId}, caller);
+    if (!found.found) {
+      const err = new Error('Bucket render input not found: ' + text);
+      err.status = 404;
+      throw err;
+    }
+    objects.push(found.object);
+  }
+  return cleanBucketInputObjects(objects);
+}
+
+async function resolveRenderSources(caller, args, renderId) {
+  const glbHasFile = isFileLike(args.glbFile);
+  const glbHasRef = safeText(args.glbRef, 1200).length > 0;
+  if (renderSourceCount(glbHasFile, glbHasRef) !== 1) {
+    throw renderInputError('Exactly one GLB source is required: provide glbFile or glbRef, but not both.');
+  }
+
+  const scriptHasFile = isFileLike(args.scriptFile);
+  const scriptHasRef = safeText(args.scriptRef, 1200).length > 0;
+  const scriptHasInline = hasInlineScript(args);
+  if (renderSourceCount(scriptHasFile, scriptHasRef, scriptHasInline) !== 1) {
+    throw renderInputError('Exactly one Blender script source is required: provide scriptFile, scriptRef, or scriptText.');
+  }
+
+  let glbRef = '';
+  let scriptRef = '';
+  const stagedInputs = [];
+  if (glbHasFile) {
+    const bytes = await bytesFromFileLike(args.glbFile, 'glbFile');
+    validateGlbBytes(bytes, 'glbFile');
+    const staged = await stageRenderUpload({caller, renderId, role: 'glb', fileName: args.glbFile.name, bytes, contentType: args.glbFile.type || 'model/gltf-binary'});
+    glbRef = staged.ref;
+    stagedInputs.push(staged);
+  } else {
+    glbRef = normalizeRenderRef(args.glbRef, 'glbRef');
+  }
+
+  if (scriptHasFile) {
+    const bytes = await bytesFromFileLike(args.scriptFile, 'scriptFile');
+    validateScriptBytes(bytes, 'scriptFile');
+    const staged = await stageRenderUpload({caller, renderId, role: 'script', fileName: args.scriptFile.name, bytes, contentType: args.scriptFile.type || 'text/x-python'});
+    scriptRef = staged.ref;
+    stagedInputs.push(staged);
+  } else if (scriptHasInline) {
+    const text = safeText(args.scriptText || args.inlineScript || args.script, COMMAND_CENTER_RENDER_MAX_SCRIPT_BYTES + 1);
+    const bytes = Buffer.from(text, 'utf8');
+    validateScriptBytes(bytes, 'scriptText');
+    const staged = await stageRenderUpload({caller, renderId, role: 'script', fileName: 'inline-render.py', bytes, contentType: 'text/x-python'});
+    staged.materializedFrom = 'scriptText';
+    scriptRef = staged.ref;
+    stagedInputs.push(staged);
+  } else {
+    scriptRef = normalizeRenderRef(args.scriptRef, 'scriptRef');
+  }
+
+  return {glbRef, scriptRef, stagedInputs};
+}
+
+async function renderBlenderGlb(admin, extra, args = {}) {
+  const caller = await callerFromExtra(admin, extra);
+  const accessToken = bearerFromExtra(extra);
+  return idempotentMutation(admin, caller, requireIdempotencyKey(args.idempotencyKey), 'render.blender_glb', async () => {
+    const settings = normalizeRenderSettings(args.settings);
+    const executionContract = cleanRenderContract(args.executionContract);
+    const requestedRenderId = safeText(args.renderId, 180) || `render_${hashText(ownerKeyFromCaller(caller) + ':' + safeText(args.idempotencyKey, 180), 32)}`;
+    const resolvedSources = await resolveRenderSources(caller, args || {}, requestedRenderId);
+    const glbRef = resolvedSources.glbRef;
+    const scriptRef = resolvedSources.scriptRef;
+    const stagedInputs = [...cleanRenderStagedInputs(args.stagedInputs), ...resolvedSources.stagedInputs];
+    const requestCacheKey = renderCacheLookupKey({glbRef, scriptRef, stagedInputs, settings, executionContract});
+    const renderId = safeText(args.renderId, 180) || renderRecordId(requestCacheKey, caller);
+    const ref = collection(admin, COMMAND_CENTER_COLLECTIONS.renderRequests).doc(renderId);
+    const existingSnap = await ref.get();
+    if (args.cache !== false && existingSnap.exists) {
+      const existing = existingSnap.data() || {};
+      assertOwnerAccess(existing, caller, 'Command Center render request');
+      if (existing.status === 'completed' && existing.cacheKey) return {...cleanRenderResult(existing.result || {}, {renderId, cacheKey: existing.cacheKey}), cacheHit: true, persisted: true};
+    }
+    const bucketInputs = await resolveRenderBucketInputs(admin, [glbRef, scriptRef], caller);
+    const startedAtMs = Date.now();
+    await ref.set({renderId, cacheKey: requestCacheKey, requestCacheKey, status: 'running', glbRef, scriptRef, stagedInputs, settings, executionContract, toolVersion: COMMAND_CENTER_RENDER_TOOL_VERSION, ownerKey: ownerKeyFromCaller(caller), requestedBy: caller.actor, createdAtMs: existingSnap.exists ? (existingSnap.data() || {}).createdAtMs || startedAtMs : startedAtMs, updatedAtMs: startedAtMs}, {merge: true});
+    try {
+      const serviceResult = await invokeRenderService({renderId, requestCacheKey, glbRef, scriptRef, stagedInputs, settings, executionContract, toolVersion: COMMAND_CENTER_RENDER_TOOL_VERSION, cache: args.cache !== false, bucketInputs, googleOAuthAccessToken: accessToken});
+      const result = cleanRenderResult(serviceResult, {renderId, cacheKey: serviceResult.cacheKey || requestCacheKey});
+      const presentKinds = result.validation && Array.isArray(result.validation.presentBundleKinds) ? result.validation.presentBundleKinds : [];
+      const missingKinds = COMMAND_CENTER_RENDER_REQUIRED_BUNDLE_KINDS.filter((kind) => !presentKinds.includes(kind));
+      const status = result.ok && missingKinds.length === 0 ? 'completed' : 'failed';
+      const finalResult = {...result, ok: status === 'completed', missingBundleKinds: missingKinds, stagedInputs};
+      await ref.set({status, cacheKey: finalResult.cacheKey || requestCacheKey, result: finalResult, updatedAtMs: Date.now(), completedAtMs: status === 'completed' ? Date.now() : 0, failedAtMs: status === 'failed' ? Date.now() : 0}, {merge: true});
+      return finalResult;
+    } catch (err) {
+      const failed = cleanRenderResult(err.serviceResult || {}, {renderId, cacheKey: requestCacheKey});
+      const result = {...failed, ok: false, status: 'failed', failureKind: safeText(err.failureKind, 80) || 'transport', error: safeText(err.message || String(err), 2000), stagedInputs};
+      await ref.set({status: 'failed', result, error: result.error, failureKind: result.failureKind, updatedAtMs: Date.now(), failedAtMs: Date.now()}, {merge: true});
+      return result;
+    }
+  });
 }
 
 async function appendEvent(admin, event) {
@@ -1612,7 +2158,17 @@ function activationStateFromResult(result) {
   return {status: 'rejected', accepted: false, diagnostic: safeText(result && (result.error || result.diagnostic || result.message), 1000) || 'Activation endpoint rejected or did not return acceptance.', executorId: ''};
 }
 
+async function googleCloudIdentityToken(audience) {
+  const encodedAudience = encodeURIComponent(safeText(audience, 1200));
+  const response = await fetch(`http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/identity?audience=${encodedAudience}`, {headers: {'Metadata-Flavor': 'Google'}});
+  const text = await response.text();
+  if (!response.ok) throw new Error(`Metadata identity token request failed: ${response.status} ${text.slice(0, 200)}`);
+  if (!text) throw new Error('Metadata identity token response was empty.');
+  return text;
+}
+
 async function googleCloudAccessToken() {
+
   const response = await fetch('http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/token', {headers: {'Metadata-Flavor': 'Google'}});
   const text = await response.text();
   if (!response.ok) throw new Error(`Metadata token request failed: ${response.status} ${text.slice(0, 200)}`);
@@ -2879,13 +3435,28 @@ async function registerOneShotWorker(admin, caller, args) {
       throw err;
     }
     const nowMs = Date.now();
-    const existing = await collection(admin, COMMAND_CENTER_COLLECTIONS.workers).doc(workerId).get();
-    if (existing.exists) assertOwnerAccess(existing.data() || {}, caller, 'Command Center worker');
+    const requestedInstallationId = safeText(args.workerInstallationId || args.installationId, 180);
+    let canonicalWorkerId = workerId;
+    if (requestedInstallationId) {
+      const sameInstall = await collection(admin, COMMAND_CENTER_COLLECTIONS.workers).where('workerInstallationId', '==', requestedInstallationId).limit(5).get();
+      sameInstall.forEach((doc) => { if (!canonicalWorkerId || doc.id !== workerId) canonicalWorkerId = doc.id; });
+    }
+    const existing = await collection(admin, COMMAND_CENTER_COLLECTIONS.workers).doc(canonicalWorkerId).get();
+    if (existing.exists) {
+      assertOwnerAccess(existing.data() || {}, caller, 'Command Center worker');
+      const currentInstallation = safeText((existing.data() || {}).workerInstallationId, 180);
+      if (requestedInstallationId && currentInstallation && currentInstallation !== requestedInstallationId) {
+        const err = new Error('workerId alias is already bound to another workerInstallationId.');
+        err.status = 409;
+        err.code = 'DUPLICATE_ALIAS_CONFLICT';
+        throw err;
+      }
+    }
     const workerToken = `ccw_${randomUUID()}_${randomUUID()}`;
     const tokenHash = tokenDigest(workerToken);
     const requestedActivation = normalizeActivationChannel(args.activation);
     const worker = cleanWorker({
-      workerId,
+      workerId: canonicalWorkerId,
       engine: args.engine || 'codex',
       location: args.location || 'local',
       health: 'healthy',
@@ -2893,7 +3464,15 @@ async function registerOneShotWorker(admin, caller, args) {
 	      baseWorkspaces: Array.isArray(args.baseWorkspaces) ? args.baseWorkspaces : [args.baseWorkspace || COMMAND_CENTER_DEFAULT_BASE_WORKSPACE],
 	      limits: safeObject(args.limits),
 	      activation: requestedActivation.mode ? {...requestedActivation, verifiedAtMs: requestedActivation.verifiedAtMs || nowMs} : {mode: 'poll', verifiedAtMs: nowMs},
-	      runtime: safeObject(args.runtime),
+      workerInstallationId: requestedInstallationId || `legacy-${hashText(args.stableWorkerIdentity || args.hostIdentity || workerId, 24)}`,
+      workerInstanceId: safeText(args.workerInstanceId || args.instanceId, 180),
+      runnerVersion: safeText(args.runnerVersion, 80) || safeText(safeObject(args.runtime).runnerVersion, 80),
+      protocolVersion: safeText(args.protocolVersion, 80) || safeText(safeObject(args.runtime).protocolVersion, 80),
+      processStartAtMs: Number(args.processStartAtMs || 0) || 0,
+      heartbeatSeq: Number(args.heartbeatSeq || 0) || 0,
+      preparedWorkspaces: Array.isArray(args.preparedWorkspaces) ? args.preparedWorkspaces : (Array.isArray(args.baseWorkspaces) ? args.baseWorkspaces : [args.baseWorkspace || COMMAND_CENTER_DEFAULT_BASE_WORKSPACE]),
+      stableWorkerIdentity: safeText(args.stableWorkerIdentity || args.hostIdentity || workerId, 180),
+	      runtime: {...safeObject(args.runtime), authMode: safeText(safeObject(args.runtime).authMode || safeObject(args.runtime).codexAuth, 80)},
 	      cloudRunJob: safeObject(args.cloudRunJob),
 	      sessionPolicy: safeObject(args.sessionPolicy),
 	      repositoryAffinity: safeList(args.repositoryAffinity, 80, 240),
@@ -2903,8 +3482,8 @@ async function registerOneShotWorker(admin, caller, args) {
       oneShot: true,
     });
     if (!worker.capabilities.length) worker.capabilities = ['codex', 'one-shot-worker', 'prepared-workspace'];
-    await collection(admin, COMMAND_CENTER_COLLECTIONS.workers).doc(workerId).set({...worker, registeredBy: caller.actor, updatedAtMs: nowMs, createdAtMs: nowMs}, {merge: true});
-    await collection(admin, COMMAND_CENTER_COLLECTIONS.workerTokens).doc(tokenHash).set({workerId, ownerKey: ownerKeyFromCaller(caller), createdBy: caller.actor, createdAtMs: nowMs, expiresAtMs: nowMs + 90 * 24 * 60 * 60 * 1000, authKind: 'command_center_worker_token'}, {merge: false});
+    await collection(admin, COMMAND_CENTER_COLLECTIONS.workers).doc(canonicalWorkerId).set({...worker, registeredBy: caller.actor, updatedAtMs: nowMs, createdAtMs: existing.exists ? (Number((existing.data() || {}).createdAtMs || 0) || nowMs) : nowMs}, {merge: true});
+    await collection(admin, COMMAND_CENTER_COLLECTIONS.workerTokens).doc(tokenHash).set({workerId: canonicalWorkerId, ownerKey: ownerKeyFromCaller(caller), createdBy: caller.actor, createdAtMs: nowMs, expiresAtMs: nowMs + 90 * 24 * 60 * 60 * 1000, authKind: 'command_center_worker_token'}, {merge: false});
     return {worker, workerToken, tokenType: 'Bearer', expiresIn: 90 * 24 * 60 * 60, warning: 'Store this worker token only on the worker host. Command Center stores only its hash.'};
   });
 }
@@ -2931,6 +3510,172 @@ async function retireWorker(admin, caller, args) {
     await ref.set(update, {merge: true});
     const worker = cleanWorker({...existing, ...update});
     return {worker, retired: true};
+  });
+}
+
+
+async function systemHealth(admin, caller) {
+  const activationTimeouts = await reconcileActivationStartTimeouts(admin, 'command_center_system_health', {limit: 250});
+  const workers = recordsVisibleToCaller(await workerRecords(admin), caller);
+  const counts = await activeLeaseCountsByWorker(admin);
+  const census = filterWorkerCensus(workers, {}, counts);
+  const jobSnap = await collection(admin, COMMAND_CENTER_COLLECTIONS.jobs).orderBy('createdAtMs', 'desc').limit(250).get();
+  const recentProbe = await recentEndToEndExecutionProbe(admin, jobSnap);
+  const workerPool = {
+    total: census.length,
+    real: census.filter((row) => row.real).length,
+    routable: census.filter((row) => row.routable).length,
+    active: census.filter((row) => row.status === 'active').length,
+    stale: census.filter((row) => row.status === 'stale').length,
+    retired: census.filter((row) => row.status === 'retired').length,
+    legacy: census.filter((row) => row.legacyIdentity).length,
+    routableWorkerIds: census.filter((row) => row.routable).map((row) => row.workerId),
+  };
+  return {
+    ok: true,
+    controlPlane: {ok: true, service: 'command-center-mcp', invokable: true, hasFrontend: false, commandCenterMcpUrl: COMMAND_CENTER_RESOURCE},
+    workerPool: {...workerPool, ok: workerPool.routable > 0, status: workerPool.routable > 0 ? 'has_routable_workers' : 'no_routable_workers'},
+    recentEndToEndProbe: recentProbe,
+    activationTimeoutReconciliation: {candidates: activationTimeouts.candidates.length, reconciled: activationTimeouts.reconciled.length, timeoutMs: activationTimeouts.timeoutMs},
+  };
+}
+
+async function listWorkersCensus(admin, caller, args = {}) {
+  const workers = recordsVisibleToCaller(await workerRecords(admin), caller);
+  const counts = await activeLeaseCountsByWorker(admin);
+  const workersOut = filterWorkerCensus(workers, args, counts);
+  return {workers: workersOut, summary: {total: workersOut.length, routable: workersOut.filter((row) => row.routable).length, stale: workersOut.filter((row) => row.status === 'stale').length, retired: workersOut.filter((row) => row.status === 'retired').length}};
+}
+
+async function inspectWorker(admin, caller, args = {}) {
+  const workerId = safeText(args.workerId, 120);
+  if (!workerId) {
+    const err = new Error('workerId is required.');
+    err.status = 400;
+    throw err;
+  }
+  const workers = recordsVisibleToCaller(await workerRecords(admin), caller);
+  const worker = workers.find((item) => item.workerId === workerId) || null;
+  if (!worker) return {workerId, found: false, diagnosis: {code: 'worker_not_found', localInterventionRequired: true, explanation: 'No worker record exists for this owner.'}};
+  const counts = await activeLeaseCountsByWorker(admin);
+  const leasesSnap = await collection(admin, COMMAND_CENTER_COLLECTIONS.leases).where('workerId', '==', workerId).limit(50).get();
+  const leases = [];
+  leasesSnap.forEach((doc) => leases.push(doc.data() || {}));
+  leases.sort((a, b) => Number(b.acquiredAtMs || 0) - Number(a.acquiredAtMs || 0));
+  const eventsSnap = await collection(admin, COMMAND_CENTER_COLLECTIONS.events).where('actor', '==', workerId).limit(50).get();
+  const events = [];
+  eventsSnap.forEach((doc) => events.push(doc.data() || {}));
+  events.sort((a, b) => Number(b.createdAtMs || 0) - Number(a.createdAtMs || 0));
+  const census = compactWorkerCensus(worker, counts.get(workerId) || 0);
+  const diagnosis = failureDiagnosisForWorker(worker);
+  return {worker: census, registration: worker, recentLeases: leases.slice(0, 20), recentEvents: events.slice(0, 20), repair: diagnosis};
+}
+
+function failureDiagnosisForWorker(worker = {}) {
+  const route = workerRoutabilityDiagnostic(worker);
+  if (route.routable) return {code: 'healthy', explanation: 'Worker is routable.', automaticallyRepairable: false, safeRecommendedOperation: '', localPhysicalInterventionRequired: false};
+  const map = {
+    stale_heartbeat: ['Worker heartbeat is stale or missing.', true, 'workers.reconcile', false],
+    legacy_identity_incomplete: ['Worker has an old one-shot identity and must be reinstalled or re-registered with v2 identity.', false, 'install or restart persistent supervisor on host', true],
+    legacy_project_specific_worker: ['Project-specific one-shot worker is quarantined from generic routing.', true, 'workers.reconcile', false],
+    protocol_version_mismatch: ['Worker protocol version is incompatible.', false, 'update worker runner bundle, then restart supervisor', true],
+    retired_worker: ['Worker is retired.', false, 'register a fresh worker installation', true],
+    api_key_capability_unavailable: ['API-key backed Codex capability probe failed.', false, 'fix quota/auth outside Command Center or use saved-login Termux worker', false],
+  };
+  const item = map[route.code] || [route.reason || 'Worker is not routable.', false, 'workers.inspect', false];
+  return {code: route.code, explanation: item[0], evidence: {workerId: worker.workerId || '', reason: route.reason}, automaticallyRepairable: item[1], safeRecommendedOperation: item[2], localPhysicalInterventionRequired: item[3]};
+}
+
+async function routingExplain(admin, caller, args = {}) {
+  const requirements = safeList(args.workerRequirements || args.requiredWorkerCapabilities || args.requirements, 40, 120);
+  const workers = recordsVisibleToCaller(await workerRecords(admin), caller);
+  const counts = await activeLeaseCountsByWorker(admin);
+  const candidates = workers.map((worker) => explainWorkerCandidate(worker, requirements, counts.get(worker.workerId) || 0));
+  return {requirements, selectedWorkerId: (candidates.find((item) => item.included) || {}).workerId || '', candidates, eligibleWorkerIds: candidates.filter((item) => item.included).map((item) => item.workerId)};
+}
+
+async function reconcileWorkers(admin, caller, args = {}) {
+  const dryRun = args.dryRun !== false;
+  const nowMs = Date.now();
+  const workers = recordsVisibleToCaller(await workerRecords(admin), caller);
+  const actions = [];
+  for (const worker of workers) {
+    const route = workerRoutabilityDiagnostic(worker, nowMs);
+    if (route.code === 'legacy_project_specific_worker' || route.code === 'legacy_identity_incomplete') actions.push({type: 'retire_worker', workerId: worker.workerId, reasonCode: route.code, reason: route.reason});
+    if (route.code === 'stale_heartbeat') actions.push({type: 'mark_stale_unroutable', workerId: worker.workerId, reasonCode: route.code, reason: route.reason});
+  }
+  const staleJobs = await reconcileStaleJobs(admin, caller, {dryRun, olderThanMs: Number(args.olderThanMs || 0) || COMMAND_CENTER_RECONCILE_DEFAULT_OLDER_THAN_MS, statuses: ['queued', 'leased', 'executing', 'running', 'activating'], limit: Number(args.limit || 0) || 50, idempotencyKey: args.idempotencyKey || `workers-reconcile-${nowMs}`});
+  if (!dryRun) {
+    const batch = admin.firestore().batch();
+    for (const action of actions.slice(0, 100)) {
+      const ref = collection(admin, COMMAND_CENTER_COLLECTIONS.workers).doc(action.workerId);
+      if (action.type === 'retire_worker') batch.set(ref, {status: 'retired', retiredAtMs: nowMs, retireReason: action.reason, registryRoutable: false, routable: false, updatedAtMs: nowMs}, {merge: true});
+      else batch.set(ref, {registryRoutable: false, routable: false, health: 'stale', updatedAtMs: nowMs}, {merge: true});
+    }
+    if (actions.length) await batch.commit();
+  }
+  return {ok: true, dryRun, actions, staleJobReconciliation: staleJobs, applied: dryRun ? 0 : actions.length};
+}
+
+async function requestWorkerRestart(admin, caller, args = {}) {
+  return idempotentMutation(admin, caller, requireIdempotencyKey(args.idempotencyKey), 'workers.request_restart', async () => {
+    const workerId = safeText(args.workerId, 120);
+    if (!workerId) {
+      const err = new Error('workerId is required.');
+      err.status = 400;
+      throw err;
+    }
+    const workers = recordsVisibleToCaller(await workerRecords(admin), caller);
+    const worker = workers.find((item) => item.workerId === workerId) || null;
+    if (!worker) return {ok: false, code: 'worker_not_found', workerId, restart: {requestRecorded: false}};
+    const route = workerRoutabilityDiagnostic(worker);
+    const requestId = `restart_${randomUUID()}`;
+    const payload = {requestId, workerId, ownerKey: ownerKeyFromCaller(caller), requestedBy: caller.actor, reason: safeText(args.reason, 1000), createdAtMs: Date.now(), status: route.routable ? 'requested' : 'host_offline', desiredState: 'restart_supervisor'};
+    await collection(admin, COMMAND_CENTER_COLLECTIONS.events).doc(requestId).set({eventId: requestId, type: 'worker_restart_requested', actor: caller.actor, summary: route.routable ? `Restart requested for ${workerId}.` : `Restart request recorded but ${workerId} is offline.`, data: payload, ownerKey: ownerKeyFromCaller(caller), createdAtMs: Date.now()});
+    if (!route.routable) return {ok: false, code: 'host_offline', workerId, requestId, restart: {requestRecorded: true, workerReceivedRequest: false, oldInstanceExited: false, newInstanceRegistered: false, newHeartbeatObserved: false}, explanation: 'The host is not currently heartbeating/routable, so cloud code cannot restart it.'};
+    return {ok: false, code: 'restart_channel_unavailable', workerId, requestId, restart: {requestRecorded: true, workerReceivedRequest: false, oldInstanceExited: false, newInstanceRegistered: false, newHeartbeatObserved: false}, explanation: 'The worker protocol recorded a restart request, but this worker has not advertised a safe supervisor restart channel yet.'};
+  });
+}
+
+async function runMultiWorkerProof(admin, caller, args = {}) {
+  return idempotentMutation(admin, caller, requireIdempotencyKey(args.idempotencyKey), 'proof.run_multi_worker', async () => {
+    const nowMs = Date.now();
+    const workers = recordsVisibleToCaller(await workerRecords(admin), caller);
+    const counts = await activeLeaseCountsByWorker(admin);
+    const candidates = workers.map((worker) => proofEligibleWorker(worker, counts.get(worker.workerId) || 0, nowMs));
+    const byInstallation = new Map();
+    for (const candidate of candidates.filter((item) => item.included)) {
+      if (!candidate.workerInstallationId) continue;
+      if (!byInstallation.has(candidate.workerInstallationId)) byInstallation.set(candidate.workerInstallationId, candidate);
+    }
+    const selected = Array.from(byInstallation.values()).slice(0, 2);
+    const nonceA = safeText(args.nonceA, 120) || `proof-a-${randomUUID()}`;
+    const nonceB = safeText(args.nonceB, 120) || `proof-b-${randomUUID()}`;
+    if (selected.length < 2) {
+      return {
+        ok: false,
+        status: 'red',
+        code: 'insufficient_distinct_real_workers',
+        explanation: 'Two distinct fresh real non-tanks worker installations are required. Command Center will not reuse one installation or count stale records.',
+        nonces: [nonceA, nonceB],
+        selectedWorkerIds: selected.map((item) => item.workerId),
+        selectedInstallations: selected.map((item) => item.workerInstallationId),
+        candidates,
+        jobsCreated: [],
+        proofPacket: {status: 'red', requiredDistinctInstallations: 2, foundDistinctInstallations: selected.length, excludedWorkerIds: COMMAND_CENTER_PROOF_EXCLUDED_WORKER_IDS},
+      };
+    }
+    return {
+      ok: false,
+      status: 'red',
+      code: 'proof_execution_not_implemented',
+      explanation: 'The pool has enough candidates, but automatic two-job proof creation is not enabled until supervisor restart/activation acknowledgement is supported by both workers.',
+      nonces: [nonceA, nonceB],
+      selectedWorkerIds: selected.map((item) => item.workerId),
+      selectedInstallations: selected.map((item) => item.workerInstallationId),
+      candidates,
+      jobsCreated: [],
+    };
   });
 }
 
@@ -2971,32 +3716,9 @@ async function runCommandCenterOperation(admin, extra, operation, args = {}) {
   const op = normalizeCommandCenterOperationName(operation);
   const caller = async () => callerFromExtra(admin, extra);
   switch (op) {
-    case 'health': {
-      const activationTimeouts = await reconcileActivationStartTimeouts(admin, 'command_center_health', {limit: 250});
-      const workers = await workerRecords(admin);
-      const liveWorkers = workers.filter((worker) => worker.livenessState === 'live' && worker.routable === true);
-      const activatableWorkers = workers.filter((worker) => worker.livenessState === 'activatable' && worker.routable === true);
-      const staleWorkers = workers.filter((worker) => worker.registryHealth === 'healthy' && worker.health !== 'healthy');
-      const jobSnap = await collection(admin, COMMAND_CENTER_COLLECTIONS.jobs).orderBy('createdAtMs', 'desc').limit(250).get();
-      const nowMs = Date.now();
-      const nonterminalStatuses = ['queued', 'activating', 'leased', 'executing', 'running', 'question', 'awaiting_mutation_authorization'];
-      const jobsByStatus = {};
-      let nonterminal = 0;
-      let stale = 0;
-      let oldestNonterminalAgeMs = null;
-      jobSnap.forEach((doc) => {
-        const job = doc.data() || {};
-        const status = safeText(job.status, 80) || 'unknown';
-        jobsByStatus[status] = (jobsByStatus[status] || 0) + 1;
-        if (!nonterminalStatuses.includes(status)) return;
-        nonterminal += 1;
-        const ageMs = nowMs - (Number(job.createdAtMs || 0) || nowMs);
-        oldestNonterminalAgeMs = oldestNonterminalAgeMs === null ? ageMs : Math.max(oldestNonterminalAgeMs, ageMs);
-        if (staleJobCandidate(job, nowMs, COMMAND_CENTER_RECONCILE_DEFAULT_OLDER_THAN_MS, ['queued', 'leased', 'executing', 'running', 'activating'])) stale += 1;
-      });
-      const recentProbe = await recentEndToEndExecutionProbe(admin, jobSnap);
-      return {ok: true, service: 'command-center-mcp', invokable: true, hasFrontend: false, commandCenterMcpUrl: COMMAND_CENTER_RESOURCE, authorizationServer: HOME_CENTER_AUTHORIZATION_SERVER_BASE, healthPlanes: {controlPlaneReachable: true, routableWorkerRegistered: activatableWorkers.length > 0 || liveWorkers.length > 0, recentEndToEndExecutionProbeCompleted: recentProbe.ok}, recentEndToEndExecutionProbe: recentProbe, activationTimeoutReconciliation: {candidates: activationTimeouts.candidates.length, reconciled: activationTimeouts.reconciled.length, timeoutMs: activationTimeouts.timeoutMs}, workerLiveness: {total: workers.length, live: liveWorkers.length, activatable: activatableWorkers.length, stale: staleWorkers.length, liveWorkerIds: liveWorkers.map((worker) => worker.workerId), activatableWorkerIds: activatableWorkers.map((worker) => worker.workerId), staleWorkerIds: staleWorkers.map((worker) => worker.workerId)}, queue: {sampled: jobSnap.size, byStatus: jobsByStatus, nonterminal, stale, oldestNonterminalAgeMs}};
-    }
+    case 'health':
+    case 'system.health':
+      return systemHealth(admin, await caller());
     case 'projects.resolve':
       return resolveProject(admin, args || {});
     case 'projects.get': {
@@ -3013,6 +3735,8 @@ async function runCommandCenterOperation(admin, extra, operation, args = {}) {
     }
     case 'projects.upsert':
       return upsertProject(admin, await caller(), args || {});
+    case 'render.blender_glb':
+      return renderBlenderGlb(admin, extra, args || {});
     case 'jobs.create':
       return createJob(admin, await caller(), args || {});
     case 'jobs.create_followup':
@@ -3106,7 +3830,17 @@ async function runCommandCenterOperation(admin, extra, operation, args = {}) {
     case 'workers.retire':
       return retireWorker(admin, await caller(), args || {});
     case 'workers.list':
-      return {workers: recordsVisibleToCaller(await workerRecords(admin), await caller())};
+      return listWorkersCensus(admin, await caller(), args || {});
+    case 'workers.inspect':
+      return inspectWorker(admin, await caller(), args || {});
+    case 'routing.explain':
+      return routingExplain(admin, await caller(), args || {});
+    case 'workers.reconcile':
+      return reconcileWorkers(admin, await caller(), args || {});
+    case 'workers.request_restart':
+      return requestWorkerRestart(admin, await caller(), args || {});
+    case 'proof.run_multi_worker':
+      return runMultiWorkerProof(admin, await caller(), args || {});
     case 'workers.get_capabilities': {
       const c = await caller();
       const workerId = safeText(args.workerId, 120);
@@ -3168,6 +3902,43 @@ async function recordArtifact(admin, jobId, projectId, artifact, ownerKey = '') 
   };
   await collection(admin, COMMAND_CENTER_COLLECTIONS.artifacts).doc(artifactId).set(payload, {merge: true});
   return payload;
+}
+
+async function workerHeartbeat(admin, caller, args = {}) {
+  const nowMs = Date.now();
+  const ref = collection(admin, COMMAND_CENTER_COLLECTIONS.workers).doc(caller.workerId);
+  const snap = await ref.get();
+  if (!snap.exists) {
+    const err = new Error('Command Center worker registration not found for heartbeat.');
+    err.status = 404;
+    throw err;
+  }
+  const existing = snap.data() || {};
+  const update = {
+    lastHeartbeatAtMs: nowMs,
+    supervisorHeartbeatAtMs: nowMs,
+    heartbeatPhase: safeText(args.phase || args.currentPhase, 120) || 'idle',
+    supervisorPid: Number(args.supervisorPid || 0) || 0,
+    health: 'healthy',
+    routable: true,
+    registryRoutable: true,
+    simulated: false,
+    updatedAtMs: nowMs,
+    stableWorkerIdentity: safeText(args.stableWorkerIdentity || existing.stableWorkerIdentity || caller.workerId, 180),
+    workerInstallationId: safeText(args.workerInstallationId || existing.workerInstallationId, 180),
+    workerInstanceId: safeText(args.workerInstanceId || existing.workerInstanceId, 180),
+    runnerVersion: safeText(args.runnerVersion || existing.runnerVersion || safeObject(args.runtime).runnerVersion, 80),
+    protocolVersion: safeText(args.protocolVersion || existing.protocolVersion || safeObject(args.runtime).protocolVersion, 80),
+    processStartAtMs: Number(args.processStartAtMs || existing.processStartAtMs || 0) || 0,
+    heartbeatSeq: Math.max(Number(existing.heartbeatSeq || 0) || 0, Number(args.heartbeatSeq || 0) || 0) + 1,
+  };
+  if (Array.isArray(args.capabilities) && args.capabilities.length) update.capabilities = safeList(args.capabilities, 80, 120);
+  if (safeText(args.location, 80)) update.location = safeText(args.location, 80);
+  const runtime = safeObject(args.runtime);
+  if (Object.keys(runtime).length) update.runtime = {...safeObject(existing.runtime), ...runtime};
+  await ref.set(update, {merge: true});
+  const worker = cleanWorker({workerId: caller.workerId, ...existing, ...update});
+  return {ok: true, workerId: caller.workerId, heartbeatAtMs: nowMs, routable: worker.routable, liveness: deriveWorkerLiveness(worker, nowMs)};
 }
 
 async function workerCallerFromRequest(admin, req) {
@@ -3286,6 +4057,23 @@ function createCommandCenterMcpServer({admin}) {
     description: 'Compatibility dispatcher matching the Home Center MCP bridge. Use this when ChatGPT sees Command Center directly or when top-level tool metadata is stale.',
     inputSchema: {operation: z.string(), args: z.record(z.string(), z.any()).optional()},
   }, async (args, extra) => textResult({operation: normalizeCommandCenterOperationName(args.operation), result: await runCommandCenterOperation(admin, extra, args.operation, args.args || {})}));
+
+  server.registerTool('command_center.render.blender_glb', {
+    title: 'Render GLB with Blender',
+    description: 'Non-agent Blender execution primitive: GLB plus script plus execution contract returns a durable 3D artifact bundle and visual evidence. Does not create Command Center jobs or Codex activations.',
+    inputSchema: {
+      idempotencyKey: z.string(),
+      renderId: z.string().optional(),
+      glbFile: z.file().optional(),
+      scriptFile: z.file().optional(),
+      glbRef: z.string().optional(),
+      scriptRef: z.string().optional(),
+      scriptText: z.string().optional(),
+      settings: z.record(z.string(), z.any()).optional(),
+      executionContract: z.record(z.string(), z.any()).optional(),
+      cache: z.boolean().optional(),
+    },
+  }, async (args, extra) => textResult(await renderBlenderGlb(admin, extra, args || {})));
 
   server.registerTool('command_center.projects.resolve', {
     title: 'Resolve Command Center project',
@@ -3488,7 +4276,7 @@ function createCommandCenterMcpServer({admin}) {
   server.registerTool('command_center.workers.register_oneshot', {
     title: 'Register one-shot Command Center worker',
     description: 'Register a user-owned one-shot Codex worker and return a worker token once. Store it only on the worker host.',
-    inputSchema: {idempotencyKey: z.string(), workerId: z.string(), engine: z.string().optional(), location: z.string().optional(), capabilities: z.array(z.string()).optional(), baseWorkspace: z.record(z.string(), z.any()).optional(), baseWorkspaces: z.array(z.record(z.string(), z.any())).optional(), limits: z.record(z.string(), z.any()).optional(), activation: z.record(z.string(), z.any()).optional(), runtime: z.record(z.string(), z.any()).optional(), cloudRunJob: z.record(z.string(), z.any()).optional(), sessionPolicy: z.record(z.string(), z.any()).optional(), repositoryAffinity: z.array(z.string()).optional()},
+    inputSchema: {idempotencyKey: z.string(), workerId: z.string(), workerInstallationId: z.string().optional(), workerInstanceId: z.string().optional(), runnerVersion: z.string().optional(), protocolVersion: z.string().optional(), processStartAtMs: z.number().optional(), heartbeatSeq: z.number().optional(), engine: z.string().optional(), location: z.string().optional(), capabilities: z.array(z.string()).optional(), baseWorkspace: z.record(z.string(), z.any()).optional(), baseWorkspaces: z.array(z.record(z.string(), z.any())).optional(), preparedWorkspaces: z.array(z.record(z.string(), z.any())).optional(), limits: z.record(z.string(), z.any()).optional(), activation: z.record(z.string(), z.any()).optional(), runtime: z.record(z.string(), z.any()).optional(), cloudRunJob: z.record(z.string(), z.any()).optional(), sessionPolicy: z.record(z.string(), z.any()).optional(), repositoryAffinity: z.array(z.string()).optional()},
   }, async (args, extra) => textResult(await registerOneShotWorker(admin, await callerFromExtra(admin, extra), args || {})));
 
   server.registerTool('command_center.app_control.seed_profiles', {
@@ -3570,7 +4358,13 @@ function createCommandCenterMcpServer({admin}) {
     inputSchema: {idempotencyKey: z.string(), workerId: z.string(), activationId: z.string().optional(), sessionId: z.string().optional(), projectId: z.string().optional(), reason: z.string().optional(), runLabel: z.string().optional(), currentWorkspaceSnapshotRef: z.string().optional()},
   }, async (args, extra) => textResult(await wakeWorker(admin, await callerFromExtra(admin, extra), args || {})));
 
-  server.registerTool('command_center.workers.list', {title: 'List Command Center workers', description: 'List registered Codex workers and their health/capability metadata.', inputSchema: {}}, async (_args, extra) => textResult({workers: recordsVisibleToCaller(await workerRecords(admin), await callerFromExtra(admin, extra))}));
+  server.registerTool('command_center.system.health', {title: 'Command Center system health', description: 'Return separate control-plane, worker-pool, and recent end-to-end probe health.', inputSchema: {}}, async (_args, extra) => textResult(await systemHealth(admin, await callerFromExtra(admin, extra))));
+  server.registerTool('command_center.workers.list', {title: 'List Command Center workers', description: 'Compact worker census with identity, liveness, routability, capabilities, and active lease capacity.', inputSchema: {active: z.boolean().optional(), stale: z.boolean().optional(), retired: z.boolean().optional(), routable: z.boolean().optional(), owner: z.string().optional(), ownerKey: z.string().optional(), capability: z.string().optional(), location: z.string().optional()}}, async (args, extra) => textResult(await listWorkersCensus(admin, await callerFromExtra(admin, extra), args || {})));
+  server.registerTool('command_center.workers.inspect', {title: 'Inspect Command Center worker', description: 'Inspect one worker registration, recent leases/events, and repair recommendation.', inputSchema: {workerId: z.string()}}, async (args, extra) => textResult(await inspectWorker(admin, await callerFromExtra(admin, extra), args || {})));
+  server.registerTool('command_center.routing.explain', {title: 'Explain Command Center routing', description: 'Explain inclusion/exclusion reasons for worker requirements without creating a job.', inputSchema: {workerRequirements: z.array(z.string()).optional(), requiredWorkerCapabilities: z.array(z.string()).optional(), requirements: z.array(z.string()).optional(), projectId: z.string().optional(), baseWorkspace: z.record(z.string(), z.any()).optional()}}, async (args, extra) => textResult(await routingExplain(admin, await callerFromExtra(admin, extra), args || {})));
+  server.registerTool('command_center.workers.reconcile', {title: 'Reconcile Command Center workers', description: 'Owner-scoped bounded repair for stale/legacy worker records and abandoned jobs/leases.', inputSchema: {idempotencyKey: z.string().optional(), dryRun: z.boolean().optional(), olderThanMs: z.number().optional(), limit: z.number().optional()}}, async (args, extra) => textResult(await reconcileWorkers(admin, await callerFromExtra(admin, extra), args || {})));
+  server.registerTool('command_center.workers.request_restart', {title: 'Request Command Center worker restart', description: 'Record a supervisor restart request and truthfully report host_offline or missing restart channel.', inputSchema: {idempotencyKey: z.string(), workerId: z.string(), reason: z.string().optional()}}, async (args, extra) => textResult(await requestWorkerRestart(admin, await callerFromExtra(admin, extra), args || {})));
+  server.registerTool('command_center.proof.run_multi_worker', {title: 'Run multi-worker proof', description: 'Fail-closed proof requiring two distinct real non-tanks worker installations with nonce-bearing jobs.', inputSchema: {idempotencyKey: z.string(), nonceA: z.string().optional(), nonceB: z.string().optional()}}, async (args, extra) => textResult(await runMultiWorkerProof(admin, await callerFromExtra(admin, extra), args || {})));
   server.registerTool('command_center.workers.get_capabilities', {title: 'Get Command Center worker capabilities', description: 'Read capability metadata for one registered worker.', inputSchema: {workerId: z.string()}}, async (args, extra) => {
     const workerId = safeText(args.workerId, 120);
     const workers = recordsVisibleToCaller(await workerRecords(admin), await callerFromExtra(admin, extra));
@@ -3691,6 +4485,15 @@ function createCommandCenterMcpApp({admin}) {
     }
   });
 
+  app.post('/worker/heartbeat', async (req, res) => {
+    try {
+      const caller = await workerCallerFromRequest(admin, req);
+      res.json(await workerHeartbeat(admin, caller, req.body || {}));
+    } catch (err) {
+      sendWorkerError(res, err);
+    }
+  });
+
   app.post('/worker/lease', async (req, res) => {
     try {
       const caller = await workerCallerFromRequest(admin, req);
@@ -3699,7 +4502,9 @@ function createCommandCenterMcpApp({admin}) {
         res.json({ok: true, leased: false});
         return;
       }
-      await collection(admin, COMMAND_CENTER_COLLECTIONS.jobs).doc(job.jobId).set({updatedAtMs: Date.now(), workerAcceptedLeaseAtMs: Date.now()}, {merge: true});
+      const acceptedAtMs = Date.now();
+      await collection(admin, COMMAND_CENTER_COLLECTIONS.jobs).doc(job.jobId).set({updatedAtMs: acceptedAtMs, workerAcceptedLeaseAtMs: acceptedAtMs}, {merge: true});
+      await collection(admin, COMMAND_CENTER_COLLECTIONS.workers).doc(caller.workerId).set({lastAcceptedLeaseAtMs: acceptedAtMs, lastHeartbeatAtMs: acceptedAtMs, health: 'healthy', routable: true, registryRoutable: true}, {merge: true});
       const activationSnap = await collection(admin, COMMAND_CENTER_COLLECTIONS.jobActivations).where('jobId', '==', job.jobId).limit(10).get();
       const batch = admin.firestore().batch();
       let acceptedActivations = 0;
@@ -3946,10 +4751,24 @@ module.exports = {
   workerConcurrencyLimit,
   selectWorkerCandidates,
   selectWorkerForJob,
+  dedupeWorkerRecords,
+  workerStableIdentity,
+  workerApiKeyProbeAllowsCodex,
+  workerRoutingPriority,
+  cleanWorkerIdentity,
+  workerRoutabilityDiagnostic,
+  compactWorkerCensus,
+  filterWorkerCensus,
+  explainWorkerCandidate,
+  proofEligibleWorker,
   activeLeaseCountsByWorker,
   selectWorker,
   buildJobActivation,
   activationStateFromResult,
   shouldAcceptWorkerCompletion,
   wakeWorker,
+  renderBlenderGlb,
+  resolveRenderSources,
+  validateGlbBytes,
+  validateScriptBytes,
 };

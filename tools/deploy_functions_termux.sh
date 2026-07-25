@@ -22,7 +22,8 @@ deploy_command_center_mcp() {
     --entry-point=commandCenterMcp \
     --trigger-http \
     --allow-unauthenticated \
-    --timeout=300s
+    --timeout=300s \
+    --set-env-vars=LOG_EXECUTION_ID=true,COMMAND_CENTER_RENDER_SERVICE_URL="${COMMAND_CENTER_RENDER_SERVICE_URL:-https://command-center-blender-render-vxybsaualq-uc.a.run.app}",COMMAND_CENTER_RENDER_BUCKET="${COMMAND_CENTER_RENDER_BUCKET:-home-center-dclar-command-center-renders}"
 }
 
 deploy_home_center_mcp() {
@@ -36,8 +37,8 @@ deploy_home_center_mcp() {
     --trigger-http \
     --allow-unauthenticated \
     --timeout=300s \
-    --set-env-vars=HOME_CENTER_MCP_EXTENDED_TOOLS=true \
-    --set-secrets=GOOGLE_OAUTH_CLIENT_ID=GOOGLE_OAUTH_CLIENT_ID:latest,GOOGLE_OAUTH_CLIENT_SECRET=GOOGLE_OAUTH_CLIENT_SECRET:latest,GITHUB_TOKEN=GITHUB_TOKEN:latest
+    --set-env-vars=HOME_CENTER_MCP_EXTENDED_TOOLS=true,COMMAND_CENTER_RENDER_SERVICE_URL="${COMMAND_CENTER_RENDER_SERVICE_URL:-https://command-center-blender-render-vxybsaualq-uc.a.run.app}",COMMAND_CENTER_RENDER_BUCKET="${COMMAND_CENTER_RENDER_BUCKET:-home-center-dclar-command-center-renders}",COMMAND_CENTER_MCP_URL="${COMMAND_CENTER_MCP_URL:-https://us-central1-home-center-dclar.cloudfunctions.net/commandCenterMcp/mcp}" \
+    --set-secrets=GOOGLE_OAUTH_CLIENT_ID=GOOGLE_OAUTH_CLIENT_ID:latest,GOOGLE_OAUTH_CLIENT_SECRET=GOOGLE_OAUTH_CLIENT_SECRET:latest,GITHUB_TOKEN=GITHUB_TOKEN:latest,CARTESIA_API_KEY=CARTESIA_API_KEY:latest
 }
 
 deploy_she_raw_mcp() {
