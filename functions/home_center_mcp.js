@@ -15,7 +15,7 @@ const {z} = require('zod/v4');
 const {CARTESIA_DEFAULT_MODEL_ID, CARTESIA_DEFAULT_VOICE_NAME, listCartesiaVoiceCatalog, listCartesiaVoices, normalizeCartesiaVoice, openCartesiaStream} = require('./hosted_speech_provider');
 const {renderBlenderGlb: commandCenterRenderBlenderGlb} = require('./command_center_mcp');
 const cartesiaPitchShift = require('./cartesia_pitch_shift');
-const {renderAudioOperation, inspectAudioArtifactsOperation} = require('./audio_render_service');
+const {renderAudioOperation, inspectAudioArtifactsOperation, uploadVerified: uploadVerifiedArtifact} = require('./audio_render_service');
 
 const DEFAULT_MCP_PUBLIC_BASE = 'https://us-central1-home-center-dclar.cloudfunctions.net/homeCenterMcp';
 const MCP_PUBLIC_BASE = process.env.HOME_CENTER_MCP_PUBLIC_BASE || DEFAULT_MCP_PUBLIC_BASE;
@@ -657,7 +657,7 @@ function renderReceiptWithoutInlinePayload(operationResult = {}, delivery = null
   return clean;
 }
 
-async function verifiedRenderGifMcpContent(result = {}, {storage = null} = {}) {
+async function verifiedRenderGifMcpContent(result = {}, {storage = null, google = null, auth = null, parentFolderId = ''} = {}) {
   const renderResult = safeObject(result);
   const loopingGifRef = safeText(renderResult.loopingGifRef, 1600);
   const expected = renderArtifactHashEntry(renderResult, 'walk-loop.gif');
@@ -665,9 +665,10 @@ async function verifiedRenderGifMcpContent(result = {}, {storage = null} = {}) {
   const expectedByteCount = Number(expected.byteCount || 0) || 0;
   const deliveryBase = {
     ok: false,
-    type: 'mcp_inline_media',
+    type: 'mcp_resource_link',
     mimeType: 'image/gif',
     artifactRef: loopingGifRef,
+    durableRef: '',
     byteCount: 0,
     sha256: '',
     expectedByteCount,
@@ -677,33 +678,26 @@ async function verifiedRenderGifMcpContent(result = {}, {storage = null} = {}) {
     errorCode: '',
     message: '',
   };
-  if (!loopingGifRef) return {contentBlock: null, delivery: {...deliveryBase, errorCode: 'render_inline_gif_missing_ref', message: 'Renderer did not return loopingGifRef.'}};
-  if (!expectedSha256 || !expectedByteCount) return {contentBlock: null, delivery: {...deliveryBase, errorCode: 'render_inline_gif_missing_hash', message: 'Renderer did not return walk-loop.gif byte count and SHA-256.'}};
-  if (expectedByteCount > HOME_CENTER_RENDER_INLINE_GIF_MAX_BYTES) return {contentBlock: null, delivery: {...deliveryBase, errorCode: 'render_inline_gif_too_large', message: 'Verified GIF exceeds configured inline media byte ceiling.'}};
+  if (!loopingGifRef) return {contentBlock: null, delivery: {...deliveryBase, errorCode: 'render_gif_resource_link_missing_ref', message: 'Renderer did not return loopingGifRef.'}};
+  if (!expectedSha256 || !expectedByteCount) return {contentBlock: null, delivery: {...deliveryBase, errorCode: 'render_gif_resource_link_missing_hash', message: 'Renderer did not return walk-loop.gif byte count and SHA-256.'}};
   const parsed = parseRenderGsRef(loopingGifRef);
   const client = storage || new Storage();
   const [bytes] = await client.bucket(parsed.bucket).file(parsed.name).download();
   const buffer = Buffer.isBuffer(bytes) ? bytes : Buffer.from(bytes);
   const readbackSha256 = sha256RenderBytes(buffer);
   if (buffer.length !== expectedByteCount || readbackSha256 !== expectedSha256) {
-    return {contentBlock: null, delivery: {...deliveryBase, byteCount: buffer.length, sha256: readbackSha256, errorCode: 'render_inline_gif_readback_mismatch', message: 'Private GCS GIF readback did not match renderer hash metadata.'}};
+    return {contentBlock: null, delivery: {...deliveryBase, byteCount: buffer.length, sha256: readbackSha256, errorCode: 'render_gif_resource_link_readback_mismatch', message: 'Private GCS GIF readback did not match renderer hash metadata.'}};
   }
-  const contentBlock = {
-    type: 'resource',
-    resource: {
-      uri: 'render-artifact://' + safeText(renderResult.renderId || renderResult.cacheKey || 'walk-loop', 240) + '/walk-loop.gif',
-      mimeType: 'image/gif',
-      blob: buffer.toString('base64'),
-    },
-    annotations: {audience: ['user'], priority: 1},
-  };
-  return {contentBlock, delivery: {...deliveryBase, ok: true, byteCount: buffer.length, sha256: readbackSha256, contentBlockType: contentBlock.type, message: 'Private GCS GIF readback verified and attached as MCP embedded resource image/gif content.'}};
+  if (!google || !auth) return {contentBlock: null, delivery: {...deliveryBase, ok: false, byteCount: buffer.length, sha256: readbackSha256, errorCode: 'render_gif_resource_link_auth_missing', message: 'Verified GIF readback succeeded, but authenticated Drive context was unavailable for resource_link creation.'}};
+  const uploaded = await uploadVerifiedArtifact({google, auth, parentFolderId, item: {name: 'walk-loop.gif', format: 'gif', mimeType: 'image/gif', bytes: buffer, byteCount: buffer.length, sha256: readbackSha256, clipMetrics: {}}});
+  const contentBlock = uploaded.chatGptFileRef;
+  return {contentBlock, delivery: {...deliveryBase, ok: true, durableRef: uploaded.durableRef, byteCount: uploaded.byteCount, sha256: uploaded.sha256, readbackByteCount: uploaded.readbackByteCount, readbackSha256: uploaded.readbackSha256, fileId: uploaded.fileId || '', contentBlockType: contentBlock.type, message: 'Private GCS GIF readback verified and attached as authenticated resource_link.'}};
 }
 
 async function attachRenderGifMcpContent(operationResult = {}, options = {}) {
   const cleanResult = JSON.parse(JSON.stringify(operationResult || {}));
   if (!cleanResult || cleanResult.operation !== 'render.blender_glb' || !cleanResult.result) return cleanResult;
-  const inline = await verifiedRenderGifMcpContent(cleanResult.result, options).catch((err) => ({contentBlock: null, delivery: {ok: false, type: 'mcp_inline_media', mimeType: 'image/gif', artifactRef: safeText(cleanResult.result && cleanResult.result.loopingGifRef, 1600), byteCount: 0, sha256: '', expectedByteCount: 0, expectedSha256: '', ceilingBytes: HOME_CENTER_RENDER_INLINE_GIF_MAX_BYTES, contentBlockType: '', errorCode: safeText(err && err.failureKind, 120) || 'render_inline_gif_delivery_failed', message: safeText(err && err.message, 500)}}));
+  const inline = await verifiedRenderGifMcpContent(cleanResult.result, options).catch((err) => ({contentBlock: null, delivery: {ok: false, type: 'mcp_resource_link', mimeType: 'image/gif', artifactRef: safeText(cleanResult.result && cleanResult.result.loopingGifRef, 1600), durableRef: '', byteCount: 0, sha256: '', expectedByteCount: 0, expectedSha256: '', ceilingBytes: HOME_CENTER_RENDER_INLINE_GIF_MAX_BYTES, contentBlockType: '', errorCode: safeText(err && err.failureKind, 120) || 'render_gif_resource_link_failed', message: safeText(err && err.message, 500)}}));
   cleanResult.result.inlineMediaDelivery = inline.delivery;
   const receipt = renderReceiptWithoutInlinePayload(cleanResult, inline.delivery);
   const content = [{type: 'text', text: jsonText(receipt)}];
@@ -1086,7 +1080,7 @@ async function commandCenterOperationRunOperation({google = null, admin = null, 
   const operation = safeText(args.operation || args.type || args.toolName, 120);
   const toolName = commandCenterToolName(operation);
   if (!operation) throw Object.assign(new Error('operation is required.'), {status: 400});
-  await requireCreditGatedContext({google, admin, googleClientId, googleClientSecret, extra, surface: 'command_center_operation'});
+  const context = await requireCreditGatedContext({google, admin, googleClientId, googleClientSecret, extra, surface: 'command_center_operation'});
   const operationArgs = args.args && typeof args.args === 'object' && !Array.isArray(args.args) ? {...args.args} : {...args};
   delete operationArgs.operation;
   delete operationArgs.type;
@@ -1095,7 +1089,7 @@ async function commandCenterOperationRunOperation({google = null, admin = null, 
   if (operation === 'render.blender_glb' && google && admin) {
     const materializedArgs = await materializeHomeCenterRenderSources({google, admin, googleClientId, googleClientSecret, extra, githubToken, args: operationArgs});
     const rendered = {operation, toolName, commandCenterMcpUrl: COMMAND_CENTER_MCP_URL, result: await commandCenterRenderBlenderGlb(admin, extra, materializedArgs)};
-    return attachRenderGifMcpContent(rendered);
+    return attachRenderGifMcpContent(rendered, {google, auth: context.auth, parentFolderId: safeText(operationArgs.parentFolderId, 220)});
   }
 
   const bearerToken = bearerTokenFromExtra(extra);
@@ -4546,7 +4540,7 @@ function createHomeCenterMcpServer({google, admin, googleClientId, googleClientS
     securitySchemes: MCP_OAUTH_SECURITY_SCHEMES,
     _meta: {securitySchemes: MCP_OAUTH_SECURITY_SCHEMES},
     annotations: {readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false},
-  }, async (args, extra) => mcpToolResult(await attachRenderGifMcpContent({operation: 'render.blender_glb', toolName: 'render_blender_glb', commandCenterMcpUrl: COMMAND_CENTER_MCP_URL, result: await renderBlenderGlbBridge({admin, extra, args: args || {}})})));
+  }, async (args, extra) => mcpToolResult(await (async () => { const context = await requestGoogleContext(extra, google, admin, googleClientId, googleClientSecret); return attachRenderGifMcpContent({operation: 'render.blender_glb', toolName: 'render_blender_glb', commandCenterMcpUrl: COMMAND_CENTER_MCP_URL, result: await renderBlenderGlbBridge({admin, extra, args: args || {}})}, {google, auth: context.auth, parentFolderId: safeText(args && args.parentFolderId, 220)}); })()));
 
   server.registerTool('cartesia_voices', {
     title: 'Cartesia voices',
@@ -6010,4 +6004,4 @@ function createHomeCenterMcpApp({google, admin, googleClientId = () => '', googl
   return app;
 }
 
-module.exports = {verifiedRenderGifMcpContent, attachRenderGifMcpContent, renderArtifactHashEntry, createHomeCenterMcpApp, createHomeCenterMcpServer, createDriveFolderOperation, createGoogleDocOperation, appendGoogleDocOperation, publishContextSnapshotOperation, synthesizeCartesiaAudioArtifactOperation, cartesiaVoicesOperation, createSheetOperation, updateSheetValuesOperation, importXlsxWorkbookOperation, driveOperationRunOperation, driveWorkflowRunOperation, simulationOperationRunOperation, simulationOperationRegistry, droobiedooContextOperationEntries, loadDroobiedooContextIndex, searchDroobiedooContextIndex, runDroobiedooContextOperation, normalizeRecoveryOperation, summarizeRecoveryOperations, loadMcpAccessContext, renderAudioOperation, inspectAudioArtifactsOperation, materializeHomeCenterRenderDriveRefs, materializeHomeCenterRenderSources, stageHomeCenterGitHubRenderInput, normalizeRenderGitHubSource, githubAdminOperationEntries, githubAdminOperationRunOperation, createGitHubAppJwt};
+module.exports = {verifiedRenderGifMcpContent, attachRenderGifMcpContent, renderArtifactHashEntry, uploadVerifiedArtifact, createHomeCenterMcpApp, createHomeCenterMcpServer, createDriveFolderOperation, createGoogleDocOperation, appendGoogleDocOperation, publishContextSnapshotOperation, synthesizeCartesiaAudioArtifactOperation, cartesiaVoicesOperation, createSheetOperation, updateSheetValuesOperation, importXlsxWorkbookOperation, driveOperationRunOperation, driveWorkflowRunOperation, simulationOperationRunOperation, simulationOperationRegistry, droobiedooContextOperationEntries, loadDroobiedooContextIndex, searchDroobiedooContextIndex, runDroobiedooContextOperation, normalizeRecoveryOperation, summarizeRecoveryOperations, loadMcpAccessContext, renderAudioOperation, inspectAudioArtifactsOperation, materializeHomeCenterRenderDriveRefs, materializeHomeCenterRenderSources, stageHomeCenterGitHubRenderInput, normalizeRenderGitHubSource, githubAdminOperationEntries, githubAdminOperationRunOperation, createGitHubAppJwt};
