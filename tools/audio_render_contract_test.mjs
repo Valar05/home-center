@@ -238,7 +238,7 @@ assert.equal(collectionStore('driveBridgeAudit').get('audio-render-contract-001'
 const expectedArtifacts = routed.result.outputs.map((item) => ({durableRef: item.durableRef, byteCount: item.byteCount, sha256: item.sha256}));
 const inspected = await driveOperationRunOperation({
   google: fakeGoogle(), admin, auth: {}, user: {email: 'dclarke1005@gmail.com', authKind: 'google_oauth_bearer'},
-  args: {operation: 'audio.render_artifacts', args: {artifactRefs: expectedArtifacts.map((item) => item.durableRef), expected: expectedArtifacts}},
+  args: {operation: 'audio.render_artifacts', args: {artifactRefs: expectedArtifacts.map((item) => item.durableRef), expected: expectedArtifacts, decodeCheck: true}},
 });
 assert.equal(inspected.operation, 'audio.render_artifacts');
 assert.equal(inspected.completed, true);
@@ -247,6 +247,8 @@ assert.equal(inspected.result.artifactCount, expectedArtifacts.length);
 assert.ok(inspected.result.artifacts.some((item) => item.header.container === 'wav' && item.header.valid));
 assert.ok(inspected.result.artifacts.some((item) => item.header.container === 'ogg' && item.header.valid));
 assert.ok(inspected.result.artifacts.every((item) => item.sha256Matches && item.byteCountMatches));
+assert.equal(inspected.result.decodeCheck, true);
+assert.ok(inspected.result.artifacts.filter((item) => /^audio\//.test(item.mimeType)).every((item) => item.decodeCheck && item.decodeCheck.ok));
 const mismatch = await driveOperationRunOperation({
   google: fakeGoogle(), admin, auth: {}, user: {email: 'dclarke1005@gmail.com', authKind: 'google_oauth_bearer'},
   args: {operation: 'audio.render_artifacts', args: {artifactRefs: [expectedArtifacts[0].durableRef], expected: [{...expectedArtifacts[0], sha256: '0'.repeat(64)}]}},

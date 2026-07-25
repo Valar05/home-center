@@ -3521,8 +3521,8 @@ function driveOperationRegistry() {
         summary: 'Read back audio.render durable artifact refs through Home Center MCP Google OAuth, verify byte count/SHA-256 against expected receipt metadata, and return redacted container/header evidence. This is the direct verifier for ChatGPT-side acceptance and does not expose Drive OAuth tokens or signed URLs.',
         write: false,
         requiredScopes: ['https://www.googleapis.com/auth/drive'],
-        input: {artifactRefs: 'array of drive:// refs returned by audio.render', expected: 'optional array with durableRef/ref, byteCount, and sha256 values from the render receipt'},
-        output: {ok: 'boolean', artifactCount: 'number', artifacts: 'array with name, MIME, byteCount, sha256, match booleans, and WAV/OGG/PNG header evidence'},
+        input: {artifactRefs: 'array of drive:// refs returned by audio.render', expected: 'optional array with durableRef/ref, byteCount, and sha256 values from the render receipt', decodeCheck: 'optional boolean; when true Home Center decodes WAV directly and encoded audio with deployed FFmpeg after authorized Drive readback'},
+        output: {ok: 'boolean', artifactCount: 'number', decodeCheck: 'boolean', artifacts: 'array with name, MIME, byteCount, sha256, match booleans, WAV/OGG/PNG header evidence, and optional decodeCheck evidence'},
       },
       'tts.synthesize': {
         summary: 'Synthesize one or more speaker segments with Cartesia directly, stitch them into one audio file, save it as a private Drive artifact, verify readback byte count and SHA-256, and audit the write. No Command Center job or worker is involved.',
