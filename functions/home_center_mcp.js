@@ -8,6 +8,12 @@ const {normalizeObjectSchema} = require('./node_modules/@modelcontextprotocol/sd
 const {toJsonSchemaCompat} = require('./node_modules/@modelcontextprotocol/sdk/dist/cjs/server/zod-json-schema-compat.js');
 const express = require('express');
 const {z} = require('zod/v4');
+const {
+  CALENDAR_SCOPE: SMS_CALENDAR_SCOPE,
+  GMAIL_SCOPE: SMS_GMAIL_SCOPE,
+  registry: smsCalendarOperationRegistry,
+  runOperation: smsCalendarOperationRunOperation,
+} = require('./sms_calendar_intake');
 
 const DEFAULT_MCP_PUBLIC_BASE = 'https://us-central1-home-center-dclar.cloudfunctions.net/homeCenterMcp';
 const MCP_PUBLIC_BASE = process.env.HOME_CENTER_MCP_PUBLIC_BASE || DEFAULT_MCP_PUBLIC_BASE;
@@ -22,6 +28,8 @@ const MCP_REQUIRED_SCOPES = [
   'https://www.googleapis.com/auth/drive',
   'https://www.googleapis.com/auth/documents',
   'https://www.googleapis.com/auth/spreadsheets',
+  SMS_GMAIL_SCOPE,
+  SMS_CALENDAR_SCOPE,
 ];
 const MCP_OAUTH_SECURITY_SCHEMES = [{type: 'oauth2', scopes: MCP_REQUIRED_SCOPES}];
 
@@ -3002,7 +3010,7 @@ function commandCenterDriveOperationEntries() {
 
 function driveOperationRegistry() {
   return {
-    version: '2026-07-13.context-sync-publish-v1',
+    version: '2026-07-25.sms-calendar-intake-v1',
     invocationTool: 'drive_operation',
     cachePolicy: 'New bridge, simulation, and Command Center operations should be invokable through drive_operation so ChatGPT does not need a top-level MCP tool refresh for every backend code change. Agents should rediscover this registry through capabilities or health before claiming an operation is unavailable.',
     operations: {
@@ -3082,6 +3090,7 @@ function driveOperationRegistry() {
         requiredScopes: ['https://www.googleapis.com/auth/drive'],
         input: {fileId: 'string', newName: 'string', requestId: 'string', callerNote: 'optional string'},
       },
+      ...smsCalendarOperationRegistry().operations,
       ...githubAdminOperationEntries(),
       ...simulationOperationRegistry().operations,
       ...commandCenterDriveOperationEntries(),
@@ -3129,6 +3138,10 @@ async function driveOperationRunOperation({google, admin, auth, user, extra = nu
   }
   if (operation.startsWith('command_center.')) {
     const result = await commandCenterOperationRunOperation({extra, args: {operation, args: operationArgs}});
+    return {operation, registryVersion: registry.version, completed: true, result: result.result};
+  }
+  if (smsCalendarOperationRegistry().operations[operation]) {
+    const result = await smsCalendarOperationRunOperation({google, admin, auth, user, args: {operation, args: operationArgs}});
     return {operation, registryVersion: registry.version, completed: true, result: result.result};
   }
   if (githubAdminOperationEntries()[operation]) {
@@ -3295,6 +3308,14 @@ function createHomeCenterMcpServer({google, admin, googleClientId, googleClientS
       preferredSimulationTool: 'drive_operation',
       preferredCommandCenterTool: 'command_center_operation',
       automaticDiscovery: {
+        smsCalendar: {
+          product: 'permissioned Google Messages notification intake for Gmail and Google Calendar reconciliation',
+          primaryTool: 'drive_operation',
+          registryVersion: smsCalendarOperationRegistry().version,
+          minimalInboxCall: {tool: 'drive_operation', operation: 'sms_calendar.inbox', args: {status: 'pending', limit: 20}},
+          authorityBoundary: smsCalendarOperationRegistry().authorityBoundary,
+          setupBoundary: 'The Android Home Center APK must be installed on June\'s phone and June must explicitly enable notification access. No real messages are captured before that.',
+        },
         commandCenter: {
           product: 'cloud MCP control plane for durable Codex worker dispatch',
           noFrontend: true,
