@@ -1,0 +1,26 @@
+{
+  "name": "Home Center Cloud Workspace",
+  "image": "mcr.microsoft.com/devcontainers/javascript-node:1-20-bookworm",
+  "features": {
+    "ghcr.io/devcontainers/features/java:1": {
+      "version": "17",
+      "installGradle": "true",
+      "gradleVersion": "8.14.3"
+    },
+    "ghcr.io/devcontainers/features/github-cli:1": {},
+    "ghcr.io/devcontainers/features/google-cloud-cli:1": {}
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "github.vscode-github-actions",
+        "redhat.vscode-yaml",
+        "vscjava.vscode-java-pack"
+      ]
+    }
+  },
+  "postCreateCommand": "npm --prefix functions ci || npm --prefix functions install",
+  "remoteEnv": {
+    "FIREBASE_PROJECT": "home-center-dclar"
+  }
+}

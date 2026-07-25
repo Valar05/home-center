@@ -1,0 +1,44 @@
+name: Deploy Home Center MCP
+
+on:
+  workflow_dispatch:
+    inputs:
+      project:
+        description: GCP project id
+        required: true
+        default: home-center-dclar
+      region:
+        description: GCP region
+        required: true
+        default: us-central1
+      confirm:
+        description: Type deploy to confirm
+        required: true
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  deploy:
+    if: ${{ inputs.confirm == 'deploy' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: functions/package-lock.json
+      - run: npm --prefix functions ci
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GCP_DEPLOY_SERVICE_ACCOUNT }}
+      - uses: google-github-actions/setup-gcloud@v2
+      - name: Deploy homeCenterMcp
+        env:
+          GCLOUD_FUNCTIONS_REGION: ${{ inputs.region }}
+          COMMAND_CENTER_MCP_URL: https://${{ inputs.region }}-${{ inputs.project }}.cloudfunctions.net/commandCenterMcp/mcp
+        run: sh tools/deploy_functions_termux.sh "${{ inputs.project }}" homeCenterMcp

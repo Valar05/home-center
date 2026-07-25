@@ -1,0 +1,24 @@
+name: Live acceptance evidence
+description: Capture proof that a deployed workflow works end to end
+title: "Acceptance: "
+labels: [acceptance, evidence]
+body:
+  - type: textarea
+    id: claim
+    attributes:
+      label: Claim
+      description: What is being accepted?
+    validations:
+      required: true
+  - type: textarea
+    id: authorities
+    attributes:
+      label: Authorities
+      description: Repository, execution, visual, human, or provider evidence.
+    validations:
+      required: true
+  - type: textarea
+    id: artifacts
+    attributes:
+      label: Artifact links and hashes
+      description: Durable URLs, SHAs, logs, reports, and rollback notes.
