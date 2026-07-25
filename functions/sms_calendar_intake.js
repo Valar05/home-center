@@ -30,6 +30,16 @@ function statusError(status, message) {
   return Object.assign(new Error(message), {status});
 }
 
+function auditDocumentId(operation, bucketId, id, rid) {
+  const identity = [
+    text(operation, 120),
+    text(bucketId, 200),
+    messageId(id),
+    requestId(rid),
+  ].join('\n');
+  return createHash('sha256').update(identity).digest('hex');
+}
+
 function messageId(value) {
   const clean = text(value, 160);
   if (!/^sms_[a-f0-9]{32,64}$/.test(clean)) {
@@ -276,9 +286,9 @@ async function calendarMatches(google, auth, record, args) {
   }));
 }
 
-async function auditOnce(admin, id, payload, apply) {
+async function auditOnce(admin, auditId, rid, payload, apply) {
   const db = admin.firestore();
-  const ref = db.collection('smsCalendarAudit').doc(createHash('sha256').update(id).digest('hex'));
+  const ref = db.collection('smsCalendarAudit').doc(auditId);
   const existing = await ref.get();
   if (existing.exists && existing.data().status === 'success') {
     return {idempotent: true, ...(existing.data().result || {}), auditId: ref.id};
@@ -286,7 +296,7 @@ async function auditOnce(admin, id, payload, apply) {
   const result = await apply();
   await ref.set({
     ...payload,
-    requestId: id,
+    requestId: rid,
     status: 'success',
     createdAtMs: Date.now(),
     result,
@@ -407,7 +417,7 @@ async function runOperation({google, admin, auth, user, args = {}, authorize = a
   if (operation === 'sms_calendar.propose') {
     const proposal = validateProposal(operationArgs);
     const rid = requestId(operationArgs.requestId);
-    const result = await auditOnce(admin, rid, {
+    const result = await auditOnce(admin, auditDocumentId(operation, resolved.bucketId, id, rid), rid, {
       operation,
       actor: normalizeEmail(user && user.email),
       messageId: id,
@@ -426,7 +436,7 @@ async function runOperation({google, admin, auth, user, args = {}, authorize = a
     const rid = requestId(operationArgs.requestId);
     const reason = text(operationArgs.reason, 2000);
     if (!reason) throw statusError(400, 'reason is required.');
-    const result = await auditOnce(admin, rid, {
+    const result = await auditOnce(admin, auditDocumentId(operation, resolved.bucketId, id, rid), rid, {
       operation,
       actor: normalizeEmail(user && user.email),
       messageId: id,
@@ -443,7 +453,7 @@ async function runOperation({google, admin, auth, user, args = {}, authorize = a
   }
   if (operation === 'sms_calendar.create_event') {
     const rid = requestId(operationArgs.requestId);
-    const result = await auditOnce(admin, rid, {
+    const result = await auditOnce(admin, auditDocumentId(operation, resolved.bucketId, id, rid), rid, {
       operation,
       actor: normalizeEmail(user && user.email),
       messageId: id,
@@ -458,6 +468,7 @@ module.exports = {
   CALENDAR_SCOPE,
   GMAIL_SCOPE,
   REGISTRY_VERSION,
+  auditDocumentId,
   authorizedBucketIds,
   extractAliases,
   messageId,
