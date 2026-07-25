@@ -12,20 +12,9 @@ else
   FUNCTIONS="commandCenterMcp homeCenterMcp"
 fi
 
-secret_exists() {
-  gcloud secrets describe "$1" --project="$PROJECT" >/dev/null 2>&1
-}
-
 home_center_mcp_secrets_arg() {
-  secrets="GOOGLE_OAUTH_CLIENT_ID=GOOGLE_OAUTH_CLIENT_ID:latest,GOOGLE_OAUTH_CLIENT_SECRET=GOOGLE_OAUTH_CLIENT_SECRET:latest,GITHUB_TOKEN=GITHUB_TOKEN:latest"
-  for secret in GITHUB_BOOTSTRAP_TOKEN GITHUB_APP_ID GITHUB_APP_INSTALLATION_ID GITHUB_APP_PRIVATE_KEY; do
-    if secret_exists "$secret"; then
-      secrets="$secrets,$secret=$secret:latest"
-    fi
-  done
-  printf '%s' "$secrets"
+  printf '%s' 'GOOGLE_OAUTH_CLIENT_ID=GOOGLE_OAUTH_CLIENT_ID:latest,GOOGLE_OAUTH_CLIENT_SECRET=GOOGLE_OAUTH_CLIENT_SECRET:latest,GITHUB_TOKEN=GITHUB_TOKEN:latest,GITHUB_BOOTSTRAP_TOKEN=GITHUB_BOOTSTRAP_TOKEN:latest,GITHUB_APP_ID=GITHUB_APP_ID:latest,GITHUB_APP_INSTALLATION_ID=GITHUB_APP_INSTALLATION_ID:latest,GITHUB_APP_PRIVATE_KEY=GITHUB_APP_PRIVATE_KEY:latest'
 }
-
 deploy_command_center_mcp() {
   gcloud functions deploy commandCenterMcp \
     --gen2 \
