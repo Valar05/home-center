@@ -20,19 +20,31 @@ function throwsMessage(fn, text) {
 function pixelText(file) {
   return run('convert', [file, 'txt:-']);
 }
+function isTransparentPixelLine(line) {
+  const lower = line.toLowerCase();
+  if (!/^\d+,\d+:/.test(lower)) return true;
+  if (lower.includes('none') || lower.includes('transparent')) return true;
+  if (/#(?:[0-9a-f]{6})00\b/i.test(line)) return true;
+  const rgba = lower.match(/(?:srgba|rgba)\(([^)]*)\)/);
+  if (rgba) {
+    const parts = rgba[1].split(',').map((part) => part.trim());
+    const alphaRaw = parts[3] || '1';
+    const alpha = alphaRaw.endsWith('%') ? Number(alphaRaw.slice(0, -1)) / 100 : Number(alphaRaw);
+    return !(alpha > 0);
+  }
+  return false;
+}
 function nonTransparentPixels(file) {
   const pixels = [];
   for (const line of pixelText(file).split('\n')) {
-    const match = line.match(/^(\d+),(\d+):.*(?:srgba|rgba)\(([^)]*)\)/i);
-    if (!match) continue;
-    const x = Number(match[1]);
-    const y = Number(match[2]);
-    const parts = match[3].split(',').map((part) => part.trim());
-    const alphaRaw = parts[3] || '1';
-    const alpha = alphaRaw.endsWith('%') ? Number(alphaRaw.slice(0, -1)) / 100 : Number(alphaRaw);
-    if (alpha > 0) pixels.push({x, y, text: line});
+    const match = line.match(/^(\d+),(\d+):/);
+    if (!match || isTransparentPixelLine(line)) continue;
+    pixels.push({x: Number(match[1]), y: Number(match[2]), text: line});
   }
   return pixels;
+}
+function pixelLineAt(file, x, y) {
+  return run('convert', [file, '-crop', `1x1+${x}+${y}`, 'txt:-']).split('\n').find((line) => /^0,0:/.test(line)) || '';
 }
 function bounds(pixels) {
   return {
@@ -47,12 +59,11 @@ function assertOneSprite(file, expected) {
   assert.equal(pixels.length, 64, `${path.basename(file)} should contain exactly one 8x8 sprite`);
   assert.deepEqual(bounds(pixels), {x: expected.x, y: expected.y, w: 8, h: 8});
   for (const prior of positions) {
-    const center = run('convert', [file, '-format', `%[pixel:p{${prior.x + 3},${prior.y + 3}}]`, 'info:']).trim();
+    const center = pixelLineAt(file, prior.x + 3, prior.y + 3);
     if (prior.index === expected.index) {
-      assert.match(center, /srgb|srgba|rgba/i, 'selected sprite center should be nontransparent');
-      assert.doesNotMatch(center, /\b0\)$/i, 'selected sprite center should not be alpha zero');
+      assert.equal(isTransparentPixelLine(center), false, 'selected sprite center should be nontransparent');
     } else {
-      assert.match(center, /none|transparent|rgba\(0,0,0,0\)|srgba\([^)]*,0\)/i, `excluded/prior sprite position ${prior.index} leaked into ${expected.index}: ${center}`);
+      assert.equal(isTransparentPixelLine(center), true, `excluded/prior sprite position ${prior.index} leaked into ${expected.index}: ${center}`);
     }
   }
 }
