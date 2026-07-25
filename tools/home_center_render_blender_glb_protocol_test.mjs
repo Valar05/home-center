@@ -10,7 +10,7 @@ const {
   createHomeCenterMcpServer,
 } = require('../functions/home_center_mcp.js');
 
-assert.match(HOME_CENTER_CONNECTOR_SCHEMA_REVISION, /^2026-07-25\.blender-direct-file-catalog-v1$/);
+assert.match(HOME_CENTER_CONNECTOR_SCHEMA_REVISION, /^2026-07-25\.blender-direct-file-catalog-v2$/);
 assert.equal(HOME_CENTER_REGISTRY_VERSION, HOME_CENTER_CONNECTOR_SCHEMA_REVISION);
 assert.deepEqual([...HOME_CENTER_DIRECT_FILE_TOOLS], ['render_blender_glb']);
 
@@ -28,11 +28,13 @@ const schema = tool.inputSchema || {};
 const props = schema.properties || {};
 assert.deepEqual(schema.required, ['idempotencyKey', 'glbFile', 'scriptFile']);
 assert.equal(props.glbFile?.format, 'binary');
-assert.equal(props.glbFile?.contentEncoding, 'binary');
-assert.match(props.glbFile?.description || '', /top-level uploaded binary GLB file/i);
+assert.equal(props.glbFile?.contentEncoding, undefined, 'ChatGPT host-file catalog schema must not publish JSON contentEncoding for binary upload slots');
+assert.equal(props.glbFile?.contentMediaType, 'model/gltf-binary');
+assert.match(props.glbFile?.description || '', /top-level host-file upload.*binary GLB/i);
 assert.equal(props.scriptFile?.format, 'binary');
-assert.equal(props.scriptFile?.contentEncoding, 'binary');
-assert.match(props.scriptFile?.description || '', /top-level uploaded Blender Python/i);
+assert.equal(props.scriptFile?.contentEncoding, undefined, 'ChatGPT host-file catalog schema must not publish JSON contentEncoding for binary upload slots');
+assert.equal(props.scriptFile?.contentMediaType, 'text/x-python');
+assert.match(props.scriptFile?.description || '', /top-level host-file upload.*Blender Python/i);
 assert.equal(props.glbRef, undefined, 'direct tool must not advertise glbRef');
 assert.equal(props.scriptRef, undefined, 'direct tool must not advertise scriptRef');
 assert.equal(props.scriptText, undefined, 'direct tool must not advertise scriptText');
@@ -45,6 +47,8 @@ assert.equal(health.catalogCacheKey, HOME_CENTER_CONNECTOR_SCHEMA_REVISION);
 assert.deepEqual(health.directFileTools, ['render_blender_glb']);
 assert.deepEqual(health.directToolContracts.render_blender_glb.required, ['idempotencyKey', 'glbFile', 'scriptFile']);
 assert.equal(health.directToolContracts.render_blender_glb.binaryInputs.glbFile.format, 'binary');
+assert.equal(health.directToolContracts.render_blender_glb.binaryInputs.glbFile.contentMediaType, 'model/gltf-binary');
+assert.equal(health.directToolContracts.render_blender_glb.binaryInputs.glbFile.contentEncoding, undefined);
 assert.equal(health.discoverability.topLevelDirectTools.render_blender_glb.status, 'published');
 assert.equal(health.discoverability.commandCenter.registryVersion, HOME_CENTER_REGISTRY_VERSION);
 
