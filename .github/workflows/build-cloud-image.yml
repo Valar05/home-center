@@ -45,8 +45,8 @@ jobs:
               image="${{ inputs.region }}-docker.pkg.dev/${{ inputs.project }}/command-center-workers/debian-codex:${{ inputs.tag }}"
               ;;
             cloud-render)
-              echo "cloud-render/cloudbuild.yaml is not present on this branch." >&2
-              exit 2
+              config="cloud-render/cloudbuild.yaml"
+              image="${{ inputs.region }}-docker.pkg.dev/${{ inputs.project }}/command-center-workers/blender-render:${{ inputs.tag }}"
               ;;
             *) echo "Unsupported target: $target" >&2; exit 2 ;;
           esac

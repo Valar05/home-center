@@ -1,0 +1,14 @@
+{
+  "name": "home-center-command-center-blender-render",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Non-agent Blender render service for Command Center MCP GLB/script artifact bundles.",
+  "scripts": {
+    "check": "node --check src/server.mjs && node --check src/render_bundle.mjs"
+  },
+  "dependencies": {
+    "@google-cloud/storage": "^7.16.0",
+    "googleapis": "^144.0.0"
+  }
+}
