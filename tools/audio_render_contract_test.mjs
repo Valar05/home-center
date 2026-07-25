@@ -12,13 +12,40 @@ assert(homeCenterSource.includes("'audio.render_artifacts'"), 'operation registr
 assert(homeCenterSource.includes('renderAudioOperation({google, admin, auth, user'), 'drive_operation must dispatch audio.render directly');
 assert(!/audio\.render[\s\S]{0,500}commandCenterOperationRunOperation/.test(homeCenterSource), 'audio.render must not route through Command Center');
 assert(homeCenterSource.includes('structured inline-playable MCP audio block'), 'registry must advertise inline playable audio');
+assert(homeCenterSource.includes('speech and audition nodes'), 'registry must advertise speech and audition recipe nodes');
+assert(homeCenterSource.includes("requireCreditGatedEmail(user && user.email, 'audio.render')"), 'audio.render credit-capable path must be approved-account gated');
 
 const {driveOperationRunOperation, createHomeCenterMcpServer} = require('../functions/home_center_mcp.js');
-const {sanitizeRecipeText, renderRecipe, materializeSources, primitives} = require('../functions/audio_render_service.js');
+const cartesiaPitchShift = require('../functions/cartesia_pitch_shift.js');
+const {sanitizeRecipeText, renderRecipe, materializeSources, resolveSpeechProfile, CARTESIA_SUPPORTED_EMOTIONS, primitives} = require('../functions/audio_render_service.js');
 
 const {tone, noise, silence, trim, concat, loop, fade, crossfade, gain, normalizePeak, normalizeLufs, pan, pitchShift, timeStretch, reverse, biquadLike, compress, limit, distort, delay, reverb, envelope, timeline, duck, resample, toChannels, encodeWav, decodeWav, waveformPng, spectrogramPng, measure} = primitives;
 
 function sha256(buffer) { return createHash('sha256').update(buffer).digest('hex'); }
+
+function pcm16Tone(sampleRate = 16000, duration = 0.24, frequency = 330) {
+  const frames = Math.round(sampleRate * duration);
+  const out = Buffer.alloc(frames * 2);
+  for (let i = 0; i < frames; i++) {
+    const sample = Math.sin(2 * Math.PI * frequency * i / sampleRate) * 0.32;
+    out.writeInt16LE(Math.round(sample * 32767), i * 2);
+  }
+  return out;
+}
+
+const cartesiaCalls = [];
+globalThis.fetch = async (url, options = {}) => {
+  assert.ok(String(url).includes('/tts/bytes'), 'audio.render speech tests must call Cartesia TTS bytes only');
+  const body = JSON.parse(String(options.body || '{}'));
+  cartesiaCalls.push({url: String(url), body});
+  const pcm = pcm16Tone(body.output_format && body.output_format.sample_rate || 16000, 0.24 + cartesiaCalls.length * 0.01, 300 + cartesiaCalls.length * 25);
+  return {ok: true, status: 200, text: async () => '', arrayBuffer: async () => pcm.buffer.slice(pcm.byteOffset, pcm.byteOffset + pcm.byteLength)};
+};
+const pitchCalls = [];
+cartesiaPitchShift.setPitchShiftImplementationForTest(async (pcm, options = {}) => {
+  pitchCalls.push({...options, byteCount: pcm.length});
+  return {pcm, bypassed: false, processor: 'test-pitch', pitchScale: Math.pow(2, options.pitchSemitones / 12), inputFrames: pcm.length / 2, outputFrames: pcm.length / 2, durationRatio: 1};
+});
 async function readableToBuffer(readable) {
   const chunks = [];
   for await (const chunk of readable) chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk));
@@ -108,6 +135,67 @@ assert.equal(materialized.dialogue.sha256, sha256(wav));
 assert.equal(materialized.dialogue.decoded.channelCount, 2);
 await assert.rejects(() => materializeSources({sources: {bad: {contentBase64: inlineSource, mimeType: 'audio/wav', sha256: '0'.repeat(64)}}}), /sha256 mismatch/);
 await assert.rejects(() => materializeSources({sources: {net: {ref: 'https://example.com/a.wav'}}}), /Unsupported source ref provider/);
+
+
+const isaacProfile = resolveSpeechProfile({character: 'Isaac', emotion: 'hurt'});
+assert.equal(isaacProfile.voiceName, 'Clyde - Calm Narrator');
+assert.equal(isaacProfile.voiceId, '98a34ef2-2140-4c28-9c71-663dc4dd7022');
+assert.equal(isaacProfile.modelId, 'sonic-3.5');
+assert.equal(isaacProfile.speed, 0.97);
+assert.equal(isaacProfile.pitchSemitones, -1.5);
+assert.ok(CARTESIA_SUPPORTED_EMOTIONS.includes('rejected'));
+const overriddenProfile = resolveSpeechProfile({character: 'isaac', voiceName: 'Override Voice', voiceId: 'voice-123', modelId: 'model-x', speed: 1.1, volume: 0.8, pitchSemitones: -2, emotion: 'distant'});
+assert.equal(overriddenProfile.voiceId, 'voice-123');
+assert.equal(overriddenProfile.speed, 1.1);
+assert.equal(overriddenProfile.volume, 0.8);
+assert.equal(overriddenProfile.pitchSemitones, -2);
+assert.throws(() => resolveSpeechProfile({character: 'isaac', emotion: 'gleefully_fake'}), /emotion must be one of/);
+assert.throws(() => resolveSpeechProfile({character: 'isaac', speed: '1.0'}), /speed must be a finite number/);
+assert.throws(() => resolveSpeechProfile({character: 'isaac', volume: 3}), /volume must be a finite number/);
+
+const beforeSpeechCalls = cartesiaCalls.length;
+const speechRecipe = {
+  seed: 'speech-contract', sampleRate: 16000,
+  graph: [
+    {id: 'line', op: 'speech', text: '<speak>You cheated on me.</speak>', character: 'Isaac', emotion: 'hurt'},
+    {id: 'room', op: 'noise', duration: 1.0, channels: 1, gain: 0.02, seed: 'room', color: 'brown'},
+    {id: 'room_ducked', op: 'duck', mix: 'room', keyedBy: 'line', amountDb: 7},
+    {id: 'treated', op: 'timeline', duration: 1.2, channels: 2, items: [{clip: 'room_ducked', at: 0, gainDb: -18}, {clip: 'line', at: 0.35, gainDb: -1}]},
+    {id: 'final', op: 'limit', clip: 'treated', ceilingDb: -1},
+  ],
+  final: 'final',
+  outputs: [
+    {name: 'toast-hurt.wav', format: 'wav', clip: 'line'},
+    {name: 'toast-hurt.ogg', format: 'ogg', clip: 'line'},
+    {name: 'toast-treated.wav', format: 'wav', clip: 'final'},
+  ],
+};
+const speechRendered = await renderRecipe(speechRecipe, {}, {timeoutMs: 20000, cartesiaApiKey: () => 'test-cartesia-key'});
+assert.equal(cartesiaCalls.length, beforeSpeechCalls + 1, 'speech node must call Cartesia exactly once');
+assert.equal(cartesiaCalls.at(-1).body.voice.id, '98a34ef2-2140-4c28-9c71-663dc4dd7022');
+assert.equal(cartesiaCalls.at(-1).body.model_id, 'sonic-3.5');
+assert.deepEqual(cartesiaCalls.at(-1).body.generation_config, {emotion: 'hurt', speed: 0.97});
+assert.ok(pitchCalls.some((call) => call.pitchSemitones === -1.5), 'Isaac speech must use canonical pitch processor');
+assert.equal(speechRendered.usesCartesia, true);
+assert.equal(speechRendered.speechProvenance[0].voiceName, 'Clyde - Calm Narrator');
+assert.equal(speechRendered.speechProvenance[0].emotionRequested, 'hurt');
+assert.equal(speechRendered.speechProvenance[0].durationRatio, 1);
+assert.equal(speechRendered.speechProvenance[0].ssmlCompatible, true);
+assert.ok(speechRendered.rendered.find((item) => item.name === 'toast-hurt.ogg'));
+
+const callsBeforeInvalid = cartesiaCalls.length;
+await assert.rejects(() => renderRecipe({sampleRate: 16000, graph: [{id: 'bad', op: 'speech', text: 'bad', character: 'isaac', emotion: 'notreal'}], final: 'bad'}, {}, {cartesiaApiKey: () => 'test'}), /emotion must be one of/);
+assert.equal(cartesiaCalls.length, callsBeforeInvalid, 'invalid speech controls must fail before provider invocation');
+await assert.rejects(() => renderRecipe({sampleRate: 16000, graph: [{id: 'bad', op: 'speech', text: 'bad', character: 'isaac', pitchSemitones: '1'}], final: 'bad'}, {}, {cartesiaApiKey: () => 'test'}), /pitchSemitones must be a finite number/);
+assert.equal(cartesiaCalls.length, callsBeforeInvalid, 'invalid pitch must fail before provider invocation');
+
+const auditionStart = cartesiaCalls.length;
+const auditionRecipe = {sampleRate: 16000, graph: [{id: 'takes', op: 'audition', text: 'You cheated on me.', character: 'isaac', emotions: ['neutral', 'hurt', 'rejected'], pauseSeconds: 0.1}], final: 'takes', outputs: [{name: 'takes.wav', format: 'wav', clip: 'takes'}, {name: 'take-neutral.wav', format: 'wav', clip: 'takes_neutral'}, {name: 'take-hurt.wav', format: 'wav', clip: 'takes_hurt'}]};
+const auditionRendered = await renderRecipe(auditionRecipe, {}, {timeoutMs: 20000, cartesiaApiKey: () => 'test'});
+assert.equal(cartesiaCalls.length, auditionStart + 3, 'audition must synthesize each emotion as a separate provider context');
+assert.deepEqual(cartesiaCalls.slice(auditionStart).map((call) => call.body.generation_config.emotion), ['neutral', 'hurt', 'rejected']);
+assert.equal(auditionRendered.auditionTakes.length, 3);
+assert.equal(auditionRendered.rendered.filter((item) => /take-/.test(item.name)).length, 2);
 
 const recipe = {
   seed: 'contract-seed', sampleRate: 16000,

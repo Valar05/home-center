@@ -247,11 +247,22 @@ async function openCartesiaStream(text, options = {}) {
   const voiceId = resolvedVoice.voiceId;
   const modelId = safeText(options.modelId || process.env.CARTESIA_MODEL_ID || CARTESIA_DEFAULT_MODEL_ID, 120) || CARTESIA_DEFAULT_MODEL_ID;
   const outputFormat = cartesiaOutputFormat(options.outputFormat || options);
+  const generationConfig = options.generationConfig && typeof options.generationConfig === 'object' && !Array.isArray(options.generationConfig)
+    ? Object.fromEntries(Object.entries(options.generationConfig).filter(([, value]) => value !== undefined && value !== null && value !== ''))
+    : {};
+  const body = {
+    model_id: modelId,
+    transcript: text,
+    voice: {mode: 'id', id: voiceId},
+    output_format: outputFormat,
+  };
+  if (Object.keys(generationConfig).length) body.generation_config = generationConfig;
   return {
     voiceName,
     voiceId,
     modelId,
     outputFormat,
+    generationConfig,
     response: await fetch('https://api.cartesia.ai/tts/bytes', {
       method: 'POST',
       headers: {
@@ -260,12 +271,7 @@ async function openCartesiaStream(text, options = {}) {
         'Accept': 'application/octet-stream',
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        model_id: modelId,
-        transcript: text,
-        voice: {mode: 'id', id: voiceId},
-        output_format: outputFormat,
-      }),
+      body: JSON.stringify(body),
     }),
   };
 }
