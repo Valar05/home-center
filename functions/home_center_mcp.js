@@ -12,7 +12,7 @@ const {normalizeObjectSchema} = require('./node_modules/@modelcontextprotocol/sd
 const {toJsonSchemaCompat} = require('./node_modules/@modelcontextprotocol/sdk/dist/cjs/server/zod-json-schema-compat.js');
 const express = require('express');
 const {z} = require('zod/v4');
-const {CARTESIA_DEFAULT_MODEL_ID, CARTESIA_DEFAULT_VOICE_NAME, listCartesiaVoices, normalizeCartesiaVoice, openCartesiaStream} = require('./hosted_speech_provider');
+const {CARTESIA_DEFAULT_MODEL_ID, CARTESIA_DEFAULT_VOICE_NAME, listCartesiaVoiceCatalog, listCartesiaVoices, normalizeCartesiaVoice, openCartesiaStream} = require('./hosted_speech_provider');
 const {renderBlenderGlb: commandCenterRenderBlenderGlb} = require('./command_center_mcp');
 
 const DEFAULT_MCP_PUBLIC_BASE = 'https://us-central1-home-center-dclar.cloudfunctions.net/homeCenterMcp';
@@ -34,6 +34,28 @@ const MCP_REQUIRED_SCOPES = [
   'https://www.googleapis.com/auth/spreadsheets',
 ];
 const MCP_OAUTH_SECURITY_SCHEMES = [{type: 'oauth2', scopes: MCP_REQUIRED_SCOPES}];
+const CREDIT_GATED_EMAILS = Object.freeze([
+  'dclarke1005@gmail.com',
+  'junewren28@gmail.com',
+  'timothypomeroy07@gmail.com',
+]);
+const CREDIT_GATED_EMAIL_SET = new Set(CREDIT_GATED_EMAILS);
+
+function requireCreditGatedEmail(email, surface = 'credit-backed operation') {
+  const clean = safeText(email, 320).toLowerCase();
+  if (CREDIT_GATED_EMAIL_SET.has(clean)) return clean;
+  const err = new Error(surface + ' is restricted to approved Home Center accounts.');
+  err.status = 403;
+  err.failureKind = 'credit_gated_forbidden_email';
+  throw err;
+}
+
+async function requireCreditGatedContext({google, admin, googleClientId, googleClientSecret, extra, user = null, auth = null, surface = 'credit-backed operation'}) {
+  let context = user && auth ? {user, auth} : null;
+  if (!context) context = await requestGoogleContext(extra, google, admin, googleClientId, googleClientSecret);
+  requireCreditGatedEmail(context.user && context.user.email, surface);
+  return context;
+}
 
 function safeText(value, max = 12000) {
   const text = typeof value === 'string' ? value.trim() : '';
@@ -788,6 +810,8 @@ function mcpTextContentJson(result, label) {
 async function commandCenterOperationRunOperation({google = null, admin = null, googleClientId = '', googleClientSecret = '', extra, args = {}}) {
   const operation = safeText(args.operation || args.type || args.toolName, 120);
   const toolName = commandCenterToolName(operation);
+  if (!operation) throw Object.assign(new Error('operation is required.'), {status: 400});
+  await requireCreditGatedContext({google, admin, googleClientId, googleClientSecret, extra, surface: 'command_center_operation'});
   const operationArgs = args.args && typeof args.args === 'object' && !Array.isArray(args.args) ? {...args.args} : {...args};
   delete operationArgs.operation;
   delete operationArgs.type;
@@ -2898,16 +2922,48 @@ async function synthesizeCartesiaAudioBytes({cartesiaApiKey, args, audioFormat, 
   };
 }
 
+function cartesiaVoiceMetadataFilterMatch(voice, args = {}) {
+  const country = safeText(args.country, 80).toLowerCase();
+  const accent = safeText(args.accent, 80).toLowerCase();
+  const locale = safeText(args.locale, 40).toLowerCase();
+  if (country && safeText(voice.country, 80).toLowerCase() !== country) return false;
+  if (accent && !safeText(voice.accent, 80).toLowerCase().includes(accent)) return false;
+  if (locale && safeText(voice.locale || voice.language, 40).toLowerCase().replace('_', '-') !== locale.replace('_', '-')) return false;
+  return true;
+}
+
 async function cartesiaVoicesOperation({cartesiaApiKey = () => '', args = {}}) {
-  const query = safeText(args.query || args.q, 120).toLowerCase();
-  const limit = chatGptLimit(args.limit, 40, 200);
-  const rawVoices = await listCartesiaVoices({apiKeyGetter: cartesiaApiKey});
-  const voices = rawVoices.map(normalizeCartesiaVoice).filter((voice) => {
-    if (!query) return true;
-    const haystack = (voice.name + ' ' + voice.category + ' ' + voice.description + ' ' + JSON.stringify(voice.labels || {})).toLowerCase();
-    return haystack.includes(query);
-  }).slice(0, limit);
-  return {provider: 'cartesia', query, limit, voices};
+  const query = safeText(args.query || args.q, 240);
+  const limit = chatGptLimit(args.limit, 100, 100);
+  const catalog = await listCartesiaVoiceCatalog({
+    apiKeyGetter: cartesiaApiKey,
+    query,
+    limit,
+    pageToken: args.pageToken || args.cursor,
+    startingAfter: args.startingAfter || args.starting_after,
+    endingBefore: args.endingBefore || args.ending_before,
+    language: args.language || args.locale,
+    locale: args.locale,
+    gender: args.gender,
+    isOwner: args.isOwner || args.is_owner,
+    includePreviewUrl: args.includePreviewUrl !== false,
+  });
+  const voices = catalog.voices.map(normalizeCartesiaVoice).filter((voice) => cartesiaVoiceMetadataFilterMatch(voice, args));
+  const metadataFilters = {
+    accent: safeText(args.accent, 80),
+    country: safeText(args.country, 80),
+    locale: safeText(args.locale, 40),
+  };
+  return {
+    provider: 'cartesia',
+    catalog: catalog.catalog,
+    query,
+    filters: {...catalog.filters, ...metadataFilters},
+    supportedFilters: catalog.supportedFilters,
+    pagination: catalog.pagination,
+    limit,
+    voices,
+  };
 }
 
 async function synthesizeCartesiaAudioArtifactOperation({google, admin, auth, user, cartesiaApiKey = () => '', args = {}}) {
@@ -3304,8 +3360,8 @@ function driveOperationRegistry() {
         summary: 'List or search Cartesia voices by calling the hosted Cartesia provider directly from Home Center MCP; no Command Center job or worker is involved.',
         write: false,
         requiredScopes: [],
-        input: {query: 'optional string', limit: 'optional number'},
-        output: {provider: 'cartesia', voices: 'array'},
+        input: {query: 'optional string passed to Cartesia q', q: 'optional alias for query', limit: 'optional number, 1-100 per Cartesia page', pageToken: 'optional alias for starting_after', startingAfter: 'optional Cartesia pagination cursor', endingBefore: 'optional Cartesia pagination cursor', language: 'optional Cartesia language or locale filter such as ru or en_GB', locale: 'optional language-locale alias passed as language', gender: 'optional masculine, feminine, or gender_neutral', isOwner: 'optional boolean', accent: 'optional metadata filter applied to returned provider page', country: 'optional metadata filter applied to returned provider page', includePreviewUrl: 'optional boolean, defaults true'},
+        output: {provider: 'cartesia', catalog: 'provider_live', filters: 'object', supportedFilters: 'object', pagination: 'object', voices: 'array with id/name/language/locale/gender/accent/country/metadata'},
       },
       'tts.synthesize': {
         summary: 'Synthesize one or more speaker segments with Cartesia directly, stitch them into one audio file, save it as a private Drive artifact, verify readback byte count and SHA-256, and audit the write. No Command Center job or worker is involved.',
@@ -3420,6 +3476,7 @@ async function driveOperationRunOperation({google, admin, auth, user, extra = nu
     return {operation, registryVersion: registry.version, completed: true, result: result.result};
   }
   if (operation === 'tts.voices') {
+    await requireCreditGatedContext({google, admin, googleClientId, googleClientSecret, extra, user, auth, surface: 'tts.voices'});
     const result = await cartesiaVoicesOperation({cartesiaApiKey, args: operationArgs});
     return {operation, registryVersion: registry.version, completed: true, result};
   }
@@ -3455,6 +3512,7 @@ async function runDriveWorkflowOperation({google, admin, auth, user, workflowId,
     return {index, type, requestId, status: 'completed', outputKey: workflowOutputKey(operation, index), result};
   }
   if (type === 'tts.synthesize') {
+    requireCreditGatedEmail(user && user.email, 'tts.synthesize');
     const result = await synthesizeCartesiaAudioArtifactOperation({google, admin, auth, user, cartesiaApiKey, args: {...operation, requestId, callerNote, parentFolderId: workflowResolvedId(operation.parentFolderId || operation.parentFolderKey, outputs)}});
     outputs[workflowOutputKey(operation, index)] = result.fileId || result.id || '';
     return {index, type, requestId, status: 'completed', outputKey: workflowOutputKey(operation, index), result};
@@ -3786,13 +3844,27 @@ function createHomeCenterMcpServer({google, admin, googleClientId, googleClientS
     title: 'Cartesia voices',
     description: 'List or search Cartesia voices by calling the hosted Cartesia provider directly from Home Center MCP. This does not create or inspect Command Center jobs, workers, leases, or Codex sessions.',
     inputSchema: {
-      query: z.string().optional().describe('Optional text to search voice names, categories, descriptions, and labels.'),
-      limit: z.number().int().min(1).max(200).default(40),
+      query: z.string().optional().describe('Optional text passed to Cartesia as q to search voice names, descriptions, and voice IDs.'),
+      q: z.string().optional().describe('Alias for query.'),
+      limit: z.number().int().min(1).max(100).default(100).describe('Cartesia provider page size, 1-100.'),
+      pageToken: z.string().optional().describe('Alias for Cartesia starting_after pagination cursor.'),
+      startingAfter: z.string().optional().describe('Cartesia starting_after voice ID cursor.'),
+      endingBefore: z.string().optional().describe('Cartesia ending_before voice ID cursor.'),
+      language: z.string().optional().describe('Cartesia language or language-locale filter such as ru, en, or en_GB.'),
+      locale: z.string().optional().describe('Language-locale alias passed to Cartesia as language when language is not supplied.'),
+      gender: z.enum(['masculine', 'feminine', 'gender_neutral']).optional().describe('Cartesia gender presentation filter.'),
+      isOwner: z.boolean().optional().describe('When true, return only voices owned by the Cartesia organization.'),
+      accent: z.string().optional().describe('Optional accent metadata filter applied to the returned Cartesia page when accent metadata is present.'),
+      country: z.string().optional().describe('Optional country metadata filter applied to the returned Cartesia page when country metadata is present.'),
+      includePreviewUrl: z.boolean().optional().describe('Include Cartesia preview_file_url expansion when available. Defaults to true.'),
     },
     securitySchemes: MCP_OAUTH_SECURITY_SCHEMES,
     _meta: {securitySchemes: MCP_OAUTH_SECURITY_SCHEMES},
     annotations: {readOnlyHint: true, openWorldHint: true},
-  }, async (args) => textResult(await cartesiaVoicesOperation({cartesiaApiKey, args: args || {}})));
+  }, async (args, extra) => {
+    await requireCreditGatedContext({google, admin, googleClientId, googleClientSecret, extra, surface: 'cartesia_voices'});
+    return textResult(await cartesiaVoicesOperation({cartesiaApiKey, args: args || {}}));
+  });
 
   server.registerTool('cartesia_synthesize', {
     title: 'Cartesia synthesize',
@@ -3821,7 +3893,7 @@ function createHomeCenterMcpServer({google, admin, googleClientId, googleClientS
     _meta: {securitySchemes: MCP_OAUTH_SECURITY_SCHEMES},
     annotations: {readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: true},
   }, async (args, extra) => {
-    const {auth, user} = await requestGoogleContext(extra, google, admin, googleClientId, googleClientSecret);
+    const {auth, user} = await requireCreditGatedContext({google, admin, googleClientId, googleClientSecret, extra, surface: 'cartesia_synthesize'});
     return textResult(await synthesizeCartesiaAudioArtifactOperation({google, admin, auth, user, cartesiaApiKey, args: args || {}}));
   });
 
