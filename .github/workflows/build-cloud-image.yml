@@ -40,8 +40,14 @@ jobs:
         run: |
           target="${{ inputs.target }}"
           case "$target" in
-            cloud-render) config="cloud-render/cloudbuild.yaml" ;;
-            cloud-worker) config="cloud-worker/cloudbuild.yaml" ;;
+            cloud-worker)
+              config="cloud-worker/cloudbuild.yaml"
+              image="${{ inputs.region }}-docker.pkg.dev/${{ inputs.project }}/command-center-workers/debian-codex:${{ inputs.tag }}"
+              ;;
+            cloud-render)
+              echo "cloud-render/cloudbuild.yaml is not present on this branch." >&2
+              exit 2
+              ;;
             *) echo "Unsupported target: $target" >&2; exit 2 ;;
           esac
-          gcloud builds submit "$target" --project "${{ inputs.project }}" --config "$config" --substitutions=_TAG="${{ inputs.tag }}",_REGION="${{ inputs.region }}"
+          gcloud builds submit . --project "${{ inputs.project }}" --config "$config" --substitutions=_IMAGE="$image"
