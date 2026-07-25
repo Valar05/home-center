@@ -5,6 +5,9 @@ import {createRequire} from 'node:module';
 import fs from 'node:fs';
 
 process.env.HOME_CENTER_MCP_EXTENDED_TOOLS = 'true';
+process.env.HOME_CENTER_ARTIFACT_BUCKET_TEST_FAKE = '1';
+process.env.HOME_CENTER_GENERATED_BUCKET = 'home-center-generated';
+process.env.HOME_CENTER_AUDIO_RENDER_TEST_FAKE_OGG = '1';
 const require = createRequire(import.meta.url);
 const homeCenterSource = fs.readFileSync(new URL('../functions/home_center_mcp.js', import.meta.url), 'utf8');
 assert(homeCenterSource.includes("'audio.render'"), 'operation registry must expose audio.render');
@@ -288,7 +291,7 @@ assert.ok(renderedA.rendered.find((item) => item.mimeType === 'audio/ogg').byteC
 
 const admin = fakeAdmin();
 const routed = await driveOperationRunOperation({
-  google: fakeGoogle(), admin, auth: {}, user: {email: 'dclarke1005@gmail.com', authKind: 'google_oauth_bearer'},
+  google: fakeGoogle(), admin, auth: {}, user: {email: 'dclarke1005@gmail.com', authKind: 'google_oauth_bearer'}, cartesiaApiKey: () => 'test-cartesia-key',
   args: {operation: 'audio.render', args: {scriptText: JSON.stringify(recipe), requestId: 'audio-render-contract-001', parentFolderId: 'folder12345', settings: {timeoutMs: 20000}}},
 });
 assert.equal(routed.operation, 'audio.render');
@@ -298,6 +301,12 @@ assert.equal(routed.result.status, 'completed');
 assert.equal(routed.result.noAgentRuntime, true);
 assert.equal(routed.result.noCommandCenter, true);
 assert.equal(routed.result.outputs.length, 4);
+assert.equal(routed.result.artifactStore.primary, 'gcs');
+assert.equal(routed.result.artifactStore.bucket, 'home-center-generated');
+assert.ok(routed.result.outputs.every((item) => item.durableRef.startsWith('gs://home-center-generated/')));
+assert.ok(routed.result.outputs.every((item) => item.storageRef === item.durableRef && item.primaryStore === 'gcs'));
+assert.ok(routed.result.outputs.every((item) => item.driveDurableRef.startsWith('drive://')));
+assert.ok(routed.result.outputs.every((item) => item.metadata && item.metadata.owner === 'drew' && item.metadata.approved === 'false'));
 assert.ok(routed.result.outputs.every((item) => item.sha256 === item.readbackSha256 && item.byteCount === item.readbackByteCount));
 assert.ok(routed._mcpContent.content.some((item) => item.type === 'audio' && item.mimeType === 'audio/ogg'));
 assert.equal(collectionStore('driveBridgeAudit').get('audio-render-contract-001').operation, 'audio.render');
@@ -321,16 +330,16 @@ const mismatch = await driveOperationRunOperation({
 });
 assert.equal(mismatch.result.ok, false);
 assert.equal(mismatch.result.artifacts[0].sha256Matches, false);
-const replay = await driveOperationRunOperation({google: fakeGoogle(), admin, auth: {}, user: {email: 'dclarke1005@gmail.com', authKind: 'google_oauth_bearer'}, args: {operation: 'audio.render', args: {scriptText: JSON.stringify(recipe), requestId: 'audio-render-contract-001', parentFolderId: 'folder12345', settings: {timeoutMs: 20000}}}});
+const replay = await driveOperationRunOperation({google: fakeGoogle(), admin, auth: {}, user: {email: 'dclarke1005@gmail.com', authKind: 'google_oauth_bearer'}, cartesiaApiKey: () => 'test-cartesia-key', args: {operation: 'audio.render', args: {scriptText: JSON.stringify(recipe), requestId: 'audio-render-contract-001', parentFolderId: 'folder12345', settings: {timeoutMs: 20000}}}});
 assert.equal(replay.result.idempotent, true);
-await assert.rejects(() => driveOperationRunOperation({google: fakeGoogle(), admin, auth: {}, user: {email: 'dclarke1005@gmail.com', authKind: 'google_oauth_bearer'}, args: {operation: 'audio.render', args: {scriptText: JSON.stringify({...recipe, seed: 'other'}), requestId: 'audio-render-contract-001', settings: {timeoutMs: 20000}}}}), /idempotencyKey was reused/);
+await assert.rejects(() => driveOperationRunOperation({google: fakeGoogle(), admin, auth: {}, user: {email: 'dclarke1005@gmail.com', authKind: 'google_oauth_bearer'}, cartesiaApiKey: () => 'test-cartesia-key', args: {operation: 'audio.render', args: {scriptText: JSON.stringify({...recipe, seed: 'other'}), requestId: 'audio-render-contract-001', settings: {timeoutMs: 20000}}}}), /idempotencyKey was reused/);
 
 
 const providerCallsBeforeRouteLong = cartesiaCalls.length;
 const driveWritesBeforeRouteLong = createCalls;
 globalThis.__cartesiaFake = {durationSeconds: 5, delayMs: 1, gain: 0.8};
 const routedLong = await driveOperationRunOperation({
-  google: fakeGoogle(), admin, auth: {}, user: {email: 'dclarke1005@gmail.com', authKind: 'google_oauth_bearer'},
+  google: fakeGoogle(), admin, auth: {}, user: {email: 'dclarke1005@gmail.com', authKind: 'google_oauth_bearer'}, cartesiaApiKey: () => 'test-cartesia-key',
   args: {operation: 'audio.render', args: {scriptText: JSON.stringify(longRecipe), requestId: 'audio-render-long-sequence-001', settings: {timeoutMs: 20000, speechConcurrency: 4}, returnInlineAudio: false}},
 });
 assert.equal(routedLong.completed, true);
@@ -338,7 +347,9 @@ assert.equal(routedLong.result.ok, true);
 assert.equal(routedLong.result.outputs.length, 1);
 assert.equal(routedLong.result.speech.sequences[0].segmentCount, 120);
 assert.equal(cartesiaCalls.length - providerCallsBeforeRouteLong, 120);
-assert.equal(createCalls - driveWritesBeforeRouteLong, 2, 'long render should write one OGG and one manifest');
+assert.equal(createCalls - driveWritesBeforeRouteLong, 2, 'long render should publish one OGG and one manifest to Drive after GCS verification');
+assert.ok(routedLong.result.outputs[0].durableRef.startsWith('gs://home-center-generated/audio/drew/voice-tests/'));
+assert.ok(routedLong.result.outputs[0].driveDurableRef.startsWith('drive://'));
 assert.ok(routedLong._mcpContent.content.some((item) => item.type === 'text'), 'drive_operation must return textual receipt');
 assert.ok(routedLong._mcpContent.content.some((item) => item.type === 'resource_link'), 'drive_operation must return durable resource link');
 assert.ok(!routedLong._mcpContent.content.some((item) => item.type === 'audio'), 'returnInlineAudio=false must suppress optional inline audio');
@@ -351,11 +362,11 @@ assert.equal(routedLongInspect.result.ok, true);
 assert.equal(routedLongInspect.result.artifacts[0].decodeCheck.ok, true);
 const providerCallsBeforeReplay = cartesiaCalls.length;
 const driveWritesBeforeReplay = createCalls;
-const replayLong = await driveOperationRunOperation({google: fakeGoogle(), admin, auth: {}, user: {email: 'dclarke1005@gmail.com', authKind: 'google_oauth_bearer'}, args: {operation: 'audio.render', args: {scriptText: JSON.stringify(longRecipe), requestId: 'audio-render-long-sequence-001', settings: {timeoutMs: 20000, speechConcurrency: 4}, returnInlineAudio: false}}});
+const replayLong = await driveOperationRunOperation({google: fakeGoogle(), admin, auth: {}, user: {email: 'dclarke1005@gmail.com', authKind: 'google_oauth_bearer'}, cartesiaApiKey: () => 'test-cartesia-key', args: {operation: 'audio.render', args: {scriptText: JSON.stringify(longRecipe), requestId: 'audio-render-long-sequence-001', settings: {timeoutMs: 20000, speechConcurrency: 4}, returnInlineAudio: false}}});
 assert.equal(replayLong.result.idempotent, true);
 assert.equal(cartesiaCalls.length, providerCallsBeforeReplay, 'idempotent replay must not call Cartesia again');
 assert.equal(createCalls, driveWritesBeforeReplay, 'idempotent replay must not write Drive again');
-await assert.rejects(() => driveOperationRunOperation({google: fakeGoogle(), admin, auth: {}, user: {email: 'dclarke1005@gmail.com', authKind: 'google_oauth_bearer'}, args: {operation: 'audio.render', args: {scriptText: JSON.stringify({...longRecipe, seed: 'changed'}), requestId: 'audio-render-long-sequence-001', settings: {timeoutMs: 20000}}}}), /idempotencyKey was reused/);
+await assert.rejects(() => driveOperationRunOperation({google: fakeGoogle(), admin, auth: {}, user: {email: 'dclarke1005@gmail.com', authKind: 'google_oauth_bearer'}, cartesiaApiKey: () => 'test-cartesia-key', args: {operation: 'audio.render', args: {scriptText: JSON.stringify({...longRecipe, seed: 'changed'}), requestId: 'audio-render-long-sequence-001', settings: {timeoutMs: 20000}}}}), /idempotencyKey was reused/);
 const statusLong = await driveOperationRunOperation({google: fakeGoogle(), admin, auth: {}, user: {email: 'dclarke1005@gmail.com', authKind: 'google_oauth_bearer'}, args: {operation: 'audio.render_status', args: {requestId: 'audio-render-long-sequence-001'}}});
 assert.equal(statusLong.result.status, 'completed');
 assert.equal(statusLong.result.result.requestId, 'audio-render-long-sequence-001');

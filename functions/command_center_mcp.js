@@ -108,7 +108,7 @@ const COMMAND_CENTER_DEFAULT_CLOUD_MACHINE_IMAGE_ID = 'cloud-debian-codex';
 const COMMAND_CENTER_PROVISIONING_STATUSES = Object.freeze(['requested', 'secrets_ready', 'job_created', 'activation_requested', 'routable', 'failed', 'blocked']);
 const COMMAND_CENTER_RENDER_TOOL_VERSION = 'command-center-blender-render-v1';
 const COMMAND_CENTER_RENDER_DEFAULT_SERVICE_URL = process.env.COMMAND_CENTER_RENDER_SERVICE_URL || '';
-const COMMAND_CENTER_RENDER_BUCKET = process.env.COMMAND_CENTER_RENDER_BUCKET || process.env.RENDER_CACHE_BUCKET || (process.env.GCLOUD_PROJECT ? `${process.env.GCLOUD_PROJECT}-command-center-renders` : 'home-center-dclar-command-center-renders');
+const COMMAND_CENTER_RENDER_BUCKET = process.env.COMMAND_CENTER_RENDER_BUCKET || process.env.HOME_CENTER_GENERATED_BUCKET || process.env.COMMAND_CENTER_GENERATED_BUCKET || process.env.RENDER_CACHE_BUCKET || 'home-center-generated';
 const COMMAND_CENTER_RENDER_MAX_GLB_BYTES = Number(process.env.COMMAND_CENTER_RENDER_MAX_GLB_BYTES || 250 * 1024 * 1024);
 const COMMAND_CENTER_RENDER_MAX_SCRIPT_BYTES = Number(process.env.COMMAND_CENTER_RENDER_MAX_SCRIPT_BYTES || 1024 * 1024);
 const COMMAND_CENTER_RENDER_REQUIRED_BUNDLE_KINDS = Object.freeze([
@@ -1348,12 +1348,12 @@ async function stageRenderUpload({caller, renderId, role, fileName, bytes, conte
   const hash = sha256Bytes(bytes);
   const safeRole = role === 'glb' ? 'glb' : 'script';
   const safeFile = cleanUploadFileName(fileName, safeRole === 'glb' ? 'input.glb' : 'render.py');
-  const objectName = `command-center-render-inputs/${ownerKeyFromCaller(caller)}/${safeText(renderId, 180) || 'render'}/${safeRole}-${hash}-${safeFile}`;
+  const objectName = `temp/render-inputs/${ownerKeyFromCaller(caller)}/${safeText(renderId, 180) || 'render'}/${safeRole}-${hash}-${safeFile}`;
   await renderStorage().bucket(COMMAND_CENTER_RENDER_BUCKET).file(objectName).save(bytes, {
     resumable: false,
     metadata: {
       contentType: contentType || (safeRole === 'glb' ? 'model/gltf-binary' : 'text/x-python'),
-      metadata: {sha256: hash, role: safeRole, renderer: COMMAND_CENTER_RENDER_TOOL_VERSION},
+      metadata: {sha256: hash, owner: ownerKeyFromCaller(caller), project: 'home-center', stage: 'temp', engine: 'blender', createdBy: 'command-center', jobId: safeText(renderId, 180), commit: safeText(process.env.K_REVISION || '', 80), timestamp: new Date().toISOString(), approved: 'false', role: safeRole, renderer: COMMAND_CENTER_RENDER_TOOL_VERSION},
     },
   });
   return {ref: `gs://${COMMAND_CENTER_RENDER_BUCKET}/${objectName}`, sha256: hash, byteCount: bytes.length, fileName: safeFile, materializedFrom: safeRole + 'File'};

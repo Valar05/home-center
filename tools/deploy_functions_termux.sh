@@ -17,13 +17,13 @@ deploy_command_center_mcp() {
     --gen2 \
     --project="$PROJECT" \
     --region="$REGION" \
-    --runtime=nodejs20 \
+    --runtime=nodejs22 \
     --source="$ROOT/functions" \
     --entry-point=commandCenterMcp \
     --trigger-http \
     --allow-unauthenticated \
     --timeout=300s \
-    --set-env-vars=LOG_EXECUTION_ID=true,COMMAND_CENTER_RENDER_SERVICE_URL="${COMMAND_CENTER_RENDER_SERVICE_URL:-https://command-center-blender-render-vxybsaualq-uc.a.run.app}",COMMAND_CENTER_RENDER_BUCKET="${COMMAND_CENTER_RENDER_BUCKET:-home-center-dclar-command-center-renders}"
+    --set-env-vars=LOG_EXECUTION_ID=true,COMMAND_CENTER_RENDER_SERVICE_URL="${COMMAND_CENTER_RENDER_SERVICE_URL:-https://command-center-blender-render-vxybsaualq-uc.a.run.app}",HOME_CENTER_GENERATED_BUCKET="${HOME_CENTER_GENERATED_BUCKET:-home-center-generated}",COMMAND_CENTER_RENDER_BUCKET="${COMMAND_CENTER_RENDER_BUCKET:-${HOME_CENTER_GENERATED_BUCKET:-home-center-generated}}"
 }
 
 secret_exists() {
@@ -45,7 +45,7 @@ deploy_home_center_mcp() {
     --gen2 \
     --project="$PROJECT" \
     --region="$REGION" \
-    --runtime=nodejs20 \
+    --runtime=nodejs22 \
     --source="$ROOT/functions" \
     --entry-point=homeCenterMcp \
     --trigger-http \
@@ -53,7 +53,7 @@ deploy_home_center_mcp() {
     --timeout=300s \
     --memory=1Gi \
     --cpu=1 \
-    --set-env-vars=HOME_CENTER_MCP_EXTENDED_TOOLS=true,COMMAND_CENTER_RENDER_SERVICE_URL="${COMMAND_CENTER_RENDER_SERVICE_URL:-https://command-center-blender-render-vxybsaualq-uc.a.run.app}",COMMAND_CENTER_RENDER_BUCKET="${COMMAND_CENTER_RENDER_BUCKET:-home-center-dclar-command-center-renders}",COMMAND_CENTER_MCP_URL="${COMMAND_CENTER_MCP_URL:-https://us-central1-home-center-dclar.cloudfunctions.net/commandCenterMcp/mcp}" \
+    --set-env-vars=HOME_CENTER_MCP_EXTENDED_TOOLS=true,COMMAND_CENTER_RENDER_SERVICE_URL="${COMMAND_CENTER_RENDER_SERVICE_URL:-https://command-center-blender-render-vxybsaualq-uc.a.run.app}",HOME_CENTER_GENERATED_BUCKET="${HOME_CENTER_GENERATED_BUCKET:-home-center-generated}",COMMAND_CENTER_RENDER_BUCKET="${COMMAND_CENTER_RENDER_BUCKET:-${HOME_CENTER_GENERATED_BUCKET:-home-center-generated}}",COMMAND_CENTER_MCP_URL="${COMMAND_CENTER_MCP_URL:-https://us-central1-home-center-dclar.cloudfunctions.net/commandCenterMcp/mcp}" \
     --set-secrets="$(home_center_mcp_secrets_arg)"
 }
 
@@ -62,7 +62,7 @@ deploy_she_raw_mcp() {
     --gen2 \
     --project="$PROJECT" \
     --region="$REGION" \
-    --runtime=nodejs20 \
+    --runtime=nodejs22 \
     --source="$ROOT/functions" \
     --entry-point=sheRawMcp \
     --trigger-http \

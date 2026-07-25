@@ -4,15 +4,18 @@ import {createHash} from 'node:crypto';
 import {createRequire} from 'node:module';
 import fs from 'node:fs';
 
+process.env.HOME_CENTER_ARTIFACT_BUCKET_TEST_FAKE = '1';
+process.env.HOME_CENTER_GENERATED_BUCKET = 'home-center-generated';
 const require = createRequire(import.meta.url);
 const homeCenterSource = fs.readFileSync(new URL('../functions/home_center_mcp.js', import.meta.url), 'utf8');
 const commandCenterSource = fs.readFileSync(new URL('../functions/command_center_mcp.js', import.meta.url), 'utf8');
 const audioRenderSource = fs.readFileSync(new URL('../functions/audio_render_service.js', import.meta.url), 'utf8');
+const artifactBucketSource = fs.readFileSync(new URL('../functions/artifact_bucket.js', import.meta.url), 'utf8');
 const vanguardScript = fs.readFileSync(new URL('../tools/vanguard_walk_render_blender.py', import.meta.url), 'utf8');
 
 assert(homeCenterSource.includes('verifiedRenderGifMcpContent'), 'Home Center must verify private GCS GIF readback before MCP media attachment');
 assert(homeCenterSource.includes('uploadVerifiedArtifact'), 'Home Center Blender GIF delivery must reuse the audio.render verified upload helper');
-assert(audioRenderSource.includes("type: 'resource_link'"), 'The reused audio.render helper must produce resource_link content');
+assert(artifactBucketSource.includes("type: 'resource_link'"), 'The shared artifact publish helper must produce resource_link content');
 assert(!homeCenterSource.includes("type: 'image', data: buffer.toString('"), 'Home Center render GIF delivery must not use MCP ImageContent for animated GIFs');
 assert(!homeCenterSource.includes("type: 'resource',\n    resource:"), 'Home Center render GIF delivery must not use embedded resource bytes for animated GIFs');
 assert(homeCenterSource.includes("mimeType: 'image/gif'"), 'Home Center must preserve GIF MIME type');
@@ -38,15 +41,15 @@ const gifSha = createHash('sha256').update(gifBytes).digest('hex');
 const result = {
   ok: true,
   status: 'completed',
-  loopingGifRef: 'gs://home-center-dclar-command-center-renders/command-center-renders/cache123/walk-loop.gif',
+  loopingGifRef: 'gs://home-center-generated/renders/gifs/cache123/walk-loop.gif',
   artifactHashes: {'walk-loop.gif': {byteCount: gifBytes.length, sha256: gifSha}},
   validation: {ok: true, missingBundleKinds: [], presentBundleKinds: ['looping_gif']},
 };
 const fakeStorage = {
   bucket(name) {
-    assert.equal(name, 'home-center-dclar-command-center-renders');
+    assert.equal(name, 'home-center-generated');
     return {file(path) {
-      assert.equal(path, 'command-center-renders/cache123/walk-loop.gif');
+      assert.equal(path, 'renders/gifs/cache123/walk-loop.gif');
       return {async download() { return [gifBytes]; }};
     }};
   },
@@ -78,7 +81,8 @@ assert.equal(verified.contentBlock.mimeType, 'image/gif');
 assert.equal(verified.contentBlock.name, 'walk-loop.gif');
 assert.equal(verified.contentBlock.uri, 'drive://driveGif12345');
 assert.equal(verified.contentBlock.size, gifBytes.length);
-assert.equal(verified.delivery.durableRef, 'drive://driveGif12345');
+assert.equal(verified.delivery.durableRef.startsWith('gs://home-center-generated/'), true);
+assert.equal(verified.delivery.driveDurableRef, 'drive://driveGif12345');
 assert.equal(verified.delivery.readbackByteCount, gifBytes.length);
 assert.equal(verified.delivery.readbackSha256, gifSha);
 
@@ -100,7 +104,8 @@ const receipt = JSON.parse(textBlock.text);
 assert.equal(receipt.result.inlineMediaDelivery.ok, true);
 assert.equal(receipt.result.inlineMediaDelivery.contentBlockType, 'resource_link');
 assert.equal(receipt.result.inlineMediaDelivery.sha256, gifSha);
-assert.equal(receipt.result.inlineMediaDelivery.durableRef, 'drive://driveGif12345');
+assert.equal(receipt.result.inlineMediaDelivery.durableRef.startsWith('gs://home-center-generated/'), true);
+assert.equal(receipt.result.inlineMediaDelivery.driveDurableRef, 'drive://driveGif12345');
 
 const failureResult = await attachRenderGifMcpContent({operation: 'render.blender_glb', toolName: 'command_center.render.blender_glb', result}, {storage: fakeStorage});
 assert.deepEqual(failureResult._mcpContent.content.map((item) => item.type), ['text']);
@@ -115,8 +120,8 @@ assert.equal(mismatch.contentBlock, null);
 assert.equal(mismatch.delivery.ok, false);
 assert.equal(mismatch.delivery.errorCode, 'render_gif_resource_link_readback_mismatch');
 
-await assert.rejects(() => verifiedRenderGifMcpContent({...result, loopingGifRef: 'gs://other-bucket/command-center-renders/cache123/walk-loop.gif'}, {storage: fakeStorage}), /outside the configured private render bucket/);
-await assert.rejects(() => verifiedRenderGifMcpContent({...result, loopingGifRef: 'https://storage.googleapis.com/home-center-dclar-command-center-renders/x.gif'}, {storage: fakeStorage}), /private gs:\/\/ artifact ref/);
+await assert.rejects(() => verifiedRenderGifMcpContent({...result, loopingGifRef: 'gs://other-bucket/renders/gifs/cache123/walk-loop.gif'}, {storage: fakeStorage}), /outside the configured private render bucket/);
+await assert.rejects(() => verifiedRenderGifMcpContent({...result, loopingGifRef: 'https://storage.googleapis.com/home-center-generated/x.gif'}, {storage: fakeStorage}), /private gs:\/\/ artifact ref/);
 
 assert.deepEqual(renderRequiredBundleKindsForOptions({includeBlend: false, includeDiagnostics: false}).filter((kind) => kind === 'three_d_artifact' || kind === 'diagnostic_view_renders'), []);
 assert.ok(renderRequiredBundleKindsForOptions({includeBlend: true, includeDiagnostics: true}).includes('three_d_artifact'));
