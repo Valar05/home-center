@@ -1,0 +1,66 @@
+{
+  "status": 200,
+  "contentTypes": [
+    {
+      "type": "text",
+      "mimeType": "",
+      "textLength": 23763,
+      "blobLength": 0,
+      "dataLength": 0,
+      "uri": ""
+    },
+    {
+      "type": "resource",
+      "mimeType": "image/gif",
+      "textLength": 0,
+      "blobLength": 50252,
+      "dataLength": 0,
+      "uri": "render-artifact://render_c765ae490d4bb0f51bfad54efbf514f9/walk-loop.gif"
+    }
+  ],
+  "hasImageBlock": false,
+  "hasResourceBlock": true,
+  "resource": {
+    "type": "resource",
+    "mimeType": "image/gif",
+    "uri": "render-artifact://render_c765ae490d4bb0f51bfad54efbf514f9/walk-loop.gif",
+    "byteCount": 37688,
+    "sha256": "01b939e2ca7783262823de385c984502db8202a080fbcf12562ceb34df986e97",
+    "header": "GIF89a",
+    "annotations": {
+      "audience": [
+        "user"
+      ],
+      "priority": 1
+    }
+  },
+  "receipt": {
+    "operation": "render.blender_glb",
+    "renderId": "render_c765ae490d4bb0f51bfad54efbf514f9",
+    "ok": true,
+    "status": "completed",
+    "failureKind": "",
+    "missingBundleKinds": [],
+    "validationOk": true,
+    "validationMissing": [],
+    "inlineMediaDelivery": {
+      "ok": true,
+      "type": "mcp_inline_media",
+      "mimeType": "image/gif",
+      "artifactRef": "gs://home-center-dclar-command-center-renders/command-center-renders/075c5af0d672ad02585676eda06a650b2f63897baaeaba9106c2bfbf26caf11c/walk-loop.gif",
+      "byteCount": 37688,
+      "sha256": "01b939e2ca7783262823de385c984502db8202a080fbcf12562ceb34df986e97",
+      "expectedByteCount": 37688,
+      "expectedSha256": "01b939e2ca7783262823de385c984502db8202a080fbcf12562ceb34df986e97",
+      "ceilingBytes": 2097152,
+      "contentBlockType": "resource",
+      "errorCode": "",
+      "message": "Private GCS GIF readback verified and attached as MCP embedded resource image/gif content."
+    },
+    "loopingGifRef": "gs://home-center-dclar-command-center-renders/command-center-renders/075c5af0d672ad02585676eda06a650b2f63897baaeaba9106c2bfbf26caf11c/walk-loop.gif"
+  },
+  "textReceiptContainsResourceBlob": false,
+  "textReceiptContainsPublicOrSignedUrl": false,
+  "scriptSha256": "352e2204300b45b5cea9a78ecd406c0a54e2bc4a2cb30e5ac71410b030926f80",
+  "idempotencyKey": "vanguard-walk-sword-carry-v2-embedded-resource-20260725-0604"
+}
