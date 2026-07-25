@@ -55,6 +55,67 @@ def semantic_action_name(imported_name, requested):
     return requested if imported_name == requested + '_rig' else imported_name
 
 
+def authored_keys_for(action):
+    keys = set()
+    for curve in action.fcurves:
+        for point in curve.keyframe_points:
+            keys.add(round(float(point.co.x), 6))
+    return sorted(keys)
+
+
+def settings_int_list(settings, name, fallback):
+    value = settings.get(name)
+    if value is None:
+        return list(fallback)
+    if not isinstance(value, list):
+        fail(name + ' must be a list')
+    out = []
+    for index, item in enumerate(value):
+        if isinstance(item, bool):
+            fail(name + '[' + str(index) + '] must be an integer frame index')
+        number = int(item)
+        if number != float(item) or number < 0:
+            fail(name + '[' + str(index) + '] must be a non-negative integer frame index')
+        out.append(number)
+    return out
+
+
+def settings_ms_list(settings, name, fallback):
+    value = settings.get(name)
+    if value is None:
+        return list(fallback)
+    if not isinstance(value, list):
+        fail(name + ' must be a list')
+    out = []
+    for index, item in enumerate(value):
+        number = int(item)
+        if number <= 0:
+            fail(name + '[' + str(index) + '] must be a positive duration in milliseconds')
+        out.append(number)
+    return out
+
+
+def playback_contract(settings, evidence_frames):
+    evidence_indices = settings_int_list(settings, 'evidenceFrames', range(len(evidence_frames)))
+    if len(evidence_indices) != len(evidence_frames):
+        fail('evidenceFrames.length must equal rendered evidence frame count')
+    if len(set(evidence_indices)) != len(evidence_indices):
+        fail('evidenceFrames contains duplicate indices')
+    gif_frames = settings_int_list(settings, 'gifFrames', evidence_indices)
+    if not gif_frames:
+        fail('gifFrames must not be empty')
+    if not settings.get('allowRepeatedGifFrames', False) and len(set(gif_frames)) != len(gif_frames):
+        fail('gifFrames contains duplicate indices')
+    missing = [frame for frame in gif_frames if frame not in set(evidence_indices)]
+    if missing:
+        fail('gifFrames requested missing evidence frame index ' + ', '.join(str(frame) for frame in missing))
+    default_timing = [FRAME_DURATIONS_MS[evidence_indices.index(frame)] for frame in gif_frames]
+    gif_timing = settings_ms_list(settings, 'gifTimingMs', default_timing)
+    if len(gif_timing) != len(gif_frames):
+        fail('gifTimingMs.length must equal gifFrames.length')
+    return evidence_indices, gif_frames, gif_timing
+
+
 def resolve_action(requested):
     available = sorted(a.name for a in bpy.data.actions)
     exact = [a for a in bpy.data.actions if a.name == requested]
@@ -210,6 +271,8 @@ def main():
         fail('expected exactly one embedded sword object, found ' + str(inventory['swordObjectCount']))
     setup_scene(objects, settings)
     rendered, fixed, diagnostics, sampled = render_frames(output_dir, action)
+    authored_keys = authored_keys_for(action)
+    evidence_frames, gif_frames, gif_timing_ms = playback_contract(settings, rendered)
     bpy.ops.wm.save_as_mainfile(filepath=str(output_dir / 'vanguard_walk.blend'))
     native = {
         'schema': 'home-center-vanguard-walk-render-v1',
@@ -225,6 +288,10 @@ def main():
         'frameCount': len(rendered),
         'expectedFrameCount': EXPECTED_FRAME_COUNT,
         'authoredTotalMs': EXPECTED_TOTAL_MS,
+        'authoredKeys': authored_keys,
+        'evidenceFrames': evidence_frames,
+        'gifFrames': gif_frames,
+        'gifTimingMs': gif_timing_ms,
         'frameDurationsMs': FRAME_DURATIONS_MS,
         'sampledActionFrames': sampled,
         'subframeSampling': True,
@@ -242,6 +309,10 @@ def main():
         'diagnosticViewRenders': diagnostics,
         'modifiedBlend': 'vanguard_walk.blend',
         'nativePoseAnimationData': 'native-pose-animation.json',
+        'authoredKeys': authored_keys,
+        'evidenceFrames': evidence_frames,
+        'gifFrames': gif_frames,
+        'gifTimingMs': gif_timing_ms,
         'frameDurationsMs': FRAME_DURATIONS_MS,
         'expectedAction': expected_action,
         'expectedFrameCount': EXPECTED_FRAME_COUNT,

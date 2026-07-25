@@ -230,6 +230,10 @@ function safeList(value, maxItems = 50, maxText = 500) {
   return Array.isArray(value) ? value.slice(0, maxItems).map((item) => safeText(item, maxText)).filter(Boolean) : [];
 }
 
+function safeNumberList(value, maxItems = 80) {
+  return Array.isArray(value) ? value.slice(0, maxItems).map((item) => Number(item)).filter((item) => Number.isFinite(item)) : [];
+}
+
 function safeObject(value) {
   return value && typeof value === 'object' && !Array.isArray(value) ? value : {};
 }
@@ -1413,6 +1417,13 @@ function normalizeRenderSettings(value = {}) {
   };
   return {
     ...settings,
+    action: safeText(src.action, 120),
+    expectedAction: safeText(src.expectedAction, 120),
+    authoredKeys: safeNumberList(src.authoredKeys, 160),
+    evidenceFrames: safeNumberList(src.evidenceFrames, 160),
+    gifFrames: safeNumberList(src.gifFrames, 160),
+    gifTimingMs: safeNumberList(src.gifTimingMs, 160),
+    allowRepeatedGifFrames: src.allowRepeatedGifFrames === true,
     includeBlend: src.includeBlend === false ? false : true,
     includeDiagnostics: src.includeDiagnostics === false ? false : true,
     renderOptions: safeObject(src.renderOptions),
@@ -1483,6 +1494,7 @@ function cleanRenderResult(serviceResult = {}, fallback = {}) {
   const threeDArtifactRefs = safeList(result.threeDArtifactRefs || refs.threeDArtifacts, 20, 1200);
   const nativeDataRefs = safeList(result.nativeDataRefs || refs.nativePoseAnimationData, 20, 1200);
   const artifactHashes = safeObject(result.artifactHashes || bundle.artifactHashes);
+  const gifPlaybackContract = safeObject(result.gifPlaybackContract || validation.gifPlaybackContract || bundle.gifPlaybackContract);
   const timings = safeObject(result.timings || validation.timings || bundle.timings);
   const renderOptions = safeObject(result.renderOptions || validation.renderOptions || bundle.renderOptions);
   return {
@@ -1509,6 +1521,8 @@ function cleanRenderResult(serviceResult = {}, fallback = {}) {
     validationManifestRef: safeText(result.validationManifestRef || refs.validationManifest, 1200),
     validation,
     artifactHashes,
+    gifPlaybackContract,
+    gifPlaybackContractRef: safeText(result.gifPlaybackContractRef || refs.gifPlaybackContract, 1200),
     timings,
     renderOptions,
     bundle,

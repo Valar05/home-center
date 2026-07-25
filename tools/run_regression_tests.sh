@@ -43,6 +43,8 @@ node --check tools/home_center_render_blender_glb_protocol_test.mjs
 node tools/home_center_render_blender_glb_protocol_test.mjs
 node --check tools/home_center_blender_inline_gif_contract_test.mjs
 node tools/home_center_blender_inline_gif_contract_test.mjs
+node --check tools/blender_gif_construction_contract_test.mjs
+node tools/blender_gif_construction_contract_test.mjs
 node --check tools/home_center_render_drive_ref_materialization_test.mjs
 node tools/home_center_render_drive_ref_materialization_test.mjs
 node --check tools/home_center_render_github_source_materialization_test.mjs
