@@ -688,8 +688,16 @@ async function verifiedRenderGifMcpContent(result = {}, {storage = null} = {}) {
   if (buffer.length !== expectedByteCount || readbackSha256 !== expectedSha256) {
     return {contentBlock: null, delivery: {...deliveryBase, byteCount: buffer.length, sha256: readbackSha256, errorCode: 'render_inline_gif_readback_mismatch', message: 'Private GCS GIF readback did not match renderer hash metadata.'}};
   }
-  const contentBlock = {type: 'image', data: buffer.toString('base64'), mimeType: 'image/gif', annotations: {audience: ['user'], priority: 1}};
-  return {contentBlock, delivery: {...deliveryBase, ok: true, byteCount: buffer.length, sha256: readbackSha256, contentBlockType: contentBlock.type, message: 'Private GCS GIF readback verified and attached as MCP image/gif content.'}};
+  const contentBlock = {
+    type: 'resource',
+    resource: {
+      uri: 'render-artifact://' + safeText(renderResult.renderId || renderResult.cacheKey || 'walk-loop', 240) + '/walk-loop.gif',
+      mimeType: 'image/gif',
+      blob: buffer.toString('base64'),
+    },
+    annotations: {audience: ['user'], priority: 1},
+  };
+  return {contentBlock, delivery: {...deliveryBase, ok: true, byteCount: buffer.length, sha256: readbackSha256, contentBlockType: contentBlock.type, message: 'Private GCS GIF readback verified and attached as MCP embedded resource image/gif content.'}};
 }
 
 async function attachRenderGifMcpContent(operationResult = {}, options = {}) {

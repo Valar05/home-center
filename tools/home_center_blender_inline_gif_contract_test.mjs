@@ -10,7 +10,8 @@ const commandCenterSource = fs.readFileSync(new URL('../functions/command_center
 const vanguardScript = fs.readFileSync(new URL('../tools/vanguard_walk_render_blender.py', import.meta.url), 'utf8');
 
 assert(homeCenterSource.includes('verifiedRenderGifMcpContent'), 'Home Center must verify private GCS GIF readback before MCP media attachment');
-assert(homeCenterSource.includes("type: 'image'"), 'Home Center must return a structured MCP image content block');
+assert(homeCenterSource.includes("type: 'resource'"), 'Home Center must return a structured MCP embedded resource content block for GIF delivery');
+assert(!homeCenterSource.includes("type: 'image', data: buffer.toString('"), 'Home Center render GIF delivery must not use MCP ImageContent for animated GIFs');
 assert(homeCenterSource.includes("mimeType: 'image/gif'"), 'Home Center must preserve GIF MIME type');
 assert(homeCenterSource.includes('HOME_CENTER_RENDER_INLINE_GIF_MAX_BYTES'), 'Inline GIF delivery must have a configurable byte ceiling');
 assert(homeCenterSource.includes('parseRenderGsRef'), 'Inline GIF delivery must accept private gs:// refs only');
@@ -26,6 +27,7 @@ assert(vanguardScript.includes("FRAME_DURATIONS_MS = [110, 90, 100, 110, 110, 90
 assert(vanguardScript.includes("'weaponRPresent': inventory['weaponRPresent']"), 'Vanguard script must verify Weapon.R presence');
 assert(vanguardScript.includes("'embeddedSwordCount': inventory['swordObjectCount']"), 'Vanguard script must record exact sword count');
 
+const {CallToolResultSchema} = require('../functions/node_modules/@modelcontextprotocol/sdk/dist/cjs/types.js');
 const {verifiedRenderGifMcpContent, attachRenderGifMcpContent} = require('../functions/home_center_mcp.js');
 const {renderRequiredBundleKindsForOptions, renderBundleOptionsFrom} = require('../functions/command_center_mcp.js');
 
@@ -52,25 +54,28 @@ assert.equal(verified.delivery.ok, true);
 assert.equal(verified.delivery.byteCount, gifBytes.length);
 assert.equal(verified.delivery.sha256, gifSha);
 assert.equal(verified.delivery.mimeType, 'image/gif');
-assert.equal(verified.contentBlock.type, 'image');
-assert.equal(verified.contentBlock.mimeType, 'image/gif');
-assert.equal(Buffer.from(verified.contentBlock.data, 'base64').toString('utf8'), gifBytes.toString('utf8'));
+assert.equal(verified.contentBlock.type, 'resource');
+assert.equal(verified.contentBlock.resource.mimeType, 'image/gif');
+assert.ok(verified.contentBlock.resource.uri.startsWith('render-artifact://'));
+assert.equal(Buffer.from(verified.contentBlock.resource.blob, 'base64').toString('utf8'), gifBytes.toString('utf8'));
 
 const operationResult = await attachRenderGifMcpContent({operation: 'render.blender_glb', toolName: 'command_center.render.blender_glb', result}, {storage: fakeStorage});
 assert.ok(Array.isArray(operationResult._mcpContent.content));
 assert.equal(operationResult._mcpContent.content.length, 2);
 const textBlock = operationResult._mcpContent.content.find((item) => item.type === 'text');
-const imageBlock = operationResult._mcpContent.content.find((item) => item.type === 'image');
+const resourceBlock = operationResult._mcpContent.content.find((item) => item.type === 'resource');
 assert.ok(textBlock);
-assert.ok(imageBlock);
-assert.equal(imageBlock.mimeType, 'image/gif');
-assert.ok(!textBlock.text.includes(imageBlock.data), 'JSON receipt must not contain inline media Base64');
+assert.ok(resourceBlock);
+assert.equal(resourceBlock.resource.mimeType, 'image/gif');
+assert.ok(!textBlock.text.includes(resourceBlock.resource.blob), 'JSON receipt must not contain embedded resource Base64');
 assert.ok(!textBlock.text.includes('https://storage.googleapis.com'), 'JSON receipt must not contain a public Storage URL');
 assert.ok(!textBlock.text.includes('X-Goog-Signature'), 'JSON receipt must not contain signed URL material');
 const receipt = JSON.parse(textBlock.text);
 assert.equal(receipt.result.inlineMediaDelivery.ok, true);
-assert.equal(receipt.result.inlineMediaDelivery.contentBlockType, 'image');
+assert.equal(receipt.result.inlineMediaDelivery.contentBlockType, 'resource');
 assert.equal(receipt.result.inlineMediaDelivery.sha256, gifSha);
+const sdkParse = CallToolResultSchema.safeParse(operationResult._mcpContent);
+assert.equal(sdkParse.success, true, sdkParse.success ? '' : JSON.stringify(sdkParse.error.issues));
 
 const mismatch = await verifiedRenderGifMcpContent(result, {storage: {bucket() { return {file() { return {async download() { return [Buffer.from('different')]; }}; }}; }}});
 assert.equal(mismatch.contentBlock, null);
