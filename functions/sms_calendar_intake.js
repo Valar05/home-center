@@ -279,21 +279,19 @@ async function calendarMatches(google, auth, record, args) {
 async function auditOnce(admin, id, payload, apply) {
   const db = admin.firestore();
   const ref = db.collection('smsCalendarAudit').doc(createHash('sha256').update(id).digest('hex'));
-  return db.runTransaction(async (tx) => {
-    const existing = await tx.get(ref);
-    if (existing.exists && existing.data().status === 'success') {
-      return {idempotent: true, ...(existing.data().result || {}), auditId: ref.id};
-    }
-    const result = await apply(tx);
-    tx.set(ref, {
-      ...payload,
-      requestId: id,
-      status: 'success',
-      createdAtMs: Date.now(),
-      result,
-    });
-    return {...result, auditId: ref.id};
+  const existing = await ref.get();
+  if (existing.exists && existing.data().status === 'success') {
+    return {idempotent: true, ...(existing.data().result || {}), auditId: ref.id};
+  }
+  const result = await apply();
+  await ref.set({
+    ...payload,
+    requestId: id,
+    status: 'success',
+    createdAtMs: Date.now(),
+    result,
   });
+  return {...result, auditId: ref.id};
 }
 
 async function createCalendarEvent({google, admin, auth, user, args, resolved}) {
