@@ -40,26 +40,8 @@ jobs:
         run: |
           target="${{ inputs.target }}"
           case "$target" in
-            cloud-worker)
-              config="cloud-worker/cloudbuild.yaml"
-              image="${{ inputs.region }}-docker.pkg.dev/${{ inputs.project }}/command-center-workers/debian-codex:${{ inputs.tag }}"
-              ;;
-            cloud-render)
-              config="cloud-render/cloudbuild.yaml"
-              image="${{ inputs.region }}-docker.pkg.dev/${{ inputs.project }}/command-center-workers/blender-render:${{ inputs.tag }}"
-              ;;
+            cloud-render) config="cloud-render/cloudbuild.yaml" ;;
+            cloud-worker) config="cloud-worker/cloudbuild.yaml" ;;
             *) echo "Unsupported target: $target" >&2; exit 2 ;;
           esac
-          build_id="$(gcloud builds submit . --project "${{ inputs.project }}" --config "$config" --substitutions=_IMAGE="$image" --async --format='value(id)')"
-          echo "Cloud Build id: $build_id"
-          for attempt in $(seq 1 120); do
-            status="$(gcloud builds describe "$build_id" --project "${{ inputs.project }}" --format='value(status)')"
-            echo "Cloud Build status: $status"
-            case "$status" in
-              SUCCESS) exit 0 ;;
-              FAILURE|INTERNAL_ERROR|TIMEOUT|CANCELLED|EXPIRED) exit 1 ;;
-            esac
-            sleep 10
-          done
-          echo "Cloud Build did not finish before polling timeout." >&2
-          exit 1
+          gcloud builds submit "$target" --project "${{ inputs.project }}" --config "$config" --substitutions=_TAG="${{ inputs.tag }}",_REGION="${{ inputs.region }}"
