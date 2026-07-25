@@ -20,7 +20,7 @@ deploy_command_center_mcp() {
     --gen2 \
     --project="$PROJECT" \
     --region="$REGION" \
-    --runtime=nodejs20 \
+    --runtime=nodejs22 \
     --source="$ROOT/functions" \
     --entry-point=commandCenterMcp \
     --trigger-http \
@@ -33,7 +33,7 @@ deploy_home_center_mcp() {
     --gen2 \
     --project="$PROJECT" \
     --region="$REGION" \
-    --runtime=nodejs20 \
+    --runtime=nodejs22 \
     --source="$ROOT/functions" \
     --entry-point=homeCenterMcp \
     --trigger-http \
@@ -48,7 +48,7 @@ deploy_she_raw_mcp() {
     --gen2 \
     --project="$PROJECT" \
     --region="$REGION" \
-    --runtime=nodejs20 \
+    --runtime=nodejs22 \
     --source="$ROOT/functions" \
     --entry-point=sheRawMcp \
     --trigger-http \
