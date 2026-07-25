@@ -380,7 +380,7 @@ HOME_CENTER_COMMAND_CENTER_BEARER_TOKEN=... node tools/command_center_chatgpt_in
 Deployed to Firebase/GCF gen2 on 2026-07-10 with:
 
 ```sh
-gcloud functions deploy commandCenterMcp --gen2 --runtime=nodejs20 --region=us-central1 --source=functions --entry-point=commandCenterMcp --trigger-http --allow-unauthenticated --timeout=300s --project=home-center-dclar
+gcloud functions deploy commandCenterMcp --gen2 --runtime=nodejs22 --region=us-central1 --source=functions --entry-point=commandCenterMcp --trigger-http --allow-unauthenticated --timeout=300s --project=home-center-dclar
 ```
 
 Live revision verified after deploy:
@@ -407,3 +407,7 @@ Home Center bridge revision `homecentermcp-00025-xuf` also exposes `command_cent
 
 - Red before deploy: `tools/command_center_invokability_evidence/command_center_home_bridge_invokability_predeploy-red-20260710.json` recorded `Tool command_center_operation not found`.
 - Green after deploy: `tools/command_center_invokability_evidence/command_center_home_bridge_invokability_postdeploy-green-20260710.json` recorded tool discovery and `operation=health` execution through Home Center MCP.
+
+## Generated Artifact Storage
+
+Generated artifacts use `gs://home-center-generated` as the canonical machine artifact store. Command Center staging, Blender render bundles, contact sheets, GIFs, GLBs, logs, and temporary upload materialization must write there first with SHA-256 metadata. Drive is only a publish destination after validation; see `docs/ARTIFACT_BUCKET_ARCHITECTURE.md`.

@@ -16,6 +16,7 @@ const {CARTESIA_DEFAULT_MODEL_ID, CARTESIA_DEFAULT_VOICE_NAME, listCartesiaVoice
 const {renderBlenderGlb: commandCenterRenderBlenderGlb} = require('./command_center_mcp');
 const cartesiaPitchShift = require('./cartesia_pitch_shift');
 const {renderAudioOperation, inspectAudioArtifactsOperation, uploadVerified: uploadVerifiedArtifact} = require('./audio_render_service');
+const {GENERATED_ARTIFACT_BUCKET, uploadGeneratedArtifact, publishGeneratedArtifactToDrive} = require('./artifact_bucket');
 
 const DEFAULT_MCP_PUBLIC_BASE = 'https://us-central1-home-center-dclar.cloudfunctions.net/homeCenterMcp';
 const MCP_PUBLIC_BASE = process.env.HOME_CENTER_MCP_PUBLIC_BASE || DEFAULT_MCP_PUBLIC_BASE;
@@ -30,7 +31,7 @@ const MCP_COMPAT_RESOURCE_METADATA = `${MCP_PUBLIC_BASE}/oauth-protected-resourc
 const MCP_AUTHORIZATION_SERVER_METADATA = `${MCP_PUBLIC_BASE}/.well-known/oauth-authorization-server`;
 const MCP_GOOGLE_CALLBACK = process.env.HOME_CENTER_MCP_GOOGLE_CALLBACK || `${MCP_PUBLIC_BASE}/oauth/google-callback`;
 const COMMAND_CENTER_MCP_URL = process.env.COMMAND_CENTER_MCP_URL || 'https://us-central1-home-center-dclar.cloudfunctions.net/commandCenterMcp/mcp';
-const COMMAND_CENTER_RENDER_BUCKET = process.env.COMMAND_CENTER_RENDER_BUCKET || process.env.RENDER_CACHE_BUCKET || process.env.COMMAND_CENTER_BUCKET || 'home-center-dclar-command-center-renders';
+const COMMAND_CENTER_RENDER_BUCKET = process.env.COMMAND_CENTER_RENDER_BUCKET || process.env.HOME_CENTER_GENERATED_BUCKET || process.env.COMMAND_CENTER_GENERATED_BUCKET || process.env.RENDER_CACHE_BUCKET || process.env.COMMAND_CENTER_BUCKET || 'home-center-generated';
 const HOME_CENTER_RENDER_MAX_GLB_BYTES = Number(process.env.COMMAND_CENTER_RENDER_MAX_GLB_BYTES || 250 * 1024 * 1024);
 const HOME_CENTER_RENDER_MAX_SCRIPT_BYTES = Number(process.env.COMMAND_CENTER_RENDER_MAX_SCRIPT_BYTES || 1024 * 1024);
 const HOME_CENTER_DIRECT_RENDER_TEXT_LIMIT = 1024 * 1024;
@@ -609,6 +610,13 @@ function homeCenterRenderOwnerKey(user = {}) {
   return safeText(user.email || user.sub || user.uid || 'unknown', 320).replace(/[^A-Za-z0-9_.@-]+/g, '_') || 'unknown';
 }
 
+function generatedArtifactOwnerKey(user = {}) {
+  const email = safeText(user.email, 320).toLowerCase();
+  if (email === 'dclarke1005@gmail.com') return 'drew';
+  if (email === 'junewren28@gmail.com') return 'june';
+  return homeCenterRenderOwnerKey(user).toLowerCase();
+}
+
 function driveRenderFileId(ref) {
   const raw = safeText(ref, 1200).replace(/^drive:\/\//i, '');
   const id = raw.split(/[?#/]/).filter(Boolean).pop() || raw;
@@ -642,7 +650,7 @@ function parseRenderGsRef(ref) {
   const match = text.match(/^gs:\/\/([^/]+)\/(.+)$/i);
   if (!match) throw homeCenterRenderInputError('Inline render delivery requires a private gs:// artifact ref.', 400, 'render_inline_artifact_ref_invalid');
   if (match[1] !== COMMAND_CENTER_RENDER_BUCKET) throw homeCenterRenderInputError('Inline render delivery refused artifact outside the configured private render bucket.', 403, 'render_inline_artifact_owner_scope_failed');
-  if (!match[2].startsWith('command-center-renders/')) throw homeCenterRenderInputError('Inline render delivery refused artifact outside the render artifact prefix.', 403, 'render_inline_artifact_owner_scope_failed');
+  if (!match[2].startsWith('renders/gifs/') && !match[2].startsWith('command-center-renders/')) throw homeCenterRenderInputError('Inline render delivery refused artifact outside the render artifact prefix.', 403, 'render_inline_artifact_owner_scope_failed');
   return {bucket: match[1], name: match[2], ref: text};
 }
 
@@ -695,7 +703,7 @@ async function verifiedRenderGifMcpContent(result = {}, {storage = null, google 
   if (!google || !auth) return {contentBlock: null, delivery: {...deliveryBase, ok: false, byteCount: buffer.length, sha256: readbackSha256, errorCode: 'render_gif_resource_link_auth_missing', message: 'Verified GIF readback succeeded, but authenticated Drive context was unavailable for resource_link creation.'}};
   const uploaded = await uploadVerifiedArtifact({google, auth, parentFolderId, item: {name: 'walk-loop.gif', format: 'gif', mimeType: 'image/gif', bytes: buffer, byteCount: buffer.length, sha256: readbackSha256, clipMetrics: {}}});
   const contentBlock = uploaded.chatGptFileRef;
-  return {contentBlock, delivery: {...deliveryBase, ok: true, durableRef: uploaded.durableRef, byteCount: uploaded.byteCount, sha256: uploaded.sha256, readbackByteCount: uploaded.readbackByteCount, readbackSha256: uploaded.readbackSha256, fileId: uploaded.fileId || '', contentBlockType: contentBlock.type, message: 'Private GCS GIF readback verified and attached as authenticated resource_link.'}};
+  return {contentBlock, delivery: {...deliveryBase, ok: true, durableRef: uploaded.durableRef, storageRef: uploaded.storageRef || uploaded.durableRef, driveDurableRef: uploaded.driveDurableRef || (uploaded.fileId ? 'drive://' + uploaded.fileId : ''), byteCount: uploaded.byteCount, sha256: uploaded.sha256, readbackByteCount: uploaded.readbackByteCount, readbackSha256: uploaded.readbackSha256, fileId: uploaded.fileId || '', contentBlockType: contentBlock.type, message: 'Private GCS GIF readback verified and attached as authenticated resource_link.'}};
 }
 
 async function attachRenderGifMcpContent(operationResult = {}, options = {}) {
@@ -797,7 +805,7 @@ async function stageHomeCenterDriveRenderInput({google, auth, user, renderId, ro
     const media = await drive.files.get({fileId, alt: 'media', supportsAllDrives: true}, {responseType: 'stream'});
     const safeFile = cleanRenderUploadName(meta.data && meta.data.name, renderFallbackName(role));
     const ownerKey = homeCenterRenderOwnerKey(user);
-    const basePrefix = 'command-center-render-inputs/home-center-bridge/' + ownerKey + '/' + (safeText(renderId, 180) || 'render') + '/';
+    const basePrefix = 'temp/render-inputs/home-center-bridge/' + ownerKey + '/' + (safeText(renderId, 180) || 'render') + '/';
     const tempName = basePrefix + '.tmp-' + role + '-' + randomUUID() + '-' + safeFile;
     const bucket = new Storage().bucket(COMMAND_CENTER_RENDER_BUCKET);
     const tempFile = bucket.file(tempName);
@@ -849,10 +857,10 @@ function renderSourceCacheKey(role, label) {
   return createHash('sha256').update(role + ':' + label).digest('hex');
 }
 function renderGitHubCacheManifestName(role, label) {
-  return 'command-center-render-inputs/github-cache/' + role + '/' + renderSourceCacheKey(role, label) + '.json';
+  return 'temp/render-inputs/github-cache/' + role + '/' + renderSourceCacheKey(role, label) + '.json';
 }
 function renderGitHubCacheObjectName(role, label, digest, safeFile) {
-  return 'command-center-render-inputs/github-cache/' + role + '/' + renderSourceCacheKey(role, label) + '-' + digest.sha256 + '-' + safeFile;
+  return 'temp/render-inputs/github-cache/' + role + '/' + renderSourceCacheKey(role, label) + '-' + digest.sha256 + '-' + safeFile;
 }
 async function readCachedGitHubRenderInput(bucket, role, label) {
   const manifestFile = bucket.file(renderGitHubCacheManifestName(role, label));
@@ -944,7 +952,7 @@ async function stageHomeCenterGitHubRenderInput({githubToken, user, renderId, ro
   }
   validateRenderMediaSize(response.headers.get('content-length'), role, label);
   if (!response.body) throw homeCenterRenderInputError('github_input_download_auth_failed: GitHub response did not include a readable body for ' + role + '.', 502, 'github_input_download_auth_failed');
-  const tempName = 'command-center-render-inputs/github-cache/' + role + '/.tmp-' + role + '-github-' + randomUUID() + '-' + safeFile;
+  const tempName = 'temp/render-inputs/github-cache/' + role + '/.tmp-' + role + '-github-' + randomUUID() + '-' + safeFile;
   const tempFile = bucket.file(tempName);
   const validator = renderStreamValidator(role, label);
   const streamStartedAtMs = renderNowMs();
@@ -981,7 +989,7 @@ async function stageHomeCenterRenderInput({user, renderId, role, sourceRef, file
   if (!COMMAND_CENTER_RENDER_BUCKET) throw homeCenterRenderInputError('COMMAND_CENTER_RENDER_BUCKET is not configured for render input staging.', 503, 'transport');
   const hash = sha256RenderBytes(bytes);
   const safeFile = cleanRenderUploadName(fileName, renderFallbackName(role));
-  const objectName = 'command-center-render-inputs/home-center-bridge/' + homeCenterRenderOwnerKey(user) + '/' + (safeText(renderId, 180) || 'render') + '/' + role + '-' + hash + '-' + safeFile;
+  const objectName = 'temp/render-inputs/home-center-bridge/' + homeCenterRenderOwnerKey(user) + '/' + (safeText(renderId, 180) || 'render') + '/' + role + '-' + hash + '-' + safeFile;
   await new Storage().bucket(COMMAND_CENTER_RENDER_BUCKET).file(objectName).save(bytes, {
     resumable: false,
     metadata: {
@@ -3679,43 +3687,50 @@ async function synthesizeCartesiaAudioArtifactOperation({google, admin, auth, us
   const parentFolderId = safeText(args.parentFolderId, 220) ? safeDriveFileId(args.parentFolderId) : '';
   const fallbackName = 'cartesia-tts-' + requestId + '.' + audioFormat.extension;
   const suppliedName = safeText(args.name || args.fileName || args.title, 240);
-  const baseName = safeArtifactName(suppliedName || fallbackName, fallbackName).replace(new RegExp('\\.' + audioFormat.extension + '$', 'i'), '');
+  const baseName = safeArtifactName(suppliedName || fallbackName, fallbackName).replace(new RegExp('\.' + audioFormat.extension + '$', 'i'), '');
   const name = baseName + '.' + audioFormat.extension;
   const synthesis = await synthesizeCartesiaAudioBytes({cartesiaApiKey, args, audioFormat, sampleRate});
   const audio = synthesis.audio;
   const digest = {byteCount: audio.length, sha256: sha256Hex(audio)};
-  const drive = google.drive({version: 'v3', auth});
-  const media = {mimeType: audioFormat.mimeType, body: Readable.from([audio])};
-  const created = await drive.files.create({
-    requestBody: {name, mimeType: audioFormat.mimeType, ...(parentFolderId ? {parents: [parentFolderId]} : {})},
-    media,
-    fields: driveFields(),
-    supportsAllDrives: true,
+  const stage = safeText(args.stage, 80) || (args.approved === true ? 'final' : 'voice-test');
+  const storageArtifact = await uploadGeneratedArtifact({
+    bytes: audio,
+    name,
+    mimeType: audioFormat.mimeType,
+    owner: generatedArtifactOwnerKey(user),
+    project: safeText(args.project, 160) || 'home-center',
+    stage,
+    engine: 'cartesia',
+    createdBy: 'home-center-mcp',
+    jobId: requestId,
+    commit: safeText(process.env.K_REVISION || '', 80),
+    approved: args.approved === true,
+    requestId,
+    artifactType: 'audio',
   });
-  const metadata = cleanDriveFile(created.data || {});
-  const fileId = safeDriveFileId(metadata.id);
-  const after = await getDriveMetadata(drive, fileId).catch(() => metadata);
-  const readback = await drive.files.get({fileId, alt: 'media', supportsAllDrives: true}, {responseType: 'arraybuffer'});
-  const readbackBuffer = mediaBuffer(readback.data);
-  const readbackDigest = {byteCount: readbackBuffer.length, sha256: sha256Hex(readbackBuffer)};
-  if (readbackDigest.byteCount !== digest.byteCount || readbackDigest.sha256 !== digest.sha256) {
-    const err = new Error('Drive readback verification failed for ' + name + ': wrote ' + digest.byteCount + '/' + digest.sha256 + ', read ' + readbackDigest.byteCount + '/' + readbackDigest.sha256 + '.');
-    err.status = 502;
-    throw err;
-  }
+  const driveArtifact = await publishGeneratedArtifactToDrive({google, auth, parentFolderId, artifact: storageArtifact, bytes: audio});
+  const fileId = safeDriveFileId(driveArtifact && driveArtifact.fileId || '');
+  const after = driveArtifact ? {id: fileId, name, mimeType: audioFormat.mimeType, webViewLink: driveArtifact.webViewLink || '', parents: driveArtifact.parentFolderId ? [driveArtifact.parentFolderId] : []} : {};
   const result = {
     provider: 'cartesia',
+    artifactStore: {primary: 'gcs', bucket: GENERATED_ARTIFACT_BUCKET, drivePublish: driveArtifact ? 'post_render_publish_step' : 'disabled', driveIsRenderCache: false},
+    durableRef: storageArtifact.storageRef,
+    storageRef: storageArtifact.storageRef,
+    primaryStore: 'gcs',
+    driveDurableRef: driveArtifact && driveArtifact.durableRef || '',
     fileId,
     id: fileId,
-    name: after.name || metadata.name || name,
-    mimeType: after.mimeType || metadata.mimeType || audioFormat.mimeType,
-    webViewLink: after.webViewLink || metadata.webViewLink || '',
-    parentFolderId: ((after.parents || metadata.parents || [])[0]) || parentFolderId,
+    name,
+    mimeType: audioFormat.mimeType,
+    webViewLink: driveArtifact && driveArtifact.webViewLink || '',
+    parentFolderId: driveArtifact && driveArtifact.parentFolderId || parentFolderId,
     byteCount: digest.byteCount,
     sha256: digest.sha256,
-    readbackByteCount: readbackDigest.byteCount,
-    readbackSha256: readbackDigest.sha256,
-    verified: true,
+    readbackByteCount: storageArtifact.readbackByteCount,
+    readbackSha256: storageArtifact.readbackSha256,
+    driveReadbackByteCount: driveArtifact && driveArtifact.readbackByteCount || 0,
+    driveReadbackSha256: driveArtifact && driveArtifact.readbackSha256 || '',
+    verified: storageArtifact.verified === true && (!driveArtifact || driveArtifact.readbackSha256 === digest.sha256),
     audioFormat: audioFormat.format,
     sampleRate,
     channelCount: 1,
@@ -3730,7 +3745,8 @@ async function synthesizeCartesiaAudioArtifactOperation({google, admin, auth, us
     stitched: Boolean(synthesis.stitched),
     segmentPauseMs: synthesis.segmentPauseMs || 0,
     segments: synthesis.segments,
-    metadata: after,
+    metadata: storageArtifact.metadata,
+    driveMetadata: after,
     auditRequestId: requestId,
   };
   const audit = await auditWrite(admin, {
@@ -3740,9 +3756,10 @@ async function synthesizeCartesiaAudioArtifactOperation({google, admin, auth, us
     operation: 'tts.synthesize',
     requestId,
     fileId,
-    affectedFileIds: [fileId],
+    affectedFileIds: fileId ? [fileId] : [],
+    affectedStorageRefs: [storageArtifact.storageRef],
     oldMetadata: null,
-    newMetadata: after,
+    newMetadata: {storage: storageArtifact.metadata, drive: after},
     oldParents: [],
     newParents: after.parents || [],
     reversible: false,
@@ -3751,7 +3768,7 @@ async function synthesizeCartesiaAudioArtifactOperation({google, admin, auth, us
     providerSummary: safeText(args.callerNote, 400) || 'Synthesized Cartesia audio artifact ' + name + ' (' + digest.byteCount + ' bytes, sha256 ' + digest.sha256 + ').',
     result,
   });
-  await recordActionAudit(admin, user, 'tts.synthesize', fileId, safeText(args.callerNote, 400) || 'Synthesized Cartesia audio artifact ' + name + ' (' + digest.byteCount + ' bytes).', requestId);
+  await recordActionAudit(admin, user, 'tts.synthesize', storageArtifact.storageRef || fileId, safeText(args.callerNote, 400) || 'Synthesized Cartesia audio artifact ' + name + ' (' + digest.byteCount + ' bytes).', requestId);
   return {...result, audit: audit.audit};
 }
 
@@ -4071,12 +4088,12 @@ function driveOperationRegistry() {
         output: {provider: 'cartesia', catalog: 'provider_live', filters: 'object', supportedFilters: 'object', pagination: 'object', voices: 'array with id/name/language/locale/gender/accent/country/metadata'},
       },
       'audio.render': {
-        summary: 'Render deterministic procedural, source-backed, or direct Cartesia speech audio inside Home Center MCP through a declarative JSON recipe. Speech nodes resolve character profiles such as Isaac/Clyde, forward structured Cartesia emotion/speed/volume generation_config, apply tempo-preserving pitch, and return verified Drive artifacts plus a structured inline-playable MCP audio block. It never creates a Command Center job, Codex execution, LLM prompt, worker lease, GitHub Actions renderer, or Termux runtime process.',
+        summary: 'Render deterministic procedural, source-backed, or direct Cartesia speech audio inside Home Center MCP through a declarative JSON recipe. Speech nodes resolve character profiles such as Isaac/Clyde, forward structured Cartesia emotion/speed/volume generation_config, apply tempo-preserving pitch, write verified GCS artifacts, return Drive resource links only as a publish step, and return a structured inline-playable MCP audio block. It never creates a Command Center job, Codex execution, LLM prompt, worker lease, GitHub Actions renderer, or Termux runtime process.',
         write: true,
         requiresRequestId: true,
         requiredScopes: ['https://www.googleapis.com/auth/drive'],
         input: {scriptText: 'required JSON audio recipe DSL; no imports, network, shell, process, filesystem, or arbitrary code execution; supports speech, audition, and speech_sequence nodes with text, speaker, character or voiceName/voiceId, modelId, emotion, speed, volume, pitchSemitones, pauseMs, master, and bounded concurrency', sources: 'optional object binding friendly names to inline contentBase64 or drive:// refs; WAV sources decode to clips', settings: 'optional deterministic renderer settings including seed, sampleRate, timeoutMs, allowClipping, speechDefaults, speechConcurrency', returnInlineAudio: 'optional boolean; defaults true for small audio, set false for long-form responses so durable resource links remain authoritative', idempotencyKey: 'string alias for requestId', requestId: 'string', parentFolderId: 'optional Drive folder id', callerNote: 'optional string'},
-        output: {ok: 'true', status: 'completed', renderer: 'home-center-deterministic-audio-v1', primaryOutput: 'inline playable audio plus durable Drive ref', speech: 'Cartesia speech provenance with resolved character profile, exact segment speaker ownership, emotion, speed, volume, pitch, duration ratio, sequence metadata, and take metadata', outputs: 'array with name, MIME, duration, sampleRate, channels, codec, bytes, SHA-256, readback hash, peak, LUFS, clipping, durable ref, ChatGPT file ref', manifest: 'verified JSON manifest artifact', noAgentRuntime: 'true'},
+        output: {ok: 'true', status: 'completed', renderer: 'home-center-deterministic-audio-v1', primaryOutput: 'inline playable audio plus canonical GCS durable ref and optional Drive resource link', speech: 'Cartesia speech provenance with resolved character profile, exact segment speaker ownership, emotion, speed, volume, pitch, duration ratio, sequence metadata, and take metadata', outputs: 'array with name, MIME, duration, sampleRate, channels, codec, bytes, SHA-256, readback hash, peak, LUFS, clipping, durable ref, ChatGPT file ref', manifest: 'verified JSON manifest artifact', noAgentRuntime: 'true'},
         agentRecipe: {
           whenUserSays: 'Render procedural sound effects, ambience, foley, layered audio beds, stems, waveform, or spectrogram directly from ChatGPT.',
           prefer: 'Call drive_operation with operation=audio.render. Keep scriptText as the Home Center JSON audio DSL; use speech/audition/speech_sequence recipe nodes for direct Cartesia speech, separate emotional contexts, and long-form attributed dialogue. Do not use Command Center, Codex, workers, GitHub Actions, or a newly exposed top-level MCP tool.',
@@ -4084,10 +4101,10 @@ function driveOperationRegistry() {
         },
       },
       'audio.render_artifacts': {
-        summary: 'Read back audio.render durable artifact refs through Home Center MCP Google OAuth, verify byte count/SHA-256 against expected receipt metadata, and return redacted container/header evidence. This is the direct verifier for ChatGPT-side acceptance and does not expose Drive OAuth tokens or signed URLs.',
+        summary: 'Read back audio.render durable artifact refs through Home Center MCP Google OAuth, verify byte count/SHA-256 against expected receipt metadata, and return redacted container/header evidence. This is the direct verifier for ChatGPT-side acceptance and does not expose Google OAuth tokens or signed URLs.',
         write: false,
         requiredScopes: ['https://www.googleapis.com/auth/drive'],
-        input: {artifactRefs: 'array of drive:// refs returned by audio.render', expected: 'optional array with durableRef/ref, byteCount, and sha256 values from the render receipt', decodeCheck: 'optional boolean; when true Home Center decodes WAV directly and encoded audio with deployed FFmpeg after authorized Drive readback'},
+        input: {artifactRefs: 'array of gs:// refs returned by audio.render, or legacy drive:// refs', expected: 'optional array with durableRef/ref, byteCount, and sha256 values from the render receipt', decodeCheck: 'optional boolean; when true Home Center decodes WAV directly and encoded audio with deployed FFmpeg after authorized Drive readback'},
         output: {ok: 'boolean', artifactCount: 'number', decodeCheck: 'boolean', artifacts: 'array with name, MIME, byteCount, sha256, match booleans, WAV/OGG/PNG header evidence, and optional decodeCheck evidence'},
       },
       'audio.render_status': {
@@ -4098,15 +4115,15 @@ function driveOperationRegistry() {
         output: {ok: 'boolean', status: 'missing|running|completed|failed', requestId: 'string', result: 'completed receipt when available'},
       },
       'tts.synthesize': {
-        summary: 'Synthesize one or more speaker segments with Cartesia directly, stitch them into one audio file, save it as a private Drive artifact, verify readback byte count and SHA-256, and audit the write. No Command Center job or worker is involved.',
+        summary: 'Synthesize one or more speaker segments with Cartesia directly, stitch them into one audio file, save it to the generated GCS bucket, publish a private Drive copy when needed, verify readback byte count and SHA-256, and audit the write. No Command Center job or worker is involved.',
         write: true,
         requiresRequestId: true,
         requiredScopes: ['https://www.googleapis.com/auth/drive'],
         input: {text: 'string for single-speaker synthesis, or omit when segments is supplied', segments: 'optional array of {speaker,text,voiceName,voiceId,modelId,pitchSemitones}; segments are synthesized separately and stitched in order', voiceName: 'optional default Cartesia voice name, default Katie - Friendly Fixer', voiceId: 'optional default Cartesia voice id', modelId: 'optional default Cartesia model id', pitchSemitones: 'optional tempo-preserving pitch shift default, finite number -12 through 12, default 0', format: 'optional wav or raw, default wav', sampleRate: 'optional number, default 24000', pauseMs: 'optional silence between stitched segments, default 0', name: 'optional Drive filename', parentFolderId: 'optional Drive folder id', requestId: 'string', callerNote: 'optional string'},
-        output: {provider: 'cartesia', fileId: 'string', webViewLink: 'string', byteCount: 'number', sha256: 'string', readbackByteCount: 'number', readbackSha256: 'string', verified: 'boolean', segmentCount: 'number', segments: 'array', voiceName: 'string', modelId: 'string', audit: 'object'},
+        output: {provider: 'cartesia', durableRef: 'canonical gs:// ref', storageRef: 'canonical gs:// ref', fileId: 'published Drive file id', webViewLink: 'string', byteCount: 'number', sha256: 'string', readbackByteCount: 'number', readbackSha256: 'string', verified: 'boolean', segmentCount: 'number', segments: 'array', voiceName: 'string', modelId: 'string', audit: 'object'},
         agentRecipe: {
           whenUserSays: 'Generate TTS, make speech, narrate text, produce a Cartesia audio file, or render multiple speakers into one stitched audio artifact from ChatGPT.',
-          prefer: 'Call cartesia_synthesize directly, or drive_operation with operation=tts.synthesize when the top-level alias is unavailable. Return the Drive link and verification metadata to the user; do not inline Base64 audio in chat. Do not create a Command Center job for Cartesia synthesis.',
+          prefer: 'Call cartesia_synthesize directly, or drive_operation with operation=tts.synthesize when the top-level alias is unavailable. Return the GCS durable ref, published Drive link, and verification metadata to the user; do not inline Base64 audio in chat. Do not create a Command Center job for Cartesia synthesis.',
           verification: 'Treat verified=true with matching byteCount/SHA-256 readback and the returned segmentCount/segments as the acceptance signal.',
         },
       },
@@ -4649,7 +4666,7 @@ function createHomeCenterMcpServer({google, admin, googleClientId, googleClientS
 
   server.registerTool('cartesia_synthesize', {
     title: 'Cartesia synthesize',
-    description: 'Synthesize one or more speaker segments with Cartesia directly, stitch them into one audio file, save it as a private Drive artifact, verify readback byte count and SHA-256, and audit the write. This does not use Command Center jobs or workers.',
+    description: 'Synthesize one or more speaker segments with Cartesia directly, stitch them into one audio file, save it to the generated GCS bucket, publish a private Drive copy when needed, verify readback byte count and SHA-256, and audit the write. This does not use Command Center jobs or workers.',
     inputSchema: {
       text: z.string().optional().describe('Single-speaker text. Omit when segments is supplied.'),
       segments: z.array(z.object({
@@ -4667,7 +4684,7 @@ function createHomeCenterMcpServer({google, admin, googleClientId, googleClientS
       format: z.enum(['wav', 'raw']).optional().default('wav'),
       sampleRate: z.number().int().min(8000).max(48000).default(24000),
       pauseMs: z.number().int().min(0).max(5000).optional().describe('Optional silence inserted between stitched segments. Defaults to 0.'),
-      name: z.string().optional().describe('Optional Drive filename.'),
+      name: z.string().optional().describe('Optional artifact filename.'),
       parentFolderId: z.string().optional().describe('Optional Drive folder ID for the audio artifact.'),
       callerNote: z.string().optional().describe('Human-readable summary for the audit log.'),
       requestId: z.string().describe('Stable idempotency/audit request id. Required.'),

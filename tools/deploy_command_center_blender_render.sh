@@ -7,7 +7,7 @@ REGION="${GCLOUD_REGION:-us-central1}"
 REPOSITORY="${COMMAND_CENTER_RENDER_REPOSITORY:-command-center-workers}"
 SERVICE="${COMMAND_CENTER_RENDER_SERVICE:-command-center-blender-render}"
 IMAGE="${REGION}-docker.pkg.dev/${PROJECT}/${REPOSITORY}/blender-render:latest"
-CACHE_BUCKET="${COMMAND_CENTER_RENDER_BUCKET:-${PROJECT}-command-center-renders}"
+CACHE_BUCKET="${COMMAND_CENTER_RENDER_BUCKET:-${HOME_CENTER_GENERATED_BUCKET:-home-center-generated}}"
 CPU="${COMMAND_CENTER_RENDER_CPU:-2}"
 MEMORY="${COMMAND_CENTER_RENDER_MEMORY:-4Gi}"
 MIN_INSTANCES="${COMMAND_CENTER_RENDER_MIN_INSTANCES:-1}"
@@ -39,7 +39,7 @@ gcloud run deploy "$SERVICE" \
   --memory "$MEMORY" \
   --timeout 900 \
   --min-instances "$MIN_INSTANCES" \
-  --set-env-vars "RENDER_CACHE_BUCKET=${CACHE_BUCKET}" \
+  --set-env-vars "RENDER_CACHE_BUCKET=${CACHE_BUCKET},HOME_CENTER_GENERATED_BUCKET=${CACHE_BUCKET},COMMAND_CENTER_GENERATED_BUCKET=${CACHE_BUCKET}" \
   $SERVICE_ACCOUNT_ARG
 
 SERVICE_URL="$(gcloud run services describe "$SERVICE" --project "$PROJECT" --region "$REGION" --format='value(status.url)')"
