@@ -1,0 +1,24 @@
+name: Deployment blocker
+description: Record a blocked deploy or missing authority
+title: "Deploy blocker: "
+labels: [deployment, blocker]
+body:
+  - type: textarea
+    id: blocker
+    attributes:
+      label: Blocker
+      description: Exact missing credential, failed command, or external boundary.
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidence
+      description: Redacted command output, workflow URL, or doctor report path.
+    validations:
+      required: true
+  - type: textarea
+    id: recovery
+    attributes:
+      label: Recovery step
+      description: Smallest safe next action.

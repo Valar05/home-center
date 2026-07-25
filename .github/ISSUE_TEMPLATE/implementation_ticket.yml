@@ -1,0 +1,24 @@
+name: Implementation ticket
+description: Structured Home Center implementation request
+title: "Implement: "
+labels: [implementation]
+body:
+  - type: textarea
+    id: objective
+    attributes:
+      label: Objective
+      description: What should change?
+    validations:
+      required: true
+  - type: textarea
+    id: constraints
+    attributes:
+      label: Constraints
+      description: Scope, forbidden changes, and compatibility rules.
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance evidence
+      description: Tests, deploy proof, artifacts, screenshots, or logs required.
+    validations:
+      required: true
