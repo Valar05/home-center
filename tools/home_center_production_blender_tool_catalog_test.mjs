@@ -110,7 +110,7 @@ function assertHostFileSchema(schema, name, mediaType) {
 function redact(value) {
   if (Array.isArray(value)) return value.map(redact);
   if (!value || typeof value !== 'object') return value;
-  return Object.fromEntries(Object.entries(value).map(([key, item]) => [/token|authorization|secret/i.test(key) ? [key, item ? '[redacted]' : item] : [key, redact(item)]]));
+  return Object.fromEntries(Object.entries(value).map(([key, item]) => /token|authorization|secret/i.test(key) ? [key, item ? '[redacted]' : item] : [key, redact(item)]));
 }
 
 const args = parseArgs(process.argv.slice(2));
