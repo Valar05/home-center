@@ -15,7 +15,7 @@ const {z} = require('zod/v4');
 const {CARTESIA_DEFAULT_MODEL_ID, CARTESIA_DEFAULT_VOICE_NAME, listCartesiaVoiceCatalog, listCartesiaVoices, normalizeCartesiaVoice, openCartesiaStream} = require('./hosted_speech_provider');
 const {renderBlenderGlb: commandCenterRenderBlenderGlb} = require('./command_center_mcp');
 const cartesiaPitchShift = require('./cartesia_pitch_shift');
-const {renderAudioOperation, inspectAudioArtifactsOperation, uploadVerified: uploadVerifiedArtifact} = require('./audio_render_service');
+const {renderAudioOperation, audioRenderStatusOperation, inspectAudioArtifactsOperation, uploadVerified: uploadVerifiedArtifact} = require('./audio_render_service');
 const {GENERATED_ARTIFACT_BUCKET, uploadGeneratedArtifact, publishGeneratedArtifactToDrive} = require('./artifact_bucket');
 
 const DEFAULT_MCP_PUBLIC_BASE = 'https://us-central1-home-center-dclar.cloudfunctions.net/homeCenterMcp';
@@ -1377,7 +1377,7 @@ async function auditWrite(admin, entry) {
   const requestId = stableRequestId(entry.requestId);
   const ref = mcpCollection(admin, 'driveBridgeAudit').doc(requestId);
   const existing = await ref.get();
-  if (existing.exists && existing.data().status === 'success') {
+  if (existing.exists && ['success', 'completed'].includes(existing.data().status)) {
     return {idempotent: true, audit: existing.data()};
   }
   const payload = {
@@ -1389,6 +1389,7 @@ async function auditWrite(admin, entry) {
     requestId,
     fileId: safeText(entry.fileId, 220),
     affectedFileIds: Array.isArray(entry.affectedFileIds) ? entry.affectedFileIds.map((v) => safeText(v, 220)).filter(Boolean) : [],
+    affectedStorageRefs: Array.isArray(entry.affectedStorageRefs) ? entry.affectedStorageRefs.map((v) => safeText(v, 1200)).filter(Boolean) : [],
     oldMetadata: entry.oldMetadata || null,
     newMetadata: entry.newMetadata || null,
     oldParents: entry.oldParents || [],
@@ -1400,6 +1401,11 @@ async function auditWrite(admin, entry) {
     status: safeText(entry.status, 80) || 'success',
     providerSummary: safeText(entry.providerSummary, 1000),
     result: entry.result || null,
+    audioRenderJob: entry.audioRenderJob || null,
+    progress: entry.progress || null,
+    lease: entry.lease || null,
+    submittedAtMs: Math.floor(safeNumber(entry.submittedAtMs, 0)) || null,
+    updatedAtMs: Math.floor(safeNumber(entry.updatedAtMs, nowMs())) || nowMs(),
     inputSha256: safeText(entry.inputSha256, 128),
     error: safeText(entry.error, 1000),
   };
@@ -4242,7 +4248,7 @@ async function driveOperationRunOperation({google, admin, auth, user, extra = nu
     const cleanResult = {...result};
     const mcpContent = cleanResult._mcpContent;
     delete cleanResult._mcpContent;
-    return {operation, registryVersion: registry.version, completed: true, result: cleanResult, _mcpContent: mcpContent};
+    return {operation, registryVersion: registry.version, completed: cleanResult.status === 'completed', result: cleanResult, _mcpContent: mcpContent};
   }
   if (operation === 'audio.render_artifacts') {
     const result = await inspectAudioArtifactsOperation({google, auth, args: operationArgs});
@@ -4250,9 +4256,7 @@ async function driveOperationRunOperation({google, admin, auth, user, extra = nu
   }
   if (operation === 'audio.render_status') {
     const requestId = createRequestId(operationArgs.requestId || operationArgs.idempotencyKey);
-    const audit = await existingAudit(admin, requestId);
-    const status = !audit ? 'missing' : audit.status === 'success' ? 'completed' : safeText(audit.status, 80) || 'completed';
-    const result = {ok: status !== 'missing', operation: 'audio.render_status', requestId, status, result: audit && audit.result || null, inputSha256: audit && audit.inputSha256 || '', audit: audit ? {...audit, result: null} : null};
+    const result = await audioRenderStatusOperation({admin, requestId, helpers: {existingAudit, auditWrite}});
     return {operation, registryVersion: registry.version, completed: true, result};
   }
   const workflowId = safeOperationBatchId(args.operationBatchId || operationArgs.operationBatchId || operationArgs.requestId || ('drive-operation-' + randomUUID()));

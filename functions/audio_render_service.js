@@ -19,6 +19,8 @@ const SPEECH_SEQUENCE_DEFAULT_CONCURRENCY = Number(process.env.HOME_CENTER_AUDIO
 const MAX_SOURCE_BYTES = Number(process.env.HOME_CENTER_AUDIO_RENDER_MAX_SOURCE_BYTES || 50 * 1024 * 1024);
 const MAX_GRAPH_NODES = Number(process.env.HOME_CENTER_AUDIO_RENDER_MAX_GRAPH_NODES || 250);
 const DEFAULT_TIMEOUT_MS = Number(process.env.HOME_CENTER_AUDIO_RENDER_TIMEOUT_MS || 55000);
+const AUDIO_RENDER_LEASE_MS = Number(process.env.HOME_CENTER_AUDIO_RENDER_LEASE_MS || 120000);
+const AUDIO_RENDER_STALE_MS = Number(process.env.HOME_CENTER_AUDIO_RENDER_STALE_MS || 10 * 60 * 1000);
 
 const SPEECH_MAX_TEXT_CHARS = 12000;
 const CARTESIA_SPEECH_SAMPLE_RATE_MAX = 48000;
@@ -684,6 +686,7 @@ async function synthesizeSpeechClip(op = {}, context = {}, overrides = {}) {
     retryCount: 0,
   };
   if (!overrides.deferProvenance) context.speechProvenance.push(provenance);
+  if (typeof context.onSpeechTake === 'function') await context.onSpeechTake(provenance);
   return {clip, profile, speech, provenance};
 }
 
@@ -976,7 +979,7 @@ async function renderRecipe(recipe, sources, settings = {}) {
   const graph = Array.isArray(recipe.graph) ? recipe.graph : [];
   if (!graph.length || graph.length > MAX_GRAPH_NODES) throw audioError('Recipe graph must contain 1 to ' + MAX_GRAPH_NODES + ' nodes.', 400, 'audio_render_validation_failed');
   const clips = new Map();
-  const context = {sampleRate, seed, speechDefaults: recipe.speechDefaults || settings.speechDefaults || {}, cartesiaApiKey: settings.cartesiaApiKey || (() => ''), speechConcurrency: settings.speechConcurrency || recipe.speechConcurrency || SPEECH_SEQUENCE_DEFAULT_CONCURRENCY, speechProvenance: [], speechSequences: [], auditionTakes: [], usesCartesia: false};
+  const context = {sampleRate, seed, speechDefaults: recipe.speechDefaults || settings.speechDefaults || {}, cartesiaApiKey: settings.cartesiaApiKey || (() => ''), speechConcurrency: settings.speechConcurrency || recipe.speechConcurrency || SPEECH_SEQUENCE_DEFAULT_CONCURRENCY, onSpeechTake: settings.onSpeechTake, speechProvenance: [], speechSequences: [], auditionTakes: [], usesCartesia: false};
   for (const op of graph) await applyOp(op || {}, clips, sources, context);
   const finalId = safeText(recipe.final || (graph[graph.length - 1] || {}).id, 120);
   const finalClip = ensureClip(clips.get(finalId), 'final clip');
@@ -1185,62 +1188,179 @@ function audioContentFor(item, returnInlineAudio = true) {
   return {type: 'audio', data: item.bytes.toString('base64'), mimeType: item.mimeType, annotations: {audience: ['user'], priority: 1}};
 }
 
-async function renderAudioOperation({google, admin, auth, user, args = {}, helpers = {}, cartesiaApiKey = () => ''}) {
+
+function normalizeAudioRenderRequest(args = {}, helpers = {}) {
   const requestId = helpers.createRequestId ? helpers.createRequestId(args.requestId || args.idempotencyKey) : safeText(args.requestId || args.idempotencyKey, 160) || randomUUID();
   const settings = args.settings && typeof args.settings === 'object' && !Array.isArray(args.settings) ? args.settings : {};
   const recipe = sanitizeRecipeText(args.scriptText || args.recipeText);
   const normalizedInput = {scriptText: recipe, sources: args.sources || {}, settings};
   const inputSha256 = sha256Hex(Buffer.from(stableJson(normalizedInput), 'utf8'));
-  const existing = helpers.existingAudit ? await helpers.existingAudit(admin, requestId) : null;
-  if (existing && (existing.status === 'success' || existing.status === 'completed') && existing.result) {
-    if (existing.result.inputSha256 && existing.result.inputSha256 !== inputSha256) throw audioError('idempotencyKey was reused with different audio.render inputs.', 409, 'audio_render_idempotency_conflict');
-    return {...existing.result, idempotent: true, audit: existing, _mcpContent: null};
-  }
-  if (existing && existing.status === 'running') {
-    if (existing.inputSha256 && existing.inputSha256 !== inputSha256) throw audioError('idempotencyKey was reused with different audio.render inputs.', 409, 'audio_render_idempotency_conflict');
-    return {ok: false, status: 'running', operation: 'audio.render', requestId, inputSha256, idempotent: true, audit: existing, _mcpContent: {content: [{type: 'text', text: JSON.stringify({ok: false, status: 'running', operation: 'audio.render', requestId, inputSha256}, null, 2)}]}};
-  }
-  if (helpers.auditWrite) await helpers.auditWrite(admin, {actor: (user && (user.email || user.uid)) || 'unknown', authKind: user && user.authKind, tool: 'audio.render', operation: 'audio.render', requestId, status: 'running', callerNote: args.callerNote, providerSummary: 'audio.render started.', result: null, inputSha256});
-  try {
-  const parentFolderId = helpers.safeDriveFileId && safeText(args.parentFolderId, 220) ? helpers.safeDriveFileId(args.parentFolderId) : safeText(args.parentFolderId, 220);
-  const materializedSources = await materializeSources({google, auth, sources: args.sources || {}});
-  const rendered = await renderRecipe(recipe, materializedSources, {...settings, cartesiaApiKey});
-  const artifactContextBase = audioArtifactContext(args, rendered);
-  const publishToDrive = shouldPublishAudioToDrive(args, parentFolderId);
-  if (rendered.finalMetrics.silent) throw audioError('Rendered audio is silent.', 422, 'audio_render_silent_output');
-  if (rendered.finalMetrics.clippingCount > 0 && settings.allowClipping !== true) throw audioError('Rendered audio clipped; lower gain or enable allowClipping explicitly.', 422, 'audio_render_clipped_output');
-  const uploaded = [];
-  for (const item of rendered.rendered) uploaded.push(await uploadVerified({google, auth, parentFolderId, item, artifactContext: {...artifactContextBase, artifactType: /^image\//.test(item.mimeType) ? 'image' : 'audio'}, publishToDrive}));
-  const primary = uploaded.find((item) => item.mimeType === 'audio/ogg') || uploaded.find((item) => /^audio\//.test(item.mimeType)) || uploaded[0];
-  const manifest = {
-    operation: 'audio.render', renderer: 'home-center-deterministic-audio-v1', artifactStore: {primary: 'gcs', bucket: GENERATED_ARTIFACT_BUCKET, drivePublish: publishToDrive ? 'post_render_publish_step' : 'disabled', driveIsRenderCache: false}, runtimeBoundary: 'Home Center MCP direct dispatcher; direct Cartesia provider only when speech nodes are present; no Command Center, Codex, LLM, worker lease, GitHub Actions, or Termux runtime path.',
-    requestId, inputSha256, seed: rendered.seed, sampleRate: rendered.sampleRate, finalMetrics: {...rendered.finalMetrics, integratedLufs: Number.isFinite(rendered.finalMetrics.integratedLufs) ? rendered.finalMetrics.integratedLufs : null},
-    sourceCount: Object.keys(materializedSources).length, sources: Object.values(materializedSources).map((s) => ({name: s.name, originalRef: s.originalRef, provider: s.provider, mimeType: s.mimeType, byteCount: s.byteCount, sha256: s.sha256, decoded: s.decoded})),
-    speech: {usesCartesia: rendered.usesCartesia, supportedEmotions: CARTESIA_SUPPORTED_EMOTIONS, canonicalProfiles: Object.fromEntries(Object.entries(CANONICAL_CHARACTER_PROFILES).filter(([key, profile]) => key === String(profile.character).toLowerCase()).map(([key, profile]) => [key, {character: profile.character, aliases: profile.aliases, provider: profile.provider, voiceName: profile.voiceName, voiceId: profile.voiceId, modelId: profile.modelId, speed: profile.speed, pitchSemitones: profile.pitchSemitones, direction: profile.direction}])), takes: rendered.speechProvenance, sequences: rendered.speechSequences, auditionTakes: rendered.auditionTakes, limits: {maxDurationSeconds: MAX_DURATION_SECONDS, maxSpeechSequenceSegments: SPEECH_SEQUENCE_MAX_SEGMENTS, defaultSpeechConcurrency: SPEECH_SEQUENCE_DEFAULT_CONCURRENCY, maxWavBytes: MAX_WAV_OUTPUT_BYTES, maxEncodedBytes: MAX_ENCODED_OUTPUT_BYTES, inlineAudioMaxBytes: INLINE_AUDIO_MAX_BYTES}},
-    outputs: uploaded.map((item) => ({name: item.name, mimeType: item.mimeType, duration: item.clipMetrics.duration, sampleRate: item.clipMetrics.sampleRate, channelCount: item.clipMetrics.channelCount, bitDepth: item.mimeType === 'audio/wav' ? 16 : null, codec: item.format === 'ogg' ? 'vorbis' : item.format, byteCount: item.byteCount, sha256: item.sha256, readbackByteCount: item.readbackByteCount, readbackSha256: item.readbackSha256, peak: item.clipMetrics.peak, integratedLufs: Number.isFinite(item.clipMetrics.integratedLufs) ? item.clipMetrics.integratedLufs : null, clippingCount: item.clipMetrics.clippingCount, durableRef: item.durableRef, storageRef: item.storageRef, primaryStore: item.primaryStore, metadata: item.metadata, driveDurableRef: item.driveDurableRef, fileId: item.fileId, chatGptFileRef: item.chatGptFileRef, webViewLink: item.webViewLink})),
-    noAgentRuntime: true, noCommandCenter: true, noCodex: true, noGithubActionsRenderer: true, noTermuxRuntime: true,
+  return {requestId, settings, recipe, normalizedInput, inputSha256};
+}
+
+function audioRenderStatusOperationName(requestId) {
+  return {operation: 'audio.render_status', args: {requestId}};
+}
+
+function countSpeechTakesInRecipe(recipe = {}) {
+  const graph = Array.isArray(recipe.graph) ? recipe.graph : [];
+  return graph.reduce((sum, op) => {
+    const type = safeText(op && (op.op || op.type), 80).toLowerCase();
+    if (type === 'speech_sequence') return sum + (Array.isArray(op.segments) ? op.segments.length : 0);
+    if (type === 'speech') return sum + 1;
+    if (type === 'audition') return sum + (Array.isArray(op.emotions) ? op.emotions.length : 0);
+    return sum;
+  }, 0);
+}
+
+function audioRenderJobRequest(args = {}, settings = {}) {
+  return {
+    scriptText: safeText(args.scriptText || args.recipeText, 2 * 1024 * 1024),
+    sources: args.sources || {},
+    settings,
+    returnInlineAudio: args.returnInlineAudio === false ? false : undefined,
+    publishToDrive: args.publishToDrive === false ? false : args.publishToDrive === true ? true : undefined,
+    parentFolderId: safeText(args.parentFolderId, 220),
+    owner: safeText(args.owner, 120),
+    project: safeText(args.project, 160),
+    stage: safeText(args.stage, 120),
+    approved: args.approved === true,
+    manifestName: safeText(args.manifestName, 240),
+    callerNote: safeText(args.callerNote, 800),
   };
-  const manifestBytes = Buffer.from(JSON.stringify(manifest, null, 2), 'utf8');
-  const manifestUpload = await uploadVerified({google, auth, parentFolderId, item: {name: safeText(args.manifestName, 240) || 'audio-render-manifest-' + requestId + '.json', format: 'json', mimeType: 'application/json', bytes: manifestBytes, byteCount: manifestBytes.length, sha256: sha256Hex(manifestBytes), clipMetrics: rendered.finalMetrics}, artifactContext: {...artifactContextBase, artifactType: 'manifest'}, publishToDrive});
-  const result = {...manifest, manifest: {fileId: manifestUpload.fileId, durableRef: manifestUpload.durableRef, storageRef: manifestUpload.storageRef, driveDurableRef: manifestUpload.driveDurableRef, primaryStore: manifestUpload.primaryStore, metadata: manifestUpload.metadata, byteCount: manifestUpload.byteCount, sha256: manifestUpload.sha256, readbackByteCount: manifestUpload.readbackByteCount, readbackSha256: manifestUpload.readbackSha256}, primaryOutput: manifest.outputs.find((item) => item.name === primary.name) || manifest.outputs[0], ok: true, status: 'completed'};
-  if (helpers.auditWrite) {
-    const audit = await helpers.auditWrite(admin, {actor: (user && (user.email || user.uid)) || 'unknown', authKind: user && user.authKind, tool: 'audio.render', operation: 'audio.render', requestId, fileId: primary.fileId || '', affectedFileIds: uploaded.map((u) => u.fileId).concat([manifestUpload.fileId]).filter(Boolean), affectedStorageRefs: uploaded.map((u) => u.storageRef).concat([manifestUpload.storageRef]).filter(Boolean), callerNote: args.callerNote, providerSummary: 'Rendered deterministic audio artifact ' + primary.name + ' (' + primary.byteCount + ' bytes, sha256 ' + primary.sha256 + ').', result});
+}
+
+function audioRenderAcceptedReceipt({requestId, inputSha256, status = 'queued', audit = null, idempotent = false, progress = null}) {
+  const receipt = {
+    ok: true,
+    accepted: true,
+    status,
+    operation: 'audio.render',
+    requestId,
+    renderId: requestId,
+    idempotencyKey: requestId,
+    inputSha256,
+    idempotent,
+    state: status,
+    statusOperation: audioRenderStatusOperationName(requestId),
+    submittedAtMs: audit && audit.submittedAtMs || audit && audit.timestampMs || Date.now(),
+    updatedAtMs: audit && audit.updatedAtMs || audit && audit.timestampMs || Date.now(),
+    lease: audit && audit.lease || null,
+    progress: progress || audit && audit.progress || {phase: status, synthesizedTakes: 0, totalTakes: 0, outputCount: 0},
+  };
+  return {...receipt, _mcpContent: {content: [{type: 'text', text: JSON.stringify(receipt, null, 2)}]}};
+}
+
+function inputConflict(existing, inputSha256) {
+  const existingHash = safeText(existing && (existing.inputSha256 || existing.result && existing.result.inputSha256), 128);
+  return existingHash && existingHash !== inputSha256;
+}
+
+function audioJobActor(user = {}) {
+  return (user && (user.email || user.uid)) || 'unknown';
+}
+
+async function writeAudioAudit(helpers, admin, entry) {
+  if (!helpers.auditWrite) return {audit: entry};
+  return await helpers.auditWrite(admin, entry);
+}
+
+function audioProgressPatch(progress = {}, patch = {}) {
+  return {...(progress || {}), ...patch, updatedAtMs: Date.now()};
+}
+
+async function executeAudioRenderJob({google, admin, auth, user, args = {}, helpers = {}, cartesiaApiKey = () => '', normalized = null, existingProgress = null}) {
+  const {requestId, settings, recipe, inputSha256} = normalized || normalizeAudioRenderRequest(args, helpers);
+  const actor = audioJobActor(user);
+  const authKind = user && user.authKind;
+  const parentFolderId = helpers.safeDriveFileId && safeText(args.parentFolderId, 220) ? helpers.safeDriveFileId(args.parentFolderId) : safeText(args.parentFolderId, 220);
+  const leaseId = randomUUID();
+  const startedAtMs = Date.now();
+  let progress = audioProgressPatch(existingProgress || {}, {phase: 'materializing_sources', synthesizedTakes: existingProgress && existingProgress.synthesizedTakes || 0, totalTakes: existingProgress && existingProgress.totalTakes || countSpeechTakesInRecipe(recipe), outputCount: 0});
+  await writeAudioAudit(helpers, admin, {actor, authKind, tool: 'audio.render', operation: 'audio.render', requestId, status: 'running', callerNote: args.callerNote, providerSummary: 'audio.render worker running.', result: null, inputSha256, audioRenderJob: {requestId, inputSha256, submittedAtMs: startedAtMs, publishToDrive: shouldPublishAudioToDrive(args, parentFolderId), storage: GENERATED_ARTIFACT_BUCKET, request: audioRenderJobRequest(args, settings)}, progress, lease: {leaseId, holder: 'home-center-audio-worker', heartbeatAtMs: Date.now(), expiresAtMs: Date.now() + AUDIO_RENDER_LEASE_MS}});
+  try {
+    const materializedSources = await materializeSources({google, auth, sources: args.sources || {}});
+    const onSpeechTake = async (take) => {
+      progress = audioProgressPatch(progress, {phase: 'synthesizing', synthesizedTakes: Math.max((progress.synthesizedTakes || 0) + 1, (take.segmentIndex || 0) + 1), lastTake: {segmentIndex: take.segmentIndex, speaker: take.speaker, character: take.character, voiceId: take.voiceId, transcriptSha256: take.transcriptSha256, providerByteCount: take.providerByteCount, duration: take.duration}});
+      await writeAudioAudit(helpers, admin, {actor, authKind, tool: 'audio.render', operation: 'audio.render', requestId, status: 'running', callerNote: args.callerNote, providerSummary: 'audio.render synthesized take ' + progress.synthesizedTakes + '.', result: null, inputSha256, progress, lease: {leaseId, holder: 'home-center-audio-worker', heartbeatAtMs: Date.now(), expiresAtMs: Date.now() + AUDIO_RENDER_LEASE_MS}}).catch(() => {});
+    };
+    const rendered = await renderRecipe(recipe, materializedSources, {...settings, cartesiaApiKey, onSpeechTake});
+    const artifactContextBase = audioArtifactContext(args, rendered);
+    const publishToDrive = shouldPublishAudioToDrive(args, parentFolderId);
+    if (rendered.finalMetrics.silent) throw audioError('Rendered audio is silent.', 422, 'audio_render_silent_output');
+    if (rendered.finalMetrics.clippingCount > 0 && settings.allowClipping !== true) throw audioError('Rendered audio clipped; lower gain or enable allowClipping explicitly.', 422, 'audio_render_clipped_output');
+    progress = audioProgressPatch(progress, {phase: 'publishing_artifacts', totalTakes: rendered.speechProvenance.length || progress.totalTakes || 0, outputCount: rendered.rendered.length});
+    await writeAudioAudit(helpers, admin, {actor, authKind, tool: 'audio.render', operation: 'audio.render', requestId, status: 'running', callerNote: args.callerNote, providerSummary: 'audio.render publishing verified artifacts.', result: null, inputSha256, progress, lease: {leaseId, holder: 'home-center-audio-worker', heartbeatAtMs: Date.now(), expiresAtMs: Date.now() + AUDIO_RENDER_LEASE_MS}}).catch(() => {});
+    const uploaded = [];
+    for (const item of rendered.rendered) uploaded.push(await uploadVerified({google, auth, parentFolderId, item, artifactContext: {...artifactContextBase, artifactType: /^image\//.test(item.mimeType) ? 'image' : 'audio'}, publishToDrive}));
+    const primary = uploaded.find((item) => item.mimeType === 'audio/ogg') || uploaded.find((item) => /^audio\//.test(item.mimeType)) || uploaded[0];
+    const manifest = {
+      operation: 'audio.render', renderer: 'home-center-deterministic-audio-v1', artifactStore: {primary: 'gcs', bucket: GENERATED_ARTIFACT_BUCKET, drivePublish: publishToDrive ? 'post_render_publish_step' : 'disabled', driveIsRenderCache: false}, runtimeBoundary: 'Home Center MCP async audio worker; direct Cartesia provider only when speech nodes are present; no Command Center, Codex, LLM, GitHub Actions renderer, or Termux runtime path.',
+      requestId, inputSha256, seed: rendered.seed, sampleRate: rendered.sampleRate, finalMetrics: {...rendered.finalMetrics, integratedLufs: Number.isFinite(rendered.finalMetrics.integratedLufs) ? rendered.finalMetrics.integratedLufs : null},
+      sourceCount: Object.keys(materializedSources).length, sources: Object.values(materializedSources).map((src) => ({name: src.name, originalRef: src.originalRef, provider: src.provider, mimeType: src.mimeType, byteCount: src.byteCount, sha256: src.sha256, decoded: src.decoded})),
+      speech: {usesCartesia: rendered.usesCartesia, supportedEmotions: CARTESIA_SUPPORTED_EMOTIONS, canonicalProfiles: Object.fromEntries(Object.entries(CANONICAL_CHARACTER_PROFILES).filter(([key, profile]) => key === String(profile.character).toLowerCase()).map(([key, profile]) => [key, {character: profile.character, aliases: profile.aliases, provider: profile.provider, voiceName: profile.voiceName, voiceId: profile.voiceId, modelId: profile.modelId, speed: profile.speed, pitchSemitones: profile.pitchSemitones, direction: profile.direction}])), takes: rendered.speechProvenance, sequences: rendered.speechSequences, auditionTakes: rendered.auditionTakes, limits: {maxDurationSeconds: MAX_DURATION_SECONDS, maxSpeechSequenceSegments: SPEECH_SEQUENCE_MAX_SEGMENTS, defaultSpeechConcurrency: SPEECH_SEQUENCE_DEFAULT_CONCURRENCY, maxWavBytes: MAX_WAV_OUTPUT_BYTES, maxEncodedBytes: MAX_ENCODED_OUTPUT_BYTES, inlineAudioMaxBytes: INLINE_AUDIO_MAX_BYTES}},
+      outputs: uploaded.map((item) => ({name: item.name, mimeType: item.mimeType, duration: item.clipMetrics.duration, sampleRate: item.clipMetrics.sampleRate, channelCount: item.clipMetrics.channelCount, bitDepth: item.mimeType === 'audio/wav' ? 16 : null, codec: item.format === 'ogg' ? 'vorbis' : item.format, byteCount: item.byteCount, sha256: item.sha256, readbackByteCount: item.readbackByteCount, readbackSha256: item.readbackSha256, peak: item.clipMetrics.peak, integratedLufs: Number.isFinite(item.clipMetrics.integratedLufs) ? item.clipMetrics.integratedLufs : null, clippingCount: item.clipMetrics.clippingCount, durableRef: item.durableRef, storageRef: item.storageRef, primaryStore: item.primaryStore, metadata: item.metadata, driveDurableRef: item.driveDurableRef, fileId: item.fileId, chatGptFileRef: item.chatGptFileRef, webViewLink: item.webViewLink})),
+      noAgentRuntime: true, noCommandCenter: true, noCodex: true, noGithubActionsRenderer: true, noTermuxRuntime: true,
+    };
+    const manifestBytes = Buffer.from(JSON.stringify(manifest, null, 2), 'utf8');
+    const manifestUpload = await uploadVerified({google, auth, parentFolderId, item: {name: safeText(args.manifestName, 240) || 'audio-render-manifest-' + requestId + '.json', format: 'json', mimeType: 'application/json', bytes: manifestBytes, byteCount: manifestBytes.length, sha256: sha256Hex(manifestBytes), clipMetrics: rendered.finalMetrics}, artifactContext: {...artifactContextBase, artifactType: 'manifest'}, publishToDrive});
+    const result = {...manifest, manifest: {fileId: manifestUpload.fileId, durableRef: manifestUpload.durableRef, storageRef: manifestUpload.storageRef, driveDurableRef: manifestUpload.driveDurableRef, primaryStore: manifestUpload.primaryStore, metadata: manifestUpload.metadata, byteCount: manifestUpload.byteCount, sha256: manifestUpload.sha256, readbackByteCount: manifestUpload.readbackByteCount, readbackSha256: manifestUpload.readbackSha256}, primaryOutput: manifest.outputs.find((item) => primary && item.name === primary.name) || manifest.outputs[0], ok: true, status: 'completed', completedAtMs: Date.now()};
+    const affectedStorageRefs = uploaded.map((u) => u.storageRef).concat([manifestUpload.storageRef]).filter(Boolean);
+    const affectedFileIds = uploaded.map((u) => u.fileId).concat([manifestUpload.fileId]).filter(Boolean);
+    const audit = await writeAudioAudit(helpers, admin, {actor, authKind, tool: 'audio.render', operation: 'audio.render', requestId, status: 'completed', fileId: primary && (primary.fileId || primary.storageRef) || '', affectedFileIds, affectedStorageRefs, callerNote: args.callerNote, providerSummary: 'Rendered deterministic audio artifact ' + (primary && primary.name || 'audio') + ' (' + (primary && primary.byteCount || 0) + ' bytes).', result, inputSha256, progress: audioProgressPatch(progress, {phase: 'completed', outputCount: uploaded.length + 1, completedAtMs: result.completedAtMs}), lease: null});
     result.audit = audit.audit ? {...audit.audit, result: null} : audit.audit;
-  }
-  if (helpers.recordActionAudit) await helpers.recordActionAudit(admin, user || {}, 'audio.render', primary.storageRef || primary.fileId || '', 'Rendered deterministic audio artifact ' + primary.name + ' (' + primary.byteCount + ' bytes).', requestId).catch(() => {});
-  const inlinePrimary = rendered.rendered.find((item) => item.name === primary.name);
-  const content = [{type: 'text', text: JSON.stringify(result, null, 2)}];
-  if (primary && primary.chatGptFileRef) content.push(primary.chatGptFileRef);
-  const audioBlock = audioContentFor(inlinePrimary, args.returnInlineAudio !== false);
-  if (audioBlock) content.push(audioBlock);
-  result._mcpContent = {content};
-  return result;
+    if (helpers.recordActionAudit) await helpers.recordActionAudit(admin, user || {}, 'audio.render', primary && (primary.storageRef || primary.fileId) || '', 'Rendered deterministic audio artifact ' + (primary && primary.name || 'audio') + ' (' + (primary && primary.byteCount || 0) + ' bytes).', requestId).catch(() => {});
+    const inlinePrimary = rendered.rendered.find((item) => primary && item.name === primary.name);
+    const content = [{type: 'text', text: JSON.stringify(result, null, 2)}];
+    if (primary && primary.chatGptFileRef) content.push(primary.chatGptFileRef);
+    const audioBlock = audioContentFor(inlinePrimary, args.returnInlineAudio !== false);
+    if (audioBlock) content.push(audioBlock);
+    result._mcpContent = {content};
+    return result;
   } catch (err) {
-    if (helpers.auditWrite) {
-      await helpers.auditWrite(admin, {actor: (user && (user.email || user.uid)) || 'unknown', authKind: user && user.authKind, tool: 'audio.render', operation: 'audio.render', requestId, status: 'failed', callerNote: args.callerNote, providerSummary: 'audio.render failed: ' + safeText(err && err.code || err && err.message || 'unknown', 160), result: {ok: false, status: 'failed', code: safeText(err && err.code, 120), message: safeText(err && err.message, 500), inputSha256}, inputSha256}).catch(() => {});
-    }
+    const failure = {ok: false, status: 'failed', code: safeText(err && (err.failureKind || err.code), 120) || 'audio_render_failed', message: safeText(err && err.message, 500), inputSha256, failedAtMs: Date.now()};
+    await writeAudioAudit(helpers, admin, {actor, authKind, tool: 'audio.render', operation: 'audio.render', requestId, status: 'failed', callerNote: args.callerNote, providerSummary: 'audio.render failed: ' + failure.code, result: failure, inputSha256, progress: audioProgressPatch(progress, {phase: 'failed', errorCode: failure.code}), lease: null}).catch(() => {});
     throw err;
   }
 }
 
-module.exports = {renderAudioOperation, inspectAudioArtifactsOperation, uploadVerified, renderRecipe, sanitizeRecipeText, materializeSources, resolveSpeechProfile, CARTESIA_SUPPORTED_EMOTIONS, CANONICAL_CHARACTER_PROFILES, limits: {MAX_DURATION_SECONDS, MAX_WAV_OUTPUT_BYTES, MAX_ENCODED_OUTPUT_BYTES, SPEECH_SEQUENCE_MAX_SEGMENTS, SPEECH_SEQUENCE_DEFAULT_CONCURRENCY, INLINE_AUDIO_MAX_BYTES}, primitives: {Clip, silence, tone, noise, trim, concat, loop, fade, crossfade, gain, normalizePeak, normalizeLufs, pan, pitchShift, timeStretch, reverse, biquadLike, compress, limit, distort, delay, reverb, envelope, timeline, duck, resample, toChannels, encodeWav, decodeWav, waveformPng, spectrogramPng, measure, layerSwordImpact, layerTavernCellar}};
+function startAudioRenderBackground(context) {
+  if (context.args && context.args.disableBackgroundWorker === true) return;
+  setImmediate(() => {
+    executeAudioRenderJob(context).catch(() => {});
+  });
+}
+
+async function renderAudioOperation({google, admin, auth, user, args = {}, helpers = {}, cartesiaApiKey = () => ''}) {
+  const normalized = normalizeAudioRenderRequest(args, helpers);
+  const {requestId, inputSha256} = normalized;
+  const existing = helpers.existingAudit ? await helpers.existingAudit(admin, requestId) : null;
+  if (existing && inputConflict(existing, inputSha256)) throw audioError('idempotencyKey was reused with different audio.render inputs.', 409, 'audio_render_idempotency_conflict');
+  if (existing && (existing.status === 'success' || existing.status === 'completed') && existing.result) return {...existing.result, idempotent: true, audit: existing, _mcpContent: null};
+  if (existing && ['queued', 'running', 'stalled', 'recoverable', 'failed'].includes(safeText(existing.status, 80))) return audioRenderAcceptedReceipt({requestId, inputSha256, status: safeText(existing.status, 80), audit: existing, idempotent: true});
+  const actor = audioJobActor(user);
+  const authKind = user && user.authKind;
+  const queuedAtMs = Date.now();
+  const progress = {phase: 'queued', synthesizedTakes: 0, totalTakes: countSpeechTakesInRecipe(normalized.recipe), outputCount: 0, updatedAtMs: queuedAtMs};
+  const job = {requestId, inputSha256, submittedAtMs: queuedAtMs, statusOperation: audioRenderStatusOperationName(requestId), storage: {primary: 'gcs', bucket: GENERATED_ARTIFACT_BUCKET}, publishToDrive: shouldPublishAudioToDrive(args, safeText(args.parentFolderId, 220)), chargeSafety: {idempotencyKey: requestId, providerExactlyOnce: 'not_guaranteed_across_ambiguous_provider_failure', ambiguousFailuresBecome: 'stalled_or_quarantined'}, request: audioRenderJobRequest(args, normalized.settings)};
+  await writeAudioAudit(helpers, admin, {actor, authKind, tool: 'audio.render', operation: 'audio.render', requestId, status: 'queued', callerNote: args.callerNote, providerSummary: 'audio.render accepted for asynchronous execution.', result: {ok: true, accepted: true, status: 'queued', operation: 'audio.render', requestId, inputSha256, statusOperation: audioRenderStatusOperationName(requestId)}, inputSha256, audioRenderJob: job, progress, lease: null, submittedAtMs: queuedAtMs, updatedAtMs: queuedAtMs});
+  if (args.waitForCompletion === true) return await executeAudioRenderJob({google, admin, auth, user, args, helpers, cartesiaApiKey, normalized, existingProgress: progress});
+  startAudioRenderBackground({google, admin, auth, user, args, helpers, cartesiaApiKey, normalized, existingProgress: progress});
+  return audioRenderAcceptedReceipt({requestId, inputSha256, status: 'queued', audit: {timestampMs: queuedAtMs, submittedAtMs: queuedAtMs, progress}, idempotent: false});
+}
+
+async function audioRenderStatusOperation({admin, requestId, helpers = {}}) {
+  const audit = helpers.existingAudit ? await helpers.existingAudit(admin, requestId) : null;
+  if (!audit) return {ok: false, operation: 'audio.render_status', requestId, status: 'missing'};
+  let status = audit.status === 'success' ? 'completed' : safeText(audit.status, 80) || 'completed';
+  const now = Date.now();
+  const heartbeatAtMs = audit.lease && Number(audit.lease.heartbeatAtMs || 0) || Number(audit.updatedAtMs || audit.timestampMs || 0);
+  const stale = ['queued', 'running'].includes(status) && heartbeatAtMs && now - heartbeatAtMs > AUDIO_RENDER_STALE_MS;
+  if (stale && helpers.auditWrite) {
+    status = 'stalled';
+    await helpers.auditWrite(admin, {...audit, actor: audit.actor || 'unknown', authKind: audit.authKind, tool: 'audio.render', operation: 'audio.render', requestId, status, providerSummary: 'audio.render stalled after heartbeat expiry; no paid retry was launched.', result: audit.result || {ok: false, status, inputSha256: audit.inputSha256, code: 'audio_render_stalled', message: 'The render worker heartbeat expired. Existing provider outcome is ambiguous; inspect checkpoints before resuming.'}, inputSha256: audit.inputSha256, progress: audioProgressPatch(audit.progress || {}, {phase: 'stalled', stalledAtMs: now}), lease: null}).catch(() => {});
+  }
+  return {ok: status !== 'missing', operation: 'audio.render_status', requestId, status, state: status, inputSha256: audit.inputSha256 || audit.result && audit.result.inputSha256 || '', result: audit.result || null, progress: audit.progress || null, lease: audit.lease || null, timestamps: {timestampMs: audit.timestampMs || 0, submittedAtMs: audit.submittedAtMs || audit.timestampMs || 0, updatedAtMs: audit.updatedAtMs || audit.timestampMs || 0, heartbeatAtMs}, audit: {...audit, result: null}};
+}
+
+module.exports = {renderAudioOperation, audioRenderStatusOperation, executeAudioRenderJob, inspectAudioArtifactsOperation, uploadVerified, renderRecipe, sanitizeRecipeText, materializeSources, resolveSpeechProfile, CARTESIA_SUPPORTED_EMOTIONS, CANONICAL_CHARACTER_PROFILES, limits: {MAX_DURATION_SECONDS, MAX_WAV_OUTPUT_BYTES, MAX_ENCODED_OUTPUT_BYTES, SPEECH_SEQUENCE_MAX_SEGMENTS, SPEECH_SEQUENCE_DEFAULT_CONCURRENCY, INLINE_AUDIO_MAX_BYTES}, primitives: {Clip, silence, tone, noise, trim, concat, loop, fade, crossfade, gain, normalizePeak, normalizeLufs, pan, pitchShift, timeStretch, reverse, biquadLike, compress, limit, distort, delay, reverb, envelope, timeline, duck, resample, toChannels, encodeWav, decodeWav, waveformPng, spectrogramPng, measure, layerSwordImpact, layerTavernCellar}};
