@@ -17,6 +17,9 @@ sh -n tools/docker_install_smoke.sh
 python3 tools/home_center_regression_tests.py
 node --check functions/command_center_mcp.js
 node --check functions/she_raw_mcp.js
+node --check functions/agent_mail.js
+node --check tools/agent_mail_contract_test.mjs
+node tools/agent_mail_contract_test.mjs
 node --check tools/command_center_mcp_contract_test.mjs
 node --check tools/command_center_cloud_activation_contract_test.mjs
 node --check tools/command_center_two_dispatch_acceptance.mjs
