@@ -1,0 +1,326 @@
+{
+  "ok": true,
+  "checks": [
+    {
+      "name": "hash_contact-sheet.png",
+      "ok": true,
+      "byteCount": 105973,
+      "sha256": "2e842dbc3cf72d0c1117479ff81f4ec2b35f7935cc88dd0fb3fbfc83398c3e08",
+      "expected": {
+        "sha256": "2e842dbc3cf72d0c1117479ff81f4ec2b35f7935cc88dd0fb3fbfc83398c3e08",
+        "byteCount": 105973
+      }
+    },
+    {
+      "name": "hash_walk-loop.gif",
+      "ok": true,
+      "byteCount": 37688,
+      "sha256": "01b939e2ca7783262823de385c984502db8202a080fbcf12562ceb34df986e97",
+      "expected": {
+        "sha256": "01b939e2ca7783262823de385c984502db8202a080fbcf12562ceb34df986e97",
+        "byteCount": 37688
+      }
+    },
+    {
+      "name": "hash_native-pose-animation.json",
+      "ok": true,
+      "byteCount": 995,
+      "sha256": "4f18606b6bbb1e6d0cb9f327912b5baa6350b3233567e7b9516ea0644c413972",
+      "expected": {
+        "sha256": "4f18606b6bbb1e6d0cb9f327912b5baa6350b3233567e7b9516ea0644c413972",
+        "byteCount": 995
+      }
+    },
+    {
+      "name": "inline_gif_matches_gcs_gif",
+      "ok": true,
+      "inline": {
+        "type": "image",
+        "mimeType": "image/gif",
+        "byteCount": 37688,
+        "sha256": "01b939e2ca7783262823de385c984502db8202a080fbcf12562ceb34df986e97",
+        "header": "GIF89a",
+        "annotations": {
+          "audience": [
+            "user"
+          ],
+          "priority": 1
+        }
+      },
+      "gcs": {
+        "sha256": "01b939e2ca7783262823de385c984502db8202a080fbcf12562ceb34df986e97",
+        "byteCount": 37688
+      }
+    },
+    {
+      "name": "contact_size",
+      "ok": true,
+      "size": [
+        1280,
+        480
+      ],
+      "mode": "LA"
+    },
+    {
+      "name": "contact_8_unique_panels",
+      "ok": true,
+      "unique": 8
+    },
+    {
+      "name": "gif_8_frames",
+      "ok": true,
+      "count": 8,
+      "size": [
+        320,
+        240
+      ]
+    },
+    {
+      "name": "gif_unique_frames",
+      "ok": true,
+      "unique": 8
+    },
+    {
+      "name": "png_8_frames",
+      "ok": true,
+      "count": 8
+    },
+    {
+      "name": "png_unique_files",
+      "ok": true,
+      "unique": 8
+    },
+    {
+      "name": "transparent_background_frames",
+      "ok": true,
+      "transparentFrames": 8
+    },
+    {
+      "name": "native_action_contract",
+      "ok": true,
+      "native": {
+        "schema": "home-center-vanguard-walk-render-v1",
+        "sourcePolicy": "exact imported GLB animation only; no retarget, reinterpretation, or re-authoring",
+        "action": "WalkSwordCarryV2",
+        "requestedSemanticAction": "WalkSwordCarryV2",
+        "activeSemanticAction": "WalkSwordCarryV2",
+        "importedActionName": "WalkSwordCarryV2_rig",
+        "resolvedActiveAction": "WalkSwordCarryV2_rig",
+        "actionResolution": "gltf_importer_suffix",
+        "blenderAction": "WalkSwordCarryV2_rig",
+        "expectedAction": "WalkSwordCarryV2",
+        "frameCount": 8,
+        "expectedFrameCount": 8,
+        "authoredTotalMs": 820,
+        "frameDurationsMs": [
+          110,
+          90,
+          100,
+          110,
+          110,
+          90,
+          100,
+          110
+        ],
+        "sampledActionFrames": [
+          0.0,
+          0.875,
+          1.75,
+          2.625,
+          3.5,
+          4.375,
+          5.25,
+          6.125
+        ],
+        "subframeSampling": true,
+        "camera": "fixed side orthographic",
+        "transparentBackground": true,
+        "embeddedSwordPresent": true,
+        "embeddedSwordCount": 1,
+        "weaponRPresent": true,
+        "samples": 16
+      }
+    },
+    {
+      "name": "native_pose_contract",
+      "ok": true,
+      "native": {
+        "schema": "home-center-vanguard-walk-render-v1",
+        "sourcePolicy": "exact imported GLB animation only; no retarget, reinterpretation, or re-authoring",
+        "action": "WalkSwordCarryV2",
+        "requestedSemanticAction": "WalkSwordCarryV2",
+        "activeSemanticAction": "WalkSwordCarryV2",
+        "importedActionName": "WalkSwordCarryV2_rig",
+        "resolvedActiveAction": "WalkSwordCarryV2_rig",
+        "actionResolution": "gltf_importer_suffix",
+        "blenderAction": "WalkSwordCarryV2_rig",
+        "expectedAction": "WalkSwordCarryV2",
+        "frameCount": 8,
+        "expectedFrameCount": 8,
+        "authoredTotalMs": 820,
+        "frameDurationsMs": [
+          110,
+          90,
+          100,
+          110,
+          110,
+          90,
+          100,
+          110
+        ],
+        "sampledActionFrames": [
+          0.0,
+          0.875,
+          1.75,
+          2.625,
+          3.5,
+          4.375,
+          5.25,
+          6.125
+        ],
+        "subframeSampling": true,
+        "camera": "fixed side orthographic",
+        "transparentBackground": true,
+        "embeddedSwordPresent": true,
+        "embeddedSwordCount": 1,
+        "weaponRPresent": true,
+        "samples": 16
+      }
+    },
+    {
+      "name": "native_sword_contract",
+      "ok": true,
+      "native": {
+        "schema": "home-center-vanguard-walk-render-v1",
+        "sourcePolicy": "exact imported GLB animation only; no retarget, reinterpretation, or re-authoring",
+        "action": "WalkSwordCarryV2",
+        "requestedSemanticAction": "WalkSwordCarryV2",
+        "activeSemanticAction": "WalkSwordCarryV2",
+        "importedActionName": "WalkSwordCarryV2_rig",
+        "resolvedActiveAction": "WalkSwordCarryV2_rig",
+        "actionResolution": "gltf_importer_suffix",
+        "blenderAction": "WalkSwordCarryV2_rig",
+        "expectedAction": "WalkSwordCarryV2",
+        "frameCount": 8,
+        "expectedFrameCount": 8,
+        "authoredTotalMs": 820,
+        "frameDurationsMs": [
+          110,
+          90,
+          100,
+          110,
+          110,
+          90,
+          100,
+          110
+        ],
+        "sampledActionFrames": [
+          0.0,
+          0.875,
+          1.75,
+          2.625,
+          3.5,
+          4.375,
+          5.25,
+          6.125
+        ],
+        "subframeSampling": true,
+        "camera": "fixed side orthographic",
+        "transparentBackground": true,
+        "embeddedSwordPresent": true,
+        "embeddedSwordCount": 1,
+        "weaponRPresent": true,
+        "samples": 16
+      }
+    },
+    {
+      "name": "settings_lightweight_contract",
+      "ok": true,
+      "settings": {
+        "width": 320,
+        "height": 240,
+        "camera": "front_3q",
+        "outputName": "render.png",
+        "samples": 16,
+        "fixedCameras": [
+          "front_3q"
+        ],
+        "diagnosticViews": [
+          "front",
+          "side",
+          "top"
+        ],
+        "includeBlend": false,
+        "includeDiagnostics": false,
+        "renderOptions": {}
+      }
+    },
+    {
+      "name": "validation_parity",
+      "ok": true,
+      "validation": {
+        "schema": "command-center.blender-render.validation.v1",
+        "atomicOperation": "GLB + script + execution contract -> durable 3D artifact + visual evidence",
+        "framesAreInsufficient": true,
+        "presentBundleKinds": [
+          "rendered_frames",
+          "fixed_camera_renders",
+          "contact_sheet",
+          "looping_gif",
+          "native_pose_animation_data",
+          "original_script",
+          "script_input_hashes",
+          "blender_version_settings",
+          "stdout_stderr",
+          "validation_manifest"
+        ],
+        "glbHash": "5411b177525e69f0db8ad77175d8d60d4a0a6cac5abe10e5d47a2c62cbdeff94",
+        "scriptHash": "c61e2e497489237ce6b45669ecf0810a051023cc88fd9d2c9dc3e2ddaf40d064",
+        "cacheKey": "075c5af0d672ad02585676eda06a650b2f63897baaeaba9106c2bfbf26caf11c",
+        "blenderExitCode": 0,
+        "blenderSignal": "",
+        "failureKind": "",
+        "manifestError": "",
+        "ok": true,
+        "missingBundleKinds": [],
+        "timings": {
+          "startedAtMs": 1784958126384,
+          "resolveGlbMs": 309,
+          "resolveScriptMs": 49,
+          "validateInputsMs": 0,
+          "writeInputsMs": 9,
+          "blenderVersionMs": 648,
+          "blenderExecutionMs": 42828,
+          "parseScriptManifestMs": 1,
+          "contactSheetMs": 681,
+          "loopingGifMs": 2515,
+          "enforceOutputLimitsMs": 3,
+          "uploadArtifactsMs": 3905,
+          "finishedAtMs": 1784958177668,
+          "totalMs": 51284
+        },
+        "renderOptions": {
+          "includeBlend": false,
+          "includeDiagnostics": false
+        },
+        "requiredBundleKinds": [
+          "rendered_frames",
+          "contact_sheet",
+          "native_pose_animation_data",
+          "script_input_hashes",
+          "blender_version_settings",
+          "stdout_stderr",
+          "fixed_camera_renders",
+          "validation_manifest",
+          "original_script"
+        ]
+      },
+      "top": {
+        "ok": true,
+        "status": "completed",
+        "failureKind": "",
+        "missingBundleKinds": []
+      }
+    }
+  ]
+}

@@ -1,0 +1,847 @@
+{
+  "runId": "vanguard-walk-sword-carry-v2-inline-gif-20260725-0547",
+  "mcpUrl": "https://us-central1-home-center-dclar.cloudfunctions.net/homeCenterMcp/mcp",
+  "startedAt": "2026-07-25T05:41:57.311Z",
+  "finishedAt": "2026-07-25T05:43:05.329Z",
+  "input": {
+    "tool": "command_center_operation",
+    "operation": "render.blender_glb",
+    "args": {
+      "glbSource": {
+        "provider": "github",
+        "repository": "Valar05/pose-lab-v2",
+        "ref": "b2c5bde5d91325726af34e5daea17b96d78b46f3",
+        "path": "public/assets/vanguard/steel/candidates/walk-sword-carry-v2/attempt-003/vanguard_walk_sword_carry_v2.glb"
+      },
+      "action": "WalkSwordCarryV2",
+      "scriptText": "[inline 10612 chars sha256 352e2204300b45b5cea9a78ecd406c0a54e2bc4a2cb30e5ac71410b030926f80]",
+      "settings": {
+        "width": 320,
+        "height": 240,
+        "samples": 16,
+        "includeBlend": false,
+        "includeDiagnostics": false
+      },
+      "executionContract": {
+        "expectedAction": "WalkSwordCarryV2",
+        "expectedFrameCount": 8,
+        "expectedTotalMs": 820,
+        "expectedFrameDurationsMs": [
+          110,
+          90,
+          100,
+          110,
+          110,
+          90,
+          100,
+          110
+        ],
+        "camera": "fixed side orthographic",
+        "transparentBackground": true,
+        "preserveEmbeddedSword": true,
+        "includeBlend": false,
+        "includeDiagnostics": false,
+        "sourcePolicy": "exact imported GLB animation only; no retarget, reinterpretation, or re-authoring"
+      },
+      "cache": false,
+      "idempotencyKey": "vanguard-walk-sword-carry-v2-inline-gif-20260725-0547"
+    }
+  },
+  "commandCenterBefore": {
+    "jobIds": [
+      "job_0066b526-9a2a-4ff0-9638-91f83b3a0481",
+      "job_0215a0fb-6f8d-4eea-a20a-cb1efc16ab80",
+      "job_05550b2d-f4fb-4114-afc4-9ec29f17a958",
+      "job_166f06ad-7ad7-4cff-93a8-4e78c2ef25b8",
+      "job_179b4eda-092b-4a70-a35d-b443ab1a7260",
+      "job_1dd35e9d-88e2-4565-a4bd-0e4a703ccdf2",
+      "job_1de5b4ab-ff76-4c77-bc1d-9a7ebbd5e5ab",
+      "job_26589cf0-76ea-4add-b561-2fb8b88fbedd",
+      "job_26b31940-67e6-48e5-9243-6cc50e9e4421",
+      "job_2963c190-b6a7-4d74-b164-de2de0bb1b05",
+      "job_32aa1867-c7ce-4139-a06e-90468643b957",
+      "job_3955a5ad-6f1b-4b98-aaa4-d4a07cf8ef3f",
+      "job_39ca5006-8fad-4f51-be55-27421dac355c",
+      "job_46fb4f46-8eaf-4cd4-a286-e5a617091f4f",
+      "job_53c5cfd4-9e8e-4ef6-a157-d8e1f53fffe9",
+      "job_5d44dd91-5efd-4ffa-b26b-c58e621be019",
+      "job_6046924b-1c98-4def-903a-9bf3718ad81a",
+      "job_61d16c26-66d3-4803-bd2f-facbcae84cef",
+      "job_64b37fbd-09d2-40a4-9bdc-8fa378ee0926",
+      "job_69f59f09-00c2-4fab-9840-4af445fd13e1",
+      "job_73a9c9b1-fa76-4e28-8d56-46e02a22ed37",
+      "job_7eec4833-b526-46de-b557-fb678969c2b6",
+      "job_7f871505-7f34-4227-a0e9-a11c07afd182",
+      "job_82a4a6df-9693-4213-acbc-6611fb297556",
+      "job_837d5a57-b118-47d1-af50-bca86dd6eef8",
+      "job_88a8903a-89af-4521-9c00-0ace6d0d2843",
+      "job_89301c0a-dc8c-4681-8c0a-2a2dc3833120",
+      "job_8ab8a0f3-1e1d-48dd-b6ff-db8e093935c0",
+      "job_8e077b62-4cf8-45c2-be8d-b30149054bb5",
+      "job_9028aa6e-915c-43bb-8d26-accbe91531e4",
+      "job_9a32d99d-bff1-4365-8ec8-fdc9aefe17d7",
+      "job_9c70f800-1411-4d78-8645-c3ed431907df",
+      "job_a4288c87-47de-478d-847e-364db678781e",
+      "job_a591db59-a5c5-4a18-9f3f-2358644cb7ce",
+      "job_a80eb331-6e3f-4b5f-bd8d-3b2983711db3",
+      "job_ae441b9b-c462-4f64-a3be-7e426ef2c881",
+      "job_b398b4de-9b23-4568-81cc-c366bed8c40f",
+      "job_b632ed6a-307a-4a26-8996-f27976eb8489",
+      "job_b7f1b3c3-4a4d-4422-9821-9e1d7fe1dc5d",
+      "job_b924e363-af43-4e08-808a-e7f9a1eea20a",
+      "job_d2b1bea9-a64d-4833-a24f-c4cb83099c96",
+      "job_d2d2c4ce-8128-449e-826d-0ca074de7637",
+      "job_dd4c9d87-375c-46e0-97c6-a77c7885bdca",
+      "job_df99b234-a924-43cd-85d5-de1fbc5f3c93",
+      "job_e4a5c12d-c008-42b5-ac9c-7a93ed6f873b",
+      "job_e81a4573-80d6-44cd-86e1-d890382ca108",
+      "job_e97702f5-9eb6-457b-81fd-7ba5473d7c4f",
+      "job_ecd28153-3608-4419-81d6-76913934e505",
+      "job_f25648a7-4f90-4b2a-967b-f95fce83cfee",
+      "job_fdb1690b-2244-4a4c-ba54-9c88c6004595"
+    ],
+    "workerIds": [
+      "cloud-codex-primary",
+      "cloud-debian-codex-autoprov-20260725-0206",
+      "cloud-run-debian-codex-primary",
+      "codex-cloud-primary-real-postdeploy-auth-probe-20260712",
+      "codex-cloud-primary-real-real-capability-postdeploy-20260712",
+      "home-bridge-real-worker-20260722142140",
+      "home-bridge-real-worker-blender-file-top-level-after-deploy-20260724",
+      "home-bridge-real-worker-blender-file-top-level-before-deploy-20260724",
+      "home-bridge-real-worker-blender-file-top-level-homebridge-20260724172053",
+      "home-bridge-real-worker-blender-file-top-level-homebridge-final-20260724172432",
+      "home-bridge-real-worker-live-after-cloud-worker-schema",
+      "home-bridge-real-worker-real-capability-postdeploy-20260712",
+      "home-bridge-real-worker-render-drive-ref-after-deploy-20260724b",
+      "home-bridge-real-worker-render-drive-ref-after-streaming-deploy-20260724",
+      "home-bridge-real-worker-render-drive-ref-local-gate-before-deploy-20260724",
+      "home-bridge-real-worker-security-gate-local-schema-20260725",
+      "home-drive-primary",
+      "owner-boundary-retire-proof-owner-boundary-20260713-0630",
+      "pose-lab-v2-browser-worker-5c67f02",
+      "termux-debian-codex-primary",
+      "termux-pose-lab-v2-oneshot",
+      "termux-tanks-oneshot",
+      "termux-tanks-oneshot-tanks-pr1-upper-glacis-20260711115132",
+      "termux-vacation-voice-render-20260723",
+      "termux-vacation-voice-render-20260723-v2",
+      "verbose-worker-real-cloud-exec-20260712-02",
+      "verbose-worker-real-cloud-exec-20260712-03",
+      "verbose-worker-real-cloud-exec-20260712-04",
+      "verbose-worker-verbose-worker-20260711"
+    ]
+  },
+  "renderCall": {
+    "status": 200,
+    "contentTypes": [
+      {
+        "type": "text",
+        "mimeType": "",
+        "textLength": 23742,
+        "dataLength": 0
+      },
+      {
+        "type": "image",
+        "mimeType": "image/gif",
+        "textLength": 0,
+        "dataLength": 50252
+      }
+    ],
+    "textReceiptContainsImageBase64": false,
+    "textReceiptContainsPublicOrSignedUrl": false,
+    "imageBlock": {
+      "type": "image",
+      "mimeType": "image/gif",
+      "byteCount": 37688,
+      "sha256": "01b939e2ca7783262823de385c984502db8202a080fbcf12562ceb34df986e97",
+      "header": "GIF89a",
+      "annotations": {
+        "audience": [
+          "user"
+        ],
+        "priority": 1
+      }
+    },
+    "receipt": {
+      "operation": "render.blender_glb",
+      "toolName": "command_center.render.blender_glb",
+      "commandCenterMcpUrl": "https://us-central1-home-center-dclar.cloudfunctions.net/commandCenterMcp/mcp",
+      "result": {
+        "ok": true,
+        "cacheHit": false,
+        "renderId": "render_8cd8f351629d719545ea9fe3adb959c0",
+        "cacheKey": "075c5af0d672ad02585676eda06a650b2f63897baaeaba9106c2bfbf26caf11c",
+        "status": "completed",
+        "renderRefs": [
+          "gs://home-center-dclar-command-center-renders/command-center-renders/075c5af0d672ad02585676eda06a650b2f63897baaeaba9106c2bfbf26caf11c/frames/0-vanguard_walk_00.png",
+          "gs://home-center-dclar-command-center-renders/command-center-renders/075c5af0d672ad02585676eda06a650b2f63897baaeaba9106c2bfbf26caf11c/frames/1-vanguard_walk_01.png",
+          "gs://home-center-dclar-command-center-renders/command-center-renders/075c5af0d672ad02585676eda06a650b2f63897baaeaba9106c2bfbf26caf11c/frames/2-vanguard_walk_02.png",
+          "gs://home-center-dclar-command-center-renders/command-center-renders/075c5af0d672ad02585676eda06a650b2f63897baaeaba9106c2bfbf26caf11c/frames/3-vanguard_walk_03.png",
+          "gs://home-center-dclar-command-center-renders/command-center-renders/075c5af0d672ad02585676eda06a650b2f63897baaeaba9106c2bfbf26caf11c/frames/4-vanguard_walk_04.png",
+          "gs://home-center-dclar-command-center-renders/command-center-renders/075c5af0d672ad02585676eda06a650b2f63897baaeaba9106c2bfbf26caf11c/frames/5-vanguard_walk_05.png",
+          "gs://home-center-dclar-command-center-renders/command-center-renders/075c5af0d672ad02585676eda06a650b2f63897baaeaba9106c2bfbf26caf11c/frames/6-vanguard_walk_06.png",
+          "gs://home-center-dclar-command-center-renders/command-center-renders/075c5af0d672ad02585676eda06a650b2f63897baaeaba9106c2bfbf26caf11c/frames/7-vanguard_walk_07.png"
+        ],
+        "contactSheetRef": "gs://home-center-dclar-command-center-renders/command-center-renders/075c5af0d672ad02585676eda06a650b2f63897baaeaba9106c2bfbf26caf11c/contact-sheet.png",
+        "loopingGifRef": "gs://home-center-dclar-command-center-renders/command-center-renders/075c5af0d672ad02585676eda06a650b2f63897baaeaba9106c2bfbf26caf11c/walk-loop.gif",
+        "threeDArtifactRefs": [],
+        "modifiedBlendRef": "",
+        "animatedGlbRef": "",
+        "nativeDataRefs": [
+          "gs://home-center-dclar-command-center-renders/command-center-renders/075c5af0d672ad02585676eda06a650b2f63897baaeaba9106c2bfbf26caf11c/native-pose-animation.json"
+        ],
+        "originalScriptRef": "gs://home-center-dclar-command-center-renders/command-center-renders/075c5af0d672ad02585676eda06a650b2f63897baaeaba9106c2bfbf26caf11c/original-script.py",
+        "scriptInputHashesRef": "gs://home-center-dclar-command-center-renders/command-center-renders/075c5af0d672ad02585676eda06a650b2f63897baaeaba9106c2bfbf26caf11c/script-input-hashes.json",
+        "blenderVersionSettingsRef": "gs://home-center-dclar-command-center-renders/command-center-renders/075c5af0d672ad02585676eda06a650b2f63897baaeaba9106c2bfbf26caf11c/blender-version-settings.json",
+        "stdoutRef": "gs://home-center-dclar-command-center-renders/command-center-renders/075c5af0d672ad02585676eda06a650b2f63897baaeaba9106c2bfbf26caf11c/stdout.txt",
+        "stderrRef": "gs://home-center-dclar-command-center-renders/command-center-renders/075c5af0d672ad02585676eda06a650b2f63897baaeaba9106c2bfbf26caf11c/stderr.txt",
+        "fixedCameraRenderRefs": [
+          "gs://home-center-dclar-command-center-renders/command-center-renders/075c5af0d672ad02585676eda06a650b2f63897baaeaba9106c2bfbf26caf11c/fixed/0-vanguard_walk_side_00.png",
+          "gs://home-center-dclar-command-center-renders/command-center-renders/075c5af0d672ad02585676eda06a650b2f63897baaeaba9106c2bfbf26caf11c/fixed/1-vanguard_walk_side_01.png",
+          "gs://home-center-dclar-command-center-renders/command-center-renders/075c5af0d672ad02585676eda06a650b2f63897baaeaba9106c2bfbf26caf11c/fixed/2-vanguard_walk_side_02.png",
+          "gs://home-center-dclar-command-center-renders/command-center-renders/075c5af0d672ad02585676eda06a650b2f63897baaeaba9106c2bfbf26caf11c/fixed/3-vanguard_walk_side_03.png",
+          "gs://home-center-dclar-command-center-renders/command-center-renders/075c5af0d672ad02585676eda06a650b2f63897baaeaba9106c2bfbf26caf11c/fixed/4-vanguard_walk_side_04.png",
+          "gs://home-center-dclar-command-center-renders/command-center-renders/075c5af0d672ad02585676eda06a650b2f63897baaeaba9106c2bfbf26caf11c/fixed/5-vanguard_walk_side_05.png",
+          "gs://home-center-dclar-command-center-renders/command-center-renders/075c5af0d672ad02585676eda06a650b2f63897baaeaba9106c2bfbf26caf11c/fixed/6-vanguard_walk_side_06.png",
+          "gs://home-center-dclar-command-center-renders/command-center-renders/075c5af0d672ad02585676eda06a650b2f63897baaeaba9106c2bfbf26caf11c/fixed/7-vanguard_walk_side_07.png"
+        ],
+        "diagnosticRenderRefs": [],
+        "manifestRef": "gs://home-center-dclar-command-center-renders/command-center-renders/075c5af0d672ad02585676eda06a650b2f63897baaeaba9106c2bfbf26caf11c/validation-manifest.json",
+        "validationManifestRef": "gs://home-center-dclar-command-center-renders/command-center-renders/075c5af0d672ad02585676eda06a650b2f63897baaeaba9106c2bfbf26caf11c/validation-manifest.json",
+        "validation": {
+          "schema": "command-center.blender-render.validation.v1",
+          "atomicOperation": "GLB + script + execution contract -> durable 3D artifact + visual evidence",
+          "framesAreInsufficient": true,
+          "presentBundleKinds": [
+            "rendered_frames",
+            "fixed_camera_renders",
+            "contact_sheet",
+            "looping_gif",
+            "native_pose_animation_data",
+            "original_script",
+            "script_input_hashes",
+            "blender_version_settings",
+            "stdout_stderr",
+            "validation_manifest"
+          ],
+          "glbHash": "5411b177525e69f0db8ad77175d8d60d4a0a6cac5abe10e5d47a2c62cbdeff94",
+          "scriptHash": "c61e2e497489237ce6b45669ecf0810a051023cc88fd9d2c9dc3e2ddaf40d064",
+          "cacheKey": "075c5af0d672ad02585676eda06a650b2f63897baaeaba9106c2bfbf26caf11c",
+          "blenderExitCode": 0,
+          "blenderSignal": "",
+          "failureKind": "",
+          "manifestError": "",
+          "ok": true,
+          "missingBundleKinds": [],
+          "timings": {
+            "startedAtMs": 1784958126384,
+            "resolveGlbMs": 309,
+            "resolveScriptMs": 49,
+            "validateInputsMs": 0,
+            "writeInputsMs": 9,
+            "blenderVersionMs": 648,
+            "blenderExecutionMs": 42828,
+            "parseScriptManifestMs": 1,
+            "contactSheetMs": 681,
+            "loopingGifMs": 2515,
+            "enforceOutputLimitsMs": 3,
+            "uploadArtifactsMs": 3905,
+            "finishedAtMs": 1784958177668,
+            "totalMs": 51284
+          },
+          "renderOptions": {
+            "includeBlend": false,
+            "includeDiagnostics": false
+          },
+          "requiredBundleKinds": [
+            "rendered_frames",
+            "contact_sheet",
+            "native_pose_animation_data",
+            "script_input_hashes",
+            "blender_version_settings",
+            "stdout_stderr",
+            "fixed_camera_renders",
+            "validation_manifest",
+            "original_script"
+          ]
+        },
+        "artifactHashes": {
+          "contact-sheet.png": {
+            "sha256": "2e842dbc3cf72d0c1117479ff81f4ec2b35f7935cc88dd0fb3fbfc83398c3e08",
+            "byteCount": 105973
+          },
+          "fixed/vanguard_walk_side_00.png": {
+            "sha256": "28e9e0dee026929d90ab0dbd42695f136c53a731d64788219dbbbae196268709",
+            "byteCount": 48677
+          },
+          "fixed/vanguard_walk_side_01.png": {
+            "sha256": "86fdabac59ab015f7477f784cd9888ad49033eb3e9eea174c3fb9eea7dda337f",
+            "byteCount": 49134
+          },
+          "fixed/vanguard_walk_side_02.png": {
+            "sha256": "3a8c9d251e389b4e52668101297fe552fd1b1bf7e3842ba4ebf0413ed1e639c5",
+            "byteCount": 49849
+          },
+          "fixed/vanguard_walk_side_03.png": {
+            "sha256": "11809f4bccc8ffe0b35cb811b8232a593e8c1e110a0a7322ff97a98ce74dc633",
+            "byteCount": 50078
+          },
+          "fixed/vanguard_walk_side_04.png": {
+            "sha256": "72baad04812040120bdc8de509ed01d7ba2cfcaf05e55751c860b0ad30ab0624",
+            "byteCount": 50205
+          },
+          "fixed/vanguard_walk_side_05.png": {
+            "sha256": "98ed47f55867c4107fbbba8096f4e6866b65523e98b3c80e36840b109c70ed3a",
+            "byteCount": 50143
+          },
+          "fixed/vanguard_walk_side_06.png": {
+            "sha256": "6ebfb80d838ce221292a55e44d45483fa7cc1ce215e5fc065f4d7c2c1035a65b",
+            "byteCount": 50461
+          },
+          "fixed/vanguard_walk_side_07.png": {
+            "sha256": "fbe58076c8a74e143970b129ac09848ade1b93588bc4e5cf1ab14a99dd69161a",
+            "byteCount": 50375
+          },
+          "frames/vanguard_walk_00.png": {
+            "sha256": "28e9e0dee026929d90ab0dbd42695f136c53a731d64788219dbbbae196268709",
+            "byteCount": 48677
+          },
+          "frames/vanguard_walk_01.png": {
+            "sha256": "86fdabac59ab015f7477f784cd9888ad49033eb3e9eea174c3fb9eea7dda337f",
+            "byteCount": 49134
+          },
+          "frames/vanguard_walk_02.png": {
+            "sha256": "3a8c9d251e389b4e52668101297fe552fd1b1bf7e3842ba4ebf0413ed1e639c5",
+            "byteCount": 49849
+          },
+          "frames/vanguard_walk_03.png": {
+            "sha256": "11809f4bccc8ffe0b35cb811b8232a593e8c1e110a0a7322ff97a98ce74dc633",
+            "byteCount": 50078
+          },
+          "frames/vanguard_walk_04.png": {
+            "sha256": "72baad04812040120bdc8de509ed01d7ba2cfcaf05e55751c860b0ad30ab0624",
+            "byteCount": 50205
+          },
+          "frames/vanguard_walk_05.png": {
+            "sha256": "98ed47f55867c4107fbbba8096f4e6866b65523e98b3c80e36840b109c70ed3a",
+            "byteCount": 50143
+          },
+          "frames/vanguard_walk_06.png": {
+            "sha256": "6ebfb80d838ce221292a55e44d45483fa7cc1ce215e5fc065f4d7c2c1035a65b",
+            "byteCount": 50461
+          },
+          "frames/vanguard_walk_07.png": {
+            "sha256": "fbe58076c8a74e143970b129ac09848ade1b93588bc4e5cf1ab14a99dd69161a",
+            "byteCount": 50375
+          },
+          "native-pose-animation.json": {
+            "sha256": "4f18606b6bbb1e6d0cb9f327912b5baa6350b3233567e7b9516ea0644c413972",
+            "byteCount": 995
+          },
+          "script-output-manifest.json": {
+            "sha256": "cafa1f63cdef5a7bedfdfc8961757eea0548c35cb3a647c6075acac91361dfdb",
+            "byteCount": 1255
+          },
+          "stderr.txt": {
+            "sha256": "70eff99518bf2ef88c7b5da3bb697cb5a70f965cc4363eb7406ad8baa1cdb0a2",
+            "byteCount": 779
+          },
+          "stdout.txt": {
+            "sha256": "ec7a66ad30600c4af2a4bc8b5cba3b6eec759106ac4460f0d141276714e19c0d",
+            "byteCount": 5901
+          },
+          "vanguard_walk.blend": {
+            "sha256": "8875bd46391bd5ef908e030a21704c43fc95e9d431ff79f81c099cb0eba15de6",
+            "byteCount": 58658236
+          },
+          "walk-loop.gif": {
+            "sha256": "01b939e2ca7783262823de385c984502db8202a080fbcf12562ceb34df986e97",
+            "byteCount": 37688
+          }
+        },
+        "timings": {
+          "startedAtMs": 1784958126384,
+          "resolveGlbMs": 309,
+          "resolveScriptMs": 49,
+          "validateInputsMs": 0,
+          "writeInputsMs": 9,
+          "blenderVersionMs": 648,
+          "blenderExecutionMs": 42828,
+          "parseScriptManifestMs": 1,
+          "contactSheetMs": 681,
+          "loopingGifMs": 2515,
+          "enforceOutputLimitsMs": 3,
+          "uploadArtifactsMs": 3905,
+          "finishedAtMs": 1784958177668,
+          "totalMs": 51284
+        },
+        "renderOptions": {
+          "includeBlend": false,
+          "includeDiagnostics": false
+        },
+        "bundle": {
+          "refs": {
+            "renderedFrames": [
+              "gs://home-center-dclar-command-center-renders/command-center-renders/075c5af0d672ad02585676eda06a650b2f63897baaeaba9106c2bfbf26caf11c/frames/0-vanguard_walk_00.png",
+              "gs://home-center-dclar-command-center-renders/command-center-renders/075c5af0d672ad02585676eda06a650b2f63897baaeaba9106c2bfbf26caf11c/frames/1-vanguard_walk_01.png",
+              "gs://home-center-dclar-command-center-renders/command-center-renders/075c5af0d672ad02585676eda06a650b2f63897baaeaba9106c2bfbf26caf11c/frames/2-vanguard_walk_02.png",
+              "gs://home-center-dclar-command-center-renders/command-center-renders/075c5af0d672ad02585676eda06a650b2f63897baaeaba9106c2bfbf26caf11c/frames/3-vanguard_walk_03.png",
+              "gs://home-center-dclar-command-center-renders/command-center-renders/075c5af0d672ad02585676eda06a650b2f63897baaeaba9106c2bfbf26caf11c/frames/4-vanguard_walk_04.png",
+              "gs://home-center-dclar-command-center-renders/command-center-renders/075c5af0d672ad02585676eda06a650b2f63897baaeaba9106c2bfbf26caf11c/frames/5-vanguard_walk_05.png",
+              "gs://home-center-dclar-command-center-renders/command-center-renders/075c5af0d672ad02585676eda06a650b2f63897baaeaba9106c2bfbf26caf11c/frames/6-vanguard_walk_06.png",
+              "gs://home-center-dclar-command-center-renders/command-center-renders/075c5af0d672ad02585676eda06a650b2f63897baaeaba9106c2bfbf26caf11c/frames/7-vanguard_walk_07.png"
+            ],
+            "fixedCameraRenders": [
+              "gs://home-center-dclar-command-center-renders/command-center-renders/075c5af0d672ad02585676eda06a650b2f63897baaeaba9106c2bfbf26caf11c/fixed/0-vanguard_walk_side_00.png",
+              "gs://home-center-dclar-command-center-renders/command-center-renders/075c5af0d672ad02585676eda06a650b2f63897baaeaba9106c2bfbf26caf11c/fixed/1-vanguard_walk_side_01.png",
+              "gs://home-center-dclar-command-center-renders/command-center-renders/075c5af0d672ad02585676eda06a650b2f63897baaeaba9106c2bfbf26caf11c/fixed/2-vanguard_walk_side_02.png",
+              "gs://home-center-dclar-command-center-renders/command-center-renders/075c5af0d672ad02585676eda06a650b2f63897baaeaba9106c2bfbf26caf11c/fixed/3-vanguard_walk_side_03.png",
+              "gs://home-center-dclar-command-center-renders/command-center-renders/075c5af0d672ad02585676eda06a650b2f63897baaeaba9106c2bfbf26caf11c/fixed/4-vanguard_walk_side_04.png",
+              "gs://home-center-dclar-command-center-renders/command-center-renders/075c5af0d672ad02585676eda06a650b2f63897baaeaba9106c2bfbf26caf11c/fixed/5-vanguard_walk_side_05.png",
+              "gs://home-center-dclar-command-center-renders/command-center-renders/075c5af0d672ad02585676eda06a650b2f63897baaeaba9106c2bfbf26caf11c/fixed/6-vanguard_walk_side_06.png",
+              "gs://home-center-dclar-command-center-renders/command-center-renders/075c5af0d672ad02585676eda06a650b2f63897baaeaba9106c2bfbf26caf11c/fixed/7-vanguard_walk_side_07.png"
+            ],
+            "diagnosticViewRenders": [],
+            "threeDArtifacts": [],
+            "nativePoseAnimationData": [
+              "gs://home-center-dclar-command-center-renders/command-center-renders/075c5af0d672ad02585676eda06a650b2f63897baaeaba9106c2bfbf26caf11c/native-pose-animation.json"
+            ],
+            "loopingGif": "gs://home-center-dclar-command-center-renders/command-center-renders/075c5af0d672ad02585676eda06a650b2f63897baaeaba9106c2bfbf26caf11c/walk-loop.gif",
+            "contactSheet": "gs://home-center-dclar-command-center-renders/command-center-renders/075c5af0d672ad02585676eda06a650b2f63897baaeaba9106c2bfbf26caf11c/contact-sheet.png",
+            "modifiedBlend": "",
+            "animatedGlb": "",
+            "originalScript": "gs://home-center-dclar-command-center-renders/command-center-renders/075c5af0d672ad02585676eda06a650b2f63897baaeaba9106c2bfbf26caf11c/original-script.py",
+            "scriptInputHashes": "gs://home-center-dclar-command-center-renders/command-center-renders/075c5af0d672ad02585676eda06a650b2f63897baaeaba9106c2bfbf26caf11c/script-input-hashes.json",
+            "blenderVersionSettings": "gs://home-center-dclar-command-center-renders/command-center-renders/075c5af0d672ad02585676eda06a650b2f63897baaeaba9106c2bfbf26caf11c/blender-version-settings.json",
+            "stdout": "gs://home-center-dclar-command-center-renders/command-center-renders/075c5af0d672ad02585676eda06a650b2f63897baaeaba9106c2bfbf26caf11c/stdout.txt",
+            "stderr": "gs://home-center-dclar-command-center-renders/command-center-renders/075c5af0d672ad02585676eda06a650b2f63897baaeaba9106c2bfbf26caf11c/stderr.txt",
+            "validationManifest": "gs://home-center-dclar-command-center-renders/command-center-renders/075c5af0d672ad02585676eda06a650b2f63897baaeaba9106c2bfbf26caf11c/validation-manifest.json"
+          },
+          "validationManifest": {
+            "schema": "command-center.blender-render.validation.v1",
+            "atomicOperation": "GLB + script + execution contract -> durable 3D artifact + visual evidence",
+            "framesAreInsufficient": true,
+            "presentBundleKinds": [
+              "rendered_frames",
+              "fixed_camera_renders",
+              "contact_sheet",
+              "looping_gif",
+              "native_pose_animation_data",
+              "original_script",
+              "script_input_hashes",
+              "blender_version_settings",
+              "stdout_stderr",
+              "validation_manifest"
+            ],
+            "glbHash": "5411b177525e69f0db8ad77175d8d60d4a0a6cac5abe10e5d47a2c62cbdeff94",
+            "scriptHash": "c61e2e497489237ce6b45669ecf0810a051023cc88fd9d2c9dc3e2ddaf40d064",
+            "cacheKey": "075c5af0d672ad02585676eda06a650b2f63897baaeaba9106c2bfbf26caf11c",
+            "blenderExitCode": 0,
+            "blenderSignal": "",
+            "failureKind": "",
+            "manifestError": "",
+            "ok": true,
+            "missingBundleKinds": [],
+            "timings": {
+              "startedAtMs": 1784958126384,
+              "resolveGlbMs": 309,
+              "resolveScriptMs": 49,
+              "validateInputsMs": 0,
+              "writeInputsMs": 9,
+              "blenderVersionMs": 648,
+              "blenderExecutionMs": 42828,
+              "parseScriptManifestMs": 1,
+              "contactSheetMs": 681,
+              "loopingGifMs": 2515,
+              "enforceOutputLimitsMs": 3,
+              "uploadArtifactsMs": 3905,
+              "finishedAtMs": 1784958177668,
+              "totalMs": 51284
+            },
+            "renderOptions": {
+              "includeBlend": false,
+              "includeDiagnostics": false
+            }
+          },
+          "artifactHashes": {
+            "contact-sheet.png": {
+              "sha256": "2e842dbc3cf72d0c1117479ff81f4ec2b35f7935cc88dd0fb3fbfc83398c3e08",
+              "byteCount": 105973
+            },
+            "fixed/vanguard_walk_side_00.png": {
+              "sha256": "28e9e0dee026929d90ab0dbd42695f136c53a731d64788219dbbbae196268709",
+              "byteCount": 48677
+            },
+            "fixed/vanguard_walk_side_01.png": {
+              "sha256": "86fdabac59ab015f7477f784cd9888ad49033eb3e9eea174c3fb9eea7dda337f",
+              "byteCount": 49134
+            },
+            "fixed/vanguard_walk_side_02.png": {
+              "sha256": "3a8c9d251e389b4e52668101297fe552fd1b1bf7e3842ba4ebf0413ed1e639c5",
+              "byteCount": 49849
+            },
+            "fixed/vanguard_walk_side_03.png": {
+              "sha256": "11809f4bccc8ffe0b35cb811b8232a593e8c1e110a0a7322ff97a98ce74dc633",
+              "byteCount": 50078
+            },
+            "fixed/vanguard_walk_side_04.png": {
+              "sha256": "72baad04812040120bdc8de509ed01d7ba2cfcaf05e55751c860b0ad30ab0624",
+              "byteCount": 50205
+            },
+            "fixed/vanguard_walk_side_05.png": {
+              "sha256": "98ed47f55867c4107fbbba8096f4e6866b65523e98b3c80e36840b109c70ed3a",
+              "byteCount": 50143
+            },
+            "fixed/vanguard_walk_side_06.png": {
+              "sha256": "6ebfb80d838ce221292a55e44d45483fa7cc1ce215e5fc065f4d7c2c1035a65b",
+              "byteCount": 50461
+            },
+            "fixed/vanguard_walk_side_07.png": {
+              "sha256": "fbe58076c8a74e143970b129ac09848ade1b93588bc4e5cf1ab14a99dd69161a",
+              "byteCount": 50375
+            },
+            "frames/vanguard_walk_00.png": {
+              "sha256": "28e9e0dee026929d90ab0dbd42695f136c53a731d64788219dbbbae196268709",
+              "byteCount": 48677
+            },
+            "frames/vanguard_walk_01.png": {
+              "sha256": "86fdabac59ab015f7477f784cd9888ad49033eb3e9eea174c3fb9eea7dda337f",
+              "byteCount": 49134
+            },
+            "frames/vanguard_walk_02.png": {
+              "sha256": "3a8c9d251e389b4e52668101297fe552fd1b1bf7e3842ba4ebf0413ed1e639c5",
+              "byteCount": 49849
+            },
+            "frames/vanguard_walk_03.png": {
+              "sha256": "11809f4bccc8ffe0b35cb811b8232a593e8c1e110a0a7322ff97a98ce74dc633",
+              "byteCount": 50078
+            },
+            "frames/vanguard_walk_04.png": {
+              "sha256": "72baad04812040120bdc8de509ed01d7ba2cfcaf05e55751c860b0ad30ab0624",
+              "byteCount": 50205
+            },
+            "frames/vanguard_walk_05.png": {
+              "sha256": "98ed47f55867c4107fbbba8096f4e6866b65523e98b3c80e36840b109c70ed3a",
+              "byteCount": 50143
+            },
+            "frames/vanguard_walk_06.png": {
+              "sha256": "6ebfb80d838ce221292a55e44d45483fa7cc1ce215e5fc065f4d7c2c1035a65b",
+              "byteCount": 50461
+            },
+            "frames/vanguard_walk_07.png": {
+              "sha256": "fbe58076c8a74e143970b129ac09848ade1b93588bc4e5cf1ab14a99dd69161a",
+              "byteCount": 50375
+            },
+            "native-pose-animation.json": {
+              "sha256": "4f18606b6bbb1e6d0cb9f327912b5baa6350b3233567e7b9516ea0644c413972",
+              "byteCount": 995
+            },
+            "script-output-manifest.json": {
+              "sha256": "cafa1f63cdef5a7bedfdfc8961757eea0548c35cb3a647c6075acac91361dfdb",
+              "byteCount": 1255
+            },
+            "stderr.txt": {
+              "sha256": "70eff99518bf2ef88c7b5da3bb697cb5a70f965cc4363eb7406ad8baa1cdb0a2",
+              "byteCount": 779
+            },
+            "stdout.txt": {
+              "sha256": "ec7a66ad30600c4af2a4bc8b5cba3b6eec759106ac4460f0d141276714e19c0d",
+              "byteCount": 5901
+            },
+            "vanguard_walk.blend": {
+              "sha256": "8875bd46391bd5ef908e030a21704c43fc95e9d431ff79f81c099cb0eba15de6",
+              "byteCount": 58658236
+            },
+            "walk-loop.gif": {
+              "sha256": "01b939e2ca7783262823de385c984502db8202a080fbcf12562ceb34df986e97",
+              "byteCount": 37688
+            }
+          }
+        },
+        "error": "",
+        "failureKind": "",
+        "missingBundleKinds": [],
+        "stagedInputs": [
+          {
+            "ref": "gs://home-center-dclar-command-center-renders/command-center-render-inputs/github-cache/glb/9df644500ec406e06ee0771ac536e782832b31784f737d181659c3ce1e43fbc8-5411b177525e69f0db8ad77175d8d60d4a0a6cac5abe10e5d47a2c62cbdeff94-vanguard_walk_sword_carry_v2.glb",
+            "sha256": "5411b177525e69f0db8ad77175d8d60d4a0a6cac5abe10e5d47a2c62cbdeff94",
+            "byteCount": 8547652,
+            "fileName": "vanguard_walk_sword_carry_v2.glb",
+            "materializedFrom": "glbGitHubSourceCache",
+            "materializedBy": "home_center_mcp.command_center_operation",
+            "sourceRef": "github://Valar05/pose-lab-v2@b2c5bde5d91325726af34e5daea17b96d78b46f3/public/assets/vanguard/steel/candidates/walk-sword-carry-v2/attempt-003/vanguard_walk_sword_carry_v2.glb"
+          },
+          {
+            "ref": "gs://home-center-dclar-command-center-renders/command-center-render-inputs/owner_4d27b7e75b7c82c17ff779ccbbd24137/render_8cd8f351629d719545ea9fe3adb959c0/script-c61e2e497489237ce6b45669ecf0810a051023cc88fd9d2c9dc3e2ddaf40d064-inline-render.py",
+            "sha256": "c61e2e497489237ce6b45669ecf0810a051023cc88fd9d2c9dc3e2ddaf40d064",
+            "byteCount": 10611,
+            "fileName": "inline-render.py",
+            "materializedFrom": "scriptText"
+          }
+        ],
+        "inlineMediaDelivery": {
+          "ok": true,
+          "type": "mcp_inline_media",
+          "mimeType": "image/gif",
+          "artifactRef": "gs://home-center-dclar-command-center-renders/command-center-renders/075c5af0d672ad02585676eda06a650b2f63897baaeaba9106c2bfbf26caf11c/walk-loop.gif",
+          "byteCount": 37688,
+          "sha256": "01b939e2ca7783262823de385c984502db8202a080fbcf12562ceb34df986e97",
+          "expectedByteCount": 37688,
+          "expectedSha256": "01b939e2ca7783262823de385c984502db8202a080fbcf12562ceb34df986e97",
+          "ceilingBytes": 2097152,
+          "contentBlockType": "image",
+          "errorCode": "",
+          "message": "Private GCS GIF readback verified and attached as MCP image/gif content."
+        }
+      }
+    }
+  },
+  "commandCenterAfter": {
+    "jobIds": [
+      "job_0066b526-9a2a-4ff0-9638-91f83b3a0481",
+      "job_0215a0fb-6f8d-4eea-a20a-cb1efc16ab80",
+      "job_05550b2d-f4fb-4114-afc4-9ec29f17a958",
+      "job_166f06ad-7ad7-4cff-93a8-4e78c2ef25b8",
+      "job_179b4eda-092b-4a70-a35d-b443ab1a7260",
+      "job_1dd35e9d-88e2-4565-a4bd-0e4a703ccdf2",
+      "job_1de5b4ab-ff76-4c77-bc1d-9a7ebbd5e5ab",
+      "job_26589cf0-76ea-4add-b561-2fb8b88fbedd",
+      "job_26b31940-67e6-48e5-9243-6cc50e9e4421",
+      "job_2963c190-b6a7-4d74-b164-de2de0bb1b05",
+      "job_32aa1867-c7ce-4139-a06e-90468643b957",
+      "job_3955a5ad-6f1b-4b98-aaa4-d4a07cf8ef3f",
+      "job_39ca5006-8fad-4f51-be55-27421dac355c",
+      "job_46fb4f46-8eaf-4cd4-a286-e5a617091f4f",
+      "job_53c5cfd4-9e8e-4ef6-a157-d8e1f53fffe9",
+      "job_5d44dd91-5efd-4ffa-b26b-c58e621be019",
+      "job_6046924b-1c98-4def-903a-9bf3718ad81a",
+      "job_61d16c26-66d3-4803-bd2f-facbcae84cef",
+      "job_64b37fbd-09d2-40a4-9bdc-8fa378ee0926",
+      "job_69f59f09-00c2-4fab-9840-4af445fd13e1",
+      "job_73a9c9b1-fa76-4e28-8d56-46e02a22ed37",
+      "job_7eec4833-b526-46de-b557-fb678969c2b6",
+      "job_7f871505-7f34-4227-a0e9-a11c07afd182",
+      "job_82a4a6df-9693-4213-acbc-6611fb297556",
+      "job_837d5a57-b118-47d1-af50-bca86dd6eef8",
+      "job_88a8903a-89af-4521-9c00-0ace6d0d2843",
+      "job_89301c0a-dc8c-4681-8c0a-2a2dc3833120",
+      "job_8ab8a0f3-1e1d-48dd-b6ff-db8e093935c0",
+      "job_8e077b62-4cf8-45c2-be8d-b30149054bb5",
+      "job_9028aa6e-915c-43bb-8d26-accbe91531e4",
+      "job_9a32d99d-bff1-4365-8ec8-fdc9aefe17d7",
+      "job_9c70f800-1411-4d78-8645-c3ed431907df",
+      "job_a4288c87-47de-478d-847e-364db678781e",
+      "job_a591db59-a5c5-4a18-9f3f-2358644cb7ce",
+      "job_a80eb331-6e3f-4b5f-bd8d-3b2983711db3",
+      "job_ae441b9b-c462-4f64-a3be-7e426ef2c881",
+      "job_b398b4de-9b23-4568-81cc-c366bed8c40f",
+      "job_b632ed6a-307a-4a26-8996-f27976eb8489",
+      "job_b7f1b3c3-4a4d-4422-9821-9e1d7fe1dc5d",
+      "job_b924e363-af43-4e08-808a-e7f9a1eea20a",
+      "job_d2b1bea9-a64d-4833-a24f-c4cb83099c96",
+      "job_d2d2c4ce-8128-449e-826d-0ca074de7637",
+      "job_dd4c9d87-375c-46e0-97c6-a77c7885bdca",
+      "job_df99b234-a924-43cd-85d5-de1fbc5f3c93",
+      "job_e4a5c12d-c008-42b5-ac9c-7a93ed6f873b",
+      "job_e81a4573-80d6-44cd-86e1-d890382ca108",
+      "job_e97702f5-9eb6-457b-81fd-7ba5473d7c4f",
+      "job_ecd28153-3608-4419-81d6-76913934e505",
+      "job_f25648a7-4f90-4b2a-967b-f95fce83cfee",
+      "job_fdb1690b-2244-4a4c-ba54-9c88c6004595"
+    ],
+    "workerIds": [
+      "cloud-codex-primary",
+      "cloud-debian-codex-autoprov-20260725-0206",
+      "cloud-run-debian-codex-primary",
+      "codex-cloud-primary-real-postdeploy-auth-probe-20260712",
+      "codex-cloud-primary-real-real-capability-postdeploy-20260712",
+      "home-bridge-real-worker-20260722142140",
+      "home-bridge-real-worker-blender-file-top-level-after-deploy-20260724",
+      "home-bridge-real-worker-blender-file-top-level-before-deploy-20260724",
+      "home-bridge-real-worker-blender-file-top-level-homebridge-20260724172053",
+      "home-bridge-real-worker-blender-file-top-level-homebridge-final-20260724172432",
+      "home-bridge-real-worker-live-after-cloud-worker-schema",
+      "home-bridge-real-worker-real-capability-postdeploy-20260712",
+      "home-bridge-real-worker-render-drive-ref-after-deploy-20260724b",
+      "home-bridge-real-worker-render-drive-ref-after-streaming-deploy-20260724",
+      "home-bridge-real-worker-render-drive-ref-local-gate-before-deploy-20260724",
+      "home-bridge-real-worker-security-gate-local-schema-20260725",
+      "home-drive-primary",
+      "owner-boundary-retire-proof-owner-boundary-20260713-0630",
+      "pose-lab-v2-browser-worker-5c67f02",
+      "termux-debian-codex-primary",
+      "termux-pose-lab-v2-oneshot",
+      "termux-tanks-oneshot",
+      "termux-tanks-oneshot-tanks-pr1-upper-glacis-20260711115132",
+      "termux-vacation-voice-render-20260723",
+      "termux-vacation-voice-render-20260723-v2",
+      "verbose-worker-real-cloud-exec-20260712-02",
+      "verbose-worker-real-cloud-exec-20260712-03",
+      "verbose-worker-real-cloud-exec-20260712-04",
+      "verbose-worker-verbose-worker-20260711"
+    ]
+  },
+  "noJobDelta": true,
+  "noWorkerDelta": true,
+  "summary": {
+    "ok": true,
+    "renderId": "render_8cd8f351629d719545ea9fe3adb959c0",
+    "loopingGifRef": "gs://home-center-dclar-command-center-renders/command-center-renders/075c5af0d672ad02585676eda06a650b2f63897baaeaba9106c2bfbf26caf11c/walk-loop.gif",
+    "nativeDataRef": "gs://home-center-dclar-command-center-renders/command-center-renders/075c5af0d672ad02585676eda06a650b2f63897baaeaba9106c2bfbf26caf11c/native-pose-animation.json",
+    "inlineGifByteCount": 37688,
+    "inlineGifSha256": "01b939e2ca7783262823de385c984502db8202a080fbcf12562ceb34df986e97",
+    "topLevelOk": true,
+    "status": "completed",
+    "failureKind": "",
+    "topMissing": [],
+    "validationOk": true,
+    "validationMissing": [],
+    "inlineDelivery": {
+      "ok": true,
+      "type": "mcp_inline_media",
+      "mimeType": "image/gif",
+      "artifactRef": "gs://home-center-dclar-command-center-renders/command-center-renders/075c5af0d672ad02585676eda06a650b2f63897baaeaba9106c2bfbf26caf11c/walk-loop.gif",
+      "byteCount": 37688,
+      "sha256": "01b939e2ca7783262823de385c984502db8202a080fbcf12562ceb34df986e97",
+      "expectedByteCount": 37688,
+      "expectedSha256": "01b939e2ca7783262823de385c984502db8202a080fbcf12562ceb34df986e97",
+      "ceilingBytes": 2097152,
+      "contentBlockType": "image",
+      "errorCode": "",
+      "message": "Private GCS GIF readback verified and attached as MCP image/gif content."
+    },
+    "timings": {
+      "startedAtMs": 1784958126384,
+      "resolveGlbMs": 309,
+      "resolveScriptMs": 49,
+      "validateInputsMs": 0,
+      "writeInputsMs": 9,
+      "blenderVersionMs": 648,
+      "blenderExecutionMs": 42828,
+      "parseScriptManifestMs": 1,
+      "contactSheetMs": 681,
+      "loopingGifMs": 2515,
+      "enforceOutputLimitsMs": 3,
+      "uploadArtifactsMs": 3905,
+      "finishedAtMs": 1784958177668,
+      "totalMs": 51284
+    },
+    "renderOptions": {
+      "includeBlend": false,
+      "includeDiagnostics": false
+    },
+    "stagedInputs": [
+      {
+        "ref": "gs://home-center-dclar-command-center-renders/command-center-render-inputs/github-cache/glb/9df644500ec406e06ee0771ac536e782832b31784f737d181659c3ce1e43fbc8-5411b177525e69f0db8ad77175d8d60d4a0a6cac5abe10e5d47a2c62cbdeff94-vanguard_walk_sword_carry_v2.glb",
+        "sha256": "5411b177525e69f0db8ad77175d8d60d4a0a6cac5abe10e5d47a2c62cbdeff94",
+        "byteCount": 8547652,
+        "fileName": "vanguard_walk_sword_carry_v2.glb",
+        "materializedFrom": "glbGitHubSourceCache",
+        "materializedBy": "home_center_mcp.command_center_operation",
+        "sourceRef": "github://Valar05/pose-lab-v2@b2c5bde5d91325726af34e5daea17b96d78b46f3/public/assets/vanguard/steel/candidates/walk-sword-carry-v2/attempt-003/vanguard_walk_sword_carry_v2.glb"
+      },
+      {
+        "ref": "gs://home-center-dclar-command-center-renders/command-center-render-inputs/owner_4d27b7e75b7c82c17ff779ccbbd24137/render_8cd8f351629d719545ea9fe3adb959c0/script-c61e2e497489237ce6b45669ecf0810a051023cc88fd9d2c9dc3e2ddaf40d064-inline-render.py",
+        "sha256": "c61e2e497489237ce6b45669ecf0810a051023cc88fd9d2c9dc3e2ddaf40d064",
+        "byteCount": 10611,
+        "fileName": "inline-render.py",
+        "materializedFrom": "scriptText"
+      }
+    ],
+    "artifactHashes": {
+      "contact-sheet.png": {
+        "sha256": "2e842dbc3cf72d0c1117479ff81f4ec2b35f7935cc88dd0fb3fbfc83398c3e08",
+        "byteCount": 105973
+      },
+      "fixed/vanguard_walk_side_00.png": {
+        "sha256": "28e9e0dee026929d90ab0dbd42695f136c53a731d64788219dbbbae196268709",
+        "byteCount": 48677
+      },
+      "fixed/vanguard_walk_side_01.png": {
+        "sha256": "86fdabac59ab015f7477f784cd9888ad49033eb3e9eea174c3fb9eea7dda337f",
+        "byteCount": 49134
+      },
+      "fixed/vanguard_walk_side_02.png": {
+        "sha256": "3a8c9d251e389b4e52668101297fe552fd1b1bf7e3842ba4ebf0413ed1e639c5",
+        "byteCount": 49849
+      },
+      "fixed/vanguard_walk_side_03.png": {
+        "sha256": "11809f4bccc8ffe0b35cb811b8232a593e8c1e110a0a7322ff97a98ce74dc633",
+        "byteCount": 50078
+      },
+      "fixed/vanguard_walk_side_04.png": {
+        "sha256": "72baad04812040120bdc8de509ed01d7ba2cfcaf05e55751c860b0ad30ab0624",
+        "byteCount": 50205
+      },
+      "fixed/vanguard_walk_side_05.png": {
+        "sha256": "98ed47f55867c4107fbbba8096f4e6866b65523e98b3c80e36840b109c70ed3a",
+        "byteCount": 50143
+      },
+      "fixed/vanguard_walk_side_06.png": {
+        "sha256": "6ebfb80d838ce221292a55e44d45483fa7cc1ce215e5fc065f4d7c2c1035a65b",
+        "byteCount": 50461
+      },
+      "fixed/vanguard_walk_side_07.png": {
+        "sha256": "fbe58076c8a74e143970b129ac09848ade1b93588bc4e5cf1ab14a99dd69161a",
+        "byteCount": 50375
+      },
+      "frames/vanguard_walk_00.png": {
+        "sha256": "28e9e0dee026929d90ab0dbd42695f136c53a731d64788219dbbbae196268709",
+        "byteCount": 48677
+      },
+      "frames/vanguard_walk_01.png": {
+        "sha256": "86fdabac59ab015f7477f784cd9888ad49033eb3e9eea174c3fb9eea7dda337f",
+        "byteCount": 49134
+      },
+      "frames/vanguard_walk_02.png": {
+        "sha256": "3a8c9d251e389b4e52668101297fe552fd1b1bf7e3842ba4ebf0413ed1e639c5",
+        "byteCount": 49849
+      },
+      "frames/vanguard_walk_03.png": {
+        "sha256": "11809f4bccc8ffe0b35cb811b8232a593e8c1e110a0a7322ff97a98ce74dc633",
+        "byteCount": 50078
+      },
+      "frames/vanguard_walk_04.png": {
+        "sha256": "72baad04812040120bdc8de509ed01d7ba2cfcaf05e55751c860b0ad30ab0624",
+        "byteCount": 50205
+      },
+      "frames/vanguard_walk_05.png": {
+        "sha256": "98ed47f55867c4107fbbba8096f4e6866b65523e98b3c80e36840b109c70ed3a",
+        "byteCount": 50143
+      },
+      "frames/vanguard_walk_06.png": {
+        "sha256": "6ebfb80d838ce221292a55e44d45483fa7cc1ce215e5fc065f4d7c2c1035a65b",
+        "byteCount": 50461
+      },
+      "frames/vanguard_walk_07.png": {
+        "sha256": "fbe58076c8a74e143970b129ac09848ade1b93588bc4e5cf1ab14a99dd69161a",
+        "byteCount": 50375
+      },
+      "native-pose-animation.json": {
+        "sha256": "4f18606b6bbb1e6d0cb9f327912b5baa6350b3233567e7b9516ea0644c413972",
+        "byteCount": 995
+      },
+      "script-output-manifest.json": {
+        "sha256": "cafa1f63cdef5a7bedfdfc8961757eea0548c35cb3a647c6075acac91361dfdb",
+        "byteCount": 1255
+      },
+      "stderr.txt": {
+        "sha256": "70eff99518bf2ef88c7b5da3bb697cb5a70f965cc4363eb7406ad8baa1cdb0a2",
+        "byteCount": 779
+      },
+      "stdout.txt": {
+        "sha256": "ec7a66ad30600c4af2a4bc8b5cba3b6eec759106ac4460f0d141276714e19c0d",
+        "byteCount": 5901
+      },
+      "vanguard_walk.blend": {
+        "sha256": "8875bd46391bd5ef908e030a21704c43fc95e9d431ff79f81c099cb0eba15de6",
+        "byteCount": 58658236
+      },
+      "walk-loop.gif": {
+        "sha256": "01b939e2ca7783262823de385c984502db8202a080fbcf12562ceb34df986e97",
+        "byteCount": 37688
+      }
+    }
+  }
+}

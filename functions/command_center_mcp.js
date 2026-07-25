@@ -1,5 +1,6 @@
 const {createHash, randomUUID} = require('node:crypto');
 const {Storage} = require('@google-cloud/storage');
+const {SecretManagerServiceClient} = require('@google-cloud/secret-manager');
 const express = require('express');
 const {z} = require('zod/v4');
 const {McpServer} = require('@modelcontextprotocol/sdk/server/mcp.js');
@@ -32,6 +33,8 @@ const COMMAND_CENTER_COLLECTIONS = Object.freeze({
   baseWorkspaces: 'commandCenterBaseWorkspaces',
   repoAgents: 'commandCenterRepoAgents',
   agentSessions: 'commandCenterAgentSessions',
+  machineImages: 'commandCenterMachineImages',
+  provisioningRequests: 'commandCenterProvisioningRequests',
   agentActivations: 'commandCenterAgentActivations',
   agentArtifacts: 'commandCenterAgentArtifacts',
   codexCloudRefs: 'commandCenterCodexCloudRefs',
@@ -92,8 +95,17 @@ const COMMAND_CENTER_TERMINAL_JOB_STATUSES = Object.freeze(['completed', 'failed
 const COMMAND_CENTER_RECONCILE_DEFAULT_OLDER_THAN_MS = 30 * 60 * 1000;
 const COMMAND_CENTER_WORKER_PROTOCOL_VERSION = 'command-center-worker-v2';
 const COMMAND_CENTER_MIN_RUNNER_VERSION = 'command-center-runner-v2';
+const COMMAND_CENTER_MACHINE_IMAGE_STATUSES = Object.freeze(['available', 'materializing', 'missing', 'retired', 'quarantined']);
+const COMMAND_CENTER_CODEX_SESSION_STATUSES = Object.freeze(['idle', 'allocated', 'running', 'recoverable', 'failed', 'quarantined', 'retired', 'active']);
+const COMMAND_CENTER_SESSION_ISOLATION_MODES = Object.freeze(['session', 'host', 'image']);
 const COMMAND_CENTER_LEGACY_WORKER_IDS = Object.freeze(['termux-tanks-oneshot']);
 const COMMAND_CENTER_PROOF_EXCLUDED_WORKER_IDS = Object.freeze(['termux-tanks-oneshot']);
+const COMMAND_CENTER_DEFAULT_CLOUD_PROJECT = process.env.GCLOUD_PROJECT || process.env.GOOGLE_CLOUD_PROJECT || 'home-center-dclar';
+const COMMAND_CENTER_DEFAULT_CLOUD_REGION = process.env.COMMAND_CENTER_WORKER_REGION || 'us-central1';
+const COMMAND_CENTER_DEFAULT_CLOUD_WORKER_REPOSITORY = process.env.COMMAND_CENTER_WORKER_REPOSITORY || 'command-center-workers';
+const COMMAND_CENTER_DEFAULT_CLOUD_WORKER_IMAGE = process.env.COMMAND_CENTER_CLOUD_WORKER_IMAGE || `${COMMAND_CENTER_DEFAULT_CLOUD_REGION}-docker.pkg.dev/${COMMAND_CENTER_DEFAULT_CLOUD_PROJECT}/${COMMAND_CENTER_DEFAULT_CLOUD_WORKER_REPOSITORY}/debian-codex:latest`;
+const COMMAND_CENTER_DEFAULT_CLOUD_MACHINE_IMAGE_ID = 'cloud-debian-codex';
+const COMMAND_CENTER_PROVISIONING_STATUSES = Object.freeze(['requested', 'secrets_ready', 'job_created', 'activation_requested', 'routable', 'failed', 'blocked']);
 const COMMAND_CENTER_RENDER_TOOL_VERSION = 'command-center-blender-render-v1';
 const COMMAND_CENTER_RENDER_DEFAULT_SERVICE_URL = process.env.COMMAND_CENTER_RENDER_SERVICE_URL || '';
 const COMMAND_CENTER_RENDER_BUCKET = process.env.COMMAND_CENTER_RENDER_BUCKET || process.env.RENDER_CACHE_BUCKET || (process.env.GCLOUD_PROJECT ? `${process.env.GCLOUD_PROJECT}-command-center-renders` : 'home-center-dclar-command-center-renders');
@@ -102,7 +114,6 @@ const COMMAND_CENTER_RENDER_MAX_SCRIPT_BYTES = Number(process.env.COMMAND_CENTER
 const COMMAND_CENTER_RENDER_REQUIRED_BUNDLE_KINDS = Object.freeze([
   'rendered_frames',
   'contact_sheet',
-  'three_d_artifact',
   'native_pose_animation_data',
   'script_input_hashes',
   'blender_version_settings',
@@ -112,6 +123,22 @@ const COMMAND_CENTER_RENDER_REQUIRED_BUNDLE_KINDS = Object.freeze([
   'validation_manifest',
   'original_script',
 ]);
+
+const COMMAND_CENTER_ALLOWED_EMAILS = Object.freeze([
+  'dclarke1005@gmail.com',
+  'junewren28@gmail.com',
+  'timothypomeroy07@gmail.com',
+]);
+const COMMAND_CENTER_ALLOWED_EMAIL_SET = new Set(COMMAND_CENTER_ALLOWED_EMAILS);
+
+function requireCommandCenterAllowedEmail(email) {
+  const clean = safeText(email, 320).toLowerCase();
+  if (COMMAND_CENTER_ALLOWED_EMAIL_SET.has(clean)) return clean;
+  const err = new Error('command_center_forbidden: this Command Center MCP is restricted to approved Home Center accounts.');
+  err.status = 403;
+  err.failureKind = 'command_center_forbidden_email';
+  throw err;
+}
 
 function isTerminalJobStatus(status) {
   return COMMAND_CENTER_TERMINAL_JOB_STATUSES.includes(safeText(status, 80));
@@ -241,7 +268,7 @@ async function callerFromExtra(admin, extra) {
     err.status = 401;
     throw err;
   }
-  const email = safeText(data.email, 320).toLowerCase();
+  const email = requireCommandCenterAllowedEmail(data.email);
   const actor = email || `mcp:${hashText(token, 12)}`;
   return {authKind: 'home_center_mcp_oauth', tokenHash: hashText(token, 24), actor, ownerKey: ownerKeyFromActor(actor)};
 }
@@ -466,7 +493,19 @@ function cleanAgentSession(args = {}, agent = {}, caller = {}) {
     runtime: safeText(args.runtime, 120) || 'cloud-run-debian',
     title: safeText(args.title, 300) || 'Durable Codex worker session',
     purpose: safeText(args.purpose, 2000) || 'Resumable Codex worker session with durable workspace and context.',
-    status: safeText(args.status, 80) || 'active',
+    status: COMMAND_CENTER_CODEX_SESSION_STATUSES.includes(safeText(args.status, 80)) ? safeText(args.status, 80) : 'idle',
+    machineImageId: safeText(args.machineImageId || safeObject(args.sessionPolicy).machineImageId, 120),
+    imageDigest: safeText(args.imageDigest || safeObject(args.machineImage).digest, 160),
+    hostInstallationId: safeText(args.hostInstallationId || args.workerInstallationId, 180),
+    workerId: safeText(args.workerId || args.selectedWorkerId, 120),
+    workerInstanceId: safeText(args.workerInstanceId, 180),
+    sessionSlotId: safeText(args.sessionSlotId, 180),
+    isolationMode: COMMAND_CENTER_SESSION_ISOLATION_MODES.includes(safeText(args.isolationMode || safeObject(args.sessionPolicy).isolationMode, 80)) ? safeText(args.isolationMode || safeObject(args.sessionPolicy).isolationMode, 80) : 'session',
+    codexAuthMode: safeText(args.codexAuthMode || safeObject(args.runtime).codexAuth || safeObject(args.runtime).authMode, 80),
+    latestJobId: safeText(args.latestJobId, 180),
+    lastHeartbeatAtMs: Number(args.lastHeartbeatAtMs || 0) || 0,
+    hotStartMs: Number(args.hotStartMs || 0) || 0,
+    cacheState: safeObject(args.cacheState),
     latestActivationId: safeText(args.latestActivationId, 180),
     latestCodexCloudRefId: safeText(args.latestCodexCloudRefId, 180),
     currentWorkspaceSnapshotRef: safeText(args.currentWorkspaceSnapshotRef || safeObject(args.workspaceSnapshot).snapshotRef, 1200),
@@ -656,14 +695,27 @@ function workerApiKeyProbeAllowsCodex(worker = {}) {
   return {ok: false, reason};
 }
 
+function isLocalHostWorker(worker = {}) {
+  const location = safeText(worker.location, 120).toLowerCase();
+  const runtime = safeObject(worker.runtime);
+  const activation = normalizeActivationChannel(worker.activation);
+  return location.includes('termux')
+    || location.includes('android')
+    || location.includes('phone')
+    || location.includes('local')
+    || activation.mode === 'poll'
+    || runtime.codexAuth === 'chatgpt_saved_login'
+    || runtime.authMode === 'chatgpt_saved_login';
+}
+
 function workerRoutingPriority(worker = {}) {
   const location = safeText(worker.location, 120).toLowerCase();
   const runtime = safeObject(worker.runtime);
   const activation = normalizeActivationChannel(worker.activation);
-  if (location.includes('termux') || runtime.codexAuth === 'chatgpt_saved_login') return 0;
-  if (location.includes('local') || activation.mode === 'poll') return 10;
-  if (location.includes('cloud-run') || runtime.codexAuth === 'api_key' || runtime.authMode === 'api_key') return 50;
-  return 20;
+  if (location.includes('cloud-run') || activation.mode === 'cloud_run_job') return 0;
+  if (location.includes('cloud') || runtime.codexAuth === 'api_key' || runtime.authMode === 'api_key') return 10;
+  if (isLocalHostWorker(worker)) return 1000;
+  return 100;
 }
 
 function deriveWorkerLiveness(worker, nowMs = Date.now()) {
@@ -736,6 +788,111 @@ function cleanPreparedWorkspaces(data = {}) {
   return raw.slice(0, 40).map((item) => cleanBaseWorkspace(item));
 }
 
+
+function cleanMachineImage(args = {}, caller = {}) {
+  const nowMs = Date.now();
+  const imageKind = safeText(args.imageKind || args.kind, 120) || 'codex-worker-image';
+  const version = safeText(args.version, 120) || 'unversioned';
+  const imageId = slug(args.imageId || args.machineImageId || args.name || `${imageKind}-${version}`, 'machine-image');
+  const status = safeText(args.status, 80) || 'available';
+  return {
+    imageId,
+    machineImageId: imageId,
+    name: safeText(args.name, 240) || imageId,
+    imageKind,
+    version,
+    digest: safeText(args.digest || args.sha256 || args.imageDigest, 160),
+    status: COMMAND_CENTER_MACHINE_IMAGE_STATUSES.includes(status) ? status : 'available',
+    capabilities: safeList(args.capabilities || args.requiredCapabilities, 120, 120),
+    toolchains: safeList(args.toolchains, 80, 240),
+    dependencyBundleRefs: safeList(args.dependencyBundleRefs || args.bundleRefs, 80, 1000),
+    warmCacheRefs: safeList(args.warmCacheRefs || args.cacheRefs, 80, 1000),
+    materializationModes: safeList(args.materializationModes, 20, 120),
+    hotPathInstallAllowed: args.hotPathInstallAllowed === true ? true : false,
+    estimatedColdStartMs: Number(args.estimatedColdStartMs || 0) || 0,
+    estimatedHotStartMs: Number(args.estimatedHotStartMs || 0) || 0,
+    provenance: safeObject(args.provenance),
+    ownerKey: safeText(args.ownerKey, 80) || ownerKeyFromCaller(caller),
+    createdBy: safeText(args.createdBy, 160) || caller.actor || 'command_center',
+    updatedBy: caller.actor || safeText(args.updatedBy, 160),
+    createdAtMs: Number(args.createdAtMs || 0) || nowMs,
+    updatedAtMs: nowMs,
+  };
+}
+
+function cleanSessionPolicy(args = {}) {
+  const raw = safeObject(args.sessionPolicy || args.executionPolicy || args);
+  const allocationRaw = safeText(raw.allocation || raw.allocationMode, 40) || 'auto';
+  const isolationRaw = safeText(raw.isolationMode || raw.isolation, 40) || 'session';
+  return {
+    allocation: ['auto', 'new', 'reuse'].includes(allocationRaw) ? allocationRaw : 'auto',
+    isolationMode: COMMAND_CENTER_SESSION_ISOLATION_MODES.includes(isolationRaw) ? isolationRaw : 'session',
+    machineImageId: slug(raw.machineImageId || raw.imageId || '', ''),
+    imageRequirements: safeList(raw.imageRequirements || raw.requiredImageCapabilities || raw.requiredCapabilities, 40, 120).map((item) => item.toLowerCase()),
+    hostRequirements: safeList(raw.hostRequirements, 40, 120).map((item) => item.toLowerCase()),
+    requireMaterializedImage: raw.requireMaterializedImage !== false,
+    allowMaterializationDuringJob: raw.allowMaterializationDuringJob === true,
+    maxColdStartMs: Number(raw.maxColdStartMs || 0) || 0,
+    preferredSessionIds: safeList(raw.preferredSessionIds, 40, 180),
+  };
+}
+
+function workerMachineImageState(worker = {}) {
+  const sessionCapacity = safeObject(worker.sessionCapacity);
+  const rawInline = Array.isArray(worker.machineImages) ? worker.machineImages : [];
+  const inlineImages = rawInline.slice(0, 40).map((item) => cleanMachineImage({...item, ownerKey: worker.ownerKey}, {ownerKey: worker.ownerKey, actor: worker.workerId || 'worker'}));
+  const availableImageIds = safeList(worker.availableImageIds || sessionCapacity.availableImageIds, 80, 160).map((item) => slug(item, ''));
+  const materializedImageIds = safeList(worker.materializedImageIds || sessionCapacity.materializedImageIds, 80, 160).map((item) => slug(item, ''));
+  for (const image of inlineImages) {
+    if (!availableImageIds.includes(image.imageId)) availableImageIds.push(image.imageId);
+    if (image.status === 'available' && !materializedImageIds.includes(image.imageId)) materializedImageIds.push(image.imageId);
+  }
+  const maxConcurrentSessions = Math.max(1, Math.min(Number(worker.maxConcurrentSessions || sessionCapacity.maxConcurrentSessions || safeObject(worker.limits).maxConcurrentSessions || safeObject(worker.limits).concurrentSessions || 1) || 1, 100));
+  const activeSessionIds = safeList(worker.activeSessionIds || sessionCapacity.activeSessionIds, 100, 180);
+  return {
+    availableImageIds,
+    materializedImageIds,
+    machineImages: inlineImages,
+    cacheState: safeObject(worker.cacheState || sessionCapacity.cacheState),
+    canMaterializeImages: worker.canMaterializeImages === true || sessionCapacity.canMaterializeImages === true,
+    sessionIsolationModes: safeList(worker.sessionIsolationModes || sessionCapacity.sessionIsolationModes, 10, 80),
+    maxConcurrentSessions,
+    activeSessionIds,
+    sessionCapacityRemaining: Math.max(0, maxConcurrentSessions - activeSessionIds.length),
+  };
+}
+
+function machineImageMatchesRequirements(image = {}, requirements = []) {
+  const caps = new Set(safeList(image.capabilities, 120, 120).map((cap) => cap.toLowerCase()));
+  return requirements.every((req) => caps.has(req));
+}
+
+function workerImagePolicyDiagnostic(worker = {}, policyInput = {}, machineImages = []) {
+  const policy = cleanSessionPolicy({sessionPolicy: policyInput});
+  const state = workerMachineImageState(worker);
+  if (!policy.machineImageId && !policy.imageRequirements.length && policy.allowMaterializationDuringJob !== true) return {ok: true, code: 'no_image_policy', reason: 'no machine image constraint requested', selectedMachineImageId: ''};
+  if (policy.allowMaterializationDuringJob === true) return {ok: false, code: 'hot_path_materialization_forbidden', reason: 'normal job execution may not install or materialize machine images; prepare the image before routing', selectedMachineImageId: ''};
+  if (!policy.requireMaterializedImage) return {ok: true, code: 'image_materialization_not_required', reason: 'session policy does not require a materialized image', selectedMachineImageId: policy.machineImageId};
+  const materialized = new Set(state.materializedImageIds);
+  if (policy.machineImageId) {
+    if (materialized.has(policy.machineImageId)) return {ok: true, code: 'image_materialized', reason: `machine image ${policy.machineImageId} is materialized on host`, selectedMachineImageId: policy.machineImageId};
+    return {ok: false, code: 'image_not_materialized', reason: `machine image ${policy.machineImageId} is not materialized on this host`, selectedMachineImageId: policy.machineImageId};
+  }
+  const allImages = [...machineImages, ...state.machineImages];
+  const match = allImages.find((image) => image.status !== 'retired' && materialized.has(slug(image.imageId || image.machineImageId, '')) && machineImageMatchesRequirements(image, policy.imageRequirements));
+  if (match) return {ok: true, code: 'image_requirements_materialized', reason: `materialized image ${match.imageId || match.machineImageId} satisfies requirements`, selectedMachineImageId: slug(match.imageId || match.machineImageId, '')};
+  return {ok: false, code: 'image_not_materialized', reason: `no materialized machine image satisfies: ${policy.imageRequirements.join(', ')}`, selectedMachineImageId: ''};
+}
+
+function workerSessionPolicyDiagnostic(worker = {}, policyInput = {}) {
+  const policy = cleanSessionPolicy({sessionPolicy: policyInput});
+  const state = workerMachineImageState(worker);
+  const modes = state.sessionIsolationModes.length ? state.sessionIsolationModes : ['session'];
+  if (!modes.includes(policy.isolationMode)) return {ok: false, code: 'session_isolation_unavailable', reason: `host does not advertise ${policy.isolationMode} isolation`, sessionCapacity: state};
+  if (state.sessionCapacityRemaining <= 0) return {ok: false, code: 'session_capacity_exhausted', reason: 'host has no free isolated Codex session slots', sessionCapacity: state};
+  return {ok: true, code: 'session_capacity_available', reason: 'host has a compatible isolated Codex session slot', sessionCapacity: state};
+}
+
 function workerRoutabilityDiagnostic(worker = {}, nowMs = Date.now()) {
   const data = safeObject(worker);
   const identity = cleanWorkerIdentity(data);
@@ -783,11 +940,20 @@ function compactWorkerCensus(worker = {}, activeLeases = 0, nowMs = Date.now()) 
     capabilities: safeList(worker.capabilities, 120, 120),
     preparedWorkspaces: cleanPreparedWorkspaces(worker).map((workspace) => ({baseWorkspaceId: workspace.baseWorkspaceId, snapshotRef: workspace.snapshotRef, restoreStrategy: workspace.restoreStrategy, repository: repositoryFromBaseWorkspace(workspace)})),
     authenticationMode: safeText(safeObject(worker.runtime).codexAuth || safeObject(worker.runtime).authMode || safeObject(worker.runtime).openAiAuthMode, 80),
+    availableImageIds: workerMachineImageState(worker).availableImageIds,
+    materializedImageIds: workerMachineImageState(worker).materializedImageIds,
+    cacheState: workerMachineImageState(worker).cacheState,
+    maxConcurrentSessions: workerMachineImageState(worker).maxConcurrentSessions,
+    activeSessionIds: workerMachineImageState(worker).activeSessionIds,
+    sessionIsolationModes: workerMachineImageState(worker).sessionIsolationModes,
+    canMaterializeImages: workerMachineImageState(worker).canMaterializeImages,
+    sessionCapacity: {maxConcurrentSessions: workerMachineImageState(worker).maxConcurrentSessions, activeSessionCount: workerMachineImageState(worker).activeSessionIds.length, capacityRemaining: workerMachineImageState(worker).sessionCapacityRemaining},
     activeLeases,
     capacity: {activeLeases, concurrencyLimit: workerConcurrencyLimit(worker), capacityRemaining: Math.max(0, workerConcurrencyLimit(worker) - activeLeases)},
     duplicateOf: safeText(worker.duplicateOf, 120),
     supersededBy: safeText(worker.supersededBy, 120),
     legacyIdentity: identity.legacyIdentity,
+    localHostExcludedByDefault: isLocalHostWorker(worker),
   };
 }
 
@@ -813,15 +979,24 @@ function explainWorkerCandidate(worker = {}, requirements = [], activeLeaseCount
   const routability = workerRoutabilityDiagnostic(worker, nowMs);
   const capacity = workerConcurrencyLimit(worker);
   const capacityRemaining = Math.max(0, capacity - activeLeaseCount);
-  const eligible = leaseEligibility.eligible === true && routability.routable === true && capacityRemaining > 0;
+  const imagePolicy = workerImagePolicyDiagnostic(worker, options.sessionPolicy || options.imagePolicy || {}, options.machineImages || []);
+  const sessionDiagnostic = workerSessionPolicyDiagnostic(worker, options.sessionPolicy || options.imagePolicy || {});
+  const hasSessionPolicy = !!(safeText(safeObject(options.sessionPolicy || options.imagePolicy || {}).machineImageId, 120) || Array.isArray(safeObject(options.sessionPolicy || options.imagePolicy || {}).imageRequirements) || Array.isArray(safeObject(options.sessionPolicy || options.imagePolicy || {}).requiredImageCapabilities));
+  let eligible = leaseEligibility.eligible === true && routability.routable === true && capacityRemaining > 0;
+  let reason = eligible ? 'included' : (routability.routable ? (capacityRemaining <= 0 ? 'capacity exhausted' : leaseEligibility.reason) : routability.reason);
+  let reasonCode = eligible ? 'included' : (routability.routable ? (capacityRemaining <= 0 ? 'capacity_exhausted' : (/local\/phone workers/.test(leaseEligibility.reason || '') ? 'local_host_excluded' : 'requirements_not_met')) : routability.code);
+  if (eligible && !imagePolicy.ok) { eligible = false; reason = imagePolicy.reason; reasonCode = imagePolicy.code; }
+  if (eligible && hasSessionPolicy && !sessionDiagnostic.ok) { eligible = false; reason = sessionDiagnostic.reason; reasonCode = sessionDiagnostic.code; }
   return {
     workerId: safeText(worker.workerId, 120),
     workerInstallationId: cleanWorkerIdentity(worker).workerInstallationId,
     workerInstanceId: cleanWorkerIdentity(worker).workerInstanceId,
     included: eligible,
     excluded: !eligible,
-    reason: eligible ? 'included' : (routability.routable ? (capacityRemaining <= 0 ? 'capacity exhausted' : leaseEligibility.reason) : routability.reason),
-    reasonCode: eligible ? 'included' : (routability.routable ? (capacityRemaining <= 0 ? 'capacity_exhausted' : 'requirements_not_met') : routability.code),
+    reason,
+    reasonCode,
+    imagePolicy,
+    sessionDiagnostic,
     leaseEligibility: leaseEligibility.reason,
     routability,
     activeLeases: activeLeaseCount,
@@ -861,6 +1036,15 @@ function cleanWorker(worker) {
     runtime: safeObject(data.runtime),
     cloudRunJob: safeObject(data.cloudRunJob),
     sessionPolicy: safeObject(data.sessionPolicy),
+    availableImageIds: workerMachineImageState(data).availableImageIds,
+    materializedImageIds: workerMachineImageState(data).materializedImageIds,
+    machineImages: workerMachineImageState(data).machineImages,
+    cacheState: workerMachineImageState(data).cacheState,
+    maxConcurrentSessions: workerMachineImageState(data).maxConcurrentSessions,
+    activeSessionIds: workerMachineImageState(data).activeSessionIds,
+    sessionIsolationModes: workerMachineImageState(data).sessionIsolationModes,
+    canMaterializeImages: workerMachineImageState(data).canMaterializeImages,
+    sessionCapacity: {maxConcurrentSessions: workerMachineImageState(data).maxConcurrentSessions, activeSessionIds: workerMachineImageState(data).activeSessionIds, materializedImageIds: workerMachineImageState(data).materializedImageIds, availableImageIds: workerMachineImageState(data).availableImageIds, cacheState: workerMachineImageState(data).cacheState, canMaterializeImages: workerMachineImageState(data).canMaterializeImages, sessionIsolationModes: workerMachineImageState(data).sessionIsolationModes},
     repositoryAffinity: safeList(data.repositoryAffinity, 80, 240),
     preparedWorkspaces: cleanPreparedWorkspaces(data),
     workerInstallationId: cleanWorkerIdentity(data).workerInstallationId,
@@ -957,6 +1141,7 @@ function isWorkerLeaseEligible(worker, requirements, options = {}) {
   const caps = new Set((worker.capabilities || []).map((cap) => String(cap).toLowerCase()));
   const liveness = deriveWorkerLiveness(worker, nowMs);
   if (worker.simulated === true) return {eligible: false, reason: 'worker is simulated'};
+  if (isLocalHostWorker(worker) && options.allowLocalHost !== true) return {eligible: false, reason: 'local/phone workers are excluded from generic cloud routing'};
   if (worker.status === 'retired' || worker.retiredAtMs) return {eligible: false, reason: 'worker is retired'};
   const route = workerRoutabilityDiagnostic(worker, nowMs);
   if (!route.routable) return {eligible: false, reason: route.reason};
@@ -1005,11 +1190,22 @@ function selectWorkerCandidates(workers, requirements, options = {}) {
   const reqs = safeList(requirements, 40, 120).map((req) => req.toLowerCase());
   return (Array.isArray(workers) ? workers : []).map((worker) => {
     const eligibility = isWorkerLeaseEligible(worker, reqs, options);
+    let eligible = eligibility.eligible === true;
+    let reason = eligibility.reason || '';
+    let reasonCode = eligible ? 'eligible' : (/local\/phone workers/.test(reason) ? 'local_host_excluded' : 'requirements_not_met');
+    const sessionPolicy = options.sessionPolicy || options.imagePolicy || {};
+    const imagePolicy = workerImagePolicyDiagnostic(worker, sessionPolicy, options.machineImages || []);
+    const sessionDiagnostic = workerSessionPolicyDiagnostic(worker, sessionPolicy);
+    if (eligible && !imagePolicy.ok) { eligible = false; reason = imagePolicy.reason; reasonCode = imagePolicy.code; }
+    if (eligible && (safeObject(sessionPolicy).machineImageId || safeObject(sessionPolicy).imageRequirements || safeObject(sessionPolicy).requiredImageCapabilities) && !sessionDiagnostic.ok) { eligible = false; reason = sessionDiagnostic.reason; reasonCode = sessionDiagnostic.code; }
     return {
       worker,
       workerId: worker && worker.workerId || '',
-      eligible: eligibility.eligible === true,
-      reason: eligibility.reason || '',
+      eligible,
+      reason,
+      reasonCode,
+      imagePolicy,
+      sessionDiagnostic,
       concurrencyLimit: workerConcurrencyLimit(worker),
     };
   });
@@ -1174,10 +1370,16 @@ function normalizeRenderSettings(value = {}) {
     height: Math.max(64, Math.min(Number(src.height || 960) || 960, 4096)),
     camera: safeText(src.camera, 120) || 'front_3q',
     outputName: safeText(src.outputName, 180) || 'render.png',
+    samples: Math.max(1, Math.min(Number(src.samples || src.renderSamples || 64) || 64, 128)),
     fixedCameras: safeList(src.fixedCameras || ['front_3q'], 12, 120),
     diagnosticViews: safeList(src.diagnosticViews || ['front', 'side', 'top'], 12, 120),
   };
-  return {...settings, renderOptions: safeObject(src.renderOptions)};
+  return {
+    ...settings,
+    includeBlend: src.includeBlend === false ? false : true,
+    includeDiagnostics: src.includeDiagnostics === false ? false : true,
+    renderOptions: safeObject(src.renderOptions),
+  };
 }
 
 function stableJson(value) {
@@ -1186,14 +1388,40 @@ function stableJson(value) {
   return JSON.stringify(value);
 }
 
+function renderBoolOption(value, fallback = true) {
+  if (value === false || value === 'false' || value === 0 || value === '0') return false;
+  if (value === true || value === 'true' || value === 1 || value === '1') return true;
+  return fallback;
+}
+
+function renderBundleOptionsFrom(settings = {}, contract = {}) {
+  const srcSettings = safeObject(settings);
+  const srcContract = safeObject(contract);
+  return {
+    includeBlend: renderBoolOption(srcSettings.includeBlend ?? srcContract.includeBlend, true),
+    includeDiagnostics: renderBoolOption(srcSettings.includeDiagnostics ?? srcContract.includeDiagnostics, true),
+  };
+}
+
+function renderRequiredBundleKindsForOptions(options = {}) {
+  const resolved = renderBundleOptionsFrom(options, options);
+  const requireBundleKinds = COMMAND_CENTER_RENDER_REQUIRED_BUNDLE_KINDS.filter((kind) => resolved.includeDiagnostics || kind !== 'diagnostic_view_renders');
+  if (resolved.includeBlend) requireBundleKinds.push('three_d_artifact');
+  return requireBundleKinds;
+}
+
 function cleanRenderContract(value = {}) {
   const src = safeObject(value);
+  const options = renderBundleOptionsFrom(src, src);
+  const requireBundleKinds = renderRequiredBundleKindsForOptions(options);
   return {
     contractVersion: safeText(src.contractVersion, 80) || 'glb-script-durable-3d-artifact-v1',
     atomicOperation: 'GLB + script + execution contract -> durable 3D artifact + visual evidence',
-    requireBundleKinds: COMMAND_CENTER_RENDER_REQUIRED_BUNDLE_KINDS,
+    requireBundleKinds,
     framesAreInsufficient: true,
     preserve3dTruth: true,
+    includeBlend: options.includeBlend,
+    includeDiagnostics: options.includeDiagnostics,
   };
 }
 
@@ -1211,12 +1439,15 @@ function cleanRenderResult(serviceResult = {}, fallback = {}) {
   const result = safeObject(serviceResult);
   const bundle = safeObject(result.bundle);
   const refs = safeObject(result.refs || bundle.refs);
-  const validation = safeObject(result.validation || bundle.validationManifest);
+  const validation = safeObject(result.validation || result.validationManifest || bundle.validationManifest);
   const renderRefs = safeList(result.renderRefs || refs.renderedFrames, 60, 1200);
   const diagnosticRenderRefs = safeList(result.diagnosticRenderRefs || refs.diagnosticViewRenders, 60, 1200);
   const fixedCameraRenderRefs = safeList(result.fixedCameraRenderRefs || refs.fixedCameraRenders, 60, 1200);
   const threeDArtifactRefs = safeList(result.threeDArtifactRefs || refs.threeDArtifacts, 20, 1200);
   const nativeDataRefs = safeList(result.nativeDataRefs || refs.nativePoseAnimationData, 20, 1200);
+  const artifactHashes = safeObject(result.artifactHashes || bundle.artifactHashes);
+  const timings = safeObject(result.timings || validation.timings || bundle.timings);
+  const renderOptions = safeObject(result.renderOptions || validation.renderOptions || bundle.renderOptions);
   return {
     ok: result.ok === true,
     cacheHit: result.cacheHit === true,
@@ -1225,6 +1456,7 @@ function cleanRenderResult(serviceResult = {}, fallback = {}) {
     status: safeText(result.status, 80) || (result.ok === true ? 'completed' : 'failed'),
     renderRefs,
     contactSheetRef: safeText(result.contactSheetRef || refs.contactSheet, 1200),
+    loopingGifRef: safeText(result.loopingGifRef || refs.loopingGif, 1200),
     threeDArtifactRefs,
     modifiedBlendRef: safeText(result.modifiedBlendRef || refs.modifiedBlend, 1200),
     animatedGlbRef: safeText(result.animatedGlbRef || refs.animatedGlb, 1200),
@@ -1239,6 +1471,9 @@ function cleanRenderResult(serviceResult = {}, fallback = {}) {
     manifestRef: safeText(result.manifestRef || refs.validationManifest, 1200),
     validationManifestRef: safeText(result.validationManifestRef || refs.validationManifest, 1200),
     validation,
+    artifactHashes,
+    timings,
+    renderOptions,
     bundle,
     error: safeText(result.error || result.message, 2000),
     failureKind: safeText(result.failureKind, 80),
@@ -1397,9 +1632,12 @@ async function renderBlenderGlb(admin, extra, args = {}) {
       const serviceResult = await invokeRenderService({renderId, requestCacheKey, glbRef, scriptRef, stagedInputs, settings, executionContract, toolVersion: COMMAND_CENTER_RENDER_TOOL_VERSION, cache: args.cache !== false, bucketInputs, googleOAuthAccessToken: accessToken});
       const result = cleanRenderResult(serviceResult, {renderId, cacheKey: serviceResult.cacheKey || requestCacheKey});
       const presentKinds = result.validation && Array.isArray(result.validation.presentBundleKinds) ? result.validation.presentBundleKinds : [];
-      const missingKinds = COMMAND_CENTER_RENDER_REQUIRED_BUNDLE_KINDS.filter((kind) => !presentKinds.includes(kind));
+      const effectiveRenderOptions = Object.prototype.hasOwnProperty.call(result.renderOptions || {}, 'includeBlend') || Object.prototype.hasOwnProperty.call(result.renderOptions || {}, 'includeDiagnostics') ? result.renderOptions : renderBundleOptionsFrom(settings, executionContract);
+      const requiredKinds = renderRequiredBundleKindsForOptions(effectiveRenderOptions);
+      const missingKinds = requiredKinds.filter((kind) => !presentKinds.includes(kind));
       const status = result.ok && missingKinds.length === 0 ? 'completed' : 'failed';
-      const finalResult = {...result, ok: status === 'completed', missingBundleKinds: missingKinds, stagedInputs};
+      const normalizedValidation = {...result.validation, ok: status === 'completed', missingBundleKinds: missingKinds, requiredBundleKinds: requiredKinds, renderOptions: effectiveRenderOptions};
+      const finalResult = {...result, ok: status === 'completed', status, failureKind: status === 'completed' ? '' : (result.failureKind || normalizedValidation.failureKind || 'artifact_publication'), missingBundleKinds: missingKinds, validation: normalizedValidation, renderOptions: effectiveRenderOptions, stagedInputs};
       await ref.set({status, cacheKey: finalResult.cacheKey || requestCacheKey, result: finalResult, updatedAtMs: Date.now(), completedAtMs: status === 'completed' ? Date.now() : 0, failedAtMs: status === 'failed' ? Date.now() : 0}, {merge: true});
       return finalResult;
     } catch (err) {
@@ -2511,11 +2749,13 @@ async function createJob(admin, caller, args) {
     const repository = resolveJobRepository(args, project, execution.baseWorkspace);
     const jobId = `job_${randomUUID()}`;
     const workers = recordsVisibleToCaller(await workerRecords(admin), caller);
+    const sessionPolicy = cleanSessionPolicy(args);
+    const machineImages = await machineImageRecords(admin, caller);
     let worker = null;
     let selection = null;
     let selectionFailure = null;
     try {
-      selection = await selectWorkerForJob(admin, workers, args.workerRequirements);
+      selection = await selectWorkerForJob(admin, workers, args.workerRequirements, {sessionPolicy, machineImages});
       worker = selection.worker;
     } catch (err) {
       if (!workerSelectionFailure(err)) throw err;
@@ -2536,6 +2776,8 @@ async function createJob(admin, caller, args) {
       repository,
       projectRepository: repositoryFromProject(project),
       ...execution,
+      sessionPolicy,
+      machineImageId: sessionPolicy.machineImageId,
       status: worker ? 'leased' : 'queued',
       selectedWorkerId: worker ? worker.workerId : '',
       eligibleWorkerIds: selection ? selection.eligibleWorkerIds : [],
@@ -2668,6 +2910,8 @@ async function createFollowupJob(admin, caller, args) {
     const project = projectResolution.project || {};
     if (project.ownerKey) assertOwnerAccess(project, caller, 'Command Center project');
     const workers = recordsVisibleToCaller(await workerRecords(admin), caller);
+    const sessionPolicy = cleanSessionPolicy(args.sessionPolicy ? args : {sessionPolicy: sourceJob.sessionPolicy || {}});
+    const machineImages = await machineImageRecords(admin, caller);
     const workerRequirements = safeList(args.workerRequirements, 40, 120);
     const inheritedWorkerRequirements = safeList(sourceJob.workerRequirements, 40, 120);
     let worker = null;
@@ -2675,7 +2919,7 @@ async function createFollowupJob(admin, caller, args) {
     let selectionFailure = null;
     const effectiveWorkerRequirements = workerRequirements.length ? workerRequirements : inheritedWorkerRequirements;
     try {
-      selection = await selectWorkerForJob(admin, workers, effectiveWorkerRequirements);
+      selection = await selectWorkerForJob(admin, workers, effectiveWorkerRequirements, {sessionPolicy, machineImages});
       worker = selection.worker;
     } catch (err) {
       if (!workerSelectionFailure(err)) throw err;
@@ -2703,6 +2947,8 @@ async function createFollowupJob(admin, caller, args) {
       repository,
       projectRepository: repositoryFromProject(project),
       ...execution,
+      sessionPolicy,
+      machineImageId: sessionPolicy.machineImageId,
       sourceJobId,
       followupOf: {
         jobId: sourceJobId,
@@ -3475,6 +3721,14 @@ async function registerOneShotWorker(admin, caller, args) {
 	      runtime: {...safeObject(args.runtime), authMode: safeText(safeObject(args.runtime).authMode || safeObject(args.runtime).codexAuth, 80)},
 	      cloudRunJob: safeObject(args.cloudRunJob),
 	      sessionPolicy: safeObject(args.sessionPolicy),
+          availableImageIds: safeList(args.availableImageIds, 80, 160),
+          materializedImageIds: safeList(args.materializedImageIds, 80, 160),
+          machineImages: Array.isArray(args.machineImages) ? args.machineImages.slice(0, 40) : [],
+          cacheState: safeObject(args.cacheState),
+          maxConcurrentSessions: Number(args.maxConcurrentSessions || safeObject(args.sessionCapacity).maxConcurrentSessions || 0) || undefined,
+          activeSessionIds: safeList(args.activeSessionIds || safeObject(args.sessionCapacity).activeSessionIds, 100, 180),
+          sessionIsolationModes: safeList(args.sessionIsolationModes || safeObject(args.sessionCapacity).sessionIsolationModes, 10, 80),
+          canMaterializeImages: args.canMaterializeImages === true || safeObject(args.sessionCapacity).canMaterializeImages === true,
 	      repositoryAffinity: safeList(args.repositoryAffinity, 80, 240),
 	      lastHeartbeatAtMs: nowMs,
       ownerKey: ownerKeyFromCaller(caller),
@@ -3573,6 +3827,7 @@ async function inspectWorker(admin, caller, args = {}) {
 
 function failureDiagnosisForWorker(worker = {}) {
   const route = workerRoutabilityDiagnostic(worker);
+  if (isLocalHostWorker(worker)) return {code: 'local_host_excluded', explanation: 'Local, phone, and Termux workers are excluded from generic Command Center Codex routing.', automaticallyRepairable: true, safeRecommendedOperation: 'workers.provision', localPhysicalInterventionRequired: false};
   if (route.routable) return {code: 'healthy', explanation: 'Worker is routable.', automaticallyRepairable: false, safeRecommendedOperation: '', localPhysicalInterventionRequired: false};
   const map = {
     stale_heartbeat: ['Worker heartbeat is stale or missing.', true, 'workers.reconcile', false],
@@ -3580,18 +3835,623 @@ function failureDiagnosisForWorker(worker = {}) {
     legacy_project_specific_worker: ['Project-specific one-shot worker is quarantined from generic routing.', true, 'workers.reconcile', false],
     protocol_version_mismatch: ['Worker protocol version is incompatible.', false, 'update worker runner bundle, then restart supervisor', true],
     retired_worker: ['Worker is retired.', false, 'register a fresh worker installation', true],
-    api_key_capability_unavailable: ['API-key backed Codex capability probe failed.', false, 'fix quota/auth outside Command Center or use saved-login Termux worker', false],
+    api_key_capability_unavailable: ['API-key backed Codex capability probe failed.', true, 'workers.provision or repair the cloud Codex auth probe', false],
   };
   const item = map[route.code] || [route.reason || 'Worker is not routable.', false, 'workers.inspect', false];
   return {code: route.code, explanation: item[0], evidence: {workerId: worker.workerId || '', reason: route.reason}, automaticallyRepairable: item[1], safeRecommendedOperation: item[2], localPhysicalInterventionRequired: item[3]};
 }
 
+
+
+function cloudProvisioningDefaults(args = {}, caller = {}) {
+  const requested = Number(args.requestedSessions || args.sessionSlots || 1) || 1;
+  const requestedSessions = Math.max(1, Math.min(requested, 20));
+  const machineImageId = slug(args.machineImageId || args.imageId || COMMAND_CENTER_DEFAULT_CLOUD_MACHINE_IMAGE_ID, COMMAND_CENTER_DEFAULT_CLOUD_MACHINE_IMAGE_ID);
+  const region = safeText(args.region, 80) || COMMAND_CENTER_DEFAULT_CLOUD_REGION;
+  const projectId = safeText(args.cloudProjectId || args.projectId || COMMAND_CENTER_DEFAULT_CLOUD_PROJECT, 120) || COMMAND_CENTER_DEFAULT_CLOUD_PROJECT;
+  const nonce = safeText(args.provisioningNonce || args.idempotencyKey || randomUUID(), 160);
+  const workerId = slug(args.workerId || `cloud-debian-codex-${hashText(ownerKeyFromCaller(caller) + ':' + machineImageId + ':' + nonce, 10)}`, 'cloud-debian-codex');
+  const jobName = slug(args.jobName || workerId, 'command-center-debian-worker').slice(0, 63).replace(/-+$/g, '') || 'command-center-debian-worker';
+  const secretName = safeText(args.workerTokenSecret || `COMMAND_CENTER_WORKER_TOKEN_${workerId.toUpperCase().replace(/[^A-Z0-9]+/g, '_')}`, 240);
+  return {
+    provisioningId: slug(args.provisioningId || `prov-${hashText(ownerKeyFromCaller(caller) + ':' + workerId + ':' + nonce, 24)}`, 'prov'),
+    workerId,
+    workerInstallationId: safeText(args.workerInstallationId, 180) || `winst_cloud_${hashText(ownerKeyFromCaller(caller) + ':' + workerId, 24)}`,
+    workerInstanceId: safeText(args.workerInstanceId, 180) || `winstproc_cloud_pending_${hashText(workerId + ':' + Date.now() + ':' + randomUUID(), 18)}`,
+    machineImageId,
+    projectId,
+    region,
+    jobName,
+    image: safeText(args.image, 1200) || COMMAND_CENTER_DEFAULT_CLOUD_WORKER_IMAGE,
+    requestedSessions,
+    capabilities: safeList(args.capabilities, 80, 120).length ? safeList(args.capabilities, 80, 120) : ['codex', 'cloud-run-debian', 'durable-session', 'prepared-workspace', 'github', 'node', 'python', 'gcs-workspace-snapshot', 'one-shot-worker'],
+    openAiApiKeySecret: safeText(args.openAiApiKeySecret || 'OPENAI_API_KEY', 240),
+    codexAccessTokenSecret: safeText(args.codexAccessTokenSecret || 'CODEX_ACCESS_TOKEN', 240),
+    githubTokenSecret: safeText(args.githubTokenSecret || 'GITHUB_TOKEN', 240),
+    workerTokenSecret: secretName,
+    snapshotBucket: safeText(args.snapshotBucket || process.env.COMMAND_CENTER_WORKSPACE_SNAPSHOT_BUCKET || `${projectId}-command-center-worker-sessions`, 240),
+    serviceAccount: safeText(args.serviceAccount, 320),
+  };
+}
+
+function assertCloudProvisioningRequest(request = {}) {
+  const location = safeText(request.location || request.targetLocation || request.workerId, 240).toLowerCase();
+  if (location.includes('termux') || location.includes('phone') || location.includes('android') || location.includes('local')) {
+    const err = new Error('workers.provision is cloud-only; Termux, phone, Android, and local hosts are forbidden for generic Codex capacity.');
+    err.status = 400;
+    err.code = 'local_host_forbidden';
+    throw err;
+  }
+}
+
+function cloudMachineImageRecord(args = {}, caller = {}) {
+  return cleanMachineImage({
+    imageId: args.machineImageId || COMMAND_CENTER_DEFAULT_CLOUD_MACHINE_IMAGE_ID,
+    name: 'Cloud Debian Codex',
+    imageKind: 'cloud-run-debian-codex',
+    version: safeText(args.version, 120) || 'debian-codex-latest',
+    digest: safeText(args.digest || args.image, 160),
+    status: 'available',
+    capabilities: ['codex', 'cloud-run-debian', 'durable-session', 'prepared-workspace', 'github', 'node', 'python', 'gcs-workspace-snapshot', 'one-shot-worker'],
+    toolchains: ['debian', 'codex-cli', 'node', 'python'],
+    dependencyBundleRefs: [safeText(args.image, 1200) || COMMAND_CENTER_DEFAULT_CLOUD_WORKER_IMAGE],
+    warmCacheRefs: safeList(args.warmCacheRefs, 20, 1000),
+    materializationModes: ['cloud_run_job_image'],
+    hotPathInstallAllowed: false,
+    estimatedColdStartMs: Number(args.estimatedColdStartMs || 60000) || 60000,
+    estimatedHotStartMs: Number(args.estimatedHotStartMs || 5000) || 5000,
+    provenance: {source: 'workers.provision', noSecrets: true},
+  }, caller);
+}
+
+function cloudWorkerRecordFromProvisioning(request = {}, caller = {}) {
+  const nowMs = Date.now();
+  const defaults = cloudProvisioningDefaults(request, caller);
+  const image = cloudMachineImageRecord(defaults, caller);
+  return cleanWorker({
+    workerId: defaults.workerId,
+    workerInstallationId: defaults.workerInstallationId,
+    workerInstanceId: defaults.workerInstanceId,
+    runnerVersion: COMMAND_CENTER_MIN_RUNNER_VERSION,
+    protocolVersion: COMMAND_CENTER_WORKER_PROTOCOL_VERSION,
+    engine: 'codex',
+    location: 'gcp-cloud-run-job',
+    health: 'healthy',
+    registryHealth: 'healthy',
+    registryRoutable: true,
+    routable: true,
+    simulated: false,
+    capabilities: defaults.capabilities,
+    limits: {concurrentJobs: Math.max(1, defaults.requestedSessions), concurrentActivations: Math.max(1, defaults.requestedSessions)},
+    activation: {mode: 'cloud_run_job', verifiedAtMs: nowMs},
+    runtime: {kind: 'debian-container', compute: 'cloud-run-job', deviceIndependent: true, codexAuth: 'api_key', apiKeyCapabilityProbe: safeObject(request.apiKeyCapabilityProbe || {status: 'required_before_routing', failureKind: 'probe_not_recorded'})},
+    cloudRunJob: {projectId: defaults.projectId, region: defaults.region, jobName: defaults.jobName, image: defaults.image},
+    sessionPolicy: {durable: true, snapshotStore: 'gcs', snapshotBucket: defaults.snapshotBucket, restoreStrategies: ['gcs_snapshot', 'git_clean_clone', 'empty_workspace', 'artifact_bundle']},
+    machineImages: [image],
+    availableImageIds: [defaults.machineImageId],
+    materializedImageIds: [defaults.machineImageId],
+    maxConcurrentSessions: defaults.requestedSessions,
+    activeSessionIds: [],
+    sessionIsolationModes: ['session'],
+    canMaterializeImages: false,
+    cacheState: {hotStartReady: true, hotPathInstallAllowed: false, machineImageId: defaults.machineImageId},
+    ownerKey: ownerKeyFromCaller(caller),
+    createdBy: caller.actor,
+    updatedBy: caller.actor,
+    createdAtMs: nowMs,
+    updatedAtMs: nowMs,
+  });
+}
+
+function provisioningRecommendation(args = {}, candidates = []) {
+  const policy = cleanSessionPolicy(args);
+  const excludedLocal = candidates.filter((candidate) => candidate.reasonCode === 'local_host_excluded').map((candidate) => candidate.workerId);
+  return {
+    recommendedOperation: 'workers.provision',
+    cloudOnly: true,
+    localHostExcludedByDefault: true,
+    automaticallyRepairable: true,
+    reason: 'No eligible cloud worker capacity is currently routable; provision another Cloud Run Debian Codex worker instead of using Termux or a phone.',
+    suggestedArgs: {
+      idempotencyKey: `provision-${hashText(JSON.stringify({policy, requirements: args.workerRequirements || args.requirements || []}), 16)}`,
+      machineImageId: policy.machineImageId || COMMAND_CENTER_DEFAULT_CLOUD_MACHINE_IMAGE_ID,
+      requestedSessions: 1,
+    },
+    excludedLocalWorkerIds: excludedLocal,
+  };
+}
+
+async function createOrUpdateSecretVersion(projectId, secretId, value) {
+  const client = new SecretManagerServiceClient();
+  const parent = `projects/${projectId}`;
+  const name = `${parent}/secrets/${secretId}`;
+  try {
+    await client.getSecret({name});
+  } catch (err) {
+    const code = Number(err && err.code || 0);
+    if (code !== 5) throw err;
+    await client.createSecret({parent, secretId, secret: {replication: {automatic: {}}}});
+  }
+  const [version] = await client.addSecretVersion({parent: name, payload: {data: Buffer.from(value, 'utf8')}});
+  return safeText(version.name, 500);
+}
+
+
+async function googleProjectNumber(projectId) {
+  const explicit = safeText(process.env.GCLOUD_PROJECT_NUMBER || process.env.GOOGLE_CLOUD_PROJECT_NUMBER, 80);
+  if (explicit) return explicit;
+  const token = await googleCloudAccessToken();
+  const response = await fetch(`https://cloudresourcemanager.googleapis.com/v1/projects/${projectId}`, {headers: {authorization: `Bearer ${token}`}});
+  const text = await response.text();
+  let payload = {};
+  try { payload = text ? JSON.parse(text) : {}; } catch (_err) { payload = {message: text.slice(0, 1000)}; }
+  if (!response.ok || !payload.projectNumber) throw new Error(payload.error && payload.error.message || payload.message || `Project lookup failed: HTTP ${response.status}`);
+  return String(payload.projectNumber);
+}
+
+async function cloudWorkerServiceAccount(request = {}) {
+  const explicit = safeText(request.serviceAccount || process.env.COMMAND_CENTER_WORKER_SERVICE_ACCOUNT, 320);
+  if (explicit) return explicit;
+  const projectNumber = await googleProjectNumber(request.projectId || COMMAND_CENTER_DEFAULT_CLOUD_PROJECT);
+  return `${projectNumber}-compute@developer.gserviceaccount.com`;
+}
+
+async function secretExists(projectId, secretId) {
+  const client = new SecretManagerServiceClient();
+  try {
+    await client.getSecret({name: `projects/${projectId}/secrets/${secretId}`});
+    return true;
+  } catch (err) {
+    if (Number(err && err.code || 0) === 5) return false;
+    throw err;
+  }
+}
+
+async function grantSecretAccessor(projectId, secretId, serviceAccount) {
+  if (!await secretExists(projectId, secretId)) return {ok: false, code: 'secret_missing', secretId, serviceAccount, diagnostic: `Secret ${secretId} does not exist in ${projectId}.`};
+  const client = new SecretManagerServiceClient();
+  const resource = `projects/${projectId}/secrets/${secretId}`;
+  let policy = {};
+  try {
+    [policy] = await client.getIamPolicy({resource});
+  } catch (err) {
+    return {ok: false, code: 'secret_iam_read_failed', secretId, serviceAccount, diagnostic: safeText(err && err.message, 1000) || 'Secret IAM read failed.'};
+  }
+  const member = `serviceAccount:${serviceAccount}`;
+  const bindings = Array.isArray(policy.bindings) ? policy.bindings : [];
+  let binding = bindings.find((item) => item.role === 'roles/secretmanager.secretAccessor');
+  if (!binding) {
+    binding = {role: 'roles/secretmanager.secretAccessor', members: []};
+    bindings.push(binding);
+  }
+  binding.members = Array.from(new Set([...(Array.isArray(binding.members) ? binding.members : []), member])).sort();
+  try {
+    await client.setIamPolicy({resource, policy: {...policy, bindings}});
+  } catch (err) {
+    return {ok: false, code: 'secret_iam_binding_failed', secretId, serviceAccount, diagnostic: safeText(err && err.message, 1000) || 'Secret IAM write failed.'};
+  }
+  return {ok: true, code: 'secret_accessor_granted', secretId, serviceAccount};
+}
+
+async function ensureWorkerSecretAccess(request = {}) {
+  const serviceAccount = await cloudWorkerServiceAccount(request);
+  const secretIds = Array.from(new Set([request.workerTokenSecret, request.openAiApiKeySecret, request.codexAccessTokenSecret, request.githubTokenSecret].map((item) => safeText(item, 240)).filter(Boolean)));
+  const grants = [];
+  for (const secretId of secretIds) grants.push(await grantSecretAccessor(request.projectId, secretId, serviceAccount));
+  const hardFailed = grants.find((grant) => grant.ok === false && grant.code !== 'secret_iam_binding_failed') || null;
+  const unverified = grants.filter((grant) => grant.ok === false && grant.code === 'secret_iam_binding_failed');
+  return {ok: !hardFailed, serviceAccount, grants, failed: hardFailed || unverified[0] || null, unverifiedSecretIamBindings: unverified, warningCode: unverified.length ? 'secret_iam_binding_unverified' : ''};
+}
+
+function cloudRunJobReadyDiagnostic(jobPayload = {}) {
+  const conditions = Array.isArray(safeObject(jobPayload).conditions) ? jobPayload.conditions : (Array.isArray(safeObject(jobPayload.status).conditions) ? jobPayload.status.conditions : []);
+  const ready = conditions.find((condition) => condition.type === 'Ready') || null;
+  if (!ready) return {ready: false, code: 'cloud_run_job_ready_unknown', conditions};
+  if (String(ready.status) === 'True') return {ready: true, code: 'cloud_run_job_ready', conditions};
+  return {ready: false, code: safeText(ready.reason, 120) || 'cloud_run_job_not_ready', message: safeText(ready.message, 2000), conditions};
+}
+
+async function getCloudRunJob(request = {}) {
+  const token = await googleCloudAccessToken();
+  const parent = `projects/${request.projectId}/locations/${request.region}`;
+  const jobPath = `${parent}/jobs/${request.jobName}`;
+  const response = await fetch(`https://run.googleapis.com/v2/${jobPath}`, {headers: {authorization: `Bearer ${token}`}});
+  const text = await response.text();
+  let payload = {};
+  try { payload = text ? JSON.parse(text) : {}; } catch (_err) { payload = {message: text.slice(0, 1000)}; }
+  return {ok: response.ok, status: response.status, payload, jobPath};
+}
+
+async function deleteCloudRunJob(request = {}) {
+  const token = await googleCloudAccessToken();
+  const parent = `projects/${request.projectId}/locations/${request.region}`;
+  const jobPath = `${parent}/jobs/${request.jobName}`;
+  const response = await fetch(`https://run.googleapis.com/v2/${jobPath}`, {method: 'DELETE', headers: {authorization: `Bearer ${token}`}});
+  const text = await response.text();
+  let payload = {};
+  try { payload = text ? JSON.parse(text) : {}; } catch (_err) { payload = {message: text.slice(0, 1000)}; }
+  if (response.ok || response.status === 404) return {ok: true, status: response.status, payload, jobPath};
+  return {ok: false, status: response.status, payload, jobPath, diagnostic: payload.error && payload.error.message || payload.message || `Cloud Run Job delete failed: HTTP ${response.status}`};
+}
+
+async function waitForCloudRunJobDeleted(request = {}, timeoutMs = 45000) {
+  const deadline = Date.now() + timeoutMs;
+  let last = null;
+  while (Date.now() <= deadline) {
+    last = await getCloudRunJob(request);
+    if (last.status === 404) return {ok: true, code: 'cloud_run_job_deleted', jobPath: last.jobPath};
+    await new Promise((resolve) => setTimeout(resolve, 5000));
+  }
+  return {ok: false, code: 'cloud_run_job_delete_timeout', jobPath: last && last.jobPath || '', diagnostic: 'Timed out waiting for Cloud Run Job deletion.'};
+}
+
+async function createCloudRunJob(request = {}, requestBody = {}) {
+  const token = await googleCloudAccessToken();
+  const parent = `projects/${request.projectId}/locations/${request.region}`;
+  const createResponse = await fetch(`https://run.googleapis.com/v2/${parent}/jobs?jobId=${encodeURIComponent(request.jobName)}`, {
+    method: 'POST',
+    headers: {authorization: `Bearer ${token}`, 'content-type': 'application/json'},
+    body: JSON.stringify(requestBody),
+  });
+  const text = await createResponse.text();
+  let payload = {};
+  try { payload = text ? JSON.parse(text) : {}; } catch (_err) { payload = {message: text.slice(0, 1000)}; }
+  if (!createResponse.ok) return {ok: false, code: 'cloud_run_job_create_failed', diagnostic: payload.error && payload.error.message || payload.message || `Cloud Run Job create failed: HTTP ${createResponse.status}`};
+  return {ok: true, operation: safeText(payload.name, 500), payload};
+}
+
+async function waitForCloudRunJobReady(request = {}, timeoutMs = 30000) {
+  const deadline = Date.now() + timeoutMs;
+  let last = null;
+  while (Date.now() <= deadline) {
+    last = await getCloudRunJob(request);
+    if (!last.ok) return {ok: false, code: 'cloud_run_job_lookup_failed', diagnostic: last.payload.error && last.payload.error.message || last.payload.message || `Cloud Run Job lookup failed: HTTP ${last.status}`, jobPath: last.jobPath};
+    const ready = cloudRunJobReadyDiagnostic(last.payload);
+    if (ready.ready) return {ok: true, code: 'cloud_run_job_ready', jobPath: last.jobPath, readiness: ready};
+    await new Promise((resolve) => setTimeout(resolve, 5000));
+  }
+  const ready = last && last.ok ? cloudRunJobReadyDiagnostic(last.payload) : {ready: false, code: 'cloud_run_job_ready_timeout'};
+  return {ok: false, code: 'cloud_run_job_not_ready', jobPath: last && last.jobPath || '', readiness: ready, diagnostic: ready.message || ready.code};
+}
+
+async function ensureCloudRunJob(request = {}) {
+  const token = await googleCloudAccessToken();
+  const parent = `projects/${request.projectId}/locations/${request.region}`;
+  const jobPath = `${parent}/jobs/${request.jobName}`;
+  const serviceAccount = await cloudWorkerServiceAccount(request);
+  const containerEnv = [
+    {name: 'COMMAND_CENTER_BASE', value: COMMAND_CENTER_PUBLIC_BASE},
+    {name: 'COMMAND_CENTER_WORKSPACE_SNAPSHOT_BUCKET', value: request.snapshotBucket},
+    {name: 'COMMAND_CENTER_WORKER_TOKEN', valueSource: {secretKeyRef: {secret: request.workerTokenSecret, version: 'latest'}}},
+    {name: 'OPENAI_API_KEY', valueSource: {secretKeyRef: {secret: request.openAiApiKeySecret, version: 'latest'}}},
+    {name: 'CODEX_ACCESS_TOKEN', valueSource: {secretKeyRef: {secret: request.codexAccessTokenSecret, version: 'latest'}}},
+    {name: 'GH_TOKEN', valueSource: {secretKeyRef: {secret: request.githubTokenSecret, version: 'latest'}}},
+  ];
+  const requestBody = {
+    template: {
+      template: {
+        containers: [{image: request.image, env: containerEnv}],
+        maxRetries: 0,
+        timeout: '3600s',
+        serviceAccount,
+      },
+    },
+  };
+  const access = await ensureWorkerSecretAccess({...request, serviceAccount});
+  if (!access.ok) return {ok: false, code: access.failed.code, diagnostic: access.failed.diagnostic, secretAccess: access, serviceAccount};
+  const existing = await getCloudRunJob(request);
+  let operation = null;
+  if (existing.ok) {
+    const patchResponse = await fetch(`https://run.googleapis.com/v2/${jobPath}?updateMask=template.template.containers,template.template.maxRetries,template.template.timeout,template.template.serviceAccount`, {
+      method: 'PATCH',
+      headers: {authorization: `Bearer ${token}`, 'content-type': 'application/json'},
+      body: JSON.stringify(requestBody),
+    });
+    const patchText = await patchResponse.text();
+    let patchPayload = {};
+    try { patchPayload = patchText ? JSON.parse(patchText) : {}; } catch (_err) { patchPayload = {message: patchText.slice(0, 1000)}; }
+    if (patchResponse.ok) {
+      operation = safeText(patchPayload.name, 500);
+    } else {
+      const patchDiagnostic = patchPayload.error && patchPayload.error.message || patchPayload.message || `Cloud Run Job update failed: HTTP ${patchResponse.status}`;
+      const deleted = await deleteCloudRunJob(request);
+      if (!deleted.ok) return {ok: false, code: 'cloud_run_job_update_failed', diagnostic: `${patchDiagnostic}; delete fallback failed: ${deleted.diagnostic}`, secretAccess: access, serviceAccount};
+      const gone = await waitForCloudRunJobDeleted(request, 45000);
+      if (!gone.ok) return {ok: false, code: gone.code, diagnostic: `${patchDiagnostic}; ${gone.diagnostic}`, secretAccess: access, serviceAccount};
+      const created = await createCloudRunJob(request, requestBody);
+      if (!created.ok) return {ok: false, code: created.code, diagnostic: `${patchDiagnostic}; recreate fallback failed: ${created.diagnostic}`, secretAccess: access, serviceAccount};
+      operation = created.operation;
+    }
+  } else if (existing.status === 404) {
+    const created = await createCloudRunJob(request, requestBody);
+    if (!created.ok) return {ok: false, code: created.code, diagnostic: created.diagnostic, secretAccess: access, serviceAccount};
+    operation = created.operation;
+  } else {
+    return {ok: false, code: 'cloud_run_job_lookup_failed', diagnostic: existing.payload.error && existing.payload.error.message || existing.payload.message || `Cloud Run Job lookup failed: HTTP ${existing.status}`, secretAccess: access, serviceAccount};
+  }
+  const readiness = await waitForCloudRunJobReady(request, 45000);
+  if (!readiness.ok) return {ok: false, code: readiness.code, diagnostic: readiness.diagnostic, jobName: request.jobName, jobPath, operation, readiness, secretAccess: access, serviceAccount};
+  return {ok: true, status: existing.ok ? 'job_updated' : 'job_created', jobName: request.jobName, jobPath, operation, readiness, secretAccess: access, serviceAccount};
+}
+
+async function provisionCloudWorker(admin, caller, args = {}) {
+  return idempotentMutation(admin, caller, requireIdempotencyKey(args.idempotencyKey), 'workers.provision', async () => {
+    assertCloudProvisioningRequest(args);
+    const nowMs = Date.now();
+    const dryRun = args.dryRun === true;
+    const request = cloudProvisioningDefaults(args, caller);
+    const workerToken = `ccw_${randomUUID()}_${hashText(request.workerId + ':' + nowMs, 18)}`;
+    const tokenHash = tokenDigest(workerToken);
+    const image = cloudMachineImageRecord(request, caller);
+    const worker = cloudWorkerRecordFromProvisioning(request, caller);
+    const provisioning = {
+      ...request,
+      dryRun,
+      status: dryRun ? 'requested' : 'requested',
+      ownerKey: ownerKeyFromCaller(caller),
+      requestedBy: caller.actor,
+      createdAtMs: nowMs,
+      updatedAtMs: nowMs,
+      workerTokenSecretRef: `secretmanager://${request.projectId}/${request.workerTokenSecret}/latest`,
+      workerTokenHash: tokenHash,
+      workerTokenPlaintextStored: false,
+      localHostsForbidden: true,
+      phoneForbidden: true,
+      termuxForbidden: true,
+      evidence: [],
+    };
+    if (dryRun) return {ok: true, dryRun: true, provisioning, worker, image, next: 'Call workers.provision with dryRun=false to create the Secret Manager token, Cloud Run Job, worker record, and image record.'};
+    let secretVersion = '';
+    let cloudRun = null;
+    try {
+      secretVersion = await createOrUpdateSecretVersion(request.projectId, request.workerTokenSecret, workerToken);
+      provisioning.status = 'secrets_ready';
+      provisioning.workerTokenSecretVersion = secretVersion;
+    } catch (err) {
+      provisioning.status = 'blocked';
+      provisioning.failure = {code: 'secret_publication_failed', message: safeText(err && err.message, 1000)};
+      await collection(admin, COMMAND_CENTER_COLLECTIONS.provisioningRequests).doc(provisioning.provisioningId).set(provisioning, {merge: true});
+      return {ok: false, code: 'secret_publication_failed', provisioning, explanation: 'Command Center could not publish the worker token to Secret Manager. No token plaintext is returned.'};
+    }
+    cloudRun = await ensureCloudRunJob(request);
+    if (!cloudRun.ok) {
+      provisioning.status = 'blocked';
+      provisioning.failure = {code: cloudRun.code, message: cloudRun.diagnostic};
+      await collection(admin, COMMAND_CENTER_COLLECTIONS.provisioningRequests).doc(provisioning.provisioningId).set(provisioning, {merge: true});
+      return {ok: false, code: cloudRun.code, provisioning, cloudRun, explanation: 'Command Center created the nonsecret provisioning record and worker token secret, but Cloud Run Job creation failed.'};
+    }
+    provisioning.status = cloudRun.status === 'job_exists' ? 'job_created' : 'job_created';
+    provisioning.cloudRun = cloudRun;
+    await collection(admin, COMMAND_CENTER_COLLECTIONS.machineImages).doc(image.imageId).set(image, {merge: true});
+    await collection(admin, COMMAND_CENTER_COLLECTIONS.workers).doc(worker.workerId).set(worker, {merge: true});
+    await collection(admin, COMMAND_CENTER_COLLECTIONS.workerTokens).doc(tokenHash).set({workerId: worker.workerId, ownerKey: ownerKeyFromCaller(caller), createdBy: caller.actor, createdAtMs: nowMs, expiresAtMs: nowMs + 90 * 24 * 60 * 60 * 1000, authKind: 'command_center_worker_token', secretRef: provisioning.workerTokenSecretRef}, {merge: false});
+    await collection(admin, COMMAND_CENTER_COLLECTIONS.provisioningRequests).doc(provisioning.provisioningId).set(provisioning, {merge: true});
+    await collection(admin, COMMAND_CENTER_COLLECTIONS.events).doc(`provision_${hashText(provisioning.provisioningId + ':' + nowMs, 24)}`).set({eventId: `provision_${hashText(provisioning.provisioningId + ':' + nowMs, 24)}`, type: 'cloud_worker_provisioned', actor: caller.actor, ownerKey: ownerKeyFromCaller(caller), createdAtMs: nowMs, summary: `Provisioned cloud worker ${worker.workerId}.`, data: {provisioningId: provisioning.provisioningId, workerId: worker.workerId, machineImageId: image.imageId, cloudRunJob: worker.cloudRunJob, noSecretPlaintextReturned: true}});
+    return {ok: true, provisioning, worker, image, cloudRun, next: 'Run workers.wake to prove heartbeat/API-key capability before leasing Codex work.'};
+  });
+}
+
+async function inspectProvisioning(admin, caller, args = {}) {
+  const provisioningId = slug(args.provisioningId || '', '');
+  if (provisioningId) {
+    const snap = await collection(admin, COMMAND_CENTER_COLLECTIONS.provisioningRequests).doc(provisioningId).get();
+    if (!snap.exists) return {found: false, provisioningId};
+    const data = snap.data() || {};
+    assertOwnerAccess(data, caller, 'Command Center provisioning request');
+    return {found: true, provisioning: data};
+  }
+  const snap = await queryOwnedCollection(admin, COMMAND_CENTER_COLLECTIONS.provisioningRequests, caller).limit(Math.max(1, Math.min(Number(args.limit) || 20, 50))).get();
+  const requests = [];
+  snap.forEach((doc) => requests.push({provisioningId: doc.id, ...(doc.data() || {})}));
+  requests.sort((a, b) => Number(b.createdAtMs || 0) - Number(a.createdAtMs || 0));
+  return {requests};
+}
+
+async function reconcileProvisioning(admin, caller, args = {}) {
+  const dryRun = args.dryRun !== false;
+  const inspected = await inspectProvisioning(admin, caller, {limit: Number(args.limit || 20)});
+  const workers = recordsVisibleToCaller(await workerRecords(admin), caller);
+  const actions = [];
+  for (const request of inspected.requests || []) {
+    const worker = workers.find((item) => item.workerId === request.workerId) || null;
+    const route = worker ? workerRoutabilityDiagnostic(worker) : {routable: false, code: 'worker_record_missing', reason: 'worker record missing'};
+    if (!worker) {
+      actions.push({type: 'mark_blocked', provisioningId: request.provisioningId, reasonCode: 'worker_record_missing'});
+      continue;
+    }
+    if (route.routable) {
+      actions.push({type: 'mark_routable', provisioningId: request.provisioningId, workerId: worker.workerId});
+      continue;
+    }
+    const repairRequest = cloudProvisioningDefaults({...request, githubTokenSecret: request.githubTokenSecret === 'GH_TOKEN' ? 'GITHUB_TOKEN' : (request.githubTokenSecret || 'GITHUB_TOKEN'), snapshotBucket: request.snapshotBucket === `${request.projectId}-command-center-workspaces` ? `${request.projectId}-command-center-worker-sessions` : (request.snapshotBucket || `${request.projectId}-command-center-worker-sessions`)}, caller);
+    actions.push({type: 'repair_cloud_run_job', provisioningId: request.provisioningId, workerId: worker.workerId, reasonCode: route.code, dryRun});
+    if (!dryRun) {
+      const cloudRun = await ensureCloudRunJob(repairRequest);
+      const status = cloudRun.ok ? 'job_created' : 'blocked';
+      await collection(admin, COMMAND_CENTER_COLLECTIONS.provisioningRequests).doc(request.provisioningId).set({status, updatedAtMs: Date.now(), githubTokenSecret: repairRequest.githubTokenSecret, snapshotBucket: repairRequest.snapshotBucket, cloudRun, failure: cloudRun.ok ? null : {code: cloudRun.code, message: cloudRun.diagnostic}}, {merge: true});
+      actions[actions.length - 1].cloudRun = cloudRun;
+    }
+  }
+  if (!dryRun) {
+    const batch = admin.firestore().batch();
+    for (const action of actions.slice(0, 100)) {
+      if (action.type === 'mark_routable') batch.set(collection(admin, COMMAND_CENTER_COLLECTIONS.provisioningRequests).doc(action.provisioningId), {status: 'routable', updatedAtMs: Date.now()}, {merge: true});
+      if (action.type === 'mark_blocked') batch.set(collection(admin, COMMAND_CENTER_COLLECTIONS.provisioningRequests).doc(action.provisioningId), {status: 'blocked', updatedAtMs: Date.now(), failure: {code: action.reasonCode}}, {merge: true});
+    }
+    if (actions.some((action) => action.type === 'mark_routable' || action.type === 'mark_blocked')) await batch.commit();
+  }
+  return {ok: true, dryRun, actions};
+}
+
+async function machineImageRecords(admin, caller) {
+  const snap = await queryOwnedCollection(admin, COMMAND_CENTER_COLLECTIONS.machineImages, caller).limit(500).get();
+  const images = [];
+  snap.forEach((doc) => images.push(cleanMachineImage({imageId: doc.id, ...(doc.data() || {})}, caller)));
+  return images;
+}
+
+async function registerMachineImage(admin, caller, args = {}) {
+  return idempotentMutation(admin, caller, requireIdempotencyKey(args.idempotencyKey), 'machine_images.register', async () => {
+    const image = cleanMachineImage(args, caller);
+    const ref = collection(admin, COMMAND_CENTER_COLLECTIONS.machineImages).doc(image.imageId);
+    const existing = await ref.get();
+    if (existing.exists) assertOwnerAccess(existing.data() || {}, caller, 'Command Center machine image');
+    await ref.set({...image, createdAtMs: existing.exists ? (Number((existing.data() || {}).createdAtMs || 0) || image.createdAtMs) : image.createdAtMs}, {merge: true});
+    return {ok: true, image, created: !existing.exists};
+  });
+}
+
+async function listMachineImages(admin, caller, args = {}) {
+  let images = await machineImageRecords(admin, caller);
+  const status = safeText(args.status, 80);
+  if (status) images = images.filter((image) => image.status === status);
+  const capability = safeText(args.capability, 120).toLowerCase();
+  if (capability) images = images.filter((image) => safeList(image.capabilities, 120, 120).map((cap) => cap.toLowerCase()).includes(capability));
+  return {images, summary: {total: images.length, available: images.filter((image) => image.status === 'available').length}};
+}
+
+async function inspectMachineImage(admin, caller, args = {}) {
+  const imageId = slug(args.imageId || args.machineImageId, '');
+  if (!imageId) {
+    const err = new Error('imageId is required.');
+    err.status = 400;
+    throw err;
+  }
+  const snap = await collection(admin, COMMAND_CENTER_COLLECTIONS.machineImages).doc(imageId).get();
+  if (!snap.exists) return {imageId, found: false};
+  const image = cleanMachineImage({imageId, ...(snap.data() || {})}, caller);
+  assertOwnerAccess(image, caller, 'Command Center machine image');
+  const workers = recordsVisibleToCaller(await workerRecords(admin), caller);
+  const hosts = workers.map((worker) => ({workerId: worker.workerId, ...workerImagePolicyDiagnostic(worker, {machineImageId: imageId}, [image])}));
+  return {imageId, found: true, image, hosts};
+}
+
+async function listCodexSessions(admin, caller, args = {}) {
+  const snap = await queryOwnedCollection(admin, COMMAND_CENTER_COLLECTIONS.agentSessions, caller).limit(500).get();
+  let sessions = [];
+  snap.forEach((doc) => sessions.push(cleanAgentSession({sessionId: doc.id, ...(doc.data() || {})}, {}, caller)));
+  const status = safeText(args.status, 80);
+  if (status) sessions = sessions.filter((session) => session.status === status);
+  const machineImageId = slug(args.machineImageId || '', '');
+  if (machineImageId) sessions = sessions.filter((session) => session.machineImageId === machineImageId);
+  const hostInstallationId = safeText(args.hostInstallationId || args.workerInstallationId, 180);
+  if (hostInstallationId) sessions = sessions.filter((session) => session.hostInstallationId === hostInstallationId);
+  return {sessions, summary: {total: sessions.length, idle: sessions.filter((session) => session.status === 'idle').length, running: sessions.filter((session) => session.status === 'running').length, recoverable: sessions.filter((session) => session.status === 'recoverable').length}};
+}
+
+async function inspectCodexSession(admin, caller, args = {}) {
+  const sessionId = cleanSessionId(args.sessionId);
+  const snap = await collection(admin, COMMAND_CENTER_COLLECTIONS.agentSessions).doc(sessionId).get();
+  if (!snap.exists) return {sessionId, found: false};
+  const session = cleanAgentSession({sessionId, ...(snap.data() || {})}, {}, caller);
+  assertOwnerAccess(session, caller, 'Command Center Codex session');
+  const workers = recordsVisibleToCaller(await workerRecords(admin), caller);
+  const host = workers.find((worker) => worker.workerInstallationId === session.hostInstallationId || worker.workerId === session.workerId) || null;
+  return {sessionId, found: true, session, host: host ? compactWorkerCensus(host, 0) : null};
+}
+
+async function createCodexSession(admin, caller, args = {}) {
+  return idempotentMutation(admin, caller, requireIdempotencyKey(args.idempotencyKey), 'codex_sessions.create', async () => {
+    const policy = cleanSessionPolicy(args);
+    const workers = recordsVisibleToCaller(await workerRecords(admin), caller);
+    const images = await machineImageRecords(admin, caller);
+    const requirements = safeList(args.workerRequirements || args.requiredWorkerCapabilities, 40, 120);
+    const counts = await activeLeaseCountsByWorker(admin);
+    const candidates = workers.map((worker) => explainWorkerCandidate(worker, requirements, counts.get(worker.workerId) || 0, {sessionPolicy: policy, machineImages: images, allowLocalHost: args.allowLocalHost === true}));
+    let selected = candidates.find((candidate) => candidate.included && candidate.imagePolicy.ok && candidate.sessionDiagnostic.ok) || null;
+    let provisioning = null;
+    if (!selected && args.autoProvision !== false) {
+      provisioning = await provisionCloudWorker(admin, caller, {...args, idempotencyKey: `${args.idempotencyKey}:auto-provision`, machineImageId: policy.machineImageId || args.machineImageId || COMMAND_CENTER_DEFAULT_CLOUD_MACHINE_IMAGE_ID, requestedSessions: 1});
+      const refreshedWorkers = recordsVisibleToCaller(await workerRecords(admin), caller);
+      const refreshedImages = await machineImageRecords(admin, caller);
+      const refreshedCounts = await activeLeaseCountsByWorker(admin);
+      const refreshedCandidates = refreshedWorkers.map((worker) => explainWorkerCandidate(worker, requirements, refreshedCounts.get(worker.workerId) || 0, {sessionPolicy: policy, machineImages: refreshedImages, allowLocalHost: args.allowLocalHost === true}));
+      selected = refreshedCandidates.find((candidate) => candidate.included && candidate.imagePolicy.ok && candidate.sessionDiagnostic.ok) || null;
+      if (!selected) return {ok: false, status: 'provisioning_started', code: 'cloud_capacity_not_yet_routable', policy, candidates: refreshedCandidates, provisioning, explanation: 'Command Center requested cloud capacity, but it is not yet routable. Wake/probe the provisioned Cloud Run worker before leasing Codex work.'};
+    }
+    if (!selected) return {ok: false, status: 'red', code: 'no_cloud_session_host', policy, candidates, provisioningRecommendation: provisioningRecommendation({...args, sessionPolicy: policy}, candidates), explanation: 'No routable cloud host has the requested materialized machine image and isolated session capacity.'};
+    const worker = workers.find((item) => item.workerId === selected.workerId) || {};
+    const session = cleanAgentSession({
+      ...args,
+      sessionId: args.sessionId || `session_${slug(selected.workerId, 'host')}_${hashText(`${selected.workerInstallationId}:${Date.now()}:${randomUUID()}`, 18)}`,
+      machineImageId: policy.machineImageId || selected.imagePolicy.selectedMachineImageId,
+      hostInstallationId: selected.workerInstallationId,
+      workerId: selected.workerId,
+      workerInstanceId: selected.workerInstanceId,
+      sessionSlotId: `slot_${hashText(`${selected.workerInstallationId}:${Date.now()}:${randomUUID()}`, 18)}`,
+      isolationMode: policy.isolationMode,
+      codexAuthMode: safeObject(worker.runtime).codexAuth || safeObject(worker.runtime).authMode,
+      status: 'allocated',
+      cacheState: workerMachineImageState(worker).cacheState,
+      hotStartMs: Number((images.find((image) => image.imageId === (policy.machineImageId || selected.imagePolicy.selectedMachineImageId)) || {}).estimatedHotStartMs || 0) || 0,
+    }, {}, caller);
+    await collection(admin, COMMAND_CENTER_COLLECTIONS.agentSessions).doc(session.sessionId).set(session, {merge: true});
+    const activeSessionIds = Array.from(new Set([...workerMachineImageState(worker).activeSessionIds, session.sessionId]));
+    await collection(admin, COMMAND_CENTER_COLLECTIONS.workers).doc(selected.workerId).set({activeSessionIds, updatedAtMs: Date.now()}, {merge: true});
+    await collection(admin, COMMAND_CENTER_COLLECTIONS.events).doc(`session_${hashText(session.sessionId + Date.now(), 24)}`).set({eventId: `session_${hashText(session.sessionId + Date.now(), 24)}`, type: 'codex_session_allocated', actor: caller.actor, summary: `Allocated Codex session ${session.sessionId} on ${selected.workerId}.`, ownerKey: ownerKeyFromCaller(caller), createdAtMs: Date.now(), data: {sessionId: session.sessionId, workerId: selected.workerId, workerInstallationId: selected.workerInstallationId, machineImageId: session.machineImageId}});
+    return {ok: true, session, selectedHost: {...selected, reservedActiveSessionIds: activeSessionIds}, policy};
+  });
+}
+
+async function reconcileCodexSessions(admin, caller, args = {}) {
+  const dryRun = args.dryRun !== false;
+  const olderThanMs = Number(args.olderThanMs || 0) || COMMAND_CENTER_RECONCILE_DEFAULT_OLDER_THAN_MS;
+  const nowMs = Date.now();
+  const list = await listCodexSessions(admin, caller, {});
+  const actions = [];
+  for (const session of list.sessions) {
+    const heartbeat = Number(session.lastHeartbeatAtMs || 0) || 0;
+    if (['allocated', 'running'].includes(session.status) && (!heartbeat || nowMs - heartbeat > olderThanMs)) actions.push({type: 'mark_recoverable', sessionId: session.sessionId, status: session.status, reasonCode: 'session_heartbeat_stale'});
+  }
+  if (!dryRun && actions.length) {
+    const batch = admin.firestore().batch();
+    for (const action of actions.slice(0, 100)) batch.set(collection(admin, COMMAND_CENTER_COLLECTIONS.agentSessions).doc(action.sessionId), {status: 'recoverable', updatedAtMs: nowMs, recoveryReason: action.reasonCode}, {merge: true});
+    await batch.commit();
+  }
+  return {ok: true, dryRun, actions, applied: dryRun ? 0 : actions.length};
+}
+
+async function runMultiSessionProof(admin, caller, args = {}) {
+  return idempotentMutation(admin, caller, requireIdempotencyKey(args.idempotencyKey), 'proof.run_multi_session', async () => {
+    const policy = cleanSessionPolicy(args.sessionPolicy || args);
+    const workers = recordsVisibleToCaller(await workerRecords(admin), caller);
+    const images = await machineImageRecords(admin, caller);
+    const counts = await activeLeaseCountsByWorker(admin);
+    const candidates = workers.map((worker) => explainWorkerCandidate(worker, ['codex', 'one-shot-worker'], counts.get(worker.workerId) || 0, {sessionPolicy: policy, machineImages: images, allowLocalHost: false}));
+    const slots = [];
+    for (const candidate of candidates.filter((item) => item.included && item.imagePolicy.ok && item.sessionDiagnostic.ok)) {
+      const worker = workers.find((item) => item.workerId === candidate.workerId) || {};
+      const state = workerMachineImageState(worker);
+      for (let i = 0; i < state.sessionCapacityRemaining; i += 1) slots.push({...candidate, slotIndex: i});
+    }
+    const bySession = slots.slice(0, 2);
+    const nonceA = safeText(args.nonceA, 120) || `session-proof-a-${randomUUID()}`;
+    const nonceB = safeText(args.nonceB, 120) || `session-proof-b-${randomUUID()}`;
+    if (bySession.length < 2) {
+      const provisioning = [];
+      if (args.autoProvision !== false) {
+        const missing = 2 - bySession.length;
+        for (let i = 0; i < missing; i += 1) provisioning.push(await provisionCloudWorker(admin, caller, {...args, idempotencyKey: `${args.idempotencyKey}:auto-provision:${i}`, machineImageId: policy.machineImageId || args.machineImageId || COMMAND_CENTER_DEFAULT_CLOUD_MACHINE_IMAGE_ID, requestedSessions: 1, provisioningNonce: `${nonceA}:${nonceB}:${i}`}));
+        return {ok: false, status: 'provisioning_started', code: 'insufficient_cloud_sessions_provisioning_started', explanation: 'Two isolated real cloud Codex session slots are required. Command Center requested missing Cloud Run capacity and will not use Termux/phone or fabricate proof completion.', nonces: [nonceA, nonceB], candidates, selectedSlots: bySession, provisioning};
+      }
+      return {ok: false, status: 'red', code: 'insufficient_cloud_sessions', explanation: 'Two isolated real cloud Codex session slots are required. Command Center will not use Termux/phone, fabricate a second identity, or reinstall dependencies in the hot path.', nonces: [nonceA, nonceB], candidates, selectedSlots: bySession, provisioningRecommendation: provisioningRecommendation({...args, sessionPolicy: policy}, candidates)};
+    }
+    const sameHost = bySession[0].workerInstallationId === bySession[1].workerInstallationId;
+    if (sameHost && policy.isolationMode !== 'session') return {ok: false, status: 'red', code: 'distinct_host_required', explanation: 'The selected slots share a host, but this policy does not permit session-level isolation.', nonces: [nonceA, nonceB], candidates, selectedSlots: bySession};
+    return {ok: false, status: 'red', code: 'proof_execution_not_implemented', explanation: 'The registry proves two session slots, but Command Center has not yet enabled automatic concurrent nonce job execution for session proof. No synthetic completion was created.', nonces: [nonceA, nonceB], candidates, selectedSlots: bySession, jobsCreated: []};
+  });
+}
+
 async function routingExplain(admin, caller, args = {}) {
   const requirements = safeList(args.workerRequirements || args.requiredWorkerCapabilities || args.requirements, 40, 120);
+  const sessionPolicy = cleanSessionPolicy(args);
+  const images = await machineImageRecords(admin, caller);
   const workers = recordsVisibleToCaller(await workerRecords(admin), caller);
   const counts = await activeLeaseCountsByWorker(admin);
-  const candidates = workers.map((worker) => explainWorkerCandidate(worker, requirements, counts.get(worker.workerId) || 0));
-  return {requirements, selectedWorkerId: (candidates.find((item) => item.included) || {}).workerId || '', candidates, eligibleWorkerIds: candidates.filter((item) => item.included).map((item) => item.workerId)};
+  const candidates = workers.map((worker) => explainWorkerCandidate(worker, requirements, counts.get(worker.workerId) || 0, {sessionPolicy, machineImages: images, allowLocalHost: args.allowLocalHost === true}));
+  const imageCandidates = images.map((image) => ({imageId: image.imageId, status: image.status, capabilities: image.capabilities, materializedHostIds: candidates.filter((candidate) => candidate.imagePolicy && candidate.imagePolicy.selectedMachineImageId === image.imageId && candidate.imagePolicy.ok).map((candidate) => candidate.workerId)}));
+  const eligibleWorkerIds = candidates.filter((item) => item.included).map((item) => item.workerId);
+  return {requirements, sessionPolicy, cloudOnly: args.allowLocalHost !== true, localHostExcludedByDefault: args.allowLocalHost !== true, selectedWorkerId: (candidates.find((item) => item.included) || {}).workerId || '', candidates, imageCandidates, eligibleWorkerIds, provisioningRecommendation: eligibleWorkerIds.length ? null : provisioningRecommendation({...args, sessionPolicy}, candidates)};
 }
 
 async function reconcileWorkers(admin, caller, args = {}) {
@@ -3823,6 +4683,30 @@ async function runCommandCenterOperation(admin, extra, operation, args = {}) {
       return listBucketObjects(admin, args || {}, await caller());
     case 'bucket.promote_skill':
       return promoteBucketSkill(admin, await caller(), args || {});
+    case 'workers.provision':
+      return provisionCloudWorker(admin, await caller(), args || {});
+    case 'provisioning.inspect':
+      return inspectProvisioning(admin, await caller(), args || {});
+    case 'provisioning.reconcile':
+      return reconcileProvisioning(admin, await caller(), args || {});
+    case 'machine_images.register':
+      return registerMachineImage(admin, await caller(), args || {});
+    case 'machine_images.list':
+      return listMachineImages(admin, await caller(), args || {});
+    case 'machine_images.inspect':
+      return inspectMachineImage(admin, await caller(), args || {});
+    case 'codex_sessions.create':
+      return createCodexSession(admin, await caller(), args || {});
+    case 'codex_sessions.list':
+      return listCodexSessions(admin, await caller(), args || {});
+    case 'codex_sessions.inspect':
+      return inspectCodexSession(admin, await caller(), args || {});
+    case 'codex_sessions.reconcile':
+      return reconcileCodexSessions(admin, await caller(), args || {});
+    case 'hosts.list':
+      return listWorkersCensus(admin, await caller(), args || {});
+    case 'hosts.inspect':
+      return inspectWorker(admin, await caller(), args || {});
     case 'workers.register_oneshot':
       return registerOneShotWorker(admin, await caller(), args || {});
     case 'workers.wake':
@@ -3841,6 +4725,8 @@ async function runCommandCenterOperation(admin, extra, operation, args = {}) {
       return requestWorkerRestart(admin, await caller(), args || {});
     case 'proof.run_multi_worker':
       return runMultiWorkerProof(admin, await caller(), args || {});
+    case 'proof.run_multi_session':
+      return runMultiSessionProof(admin, await caller(), args || {});
     case 'workers.get_capabilities': {
       const c = await caller();
       const workerId = safeText(args.workerId, 120);
@@ -3933,6 +4819,14 @@ async function workerHeartbeat(admin, caller, args = {}) {
     heartbeatSeq: Math.max(Number(existing.heartbeatSeq || 0) || 0, Number(args.heartbeatSeq || 0) || 0) + 1,
   };
   if (Array.isArray(args.capabilities) && args.capabilities.length) update.capabilities = safeList(args.capabilities, 80, 120);
+  if (Array.isArray(args.availableImageIds)) update.availableImageIds = safeList(args.availableImageIds, 80, 160);
+  if (Array.isArray(args.materializedImageIds)) update.materializedImageIds = safeList(args.materializedImageIds, 80, 160);
+  if (Array.isArray(args.machineImages)) update.machineImages = args.machineImages.slice(0, 40).map((image) => cleanMachineImage({...safeObject(image), ownerKey: existing.ownerKey || caller.ownerKey}, {ownerKey: existing.ownerKey || caller.ownerKey, actor: caller.workerId}));
+  if (Object.keys(safeObject(args.cacheState)).length) update.cacheState = safeObject(args.cacheState);
+  if (Number(args.maxConcurrentSessions || 0) > 0) update.maxConcurrentSessions = Math.max(1, Math.min(Number(args.maxConcurrentSessions || 1), 100));
+  if (Array.isArray(args.activeSessionIds) && args.activeSessionIds.length) update.activeSessionIds = safeList(args.activeSessionIds, 100, 180);
+  if (Array.isArray(args.sessionIsolationModes)) update.sessionIsolationModes = safeList(args.sessionIsolationModes, 10, 80);
+  if (typeof args.canMaterializeImages === 'boolean') update.canMaterializeImages = args.canMaterializeImages;
   if (safeText(args.location, 80)) update.location = safeText(args.location, 80);
   const runtime = safeObject(args.runtime);
   if (Object.keys(runtime).length) update.runtime = {...safeObject(existing.runtime), ...runtime};
@@ -4007,8 +4901,11 @@ async function claimActivationForWorker(admin, caller, args = {}) {
   }, {merge: true});
   await collection(admin, COMMAND_CENTER_COLLECTIONS.workers).doc(caller.workerId).set({lastHeartbeatAtMs: nowMs, health: 'healthy', routable: true, simulated: false}, {merge: true});
   const refreshed = {...activation, status: 'claimed', claimedByWorkerId: caller.workerId, workerClaimedAtMs: nowMs, lastWorkerHeartbeatAtMs: nowMs, updatedAtMs: nowMs};
-  const snapshot = await recordAgentContextSnapshot(admin, agent, session, refreshed, {actor: caller.workerId});
-  return {ok: true, claimed: true, activation: refreshed, resumePacket: buildAgentResumePacket(agent, session, refreshed, snapshot)};
+  const snapshotSnap = await collection(admin, COMMAND_CENTER_COLLECTIONS.agentContextSnapshots).where('activationId', '==', activation.activationId).limit(10).get();
+  const snapshots = [];
+  snapshotSnap.forEach((doc) => snapshots.push(doc.data() || {}));
+  snapshots.sort((a, b) => Number(b.createdAtMs || 0) - Number(a.createdAtMs || 0));
+  return {ok: true, claimed: true, activation: refreshed, resumePacket: buildAgentResumePacket(agent, session, refreshed, snapshots[0] || null)};
 }
 
 async function requireWorkerOwnedActivation(admin, caller, activationId) {
@@ -4050,7 +4947,10 @@ function createCommandCenterMcpServer({admin}) {
     title: 'Command Center health',
     description: 'Cheap invokability probe for ChatGPT remote MCP attachment. Does not create jobs or mutate state.',
     inputSchema: {},
-  }, async () => textResult({ok: true, service: 'command-center-mcp', invokable: true, hasFrontend: false, commandCenterMcpUrl: COMMAND_CENTER_RESOURCE, authorizationServer: HOME_CENTER_AUTHORIZATION_SERVER_BASE}));
+  }, async (_args, extra) => {
+    const caller = await callerFromExtra(admin, extra);
+    return textResult({ok: true, service: 'command-center-mcp', invokable: true, hasFrontend: false, commandCenterMcpUrl: COMMAND_CENTER_RESOURCE, authorizationServer: HOME_CENTER_AUTHORIZATION_SERVER_BASE, actor: caller.actor});
+  });
 
   server.registerTool('command_center_operation', {
     title: 'Command Center operation dispatcher',
@@ -4107,13 +5007,13 @@ function createCommandCenterMcpServer({admin}) {
   server.registerTool('command_center.jobs.create', {
     title: 'Create Command Center job',
     description: 'Create a durable execution ticket, select a compatible worker, lease it, and write initial events/checkpoint state.',
-    inputSchema: {idempotencyKey: z.string(), projectId: z.string(), title: z.string(), objective: z.string(), acceptanceCriteria: z.array(z.string()).optional(), constraints: z.array(z.string()).optional(), scopeExclusions: z.array(z.string()).optional(), workerRequirements: z.array(z.string()).optional(), budgetClass: z.string().optional(), mutationPolicy: z.record(z.string(), z.string()).optional(), baseWorkspace: z.record(z.string(), z.any()).optional(), requiredArtifacts: z.array(z.string()).optional(), verificationCommands: z.array(z.string()).optional(), stopConditions: z.array(z.string()).optional()},
+    inputSchema: {idempotencyKey: z.string(), projectId: z.string(), title: z.string(), objective: z.string(), acceptanceCriteria: z.array(z.string()).optional(), constraints: z.array(z.string()).optional(), scopeExclusions: z.array(z.string()).optional(), workerRequirements: z.array(z.string()).optional(), budgetClass: z.string().optional(), mutationPolicy: z.record(z.string(), z.string()).optional(), baseWorkspace: z.record(z.string(), z.any()).optional(), requiredArtifacts: z.array(z.string()).optional(), verificationCommands: z.array(z.string()).optional(), stopConditions: z.array(z.string()).optional(), sessionPolicy: z.record(z.string(), z.any()).optional(), machineImageId: z.string().optional(), imageRequirements: z.array(z.string()).optional()},
   }, async (args, extra) => textResult(await createJob(admin, await callerFromExtra(admin, extra), args || {})));
 
   server.registerTool('command_center.jobs.create_followup', {
     title: 'Create Command Center follow-up job',
     description: 'Create a new linked invocation from a source job handoff. This does not rewrite old job history.',
-    inputSchema: {idempotencyKey: z.string(), sourceJobId: z.string(), projectId: z.string().optional(), title: z.string(), objective: z.string(), acceptanceCriteria: z.array(z.string()).optional(), constraints: z.array(z.string()).optional(), scopeExclusions: z.array(z.string()).optional(), workerRequirements: z.array(z.string()).optional(), budgetClass: z.string().optional(), mutationPolicy: z.record(z.string(), z.string()).optional(), baseWorkspace: z.record(z.string(), z.any()).optional(), requiredArtifacts: z.array(z.string()).optional(), verificationCommands: z.array(z.string()).optional(), stopConditions: z.array(z.string()).optional()},
+    inputSchema: {idempotencyKey: z.string(), sourceJobId: z.string(), projectId: z.string().optional(), title: z.string(), objective: z.string(), acceptanceCriteria: z.array(z.string()).optional(), constraints: z.array(z.string()).optional(), scopeExclusions: z.array(z.string()).optional(), workerRequirements: z.array(z.string()).optional(), budgetClass: z.string().optional(), mutationPolicy: z.record(z.string(), z.string()).optional(), baseWorkspace: z.record(z.string(), z.any()).optional(), requiredArtifacts: z.array(z.string()).optional(), verificationCommands: z.array(z.string()).optional(), stopConditions: z.array(z.string()).optional(), sessionPolicy: z.record(z.string(), z.any()).optional(), machineImageId: z.string().optional(), imageRequirements: z.array(z.string()).optional()},
   }, async (args, extra) => textResult(await createFollowupJob(admin, await callerFromExtra(admin, extra), args || {})));
 
   server.registerTool('command_center.jobs.get', {title: 'Get Command Center job', description: 'Read one Command Center job packet.', inputSchema: {jobId: z.string()}}, async (args, extra) => textResult({job: await getJob(admin, cleanJobId(args.jobId), await callerFromExtra(admin, extra))}));
@@ -4273,6 +5173,36 @@ function createCommandCenterMcpServer({admin}) {
     inputSchema: {idempotencyKey: z.string(), objectId: z.string(), path: z.string().optional(), title: z.string().optional(), summary: z.string().optional(), body: z.string().optional(), evidenceRefs: z.array(z.string()).optional()},
   }, async (args, extra) => textResult(await promoteBucketSkill(admin, await callerFromExtra(admin, extra), args || {})));
 
+
+  server.registerTool('command_center.machine_images.register', {
+    title: 'Register Command Center machine image',
+    description: 'Create or update a versioned machine image/capability profile with cache and dependency bundle refs. This records prepared capacity; it does not install dependencies during a job.',
+    inputSchema: {idempotencyKey: z.string(), imageId: z.string().optional(), name: z.string().optional(), imageKind: z.string().optional(), version: z.string().optional(), digest: z.string().optional(), status: z.enum(COMMAND_CENTER_MACHINE_IMAGE_STATUSES).optional(), capabilities: z.array(z.string()).optional(), toolchains: z.array(z.string()).optional(), dependencyBundleRefs: z.array(z.string()).optional(), warmCacheRefs: z.array(z.string()).optional(), materializationModes: z.array(z.string()).optional(), estimatedColdStartMs: z.number().optional(), estimatedHotStartMs: z.number().optional(), provenance: z.record(z.string(), z.any()).optional()},
+  }, async (args, extra) => textResult(await registerMachineImage(admin, await callerFromExtra(admin, extra), args || {})));
+
+  server.registerTool('command_center.machine_images.list', {title: 'List Command Center machine images', description: 'List owner-scoped machine image profiles and cacheable capability bundles.', inputSchema: {status: z.string().optional(), capability: z.string().optional()}}, async (args, extra) => textResult(await listMachineImages(admin, await callerFromExtra(admin, extra), args || {})));
+  server.registerTool('command_center.machine_images.inspect', {title: 'Inspect Command Center machine image', description: 'Inspect one machine image and which hosts have it materialized.', inputSchema: {imageId: z.string()}}, async (args, extra) => textResult(await inspectMachineImage(admin, await callerFromExtra(admin, extra), args || {})));
+
+  server.registerTool('command_center.hosts.list', {title: 'List Command Center hosts', description: 'Host-centric alias for workers.list, including materialized images, cache state, and session capacity.', inputSchema: {active: z.boolean().optional(), stale: z.boolean().optional(), retired: z.boolean().optional(), routable: z.boolean().optional(), owner: z.string().optional(), ownerKey: z.string().optional(), capability: z.string().optional(), location: z.string().optional()}}, async (args, extra) => textResult(await listWorkersCensus(admin, await callerFromExtra(admin, extra), args || {})));
+  server.registerTool('command_center.hosts.inspect', {title: 'Inspect Command Center host', description: 'Host-centric alias for workers.inspect.', inputSchema: {workerId: z.string()}}, async (args, extra) => textResult(await inspectWorker(admin, await callerFromExtra(admin, extra), args || {})));
+
+  server.registerTool('command_center.workers.provision', {
+    title: 'Provision Command Center cloud worker',
+    description: 'Create cloud-only Debian Codex worker capacity through Secret Manager and Cloud Run Jobs. Termux, phone, Android, and local hosts are rejected.',
+    inputSchema: {idempotencyKey: z.string(), dryRun: z.boolean().optional(), workerId: z.string().optional(), machineImageId: z.string().optional(), requestedSessions: z.number().optional(), cloudProjectId: z.string().optional(), projectId: z.string().optional(), region: z.string().optional(), image: z.string().optional(), jobName: z.string().optional(), workerTokenSecret: z.string().optional(), openAiApiKeySecret: z.string().optional(), githubTokenSecret: z.string().optional(), snapshotBucket: z.string().optional(), serviceAccount: z.string().optional(), capabilities: z.array(z.string()).optional()},
+  }, async (args, extra) => textResult(await provisionCloudWorker(admin, await callerFromExtra(admin, extra), args || {})));
+  server.registerTool('command_center.provisioning.inspect', {title: 'Inspect Command Center provisioning', description: 'Inspect cloud worker provisioning requests without exposing secrets.', inputSchema: {provisioningId: z.string().optional(), limit: z.number().optional()}}, async (args, extra) => textResult(await inspectProvisioning(admin, await callerFromExtra(admin, extra), args || {})));
+  server.registerTool('command_center.provisioning.reconcile', {title: 'Reconcile Command Center provisioning', description: 'Check provisioned cloud worker records and recommend wake/probe/repair actions.', inputSchema: {idempotencyKey: z.string().optional(), dryRun: z.boolean().optional(), limit: z.number().optional()}}, async (args, extra) => textResult(await reconcileProvisioning(admin, await callerFromExtra(admin, extra), args || {})));
+
+  server.registerTool('command_center.codex_sessions.create', {
+    title: 'Create Command Center Codex session',
+    description: 'Allocate a durable Codex session on a compatible host with a materialized machine image. Fails red when cache/session capacity is not present.',
+    inputSchema: {idempotencyKey: z.string(), sessionId: z.string().optional(), projectId: z.string().optional(), repository: z.string().optional(), title: z.string().optional(), purpose: z.string().optional(), workerRequirements: z.array(z.string()).optional(), machineImageId: z.string().optional(), imageRequirements: z.array(z.string()).optional(), allocation: z.string().optional(), isolationMode: z.string().optional(), requireMaterializedImage: z.boolean().optional(), allowMaterializationDuringJob: z.boolean().optional()},
+  }, async (args, extra) => textResult(await createCodexSession(admin, await callerFromExtra(admin, extra), args || {})));
+  server.registerTool('command_center.codex_sessions.list', {title: 'List Command Center Codex sessions', description: 'List durable Codex sessions by status, image, or host installation.', inputSchema: {status: z.string().optional(), machineImageId: z.string().optional(), hostInstallationId: z.string().optional(), workerInstallationId: z.string().optional()}}, async (args, extra) => textResult(await listCodexSessions(admin, await callerFromExtra(admin, extra), args || {})));
+  server.registerTool('command_center.codex_sessions.inspect', {title: 'Inspect Command Center Codex session', description: 'Inspect one durable Codex session and its current host/image binding.', inputSchema: {sessionId: z.string()}}, async (args, extra) => textResult(await inspectCodexSession(admin, await callerFromExtra(admin, extra), args || {})));
+  server.registerTool('command_center.codex_sessions.reconcile', {title: 'Reconcile Command Center Codex sessions', description: 'Dry-run or mark stale allocated/running sessions recoverable.', inputSchema: {idempotencyKey: z.string().optional(), dryRun: z.boolean().optional(), olderThanMs: z.number().optional()}}, async (args, extra) => textResult(await reconcileCodexSessions(admin, await callerFromExtra(admin, extra), args || {})));
+
   server.registerTool('command_center.workers.register_oneshot', {
     title: 'Register one-shot Command Center worker',
     description: 'Register a user-owned one-shot Codex worker and return a worker token once. Store it only on the worker host.',
@@ -4361,10 +5291,11 @@ function createCommandCenterMcpServer({admin}) {
   server.registerTool('command_center.system.health', {title: 'Command Center system health', description: 'Return separate control-plane, worker-pool, and recent end-to-end probe health.', inputSchema: {}}, async (_args, extra) => textResult(await systemHealth(admin, await callerFromExtra(admin, extra))));
   server.registerTool('command_center.workers.list', {title: 'List Command Center workers', description: 'Compact worker census with identity, liveness, routability, capabilities, and active lease capacity.', inputSchema: {active: z.boolean().optional(), stale: z.boolean().optional(), retired: z.boolean().optional(), routable: z.boolean().optional(), owner: z.string().optional(), ownerKey: z.string().optional(), capability: z.string().optional(), location: z.string().optional()}}, async (args, extra) => textResult(await listWorkersCensus(admin, await callerFromExtra(admin, extra), args || {})));
   server.registerTool('command_center.workers.inspect', {title: 'Inspect Command Center worker', description: 'Inspect one worker registration, recent leases/events, and repair recommendation.', inputSchema: {workerId: z.string()}}, async (args, extra) => textResult(await inspectWorker(admin, await callerFromExtra(admin, extra), args || {})));
-  server.registerTool('command_center.routing.explain', {title: 'Explain Command Center routing', description: 'Explain inclusion/exclusion reasons for worker requirements without creating a job.', inputSchema: {workerRequirements: z.array(z.string()).optional(), requiredWorkerCapabilities: z.array(z.string()).optional(), requirements: z.array(z.string()).optional(), projectId: z.string().optional(), baseWorkspace: z.record(z.string(), z.any()).optional()}}, async (args, extra) => textResult(await routingExplain(admin, await callerFromExtra(admin, extra), args || {})));
+  server.registerTool('command_center.routing.explain', {title: 'Explain Command Center routing', description: 'Explain inclusion/exclusion reasons for worker requirements without creating a job.', inputSchema: {workerRequirements: z.array(z.string()).optional(), requiredWorkerCapabilities: z.array(z.string()).optional(), requirements: z.array(z.string()).optional(), projectId: z.string().optional(), baseWorkspace: z.record(z.string(), z.any()).optional(), sessionPolicy: z.record(z.string(), z.any()).optional(), machineImageId: z.string().optional(), imageRequirements: z.array(z.string()).optional(), allowLocalHost: z.boolean().optional()}}, async (args, extra) => textResult(await routingExplain(admin, await callerFromExtra(admin, extra), args || {})));
   server.registerTool('command_center.workers.reconcile', {title: 'Reconcile Command Center workers', description: 'Owner-scoped bounded repair for stale/legacy worker records and abandoned jobs/leases.', inputSchema: {idempotencyKey: z.string().optional(), dryRun: z.boolean().optional(), olderThanMs: z.number().optional(), limit: z.number().optional()}}, async (args, extra) => textResult(await reconcileWorkers(admin, await callerFromExtra(admin, extra), args || {})));
   server.registerTool('command_center.workers.request_restart', {title: 'Request Command Center worker restart', description: 'Record a supervisor restart request and truthfully report host_offline or missing restart channel.', inputSchema: {idempotencyKey: z.string(), workerId: z.string(), reason: z.string().optional()}}, async (args, extra) => textResult(await requestWorkerRestart(admin, await callerFromExtra(admin, extra), args || {})));
   server.registerTool('command_center.proof.run_multi_worker', {title: 'Run multi-worker proof', description: 'Fail-closed proof requiring two distinct real non-tanks worker installations with nonce-bearing jobs.', inputSchema: {idempotencyKey: z.string(), nonceA: z.string().optional(), nonceB: z.string().optional()}}, async (args, extra) => textResult(await runMultiWorkerProof(admin, await callerFromExtra(admin, extra), args || {})));
+  server.registerTool('command_center.proof.run_multi_session', {title: 'Run multi-session proof', description: 'Fail-closed proof requiring two isolated real Codex session slots on materialized machine images. It never synthesizes completed execution.', inputSchema: {idempotencyKey: z.string(), nonceA: z.string().optional(), nonceB: z.string().optional(), machineImageId: z.string().optional(), imageRequirements: z.array(z.string()).optional(), sessionPolicy: z.record(z.string(), z.any()).optional(), autoProvision: z.boolean().optional()}}, async (args, extra) => textResult(await runMultiSessionProof(admin, await callerFromExtra(admin, extra), args || {})));
   server.registerTool('command_center.workers.get_capabilities', {title: 'Get Command Center worker capabilities', description: 'Read capability metadata for one registered worker.', inputSchema: {workerId: z.string()}}, async (args, extra) => {
     const workerId = safeText(args.workerId, 120);
     const workers = recordsVisibleToCaller(await workerRecords(admin), await callerFromExtra(admin, extra));
@@ -4427,7 +5358,13 @@ function createCommandCenterMcpApp({admin}) {
         currentPhase: safeText(req.body && req.body.currentPhase, 120),
         workerStatusSummary: safeText(req.body && req.body.summary, 1000),
       }, {merge: true});
-      await collection(admin, COMMAND_CENTER_COLLECTIONS.workers).doc(caller.workerId).set({lastHeartbeatAtMs: nowMs, health: 'healthy', routable: true, simulated: false}, {merge: true});
+      const runtime = safeObject(req.body && req.body.runtime);
+      const workerRef = collection(admin, COMMAND_CENTER_COLLECTIONS.workers).doc(caller.workerId);
+      const workerSnap = await workerRef.get();
+      const existingWorker = workerSnap.exists ? safeObject(workerSnap.data()) : {};
+      const workerUpdate = {lastHeartbeatAtMs: nowMs, health: 'healthy', routable: true, simulated: false};
+      if (Object.keys(runtime).length) workerUpdate.runtime = {...safeObject(existingWorker.runtime), ...runtime};
+      await workerRef.set(workerUpdate, {merge: true});
       res.json({ok: true, activationId: activation.activationId, status, workerId: caller.workerId});
     } catch (err) {
       sendWorkerError(res, err);
@@ -4712,6 +5649,11 @@ module.exports = {
   COMMAND_CENTER_COMPLETION_EVENT_LOOKBACK_LIMIT,
   COMMAND_CENTER_TERMINAL_JOB_STATUSES,
   COMMAND_CENTER_DURABLE_SESSION_RESTORE_STRATEGIES,
+  COMMAND_CENTER_MACHINE_IMAGE_STATUSES,
+  COMMAND_CENTER_CODEX_SESSION_STATUSES,
+  COMMAND_CENTER_SESSION_ISOLATION_MODES,
+  COMMAND_CENTER_PROVISIONING_STATUSES,
+  COMMAND_CENTER_DEFAULT_CLOUD_MACHINE_IMAGE_ID,
   COMMAND_CENTER_CODEX_CLOUD_SURFACE,
   COMMAND_CENTER_DEFAULT_BUCKET_ID,
   COMMAND_CENTER_BUCKET_KINDS,
@@ -4722,10 +5664,17 @@ module.exports = {
   cleanProjectPacket,
   cleanRepoAgent,
   cleanAgentSession,
+  cleanMachineImage,
+  cleanSessionPolicy,
+  workerMachineImageState,
+  workerImagePolicyDiagnostic,
+  workerSessionPolicyDiagnostic,
   cleanActivationTask,
   cleanCodexCloudRef,
   buildAgentResumePacket,
   lookupBrowserPlaybook,
+  renderBundleOptionsFrom,
+  renderRequiredBundleKindsForOptions,
   createCommandCenterMcpApp,
   createCommandCenterMcpServer,
   cleanBaseWorkspace,
@@ -4755,18 +5704,27 @@ module.exports = {
   workerStableIdentity,
   workerApiKeyProbeAllowsCodex,
   workerRoutingPriority,
+  isLocalHostWorker,
+  cloudProvisioningDefaults,
+  assertCloudProvisioningRequest,
+  cloudMachineImageRecord,
+  cloudWorkerRecordFromProvisioning,
+  provisioningRecommendation,
   cleanWorkerIdentity,
   workerRoutabilityDiagnostic,
   compactWorkerCensus,
   filterWorkerCensus,
   explainWorkerCandidate,
   proofEligibleWorker,
+  runMultiSessionProof,
   activeLeaseCountsByWorker,
   selectWorker,
   buildJobActivation,
   activationStateFromResult,
   shouldAcceptWorkerCompletion,
   wakeWorker,
+  renderBundleOptionsFrom,
+  renderRequiredBundleKindsForOptions,
   renderBlenderGlb,
   resolveRenderSources,
   validateGlbBytes,
