@@ -15,6 +15,7 @@ const {z} = require('zod/v4');
 const {CARTESIA_DEFAULT_MODEL_ID, CARTESIA_DEFAULT_VOICE_NAME, listCartesiaVoiceCatalog, listCartesiaVoices, normalizeCartesiaVoice, openCartesiaStream} = require('./hosted_speech_provider');
 const {renderBlenderGlb: commandCenterRenderBlenderGlb} = require('./command_center_mcp');
 const cartesiaPitchShift = require('./cartesia_pitch_shift');
+const {renderAudioOperation, inspectAudioArtifactsOperation} = require('./audio_render_service');
 
 const DEFAULT_MCP_PUBLIC_BASE = 'https://us-central1-home-center-dclar.cloudfunctions.net/homeCenterMcp';
 const MCP_PUBLIC_BASE = process.env.HOME_CENTER_MCP_PUBLIC_BASE || DEFAULT_MCP_PUBLIC_BASE;
@@ -471,6 +472,16 @@ function jsonText(value) {
 
 function textResult(value) {
   return {content: [{type: 'text', text: typeof value === 'string' ? value : jsonText(value)}]};
+}
+
+function mcpToolResult(value) {
+  if (value && value._mcpContent && Array.isArray(value._mcpContent.content)) return value._mcpContent;
+  if (value && typeof value === 'object' && !Array.isArray(value) && value._mcpContent) {
+    const clean = {...value};
+    delete clean._mcpContent;
+    return textResult(clean);
+  }
+  return textResult(value);
 }
 
 function parseJsonPayload(text, label) {
@@ -3493,6 +3504,26 @@ function driveOperationRegistry() {
         input: {query: 'optional string passed to Cartesia q', q: 'optional alias for query', limit: 'optional number, 1-100 per Cartesia page', pageToken: 'optional alias for starting_after', startingAfter: 'optional Cartesia pagination cursor', endingBefore: 'optional Cartesia pagination cursor', language: 'optional Cartesia language or locale filter such as ru or en_GB', locale: 'optional language-locale alias passed as language', gender: 'optional masculine, feminine, or gender_neutral', isOwner: 'optional boolean', accent: 'optional metadata filter applied to returned provider page', country: 'optional metadata filter applied to returned provider page', includePreviewUrl: 'optional boolean, defaults true'},
         output: {provider: 'cartesia', catalog: 'provider_live', filters: 'object', supportedFilters: 'object', pagination: 'object', voices: 'array with id/name/language/locale/gender/accent/country/metadata'},
       },
+      'audio.render': {
+        summary: 'Render deterministic procedural or source-backed audio directly inside Home Center MCP through a declarative JSON recipe. This direct provider operation returns verified Drive artifacts plus a structured inline-playable MCP audio block for the primary output. It never creates a Command Center job, Codex execution, LLM prompt, worker lease, GitHub Actions renderer, or Termux runtime process.',
+        write: true,
+        requiresRequestId: true,
+        requiredScopes: ['https://www.googleapis.com/auth/drive'],
+        input: {scriptText: 'required JSON audio recipe DSL; no imports, network, shell, process, filesystem, or arbitrary code execution', sources: 'optional object binding friendly names to inline contentBase64 or drive:// refs; WAV sources decode to clips', settings: 'optional deterministic renderer settings including seed, sampleRate, timeoutMs, allowClipping', idempotencyKey: 'string alias for requestId', requestId: 'string', parentFolderId: 'optional Drive folder id', callerNote: 'optional string'},
+        output: {ok: 'true', status: 'completed', renderer: 'home-center-deterministic-audio-v1', primaryOutput: 'inline playable audio plus durable Drive ref', outputs: 'array with name, MIME, duration, sampleRate, channels, codec, bytes, SHA-256, readback hash, peak, LUFS, clipping, durable ref, ChatGPT file ref', manifest: 'verified JSON manifest artifact', noAgentRuntime: 'true'},
+        agentRecipe: {
+          whenUserSays: 'Render procedural sound effects, ambience, foley, layered audio beds, stems, waveform, or spectrogram directly from ChatGPT.',
+          prefer: 'Call drive_operation with operation=audio.render. Keep scriptText as the Home Center JSON audio DSL. Do not use Command Center, Codex, workers, GitHub Actions, or a newly exposed top-level MCP tool.',
+          verification: 'Treat ok=true/status=completed, verified output/readback hashes, non-silent metrics, and the returned structured audio block as the acceptance signal.',
+        },
+      },
+      'audio.render_artifacts': {
+        summary: 'Read back audio.render durable artifact refs through Home Center MCP Google OAuth, verify byte count/SHA-256 against expected receipt metadata, and return redacted container/header evidence. This is the direct verifier for ChatGPT-side acceptance and does not expose Drive OAuth tokens or signed URLs.',
+        write: false,
+        requiredScopes: ['https://www.googleapis.com/auth/drive'],
+        input: {artifactRefs: 'array of drive:// refs returned by audio.render', expected: 'optional array with durableRef/ref, byteCount, and sha256 values from the render receipt'},
+        output: {ok: 'boolean', artifactCount: 'number', artifacts: 'array with name, MIME, byteCount, sha256, match booleans, and WAV/OGG/PNG header evidence'},
+      },
       'tts.synthesize': {
         summary: 'Synthesize one or more speaker segments with Cartesia directly, stitch them into one audio file, save it as a private Drive artifact, verify readback byte count and SHA-256, and audit the write. No Command Center job or worker is involved.',
         write: true,
@@ -3608,6 +3639,17 @@ async function driveOperationRunOperation({google, admin, auth, user, extra = nu
   if (operation === 'tts.voices') {
     await requireCreditGatedContext({google, admin, googleClientId, googleClientSecret, extra, user, auth, surface: 'tts.voices'});
     const result = await cartesiaVoicesOperation({cartesiaApiKey, args: operationArgs});
+    return {operation, registryVersion: registry.version, completed: true, result};
+  }
+  if (operation === 'audio.render') {
+    const result = await renderAudioOperation({google, admin, auth, user, args: operationArgs, helpers: {createRequestId, existingAudit, auditWrite, recordActionAudit, safeDriveFileId}});
+    const cleanResult = {...result};
+    const mcpContent = cleanResult._mcpContent;
+    delete cleanResult._mcpContent;
+    return {operation, registryVersion: registry.version, completed: true, result: cleanResult, _mcpContent: mcpContent};
+  }
+  if (operation === 'audio.render_artifacts') {
+    const result = await inspectAudioArtifactsOperation({google, auth, args: operationArgs});
     return {operation, registryVersion: registry.version, completed: true, result};
   }
   const workflowId = safeOperationBatchId(args.operationBatchId || operationArgs.operationBatchId || operationArgs.requestId || ('drive-operation-' + randomUUID()));
@@ -4175,10 +4217,10 @@ function createHomeCenterMcpServer({google, admin, googleClientId, googleClientS
   }, async (args, extra) => {
     const operation = safeText((args || {}).operation || (args || {}).type || (args || {}).toolName, 120);
     if (operation.startsWith('command_center.') || commandCenterCompatOperation(args || {})) {
-      return textResult(await driveOperationRunOperation({google, admin, auth: null, user: null, extra, googleClientId, googleClientSecret, cartesiaApiKey, args: args || {}}));
+      return mcpToolResult(await driveOperationRunOperation({google, admin, auth: null, user: null, extra, googleClientId, googleClientSecret, cartesiaApiKey, args: args || {}}));
     }
     const {auth, user} = await requestGoogleContext(extra, google, admin, googleClientId, googleClientSecret);
-    return textResult(await driveOperationRunOperation({google, admin, auth, user, extra, googleClientId, googleClientSecret, cartesiaApiKey, args: args || {}}));
+    return mcpToolResult(await driveOperationRunOperation({google, admin, auth, user, extra, googleClientId, googleClientSecret, cartesiaApiKey, args: args || {}}));
   });
 
   server.registerTool('auth_status', {
@@ -5332,4 +5374,4 @@ function createHomeCenterMcpApp({google, admin, googleClientId = () => '', googl
   return app;
 }
 
-module.exports = {createHomeCenterMcpApp, createHomeCenterMcpServer, createDriveFolderOperation, createGoogleDocOperation, appendGoogleDocOperation, publishContextSnapshotOperation, synthesizeCartesiaAudioArtifactOperation, cartesiaVoicesOperation, createSheetOperation, updateSheetValuesOperation, importXlsxWorkbookOperation, driveOperationRunOperation, driveWorkflowRunOperation, simulationOperationRunOperation, simulationOperationRegistry, droobiedooContextOperationEntries, loadDroobiedooContextIndex, searchDroobiedooContextIndex, runDroobiedooContextOperation, normalizeRecoveryOperation, summarizeRecoveryOperations, loadMcpAccessContext, materializeHomeCenterRenderDriveRefs, materializeHomeCenterRenderSources, stageHomeCenterGitHubRenderInput, normalizeRenderGitHubSource};
+module.exports = {createHomeCenterMcpApp, createHomeCenterMcpServer, createDriveFolderOperation, createGoogleDocOperation, appendGoogleDocOperation, publishContextSnapshotOperation, synthesizeCartesiaAudioArtifactOperation, cartesiaVoicesOperation, createSheetOperation, updateSheetValuesOperation, importXlsxWorkbookOperation, driveOperationRunOperation, driveWorkflowRunOperation, simulationOperationRunOperation, simulationOperationRegistry, droobiedooContextOperationEntries, loadDroobiedooContextIndex, searchDroobiedooContextIndex, runDroobiedooContextOperation, normalizeRecoveryOperation, summarizeRecoveryOperations, loadMcpAccessContext, renderAudioOperation, inspectAudioArtifactsOperation, materializeHomeCenterRenderDriveRefs, materializeHomeCenterRenderSources, stageHomeCenterGitHubRenderInput, normalizeRenderGitHubSource};
