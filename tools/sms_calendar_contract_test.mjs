@@ -3,6 +3,7 @@ import {createRequire} from 'node:module';
 
 const require = createRequire(import.meta.url);
 const {
+  auditDocumentId,
   extractAliases,
   messageId,
   registry,
@@ -53,5 +54,11 @@ assert.throws(() => validateProposal({
 }), /valid RFC3339/);
 assert.throws(() => messageId('eve'), /Home Center SMS intake id/);
 assert.equal(messageId(`sms_${'a'.repeat(40)}`), `sms_${'a'.repeat(40)}`);
+const intakeId = `sms_${'a'.repeat(40)}`;
+assert.notEqual(
+  auditDocumentId('sms_calendar.propose', 'house', intakeId, 'same-request'),
+  auditDocumentId('sms_calendar.dismiss', 'house', intakeId, 'same-request'),
+  'request IDs must be namespaced by operation and intake record',
+);
 
 console.log('SMS Calendar intake contract: OK');
