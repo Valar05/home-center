@@ -9,8 +9,13 @@ const {CARTESIA_DEFAULT_MODEL_ID, CARTESIA_DEFAULT_VOICE_NAME, openCartesiaStrea
 const cartesiaPitchShift = require('./cartesia_pitch_shift');
 
 const DEFAULT_SAMPLE_RATE = 48000;
-const MAX_DURATION_SECONDS = Number(process.env.HOME_CENTER_AUDIO_RENDER_MAX_SECONDS || 180);
-const MAX_OUTPUT_BYTES = Number(process.env.HOME_CENTER_AUDIO_RENDER_MAX_OUTPUT_BYTES || 12 * 1024 * 1024);
+const MAX_DURATION_SECONDS = Number(process.env.HOME_CENTER_AUDIO_RENDER_MAX_SECONDS || 900);
+const MAX_ENCODED_OUTPUT_BYTES = Number(process.env.HOME_CENTER_AUDIO_RENDER_MAX_ENCODED_BYTES || 24 * 1024 * 1024);
+const MAX_WAV_OUTPUT_BYTES = Number(process.env.HOME_CENTER_AUDIO_RENDER_MAX_WAV_BYTES || 64 * 1024 * 1024);
+const MAX_OUTPUT_BYTES = Number(process.env.HOME_CENTER_AUDIO_RENDER_MAX_OUTPUT_BYTES || MAX_WAV_OUTPUT_BYTES);
+const INLINE_AUDIO_MAX_BYTES = Number(process.env.HOME_CENTER_AUDIO_RENDER_INLINE_MAX_BYTES || 768 * 1024);
+const SPEECH_SEQUENCE_MAX_SEGMENTS = Number(process.env.HOME_CENTER_AUDIO_RENDER_MAX_SPEECH_SEGMENTS || 240);
+const SPEECH_SEQUENCE_DEFAULT_CONCURRENCY = Number(process.env.HOME_CENTER_AUDIO_RENDER_SPEECH_CONCURRENCY || 3);
 const MAX_SOURCE_BYTES = Number(process.env.HOME_CENTER_AUDIO_RENDER_MAX_SOURCE_BYTES || 50 * 1024 * 1024);
 const MAX_GRAPH_NODES = Number(process.env.HOME_CENTER_AUDIO_RENDER_MAX_GRAPH_NODES || 250);
 const DEFAULT_TIMEOUT_MS = Number(process.env.HOME_CENTER_AUDIO_RENDER_TIMEOUT_MS || 55000);
@@ -23,6 +28,17 @@ const CARTESIA_SUPPORTED_EMOTIONS = Object.freeze([
   'apologetic', 'determined',
 ]);
 const CARTESIA_SUPPORTED_EMOTION_SET = new Set(CARTESIA_SUPPORTED_EMOTIONS);
+const STASYA_CANONICAL_PROFILE = Object.freeze({
+  character: 'Stasya',
+  aliases: Object.freeze(['Stasya']),
+  provider: 'cartesia',
+  voiceName: 'Milena - Composed Clarifier',
+  voiceId: 'b66b3a19-31b3-401f-8b08-40d46a61e4f1',
+  modelId: 'sonic-3.5',
+  speed: 1.08,
+  pitchSemitones: 0,
+  direction: 'Cultivated, intimate, dry, playful, capable of hard authority; not a heavy Bond-style Russian accent.',
+});
 const ISAAC_CANONICAL_PROFILE = Object.freeze({
   character: 'Isaac',
   aliases: Object.freeze(['Isaac Slater']),
@@ -32,11 +48,24 @@ const ISAAC_CANONICAL_PROFILE = Object.freeze({
   modelId: 'sonic-3.5',
   speed: 0.97,
   pitchSemitones: -1.5,
-  direction: 'Controlled American mentor; technical, dry, protective, emotionally present through restraint; deep without theatrical gravel; never generic narrator, British aristocrat, or exaggerated Southern caricature.',
+  direction: 'Controlled American mentor; technical, dry, protective; deep without gravel.',
+});
+const EVE_CANONICAL_PROFILE = Object.freeze({
+  character: 'Eve',
+  aliases: Object.freeze(['Eve']),
+  provider: 'cartesia',
+  voiceName: 'Jacqueline - Reassuring Agent',
+  voiceId: '9626c31c-bec5-4cca-baa8-f8ba9e84c8bc',
+  modelId: 'sonic-3.5',
+  speed: 1.0,
+  pitchSemitones: 0,
+  direction: 'Warm and composed, observant restraint, emotionally aware without becoming syrupy.',
 });
 const CANONICAL_CHARACTER_PROFILES = Object.freeze({
+  stasya: STASYA_CANONICAL_PROFILE,
   isaac: ISAAC_CANONICAL_PROFILE,
   isaac_slater: ISAAC_CANONICAL_PROFILE,
+  eve: EVE_CANONICAL_PROFILE,
 });
 
 function audioError(message, status = 400, code = 'audio_render_failed') {
@@ -438,6 +467,54 @@ function measure(clip) {
   return {duration: clip.duration, sampleRate: clip.sampleRate, channelCount: clip.channelCount, peak, integratedLufs, clippingCount, silent: peak < 1e-5};
 }
 
+
+function outputByteLimit(format, mimeType = '') {
+  const clean = safeText(format, 20).toLowerCase();
+  if (clean === 'wav' || /wav|wave/i.test(mimeType)) return MAX_WAV_OUTPUT_BYTES;
+  if (clean === 'waveform_png' || clean === 'spectrogram_png' || /png/i.test(mimeType)) return Math.min(MAX_OUTPUT_BYTES, 16 * 1024 * 1024);
+  return MAX_ENCODED_OUTPUT_BYTES;
+}
+
+function preallocatedConcat(clips, label = 'concat') {
+  if (!Array.isArray(clips) || !clips.length) throw audioError('concat requires clips.', 400, 'audio_render_validation_failed');
+  const sampleRate = clips[0].sampleRate;
+  const channelCount = Math.max(...clips.map((clip) => ensureClip(clip).channelCount));
+  const normalized = clips.map((clip) => toChannels(resample(clip, sampleRate), channelCount));
+  const frames = normalized.reduce((sum, clip) => sum + clip.frames, 0);
+  const out = makeClip(channelCount, frames, sampleRate, 0, label);
+  let offset = 0;
+  for (const clip of normalized) {
+    for (let ch = 0; ch < channelCount; ch++) out.channels[ch].set(clip.channels[ch], offset);
+    offset += clip.frames;
+  }
+  return out;
+}
+
+async function mapLimitOrdered(items, concurrency, worker) {
+  const max = Math.max(1, Math.min(8, Math.floor(Number(concurrency) || SPEECH_SEQUENCE_DEFAULT_CONCURRENCY)));
+  const results = new Array(items.length);
+  let next = 0;
+  let active = 0;
+  let maxActive = 0;
+  let failed = false;
+  return await new Promise((resolve, reject) => {
+    const launch = () => {
+      if (failed) return;
+      if (next >= items.length && active === 0) return resolve({results, maxActive});
+      while (active < max && next < items.length) {
+        const index = next++;
+        active += 1;
+        maxActive = Math.max(maxActive, active);
+        Promise.resolve(worker(items[index], index))
+          .then((value) => { results[index] = value; })
+          .catch((err) => { failed = true; reject(err); })
+          .finally(() => { active -= 1; launch(); });
+      }
+    };
+    launch();
+  });
+}
+
 function encodeWav(clip, bitDepth = 16) {
   ensureClip(clip);
   if (bitDepth !== 16) throw audioError('Only PCM16 WAV export is currently supported.', 400, 'audio_render_unsupported_format');
@@ -529,13 +606,16 @@ function pcm16ToClip(pcm, sampleRate, channels = 1, label = 'speech') {
 }
 
 async function synthesizeSpeechClip(op = {}, context = {}, overrides = {}) {
-  const text = safeText(overrides.text !== undefined ? overrides.text : op.text || op.transcript, SPEECH_MAX_TEXT_CHARS);
+  const rawText = overrides.text !== undefined ? overrides.text : op.text || op.transcript;
+  const submittedText = typeof rawText === 'string' ? rawText : '';
+  const text = safeText(rawText, SPEECH_MAX_TEXT_CHARS);
   if (!text) throw audioError('speech.text is required.', 400, 'audio_render_validation_failed');
   const profile = resolveSpeechProfile({...op, ...overrides}, context);
   const sampleRate = Math.max(8000, Math.min(CARTESIA_SPEECH_SAMPLE_RATE_MAX, Math.floor(safeNumber(op.sampleRate, context.sampleRate || DEFAULT_SAMPLE_RATE)) || DEFAULT_SAMPLE_RATE));
   const generationConfig = {emotion: profile.emotion};
   if (profile.speed !== undefined) generationConfig.speed = profile.speed;
   if (profile.volume !== undefined) generationConfig.volume = profile.volume;
+  const startedAtMs = Date.now();
   const speech = await openCartesiaStream(text, {
     apiKeyGetter: context.cartesiaApiKey,
     voiceName: profile.voiceName,
@@ -550,10 +630,11 @@ async function synthesizeSpeechClip(op = {}, context = {}, overrides = {}) {
     const detail = await response.text().catch(() => '');
     const err = new Error('Cartesia speech HTTP ' + response.status + (detail ? ': ' + safeText(detail, 500) : ''));
     err.status = response.status;
-    err.failureKind = 'audio_render_speech_provider_failed';
+    err.failureKind = response.status === 429 ? 'audio_render_speech_provider_rate_limited' : 'audio_render_speech_provider_failed';
     throw err;
   }
   const pcm = Buffer.from(await response.arrayBuffer());
+  const providerElapsedMs = Date.now() - startedAtMs;
   if (!pcm.length) throw audioError('Cartesia returned empty speech audio.', 502, 'audio_render_speech_provider_empty');
   if ((pcm.length & 1) === 1) throw audioError('Cartesia returned odd-length PCM for speech.', 502, 'audio_render_speech_provider_pcm_invalid');
   const shifted = profile.pitchSemitones === 0
@@ -565,9 +646,11 @@ async function synthesizeSpeechClip(op = {}, context = {}, overrides = {}) {
   const inputFrames = shifted.inputFrames || (pcm.length / 2);
   const outputFrames = shifted.outputFrames || (shifted.pcm.length / 2);
   context.usesCartesia = true;
-  context.speechProvenance.push({
+  const provenance = {
     takeName,
     provider: 'cartesia',
+    segmentIndex: overrides.segmentIndex === undefined ? null : overrides.segmentIndex,
+    speaker: safeText(overrides.speaker || op.speaker, 120),
     character: profile.character,
     canonicalCharacter: profile.canonicalCharacter,
     voiceName: speech.voiceName,
@@ -584,16 +667,24 @@ async function synthesizeSpeechClip(op = {}, context = {}, overrides = {}) {
     inputFrameCount: inputFrames,
     outputFrameCount: outputFrames,
     durationRatio: shifted.durationRatio || (outputFrames / Math.max(1, inputFrames)),
+    duration: clip.duration,
     sampleRate,
     channelCount: 1,
+    providerByteCount: pcm.length,
     byteCount: shifted.pcm.length,
     inputByteCount: pcm.length,
+    submittedCharCount: submittedText.length,
+    normalizedCharCount: text.length,
     textCharCount: text.length,
     transcriptSha256: sha256Hex(Buffer.from(text, 'utf8')),
+    whitespaceNormalization: submittedText === text ? 'unchanged' : 'trimmed_or_clipped_by_safeText',
     ssmlCompatible: /<[^>]+>/.test(text),
     direction: profile.direction,
-  });
-  return {clip, profile, speech};
+    providerTimingMs: providerElapsedMs,
+    retryCount: 0,
+  };
+  if (!overrides.deferProvenance) context.speechProvenance.push(provenance);
+  return {clip, profile, speech, provenance};
 }
 
 async function ffmpegEncode(inputWav, format, timeoutMs = DEFAULT_TIMEOUT_MS) {
@@ -623,7 +714,7 @@ async function ffmpegEncode(inputWav, format, timeoutMs = DEFAULT_TIMEOUT_MS) {
       child.on('exit', (code) => { clearTimeout(timer); code === 0 ? resolve() : reject(audioError('Audio encoder failed: ' + stderr.slice(0, 500), 500, 'audio_render_encoder_failed')); });
     });
     const out = await fs.readFile(outputPath);
-    if (out.length > MAX_OUTPUT_BYTES) throw audioError('Encoded output exceeds size limit.', 413, 'audio_render_output_too_large');
+    if (out.length > outputByteLimit(format)) throw audioError('Encoded output exceeds size limit.', 413, 'audio_render_output_too_large');
     return out;
   } finally {
     await fs.rm(tmp, {recursive: true, force: true}).catch(() => {});
@@ -828,7 +919,46 @@ async function applyOp(op, clips, sources, context) {
       if (op.outputTakes !== false) context.auditionTakes.push({takeName: takeId, emotionRequested: emotion});
     }
     const pause = silence({duration: safeNumber(op.pauseSeconds, 0.65), sampleRate: sr, channels: 1});
-    clip = concat(takeClips.flatMap((take, index) => index ? [pause, take] : [take]));
+    clip = preallocatedConcat(takeClips.flatMap((take, index) => index ? [pause, take] : [take]), 'audition');
+  }
+  else if (type === 'speech_sequence') {
+    const segments = Array.isArray(op.segments) ? op.segments : [];
+    if (!segments.length || segments.length > SPEECH_SEQUENCE_MAX_SEGMENTS) throw audioError('speech_sequence.segments must contain 1 to ' + SPEECH_SEQUENCE_MAX_SEGMENTS + ' items.', 400, 'audio_render_validation_failed');
+    for (let i = 0; i < segments.length; i++) {
+      const seg = segments[i] && typeof segments[i] === 'object' && !Array.isArray(segments[i]) ? segments[i] : {};
+      if (!safeText(seg.speaker, 120)) throw audioError('speech_sequence.segments[' + i + '].speaker is required.', 400, 'audio_render_validation_failed');
+      if (!safeText(seg.character, 120) && !safeText(seg.voiceId, 160) && !safeText(seg.voiceName, 120)) throw audioError('speech_sequence.segments[' + i + '] requires character, voiceId, or voiceName.', 400, 'audio_render_validation_failed');
+    }
+    const pause = silence({duration: Math.max(0, Math.min(5, safeNumber(op.pauseMs, 0) / 1000)), sampleRate: sr, channels: 1});
+    const requestedConcurrency = op.concurrency === undefined ? context.speechConcurrency : op.concurrency;
+    const startedAtMs = Date.now();
+    const {results, maxActive} = await mapLimitOrdered(segments, requestedConcurrency, async (segment, index) => {
+      const seg = segment && typeof segment === 'object' && !Array.isArray(segment) ? segment : {};
+      return await synthesizeSpeechClip({...seg, sampleRate: op.sampleRate || seg.sampleRate || sr}, context, {segmentIndex: index, speaker: seg.speaker, takeName: safeText(op.id, 80) + '_' + index, label: safeText(op.id, 80) + '_' + index, deferProvenance: true});
+    });
+    const parts = [];
+    for (let i = 0; i < results.length; i++) {
+      if (i > 0 && pause.frames) parts.push(pause);
+      parts.push(results[i].clip);
+    }
+    clip = preallocatedConcat(parts, safeText(op.id, 80) || 'speech_sequence');
+    const limitDb = op.master && typeof op.master === 'object' && op.master.limitDb !== undefined ? safeNumber(op.master.limitDb, -1) : -1;
+    clip = limit(clip, limitDb);
+    const sequenceProvenance = {
+      id: safeText(op.id, 120),
+      op: 'speech_sequence',
+      segmentCount: segments.length,
+      pauseMs: Math.max(0, Math.min(5000, Math.floor(safeNumber(op.pauseMs, 0)) || 0)),
+      requestedConcurrency: Math.max(1, Math.min(8, Math.floor(Number(requestedConcurrency) || SPEECH_SEQUENCE_DEFAULT_CONCURRENCY))),
+      maxActiveProviderCalls: maxActive,
+      elapsedMs: Date.now() - startedAtMs,
+      mastering: {limitDb, limiter: 'home_center_peak_limit'},
+      submittedCharacterCount: segments.reduce((sum, seg) => sum + (typeof (seg && seg.text) === 'string' ? seg.text.length : 0), 0),
+      normalizedCharacterCount: results.reduce((sum, item) => sum + item.provenance.normalizedCharCount, 0),
+      segments: results.map((item, index) => ({...item.provenance, index, segmentIndex: index})),
+    };
+    context.speechSequences.push(sequenceProvenance);
+    for (const item of sequenceProvenance.segments) context.speechProvenance.push(item);
   }
   else if (type === 'sword_impact') { const layered = layerSwordImpact(context.seed, sr); clip = layered.mix; Object.entries(layered.stems).forEach(([k, v]) => clips.set((op.stemPrefix || 'sword') + '_' + k, toChannels(resample(v, sr), 2))); }
   else if (type === 'tavern_cellar') { const layered = layerTavernCellar(context.seed, sr, safeNumber(op.duration, 20)); clip = layered.mix; clips.set((op.stemPrefix || 'tavern') + '_seam', layered.seam); Object.entries(layered.stems).forEach(([k, v]) => clips.set((op.stemPrefix || 'tavern') + '_' + k, toChannels(resample(v, sr), 2))); }
@@ -846,7 +976,7 @@ async function renderRecipe(recipe, sources, settings = {}) {
   const graph = Array.isArray(recipe.graph) ? recipe.graph : [];
   if (!graph.length || graph.length > MAX_GRAPH_NODES) throw audioError('Recipe graph must contain 1 to ' + MAX_GRAPH_NODES + ' nodes.', 400, 'audio_render_validation_failed');
   const clips = new Map();
-  const context = {sampleRate, seed, speechDefaults: recipe.speechDefaults || settings.speechDefaults || {}, cartesiaApiKey: settings.cartesiaApiKey || (() => ''), speechProvenance: [], auditionTakes: [], usesCartesia: false};
+  const context = {sampleRate, seed, speechDefaults: recipe.speechDefaults || settings.speechDefaults || {}, cartesiaApiKey: settings.cartesiaApiKey || (() => ''), speechConcurrency: settings.speechConcurrency || recipe.speechConcurrency || SPEECH_SEQUENCE_DEFAULT_CONCURRENCY, speechProvenance: [], speechSequences: [], auditionTakes: [], usesCartesia: false};
   for (const op of graph) await applyOp(op || {}, clips, sources, context);
   const finalId = safeText(recipe.final || (graph[graph.length - 1] || {}).id, 120);
   const finalClip = ensureClip(clips.get(finalId), 'final clip');
@@ -864,11 +994,11 @@ async function renderRecipe(recipe, sources, settings = {}) {
     else if (format === 'waveform_png') { bytes = waveformPng(clip); mimeType = 'image/png'; }
     else if (format === 'spectrogram_png') { bytes = spectrogramPng(clip); mimeType = 'image/png'; }
     else throw audioError('Unsupported export format: ' + format, 400, 'audio_render_unsupported_format');
-    if (bytes.length > MAX_OUTPUT_BYTES) throw audioError('Output ' + name + ' exceeds byte limit.', 413, 'audio_render_output_too_large');
+    if (bytes.length > outputByteLimit(format, mimeType)) throw audioError('Output ' + name + ' exceeds byte limit for ' + format + '.', 413, 'audio_render_output_too_large');
     const m = measure(clip);
     rendered.push({name, format, mimeType, bytes, clipMetrics: m, byteCount: bytes.length, sha256: sha256Hex(bytes)});
   }
-  return {clips, finalClip, rendered, finalMetrics: measure(finalClip), seed, sampleRate, speechProvenance: context.speechProvenance, auditionTakes: context.auditionTakes, usesCartesia: context.usesCartesia};
+  return {clips, finalClip, rendered, finalMetrics: measure(finalClip), seed, sampleRate, speechProvenance: context.speechProvenance, speechSequences: context.speechSequences, auditionTakes: context.auditionTakes, usesCartesia: context.usesCartesia};
 }
 
 async function uploadVerified({google, auth, parentFolderId, item}) {
@@ -996,8 +1126,9 @@ async function inspectAudioArtifactsOperation({google, auth, args = {}}) {
   return {ok: artifacts.every((item) => item.byteCountMatches && item.sha256Matches && item.header.valid !== false && (!item.decodeCheck || item.decodeCheck.ok)), operation: 'audio.render_artifacts', artifactCount: artifacts.length, decodeCheck: args.decodeCheck === true, artifacts};
 }
 
-function audioContentFor(item) {
-  if (!item || !item.bytes || !/^audio\//.test(item.mimeType)) return null;
+function audioContentFor(item, returnInlineAudio = true) {
+  if (!returnInlineAudio || !item || !item.bytes || !/^audio\//.test(item.mimeType)) return null;
+  if (item.bytes.length > INLINE_AUDIO_MAX_BYTES) return null;
   return {type: 'audio', data: item.bytes.toString('base64'), mimeType: item.mimeType, annotations: {audience: ['user'], priority: 1}};
 }
 
@@ -1008,10 +1139,16 @@ async function renderAudioOperation({google, admin, auth, user, args = {}, helpe
   const normalizedInput = {scriptText: recipe, sources: args.sources || {}, settings};
   const inputSha256 = sha256Hex(Buffer.from(stableJson(normalizedInput), 'utf8'));
   const existing = helpers.existingAudit ? await helpers.existingAudit(admin, requestId) : null;
-  if (existing && existing.status === 'success' && existing.result) {
+  if (existing && (existing.status === 'success' || existing.status === 'completed') && existing.result) {
     if (existing.result.inputSha256 && existing.result.inputSha256 !== inputSha256) throw audioError('idempotencyKey was reused with different audio.render inputs.', 409, 'audio_render_idempotency_conflict');
     return {...existing.result, idempotent: true, audit: existing, _mcpContent: null};
   }
+  if (existing && existing.status === 'running') {
+    if (existing.inputSha256 && existing.inputSha256 !== inputSha256) throw audioError('idempotencyKey was reused with different audio.render inputs.', 409, 'audio_render_idempotency_conflict');
+    return {ok: false, status: 'running', operation: 'audio.render', requestId, inputSha256, idempotent: true, audit: existing, _mcpContent: {content: [{type: 'text', text: JSON.stringify({ok: false, status: 'running', operation: 'audio.render', requestId, inputSha256}, null, 2)}]}};
+  }
+  if (helpers.auditWrite) await helpers.auditWrite(admin, {actor: (user && (user.email || user.uid)) || 'unknown', authKind: user && user.authKind, tool: 'audio.render', operation: 'audio.render', requestId, status: 'running', callerNote: args.callerNote, providerSummary: 'audio.render started.', result: null, inputSha256});
+  try {
   const parentFolderId = helpers.safeDriveFileId && safeText(args.parentFolderId, 220) ? helpers.safeDriveFileId(args.parentFolderId) : safeText(args.parentFolderId, 220);
   const materializedSources = await materializeSources({google, auth, sources: args.sources || {}});
   const rendered = await renderRecipe(recipe, materializedSources, {...settings, cartesiaApiKey});
@@ -1024,7 +1161,7 @@ async function renderAudioOperation({google, admin, auth, user, args = {}, helpe
     operation: 'audio.render', renderer: 'home-center-deterministic-audio-v1', runtimeBoundary: 'Home Center MCP direct dispatcher; direct Cartesia provider only when speech nodes are present; no Command Center, Codex, LLM, worker lease, GitHub Actions, or Termux runtime path.',
     requestId, inputSha256, seed: rendered.seed, sampleRate: rendered.sampleRate, finalMetrics: {...rendered.finalMetrics, integratedLufs: Number.isFinite(rendered.finalMetrics.integratedLufs) ? rendered.finalMetrics.integratedLufs : null},
     sourceCount: Object.keys(materializedSources).length, sources: Object.values(materializedSources).map((s) => ({name: s.name, originalRef: s.originalRef, provider: s.provider, mimeType: s.mimeType, byteCount: s.byteCount, sha256: s.sha256, decoded: s.decoded})),
-    speech: {usesCartesia: rendered.usesCartesia, supportedEmotions: CARTESIA_SUPPORTED_EMOTIONS, canonicalProfiles: Object.fromEntries(Object.entries(CANONICAL_CHARACTER_PROFILES).filter(([key, profile]) => key === String(profile.character).toLowerCase()).map(([key, profile]) => [key, {character: profile.character, aliases: profile.aliases, provider: profile.provider, voiceName: profile.voiceName, voiceId: profile.voiceId, modelId: profile.modelId, speed: profile.speed, pitchSemitones: profile.pitchSemitones, direction: profile.direction}])), takes: rendered.speechProvenance, auditionTakes: rendered.auditionTakes},
+    speech: {usesCartesia: rendered.usesCartesia, supportedEmotions: CARTESIA_SUPPORTED_EMOTIONS, canonicalProfiles: Object.fromEntries(Object.entries(CANONICAL_CHARACTER_PROFILES).filter(([key, profile]) => key === String(profile.character).toLowerCase()).map(([key, profile]) => [key, {character: profile.character, aliases: profile.aliases, provider: profile.provider, voiceName: profile.voiceName, voiceId: profile.voiceId, modelId: profile.modelId, speed: profile.speed, pitchSemitones: profile.pitchSemitones, direction: profile.direction}])), takes: rendered.speechProvenance, sequences: rendered.speechSequences, auditionTakes: rendered.auditionTakes, limits: {maxDurationSeconds: MAX_DURATION_SECONDS, maxSpeechSequenceSegments: SPEECH_SEQUENCE_MAX_SEGMENTS, defaultSpeechConcurrency: SPEECH_SEQUENCE_DEFAULT_CONCURRENCY, maxWavBytes: MAX_WAV_OUTPUT_BYTES, maxEncodedBytes: MAX_ENCODED_OUTPUT_BYTES, inlineAudioMaxBytes: INLINE_AUDIO_MAX_BYTES}},
     outputs: uploaded.map((item) => ({name: item.name, mimeType: item.mimeType, duration: item.clipMetrics.duration, sampleRate: item.clipMetrics.sampleRate, channelCount: item.clipMetrics.channelCount, bitDepth: item.mimeType === 'audio/wav' ? 16 : null, codec: item.format === 'ogg' ? 'vorbis' : item.format, byteCount: item.byteCount, sha256: item.sha256, readbackByteCount: item.readbackByteCount, readbackSha256: item.readbackSha256, peak: item.clipMetrics.peak, integratedLufs: Number.isFinite(item.clipMetrics.integratedLufs) ? item.clipMetrics.integratedLufs : null, clippingCount: item.clipMetrics.clippingCount, durableRef: item.durableRef, chatGptFileRef: item.chatGptFileRef, webViewLink: item.webViewLink})),
     noAgentRuntime: true, noCommandCenter: true, noCodex: true, noGithubActionsRenderer: true, noTermuxRuntime: true,
   };
@@ -1038,10 +1175,17 @@ async function renderAudioOperation({google, admin, auth, user, args = {}, helpe
   if (helpers.recordActionAudit) await helpers.recordActionAudit(admin, user || {}, 'audio.render', primary.fileId || '', 'Rendered deterministic audio artifact ' + primary.name + ' (' + primary.byteCount + ' bytes).', requestId).catch(() => {});
   const inlinePrimary = rendered.rendered.find((item) => item.name === primary.name);
   const content = [{type: 'text', text: JSON.stringify(result, null, 2)}];
-  const audioBlock = audioContentFor(inlinePrimary);
+  if (primary && primary.chatGptFileRef) content.push(primary.chatGptFileRef);
+  const audioBlock = audioContentFor(inlinePrimary, args.returnInlineAudio !== false);
   if (audioBlock) content.push(audioBlock);
   result._mcpContent = {content};
   return result;
+  } catch (err) {
+    if (helpers.auditWrite) {
+      await helpers.auditWrite(admin, {actor: (user && (user.email || user.uid)) || 'unknown', authKind: user && user.authKind, tool: 'audio.render', operation: 'audio.render', requestId, status: 'failed', callerNote: args.callerNote, providerSummary: 'audio.render failed: ' + safeText(err && err.code || err && err.message || 'unknown', 160), result: {ok: false, status: 'failed', code: safeText(err && err.code, 120), message: safeText(err && err.message, 500), inputSha256}, inputSha256}).catch(() => {});
+    }
+    throw err;
+  }
 }
 
-module.exports = {renderAudioOperation, inspectAudioArtifactsOperation, renderRecipe, sanitizeRecipeText, materializeSources, resolveSpeechProfile, CARTESIA_SUPPORTED_EMOTIONS, CANONICAL_CHARACTER_PROFILES, primitives: {Clip, silence, tone, noise, trim, concat, loop, fade, crossfade, gain, normalizePeak, normalizeLufs, pan, pitchShift, timeStretch, reverse, biquadLike, compress, limit, distort, delay, reverb, envelope, timeline, duck, resample, toChannels, encodeWav, decodeWav, waveformPng, spectrogramPng, measure, layerSwordImpact, layerTavernCellar}};
+module.exports = {renderAudioOperation, inspectAudioArtifactsOperation, renderRecipe, sanitizeRecipeText, materializeSources, resolveSpeechProfile, CARTESIA_SUPPORTED_EMOTIONS, CANONICAL_CHARACTER_PROFILES, limits: {MAX_DURATION_SECONDS, MAX_WAV_OUTPUT_BYTES, MAX_ENCODED_OUTPUT_BYTES, SPEECH_SEQUENCE_MAX_SEGMENTS, SPEECH_SEQUENCE_DEFAULT_CONCURRENCY, INLINE_AUDIO_MAX_BYTES}, primitives: {Clip, silence, tone, noise, trim, concat, loop, fade, crossfade, gain, normalizePeak, normalizeLufs, pan, pitchShift, timeStretch, reverse, biquadLike, compress, limit, distort, delay, reverb, envelope, timeline, duck, resample, toChannels, encodeWav, decodeWav, waveformPng, spectrogramPng, measure, layerSwordImpact, layerTavernCellar}};

@@ -12,7 +12,9 @@ assert(homeCenterSource.includes("'audio.render_artifacts'"), 'operation registr
 assert(homeCenterSource.includes('renderAudioOperation({google, admin, auth, user'), 'drive_operation must dispatch audio.render directly');
 assert(!/audio\.render[\s\S]{0,500}commandCenterOperationRunOperation/.test(homeCenterSource), 'audio.render must not route through Command Center');
 assert(homeCenterSource.includes('structured inline-playable MCP audio block'), 'registry must advertise inline playable audio');
-assert(homeCenterSource.includes('speech and audition nodes'), 'registry must advertise speech and audition recipe nodes');
+assert(homeCenterSource.includes('supports speech, audition, and speech_sequence nodes'), 'registry must advertise speech, audition, and speech_sequence recipe nodes');
+assert(homeCenterSource.includes("'audio.render_status'"), 'operation registry must expose audio.render_status recovery');
+assert(homeCenterSource.includes('speech_sequence'), 'registry must advertise speech_sequence recipe nodes');
 assert(homeCenterSource.includes("requireCreditGatedEmail(user && user.email, 'audio.render')"), 'audio.render credit-capable path must be approved-account gated');
 
 const {driveOperationRunOperation, createHomeCenterMcpServer} = require('../functions/home_center_mcp.js');
@@ -23,22 +25,36 @@ const {tone, noise, silence, trim, concat, loop, fade, crossfade, gain, normaliz
 
 function sha256(buffer) { return createHash('sha256').update(buffer).digest('hex'); }
 
-function pcm16Tone(sampleRate = 16000, duration = 0.24, frequency = 330) {
+function pcm16Tone(sampleRate = 16000, duration = 0.24, frequency = 330, gain = 0.32) {
   const frames = Math.round(sampleRate * duration);
   const out = Buffer.alloc(frames * 2);
   for (let i = 0; i < frames; i++) {
-    const sample = Math.sin(2 * Math.PI * frequency * i / sampleRate) * 0.32;
+    const sample = Math.max(-0.98, Math.min(0.98, Math.sin(2 * Math.PI * frequency * i / sampleRate) * gain));
     out.writeInt16LE(Math.round(sample * 32767), i * 2);
   }
   return out;
 }
 
 const cartesiaCalls = [];
+const cartesiaCompletions = [];
+let activeProviderCalls = 0;
+let maxActiveProviderCalls = 0;
+globalThis.__cartesiaFake = {durationSeconds: null, delayMs: 0, gain: 0.32};
 globalThis.fetch = async (url, options = {}) => {
   assert.ok(String(url).includes('/tts/bytes'), 'audio.render speech tests must call Cartesia TTS bytes only');
   const body = JSON.parse(String(options.body || '{}'));
-  cartesiaCalls.push({url: String(url), body});
-  const pcm = pcm16Tone(body.output_format && body.output_format.sample_rate || 16000, 0.24 + cartesiaCalls.length * 0.01, 300 + cartesiaCalls.length * 25);
+  const indexMatch = String(body.transcript || '').match(/segment-(\d+)/);
+  const segmentIndex = indexMatch ? Number(indexMatch[1]) : cartesiaCalls.length;
+  const callIndex = cartesiaCalls.length;
+  activeProviderCalls += 1;
+  maxActiveProviderCalls = Math.max(maxActiveProviderCalls, activeProviderCalls);
+  cartesiaCalls.push({url: String(url), body, callIndex, segmentIndex, activeAtStart: activeProviderCalls});
+  const delay = globalThis.__cartesiaFake.delayMs ? Math.max(0, globalThis.__cartesiaFake.delayMs + ((119 - segmentIndex) % 5)) : 0;
+  if (delay) await new Promise((resolve) => setTimeout(resolve, delay));
+  const duration = globalThis.__cartesiaFake.durationSeconds || (0.24 + cartesiaCalls.length * 0.01);
+  const pcm = pcm16Tone(body.output_format && body.output_format.sample_rate || 16000, duration, 300 + segmentIndex * 3, globalThis.__cartesiaFake.gain || 0.32);
+  cartesiaCompletions.push(segmentIndex);
+  activeProviderCalls -= 1;
   return {ok: true, status: 200, text: async () => '', arrayBuffer: async () => pcm.buffer.slice(pcm.byteOffset, pcm.byteOffset + pcm.byteLength)};
 };
 const pitchCalls = [];
@@ -144,6 +160,16 @@ assert.equal(isaacProfile.modelId, 'sonic-3.5');
 assert.equal(isaacProfile.speed, 0.97);
 assert.equal(isaacProfile.pitchSemitones, -1.5);
 assert.ok(CARTESIA_SUPPORTED_EMOTIONS.includes('rejected'));
+const stasyaProfile = resolveSpeechProfile({character: 'stasya'});
+assert.equal(stasyaProfile.voiceName, 'Milena - Composed Clarifier');
+assert.equal(stasyaProfile.voiceId, 'b66b3a19-31b3-401f-8b08-40d46a61e4f1');
+assert.equal(stasyaProfile.speed, 1.08);
+assert.equal(stasyaProfile.pitchSemitones, 0);
+const eveProfile = resolveSpeechProfile({character: 'EVE'});
+assert.equal(eveProfile.voiceName, 'Jacqueline - Reassuring Agent');
+assert.equal(eveProfile.voiceId, '9626c31c-bec5-4cca-baa8-f8ba9e84c8bc');
+assert.equal(eveProfile.speed, 1.0);
+assert.equal(eveProfile.pitchSemitones, 0);
 const overriddenProfile = resolveSpeechProfile({character: 'isaac', voiceName: 'Override Voice', voiceId: 'voice-123', modelId: 'model-x', speed: 1.1, volume: 0.8, pitchSemitones: -2, emotion: 'distant'});
 assert.equal(overriddenProfile.voiceId, 'voice-123');
 assert.equal(overriddenProfile.speed, 1.1);
@@ -196,6 +222,46 @@ assert.equal(cartesiaCalls.length, auditionStart + 3, 'audition must synthesize 
 assert.deepEqual(cartesiaCalls.slice(auditionStart).map((call) => call.body.generation_config.emotion), ['neutral', 'hurt', 'rejected']);
 assert.equal(auditionRendered.auditionTakes.length, 3);
 assert.equal(auditionRendered.rendered.filter((item) => /take-/.test(item.name)).length, 2);
+
+
+const longStartCalls = cartesiaCalls.length;
+const longStartPitchCalls = pitchCalls.length;
+const longStartCompletions = cartesiaCompletions.length;
+activeProviderCalls = 0;
+maxActiveProviderCalls = 0;
+globalThis.__cartesiaFake = {durationSeconds: 5, delayMs: 4, gain: 0.92};
+const longSegments = Array.from({length: 120}, (_, index) => {
+  const mod = index % 3;
+  const character = mod === 0 ? 'Stasya' : mod === 1 ? 'Isaac' : 'Eve';
+  return {speaker: character, character, emotion: mod === 1 ? 'hurt' : 'neutral', text: `long-form segment-${index} belongs to ${character}.`};
+});
+const longRecipe = {
+  seed: 'long-sequence-contract', sampleRate: 24000,
+  graph: [{id: 'scene', op: 'speech_sequence', segments: longSegments, pauseMs: 120, concurrency: 4, master: {limitDb: -1}}],
+  final: 'scene',
+  outputs: [{name: 'long-sequence.ogg', format: 'ogg', clip: 'scene'}],
+};
+const longRendered = await renderRecipe(longRecipe, {}, {timeoutMs: 20000, cartesiaApiKey: () => 'test'});
+const longCalls = cartesiaCalls.slice(longStartCalls);
+assert.equal(longCalls.length, 120, 'speech_sequence must call provider once per segment');
+assert.equal(maxActiveProviderCalls, 4, 'speech_sequence must not exceed configured concurrency');
+assert.ok(cartesiaCompletions.slice(longStartCompletions).some((value, index, arr) => index > 0 && value < arr[index - 1]), 'fake provider should complete out of order');
+assert.equal(longRendered.speechSequences.length, 1);
+assert.equal(longRendered.speechSequences[0].segmentCount, 120);
+assert.deepEqual(longRendered.speechSequences[0].segments.map((segment) => segment.index), Array.from({length: 120}, (_, i) => i));
+assert.equal(longRendered.speechSequences[0].segments[0].speaker, 'Stasya');
+assert.equal(longRendered.speechSequences[0].segments[1].speaker, 'Isaac');
+assert.equal(longRendered.speechSequences[0].segments[2].speaker, 'Eve');
+assert.equal(longRendered.speechSequences[0].segments[0].voiceId, 'b66b3a19-31b3-401f-8b08-40d46a61e4f1');
+assert.equal(longRendered.speechSequences[0].segments[1].voiceId, '98a34ef2-2140-4c28-9c71-663dc4dd7022');
+assert.equal(longRendered.speechSequences[0].segments[2].voiceId, '9626c31c-bec5-4cca-baa8-f8ba9e84c8bc');
+assert.equal(longRendered.finalMetrics.duration > 600, true, 'synthetic final clip must exceed 600 seconds');
+assert.equal(longRendered.finalMetrics.clippingCount, 0);
+assert.ok(longRendered.finalMetrics.peak <= Math.pow(10, -1 / 20) + 1e-4, 'speech_sequence default limiter should cap peak near -1 dB');
+assert.equal(longRendered.rendered.length, 1);
+assert.equal(longRendered.rendered[0].mimeType, 'audio/ogg');
+assert.equal(pitchCalls.slice(longStartPitchCalls).filter((call) => call.pitchSemitones === -1.5).length, 40, 'Isaac sequence segments must use canonical pitch processor');
+globalThis.__cartesiaFake = {durationSeconds: null, delayMs: 0, gain: 0.32};
 
 const recipe = {
   seed: 'contract-seed', sampleRate: 16000,
@@ -258,6 +324,42 @@ assert.equal(mismatch.result.artifacts[0].sha256Matches, false);
 const replay = await driveOperationRunOperation({google: fakeGoogle(), admin, auth: {}, user: {email: 'dclarke1005@gmail.com', authKind: 'google_oauth_bearer'}, args: {operation: 'audio.render', args: {scriptText: JSON.stringify(recipe), requestId: 'audio-render-contract-001', parentFolderId: 'folder12345', settings: {timeoutMs: 20000}}}});
 assert.equal(replay.result.idempotent, true);
 await assert.rejects(() => driveOperationRunOperation({google: fakeGoogle(), admin, auth: {}, user: {email: 'dclarke1005@gmail.com', authKind: 'google_oauth_bearer'}, args: {operation: 'audio.render', args: {scriptText: JSON.stringify({...recipe, seed: 'other'}), requestId: 'audio-render-contract-001', settings: {timeoutMs: 20000}}}}), /idempotencyKey was reused/);
+
+
+const providerCallsBeforeRouteLong = cartesiaCalls.length;
+const driveWritesBeforeRouteLong = createCalls;
+globalThis.__cartesiaFake = {durationSeconds: 5, delayMs: 1, gain: 0.8};
+const routedLong = await driveOperationRunOperation({
+  google: fakeGoogle(), admin, auth: {}, user: {email: 'dclarke1005@gmail.com', authKind: 'google_oauth_bearer'},
+  args: {operation: 'audio.render', args: {scriptText: JSON.stringify(longRecipe), requestId: 'audio-render-long-sequence-001', settings: {timeoutMs: 20000, speechConcurrency: 4}, returnInlineAudio: false}},
+});
+assert.equal(routedLong.completed, true);
+assert.equal(routedLong.result.ok, true);
+assert.equal(routedLong.result.outputs.length, 1);
+assert.equal(routedLong.result.speech.sequences[0].segmentCount, 120);
+assert.equal(cartesiaCalls.length - providerCallsBeforeRouteLong, 120);
+assert.equal(createCalls - driveWritesBeforeRouteLong, 2, 'long render should write one OGG and one manifest');
+assert.ok(routedLong._mcpContent.content.some((item) => item.type === 'text'), 'drive_operation must return textual receipt');
+assert.ok(routedLong._mcpContent.content.some((item) => item.type === 'resource_link'), 'drive_operation must return durable resource link');
+assert.ok(!routedLong._mcpContent.content.some((item) => item.type === 'audio'), 'returnInlineAudio=false must suppress optional inline audio');
+const routedLongExpected = routedLong.result.outputs.map((item) => ({durableRef: item.durableRef, byteCount: item.byteCount, sha256: item.sha256}));
+const routedLongInspect = await driveOperationRunOperation({
+  google: fakeGoogle(), admin, auth: {}, user: {email: 'dclarke1005@gmail.com', authKind: 'google_oauth_bearer'},
+  args: {operation: 'audio.render_artifacts', args: {artifactRefs: routedLongExpected.map((item) => item.durableRef), expected: routedLongExpected, decodeCheck: true}},
+});
+assert.equal(routedLongInspect.result.ok, true);
+assert.equal(routedLongInspect.result.artifacts[0].decodeCheck.ok, true);
+const providerCallsBeforeReplay = cartesiaCalls.length;
+const driveWritesBeforeReplay = createCalls;
+const replayLong = await driveOperationRunOperation({google: fakeGoogle(), admin, auth: {}, user: {email: 'dclarke1005@gmail.com', authKind: 'google_oauth_bearer'}, args: {operation: 'audio.render', args: {scriptText: JSON.stringify(longRecipe), requestId: 'audio-render-long-sequence-001', settings: {timeoutMs: 20000, speechConcurrency: 4}, returnInlineAudio: false}}});
+assert.equal(replayLong.result.idempotent, true);
+assert.equal(cartesiaCalls.length, providerCallsBeforeReplay, 'idempotent replay must not call Cartesia again');
+assert.equal(createCalls, driveWritesBeforeReplay, 'idempotent replay must not write Drive again');
+await assert.rejects(() => driveOperationRunOperation({google: fakeGoogle(), admin, auth: {}, user: {email: 'dclarke1005@gmail.com', authKind: 'google_oauth_bearer'}, args: {operation: 'audio.render', args: {scriptText: JSON.stringify({...longRecipe, seed: 'changed'}), requestId: 'audio-render-long-sequence-001', settings: {timeoutMs: 20000}}}}), /idempotencyKey was reused/);
+const statusLong = await driveOperationRunOperation({google: fakeGoogle(), admin, auth: {}, user: {email: 'dclarke1005@gmail.com', authKind: 'google_oauth_bearer'}, args: {operation: 'audio.render_status', args: {requestId: 'audio-render-long-sequence-001'}}});
+assert.equal(statusLong.result.status, 'completed');
+assert.equal(statusLong.result.result.requestId, 'audio-render-long-sequence-001');
+globalThis.__cartesiaFake = {durationSeconds: null, delayMs: 0, gain: 0.32};
 
 const server = createHomeCenterMcpServer({google: fakeGoogle(), admin, googleClientId: () => '', googleClientSecret: () => '', cartesiaApiKey: () => ''});
 assert.ok(server._registeredTools.drive_operation, 'stable drive_operation tool remains registered');
