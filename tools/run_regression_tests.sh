@@ -16,6 +16,9 @@ python3 -m py_compile tools/home_drive_speaker_profile_scan.py
 sh -n tools/docker_install_smoke.sh
 python3 tools/home_center_regression_tests.py
 node --check functions/command_center_mcp.js
+node --check functions/sms_calendar_intake.js
+node --check tools/sms_calendar_contract_test.mjs
+node tools/sms_calendar_contract_test.mjs
 node --check functions/she_raw_mcp.js
 node --check tools/command_center_mcp_contract_test.mjs
 node --check tools/command_center_cloud_activation_contract_test.mjs
@@ -73,8 +76,11 @@ mkdir -p "$tmp/classes"
 javac -d "$tmp/classes" \
   app/src/main/java/com/dclar/homecenter/Command.java \
   app/src/main/java/com/dclar/homecenter/CommandParser.java \
-  tools/CommandParserHarness.java
+  app/src/main/java/com/dclar/homecenter/SmsReminderClassifier.java \
+  tools/CommandParserHarness.java \
+  tools/SmsReminderClassifierHarness.java
 java -cp "$tmp/classes" com.dclar.homecenter.CommandParserHarness
+java -cp "$tmp/classes" com.dclar.homecenter.SmsReminderClassifierHarness
 rm -rf "$tmp"
 
 echo "Home Center regression harness: OK"
