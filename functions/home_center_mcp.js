@@ -3505,15 +3505,15 @@ function driveOperationRegistry() {
         output: {provider: 'cartesia', catalog: 'provider_live', filters: 'object', supportedFilters: 'object', pagination: 'object', voices: 'array with id/name/language/locale/gender/accent/country/metadata'},
       },
       'audio.render': {
-        summary: 'Render deterministic procedural or source-backed audio directly inside Home Center MCP through a declarative JSON recipe. This direct provider operation returns verified Drive artifacts plus a structured inline-playable MCP audio block for the primary output. It never creates a Command Center job, Codex execution, LLM prompt, worker lease, GitHub Actions renderer, or Termux runtime process.',
+        summary: 'Render deterministic procedural, source-backed, or direct Cartesia speech audio inside Home Center MCP through a declarative JSON recipe. Speech nodes resolve character profiles such as Isaac/Clyde, forward structured Cartesia emotion/speed/volume generation_config, apply tempo-preserving pitch, and return verified Drive artifacts plus a structured inline-playable MCP audio block. It never creates a Command Center job, Codex execution, LLM prompt, worker lease, GitHub Actions renderer, or Termux runtime process.',
         write: true,
         requiresRequestId: true,
         requiredScopes: ['https://www.googleapis.com/auth/drive'],
-        input: {scriptText: 'required JSON audio recipe DSL; no imports, network, shell, process, filesystem, or arbitrary code execution', sources: 'optional object binding friendly names to inline contentBase64 or drive:// refs; WAV sources decode to clips', settings: 'optional deterministic renderer settings including seed, sampleRate, timeoutMs, allowClipping', idempotencyKey: 'string alias for requestId', requestId: 'string', parentFolderId: 'optional Drive folder id', callerNote: 'optional string'},
-        output: {ok: 'true', status: 'completed', renderer: 'home-center-deterministic-audio-v1', primaryOutput: 'inline playable audio plus durable Drive ref', outputs: 'array with name, MIME, duration, sampleRate, channels, codec, bytes, SHA-256, readback hash, peak, LUFS, clipping, durable ref, ChatGPT file ref', manifest: 'verified JSON manifest artifact', noAgentRuntime: 'true'},
+        input: {scriptText: 'required JSON audio recipe DSL; no imports, network, shell, process, filesystem, or arbitrary code execution; supports speech and audition nodes with text, character or voiceName/voiceId, modelId, emotion, speed, volume, pitchSemitones', sources: 'optional object binding friendly names to inline contentBase64 or drive:// refs; WAV sources decode to clips', settings: 'optional deterministic renderer settings including seed, sampleRate, timeoutMs, allowClipping, speechDefaults', idempotencyKey: 'string alias for requestId', requestId: 'string', parentFolderId: 'optional Drive folder id', callerNote: 'optional string'},
+        output: {ok: 'true', status: 'completed', renderer: 'home-center-deterministic-audio-v1', primaryOutput: 'inline playable audio plus durable Drive ref', speech: 'Cartesia speech provenance with resolved character profile, emotion, speed, volume, pitch, duration ratio, and take metadata', outputs: 'array with name, MIME, duration, sampleRate, channels, codec, bytes, SHA-256, readback hash, peak, LUFS, clipping, durable ref, ChatGPT file ref', manifest: 'verified JSON manifest artifact', noAgentRuntime: 'true'},
         agentRecipe: {
           whenUserSays: 'Render procedural sound effects, ambience, foley, layered audio beds, stems, waveform, or spectrogram directly from ChatGPT.',
-          prefer: 'Call drive_operation with operation=audio.render. Keep scriptText as the Home Center JSON audio DSL. Do not use Command Center, Codex, workers, GitHub Actions, or a newly exposed top-level MCP tool.',
+          prefer: 'Call drive_operation with operation=audio.render. Keep scriptText as the Home Center JSON audio DSL; use speech/audition recipe nodes for direct Cartesia speech and separate emotional contexts. Do not use Command Center, Codex, workers, GitHub Actions, or a newly exposed top-level MCP tool.',
           verification: 'Treat ok=true/status=completed, verified output/readback hashes, non-silent metrics, and the returned structured audio block as the acceptance signal.',
         },
       },
@@ -3642,7 +3642,8 @@ async function driveOperationRunOperation({google, admin, auth, user, extra = nu
     return {operation, registryVersion: registry.version, completed: true, result};
   }
   if (operation === 'audio.render') {
-    const result = await renderAudioOperation({google, admin, auth, user, args: operationArgs, helpers: {createRequestId, existingAudit, auditWrite, recordActionAudit, safeDriveFileId}});
+    requireCreditGatedEmail(user && user.email, 'audio.render');
+    const result = await renderAudioOperation({google, admin, auth, user, cartesiaApiKey, args: operationArgs, helpers: {createRequestId, existingAudit, auditWrite, recordActionAudit, safeDriveFileId}});
     const cleanResult = {...result};
     const mcpContent = cleanResult._mcpContent;
     delete cleanResult._mcpContent;

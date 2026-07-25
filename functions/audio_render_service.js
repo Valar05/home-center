@@ -5,6 +5,8 @@ const os = require('node:os');
 const path = require('node:path');
 const {spawn} = require('node:child_process');
 const zlib = require('node:zlib');
+const {CARTESIA_DEFAULT_MODEL_ID, CARTESIA_DEFAULT_VOICE_NAME, openCartesiaStream} = require('./hosted_speech_provider');
+const cartesiaPitchShift = require('./cartesia_pitch_shift');
 
 const DEFAULT_SAMPLE_RATE = 48000;
 const MAX_DURATION_SECONDS = Number(process.env.HOME_CENTER_AUDIO_RENDER_MAX_SECONDS || 180);
@@ -12,6 +14,30 @@ const MAX_OUTPUT_BYTES = Number(process.env.HOME_CENTER_AUDIO_RENDER_MAX_OUTPUT_
 const MAX_SOURCE_BYTES = Number(process.env.HOME_CENTER_AUDIO_RENDER_MAX_SOURCE_BYTES || 50 * 1024 * 1024);
 const MAX_GRAPH_NODES = Number(process.env.HOME_CENTER_AUDIO_RENDER_MAX_GRAPH_NODES || 250);
 const DEFAULT_TIMEOUT_MS = Number(process.env.HOME_CENTER_AUDIO_RENDER_TIMEOUT_MS || 55000);
+
+const SPEECH_MAX_TEXT_CHARS = 12000;
+const CARTESIA_SPEECH_SAMPLE_RATE_MAX = 48000;
+const CARTESIA_SUPPORTED_EMOTIONS = Object.freeze([
+  'neutral', 'calm', 'angry', 'content', 'sad', 'scared', 'hurt', 'rejected', 'disappointed',
+  'distant', 'resigned', 'hesitant', 'insecure', 'contempt', 'sarcastic', 'frustrated',
+  'apologetic', 'determined',
+]);
+const CARTESIA_SUPPORTED_EMOTION_SET = new Set(CARTESIA_SUPPORTED_EMOTIONS);
+const ISAAC_CANONICAL_PROFILE = Object.freeze({
+  character: 'Isaac',
+  aliases: Object.freeze(['Isaac Slater']),
+  provider: 'cartesia',
+  voiceName: 'Clyde - Calm Narrator',
+  voiceId: '98a34ef2-2140-4c28-9c71-663dc4dd7022',
+  modelId: 'sonic-3.5',
+  speed: 0.97,
+  pitchSemitones: -1.5,
+  direction: 'Controlled American mentor; technical, dry, protective, emotionally present through restraint; deep without theatrical gravel; never generic narrator, British aristocrat, or exaggerated Southern caricature.',
+});
+const CANONICAL_CHARACTER_PROFILES = Object.freeze({
+  isaac: ISAAC_CANONICAL_PROFILE,
+  isaac_slater: ISAAC_CANONICAL_PROFILE,
+});
 
 function audioError(message, status = 400, code = 'audio_render_failed') {
   const err = new Error(message);
@@ -447,6 +473,129 @@ function decodeWav(buffer) {
   return out;
 }
 
+
+function canonicalCharacterProfile(character) {
+  const key = safeText(character, 120).toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '');
+  return key ? CANONICAL_CHARACTER_PROFILES[key] || null : null;
+}
+
+function optionalFinite(value, label, min, max, fallback = undefined) {
+  if (value === undefined || value === null || value === '') return fallback;
+  if (typeof value !== 'number' || !Number.isFinite(value) || value < min || value > max) {
+    throw audioError(label + ' must be a finite number between ' + min + ' and ' + max + '.', 400, 'audio_render_validation_failed');
+  }
+  return value;
+}
+
+function validateEmotion(value, fallback = 'neutral') {
+  const emotion = safeText(value, 80).toLowerCase() || fallback;
+  if (!CARTESIA_SUPPORTED_EMOTION_SET.has(emotion)) {
+    throw audioError('emotion must be one of: ' + CARTESIA_SUPPORTED_EMOTIONS.join(', ') + '.', 400, 'audio_render_validation_failed');
+  }
+  return emotion;
+}
+
+function resolveSpeechProfile(op = {}, context = {}) {
+  const profile = canonicalCharacterProfile(op.character);
+  const defaults = context.speechDefaults && typeof context.speechDefaults === 'object' && !Array.isArray(context.speechDefaults) ? context.speechDefaults : {};
+  const hasExplicitVoice = safeText(op.voiceId, 160) || safeText(op.voiceName, 120);
+  if (!profile && !hasExplicitVoice) {
+    throw audioError('speech requires character, voiceId, or voiceName.', 400, 'audio_render_validation_failed');
+  }
+  const pickText = (key, max, fallback = '') => op[key] !== undefined ? safeText(op[key], max) : fallback;
+  const defaultPitch = defaults.pitchSemitones === undefined ? 0 : cartesiaPitchShift.safePitchSemitones(defaults.pitchSemitones, 'speechDefaults.pitchSemitones');
+  const resolved = {
+    provider: 'cartesia',
+    character: profile ? profile.character : safeText(op.character, 120),
+    canonicalCharacter: Boolean(profile),
+    voiceName: pickText('voiceName', 120, (profile && profile.voiceName) || safeText(defaults.voiceName, 120) || CARTESIA_DEFAULT_VOICE_NAME),
+    voiceId: pickText('voiceId', 160, (profile && profile.voiceId) || safeText(defaults.voiceId, 160)),
+    modelId: pickText('modelId', 120, (profile && profile.modelId) || safeText(defaults.modelId, 120) || CARTESIA_DEFAULT_MODEL_ID),
+    speed: optionalFinite(op.speed, 'speed', 0.6, 1.5, profile && profile.speed !== undefined ? profile.speed : optionalFinite(defaults.speed, 'speechDefaults.speed', 0.6, 1.5, undefined)),
+    volume: optionalFinite(op.volume, 'volume', 0.5, 2.0, optionalFinite(defaults.volume, 'speechDefaults.volume', 0.5, 2.0, undefined)),
+    emotion: validateEmotion(op.emotion === undefined ? defaults.emotion : op.emotion, validateEmotion(defaults.emotion, 'neutral')),
+    pitchSemitones: op.pitchSemitones === undefined
+      ? (profile && profile.pitchSemitones !== undefined ? cartesiaPitchShift.safePitchSemitones(profile.pitchSemitones, 'canonical pitchSemitones') : defaultPitch)
+      : cartesiaPitchShift.safePitchSemitones(op.pitchSemitones, 'pitchSemitones'),
+    direction: profile ? profile.direction : '',
+  };
+  if (!resolved.voiceId && !resolved.voiceName) resolved.voiceName = CARTESIA_DEFAULT_VOICE_NAME;
+  return resolved;
+}
+
+function pcm16ToClip(pcm, sampleRate, channels = 1, label = 'speech') {
+  const channelBuffers = cartesiaPitchShift.pcm16ToFloat32Channels(pcm, channels);
+  return new Clip(channelBuffers, sampleRate, label);
+}
+
+async function synthesizeSpeechClip(op = {}, context = {}, overrides = {}) {
+  const text = safeText(overrides.text !== undefined ? overrides.text : op.text || op.transcript, SPEECH_MAX_TEXT_CHARS);
+  if (!text) throw audioError('speech.text is required.', 400, 'audio_render_validation_failed');
+  const profile = resolveSpeechProfile({...op, ...overrides}, context);
+  const sampleRate = Math.max(8000, Math.min(CARTESIA_SPEECH_SAMPLE_RATE_MAX, Math.floor(safeNumber(op.sampleRate, context.sampleRate || DEFAULT_SAMPLE_RATE)) || DEFAULT_SAMPLE_RATE));
+  const generationConfig = {emotion: profile.emotion};
+  if (profile.speed !== undefined) generationConfig.speed = profile.speed;
+  if (profile.volume !== undefined) generationConfig.volume = profile.volume;
+  const speech = await openCartesiaStream(text, {
+    apiKeyGetter: context.cartesiaApiKey,
+    voiceName: profile.voiceName,
+    voiceId: profile.voiceId,
+    modelId: profile.modelId,
+    format: 'raw',
+    sampleRate,
+    generationConfig,
+  });
+  const response = speech.response;
+  if (!response.ok) {
+    const detail = await response.text().catch(() => '');
+    const err = new Error('Cartesia speech HTTP ' + response.status + (detail ? ': ' + safeText(detail, 500) : ''));
+    err.status = response.status;
+    err.failureKind = 'audio_render_speech_provider_failed';
+    throw err;
+  }
+  const pcm = Buffer.from(await response.arrayBuffer());
+  if (!pcm.length) throw audioError('Cartesia returned empty speech audio.', 502, 'audio_render_speech_provider_empty');
+  if ((pcm.length & 1) === 1) throw audioError('Cartesia returned odd-length PCM for speech.', 502, 'audio_render_speech_provider_pcm_invalid');
+  const shifted = profile.pitchSemitones === 0
+    ? {pcm, bypassed: true, processor: 'none', pitchScale: 1, inputFrames: pcm.length / 2, outputFrames: pcm.length / 2, durationRatio: 1}
+    : await cartesiaPitchShift.pitchShiftPcm16(pcm, {sampleRate, channels: 1, pitchSemitones: profile.pitchSemitones});
+  let clip = pcm16ToClip(shifted.pcm, sampleRate, 1, safeText(overrides.label || op.label || op.id, 120) || 'speech');
+  if (context.sampleRate && context.sampleRate !== sampleRate) clip = resample(clip, context.sampleRate);
+  const takeName = safeText(overrides.takeName || op.takeName || op.takeId || op.id, 120) || ('speech_' + (context.speechProvenance.length + 1));
+  const inputFrames = shifted.inputFrames || (pcm.length / 2);
+  const outputFrames = shifted.outputFrames || (shifted.pcm.length / 2);
+  context.usesCartesia = true;
+  context.speechProvenance.push({
+    takeName,
+    provider: 'cartesia',
+    character: profile.character,
+    canonicalCharacter: profile.canonicalCharacter,
+    voiceName: speech.voiceName,
+    voiceId: speech.voiceId,
+    modelId: speech.modelId,
+    emotionRequested: profile.emotion,
+    generationConfig: speech.generationConfig || generationConfig,
+    speed: profile.speed === undefined ? null : profile.speed,
+    volume: profile.volume === undefined ? null : profile.volume,
+    pitchSemitones: profile.pitchSemitones,
+    pitchScale: shifted.pitchScale,
+    pitchProcessor: shifted.processor,
+    pitchBypassed: Boolean(shifted.bypassed),
+    inputFrameCount: inputFrames,
+    outputFrameCount: outputFrames,
+    durationRatio: shifted.durationRatio || (outputFrames / Math.max(1, inputFrames)),
+    sampleRate,
+    channelCount: 1,
+    byteCount: shifted.pcm.length,
+    inputByteCount: pcm.length,
+    textCharCount: text.length,
+    transcriptSha256: sha256Hex(Buffer.from(text, 'utf8')),
+    ssmlCompatible: /<[^>]+>/.test(text),
+    direction: profile.direction,
+  });
+  return {clip, profile, speech};
+}
+
 async function ffmpegEncode(inputWav, format, timeoutMs = DEFAULT_TIMEOUT_MS) {
   if (process.env.HOME_CENTER_AUDIO_RENDER_TEST_FAKE_OGG === '1' && format === 'ogg') {
     const digest = sha256Hex(inputWav);
@@ -624,7 +773,7 @@ async function materializeSources({google, auth, sources = {}}) {
   return out;
 }
 
-function applyOp(op, clips, sources, context) {
+async function applyOp(op, clips, sources, context) {
   const id = safeText(op.id, 120);
   const type = safeText(op.op || op.type, 80);
   const sr = Math.floor(safeNumber(op.sampleRate, context.sampleRate));
@@ -662,6 +811,25 @@ function applyOp(op, clips, sources, context) {
   else if (type === 'resample') clip = resample(one(), safeNumber(op.sampleRate, context.sampleRate));
   else if (type === 'timeline' || type === 'layer') clip = timeline({duration: safeNumber(op.duration, 1), sampleRate: sr, channels: safeNumber(op.channels, 2), items: (op.items || []).map((item) => ({...item, clip: ensureClip(clips.get(safeText(item.clip, 120)), 'timeline item')}))});
   else if (type === 'duck') clip = duck(one('mix'), one('keyedBy'), safeNumber(op.amountDb, 5));
+  else if (type === 'speech') {
+    const synthesized = await synthesizeSpeechClip(op, context);
+    clip = synthesized.clip;
+  }
+  else if (type === 'audition') {
+    const emotions = Array.isArray(op.emotions) ? op.emotions.map((emotion) => validateEmotion(emotion)) : [];
+    if (!emotions.length || emotions.length > 24) throw audioError('audition.emotions must contain 1 to 24 supported emotions.', 400, 'audio_render_validation_failed');
+    const prefix = safeText(op.takePrefix || op.id || 'take', 80).replace(/[^A-Za-z0-9_.-]+/g, '_') || 'take';
+    const takeClips = [];
+    for (const emotion of emotions) {
+      const takeId = prefix + '_' + emotion;
+      const synthesized = await synthesizeSpeechClip(op, context, {emotion, takeName: takeId, label: takeId});
+      clips.set(takeId, synthesized.clip);
+      takeClips.push(synthesized.clip);
+      if (op.outputTakes !== false) context.auditionTakes.push({takeName: takeId, emotionRequested: emotion});
+    }
+    const pause = silence({duration: safeNumber(op.pauseSeconds, 0.65), sampleRate: sr, channels: 1});
+    clip = concat(takeClips.flatMap((take, index) => index ? [pause, take] : [take]));
+  }
   else if (type === 'sword_impact') { const layered = layerSwordImpact(context.seed, sr); clip = layered.mix; Object.entries(layered.stems).forEach(([k, v]) => clips.set((op.stemPrefix || 'sword') + '_' + k, toChannels(resample(v, sr), 2))); }
   else if (type === 'tavern_cellar') { const layered = layerTavernCellar(context.seed, sr, safeNumber(op.duration, 20)); clip = layered.mix; clips.set((op.stemPrefix || 'tavern') + '_seam', layered.seam); Object.entries(layered.stems).forEach(([k, v]) => clips.set((op.stemPrefix || 'tavern') + '_' + k, toChannels(resample(v, sr), 2))); }
   else throw audioError('Unsupported audio recipe operation: ' + type, 400, 'audio_render_unsupported_operation');
@@ -678,7 +846,8 @@ async function renderRecipe(recipe, sources, settings = {}) {
   const graph = Array.isArray(recipe.graph) ? recipe.graph : [];
   if (!graph.length || graph.length > MAX_GRAPH_NODES) throw audioError('Recipe graph must contain 1 to ' + MAX_GRAPH_NODES + ' nodes.', 400, 'audio_render_validation_failed');
   const clips = new Map();
-  for (const op of graph) applyOp(op || {}, clips, sources, {sampleRate, seed});
+  const context = {sampleRate, seed, speechDefaults: recipe.speechDefaults || settings.speechDefaults || {}, cartesiaApiKey: settings.cartesiaApiKey || (() => ''), speechProvenance: [], auditionTakes: [], usesCartesia: false};
+  for (const op of graph) await applyOp(op || {}, clips, sources, context);
   const finalId = safeText(recipe.final || (graph[graph.length - 1] || {}).id, 120);
   const finalClip = ensureClip(clips.get(finalId), 'final clip');
   const outputs = Array.isArray(recipe.outputs) && recipe.outputs.length ? recipe.outputs : [{name: 'audio.wav', format: 'wav', clip: finalId}, {name: 'audio.ogg', format: 'ogg', clip: finalId}];
@@ -699,7 +868,7 @@ async function renderRecipe(recipe, sources, settings = {}) {
     const m = measure(clip);
     rendered.push({name, format, mimeType, bytes, clipMetrics: m, byteCount: bytes.length, sha256: sha256Hex(bytes)});
   }
-  return {clips, finalClip, rendered, finalMetrics: measure(finalClip), seed, sampleRate};
+  return {clips, finalClip, rendered, finalMetrics: measure(finalClip), seed, sampleRate, speechProvenance: context.speechProvenance, auditionTakes: context.auditionTakes, usesCartesia: context.usesCartesia};
 }
 
 async function uploadVerified({google, auth, parentFolderId, item}) {
@@ -794,7 +963,7 @@ function audioContentFor(item) {
   return {type: 'audio', data: item.bytes.toString('base64'), mimeType: item.mimeType, annotations: {audience: ['user'], priority: 1}};
 }
 
-async function renderAudioOperation({google, admin, auth, user, args = {}, helpers = {}}) {
+async function renderAudioOperation({google, admin, auth, user, args = {}, helpers = {}, cartesiaApiKey = () => ''}) {
   const requestId = helpers.createRequestId ? helpers.createRequestId(args.requestId || args.idempotencyKey) : safeText(args.requestId || args.idempotencyKey, 160) || randomUUID();
   const settings = args.settings && typeof args.settings === 'object' && !Array.isArray(args.settings) ? args.settings : {};
   const recipe = sanitizeRecipeText(args.scriptText || args.recipeText);
@@ -807,16 +976,17 @@ async function renderAudioOperation({google, admin, auth, user, args = {}, helpe
   }
   const parentFolderId = helpers.safeDriveFileId && safeText(args.parentFolderId, 220) ? helpers.safeDriveFileId(args.parentFolderId) : safeText(args.parentFolderId, 220);
   const materializedSources = await materializeSources({google, auth, sources: args.sources || {}});
-  const rendered = await renderRecipe(recipe, materializedSources, settings);
+  const rendered = await renderRecipe(recipe, materializedSources, {...settings, cartesiaApiKey});
   if (rendered.finalMetrics.silent) throw audioError('Rendered audio is silent.', 422, 'audio_render_silent_output');
   if (rendered.finalMetrics.clippingCount > 0 && settings.allowClipping !== true) throw audioError('Rendered audio clipped; lower gain or enable allowClipping explicitly.', 422, 'audio_render_clipped_output');
   const uploaded = [];
   for (const item of rendered.rendered) uploaded.push(await uploadVerified({google, auth, parentFolderId, item}));
   const primary = uploaded.find((item) => item.mimeType === 'audio/ogg') || uploaded.find((item) => /^audio\//.test(item.mimeType)) || uploaded[0];
   const manifest = {
-    operation: 'audio.render', renderer: 'home-center-deterministic-audio-v1', runtimeBoundary: 'Home Center MCP direct dispatcher; no Command Center, Codex, LLM, worker lease, GitHub Actions, or Termux runtime path.',
+    operation: 'audio.render', renderer: 'home-center-deterministic-audio-v1', runtimeBoundary: 'Home Center MCP direct dispatcher; direct Cartesia provider only when speech nodes are present; no Command Center, Codex, LLM, worker lease, GitHub Actions, or Termux runtime path.',
     requestId, inputSha256, seed: rendered.seed, sampleRate: rendered.sampleRate, finalMetrics: {...rendered.finalMetrics, integratedLufs: Number.isFinite(rendered.finalMetrics.integratedLufs) ? rendered.finalMetrics.integratedLufs : null},
     sourceCount: Object.keys(materializedSources).length, sources: Object.values(materializedSources).map((s) => ({name: s.name, originalRef: s.originalRef, provider: s.provider, mimeType: s.mimeType, byteCount: s.byteCount, sha256: s.sha256, decoded: s.decoded})),
+    speech: {usesCartesia: rendered.usesCartesia, supportedEmotions: CARTESIA_SUPPORTED_EMOTIONS, canonicalProfiles: Object.fromEntries(Object.entries(CANONICAL_CHARACTER_PROFILES).filter(([key, profile]) => key === String(profile.character).toLowerCase()).map(([key, profile]) => [key, {character: profile.character, aliases: profile.aliases, provider: profile.provider, voiceName: profile.voiceName, voiceId: profile.voiceId, modelId: profile.modelId, speed: profile.speed, pitchSemitones: profile.pitchSemitones, direction: profile.direction}])), takes: rendered.speechProvenance, auditionTakes: rendered.auditionTakes},
     outputs: uploaded.map((item) => ({name: item.name, mimeType: item.mimeType, duration: item.clipMetrics.duration, sampleRate: item.clipMetrics.sampleRate, channelCount: item.clipMetrics.channelCount, bitDepth: item.mimeType === 'audio/wav' ? 16 : null, codec: item.format === 'ogg' ? 'vorbis' : item.format, byteCount: item.byteCount, sha256: item.sha256, readbackByteCount: item.readbackByteCount, readbackSha256: item.readbackSha256, peak: item.clipMetrics.peak, integratedLufs: Number.isFinite(item.clipMetrics.integratedLufs) ? item.clipMetrics.integratedLufs : null, clippingCount: item.clipMetrics.clippingCount, durableRef: item.durableRef, chatGptFileRef: item.chatGptFileRef, webViewLink: item.webViewLink})),
     noAgentRuntime: true, noCommandCenter: true, noCodex: true, noGithubActionsRenderer: true, noTermuxRuntime: true,
   };
@@ -836,4 +1006,4 @@ async function renderAudioOperation({google, admin, auth, user, args = {}, helpe
   return result;
 }
 
-module.exports = {renderAudioOperation, inspectAudioArtifactsOperation, renderRecipe, sanitizeRecipeText, materializeSources, primitives: {Clip, silence, tone, noise, trim, concat, loop, fade, crossfade, gain, normalizePeak, normalizeLufs, pan, pitchShift, timeStretch, reverse, biquadLike, compress, limit, distort, delay, reverb, envelope, timeline, duck, resample, toChannels, encodeWav, decodeWav, waveformPng, spectrogramPng, measure, layerSwordImpact, layerTavernCellar}};
+module.exports = {renderAudioOperation, inspectAudioArtifactsOperation, renderRecipe, sanitizeRecipeText, materializeSources, resolveSpeechProfile, CARTESIA_SUPPORTED_EMOTIONS, CANONICAL_CHARACTER_PROFILES, primitives: {Clip, silence, tone, noise, trim, concat, loop, fade, crossfade, gain, normalizePeak, normalizeLufs, pan, pitchShift, timeStretch, reverse, biquadLike, compress, limit, distort, delay, reverb, envelope, timeline, duck, resample, toChannels, encodeWav, decodeWav, waveformPng, spectrogramPng, measure, layerSwordImpact, layerTavernCellar}};
