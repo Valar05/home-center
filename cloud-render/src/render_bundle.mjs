@@ -15,7 +15,7 @@ const MAX_OUTPUT_BYTES = Number(process.env.RENDER_MAX_OUTPUT_BYTES || 400 * 102
 const MAX_OUTPUT_FILE_BYTES = Number(process.env.RENDER_MAX_OUTPUT_FILE_BYTES || 180 * 1024 * 1024);
 const RENDER_TIMEOUT_MS = Number(process.env.RENDER_TIMEOUT_MS || 600000);
 const REQUIRED_BUNDLE_KINDS = [
-  'rendered_frames', 'contact_sheet', 'native_pose_animation_data', 'script_input_hashes',
+  'rendered_frames', 'contact_sheet', 'three_d_artifact', 'native_pose_animation_data', 'script_input_hashes',
   'blender_version_settings', 'stdout_stderr', 'fixed_camera_renders', 'diagnostic_view_renders', 'validation_manifest',
   'original_script',
 ];
@@ -35,23 +35,6 @@ function stableJson(value) {
 }
 function safeName(value) { return String(value || 'render').replace(/[^A-Za-z0-9_.-]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 100) || 'render'; }
 function parseGs(ref) { const m = String(ref).match(/^gs:\/\/([^/]+)\/(.+)$/); if (!m) throw typedError('Invalid gs ref: ' + ref, 400, 'input_validation'); return {bucket: m[1], name: m[2]}; }
-function nowMs() { return Date.now(); }
-async function timedPhase(timings, name, fn) {
-  const startedAtMs = nowMs();
-  try {
-    return await fn();
-  } finally {
-    timings[name + 'Ms'] = (timings[name + 'Ms'] || 0) + Math.max(0, nowMs() - startedAtMs);
-  }
-}
-function timedSyncPhase(timings, name, fn) {
-  const startedAtMs = nowMs();
-  try {
-    return fn();
-  } finally {
-    timings[name + 'Ms'] = (timings[name + 'Ms'] || 0) + Math.max(0, nowMs() - startedAtMs);
-  }
-}
 async function uploadFile(localPath, cacheKey, relPath, contentType = '') {
   if (!CACHE_BUCKET) return 'file://' + localPath;
   const dest = `command-center-renders/${cacheKey}/${relPath}`;
@@ -151,7 +134,6 @@ function enforceOutputLimits(dir) {
 function contentType(file) {
   const ext = path.extname(file).toLowerCase();
   if (ext === '.png') return 'image/png';
-  if (ext === '.gif') return 'image/gif';
   if (ext === '.jpg' || ext === '.jpeg') return 'image/jpeg';
   if (ext === '.glb') return 'model/gltf-binary';
   if (ext === '.blend') return 'application/octet-stream';
@@ -173,45 +155,8 @@ function makeContactSheet(frames, outPath) {
   if (!frames.length) return false;
   const montage = spawnSync('montage', [...frames, '-geometry', '480x360+8+8', '-background', '#111111', outPath], {encoding: 'utf8', timeout: 60000});
   if (montage.status === 0 && fs.existsSync(outPath)) return true;
-  const workDir = fs.mkdtempSync(path.join(os.tmpdir(), 'cc-contact-sheet-'));
-  const rowFiles = [];
-  for (let index = 0; index < frames.length; index += 4) {
-    const rowFile = path.join(workDir, `row-${String(index / 4).padStart(2, '0')}.png`);
-    const row = spawnSync('convert', [...frames.slice(index, index + 4), '+append', rowFile], {encoding: 'utf8', timeout: 60000});
-    if (row.status !== 0 || !fs.existsSync(rowFile)) return false;
-    rowFiles.push(rowFile);
-  }
-  const sheet = spawnSync('convert', [...rowFiles, '-append', outPath], {encoding: 'utf8', timeout: 60000});
-  return sheet.status === 0 && fs.existsSync(outPath);
-}
-
-function makeLoopingGif(frames, outPath, durationsMs = []) {
-  if (!frames.length) return false;
-  const args = [];
-  frames.forEach((frame, index) => {
-    const ms = Number(durationsMs[index] || durationsMs[0] || 100) || 100;
-    args.push('-delay', String(Math.max(1, Math.round(ms / 10))), frame);
-  });
-  args.push('-loop', '0', '-dispose', 'Background', outPath);
-  const convert = spawnSync('convert', args, {encoding: 'utf8', timeout: 60000});
-  return convert.status === 0 && fs.existsSync(outPath);
-}
-function boolOption(value, fallback = true) {
-  if (value === false || value === 'false' || value === 0 || value === '0') return false;
-  if (value === true || value === 'true' || value === 1 || value === '1') return true;
-  return fallback;
-}
-function renderBundleOptions(request = {}) {
-  const settings = request.settings || {};
-  const contract = request.executionContract || {};
-  const includeBlend = boolOption(settings.includeBlend ?? contract.includeBlend, true);
-  const includeDiagnostics = boolOption(settings.includeDiagnostics ?? contract.includeDiagnostics, true);
-  return {includeBlend, includeDiagnostics};
-}
-function requiredBundleKindsFor(options = {}) {
-  const required = REQUIRED_BUNDLE_KINDS.filter((kind) => options.includeDiagnostics || kind !== 'diagnostic_view_renders');
-  if (options.includeBlend) required.push('three_d_artifact');
-  return required;
+  fs.copyFileSync(frames[0], outPath);
+  return true;
 }
 function localManifestPath(outputDir, value) {
   if (!value) return '';
@@ -249,29 +194,24 @@ export async function renderBundle(request = {}) {
   const outputDir = path.join(work, 'output');
   fs.mkdirSync(inputDir, {recursive: true}); fs.mkdirSync(outputDir, {recursive: true});
   let manifest = null;
-  const timings = {startedAtMs: nowMs()};
   try {
-    const options = renderBundleOptions(request);
-    const requiredBundleKinds = requiredBundleKindsFor(options);
-    const glbBytes = await timedPhase(timings, 'resolveGlb', () => resolveRef(request.glbRef || '', request, 'glb'));
-    const scriptBytes = await timedPhase(timings, 'resolveScript', () => resolveRef(request.scriptRef || '', request, 'script'));
-    timedSyncPhase(timings, 'validateInputs', () => {
-      validateGlbBytes(glbBytes, 'glb input');
-      validateScriptBytes(scriptBytes, 'script input');
-    });
+    const glbBytes = await resolveRef(request.glbRef || '', request, 'glb');
+    const scriptBytes = await resolveRef(request.scriptRef || '', request, 'script');
+    validateGlbBytes(glbBytes, 'glb input');
+    validateScriptBytes(scriptBytes, 'script input');
     const glbPath = path.join(inputDir, 'input.glb');
     const scriptPath = path.join(inputDir, 'render.py');
     const wrapperPath = path.join(inputDir, 'network_disabled_wrapper.py');
-    timedSyncPhase(timings, 'writeInputs', () => { fs.writeFileSync(glbPath, glbBytes); fs.writeFileSync(scriptPath, scriptBytes); writePythonNetworkWrapper(wrapperPath); });
+    fs.writeFileSync(glbPath, glbBytes); fs.writeFileSync(scriptPath, scriptBytes); writePythonNetworkWrapper(wrapperPath);
     const glbHash = sha256Buffer(glbBytes);
     const scriptHash = sha256Buffer(scriptBytes);
     const settings = request.settings || {};
-    const blenderVersion = timedSyncPhase(timings, 'blenderVersion', () => spawnSync('blender', ['--background', '--version'], {encoding: 'utf8', timeout: 30000}));
+    const blenderVersion = spawnSync('blender', ['--background', '--version'], {encoding: 'utf8', timeout: 30000});
     const blenderVersionText = (blenderVersion.stdout || blenderVersion.stderr || '').split('\n').slice(0, 3).join('\n');
     const cacheKey = crypto.createHash('sha256').update(stableJson({glbHash, scriptHash, settings, executionContract: request.executionContract || {}, blenderVersion: blenderVersionText, toolVersion: TOOL_VERSION})).digest('hex');
     if (request.cache !== false) {
-      const hit = await timedPhase(timings, 'cacheLookup', () => cachedManifest(cacheKey));
-      if (hit) return {...hit, ok: true, status: 'completed', cacheHit: true, renderId: request.renderId || hit.renderId || '', cacheKey, timings: {...hit.timings, cacheLookupMs: timings.cacheLookupMs || 0, totalMs: Math.max(0, nowMs() - timings.startedAtMs)}};
+      const hit = await cachedManifest(cacheKey);
+      if (hit) return {...hit, ok: true, status: 'completed', cacheHit: true, renderId: request.renderId || hit.renderId || '', cacheKey};
     }
     const settingsPath = path.join(inputDir, 'settings.json');
     const scriptManifestPath = path.join(outputDir, 'script-output-manifest.json');
@@ -279,20 +219,15 @@ export async function renderBundle(request = {}) {
     const stdoutPath = path.join(outputDir, 'stdout.txt');
     const stderrPath = path.join(outputDir, 'stderr.txt');
     const blenderEnv = {...process.env, LIBGL_ALWAYS_SOFTWARE: '1'};
-    const result = timedSyncPhase(timings, 'blenderExecution', () => spawnSync('blender', ['--background', '--python-exit-code', '88', '--python', wrapperPath, '--', scriptPath, glbPath, outputDir, settingsPath, scriptManifestPath], {encoding: 'utf8', timeout: RENDER_TIMEOUT_MS, maxBuffer: 80 * 1024 * 1024, env: blenderEnv}));
+    const result = spawnSync('blender', ['--background', '--python-exit-code', '88', '--python', wrapperPath, '--', scriptPath, glbPath, outputDir, settingsPath, scriptManifestPath], {encoding: 'utf8', timeout: RENDER_TIMEOUT_MS, maxBuffer: 80 * 1024 * 1024, env: blenderEnv});
     fs.writeFileSync(stdoutPath, result.stdout || ''); fs.writeFileSync(stderrPath, result.stderr || result.error?.message || '');
-    const parsed = timedSyncPhase(timings, 'parseScriptManifest', () => parseScriptManifest(scriptManifestPath, result));
+    const parsed = parseScriptManifest(scriptManifestPath, result);
     const scriptManifest = parsed.scriptManifest;
     const frames = existingManifestFiles(outputDir, scriptManifest.renderedFrames || []);
     const fixed = existingManifestFiles(outputDir, scriptManifest.fixedCameraRenders || []);
     const diagnostics = existingManifestFiles(outputDir, scriptManifest.diagnosticViewRenders || []);
     const contactSheet = path.join(outputDir, 'contact-sheet.png');
-    timedSyncPhase(timings, 'contactSheet', () => makeContactSheet(frames, contactSheet));
-    let generatedLoopingGif = '';
-    if (!scriptManifest.loopingGif && frames.length) {
-      const gifPath = path.join(outputDir, 'walk-loop.gif');
-      if (timedSyncPhase(timings, 'loopingGif', () => makeLoopingGif(frames, gifPath, scriptManifest.frameDurationsMs || settings.frameDurationsMs || []))) generatedLoopingGif = 'walk-loop.gif';
-    }
+    makeContactSheet([...frames, ...diagnostics], contactSheet);
     const outputFilesBeforeHashes = listFiles(outputDir);
     const hashesPath = path.join(outputDir, 'script-input-hashes.json');
     const outputHashes = {};
@@ -304,7 +239,7 @@ export async function renderBundle(request = {}) {
     }, null, 2));
     const blenderSettingsPath = path.join(outputDir, 'blender-version-settings.json');
     fs.writeFileSync(blenderSettingsPath, JSON.stringify({blenderVersion: blenderVersionText, settings, renderToolVersion: TOOL_VERSION, exitCode: result.status, signal: result.signal || ''}, null, 2));
-    timedSyncPhase(timings, 'enforceOutputLimits', () => enforceOutputLimits(outputDir));
+    enforceOutputLimits(outputDir);
     const validation = {
       schema: 'command-center.blender-render.validation.v1',
       atomicOperation: 'GLB + script + execution contract -> durable 3D artifact + visual evidence',
@@ -318,20 +253,19 @@ export async function renderBundle(request = {}) {
       failureKind: parsed.failureKind || (result.status === 0 ? '' : blenderResultFailureKind(result)),
       manifestError: parsed.manifestError || '',
     };
-    const refs = {renderedFrames: [], fixedCameraRenders: [], diagnosticViewRenders: [], threeDArtifacts: [], nativePoseAnimationData: [], loopingGif: ''};
+    const refs = {renderedFrames: [], fixedCameraRenders: [], diagnosticViewRenders: [], threeDArtifacts: [], nativePoseAnimationData: []};
     const add = async (kind, local, rel, key, ctype) => {
       if (!local || !fs.existsSync(local)) return '';
-      const uri = await timedPhase(timings, 'uploadArtifacts', () => uploadFile(local, cacheKey, rel, ctype || contentType(local)));
+      const uri = await uploadFile(local, cacheKey, rel, ctype || contentType(local));
       if (!validation.presentBundleKinds.includes(kind)) validation.presentBundleKinds.push(kind);
       if (key) refs[key] = Array.isArray(refs[key]) ? [...refs[key], uri] : uri;
       return uri;
     };
     for (const [i, f] of frames.entries()) await add('rendered_frames', f, `frames/${i}-${safeName(path.basename(f))}`, 'renderedFrames');
     for (const [i, f] of fixed.entries()) await add('fixed_camera_renders', f, `fixed/${i}-${safeName(path.basename(f))}`, 'fixedCameraRenders');
-    if (options.includeDiagnostics) for (const [i, f] of diagnostics.entries()) await add('diagnostic_view_renders', f, `diagnostic/${i}-${safeName(path.basename(f))}`, 'diagnosticViewRenders');
+    for (const [i, f] of diagnostics.entries()) await add('diagnostic_view_renders', f, `diagnostic/${i}-${safeName(path.basename(f))}`, 'diagnosticViewRenders');
     refs.contactSheet = await add('contact_sheet', contactSheet, 'contact-sheet.png', '', 'image/png');
-    refs.loopingGif = await add('looping_gif', localManifestPath(outputDir, scriptManifest.loopingGif || generatedLoopingGif), 'walk-loop.gif', '', 'image/gif');
-    refs.modifiedBlend = options.includeBlend ? await add('three_d_artifact', localManifestPath(outputDir, scriptManifest.modifiedBlend), 'modified.blend', 'threeDArtifacts') : '';
+    refs.modifiedBlend = await add('three_d_artifact', localManifestPath(outputDir, scriptManifest.modifiedBlend), 'modified.blend', 'threeDArtifacts');
     refs.animatedGlb = await add('three_d_artifact', localManifestPath(outputDir, scriptManifest.animatedGlb), 'animated.glb', 'threeDArtifacts');
     refs.nativePoseAnimationData = [await add('native_pose_animation_data', localManifestPath(outputDir, scriptManifest.nativePoseAnimationData), 'native-pose-animation.json', '', 'application/json')].filter(Boolean);
     refs.originalScript = await add('original_script', scriptPath, 'original-script.py', '', 'text/x-python');
@@ -340,15 +274,11 @@ export async function renderBundle(request = {}) {
     refs.stdout = await add('stdout_stderr', stdoutPath, 'stdout.txt', '', 'text/plain');
     refs.stderr = await add('stdout_stderr', stderrPath, 'stderr.txt', '', 'text/plain');
     if (!validation.presentBundleKinds.includes('validation_manifest')) validation.presentBundleKinds.push('validation_manifest');
-    const missing = requiredBundleKinds.filter((kind) => !validation.presentBundleKinds.includes(kind));
+    const missing = REQUIRED_BUNDLE_KINDS.filter((kind) => !validation.presentBundleKinds.includes(kind));
     validation.ok = result.status === 0 && missing.length === 0 && !validation.failureKind;
     validation.missingBundleKinds = missing;
-    timings.finishedAtMs = nowMs();
-    timings.totalMs = Math.max(0, timings.finishedAtMs - timings.startedAtMs);
-    manifest = {ok: validation.ok, status: validation.ok ? 'completed' : 'failed', failureKind: validation.ok ? '' : (validation.failureKind || 'artifact_publication'), cacheHit: false, renderId: request.renderId || '', cacheKey, refs, validationManifest: validation, bundle: {refs, validationManifest: validation, artifactHashes: outputHashes}, artifactHashes: outputHashes, timings, renderOptions: options, renderRefs: refs.renderedFrames, contactSheetRef: refs.contactSheet, loopingGifRef: refs.loopingGif, threeDArtifactRefs: refs.threeDArtifacts, modifiedBlendRef: refs.modifiedBlend, animatedGlbRef: refs.animatedGlb, nativeDataRefs: refs.nativePoseAnimationData, originalScriptRef: refs.originalScript, scriptInputHashesRef: refs.scriptInputHashes, blenderVersionSettingsRef: refs.blenderVersionSettings, stdoutRef: refs.stdout, stderrRef: refs.stderr, fixedCameraRenderRefs: refs.fixedCameraRenders, diagnosticRenderRefs: refs.diagnosticViewRenders};
+    manifest = {ok: validation.ok, status: validation.ok ? 'completed' : 'failed', failureKind: validation.ok ? '' : (validation.failureKind || 'artifact_publication'), cacheHit: false, renderId: request.renderId || '', cacheKey, refs, validationManifest: validation, bundle: {refs, validationManifest: validation}, renderRefs: refs.renderedFrames, contactSheetRef: refs.contactSheet, threeDArtifactRefs: refs.threeDArtifacts, modifiedBlendRef: refs.modifiedBlend, animatedGlbRef: refs.animatedGlb, nativeDataRefs: refs.nativePoseAnimationData, originalScriptRef: refs.originalScript, scriptInputHashesRef: refs.scriptInputHashes, blenderVersionSettingsRef: refs.blenderVersionSettings, stdoutRef: refs.stdout, stderrRef: refs.stderr, fixedCameraRenderRefs: refs.fixedCameraRenders, diagnosticRenderRefs: refs.diagnosticViewRenders};
     const manifestPath = path.join(outputDir, 'validation-manifest.json');
-    validation.timings = timings;
-    validation.renderOptions = options;
     fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2));
     refs.validationManifest = await uploadFile(manifestPath, cacheKey, 'validation-manifest.json', 'application/json');
     manifest.manifestRef = refs.validationManifest;

@@ -1,5 +1,7 @@
 const {createHash, randomBytes, randomUUID} = require('node:crypto');
-const {Readable} = require('node:stream');
+const {Readable, Transform} = require('node:stream');
+const {pipeline} = require('node:stream/promises');
+const {Storage} = require('@google-cloud/storage');
 const fs = require('node:fs');
 const path = require('node:path');
 const {McpServer} = require('@modelcontextprotocol/sdk/server/mcp.js');
@@ -10,6 +12,8 @@ const {normalizeObjectSchema} = require('./node_modules/@modelcontextprotocol/sd
 const {toJsonSchemaCompat} = require('./node_modules/@modelcontextprotocol/sdk/dist/cjs/server/zod-json-schema-compat.js');
 const express = require('express');
 const {z} = require('zod/v4');
+const {CARTESIA_DEFAULT_MODEL_ID, CARTESIA_DEFAULT_VOICE_NAME, listCartesiaVoices, normalizeCartesiaVoice, openCartesiaStream} = require('./hosted_speech_provider');
+const {renderBlenderGlb: commandCenterRenderBlenderGlb} = require('./command_center_mcp');
 
 const DEFAULT_MCP_PUBLIC_BASE = 'https://us-central1-home-center-dclar.cloudfunctions.net/homeCenterMcp';
 const MCP_PUBLIC_BASE = process.env.HOME_CENTER_MCP_PUBLIC_BASE || DEFAULT_MCP_PUBLIC_BASE;
@@ -20,6 +24,10 @@ const MCP_COMPAT_RESOURCE_METADATA = `${MCP_PUBLIC_BASE}/oauth-protected-resourc
 const MCP_AUTHORIZATION_SERVER_METADATA = `${MCP_PUBLIC_BASE}/.well-known/oauth-authorization-server`;
 const MCP_GOOGLE_CALLBACK = process.env.HOME_CENTER_MCP_GOOGLE_CALLBACK || `${MCP_PUBLIC_BASE}/oauth/google-callback`;
 const COMMAND_CENTER_MCP_URL = process.env.COMMAND_CENTER_MCP_URL || 'https://us-central1-home-center-dclar.cloudfunctions.net/commandCenterMcp/mcp';
+const COMMAND_CENTER_RENDER_BUCKET = process.env.COMMAND_CENTER_RENDER_BUCKET || process.env.RENDER_CACHE_BUCKET || process.env.COMMAND_CENTER_BUCKET || 'home-center-dclar-command-center-renders';
+const HOME_CENTER_RENDER_MAX_GLB_BYTES = Number(process.env.COMMAND_CENTER_RENDER_MAX_GLB_BYTES || 250 * 1024 * 1024);
+const HOME_CENTER_RENDER_MAX_SCRIPT_BYTES = Number(process.env.COMMAND_CENTER_RENDER_MAX_SCRIPT_BYTES || 1024 * 1024);
+const HOME_CENTER_DIRECT_RENDER_TEXT_LIMIT = 1024 * 1024;
 const MCP_REQUIRED_SCOPES = [
   'https://www.googleapis.com/auth/drive',
   'https://www.googleapis.com/auth/documents',
@@ -464,6 +472,7 @@ function commandCenterOperationRegistry() {
       'projects.resolve': {summary: 'Resolve an active project before creating a job.', readOnly: false, input: {repository: 'optional string', capability: 'optional string', projectId: 'optional string', idempotencyKey: 'string'}},
       'projects.get': {summary: 'Read one persisted Command Center project packet.', readOnly: true, input: {projectId: 'string'}},
       'projects.upsert': {summary: 'Create or update a durable Command Center project binding.', readOnly: false, input: {projectId: 'string', repository: 'optional string', capability: 'optional string', repositoryBinding: 'optional object', availableWorkers: 'optional string[]', idempotencyKey: 'string'}},
+      'render.blender_glb': {summary: 'Run non-agent Blender execution from durable refs or inline script. For ChatGPT Work Mode uploaded files, use the top-level render_blender_glb tool; nested command_center_operation args cannot activate host file upload slots.', readOnly: false, topLevelFileTool: 'render_blender_glb', input: {glbRef: 'drive:// | bucket:// | gs:// GLB ref for dispatcher calls', scriptRef: 'optional drive:// | bucket:// | gs:// Blender Python ref', scriptText: 'optional inline Python script alternative', settings: 'optional object', executionContract: 'optional object', cache: 'optional boolean', idempotencyKey: 'string'}},
       'jobs.create': {summary: 'Create a durable worker ticket/job.', readOnly: false, input: {projectId: 'string', title: 'string', objective: 'string', acceptanceCriteria: 'string[]', workerRequirements: 'string[]', mutationPolicy: 'object', idempotencyKey: 'string'}},
       'jobs.create_followup': {summary: 'Create a new linked invocation from a source job handoff without rewriting the old job.', readOnly: false, input: {sourceJobId: 'string', title: 'string', objective: 'string', acceptanceCriteria: 'optional string[]', constraints: 'optional string[]', mutationPolicy: 'optional object', idempotencyKey: 'string'}},
       'jobs.get': {summary: 'Read one Command Center job packet.', readOnly: true, input: {jobId: 'string'}},
@@ -542,13 +551,241 @@ async function postCommandCenterMcp(body, bearerToken) {
   return parseMcpPayload(text, 'Command Center MCP response');
 }
 
+function homeCenterRenderInputError(message, status = 400, failureKind = 'input_validation') {
+  const err = new Error(message);
+  err.status = status;
+  err.failureKind = failureKind;
+  return err;
+}
+
+function isMcpFileLike(value) {
+  return value && typeof value === 'object' && typeof value.arrayBuffer === 'function' && typeof value.name === 'string';
+}
+
+function homeCenterRenderOwnerKey(user = {}) {
+  return safeText(user.email || user.sub || user.uid || 'unknown', 320).replace(/[^A-Za-z0-9_.@-]+/g, '_') || 'unknown';
+}
+
+function driveRenderFileId(ref) {
+  const raw = safeText(ref, 1200).replace(/^drive:\/\//i, '');
+  const id = raw.split(/[?#/]/).filter(Boolean).pop() || raw;
+  if (!/^[A-Za-z0-9_-]{8,220}$/.test(id)) throw homeCenterRenderInputError('drive input ref has an invalid file id.', 400, 'input_validation');
+  return id;
+}
+
+function renderInputRoleFromField(fieldName) {
+  return fieldName === 'glbRef' || fieldName === 'glbFile' ? 'glb' : 'script';
+}
+
+function renderContentType(role) {
+  return role === 'glb' ? 'model/gltf-binary' : 'text/x-python';
+}
+
+function renderFallbackName(role) {
+  return role === 'glb' ? 'input.glb' : 'render.py';
+}
+
+function cleanRenderUploadName(value, fallback) {
+  const clean = safeText(value, 240).replace(/\\/g, '/').split('/').pop().replace(/[^A-Za-z0-9_.-]+/g, '-').replace(/^-+|-+$/g, '');
+  return clean || fallback;
+}
+
+function sha256RenderBytes(bytes) {
+  return createHash('sha256').update(bytes).digest('hex');
+}
+
+function validateHomeCenterRenderBytes(bytes, role, label) {
+  if (role === 'glb') {
+    if (!Buffer.isBuffer(bytes) || bytes.length < 12) throw homeCenterRenderInputError(label + ' is too small to be a GLB file.');
+    if (bytes.length > HOME_CENTER_RENDER_MAX_GLB_BYTES) throw homeCenterRenderInputError(label + ' exceeds max GLB size ' + HOME_CENTER_RENDER_MAX_GLB_BYTES + ' bytes.', 413, 'input_validation');
+    if (bytes.slice(0, 4).toString('ascii') !== 'glTF') throw homeCenterRenderInputError(label + ' is not a GLB: missing glTF magic.');
+    if (bytes.readUInt32LE(4) !== 2) throw homeCenterRenderInputError(label + ' must be GLB version 2.');
+    if (bytes.readUInt32LE(8) > bytes.length) throw homeCenterRenderInputError(label + ' declares more bytes than were downloaded.');
+    return;
+  }
+  if (!Buffer.isBuffer(bytes) || bytes.length === 0) throw homeCenterRenderInputError(label + ' is empty.');
+  if (bytes.length > HOME_CENTER_RENDER_MAX_SCRIPT_BYTES) throw homeCenterRenderInputError(label + ' exceeds max script size ' + HOME_CENTER_RENDER_MAX_SCRIPT_BYTES + ' bytes.', 413, 'input_validation');
+  if (bytes.includes(0)) throw homeCenterRenderInputError(label + ' must be a text Python script, not binary data.');
+}
+
+function renderStreamValidator(role, label) {
+  const hash = createHash('sha256');
+  let byteCount = 0;
+  let header = Buffer.alloc(0);
+  let sawNul = false;
+  const maxBytes = role === 'glb' ? HOME_CENTER_RENDER_MAX_GLB_BYTES : HOME_CENTER_RENDER_MAX_SCRIPT_BYTES;
+  const stream = new Transform({
+    transform(chunk, _encoding, callback) {
+      const bytes = Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk);
+      byteCount += bytes.length;
+      if (byteCount > maxBytes) return callback(homeCenterRenderInputError(label + ' exceeds max ' + role + ' size ' + maxBytes + ' bytes.', 413, 'input_validation'));
+      if (header.length < 12) header = Buffer.concat([header, bytes.slice(0, 12 - header.length)]);
+      if (role === 'script' && bytes.includes(0)) sawNul = true;
+      hash.update(bytes);
+      callback(null, bytes);
+    },
+    flush(callback) {
+      if (role === 'glb') {
+        if (byteCount < 12 || header.length < 12) return callback(homeCenterRenderInputError(label + ' is too small to be a GLB file.'));
+        if (header.slice(0, 4).toString('ascii') !== 'glTF') return callback(homeCenterRenderInputError(label + ' is not a GLB: missing glTF magic.'));
+        if (header.readUInt32LE(4) !== 2) return callback(homeCenterRenderInputError(label + ' must be GLB version 2.'));
+        if (header.readUInt32LE(8) !== byteCount) return callback(homeCenterRenderInputError(label + ' GLB length header does not match downloaded byte count.'));
+      } else {
+        if (byteCount === 0) return callback(homeCenterRenderInputError(label + ' is empty.'));
+        if (sawNul) return callback(homeCenterRenderInputError(label + ' must be a text Python script, not binary data.'));
+      }
+      callback();
+    },
+  });
+  stream.digest = () => ({sha256: hash.digest('hex'), byteCount});
+  return stream;
+}
+
+function renderReadableFromMedia(media) {
+  const data = media && media.data;
+  if (data && typeof data.pipe === 'function') return data;
+  return Readable.from([mediaBuffer(data)]);
+}
+
+function validateRenderMediaSize(size, role, label) {
+  const declared = Number(size || 0);
+  if (!Number.isFinite(declared) || declared <= 0) return;
+  const maxBytes = role === 'glb' ? HOME_CENTER_RENDER_MAX_GLB_BYTES : HOME_CENTER_RENDER_MAX_SCRIPT_BYTES;
+  if (declared > maxBytes) throw homeCenterRenderInputError(label + ' exceeds max ' + role + ' size ' + maxBytes + ' bytes.', 413, 'input_validation');
+}
+
+async function downloadDriveRenderInput({google, auth, ref, role}) {
+  try {
+    const drive = google.drive({version: 'v3', auth});
+    const fileId = driveRenderFileId(ref);
+    const meta = await drive.files.get({fileId, fields: 'id,name,mimeType,size,modifiedTime', supportsAllDrives: true});
+    const media = await drive.files.get({fileId, alt: 'media', supportsAllDrives: true}, {responseType: 'arraybuffer'});
+    const bytes = mediaBuffer(media.data);
+    validateHomeCenterRenderBytes(bytes, role, 'drive://' + fileId);
+    return {fileId, name: safeText(meta.data && meta.data.name, 240) || renderFallbackName(role), mimeType: safeText(meta.data && meta.data.mimeType, 160), bytes};
+  } catch (err) {
+    const wrapped = homeCenterRenderInputError('drive_input_download_auth_failed: Home Center could not download authorized Drive render input for ' + role + '.', err.status || err.code === 404 ? 404 : 401, 'drive_input_download_auth_failed');
+    wrapped.cause = err;
+    throw wrapped;
+  }
+}
+
+async function stageHomeCenterDriveRenderInput({google, auth, user, renderId, role, sourceRef}) {
+  if (!COMMAND_CENTER_RENDER_BUCKET) throw homeCenterRenderInputError('COMMAND_CENTER_RENDER_BUCKET is not configured for render input staging.', 503, 'transport');
+  const fileId = driveRenderFileId(sourceRef);
+  const label = 'drive://' + fileId;
+  try {
+    const drive = google.drive({version: 'v3', auth});
+    const meta = await drive.files.get({fileId, fields: 'id,name,mimeType,size,modifiedTime', supportsAllDrives: true});
+    validateRenderMediaSize(meta.data && meta.data.size, role, label);
+    const media = await drive.files.get({fileId, alt: 'media', supportsAllDrives: true}, {responseType: 'stream'});
+    const safeFile = cleanRenderUploadName(meta.data && meta.data.name, renderFallbackName(role));
+    const ownerKey = homeCenterRenderOwnerKey(user);
+    const basePrefix = 'command-center-render-inputs/home-center-bridge/' + ownerKey + '/' + (safeText(renderId, 180) || 'render') + '/';
+    const tempName = basePrefix + '.tmp-' + role + '-' + randomUUID() + '-' + safeFile;
+    const bucket = new Storage().bucket(COMMAND_CENTER_RENDER_BUCKET);
+    const tempFile = bucket.file(tempName);
+    const validator = renderStreamValidator(role, label);
+    try {
+      await pipeline(renderReadableFromMedia(media), validator, tempFile.createWriteStream({
+        resumable: false,
+        metadata: {contentType: safeText(meta.data && meta.data.mimeType, 160) || renderContentType(role)},
+      }));
+    } catch (err) {
+      await tempFile.delete({ignoreNotFound: true}).catch(() => null);
+      throw err;
+    }
+    const digest = validator.digest();
+    const finalName = basePrefix + role + '-' + digest.sha256 + '-' + safeFile;
+    await tempFile.move(finalName);
+    const finalFile = bucket.file(finalName);
+    await finalFile.setMetadata({
+      contentType: safeText(meta.data && meta.data.mimeType, 160) || renderContentType(role),
+      metadata: {sha256: digest.sha256, byteCount: String(digest.byteCount), role, materializedBy: 'home_center_mcp.command_center_operation', sourceKind: 'drive'},
+    });
+    return {ref: 'gs://' + COMMAND_CENTER_RENDER_BUCKET + '/' + finalName, sha256: digest.sha256, byteCount: digest.byteCount, fileName: safeFile, materializedFrom: role + 'DriveRef', sourceRef: label, materializedBy: 'home_center_mcp.command_center_operation'};
+  } catch (err) {
+    if (err && err.phase === 'input_validation') throw err;
+    const wrapped = homeCenterRenderInputError('drive_input_download_auth_failed: Home Center could not stream authorized Drive render input for ' + role + '.', err.status || err.code === 404 ? 404 : 401, 'drive_input_download_auth_failed');
+    wrapped.cause = err;
+    throw wrapped;
+  }
+}
+
+async function stageHomeCenterRenderInput({user, renderId, role, sourceRef, fileName, bytes, contentType}) {
+  if (!COMMAND_CENTER_RENDER_BUCKET) throw homeCenterRenderInputError('COMMAND_CENTER_RENDER_BUCKET is not configured for render input staging.', 503, 'transport');
+  const hash = sha256RenderBytes(bytes);
+  const safeFile = cleanRenderUploadName(fileName, renderFallbackName(role));
+  const objectName = 'command-center-render-inputs/home-center-bridge/' + homeCenterRenderOwnerKey(user) + '/' + (safeText(renderId, 180) || 'render') + '/' + role + '-' + hash + '-' + safeFile;
+  await new Storage().bucket(COMMAND_CENTER_RENDER_BUCKET).file(objectName).save(bytes, {
+    resumable: false,
+    metadata: {
+      contentType: contentType || renderContentType(role),
+      metadata: {sha256: hash, role, materializedBy: 'home_center_mcp.command_center_operation', sourceKind: sourceRef && sourceRef.startsWith('drive://') ? 'drive' : 'uploaded'},
+    },
+  });
+  return {ref: 'gs://' + COMMAND_CENTER_RENDER_BUCKET + '/' + objectName, sha256: hash, byteCount: bytes.length, fileName: safeFile, materializedFrom: sourceRef && sourceRef.startsWith('drive://') ? role + 'DriveRef' : role + 'File', sourceRef: sourceRef && sourceRef.startsWith('drive://') ? 'drive://' + driveRenderFileId(sourceRef) : '', materializedBy: 'home_center_mcp.command_center_operation'};
+}
+
+async function materializeHomeCenterRenderDriveRefs({google, admin, googleClientId, googleClientSecret, extra, args = {}}) {
+  const operationArgs = {...args};
+  const stagedInputs = Array.isArray(operationArgs.stagedInputs) ? operationArgs.stagedInputs.slice(0, 10) : [];
+  const refs = [['glbRef', 'glb'], ['scriptRef', 'script']];
+  if (!refs.some(([field]) => safeText(operationArgs[field], 1200).toLowerCase().startsWith('drive://'))) return operationArgs;
+  const {auth, user} = await requestGoogleContext(extra, google, admin, googleClientId, googleClientSecret);
+  const seed = safeText(operationArgs.idempotencyKey, 180) || randomUUID();
+  const renderId = safeText(operationArgs.renderId, 180) || 'render_' + createHash('sha256').update(homeCenterRenderOwnerKey(user) + ':' + seed).digest('hex').slice(0, 32);
+  operationArgs.renderId = renderId;
+  for (const [field, role] of refs) {
+    const ref = safeText(operationArgs[field], 1200);
+    if (!ref.toLowerCase().startsWith('drive://')) continue;
+    const staged = await stageHomeCenterDriveRenderInput({google, auth, user, renderId, role, sourceRef: ref});
+    operationArgs[field] = staged.ref;
+    stagedInputs.push(staged);
+  }
+  operationArgs.stagedInputs = stagedInputs;
+  return operationArgs;
+}
+
+function requireTopLevelRenderUpload(args = {}, fieldName) {
+  const value = args[fieldName];
+  if (!isMcpFileLike(value)) {
+    throw homeCenterRenderInputError(fieldName + ' must be a top-level uploaded MCP file. Do not pass a string path, URL, Base64, ref, or nested JSON descriptor.');
+  }
+  return value;
+}
+
+function normalizeDirectRenderBlenderGlbArgs(args = {}) {
+  requireTopLevelRenderUpload(args, 'glbFile');
+  requireTopLevelRenderUpload(args, 'scriptFile');
+  const forbidden = ['glbRef', 'scriptRef', 'scriptText', 'inlineScript', 'script'];
+  const providedForbidden = forbidden.filter((key) => safeText(args[key], HOME_CENTER_DIRECT_RENDER_TEXT_LIMIT + 1).length > 0);
+  if (providedForbidden.length) {
+    throw homeCenterRenderInputError('render_blender_glb accepts only top-level glbFile and scriptFile uploads for model/script sources. Use command_center_operation operation=render.blender_glb for ' + providedForbidden.join(', ') + '.');
+  }
+  return {
+    idempotencyKey: args.idempotencyKey,
+    renderId: args.renderId,
+    glbFile: args.glbFile,
+    scriptFile: args.scriptFile,
+    settings: safeObject(args.settings),
+    executionContract: safeObject(args.executionContract),
+    cache: args.cache,
+  };
+}
+
+async function renderBlenderGlbBridge({admin, extra, args = {}}) {
+  const operationArgs = normalizeDirectRenderBlenderGlbArgs(args);
+  return commandCenterRenderBlenderGlb(admin, extra, operationArgs);
+}
+
 function mcpTextContentJson(result, label) {
   const text = (((result || {}).content || []).find((item) => item && item.type === 'text') || {}).text || '';
   if (!text) return result;
   return parseJsonPayload(text, label);
 }
 
-async function commandCenterOperationRunOperation({extra, args = {}}) {
+async function commandCenterOperationRunOperation({google = null, admin = null, googleClientId = '', googleClientSecret = '', extra, args = {}}) {
   const operation = safeText(args.operation || args.type || args.toolName, 120);
   const toolName = commandCenterToolName(operation);
   const operationArgs = args.args && typeof args.args === 'object' && !Array.isArray(args.args) ? {...args.args} : {...args};
@@ -556,6 +793,11 @@ async function commandCenterOperationRunOperation({extra, args = {}}) {
   delete operationArgs.type;
   delete operationArgs.toolName;
   delete operationArgs.args;
+  if (operation === 'render.blender_glb' && google && admin) {
+    const materializedArgs = await materializeHomeCenterRenderDriveRefs({google, admin, googleClientId, googleClientSecret, extra, args: operationArgs});
+    return {operation, toolName, commandCenterMcpUrl: COMMAND_CENTER_MCP_URL, result: await commandCenterRenderBlenderGlb(admin, extra, materializedArgs)};
+  }
+
   const bearerToken = bearerTokenFromExtra(extra);
 
   await postCommandCenterMcp({
@@ -2503,6 +2745,253 @@ async function publishContextSnapshotOperation({google, admin, auth, user, args 
   return {...result, audit: audit.audit};
 }
 
+
+function cartesiaAudioArtifactFormat(args = {}) {
+  const format = safeText(args.format || args.container || 'wav', 20).toLowerCase();
+  if (format === 'wav' || format === 'wave') return {format: 'wav', extension: 'wav', mimeType: 'audio/wav'};
+  if (format === 'raw' || format === 'pcm') return {format: 'raw', extension: 'pcm', mimeType: 'application/octet-stream'};
+  const err = new Error('format must be wav or raw.');
+  err.status = 400;
+  throw err;
+}
+
+function safeArtifactName(value, fallback) {
+  const name = safeText(value, 240) || fallback;
+  return name.replace(/[\\/:*?"<>|]+/g, '-').replace(/\s+/g, ' ').trim().slice(0, 240) || fallback;
+}
+
+function normalizeCartesiaSegments(args = {}, defaultVoiceName = CARTESIA_DEFAULT_VOICE_NAME, defaultModelId = CARTESIA_DEFAULT_MODEL_ID, defaultVoiceId = '') {
+  const rawSegments = Array.isArray(args.segments) ? args.segments : [];
+  const segments = rawSegments.length ? rawSegments : [{
+    text: args.text || args.transcript,
+    speaker: args.speaker,
+    voiceName: args.voiceName,
+    voiceId: args.voiceId,
+    modelId: args.modelId,
+  }];
+  if (!segments.length || segments.length > 80) {
+    const err = new Error('segments must contain 1 to 80 items.');
+    err.status = 400;
+    throw err;
+  }
+  const normalized = segments.map((segment, index) => {
+    const item = segment && typeof segment === 'object' && !Array.isArray(segment) ? segment : {};
+    const text = safeText(item.text || item.transcript, 12000);
+    if (!text) {
+      const err = new Error('segments[' + index + '].text is required.');
+      err.status = 400;
+      throw err;
+    }
+    return {
+      index,
+      speaker: safeText(item.speaker || item.speakerName || item.character || item.characterId, 120),
+      text,
+      voiceName: safeText(item.voiceName, 120) || defaultVoiceName,
+      voiceId: safeText(item.voiceId, 160) || defaultVoiceId,
+      modelId: safeText(item.modelId, 120) || defaultModelId,
+    };
+  });
+  const totalChars = normalized.reduce((sum, segment) => sum + segment.text.length, 0);
+  if (totalChars > 48000) {
+    const err = new Error('segments total text must be 48000 characters or less.');
+    err.status = 400;
+    throw err;
+  }
+  return normalized;
+}
+
+function pcmSilenceBytes(sampleRate, pauseMs) {
+  const ms = Math.max(0, Math.min(5000, Math.floor(safeNumber(pauseMs, 0)) || 0));
+  if (!ms) return Buffer.alloc(0);
+  const sampleCount = Math.floor(sampleRate * ms / 1000);
+  return Buffer.alloc(sampleCount * 2);
+}
+
+function wavHeader(byteCount, sampleRate) {
+  const header = Buffer.alloc(44);
+  const channels = 1;
+  const bitsPerSample = 16;
+  const byteRate = sampleRate * channels * bitsPerSample / 8;
+  const blockAlign = channels * bitsPerSample / 8;
+  header.write('RIFF', 0, 'ascii');
+  header.writeUInt32LE(36 + byteCount, 4);
+  header.write('WAVE', 8, 'ascii');
+  header.write('fmt ', 12, 'ascii');
+  header.writeUInt32LE(16, 16);
+  header.writeUInt16LE(1, 20);
+  header.writeUInt16LE(channels, 22);
+  header.writeUInt32LE(sampleRate, 24);
+  header.writeUInt32LE(byteRate, 28);
+  header.writeUInt16LE(blockAlign, 32);
+  header.writeUInt16LE(bitsPerSample, 34);
+  header.write('data', 36, 'ascii');
+  header.writeUInt32LE(byteCount, 40);
+  return header;
+}
+
+function wrapPcmAsWav(pcm, sampleRate) {
+  return Buffer.concat([wavHeader(pcm.length, sampleRate), pcm]);
+}
+
+async function synthesizeCartesiaSegmentPcm({cartesiaApiKey, segment, sampleRate}) {
+  const speech = await openCartesiaStream(segment.text, {apiKeyGetter: cartesiaApiKey, voiceName: segment.voiceName, voiceId: segment.voiceId, modelId: segment.modelId, format: 'raw', sampleRate});
+  const audioResponse = speech.response;
+  if (!audioResponse.ok) {
+    const detail = await audioResponse.text().catch(() => '');
+    const err = new Error('Cartesia HTTP ' + audioResponse.status + (detail ? ': ' + safeText(detail, 500) : ''));
+    err.status = audioResponse.status;
+    throw err;
+  }
+  const pcm = mediaBuffer(await audioResponse.arrayBuffer());
+  if (!pcm.length) {
+    const err = new Error('Cartesia returned empty audio for segment ' + segment.index + '.');
+    err.status = 502;
+    throw err;
+  }
+  if ((pcm.length & 1) === 1) {
+    const err = new Error('Cartesia returned odd-length PCM for segment ' + segment.index + '.');
+    err.status = 502;
+    throw err;
+  }
+  return {pcm, voiceName: speech.voiceName, voiceId: speech.voiceId, modelId: speech.modelId, textCharCount: segment.text.length, speaker: segment.speaker, index: segment.index};
+}
+
+async function synthesizeCartesiaAudioBytes({cartesiaApiKey, args, audioFormat, sampleRate}) {
+  const segments = normalizeCartesiaSegments(args, safeText(args.voiceName, 120) || CARTESIA_DEFAULT_VOICE_NAME, safeText(args.modelId, 120) || CARTESIA_DEFAULT_MODEL_ID, safeText(args.voiceId, 160));
+  if (segments.length === 1 && !Array.isArray(args.segments)) {
+    const segment = segments[0];
+    const speech = await openCartesiaStream(segment.text, {apiKeyGetter: cartesiaApiKey, voiceName: segment.voiceName, voiceId: segment.voiceId, modelId: segment.modelId, format: audioFormat.format, sampleRate});
+    const audioResponse = speech.response;
+    if (!audioResponse.ok) {
+      const detail = await audioResponse.text().catch(() => '');
+      const err = new Error('Cartesia HTTP ' + audioResponse.status + (detail ? ': ' + safeText(detail, 500) : ''));
+      err.status = audioResponse.status;
+      throw err;
+    }
+    const audio = mediaBuffer(await audioResponse.arrayBuffer());
+    if (!audio.length) {
+      const err = new Error('Cartesia returned empty audio.');
+      err.status = 502;
+      throw err;
+    }
+    return {audio, segments: [{index: 0, speaker: segment.speaker, voiceName: speech.voiceName, voiceId: speech.voiceId, modelId: speech.modelId, textCharCount: segment.text.length}], segmentCount: 1};
+  }
+
+  const pause = pcmSilenceBytes(sampleRate, args.pauseMs);
+  const synthesized = [];
+  for (const segment of segments) {
+    synthesized.push(await synthesizeCartesiaSegmentPcm({cartesiaApiKey, segment, sampleRate}));
+  }
+  const pcmParts = [];
+  synthesized.forEach((segment, index) => {
+    if (index > 0 && pause.length) pcmParts.push(pause);
+    pcmParts.push(segment.pcm);
+  });
+  const pcm = Buffer.concat(pcmParts);
+  const audio = audioFormat.format === 'wav' ? wrapPcmAsWav(pcm, sampleRate) : pcm;
+  return {
+    audio,
+    segmentCount: synthesized.length,
+    stitched: true,
+    segmentPauseMs: Math.max(0, Math.min(5000, Math.floor(safeNumber(args.pauseMs, 0)) || 0)),
+    segments: synthesized.map((segment) => ({index: segment.index, speaker: segment.speaker, voiceName: segment.voiceName, voiceId: segment.voiceId, modelId: segment.modelId, textCharCount: segment.textCharCount, byteCount: segment.pcm.length})),
+  };
+}
+
+async function cartesiaVoicesOperation({cartesiaApiKey = () => '', args = {}}) {
+  const query = safeText(args.query || args.q, 120).toLowerCase();
+  const limit = chatGptLimit(args.limit, 40, 200);
+  const rawVoices = await listCartesiaVoices({apiKeyGetter: cartesiaApiKey});
+  const voices = rawVoices.map(normalizeCartesiaVoice).filter((voice) => {
+    if (!query) return true;
+    const haystack = (voice.name + ' ' + voice.category + ' ' + voice.description + ' ' + JSON.stringify(voice.labels || {})).toLowerCase();
+    return haystack.includes(query);
+  }).slice(0, limit);
+  return {provider: 'cartesia', query, limit, voices};
+}
+
+async function synthesizeCartesiaAudioArtifactOperation({google, admin, auth, user, cartesiaApiKey = () => '', args = {}}) {
+  const requestId = createRequestId(args.requestId);
+  const existing = await existingAudit(admin, requestId);
+  if (existing && existing.status === 'success' && existing.result) return {...existing.result, idempotent: true, audit: existing};
+
+  const audioFormat = cartesiaAudioArtifactFormat(args);
+  const sampleRate = Math.max(8000, Math.min(48000, Math.floor(safeNumber(args.sampleRate, 24000)) || 24000));
+  const parentFolderId = safeText(args.parentFolderId, 220) ? safeDriveFileId(args.parentFolderId) : '';
+  const fallbackName = 'cartesia-tts-' + requestId + '.' + audioFormat.extension;
+  const suppliedName = safeText(args.name || args.fileName || args.title, 240);
+  const baseName = safeArtifactName(suppliedName || fallbackName, fallbackName).replace(new RegExp('\\.' + audioFormat.extension + '$', 'i'), '');
+  const name = baseName + '.' + audioFormat.extension;
+  const synthesis = await synthesizeCartesiaAudioBytes({cartesiaApiKey, args, audioFormat, sampleRate});
+  const audio = synthesis.audio;
+  const digest = {byteCount: audio.length, sha256: sha256Hex(audio)};
+  const drive = google.drive({version: 'v3', auth});
+  const media = {mimeType: audioFormat.mimeType, body: Readable.from([audio])};
+  const created = await drive.files.create({
+    requestBody: {name, mimeType: audioFormat.mimeType, ...(parentFolderId ? {parents: [parentFolderId]} : {})},
+    media,
+    fields: driveFields(),
+    supportsAllDrives: true,
+  });
+  const metadata = cleanDriveFile(created.data || {});
+  const fileId = safeDriveFileId(metadata.id);
+  const after = await getDriveMetadata(drive, fileId).catch(() => metadata);
+  const readback = await drive.files.get({fileId, alt: 'media', supportsAllDrives: true}, {responseType: 'arraybuffer'});
+  const readbackBuffer = mediaBuffer(readback.data);
+  const readbackDigest = {byteCount: readbackBuffer.length, sha256: sha256Hex(readbackBuffer)};
+  if (readbackDigest.byteCount !== digest.byteCount || readbackDigest.sha256 !== digest.sha256) {
+    const err = new Error('Drive readback verification failed for ' + name + ': wrote ' + digest.byteCount + '/' + digest.sha256 + ', read ' + readbackDigest.byteCount + '/' + readbackDigest.sha256 + '.');
+    err.status = 502;
+    throw err;
+  }
+  const result = {
+    provider: 'cartesia',
+    fileId,
+    id: fileId,
+    name: after.name || metadata.name || name,
+    mimeType: after.mimeType || metadata.mimeType || audioFormat.mimeType,
+    webViewLink: after.webViewLink || metadata.webViewLink || '',
+    parentFolderId: ((after.parents || metadata.parents || [])[0]) || parentFolderId,
+    byteCount: digest.byteCount,
+    sha256: digest.sha256,
+    readbackByteCount: readbackDigest.byteCount,
+    readbackSha256: readbackDigest.sha256,
+    verified: true,
+    audioFormat: audioFormat.format,
+    sampleRate,
+    voiceName: synthesis.segments[0] ? synthesis.segments[0].voiceName : CARTESIA_DEFAULT_VOICE_NAME,
+    voiceId: synthesis.segments[0] ? synthesis.segments[0].voiceId : '',
+    modelId: synthesis.segments[0] ? synthesis.segments[0].modelId : CARTESIA_DEFAULT_MODEL_ID,
+    textCharCount: synthesis.segments.reduce((sum, segment) => sum + (segment.textCharCount || 0), 0),
+    segmentCount: synthesis.segmentCount,
+    stitched: Boolean(synthesis.stitched),
+    segmentPauseMs: synthesis.segmentPauseMs || 0,
+    segments: synthesis.segments,
+    metadata: after,
+    auditRequestId: requestId,
+  };
+  const audit = await auditWrite(admin, {
+    actor: user.email || user.uid || 'unknown',
+    authKind: user.authKind,
+    tool: 'tts.synthesize',
+    operation: 'tts.synthesize',
+    requestId,
+    fileId,
+    affectedFileIds: [fileId],
+    oldMetadata: null,
+    newMetadata: after,
+    oldParents: [],
+    newParents: after.parents || [],
+    reversible: false,
+    rollback: null,
+    callerNote: args.callerNote,
+    providerSummary: safeText(args.callerNote, 400) || 'Synthesized Cartesia audio artifact ' + name + ' (' + digest.byteCount + ' bytes, sha256 ' + digest.sha256 + ').',
+    result,
+  });
+  await recordActionAudit(admin, user, 'tts.synthesize', fileId, safeText(args.callerNote, 400) || 'Synthesized Cartesia audio artifact ' + name + ' (' + digest.byteCount + ' bytes).', requestId);
+  return {...result, audit: audit.audit};
+}
+
 async function appendGoogleDocOperation({google, admin, auth, user, args = {}}) {
   const requestId = createRequestId(args.requestId);
   const existing = await existingAudit(admin, requestId);
@@ -2773,9 +3262,9 @@ function runDroobiedooContextOperation(operation, args = {}) {
 
 function driveOperationRegistry() {
   return {
-    version: '2026-07-13.context-sync-publish-v1',
+    version: '2026-07-24.cartesia-segment-stitch-v1',
     invocationTool: 'drive_operation',
-    cachePolicy: 'New bridge, simulation, and Command Center operations should be invokable through drive_operation so ChatGPT does not need a top-level MCP tool refresh for every backend code change. Agents should rediscover this registry through capabilities or health before claiming an operation is unavailable.',
+    cachePolicy: 'New bridge and simulation operations should be invokable through drive_operation so ChatGPT does not need a top-level MCP tool refresh for every backend code change. Cartesia TTS is a direct Home Center MCP provider operation; it must not be routed through Command Center jobs or workers.',
     operations: {
       drive_create_folder: {
         summary: 'Create a Google Drive folder and audit the write.',
@@ -2809,6 +3298,26 @@ function driveOperationRegistry() {
           whenUserSays: 'Back up or sync Codex context, AGENTS.md, skills, memories, manifests, or other local text snapshots to Drive.',
           prefer: 'Call drive_operation with operation=context_sync.publish_snapshot. Use Home Center MCP only; do not use rclone for this workflow.',
           verification: 'Pass byteCount and sha256 from the local manifest. Treat verified=true as the acceptance signal because the operation reads the Drive media back and hashes it.',
+        },
+      },
+      'tts.voices': {
+        summary: 'List or search Cartesia voices by calling the hosted Cartesia provider directly from Home Center MCP; no Command Center job or worker is involved.',
+        write: false,
+        requiredScopes: [],
+        input: {query: 'optional string', limit: 'optional number'},
+        output: {provider: 'cartesia', voices: 'array'},
+      },
+      'tts.synthesize': {
+        summary: 'Synthesize one or more speaker segments with Cartesia directly, stitch them into one audio file, save it as a private Drive artifact, verify readback byte count and SHA-256, and audit the write. No Command Center job or worker is involved.',
+        write: true,
+        requiresRequestId: true,
+        requiredScopes: ['https://www.googleapis.com/auth/drive'],
+        input: {text: 'string for single-speaker synthesis, or omit when segments is supplied', segments: 'optional array of {speaker,text,voiceName,voiceId,modelId}; segments are synthesized separately and stitched in order', voiceName: 'optional default Cartesia voice name, default Katie - Friendly Fixer', voiceId: 'optional default Cartesia voice id', modelId: 'optional default Cartesia model id', format: 'optional wav or raw, default wav', sampleRate: 'optional number, default 24000', pauseMs: 'optional silence between stitched segments, default 0', name: 'optional Drive filename', parentFolderId: 'optional Drive folder id', requestId: 'string', callerNote: 'optional string'},
+        output: {provider: 'cartesia', fileId: 'string', webViewLink: 'string', byteCount: 'number', sha256: 'string', readbackByteCount: 'number', readbackSha256: 'string', verified: 'boolean', segmentCount: 'number', segments: 'array', voiceName: 'string', modelId: 'string', audit: 'object'},
+        agentRecipe: {
+          whenUserSays: 'Generate TTS, make speech, narrate text, produce a Cartesia audio file, or render multiple speakers into one stitched audio artifact from ChatGPT.',
+          prefer: 'Call cartesia_synthesize directly, or drive_operation with operation=tts.synthesize when the top-level alias is unavailable. Return the Drive link and verification metadata to the user; do not inline Base64 audio in chat. Do not create a Command Center job for Cartesia synthesis.',
+          verification: 'Treat verified=true with matching byteCount/SHA-256 readback and the returned segmentCount/segments as the acceptance signal.',
         },
       },
       workbook_import_xlsx: {
@@ -2879,7 +3388,7 @@ function commandCenterCompatOperation(args = {}) {
   );
 }
 
-async function driveOperationRunOperation({google, admin, auth, user, extra = null, args = {}}) {
+async function driveOperationRunOperation({google, admin, auth, user, extra = null, googleClientId = '', googleClientSecret = '', cartesiaApiKey = () => '', args = {}}) {
   const operation = safeText(args.operation || args.type || args.toolName, 120);
   if (!operation) throw Object.assign(new Error('operation is required.'), {status: 400});
   const registry = driveOperationRegistry();
@@ -2895,7 +3404,7 @@ async function driveOperationRunOperation({google, admin, auth, user, extra = nu
     delete operationArgs.command_center_operation;
     delete operationArgs.commandCenterTool;
     delete operationArgs.command_center_tool;
-    const result = await commandCenterOperationRunOperation({extra, args: {operation: compatCommandCenterOperation, args: operationArgs}});
+    const result = await commandCenterOperationRunOperation({google, admin, googleClientId, googleClientSecret, extra, args: {operation: compatCommandCenterOperation, args: operationArgs}});
     return {operation, compatibilityRoute: 'drive_operation.command_center', commandCenterOperation: compatCommandCenterOperation, registryVersion: registry.version, completed: true, result: result.result};
   }
   if (operation.startsWith('droobiedoo.')) {
@@ -2903,20 +3412,24 @@ async function driveOperationRunOperation({google, admin, auth, user, extra = nu
     return {operation, registryVersion: registry.version, completed: true, result};
   }
   if (operation.startsWith('command_center.')) {
-    const result = await commandCenterOperationRunOperation({extra, args: {operation, args: operationArgs}});
+    const result = await commandCenterOperationRunOperation({google, admin, googleClientId, googleClientSecret, extra, args: {operation, args: operationArgs}});
     return {operation, registryVersion: registry.version, completed: true, result: result.result};
   }
   if (simulationOperationRegistry().operations[operation]) {
     const result = await simulationOperationRunOperation({admin, user, args: {operation, args: operationArgs}});
     return {operation, registryVersion: registry.version, completed: true, result: result.result};
   }
+  if (operation === 'tts.voices') {
+    const result = await cartesiaVoicesOperation({cartesiaApiKey, args: operationArgs});
+    return {operation, registryVersion: registry.version, completed: true, result};
+  }
   const workflowId = safeOperationBatchId(args.operationBatchId || operationArgs.operationBatchId || operationArgs.requestId || ('drive-operation-' + randomUUID()));
   const outputs = {};
-  const result = await runDriveWorkflowOperation({google, admin, auth, user, workflowId, operation: {type: operation, ...operationArgs}, index: 0, outputs});
+  const result = await runDriveWorkflowOperation({google, admin, auth, user, workflowId, operation: {type: operation, ...operationArgs}, index: 0, outputs, cartesiaApiKey});
   return {operation, registryVersion: registry.version, workflowId, completed: result.status === 'completed', outputKey: result.outputKey || '', result: result.result, outputs};
 }
 
-async function runDriveWorkflowOperation({google, admin, auth, user, workflowId, operation, index, outputs}) {
+async function runDriveWorkflowOperation({google, admin, auth, user, workflowId, operation, index, outputs, cartesiaApiKey = () => ''}) {
   const type = safeText(operation.type || operation.toolName || operation.tool, 120);
   const requestId = workflowOperationRequestId(workflowId, operation, index);
   const callerNote = safeText(operation.callerNote, 800) || ('Workflow ' + workflowId + ' step ' + (index + 1) + ': ' + type);
@@ -2938,6 +3451,11 @@ async function runDriveWorkflowOperation({google, admin, auth, user, workflowId,
   if (type === 'context_sync.publish_snapshot') {
     const fileId = workflowResolvedId(operation.fileId || operation.targetFileId || operation.fileKey, outputs);
     const result = await publishContextSnapshotOperation({google, admin, auth, user, args: {...operation, fileId, requestId, callerNote, parentFolderId: workflowResolvedId(operation.parentFolderId || operation.parentFolderKey, outputs)}});
+    outputs[workflowOutputKey(operation, index)] = result.fileId || result.id || '';
+    return {index, type, requestId, status: 'completed', outputKey: workflowOutputKey(operation, index), result};
+  }
+  if (type === 'tts.synthesize') {
+    const result = await synthesizeCartesiaAudioArtifactOperation({google, admin, auth, user, cartesiaApiKey, args: {...operation, requestId, callerNote, parentFolderId: workflowResolvedId(operation.parentFolderId || operation.parentFolderKey, outputs)}});
     outputs[workflowOutputKey(operation, index)] = result.fileId || result.id || '';
     return {index, type, requestId, status: 'completed', outputKey: workflowOutputKey(operation, index), result};
   }
@@ -2983,7 +3501,7 @@ async function runDriveWorkflowOperation({google, admin, auth, user, workflowId,
   throw Object.assign(new Error('Unsupported workflow operation type: ' + type), {status: 400});
 }
 
-async function driveWorkflowRunOperation({google, admin, auth, user, args = {}}) {
+async function driveWorkflowRunOperation({google, admin, auth, user, cartesiaApiKey = () => '', args = {}}) {
   const workflowId = safeOperationBatchId(args.workflowId || args.operationBatchId);
   const operations = Array.isArray(args.operations) ? args.operations.slice(0, 25) : [];
   if (!operations.length) throw Object.assign(new Error('operations must contain at least one operation.'), {status: 400});
@@ -3029,7 +3547,7 @@ async function driveWorkflowRunOperation({google, admin, auth, user, args = {}})
   const results = [];
   try {
     for (let index = 0; index < operations.length; index += 1) {
-      const result = await runDriveWorkflowOperation({google, admin, auth, user, workflowId, operation: operations[index] || {}, index, outputs});
+      const result = await runDriveWorkflowOperation({google, admin, auth, user, workflowId, operation: operations[index] || {}, index, outputs, cartesiaApiKey});
       results.push(result);
       await workflowRef.set({status: 'running', updatedAtMs: nowMs(), outputs, results}, {merge: true});
     }
@@ -3044,7 +3562,7 @@ async function driveWorkflowRunOperation({google, admin, auth, user, args = {}})
   }
 }
 
-function createHomeCenterMcpServer({google, admin, googleClientId, googleClientSecret, githubToken = () => ''}) {
+function createHomeCenterMcpServer({google, admin, googleClientId, googleClientSecret, githubToken = () => '', cartesiaApiKey = () => ''}) {
   const server = new McpServer({
     name: 'home-center-drive-bridge',
     version: '0.1.0',
@@ -3247,6 +3765,66 @@ function createHomeCenterMcpServer({google, admin, googleClientId, googleClientS
     return textResult(await simulationOperationRunOperation({admin, user, args: args || {}}));
   });
 
+  server.registerTool('render_blender_glb', {
+    title: 'Render GLB with Blender',
+    description: 'Top-level file-bearing Blender renderer for ChatGPT Work Mode. Use this instead of command_center_operation when supplying uploaded GLB or Python files; nested dispatcher args cannot activate host file upload slots.',
+    inputSchema: {
+      idempotencyKey: z.string().describe('Stable idempotency key for this render request.'),
+      renderId: z.string().optional().describe('Optional caller-provided render id.'),
+      glbFile: z.file().describe('Required top-level uploaded binary GLB file. This must be a ChatGPT Work Mode host file upload, not a string path, URL, Base64, ref, or JSON descriptor.'),
+      scriptFile: z.file().describe('Required top-level uploaded Blender Python .py file. This must be a ChatGPT Work Mode host file upload, not a string path, URL, Base64, ref, or JSON descriptor.'),
+      settings: z.record(z.string(), z.any()).optional().describe('Optional renderer settings already supported by the Blender backend.'),
+      executionContract: z.record(z.string(), z.any()).optional().describe('Optional execution contract metadata for the Blender backend.'),
+      cache: z.boolean().optional().describe('Use cached render artifacts when the backend cache key already exists. Defaults to true.'),
+    },
+    securitySchemes: MCP_OAUTH_SECURITY_SCHEMES,
+    _meta: {securitySchemes: MCP_OAUTH_SECURITY_SCHEMES},
+    annotations: {readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false},
+  }, async (args, extra) => textResult(await renderBlenderGlbBridge({admin, extra, args: args || {}})));
+
+  server.registerTool('cartesia_voices', {
+    title: 'Cartesia voices',
+    description: 'List or search Cartesia voices by calling the hosted Cartesia provider directly from Home Center MCP. This does not create or inspect Command Center jobs, workers, leases, or Codex sessions.',
+    inputSchema: {
+      query: z.string().optional().describe('Optional text to search voice names, categories, descriptions, and labels.'),
+      limit: z.number().int().min(1).max(200).default(40),
+    },
+    securitySchemes: MCP_OAUTH_SECURITY_SCHEMES,
+    _meta: {securitySchemes: MCP_OAUTH_SECURITY_SCHEMES},
+    annotations: {readOnlyHint: true, openWorldHint: true},
+  }, async (args) => textResult(await cartesiaVoicesOperation({cartesiaApiKey, args: args || {}})));
+
+  server.registerTool('cartesia_synthesize', {
+    title: 'Cartesia synthesize',
+    description: 'Synthesize one or more speaker segments with Cartesia directly, stitch them into one audio file, save it as a private Drive artifact, verify readback byte count and SHA-256, and audit the write. This does not use Command Center jobs or workers.',
+    inputSchema: {
+      text: z.string().optional().describe('Single-speaker text. Omit when segments is supplied.'),
+      segments: z.array(z.object({
+        speaker: z.string().optional(),
+        text: z.string(),
+        voiceName: z.string().optional(),
+        voiceId: z.string().optional(),
+        modelId: z.string().optional(),
+      })).optional().describe('Ordered speaker segments. Each segment is synthesized separately with its own optional Cartesia voice and then stitched into one output file.'),
+      voiceName: z.string().optional().describe('Default Cartesia voice name for segments that do not specify one.'),
+      voiceId: z.string().optional().describe('Default Cartesia voice id for segments that do not specify one.'),
+      modelId: z.string().optional().describe('Default Cartesia model id.'),
+      format: z.enum(['wav', 'raw']).optional().default('wav'),
+      sampleRate: z.number().int().min(8000).max(48000).default(24000),
+      pauseMs: z.number().int().min(0).max(5000).optional().describe('Optional silence inserted between stitched segments. Defaults to 0.'),
+      name: z.string().optional().describe('Optional Drive filename.'),
+      parentFolderId: z.string().optional().describe('Optional Drive folder ID for the audio artifact.'),
+      callerNote: z.string().optional().describe('Human-readable summary for the audit log.'),
+      requestId: z.string().describe('Stable idempotency/audit request id. Required.'),
+    },
+    securitySchemes: MCP_OAUTH_SECURITY_SCHEMES,
+    _meta: {securitySchemes: MCP_OAUTH_SECURITY_SCHEMES},
+    annotations: {readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: true},
+  }, async (args, extra) => {
+    const {auth, user} = await requestGoogleContext(extra, google, admin, googleClientId, googleClientSecret);
+    return textResult(await synthesizeCartesiaAudioArtifactOperation({google, admin, auth, user, cartesiaApiKey, args: args || {}}));
+  });
+
   server.registerTool('command_center_operation', {
     title: 'Command Center operation',
     description: 'Invoke Command Center dispatch and job-control operations through the already-connected Home Center MCP app. Use this when ChatGPT needs to create a follow-up worker job, inspect events/artifacts, answer worker questions, or authorize a mutation without relying on a separate Command Center connector namespace.',
@@ -3257,7 +3835,7 @@ function createHomeCenterMcpServer({google, admin, googleClientId, googleClientS
     securitySchemes: MCP_OAUTH_SECURITY_SCHEMES,
     _meta: {securitySchemes: MCP_OAUTH_SECURITY_SCHEMES},
     annotations: {readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: true},
-  }, async (args, extra) => textResult(await commandCenterOperationRunOperation({extra, args: args || {}})));
+  }, async (args, extra) => textResult(await commandCenterOperationRunOperation({google, admin, googleClientId, googleClientSecret, extra, args: args || {}})));
 
 
 
@@ -3364,7 +3942,7 @@ function createHomeCenterMcpServer({google, admin, googleClientId, googleClientS
     tools: [
       'health', 'capabilities', 'auth_status', 'storage_status', 'audit_status',
       'drive_search', 'drive_read', 'sheets_search', 'sheets_read', 'drive_list_folder', 'drive_get_metadata',
-      'simulation_operation', 'command_center_operation',
+      'simulation_operation', 'command_center_operation', 'cartesia_voices', 'cartesia_synthesize',
       'drive_operation', 'drive_create_folder', 'docs_create', 'workbook_import_xlsx', 'sheets_create', 'sheets_update_values', 'drive_move', 'drive_rename',
       'drive_plan_organize', 'drive_execute_plan',
       'index_folder', 'index_status',
@@ -3393,10 +3971,10 @@ function createHomeCenterMcpServer({google, admin, googleClientId, googleClientS
   }, async (args, extra) => {
     const operation = safeText((args || {}).operation || (args || {}).type || (args || {}).toolName, 120);
     if (operation.startsWith('command_center.') || commandCenterCompatOperation(args || {})) {
-      return textResult(await driveOperationRunOperation({google, admin, auth: null, user: null, extra, args: args || {}}));
+      return textResult(await driveOperationRunOperation({google, admin, auth: null, user: null, extra, googleClientId, googleClientSecret, cartesiaApiKey, args: args || {}}));
     }
     const {auth, user} = await requestGoogleContext(extra, google, admin, googleClientId, googleClientSecret);
-    return textResult(await driveOperationRunOperation({google, admin, auth, user, extra, args: args || {}}));
+    return textResult(await driveOperationRunOperation({google, admin, auth, user, extra, googleClientId, googleClientSecret, cartesiaApiKey, args: args || {}}));
   });
 
   server.registerTool('auth_status', {
@@ -3960,7 +4538,7 @@ function createHomeCenterMcpServer({google, admin, googleClientId, googleClientS
     annotations: {readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: true},
   }, async (args, extra) => {
     const {auth, user} = await requestGoogleContext(extra, google, admin, googleClientId, googleClientSecret);
-    return textResult(await driveWorkflowRunOperation({google, admin, auth, user, args: args || {}}));
+    return textResult(await driveWorkflowRunOperation({google, admin, auth, user, cartesiaApiKey, args: args || {}}));
   });
 
   server.registerTool('recovery_checkpoint', {
@@ -4067,7 +4645,7 @@ function createHomeCenterMcpServer({google, admin, googleClientId, googleClientS
   return server;
 }
 
-function createHomeCenterMcpApp({google, admin, googleClientId = () => '', googleClientSecret = () => '', githubToken = () => ''}) {
+function createHomeCenterMcpApp({google, admin, googleClientId = () => '', googleClientSecret = () => '', githubToken = () => '', cartesiaApiKey = () => ''}) {
   const app = express();
   app.use(express.json({limit: '80mb'}));
   app.use(express.urlencoded({extended: false, limit: '256kb'}));
@@ -4495,7 +5073,7 @@ function createHomeCenterMcpApp({google, admin, googleClientId = () => '', googl
     res.on('close', () => {
       delete transports[transport.sessionId];
     });
-    const server = createHomeCenterMcpServer({google, admin, googleClientId, googleClientSecret, githubToken});
+    const server = createHomeCenterMcpServer({google, admin, googleClientId, googleClientSecret, githubToken, cartesiaApiKey});
     await server.connect(transport);
   });
 
@@ -4521,7 +5099,7 @@ function createHomeCenterMcpApp({google, admin, googleClientId = () => '', googl
       res.status(405).json({jsonrpc: '2.0', error: {code: -32000, message: 'Method not allowed.'}, id: null});
       return;
     }
-      const server = createHomeCenterMcpServer({google, admin, googleClientId, googleClientSecret, githubToken});
+      const server = createHomeCenterMcpServer({google, admin, googleClientId, googleClientSecret, githubToken, cartesiaApiKey});
     const transport = new StreamableHTTPServerTransport({sessionIdGenerator: undefined});
     let closed = false;
     const closeTransport = async () => {
@@ -4550,4 +5128,4 @@ function createHomeCenterMcpApp({google, admin, googleClientId = () => '', googl
   return app;
 }
 
-module.exports = {createHomeCenterMcpApp, createHomeCenterMcpServer, createDriveFolderOperation, createGoogleDocOperation, appendGoogleDocOperation, publishContextSnapshotOperation, createSheetOperation, updateSheetValuesOperation, importXlsxWorkbookOperation, driveOperationRunOperation, driveWorkflowRunOperation, simulationOperationRunOperation, simulationOperationRegistry, droobiedooContextOperationEntries, loadDroobiedooContextIndex, searchDroobiedooContextIndex, runDroobiedooContextOperation, normalizeRecoveryOperation, summarizeRecoveryOperations, loadMcpAccessContext};
+module.exports = {createHomeCenterMcpApp, createHomeCenterMcpServer, createDriveFolderOperation, createGoogleDocOperation, appendGoogleDocOperation, publishContextSnapshotOperation, synthesizeCartesiaAudioArtifactOperation, cartesiaVoicesOperation, createSheetOperation, updateSheetValuesOperation, importXlsxWorkbookOperation, driveOperationRunOperation, driveWorkflowRunOperation, simulationOperationRunOperation, simulationOperationRegistry, droobiedooContextOperationEntries, loadDroobiedooContextIndex, searchDroobiedooContextIndex, runDroobiedooContextOperation, normalizeRecoveryOperation, summarizeRecoveryOperations, loadMcpAccessContext, materializeHomeCenterRenderDriveRefs};
