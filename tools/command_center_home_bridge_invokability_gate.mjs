@@ -14,6 +14,7 @@ function parseArgs(argv) {
     bearerToken: process.env.HOME_CENTER_MCP_BEARER_TOKEN || process.env.HOME_CENTER_COMMAND_CENTER_BEARER_TOKEN || '',
     tokenConfig: process.env.HOME_CENTER_CODEX_CONFIG || path.join(homedir(), '.config', 'home-center', 'codex-hub.json'),
     json: false,
+    catalogOnly: false,
   };
   for (let i = 0; i < argv.length; i += 1) {
     const arg = argv[i];
@@ -23,6 +24,7 @@ function parseArgs(argv) {
     else if (arg === '--bearer-token') args.bearerToken = argv[++i];
     else if (arg === '--token-config') args.tokenConfig = argv[++i];
     else if (arg === '--json') args.json = true;
+    else if (arg === '--catalog-only') args.catalogOnly = true;
     else if (arg === '--help') {
       console.log('Usage: node tools/command_center_home_bridge_invokability_gate.mjs [--mcp-url URL] [--run-id ID] [--evidence-dir DIR] [--bearer-token TOKEN] [--json]');
       process.exit(0);
@@ -110,6 +112,23 @@ function toolContentJson(payload, label) {
   return parseJson(text, label);
 }
 
+function hasBinaryFileSchema(field) {
+  if (!field || typeof field !== 'object') return false;
+  const markers = [field.format, field.contentEncoding, field.contentMediaType, field.description, field.type].filter(Boolean).join(' ').toLowerCase();
+  return /binary|file|octet|gltf|python|uploaded/.test(markers);
+}
+
+function renderBlenderGlbToolFileContract(tool) {
+  const schema = tool?.inputSchema || tool?.input_schema || {};
+  const props = schema.properties || {};
+  const required = Array.isArray(schema.required) ? schema.required : [];
+  return {
+    ok: hasBinaryFileSchema(props.glbFile) && hasBinaryFileSchema(props.scriptFile) && required.includes('glbFile') && required.includes('scriptFile') && required.includes('idempotencyKey') && !props.glbRef && !props.scriptRef && !props.scriptText,
+    properties: Object.fromEntries(['glbFile', 'scriptFile', 'glbRef', 'scriptRef', 'scriptText', 'idempotencyKey'].map((key) => [key, props[key] || null])),
+    required,
+  };
+}
+
 function redactForEvidence(value) {
   if (Array.isArray(value)) return value.map(redactForEvidence);
   if (!value || typeof value !== 'object') {
@@ -136,6 +155,12 @@ async function main() {
   const unauth = await fetch(args.mcpUrl, {method: 'POST', headers: {'content-type': 'application/json'}, body: JSON.stringify({jsonrpc: '2.0', id: 1, method: 'initialize', params: {}})});
   add('home_mcp_requires_auth', unauth.status === 401, {status: unauth.status, wwwAuthenticate: unauth.headers.get('www-authenticate') || ''});
 
+  const base = args.mcpUrl.replace(/\/mcp(?:\?.*)?$/, '');
+  const resourceMetadataResponse = await fetch(`${base}/.well-known/oauth-protected-resource`);
+  const resourceMetadataText = await resourceMetadataResponse.text();
+  const resourceMetadata = parseJson(resourceMetadataText, 'home protected resource metadata');
+  add('protected_resource_metadata_exposes_catalog_revision', resourceMetadataResponse.status === 200 && resourceMetadata.connector_schema_revision === '2026-07-25.blender-direct-file-catalog-v1' && Array.isArray(resourceMetadata.direct_file_tools) && resourceMetadata.direct_file_tools.includes('render_blender_glb'), {status: resourceMetadataResponse.status, connector_schema_revision: resourceMetadata.connector_schema_revision || '', registry_version: resourceMetadata.registry_version || '', direct_file_tools: resourceMetadata.direct_file_tools || []});
+
   const init = await postMcp(args.mcpUrl, args.bearerToken, {
     jsonrpc: '2.0',
     id: 10,
@@ -145,11 +170,43 @@ async function main() {
   add('home_mcp_initialize_200', init.status === 200, {status: init.status, contentType: init.headers['content-type'] || ''});
   await postMcp(args.mcpUrl, args.bearerToken, {jsonrpc: '2.0', method: 'notifications/initialized', params: {}}).catch(() => null);
 
+  const healthTool = await postMcp(args.mcpUrl, args.bearerToken, {jsonrpc: '2.0', id: 9, method: 'tools/call', params: {name: 'health', arguments: {}}});
+  const healthToolJson = parseMcpResponse(healthTool.text, 'home health');
+  const healthToolContent = toolContentJson(healthToolJson, 'home health content');
+  add('home_health_reports_live_catalog_revision', healthTool.status === 200 && healthToolContent.registryVersion === '2026-07-25.blender-direct-file-catalog-v1' && healthToolContent.connectorSchemaRevision === '2026-07-25.blender-direct-file-catalog-v1' && Array.isArray(healthToolContent.directFileTools) && healthToolContent.directFileTools.includes('render_blender_glb'), {status: healthTool.status, registryVersion: healthToolContent.registryVersion || '', connectorSchemaRevision: healthToolContent.connectorSchemaRevision || '', directFileTools: healthToolContent.directFileTools || []});
+
   const listed = await postMcp(args.mcpUrl, args.bearerToken, {jsonrpc: '2.0', id: 11, method: 'tools/list', params: {}});
   const listJson = parseMcpResponse(listed.text, 'home tools/list');
   const toolNames = (listJson.result?.tools || []).map((tool) => tool.name).sort();
   add('home_tools_list_contains_command_center_operation', listed.status === 200 && toolNames.includes('command_center_operation'), {status: listed.status, count: toolNames.length, toolNames});
   add('home_tools_list_contains_drive_operation', listed.status === 200 && toolNames.includes('drive_operation'), {status: listed.status});
+  const renderTool = (listJson.result?.tools || []).find((tool) => tool.name === 'render_blender_glb');
+  const renderContract = renderBlenderGlbToolFileContract(renderTool);
+  add('home_tools_list_contains_top_level_render_blender_glb', listed.status === 200 && toolNames.includes('render_blender_glb'), {status: listed.status});
+  add('render_blender_glb_top_level_file_contract_discoverable', listed.status === 200 && renderContract.ok, {status: listed.status, renderContract});
+
+  if (args.catalogOnly) {
+    const result = {
+      ok: checks.every((check) => check.ok),
+      mcpUrl: args.mcpUrl,
+      tokenSource: typeof tokenInfo === 'string' ? 'protocol-fallback' : tokenInfo.source,
+      tokenRefreshed: typeof tokenInfo === 'string' ? false : tokenInfo.refreshed,
+      tokenLoadReason: typeof tokenInfo === 'string' ? 'token config missing' : tokenInfo.reason,
+      catalogOnly: true,
+      checks,
+      toolNames,
+      renderContract,
+      resourceMetadata: redactForEvidence(resourceMetadata),
+      health: redactForEvidence(healthToolContent),
+      generatedAt: new Date().toISOString(),
+    };
+    const evidencePath = path.join(evidenceDir, `command_center_home_bridge_invokability_${args.runId}.json`);
+    fs.writeFileSync(evidencePath, JSON.stringify(redactForEvidence(result), null, 2) + '\n');
+    const summary = {ok: result.ok, evidencePath, failed: checks.filter((check) => !check.ok), catalogOnly: true};
+    console.log(JSON.stringify(summary, null, args.json ? 0 : 2));
+    if (!result.ok) process.exit(1);
+    return;
+  }
 
   const capabilities = await postMcp(args.mcpUrl, args.bearerToken, {
     jsonrpc: '2.0',

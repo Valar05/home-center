@@ -3,7 +3,16 @@ import assert from 'node:assert/strict';
 import {createRequire} from 'node:module';
 
 const require = createRequire(import.meta.url);
-const {createHomeCenterMcpServer} = require('../functions/home_center_mcp.js');
+const {
+  HOME_CENTER_CONNECTOR_SCHEMA_REVISION,
+  HOME_CENTER_DIRECT_FILE_TOOLS,
+  HOME_CENTER_REGISTRY_VERSION,
+  createHomeCenterMcpServer,
+} = require('../functions/home_center_mcp.js');
+
+assert.match(HOME_CENTER_CONNECTOR_SCHEMA_REVISION, /^2026-07-25\.blender-direct-file-catalog-v1$/);
+assert.equal(HOME_CENTER_REGISTRY_VERSION, HOME_CENTER_CONNECTOR_SCHEMA_REVISION);
+assert.deepEqual([...HOME_CENTER_DIRECT_FILE_TOOLS], ['render_blender_glb']);
 
 const server = createHomeCenterMcpServer({google: {}, admin: {}, googleClientId: '', googleClientSecret: ''});
 const toolNames = Object.keys(server._registeredTools || {}).filter((name) => name === 'render_blender_glb');
@@ -27,6 +36,17 @@ assert.match(props.scriptFile?.description || '', /top-level uploaded Blender Py
 assert.equal(props.glbRef, undefined, 'direct tool must not advertise glbRef');
 assert.equal(props.scriptRef, undefined, 'direct tool must not advertise scriptRef');
 assert.equal(props.scriptText, undefined, 'direct tool must not advertise scriptText');
+
+const healthResult = await server._registeredTools.health.handler({}, {});
+const health = JSON.parse(healthResult.content[0].text);
+assert.equal(health.registryVersion, HOME_CENTER_REGISTRY_VERSION);
+assert.equal(health.connectorSchemaRevision, HOME_CENTER_CONNECTOR_SCHEMA_REVISION);
+assert.equal(health.catalogCacheKey, HOME_CENTER_CONNECTOR_SCHEMA_REVISION);
+assert.deepEqual(health.directFileTools, ['render_blender_glb']);
+assert.deepEqual(health.directToolContracts.render_blender_glb.required, ['idempotencyKey', 'glbFile', 'scriptFile']);
+assert.equal(health.directToolContracts.render_blender_glb.binaryInputs.glbFile.format, 'binary');
+assert.equal(health.discoverability.topLevelDirectTools.render_blender_glb.status, 'published');
+assert.equal(health.discoverability.commandCenter.registryVersion, HOME_CENTER_REGISTRY_VERSION);
 
 const registeredTool = server._registeredTools.render_blender_glb;
 const stringResult = registeredTool.inputSchema.safeParse({idempotencyKey: 'render-test', glbFile: '/tmp/a.glb', scriptFile: '/tmp/render.py'});

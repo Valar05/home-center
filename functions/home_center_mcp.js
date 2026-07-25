@@ -19,6 +19,10 @@ const {renderAudioOperation, inspectAudioArtifactsOperation, uploadVerified: upl
 
 const DEFAULT_MCP_PUBLIC_BASE = 'https://us-central1-home-center-dclar.cloudfunctions.net/homeCenterMcp';
 const MCP_PUBLIC_BASE = process.env.HOME_CENTER_MCP_PUBLIC_BASE || DEFAULT_MCP_PUBLIC_BASE;
+const HOME_CENTER_MCP_SERVER_VERSION = '0.1.1';
+const HOME_CENTER_CONNECTOR_SCHEMA_REVISION = '2026-07-25.blender-direct-file-catalog-v1';
+const HOME_CENTER_REGISTRY_VERSION = HOME_CENTER_CONNECTOR_SCHEMA_REVISION;
+const HOME_CENTER_DIRECT_FILE_TOOLS = Object.freeze(['render_blender_glb']);
 const MCP_RESOURCE = `${MCP_PUBLIC_BASE}/mcp`;
 const MCP_RESOURCE_METADATA = `${MCP_PUBLIC_BASE}/.well-known/oauth-protected-resource`;
 const MCP_LEGACY_RESOURCE_METADATA = `${MCP_PUBLIC_BASE}/oauth-protected-resource`;
@@ -502,7 +506,7 @@ function parseMcpPayload(text, label) {
 
 function commandCenterOperationRegistry() {
   return {
-    version: '2026-07-24.blender-github-source-v1',
+    version: HOME_CENTER_REGISTRY_VERSION,
     invocationTool: 'command_center_operation',
     commandCenterMcpUrl: COMMAND_CENTER_MCP_URL,
     purpose: 'Expose Command Center dispatch and managed knowledge-bucket operations through the already-installed Home Center MCP connector so ChatGPT can create, inspect, resume, revise, authorize, and preserve worker knowledge without discovering a second MCP app.',
@@ -1153,6 +1157,11 @@ function oauthProtectedResourceMetadata() {
   return {
     resource: MCP_RESOURCE,
     resource_name: 'Home Center Drive Bridge',
+    service_version: HOME_CENTER_MCP_SERVER_VERSION,
+    registry_version: HOME_CENTER_REGISTRY_VERSION,
+    connector_schema_revision: HOME_CENTER_CONNECTOR_SCHEMA_REVISION,
+    catalog_cache_key: HOME_CENTER_CONNECTOR_SCHEMA_REVISION,
+    direct_file_tools: HOME_CENTER_DIRECT_FILE_TOOLS,
     authorization_servers: [MCP_PUBLIC_BASE],
     scopes_supported: MCP_REQUIRED_SCOPES,
     bearer_methods_supported: ['header'],
@@ -1168,6 +1177,9 @@ function oauthChallenge() {
 function authorizationServerMetadata() {
   return {
     issuer: MCP_PUBLIC_BASE,
+    service_version: HOME_CENTER_MCP_SERVER_VERSION,
+    registry_version: HOME_CENTER_REGISTRY_VERSION,
+    connector_schema_revision: HOME_CENTER_CONNECTOR_SCHEMA_REVISION,
     authorization_endpoint: `${MCP_PUBLIC_BASE}/oauth/authorize`,
     token_endpoint: `${MCP_PUBLIC_BASE}/oauth/token`,
     registration_endpoint: `${MCP_PUBLIC_BASE}/oauth/register`,
@@ -4325,7 +4337,7 @@ async function driveWorkflowRunOperation({google, admin, auth, user, cartesiaApi
 function createHomeCenterMcpServer({google, admin, googleClientId, googleClientSecret, githubToken = () => '', githubAdmin = {}, cartesiaApiKey = () => ''}) {
   const server = new McpServer({
     name: 'home-center-drive-bridge',
-    version: '0.1.0',
+    version: HOME_CENTER_MCP_SERVER_VERSION,
   });
 
   server.registerTool('health', {
@@ -4337,7 +4349,22 @@ function createHomeCenterMcpServer({google, admin, googleClientId, googleClientS
   }, async () => textResult({
     ok: true,
     service: 'home-center-drive-bridge',
-    version: '0.1.0',
+    version: HOME_CENTER_MCP_SERVER_VERSION,
+    registryVersion: HOME_CENTER_REGISTRY_VERSION,
+    connectorSchemaRevision: HOME_CENTER_CONNECTOR_SCHEMA_REVISION,
+    catalogCacheKey: HOME_CENTER_CONNECTOR_SCHEMA_REVISION,
+    publicMcpResource: MCP_RESOURCE,
+    directFileTools: HOME_CENTER_DIRECT_FILE_TOOLS,
+    directToolContracts: {
+      render_blender_glb: {
+        required: ['idempotencyKey', 'glbFile', 'scriptFile'],
+        binaryInputs: {
+          glbFile: {type: 'string', format: 'binary', contentEncoding: 'binary'},
+          scriptFile: {type: 'string', format: 'binary', contentEncoding: 'binary'},
+        },
+        dispatcherForRefsAndInlineScripts: 'command_center_operation operation=render.blender_glb',
+      },
+    },
     discoverability: {
       noReinstallPath: 'No-Reinstall Discovery Contract: use this health response first; it contains shallow Command Center discovery so agents do not have to drill nested capabilities. Use capabilities only for full operation catalogs.',
       preferredMutationTool: 'drive_operation',
@@ -4355,6 +4382,14 @@ function createHomeCenterMcpServer({google, admin, googleClientId, googleClientS
           staleEnumSchemaCall: {tool: 'drive_operation', operation: 'drive_create_folder', args: {commandCenterOperation: 'health'}},
           followupJobCall: {tool: 'command_center_operation', operation: 'jobs.create_followup', args: {sourceJobId: 'job_...', title: '...', objective: '...', idempotencyKey: 'stable-request-id'}},
           reconnectAdvice: 'If health shows an older registry or drive_operation rejects command_center.* before reaching the backend, reconnect/reindex the Home Drive v4 app link. OAuth refresh alone does not reload tool schema.',
+        },
+      },
+      topLevelDirectTools: {
+        render_blender_glb: {
+          status: 'published',
+          purpose: 'ChatGPT Work Mode host-file upload slots for GLB and Blender Python files.',
+          required: ['idempotencyKey', 'glbFile', 'scriptFile'],
+          connectorSchemaRevision: HOME_CENTER_CONNECTOR_SCHEMA_REVISION,
         },
       },
       commandCenter: {
@@ -4626,7 +4661,11 @@ function createHomeCenterMcpServer({google, admin, googleClientId, googleClientS
     annotations: {readOnlyHint: true, openWorldHint: false},
   }, async () => textResult({
     service: 'home-center-drive-bridge',
-    version: '0.1.0',
+    version: HOME_CENTER_MCP_SERVER_VERSION,
+    registryVersion: HOME_CENTER_REGISTRY_VERSION,
+    connectorSchemaRevision: HOME_CENTER_CONNECTOR_SCHEMA_REVISION,
+    catalogCacheKey: HOME_CENTER_CONNECTOR_SCHEMA_REVISION,
+    directFileTools: HOME_CENTER_DIRECT_FILE_TOOLS,
     operationRegistryVersion: driveOperationRegistry().version,
     simulationOperationRegistryVersion: simulationOperationRegistry().version,
     commandCenterOperationRegistryVersion: commandCenterOperationRegistry().version,
@@ -5528,7 +5567,8 @@ function createHomeCenterMcpApp({google, admin, googleClientId = () => '', googl
   const transports = {};
 
   app.get('/', (_req, res) => {
-    res.json({ok: true, service: 'home-center-drive-bridge', endpoints: ['/sse', '/messages', '/mcp'], oauthProtectedResource: MCP_RESOURCE_METADATA});
+    res.set('Cache-Control', 'no-store');
+    res.json({ok: true, service: 'home-center-drive-bridge', version: HOME_CENTER_MCP_SERVER_VERSION, registryVersion: HOME_CENTER_REGISTRY_VERSION, connectorSchemaRevision: HOME_CENTER_CONNECTOR_SCHEMA_REVISION, catalogCacheKey: HOME_CENTER_CONNECTOR_SCHEMA_REVISION, directFileTools: HOME_CENTER_DIRECT_FILE_TOOLS, endpoints: ['/sse', '/messages', '/mcp'], oauthProtectedResource: MCP_RESOURCE_METADATA});
   });
 
   app.get('/oauth-protected-resource', (_req, res) => {
@@ -6004,4 +6044,4 @@ function createHomeCenterMcpApp({google, admin, googleClientId = () => '', googl
   return app;
 }
 
-module.exports = {verifiedRenderGifMcpContent, attachRenderGifMcpContent, renderArtifactHashEntry, uploadVerifiedArtifact, createHomeCenterMcpApp, createHomeCenterMcpServer, createDriveFolderOperation, createGoogleDocOperation, appendGoogleDocOperation, publishContextSnapshotOperation, synthesizeCartesiaAudioArtifactOperation, cartesiaVoicesOperation, createSheetOperation, updateSheetValuesOperation, importXlsxWorkbookOperation, driveOperationRunOperation, driveWorkflowRunOperation, simulationOperationRunOperation, simulationOperationRegistry, droobiedooContextOperationEntries, loadDroobiedooContextIndex, searchDroobiedooContextIndex, runDroobiedooContextOperation, normalizeRecoveryOperation, summarizeRecoveryOperations, loadMcpAccessContext, renderAudioOperation, inspectAudioArtifactsOperation, materializeHomeCenterRenderDriveRefs, materializeHomeCenterRenderSources, stageHomeCenterGitHubRenderInput, normalizeRenderGitHubSource, githubAdminOperationEntries, githubAdminOperationRunOperation, createGitHubAppJwt};
+module.exports = {HOME_CENTER_MCP_SERVER_VERSION, HOME_CENTER_CONNECTOR_SCHEMA_REVISION, HOME_CENTER_REGISTRY_VERSION, HOME_CENTER_DIRECT_FILE_TOOLS, verifiedRenderGifMcpContent, attachRenderGifMcpContent, renderArtifactHashEntry, uploadVerifiedArtifact, createHomeCenterMcpApp, createHomeCenterMcpServer, createDriveFolderOperation, createGoogleDocOperation, appendGoogleDocOperation, publishContextSnapshotOperation, synthesizeCartesiaAudioArtifactOperation, cartesiaVoicesOperation, createSheetOperation, updateSheetValuesOperation, importXlsxWorkbookOperation, driveOperationRunOperation, driveWorkflowRunOperation, simulationOperationRunOperation, simulationOperationRegistry, droobiedooContextOperationEntries, loadDroobiedooContextIndex, searchDroobiedooContextIndex, runDroobiedooContextOperation, normalizeRecoveryOperation, summarizeRecoveryOperations, loadMcpAccessContext, renderAudioOperation, inspectAudioArtifactsOperation, materializeHomeCenterRenderDriveRefs, materializeHomeCenterRenderSources, stageHomeCenterGitHubRenderInput, normalizeRenderGitHubSource, githubAdminOperationEntries, githubAdminOperationRunOperation, createGitHubAppJwt};
