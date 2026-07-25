@@ -889,6 +889,42 @@ async function uploadVerified({google, auth, parentFolderId, item}) {
 }
 
 
+
+async function ffmpegDecodeCheck(buffer, name, mimeType, timeoutMs = DEFAULT_TIMEOUT_MS) {
+  const lower = String(name || '').toLowerCase();
+  if (lower.endsWith('.wav') || /wav|wave/i.test(mimeType)) {
+    try {
+      const clip = decodeWav(buffer);
+      return {ok: true, decoder: 'home_center_pcm16_wav_decoder', duration: clip.duration, sampleRate: clip.sampleRate, channelCount: clip.channelCount};
+    } catch (err) {
+      return {ok: false, decoder: 'home_center_pcm16_wav_decoder', error: 'wav_decode_failed'};
+    }
+  }
+  const encoded = lower.endsWith('.ogg') || /ogg/i.test(mimeType) || lower.endsWith('.mp3') || /mpeg|mp3/i.test(mimeType) || lower.endsWith('.flac') || /flac/i.test(mimeType);
+  if (!encoded) return {ok: true, skipped: true, reason: 'not_an_audio_decode_target'};
+  if (process.env.HOME_CENTER_AUDIO_RENDER_TEST_FAKE_OGG === '1' && (lower.endsWith('.ogg') || /ogg/i.test(mimeType))) {
+    return {ok: true, skipped: true, reason: 'test_fake_ogg_placeholder'};
+  }
+  let ffmpegPath = '';
+  try { ffmpegPath = require('ffmpeg-static'); } catch (_) { ffmpegPath = process.env.FFMPEG_PATH || 'ffmpeg'; }
+  const ext = lower.endsWith('.mp3') || /mpeg|mp3/i.test(mimeType) ? 'mp3' : lower.endsWith('.flac') || /flac/i.test(mimeType) ? 'flac' : 'ogg';
+  const tmp = await fs.mkdtemp(path.join(os.tmpdir(), 'home-audio-decode-'));
+  const inputPath = path.join(tmp, 'input.' + ext);
+  try {
+    await fs.writeFile(inputPath, buffer);
+    return await new Promise((resolve) => {
+      const child = spawn(ffmpegPath, ['-hide_banner', '-v', 'error', '-i', inputPath, '-f', 'null', '-'], {stdio: ['ignore', 'ignore', 'pipe'], shell: false, env: {PATH: process.env.PATH || ''}});
+      let stderr = '';
+      const timer = setTimeout(() => { child.kill('SIGKILL'); resolve({ok: false, decoder: 'ffmpeg', error: 'decode_timeout'}); }, timeoutMs);
+      child.stderr.on('data', (chunk) => { stderr += String(chunk).slice(0, 4000); });
+      child.on('error', (err) => { clearTimeout(timer); resolve({ok: false, decoder: 'ffmpeg', error: 'decode_start_failed', detail: safeText(err.message, 300)}); });
+      child.on('exit', (code) => { clearTimeout(timer); resolve(code === 0 ? {ok: true, decoder: 'ffmpeg'} : {ok: false, decoder: 'ffmpeg', error: 'decode_failed', exitCode: code, detail: safeText(stderr, 500)}); });
+    });
+  } finally {
+    await fs.rm(tmp, {recursive: true, force: true}).catch(() => {});
+  }
+}
+
 function inspectArtifactBytes(name, mimeType, buffer) {
   const lower = String(name || '').toLowerCase();
   if (lower.endsWith('.wav') || /wav|wave/i.test(mimeType)) {
@@ -940,7 +976,7 @@ async function inspectAudioArtifactsOperation({google, auth, args = {}}) {
     const expected = expectedByRef.get(ref) || (raw && typeof raw === 'object' ? raw : {});
     const expectedByteCount = expected.byteCount === undefined || expected.byteCount === null ? null : Math.floor(safeNumber(expected.byteCount, -1));
     const expectedSha256 = safeText(expected.sha256 || expected.expectedSha256, 128).toLowerCase();
-    artifacts.push({
+    const artifact = {
       durableRef: ref,
       fileId,
       name: metadata.name || '',
@@ -953,9 +989,11 @@ async function inspectAudioArtifactsOperation({google, auth, args = {}}) {
       byteCountMatches: expectedByteCount === null ? true : expectedByteCount === digest.byteCount,
       sha256Matches: expectedSha256 ? expectedSha256 === digest.sha256 : true,
       header: inspectArtifactBytes(metadata.name || '', metadata.mimeType || '', bytes),
-    });
+    };
+    if (args.decodeCheck === true) artifact.decodeCheck = await ffmpegDecodeCheck(bytes, artifact.name, artifact.mimeType, safeNumber(args.timeoutMs, DEFAULT_TIMEOUT_MS));
+    artifacts.push(artifact);
   }
-  return {ok: artifacts.every((item) => item.byteCountMatches && item.sha256Matches && item.header.valid !== false), operation: 'audio.render_artifacts', artifactCount: artifacts.length, artifacts};
+  return {ok: artifacts.every((item) => item.byteCountMatches && item.sha256Matches && item.header.valid !== false && (!item.decodeCheck || item.decodeCheck.ok)), operation: 'audio.render_artifacts', artifactCount: artifacts.length, decodeCheck: args.decodeCheck === true, artifacts};
 }
 
 function audioContentFor(item) {
