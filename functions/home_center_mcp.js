@@ -14,6 +14,7 @@ const express = require('express');
 const {z} = require('zod/v4');
 const {CARTESIA_DEFAULT_MODEL_ID, CARTESIA_DEFAULT_VOICE_NAME, listCartesiaVoiceCatalog, listCartesiaVoices, normalizeCartesiaVoice, openCartesiaStream} = require('./hosted_speech_provider');
 const {renderBlenderGlb: commandCenterRenderBlenderGlb} = require('./command_center_mcp');
+const cartesiaPitchShift = require('./cartesia_pitch_shift');
 
 const DEFAULT_MCP_PUBLIC_BASE = 'https://us-central1-home-center-dclar.cloudfunctions.net/homeCenterMcp';
 const MCP_PUBLIC_BASE = process.env.HOME_CENTER_MCP_PUBLIC_BASE || DEFAULT_MCP_PUBLIC_BASE;
@@ -70,6 +71,10 @@ function boundedText(value, max = 12000) {
 function safeNumber(value, fallback = 0) {
   const number = Number(value);
   return Number.isFinite(number) ? number : fallback;
+}
+
+function safeObject(value) {
+  return value && typeof value === 'object' && !Array.isArray(value) ? value : {};
 }
 
 function driveQueryLiteral(value, max = 300) {
@@ -485,7 +490,7 @@ function parseMcpPayload(text, label) {
 
 function commandCenterOperationRegistry() {
   return {
-    version: '2026-07-12.command-center-worker-wake-v1',
+    version: '2026-07-24.blender-github-source-v1',
     invocationTool: 'command_center_operation',
     commandCenterMcpUrl: COMMAND_CENTER_MCP_URL,
     purpose: 'Expose Command Center dispatch and managed knowledge-bucket operations through the already-installed Home Center MCP connector so ChatGPT can create, inspect, resume, revise, authorize, and preserve worker knowledge without discovering a second MCP app.',
@@ -494,7 +499,7 @@ function commandCenterOperationRegistry() {
       'projects.resolve': {summary: 'Resolve an active project before creating a job.', readOnly: false, input: {repository: 'optional string', capability: 'optional string', projectId: 'optional string', idempotencyKey: 'string'}},
       'projects.get': {summary: 'Read one persisted Command Center project packet.', readOnly: true, input: {projectId: 'string'}},
       'projects.upsert': {summary: 'Create or update a durable Command Center project binding.', readOnly: false, input: {projectId: 'string', repository: 'optional string', capability: 'optional string', repositoryBinding: 'optional object', availableWorkers: 'optional string[]', idempotencyKey: 'string'}},
-      'render.blender_glb': {summary: 'Run non-agent Blender execution from durable refs or inline script. For ChatGPT Work Mode uploaded files, use the top-level render_blender_glb tool; nested command_center_operation args cannot activate host file upload slots.', readOnly: false, topLevelFileTool: 'render_blender_glb', input: {glbRef: 'drive:// | bucket:// | gs:// GLB ref for dispatcher calls', scriptRef: 'optional drive:// | bucket:// | gs:// Blender Python ref', scriptText: 'optional inline Python script alternative', settings: 'optional object', executionContract: 'optional object', cache: 'optional boolean', idempotencyKey: 'string'}},
+      'render.blender_glb': {summary: 'Run non-agent Blender execution from durable refs, authenticated GitHub sources, or inline script. Prefer glbSource.provider=github for private repository GLBs when ChatGPT cannot expose the top-level binary upload tool.', readOnly: false, topLevelFileTool: 'render_blender_glb', input: {glbRef: 'drive:// | bucket:// | gs:// GLB ref for dispatcher calls', glbSource: '{provider: github, repository: owner/name, ref: commit-or-branch, path: path/to/file.glb}', scriptRef: 'optional drive:// | bucket:// | gs:// Blender Python ref', scriptSource: 'optional authenticated GitHub Python descriptor', scriptText: 'optional inline Python script alternative', settings: 'optional object', executionContract: 'optional object', cache: 'optional boolean', idempotencyKey: 'string'}},
       'jobs.create': {summary: 'Create a durable worker ticket/job.', readOnly: false, input: {projectId: 'string', title: 'string', objective: 'string', acceptanceCriteria: 'string[]', workerRequirements: 'string[]', mutationPolicy: 'object', idempotencyKey: 'string'}},
       'jobs.create_followup': {summary: 'Create a new linked invocation from a source job handoff without rewriting the old job.', readOnly: false, input: {sourceJobId: 'string', title: 'string', objective: 'string', acceptanceCriteria: 'optional string[]', constraints: 'optional string[]', mutationPolicy: 'optional object', idempotencyKey: 'string'}},
       'jobs.get': {summary: 'Read one Command Center job packet.', readOnly: true, input: {jobId: 'string'}},
@@ -734,6 +739,73 @@ async function stageHomeCenterDriveRenderInput({google, auth, user, renderId, ro
   }
 }
 
+
+function normalizeRenderGitHubSource(value, role) {
+  const source = safeObject(value);
+  const provider = safeText(source.provider, 40).toLowerCase();
+  if (!provider && !Object.keys(source).length) return null;
+  if (provider !== 'github') throw homeCenterRenderInputError(role + 'Source provider must be github.', 400, 'input_validation');
+  const repository = safeGitHubRepo(source.repository || source.repo, 'Valar05/home-center');
+  const ref = safeGitHubRef(source.ref || source.sha || source.branch);
+  const filePath = safeGitHubPath(source.path || source.filePath);
+  return {provider: 'github', repository, ref, path: filePath};
+}
+
+function renderGitHubSourceRef(source) {
+  return 'github://' + source.repository + '@' + (source.ref || 'default') + '/' + source.path;
+}
+
+async function stageHomeCenterGitHubRenderInput({githubToken, user, renderId, role, source}) {
+  if (!COMMAND_CENTER_RENDER_BUCKET) throw homeCenterRenderInputError('COMMAND_CENTER_RENDER_BUCKET is not configured for render input staging.', 503, 'transport');
+  const normalized = normalizeRenderGitHubSource(source, role);
+  if (!normalized) throw homeCenterRenderInputError(role + 'Source is required.', 400, 'input_validation');
+  const token = githubTokenValue(githubToken);
+  if (!token) throw homeCenterRenderInputError('GITHUB_TOKEN secret is not configured for Home Center GitHub render sources.', 503, 'github_input_download_auth_failed');
+  const filePath = normalized.path.split('/').map(encodeURIComponent).join('/');
+  const route = githubRepoRoute(normalized.repository, `/contents/${filePath}${githubQuery({ref: normalized.ref})}`);
+  const label = renderGitHubSourceRef(normalized);
+  const response = await fetch(`https://api.github.com${route}`, {
+    method: 'GET',
+    headers: {...githubHeaders(token), Accept: 'application/vnd.github.raw'},
+    signal: AbortSignal.timeout(Number(process.env.HOME_CENTER_RENDER_GITHUB_TIMEOUT_MS || 120000)),
+  });
+  if (!response.ok) {
+    let message = response.statusText;
+    try {
+      const json = await response.json();
+      message = safeText(json && json.message, 500) || message;
+    } catch (_err) {}
+    throw homeCenterRenderInputError('github_input_download_auth_failed: Home Center could not download authenticated GitHub render input for ' + role + ' (HTTP ' + response.status + ': ' + message + ').', response.status === 404 ? 404 : 401, 'github_input_download_auth_failed');
+  }
+  validateRenderMediaSize(response.headers.get('content-length'), role, label);
+  if (!response.body) throw homeCenterRenderInputError('github_input_download_auth_failed: GitHub response did not include a readable body for ' + role + '.', 502, 'github_input_download_auth_failed');
+  const safeFile = cleanRenderUploadName(normalized.path.split('/').pop(), renderFallbackName(role));
+  const ownerKey = homeCenterRenderOwnerKey(user);
+  const basePrefix = 'command-center-render-inputs/home-center-bridge/' + ownerKey + '/' + (safeText(renderId, 180) || 'render') + '/';
+  const tempName = basePrefix + '.tmp-' + role + '-github-' + randomUUID() + '-' + safeFile;
+  const bucket = new Storage().bucket(COMMAND_CENTER_RENDER_BUCKET);
+  const tempFile = bucket.file(tempName);
+  const validator = renderStreamValidator(role, label);
+  try {
+    await pipeline(Readable.fromWeb(response.body), validator, tempFile.createWriteStream({
+      resumable: false,
+      metadata: {contentType: response.headers.get('content-type') || renderContentType(role)},
+    }));
+  } catch (err) {
+    await tempFile.delete({ignoreNotFound: true}).catch(() => null);
+    throw err;
+  }
+  const digest = validator.digest();
+  const finalName = basePrefix + role + '-' + digest.sha256 + '-' + safeFile;
+  await tempFile.move(finalName);
+  const finalFile = bucket.file(finalName);
+  await finalFile.setMetadata({
+    contentType: renderContentType(role),
+    metadata: {sha256: digest.sha256, byteCount: String(digest.byteCount), role, materializedBy: 'home_center_mcp.command_center_operation', sourceKind: 'github', repository: normalized.repository, ref: normalized.ref, path: normalized.path},
+  });
+  return {ref: 'gs://' + COMMAND_CENTER_RENDER_BUCKET + '/' + finalName, sha256: digest.sha256, byteCount: digest.byteCount, fileName: safeFile, materializedFrom: role + 'GitHubSource', sourceRef: label, materializedBy: 'home_center_mcp.command_center_operation', source: normalized};
+}
+
 async function stageHomeCenterRenderInput({user, renderId, role, sourceRef, fileName, bytes, contentType}) {
   if (!COMMAND_CENTER_RENDER_BUCKET) throw homeCenterRenderInputError('COMMAND_CENTER_RENDER_BUCKET is not configured for render input staging.', 503, 'transport');
   const hash = sha256RenderBytes(bytes);
@@ -749,20 +821,50 @@ async function stageHomeCenterRenderInput({user, renderId, role, sourceRef, file
   return {ref: 'gs://' + COMMAND_CENTER_RENDER_BUCKET + '/' + objectName, sha256: hash, byteCount: bytes.length, fileName: safeFile, materializedFrom: sourceRef && sourceRef.startsWith('drive://') ? role + 'DriveRef' : role + 'File', sourceRef: sourceRef && sourceRef.startsWith('drive://') ? 'drive://' + driveRenderFileId(sourceRef) : '', materializedBy: 'home_center_mcp.command_center_operation'};
 }
 
-async function materializeHomeCenterRenderDriveRefs({google, admin, googleClientId, googleClientSecret, extra, args = {}}) {
+async function materializeHomeCenterRenderDriveRefs({google, admin, googleClientId, googleClientSecret, extra, githubToken = () => '', args = {}}) {
+  return materializeHomeCenterRenderSources({google, admin, googleClientId, googleClientSecret, extra, githubToken, args});
+}
+
+function renderSourceProvided(args, field) {
+  const value = args[field];
+  if (field.endsWith('Source')) return !!normalizeRenderGitHubSource(value, field === 'glbSource' ? 'glb' : 'script');
+  return safeText(value, 1200).length > 0;
+}
+
+function assertOneHomeCenterRenderSource(args, role) {
+  const refField = role + 'Ref';
+  const sourceField = role + 'Source';
+  const fileField = role + 'File';
+  const count = [renderSourceProvided(args, refField), renderSourceProvided(args, sourceField), isMcpFileLike(args[fileField])].filter(Boolean).length;
+  if (count !== 1) throw homeCenterRenderInputError('Exactly one ' + role.toUpperCase() + ' source is required for render.blender_glb: provide ' + refField + ', ' + sourceField + ', or ' + fileField + ', but not more than one.', 400, 'input_validation');
+}
+
+async function materializeHomeCenterRenderSources({google, admin, googleClientId, googleClientSecret, extra, githubToken = () => '', args = {}}) {
   const operationArgs = {...args};
   const stagedInputs = Array.isArray(operationArgs.stagedInputs) ? operationArgs.stagedInputs.slice(0, 10) : [];
-  const refs = [['glbRef', 'glb'], ['scriptRef', 'script']];
-  if (!refs.some(([field]) => safeText(operationArgs[field], 1200).toLowerCase().startsWith('drive://'))) return operationArgs;
-  const {auth, user} = await requestGoogleContext(extra, google, admin, googleClientId, googleClientSecret);
+  assertOneHomeCenterRenderSource(operationArgs, 'glb');
+  const scriptCount = [safeText(operationArgs.scriptRef, 1200).length > 0, !!normalizeRenderGitHubSource(operationArgs.scriptSource, 'script'), isMcpFileLike(operationArgs.scriptFile), safeText(operationArgs.scriptText || operationArgs.inlineScript || operationArgs.script, HOME_CENTER_DIRECT_RENDER_TEXT_LIMIT + 1).length > 0].filter(Boolean).length;
+  if (scriptCount !== 1) throw homeCenterRenderInputError('Exactly one Blender script source is required: provide scriptRef, scriptSource, scriptFile, or scriptText.', 400, 'input_validation');
+  const needsDrive = ['glbRef', 'scriptRef'].some((field) => safeText(operationArgs[field], 1200).toLowerCase().startsWith('drive://'));
+  const needsGitHub = !!normalizeRenderGitHubSource(operationArgs.glbSource, 'glb') || !!normalizeRenderGitHubSource(operationArgs.scriptSource, 'script');
+  if (!needsDrive && !needsGitHub) return operationArgs;
+  const {auth, user} = needsDrive ? await requestGoogleContext(extra, google, admin, googleClientId, googleClientSecret) : {auth: null, user: (await loadMcpAccessContext(admin, bearerTokenFromExtra(extra))).user};
   const seed = safeText(operationArgs.idempotencyKey, 180) || randomUUID();
   const renderId = safeText(operationArgs.renderId, 180) || 'render_' + createHash('sha256').update(homeCenterRenderOwnerKey(user) + ':' + seed).digest('hex').slice(0, 32);
   operationArgs.renderId = renderId;
-  for (const [field, role] of refs) {
+  for (const [field, role] of [['glbRef', 'glb'], ['scriptRef', 'script']]) {
     const ref = safeText(operationArgs[field], 1200);
     if (!ref.toLowerCase().startsWith('drive://')) continue;
     const staged = await stageHomeCenterDriveRenderInput({google, auth, user, renderId, role, sourceRef: ref});
     operationArgs[field] = staged.ref;
+    stagedInputs.push(staged);
+  }
+  for (const [field, role, refField] of [['glbSource', 'glb', 'glbRef'], ['scriptSource', 'script', 'scriptRef']]) {
+    const source = normalizeRenderGitHubSource(operationArgs[field], role);
+    if (!source) continue;
+    const staged = await stageHomeCenterGitHubRenderInput({githubToken, user, renderId, role, source});
+    operationArgs[refField] = staged.ref;
+    delete operationArgs[field];
     stagedInputs.push(staged);
   }
   operationArgs.stagedInputs = stagedInputs;
@@ -818,7 +920,7 @@ async function commandCenterOperationRunOperation({google = null, admin = null, 
   delete operationArgs.toolName;
   delete operationArgs.args;
   if (operation === 'render.blender_glb' && google && admin) {
-    const materializedArgs = await materializeHomeCenterRenderDriveRefs({google, admin, googleClientId, googleClientSecret, extra, args: operationArgs});
+    const materializedArgs = await materializeHomeCenterRenderSources({google, admin, googleClientId, googleClientSecret, extra, githubToken, args: operationArgs});
     return {operation, toolName, commandCenterMcpUrl: COMMAND_CENTER_MCP_URL, result: await commandCenterRenderBlenderGlb(admin, extra, materializedArgs)};
   }
 
@@ -2785,6 +2887,7 @@ function safeArtifactName(value, fallback) {
 }
 
 function normalizeCartesiaSegments(args = {}, defaultVoiceName = CARTESIA_DEFAULT_VOICE_NAME, defaultModelId = CARTESIA_DEFAULT_MODEL_ID, defaultVoiceId = '') {
+  const defaultPitchSemitones = cartesiaPitchShift.safePitchSemitones(args.pitchSemitones, 'pitchSemitones');
   const rawSegments = Array.isArray(args.segments) ? args.segments : [];
   const segments = rawSegments.length ? rawSegments : [{
     text: args.text || args.transcript,
@@ -2792,6 +2895,7 @@ function normalizeCartesiaSegments(args = {}, defaultVoiceName = CARTESIA_DEFAUL
     voiceName: args.voiceName,
     voiceId: args.voiceId,
     modelId: args.modelId,
+    pitchSemitones: args.pitchSemitones,
   }];
   if (!segments.length || segments.length > 80) {
     const err = new Error('segments must contain 1 to 80 items.');
@@ -2813,6 +2917,7 @@ function normalizeCartesiaSegments(args = {}, defaultVoiceName = CARTESIA_DEFAUL
       voiceName: safeText(item.voiceName, 120) || defaultVoiceName,
       voiceId: safeText(item.voiceId, 160) || defaultVoiceId,
       modelId: safeText(item.modelId, 120) || defaultModelId,
+      pitchSemitones: item.pitchSemitones === undefined ? defaultPitchSemitones : cartesiaPitchShift.safePitchSemitones(item.pitchSemitones, 'segments[' + index + '].pitchSemitones'),
     };
   });
   const totalChars = normalized.reduce((sum, segment) => sum + segment.text.length, 0);
@@ -2877,12 +2982,32 @@ async function synthesizeCartesiaSegmentPcm({cartesiaApiKey, segment, sampleRate
     err.status = 502;
     throw err;
   }
-  return {pcm, voiceName: speech.voiceName, voiceId: speech.voiceId, modelId: speech.modelId, textCharCount: segment.text.length, speaker: segment.speaker, index: segment.index};
+  const shifted = segment.pitchSemitones === 0
+    ? {pcm, bypassed: true, processor: 'none', pitchScale: 1, inputFrames: pcm.length / 2, outputFrames: pcm.length / 2, durationRatio: 1}
+    : await cartesiaPitchShift.pitchShiftPcm16(pcm, {sampleRate, channels: 1, pitchSemitones: segment.pitchSemitones});
+  return {
+    pcm: shifted.pcm,
+    voiceName: speech.voiceName,
+    voiceId: speech.voiceId,
+    modelId: speech.modelId,
+    textCharCount: segment.text.length,
+    speaker: segment.speaker,
+    index: segment.index,
+    pitchSemitones: segment.pitchSemitones,
+    pitchScale: shifted.pitchScale,
+    pitchProcessor: shifted.processor,
+    pitchBypassed: Boolean(shifted.bypassed),
+    inputByteCount: pcm.length,
+    inputFrameCount: shifted.inputFrames || (pcm.length / 2),
+    outputFrameCount: shifted.outputFrames || (shifted.pcm.length / 2),
+    durationRatio: shifted.durationRatio || 1,
+  };
 }
-
 async function synthesizeCartesiaAudioBytes({cartesiaApiKey, args, audioFormat, sampleRate}) {
+  const defaultPitchSemitones = cartesiaPitchShift.safePitchSemitones(args.pitchSemitones, 'pitchSemitones');
   const segments = normalizeCartesiaSegments(args, safeText(args.voiceName, 120) || CARTESIA_DEFAULT_VOICE_NAME, safeText(args.modelId, 120) || CARTESIA_DEFAULT_MODEL_ID, safeText(args.voiceId, 160));
-  if (segments.length === 1 && !Array.isArray(args.segments)) {
+  const hasPitchShift = segments.some((segment) => segment.pitchSemitones !== 0);
+  if (segments.length === 1 && !Array.isArray(args.segments) && !hasPitchShift) {
     const segment = segments[0];
     const speech = await openCartesiaStream(segment.text, {apiKeyGetter: cartesiaApiKey, voiceName: segment.voiceName, voiceId: segment.voiceId, modelId: segment.modelId, format: audioFormat.format, sampleRate});
     const audioResponse = speech.response;
@@ -2898,7 +3023,7 @@ async function synthesizeCartesiaAudioBytes({cartesiaApiKey, args, audioFormat, 
       err.status = 502;
       throw err;
     }
-    return {audio, segments: [{index: 0, speaker: segment.speaker, voiceName: speech.voiceName, voiceId: speech.voiceId, modelId: speech.modelId, textCharCount: segment.text.length}], segmentCount: 1};
+    return {audio, defaultPitchSemitones, segments: [{index: 0, speaker: segment.speaker, voiceName: speech.voiceName, voiceId: speech.voiceId, modelId: speech.modelId, textCharCount: segment.text.length, pitchSemitones: 0, pitchScale: 1, pitchProcessor: 'none', pitchBypassed: true}], segmentCount: 1};
   }
 
   const pause = pcmSilenceBytes(sampleRate, args.pauseMs);
@@ -2917,8 +3042,9 @@ async function synthesizeCartesiaAudioBytes({cartesiaApiKey, args, audioFormat, 
     audio,
     segmentCount: synthesized.length,
     stitched: true,
+    defaultPitchSemitones,
     segmentPauseMs: Math.max(0, Math.min(5000, Math.floor(safeNumber(args.pauseMs, 0)) || 0)),
-    segments: synthesized.map((segment) => ({index: segment.index, speaker: segment.speaker, voiceName: segment.voiceName, voiceId: segment.voiceId, modelId: segment.modelId, textCharCount: segment.textCharCount, byteCount: segment.pcm.length})),
+    segments: synthesized.map((segment) => ({index: segment.index, speaker: segment.speaker, voiceName: segment.voiceName, voiceId: segment.voiceId, modelId: segment.modelId, textCharCount: segment.textCharCount, byteCount: segment.pcm.length, inputByteCount: segment.inputByteCount, pitchSemitones: segment.pitchSemitones, pitchScale: segment.pitchScale, pitchProcessor: segment.pitchProcessor, pitchBypassed: segment.pitchBypassed, inputFrameCount: segment.inputFrameCount, outputFrameCount: segment.outputFrameCount, durationRatio: segment.durationRatio})),
   };
 }
 
@@ -3015,6 +3141,10 @@ async function synthesizeCartesiaAudioArtifactOperation({google, admin, auth, us
     verified: true,
     audioFormat: audioFormat.format,
     sampleRate,
+    channelCount: 1,
+    pcmFormat: 'pcm_s16le',
+    pitchSemitones: synthesis.defaultPitchSemitones || 0,
+    pitchProcessor: synthesis.segments.some((segment) => !segment.pitchBypassed) ? 'rubberband-wasm' : 'none',
     voiceName: synthesis.segments[0] ? synthesis.segments[0].voiceName : CARTESIA_DEFAULT_VOICE_NAME,
     voiceId: synthesis.segments[0] ? synthesis.segments[0].voiceId : '',
     modelId: synthesis.segments[0] ? synthesis.segments[0].modelId : CARTESIA_DEFAULT_MODEL_ID,
@@ -3368,7 +3498,7 @@ function driveOperationRegistry() {
         write: true,
         requiresRequestId: true,
         requiredScopes: ['https://www.googleapis.com/auth/drive'],
-        input: {text: 'string for single-speaker synthesis, or omit when segments is supplied', segments: 'optional array of {speaker,text,voiceName,voiceId,modelId}; segments are synthesized separately and stitched in order', voiceName: 'optional default Cartesia voice name, default Katie - Friendly Fixer', voiceId: 'optional default Cartesia voice id', modelId: 'optional default Cartesia model id', format: 'optional wav or raw, default wav', sampleRate: 'optional number, default 24000', pauseMs: 'optional silence between stitched segments, default 0', name: 'optional Drive filename', parentFolderId: 'optional Drive folder id', requestId: 'string', callerNote: 'optional string'},
+        input: {text: 'string for single-speaker synthesis, or omit when segments is supplied', segments: 'optional array of {speaker,text,voiceName,voiceId,modelId,pitchSemitones}; segments are synthesized separately and stitched in order', voiceName: 'optional default Cartesia voice name, default Katie - Friendly Fixer', voiceId: 'optional default Cartesia voice id', modelId: 'optional default Cartesia model id', pitchSemitones: 'optional tempo-preserving pitch shift default, finite number -12 through 12, default 0', format: 'optional wav or raw, default wav', sampleRate: 'optional number, default 24000', pauseMs: 'optional silence between stitched segments, default 0', name: 'optional Drive filename', parentFolderId: 'optional Drive folder id', requestId: 'string', callerNote: 'optional string'},
         output: {provider: 'cartesia', fileId: 'string', webViewLink: 'string', byteCount: 'number', sha256: 'string', readbackByteCount: 'number', readbackSha256: 'string', verified: 'boolean', segmentCount: 'number', segments: 'array', voiceName: 'string', modelId: 'string', audit: 'object'},
         agentRecipe: {
           whenUserSays: 'Generate TTS, make speech, narrate text, produce a Cartesia audio file, or render multiple speakers into one stitched audio artifact from ChatGPT.',
@@ -3877,10 +4007,12 @@ function createHomeCenterMcpServer({google, admin, googleClientId, googleClientS
         voiceName: z.string().optional(),
         voiceId: z.string().optional(),
         modelId: z.string().optional(),
-      })).optional().describe('Ordered speaker segments. Each segment is synthesized separately with its own optional Cartesia voice and then stitched into one output file.'),
+        pitchSemitones: z.number().min(-12).max(12).optional().describe('Optional per-segment tempo-preserving pitch shift override in semitones, finite JSON number from -12 to 12.'),
+      })).optional().describe('Ordered speaker segments. Each segment is synthesized separately with its own optional Cartesia voice and pitch shift, then stitched into one output file.'),
       voiceName: z.string().optional().describe('Default Cartesia voice name for segments that do not specify one.'),
       voiceId: z.string().optional().describe('Default Cartesia voice id for segments that do not specify one.'),
       modelId: z.string().optional().describe('Default Cartesia model id.'),
+      pitchSemitones: z.number().min(-12).max(12).optional().default(0).describe('Optional tempo-preserving pitch shift in semitones for all segments unless a segment overrides it. Must be a finite JSON number from -12 to 12.'),
       format: z.enum(['wav', 'raw']).optional().default('wav'),
       sampleRate: z.number().int().min(8000).max(48000).default(24000),
       pauseMs: z.number().int().min(0).max(5000).optional().describe('Optional silence inserted between stitched segments. Defaults to 0.'),
@@ -5200,4 +5332,4 @@ function createHomeCenterMcpApp({google, admin, googleClientId = () => '', googl
   return app;
 }
 
-module.exports = {createHomeCenterMcpApp, createHomeCenterMcpServer, createDriveFolderOperation, createGoogleDocOperation, appendGoogleDocOperation, publishContextSnapshotOperation, synthesizeCartesiaAudioArtifactOperation, cartesiaVoicesOperation, createSheetOperation, updateSheetValuesOperation, importXlsxWorkbookOperation, driveOperationRunOperation, driveWorkflowRunOperation, simulationOperationRunOperation, simulationOperationRegistry, droobiedooContextOperationEntries, loadDroobiedooContextIndex, searchDroobiedooContextIndex, runDroobiedooContextOperation, normalizeRecoveryOperation, summarizeRecoveryOperations, loadMcpAccessContext, materializeHomeCenterRenderDriveRefs};
+module.exports = {createHomeCenterMcpApp, createHomeCenterMcpServer, createDriveFolderOperation, createGoogleDocOperation, appendGoogleDocOperation, publishContextSnapshotOperation, synthesizeCartesiaAudioArtifactOperation, cartesiaVoicesOperation, createSheetOperation, updateSheetValuesOperation, importXlsxWorkbookOperation, driveOperationRunOperation, driveWorkflowRunOperation, simulationOperationRunOperation, simulationOperationRegistry, droobiedooContextOperationEntries, loadDroobiedooContextIndex, searchDroobiedooContextIndex, runDroobiedooContextOperation, normalizeRecoveryOperation, summarizeRecoveryOperations, loadMcpAccessContext, materializeHomeCenterRenderDriveRefs, materializeHomeCenterRenderSources, stageHomeCenterGitHubRenderInput, normalizeRenderGitHubSource};
