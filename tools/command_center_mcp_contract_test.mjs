@@ -476,46 +476,46 @@ assert.equal(COMMAND_CENTER_CODEX_CLOUD_SURFACE.surfaceId, 'openai-codex-cloud')
 assert(COMMAND_CENTER_DURABLE_SESSION_RESTORE_STRATEGIES.includes('gcs_snapshot'));
 assert.match(COMMAND_CENTER_CODEX_CLOUD_SURFACE.launchUrl, /^https:\/\/chatgpt\.com\/codex/);
 assert.match(COMMAND_CENTER_CODEX_CLOUD_SURFACE.credentialPolicy, /Do not copy cookies/);
-const repoAgent = cleanRepoAgent({
+const repoAgentForQueueContract = cleanRepoAgent({
   agentId: 'home-center',
   projectId: 'home-center',
   repository: 'Valar05/home-center',
   contextRefs: ['docs/COMMAND_CENTER_MCP.md'],
 }, {actor: 'tester@example.com'});
-assert.equal(repoAgent.agentId, 'home-center');
-assert.equal(repoAgent.agentType, 'repo_agent');
-assert.equal(repoAgent.codexCloudSurface.surfaceId, 'openai-codex-cloud');
-const session = cleanAgentSession({sessionId: 'session_home_center', title: 'Home Center Codex'}, repoAgent, {actor: 'tester@example.com'});
-assert.equal(session.agentId, 'home-center');
-assert.equal(session.sessionKind, 'durable_worker_session');
-assert.equal(session.repositoryOptional, true);
-assert.equal(session.runtime, 'cloud-run-debian');
-assert.equal(session.restoreStrategy, 'gcs_snapshot');
-const repoLessSession = cleanAgentSession({
+assert.equal(repoAgentForQueueContract.agentId, 'home-center');
+assert.equal(repoAgentForQueueContract.agentType, 'repo_agent');
+assert.equal(repoAgentForQueueContract.codexCloudSurface.surfaceId, 'openai-codex-cloud');
+const sessionForQueueContract = cleanAgentSession({sessionId: 'session_home_center', title: 'Home Center Codex'}, repoAgentForQueueContract, {actor: 'tester@example.com'});
+assert.equal(sessionForQueueContract.agentId, 'home-center');
+assert.equal(sessionForQueueContract.sessionKind, 'durable_worker_session');
+assert.equal(sessionForQueueContract.repositoryOptional, true);
+assert.equal(sessionForQueueContract.runtime, 'cloud-run-debian');
+assert.equal(sessionForQueueContract.restoreStrategy, 'gcs_snapshot');
+const repoLessSessionForQueueContract = cleanAgentSession({
   sessionId: 'session_general_research',
   projectId: 'general-research',
   title: 'General research worker',
   workerFamily: 'cloud-run-debian-research',
   currentWorkspaceSnapshotRef: 'gs://home-center-worker-sessions/general/snapshot-a.tgz',
 }, {}, {actor: 'tester@example.com'});
-assert.equal(repoLessSession.repository, '');
-assert.equal(repoLessSession.projectId, 'general-research');
-assert.equal(repoLessSession.workerFamily, 'cloud-run-debian-research');
-assert.equal(repoLessSession.currentWorkspaceSnapshotRef, 'gs://home-center-worker-sessions/general/snapshot-a.tgz');
-const task = cleanActivationTask({title: 'Inspect bridge', prompt: 'Inspect the durable Codex cloud bridge.', acceptanceCriteria: ['Report exact next files.']});
-assert.equal(task.taskType, 'codex_cloud');
-assert.match(task.prompt, /durable Codex cloud bridge/);
-const codexRef = cleanCodexCloudRef({url: 'https://chatgpt.com/codex/tasks/abc', title: 'Real Codex task', status: 'running'});
-assert.equal(codexRef.surface, 'openai-codex-cloud');
+assert.equal(repoLessSessionForQueueContract.repository, '');
+assert.equal(repoLessSessionForQueueContract.projectId, 'general-research');
+assert.equal(repoLessSessionForQueueContract.workerFamily, 'cloud-run-debian-research');
+assert.equal(repoLessSessionForQueueContract.currentWorkspaceSnapshotRef, 'gs://home-center-worker-sessions/general/snapshot-a.tgz');
+const taskForQueueContract = cleanActivationTask({title: 'Inspect bridge', prompt: 'Inspect the durable Codex cloud bridge.', acceptanceCriteria: ['Report exact next files.']});
+assert.equal(taskForQueueContract.taskType, 'codex_cloud');
+assert.match(taskForQueueContract.prompt, /durable Codex cloud bridge/);
+const codexRefForQueueContract = cleanCodexCloudRef({url: 'https://chatgpt.com/codex/tasks/abc', title: 'Real Codex task', status: 'running'});
+assert.equal(codexRefForQueueContract.surface, 'openai-codex-cloud');
 assert.throws(() => cleanCodexCloudRef({url: 'https://example.com/codex'}), /real ChatGPT\/OpenAI Codex cloud surface/);
 assert.throws(() => cleanCodexCloudRef({url: 'https://chatgpt.com/codex/tasks/abc', summary: forbiddenBearerFixture}), /must not contain reusable credentials/);
-const resumePacket = buildAgentResumePacket(repoAgent, session, {activationId: 'activation_12345678', status: 'queued', task, artifactRefs: [], codexCloudRefIds: []});
-assert.equal(resumePacket.packetVersion, 'command-center-codex-cloud-resume-v1');
-assert.equal(resumePacket.executionSurface.surfaceId, 'openai-codex-cloud');
-assert.equal(resumePacket.workerSessionContract.durable, true);
-assert.equal(resumePacket.workerSessionContract.repositoryOptional, true);
-assert(resumePacket.bridgeInstructions.some((line) => line.includes('Restore the durable worker session workspace')));
-assert.equal(resumePacket.activation.realWorkerRequired, false);
+const resumePacketForQueueContract = buildAgentResumePacket(repoAgentForQueueContract, sessionForQueueContract, {activationId: 'activation_12345678', status: 'queued', task: taskForQueueContract, artifactRefs: [], codexCloudRefIds: []});
+assert.equal(resumePacketForQueueContract.packetVersion, 'command-center-codex-cloud-resume-v1');
+assert.equal(resumePacketForQueueContract.executionSurface.surfaceId, 'openai-codex-cloud');
+assert.equal(resumePacketForQueueContract.workerSessionContract.durable, true);
+assert.equal(resumePacketForQueueContract.workerSessionContract.repositoryOptional, true);
+assert(resumePacketForQueueContract.bridgeInstructions.some((line) => line.includes('Restore the durable worker session workspace')));
+assert.equal(resumePacketForQueueContract.activation.realWorkerRequired, false);
 
 assert(commandCenterSource.includes("server.registerTool('command_center.jobs.get_handoff'"));
 assert(commandCenterSource.includes("server.registerTool('command_center.jobs.dispatch_queued'"));
@@ -572,7 +572,7 @@ assert(commandCenterSource.includes("server.registerTool('command_center.browser
 assert(commandCenterSource.includes("server.registerTool('command_center.browser_discoveries.promote'"));
 assert(commandCenterSource.includes("server.registerTool('command_center.browser_playbooks.lookup'"));
 assert(commandCenterSource.includes('Coordinate-only browser discoveries cannot be promoted'));
-const householdPlaybook = cleanBrowserPlaybook({
+const householdPlaybookForQueueContract = cleanBrowserPlaybook({
   taskKey: 'chatgpt.command_center_connector.verify',
   origin: 'https://chatgpt.com',
   learnedBy: 'drew',
@@ -580,12 +580,12 @@ const householdPlaybook = cleanBrowserPlaybook({
   replayAudience: 'june',
   actions: [{type: 'click', selectorLadder: [{kind: 'id', selector: '#connect', confidence: 0.95}]}],
 });
-assert.equal(householdPlaybook.taskKey, 'chatgpt.command_center_connector.verify');
-assert.equal(householdPlaybook.learnedBy, 'drew');
-assert.equal(householdPlaybook.shareScope, 'household');
-assert.equal(householdPlaybook.replayAudience, 'june');
-assert.match(householdPlaybook.selectorPolicy, /html_id/);
-assert.match(householdPlaybook.householdLearningContract, /First successful household use/);
+assert.equal(householdPlaybookForQueueContract.taskKey, 'chatgpt.command_center_connector.verify');
+assert.equal(householdPlaybookForQueueContract.learnedBy, 'drew');
+assert.equal(householdPlaybookForQueueContract.shareScope, 'household');
+assert.equal(householdPlaybookForQueueContract.replayAudience, 'june');
+assert.match(householdPlaybookForQueueContract.selectorPolicy, /html_id/);
+assert.match(householdPlaybookForQueueContract.householdLearningContract, /First successful household use/);
 assert(commandCenterSource.includes("server.registerTool('command_center.jobs.create_followup'"));
 assert(commandCenterSource.includes('synthesizeJobHandoff'));
 assert(commandCenterSource.includes('createFollowupJob'));
