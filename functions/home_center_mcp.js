@@ -17,6 +17,12 @@ const {renderBlenderGlb: commandCenterRenderBlenderGlb} = require('./command_cen
 const cartesiaPitchShift = require('./cartesia_pitch_shift');
 const {renderAudioOperation, audioRenderStatusOperation, inspectAudioArtifactsOperation, uploadVerified: uploadVerifiedArtifact} = require('./audio_render_service');
 const {armoryReceiptOperation, armoryRecountOperation, armoryCasingOperation} = require('./armory_range_service');
+const {
+  CALENDAR_SCOPE: SMS_CALENDAR_SCOPE,
+  GMAIL_SCOPE: SMS_GMAIL_SCOPE,
+  registry: smsCalendarOperationRegistry,
+  runOperation: smsCalendarOperationRunOperation,
+} = require('./sms_calendar_intake');
 
 const DEFAULT_MCP_PUBLIC_BASE = 'https://us-central1-home-center-dclar.cloudfunctions.net/homeCenterMcp';
 const MCP_PUBLIC_BASE = process.env.HOME_CENTER_MCP_PUBLIC_BASE || DEFAULT_MCP_PUBLIC_BASE;
@@ -40,6 +46,8 @@ const MCP_REQUIRED_SCOPES = [
   'https://www.googleapis.com/auth/drive',
   'https://www.googleapis.com/auth/documents',
   'https://www.googleapis.com/auth/spreadsheets',
+  SMS_GMAIL_SCOPE,
+  SMS_CALENDAR_SCOPE,
 ];
 const MCP_OAUTH_SECURITY_SCHEMES = [{type: 'oauth2', scopes: MCP_REQUIRED_SCOPES}];
 const CREDIT_GATED_EMAILS = Object.freeze([
@@ -4237,6 +4245,7 @@ function driveOperationRegistry() {
         requiredScopes: ['https://www.googleapis.com/auth/drive'],
         input: {fileId: 'string', newName: 'string', requestId: 'string', callerNote: 'optional string'},
       },
+      ...smsCalendarOperationRegistry().operations,
       ...githubAdminOperationEntries(),
       ...droobiedooContextOperationEntries(),
       ...simulationOperationRegistry().operations,
@@ -4687,6 +4696,10 @@ async function driveOperationRunOperation({google, admin, auth, user, extra = nu
     const result = await commandCenterOperationRunOperation({google, admin, googleClientId, googleClientSecret, githubToken, extra, args: {operation, args: operationArgs}});
     return {operation, registryVersion: registry.version, completed: true, result: result.result};
   }
+  if (smsCalendarOperationRegistry().operations[operation]) {
+    const result = await smsCalendarOperationRunOperation({google, admin, auth, user, args: {operation, args: operationArgs}});
+    return {operation, registryVersion: registry.version, completed: true, result: result.result};
+  }
   if (githubAdminOperationEntries()[operation]) {
     const result = await githubAdminOperationRunOperation({admin, user, githubAdmin, args: {operation, args: operationArgs}});
     return {operation, registryVersion: registry.version, completed: true, result};
@@ -4919,6 +4932,14 @@ function createHomeCenterMcpServer({google, admin, googleClientId, googleClientS
       preferredSimulationTool: 'drive_operation',
       preferredCommandCenterTool: 'command_center_operation',
       automaticDiscovery: {
+        smsCalendar: {
+          product: 'permissioned Google Messages notification intake for Gmail and Google Calendar reconciliation',
+          primaryTool: 'drive_operation',
+          registryVersion: smsCalendarOperationRegistry().version,
+          minimalInboxCall: {tool: 'drive_operation', operation: 'sms_calendar.inbox', args: {status: 'pending', limit: 20}},
+          authorityBoundary: smsCalendarOperationRegistry().authorityBoundary,
+          setupBoundary: 'The Android Home Center APK must be installed on June\'s phone and June must explicitly enable notification access. No real messages are captured before that.',
+        },
         commandCenter: {
           product: 'cloud MCP control plane for durable Codex worker dispatch',
           noFrontend: true,
