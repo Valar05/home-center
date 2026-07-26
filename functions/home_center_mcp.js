@@ -5729,7 +5729,6 @@ function shermanSiteReceipt(evidence) {
   };
 }
 
-async function handleShermanSiteBlenderRequest
 async function handleShermanSiteBlenderRequest(req, res) {
   res.set('Cache-Control', 'private, no-store');
   if (!verifyShermanSiteRequest(req)) {
@@ -5785,7 +5784,6 @@ async function handleShermanSiteBlenderRequest(req, res) {
   }
 }
 
-function createHomeCenterMcpApp
 function createHomeCenterMcpApp({google, admin, googleClientId = () => '', googleClientSecret = () => '', githubToken = () => '', githubAdmin = {}, cartesiaApiKey = () => ''}) {
   const app = express();
   app.use(express.json({limit: '80mb', verify: (req, _res, bytes) => { req.rawBody = Buffer.from(bytes); }}));
