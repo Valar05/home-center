@@ -31,6 +31,7 @@ const MCP_AUTHORIZATION_SERVER_METADATA = `${MCP_PUBLIC_BASE}/.well-known/oauth-
 const MCP_GOOGLE_CALLBACK = process.env.HOME_CENTER_MCP_GOOGLE_CALLBACK || `${MCP_PUBLIC_BASE}/oauth/google-callback`;
 const COMMAND_CENTER_MCP_URL = process.env.COMMAND_CENTER_MCP_URL || 'https://us-central1-home-center-dclar.cloudfunctions.net/commandCenterMcp/mcp';
 const COMMAND_CENTER_RENDER_BUCKET = process.env.COMMAND_CENTER_RENDER_BUCKET || process.env.RENDER_CACHE_BUCKET || process.env.COMMAND_CENTER_BUCKET || 'home-center-dclar-command-center-renders';
+const COMMAND_CENTER_RENDER_ARTIFACT_BUCKET = process.env.HOME_CENTER_GENERATED_BUCKET || process.env.COMMAND_CENTER_GENERATED_BUCKET || 'home-center-generated';
 const HOME_CENTER_RENDER_MAX_GLB_BYTES = Number(process.env.COMMAND_CENTER_RENDER_MAX_GLB_BYTES || 250 * 1024 * 1024);
 const HOME_CENTER_RENDER_MAX_SCRIPT_BYTES = Number(process.env.COMMAND_CENTER_RENDER_MAX_SCRIPT_BYTES || 1024 * 1024);
 const HOME_CENTER_DIRECT_RENDER_TEXT_LIMIT = 1024 * 1024;
@@ -641,8 +642,10 @@ function parseRenderGsRef(ref) {
   const text = safeText(ref, 1600);
   const match = text.match(/^gs:\/\/([^/]+)\/(.+)$/i);
   if (!match) throw homeCenterRenderInputError('Inline render delivery requires a private gs:// artifact ref.', 400, 'render_inline_artifact_ref_invalid');
-  if (match[1] !== COMMAND_CENTER_RENDER_BUCKET) throw homeCenterRenderInputError('Inline render delivery refused artifact outside the configured private render bucket.', 403, 'render_inline_artifact_owner_scope_failed');
-  if (!match[2].startsWith('command-center-renders/')) throw homeCenterRenderInputError('Inline render delivery refused artifact outside the render artifact prefix.', 403, 'render_inline_artifact_owner_scope_failed');
+  const allowedBuckets = new Set([COMMAND_CENTER_RENDER_BUCKET, COMMAND_CENTER_RENDER_ARTIFACT_BUCKET].filter(Boolean));
+  if (!allowedBuckets.has(match[1])) throw homeCenterRenderInputError('Inline render delivery refused artifact outside the configured private render buckets.', 403, 'render_inline_artifact_owner_scope_failed');
+  const allowedPrefixes = ['command-center-renders/', 'renders/gifs/', 'renders/contact-sheets/'];
+  if (!allowedPrefixes.some((prefix) => match[2].startsWith(prefix))) throw homeCenterRenderInputError('Inline render delivery refused artifact outside the render evidence prefixes.', 403, 'render_inline_artifact_owner_scope_failed');
   return {bucket: match[1], name: match[2], ref: text};
 }
 
@@ -653,58 +656,108 @@ function renderArtifactHashEntry(result = {}, rel = 'walk-loop.gif') {
   return safeObject(direct[rel] || bundled[rel]);
 }
 
-function renderReceiptWithoutInlinePayload(operationResult = {}, delivery = null) {
+function renderReceiptWithoutInlinePayload(operationResult = {}, delivery = null, contactSheetDelivery = null) {
   const clean = JSON.parse(JSON.stringify(operationResult || {}));
   if (clean && clean.result) {
     clean.result.inlineMediaDelivery = delivery ? {...delivery, data: undefined, base64: undefined} : null;
+    clean.result.contactSheetDelivery = contactSheetDelivery ? {...contactSheetDelivery, data: undefined, base64: undefined} : null;
   }
   return clean;
 }
 
-async function verifiedRenderGifMcpContent(result = {}, {storage = null, google = null, auth = null, parentFolderId = ''} = {}) {
+async function verifiedRenderEvidenceMcpContent(result = {}, spec = {}, {storage = null, google = null, auth = null, parentFolderId = ''} = {}) {
   const renderResult = safeObject(result);
-  const loopingGifRef = safeText(renderResult.loopingGifRef, 1600);
-  const expected = renderArtifactHashEntry(renderResult, 'walk-loop.gif');
+  const artifactRef = safeText(renderResult[spec.refField], 1600);
+  const expected = renderArtifactHashEntry(renderResult, spec.hashName);
   const expectedSha256 = safeText(expected.sha256, 128).toLowerCase();
   const expectedByteCount = Number(expected.byteCount || 0) || 0;
   const deliveryBase = {
     ok: false,
     type: 'mcp_resource_link',
-    mimeType: 'image/gif',
-    artifactRef: loopingGifRef,
+    mimeType: spec.mimeType,
+    artifactRef,
     durableRef: '',
     byteCount: 0,
     sha256: '',
     expectedByteCount,
     expectedSha256,
-    ceilingBytes: HOME_CENTER_RENDER_INLINE_GIF_MAX_BYTES,
+    ceilingBytes: spec.ceilingBytes,
     contentBlockType: '',
     errorCode: '',
     message: '',
   };
-  if (!loopingGifRef) return {contentBlock: null, delivery: {...deliveryBase, errorCode: 'render_gif_resource_link_missing_ref', message: 'Renderer did not return loopingGifRef.'}};
-  if (!expectedSha256 || !expectedByteCount) return {contentBlock: null, delivery: {...deliveryBase, errorCode: 'render_gif_resource_link_missing_hash', message: 'Renderer did not return walk-loop.gif byte count and SHA-256.'}};
-  const parsed = parseRenderGsRef(loopingGifRef);
+  if (!artifactRef) return {contentBlock: null, delivery: {...deliveryBase, errorCode: spec.errorPrefix + '_missing_ref', message: 'Renderer did not return ' + spec.refField + '.'}};
+  if (!expectedSha256 || !expectedByteCount) return {contentBlock: null, delivery: {...deliveryBase, errorCode: spec.errorPrefix + '_missing_hash', message: 'Renderer did not return ' + spec.hashName + ' byte count and SHA-256.'}};
+  const parsed = parseRenderGsRef(artifactRef);
   const client = storage || new Storage();
   const [bytes] = await client.bucket(parsed.bucket).file(parsed.name).download();
   const buffer = Buffer.isBuffer(bytes) ? bytes : Buffer.from(bytes);
   const readbackSha256 = sha256RenderBytes(buffer);
   if (buffer.length !== expectedByteCount || readbackSha256 !== expectedSha256) {
-    return {contentBlock: null, delivery: {...deliveryBase, byteCount: buffer.length, sha256: readbackSha256, errorCode: 'render_gif_resource_link_readback_mismatch', message: 'Private GCS GIF readback did not match renderer hash metadata.'}};
+    return {contentBlock: null, delivery: {...deliveryBase, byteCount: buffer.length, sha256: readbackSha256, errorCode: spec.errorPrefix + '_readback_mismatch', message: 'Private GCS render evidence readback did not match renderer hash metadata.'}};
   }
-  if (!google || !auth) return {contentBlock: null, delivery: {...deliveryBase, ok: false, byteCount: buffer.length, sha256: readbackSha256, errorCode: 'render_gif_resource_link_auth_missing', message: 'Verified GIF readback succeeded, but authenticated Drive context was unavailable for resource_link creation.'}};
-  const uploaded = await uploadVerifiedArtifact({google, auth, parentFolderId, item: {name: 'walk-loop.gif', format: 'gif', mimeType: 'image/gif', bytes: buffer, byteCount: buffer.length, sha256: readbackSha256, clipMetrics: {}}});
+  if (buffer.length > spec.ceilingBytes) {
+    return {contentBlock: null, delivery: {...deliveryBase, byteCount: buffer.length, sha256: readbackSha256, errorCode: spec.errorPrefix + '_too_large', message: 'Verified render evidence exceeds the resource-link publication ceiling.'}};
+  }
+  if (!google || !auth) return {contentBlock: null, delivery: {...deliveryBase, byteCount: buffer.length, sha256: readbackSha256, errorCode: spec.errorPrefix + '_auth_missing', message: 'Verified render evidence readback succeeded, but authenticated Drive context was unavailable for resource_link creation.'}};
+  const uploaded = await uploadVerifiedArtifact({google, auth, parentFolderId, item: {name: spec.hashName, format: spec.format, mimeType: spec.mimeType, bytes: buffer, byteCount: buffer.length, sha256: readbackSha256, clipMetrics: {}}});
   const contentBlock = uploaded.chatGptFileRef;
-  return {contentBlock, delivery: {...deliveryBase, ok: true, durableRef: uploaded.durableRef, byteCount: uploaded.byteCount, sha256: uploaded.sha256, readbackByteCount: uploaded.readbackByteCount, readbackSha256: uploaded.readbackSha256, fileId: uploaded.fileId || '', contentBlockType: contentBlock.type, message: 'Private GCS GIF readback verified and attached as authenticated resource_link.'}};
+  return {contentBlock, delivery: {...deliveryBase, ok: true, durableRef: uploaded.durableRef, byteCount: uploaded.byteCount, sha256: uploaded.sha256, readbackByteCount: uploaded.readbackByteCount, readbackSha256: uploaded.readbackSha256, fileId: uploaded.fileId || '', contentBlockType: contentBlock.type, message: 'Private GCS render evidence readback verified and attached as an authenticated resource_link.'}};
+}
+
+async function verifiedRenderGifMcpContent(result = {}, options = {}) {
+  return verifiedRenderEvidenceMcpContent(result, {
+    refField: 'loopingGifRef',
+    hashName: 'walk-loop.gif',
+    mimeType: 'image/gif',
+    format: 'gif',
+    ceilingBytes: HOME_CENTER_RENDER_INLINE_GIF_MAX_BYTES,
+    errorPrefix: 'render_gif_resource_link',
+  }, options);
+}
+
+async function verifiedRenderContactSheetMcpContent(result = {}, options = {}) {
+  return verifiedRenderEvidenceMcpContent(result, {
+    refField: 'contactSheetRef',
+    hashName: 'contact-sheet.png',
+    mimeType: 'image/png',
+    format: 'png',
+    ceilingBytes: Math.max(HOME_CENTER_RENDER_INLINE_GIF_MAX_BYTES, 8 * 1024 * 1024),
+    errorPrefix: 'render_contact_sheet_resource_link',
+  }, options);
+}
+
+function renderDeliveryFailure(cleanResult, field, mimeType, errorPrefix, err) {
+  return {
+    contentBlock: null,
+    delivery: {
+      ok: false,
+      type: 'mcp_resource_link',
+      mimeType,
+      artifactRef: safeText(cleanResult.result && cleanResult.result[field], 1600),
+      durableRef: '',
+      byteCount: 0,
+      sha256: '',
+      expectedByteCount: 0,
+      expectedSha256: '',
+      ceilingBytes: mimeType === 'image/gif' ? HOME_CENTER_RENDER_INLINE_GIF_MAX_BYTES : Math.max(HOME_CENTER_RENDER_INLINE_GIF_MAX_BYTES, 8 * 1024 * 1024),
+      contentBlockType: '',
+      errorCode: safeText(err && err.failureKind, 120) || errorPrefix + '_failed',
+      message: safeText(err && err.message, 500),
+    },
+  };
 }
 
 async function attachRenderGifMcpContent(operationResult = {}, options = {}) {
   const cleanResult = JSON.parse(JSON.stringify(operationResult || {}));
   if (!cleanResult || cleanResult.operation !== 'render.blender_glb' || !cleanResult.result) return cleanResult;
-  const inline = await verifiedRenderGifMcpContent(cleanResult.result, options).catch((err) => ({contentBlock: null, delivery: {ok: false, type: 'mcp_resource_link', mimeType: 'image/gif', artifactRef: safeText(cleanResult.result && cleanResult.result.loopingGifRef, 1600), durableRef: '', byteCount: 0, sha256: '', expectedByteCount: 0, expectedSha256: '', ceilingBytes: HOME_CENTER_RENDER_INLINE_GIF_MAX_BYTES, contentBlockType: '', errorCode: safeText(err && err.failureKind, 120) || 'render_gif_resource_link_failed', message: safeText(err && err.message, 500)}}));
+  const inline = await verifiedRenderGifMcpContent(cleanResult.result, options).catch((err) => renderDeliveryFailure(cleanResult, 'loopingGifRef', 'image/gif', 'render_gif_resource_link', err));
+  const contactSheet = await verifiedRenderContactSheetMcpContent(cleanResult.result, options).catch((err) => renderDeliveryFailure(cleanResult, 'contactSheetRef', 'image/png', 'render_contact_sheet_resource_link', err));
   cleanResult.result.inlineMediaDelivery = inline.delivery;
-  const receipt = renderReceiptWithoutInlinePayload(cleanResult, inline.delivery);
+  cleanResult.result.contactSheetDelivery = contactSheet.delivery;
+  const receipt = renderReceiptWithoutInlinePayload(cleanResult, inline.delivery, contactSheet.delivery);
   const content = [{type: 'text', text: jsonText(receipt)}];
+  if (contactSheet.contentBlock) content.push(contactSheet.contentBlock);
   if (inline.contentBlock) content.push(inline.contentBlock);
   cleanResult._mcpContent = {content};
   return cleanResult;
@@ -6544,4 +6597,4 @@ function createHomeCenterMcpApp({google, admin, googleClientId = () => '', googl
   return app;
 }
 
-module.exports = {HOME_CENTER_MCP_SERVER_VERSION, HOME_CENTER_CONNECTOR_SCHEMA_REVISION, HOME_CENTER_REGISTRY_VERSION, HOME_CENTER_DIRECT_FILE_TOOLS, verifiedRenderGifMcpContent, attachRenderGifMcpContent, renderArtifactHashEntry, uploadVerifiedArtifact, createHomeCenterMcpApp, createHomeCenterMcpServer, createDriveFolderOperation, createGoogleDocOperation, appendGoogleDocOperation, publishContextSnapshotOperation, synthesizeCartesiaAudioArtifactOperation, cartesiaVoicesOperation, createSheetOperation, updateSheetValuesOperation, importXlsxWorkbookOperation, readDriveBinaryChunkOperation, compareAudioIngestFileIds, ingestDriveAudioOperation, finalizeDriveAudioIngestBatchOperation, driveOperationRunOperation, driveWorkflowRunOperation, simulationOperationRunOperation, simulationOperationRegistry, droobiedooContextOperationEntries, loadDroobiedooContextIndex, searchDroobiedooContextIndex, runDroobiedooContextOperation, normalizeRecoveryOperation, summarizeRecoveryOperations, loadMcpAccessContext, renderAudioOperation, inspectAudioArtifactsOperation, materializeHomeCenterRenderDriveRefs, materializeHomeCenterRenderSources, stageHomeCenterGitHubRenderInput, normalizeRenderGitHubSource, githubAdminOperationEntries, githubAdminOperationRunOperation, createGitHubAppJwt};
+module.exports = {HOME_CENTER_MCP_SERVER_VERSION, HOME_CENTER_CONNECTOR_SCHEMA_REVISION, HOME_CENTER_REGISTRY_VERSION, HOME_CENTER_DIRECT_FILE_TOOLS, verifiedRenderGifMcpContent, verifiedRenderContactSheetMcpContent, attachRenderGifMcpContent, renderArtifactHashEntry, uploadVerifiedArtifact, createHomeCenterMcpApp, createHomeCenterMcpServer, createDriveFolderOperation, createGoogleDocOperation, appendGoogleDocOperation, publishContextSnapshotOperation, synthesizeCartesiaAudioArtifactOperation, cartesiaVoicesOperation, createSheetOperation, updateSheetValuesOperation, importXlsxWorkbookOperation, readDriveBinaryChunkOperation, compareAudioIngestFileIds, ingestDriveAudioOperation, finalizeDriveAudioIngestBatchOperation, driveOperationRunOperation, driveWorkflowRunOperation, simulationOperationRunOperation, simulationOperationRegistry, droobiedooContextOperationEntries, loadDroobiedooContextIndex, searchDroobiedooContextIndex, runDroobiedooContextOperation, normalizeRecoveryOperation, summarizeRecoveryOperations, loadMcpAccessContext, renderAudioOperation, inspectAudioArtifactsOperation, materializeHomeCenterRenderDriveRefs, materializeHomeCenterRenderSources, stageHomeCenterGitHubRenderInput, normalizeRenderGitHubSource, githubAdminOperationEntries, githubAdminOperationRunOperation, createGitHubAppJwt};
