@@ -151,7 +151,7 @@ const COMMAND_CENTER_CODEX_CLOUD_SURFACE = Object.freeze({
   launchUrl: 'https://chatgpt.com/codex/',
   credentialPolicy: 'Persistent login may live only in a user-owned browser profile on the bridge host. Do not copy cookies, passwords, OAuth tokens, or session blobs into Command Center.',
 });
-const COMMAND_CENTER_EXECUTION_MODES = ['one_shot'];
+const COMMAND_CENTER_EXECUTION_MODES = ['one_shot', 'executor_pulse', 'codex_smoke'];
 const COMMAND_CENTER_REQUIRED_ARTIFACTS = Object.freeze([
   'job-intake.json',
   'orientation.md',
