@@ -847,8 +847,16 @@ async function materializeSources({google, auth, sources = {}}) {
         const media = await drive.files.get({fileId, alt: 'media', supportsAllDrives: true}, {responseType: 'arraybuffer'});
         buffer = Buffer.isBuffer(media.data) ? media.data : Buffer.from(media.data);
         provider = 'google_drive';
+      } else if (ref.toLowerCase().startsWith('gs://')) {
+        const parsed = parseGsRef(ref);
+        if (!parsed || parsed.bucket !== GENERATED_ARTIFACT_BUCKET) throw audioError('gs:// sources must reference the canonical generated artifact bucket.', 400, 'audio_render_source_bucket_forbidden');
+        const artifact = await inspectGeneratedArtifact(ref);
+        if (!artifact || !artifact.bytes) throw audioError('Generated artifact source not found: ' + ref, 404, 'audio_render_source_not_found');
+        buffer = Buffer.from(artifact.bytes);
+        mimeType = artifact.mimeType || mimeType;
+        provider = 'generated_artifact_bucket';
       } else {
-        throw audioError('Unsupported source ref provider for ' + name + ': use drive:// or inline contentBase64 in this release.', 400, 'audio_render_unsupported_source_ref');
+        throw audioError('Unsupported source ref provider for ' + name + ': use canonical gs://, drive://, or inline contentBase64.', 400, 'audio_render_unsupported_source_ref');
       }
     } else {
       throw audioError('Source ' + name + ' must provide contentBase64 or ref.', 400, 'audio_render_invalid_source');
@@ -1279,7 +1287,20 @@ async function executeAudioRenderJob({google, admin, auth, user, args = {}, help
   let progress = audioProgressPatch(existingProgress || {}, {phase: 'materializing_sources', synthesizedTakes: existingProgress && existingProgress.synthesizedTakes || 0, totalTakes: existingProgress && existingProgress.totalTakes || countSpeechTakesInRecipe(recipe), outputCount: 0});
   await writeAudioAudit(helpers, admin, {actor, authKind, tool: 'audio.render', operation: 'audio.render', requestId, status: 'running', callerNote: args.callerNote, providerSummary: 'audio.render worker running.', result: null, inputSha256, audioRenderJob: {requestId, inputSha256, submittedAtMs: startedAtMs, publishToDrive: shouldPublishAudioToDrive(args, parentFolderId), storage: GENERATED_ARTIFACT_BUCKET, request: audioRenderJobRequest(args, settings)}, progress, lease: {leaseId, holder: 'home-center-audio-worker', heartbeatAtMs: Date.now(), expiresAtMs: Date.now() + AUDIO_RENDER_LEASE_MS}});
   try {
-    const materializedSources = await materializeSources({google, auth, sources: args.sources || {}});
+    const sourceCount = Object.keys(args.sources || {}).length;
+    const materializationHeartbeat = setInterval(() => {
+      progress = audioProgressPatch(progress, {phase: 'materializing_sources', sourceCount});
+      void writeAudioAudit(helpers, admin, {actor, authKind, tool: 'audio.render', operation: 'audio.render', requestId, status: 'running', callerNote: args.callerNote, providerSummary: 'audio.render materializing ' + sourceCount + ' verified source(s).', result: null, inputSha256, progress, lease: {leaseId, holder: 'home-center-audio-worker', heartbeatAtMs: Date.now(), expiresAtMs: Date.now() + AUDIO_RENDER_LEASE_MS}}).catch(() => {});
+    }, Math.max(5000, Math.min(30000, Math.floor(AUDIO_RENDER_LEASE_MS / 3))));
+    if (typeof materializationHeartbeat.unref === 'function') materializationHeartbeat.unref();
+    let materializedSources;
+    try {
+      materializedSources = await materializeSources({google, auth, sources: args.sources || {}});
+    } finally {
+      clearInterval(materializationHeartbeat);
+    }
+    progress = audioProgressPatch(progress, {phase: 'sources_materialized', sourceCount, materializedSourceBytes: Object.values(materializedSources).reduce((sum, source) => sum + (source.byteCount || 0), 0)});
+    await writeAudioAudit(helpers, admin, {actor, authKind, tool: 'audio.render', operation: 'audio.render', requestId, status: 'running', callerNote: args.callerNote, providerSummary: 'audio.render verified ' + sourceCount + ' source(s).', result: null, inputSha256, progress, lease: {leaseId, holder: 'home-center-audio-worker', heartbeatAtMs: Date.now(), expiresAtMs: Date.now() + AUDIO_RENDER_LEASE_MS}}).catch(() => {});
     const onSpeechTake = async (take) => {
       progress = audioProgressPatch(progress, {phase: 'synthesizing', synthesizedTakes: Math.max((progress.synthesizedTakes || 0) + 1, (take.segmentIndex || 0) + 1), lastTake: {segmentIndex: take.segmentIndex, speaker: take.speaker, character: take.character, voiceId: take.voiceId, transcriptSha256: take.transcriptSha256, providerByteCount: take.providerByteCount, duration: take.duration}});
       await writeAudioAudit(helpers, admin, {actor, authKind, tool: 'audio.render', operation: 'audio.render', requestId, status: 'running', callerNote: args.callerNote, providerSummary: 'audio.render synthesized take ' + progress.synthesizedTakes + '.', result: null, inputSha256, progress, lease: {leaseId, holder: 'home-center-audio-worker', heartbeatAtMs: Date.now(), expiresAtMs: Date.now() + AUDIO_RENDER_LEASE_MS}}).catch(() => {});
