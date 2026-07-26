@@ -649,7 +649,7 @@ function parseRenderGsRef(ref) {
   const text = safeText(ref, 1600);
   const match = text.match(/^gs:\/\/([^/]+)\/(.+)$/i);
   if (!match) throw homeCenterRenderInputError('Inline render delivery requires a private gs:// artifact ref.', 400, 'render_inline_artifact_ref_invalid');
-  if (match[1] !== COMMAND_CENTER_RENDER_BUCKET) throw homeCenterRenderInputError('Inline render delivery refused artifact outside the configured private render bucket.', 403, 'render_inline_artifact_owner_scope_failed');
+  if (![COMMAND_CENTER_RENDER_BUCKET, 'home-center-generated'].includes(match[1])) throw homeCenterRenderInputError('Inline render delivery refused artifact outside the configured private render buckets.', 403, 'render_inline_artifact_owner_scope_failed');
   if (!match[2].startsWith('renders/gifs/') && !match[2].startsWith('command-center-renders/')) throw homeCenterRenderInputError('Inline render delivery refused artifact outside the render artifact prefix.', 403, 'render_inline_artifact_owner_scope_failed');
   return {bucket: match[1], name: match[2], ref: text};
 }
