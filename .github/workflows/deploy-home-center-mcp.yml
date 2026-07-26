@@ -1,6 +1,9 @@
 name: Deploy Home Center MCP
 
 on:
+  push:
+    branches:
+      - deploy/audio-render-canonical-gcs-sources
   workflow_dispatch:
     inputs:
       project:
@@ -21,7 +24,7 @@ permissions:
 
 jobs:
   deploy:
-    if: ${{ inputs.confirm == 'deploy' }}
+    if: ${{ github.event_name == 'push' || inputs.confirm == 'deploy' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
