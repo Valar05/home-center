@@ -1213,6 +1213,10 @@ function shouldPublishAudioToDrive(args = {}, parentFolderId = '') {
   return true; // Backward-compatible mirror: existing audio.render clients still receive Drive resource links after GCS verification.
 }
 
+function audioResourceLinkContent(driveArtifact = {}) {
+  return driveArtifact && driveArtifact.chatGptFileRef ? {type: 'resource_link', ...driveArtifact.chatGptFileRef} : null;
+}
+
 async function uploadVerified({google, auth, parentFolderId, item, artifactContext = {}, publishToDrive = true}) {
   const storageArtifact = await uploadGeneratedArtifact({...artifactContext, ownerEmail: safeText(artifactContext.ownerEmail, 320).toLowerCase(), sharedWith: JSON.stringify(Array.isArray(artifactContext.sharedWith) ? artifactContext.sharedWith : []), bytes: item.bytes, name: item.name, mimeType: item.mimeType});
   const storageRef = 'gs://' + GENERATED_ARTIFACT_BUCKET + '/' + storageArtifact.object;
@@ -1239,7 +1243,7 @@ async function uploadVerified({google, auth, parentFolderId, item, artifactConte
     id: driveArtifact && driveArtifact.fileId || '',
     webViewLink: driveArtifact && driveArtifact.webViewLink || '',
     parentFolderId: driveArtifact && driveArtifact.parentFolderId || parentFolderId || '',
-    chatGptFileRef: driveArtifact && driveArtifact.chatGptFileRef || null,
+    chatGptFileRef: audioResourceLinkContent(driveArtifact),
   };
 }
 
