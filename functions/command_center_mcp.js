@@ -1656,9 +1656,11 @@ async function resolveRenderSources(caller, args, renderId) {
   return {glbRef, scriptRef, stagedInputs};
 }
 
-async function renderBlenderGlb(admin, extra, args = {}) {
-  const caller = await callerFromExtra(admin, extra);
-  const accessToken = bearerFromExtra(extra);
+async function renderBlenderGlb(admin, extra, args = {}, trustedCaller = null) {
+  const caller = trustedCaller
+    ? {authKind: 'signed_site_control', actor: requireCommandCenterAllowedEmail(trustedCaller.actor), ownerKey: ownerKeyFromActor(trustedCaller.actor)}
+    : await callerFromExtra(admin, extra);
+  const accessToken = trustedCaller ? '' : bearerFromExtra(extra);
   return idempotentMutation(admin, caller, requireIdempotencyKey(args.idempotencyKey), 'render.blender_glb', async () => {
     const settings = normalizeRenderSettings(args.settings);
     const executionContract = cleanRenderContract(args.executionContract);
