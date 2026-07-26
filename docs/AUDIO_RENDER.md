@@ -7,11 +7,13 @@ Runtime boundary:
 ```text
 ChatGPT
   -> Home Center MCP drive_operation(operation="audio.render")
-  -> Home Center deterministic audio renderer
-  -> verified Drive artifacts plus structured MCP audio content
+  -> accepted receipt with requestId/inputSha256/statusOperation
+  -> Home Center async audio worker
+  -> verified GCS artifacts
+  -> optional Drive publish step only when publishToDrive is true or policy requests publication
 ```
 
-The renderer must not create Command Center jobs, Codex executions, LLM prompts, worker leases, GitHub Actions renders, or Termux runtime processes. The submitted `scriptText` is a declarative JSON audio recipe. It is not Python or JavaScript, and it cannot import modules, call the shell, open network sockets, read credentials, or access arbitrary filesystem paths.
+The renderer must not create Command Center jobs, Codex executions, LLM prompts, GitHub Actions renders, or Termux runtime processes. Long-form work is tracked as a Home Center audio render job with audit state, lease/heartbeat metadata, progress checkpoints, and status polling. The submitted `scriptText` is a declarative JSON audio recipe. It is not Python or JavaScript, and it cannot import modules, call the shell, open network sockets, read credentials, or access arbitrary filesystem paths.
 
 The first production renderer is `home-center-deterministic-audio-v1`, implemented in `functions/audio_render_service.js`. It uses fixed in-process DSP primitives for synthesis, layering, timeline placement, analysis, waveform PNGs, and spectrogram PNGs. Encoded OGG/MP3/FLAC exports use the pinned production dependency `ffmpeg-static` via argument-array process invocation; dependencies are installed at deployment/build time, not during a render.
 
@@ -49,12 +51,67 @@ Canonical profiles resolve aliases case-insensitively:
 
 Explicit segment settings override canonical profile values and are recorded in the manifest. Isaac's pitch is applied by the existing tempo-preserving post-Cartesia pitch processor.
 
+## Block-Mixed Long-Form Post-Production
+
+Use **block_mix** for long narration stems with sparse ambience and punctual effects. It allocates one final timeline, reads short textures as loopable windows, mixes dialogue and atmosphere in bounded frame blocks, performs local dialogue ducking during that pass, and yields between blocks so the worker can renew its lease. Encoded OGG/MP3/FLAC output is then streamed to FFmpeg in PCM blocks instead of first allocating another full WAV buffer.
+
+~~~json
+{
+  "sampleRate": 24000,
+  "graph": [
+    {"id": "narration", "op": "load", "source": "narration"},
+    {"id": "road_air", "op": "noise", "duration": 4, "channels": 1, "gain": 0.04, "seed": "road-air", "color": "pink"},
+    {"id": "final", "op": "block_mix", "duration": 849.4, "channels": 2, "items": [
+      {"clip": "narration", "at": 0, "gainDb": 0},
+      {"clip": "road_air", "at": 0, "duration": 214, "loop": true, "gainDb": -28, "fadeIn": 1.2, "fadeOut": 1.2, "duckBy": "narration", "duckAmountDb": 6}
+    ]}
+  ],
+  "final": "final",
+  "outputs": [{"name": "scene.ogg", "format": "ogg", "clip": "final"}]
+}
+~~~
+
+Each item supports **at**, **duration**, **offset**, **loop**, **gainDb**, mono **pan**, **fadeIn**, **fadeOut**, **duckBy**, **duckAt**, and **duckAmountDb**. Long-form recipes should keep ambience textures short and bound each audible window to a real location or transition. Do not create a full-duration noise clip merely to feed it into **block_mix**.
+
+The manifest records graph timing plus worker phase timing. Worker status reports **block_mixing** frame/block progress, **encoding** frame/block progress, and publication sub-phases. These are operational evidence that immutable work is advancing; they are not a creative-quality score.
+
+## Verified-By-Default Batch Acceptance
+
+When the user grants standing authority to assume generated chapter parts are good, successful technical verification advances the production queue without a mandatory listening stop. The accepted gate is: exact source boundary and cast manifest; immutable narration hash; no unplanned paid speech during source-only post-production; successful decode; non-silent output; clipping within policy; and matching GCS/Drive byte counts and SHA-256 readbacks.
+
+Human listening becomes an exception lane triggered by a concrete anomaly, a changed voice/cast/world choice, masking or clipping evidence, or an explicit review request. This standing authority accepts the artifact for workflow progression; it does not manufacture a claim about perceived emotion or cinematic quality that nobody observed.
+
 ## Long-Form Limits And Recovery
 
 Production defaults support at least 900 seconds per final clip and up to 240 `speech_sequence` segments. A ten-minute mono 24 kHz render is roughly 28.8 MB of PCM before encoding. OGG is the recommended long-form delivery format; WAV uses a separate 64 MB safety ceiling while encoded outputs use a 24 MB ceiling. Inline audio content is size-bounded and skipped above the inline limit, so long-form callers should set `returnInlineAudio: false` and treat the textual receipt plus `resource_link` and Drive readback verification as authoritative.
 
 Speech sequence synthesis uses bounded Cartesia concurrency. `settings.speechConcurrency` or `speech_sequence.concurrency` may tune it, with a conservative default of 3 and a hard cap of 8. Provider calls may complete out of order, but the final clip and segment provenance are stitched in submitted order. Any required segment failure fails the whole sequence; Home Center does not upload a partial final artifact as success.
 
-`audio.render` persists a `running` audit state before provider calls begin and writes completion after GCS artifact verification and before constructing optional inline content. If a client times out or rejects optional inline media, call `drive_operation(operation="audio.render_status", args={"requestId":"..."})` or retry the exact same `audio.render` request. The same request ID with identical normalized input returns the completed receipt without invoking Cartesia or writing Drive again. Reusing the request ID with different normalized input fails as an idempotency conflict.
+`audio.render` now returns promptly with an accepted receipt instead of holding the connector request open for long synthesis or encoding. The receipt includes `requestId`, `idempotencyKey`, `inputSha256`, current `status`, progress, lease metadata when available, and `statusOperation: {operation:"audio.render_status", args:{requestId}}`. The async worker performs synthesis, mixing, encoding, verification, and artifact publication outside the connector response path.
+
+The same request ID with the same canonical input hash attaches to the existing queued/running/completed job and must not invoke Cartesia or write artifacts again. The same request ID with a different canonical input hash fails as an idempotency conflict. `publishToDrive:false` is a hard policy boundary: audio outputs, previews, manifests, and compatibility resource links remain GCS-only and are not copied to Drive.
+
+Status may be `queued`, `running`, `completed`, `failed`, or `stalled`. A stale `running` job whose heartbeat expires becomes `stalled`; Home Center does not silently retry paid synthesis after an ambiguous provider failure. Operators must inspect checkpoints and provider evidence before resuming or quarantining affected takes.
 
 `speech_sequence` applies a documented mastering default: peak limiting at about -1 dB with no tempo change. Callers may override `master.limitDb`, but the default exists so raw stitched speech does not clip by accident. Numeric peak, LUFS, and clipping metrics are verification data only; human listening remains the authority for casting and emotional performance.
+
+
+## Incident: Nine Below 2026-07-25
+
+Production request `fleshpunk-nine-below-final-v1-20260725` for Fleshpunk -- Nine Below timed out at the connector while the deployed synchronous renderer had only written its initial audit row. The deployed audit document records `status=running`, `inputSha256=70bb7f8753bc18b3c33bc29906f22ee212368a852d96a2b71a7e3ff3f67672c1`, no result, no affected Drive file ids, and no affected GCS refs. No matching `gs://home-center-generated` object was found for the final request id during reconciliation. Because that old lane did not persist per-take provider checkpoints, the charge-safe classification is stalled/quarantined until provider-side evidence is reviewed; do not resubmit the 187-take production request under a new idempotency key.
+
+
+## Canonical Source Reuse Doctrine
+
+A verified generated artifact must be reusable directly from its canonical `gs://home-center-generated/...` durable ref. Deterministic downstream work must not detour through a Drive publication copy merely because Drive is convenient for human playback.
+
+Rules:
+
+- GCS is the canonical render store; Drive publication is a delivery surface, not a render cache.
+- A source-backed render binds the exact durable ref and expected SHA-256. Only the configured generated-artifact bucket is readable through `audio.render`; arbitrary buckets and network URLs remain forbidden.
+- Paid or accepted speech is checkpointed as an immutable source artifact. Mixing, encoding, publication, indexing, and recovery reuse that artifact and must never resynthesize speech to repair a downstream failure.
+- Long source materialization and deterministic recipe rendering must emit lease heartbeats and progress. A static phase label without a current heartbeat is not evidence of healthy work.
+- A stale or ambiguous request is quarantined under its original idempotency key. Recovery uses a new deterministic source-only request only after proving that no paid provider operation can be repeated.
+- Long-form speed comes from bounded speech concurrency, larger truth-preserving scene boundaries, canonical source reuse, and memory-bounded mix graphs—not from duplicate submissions or continuous ambience wallpaper.
+
+This doctrine was promoted after the Chapter 1 Scenes Five–Six production exposed a 40.8 MB Drive-source materialization detour. The accepted speech completed quickly and remained valid; only deterministic post-production required repair.
