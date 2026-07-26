@@ -1305,7 +1305,18 @@ async function executeAudioRenderJob({google, admin, auth, user, args = {}, help
       progress = audioProgressPatch(progress, {phase: 'synthesizing', synthesizedTakes: Math.max((progress.synthesizedTakes || 0) + 1, (take.segmentIndex || 0) + 1), lastTake: {segmentIndex: take.segmentIndex, speaker: take.speaker, character: take.character, voiceId: take.voiceId, transcriptSha256: take.transcriptSha256, providerByteCount: take.providerByteCount, duration: take.duration}});
       await writeAudioAudit(helpers, admin, {actor, authKind, tool: 'audio.render', operation: 'audio.render', requestId, status: 'running', callerNote: args.callerNote, providerSummary: 'audio.render synthesized take ' + progress.synthesizedTakes + '.', result: null, inputSha256, progress, lease: {leaseId, holder: 'home-center-audio-worker', heartbeatAtMs: Date.now(), expiresAtMs: Date.now() + AUDIO_RENDER_LEASE_MS}}).catch(() => {});
     };
-    const rendered = await renderRecipe(recipe, materializedSources, {...settings, cartesiaApiKey, onSpeechTake});
+    const renderHeartbeat = setInterval(() => {
+      const phase = (progress.totalTakes || 0) > 0 ? progress.phase : 'rendering_recipe';
+      progress = audioProgressPatch(progress, {phase, sourceCount});
+      void writeAudioAudit(helpers, admin, {actor, authKind, tool: 'audio.render', operation: 'audio.render', requestId, status: 'running', callerNote: args.callerNote, providerSummary: 'audio.render heartbeat during ' + phase + '.', result: null, inputSha256, progress, lease: {leaseId, holder: 'home-center-audio-worker', heartbeatAtMs: Date.now(), expiresAtMs: Date.now() + AUDIO_RENDER_LEASE_MS}}).catch(() => {});
+    }, Math.max(5000, Math.min(30000, Math.floor(AUDIO_RENDER_LEASE_MS / 3))));
+    if (typeof renderHeartbeat.unref === 'function') renderHeartbeat.unref();
+    let rendered;
+    try {
+      rendered = await renderRecipe(recipe, materializedSources, {...settings, cartesiaApiKey, onSpeechTake});
+    } finally {
+      clearInterval(renderHeartbeat);
+    }
     const artifactContextBase = audioArtifactContext(args, rendered);
     const publishToDrive = shouldPublishAudioToDrive(args, parentFolderId);
     if (rendered.finalMetrics.silent) throw audioError('Rendered audio is silent.', 422, 'audio_render_silent_output');
