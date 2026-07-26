@@ -5741,7 +5741,9 @@ function createHomeCenterMcpApp({google, admin, googleClientId = () => '', googl
     res.json({ok: true, service: 'home-center-drive-bridge', version: HOME_CENTER_MCP_SERVER_VERSION, registryVersion: HOME_CENTER_REGISTRY_VERSION, connectorSchemaRevision: HOME_CENTER_CONNECTOR_SCHEMA_REVISION, catalogCacheKey: HOME_CENTER_CONNECTOR_SCHEMA_REVISION, directFileTools: HOME_CENTER_DIRECT_FILE_TOOLS, endpoints: ['/sse', '/messages', '/mcp'], oauthProtectedResource: MCP_RESOURCE_METADATA});
   });
 
-  app.post('/site/blender', handleShermanSiteBlenderRequest);\n\n  app.get('/oauth-protected-resource', (_req, res) => {
+  app.post('/site/blender', handleShermanSiteBlenderRequest);
+
+  app.get('/oauth-protected-resource', (_req, res) => {
     res.set('Cache-Control', 'no-store');
     res.json(oauthProtectedResourceMetadata());
   });
