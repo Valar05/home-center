@@ -1,0 +1,126 @@
+[
+  {
+    "version": "household-evidence-envelope/v1",
+    "envelopeId": "fixture-oakheart-001",
+    "capturedAt": "2026-07-25T09:00:00.000Z",
+    "source": {
+      "type": "fixture",
+      "stableRef": "fixture://oakheart/calendar-note/001",
+      "exactText": "Maybe dentist for June next Thursday around 3? Eve was not sure if it was 3 or 3:30.",
+      "observation": "Fixture ambiguous calendar note."
+    },
+    "inferredOwner": {
+      "ownerRef": "person:june",
+      "displayName": "June",
+      "confidence": 0.62
+    },
+    "extractedFacts": [
+      {
+        "factId": "fact-001-dentist-maybe",
+        "type": "appointment",
+        "subject": "person:june",
+        "predicate": "may_have_appointment",
+        "value": {
+          "label": "dentist",
+          "time": "next Thursday around 3 or 3:30"
+        },
+        "rawText": "Maybe dentist for June next Thursday around 3? Eve was not sure if it was 3 or 3:30.",
+        "confidence": 0.45,
+        "verificationState": "needs_review",
+        "calendar": {
+          "title": "Dentist",
+          "startText": "next Thursday around 3 or 3:30"
+        },
+        "scope": "household"
+      }
+    ],
+    "possibleDuplicateRefs": [],
+    "verificationState": "needs_review",
+    "finalDisposition": "intake_only",
+    "consentScope": {
+      "scopeId": "oakheart-fixture-only",
+      "householdRef": "house:oakheart",
+      "capturedBy": "fixture",
+      "vetoOwner": "June",
+      "allowedUses": [
+        "fixture_tests",
+        "screen_reader_briefing_preview"
+      ],
+      "liveIngestionAllowed": false,
+      "calendarMutationAllowed": false,
+      "automaticPlaybackAllowed": false
+    },
+    "featureFlags": {
+      "liveSmsIngestion": false,
+      "liveDeviceIngestion": false,
+      "liveGmailIngestion": false,
+      "liveCalendarRead": false,
+      "liveCalendarMutation": false,
+      "homeAssistantIngestion": false,
+      "automaticPlayback": false
+    }
+  },
+  {
+    "version": "household-evidence-envelope/v1",
+    "envelopeId": "fixture-oakheart-002",
+    "capturedAt": "2026-07-25T10:00:00.000Z",
+    "source": {
+      "type": "fixture",
+      "stableRef": "fixture://oakheart/calendar-note/002",
+      "exactText": "June confirmed: dentist appointment is Thursday at 3:30 PM. Do not put it on the calendar yet.",
+      "observation": "Fixture verified but still no live mutation."
+    },
+    "inferredOwner": {
+      "ownerRef": "person:june",
+      "displayName": "June",
+      "confidence": 0.95
+    },
+    "extractedFacts": [
+      {
+        "factId": "fact-002-dentist-confirmed",
+        "type": "appointment",
+        "subject": "person:june",
+        "predicate": "has_appointment",
+        "value": {
+          "label": "dentist",
+          "time": "Thursday 3:30 PM"
+        },
+        "rawText": "June confirmed: dentist appointment is Thursday at 3:30 PM. Do not put it on the calendar yet.",
+        "confidence": 0.93,
+        "verificationState": "verified",
+        "calendar": {
+          "title": "Dentist appointment",
+          "startText": "Thursday 3:30 PM"
+        },
+        "scope": "household"
+      }
+    ],
+    "possibleDuplicateRefs": [
+      "fixture-oakheart-001"
+    ],
+    "verificationState": "verified",
+    "finalDisposition": "promoted",
+    "consentScope": {
+      "scopeId": "oakheart-fixture-only",
+      "householdRef": "house:oakheart",
+      "capturedBy": "fixture",
+      "vetoOwner": "June",
+      "allowedUses": [
+        "fixture_tests",
+        "screen_reader_briefing_preview"
+      ],
+      "liveIngestionAllowed": false,
+      "calendarMutationAllowed": false,
+      "automaticPlaybackAllowed": false
+    },
+    "featureFlags": {
+      "liveSmsIngestion": false,
+      "liveDeviceIngestion": false,
+      "liveGmailIngestion": false,
+      "liveCalendarRead": false,
+      "liveCalendarMutation": false,
+      "homeAssistantIngestion": false,
+      "automaticPlayback": false
+    }
+  }
+]

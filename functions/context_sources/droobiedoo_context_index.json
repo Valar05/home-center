@@ -1,0 +1,2088 @@
+{
+  "counts": {
+    "artifact": 23,
+    "doctrine": 8,
+    "project": 4,
+    "provenance": 12,
+    "report": 8,
+    "script": 1,
+    "skill": 16,
+    "tool": 19
+  },
+  "entries": [
+    {
+      "id": "droobiedoo-artifact-level-design-workflow-b420ef1754a81707",
+      "kind": "artifact",
+      "modifiedTime": "2026-06-10T00:56:14.801033+00:00",
+      "path": ".codex-backups/infinite-brutality/20260609-195614/LEVEL_DESIGN_WORKFLOW.md",
+      "provenance": {
+        "contentHash": "be4657118c18830c4c4cc20950cc2de09d5f746ed870bfbb7622a7162a12a502",
+        "hashAlgorithm": "sha256",
+        "sourcePath": ".codex-backups/infinite-brutality/20260609-195614/LEVEL_DESIGN_WORKFLOW.md",
+        "sourceRepo": "Valar05/droobiedoo"
+      },
+      "readOnly": true,
+      "remoteCallable": true,
+      "sha256": "be4657118c18830c4c4cc20950cc2de09d5f746ed870bfbb7622a7162a12a502",
+      "sizeBytes": 11656,
+      "summary": "# Infinite Brutality Level Design Workflow Use this note for level-design, generator, and screenshot-critique work specific to Infinite Brutality. Current authoritative realization plan: `docs/VERTICAL_DISTRICT_REALIZATION_PLAN.md`. General workflow lives in Thunder at `../thunder-brainstorm/generated/skills/level_design_environment_grammar.md`. This local note is the tailored version for the suspended shanty-settlement over the abyss. ## Environment Thesis Infinite Brutality should read as one broken settlement-machine, not a stack of disconnected combat rooms. The settlement exists to keep itself suspended and alive. It harvests salvage, bodies, heat, and value from below. Architecture should follow that job. ### Canonical Environment Brief Use this as the standing world prompt for new districts, rooms, and screenshot critiques: - the world is the accumulated wreckage of history, not a",
+      "tags": [
+        "artifact",
+        "backup"
+      ],
+      "textIndexed": true,
+      "title": "Infinite Brutality Level Design Workflow"
+    },
+    {
+      "id": "droobiedoo-artifact-room-batch-implementation-e20639419547fcf0",
+      "kind": "artifact",
+      "modifiedTime": "2026-06-10T00:56:14.837033+00:00",
+      "path": ".codex-backups/infinite-brutality/20260609-195614/ROOM_BATCH_IMPLEMENTATION.md",
+      "provenance": {
+        "contentHash": "41d1dcb2e5c10d37b6e4fa37ea2d95dd310eef7269cf1553a2cf51fdf0858092",
+        "hashAlgorithm": "sha256",
+        "sourcePath": ".codex-backups/infinite-brutality/20260609-195614/ROOM_BATCH_IMPLEMENTATION.md",
+        "sourceRepo": "Valar05/droobiedoo"
+      },
+      "readOnly": true,
+      "remoteCallable": true,
+      "sha256": "41d1dcb2e5c10d37b6e4fa37ea2d95dd310eef7269cf1553a2cf51fdf0858092",
+      "sizeBytes": 18657,
+      "summary": "# Infinite Brutality Room Batch Implementation Build: `0.8.31` The 48-room junction batch is now wired into runtime as a generated playable sequence. Build `0.8.31` keeps that route grammar intact while layering the new combat scaffold elsewhere in `src/main.js`. ## Runtime Files - `data/room_junction_batch.json`: source room prompt/spec list. - `src/generated_room_batch.js`: generated JS module consumed by the browser runtime. - `src/main.js`: imports `GENERATED_ROOM_BATCH`, builds the current batch room, and advances to the next room when the exit marker is reached. - `roomState.navGraph`: room-traversal graph built from room sockets and route kinds so pursuit can follow authored links instead of only local collision guesses. ## Behavior - The runtime starts at the persisted `roomState.nodeIndex`. - Each room uses its own connector signature from the batch spec. - One-connector termina",
+      "tags": [
+        "artifact",
+        "backup"
+      ],
+      "textIndexed": true,
+      "title": "Infinite Brutality Room Batch Implementation"
+    },
+    {
+      "id": "droobiedoo-artifact-thunder-links-664f68cf32cabde2",
+      "kind": "artifact",
+      "modifiedTime": "2026-06-10T00:56:14.757033+00:00",
+      "path": ".codex-backups/infinite-brutality/20260609-195614/THUNDER_LINKS.md",
+      "provenance": {
+        "contentHash": "418ea100fccbd6cf7e004e09e3439f1029409fe49e3555e370173dbf24d36fa0",
+        "hashAlgorithm": "sha256",
+        "sourcePath": ".codex-backups/infinite-brutality/20260609-195614/THUNDER_LINKS.md",
+        "sourceRepo": "Valar05/droobiedoo"
+      },
+      "readOnly": true,
+      "remoteCallable": true,
+      "sha256": "418ea100fccbd6cf7e004e09e3439f1029409fe49e3555e370173dbf24d36fa0",
+      "sizeBytes": 2799,
+      "summary": "# Infinite Brutality Thunder Links This project has durable design/runtime notes in Thunder Brainstorm. Read these before major changes to level generation, movement, first-person arms, lighting, or art direction. ## Thunder Records - Prototype lessons: `../thunder-brainstorm/generated/session_learnings/2026-06-08_infinite_brutality_prototype_lessons.md` - General level-design workflow: `../thunder-brainstorm/generated/skills/level_design_environment_grammar.md` - Project-specific level-design workflow: `docs/LEVEL_DESIGN_WORKFLOW.md` - Vertical district realization plan: `docs/VERTICAL_DISTRICT_REALIZATION_PLAN.md` - District graph implementation plan: `docs/DISTRICT_GRAPH_IMPLEMENTATION_PLAN.md` - Project links: `../thunder-brainstorm/generated/project_links/infinite_brutality_project_links.md` - Project links JSON: `../thunder-brainstorm/generated/project_links/infinite_brutality_proj",
+      "tags": [
+        "artifact",
+        "backup"
+      ],
+      "textIndexed": true,
+      "title": "Infinite Brutality Thunder Links"
+    },
+    {
+      "id": "droobiedoo-artifact-current-worktree-ae19881f03c2b740",
+      "kind": "artifact",
+      "modifiedTime": "2026-06-10T00:56:14.657033+00:00",
+      "path": ".codex-backups/infinite-brutality/20260609-195614/current-worktree.patch",
+      "provenance": {
+        "contentHash": "34fd9a11671605d44ff3d5296715b9a58c72edb20a286536e3040274e1c5a8f1",
+        "hashAlgorithm": "sha256",
+        "sourcePath": ".codex-backups/infinite-brutality/20260609-195614/current-worktree.patch",
+        "sourceRepo": "Valar05/droobiedoo"
+      },
+      "readOnly": true,
+      "remoteCallable": true,
+      "sha256": "34fd9a11671605d44ff3d5296715b9a58c72edb20a286536e3040274e1c5a8f1",
+      "sizeBytes": 37111,
+      "summary": "",
+      "tags": [
+        "artifact",
+        "backup"
+      ],
+      "textIndexed": false,
+      "title": "Current Worktree"
+    },
+    {
+      "id": "droobiedoo-artifact-index-c2cfa4f0cd37521c",
+      "kind": "artifact",
+      "modifiedTime": "2026-06-10T00:56:14.873033+00:00",
+      "path": ".codex-backups/infinite-brutality/20260609-195614/index.html",
+      "provenance": {
+        "contentHash": "378b032b636ac31bdac4bf93fc61b3538fc1502c9ee63c5c88c33e9125ab559f",
+        "hashAlgorithm": "sha256",
+        "sourcePath": ".codex-backups/infinite-brutality/20260609-195614/index.html",
+        "sourceRepo": "Valar05/droobiedoo"
+      },
+      "readOnly": true,
+      "remoteCallable": true,
+      "sha256": "378b032b636ac31bdac4bf93fc61b3538fc1502c9ee63c5c88c33e9125ab559f",
+      "sizeBytes": 1399,
+      "summary": "",
+      "tags": [
+        "artifact",
+        "backup"
+      ],
+      "textIndexed": false,
+      "title": "Index"
+    },
+    {
+      "id": "droobiedoo-artifact-thunder-links-6b0be767ecb44ffd",
+      "kind": "artifact",
+      "modifiedTime": "2026-06-10T00:56:36.169033+00:00",
+      "path": ".codex-backups/infinite-brutality/20260609-195633/THUNDER_LINKS.md",
+      "provenance": {
+        "contentHash": "418ea100fccbd6cf7e004e09e3439f1029409fe49e3555e370173dbf24d36fa0",
+        "hashAlgorithm": "sha256",
+        "sourcePath": ".codex-backups/infinite-brutality/20260609-195633/THUNDER_LINKS.md",
+        "sourceRepo": "Valar05/droobiedoo"
+      },
+      "readOnly": true,
+      "remoteCallable": true,
+      "sha256": "418ea100fccbd6cf7e004e09e3439f1029409fe49e3555e370173dbf24d36fa0",
+      "sizeBytes": 2799,
+      "summary": "# Infinite Brutality Thunder Links This project has durable design/runtime notes in Thunder Brainstorm. Read these before major changes to level generation, movement, first-person arms, lighting, or art direction. ## Thunder Records - Prototype lessons: `../thunder-brainstorm/generated/session_learnings/2026-06-08_infinite_brutality_prototype_lessons.md` - General level-design workflow: `../thunder-brainstorm/generated/skills/level_design_environment_grammar.md` - Project-specific level-design workflow: `docs/LEVEL_DESIGN_WORKFLOW.md` - Vertical district realization plan: `docs/VERTICAL_DISTRICT_REALIZATION_PLAN.md` - District graph implementation plan: `docs/DISTRICT_GRAPH_IMPLEMENTATION_PLAN.md` - Project links: `../thunder-brainstorm/generated/project_links/infinite_brutality_project_links.md` - Project links JSON: `../thunder-brainstorm/generated/project_links/infinite_brutality_proj",
+      "tags": [
+        "artifact",
+        "backup"
+      ],
+      "textIndexed": true,
+      "title": "Infinite Brutality Thunder Links"
+    },
+    {
+      "id": "droobiedoo-artifact-current-worktree-d96fc03694b61537",
+      "kind": "artifact",
+      "modifiedTime": "2026-06-10T00:56:36.097033+00:00",
+      "path": ".codex-backups/infinite-brutality/20260609-195633/current-worktree.patch",
+      "provenance": {
+        "contentHash": "34fd9a11671605d44ff3d5296715b9a58c72edb20a286536e3040274e1c5a8f1",
+        "hashAlgorithm": "sha256",
+        "sourcePath": ".codex-backups/infinite-brutality/20260609-195633/current-worktree.patch",
+        "sourceRepo": "Valar05/droobiedoo"
+      },
+      "readOnly": true,
+      "remoteCallable": true,
+      "sha256": "34fd9a11671605d44ff3d5296715b9a58c72edb20a286536e3040274e1c5a8f1",
+      "sizeBytes": 37111,
+      "summary": "",
+      "tags": [
+        "artifact",
+        "backup"
+      ],
+      "textIndexed": false,
+      "title": "Current Worktree"
+    },
+    {
+      "id": "droobiedoo-artifact-level-design-workflow-3b3dc79d73064019",
+      "kind": "artifact",
+      "modifiedTime": "2026-06-10T00:56:36.225033+00:00",
+      "path": ".codex-backups/infinite-brutality/20260609-195633/docs/LEVEL_DESIGN_WORKFLOW.md",
+      "provenance": {
+        "contentHash": "be4657118c18830c4c4cc20950cc2de09d5f746ed870bfbb7622a7162a12a502",
+        "hashAlgorithm": "sha256",
+        "sourcePath": ".codex-backups/infinite-brutality/20260609-195633/docs/LEVEL_DESIGN_WORKFLOW.md",
+        "sourceRepo": "Valar05/droobiedoo"
+      },
+      "readOnly": true,
+      "remoteCallable": true,
+      "sha256": "be4657118c18830c4c4cc20950cc2de09d5f746ed870bfbb7622a7162a12a502",
+      "sizeBytes": 11656,
+      "summary": "# Infinite Brutality Level Design Workflow Use this note for level-design, generator, and screenshot-critique work specific to Infinite Brutality. Current authoritative realization plan: `docs/VERTICAL_DISTRICT_REALIZATION_PLAN.md`. General workflow lives in Thunder at `../thunder-brainstorm/generated/skills/level_design_environment_grammar.md`. This local note is the tailored version for the suspended shanty-settlement over the abyss. ## Environment Thesis Infinite Brutality should read as one broken settlement-machine, not a stack of disconnected combat rooms. The settlement exists to keep itself suspended and alive. It harvests salvage, bodies, heat, and value from below. Architecture should follow that job. ### Canonical Environment Brief Use this as the standing world prompt for new districts, rooms, and screenshot critiques: - the world is the accumulated wreckage of history, not a",
+      "tags": [
+        "artifact",
+        "backup"
+      ],
+      "textIndexed": true,
+      "title": "Infinite Brutality Level Design Workflow"
+    },
+    {
+      "id": "droobiedoo-artifact-reference-boards-15dbb939e30eb01b",
+      "kind": "artifact",
+      "modifiedTime": "2026-06-09T22:30:04.837026+00:00",
+      "path": ".codex-backups/infinite-brutality/20260609-195633/docs/REFERENCE_BOARDS.md",
+      "provenance": {
+        "contentHash": "f77866df4a6910929fee90fa8cc4b477ab742eec96d841d7e17e2bac0dca33ea",
+        "hashAlgorithm": "sha256",
+        "sourcePath": ".codex-backups/infinite-brutality/20260609-195633/docs/REFERENCE_BOARDS.md",
+        "sourceRepo": "Valar05/droobiedoo"
+      },
+      "readOnly": true,
+      "remoteCallable": true,
+      "sha256": "f77866df4a6910929fee90fa8cc4b477ab742eec96d841d7e17e2bac0dca33ea",
+      "sizeBytes": 14283,
+      "summary": "# Infinite Brutality Reference Boards Use these as silhouette and settlement-logic references, not as maps to copy. The goal is to assemble survivor-built spaces out of historical fragments that read instantly at speed, support melee traversal, and feel like a working refuge at the end of history. ## How To Use - Read the silhouette first. - Extract the route function second. - Ignore literal layout unless it reinforces readability. - Combine fragments by settlement job, not by decorative collage. - Prefer one strong landmark over many small props. ## Board 1: Roman Thermal, Civic, And Arena Forms Best for: bath districts, toll bridges, intake platforms, leisure ruins turned into shelters, and huge readable combat shells. - [Baths of Caracalla](https://en.wikipedia.org/wiki/Baths_of_Caracalla) - Huge thermal shell, tall broken walls, giant vault masses, long rectilinear footprint. - Usef",
+      "tags": [
+        "artifact",
+        "backup"
+      ],
+      "textIndexed": true,
+      "title": "Infinite Brutality Reference Boards"
+    },
+    {
+      "id": "droobiedoo-artifact-room-batch-implementation-b785775c1b711721",
+      "kind": "artifact",
+      "modifiedTime": "2026-06-10T00:56:36.261033+00:00",
+      "path": ".codex-backups/infinite-brutality/20260609-195633/docs/ROOM_BATCH_IMPLEMENTATION.md",
+      "provenance": {
+        "contentHash": "41d1dcb2e5c10d37b6e4fa37ea2d95dd310eef7269cf1553a2cf51fdf0858092",
+        "hashAlgorithm": "sha256",
+        "sourcePath": ".codex-backups/infinite-brutality/20260609-195633/docs/ROOM_BATCH_IMPLEMENTATION.md",
+        "sourceRepo": "Valar05/droobiedoo"
+      },
+      "readOnly": true,
+      "remoteCallable": true,
+      "sha256": "41d1dcb2e5c10d37b6e4fa37ea2d95dd310eef7269cf1553a2cf51fdf0858092",
+      "sizeBytes": 18657,
+      "summary": "# Infinite Brutality Room Batch Implementation Build: `0.8.31` The 48-room junction batch is now wired into runtime as a generated playable sequence. Build `0.8.31` keeps that route grammar intact while layering the new combat scaffold elsewhere in `src/main.js`. ## Runtime Files - `data/room_junction_batch.json`: source room prompt/spec list. - `src/generated_room_batch.js`: generated JS module consumed by the browser runtime. - `src/main.js`: imports `GENERATED_ROOM_BATCH`, builds the current batch room, and advances to the next room when the exit marker is reached. - `roomState.navGraph`: room-traversal graph built from room sockets and route kinds so pursuit can follow authored links instead of only local collision guesses. ## Behavior - The runtime starts at the persisted `roomState.nodeIndex`. - Each room uses its own connector signature from the batch spec. - One-connector termina",
+      "tags": [
+        "artifact",
+        "backup"
+      ],
+      "textIndexed": true,
+      "title": "Infinite Brutality Room Batch Implementation"
+    },
+    {
+      "id": "droobiedoo-artifact-index-1e06fe56fc1b13fc",
+      "kind": "artifact",
+      "modifiedTime": "2026-06-10T00:56:36.313033+00:00",
+      "path": ".codex-backups/infinite-brutality/20260609-195633/index.html",
+      "provenance": {
+        "contentHash": "378b032b636ac31bdac4bf93fc61b3538fc1502c9ee63c5c88c33e9125ab559f",
+        "hashAlgorithm": "sha256",
+        "sourcePath": ".codex-backups/infinite-brutality/20260609-195633/index.html",
+        "sourceRepo": "Valar05/droobiedoo"
+      },
+      "readOnly": true,
+      "remoteCallable": true,
+      "sha256": "378b032b636ac31bdac4bf93fc61b3538fc1502c9ee63c5c88c33e9125ab559f",
+      "sizeBytes": 1399,
+      "summary": "",
+      "tags": [
+        "artifact",
+        "backup"
+      ],
+      "textIndexed": false,
+      "title": "Index"
+    },
+    {
+      "id": "droobiedoo-artifact-main-dc4bda29f193d4dc",
+      "kind": "artifact",
+      "modifiedTime": "2026-06-10T00:56:36.357033+00:00",
+      "path": ".codex-backups/infinite-brutality/20260609-195633/src/main.js",
+      "provenance": {
+        "contentHash": "9e08a8f9387d01e5b96803addb228951ca15b812b4c5c398ee44f5ac586f755b",
+        "hashAlgorithm": "sha256",
+        "sourcePath": ".codex-backups/infinite-brutality/20260609-195633/src/main.js",
+        "sourceRepo": "Valar05/droobiedoo"
+      },
+      "readOnly": true,
+      "remoteCallable": true,
+      "sha256": "9e08a8f9387d01e5b96803addb228951ca15b812b4c5c398ee44f5ac586f755b",
+      "sizeBytes": 239205,
+      "summary": "import * as THREE from 'three'; import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js'; import { FBXLoader } from 'three/addons/loaders/FBXLoader.js'; import { GENERATED_ROOM_BATCH } from './generated_room_batch.js'; const BUILD = '0.8.33'; const USE_DYNAMIC_SHADOWS = false; const USE_DYNAMIC_DIEGETIC_LIGHTS = false; const canvas = document.getElementById('game'); const statusEl = document.getElementById('status'); const readoutEl = document.getElementById('readout'); const hintEl = document.getElementById('hint'); const leftStick = document.getElementById('leftStick'); const stickKnob = leftStick.querySelector('div'); const actionPad = document.getElementById('actionPad'); const attackButton = document.getElementById('attackButton'); const jumpButton = document.getElementById('jumpButton'); const gyroButton = document.getElementById('gyroButton'); const fsButton = document.getE",
+      "tags": [
+        "artifact",
+        "backup"
+      ],
+      "textIndexed": true,
+      "title": "import * as THREE from 'three';"
+    },
+    {
+      "id": "droobiedoo-artifact-styles-e72440c06a6f7200",
+      "kind": "artifact",
+      "modifiedTime": "2026-06-10T00:56:36.401033+00:00",
+      "path": ".codex-backups/infinite-brutality/20260609-195633/src/styles.css",
+      "provenance": {
+        "contentHash": "45824f6c9c1a5e74c4da92e27079f9a5499e67bd124cda2066dbeb84b5531469",
+        "hashAlgorithm": "sha256",
+        "sourcePath": ".codex-backups/infinite-brutality/20260609-195633/src/styles.css",
+        "sourceRepo": "Valar05/droobiedoo"
+      },
+      "readOnly": true,
+      "remoteCallable": true,
+      "sha256": "45824f6c9c1a5e74c4da92e27079f9a5499e67bd124cda2066dbeb84b5531469",
+      "sizeBytes": 4386,
+      "summary": "",
+      "tags": [
+        "artifact",
+        "backup"
+      ],
+      "textIndexed": false,
+      "title": "Styles"
+    },
+    {
+      "id": "droobiedoo-artifact-context-index-9ba2a6305bbad3f2",
+      "kind": "artifact",
+      "modifiedTime": "2026-07-15T16:28:32.064198+00:00",
+      "path": "docs/CONTEXT_INDEX.md",
+      "provenance": {
+        "contentHash": "9a173adb59226f204bc5b7d71bc30c226218b3ee423c598386ac6b47696ac42d",
+        "hashAlgorithm": "sha256",
+        "sourcePath": "docs/CONTEXT_INDEX.md",
+        "sourceRepo": "Valar05/droobiedoo"
+      },
+      "readOnly": true,
+      "remoteCallable": true,
+      "sha256": "9a173adb59226f204bc5b7d71bc30c226218b3ee423c598386ac6b47696ac42d",
+      "sizeBytes": 1944,
+      "summary": "# Droobiedoo Context Index Droobiedoo is a read-only context source for the Home Center MCP architecture. It does not run an MCP server and does not execute workspace mutations. ## Owner Roles - Droobiedoo stores workspace-level project context, skills, doctrine, generated reports, artifacts, provenance, and freshness metadata. - Home Center exposes the index through read-only `drive_operation` entries so existing MCP clients can search it without reinstalling a connector or adding a new server. - Simulation Frames remain Home Center's immutable evidence-backed context lane. Droobiedoo task packets follow the same bounded context-packet discipline, but the checked-in index is a lightweight local source rather than a Firestore frame. - She-Raw remains the runtime/default consultative voice. It can consume a Droobiedoo task-context packet, but it does not own or mutate Droobiedoo. - Comman",
+      "tags": [
+        "indexed-file"
+      ],
+      "textIndexed": true,
+      "title": "Droobiedoo Context Index"
+    },
+    {
+      "id": "droobiedoo-artifact-tanks-for-the-memories-information-pressure-2026-06-20-de458ff1df359b2a",
+      "kind": "artifact",
+      "modifiedTime": "2026-06-23T03:53:14.322331+00:00",
+      "path": "docs/design/tanks_for_the_memories_information_pressure_2026-06-20.md",
+      "provenance": {
+        "contentHash": "6269eeade4e5d5319bedb64da7927640fb7edcf359e8dba0e28c3e6b28fdae0d",
+        "hashAlgorithm": "sha256",
+        "sourcePath": "docs/design/tanks_for_the_memories_information_pressure_2026-06-20.md",
+        "sourceRepo": "Valar05/droobiedoo"
+      },
+      "readOnly": true,
+      "remoteCallable": true,
+      "sha256": "6269eeade4e5d5319bedb64da7927640fb7edcf359e8dba0e28c3e6b28fdae0d",
+      "sizeBytes": 3674,
+      "summary": "# Tanks For The Memories - Information Pressure Discovery Date: 2026-06-20 ## Trigger Original assumption: - commander camera - drone camera - voice commands Correction: The goal is not to simulate a modern drone operator. The goal is to simulate a WW2 platoon tank leader. Therefore the drone camera violates the fantasy. It solves the player's information problem instead of creating it. ## Core Principle The camera system should not be designed around visibility. The camera system should be designed around uncertainty. The player should constantly decide: > How much risk am I willing to accept to gain more information? ## Primary Pressure System Information Pressure. Not health. Not armor. Not ammunition. Information. The player usually does not know: - exact enemy locations - exact enemy strength - exact enemy composition - exact enemy intentions The player must acquire information. Inf",
+      "tags": [
+        "indexed-file"
+      ],
+      "textIndexed": true,
+      "title": "Tanks For The Memories - Information Pressure Discovery"
+    },
+    {
+      "id": "droobiedoo-artifact-tanks-for-the-memories-ledger-simulation-2026-06-20-b0e65b6e8f55a92f",
+      "kind": "artifact",
+      "modifiedTime": "2026-06-23T03:53:14.350331+00:00",
+      "path": "docs/design/tanks_for_the_memories_ledger_simulation_2026-06-20.md",
+      "provenance": {
+        "contentHash": "fe15c0887655d934ff1e903491665796fcda04da0d8225c179b96bc64faf1682",
+        "hashAlgorithm": "sha256",
+        "sourcePath": "docs/design/tanks_for_the_memories_ledger_simulation_2026-06-20.md",
+        "sourceRepo": "Valar05/droobiedoo"
+      },
+      "readOnly": true,
+      "remoteCallable": true,
+      "sha256": "fe15c0887655d934ff1e903491665796fcda04da0d8225c179b96bc64faf1682",
+      "sizeBytes": 3800,
+      "summary": "# Tanks For The Memories - Ledger Simulation Discovery Date: 2026-06-20 ## Core Problem How do we create a giant historical cause-and-effect simulation with persistent people, commanders, crews, politicians, units, and battlefield information without paying for live AI agents? ## Answer Do not simulate thinking. Simulate: - identity - beliefs - information - doctrine - memory - rules The result is agent-like behavior without LLM costs. ## The Key Discovery Not AI Agents. Ledger Simulation. The world is a giant historical ledger. Entities do not generate thoughts. Entities receive information. Entities update beliefs. Entities execute doctrine. Entities generate consequences. The ledger records everything. ## Static Identity Important NPCs are fixed. Examples: - Churchill - Eisenhower - Bradley - Montgomery - specific commanders - specific platoon leaders They are always themselves. Their",
+      "tags": [
+        "indexed-file"
+      ],
+      "textIndexed": true,
+      "title": "Tanks For The Memories - Ledger Simulation Discovery"
+    },
+    {
+      "id": "droobiedoo-artifact-meshy-asset-workflow-25872a5d8e7c757c",
+      "kind": "artifact",
+      "modifiedTime": "2026-06-06T15:53:19.733933+00:00",
+      "path": "docs/meshy_asset_workflow.md",
+      "provenance": {
+        "contentHash": "f37361467fc93edba218f874d6ccf7a46df206c1cf277696277c824861363d49",
+        "hashAlgorithm": "sha256",
+        "sourcePath": "docs/meshy_asset_workflow.md",
+        "sourceRepo": "Valar05/droobiedoo"
+      },
+      "readOnly": true,
+      "remoteCallable": true,
+      "sha256": "f37361467fc93edba218f874d6ccf7a46df206c1cf277696277c824861363d49",
+      "sizeBytes": 2722,
+      "summary": "# Meshy Asset Workflow Use `tools/meshy_asset_workflow.py` from the workspace root to build generated 3D assets into a specific project while preserving provenance. ## Environment The tool reads keys from the shell, `~/.env`, workspace `.env`, or the target project `.env`. ```sh export MESHY_API_KEY=msy_... export OPENAI_API_KEY=... ``` Meshy's no-credit test mode is available with `--test-mode`. For compatibility with the current Termux shell config, the CLI also accepts `MESHY_APIKEY` and the existing typo `MESHY_API_KRY`. ## Common Commands Check local setup and Meshy balance: ```sh python3 tools/meshy_asset_workflow.py check --project gravity-fist --balance ``` Generate a concept image with OpenAI: ```sh python3 tools/meshy_asset_workflow.py openai-image \\ --project gravity-fist \\ --name alley_brute_01 \\ --prompt \"stylized hulking biped street fighter, clear limbs, A-pose, game-ready",
+      "tags": [
+        "indexed-file"
+      ],
+      "textIndexed": true,
+      "title": "Meshy Asset Workflow"
+    },
+    {
+      "id": "droobiedoo-artifact-pressure-discovery-capture-2026-06-20-14892b119876b5a2",
+      "kind": "artifact",
+      "modifiedTime": "2026-06-23T03:53:14.386331+00:00",
+      "path": "docs/ml/pressure_discovery_capture_2026-06-20.md",
+      "provenance": {
+        "contentHash": "928b80492ec82e03fd4261d3321f7cc0310bab073f48f3a97c237e9754e5d951",
+        "hashAlgorithm": "sha256",
+        "sourcePath": "docs/ml/pressure_discovery_capture_2026-06-20.md",
+        "sourceRepo": "Valar05/droobiedoo"
+      },
+      "readOnly": true,
+      "remoteCallable": true,
+      "sha256": "928b80492ec82e03fd4261d3321f7cc0310bab073f48f3a97c237e9754e5d951",
+      "sizeBytes": 2398,
+      "summary": "# Pressure Discovery Capture Date: 2026-06-20 ## Discovery Thunder Brainstorm's most valuable latent abstraction is not genre, mechanics, combat, narrative, vehicles, roguelikes, or accessibility. It is pressure. A successful mechanic can be modeled as one or more of: - Pressure Source - Pressure Sink - Pressure Regulator - Pressure Converter - Pressure Readout - Pressure Amplifier - Pressure Decay - Pressure Gate - Pressure Memory ## Reinterpretation Of Existing Projects ### Lava Landing Pressure source: - accelerating world scroll Key lesson: - the prototype became fun when pressure increased over time. ### Gravity Fist Pressure regulator: - AIConductor Pressure sources: - enemy attacks - spawning - positioning Pressure converters: - parry -> advantage - hits -> meter - knockdown -> stomp opportunity Key lesson: - Gravity Fist is a conductor-driven pressure management game disguised as",
+      "tags": [
+        "indexed-file"
+      ],
+      "textIndexed": true,
+      "title": "Pressure Discovery Capture"
+    },
+    {
+      "id": "droobiedoo-artifact-thunder-pressure-systems-pass-2026-06-20-67800ba472d765af",
+      "kind": "artifact",
+      "modifiedTime": "2026-06-23T03:53:14.414331+00:00",
+      "path": "docs/ml/thunder_pressure_systems_pass_2026-06-20.md",
+      "provenance": {
+        "contentHash": "441c45b1cc2d3e33446c3150a33e12170897f7b35776762e89d3840e3eb2b02b",
+        "hashAlgorithm": "sha256",
+        "sourcePath": "docs/ml/thunder_pressure_systems_pass_2026-06-20.md",
+        "sourceRepo": "Valar05/droobiedoo"
+      },
+      "readOnly": true,
+      "remoteCallable": true,
+      "sha256": "441c45b1cc2d3e33446c3150a33e12170897f7b35776762e89d3840e3eb2b02b",
+      "sizeBytes": 9873,
+      "summary": "# Thunder Brainstorm Pressure Systems ML Pass Date: 2026-06-20 Source repo: `Valar05/thunder-brainstorm` Target repo: `Valar05/droobiedoo` ## Purpose This artifact turns Thunder Brainstorm from a broad mechanics archive into a reusable machine-learning-style labeling and feature pass for future game-design agents. The useful model is not \"genre classifier.\" The useful model is: > Given a mechanic, artifact, or design note, classify what kind of pressure it creates, regulates, converts, releases, or validates. This is the portable law hiding under Gravity Fist, Lava Landing, Marrow Runner, Long Haul, Infinite Brutality, Omnitread, Revelation, and the new voice-command tank direction. ## Source Evidence Read High-signal Thunder files inspected: - `README.md` - `generated/second_pass_report.md` - `generated/index_combined/mechanic_index_summary.json` - `generated/design_packets/gravity_fist",
+      "tags": [
+        "indexed-file"
+      ],
+      "textIndexed": true,
+      "title": "Thunder Brainstorm Pressure Systems ML Pass"
+    },
+    {
+      "id": "droobiedoo-artifact-thunder-pressure-agent-prompt-d19d7c59e3ace4ef",
+      "kind": "artifact",
+      "modifiedTime": "2026-06-23T03:53:14.466331+00:00",
+      "path": "generated/ml/thunder_pressure_agent_prompt.md",
+      "provenance": {
+        "contentHash": "57c0f82e3eec78fa6bb94e333f0ef8b6776be51f0ebc6b75fc2f612b9f45f72c",
+        "hashAlgorithm": "sha256",
+        "sourcePath": "generated/ml/thunder_pressure_agent_prompt.md",
+        "sourceRepo": "Valar05/droobiedoo"
+      },
+      "readOnly": true,
+      "remoteCallable": true,
+      "sha256": "57c0f82e3eec78fa6bb94e333f0ef8b6776be51f0ebc6b75fc2f612b9f45f72c",
+      "sizeBytes": 3797,
+      "summary": "# Thunder Pressure Classifier Agent Prompt Use this prompt when asking Codex or another local agent to classify design/code artifacts from Thunder Brainstorm or project repos into reusable pressure-system records. ```md You are performing a pressure-system classification pass over game design artifacts. Goal: Convert mechanics, code identifiers, data schemas, docs, and acceptance criteria into compact ML-style records that identify what kind of pressure the system creates, regulates, converts, releases, remembers, or makes readable. Read first: - `generated/ml/thunder_pressure_labels.json` - `generated/ml/thunder_pressure_feature_schema.json` - Existing examples in `generated/ml/thunder_pressure_training_examples.jsonl` Input sources may include: - Thunder Brainstorm mechanic indexes - project docs - source-reference JSONL - design packets - session learning docs - project links - AGENTS",
+      "tags": [
+        "artifact",
+        "generated"
+      ],
+      "textIndexed": true,
+      "title": "Thunder Pressure Classifier Agent Prompt"
+    },
+    {
+      "id": "droobiedoo-artifact-thunder-pressure-feature-schema-a41ace0e66adc7a8",
+      "kind": "artifact",
+      "modifiedTime": "2026-06-23T03:53:14.562331+00:00",
+      "path": "generated/ml/thunder_pressure_feature_schema.json",
+      "provenance": {
+        "contentHash": "7b883a6be60f50b3c85ce90edd4c0e0e4d5775cc2be2c5a083952f3122b56cc2",
+        "hashAlgorithm": "sha256",
+        "sourcePath": "generated/ml/thunder_pressure_feature_schema.json",
+        "sourceRepo": "Valar05/droobiedoo"
+      },
+      "readOnly": true,
+      "remoteCallable": true,
+      "sha256": "7b883a6be60f50b3c85ce90edd4c0e0e4d5775cc2be2c5a083952f3122b56cc2",
+      "sizeBytes": 3253,
+      "summary": "{ \"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$id\": \"https://github.com/Valar05/droobiedoo/generated/ml/thunder_pressure_feature_schema.json\", \"title\": \"Thunder Pressure Feature Record\", \"description\": \"A compact training/evaluation record for classifying mechanics as pressure-system artifacts without copying source code.\", \"type\": \"object\", \"required\": [ \"record_id\", \"source_repo\", \"source_artifact\", \"project\", \"evidence\", \"pressure_labels\", \"functional_roles\", \"confidence\", \"reason\" ], \"properties\": { \"record_id\": { \"type\": \"string\", \"description\": \"Stable unique ID for this derived record.\" }, \"source_repo\": { \"type\": \"string\", \"description\": \"Repository or corpus that supplied the evidence.\" }, \"source_artifact\": { \"type\": \"string\", \"description\": \"Path, URL, or source reference to the artifact.\" }, \"source_line\": { \"type\": [\"integer\", \"null\"], \"description\": \"Optiona",
+      "tags": [
+        "artifact",
+        "generated"
+      ],
+      "textIndexed": true,
+      "title": "{"
+    },
+    {
+      "id": "droobiedoo-artifact-thunder-pressure-labels-db1c1bfc9290aa36",
+      "kind": "artifact",
+      "modifiedTime": "2026-06-23T03:53:14.590331+00:00",
+      "path": "generated/ml/thunder_pressure_labels.json",
+      "provenance": {
+        "contentHash": "eb8eb7c36061ce44731a0b1e969f32579bd94432fbfe5e5eccdc8452bb6a80fd",
+        "hashAlgorithm": "sha256",
+        "sourcePath": "generated/ml/thunder_pressure_labels.json",
+        "sourceRepo": "Valar05/droobiedoo"
+      },
+      "readOnly": true,
+      "remoteCallable": true,
+      "sha256": "eb8eb7c36061ce44731a0b1e969f32579bd94432fbfe5e5eccdc8452bb6a80fd",
+      "sizeBytes": 4564,
+      "summary": "{ \"artifact\": \"thunder_pressure_labels\", \"version\": \"2026-06-20\", \"source_repo\": \"Valar05/thunder-brainstorm\", \"purpose\": \"Canonical labels for classifying game mechanics as pressure systems.\", \"primary_pressure_labels\": { \"positional_pressure\": \"Pressure created by space, lanes, radial slots, cover, chokepoints, collision, hull-down positions, road position, or traversal geometry.\", \"timing_pressure\": \"Pressure created by cooldowns, windups, attack cadence, rearm gaps, parry windows, decay timers, hitstop timing, or time-to-contact.\", \"resource_pressure\": \"Pressure created by scarce, gained, spent, lost, or decaying resources such as meter, health, ammo, XP, move currency, biomass, supplies, or upgrades.\", \"attention_pressure\": \"Pressure created by forcing target priority, camera awareness, multi-threat reading, radio attention, drone/commander view switching, or offscreen threat manage",
+      "tags": [
+        "artifact",
+        "generated"
+      ],
+      "textIndexed": true,
+      "title": "{"
+    },
+    {
+      "id": "droobiedoo-artifact-thunder-pressure-training-examples-ae5c4ee22963bd9d",
+      "kind": "artifact",
+      "modifiedTime": "2026-06-23T03:53:14.634331+00:00",
+      "path": "generated/ml/thunder_pressure_training_examples.jsonl",
+      "provenance": {
+        "contentHash": "aa644dc45eaf33e5df9fdb8bd9b86e8cea180738b204e8f81ae3378b7e76e13d",
+        "hashAlgorithm": "sha256",
+        "sourcePath": "generated/ml/thunder_pressure_training_examples.jsonl",
+        "sourceRepo": "Valar05/droobiedoo"
+      },
+      "readOnly": true,
+      "remoteCallable": true,
+      "sha256": "aa644dc45eaf33e5df9fdb8bd9b86e8cea180738b204e8f81ae3378b7e76e13d",
+      "sizeBytes": 8572,
+      "summary": "{\"record_id\":\"gf_ai_conductor_radial_slots\",\"source_repo\":\"Valar05/thunder-brainstorm\",\"source_artifact\":\"generated/design_packets/gravity_fist_vertical_slice_plan_2026-06-06.md\",\"source_line\":42,\"origin\":\"manual\",\"project\":\"gravity-fist\",\"mechanic_tags\":[\"ai_pressure\",\"touch_lane_combat\"],\"evidence\":\"AI has radial support slots, one active attacker permission, wounded flee/replacement, respawn pressure, camera-edge spawning, and enemy combo data.\",\"evidence_type\":[\"design_doc\",\"runtime_behavior\"],\"pressure_labels\":[\"positional_pressure\",\"attention_pressure\",\"spawn_pressure\"],\"functional_roles\":[\"pressure_regulator\",\"pressure_source\"],\"confidence\":0.92,\"reason\":\"The conductor controls enemy staging, active attackers, support positions, and replenishment, regulating how much combat pressure reaches the player.\",\"next_action\":\"Extract AIConductor identifiers from the live project to valida",
+      "tags": [
+        "artifact",
+        "generated"
+      ],
+      "textIndexed": true,
+      "title": "{\"record_id\":\"gf_ai_conductor_radial_slots\",\"source_repo\":\"Valar05/thunder-brainstorm\",\"source_artifact\":\"generated/desi"
+    },
+    {
+      "id": "droobiedoo-doctrine-readme-b754c6f84ba266c2",
+      "kind": "doctrine",
+      "modifiedTime": "2026-06-10T00:56:14.717033+00:00",
+      "path": ".codex-backups/infinite-brutality/20260609-195614/README.md",
+      "provenance": {
+        "contentHash": "195ada7a828cfffcf9d6db4a0cfb5b2a237a459160673915558256cd423f40ab",
+        "hashAlgorithm": "sha256",
+        "sourcePath": ".codex-backups/infinite-brutality/20260609-195614/README.md",
+        "sourceRepo": "Valar05/droobiedoo"
+      },
+      "readOnly": true,
+      "remoteCallable": true,
+      "sha256": "195ada7a828cfffcf9d6db4a0cfb5b2a237a459160673915558256cd423f40ab",
+      "sizeBytes": 1043,
+      "summary": "# Infinite Brutality Three.js landscape mobile prototype for a first-person melee/platformer roguelike set in Limbo. ## Run From the parent `GodotProjects` workspace, serve the workspace root and open: ```sh python3 -m http.server 8798 ``` ```text http://127.0.0.1:8798/infinite-brutality/index.html ``` ## Current Build Build `0.8.31` keeps the explicit room-traversal graph and adds a combat scaffold: the Orc Berserker now drives from the edited Pose Lab horizontal swing, uses a fist hitbox, plays hurt reaction, blood burst, hitstop, camera shake, FOV kick, and tumbles backward on death before despawning. It keeps the seeded elevation bands, 3D macro spine, vector material pass, and descent silhouette fix. ## Validation ```sh node --input-type=module --check < src/main.js node --input-type=module --check < src/generated_room_batch.js python3 -m json.tool assets/asset_manifest.json >/dev/n",
+      "tags": [
+        "doctrine"
+      ],
+      "textIndexed": true,
+      "title": "Infinite Brutality"
+    },
+    {
+      "id": "droobiedoo-doctrine-readme-a2eafbb50ca448ac",
+      "kind": "doctrine",
+      "modifiedTime": "2026-06-10T00:56:36.133033+00:00",
+      "path": ".codex-backups/infinite-brutality/20260609-195633/README.md",
+      "provenance": {
+        "contentHash": "195ada7a828cfffcf9d6db4a0cfb5b2a237a459160673915558256cd423f40ab",
+        "hashAlgorithm": "sha256",
+        "sourcePath": ".codex-backups/infinite-brutality/20260609-195633/README.md",
+        "sourceRepo": "Valar05/droobiedoo"
+      },
+      "readOnly": true,
+      "remoteCallable": true,
+      "sha256": "195ada7a828cfffcf9d6db4a0cfb5b2a237a459160673915558256cd423f40ab",
+      "sizeBytes": 1043,
+      "summary": "# Infinite Brutality Three.js landscape mobile prototype for a first-person melee/platformer roguelike set in Limbo. ## Run From the parent `GodotProjects` workspace, serve the workspace root and open: ```sh python3 -m http.server 8798 ``` ```text http://127.0.0.1:8798/infinite-brutality/index.html ``` ## Current Build Build `0.8.31` keeps the explicit room-traversal graph and adds a combat scaffold: the Orc Berserker now drives from the edited Pose Lab horizontal swing, uses a fist hitbox, plays hurt reaction, blood burst, hitstop, camera shake, FOV kick, and tumbles backward on death before despawning. It keeps the seeded elevation bands, 3D macro spine, vector material pass, and descent silhouette fix. ## Validation ```sh node --input-type=module --check < src/main.js node --input-type=module --check < src/generated_room_batch.js python3 -m json.tool assets/asset_manifest.json >/dev/n",
+      "tags": [
+        "doctrine"
+      ],
+      "textIndexed": true,
+      "title": "Infinite Brutality"
+    },
+    {
+      "id": "droobiedoo-doctrine-agents-5e81febf179814f4",
+      "kind": "doctrine",
+      "modifiedTime": "2026-06-18T11:23:38.696190+00:00",
+      "path": "AGENTS.md",
+      "provenance": {
+        "contentHash": "fb3d0fba5033d92b61a96baee434e74cea30b17223919d7a1c423a3fa88d2e80",
+        "hashAlgorithm": "sha256",
+        "sourcePath": "AGENTS.md",
+        "sourceRepo": "Valar05/droobiedoo"
+      },
+      "readOnly": true,
+      "remoteCallable": true,
+      "sha256": "fb3d0fba5033d92b61a96baee434e74cea30b17223919d7a1c423a3fa88d2e80",
+      "sizeBytes": 12563,
+      "summary": "# GodotProjects Workspace Bootstrap This folder is a multi-project workspace, not one repository. Start by identifying the project directory named in the user request, then read that project's local orientation before editing code or data. ## Motivated Bootstrap Before doing anything else in this workspace, load the active project's `PROJECT_ORIENTATION.md` and the workspace Motivated Mode contract if present. Treat `docs/MOTIVATED_MODE.md` as the default continuation rule for this workspace: own the outcome, run cheap verification, update docs, and perform the next obvious automation or test before stopping. Do not use `apply_patch` for shared-storage or sandbox-sensitive edits; prefer a project-native script or controlled file write that you can verify immediately. When the target path is shared storage, `.codex`, or another sandbox-sensitive location, follow the `workspace-write-opera",
+      "tags": [
+        "doctrine"
+      ],
+      "textIndexed": true,
+      "title": "GodotProjects Workspace Bootstrap"
+    },
+    {
+      "id": "droobiedoo-doctrine-readme-accc845d47e61bbf",
+      "kind": "doctrine",
+      "modifiedTime": "2026-06-23T03:53:28.214331+00:00",
+      "path": "README.md",
+      "provenance": {
+        "contentHash": "08ce793ffc3bc17c2ee8959c9ca4dcfde1f8ba967169418131529ddd7142be08",
+        "hashAlgorithm": "sha256",
+        "sourcePath": "README.md",
+        "sourceRepo": "Valar05/droobiedoo"
+      },
+      "readOnly": true,
+      "remoteCallable": true,
+      "sha256": "08ce793ffc3bc17c2ee8959c9ca4dcfde1f8ba967169418131529ddd7142be08",
+      "sizeBytes": 822,
+      "summary": "# droobiedoo Workspace-level agent knowledge and shared artifacts for `/storage/emulated/0/Documents/GodotProjects`. This repository is for material that is not owned by a single game/app project: - root workspace instructions (`AGENTS.md`) - workspace Codex skills (`.codex/skills`) - workspace docs (`docs/`) - shared tools and test harnesses (`tools/`) - generated workspace reports (`generated/`) - Codex backup artifacts that were stored at the workspace root (`.codex-backups/`) Nested project repositories, generated caches, and nested `.git` directories are intentionally excluded. ## Corpus Policy Raw chat/corpus exports are local-only. Do not commit original export blobs; commit only indexed or curated derivatives under `wwdd/indexed/` or `wwdd/curated/` when they are intentionally prepared for reuse.",
+      "tags": [
+        "doctrine"
+      ],
+      "textIndexed": true,
+      "title": "droobiedoo"
+    },
+    {
+      "id": "droobiedoo-doctrine-animation-apprentice-contract-2bcad996bd652b23",
+      "kind": "doctrine",
+      "modifiedTime": "2026-06-23T03:53:14.274331+00:00",
+      "path": "docs/animation/ANIMATION_APPRENTICE_CONTRACT.md",
+      "provenance": {
+        "contentHash": "264745de841a78adb5842ab6a67b74b956a22af8f52f08179230e77066792f68",
+        "hashAlgorithm": "sha256",
+        "sourcePath": "docs/animation/ANIMATION_APPRENTICE_CONTRACT.md",
+        "sourceRepo": "Valar05/droobiedoo"
+      },
+      "readOnly": true,
+      "remoteCallable": true,
+      "sha256": "264745de841a78adb5842ab6a67b74b956a22af8f52f08179230e77066792f68",
+      "sizeBytes": 4599,
+      "summary": "# Animation Apprentice Contract ## Purpose The Animation Apprentice is the durable agent contract for turning animation work into reusable knowledge. Pose Lab is the cockpit. Droobiedoo is the memory and training layer. The goal is not merely to generate animations. The goal is to make the agent measurably better after critique, correction, and repeated use. ## Core Loop ```text Request animation -> inspect rig, poses, clips, and lessons -> generate a motion recipe -> draft key poses and timing -> user corrects poses and critiques motion -> extract reusable lessons -> store lessons in durable knowledge -> regenerate with lessons applied ``` Correction is the treasure. A failed draft with a precise correction is useful. An unexamined pretty draft is not. ## Durable Artifacts ### AnimationBrief The user request and constraints. ```yaml brief_id: unique id request: user prompt subject: rig ",
+      "tags": [
+        "doctrine"
+      ],
+      "textIndexed": true,
+      "title": "Animation Apprentice Contract"
+    },
+    {
+      "id": "droobiedoo-doctrine-readme-e76f8524b3e64c6f",
+      "kind": "doctrine",
+      "modifiedTime": "2026-06-18T15:12:52.468660+00:00",
+      "path": "tools/home_center_bundle/README.md",
+      "provenance": {
+        "contentHash": "d672a509a52adf86f69ab6573964614d3f43e84900f7cd64ffe232c78f82bef2",
+        "hashAlgorithm": "sha256",
+        "sourcePath": "tools/home_center_bundle/README.md",
+        "sourceRepo": "Valar05/droobiedoo"
+      },
+      "readOnly": true,
+      "remoteCallable": true,
+      "sha256": "d672a509a52adf86f69ab6573964614d3f43e84900f7cd64ffe232c78f82bef2",
+      "sizeBytes": 1197,
+      "summary": "# Home Center Agent Bundle This bundle packages the meal-orchestration model into a small set of focused agents with one shared rulebook. ## Bundle layout - `manifest.json` - machine-readable bundle index - `shared_rules.md` - the cross-agent kitchen doctrine - `schemas/response_contract.schema.json` - shared output shape for all agents - `agents/` - specialist agent prompts - `examples/` - concrete scenario examples ## Agent split - `Kitchen Orchestrator` - routes tasks and chooses which specialist should answer - `Meal Composer` - bounded and unbounded meal brainstorming - `Kitchen Scheduler` - one-active-task timing and appliance orchestration - `Subsistence Upgrader` - cheap base-food repair and boxed-meal upgrades - `Accessibility Monitor` - nonvisual doneness and probe-first cues - `Rule Miner` - discovers and stores new kitchen doctrines from corpus/experiments ## Shared contract",
+      "tags": [
+        "doctrine"
+      ],
+      "textIndexed": true,
+      "title": "Home Center Agent Bundle"
+    },
+    {
+      "id": "droobiedoo-doctrine-response-contract-schema-96f85432f9a45c97",
+      "kind": "doctrine",
+      "modifiedTime": "2026-06-18T15:12:52.660660+00:00",
+      "path": "tools/home_center_bundle/schemas/response_contract.schema.json",
+      "provenance": {
+        "contentHash": "96ac3e7955aba42c4a248c5d4e71893f4018f143b18e0711d38e87dea104b609",
+        "hashAlgorithm": "sha256",
+        "sourcePath": "tools/home_center_bundle/schemas/response_contract.schema.json",
+        "sourceRepo": "Valar05/droobiedoo"
+      },
+      "readOnly": true,
+      "remoteCallable": true,
+      "sha256": "96ac3e7955aba42c4a248c5d4e71893f4018f143b18e0711d38e87dea104b609",
+      "sizeBytes": 905,
+      "summary": "{ \"$schema\": \"https://json-schema.org/draft/2020-12/schema\", \"$id\": \"https://example.local/home-center/response-contract.schema.json\", \"title\": \"Home Center Agent Response Contract\", \"type\": \"object\", \"properties\": { \"agent\": { \"type\": \"string\" }, \"mode\": { \"type\": \"string\" }, \"next_action\": { \"type\": [\"string\", \"null\"] }, \"reason\": { \"type\": [\"string\", \"null\"] }, \"time_until_next_check\": { \"type\": [\"string\", \"number\", \"null\"] }, \"temperature_target\": { \"type\": [\"string\", \"number\", \"null\"] }, \"texture_target\": { \"type\": [\"string\", \"null\"] }, \"finish\": { \"type\": [\"string\", \"null\"] }, \"risk\": { \"type\": [\"string\", \"null\"] }, \"confidence\": { \"type\": [\"number\", \"null\"], \"minimum\": 0, \"maximum\": 1 }, \"notes\": { \"type\": \"array\", \"items\": { \"type\": \"string\" } } }, \"required\": [\"agent\", \"mode\"], \"additionalProperties\": true }",
+      "tags": [
+        "doctrine"
+      ],
+      "textIndexed": true,
+      "title": "{"
+    },
+    {
+      "id": "droobiedoo-doctrine-shared-rules-ea451527547b3a45",
+      "kind": "doctrine",
+      "modifiedTime": "2026-06-18T15:12:52.584660+00:00",
+      "path": "tools/home_center_bundle/shared_rules.md",
+      "provenance": {
+        "contentHash": "87c30657c98897e8ad70abcacec2dcd47142e8a165981901cfa0f04ed81b9e9f",
+        "hashAlgorithm": "sha256",
+        "sourcePath": "tools/home_center_bundle/shared_rules.md",
+        "sourceRepo": "Valar05/droobiedoo"
+      },
+      "readOnly": true,
+      "remoteCallable": true,
+      "sha256": "87c30657c98897e8ad70abcacec2dcd47142e8a165981901cfa0f04ed81b9e9f",
+      "sizeBytes": 2571,
+      "summary": "# Shared Kitchen Doctrine ## Core principles - A meal is a coordinated event, not a single dish. - Only one task should be mentally active at a time. - Parallel work is allowed only when one task is passive. - The kitchen should prefer high-leverage defaults and simple recoverable steps. ## Heat engine priorities - Air fryer: best default for small-batch crisping and roasting when capacity is enough. - Oven: best for volume, tray work, convection, broil, and stable multi-item timing. - Cast iron or skillet: best for browning, fond, and pan sauce work. - Microwave: staging tool for thawing, softening, or preheating low-risk components. - Stovetop: control and correction tool for sauce, sear, simmer, and repair. ## Timing doctrines - Start the longest lead item first. - Hard vegetables get a head start. - Protein starts after or alongside the longest component depending on method. - Soft v",
+      "tags": [
+        "doctrine"
+      ],
+      "textIndexed": true,
+      "title": "Shared Kitchen Doctrine"
+    },
+    {
+      "id": "droobiedoo-project-project-manifest-49ed3c93d48a55ab",
+      "kind": "project",
+      "modifiedTime": "2026-06-20T22:47:42.519293+00:00",
+      "path": "PROJECT_MANIFEST.md",
+      "provenance": {
+        "contentHash": "aef3453cab524244911eee1abb028605ab8b73259e6f620cf1da9623bbae826c",
+        "hashAlgorithm": "sha256",
+        "sourcePath": "PROJECT_MANIFEST.md",
+        "sourceRepo": "Valar05/droobiedoo"
+      },
+      "readOnly": true,
+      "remoteCallable": true,
+      "sha256": "aef3453cab524244911eee1abb028605ab8b73259e6f620cf1da9623bbae826c",
+      "sizeBytes": 2239,
+      "summary": "# Project Manifest: droobiedoo - Generated: 2026-06-20T17:47:30-05:00 - Workspace path: `/storage/emulated/0/Documents/GodotProjects/droobiedoo` - Git repository: yes - Git remote: `https://github.com/Valar05/droobiedoo.git` - Agent instructions: `AGENTS.md` ## Purpose Snapshot > # GodotProjects Workspace Bootstrap > This folder is a multi-project workspace, not one repository. Start by identifying the project directory named in the user request, then read that project's local orientation before editing code or data. > ## Motivated Bootstrap > Before doing anything else in this workspace, load the active project's `PROJECT_ORIENTATION.md` and the workspace Motivated Mode contract if present. Treat `docs/MOTIVATED_MODE.md` as the default continuation rule for this workspace: own the outcome, run cheap verification, update docs, and perform the next obvious automation or test before stoppi",
+      "tags": [
+        "manifest",
+        "project-resolution"
+      ],
+      "textIndexed": true,
+      "title": "Project Manifest: droobiedoo"
+    },
+    {
+      "id": "droobiedoo-project-project-manifest-33dfcc2a2490d503",
+      "kind": "project",
+      "modifiedTime": "2026-06-20T22:01:05.083291+00:00",
+      "path": "docs/PROJECT_MANIFEST.md",
+      "provenance": {
+        "contentHash": "2479abddbb173a20b56a00d5a7f79842ad2d4de908375ea91c7f8d709944d23c",
+        "hashAlgorithm": "sha256",
+        "sourcePath": "docs/PROJECT_MANIFEST.md",
+        "sourceRepo": "Valar05/droobiedoo"
+      },
+      "readOnly": true,
+      "remoteCallable": true,
+      "sha256": "2479abddbb173a20b56a00d5a7f79842ad2d4de908375ea91c7f8d709944d23c",
+      "sizeBytes": 944,
+      "summary": "# Project Manifest: docs - Generated: 2026-06-20T17:00:50-05:00 - Workspace path: `/storage/emulated/0/Documents/GodotProjects/docs` - Git repository: yes - Git remote: none configured ## Purpose Snapshot No project orientation file was found during manifest generation. Treat this manifest as an inventory scaffold until a project-specific orientation is added. ## Entrypoints And Validation Clues - No standard entrypoint was detected. Inspect top-level files and add project-specific validation commands when known. ## Top-Level Inventory - `.gitattributes` - `.gitignore` - `meshy_asset_workflow.md` ## Git Hygiene - `.gitignore` contains a Codex workspace hygiene block for credentials, caches, and local build outputs. - `.gitattributes` contains a Codex Git LFS block for common binary assets, models, audio, video, archives, fonts, and PDFs. - `git lfs install --local` was attempted for this",
+      "tags": [
+        "manifest",
+        "project-resolution"
+      ],
+      "textIndexed": true,
+      "title": "Project Manifest: docs"
+    },
+    {
+      "id": "droobiedoo-project-project-manifest-1345b4829b5e6515",
+      "kind": "project",
+      "modifiedTime": "2026-06-20T22:01:23.119291+00:00",
+      "path": "generated/PROJECT_MANIFEST.md",
+      "provenance": {
+        "contentHash": "22767f767127bd8dcfb272a954bf189cbfd9c05d3e97a2d8f72650fa74e1093b",
+        "hashAlgorithm": "sha256",
+        "sourcePath": "generated/PROJECT_MANIFEST.md",
+        "sourceRepo": "Valar05/droobiedoo"
+      },
+      "readOnly": true,
+      "remoteCallable": true,
+      "sha256": "22767f767127bd8dcfb272a954bf189cbfd9c05d3e97a2d8f72650fa74e1093b",
+      "sizeBytes": 941,
+      "summary": "# Project Manifest: generated - Generated: 2026-06-20T17:00:50-05:00 - Workspace path: `/storage/emulated/0/Documents/GodotProjects/generated` - Git repository: yes - Git remote: none configured ## Purpose Snapshot No project orientation file was found during manifest generation. Treat this manifest as an inventory scaffold until a project-specific orientation is added. ## Entrypoints And Validation Clues - No standard entrypoint was detected. Inspect top-level files and add project-specific validation commands when known. ## Top-Level Inventory - `.gitattributes` - `.gitignore` - `visual_qa/` ## Git Hygiene - `.gitignore` contains a Codex workspace hygiene block for credentials, caches, and local build outputs. - `.gitattributes` contains a Codex Git LFS block for common binary assets, models, audio, video, archives, fonts, and PDFs. - `git lfs install --local` was attempted for this re",
+      "tags": [
+        "manifest",
+        "project-resolution"
+      ],
+      "textIndexed": true,
+      "title": "Project Manifest: generated"
+    },
+    {
+      "id": "droobiedoo-project-project-manifest-2e0e7023c0e7c6ec",
+      "kind": "project",
+      "modifiedTime": "2026-06-20T22:03:18.163291+00:00",
+      "path": "tools/PROJECT_MANIFEST.md",
+      "provenance": {
+        "contentHash": "04db3583505990d14fab1a37ab7fbb8213831f2fff60e5a784bdc4ee6ef08cb5",
+        "hashAlgorithm": "sha256",
+        "sourcePath": "tools/PROJECT_MANIFEST.md",
+        "sourceRepo": "Valar05/droobiedoo"
+      },
+      "readOnly": true,
+      "remoteCallable": true,
+      "sha256": "04db3583505990d14fab1a37ab7fbb8213831f2fff60e5a784bdc4ee6ef08cb5",
+      "sizeBytes": 1205,
+      "summary": "# Project Manifest: tools - Generated: 2026-06-20T17:00:50-05:00 - Workspace path: `/storage/emulated/0/Documents/GodotProjects/tools` - Git repository: yes - Git remote: none configured ## Purpose Snapshot No project orientation file was found during manifest generation. Treat this manifest as an inventory scaffold until a project-specific orientation is added. ## Entrypoints And Validation Clues - No standard entrypoint was detected. Inspect top-level files and add project-specific validation commands when known. ## Top-Level Inventory - `.gitattributes` - `.gitignore` - `__pycache__/` - `home_center_bundle/` - `meshy_asset_workflow.py` - `test_visual_qa_launcher_fallback.mjs` - `test_workspace_motivated_bootstrap.mjs` - `test_write_codex_rules_from_source.py` - `visual_qa.mjs` - `write_codex_rules_from_source.py` - `write_codex_rules_from_source.sh` ## Git Hygiene - `.gitignore` conta",
+      "tags": [
+        "manifest",
+        "project-resolution"
+      ],
+      "textIndexed": true,
+      "title": "Project Manifest: tools"
+    },
+    {
+      "id": "droobiedoo-provenance-gitattributes-4304ab15ef82a993",
+      "kind": "provenance",
+      "modifiedTime": "2026-06-23T03:53:28.214331+00:00",
+      "path": ".gitattributes",
+      "provenance": {
+        "contentHash": "1051d58f30b35123d41b850dca20dc7377ef5ae1edebe378017c226c8e6568a5",
+        "hashAlgorithm": "sha256",
+        "sourcePath": ".gitattributes",
+        "sourceRepo": "Valar05/droobiedoo"
+      },
+      "readOnly": true,
+      "remoteCallable": true,
+      "sha256": "1051d58f30b35123d41b850dca20dc7377ef5ae1edebe378017c226c8e6568a5",
+      "sizeBytes": 1726,
+      "summary": "",
+      "tags": [
+        "provenance"
+      ],
+      "textIndexed": false,
+      "title": ".Gitattributes"
+    },
+    {
+      "id": "droobiedoo-provenance-gitignore-570b35a2b038101d",
+      "kind": "provenance",
+      "modifiedTime": "2026-06-23T03:53:28.210331+00:00",
+      "path": ".gitignore",
+      "provenance": {
+        "contentHash": "eadc74a3fb6893e430f761ca52c14ecec2cd8a4d924df5c7aca18c09c1e826ca",
+        "hashAlgorithm": "sha256",
+        "sourcePath": ".gitignore",
+        "sourceRepo": "Valar05/droobiedoo"
+      },
+      "readOnly": true,
+      "remoteCallable": true,
+      "sha256": "eadc74a3fb6893e430f761ca52c14ecec2cd8a4d924df5c7aca18c09c1e826ca",
+      "sizeBytes": 370,
+      "summary": "",
+      "tags": [
+        "provenance"
+      ],
+      "textIndexed": false,
+      "title": ".Gitignore"
+    },
+    {
+      "id": "droobiedoo-provenance-workspace-artifact-manifest-ea1dc6fc858964f5",
+      "kind": "provenance",
+      "modifiedTime": "2026-06-20T22:16:43.307291+00:00",
+      "path": "WORKSPACE_ARTIFACT_MANIFEST.json",
+      "provenance": {
+        "contentHash": "053ec6d5da7af62d691e17d1ec1cbb06ff8b07c53e662ab283e619b99d602962",
+        "hashAlgorithm": "sha256",
+        "sourcePath": "WORKSPACE_ARTIFACT_MANIFEST.json",
+        "sourceRepo": "Valar05/droobiedoo"
+      },
+      "readOnly": true,
+      "remoteCallable": true,
+      "sha256": "053ec6d5da7af62d691e17d1ec1cbb06ff8b07c53e662ab283e619b99d602962",
+      "sizeBytes": 443,
+      "summary": "{ \"repo\": \"droobiedoo\", \"source_root\": \"/storage/emulated/0/Documents/GodotProjects\", \"refreshed_utc\": \"2026-06-20T22:16:43.306862+00:00\", \"included\": [ \"AGENTS.md\", \".codex\", \".codex-backups\", \"docs\", \"generated\", \"tools\" ], \"excluded\": [ \"sibling project directories\", \"nested .git directories\", \"__pycache__\", \".pytest_cache\", \"node_modules\", \"temporary editor/cache files\" ] }",
+      "tags": [
+        "provenance"
+      ],
+      "textIndexed": true,
+      "title": "{"
+    },
+    {
+      "id": "droobiedoo-provenance-gitattributes-df3c12d8c916ebe9",
+      "kind": "provenance",
+      "modifiedTime": "2026-06-20T22:01:04.939291+00:00",
+      "path": "docs/.gitattributes",
+      "provenance": {
+        "contentHash": "1051d58f30b35123d41b850dca20dc7377ef5ae1edebe378017c226c8e6568a5",
+        "hashAlgorithm": "sha256",
+        "sourcePath": "docs/.gitattributes",
+        "sourceRepo": "Valar05/droobiedoo"
+      },
+      "readOnly": true,
+      "remoteCallable": true,
+      "sha256": "1051d58f30b35123d41b850dca20dc7377ef5ae1edebe378017c226c8e6568a5",
+      "sizeBytes": 1726,
+      "summary": "",
+      "tags": [
+        "provenance"
+      ],
+      "textIndexed": false,
+      "title": ".Gitattributes"
+    },
+    {
+      "id": "droobiedoo-provenance-gitignore-e10de0c6659d067c",
+      "kind": "provenance",
+      "modifiedTime": "2026-06-20T22:01:04.895291+00:00",
+      "path": "docs/.gitignore",
+      "provenance": {
+        "contentHash": "e1a260e2cd34907a1aed6c37b83aea88740b9d8827c9b3c78289b37427a6bfdd",
+        "hashAlgorithm": "sha256",
+        "sourcePath": "docs/.gitignore",
+        "sourceRepo": "Valar05/droobiedoo"
+      },
+      "readOnly": true,
+      "remoteCallable": true,
+      "sha256": "e1a260e2cd34907a1aed6c37b83aea88740b9d8827c9b3c78289b37427a6bfdd",
+      "sizeBytes": 496,
+      "summary": "",
+      "tags": [
+        "provenance"
+      ],
+      "textIndexed": false,
+      "title": ".Gitignore"
+    },
+    {
+      "id": "droobiedoo-provenance-gitattributes-8c5df62e94db03be",
+      "kind": "provenance",
+      "modifiedTime": "2026-06-20T22:01:23.027291+00:00",
+      "path": "generated/.gitattributes",
+      "provenance": {
+        "contentHash": "1051d58f30b35123d41b850dca20dc7377ef5ae1edebe378017c226c8e6568a5",
+        "hashAlgorithm": "sha256",
+        "sourcePath": "generated/.gitattributes",
+        "sourceRepo": "Valar05/droobiedoo"
+      },
+      "readOnly": true,
+      "remoteCallable": true,
+      "sha256": "1051d58f30b35123d41b850dca20dc7377ef5ae1edebe378017c226c8e6568a5",
+      "sizeBytes": 1726,
+      "summary": "",
+      "tags": [
+        "provenance"
+      ],
+      "textIndexed": false,
+      "title": ".Gitattributes"
+    },
+    {
+      "id": "droobiedoo-provenance-gitignore-8578845dc49902e2",
+      "kind": "provenance",
+      "modifiedTime": "2026-06-20T22:01:22.983291+00:00",
+      "path": "generated/.gitignore",
+      "provenance": {
+        "contentHash": "e1a260e2cd34907a1aed6c37b83aea88740b9d8827c9b3c78289b37427a6bfdd",
+        "hashAlgorithm": "sha256",
+        "sourcePath": "generated/.gitignore",
+        "sourceRepo": "Valar05/droobiedoo"
+      },
+      "readOnly": true,
+      "remoteCallable": true,
+      "sha256": "e1a260e2cd34907a1aed6c37b83aea88740b9d8827c9b3c78289b37427a6bfdd",
+      "sizeBytes": 496,
+      "summary": "",
+      "tags": [
+        "provenance"
+      ],
+      "textIndexed": false,
+      "title": ".Gitignore"
+    },
+    {
+      "id": "droobiedoo-provenance-thunder-pressure-manifest-a57a0e73390efe2c",
+      "kind": "provenance",
+      "modifiedTime": "2026-06-23T03:53:14.614331+00:00",
+      "path": "generated/ml/thunder_pressure_manifest.json",
+      "provenance": {
+        "contentHash": "220e69a4528746f2c6cb37ba0ff75fadee9e630ec6f3663fe3886cd2128ca0e2",
+        "hashAlgorithm": "sha256",
+        "sourcePath": "generated/ml/thunder_pressure_manifest.json",
+        "sourceRepo": "Valar05/droobiedoo"
+      },
+      "readOnly": true,
+      "remoteCallable": true,
+      "sha256": "220e69a4528746f2c6cb37ba0ff75fadee9e630ec6f3663fe3886cd2128ca0e2",
+      "sizeBytes": 2599,
+      "summary": "{ \"artifact_set\": \"thunder_pressure_systems_ml_pass\", \"created_at\": \"2026-06-20\", \"target_repo\": \"Valar05/droobiedoo\", \"source_repo\": \"Valar05/thunder-brainstorm\", \"source_artifacts_read\": [ \"README.md\", \"generated/second_pass_report.md\", \"generated/index_combined/mechanic_index_summary.json\", \"generated/design_packets/gravity_fist_vertical_slice_plan_2026-06-06.md\", \"generated/project_links/gravity_fist_project_links.md\" ], \"stored_artifacts\": [ { \"path\": \"docs/ml/thunder_pressure_systems_pass_2026-06-20.md\", \"kind\": \"analysis_report\", \"purpose\": \"Human-readable formal pass describing Thunder as a pressure-system dataset.\" }, { \"path\": \"generated/ml/thunder_pressure_labels.json\", \"kind\": \"label_taxonomy\", \"purpose\": \"Canonical pressure labels, functional roles, evidence labels, and classification rules.\" }, { \"path\": \"generated/ml/thunder_pressure_feature_schema.json\", \"kind\": \"json_sch",
+      "tags": [
+        "provenance"
+      ],
+      "textIndexed": true,
+      "title": "{"
+    },
+    {
+      "id": "droobiedoo-provenance-project-manifest-git-pass-2026-06-20-d0b82c6e62f482b0",
+      "kind": "provenance",
+      "modifiedTime": "2026-06-20T22:07:43.687291+00:00",
+      "path": "generated/project_manifest_git_pass_2026-06-20.json",
+      "provenance": {
+        "contentHash": "9b92097795fdd38e46fee47d058c327fafd4dc1424423d9d4ad24e2a97dfdd79",
+        "hashAlgorithm": "sha256",
+        "sourcePath": "generated/project_manifest_git_pass_2026-06-20.json",
+        "sourceRepo": "Valar05/droobiedoo"
+      },
+      "readOnly": true,
+      "remoteCallable": true,
+      "sha256": "9b92097795fdd38e46fee47d058c327fafd4dc1424423d9d4ad24e2a97dfdd79",
+      "sizeBytes": 136314,
+      "summary": "{ \"generated\": \"2026-06-20T17:00:50-05:00\", \"root\": \"/storage/emulated/0/Documents/GodotProjects\", \"projects\": [ { \"project\": \"aegis-of-victory\", \"path\": \"/storage/emulated/0/Documents/GodotProjects/aegis-of-victory\", \"changed_files_written\": [ \".gitignore\", \".gitattributes\", \"PROJECT_MANIFEST.md\" ], \"commit\": \"7605c8e\", \"push\": \"ok\", \"remote\": \"https://github.com/Valar05/aegis-of-victory.git\", \"errors\": [], \"dirty_after\": 0, \"log\": [ { \"step\": \"git_lfs_install_local\", \"cmd\": \"git -c safe.directory=/storage/emulated/0/Documents/GodotProjects/aegis-of-victory lfs install --local\", \"code\": 0, \"out\": \"Updated Git hooks.\\nGit LFS initialized.\\n\", \"err\": \"\" }, { \"step\": \"git_add_all\", \"cmd\": \"git -c safe.directory=/storage/emulated/0/Documents/GodotProjects/aegis-of-victory add -A\", \"code\": 0, \"out\": \"\", \"err\": \"\" }, { \"step\": \"git_commit\", \"cmd\": \"git -c safe.directory=/storage/emulated/0/Do",
+      "tags": [
+        "provenance"
+      ],
+      "textIndexed": true,
+      "title": "{"
+    },
+    {
+      "id": "droobiedoo-provenance-gitattributes-20aa13a0ae4f495c",
+      "kind": "provenance",
+      "modifiedTime": "2026-06-20T22:03:18.055291+00:00",
+      "path": "tools/.gitattributes",
+      "provenance": {
+        "contentHash": "1051d58f30b35123d41b850dca20dc7377ef5ae1edebe378017c226c8e6568a5",
+        "hashAlgorithm": "sha256",
+        "sourcePath": "tools/.gitattributes",
+        "sourceRepo": "Valar05/droobiedoo"
+      },
+      "readOnly": true,
+      "remoteCallable": true,
+      "sha256": "1051d58f30b35123d41b850dca20dc7377ef5ae1edebe378017c226c8e6568a5",
+      "sizeBytes": 1726,
+      "summary": "",
+      "tags": [
+        "provenance"
+      ],
+      "textIndexed": false,
+      "title": ".Gitattributes"
+    },
+    {
+      "id": "droobiedoo-provenance-gitignore-2e824932bab40835",
+      "kind": "provenance",
+      "modifiedTime": "2026-06-20T22:03:18.007291+00:00",
+      "path": "tools/.gitignore",
+      "provenance": {
+        "contentHash": "e1a260e2cd34907a1aed6c37b83aea88740b9d8827c9b3c78289b37427a6bfdd",
+        "hashAlgorithm": "sha256",
+        "sourcePath": "tools/.gitignore",
+        "sourceRepo": "Valar05/droobiedoo"
+      },
+      "readOnly": true,
+      "remoteCallable": true,
+      "sha256": "e1a260e2cd34907a1aed6c37b83aea88740b9d8827c9b3c78289b37427a6bfdd",
+      "sizeBytes": 496,
+      "summary": "",
+      "tags": [
+        "provenance"
+      ],
+      "textIndexed": false,
+      "title": ".Gitignore"
+    },
+    {
+      "id": "droobiedoo-provenance-manifest-dfc011c4d119d3f8",
+      "kind": "provenance",
+      "modifiedTime": "2026-06-18T15:12:52.504660+00:00",
+      "path": "tools/home_center_bundle/manifest.json",
+      "provenance": {
+        "contentHash": "8588ea918de7b05a1215df13b6fcb0cc3df75c9d08c7cce277d0de4bb488edda",
+        "hashAlgorithm": "sha256",
+        "sourcePath": "tools/home_center_bundle/manifest.json",
+        "sourceRepo": "Valar05/droobiedoo"
+      },
+      "readOnly": true,
+      "remoteCallable": true,
+      "sha256": "8588ea918de7b05a1215df13b6fcb0cc3df75c9d08c7cce277d0de4bb488edda",
+      "sizeBytes": 1530,
+      "summary": "{ \"bundle_name\": \"home-center-agent-bundle\", \"version\": \"0.1.0\", \"description\": \"A multi-agent kitchen bundle for meal composition, orchestration, subsistence upgrades, accessibility, and rule mining.\", \"primary_agent\": \"agents/kitchen_orchestrator.md\", \"shared_rules\": \"shared_rules.md\", \"response_contract\": \"schemas/response_contract.schema.json\", \"agents\": [ { \"name\": \"Kitchen Orchestrator\", \"file\": \"agents/kitchen_orchestrator.md\", \"role\": \"routes requests and delegates to specialists\" }, { \"name\": \"Meal Composer\", \"file\": \"agents/meal_composer.md\", \"role\": \"generates bounded and unbounded meal variants\" }, { \"name\": \"Kitchen Scheduler\", \"file\": \"agents/kitchen_scheduler.md\", \"role\": \"selects heat engines and sequences one-active-task plans\" }, { \"name\": \"Subsistence Upgrader\", \"file\": \"agents/subsistence_upgrader.md\", \"role\": \"upgrades cheap base foods and boxed meals\" }, { \"name\": \"",
+      "tags": [
+        "provenance"
+      ],
+      "textIndexed": true,
+      "title": "{"
+    },
+    {
+      "id": "droobiedoo-report-chat-export-known-hazard-hits-72a241f6e9a440fa",
+      "kind": "report",
+      "modifiedTime": "2026-06-23T14:03:46.011387+00:00",
+      "path": "generated/known_hazards/chat_export_known_hazard_hits.md",
+      "provenance": {
+        "contentHash": "2cf8d2bfb9a7dc247fed51adb61f39f78e36b5ef4a6a50295e1ca32b5d71ed4d",
+        "hashAlgorithm": "sha256",
+        "sourcePath": "generated/known_hazards/chat_export_known_hazard_hits.md",
+        "sourceRepo": "Valar05/droobiedoo"
+      },
+      "readOnly": true,
+      "remoteCallable": true,
+      "sha256": "2cf8d2bfb9a7dc247fed51adb61f39f78e36b5ef4a6a50295e1ca32b5d71ed4d",
+      "sizeBytes": 33166,
+      "summary": "# Chat Export Known Hazard Hits ## Source Summary - Scan root: droobiedoo - Export location: droobiedoo/wwdd - Date: 2026-06-23 - Files scanned: 22 JSON files (15 conversation shards plus export metadata JSON) - Search terms used: Lexen; Isaac; Gasket; Sidious; known hazard; known hazards; observer model; self model; self-model; simulation model; diagnostic lens; perspective routing; burden exposure; human-cost exposure; human cost; reality exposure; release exposure; wise fool; dialogue archetype; Do it; Palpatine; pattern hell; preparation addiction; what burden; what cost; what obvious thing; what would happen if we executed Collection note: conversation JSON was used as the canonical chat source. Hits are capped at 25 per hazard where needed. Excerpts are intentionally short. The `Do it` phrase was matched case-sensitively to avoid incidental lowercase uses. ## Hazard: Lexen ### Hits",
+      "tags": [
+        "report"
+      ],
+      "textIndexed": true,
+      "title": "Chat Export Known Hazard Hits"
+    },
+    {
+      "id": "droobiedoo-report-visual-qa-report-0f342735d7016212",
+      "kind": "report",
+      "modifiedTime": "2026-06-19T15:23:10.706601+00:00",
+      "path": "generated/visual_qa/latest/visual_qa_report.json",
+      "provenance": {
+        "contentHash": "8314b2b0893c72231213daa564964591ba5c3fbf844a2705138abdf94799bef5",
+        "hashAlgorithm": "sha256",
+        "sourcePath": "generated/visual_qa/latest/visual_qa_report.json",
+        "sourceRepo": "Valar05/droobiedoo"
+      },
+      "readOnly": true,
+      "remoteCallable": true,
+      "sha256": "8314b2b0893c72231213daa564964591ba5c3fbf844a2705138abdf94799bef5",
+      "sizeBytes": 3320,
+      "summary": "{ \"ok\": false, \"failure\": { \"code\": \"no-browser-requests\", \"message\": \"Launcher returned success but the browser never requested the local URL.\" }, \"project\": \"pose-lab\", \"url\": \"http://127.0.0.1:10180/pose-lab.html?mode=critique&actor=ares&cacheBust=pose-editor-16&beacon=1&capture=1&captureFrames=6&captureIntervalMs=500&visualQaExpectedBuild=clean-sf2\", \"outDir\": \"/storage/emulated/0/Documents/GodotProjects/generated/visual_qa/latest\", \"report\": \"/storage/emulated/0/Documents/GodotProjects/generated/visual_qa/latest/visual_qa_report.json\", \"sheet\": null, \"expectedBuild\": \"clean-sf2\", \"loadedBuild\": \"\", \"buildInfo\": { \"runtimeBuild\": \"clean-sf2\", \"indexPath\": \"/storage/emulated/0/Documents/GodotProjects/pose-lab.html\", \"cacheTokens\": [] }, \"launch\": { \"code\": 0, \"signal\": null, \"stdout\": \"Starting: Intent { act=android.intent.action.VIEW dat=http://127.0.0.1:10180/... }\\n\", \"stderr\": \"\"",
+      "tags": [
+        "report"
+      ],
+      "textIndexed": true,
+      "title": "{"
+    },
+    {
+      "id": "droobiedoo-report-capability-multipliers-a638f86471c283f1",
+      "kind": "report",
+      "modifiedTime": "2026-06-23T23:34:50.465655+00:00",
+      "path": "reports/capability-multipliers.md",
+      "provenance": {
+        "contentHash": "e562e5a7d7068421c7b77efe82d19d7996dda72ab2f8e69422119017ef1a1cdd",
+        "hashAlgorithm": "sha256",
+        "sourcePath": "reports/capability-multipliers.md",
+        "sourceRepo": "Valar05/droobiedoo"
+      },
+      "readOnly": true,
+      "remoteCallable": true,
+      "sha256": "e562e5a7d7068421c7b77efe82d19d7996dda72ab2f8e69422119017ef1a1cdd",
+      "sizeBytes": 19393,
+      "summary": "# Capability Multipliers ## Source Summary - Primary source: [`reports/capability-timeline.md`](/storage/emulated/0/Documents/GodotProjects/droobiedoo/reports/capability-timeline.md) - Boundary check: [`generated/known_hazards/chat_export_known_hazard_hits.md`](/storage/emulated/0/Documents/GodotProjects/droobiedoo/generated/known_hazards/chat_export_known_hazard_hits.md) Use timeline evidence first. Use hazard evidence only when it helps explain a spike or a false-positive boundary. This report is dependency analysis. It is not chronology. It is not sentiment. It is not another taxonomy. ## Multiplier Map | Capability | Dependencies | Descendants | Multiplier Strength | Gold Assessment | Jeremy Test | | --- | --- | --- | ---: | --- | --- | | Script And Setup Delegation | Asking for executable artifacts; early chat-as-build support | Full-stack prototyping, validation-first workflow, age",
+      "tags": [
+        "report"
+      ],
+      "textIndexed": true,
+      "title": "Capability Multipliers"
+    },
+    {
+      "id": "droobiedoo-report-capability-recipes-b4eb7c71ca7967e8",
+      "kind": "report",
+      "modifiedTime": "2026-06-23T23:27:20.697654+00:00",
+      "path": "reports/capability-recipes.md",
+      "provenance": {
+        "contentHash": "2d495a78b23e257b391765836e10cd8da0b3d5556844b9602b6e3a1b460f7333",
+        "hashAlgorithm": "sha256",
+        "sourcePath": "reports/capability-recipes.md",
+        "sourceRepo": "Valar05/droobiedoo"
+      },
+      "readOnly": true,
+      "remoteCallable": true,
+      "sha256": "2d495a78b23e257b391765836e10cd8da0b3d5556844b9602b6e3a1b460f7333",
+      "sizeBytes": 19113,
+      "summary": "# Capability Recipes Input sources: - `reports/capability-timeline.md` - `generated/known_hazards/chat_export_known_hazard_hits.md` Use timeline evidence first. Use hazard evidence only when it helps explain a spike or boundary condition. This report turns observed capability growth into reproducible recipes. It is not a timeline. It is not a doctrine summary. It is a cookbook. ## How To Read This Each recipe captures: - capability - observed outcome - prerequisites - recipe - reproducibility score - transferability score Scores are 1-10. ## June Recipes These are the recipes that most clearly improved outcomes for June, especially around accessibility, continuity, memory burden reduction, and task completion. ### Recipe: Voice Access On Mobile Capability: Accessibility Design Earliest Evidence: - `wwdd/conversations-012.json`, 2026-06-16, `Voice-Controlled Accessibility Design` - `wwdd/",
+      "tags": [
+        "report"
+      ],
+      "textIndexed": true,
+      "title": "Capability Recipes"
+    },
+    {
+      "id": "droobiedoo-report-capability-timeline-85dba5fbc9f14b30",
+      "kind": "report",
+      "modifiedTime": "2026-06-23T23:12:54.733654+00:00",
+      "path": "reports/capability-timeline.md",
+      "provenance": {
+        "contentHash": "3b6817f40e353a8491c18597eade0f119f10cffe453783835957f9b18809fa55",
+        "hashAlgorithm": "sha256",
+        "sourcePath": "reports/capability-timeline.md",
+        "sourceRepo": "Valar05/droobiedoo"
+      },
+      "readOnly": true,
+      "remoteCallable": true,
+      "sha256": "3b6817f40e353a8491c18597eade0f119f10cffe453783835957f9b18809fa55",
+      "sizeBytes": 45615,
+      "summary": "# Capability Timeline ## Source Summary - Scan root: `droobiedoo/wwdd/` - Export location: `wwdd/conversations-000.json` through `wwdd/conversations-014.json` - Date range scanned: 2023-08-22 through 2026-06-20 - Conversation JSON files scanned: 15 - Conversations scanned: 1,483 - Primary method: dated conversation metadata plus short evidence snippets from user messages and selected assistant references when the user term was absent but the export contained the concept. - Skipped: `wwdd/chat.html` because it duplicates the JSON export at much larger size; `wwdd/file-*.dat` attachments because this pass is about behavior and capability, not binary asset contents; account/settings JSON because they do not show capability growth. This report mines capability acquisition, not topics, beliefs, project lore, or full conversation summaries. ## Phase 1 - Timeline Construction ### 2023-08 to 202",
+      "tags": [
+        "report"
+      ],
+      "textIndexed": true,
+      "title": "Capability Timeline"
+    },
+    {
+      "id": "droobiedoo-report-first-principles-afbb7aa882429d09",
+      "kind": "report",
+      "modifiedTime": "2026-06-23T23:43:10.061928+00:00",
+      "path": "reports/first_principles.md",
+      "provenance": {
+        "contentHash": "2a55b12d3e3fe9571851e5aed1ca76bd3fe386555804424b1f6f8c273301b678",
+        "hashAlgorithm": "sha256",
+        "sourcePath": "reports/first_principles.md",
+        "sourceRepo": "Valar05/droobiedoo"
+      },
+      "readOnly": true,
+      "remoteCallable": true,
+      "sha256": "2a55b12d3e3fe9571851e5aed1ca76bd3fe386555804424b1f6f8c273301b678",
+      "sizeBytes": 8983,
+      "summary": "# First Principles ## Source Frame Inputs: - `reports/capability-timeline.md` - `reports/capability-recipes.md` - `reports/capability-multipliers.md` This is compression, not another taxonomy. The goal is to explain why capability kept growing, not to add more labels. ## Smallest Useful Set The smallest set I can defend from the current evidence is five principles: 1. Feedback Density 2. Durable Memory 3. Validation Before Trust 4. Role Separation 5. Execution Proximity If I have to compress harder, `Execution Proximity` folds partly into `Feedback Density`, and `Role Separation` folds partly into `Validation Before Trust`. ## Candidate Principles ### 1. Feedback Density Principle: Shorten the interval between intent, action, and useful signal. What it explains: - More experiments happen. - More experiments produce faster correction. - Faster correction makes later capability growth comp",
+      "tags": [
+        "report"
+      ],
+      "textIndexed": true,
+      "title": "First Principles"
+    },
+    {
+      "id": "droobiedoo-report-human-capability-comparison-f4e430d5b5f42c48",
+      "kind": "report",
+      "modifiedTime": "2026-06-24T00:38:26.773012+00:00",
+      "path": "reports/human_capability_comparison.md",
+      "provenance": {
+        "contentHash": "04ad093669566f4a07c54c63163f497c29d4b11fac7d6940216b65402421e3ea",
+        "hashAlgorithm": "sha256",
+        "sourcePath": "reports/human_capability_comparison.md",
+        "sourceRepo": "Valar05/droobiedoo"
+      },
+      "readOnly": true,
+      "remoteCallable": true,
+      "sha256": "04ad093669566f4a07c54c63163f497c29d4b11fac7d6940216b65402421e3ea",
+      "sizeBytes": 15209,
+      "summary": "# Human Capability Comparison ## Mission Compare Droobiedoo's first principles against external human evidence. This is not another explanation of Drew. The test is whether the principles survive after removing Drew from the dataset. ## Droobiedoo Principles Under Test Source: `reports/first_principles.md:14-24` - Feedback Density - Durable Memory - Validation Before Trust - Role Separation - Execution Proximity Droobiedoo local basis: - `reports/first_principles.md:261-283` compresses Drew capability growth into feedback density, durable memory, validation before trust, role separation, and execution proximity. - `reports/capability-multipliers.md:595-663` identifies command orchestration, corpus/project memory, validation workflow, agent delegation, and mobile execution as the top local multipliers. - `reports/simulation_shovel_validation.md` finds most major Drew capability spikes are",
+      "tags": [
+        "report"
+      ],
+      "textIndexed": true,
+      "title": "Human Capability Comparison"
+    },
+    {
+      "id": "droobiedoo-report-simulation-shovel-validation-dba8280c8db6816f",
+      "kind": "report",
+      "modifiedTime": "2026-06-24T00:30:04.157011+00:00",
+      "path": "reports/simulation_shovel_validation.md",
+      "provenance": {
+        "contentHash": "cc2190e51e2bf9b38eb084a33183fe66b796d56ab4717ec0e7e97587e161385e",
+        "hashAlgorithm": "sha256",
+        "sourcePath": "reports/simulation_shovel_validation.md",
+        "sourceRepo": "Valar05/droobiedoo"
+      },
+      "readOnly": true,
+      "remoteCallable": true,
+      "sha256": "cc2190e51e2bf9b38eb084a33183fe66b796d56ab4717ec0e7e97587e161385e",
+      "sizeBytes": 14266,
+      "summary": "# Simulation Shovel Validation Doctrine under test: `The Simulation Is The Shovel` Refined form: When behavior is the thing being studied, simulation outperforms explanation. This report attempts to falsify the doctrine using repository artifacts only. It does not use the current conversation or external memory. ## Sources - `reports/capability-timeline.md` - `reports/capability-recipes.md` - `reports/capability-multipliers.md` - `reports/first_principles.md` - `generated/known_hazards/chat_export_known_hazard_hits.md` The hazard hit report was read as a boundary source. It establishes scan scope and terms, but the strongest capability evidence comes from the capability timeline, recipes, multipliers, and first-principles reports. See `generated/known_hazards/chat_export_known_hazard_hits.md:3-11`. ## Test Method For each capability, ask two questions: 1. Did explanation create this capa",
+      "tags": [
+        "report"
+      ],
+      "textIndexed": true,
+      "title": "Simulation Shovel Validation"
+    },
+    {
+      "id": "droobiedoo-script-sync-workspace-artifacts-803bd207c4dc480a",
+      "kind": "script",
+      "modifiedTime": "2026-06-20T22:16:38.931291+00:00",
+      "path": "scripts/sync_workspace_artifacts.py",
+      "provenance": {
+        "contentHash": "8946338ea5fe88ab4a526d73e85b8bbcb98cbbe97aeeccb8071e90f36a79773e",
+        "hashAlgorithm": "sha256",
+        "sourcePath": "scripts/sync_workspace_artifacts.py",
+        "sourceRepo": "Valar05/droobiedoo"
+      },
+      "readOnly": true,
+      "remoteCallable": false,
+      "remoteExposure": {
+        "allowed": false,
+        "reason": "Local workspace sync utility; never exposed as a remote MCP mutation tool."
+      },
+      "sha256": "8946338ea5fe88ab4a526d73e85b8bbcb98cbbe97aeeccb8071e90f36a79773e",
+      "sizeBytes": 2489,
+      "summary": "#!/usr/bin/env python3 \"\"\"Refresh droobiedoo from workspace-level GodotProjects artifacts.\"\"\" from __future__ import annotations import argparse import json import shutil from datetime import datetime, timezone from pathlib import Path INCLUDED = [\"AGENTS.md\", \".codex\", \".codex-backups\", \"docs\", \"generated\", \"tools\"] EXCLUDED_NAMES = {\".git\", \"__pycache__\", \".pytest_cache\", \"node_modules\", \".DS_Store\"} EXCLUDED_SUFFIXES = (\".pyc\", \".pyo\", \".swp\", \".tmp\") def ignore(_dirpath: str, names: list[str]) -> set[str]: ignored: set[str] = set() for name in names: if name in EXCLUDED_NAMES or name.endswith(EXCLUDED_SUFFIXES): ignored.add(name) return ignored def copy_artifact(source_root: Path, repo_root: Path, name: str) -> None: source = source_root / name target = repo_root / name if not source.exists(): return if target.exists(): if target.is_dir(): shutil.rmtree(target) else: target.unlink()",
+      "tags": [
+        "local-maintenance"
+      ],
+      "textIndexed": true,
+      "title": "!/usr/bin/env python3"
+    },
+    {
+      "id": "droobiedoo-skill-skill-7018d6dd75c80d70",
+      "kind": "skill",
+      "modifiedTime": "2026-06-17T17:21:30.380476+00:00",
+      "path": ".codex/skills/3d-animation-poseclip-tuning/SKILL.md",
+      "provenance": {
+        "contentHash": "29311b5353c77bf6a82ec16ea2765c6d772a3277d16dd67d013c522adf20d7c9",
+        "hashAlgorithm": "sha256",
+        "sourcePath": ".codex/skills/3d-animation-poseclip-tuning/SKILL.md",
+        "sourceRepo": "Valar05/droobiedoo"
+      },
+      "readOnly": true,
+      "remoteCallable": true,
+      "sha256": "29311b5353c77bf6a82ec16ea2765c6d772a3277d16dd67d013c522adf20d7c9",
+      "sizeBytes": 8554,
+      "skillName": "3d-animation-poseclip-tuning",
+      "summary": "name: 3d-animation-poseclip-tuning description: Use when reducing, indexing, composing, critiquing, or testing 3D combat animation clips as reusable poseclips, especially Three.js/Godot GLB or FBX rigs, Street-Fighter-style timing, source keyframe preservation, procedural easing, upper/lower-body overlays, and visual appeal regressions from screenshots or videos. # 3D Animation Poseclip Tuning Use this skill to turn imported 3D combat animation into reproducible, agent-readable pose assets instead of hand-picked clips. ## Core Rules - Inspect the latest screenshot or video before judging animation feel. - Preserve model import metadata, rig profiles, rest poses, scale, axis fixes, and known special cases unless the task explicitly targets them. - Prefer project-native ingestion/generator scripts over hand-editing generated poseclip JSON. - Treat tests as visual-behavior contracts: make t",
+      "tags": [
+        "skill-matching"
+      ],
+      "textIndexed": true,
+      "title": "3D Animation Poseclip Tuning"
+    },
+    {
+      "id": "droobiedoo-skill-openai-d5db7349b0426b7a",
+      "kind": "skill",
+      "modifiedTime": "2026-06-17T15:12:27.496470+00:00",
+      "path": ".codex/skills/3d-animation-poseclip-tuning/agents/openai.yaml",
+      "provenance": {
+        "contentHash": "bd66ae7d8b4e4e8577907529f17f3e1b3d86077ef6009f577430b1fd63453a8a",
+        "hashAlgorithm": "sha256",
+        "sourcePath": ".codex/skills/3d-animation-poseclip-tuning/agents/openai.yaml",
+        "sourceRepo": "Valar05/droobiedoo"
+      },
+      "readOnly": true,
+      "remoteCallable": true,
+      "sha256": "bd66ae7d8b4e4e8577907529f17f3e1b3d86077ef6009f577430b1fd63453a8a",
+      "sizeBytes": 287,
+      "skillName": "3d-animation-poseclip-tuning",
+      "summary": "interface: display_name: \"3D Animation Poseclip Tuning\" short_description: \"Tune 3D combat poseclips from source motion\" default_prompt: \"Use $3d-animation-poseclip-tuning to reduce a combat animation into readable poses, preserve source motion, and validate the result visually.\"",
+      "tags": [
+        "skill-matching"
+      ],
+      "textIndexed": true,
+      "title": "interface:"
+    },
+    {
+      "id": "droobiedoo-skill-skill-87b4d2b2db653095",
+      "kind": "skill",
+      "modifiedTime": "2026-06-18T23:28:08.627098+00:00",
+      "path": ".codex/skills/ai-mentorship/SKILL.md",
+      "provenance": {
+        "contentHash": "9610cd4b66ca11e66a4169a4e6b9378cfc7a5767f4c03ad1ce422a4781e93208",
+        "hashAlgorithm": "sha256",
+        "sourcePath": ".codex/skills/ai-mentorship/SKILL.md",
+        "sourceRepo": "Valar05/droobiedoo"
+      },
+      "readOnly": true,
+      "remoteCallable": true,
+      "sha256": "9610cd4b66ca11e66a4169a4e6b9378cfc7a5767f4c03ad1ce422a4781e93208",
+      "sizeBytes": 2310,
+      "skillName": "ai-mentorship",
+      "summary": "name: ai-mentorship description: Use when mentoring, shaping, debugging, or hardening an AI agent behavior, especially when screenshots or transcripts show stale context, incoherent answers, missing next steps, generic follow-ups, or the agent optimizing the wrong task. # AI Mentorship Use this skill when the problem is the agent judgment, incentives, prompt contract, memory use, or response shape. ## Core Rule The current user request controls. Old examples, prior ingredients, old screenshots, and summaries are background only unless the latest request explicitly depends on them. ## Workflow 1. Inspect the newest concrete evidence first: screenshot, transcript, log, prompt, or response. 2. Name the behavioral failure in plain terms: stale-topic anchoring, missing requested artifact, summary instead of action, generic next step, wrong plurality, hallucinated constraint, or overlong respo",
+      "tags": [
+        "skill-matching"
+      ],
+      "textIndexed": true,
+      "title": "AI Mentorship"
+    },
+    {
+      "id": "droobiedoo-skill-skill-5722e4404a9e381e",
+      "kind": "skill",
+      "modifiedTime": "2026-06-23T03:53:14.118331+00:00",
+      "path": ".codex/skills/animation-apprentice/SKILL.md",
+      "provenance": {
+        "contentHash": "aaf74b68737c15201fb7cb1709df68179ea5f6e2b0078494473eb9465596fc5e",
+        "hashAlgorithm": "sha256",
+        "sourcePath": ".codex/skills/animation-apprentice/SKILL.md",
+        "sourceRepo": "Valar05/droobiedoo"
+      },
+      "readOnly": true,
+      "remoteCallable": true,
+      "sha256": "aaf74b68737c15201fb7cb1709df68179ea5f6e2b0078494473eb9465596fc5e",
+      "sizeBytes": 3969,
+      "skillName": "animation-apprentice",
+      "summary": "# Animation Apprentice Skill ## Trigger Use this skill when the task involves: - generating an animation from a prompt - creating or revising key poses - interpreting animation critique - turning user corrections into reusable lessons - improving a motion draft after feedback - working inside Pose Lab or another pose/animation tool ## Prime Directive Do not merely satisfy the current animation prompt. Capture the lesson that makes the next animation better. The loop is: ```text brief -> recipe -> key poses -> critique -> correction note -> lesson -> improved draft ``` ## Required First Reads Before editing or generating project-specific animation content: 1. Read the target project's `PROJECT_ORIENTATION.md` if present. 2. Read `docs/animation/ANIMATION_APPRENTICE_CONTRACT.md` from droobiedoo if available. 3. Inspect available rig profiles, saved poses, imported clips, and animation docs",
+      "tags": [
+        "skill-matching"
+      ],
+      "textIndexed": true,
+      "title": "Animation Apprentice Skill"
+    },
+    {
+      "id": "droobiedoo-skill-skill-448fdf40dc909998",
+      "kind": "skill",
+      "modifiedTime": "2026-06-20T20:47:33.486405+00:00",
+      "path": ".codex/skills/drink-synthesis-engine/SKILL.md",
+      "provenance": {
+        "contentHash": "3f18ea84c4cf1d8a96b4388b11b18edeb8aaea3a84f15151173fcdb387ae11b7",
+        "hashAlgorithm": "sha256",
+        "sourcePath": ".codex/skills/drink-synthesis-engine/SKILL.md",
+        "sourceRepo": "Valar05/droobiedoo"
+      },
+      "readOnly": true,
+      "remoteCallable": true,
+      "sha256": "3f18ea84c4cf1d8a96b4388b11b18edeb8aaea3a84f15151173fcdb387ae11b7",
+      "sizeBytes": 6824,
+      "skillName": "drink-synthesis-engine",
+      "summary": "name: drink-synthesis-engine description: Use when designing, critiquing, revising, or inventing beverages through sensory structure rather than recipes, especially nonalcoholic cocktails, bitters-and-seltzer drinks, spritzes, tea concentrates, molasses/body experiments, sessionable rituals, dilution tests, or flavor-space exploration where carbonation, bitterness, body, aroma, tannin, sweetness, acidity, salinity, temperature, texture, herbality, smoke, or fermentation character are design axes. # Drink Synthesis Engine ## Core Stance Treat a drink as a set of sensory properties, not as a recipe. Do not try to reproduce existing beverages unless the user explicitly asks for that. Explore flavor space by manipulating sensory dimensions. Think synthesis, not mixology. ## Prime Rule Do not think in ingredients first. Think in axes first. Use ingredients only as tools that move axes. When p",
+      "tags": [
+        "skill-matching"
+      ],
+      "textIndexed": true,
+      "title": "Drink Synthesis Engine"
+    },
+    {
+      "id": "droobiedoo-skill-openai-1b968c123bfc3ecb",
+      "kind": "skill",
+      "modifiedTime": "2026-06-20T20:47:33.510405+00:00",
+      "path": ".codex/skills/drink-synthesis-engine/agents/openai.yaml",
+      "provenance": {
+        "contentHash": "423e9a53d12e5faf02d2b57f72aad68f017a0e6c64429a2235204b9763c55842",
+        "hashAlgorithm": "sha256",
+        "sourcePath": ".codex/skills/drink-synthesis-engine/agents/openai.yaml",
+        "sourceRepo": "Valar05/droobiedoo"
+      },
+      "readOnly": true,
+      "remoteCallable": true,
+      "sha256": "423e9a53d12e5faf02d2b57f72aad68f017a0e6c64429a2235204b9763c55842",
+      "sizeBytes": 213,
+      "skillName": "drink-synthesis-engine",
+      "summary": "interface: display_name: \"Drink Synthesis Engine\" short_description: \"Design drinks by sensory axes\" default_prompt: \"Use $drink-synthesis-engine to design a sessionable nonalcoholic drink by sensory axes.\"",
+      "tags": [
+        "skill-matching"
+      ],
+      "textIndexed": true,
+      "title": "interface:"
+    },
+    {
+      "id": "droobiedoo-skill-skill-73b3ba1b0b33043a",
+      "kind": "skill",
+      "modifiedTime": "2026-06-19T04:29:51.718740+00:00",
+      "path": ".codex/skills/dumping-ground-router/SKILL.md",
+      "provenance": {
+        "contentHash": "c0b4d3577f2a0579e7890a29ddbcbeb65ba4f73e1c2efd4d43f364fedc329c85",
+        "hashAlgorithm": "sha256",
+        "sourcePath": ".codex/skills/dumping-ground-router/SKILL.md",
+        "sourceRepo": "Valar05/droobiedoo"
+      },
+      "readOnly": true,
+      "remoteCallable": true,
+      "sha256": "c0b4d3577f2a0579e7890a29ddbcbeb65ba4f73e1c2efd4d43f364fedc329c85",
+      "sizeBytes": 3865,
+      "skillName": "dumping-ground-router",
+      "summary": "name: dumping-ground-router description: Use when the user drops a rough packet, brainstorm, or note and wants it sorted into the right home-center recipe, snack, technique, test, or agent-rule destination; use when the user says dumping ground, packet, intake, where does this go, or what does this mean. # Dumping Ground Router Use this skill when the user hands you unstructured material and wants it routed instead of immediately turned into polished prose. ## Core Job Treat the packet as intake. Do not assume the first wording is the final artifact. Classify each packet into one or more of these buckets: - home-center recipe candidate - ingredient brainstorm - snack synergy note - cooking trick or kitchen rule - agent behavior rule - regression test or harness idea - documentation or memory candidate - noise / discard ## Workflow 1. Read the packet literally. 2. Identify the primary buc",
+      "tags": [
+        "skill-matching"
+      ],
+      "textIndexed": true,
+      "title": "Dumping Ground Router"
+    },
+    {
+      "id": "droobiedoo-skill-skill-8ba9766bcd063c11",
+      "kind": "skill",
+      "modifiedTime": "2026-06-17T02:16:30.068435+00:00",
+      "path": ".codex/skills/level-design-environment-grammar/SKILL.md",
+      "provenance": {
+        "contentHash": "645d80f395fa346ba7956d057f2e0a7d280b7b081d1980a429c31e2c316810a7",
+        "hashAlgorithm": "sha256",
+        "sourcePath": ".codex/skills/level-design-environment-grammar/SKILL.md",
+        "sourceRepo": "Valar05/droobiedoo"
+      },
+      "readOnly": true,
+      "remoteCallable": true,
+      "sha256": "645d80f395fa346ba7956d057f2e0a7d280b7b081d1980a429c31e2c316810a7",
+      "sizeBytes": 6301,
+      "skillName": "level-design-environment-grammar",
+      "summary": "name: level-design-environment-grammar description: Use when designing or critiquing level generation, biome structure, district graphs, room grammar, or vertical readability for action games, especially when a project is stuck making disconnected rooms instead of a purposeful environment. Covers environment-first procedural design, district-purpose planning, phone-safe open-world alternatives, screenshot-first critique, bounded implementation slices, and a built-in critique-improvement maintenance loop. # Level Design Environment Grammar Use this skill when the user wants stronger level design, better procedural structure, more replayability, or clearer spatial read from screenshots or playtest feedback. ## Core shift Do not start from rooms. Start from a place with a job, then derive traversal and combat from that job. Ask: - What keeps this place alive? - What moves through it: people",
+      "tags": [
+        "skill-matching"
+      ],
+      "textIndexed": true,
+      "title": "Level Design Environment Grammar"
+    },
+    {
+      "id": "droobiedoo-skill-infinite-brutality-district-graph-65dcff16201a7315",
+      "kind": "skill",
+      "modifiedTime": "2026-06-09T17:20:21.669012+00:00",
+      "path": ".codex/skills/level-design-environment-grammar/references/infinite-brutality-district-graph.md",
+      "provenance": {
+        "contentHash": "1f02c37c5b2ebfa08fc4241aacdd1b6a7e27770eadce7af5f270c14c126d718a",
+        "hashAlgorithm": "sha256",
+        "sourcePath": ".codex/skills/level-design-environment-grammar/references/infinite-brutality-district-graph.md",
+        "sourceRepo": "Valar05/droobiedoo"
+      },
+      "readOnly": true,
+      "remoteCallable": true,
+      "sha256": "1f02c37c5b2ebfa08fc4241aacdd1b6a7e27770eadce7af5f270c14c126d718a",
+      "sizeBytes": 2422,
+      "skillName": "level-design-environment-grammar",
+      "summary": "# Infinite Brutality District Graph Notes Use this reference when the task is specifically about `infinite-brutality`. ## Environment thesis The game should read as a suspended shanty-settlement over an abyss, not a stack of combat rooms. The settlement exists to keep itself suspended and fed. It harvests salvage, heat, bodies, and value from below. Geometry should follow that job. ## Preferred world structure Use a seeded vertical district graph rather than a giant flat open world. Good phone-safe structure: - `3 to 5` districts per run - each district contiguous and larger than a room - `2 to 4` exits per district - current district and neighbors fully built - distant districts represented as cheap silhouettes This gives open-world feel without requiring massive streaming cost. ## District schema Each district should define: - `id` - `name` - `purpose` - `signal` - `preferred_roles` - ",
+      "tags": [
+        "skill-matching"
+      ],
+      "textIndexed": true,
+      "title": "Infinite Brutality District Graph Notes"
+    },
+    {
+      "id": "droobiedoo-skill-skill-a473de7a69dd6c52",
+      "kind": "skill",
+      "modifiedTime": "2026-06-14T23:41:52.550253+00:00",
+      "path": ".codex/skills/meshy-generation-pipeline/SKILL.md",
+      "provenance": {
+        "contentHash": "bc7d88b05d91084eab2779877f7418225310c497d06d8bbbe922a6ce6733a244",
+        "hashAlgorithm": "sha256",
+        "sourcePath": ".codex/skills/meshy-generation-pipeline/SKILL.md",
+        "sourceRepo": "Valar05/droobiedoo"
+      },
+      "readOnly": true,
+      "remoteCallable": true,
+      "sha256": "bc7d88b05d91084eab2779877f7418225310c497d06d8bbbe922a6ce6733a244",
+      "sizeBytes": 3333,
+      "skillName": "meshy-generation-pipeline",
+      "summary": "name: meshy-generation-pipeline description: Generate, fetch, rig, catalog, or integrate Meshy AI 3D assets in the GodotProjects workspace. Use when Codex needs to call Meshy image-to-3D, check Meshy API setup or balance, use the user's MESHY_API_KEY or MESHY_API_KRY from Termux shell config, preserve Meshy provenance manifests, download GLB/FBX/OBJ outputs, or wire Meshy-generated models/textures into local browser/Godot prototypes. # Meshy Generation Pipeline Use the workspace CLI rather than writing one-off Meshy API code: ```sh bash -lc 'source ~/.bashrc; python3 tools/meshy_asset_workflow.py --help' ``` The CLI lives at `/storage/emulated/0/Documents/GodotProjects/tools/meshy_asset_workflow.py`. Run it from the workspace root. ## Core Rules - Source `~/.bashrc` before Meshy commands so Termux aliases such as `MESHY_API_KRY` are available. - Do not print, store, or commit API keys. T",
+      "tags": [
+        "skill-matching"
+      ],
+      "textIndexed": true,
+      "title": "Meshy Generation Pipeline"
+    },
+    {
+      "id": "droobiedoo-skill-openai-d5944f182479db47",
+      "kind": "skill",
+      "modifiedTime": "2026-06-14T23:39:24.270253+00:00",
+      "path": ".codex/skills/meshy-generation-pipeline/agents/openai.yaml",
+      "provenance": {
+        "contentHash": "1659e6a864f9f23c5d23c08672a641ea99b976ae6f8a9f449475a33073aea702",
+        "hashAlgorithm": "sha256",
+        "sourcePath": ".codex/skills/meshy-generation-pipeline/agents/openai.yaml",
+        "sourceRepo": "Valar05/droobiedoo"
+      },
+      "readOnly": true,
+      "remoteCallable": true,
+      "sha256": "1659e6a864f9f23c5d23c08672a641ea99b976ae6f8a9f449475a33073aea702",
+      "sizeBytes": 239,
+      "skillName": "meshy-generation-pipeline",
+      "summary": "interface: display_name: \"Meshy Generation Pipeline\" short_description: \"Generate and catalog Meshy 3D assets\" default_prompt: \"Use $meshy-generation-pipeline to generate a project-ready 3D asset with Meshy and preserve provenance.\"",
+      "tags": [
+        "skill-matching"
+      ],
+      "textIndexed": true,
+      "title": "interface:"
+    },
+    {
+      "id": "droobiedoo-skill-commands-6c2a359c353feedd",
+      "kind": "skill",
+      "modifiedTime": "2026-06-14T23:41:52.570253+00:00",
+      "path": ".codex/skills/meshy-generation-pipeline/references/commands.md",
+      "provenance": {
+        "contentHash": "74ed539bc13842e81415386323edaf9fa19d45c59b2d3c517e97229cab47df44",
+        "hashAlgorithm": "sha256",
+        "sourcePath": ".codex/skills/meshy-generation-pipeline/references/commands.md",
+        "sourceRepo": "Valar05/droobiedoo"
+      },
+      "readOnly": true,
+      "remoteCallable": true,
+      "sha256": "74ed539bc13842e81415386323edaf9fa19d45c59b2d3c517e97229cab47df44",
+      "sizeBytes": 3371,
+      "skillName": "meshy-generation-pipeline",
+      "summary": "# Meshy Commands And Integration Notes ## Environment Run commands from `/storage/emulated/0/Documents/GodotProjects`. Use: ```sh bash -lc 'source ~/.bashrc; COMMAND' ``` The workspace CLI accepts `MESHY_API_KEY`, `MESHY_APIKEY`, and the existing typo alias `MESHY_API_KRY`. It also reads `~/.env`, workspace `.env`, and target-project `.env`. Check setup without spending credits: ```sh bash -lc 'source ~/.bashrc; python3 tools/meshy_asset_workflow.py check --project PROJECT --test-mode' ``` Check live Meshy balance only when the user wants a real API call: ```sh bash -lc 'source ~/.bashrc; python3 tools/meshy_asset_workflow.py check --project PROJECT --balance' ``` ## New Image-To-3D Asset Generate a concept image: ```sh bash -lc 'source ~/.bashrc; python3 tools/meshy_asset_workflow.py openai-image --project PROJECT --name ASSET_SLUG --prompt \"clear game-ready asset prompt\" --size 1024x10",
+      "tags": [
+        "skill-matching"
+      ],
+      "textIndexed": true,
+      "title": "Meshy Commands And Integration Notes"
+    },
+    {
+      "id": "droobiedoo-skill-skill-8b6fddc6b80b28bc",
+      "kind": "skill",
+      "modifiedTime": "2026-06-18T10:34:46.148188+00:00",
+      "path": ".codex/skills/to-the-depths/SKILL.md",
+      "provenance": {
+        "contentHash": "41ad4a6c77fd3fc19cf74346b2e1fa8e2a7d891d675e84200749883167ebee65",
+        "hashAlgorithm": "sha256",
+        "sourcePath": ".codex/skills/to-the-depths/SKILL.md",
+        "sourceRepo": "Valar05/droobiedoo"
+      },
+      "readOnly": true,
+      "remoteCallable": true,
+      "sha256": "41ad4a6c77fd3fc19cf74346b2e1fa8e2a7d891d675e84200749883167ebee65",
+      "sizeBytes": 4452,
+      "skillName": "to-the-depths",
+      "summary": "name: to-the-depths description: > Use when the user says \"to the depths\" or \"deep ocean\", or clearly asks for an end-of-cycle knowledge capture and friction audit. This skill turns the current work into durable notes: capture rules, patterns, design decisions, and discoveries; place useful context in Thunder Brainstorm and/or the related project; then audit wasted time, missing scripts, missing tools, missing tests, missing documentation, missing automation, and identify what should be built next. # To The Depths Use this skill when the user wants a deliberate wrap-up pass that extracts durable learning from the current work instead of stopping at implementation. ## Outputs Produce two things: 1. `Knowledge Capture` 2. `Friction Audit` Place useful context in Thunder Brainstorm and/or the active project before finishing. ## Workflow ### 1. Reorient on the live work Before writing anythi",
+      "tags": [
+        "skill-matching"
+      ],
+      "textIndexed": true,
+      "title": "To The Depths"
+    },
+    {
+      "id": "droobiedoo-skill-skill-561db81f8858c763",
+      "kind": "skill",
+      "modifiedTime": "2026-06-19T00:43:17.270821+00:00",
+      "path": ".codex/skills/ux-critique-workflow/SKILL.md",
+      "provenance": {
+        "contentHash": "d5fc070b666491bbf6643d30cb2031f2c66e91c39585dee19b47cb13e8e49b82",
+        "hashAlgorithm": "sha256",
+        "sourcePath": ".codex/skills/ux-critique-workflow/SKILL.md",
+        "sourceRepo": "Valar05/droobiedoo"
+      },
+      "readOnly": true,
+      "remoteCallable": true,
+      "sha256": "d5fc070b666491bbf6643d30cb2031f2c66e91c39585dee19b47cb13e8e49b82",
+      "sizeBytes": 1868,
+      "skillName": "ux-critique-workflow",
+      "summary": "name: ux-critique-workflow description: Use when reviewing dense UI screenshots or browser captures and you need a compact critique surface, visible primary controls, and to detect truncation, clipped text, duplicate state, and single-open accordion behavior. # UX Critique Workflow Use this skill when the visible UI is the problem, not the underlying model or data. ## First read - Inspect the newest screenshot or capture first. - Identify the primary task path and what must stay visible above the fold. - Treat mid-sentence cutoffs, clipped content, and invisible overflow as functional bugs, not style issues. - Note any hidden, gray, stale, duplicated, or partially rendered controls before changing code. ## Layout contract - Keep the primary transport visible without scrolling. - If a panel uses sections, make them single-open accordions. - On critique startup, only the primary critique s",
+      "tags": [
+        "skill-matching"
+      ],
+      "textIndexed": true,
+      "title": "UX Critique Workflow"
+    },
+    {
+      "id": "droobiedoo-skill-skill-8d24d84b612dd10a",
+      "kind": "skill",
+      "modifiedTime": "2026-06-17T17:33:00.016477+00:00",
+      "path": ".codex/skills/visual-qa-harness/SKILL.md",
+      "provenance": {
+        "contentHash": "f1bbeb5bd31aee7334641862e8af2c49d7d8387d7853affbd7c073518542a40f",
+        "hashAlgorithm": "sha256",
+        "sourcePath": ".codex/skills/visual-qa-harness/SKILL.md",
+        "sourceRepo": "Valar05/droobiedoo"
+      },
+      "readOnly": true,
+      "remoteCallable": true,
+      "sha256": "f1bbeb5bd31aee7334641862e8af2c49d7d8387d7853affbd7c073518542a40f",
+      "sizeBytes": 2334,
+      "skillName": "visual-qa-harness",
+      "summary": "name: visual-qa-harness description: Use when a user reports a live browser/game visual issue, stale build screenshot, Android screenshot mismatch, or a tests-pass-but-it-looks-wrong loop in GodotProjects HTML/Three.js projects. Runs the workspace visual QA CLI to collect fresh Android browser frames, contact sheets, build/cache evidence, and failure classification before diagnosis. # Visual QA Harness Use this before diagnosing browser-visible rendering, level, animation, material, cache, or stale-build complaints. ## Rule Fresh captured pixels beat telemetry and old screenshots. If a report says the new build still looks wrong, run or inspect a visual QA report before editing. ## Command From the workspace root: ```sh node tools/visual_qa.mjs --project infinite-brutality --url /infinite-brutality/index.html --frames 12 --interval-ms 500 --timeout-ms 90000 ``` For a non-mutating feasibi",
+      "tags": [
+        "skill-matching"
+      ],
+      "textIndexed": true,
+      "title": "Visual QA Harness"
+    },
+    {
+      "id": "droobiedoo-skill-skill-e962c0b5d37cbfd4",
+      "kind": "skill",
+      "modifiedTime": "2026-06-19T02:45:18.338826+00:00",
+      "path": ".codex/skills/visual-red-build-contract/SKILL.md",
+      "provenance": {
+        "contentHash": "86ef3019e869e3221da1de1d41b5c9eded7f625360324a3ec510ea0254fd4de1",
+        "hashAlgorithm": "sha256",
+        "sourcePath": ".codex/skills/visual-red-build-contract/SKILL.md",
+        "sourceRepo": "Valar05/droobiedoo"
+      },
+      "readOnly": true,
+      "remoteCallable": true,
+      "sha256": "86ef3019e869e3221da1de1d41b5c9eded7f625360324a3ec510ea0254fd4de1",
+      "sizeBytes": 1840,
+      "skillName": "visual-red-build-contract",
+      "summary": "name: visual-red-build-contract description: Use when a user says red build, nothing changed visually, tests passed but the screenshot or video still looks wrong, or a new visual capture disproves a claimed UI, animation, pose, browser, Godot, or Three.js fix. # Visual Red Build Contract A visual red build is not satisfied by source-string tests or internal telemetry alone. The failing check must encode the visible user-facing failure. ## Required Sequence 1. Inspect the newest screenshot, video, contact sheet, or live capture before planning or coding. State the concrete visual read. 2. If stale browser/app state is plausible, verify the visible or served build identifier/cache token before debugging behavior. 3. Add or update a red test that fails until a fresh visual evidence artifact proves the intended user-facing change. 4. Keep source/DOM/static tests as supporting checks only. Th",
+      "tags": [
+        "skill-matching"
+      ],
+      "textIndexed": true,
+      "title": "Visual Red Build Contract"
+    },
+    {
+      "id": "droobiedoo-tool-build-context-index-cf4ee5a9bf114c39",
+      "kind": "tool",
+      "modifiedTime": "2026-07-15T16:31:17.904198+00:00",
+      "path": "tools/build_context_index.py",
+      "provenance": {
+        "contentHash": "e3c4aaed13c7f35117ae868645b66f14b301696ba6e616e9fba26dbf0b218483",
+        "hashAlgorithm": "sha256",
+        "sourcePath": "tools/build_context_index.py",
+        "sourceRepo": "Valar05/droobiedoo"
+      },
+      "readOnly": true,
+      "remoteCallable": true,
+      "sha256": "e3c4aaed13c7f35117ae868645b66f14b301696ba6e616e9fba26dbf0b218483",
+      "sizeBytes": 10062,
+      "summary": "#!/usr/bin/env python3 \"\"\"Build the read-only Droobiedoo context index for Home Center MCP lookup. The index is intentionally derived from tracked repository files only. Raw local WWDD exports and other ignored workspace material stay outside the MCP-facing surface unless a curated derivative is explicitly tracked. \"\"\" from __future__ import annotations import argparse import hashlib import json import os import re import subprocess import sys from datetime import datetime, timezone from pathlib import Path from typing import Any SCHEMA_VERSION = \"droobiedoo.context-index.v1\" DEFAULT_OUTPUT = Path(\"generated/context/droobiedoo_context_index.json\") MAX_SUMMARY_CHARS = 900 TEXT_EXTENSIONS = { \".md\", \".txt\", \".json\", \".jsonl\", \".mjs\", \".js\", \".py\", \".sh\", \".yaml\", \".yml\", \".toml\", \".schema\", } REMOTE_FORBIDDEN_TOOLS = {\"scripts/sync_workspace_artifacts.py\"} RELATIONSHIPS = { \"droobiedoo\": \"",
+      "tags": [
+        "tooling"
+      ],
+      "textIndexed": true,
+      "title": "!/usr/bin/env python3"
+    },
+    {
+      "id": "droobiedoo-tool-accessibility-monitor-31795cafea612360",
+      "kind": "tool",
+      "modifiedTime": "2026-06-18T15:12:52.936660+00:00",
+      "path": "tools/home_center_bundle/agents/accessibility_monitor.md",
+      "provenance": {
+        "contentHash": "f941cfebd5a7698767ac0eb809335273f6e6dd766678621846568ead5729e5f9",
+        "hashAlgorithm": "sha256",
+        "sourcePath": "tools/home_center_bundle/agents/accessibility_monitor.md",
+        "sourceRepo": "Valar05/droobiedoo"
+      },
+      "readOnly": true,
+      "remoteCallable": true,
+      "sha256": "f941cfebd5a7698767ac0eb809335273f6e6dd766678621846568ead5729e5f9",
+      "sizeBytes": 777,
+      "summary": "# Accessibility Monitor ## Purpose Translate doneness into spoken, nonvisual cues for a blind cook. ## Priorities - Probe temperature over visual guesswork. - Spoken instruction over screenshot-only guidance. - Texture and sound over image interpretation. - Safety over speed when the signals disagree. ## Spoken vocabulary - pale - light golden - golden - deep golden - too dark - wet - drying - crisping - crisp - overdone - firm - tender - soft - bubbling - quieting - sizzling - resting ## Response style Return: - current state - next action - reason - recheck timing - safety note if relevant ## Example cues - chicken at 168F, resting - potatoes crisping, 5 more minutes - broccoli tender with a little bite, remove now - sauce bubbling, reduce 2 more minutes",
+      "tags": [
+        "tooling"
+      ],
+      "textIndexed": true,
+      "title": "Accessibility Monitor"
+    },
+    {
+      "id": "droobiedoo-tool-kitchen-orchestrator-a7d35d9d52ce645b",
+      "kind": "tool",
+      "modifiedTime": "2026-06-18T15:12:52.708660+00:00",
+      "path": "tools/home_center_bundle/agents/kitchen_orchestrator.md",
+      "provenance": {
+        "contentHash": "6ad7b7654bc587f04dc8cc6880bd4058bd66e18bf03b9bfc3c29e869eaaeee7b",
+        "hashAlgorithm": "sha256",
+        "sourcePath": "tools/home_center_bundle/agents/kitchen_orchestrator.md",
+        "sourceRepo": "Valar05/droobiedoo"
+      },
+      "readOnly": true,
+      "remoteCallable": true,
+      "sha256": "6ad7b7654bc587f04dc8cc6880bd4058bd66e18bf03b9bfc3c29e869eaaeee7b",
+      "sizeBytes": 1235,
+      "summary": "# Kitchen Orchestrator ## Purpose Route the user's request to the right specialist and combine outputs into one actionable kitchen plan. ## Responsibilities - Classify the request as meal composition, scheduling, subsistence upgrade, accessibility, or rule mining. - Preserve the user's constraints, especially one-active-task orchestration. - Choose the minimum number of specialist calls needed. - Merge answers into a single response that keeps the same output contract. ## Routing rules - Meal variants or ingredient brainstorms -> Meal Composer. - Timing, appliance choice, parallel work, or sequencing -> Kitchen Scheduler. - Cheap food, boxed meals, leftovers, or flavor rescue -> Subsistence Upgrader. - Probe targets, spoken doneness, or blind-cook support -> Accessibility Monitor. - New doctrines, edge cases, or corpus extraction -> Rule Miner. ## Output behavior Return: - what specialis",
+      "tags": [
+        "tooling"
+      ],
+      "textIndexed": true,
+      "title": "Kitchen Orchestrator"
+    },
+    {
+      "id": "droobiedoo-tool-kitchen-scheduler-e4e5c407537dfd6a",
+      "kind": "tool",
+      "modifiedTime": "2026-06-18T15:12:52.816660+00:00",
+      "path": "tools/home_center_bundle/agents/kitchen_scheduler.md",
+      "provenance": {
+        "contentHash": "8f4788a5faa6b577ed94ea7b85891c71c1108ff777299b7b5299a51092cc84a2",
+        "hashAlgorithm": "sha256",
+        "sourcePath": "tools/home_center_bundle/agents/kitchen_scheduler.md",
+        "sourceRepo": "Valar05/droobiedoo"
+      },
+      "readOnly": true,
+      "remoteCallable": true,
+      "sha256": "8f4788a5faa6b577ed94ea7b85891c71c1108ff777299b7b5299a51092cc84a2",
+      "sizeBytes": 879,
+      "summary": "# Kitchen Scheduler ## Purpose Sequence one-active-task kitchen plans and assign passive work to the right appliance. ## Responsibilities - Pick the primary heat engine. - Pick passive tasks that can run in parallel. - Decide what should wait until later. - Prefer a single active task whenever possible. ## Scheduling rules - Start with the longest lead item. - Use the air fryer for small crisp items when capacity fits. - Use the oven for volume, convection, broil, or multiple components. - Use the microwave only as a staging tool. - Use cast iron for fast browning or fond. - Do not run two attention-heavy tasks in parallel. ## Default sequence - prep - long lead item - main protein or second lead item - quick vegetable - sauce - finish ## Output shape Include: - primary appliance - passive parallel tasks - next check time - final finish step - cleanup note",
+      "tags": [
+        "tooling"
+      ],
+      "textIndexed": true,
+      "title": "Kitchen Scheduler"
+    },
+    {
+      "id": "droobiedoo-tool-meal-composer-4e3cdf673aef2e42",
+      "kind": "tool",
+      "modifiedTime": "2026-06-18T15:12:52.772660+00:00",
+      "path": "tools/home_center_bundle/agents/meal_composer.md",
+      "provenance": {
+        "contentHash": "0b91551abe63b474b76b26af74b643d7f5b65ff921b277ba8260028bc2973097",
+        "hashAlgorithm": "sha256",
+        "sourcePath": "tools/home_center_bundle/agents/meal_composer.md",
+        "sourceRepo": "Valar05/droobiedoo"
+      },
+      "readOnly": true,
+      "remoteCallable": true,
+      "sha256": "0b91551abe63b474b76b26af74b643d7f5b65ff921b277ba8260028bc2973097",
+      "sizeBytes": 1199,
+      "summary": "# Meal Composer ## Purpose Turn ingredients into a family of meal options rather than a single recipe. ## Inputs - bounded ingredient sets, like chicken, potatoes, broccoli - unbounded flexible pantry prompts - restrictions such as cheap-only, high-protein, low-cleanup, or accessible-only ## Output shape Return at least: - 3 bounded variants when ingredients are fixed - 3 unbounded variants when flexibility is allowed - one best quick meal - one best crisp meal - one best saucy meal - one best one-pan meal - one best fallback meal ## Composition rules - Separate meal identity from mere seasoning swaps. - Vary method, flavor frame, finish, and texture target. - Keep ingredients common and easy to get unless the user asks otherwise. - Treat flavor frames as reusable modules: lemon herb, soy ginger, Dijon, paprika, curry, buffalo, garlic butter, tomato, sesame, barbecue. ## Example outputs",
+      "tags": [
+        "tooling"
+      ],
+      "textIndexed": true,
+      "title": "Meal Composer"
+    },
+    {
+      "id": "droobiedoo-tool-rule-miner-19cb995fb36e504f",
+      "kind": "tool",
+      "modifiedTime": "2026-06-18T15:12:52.980660+00:00",
+      "path": "tools/home_center_bundle/agents/rule_miner.md",
+      "provenance": {
+        "contentHash": "8768d9576af69c90c3c4547752bee1579be14fb1d5f5fadab89c8d4d193d437e",
+        "hashAlgorithm": "sha256",
+        "sourcePath": "tools/home_center_bundle/agents/rule_miner.md",
+        "sourceRepo": "Valar05/droobiedoo"
+      },
+      "readOnly": true,
+      "remoteCallable": true,
+      "sha256": "8768d9576af69c90c3c4547752bee1579be14fb1d5f5fadab89c8d4d193d437e",
+      "sizeBytes": 666,
+      "summary": "# Rule Miner ## Purpose Discover new kitchen-specific doctrines from corpus reading and kitchen experiments. ## Responsibilities - Extract repeated cooking patterns from recipes and meal-kit cards. - Record exceptions and confidence. - Promote high-confidence transforms into the shared rulebook. - Distinguish recipe facts from generalizable kitchen laws. ## Rule format Capture each rule as: - condition - action - reason - confidence - exceptions - examples ## What to mine - temperature targets - visual brownness thresholds - parboil and braise triggers - dry-before-browning conditions - finish-step patterns - cheap-food boosters - accessibility cues",
+      "tags": [
+        "tooling"
+      ],
+      "textIndexed": true,
+      "title": "Rule Miner"
+    },
+    {
+      "id": "droobiedoo-tool-subsistence-upgrader-dfd87aca5f1fa08d",
+      "kind": "tool",
+      "modifiedTime": "2026-06-18T15:12:52.876660+00:00",
+      "path": "tools/home_center_bundle/agents/subsistence_upgrader.md",
+      "provenance": {
+        "contentHash": "90296d5006014ecc8e8a3fa5d9a2315d5d5669f3cee81fc2b12ccce387c47850",
+        "hashAlgorithm": "sha256",
+        "sourcePath": "tools/home_center_bundle/agents/subsistence_upgrader.md",
+        "sourceRepo": "Valar05/droobiedoo"
+      },
+      "readOnly": true,
+      "remoteCallable": true,
+      "sha256": "90296d5006014ecc8e8a3fa5d9a2315d5d5669f3cee81fc2b12ccce387c47850",
+      "sizeBytes": 902,
+      "summary": "# Subsistence Upgrader ## Purpose Improve cheap base foods and boxed meals without turning them into elaborate recipes. ## Jobs - Upgrade hamburger helper style meals. - Rescue bland, thin, or dry food. - Improve leftovers. - Add a few high-value boosters to cheap staples. ## Default booster stack - onion or garlic - tomato paste - bouillon or stock concentrate - Worcestershire or soy sauce - butter or oil - acid at the end - cheese, herbs, or crunch when appropriate ## Repair logic - Flat -> salt or umami - Thin -> reduction or starch - Dry -> fat or sauce - Heavy -> acid - Monotone -> crunch or freshness - Boxed -> one browned thing plus one finish ## Example uses - brown beef, add onion, tomato paste, bouillon, Worcestershire - rice with butter, bouillon, and a fried egg - beans with onion, garlic, paprika, and vinegar - pasta with tomato paste, garlic, cheese, and pasta water",
+      "tags": [
+        "tooling"
+      ],
+      "textIndexed": true,
+      "title": "Subsistence Upgrader"
+    },
+    {
+      "id": "droobiedoo-tool-accessibility-roast-chicken-5c183ffe56bb9c40",
+      "kind": "tool",
+      "modifiedTime": "2026-06-18T15:12:53.180660+00:00",
+      "path": "tools/home_center_bundle/examples/accessibility_roast_chicken.md",
+      "provenance": {
+        "contentHash": "a44fbda7852dfe6b2585f152a0f3f5476ac0e0db3f1bae4bb2a2ede09b36e15d",
+        "hashAlgorithm": "sha256",
+        "sourcePath": "tools/home_center_bundle/examples/accessibility_roast_chicken.md",
+        "sourceRepo": "Valar05/droobiedoo"
+      },
+      "readOnly": true,
+      "remoteCallable": true,
+      "sha256": "a44fbda7852dfe6b2585f152a0f3f5476ac0e0db3f1bae4bb2a2ede09b36e15d",
+      "sizeBytes": 264,
+      "summary": "# Example: Accessibility Roast Chicken ## Checkpoints - oven preheated - chicken at target temperature - skin deep golden - resting before slicing ## Spoken output - \"Chicken is at 168F and resting.\" - \"Skin is deep golden.\" - \"Rest 5 minutes before slicing.\"",
+      "tags": [
+        "tooling"
+      ],
+      "textIndexed": true,
+      "title": "Example: Accessibility Roast Chicken"
+    },
+    {
+      "id": "droobiedoo-tool-braise-decision-0d714eada0c4106a",
+      "kind": "tool",
+      "modifiedTime": "2026-06-18T15:12:53.132660+00:00",
+      "path": "tools/home_center_bundle/examples/braise_decision.md",
+      "provenance": {
+        "contentHash": "71d32969844c88a6b649b312c12af0f3a16c98247381611bd8be3224885eb8e1",
+        "hashAlgorithm": "sha256",
+        "sourcePath": "tools/home_center_bundle/examples/braise_decision.md",
+        "sourceRepo": "Valar05/droobiedoo"
+      },
+      "readOnly": true,
+      "remoteCallable": true,
+      "sha256": "71d32969844c88a6b649b312c12af0f3a16c98247381611bd8be3224885eb8e1",
+      "sizeBytes": 402,
+      "summary": "# Example: Braise Decision ## Braise when - the cut is tough or collagen-rich - liquid can improve the result - leftovers matter - time is more available than attention ## Roast when - the cut is tender or evenly cut - browning matters more than tenderness rescue - you want passive cooking and lower cleanup ## Decision note If the ingredient is dense but not tough, par-cook then roast or fry.",
+      "tags": [
+        "tooling"
+      ],
+      "textIndexed": true,
+      "title": "Example: Braise Decision"
+    },
+    {
+      "id": "droobiedoo-tool-chicken-potatoes-broccoli-70395936c356b2fc",
+      "kind": "tool",
+      "modifiedTime": "2026-06-18T15:12:53.028660+00:00",
+      "path": "tools/home_center_bundle/examples/chicken_potatoes_broccoli.md",
+      "provenance": {
+        "contentHash": "6af67d7c9d17b3899721bda27ff79fbeb150a32b50ceb8d22b1ba1b0e3f5d3da",
+        "hashAlgorithm": "sha256",
+        "sourcePath": "tools/home_center_bundle/examples/chicken_potatoes_broccoli.md",
+        "sourceRepo": "Valar05/droobiedoo"
+      },
+      "readOnly": true,
+      "remoteCallable": true,
+      "sha256": "6af67d7c9d17b3899721bda27ff79fbeb150a32b50ceb8d22b1ba1b0e3f5d3da",
+      "sizeBytes": 540,
+      "summary": "# Example: Chicken, Potatoes, Broccoli ## Bounded variants - Lemon herb roast: chicken, parboiled potatoes, broccoli, parsley, lemon - Dijon pan meal: seared chicken, roasted potatoes, broccoli, butter, Dijon - Soy ginger bowl: chicken, air-fried potatoes, microwaved broccoli, scallion, sesame ## Orchestration - Parboil potatoes for about 10 minutes. - Start the chicken while potatoes dry. - Roast, air-fry, or skillet-finish potatoes. - Add broccoli late or stage it in the microwave if frozen. - Finish with acid, herbs, or sauce.",
+      "tags": [
+        "tooling"
+      ],
+      "textIndexed": true,
+      "title": "Example: Chicken, Potatoes, Broccoli"
+    },
+    {
+      "id": "droobiedoo-tool-hamburger-helper-upgrade-72a042a6fab1c07b",
+      "kind": "tool",
+      "modifiedTime": "2026-06-18T15:12:53.080660+00:00",
+      "path": "tools/home_center_bundle/examples/hamburger_helper_upgrade.md",
+      "provenance": {
+        "contentHash": "f550ca282fff8a60eceecb9a05b8381c1fcf1a555ebb246545026c4631b4e738",
+        "hashAlgorithm": "sha256",
+        "sourcePath": "tools/home_center_bundle/examples/hamburger_helper_upgrade.md",
+        "sourceRepo": "Valar05/droobiedoo"
+      },
+      "readOnly": true,
+      "remoteCallable": true,
+      "sha256": "f550ca282fff8a60eceecb9a05b8381c1fcf1a555ebb246545026c4631b4e738",
+      "sizeBytes": 368,
+      "summary": "# Example: Hamburger Helper Upgrade ## Goal Make a boxed or low-cost beef helper taste deeper and more complete. ## Upgrade stack - brown onion - brown beef - cook tomato paste in the fat - add bouillon and Worcestershire - add water or milk as needed - finish with butter, cheese, or herbs ## Output goal The result should feel savory, cohesive, and not watery.",
+      "tags": [
+        "tooling"
+      ],
+      "textIndexed": true,
+      "title": "Example: Hamburger Helper Upgrade"
+    },
+    {
+      "id": "droobiedoo-tool-meshy-asset-workflow-5c5fd55bdf929887",
+      "kind": "tool",
+      "modifiedTime": "2026-06-06T15:55:32.733933+00:00",
+      "path": "tools/meshy_asset_workflow.py",
+      "provenance": {
+        "contentHash": "66e36fb8652b54af79995e78b2dacbc9bf44b00393af530a05829d9f04bc802f",
+        "hashAlgorithm": "sha256",
+        "sourcePath": "tools/meshy_asset_workflow.py",
+        "sourceRepo": "Valar05/droobiedoo"
+      },
+      "readOnly": true,
+      "remoteCallable": true,
+      "sha256": "66e36fb8652b54af79995e78b2dacbc9bf44b00393af530a05829d9f04bc802f",
+      "sizeBytes": 26861,
+      "summary": "#!/usr/bin/env python3 \"\"\"Workspace CLI for generating Meshy assets and tracking provenance.\"\"\" from __future__ import annotations import argparse import base64 import json import mimetypes import os import re import sys import time import urllib.error import urllib.parse import urllib.request from datetime import datetime, timezone from pathlib import Path from typing import Any WORKSPACE_ROOT = Path(__file__).resolve().parents[1] MESHY_BASE_URL = \"https://api.meshy.ai\" OPENAI_BASE_URL = \"https://api.openai.com\" MESHY_TEST_KEY = \"msy_dummy_api_key_for_test_mode_12345678\" MESHY_KEY_ALIASES = (\"MESHY_APIKEY\", \"MESHY_API_KRY\") FINAL_STATUSES = {\"SUCCEEDED\", \"FAILED\", \"CANCELED\"} class CliError(RuntimeError): pass def now_iso() -> str: return datetime.now(timezone.utc).replace(microsecond=0).isoformat() def slugify(value: str) -> str: slug = re.sub(r\"[^a-zA-Z0-9]+\", \"_\", value.strip().lower",
+      "tags": [
+        "tooling"
+      ],
+      "textIndexed": true,
+      "title": "!/usr/bin/env python3"
+    },
+    {
+      "id": "droobiedoo-tool-test-context-index-6899beb452d5881b",
+      "kind": "tool",
+      "modifiedTime": "2026-07-15T16:28:32.076198+00:00",
+      "path": "tools/test_context_index.py",
+      "provenance": {
+        "contentHash": "19ba24006c269c9923f56f2de469a4cf2e195201f11e48402adf35096d32fd62",
+        "hashAlgorithm": "sha256",
+        "sourcePath": "tools/test_context_index.py",
+        "sourceRepo": "Valar05/droobiedoo"
+      },
+      "readOnly": true,
+      "remoteCallable": true,
+      "sha256": "19ba24006c269c9923f56f2de469a4cf2e195201f11e48402adf35096d32fd62",
+      "sizeBytes": 2163,
+      "summary": "#!/usr/bin/env python3 from __future__ import annotations import json import subprocess import sys from pathlib import Path ROOT = Path(__file__).resolve().parents[1] INDEX = ROOT / \"generated/context/droobiedoo_context_index.json\" def fail(message: str) -> None: raise AssertionError(message) def main() -> int: subprocess.check_call([sys.executable, \"tools/build_context_index.py\", \"--check\"], cwd=ROOT) data = json.loads(INDEX.read_text(encoding=\"utf-8\")) entries = data.get(\"entries\", []) by_path = {entry.get(\"path\"): entry for entry in entries} kinds = {entry.get(\"kind\") for entry in entries} if data.get(\"schemaVersion\") != \"droobiedoo.context-index.v1\": fail(\"unexpected schema version\") if data.get(\"readOnly\") is not True or data.get(\"remoteMutationAllowed\") is not False: fail(\"index must be MCP read-only\") for required_kind in [\"project\", \"skill\", \"doctrine\", \"report\", \"artifact\", \"pro",
+      "tags": [
+        "tooling"
+      ],
+      "textIndexed": true,
+      "title": "!/usr/bin/env python3"
+    },
+    {
+      "id": "droobiedoo-tool-test-visual-qa-launcher-fallback-75228cdf165fc0f7",
+      "kind": "tool",
+      "modifiedTime": "2026-06-18T16:02:45.048589+00:00",
+      "path": "tools/test_visual_qa_launcher_fallback.mjs",
+      "provenance": {
+        "contentHash": "b1f6b7aa94c28a92d4529c634fbd3cc580c4f343ffca9cbb8fd6fdf97b70d455",
+        "hashAlgorithm": "sha256",
+        "sourcePath": "tools/test_visual_qa_launcher_fallback.mjs",
+        "sourceRepo": "Valar05/droobiedoo"
+      },
+      "readOnly": true,
+      "remoteCallable": true,
+      "sha256": "b1f6b7aa94c28a92d4529c634fbd3cc580c4f343ffca9cbb8fd6fdf97b70d455",
+      "sizeBytes": 1855,
+      "summary": "import fs from 'node:fs'; import path from 'node:path'; const tool = fs.readFileSync('/storage/emulated/0/Documents/GodotProjects/tools/visual_qa.mjs', 'utf8'); const failures = []; function assert(condition, message) { if (!condition) failures.push(message); } assert(tool.includes('async function launchBrowser(url, args, requestCount)'), 'visual_qa should define a launcher helper'); assert(tool.includes(\"launcher: 'am'\"), 'visual_qa should default to am on this device'); assert(tool.includes(\"run('termux-open-url'\"), 'visual_qa should still support termux-open-url'); assert(tool.includes(\"if (requestCount() > 0)\"), 'visual_qa should detect whether the browser requested the URL'); assert(tool.includes(\"fallbackFrom: 'termux-open-url'\"), 'visual_qa should record a fallback launch'); assert(tool.includes(\"launcherUsed: 'am'\"), 'visual_qa should mark am as the fallback launcher'); assert(to",
+      "tags": [
+        "tooling"
+      ],
+      "textIndexed": true,
+      "title": "import fs from 'node:fs';"
+    },
+    {
+      "id": "droobiedoo-tool-test-workspace-motivated-bootstrap-2353bd7eabf3fe0d",
+      "kind": "tool",
+      "modifiedTime": "2026-06-18T11:23:05.772190+00:00",
+      "path": "tools/test_workspace_motivated_bootstrap.mjs",
+      "provenance": {
+        "contentHash": "c7a13bfa6351952550f3946fc4f5a31770a0800c093557ce095edc423887b991",
+        "hashAlgorithm": "sha256",
+        "sourcePath": "tools/test_workspace_motivated_bootstrap.mjs",
+        "sourceRepo": "Valar05/droobiedoo"
+      },
+      "readOnly": true,
+      "remoteCallable": true,
+      "sha256": "c7a13bfa6351952550f3946fc4f5a31770a0800c093557ce095edc423887b991",
+      "sizeBytes": 2161,
+      "summary": "import fs from 'node:fs'; const agents = fs.readFileSync('/storage/emulated/0/Documents/GodotProjects/AGENTS.md', 'utf8'); const doc = fs.readFileSync('/storage/emulated/0/Documents/GodotProjects/pose-lab/docs/MOTIVATED_MODE.md', 'utf8'); const failures = []; function assert(condition, message) { if (!condition) failures.push(message); } assert(agents.includes('## Motivated Bootstrap'), 'workspace AGENTS should include Motivated Bootstrap'); assert(agents.includes('docs/MOTIVATED_MODE.md'), 'workspace AGENTS should reference the Motivated Mode contract'); assert(agents.includes('own the outcome'), 'workspace AGENTS should encode the motivational rule'); assert(agents.includes('workspace-write-operator'), 'workspace AGENTS should reference workspace-write-operator'); for (const needle of [ 'thunder-brainstorm-corpus-indexer', 'visual-qa-harness', 'android-live-visual-critique', 'asset-pro",
+      "tags": [
+        "tooling"
+      ],
+      "textIndexed": true,
+      "title": "import fs from 'node:fs';"
+    },
+    {
+      "id": "droobiedoo-tool-test-write-codex-rules-from-source-6d43132862d3aca1",
+      "kind": "tool",
+      "modifiedTime": "2026-06-18T11:40:03.088191+00:00",
+      "path": "tools/test_write_codex_rules_from_source.py",
+      "provenance": {
+        "contentHash": "1597ba471087d9556c1700c2bec0760eb3d77254b512b5bc2cde1d7e90a5d9cb",
+        "hashAlgorithm": "sha256",
+        "sourcePath": "tools/test_write_codex_rules_from_source.py",
+        "sourceRepo": "Valar05/droobiedoo"
+      },
+      "readOnly": true,
+      "remoteCallable": true,
+      "sha256": "1597ba471087d9556c1700c2bec0760eb3d77254b512b5bc2cde1d7e90a5d9cb",
+      "sizeBytes": 2626,
+      "summary": "#!/usr/bin/env python3 from __future__ import annotations import subprocess import sys import tempfile from pathlib import Path ROOT = Path('/storage/emulated/0/Documents/GodotProjects') SCRIPT = ROOT / 'tools' / 'write_codex_rules_from_source.py' def run(*args: str) -> subprocess.CompletedProcess[str]: return subprocess.run( [sys.executable, str(SCRIPT), *args], check=True, text=True, capture_output=True, ) def main() -> int: with tempfile.TemporaryDirectory() as tmp: tmpdir = Path(tmp) source = tmpdir / 'source.md' dest = tmpdir / 'default.rules' source.write_text( '# Head\\n' 'keep this block\\n' 'still keep this block\\n' '\\n' '## Next\\n' 'discard this tail\\n', encoding='utf-8', ) dry_run = run('--source', str(source), '--dest', str(dest), '--dry-run') assert dry_run.stdout.startswith('# Generated Codex default rules\\n# Source: '), 'dry-run should emit a starlark module header' assert '",
+      "tags": [
+        "tooling"
+      ],
+      "textIndexed": true,
+      "title": "!/usr/bin/env python3"
+    },
+    {
+      "id": "droobiedoo-tool-visual-qa-4e499a23c7b46a32",
+      "kind": "tool",
+      "modifiedTime": "2026-06-19T15:04:57.726600+00:00",
+      "path": "tools/visual_qa.mjs",
+      "provenance": {
+        "contentHash": "4cdfb1817f336e9efaa27eb2a1de5befa33ee2766c9f434ec358cddc2380f5e8",
+        "hashAlgorithm": "sha256",
+        "sourcePath": "tools/visual_qa.mjs",
+        "sourceRepo": "Valar05/droobiedoo"
+      },
+      "readOnly": true,
+      "remoteCallable": true,
+      "sha256": "4cdfb1817f336e9efaa27eb2a1de5befa33ee2766c9f434ec358cddc2380f5e8",
+      "sizeBytes": 21790,
+      "summary": "#!/usr/bin/env node import { spawn } from 'node:child_process'; import { createServer } from 'node:http'; import { copyFileSync, createReadStream, existsSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs'; import { basename, dirname, extname, join, resolve } from 'node:path'; const WORKSPACE_ROOT = '/storage/emulated/0/Documents/GodotProjects'; const DEFAULT_TMP = '/data/data/com.termux/files/usr/tmp/visual-qa'; const SHEET_SCRIPT = '/data/data/com.termux/files/home/.codex/skills/android-live-visual-critique/scripts/make_frame_sheet.py'; const SCREENSHOT_DIR = '/storage/emulated/0/Pictures/Screenshots'; const MIME = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.mjs': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8', '.json': 'application/json; charset=utf-8', '.png': 'image/png', '.jpg': 'image/jpeg',",
+      "tags": [
+        "tooling"
+      ],
+      "textIndexed": true,
+      "title": "!/usr/bin/env node"
+    },
+    {
+      "id": "droobiedoo-tool-write-codex-rules-from-source-f94d658d096cd9ee",
+      "kind": "tool",
+      "modifiedTime": "2026-06-18T11:38:41.728191+00:00",
+      "path": "tools/write_codex_rules_from_source.py",
+      "provenance": {
+        "contentHash": "d5cd086d409c2deb03cf14ba952ee0e549c2f0d0fba81a7bcc6b32781b3546dd",
+        "hashAlgorithm": "sha256",
+        "sourcePath": "tools/write_codex_rules_from_source.py",
+        "sourceRepo": "Valar05/droobiedoo"
+      },
+      "readOnly": true,
+      "remoteCallable": true,
+      "sha256": "d5cd086d409c2deb03cf14ba952ee0e549c2f0d0fba81a7bcc6b32781b3546dd",
+      "sizeBytes": 3678,
+      "summary": "#!/usr/bin/env python3 \"\"\"Overwrite Codex default rules from a saved source block. Default behavior: - read the source file - optionally extract only the top block between markers - write the result to ~/.codex/rules/default.rules atomically This is intended to make a saved workspace contract behave like persistent instructions on the local machine. \"\"\" from __future__ import annotations import argparse import json import os from pathlib import Path import shutil import sys import tempfile DEFAULT_SOURCE = Path(\"/storage/emulated/0/Documents/GodotProjects/pose-lab/docs/MOTIVATED_MODE.md\") DEFAULT_DEST = Path.home() / \".codex\" / \"rules\" / \"default.rules\" def parse_args() -> argparse.Namespace: parser = argparse.ArgumentParser(description=\"Overwrite Codex default instructions from a saved source file.\") parser.add_argument(\"--source\", default=str(DEFAULT_SOURCE), help=\"Source file containi",
+      "tags": [
+        "tooling"
+      ],
+      "textIndexed": true,
+      "title": "!/usr/bin/env python3"
+    },
+    {
+      "id": "droobiedoo-tool-write-codex-rules-from-source-dced211c1104ca3f",
+      "kind": "tool",
+      "modifiedTime": "2026-06-18T11:12:07.712189+00:00",
+      "path": "tools/write_codex_rules_from_source.sh",
+      "provenance": {
+        "contentHash": "4105509e09864a9255711eaec7755d2be27542f85e68cb9ef1058e7693fada15",
+        "hashAlgorithm": "sha256",
+        "sourcePath": "tools/write_codex_rules_from_source.sh",
+        "sourceRepo": "Valar05/droobiedoo"
+      },
+      "readOnly": true,
+      "remoteCallable": true,
+      "sha256": "4105509e09864a9255711eaec7755d2be27542f85e68cb9ef1058e7693fada15",
+      "sizeBytes": 119,
+      "summary": "#!/usr/bin/env sh exec python3 /storage/emulated/0/Documents/GodotProjects/tools/write_codex_rules_from_source.py \"$@\"",
+      "tags": [
+        "tooling"
+      ],
+      "textIndexed": true,
+      "title": "!/usr/bin/env sh"
+    }
+  ],
+  "forbiddenRemoteTools": [
+    "scripts/sync_workspace_artifacts.py"
+  ],
+  "freshness": {
+    "generatedAt": "2026-07-15T16:31:19.571508+00:00",
+    "maxAgeDays": 14,
+    "sourceDirty": true,
+    "sourceHead": "3df23c7f6211f3d6e7313b82c1fb1cee22d95396",
+    "warnings": [
+      "Droobiedoo working tree had local changes when this index was generated."
+    ]
+  },
+  "generatedAt": "2026-07-15T16:31:19.571508+00:00",
+  "generator": "tools/build_context_index.py",
+  "git": {
+    "branch": "main",
+    "dirty": true,
+    "head": "3df23c7f6211f3d6e7313b82c1fb1cee22d95396"
+  },
+  "readOnly": true,
+  "relationships": {
+    "command_center": "Execution and dispatch lane. Droobiedoo supplies context only and never dispatches jobs or mutates workspace state.",
+    "droobiedoo": "Read-only workspace memory, doctrine, skill, report, artifact, provenance, and freshness context source.",
+    "home_center": "Executable MCP and context/search surface that exposes Droobiedoo through read-only drive_operation entries.",
+    "she_raw": "Runtime/default consultative voice. She-Raw can consume Droobiedoo packets but does not own or mutate the index.",
+    "simulation_frames": "Home Center's immutable evidence-backed context lane; Droobiedoo packets use the same packet discipline without requiring a new MCP server."
+  },
+  "remoteMutationAllowed": false,
+  "schemaVersion": "droobiedoo.context-index.v1",
+  "sourceRepo": "Valar05/droobiedoo",
+  "sourceRootHint": "/storage/emulated/0/Documents/GodotProjects/droobiedoo"
+}

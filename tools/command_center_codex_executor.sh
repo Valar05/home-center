@@ -23,6 +23,9 @@ fi
 
 mkdir -p "$COMMAND_CENTER_ARTIFACT_DIR"
 
+# Local workers use the saved ChatGPT login, never inherited Platform API keys.
+unset OPENAI_API_KEY CODEX_API_KEY
+
 exec codex exec \
   --json \
   --dangerously-bypass-approvals-and-sandbox \

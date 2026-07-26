@@ -29,12 +29,15 @@ assert.equal(COMMAND_CENTER_COMPLETION_EVENT_LOOKBACK_LIMIT >= 1000, true);
 assert(COMMAND_CENTER_DURABLE_SESSION_RESTORE_STRATEGIES.includes('gcs_snapshot'));
 
 const nowMs = Date.now();
+const v2Identity = {workerInstallationId: 'install-cloud-real', workerInstanceId: 'instance-cloud-real', runnerVersion: 'command-center-runner-v2', protocolVersion: 'command-center-worker-v2'};
 const liveCloudWorker = {
+  ...v2Identity,
   workerId: 'codex-cloud-real',
   health: 'healthy',
   simulated: false,
   routable: true,
   capabilities: ['codex-cloud', 'codex', 'one-shot-worker'],
+  location: 'cloud',
   activation: {mode: 'push', endpoint: 'https://worker.example.invalid/activate', verifiedAtMs: nowMs - 1000},
   lastHeartbeatAtMs: nowMs - 1000,
 };
@@ -42,6 +45,9 @@ assert.equal(isWorkerLeaseEligible(liveCloudWorker, ['codex-cloud'], {nowMs}).el
 assert.equal(selectWorker([liveCloudWorker], ['codex-cloud'], {nowMs}).workerId, 'codex-cloud-real');
 
 const noActivatorWorker = {
+  ...v2Identity,
+  workerInstallationId: 'install-no-activator',
+  workerInstanceId: 'instance-no-activator',
   workerId: 'codex-cloud-no-activator',
   health: 'healthy',
   simulated: false,
@@ -60,14 +66,19 @@ assert.equal(isWorkerLeaseEligible(staleWorker, ['codex-cloud'], {nowMs}).eligib
 assert.match(isWorkerLeaseEligible(staleWorker, ['codex-cloud'], {nowMs}).reason, /stale/);
 
 const livePollWorker = {...liveCloudWorker, workerId: 'poll-cloud', activation: {mode: 'poll', verifiedAtMs: nowMs - 1000}, lastHeartbeatAtMs: nowMs - 1000};
-assert.equal(isWorkerLeaseEligible(livePollWorker, ['codex-cloud'], {nowMs}).eligible, true);
+assert.equal(isWorkerLeaseEligible(livePollWorker, ['codex-cloud'], {nowMs}).eligible, false);
+assert.match(isWorkerLeaseEligible(livePollWorker, ['codex-cloud'], {nowMs}).reason, /local\/phone workers are excluded/);
 
 const cloudRunSessionWorker = {
+  ...v2Identity,
+  workerInstallationId: 'install-cloud-run',
+  workerInstanceId: 'instance-cloud-run',
   workerId: 'cloud-run-debian-primary',
   health: 'healthy',
   simulated: false,
   routable: true,
   capabilities: ['codex', 'cloud-run-debian', 'durable-session', 'prepared-workspace'],
+  runtime: {codexAuth: 'api_key', apiKeyCapabilityProbe: {status: 'ok'}},
   activation: {mode: 'cloud_run_job', verifiedAtMs: nowMs - 1000},
   lastHeartbeatAtMs: nowMs - 1000,
   cloudRunJob: {projectId: 'home-center-dclar', region: 'us-central1', jobName: 'command-center-debian-worker'},
@@ -81,7 +92,7 @@ const coldActivatableCloudRunWorker = {...cloudRunSessionWorker, activation: {mo
 assert.equal(isWorkerLeaseEligible(coldActivatableCloudRunWorker, ['cloud-run-debian', 'durable-session'], {nowMs}).eligible, true);
 assert.equal(selectWorker([coldActivatableCloudRunWorker], ['cloud-run-debian', 'durable-session'], {nowMs}).workerId, 'cloud-run-debian-primary');
 assert.equal(isWorkerLeaseEligible({...cloudRunSessionWorker, sessionPolicy: {durable: true, snapshotStore: 'local'}}, ['cloud-run-debian', 'durable-session'], {nowMs}).eligible, false);
-assert.match(isWorkerLeaseEligible({...cloudRunSessionWorker, activation: {mode: 'poll', verifiedAtMs: nowMs}}, ['cloud-run-debian', 'durable-session'], {nowMs}).reason, /cloud_run_job/);
+assert.match(isWorkerLeaseEligible({...cloudRunSessionWorker, activation: {mode: 'poll', verifiedAtMs: nowMs}}, ['cloud-run-debian', 'durable-session'], {nowMs}).reason, /local\/phone workers are excluded|cloud_run_job/);
 
 const simulatedWorker = {...liveCloudWorker, workerId: 'simulated', simulated: true};
 assert.equal(isWorkerLeaseEligible(simulatedWorker, ['codex-cloud'], {nowMs}).eligible, false);

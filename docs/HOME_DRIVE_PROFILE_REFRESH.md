@@ -52,7 +52,7 @@ Defaults are deliberately overrideable through environment variables:
 - `HOME_DRIVE_PROFILE_GATEWAY`, default Home Center Firebase gateway
 - `HOME_DRIVE_PROFILE_TMUX_SESSION`, default `home-drive-profile-refresh`
 
-The scanner trusts structured cues only: `[voice:id]`, `[speaker:name]`, and uppercase speaker headings like `LEXEN:`. Brian remains the fallback narrator voice. Voice catalog lookup is metadata-only; if the catalog is unavailable, the scan still completes with stable defaults and records the warning in the report.
+The scanner trusts structured cues only: `[voice:id]`, `[speaker:name]`, and uppercase speaker headings like `LEXEN:`. Katie - Friendly Fixer remains the Drive Narrate fallback narrator voice for Vacation-style first-person renders. Voice catalog lookup is metadata-only; if the catalog is unavailable, the scan still completes with stable defaults and records the warning in the report.
 
 ## General scheduler entrypoint
 

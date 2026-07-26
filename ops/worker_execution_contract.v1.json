@@ -1,0 +1,91 @@
+{
+  "schemaVersion": "home-center.worker-execution-contract.v1",
+  "states": {
+    "active": ["accepted", "queued", "leased", "running", "checkpointed", "publishing"],
+    "terminal": ["completed", "failed", "quarantined", "cancelled"]
+  },
+  "requiredRequestFields": [
+    "requestId",
+    "operation",
+    "inputHash",
+    "executionPolicy",
+    "publicationPolicy"
+  ],
+  "requiredReceiptFields": [
+    "jobId",
+    "requestId",
+    "inputHash",
+    "state",
+    "acceptedAt",
+    "statusResource",
+    "publicationPolicy",
+    "attachedToExistingJob"
+  ],
+  "idempotency": {
+    "sameRequestSameHash": "attach",
+    "sameRequestDifferentHash": "reject",
+    "conflictCode": "REQUEST_ID_CONFLICT"
+  },
+  "lease": {
+    "requiredFields": ["workerId", "leaseId", "attemptNumber", "leasedAt", "heartbeatAt", "leaseExpiresAt"],
+    "singleActiveHolder": true,
+    "expiredMeansProviderDidNothing": false
+  },
+  "checkpoint": {
+    "requiredBeforeAndAfterIrreversibleBoundary": true,
+    "requiredFields": [
+      "checkpointId",
+      "completedUnits",
+      "pendingUnits",
+      "artifactRefs",
+      "providerOperationIds",
+      "billingCertainty",
+      "resumableStateRef",
+      "inputHash",
+      "codeRevision"
+    ],
+    "inlineLargeArtifacts": false
+  },
+  "providerOperationClasses": [
+    "safe_to_retry",
+    "idempotent_with_provider_key",
+    "ambiguous_cost_bearing",
+    "non_retryable"
+  ],
+  "ambiguousCostBearingOutcome": {
+    "state": "quarantined",
+    "automaticRetry": false
+  },
+  "publication": {
+    "explicitPolicyRequired": true,
+    "generationAndPublicationAreSeparateStages": true,
+    "publishToDriveFalseIsHardBoundary": true
+  },
+  "verification": {
+    "workerMayClaim": [
+      "existence",
+      "byte_count",
+      "checksum",
+      "decode",
+      "duration",
+      "frame_count",
+      "schema_validity",
+      "publication_readback"
+    ],
+    "workerMayNotClaim": [
+      "visual_acceptance",
+      "editorial_acceptance",
+      "audio_quality_acceptance",
+      "canon_acceptance",
+      "human_acceptance"
+    ]
+  },
+  "contextProtection": {
+    "boundedStatus": true,
+    "inlineLogs": false,
+    "inlineScripts": false,
+    "inlineProviderPayloads": false,
+    "inlineLargeArtifacts": false
+  },
+  "referenceCandidate": "home-center-audio-render"
+}

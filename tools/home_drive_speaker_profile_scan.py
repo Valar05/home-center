@@ -20,15 +20,18 @@ from typing import Iterable
 
 DEFAULT_GATEWAY = "https://us-central1-home-center-dclar.cloudfunctions.net"
 DEFAULT_ACOUSTIC = "artificial voice pitch; satisfying acoustic distortion"
-DEFAULT_NARRATOR = "Brian"
+DEFAULT_NARRATOR = "Katie - Friendly Fixer"
 
 VOICE_HINTS = {
-    "narrator": "Cartesia Narrator",
+    "narrator": "Katie - Friendly Fixer",
+    "stasya": "Katie - Friendly Fixer",
+    "stasia": "Katie - Friendly Fixer",
+    "anastasia": "Katie - Friendly Fixer",
     "drew": "Chris - Charming, Down-to-Earth",
     "andrew": "Daniel - Steady Broadcaster",
     "droobiedoo": "Droobiedoo",
-    "she-raw": "",
-    "sheraw": "",
+    "she-raw": "Katie - Friendly Fixer",
+    "sheraw": "Katie - Friendly Fixer",
     "care-unit": "Alice - Clear, Engaging Educator",
     "elvis": "Roger - Laid-Back, Casual, Resonant",
     "washington": "Bill - Wise, Mature, Balanced",
@@ -44,6 +47,18 @@ VOICE_HINTS = {
     "planning-director": "Eric - Smooth, Trustworthy",
     "quartermaster": "Callum - Husky Trickster",
     "camp-harrow": "Miles",
+    "isaac": "Clive - Measured Expert",
+    "eve": "Jacqueline - Reassuring Agent",
+    "nova": "Daniel - Modern Assistant",
+    "lady": "Gemma - Decisive Agent",
+    "kamal": "Archie - Approachable Mate",
+    "cassie": "Gemma - Decisive Agent",
+    "lukas": "Ronald - Thinker",
+    "rosta": "Ronald - Thinker",
+    "junaid": "Clive - Measured Expert",
+    "sarah": "Jacqueline - Reassuring Agent",
+    "kevin": "Corey - Supportive Buddy",
+    "resort-ai": "Daniel - Modern Assistant",
 }
 
 ROLE_HINTS = {
@@ -55,6 +70,9 @@ IGNORE_IDS = {
     "visual", "choose", "consequences", "outcomes", "appendix", "format", "state",
     "truth-label", "fact-check", "documented-fact", "strong-inference", "weak-inference",
     "performance-note", "opening", "closing-image", "end-card", "system-effects",
+    "he", "she", "i", "me", "we", "us", "was", "id", "name", "date", "status",
+    "summary", "tags", "related", "reuse", "acceptance", "version", "scene-one",
+    "scene-two", "scene-three", "part-one", "part-two", "part-three", "part-four",
 }
 
 @dataclass

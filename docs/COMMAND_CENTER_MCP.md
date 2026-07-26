@@ -1,5 +1,32 @@
 # Command Center MCP
 
+## Blender GLB Render File Handoff
+
+For ChatGPT Work Mode uploaded GLB/script files, use the Home Center MCP top-level tool `render_blender_glb`. Do not put `glbFile` or `scriptFile` inside `command_center_operation.args`; nested dispatcher args are JSON and do not activate the host uploader.
+
+`command_center_operation operation=render.blender_glb` is the stable no-reinstall render path. It remains valid for durable refs: `glbRef`, `scriptRef`, or `scriptText`, and it also accepts authenticated Home Center source descriptors such as:
+
+```json
+{
+  "glbSource": {
+    "provider": "github",
+    "repository": "Valar05/pose-lab-v2",
+    "ref": "605e8f128c9be8f586526517945e6747db44df7a",
+    "path": "public/assets/vanguard/vanguard_rigged_animations.glb"
+  },
+  "scriptText": "...",
+  "settings": {},
+  "executionContract": {},
+  "cache": false,
+  "idempotencyKey": "..."
+}
+```
+
+Use the GitHub descriptor for private repository GLBs when ChatGPT cannot see the top-level binary-upload tool. Home Center downloads the file server-side using its configured GitHub authority, validates the GLB header and byte count, hashes the bytes, stages an immutable `gs://` input, then invokes the existing non-agent Blender renderer. Do not route around this with GitHub Actions, Termux workers, Codex workers, or browser automation.
+
+The top-level Home Center tool accepts only host-uploaded `glbFile` and `scriptFile` fields, then invokes the Command Center renderer function directly so the existing upload handler can stage exact bytes and return immutable `gs://` refs. It is a convenience path, not the critical path.
+
+
 Type: cloud MCP control plane / execution dispatch / worker supervision
 Status: v1 one-shot worker substrate
 Date: 2026-07-10
@@ -79,6 +106,8 @@ V1 exposes these typed tools:
 - `command_center.jobs.cancel`
 - `command_center.jobs.resume`
 - `command_center.jobs.revise`
+- `command_center.jobs.reconcile_stale`
+- `command_center.jobs.dispatch_queued`
 - `command_center.jobs.answer_question`
 - `command_center.jobs.authorize_mutation`
 - `command_center.jobs.get_summary`
@@ -104,14 +133,81 @@ V1 exposes these typed tools:
 
 These are typed MCP operations. Command Center does not interpret chat prompts; ChatGPT performs interpretation and calls the correct tool.
 
+
+
+## Cloud-Only Codex Capacity
+
+Generic Command Center Codex execution is cloud-only. Termux, Android phones, local poll workers, and saved-login phone sessions are not eligible for generic Codex routing and are not a fallback when cloud capacity is red. Those records may remain as audit history or narrow specialty hosts, but default routing reports `local_host_excluded` and recommends cloud provisioning.
+
+Command Center owns first-class cloud provisioning through these MCP operations:
+
+- `workers.provision`: creates a cloud-only Debian Codex worker request, publishes the worker token to Secret Manager, creates or reuses the Cloud Run Job, registers the worker record, and registers/materializes the machine image metadata. It never returns token plaintext.
+- `provisioning.inspect`: reads recent provisioning requests and failure evidence without secrets.
+- `provisioning.reconcile`: checks whether provisioned workers became routable and recommends `workers.wake`/probe repair when they are still blocked.
+
+No-capacity flows such as `codex_sessions.create`, `proof.run_multi_session`, and `routing.explain` now return a provisioning packet or recommendation instead of treating red capacity as a terminal excuse. Provisioned Cloud Run workers still fail closed until their authentication/capability probe proves the lane can run real Codex work.
+
+## Fast Machine Images And Codex Session Pool
+
+Command Center now treats execution substrate as three separate things:
+
+- **Host / worker installation**: the machine that heartbeats and owns local credentials, caches, toolchains, and prepared workspaces.
+- **Machine image**: a versioned capability profile such as `cloud-debian-codex` or a future `debian-blender` image. It records dependency bundle refs, warm cache refs, digest/provenance, and estimated hot/cold start cost.
+- **Codex session**: a durable allocatable execution slot on a host, bound to a materialized image and nonsecret auth metadata such as `chatgpt_saved_login`.
+
+The hot path rule is strict: normal jobs must not install or materialize heavy dependencies. A job that requests an image not already advertised as materialized fails closed with `image_not_materialized`. A job that requests `allowMaterializationDuringJob=true` fails with `hot_path_materialization_forbidden`. Materialization is a maintenance/update operation, not a task execution side effect.
+
+Inspectable MCP operations for this substrate:
+
+- `machine_images.register`: record a versioned image profile with capability/toolchain/cache refs. It stores metadata only; no secrets and no install side effects.
+- `machine_images.list` / `machine_images.inspect`: show available images and which hosts have them materialized.
+- `hosts.list` / `hosts.inspect`: worker-census aliases that foreground materialized images, cache state, session capacity, and auth mode.
+- `codex_sessions.create`: allocate a durable session only when a routable host has a compatible materialized image and free isolated session capacity.
+- `codex_sessions.list` / `codex_sessions.inspect` / `codex_sessions.reconcile`: inspect and repair durable session state.
+- `proof.run_multi_session`: fail-closed proof requiring two isolated real session slots. It may accept two slots on one host only when the host explicitly advertises session-level isolation and capacity. It never counts aliases as separate workers and never synthesizes completed jobs.
+
+Existing job operations remain backward compatible. `jobs.create`, `jobs.create_followup`, and `routing.explain` accept optional `sessionPolicy`, `machineImageId`, and `imageRequirements` fields. Without those fields, existing worker-capability routing is unchanged. With those fields, the scheduler filters hosts through materialized-image and session-capacity diagnostics before leasing.
+
+The initial cloud image manifest is `tools/command_center_base_manifests/cloud-run-debian-codex.json`. It advertises one materialized `cloud-debian-codex` image on Cloud Run Jobs, device-independent Debian runtime, and one honest isolated session slot. It does not claim Blender capability and does not claim multi-session capacity.
+
+## Worker Lifecycle V2
+
+Command Center worker records are execution lanes, not dated project tickets. Generic workers must identify themselves with:
+
+- `workerInstallationId`: durable random id created once on the worker host and reused across restarts.
+- `workerId`: stable human-readable alias for that installation.
+- `workerInstanceId`: new id for each supervisor process start.
+- `runnerVersion` and `protocolVersion`.
+- `ownerKey`, current capabilities, prepared workspaces, heartbeat sequence, process start time, last heartbeat, and last accepted lease.
+- nonsecret authentication metadata such as `chatgpt_saved_login` or `api_key`.
+
+Reconnects from the same installation update the canonical worker record. They must not create fresh dated aliases. Legacy project-specific one-shot records, including `termux-tanks-oneshot`, are quarantined from generic routing and from the multi-worker proof. Audit history remains in Firestore; stale records are retired or marked unroutable by `workers.reconcile` rather than deleted.
+
+Termux and phone supervisors are not generic Codex capacity. Cloud Run Codex workers are routable only when their capability probe succeeds; API-key quota/auth failures are classified as cloud auth/probe failures and should lead to cloud provisioning or auth repair, not phone fallback. Blender Cloud Run rendering is separate from Codex worker routing.
+
+Inspectable MCP operations:
+
+- `system.health`: separate control-plane, worker-pool, and latest real end-to-end probe health.
+- `workers.list`: compact census with identity, liveness, routability reason, auth mode, capabilities, prepared workspaces, active leases, and capacity.
+- `workers.inspect`: one-worker registration, recent leases/events, executor outcomes, and repair recommendation.
+- `routing.explain`: candidate inclusion/exclusion reasons without creating a job.
+- `workers.reconcile`: bounded owner-scoped repair for stale/legacy records and abandoned jobs/leases; supports dry-run/apply.
+- `workers.request_restart`: records a restart request and reports `host_offline` when the host is not heartbeating. Command Center does not pretend cloud code can restart a dead local phone.
+- `workers.provision`: provisions another cloud Debian Codex worker lane from the cached Cloud Run image.
+- `provisioning.inspect` / `provisioning.reconcile`: inspect and repair cloud provisioning state.
+- `proof.run_multi_worker`: fail-closed two-worker proof. It requires two distinct real fresh worker installations, excludes simulated workers and `termux-tanks-oneshot`, and remains RED unless both nonce-bearing executions genuinely complete.
+
+Common failure diagnoses include `local_host_excluded`, `stale_heartbeat`, `legacy_identity_incomplete`, `legacy_project_specific_worker`, `protocol_version_mismatch`, `api_key_capability_unavailable`, `capacity_exhausted`, and `host_offline`. Each diagnosis should say whether automatic repair is safe and whether local physical intervention is genuinely required.
+
 ## V1 One-Shot Worker Substrate
 
 The first implementation now models workers as one-shot executions over prepared base workspaces. A worker is not a blank slate and does not install heavy tools such as Blender during normal job execution.
 
-- `jobs.create` persists a one-shot ticket, selects a compatible live worker, creates a lease, writes events, writes logs, records a checkpoint, and requests activation when the worker declares a push activation channel.
+- `jobs.create` persists a one-shot ticket, records every compatible worker candidate, selects the least-loaded compatible live worker, creates a lease, writes events, writes logs, records a checkpoint, and requests activation when the worker declares an activation channel.
 - A lease is not execution. Real `codex-cloud` workers must expose either a verified push activation channel or a live poll channel before they are eligible for leasing; metadata such as `simulated:false`, `routable:true`, or `health:"healthy"` is not enough.
 - Job activation records live in `commandCenterJobActivations` and emit `activation_requested`, then `activation_accepted` or `activation_rejected`. Rejection marks the lease and job failed with diagnostics instead of leaving the job indefinitely `leased`. Poll workers record acceptance only when `/worker/lease` is actually claimed.
 - `jobs.create_followup` creates a new linked invocation from a prior job handoff; it never rewrites the source job.
+- `jobs.dispatch_queued` dry-runs or leases recoverable queued work against the current worker registry. It uses active lease counts and each worker's declared concurrency limit, records `eligibleWorkerIds`, `workerDiagnostics`, `selectedWorkerLoad`, and `dispatchAttemptCount`, and emits `job_dispatched_from_queue` before normal activation. Expired queued jobs are retried only when `retryExpired=true`.
 - Every job records `executionMode=one_shot`, a `baseWorkspace` snapshot contract, required artifacts, verification commands, stop conditions, and mutation policy.
 - `workers.register_oneshot` registers a user-owned worker and returns a worker token once. Command Center stores only the token hash.
 - The worker gateway exposes `/worker/lease`, `/worker/events`, `/worker/artifacts`, `/worker/checkpoint`, and `/worker/complete` for registered workers.
@@ -210,6 +306,10 @@ The local worker host is `tools/command_center_oneshot_worker.mjs`. It supports:
 If no executor command is configured, the worker emits the required artifacts and fails honestly with `NO_EXECUTOR_CONFIGURED` rather than pretending implementation occurred. Worker tokens are local host state and must not be committed.
 
 The first project manifest is `tools/command_center_base_manifests/tanks-for-the-memories.json`. It records the local Tanks repo path, orientation files, tool checks, Debian proot Blender deep check, capabilities, and mutation defaults.
+
+## Historical Local Worker Records
+
+Older Termux/local worker records remain readable for audit and retirement, but generic Codex routing excludes them by default with `local_host_excluded`. They are not a capacity fallback and should not be used to satisfy cloud-worker shortages.
 
 ## Verbose Worker Execution
 
