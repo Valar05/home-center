@@ -51,6 +51,36 @@ Canonical profiles resolve aliases case-insensitively:
 
 Explicit segment settings override canonical profile values and are recorded in the manifest. Isaac's pitch is applied by the existing tempo-preserving post-Cartesia pitch processor.
 
+## Block-Mixed Long-Form Post-Production
+
+Use **block_mix** for long narration stems with sparse ambience and punctual effects. It allocates one final timeline, reads short textures as loopable windows, mixes dialogue and atmosphere in bounded frame blocks, performs local dialogue ducking during that pass, and yields between blocks so the worker can renew its lease. Encoded OGG/MP3/FLAC output is then streamed to FFmpeg in PCM blocks instead of first allocating another full WAV buffer.
+
+~~~json
+{
+  "sampleRate": 24000,
+  "graph": [
+    {"id": "narration", "op": "load", "source": "narration"},
+    {"id": "road_air", "op": "noise", "duration": 4, "channels": 1, "gain": 0.04, "seed": "road-air", "color": "pink"},
+    {"id": "final", "op": "block_mix", "duration": 849.4, "channels": 2, "items": [
+      {"clip": "narration", "at": 0, "gainDb": 0},
+      {"clip": "road_air", "at": 0, "duration": 214, "loop": true, "gainDb": -28, "fadeIn": 1.2, "fadeOut": 1.2, "duckBy": "narration", "duckAmountDb": 6}
+    ]}
+  ],
+  "final": "final",
+  "outputs": [{"name": "scene.ogg", "format": "ogg", "clip": "final"}]
+}
+~~~
+
+Each item supports **at**, **duration**, **offset**, **loop**, **gainDb**, mono **pan**, **fadeIn**, **fadeOut**, **duckBy**, **duckAt**, and **duckAmountDb**. Long-form recipes should keep ambience textures short and bound each audible window to a real location or transition. Do not create a full-duration noise clip merely to feed it into **block_mix**.
+
+The manifest records graph timing plus worker phase timing. Worker status reports **block_mixing** frame/block progress, **encoding** frame/block progress, and publication sub-phases. These are operational evidence that immutable work is advancing; they are not a creative-quality score.
+
+## Verified-By-Default Batch Acceptance
+
+When the user grants standing authority to assume generated chapter parts are good, successful technical verification advances the production queue without a mandatory listening stop. The accepted gate is: exact source boundary and cast manifest; immutable narration hash; no unplanned paid speech during source-only post-production; successful decode; non-silent output; clipping within policy; and matching GCS/Drive byte counts and SHA-256 readbacks.
+
+Human listening becomes an exception lane triggered by a concrete anomaly, a changed voice/cast/world choice, masking or clipping evidence, or an explicit review request. This standing authority accepts the artifact for workflow progression; it does not manufacture a claim about perceived emotion or cinematic quality that nobody observed.
+
 ## Long-Form Limits And Recovery
 
 Production defaults support at least 900 seconds per final clip and up to 240 `speech_sequence` segments. A ten-minute mono 24 kHz render is roughly 28.8 MB of PCM before encoding. OGG is the recommended long-form delivery format; WAV uses a separate 64 MB safety ceiling while encoded outputs use a 24 MB ceiling. Inline audio content is size-bounded and skipped above the inline limit, so long-form callers should set `returnInlineAudio: false` and treat the textual receipt plus `resource_link` and Drive readback verification as authoritative.
