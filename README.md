@@ -1,13 +1,23 @@
 # Home Center
 
-Home Center is now primarily a native Android login shell for the shared Google/Firebase tool infrastructure. The expensive part of the app is the authenticated Google tools connection; legacy chat and family voice commands remain available behind secondary controls.
+Home Center is the authenticated household operations and execution surface. The Android app is the human approval and device-control hub; the MCP services expose durable Google Drive, Docs, Sheets, simulation, and Command Center workflows to ChatGPT and paired Codex workers. Repository state, audit records, checkpoints, and artifact receipts preserve continuity across chats, devices, and cloud execution.
 
-Primary target for this slice:
+The product boundary is deliberate:
+
+- people approve sensitive actions through Home Center or an explicit connected-client confirmation;
+- stable operation registries let clients discover backend capabilities without a connector reinstall for every addition;
+- Command Center dispatches and supervises worker execution while ChatGPT remains the planning and conversational surface;
+- write operations use scoped authority, stable request IDs, and audit records;
+- the Android shopping list and voice commands are basic household workflows, not the product definition.
+
+## Basic household workflows
+
+The original shopping-list slice remains supported:
 
 - `add eggs to shopping list` adds `eggs` to the shared Home Center `shopping` list.
 - `read shopping list` loads active items and reads the first one.
 - `next`, `previous`, and `done` advance through the active readback list or mark the current Home Center task complete.
-- TickTick remains as a masked legacy fallback when Firebase sync is not configured or not signed in.
+- TickTick remains a masked legacy fallback when Firebase sync is not configured or the user is not signed in.
 
 
 ## Doctrine
