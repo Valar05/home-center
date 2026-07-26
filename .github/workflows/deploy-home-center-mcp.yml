@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - deploy/audio-render-canonical-gcs-sources
+      - deploy/audio-render-block-mix-monotonic
   workflow_dispatch:
     inputs:
       project:
