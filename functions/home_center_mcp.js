@@ -4395,7 +4395,7 @@ async function writeAudioIngestIndexes({bucket, batchId, fileId, ownerSegment, p
   }
 }
 
-async function finalizeDriveAudioIngestBatchOperation({user, args = {}, storage = audioIngestStorage, recordAudit = recordActionAudit}) {
+async function finalizeDriveAudioIngestBatchOperation({admin, user, args = {}, storage = audioIngestStorage, recordAudit = recordActionAudit}) {
   if (args.approved !== true) {
     throw Object.assign(new Error('audio.finalize_ingest_batch requires approved=true.'), {status: 409});
   }
@@ -4456,7 +4456,7 @@ async function finalizeDriveAudioIngestBatchOperation({user, args = {}, storage 
     await Promise.allSettled(createdFiles.map((file) => file.delete({ignoreNotFound: true})));
     throw err;
   }
-  await recordAudit(user, 'audio.finalize_ingest_batch', batchId, 'Sealed verified audio ingest batch index at ' + manifest.storageRef + '; Drive remains preserved.', requestId);
+  await recordAudit(admin, user, 'audio.finalize_ingest_batch', batchId, 'Sealed verified audio ingest batch index at ' + manifest.storageRef + '; Drive remains preserved.', requestId);
   return {ok: true, sealed: true, verified: true, requestId, batchId, itemCount: entries.length, byteCount: actualBytes, manifest, driveTrashEligible: false, driveMutated: false};
 }
 
@@ -4599,7 +4599,7 @@ async function ingestDriveAudioOperation({google, admin, auth, user, args = {}, 
     const destinationReceipt = {bucket: bucketName, objectName, storageRef: 'gs://' + bucketName + '/' + objectName, byteCount: readback.byteCount, sha256: readback.sha256, ownerEmail, project, stage, metadata: customMetadata};
     const indexes = await writeAudioIngestIndexes({bucket, batchId, fileId, ownerSegment, project, stage, source: sourceReceipt, destination: destinationReceipt});
     destinationCreated = false;
-    await recordAudit(user, 'audio.ingest_drive', fileId, 'Ingested verified Drive audio to gs://' + bucketName + '/' + objectName + ' and wrote bucket indexes without mutating Drive.', requestId);
+    await recordAudit(admin, user, 'audio.ingest_drive', fileId, 'Ingested verified Drive audio to gs://' + bucketName + '/' + objectName + ' and wrote bucket indexes without mutating Drive.', requestId);
     return {
       ok: true,
       verified: true,
@@ -4696,7 +4696,7 @@ async function runDriveWorkflowOperation({google, admin, auth, user, workflowId,
     return {index, type, requestId, status: 'completed', result};
   }
   if (type === 'audio.finalize_ingest_batch') {
-    const result = await finalizeDriveAudioIngestBatchOperation({user, args: {...operation, requestId}});
+    const result = await finalizeDriveAudioIngestBatchOperation({admin, user, args: {...operation, requestId}});
     return {index, type, requestId, status: 'completed', result};
   }
   if (type === 'drive_create_folder') {
