@@ -1,4 +1,4 @@
-const {createHash, randomBytes, randomUUID, createSign} = require('node:crypto');
+const {createHash, randomBytes, randomUUID, createSign, createVerify} = require('node:crypto');
 const {Readable, Transform} = require('node:stream');
 const {pipeline} = require('node:stream/promises');
 const {Storage} = require('@google-cloud/storage');
@@ -36,6 +36,20 @@ const HOME_CENTER_RENDER_MAX_GLB_BYTES = Number(process.env.COMMAND_CENTER_RENDE
 const HOME_CENTER_RENDER_MAX_SCRIPT_BYTES = Number(process.env.COMMAND_CENTER_RENDER_MAX_SCRIPT_BYTES || 1024 * 1024);
 const HOME_CENTER_DIRECT_RENDER_TEXT_LIMIT = 1024 * 1024;
 const HOME_CENTER_RENDER_INLINE_GIF_MAX_BYTES = Number(process.env.HOME_CENTER_RENDER_INLINE_GIF_MAX_BYTES || 2 * 1024 * 1024);
+const SHERMAN_BLENDER_SITE_PUBLIC_KEY = `-----BEGIN PUBLIC KEY-----
+MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEGfGEkJBHuKfXhgYGrAFYS4V1ggJs
+TjzEhoRFGqSWkgzdNURtaVFWWf1iWC9n2AFAut88RwjbxJjtGOTiX7zTjw==
+-----END PUBLIC KEY-----`;
+const SHERMAN_BLENDER_SITE_CONTRACT = Object.freeze({
+  assetId: 'vanguard',
+  sourceVersion: 'vanguard-rigged-animations-cb37e966',
+  recipeId: 'sword-attack-1-contact-sheet-v1',
+  action: 'SwordAttack1',
+  renderId: 'vanguard-swordattack1-reference-proof-20260726-v3',
+  idempotencyKey: 'vanguard-swordattack1-reference-proof-cb37e966-v3',
+  glbRef: 'gs://home-center-dclar-command-center-renders/command-center-render-inputs/github-cache/glb/821ce55a17ef1b5259e25473173ca63de76a7286c68f5f65f4e2fe0508774507-70609931d8bcb5803728e8d7a27f0157984954c02a407b0904da42885fd485ab-vanguard_rigged_animations.glb',
+  scriptRef: 'gs://home-center-dclar-command-center-renders/command-center-render-inputs/github-cache/script/46d2693db40b7710889e5c3408abe16601ef66db724a50e9c51ca0338a81307a-e26018faf4c46738874a280488bf8fa054e5d3e14944872ec0296d08dac1299d-cloud_render_vanguard_swordattack1.py',
+});
 const MCP_REQUIRED_SCOPES = [
   'https://www.googleapis.com/auth/drive',
   'https://www.googleapis.com/auth/documents',
@@ -6113,6 +6127,101 @@ function createHomeCenterMcpServer({google, admin, googleClientId, googleClientS
   return server;
 }
 
+function verifyShermanBlenderSiteRequest(req) {
+  const timestamp = safeText(req.get('x-sherman-timestamp'), 40);
+  const signature = safeText(req.get('x-sherman-signature'), 400);
+  const timestampMs = Number(timestamp);
+  if (!timestamp || !signature || !Number.isFinite(timestampMs) || Math.abs(Date.now() - timestampMs) > 5 * 60 * 1000) {
+    throw homeCenterRenderInputError('Signed Site request is missing or expired.', 401, 'site_signature_invalid');
+  }
+  const canonical = timestamp + '\n' + JSON.stringify(req.body || {});
+  const verifier = createVerify('SHA256');
+  verifier.update(canonical);
+  verifier.end();
+  const ok = verifier.verify({key: SHERMAN_BLENDER_SITE_PUBLIC_KEY, dsaEncoding: 'ieee-p1363'}, Buffer.from(signature, 'base64url'));
+  if (!ok) throw homeCenterRenderInputError('Signed Site request verification failed.', 401, 'site_signature_invalid');
+}
+
+function requireShermanBlenderContract(body = {}) {
+  if (safeText(body.assetId, 120) !== SHERMAN_BLENDER_SITE_CONTRACT.assetId ||
+      safeText(body.sourceVersion, 160) !== SHERMAN_BLENDER_SITE_CONTRACT.sourceVersion ||
+      safeText(body.recipeId, 160) !== SHERMAN_BLENDER_SITE_CONTRACT.recipeId) {
+    throw homeCenterRenderInputError('Site request does not match the pinned Blender recipe contract.', 400, 'site_recipe_not_allowed');
+  }
+}
+
+async function runShermanBlenderSiteOperation(admin, body = {}) {
+  requireShermanBlenderContract(body);
+  const operation = safeText(body.operation, 80);
+  if (operation === 'evidence') {
+    const cacheKey = safeText(body.cacheKey, 80).toLowerCase();
+    const expectedSha256 = safeText(body.expectedSha256, 80).toLowerCase();
+    if (!/^[a-f0-9]{64}$/.test(cacheKey) || !/^[a-f0-9]{64}$/.test(expectedSha256)) {
+      throw homeCenterRenderInputError('Evidence request requires exact cache and SHA-256 values.', 400, 'site_evidence_contract_invalid');
+    }
+    const objectName = 'renders/contact-sheets/' + cacheKey + '/contact-sheet.png';
+    const [bytes] = await new Storage().bucket(COMMAND_CENTER_RENDER_ARTIFACT_BUCKET).file(objectName).download();
+    const buffer = Buffer.isBuffer(bytes) ? bytes : Buffer.from(bytes);
+    const sha256 = sha256RenderBytes(buffer);
+    if (sha256 !== expectedSha256) throw homeCenterRenderInputError('Evidence hash did not match the render receipt.', 409, 'site_evidence_hash_mismatch');
+    return {kind: 'image', buffer, sha256};
+  }
+  if (operation !== 'render') throw homeCenterRenderInputError('Unsupported signed Site operation.', 400, 'site_operation_invalid');
+  const frames = [0, 3, 6, 9, 12, 15, 18, 21, 24, 28, 33, 38];
+  const result = await commandCenterRenderBlenderGlb(admin, null, {
+    glbRef: SHERMAN_BLENDER_SITE_CONTRACT.glbRef,
+    scriptRef: SHERMAN_BLENDER_SITE_CONTRACT.scriptRef,
+    settings: {
+      width: 420,
+      height: 520,
+      action: SHERMAN_BLENDER_SITE_CONTRACT.action,
+      expectedAction: SHERMAN_BLENDER_SITE_CONTRACT.action,
+      authoredKeys: frames,
+      evidenceFrames: frames,
+      gifFrames: frames,
+      gifTimingMs: frames.map(() => 40),
+      allowRepeatedGifFrames: false,
+      includeBlend: false,
+      includeDiagnostics: true,
+    },
+    executionContract: {
+      contractVersion: 'reference-only-render-v1',
+      includeBlend: false,
+      includeDiagnostics: true,
+      assetMutation: false,
+      referenceOnly: true,
+      modelBytesReturnedToCaller: false,
+      weaponMode: 'embedded',
+      rootMotionSuppressedForReviewOnly: true,
+    },
+    cache: true,
+    renderId: SHERMAN_BLENDER_SITE_CONTRACT.renderId,
+    idempotencyKey: SHERMAN_BLENDER_SITE_CONTRACT.idempotencyKey,
+  }, {actor: 'dclarke1005@gmail.com'});
+  const hashEntry = renderArtifactHashEntry(result, 'contact-sheet.png');
+  return {
+    kind: 'receipt',
+    receipt: {
+      assetId: SHERMAN_BLENDER_SITE_CONTRACT.assetId,
+      sourceVersion: SHERMAN_BLENDER_SITE_CONTRACT.sourceVersion,
+      recipeId: SHERMAN_BLENDER_SITE_CONTRACT.recipeId,
+      action: SHERMAN_BLENDER_SITE_CONTRACT.action,
+      renderId: safeText(result.renderId, 180),
+      cacheKey: safeText(result.cacheKey, 80),
+      status: safeText(result.status, 80),
+      cacheHit: result.cacheHit === true,
+      candidateStatus: 'quarantined',
+      assetMutation: false,
+      modelBytesReturnedToCaller: false,
+      includeBlend: false,
+      contactSheetSha256: safeText(hashEntry.sha256, 80),
+      contactSheetByteCount: Number(hashEntry.byteCount || 0) || 0,
+      humanVerdict: 'pending',
+      error: safeText(result.error, 500),
+    },
+  };
+}
+
 function createHomeCenterMcpApp({google, admin, googleClientId = () => '', googleClientSecret = () => '', githubToken = () => '', githubAdmin = {}, cartesiaApiKey = () => ''}) {
   const app = express();
   app.use(express.json({limit: '80mb'}));
@@ -6122,6 +6231,25 @@ function createHomeCenterMcpApp({google, admin, googleClientId = () => '', googl
   app.get('/', (_req, res) => {
     res.set('Cache-Control', 'no-store');
     res.json({ok: true, service: 'home-center-drive-bridge', version: HOME_CENTER_MCP_SERVER_VERSION, registryVersion: HOME_CENTER_REGISTRY_VERSION, connectorSchemaRevision: HOME_CENTER_CONNECTOR_SCHEMA_REVISION, catalogCacheKey: HOME_CENTER_CONNECTOR_SCHEMA_REVISION, directFileTools: HOME_CENTER_DIRECT_FILE_TOOLS, endpoints: ['/sse', '/messages', '/mcp'], oauthProtectedResource: MCP_RESOURCE_METADATA});
+  });
+
+  app.post('/site/blender', async (req, res) => {
+    try {
+      verifyShermanBlenderSiteRequest(req);
+      const outcome = await runShermanBlenderSiteOperation(admin, req.body || {});
+      res.set('Cache-Control', 'private, no-store');
+      if (outcome.kind === 'image') {
+        res.set('Content-Type', 'image/png');
+        res.set('X-Content-Type-Options', 'nosniff');
+        res.set('X-Artifact-SHA256', outcome.sha256);
+        res.status(200).send(outcome.buffer);
+        return;
+      }
+      res.status(outcome.receipt.status === 'completed' ? 200 : 502).json(outcome.receipt);
+    } catch (err) {
+      res.set('Cache-Control', 'no-store');
+      res.status(err.status || 500).json({status: 'failed', errorCode: safeText(err.failureKind, 120) || 'site_blender_failed', message: safeText(err.message || String(err), 500)});
+    }
   });
 
   app.get('/oauth-protected-resource', (_req, res) => {
