@@ -14,6 +14,8 @@ const MAX_SCRIPT_BYTES = Number(process.env.RENDER_MAX_SCRIPT_BYTES || 1024 * 10
 const MAX_OUTPUT_BYTES = Number(process.env.RENDER_MAX_OUTPUT_BYTES || 400 * 1024 * 1024);
 const MAX_OUTPUT_FILE_BYTES = Number(process.env.RENDER_MAX_OUTPUT_FILE_BYTES || 180 * 1024 * 1024);
 const RENDER_TIMEOUT_MS = Number(process.env.RENDER_TIMEOUT_MS || 600000);
+const MIN_GIF_TIMING_MS = Number(process.env.RENDER_MIN_GIF_TIMING_MS || 10);
+const MAX_GIF_TIMING_MS = Number(process.env.RENDER_MAX_GIF_TIMING_MS || 2000);
 const REQUIRED_BUNDLE_KINDS = [
   'rendered_frames', 'contact_sheet', 'native_pose_animation_data', 'script_input_hashes',
   'blender_version_settings', 'stdout_stderr', 'fixed_camera_renders', 'diagnostic_view_renders', 'validation_manifest',
@@ -185,102 +187,137 @@ function makeContactSheet(frames, outPath) {
   return sheet.status === 0 && fs.existsSync(outPath);
 }
 
-function numberArray(value) {
-  return Array.isArray(value) ? value.map((item) => Number(item)).filter((item) => Number.isFinite(item)) : [];
-}
 function firstArray(...values) {
   for (const value of values) if (Array.isArray(value)) return value;
   return null;
 }
 function integerFrame(value, label) {
-  const number = Number(value);
-  if (!Number.isInteger(number) || number < 0) throw typedError(label + ' must be a non-negative integer frame index.');
-  return number;
+  if (!Number.isInteger(value)) throw typedError(label + ' must be an integer.');
+  return value;
 }
-function pngDimensions(file) {
-  const result = spawnSync('identify', ['-format', '%w %h', file], {encoding: 'utf8', timeout: 15000});
-  if (result.status !== 0) throw typedError('GIF assembly could not inspect PNG dimensions for ' + path.basename(file) + ': ' + String(result.stderr || result.stdout || '').slice(0, 240), 500, 'artifact_publication');
-  const match = String(result.stdout || '').trim().match(/^(\d+)\s+(\d+)$/);
-  if (!match) throw typedError('GIF assembly received invalid PNG dimension metadata for ' + path.basename(file) + '.', 500, 'artifact_publication');
-  return {width: Number(match[1]), height: Number(match[2])};
+function numberDuration(value, label) {
+  const n = Number(value);
+  if (!Number.isFinite(n) || n <= 0) throw typedError(label + ' must be a positive finite duration in milliseconds.');
+  if (n < MIN_GIF_TIMING_MS || n > MAX_GIF_TIMING_MS) throw typedError(label + ' must be between ' + MIN_GIF_TIMING_MS + ' and ' + MAX_GIF_TIMING_MS + ' ms.');
+  return Math.round(n);
 }
-function buildGifPlaybackContract(frames, scriptManifest = {}, settings = {}) {
-  const renderedFrameNames = Array.isArray(scriptManifest.renderedFrames) ? scriptManifest.renderedFrames : [];
+function frameRecords(files, manifestValues = []) {
+  return files.map((file, index) => ({
+    index,
+    path: file,
+    manifestPath: Array.isArray(manifestValues) ? String(manifestValues[index] || '') : '',
+    name: path.basename(file),
+  }));
+}
+function authoredKeysFromManifest(scriptManifest = {}) {
+  const keys = firstArray(scriptManifest.authoredKeys, scriptManifest.animationAuthoredKeys, scriptManifest.keyframes);
+  return {authoredKeys: Array.isArray(keys) ? keys : [], authoredKeysAvailable: Array.isArray(keys)};
+}
+function resolveGifPlaybackContract(evidenceFrames, settings = {}, scriptManifest = {}, executionContract = {}) {
+  const rawExplicitFrames = firstArray(settings.gifFrames, executionContract.gifFrames, scriptManifest.gifFrames);
+  const explicitFrames = Array.isArray(rawExplicitFrames);
+  const rawFrames = rawExplicitFrames || evidenceFrames.map((frame) => frame.index);
+  const gifFrames = rawFrames.map((value, index) => integerFrame(value, 'gifFrames[' + index + ']'));
+  if (!gifFrames.length) throw typedError('gifFrames must not be empty.');
+  const allowRepeated = boolOption(settings.allowRepeatedGifFrames ?? executionContract.allowRepeatedGifFrames ?? scriptManifest.allowRepeatedGifFrames, false);
+  if (!allowRepeated) {
+    const seen = new Set();
+    for (const frame of gifFrames) {
+      if (seen.has(frame)) throw typedError('gifFrames contains duplicate index ' + frame + '; repeated playback requires allowRepeatedGifFrames=true.');
+      seen.add(frame);
+    }
+  }
+  const evidenceByIndex = new Map(evidenceFrames.map((frame) => [frame.index, frame]));
+  const selectedFrames = gifFrames.map((frame, playbackIndex) => {
+    const evidence = evidenceByIndex.get(frame);
+    if (!evidence) throw typedError('gifFrames[' + playbackIndex + '] index ' + frame + ' is out of range for ' + evidenceFrames.length + ' evidence frames.');
+    return {...evidence, playbackIndex};
+  });
+  const rawExplicitTiming = firstArray(settings.gifTimingMs, executionContract.gifTimingMs, scriptManifest.gifTimingMs);
+  const legacyTiming = firstArray(settings.frameDurationsMs, executionContract.frameDurationsMs, scriptManifest.frameDurationsMs);
+  const rawTiming = rawExplicitTiming || (explicitFrames ? null : legacyTiming) || gifFrames.map(() => 100);
+  if (!Array.isArray(rawTiming)) throw typedError('gifTimingMs is required when gifFrames is explicit.');
+  if (rawTiming.length !== gifFrames.length) throw typedError('gifTimingMs.length must equal gifFrames.length.');
+  const gifTimingMs = rawTiming.map((value, index) => numberDuration(value, 'gifTimingMs[' + index + ']'));
+  return {
+    authoredKeys: authoredKeysFromManifest(scriptManifest).authoredKeys,
+    authoredKeysAvailable: authoredKeysFromManifest(scriptManifest).authoredKeysAvailable,
+    evidenceFrames: evidenceFrames.map((frame) => ({index: frame.index, name: frame.name, manifestPath: frame.manifestPath})),
+    gifFrames,
+    gifTimingMs,
+    gifFrameSelection: explicitFrames ? 'explicit' : 'fallback',
+    selectedFrames: selectedFrames.map((frame, index) => ({playbackIndex: index, evidenceFrame: frame.index, name: frame.name, manifestPath: frame.manifestPath, timingMs: gifTimingMs[index]})),
+    excludedFrames: evidenceFrames.filter((frame) => !gifFrames.includes(frame.index)).map((frame) => frame.index),
+    allowRepeatedGifFrames: allowRepeated,
+    timingBoundsMs: {min: MIN_GIF_TIMING_MS, max: MAX_GIF_TIMING_MS},
+  };
+}
+function buildGifPlaybackContract(files, scriptManifest = {}, settings = {}) {
   const evidenceSource = firstArray(settings.evidenceFrames, scriptManifest.evidenceFrames);
-  const evidenceFrames = frames.map((file, index) => {
-    const declared = evidenceSource && evidenceSource[index] !== undefined ? evidenceSource[index] : index;
-    return {index: integerFrame(declared, 'evidenceFrames[' + index + ']'), sourceIndex: index, file, manifestPath: renderedFrameNames[index] || path.basename(file)};
+  const renderedFrameNames = Array.isArray(scriptManifest.renderedFrames) ? scriptManifest.renderedFrames : [];
+  const evidenceFrames = files.map((file, sourceIndex) => {
+    const declared = evidenceSource && evidenceSource[sourceIndex] !== undefined ? Number(evidenceSource[sourceIndex]) : sourceIndex;
+    if (!Number.isInteger(declared) || declared < 0) throw typedError('evidenceFrames[' + sourceIndex + '] must be a non-negative integer frame index.');
+    return {index: declared, sourceIndex, path: file, file, manifestPath: renderedFrameNames[sourceIndex] || path.basename(file), name: path.basename(file)};
   });
   const evidenceSeen = new Set();
   for (const frame of evidenceFrames) {
     if (evidenceSeen.has(frame.index)) throw typedError('evidenceFrames contains duplicate index ' + frame.index + '.');
     evidenceSeen.add(frame.index);
   }
-  const explicitGifFrames = Array.isArray(settings.gifFrames) || Array.isArray(scriptManifest.gifFrames);
-  const rawGifFrames = firstArray(settings.gifFrames, scriptManifest.gifFrames) || evidenceFrames.map((frame) => frame.index);
-  const gifFrames = rawGifFrames.map((value, index) => integerFrame(value, 'gifFrames[' + index + ']'));
-  if (!gifFrames.length) throw typedError('gifFrames must not be empty.');
-  const allowRepeat = settings.allowRepeatedGifFrames === true || scriptManifest.allowRepeatedGifFrames === true;
-  if (!allowRepeat) {
-    const seen = new Set();
-    for (const frame of gifFrames) {
-      if (seen.has(frame)) throw typedError('gifFrames contains duplicate index ' + frame + '; set allowRepeatedGifFrames only when repeated playback is intentional.');
-      seen.add(frame);
-    }
-  }
-  const explicitTiming = Array.isArray(settings.gifTimingMs) || Array.isArray(scriptManifest.gifTimingMs);
-  let rawTiming = firstArray(settings.gifTimingMs, scriptManifest.gifTimingMs);
-  if (!rawTiming && explicitGifFrames) throw typedError('gifTimingMs is required when gifFrames is explicit.');
-  if (!rawTiming) {
-    const sourceTiming = firstArray(scriptManifest.frameDurationsMs, settings.frameDurationsMs) || [];
-    rawTiming = gifFrames.map((frame, index) => {
-      const evidence = evidenceFrames.find((item) => item.index === frame);
-      return Number(sourceTiming[evidence ? evidence.sourceIndex : index] || 100) || 100;
-    });
-  }
-  const gifTimingMs = numberArray(rawTiming).map((ms) => Math.max(1, Math.round(ms)));
-  if (gifTimingMs.length !== gifFrames.length) throw typedError('gifTimingMs.length must equal gifFrames.length.');
-  const selected = gifFrames.map((frame) => {
-    const match = evidenceFrames.find((item) => item.index === frame);
-    if (!match) throw typedError('gifFrames requested missing evidence frame index ' + frame + '.');
-    return match;
-  });
+  const contract = resolveGifPlaybackContract(evidenceFrames, settings, scriptManifest, {});
   return {
-    authoredKeys: numberArray(firstArray(settings.authoredKeys, scriptManifest.authoredKeys) || []),
+    ...contract,
+    authoredKeys: contract.authoredKeys,
     evidenceFrames: evidenceFrames.map((frame) => frame.index),
-    gifFrames,
-    gifTimingMs,
-    allowRepeatedGifFrames: allowRepeat,
-    explicitGifFrames,
-    explicitGifTiming: explicitTiming,
-    selectedFrames: selected.map((frame, index) => ({playbackIndex: index, evidenceFrame: frame.index, sourceIndex: frame.sourceIndex, manifestPath: frame.manifestPath, timingMs: gifTimingMs[index]})),
+    explicitGifFrames: contract.gifFrameSelection === 'explicit',
+    explicitGifTiming: Array.isArray(settings.gifTimingMs) || Array.isArray(scriptManifest.gifTimingMs),
+    selectedFrames: contract.selectedFrames.map((frame) => {
+      const evidence = evidenceFrames.find((item) => item.index === frame.evidenceFrame);
+      if (!evidence) throw typedError('gifFrames requested missing evidence frame index ' + frame.evidenceFrame + '.');
+      return {...frame, sourceIndex: evidence.sourceIndex, manifestPath: evidence.manifestPath};
+    }),
   };
 }
-function makeLoopingGif(frames, outPath, {scriptManifest = {}, settings = {}} = {}) {
-  if (!frames.length) return null;
-  const contract = buildGifPlaybackContract(frames, scriptManifest, settings);
-  const workDir = fs.mkdtempSync(path.join(os.tmpdir(), 'cc-looping-gif-'));
-  const selectedFiles = contract.selectedFrames.map((frame) => frames[frame.sourceIndex]);
-  const prepared = [];
-  const firstSize = pngDimensions(selectedFiles[0]);
-  for (const [index, frame] of selectedFiles.entries()) {
-    const size = pngDimensions(frame);
-    if (size.width !== firstSize.width || size.height !== firstSize.height) throw typedError('GIF assembly requires compatible PNG dimensions; ' + path.basename(frame) + ' differs from the first selected frame.');
-    const preparedPath = path.join(workDir, 'gif-frame-' + String(index).padStart(3, '0') + '.png');
-    const preparedRef = 'PNG32:' + preparedPath;
-    const convert = spawnSync('convert', ['-size', firstSize.width + 'x' + firstSize.height, 'xc:none', frame, '-alpha', 'on', '-compose', 'Over', '-composite', preparedRef], {encoding: 'utf8', timeout: 30000});
-    if (convert.status !== 0 || !fs.existsSync(preparedPath)) throw typedError('GIF assembly failed to prepare transparent frame ' + index + ': ' + String(convert.stderr || convert.stdout || '').slice(0, 240), 500, 'artifact_publication');
-    prepared.push(preparedPath);
+function pngDimensions(file) {
+  const result = spawnSync('identify', ['-format', '%w %h', file], {encoding: 'utf8', timeout: 30000});
+  if (result.status !== 0) throw typedError('GIF assembly could not inspect PNG dimensions for ' + path.basename(file) + ': ' + String(result.stderr || result.stdout || '').slice(0, 240), 500, 'artifact_publication');
+  const match = String(result.stdout || '').trim().match(/^(\d+)\s+(\d+)$/);
+  if (!match) throw typedError('GIF assembly received invalid PNG dimension metadata for ' + path.basename(file) + '.', 500, 'artifact_publication');
+  return {width: Number(match[1]), height: Number(match[2])};
+}
+function makeLoopingGif(selectedFrames, outPath, contract) {
+  if (!selectedFrames.length) return false;
+  if (Array.isArray(selectedFrames) && typeof selectedFrames[0] === 'string') {
+    const playback = buildGifPlaybackContract(selectedFrames, contract?.scriptManifest || {}, contract?.settings || {});
+    const chosen = playback.selectedFrames.map((frame) => ({...frame, path: selectedFrames[frame.sourceIndex]}));
+    makeLoopingGif(chosen, outPath, playback);
+    return playback;
   }
-  const args = ['-background', 'none'];
-  prepared.forEach((frame, index) => {
-    const delayCs = Math.max(1, Math.round(contract.gifTimingMs[index] / 10));
-    args.push('-dispose', 'Background', '-delay', String(delayCs), frame);
-  });
-  args.push('-loop', '0', outPath);
-  const convert = spawnSync('convert', args, {encoding: 'utf8', timeout: 60000});
-  if (convert.status !== 0 || !fs.existsSync(outPath)) throw typedError('GIF assembly failed: ' + String(convert.stderr || convert.stdout || '').slice(0, 240), 500, 'artifact_publication');
-  return contract;
+  const workDir = fs.mkdtempSync(path.join(os.tmpdir(), 'cc-looping-gif-'));
+  try {
+    const firstSize = pngDimensions(selectedFrames[0].path);
+    const prepared = [];
+    for (const [index, frame] of selectedFrames.entries()) {
+      const size = pngDimensions(frame.path);
+      if (size.width !== firstSize.width || size.height !== firstSize.height) throw typedError('GIF assembly requires compatible PNG dimensions; ' + path.basename(frame.path) + ' differs from the first selected frame.', 500, 'artifact_publication');
+      const preparedPath = path.join(workDir, 'gif-frame-' + String(index).padStart(3, '0') + '.png');
+      const prep = spawnSync('convert', ['-size', `${firstSize.width}x${firstSize.height}`, 'xc:none', frame.path, '-alpha', 'on', '-compose', 'Over', '-composite', '+repage', preparedPath], {encoding: 'utf8', timeout: 60000});
+      if (prep.status !== 0 || !fs.existsSync(preparedPath)) throw typedError('GIF assembly failed to prepare transparent frame ' + index + ': ' + String(prep.stderr || prep.stdout || '').slice(0, 240), 500, 'artifact_publication');
+      prepared.push(preparedPath);
+    }
+    const args = ['-background', 'none'];
+    for (const [index, frame] of prepared.entries()) {
+      const delayCs = Math.max(1, Math.round(contract.gifTimingMs[index] / 10));
+      args.push('-dispose', 'Background', '-delay', String(delayCs), frame);
+    }
+    args.push('-loop', '0', outPath);
+    const convert = spawnSync('convert', args, {encoding: 'utf8', timeout: 60000});
+    if (convert.status !== 0 || !fs.existsSync(outPath)) throw typedError('GIF assembly failed: ' + String(convert.stderr || convert.stdout || '').slice(0, 240), 500, 'artifact_publication');
+    return true;
+  } finally {
+    fs.rmSync(workDir, {recursive: true, force: true});
+  }
 }
 function boolOption(value, fallback = true) {
   if (value === false || value === 'false' || value === 0 || value === '0') return false;
@@ -370,16 +407,18 @@ export async function renderBundle(request = {}) {
     const parsed = timedSyncPhase(timings, 'parseScriptManifest', () => parseScriptManifest(scriptManifestPath, result));
     const scriptManifest = parsed.scriptManifest;
     const frames = existingManifestFiles(outputDir, scriptManifest.renderedFrames || []);
+    const evidenceFrameRecords = frameRecords(frames, scriptManifest.renderedFrames || []);
     const fixed = existingManifestFiles(outputDir, scriptManifest.fixedCameraRenders || []);
     const diagnostics = existingManifestFiles(outputDir, scriptManifest.diagnosticViewRenders || []);
     const contactSheet = path.join(outputDir, 'contact-sheet.png');
     timedSyncPhase(timings, 'contactSheet', () => makeContactSheet(frames, contactSheet));
     let generatedLoopingGif = '';
     let gifPlaybackContract = null;
-    if (frames.length) {
+    if (!scriptManifest.loopingGif && frames.length) {
       const gifPath = path.join(outputDir, 'walk-loop.gif');
-      gifPlaybackContract = timedSyncPhase(timings, 'loopingGif', () => makeLoopingGif(frames, gifPath, {scriptManifest, settings}));
-      if (gifPlaybackContract) {
+      gifPlaybackContract = resolveGifPlaybackContract(evidenceFrameRecords, settings, scriptManifest, request.executionContract || {});
+      const selectedForGif = gifPlaybackContract.gifFrames.map((index) => evidenceFrameRecords[index]);
+      if (timedSyncPhase(timings, 'loopingGif', () => makeLoopingGif(selectedForGif, gifPath, gifPlaybackContract))) {
         generatedLoopingGif = 'walk-loop.gif';
         fs.writeFileSync(path.join(outputDir, 'gif-playback-contract.json'), JSON.stringify({schema: 'home-center.blender-gif-playback-contract.v1', ...gifPlaybackContract}, null, 2));
       }
@@ -408,7 +447,6 @@ export async function renderBundle(request = {}) {
       blenderSignal: result.signal || '',
       failureKind: parsed.failureKind || (result.status === 0 ? '' : blenderResultFailureKind(result)),
       manifestError: parsed.manifestError || '',
-      gifPlaybackContract,
     };
     const refs = {renderedFrames: [], fixedCameraRenders: [], diagnosticViewRenders: [], threeDArtifacts: [], nativePoseAnimationData: [], loopingGif: '', gifPlaybackContract: ''};
     const add = async (kind, local, rel, key, ctype) => {
@@ -422,8 +460,8 @@ export async function renderBundle(request = {}) {
     for (const [i, f] of fixed.entries()) await add('fixed_camera_renders', f, `fixed/${i}-${safeName(path.basename(f))}`, 'fixedCameraRenders');
     if (options.includeDiagnostics) for (const [i, f] of diagnostics.entries()) await add('diagnostic_view_renders', f, `diagnostic/${i}-${safeName(path.basename(f))}`, 'diagnosticViewRenders');
     refs.contactSheet = await add('contact_sheet', contactSheet, 'contact-sheet.png', '', 'image/png');
-    refs.loopingGif = await add('looping_gif', localManifestPath(outputDir, generatedLoopingGif || scriptManifest.loopingGif), 'walk-loop.gif', '', 'image/gif');
-    refs.gifPlaybackContract = await add('gif_playback_contract', localManifestPath(outputDir, 'gif-playback-contract.json'), 'gif-playback-contract.json', 'gifPlaybackContract', 'application/json');
+    refs.loopingGif = await add('looping_gif', localManifestPath(outputDir, scriptManifest.loopingGif || generatedLoopingGif), 'walk-loop.gif', '', 'image/gif');
+    refs.gifPlaybackContract = await add('gif_playback_contract', localManifestPath(outputDir, 'gif-playback-contract.json'), 'gif-playback-contract.json', '', 'application/json');
     refs.modifiedBlend = options.includeBlend ? await add('three_d_artifact', localManifestPath(outputDir, scriptManifest.modifiedBlend), 'modified.blend', 'threeDArtifacts') : '';
     refs.animatedGlb = await add('three_d_artifact', localManifestPath(outputDir, scriptManifest.animatedGlb), 'animated.glb', 'threeDArtifacts');
     refs.nativePoseAnimationData = [await add('native_pose_animation_data', localManifestPath(outputDir, scriptManifest.nativePoseAnimationData), 'native-pose-animation.json', '', 'application/json')].filter(Boolean);
@@ -438,7 +476,8 @@ export async function renderBundle(request = {}) {
     validation.missingBundleKinds = missing;
     timings.finishedAtMs = nowMs();
     timings.totalMs = Math.max(0, timings.finishedAtMs - timings.startedAtMs);
-    manifest = {ok: validation.ok, status: validation.ok ? 'completed' : 'failed', failureKind: validation.ok ? '' : (validation.failureKind || 'artifact_publication'), cacheHit: false, renderId: request.renderId || '', cacheKey, refs, validationManifest: validation, bundle: {refs, validationManifest: validation, artifactHashes: outputHashes, gifPlaybackContract}, artifactHashes: outputHashes, gifPlaybackContract, timings, renderOptions: options, renderRefs: refs.renderedFrames, contactSheetRef: refs.contactSheet, loopingGifRef: refs.loopingGif, gifPlaybackContractRef: refs.gifPlaybackContract, threeDArtifactRefs: refs.threeDArtifacts, modifiedBlendRef: refs.modifiedBlend, animatedGlbRef: refs.animatedGlb, nativeDataRefs: refs.nativePoseAnimationData, originalScriptRef: refs.originalScript, scriptInputHashesRef: refs.scriptInputHashes, blenderVersionSettingsRef: refs.blenderVersionSettings, stdoutRef: refs.stdout, stderrRef: refs.stderr, fixedCameraRenderRefs: refs.fixedCameraRenders, diagnosticRenderRefs: refs.diagnosticViewRenders};
+    validation.gifPlaybackContract = gifPlaybackContract;
+    manifest = {ok: validation.ok, status: validation.ok ? 'completed' : 'failed', failureKind: validation.ok ? '' : (validation.failureKind || 'artifact_publication'), cacheHit: false, renderId: request.renderId || '', cacheKey, refs, validationManifest: validation, bundle: {refs, validationManifest: validation, artifactHashes: outputHashes, gifPlaybackContract}, artifactHashes: outputHashes, gifPlaybackContract, gifPlaybackContractRef: refs.gifPlaybackContract, timings, renderOptions: options, renderRefs: refs.renderedFrames, contactSheetRef: refs.contactSheet, loopingGifRef: refs.loopingGif, threeDArtifactRefs: refs.threeDArtifacts, modifiedBlendRef: refs.modifiedBlend, animatedGlbRef: refs.animatedGlb, nativeDataRefs: refs.nativePoseAnimationData, originalScriptRef: refs.originalScript, scriptInputHashesRef: refs.scriptInputHashes, blenderVersionSettingsRef: refs.blenderVersionSettings, stdoutRef: refs.stdout, stderrRef: refs.stderr, fixedCameraRenderRefs: refs.fixedCameraRenders, diagnosticRenderRefs: refs.diagnosticViewRenders};
     const manifestPath = path.join(outputDir, 'validation-manifest.json');
     validation.timings = timings;
     validation.renderOptions = options;
@@ -457,4 +496,4 @@ export async function renderBundle(request = {}) {
   }
 }
 
-export {buildGifPlaybackContract, makeLoopingGif, decodeUploadObject, validateGlbBytes, validateScriptBytes, sha256Buffer};
+export {buildGifPlaybackContract, decodeUploadObject, validateGlbBytes, validateScriptBytes, sha256Buffer, frameRecords, resolveGifPlaybackContract, makeLoopingGif};

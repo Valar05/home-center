@@ -30,3 +30,25 @@ The script must write `script-output-manifest.json` under `output_dir` with thes
 ```
 
 Missing required bundle classes or a nonzero Blender exit marks the render failed, but stdout, stderr, partial outputs, hashes, and validation evidence are still published when possible.
+
+## GIF Playback Contract
+
+The renderer keeps four frame authorities separate:
+
+- `authoredKeys`: animation keys reported by the Blender script when available. If the script does not provide them, the renderer reports them unavailable instead of inventing data.
+- `evidenceFrames`: rendered PNG frames used for inspection, contact sheets, and fixed-camera evidence.
+- `gifFrames`: explicit ordered playback frame indices selected from `evidenceFrames`.
+- `gifTimingMs`: one playback duration per selected GIF frame.
+
+Callers may pass the bounded selection through render settings or the execution contract:
+
+```json
+{
+  "gifFrames": [0, 2, 4, 6],
+  "gifTimingMs": [110, 100, 110, 100]
+}
+```
+
+If `gifFrames` is omitted, the renderer falls back to all evidence frames for backward compatibility and records `gifFrameSelection: "fallback"`. Contact sheets always use `evidenceFrames`, not the GIF playback subset.
+
+GIF assembly prepares every selected PNG on a fresh transparent canvas, applies per-frame delay and `Background` disposal before encoding each frame, and avoids optimization that can preserve stale pixels outside the current alpha mask.
