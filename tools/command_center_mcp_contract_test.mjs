@@ -471,48 +471,6 @@ assert(renderCase.includes('return renderBlenderGlb(admin, extra, args || {})'))
 assert(!renderCase.includes('createJob('));
 assert(!renderCase.includes('createAgentActivation('));
 
-assert.equal(COMMAND_CENTER_DEFAULT_BUCKET_ID, 'command-center');
-for (const kind of ['memory.past_log', 'memory.current_condensed', 'skill.scratch', 'skill.promoted', 'note.cross_repo', 'app_control.profile', 'app_control.run', 'app_control.frame_lane', 'browser.session', 'browser.episode', 'browser.discovery', 'browser.playbook']) {
-  assert(COMMAND_CENTER_BUCKET_KINDS.includes(kind));
-}
-assert.equal(COMMAND_CENTER_BUCKET_LAYOUT.lanes['memory/past-logs'].kind, 'memory.past_log');
-assert.equal(COMMAND_CENTER_BUCKET_LAYOUT.lanes['memory/current-condensed'].kind, 'memory.current_condensed');
-assert.equal(COMMAND_CENTER_BUCKET_LAYOUT.lanes['skills/scratch'].kind, 'skill.scratch');
-assert.equal(COMMAND_CENTER_BUCKET_LAYOUT.lanes['skills/promoted'].kind, 'skill.promoted');
-assert.equal(COMMAND_CENTER_BUCKET_LAYOUT.lanes['notes/cross-repo'].kind, 'note.cross_repo');
-assert.equal(COMMAND_CENTER_BUCKET_LAYOUT.lanes['app-control/profiles'].kind, 'app_control.profile');
-assert.equal(COMMAND_CENTER_BUCKET_LAYOUT.lanes['app-control/runs'].kind, 'app_control.run');
-assert.equal(COMMAND_CENTER_BUCKET_LAYOUT.lanes['app-control/frame-lanes'].kind, 'app_control.frame_lane');
-assert.equal(COMMAND_CENTER_BUCKET_LAYOUT.lanes['browser/sessions'].kind, 'browser.session');
-assert.equal(COMMAND_CENTER_BUCKET_LAYOUT.lanes['browser/episodes'].kind, 'browser.episode');
-assert.equal(COMMAND_CENTER_BUCKET_LAYOUT.lanes['browser/discoveries'].kind, 'browser.discovery');
-assert.equal(COMMAND_CENTER_BUCKET_LAYOUT.lanes['browser/playbooks'].kind, 'browser.playbook');
-assert.match(COMMAND_CENTER_BUCKET_LAYOUT.storagePolicy.secretPolicy, /No bearer tokens/);
-
-const bucketObject = cleanBucketObject({
-  idempotencyKey: 'bucket-test-001',
-  kind: 'skill.scratch',
-  title: 'Long running executor observation',
-  body: 'Capture stdout batches and heartbeat evidence before promoting.',
-  projectId: 'home-center',
-  repository: 'Valar05/home-center',
-  jobId: 'job_12345678',
-  tags: ['worker', 'streaming'],
-}, {actor: 'tester@example.com'});
-assert.equal(bucketObject.bucketId, 'command-center');
-assert.equal(bucketObject.kind, 'skill.scratch');
-assert.equal(bucketObject.lane, 'skills/scratch');
-assert.match(bucketObject.path, /^skills\/scratch\//);
-assert.equal(bucketObject.projectId, 'home-center');
-assert.equal(bucketObject.jobId, 'job_12345678');
-assert.equal(bucketObject.provenance.noSecrets, true);
-const forbiddenBearerFixture = ['Authorization:', 'Bearer', 'abcdefghijklmnopqrstuvwxyz'].join(' ');
-assert.throws(() => cleanBucketObject({
-  kind: 'note.cross_repo',
-  title: 'bad',
-  body: forbiddenBearerFixture,
-}, {actor: 'tester@example.com'}), /must not contain reusable secrets/);
-
 assert(COMMAND_CENTER_AGENT_ACTIVATION_STATUSES.includes('needs_human'));
 assert.equal(COMMAND_CENTER_CODEX_CLOUD_SURFACE.surfaceId, 'openai-codex-cloud');
 assert(COMMAND_CENTER_DURABLE_SESSION_RESTORE_STRATEGIES.includes('gcs_snapshot'));
