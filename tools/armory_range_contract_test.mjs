@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import fs from 'node:fs';
 import {createRequire} from 'node:module';
 
 const require = createRequire(import.meta.url);
@@ -9,6 +10,12 @@ const {
   armoryCasingOperation,
   armoryRecountOperation,
 } = require('../functions/armory_range_service.js');
+
+const homeCenterSource = fs.readFileSync(new URL('../functions/home_center_mcp.js', import.meta.url), 'utf8');
+assert.match(homeCenterSource, /'armory\.receipt'/);
+assert.match(homeCenterSource, /'armory\.recount'/);
+assert.match(homeCenterSource, /'armory\.casing'/);
+assert.match(homeCenterSource, /armoryReceiptOperation\(\{admin, user, args: operationArgs\}\)/);
 
 function fakeAdmin() {
   const stores = new Map();
