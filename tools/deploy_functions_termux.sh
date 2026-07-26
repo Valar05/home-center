@@ -53,7 +53,7 @@ deploy_home_center_mcp() {
     --timeout=300s \
     --memory=1Gi \
     --cpu=1 \
-    --set-env-vars=HOME_CENTER_MCP_EXTENDED_TOOLS=true,COMMAND_CENTER_RENDER_SERVICE_URL="${COMMAND_CENTER_RENDER_SERVICE_URL:-https://command-center-blender-render-vxybsaualq-uc.a.run.app}",COMMAND_CENTER_RENDER_BUCKET="${COMMAND_CENTER_RENDER_BUCKET:-home-center-dclar-command-center-renders}",COMMAND_CENTER_MCP_URL="${COMMAND_CENTER_MCP_URL:-https://us-central1-home-center-dclar.cloudfunctions.net/commandCenterMcp/mcp}" \
+    --set-env-vars=HOME_CENTER_MCP_EXTENDED_TOOLS=true,HOME_CENTER_GITHUB_ADMIN_ENABLED=true,HOME_CENTER_GITHUB_ADMIN_OWNERS="${HOME_CENTER_GITHUB_ADMIN_OWNERS:-Valar05}",COMMAND_CENTER_RENDER_SERVICE_URL="${COMMAND_CENTER_RENDER_SERVICE_URL:-https://command-center-blender-render-vxybsaualq-uc.a.run.app}",COMMAND_CENTER_RENDER_BUCKET="${COMMAND_CENTER_RENDER_BUCKET:-home-center-dclar-command-center-renders}",COMMAND_CENTER_MCP_URL="${COMMAND_CENTER_MCP_URL:-https://us-central1-home-center-dclar.cloudfunctions.net/commandCenterMcp/mcp}" \
     --set-secrets="$(home_center_mcp_secrets_arg)"
 }
 
