@@ -1385,7 +1385,7 @@ async function stageRenderUpload({caller, renderId, role, fileName, bytes, conte
   const hash = sha256Bytes(bytes);
   const safeRole = role === 'glb' ? 'glb' : 'script';
   const safeFile = cleanUploadFileName(fileName, safeRole === 'glb' ? 'input.glb' : 'render.py');
-  const objectName = `command-center-render-inputs/${ownerKeyFromCaller(caller)}/${safeText(renderId, 180) || 'render'}/${safeRole}-${hash}-${safeFile}`;
+  const objectName = `temp/render-inputs/${ownerKeyFromCaller(caller)}/${safeText(renderId, 180) || 'render'}/${safeRole}-${hash}-${safeFile}`;
   await renderStorage().bucket(COMMAND_CENTER_RENDER_BUCKET).file(objectName).save(bytes, {
     resumable: false,
     metadata: {

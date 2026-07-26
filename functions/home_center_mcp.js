@@ -806,7 +806,7 @@ async function stageHomeCenterDriveRenderInput({google, auth, user, renderId, ro
     const media = await drive.files.get({fileId, alt: 'media', supportsAllDrives: true}, {responseType: 'stream'});
     const safeFile = cleanRenderUploadName(meta.data && meta.data.name, renderFallbackName(role));
     const ownerKey = homeCenterRenderOwnerKey(user);
-    const basePrefix = 'command-center-render-inputs/home-center-bridge/' + ownerKey + '/' + (safeText(renderId, 180) || 'render') + '/';
+    const basePrefix = 'temp/render-inputs/home-center-bridge/' + ownerKey + '/' + (safeText(renderId, 180) || 'render') + '/';
     const tempName = basePrefix + '.tmp-' + role + '-' + randomUUID() + '-' + safeFile;
     const bucket = new Storage().bucket(COMMAND_CENTER_RENDER_BUCKET);
     const tempFile = bucket.file(tempName);
@@ -858,10 +858,10 @@ function renderSourceCacheKey(role, label) {
   return createHash('sha256').update(role + ':' + label).digest('hex');
 }
 function renderGitHubCacheManifestName(role, label) {
-  return 'command-center-render-inputs/github-cache/' + role + '/' + renderSourceCacheKey(role, label) + '.json';
+  return 'temp/render-inputs/github-cache/' + role + '/' + renderSourceCacheKey(role, label) + '.json';
 }
 function renderGitHubCacheObjectName(role, label, digest, safeFile) {
-  return 'command-center-render-inputs/github-cache/' + role + '/' + renderSourceCacheKey(role, label) + '-' + digest.sha256 + '-' + safeFile;
+  return 'temp/render-inputs/github-cache/' + role + '/' + renderSourceCacheKey(role, label) + '-' + digest.sha256 + '-' + safeFile;
 }
 async function readCachedGitHubRenderInput(bucket, role, label) {
   const manifestFile = bucket.file(renderGitHubCacheManifestName(role, label));
@@ -953,7 +953,7 @@ async function stageHomeCenterGitHubRenderInput({githubToken, user, renderId, ro
   }
   validateRenderMediaSize(response.headers.get('content-length'), role, label);
   if (!response.body) throw homeCenterRenderInputError('github_input_download_auth_failed: GitHub response did not include a readable body for ' + role + '.', 502, 'github_input_download_auth_failed');
-  const tempName = 'command-center-render-inputs/github-cache/' + role + '/.tmp-' + role + '-github-' + randomUUID() + '-' + safeFile;
+  const tempName = 'temp/render-inputs/github-cache/' + role + '/.tmp-' + role + '-github-' + randomUUID() + '-' + safeFile;
   const tempFile = bucket.file(tempName);
   const validator = renderStreamValidator(role, label);
   const streamStartedAtMs = renderNowMs();
@@ -990,7 +990,7 @@ async function stageHomeCenterRenderInput({user, renderId, role, sourceRef, file
   if (!COMMAND_CENTER_RENDER_BUCKET) throw homeCenterRenderInputError('COMMAND_CENTER_RENDER_BUCKET is not configured for render input staging.', 503, 'transport');
   const hash = sha256RenderBytes(bytes);
   const safeFile = cleanRenderUploadName(fileName, renderFallbackName(role));
-  const objectName = 'command-center-render-inputs/home-center-bridge/' + homeCenterRenderOwnerKey(user) + '/' + (safeText(renderId, 180) || 'render') + '/' + role + '-' + hash + '-' + safeFile;
+  const objectName = 'temp/render-inputs/home-center-bridge/' + homeCenterRenderOwnerKey(user) + '/' + (safeText(renderId, 180) || 'render') + '/' + role + '-' + hash + '-' + safeFile;
   await new Storage().bucket(COMMAND_CENTER_RENDER_BUCKET).file(objectName).save(bytes, {
     resumable: false,
     metadata: {
