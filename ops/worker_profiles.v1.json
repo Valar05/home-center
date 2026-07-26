@@ -1,0 +1,118 @@
+{
+  "schemaVersion": "home-center.worker-resource-contract.v1",
+  "policy": {
+    "scaleToZeroDefault": true,
+    "singleArtifactConcurrency": 1,
+    "maxVcpuWithoutBenchmark": 4,
+    "maxForgeInstancesWithoutReview": 8,
+    "promotionEvidence": [
+      "same immutable input",
+      "same acceptance checks",
+      "baseline and candidate phase timings",
+      "elapsed-time and estimated-cost comparison",
+      "CPU and memory utilization or an explicit telemetry gap"
+    ]
+  },
+  "profiles": {
+    "control-plane": {
+      "runtime": "cloud-run-service",
+      "cpu": 1,
+      "memory": "512Mi",
+      "concurrency": 80,
+      "minInstances": 0,
+      "maxInstances": 20,
+      "timeoutSeconds": 300,
+      "nativeThreads": 1
+    },
+    "codex-job": {
+      "runtime": "cloud-run-job",
+      "cpu": 2,
+      "memory": "4Gi",
+      "taskConcurrency": 1,
+      "maxParallelJobs": 8,
+      "timeoutSeconds": 3600,
+      "nativeThreads": 2
+    },
+    "media-forge-light": {
+      "runtime": "cloud-run-service",
+      "cpu": 4,
+      "memory": "4Gi",
+      "concurrency": 1,
+      "minInstances": 0,
+      "maxInstances": 8,
+      "timeoutSeconds": 1800,
+      "nativeThreads": "available"
+    },
+    "media-forge-heavy": {
+      "runtime": "cloud-run-service",
+      "cpu": 4,
+      "memory": "8Gi",
+      "concurrency": 1,
+      "minInstances": 0,
+      "maxInstances": 4,
+      "timeoutSeconds": 1800,
+      "nativeThreads": "available"
+    },
+    "browser-session": {
+      "runtime": "cloud-run-service",
+      "cpu": 2,
+      "memory": "2Gi",
+      "concurrency": 1,
+      "minInstances": 0,
+      "maxInstances": 4,
+      "timeoutSeconds": 900,
+      "nativeThreads": 2
+    }
+  },
+  "assignments": {
+    "home-center-mcp": {
+      "profile": "control-plane",
+      "state": "guardrail",
+      "reason": "Authentication, dispatch, registry, and status work must not inherit media-forge sizing."
+    },
+    "command-center-codex": {
+      "profile": "codex-job",
+      "state": "bound",
+      "deployment": {
+        "path": "tools/deploy_command_center_cloud_worker.sh",
+        "requiredMarkers": [
+          "COMMAND_CENTER_WORKER_CPU:-2",
+          "COMMAND_CENTER_WORKER_MEMORY:-4Gi",
+          "--tasks 1",
+          "--max-retries 0"
+        ]
+      }
+    },
+    "command-center-blender-render": {
+      "profile": "media-forge-heavy",
+      "state": "bound",
+      "deployment": {
+        "path": "tools/deploy_command_center_blender_render.sh",
+        "requiredMarkers": [
+          "COMMAND_CENTER_RENDER_CPU:-4",
+          "COMMAND_CENTER_RENDER_MEMORY:-8Gi",
+          "COMMAND_CENTER_RENDER_MIN_INSTANCES:-0",
+          "COMMAND_CENTER_RENDER_MAX_INSTANCES:-4",
+          "COMMAND_CENTER_RENDER_CONCURRENCY:-1",
+          "COMMAND_CENTER_RENDER_TIMEOUT_SECONDS:-1800",
+          "--cpu-boost"
+        ]
+      }
+    },
+    "home-center-audio-render": {
+      "profile": "media-forge-light",
+      "state": "target",
+      "promotionGate": "Move deterministic mixing and encoding behind a dedicated private service, preserve immutable speech stems, use native FFmpeg threads, and pass the same-stem benchmark before changing production routing."
+    },
+    "home-center-video-render": {
+      "profile": "media-forge-heavy",
+      "state": "target",
+      "promotionGate": "Use native codec/render threads inside one artifact and scale independent shots or scenes across instances."
+    },
+    "home-center-browser-worker": {
+      "profile": "browser-session",
+      "state": "target",
+      "promotionGate": "Prove one isolated browser session per instance and bounded session cleanup before cloud promotion."
+    }
+  }
+}
