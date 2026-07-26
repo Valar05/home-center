@@ -75,11 +75,17 @@
       "state": "bound",
       "deployment": {
         "path": "tools/deploy_command_center_cloud_worker.sh",
+        "kind": "cloud-run-job",
+        "resourceNameDefault": "command-center-debian-worker",
+        "maxRetries": 0,
         "requiredMarkers": [
-          "COMMAND_CENTER_WORKER_CPU:-2",
-          "COMMAND_CENTER_WORKER_MEMORY:-4Gi",
-          "--tasks 1",
-          "--max-retries 0"
+          "worker_profile_contract.mjs\" shell command-center-codex",
+          "validate-resolved command-center-codex",
+          "verify-live command-center-codex"
+        ],
+        "forbiddenMarkers": [
+          "COMMAND_CENTER_WORKER_CPU",
+          "COMMAND_CENTER_WORKER_MEMORY"
         ]
       }
     },
@@ -88,14 +94,21 @@
       "state": "bound",
       "deployment": {
         "path": "tools/deploy_command_center_blender_render.sh",
+        "kind": "cloud-run-service",
+        "resourceNameDefault": "command-center-blender-render",
         "requiredMarkers": [
-          "COMMAND_CENTER_RENDER_CPU:-4",
-          "COMMAND_CENTER_RENDER_MEMORY:-8Gi",
-          "COMMAND_CENTER_RENDER_MIN_INSTANCES:-0",
-          "COMMAND_CENTER_RENDER_MAX_INSTANCES:-4",
-          "COMMAND_CENTER_RENDER_CONCURRENCY:-1",
-          "COMMAND_CENTER_RENDER_TIMEOUT_SECONDS:-1800",
+          "worker_profile_contract.mjs\" shell command-center-blender-render",
+          "validate-resolved command-center-blender-render",
+          "verify-live command-center-blender-render",
           "--cpu-boost"
+        ],
+        "forbiddenMarkers": [
+          "COMMAND_CENTER_RENDER_CPU",
+          "COMMAND_CENTER_RENDER_MEMORY",
+          "COMMAND_CENTER_RENDER_MIN_INSTANCES",
+          "COMMAND_CENTER_RENDER_MAX_INSTANCES",
+          "COMMAND_CENTER_RENDER_CONCURRENCY",
+          "COMMAND_CENTER_RENDER_TIMEOUT_SECONDS"
         ]
       }
     },
@@ -113,6 +126,35 @@
       "profile": "browser-session",
       "state": "target",
       "promotionGate": "Prove one isolated browser session per instance and bounded session cleanup before cloud promotion."
+    }
+  },
+  "deploymentDiscovery": {
+    "roots": [
+      "tools",
+      ".github/workflows"
+    ],
+    "extensions": [
+      ".sh",
+      ".yml",
+      ".yaml"
+    ],
+    "exemptions": {
+      "tools/deploy_dionysus_cloud.sh": {
+        "kind": "cloud-run-service",
+        "reason": "Dionysus is a short interactive novelty service, not a long-work worker."
+      },
+      "tools/deploy_functions_termux.sh": {
+        "kind": "cloud-functions",
+        "reason": "This deploys the MCP control plane; its guardrail is the home-center-mcp assignment."
+      },
+      "tools/setup_google_tools_gateway.sh": {
+        "kind": "firebase-functions",
+        "reason": "This is a one-time control-plane bootstrap wrapper, not a worker deployment."
+      },
+      "tools/deploy_firebase.sh": {
+        "kind": "firebase-functions",
+        "reason": "This is the legacy mixed Firebase control/data-plane deployment wrapper, not a worker deployment."
+      }
     }
   }
 }
