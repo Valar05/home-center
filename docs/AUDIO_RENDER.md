@@ -80,7 +80,7 @@ Rules:
 - GCS is the canonical render store; Drive publication is a delivery surface, not a render cache.
 - A source-backed render binds the exact durable ref and expected SHA-256. Only the configured generated-artifact bucket is readable through `audio.render`; arbitrary buckets and network URLs remain forbidden.
 - Paid or accepted speech is checkpointed as an immutable source artifact. Mixing, encoding, publication, indexing, and recovery reuse that artifact and must never resynthesize speech to repair a downstream failure.
-- Long source materialization must emit lease heartbeats and progress. A static phase label without a current heartbeat is not evidence of healthy work.
+- Long source materialization and deterministic recipe rendering must emit lease heartbeats and progress. A static phase label without a current heartbeat is not evidence of healthy work.
 - A stale or ambiguous request is quarantined under its original idempotency key. Recovery uses a new deterministic source-only request only after proving that no paid provider operation can be repeated.
 - Long-form speed comes from bounded speech concurrency, larger truth-preserving scene boundaries, canonical source reuse, and memory-bounded mix graphs—not from duplicate submissions or continuous ambience wallpaper.
 
