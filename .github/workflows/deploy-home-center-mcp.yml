@@ -15,6 +15,10 @@ on:
         description: Type deploy to confirm
         required: true
 
+concurrency:
+  group: home-center-mcp-production
+  cancel-in-progress: false
+
 permissions:
   contents: read
   id-token: write
