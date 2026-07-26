@@ -1,0 +1,160 @@
+{
+  "schemaVersion": "home-center.worker-resource-contract.v1",
+  "policy": {
+    "scaleToZeroDefault": true,
+    "singleArtifactConcurrency": 1,
+    "maxVcpuWithoutBenchmark": 4,
+    "maxForgeInstancesWithoutReview": 8,
+    "promotionEvidence": [
+      "same immutable input",
+      "same acceptance checks",
+      "baseline and candidate phase timings",
+      "elapsed-time and estimated-cost comparison",
+      "CPU and memory utilization or an explicit telemetry gap"
+    ]
+  },
+  "profiles": {
+    "control-plane": {
+      "runtime": "cloud-run-service",
+      "cpu": 1,
+      "memory": "512Mi",
+      "concurrency": 80,
+      "minInstances": 0,
+      "maxInstances": 20,
+      "timeoutSeconds": 300,
+      "nativeThreads": 1
+    },
+    "codex-job": {
+      "runtime": "cloud-run-job",
+      "cpu": 2,
+      "memory": "4Gi",
+      "taskConcurrency": 1,
+      "maxParallelJobs": 8,
+      "timeoutSeconds": 3600,
+      "nativeThreads": 2
+    },
+    "media-forge-light": {
+      "runtime": "cloud-run-service",
+      "cpu": 4,
+      "memory": "4Gi",
+      "concurrency": 1,
+      "minInstances": 0,
+      "maxInstances": 8,
+      "timeoutSeconds": 1800,
+      "nativeThreads": "available"
+    },
+    "media-forge-heavy": {
+      "runtime": "cloud-run-service",
+      "cpu": 4,
+      "memory": "8Gi",
+      "concurrency": 1,
+      "minInstances": 0,
+      "maxInstances": 4,
+      "timeoutSeconds": 1800,
+      "nativeThreads": "available"
+    },
+    "browser-session": {
+      "runtime": "cloud-run-service",
+      "cpu": 2,
+      "memory": "2Gi",
+      "concurrency": 1,
+      "minInstances": 0,
+      "maxInstances": 4,
+      "timeoutSeconds": 900,
+      "nativeThreads": 2
+    }
+  },
+  "assignments": {
+    "home-center-mcp": {
+      "profile": "control-plane",
+      "state": "guardrail",
+      "reason": "Authentication, dispatch, registry, and status work must not inherit media-forge sizing."
+    },
+    "command-center-codex": {
+      "profile": "codex-job",
+      "state": "bound",
+      "deployment": {
+        "path": "tools/deploy_command_center_cloud_worker.sh",
+        "kind": "cloud-run-job",
+        "resourceNameDefault": "command-center-debian-worker",
+        "maxRetries": 0,
+        "requiredMarkers": [
+          "worker_profile_contract.mjs\" shell command-center-codex",
+          "validate-resolved command-center-codex",
+          "verify-live command-center-codex"
+        ],
+        "forbiddenMarkers": [
+          "COMMAND_CENTER_WORKER_CPU",
+          "COMMAND_CENTER_WORKER_MEMORY"
+        ]
+      }
+    },
+    "command-center-blender-render": {
+      "profile": "media-forge-heavy",
+      "state": "bound",
+      "deployment": {
+        "path": "tools/deploy_command_center_blender_render.sh",
+        "kind": "cloud-run-service",
+        "resourceNameDefault": "command-center-blender-render",
+        "requiredMarkers": [
+          "worker_profile_contract.mjs\" shell command-center-blender-render",
+          "validate-resolved command-center-blender-render",
+          "verify-live command-center-blender-render",
+          "--cpu-boost"
+        ],
+        "forbiddenMarkers": [
+          "COMMAND_CENTER_RENDER_CPU",
+          "COMMAND_CENTER_RENDER_MEMORY",
+          "COMMAND_CENTER_RENDER_MIN_INSTANCES",
+          "COMMAND_CENTER_RENDER_MAX_INSTANCES",
+          "COMMAND_CENTER_RENDER_CONCURRENCY",
+          "COMMAND_CENTER_RENDER_TIMEOUT_SECONDS"
+        ]
+      }
+    },
+    "home-center-audio-render": {
+      "profile": "media-forge-light",
+      "state": "target",
+      "promotionGate": "Move deterministic mixing and encoding behind a dedicated private service, preserve immutable speech stems, use native FFmpeg threads, and pass the same-stem benchmark before changing production routing."
+    },
+    "home-center-video-render": {
+      "profile": "media-forge-heavy",
+      "state": "target",
+      "promotionGate": "Use native codec/render threads inside one artifact and scale independent shots or scenes across instances."
+    },
+    "home-center-browser-worker": {
+      "profile": "browser-session",
+      "state": "target",
+      "promotionGate": "Prove one isolated browser session per instance and bounded session cleanup before cloud promotion."
+    }
+  },
+  "deploymentDiscovery": {
+    "roots": [
+      "tools",
+      ".github/workflows"
+    ],
+    "extensions": [
+      ".sh",
+      ".yml",
+      ".yaml"
+    ],
+    "exemptions": {
+      "tools/deploy_dionysus_cloud.sh": {
+        "kind": "cloud-run-service",
+        "reason": "Dionysus is a short interactive novelty service, not a long-work worker."
+      },
+      "tools/deploy_functions_termux.sh": {
+        "kind": "cloud-functions",
+        "reason": "This deploys the MCP control plane; its guardrail is the home-center-mcp assignment."
+      },
+      "tools/setup_google_tools_gateway.sh": {
+        "kind": "firebase-functions",
+        "reason": "This is a one-time control-plane bootstrap wrapper, not a worker deployment."
+      },
+      "tools/deploy_firebase.sh": {
+        "kind": "firebase-functions",
+        "reason": "This is the legacy mixed Firebase control/data-plane deployment wrapper, not a worker deployment."
+      }
+    }
+  }
+}
