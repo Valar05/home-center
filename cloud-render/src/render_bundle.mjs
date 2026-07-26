@@ -8,7 +8,7 @@ import {google} from 'googleapis';
 
 const storage = new Storage();
 const TOOL_VERSION = process.env.RENDER_TOOL_VERSION || 'command-center-blender-render-v1';
-const CACHE_BUCKET = process.env.RENDER_CACHE_BUCKET || process.env.COMMAND_CENTER_RENDER_BUCKET || '';
+const CACHE_BUCKET = process.env.RENDER_CACHE_BUCKET || process.env.HOME_CENTER_GENERATED_BUCKET || process.env.COMMAND_CENTER_GENERATED_BUCKET || process.env.COMMAND_CENTER_RENDER_BUCKET || 'home-center-generated';
 const MAX_GLB_BYTES = Number(process.env.RENDER_MAX_GLB_BYTES || 250 * 1024 * 1024);
 const MAX_SCRIPT_BYTES = Number(process.env.RENDER_MAX_SCRIPT_BYTES || 1024 * 1024);
 const MAX_OUTPUT_BYTES = Number(process.env.RENDER_MAX_OUTPUT_BYTES || 400 * 1024 * 1024);
@@ -54,10 +54,29 @@ function timedSyncPhase(timings, name, fn) {
     timings[name + 'Ms'] = (timings[name + 'Ms'] || 0) + Math.max(0, nowMs() - startedAtMs);
   }
 }
+function artifactObjectName(cacheKey, relPath, contentType = '') {
+  const cleanRel = String(relPath || 'artifact.bin').replace(/^\/+/, '');
+  const lower = cleanRel.toLowerCase();
+  if (lower.endsWith('.gif')) return `renders/gifs/${cacheKey}/${cleanRel}`;
+  if (lower.includes('contact-sheet') || contentType === 'image/png' && /contact/i.test(cleanRel)) return `renders/contact-sheets/${cacheKey}/${cleanRel}`;
+  if (lower.endsWith('.glb')) return `glb/${cacheKey}/${cleanRel}`;
+  if (lower.endsWith('.log') || lower.endsWith('.txt') || lower === 'stdout.txt' || lower === 'stderr.txt') return `logs/blender/${cacheKey}/${cleanRel}`;
+  return `renders/blender/${cacheKey}/${cleanRel}`;
+}
+function artifactTypeFor(relPath, contentType = '') {
+  const lower = String(relPath || '').toLowerCase();
+  if (lower.endsWith('.gif')) return 'gif';
+  if (lower.includes('contact-sheet')) return 'contact_sheet';
+  if (lower.endsWith('.glb')) return 'glb';
+  if (lower.endsWith('.log') || lower.endsWith('.txt') || lower === 'stdout.txt' || lower === 'stderr.txt') return 'log';
+  if (/^image\//.test(contentType)) return 'rendered_frames';
+  return 'render';
+}
 async function uploadFile(localPath, cacheKey, relPath, contentType = '') {
   if (!CACHE_BUCKET) return 'file://' + localPath;
-  const dest = `command-center-renders/${cacheKey}/${relPath}`;
-  await storage.bucket(CACHE_BUCKET).upload(localPath, {destination: dest, metadata: contentType ? {contentType, metadata: {sha256: sha256File(localPath)}} : {metadata: {sha256: sha256File(localPath)}}});
+  const dest = artifactObjectName(cacheKey, relPath, contentType);
+  const sha256 = sha256File(localPath);
+  await storage.bucket(CACHE_BUCKET).upload(localPath, {destination: dest, metadata: {contentType: contentType || contentTypeFor(localPath), metadata: {sha256, owner: 'drew', project: 'home-center', stage: 'temp', engine: 'blender', createdBy: 'command-center-cloud-render', jobId: cacheKey, commit: process.env.K_REVISION || '', timestamp: new Date().toISOString(), approved: 'false', artifactType: artifactTypeFor(relPath, contentType)}}});
   return `gs://${CACHE_BUCKET}/${dest}`;
 }
 function driveFileId(ref) { const raw = String(ref).replace(/^drive:\/\//i, ''); return raw.split(/[?#/]/).filter(Boolean).pop() || raw; }
@@ -164,7 +183,7 @@ function contentType(file) {
 }
 async function cachedManifest(cacheKey) {
   if (!CACHE_BUCKET) return null;
-  const file = storage.bucket(CACHE_BUCKET).file(`command-center-renders/${cacheKey}/validation-manifest.json`);
+  const file = storage.bucket(CACHE_BUCKET).file(`renders/blender/${cacheKey}/validation-manifest.json`);
   const [exists] = await file.exists();
   if (!exists) return null;
   const [buf] = await file.download();
@@ -486,7 +505,7 @@ export async function renderBundle(request = {}) {
     manifest.manifestRef = refs.validationManifest;
     manifest.validationManifestRef = refs.validationManifest;
     manifest.refs = refs;
-    if (CACHE_BUCKET) await storage.bucket(CACHE_BUCKET).file(`command-center-renders/${cacheKey}/validation-manifest.json`).save(JSON.stringify(manifest, null, 2), {contentType: 'application/json'});
+    if (CACHE_BUCKET) await storage.bucket(CACHE_BUCKET).file(`renders/blender/${cacheKey}/validation-manifest.json`).save(JSON.stringify(manifest, null, 2), {contentType: 'application/json'});
     return manifest;
   } catch (err) {
     if (manifest) return manifest;
