@@ -5734,6 +5734,17 @@ function createHomeCenterMcpApp({google, admin, googleClientId = () => '', googl
   const app = express();
   app.use(express.json({limit: '80mb', verify: (req, _res, bytes) => { req.rawBody = Buffer.from(bytes); }}));
   app.use(express.urlencoded({extended: false, limit: '256kb'}));
+  app.use((req, res, next) => {
+    const isSignedFactoryFloorRequest =
+      req.method === 'POST' &&
+      req.get('x-sherman-timestamp') &&
+      req.get('x-sherman-signature');
+    if (!isSignedFactoryFloorRequest) {
+      next();
+      return;
+    }
+    handleShermanSiteBlenderRequest(req, res).catch(next);
+  });
   const transports = {};
 
   app.get('/', (_req, res) => {
