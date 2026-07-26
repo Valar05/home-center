@@ -461,13 +461,14 @@ async function blockMix({duration, sampleRate = DEFAULT_SAMPLE_RATE, channels = 
     const durationFrames = Math.round(itemDuration * sampleRate);
     const gainMult = Math.pow(10, safeNumber(item.gainDb, 0) / 20);
     const panValue = Math.max(-1, Math.min(1, safeNumber(item.pan, 0)));
-    const panAngle = (panValue + 1) * Math.PI / 4;
+    const monoLeft = panValue <= 0 ? 1 : 1 - panValue;
+    const monoRight = panValue >= 0 ? 1 : 1 + panValue;
     const duckClip = item.duckClip ? ensureClip(item.duckClip, 'block_mix duckBy ' + index) : null;
     return {
       clip, atFrame, sourceOffsetFrames, looped, durationFrames, gainMult,
       fadeInFrames: Math.max(0, Math.round(safeNumber(item.fadeIn, 0) * sampleRate)),
       fadeOutFrames: Math.max(0, Math.round(safeNumber(item.fadeOut, 0) * sampleRate)),
-      monoLeft: Math.cos(panAngle), monoRight: Math.sin(panAngle),
+      monoLeft, monoRight,
       duckClip,
       duckAtFrame: Math.round(safeNumber(item.duckAt, 0) * sampleRate),
       duckAmount: Math.pow(10, -Math.abs(safeNumber(item.duckAmountDb, 6)) / 20),
@@ -1416,6 +1417,24 @@ function audioProgressPatch(progress = {}, patch = {}) {
   return {...(progress || {}), ...patch, updatedAtMs: Date.now()};
 }
 
+function startAudioHeartbeatLoop(callback) {
+  let stopped = false;
+  let pending = Promise.resolve();
+  const intervalMs = Math.max(5000, Math.min(30000, Math.floor(AUDIO_RENDER_LEASE_MS / 3)));
+  const timer = setInterval(() => {
+    if (stopped) return;
+    pending = pending.then(() => callback()).catch(() => {});
+  }, intervalMs);
+  if (typeof timer.unref === 'function') timer.unref();
+  return {
+    async stop() {
+      stopped = true;
+      clearInterval(timer);
+      await pending;
+    },
+  };
+}
+
 async function executeAudioRenderJob({google, admin, auth, user, args = {}, helpers = {}, cartesiaApiKey = () => '', normalized = null, existingProgress = null}) {
   const {requestId, settings, recipe, inputSha256} = normalized || normalizeAudioRenderRequest(args, helpers);
   const actor = audioJobActor(user);
@@ -1429,16 +1448,15 @@ async function executeAudioRenderJob({google, admin, auth, user, args = {}, help
   await writeAudioAudit(helpers, admin, {actor, authKind, tool: 'audio.render', operation: 'audio.render', requestId, status: 'running', callerNote: args.callerNote, providerSummary: 'audio.render worker running.', result: null, inputSha256, audioRenderJob: {requestId, inputSha256, submittedAtMs: startedAtMs, publishToDrive: shouldPublishAudioToDrive(args, parentFolderId), storage: GENERATED_ARTIFACT_BUCKET, request: audioRenderJobRequest(args, settings)}, progress, lease: {leaseId, holder: 'home-center-audio-worker', heartbeatAtMs: Date.now(), expiresAtMs: Date.now() + AUDIO_RENDER_LEASE_MS}});
   try {
     const sourceCount = Object.keys(args.sources || {}).length;
-    const materializationHeartbeat = setInterval(() => {
+    const materializationHeartbeat = startAudioHeartbeatLoop(async () => {
       progress = audioProgressPatch(progress, {phase: 'materializing_sources', sourceCount});
-      void writeAudioAudit(helpers, admin, {actor, authKind, tool: 'audio.render', operation: 'audio.render', requestId, status: 'running', callerNote: args.callerNote, providerSummary: 'audio.render materializing ' + sourceCount + ' verified source(s).', result: null, inputSha256, progress, lease: {leaseId, holder: 'home-center-audio-worker', heartbeatAtMs: Date.now(), expiresAtMs: Date.now() + AUDIO_RENDER_LEASE_MS}}).catch(() => {});
-    }, Math.max(5000, Math.min(30000, Math.floor(AUDIO_RENDER_LEASE_MS / 3))));
-    if (typeof materializationHeartbeat.unref === 'function') materializationHeartbeat.unref();
+      await writeAudioAudit(helpers, admin, {actor, authKind, tool: 'audio.render', operation: 'audio.render', requestId, status: 'running', callerNote: args.callerNote, providerSummary: 'audio.render materializing ' + sourceCount + ' verified source(s).', result: null, inputSha256, progress, lease: {leaseId, holder: 'home-center-audio-worker', heartbeatAtMs: Date.now(), expiresAtMs: Date.now() + AUDIO_RENDER_LEASE_MS}});
+    });
     let materializedSources;
     try {
       materializedSources = await materializeSources({google, auth, sources: args.sources || {}});
     } finally {
-      clearInterval(materializationHeartbeat);
+      await materializationHeartbeat.stop();
     }
     phaseTimings.materializationMs = Date.now() - startedAtMs;
     progress = audioProgressPatch(progress, {phase: 'sources_materialized', sourceCount, materializedSourceBytes: Object.values(materializedSources).reduce((sum, source) => sum + (source.byteCount || 0), 0)});
@@ -1447,12 +1465,11 @@ async function executeAudioRenderJob({google, admin, auth, user, args = {}, help
       progress = audioProgressPatch(progress, {phase: 'synthesizing', synthesizedTakes: Math.max((progress.synthesizedTakes || 0) + 1, (take.segmentIndex || 0) + 1), lastTake: {segmentIndex: take.segmentIndex, speaker: take.speaker, character: take.character, voiceId: take.voiceId, transcriptSha256: take.transcriptSha256, providerByteCount: take.providerByteCount, duration: take.duration}});
       await writeAudioAudit(helpers, admin, {actor, authKind, tool: 'audio.render', operation: 'audio.render', requestId, status: 'running', callerNote: args.callerNote, providerSummary: 'audio.render synthesized take ' + progress.synthesizedTakes + '.', result: null, inputSha256, progress, lease: {leaseId, holder: 'home-center-audio-worker', heartbeatAtMs: Date.now(), expiresAtMs: Date.now() + AUDIO_RENDER_LEASE_MS}}).catch(() => {});
     };
-    const renderHeartbeat = setInterval(() => {
-      const phase = (progress.totalTakes || 0) > 0 ? progress.phase : 'rendering_recipe';
+    const renderHeartbeat = startAudioHeartbeatLoop(async () => {
+      const phase = progress.phase || 'rendering_recipe';
       progress = audioProgressPatch(progress, {phase, sourceCount});
-      void writeAudioAudit(helpers, admin, {actor, authKind, tool: 'audio.render', operation: 'audio.render', requestId, status: 'running', callerNote: args.callerNote, providerSummary: 'audio.render heartbeat during ' + phase + '.', result: null, inputSha256, progress, lease: {leaseId, holder: 'home-center-audio-worker', heartbeatAtMs: Date.now(), expiresAtMs: Date.now() + AUDIO_RENDER_LEASE_MS}}).catch(() => {});
-    }, Math.max(5000, Math.min(30000, Math.floor(AUDIO_RENDER_LEASE_MS / 3))));
-    if (typeof renderHeartbeat.unref === 'function') renderHeartbeat.unref();
+      await writeAudioAudit(helpers, admin, {actor, authKind, tool: 'audio.render', operation: 'audio.render', requestId, status: 'running', callerNote: args.callerNote, providerSummary: 'audio.render heartbeat during ' + phase + '.', result: null, inputSha256, progress, lease: {leaseId, holder: 'home-center-audio-worker', heartbeatAtMs: Date.now(), expiresAtMs: Date.now() + AUDIO_RENDER_LEASE_MS}});
+    });
     let rendered;
     const renderStartedAtMs = Date.now();
     progress = audioProgressPatch(progress, {phase: 'rendering_recipe', render: {phase: 'starting'}});
@@ -1460,7 +1477,7 @@ async function executeAudioRenderJob({google, admin, auth, user, args = {}, help
       rendered = await renderRecipe(recipe, materializedSources, {...settings, cartesiaApiKey, onSpeechTake, onRenderProgress: async (renderProgress) => { progress = audioProgressPatch(progress, {phase: renderProgress.phase || 'rendering_recipe', render: renderProgress}); }});
       phaseTimings.renderRecipeMs = Date.now() - renderStartedAtMs;
     } finally {
-      clearInterval(renderHeartbeat);
+      await renderHeartbeat.stop();
     }
     const artifactContextBase = audioArtifactContext(args, rendered);
     const publishToDrive = shouldPublishAudioToDrive(args, parentFolderId);
@@ -1470,11 +1487,10 @@ async function executeAudioRenderJob({google, admin, auth, user, args = {}, help
     await writeAudioAudit(helpers, admin, {actor, authKind, tool: 'audio.render', operation: 'audio.render', requestId, status: 'running', callerNote: args.callerNote, providerSummary: 'audio.render publishing verified artifacts.', result: null, inputSha256, progress, lease: {leaseId, holder: 'home-center-audio-worker', heartbeatAtMs: Date.now(), expiresAtMs: Date.now() + AUDIO_RENDER_LEASE_MS}}).catch(() => {});
     const publicationStartedAtMs = Date.now();
     let publicationSubphase = 'outputs';
-    publicationHeartbeat = setInterval(() => {
+    publicationHeartbeat = startAudioHeartbeatLoop(async () => {
       progress = audioProgressPatch(progress, {phase: 'publishing_artifacts', publicationSubphase});
-      void writeAudioAudit(helpers, admin, {actor, authKind, tool: 'audio.render', operation: 'audio.render', requestId, status: 'running', callerNote: args.callerNote, providerSummary: 'audio.render heartbeat during artifact publication.', result: null, inputSha256, progress, lease: {leaseId, holder: 'home-center-audio-worker', heartbeatAtMs: Date.now(), expiresAtMs: Date.now() + AUDIO_RENDER_LEASE_MS}}).catch(() => {});
-    }, Math.max(5000, Math.min(30000, Math.floor(AUDIO_RENDER_LEASE_MS / 3))));
-    if (typeof publicationHeartbeat.unref === 'function') publicationHeartbeat.unref();
+      await writeAudioAudit(helpers, admin, {actor, authKind, tool: 'audio.render', operation: 'audio.render', requestId, status: 'running', callerNote: args.callerNote, providerSummary: 'audio.render heartbeat during artifact publication.', result: null, inputSha256, progress, lease: {leaseId, holder: 'home-center-audio-worker', heartbeatAtMs: Date.now(), expiresAtMs: Date.now() + AUDIO_RENDER_LEASE_MS}});
+    });
     const uploaded = [];
     for (let outputIndex = 0; outputIndex < rendered.rendered.length; outputIndex++) {
       const item = rendered.rendered[outputIndex];
@@ -1497,7 +1513,7 @@ async function executeAudioRenderJob({google, admin, auth, user, args = {}, help
     progress = audioProgressPatch(progress, {phase: 'publishing_artifacts', publicationSubphase, publishedOutputCount: uploaded.length, publicationTargetCount: rendered.rendered.length + 1});
     const manifestStartedAtMs = Date.now();
     const manifestUpload = await uploadVerified({google, auth, parentFolderId, item: {name: safeText(args.manifestName, 240) || 'audio-render-manifest-' + requestId + '.json', format: 'json', mimeType: 'application/json', bytes: manifestBytes, byteCount: manifestBytes.length, sha256: sha256Hex(manifestBytes), clipMetrics: rendered.finalMetrics}, artifactContext: {...artifactContextBase, artifactType: 'manifest'}, publishToDrive});
-    clearInterval(publicationHeartbeat);
+    await publicationHeartbeat.stop();
     publicationHeartbeat = null;
     phaseTimings.manifestPublicationMs = Date.now() - manifestStartedAtMs;
     phaseTimings.totalMs = Date.now() - startedAtMs;
@@ -1515,7 +1531,7 @@ async function executeAudioRenderJob({google, admin, auth, user, args = {}, help
     result._mcpContent = {content};
     return result;
   } catch (err) {
-    if (publicationHeartbeat) clearInterval(publicationHeartbeat);
+    if (publicationHeartbeat) await publicationHeartbeat.stop();
     const failure = {ok: false, status: 'failed', code: safeText(err && (err.failureKind || err.code), 120) || 'audio_render_failed', message: safeText(err && err.message, 500), inputSha256, failedAtMs: Date.now()};
     await writeAudioAudit(helpers, admin, {actor, authKind, tool: 'audio.render', operation: 'audio.render', requestId, status: 'failed', callerNote: args.callerNote, providerSummary: 'audio.render failed: ' + failure.code, result: failure, inputSha256, progress: audioProgressPatch(progress, {phase: 'failed', errorCode: failure.code}), lease: null}).catch(() => {});
     throw err;
