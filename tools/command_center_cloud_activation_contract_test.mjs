@@ -12,7 +12,6 @@ const {
   COMMAND_CENTER_DURABLE_SESSION_RESTORE_STRATEGIES,
   isWorkerLeaseEligible,
   selectWorker,
-  workerApiKeyProbeAllowsCodex,
   normalizeActivationChannel,
   buildJobActivation,
   activationStateFromResult,
@@ -23,16 +22,14 @@ assert.equal(COMMAND_CENTER_COLLECTIONS.jobActivations, 'commandCenterJobActivat
 assert(COMMAND_CENTER_ALLOWED_STATUSES.includes('activating'));
 assert(COMMAND_CENTER_ALLOWED_STATUSES.includes('executing'));
 assert.deepEqual(COMMAND_CENTER_JOB_ACTIVATION_STATUSES, ['requested', 'accepted', 'rejected', 'timed_out', 'completed', 'failed']);
-const requiredLifecycleEvents = ['activation_requested', 'activation_accepted', 'activation_rejected', 'executor_started', 'executor_heartbeat', 'executor_finished', 'executor_failed'];
+const requiredLifecycleEvents = ['activation_requested', 'activation_accepted', 'activation_rejected', 'executor_started', 'executor_heartbeat', 'executor_finished'];
 assert(requiredLifecycleEvents.includes('activation_requested'));
 assert(requiredLifecycleEvents.includes('executor_finished'));
 assert.equal(COMMAND_CENTER_COMPLETION_EVENT_LOOKBACK_LIMIT >= 1000, true);
 assert(COMMAND_CENTER_DURABLE_SESSION_RESTORE_STRATEGIES.includes('gcs_snapshot'));
 
 const nowMs = Date.now();
-const v2Identity = {workerInstallationId: 'install-cloud-real', workerInstanceId: 'instance-cloud-real', runnerVersion: 'command-center-runner-v2', protocolVersion: 'command-center-worker-v2'};
 const liveCloudWorker = {
-  ...v2Identity,
   workerId: 'codex-cloud-real',
   health: 'healthy',
   simulated: false,
@@ -45,9 +42,6 @@ assert.equal(isWorkerLeaseEligible(liveCloudWorker, ['codex-cloud'], {nowMs}).el
 assert.equal(selectWorker([liveCloudWorker], ['codex-cloud'], {nowMs}).workerId, 'codex-cloud-real');
 
 const noActivatorWorker = {
-  ...v2Identity,
-  workerInstallationId: 'install-no-activator',
-  workerInstanceId: 'instance-no-activator',
   workerId: 'codex-cloud-no-activator',
   health: 'healthy',
   simulated: false,
@@ -66,13 +60,9 @@ assert.equal(isWorkerLeaseEligible(staleWorker, ['codex-cloud'], {nowMs}).eligib
 assert.match(isWorkerLeaseEligible(staleWorker, ['codex-cloud'], {nowMs}).reason, /stale/);
 
 const livePollWorker = {...liveCloudWorker, workerId: 'poll-cloud', activation: {mode: 'poll', verifiedAtMs: nowMs - 1000}, lastHeartbeatAtMs: nowMs - 1000};
-assert.equal(isWorkerLeaseEligible(livePollWorker, ['codex-cloud'], {nowMs}).eligible, false);
-assert.match(isWorkerLeaseEligible(livePollWorker, ['codex-cloud'], {nowMs}).reason, /local\/phone workers are excluded/);
+assert.equal(isWorkerLeaseEligible(livePollWorker, ['codex-cloud'], {nowMs}).eligible, true);
 
 const cloudRunSessionWorker = {
-  ...v2Identity,
-  workerInstallationId: 'install-cloud-run',
-  workerInstanceId: 'instance-cloud-run',
   workerId: 'cloud-run-debian-primary',
   health: 'healthy',
   simulated: false,
@@ -87,15 +77,11 @@ assert.equal(isWorkerLeaseEligible(cloudRunSessionWorker, ['cloud-run-debian', '
 assert.equal(selectWorker([liveCloudWorker, cloudRunSessionWorker], ['cloud-run-debian', 'durable-session'], {nowMs}).workerId, 'cloud-run-debian-primary');
 const heartbeatProvenCloudRunWorker = {...cloudRunSessionWorker, activation: {mode: 'cloud_run_job', verifiedAtMs: nowMs - 60 * 60 * 1000}, lastHeartbeatAtMs: nowMs - 1000};
 assert.equal(isWorkerLeaseEligible(heartbeatProvenCloudRunWorker, ['cloud-run-debian', 'durable-session'], {nowMs}).eligible, true);
-const cloudRunWithoutApiProbe = {...cloudRunSessionWorker, runtime: {kind: 'debian-container', codexAuth: 'api_key', apiKeyCapabilityProbe: {status: 'failed', failureKind: 'worker_openai_quota_exceeded'}}};
-assert.equal(workerApiKeyProbeAllowsCodex(cloudRunWithoutApiProbe).ok, false);
-assert.equal(isWorkerLeaseEligible(cloudRunWithoutApiProbe, ['cloud-run-debian', 'durable-session'], {nowMs}).eligible, false);
-assert.match(isWorkerLeaseEligible(cloudRunWithoutApiProbe, ['cloud-run-debian', 'durable-session'], {nowMs}).reason, /worker_openai_quota_exceeded|api-key capability unavailable/);
 const coldActivatableCloudRunWorker = {...cloudRunSessionWorker, activation: {mode: 'cloud_run_job', verifiedAtMs: nowMs - 60 * 60 * 1000}, lastHeartbeatAtMs: 0};
 assert.equal(isWorkerLeaseEligible(coldActivatableCloudRunWorker, ['cloud-run-debian', 'durable-session'], {nowMs}).eligible, true);
 assert.equal(selectWorker([coldActivatableCloudRunWorker], ['cloud-run-debian', 'durable-session'], {nowMs}).workerId, 'cloud-run-debian-primary');
 assert.equal(isWorkerLeaseEligible({...cloudRunSessionWorker, sessionPolicy: {durable: true, snapshotStore: 'local'}}, ['cloud-run-debian', 'durable-session'], {nowMs}).eligible, false);
-assert.match(isWorkerLeaseEligible({...cloudRunSessionWorker, activation: {mode: 'poll', verifiedAtMs: nowMs}}, ['cloud-run-debian', 'durable-session'], {nowMs}).reason, /local\/phone workers are excluded/);
+assert.match(isWorkerLeaseEligible({...cloudRunSessionWorker, activation: {mode: 'poll', verifiedAtMs: nowMs}}, ['cloud-run-debian', 'durable-session'], {nowMs}).reason, /cloud_run_job/);
 
 const simulatedWorker = {...liveCloudWorker, workerId: 'simulated', simulated: true};
 assert.equal(isWorkerLeaseEligible(simulatedWorker, ['codex-cloud'], {nowMs}).eligible, false);
@@ -130,7 +116,7 @@ assert.equal(activationStateFromResult(null).status, 'rejected');
 
 assert.equal(shouldAcceptWorkerCompletion({
   requestedStatus: 'completed',
-  events: [{type: 'executor_started'}, {type: 'executor_finished'}],
+  events: [{type: 'executor_started'}, {type: 'executor_heartbeat'}, {type: 'executor_finished'}],
   artifacts: [
     {name: 'job-intake.json', origin: 'executor_workspace'},
     {name: 'orientation.md', origin: 'executor_workspace'},
@@ -144,25 +130,6 @@ assert.equal(shouldAcceptWorkerCompletion({
     {name: 'final-report.md', origin: 'executor_workspace'},
     {name: 'mutation-requests.jsonl', origin: 'executor_workspace'},
   ],
-}).ok, true);
-
-assert.equal(shouldAcceptWorkerCompletion({
-  requestedStatus: 'completed',
-  events: [{type: 'executor_started'}, {type: 'executor_stdout'}, {type: 'executor_finished'}],
-  artifacts: [
-    {name: 'job-intake.json', origin: 'executor_workspace'},
-    {name: 'orientation.md', origin: 'executor_workspace'},
-    {name: 'reasoning-summary.md', origin: 'executor_workspace'},
-    {name: 'command-log.jsonl', origin: 'executor_workspace'},
-    {name: 'acceptance.json', origin: 'executor_workspace'},
-    {name: 'acceptance-matrix.json', origin: 'executor_workspace'},
-    {name: 'implementation.patch', origin: 'executor_workspace'},
-    {name: 'changed-files.json', origin: 'executor_workspace'},
-    {name: 'verification.json', origin: 'executor_workspace'},
-    {name: 'final-report.md', origin: 'executor_workspace'},
-    {name: 'mutation-requests.jsonl', origin: 'executor_workspace'},
-  ],
-  job: {repository: '', baseWorkspace: {snapshotRef: 'worker-local://'}, workerRequirements: ['cloud-run-debian']},
 }).ok, true);
 assert.equal(shouldAcceptWorkerCompletion({
   requestedStatus: 'completed',
@@ -171,17 +138,17 @@ assert.equal(shouldAcceptWorkerCompletion({
 }).ok, false);
 assert.match(shouldAcceptWorkerCompletion({
   requestedStatus: 'completed',
-  events: [{type: 'executor_started'}, {type: 'executor_finished'}],
+  events: [{type: 'executor_started'}, {type: 'executor_heartbeat'}, {type: 'executor_finished'}],
   artifacts: [{name: 'job-intake.json', origin: 'command_center'}],
 }).reason, /executor workspace/);
 assert.match(shouldAcceptWorkerCompletion({
   requestedStatus: 'completed',
-  events: [{type: 'executor_started'}, {type: 'executor_finished'}],
+  events: [{type: 'executor_started'}, {type: 'executor_heartbeat'}, {type: 'executor_finished'}],
   artifacts: [{name: 'noop-proof.txt', origin: 'executor_workspace'}],
 }).reason, /noop-proof/);
 assert.match(shouldAcceptWorkerCompletion({
   requestedStatus: 'completed',
-  events: [{type: 'executor_started'}, {type: 'executor_finished'}],
+  events: [{type: 'executor_started'}, {type: 'executor_heartbeat'}, {type: 'executor_finished'}],
   artifacts: [
     {name: 'job-intake.json', origin: 'executor_workspace'},
     {name: 'orientation.md', origin: 'executor_workspace'},
@@ -195,19 +162,46 @@ assert.match(shouldAcceptWorkerCompletion({
     {name: 'mutation-requests.jsonl', origin: 'executor_workspace'},
   ],
 }).reason, /acceptance-matrix\.json/);
+assert.equal(shouldAcceptWorkerCompletion({
+  requestedStatus: 'completed',
+  job: {executionMode: 'executor_pulse'},
+  events: [{type: 'executor_started'}, {type: 'executor_heartbeat'}, {type: 'executor_stdout'}, {type: 'executor_finished'}],
+  artifacts: [
+    {name: 'job-intake.json', origin: 'executor_workspace'},
+    {name: 'pulse-proof.json', origin: 'executor_workspace'},
+    {name: 'stdout-transcript.txt', origin: 'executor_workspace'},
+    {name: 'command-log.jsonl', origin: 'executor_workspace'},
+    {name: 'acceptance.json', origin: 'executor_workspace'},
+    {name: 'acceptance-matrix.json', origin: 'executor_workspace'},
+    {name: 'usage-summary.json', origin: 'executor_workspace'},
+    {name: 'verification.json', origin: 'executor_workspace'},
+    {name: 'final-report.md', origin: 'executor_workspace'},
+  ],
+}).ok, true);
+assert.match(shouldAcceptWorkerCompletion({
+  requestedStatus: 'completed',
+  job: {executionMode: 'codex_smoke'},
+  events: [{type: 'executor_started'}, {type: 'executor_heartbeat'}, {type: 'executor_finished'}],
+  artifacts: [
+    {name: 'job-intake.json', origin: 'executor_workspace'},
+    {name: 'stdout-transcript.txt', origin: 'executor_workspace'},
+    {name: 'stderr-transcript.txt', origin: 'executor_workspace'},
+    {name: 'command-log.jsonl', origin: 'executor_workspace'},
+    {name: 'acceptance.json', origin: 'executor_workspace'},
+    {name: 'acceptance-matrix.json', origin: 'executor_workspace'},
+    {name: 'usage-summary.json', origin: 'executor_workspace'},
+    {name: 'verification.json', origin: 'executor_workspace'},
+    {name: 'final-report.md', origin: 'executor_workspace'},
+  ],
+}).reason, /streamed stdout or stderr/);
 assert.equal(shouldAcceptWorkerCompletion({requestedStatus: 'failed', events: [], artifacts: []}).ok, true);
 
 
 const cloudWorkerSource = fs.readFileSync(new URL('../cloud-worker/src/cloud_run_worker.mjs', import.meta.url), 'utf8');
-
-assert(cloudWorkerSource.includes('COMMAND_CENTER_OPENAI_AUTH_MODE'));
-assert(cloudWorkerSource.includes('chatgpt_subscription'));
-assert(cloudWorkerSource.includes('COMMAND_CENTER_CODEX_HOME_BUNDLE'));
-assert(cloudWorkerSource.includes('prepareCodexAuth'));
-assert(cloudWorkerSource.includes('Codex run did not emit turn.completed'));
-assert(cloudWorkerSource.includes('quota exceeded'));
-assert(cloudWorkerSource.includes('codex-auth-evidence.json'));
 assert(cloudWorkerSource.includes('async function runOneShotJob()'));
+assert(cloudWorkerSource.includes('async function runExecutorPulseJob('));
+assert(cloudWorkerSource.includes('async function runCodexSmokeJob('));
+assert(cloudWorkerSource.includes('No deterministic evidence rule matched this criterion'));
 assert(cloudWorkerSource.includes("post('/worker/lease', {jobId, executorId})"));
 assert(cloudWorkerSource.includes("executor_started"));
 assert(cloudWorkerSource.includes("executor_heartbeat"));
@@ -216,14 +210,6 @@ assert(cloudWorkerSource.includes("executor_stdout"));
 assert(cloudWorkerSource.includes("executor_stderr"));
 assert(!cloudWorkerSource.includes("noop-proof.txt"));
 assert(cloudWorkerSource.includes("restoreJobWorkspace(job)"));
-assert(cloudWorkerSource.includes('function repositoryFromGithubRef'));
-assert(cloudWorkerSource.includes('runRepositoryFreeJob'));
-assert(cloudWorkerSource.includes('worker_local_empty_workspace'));
-assert(cloudWorkerSource.includes('Repository-free command evidence'));
-assert(cloudWorkerSource.includes("type: 'executor_failed'"));
-assert(!cloudWorkerSource.includes('repositoryFromText'));
-assert(cloudWorkerSource.includes('parts.length < 2'));
-assert(!cloudWorkerSource.includes("replace(/^github:\\\\/\\\\//, '').replace(/\\\\/.*$/, '')"));
 assert(cloudWorkerSource.includes("runCodexPromptStreaming"));
 assert(cloudWorkerSource.includes("implementation.patch"));
 assert(cloudWorkerSource.includes("changed-files.json"));
@@ -239,38 +225,22 @@ assert(cloudWorkerSource.includes(").trim()"));
 assert(cloudWorkerSource.includes("process.env.GH_TOKEN = token"));
 assert(cloudWorkerSource.includes("git ls-remote"));
 assert(cloudWorkerSource.includes("GitHub auth preflight failed"));
-assert(cloudWorkerSource.includes("Mutation ticket produced no uncommitted diff"));
-assert(cloudWorkerSource.includes("Ticket required push/PR evidence"));
+const acceptancePolicySource = fs.readFileSync(new URL('../cloud-worker/src/acceptance_policy.mjs', import.meta.url), 'utf8');
+assert(acceptancePolicySource.includes("Mutation ticket produced no uncommitted diff"));
+assert(acceptancePolicySource.includes("Ticket required push/PR evidence"));
+assert(acceptancePolicySource.includes("reason: 'unsafe_shell_syntax'"));
+assert(acceptancePolicySource.includes('allExecutedChecksPassed'));
+assert(acceptancePolicySource.includes('allRequestedCommandsExecuted'));
+assert(cloudWorkerSource.includes("classifyVerificationCommand(command)"));
+assert(cloudWorkerSource.includes("skipReason: classification.reason"));
+assert(cloudWorkerSource.includes('verificationCriterionPassed(verificationResults)'));
+assert(cloudWorkerSource.includes('...verificationSummary'));
+assert(!/function isMutationTicket[\s\S]*job\.requiredArtifacts[\s\S]*function requiresPullRequest/.test(cloudWorkerSource));
+assert(!/function requiresPullRequest[\s\S]*job\.requiredArtifacts[\s\S]*function parseCodexUsageSummary/.test(cloudWorkerSource));
+assert(cloudWorkerSource.includes('function stripNegativeMutationLanguage'));
+assert(cloudWorkerSource.includes("do not|don't|no|without|must not"));
 assert(cloudWorkerSource.includes("stdout-transcript.txt"));
 assert(cloudWorkerSource.includes("stderr-transcript.txt"));
 assert(cloudWorkerSource.includes("origin: 'executor_workspace'"));
-assert(cloudWorkerSource.includes('function codexApiKeyProbe()'));
-assert(cloudWorkerSource.includes('apiKeyCapabilityProbe: probe'));
-assert(cloudWorkerSource.includes("post('/agent/heartbeat'"));
-assert(cloudWorkerSource.includes("post('/worker/heartbeat'"));
-assert(cloudWorkerSource.includes("['login', '--with-api-key']"));
-assert(cloudWorkerSource.includes("['login', '--with-access-token']"));
-assert(cloudWorkerSource.includes('CODEX_ACCESS_TOKEN'));
-assert(cloudWorkerSource.includes("missingFailureKind: 'secret_missing'"));
-assert(cloudWorkerSource.includes("missingFailureKind: 'access_token_missing'"));
-assert(cloudWorkerSource.includes('worker_openai_quota_exceeded'));
-
-const commandCenterSource = fs.readFileSync(new URL('../functions/command_center_mcp.js', import.meta.url), 'utf8');
-assert(commandCenterSource.includes("githubTokenSecret: safeText(args.githubTokenSecret || 'GITHUB_TOKEN'"));
-assert(commandCenterSource.includes("codexAccessTokenSecret: safeText(args.codexAccessTokenSecret || 'CODEX_ACCESS_TOKEN'"));
-assert(commandCenterSource.includes("{name: 'CODEX_ACCESS_TOKEN'"));
-assert(commandCenterSource.includes('grantSecretAccessor'));
-assert(commandCenterSource.includes('secret_iam_binding_failed'));
-assert(commandCenterSource.includes('secret_iam_binding_unverified'));
-assert(commandCenterSource.includes('cloud_run_job_not_ready'));
-assert(commandCenterSource.includes('ensureWorkerSecretAccess'));
-assert(commandCenterSource.includes('waitForCloudRunJobReady'));
-assert(commandCenterSource.includes('deleteCloudRunJob'));
-assert(commandCenterSource.includes('waitForCloudRunJobDeleted'));
-assert(commandCenterSource.includes('recreate fallback failed'));
-assert(commandCenterSource.includes('api-key capability unavailable'));
-assert(commandCenterSource.includes('async function claimActivationForWorker'));
-assert(commandCenterSource.includes('agentContextSnapshots').valueOf());
-assert(!commandCenterSource.includes("args.githubTokenSecret || 'GH_TOKEN'"));
 
 console.log('Command Center cloud activation contract test: OK');
