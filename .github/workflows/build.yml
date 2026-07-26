@@ -19,7 +19,10 @@ jobs:
         with:
           gradle-version: '8.14.3'
       - run: gradle :app:assembleDebug --no-daemon --stacktrace
-      - uses: actions/upload-artifact@v4
+      - name: Upload debug APK for manual builds
+        if: github.event_name == 'workflow_dispatch'
+        uses: actions/upload-artifact@v4
         with:
           name: debug-apk
           path: app/build/outputs/apk/debug/*.apk
+          retention-days: 1
