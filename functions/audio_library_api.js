@@ -66,7 +66,7 @@ function verifyRequest(req) {
   const signature = safeText(req.get('x-audio-library-signature'), 8192);
   const keyId = safeText(req.get('x-audio-library-key-id'), 120);
   const timestampMs = Number(timestamp);
-  if (keyId !== 'shell-shock-player-v1' || !Number.isFinite(timestampMs) || Math.abs(Date.now() - timestampMs) > MAX_CLOCK_SKEW_MS || !signature) {
+  if (keyId !== 'home-center-audio-bucket-v1' || !Number.isFinite(timestampMs) || Math.abs(Date.now() - timestampMs) > MAX_CLOCK_SKEW_MS || !signature) {
     const err = new Error('Audio library request authentication failed.');
     err.status = 401;
     throw err;
