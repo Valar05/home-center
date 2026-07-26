@@ -5,6 +5,9 @@ import {createRequire} from 'node:module';
 import fs from 'node:fs';
 
 process.env.HOME_CENTER_MCP_EXTENDED_TOOLS = 'true';
+process.env.HOME_CENTER_ARTIFACT_BUCKET_TEST_FAKE = '1';
+process.env.HOME_CENTER_GENERATED_BUCKET = 'home-center-generated';
+process.env.HOME_CENTER_AUDIO_RENDER_TEST_FAKE_OGG = '1';
 const require = createRequire(import.meta.url);
 const homeCenterSource = fs.readFileSync(new URL('../functions/home_center_mcp.js', import.meta.url), 'utf8');
 assert(homeCenterSource.includes("'audio.render'"), 'operation registry must expose audio.render');
@@ -12,16 +15,17 @@ assert(homeCenterSource.includes("'audio.render_artifacts'"), 'operation registr
 assert(homeCenterSource.includes('renderAudioOperation({google, admin, auth, user'), 'drive_operation must dispatch audio.render directly');
 assert(!/audio\.render[\s\S]{0,500}commandCenterOperationRunOperation/.test(homeCenterSource), 'audio.render must not route through Command Center');
 assert(homeCenterSource.includes('structured inline-playable MCP audio block'), 'registry must advertise inline playable audio');
-assert(homeCenterSource.includes('supports speech, audition, and speech_sequence nodes'), 'registry must advertise speech, audition, and speech_sequence recipe nodes');
+assert(homeCenterSource.includes('speech_sequence, and block_mix nodes'), 'registry must advertise speech, speech_sequence, and block_mix recipe nodes');
 assert(homeCenterSource.includes("'audio.render_status'"), 'operation registry must expose audio.render_status recovery');
 assert(homeCenterSource.includes('speech_sequence'), 'registry must advertise speech_sequence recipe nodes');
 assert(homeCenterSource.includes("requireCreditGatedEmail(user && user.email, 'audio.render')"), 'audio.render credit-capable path must be approved-account gated');
 
 const {driveOperationRunOperation, createHomeCenterMcpServer} = require('../functions/home_center_mcp.js');
+const {uploadGeneratedArtifact} = require('../functions/artifact_bucket.js');
 const cartesiaPitchShift = require('../functions/cartesia_pitch_shift.js');
 const {sanitizeRecipeText, renderRecipe, executeAudioRenderJob, materializeSources, resolveSpeechProfile, CARTESIA_SUPPORTED_EMOTIONS, primitives} = require('../functions/audio_render_service.js');
 
-const {tone, noise, silence, trim, concat, loop, fade, crossfade, gain, normalizePeak, normalizeLufs, pan, pitchShift, timeStretch, reverse, biquadLike, compress, limit, distort, delay, reverb, envelope, timeline, duck, resample, toChannels, encodeWav, decodeWav, waveformPng, spectrogramPng, measure} = primitives;
+const {tone, noise, silence, trim, concat, loop, fade, crossfade, gain, normalizePeak, normalizeLufs, pan, pitchShift, timeStretch, reverse, biquadLike, compress, limit, distort, delay, reverb, envelope, timeline, blockMix, duck, resample, toChannels, encodeWav, decodeWav, waveformPng, spectrogramPng, measure} = primitives;
 
 function sha256(buffer) { return createHash('sha256').update(buffer).digest('hex'); }
 
@@ -139,6 +143,22 @@ assert.ok(Math.abs(timeStretch(base, 1.5).duration - base.duration * 1.5) < 0.05
 const bed = timeline({duration: 0.4, sampleRate, channels: 2, items: [{clip: pan(base, 0), at: 0}, {clip: pan(base, 0.3), at: 0.1, gainDb: -6}]});
 assert.equal(bed.channelCount, 2);
 assert.equal(duck(bed, base, 5).frames, bed.frames);
+
+const blockProgress = [];
+const blockMixed = await blockMix({
+  duration: 0.8, sampleRate, channels: 2, blockFrames: 4096,
+  items: [
+    {clip: noise({duration: 0.08, sampleRate, channels: 1, gain: 0.03, seed: 'block-bed'}), at: 0, duration: 0.8, loop: true, gainDb: -10, fadeIn: 0.05, fadeOut: 0.05, duckClip: base, duckAmountDb: 7},
+    {clip: base, at: 0.2, gainDb: -2, pan: 0.15},
+  ],
+  onProgress: async (progress) => blockProgress.push(progress),
+});
+assert.equal(blockMixed.frames, Math.round(0.8 * sampleRate));
+assert.equal(blockMixed.channelCount, 2);
+assert.ok(blockProgress.length > 1, 'block_mix must report bounded progress');
+assert.equal(blockProgress.at(-1).framesProcessed, blockMixed.frames);
+assert.equal(blockProgress.at(-1).blockIndex, blockProgress.at(-1).blockCount);
+assert.equal(measure(blockMixed).silent, false);
 const wav = encodeWav(toChannels(base, 2));
 assert.equal(wav.slice(0,4).toString('ascii'), 'RIFF');
 assert.equal(decodeWav(wav).channelCount, 2);
@@ -149,6 +169,13 @@ const inlineSource = wav.toString('base64');
 const materialized = await materializeSources({sources: {dialogue: {contentBase64: inlineSource, mimeType: 'audio/wav', sha256: sha256(wav)}}});
 assert.equal(materialized.dialogue.sha256, sha256(wav));
 assert.equal(materialized.dialogue.decoded.channelCount, 2);
+const canonicalSource = await uploadGeneratedArtifact({bytes: wav, name: 'canonical-source.wav', mimeType: 'audio/wav', owner: 'drew', project: 'vacation-of-a-lifetime', stage: 'parts', artifactType: 'audio', requestId: 'canonical-source-contract'});
+const canonicalMaterialized = await materializeSources({sources: {narration: {ref: canonicalSource.storageRef, sha256: canonicalSource.sha256}}});
+assert.equal(canonicalMaterialized.narration.provider, 'generated_artifact_bucket');
+assert.equal(canonicalMaterialized.narration.originalRef, canonicalSource.storageRef);
+assert.equal(canonicalMaterialized.narration.sha256, canonicalSource.sha256);
+assert.equal(canonicalMaterialized.narration.decoded.duration, materialized.dialogue.decoded.duration);
+await assert.rejects(() => materializeSources({sources: {forbidden: {ref: 'gs://another-bucket/audio/source.wav'}}}), /canonical generated artifact bucket/);
 await assert.rejects(() => materializeSources({sources: {bad: {contentBase64: inlineSource, mimeType: 'audio/wav', sha256: '0'.repeat(64)}}}), /sha256 mismatch/);
 await assert.rejects(() => materializeSources({sources: {net: {ref: 'https://example.com/a.wav'}}}), /Unsupported source ref provider/);
 
@@ -263,6 +290,28 @@ assert.equal(longRendered.rendered[0].mimeType, 'audio/ogg');
 assert.equal(pitchCalls.slice(longStartPitchCalls).filter((call) => call.pitchSemitones === -1.5).length, 40, 'Isaac sequence segments must use canonical pitch processor');
 globalThis.__cartesiaFake = {durationSeconds: null, delayMs: 0, gain: 0.32};
 
+
+const blockRecipeProgress = [];
+const blockRecipe = {
+  seed: 'block-mix-contract', sampleRate: 16000,
+  graph: [
+    {id: 'dialogue', op: 'tone', frequency: 310, duration: 0.35, channels: 1, gain: 0.24},
+    {id: 'air', op: 'noise', duration: 0.06, channels: 1, gain: 0.025, seed: 'air-loop', color: 'pink'},
+    {id: 'final', op: 'block_mix', duration: 1.1, channels: 2, blockFrames: 4096, items: [
+      {clip: 'air', at: 0, duration: 1.1, loop: true, gainDb: -8, fadeIn: 0.08, fadeOut: 0.08, duckBy: 'dialogue', duckAmountDb: 6},
+      {clip: 'dialogue', at: 0.25, gainDb: -1, pan: -0.1}
+    ]}
+  ],
+  final: 'final',
+  outputs: [{name: 'block-mix.ogg', format: 'ogg', clip: 'final'}],
+};
+const blockRenderedA = await renderRecipe(blockRecipe, {}, {timeoutMs: 20000, onRenderProgress: async (progress) => blockRecipeProgress.push(progress)});
+const blockRenderedB = await renderRecipe(blockRecipe, {}, {timeoutMs: 20000});
+assert.equal(blockRenderedA.rendered[0].sha256, blockRenderedB.rendered[0].sha256, 'block_mix must remain deterministic');
+assert.equal(blockRenderedA.finalMetrics.duration, 1.1);
+assert.ok(blockRenderedA.phaseTimings.graphElapsedMs >= 0);
+assert.ok(blockRecipeProgress.some((progress) => progress.phase === 'block_mixing' && progress.blockIndex === progress.blockCount), 'block_mix DSL must surface terminal block progress');
+
 const recipe = {
   seed: 'contract-seed', sampleRate: 16000,
   graph: [
@@ -288,7 +337,7 @@ assert.ok(renderedA.rendered.find((item) => item.mimeType === 'audio/ogg').byteC
 
 const admin = fakeAdmin();
 const routed = await driveOperationRunOperation({
-  google: fakeGoogle(), admin, auth: {}, user: {email: 'dclarke1005@gmail.com', authKind: 'google_oauth_bearer'},
+  google: fakeGoogle(), admin, auth: {}, user: {email: 'dclarke1005@gmail.com', authKind: 'google_oauth_bearer'}, cartesiaApiKey: () => 'test-cartesia-key',
   args: {operation: 'audio.render', args: {scriptText: JSON.stringify(recipe), requestId: 'audio-render-contract-001', parentFolderId: 'folder12345', settings: {timeoutMs: 20000}, waitForCompletion: true}},
 });
 assert.equal(routed.operation, 'audio.render');
@@ -297,7 +346,15 @@ assert.equal(routed.result.ok, true);
 assert.equal(routed.result.status, 'completed');
 assert.equal(routed.result.noAgentRuntime, true);
 assert.equal(routed.result.noCommandCenter, true);
+assert.ok(routed.result.phaseTimings.renderRecipeMs >= 0);
+assert.ok(routed.result.phaseTimings.totalMs >= routed.result.phaseTimings.renderRecipeMs);
 assert.equal(routed.result.outputs.length, 4);
+assert.equal(routed.result.artifactStore.primary, 'gcs');
+assert.equal(routed.result.artifactStore.bucket, 'home-center-generated');
+assert.ok(routed.result.outputs.every((item) => item.durableRef.startsWith('gs://home-center-generated/')));
+assert.ok(routed.result.outputs.every((item) => item.storageRef === item.durableRef && item.primaryStore === 'gcs'));
+assert.ok(routed.result.outputs.every((item) => item.driveDurableRef.startsWith('drive://')));
+assert.ok(routed.result.outputs.every((item) => item.metadata && item.metadata.owner === 'drew' && item.metadata.approved === 'false'));
 assert.ok(routed.result.outputs.every((item) => item.sha256 === item.readbackSha256 && item.byteCount === item.readbackByteCount));
 assert.ok(routed._mcpContent.content.some((item) => item.type === 'audio' && item.mimeType === 'audio/ogg'));
 assert.equal(collectionStore('driveBridgeAudit').get('audio-render-contract-001').operation, 'audio.render');
@@ -349,7 +406,7 @@ const driveWritesBeforeRouteLong = createCalls;
 globalThis.__cartesiaFake = {durationSeconds: 5, delayMs: 1, gain: 0.8};
 const longArgs = {scriptText: JSON.stringify(longRecipe), requestId: 'audio-render-long-sequence-001', settings: {timeoutMs: 20000, speechConcurrency: 4}, returnInlineAudio: false, publishToDrive: false, disableBackgroundWorker: true};
 const routedLong = await driveOperationRunOperation({
-  google: fakeGoogle(), admin, auth: {}, user: {email: 'dclarke1005@gmail.com', authKind: 'google_oauth_bearer'},
+  google: fakeGoogle(), admin, auth: {}, user: {email: 'dclarke1005@gmail.com', authKind: 'google_oauth_bearer'}, cartesiaApiKey: () => 'test-cartesia-key',
   args: {operation: 'audio.render', args: longArgs},
 });
 assert.equal(routedLong.completed, false, 'long audio.render must return an accepted receipt, not hold the connector open');

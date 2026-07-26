@@ -21,7 +21,7 @@ Speech is a recipe source, not a separate worker path. A `speech` node calls the
 
 Supported Cartesia speech controls in recipes: `text`, `character` or explicit `voiceName`/`voiceId`, `modelId`, `emotion`, `speed`, `volume`, `pitchSemitones`, optional `label`, and optional take naming. Isaac resolves to `Clyde - Calm Narrator`, voice id `98a34ef2-2140-4c28-9c71-663dc4dd7022`, model `sonic-3.5`, speed `0.97`, and pitch `-1.5` semitones unless a call-level override is supplied. Emotional controls are provider requests and remain subject to human listening judgment; Home Center records what was requested and what artifact was returned, but does not claim a perceived emotion.
 
-The operation uploads every output to Drive, reads it back, verifies byte count and SHA-256, records source, speech, take, and output metadata, and returns a structured MCP `audio` block for the primary audio output so ChatGPT can play it inline. `audio.render_artifacts` can also perform a server-side decode check using the authorized Drive readback path and the deployed FFmpeg runtime for encoded audio.
+The operation uploads every output to `gs://home-center-generated` first, reads it back, verifies byte count and SHA-256, records source, speech, take, and output metadata, then publishes a Drive copy when requested or needed for existing ChatGPT resource-link clients. `audio.render_artifacts` can verify canonical `gs://` refs and legacy published `drive://` refs, including server-side decode checks through the deployed FFmpeg runtime for encoded audio.
 
 ## Long-Form Speech Sequences
 
@@ -51,6 +51,36 @@ Canonical profiles resolve aliases case-insensitively:
 
 Explicit segment settings override canonical profile values and are recorded in the manifest. Isaac's pitch is applied by the existing tempo-preserving post-Cartesia pitch processor.
 
+## Block-Mixed Long-Form Post-Production
+
+Use **block_mix** for long narration stems with sparse ambience and punctual effects. It allocates one final timeline, reads short textures as loopable windows, mixes dialogue and atmosphere in bounded frame blocks, performs local dialogue ducking during that pass, and yields between blocks so the worker can renew its lease. Encoded OGG/MP3/FLAC output is then streamed to FFmpeg in PCM blocks instead of first allocating another full WAV buffer.
+
+~~~json
+{
+  "sampleRate": 24000,
+  "graph": [
+    {"id": "narration", "op": "load", "source": "narration"},
+    {"id": "road_air", "op": "noise", "duration": 4, "channels": 1, "gain": 0.04, "seed": "road-air", "color": "pink"},
+    {"id": "final", "op": "block_mix", "duration": 849.4, "channels": 2, "items": [
+      {"clip": "narration", "at": 0, "gainDb": 0},
+      {"clip": "road_air", "at": 0, "duration": 214, "loop": true, "gainDb": -28, "fadeIn": 1.2, "fadeOut": 1.2, "duckBy": "narration", "duckAmountDb": 6}
+    ]}
+  ],
+  "final": "final",
+  "outputs": [{"name": "scene.ogg", "format": "ogg", "clip": "final"}]
+}
+~~~
+
+Each item supports **at**, **duration**, **offset**, **loop**, **gainDb**, mono **pan**, **fadeIn**, **fadeOut**, **duckBy**, **duckAt**, and **duckAmountDb**. Long-form recipes should keep ambience textures short and bound each audible window to a real location or transition. Do not create a full-duration noise clip merely to feed it into **block_mix**.
+
+The manifest records graph timing plus worker phase timing. Worker status reports **block_mixing** frame/block progress, **encoding** frame/block progress, and publication sub-phases. These are operational evidence that immutable work is advancing; they are not a creative-quality score.
+
+## Verified-By-Default Batch Acceptance
+
+When the user grants standing authority to assume generated chapter parts are good, successful technical verification advances the production queue without a mandatory listening stop. The accepted gate is: exact source boundary and cast manifest; immutable narration hash; no unplanned paid speech during source-only post-production; successful decode; non-silent output; clipping within policy; and matching GCS/Drive byte counts and SHA-256 readbacks.
+
+Human listening becomes an exception lane triggered by a concrete anomaly, a changed voice/cast/world choice, masking or clipping evidence, or an explicit review request. This standing authority accepts the artifact for workflow progression; it does not manufacture a claim about perceived emotion or cinematic quality that nobody observed.
+
 ## Long-Form Limits And Recovery
 
 Production defaults support at least 900 seconds per final clip and up to 240 `speech_sequence` segments. A ten-minute mono 24 kHz render is roughly 28.8 MB of PCM before encoding. OGG is the recommended long-form delivery format; WAV uses a separate 64 MB safety ceiling while encoded outputs use a 24 MB ceiling. Inline audio content is size-bounded and skipped above the inline limit, so long-form callers should set `returnInlineAudio: false` and treat the textual receipt plus `resource_link` and Drive readback verification as authoritative.
@@ -69,3 +99,25 @@ Status may be `queued`, `running`, `completed`, `failed`, or `stalled`. A stale 
 ## Incident: Nine Below 2026-07-25
 
 Production request `fleshpunk-nine-below-final-v1-20260725` for Fleshpunk -- Nine Below timed out at the connector while the deployed synchronous renderer had only written its initial audit row. The deployed audit document records `status=running`, `inputSha256=70bb7f8753bc18b3c33bc29906f22ee212368a852d96a2b71a7e3ff3f67672c1`, no result, no affected Drive file ids, and no affected GCS refs. No matching `gs://home-center-generated` object was found for the final request id during reconciliation. Because that old lane did not persist per-take provider checkpoints, the charge-safe classification is stalled/quarantined until provider-side evidence is reviewed; do not resubmit the 187-take production request under a new idempotency key.
+
+
+## Canonical Source Reuse Doctrine
+
+A verified generated artifact must be reusable directly from its canonical `gs://home-center-generated/...` durable ref. Deterministic downstream work must not detour through a Drive publication copy merely because Drive is convenient for human playback.
+
+Rules:
+
+- GCS is the canonical render store; Drive publication is a delivery surface, not a render cache.
+- A source-backed render binds the exact durable ref and expected SHA-256. Only the configured generated-artifact bucket is readable through `audio.render`; arbitrary buckets and network URLs remain forbidden.
+- Paid or accepted speech is checkpointed as an immutable source artifact. Mixing, encoding, publication, indexing, and recovery reuse that artifact and must never resynthesize speech to repair a downstream failure.
+- Long source materialization and deterministic recipe rendering must emit lease heartbeats and progress. A static phase label without a current heartbeat is not evidence of healthy work.
+- A stale or ambiguous request is quarantined under its original idempotency key. Recovery uses a new deterministic source-only request only after proving that no paid provider operation can be repeated.
+- Long-form speed comes from bounded speech concurrency, larger truth-preserving scene boundaries, canonical source reuse, and memory-bounded mix graphs—not from duplicate submissions or continuous ambience wallpaper.
+
+This doctrine was promoted after the Chapter 1 Scenes Five–Six production exposed a 40.8 MB Drive-source materialization detour. The accepted speech completed quickly and remained valid; only deterministic post-production required repair.
+
+### Production evidence and next throughput boundary
+
+The first live canonical-source recovery, `vacation-day1-scenes5-6-coastal-road-through-royal-cove-soundscape-v2-20260726`, reused the verified 40,772,934-byte narration WAV by its allowlisted GCS ref and expected SHA-256. Canonical materialization completed in about 24 seconds, the lease remained current throughout deterministic rendering, and the final 14:09.435 stereo OGG published with matching GCS/Drive hashes and successful independent decode checks. The recipe contained zero speech nodes, so recovery could not incur a second Cartesia charge.
+
+That run also established the next honest performance boundary: a 14:09 timeline required about 16:03 end to end even after source transfer was repaired. The optimized `block_mix` production benchmark (`vacation-day1-scenes5-6-coastal-road-through-royal-cove-soundscape-block-v4-20260726`) retired that baseline at 11:09 end to end: 2:03 canonical materialization, 2:29 graph execution, about 6:31 for PCM conversion plus Vorbis encoding, and under six seconds for output/manifest publication. Both GCS and Drive copies independently decoded and matched the 7,552,416-byte SHA-256 `8603749191d75af843ec2f692315687c3d11ec99ca7ac939f8c53afe95b175c5`; the recipe contained zero speech nodes. The direct-frame mixer and typed-array PCM conversion reduce total latency by about 30%, while native encoding remains the next throughput target. The next renderer step should compile eligible source/effect placement directly to an FFmpeg filter graph so JavaScript no longer converts the full stereo timeline sample by sample.

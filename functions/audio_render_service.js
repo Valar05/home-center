@@ -1,6 +1,4 @@
 const {createHash, randomUUID} = require('node:crypto');
-const {Readable} = require('node:stream');
-const {Storage} = require('@google-cloud/storage');
 const fs = require('node:fs/promises');
 const os = require('node:os');
 const path = require('node:path');
@@ -8,6 +6,7 @@ const {spawn} = require('node:child_process');
 const zlib = require('node:zlib');
 const {CARTESIA_DEFAULT_MODEL_ID, CARTESIA_DEFAULT_VOICE_NAME, openCartesiaStream} = require('./hosted_speech_provider');
 const cartesiaPitchShift = require('./cartesia_pitch_shift');
+const {GENERATED_ARTIFACT_BUCKET, parseGsRef, uploadGeneratedArtifact, publishGeneratedArtifactToDrive, inspectGeneratedArtifact} = require('./artifact_bucket');
 
 const DEFAULT_SAMPLE_RATE = 48000;
 const MAX_DURATION_SECONDS = Number(process.env.HOME_CENTER_AUDIO_RENDER_MAX_SECONDS || 900);
@@ -22,8 +21,6 @@ const MAX_GRAPH_NODES = Number(process.env.HOME_CENTER_AUDIO_RENDER_MAX_GRAPH_NO
 const DEFAULT_TIMEOUT_MS = Number(process.env.HOME_CENTER_AUDIO_RENDER_TIMEOUT_MS || 55000);
 const AUDIO_RENDER_LEASE_MS = Number(process.env.HOME_CENTER_AUDIO_RENDER_LEASE_MS || 120000);
 const AUDIO_RENDER_STALE_MS = Number(process.env.HOME_CENTER_AUDIO_RENDER_STALE_MS || 10 * 60 * 1000);
-const GENERATED_ARTIFACT_BUCKET = process.env.HOME_CENTER_GENERATED_BUCKET || 'home-center-generated';
-const generatedStorage = new Storage();
 
 const SPEECH_MAX_TEXT_CHARS = 12000;
 const CARTESIA_SPEECH_SAMPLE_RATE_MAX = 48000;
@@ -447,6 +444,112 @@ function timeline({duration, sampleRate = DEFAULT_SAMPLE_RATE, channels = 2, ite
   return out;
 }
 
+async function blockMix({duration, sampleRate = DEFAULT_SAMPLE_RATE, channels = 2, blockFrames = 65536, items = [], onProgress = null} = {}) {
+  assertFinite(duration, 'duration', 0, MAX_DURATION_SECONDS);
+  channels = Math.max(1, Math.min(8, Math.floor(channels)));
+  blockFrames = Math.max(4096, Math.min(262144, Math.floor(blockFrames)));
+  if (!Array.isArray(items) || !items.length || items.length > 500) throw audioError('block_mix.items must contain 1 to 500 items.', 400, 'audio_render_validation_failed');
+  const out = makeClip(channels, Math.round(duration * sampleRate), sampleRate, 0, 'block_mix');
+  const prepared = items.map((item, index) => {
+    const clip = ensureClip(item.clip, 'block_mix item ' + index);
+    const atFrame = Math.round(safeNumber(item.at, 0) * sampleRate);
+    const sourceOffsetFrames = Math.max(0, Math.round(safeNumber(item.offset, 0) * clip.sampleRate));
+    const looped = item.loop === true;
+    const availableSeconds = Math.max(0, (clip.frames - sourceOffsetFrames) / clip.sampleRate);
+    const itemDuration = item.duration === undefined ? (looped ? Math.max(0, duration - safeNumber(item.at, 0)) : availableSeconds) : safeNumber(item.duration, availableSeconds);
+    assertFinite(itemDuration, 'block_mix item duration', 0, MAX_DURATION_SECONDS);
+    const durationFrames = Math.round(itemDuration * sampleRate);
+    const gainMult = Math.pow(10, safeNumber(item.gainDb, 0) / 20);
+    const panValue = Math.max(-1, Math.min(1, safeNumber(item.pan, 0)));
+    const monoLeft = panValue <= 0 ? 1 : 1 - panValue;
+    const monoRight = panValue >= 0 ? 1 : 1 + panValue;
+    const duckClip = item.duckClip ? ensureClip(item.duckClip, 'block_mix duckBy ' + index) : null;
+    return {
+      clip, atFrame, sourceOffsetFrames, looped, durationFrames, gainMult,
+      fadeInFrames: Math.max(0, Math.round(safeNumber(item.fadeIn, 0) * sampleRate)),
+      fadeOutFrames: Math.max(0, Math.round(safeNumber(item.fadeOut, 0) * sampleRate)),
+      monoLeft, monoRight,
+      duckClip,
+      duckAtFrame: Math.round(safeNumber(item.duckAt, 0) * sampleRate),
+      duckAmount: Math.pow(10, -Math.abs(safeNumber(item.duckAmountDb, 6)) / 20),
+    };
+  });
+
+  const sampleAt = (clip, sourceFrame, channel, looped) => {
+    if (!clip.frames) return 0;
+    if (looped) sourceFrame = ((sourceFrame % clip.frames) + clip.frames) % clip.frames;
+    if (sourceFrame < 0 || sourceFrame >= clip.frames) return 0;
+    const a = Math.floor(sourceFrame);
+    const b = looped ? (a + 1) % clip.frames : Math.min(clip.frames - 1, a + 1);
+    const t = sourceFrame - a;
+    const srcChannel = clip.channels[clip.channelCount === 1 ? 0 : Math.min(channel, clip.channelCount - 1)];
+    return (srcChannel[a] || 0) * (1 - t) + (srcChannel[b] || 0) * t;
+  };
+
+  const totalBlocks = Math.max(1, Math.ceil(out.frames / blockFrames));
+  for (let blockIndex = 0; blockIndex < totalBlocks; blockIndex++) {
+    const blockStart = blockIndex * blockFrames;
+    const blockEnd = Math.min(out.frames, blockStart + blockFrames);
+    for (const item of prepared) {
+      const itemStart = Math.max(blockStart, item.atFrame, 0);
+      const itemEnd = Math.min(blockEnd, item.atFrame + item.durationFrames, out.frames);
+      if (itemEnd <= itemStart) continue;
+      const sourceRatio = item.clip.sampleRate / sampleRate;
+      const duckRatio = item.duckClip ? item.duckClip.sampleRate / sampleRate : 1;
+      const directFrames = sourceRatio === 1 && !item.looped;
+      const constantGain = !item.fadeInFrames && !item.fadeOutFrames && !item.duckClip;
+      if (directFrames && constantGain && item.clip.channelCount === 1 && channels === 2) {
+        const source = item.clip.channels[0];
+        const left = out.channels[0], right = out.channels[1];
+        const leftGain = item.gainMult * item.monoLeft;
+        const rightGain = item.gainMult * item.monoRight;
+        let sourceFrame = item.sourceOffsetFrames + itemStart - item.atFrame;
+        for (let frame = itemStart; frame < itemEnd; frame++, sourceFrame++) {
+          const value = source[sourceFrame] || 0;
+          left[frame] += value * leftGain;
+          right[frame] += value * rightGain;
+        }
+        continue;
+      }
+      if (directFrames && constantGain) {
+        let sourceFrame = item.sourceOffsetFrames + itemStart - item.atFrame;
+        for (let frame = itemStart; frame < itemEnd; frame++, sourceFrame++) {
+          for (let channel = 0; channel < channels; channel++) {
+            const source = item.clip.channels[item.clip.channelCount === 1 ? 0 : Math.min(channel, item.clip.channelCount - 1)];
+            out.channels[channel][frame] += (source[sourceFrame] || 0) * item.gainMult;
+          }
+        }
+        continue;
+      }
+      for (let frame = itemStart; frame < itemEnd; frame++) {
+        const localFrame = frame - item.atFrame;
+        const sourceFrame = item.sourceOffsetFrames + localFrame * sourceRatio;
+        let itemGain = item.gainMult;
+        if (item.fadeInFrames && localFrame < item.fadeInFrames) itemGain *= localFrame / item.fadeInFrames;
+        const remaining = item.durationFrames - localFrame;
+        if (item.fadeOutFrames && remaining < item.fadeOutFrames) itemGain *= Math.max(0, remaining / item.fadeOutFrames);
+        if (item.duckClip) {
+          const keyFrame = (frame - item.duckAtFrame) * duckRatio;
+          let key = 0;
+          for (let keyChannel = 0; keyChannel < item.duckClip.channelCount; keyChannel++) key = Math.max(key, Math.abs(sampleAt(item.duckClip, keyFrame, keyChannel, false)));
+          key = Math.min(1, key * 4);
+          itemGain *= 1 - key * (1 - item.duckAmount);
+        }
+        if (item.clip.channelCount === 1 && channels === 2) {
+          const value = sampleAt(item.clip, sourceFrame, 0, item.looped) * itemGain;
+          out.channels[0][frame] += value * item.monoLeft;
+          out.channels[1][frame] += value * item.monoRight;
+        } else {
+          for (let channel = 0; channel < channels; channel++) out.channels[channel][frame] += sampleAt(item.clip, sourceFrame, channel, item.looped) * itemGain;
+        }
+      }
+    }
+    if (typeof onProgress === 'function') await onProgress({phase: 'block_mixing', blockIndex: blockIndex + 1, blockCount: totalBlocks, framesProcessed: blockEnd, totalFrames: out.frames});
+    if (blockIndex + 1 < totalBlocks) await new Promise((resolve) => setImmediate(resolve));
+  }
+  return out;
+}
+
 function duck(mixClip, keyClip, amountDb = 5) {
   const out = mixClip.clone();
   keyClip = resample(mixdownMono(keyClip), mixClip.sampleRate);
@@ -727,6 +830,66 @@ async function ffmpegEncode(inputWav, format, timeoutMs = DEFAULT_TIMEOUT_MS) {
   }
 }
 
+async function ffmpegEncodeClip(clip, format, timeoutMs = DEFAULT_TIMEOUT_MS, onProgress = null) {
+  ensureClip(clip);
+  if (process.env.HOME_CENTER_AUDIO_RENDER_TEST_FAKE_OGG === '1' && format === 'ogg') {
+    const digest = sha256Hex(encodeWav(clip));
+    return Buffer.concat([Buffer.from('OggS\0home-center-test-vorbis-placeholder\0'), Buffer.from(digest, 'ascii')]);
+  }
+  let ffmpegPath = '';
+  try { ffmpegPath = require('ffmpeg-static'); } catch (_) { ffmpegPath = process.env.FFMPEG_PATH || 'ffmpeg'; }
+  const tmp = await fs.mkdtemp(path.join(os.tmpdir(), 'home-audio-stream-'));
+  const outputPath = path.join(tmp, 'output.' + format);
+  let child = null;
+  try {
+    const args = ['-hide_banner', '-loglevel', 'error', '-y', '-f', 's16le', '-ar', String(clip.sampleRate), '-ac', String(clip.channelCount), '-i', 'pipe:0'];
+    if (format === 'ogg') args.push('-codec:a', 'libvorbis', '-q:a', '5');
+    else if (format === 'flac') args.push('-codec:a', 'flac');
+    else if (format === 'mp3') args.push('-codec:a', 'libmp3lame', '-b:a', '192k');
+    else throw audioError('Unsupported encoded format: ' + format, 400, 'audio_render_unsupported_format');
+    args.push(outputPath);
+    child = spawn(ffmpegPath, args, {stdio: ['pipe', 'ignore', 'pipe'], shell: false, env: {PATH: process.env.PATH || ''}});
+    let stderr = '';
+    child.stderr.on('data', (chunk) => { stderr += String(chunk).slice(0, 4000); });
+    child.stdin.on('error', () => {});
+    const exitPromise = new Promise((resolve, reject) => {
+      const timer = setTimeout(() => { child.kill('SIGKILL'); reject(audioError('Audio encoder timed out.', 504, 'audio_render_encoder_timeout')); }, timeoutMs);
+      child.on('error', (err) => { clearTimeout(timer); reject(audioError('Audio encoder failed to start: ' + err.message, 500, 'audio_render_encoder_failed')); });
+      child.on('exit', (code) => { clearTimeout(timer); code === 0 ? resolve() : reject(audioError('Audio encoder failed: ' + stderr.slice(0, 500), 500, 'audio_render_encoder_failed')); });
+    });
+    const blockFrames = 262144;
+    const totalBlocks = Math.max(1, Math.ceil(clip.frames / blockFrames));
+    const nativeLittleEndian = os.endianness() === 'LE';
+    for (let blockIndex = 0; blockIndex < totalBlocks; blockIndex++) {
+      const start = blockIndex * blockFrames;
+      const end = Math.min(clip.frames, start + blockFrames);
+      const pcm = Buffer.allocUnsafe((end - start) * clip.channelCount * 2);
+      const pcm16 = nativeLittleEndian ? new Int16Array(pcm.buffer, pcm.byteOffset, pcm.byteLength / 2) : null;
+      let sampleIndex = 0;
+      for (let frame = start; frame < end; frame++) for (let channel = 0; channel < clip.channelCount; channel++) {
+        const sample = Math.max(-1, Math.min(1, clip.channels[channel][frame]));
+        const value = sample < 0 ? Math.round(sample * 32768) : Math.round(sample * 32767);
+        if (pcm16) pcm16[sampleIndex] = value;
+        else pcm.writeInt16LE(value, sampleIndex * 2);
+        sampleIndex += 1;
+      }
+      if (!child.stdin.write(pcm)) await new Promise((resolve) => child.stdin.once('drain', resolve));
+      if (typeof onProgress === 'function') await onProgress({phase: 'encoding', format, blockIndex: blockIndex + 1, blockCount: totalBlocks, framesProcessed: end, totalFrames: clip.frames});
+      await new Promise((resolve) => setImmediate(resolve));
+    }
+    child.stdin.end();
+    await exitPromise;
+    const out = await fs.readFile(outputPath);
+    if (out.length > outputByteLimit(format)) throw audioError('Encoded output exceeds size limit.', 413, 'audio_render_output_too_large');
+    return out;
+  } catch (err) {
+    if (child && child.exitCode === null) child.kill('SIGKILL');
+    throw err;
+  } finally {
+    await fs.rm(tmp, {recursive: true, force: true}).catch(() => {});
+  }
+}
+
 function crc32(buf) {
   let table = crc32.table;
   if (!table) {
@@ -850,8 +1013,16 @@ async function materializeSources({google, auth, sources = {}}) {
         const media = await drive.files.get({fileId, alt: 'media', supportsAllDrives: true}, {responseType: 'arraybuffer'});
         buffer = Buffer.isBuffer(media.data) ? media.data : Buffer.from(media.data);
         provider = 'google_drive';
+      } else if (ref.toLowerCase().startsWith('gs://')) {
+        const parsed = parseGsRef(ref);
+        if (!parsed || parsed.bucket !== GENERATED_ARTIFACT_BUCKET) throw audioError('gs:// sources must reference the canonical generated artifact bucket.', 400, 'audio_render_source_bucket_forbidden');
+        const artifact = await inspectGeneratedArtifact(ref);
+        if (!artifact || !artifact.bytes) throw audioError('Generated artifact source not found: ' + ref, 404, 'audio_render_source_not_found');
+        buffer = Buffer.from(artifact.bytes);
+        mimeType = artifact.mimeType || mimeType;
+        provider = 'generated_artifact_bucket';
       } else {
-        throw audioError('Unsupported source ref provider for ' + name + ': use drive:// or inline contentBase64 in this release.', 400, 'audio_render_unsupported_source_ref');
+        throw audioError('Unsupported source ref provider for ' + name + ': use canonical gs://, drive://, or inline contentBase64.', 400, 'audio_render_unsupported_source_ref');
       }
     } else {
       throw audioError('Source ' + name + ' must provide contentBase64 or ref.', 400, 'audio_render_invalid_source');
@@ -907,6 +1078,7 @@ async function applyOp(op, clips, sources, context) {
   else if (type === 'envelope') clip = envelope(one(), op.points || []);
   else if (type === 'resample') clip = resample(one(), safeNumber(op.sampleRate, context.sampleRate));
   else if (type === 'timeline' || type === 'layer') clip = timeline({duration: safeNumber(op.duration, 1), sampleRate: sr, channels: safeNumber(op.channels, 2), items: (op.items || []).map((item) => ({...item, clip: ensureClip(clips.get(safeText(item.clip, 120)), 'timeline item')}))});
+  else if (type === 'block_mix') clip = await blockMix({duration: safeNumber(op.duration, 1), sampleRate: sr, channels: safeNumber(op.channels, 2), blockFrames: safeNumber(op.blockFrames, 65536), items: (op.items || []).map((item) => ({...item, clip: ensureClip(clips.get(safeText(item.clip, 120)), 'block_mix item'), duckClip: safeText(item.duckBy, 120) ? ensureClip(clips.get(safeText(item.duckBy, 120)), 'block_mix duckBy') : null})), onProgress: context.onRenderProgress});
   else if (type === 'duck') clip = duck(one('mix'), one('keyedBy'), safeNumber(op.amountDb, 5));
   else if (type === 'speech') {
     const synthesized = await synthesizeSpeechClip(op, context);
@@ -982,8 +1154,10 @@ async function renderRecipe(recipe, sources, settings = {}) {
   const graph = Array.isArray(recipe.graph) ? recipe.graph : [];
   if (!graph.length || graph.length > MAX_GRAPH_NODES) throw audioError('Recipe graph must contain 1 to ' + MAX_GRAPH_NODES + ' nodes.', 400, 'audio_render_validation_failed');
   const clips = new Map();
-  const context = {sampleRate, seed, speechDefaults: recipe.speechDefaults || settings.speechDefaults || {}, cartesiaApiKey: settings.cartesiaApiKey || (() => ''), speechConcurrency: settings.speechConcurrency || recipe.speechConcurrency || SPEECH_SEQUENCE_DEFAULT_CONCURRENCY, onSpeechTake: settings.onSpeechTake, speechProvenance: [], speechSequences: [], auditionTakes: [], usesCartesia: false};
+  const context = {sampleRate, seed, speechDefaults: recipe.speechDefaults || settings.speechDefaults || {}, cartesiaApiKey: settings.cartesiaApiKey || (() => ''), speechConcurrency: settings.speechConcurrency || recipe.speechConcurrency || SPEECH_SEQUENCE_DEFAULT_CONCURRENCY, onSpeechTake: settings.onSpeechTake, onRenderProgress: settings.onRenderProgress, speechProvenance: [], speechSequences: [], auditionTakes: [], usesCartesia: false};
+  const graphStartedAtMs = Date.now();
   for (const op of graph) await applyOp(op || {}, clips, sources, context);
+  const graphElapsedMs = Date.now() - graphStartedAtMs;
   const finalId = safeText(recipe.final || (graph[graph.length - 1] || {}).id, 120);
   const finalClip = ensureClip(clips.get(finalId), 'final clip');
   const outputs = Array.isArray(recipe.outputs) && recipe.outputs.length ? recipe.outputs : [{name: 'audio.wav', format: 'wav', clip: finalId}, {name: 'audio.ogg', format: 'ogg', clip: finalId}];
@@ -994,9 +1168,9 @@ async function renderRecipe(recipe, sources, settings = {}) {
     const clip = ensureClip(clips.get(safeText(output.clip || finalId, 120)), 'output clip');
     let bytes, mimeType;
     if (format === 'wav') { bytes = encodeWav(clip); mimeType = 'audio/wav'; }
-    else if (format === 'ogg') { bytes = await ffmpegEncode(encodeWav(clip), 'ogg', safeNumber(settings.timeoutMs, DEFAULT_TIMEOUT_MS)); mimeType = 'audio/ogg'; }
-    else if (format === 'flac') { bytes = await ffmpegEncode(encodeWav(clip), 'flac', safeNumber(settings.timeoutMs, DEFAULT_TIMEOUT_MS)); mimeType = 'audio/flac'; }
-    else if (format === 'mp3') { bytes = await ffmpegEncode(encodeWav(clip), 'mp3', safeNumber(settings.timeoutMs, DEFAULT_TIMEOUT_MS)); mimeType = 'audio/mpeg'; }
+    else if (format === 'ogg') { bytes = await ffmpegEncodeClip(clip, 'ogg', safeNumber(settings.timeoutMs, DEFAULT_TIMEOUT_MS), settings.onRenderProgress); mimeType = 'audio/ogg'; }
+    else if (format === 'flac') { bytes = await ffmpegEncodeClip(clip, 'flac', safeNumber(settings.timeoutMs, DEFAULT_TIMEOUT_MS), settings.onRenderProgress); mimeType = 'audio/flac'; }
+    else if (format === 'mp3') { bytes = await ffmpegEncodeClip(clip, 'mp3', safeNumber(settings.timeoutMs, DEFAULT_TIMEOUT_MS), settings.onRenderProgress); mimeType = 'audio/mpeg'; }
     else if (format === 'waveform_png') { bytes = waveformPng(clip); mimeType = 'image/png'; }
     else if (format === 'spectrogram_png') { bytes = spectrogramPng(clip); mimeType = 'image/png'; }
     else throw audioError('Unsupported export format: ' + format, 400, 'audio_render_unsupported_format');
@@ -1004,113 +1178,56 @@ async function renderRecipe(recipe, sources, settings = {}) {
     const m = measure(clip);
     rendered.push({name, format, mimeType, bytes, clipMetrics: m, byteCount: bytes.length, sha256: sha256Hex(bytes)});
   }
-  return {clips, finalClip, rendered, finalMetrics: measure(finalClip), seed, sampleRate, speechProvenance: context.speechProvenance, speechSequences: context.speechSequences, auditionTakes: context.auditionTakes, usesCartesia: context.usesCartesia};
+  return {clips, finalClip, rendered, finalMetrics: measure(finalClip), seed, sampleRate, phaseTimings: {graphElapsedMs}, speechProvenance: context.speechProvenance, speechSequences: context.speechSequences, auditionTakes: context.auditionTakes, usesCartesia: context.usesCartesia};
 }
 
-function sanitizeObjectSegment(value, fallback = 'item') {
-  const clean = safeText(value, 240).replace(/[^A-Za-z0-9_.@-]+/g, '_').replace(/^_+|_+$/g, '');
-  return clean || fallback;
-}
-
-function parseSharedWith(value) {
-  if (Array.isArray(value)) return value.map((entry) => safeText(entry, 320).toLowerCase()).filter(Boolean);
-  const text = safeText(value, 4000);
-  if (!text) return [];
-  try {
-    const parsed = JSON.parse(text);
-    if (Array.isArray(parsed)) return parsed.map((entry) => safeText(entry, 320).toLowerCase()).filter(Boolean);
-  } catch (_) {}
-  return text.split(/[;,\s]+/).map((entry) => safeText(entry, 320).toLowerCase()).filter(Boolean);
+function audioArtifactContext(args = {}, rendered = null, item = null) {
+  const settings = args.settings && typeof args.settings === 'object' && !Array.isArray(args.settings) ? args.settings : {};
+  const stage = safeText(args.stage || settings.stage || (args.approved === true || settings.approved === true ? 'final' : 'voice-test'), 120) || 'voice-test';
+  const project = safeText(args.project || settings.project || 'home-center', 160) || 'home-center';
+  const owner = safeText(args.owner || settings.owner || 'drew', 120) || 'drew';
+  const engine = rendered && rendered.usesCartesia ? 'cartesia' : safeText(args.engine || settings.engine || 'home-center-audio', 120) || 'home-center-audio';
+  const artifactType = item && /^image\//.test(item.mimeType) ? 'image' : 'audio';
+  return {owner, project, stage, engine, createdBy: 'home-center-mcp', jobId: safeText(args.jobId || settings.jobId, 180), commit: safeText(args.commit || settings.commit || process.env.K_REVISION || process.env.FUNCTION_TARGET || '', 80), approved: args.approved === true || settings.approved === true, requestId: safeText(args.requestId || args.idempotencyKey, 180), artifactType};
 }
 
 function shouldPublishAudioToDrive(args = {}, parentFolderId = '') {
   if (args.publishToDrive === false) return false;
   if (args.publishToDrive === true) return true;
-  return Boolean(parentFolderId);
+  const settings = args.settings && typeof args.settings === 'object' && !Array.isArray(args.settings) ? args.settings : {};
+  if (settings.publishToDrive === false) return false;
+  if (settings.publishToDrive === true) return true;
+  if (args.approved === true || settings.approved === true || safeText(args.stage || settings.stage, 80).toLowerCase() === 'final') return true;
+  return true; // Backward-compatible mirror: existing audio.render clients still receive Drive resource links after GCS verification.
 }
 
-function audioArtifactContext(args = {}, rendered = {}, user = {}) {
-  const ownerEmail = safeText(user && user.email || args.owner, 320).toLowerCase();
-  return {
-    ownerEmail,
-    sharedWith: parseSharedWith(args.sharedWith),
-    requestId: safeText(args.requestId || args.idempotencyKey, 160),
-    project: safeText(args.project, 160),
-    stage: safeText(args.stage, 120),
-    duration: Number(rendered.finalMetrics && rendered.finalMetrics.duration || 0),
-    sampleRate: Number(rendered.sampleRate || 0),
-  };
-}
-
-async function uploadVerified({google, auth, parentFolderId, item, artifactContext = {}, publishToDrive = false}) {
-  const ownerSegment = sanitizeObjectSegment(artifactContext.ownerEmail, 'legacy');
-  const requestSegment = sanitizeObjectSegment(artifactContext.requestId, 'unscoped');
-  const fileSegment = sanitizeObjectSegment(item.name, 'audio.bin');
-  const objectName = ['audio', ownerSegment, requestSegment, fileSegment].join('/');
-  const file = generatedStorage.bucket(GENERATED_ARTIFACT_BUCKET).file(objectName);
-  const objectMetadata = {
-    ownerEmail: safeText(artifactContext.ownerEmail, 320).toLowerCase(),
-    sharedWith: JSON.stringify(Array.isArray(artifactContext.sharedWith) ? artifactContext.sharedWith : []),
-    requestId: safeText(artifactContext.requestId, 160),
-    project: safeText(artifactContext.project, 160),
-    stage: safeText(artifactContext.stage, 120),
-    artifactType: safeText(artifactContext.artifactType, 40),
-    duration: String(Number(item.clipMetrics && item.clipMetrics.duration || artifactContext.duration || 0)),
-    sampleRate: String(Number(item.clipMetrics && item.clipMetrics.sampleRate || artifactContext.sampleRate || 0)),
-    sha256: item.sha256,
-  };
-  await file.save(item.bytes, {
-    resumable: false,
-    validation: false,
-    metadata: {contentType: item.mimeType, metadata: objectMetadata},
-  });
-  const [readbackBytes] = await file.download();
-  const readbackSha256 = sha256Hex(readbackBytes);
-  if (readbackBytes.length !== item.byteCount || readbackSha256 !== item.sha256) {
-    throw audioError('GCS readback verification failed for ' + item.name + '.', 502, 'audio_render_readback_failed');
-  }
-
-  let driveResult = {};
-  if (publishToDrive) {
-    const drive = google.drive({version: 'v3', auth});
-    const created = await drive.files.create({
-      requestBody: {name: item.name, mimeType: item.mimeType, ...(parentFolderId ? {parents: [parentFolderId]} : {})},
-      media: {mimeType: item.mimeType, body: Readable.from([item.bytes])},
-      fields: 'id,name,mimeType,webViewLink,parents,size',
-      supportsAllDrives: true,
-    });
-    const metadata = created.data || {};
-    const fileId = metadata.id || '';
-    const driveReadback = await drive.files.get({fileId, alt: 'media', supportsAllDrives: true}, {responseType: 'arraybuffer'});
-    const driveBuffer = Buffer.isBuffer(driveReadback.data) ? driveReadback.data : Buffer.from(driveReadback.data);
-    const driveSha256 = sha256Hex(driveBuffer);
-    if (driveBuffer.length !== item.byteCount || driveSha256 !== item.sha256) {
-      throw audioError('Drive readback verification failed for ' + item.name + '.', 502, 'audio_render_drive_readback_failed');
-    }
-    driveResult = {
-      fileId,
-      id: fileId,
-      webViewLink: metadata.webViewLink || '',
-      parentFolderId: ((metadata.parents || [])[0]) || parentFolderId,
-      driveDurableRef: 'drive://' + fileId,
-    };
-  }
-
-  const storageRef = 'gs://' + GENERATED_ARTIFACT_BUCKET + '/' + objectName;
+async function uploadVerified({google, auth, parentFolderId, item, artifactContext = {}, publishToDrive = true}) {
+  const storageArtifact = await uploadGeneratedArtifact({...artifactContext, bytes: item.bytes, name: item.name, mimeType: item.mimeType});
+  const driveArtifact = publishToDrive ? await publishGeneratedArtifactToDrive({google, auth, parentFolderId, artifact: storageArtifact, bytes: item.bytes}) : null;
   return {
     ...item,
     bytes: undefined,
-    ...driveResult,
-    readbackByteCount: readbackBytes.length,
-    readbackSha256,
-    verified: true,
+    bucket: storageArtifact.bucket,
+    object: storageArtifact.object,
+    storageRef: storageArtifact.storageRef,
+    durableRef: storageArtifact.storageRef,
     primaryStore: 'gcs',
-    storageRef,
-    durableRef: storageRef,
-    metadata: {bucket: GENERATED_ARTIFACT_BUCKET, objectName, ...objectMetadata},
-    chatGptFileRef: {type: 'resource_link', uri: storageRef, name: item.name, mimeType: item.mimeType, size: item.byteCount},
+    artifactBucket: GENERATED_ARTIFACT_BUCKET,
+    metadata: storageArtifact.metadata,
+    readbackByteCount: storageArtifact.readbackByteCount,
+    readbackSha256: storageArtifact.readbackSha256,
+    verified: true,
+    drive: driveArtifact,
+    driveDurableRef: driveArtifact && driveArtifact.durableRef || '',
+    fileId: driveArtifact && driveArtifact.fileId || '',
+    id: driveArtifact && driveArtifact.fileId || '',
+    webViewLink: driveArtifact && driveArtifact.webViewLink || '',
+    parentFolderId: driveArtifact && driveArtifact.parentFolderId || parentFolderId || '',
+    chatGptFileRef: driveArtifact && driveArtifact.chatGptFileRef || null,
   };
 }
+
+
 
 async function ffmpegDecodeCheck(buffer, name, mimeType, timeoutMs = DEFAULT_TIMEOUT_MS) {
   const lower = String(name || '').toLowerCase();
@@ -1175,42 +1292,66 @@ function wavHeaderInfo(buffer) {
 }
 
 function cleanArtifactRef(value) {
-  const ref = safeText(value && (value.durableRef || value.ref || value.uri) || value, 1200);
-  if (!ref.toLowerCase().startsWith('drive://')) throw audioError('audio.render_artifacts currently accepts drive:// artifact refs only.', 400, 'audio_render_artifact_ref_invalid');
+  const ref = safeText(value && (value.durableRef || value.storageRef || value.ref || value.uri) || value, 1200);
+  if (ref.toLowerCase().startsWith('gs://')) {
+    const parsed = parseGsRef(ref);
+    if (!parsed) throw audioError('Invalid GCS artifact ref.', 400, 'audio_render_artifact_ref_invalid');
+    return {ref, provider: 'gcs', bucket: parsed.bucket, object: parsed.object};
+  }
+  if (!ref.toLowerCase().startsWith('drive://')) throw audioError('audio.render_artifacts accepts gs:// generated artifact refs and legacy drive:// published refs.', 400, 'audio_render_artifact_ref_invalid');
   const fileId = ref.slice('drive://'.length).split(/[?#]/)[0];
   if (!/^[A-Za-z0-9_.-]{8,220}$/.test(fileId)) throw audioError('Invalid Drive artifact ref.', 400, 'audio_render_artifact_ref_invalid');
-  return {ref, fileId};
+  return {ref, provider: 'drive', fileId};
 }
 
 async function inspectAudioArtifactsOperation({google, auth, args = {}}) {
   const refs = Array.isArray(args.artifactRefs) ? args.artifactRefs : Array.isArray(args.refs) ? args.refs : [];
-  if (!refs.length || refs.length > 40) throw audioError('artifactRefs must contain 1 to 40 drive:// refs.', 400, 'audio_render_artifact_refs_required');
-  const expectedByRef = new Map((Array.isArray(args.expected) ? args.expected : []).map((item) => [safeText(item.durableRef || item.ref || item.uri, 1200), item]));
+  if (!refs.length || refs.length > 40) throw audioError('artifactRefs must contain 1 to 40 gs:// generated artifact refs or legacy drive:// refs.', 400, 'audio_render_artifact_refs_required');
+  const expectedByRef = new Map((Array.isArray(args.expected) ? args.expected : []).map((item) => [safeText(item.durableRef || item.storageRef || item.ref || item.uri, 1200), item]));
   const drive = google.drive({version: 'v3', auth});
   const artifacts = [];
   for (const raw of refs) {
-    const {ref, fileId} = cleanArtifactRef(raw);
-    const metadataResult = await drive.files.get({fileId, fields: 'id,name,mimeType,size,webViewLink,parents', supportsAllDrives: true});
-    const metadata = metadataResult.data || {};
-    const media = await drive.files.get({fileId, alt: 'media', supportsAllDrives: true}, {responseType: 'arraybuffer'});
-    const bytes = Buffer.isBuffer(media.data) ? media.data : Buffer.from(media.data);
+    const cleaned = cleanArtifactRef(raw);
+    let metadata = {};
+    let bytes = null;
+    let name = '';
+    let mimeType = '';
+    let webViewLink = '';
+    if (cleaned.provider === 'gcs') {
+      const artifact = await inspectGeneratedArtifact(cleaned.ref);
+      bytes = artifact.bytes;
+      metadata = artifact.metadata || {};
+      name = artifact.name || '';
+      mimeType = artifact.mimeType || metadata.mimeType || '';
+    } else {
+      const metadataResult = await drive.files.get({fileId: cleaned.fileId, fields: 'id,name,mimeType,size,webViewLink,parents', supportsAllDrives: true});
+      metadata = metadataResult.data || {};
+      const media = await drive.files.get({fileId: cleaned.fileId, alt: 'media', supportsAllDrives: true}, {responseType: 'arraybuffer'});
+      bytes = Buffer.isBuffer(media.data) ? media.data : Buffer.from(media.data);
+      name = metadata.name || '';
+      mimeType = metadata.mimeType || '';
+      webViewLink = metadata.webViewLink || '';
+    }
     const digest = {byteCount: bytes.length, sha256: sha256Hex(bytes)};
-    const expected = expectedByRef.get(ref) || (raw && typeof raw === 'object' ? raw : {});
+    const expected = expectedByRef.get(cleaned.ref) || (raw && typeof raw === 'object' ? raw : {});
     const expectedByteCount = expected.byteCount === undefined || expected.byteCount === null ? null : Math.floor(safeNumber(expected.byteCount, -1));
     const expectedSha256 = safeText(expected.sha256 || expected.expectedSha256, 128).toLowerCase();
     const artifact = {
-      durableRef: ref,
-      fileId,
-      name: metadata.name || '',
-      mimeType: metadata.mimeType || '',
-      webViewLink: metadata.webViewLink || '',
+      durableRef: cleaned.ref,
+      provider: cleaned.provider,
+      fileId: cleaned.fileId || '',
+      bucket: cleaned.bucket || '',
+      object: cleaned.object || '',
+      name,
+      mimeType,
+      webViewLink,
       byteCount: digest.byteCount,
       sha256: digest.sha256,
       expectedByteCount,
       expectedSha256,
       byteCountMatches: expectedByteCount === null ? true : expectedByteCount === digest.byteCount,
       sha256Matches: expectedSha256 ? expectedSha256 === digest.sha256 : true,
-      header: inspectArtifactBytes(metadata.name || '', metadata.mimeType || '', bytes),
+      header: inspectArtifactBytes(name, mimeType, bytes),
     };
     if (args.decodeCheck === true) artifact.decodeCheck = await ffmpegDecodeCheck(bytes, artifact.name, artifact.mimeType, safeNumber(args.timeoutMs, DEFAULT_TIMEOUT_MS));
     artifacts.push(artifact);
@@ -1258,7 +1399,6 @@ function audioRenderJobRequest(args = {}, settings = {}) {
     publishToDrive: args.publishToDrive === false ? false : args.publishToDrive === true ? true : undefined,
     parentFolderId: safeText(args.parentFolderId, 220),
     owner: safeText(args.owner, 120),
-    sharedWith: Array.isArray(args.sharedWith) ? args.sharedWith.slice(0, 50) : safeText(args.sharedWith, 4000),
     project: safeText(args.project, 160),
     stage: safeText(args.stage, 120),
     approved: args.approved === true,
@@ -1306,6 +1446,24 @@ function audioProgressPatch(progress = {}, patch = {}) {
   return {...(progress || {}), ...patch, updatedAtMs: Date.now()};
 }
 
+function startAudioHeartbeatLoop(callback) {
+  let stopped = false;
+  let pending = Promise.resolve();
+  const intervalMs = Math.max(5000, Math.min(30000, Math.floor(AUDIO_RENDER_LEASE_MS / 3)));
+  const timer = setInterval(() => {
+    if (stopped) return;
+    pending = pending.then(() => callback()).catch(() => {});
+  }, intervalMs);
+  if (typeof timer.unref === 'function') timer.unref();
+  return {
+    async stop() {
+      stopped = true;
+      clearInterval(timer);
+      await pending;
+    },
+  };
+}
+
 async function executeAudioRenderJob({google, admin, auth, user, args = {}, helpers = {}, cartesiaApiKey = () => '', normalized = null, existingProgress = null}) {
   const {requestId, settings, recipe, inputSha256} = normalized || normalizeAudioRenderRequest(args, helpers);
   const actor = audioJobActor(user);
@@ -1314,34 +1472,81 @@ async function executeAudioRenderJob({google, admin, auth, user, args = {}, help
   const leaseId = randomUUID();
   const startedAtMs = Date.now();
   let progress = audioProgressPatch(existingProgress || {}, {phase: 'materializing_sources', synthesizedTakes: existingProgress && existingProgress.synthesizedTakes || 0, totalTakes: existingProgress && existingProgress.totalTakes || countSpeechTakesInRecipe(recipe), outputCount: 0});
+  const phaseTimings = {startedAtMs};
+  let publicationHeartbeat = null;
   await writeAudioAudit(helpers, admin, {actor, authKind, tool: 'audio.render', operation: 'audio.render', requestId, status: 'running', callerNote: args.callerNote, providerSummary: 'audio.render worker running.', result: null, inputSha256, audioRenderJob: {requestId, inputSha256, submittedAtMs: startedAtMs, publishToDrive: shouldPublishAudioToDrive(args, parentFolderId), storage: GENERATED_ARTIFACT_BUCKET, request: audioRenderJobRequest(args, settings)}, progress, lease: {leaseId, holder: 'home-center-audio-worker', heartbeatAtMs: Date.now(), expiresAtMs: Date.now() + AUDIO_RENDER_LEASE_MS}});
   try {
-    const materializedSources = await materializeSources({google, auth, sources: args.sources || {}});
+    const sourceCount = Object.keys(args.sources || {}).length;
+    const materializationHeartbeat = startAudioHeartbeatLoop(async () => {
+      progress = audioProgressPatch(progress, {phase: 'materializing_sources', sourceCount});
+      await writeAudioAudit(helpers, admin, {actor, authKind, tool: 'audio.render', operation: 'audio.render', requestId, status: 'running', callerNote: args.callerNote, providerSummary: 'audio.render materializing ' + sourceCount + ' verified source(s).', result: null, inputSha256, progress, lease: {leaseId, holder: 'home-center-audio-worker', heartbeatAtMs: Date.now(), expiresAtMs: Date.now() + AUDIO_RENDER_LEASE_MS}});
+    });
+    let materializedSources;
+    try {
+      materializedSources = await materializeSources({google, auth, sources: args.sources || {}});
+    } finally {
+      await materializationHeartbeat.stop();
+    }
+    phaseTimings.materializationMs = Date.now() - startedAtMs;
+    progress = audioProgressPatch(progress, {phase: 'sources_materialized', sourceCount, materializedSourceBytes: Object.values(materializedSources).reduce((sum, source) => sum + (source.byteCount || 0), 0)});
+    await writeAudioAudit(helpers, admin, {actor, authKind, tool: 'audio.render', operation: 'audio.render', requestId, status: 'running', callerNote: args.callerNote, providerSummary: 'audio.render verified ' + sourceCount + ' source(s).', result: null, inputSha256, progress, lease: {leaseId, holder: 'home-center-audio-worker', heartbeatAtMs: Date.now(), expiresAtMs: Date.now() + AUDIO_RENDER_LEASE_MS}}).catch(() => {});
     const onSpeechTake = async (take) => {
       progress = audioProgressPatch(progress, {phase: 'synthesizing', synthesizedTakes: Math.max((progress.synthesizedTakes || 0) + 1, (take.segmentIndex || 0) + 1), lastTake: {segmentIndex: take.segmentIndex, speaker: take.speaker, character: take.character, voiceId: take.voiceId, transcriptSha256: take.transcriptSha256, providerByteCount: take.providerByteCount, duration: take.duration}});
       await writeAudioAudit(helpers, admin, {actor, authKind, tool: 'audio.render', operation: 'audio.render', requestId, status: 'running', callerNote: args.callerNote, providerSummary: 'audio.render synthesized take ' + progress.synthesizedTakes + '.', result: null, inputSha256, progress, lease: {leaseId, holder: 'home-center-audio-worker', heartbeatAtMs: Date.now(), expiresAtMs: Date.now() + AUDIO_RENDER_LEASE_MS}}).catch(() => {});
     };
-    const rendered = await renderRecipe(recipe, materializedSources, {...settings, cartesiaApiKey, onSpeechTake});
-    const artifactContextBase = audioArtifactContext(args, rendered, user);
+    const renderHeartbeat = startAudioHeartbeatLoop(async () => {
+      const phase = progress.phase || 'rendering_recipe';
+      progress = audioProgressPatch(progress, {phase, sourceCount});
+      await writeAudioAudit(helpers, admin, {actor, authKind, tool: 'audio.render', operation: 'audio.render', requestId, status: 'running', callerNote: args.callerNote, providerSummary: 'audio.render heartbeat during ' + phase + '.', result: null, inputSha256, progress, lease: {leaseId, holder: 'home-center-audio-worker', heartbeatAtMs: Date.now(), expiresAtMs: Date.now() + AUDIO_RENDER_LEASE_MS}});
+    });
+    let rendered;
+    const renderStartedAtMs = Date.now();
+    progress = audioProgressPatch(progress, {phase: 'rendering_recipe', render: {phase: 'starting'}});
+    try {
+      rendered = await renderRecipe(recipe, materializedSources, {...settings, cartesiaApiKey, onSpeechTake, onRenderProgress: async (renderProgress) => { progress = audioProgressPatch(progress, {phase: renderProgress.phase || 'rendering_recipe', render: renderProgress}); }});
+      phaseTimings.renderRecipeMs = Date.now() - renderStartedAtMs;
+    } finally {
+      await renderHeartbeat.stop();
+    }
+    const artifactContextBase = audioArtifactContext(args, rendered);
     const publishToDrive = shouldPublishAudioToDrive(args, parentFolderId);
     if (rendered.finalMetrics.silent) throw audioError('Rendered audio is silent.', 422, 'audio_render_silent_output');
     if (rendered.finalMetrics.clippingCount > 0 && settings.allowClipping !== true) throw audioError('Rendered audio clipped; lower gain or enable allowClipping explicitly.', 422, 'audio_render_clipped_output');
     progress = audioProgressPatch(progress, {phase: 'publishing_artifacts', totalTakes: rendered.speechProvenance.length || progress.totalTakes || 0, outputCount: rendered.rendered.length});
     await writeAudioAudit(helpers, admin, {actor, authKind, tool: 'audio.render', operation: 'audio.render', requestId, status: 'running', callerNote: args.callerNote, providerSummary: 'audio.render publishing verified artifacts.', result: null, inputSha256, progress, lease: {leaseId, holder: 'home-center-audio-worker', heartbeatAtMs: Date.now(), expiresAtMs: Date.now() + AUDIO_RENDER_LEASE_MS}}).catch(() => {});
+    const publicationStartedAtMs = Date.now();
+    let publicationSubphase = 'outputs';
+    publicationHeartbeat = startAudioHeartbeatLoop(async () => {
+      progress = audioProgressPatch(progress, {phase: 'publishing_artifacts', publicationSubphase});
+      await writeAudioAudit(helpers, admin, {actor, authKind, tool: 'audio.render', operation: 'audio.render', requestId, status: 'running', callerNote: args.callerNote, providerSummary: 'audio.render heartbeat during artifact publication.', result: null, inputSha256, progress, lease: {leaseId, holder: 'home-center-audio-worker', heartbeatAtMs: Date.now(), expiresAtMs: Date.now() + AUDIO_RENDER_LEASE_MS}});
+    });
     const uploaded = [];
-    for (const item of rendered.rendered) uploaded.push(await uploadVerified({google, auth, parentFolderId, item, artifactContext: {...artifactContextBase, artifactType: /^image\//.test(item.mimeType) ? 'image' : 'audio'}, publishToDrive}));
+    for (let outputIndex = 0; outputIndex < rendered.rendered.length; outputIndex++) {
+      const item = rendered.rendered[outputIndex];
+      publicationSubphase = 'output_' + (outputIndex + 1) + '_of_' + rendered.rendered.length;
+      progress = audioProgressPatch(progress, {phase: 'publishing_artifacts', publicationSubphase, publishedOutputCount: outputIndex, publicationTargetCount: rendered.rendered.length + 1});
+      uploaded.push(await uploadVerified({google, auth, parentFolderId, item, artifactContext: {...artifactContextBase, artifactType: /^image\//.test(item.mimeType) ? 'image' : 'audio'}, publishToDrive}));
+    }
+    phaseTimings.outputPublicationMs = Date.now() - publicationStartedAtMs;
     const primary = uploaded.find((item) => item.mimeType === 'audio/ogg') || uploaded.find((item) => /^audio\//.test(item.mimeType)) || uploaded[0];
     const manifest = {
       operation: 'audio.render', renderer: 'home-center-deterministic-audio-v1', artifactStore: {primary: 'gcs', bucket: GENERATED_ARTIFACT_BUCKET, drivePublish: publishToDrive ? 'post_render_publish_step' : 'disabled', driveIsRenderCache: false}, runtimeBoundary: 'Home Center MCP async audio worker; direct Cartesia provider only when speech nodes are present; no Command Center, Codex, LLM, GitHub Actions renderer, or Termux runtime path.',
-      requestId, inputSha256, seed: rendered.seed, sampleRate: rendered.sampleRate, finalMetrics: {...rendered.finalMetrics, integratedLufs: Number.isFinite(rendered.finalMetrics.integratedLufs) ? rendered.finalMetrics.integratedLufs : null},
+      requestId, inputSha256, seed: rendered.seed, sampleRate: rendered.sampleRate, phaseTimings: {...phaseTimings, ...rendered.phaseTimings, totalBeforeManifestMs: Date.now() - startedAtMs}, finalMetrics: {...rendered.finalMetrics, integratedLufs: Number.isFinite(rendered.finalMetrics.integratedLufs) ? rendered.finalMetrics.integratedLufs : null},
       sourceCount: Object.keys(materializedSources).length, sources: Object.values(materializedSources).map((src) => ({name: src.name, originalRef: src.originalRef, provider: src.provider, mimeType: src.mimeType, byteCount: src.byteCount, sha256: src.sha256, decoded: src.decoded})),
       speech: {usesCartesia: rendered.usesCartesia, supportedEmotions: CARTESIA_SUPPORTED_EMOTIONS, canonicalProfiles: Object.fromEntries(Object.entries(CANONICAL_CHARACTER_PROFILES).filter(([key, profile]) => key === String(profile.character).toLowerCase()).map(([key, profile]) => [key, {character: profile.character, aliases: profile.aliases, provider: profile.provider, voiceName: profile.voiceName, voiceId: profile.voiceId, modelId: profile.modelId, speed: profile.speed, pitchSemitones: profile.pitchSemitones, direction: profile.direction}])), takes: rendered.speechProvenance, sequences: rendered.speechSequences, auditionTakes: rendered.auditionTakes, limits: {maxDurationSeconds: MAX_DURATION_SECONDS, maxSpeechSequenceSegments: SPEECH_SEQUENCE_MAX_SEGMENTS, defaultSpeechConcurrency: SPEECH_SEQUENCE_DEFAULT_CONCURRENCY, maxWavBytes: MAX_WAV_OUTPUT_BYTES, maxEncodedBytes: MAX_ENCODED_OUTPUT_BYTES, inlineAudioMaxBytes: INLINE_AUDIO_MAX_BYTES}},
       outputs: uploaded.map((item) => ({name: item.name, mimeType: item.mimeType, duration: item.clipMetrics.duration, sampleRate: item.clipMetrics.sampleRate, channelCount: item.clipMetrics.channelCount, bitDepth: item.mimeType === 'audio/wav' ? 16 : null, codec: item.format === 'ogg' ? 'vorbis' : item.format, byteCount: item.byteCount, sha256: item.sha256, readbackByteCount: item.readbackByteCount, readbackSha256: item.readbackSha256, peak: item.clipMetrics.peak, integratedLufs: Number.isFinite(item.clipMetrics.integratedLufs) ? item.clipMetrics.integratedLufs : null, clippingCount: item.clipMetrics.clippingCount, durableRef: item.durableRef, storageRef: item.storageRef, primaryStore: item.primaryStore, metadata: item.metadata, driveDurableRef: item.driveDurableRef, fileId: item.fileId, chatGptFileRef: item.chatGptFileRef, webViewLink: item.webViewLink})),
       noAgentRuntime: true, noCommandCenter: true, noCodex: true, noGithubActionsRenderer: true, noTermuxRuntime: true,
     };
     const manifestBytes = Buffer.from(JSON.stringify(manifest, null, 2), 'utf8');
+    publicationSubphase = 'manifest';
+    progress = audioProgressPatch(progress, {phase: 'publishing_artifacts', publicationSubphase, publishedOutputCount: uploaded.length, publicationTargetCount: rendered.rendered.length + 1});
+    const manifestStartedAtMs = Date.now();
     const manifestUpload = await uploadVerified({google, auth, parentFolderId, item: {name: safeText(args.manifestName, 240) || 'audio-render-manifest-' + requestId + '.json', format: 'json', mimeType: 'application/json', bytes: manifestBytes, byteCount: manifestBytes.length, sha256: sha256Hex(manifestBytes), clipMetrics: rendered.finalMetrics}, artifactContext: {...artifactContextBase, artifactType: 'manifest'}, publishToDrive});
-    const result = {...manifest, manifest: {fileId: manifestUpload.fileId, durableRef: manifestUpload.durableRef, storageRef: manifestUpload.storageRef, driveDurableRef: manifestUpload.driveDurableRef, primaryStore: manifestUpload.primaryStore, metadata: manifestUpload.metadata, byteCount: manifestUpload.byteCount, sha256: manifestUpload.sha256, readbackByteCount: manifestUpload.readbackByteCount, readbackSha256: manifestUpload.readbackSha256}, primaryOutput: manifest.outputs.find((item) => primary && item.name === primary.name) || manifest.outputs[0], ok: true, status: 'completed', completedAtMs: Date.now()};
+    await publicationHeartbeat.stop();
+    publicationHeartbeat = null;
+    phaseTimings.manifestPublicationMs = Date.now() - manifestStartedAtMs;
+    phaseTimings.totalMs = Date.now() - startedAtMs;
+    const result = {...manifest, phaseTimings: {...manifest.phaseTimings, ...phaseTimings}, manifest: {fileId: manifestUpload.fileId, durableRef: manifestUpload.durableRef, storageRef: manifestUpload.storageRef, driveDurableRef: manifestUpload.driveDurableRef, primaryStore: manifestUpload.primaryStore, metadata: manifestUpload.metadata, byteCount: manifestUpload.byteCount, sha256: manifestUpload.sha256, readbackByteCount: manifestUpload.readbackByteCount, readbackSha256: manifestUpload.readbackSha256}, primaryOutput: manifest.outputs.find((item) => primary && item.name === primary.name) || manifest.outputs[0], ok: true, status: 'completed', completedAtMs: Date.now()};
     const affectedStorageRefs = uploaded.map((u) => u.storageRef).concat([manifestUpload.storageRef]).filter(Boolean);
     const affectedFileIds = uploaded.map((u) => u.fileId).concat([manifestUpload.fileId]).filter(Boolean);
     const audit = await writeAudioAudit(helpers, admin, {actor, authKind, tool: 'audio.render', operation: 'audio.render', requestId, status: 'completed', fileId: primary && (primary.fileId || primary.storageRef) || '', affectedFileIds, affectedStorageRefs, callerNote: args.callerNote, providerSummary: 'Rendered deterministic audio artifact ' + (primary && primary.name || 'audio') + ' (' + (primary && primary.byteCount || 0) + ' bytes).', result, inputSha256, progress: audioProgressPatch(progress, {phase: 'completed', outputCount: uploaded.length + 1, completedAtMs: result.completedAtMs}), lease: null});
@@ -1355,6 +1560,7 @@ async function executeAudioRenderJob({google, admin, auth, user, args = {}, help
     result._mcpContent = {content};
     return result;
   } catch (err) {
+    if (publicationHeartbeat) await publicationHeartbeat.stop();
     const failure = {ok: false, status: 'failed', code: safeText(err && (err.failureKind || err.code), 120) || 'audio_render_failed', message: safeText(err && err.message, 500), inputSha256, failedAtMs: Date.now()};
     await writeAudioAudit(helpers, admin, {actor, authKind, tool: 'audio.render', operation: 'audio.render', requestId, status: 'failed', callerNote: args.callerNote, providerSummary: 'audio.render failed: ' + failure.code, result: failure, inputSha256, progress: audioProgressPatch(progress, {phase: 'failed', errorCode: failure.code}), lease: null}).catch(() => {});
     throw err;
@@ -1400,4 +1606,4 @@ async function audioRenderStatusOperation({admin, requestId, helpers = {}}) {
   return {ok: status !== 'missing', operation: 'audio.render_status', requestId, status, state: status, inputSha256: audit.inputSha256 || audit.result && audit.result.inputSha256 || '', result: audit.result || null, progress: audit.progress || null, lease: audit.lease || null, timestamps: {timestampMs: audit.timestampMs || 0, submittedAtMs: audit.submittedAtMs || audit.timestampMs || 0, updatedAtMs: audit.updatedAtMs || audit.timestampMs || 0, heartbeatAtMs}, audit: {...audit, result: null}};
 }
 
-module.exports = {renderAudioOperation, audioRenderStatusOperation, executeAudioRenderJob, inspectAudioArtifactsOperation, uploadVerified, renderRecipe, sanitizeRecipeText, materializeSources, resolveSpeechProfile, CARTESIA_SUPPORTED_EMOTIONS, CANONICAL_CHARACTER_PROFILES, limits: {MAX_DURATION_SECONDS, MAX_WAV_OUTPUT_BYTES, MAX_ENCODED_OUTPUT_BYTES, SPEECH_SEQUENCE_MAX_SEGMENTS, SPEECH_SEQUENCE_DEFAULT_CONCURRENCY, INLINE_AUDIO_MAX_BYTES}, primitives: {Clip, silence, tone, noise, trim, concat, loop, fade, crossfade, gain, normalizePeak, normalizeLufs, pan, pitchShift, timeStretch, reverse, biquadLike, compress, limit, distort, delay, reverb, envelope, timeline, duck, resample, toChannels, encodeWav, decodeWav, waveformPng, spectrogramPng, measure, layerSwordImpact, layerTavernCellar}};
+module.exports = {renderAudioOperation, audioRenderStatusOperation, executeAudioRenderJob, inspectAudioArtifactsOperation, uploadVerified, renderRecipe, sanitizeRecipeText, materializeSources, resolveSpeechProfile, CARTESIA_SUPPORTED_EMOTIONS, CANONICAL_CHARACTER_PROFILES, limits: {MAX_DURATION_SECONDS, MAX_WAV_OUTPUT_BYTES, MAX_ENCODED_OUTPUT_BYTES, SPEECH_SEQUENCE_MAX_SEGMENTS, SPEECH_SEQUENCE_DEFAULT_CONCURRENCY, INLINE_AUDIO_MAX_BYTES}, primitives: {Clip, silence, tone, noise, trim, concat, loop, fade, crossfade, gain, normalizePeak, normalizeLufs, pan, pitchShift, timeStretch, reverse, biquadLike, compress, limit, distort, delay, reverb, envelope, timeline, blockMix, duck, resample, toChannels, encodeWav, decodeWav, waveformPng, spectrogramPng, measure, layerSwordImpact, layerTavernCellar}};
