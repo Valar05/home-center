@@ -1181,14 +1181,26 @@ async function renderRecipe(recipe, sources, settings = {}) {
   return {clips, finalClip, rendered, finalMetrics: measure(finalClip), seed, sampleRate, phaseTimings: {graphElapsedMs}, speechProvenance: context.speechProvenance, speechSequences: context.speechSequences, auditionTakes: context.auditionTakes, usesCartesia: context.usesCartesia};
 }
 
+function parseSharedWith(value) {
+  if (Array.isArray(value)) return value.map((entry) => safeText(entry, 320).toLowerCase()).filter(Boolean);
+  const text = safeText(value, 4000);
+  if (!text) return [];
+  try {
+    const parsed = JSON.parse(text);
+    if (Array.isArray(parsed)) return parsed.map((entry) => safeText(entry, 320).toLowerCase()).filter(Boolean);
+  } catch (_) {}
+  return text.split(/[;,\s]+/).map((entry) => safeText(entry, 320).toLowerCase()).filter(Boolean);
+}
+
 function audioArtifactContext(args = {}, rendered = null, item = null) {
   const settings = args.settings && typeof args.settings === 'object' && !Array.isArray(args.settings) ? args.settings : {};
   const stage = safeText(args.stage || settings.stage || (args.approved === true || settings.approved === true ? 'final' : 'voice-test'), 120) || 'voice-test';
   const project = safeText(args.project || settings.project || 'home-center', 160) || 'home-center';
-  const owner = safeText(args.owner || settings.owner || 'drew', 120) || 'drew';
+  const ownerEmail = safeText(args.ownerEmail || settings.ownerEmail || args.owner || settings.owner || 'drew', 320).toLowerCase();
+  const owner = safeText(args.owner || settings.owner || ownerEmail || 'drew', 120) || 'drew';
   const engine = rendered && rendered.usesCartesia ? 'cartesia' : safeText(args.engine || settings.engine || 'home-center-audio', 120) || 'home-center-audio';
   const artifactType = item && /^image\//.test(item.mimeType) ? 'image' : 'audio';
-  return {owner, project, stage, engine, createdBy: 'home-center-mcp', jobId: safeText(args.jobId || settings.jobId, 180), commit: safeText(args.commit || settings.commit || process.env.K_REVISION || process.env.FUNCTION_TARGET || '', 80), approved: args.approved === true || settings.approved === true, requestId: safeText(args.requestId || args.idempotencyKey, 180), artifactType};
+  return {owner, ownerEmail, sharedWith: parseSharedWith(args.sharedWith || settings.sharedWith), project, stage, engine, createdBy: 'home-center-mcp', jobId: safeText(args.jobId || settings.jobId, 180), commit: safeText(args.commit || settings.commit || process.env.K_REVISION || process.env.FUNCTION_TARGET || '', 80), approved: args.approved === true || settings.approved === true, requestId: safeText(args.requestId || args.idempotencyKey, 180), artifactType};
 }
 
 function shouldPublishAudioToDrive(args = {}, parentFolderId = '') {
@@ -1202,7 +1214,7 @@ function shouldPublishAudioToDrive(args = {}, parentFolderId = '') {
 }
 
 async function uploadVerified({google, auth, parentFolderId, item, artifactContext = {}, publishToDrive = true}) {
-  const storageArtifact = await uploadGeneratedArtifact({...artifactContext, bytes: item.bytes, name: item.name, mimeType: item.mimeType});
+  const storageArtifact = await uploadGeneratedArtifact({...artifactContext, ownerEmail: safeText(artifactContext.ownerEmail, 320).toLowerCase(), sharedWith: JSON.stringify(Array.isArray(artifactContext.sharedWith) ? artifactContext.sharedWith : []), bytes: item.bytes, name: item.name, mimeType: item.mimeType});
   const driveArtifact = publishToDrive ? await publishGeneratedArtifactToDrive({google, auth, parentFolderId, artifact: storageArtifact, bytes: item.bytes}) : null;
   return {
     ...item,

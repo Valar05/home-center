@@ -63,9 +63,11 @@ function artifactPrefix({owner = 'drew', stage = 'temp', artifactType = '', mime
   return 'temp';
 }
 
-function artifactMetadata({owner = 'drew', project = 'home-center', stage = 'temp', engine = 'home-center', createdBy = 'home-center', jobId = '', commit = '', timestamp = '', approved = false, requestId = '', sha256 = '', byteCount = 0, artifactType = '', mimeType = ''} = {}) {
+function artifactMetadata({owner = 'drew', ownerEmail = '', sharedWith = '', project = 'home-center', stage = 'temp', engine = 'home-center', createdBy = 'home-center', jobId = '', commit = '', timestamp = '', approved = false, requestId = '', sha256 = '', byteCount = 0, artifactType = '', mimeType = ''} = {}) {
   return {
     owner: metadataValue(owner, 120) || 'drew',
+    ownerEmail: metadataValue(ownerEmail, 320),
+    sharedWith: metadataValue(sharedWith, 4000),
     project: metadataValue(project, 160) || 'home-center',
     stage: metadataValue(stage, 120) || 'temp',
     engine: metadataValue(engine, 120) || 'home-center',
@@ -109,14 +111,14 @@ async function readObject(ref) {
   return {bytes, bucket: parsed.bucket, object: parsed.object, contentType: meta.contentType || '', metadata: meta.metadata || {}};
 }
 
-async function uploadGeneratedArtifact({bucket = GENERATED_ARTIFACT_BUCKET, bytes, name, mimeType = 'application/octet-stream', owner = 'drew', project = 'home-center', stage = 'temp', engine = 'home-center', createdBy = 'home-center', jobId = '', commit = '', approved = false, requestId = '', artifactType = 'artifact', prefix = ''} = {}) {
+async function uploadGeneratedArtifact({bucket = GENERATED_ARTIFACT_BUCKET, bytes, name, mimeType = 'application/octet-stream', owner = 'drew', ownerEmail = '', sharedWith = '', project = 'home-center', stage = 'temp', engine = 'home-center', createdBy = 'home-center', jobId = '', commit = '', approved = false, requestId = '', artifactType = 'artifact', prefix = ''} = {}) {
   if (!Buffer.isBuffer(bytes)) bytes = Buffer.from(bytes || '');
   const sha256 = sha256Hex(bytes);
   const byteCount = bytes.length;
   const cleanName = safeSegment(name, 'artifact.bin');
   const basePrefix = prefix ? safeText(prefix, 500).replace(/^\/+|\/+$/g, '') : artifactPrefix({owner, stage, artifactType, mimeType, name});
   const object = `${basePrefix}/${timestampId()}-${requestId ? safeSegment(requestId, 'request') + '-' : ''}${sha256.slice(0, 16)}-${cleanName}`;
-  const metadata = artifactMetadata({owner, project, stage, engine, createdBy, jobId, commit, timestamp: new Date().toISOString(), approved, requestId, sha256, byteCount, artifactType, mimeType});
+  const metadata = artifactMetadata({owner, ownerEmail, sharedWith, project, stage, engine, createdBy, jobId, commit, timestamp: new Date().toISOString(), approved, requestId, sha256, byteCount, artifactType, mimeType});
   await saveObject({bucket, object, bytes, contentType: mimeType, metadata});
   const ref = `gs://${bucket}/${object}`;
   const readback = await readObject(ref);
