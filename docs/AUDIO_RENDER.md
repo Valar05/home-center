@@ -85,3 +85,9 @@ Rules:
 - Long-form speed comes from bounded speech concurrency, larger truth-preserving scene boundaries, canonical source reuse, and memory-bounded mix graphs—not from duplicate submissions or continuous ambience wallpaper.
 
 This doctrine was promoted after the Chapter 1 Scenes Five–Six production exposed a 40.8 MB Drive-source materialization detour. The accepted speech completed quickly and remained valid; only deterministic post-production required repair.
+
+### Production evidence and next throughput boundary
+
+The first live canonical-source recovery, `vacation-day1-scenes5-6-coastal-road-through-royal-cove-soundscape-v2-20260726`, reused the verified 40,772,934-byte narration WAV by its allowlisted GCS ref and expected SHA-256. Canonical materialization completed in about 24 seconds, the lease remained current throughout deterministic rendering, and the final 14:09.435 stereo OGG published with matching GCS/Drive hashes and successful independent decode checks. The recipe contained zero speech nodes, so recovery could not incur a second Cartesia charge.
+
+That run also established the next honest performance boundary: a 14:09 timeline required about 16:03 end to end even after source transfer was repaired. The in-memory mix graph, encoding, and publication path—not speech synthesis or canonical retrieval—now dominate long-form latency. The next renderer optimization should therefore be a bounded block/streaming mixer with phase timing in the manifest. Artifact publication must also renew the lease or emit explicit sub-phase checkpoints; a completed render sitting in `publishing_artifacts` must not become operationally ambiguous.
