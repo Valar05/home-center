@@ -69,3 +69,19 @@ Status may be `queued`, `running`, `completed`, `failed`, or `stalled`. A stale 
 ## Incident: Nine Below 2026-07-25
 
 Production request `fleshpunk-nine-below-final-v1-20260725` for Fleshpunk -- Nine Below timed out at the connector while the deployed synchronous renderer had only written its initial audit row. The deployed audit document records `status=running`, `inputSha256=70bb7f8753bc18b3c33bc29906f22ee212368a852d96a2b71a7e3ff3f67672c1`, no result, no affected Drive file ids, and no affected GCS refs. No matching `gs://home-center-generated` object was found for the final request id during reconciliation. Because that old lane did not persist per-take provider checkpoints, the charge-safe classification is stalled/quarantined until provider-side evidence is reviewed; do not resubmit the 187-take production request under a new idempotency key.
+
+
+## Canonical Source Reuse Doctrine
+
+A verified generated artifact must be reusable directly from its canonical `gs://home-center-generated/...` durable ref. Deterministic downstream work must not detour through a Drive publication copy merely because Drive is convenient for human playback.
+
+Rules:
+
+- GCS is the canonical render store; Drive publication is a delivery surface, not a render cache.
+- A source-backed render binds the exact durable ref and expected SHA-256. Only the configured generated-artifact bucket is readable through `audio.render`; arbitrary buckets and network URLs remain forbidden.
+- Paid or accepted speech is checkpointed as an immutable source artifact. Mixing, encoding, publication, indexing, and recovery reuse that artifact and must never resynthesize speech to repair a downstream failure.
+- Long source materialization must emit lease heartbeats and progress. A static phase label without a current heartbeat is not evidence of healthy work.
+- A stale or ambiguous request is quarantined under its original idempotency key. Recovery uses a new deterministic source-only request only after proving that no paid provider operation can be repeated.
+- Long-form speed comes from bounded speech concurrency, larger truth-preserving scene boundaries, canonical source reuse, and memory-bounded mix graphs—not from duplicate submissions or continuous ambience wallpaper.
+
+This doctrine was promoted after the Chapter 1 Scenes Five–Six production exposed a 40.8 MB Drive-source materialization detour. The accepted speech completed quickly and remained valid; only deterministic post-production required repair.
