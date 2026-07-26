@@ -1,11 +1,6 @@
 name: Purge Actions Artifacts
 
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - .github/workflows/purge-actions-artifacts.yml
   workflow_dispatch:
     inputs:
       confirm:
@@ -19,7 +14,7 @@ permissions:
 
 jobs:
   purge:
-    if: ${{ github.event_name == 'push' || inputs.confirm == 'PURGE_ALL' }}
+    if: ${{ inputs.confirm == 'PURGE_ALL' }}
     runs-on: ubuntu-latest
     steps:
       - name: Delete every repository Actions artifact
