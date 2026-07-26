@@ -80,6 +80,14 @@ A browser session owns mutable cookies, pages, and process state. Never multiple
 
 `home-center-audio-render`, `home-center-video-render`, and `home-center-browser-worker` are declared targets. A target is not a claim that the migration is deployed. Each target carries an explicit promotion gate in the registry.
 
+## Automatic enforcement
+
+Repository discovery scans shell deployment scripts and deployment workflows for direct Cloud Run, Cloud Run Job, Cloud Functions, and Firebase Functions commands. Every discovered surface must be bound to exactly one assignment or carry a narrow explicit exemption in the registry. Adding an unregistered deploy script fails CI.
+
+Bound scripts consume resource values from the registry through `tools/worker_profile_contract.mjs`. Resource environment overrides are forbidden. Before mutation, each script validates the resolved CPU, memory, concurrency, timeout, retry, and scale values. After mutation, it reads the live Cloud Run configuration back and fails if production differs from the contract.
+
+`AGENTS.md` routes ordinary worker work into this contract. No skill or invocation phrase is required. CI and post-deploy readback—not agent memory—are the enforcement authorities.
+
 ## Scale up, scale out, or stop
 
 Scale up one worker when:
@@ -137,9 +145,11 @@ The user's time is an explicit optimization target. Scale-to-zero and bounded in
 
 The contract is healthy when:
 
-- CI validates the registry and every bound deployment marker;
-- Blender defaults to 4 vCPU, 8 GiB, concurrency 1, scale to zero, and at most four instances;
-- Codex jobs default to 2 vCPU and 4 GiB with no automatic retry;
+- CI discovers every direct deployment surface and requires a binding or explicit exemption;
+- bound deployment scripts consume the registry and reject deployment-time resource overrides;
+- deploys validate resolved values before mutation and read back live configuration afterward;
+- Blender resolves to 4 vCPU, 8 GiB, concurrency 1, scale to zero, and at most four instances;
+- Codex jobs resolve to 2 vCPU and 4 GiB with no automatic retry;
 - the MCP control plane remains outside forge profiles;
 - target assignments cannot be described as deployed;
 - resource promotions carry same-input runtime evidence.
