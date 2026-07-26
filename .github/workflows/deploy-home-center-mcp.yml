@@ -1,6 +1,9 @@
 name: Deploy Home Center MCP
 
 on:
+  push:
+    branches:
+      - deploy/audio-ingest-audit-fix
   workflow_dispatch:
     inputs:
       project:
@@ -21,7 +24,7 @@ permissions:
 
 jobs:
   deploy:
-    if: ${{ inputs.confirm == 'deploy' }}
+    if: ${{ github.event_name == 'push' || inputs.confirm == 'deploy' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -39,6 +42,6 @@ jobs:
       - uses: google-github-actions/setup-gcloud@v2
       - name: Deploy Home Center audio services
         env:
-          GCLOUD_FUNCTIONS_REGION: ${{ inputs.region }}
-          COMMAND_CENTER_MCP_URL: https://${{ inputs.region }}-${{ inputs.project }}.cloudfunctions.net/commandCenterMcp/mcp
-        run: sh tools/deploy_functions_termux.sh "${{ inputs.project }}" homeCenterMcp audioLibraryApi
+          GCLOUD_FUNCTIONS_REGION: us-central1
+          COMMAND_CENTER_MCP_URL: https://us-central1-home-center-dclar.cloudfunctions.net/commandCenterMcp/mcp
+        run: sh tools/deploy_functions_termux.sh "home-center-dclar" homeCenterMcp audioLibraryApi
