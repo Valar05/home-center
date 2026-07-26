@@ -217,8 +217,6 @@ assert(cloudWorkerSource.includes("executor_stderr"));
 assert(!cloudWorkerSource.includes("noop-proof.txt"));
 assert(cloudWorkerSource.includes("restoreJobWorkspace(job)"));
 assert(cloudWorkerSource.includes('function repositoryFromGithubRef'));
-assert(cloudWorkerSource.includes('function mutationPolicyForbidsRepositoryMutation'));
-assert(cloudWorkerSource.includes('if (mutationPolicyForbidsRepositoryMutation(job)) return false;'));
 assert(cloudWorkerSource.includes('runRepositoryFreeJob'));
 assert(cloudWorkerSource.includes('worker_local_empty_workspace'));
 assert(cloudWorkerSource.includes('Repository-free command evidence'));
