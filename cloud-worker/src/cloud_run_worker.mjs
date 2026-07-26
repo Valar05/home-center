@@ -478,7 +478,15 @@ function runVerificationCommands(commands = []) {
   return results;
 }
 
+function mutationPolicyForbidsRepositoryMutation(job = {}) {
+  return policyDenies(job, ['editFiles'])
+    && policyDenies(job, ['commit'])
+    && policyDenies(job, ['push'])
+    && policyDenies(job, ['createPullRequest']);
+}
+
 function isMutationTicket(job = {}) {
+  if (mutationPolicyForbidsRepositoryMutation(job)) return false;
   const text = [
     job.objective || '',
     ...(job.acceptanceCriteria || []),
