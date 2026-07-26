@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - agent/sherman-factory-floor-evidence-route
+      - deploy/audio-block-mix-factory-floor-monotonic
   workflow_dispatch:
     inputs:
       project:
@@ -17,6 +18,10 @@ on:
       confirm:
         description: Type deploy to confirm
         required: true
+
+concurrency:
+  group: home-center-mcp-production
+  cancel-in-progress: false
 
 permissions:
   contents: read
