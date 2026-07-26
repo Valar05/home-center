@@ -7,11 +7,13 @@ Runtime boundary:
 ```text
 ChatGPT
   -> Home Center MCP drive_operation(operation="audio.render")
-  -> Home Center deterministic audio renderer
-  -> verified Drive artifacts plus structured MCP audio content
+  -> accepted receipt with requestId/inputSha256/statusOperation
+  -> Home Center async audio worker
+  -> verified GCS artifacts
+  -> optional Drive publish step only when publishToDrive is true or policy requests publication
 ```
 
-The renderer must not create Command Center jobs, Codex executions, LLM prompts, worker leases, GitHub Actions renders, or Termux runtime processes. The submitted `scriptText` is a declarative JSON audio recipe. It is not Python or JavaScript, and it cannot import modules, call the shell, open network sockets, read credentials, or access arbitrary filesystem paths.
+The renderer must not create Command Center jobs, Codex executions, LLM prompts, GitHub Actions renders, or Termux runtime processes. Long-form work is tracked as a Home Center audio render job with audit state, lease/heartbeat metadata, progress checkpoints, and status polling. The submitted `scriptText` is a declarative JSON audio recipe. It is not Python or JavaScript, and it cannot import modules, call the shell, open network sockets, read credentials, or access arbitrary filesystem paths.
 
 The first production renderer is `home-center-deterministic-audio-v1`, implemented in `functions/audio_render_service.js`. It uses fixed in-process DSP primitives for synthesis, layering, timeline placement, analysis, waveform PNGs, and spectrogram PNGs. Encoded OGG/MP3/FLAC exports use the pinned production dependency `ffmpeg-static` via argument-array process invocation; dependencies are installed at deployment/build time, not during a render.
 
@@ -55,6 +57,15 @@ Production defaults support at least 900 seconds per final clip and up to 240 `s
 
 Speech sequence synthesis uses bounded Cartesia concurrency. `settings.speechConcurrency` or `speech_sequence.concurrency` may tune it, with a conservative default of 3 and a hard cap of 8. Provider calls may complete out of order, but the final clip and segment provenance are stitched in submitted order. Any required segment failure fails the whole sequence; Home Center does not upload a partial final artifact as success.
 
-`audio.render` persists a `running` audit state before provider calls begin and writes completion before constructing optional inline content. If a client times out or rejects optional inline media, call `drive_operation(operation="audio.render_status", args={"requestId":"..."})` or retry the exact same `audio.render` request. The same request ID with identical normalized input returns the completed receipt without invoking Cartesia or writing Drive again. Reusing the request ID with different normalized input fails as an idempotency conflict.
+`audio.render` now returns promptly with an accepted receipt instead of holding the connector request open for long synthesis or encoding. The receipt includes `requestId`, `idempotencyKey`, `inputSha256`, current `status`, progress, lease metadata when available, and `statusOperation: {operation:"audio.render_status", args:{requestId}}`. The async worker performs synthesis, mixing, encoding, verification, and artifact publication outside the connector response path.
+
+The same request ID with the same canonical input hash attaches to the existing queued/running/completed job and must not invoke Cartesia or write artifacts again. The same request ID with a different canonical input hash fails as an idempotency conflict. `publishToDrive:false` is a hard policy boundary: audio outputs, previews, manifests, and compatibility resource links remain GCS-only and are not copied to Drive.
+
+Status may be `queued`, `running`, `completed`, `failed`, or `stalled`. A stale `running` job whose heartbeat expires becomes `stalled`; Home Center does not silently retry paid synthesis after an ambiguous provider failure. Operators must inspect checkpoints and provider evidence before resuming or quarantining affected takes.
 
 `speech_sequence` applies a documented mastering default: peak limiting at about -1 dB with no tempo change. Callers may override `master.limitDb`, but the default exists so raw stitched speech does not clip by accident. Numeric peak, LUFS, and clipping metrics are verification data only; human listening remains the authority for casting and emotional performance.
+
+
+## Incident: Nine Below 2026-07-25
+
+Production request `fleshpunk-nine-below-final-v1-20260725` for Fleshpunk -- Nine Below timed out at the connector while the deployed synchronous renderer had only written its initial audit row. The deployed audit document records `status=running`, `inputSha256=70bb7f8753bc18b3c33bc29906f22ee212368a852d96a2b71a7e3ff3f67672c1`, no result, no affected Drive file ids, and no affected GCS refs. No matching `gs://home-center-generated` object was found for the final request id during reconciliation. Because that old lane did not persist per-take provider checkpoints, the charge-safe classification is stalled/quarantined until provider-side evidence is reviewed; do not resubmit the 187-take production request under a new idempotency key.

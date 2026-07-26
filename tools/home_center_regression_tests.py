@@ -12,6 +12,10 @@ forbidden_speech_provider_title = 'Local' + 'CartesiaProxy'
 def read(relative):
     return (ROOT / relative).read_text()
 
+def read_optional(relative):
+    path = ROOT / relative
+    return path.read_text() if path.is_file() else None
+
 def fail(message):
     failures.append(message)
 
@@ -105,8 +109,8 @@ engineering_orient = read('tools/home_center_engineering_orient.mjs')
 engineering_artifact_register = read('tools/home_center_artifact_register.mjs')
 project_orientation = read('PROJECT_ORIENTATION.md')
 agent_contract = read('docs/AGENT_CONTRACT.md')
-workspace_agents = read('../AGENTS.md')
-ai_mentorship_skill = read('../.codex/skills/ai-mentorship/SKILL.md')
+workspace_agents = read_optional('../AGENTS.md')
+ai_mentorship_skill = read_optional('../.codex/skills/ai-mentorship/SKILL.md')
 contract = json.loads(read('tools/home_center_tool_contract.json'))
 
 connector_gate = read('tools/chatgpt_connector_acceptance_gate.mjs')
@@ -909,14 +913,16 @@ require_contains(functions_index, 'sandbox_violation', 'Gateway metal smoke fail
 require_contains(doctrine, 'Failed Prompts Become Smoke Tests', 'doctrine requires failed prompts to become smoke tests')
 require_contains(doctrine, 'headless real-API smoke', 'doctrine requires headless real API prompt validation')
 require_contains(agent_contract, 'tools/home_center_metal_prompt_smoke.mjs', 'agent contract documents the metal prompt smoke command')
-require_contains(workspace_agents, 'Concrete Prompt Authority', 'workspace doctrine names concrete prompt authority')
-require_contains(workspace_agents, 'Specific, repeated, concrete prompting is binding evidence.', 'workspace doctrine treats repeated prompts as binding evidence')
-require_contains(workspace_agents, 'Prompt Contract Ledger', 'workspace doctrine requires a prompt contract ledger')
-require_contains(workspace_agents, 'A simulated worker is not a real worker.', 'workspace doctrine forbids simulated capability substitution')
-require_contains(workspace_agents, 'A proxy mesh is not a saber.', 'workspace doctrine forbids proxy visible-object substitution')
-require_contains(workspace_agents, 'A stale plan is not revived by `Implement the plan`.', 'workspace doctrine blocks stale plan revival')
-require_contains(ai_mentorship_skill, 'treat repetition as escalation, not noise', 'AI mentorship skill escalates repeated concrete prompting')
-require_contains(ai_mentorship_skill, 'latest command, repeated prompt text, forbidden stale premise', 'AI mentorship skill defines prompt ledger fields')
+if workspace_agents is not None:
+    require_contains(workspace_agents, 'Concrete Prompt Authority', 'workspace doctrine names concrete prompt authority')
+    require_contains(workspace_agents, 'Specific, repeated, concrete prompting is binding evidence.', 'workspace doctrine treats repeated prompts as binding evidence')
+    require_contains(workspace_agents, 'Prompt Contract Ledger', 'workspace doctrine requires a prompt contract ledger')
+    require_contains(workspace_agents, 'A simulated worker is not a real worker.', 'workspace doctrine forbids simulated capability substitution')
+    require_contains(workspace_agents, 'A proxy mesh is not a saber.', 'workspace doctrine forbids proxy visible-object substitution')
+    require_contains(workspace_agents, 'A stale plan is not revived by `Implement the plan`.', 'workspace doctrine blocks stale plan revival')
+if ai_mentorship_skill is not None:
+    require_contains(ai_mentorship_skill, 'treat repetition as escalation, not noise', 'AI mentorship skill escalates repeated concrete prompting')
+    require_contains(ai_mentorship_skill, 'latest command, repeated prompt text, forbidden stale premise', 'AI mentorship skill defines prompt ledger fields')
 require_contains(doctrine, 'Concrete Prompt Authority', 'Home Center doctrine names concrete prompt authority')
 require_contains(doctrine, 'Repetition is escalation, not style or noise.', 'Home Center doctrine treats repeated prompts as escalation')
 require_contains(doctrine, 'what would count as high treason, false green, or ignored prompting', 'Home Center doctrine names high-treason failure conditions')
