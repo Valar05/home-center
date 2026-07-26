@@ -1377,7 +1377,7 @@ async function auditWrite(admin, entry) {
   const requestId = stableRequestId(entry.requestId);
   const ref = mcpCollection(admin, 'driveBridgeAudit').doc(requestId);
   const existing = await ref.get();
-  if (existing.exists && existing.data().status === 'success') {
+  if (existing.exists && ['success', 'completed'].includes(existing.data().status)) {
     return {idempotent: true, audit: existing.data()};
   }
   const payload = {
@@ -1389,6 +1389,7 @@ async function auditWrite(admin, entry) {
     requestId,
     fileId: safeText(entry.fileId, 220),
     affectedFileIds: Array.isArray(entry.affectedFileIds) ? entry.affectedFileIds.map((v) => safeText(v, 220)).filter(Boolean) : [],
+    affectedStorageRefs: Array.isArray(entry.affectedStorageRefs) ? entry.affectedStorageRefs.map((v) => safeText(v, 1200)).filter(Boolean) : [],
     oldMetadata: entry.oldMetadata || null,
     newMetadata: entry.newMetadata || null,
     oldParents: entry.oldParents || [],
@@ -1400,6 +1401,11 @@ async function auditWrite(admin, entry) {
     status: safeText(entry.status, 80) || 'success',
     providerSummary: safeText(entry.providerSummary, 1000),
     result: entry.result || null,
+    audioRenderJob: entry.audioRenderJob || null,
+    progress: entry.progress || null,
+    lease: entry.lease || null,
+    submittedAtMs: Math.floor(safeNumber(entry.submittedAtMs, 0)) || null,
+    updatedAtMs: Math.floor(safeNumber(entry.updatedAtMs, nowMs())) || nowMs(),
     inputSha256: safeText(entry.inputSha256, 128),
     error: safeText(entry.error, 1000),
   };
@@ -4042,7 +4048,7 @@ function runDroobiedooContextOperation(operation, args = {}) {
 
 function driveOperationRegistry() {
   return {
-    version: '2026-07-26.audio-block-mix-factory-floor-v1',
+    version: '2026-07-26.audio-block-mix-factory-floor-v2',
     invocationTool: 'drive_operation',
     cachePolicy: 'New bridge and simulation operations should be invokable through drive_operation so ChatGPT does not need a top-level MCP tool refresh for every backend code change. Cartesia TTS is a direct Home Center MCP provider operation; it must not be routed through Command Center jobs or workers.',
     operations: {
