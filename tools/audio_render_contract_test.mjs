@@ -21,6 +21,7 @@ assert(homeCenterSource.includes('speech_sequence'), 'registry must advertise sp
 assert(homeCenterSource.includes("requireCreditGatedEmail(user && user.email, 'audio.render')"), 'audio.render credit-capable path must be approved-account gated');
 
 const {driveOperationRunOperation, createHomeCenterMcpServer} = require('../functions/home_center_mcp.js');
+const {uploadGeneratedArtifact} = require('../functions/artifact_bucket.js');
 const cartesiaPitchShift = require('../functions/cartesia_pitch_shift.js');
 const {sanitizeRecipeText, renderRecipe, executeAudioRenderJob, materializeSources, resolveSpeechProfile, CARTESIA_SUPPORTED_EMOTIONS, primitives} = require('../functions/audio_render_service.js');
 
@@ -152,6 +153,13 @@ const inlineSource = wav.toString('base64');
 const materialized = await materializeSources({sources: {dialogue: {contentBase64: inlineSource, mimeType: 'audio/wav', sha256: sha256(wav)}}});
 assert.equal(materialized.dialogue.sha256, sha256(wav));
 assert.equal(materialized.dialogue.decoded.channelCount, 2);
+const canonicalSource = await uploadGeneratedArtifact({bytes: wav, name: 'canonical-source.wav', mimeType: 'audio/wav', owner: 'drew', project: 'vacation-of-a-lifetime', stage: 'parts', artifactType: 'audio', requestId: 'canonical-source-contract'});
+const canonicalMaterialized = await materializeSources({sources: {narration: {ref: canonicalSource.storageRef, sha256: canonicalSource.sha256}}});
+assert.equal(canonicalMaterialized.narration.provider, 'generated_artifact_bucket');
+assert.equal(canonicalMaterialized.narration.originalRef, canonicalSource.storageRef);
+assert.equal(canonicalMaterialized.narration.sha256, canonicalSource.sha256);
+assert.equal(canonicalMaterialized.narration.decoded.duration, materialized.dialogue.decoded.duration);
+await assert.rejects(() => materializeSources({sources: {forbidden: {ref: 'gs://another-bucket/audio/source.wav'}}}), /canonical generated artifact bucket/);
 await assert.rejects(() => materializeSources({sources: {bad: {contentBase64: inlineSource, mimeType: 'audio/wav', sha256: '0'.repeat(64)}}}), /sha256 mismatch/);
 await assert.rejects(() => materializeSources({sources: {net: {ref: 'https://example.com/a.wav'}}}), /Unsupported source ref provider/);
 
