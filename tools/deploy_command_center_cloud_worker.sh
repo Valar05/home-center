@@ -12,8 +12,14 @@ WORKER_TOKEN_SECRET="${COMMAND_CENTER_WORKER_TOKEN_SECRET:-COMMAND_CENTER_CLOUD_
 OPENAI_SECRET="${COMMAND_CENTER_OPENAI_SECRET:-OPENAI_API_KEY}"
 GITHUB_SECRET="${COMMAND_CENTER_GITHUB_SECRET:-GITHUB_TOKEN}"
 SERVICE_ACCOUNT="${COMMAND_CENTER_WORKER_SERVICE_ACCOUNT:-}"
-CPU="${COMMAND_CENTER_WORKER_CPU:-2}"
-MEMORY="${COMMAND_CENTER_WORKER_MEMORY:-4Gi}"
+
+eval "$(node "$ROOT/tools/worker_profile_contract.mjs" shell command-center-codex)"
+node "$ROOT/tools/worker_profile_contract.mjs" validate-resolved command-center-codex \
+  "cpu=$WORKER_CPU" \
+  "memory=$WORKER_MEMORY" \
+  "tasks=$WORKER_TASKS" \
+  "maxRetries=$WORKER_MAX_RETRIES" \
+  "timeoutSeconds=$WORKER_TIMEOUT_SECONDS"
 
 gcloud services enable run.googleapis.com cloudbuild.googleapis.com artifactregistry.googleapis.com secretmanager.googleapis.com storage.googleapis.com --project "$PROJECT" >/dev/null
 
@@ -49,21 +55,26 @@ gcloud run jobs deploy "$JOB" \
   --project "$PROJECT" \
   --region "$REGION" \
   --image "$IMAGE" \
-  --tasks 1 \
-  --max-retries 0 \
-  --cpu "$CPU" \
-  --memory "$MEMORY" \
-  --task-timeout 3600 \
+  --tasks "$WORKER_TASKS" \
+  --max-retries "$WORKER_MAX_RETRIES" \
+  --cpu "$WORKER_CPU" \
+  --memory "$WORKER_MEMORY" \
+  --task-timeout "$WORKER_TIMEOUT_SECONDS" \
   --set-env-vars "COMMAND_CENTER_BASE=https://us-central1-${PROJECT}.cloudfunctions.net/commandCenterMcp,COMMAND_CENTER_WORKSPACE_SNAPSHOT_BUCKET=${SNAPSHOT_BUCKET}" \
   --set-secrets "COMMAND_CENTER_WORKER_TOKEN=${WORKER_TOKEN_SECRET}:latest,OPENAI_API_KEY=${OPENAI_SECRET}:latest,GH_TOKEN=${GITHUB_SECRET}:latest" \
   $SERVICE_ACCOUNT_ARG
+
+LIVE_CONFIG="$(mktemp)"
+trap 'rm -f "$LIVE_CONFIG"' EXIT HUP INT TERM
+gcloud run jobs describe "$JOB" --project "$PROJECT" --region "$REGION" --format=json >"$LIVE_CONFIG"
+node "$ROOT/tools/worker_profile_contract.mjs" verify-live command-center-codex <"$LIVE_CONFIG"
 
 cat <<EOF
 Cloud worker image deployed:
   image: ${IMAGE}
   job: ${JOB}
-  profile: codex-job
-  cpu: ${CPU}
-  memory: ${MEMORY}
+  profile: ${WORKER_PROFILE}
+  cpu: ${WORKER_CPU}
+  memory: ${WORKER_MEMORY}
   snapshot bucket: gs://${SNAPSHOT_BUCKET}
 EOF
