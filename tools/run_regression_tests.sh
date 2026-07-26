@@ -58,6 +58,9 @@ node --check tools/she_raw_seed_corpus_firestore.mjs
 node tools/command_center_oneshot_worker.mjs --self-test
 node --check functions/index.js
 node --check functions/hosted_speech_provider.js
+node --check functions/household_evidence.js
+node --check tools/household_evidence_contract_test.mjs
+node tools/household_evidence_contract_test.mjs
 node --check tools/cartesia_mcp_artifact_contract_test.mjs
 node tools/cartesia_mcp_artifact_contract_test.mjs
 node --check tools/home_center_metal_prompt_smoke.mjs
