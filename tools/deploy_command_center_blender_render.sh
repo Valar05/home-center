@@ -11,11 +11,12 @@ CACHE_BUCKET="${COMMAND_CENTER_RENDER_BUCKET:-${HOME_CENTER_GENERATED_BUCKET:-ho
 SERVICE_ACCOUNT="${COMMAND_CENTER_RENDER_SERVICE_ACCOUNT:-}"
 
 eval "$(node "$ROOT/tools/worker_profile_contract.mjs" shell command-center-blender-render)"
+MIN_INSTANCES="${COMMAND_CENTER_RENDER_MIN_INSTANCES:-0}"
 node "$ROOT/tools/worker_profile_contract.mjs" validate-resolved command-center-blender-render \
   "cpu=$WORKER_CPU" \
   "memory=$WORKER_MEMORY" \
   "concurrency=$WORKER_CONCURRENCY" \
-  "minInstances=$WORKER_MIN_INSTANCES" \
+  "minInstances=$MIN_INSTANCES" \
   "maxInstances=$WORKER_MAX_INSTANCES" \
   "timeoutSeconds=$WORKER_TIMEOUT_SECONDS"
 
@@ -45,7 +46,7 @@ gcloud run deploy "$SERVICE" \
   --memory "$WORKER_MEMORY" \
   --concurrency "$WORKER_CONCURRENCY" \
   --timeout "$WORKER_TIMEOUT_SECONDS" \
-  --min-instances "$WORKER_MIN_INSTANCES" \
+  --min-instances "$MIN_INSTANCES" \
   --max-instances "$WORKER_MAX_INSTANCES" \
   --cpu-boost \
   --set-env-vars "RENDER_CACHE_BUCKET=${CACHE_BUCKET},HOME_CENTER_GENERATED_BUCKET=${CACHE_BUCKET},COMMAND_CENTER_GENERATED_BUCKET=${CACHE_BUCKET}" \
@@ -75,7 +76,7 @@ Command Center Blender render service deployed:
   cpu: ${WORKER_CPU}
   memory: ${WORKER_MEMORY}
   concurrency: ${WORKER_CONCURRENCY}
-  instances: ${WORKER_MIN_INSTANCES}-${WORKER_MAX_INSTANCES}
+  instances: ${MIN_INSTANCES}-${WORKER_MAX_INSTANCES}
   cache: gs://${CACHE_BUCKET}
   invoker: ${FUNCTIONS_SA}
 
