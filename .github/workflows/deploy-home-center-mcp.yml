@@ -37,8 +37,8 @@ jobs:
           workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
           service_account: ${{ secrets.GCP_DEPLOY_SERVICE_ACCOUNT }}
       - uses: google-github-actions/setup-gcloud@v2
-      - name: Deploy homeCenterMcp
+      - name: Deploy Home Center audio services
         env:
           GCLOUD_FUNCTIONS_REGION: ${{ inputs.region }}
           COMMAND_CENTER_MCP_URL: https://${{ inputs.region }}-${{ inputs.project }}.cloudfunctions.net/commandCenterMcp/mcp
-        run: sh tools/deploy_functions_termux.sh "${{ inputs.project }}" homeCenterMcp
+        run: sh tools/deploy_functions_termux.sh "${{ inputs.project }}" homeCenterMcp audioLibraryApi
