@@ -1215,14 +1215,15 @@ function shouldPublishAudioToDrive(args = {}, parentFolderId = '') {
 
 async function uploadVerified({google, auth, parentFolderId, item, artifactContext = {}, publishToDrive = true}) {
   const storageArtifact = await uploadGeneratedArtifact({...artifactContext, ownerEmail: safeText(artifactContext.ownerEmail, 320).toLowerCase(), sharedWith: JSON.stringify(Array.isArray(artifactContext.sharedWith) ? artifactContext.sharedWith : []), bytes: item.bytes, name: item.name, mimeType: item.mimeType});
+  const storageRef = 'gs://' + GENERATED_ARTIFACT_BUCKET + '/' + storageArtifact.object;
   const driveArtifact = publishToDrive ? await publishGeneratedArtifactToDrive({google, auth, parentFolderId, artifact: storageArtifact, bytes: item.bytes}) : null;
   return {
     ...item,
     bytes: undefined,
     bucket: storageArtifact.bucket,
     object: storageArtifact.object,
-    storageRef: storageArtifact.storageRef,
-    durableRef: storageArtifact.storageRef,
+    storageRef,
+    durableRef: storageRef,
     primaryStore: 'gcs',
     artifactBucket: GENERATED_ARTIFACT_BUCKET,
     metadata: storageArtifact.metadata,
