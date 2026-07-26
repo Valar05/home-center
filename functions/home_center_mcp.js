@@ -4031,7 +4031,7 @@ function runDroobiedooContextOperation(operation, args = {}) {
 
 function driveOperationRegistry() {
   return {
-    version: '2026-07-26.audio-render-drive-binary-v1',
+    version: '2026-07-26.audio-library-ingest-v1',
     invocationTool: 'drive_operation',
     cachePolicy: 'New bridge and simulation operations should be invokable through drive_operation so ChatGPT does not need a top-level MCP tool refresh for every backend code change. Cartesia TTS is a direct Home Center MCP provider operation; it must not be routed through Command Center jobs or workers.',
     operations: {
@@ -4067,6 +4067,19 @@ function driveOperationRegistry() {
           whenUserSays: 'Recover, download, mux, inspect, or locally materialize a Drive-hosted binary artifact such as Cartesia audio.',
           prefer: 'Call drive_operation repeatedly with operation=drive_read_binary_chunk, preserving nextOffset until eof=true, then decode and concatenate the bounded Base64 chunks in order.',
           verification: 'Verify every chunkSha256 before append and verify final byte count against totalSize. Never substitute another synthesis provider because binary transfer failed.',
+        },
+      },
+      'audio.ingest_drive': {
+        summary: 'Stream one Drive-hosted audio file into canonical generated storage, verify source and GCS readback bytes/SHA-256, and preserve Drive provenance without mutating Drive.',
+        write: true,
+        requiresRequestId: true,
+        requiredScopes: ['https://www.googleapis.com/auth/drive'],
+        input: {fileId: 'string', requestId: 'string', approved: 'must be true', objectName: 'optional deterministic audio/ object name', project: 'optional string', stage: 'optional finals|parts|probes|rejected|unclassified', sourcePath: 'optional original Drive path', expectedSize: 'optional integer', expectedDriveMd5: 'optional Drive MD5 hex', ownerEmail: 'optional owner override; defaults authenticated user', sharedWith: 'optional email array'},
+        output: {verified: 'boolean', reused: 'boolean', source: 'Drive id/name/size/MD5/path', destination: 'bucket/object/gs URI/size/SHA-256/metadata', readback: 'byte count/SHA-256', driveMutated: 'false'},
+        agentRecipe: {
+          whenUserSays: 'Ingest, backfill, or migrate an existing Drive audio artifact into the canonical generated-audio bucket.',
+          prefer: 'Call drive_operation once per file with operation=audio.ingest_drive, approved=true, a stable requestId, and explicit project/stage/sourcePath metadata. Keep Drive untouched until a later human-approved cleanup manifest.',
+          verification: 'Require verified=true, matching source and GCS byte counts/SHA-256, and a canonical gs:// receipt. Never trash Drive in the ingest call.',
         },
       },
       'context_sync.publish_snapshot': {
@@ -4238,6 +4251,194 @@ async function readDriveBinaryChunkOperation({google, auth, args = {}}) {
   return {fileId, name: metadata.name || '', mimeType: metadata.mimeType || 'application/octet-stream', offset, byteCount: chunk.length, totalSize, nextOffset: nextOffset < totalSize ? nextOffset : null, eof: nextOffset >= totalSize, chunkBase64: chunk.toString('base64'), chunkSha256: createHash('sha256').update(chunk).digest('hex'), driveMd5Checksum: metadata.md5Checksum || '', metadata: chatGptDriveFile(metadata)};
 }
 
+const AUDIO_INGEST_BUCKET = process.env.HOME_CENTER_GENERATED_BUCKET || 'home-center-generated';
+const AUDIO_INGEST_EXTENSIONS = /\.(wav|mp3|ogg|flac|m4a|aac|opus)$/i;
+const AUDIO_INGEST_MAX_BYTES = Number(process.env.HOME_CENTER_AUDIO_INGEST_MAX_BYTES || 512 * 1024 * 1024);
+const audioIngestStorage = new Storage();
+
+function sanitizeAudioIngestSegment(value, fallback = 'item') {
+  const clean = safeText(String(value || ''), 240).replace(/[^A-Za-z0-9_.@-]+/g, '_').replace(/^_+|_+$/g, '');
+  return clean || fallback;
+}
+
+function normalizedAudioIngestStage(value) {
+  const stage = safeText(value, 80).toLowerCase() || 'unclassified';
+  if (!['finals', 'parts', 'probes', 'rejected', 'unclassified'].includes(stage)) {
+    throw Object.assign(new Error('stage must be finals, parts, probes, rejected, or unclassified.'), {status: 400});
+  }
+  return stage;
+}
+
+function validatedAudioIngestObjectName(value) {
+  const name = safeText(value, 1024);
+  if (!name.startsWith('audio/') || name.includes('\0') || name.split('/').some((part) => part === '.' || part === '..')) {
+    throw Object.assign(new Error('objectName must be a safe path under audio/.'), {status: 400});
+  }
+  return name;
+}
+
+function hashReadableStream(stream) {
+  return new Promise((resolve, reject) => {
+    const hash = createHash('sha256');
+    let byteCount = 0;
+    stream.on('data', (chunk) => {
+      const bytes = Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk);
+      byteCount += bytes.length;
+      hash.update(bytes);
+    });
+    stream.on('end', () => resolve({byteCount, sha256: hash.digest('hex')}));
+    stream.on('error', reject);
+  });
+}
+
+async function ingestDriveAudioOperation({google, admin, auth, user, args = {}, storage = audioIngestStorage, recordAudit = recordActionAudit}) {
+  if (args.approved !== true) {
+    throw Object.assign(new Error('audio.ingest_drive requires approved=true. Drive remains untouched.'), {status: 409});
+  }
+  const requestId = createRequestId(args.requestId || args.idempotencyKey);
+  const fileId = safeDriveFileId(args.fileId);
+  const ownerEmail = safeText((user && user.email) || args.ownerEmail, 320).toLowerCase();
+  if (!ownerEmail) throw Object.assign(new Error('An authenticated owner email is required.'), {status: 401});
+  const drive = google.drive({version: 'v3', auth});
+  const metadata = (await drive.files.get({
+    fileId,
+    fields: 'id,name,mimeType,size,md5Checksum,modifiedTime,webViewLink,parents',
+    supportsAllDrives: true,
+  })).data || {};
+  const mimeType = safeText(metadata.mimeType, 160) || 'application/octet-stream';
+  const sourceName = safeText(metadata.name, 500) || fileId;
+  if (!/^audio\//i.test(mimeType) && !AUDIO_INGEST_EXTENSIONS.test(sourceName)) {
+    throw Object.assign(new Error('audio.ingest_drive only accepts stored audio files.'), {status: 415});
+  }
+  const totalSize = Number(metadata.size || 0);
+  if (!Number.isSafeInteger(totalSize) || totalSize < 1 || totalSize > AUDIO_INGEST_MAX_BYTES) {
+    throw Object.assign(new Error('Drive audio size is missing, empty, or exceeds the ingest limit.'), {status: 413});
+  }
+  if (args.expectedSize !== undefined && Number(args.expectedSize) !== totalSize) {
+    throw Object.assign(new Error('Drive byte count does not match expectedSize.'), {status: 409});
+  }
+  const driveMd5 = safeText(metadata.md5Checksum, 64).toLowerCase();
+  const expectedDriveMd5 = safeText(args.expectedDriveMd5, 64).toLowerCase();
+  if (expectedDriveMd5 && driveMd5 !== expectedDriveMd5) {
+    throw Object.assign(new Error('Drive MD5 does not match expectedDriveMd5.'), {status: 409});
+  }
+  const project = sanitizeAudioIngestSegment(args.project, 'unclassified');
+  const stage = normalizedAudioIngestStage(args.stage);
+  const sourcePath = safeText(args.sourcePath, 1000);
+  const sharedWith = Array.isArray(args.sharedWith) ? args.sharedWith.map((email) => safeText(email, 320).toLowerCase()).filter(Boolean) : [];
+  const ownerSegment = sanitizeAudioIngestSegment(ownerEmail, 'legacy');
+  const nameSegment = sanitizeAudioIngestSegment(sourceName, 'audio.bin');
+  const defaultObjectName = ['audio', ownerSegment, 'drive-import', project, stage, fileId + '-' + nameSegment].join('/');
+  const objectName = validatedAudioIngestObjectName(args.objectName || defaultObjectName);
+  const bucketName = AUDIO_INGEST_BUCKET;
+  const bucket = storage.bucket(bucketName);
+  const destination = bucket.file(objectName);
+  const [destinationExists] = await destination.exists();
+  if (destinationExists) {
+    const [existingMetadata] = await destination.getMetadata();
+    const custom = existingMetadata && existingMetadata.metadata || {};
+    const sameSource = safeText(custom.sourceDriveFileId, 220) === fileId;
+    const sameSize = Number(existingMetadata && existingMetadata.size || 0) === totalSize;
+    const sameMd5 = !driveMd5 || !safeText(custom.sourceDriveMd5, 64) || safeText(custom.sourceDriveMd5, 64).toLowerCase() === driveMd5;
+    if (!sameSource || !sameSize || !sameMd5) {
+      throw Object.assign(new Error('Canonical destination already exists with different Drive provenance.'), {status: 409});
+    }
+    const readback = await hashReadableStream(destination.createReadStream());
+    const expectedSha256 = safeText(custom.sha256, 64).toLowerCase();
+    if (!expectedSha256 || readback.byteCount !== totalSize || readback.sha256 !== expectedSha256) {
+      throw Object.assign(new Error('Existing canonical destination failed readback verification.'), {status: 502});
+    }
+    return {
+      ok: true,
+      verified: true,
+      reused: true,
+      requestId,
+      source: {fileId, name: sourceName, mimeType, byteCount: totalSize, driveMd5Checksum: driveMd5, sourcePath, webViewLink: metadata.webViewLink || ''},
+      destination: {bucket: bucketName, objectName, storageRef: 'gs://' + bucketName + '/' + objectName, byteCount: readback.byteCount, sha256: readback.sha256, ownerEmail, project, stage},
+      readback,
+      driveMutated: false,
+    };
+  }
+
+  const tempObjectName = ['temp', 'audio-ingest', sanitizeAudioIngestSegment(requestId, 'request'), randomUUID() + '.part'].join('/');
+  const tempFile = bucket.file(tempObjectName);
+  let destinationCreated = false;
+  try {
+    const sourceHash = createHash('sha256');
+    let sourceByteCount = 0;
+    const hashTap = new Transform({
+      transform(chunk, encoding, callback) {
+        const bytes = Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk, encoding);
+        sourceByteCount += bytes.length;
+        sourceHash.update(bytes);
+        callback(null, bytes);
+      },
+    });
+    const downloaded = await drive.files.get(
+      {fileId, alt: 'media', supportsAllDrives: true},
+      {responseType: 'stream'},
+    );
+    if (!downloaded.data || typeof downloaded.data.pipe !== 'function') {
+      throw Object.assign(new Error('Drive did not return a readable audio stream.'), {status: 502});
+    }
+    await pipeline(
+      downloaded.data,
+      hashTap,
+      tempFile.createWriteStream({
+        resumable: false,
+        validation: false,
+        metadata: {contentType: 'application/octet-stream', metadata: {ingestStatus: 'staging', requestId, sourceDriveFileId: fileId}},
+      }),
+    );
+    const sourceSha256 = sourceHash.digest('hex');
+    if (sourceByteCount !== totalSize) {
+      throw Object.assign(new Error('Drive stream byte count did not match Drive metadata.'), {status: 502});
+    }
+    const stagedReadback = await hashReadableStream(tempFile.createReadStream());
+    if (stagedReadback.byteCount !== sourceByteCount || stagedReadback.sha256 !== sourceSha256) {
+      throw Object.assign(new Error('Staged GCS object failed byte-count/SHA-256 verification.'), {status: 502});
+    }
+
+    await tempFile.copy(destination, {preconditionOpts: {ifGenerationMatch: 0}});
+    destinationCreated = true;
+    const customMetadata = {
+      ownerEmail,
+      sharedWith: JSON.stringify(sharedWith),
+      requestId,
+      project,
+      stage,
+      sha256: sourceSha256,
+      sourceDriveFileId: fileId,
+      sourceDriveMd5: driveMd5,
+      sourceDrivePath: sourcePath,
+      sourceDriveName: sourceName,
+      ingestStatus: 'verified',
+      migrationPolicy: 'drive-preserved-pending-explicit-cleanup',
+    };
+    await destination.setMetadata({contentType: mimeType, metadata: customMetadata});
+    const readback = await hashReadableStream(destination.createReadStream());
+    if (readback.byteCount !== sourceByteCount || readback.sha256 !== sourceSha256) {
+      throw Object.assign(new Error('Canonical GCS destination failed readback verification.'), {status: 502});
+    }
+    await recordAudit(user, 'audio.ingest_drive', fileId, 'Ingested verified Drive audio to gs://' + bucketName + '/' + objectName + ' without mutating Drive.', requestId);
+    return {
+      ok: true,
+      verified: true,
+      reused: false,
+      requestId,
+      source: {fileId, name: sourceName, mimeType, byteCount: sourceByteCount, sha256: sourceSha256, driveMd5Checksum: driveMd5, sourcePath, webViewLink: metadata.webViewLink || ''},
+      destination: {bucket: bucketName, objectName, storageRef: 'gs://' + bucketName + '/' + objectName, byteCount: readback.byteCount, sha256: readback.sha256, ownerEmail, project, stage, metadata: customMetadata},
+      readback,
+      driveMutated: false,
+    };
+  } catch (err) {
+    if (destinationCreated) await destination.delete({ignoreNotFound: true}).catch(() => {});
+    throw err;
+  } finally {
+    await tempFile.delete({ignoreNotFound: true}).catch(() => {});
+  }
+}
+
 async function driveOperationRunOperation({google, admin, auth, user, extra = null, googleClientId = '', googleClientSecret = '', githubToken = () => '', githubAdmin = {}, cartesiaApiKey = () => '', args = {}}) {
   const operation = safeText(args.operation || args.type || args.toolName, 120);
   if (!operation) throw Object.assign(new Error('operation is required.'), {status: 400});
@@ -4307,6 +4508,10 @@ async function runDriveWorkflowOperation({google, admin, auth, user, workflowId,
   const callerNote = safeText(operation.callerNote, 800) || ('Workflow ' + workflowId + ' step ' + (index + 1) + ': ' + type);
   if (type === 'drive_read_binary_chunk') {
     const result = await readDriveBinaryChunkOperation({google, auth, args: operation});
+    return {index, type, requestId, status: 'completed', result};
+  }
+  if (type === 'audio.ingest_drive') {
+    const result = await ingestDriveAudioOperation({google, admin, auth, user, args: {...operation, requestId}});
     return {index, type, requestId, status: 'completed', result};
   }
   if (type === 'drive_create_folder') {
@@ -6154,4 +6359,4 @@ function createHomeCenterMcpApp({google, admin, googleClientId = () => '', googl
   return app;
 }
 
-module.exports = {HOME_CENTER_MCP_SERVER_VERSION, HOME_CENTER_CONNECTOR_SCHEMA_REVISION, HOME_CENTER_REGISTRY_VERSION, HOME_CENTER_DIRECT_FILE_TOOLS, verifiedRenderGifMcpContent, attachRenderGifMcpContent, renderArtifactHashEntry, uploadVerifiedArtifact, createHomeCenterMcpApp, createHomeCenterMcpServer, createDriveFolderOperation, createGoogleDocOperation, appendGoogleDocOperation, publishContextSnapshotOperation, synthesizeCartesiaAudioArtifactOperation, cartesiaVoicesOperation, createSheetOperation, updateSheetValuesOperation, importXlsxWorkbookOperation, readDriveBinaryChunkOperation, driveOperationRunOperation, driveWorkflowRunOperation, simulationOperationRunOperation, simulationOperationRegistry, droobiedooContextOperationEntries, loadDroobiedooContextIndex, searchDroobiedooContextIndex, runDroobiedooContextOperation, normalizeRecoveryOperation, summarizeRecoveryOperations, loadMcpAccessContext, renderAudioOperation, inspectAudioArtifactsOperation, materializeHomeCenterRenderDriveRefs, materializeHomeCenterRenderSources, stageHomeCenterGitHubRenderInput, normalizeRenderGitHubSource, githubAdminOperationEntries, githubAdminOperationRunOperation, createGitHubAppJwt};
+module.exports = {HOME_CENTER_MCP_SERVER_VERSION, HOME_CENTER_CONNECTOR_SCHEMA_REVISION, HOME_CENTER_REGISTRY_VERSION, HOME_CENTER_DIRECT_FILE_TOOLS, verifiedRenderGifMcpContent, attachRenderGifMcpContent, renderArtifactHashEntry, uploadVerifiedArtifact, createHomeCenterMcpApp, createHomeCenterMcpServer, createDriveFolderOperation, createGoogleDocOperation, appendGoogleDocOperation, publishContextSnapshotOperation, synthesizeCartesiaAudioArtifactOperation, cartesiaVoicesOperation, createSheetOperation, updateSheetValuesOperation, importXlsxWorkbookOperation, readDriveBinaryChunkOperation, ingestDriveAudioOperation, driveOperationRunOperation, driveWorkflowRunOperation, simulationOperationRunOperation, simulationOperationRegistry, droobiedooContextOperationEntries, loadDroobiedooContextIndex, searchDroobiedooContextIndex, runDroobiedooContextOperation, normalizeRecoveryOperation, summarizeRecoveryOperations, loadMcpAccessContext, renderAudioOperation, inspectAudioArtifactsOperation, materializeHomeCenterRenderDriveRefs, materializeHomeCenterRenderSources, stageHomeCenterGitHubRenderInput, normalizeRenderGitHubSource, githubAdminOperationEntries, githubAdminOperationRunOperation, createGitHubAppJwt};
