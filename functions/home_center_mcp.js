@@ -4304,6 +4304,12 @@ function hashReadableStream(stream) {
   });
 }
 
+function compareAudioIngestFileIds(left, right) {
+  const a = safeText(left, 220);
+  const b = safeText(right, 220);
+  return a < b ? -1 : a > b ? 1 : 0;
+}
+
 function normalizedAudioIngestBatchId(value) {
   const raw = safeText(value, 180);
   if (!raw) throw Object.assign(new Error('batchId is required for indexed audio ingestion.'), {status: 400});
@@ -4397,7 +4403,7 @@ async function finalizeDriveAudioIngestBatchOperation({user, args = {}, storage 
   const batchId = normalizedAudioIngestBatchId(args.batchId);
   const expectedCount = Number(args.expectedCount);
   const expectedBytes = Number(args.expectedBytes);
-  const expectedFileIds = Array.isArray(args.expectedFileIds) ? [...new Set(args.expectedFileIds.map(safeDriveFileId))].sort() : [];
+  const expectedFileIds = Array.isArray(args.expectedFileIds) ? [...new Set(args.expectedFileIds.map(safeDriveFileId))].sort(compareAudioIngestFileIds) : [];
   if (!Number.isSafeInteger(expectedCount) || expectedCount < 1 || expectedFileIds.length !== expectedCount) {
     throw Object.assign(new Error('expectedFileIds must contain exactly expectedCount unique Drive file IDs.'), {status: 400});
   }
@@ -4420,7 +4426,7 @@ async function finalizeDriveAudioIngestBatchOperation({user, args = {}, storage 
     }
     entries.push(item);
   }
-  entries.sort((a, b) => safeText(a.source.fileId, 220).localeCompare(safeText(b.source.fileId, 220)));
+  entries.sort((a, b) => compareAudioIngestFileIds(a.source.fileId, b.source.fileId));
   const actualFileIds = entries.map((entry) => safeText(entry.source.fileId, 220));
   const actualBytes = entries.reduce((sum, entry) => sum + Number(entry.destination.byteCount || 0), 0);
   if (entries.length !== expectedCount || actualBytes !== expectedBytes || JSON.stringify(actualFileIds) !== JSON.stringify(expectedFileIds)) {
@@ -6538,4 +6544,4 @@ function createHomeCenterMcpApp({google, admin, googleClientId = () => '', googl
   return app;
 }
 
-module.exports = {HOME_CENTER_MCP_SERVER_VERSION, HOME_CENTER_CONNECTOR_SCHEMA_REVISION, HOME_CENTER_REGISTRY_VERSION, HOME_CENTER_DIRECT_FILE_TOOLS, verifiedRenderGifMcpContent, attachRenderGifMcpContent, renderArtifactHashEntry, uploadVerifiedArtifact, createHomeCenterMcpApp, createHomeCenterMcpServer, createDriveFolderOperation, createGoogleDocOperation, appendGoogleDocOperation, publishContextSnapshotOperation, synthesizeCartesiaAudioArtifactOperation, cartesiaVoicesOperation, createSheetOperation, updateSheetValuesOperation, importXlsxWorkbookOperation, readDriveBinaryChunkOperation, ingestDriveAudioOperation, finalizeDriveAudioIngestBatchOperation, driveOperationRunOperation, driveWorkflowRunOperation, simulationOperationRunOperation, simulationOperationRegistry, droobiedooContextOperationEntries, loadDroobiedooContextIndex, searchDroobiedooContextIndex, runDroobiedooContextOperation, normalizeRecoveryOperation, summarizeRecoveryOperations, loadMcpAccessContext, renderAudioOperation, inspectAudioArtifactsOperation, materializeHomeCenterRenderDriveRefs, materializeHomeCenterRenderSources, stageHomeCenterGitHubRenderInput, normalizeRenderGitHubSource, githubAdminOperationEntries, githubAdminOperationRunOperation, createGitHubAppJwt};
+module.exports = {HOME_CENTER_MCP_SERVER_VERSION, HOME_CENTER_CONNECTOR_SCHEMA_REVISION, HOME_CENTER_REGISTRY_VERSION, HOME_CENTER_DIRECT_FILE_TOOLS, verifiedRenderGifMcpContent, attachRenderGifMcpContent, renderArtifactHashEntry, uploadVerifiedArtifact, createHomeCenterMcpApp, createHomeCenterMcpServer, createDriveFolderOperation, createGoogleDocOperation, appendGoogleDocOperation, publishContextSnapshotOperation, synthesizeCartesiaAudioArtifactOperation, cartesiaVoicesOperation, createSheetOperation, updateSheetValuesOperation, importXlsxWorkbookOperation, readDriveBinaryChunkOperation, compareAudioIngestFileIds, ingestDriveAudioOperation, finalizeDriveAudioIngestBatchOperation, driveOperationRunOperation, driveWorkflowRunOperation, simulationOperationRunOperation, simulationOperationRegistry, droobiedooContextOperationEntries, loadDroobiedooContextIndex, searchDroobiedooContextIndex, runDroobiedooContextOperation, normalizeRecoveryOperation, summarizeRecoveryOperations, loadMcpAccessContext, renderAudioOperation, inspectAudioArtifactsOperation, materializeHomeCenterRenderDriveRefs, materializeHomeCenterRenderSources, stageHomeCenterGitHubRenderInput, normalizeRenderGitHubSource, githubAdminOperationEntries, githubAdminOperationRunOperation, createGitHubAppJwt};
