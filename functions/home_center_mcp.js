@@ -5627,18 +5627,64 @@ MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEfjYiP5HeF+Rz7Cfz3DKVP5L0HBph
 2nXxegJKyUcgWYdzY6RO3TEOevHTyTNnBvjjdcEMcnRkQneEk7mgW2lVCg==
 -----END PUBLIC KEY-----`;
 const SHERMAN_SITE_ALLOWED_CLOCK_SKEW_MS = 5 * 60 * 1000;
-const SHERMAN_SITE_EVIDENCE = Object.freeze({
-  assetId: 'vanguard',
-  sourceVersion: 'b2862e2b0f3b2e7f8b99d51decaa42a7827a03dd',
-  sourceSha256: '70609931d8bcb5803728e8d7a27f0157984954c02a407b0904da42885fd485ab',
-  recipeId: 'sword-attack-1-contact-sheet-v2',
-  action: 'SwordAttack1',
-  renderId: 'render_1e63f333c13b7f737b3f102d912e45aa',
-  cacheKey: 'adf0e5d565dc89eca73fe3f46b08130bd12ae93795a7d83c78026dd66269a5fc',
-  contactSheetSha256: '682508c6ed9f5c7761c182feb96a51d1a6a1fd39a6743676318c0de578ccb429',
-  contactSheetByteCount: 470908,
-  bucket: 'home-center-generated',
-  objectName: 'renders/contact-sheets/adf0e5d565dc89eca73fe3f46b08130bd12ae93795a7d83c78026dd66269a5fc/contact-sheet.png',
+const SHERMAN_SITE_EVIDENCE_BY_RECIPE = Object.freeze({
+  'sword-attack-1-contact-sheet-v2': Object.freeze({
+    assetId: 'vanguard',
+    sourceVersion: 'b2862e2b0f3b2e7f8b99d51decaa42a7827a03dd',
+    sourceSha256: '70609931d8bcb5803728e8d7a27f0157984954c02a407b0904da42885fd485ab',
+    recipeId: 'sword-attack-1-contact-sheet-v2',
+    action: 'SwordAttack1',
+    renderId: 'render_1e63f333c13b7f737b3f102d912e45aa',
+    cacheKey: 'adf0e5d565dc89eca73fe3f46b08130bd12ae93795a7d83c78026dd66269a5fc',
+    contactSheetSha256: '682508c6ed9f5c7761c182feb96a51d1a6a1fd39a6743676318c0de578ccb429',
+    contactSheetByteCount: 470908,
+    bucket: 'home-center-generated',
+    objectName: 'renders/contact-sheets/adf0e5d565dc89eca73fe3f46b08130bd12ae93795a7d83c78026dd66269a5fc/contact-sheet.png',
+    frameCount: 12,
+    columns: 4,
+    rows: 3,
+    timingsMs: [125, 125, 125, 125, 125, 125, 125, 125, 125, 125, 125, 125],
+    visualProfile: 'historical-gray-diagnostic',
+    assetMutation: false,
+  }),
+  'vanguard-legacy-idle-v1': Object.freeze({
+    assetId: 'vanguard',
+    sourceVersion: 'ef3d6911781b39c93b838acbe5f16e04e51699e48c7a8e43f6d0c95fbd17ad36',
+    sourceSha256: 'ef3d6911781b39c93b838acbe5f16e04e51699e48c7a8e43f6d0c95fbd17ad36',
+    recipeId: 'vanguard-legacy-idle-v1',
+    action: 'Idle',
+    renderId: 'render_95473a22b624043a17179ad542cfaef0',
+    cacheKey: '253163000988e53dbcd7f939e737d99ce600a9e701f1f3ef349a6e8e256a6fa6',
+    contactSheetSha256: '3e0d82396209e5d48b1576bee831f17e6a9aeb03c385c769a898ab0bba2ed2e3',
+    contactSheetByteCount: 526452,
+    bucket: 'home-center-generated',
+    objectName: 'renders/contact-sheets/253163000988e53dbcd7f939e737d99ce600a9e701f1f3ef349a6e8e256a6fa6/contact-sheet.png',
+    frameCount: 6,
+    columns: 3,
+    rows: 2,
+    timingsMs: [170, 170, 160, 170, 170, 160],
+    visualProfile: 'vanguard-legacy-vertex-color-v1',
+    assetMutation: true,
+  }),
+  'vanguard-legacy-walk-v1': Object.freeze({
+    assetId: 'vanguard',
+    sourceVersion: 'ef3d6911781b39c93b838acbe5f16e04e51699e48c7a8e43f6d0c95fbd17ad36',
+    sourceSha256: 'ef3d6911781b39c93b838acbe5f16e04e51699e48c7a8e43f6d0c95fbd17ad36',
+    recipeId: 'vanguard-legacy-walk-v1',
+    action: 'WalkSwordCarryV2',
+    renderId: 'render_63d09cd91088093196c2db1a434dedcd',
+    cacheKey: '7943e258b9fcaccbbcd910da10302cba23fd955a76f3d6a83b74c9a324e86ba3',
+    contactSheetSha256: 'e7431c271a47625d05987335f20f3490a89067bda6d2847b94583cada7bc33a4',
+    contactSheetByteCount: 576534,
+    bucket: 'home-center-generated',
+    objectName: 'renders/contact-sheets/7943e258b9fcaccbbcd910da10302cba23fd955a76f3d6a83b74c9a324e86ba3/contact-sheet.png',
+    frameCount: 8,
+    columns: 4,
+    rows: 2,
+    timingsMs: [110, 90, 100, 110, 110, 90, 100, 110],
+    visualProfile: 'vanguard-legacy-vertex-color-v1',
+    assetMutation: false,
+  }),
 });
 
 function verifyShermanSiteRequest(req) {
@@ -5657,27 +5703,33 @@ function verifyShermanSiteRequest(req) {
   }
 }
 
-function shermanSiteReceipt() {
+function shermanSiteReceipt(evidence) {
   return {
-    assetId: SHERMAN_SITE_EVIDENCE.assetId,
-    sourceVersion: SHERMAN_SITE_EVIDENCE.sourceVersion,
-    sourceSha256: SHERMAN_SITE_EVIDENCE.sourceSha256,
-    recipeId: SHERMAN_SITE_EVIDENCE.recipeId,
-    action: SHERMAN_SITE_EVIDENCE.action,
-    renderId: SHERMAN_SITE_EVIDENCE.renderId,
-    cacheKey: SHERMAN_SITE_EVIDENCE.cacheKey,
+    assetId: evidence.assetId,
+    sourceVersion: evidence.sourceVersion,
+    sourceSha256: evidence.sourceSha256,
+    recipeId: evidence.recipeId,
+    action: evidence.action,
+    renderId: evidence.renderId,
+    cacheKey: evidence.cacheKey,
     status: 'completed',
     cacheHit: true,
     candidateStatus: 'quarantined',
-    assetMutation: false,
+    assetMutation: evidence.assetMutation,
     modelBytesReturnedToCaller: false,
     includeBlend: false,
-    contactSheetSha256: SHERMAN_SITE_EVIDENCE.contactSheetSha256,
-    contactSheetByteCount: SHERMAN_SITE_EVIDENCE.contactSheetByteCount,
+    contactSheetSha256: evidence.contactSheetSha256,
+    contactSheetByteCount: evidence.contactSheetByteCount,
+    frameCount: evidence.frameCount,
+    columns: evidence.columns,
+    rows: evidence.rows,
+    timingsMs: evidence.timingsMs,
+    visualProfile: evidence.visualProfile,
     humanVerdict: 'pending',
   };
 }
 
+async function handleShermanSiteBlenderRequest
 async function handleShermanSiteBlenderRequest(req, res) {
   res.set('Cache-Control', 'private, no-store');
   if (!verifyShermanSiteRequest(req)) {
@@ -5685,16 +5737,17 @@ async function handleShermanSiteBlenderRequest(req, res) {
     return;
   }
   const body = req.body || {};
+  const evidence = SHERMAN_SITE_EVIDENCE_BY_RECIPE[body.recipeId];
   if (
-    body.assetId !== SHERMAN_SITE_EVIDENCE.assetId ||
-    body.sourceVersion !== SHERMAN_SITE_EVIDENCE.sourceVersion ||
-    body.recipeId !== SHERMAN_SITE_EVIDENCE.recipeId
+    !evidence ||
+    body.assetId !== evidence.assetId ||
+    body.sourceVersion !== evidence.sourceVersion
   ) {
-    res.status(409).json({status: 'failed', message: 'Factory Floor evidence contract does not match the pinned source.'});
+    res.status(409).json({status: 'failed', message: 'Factory Floor evidence contract does not match a pinned source.'});
     return;
   }
   if (body.operation === 'render') {
-    res.json(shermanSiteReceipt());
+    res.json(shermanSiteReceipt(evidence));
     return;
   }
   if (body.operation !== 'evidence') {
@@ -5702,18 +5755,18 @@ async function handleShermanSiteBlenderRequest(req, res) {
     return;
   }
   if (
-    body.cacheKey !== SHERMAN_SITE_EVIDENCE.cacheKey ||
-    body.expectedSha256 !== SHERMAN_SITE_EVIDENCE.contactSheetSha256
+    body.cacheKey !== evidence.cacheKey ||
+    body.expectedSha256 !== evidence.contactSheetSha256
   ) {
     res.status(409).json({status: 'failed', message: 'Evidence receipt does not match the pinned artifact.'});
     return;
   }
   try {
-    const [bytes] = await new Storage().bucket(SHERMAN_SITE_EVIDENCE.bucket).file(SHERMAN_SITE_EVIDENCE.objectName).download();
+    const [bytes] = await new Storage().bucket(evidence.bucket).file(evidence.objectName).download();
     const readbackSha256 = createHash('sha256').update(bytes).digest('hex');
     if (
-      bytes.length !== SHERMAN_SITE_EVIDENCE.contactSheetByteCount ||
-      readbackSha256 !== SHERMAN_SITE_EVIDENCE.contactSheetSha256
+      bytes.length !== evidence.contactSheetByteCount ||
+      readbackSha256 !== evidence.contactSheetSha256
     ) {
       res.status(409).json({status: 'failed', message: 'Stored evidence failed byte-count or SHA-256 verification.'});
       return;
@@ -5723,6 +5776,8 @@ async function handleShermanSiteBlenderRequest(req, res) {
       'Content-Length': String(bytes.length),
       'X-Content-Type-Options': 'nosniff',
       'X-Artifact-SHA256': readbackSha256,
+      'X-Vanguard-Action': evidence.action,
+      'X-Vanguard-Visual-Profile': evidence.visualProfile,
     });
     res.status(200).send(bytes);
   } catch (err) {
@@ -5730,6 +5785,7 @@ async function handleShermanSiteBlenderRequest(req, res) {
   }
 }
 
+function createHomeCenterMcpApp
 function createHomeCenterMcpApp({google, admin, googleClientId = () => '', googleClientSecret = () => '', githubToken = () => '', githubAdmin = {}, cartesiaApiKey = () => ''}) {
   const app = express();
   app.use(express.json({limit: '80mb', verify: (req, _res, bytes) => { req.rawBody = Buffer.from(bytes); }}));
