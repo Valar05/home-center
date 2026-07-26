@@ -2587,7 +2587,7 @@ function commandCenterDriveOperationEntries() {
 
 function driveOperationRegistry() {
   return {
-    version: '2026-07-13.context-sync-publish-v1',
+    version: '2026-07-26.drive-binary-chunks-v1',
     invocationTool: 'drive_operation',
     cachePolicy: 'New bridge, simulation, and Command Center operations should be invokable through drive_operation so ChatGPT does not need a top-level MCP tool refresh for every backend code change. Agents should rediscover this registry through capabilities or health before claiming an operation is unavailable.',
     operations: {
@@ -2611,6 +2611,19 @@ function driveOperationRegistry() {
         requiresRequestId: true,
         requiredScopes: ['https://www.googleapis.com/auth/drive', 'https://www.googleapis.com/auth/documents'],
         input: {documentId: 'string', heading: 'optional string', text: 'string', requestId: 'string', callerNote: 'optional string'},
+      },
+      drive_read_binary_chunk: {
+        summary: 'Read one bounded byte range from a non-Google Drive file without coercing binary bytes to text.',
+        write: false,
+        requiresRequestId: false,
+        requiredScopes: ['https://www.googleapis.com/auth/drive'],
+        input: {fileId: 'string', offset: 'optional nonnegative integer, default 0', length: 'optional integer 1-262144, default 131072'},
+        output: {fileId: 'string', name: 'string', mimeType: 'string', offset: 'number', byteCount: 'number', totalSize: 'number', nextOffset: 'number or null', eof: 'boolean', chunkBase64: 'string', chunkSha256: 'string'},
+        agentRecipe: {
+          whenUserSays: 'Recover, download, mux, inspect, or locally materialize a Drive-hosted binary artifact such as Cartesia audio.',
+          prefer: 'Call drive_operation repeatedly with operation=drive_read_binary_chunk, preserving nextOffset until eof=true, then decode and concatenate the bounded Base64 chunks in order.',
+          verification: 'Verify every chunkSha256 before append and verify final byte count against totalSize. Never substitute another synthesis provider because binary transfer failed.',
+        },
       },
       'context_sync.publish_snapshot': {
         summary: 'Publish a durable text/Markdown snapshot file to Drive, verify byte count and SHA-256 by media readback, and audit the write.',
@@ -2692,6 +2705,71 @@ function commandCenterCompatOperation(args = {}) {
   );
 }
 
+async function readDriveBinaryChunkOperation({google, auth, args = {}}) {
+  const drive = google.drive({version: 'v3', auth});
+  const fileId = safeDriveFileId(args.fileId);
+  const metadata = (await drive.files.get({
+    fileId,
+    fields: 'id,name,mimeType,size,md5Checksum,modifiedTime,webViewLink,parents',
+    supportsAllDrives: true,
+  })).data || {};
+  if (String(metadata.mimeType || '').startsWith('application/vnd.google-apps.')) {
+    throw Object.assign(new Error('drive_read_binary_chunk only supports stored binary files; export Google-native files with drive_read.'), {status: 415});
+  }
+  const totalSize = Number(metadata.size || 0);
+  if (!Number.isSafeInteger(totalSize) || totalSize < 0) {
+    throw Object.assign(new Error('Drive did not provide a safe binary file size.'), {status: 502});
+  }
+  const offset = args.offset === undefined ? 0 : Number(args.offset);
+  const length = args.length === undefined ? 131072 : Number(args.length);
+  if (!Number.isSafeInteger(offset) || offset < 0) {
+    throw Object.assign(new Error('offset must be a nonnegative integer.'), {status: 400});
+  }
+  if (!Number.isSafeInteger(length) || length < 1 || length > 262144) {
+    throw Object.assign(new Error('length must be an integer between 1 and 262144 bytes.'), {status: 400});
+  }
+  if (offset >= totalSize) {
+    return {
+      fileId,
+      name: metadata.name || '',
+      mimeType: metadata.mimeType || 'application/octet-stream',
+      offset,
+      byteCount: 0,
+      totalSize,
+      nextOffset: null,
+      eof: true,
+      chunkBase64: '',
+      chunkSha256: createHash('sha256').update(Buffer.alloc(0)).digest('hex'),
+      metadata: chatGptDriveFile(metadata),
+    };
+  }
+  const end = Math.min(totalSize - 1, offset + length - 1);
+  const downloaded = await drive.files.get(
+    {fileId, alt: 'media', supportsAllDrives: true},
+    {responseType: 'arraybuffer', headers: {Range: 'bytes=' + offset + '-' + end}},
+  );
+  const chunk = Buffer.isBuffer(downloaded.data) ? downloaded.data : Buffer.from(downloaded.data || []);
+  const expectedBytes = end - offset + 1;
+  if (chunk.length !== expectedBytes) {
+    throw Object.assign(new Error('Drive binary range read returned ' + chunk.length + ' bytes; expected ' + expectedBytes + '.'), {status: 502});
+  }
+  const nextOffset = offset + chunk.length;
+  return {
+    fileId,
+    name: metadata.name || '',
+    mimeType: metadata.mimeType || 'application/octet-stream',
+    offset,
+    byteCount: chunk.length,
+    totalSize,
+    nextOffset: nextOffset < totalSize ? nextOffset : null,
+    eof: nextOffset >= totalSize,
+    chunkBase64: chunk.toString('base64'),
+    chunkSha256: createHash('sha256').update(chunk).digest('hex'),
+    driveMd5Checksum: metadata.md5Checksum || '',
+    metadata: chatGptDriveFile(metadata),
+  };
+}
+
 async function driveOperationRunOperation({google, admin, auth, user, extra = null, args = {}}) {
   const operation = safeText(args.operation || args.type || args.toolName, 120);
   if (!operation) throw Object.assign(new Error('operation is required.'), {status: 400});
@@ -2729,6 +2807,10 @@ async function runDriveWorkflowOperation({google, admin, auth, user, workflowId,
   const type = safeText(operation.type || operation.toolName || operation.tool, 120);
   const requestId = workflowOperationRequestId(workflowId, operation, index);
   const callerNote = safeText(operation.callerNote, 800) || ('Workflow ' + workflowId + ' step ' + (index + 1) + ': ' + type);
+  if (type === 'drive_read_binary_chunk') {
+    const result = await readDriveBinaryChunkOperation({google, auth, args: operation});
+    return {index, type, requestId, status: 'completed', result};
+  }
   if (type === 'drive_create_folder') {
     const result = await createDriveFolderOperation({google, admin, auth, user, args: {...operation, requestId, callerNote, parentFolderId: workflowResolvedId(operation.parentFolderId || operation.parentFolderKey, outputs)}});
     outputs[workflowOutputKey(operation, index)] = result.folderId || result.id || '';
@@ -2957,6 +3039,11 @@ function createHomeCenterMcpServer({google, admin, googleClientId, googleClientS
       const exported = await drive.files.export({fileId, mimeType: args.exportFormat || 'text/plain'}, {responseType: 'text'});
       text = typeof exported.data === 'string' ? exported.data : String(exported.data || '');
     } else {
+      const mimeType = String(metadata.mimeType || '');
+      const textLike = mimeType.startsWith('text/') || /^(application\/(json|xml|javascript|x-javascript|yaml|x-yaml))$/i.test(mimeType);
+      if (!textLike) {
+        throw Object.assign(new Error('drive_read does not coerce binary files to text. Use drive_operation with operation=drive_read_binary_chunk.'), {status: 415});
+      }
       const downloaded = await drive.files.get({fileId, alt: 'media', supportsAllDrives: true}, {responseType: 'text'});
       text = typeof downloaded.data === 'string' ? downloaded.data : String(downloaded.data || '');
     }
@@ -4359,4 +4446,4 @@ function createHomeCenterMcpApp({google, admin, googleClientId = () => '', googl
   return app;
 }
 
-module.exports = {createHomeCenterMcpApp, createHomeCenterMcpServer, createDriveFolderOperation, createGoogleDocOperation, appendGoogleDocOperation, publishContextSnapshotOperation, createSheetOperation, updateSheetValuesOperation, importXlsxWorkbookOperation, driveOperationRunOperation, driveWorkflowRunOperation, simulationOperationRunOperation, simulationOperationRegistry, normalizeRecoveryOperation, summarizeRecoveryOperations, loadMcpAccessContext};
+module.exports = {createHomeCenterMcpApp, createHomeCenterMcpServer, createDriveFolderOperation, createGoogleDocOperation, appendGoogleDocOperation, publishContextSnapshotOperation, createSheetOperation, updateSheetValuesOperation, importXlsxWorkbookOperation, readDriveBinaryChunkOperation, driveOperationRunOperation, driveWorkflowRunOperation, simulationOperationRunOperation, simulationOperationRegistry, normalizeRecoveryOperation, summarizeRecoveryOperations, loadMcpAccessContext};
