@@ -68,6 +68,8 @@ assert(SHE_RAW_BRAIN_IDS.includes('quartermaster'));
 assert(SHE_RAW_BRAIN_IDS.includes('prospector'));
 assert(SHE_RAW_BRAIN_IDS.includes('foreman'));
 assert(SHE_RAW_BRAIN_IDS.includes('bikini_bottom'));
+assert(SHE_RAW_BRAIN_IDS.includes('queen_b'));
+assert(SHE_RAW_BRAIN_IDS.includes('patrickgor'));
 assert(!SHE_RAW_BRAIN_IDS.includes('she_raw'));
 const operationRegistry = sheRawOperationRegistry();
 assert.equal(operationRegistry.invocationTool, 'she_raw_operation');
@@ -80,6 +82,8 @@ const brainJars = listBrainJars();
 assert(brainJars.some((brain) => brain.brainId === 'quartermaster' && brain.source === 'agent-closet'));
 assert(brainJars.some((brain) => brain.brainId === 'prospector'));
 assert(brainJars.some((brain) => brain.brainId === 'bikini_bottom' && brain.source === 'she-raw-corpus'));
+assert(brainJars.some((brain) => brain.brainId === 'queen_b' && brain.source === 'she-raw-corpus'));
+assert(brainJars.some((brain) => brain.brainId === 'patrickgor' && brain.source === 'she-raw-corpus'));
 assert(brainJars.every((brain) => brain.brainId !== 'she_raw'));
 assert.equal(brainJarIdFromConsultArgs({requestedPerspective: 'Prospector brain health', boundedContext: 'Use the Prospector jar.'}), 'prospector');
 assert.equal(brainJarIdFromConsultArgs({requestedPerspective: 'ordinary Command Center planning', boundedContext: 'No brain jar request here.'}), '');
@@ -121,6 +125,10 @@ const prospectorCorpusHits = await retrieveCases(admin, 'Humane Guardrails googl
 assert(prospectorCorpusHits.some((caseRecord) => caseRecord.id === 'sr_case_humane_guardrail_prospector_001'));
 const bikiniCorpusHits = await retrieveCases(admin, 'Bikini Bottom anti-agentism detachable function cast humane continuation SpongeBob Squidward', {});
 assert(bikiniCorpusHits.some((caseRecord) => caseRecord.id === 'sr_case_bikini_bottom_anti_agentism_001'));
+const queenBCorpusHits = await retrieveCases(admin, 'Queen B QA confidant release confidence receipts broad contract mirror false green', {});
+assert(queenBCorpusHits.some((caseRecord) => caseRecord.id === 'sr_case_queen_b_qa_confidant_001'));
+const patrickgorCorpusHits = await retrieveCases(admin, 'Patrickgor PatrickGPT autocorrect created a monster digest the mutation convert it into honey', {});
+assert(patrickgorCorpusHits.some((caseRecord) => caseRecord.id === 'sr_case_patrickgor_typo_digestive_transformation_001'));
 
 const blocked = await handleConsult(admin, {conversationKey: 'conv-1', commandState: 'executing', boundedContext: 'ambient check'}, extra, 'ambient');
 assert.equal(blocked.blocked, true);
@@ -269,6 +277,8 @@ assert.equal(listedBrains.service, 'she-raw-mcp');
 assert.equal(listedBrains.she_raw_default_voice, true);
 assert(listedBrains.brains.some((brain) => brain.brainId === 'quartermaster'));
 assert(listedBrains.brains.some((brain) => brain.brainId === 'bikini_bottom' && /simulation|anti-agentism|continuation/i.test(brain.role)));
+assert(listedBrains.brains.some((brain) => brain.brainId === 'queen_b' && /QA|confidence|receipts/i.test(brain.role)));
+assert(listedBrains.brains.some((brain) => brain.brainId === 'plankton' && /adversarial|probe|actuator/i.test(brain.role)));
 assert(listedBrains.brains.every((brain) => brain.brainId !== 'she_raw'));
 
 const quartermaster = await handleBrainJar(admin, {brainId: 'quartermaster', conversationKey: 'conv-1', projectKey: 'home-center', commandState: 'executing', boundedContext: 'Need preservation judgment for She-Raw brain jars.', question: 'What must be preserved?'}, extra);
@@ -306,6 +316,60 @@ assert.equal(bikiniBottom.anti_agentism_checks.contradictory_evidence_overrides_
 assert.match(bikiniBottom.operational_judgment, /Do not decide what someone is|pressure|functions/i);
 assert.doesNotMatch(bikiniBottom.operational_judgment + bikiniBottom.character_free_judgment, /SpongeBob|Squidward|Sandy|Krabs|Patrick|Plankton/i);
 assert.doesNotMatch(JSON.stringify(bikiniBottom), /really being|is the Squidward|because .* Squidward/i);
+
+const queenB = await handleBrainJar(admin, {
+  brainId: 'queen_b',
+  conversationKey: 'conv-queen-b',
+  projectKey: 'home-center',
+  commandState: 'idle',
+  boundedContext: 'A dedicated Queen B check passed, but the broad She-Raw contract failed and the Home Center mirror has not been tested.',
+  question: 'Can this implementation be called recovered?',
+}, extra);
+assert.match(queenB.invocation_id, /^srbrain_/);
+assert.equal(queenB.brain_id, 'queen_b');
+assert.equal(queenB.source, 'she-raw-corpus');
+assert(queenB.retrieved_cases.some((caseRecord) => caseRecord.id === 'sr_case_queen_b_qa_confidant_001'));
+assert(!queenB.retrieved_cases.some((caseRecord) => caseRecord.id === 'sr_case_bikini_bottom_anti_agentism_001'));
+assert(!queenB.retrieved_cases.some((caseRecord) => caseRecord.id === 'sr_case_tango_humane_mission_control_001'));
+assert.match(queenB.release_judgment + queenB.confidence_read, /not releasable|broad contract|mirror|receipts/i);
+assert.equal(queenB.qa_checks.broad_contract_must_pass, true);
+assert.equal(queenB.qa_checks.mirror_evidence_required, true);
+
+const patrickgor = await handleBrainJar(admin, {
+  brainId: 'patrickgor',
+  conversationKey: 'conv-patrickgor',
+  projectKey: 'she-raw',
+  commandState: 'idle',
+  boundedContext: 'Patrickgor was supposed to be PatrickGPT, but autocorrect created a monster. Keep the mutation and digest it carefully.',
+  question: 'What did the mistake create that the intended input could not?',
+}, extra);
+assert.match(patrickgor.invocation_id, /^srbrain_/);
+assert.equal(patrickgor.brain_id, 'patrickgor');
+assert.equal(patrickgor.intended_input, 'PatrickGPT');
+assert.equal(patrickgor.mutation, 'Patrickgor');
+assert.match(patrickgor.provenance_status, /correction preserved/i);
+assert.match(patrickgor.honey_artifact, /explicit-only|labeled artifact|digest/i);
+assert.match(patrickgor.boundary, /exact identifiers|living people|medical|standalone agent/i);
+assert(patrickgor.retrieved_cases.some((caseRecord) => caseRecord.id === 'sr_case_patrickgor_typo_digestive_transformation_001'));
+assert(!patrickgor.retrieved_cases.some((caseRecord) => caseRecord.id === 'sr_case_bikini_bottom_anti_agentism_001'));
+
+const plankton = await handleBrainJar(admin, {
+  brainId: 'plankton',
+  conversationKey: 'conv-plankton',
+  projectKey: 'she-raw',
+  commandState: 'idle',
+  boundedContext: 'Attack the claim that a mock fire-control interface rejects unauthorized target selection. Do not touch a real actuator.',
+  question: 'Return one bounded adversarial probe.',
+}, extra);
+assert.match(plankton.invocation_id, /^srbrain_/);
+assert.equal(plankton.brain_id, 'plankton');
+assert.match(plankton.container, /Queen B.*ammunition tin.*crawfish powder/i);
+assert.equal(plankton.actuator_authority, 'none');
+assert.equal(plankton.target_selection_authority, false);
+assert.equal(plankton.discharge_permission, false);
+assert.match(plankton.bounded_probe, /mock|fixture|sandbox|dry run/i);
+assert(plankton.retrieved_cases.some((caseRecord) => caseRecord.id === 'sr_case_plankton_contained_adversarial_probe_001'));
+assert(!plankton.retrieved_cases.some((caseRecord) => caseRecord.id === 'sr_case_queen_b_qa_confidant_001'));
 
 
 const prospectorViaConsult = await handleConsult(admin, {conversationKey: 'conv-1', projectKey: 'home-center', commandState: 'idle', boundedContext: 'Prospector brain health: inspect whether the jar is actually plumbed.', requestedPerspective: 'Prospector brain'}, extra, 'explicit');
@@ -401,6 +465,8 @@ assert(manual.startHere.some((entry) => entry.call === 'she_raw_operation' && en
 assert.equal(manual.brainJars.runtime, 'she-raw-mcp');
 assert(manual.brainJars.availableBrainIds.includes('quartermaster'));
 assert(manual.brainJars.availableBrainIds.includes('bikini_bottom'));
+assert(manual.brainJars.availableBrainIds.includes('queen_b'));
+assert(manual.brainJars.availableBrainIds.includes('plankton'));
 assert(!manual.brainJars.availableBrainIds.includes('she_raw'));
 assert.match(manual.purpose, /default voice|brain jars/i);
 assert.match(manual.invocationSemantics.healthCheckMeaning, /health check/);
@@ -419,6 +485,8 @@ assert(h.recommended_first_calls.some((entry) => entry.tool === 'she_raw_operati
 assert.equal(h.brain_jar_runtime, 'she-raw-mcp');
 assert(h.available_brain_ids.includes('prospector'));
 assert(h.available_brain_ids.includes('bikini_bottom'));
+assert(h.available_brain_ids.includes('queen_b'));
+assert(h.available_brain_ids.includes('plankton'));
 assert(!h.available_brain_ids.includes('she_raw'));
 
 const opManual = await runSheRawOperation(admin, extra, 'manual', {});
@@ -454,6 +522,20 @@ assert.equal(opBikini.result.brain_id, 'bikini_bottom');
 assert(opBikini.result.retrieved_cases.some((caseRecord) => caseRecord.id === 'sr_case_bikini_bottom_anti_agentism_001'));
 assert(!opBikini.result.retrieved_cases.some((caseRecord) => caseRecord.id === 'sr_case_humane_guardrail_prospector_001'));
 assert.equal(opBikini.result.anti_agentism_checks.roles_detachable_and_reassignable, true);
+
+const opQueenB = await runSheRawOperation(admin, extra, 'brain.invoke', {
+  brainId: 'queen_b',
+  conversationKey: 'conv-operation-queen-b',
+  projectKey: 'home-center',
+  commandState: 'idle',
+  boundedContext: 'Dedicated contract is green but broad contract and mirror evidence are missing.',
+  question: 'Return the release confidence card.',
+});
+assert.equal(opQueenB.operation, 'brain.invoke');
+assert.equal(opQueenB.result.brain_id, 'queen_b');
+assert(opQueenB.result.retrieved_cases.some((caseRecord) => caseRecord.id === 'sr_case_queen_b_qa_confidant_001'));
+assert(!opQueenB.result.retrieved_cases.some((caseRecord) => caseRecord.id === 'sr_case_tango_humane_mission_control_001'));
+assert.match(opQueenB.result.boundary, /comfort|approval|merge|deploy/i);
 
 const selfDiagnosticFixture = {
   conversationKey: 'conv-self-diagnostic-red-fixture',

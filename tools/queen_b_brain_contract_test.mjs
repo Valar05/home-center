@@ -3,39 +3,94 @@ import assert from 'node:assert/strict';
 import {createRequire} from 'node:module';
 
 const require = createRequire(import.meta.url);
-const api = require('../functions/she_raw_mcp.js');
+const {
+  SHE_RAW_COLLECTIONS,
+  SHE_RAW_BRAIN_IDS,
+  listBrainJars,
+  handleBrainJar,
+  runSheRawOperation,
+  retrieveCases,
+  health,
+} = require('../functions/she_raw_mcp');
+const {SHE_RAW_SEED_CASES} = require('../corpus/she-raw/seed_cases.js');
 
-const brain = api.SHE_RAW_BRAIN_JARS.find((item) => item.brainId === 'queen_b');
-assert(brain);
-assert.equal(brain.displayName, 'Queen B');
-assert(api.SHE_RAW_BRAIN_IDS.includes('queen_b'));
-assert(brain.responseContract.includes('observed baseline delta'));
-assert(brain.failureModes.includes('confidant voice becoming diagnostic authority'));
+class FakeDoc {
+  constructor(store, id) { this.store = store; this.id = id; }
+  async get() { return {exists: Object.prototype.hasOwnProperty.call(this.store, this.id), id: this.id, data: () => this.store[this.id]}; }
+  async set(data, opts = {}) { this.store[this.id] = opts.merge ? {...(this.store[this.id] || {}), ...data} : data; }
+}
+class FakeQuery {
+  constructor(store) { this.store = store; }
+  limit() { return this; }
+  where() { return this; }
+  async get() { return {forEach: (cb) => Object.entries(this.store).forEach(([id, data]) => cb({id, data: () => data})), docs: Object.entries(this.store).map(([id, data]) => ({id, data: () => data}))}; }
+}
+class FakeCollection extends FakeQuery {
+  doc(id) { return new FakeDoc(this.store, id); }
+}
+class FakeFirestore {
+  constructor() { this.data = new Map(); }
+  collection(name) { if (!this.data.has(name)) this.data.set(name, {}); return new FakeCollection(this.data.get(name)); }
+}
+class FakeAdmin {
+  constructor() { this.fs = new FakeFirestore(); }
+  firestore() { return this.fs; }
+}
 
-const cases = api.SHE_RAW_SEED_CASES || require('../corpus/she-raw/seed_cases.js').SHE_RAW_SEED_CASES;
-assert(cases.some((item) => item.id === 'sr_case_queen_b_keeper_of_baseline_001'));
+delete process.env.OPENAI_API_KEY;
 
-const response = api.deterministicBrainJarResponse({
-  brain,
-  boundedContext: 'Drew says the new pattern proves the whole system is ready. They slept less than their usual baseline and ate less, but the pattern itself may still be useful.',
-  question: 'Is this ready?',
-  cases: cases.filter((item) => item.id === 'sr_case_queen_b_keeper_of_baseline_001'),
-  rules: [],
+const admin = new FakeAdmin();
+const token = 'test-token-for-queen-b';
+const tokenHash = require('node:crypto').createHash('sha256').update(token).digest('hex');
+await admin.firestore().collection('mcpOAuthAccessTokens').doc(tokenHash).set({email: 'tester@example.com', expiresAtMs: Date.now() + 60000});
+const extra = {requestInfo: {headers: {authorization: `Bearer ${token}`}}};
+
+for (const seedCase of SHE_RAW_SEED_CASES) {
+  await admin.firestore().collection(SHE_RAW_COLLECTIONS.corpusCases).doc(seedCase.id).set(seedCase);
+}
+
+assert(SHE_RAW_BRAIN_IDS.includes('queen_b'));
+assert(listBrainJars().some((brain) => brain.brainId === 'queen_b' && brain.source === 'she-raw-corpus'));
+
+const corpusHits = await retrieveCases(admin, 'Queen B QA confidant release confidence rehearsed green broad contract failure evidence receipts', {});
+assert(corpusHits.some((caseRecord) => caseRecord.id === 'sr_case_queen_b_qa_confidant_001'));
+
+const queenB = await handleBrainJar(admin, {
+  brainId: 'queen_b',
+  conversationKey: 'conv-queen-b-contract',
+  projectKey: 'home-center',
+  commandState: 'idle',
+  boundedContext: 'A worker says the feature is done after a dedicated check passed, but the broad She-Raw contract failed and Home Center mirror evidence is missing. Need confidence without comfort.',
+  question: 'Can we trust this release claim?',
+}, extra);
+
+assert.match(queenB.invocation_id, /^srbrain_/);
+assert.equal(queenB.brain_id, 'queen_b');
+assert.equal(queenB.source, 'she-raw-corpus');
+assert(queenB.retrieved_cases.some((caseRecord) => caseRecord.id === 'sr_case_queen_b_qa_confidant_001'));
+assert(!queenB.retrieved_cases.some((caseRecord) => caseRecord.id === 'sr_case_bikini_bottom_anti_agentism_001'));
+assert(!queenB.retrieved_cases.some((caseRecord) => caseRecord.id === 'sr_case_tango_humane_mission_control_001'));
+assert.match(queenB.release_judgment, /not releasable|blocked|red/i);
+assert.match(queenB.confidence_read, /confidence|green|evidence|receipts/i);
+assert(Array.isArray(queenB.receipts_required) && queenB.receipts_required.length >= 4);
+assert(queenB.receipts_required.some((receipt) => /broad She-Raw contract/i.test(receipt)));
+assert(queenB.receipts_required.some((receipt) => /mirror/i.test(receipt)));
+assert.match(queenB.rehearsal_script, /dedicated check|broad contract|mirror/i);
+assert.match(queenB.boundary, /comfort|approval|merge|deploy/i);
+assert.equal(queenB.qa_checks.dedicated_contract_is_not_enough, true);
+assert.equal(queenB.qa_checks.broad_contract_must_pass, true);
+assert.equal(queenB.qa_checks.mirror_evidence_required, true);
+
+const pumped = await runSheRawOperation(admin, extra, 'brain.invoke', {
+  brainId: 'queen_b',
+  conversationKey: 'conv-queen-b-pump',
+  projectKey: 'home-center',
+  commandState: 'idle',
+  boundedContext: 'Dedicated Queen B test passed, but Tango and full She-Raw evidence have not been run.',
+  question: 'Return the release confidence card.',
 });
-assert.equal(response.premise_status, 'quarantined');
-assert.match(response.observed_baseline_delta, /baseline-relevant change/);
-assert.match(response.person_preserving_acknowledgment, /worthy of care/);
-assert.match(response.sustainability_check, /sleep, food, pace/);
-assert.match(response.smallest_safe_next_review_step, /Quarantine/);
-assert.match(response.preserved_signal_for_later_baseline_review, /Preserve the exact pattern/);
-assert.equal(response.readiness_veto.scope, 'readiness claims');
-assert.equal(response.readiness_veto.does_not_cover, 'imagination');
-assert.match(response.behavioral_rule, /check on the prophet/);
-assert.doesNotMatch(JSON.stringify(response), /I am Renee|diagnostic_authority.true/i);
-assert(response.retrieved_cases.some((item) => item.id === 'sr_case_queen_b_keeper_of_baseline_001'));
-
-const neutral = api.deterministicBrainJarResponse({brain, boundedContext: 'There is a strange but interesting pattern.', question: 'What now?', cases: [], rules: []});
-assert.equal(neutral.premise_status, 'not assessed');
-assert.match(neutral.sustainability_check, /Ask for concrete current observations/);
+assert.equal(pumped.result.brain_id, 'queen_b');
+assert.match(pumped.result.recommended_next_move, /run|contract|mirror|evidence/i);
+assert((await health(admin)).available_brain_ids.includes('queen_b'));
 
 console.log('Queen B brain contract test: OK');
