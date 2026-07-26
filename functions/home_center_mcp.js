@@ -16,6 +16,7 @@ const {CARTESIA_DEFAULT_MODEL_ID, CARTESIA_DEFAULT_VOICE_NAME, listCartesiaVoice
 const {renderBlenderGlb: commandCenterRenderBlenderGlb} = require('./command_center_mcp');
 const cartesiaPitchShift = require('./cartesia_pitch_shift');
 const {renderAudioOperation, audioRenderStatusOperation, inspectAudioArtifactsOperation, uploadVerified: uploadVerifiedArtifact} = require('./audio_render_service');
+const {armoryReceiptOperation, armoryRecountOperation, armoryCasingOperation} = require('./armory_range_service');
 
 const DEFAULT_MCP_PUBLIC_BASE = 'https://us-central1-home-center-dclar.cloudfunctions.net/homeCenterMcp';
 const MCP_PUBLIC_BASE = process.env.HOME_CENTER_MCP_PUBLIC_BASE || DEFAULT_MCP_PUBLIC_BASE;
@@ -4031,7 +4032,7 @@ function runDroobiedooContextOperation(operation, args = {}) {
 
 function driveOperationRegistry() {
   return {
-    version: '2026-07-26.audio-library-ingest-index-v2',
+    version: '2026-07-26.armory-range-audio-library-ingest-v1',
     invocationTool: 'drive_operation',
     cachePolicy: 'New bridge and simulation operations should be invokable through drive_operation so ChatGPT does not need a top-level MCP tool refresh for every backend code change. Cartesia TTS is a direct Home Center MCP provider operation; it must not be routed through Command Center jobs or workers.',
     operations: {
@@ -4106,6 +4107,45 @@ function driveOperationRegistry() {
           whenUserSays: 'Back up or sync Codex context, AGENTS.md, skills, memories, manifests, or other local text snapshots to Drive.',
           prefer: 'Call drive_operation with operation=context_sync.publish_snapshot. Use Home Center MCP only; do not use rclone for this workflow.',
           verification: 'Pass byteCount and sha256 from the local manifest. Treat verified=true as the acceptance signal because the operation reads the Drive media back and hashes it.',
+        },
+      },
+      'armory.receipt': {
+        summary: 'Record one or more immutable, owner-scoped Armory Range casings. The tracked item needs no pre-existing cloud key, and every casing receives a mandatory ISO timestamp.',
+        write: true,
+        requiresRequestId: false,
+        requiredScopes: [],
+        input: {ammunition: 'required label; item or subject aliases accepted', count: 'optional integer 1-500, default 1', action: 'optional string, default fired', unit: 'optional string, default round', timestamp: 'optional explicit timestamp shared by every casing', timestamps: 'optional array containing one timestamp or exactly one per casing', timezone: 'optional IANA timezone, default America/Chicago', attributes: 'optional object', note: 'optional string', requestId: 'optional exact-replay receipt; generated when omitted'},
+        output: {receiptId: 'string', requestId: 'string', count: 'number', casingIds: 'one immutable event id per unit', timestamps: 'mandatory ISO timestamp per casing', timestampSources: 'explicit, explicit_shared, or server_receipt', recordedAt: 'ISO server receipt time', inputSha256: 'exact replay binding'},
+        agentRecipe: {
+          whenUserSays: 'Armory receipt, record in the armory, or describes a count of items or rounds to record.',
+          prefer: 'Call drive_operation with operation=armory.receipt. Parse ammunition/item, count, action, and any explicitly spoken times. If no time is spoken, omit timestamps so the server records the mandatory receipt time honestly.',
+          verification: 'Read back count, timestamps, timestampSources, and idempotent. Never invent spacing between events.',
+        },
+      },
+      'armory.recount': {
+        summary: 'Aggregate owner-scoped Armory Range casings by item, action, and unit.',
+        write: false,
+        requiresRequestId: false,
+        requiredScopes: [],
+        input: {ammunition: 'optional exact item filter; item or subject aliases accepted', action: 'optional exact action filter', since: 'optional timestamp', until: 'optional timestamp'},
+        output: {totalCasings: 'number', recount: 'grouped counts', lastCasing: 'latest matching immutable event or null'},
+        agentRecipe: {
+          whenUserSays: 'Armory recount or asks how many matching things have been recorded.',
+          prefer: 'Call drive_operation with operation=armory.recount and only the filters the user supplied.',
+          verification: 'Report the aggregate and the matching time boundary without guessing missing filters.',
+        },
+      },
+      'armory.casing': {
+        summary: 'Retrieve recent owner-scoped Armory Range casings, including the last matching event.',
+        write: false,
+        requiresRequestId: false,
+        requiredScopes: [],
+        input: {ammunition: 'optional exact item filter; item or subject aliases accepted', action: 'optional exact action filter', since: 'optional timestamp', until: 'optional timestamp', lastOnly: 'optional boolean', limit: 'optional integer 1-100, default 10'},
+        output: {count: 'number', lastCasing: 'latest matching immutable event or null', casings: 'newest-first matching events'},
+        agentRecipe: {
+          whenUserSays: 'Armory casing, what was my last shot fired in the range, or asks for recent matching events.',
+          prefer: 'Call drive_operation with operation=armory.casing. For last-shot questions use action=fired and lastOnly=true.',
+          verification: 'Read back ammunition/item, action, occurredAt, and timestampSource.',
         },
       },
       'tts.voices': {
@@ -4654,6 +4694,19 @@ async function driveOperationRunOperation({google, admin, auth, user, extra = nu
   if (simulationOperationRegistry().operations[operation]) {
     const result = await simulationOperationRunOperation({admin, user, args: {operation, args: operationArgs}});
     return {operation, registryVersion: registry.version, completed: true, result: result.result};
+  }
+  if (operation === 'armory.receipt') {
+    const result = await armoryReceiptOperation({admin, user, args: operationArgs});
+    await recordActionAudit(admin, user, 'armory.receipt', result.receiptId, 'Recorded ' + result.count + ' immutable Armory Range casing(s) for ' + result.item + '.', result.requestId);
+    return {operation, registryVersion: registry.version, completed: true, result};
+  }
+  if (operation === 'armory.recount') {
+    const result = await armoryRecountOperation({admin, user, args: operationArgs});
+    return {operation, registryVersion: registry.version, completed: true, result};
+  }
+  if (operation === 'armory.casing') {
+    const result = await armoryCasingOperation({admin, user, args: operationArgs});
+    return {operation, registryVersion: registry.version, completed: true, result};
   }
   if (operation === 'tts.voices') {
     await requireCreditGatedContext({google, admin, googleClientId, googleClientSecret, extra, user, auth, surface: 'tts.voices'});
@@ -6544,4 +6597,4 @@ function createHomeCenterMcpApp({google, admin, googleClientId = () => '', googl
   return app;
 }
 
-module.exports = {HOME_CENTER_MCP_SERVER_VERSION, HOME_CENTER_CONNECTOR_SCHEMA_REVISION, HOME_CENTER_REGISTRY_VERSION, HOME_CENTER_DIRECT_FILE_TOOLS, verifiedRenderGifMcpContent, attachRenderGifMcpContent, renderArtifactHashEntry, uploadVerifiedArtifact, createHomeCenterMcpApp, createHomeCenterMcpServer, createDriveFolderOperation, createGoogleDocOperation, appendGoogleDocOperation, publishContextSnapshotOperation, synthesizeCartesiaAudioArtifactOperation, cartesiaVoicesOperation, createSheetOperation, updateSheetValuesOperation, importXlsxWorkbookOperation, readDriveBinaryChunkOperation, compareAudioIngestFileIds, ingestDriveAudioOperation, finalizeDriveAudioIngestBatchOperation, driveOperationRunOperation, driveWorkflowRunOperation, simulationOperationRunOperation, simulationOperationRegistry, droobiedooContextOperationEntries, loadDroobiedooContextIndex, searchDroobiedooContextIndex, runDroobiedooContextOperation, normalizeRecoveryOperation, summarizeRecoveryOperations, loadMcpAccessContext, renderAudioOperation, inspectAudioArtifactsOperation, materializeHomeCenterRenderDriveRefs, materializeHomeCenterRenderSources, stageHomeCenterGitHubRenderInput, normalizeRenderGitHubSource, githubAdminOperationEntries, githubAdminOperationRunOperation, createGitHubAppJwt};
+module.exports = {HOME_CENTER_MCP_SERVER_VERSION, HOME_CENTER_CONNECTOR_SCHEMA_REVISION, HOME_CENTER_REGISTRY_VERSION, HOME_CENTER_DIRECT_FILE_TOOLS, verifiedRenderGifMcpContent, attachRenderGifMcpContent, renderArtifactHashEntry, uploadVerifiedArtifact, createHomeCenterMcpApp, createHomeCenterMcpServer, createDriveFolderOperation, createGoogleDocOperation, appendGoogleDocOperation, publishContextSnapshotOperation, synthesizeCartesiaAudioArtifactOperation, cartesiaVoicesOperation, createSheetOperation, updateSheetValuesOperation, importXlsxWorkbookOperation, readDriveBinaryChunkOperation, compareAudioIngestFileIds, ingestDriveAudioOperation, finalizeDriveAudioIngestBatchOperation, driveOperationRunOperation, driveWorkflowRunOperation, simulationOperationRunOperation, simulationOperationRegistry, droobiedooContextOperationEntries, loadDroobiedooContextIndex, searchDroobiedooContextIndex, runDroobiedooContextOperation, normalizeRecoveryOperation, summarizeRecoveryOperations, loadMcpAccessContext, armoryReceiptOperation, armoryRecountOperation, armoryCasingOperation, renderAudioOperation, inspectAudioArtifactsOperation, materializeHomeCenterRenderDriveRefs, materializeHomeCenterRenderSources, stageHomeCenterGitHubRenderInput, normalizeRenderGitHubSource, githubAdminOperationEntries, githubAdminOperationRunOperation, createGitHubAppJwt};
