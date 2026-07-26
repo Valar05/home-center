@@ -199,6 +199,14 @@ assert.equal(shouldAcceptWorkerCompletion({requestedStatus: 'failed', events: []
 
 
 const cloudWorkerSource = fs.readFileSync(new URL('../cloud-worker/src/cloud_run_worker.mjs', import.meta.url), 'utf8');
+
+assert(cloudWorkerSource.includes('COMMAND_CENTER_OPENAI_AUTH_MODE'));
+assert(cloudWorkerSource.includes('chatgpt_subscription'));
+assert(cloudWorkerSource.includes('COMMAND_CENTER_CODEX_HOME_BUNDLE'));
+assert(cloudWorkerSource.includes('prepareCodexAuth'));
+assert(cloudWorkerSource.includes('Codex run did not emit turn.completed'));
+assert(cloudWorkerSource.includes('quota exceeded'));
+assert(cloudWorkerSource.includes('codex-auth-evidence.json'));
 assert(cloudWorkerSource.includes('async function runOneShotJob()'));
 assert(cloudWorkerSource.includes("post('/worker/lease', {jobId, executorId})"));
 assert(cloudWorkerSource.includes("executor_started"));
