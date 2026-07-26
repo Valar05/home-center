@@ -31,7 +31,7 @@ assert(homeCenter.includes('materializeHomeCenterRenderDriveRefs'));
 assert(homeCenter.includes('materializeHomeCenterRenderSources'));
 assert(homeCenter.includes('stageHomeCenterGitHubRenderInput'));
 assert(homeCenter.includes("githubToken = () => ''"));
-assert(homeCenter.includes('googleClientSecret, githubToken, extra')); 
+assert(homeCenter.includes('googleClientSecret, githubToken, extra'));
 assert(homeCenter.includes('github_input_download_auth_failed'));
 assert(homeCenter.includes('glbSource.provider=github'));
 assert(homeCenter.includes("' source is required for render.blender_glb: provide '"));

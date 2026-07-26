@@ -52,4 +52,3 @@ console.log(JSON.stringify({
   screenshotSha256: result.screenshotSha256,
   artifacts,
 }, null, 2));
-

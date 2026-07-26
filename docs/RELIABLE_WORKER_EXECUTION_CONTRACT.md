@@ -1,7 +1,7 @@
 # Reliable Worker Execution Contract
 
-Status: repository contract candidate  
-Schema: `ops/worker_execution_contract.v1.json`  
+Status: repository contract candidate
+Schema: `ops/worker_execution_contract.v1.json`
 Validation: `node tools/worker_execution_contract_test.mjs`
 
 ## Outcome
