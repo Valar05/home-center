@@ -51,6 +51,36 @@ Canonical profiles resolve aliases case-insensitively:
 
 Explicit segment settings override canonical profile values and are recorded in the manifest. Isaac's pitch is applied by the existing tempo-preserving post-Cartesia pitch processor.
 
+## Block-Mixed Long-Form Post-Production
+
+Use **block_mix** for long narration stems with sparse ambience and punctual effects. It allocates one final timeline, reads short textures as loopable windows, mixes dialogue and atmosphere in bounded frame blocks, performs local dialogue ducking during that pass, and yields between blocks so the worker can renew its lease. Encoded OGG/MP3/FLAC output is then streamed to FFmpeg in PCM blocks instead of first allocating another full WAV buffer.
+
+~~~json
+{
+  "sampleRate": 24000,
+  "graph": [
+    {"id": "narration", "op": "load", "source": "narration"},
+    {"id": "road_air", "op": "noise", "duration": 4, "channels": 1, "gain": 0.04, "seed": "road-air", "color": "pink"},
+    {"id": "final", "op": "block_mix", "duration": 849.4, "channels": 2, "items": [
+      {"clip": "narration", "at": 0, "gainDb": 0},
+      {"clip": "road_air", "at": 0, "duration": 214, "loop": true, "gainDb": -28, "fadeIn": 1.2, "fadeOut": 1.2, "duckBy": "narration", "duckAmountDb": 6}
+    ]}
+  ],
+  "final": "final",
+  "outputs": [{"name": "scene.ogg", "format": "ogg", "clip": "final"}]
+}
+~~~
+
+Each item supports **at**, **duration**, **offset**, **loop**, **gainDb**, mono **pan**, **fadeIn**, **fadeOut**, **duckBy**, **duckAt**, and **duckAmountDb**. Long-form recipes should keep ambience textures short and bound each audible window to a real location or transition. Do not create a full-duration noise clip merely to feed it into **block_mix**.
+
+The manifest records graph timing plus worker phase timing. Worker status reports **block_mixing** frame/block progress, **encoding** frame/block progress, and publication sub-phases. These are operational evidence that immutable work is advancing; they are not a creative-quality score.
+
+## Verified-By-Default Batch Acceptance
+
+When the user grants standing authority to assume generated chapter parts are good, successful technical verification advances the production queue without a mandatory listening stop. The accepted gate is: exact source boundary and cast manifest; immutable narration hash; no unplanned paid speech during source-only post-production; successful decode; non-silent output; clipping within policy; and matching GCS/Drive byte counts and SHA-256 readbacks.
+
+Human listening becomes an exception lane triggered by a concrete anomaly, a changed voice/cast/world choice, masking or clipping evidence, or an explicit review request. This standing authority accepts the artifact for workflow progression; it does not manufacture a claim about perceived emotion or cinematic quality that nobody observed.
+
 ## Long-Form Limits And Recovery
 
 Production defaults support at least 900 seconds per final clip and up to 240 `speech_sequence` segments. A ten-minute mono 24 kHz render is roughly 28.8 MB of PCM before encoding. OGG is the recommended long-form delivery format; WAV uses a separate 64 MB safety ceiling while encoded outputs use a 24 MB ceiling. Inline audio content is size-bounded and skipped above the inline limit, so long-form callers should set `returnInlineAudio: false` and treat the textual receipt plus `resource_link` and Drive readback verification as authoritative.
@@ -90,4 +120,4 @@ This doctrine was promoted after the Chapter 1 Scenes Five–Six production expo
 
 The first live canonical-source recovery, `vacation-day1-scenes5-6-coastal-road-through-royal-cove-soundscape-v2-20260726`, reused the verified 40,772,934-byte narration WAV by its allowlisted GCS ref and expected SHA-256. Canonical materialization completed in about 24 seconds, the lease remained current throughout deterministic rendering, and the final 14:09.435 stereo OGG published with matching GCS/Drive hashes and successful independent decode checks. The recipe contained zero speech nodes, so recovery could not incur a second Cartesia charge.
 
-That run also established the next honest performance boundary: a 14:09 timeline required about 16:03 end to end even after source transfer was repaired. The in-memory mix graph, encoding, and publication path—not speech synthesis or canonical retrieval—now dominate long-form latency. The next renderer optimization should therefore be a bounded block/streaming mixer with phase timing in the manifest. Artifact publication must also renew the lease or emit explicit sub-phase checkpoints; a completed render sitting in `publishing_artifacts` must not become operationally ambiguous.
+That run also established the next honest performance boundary: a 14:09 timeline required about 16:03 end to end even after source transfer was repaired. The in-memory mix graph, encoding, and publication path—not speech synthesis or canonical retrieval—now dominate long-form latency. This boundary is addressed by the follow-on `block_mix` renderer: bounded frame mixing, block-streamed encoding, phase timing, and publication heartbeats/sub-phase checkpoints. Production acceptance still requires a live benchmark against a long canonical narration stem before the old 16:03 baseline is retired.
