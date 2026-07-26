@@ -496,6 +496,31 @@ async function blockMix({duration, sampleRate = DEFAULT_SAMPLE_RATE, channels = 
       if (itemEnd <= itemStart) continue;
       const sourceRatio = item.clip.sampleRate / sampleRate;
       const duckRatio = item.duckClip ? item.duckClip.sampleRate / sampleRate : 1;
+      const directFrames = sourceRatio === 1 && !item.looped;
+      const constantGain = !item.fadeInFrames && !item.fadeOutFrames && !item.duckClip;
+      if (directFrames && constantGain && item.clip.channelCount === 1 && channels === 2) {
+        const source = item.clip.channels[0];
+        const left = out.channels[0], right = out.channels[1];
+        const leftGain = item.gainMult * item.monoLeft;
+        const rightGain = item.gainMult * item.monoRight;
+        let sourceFrame = item.sourceOffsetFrames + itemStart - item.atFrame;
+        for (let frame = itemStart; frame < itemEnd; frame++, sourceFrame++) {
+          const value = source[sourceFrame] || 0;
+          left[frame] += value * leftGain;
+          right[frame] += value * rightGain;
+        }
+        continue;
+      }
+      if (directFrames && constantGain) {
+        let sourceFrame = item.sourceOffsetFrames + itemStart - item.atFrame;
+        for (let frame = itemStart; frame < itemEnd; frame++, sourceFrame++) {
+          for (let channel = 0; channel < channels; channel++) {
+            const source = item.clip.channels[item.clip.channelCount === 1 ? 0 : Math.min(channel, item.clip.channelCount - 1)];
+            out.channels[channel][frame] += (source[sourceFrame] || 0) * item.gainMult;
+          }
+        }
+        continue;
+      }
       for (let frame = itemStart; frame < itemEnd; frame++) {
         const localFrame = frame - item.atFrame;
         const sourceFrame = item.sourceOffsetFrames + localFrame * sourceRatio;
@@ -832,17 +857,21 @@ async function ffmpegEncodeClip(clip, format, timeoutMs = DEFAULT_TIMEOUT_MS, on
       child.on('error', (err) => { clearTimeout(timer); reject(audioError('Audio encoder failed to start: ' + err.message, 500, 'audio_render_encoder_failed')); });
       child.on('exit', (code) => { clearTimeout(timer); code === 0 ? resolve() : reject(audioError('Audio encoder failed: ' + stderr.slice(0, 500), 500, 'audio_render_encoder_failed')); });
     });
-    const blockFrames = 65536;
+    const blockFrames = 262144;
     const totalBlocks = Math.max(1, Math.ceil(clip.frames / blockFrames));
+    const nativeLittleEndian = os.endianness() === 'LE';
     for (let blockIndex = 0; blockIndex < totalBlocks; blockIndex++) {
       const start = blockIndex * blockFrames;
       const end = Math.min(clip.frames, start + blockFrames);
       const pcm = Buffer.allocUnsafe((end - start) * clip.channelCount * 2);
-      let offset = 0;
+      const pcm16 = nativeLittleEndian ? new Int16Array(pcm.buffer, pcm.byteOffset, pcm.byteLength / 2) : null;
+      let sampleIndex = 0;
       for (let frame = start; frame < end; frame++) for (let channel = 0; channel < clip.channelCount; channel++) {
         const sample = Math.max(-1, Math.min(1, clip.channels[channel][frame]));
-        pcm.writeInt16LE(sample < 0 ? Math.round(sample * 32768) : Math.round(sample * 32767), offset);
-        offset += 2;
+        const value = sample < 0 ? Math.round(sample * 32768) : Math.round(sample * 32767);
+        if (pcm16) pcm16[sampleIndex] = value;
+        else pcm.writeInt16LE(value, sampleIndex * 2);
+        sampleIndex += 1;
       }
       if (!child.stdin.write(pcm)) await new Promise((resolve) => child.stdin.once('drain', resolve));
       if (typeof onProgress === 'function') await onProgress({phase: 'encoding', format, blockIndex: blockIndex + 1, blockCount: totalBlocks, framesProcessed: end, totalFrames: clip.frames});
