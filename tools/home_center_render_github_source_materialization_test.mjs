@@ -108,7 +108,7 @@ assert.equal(fetchCount, 1, 'GitHub GLB source must be fetched once on first mat
 const cachedObject = saves.find((record) => /github-cache\/glb\/.+vanguard_rigged_animations\.glb$/.test(record.objectName));
 assert(cachedObject, 'GitHub GLB source must be staged into durable cache');
 assert.equal(Buffer.compare(cachedObject.bytes, glbBytes), 0, 'staged GLB bytes must match GitHub response bytes');
-assert(out.glbRef.startsWith('gs://home-center-dclar-command-center-renders/command-center-render-inputs/github-cache/glb/'));
+assert(out.glbRef.startsWith('gs://home-center-generated/temp/render-inputs/github-cache/glb/'));
 assert.equal(out.scriptText, 'print(1)');
 assert.equal(out.stagedInputs.length, 1);
 assert.equal(out.stagedInputs[0].sha256, createHash('sha256').update(glbBytes).digest('hex'));
