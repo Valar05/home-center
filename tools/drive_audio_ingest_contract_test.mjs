@@ -153,6 +153,22 @@ assert.equal(sealed.driveTrashEligible, false);
 assert.match(sealed.manifest.storageRef, new RegExp('batches/' + batchId + '/manifest\\.json$'));
 assert.equal(audit.length, 2);
 
+const resealed = await finalizeDriveAudioIngestBatchOperation({
+  user: {email: 'dclarke1005@gmail.com'},
+  args: {
+    batchId,
+    requestId: 'audio-ingest-reseal-contract-20260726',
+    approved: true,
+    expectedFileIds: ['drive-file-1234'],
+    expectedCount: 1,
+    expectedBytes: source.length,
+  },
+  storage,
+  recordAudit: async () => {},
+});
+assert.equal(resealed.sealed, true);
+assert.equal(resealed.manifest.reused, true);
+
 await assert.rejects(() => finalizeDriveAudioIngestBatchOperation({
   user: {email: 'dclarke1005@gmail.com'},
   args: {batchId, requestId: 'bad-seal', approved: true, expectedFileIds: [], expectedCount: 1, expectedBytes: source.length},
