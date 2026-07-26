@@ -2735,9 +2735,15 @@ function shouldAcceptWorkerCompletion({requestedStatus, events = [], artifacts =
   if (!workspaceArtifact) return {ok: false, reason: 'completed jobs require at least one artifact from the executor workspace'};
   const artifactNames = new Set(artifacts.map((artifact) => safeText(artifact.name, 240)).filter(Boolean));
   if (artifactNames.has('noop-proof.txt')) return {ok: false, reason: 'completed repository jobs cannot be proven by noop-proof.txt'};
-  const requiredExecutionArtifacts = ['job-intake.json', 'orientation.md', 'reasoning-summary.md', 'command-log.jsonl', 'acceptance.json', 'acceptance-matrix.json', 'implementation.patch', 'changed-files.json', 'verification.json', 'final-report.md', 'mutation-requests.jsonl'];
+  const executionMode = cleanExecutionMode(job.executionMode);
+  const requiredExecutionArtifacts = executionMode === 'one_shot'
+    ? [...COMMAND_CENTER_REQUIRED_ARTIFACTS, 'acceptance.json', 'acceptance-matrix.json']
+    : requiredArtifactsForExecutionMode(executionMode);
   const missing = requiredExecutionArtifacts.filter((name) => !artifactNames.has(name));
-  if (missing.length) return {ok: false, reason: 'completed repository jobs require execution artifacts: ' + missing.join(', ')};
+  if (missing.length) return {ok: false, reason: 'completed ' + executionMode + ' jobs require execution artifacts: ' + missing.join(', ')};
+  if (executionMode === 'codex_smoke' && !types.has('executor_stdout') && !types.has('executor_stderr')) {
+    return {ok: false, reason: 'completed codex_smoke jobs require streamed stdout or stderr evidence'};
+  }
   if (safeList(job.requiredArtifacts, 80, 180).some((name) => /red|patch|verification|pr|commit|build|readback/i.test(name)) && !artifactNames.has('implementation.patch')) {
     return {ok: false, reason: 'completed mutation tickets require implementation.patch evidence'};
   }
@@ -5690,6 +5696,8 @@ function createCommandCenterMcpApp({admin}) {
 }
 
 module.exports = {
+  COMMAND_CENTER_ALLOWED_EMAILS,
+  requireCommandCenterAllowedEmail,
   COMMAND_CENTER_COLLECTIONS,
   COMMAND_CENTER_DEFAULT_WORKERS,
   COMMAND_CENTER_DEFAULT_PROJECTS,

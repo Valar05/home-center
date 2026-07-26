@@ -5,7 +5,7 @@ import path from 'node:path';
 import {homedir} from 'node:os';
 
 const DEFAULT_MCP_URL = 'https://us-central1-home-center-dclar.cloudfunctions.net/homeCenterMcp/mcp';
-const EXPECTED_REVISION = '2026-07-25.blender-direct-file-catalog-v2';
+const EXPECTED_REVISION = '2026-07-26.integrated-capabilities-security-v1';
 
 function parseArgs(argv) {
   const args = {

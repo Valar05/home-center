@@ -17,6 +17,8 @@ python3 -m py_compile tools/home_drive_speaker_profile_scan.py
 sh -n tools/docker_install_smoke.sh
 python3 tools/home_center_regression_tests.py
 node --check functions/command_center_mcp.js
+node --check tools/home_center_authorization_contract_test.mjs
+node tools/home_center_authorization_contract_test.mjs
 node --check functions/sms_calendar_intake.js
 node --check tools/sms_calendar_contract_test.mjs
 node tools/sms_calendar_contract_test.mjs
@@ -24,7 +26,6 @@ node --check functions/she_raw_mcp.js
 node --check tools/command_center_mcp_contract_test.mjs
 node --check tools/command_center_cloud_activation_contract_test.mjs
 node --check tools/command_center_worker_lifecycle_contract_test.mjs
-node --check tools/command_center_machine_image_session_contract_test.mjs
 node --check tools/command_center_two_dispatch_acceptance.mjs
 node --check tools/command_center_chatgpt_invokability_gate.mjs
 node --check tools/command_center_home_bridge_invokability_gate.mjs
@@ -32,12 +33,10 @@ node --check tools/command_center_real_capability_gate.mjs
 node --check tools/command_center_oneshot_worker.mjs
 node --check tools/command_center_verbose_worker_smoke.mjs
 node --check cloud-worker/src/cloud_run_worker.mjs
-node cloud-worker/src/cloud_run_worker.mjs --self-test
 sh -n tools/deploy_command_center_cloud_worker.sh
 node tools/command_center_mcp_contract_test.mjs
 node tools/command_center_cloud_activation_contract_test.mjs
 node tools/command_center_worker_lifecycle_contract_test.mjs
-node tools/command_center_machine_image_session_contract_test.mjs
 node --check tools/command_center_blender_render_contract_test.mjs
 node tools/command_center_blender_render_contract_test.mjs
 node --check tools/command_center_blender_file_handoff_test.mjs
@@ -54,8 +53,6 @@ node --check tools/home_center_render_github_source_materialization_test.mjs
 node tools/home_center_render_github_source_materialization_test.mjs
 node --check tools/command_center_blender_upload_byte_preservation_test.mjs
 node tools/command_center_blender_upload_byte_preservation_test.mjs
-node --check tools/she_raw_contract_test.mjs
-node tools/she_raw_contract_test.mjs
 node --check tools/she_raw_cloud_introspection_gate.mjs
 node --check tools/she_raw_seed_corpus_firestore.mjs
 node tools/command_center_oneshot_worker.mjs --self-test

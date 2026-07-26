@@ -96,7 +96,7 @@ const out = await materializeHomeCenterRenderDriveRefs({google, admin, googleCli
 assert.equal(driveMediaRequested, true, 'Drive media must be downloaded with the connected OAuth context');
 assert.equal(saves.length, 1, 'GLB drive ref must be staged once');
 assert.equal(Buffer.compare(saves[0].bytes, glbBytes), 0, 'staged GLB bytes must match Drive media bytes');
-assert(out.glbRef.startsWith('gs://home-center-dclar-command-center-renders/command-center-render-inputs/home-center-bridge/drew@example.com/'));
+assert(out.glbRef.startsWith('gs://home-center-generated/temp/render-inputs/home-center-bridge/drew@example.com/'));
 assert.equal(out.scriptText, 'print(1)');
 assert.equal(out.stagedInputs.length, 1);
 assert.equal(out.stagedInputs[0].sha256, createHash('sha256').update(glbBytes).digest('hex'));

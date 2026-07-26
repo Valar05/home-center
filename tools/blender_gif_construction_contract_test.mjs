@@ -42,7 +42,7 @@ assert.deepEqual(contract.gifTimingMs, [110, 90, 130]);
 assert.deepEqual(contract.selectedFrames.map((frame) => frame.sourceIndex), [0, 2, 1]);
 assert(!contract.gifFrames.includes(3), 'excluded evidence frame must not enter GIF playback contract');
 assert.throws(() => buildGifPlaybackContract(fakeFrames, {evidenceFrames: [0, 1, 2, 3], gifFrames: [], gifTimingMs: []}, {}), /gifFrames must not be empty/);
-assert.throws(() => buildGifPlaybackContract(fakeFrames, {evidenceFrames: [0, 1, 2, 3], gifFrames: [4], gifTimingMs: [100]}, {}), /missing evidence frame index 4/);
+assert.throws(() => buildGifPlaybackContract(fakeFrames, {evidenceFrames: [0, 1, 2, 3], gifFrames: [4], gifTimingMs: [100]}, {}), /index 4 is out of range for 4 evidence frames/);
 assert.throws(() => buildGifPlaybackContract(fakeFrames, {evidenceFrames: [0, 1, 2, 3], gifFrames: [1, 1], gifTimingMs: [100, 100]}, {}), /duplicate index 1/);
 assert.throws(() => buildGifPlaybackContract(fakeFrames, {evidenceFrames: [0, 1, 2, 3], gifFrames: [0, 2], gifTimingMs: [100]}, {}), /gifTimingMs.length/);
 

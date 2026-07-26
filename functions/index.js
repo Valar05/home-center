@@ -5,7 +5,7 @@ const {google} = require('googleapis');
 const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
-const {createHomeCenterMcpApp, createDriveFolderOperation, createGoogleDocOperation} = require('./home_center_mcp');
+const {CREDIT_GATED_EMAILS, requireCreditGatedEmail, createHomeCenterMcpApp, createDriveFolderOperation, createGoogleDocOperation} = require('./home_center_mcp');
 const {audioLibraryHandler} = require('./audio_library_api');
 const {createCommandCenterMcpApp} = require('./command_center_mcp');
 const {createSheRawMcpApp} = require('./she_raw_mcp');
@@ -129,6 +129,11 @@ async function requireSmokeUser(req) {
       return {uid: '', email};
     }
   }
+}
+
+function requireCreditBackedUser(user, surface) {
+  requireCreditGatedEmail(user && user.email, surface);
+  return user;
 }
 
 function bearerTokenFrom(req) {
@@ -4480,27 +4485,27 @@ exports.usageSummary = onRequest({timeoutSeconds: 30}, async (req, res) => {
 exports.creativePromptSmoke = onRequest({timeoutSeconds: 120, secrets: [OPENAI_API_KEY]}, async (req, res) => {
   if (handleOptions(req, res)) return;
   try {
-    const user = await requireSmokeUser(req);
+    const user = requireCreditBackedUser(await requireSmokeUser(req), 'creativePromptSmoke');
     sendJson(res, 200, await runCreativePromptSmoke(user, req.body || {}));
   } catch (err) {
-    sendJson(res, err.status || 500, {ok: false, error: 'creative_prompt_smoke_failed', detail: err.message || String(err), stack: String(err.stack || '')});
+    sendJson(res, err.status || 500, {ok: false, error: 'creative_prompt_smoke_failed', detail: err.message || String(err)});
   }
 });
 
 exports.turnContractSmoke = onRequest({timeoutSeconds: 120, secrets: [OPENAI_API_KEY]}, async (req, res) => {
   if (handleOptions(req, res)) return;
   try {
-    const user = await requireSmokeUser(req);
+    const user = requireCreditBackedUser(await requireSmokeUser(req), 'turnContractSmoke');
     sendJson(res, 200, await runTurnContractSmoke(req.body || {}, user));
   } catch (err) {
-    sendJson(res, err.status || 500, {ok: false, error: 'turn_contract_smoke_failed', detail: err.message || String(err), stack: String(err.stack || '')});
+    sendJson(res, err.status || 500, {ok: false, error: 'turn_contract_smoke_failed', detail: err.message || String(err)});
   }
 });
 
 exports.metalPromptSmoke = onRequest({timeoutSeconds: 300, secrets: [OPENAI_API_KEY, GOOGLE_OAUTH_CLIENT_ID, GOOGLE_OAUTH_CLIENT_SECRET]}, async (req, res) => {
   if (handleOptions(req, res)) return;
   try {
-    const user = await requireSmokeUser(req);
+    const user = requireCreditBackedUser(await requireSmokeUser(req), 'metalPromptSmoke');
     const scenario = safeText(req.body && req.body.scenario, 120) || 'docs-create-update-read';
     if (!['docs-create-update-read', 'creative-doc-read-finalizes', 'writing-split-docs', 'drive-bridge-create-tools'].includes(scenario)) {
       sendJson(res, 400, {ok: false, error: 'unknown_scenario', detail: scenario});
@@ -4508,7 +4513,7 @@ exports.metalPromptSmoke = onRequest({timeoutSeconds: 300, secrets: [OPENAI_API_
     }
     sendJson(res, 200, await runMetalPromptSmoke(user, req.body || {}));
   } catch (err) {
-    sendJson(res, err.status || 500, {ok: false, error: 'metal_prompt_smoke_failed', detail: err.message || String(err), stack: String(err.stack || '')});
+    sendJson(res, err.status || 500, {ok: false, error: 'metal_prompt_smoke_failed', detail: err.message || String(err)});
   }
 });
 
@@ -4622,7 +4627,7 @@ exports.chatGptDocsAppend = onRequest({timeoutSeconds: 60}, async (req, res) => 
 exports.agentToolTurn = onRequest({timeoutSeconds: 120, secrets: [OPENAI_API_KEY]}, async (req, res) => {
   if (handleOptions(req, res)) return;
   try {
-    const user = await requireUser(req);
+    const user = requireCreditBackedUser(await requireUser(req), 'agentToolTurn');
     const message = safeText(req.body && req.body.message, 4000);
     if (!message) {
       sendJson(res, 400, {type: 'final', reply: 'Tell me what you want Home Center to do.', status: 'missing_message'});
@@ -4637,7 +4642,7 @@ exports.agentToolTurn = onRequest({timeoutSeconds: 120, secrets: [OPENAI_API_KEY
 exports.agentTurn = onRequest({timeoutSeconds: 120, secrets: [OPENAI_API_KEY, GOOGLE_OAUTH_CLIENT_ID, GOOGLE_OAUTH_CLIENT_SECRET]}, async (req, res) => {
   if (handleOptions(req, res)) return;
   try {
-    const user = await requireUser(req);
+    const user = requireCreditBackedUser(await requireUser(req), 'agentTurn');
     const message = safeText(req.body && req.body.message, 4000);
     if (!message) {
       sendJson(res, 400, {reply: 'Tell me what you want Home Center to do.', status: 'missing_message'});
@@ -4704,20 +4709,10 @@ function cartesiaApiKeyGetter() {
   return CARTESIA_API_KEY.value() || process.env.CARTESIA_API_KEY || '';
 }
 
-const HOSTED_TTS_ALLOWED_EMAILS = Object.freeze([
-  'dclarke1005@gmail.com',
-  'junewren28@gmail.com',
-  'timothypomeroy07@gmail.com',
-]);
-const HOSTED_TTS_ALLOWED_EMAIL_SET = new Set(HOSTED_TTS_ALLOWED_EMAILS);
+const HOSTED_TTS_ALLOWED_EMAILS = CREDIT_GATED_EMAILS;
 
 async function requireHostedTtsAllowedUser(req) {
-  const user = await requireGoogleOAuthAction(req);
-  const email = safeText(user && user.email, 320).toLowerCase();
-  if (HOSTED_TTS_ALLOWED_EMAIL_SET.has(email)) return user;
-  const err = new Error('hosted_tts_forbidden: this credit-backed TTS endpoint is restricted to approved Home Center accounts.');
-  err.status = 403;
-  throw err;
+  return requireCreditBackedUser(await requireGoogleOAuthAction(req), 'hosted TTS');
 }
 
 async function openElevenLabsStream(text, options = {}) {

@@ -27,7 +27,7 @@ const {
 const DEFAULT_MCP_PUBLIC_BASE = 'https://us-central1-home-center-dclar.cloudfunctions.net/homeCenterMcp';
 const MCP_PUBLIC_BASE = process.env.HOME_CENTER_MCP_PUBLIC_BASE || DEFAULT_MCP_PUBLIC_BASE;
 const HOME_CENTER_MCP_SERVER_VERSION = '0.1.1';
-const HOME_CENTER_CONNECTOR_SCHEMA_REVISION = '2026-07-25.blender-direct-file-catalog-v2';
+const HOME_CENTER_CONNECTOR_SCHEMA_REVISION = '2026-07-26.integrated-capabilities-security-v1';
 const HOME_CENTER_REGISTRY_VERSION = HOME_CENTER_CONNECTOR_SCHEMA_REVISION;
 const HOME_CENTER_DIRECT_FILE_TOOLS = Object.freeze(['render_blender_glb']);
 const MCP_RESOURCE = `${MCP_PUBLIC_BASE}/mcp`;
@@ -57,6 +57,11 @@ const CREDIT_GATED_EMAILS = Object.freeze([
 ]);
 const CREDIT_GATED_EMAIL_SET = new Set(CREDIT_GATED_EMAILS);
 
+const GITHUB_ADMIN_ALLOWED_EMAILS = Object.freeze([
+  'dclarke1005@gmail.com',
+]);
+const GITHUB_ADMIN_ALLOWED_EMAIL_SET = new Set(GITHUB_ADMIN_ALLOWED_EMAILS);
+
 function requireCreditGatedEmail(email, surface = 'credit-backed operation') {
   const clean = safeText(email, 320).toLowerCase();
   if (CREDIT_GATED_EMAIL_SET.has(clean)) return clean;
@@ -71,6 +76,16 @@ async function requireCreditGatedContext({google, admin, googleClientId, googleC
   if (!context) context = await requestGoogleContext(extra, google, admin, googleClientId, googleClientSecret);
   requireCreditGatedEmail(context.user && context.user.email, surface);
   return context;
+}
+
+function requireGitHubAdminUser(user) {
+  const email = safeText(user && user.email, 320).toLowerCase();
+  if (GITHUB_ADMIN_ALLOWED_EMAIL_SET.has(email)) return email;
+  const err = new Error('GitHub Admin is restricted to Drew.');
+  err.status = 403;
+  err.code = 'github_admin_forbidden_email';
+  err.failureKind = 'github_admin_forbidden_email';
+  throw err;
 }
 
 function safeText(value, max = 12000) {
@@ -2505,7 +2520,8 @@ function safeGitHubAdminStatusSecret(githubAdmin, key, envKey, max = 12000) {
   }
 }
 
-async function githubAdminAuthStatusOperation({githubAdmin = {}}) {
+async function githubAdminAuthStatusOperation({user, githubAdmin = {}}) {
+  requireGitHubAdminUser(user);
   const owners = githubAdminOwners(githubAdmin);
   const runtimeEnabled = githubAdminEnabled();
   const appIdSecret = safeGitHubAdminStatusSecret(githubAdmin, 'appId', 'GITHUB_APP_ID', 120);
@@ -2556,6 +2572,7 @@ async function githubAdminAuthStatusOperation({githubAdmin = {}}) {
   };
 }
 async function githubAdminCreateRepoOperation({admin, user, githubAdmin, args = {}}) {
+  requireGitHubAdminUser(user);
   requireGitHubAdminEnabled();
   const requestId = createRequestId(args.requestId);
   const existing = await existingAudit(admin, requestId);
@@ -2577,6 +2594,7 @@ async function githubAdminCreateRepoOperation({admin, user, githubAdmin, args = 
 }
 
 async function githubAdminConfigureRepoOperation({admin, user, githubAdmin, args = {}}) {
+  requireGitHubAdminUser(user);
   requireGitHubAdminEnabled();
   const requestId = createRequestId(args.requestId);
   const existing = await existingAudit(admin, requestId);
@@ -2596,6 +2614,7 @@ async function githubAdminConfigureRepoOperation({admin, user, githubAdmin, args
 }
 
 async function githubAdminCreateBranchOperation({admin, user, githubAdmin, args = {}}) {
+  requireGitHubAdminUser(user);
   requireGitHubAdminEnabled();
   const requestId = createRequestId(args.requestId);
   const existing = await existingAudit(admin, requestId);
@@ -2616,6 +2635,7 @@ async function githubAdminCreateBranchOperation({admin, user, githubAdmin, args 
 }
 
 async function githubAdminUpsertFileOperation({admin, user, githubAdmin, args = {}}) {
+  requireGitHubAdminUser(user);
   requireGitHubAdminEnabled();
   const requestId = createRequestId(args.requestId);
   const existing = await existingAudit(admin, requestId);
@@ -2648,6 +2668,7 @@ async function githubAdminUpsertFileOperation({admin, user, githubAdmin, args = 
 }
 
 async function githubAdminCreatePullRequestOperation({admin, user, githubAdmin, args = {}}) {
+  requireGitHubAdminUser(user);
   requireGitHubAdminEnabled();
   const requestId = createRequestId(args.requestId);
   const existing = await existingAudit(admin, requestId);
@@ -2680,6 +2701,7 @@ async function githubAdminCheckMergePreconditions(githubAdmin, repo, number, arg
 }
 
 async function githubAdminMergePullRequestOperation({admin, user, githubAdmin, args = {}}) {
+  requireGitHubAdminUser(user);
   requireGitHubAdminEnabled();
   const requestId = createRequestId(args.requestId);
   const existing = await existingAudit(admin, requestId);
@@ -2700,6 +2722,7 @@ async function githubAdminMergePullRequestOperation({admin, user, githubAdmin, a
 }
 
 async function githubAdminDispatchWorkflowOperation({admin, user, githubAdmin, args = {}}) {
+  requireGitHubAdminUser(user);
   requireGitHubAdminEnabled();
   if (!safeText(args.requestId, 180)) throw Object.assign(new Error('requestId is required for github_admin.workflows.dispatch.'), {status: 400, code: 'github_admin_request_id_required'});
   const requestId = createRequestId(args.requestId);
@@ -2718,13 +2741,14 @@ async function githubAdminDispatchWorkflowOperation({admin, user, githubAdmin, a
 }
 
 async function githubAdminOperationRunOperation({admin, user, githubAdmin = {}, args = {}}) {
+  requireGitHubAdminUser(user);
   const operation = safeText(args.operation || args.type || args.toolName, 120);
   const operationArgs = args.args && typeof args.args === 'object' && !Array.isArray(args.args) ? args.args : {...args};
   delete operationArgs.operation;
   delete operationArgs.type;
   delete operationArgs.toolName;
   delete operationArgs.args;
-  if (operation === 'github_admin.auth_status') return githubAdminAuthStatusOperation({githubAdmin, args: operationArgs});
+  if (operation === 'github_admin.auth_status') return githubAdminAuthStatusOperation({user, githubAdmin, args: operationArgs});
   if (operation === 'github_admin.repos.create') return githubAdminCreateRepoOperation({admin, user, githubAdmin, args: operationArgs});
   if (operation === 'github_admin.repos.configure') return githubAdminConfigureRepoOperation({admin, user, githubAdmin, args: operationArgs});
   if (operation === 'github_admin.branches.create') return githubAdminCreateBranchOperation({admin, user, githubAdmin, args: operationArgs});
@@ -5188,7 +5212,7 @@ function createHomeCenterMcpServer({google, admin, googleClientId, googleClientS
     securitySchemes: MCP_OAUTH_SECURITY_SCHEMES,
     _meta: {securitySchemes: MCP_OAUTH_SECURITY_SCHEMES},
     annotations: {readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false},
-  }, async (args, extra) => mcpToolResult(await (async () => { const context = await requestGoogleContext(extra, google, admin, googleClientId, googleClientSecret); return attachRenderGifMcpContent({operation: 'render.blender_glb', toolName: 'render_blender_glb', commandCenterMcpUrl: COMMAND_CENTER_MCP_URL, result: await renderBlenderGlbBridge({admin, extra, args: args || {}})}, {google, auth: context.auth, parentFolderId: safeText(args && args.parentFolderId, 220)}); })()));
+  }, async (args, extra) => mcpToolResult(await (async () => { const context = await requireCreditGatedContext({google, admin, googleClientId, googleClientSecret, extra, surface: 'render_blender_glb'}); return attachRenderGifMcpContent({operation: 'render.blender_glb', toolName: 'render_blender_glb', commandCenterMcpUrl: COMMAND_CENTER_MCP_URL, result: await renderBlenderGlbBridge({admin, extra, args: args || {}})}, {google, auth: context.auth, parentFolderId: safeText(args && args.parentFolderId, 220)}); })()));
 
   server.registerTool('cartesia_voices', {
     title: 'Cartesia voices',
@@ -5538,7 +5562,7 @@ function createHomeCenterMcpServer({google, admin, googleClientId, googleClientS
     annotations: {readOnlyHint: true, openWorldHint: true},
   }, async (_args, extra) => {
     const {user} = await requestGoogleContext(extra, google, admin, googleClientId, googleClientSecret);
-    return textResult({actor: user.email || '', result: await githubAdminAuthStatusOperation({githubAdmin})});
+    return textResult({actor: user.email || '', result: await githubAdminAuthStatusOperation({user, githubAdmin})});
   });
 
   server.registerTool('github_admin_create_repo', {
@@ -6657,4 +6681,4 @@ function createHomeCenterMcpApp({google, admin, googleClientId = () => '', googl
   return app;
 }
 
-module.exports = {HOME_CENTER_MCP_SERVER_VERSION, HOME_CENTER_CONNECTOR_SCHEMA_REVISION, HOME_CENTER_REGISTRY_VERSION, HOME_CENTER_DIRECT_FILE_TOOLS, verifiedRenderGifMcpContent, attachRenderGifMcpContent, renderArtifactHashEntry, uploadVerifiedArtifact, createHomeCenterMcpApp, createHomeCenterMcpServer, createDriveFolderOperation, createGoogleDocOperation, appendGoogleDocOperation, publishContextSnapshotOperation, synthesizeCartesiaAudioArtifactOperation, cartesiaVoicesOperation, createSheetOperation, updateSheetValuesOperation, importXlsxWorkbookOperation, readDriveBinaryChunkOperation, compareAudioIngestFileIds, ingestDriveAudioOperation, finalizeDriveAudioIngestBatchOperation, driveOperationRunOperation, driveWorkflowRunOperation, simulationOperationRunOperation, simulationOperationRegistry, droobiedooContextOperationEntries, loadDroobiedooContextIndex, searchDroobiedooContextIndex, runDroobiedooContextOperation, normalizeRecoveryOperation, summarizeRecoveryOperations, loadMcpAccessContext, armoryReceiptOperation, armoryRecountOperation, armoryCasingOperation, renderAudioOperation, inspectAudioArtifactsOperation, materializeHomeCenterRenderDriveRefs, materializeHomeCenterRenderSources, stageHomeCenterGitHubRenderInput, normalizeRenderGitHubSource, githubAdminOperationEntries, githubAdminOperationRunOperation, createGitHubAppJwt};
+module.exports = {CREDIT_GATED_EMAILS, requireCreditGatedEmail, GITHUB_ADMIN_ALLOWED_EMAILS, requireGitHubAdminUser, HOME_CENTER_MCP_SERVER_VERSION, HOME_CENTER_CONNECTOR_SCHEMA_REVISION, HOME_CENTER_REGISTRY_VERSION, HOME_CENTER_DIRECT_FILE_TOOLS, verifiedRenderGifMcpContent, attachRenderGifMcpContent, renderArtifactHashEntry, uploadVerifiedArtifact, createHomeCenterMcpApp, createHomeCenterMcpServer, createDriveFolderOperation, createGoogleDocOperation, appendGoogleDocOperation, publishContextSnapshotOperation, synthesizeCartesiaAudioArtifactOperation, cartesiaVoicesOperation, createSheetOperation, updateSheetValuesOperation, importXlsxWorkbookOperation, readDriveBinaryChunkOperation, compareAudioIngestFileIds, ingestDriveAudioOperation, finalizeDriveAudioIngestBatchOperation, driveOperationRunOperation, driveWorkflowRunOperation, simulationOperationRunOperation, simulationOperationRegistry, droobiedooContextOperationEntries, loadDroobiedooContextIndex, searchDroobiedooContextIndex, runDroobiedooContextOperation, normalizeRecoveryOperation, summarizeRecoveryOperations, loadMcpAccessContext, armoryReceiptOperation, armoryRecountOperation, armoryCasingOperation, renderAudioOperation, inspectAudioArtifactsOperation, materializeHomeCenterRenderDriveRefs, materializeHomeCenterRenderSources, stageHomeCenterGitHubRenderInput, normalizeRenderGitHubSource, githubAdminOperationEntries, githubAdminOperationRunOperation, createGitHubAppJwt};

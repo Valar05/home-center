@@ -10,7 +10,7 @@ const {
   createHomeCenterMcpServer,
 } = require('../functions/home_center_mcp.js');
 
-assert.match(HOME_CENTER_CONNECTOR_SCHEMA_REVISION, /^2026-07-25\.blender-direct-file-catalog-v2$/);
+assert.match(HOME_CENTER_CONNECTOR_SCHEMA_REVISION, /^2026-07-26\.integrated-capabilities-security-v1$/);
 assert.equal(HOME_CENTER_REGISTRY_VERSION, HOME_CENTER_CONNECTOR_SCHEMA_REVISION);
 assert.deepEqual([...HOME_CENTER_DIRECT_FILE_TOOLS], ['render_blender_glb']);
 

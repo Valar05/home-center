@@ -8,9 +8,8 @@ const require = createRequire(import.meta.url);
 const functionsIndexSource = fs.readFileSync(new URL('../functions/index.js', import.meta.url), 'utf8');
 assert(functionsIndexSource.includes('HOSTED_TTS_ALLOWED_EMAILS'));
 assert(functionsIndexSource.includes('requireHostedTtsAllowedUser(req)'));
-assert(functionsIndexSource.includes("'dclarke1005@gmail.com'"));
-assert(functionsIndexSource.includes("'junewren28@gmail.com'"));
-assert(functionsIndexSource.includes("'timothypomeroy07@gmail.com'"));
+assert(functionsIndexSource.includes('const HOSTED_TTS_ALLOWED_EMAILS = CREDIT_GATED_EMAILS;'));
+assert(functionsIndexSource.includes("return requireCreditBackedUser(await requireGoogleOAuthAction(req), 'hosted TTS');"));
 const {synthesizeCartesiaAudioArtifactOperation, driveOperationRunOperation} = require('../functions/home_center_mcp.js');
 
 const singleAudioBytes = Buffer.from('RIFF....WAVEfmt cartesia contract audio bytes');
