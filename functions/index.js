@@ -6,6 +6,7 @@ const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
 const {createHomeCenterMcpApp, createDriveFolderOperation, createGoogleDocOperation} = require('./home_center_mcp');
+const {audioLibraryHandler} = require('./audio_library_api');
 const {createCommandCenterMcpApp} = require('./command_center_mcp');
 const {createSheRawMcpApp} = require('./she_raw_mcp');
 const {CARTESIA_DEFAULT_MODEL_ID, CARTESIA_DEFAULT_VOICE_NAME, listCartesiaVoiceCatalog, listCartesiaVoices, normalizeCartesiaVoice, openCartesiaStream} = require('./hosted_speech_provider');
@@ -4908,3 +4909,5 @@ async function ttsHandler(req, res) {
 exports.tts = onRequest({timeoutSeconds: 60, secrets: [ELEVENLABS_API_KEY, CARTESIA_API_KEY]}, ttsHandler);
 exports.speak = onRequest({timeoutSeconds: 60, secrets: [ELEVENLABS_API_KEY, CARTESIA_API_KEY]}, ttsHandler);
 exports.ttsVoices = onRequest({timeoutSeconds: 60, secrets: [ELEVENLABS_API_KEY, CARTESIA_API_KEY]}, ttsVoicesHandler);
+
+exports.audioLibraryApi = onRequest({timeoutSeconds: 60}, audioLibraryHandler);
