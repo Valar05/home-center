@@ -8,13 +8,16 @@ REPOSITORY="${COMMAND_CENTER_RENDER_REPOSITORY:-command-center-workers}"
 SERVICE="${COMMAND_CENTER_RENDER_SERVICE:-command-center-blender-render}"
 IMAGE="${REGION}-docker.pkg.dev/${PROJECT}/${REPOSITORY}/blender-render:latest"
 CACHE_BUCKET="${COMMAND_CENTER_RENDER_BUCKET:-${HOME_CENTER_GENERATED_BUCKET:-home-center-generated}}"
-CPU="${COMMAND_CENTER_RENDER_CPU:-4}"
-MEMORY="${COMMAND_CENTER_RENDER_MEMORY:-8Gi}"
-MIN_INSTANCES="${COMMAND_CENTER_RENDER_MIN_INSTANCES:-0}"
-MAX_INSTANCES="${COMMAND_CENTER_RENDER_MAX_INSTANCES:-4}"
-CONCURRENCY="${COMMAND_CENTER_RENDER_CONCURRENCY:-1}"
-TIMEOUT_SECONDS="${COMMAND_CENTER_RENDER_TIMEOUT_SECONDS:-1800}"
 SERVICE_ACCOUNT="${COMMAND_CENTER_RENDER_SERVICE_ACCOUNT:-}"
+
+eval "$(node "$ROOT/tools/worker_profile_contract.mjs" shell command-center-blender-render)"
+node "$ROOT/tools/worker_profile_contract.mjs" validate-resolved command-center-blender-render \
+  "cpu=$WORKER_CPU" \
+  "memory=$WORKER_MEMORY" \
+  "concurrency=$WORKER_CONCURRENCY" \
+  "minInstances=$WORKER_MIN_INSTANCES" \
+  "maxInstances=$WORKER_MAX_INSTANCES" \
+  "timeoutSeconds=$WORKER_TIMEOUT_SECONDS"
 
 gcloud services enable run.googleapis.com cloudbuild.googleapis.com artifactregistry.googleapis.com storage.googleapis.com --project "$PROJECT" >/dev/null
 
@@ -38,15 +41,20 @@ gcloud run deploy "$SERVICE" \
   --region "$REGION" \
   --image "$IMAGE" \
   --no-allow-unauthenticated \
-  --cpu "$CPU" \
-  --memory "$MEMORY" \
-  --concurrency "$CONCURRENCY" \
-  --timeout "$TIMEOUT_SECONDS" \
-  --min-instances "$MIN_INSTANCES" \
-  --max-instances "$MAX_INSTANCES" \
+  --cpu "$WORKER_CPU" \
+  --memory "$WORKER_MEMORY" \
+  --concurrency "$WORKER_CONCURRENCY" \
+  --timeout "$WORKER_TIMEOUT_SECONDS" \
+  --min-instances "$WORKER_MIN_INSTANCES" \
+  --max-instances "$WORKER_MAX_INSTANCES" \
   --cpu-boost \
   --set-env-vars "RENDER_CACHE_BUCKET=${CACHE_BUCKET},HOME_CENTER_GENERATED_BUCKET=${CACHE_BUCKET},COMMAND_CENTER_GENERATED_BUCKET=${CACHE_BUCKET}" \
   $SERVICE_ACCOUNT_ARG
+
+LIVE_CONFIG="$(mktemp)"
+trap 'rm -f "$LIVE_CONFIG"' EXIT HUP INT TERM
+gcloud run services describe "$SERVICE" --project "$PROJECT" --region "$REGION" --format=json >"$LIVE_CONFIG"
+node "$ROOT/tools/worker_profile_contract.mjs" verify-live command-center-blender-render <"$LIVE_CONFIG"
 
 SERVICE_URL="$(gcloud run services describe "$SERVICE" --project "$PROJECT" --region "$REGION" --format='value(status.url)')"
 PROJECT_NUMBER="$(gcloud projects describe "$PROJECT" --format='value(projectNumber)')"
@@ -63,11 +71,11 @@ Command Center Blender render service deployed:
   service: ${SERVICE}
   url: ${SERVICE_URL}
   image: ${IMAGE}
-  profile: media-forge-heavy
-  cpu: ${CPU}
-  memory: ${MEMORY}
-  concurrency: ${CONCURRENCY}
-  instances: ${MIN_INSTANCES}-${MAX_INSTANCES}
+  profile: ${WORKER_PROFILE}
+  cpu: ${WORKER_CPU}
+  memory: ${WORKER_MEMORY}
+  concurrency: ${WORKER_CONCURRENCY}
+  instances: ${WORKER_MIN_INSTANCES}-${WORKER_MAX_INSTANCES}
   cache: gs://${CACHE_BUCKET}
   invoker: ${FUNCTIONS_SA}
 
