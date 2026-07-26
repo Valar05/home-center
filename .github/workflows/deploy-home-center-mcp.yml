@@ -3,7 +3,7 @@ name: Deploy Home Center MCP
 on:
   push:
     branches:
-      - agent/household-evidence-spine
+      - deploy/audio-folder-index-browse
     paths:
       - .github/workflows/deploy-home-center-mcp.yml
       - tools/deploy_functions_termux.sh
