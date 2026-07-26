@@ -3,7 +3,7 @@ import {createHash} from 'node:crypto';
 import {Readable, Writable} from 'node:stream';
 import homeCenter from '../functions/home_center_mcp.js';
 
-const {ingestDriveAudioOperation, finalizeDriveAudioIngestBatchOperation} = homeCenter;
+const {compareAudioIngestFileIds, ingestDriveAudioOperation, finalizeDriveAudioIngestBatchOperation} = homeCenter;
 const source = Buffer.from('verified audio bytes');
 const objectStore = new Map();
 
@@ -83,6 +83,11 @@ const google = {
 };
 const audit = [];
 const batchId = 'generated-audio-curated-20260726';
+assert.deepEqual(
+  ['drive_file', 'drive-file', 'drive.file'].sort(compareAudioIngestFileIds),
+  ['drive-file', 'drive.file', 'drive_file'],
+  'batch reconciliation must use one deterministic binary comparator for Drive IDs',
+);
 const args = {
   fileId: 'drive-file-1234',
   batchId,
