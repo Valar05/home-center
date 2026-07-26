@@ -62,6 +62,35 @@ deploy_audio_library_api() {
     --set-env-vars=HOME_CENTER_GENERATED_BUCKET="${HOME_CENTER_GENERATED_BUCKET:-home-center-generated}",HOME_CENTER_AUDIO_LIBRARY_PUBLIC_BASE="${HOME_CENTER_AUDIO_LIBRARY_PUBLIC_BASE:-https://${REGION}-${PROJECT}.cloudfunctions.net/audioLibraryApi}"
 }
 
+deploy_credit_backed_http_function() {
+  FN="$1"
+  TIMEOUT="$2"
+  SECRETS="$3"
+  gcloud functions deploy "$FN" \
+    --gen2 \
+    --project="$PROJECT" \
+    --region="$REGION" \
+    --runtime=nodejs20 \
+    --source="$ROOT/functions" \
+    --entry-point="$FN" \
+    --trigger-http \
+    --allow-unauthenticated \
+    --timeout="$TIMEOUT" \
+    --memory=256Mi \
+    --set-env-vars=LOG_EXECUTION_ID=true \
+    --set-secrets="$SECRETS"
+}
+
+deploy_credit_backed_http() {
+  deploy_credit_backed_http_function agentToolTurn 120s 'OPENAI_API_KEY=OPENAI_API_KEY:latest'
+  deploy_credit_backed_http_function agentTurn 120s 'OPENAI_API_KEY=OPENAI_API_KEY:latest,GOOGLE_OAUTH_CLIENT_ID=GOOGLE_OAUTH_CLIENT_ID:latest,GOOGLE_OAUTH_CLIENT_SECRET=GOOGLE_OAUTH_CLIENT_SECRET:latest'
+  deploy_credit_backed_http_function creativePromptSmoke 120s 'OPENAI_API_KEY=OPENAI_API_KEY:latest'
+  deploy_credit_backed_http_function turnContractSmoke 120s 'OPENAI_API_KEY=OPENAI_API_KEY:latest'
+  deploy_credit_backed_http_function metalPromptSmoke 300s 'OPENAI_API_KEY=OPENAI_API_KEY:latest,GOOGLE_OAUTH_CLIENT_ID=GOOGLE_OAUTH_CLIENT_ID:latest,GOOGLE_OAUTH_CLIENT_SECRET=GOOGLE_OAUTH_CLIENT_SECRET:latest'
+  deploy_credit_backed_http_function tts 60s 'ELEVENLABS_API_KEY=ELEVENLABS_API_KEY:latest,CARTESIA_API_KEY=CARTESIA_API_KEY:latest'
+  deploy_credit_backed_http_function speak 60s 'ELEVENLABS_API_KEY=ELEVENLABS_API_KEY:latest,CARTESIA_API_KEY=CARTESIA_API_KEY:latest'
+  deploy_credit_backed_http_function ttsVoices 60s 'ELEVENLABS_API_KEY=ELEVENLABS_API_KEY:latest,CARTESIA_API_KEY=CARTESIA_API_KEY:latest'
+}
 deploy_she_raw_mcp() {
   gcloud functions deploy sheRawMcp \
     --gen2 \
@@ -80,10 +109,11 @@ for fn in $FUNCTIONS; do
     commandCenterMcp) deploy_command_center_mcp ;;
     homeCenterMcp) deploy_home_center_mcp ;;
     audioLibraryApi) deploy_audio_library_api ;;
+    creditBackedHttp) deploy_credit_backed_http ;;
     sheRawMcp) deploy_she_raw_mcp ;;
     *)
       echo "Unsupported gcloud deploy target: $fn" >&2
-      echo "Supported: commandCenterMcp homeCenterMcp audioLibraryApi sheRawMcp" >&2
+      echo "Supported: commandCenterMcp homeCenterMcp audioLibraryApi creditBackedHttp sheRawMcp" >&2
       exit 2
       ;;
   esac
