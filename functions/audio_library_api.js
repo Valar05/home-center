@@ -1,12 +1,14 @@
 'use strict';
 
-const {createVerify, createHash} = require('node:crypto');
+const {createVerify, createHash, randomBytes} = require('node:crypto');
+const admin = require('firebase-admin');
 const {Storage} = require('@google-cloud/storage');
 
 const GENERATED_BUCKET = process.env.HOME_CENTER_GENERATED_BUCKET || 'home-center-generated';
 const PLAYER_PUBLIC_KEY_DER = 'MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAiZrb3ujS1+1SW7qG/sYbwo2vOYuZCnpRdl+uOJdVQuzpjp9TZLWjEQSUNPnYo7naQR7NskirOkApErZa89usWTKR2hutLzXxB7+286cF5bPJZn53p4YvfBZqae3i7iZNjMYenB9RD6jM0QMydzcdGfNQi2pTwmG5++QgXunzgbaUFdP7bwohhGbS+piYWbz5XFWDkT8DOBcr4YsSNrCl5n8Yhifa2YzdHQpMFjfzev9m9veNikmJZFcyRo2zAD8rPRxj9s9KFSz0AzZDCu8nFN+vTN9aK16xkLdxvhw1ipA3aLjpwoNR7m11HvT1cs0z0EfEuaPUZoyBS3x5qFslJwIDAQAB';
 const PLAYER_PUBLIC_KEY = `-----BEGIN PUBLIC KEY-----\n${PLAYER_PUBLIC_KEY_DER.match(/.{1,64}/g).join('\n')}\n-----END PUBLIC KEY-----`;
 const LEGACY_STEWARD = 'dclarke1005@gmail.com';
+const PUBLIC_BASE = process.env.HOME_CENTER_AUDIO_LIBRARY_PUBLIC_BASE || 'https://us-central1-home-center-dclar.cloudfunctions.net/audioLibraryApi';
 const MAX_CLOCK_SKEW_MS = 5 * 60 * 1000;
 const AUDIO_EXTENSIONS = /\.(wav|mp3|ogg|flac|m4a|aac|opus)$/i;
 const AUDIO_TYPES = /^audio\//i;
@@ -145,17 +147,78 @@ async function listAudio(bucket, body, email) {
 
 async function playAudio(bucket, body, email) {
   const {file, metadata} = await authorizedFile(bucket, body.objectName, email);
-  const [url] = await file.getSignedUrl({version: 'v4', action: 'read', expires: Date.now() + 15 * 60 * 1000, responseType: metadata.contentType || 'application/octet-stream'});
-  return {ok: true, url, expiresAtMs: Date.now() + 15 * 60 * 1000, object: audioMetadata(file, metadata, email)};
+  const token = randomBytes(32).toString('base64url');
+  const tokenHash = createHash('sha256').update(token).digest('hex');
+  const expiresAtMs = Date.now() + 15 * 60 * 1000;
+  await admin.firestore().collection('audioLibraryStreamTokens').doc(tokenHash).set({
+    objectName: file.name,
+    email,
+    expiresAtMs,
+    createdAtMs: Date.now(),
+  });
+  return {ok: true, url: PUBLIC_BASE + '?token=' + encodeURIComponent(token), expiresAtMs, object: audioMetadata(file, metadata, email)};
+}
+
+async function streamAudio(req, res) {
+  const token = safeText(req.query && req.query.token, 300);
+  if (!token) {
+    res.status(401).json({ok: false, error: 'stream_token_required'});
+    return;
+  }
+  const tokenHash = createHash('sha256').update(token).digest('hex');
+  const ref = admin.firestore().collection('audioLibraryStreamTokens').doc(tokenHash);
+  const snap = await ref.get();
+  const grant = snap.exists ? snap.data() || {} : {};
+  if (!snap.exists || Number(grant.expiresAtMs || 0) <= Date.now()) {
+    res.status(401).json({ok: false, error: 'stream_token_expired'});
+    return;
+  }
+  const bucket = storage.bucket(GENERATED_BUCKET);
+  const {file, metadata} = await authorizedFile(bucket, grant.objectName, safeEmail(grant.email));
+  const size = Number(metadata.size || 0);
+  const range = safeText(req.get('range'), 120);
+  let start = 0;
+  let end = Math.max(0, size - 1);
+  let status = 200;
+  if (range) {
+    const match = range.match(/^bytes=(\d*)-(\d*)$/);
+    if (!match) {
+      res.status(416).set('Content-Range', 'bytes */' + size).end();
+      return;
+    }
+    if (match[1]) start = Number(match[1]);
+    if (match[2]) end = Math.min(end, Number(match[2]));
+    if (!match[1] && match[2]) start = Math.max(0, size - Number(match[2]));
+    if (!Number.isFinite(start) || !Number.isFinite(end) || start < 0 || end < start || start >= size) {
+      res.status(416).set('Content-Range', 'bytes */' + size).end();
+      return;
+    }
+    status = 206;
+  }
+  res.status(status);
+  res.set('Content-Type', metadata.contentType || 'application/octet-stream');
+  res.set('Accept-Ranges', 'bytes');
+  res.set('Content-Length', String(end - start + 1));
+  res.set('Cache-Control', 'private, no-store');
+  if (status === 206) res.set('Content-Range', 'bytes ' + start + '-' + end + '/' + size);
+  file.createReadStream({start, end}).on('error', (err) => {
+    console.error(JSON.stringify({event: 'audio_library_stream_failed', error: safeText(err && err.message, 300)}));
+    if (!res.headersSent) res.status(502).end();
+    else res.destroy(err);
+  }).pipe(res);
 }
 
 async function audioLibraryHandler(req, res) {
   res.set('Cache-Control', 'private, no-store');
-  if (req.method !== 'POST') {
-    res.status(405).json({ok: false, error: 'method_not_allowed'});
-    return;
-  }
   try {
+    if (req.method === 'GET') {
+      await streamAudio(req, res);
+      return;
+    }
+    if (req.method !== 'POST') {
+      res.status(405).json({ok: false, error: 'method_not_allowed'});
+      return;
+    }
     const body = verifyRequest(req);
     const email = safeEmail(body.email);
     if (!email) {
