@@ -12,6 +12,7 @@ const {
   COMMAND_CENTER_DURABLE_SESSION_RESTORE_STRATEGIES,
   isWorkerLeaseEligible,
   selectWorker,
+  workerApiKeyProbeAllowsCodex,
   normalizeActivationChannel,
   buildJobActivation,
   activationStateFromResult,
@@ -29,7 +30,9 @@ assert.equal(COMMAND_CENTER_COMPLETION_EVENT_LOOKBACK_LIMIT >= 1000, true);
 assert(COMMAND_CENTER_DURABLE_SESSION_RESTORE_STRATEGIES.includes('gcs_snapshot'));
 
 const nowMs = Date.now();
+const v2Identity = {workerInstallationId: 'install-cloud-real', workerInstanceId: 'instance-cloud-real', runnerVersion: 'command-center-runner-v2', protocolVersion: 'command-center-worker-v2'};
 const liveCloudWorker = {
+  ...v2Identity,
   workerId: 'codex-cloud-real',
   health: 'healthy',
   simulated: false,
@@ -42,6 +45,9 @@ assert.equal(isWorkerLeaseEligible(liveCloudWorker, ['codex-cloud'], {nowMs}).el
 assert.equal(selectWorker([liveCloudWorker], ['codex-cloud'], {nowMs}).workerId, 'codex-cloud-real');
 
 const noActivatorWorker = {
+  ...v2Identity,
+  workerInstallationId: 'install-no-activator',
+  workerInstanceId: 'instance-no-activator',
   workerId: 'codex-cloud-no-activator',
   health: 'healthy',
   simulated: false,
@@ -60,9 +66,13 @@ assert.equal(isWorkerLeaseEligible(staleWorker, ['codex-cloud'], {nowMs}).eligib
 assert.match(isWorkerLeaseEligible(staleWorker, ['codex-cloud'], {nowMs}).reason, /stale/);
 
 const livePollWorker = {...liveCloudWorker, workerId: 'poll-cloud', activation: {mode: 'poll', verifiedAtMs: nowMs - 1000}, lastHeartbeatAtMs: nowMs - 1000};
-assert.equal(isWorkerLeaseEligible(livePollWorker, ['codex-cloud'], {nowMs}).eligible, true);
+assert.equal(isWorkerLeaseEligible(livePollWorker, ['codex-cloud'], {nowMs}).eligible, false);
+assert.match(isWorkerLeaseEligible(livePollWorker, ['codex-cloud'], {nowMs}).reason, /local\/phone workers are excluded/);
 
 const cloudRunSessionWorker = {
+  ...v2Identity,
+  workerInstallationId: 'install-cloud-run',
+  workerInstanceId: 'instance-cloud-run',
   workerId: 'cloud-run-debian-primary',
   health: 'healthy',
   simulated: false,
@@ -77,11 +87,15 @@ assert.equal(isWorkerLeaseEligible(cloudRunSessionWorker, ['cloud-run-debian', '
 assert.equal(selectWorker([liveCloudWorker, cloudRunSessionWorker], ['cloud-run-debian', 'durable-session'], {nowMs}).workerId, 'cloud-run-debian-primary');
 const heartbeatProvenCloudRunWorker = {...cloudRunSessionWorker, activation: {mode: 'cloud_run_job', verifiedAtMs: nowMs - 60 * 60 * 1000}, lastHeartbeatAtMs: nowMs - 1000};
 assert.equal(isWorkerLeaseEligible(heartbeatProvenCloudRunWorker, ['cloud-run-debian', 'durable-session'], {nowMs}).eligible, true);
+const cloudRunWithoutApiProbe = {...cloudRunSessionWorker, runtime: {kind: 'debian-container', codexAuth: 'api_key', apiKeyCapabilityProbe: {status: 'failed', failureKind: 'worker_openai_quota_exceeded'}}};
+assert.equal(workerApiKeyProbeAllowsCodex(cloudRunWithoutApiProbe).ok, false);
+assert.equal(isWorkerLeaseEligible(cloudRunWithoutApiProbe, ['cloud-run-debian', 'durable-session'], {nowMs}).eligible, false);
+assert.match(isWorkerLeaseEligible(cloudRunWithoutApiProbe, ['cloud-run-debian', 'durable-session'], {nowMs}).reason, /worker_openai_quota_exceeded|api-key capability unavailable/);
 const coldActivatableCloudRunWorker = {...cloudRunSessionWorker, activation: {mode: 'cloud_run_job', verifiedAtMs: nowMs - 60 * 60 * 1000}, lastHeartbeatAtMs: 0};
 assert.equal(isWorkerLeaseEligible(coldActivatableCloudRunWorker, ['cloud-run-debian', 'durable-session'], {nowMs}).eligible, true);
 assert.equal(selectWorker([coldActivatableCloudRunWorker], ['cloud-run-debian', 'durable-session'], {nowMs}).workerId, 'cloud-run-debian-primary');
 assert.equal(isWorkerLeaseEligible({...cloudRunSessionWorker, sessionPolicy: {durable: true, snapshotStore: 'local'}}, ['cloud-run-debian', 'durable-session'], {nowMs}).eligible, false);
-assert.match(isWorkerLeaseEligible({...cloudRunSessionWorker, activation: {mode: 'poll', verifiedAtMs: nowMs}}, ['cloud-run-debian', 'durable-session'], {nowMs}).reason, /cloud_run_job/);
+assert.match(isWorkerLeaseEligible({...cloudRunSessionWorker, activation: {mode: 'poll', verifiedAtMs: nowMs}}, ['cloud-run-debian', 'durable-session'], {nowMs}).reason, /local\/phone workers are excluded/);
 
 const simulatedWorker = {...liveCloudWorker, workerId: 'simulated', simulated: true};
 assert.equal(isWorkerLeaseEligible(simulatedWorker, ['codex-cloud'], {nowMs}).eligible, false);
@@ -222,5 +236,33 @@ assert(cloudWorkerSource.includes("Ticket required push/PR evidence"));
 assert(cloudWorkerSource.includes("stdout-transcript.txt"));
 assert(cloudWorkerSource.includes("stderr-transcript.txt"));
 assert(cloudWorkerSource.includes("origin: 'executor_workspace'"));
+assert(cloudWorkerSource.includes('function codexApiKeyProbe()'));
+assert(cloudWorkerSource.includes('apiKeyCapabilityProbe: probe'));
+assert(cloudWorkerSource.includes("post('/agent/heartbeat'"));
+assert(cloudWorkerSource.includes("post('/worker/heartbeat'"));
+assert(cloudWorkerSource.includes("['login', '--with-api-key']"));
+assert(cloudWorkerSource.includes("['login', '--with-access-token']"));
+assert(cloudWorkerSource.includes('CODEX_ACCESS_TOKEN'));
+assert(cloudWorkerSource.includes("missingFailureKind: 'secret_missing'"));
+assert(cloudWorkerSource.includes("missingFailureKind: 'access_token_missing'"));
+assert(cloudWorkerSource.includes('worker_openai_quota_exceeded'));
+
+const commandCenterSource = fs.readFileSync(new URL('../functions/command_center_mcp.js', import.meta.url), 'utf8');
+assert(commandCenterSource.includes("githubTokenSecret: safeText(args.githubTokenSecret || 'GITHUB_TOKEN'"));
+assert(commandCenterSource.includes("codexAccessTokenSecret: safeText(args.codexAccessTokenSecret || 'CODEX_ACCESS_TOKEN'"));
+assert(commandCenterSource.includes("{name: 'CODEX_ACCESS_TOKEN'"));
+assert(commandCenterSource.includes('grantSecretAccessor'));
+assert(commandCenterSource.includes('secret_iam_binding_failed'));
+assert(commandCenterSource.includes('secret_iam_binding_unverified'));
+assert(commandCenterSource.includes('cloud_run_job_not_ready'));
+assert(commandCenterSource.includes('ensureWorkerSecretAccess'));
+assert(commandCenterSource.includes('waitForCloudRunJobReady'));
+assert(commandCenterSource.includes('deleteCloudRunJob'));
+assert(commandCenterSource.includes('waitForCloudRunJobDeleted'));
+assert(commandCenterSource.includes('recreate fallback failed'));
+assert(commandCenterSource.includes('api-key capability unavailable'));
+assert(commandCenterSource.includes('async function claimActivationForWorker'));
+assert(commandCenterSource.includes('agentContextSnapshots').valueOf());
+assert(!commandCenterSource.includes("args.githubTokenSecret || 'GH_TOKEN'"));
 
 console.log('Command Center cloud activation contract test: OK');

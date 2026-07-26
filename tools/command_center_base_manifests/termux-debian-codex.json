@@ -1,0 +1,137 @@
+{
+  "projectId": "command-center-termux-workers",
+  "version": "2026-07-25-termux-debian-codex-v2",
+  "workerId": "termux-debian-codex-primary",
+  "location": "termux-debian",
+  "repoPath": "/storage/emulated/0/Documents/GodotProjects/home-center",
+  "baseWorkspaceId": "termux-debian-home-center-base",
+  "capabilities": [
+    "codex",
+    "one-shot-worker",
+    "prepared-workspace",
+    "github",
+    "node",
+    "python",
+    "git",
+    "proot-debian"
+  ],
+  "limits": {
+    "concurrentJobs": 1
+  },
+  "activation": {
+    "mode": "poll"
+  },
+  "runtime": {
+    "kind": "termux-debian-local",
+    "codexAuth": "chatgpt_saved_login",
+    "authMode": "chatgpt_saved_login",
+    "apiKeyEnvironmentPolicy": "OPENAI_API_KEY and CODEX_API_KEY removed from Codex child process"
+  },
+  "defaultExecutorCommand": "sh /storage/emulated/0/Documents/GodotProjects/home-center/tools/command_center_codex_executor.sh",
+  "orientationFiles": [
+    "PROJECT_ORIENTATION.md",
+    "README.md",
+    "docs/COMMAND_CENTER_MCP.md"
+  ],
+  "toolChecks": [
+    {
+      "name": "codex-chatgpt-login",
+      "command": "codex login status 2>&1 | grep -q 'Logged in using ChatGPT'"
+    },
+    {
+      "name": "git",
+      "command": "git --version"
+    },
+    {
+      "name": "node",
+      "command": "node --version"
+    },
+    {
+      "name": "python3",
+      "command": "python3 --version"
+    },
+    {
+      "name": "proot-distro",
+      "command": "proot-distro --help",
+      "optional": true
+    }
+  ],
+  "verificationCommands": [
+    "node --check functions/command_center_mcp.js",
+    "node tools/command_center_worker_lifecycle_contract_test.mjs"
+  ],
+  "mutationDefaults": {
+    "editFiles": "allowed",
+    "runTests": "allowed",
+    "commit": "allowed",
+    "createPullRequest": "confirm",
+    "push": "confirm",
+    "deployPreview": "confirm",
+    "merge": "confirm",
+    "destructive": "deny"
+  },
+  "notes": [
+    "Generic Termux Codex lane; project names do not belong in the worker identity.",
+    "Uses saved ChatGPT Codex login. Do not inject OPENAI_API_KEY or CODEX_API_KEY into codex exec.",
+    "Does not claim host Blender; Blender-specific work must request a worker that proves that capability.",
+    "Advertises one materialized machine image and one honest isolated Codex session slot; multi-session proof remains RED until another real slot exists."
+  ],
+  "machineImages": [
+    {
+      "imageId": "termux-debian-codex",
+      "imageKind": "termux-debian-local",
+      "version": "2026-07-25-termux-debian-codex-v2",
+      "status": "available",
+      "capabilities": [
+        "codex",
+        "one-shot-worker",
+        "prepared-workspace",
+        "github",
+        "node",
+        "python",
+        "git",
+        "proot-debian"
+      ],
+      "toolchains": [
+        "codex-cli",
+        "node",
+        "python3",
+        "git",
+        "proot-distro"
+      ],
+      "dependencyBundleRefs": [
+        "worker-local://termux-debian-codex/toolchains"
+      ],
+      "warmCacheRefs": [
+        "worker-local://termux-debian-codex/codex-saved-login",
+        "worker-local://termux-debian-codex/npm-cache"
+      ],
+      "materializationModes": [
+        "preinstalled-local-host"
+      ],
+      "hotPathInstallAllowed": false,
+      "estimatedColdStartMs": 120000,
+      "estimatedHotStartMs": 5000,
+      "provenance": {
+        "manifest": "tools/command_center_base_manifests/termux-debian-codex.json"
+      }
+    }
+  ],
+  "availableImageIds": [
+    "termux-debian-codex"
+  ],
+  "materializedImageIds": [
+    "termux-debian-codex"
+  ],
+  "maxConcurrentSessions": 1,
+  "sessionIsolationModes": [
+    "session"
+  ],
+  "canMaterializeImages": false,
+  "cacheState": {
+    "hotStartReady": true,
+    "hotPathInstallAllowed": false,
+    "dependencyPolicy": "vendored-or-prebuilt-required",
+    "codexAuth": "chatgpt_saved_login"
+  }
+}

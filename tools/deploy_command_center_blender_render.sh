@@ -10,7 +10,7 @@ IMAGE="${REGION}-docker.pkg.dev/${PROJECT}/${REPOSITORY}/blender-render:latest"
 CACHE_BUCKET="${COMMAND_CENTER_RENDER_BUCKET:-${PROJECT}-command-center-renders}"
 CPU="${COMMAND_CENTER_RENDER_CPU:-2}"
 MEMORY="${COMMAND_CENTER_RENDER_MEMORY:-4Gi}"
-MIN_INSTANCES="${COMMAND_CENTER_RENDER_MIN_INSTANCES:-1}"
+MIN_INSTANCES="${COMMAND_CENTER_RENDER_MIN_INSTANCES:-0}"
 SERVICE_ACCOUNT="${COMMAND_CENTER_RENDER_SERVICE_ACCOUNT:-}"
 
 gcloud services enable run.googleapis.com cloudbuild.googleapis.com artifactregistry.googleapis.com storage.googleapis.com --project "$PROJECT" >/dev/null
@@ -39,6 +39,7 @@ gcloud run deploy "$SERVICE" \
   --memory "$MEMORY" \
   --timeout 900 \
   --min-instances "$MIN_INSTANCES" \
+  --cpu-boost \
   --set-env-vars "RENDER_CACHE_BUCKET=${CACHE_BUCKET}" \
   $SERVICE_ACCOUNT_ARG
 

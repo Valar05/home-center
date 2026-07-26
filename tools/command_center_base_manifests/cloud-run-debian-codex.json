@@ -25,7 +25,12 @@
   "runtime": {
     "kind": "debian-container",
     "compute": "cloud-run-job",
-    "deviceIndependent": true
+    "deviceIndependent": true,
+    "codexAuth": "api_key",
+    "apiKeyCapabilityProbe": {
+      "status": "required_before_routing",
+      "failureKind": "probe_not_recorded"
+    }
   },
   "cloudRunJob": {
     "projectId": "home-center-dclar",
@@ -58,5 +63,63 @@
     "This worker is not tied to Android, Termux, Shizuku, or a specific repository.",
     "A repository may register multiple workers with different capabilities or policies.",
     "Durability is Command Center metadata plus GCS workspace snapshots."
+  ],
+  "materializedImageIds": [
+    "cloud-debian-codex"
+  ],
+  "availableImageIds": [
+    "cloud-debian-codex"
+  ],
+  "maxConcurrentSessions": 1,
+  "activeSessionIds": [],
+  "sessionIsolationModes": [
+    "session"
+  ],
+  "canMaterializeImages": false,
+  "cacheState": {
+    "hotStartReady": true,
+    "hotPathInstallAllowed": false,
+    "machineImageId": "cloud-debian-codex"
+  },
+  "machineImages": [
+    {
+      "imageId": "cloud-debian-codex",
+      "machineImageId": "cloud-debian-codex",
+      "name": "Cloud Debian Codex",
+      "imageKind": "cloud-run-debian-codex",
+      "version": "2026-07-12-cloud-run-debian-durable-session-v1",
+      "status": "available",
+      "capabilities": [
+        "codex",
+        "cloud-run-debian",
+        "durable-session",
+        "prepared-workspace",
+        "github",
+        "node",
+        "python",
+        "gcs-workspace-snapshot",
+        "one-shot-worker"
+      ],
+      "toolchains": [
+        "debian",
+        "codex-cli",
+        "node",
+        "python"
+      ],
+      "dependencyBundleRefs": [
+        "us-central1-docker.pkg.dev/home-center-dclar/command-center-workers/debian-codex:latest"
+      ],
+      "warmCacheRefs": [],
+      "materializationModes": [
+        "cloud_run_job_image"
+      ],
+      "hotPathInstallAllowed": false,
+      "estimatedColdStartMs": 60000,
+      "estimatedHotStartMs": 5000,
+      "provenance": {
+        "source": "cloud-run-debian-codex manifest",
+        "noSecrets": true
+      }
+    }
   ]
 }

@@ -23,6 +23,7 @@ final class VoiceScriptPlanner {
     private static final Pattern STRUCTURAL_SPEAKER = Pattern.compile(
             "^\\s*\\[(?:speaker|voice):([^\\]]+)\\]",
             Pattern.CASE_INSENSITIVE);
+    private static final int ATTRIBUTION_CONTEXT_CHARS = 180;
 
     private VoiceScriptPlanner() {
     }
@@ -37,8 +38,8 @@ final class VoiceScriptPlanner {
         for (QuoteSpan quote : quotes) {
             appendNarration(segments, source.substring(cursor, quote.open));
             String speaker = attributedSpeaker(
-                    source.substring(0, quote.open),
-                    source.substring(quote.close + 1));
+                    nearbyPrefix(source, quote.open),
+                    nearbySuffix(source, quote.close + 1));
             appendDialogue(segments, speaker, source.substring(quote.open + 1, quote.close));
             cursor = quote.close + 1;
         }
@@ -73,6 +74,19 @@ final class VoiceScriptPlanner {
             opening = 0;
         }
         return open < 0 ? spans : Collections.emptyList();
+    }
+
+    private static String nearbyPrefix(String source, int end) {
+        int safeEnd = Math.max(0, Math.min(end, source == null ? 0 : source.length()));
+        int start = Math.max(0, safeEnd - ATTRIBUTION_CONTEXT_CHARS);
+        return source == null ? "" : source.substring(start, safeEnd);
+    }
+
+    private static String nearbySuffix(String source, int start) {
+        int length = source == null ? 0 : source.length();
+        int safeStart = Math.max(0, Math.min(start, length));
+        int end = Math.min(length, safeStart + ATTRIBUTION_CONTEXT_CHARS);
+        return source == null ? "" : source.substring(safeStart, end);
     }
 
     private static String attributedSpeaker(String before, String after) {

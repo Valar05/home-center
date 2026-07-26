@@ -11,6 +11,7 @@ public final class VoiceScriptPlannerTest {
         unattributedDialogue();
         narrationNameMentionIsNotStructural();
         unmatchedQuoteFailsClosed();
+        largeQuotedParagraphUsesBoundedAttributionScan();
         System.out.println("VoiceScriptPlannerTest: OK");
     }
 
@@ -63,6 +64,21 @@ public final class VoiceScriptPlannerTest {
     private static void unmatchedQuoteFailsClosed() {
         equal(0, VoiceScriptPlanner.splitQuotedLine(
                 "Lexen said, \"This never closes.").size(), "unmatched quote must not invent ownership");
+    }
+
+    private static void largeQuotedParagraphUsesBoundedAttributionScan() {
+        StringBuilder text = new StringBuilder();
+        for (int i = 0; i < 1200; i++) {
+            text.append("Narration before ").append(i).append(". Lexen said, \"Advance ")
+                    .append(i).append(".\" After. ");
+        }
+        long start = System.nanoTime();
+        List<VoiceScriptPlanner.Segment> values = VoiceScriptPlanner.splitQuotedLine(text.toString());
+        long elapsedMs = (System.nanoTime() - start) / 1000000L;
+        equal(2401, values.size(), "large quoted paragraph segment count");
+        if (elapsedMs > 750) {
+            throw new AssertionError("large quoted paragraph scan took " + elapsedMs + "ms");
+        }
     }
 
     private static void segment(VoiceScriptPlanner.Segment actual, boolean dialogue,

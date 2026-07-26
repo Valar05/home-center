@@ -10,6 +10,7 @@ const EXPECTED_TOOLS = [
   'command_center.health',
   'command_center.projects.resolve',
   'command_center.projects.get',
+  'command_center.render.blender_glb',
   'command_center.projects.upsert',
   'command_center.jobs.create',
   'command_center.jobs.create_followup',
@@ -129,6 +130,23 @@ function contentJson(toolResult, label) {
   return parseJson(text, label);
 }
 
+function hasBinaryFileSchema(field) {
+  if (!field || typeof field !== 'object') return false;
+  const markers = [field.format, field.contentEncoding, field.contentMediaType, field.description, field.type].filter(Boolean).join(' ').toLowerCase();
+  return /binary|file|octet|gltf|python/.test(markers);
+}
+
+function renderToolFileContract(tool) {
+  const schema = tool?.inputSchema || tool?.input_schema || {};
+  const props = schema.properties || {};
+  const required = Array.isArray(schema.required) ? schema.required : [];
+  return {
+    ok: hasBinaryFileSchema(props.glbFile) && hasBinaryFileSchema(props.scriptFile) && !!props.glbRef && !!props.scriptRef && !!props.scriptText && !required.includes('glbRef') && !required.includes('glbFile'),
+    properties: Object.fromEntries(['glbFile', 'scriptFile', 'glbRef', 'scriptRef', 'scriptText'].map((key) => [key, props[key] || null])),
+    required,
+  };
+}
+
 async function maybeLoadTokenFromFile() {
   const configPath = process.env.HOME_CENTER_COMMAND_CENTER_TOKEN_CONFIG || path.join(homedir(), '.config', 'home-center', 'command-center-mcp.json');
   if (!fs.existsSync(configPath)) return '';
@@ -173,6 +191,9 @@ async function main() {
   const names = (listJson.result?.tools || []).map((tool) => tool.name).sort();
   const missing = EXPECTED_TOOLS.filter((name) => !names.includes(name));
   add('tools_list_contains_command_center_surface', listed.status === 200 && missing.length === 0, {status: listed.status, count: names.length, missing});
+  const renderTool = (listJson.result?.tools || []).find((tool) => tool.name === 'command_center.render.blender_glb');
+  const renderContract = renderToolFileContract(renderTool);
+  add('render_blender_glb_file_contract_discoverable', listed.status === 200 && renderContract.ok, {contract: renderContract});
 
   const health = await callTool(args.mcpUrl, protocolToken, 12, 'command_center.health', {});
   const healthJson = contentJson(health.json, 'command_center.health result');
@@ -180,7 +201,8 @@ async function main() {
 
   const dispatcherHealth = await callTool(args.mcpUrl, protocolToken, 15, 'command_center_operation', {operation: 'health', args: {}});
   const dispatcherHealthJson = contentJson(dispatcherHealth.json, 'command_center_operation health result');
-  add('command_center_operation_dispatcher_invokable', dispatcherHealth.response.status === 200 && dispatcherHealthJson.result?.ok === true && dispatcherHealthJson.result?.invokable === true, {status: dispatcherHealth.response.status, dispatcherHealth: dispatcherHealthJson});
+  const dispatcherInvokable = dispatcherHealthJson.result?.invokable === true || dispatcherHealthJson.result?.controlPlane?.invokable === true;
+  add('command_center_operation_dispatcher_invokable', dispatcherHealth.response.status === 200 && dispatcherHealthJson.result?.ok === true && dispatcherInvokable, {status: dispatcherHealth.response.status, dispatcherHealth: dispatcherHealthJson});
 
   const bucketLayout = await callTool(args.mcpUrl, protocolToken, 13, 'command_center.bucket.get_layout', {});
   const bucketLayoutJson = contentJson(bucketLayout.json, 'command_center.bucket.get_layout result');
