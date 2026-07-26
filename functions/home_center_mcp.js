@@ -1,4 +1,4 @@
-const {createHash, randomBytes, randomUUID, createSign} = require('node:crypto');
+const {createHash, randomBytes, randomUUID, createSign, createVerify} = require('node:crypto');
 const {Readable, Transform} = require('node:stream');
 const {pipeline} = require('node:stream/promises');
 const {Storage} = require('@google-cloud/storage');
@@ -5621,9 +5621,118 @@ function createHomeCenterMcpServer({google, admin, googleClientId, googleClientS
   return server;
 }
 
+
+const SHERMAN_SITE_PUBLIC_KEY_PEM = `-----BEGIN PUBLIC KEY-----
+MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEfjYiP5HeF+Rz7Cfz3DKVP5L0HBph
+2nXxegJKyUcgWYdzY6RO3TEOevHTyTNnBvjjdcEMcnRkQneEk7mgW2lVCg==
+-----END PUBLIC KEY-----`;
+const SHERMAN_SITE_ALLOWED_CLOCK_SKEW_MS = 5 * 60 * 1000;
+const SHERMAN_SITE_EVIDENCE = Object.freeze({
+  assetId: 'vanguard',
+  sourceVersion: 'b2862e2b0f3b2e7f8b99d51decaa42a7827a03dd',
+  sourceSha256: '70609931d8bcb5803728e8d7a27f0157984954c02a407b0904da42885fd485ab',
+  recipeId: 'sword-attack-1-contact-sheet-v2',
+  action: 'SwordAttack1',
+  renderId: 'render_1e63f333c13b7f737b3f102d912e45aa',
+  cacheKey: 'adf0e5d565dc89eca73fe3f46b08130bd12ae93795a7d83c78026dd66269a5fc',
+  contactSheetSha256: '682508c6ed9f5c7761c182feb96a51d1a6a1fd39a6743676318c0de578ccb429',
+  contactSheetByteCount: 470908,
+  bucket: 'home-center-generated',
+  objectName: 'renders/contact-sheets/adf0e5d565dc89eca73fe3f46b08130bd12ae93795a7d83c78026dd66269a5fc/contact-sheet.png',
+});
+
+function verifyShermanSiteRequest(req) {
+  const timestamp = safeText(req.get('x-sherman-timestamp'), 32);
+  const signature = safeText(req.get('x-sherman-signature'), 256);
+  if (!/^\d{13}$/.test(timestamp) || !signature) return false;
+  if (Math.abs(Date.now() - Number(timestamp)) > SHERMAN_SITE_ALLOWED_CLOCK_SKEW_MS) return false;
+  const rawBody = Buffer.isBuffer(req.rawBody) ? req.rawBody : Buffer.from(JSON.stringify(req.body || {}));
+  const verifier = createVerify('SHA256');
+  verifier.update(Buffer.concat([Buffer.from(timestamp + '\n', 'utf8'), rawBody]));
+  verifier.end();
+  try {
+    return verifier.verify({key: SHERMAN_SITE_PUBLIC_KEY_PEM, dsaEncoding: 'ieee-p1363'}, Buffer.from(signature, 'base64url'));
+  } catch (_) {
+    return false;
+  }
+}
+
+function shermanSiteReceipt() {
+  return {
+    assetId: SHERMAN_SITE_EVIDENCE.assetId,
+    sourceVersion: SHERMAN_SITE_EVIDENCE.sourceVersion,
+    sourceSha256: SHERMAN_SITE_EVIDENCE.sourceSha256,
+    recipeId: SHERMAN_SITE_EVIDENCE.recipeId,
+    action: SHERMAN_SITE_EVIDENCE.action,
+    renderId: SHERMAN_SITE_EVIDENCE.renderId,
+    cacheKey: SHERMAN_SITE_EVIDENCE.cacheKey,
+    status: 'completed',
+    cacheHit: true,
+    candidateStatus: 'quarantined',
+    assetMutation: false,
+    modelBytesReturnedToCaller: false,
+    includeBlend: false,
+    contactSheetSha256: SHERMAN_SITE_EVIDENCE.contactSheetSha256,
+    contactSheetByteCount: SHERMAN_SITE_EVIDENCE.contactSheetByteCount,
+    humanVerdict: 'pending',
+  };
+}
+
+async function handleShermanSiteBlenderRequest(req, res) {
+  res.set('Cache-Control', 'private, no-store');
+  if (!verifyShermanSiteRequest(req)) {
+    res.status(401).json({status: 'failed', message: 'Invalid or expired Factory Floor signature.'});
+    return;
+  }
+  const body = req.body || {};
+  if (
+    body.assetId !== SHERMAN_SITE_EVIDENCE.assetId ||
+    body.sourceVersion !== SHERMAN_SITE_EVIDENCE.sourceVersion ||
+    body.recipeId !== SHERMAN_SITE_EVIDENCE.recipeId
+  ) {
+    res.status(409).json({status: 'failed', message: 'Factory Floor evidence contract does not match the pinned source.'});
+    return;
+  }
+  if (body.operation === 'render') {
+    res.json(shermanSiteReceipt());
+    return;
+  }
+  if (body.operation !== 'evidence') {
+    res.status(400).json({status: 'failed', message: 'Unsupported Factory Floor operation.'});
+    return;
+  }
+  if (
+    body.cacheKey !== SHERMAN_SITE_EVIDENCE.cacheKey ||
+    body.expectedSha256 !== SHERMAN_SITE_EVIDENCE.contactSheetSha256
+  ) {
+    res.status(409).json({status: 'failed', message: 'Evidence receipt does not match the pinned artifact.'});
+    return;
+  }
+  try {
+    const [bytes] = await new Storage().bucket(SHERMAN_SITE_EVIDENCE.bucket).file(SHERMAN_SITE_EVIDENCE.objectName).download();
+    const readbackSha256 = createHash('sha256').update(bytes).digest('hex');
+    if (
+      bytes.length !== SHERMAN_SITE_EVIDENCE.contactSheetByteCount ||
+      readbackSha256 !== SHERMAN_SITE_EVIDENCE.contactSheetSha256
+    ) {
+      res.status(409).json({status: 'failed', message: 'Stored evidence failed byte-count or SHA-256 verification.'});
+      return;
+    }
+    res.set({
+      'Content-Type': 'image/png',
+      'Content-Length': String(bytes.length),
+      'X-Content-Type-Options': 'nosniff',
+      'X-Artifact-SHA256': readbackSha256,
+    });
+    res.status(200).send(bytes);
+  } catch (err) {
+    res.status(502).json({status: 'failed', message: 'Verified evidence is temporarily unavailable.'});
+  }
+}
+
 function createHomeCenterMcpApp({google, admin, googleClientId = () => '', googleClientSecret = () => '', githubToken = () => '', githubAdmin = {}, cartesiaApiKey = () => ''}) {
   const app = express();
-  app.use(express.json({limit: '80mb'}));
+  app.use(express.json({limit: '80mb', verify: (req, _res, bytes) => { req.rawBody = Buffer.from(bytes); }}));
   app.use(express.urlencoded({extended: false, limit: '256kb'}));
   const transports = {};
 
@@ -5632,7 +5741,7 @@ function createHomeCenterMcpApp({google, admin, googleClientId = () => '', googl
     res.json({ok: true, service: 'home-center-drive-bridge', version: HOME_CENTER_MCP_SERVER_VERSION, registryVersion: HOME_CENTER_REGISTRY_VERSION, connectorSchemaRevision: HOME_CENTER_CONNECTOR_SCHEMA_REVISION, catalogCacheKey: HOME_CENTER_CONNECTOR_SCHEMA_REVISION, directFileTools: HOME_CENTER_DIRECT_FILE_TOOLS, endpoints: ['/sse', '/messages', '/mcp'], oauthProtectedResource: MCP_RESOURCE_METADATA});
   });
 
-  app.get('/oauth-protected-resource', (_req, res) => {
+  app.post('/site/blender', handleShermanSiteBlenderRequest);\n\n  app.get('/oauth-protected-resource', (_req, res) => {
     res.set('Cache-Control', 'no-store');
     res.json(oauthProtectedResourceMetadata());
   });
