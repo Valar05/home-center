@@ -2497,26 +2497,64 @@ function cleanGitHubAdminBranch(branch = {}) {
   return {ref: branch.ref || '', sha: branch.object && branch.object.sha || '', url: branch.url || ''};
 }
 
+function safeGitHubAdminStatusSecret(githubAdmin, key, envKey, max = 12000) {
+  try {
+    return {value: githubAdminSecretValue(githubAdmin, key, envKey, max), error: null};
+  } catch (err) {
+    return {value: '', error: {code: 'github_admin_secret_inaccessible', message: envKey + ' could not be read.'}};
+  }
+}
+
 async function githubAdminAuthStatusOperation({githubAdmin = {}}) {
   const owners = githubAdminOwners(githubAdmin);
-  const appId = githubAdminSecretValue(githubAdmin, 'appId', 'GITHUB_APP_ID', 120);
-  const installationId = githubAdminSecretValue(githubAdmin, 'installationId', 'GITHUB_APP_INSTALLATION_ID', 120);
-  const privateKeyConfigured = !!githubAdminSecretValue(githubAdmin, 'privateKey', 'GITHUB_APP_PRIVATE_KEY', 12000);
-  const bootstrapConfigured = !!(githubAdminSecretValue(githubAdmin, 'bootstrapToken', 'GITHUB_BOOTSTRAP_TOKEN', 4096) || githubAdminSecretValue(githubAdmin, 'adminToken', 'GITHUB_ADMIN_TOKEN', 4096));
+  const runtimeEnabled = githubAdminEnabled();
+  const appIdSecret = safeGitHubAdminStatusSecret(githubAdmin, 'appId', 'GITHUB_APP_ID', 120);
+  const installationIdSecret = safeGitHubAdminStatusSecret(githubAdmin, 'installationId', 'GITHUB_APP_INSTALLATION_ID', 120);
+  const privateKeySecret = safeGitHubAdminStatusSecret(githubAdmin, 'privateKey', 'GITHUB_APP_PRIVATE_KEY', 12000);
+  const bootstrapSecret = safeGitHubAdminStatusSecret(githubAdmin, 'bootstrapToken', 'GITHUB_BOOTSTRAP_TOKEN', 4096);
+  const adminTokenSecret = safeGitHubAdminStatusSecret(githubAdmin, 'adminToken', 'GITHUB_ADMIN_TOKEN', 4096);
+  const appId = appIdSecret.value;
+  const installationId = installationIdSecret.value;
+  const privateKeyConfigured = !!privateKeySecret.value;
+  const bootstrapConfigured = !!(bootstrapSecret.value || adminTokenSecret.value);
+  const appConfigured = !!(appId && installationId && privateKeyConfigured);
+  const disabledReasons = [];
+  let installationProbe = {code: 'not_applicable'};
+  let authenticated = false;
+  let providerReachable = false;
+  for (const secret of [appIdSecret, installationIdSecret, privateKeySecret, bootstrapSecret, adminTokenSecret]) {
+    if (secret.error) disabledReasons.push(secret.error);
+  }
+  if (!runtimeEnabled) disabledReasons.push({code: 'runtime_flag_disabled', message: 'HOME_CENTER_GITHUB_ADMIN_ENABLED is not true.'});
+  if (!appConfigured) disabledReasons.push({code: 'github_app_credentials_missing', message: 'GitHub App id, installation id, or private key is missing.'});
+  if (runtimeEnabled && appConfigured) {
+    try {
+      await githubAdminInstallationToken(githubAdmin);
+      authenticated = true;
+      providerReachable = true;
+      installationProbe = {ok: true, code: 'ok', providerStatus: 201};
+    } catch (err) {
+      installationProbe = {ok: false, code: safeText(err && err.code, 120) || 'github_admin_installation_probe_failed', providerStatus: Number(err && err.providerStatus || err && err.status || 0) || 0, message: safeText(err && err.message, 300)};
+      disabledReasons.push({code: installationProbe.code, message: installationProbe.message || 'GitHub App installation authority probe failed.', providerStatus: installationProbe.providerStatus});
+    }
+  }
   return {
     ok: true,
-    enabled: githubAdminEnabled(),
+    enabled: runtimeEnabled && appConfigured && authenticated,
     authority: 'home_center_github_admin_v1',
-    primaryCredential: appId && installationId && privateKeyConfigured ? 'github_app_installation' : '',
+    primaryCredential: appConfigured ? 'github_app_installation' : '',
     fallbackCredentialConfigured: bootstrapConfigured,
-    appConfigured: !!(appId && installationId && privateKeyConfigured),
+    appConfigured,
+    authenticated,
+    providerReachable,
     allowedOwners: owners,
     mutationRequiresRequestId: true,
+    disabledReasons,
+    diagnostics: {installationProbe},
     secretsExposed: false,
     supportedOperations: ['github_admin.auth_status', 'github_admin.repos.create', 'github_admin.repos.configure', 'github_admin.branches.create', 'github_admin.files.upsert', 'github_admin.pull_requests.create', 'github_admin.pull_requests.merge', 'github_admin.workflows.dispatch'],
   };
 }
-
 async function githubAdminCreateRepoOperation({admin, user, githubAdmin, args = {}}) {
   requireGitHubAdminEnabled();
   const requestId = createRequestId(args.requestId);
@@ -2663,6 +2701,7 @@ async function githubAdminMergePullRequestOperation({admin, user, githubAdmin, a
 
 async function githubAdminDispatchWorkflowOperation({admin, user, githubAdmin, args = {}}) {
   requireGitHubAdminEnabled();
+  if (!safeText(args.requestId, 180)) throw Object.assign(new Error('requestId is required for github_admin.workflows.dispatch.'), {status: 400, code: 'github_admin_request_id_required'});
   const requestId = createRequestId(args.requestId);
   const existing = await existingAudit(admin, requestId);
   if (existing && existing.status === 'success' && existing.result) return {...existing.result, idempotent: true, audit: existing};
