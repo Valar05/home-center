@@ -6,8 +6,12 @@ const audio = fs.readFileSync(new URL('../functions/audio_render_service.js', im
 const index = fs.readFileSync(new URL('../functions/index.js', import.meta.url), 'utf8');
 
 assert(api.includes("GENERATED_BUCKET = process.env.HOME_CENTER_GENERATED_BUCKET || 'home-center-generated'"), 'browser must use canonical generated bucket');
-assert(api.includes("action === 'list'"), 'browser API must list authorized audio');
+assert(api.includes("action === 'browse'"), 'browser API must browse the current indexed folder');
+assert(api.includes("action === 'list'"), 'legacy browser API listing must remain available during rollout');
 assert(api.includes("action === 'play'"), 'browser API must issue playback grants');
+assert(api.includes("CATALOG_ROOT = 'indexes/audio/v1/catalog'"), 'folder discovery must use the durable audio catalog index');
+assert(api.includes("delimiter: '/'"), 'folder discovery must be bounded to immediate children');
+assert(api.includes("source: 'catalog-index-v1'"), 'folder responses must declare their indexed source');
 assert(api.includes("collection('audioLibraryStreamTokens')"), 'playback grants must be short-lived server records');
 assert(api.includes("Math.abs(Date.now() - timestampMs) > MAX_CLOCK_SKEW_MS"), 'signed requests must expire');
 assert(api.includes("createVerify('RSA-SHA256')"), 'site-to-Home-Center requests must be signed');

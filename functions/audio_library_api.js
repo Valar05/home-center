@@ -12,6 +12,9 @@ const PUBLIC_BASE = process.env.HOME_CENTER_AUDIO_LIBRARY_PUBLIC_BASE || 'https:
 const MAX_CLOCK_SKEW_MS = 5 * 60 * 1000;
 const AUDIO_EXTENSIONS = /\.(wav|mp3|ogg|flac|m4a|aac|opus)$/i;
 const AUDIO_TYPES = /^audio\//i;
+const CATALOG_ROOT = 'indexes/audio/v1/catalog';
+const MAX_DIRECTORY_PAGES = 20;
+const MAX_DIRECTORY_RESULTS = 500;
 const storage = new Storage();
 
 function safeText(value, max = 1200) {
@@ -106,6 +109,155 @@ function audioMetadata(file, metadata, email) {
     manifestObject: safeText(custom.manifestObject, 1000),
     sha256: safeText(custom.sha256, 128),
   };
+}
+
+function sanitizeCatalogSegment(value, fallback = '') {
+  const clean = safeText(String(value || ''), 240)
+    .replace(/[^A-Za-z0-9_.@-]+/g, '_')
+    .replace(/^_+|_+$/g, '');
+  return clean || fallback;
+}
+
+function normalizeFolder(value) {
+  const raw = safeText(value, 600);
+  if (!raw) return '';
+  const segments = raw.split('/').filter(Boolean);
+  if (segments.length > 2) {
+    const err = new Error('Audio folders support project and stage only.');
+    err.status = 400;
+    throw err;
+  }
+  const clean = segments.map((segment) => sanitizeCatalogSegment(segment));
+  if (clean.some((segment) => !segment)) {
+    const err = new Error('The requested audio folder is invalid.');
+    err.status = 400;
+    throw err;
+  }
+  return clean.join('/');
+}
+
+function folderLabel(value) {
+  return safeText(value, 240)
+    .replace(/[-_]+/g, ' ')
+    .replace(/\b\w/g, (letter) => letter.toUpperCase());
+}
+
+async function listDirectoryPage(bucket, query) {
+  const [files, nextQuery, apiResponse] = await bucket.getFiles(query);
+  return {
+    files: Array.isArray(files) ? files : [],
+    prefixes: Array.isArray(apiResponse && apiResponse.prefixes) ? apiResponse.prefixes : [],
+    nextPageToken: safeText(nextQuery && nextQuery.pageToken, 1000),
+  };
+}
+
+async function listDirectory(bucket, prefix, includeFiles) {
+  const files = [];
+  const prefixes = new Set();
+  let pageToken;
+  for (let page = 0; page < MAX_DIRECTORY_PAGES; page += 1) {
+    const result = await listDirectoryPage(bucket, {
+      autoPaginate: false,
+      delimiter: '/',
+      maxResults: MAX_DIRECTORY_RESULTS,
+      prefix,
+      ...(pageToken ? {pageToken} : {}),
+    });
+    if (includeFiles) files.push(...result.files);
+    for (const childPrefix of result.prefixes) prefixes.add(childPrefix);
+    pageToken = result.nextPageToken || '';
+    if (!pageToken) break;
+  }
+  if (pageToken) {
+    const err = new Error('The current audio folder exceeds the bounded directory limit.');
+    err.status = 413;
+    throw err;
+  }
+  return {files, prefixes: [...prefixes]};
+}
+
+async function readIndexJson(file) {
+  const [bytes] = await file.download();
+  if (!bytes || bytes.length > 2 * 1024 * 1024) {
+    const err = new Error('An audio catalog record exceeds the safety limit.');
+    err.status = 502;
+    throw err;
+  }
+  try {
+    return JSON.parse(bytes.toString('utf8'));
+  } catch (cause) {
+    const err = new Error('An audio catalog record is invalid.');
+    err.status = 502;
+    err.cause = cause;
+    throw err;
+  }
+}
+
+function indexAudioMetadata(index, email) {
+  const destination = index && index.destination || {};
+  const source = index && index.source || {};
+  const classification = index && index.classification || {};
+  const metadata = destination.metadata || {};
+  const objectName = safeText(destination.objectName, 1024);
+  const project = sanitizeCatalogSegment(classification.project || destination.project, 'unclassified');
+  const stage = sanitizeCatalogSegment(classification.stage || destination.stage, 'unclassified');
+  const ownerEmail = safeEmail(classification.ownerEmail || destination.ownerEmail);
+  if (!objectName || ownerEmail !== email) return null;
+  const parts = objectName.split('/');
+  const displayName = safeText(source.name, 500) || parts.pop() || objectName;
+  return {
+    id: base64Url(objectName),
+    name: objectName,
+    displayName,
+    path: safeText(source.sourcePath, 1000) || parts.join('/'),
+    contentType: safeText(source.mimeType || destination.contentType || metadata.contentType, 160) || 'application/octet-stream',
+    size: Number(destination.byteCount || 0),
+    updated: safeText(index.indexedAt, 80),
+    ownerEmail,
+    access: 'owned',
+    duration: Number(metadata.duration || destination.duration || 0) || null,
+    sampleRate: Number(metadata.sampleRate || destination.sampleRate || 0) || null,
+    requestId: safeText(metadata.requestId || source.requestId, 180),
+    project,
+    stage,
+    manifestObject: safeText(metadata.manifestObject, 1000),
+    sha256: safeText(destination.sha256 || metadata.sha256, 128),
+  };
+}
+
+async function browseAudio(bucket, body, email) {
+  const currentFolder = normalizeFolder(body.folder);
+  const ownerSegment = sanitizeCatalogSegment(email, 'legacy');
+  const segments = currentFolder ? currentFolder.split('/') : [];
+  const prefix = [CATALOG_ROOT, ownerSegment, ...segments].join('/') + '/';
+  const isLeaf = segments.length === 2;
+  const directory = await listDirectory(bucket, prefix, isLeaf);
+
+  if (!isLeaf) {
+    const folders = directory.prefixes.map((childPrefix) => {
+      const relative = childPrefix.slice(prefix.length).replace(/\/+$/, '');
+      const name = relative.split('/')[0];
+      const path = [...segments, name].join('/');
+      return {
+        name,
+        label: folderLabel(name),
+        path,
+        fileCount: null,
+        totalBytes: null,
+      };
+    }).filter((folder) => folder.name);
+    folders.sort((a, b) => a.label.localeCompare(b.label));
+    return {ok: true, bucket: GENERATED_BUCKET, currentFolder, folders, items: [], source: 'catalog-index-v1'};
+  }
+
+  const records = await Promise.all(
+    directory.files
+      .filter((file) => file.name.endsWith('.json'))
+      .map((file) => readIndexJson(file)),
+  );
+  const items = records.map((record) => indexAudioMetadata(record, email)).filter(Boolean);
+  items.sort((a, b) => String(b.updated).localeCompare(String(a.updated)));
+  return {ok: true, bucket: GENERATED_BUCKET, currentFolder, folders: [], items, source: 'catalog-index-v1'};
 }
 
 async function authorizedFile(bucket, objectName, email) {
@@ -227,15 +379,18 @@ async function audioLibraryHandler(req, res) {
     }
     const bucket = storage.bucket(GENERATED_BUCKET);
     const action = safeText(body.action, 40);
-    const result = action === 'list'
-      ? await listAudio(bucket, body, email)
-      : action === 'play'
-        ? await playAudio(bucket, body, email)
-        : null;
+    const result = action === 'browse'
+      ? await browseAudio(bucket, body, email)
+      : action === 'list'
+        ? await listAudio(bucket, body, email)
+        : action === 'play'
+          ? await playAudio(bucket, body, email)
+          : null;
     if (!result) {
       res.status(400).json({ok: false, error: 'unsupported_action'});
       return;
     }
+    if (action === 'browse') res.set('Cache-Control', 'private, max-age=60, stale-while-revalidate=300');
     res.status(200).json(result);
   } catch (err) {
     const status = Number(err && (err.status || err.code)) || 500;
@@ -245,4 +400,13 @@ async function audioLibraryHandler(req, res) {
   }
 }
 
-module.exports = {audioLibraryHandler, verifyRequest, accessFor, parseSharedWith, audioMetadata};
+module.exports = {
+  audioLibraryHandler,
+  verifyRequest,
+  accessFor,
+  parseSharedWith,
+  audioMetadata,
+  browseAudio,
+  normalizeFolder,
+  indexAudioMetadata,
+};
