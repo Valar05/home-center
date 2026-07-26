@@ -6,8 +6,10 @@ const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
 const {createHomeCenterMcpApp, createDriveFolderOperation, createGoogleDocOperation} = require('./home_center_mcp');
+const {audioLibraryHandler} = require('./audio_library_api');
 const {createCommandCenterMcpApp} = require('./command_center_mcp');
 const {createSheRawMcpApp} = require('./she_raw_mcp');
+const {CARTESIA_DEFAULT_MODEL_ID, CARTESIA_DEFAULT_VOICE_NAME, listCartesiaVoiceCatalog, listCartesiaVoices, normalizeCartesiaVoice, openCartesiaStream} = require('./hosted_speech_provider');
 
 admin.initializeApp();
 
@@ -15,6 +17,10 @@ const OPENAI_API_KEY = defineSecret('OPENAI_API_KEY');
 const ELEVENLABS_API_KEY = defineSecret('ELEVENLABS_API_KEY');
 const CARTESIA_API_KEY = defineSecret('CARTESIA_API_KEY');
 const GITHUB_TOKEN = defineSecret('GITHUB_TOKEN');
+const GITHUB_APP_ID = defineSecret('GITHUB_APP_ID');
+const GITHUB_APP_INSTALLATION_ID = defineSecret('GITHUB_APP_INSTALLATION_ID');
+const GITHUB_APP_PRIVATE_KEY = defineSecret('GITHUB_APP_PRIVATE_KEY');
+const GITHUB_BOOTSTRAP_TOKEN = defineSecret('GITHUB_BOOTSTRAP_TOKEN');
 const GOOGLE_OAUTH_CLIENT_ID = defineSecret('GOOGLE_OAUTH_CLIENT_ID');
 const GOOGLE_OAUTH_CLIENT_SECRET = defineSecret('GOOGLE_OAUTH_CLIENT_SECRET');
 const CREATIVE_OPENAI_TIMEOUT_MS = 85000;
@@ -3164,7 +3170,7 @@ async function askOpenAIToolTurn(body, user = {}) {
 }
 
 
-exports.homeCenterMcp = onRequest({timeoutSeconds: 300, secrets: [GOOGLE_OAUTH_CLIENT_ID, GOOGLE_OAUTH_CLIENT_SECRET, GITHUB_TOKEN]}, createHomeCenterMcpApp({google, admin, googleClientId: () => GOOGLE_OAUTH_CLIENT_ID.value() || process.env.GOOGLE_OAUTH_CLIENT_ID || '', googleClientSecret: () => GOOGLE_OAUTH_CLIENT_SECRET.value() || process.env.GOOGLE_OAUTH_CLIENT_SECRET || '', githubToken: () => GITHUB_TOKEN.value() || process.env.GITHUB_TOKEN || ''}));
+exports.homeCenterMcp = onRequest({timeoutSeconds: 300, secrets: [GOOGLE_OAUTH_CLIENT_ID, GOOGLE_OAUTH_CLIENT_SECRET, GITHUB_TOKEN, GITHUB_APP_ID, GITHUB_APP_INSTALLATION_ID, GITHUB_APP_PRIVATE_KEY, GITHUB_BOOTSTRAP_TOKEN, CARTESIA_API_KEY]}, createHomeCenterMcpApp({google, admin, googleClientId: () => GOOGLE_OAUTH_CLIENT_ID.value() || process.env.GOOGLE_OAUTH_CLIENT_ID || '', googleClientSecret: () => GOOGLE_OAUTH_CLIENT_SECRET.value() || process.env.GOOGLE_OAUTH_CLIENT_SECRET || '', githubToken: () => GITHUB_TOKEN.value() || process.env.GITHUB_TOKEN || '', githubAdmin: {appId: () => GITHUB_APP_ID.value() || process.env.GITHUB_APP_ID || '', installationId: () => GITHUB_APP_INSTALLATION_ID.value() || process.env.GITHUB_APP_INSTALLATION_ID || '', privateKey: () => GITHUB_APP_PRIVATE_KEY.value() || process.env.GITHUB_APP_PRIVATE_KEY || '', bootstrapToken: () => GITHUB_BOOTSTRAP_TOKEN.value() || process.env.GITHUB_BOOTSTRAP_TOKEN || '', allowedOwners: () => process.env.HOME_CENTER_GITHUB_ADMIN_OWNERS || 'Valar05'}, cartesiaApiKey: () => CARTESIA_API_KEY.value() || process.env.CARTESIA_API_KEY || ''}));
 
 exports.commandCenterMcp = onRequest({timeoutSeconds: 300}, createCommandCenterMcpApp({admin}));
 
@@ -4644,14 +4650,9 @@ exports.agentTurn = onRequest({timeoutSeconds: 120, secrets: [OPENAI_API_KEY, GO
 });
 
 const ELEVENLABS_BRIAN_VOICE_ID = 'nPczCjzI2devNBz1zQrb';
-const CARTESIA_VERSION = '2026-03-01';
-const CARTESIA_DEFAULT_MODEL_ID = 'sonic-3.5';
-const CARTESIA_DEFAULT_VOICE_NAME = 'Cartesia Narrator';
 let cachedElevenLabsBrianVoiceId = '';
 let cachedElevenLabsVoices = null;
 let cachedElevenLabsVoicesAtMs = 0;
-let cachedCartesiaVoices = null;
-let cachedCartesiaVoicesAtMs = 0;
 
 async function listElevenLabsVoices() {
   const now = Date.now();
@@ -4699,6 +4700,26 @@ async function resolveElevenLabsVoiceId(voiceName, voiceId) {
   return match.voice_id;
 }
 
+function cartesiaApiKeyGetter() {
+  return CARTESIA_API_KEY.value() || process.env.CARTESIA_API_KEY || '';
+}
+
+const HOSTED_TTS_ALLOWED_EMAILS = Object.freeze([
+  'dclarke1005@gmail.com',
+  'junewren28@gmail.com',
+  'timothypomeroy07@gmail.com',
+]);
+const HOSTED_TTS_ALLOWED_EMAIL_SET = new Set(HOSTED_TTS_ALLOWED_EMAILS);
+
+async function requireHostedTtsAllowedUser(req) {
+  const user = await requireGoogleOAuthAction(req);
+  const email = safeText(user && user.email, 320).toLowerCase();
+  if (HOSTED_TTS_ALLOWED_EMAIL_SET.has(email)) return user;
+  const err = new Error('hosted_tts_forbidden: this credit-backed TTS endpoint is restricted to approved Home Center accounts.');
+  err.status = 403;
+  throw err;
+}
+
 async function openElevenLabsStream(text, options = {}) {
   const apiKey = ELEVENLABS_API_KEY.value() || process.env.ELEVENLABS_API_KEY || '';
   if (!apiKey) throw new Error('ElevenLabs API key is not configured');
@@ -4721,96 +4742,67 @@ async function openElevenLabsStream(text, options = {}) {
 }
 
 
-async function listCartesiaVoices() {
-  const now = Date.now();
-  if (cachedCartesiaVoices && now - cachedCartesiaVoicesAtMs < 10 * 60 * 1000) return cachedCartesiaVoices;
-  const apiKey = CARTESIA_API_KEY.value() || process.env.CARTESIA_API_KEY || '';
-  if (!apiKey) throw new Error('Cartesia API key is not configured');
-  const response = await fetch('https://api.cartesia.ai/voices', {
-    method: 'GET',
-    headers: {
-      'X-API-Key': apiKey,
-      'Cartesia-Version': CARTESIA_VERSION,
-      'Accept': 'application/json',
+
+function shouldApplySatisfyingAcousticDistortion(acousticDirection) {
+  const clean = safeText(acousticDirection, 300).toLowerCase();
+  return clean.includes('satisfying acoustic distortion') || clean.includes('acoustic distortion') || clean.includes('artificial voice pitch');
+}
+
+function createSatisfyingAcousticDistortionTransform() {
+  const {Transform} = require('stream');
+  let carry = null;
+  return new Transform({
+    transform(chunk, encoding, callback) {
+      try {
+        let input = Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk, encoding);
+        if (carry !== null) {
+          input = Buffer.concat([Buffer.from([carry]), input]);
+          carry = null;
+        }
+        if ((input.length & 1) === 1) {
+          carry = input[input.length - 1];
+          input = input.subarray(0, input.length - 1);
+        }
+        const out = Buffer.allocUnsafe(input.length);
+        const drive = 1.85;
+        const wet = 0.18;
+        const norm = Math.tanh(drive);
+        for (let i = 0; i < input.length; i += 2) {
+          const sample = input.readInt16LE(i) / 32768;
+          const saturated = Math.tanh(sample * drive) / norm;
+          const mixed = sample * (1 - wet) + saturated * wet;
+          const clipped = Math.max(-1, Math.min(0.999969, mixed));
+          out.writeInt16LE(Math.round(clipped * 32767), i);
+        }
+        callback(null, out);
+      } catch (err) {
+        callback(err);
+      }
+    },
+    flush(callback) {
+      carry = null;
+      callback();
     },
   });
-  if (!response.ok) {
-    const detail = await response.text().catch(() => '');
-    throw new Error(`Cartesia voices HTTP ${response.status}${detail ? `: ${safeText(detail, 500)}` : ''}`);
+}
+
+async function pipeSpeechResponse(audioResponse, res, acousticDirection) {
+  if (!audioResponse.body || typeof audioResponse.body.pipeTo !== 'function') return false;
+  const {Readable, Writable} = require('stream');
+  if (!shouldApplySatisfyingAcousticDistortion(acousticDirection)) {
+    await audioResponse.body.pipeTo(Writable.toWeb(res));
+    return true;
   }
-  const payload = await response.json();
-  const rows = Array.isArray(payload)
-    ? payload
-    : (Array.isArray(payload && payload.voices)
-      ? payload.voices
-      : (Array.isArray(payload && payload.data) ? payload.data : []));
-  cachedCartesiaVoices = rows;
-  cachedCartesiaVoicesAtMs = now;
-  return cachedCartesiaVoices;
-}
-
-function normalizeCartesiaVoice(voice) {
-  const labels = voice && voice.labels && typeof voice.labels === 'object' ? voice.labels : {};
-  const id = voice && (voice.id || voice.voice_id);
-  const name = voice && (voice.name || voice.display_name);
-  const description = voice && (voice.description || voice.use_case || labels.description || labels.gender || labels.age || labels.accent);
-  return {
-    voiceId: safeText(id, 160),
-    name: safeText(name, 120),
-    category: safeText((voice && (voice.category || voice.type || voice.use_case)) || 'cartesia', 80),
-    description: safeText(description, 300),
-    previewUrl: safeText(voice && (voice.preview_url || voice.previewUrl), 500),
-    labels,
-  };
-}
-
-async function resolveCartesiaVoiceId(voiceName, voiceId) {
-  const override = safeText(voiceId || process.env.CARTESIA_VOICE_ID || process.env.CARTESIA_DEFAULT_VOICE_ID, 160);
-  if (override) return override;
-  const requestedName = safeText(voiceName || process.env.CARTESIA_VOICE_NAME || '', 120).toLowerCase();
-  const voices = await listCartesiaVoices();
-  const normalized = voices.map(normalizeCartesiaVoice).filter((voice) => voice.voiceId);
-  if (requestedName) {
-    const exact = normalized.find((voice) => voice.name.toLowerCase() === requestedName);
-    if (exact) return exact.voiceId;
-    const partial = normalized.find((voice) => `${voice.name} ${voice.description} ${voice.category}`.toLowerCase().includes(requestedName));
-    if (partial) return partial.voiceId;
-  }
-  const narrator = normalized.find((voice) => `${voice.name} ${voice.description} ${voice.category}`.toLowerCase().includes('narrat'));
-  if (narrator) return narrator.voiceId;
-  if (normalized[0]) return normalized[0].voiceId;
-  throw new Error('cartesia_voice_not_found');
-}
-
-async function openCartesiaStream(text, options = {}) {
-  const apiKey = CARTESIA_API_KEY.value() || process.env.CARTESIA_API_KEY || '';
-  if (!apiKey) throw new Error('Cartesia API key is not configured');
-  const voiceName = safeText(options.voiceName || process.env.CARTESIA_VOICE_NAME || CARTESIA_DEFAULT_VOICE_NAME, 120) || CARTESIA_DEFAULT_VOICE_NAME;
-  const voiceId = await resolveCartesiaVoiceId(voiceName, options.voiceId);
-  const modelId = safeText(options.modelId || process.env.CARTESIA_MODEL_ID || CARTESIA_DEFAULT_MODEL_ID, 120) || CARTESIA_DEFAULT_MODEL_ID;
-  return {
-    voiceName,
-    modelId,
-    response: await fetch('https://api.cartesia.ai/tts/bytes', {
-      method: 'POST',
-      headers: {
-        'X-API-Key': apiKey,
-        'Cartesia-Version': CARTESIA_VERSION,
-        'Accept': 'application/octet-stream',
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model_id: modelId,
-        transcript: text,
-        voice: {mode: 'id', id: voiceId},
-        output_format: {
-          container: 'raw',
-          encoding: 'pcm_s16le',
-          sample_rate: 24000,
-        },
-      }),
-    }),
-  };
+  res.set('X-Speech-Acoustic-Effect', 'soft_saturation_v1');
+  await new Promise((resolve, reject) => {
+    Readable.fromWeb(audioResponse.body)
+      .pipe(createSatisfyingAcousticDistortionTransform())
+      .on('error', reject)
+      .pipe(res)
+      .on('finish', resolve)
+      .on('error', reject);
+  });
+  return true;
 }
 
 async function openHostedSpeechStream(text, body) {
@@ -4830,8 +4822,8 @@ async function openHostedSpeechStream(text, body) {
   const voiceAlias = safeText(body && body.voiceAlias, 120);
   const acousticDirection = safeText(body && body.acousticDirection, 300);
   if (provider === 'cartesia') {
-    const cartesia = await openCartesiaStream(text, {voiceName, voiceId, modelId});
-    return {provider: 'cartesia', voiceName: cartesia.voiceName, modelId: cartesia.modelId, role, characterId, voiceAlias, acousticDirection, response: cartesia.response};
+    const cartesia = await openCartesiaStream(text, {voiceName, voiceId, modelId, apiKeyGetter: cartesiaApiKeyGetter, format: 'raw', sampleRate: 24000});
+    return {provider: 'cartesia', voiceName: cartesia.voiceName, voiceId: cartesia.voiceId, modelId: cartesia.modelId, role, characterId, voiceAlias, acousticDirection, response: cartesia.response};
   }
   return {provider: 'elevenlabs', voiceName, modelId, role, characterId, voiceAlias, acousticDirection, response: await openElevenLabsStream(text, {voiceName, voiceId, modelId})};
 }
@@ -4839,30 +4831,47 @@ async function openHostedSpeechStream(text, body) {
 async function ttsVoicesHandler(req, res) {
   if (handleOptions(req, res)) return;
   try {
+    await requireHostedTtsAllowedUser(req);
     const provider = safeText((req.query && req.query.provider) || (req.body && req.body.provider), 40).toLowerCase() || 'cartesia';
     if (provider !== 'cartesia' && provider !== 'elevenlabs') {
       sendJson(res, 400, {error: 'unsupported_tts_provider', detail: provider});
       return;
     }
-    const query = safeText((req.query && req.query.q) || (req.body && req.body.q), 120).toLowerCase();
-    const limitRaw = Number((req.query && req.query.limit) || (req.body && req.body.limit) || 80);
-    const limit = Math.max(1, Math.min(200, Number.isFinite(limitRaw) ? limitRaw : 80));
-    const rawVoices = provider === 'elevenlabs' ? await listElevenLabsVoices() : await listCartesiaVoices();
-    const normalizer = provider === 'elevenlabs' ? normalizeElevenLabsVoice : normalizeCartesiaVoice;
-    const voices = rawVoices.map(normalizer).filter((voice) => {
+    const query = safeText((req.query && (req.query.q || req.query.query)) || (req.body && (req.body.q || req.body.query)), 240);
+    const limitRaw = Number((req.query && req.query.limit) || (req.body && req.body.limit) || 100);
+    const limit = Math.max(1, Math.min(100, Number.isFinite(limitRaw) ? Math.floor(limitRaw) : 100));
+    if (provider === 'cartesia') {
+      const catalog = await listCartesiaVoiceCatalog({
+        apiKeyGetter: cartesiaApiKeyGetter,
+        query,
+        limit,
+        pageToken: (req.query && (req.query.pageToken || req.query.cursor)) || (req.body && (req.body.pageToken || req.body.cursor)),
+        startingAfter: (req.query && (req.query.startingAfter || req.query.starting_after)) || (req.body && (req.body.startingAfter || req.body.starting_after)),
+        endingBefore: (req.query && (req.query.endingBefore || req.query.ending_before)) || (req.body && (req.body.endingBefore || req.body.ending_before)),
+        language: (req.query && (req.query.language || req.query.locale)) || (req.body && (req.body.language || req.body.locale)),
+        gender: (req.query && req.query.gender) || (req.body && req.body.gender),
+        isOwner: (req.query && (req.query.isOwner || req.query.is_owner)) || (req.body && (req.body.isOwner || req.body.is_owner)),
+      });
+      const voices = catalog.voices.map(normalizeCartesiaVoice);
+      sendJson(res, 200, {...catalog, query, limit, voices});
+      return;
+    }
+    const rawVoices = await listElevenLabsVoices();
+    const voices = rawVoices.map(normalizeElevenLabsVoice).filter((voice) => {
       if (!query) return true;
       const haystack = `${voice.name} ${voice.category} ${voice.description} ${JSON.stringify(voice.labels || {})}`.toLowerCase();
-      return haystack.includes(query);
+      return haystack.includes(query.toLowerCase());
     }).slice(0, limit);
     sendJson(res, 200, {provider, query, limit, voices});
   } catch (err) {
-    sendJson(res, err.statusCode || 500, {error: 'tts_voices_failed', detail: err.message || String(err)});
+    sendJson(res, err.status || err.statusCode || 500, {error: 'tts_voices_failed', detail: err.message || String(err)});
   }
 }
 
 async function ttsHandler(req, res) {
   if (handleOptions(req, res)) return;
   try {
+    await requireHostedTtsAllowedUser(req);
     const text = safeText(req.body && req.body.text, 12000);
     if (!text) {
       res.set(CORS_HEADERS).status(400).send('text is required');
@@ -4881,6 +4890,7 @@ async function ttsHandler(req, res) {
     res.set('X-Sample-Rate', '24000');
     res.set('X-Speech-Provider', speech.provider);
     res.set('X-Speech-Voice', speech.voiceName || (speech.provider === 'elevenlabs' ? 'Brian' : CARTESIA_DEFAULT_VOICE_NAME));
+    if (speech.voiceId) res.set('X-Speech-Voice-Id', speech.voiceId);
     res.set('X-Speech-Model', speech.modelId || (speech.provider === 'elevenlabs' ? 'eleven_multilingual_v2' : CARTESIA_DEFAULT_MODEL_ID));
     if (speech.role) res.set('X-Speech-Role', speech.role);
     if (speech.characterId) res.set('X-Speech-Character', speech.characterId);
@@ -4888,18 +4898,16 @@ async function ttsHandler(req, res) {
     if (speech.acousticDirection) res.set('X-Speech-Acoustic-Direction', speech.acousticDirection);
     res.set('Connection', 'close');
     res.status(200);
-    if (audioResponse.body && typeof audioResponse.body.pipeTo === 'function') {
-      const {Writable} = require('stream');
-      await audioResponse.body.pipeTo(Writable.toWeb(res));
-      return;
-    }
+    if (await pipeSpeechResponse(audioResponse, res, speech.acousticDirection)) return;
     const audio = Buffer.from(await audioResponse.arrayBuffer());
     res.send(audio);
   } catch (err) {
-    res.set(CORS_HEADERS).status(err.statusCode || 500).send(err.message || String(err));
+    res.set(CORS_HEADERS).status(err.status || err.statusCode || 500).send(err.message || String(err));
   }
 }
 
 exports.tts = onRequest({timeoutSeconds: 60, secrets: [ELEVENLABS_API_KEY, CARTESIA_API_KEY]}, ttsHandler);
 exports.speak = onRequest({timeoutSeconds: 60, secrets: [ELEVENLABS_API_KEY, CARTESIA_API_KEY]}, ttsHandler);
 exports.ttsVoices = onRequest({timeoutSeconds: 60, secrets: [ELEVENLABS_API_KEY, CARTESIA_API_KEY]}, ttsVoicesHandler);
+
+exports.audioLibraryApi = onRequest({timeoutSeconds: 60}, audioLibraryHandler);

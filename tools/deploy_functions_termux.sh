@@ -22,7 +22,22 @@ deploy_command_center_mcp() {
     --entry-point=commandCenterMcp \
     --trigger-http \
     --allow-unauthenticated \
-    --timeout=300s
+    --timeout=300s \
+    --set-env-vars=LOG_EXECUTION_ID=true,COMMAND_CENTER_RENDER_SERVICE_URL="${COMMAND_CENTER_RENDER_SERVICE_URL:-https://command-center-blender-render-vxybsaualq-uc.a.run.app}",COMMAND_CENTER_RENDER_BUCKET="${COMMAND_CENTER_RENDER_BUCKET:-home-center-dclar-command-center-renders}"
+}
+
+secret_exists() {
+  gcloud secrets describe "$1" --project "$PROJECT" >/dev/null 2>&1
+}
+
+home_center_mcp_secrets_arg() {
+  secrets="GOOGLE_OAUTH_CLIENT_ID=GOOGLE_OAUTH_CLIENT_ID:latest,GOOGLE_OAUTH_CLIENT_SECRET=GOOGLE_OAUTH_CLIENT_SECRET:latest,GITHUB_TOKEN=GITHUB_TOKEN:latest,GITHUB_BOOTSTRAP_TOKEN=GITHUB_BOOTSTRAP_TOKEN:latest,CARTESIA_API_KEY=CARTESIA_API_KEY:latest"
+  for optional_secret in GITHUB_APP_ID GITHUB_APP_INSTALLATION_ID GITHUB_APP_PRIVATE_KEY; do
+    if secret_exists "$optional_secret"; then
+      secrets="$secrets,$optional_secret=$optional_secret:latest"
+    fi
+  done
+  printf '%s' "$secrets"
 }
 
 deploy_home_center_mcp() {
@@ -36,8 +51,25 @@ deploy_home_center_mcp() {
     --trigger-http \
     --allow-unauthenticated \
     --timeout=300s \
-    --set-env-vars=HOME_CENTER_MCP_EXTENDED_TOOLS=true \
-    --set-secrets=GOOGLE_OAUTH_CLIENT_ID=GOOGLE_OAUTH_CLIENT_ID:latest,GOOGLE_OAUTH_CLIENT_SECRET=GOOGLE_OAUTH_CLIENT_SECRET:latest,GITHUB_TOKEN=GITHUB_TOKEN:latest
+    --memory=1Gi \
+    --cpu=1 \
+    --set-env-vars=HOME_CENTER_MCP_EXTENDED_TOOLS=true,HOME_CENTER_GITHUB_ADMIN_ENABLED=true,HOME_CENTER_GITHUB_ADMIN_OWNERS="${HOME_CENTER_GITHUB_ADMIN_OWNERS:-Valar05}",COMMAND_CENTER_RENDER_SERVICE_URL="${COMMAND_CENTER_RENDER_SERVICE_URL:-https://command-center-blender-render-vxybsaualq-uc.a.run.app}",COMMAND_CENTER_RENDER_BUCKET="${COMMAND_CENTER_RENDER_BUCKET:-home-center-dclar-command-center-renders}",COMMAND_CENTER_MCP_URL="${COMMAND_CENTER_MCP_URL:-https://us-central1-home-center-dclar.cloudfunctions.net/commandCenterMcp/mcp}" \
+    --set-secrets="$(home_center_mcp_secrets_arg)"
+}
+
+deploy_audio_library_api() {
+  gcloud functions deploy audioLibraryApi \
+    --gen2 \
+    --project="$PROJECT" \
+    --region="$REGION" \
+    --runtime=nodejs20 \
+    --source="$ROOT/functions" \
+    --entry-point=audioLibraryApi \
+    --trigger-http \
+    --allow-unauthenticated \
+    --timeout=300s \
+    --memory=512Mi \
+    --set-env-vars=HOME_CENTER_GENERATED_BUCKET="${HOME_CENTER_GENERATED_BUCKET:-home-center-generated}",HOME_CENTER_AUDIO_LIBRARY_PUBLIC_BASE="${HOME_CENTER_AUDIO_LIBRARY_PUBLIC_BASE:-https://${REGION}-${PROJECT}.cloudfunctions.net/audioLibraryApi}"
 }
 
 deploy_she_raw_mcp() {
@@ -57,10 +89,11 @@ for fn in $FUNCTIONS; do
   case "$fn" in
     commandCenterMcp) deploy_command_center_mcp ;;
     homeCenterMcp) deploy_home_center_mcp ;;
+    audioLibraryApi) deploy_audio_library_api ;;
     sheRawMcp) deploy_she_raw_mcp ;;
     *)
       echo "Unsupported gcloud deploy target: $fn" >&2
-      echo "Supported: commandCenterMcp homeCenterMcp sheRawMcp" >&2
+      echo "Supported: commandCenterMcp homeCenterMcp audioLibraryApi sheRawMcp" >&2
       exit 2
       ;;
   esac

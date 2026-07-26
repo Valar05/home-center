@@ -12,6 +12,7 @@ const REQUIRED_ARTIFACTS = [
   'orientation.md',
   'reasoning-summary.md',
   'command-log.jsonl',
+  'acceptance.json',
   'implementation.patch',
   'changed-files.json',
   'verification.json',
@@ -30,9 +31,13 @@ const OPTIONAL_POSTMORTEM_ARTIFACTS = [
 const DEFAULT_EXECUTOR_HEARTBEAT_MS = 25000;
 const DEFAULT_EXECUTOR_BATCH_MS = 5000;
 const DEFAULT_EXECUTOR_BATCH_LINES = 20;
+const DEFAULT_SUPERVISOR_POLL_MS = 15000;
+const WORKER_PROTOCOL_VERSION = 'command-center-worker-v2';
+const RUNNER_VERSION = 'command-center-runner-v2';
+const CODEX_ENV_DENYLIST = new Set(['OPENAI_API_KEY', 'CODEX_API_KEY']);
 
 function parseArgs(argv) {
-  const args = {mode: '', outputDir: '', baseWorkspace: '', jobPacket: '', command: '', executorCommand: '', manifest: '', config: DEFAULT_CONFIG_PATH, mcpUrl: DEFAULT_COMMAND_CENTER_BASE + '/mcp', commandCenterBase: DEFAULT_COMMAND_CENTER_BASE, workerId: '', mcpToken: process.env.HOME_CENTER_COMMAND_CENTER_BEARER_TOKEN || '', selfTest: false, deep: false};
+  const args = {mode: '', outputDir: '', baseWorkspace: '', jobPacket: '', command: '', executorCommand: '', manifest: '', config: DEFAULT_CONFIG_PATH, mcpUrl: DEFAULT_COMMAND_CENTER_BASE + '/mcp', commandCenterBase: DEFAULT_COMMAND_CENTER_BASE, workerId: '', mcpToken: process.env.HOME_CENTER_COMMAND_CENTER_BEARER_TOKEN || '', selfTest: false, deep: false, pollMs: DEFAULT_SUPERVISOR_POLL_MS, maxIdlePolls: 0};
   const rest = [...argv];
   if (rest[0] && !rest[0].startsWith('--')) args.mode = rest.shift();
   for (let i = 0; i < rest.length; i += 1) {
@@ -48,6 +53,8 @@ function parseArgs(argv) {
     else if (arg === '--command-center-base') args.commandCenterBase = rest[++i];
     else if (arg === '--worker-id') args.workerId = rest[++i];
     else if (arg === '--mcp-token') args.mcpToken = rest[++i];
+    else if (arg === '--poll-ms') args.pollMs = Number(rest[++i]) || DEFAULT_SUPERVISOR_POLL_MS;
+    else if (arg === '--max-idle-polls') args.maxIdlePolls = Number(rest[++i]) || 0;
     else if (arg === '--deep') args.deep = true;
     else if (arg === '--self-test') args.selfTest = true;
     else if (arg === '--help') {
@@ -66,6 +73,8 @@ function printHelp() {
     '  node tools/command_center_oneshot_worker.mjs register --manifest FILE --mcp-token TOKEN [--config FILE]',
     '  node tools/command_center_oneshot_worker.mjs prepare-base --manifest FILE [--output-dir DIR] [--deep]',
     '  node tools/command_center_oneshot_worker.mjs run-once --config FILE [--executor-command CMD] [--output-dir DIR]',
+    '  node tools/command_center_oneshot_worker.mjs heartbeat --config FILE',
+    '  node tools/command_center_oneshot_worker.mjs supervise --config FILE [--poll-ms MS]',
     '  node tools/command_center_oneshot_worker.mjs run-local --base-workspace PATH --job-packet FILE --output-dir DIR [--command CMD]',
     '  node tools/command_center_oneshot_worker.mjs --self-test',
   ].join('\n'));
@@ -113,6 +122,43 @@ function cleanLines(text, maxLineChars = 1200) {
   return String(text || '').split(/\r?\n/).map((line) => redactSecrets(line).slice(0, maxLineChars));
 }
 
+function safeObject(value) {
+  return value && typeof value === 'object' && !Array.isArray(value) ? value : {};
+}
+
+
+function safeList(value, maxItems = 50) {
+  return Array.isArray(value) ? value.slice(0, maxItems).map((item) => String(item || '').trim()).filter(Boolean) : [];
+}
+
+function machineImageRuntimePayload(manifest = {}) {
+  const sessionCapacity = safeObject(manifest.sessionCapacity);
+  const limits = safeObject(manifest.limits);
+  const machineImages = Array.isArray(manifest.machineImages) ? manifest.machineImages.slice(0, 40) : [];
+  const availableImageIds = safeList(manifest.availableImageIds || sessionCapacity.availableImageIds, 80);
+  const materializedImageIds = safeList(manifest.materializedImageIds || sessionCapacity.materializedImageIds, 80);
+  for (const image of machineImages) {
+    const imageId = String(image.imageId || image.machineImageId || '').trim();
+    if (imageId && !availableImageIds.includes(imageId)) availableImageIds.push(imageId);
+    if (imageId && image.status !== 'missing' && image.status !== 'retired' && !materializedImageIds.includes(imageId)) materializedImageIds.push(imageId);
+  }
+  const maxConcurrentSessions = Math.max(1, Math.min(Number(manifest.maxConcurrentSessions || sessionCapacity.maxConcurrentSessions || limits.maxConcurrentSessions || limits.concurrentSessions || 1) || 1, 100));
+  const activeSessionIds = safeList(manifest.activeSessionIds || sessionCapacity.activeSessionIds, 100);
+  const sessionIsolationModes = safeList(manifest.sessionIsolationModes || sessionCapacity.sessionIsolationModes || ['session'], 10);
+  const cacheState = {...safeObject(sessionCapacity.cacheState), ...safeObject(manifest.cacheState)};
+  return {
+    availableImageIds,
+    materializedImageIds,
+    machineImages,
+    cacheState,
+    maxConcurrentSessions,
+    activeSessionIds,
+    sessionIsolationModes,
+    canMaterializeImages: manifest.canMaterializeImages === true || sessionCapacity.canMaterializeImages === true,
+    sessionCapacity: {maxConcurrentSessions, activeSessionIds, availableImageIds, materializedImageIds, sessionIsolationModes, cacheState, canMaterializeImages: manifest.canMaterializeImages === true || sessionCapacity.canMaterializeImages === true},
+  };
+}
+
 function readConfig(configPath) {
   const config = readJson(configPath, null);
   if (!config) throw new Error('Worker config not found: ' + configPath + '. Run register first or provide --config.');
@@ -126,9 +172,70 @@ function writeConfig(configPath, config) {
   try { fs.chmodSync(configPath, 0o600); } catch (_) {}
 }
 
+
+function durableIdentityPath(configPath) {
+  return path.join(path.dirname(configPath), 'command-center-worker-installation.json');
+}
+
+function readOrCreateInstallationIdentity(configPath, manifest = {}, workerId = '') {
+  const identityPath = durableIdentityPath(configPath);
+  const existing = readJson(identityPath, null);
+  if (existing && existing.workerInstallationId) return existing;
+  const seed = `${os.hostname()}|${os.homedir()}|${manifest.location || 'termux'}|${manifest.stableWorkerIdentity || workerId || 'command-center-worker'}`;
+  const identity = {
+    workerInstallationId: 'winst_' + crypto.createHash('sha256').update(seed + '|' + crypto.randomUUID()).digest('hex').slice(0, 32),
+    createdAt: new Date().toISOString(),
+    hostLabel: os.hostname(),
+    location: manifest.location || 'termux',
+  };
+  writeConfig(identityPath, identity);
+  return identity;
+}
+
+function createWorkerInstanceId(workerId = '') {
+  return 'winstproc_' + crypto.createHash('sha256').update(`${workerId}|${process.pid}|${Date.now()}|${crypto.randomUUID()}`).digest('hex').slice(0, 32);
+}
+
+
+function rotateWorkerInstance(configPath) {
+  const raw = readConfig(configPath);
+  const manifest = readJson(raw.manifestPath, {});
+  const config = ensureRuntimeIdentity({...raw, configPath: path.resolve(configPath)}, manifest);
+  config.workerInstanceId = createWorkerInstanceId(config.workerId || manifest.workerId || '');
+  config.processStartAtMs = Date.now();
+  config.heartbeatSeq = 0;
+  config.runnerVersion = RUNNER_VERSION;
+  config.protocolVersion = WORKER_PROTOCOL_VERSION;
+  writeConfig(configPath, config);
+  return config;
+}
+
+function ensureRuntimeIdentity(config, manifest = {}) {
+  const identity = readOrCreateInstallationIdentity(config.configPath || DEFAULT_CONFIG_PATH, manifest, config.workerId || manifest.workerId || '');
+  if (!config.workerInstallationId) config.workerInstallationId = identity.workerInstallationId;
+  if (!config.workerInstanceId) config.workerInstanceId = createWorkerInstanceId(config.workerId || manifest.workerId || '');
+  if (!config.processStartAtMs) config.processStartAtMs = Date.now();
+  if (!config.runnerVersion) config.runnerVersion = RUNNER_VERSION;
+  if (!config.protocolVersion) config.protocolVersion = WORKER_PROTOCOL_VERSION;
+  config.heartbeatSeq = Number(config.heartbeatSeq || 0) || 0;
+  return config;
+}
+
+function childEnv(extra = {}, options = {}) {
+  const merged = {...process.env, ...extra};
+  if (options.stripCodexApiKeys === true) {
+    for (const key of CODEX_ENV_DENYLIST) delete merged[key];
+  }
+  return merged;
+}
+
+function commandUsesCodex(command = '') {
+  return /(^|[\s;&|])codex\s+exec\b|command_center_codex_executor\.sh/.test(String(command || ''));
+}
+
 function run(command, cwd, env = {}) {
   const startedAt = new Date().toISOString();
-  const result = spawnSync(command, {cwd, shell: true, encoding: 'utf8', maxBuffer: 8 * 1024 * 1024, env: {...process.env, ...env}});
+  const result = spawnSync(command, {cwd, shell: true, encoding: 'utf8', maxBuffer: 8 * 1024 * 1024, env: childEnv(env, {stripCodexApiKeys: commandUsesCodex(command)})});
   return {
     command,
     cwd,
@@ -335,6 +442,7 @@ function writeRequiredArtifacts({outputDir, runWorkspace, jobPacket, commandResu
   writeFile(path.join(outputDir, 'implementation.patch'), gitOutput(runWorkspace, 'git diff --binary') || '');
   writeJson(path.join(outputDir, 'changed-files.json'), {gitStatus, changedFiles});
   writeJson(path.join(outputDir, 'verification.json'), {ok, verification});
+  writeJson(path.join(outputDir, 'acceptance.json'), {ok, status: ok ? 'completed' : 'failed', generatedAt: new Date().toISOString(), note: 'Executor exit status only; acceptance-matrix.json carries per-criterion review status.'});
   writeFile(path.join(outputDir, 'final-report.md'), ['# Final Report', '', 'Status: ' + (ok ? 'completed' : 'failed'), 'Artifacts: ' + REQUIRED_ARTIFACTS.length, 'Residual risk: review command output, patch, and mutation requests before consequential mutation.'].join('\n'));
   if (!fs.existsSync(path.join(outputDir, 'mutation-requests.jsonl'))) writeFile(path.join(outputDir, 'mutation-requests.jsonl'), '');
   const artifacts = REQUIRED_ARTIFACTS.map((name) => artifactRecord(outputDir, name));
@@ -413,16 +521,27 @@ async function registerWorker(args) {
   const manifest = requireManifest(args);
   if (!args.mcpToken) throw new Error('register requires --mcp-token or HOME_CENTER_COMMAND_CENTER_BEARER_TOKEN');
   const workerId = args.workerId || manifest.workerId || (manifest.projectId + '-local-oneshot');
+  const identity = readOrCreateInstallationIdentity(args.config, manifest, workerId);
+  const workerInstanceId = createWorkerInstanceId(workerId);
+  const processStartAtMs = Date.now();
   const registered = await callMcpTool(args.mcpUrl, args.mcpToken, 'command_center.workers.register_oneshot', {
     idempotencyKey: 'register-' + workerId + '-' + (manifest.version || 'v1'),
     workerId,
+    workerInstallationId: identity.workerInstallationId,
+    workerInstanceId,
+    runnerVersion: RUNNER_VERSION,
+    protocolVersion: WORKER_PROTOCOL_VERSION,
+    processStartAtMs,
+    heartbeatSeq: 0,
     engine: 'codex',
     location: manifest.location || 'termux',
     capabilities: manifest.capabilities || ['codex', 'one-shot-worker', 'prepared-workspace'],
     baseWorkspace: manifestBaseWorkspace(manifest),
     limits: manifest.limits || {concurrentJobs: 1},
-    activation: manifest.activation,
-    runtime: manifest.runtime,
+    activation: manifest.activation || {mode: 'poll'},
+    stableWorkerIdentity: manifest.stableWorkerIdentity || workerId,
+    runtime: {...(manifest.runtime || {}), codexAuth: (manifest.runtime || {}).codexAuth || 'chatgpt_saved_login', authMode: (manifest.runtime || {}).authMode || 'chatgpt_saved_login'},
+    ...machineImageRuntimePayload(manifest),
     cloudRunJob: manifest.cloudRunJob,
     sessionPolicy: manifest.sessionPolicy,
     repositoryAffinity: manifest.repositoryAffinity,
@@ -430,11 +549,19 @@ async function registerWorker(args) {
   const config = {
     commandCenterBase: args.commandCenterBase,
     mcpUrl: args.mcpUrl,
-    workerId,
+    workerId: registered.worker?.workerId || workerId,
+    workerInstallationId: identity.workerInstallationId,
+    workerInstanceId,
+    runnerVersion: RUNNER_VERSION,
+    protocolVersion: WORKER_PROTOCOL_VERSION,
+    processStartAtMs,
+    heartbeatSeq: 0,
     workerToken: registered.workerToken,
+    configPath: path.resolve(args.config),
     manifestPath: path.resolve(args.manifest),
     executorCommand: args.executorCommand || manifest.executorCommand || manifest.defaultExecutorCommand || '',
     createdAt: new Date().toISOString(),
+    stableWorkerIdentity: manifest.stableWorkerIdentity || workerId,
   };
   writeConfig(args.config, config);
   console.log(JSON.stringify({ok: true, workerId, configPath: args.config, warning: 'Worker token saved locally with 0600 permissions. Do not commit this file.'}, null, 2));
@@ -454,6 +581,7 @@ function executorCommandMetadata(command, cwd, outputDir) {
     cwd,
     outputDir,
     shell: true,
+    environmentPolicy: commandUsesCodex(command) ? {OPENAI_API_KEY: 'removed', CODEX_API_KEY: 'removed', authSource: 'saved_codex_login'} : {authSource: 'inherited_non_codex_executor'},
   };
 }
 
@@ -479,13 +607,19 @@ async function runStreamingExecutor({command, cwd, env = {}, outputDir, jobPacke
   const postCloud = (payload) => {
     if (!eventPoster) return;
     cloudChain = cloudChain.then(async () => {
-      try {
-        await eventPoster(payload);
-        stats.eventsPosted += 1;
-      } catch (err) {
-        stats.eventPostFailures += 1;
-        appendFile(eventTranscriptPath, JSON.stringify({createdAt: new Date().toISOString(), type: 'event_post_failed', error: redactSecrets(err.message || String(err)), failedType: payload.type}) + '\n');
+      let lastError = null;
+      for (let attempt = 1; attempt <= 3; attempt += 1) {
+        try {
+          await eventPoster({...payload, data: {...safeObject(payload.data), postAttempt: attempt}});
+          stats.eventsPosted += 1;
+          return;
+        } catch (err) {
+          lastError = err;
+          if (attempt < 3) await new Promise((resolve) => setTimeout(resolve, attempt * 750));
+        }
       }
+      stats.eventPostFailures += 1;
+      appendFile(eventTranscriptPath, JSON.stringify({createdAt: new Date().toISOString(), type: 'event_post_failed', error: redactSecrets(lastError?.message || String(lastError)), failedType: payload.type}) + '\n');
     });
   };
 
@@ -603,7 +737,7 @@ async function runStreamingExecutor({command, cwd, env = {}, outputDir, jobPacke
     process.once('SIGTERM', cancel);
 
     try {
-      child = spawn(command, {cwd, shell: true, env: {...process.env, ...env}, stdio: ['ignore', 'pipe', 'pipe']});
+      child = spawn(command, {cwd, shell: true, env: childEnv(env, {stripCodexApiKeys: commandUsesCodex(command)}), stdio: ['ignore', 'pipe', 'pipe']});
     } catch (err) {
       process.removeListener('SIGINT', cancel);
       process.removeListener('SIGTERM', cancel);
@@ -652,10 +786,38 @@ async function localRun({args, manifest = {}, jobPacket, outputDir, eventPoster 
   return {status, artifacts, outputDir, runWorkspace, commandResults};
 }
 
-async function runOnce(args) {
-  const config = readConfig(args.config);
+async function heartbeatOnce(args, phase = 'idle') {
+  const config = ensureRuntimeIdentity({...readConfig(args.config), configPath: path.resolve(args.config)}, readJson(readConfig(args.config).manifestPath, {}));
   const manifest = readJson(config.manifestPath, {});
-  const lease = await workerPost(config.commandCenterBase || args.commandCenterBase, config.workerToken, '/worker/lease', {});
+  config.heartbeatSeq = Number(config.heartbeatSeq || 0) + 1;
+  writeConfig(args.config, config);
+  const payload = {
+    phase,
+    supervisorPid: process.pid,
+    workerInstallationId: config.workerInstallationId,
+    workerInstanceId: config.workerInstanceId,
+    runnerVersion: config.runnerVersion || RUNNER_VERSION,
+    protocolVersion: config.protocolVersion || WORKER_PROTOCOL_VERSION,
+    processStartAtMs: config.processStartAtMs,
+    heartbeatSeq: config.heartbeatSeq,
+    location: manifest.location || 'termux',
+    capabilities: manifest.capabilities || [],
+    runtime: {...(manifest.runtime || {}), codexAuth: 'chatgpt_saved_login', authMode: 'chatgpt_saved_login', runnerVersion: config.runnerVersion || RUNNER_VERSION, protocolVersion: config.protocolVersion || WORKER_PROTOCOL_VERSION},
+    ...machineImageRuntimePayload(manifest),
+    stableWorkerIdentity: config.stableWorkerIdentity || manifest.stableWorkerIdentity || config.workerId,
+  };
+  if (!payload.activeSessionIds.length) delete payload.activeSessionIds;
+  if (payload.sessionCapacity && !payload.sessionCapacity.activeSessionIds.length) delete payload.sessionCapacity.activeSessionIds;
+  const result = await workerPost(config.commandCenterBase || args.commandCenterBase, config.workerToken, '/worker/heartbeat', payload);
+  console.log(JSON.stringify({ok: true, mode: 'heartbeat', workerId: result.workerId, heartbeatAtMs: result.heartbeatAtMs, routable: result.routable}, null, 2));
+  return 0;
+}
+
+async function runOnce(args) {
+  const config = ensureRuntimeIdentity({...readConfig(args.config), configPath: path.resolve(args.config)}, readJson(readConfig(args.config).manifestPath, {}));
+  writeConfig(args.config, config);
+  const manifest = readJson(config.manifestPath, {});
+  const lease = await workerPost(config.commandCenterBase || args.commandCenterBase, config.workerToken, '/worker/lease', {workerInstallationId: config.workerInstallationId, workerInstanceId: config.workerInstanceId, runnerVersion: config.runnerVersion, protocolVersion: config.protocolVersion});
   if (!lease.leased) {
     console.log(JSON.stringify({ok: true, leased: false}, null, 2));
     return 0;
@@ -675,6 +837,20 @@ async function runOnce(args) {
   await workerPost(config.commandCenterBase || args.commandCenterBase, config.workerToken, '/worker/checkpoint', {jobId, currentPhase: result.status, workingTreeState: result.commandResults.every((item) => item.exitCode === 0) ? 'verified' : 'failed', filesChanged: readJson(path.join(outputDir, 'changed-files.json'), {}).changedFiles?.map((item) => item.path) || [], testsRun: result.commandResults.map((item) => item.command), evidenceRefs: result.artifacts.map((item) => item.uri), nextAction: result.status === 'completed' ? 'ChatGPT review completion evidence.' : 'Review failure report and revise job or worker configuration.'});
   await workerPost(config.commandCenterBase || args.commandCenterBase, config.workerToken, '/worker/complete', {jobId, status: result.status, finalReport: fs.readFileSync(path.join(outputDir, 'final-report.md'), 'utf8'), artifacts: result.artifacts});
   return result.status === 'completed' ? 0 : 1;
+}
+
+async function supervise(args) {
+  let idlePolls = 0;
+  rotateWorkerInstance(args.config);
+  await heartbeatOnce(args, 'supervisor_start');
+  while (true) {
+    const code = await runOnce(args);
+    if (code === 0) idlePolls += 1;
+    else idlePolls = 0;
+    if (args.maxIdlePolls > 0 && idlePolls >= args.maxIdlePolls) return 0;
+    await new Promise((resolve) => setTimeout(resolve, Math.max(1000, args.pollMs || DEFAULT_SUPERVISOR_POLL_MS)));
+    await heartbeatOnce(args, 'supervisor_idle');
+  }
 }
 
 async function runSelfTest() {
@@ -719,6 +895,19 @@ async function runSelfTest() {
   if (!fs.existsSync(path.join(streamOut, 'executor-status.json'))) throw new Error('streaming self-test missing executor status');
   if (!fs.existsSync(path.join(streamOut, 'handoff-packet.json'))) throw new Error('streaming self-test missing handoff packet');
   if (!fs.existsSync(path.join(streamOut, 'acceptance-matrix.json'))) throw new Error('streaming self-test missing acceptance matrix');
+  const oldOpenAi = process.env.OPENAI_API_KEY;
+  const oldCodex = process.env.CODEX_API_KEY;
+  process.env.OPENAI_API_KEY = 'sk-test-should-not-reach-codex';
+  process.env.CODEX_API_KEY = 'codex-test-should-not-reach-codex';
+  const envOut = path.join(root, 'env-out');
+  const envCommand = 'node -e "if (process.env.OPENAI_API_KEY || process.env.CODEX_API_KEY) { console.error(\'api key leaked\'); process.exit(23); } console.log(\'no api key env\')" # codex exec';
+  const envResult = await localRun({args: {baseWorkspace: base, command: envCommand}, manifest: readJson(manifestPath), jobPacket: readJson(packet), outputDir: envOut});
+  if (oldOpenAi === undefined) delete process.env.OPENAI_API_KEY; else process.env.OPENAI_API_KEY = oldOpenAi;
+  if (oldCodex === undefined) delete process.env.CODEX_API_KEY; else process.env.CODEX_API_KEY = oldCodex;
+  if (envResult.status !== 'completed') throw new Error('codex env denylist self-test failed');
+  const envStatus = readJson(path.join(envOut, 'executor-status.json'), {});
+  if (envStatus.command.includes('sk-test-should-not-reach-codex')) throw new Error('executor status leaked API key');
+  if (envStatus.stats?.stderrBytes) throw new Error('codex env denylist produced stderr');
   console.log('Command Center one-shot worker self-test: OK (' + out + ', ' + streamOut + ')');
   return 0;
 }
@@ -729,6 +918,8 @@ async function main(argv = process.argv.slice(2)) {
   if (args.mode === 'prepare-base') return prepareBase(args);
   if (args.mode === 'register') return registerWorker(args);
   if (args.mode === 'run-once') return runOnce(args);
+  if (args.mode === 'heartbeat') return heartbeatOnce(args);
+  if (args.mode === 'supervise') return supervise(args);
   if (args.mode === 'run-local') {
     if (!args.baseWorkspace || !args.jobPacket || !args.outputDir) throw new Error('run-local requires --base-workspace, --job-packet, and --output-dir');
     const result = await localRun({args, manifest: {}, jobPacket: readJson(args.jobPacket, {}), outputDir: path.resolve(args.outputDir)});

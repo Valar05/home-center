@@ -1,5 +1,9 @@
-const {createHash, randomBytes, randomUUID} = require('node:crypto');
-const {Readable} = require('node:stream');
+const {createHash, randomBytes, randomUUID, createSign} = require('node:crypto');
+const {Readable, Transform} = require('node:stream');
+const {pipeline} = require('node:stream/promises');
+const {Storage} = require('@google-cloud/storage');
+const fs = require('node:fs');
+const path = require('node:path');
 const {McpServer} = require('@modelcontextprotocol/sdk/server/mcp.js');
 const {SSEServerTransport} = require('@modelcontextprotocol/sdk/server/sse.js');
 const {StreamableHTTPServerTransport} = require('@modelcontextprotocol/sdk/server/streamableHttp.js');
@@ -8,9 +12,18 @@ const {normalizeObjectSchema} = require('./node_modules/@modelcontextprotocol/sd
 const {toJsonSchemaCompat} = require('./node_modules/@modelcontextprotocol/sdk/dist/cjs/server/zod-json-schema-compat.js');
 const express = require('express');
 const {z} = require('zod/v4');
+const {CARTESIA_DEFAULT_MODEL_ID, CARTESIA_DEFAULT_VOICE_NAME, listCartesiaVoiceCatalog, listCartesiaVoices, normalizeCartesiaVoice, openCartesiaStream} = require('./hosted_speech_provider');
+const {renderBlenderGlb: commandCenterRenderBlenderGlb} = require('./command_center_mcp');
+const cartesiaPitchShift = require('./cartesia_pitch_shift');
+const {renderAudioOperation, audioRenderStatusOperation, inspectAudioArtifactsOperation, uploadVerified: uploadVerifiedArtifact} = require('./audio_render_service');
+const {armoryReceiptOperation, armoryRecountOperation, armoryCasingOperation} = require('./armory_range_service');
 
 const DEFAULT_MCP_PUBLIC_BASE = 'https://us-central1-home-center-dclar.cloudfunctions.net/homeCenterMcp';
 const MCP_PUBLIC_BASE = process.env.HOME_CENTER_MCP_PUBLIC_BASE || DEFAULT_MCP_PUBLIC_BASE;
+const HOME_CENTER_MCP_SERVER_VERSION = '0.1.1';
+const HOME_CENTER_CONNECTOR_SCHEMA_REVISION = '2026-07-25.blender-direct-file-catalog-v2';
+const HOME_CENTER_REGISTRY_VERSION = HOME_CENTER_CONNECTOR_SCHEMA_REVISION;
+const HOME_CENTER_DIRECT_FILE_TOOLS = Object.freeze(['render_blender_glb']);
 const MCP_RESOURCE = `${MCP_PUBLIC_BASE}/mcp`;
 const MCP_RESOURCE_METADATA = `${MCP_PUBLIC_BASE}/.well-known/oauth-protected-resource`;
 const MCP_LEGACY_RESOURCE_METADATA = `${MCP_PUBLIC_BASE}/oauth-protected-resource`;
@@ -18,12 +31,39 @@ const MCP_COMPAT_RESOURCE_METADATA = `${MCP_PUBLIC_BASE}/oauth-protected-resourc
 const MCP_AUTHORIZATION_SERVER_METADATA = `${MCP_PUBLIC_BASE}/.well-known/oauth-authorization-server`;
 const MCP_GOOGLE_CALLBACK = process.env.HOME_CENTER_MCP_GOOGLE_CALLBACK || `${MCP_PUBLIC_BASE}/oauth/google-callback`;
 const COMMAND_CENTER_MCP_URL = process.env.COMMAND_CENTER_MCP_URL || 'https://us-central1-home-center-dclar.cloudfunctions.net/commandCenterMcp/mcp';
+const COMMAND_CENTER_RENDER_BUCKET = process.env.COMMAND_CENTER_RENDER_BUCKET || process.env.RENDER_CACHE_BUCKET || process.env.COMMAND_CENTER_BUCKET || 'home-center-dclar-command-center-renders';
+const HOME_CENTER_RENDER_MAX_GLB_BYTES = Number(process.env.COMMAND_CENTER_RENDER_MAX_GLB_BYTES || 250 * 1024 * 1024);
+const HOME_CENTER_RENDER_MAX_SCRIPT_BYTES = Number(process.env.COMMAND_CENTER_RENDER_MAX_SCRIPT_BYTES || 1024 * 1024);
+const HOME_CENTER_DIRECT_RENDER_TEXT_LIMIT = 1024 * 1024;
+const HOME_CENTER_RENDER_INLINE_GIF_MAX_BYTES = Number(process.env.HOME_CENTER_RENDER_INLINE_GIF_MAX_BYTES || 2 * 1024 * 1024);
 const MCP_REQUIRED_SCOPES = [
   'https://www.googleapis.com/auth/drive',
   'https://www.googleapis.com/auth/documents',
   'https://www.googleapis.com/auth/spreadsheets',
 ];
 const MCP_OAUTH_SECURITY_SCHEMES = [{type: 'oauth2', scopes: MCP_REQUIRED_SCOPES}];
+const CREDIT_GATED_EMAILS = Object.freeze([
+  'dclarke1005@gmail.com',
+  'junewren28@gmail.com',
+  'timothypomeroy07@gmail.com',
+]);
+const CREDIT_GATED_EMAIL_SET = new Set(CREDIT_GATED_EMAILS);
+
+function requireCreditGatedEmail(email, surface = 'credit-backed operation') {
+  const clean = safeText(email, 320).toLowerCase();
+  if (CREDIT_GATED_EMAIL_SET.has(clean)) return clean;
+  const err = new Error(surface + ' is restricted to approved Home Center accounts.');
+  err.status = 403;
+  err.failureKind = 'credit_gated_forbidden_email';
+  throw err;
+}
+
+async function requireCreditGatedContext({google, admin, googleClientId, googleClientSecret, extra, user = null, auth = null, surface = 'credit-backed operation'}) {
+  let context = user && auth ? {user, auth} : null;
+  if (!context) context = await requestGoogleContext(extra, google, admin, googleClientId, googleClientSecret);
+  requireCreditGatedEmail(context.user && context.user.email, surface);
+  return context;
+}
 
 function safeText(value, max = 12000) {
   const text = typeof value === 'string' ? value.trim() : '';
@@ -38,6 +78,10 @@ function boundedText(value, max = 12000) {
 function safeNumber(value, fallback = 0) {
   const number = Number(value);
   return Number.isFinite(number) ? number : fallback;
+}
+
+function safeObject(value) {
+  return value && typeof value === 'object' && !Array.isArray(value) ? value : {};
 }
 
 function driveQueryLiteral(value, max = 300) {
@@ -436,6 +480,16 @@ function textResult(value) {
   return {content: [{type: 'text', text: typeof value === 'string' ? value : jsonText(value)}]};
 }
 
+function mcpToolResult(value) {
+  if (value && value._mcpContent && Array.isArray(value._mcpContent.content)) return value._mcpContent;
+  if (value && typeof value === 'object' && !Array.isArray(value) && value._mcpContent) {
+    const clean = {...value};
+    delete clean._mcpContent;
+    return textResult(clean);
+  }
+  return textResult(value);
+}
+
 function parseJsonPayload(text, label) {
   try {
     return JSON.parse(text);
@@ -453,7 +507,7 @@ function parseMcpPayload(text, label) {
 
 function commandCenterOperationRegistry() {
   return {
-    version: '2026-07-12.command-center-worker-wake-v1',
+    version: HOME_CENTER_REGISTRY_VERSION,
     invocationTool: 'command_center_operation',
     commandCenterMcpUrl: COMMAND_CENTER_MCP_URL,
     purpose: 'Expose Command Center dispatch and managed knowledge-bucket operations through the already-installed Home Center MCP connector so ChatGPT can create, inspect, resume, revise, authorize, and preserve worker knowledge without discovering a second MCP app.',
@@ -462,11 +516,13 @@ function commandCenterOperationRegistry() {
       'projects.resolve': {summary: 'Resolve an active project before creating a job.', readOnly: false, input: {repository: 'optional string', capability: 'optional string', projectId: 'optional string', idempotencyKey: 'string'}},
       'projects.get': {summary: 'Read one persisted Command Center project packet.', readOnly: true, input: {projectId: 'string'}},
       'projects.upsert': {summary: 'Create or update a durable Command Center project binding.', readOnly: false, input: {projectId: 'string', repository: 'optional string', capability: 'optional string', repositoryBinding: 'optional object', availableWorkers: 'optional string[]', idempotencyKey: 'string'}},
+      'render.blender_glb': {summary: 'Run non-agent Blender execution from durable refs, authenticated GitHub sources, or inline script. Prefer glbSource.provider=github for private repository GLBs when ChatGPT cannot expose the top-level binary upload tool; nested command_center_operation args cannot activate host file upload slots.', readOnly: false, topLevelFileTool: 'render_blender_glb', input: {glbRef: 'drive:// | bucket:// | gs:// GLB ref for dispatcher calls', glbSource: '{provider: github, repository: owner/name, ref: commit-or-branch, path: path/to/file.glb}', scriptRef: 'optional drive:// | bucket:// | gs:// Blender Python ref', scriptSource: 'optional authenticated GitHub Python descriptor', scriptText: 'optional inline Python script alternative', settings: 'optional object', executionContract: 'optional object', cache: 'optional boolean', idempotencyKey: 'string'}},
       'jobs.create': {summary: 'Create a durable worker ticket/job.', readOnly: false, input: {projectId: 'string', title: 'string', objective: 'string', acceptanceCriteria: 'string[]', workerRequirements: 'string[]', mutationPolicy: 'object', idempotencyKey: 'string'}},
       'jobs.create_followup': {summary: 'Create a new linked invocation from a source job handoff without rewriting the old job.', readOnly: false, input: {sourceJobId: 'string', title: 'string', objective: 'string', acceptanceCriteria: 'optional string[]', constraints: 'optional string[]', mutationPolicy: 'optional object', idempotencyKey: 'string'}},
       'jobs.get': {summary: 'Read one Command Center job packet.', readOnly: true, input: {jobId: 'string'}},
       'jobs.list': {summary: 'List recent Command Center jobs.', readOnly: true, input: {projectId: 'optional string', status: 'optional string', limit: 'optional number'}},
       'jobs.reconcile_stale': {summary: 'Dry-run or expire stale nonterminal Command Center jobs and leases.', readOnly: false, input: {dryRun: 'optional boolean', olderThanMs: 'optional number', statuses: 'optional string[]', limit: 'optional number', idempotencyKey: 'required when dryRun=false'}},
+      'jobs.dispatch_queued': {summary: 'Dry-run or lease queued recoverable jobs to the least-loaded compatible worker; retry expired jobs only when requested.', readOnly: false, input: {dryRun: 'optional boolean', retryExpired: 'optional boolean', limit: 'optional number', maxDispatch: 'optional number', idempotencyKey: 'required when dryRun=false'}},
       'jobs.cancel': {summary: 'Cancel a job with an audit event.', readOnly: false, input: {jobId: 'string', reason: 'optional string', idempotencyKey: 'string'}},
       'jobs.resume': {summary: 'Resume a job from checkpoint.', readOnly: false, input: {jobId: 'string', reason: 'optional string', idempotencyKey: 'string'}},
       'jobs.revise': {summary: 'Revise a job packet with new constraints or acceptance criteria.', readOnly: false, input: {jobId: 'string', revision: 'object', idempotencyKey: 'string'}},
@@ -539,20 +595,508 @@ async function postCommandCenterMcp(body, bearerToken) {
   return parseMcpPayload(text, 'Command Center MCP response');
 }
 
+function homeCenterRenderInputError(message, status = 400, failureKind = 'input_validation') {
+  const err = new Error(message);
+  err.status = status;
+  err.failureKind = failureKind;
+  return err;
+}
+
+function isMcpFileLike(value) {
+  return value && typeof value === 'object' && typeof value.arrayBuffer === 'function' && typeof value.name === 'string';
+}
+
+function homeCenterRenderOwnerKey(user = {}) {
+  return safeText(user.email || user.sub || user.uid || 'unknown', 320).replace(/[^A-Za-z0-9_.@-]+/g, '_') || 'unknown';
+}
+
+function driveRenderFileId(ref) {
+  const raw = safeText(ref, 1200).replace(/^drive:\/\//i, '');
+  const id = raw.split(/[?#/]/).filter(Boolean).pop() || raw;
+  if (!/^[A-Za-z0-9_-]{8,220}$/.test(id)) throw homeCenterRenderInputError('drive input ref has an invalid file id.', 400, 'input_validation');
+  return id;
+}
+
+function renderInputRoleFromField(fieldName) {
+  return fieldName === 'glbRef' || fieldName === 'glbFile' ? 'glb' : 'script';
+}
+
+function renderContentType(role) {
+  return role === 'glb' ? 'model/gltf-binary' : 'text/x-python';
+}
+
+function renderFallbackName(role) {
+  return role === 'glb' ? 'input.glb' : 'render.py';
+}
+
+function cleanRenderUploadName(value, fallback) {
+  const clean = safeText(value, 240).replace(/\\/g, '/').split('/').pop().replace(/[^A-Za-z0-9_.-]+/g, '-').replace(/^-+|-+$/g, '');
+  return clean || fallback;
+}
+
+function sha256RenderBytes(bytes) {
+  return createHash('sha256').update(bytes).digest('hex');
+}
+
+function parseRenderGsRef(ref) {
+  const text = safeText(ref, 1600);
+  const match = text.match(/^gs:\/\/([^/]+)\/(.+)$/i);
+  if (!match) throw homeCenterRenderInputError('Inline render delivery requires a private gs:// artifact ref.', 400, 'render_inline_artifact_ref_invalid');
+  if (match[1] !== COMMAND_CENTER_RENDER_BUCKET) throw homeCenterRenderInputError('Inline render delivery refused artifact outside the configured private render bucket.', 403, 'render_inline_artifact_owner_scope_failed');
+  if (!match[2].startsWith('command-center-renders/')) throw homeCenterRenderInputError('Inline render delivery refused artifact outside the render artifact prefix.', 403, 'render_inline_artifact_owner_scope_failed');
+  return {bucket: match[1], name: match[2], ref: text};
+}
+
+function renderArtifactHashEntry(result = {}, rel = 'walk-loop.gif') {
+  const direct = safeObject(result.artifactHashes);
+  const bundle = safeObject(result.bundle);
+  const bundled = safeObject(bundle.artifactHashes);
+  return safeObject(direct[rel] || bundled[rel]);
+}
+
+function renderReceiptWithoutInlinePayload(operationResult = {}, delivery = null) {
+  const clean = JSON.parse(JSON.stringify(operationResult || {}));
+  if (clean && clean.result) {
+    clean.result.inlineMediaDelivery = delivery ? {...delivery, data: undefined, base64: undefined} : null;
+  }
+  return clean;
+}
+
+async function verifiedRenderGifMcpContent(result = {}, {storage = null, google = null, auth = null, parentFolderId = ''} = {}) {
+  const renderResult = safeObject(result);
+  const loopingGifRef = safeText(renderResult.loopingGifRef, 1600);
+  const expected = renderArtifactHashEntry(renderResult, 'walk-loop.gif');
+  const expectedSha256 = safeText(expected.sha256, 128).toLowerCase();
+  const expectedByteCount = Number(expected.byteCount || 0) || 0;
+  const deliveryBase = {
+    ok: false,
+    type: 'mcp_resource_link',
+    mimeType: 'image/gif',
+    artifactRef: loopingGifRef,
+    durableRef: '',
+    byteCount: 0,
+    sha256: '',
+    expectedByteCount,
+    expectedSha256,
+    ceilingBytes: HOME_CENTER_RENDER_INLINE_GIF_MAX_BYTES,
+    contentBlockType: '',
+    errorCode: '',
+    message: '',
+  };
+  if (!loopingGifRef) return {contentBlock: null, delivery: {...deliveryBase, errorCode: 'render_gif_resource_link_missing_ref', message: 'Renderer did not return loopingGifRef.'}};
+  if (!expectedSha256 || !expectedByteCount) return {contentBlock: null, delivery: {...deliveryBase, errorCode: 'render_gif_resource_link_missing_hash', message: 'Renderer did not return walk-loop.gif byte count and SHA-256.'}};
+  const parsed = parseRenderGsRef(loopingGifRef);
+  const client = storage || new Storage();
+  const [bytes] = await client.bucket(parsed.bucket).file(parsed.name).download();
+  const buffer = Buffer.isBuffer(bytes) ? bytes : Buffer.from(bytes);
+  const readbackSha256 = sha256RenderBytes(buffer);
+  if (buffer.length !== expectedByteCount || readbackSha256 !== expectedSha256) {
+    return {contentBlock: null, delivery: {...deliveryBase, byteCount: buffer.length, sha256: readbackSha256, errorCode: 'render_gif_resource_link_readback_mismatch', message: 'Private GCS GIF readback did not match renderer hash metadata.'}};
+  }
+  if (!google || !auth) return {contentBlock: null, delivery: {...deliveryBase, ok: false, byteCount: buffer.length, sha256: readbackSha256, errorCode: 'render_gif_resource_link_auth_missing', message: 'Verified GIF readback succeeded, but authenticated Drive context was unavailable for resource_link creation.'}};
+  const uploaded = await uploadVerifiedArtifact({google, auth, parentFolderId, item: {name: 'walk-loop.gif', format: 'gif', mimeType: 'image/gif', bytes: buffer, byteCount: buffer.length, sha256: readbackSha256, clipMetrics: {}}});
+  const contentBlock = uploaded.chatGptFileRef;
+  return {contentBlock, delivery: {...deliveryBase, ok: true, durableRef: uploaded.durableRef, byteCount: uploaded.byteCount, sha256: uploaded.sha256, readbackByteCount: uploaded.readbackByteCount, readbackSha256: uploaded.readbackSha256, fileId: uploaded.fileId || '', contentBlockType: contentBlock.type, message: 'Private GCS GIF readback verified and attached as authenticated resource_link.'}};
+}
+
+async function attachRenderGifMcpContent(operationResult = {}, options = {}) {
+  const cleanResult = JSON.parse(JSON.stringify(operationResult || {}));
+  if (!cleanResult || cleanResult.operation !== 'render.blender_glb' || !cleanResult.result) return cleanResult;
+  const inline = await verifiedRenderGifMcpContent(cleanResult.result, options).catch((err) => ({contentBlock: null, delivery: {ok: false, type: 'mcp_resource_link', mimeType: 'image/gif', artifactRef: safeText(cleanResult.result && cleanResult.result.loopingGifRef, 1600), durableRef: '', byteCount: 0, sha256: '', expectedByteCount: 0, expectedSha256: '', ceilingBytes: HOME_CENTER_RENDER_INLINE_GIF_MAX_BYTES, contentBlockType: '', errorCode: safeText(err && err.failureKind, 120) || 'render_gif_resource_link_failed', message: safeText(err && err.message, 500)}}));
+  cleanResult.result.inlineMediaDelivery = inline.delivery;
+  const receipt = renderReceiptWithoutInlinePayload(cleanResult, inline.delivery);
+  const content = [{type: 'text', text: jsonText(receipt)}];
+  if (inline.contentBlock) content.push(inline.contentBlock);
+  cleanResult._mcpContent = {content};
+  return cleanResult;
+}
+
+function validateHomeCenterRenderBytes(bytes, role, label) {
+  if (role === 'glb') {
+    if (!Buffer.isBuffer(bytes) || bytes.length < 12) throw homeCenterRenderInputError(label + ' is too small to be a GLB file.');
+    if (bytes.length > HOME_CENTER_RENDER_MAX_GLB_BYTES) throw homeCenterRenderInputError(label + ' exceeds max GLB size ' + HOME_CENTER_RENDER_MAX_GLB_BYTES + ' bytes.', 413, 'input_validation');
+    if (bytes.slice(0, 4).toString('ascii') !== 'glTF') throw homeCenterRenderInputError(label + ' is not a GLB: missing glTF magic.');
+    if (bytes.readUInt32LE(4) !== 2) throw homeCenterRenderInputError(label + ' must be GLB version 2.');
+    if (bytes.readUInt32LE(8) > bytes.length) throw homeCenterRenderInputError(label + ' declares more bytes than were downloaded.');
+    return;
+  }
+  if (!Buffer.isBuffer(bytes) || bytes.length === 0) throw homeCenterRenderInputError(label + ' is empty.');
+  if (bytes.length > HOME_CENTER_RENDER_MAX_SCRIPT_BYTES) throw homeCenterRenderInputError(label + ' exceeds max script size ' + HOME_CENTER_RENDER_MAX_SCRIPT_BYTES + ' bytes.', 413, 'input_validation');
+  if (bytes.includes(0)) throw homeCenterRenderInputError(label + ' must be a text Python script, not binary data.');
+}
+
+function renderStreamValidator(role, label) {
+  const hash = createHash('sha256');
+  let byteCount = 0;
+  let header = Buffer.alloc(0);
+  let sawNul = false;
+  const maxBytes = role === 'glb' ? HOME_CENTER_RENDER_MAX_GLB_BYTES : HOME_CENTER_RENDER_MAX_SCRIPT_BYTES;
+  const stream = new Transform({
+    transform(chunk, _encoding, callback) {
+      const bytes = Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk);
+      byteCount += bytes.length;
+      if (byteCount > maxBytes) return callback(homeCenterRenderInputError(label + ' exceeds max ' + role + ' size ' + maxBytes + ' bytes.', 413, 'input_validation'));
+      if (header.length < 12) header = Buffer.concat([header, bytes.slice(0, 12 - header.length)]);
+      if (role === 'script' && bytes.includes(0)) sawNul = true;
+      hash.update(bytes);
+      callback(null, bytes);
+    },
+    flush(callback) {
+      if (role === 'glb') {
+        if (byteCount < 12 || header.length < 12) return callback(homeCenterRenderInputError(label + ' is too small to be a GLB file.'));
+        if (header.slice(0, 4).toString('ascii') !== 'glTF') return callback(homeCenterRenderInputError(label + ' is not a GLB: missing glTF magic.'));
+        if (header.readUInt32LE(4) !== 2) return callback(homeCenterRenderInputError(label + ' must be GLB version 2.'));
+        if (header.readUInt32LE(8) !== byteCount) return callback(homeCenterRenderInputError(label + ' GLB length header does not match downloaded byte count.'));
+      } else {
+        if (byteCount === 0) return callback(homeCenterRenderInputError(label + ' is empty.'));
+        if (sawNul) return callback(homeCenterRenderInputError(label + ' must be a text Python script, not binary data.'));
+      }
+      callback();
+    },
+  });
+  stream.digest = () => ({sha256: hash.digest('hex'), byteCount});
+  return stream;
+}
+
+function renderReadableFromMedia(media) {
+  const data = media && media.data;
+  if (data && typeof data.pipe === 'function') return data;
+  return Readable.from([mediaBuffer(data)]);
+}
+
+function validateRenderMediaSize(size, role, label) {
+  const declared = Number(size || 0);
+  if (!Number.isFinite(declared) || declared <= 0) return;
+  const maxBytes = role === 'glb' ? HOME_CENTER_RENDER_MAX_GLB_BYTES : HOME_CENTER_RENDER_MAX_SCRIPT_BYTES;
+  if (declared > maxBytes) throw homeCenterRenderInputError(label + ' exceeds max ' + role + ' size ' + maxBytes + ' bytes.', 413, 'input_validation');
+}
+
+async function downloadDriveRenderInput({google, auth, ref, role}) {
+  try {
+    const drive = google.drive({version: 'v3', auth});
+    const fileId = driveRenderFileId(ref);
+    const meta = await drive.files.get({fileId, fields: 'id,name,mimeType,size,modifiedTime', supportsAllDrives: true});
+    const media = await drive.files.get({fileId, alt: 'media', supportsAllDrives: true}, {responseType: 'arraybuffer'});
+    const bytes = mediaBuffer(media.data);
+    validateHomeCenterRenderBytes(bytes, role, 'drive://' + fileId);
+    return {fileId, name: safeText(meta.data && meta.data.name, 240) || renderFallbackName(role), mimeType: safeText(meta.data && meta.data.mimeType, 160), bytes};
+  } catch (err) {
+    const wrapped = homeCenterRenderInputError('drive_input_download_auth_failed: Home Center could not download authorized Drive render input for ' + role + '.', err.status || err.code === 404 ? 404 : 401, 'drive_input_download_auth_failed');
+    wrapped.cause = err;
+    throw wrapped;
+  }
+}
+
+async function stageHomeCenterDriveRenderInput({google, auth, user, renderId, role, sourceRef}) {
+  if (!COMMAND_CENTER_RENDER_BUCKET) throw homeCenterRenderInputError('COMMAND_CENTER_RENDER_BUCKET is not configured for render input staging.', 503, 'transport');
+  const fileId = driveRenderFileId(sourceRef);
+  const label = 'drive://' + fileId;
+  try {
+    const drive = google.drive({version: 'v3', auth});
+    const meta = await drive.files.get({fileId, fields: 'id,name,mimeType,size,modifiedTime', supportsAllDrives: true});
+    validateRenderMediaSize(meta.data && meta.data.size, role, label);
+    const media = await drive.files.get({fileId, alt: 'media', supportsAllDrives: true}, {responseType: 'stream'});
+    const safeFile = cleanRenderUploadName(meta.data && meta.data.name, renderFallbackName(role));
+    const ownerKey = homeCenterRenderOwnerKey(user);
+    const basePrefix = 'command-center-render-inputs/home-center-bridge/' + ownerKey + '/' + (safeText(renderId, 180) || 'render') + '/';
+    const tempName = basePrefix + '.tmp-' + role + '-' + randomUUID() + '-' + safeFile;
+    const bucket = new Storage().bucket(COMMAND_CENTER_RENDER_BUCKET);
+    const tempFile = bucket.file(tempName);
+    const validator = renderStreamValidator(role, label);
+    try {
+      await pipeline(renderReadableFromMedia(media), validator, tempFile.createWriteStream({
+        resumable: false,
+        metadata: {contentType: safeText(meta.data && meta.data.mimeType, 160) || renderContentType(role)},
+      }));
+    } catch (err) {
+      await tempFile.delete({ignoreNotFound: true}).catch(() => null);
+      throw err;
+    }
+    const digest = validator.digest();
+    const finalName = basePrefix + role + '-' + digest.sha256 + '-' + safeFile;
+    await tempFile.move(finalName);
+    const finalFile = bucket.file(finalName);
+    await finalFile.setMetadata({
+      contentType: safeText(meta.data && meta.data.mimeType, 160) || renderContentType(role),
+      metadata: {sha256: digest.sha256, byteCount: String(digest.byteCount), role, materializedBy: 'home_center_mcp.command_center_operation', sourceKind: 'drive'},
+    });
+    return {ref: 'gs://' + COMMAND_CENTER_RENDER_BUCKET + '/' + finalName, sha256: digest.sha256, byteCount: digest.byteCount, fileName: safeFile, materializedFrom: role + 'DriveRef', sourceRef: label, materializedBy: 'home_center_mcp.command_center_operation'};
+  } catch (err) {
+    if (err && err.phase === 'input_validation') throw err;
+    const wrapped = homeCenterRenderInputError('drive_input_download_auth_failed: Home Center could not stream authorized Drive render input for ' + role + '.', err.status || err.code === 404 ? 404 : 401, 'drive_input_download_auth_failed');
+    wrapped.cause = err;
+    throw wrapped;
+  }
+}
+
+
+function normalizeRenderGitHubSource(value, role) {
+  const source = safeObject(value);
+  const provider = safeText(source.provider, 40).toLowerCase();
+  if (!provider && !Object.keys(source).length) return null;
+  if (provider !== 'github') throw homeCenterRenderInputError(role + 'Source provider must be github.', 400, 'input_validation');
+  const repository = safeGitHubRepo(source.repository || source.repo, 'Valar05/home-center');
+  const ref = safeGitHubRef(source.ref || source.sha || source.branch);
+  const filePath = safeGitHubPath(source.path || source.filePath);
+  return {provider: 'github', repository, ref, path: filePath};
+}
+
+function renderGitHubSourceRef(source) {
+  return 'github://' + source.repository + '@' + (source.ref || 'default') + '/' + source.path;
+}
+
+function renderNowMs() { return Date.now(); }
+function renderSourceCacheKey(role, label) {
+  return createHash('sha256').update(role + ':' + label).digest('hex');
+}
+function renderGitHubCacheManifestName(role, label) {
+  return 'command-center-render-inputs/github-cache/' + role + '/' + renderSourceCacheKey(role, label) + '.json';
+}
+function renderGitHubCacheObjectName(role, label, digest, safeFile) {
+  return 'command-center-render-inputs/github-cache/' + role + '/' + renderSourceCacheKey(role, label) + '-' + digest.sha256 + '-' + safeFile;
+}
+async function readCachedGitHubRenderInput(bucket, role, label) {
+  const manifestFile = bucket.file(renderGitHubCacheManifestName(role, label));
+  const [exists] = await manifestFile.exists();
+  if (!exists) return null;
+  try {
+    const [bytes] = await manifestFile.download();
+    const manifest = JSON.parse(bytes.toString('utf8'));
+    if (manifest.sourceRef !== label || manifest.role !== role || !manifest.ref || !manifest.sha256 || !manifest.byteCount) return null;
+    const cachedFile = bucket.file(String(manifest.ref).replace(/^gs:\/\/[^/]+\//, ''));
+    const [objectExists] = await cachedFile.exists();
+    if (!objectExists) return null;
+    return manifest;
+  } catch (_err) {
+    return null;
+  }
+}
+async function writeCachedGitHubRenderInput(bucket, role, label, digest, safeFile, tempFile, contentType, normalized) {
+  const cacheObjectName = renderGitHubCacheObjectName(role, label, digest, safeFile);
+  await tempFile.move(cacheObjectName);
+  const cachedFile = bucket.file(cacheObjectName);
+  await cachedFile.setMetadata({
+    contentType: renderContentType(role),
+    metadata: {sha256: digest.sha256, byteCount: String(digest.byteCount), role, materializedBy: 'home_center_mcp.command_center_operation', sourceKind: 'github-cache', repository: normalized.repository, ref: normalized.ref, path: normalized.path},
+  });
+  const manifest = {
+    ref: 'gs://' + COMMAND_CENTER_RENDER_BUCKET + '/' + cacheObjectName,
+    sha256: digest.sha256,
+    byteCount: digest.byteCount,
+    fileName: safeFile,
+    role,
+    sourceRef: label,
+    contentType: contentType || renderContentType(role),
+    materializedBy: 'home_center_mcp.command_center_operation',
+    materializedFrom: role + 'GitHubSourceCache',
+    source: normalized,
+    cachedAtMs: Date.now(),
+  };
+  await bucket.file(renderGitHubCacheManifestName(role, label)).save(JSON.stringify(manifest, null, 2), {
+    resumable: false,
+    metadata: {contentType: 'application/json', metadata: {role, sourceKind: 'github-cache-manifest', sourceRefHash: renderSourceCacheKey(role, label)}},
+  });
+  return manifest;
+}
+
+async function stageHomeCenterGitHubRenderInput({githubToken, user, renderId, role, source}) {
+  if (!COMMAND_CENTER_RENDER_BUCKET) throw homeCenterRenderInputError('COMMAND_CENTER_RENDER_BUCKET is not configured for render input staging.', 503, 'transport');
+  const normalized = normalizeRenderGitHubSource(source, role);
+  if (!normalized) throw homeCenterRenderInputError(role + 'Source is required.', 400, 'input_validation');
+  const token = githubTokenValue(githubToken);
+  if (!token) throw homeCenterRenderInputError('GITHUB_TOKEN secret is not configured for Home Center GitHub render sources.', 503, 'github_input_download_auth_failed');
+  const label = renderGitHubSourceRef(normalized);
+  const safeFile = cleanRenderUploadName(normalized.path.split('/').pop(), renderFallbackName(role));
+  const timings = {startedAtMs: renderNowMs()};
+  const bucket = new Storage().bucket(COMMAND_CENTER_RENDER_BUCKET);
+  const cached = await readCachedGitHubRenderInput(bucket, role, label);
+  timings.cacheLookupMs = Math.max(0, renderNowMs() - timings.startedAtMs);
+  if (cached) {
+    timings.totalMs = Math.max(0, renderNowMs() - timings.startedAtMs);
+    return {
+      ref: cached.ref,
+      sha256: cached.sha256,
+      byteCount: cached.byteCount,
+      fileName: cached.fileName || safeFile,
+      materializedFrom: role + 'GitHubSourceCache',
+      sourceRef: label,
+      materializedBy: 'home_center_mcp.command_center_operation',
+      source: normalized,
+      cacheHit: true,
+      timings,
+    };
+  }
+  const filePath = normalized.path.split('/').map(encodeURIComponent).join('/');
+  const route = githubRepoRoute(normalized.repository, `/contents/${filePath}${githubQuery({ref: normalized.ref})}`);
+  const fetchStartedAtMs = renderNowMs();
+  const response = await fetch(`https://api.github.com${route}`, {
+    method: 'GET',
+    headers: {...githubHeaders(token), Accept: 'application/vnd.github.raw'},
+    signal: AbortSignal.timeout(Number(process.env.HOME_CENTER_RENDER_GITHUB_TIMEOUT_MS || 120000)),
+  });
+  timings.githubOpenMs = Math.max(0, renderNowMs() - fetchStartedAtMs);
+  if (!response.ok) {
+    let message = response.statusText;
+    try {
+      const json = await response.json();
+      message = safeText(json && json.message, 500) || message;
+    } catch (_err) {}
+    throw homeCenterRenderInputError('github_input_download_auth_failed: Home Center could not download authenticated GitHub render input for ' + role + ' (HTTP ' + response.status + ': ' + message + ').', response.status === 404 ? 404 : 401, 'github_input_download_auth_failed');
+  }
+  validateRenderMediaSize(response.headers.get('content-length'), role, label);
+  if (!response.body) throw homeCenterRenderInputError('github_input_download_auth_failed: GitHub response did not include a readable body for ' + role + '.', 502, 'github_input_download_auth_failed');
+  const tempName = 'command-center-render-inputs/github-cache/' + role + '/.tmp-' + role + '-github-' + randomUUID() + '-' + safeFile;
+  const tempFile = bucket.file(tempName);
+  const validator = renderStreamValidator(role, label);
+  const streamStartedAtMs = renderNowMs();
+  try {
+    await pipeline(Readable.fromWeb(response.body), validator, tempFile.createWriteStream({
+      resumable: false,
+      metadata: {contentType: response.headers.get('content-type') || renderContentType(role)},
+    }));
+  } catch (err) {
+    await tempFile.delete({ignoreNotFound: true}).catch(() => null);
+    throw err;
+  }
+  timings.githubStreamAndValidateMs = Math.max(0, renderNowMs() - streamStartedAtMs);
+  const digest = validator.digest();
+  const cacheWriteStartedAtMs = renderNowMs();
+  const manifest = await writeCachedGitHubRenderInput(bucket, role, label, digest, safeFile, tempFile, response.headers.get('content-type') || renderContentType(role), normalized);
+  timings.cacheWriteMs = Math.max(0, renderNowMs() - cacheWriteStartedAtMs);
+  timings.totalMs = Math.max(0, renderNowMs() - timings.startedAtMs);
+  return {
+    ref: manifest.ref,
+    sha256: manifest.sha256,
+    byteCount: manifest.byteCount,
+    fileName: manifest.fileName,
+    materializedFrom: role + 'GitHubSource',
+    sourceRef: label,
+    materializedBy: 'home_center_mcp.command_center_operation',
+    source: normalized,
+    cacheHit: false,
+    timings,
+  };
+}
+
+async function stageHomeCenterRenderInput({user, renderId, role, sourceRef, fileName, bytes, contentType}) {
+  if (!COMMAND_CENTER_RENDER_BUCKET) throw homeCenterRenderInputError('COMMAND_CENTER_RENDER_BUCKET is not configured for render input staging.', 503, 'transport');
+  const hash = sha256RenderBytes(bytes);
+  const safeFile = cleanRenderUploadName(fileName, renderFallbackName(role));
+  const objectName = 'command-center-render-inputs/home-center-bridge/' + homeCenterRenderOwnerKey(user) + '/' + (safeText(renderId, 180) || 'render') + '/' + role + '-' + hash + '-' + safeFile;
+  await new Storage().bucket(COMMAND_CENTER_RENDER_BUCKET).file(objectName).save(bytes, {
+    resumable: false,
+    metadata: {
+      contentType: contentType || renderContentType(role),
+      metadata: {sha256: hash, role, materializedBy: 'home_center_mcp.command_center_operation', sourceKind: sourceRef && sourceRef.startsWith('drive://') ? 'drive' : 'uploaded'},
+    },
+  });
+  return {ref: 'gs://' + COMMAND_CENTER_RENDER_BUCKET + '/' + objectName, sha256: hash, byteCount: bytes.length, fileName: safeFile, materializedFrom: sourceRef && sourceRef.startsWith('drive://') ? role + 'DriveRef' : role + 'File', sourceRef: sourceRef && sourceRef.startsWith('drive://') ? 'drive://' + driveRenderFileId(sourceRef) : '', materializedBy: 'home_center_mcp.command_center_operation'};
+}
+
+async function materializeHomeCenterRenderDriveRefs({google, admin, googleClientId, googleClientSecret, extra, githubToken = () => '', args = {}}) {
+  return materializeHomeCenterRenderSources({google, admin, googleClientId, googleClientSecret, extra, githubToken, args});
+}
+
+function renderSourceProvided(args, field) {
+  const value = args[field];
+  if (field.endsWith('Source')) return !!normalizeRenderGitHubSource(value, field === 'glbSource' ? 'glb' : 'script');
+  return safeText(value, 1200).length > 0;
+}
+
+function assertOneHomeCenterRenderSource(args, role) {
+  const refField = role + 'Ref';
+  const sourceField = role + 'Source';
+  const fileField = role + 'File';
+  const count = [renderSourceProvided(args, refField), renderSourceProvided(args, sourceField), isMcpFileLike(args[fileField])].filter(Boolean).length;
+  if (count !== 1) throw homeCenterRenderInputError('Exactly one ' + role.toUpperCase() + ' source is required for render.blender_glb: provide ' + refField + ', ' + sourceField + ', or ' + fileField + ', but not more than one.', 400, 'input_validation');
+}
+
+async function materializeHomeCenterRenderSources({google, admin, googleClientId, googleClientSecret, extra, githubToken = () => '', args = {}}) {
+  const operationArgs = {...args};
+  const stagedInputs = Array.isArray(operationArgs.stagedInputs) ? operationArgs.stagedInputs.slice(0, 10) : [];
+  assertOneHomeCenterRenderSource(operationArgs, 'glb');
+  const scriptCount = [safeText(operationArgs.scriptRef, 1200).length > 0, !!normalizeRenderGitHubSource(operationArgs.scriptSource, 'script'), isMcpFileLike(operationArgs.scriptFile), safeText(operationArgs.scriptText || operationArgs.inlineScript || operationArgs.script, HOME_CENTER_DIRECT_RENDER_TEXT_LIMIT + 1).length > 0].filter(Boolean).length;
+  if (scriptCount !== 1) throw homeCenterRenderInputError('Exactly one Blender script source is required: provide scriptRef, scriptSource, scriptFile, or scriptText.', 400, 'input_validation');
+  const needsDrive = ['glbRef', 'scriptRef'].some((field) => safeText(operationArgs[field], 1200).toLowerCase().startsWith('drive://'));
+  const needsGitHub = !!normalizeRenderGitHubSource(operationArgs.glbSource, 'glb') || !!normalizeRenderGitHubSource(operationArgs.scriptSource, 'script');
+  if (!needsDrive && !needsGitHub) return operationArgs;
+  const {auth, user} = needsDrive ? await requestGoogleContext(extra, google, admin, googleClientId, googleClientSecret) : {auth: null, user: (await loadMcpAccessContext(admin, google, googleClientId, googleClientSecret, bearerTokenFromExtra(extra))).user};
+  const seed = safeText(operationArgs.idempotencyKey, 180) || randomUUID();
+  const renderId = safeText(operationArgs.renderId, 180) || 'render_' + createHash('sha256').update(homeCenterRenderOwnerKey(user) + ':' + seed).digest('hex').slice(0, 32);
+  operationArgs.renderId = renderId;
+  for (const [field, role] of [['glbRef', 'glb'], ['scriptRef', 'script']]) {
+    const ref = safeText(operationArgs[field], 1200);
+    if (!ref.toLowerCase().startsWith('drive://')) continue;
+    const staged = await stageHomeCenterDriveRenderInput({google, auth, user, renderId, role, sourceRef: ref});
+    operationArgs[field] = staged.ref;
+    stagedInputs.push(staged);
+  }
+  for (const [field, role, refField] of [['glbSource', 'glb', 'glbRef'], ['scriptSource', 'script', 'scriptRef']]) {
+    const source = normalizeRenderGitHubSource(operationArgs[field], role);
+    if (!source) continue;
+    const staged = await stageHomeCenterGitHubRenderInput({githubToken, user, renderId, role, source});
+    operationArgs[refField] = staged.ref;
+    delete operationArgs[field];
+    stagedInputs.push(staged);
+  }
+  operationArgs.stagedInputs = stagedInputs;
+  return operationArgs;
+}
+
+function requireTopLevelRenderUpload(args = {}, fieldName) {
+  const value = args[fieldName];
+  if (!isMcpFileLike(value)) {
+    throw homeCenterRenderInputError(fieldName + ' must be a top-level uploaded MCP file. Do not pass a string path, URL, Base64, ref, or nested JSON descriptor.');
+  }
+  return value;
+}
+
+function normalizeDirectRenderBlenderGlbArgs(args = {}) {
+  requireTopLevelRenderUpload(args, 'glbFile');
+  requireTopLevelRenderUpload(args, 'scriptFile');
+  const forbidden = ['glbRef', 'scriptRef', 'scriptText', 'inlineScript', 'script'];
+  const providedForbidden = forbidden.filter((key) => safeText(args[key], HOME_CENTER_DIRECT_RENDER_TEXT_LIMIT + 1).length > 0);
+  if (providedForbidden.length) {
+    throw homeCenterRenderInputError('render_blender_glb accepts only top-level glbFile and scriptFile uploads for model/script sources. Use command_center_operation operation=render.blender_glb for ' + providedForbidden.join(', ') + '.');
+  }
+  return {
+    idempotencyKey: args.idempotencyKey,
+    renderId: args.renderId,
+    glbFile: args.glbFile,
+    scriptFile: args.scriptFile,
+    settings: safeObject(args.settings),
+    executionContract: safeObject(args.executionContract),
+    cache: args.cache,
+  };
+}
+
+async function renderBlenderGlbBridge({admin, extra, args = {}}) {
+  const operationArgs = normalizeDirectRenderBlenderGlbArgs(args);
+  return commandCenterRenderBlenderGlb(admin, extra, operationArgs);
+}
+
 function mcpTextContentJson(result, label) {
   const text = (((result || {}).content || []).find((item) => item && item.type === 'text') || {}).text || '';
   if (!text) return result;
   return parseJsonPayload(text, label);
 }
 
-async function commandCenterOperationRunOperation({extra, args = {}}) {
+async function commandCenterOperationRunOperation({google = null, admin = null, googleClientId = '', googleClientSecret = '', githubToken = () => '', extra, args = {}}) {
   const operation = safeText(args.operation || args.type || args.toolName, 120);
   const toolName = commandCenterToolName(operation);
+  if (!operation) throw Object.assign(new Error('operation is required.'), {status: 400});
+  const context = await requireCreditGatedContext({google, admin, googleClientId, googleClientSecret, extra, surface: 'command_center_operation'});
   const operationArgs = args.args && typeof args.args === 'object' && !Array.isArray(args.args) ? {...args.args} : {...args};
   delete operationArgs.operation;
   delete operationArgs.type;
   delete operationArgs.toolName;
   delete operationArgs.args;
+  if (operation === 'render.blender_glb' && google && admin) {
+    const materializedArgs = await materializeHomeCenterRenderSources({google, admin, googleClientId, googleClientSecret, extra, githubToken, args: operationArgs});
+    const rendered = {operation, toolName, commandCenterMcpUrl: COMMAND_CENTER_MCP_URL, result: await commandCenterRenderBlenderGlb(admin, extra, materializedArgs)};
+    return attachRenderGifMcpContent(rendered, {google, auth: context.auth, parentFolderId: safeText(operationArgs.parentFolderId, 220)});
+  }
+
   const bearerToken = bearerTokenFromExtra(extra);
 
   await postCommandCenterMcp({
@@ -588,6 +1132,50 @@ function mcpToolJsonSchema(schema, pipeStrategy = 'input') {
   return toJsonSchemaCompat(objectSchema, {strictUnions: true, pipeStrategy});
 }
 
+function hostFileUploadInputSchema({description, contentMediaType}) {
+  return {
+    type: 'string',
+    format: 'binary',
+    contentMediaType,
+    description,
+  };
+}
+
+function renderBlenderGlbCatalogInputSchema() {
+  return {
+    type: 'object',
+    properties: {
+      idempotencyKey: {
+        type: 'string',
+        description: 'Stable idempotency key for this render request.',
+      },
+      renderId: {
+        type: 'string',
+        description: 'Optional caller-provided render id.',
+      },
+      glbFile: hostFileUploadInputSchema({
+        contentMediaType: 'model/gltf-binary',
+        description: 'Required top-level host-file upload containing a binary GLB model. Do not pass a path, URL, Base64 string, ref, or JSON descriptor.',
+      }),
+      scriptFile: hostFileUploadInputSchema({
+        contentMediaType: 'text/x-python',
+        description: 'Required top-level host-file upload containing the Blender Python render script. Do not pass a path, URL, Base64 string, ref, or JSON descriptor.',
+      }),
+      cache: {
+        type: 'boolean',
+        description: 'Use cached render artifacts when the backend cache key already exists. Defaults to true.',
+      },
+    },
+    required: ['idempotencyKey', 'glbFile', 'scriptFile'],
+    additionalProperties: false,
+  };
+}
+
+function publishedToolInputSchema(name, schema, pipeStrategy = 'input') {
+  if (name === 'render_blender_glb') return renderBlenderGlbCatalogInputSchema();
+  return mcpToolJsonSchema(schema, pipeStrategy);
+}
+
 function installAuthenticatedToolsListHandler(server) {
   server.server.setRequestHandler(ListToolsRequestSchema, () => ({
     tools: Object.entries(server._registeredTools)
@@ -598,7 +1186,7 @@ function installAuthenticatedToolsListHandler(server) {
           name,
           title: tool.title,
           description: tool.description,
-          inputSchema: mcpToolJsonSchema(tool.inputSchema, 'input'),
+          inputSchema: publishedToolInputSchema(name, tool.inputSchema, 'input'),
           securitySchemes,
           annotations: tool.annotations,
           execution: tool.execution,
@@ -614,6 +1202,11 @@ function oauthProtectedResourceMetadata() {
   return {
     resource: MCP_RESOURCE,
     resource_name: 'Home Center Drive Bridge',
+    service_version: HOME_CENTER_MCP_SERVER_VERSION,
+    registry_version: HOME_CENTER_REGISTRY_VERSION,
+    connector_schema_revision: HOME_CENTER_CONNECTOR_SCHEMA_REVISION,
+    catalog_cache_key: HOME_CENTER_CONNECTOR_SCHEMA_REVISION,
+    direct_file_tools: HOME_CENTER_DIRECT_FILE_TOOLS,
     authorization_servers: [MCP_PUBLIC_BASE],
     scopes_supported: MCP_REQUIRED_SCOPES,
     bearer_methods_supported: ['header'],
@@ -629,6 +1222,9 @@ function oauthChallenge() {
 function authorizationServerMetadata() {
   return {
     issuer: MCP_PUBLIC_BASE,
+    service_version: HOME_CENTER_MCP_SERVER_VERSION,
+    registry_version: HOME_CENTER_REGISTRY_VERSION,
+    connector_schema_revision: HOME_CENTER_CONNECTOR_SCHEMA_REVISION,
     authorization_endpoint: `${MCP_PUBLIC_BASE}/oauth/authorize`,
     token_endpoint: `${MCP_PUBLIC_BASE}/oauth/token`,
     registration_endpoint: `${MCP_PUBLIC_BASE}/oauth/register`,
@@ -774,7 +1370,7 @@ async function auditWrite(admin, entry) {
   const requestId = stableRequestId(entry.requestId);
   const ref = mcpCollection(admin, 'driveBridgeAudit').doc(requestId);
   const existing = await ref.get();
-  if (existing.exists && existing.data().status === 'success') {
+  if (existing.exists && ['success', 'completed'].includes(existing.data().status)) {
     return {idempotent: true, audit: existing.data()};
   }
   const payload = {
@@ -786,6 +1382,7 @@ async function auditWrite(admin, entry) {
     requestId,
     fileId: safeText(entry.fileId, 220),
     affectedFileIds: Array.isArray(entry.affectedFileIds) ? entry.affectedFileIds.map((v) => safeText(v, 220)).filter(Boolean) : [],
+    affectedStorageRefs: Array.isArray(entry.affectedStorageRefs) ? entry.affectedStorageRefs.map((v) => safeText(v, 1200)).filter(Boolean) : [],
     oldMetadata: entry.oldMetadata || null,
     newMetadata: entry.newMetadata || null,
     oldParents: entry.oldParents || [],
@@ -797,6 +1394,12 @@ async function auditWrite(admin, entry) {
     status: safeText(entry.status, 80) || 'success',
     providerSummary: safeText(entry.providerSummary, 1000),
     result: entry.result || null,
+    audioRenderJob: entry.audioRenderJob || null,
+    progress: entry.progress || null,
+    lease: entry.lease || null,
+    submittedAtMs: Math.floor(safeNumber(entry.submittedAtMs, 0)) || null,
+    updatedAtMs: Math.floor(safeNumber(entry.updatedAtMs, nowMs())) || nowMs(),
+    inputSha256: safeText(entry.inputSha256, 128),
     error: safeText(entry.error, 1000),
   };
   await ref.set(payload, {merge: false});
@@ -1602,13 +2205,14 @@ function githubTokenValue(githubToken) {
   return safeText(typeof githubToken === 'function' ? githubToken() : githubToken, 4096) || safeText(process.env.GITHUB_TOKEN, 4096);
 }
 
-function githubHeaders(token) {
+function githubHeaders(token, extra = {}) {
   return {
     Authorization: `Bearer ${token}`,
     Accept: 'application/vnd.github+json',
     'Content-Type': 'application/json',
     'User-Agent': 'home-center-mcp',
     'X-GitHub-Api-Version': '2022-11-28',
+    ...extra,
   };
 }
 
@@ -1744,6 +2348,357 @@ function cleanGitHubWorkflowRun(run = {}) {
 function githubQuery(params = {}) {
   const pairs = Object.entries(params).filter(([, value]) => value !== undefined && value !== null && value !== '');
   return pairs.length ? `?${pairs.map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(String(value))}`).join('&')}` : '';
+}
+
+
+function githubAdminEnabled() {
+  return process.env.HOME_CENTER_GITHUB_ADMIN_ENABLED === 'true';
+}
+
+function githubAdminSecretValue(githubAdmin = {}, key, envKey, max = 12000) {
+  const value = githubAdmin && typeof githubAdmin[key] === 'function' ? githubAdmin[key]() : githubAdmin && githubAdmin[key];
+  return safeText(value, max) || safeText(process.env[envKey] || '', max);
+}
+
+function githubAdminOwners(githubAdmin = {}) {
+  const raw = githubAdminSecretValue(githubAdmin, 'allowedOwners', 'HOME_CENTER_GITHUB_ADMIN_OWNERS', 2000) || 'Valar05';
+  return raw.split(',').map((owner) => safeText(owner, 120)).filter((owner) => /^[A-Za-z0-9_.-]{1,120}$/.test(owner));
+}
+
+function safeGitHubOwner(value) {
+  const owner = safeText(value, 120);
+  if (!/^[A-Za-z0-9_.-]{1,120}$/.test(owner)) throw Object.assign(new Error('owner must be a GitHub owner/login.'), {status: 400, code: 'github_admin_invalid_owner'});
+  return owner;
+}
+
+function safeGitHubRepoName(value) {
+  const name = safeText(value, 120);
+  if (!/^[A-Za-z0-9_.-]{1,120}$/.test(name)) throw Object.assign(new Error('name must be a GitHub repository name.'), {status: 400, code: 'github_admin_invalid_repo_name'});
+  return name;
+}
+
+function requireGitHubAdminEnabled() {
+  if (githubAdminEnabled()) return;
+  throw Object.assign(new Error('GitHub admin mutations are disabled. Set HOME_CENTER_GITHUB_ADMIN_ENABLED=true and configure the GitHub App secrets.'), {status: 403, code: 'github_admin_disabled'});
+}
+
+function requireGitHubAdminOwner(githubAdmin, owner) {
+  const clean = safeGitHubOwner(owner);
+  const allowed = githubAdminOwners(githubAdmin);
+  if (!allowed.includes(clean)) {
+    throw Object.assign(new Error(`GitHub owner ${clean} is outside the Home Center GitHub admin allowlist.`), {status: 403, code: 'github_admin_owner_not_allowed', allowedOwners: allowed});
+  }
+  return clean;
+}
+
+function base64UrlJson(value) {
+  return Buffer.from(JSON.stringify(value)).toString('base64url');
+}
+
+function normalizeGithubPrivateKey(value) {
+  return safeText(value, 12000).replace(/\\n/g, '\n');
+}
+
+function createGitHubAppJwt(appId, privateKey) {
+  const now = Math.floor(Date.now() / 1000);
+  const header = base64UrlJson({alg: 'RS256', typ: 'JWT'});
+  const payload = base64UrlJson({iat: now - 60, exp: now + 540, iss: String(appId)});
+  const signingInput = `${header}.${payload}`;
+  const signer = createSign('RSA-SHA256');
+  signer.update(signingInput);
+  signer.end();
+  return `${signingInput}.${signer.sign(normalizeGithubPrivateKey(privateKey), 'base64url')}`;
+}
+
+async function githubAdminInstallationToken(githubAdmin = {}) {
+  const appId = githubAdminSecretValue(githubAdmin, 'appId', 'GITHUB_APP_ID', 120);
+  const installationId = githubAdminSecretValue(githubAdmin, 'installationId', 'GITHUB_APP_INSTALLATION_ID', 120);
+  const privateKey = githubAdminSecretValue(githubAdmin, 'privateKey', 'GITHUB_APP_PRIVATE_KEY', 12000);
+  if (!appId || !installationId || !privateKey) {
+    const err = new Error('GitHub App credentials are not configured for Home Center GitHub admin tools. Required: GITHUB_APP_ID, GITHUB_APP_INSTALLATION_ID, GITHUB_APP_PRIVATE_KEY.');
+    err.status = 503;
+    err.code = 'github_admin_app_credentials_missing';
+    throw err;
+  }
+  const jwt = createGitHubAppJwt(appId, privateKey);
+  const response = await fetch(`https://api.github.com/app/installations/${encodeURIComponent(installationId)}/access_tokens`, {
+    method: 'POST',
+    headers: githubHeaders(jwt),
+  });
+  const text = await response.text();
+  const json = text ? JSON.parse(text) : null;
+  if (!response.ok || !json || !json.token) {
+    const err = new Error(safeText(json && json.message || response.statusText, 1000));
+    err.status = response.status || 502;
+    err.code = 'github_admin_installation_token_failed';
+    err.github = json;
+    throw err;
+  }
+  return json.token;
+}
+
+async function githubAdminToken(githubAdmin = {}, options = {}) {
+  const preferBootstrap = !!options.preferBootstrap;
+  const bootstrap = githubAdminSecretValue(githubAdmin, 'bootstrapToken', 'GITHUB_BOOTSTRAP_TOKEN', 4096) || githubAdminSecretValue(githubAdmin, 'adminToken', 'GITHUB_ADMIN_TOKEN', 4096);
+  if (preferBootstrap) {
+    if (!bootstrap) throw Object.assign(new Error('This GitHub admin operation requires GITHUB_BOOTSTRAP_TOKEN or GITHUB_ADMIN_TOKEN.'), {status: 503, code: 'github_admin_bootstrap_token_missing'});
+    return {token: bootstrap, mode: 'bootstrap_token'};
+  }
+  try {
+    return {token: await githubAdminInstallationToken(githubAdmin), mode: 'github_app_installation'};
+  } catch (err) {
+    if (bootstrap) return {token: bootstrap, mode: 'bootstrap_token_fallback', appError: {code: err.code || '', status: err.status || 0, message: safeText(err.message, 400)}};
+    throw err;
+  }
+}
+
+async function githubAdminRequest(githubAdmin, route, options = {}) {
+  const tokenInfo = await githubAdminToken(githubAdmin, options);
+  const response = await fetch(`https://api.github.com${route}`, {
+    method: options.method || 'GET',
+    headers: githubHeaders(tokenInfo.token, options.accept ? {Accept: options.accept} : {}),
+    body: options.body ? JSON.stringify(options.body) : undefined,
+  });
+  const text = await response.text();
+  let json = null;
+  try { json = text ? JSON.parse(text) : null; } catch (_) { json = text; }
+  if (!response.ok) {
+    const err = new Error(safeText(json && json.message ? json.message : response.statusText, 1000));
+    err.status = response.status;
+    err.code = response.status === 403 ? 'github_admin_permission_denied' : response.status === 404 ? 'github_admin_not_found' : `github_admin_http_${response.status}`;
+    err.github = json;
+    err.authMode = tokenInfo.mode;
+    throw err;
+  }
+  return {json, status: response.status, authMode: tokenInfo.mode, appError: tokenInfo.appError || null};
+}
+
+function githubAdminRouteForRepo(repo, suffix = '') {
+  return githubRepoRoute(repo, suffix);
+}
+
+function cleanGitHubAdminRepo(repo = {}) {
+  return cleanGitHubRepo(repo);
+}
+
+function cleanGitHubAdminCommit(commit = {}) {
+  return {sha: commit.sha || '', htmlUrl: commit.html_url || '', message: commit.commit && commit.commit.message || ''};
+}
+
+function cleanGitHubAdminBranch(branch = {}) {
+  return {ref: branch.ref || '', sha: branch.object && branch.object.sha || '', url: branch.url || ''};
+}
+
+async function githubAdminAuthStatusOperation({githubAdmin = {}}) {
+  const owners = githubAdminOwners(githubAdmin);
+  const appId = githubAdminSecretValue(githubAdmin, 'appId', 'GITHUB_APP_ID', 120);
+  const installationId = githubAdminSecretValue(githubAdmin, 'installationId', 'GITHUB_APP_INSTALLATION_ID', 120);
+  const privateKeyConfigured = !!githubAdminSecretValue(githubAdmin, 'privateKey', 'GITHUB_APP_PRIVATE_KEY', 12000);
+  const bootstrapConfigured = !!(githubAdminSecretValue(githubAdmin, 'bootstrapToken', 'GITHUB_BOOTSTRAP_TOKEN', 4096) || githubAdminSecretValue(githubAdmin, 'adminToken', 'GITHUB_ADMIN_TOKEN', 4096));
+  return {
+    ok: true,
+    enabled: githubAdminEnabled(),
+    authority: 'home_center_github_admin_v1',
+    primaryCredential: appId && installationId && privateKeyConfigured ? 'github_app_installation' : '',
+    fallbackCredentialConfigured: bootstrapConfigured,
+    appConfigured: !!(appId && installationId && privateKeyConfigured),
+    allowedOwners: owners,
+    mutationRequiresRequestId: true,
+    secretsExposed: false,
+    supportedOperations: ['github_admin.auth_status', 'github_admin.repos.create', 'github_admin.repos.configure', 'github_admin.branches.create', 'github_admin.files.upsert', 'github_admin.pull_requests.create', 'github_admin.pull_requests.merge', 'github_admin.workflows.dispatch'],
+  };
+}
+
+async function githubAdminCreateRepoOperation({admin, user, githubAdmin, args = {}}) {
+  requireGitHubAdminEnabled();
+  const requestId = createRequestId(args.requestId);
+  const existing = await existingAudit(admin, requestId);
+  if (existing && existing.status === 'success' && existing.result) return {...existing.result, idempotent: true, audit: existing};
+  const owner = requireGitHubAdminOwner(githubAdmin, args.owner || 'Valar05');
+  const name = safeGitHubRepoName(args.name);
+  const ownerType = safeText(args.ownerType || args.scope || 'org', 20).toLowerCase();
+  if (!['org', 'user'].includes(ownerType)) throw Object.assign(new Error('ownerType must be org or user.'), {status: 400, code: 'github_admin_invalid_owner_type'});
+  const visibility = safeText(args.visibility || 'private', 20).toLowerCase();
+  if (!['private', 'public', 'internal'].includes(visibility)) throw Object.assign(new Error('visibility must be private, public, or internal.'), {status: 400, code: 'github_admin_invalid_visibility'});
+  const body = {name, description: safeText(args.description, 1000), private: visibility === 'private', visibility, auto_init: args.autoInit === true};
+  if (safeText(args.homepage, 1000)) body.homepage = safeText(args.homepage, 1000);
+  const route = ownerType === 'user' ? '/user/repos' : `/orgs/${encodeURIComponent(owner)}/repos`;
+  const {json, authMode, status} = await githubAdminRequest(githubAdmin, route, {method: 'POST', body, preferBootstrap: ownerType === 'user'});
+  const repo = cleanGitHubAdminRepo(json || {});
+  const result = {repo, repoFullName: repo.fullName, htmlUrl: repo.htmlUrl, status, authMode, auditRequestId: requestId};
+  const audit = await auditWrite(admin, {actor: user.email || user.uid || 'unknown', authKind: user.authKind, tool: 'github_admin.repos.create', operation: 'github.admin.repos.create', requestId, fileId: `github:${repo.fullName || owner + '/' + name}`, affectedFileIds: [`github:${repo.fullName || owner + '/' + name}`], oldMetadata: null, newMetadata: repo, oldParents: [], newParents: [owner], reversible: false, rollback: null, callerNote: args.callerNote, providerSummary: `Created GitHub repository ${repo.fullName || owner + '/' + name}.`, result});
+  return {...result, audit: audit.audit};
+}
+
+async function githubAdminConfigureRepoOperation({admin, user, githubAdmin, args = {}}) {
+  requireGitHubAdminEnabled();
+  const requestId = createRequestId(args.requestId);
+  const existing = await existingAudit(admin, requestId);
+  if (existing && existing.status === 'success' && existing.result) return {...existing.result, idempotent: true, audit: existing};
+  const repo = safeGitHubRepo(args.repo);
+  requireGitHubAdminOwner(githubAdmin, repo.split('/')[0]);
+  const body = {};
+  ['description', 'homepage', 'default_branch'].forEach((key) => { if (safeText(args[key], 1000)) body[key] = safeText(args[key], 1000); });
+  ['has_issues', 'has_projects', 'has_wiki', 'allow_squash_merge', 'allow_merge_commit', 'allow_rebase_merge', 'delete_branch_on_merge', 'allow_auto_merge'].forEach((key) => { if (typeof args[key] === 'boolean') body[key] = args[key]; });
+  if (!Object.keys(body).length) throw Object.assign(new Error('at least one repository setting is required.'), {status: 400, code: 'github_admin_no_repo_settings'});
+  const before = cleanGitHubAdminRepo((await githubAdminRequest(githubAdmin, githubAdminRouteForRepo(repo))).json || {});
+  const {json, authMode, status} = await githubAdminRequest(githubAdmin, githubAdminRouteForRepo(repo), {method: 'PATCH', body});
+  const after = cleanGitHubAdminRepo(json || {});
+  const result = {repo, before, after, status, authMode, auditRequestId: requestId};
+  const audit = await auditWrite(admin, {actor: user.email || user.uid || 'unknown', authKind: user.authKind, tool: 'github_admin.repos.configure', operation: 'github.admin.repos.configure', requestId, fileId: `github:${repo}`, affectedFileIds: [`github:${repo}`], oldMetadata: before, newMetadata: after, oldParents: [], newParents: [], reversible: false, rollback: null, callerNote: args.callerNote, providerSummary: `Configured GitHub repository ${repo}.`, result});
+  return {...result, audit: audit.audit};
+}
+
+async function githubAdminCreateBranchOperation({admin, user, githubAdmin, args = {}}) {
+  requireGitHubAdminEnabled();
+  const requestId = createRequestId(args.requestId);
+  const existing = await existingAudit(admin, requestId);
+  if (existing && existing.status === 'success' && existing.result) return {...existing.result, idempotent: true, audit: existing};
+  const repo = safeGitHubRepo(args.repo);
+  requireGitHubAdminOwner(githubAdmin, repo.split('/')[0]);
+  const branch = safeGitHubRef(args.branch);
+  const fromBranch = safeGitHubRef(args.fromBranch || args.base || 'main');
+  if (!branch) throw Object.assign(new Error('branch is required.'), {status: 400, code: 'github_admin_branch_required'});
+  const base = (await githubAdminRequest(githubAdmin, githubAdminRouteForRepo(repo, `/git/ref/heads/${encodeURIComponent(fromBranch)}`))).json || {};
+  const sha = safeText(args.sha, 80) || base.object && base.object.sha;
+  if (!sha) throw Object.assign(new Error('base branch did not resolve to a commit SHA.'), {status: 404, code: 'github_admin_base_branch_missing'});
+  const {json, authMode, status} = await githubAdminRequest(githubAdmin, githubAdminRouteForRepo(repo, '/git/refs'), {method: 'POST', body: {ref: `refs/heads/${branch}`, sha}});
+  const created = cleanGitHubAdminBranch(json || {});
+  const result = {repo, branch, fromBranch, sha, ref: created, status, authMode, auditRequestId: requestId};
+  const audit = await auditWrite(admin, {actor: user.email || user.uid || 'unknown', authKind: user.authKind, tool: 'github_admin.branches.create', operation: 'github.admin.branches.create', requestId, fileId: `github:${repo}:refs/heads/${branch}`, affectedFileIds: [`github:${repo}:refs/heads/${branch}`], oldMetadata: null, newMetadata: created, oldParents: [], newParents: [repo], reversible: false, rollback: null, callerNote: args.callerNote, providerSummary: `Created GitHub branch ${repo}:${branch}.`, result});
+  return {...result, audit: audit.audit};
+}
+
+async function githubAdminUpsertFileOperation({admin, user, githubAdmin, args = {}}) {
+  requireGitHubAdminEnabled();
+  const requestId = createRequestId(args.requestId);
+  const existing = await existingAudit(admin, requestId);
+  if (existing && existing.status === 'success' && existing.result) return {...existing.result, idempotent: true, audit: existing};
+  const repo = safeGitHubRepo(args.repo);
+  requireGitHubAdminOwner(githubAdmin, repo.split('/')[0]);
+  const filePath = safeGitHubPath(args.path);
+  const branch = safeGitHubRef(args.branch || 'main');
+  const message = safeText(args.message || `Home Center update ${filePath}`, 240);
+  const content = boundedText(args.content, 2000000);
+  const contentBase64 = safeText(args.contentBase64, 3000000) || Buffer.from(content, 'utf8').toString('base64');
+  if (!contentBase64) throw Object.assign(new Error('content or contentBase64 is required.'), {status: 400, code: 'github_admin_file_content_required'});
+  let sha = safeText(args.sha, 120);
+  let before = null;
+  if (!sha) {
+    try {
+      before = (await githubAdminRequest(githubAdmin, githubAdminRouteForRepo(repo, `/contents/${filePath.split('/').map(encodeURIComponent).join('/')}${githubQuery({ref: branch})}`))).json;
+      sha = before && before.sha || '';
+    } catch (err) {
+      if (err.status !== 404) throw err;
+    }
+  }
+  const body = {message, content: contentBase64, branch};
+  if (sha) body.sha = sha;
+  const {json, authMode, status} = await githubAdminRequest(githubAdmin, githubAdminRouteForRepo(repo, `/contents/${filePath.split('/').map(encodeURIComponent).join('/')}`), {method: 'PUT', body});
+  const commit = cleanGitHubAdminCommit(json && json.commit || {});
+  const result = {repo, path: filePath, branch, commit, contentSha: json && json.content && json.content.sha || '', status, authMode, auditRequestId: requestId};
+  const audit = await auditWrite(admin, {actor: user.email || user.uid || 'unknown', authKind: user.authKind, tool: 'github_admin.files.upsert', operation: 'github.admin.files.upsert', requestId, fileId: `github:${repo}/${filePath}`, affectedFileIds: [`github:${repo}/${filePath}`, `github:${repo}@${commit.sha}`], oldMetadata: before ? {sha: before.sha || ''} : null, newMetadata: {sha: result.contentSha, commit}, oldParents: [branch], newParents: [branch], reversible: false, rollback: null, callerNote: args.callerNote, providerSummary: `Upserted ${repo}/${filePath} on ${branch}.`, result});
+  return {...result, audit: audit.audit};
+}
+
+async function githubAdminCreatePullRequestOperation({admin, user, githubAdmin, args = {}}) {
+  requireGitHubAdminEnabled();
+  const requestId = createRequestId(args.requestId);
+  const existing = await existingAudit(admin, requestId);
+  if (existing && existing.status === 'success' && existing.result) return {...existing.result, idempotent: true, audit: existing};
+  const repo = safeGitHubRepo(args.repo);
+  requireGitHubAdminOwner(githubAdmin, repo.split('/')[0]);
+  const title = safeText(args.title, 240);
+  const head = safeGitHubRef(args.head);
+  const base = safeGitHubRef(args.base || 'main');
+  if (!title || !head || !base) throw Object.assign(new Error('title, head, and base are required.'), {status: 400, code: 'github_admin_pr_input_required'});
+  const {json, authMode, status} = await githubAdminRequest(githubAdmin, githubAdminRouteForRepo(repo, '/pulls'), {method: 'POST', body: {title, head, base, body: safeText(args.body, 60000), draft: args.draft === true}});
+  const pullRequest = cleanGitHubPullRequest(json || {});
+  const result = {repo, pullRequest, number: pullRequest.number, htmlUrl: pullRequest.htmlUrl, status, authMode, auditRequestId: requestId};
+  const audit = await auditWrite(admin, {actor: user.email || user.uid || 'unknown', authKind: user.authKind, tool: 'github_admin.pull_requests.create', operation: 'github.admin.pull_requests.create', requestId, fileId: `github:${repo}#${pullRequest.number}`, affectedFileIds: [`github:${repo}#${pullRequest.number}`], oldMetadata: null, newMetadata: pullRequest, oldParents: [base], newParents: [head], reversible: false, rollback: null, callerNote: args.callerNote, providerSummary: `Created GitHub PR ${repo}#${pullRequest.number}: ${title}.`, result});
+  return {...result, audit: audit.audit};
+}
+
+async function githubAdminCheckMergePreconditions(githubAdmin, repo, number, args = {}) {
+  const pullRequest = cleanGitHubPullRequest((await githubAdminRequest(githubAdmin, githubAdminRouteForRepo(repo, `/pulls/${number}`))).json || {});
+  const expectedHeadSha = safeText(args.expectedHeadSha || args.headSha, 80);
+  if (!expectedHeadSha) throw Object.assign(new Error('expectedHeadSha is required for PR merge.'), {status: 400, code: 'github_admin_expected_head_sha_required'});
+  if (!pullRequest.head || pullRequest.head.sha !== expectedHeadSha) throw Object.assign(new Error('PR head SHA changed; refusing to merge stale review.'), {status: 409, code: 'github_admin_head_sha_mismatch', currentHeadSha: pullRequest.head && pullRequest.head.sha || '', expectedHeadSha});
+  if (pullRequest.draft) throw Object.assign(new Error('Draft pull requests cannot be merged by Home Center.'), {status: 409, code: 'github_admin_pr_is_draft'});
+  if (args.requireGreenChecks === false) return {pullRequest, combinedStatus: null};
+  const status = (await githubAdminRequest(githubAdmin, githubAdminRouteForRepo(repo, `/commits/${expectedHeadSha}/status`))).json || {};
+  if (status.state !== 'success' && !(args.allowNoChecks === true && Array.isArray(status.statuses) && !status.statuses.length)) {
+    throw Object.assign(new Error(`Required commit statuses are not green: ${status.state || 'unknown'}.`), {status: 409, code: 'github_admin_checks_not_green', combinedState: status.state || 'unknown'});
+  }
+  return {pullRequest, combinedStatus: {state: status.state || '', totalCount: status.total_count || 0}};
+}
+
+async function githubAdminMergePullRequestOperation({admin, user, githubAdmin, args = {}}) {
+  requireGitHubAdminEnabled();
+  const requestId = createRequestId(args.requestId);
+  const existing = await existingAudit(admin, requestId);
+  if (existing && existing.status === 'success' && existing.result) return {...existing.result, idempotent: true, audit: existing};
+  const repo = safeGitHubRepo(args.repo);
+  requireGitHubAdminOwner(githubAdmin, repo.split('/')[0]);
+  const number = safeGitHubNumber(args.number || args.pullNumber, 'pullNumber');
+  const method = safeText(args.mergeMethod || 'squash', 20).toLowerCase();
+  if (!['merge', 'squash', 'rebase'].includes(method)) throw Object.assign(new Error('mergeMethod must be merge, squash, or rebase.'), {status: 400, code: 'github_admin_invalid_merge_method'});
+  const preflight = await githubAdminCheckMergePreconditions(githubAdmin, repo, number, args);
+  const body = {merge_method: method, sha: safeText(args.expectedHeadSha || args.headSha, 80)};
+  if (safeText(args.commitTitle, 240)) body.commit_title = safeText(args.commitTitle, 240);
+  if (safeText(args.commitMessage, 60000)) body.commit_message = safeText(args.commitMessage, 60000);
+  const {json, authMode, status} = await githubAdminRequest(githubAdmin, githubAdminRouteForRepo(repo, `/pulls/${number}/merge`), {method: 'PUT', body});
+  const result = {repo, number, mergeMethod: method, merged: !!(json && json.merged), sha: json && json.sha || '', message: json && json.message || '', preflight, status, authMode, auditRequestId: requestId};
+  const audit = await auditWrite(admin, {actor: user.email || user.uid || 'unknown', authKind: user.authKind, tool: 'github_admin.pull_requests.merge', operation: 'github.admin.pull_requests.merge', requestId, fileId: `github:${repo}#${number}`, affectedFileIds: [`github:${repo}#${number}`, `github:${repo}@${result.sha}`], oldMetadata: preflight.pullRequest, newMetadata: result, oldParents: [preflight.pullRequest.head && preflight.pullRequest.head.ref || ''], newParents: [preflight.pullRequest.base && preflight.pullRequest.base.ref || ''], reversible: false, rollback: null, callerNote: args.callerNote, providerSummary: `Merged GitHub PR ${repo}#${number} with ${method}.`, result});
+  return {...result, audit: audit.audit};
+}
+
+async function githubAdminDispatchWorkflowOperation({admin, user, githubAdmin, args = {}}) {
+  requireGitHubAdminEnabled();
+  const requestId = createRequestId(args.requestId);
+  const existing = await existingAudit(admin, requestId);
+  if (existing && existing.status === 'success' && existing.result) return {...existing.result, idempotent: true, audit: existing};
+  const repo = safeGitHubRepo(args.repo);
+  requireGitHubAdminOwner(githubAdmin, repo.split('/')[0]);
+  const workflowId = safeText(args.workflowId || args.workflowFile, 240);
+  const ref = safeGitHubRef(args.ref || 'main');
+  if (!workflowId || /[\\?#]/.test(workflowId)) throw Object.assign(new Error('workflowId is required and must be a workflow file name or numeric workflow id.'), {status: 400, code: 'github_admin_invalid_workflow_id'});
+  const inputs = args.inputs && typeof args.inputs === 'object' && !Array.isArray(args.inputs) ? args.inputs : {};
+  const {authMode, status} = await githubAdminRequest(githubAdmin, githubAdminRouteForRepo(repo, `/actions/workflows/${encodeURIComponent(workflowId)}/dispatches`), {method: 'POST', body: {ref, inputs}});
+  const result = {repo, workflowId, ref, dispatched: true, status, authMode, auditRequestId: requestId};
+  const audit = await auditWrite(admin, {actor: user.email || user.uid || 'unknown', authKind: user.authKind, tool: 'github_admin.workflows.dispatch', operation: 'github.admin.workflows.dispatch', requestId, fileId: `github:${repo}:workflow:${workflowId}`, affectedFileIds: [`github:${repo}:workflow:${workflowId}`], oldMetadata: null, newMetadata: result, oldParents: [repo], newParents: [ref], reversible: false, rollback: null, callerNote: args.callerNote, providerSummary: `Dispatched GitHub workflow ${workflowId} in ${repo} at ${ref}.`, result});
+  return {...result, audit: audit.audit};
+}
+
+async function githubAdminOperationRunOperation({admin, user, githubAdmin = {}, args = {}}) {
+  const operation = safeText(args.operation || args.type || args.toolName, 120);
+  const operationArgs = args.args && typeof args.args === 'object' && !Array.isArray(args.args) ? args.args : {...args};
+  delete operationArgs.operation;
+  delete operationArgs.type;
+  delete operationArgs.toolName;
+  delete operationArgs.args;
+  if (operation === 'github_admin.auth_status') return githubAdminAuthStatusOperation({githubAdmin, args: operationArgs});
+  if (operation === 'github_admin.repos.create') return githubAdminCreateRepoOperation({admin, user, githubAdmin, args: operationArgs});
+  if (operation === 'github_admin.repos.configure') return githubAdminConfigureRepoOperation({admin, user, githubAdmin, args: operationArgs});
+  if (operation === 'github_admin.branches.create') return githubAdminCreateBranchOperation({admin, user, githubAdmin, args: operationArgs});
+  if (operation === 'github_admin.files.upsert') return githubAdminUpsertFileOperation({admin, user, githubAdmin, args: operationArgs});
+  if (operation === 'github_admin.pull_requests.create') return githubAdminCreatePullRequestOperation({admin, user, githubAdmin, args: operationArgs});
+  if (operation === 'github_admin.pull_requests.merge') return githubAdminMergePullRequestOperation({admin, user, githubAdmin, args: operationArgs});
+  if (operation === 'github_admin.workflows.dispatch') return githubAdminDispatchWorkflowOperation({admin, user, githubAdmin, args: operationArgs});
+  throw Object.assign(new Error('Unsupported GitHub admin operation: ' + operation), {status: 400, code: 'github_admin_unsupported_operation'});
+}
+
+function githubAdminOperationEntries() {
+  return {
+    'github_admin.auth_status': {summary: 'Inspect Home Center GitHub admin authority without exposing secrets.', write: false, input: {}},
+    'github_admin.repos.create': {summary: 'Create a repository through the configured GitHub App/admin authority and audit the mutation.', write: true, requiresRequestId: true, requiredPermissions: ['Administration: write'], input: {owner: 'string', ownerType: 'org|user', name: 'string', visibility: 'private|public|internal', description: 'optional string', autoInit: 'optional boolean', requestId: 'string'}},
+    'github_admin.repos.configure': {summary: 'Update safe repository settings through GitHub admin authority and audit the mutation.', write: true, requiresRequestId: true, requiredPermissions: ['Administration: write'], input: {repo: 'owner/name', description: 'optional string', default_branch: 'optional string', mergeSettings: 'optional booleans', requestId: 'string'}},
+    'github_admin.branches.create': {summary: 'Create a branch from an existing branch or explicit SHA.', write: true, requiresRequestId: true, requiredPermissions: ['Contents: write'], input: {repo: 'owner/name', branch: 'string', fromBranch: 'optional string', sha: 'optional commit SHA', requestId: 'string'}},
+    'github_admin.files.upsert': {summary: 'Create or update one repository file on a branch.', write: true, requiresRequestId: true, requiredPermissions: ['Contents: write', 'Workflows: write when path is .github/workflows/*'], input: {repo: 'owner/name', path: 'string', branch: 'string', message: 'string', content: 'string or contentBase64', sha: 'optional expected blob SHA', requestId: 'string'}},
+    'github_admin.pull_requests.create': {summary: 'Open a pull request from head to base.', write: true, requiresRequestId: true, requiredPermissions: ['Pull requests: write'], input: {repo: 'owner/name', title: 'string', head: 'branch', base: 'branch', body: 'optional string', draft: 'optional boolean', requestId: 'string'}},
+    'github_admin.pull_requests.merge': {summary: 'Merge a pull request only when expectedHeadSha matches and required checks are green.', write: true, requiresRequestId: true, requiredPermissions: ['Contents: write'], input: {repo: 'owner/name', pullNumber: 'number', expectedHeadSha: 'required SHA', mergeMethod: 'merge|squash|rebase', requireGreenChecks: 'optional boolean default true', allowNoChecks: 'optional boolean', requestId: 'string'}},
+    'github_admin.workflows.dispatch': {summary: 'Dispatch a GitHub Actions workflow by workflow id/file and ref.', write: true, requiresRequestId: true, requiredPermissions: ['Actions: write'], input: {repo: 'owner/name', workflowId: 'string or number', ref: 'branch/tag/SHA', inputs: 'optional object', requestId: 'string'}},
+  };
 }
 
 async function createGitHubIssueOperation({admin, user, githubToken, args = {}}) {
@@ -2500,6 +3455,313 @@ async function publishContextSnapshotOperation({google, admin, auth, user, args 
   return {...result, audit: audit.audit};
 }
 
+
+function cartesiaAudioArtifactFormat(args = {}) {
+  const format = safeText(args.format || args.container || 'wav', 20).toLowerCase();
+  if (format === 'wav' || format === 'wave') return {format: 'wav', extension: 'wav', mimeType: 'audio/wav'};
+  if (format === 'raw' || format === 'pcm') return {format: 'raw', extension: 'pcm', mimeType: 'application/octet-stream'};
+  const err = new Error('format must be wav or raw.');
+  err.status = 400;
+  throw err;
+}
+
+function safeArtifactName(value, fallback) {
+  const name = safeText(value, 240) || fallback;
+  return name.replace(/[\\/:*?"<>|]+/g, '-').replace(/\s+/g, ' ').trim().slice(0, 240) || fallback;
+}
+
+function normalizeCartesiaSegments(args = {}, defaultVoiceName = CARTESIA_DEFAULT_VOICE_NAME, defaultModelId = CARTESIA_DEFAULT_MODEL_ID, defaultVoiceId = '') {
+  const defaultPitchSemitones = cartesiaPitchShift.safePitchSemitones(args.pitchSemitones, 'pitchSemitones');
+  const rawSegments = Array.isArray(args.segments) ? args.segments : [];
+  const segments = rawSegments.length ? rawSegments : [{
+    text: args.text || args.transcript,
+    speaker: args.speaker,
+    voiceName: args.voiceName,
+    voiceId: args.voiceId,
+    modelId: args.modelId,
+    pitchSemitones: args.pitchSemitones,
+  }];
+  if (!segments.length || segments.length > 80) {
+    const err = new Error('segments must contain 1 to 80 items.');
+    err.status = 400;
+    throw err;
+  }
+  const normalized = segments.map((segment, index) => {
+    const item = segment && typeof segment === 'object' && !Array.isArray(segment) ? segment : {};
+    const text = safeText(item.text || item.transcript, 12000);
+    if (!text) {
+      const err = new Error('segments[' + index + '].text is required.');
+      err.status = 400;
+      throw err;
+    }
+    return {
+      index,
+      speaker: safeText(item.speaker || item.speakerName || item.character || item.characterId, 120),
+      text,
+      voiceName: safeText(item.voiceName, 120) || defaultVoiceName,
+      voiceId: safeText(item.voiceId, 160) || defaultVoiceId,
+      modelId: safeText(item.modelId, 120) || defaultModelId,
+      pitchSemitones: item.pitchSemitones === undefined ? defaultPitchSemitones : cartesiaPitchShift.safePitchSemitones(item.pitchSemitones, 'segments[' + index + '].pitchSemitones'),
+    };
+  });
+  const totalChars = normalized.reduce((sum, segment) => sum + segment.text.length, 0);
+  if (totalChars > 48000) {
+    const err = new Error('segments total text must be 48000 characters or less.');
+    err.status = 400;
+    throw err;
+  }
+  return normalized;
+}
+
+function pcmSilenceBytes(sampleRate, pauseMs) {
+  const ms = Math.max(0, Math.min(5000, Math.floor(safeNumber(pauseMs, 0)) || 0));
+  if (!ms) return Buffer.alloc(0);
+  const sampleCount = Math.floor(sampleRate * ms / 1000);
+  return Buffer.alloc(sampleCount * 2);
+}
+
+function wavHeader(byteCount, sampleRate) {
+  const header = Buffer.alloc(44);
+  const channels = 1;
+  const bitsPerSample = 16;
+  const byteRate = sampleRate * channels * bitsPerSample / 8;
+  const blockAlign = channels * bitsPerSample / 8;
+  header.write('RIFF', 0, 'ascii');
+  header.writeUInt32LE(36 + byteCount, 4);
+  header.write('WAVE', 8, 'ascii');
+  header.write('fmt ', 12, 'ascii');
+  header.writeUInt32LE(16, 16);
+  header.writeUInt16LE(1, 20);
+  header.writeUInt16LE(channels, 22);
+  header.writeUInt32LE(sampleRate, 24);
+  header.writeUInt32LE(byteRate, 28);
+  header.writeUInt16LE(blockAlign, 32);
+  header.writeUInt16LE(bitsPerSample, 34);
+  header.write('data', 36, 'ascii');
+  header.writeUInt32LE(byteCount, 40);
+  return header;
+}
+
+function wrapPcmAsWav(pcm, sampleRate) {
+  return Buffer.concat([wavHeader(pcm.length, sampleRate), pcm]);
+}
+
+async function synthesizeCartesiaSegmentPcm({cartesiaApiKey, segment, sampleRate}) {
+  const speech = await openCartesiaStream(segment.text, {apiKeyGetter: cartesiaApiKey, voiceName: segment.voiceName, voiceId: segment.voiceId, modelId: segment.modelId, format: 'raw', sampleRate});
+  const audioResponse = speech.response;
+  if (!audioResponse.ok) {
+    const detail = await audioResponse.text().catch(() => '');
+    const err = new Error('Cartesia HTTP ' + audioResponse.status + (detail ? ': ' + safeText(detail, 500) : ''));
+    err.status = audioResponse.status;
+    throw err;
+  }
+  const pcm = mediaBuffer(await audioResponse.arrayBuffer());
+  if (!pcm.length) {
+    const err = new Error('Cartesia returned empty audio for segment ' + segment.index + '.');
+    err.status = 502;
+    throw err;
+  }
+  if ((pcm.length & 1) === 1) {
+    const err = new Error('Cartesia returned odd-length PCM for segment ' + segment.index + '.');
+    err.status = 502;
+    throw err;
+  }
+  const shifted = segment.pitchSemitones === 0
+    ? {pcm, bypassed: true, processor: 'none', pitchScale: 1, inputFrames: pcm.length / 2, outputFrames: pcm.length / 2, durationRatio: 1}
+    : await cartesiaPitchShift.pitchShiftPcm16(pcm, {sampleRate, channels: 1, pitchSemitones: segment.pitchSemitones});
+  return {
+    pcm: shifted.pcm,
+    voiceName: speech.voiceName,
+    voiceId: speech.voiceId,
+    modelId: speech.modelId,
+    textCharCount: segment.text.length,
+    speaker: segment.speaker,
+    index: segment.index,
+    pitchSemitones: segment.pitchSemitones,
+    pitchScale: shifted.pitchScale,
+    pitchProcessor: shifted.processor,
+    pitchBypassed: Boolean(shifted.bypassed),
+    inputByteCount: pcm.length,
+    inputFrameCount: shifted.inputFrames || (pcm.length / 2),
+    outputFrameCount: shifted.outputFrames || (shifted.pcm.length / 2),
+    durationRatio: shifted.durationRatio || 1,
+  };
+}
+async function synthesizeCartesiaAudioBytes({cartesiaApiKey, args, audioFormat, sampleRate}) {
+  const defaultPitchSemitones = cartesiaPitchShift.safePitchSemitones(args.pitchSemitones, 'pitchSemitones');
+  const segments = normalizeCartesiaSegments(args, safeText(args.voiceName, 120) || CARTESIA_DEFAULT_VOICE_NAME, safeText(args.modelId, 120) || CARTESIA_DEFAULT_MODEL_ID, safeText(args.voiceId, 160));
+  const hasPitchShift = segments.some((segment) => segment.pitchSemitones !== 0);
+  if (segments.length === 1 && !Array.isArray(args.segments) && !hasPitchShift) {
+    const segment = segments[0];
+    const speech = await openCartesiaStream(segment.text, {apiKeyGetter: cartesiaApiKey, voiceName: segment.voiceName, voiceId: segment.voiceId, modelId: segment.modelId, format: audioFormat.format, sampleRate});
+    const audioResponse = speech.response;
+    if (!audioResponse.ok) {
+      const detail = await audioResponse.text().catch(() => '');
+      const err = new Error('Cartesia HTTP ' + audioResponse.status + (detail ? ': ' + safeText(detail, 500) : ''));
+      err.status = audioResponse.status;
+      throw err;
+    }
+    const audio = mediaBuffer(await audioResponse.arrayBuffer());
+    if (!audio.length) {
+      const err = new Error('Cartesia returned empty audio.');
+      err.status = 502;
+      throw err;
+    }
+    return {audio, defaultPitchSemitones, segments: [{index: 0, speaker: segment.speaker, voiceName: speech.voiceName, voiceId: speech.voiceId, modelId: speech.modelId, textCharCount: segment.text.length, pitchSemitones: 0, pitchScale: 1, pitchProcessor: 'none', pitchBypassed: true}], segmentCount: 1};
+  }
+
+  const pause = pcmSilenceBytes(sampleRate, args.pauseMs);
+  const synthesized = [];
+  for (const segment of segments) {
+    synthesized.push(await synthesizeCartesiaSegmentPcm({cartesiaApiKey, segment, sampleRate}));
+  }
+  const pcmParts = [];
+  synthesized.forEach((segment, index) => {
+    if (index > 0 && pause.length) pcmParts.push(pause);
+    pcmParts.push(segment.pcm);
+  });
+  const pcm = Buffer.concat(pcmParts);
+  const audio = audioFormat.format === 'wav' ? wrapPcmAsWav(pcm, sampleRate) : pcm;
+  return {
+    audio,
+    segmentCount: synthesized.length,
+    stitched: true,
+    defaultPitchSemitones,
+    segmentPauseMs: Math.max(0, Math.min(5000, Math.floor(safeNumber(args.pauseMs, 0)) || 0)),
+    segments: synthesized.map((segment) => ({index: segment.index, speaker: segment.speaker, voiceName: segment.voiceName, voiceId: segment.voiceId, modelId: segment.modelId, textCharCount: segment.textCharCount, byteCount: segment.pcm.length, inputByteCount: segment.inputByteCount, pitchSemitones: segment.pitchSemitones, pitchScale: segment.pitchScale, pitchProcessor: segment.pitchProcessor, pitchBypassed: segment.pitchBypassed, inputFrameCount: segment.inputFrameCount, outputFrameCount: segment.outputFrameCount, durationRatio: segment.durationRatio})),
+  };
+}
+
+function cartesiaVoiceMetadataFilterMatch(voice, args = {}) {
+  const country = safeText(args.country, 80).toLowerCase();
+  const accent = safeText(args.accent, 80).toLowerCase();
+  const locale = safeText(args.locale, 40).toLowerCase();
+  if (country && safeText(voice.country, 80).toLowerCase() !== country) return false;
+  if (accent && !safeText(voice.accent, 80).toLowerCase().includes(accent)) return false;
+  if (locale && safeText(voice.locale || voice.language, 40).toLowerCase().replace('_', '-') !== locale.replace('_', '-')) return false;
+  return true;
+}
+
+async function cartesiaVoicesOperation({cartesiaApiKey = () => '', args = {}}) {
+  const query = safeText(args.query || args.q, 240);
+  const limit = chatGptLimit(args.limit, 100, 100);
+  const catalog = await listCartesiaVoiceCatalog({
+    apiKeyGetter: cartesiaApiKey,
+    query,
+    limit,
+    pageToken: args.pageToken || args.cursor,
+    startingAfter: args.startingAfter || args.starting_after,
+    endingBefore: args.endingBefore || args.ending_before,
+    language: args.language || args.locale,
+    locale: args.locale,
+    gender: args.gender,
+    isOwner: args.isOwner || args.is_owner,
+    includePreviewUrl: args.includePreviewUrl !== false,
+  });
+  const voices = catalog.voices.map(normalizeCartesiaVoice).filter((voice) => cartesiaVoiceMetadataFilterMatch(voice, args));
+  const metadataFilters = {
+    accent: safeText(args.accent, 80),
+    country: safeText(args.country, 80),
+    locale: safeText(args.locale, 40),
+  };
+  return {
+    provider: 'cartesia',
+    catalog: catalog.catalog,
+    query,
+    filters: {...catalog.filters, ...metadataFilters},
+    supportedFilters: catalog.supportedFilters,
+    pagination: catalog.pagination,
+    limit,
+    voices,
+  };
+}
+
+async function synthesizeCartesiaAudioArtifactOperation({google, admin, auth, user, cartesiaApiKey = () => '', args = {}}) {
+  const requestId = createRequestId(args.requestId);
+  const existing = await existingAudit(admin, requestId);
+  if (existing && existing.status === 'success' && existing.result) return {...existing.result, idempotent: true, audit: existing};
+
+  const audioFormat = cartesiaAudioArtifactFormat(args);
+  const sampleRate = Math.max(8000, Math.min(48000, Math.floor(safeNumber(args.sampleRate, 24000)) || 24000));
+  const parentFolderId = safeText(args.parentFolderId, 220) ? safeDriveFileId(args.parentFolderId) : '';
+  const fallbackName = 'cartesia-tts-' + requestId + '.' + audioFormat.extension;
+  const suppliedName = safeText(args.name || args.fileName || args.title, 240);
+  const baseName = safeArtifactName(suppliedName || fallbackName, fallbackName).replace(new RegExp('\\.' + audioFormat.extension + '$', 'i'), '');
+  const name = baseName + '.' + audioFormat.extension;
+  const synthesis = await synthesizeCartesiaAudioBytes({cartesiaApiKey, args, audioFormat, sampleRate});
+  const audio = synthesis.audio;
+  const digest = {byteCount: audio.length, sha256: sha256Hex(audio)};
+  const drive = google.drive({version: 'v3', auth});
+  const media = {mimeType: audioFormat.mimeType, body: Readable.from([audio])};
+  const created = await drive.files.create({
+    requestBody: {name, mimeType: audioFormat.mimeType, ...(parentFolderId ? {parents: [parentFolderId]} : {})},
+    media,
+    fields: driveFields(),
+    supportsAllDrives: true,
+  });
+  const metadata = cleanDriveFile(created.data || {});
+  const fileId = safeDriveFileId(metadata.id);
+  const after = await getDriveMetadata(drive, fileId).catch(() => metadata);
+  const readback = await drive.files.get({fileId, alt: 'media', supportsAllDrives: true}, {responseType: 'arraybuffer'});
+  const readbackBuffer = mediaBuffer(readback.data);
+  const readbackDigest = {byteCount: readbackBuffer.length, sha256: sha256Hex(readbackBuffer)};
+  if (readbackDigest.byteCount !== digest.byteCount || readbackDigest.sha256 !== digest.sha256) {
+    const err = new Error('Drive readback verification failed for ' + name + ': wrote ' + digest.byteCount + '/' + digest.sha256 + ', read ' + readbackDigest.byteCount + '/' + readbackDigest.sha256 + '.');
+    err.status = 502;
+    throw err;
+  }
+  const result = {
+    provider: 'cartesia',
+    fileId,
+    id: fileId,
+    name: after.name || metadata.name || name,
+    mimeType: after.mimeType || metadata.mimeType || audioFormat.mimeType,
+    webViewLink: after.webViewLink || metadata.webViewLink || '',
+    parentFolderId: ((after.parents || metadata.parents || [])[0]) || parentFolderId,
+    byteCount: digest.byteCount,
+    sha256: digest.sha256,
+    readbackByteCount: readbackDigest.byteCount,
+    readbackSha256: readbackDigest.sha256,
+    verified: true,
+    audioFormat: audioFormat.format,
+    sampleRate,
+    channelCount: 1,
+    pcmFormat: 'pcm_s16le',
+    pitchSemitones: synthesis.defaultPitchSemitones || 0,
+    pitchProcessor: synthesis.segments.some((segment) => !segment.pitchBypassed) ? 'rubberband-wasm' : 'none',
+    voiceName: synthesis.segments[0] ? synthesis.segments[0].voiceName : CARTESIA_DEFAULT_VOICE_NAME,
+    voiceId: synthesis.segments[0] ? synthesis.segments[0].voiceId : '',
+    modelId: synthesis.segments[0] ? synthesis.segments[0].modelId : CARTESIA_DEFAULT_MODEL_ID,
+    textCharCount: synthesis.segments.reduce((sum, segment) => sum + (segment.textCharCount || 0), 0),
+    segmentCount: synthesis.segmentCount,
+    stitched: Boolean(synthesis.stitched),
+    segmentPauseMs: synthesis.segmentPauseMs || 0,
+    segments: synthesis.segments,
+    metadata: after,
+    auditRequestId: requestId,
+  };
+  const audit = await auditWrite(admin, {
+    actor: user.email || user.uid || 'unknown',
+    authKind: user.authKind,
+    tool: 'tts.synthesize',
+    operation: 'tts.synthesize',
+    requestId,
+    fileId,
+    affectedFileIds: [fileId],
+    oldMetadata: null,
+    newMetadata: after,
+    oldParents: [],
+    newParents: after.parents || [],
+    reversible: false,
+    rollback: null,
+    callerNote: args.callerNote,
+    providerSummary: safeText(args.callerNote, 400) || 'Synthesized Cartesia audio artifact ' + name + ' (' + digest.byteCount + ' bytes, sha256 ' + digest.sha256 + ').',
+    result,
+  });
+  await recordActionAudit(admin, user, 'tts.synthesize', fileId, safeText(args.callerNote, 400) || 'Synthesized Cartesia audio artifact ' + name + ' (' + digest.byteCount + ' bytes).', requestId);
+  return {...result, audit: audit.audit};
+}
+
 async function appendGoogleDocOperation({google, admin, auth, user, args = {}}) {
   const requestId = createRequestId(args.requestId);
   const existing = await existingAudit(admin, requestId);
@@ -2585,11 +3847,194 @@ function commandCenterDriveOperationEntries() {
   }));
 }
 
+
+const DROOBIEDOO_CONTEXT_INDEX_PATH = path.join(__dirname, 'context_sources', 'droobiedoo_context_index.json');
+const DROOBIEDOO_CONTEXT_OPERATIONS = Object.freeze({
+  'droobiedoo.context_health': {summary: 'Read Droobiedoo index health, freshness, relationship, and read-only boundary metadata.', write: false, input: {maxAgeDays: 'optional number'}},
+  'droobiedoo.context_search': {summary: 'Search Droobiedoo projects, skills, doctrine, reports, artifacts, and provenance.', write: false, input: {query: 'string', kinds: 'optional string[]', limit: 'optional number', maxAgeDays: 'optional number'}},
+  'droobiedoo.project_resolve': {summary: 'Resolve a project or workspace context name to Droobiedoo evidence and related entries.', write: false, input: {query: 'string', limit: 'optional number', maxAgeDays: 'optional number'}},
+  'droobiedoo.task_context_packet': {summary: 'Build a bounded read-only task context packet from Droobiedoo evidence with provenance and invention guards.', write: false, input: {query: 'string', limit: 'optional number', maxChars: 'optional number', maxAgeDays: 'optional number'}},
+  'droobiedoo.skill_match': {summary: 'Find Droobiedoo skills that match a task or project query.', write: false, input: {query: 'string', limit: 'optional number', maxAgeDays: 'optional number'}},
+  'droobiedoo.artifact_search': {summary: 'Search Droobiedoo reports, generated artifacts, backups, and tool artifacts.', write: false, input: {query: 'string', limit: 'optional number', maxAgeDays: 'optional number'}},
+  'droobiedoo.provenance_lookup': {summary: 'Look up Droobiedoo provenance by path, id, or lexical query.', write: false, input: {path: 'optional string', id: 'optional string', query: 'optional string', limit: 'optional number', maxAgeDays: 'optional number'}},
+});
+
+function droobiedooContextOperationEntries() {
+  return DROOBIEDOO_CONTEXT_OPERATIONS;
+}
+
+function loadDroobiedooContextIndex() {
+  const raw = fs.readFileSync(DROOBIEDOO_CONTEXT_INDEX_PATH, 'utf8');
+  const index = JSON.parse(raw);
+  if (index.schemaVersion !== 'droobiedoo.context-index.v1') {
+    throw Object.assign(new Error('Unsupported Droobiedoo context index schema.'), {status: 500});
+  }
+  return index;
+}
+
+function droobiedooNowMs(args = {}) {
+  const override = safeNumber(args.nowMs, 0);
+  return override > 0 ? override : Date.now();
+}
+
+function droobiedooFreshness(index, args = {}) {
+  const generatedAt = safeText(index.generatedAt || (index.freshness && index.freshness.generatedAt), 80);
+  const generatedMs = generatedAt ? Date.parse(generatedAt) : 0;
+  const maxAgeDays = Math.max(0, Math.min(3650, safeNumber(args.maxAgeDays, index.freshness && index.freshness.maxAgeDays ? index.freshness.maxAgeDays : 14)));
+  const ageMs = generatedMs ? Math.max(0, droobiedooNowMs(args) - generatedMs) : Number.POSITIVE_INFINITY;
+  const maxAgeMs = maxAgeDays * 24 * 60 * 60 * 1000;
+  const staleReasons = [];
+  if (!generatedMs) staleReasons.push('missing-generatedAt');
+  if (ageMs > maxAgeMs) staleReasons.push('generatedAt-older-than-maxAgeDays');
+  const warnings = Array.isArray(index.freshness && index.freshness.warnings) ? index.freshness.warnings.map((w) => safeText(w, 500)).filter(Boolean) : [];
+  if (index.git && index.git.dirty) warnings.push('Droobiedoo source had local changes when indexed.');
+  return {
+    generatedAt,
+    ageDays: Number.isFinite(ageMs) ? Number((ageMs / (24 * 60 * 60 * 1000)).toFixed(4)) : null,
+    maxAgeDays,
+    isStale: staleReasons.length > 0,
+    staleReasons,
+    sourceHead: safeText(index.git && index.git.head, 120) || safeText(index.freshness && index.freshness.sourceHead, 120),
+    sourceBranch: safeText(index.git && index.git.branch, 120),
+    sourceDirty: !!(index.git && index.git.dirty),
+    warnings: [...new Set(warnings)].slice(0, 20),
+  };
+}
+
+function droobiedooTokens(value) {
+  return safeText(value, 20000).toLowerCase().split(/[^a-z0-9_.-]+/).filter((token) => token.length >= 2);
+}
+
+function droobiedooEntryHaystack(entry) {
+  return [entry.id, entry.kind, entry.title, entry.path, entry.skillName, entry.summary, ...(Array.isArray(entry.tags) ? entry.tags : [])].map((part) => safeText(part, 3000).toLowerCase()).join(' ');
+}
+
+function droobiedooScoreEntry(entry, queryTokens) {
+  if (!queryTokens.length) return 1;
+  const haystack = droobiedooEntryHaystack(entry);
+  let score = 0;
+  for (const token of queryTokens) {
+    if (!haystack.includes(token)) continue;
+    score += 1;
+    const title = safeText(entry.title, 300).toLowerCase();
+    const entryPath = safeText(entry.path, 500).toLowerCase();
+    if (title.includes(token)) score += 3;
+    if (entryPath.includes(token)) score += 2;
+    if ((entry.kind || '') === token) score += 2;
+  }
+  return score;
+}
+
+function droobiedooResultEntry(entry) {
+  return {
+    id: entry.id,
+    kind: entry.kind,
+    title: entry.title,
+    path: entry.path,
+    tags: entry.tags || [],
+    skillName: entry.skillName || '',
+    summary: safeText(entry.summary, 900),
+    sha256: entry.sha256,
+    sizeBytes: entry.sizeBytes,
+    modifiedTime: entry.modifiedTime,
+    readOnly: entry.readOnly !== false,
+    remoteCallable: entry.remoteCallable !== false,
+    provenance: entry.provenance || null,
+    remoteExposure: entry.remoteExposure || null,
+  };
+}
+
+function searchDroobiedooContextIndex(index, args = {}) {
+  const query = safeText(args.query || args.project || args.task || '', 1200);
+  const queryTokens = droobiedooTokens(query);
+  const kinds = Array.isArray(args.kinds) ? new Set(args.kinds.map((kind) => safeText(kind, 80)).filter(Boolean)) : null;
+  const limit = chatGptLimit(args.limit, 10, 50);
+  return (Array.isArray(index.entries) ? index.entries : [])
+    .filter((entry) => !kinds || kinds.has(entry.kind))
+    .map((entry) => ({entry, score: droobiedooScoreEntry(entry, queryTokens)}))
+    .filter((item) => item.score > 0)
+    .sort((a, b) => b.score - a.score || safeText(a.entry.path, 500).localeCompare(safeText(b.entry.path, 500)))
+    .slice(0, limit)
+    .map((item) => ({score: item.score, ...droobiedooResultEntry(item.entry)}));
+}
+
+function droobiedooContextHealth(index, args = {}) {
+  return {
+    schemaVersion: index.schemaVersion,
+    sourceRepo: index.sourceRepo,
+    generatedAt: index.generatedAt,
+    counts: index.counts || {},
+    readOnly: index.readOnly !== false,
+    remoteMutationAllowed: !!index.remoteMutationAllowed,
+    forbiddenRemoteTools: Array.isArray(index.forbiddenRemoteTools) ? index.forbiddenRemoteTools : [],
+    freshness: droobiedooFreshness(index, args),
+    relationships: index.relationships || {},
+    operationPrefix: 'droobiedoo.',
+  };
+}
+
+function droobiedooTaskContextPacket(index, args = {}) {
+  const maxChars = Math.max(1000, Math.min(24000, safeNumber(args.maxChars, 8000)));
+  const query = safeText(args.query || args.task || args.prompt || '', 1200);
+  const matches = searchDroobiedooContextIndex(index, {...args, query, limit: chatGptLimit(args.limit, 12, 30)});
+  const grouped = {};
+  let usedChars = 0;
+  const selected = [];
+  for (const match of matches) {
+    const cost = JSON.stringify(match).length;
+    if (usedChars + cost > maxChars && selected.length) continue;
+    usedChars += cost;
+    selected.push(match);
+    if (!grouped[match.kind]) grouped[match.kind] = [];
+    grouped[match.kind].push(match);
+  }
+  return {
+    source: 'droobiedoo',
+    query,
+    readOnly: true,
+    remoteMutationAllowed: false,
+    freshness: droobiedooFreshness(index, args),
+    relationships: index.relationships || {},
+    guards: [
+      'Use Droobiedoo as context and provenance only.',
+      'Do not expose or call scripts/sync_workspace_artifacts.py as a remote mutation tool.',
+      'Use Home Center or Command Center for execution; Droobiedoo does not dispatch work.',
+      'Use She-Raw as the consultative runtime/default voice when a voice is needed.',
+    ],
+    groupedEntries: grouped,
+    entries: selected,
+    provenance: selected.map((entry) => ({path: entry.path, sha256: entry.sha256, sourceRepo: entry.provenance && entry.provenance.sourceRepo})),
+  };
+}
+
+function runDroobiedooContextOperation(operation, args = {}) {
+  const index = loadDroobiedooContextIndex();
+  if (operation === 'droobiedoo.context_health') return droobiedooContextHealth(index, args);
+  if (operation === 'droobiedoo.context_search') return {query: safeText(args.query, 1200), freshness: droobiedooFreshness(index, args), results: searchDroobiedooContextIndex(index, args)};
+  if (operation === 'droobiedoo.project_resolve') return {query: safeText(args.query || args.project, 1200), freshness: droobiedooFreshness(index, args), results: searchDroobiedooContextIndex(index, {...args, query: args.query || args.project, kinds: ['project', 'doctrine', 'report', 'artifact']})};
+  if (operation === 'droobiedoo.task_context_packet') return droobiedooTaskContextPacket(index, args);
+  if (operation === 'droobiedoo.skill_match') return {query: safeText(args.query || args.task, 1200), freshness: droobiedooFreshness(index, args), results: searchDroobiedooContextIndex(index, {...args, query: args.query || args.task, kinds: ['skill']})};
+  if (operation === 'droobiedoo.artifact_search') return {query: safeText(args.query, 1200), freshness: droobiedooFreshness(index, args), results: searchDroobiedooContextIndex(index, {...args, kinds: ['artifact', 'report', 'provenance', 'tool']})};
+  if (operation === 'droobiedoo.provenance_lookup') {
+    const entries = Array.isArray(index.entries) ? index.entries : [];
+    const id = safeText(args.id, 300);
+    const requestedPath = safeText(args.path, 1000);
+    let results = [];
+    if (id || requestedPath) {
+      results = entries.filter((entry) => (!id || entry.id === id) && (!requestedPath || entry.path === requestedPath)).slice(0, chatGptLimit(args.limit, 10, 50)).map(droobiedooResultEntry);
+    } else {
+      results = searchDroobiedooContextIndex(index, {...args, kinds: null});
+    }
+    return {query: safeText(args.query || requestedPath || id, 1200), freshness: droobiedooFreshness(index, args), results};
+  }
+  throw Object.assign(new Error('Unsupported Droobiedoo context operation: ' + operation), {status: 400});
+}
+
 function driveOperationRegistry() {
   return {
-    version: '2026-07-26.drive-binary-chunks-v1',
+    version: '2026-07-26.armory-range-audio-library-ingest-v1',
     invocationTool: 'drive_operation',
-    cachePolicy: 'New bridge, simulation, and Command Center operations should be invokable through drive_operation so ChatGPT does not need a top-level MCP tool refresh for every backend code change. Agents should rediscover this registry through capabilities or health before claiming an operation is unavailable.',
+    cachePolicy: 'New bridge and simulation operations should be invokable through drive_operation so ChatGPT does not need a top-level MCP tool refresh for every backend code change. Cartesia TTS is a direct Home Center MCP provider operation; it must not be routed through Command Center jobs or workers.',
     operations: {
       drive_create_folder: {
         summary: 'Create a Google Drive folder and audit the write.',
@@ -2625,6 +4070,32 @@ function driveOperationRegistry() {
           verification: 'Verify every chunkSha256 before append and verify final byte count against totalSize. Never substitute another synthesis provider because binary transfer failed.',
         },
       },
+      'audio.ingest_drive': {
+        summary: 'Stream one Drive-hosted audio file into canonical generated storage, verify source and GCS readback bytes/SHA-256, and write append-safe bucket indexes without mutating Drive.',
+        write: true,
+        requiresRequestId: true,
+        requiredScopes: ['https://www.googleapis.com/auth/drive'],
+        input: {fileId: 'string', batchId: 'required stable migration batch id', requestId: 'string', approved: 'must be true', objectName: 'optional deterministic audio/ object name', project: 'optional string', stage: 'optional finals|parts|probes|rejected|unclassified', sourcePath: 'optional original Drive path', expectedSize: 'optional integer', expectedDriveMd5: 'optional Drive MD5 hex', ownerEmail: 'optional owner override; defaults authenticated user', sharedWith: 'optional email array'},
+        output: {verified: 'boolean', reused: 'boolean', source: 'Drive id/name/size/MD5/path', destination: 'bucket/object/gs URI/size/SHA-256/metadata', indexes: 'immutable by-drive-id, owner/project/stage catalog, and batch-item JSON receipts', readback: 'byte count/SHA-256', driveMutated: 'false'},
+        agentRecipe: {
+          whenUserSays: 'Ingest, backfill, or migrate an existing Drive audio artifact into the canonical generated-audio bucket.',
+          prefer: 'Call drive_operation once per file with operation=audio.ingest_drive, approved=true, a stable batchId/requestId, and explicit project/stage/sourcePath metadata. Keep Drive untouched until the batch is sealed and a later human-approved cleanup manifest exists.',
+          verification: 'Require verified=true, matching source and GCS byte counts/SHA-256, a canonical gs:// receipt, and all three bucket index receipts. Never trash Drive in the ingest call.',
+        },
+      },
+      'audio.finalize_ingest_batch': {
+        summary: 'Seal a migration batch from its verified bucket item indexes and fail closed unless expected file IDs, count, and bytes match exactly.',
+        write: true,
+        requiresRequestId: true,
+        requiredScopes: [],
+        input: {batchId: 'stable migration batch id', requestId: 'string', approved: 'must be true', expectedFileIds: 'exact nonempty Drive file id array', expectedCount: 'exact positive integer', expectedBytes: 'exact positive integer'},
+        output: {sealed: 'boolean', verified: 'boolean', batchId: 'string', itemCount: 'number', byteCount: 'number', manifest: 'immutable bucket JSON receipt', driveTrashEligible: 'false'},
+        agentRecipe: {
+          whenUserSays: 'Verify, reconcile, or seal a Drive-to-bucket audio migration batch.',
+          prefer: 'Call only after every audio.ingest_drive receipt is verified. Pass the exact Drive inventory IDs, count, and bytes.',
+          verification: 'Treat a sealed manifest as load-integrity evidence only. Playback acceptance and explicit human approval are still required before any Drive trash action.',
+        },
+      },
       'context_sync.publish_snapshot': {
         summary: 'Publish a durable text/Markdown snapshot file to Drive, verify byte count and SHA-256 by media readback, and audit the write.',
         write: true,
@@ -2636,6 +4107,92 @@ function driveOperationRegistry() {
           whenUserSays: 'Back up or sync Codex context, AGENTS.md, skills, memories, manifests, or other local text snapshots to Drive.',
           prefer: 'Call drive_operation with operation=context_sync.publish_snapshot. Use Home Center MCP only; do not use rclone for this workflow.',
           verification: 'Pass byteCount and sha256 from the local manifest. Treat verified=true as the acceptance signal because the operation reads the Drive media back and hashes it.',
+        },
+      },
+      'armory.receipt': {
+        summary: 'Record one or more immutable, owner-scoped Armory Range casings. The tracked item needs no pre-existing cloud key, and every casing receives a mandatory ISO timestamp.',
+        write: true,
+        requiresRequestId: false,
+        requiredScopes: [],
+        input: {ammunition: 'required label; item or subject aliases accepted', count: 'optional integer 1-500, default 1', action: 'optional string, default fired', unit: 'optional string, default round', timestamp: 'optional explicit timestamp shared by every casing', timestamps: 'optional array containing one timestamp or exactly one per casing', timezone: 'optional IANA timezone, default America/Chicago', attributes: 'optional object', note: 'optional string', requestId: 'optional exact-replay receipt; generated when omitted'},
+        output: {receiptId: 'string', requestId: 'string', count: 'number', casingIds: 'one immutable event id per unit', timestamps: 'mandatory ISO timestamp per casing', timestampSources: 'explicit, explicit_shared, or server_receipt', recordedAt: 'ISO server receipt time', inputSha256: 'exact replay binding'},
+        agentRecipe: {
+          whenUserSays: 'Armory receipt, record in the armory, or describes a count of items or rounds to record.',
+          prefer: 'Call drive_operation with operation=armory.receipt. Parse ammunition/item, count, action, and any explicitly spoken times. If no time is spoken, omit timestamps so the server records the mandatory receipt time honestly.',
+          verification: 'Read back count, timestamps, timestampSources, and idempotent. Never invent spacing between events.',
+        },
+      },
+      'armory.recount': {
+        summary: 'Aggregate owner-scoped Armory Range casings by item, action, and unit.',
+        write: false,
+        requiresRequestId: false,
+        requiredScopes: [],
+        input: {ammunition: 'optional exact item filter; item or subject aliases accepted', action: 'optional exact action filter', since: 'optional timestamp', until: 'optional timestamp'},
+        output: {totalCasings: 'number', recount: 'grouped counts', lastCasing: 'latest matching immutable event or null'},
+        agentRecipe: {
+          whenUserSays: 'Armory recount or asks how many matching things have been recorded.',
+          prefer: 'Call drive_operation with operation=armory.recount and only the filters the user supplied.',
+          verification: 'Report the aggregate and the matching time boundary without guessing missing filters.',
+        },
+      },
+      'armory.casing': {
+        summary: 'Retrieve recent owner-scoped Armory Range casings, including the last matching event.',
+        write: false,
+        requiresRequestId: false,
+        requiredScopes: [],
+        input: {ammunition: 'optional exact item filter; item or subject aliases accepted', action: 'optional exact action filter', since: 'optional timestamp', until: 'optional timestamp', lastOnly: 'optional boolean', limit: 'optional integer 1-100, default 10'},
+        output: {count: 'number', lastCasing: 'latest matching immutable event or null', casings: 'newest-first matching events'},
+        agentRecipe: {
+          whenUserSays: 'Armory casing, what was my last shot fired in the range, or asks for recent matching events.',
+          prefer: 'Call drive_operation with operation=armory.casing. For last-shot questions use action=fired and lastOnly=true.',
+          verification: 'Read back ammunition/item, action, occurredAt, and timestampSource.',
+        },
+      },
+      'tts.voices': {
+        summary: 'List or search Cartesia voices by calling the hosted Cartesia provider directly from Home Center MCP; no Command Center job or worker is involved.',
+        write: false,
+        requiredScopes: [],
+        input: {query: 'optional string passed to Cartesia q', q: 'optional alias for query', limit: 'optional number, 1-100 per Cartesia page', pageToken: 'optional alias for starting_after', startingAfter: 'optional Cartesia pagination cursor', endingBefore: 'optional Cartesia pagination cursor', language: 'optional Cartesia language or locale filter such as ru or en_GB', locale: 'optional language-locale alias passed as language', gender: 'optional masculine, feminine, or gender_neutral', isOwner: 'optional boolean', accent: 'optional metadata filter applied to returned provider page', country: 'optional metadata filter applied to returned provider page', includePreviewUrl: 'optional boolean, defaults true'},
+        output: {provider: 'cartesia', catalog: 'provider_live', filters: 'object', supportedFilters: 'object', pagination: 'object', voices: 'array with id/name/language/locale/gender/accent/country/metadata'},
+      },
+      'audio.render': {
+        summary: 'Render deterministic procedural, source-backed, or direct Cartesia speech audio inside Home Center MCP through a declarative JSON recipe. Speech nodes resolve character profiles such as Isaac/Clyde, forward structured Cartesia emotion/speed/volume generation_config, apply tempo-preserving pitch, and return verified Drive artifacts plus a structured inline-playable MCP audio block. It never creates a Command Center job, Codex execution, LLM prompt, worker lease, GitHub Actions renderer, or Termux runtime process.',
+        write: true,
+        requiresRequestId: true,
+        requiredScopes: ['https://www.googleapis.com/auth/drive'],
+        input: {scriptText: 'required JSON audio recipe DSL; no imports, network, shell, process, filesystem, or arbitrary code execution; supports speech, audition, and speech_sequence nodes with text, speaker, character or voiceName/voiceId, modelId, emotion, speed, volume, pitchSemitones, pauseMs, master, and bounded concurrency', sources: 'optional object binding friendly names to inline contentBase64 or drive:// refs; WAV sources decode to clips', settings: 'optional deterministic renderer settings including seed, sampleRate, timeoutMs, allowClipping, speechDefaults, speechConcurrency', returnInlineAudio: 'optional boolean; defaults true for small audio, set false for long-form responses so durable resource links remain authoritative', idempotencyKey: 'string alias for requestId', requestId: 'string', parentFolderId: 'optional Drive folder id', callerNote: 'optional string'},
+        output: {ok: 'true', status: 'completed', renderer: 'home-center-deterministic-audio-v1', primaryOutput: 'inline playable audio plus durable Drive ref', speech: 'Cartesia speech provenance with resolved character profile, exact segment speaker ownership, emotion, speed, volume, pitch, duration ratio, sequence metadata, and take metadata', outputs: 'array with name, MIME, duration, sampleRate, channels, codec, bytes, SHA-256, readback hash, peak, LUFS, clipping, durable ref, ChatGPT file ref', manifest: 'verified JSON manifest artifact', noAgentRuntime: 'true'},
+        agentRecipe: {
+          whenUserSays: 'Render procedural sound effects, ambience, foley, layered audio beds, stems, waveform, or spectrogram directly from ChatGPT.',
+          prefer: 'Call drive_operation with operation=audio.render. Keep scriptText as the Home Center JSON audio DSL; use speech/audition/speech_sequence recipe nodes for direct Cartesia speech, separate emotional contexts, and long-form attributed dialogue. Do not use Command Center, Codex, workers, GitHub Actions, or a newly exposed top-level MCP tool.',
+          verification: 'Treat ok=true/status=completed, verified output/readback hashes, non-silent metrics, and the returned text receipt plus resource_link as authoritative. Inline audio is optional and size-bounded.',
+        },
+      },
+      'audio.render_artifacts': {
+        summary: 'Read back audio.render durable artifact refs through Home Center MCP Google OAuth, verify byte count/SHA-256 against expected receipt metadata, and return redacted container/header evidence. This is the direct verifier for ChatGPT-side acceptance and does not expose Drive OAuth tokens or signed URLs.',
+        write: false,
+        requiredScopes: ['https://www.googleapis.com/auth/drive'],
+        input: {artifactRefs: 'array of drive:// refs returned by audio.render', expected: 'optional array with durableRef/ref, byteCount, and sha256 values from the render receipt', decodeCheck: 'optional boolean; when true Home Center decodes WAV directly and encoded audio with deployed FFmpeg after authorized Drive readback'},
+        output: {ok: 'boolean', artifactCount: 'number', decodeCheck: 'boolean', artifacts: 'array with name, MIME, byteCount, sha256, match booleans, WAV/OGG/PNG header evidence, and optional decodeCheck evidence'},
+      },
+      'audio.render_status': {
+        summary: 'Read the idempotency/audit status for an audio.render request without invoking Cartesia, writing Drive, Command Center, Codex, workers, or agents. Use after a client timeout before retrying long-form speech.',
+        write: false,
+        requiredScopes: [],
+        input: {requestId: 'audio.render idempotency key / requestId'},
+        output: {ok: 'boolean', status: 'missing|running|completed|failed', requestId: 'string', result: 'completed receipt when available'},
+      },
+      'tts.synthesize': {
+        summary: 'Synthesize one or more speaker segments with Cartesia directly, stitch them into one audio file, save it as a private Drive artifact, verify readback byte count and SHA-256, and audit the write. No Command Center job or worker is involved.',
+        write: true,
+        requiresRequestId: true,
+        requiredScopes: ['https://www.googleapis.com/auth/drive'],
+        input: {text: 'string for single-speaker synthesis, or omit when segments is supplied', segments: 'optional array of {speaker,text,voiceName,voiceId,modelId,pitchSemitones}; segments are synthesized separately and stitched in order', voiceName: 'optional default Cartesia voice name, default Katie - Friendly Fixer', voiceId: 'optional default Cartesia voice id', modelId: 'optional default Cartesia model id', pitchSemitones: 'optional tempo-preserving pitch shift default, finite number -12 through 12, default 0', format: 'optional wav or raw, default wav', sampleRate: 'optional number, default 24000', pauseMs: 'optional silence between stitched segments, default 0', name: 'optional Drive filename', parentFolderId: 'optional Drive folder id', requestId: 'string', callerNote: 'optional string'},
+        output: {provider: 'cartesia', fileId: 'string', webViewLink: 'string', byteCount: 'number', sha256: 'string', readbackByteCount: 'number', readbackSha256: 'string', verified: 'boolean', segmentCount: 'number', segments: 'array', voiceName: 'string', modelId: 'string', audit: 'object'},
+        agentRecipe: {
+          whenUserSays: 'Generate TTS, make speech, narrate text, produce a Cartesia audio file, or render multiple speakers into one stitched audio artifact from ChatGPT.',
+          prefer: 'Call cartesia_synthesize directly, or drive_operation with operation=tts.synthesize when the top-level alias is unavailable. Return the Drive link and verification metadata to the user; do not inline Base64 audio in chat. Do not create a Command Center job for Cartesia synthesis.',
+          verification: 'Treat verified=true with matching byteCount/SHA-256 readback and the returned segmentCount/segments as the acceptance signal.',
         },
       },
       workbook_import_xlsx: {
@@ -2680,6 +4237,8 @@ function driveOperationRegistry() {
         requiredScopes: ['https://www.googleapis.com/auth/drive'],
         input: {fileId: 'string', newName: 'string', requestId: 'string', callerNote: 'optional string'},
       },
+      ...githubAdminOperationEntries(),
+      ...droobiedooContextOperationEntries(),
       ...simulationOperationRegistry().operations,
       ...commandCenterDriveOperationEntries(),
     },
@@ -2729,19 +4288,7 @@ async function readDriveBinaryChunkOperation({google, auth, args = {}}) {
     throw Object.assign(new Error('length must be an integer between 1 and 262144 bytes.'), {status: 400});
   }
   if (offset >= totalSize) {
-    return {
-      fileId,
-      name: metadata.name || '',
-      mimeType: metadata.mimeType || 'application/octet-stream',
-      offset,
-      byteCount: 0,
-      totalSize,
-      nextOffset: null,
-      eof: true,
-      chunkBase64: '',
-      chunkSha256: createHash('sha256').update(Buffer.alloc(0)).digest('hex'),
-      metadata: chatGptDriveFile(metadata),
-    };
+    return {fileId, name: metadata.name || '', mimeType: metadata.mimeType || 'application/octet-stream', offset, byteCount: 0, totalSize, nextOffset: null, eof: true, chunkBase64: '', chunkSha256: createHash('sha256').update(Buffer.alloc(0)).digest('hex'), metadata: chatGptDriveFile(metadata)};
   }
   const end = Math.min(totalSize - 1, offset + length - 1);
   const downloaded = await drive.files.get(
@@ -2754,23 +4301,366 @@ async function readDriveBinaryChunkOperation({google, auth, args = {}}) {
     throw Object.assign(new Error('Drive binary range read returned ' + chunk.length + ' bytes; expected ' + expectedBytes + '.'), {status: 502});
   }
   const nextOffset = offset + chunk.length;
-  return {
-    fileId,
-    name: metadata.name || '',
-    mimeType: metadata.mimeType || 'application/octet-stream',
-    offset,
-    byteCount: chunk.length,
-    totalSize,
-    nextOffset: nextOffset < totalSize ? nextOffset : null,
-    eof: nextOffset >= totalSize,
-    chunkBase64: chunk.toString('base64'),
-    chunkSha256: createHash('sha256').update(chunk).digest('hex'),
-    driveMd5Checksum: metadata.md5Checksum || '',
-    metadata: chatGptDriveFile(metadata),
-  };
+  return {fileId, name: metadata.name || '', mimeType: metadata.mimeType || 'application/octet-stream', offset, byteCount: chunk.length, totalSize, nextOffset: nextOffset < totalSize ? nextOffset : null, eof: nextOffset >= totalSize, chunkBase64: chunk.toString('base64'), chunkSha256: createHash('sha256').update(chunk).digest('hex'), driveMd5Checksum: metadata.md5Checksum || '', metadata: chatGptDriveFile(metadata)};
 }
 
-async function driveOperationRunOperation({google, admin, auth, user, extra = null, args = {}}) {
+const AUDIO_INGEST_BUCKET = process.env.HOME_CENTER_GENERATED_BUCKET || 'home-center-generated';
+const AUDIO_INGEST_EXTENSIONS = /\.(wav|mp3|ogg|flac|m4a|aac|opus)$/i;
+const AUDIO_INGEST_MAX_BYTES = Number(process.env.HOME_CENTER_AUDIO_INGEST_MAX_BYTES || 512 * 1024 * 1024);
+const audioIngestStorage = new Storage();
+
+function sanitizeAudioIngestSegment(value, fallback = 'item') {
+  const clean = safeText(String(value || ''), 240).replace(/[^A-Za-z0-9_.@-]+/g, '_').replace(/^_+|_+$/g, '');
+  return clean || fallback;
+}
+
+function normalizedAudioIngestStage(value) {
+  const stage = safeText(value, 80).toLowerCase() || 'unclassified';
+  if (!['finals', 'parts', 'probes', 'rejected', 'unclassified'].includes(stage)) {
+    throw Object.assign(new Error('stage must be finals, parts, probes, rejected, or unclassified.'), {status: 400});
+  }
+  return stage;
+}
+
+function validatedAudioIngestObjectName(value) {
+  const name = safeText(value, 1024);
+  if (!name.startsWith('audio/') || name.includes('\0') || name.split('/').some((part) => part === '.' || part === '..')) {
+    throw Object.assign(new Error('objectName must be a safe path under audio/.'), {status: 400});
+  }
+  return name;
+}
+
+function hashReadableStream(stream) {
+  return new Promise((resolve, reject) => {
+    const hash = createHash('sha256');
+    let byteCount = 0;
+    stream.on('data', (chunk) => {
+      const bytes = Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk);
+      byteCount += bytes.length;
+      hash.update(bytes);
+    });
+    stream.on('end', () => resolve({byteCount, sha256: hash.digest('hex')}));
+    stream.on('error', reject);
+  });
+}
+
+function compareAudioIngestFileIds(left, right) {
+  const a = safeText(left, 220);
+  const b = safeText(right, 220);
+  return a < b ? -1 : a > b ? 1 : 0;
+}
+
+function normalizedAudioIngestBatchId(value) {
+  const raw = safeText(value, 180);
+  if (!raw) throw Object.assign(new Error('batchId is required for indexed audio ingestion.'), {status: 400});
+  return sanitizeAudioIngestSegment(raw, 'batch');
+}
+
+async function readAudioIndexJson(file) {
+  const chunks = [];
+  for await (const chunk of file.createReadStream()) chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk));
+  const bytes = Buffer.concat(chunks);
+  if (bytes.length > 8 * 1024 * 1024) throw Object.assign(new Error('Audio index object exceeds the 8 MiB safety limit.'), {status: 502});
+  let parsed;
+  try {
+    parsed = JSON.parse(bytes.toString('utf8'));
+  } catch (err) {
+    throw Object.assign(new Error('Audio index object is not valid JSON.'), {status: 502, cause: err});
+  }
+  return {bytes, parsed, sha256: createHash('sha256').update(bytes).digest('hex')};
+}
+
+function sameAudioIndexIdentity(existing, expected) {
+  return existing && expected &&
+    existing.source && expected.source &&
+    existing.destination && expected.destination &&
+    safeText(existing.source.fileId, 220) === safeText(expected.source.fileId, 220) &&
+    safeText(existing.destination.objectName, 1024) === safeText(expected.destination.objectName, 1024) &&
+    safeText(existing.destination.sha256, 64).toLowerCase() === safeText(expected.destination.sha256, 64).toLowerCase() &&
+    Number(existing.destination.byteCount || 0) === Number(expected.destination.byteCount || 0);
+}
+
+async function writeImmutableAudioIndex(bucket, objectName, payload, createdFiles, identityCheck = sameAudioIndexIdentity) {
+  const file = bucket.file(objectName);
+  const [exists] = await file.exists();
+  if (exists) {
+    const existing = await readAudioIndexJson(file);
+    if (!identityCheck(existing.parsed, payload)) {
+      throw Object.assign(new Error('Audio bucket index already exists with conflicting provenance: ' + objectName), {status: 409});
+    }
+    return {objectName, storageRef: 'gs://' + AUDIO_INGEST_BUCKET + '/' + objectName, byteCount: existing.bytes.length, sha256: existing.sha256, reused: true};
+  }
+  const bytes = Buffer.from(JSON.stringify(payload, null, 2) + '\n', 'utf8');
+  await pipeline(
+    Readable.from([bytes]),
+    file.createWriteStream({
+      resumable: false,
+      validation: false,
+      preconditionOpts: {ifGenerationMatch: 0},
+      metadata: {contentType: 'application/json', metadata: {indexSchema: safeText(payload.schemaVersion, 80), sourceDriveFileId: safeText(payload.source && payload.source.fileId, 220)}},
+    }),
+  );
+  createdFiles.push(file);
+  const readback = await readAudioIndexJson(file);
+  if (readback.bytes.length !== bytes.length || readback.sha256 !== createHash('sha256').update(bytes).digest('hex')) {
+    throw Object.assign(new Error('Audio bucket index failed readback verification: ' + objectName), {status: 502});
+  }
+  return {objectName, storageRef: 'gs://' + AUDIO_INGEST_BUCKET + '/' + objectName, byteCount: readback.bytes.length, sha256: readback.sha256, reused: false};
+}
+
+async function writeAudioIngestIndexes({bucket, batchId, fileId, ownerSegment, project, stage, source, destination}) {
+  const createdFiles = [];
+  const base = {
+    schemaVersion: 'home-center.audio-index.v1',
+    indexedAt: new Date().toISOString(),
+    source,
+    destination,
+    classification: {ownerEmail: destination.ownerEmail, project, stage},
+    verification: {verified: true, byteCountMatch: source.byteCount === destination.byteCount, sha256Match: source.sha256 === destination.sha256},
+    retention: {driveMutated: false, driveTrashEligible: false, status: 'preserved-pending-sealed-batch-playback-and-explicit-approval'},
+  };
+  const names = {
+    byDriveId: 'indexes/audio/v1/by-drive-id/' + sanitizeAudioIngestSegment(fileId, 'drive-file') + '.json',
+    catalog: ['indexes/audio/v1/catalog', ownerSegment, project, stage, sanitizeAudioIngestSegment(fileId, 'drive-file') + '.json'].join('/'),
+    batchItem: ['indexes/audio/v1/batches', batchId, 'items', sanitizeAudioIngestSegment(fileId, 'drive-file') + '.json'].join('/'),
+  };
+  try {
+    const byDriveId = await writeImmutableAudioIndex(bucket, names.byDriveId, base, createdFiles);
+    const catalog = await writeImmutableAudioIndex(bucket, names.catalog, base, createdFiles);
+    const batchItem = await writeImmutableAudioIndex(bucket, names.batchItem, {...base, batchId}, createdFiles);
+    return {byDriveId, catalog, batchItem};
+  } catch (err) {
+    await Promise.allSettled(createdFiles.map((file) => file.delete({ignoreNotFound: true})));
+    throw err;
+  }
+}
+
+async function finalizeDriveAudioIngestBatchOperation({admin, user, args = {}, storage = audioIngestStorage, recordAudit = recordActionAudit}) {
+  if (args.approved !== true) {
+    throw Object.assign(new Error('audio.finalize_ingest_batch requires approved=true.'), {status: 409});
+  }
+  const requestId = createRequestId(args.requestId || args.idempotencyKey);
+  const batchId = normalizedAudioIngestBatchId(args.batchId);
+  const expectedCount = Number(args.expectedCount);
+  const expectedBytes = Number(args.expectedBytes);
+  const expectedFileIds = Array.isArray(args.expectedFileIds) ? [...new Set(args.expectedFileIds.map(safeDriveFileId))].sort(compareAudioIngestFileIds) : [];
+  if (!Number.isSafeInteger(expectedCount) || expectedCount < 1 || expectedFileIds.length !== expectedCount) {
+    throw Object.assign(new Error('expectedFileIds must contain exactly expectedCount unique Drive file IDs.'), {status: 400});
+  }
+  if (!Number.isSafeInteger(expectedBytes) || expectedBytes < 1) {
+    throw Object.assign(new Error('expectedBytes must be a positive safe integer.'), {status: 400});
+  }
+  const bucketName = AUDIO_INGEST_BUCKET;
+  const bucket = storage.bucket(bucketName);
+  const prefix = 'indexes/audio/v1/batches/' + batchId + '/items/';
+  const [files] = await bucket.getFiles({prefix});
+  const entries = [];
+  for (const file of files) {
+    if (!file.name.endsWith('.json')) continue;
+    const item = (await readAudioIndexJson(file)).parsed;
+    if (safeText(item.batchId, 180) !== batchId || !item.verification || item.verification.verified !== true || !sameAudioIndexIdentity(item, item)) {
+      throw Object.assign(new Error('Batch contains an invalid or unverified item index: ' + file.name), {status: 502});
+    }
+    if (!item.verification.byteCountMatch || !item.verification.sha256Match) {
+      throw Object.assign(new Error('Batch item hash/byte verification flags are not true: ' + file.name), {status: 502});
+    }
+    entries.push(item);
+  }
+  entries.sort((a, b) => compareAudioIngestFileIds(a.source.fileId, b.source.fileId));
+  const actualFileIds = entries.map((entry) => safeText(entry.source.fileId, 220));
+  const actualBytes = entries.reduce((sum, entry) => sum + Number(entry.destination.byteCount || 0), 0);
+  if (entries.length !== expectedCount || actualBytes !== expectedBytes || JSON.stringify(actualFileIds) !== JSON.stringify(expectedFileIds)) {
+    throw Object.assign(new Error('Batch index does not exactly match expected Drive IDs, count, and bytes.'), {status: 409});
+  }
+  const manifestPayload = {
+    schemaVersion: 'home-center.audio-ingest-batch.v1',
+    batchId,
+    sealedAt: new Date().toISOString(),
+    ownerEmail: safeText(user && user.email, 320).toLowerCase(),
+    expected: {fileIds: expectedFileIds, itemCount: expectedCount, byteCount: expectedBytes},
+    actual: {fileIds: actualFileIds, itemCount: entries.length, byteCount: actualBytes},
+    verification: {verified: true, exactFileIds: true, exactItemCount: true, exactByteCount: true, everyItemReadbackVerified: true},
+    driveCleanup: {driveTrashEligible: false, status: 'blocked-pending-player-range-playback-and-explicit-human-approval'},
+    entries,
+  };
+  const manifestName = 'indexes/audio/v1/batches/' + batchId + '/manifest.json';
+  const createdFiles = [];
+  let manifest;
+  try {
+    manifest = await writeImmutableAudioIndex(bucket, manifestName, manifestPayload, createdFiles, (existing, expected) =>
+      safeText(existing && existing.batchId, 180) === expected.batchId &&
+      existing && existing.verification && existing.verification.verified === true &&
+      JSON.stringify(existing.actual || {}) === JSON.stringify(expected.actual || {}) &&
+      JSON.stringify(existing.expected || {}) === JSON.stringify(expected.expected || {}));
+  } catch (err) {
+    await Promise.allSettled(createdFiles.map((file) => file.delete({ignoreNotFound: true})));
+    throw err;
+  }
+  await recordAudit(admin, user, 'audio.finalize_ingest_batch', batchId, 'Sealed verified audio ingest batch index at ' + manifest.storageRef + '; Drive remains preserved.', requestId);
+  return {ok: true, sealed: true, verified: true, requestId, batchId, itemCount: entries.length, byteCount: actualBytes, manifest, driveTrashEligible: false, driveMutated: false};
+}
+
+async function ingestDriveAudioOperation({google, admin, auth, user, args = {}, storage = audioIngestStorage, recordAudit = recordActionAudit}) {
+  if (args.approved !== true) {
+    throw Object.assign(new Error('audio.ingest_drive requires approved=true. Drive remains untouched.'), {status: 409});
+  }
+  const requestId = createRequestId(args.requestId || args.idempotencyKey);
+  const batchId = normalizedAudioIngestBatchId(args.batchId);
+  const fileId = safeDriveFileId(args.fileId);
+  const ownerEmail = safeText((user && user.email) || args.ownerEmail, 320).toLowerCase();
+  if (!ownerEmail) throw Object.assign(new Error('An authenticated owner email is required.'), {status: 401});
+  const drive = google.drive({version: 'v3', auth});
+  const metadata = (await drive.files.get({
+    fileId,
+    fields: 'id,name,mimeType,size,md5Checksum,modifiedTime,webViewLink,parents',
+    supportsAllDrives: true,
+  })).data || {};
+  const mimeType = safeText(metadata.mimeType, 160) || 'application/octet-stream';
+  const sourceName = safeText(metadata.name, 500) || fileId;
+  if (!/^audio\//i.test(mimeType) && !AUDIO_INGEST_EXTENSIONS.test(sourceName)) {
+    throw Object.assign(new Error('audio.ingest_drive only accepts stored audio files.'), {status: 415});
+  }
+  const totalSize = Number(metadata.size || 0);
+  if (!Number.isSafeInteger(totalSize) || totalSize < 1 || totalSize > AUDIO_INGEST_MAX_BYTES) {
+    throw Object.assign(new Error('Drive audio size is missing, empty, or exceeds the ingest limit.'), {status: 413});
+  }
+  if (args.expectedSize !== undefined && Number(args.expectedSize) !== totalSize) {
+    throw Object.assign(new Error('Drive byte count does not match expectedSize.'), {status: 409});
+  }
+  const driveMd5 = safeText(metadata.md5Checksum, 64).toLowerCase();
+  const expectedDriveMd5 = safeText(args.expectedDriveMd5, 64).toLowerCase();
+  if (expectedDriveMd5 && driveMd5 !== expectedDriveMd5) {
+    throw Object.assign(new Error('Drive MD5 does not match expectedDriveMd5.'), {status: 409});
+  }
+  const project = sanitizeAudioIngestSegment(args.project, 'unclassified');
+  const stage = normalizedAudioIngestStage(args.stage);
+  const sourcePath = safeText(args.sourcePath, 1000);
+  const sharedWith = Array.isArray(args.sharedWith) ? args.sharedWith.map((email) => safeText(email, 320).toLowerCase()).filter(Boolean) : [];
+  const ownerSegment = sanitizeAudioIngestSegment(ownerEmail, 'legacy');
+  const nameSegment = sanitizeAudioIngestSegment(sourceName, 'audio.bin');
+  const defaultObjectName = ['audio', ownerSegment, 'drive-import', project, stage, fileId + '-' + nameSegment].join('/');
+  const objectName = validatedAudioIngestObjectName(args.objectName || defaultObjectName);
+  const bucketName = AUDIO_INGEST_BUCKET;
+  const bucket = storage.bucket(bucketName);
+  const destination = bucket.file(objectName);
+  const [destinationExists] = await destination.exists();
+  if (destinationExists) {
+    const [existingMetadata] = await destination.getMetadata();
+    const custom = existingMetadata && existingMetadata.metadata || {};
+    const sameSource = safeText(custom.sourceDriveFileId, 220) === fileId;
+    const sameSize = Number(existingMetadata && existingMetadata.size || 0) === totalSize;
+    const sameMd5 = !driveMd5 || !safeText(custom.sourceDriveMd5, 64) || safeText(custom.sourceDriveMd5, 64).toLowerCase() === driveMd5;
+    if (!sameSource || !sameSize || !sameMd5) {
+      throw Object.assign(new Error('Canonical destination already exists with different Drive provenance.'), {status: 409});
+    }
+    const readback = await hashReadableStream(destination.createReadStream());
+    const expectedSha256 = safeText(custom.sha256, 64).toLowerCase();
+    if (!expectedSha256 || readback.byteCount !== totalSize || readback.sha256 !== expectedSha256) {
+      throw Object.assign(new Error('Existing canonical destination failed readback verification.'), {status: 502});
+    }
+    const sourceReceipt = {fileId, name: sourceName, mimeType, byteCount: totalSize, sha256: readback.sha256, driveMd5Checksum: driveMd5, sourcePath, webViewLink: metadata.webViewLink || ''};
+    const destinationReceipt = {bucket: bucketName, objectName, storageRef: 'gs://' + bucketName + '/' + objectName, byteCount: readback.byteCount, sha256: readback.sha256, ownerEmail, project, stage};
+    const indexes = await writeAudioIngestIndexes({bucket, batchId, fileId, ownerSegment, project, stage, source: sourceReceipt, destination: destinationReceipt});
+    return {
+      ok: true,
+      verified: true,
+      reused: true,
+      requestId,
+      batchId,
+      source: sourceReceipt,
+      destination: destinationReceipt,
+      indexes,
+      readback,
+      driveMutated: false,
+    };
+  }
+
+  const tempObjectName = ['temp', 'audio-ingest', sanitizeAudioIngestSegment(requestId, 'request'), randomUUID() + '.part'].join('/');
+  const tempFile = bucket.file(tempObjectName);
+  let destinationCreated = false;
+  try {
+    const sourceHash = createHash('sha256');
+    let sourceByteCount = 0;
+    const hashTap = new Transform({
+      transform(chunk, encoding, callback) {
+        const bytes = Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk, encoding);
+        sourceByteCount += bytes.length;
+        sourceHash.update(bytes);
+        callback(null, bytes);
+      },
+    });
+    const downloaded = await drive.files.get(
+      {fileId, alt: 'media', supportsAllDrives: true},
+      {responseType: 'stream'},
+    );
+    if (!downloaded.data || typeof downloaded.data.pipe !== 'function') {
+      throw Object.assign(new Error('Drive did not return a readable audio stream.'), {status: 502});
+    }
+    await pipeline(
+      downloaded.data,
+      hashTap,
+      tempFile.createWriteStream({
+        resumable: false,
+        validation: false,
+        metadata: {contentType: 'application/octet-stream', metadata: {ingestStatus: 'staging', requestId, sourceDriveFileId: fileId}},
+      }),
+    );
+    const sourceSha256 = sourceHash.digest('hex');
+    if (sourceByteCount !== totalSize) {
+      throw Object.assign(new Error('Drive stream byte count did not match Drive metadata.'), {status: 502});
+    }
+    const stagedReadback = await hashReadableStream(tempFile.createReadStream());
+    if (stagedReadback.byteCount !== sourceByteCount || stagedReadback.sha256 !== sourceSha256) {
+      throw Object.assign(new Error('Staged GCS object failed byte-count/SHA-256 verification.'), {status: 502});
+    }
+
+    await tempFile.copy(destination, {preconditionOpts: {ifGenerationMatch: 0}});
+    destinationCreated = true;
+    const customMetadata = {
+      ownerEmail,
+      sharedWith: JSON.stringify(sharedWith),
+      requestId,
+      project,
+      stage,
+      sha256: sourceSha256,
+      sourceDriveFileId: fileId,
+      sourceDriveMd5: driveMd5,
+      sourceDrivePath: sourcePath,
+      sourceDriveName: sourceName,
+      ingestStatus: 'verified',
+      migrationPolicy: 'drive-preserved-pending-explicit-cleanup',
+    };
+    await destination.setMetadata({contentType: mimeType, metadata: customMetadata});
+    const readback = await hashReadableStream(destination.createReadStream());
+    if (readback.byteCount !== sourceByteCount || readback.sha256 !== sourceSha256) {
+      throw Object.assign(new Error('Canonical GCS destination failed readback verification.'), {status: 502});
+    }
+    const sourceReceipt = {fileId, name: sourceName, mimeType, byteCount: sourceByteCount, sha256: sourceSha256, driveMd5Checksum: driveMd5, sourcePath, webViewLink: metadata.webViewLink || ''};
+    const destinationReceipt = {bucket: bucketName, objectName, storageRef: 'gs://' + bucketName + '/' + objectName, byteCount: readback.byteCount, sha256: readback.sha256, ownerEmail, project, stage, metadata: customMetadata};
+    const indexes = await writeAudioIngestIndexes({bucket, batchId, fileId, ownerSegment, project, stage, source: sourceReceipt, destination: destinationReceipt});
+    destinationCreated = false;
+    await recordAudit(admin, user, 'audio.ingest_drive', fileId, 'Ingested verified Drive audio to gs://' + bucketName + '/' + objectName + ' and wrote bucket indexes without mutating Drive.', requestId);
+    return {
+      ok: true,
+      verified: true,
+      reused: false,
+      requestId,
+      batchId,
+      source: sourceReceipt,
+      destination: destinationReceipt,
+      indexes,
+      readback,
+      driveMutated: false,
+    };
+  } catch (err) {
+    if (destinationCreated) await destination.delete({ignoreNotFound: true}).catch(() => {});
+    throw err;
+  } finally {
+    await tempFile.delete({ignoreNotFound: true}).catch(() => {});
+  }
+}
+
+async function driveOperationRunOperation({google, admin, auth, user, extra = null, googleClientId = '', googleClientSecret = '', githubToken = () => '', githubAdmin = {}, cartesiaApiKey = () => '', args = {}}) {
   const operation = safeText(args.operation || args.type || args.toolName, 120);
   if (!operation) throw Object.assign(new Error('operation is required.'), {status: 400});
   const registry = driveOperationRegistry();
@@ -2786,29 +4676,80 @@ async function driveOperationRunOperation({google, admin, auth, user, extra = nu
     delete operationArgs.command_center_operation;
     delete operationArgs.commandCenterTool;
     delete operationArgs.command_center_tool;
-    const result = await commandCenterOperationRunOperation({extra, args: {operation: compatCommandCenterOperation, args: operationArgs}});
+    const result = await commandCenterOperationRunOperation({google, admin, googleClientId, googleClientSecret, githubToken, extra, args: {operation: compatCommandCenterOperation, args: operationArgs}});
     return {operation, compatibilityRoute: 'drive_operation.command_center', commandCenterOperation: compatCommandCenterOperation, registryVersion: registry.version, completed: true, result: result.result};
   }
+  if (operation.startsWith('droobiedoo.')) {
+    const result = runDroobiedooContextOperation(operation, operationArgs);
+    return {operation, registryVersion: registry.version, completed: true, result};
+  }
   if (operation.startsWith('command_center.')) {
-    const result = await commandCenterOperationRunOperation({extra, args: {operation, args: operationArgs}});
+    const result = await commandCenterOperationRunOperation({google, admin, googleClientId, googleClientSecret, githubToken, extra, args: {operation, args: operationArgs}});
     return {operation, registryVersion: registry.version, completed: true, result: result.result};
+  }
+  if (githubAdminOperationEntries()[operation]) {
+    const result = await githubAdminOperationRunOperation({admin, user, githubAdmin, args: {operation, args: operationArgs}});
+    return {operation, registryVersion: registry.version, completed: true, result};
   }
   if (simulationOperationRegistry().operations[operation]) {
     const result = await simulationOperationRunOperation({admin, user, args: {operation, args: operationArgs}});
     return {operation, registryVersion: registry.version, completed: true, result: result.result};
   }
+  if (operation === 'armory.receipt') {
+    const result = await armoryReceiptOperation({admin, user, args: operationArgs});
+    await recordActionAudit(admin, user, 'armory.receipt', result.receiptId, 'Recorded ' + result.count + ' immutable Armory Range casing(s) for ' + result.item + '.', result.requestId);
+    return {operation, registryVersion: registry.version, completed: true, result};
+  }
+  if (operation === 'armory.recount') {
+    const result = await armoryRecountOperation({admin, user, args: operationArgs});
+    return {operation, registryVersion: registry.version, completed: true, result};
+  }
+  if (operation === 'armory.casing') {
+    const result = await armoryCasingOperation({admin, user, args: operationArgs});
+    return {operation, registryVersion: registry.version, completed: true, result};
+  }
+  if (operation === 'tts.voices') {
+    await requireCreditGatedContext({google, admin, googleClientId, googleClientSecret, extra, user, auth, surface: 'tts.voices'});
+    const result = await cartesiaVoicesOperation({cartesiaApiKey, args: operationArgs});
+    return {operation, registryVersion: registry.version, completed: true, result};
+  }
+  if (operation === 'audio.render') {
+    requireCreditGatedEmail(user && user.email, 'audio.render');
+    const result = await renderAudioOperation({google, admin, auth, user, cartesiaApiKey, args: operationArgs, helpers: {createRequestId, existingAudit, auditWrite, recordActionAudit, safeDriveFileId}});
+    const cleanResult = {...result};
+    const mcpContent = cleanResult._mcpContent;
+    delete cleanResult._mcpContent;
+    return {operation, registryVersion: registry.version, completed: cleanResult.status === 'completed', result: cleanResult, _mcpContent: mcpContent};
+  }
+  if (operation === 'audio.render_artifacts') {
+    const result = await inspectAudioArtifactsOperation({google, auth, args: operationArgs});
+    return {operation, registryVersion: registry.version, completed: true, result};
+  }
+  if (operation === 'audio.render_status') {
+    const requestId = createRequestId(operationArgs.requestId || operationArgs.idempotencyKey);
+    const result = await audioRenderStatusOperation({admin, requestId, helpers: {existingAudit, auditWrite}});
+    return {operation, registryVersion: registry.version, completed: true, result};
+  }
   const workflowId = safeOperationBatchId(args.operationBatchId || operationArgs.operationBatchId || operationArgs.requestId || ('drive-operation-' + randomUUID()));
   const outputs = {};
-  const result = await runDriveWorkflowOperation({google, admin, auth, user, workflowId, operation: {type: operation, ...operationArgs}, index: 0, outputs});
+  const result = await runDriveWorkflowOperation({google, admin, auth, user, workflowId, operation: {type: operation, ...operationArgs}, index: 0, outputs, cartesiaApiKey});
   return {operation, registryVersion: registry.version, workflowId, completed: result.status === 'completed', outputKey: result.outputKey || '', result: result.result, outputs};
 }
 
-async function runDriveWorkflowOperation({google, admin, auth, user, workflowId, operation, index, outputs}) {
+async function runDriveWorkflowOperation({google, admin, auth, user, workflowId, operation, index, outputs, cartesiaApiKey = () => ''}) {
   const type = safeText(operation.type || operation.toolName || operation.tool, 120);
   const requestId = workflowOperationRequestId(workflowId, operation, index);
   const callerNote = safeText(operation.callerNote, 800) || ('Workflow ' + workflowId + ' step ' + (index + 1) + ': ' + type);
   if (type === 'drive_read_binary_chunk') {
     const result = await readDriveBinaryChunkOperation({google, auth, args: operation});
+    return {index, type, requestId, status: 'completed', result};
+  }
+  if (type === 'audio.ingest_drive') {
+    const result = await ingestDriveAudioOperation({google, admin, auth, user, args: {...operation, requestId}});
+    return {index, type, requestId, status: 'completed', result};
+  }
+  if (type === 'audio.finalize_ingest_batch') {
+    const result = await finalizeDriveAudioIngestBatchOperation({admin, user, args: {...operation, requestId}});
     return {index, type, requestId, status: 'completed', result};
   }
   if (type === 'drive_create_folder') {
@@ -2829,6 +4770,12 @@ async function runDriveWorkflowOperation({google, admin, auth, user, workflowId,
   if (type === 'context_sync.publish_snapshot') {
     const fileId = workflowResolvedId(operation.fileId || operation.targetFileId || operation.fileKey, outputs);
     const result = await publishContextSnapshotOperation({google, admin, auth, user, args: {...operation, fileId, requestId, callerNote, parentFolderId: workflowResolvedId(operation.parentFolderId || operation.parentFolderKey, outputs)}});
+    outputs[workflowOutputKey(operation, index)] = result.fileId || result.id || '';
+    return {index, type, requestId, status: 'completed', outputKey: workflowOutputKey(operation, index), result};
+  }
+  if (type === 'tts.synthesize') {
+    requireCreditGatedEmail(user && user.email, 'tts.synthesize');
+    const result = await synthesizeCartesiaAudioArtifactOperation({google, admin, auth, user, cartesiaApiKey, args: {...operation, requestId, callerNote, parentFolderId: workflowResolvedId(operation.parentFolderId || operation.parentFolderKey, outputs)}});
     outputs[workflowOutputKey(operation, index)] = result.fileId || result.id || '';
     return {index, type, requestId, status: 'completed', outputKey: workflowOutputKey(operation, index), result};
   }
@@ -2874,7 +4821,7 @@ async function runDriveWorkflowOperation({google, admin, auth, user, workflowId,
   throw Object.assign(new Error('Unsupported workflow operation type: ' + type), {status: 400});
 }
 
-async function driveWorkflowRunOperation({google, admin, auth, user, args = {}}) {
+async function driveWorkflowRunOperation({google, admin, auth, user, cartesiaApiKey = () => '', args = {}}) {
   const workflowId = safeOperationBatchId(args.workflowId || args.operationBatchId);
   const operations = Array.isArray(args.operations) ? args.operations.slice(0, 25) : [];
   if (!operations.length) throw Object.assign(new Error('operations must contain at least one operation.'), {status: 400});
@@ -2920,7 +4867,7 @@ async function driveWorkflowRunOperation({google, admin, auth, user, args = {}})
   const results = [];
   try {
     for (let index = 0; index < operations.length; index += 1) {
-      const result = await runDriveWorkflowOperation({google, admin, auth, user, workflowId, operation: operations[index] || {}, index, outputs});
+      const result = await runDriveWorkflowOperation({google, admin, auth, user, workflowId, operation: operations[index] || {}, index, outputs, cartesiaApiKey});
       results.push(result);
       await workflowRef.set({status: 'running', updatedAtMs: nowMs(), outputs, results}, {merge: true});
     }
@@ -2935,10 +4882,10 @@ async function driveWorkflowRunOperation({google, admin, auth, user, args = {}})
   }
 }
 
-function createHomeCenterMcpServer({google, admin, googleClientId, googleClientSecret, githubToken = () => ''}) {
+function createHomeCenterMcpServer({google, admin, googleClientId, googleClientSecret, githubToken = () => '', githubAdmin = {}, cartesiaApiKey = () => ''}) {
   const server = new McpServer({
     name: 'home-center-drive-bridge',
-    version: '0.1.0',
+    version: HOME_CENTER_MCP_SERVER_VERSION,
   });
 
   server.registerTool('health', {
@@ -2950,7 +4897,22 @@ function createHomeCenterMcpServer({google, admin, googleClientId, googleClientS
   }, async () => textResult({
     ok: true,
     service: 'home-center-drive-bridge',
-    version: '0.1.0',
+    version: HOME_CENTER_MCP_SERVER_VERSION,
+    registryVersion: HOME_CENTER_REGISTRY_VERSION,
+    connectorSchemaRevision: HOME_CENTER_CONNECTOR_SCHEMA_REVISION,
+    catalogCacheKey: HOME_CENTER_CONNECTOR_SCHEMA_REVISION,
+    publicMcpResource: MCP_RESOURCE,
+    directFileTools: HOME_CENTER_DIRECT_FILE_TOOLS,
+    directToolContracts: {
+      render_blender_glb: {
+        required: ['idempotencyKey', 'glbFile', 'scriptFile'],
+        binaryInputs: {
+          glbFile: {type: 'string', format: 'binary', contentMediaType: 'model/gltf-binary'},
+          scriptFile: {type: 'string', format: 'binary', contentMediaType: 'text/x-python'},
+        },
+        dispatcherForRefsAndInlineScripts: 'command_center_operation operation=render.blender_glb',
+      },
+    },
     discoverability: {
       noReinstallPath: 'No-Reinstall Discovery Contract: use this health response first; it contains shallow Command Center discovery so agents do not have to drill nested capabilities. Use capabilities only for full operation catalogs.',
       preferredMutationTool: 'drive_operation',
@@ -2968,6 +4930,14 @@ function createHomeCenterMcpServer({google, admin, googleClientId, googleClientS
           staleEnumSchemaCall: {tool: 'drive_operation', operation: 'drive_create_folder', args: {commandCenterOperation: 'health'}},
           followupJobCall: {tool: 'command_center_operation', operation: 'jobs.create_followup', args: {sourceJobId: 'job_...', title: '...', objective: '...', idempotencyKey: 'stable-request-id'}},
           reconnectAdvice: 'If health shows an older registry or drive_operation rejects command_center.* before reaching the backend, reconnect/reindex the Home Drive v4 app link. OAuth refresh alone does not reload tool schema.',
+        },
+      },
+      topLevelDirectTools: {
+        render_blender_glb: {
+          status: 'published',
+          purpose: 'ChatGPT Work Mode host-file upload slots for GLB and Blender Python files.',
+          required: ['idempotencyKey', 'glbFile', 'scriptFile'],
+          connectorSchemaRevision: HOME_CENTER_CONNECTOR_SCHEMA_REVISION,
         },
       },
       commandCenter: {
@@ -3143,6 +5113,82 @@ function createHomeCenterMcpServer({google, admin, googleClientId, googleClientS
     return textResult(await simulationOperationRunOperation({admin, user, args: args || {}}));
   });
 
+  server.registerTool('render_blender_glb', {
+    title: 'Render GLB with Blender',
+    description: 'Top-level file-bearing Blender renderer for ChatGPT Work Mode. Use this instead of command_center_operation when supplying uploaded GLB or Python files; nested dispatcher args cannot activate host file upload slots.',
+    inputSchema: {
+      idempotencyKey: z.string().describe('Stable idempotency key for this render request.'),
+      renderId: z.string().optional().describe('Optional caller-provided render id.'),
+      glbFile: z.file().describe('Required top-level uploaded binary GLB file. This must be a ChatGPT Work Mode host file upload, not a string path, URL, Base64, ref, or JSON descriptor.'),
+      scriptFile: z.file().describe('Required top-level uploaded Blender Python .py file. This must be a ChatGPT Work Mode host file upload, not a string path, URL, Base64, ref, or JSON descriptor.'),
+      settings: z.record(z.string(), z.any()).optional().describe('Optional renderer settings already supported by the Blender backend.'),
+      executionContract: z.record(z.string(), z.any()).optional().describe('Optional execution contract metadata for the Blender backend.'),
+      cache: z.boolean().optional().describe('Use cached render artifacts when the backend cache key already exists. Defaults to true.'),
+    },
+    securitySchemes: MCP_OAUTH_SECURITY_SCHEMES,
+    _meta: {securitySchemes: MCP_OAUTH_SECURITY_SCHEMES},
+    annotations: {readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false},
+  }, async (args, extra) => mcpToolResult(await (async () => { const context = await requestGoogleContext(extra, google, admin, googleClientId, googleClientSecret); return attachRenderGifMcpContent({operation: 'render.blender_glb', toolName: 'render_blender_glb', commandCenterMcpUrl: COMMAND_CENTER_MCP_URL, result: await renderBlenderGlbBridge({admin, extra, args: args || {}})}, {google, auth: context.auth, parentFolderId: safeText(args && args.parentFolderId, 220)}); })()));
+
+  server.registerTool('cartesia_voices', {
+    title: 'Cartesia voices',
+    description: 'List or search Cartesia voices by calling the hosted Cartesia provider directly from Home Center MCP. This does not create or inspect Command Center jobs, workers, leases, or Codex sessions.',
+    inputSchema: {
+      query: z.string().optional().describe('Optional text passed to Cartesia as q to search voice names, descriptions, and voice IDs.'),
+      q: z.string().optional().describe('Alias for query.'),
+      limit: z.number().int().min(1).max(100).default(100).describe('Cartesia provider page size, 1-100.'),
+      pageToken: z.string().optional().describe('Alias for Cartesia starting_after pagination cursor.'),
+      startingAfter: z.string().optional().describe('Cartesia starting_after voice ID cursor.'),
+      endingBefore: z.string().optional().describe('Cartesia ending_before voice ID cursor.'),
+      language: z.string().optional().describe('Cartesia language or language-locale filter such as ru, en, or en_GB.'),
+      locale: z.string().optional().describe('Language-locale alias passed to Cartesia as language when language is not supplied.'),
+      gender: z.enum(['masculine', 'feminine', 'gender_neutral']).optional().describe('Cartesia gender presentation filter.'),
+      isOwner: z.boolean().optional().describe('When true, return only voices owned by the Cartesia organization.'),
+      accent: z.string().optional().describe('Optional accent metadata filter applied to the returned Cartesia page when accent metadata is present.'),
+      country: z.string().optional().describe('Optional country metadata filter applied to the returned Cartesia page when country metadata is present.'),
+      includePreviewUrl: z.boolean().optional().describe('Include Cartesia preview_file_url expansion when available. Defaults to true.'),
+    },
+    securitySchemes: MCP_OAUTH_SECURITY_SCHEMES,
+    _meta: {securitySchemes: MCP_OAUTH_SECURITY_SCHEMES},
+    annotations: {readOnlyHint: true, openWorldHint: true},
+  }, async (args, extra) => {
+    await requireCreditGatedContext({google, admin, googleClientId, googleClientSecret, extra, surface: 'cartesia_voices'});
+    return textResult(await cartesiaVoicesOperation({cartesiaApiKey, args: args || {}}));
+  });
+
+  server.registerTool('cartesia_synthesize', {
+    title: 'Cartesia synthesize',
+    description: 'Synthesize one or more speaker segments with Cartesia directly, stitch them into one audio file, save it as a private Drive artifact, verify readback byte count and SHA-256, and audit the write. This does not use Command Center jobs or workers.',
+    inputSchema: {
+      text: z.string().optional().describe('Single-speaker text. Omit when segments is supplied.'),
+      segments: z.array(z.object({
+        speaker: z.string().optional(),
+        text: z.string(),
+        voiceName: z.string().optional(),
+        voiceId: z.string().optional(),
+        modelId: z.string().optional(),
+        pitchSemitones: z.number().min(-12).max(12).optional().describe('Optional per-segment tempo-preserving pitch shift override in semitones, finite JSON number from -12 to 12.'),
+      })).optional().describe('Ordered speaker segments. Each segment is synthesized separately with its own optional Cartesia voice and pitch shift, then stitched into one output file.'),
+      voiceName: z.string().optional().describe('Default Cartesia voice name for segments that do not specify one.'),
+      voiceId: z.string().optional().describe('Default Cartesia voice id for segments that do not specify one.'),
+      modelId: z.string().optional().describe('Default Cartesia model id.'),
+      pitchSemitones: z.number().min(-12).max(12).optional().default(0).describe('Optional tempo-preserving pitch shift in semitones for all segments unless a segment overrides it. Must be a finite JSON number from -12 to 12.'),
+      format: z.enum(['wav', 'raw']).optional().default('wav'),
+      sampleRate: z.number().int().min(8000).max(48000).default(24000),
+      pauseMs: z.number().int().min(0).max(5000).optional().describe('Optional silence inserted between stitched segments. Defaults to 0.'),
+      name: z.string().optional().describe('Optional Drive filename.'),
+      parentFolderId: z.string().optional().describe('Optional Drive folder ID for the audio artifact.'),
+      callerNote: z.string().optional().describe('Human-readable summary for the audit log.'),
+      requestId: z.string().describe('Stable idempotency/audit request id. Required.'),
+    },
+    securitySchemes: MCP_OAUTH_SECURITY_SCHEMES,
+    _meta: {securitySchemes: MCP_OAUTH_SECURITY_SCHEMES},
+    annotations: {readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: true},
+  }, async (args, extra) => {
+    const {auth, user} = await requireCreditGatedContext({google, admin, googleClientId, googleClientSecret, extra, surface: 'cartesia_synthesize'});
+    return textResult(await synthesizeCartesiaAudioArtifactOperation({google, admin, auth, user, cartesiaApiKey, args: args || {}}));
+  });
+
   server.registerTool('command_center_operation', {
     title: 'Command Center operation',
     description: 'Invoke Command Center dispatch and job-control operations through the already-connected Home Center MCP app. Use this when ChatGPT needs to create a follow-up worker job, inspect events/artifacts, answer worker questions, or authorize a mutation without relying on a separate Command Center connector namespace.',
@@ -3153,7 +5199,7 @@ function createHomeCenterMcpServer({google, admin, googleClientId, googleClientS
     securitySchemes: MCP_OAUTH_SECURITY_SCHEMES,
     _meta: {securitySchemes: MCP_OAUTH_SECURITY_SCHEMES},
     annotations: {readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: true},
-  }, async (args, extra) => textResult(await commandCenterOperationRunOperation({extra, args: args || {}})));
+  }, async (args, extra) => mcpToolResult(await commandCenterOperationRunOperation({google, admin, googleClientId, googleClientSecret, githubToken, extra, args: args || {}})));
 
 
 
@@ -3168,7 +5214,11 @@ function createHomeCenterMcpServer({google, admin, googleClientId, googleClientS
     annotations: {readOnlyHint: true, openWorldHint: false},
   }, async () => textResult({
     service: 'home-center-drive-bridge',
-    version: '0.1.0',
+    version: HOME_CENTER_MCP_SERVER_VERSION,
+    registryVersion: HOME_CENTER_REGISTRY_VERSION,
+    connectorSchemaRevision: HOME_CENTER_CONNECTOR_SCHEMA_REVISION,
+    catalogCacheKey: HOME_CENTER_CONNECTOR_SCHEMA_REVISION,
+    directFileTools: HOME_CENTER_DIRECT_FILE_TOOLS,
     operationRegistryVersion: driveOperationRegistry().version,
     simulationOperationRegistryVersion: simulationOperationRegistry().version,
     commandCenterOperationRegistryVersion: commandCenterOperationRegistry().version,
@@ -3260,7 +5310,7 @@ function createHomeCenterMcpServer({google, admin, googleClientId, googleClientS
     tools: [
       'health', 'capabilities', 'auth_status', 'storage_status', 'audit_status',
       'drive_search', 'drive_read', 'sheets_search', 'sheets_read', 'drive_list_folder', 'drive_get_metadata',
-      'simulation_operation', 'command_center_operation',
+      'simulation_operation', 'command_center_operation', 'cartesia_voices', 'cartesia_synthesize',
       'drive_operation', 'drive_create_folder', 'docs_create', 'workbook_import_xlsx', 'sheets_create', 'sheets_update_values', 'drive_move', 'drive_rename',
       'drive_plan_organize', 'drive_execute_plan',
       'index_folder', 'index_status',
@@ -3268,9 +5318,11 @@ function createHomeCenterMcpServer({google, admin, googleClientId, googleClientS
       'audit_log', 'audit_get',
       'docs_append',
       'github_get_repo', 'github_read_file', 'github_list_branches',
+      'github_admin_auth_status', 'github_admin_create_repo', 'github_admin_configure_repo', 'github_admin_create_branch', 'github_admin_upsert_file', 'github_admin_create_pull_request', 'github_admin_merge_pull_request', 'github_admin_dispatch_workflow',
       'github_list_issues', 'github_get_issue', 'github_create_issue', 'github_comment_issue',
       'github_list_pull_requests', 'github_get_pull_request', 'github_list_pull_request_files', 'github_comment_pull_request',
       'github_list_workflow_runs', 'github_get_workflow_run',
+      'github_admin_auth_status', 'github_admin_create_repo', 'github_admin_configure_repo', 'github_admin_create_branch', 'github_admin_upsert_file', 'github_admin_create_pull_request', 'github_admin_merge_pull_request', 'github_admin_dispatch_workflow',
     ],
   }));
 
@@ -3289,10 +5341,10 @@ function createHomeCenterMcpServer({google, admin, googleClientId, googleClientS
   }, async (args, extra) => {
     const operation = safeText((args || {}).operation || (args || {}).type || (args || {}).toolName, 120);
     if (operation.startsWith('command_center.') || commandCenterCompatOperation(args || {})) {
-      return textResult(await driveOperationRunOperation({google, admin, auth: null, user: null, extra, args: args || {}}));
+      return mcpToolResult(await driveOperationRunOperation({google, admin, auth: null, user: null, extra, googleClientId, googleClientSecret, githubAdmin, cartesiaApiKey, args: args || {}}));
     }
     const {auth, user} = await requestGoogleContext(extra, google, admin, googleClientId, googleClientSecret);
-    return textResult(await driveOperationRunOperation({google, admin, auth, user, extra, args: args || {}}));
+    return mcpToolResult(await driveOperationRunOperation({google, admin, auth, user, extra, googleClientId, googleClientSecret, githubAdmin, cartesiaApiKey, args: args || {}}));
   });
 
   server.registerTool('auth_status', {
@@ -3415,6 +5467,104 @@ function createHomeCenterMcpServer({google, admin, googleClientId, googleClientS
     return textResult(await updateSheetValuesOperation({google, admin, auth, user, args: args || {}}));
   });
 
+
+
+  server.registerTool('github_admin_auth_status', {
+    title: 'GitHub admin auth status',
+    description: 'Inspect Home Center GitHub admin authority without exposing secrets.',
+    inputSchema: {},
+    securitySchemes: MCP_OAUTH_SECURITY_SCHEMES,
+    _meta: {securitySchemes: MCP_OAUTH_SECURITY_SCHEMES},
+    annotations: {readOnlyHint: true, openWorldHint: true},
+  }, async (_args, extra) => {
+    const {user} = await requestGoogleContext(extra, google, admin, googleClientId, googleClientSecret);
+    return textResult({actor: user.email || '', result: await githubAdminAuthStatusOperation({githubAdmin})});
+  });
+
+  server.registerTool('github_admin_create_repo', {
+    title: 'GitHub admin create repo',
+    description: 'Create a GitHub repository through the configured Home Center GitHub admin authority and audit the mutation.',
+    inputSchema: {owner: z.string(), ownerType: z.enum(['org', 'user']).optional().default('org'), name: z.string(), visibility: z.enum(['private', 'public', 'internal']).optional().default('private'), description: z.string().optional(), autoInit: z.boolean().optional(), requestId: z.string(), callerNote: z.string().optional()},
+    securitySchemes: MCP_OAUTH_SECURITY_SCHEMES,
+    _meta: {securitySchemes: MCP_OAUTH_SECURITY_SCHEMES},
+    annotations: {readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: true},
+  }, async (args, extra) => {
+    const {user} = await requestGoogleContext(extra, google, admin, googleClientId, googleClientSecret);
+    return textResult(await githubAdminCreateRepoOperation({admin, user, githubAdmin, args: args || {}}));
+  });
+
+
+  server.registerTool('github_admin_configure_repo', {
+    title: 'GitHub admin configure repo',
+    description: 'Update safe repository settings through GitHub admin authority and audit the mutation.',
+    inputSchema: {repo: z.string(), description: z.string().optional(), homepage: z.string().optional(), default_branch: z.string().optional(), has_issues: z.boolean().optional(), has_projects: z.boolean().optional(), has_wiki: z.boolean().optional(), allow_squash_merge: z.boolean().optional(), allow_merge_commit: z.boolean().optional(), allow_rebase_merge: z.boolean().optional(), delete_branch_on_merge: z.boolean().optional(), allow_auto_merge: z.boolean().optional(), requestId: z.string(), callerNote: z.string().optional()},
+    securitySchemes: MCP_OAUTH_SECURITY_SCHEMES,
+    _meta: {securitySchemes: MCP_OAUTH_SECURITY_SCHEMES},
+    annotations: {readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: true},
+  }, async (args, extra) => {
+    const {user} = await requestGoogleContext(extra, google, admin, googleClientId, googleClientSecret);
+    return textResult(await githubAdminConfigureRepoOperation({admin, user, githubAdmin, args: args || {}}));
+  });
+
+  server.registerTool('github_admin_create_branch', {
+    title: 'GitHub admin create branch',
+    description: 'Create a branch from an existing branch or explicit SHA and audit the mutation.',
+    inputSchema: {repo: z.string(), branch: z.string(), fromBranch: z.string().optional(), sha: z.string().optional(), requestId: z.string(), callerNote: z.string().optional()},
+    securitySchemes: MCP_OAUTH_SECURITY_SCHEMES,
+    _meta: {securitySchemes: MCP_OAUTH_SECURITY_SCHEMES},
+    annotations: {readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: true},
+  }, async (args, extra) => {
+    const {user} = await requestGoogleContext(extra, google, admin, googleClientId, googleClientSecret);
+    return textResult(await githubAdminCreateBranchOperation({admin, user, githubAdmin, args: args || {}}));
+  });
+
+  server.registerTool('github_admin_upsert_file', {
+    title: 'GitHub admin upsert file',
+    description: 'Create or update one repository file on a branch and audit the commit.',
+    inputSchema: {repo: z.string(), path: z.string(), branch: z.string().optional(), message: z.string().optional(), content: z.string().optional(), contentBase64: z.string().optional(), sha: z.string().optional(), requestId: z.string(), callerNote: z.string().optional()},
+    securitySchemes: MCP_OAUTH_SECURITY_SCHEMES,
+    _meta: {securitySchemes: MCP_OAUTH_SECURITY_SCHEMES},
+    annotations: {readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: true},
+  }, async (args, extra) => {
+    const {user} = await requestGoogleContext(extra, google, admin, googleClientId, googleClientSecret);
+    return textResult(await githubAdminUpsertFileOperation({admin, user, githubAdmin, args: args || {}}));
+  });
+
+  server.registerTool('github_admin_create_pull_request', {
+    title: 'GitHub admin create pull request',
+    description: 'Open a pull request and audit the mutation.',
+    inputSchema: {repo: z.string(), title: z.string(), head: z.string(), base: z.string().optional(), body: z.string().optional(), draft: z.boolean().optional(), requestId: z.string(), callerNote: z.string().optional()},
+    securitySchemes: MCP_OAUTH_SECURITY_SCHEMES,
+    _meta: {securitySchemes: MCP_OAUTH_SECURITY_SCHEMES},
+    annotations: {readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: true},
+  }, async (args, extra) => {
+    const {user} = await requestGoogleContext(extra, google, admin, googleClientId, googleClientSecret);
+    return textResult(await githubAdminCreatePullRequestOperation({admin, user, githubAdmin, args: args || {}}));
+  });
+
+  server.registerTool('github_admin_merge_pull_request', {
+    title: 'GitHub admin merge pull request',
+    description: 'Merge a pull request only when expectedHeadSha matches and required checks are green, then audit the mutation.',
+    inputSchema: {repo: z.string(), pullNumber: z.number().int().min(1), expectedHeadSha: z.string(), mergeMethod: z.enum(['merge', 'squash', 'rebase']).optional().default('squash'), requireGreenChecks: z.boolean().optional(), allowNoChecks: z.boolean().optional(), commitTitle: z.string().optional(), commitMessage: z.string().optional(), requestId: z.string(), callerNote: z.string().optional()},
+    securitySchemes: MCP_OAUTH_SECURITY_SCHEMES,
+    _meta: {securitySchemes: MCP_OAUTH_SECURITY_SCHEMES},
+    annotations: {readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: true},
+  }, async (args, extra) => {
+    const {user} = await requestGoogleContext(extra, google, admin, googleClientId, googleClientSecret);
+    return textResult(await githubAdminMergePullRequestOperation({admin, user, githubAdmin, args: args || {}}));
+  });
+
+  server.registerTool('github_admin_dispatch_workflow', {
+    title: 'GitHub admin dispatch workflow',
+    description: 'Dispatch a GitHub Actions workflow by workflow id/file and ref, then audit the mutation.',
+    inputSchema: {repo: z.string(), workflowId: z.string(), ref: z.string().optional(), inputs: z.record(z.string(), z.any()).optional(), requestId: z.string(), callerNote: z.string().optional()},
+    securitySchemes: MCP_OAUTH_SECURITY_SCHEMES,
+    _meta: {securitySchemes: MCP_OAUTH_SECURITY_SCHEMES},
+    annotations: {readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: true},
+  }, async (args, extra) => {
+    const {user} = await requestGoogleContext(extra, google, admin, googleClientId, googleClientSecret);
+    return textResult(await githubAdminDispatchWorkflowOperation({admin, user, githubAdmin, args: args || {}}));
+  });
 
   server.registerTool('github_get_repo', {
     title: 'GitHub get repo',
@@ -3856,7 +6006,7 @@ function createHomeCenterMcpServer({google, admin, googleClientId, googleClientS
     annotations: {readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: true},
   }, async (args, extra) => {
     const {auth, user} = await requestGoogleContext(extra, google, admin, googleClientId, googleClientSecret);
-    return textResult(await driveWorkflowRunOperation({google, admin, auth, user, args: args || {}}));
+    return textResult(await driveWorkflowRunOperation({google, admin, auth, user, cartesiaApiKey, args: args || {}}));
   });
 
   server.registerTool('recovery_checkpoint', {
@@ -3963,14 +6113,15 @@ function createHomeCenterMcpServer({google, admin, googleClientId, googleClientS
   return server;
 }
 
-function createHomeCenterMcpApp({google, admin, googleClientId = () => '', googleClientSecret = () => '', githubToken = () => ''}) {
+function createHomeCenterMcpApp({google, admin, googleClientId = () => '', googleClientSecret = () => '', githubToken = () => '', githubAdmin = {}, cartesiaApiKey = () => ''}) {
   const app = express();
   app.use(express.json({limit: '80mb'}));
   app.use(express.urlencoded({extended: false, limit: '256kb'}));
   const transports = {};
 
   app.get('/', (_req, res) => {
-    res.json({ok: true, service: 'home-center-drive-bridge', endpoints: ['/sse', '/messages', '/mcp'], oauthProtectedResource: MCP_RESOURCE_METADATA});
+    res.set('Cache-Control', 'no-store');
+    res.json({ok: true, service: 'home-center-drive-bridge', version: HOME_CENTER_MCP_SERVER_VERSION, registryVersion: HOME_CENTER_REGISTRY_VERSION, connectorSchemaRevision: HOME_CENTER_CONNECTOR_SCHEMA_REVISION, catalogCacheKey: HOME_CENTER_CONNECTOR_SCHEMA_REVISION, directFileTools: HOME_CENTER_DIRECT_FILE_TOOLS, endpoints: ['/sse', '/messages', '/mcp'], oauthProtectedResource: MCP_RESOURCE_METADATA});
   });
 
   app.get('/oauth-protected-resource', (_req, res) => {
@@ -4391,7 +6542,7 @@ function createHomeCenterMcpApp({google, admin, googleClientId = () => '', googl
     res.on('close', () => {
       delete transports[transport.sessionId];
     });
-    const server = createHomeCenterMcpServer({google, admin, googleClientId, googleClientSecret, githubToken});
+    const server = createHomeCenterMcpServer({google, admin, googleClientId, googleClientSecret, githubToken, githubAdmin, cartesiaApiKey});
     await server.connect(transport);
   });
 
@@ -4417,7 +6568,7 @@ function createHomeCenterMcpApp({google, admin, googleClientId = () => '', googl
       res.status(405).json({jsonrpc: '2.0', error: {code: -32000, message: 'Method not allowed.'}, id: null});
       return;
     }
-      const server = createHomeCenterMcpServer({google, admin, googleClientId, googleClientSecret, githubToken});
+      const server = createHomeCenterMcpServer({google, admin, googleClientId, googleClientSecret, githubToken, githubAdmin, cartesiaApiKey});
     const transport = new StreamableHTTPServerTransport({sessionIdGenerator: undefined});
     let closed = false;
     const closeTransport = async () => {
@@ -4446,4 +6597,4 @@ function createHomeCenterMcpApp({google, admin, googleClientId = () => '', googl
   return app;
 }
 
-module.exports = {createHomeCenterMcpApp, createHomeCenterMcpServer, createDriveFolderOperation, createGoogleDocOperation, appendGoogleDocOperation, publishContextSnapshotOperation, createSheetOperation, updateSheetValuesOperation, importXlsxWorkbookOperation, readDriveBinaryChunkOperation, driveOperationRunOperation, driveWorkflowRunOperation, simulationOperationRunOperation, simulationOperationRegistry, normalizeRecoveryOperation, summarizeRecoveryOperations, loadMcpAccessContext};
+module.exports = {HOME_CENTER_MCP_SERVER_VERSION, HOME_CENTER_CONNECTOR_SCHEMA_REVISION, HOME_CENTER_REGISTRY_VERSION, HOME_CENTER_DIRECT_FILE_TOOLS, verifiedRenderGifMcpContent, attachRenderGifMcpContent, renderArtifactHashEntry, uploadVerifiedArtifact, createHomeCenterMcpApp, createHomeCenterMcpServer, createDriveFolderOperation, createGoogleDocOperation, appendGoogleDocOperation, publishContextSnapshotOperation, synthesizeCartesiaAudioArtifactOperation, cartesiaVoicesOperation, createSheetOperation, updateSheetValuesOperation, importXlsxWorkbookOperation, readDriveBinaryChunkOperation, compareAudioIngestFileIds, ingestDriveAudioOperation, finalizeDriveAudioIngestBatchOperation, driveOperationRunOperation, driveWorkflowRunOperation, simulationOperationRunOperation, simulationOperationRegistry, droobiedooContextOperationEntries, loadDroobiedooContextIndex, searchDroobiedooContextIndex, runDroobiedooContextOperation, normalizeRecoveryOperation, summarizeRecoveryOperations, loadMcpAccessContext, armoryReceiptOperation, armoryRecountOperation, armoryCasingOperation, renderAudioOperation, inspectAudioArtifactsOperation, materializeHomeCenterRenderDriveRefs, materializeHomeCenterRenderSources, stageHomeCenterGitHubRenderInput, normalizeRenderGitHubSource, githubAdminOperationEntries, githubAdminOperationRunOperation, createGitHubAppJwt};

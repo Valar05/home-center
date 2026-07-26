@@ -63,6 +63,25 @@ Foreground task learning still cannot promote coordinate-only browser behavior t
 
 The ChatGPT connector retrospective is the current concrete case study: `docs/CHATGPT_COMMAND_CENTER_CONNECTOR_RETROSPECTIVE.md`.
 
+## Command Center Visual QA
+
+Command Center visual QA is a browser-worker responsibility, not a generic
+Codex executor proof. A verified final-render lane must produce a terminal
+Command Center job with a completed browser episode and artifact records for
+`visual_qa_manifest.json`, `screenshot.png`, and `browser_episode.json`. A
+`browser_sessions.act` record with status `requested` is only a request; it is
+not screenshot evidence and must not be used as visual acceptance.
+
+The browser-worker capture CLI is:
+
+```sh
+npm run visual-qa -- --url HOSTED_URL --target crimson-sword --job-id JOB_ID --session-id SESSION_ID --out-dir generated/visual-qa/RUN_ID
+```
+
+For final-render debugging, keep the screenshot, screenshot SHA, console/network
+log, DOM/accessibility summary, browser episode, and page debug payload together
+so ChatGPT can inspect the same cloud evidence Pose Lab consumes.
+
 ## Learning Contract
 
 Every browser invocation must record a redacted episode through:

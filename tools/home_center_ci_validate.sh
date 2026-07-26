@@ -23,10 +23,16 @@ run_step() {
 }
 
 set +e
-run_step "secret scan" sh tools/check_no_secrets.sh && run_step "functions syntax" node --check functions/index.js && run_step "worker profile contract" node tools/worker_profile_contract_test.mjs && run_step "home center mcp syntax" node --check functions/home_center_mcp.js && run_step "drive binary chunk contract" node tools/drive_binary_chunk_contract_test.mjs && run_step "command center mcp syntax" node --check functions/command_center_mcp.js && run_step "she raw mcp syntax" node --check functions/she_raw_mcp.js && run_step "cloud render syntax" sh -c 'test ! -f cloud-render/src/server.mjs || node --check cloud-render/src/server.mjs; test ! -f cloud-render/src/render_bundle.mjs || node --check cloud-render/src/render_bundle.mjs' && run_step "cloud worker syntax" node --check cloud-worker/src/cloud_run_worker.mjs && run_step "github admin contract syntax" node --check tools/github_admin_contract_test.mjs && if [ -f ../AGENTS.md ] && [ -f ../.codex/skills/ai-mentorship/SKILL.md ]; then run_step "home center regression" python3 tools/home_center_regression_tests.py; else echo "== home center regression skipped: workspace-only context unavailable"; fi
+run_step "secret scan" sh tools/check_no_secrets.sh   && run_step "functions syntax" node --check functions/index.js   && run_step "worker profile contract" node tools/worker_profile_contract_test.mjs   && run_step "home center mcp syntax" node --check functions/home_center_mcp.js   && run_step "audio library indexed browse contract" node --test tools/audio_library_browse_contract_test.mjs   && run_step "armory range contract" node tools/armory_range_contract_test.mjs   && run_step "drive binary chunk contract" node tools/drive_binary_chunk_contract_test.mjs   && run_step "drive audio ingest contract" node tools/drive_audio_ingest_contract_test.mjs   && run_step "command center mcp syntax" node --check functions/command_center_mcp.js   && run_step "she raw mcp syntax" node --check functions/she_raw_mcp.js   && run_step "cloud render syntax" sh -c 'test ! -f cloud-render/src/server.mjs || node --check cloud-render/src/server.mjs; test ! -f cloud-render/src/render_bundle.mjs || node --check cloud-render/src/render_bundle.mjs'   && run_step "cloud worker syntax" node --check cloud-worker/src/cloud_run_worker.mjs   && run_step "github admin contract" node tools/github_admin_contract_test.mjs   && run_step "home center regression" python3 tools/home_center_regression_tests.py
 code=$?
 set -e
 FINISHED_AT="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
-node -e 'const fs=require("fs"); const data={status:process.argv[1],failedStep:process.argv[2],startedAt:process.argv[3],finishedAt:process.argv[4],runner:"home_center_ci_validate"}; fs.writeFileSync(process.argv[5], JSON.stringify(data,null,2)); fs.writeFileSync(process.argv[6], `# Home Center CI Validate\n\nstatus: ${data.status}\nfailed_step: ${data.failedStep || ""}\nstarted_at: ${data.startedAt}\nfinished_at: ${data.finishedAt}\n`);' "$status" "$failed_step" "$STARTED_AT" "$FINISHED_AT" "$REPORT_JSON" "$REPORT_MD"
+node -e 'const fs=require("fs"); const data={status:process.argv[1],failedStep:process.argv[2],startedAt:process.argv[3],finishedAt:process.argv[4],runner:"home_center_ci_validate"}; fs.writeFileSync(process.argv[5], JSON.stringify(data,null,2)); fs.writeFileSync(process.argv[6], `# Home Center CI Validate
+
+status: ${data.status}
+failed_step: ${data.failedStep || ""}
+started_at: ${data.startedAt}
+finished_at: ${data.finishedAt}
+`);' "$status" "$failed_step" "$STARTED_AT" "$FINISHED_AT" "$REPORT_JSON" "$REPORT_MD"
 cat "$REPORT_MD"
 exit "$code"

@@ -23,6 +23,9 @@ fi
 
 mkdir -p "$COMMAND_CENTER_ARTIFACT_DIR"
 
+# Local Termux workers use the saved ChatGPT Codex login, not Platform API-key auth.
+unset OPENAI_API_KEY CODEX_API_KEY
+
 exec codex exec \
   --json \
   --dangerously-bypass-approvals-and-sandbox \
