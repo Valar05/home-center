@@ -3,7 +3,7 @@ import {createHash} from 'node:crypto';
 import {Readable, Writable} from 'node:stream';
 import homeCenter from '../functions/home_center_mcp.js';
 
-const {ingestDriveAudioOperation} = homeCenter;
+const {ingestDriveAudioOperation, finalizeDriveAudioIngestBatchOperation} = homeCenter;
 const source = Buffer.from('verified audio bytes');
 const objectStore = new Map();
 
@@ -55,6 +55,9 @@ class FakeBucket {
     };
     return file;
   }
+  async getFiles({prefix = ''} = {}) {
+    return [[...objectStore.keys()].filter((name) => name.startsWith(prefix)).sort().map((name) => new FakeFile(name))];
+  }
 }
 
 const storage = {bucket(name) { assert.equal(name, 'home-center-generated'); return new FakeBucket(); }};
@@ -79,8 +82,10 @@ const google = {
   },
 };
 const audit = [];
+const batchId = 'generated-audio-curated-20260726';
 const args = {
   fileId: 'drive-file-1234',
+  batchId,
   requestId: 'audio-ingest-contract-20260726',
   approved: true,
   project: 'vacation-of-a-lifetime',
@@ -106,8 +111,12 @@ assert.equal(result.source.sha256, createHash('sha256').update(source).digest('h
 assert.match(result.destination.storageRef, /^gs:\/\/home-center-generated\/audio\//);
 assert.equal(result.destination.byteCount, source.length);
 assert.equal(result.destination.sha256, result.source.sha256);
+assert.match(result.indexes.byDriveId.storageRef, /indexes\/audio\/v1\/by-drive-id\/drive-file-1234\.json$/);
+assert.match(result.indexes.catalog.storageRef, /catalog\/dclarke1005@gmail.com\/vacation-of-a-lifetime\/finals\/drive-file-1234\.json$/);
+assert.match(result.indexes.batchItem.storageRef, new RegExp('batches/' + batchId + '/items/drive-file-1234\\.json$'));
 assert.equal(audit.length, 1);
 assert.equal([...objectStore.keys()].some((name) => name.startsWith('temp/')), false);
+
 const reused = await ingestDriveAudioOperation({
   google,
   admin: {},
@@ -119,6 +128,37 @@ const reused = await ingestDriveAudioOperation({
 });
 assert.equal(reused.verified, true);
 assert.equal(reused.reused, true);
+assert.equal(reused.indexes.byDriveId.reused, true);
+assert.equal(reused.indexes.catalog.reused, true);
+assert.equal(reused.indexes.batchItem.reused, true);
+
+const sealed = await finalizeDriveAudioIngestBatchOperation({
+  user: {email: 'dclarke1005@gmail.com'},
+  args: {
+    batchId,
+    requestId: 'audio-ingest-seal-contract-20260726',
+    approved: true,
+    expectedFileIds: ['drive-file-1234'],
+    expectedCount: 1,
+    expectedBytes: source.length,
+  },
+  storage,
+  recordAudit: async (...entry) => audit.push(entry),
+});
+assert.equal(sealed.sealed, true);
+assert.equal(sealed.verified, true);
+assert.equal(sealed.itemCount, 1);
+assert.equal(sealed.byteCount, source.length);
+assert.equal(sealed.driveTrashEligible, false);
+assert.match(sealed.manifest.storageRef, new RegExp('batches/' + batchId + '/manifest\\.json$'));
+assert.equal(audit.length, 2);
+
+await assert.rejects(() => finalizeDriveAudioIngestBatchOperation({
+  user: {email: 'dclarke1005@gmail.com'},
+  args: {batchId, requestId: 'bad-seal', approved: true, expectedFileIds: [], expectedCount: 1, expectedBytes: source.length},
+  storage,
+  recordAudit: async () => {},
+}), /expectedFileIds/);
 await assert.rejects(() => ingestDriveAudioOperation({
   google,
   admin: {},
@@ -137,4 +177,4 @@ await assert.rejects(() => ingestDriveAudioOperation({
   storage,
   recordAudit: async () => {},
 }), /MD5/);
-console.log(JSON.stringify({ok: true, storageRef: result.destination.storageRef, sha256: result.destination.sha256, reused: reused.reused}, null, 2));
+console.log(JSON.stringify({ok: true, storageRef: result.destination.storageRef, sha256: result.destination.sha256, reused: reused.reused, indexes: result.indexes, manifest: sealed.manifest.storageRef}, null, 2));
