@@ -57,6 +57,21 @@ deploy_home_center_mcp() {
     --set-secrets="$(home_center_mcp_secrets_arg)"
 }
 
+deploy_audio_library_api() {
+  gcloud functions deploy audioLibraryApi \
+    --gen2 \
+    --project="$PROJECT" \
+    --region="$REGION" \
+    --runtime=nodejs20 \
+    --source="$ROOT/functions" \
+    --entry-point=audioLibraryApi \
+    --trigger-http \
+    --allow-unauthenticated \
+    --timeout=300s \
+    --memory=512Mi \
+    --set-env-vars=HOME_CENTER_GENERATED_BUCKET="${HOME_CENTER_GENERATED_BUCKET:-home-center-generated}",HOME_CENTER_AUDIO_LIBRARY_PUBLIC_BASE="${HOME_CENTER_AUDIO_LIBRARY_PUBLIC_BASE:-https://${REGION}-${PROJECT}.cloudfunctions.net/audioLibraryApi}"
+}
+
 deploy_she_raw_mcp() {
   gcloud functions deploy sheRawMcp \
     --gen2 \
@@ -74,10 +89,11 @@ for fn in $FUNCTIONS; do
   case "$fn" in
     commandCenterMcp) deploy_command_center_mcp ;;
     homeCenterMcp) deploy_home_center_mcp ;;
+    audioLibraryApi) deploy_audio_library_api ;;
     sheRawMcp) deploy_she_raw_mcp ;;
     *)
       echo "Unsupported gcloud deploy target: $fn" >&2
-      echo "Supported: commandCenterMcp homeCenterMcp sheRawMcp" >&2
+      echo "Supported: commandCenterMcp homeCenterMcp audioLibraryApi sheRawMcp" >&2
       exit 2
       ;;
   esac
