@@ -82,6 +82,7 @@ const google = {
   },
 };
 const audit = [];
+const admin = {marker: 'firebase-admin-context'};
 const batchId = 'generated-audio-curated-20260726';
 assert.deepEqual(
   ['drive_file', 'drive-file', 'drive.file'].sort(compareAudioIngestFileIds),
@@ -101,7 +102,7 @@ const args = {
 };
 const result = await ingestDriveAudioOperation({
   google,
-  admin: {},
+  admin,
   auth: {},
   user: {email: 'dclarke1005@gmail.com'},
   args,
@@ -120,11 +121,12 @@ assert.match(result.indexes.byDriveId.storageRef, /indexes\/audio\/v1\/by-drive-
 assert.match(result.indexes.catalog.storageRef, /catalog\/dclarke1005@gmail.com\/vacation-of-a-lifetime\/finals\/drive-file-1234\.json$/);
 assert.match(result.indexes.batchItem.storageRef, new RegExp('batches/' + batchId + '/items/drive-file-1234\\.json$'));
 assert.equal(audit.length, 1);
+assert.equal(audit[0][0], admin, 'ingest audit must receive Firebase admin context first');
 assert.equal([...objectStore.keys()].some((name) => name.startsWith('temp/')), false);
 
 const reused = await ingestDriveAudioOperation({
   google,
-  admin: {},
+  admin,
   auth: {},
   user: {email: 'dclarke1005@gmail.com'},
   args,
@@ -138,6 +140,7 @@ assert.equal(reused.indexes.catalog.reused, true);
 assert.equal(reused.indexes.batchItem.reused, true);
 
 const sealed = await finalizeDriveAudioIngestBatchOperation({
+  admin,
   user: {email: 'dclarke1005@gmail.com'},
   args: {
     batchId,
@@ -157,6 +160,7 @@ assert.equal(sealed.byteCount, source.length);
 assert.equal(sealed.driveTrashEligible, false);
 assert.match(sealed.manifest.storageRef, new RegExp('batches/' + batchId + '/manifest\\.json$'));
 assert.equal(audit.length, 2);
+assert.equal(audit[1][0], admin, 'batch seal audit must receive Firebase admin context first');
 
 const resealed = await finalizeDriveAudioIngestBatchOperation({
   user: {email: 'dclarke1005@gmail.com'},
@@ -182,7 +186,7 @@ await assert.rejects(() => finalizeDriveAudioIngestBatchOperation({
 }), /expectedFileIds/);
 await assert.rejects(() => ingestDriveAudioOperation({
   google,
-  admin: {},
+  admin,
   auth: {},
   user: {email: 'dclarke1005@gmail.com'},
   args: {...args, approved: false},
@@ -191,7 +195,7 @@ await assert.rejects(() => ingestDriveAudioOperation({
 }), /approved=true/);
 await assert.rejects(() => ingestDriveAudioOperation({
   google,
-  admin: {},
+  admin,
   auth: {},
   user: {email: 'dclarke1005@gmail.com'},
   args: {...args, requestId: 'audio-ingest-wrong-md5', expectedDriveMd5: 'wrong'},
