@@ -4334,12 +4334,12 @@ function sameAudioIndexIdentity(existing, expected) {
     Number(existing.destination.byteCount || 0) === Number(expected.destination.byteCount || 0);
 }
 
-async function writeImmutableAudioIndex(bucket, objectName, payload, createdFiles) {
+async function writeImmutableAudioIndex(bucket, objectName, payload, createdFiles, identityCheck = sameAudioIndexIdentity) {
   const file = bucket.file(objectName);
   const [exists] = await file.exists();
   if (exists) {
     const existing = await readAudioIndexJson(file);
-    if (!sameAudioIndexIdentity(existing.parsed, payload)) {
+    if (!identityCheck(existing.parsed, payload)) {
       throw Object.assign(new Error('Audio bucket index already exists with conflicting provenance: ' + objectName), {status: 409});
     }
     return {objectName, storageRef: 'gs://' + AUDIO_INGEST_BUCKET + '/' + objectName, byteCount: existing.bytes.length, sha256: existing.sha256, reused: true};
@@ -4441,7 +4441,11 @@ async function finalizeDriveAudioIngestBatchOperation({user, args = {}, storage 
   const createdFiles = [];
   let manifest;
   try {
-    manifest = await writeImmutableAudioIndex(bucket, manifestName, manifestPayload, createdFiles);
+    manifest = await writeImmutableAudioIndex(bucket, manifestName, manifestPayload, createdFiles, (existing, expected) =>
+      safeText(existing && existing.batchId, 180) === expected.batchId &&
+      existing && existing.verification && existing.verification.verified === true &&
+      JSON.stringify(existing.actual || {}) === JSON.stringify(expected.actual || {}) &&
+      JSON.stringify(existing.expected || {}) === JSON.stringify(expected.expected || {}));
   } catch (err) {
     await Promise.allSettled(createdFiles.map((file) => file.delete({ignoreNotFound: true})));
     throw err;
@@ -4588,6 +4592,7 @@ async function ingestDriveAudioOperation({google, admin, auth, user, args = {}, 
     const sourceReceipt = {fileId, name: sourceName, mimeType, byteCount: sourceByteCount, sha256: sourceSha256, driveMd5Checksum: driveMd5, sourcePath, webViewLink: metadata.webViewLink || ''};
     const destinationReceipt = {bucket: bucketName, objectName, storageRef: 'gs://' + bucketName + '/' + objectName, byteCount: readback.byteCount, sha256: readback.sha256, ownerEmail, project, stage, metadata: customMetadata};
     const indexes = await writeAudioIngestIndexes({bucket, batchId, fileId, ownerSegment, project, stage, source: sourceReceipt, destination: destinationReceipt});
+    destinationCreated = false;
     await recordAudit(user, 'audio.ingest_drive', fileId, 'Ingested verified Drive audio to gs://' + bucketName + '/' + objectName + ' and wrote bucket indexes without mutating Drive.', requestId);
     return {
       ok: true,
