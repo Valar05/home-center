@@ -4,6 +4,9 @@ import {createHash} from 'node:crypto';
 import {createRequire} from 'node:module';
 import fs from 'node:fs';
 
+process.env.HOME_CENTER_ARTIFACT_BUCKET_TEST_FAKE = '1';
+process.env.HOME_CENTER_GENERATED_BUCKET = 'home-center-generated';
+
 const require = createRequire(import.meta.url);
 const homeCenterSource = fs.readFileSync(new URL('../functions/home_center_mcp.js', import.meta.url), 'utf8');
 const commandCenterSource = fs.readFileSync(new URL('../functions/command_center_mcp.js', import.meta.url), 'utf8');
@@ -38,15 +41,15 @@ const gifSha = createHash('sha256').update(gifBytes).digest('hex');
 const result = {
   ok: true,
   status: 'completed',
-  loopingGifRef: 'gs://home-center-dclar-command-center-renders/command-center-renders/cache123/walk-loop.gif',
+  loopingGifRef: 'gs://home-center-generated/renders/gifs/cache123/walk-loop.gif',
   artifactHashes: {'walk-loop.gif': {byteCount: gifBytes.length, sha256: gifSha}},
   validation: {ok: true, missingBundleKinds: [], presentBundleKinds: ['looping_gif']},
 };
 const fakeStorage = {
   bucket(name) {
-    assert.equal(name, 'home-center-dclar-command-center-renders');
+    assert.equal(name, 'home-center-generated');
     return {file(path) {
-      assert.equal(path, 'command-center-renders/cache123/walk-loop.gif');
+      assert.equal(path, 'renders/gifs/cache123/walk-loop.gif');
       return {async download() { return [gifBytes]; }};
     }};
   },
@@ -115,8 +118,8 @@ assert.equal(mismatch.contentBlock, null);
 assert.equal(mismatch.delivery.ok, false);
 assert.equal(mismatch.delivery.errorCode, 'render_gif_resource_link_readback_mismatch');
 
-await assert.rejects(() => verifiedRenderGifMcpContent({...result, loopingGifRef: 'gs://other-bucket/command-center-renders/cache123/walk-loop.gif'}, {storage: fakeStorage}), /outside the configured private render bucket/);
-await assert.rejects(() => verifiedRenderGifMcpContent({...result, loopingGifRef: 'https://storage.googleapis.com/home-center-dclar-command-center-renders/x.gif'}, {storage: fakeStorage}), /private gs:\/\/ artifact ref/);
+await assert.rejects(() => verifiedRenderGifMcpContent({...result, loopingGifRef: 'gs://other-bucket/renders/gifs/cache123/walk-loop.gif'}, {storage: fakeStorage}), /outside the configured private render bucket/);
+await assert.rejects(() => verifiedRenderGifMcpContent({...result, loopingGifRef: 'https://storage.googleapis.com/home-center-generated/x.gif'}, {storage: fakeStorage}), /private gs:\/\/ artifact ref/);
 
 assert.deepEqual(renderRequiredBundleKindsForOptions({includeBlend: false, includeDiagnostics: false}).filter((kind) => kind === 'three_d_artifact' || kind === 'diagnostic_view_renders'), []);
 assert.ok(renderRequiredBundleKindsForOptions({includeBlend: true, includeDiagnostics: true}).includes('three_d_artifact'));
