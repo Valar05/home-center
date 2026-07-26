@@ -1217,6 +1217,9 @@ async function uploadVerified({google, auth, parentFolderId, item, artifactConte
   const storageArtifact = await uploadGeneratedArtifact({...artifactContext, ownerEmail: safeText(artifactContext.ownerEmail, 320).toLowerCase(), sharedWith: JSON.stringify(Array.isArray(artifactContext.sharedWith) ? artifactContext.sharedWith : []), bytes: item.bytes, name: item.name, mimeType: item.mimeType});
   const storageRef = 'gs://' + GENERATED_ARTIFACT_BUCKET + '/' + storageArtifact.object;
   const driveArtifact = publishToDrive ? await publishGeneratedArtifactToDrive({google, auth, parentFolderId, artifact: storageArtifact, bytes: item.bytes}) : null;
+  if (driveArtifact && driveArtifact.chatGptFileRef && driveArtifact.chatGptFileRef.type !== 'resource_link') {
+    throw audioError('Drive artifact handoff did not return an MCP resource_link.', 502, 'audio_render_resource_link_invalid');
+  }
   return {
     ...item,
     bytes: undefined,
