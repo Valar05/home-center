@@ -2,9 +2,9 @@
 
 SFX Forge is the first-class Home Center surface for turning immutable physical recordings into mechanically verified SFX evidence, conservative descendants, and deterministic source-conditioned candidates.
 
-Registry version: `2026-07-27.sfx-forge-v2`
+Registry version: `2026-07-27.sfx-forge-v3`
 
-Engine version: `home-center-sfx-forge-v1`
+Engine version: `home-center-sfx-forge-v1.1`
 
 Schema version: `home-center.sfx-forge.v1`
 
@@ -82,6 +82,7 @@ Each event contains:
 - optional `takeNumber`
 - `strikeActionClass`
 - `eventType`
+- `eventDomain` (`impact`, `bag_movement`, `room`, `air`, or `other`)
 - position, distance, glove, and force labels
 - confidence and ambiguity notes
 - `disposition` and optional rejection reason
@@ -91,10 +92,13 @@ The operation writes:
 - raw event cuts;
 - conservative cleaned dry cuts;
 - rejected raw cuts;
-- room, suspension, handling, rub, miss/air, and other component categories when named by the manifest;
+- room, bag movement, handling, rub, miss/air, and other component categories when named by the manifest;
 - an audition reel using the source’s spoken slate before each level-matched cleaned cut;
 - a level-matched raw-versus-cleaned A/B reel;
+- separate impact-only and bag-rocking audition reels when both domains are present;
 - a complete parent-linked manifest and cleanup recipe.
+
+`sourceMechanism.fixtureType` is part of the evidence contract. A floor-standing/freestanding bag rejects suspended-bag event and layer roles such as `suspension`, `chain`, and `chain_rattle`. Its movement vocabulary is `bag_rocking`, `base_flex`, `base_rock`, `return_swing`, and `floor_coupling`. Impact and movement cuts may overlap in source time, but remain separate descendants and review lanes.
 
 Cleanup is intentionally small: 25 Hz high-pass plus click-prevention fades. It performs no denoise, normalization, tail truncation, or canonical rewrite.
 
@@ -106,6 +110,14 @@ Every candidate declares named physical layers and exact source time ranges. Sup
 - `mass`
 - `distance`
 - `intensity`
+
+Every candidate also declares an `outputKind`:
+
+- `impact_only` may use impact layers but not bag-movement layers;
+- `bag_movement` may use floor-bag movement layers but not impact layers;
+- `composite` is an explicit recombination and is never implied by a long impact tail.
+
+For floor-standing bags, `suspension` and chain roles are invalid rather than aliases for rocking.
 
 The current deterministic transforms are gain, high/low-pass shaping, compression, restrained saturation, panning, timing, and limiting. No pitch-shift variation exists in Forge v1.
 
