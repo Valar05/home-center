@@ -249,6 +249,14 @@ function authoredKeysFromManifest(scriptManifest = {}) {
   const keys = firstArray(scriptManifest.authoredKeys, scriptManifest.animationAuthoredKeys, scriptManifest.keyframes);
   return {authoredKeys: Array.isArray(keys) ? keys : [], authoredKeysAvailable: Array.isArray(keys)};
 }
+function selectGifEvidenceFiles(evidenceFrames, gifPlaybackContract) {
+  const evidenceByIndex = new Map(evidenceFrames.map((frame) => [frame.index, frame.file || frame.path]));
+  return gifPlaybackContract.gifFrames.map((frame, playbackIndex) => {
+    const file = evidenceByIndex.get(frame);
+    if (!file) throw typedError('gifFrames[' + playbackIndex + '] index ' + frame + ' has no evidence file.');
+    return file;
+  });
+}
 function resolveGifPlaybackContract(evidenceFrames, settings = {}, scriptManifest = {}, executionContract = {}) {
   const rawExplicitFrames = firstArray(settings.gifFrames, executionContract.gifFrames, scriptManifest.gifFrames);
   const explicitFrames = Array.isArray(rawExplicitFrames);
@@ -463,7 +471,7 @@ export async function renderBundle(request = {}) {
     if (!scriptManifest.loopingGif && frames.length) {
       const gifPath = path.join(outputDir, 'walk-loop.gif');
       gifPlaybackContract = resolveGifPlaybackContract(evidenceFrameRecords, settings, scriptManifest, request.executionContract || {});
-      const selectedForGif = gifPlaybackContract.gifFrames.map((index) => evidenceFrameRecords[index]);
+      const selectedForGif = selectGifEvidenceFiles(evidenceFrameRecords, gifPlaybackContract);
       if (timedSyncPhase(timings, 'loopingGif', () => makeLoopingGif(selectedForGif, gifPath, gifPlaybackContract))) {
         generatedLoopingGif = 'walk-loop.gif';
         fs.writeFileSync(path.join(outputDir, 'gif-playback-contract.json'), JSON.stringify({schema: 'home-center.blender-gif-playback-contract.v1', ...gifPlaybackContract}, null, 2));
@@ -547,4 +555,4 @@ export async function renderBundle(request = {}) {
   }
 }
 
-export {buildGifPlaybackContract, decodeUploadObject, validateGlbBytes, validateScriptBytes, sha256Buffer, frameRecords, resolveGifPlaybackContract, makeLoopingGif};
+export {buildGifPlaybackContract, decodeUploadObject, validateGlbBytes, validateScriptBytes, sha256Buffer, frameRecords, resolveGifPlaybackContract, selectGifEvidenceFiles, makeLoopingGif};
