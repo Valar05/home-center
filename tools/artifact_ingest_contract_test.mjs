@@ -136,6 +136,7 @@ assert.equal(direct.verified, true);
 assert.equal(direct.lifecycleState, 'proposed');
 assert.equal(direct.destination.sha256, digest);
 assert.equal(direct.commandCenter.recorded, true);
+assert.equal(direct.commandCenter.documentId, 'dclarke1005@gmail.com--motion-packet-direct');
 assert.equal(direct.indexes.byId.reused, false);
 const replay = await service.ingestArtifactUploadOperation({admin, storage, user, args: uploadArgs});
 assert.equal(replay.reused, true);
