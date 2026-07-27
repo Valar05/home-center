@@ -25,6 +25,12 @@ const REQUIRED_BUNDLE_KINDS = [
   'blender_version_settings', 'stdout_stderr', 'fixed_camera_renders', 'diagnostic_view_renders', 'validation_manifest',
   'original_script',
 ];
+const BUILD_REQUIRED_BUNDLE_KINDS = [
+  'rendered_frames', 'contact_sheet', 'script_input_hashes',
+  'blender_version_settings', 'stdout_stderr', 'fixed_camera_renders',
+  'diagnostic_view_renders', 'validation_manifest', 'original_script',
+  'three_d_artifact',
+];
 
 function typedError(message, status = 400, failureKind = 'input_validation') {
   const err = new Error(message);
@@ -375,7 +381,10 @@ function renderBundleOptions(request = {}) {
   const includeDiagnostics = boolOption(settings.includeDiagnostics ?? contract.includeDiagnostics, true);
   return {includeBlend, includeDiagnostics};
 }
-function requiredBundleKindsFor(options = {}) {
+function requiredBundleKindsFor(options = {}, mode = 'render_glb') {
+  if (mode === 'build') {
+    return BUILD_REQUIRED_BUNDLE_KINDS.filter((kind) => options.includeDiagnostics || kind !== 'diagnostic_view_renders');
+  }
   const required = REQUIRED_BUNDLE_KINDS.filter((kind) => options.includeDiagnostics || kind !== 'diagnostic_view_renders');
   if (options.includeBlend) required.push('three_d_artifact');
   return required;
@@ -392,7 +401,7 @@ function existingManifestFiles(outputDir, values) {
   return (Array.isArray(values) ? values : []).map((value) => localManifestPath(outputDir, value)).filter((file) => file && fs.existsSync(file));
 }
 function writePythonNetworkWrapper(wrapperPath) {
-  fs.writeFileSync(wrapperPath, `import os, runpy, socket, sys\n\nclass _NetworkDisabled(Exception):\n    pass\n\ndef _blocked(*args, **kwargs):\n    raise RuntimeError('Network and process escape are disabled inside Command Center Blender render scripts')\n\nsocket.socket = _blocked\nsocket.create_connection = _blocked\nos.system = _blocked\nos.popen = _blocked\ntry:\n    import numpy as _np\n    if not hasattr(_np, 'bool'):\n        _np.bool = bool\nexcept Exception:\n    pass\nfor name in ['http.client', 'urllib.request', 'urllib3', 'requests', 'ftplib', 'smtplib', 'subprocess']:\n    sys.modules[name] = None\nif '--' not in sys.argv or len(sys.argv[sys.argv.index('--') + 1:]) < 5:\n    raise SystemExit('Usage after --: user_script glb output_dir settings_json manifest_json')\nargs = sys.argv[sys.argv.index('--') + 1:]\nscript = args[0]\nsys.argv = [script, '--'] + args[1:]\nrunpy.run_path(script, run_name='__main__')\n`, 'utf8');
+  fs.writeFileSync(wrapperPath, `import os, runpy, socket, sys\n\nclass _NetworkDisabled(Exception):\n    pass\n\ndef _blocked(*args, **kwargs):\n    raise RuntimeError('Network and process escape are disabled inside Command Center Blender scripts')\n\nsocket.socket = _blocked\nsocket.create_connection = _blocked\nos.system = _blocked\nos.popen = _blocked\ntry:\n    import numpy as _np\n    if not hasattr(_np, 'bool'):\n        _np.bool = bool\nexcept Exception:\n    pass\nfor name in ['http.client', 'urllib.request', 'urllib3', 'requests', 'ftplib', 'smtplib', 'subprocess']:\n    sys.modules[name] = None\nif '--' not in sys.argv or len(sys.argv[sys.argv.index('--') + 1:]) < 5:\n    raise SystemExit('Usage after --: user_script glb_or_empty output_dir settings_json manifest_json')\nargs = sys.argv[sys.argv.index('--') + 1:]\nscript = args[0]\nif os.environ.get('COMMAND_CENTER_BLENDER_MODE') == 'build':\n    sys.argv = [script, '--', '--output', args[2], '--settings', args[3], '--manifest', args[4]]\nelse:\n    sys.argv = [script, '--'] + args[1:]\nrunpy.run_path(script, run_name='__main__')\n`, 'utf8');
 }
 function blenderResultFailureKind(result) {
   if (result.error && String(result.error.message || '').toLowerCase().includes('timeout')) return 'timeout';
@@ -418,20 +427,22 @@ export async function renderBundle(request = {}) {
   let manifest = null;
   const timings = {startedAtMs: nowMs()};
   try {
+    const mode = request.mode === 'build' ? 'build' : 'render_glb';
     const compatibility = renderCompatibility({settings: request.settings || {}, contractVersion: request.contractVersion || BLENDER_RENDER_CONTRACT_VERSION, backend: {contractVersions: [BLENDER_RENDER_CONTRACT_VERSION], backendVersion: TOOL_VERSION}});
     const settings = compatibility.settings;
     const options = renderBundleOptions({...request, settings});
-    const requiredBundleKinds = requiredBundleKindsFor(options);
+    const requiredBundleKinds = requiredBundleKindsFor(options, mode);
     const resolveStartedAtMs = nowMs();
     const [glbBytes, scriptBytes] = await Promise.all([
-      timedPhase(timings, 'resolveGlb', () => resolveRef(request.glbRef || '', request, 'glb')),
+      mode === 'build' ? Promise.resolve(Buffer.alloc(0)) : timedPhase(timings, 'resolveGlb', () => resolveRef(request.glbRef || '', request, 'glb')),
       timedPhase(timings, 'resolveScript', () => resolveRef(request.scriptRef || '', request, 'script')),
     ]);
     timings.resolveInputsWallMs = Math.max(0, nowMs() - resolveStartedAtMs);
     timedSyncPhase(timings, 'validateInputs', () => {
-      validateGlbBytes(glbBytes, 'glb input');
+      if (mode !== 'build') validateGlbBytes(glbBytes, 'glb input');
       validateScriptBytes(scriptBytes, 'script input');
-      for (const [role, bytes] of [['glb', glbBytes], ['script', scriptBytes]]) {
+      const inputRoles = mode === 'build' ? [['script', scriptBytes]] : [['glb', glbBytes], ['script', scriptBytes]];
+      for (const [role, bytes] of inputRoles) {
         const expected=(request.stagedInputs||[]).find((item)=>String(item.materializedFrom||'').toLowerCase().startsWith(role)||String(item.role||'')===role);
         if(expected&&expected.byteCount&&Number(expected.byteCount)!==bytes.length) throw typedError(role+' input byte length disagrees with staging receipt.',409,'artifact_byte_length_mismatch');
         if(expected&&expected.sha256&&String(expected.sha256).toLowerCase()!==sha256Buffer(bytes)) throw typedError(role+' input SHA-256 disagrees with staging receipt.',409,'artifact_sha256_mismatch');
@@ -440,12 +451,12 @@ export async function renderBundle(request = {}) {
     const glbPath = path.join(inputDir, 'input.glb');
     const scriptPath = path.join(inputDir, 'render.py');
     const wrapperPath = path.join(inputDir, 'network_disabled_wrapper.py');
-    timedSyncPhase(timings, 'writeInputs', () => { fs.writeFileSync(glbPath, glbBytes); fs.writeFileSync(scriptPath, scriptBytes); writePythonNetworkWrapper(wrapperPath); });
-    const glbHash = sha256Buffer(glbBytes);
+    timedSyncPhase(timings, 'writeInputs', () => { if (mode !== 'build') fs.writeFileSync(glbPath, glbBytes); fs.writeFileSync(scriptPath, scriptBytes); writePythonNetworkWrapper(wrapperPath); });
+    const glbHash = mode === 'build' ? '' : sha256Buffer(glbBytes);
     const scriptHash = sha256Buffer(scriptBytes);
     const blenderVersion = timedSyncPhase(timings, 'blenderVersion', () => spawnSync('blender', ['--background', '--version'], {encoding: 'utf8', timeout: 30000}));
     const blenderVersionText = (blenderVersion.stdout || blenderVersion.stderr || '').split('\n').slice(0, 3).join('\n');
-    const cacheKey = crypto.createHash('sha256').update(stableJson({glbHash, scriptHash, settings, executionContract: request.executionContract || {}, blenderVersion: blenderVersionText, toolVersion: TOOL_VERSION})).digest('hex');
+    const cacheKey = crypto.createHash('sha256').update(stableJson({mode, glbHash, scriptHash, settings, executionContract: request.executionContract || {}, blenderVersion: blenderVersionText, toolVersion: TOOL_VERSION})).digest('hex');
     if (request.cache !== false) {
       const hit = await timedPhase(timings, 'cacheLookup', () => cachedManifest(cacheKey));
       if (hit) return {...hit, ok: true, status: 'completed', cacheHit: true, renderId: request.renderId || hit.renderId || '', cacheKey, timings: {...hit.timings, cacheLookupMs: timings.cacheLookupMs || 0, totalMs: Math.max(0, nowMs() - timings.startedAtMs)}};
@@ -455,7 +466,7 @@ export async function renderBundle(request = {}) {
     fs.writeFileSync(settingsPath, JSON.stringify(settings, null, 2));
     const stdoutPath = path.join(outputDir, 'stdout.txt');
     const stderrPath = path.join(outputDir, 'stderr.txt');
-    const blenderEnv = {...process.env, LIBGL_ALWAYS_SOFTWARE: '1'};
+    const blenderEnv = {...process.env, LIBGL_ALWAYS_SOFTWARE: '1', COMMAND_CENTER_BLENDER_MODE: mode};
     const result = timedSyncPhase(timings, 'blenderExecution', () => spawnSync('blender', ['--background', '--python-exit-code', '88', '--python', wrapperPath, '--', scriptPath, glbPath, outputDir, settingsPath, scriptManifestPath], {encoding: 'utf8', timeout: RENDER_TIMEOUT_MS, maxBuffer: 80 * 1024 * 1024, env: blenderEnv}));
     fs.writeFileSync(stdoutPath, result.stdout || ''); fs.writeFileSync(stderrPath, result.stderr || result.error?.message || '');
     const parsed = timedSyncPhase(timings, 'parseScriptManifest', () => parseScriptManifest(scriptManifestPath, result));
@@ -482,7 +493,7 @@ export async function renderBundle(request = {}) {
     const outputHashes = {};
     for (const file of outputFilesBeforeHashes) outputHashes[path.relative(outputDir, file)] = {sha256: sha256File(file), byteCount: fs.statSync(file).size};
     fs.writeFileSync(hashesPath, JSON.stringify({
-      glbRef: request.glbRef || '', scriptRef: request.scriptRef || '', glbHash, scriptHash,
+      mode, glbRef: request.glbRef || '', scriptRef: request.scriptRef || '', glbHash, scriptHash,
       settingsHash: sha256Buffer(Buffer.from(stableJson(settings))), toolVersion: TOOL_VERSION,
       stagedInputs: request.stagedInputs || [], outputHashes,
     }, null, 2));
@@ -490,8 +501,11 @@ export async function renderBundle(request = {}) {
     fs.writeFileSync(blenderSettingsPath, JSON.stringify({blenderVersion: blenderVersionText, settings, renderToolVersion: TOOL_VERSION, exitCode: result.status, signal: result.signal || ''}, null, 2));
     timedSyncPhase(timings, 'enforceOutputLimits', () => enforceOutputLimits(outputDir));
     const validation = {
-      schema: 'command-center.blender-render.validation.v1',
-      atomicOperation: 'GLB + script + execution contract -> durable 3D artifact + visual evidence',
+      schema: 'command-center.blender-render.validation.v2',
+      mode,
+      atomicOperation: mode === 'build'
+        ? 'empty Blender factory scene + authoring script + execution contract -> durable 3D artifact + visual evidence'
+        : 'GLB + script + execution contract -> durable 3D artifact + visual evidence',
       framesAreInsufficient: true,
       presentBundleKinds: [],
       glbHash,
@@ -536,7 +550,7 @@ export async function renderBundle(request = {}) {
     timings.finishedAtMs = nowMs();
     timings.totalMs = Math.max(0, timings.finishedAtMs - timings.startedAtMs);
     validation.gifPlaybackContract = gifPlaybackContract;
-    manifest = {contractVersion: compatibility.contractVersion, ok: validation.ok, status: validation.ok ? 'completed' : 'failed', failureKind: validation.ok ? '' : (validation.failureKind || 'artifact_publication'), cacheHit: false, renderId: request.renderId || '', cacheKey, refs, validationManifest: validation, bundle: {refs, validationManifest: validation, artifactHashes: outputHashes, gifPlaybackContract}, artifactHashes: outputHashes, gifPlaybackContract, gifPlaybackContractRef: refs.gifPlaybackContract, timings, renderOptions: options, renderRefs: refs.renderedFrames, contactSheetRef: refs.contactSheet, loopingGifRef: refs.loopingGif, threeDArtifactRefs: refs.threeDArtifacts, modifiedBlendRef: refs.modifiedBlend, animatedGlbRef: refs.animatedGlb, nativeDataRefs: refs.nativePoseAnimationData, originalScriptRef: refs.originalScript, scriptInputHashesRef: refs.scriptInputHashes, blenderVersionSettingsRef: refs.blenderVersionSettings, stdoutRef: refs.stdout, stderrRef: refs.stderr, fixedCameraRenderRefs: refs.fixedCameraRenders, diagnosticRenderRefs: refs.diagnosticViewRenders};
+    manifest = {contractVersion: compatibility.contractVersion, mode, ok: validation.ok, status: validation.ok ? 'completed' : 'failed', failureKind: validation.ok ? '' : (validation.failureKind || 'artifact_publication'), cacheHit: false, renderId: request.renderId || '', cacheKey, refs, validationManifest: validation, bundle: {refs, validationManifest: validation, artifactHashes: outputHashes, gifPlaybackContract}, artifactHashes: outputHashes, gifPlaybackContract, gifPlaybackContractRef: refs.gifPlaybackContract, timings, renderOptions: options, renderRefs: refs.renderedFrames, contactSheetRef: refs.contactSheet, loopingGifRef: refs.loopingGif, threeDArtifactRefs: refs.threeDArtifacts, modifiedBlendRef: refs.modifiedBlend, animatedGlbRef: refs.animatedGlb, nativeDataRefs: refs.nativePoseAnimationData, originalScriptRef: refs.originalScript, scriptInputHashesRef: refs.scriptInputHashes, blenderVersionSettingsRef: refs.blenderVersionSettings, stdoutRef: refs.stdout, stderrRef: refs.stderr, fixedCameraRenderRefs: refs.fixedCameraRenders, diagnosticRenderRefs: refs.diagnosticViewRenders};
     const manifestPath = path.join(outputDir, 'validation-manifest.json');
     validation.timings = timings;
     validation.renderOptions = options;
