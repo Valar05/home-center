@@ -5,7 +5,7 @@
 ## Authority split
 
 - Cloud Storage owns canonical binary assets and immutable indexes.
-- Command Center receives the artifact catalog receipt and retrieval identity.
+- Command Center receives an owner-scoped artifact catalog receipt and retrieval identity.
 - Drive remains a deliberate human-publishing surface.
 - Library or scratch may transport bytes but is not canonical authority.
 
