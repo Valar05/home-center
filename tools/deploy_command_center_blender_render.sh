@@ -31,7 +31,27 @@ if ! gcloud storage buckets describe "gs://${CACHE_BUCKET}" --project "$PROJECT"
   gcloud storage buckets create "gs://${CACHE_BUCKET}" --project "$PROJECT" --location "$REGION" --uniform-bucket-level-access >/dev/null
 fi
 
-gcloud builds submit "$ROOT" --project "$PROJECT" --config "$ROOT/cloud-render/cloudbuild.yaml" --substitutions "_IMAGE=${IMAGE}"
+if [ -n "${COMMAND_CENTER_RENDER_BUILD_ID:-}" ]; then
+  ATTEMPT=0
+  while :; do
+    BUILD_STATUS="$(gcloud builds describe "$COMMAND_CENTER_RENDER_BUILD_ID" --project "$PROJECT" --format='value(status)')"
+    case "$BUILD_STATUS" in
+      SUCCESS) break ;;
+      FAILURE|INTERNAL_ERROR|TIMEOUT|CANCELLED|EXPIRED)
+        echo "Cloud Build ${COMMAND_CENTER_RENDER_BUILD_ID} failed with status ${BUILD_STATUS}." >&2
+        exit 1
+        ;;
+    esac
+    ATTEMPT=$((ATTEMPT + 1))
+    if [ "$ATTEMPT" -ge 60 ]; then
+      echo "Cloud Build ${COMMAND_CENTER_RENDER_BUILD_ID} did not finish within the bounded poll window." >&2
+      exit 1
+    fi
+    sleep 10
+  done
+else
+  gcloud builds submit "$ROOT" --project "$PROJECT" --config "$ROOT/cloud-render/cloudbuild.yaml" --substitutions "_IMAGE=${IMAGE}"
+fi
 
 SERVICE_ACCOUNT_ARG=""
 if [ -n "$SERVICE_ACCOUNT" ]; then
