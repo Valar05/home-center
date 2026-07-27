@@ -733,7 +733,9 @@ function renderReceiptWithoutInlinePayload(operationResult = {}, delivery = null
 }
 
 async function verifiedRenderGifMcpContent(result = {}, {storage = null, google = null, auth = null, parentFolderId = ''} = {}) {
-  const renderResult = safeObject(result);
+  const envelope = safeObject(result);
+  const nestedResult = safeObject(envelope.result);
+  const renderResult = Object.keys(nestedResult).length ? nestedResult : envelope;
   const loopingGifRef = safeText(renderResult.loopingGifRef, 1600);
   const expected = renderArtifactHashEntry(renderResult, 'walk-loop.gif');
   const expectedSha256 = safeText(expected.sha256, 128).toLowerCase();
