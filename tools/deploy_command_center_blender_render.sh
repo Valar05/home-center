@@ -19,7 +19,9 @@ node "$ROOT/tools/worker_profile_contract.mjs" validate-resolved command-center-
   "maxInstances=$WORKER_MAX_INSTANCES" \
   "timeoutSeconds=$WORKER_TIMEOUT_SECONDS"
 
-gcloud services enable run.googleapis.com cloudbuild.googleapis.com artifactregistry.googleapis.com storage.googleapis.com --project "$PROJECT" >/dev/null
+if [ "${COMMAND_CENTER_SKIP_SERVICE_ENABLE:-false}" != "true" ]; then
+  gcloud services enable run.googleapis.com cloudbuild.googleapis.com artifactregistry.googleapis.com storage.googleapis.com --project "$PROJECT" >/dev/null
+fi
 
 if ! gcloud artifacts repositories describe "$REPOSITORY" --project "$PROJECT" --location "$REGION" >/dev/null 2>&1; then
   gcloud artifacts repositories create "$REPOSITORY" --project "$PROJECT" --location "$REGION" --repository-format docker --description "Command Center worker and render images" >/dev/null
