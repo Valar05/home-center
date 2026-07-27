@@ -61,6 +61,7 @@ const MCP_AUTHORIZATION_SERVER_METADATA = `${MCP_PUBLIC_BASE}/.well-known/oauth-
 const MCP_GOOGLE_CALLBACK = process.env.HOME_CENTER_MCP_GOOGLE_CALLBACK || `${MCP_PUBLIC_BASE}/oauth/google-callback`;
 const COMMAND_CENTER_MCP_URL = process.env.COMMAND_CENTER_MCP_URL || 'https://us-central1-home-center-dclar.cloudfunctions.net/commandCenterMcp/mcp';
 const COMMAND_CENTER_RENDER_BUCKET = process.env.COMMAND_CENTER_RENDER_BUCKET || process.env.RENDER_CACHE_BUCKET || process.env.COMMAND_CENTER_BUCKET || 'home-center-generated';
+const HOME_CENTER_GENERATED_ARTIFACT_BUCKET = process.env.GENERATED_ARTIFACT_BUCKET || 'home-center-generated';
 const HOME_CENTER_RENDER_MAX_GLB_BYTES = Number(process.env.COMMAND_CENTER_RENDER_MAX_GLB_BYTES || 250 * 1024 * 1024);
 const HOME_CENTER_RENDER_MAX_SCRIPT_BYTES = Number(process.env.COMMAND_CENTER_RENDER_MAX_SCRIPT_BYTES || 1024 * 1024);
 const HOME_CENTER_DIRECT_RENDER_TEXT_LIMIT = 1024 * 1024;
@@ -699,6 +700,18 @@ function parseRenderGsRef(ref) {
   return {bucket: match[1], name: match[2], ref: text};
 }
 
+
+function parseRenderReviewGsRef(ref) {
+  const text = safeText(ref, 1600);
+  const match = text.match(/^gs:\/\/([^/]+)\/(.+)$/i);
+  if (!match) throw homeCenterRenderInputError('Render review delivery requires a private gs:// artifact ref sealed in the completed receipt.', 400, 'RENDER_REVIEW_ARTIFACT_REF_INVALID');
+  const allowedBuckets = new Set([COMMAND_CENTER_RENDER_BUCKET, HOME_CENTER_GENERATED_ARTIFACT_BUCKET].filter(Boolean));
+  if (!allowedBuckets.has(match[1])) throw homeCenterRenderInputError('Render review delivery refused artifact outside the configured private artifact buckets.', 403, 'RENDER_REVIEW_ARTIFACT_OWNER_SCOPE_FAILED');
+  const allowedPrefixes = ['command-center-renders/', 'renders/contact-sheets/', 'renders/blender/', 'renders/gifs/'];
+  if (!allowedPrefixes.some((prefix) => match[2].startsWith(prefix))) throw homeCenterRenderInputError('Render review delivery refused artifact outside the render review prefixes.', 403, 'RENDER_REVIEW_ARTIFACT_OWNER_SCOPE_FAILED');
+  return {bucket: match[1], name: match[2], ref: text};
+}
+
 function renderArtifactHashEntry(result = {}, rel = 'walk-loop.gif') {
   const direct = safeObject(result.artifactHashes);
   const bundle = safeObject(result.bundle);
@@ -788,7 +801,7 @@ function renderReviewArtifactCandidates(statusReceipt = {}, args = {}) {
   const add = (kind, ref, hashKey) => {
     const artifactRef = safeText(ref, 1600);
     if (!artifactRef) return;
-    parseRenderGsRef(artifactRef);
+    parseRenderReviewGsRef(artifactRef);
     const expected = renderArtifactHashEntry(output, hashKey);
     const expectedSha256 = safeText(expected.sha256, 128).toLowerCase();
     const expectedByteCount = Number(expected.byteCount || 0) || 0;
@@ -802,13 +815,13 @@ function renderReviewArtifactCandidates(statusReceipt = {}, args = {}) {
   if (kinds.includes('contact_sheet')) add('contact_sheet', output.contactSheetRef, 'contact-sheet.png');
   if (kinds.includes('diagnostic_views')) {
     (Array.isArray(output.diagnosticRenderRefs) ? output.diagnosticRenderRefs : []).forEach((ref) => {
-      const parsed = parseRenderGsRef(ref);
+      const parsed = parseRenderReviewGsRef(ref);
       add('diagnostic_views', ref, parsed.name.split('/').pop().replace(/^\d+-/, ''));
     });
   }
   if (kinds.includes('fixed_camera_views')) {
     (Array.isArray(output.fixedCameraRenderRefs) ? output.fixedCameraRenderRefs : []).forEach((ref) => {
-      const parsed = parseRenderGsRef(ref);
+      const parsed = parseRenderReviewGsRef(ref);
       add('fixed_camera_views', ref, parsed.name.split('/').pop().replace(/^\d+-/, ''));
     });
   }
@@ -915,7 +928,7 @@ async function materializeRenderReviewArtifactsOperation({google, admin, auth, u
   const storage = helpers.storage || new Storage();
   const publish = helpers.publishArtifact || publishRenderReviewArtifactToDrive;
   const artifacts = await boundedMap(review.candidates, 3, async (candidate) => {
-    const parsed = parseRenderGsRef(candidate.artifactRef);
+    const parsed = parseRenderReviewGsRef(candidate.artifactRef);
     const [downloaded] = await storage.bucket(parsed.bucket).file(parsed.name).download();
     const bytes = Buffer.isBuffer(downloaded) ? downloaded : Buffer.from(downloaded);
     const readbackSha256 = sha256RenderBytes(bytes);
