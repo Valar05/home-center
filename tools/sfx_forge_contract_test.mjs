@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import assert from 'node:assert/strict';
 import {createRequire} from 'node:module';
+import {readFileSync} from 'node:fs';
 
 process.env.HOME_CENTER_ARTIFACT_BUCKET_TEST_FAKE = '1';
 const require = createRequire(import.meta.url);
@@ -254,6 +255,9 @@ const status = await sfxForgeStatusOperation({admin: {}, requestId: 'sfx-forge-r
 assert.equal(status.ok, true);
 assert.equal(status.status, 'completed');
 assert.equal(status.humanAcceptance, 'unreviewed');
+
+const deployScript = readFileSync(new URL('./deploy_functions_termux.sh', import.meta.url), 'utf8');
+assert.match(deployScript, /OPENAI_API_KEY=OPENAI_API_KEY:latest/, 'homeCenterMcp deploy must bind the existing OpenAI transcription secret');
 
 assert.equal(silence({duration: 0.01, sampleRate: 48000, channels: 2}).sampleRate, 48000);
 console.log(JSON.stringify({
