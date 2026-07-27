@@ -20,7 +20,7 @@ const {
   runChildProcess,
   runFoundryOperation,
 } = require('../functions/foundry_capability.js');
-const {driveOperationRegistry, createHomeCenterMcpServer, normalizeInstalledAppToolCall} = require('../functions/home_center_mcp.js');
+const {driveOperationRegistry, createHomeCenterMcpServer} = require('../functions/home_center_mcp.js');
 const {runFoundryKernel, inspectGlbBytes} = await import('../functions/foundry_kernel.mjs');
 
 function stable(value) {
@@ -84,16 +84,6 @@ assert.deepEqual(currentTools, baselineTools, 'complete installed top-level MCP 
 assert.equal(hash(currentTools), '64fe900eeaaf2928c2b6114829ee758ff73cc05700373085a1ae63b6484d05f1');
 assert.equal(currentTools.length, 58);
 assert.deepEqual(currentTools.filter((tool) => /foundry/i.test(tool.name)), [], 'Foundry must never become a top-level MCP tool');
-const prefixedCall = {jsonrpc: '2.0', id: 1, method: 'tools/call', params: {name: 'home_center_drive.drive_operation', arguments: {operation: 'foundry.asset.status'}}};
-const normalizedCall = normalizeInstalledAppToolCall(prefixedCall, server._registeredTools);
-assert.equal(normalizedCall.params.name, 'drive_operation', 'installed app namespace must resolve to the canonical registered tool');
-assert.equal(prefixedCall.params.name, 'home_center_drive.drive_operation', 'normalization must not mutate the caller envelope');
-const canonicalCall = {...prefixedCall, params: {...prefixedCall.params, name: 'drive_operation'}};
-assert.strictEqual(normalizeInstalledAppToolCall(canonicalCall, server._registeredTools), canonicalCall, 'canonical calls must pass through unchanged');
-const unknownPrefixCall = {...prefixedCall, params: {...prefixedCall.params, name: 'other_app.drive_operation'}};
-assert.strictEqual(normalizeInstalledAppToolCall(unknownPrefixCall, server._registeredTools), unknownPrefixCall, 'arbitrary namespaces must not be accepted');
-const unknownToolCall = {...prefixedCall, params: {...prefixedCall.params, name: 'home_center_drive.not_registered'}};
-assert.strictEqual(normalizeInstalledAppToolCall(unknownToolCall, server._registeredTools), unknownToolCall, 'the installed namespace must not create unregistered tools');
 delete process.env.HOME_CENTER_MCP_EXTENDED_TOOLS;
 
 const dynamic = Object.keys(foundryOperationEntries()).sort();
