@@ -128,6 +128,18 @@ const COMMAND_CENTER_RENDER_REQUIRED_BUNDLE_KINDS = Object.freeze([
   'validation_manifest',
   'original_script',
 ]);
+const COMMAND_CENTER_BUILD_REQUIRED_BUNDLE_KINDS = Object.freeze([
+  'rendered_frames',
+  'contact_sheet',
+  'script_input_hashes',
+  'blender_version_settings',
+  'stdout_stderr',
+  'fixed_camera_renders',
+  'diagnostic_view_renders',
+  'validation_manifest',
+  'original_script',
+  'three_d_artifact',
+]);
 
 const COMMAND_CENTER_ALLOWED_EMAILS = Object.freeze([
   'dclarke1005@gmail.com',
@@ -1438,20 +1450,30 @@ function renderBundleOptionsFrom(settings = {}, contract = {}) {
   };
 }
 
-function renderRequiredBundleKindsForOptions(options = {}) {
+function normalizeRenderMode(value) {
+  return safeText(value, 40) === 'build' ? 'build' : 'render_glb';
+}
+
+function renderRequiredBundleKindsForOptions(options = {}, mode = 'render_glb') {
   const resolved = renderBundleOptionsFrom(options, options);
+  if (normalizeRenderMode(mode) === 'build') {
+    return COMMAND_CENTER_BUILD_REQUIRED_BUNDLE_KINDS.filter((kind) => resolved.includeDiagnostics || kind !== 'diagnostic_view_renders');
+  }
   const requireBundleKinds = COMMAND_CENTER_RENDER_REQUIRED_BUNDLE_KINDS.filter((kind) => resolved.includeDiagnostics || kind !== 'diagnostic_view_renders');
   if (resolved.includeBlend) requireBundleKinds.push('three_d_artifact');
   return requireBundleKinds;
 }
 
-function cleanRenderContract(value = {}) {
+function cleanRenderContract(value = {}, mode = 'render_glb') {
   const src = safeObject(value);
   const options = renderBundleOptionsFrom(src, src);
-  const requireBundleKinds = renderRequiredBundleKindsForOptions(options);
+  const normalizedMode = normalizeRenderMode(mode);
+  const requireBundleKinds = renderRequiredBundleKindsForOptions(options, normalizedMode);
   return {
-    contractVersion: safeText(src.contractVersion, 80) || 'glb-script-durable-3d-artifact-v1',
-    atomicOperation: 'GLB + script + execution contract -> durable 3D artifact + visual evidence',
+    contractVersion: safeText(src.contractVersion, 80) || (normalizedMode === 'build' ? 'empty-scene-script-durable-3d-artifact-v1' : 'glb-script-durable-3d-artifact-v1'),
+    atomicOperation: normalizedMode === 'build'
+      ? 'empty Blender factory scene + authoring script + execution contract -> durable 3D artifact + visual evidence'
+      : 'GLB + script + execution contract -> durable 3D artifact + visual evidence',
     requireBundleKinds,
     framesAreInsufficient: true,
     preserve3dTruth: true,
@@ -1461,13 +1483,15 @@ function cleanRenderContract(value = {}) {
 }
 
 function renderCacheLookupKey(args = {}) {
+  const mode = normalizeRenderMode(args.mode);
   return fullHash(stableJson({
+    mode,
     toolVersion: COMMAND_CENTER_RENDER_TOOL_VERSION,
     contractVersion: safeText(args.contractVersion, 100) || 'home-center.blender-render-request.v2',
-    glbRef: normalizeRenderRef(args.glbRef, 'glbRef'),
+    glbRef: mode === 'build' ? '' : normalizeRenderRef(args.glbRef, 'glbRef'),
     scriptRef: normalizeRenderRef(args.scriptRef, 'scriptRef'),
     settings: normalizeRenderSettings(args.settings),
-    executionContract: cleanRenderContract(args.executionContract),
+    executionContract: cleanRenderContract(args.executionContract, mode),
   }));
 }
 
@@ -1580,7 +1604,7 @@ async function invokeRenderService(payload) {
   }
   const baseUrl = serviceUrl.replace(/\/+$/, '');
   const identityToken = await googleCloudIdentityToken(baseUrl);
-  const response = await fetch(baseUrl + '/render/glb', {
+  const response = await fetch(baseUrl + (normalizeRenderMode(payload.mode) === 'build' ? '/render/build' : '/render/glb'), {
     method: 'POST',
     headers: {authorization: `Bearer ${identityToken}`, 'content-type': 'application/json'},
     body: JSON.stringify(payload),
@@ -1649,22 +1673,24 @@ async function resolveRenderBucketInputs(admin, refs = [], caller = {}) {
 }
 
 async function resolveRenderSources(caller, args, renderId) {
+  const mode = normalizeRenderMode(args.mode);
   const glbHasFile = isFileLike(args.glbFile);
   const glbHasRef = safeText(args.glbRef, 1200).length > 0;
-  if (renderSourceCount(glbHasFile, glbHasRef) !== 1) throw renderInputError('Exactly one GLB source is required: provide glbFile or glbRef, but not both.');
+  if (mode === 'build' && renderSourceCount(glbHasFile, glbHasRef) !== 0) throw renderInputError('render.blender_build starts from Blender factory state and does not accept a GLB source.');
+  if (mode !== 'build' && renderSourceCount(glbHasFile, glbHasRef) !== 1) throw renderInputError('Exactly one GLB source is required: provide glbFile or glbRef, but not both.');
   const scriptHasFile = isFileLike(args.scriptFile);
   const scriptHasRef = safeText(args.scriptRef, 1200).length > 0;
   const scriptHasInline = hasInlineScript(args);
   if (renderSourceCount(scriptHasFile, scriptHasRef, scriptHasInline) !== 1) throw renderInputError('Exactly one Blender script source is required: provide scriptFile, scriptRef, or scriptText.');
 
   const tasks = [
-    async () => {
+    ...(mode === 'build' ? [] : [async () => {
       if (!glbHasFile) return {role: 'glb', ref: normalizeRenderRef(args.glbRef, 'glbRef'), staged: null};
       const bytes = await bytesFromFileLike(args.glbFile, 'glbFile');
       validateGlbBytes(bytes, 'glbFile');
       const staged = await stageRenderUpload({caller, renderId, role: 'glb', fileName: args.glbFile.name, bytes, contentType: args.glbFile.type || 'model/gltf-binary'});
       return {role: 'glb', ref: staged.ref, staged};
-    },
+    }]),
     async () => {
       if (scriptHasRef) return {role: 'script', ref: normalizeRenderRef(args.scriptRef, 'scriptRef'), staged: null};
       const file = scriptHasFile ? args.scriptFile : {name: 'inline-render.py', type: 'text/x-python', arrayBuffer: async () => Buffer.from(safeText(args.scriptText || args.inlineScript || args.script, COMMAND_CENTER_RENDER_MAX_SCRIPT_BYTES + 1), 'utf8')};
@@ -1675,8 +1701,10 @@ async function resolveRenderSources(caller, args, renderId) {
       return {role: 'script', ref: staged.ref, staged};
     },
   ];
-  const [glb, script] = await boundedMap(tasks, 2, (task) => task());
-  return {glbRef: glb.ref, scriptRef: script.ref, stagedInputs: [glb.staged, script.staged].filter(Boolean)};
+  const resolved = await boundedMap(tasks, 2, (task) => task());
+  const glb = resolved.find((item) => item.role === 'glb');
+  const script = resolved.find((item) => item.role === 'script');
+  return {glbRef: glb ? glb.ref : '', scriptRef: script.ref, stagedInputs: [glb && glb.staged, script.staged].filter(Boolean)};
 }
 
 function renderArtifactIdentity(stagedInputs, role, ref) {
@@ -1687,10 +1715,15 @@ function renderArtifactIdentity(stagedInputs, role, ref) {
   return {role, compatibilityLocation: normalizeRenderRef(ref, role + 'Ref')};
 }
 
-function renderRequestContract({contractVersion, glbRef, scriptRef, stagedInputs, settings, executionContract}) {
+function renderRequestContract({mode = 'render_glb', contractVersion, glbRef, scriptRef, stagedInputs, settings, executionContract}) {
+  const normalizedMode = normalizeRenderMode(mode);
   return {
+    mode: normalizedMode,
     contractVersion,
-    artifacts: [renderArtifactIdentity(stagedInputs, 'glb', glbRef), renderArtifactIdentity(stagedInputs, 'script', scriptRef)],
+    artifacts: [
+      ...(normalizedMode === 'build' ? [] : [renderArtifactIdentity(stagedInputs, 'glb', glbRef)]),
+      renderArtifactIdentity(stagedInputs, 'script', scriptRef),
+    ],
     settings,
     executionContract,
   };
@@ -1718,6 +1751,7 @@ function boundedRenderRequestStatus(record = {}, attached = false) {
     ok: ['queued', 'running', 'completed'].includes(effectiveStatus),
     accepted: true,
     attached,
+    mode: normalizeRenderMode(record.mode),
     contractVersion: safeText(record.contractVersion, 100) || 'home-center.blender-render-request.v2',
     renderId: safeText(record.renderId, 180),
     inputHash: safeText(record.inputHash, 64),
@@ -1776,20 +1810,21 @@ async function ensureRenderTaskEnqueued(admin, record, enqueue = enqueueRenderTa
 }
 
 async function prepareRenderRequest(caller, args = {}) {
+  const mode = normalizeRenderMode(args.mode);
   const contractVersion = safeText(args.contractVersion, 100) || 'home-center.blender-render-request.v2';
   const settings = normalizeRenderSettings(args.settings);
-  const executionContract = cleanRenderContract(args.executionContract);
+  const executionContract = cleanRenderContract(args.executionContract, mode);
   const seedRenderId = safeText(args.renderId, 180) || 'render_' + hashText(ownerKeyFromCaller(caller) + ':' + safeText(args.idempotencyKey, 180), 32);
   const resolvedSources = await resolveRenderSources(caller, args || {}, seedRenderId);
   const glbRef = resolvedSources.glbRef;
   const scriptRef = resolvedSources.scriptRef;
-  if ([glbRef, scriptRef].some((ref) => /^drive:\/\//i.test(ref))) {
+  if ([glbRef, scriptRef].filter(Boolean).some((ref) => /^drive:\/\//i.test(ref))) {
     throw renderInputError('Queued Blender renders cannot retain user OAuth credentials. Materialize drive:// inputs through artifact_transport.preflight and submit the resulting gs:// refs.', 400, 'render_async_requires_durable_staged_ref');
   }
   const stagedInputs = [...cleanRenderStagedInputs(args.stagedInputs), ...resolvedSources.stagedInputs];
-  const inputHash = renderRequestInputHash({contractVersion, glbRef, scriptRef, stagedInputs, settings, executionContract});
+  const inputHash = renderRequestInputHash({mode, contractVersion, glbRef, scriptRef, stagedInputs, settings, executionContract});
   const renderId = safeText(args.renderId, 180) || renderRecordId(inputHash, caller);
-  return {contractVersion, glbRef, scriptRef, stagedInputs, settings, executionContract, inputHash, renderId};
+  return {mode, contractVersion, glbRef, scriptRef, stagedInputs, settings, executionContract, inputHash, renderId};
 }
 
 async function renderBlenderGlb(admin, extra, args = {}, helpers = {}) {
@@ -1829,6 +1864,7 @@ async function renderBlenderGlb(admin, extra, args = {}, helpers = {}) {
       const now = Date.now();
       record = {
         renderId: prepared.renderId,
+        mode: prepared.mode,
         inputHash: prepared.inputHash,
         contractVersion: prepared.contractVersion,
         status: 'queued',
@@ -1854,11 +1890,15 @@ async function renderBlenderGlb(admin, extra, args = {}, helpers = {}) {
       };
       transaction.create(requestRef, record);
     }
-    if (!idemSnapshot.exists) transaction.create(idemRef, {idempotencyKey, operation: 'render.blender_glb', inputHash: prepared.inputHash, renderId: prepared.renderId, caller: caller.actor, ownerKey: ownerKeyFromCaller(caller), createdAtMs: Date.now()});
+    if (!idemSnapshot.exists) transaction.create(idemRef, {idempotencyKey, operation: prepared.mode === 'build' ? 'render.blender_build' : 'render.blender_glb', inputHash: prepared.inputHash, renderId: prepared.renderId, caller: caller.actor, ownerKey: ownerKeyFromCaller(caller), createdAtMs: Date.now()});
   });
   const terminal = ['completed', 'failed', 'quarantined'].includes(safeText(record.status, 80));
   if (!terminal) record = await ensureRenderTaskEnqueued(admin, record, helpers.enqueueRenderTask || enqueueRenderTask);
   return boundedRenderRequestStatus(record, attached);
+}
+
+async function renderBlenderBuild(admin, extra, args = {}, helpers = {}) {
+  return renderBlenderGlb(admin, extra, {...args, mode: 'build'}, helpers);
 }
 
 async function renderRequestStatus(admin, caller, args = {}) {
@@ -1918,13 +1958,14 @@ async function executeQueuedRenderRequest(admin, task = {}, helpers = {}) {
   if (claimed.terminal) return boundedRenderRequestStatus(claimed.record, true);
   const record = claimed.record;
   try {
-    const bucketInputs = await resolveRenderBucketInputs(admin, [record.glbRef, record.scriptRef], {actor: record.requestedBy, ownerKey: record.ownerKey});
+    const mode = normalizeRenderMode(record.mode);
+    const bucketInputs = await resolveRenderBucketInputs(admin, [record.glbRef, record.scriptRef].filter(Boolean), {actor: record.requestedBy, ownerKey: record.ownerKey});
     const invoke = helpers.invokeRenderService || invokeRenderService;
-    const serviceResult = await invoke({renderId, requestCacheKey: renderCacheLookupKey(record), contractVersion: record.contractVersion, glbRef: record.glbRef, scriptRef: record.scriptRef, stagedInputs: record.stagedInputs, settings: record.settings, executionContract: record.executionContract, toolVersion: COMMAND_CENTER_RENDER_TOOL_VERSION, cache: record.cache !== false, bucketInputs});
+    const serviceResult = await invoke({mode, renderId, requestCacheKey: renderCacheLookupKey(record), contractVersion: record.contractVersion, glbRef: record.glbRef, scriptRef: record.scriptRef, stagedInputs: record.stagedInputs, settings: record.settings, executionContract: record.executionContract, toolVersion: COMMAND_CENTER_RENDER_TOOL_VERSION, cache: record.cache !== false, bucketInputs});
     const cleaned = cleanRenderResult(serviceResult, {renderId, cacheKey: serviceResult.cacheKey || renderCacheLookupKey(record)});
     const presentKinds = cleaned.validation && Array.isArray(cleaned.validation.presentBundleKinds) ? cleaned.validation.presentBundleKinds : [];
     const effectiveOptions = cleaned.renderOptions && Object.keys(cleaned.renderOptions).length ? cleaned.renderOptions : renderBundleOptionsFrom(record.settings, record.executionContract);
-    const requiredKinds = renderRequiredBundleKindsForOptions(effectiveOptions);
+    const requiredKinds = renderRequiredBundleKindsForOptions(effectiveOptions, mode);
     const missingKinds = requiredKinds.filter((kind) => !presentKinds.includes(kind));
     const completed = cleaned.ok && missingKinds.length === 0;
     const finalResult = {...cleaned, ok: completed, status: completed ? 'completed' : 'failed', missingBundleKinds: missingKinds, stagedInputs: record.stagedInputs};
@@ -4926,6 +4967,8 @@ async function runCommandCenterOperation(admin, extra, operation, args = {}) {
       return upsertProject(admin, await caller(), args || {});
     case 'render.blender_glb':
       return renderBlenderGlb(admin, extra, args || {});
+    case 'render.blender_build':
+      return renderBlenderBuild(admin, extra, args || {});
     case 'render.status':
       return renderRequestStatus(admin, await caller(), args || {});
     case 'render.reconcile':
@@ -5344,6 +5387,21 @@ function createCommandCenterMcpServer({admin}) {
       cache: z.boolean().optional(),
     },
   }, async (args, extra) => textResult(await renderBlenderGlb(admin, extra, args || {})));
+
+  server.registerTool('command_center.render.blender_build', {
+    title: 'Author a 3D asset in Cloud Run Blender',
+    description: 'Start Blender from factory state inside the existing private Cloud Run renderer, execute one durable authoring script, and return a queued receipt for native .blend, GLB, visual evidence, hashes, logs, and validation.',
+    inputSchema: {
+      idempotencyKey: z.string(),
+      renderId: z.string().optional(),
+      scriptFile: z.file().optional(),
+      scriptRef: z.string().optional(),
+      scriptText: z.string().optional(),
+      settings: z.record(z.string(), z.any()).optional(),
+      executionContract: z.record(z.string(), z.any()).optional(),
+      cache: z.boolean().optional(),
+    },
+  }, async (args, extra) => textResult(await renderBlenderBuild(admin, extra, args || {})));
 
   server.registerTool('command_center.render.status', {
     title: 'Get Blender render status',
@@ -6122,6 +6180,7 @@ module.exports = {
   renderBundleOptionsFrom,
   renderRequiredBundleKindsForOptions,
   renderBlenderGlb,
+  renderBlenderBuild,
   renderRequestStatus,
   reconcileRenderRequest,
   executeQueuedRenderRequest,
