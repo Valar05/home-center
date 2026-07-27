@@ -1558,8 +1558,8 @@ function boundedCompletedRenderResult(value = {}) {
       timings: safeObject(validation.timings || result.timings),
       gifPlayback: {
         gifFrameSelection: safeText(playback.gifFrameSelection, 80),
-        gifFrames: safeList(playback.gifFrames, 32, 32).map(Number),
-        gifTimingMs: safeList(playback.gifTimingMs, 32, 32).map(Number),
+        gifFrames: safeNumberList(playback.gifFrames, 32),
+        gifTimingMs: safeNumberList(playback.gifTimingMs, 32),
         allowRepeatedGifFrames: playback.allowRepeatedGifFrames === true,
         selectedFrames: (Array.isArray(playback.selectedFrames) ? playback.selectedFrames : []).slice(0, 32).map((item) => ({playbackIndex: Number(item.playbackIndex || 0), evidenceFrame: Number(item.evidenceFrame || 0), name: safeText(item.name, 240), timingMs: Number(item.timingMs || 0)})),
       },

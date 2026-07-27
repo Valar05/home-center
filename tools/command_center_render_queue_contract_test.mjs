@@ -96,7 +96,7 @@ let invokeCount = 0;
 const requiredKinds = ['rendered_frames','contact_sheet','native_pose_animation_data','script_input_hashes','blender_version_settings','stdout_stderr','fixed_camera_renders','diagnostic_view_renders','validation_manifest','original_script','three_d_artifact'];
 const completed = await executeQueuedRenderRequest(admin, enqueued[0], {invokeRenderService: async () => {
   invokeCount += 1;
-  return {ok: true, status: 'completed', cacheKey: 'a'.repeat(64), bundle: {unboundedProviderPayload: 'x'.repeat(100000)}, refs: {renderedFrames: ['gs://proof/frame.png'], fixedCameraRenders: ['gs://proof/front.png'], diagnosticViewRenders: ['gs://proof/side.png'], threeDArtifacts: ['gs://proof/out.glb'], validationManifest: 'gs://proof/manifest.json'}, validationManifest: {presentBundleKinds: requiredKinds, ok: true}, renderOptions: {includeBlend: true, includeDiagnostics: true}};
+  return {ok: true, status: 'completed', cacheKey: 'a'.repeat(64), bundle: {unboundedProviderPayload: 'x'.repeat(100000)}, refs: {renderedFrames: ['gs://proof/frame.png'], fixedCameraRenders: ['gs://proof/front.png'], diagnosticViewRenders: ['gs://proof/side.png'], threeDArtifacts: ['gs://proof/out.glb'], validationManifest: 'gs://proof/manifest.json'}, validationManifest: {presentBundleKinds: requiredKinds, ok: true, gifPlaybackContract: {gifFrameSelection: 'explicit', gifFrames: [0, 1], gifTimingMs: [100, 120], selectedFrames: [{playbackIndex: 0, evidenceFrame: 0, name: 'frame-0.png', timingMs: 100}]}}, renderOptions: {includeBlend: true, includeDiagnostics: true}};
 }});
 assert.equal(completed.status, 'completed');
 assert.equal(invokeCount, 1);
@@ -106,6 +106,8 @@ const status = await renderRequestStatus(admin, caller, {renderId: first.renderI
 assert.equal(status.status, 'completed');
 assert.equal(status.result.renderRefs.length, 1);
 assert.equal(status.result.bundle, undefined);
+assert.deepEqual(status.result.validation.gifPlayback.gifFrames, [0, 1]);
+assert.deepEqual(status.result.validation.gifPlayback.gifTimingMs, [100, 120]);
 assert.ok(JSON.stringify(status).length < 50000, 'status must remain bounded when the provider result contains an unbounded bundle');
 assert.equal(JSON.stringify(status).includes('Bearer'), false);
 
