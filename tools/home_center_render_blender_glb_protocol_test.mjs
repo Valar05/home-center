@@ -13,6 +13,8 @@ const {
   createHomeCenterMcpServer,
   renderReviewArtifactCandidates,
   renderReviewArtifactKey,
+  normalizeHomeCenterMcpToolName,
+  normalizeHomeCenterMcpRequestBody,
 } = require('../functions/home_center_mcp.js');
 
 const homeCenterSource = readFileSync(new URL('../functions/home_center_mcp.js', import.meta.url), 'utf8');
@@ -22,6 +24,20 @@ const reviewOperationSource = homeCenterSource.slice(
 );
 assert.match(reviewOperationSource, /commandCenterRenderRequestStatus\(admin, \{actor: ownerEmail\}, \{renderId\}\)/);
 assert.doesNotMatch(reviewOperationSource, /commandCenterOperationRunOperation/, 'review egress must use local render status instead of a nested MCP round trip');
+
+assert.equal(normalizeHomeCenterMcpToolName('home_center_drive.health'), 'health');
+assert.equal(normalizeHomeCenterMcpToolName('home_center_drive.drive_operation'), 'drive_operation');
+assert.equal(normalizeHomeCenterMcpToolName('health'), 'health');
+assert.deepEqual(
+  normalizeHomeCenterMcpRequestBody({jsonrpc: '2.0', method: 'tools/call', params: {name: 'home_center_drive.drive_operation', arguments: {operation: 'drive_read_binary_chunk'}}}),
+  {jsonrpc: '2.0', method: 'tools/call', params: {name: 'drive_operation', arguments: {operation: 'drive_read_binary_chunk'}}},
+);
+const nonToolBody = {jsonrpc: '2.0', method: 'tools/list', params: {}};
+assert.equal(normalizeHomeCenterMcpRequestBody(nonToolBody), nonToolBody);
+assert.deepEqual(
+  normalizeHomeCenterMcpRequestBody([{method: 'tools/call', params: {name: 'home_center_drive.health'}}, nonToolBody]),
+  [{method: 'tools/call', params: {name: 'health'}}, nonToolBody],
+);
 
 assert.match(HOME_CENTER_CONNECTOR_SCHEMA_REVISION, /^2026-07-27\.render-review-egress-v1$/);
 assert.equal(HOME_CENTER_REGISTRY_VERSION, HOME_CENTER_CONNECTOR_SCHEMA_REVISION);
