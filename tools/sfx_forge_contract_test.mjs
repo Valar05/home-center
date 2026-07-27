@@ -90,6 +90,8 @@ assert.equal(analyzed.decode.sampleRate, 48000);
 assert.equal(analyzed.decode.channels, 2);
 assert.equal(analyzed.decode.normalized, false);
 assert.equal(analyzed.measurements.standards.standard, 'EBU R128 / ITU-R BS.1770 via FFmpeg ebur128');
+assert.ok(Number.isFinite(analyzed.measurements.rms));
+assert.ok(Number.isFinite(analyzed.measurements.crestFactorDb));
 assert.ok(Number.isFinite(analyzed.measurements.standards.truePeakDbtp));
 assert.ok(analyzed.transientAnalysis.candidates.length >= 2);
 assert.ok(analyzed.artifacts.every((artifact) => artifact.verified && artifact.sha256 === artifact.readbackSha256));

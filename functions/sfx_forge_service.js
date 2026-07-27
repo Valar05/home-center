@@ -503,6 +503,9 @@ async function analyzeSourceOperation({google, auth, admin, user, openAiApiKey =
       const wavBytes = await decodeWorkingPcm(source);
       const clip = decodeWav(wavBytes);
       const basic = measure(clip);
+      const rms = Number.isFinite(basic.integratedLufs)
+        ? 10 ** ((basic.integratedLufs + 0.691) / 20)
+        : 0;
       const r128 = await standardsMetrics(source);
       const transientAnalysis = detectTransients(clip);
       const transcription = await transcribeSlate(source, openAiApiKey, args.transcription || {});
@@ -536,8 +539,8 @@ async function analyzeSourceOperation({google, auth, admin, user, openAiApiKey =
         },
         measurements: {
           samplePeak: basic.peak,
-          rms: basic.rms,
-          crestFactorDb: basic.rms > 0 ? 20 * Math.log10(basic.peak / basic.rms) : null,
+          rms,
+          crestFactorDb: rms > 0 ? 20 * Math.log10(basic.peak / rms) : null,
           clippingSampleCount: basic.clippingCount,
           standards: r128,
         },
