@@ -121,6 +121,15 @@ assert.deepEqual(capabilities.fileUploadTools, [
     maxBytes: 256 * 1024 * 1024,
     verification: ['expectedSha256', 'Drive readback byte count', 'Drive readback SHA-256'],
   },
+  {
+    name: 'storage_ingest_artifact',
+    required: ['requestId', 'file', 'artifactId', 'artifactKind', 'project', 'expectedSha256'],
+    inputs: {
+      file: {format: 'binary', contentMediaType: 'application/octet-stream'},
+    },
+    maxBytes: 256 * 1024 * 1024,
+    verification: ['expectedSha256', 'GCS readback byte count', 'GCS readback SHA-256', 'immutable indexes', 'Command Center artifact receipt'],
+  },
 ]);
 const homeCapabilitiesText = JSON.stringify(capabilities);
 assert(homeCapabilitiesText.length < 20000, `capabilities payload grew to ${homeCapabilitiesText.length} bytes`);
@@ -169,3 +178,4 @@ assert.equal((await commandNotReadyResponse.json()).ready, false);
 
 delete process.env.HOME_CENTER_MCP_EXTENDED_TOOLS;
 console.log('Home Center status contract test: OK');
+

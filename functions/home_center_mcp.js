@@ -25,6 +25,16 @@ const {
 } = require('./sfx_forge_service');
 const {armoryReceiptOperation, armoryRecountOperation, armoryCasingOperation} = require('./armory_range_service');
 const {
+  ARTIFACT_INGEST_MAX_BYTES,
+  artifactOperationEntries,
+  ingestArtifactUploadOperation,
+  beginArtifactIngestOperation,
+  appendArtifactChunkOperation,
+  commitArtifactIngestOperation,
+  readArtifactOperation,
+  findArtifactBySha256Operation,
+} = require('./artifact_ingest_service');
+const {
   CALENDAR_SCOPE: SMS_CALENDAR_SCOPE,
   GMAIL_SCOPE: SMS_GMAIL_SCOPE,
   registry: smsCalendarOperationRegistry,
@@ -34,9 +44,9 @@ const {
 const DEFAULT_MCP_PUBLIC_BASE = 'https://us-central1-home-center-dclar.cloudfunctions.net/homeCenterMcp';
 const MCP_PUBLIC_BASE = process.env.HOME_CENTER_MCP_PUBLIC_BASE || DEFAULT_MCP_PUBLIC_BASE;
 const HOME_CENTER_MCP_SERVER_VERSION = '0.2.0';
-const HOME_CENTER_CONNECTOR_SCHEMA_REVISION = '2026-07-27.drive-file-ingest-v1';
+const HOME_CENTER_CONNECTOR_SCHEMA_REVISION = '2026-07-27.storage-artifact-ingest-v1';
 const HOME_CENTER_REGISTRY_VERSION = HOME_CENTER_CONNECTOR_SCHEMA_REVISION;
-const HOME_CENTER_DIRECT_FILE_TOOLS = Object.freeze(['render_blender_glb', 'drive_ingest_file']);
+const HOME_CENTER_DIRECT_FILE_TOOLS = Object.freeze(['render_blender_glb', 'drive_ingest_file', 'storage_ingest_artifact']);
 const MCP_RESOURCE = `${MCP_PUBLIC_BASE}/mcp`;
 const MCP_RESOURCE_METADATA = `${MCP_PUBLIC_BASE}/.well-known/oauth-protected-resource`;
 const MCP_LEGACY_RESOURCE_METADATA = `${MCP_PUBLIC_BASE}/oauth-protected-resource`;
@@ -1393,6 +1403,30 @@ function renderBlenderGlbCatalogInputSchema() {
 }
 
 
+function storageIngestArtifactCatalogInputSchema() {
+  return {
+    type: 'object',
+    properties: {
+      requestId: {type: 'string', description: 'Stable idempotency and audit request id.'},
+      file: hostFileUploadInputSchema({
+        contentMediaType: 'application/octet-stream',
+        description: 'Required top-level host-file upload for canonical Cloud Storage artifact ingress.',
+      }),
+      artifactId: {type: 'string', description: 'Stable artifact identity.'},
+      artifactKind: {type: 'string', description: 'Artifact class such as source-motion.'},
+      project: {type: 'string', description: 'Owning project or factory lane.'},
+      name: {type: 'string', description: 'Optional canonical filename override.'},
+      mimeType: {type: 'string', description: 'Optional MIME type override.'},
+      expectedByteCount: {type: 'integer', description: 'Optional expected byte count.'},
+      expectedSha256: {type: 'string', description: 'Required caller-side SHA-256 provenance lock.'},
+      provenance: {type: 'object', description: 'Bounded source identity and curation provenance.'},
+      callerNote: {type: 'string', description: 'Optional audit summary.'},
+    },
+    required: ['requestId', 'file', 'artifactId', 'artifactKind', 'project', 'expectedSha256'],
+    additionalProperties: false,
+  };
+}
+
 function driveIngestFileCatalogInputSchema() {
   return {
     type: 'object',
@@ -1416,6 +1450,7 @@ function driveIngestFileCatalogInputSchema() {
 function publishedToolInputSchema(name, schema, pipeStrategy = 'input') {
   if (name === 'render_blender_glb') return renderBlenderGlbCatalogInputSchema();
   if (name === 'drive_ingest_file') return driveIngestFileCatalogInputSchema();
+  if (name === 'storage_ingest_artifact') return storageIngestArtifactCatalogInputSchema();
   return mcpToolJsonSchema(schema, pipeStrategy);
 }
 
@@ -4328,6 +4363,7 @@ function driveOperationRegistry() {
     invocationTool: 'drive_operation',
     cachePolicy: 'New bridge and simulation operations should be invokable through drive_operation so ChatGPT does not need a top-level MCP tool refresh for every backend code change. Cartesia TTS is a direct Home Center MCP provider operation; it must not be routed through Command Center jobs or workers.',
     operations: {
+      ...artifactOperationEntries(),
       drive_create_folder: {
         summary: 'Create a Google Drive folder and audit the write.',
         write: true,
@@ -5098,6 +5134,17 @@ async function driveOperationRunOperation({google, admin, auth, user, extra = nu
     const result = await simulationOperationRunOperation({admin, user, args: {operation, args: operationArgs}});
     return {operation, registryVersion: registry.version, completed: true, result: result.result};
   }
+  if (artifactOperationEntries()[operation]) {
+    requireCreditGatedEmail(user && user.email, operation);
+    const common = {admin, user, args: operationArgs, recordAudit: recordActionAudit};
+    let result;
+    if (operation === 'storage.artifact.begin') result = await beginArtifactIngestOperation(common);
+    if (operation === 'storage.artifact.append_chunk') result = await appendArtifactChunkOperation(common);
+    if (operation === 'storage.artifact.commit') result = await commitArtifactIngestOperation(common);
+    if (operation === 'storage.artifact.get') result = await readArtifactOperation(common);
+    if (operation === 'storage.artifact.find_by_sha256') result = await findArtifactBySha256Operation(common);
+    return {operation, registryVersion: registry.version, completed: true, result};
+  }
   if (operation === 'armory.receipt') {
     const result = await armoryReceiptOperation({admin, user, args: operationArgs});
     await recordActionAudit(admin, user, 'armory.receipt', result.receiptId, 'Recorded ' + result.count + ' immutable Armory Range casing(s) for ' + result.item + '.', result.requestId);
@@ -5394,6 +5441,15 @@ function homeCenterCapabilitiesPayload(server) {
         maxBytes: HOME_CENTER_DRIVE_INGEST_MAX_BYTES,
         verification: ['expectedSha256', 'Drive readback byte count', 'Drive readback SHA-256'],
       },
+      {
+        name: 'storage_ingest_artifact',
+        required: ['requestId', 'file', 'artifactId', 'artifactKind', 'project', 'expectedSha256'],
+        inputs: {
+          file: {format: 'binary', contentMediaType: 'application/octet-stream'},
+        },
+        maxBytes: ARTIFACT_INGEST_MAX_BYTES,
+        verification: ['expectedSha256', 'GCS readback byte count', 'GCS readback SHA-256', 'immutable indexes', 'Command Center artifact receipt'],
+      },
     ],
     safety: {
       writesRequireRequestId: true,
@@ -5583,6 +5639,30 @@ function createHomeCenterMcpServer({google, admin, googleClientId, googleClientS
     return textResult(await simulationOperationRunOperation({admin, user, args: args || {}}));
   });
 
+
+  server.registerTool('storage_ingest_artifact', {
+    title: 'Ingest artifact to Storage',
+    description: 'Upload one top-level Work Mode file to canonical private Cloud Storage, verify SHA-256 and byte count by readback, write immutable indexes, and record a Command Center artifact receipt. This never writes Google Drive.',
+    inputSchema: {
+      requestId: z.string().describe('Stable idempotency and audit request id.'),
+      file: z.file().describe('Required top-level uploaded file. Paths, URLs, Base64 values, refs, and nested descriptors are rejected.'),
+      artifactId: z.string().describe('Stable artifact identity.'),
+      artifactKind: z.string().describe('Artifact class such as source-motion.'),
+      project: z.string().describe('Owning project or factory lane.'),
+      name: z.string().optional().describe('Optional canonical filename override.'),
+      mimeType: z.string().optional().describe('Optional MIME type override.'),
+      expectedByteCount: z.number().int().positive().optional().describe('Optional expected byte count.'),
+      expectedSha256: z.string().describe('Required caller-side SHA-256 provenance lock.'),
+      provenance: z.record(z.string(), z.any()).optional().describe('Bounded source identity and curation provenance.'),
+      callerNote: z.string().optional().describe('Optional audit summary.'),
+    },
+    securitySchemes: MCP_OAUTH_SECURITY_SCHEMES,
+    _meta: {securitySchemes: MCP_OAUTH_SECURITY_SCHEMES},
+    annotations: {readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: true},
+  }, async (args, extra) => {
+    const context = await requireCreditGatedContext({google, admin, googleClientId, googleClientSecret, extra, surface: 'storage_ingest_artifact'});
+    return textResult(await ingestArtifactUploadOperation({admin, user: context.user, args: args || {}, recordAudit: recordActionAudit}));
+  });
 
   server.registerTool('drive_ingest_file', {
     title: 'Ingest file to Drive',
