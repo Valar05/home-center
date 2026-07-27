@@ -166,7 +166,11 @@ async function main() {
 
   const root = await fetchText(`${base}/`);
   const rootJson = parseJson(root.text, 'Command Center root');
-  add('root_live_no_frontend', root.status === 200 && rootJson.service === 'command-center-mcp' && rootJson.hasFrontend === false, {status: root.status, root: rootJson});
+  add('root_liveness_only', root.status === 200 && rootJson.ok === true && rootJson.service === 'command-center-mcp' && Object.keys(rootJson).sort().join(',') === 'ok,service,version', {status: root.status, root: rootJson});
+
+  const ready = await fetchText(`${base}/ready`);
+  const readyJson = parseJson(ready.text, 'Command Center readiness');
+  add('root_readiness_ready', ready.status === 200 && readyJson.ready === true, {status: ready.status, readiness: readyJson});
 
   const resource = await fetchText(`${base}/.well-known/oauth-protected-resource`);
   const resourceJson = parseJson(resource.text, 'protected resource metadata');
