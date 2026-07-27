@@ -2,7 +2,7 @@
 
 SFX Forge is the first-class Home Center surface for turning immutable physical recordings into mechanically verified SFX evidence, conservative descendants, and deterministic source-conditioned candidates.
 
-Registry version: `2026-07-27.sfx-forge-v1`
+Registry version: `2026-07-27.sfx-forge-v2`
 
 Engine version: `home-center-sfx-forge-v1`
 
@@ -11,7 +11,8 @@ Schema version: `home-center.sfx-forge.v1`
 ## Boundaries
 
 - `audio.ingest_drive` owns immutable intake and provenance. Forge never creates or replaces the canonical source.
-- `sfx.analyze_source` owns verified decode, standards-based measurement, transient candidates, timestamped spoken-slate transcription assistance, waveform/spectrogram evidence, and a hashed PCM working descendant.
+- `sfx.analyze_source` owns verified decode, standards-based measurement, transient candidates, waveform/spectrogram evidence, and a hashed PCM working descendant. It is provider-free.
+- `sfx.transcribe_slate` owns a hashed 16 kHz mono FLAC descendant and timestamped Google Cloud Speech-to-Text evidence through project identity.
 - `sfx.segment` owns ordered event-manifest validation, raw cuts, conservative cleaned dry cuts, rejected cuts, component categories, and review reels.
 - `sfx.render` owns deterministic source-conditioned candidate construction from named physical regions and semantic controls.
 - `sfx.status` attaches to existing work. It never silently repeats paid transcription.
@@ -32,10 +33,7 @@ Required input:
   "requestId": "stable-idempotency-key",
   "approved": true,
   "family": "heavy-bag",
-  "transcription": {
-    "enabled": true,
-    "model": "gpt-4o-transcribe-diarize"
-  }
+  "transcription": {"enabled": false}
 }
 ```
 
@@ -45,10 +43,31 @@ The source must already live under the canonical generated-audio bucket. The exa
 2. decodes a non-normalized 48 kHz stereo PCM16 working WAV;
 3. measures integrated loudness and true peak with FFmpeg `ebur128=peak=true`, explicitly labeled EBU R128 / ITU-R BS.1770 evidence;
 4. detects ordered transient candidates without assigning artistic meaning;
-5. optionally sends the source to the OpenAI transcription endpoint for timestamped slate assistance;
-6. publishes the working WAV, waveform, spectrogram, analysis JSON, and transcript JSON with readback hashes.
+5. publishes the working WAV, waveform, spectrogram, and analysis JSON with readback hashes.
 
-The transcript is assistance. `semanticAuthority` remains `source_audio`.
+Transcription is deliberately separate so a provider failure cannot rerun or contaminate mechanical analysis.
+
+## `sfx.transcribe_slate`
+
+Required input:
+
+```json
+{
+  "sourceRef": "gs://home-center-generated/audio/.../Track-31.m4a",
+  "expectedSha256": "64 lowercase hex characters",
+  "requestId": "stable-idempotency-key",
+  "approved": true,
+  "family": "heavy-bag",
+  "transcription": {
+    "languageCode": "en-US",
+    "model": "latest_long"
+  }
+}
+```
+
+The operation re-verifies the immutable source, creates a non-normalized 16 kHz mono FLAC recognition descendant, uploads it with parent lineage and a deterministic FFmpeg recipe, and submits its GCS URI to Google Cloud Speech-to-Text v1 using Application Default Credentials. It returns ordered segments, word start/end timestamps, per-word confidence when available, provider configuration, and response hash.
+
+The OpenAI API is not used or bound to Home Center MCP. The transcript remains assistance; `semanticAuthority` is still `source_audio`.
 
 ## `sfx.segment`
 
