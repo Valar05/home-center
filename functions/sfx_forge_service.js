@@ -1219,11 +1219,22 @@ async function renderSourceConditionedOperation({google, auth, admin, user, args
           integratedLufs: _legacyRmsDerivedLufs,
           ...signalMetrics
         } = measured;
-        const standards = await standardsMetrics({
+        const measuredStandards = await standardsMetrics({
           bytes,
           name: `${candidateId}.wav`,
           mimeType: 'audio/wav',
         });
+        const integratedLoudnessApplicable = mixed.duration >= 0.4
+          && Number.isFinite(measuredStandards.integratedLufs)
+          && measuredStandards.integratedLufs > -69.9;
+        const standards = {
+          ...measuredStandards,
+          integratedLoudnessApplicable,
+          integratedLufs: integratedLoudnessApplicable ? measuredStandards.integratedLufs : null,
+          integratedLoudnessReason: integratedLoudnessApplicable
+            ? ''
+            : 'not_reported_for_sub_400_ms_or_ungated_impulse',
+        };
         const artifact = await uploadForgeArtifact(args, requestId, {name: `${candidateId}.wav`, mimeType: 'audio/wav', bytes, stage: 'candidates', artifactType: 'source-conditioned-candidate'}, google, auth);
         uploaded.push(artifact);
         renderedCandidates.push({
