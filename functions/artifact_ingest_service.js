@@ -184,21 +184,31 @@ function sameArtifact(existing, expected) {
 async function writeCommandCenterReceipt(admin, manifest) {
   if (!admin || typeof admin.firestore !== 'function') return {recorded: false};
   const collection = admin.firestore().collection('commandCenterArtifactCatalog');
-  const ref = collection.doc(manifest.artifactId);
+  const documentId = slug(manifest.ownerEmail, 'owner', 320) + '--' + manifest.artifactId;
+  const ref = collection.doc(documentId);
   const snapshot = await ref.get();
   if (snapshot.exists) {
     const existing = snapshot.data() || {};
     if (!sameArtifact(existing, manifest)) {
       throw fail('Command Center already catalogs this artifactId with different immutable identity.', 409, 'command_center_artifact_conflict');
     }
-    return {recorded: true, reused: true, documentId: manifest.artifactId};
+    return {recorded: true, reused: true, documentId};
   }
-  await ref.create(manifest);
+  try {
+    await ref.create(manifest);
+  } catch (err) {
+    if (![6, 409].includes(Number(err && err.code)) && !/already exists/i.test(String(err && err.message))) throw err;
+    const raced = await ref.get();
+    if (!raced.exists || !sameArtifact(raced.data() || {}, manifest)) {
+      throw fail('Command Center artifact receipt raced with a different immutable identity.', 409, 'command_center_artifact_conflict');
+    }
+    return {recorded: true, reused: true, documentId};
+  }
   const check = await ref.get();
   if (!check.exists || !sameArtifact(check.data() || {}, manifest)) {
     throw fail('Command Center artifact receipt failed readback verification.', 502, 'command_center_artifact_readback_mismatch');
   }
-  return {recorded: true, reused: false, documentId: manifest.artifactId};
+  return {recorded: true, reused: false, documentId};
 }
 
 async function publishVerified({admin, storage = defaultStorage(), user, identity, verified, recordAudit = async () => {}}) {
