@@ -210,6 +210,14 @@ failure.
 - Candidate 001 remains quarantined after transport execution until hosted
   visual Pose-is-God review accepts it.
 
+## Exact Next Increment
+
+Reconnect the Home Center Drive connector so the host refreshes its cached tool
+catalog, assert that top-level `render_blender_glb` exposes
+`settings.gifFrames` and `settings.gifTimingMs`, then run one genuine Work
+Mode attachment through preflight and durable dispatch. Do not add another
+compatibility schema or transport path.
+
 ## Rollback
 
 Rollback uses existing revisions; do not create parallel resources. The immediate
