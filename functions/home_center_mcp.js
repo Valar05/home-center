@@ -41,6 +41,11 @@ const {
   findArtifactBySha256Operation,
 } = require('./artifact_ingest_service');
 const {
+  foundryOperationEntries,
+  runFoundryOperation,
+  installFoundryArtifactRoutes,
+} = require('./foundry_capability');
+const {
   CALENDAR_SCOPE: SMS_CALENDAR_SCOPE,
   GMAIL_SCOPE: SMS_GMAIL_SCOPE,
   registry: smsCalendarOperationRegistry,
@@ -4581,6 +4586,7 @@ function driveOperationRegistry() {
     cachePolicy: 'New bridge and simulation operations should be invokable through drive_operation so ChatGPT does not need a top-level MCP tool refresh for every backend code change. Cartesia TTS is a direct Home Center MCP provider operation; it must not be routed through Command Center jobs or workers.',
     operations: {
       ...artifactOperationEntries(),
+      ...foundryOperationEntries(),
       'render.review_artifacts': {
         summary: 'Materialize hash-verified review images already named by an owner-scoped completed Blender render receipt as authenticated Drive resource links.',
         write: true,
@@ -5399,6 +5405,11 @@ async function driveOperationRunOperation({google, admin, auth, user, extra = nu
     delete operationArgs.command_center_tool;
     const result = await commandCenterOperationRunOperation({google, admin, googleClientId, googleClientSecret, githubToken, extra, args: {operation: compatCommandCenterOperation, args: operationArgs}});
     return {operation, compatibilityRoute: 'drive_operation.command_center', commandCenterOperation: compatCommandCenterOperation, registryVersion: registry.version, completed: true, result: result.result};
+  }
+  if (foundryOperationEntries()[operation]) {
+    requireCreditGatedEmail(user && user.email, operation);
+    const result = await runFoundryOperation({operation, admin, user, args: operationArgs});
+    return {operation, registryVersion: registry.version, completed: result.state === 'completed' || !!result.immutable, result};
   }
   if (operation === 'render.review_artifacts') {
     const result = await materializeRenderReviewArtifactsOperation({google, admin, auth, user, extra, googleClientId, googleClientSecret, githubToken, args: operationArgs});
@@ -6881,6 +6892,7 @@ function createHomeCenterMcpApp({google, admin, googleClientId = () => '', googl
   const app = express();
   app.use(express.json({limit: '80mb'}));
   app.use(express.urlencoded({extended: false, limit: '256kb'}));
+  installFoundryArtifactRoutes(app, {admin});
   const transports = {};
 
   app.get('/', (_req, res) => {
