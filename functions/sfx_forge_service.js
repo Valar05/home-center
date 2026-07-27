@@ -41,11 +41,16 @@ const {
   },
 } = require('./audio_render_service');
 
-const ENGINE_VERSION = 'home-center-sfx-forge-v1';
+const ENGINE_VERSION = 'home-center-sfx-forge-v1.1';
 const SCHEMA_VERSION = 'home-center.sfx-forge.v1';
 const MAX_SOURCE_BYTES = Number(process.env.HOME_CENTER_SFX_MAX_SOURCE_BYTES || 25 * 1024 * 1024);
 const MAX_EVENTS = Number(process.env.HOME_CENTER_SFX_MAX_EVENTS || 240);
 const MAX_CANDIDATES = Number(process.env.HOME_CENTER_SFX_MAX_CANDIDATES || 32);
+const FLOOR_FIXTURE_TYPES = new Set(['floor_standing', 'floor_model', 'freestanding']);
+const SUSPENDED_ONLY_EVENT_TYPES = new Set(['suspension_movement', 'chain_movement']);
+const SUSPENDED_ONLY_LAYER_ROLES = new Set(['suspension', 'chain', 'chain_rattle']);
+const IMPACT_LAYER_ROLES = new Set(['contact', 'surface_slap', 'body_deformation', 'displaced_air', 'internal_fill']);
+const BAG_MOVEMENT_LAYER_ROLES = new Set(['bag_rocking', 'base_flex', 'base_rock', 'return_swing', 'floor_coupling']);
 const DEFAULT_TRANSCRIPTION_MODEL = process.env.HOME_CENTER_SFX_TRANSCRIPTION_MODEL || 'latest_long';
 const DEFAULT_TRANSCRIPTION_LANGUAGE = process.env.HOME_CENTER_SFX_TRANSCRIPTION_LANGUAGE || 'en-US';
 let sharedGoogleSpeechClient = null;
@@ -748,6 +753,7 @@ function normalizedEvent(event, index, duration) {
     takeNumber: event.takeNumber === undefined ? null : safeText(String(event.takeNumber), 80),
     strikeActionClass: safeText(event.strikeActionClass || event.strikeClass || 'unknown', 160) || 'unknown',
     eventType: safeText(event.eventType || event.category || 'impact', 120) || 'impact',
+    eventDomain: eventDomain(event.eventType || event.category || 'impact'),
     position: safeText(event.position || 'unknown', 120) || 'unknown',
     distance: safeText(event.distance || 'unknown', 120) || 'unknown',
     glove: safeText(event.glove || 'unknown', 120) || 'unknown',
@@ -757,6 +763,61 @@ function normalizedEvent(event, index, duration) {
     disposition: safeText(event.disposition || 'candidate', 80).toLowerCase(),
     rejectionReason: safeText(event.rejectionReason, 800),
   };
+}
+
+function eventDomain(eventType) {
+  const normalized = safeText(eventType, 120).toLowerCase();
+  if (normalized === 'impact') return 'impact';
+  if (['bag_movement', 'bag_rocking', 'base_flex', 'base_rock', 'return_swing', 'floor_coupling'].includes(normalized)) return 'bag_movement';
+  if (normalized === 'room_tone' || normalized === 'room') return 'room';
+  if (normalized === 'miss_air' || normalized === 'displaced_air') return 'air';
+  return 'other';
+}
+
+function normalizedSourceMechanism(value = {}) {
+  const source = value && typeof value === 'object' && !Array.isArray(value) ? value : {};
+  const fixtureType = safeText(source.fixtureType || source.mountType || 'unknown', 120).toLowerCase() || 'unknown';
+  return {
+    fixtureType,
+    floorCoupled: source.floorCoupled === undefined ? FLOOR_FIXTURE_TYPES.has(fixtureType) : Boolean(source.floorCoupled),
+    semanticAuthority: safeText(source.semanticAuthority || 'human_source_description', 160) || 'human_source_description',
+  };
+}
+
+function validateEventMechanism(event, sourceMechanism) {
+  if (FLOOR_FIXTURE_TYPES.has(sourceMechanism.fixtureType) && SUSPENDED_ONLY_EVENT_TYPES.has(event.eventType.toLowerCase())) {
+    throw forgeError(
+      `${event.eventId}.${event.eventType} is incompatible with floor-standing source mechanism; classify base flex, bag rocking, return swing, or floor coupling explicitly.`,
+      422,
+      'sfx_forge_source_mechanism_mismatch',
+    );
+  }
+}
+
+function layerDomain(role) {
+  if (IMPACT_LAYER_ROLES.has(role)) return 'impact';
+  if (BAG_MOVEMENT_LAYER_ROLES.has(role)) return 'bag_movement';
+  if (role === 'room') return 'room';
+  return 'other';
+}
+
+function validateLayerMechanism(layer, sourceMechanism, outputKind) {
+  const role = safeText(layer.role, 80).toLowerCase();
+  if (FLOOR_FIXTURE_TYPES.has(sourceMechanism.fixtureType) && SUSPENDED_ONLY_LAYER_ROLES.has(role)) {
+    throw forgeError(
+      `${role} is a suspended-bag layer and cannot be used with a floor-standing source; use bag_rocking, base_flex, base_rock, return_swing, or floor_coupling.`,
+      422,
+      'sfx_forge_source_mechanism_mismatch',
+    );
+  }
+  const domain = layerDomain(role);
+  if (outputKind === 'impact_only' && domain === 'bag_movement') {
+    throw forgeError('impact_only candidates cannot contain bag-movement layers.', 422, 'sfx_forge_output_domain_mismatch');
+  }
+  if (outputKind === 'bag_movement' && domain === 'impact') {
+    throw forgeError('bag_movement candidates cannot contain impact layers.', 422, 'sfx_forge_output_domain_mismatch');
+  }
+  return {role, domain};
 }
 
 function conservativeClean(raw) {
@@ -926,13 +987,17 @@ async function segmentSourceOperation({google, auth, admin, user, args = {}, hel
       const source = await materializeImmutableSource(args);
       const wavBytes = await decodeWorkingPcm(source);
       const sourceClip = decodeWav(wavBytes);
+      const sourceMechanism = normalizedSourceMechanism(args.sourceMechanism);
       const supplied = Array.isArray(args.events) ? args.events : [];
       if (!supplied.length || supplied.length > MAX_EVENTS) throw forgeError(`events must contain 1-${MAX_EVENTS} ordered entries.`, 400, 'sfx_forge_events_required');
       const events = supplied.map((event, index) => normalizedEvent(event || {}, index, sourceClip.duration));
+      events.forEach((event) => validateEventMechanism(event, sourceMechanism));
       const uploaded = [];
       const eventArtifacts = [];
       const auditionParts = [];
       const abParts = [];
+      const impactAuditionParts = [];
+      const bagMovementAuditionParts = [];
       for (const event of events) {
         const [start, end] = event.impactTimeRange;
         const raw = trim(sourceClip, start, end - start);
@@ -981,6 +1046,14 @@ async function segmentSourceOperation({google, auth, admin, user, args = {}, hel
             : silence({duration: 0.15, sampleRate: sourceClip.sampleRate, channels: sourceClip.channelCount});
           auditionParts.push(slate, silence({duration: 0.18, sampleRate: sourceClip.sampleRate, channels: sourceClip.channelCount}), normalizePeak(cleaned, -3), silence({duration: 0.45, sampleRate: sourceClip.sampleRate, channels: sourceClip.channelCount}));
           abParts.push(normalizePeak(raw, -3), silence({duration: 0.18, sampleRate: sourceClip.sampleRate, channels: sourceClip.channelCount}), normalizePeak(cleaned, -3), silence({duration: 0.55, sampleRate: sourceClip.sampleRate, channels: sourceClip.channelCount}));
+          const domainParts = event.eventDomain === 'impact'
+            ? impactAuditionParts
+            : event.eventDomain === 'bag_movement'
+              ? bagMovementAuditionParts
+              : null;
+          if (domainParts) {
+            domainParts.push(slate, silence({duration: 0.18, sampleRate: sourceClip.sampleRate, channels: sourceClip.channelCount}), normalizePeak(cleaned, -3), silence({duration: 0.45, sampleRate: sourceClip.sampleRate, channels: sourceClip.channelCount}));
+          }
         }
         eventArtifacts.push(entry);
       }
@@ -991,6 +1064,7 @@ async function segmentSourceOperation({google, auth, admin, user, args = {}, hel
         requestId,
         inputSha256,
         parent: {sourceRef: args.sourceRef, sha256: source.sha256, byteCount: source.byteCount, immutable: true},
+        sourceMechanism,
         measurementScope: 'mechanically usable, non-rejected source events; human acceptance remains unreviewed',
         events: eventArtifacts.map((entry) => ({
           eventId: entry.event.eventId,
@@ -1018,6 +1092,14 @@ async function segmentSourceOperation({google, auth, admin, user, args = {}, hel
         const ab = concat(abParts);
         uploaded.push(await uploadForgeArtifact(args, requestId, {name: 'raw-versus-cleaned-ab-reel.wav', mimeType: 'audio/wav', bytes: encodeWav(ab), stage: 'reels', artifactType: 'ab-reel'}, google, auth));
       }
+      if (impactAuditionParts.length) {
+        const impactReel = concat(impactAuditionParts);
+        uploaded.push(await uploadForgeArtifact(args, requestId, {name: 'impact-only-audition-reel.wav', mimeType: 'audio/wav', bytes: encodeWav(impactReel), stage: 'reels/impact', artifactType: 'impact-audition-reel'}, google, auth));
+      }
+      if (bagMovementAuditionParts.length) {
+        const movementReel = concat(bagMovementAuditionParts);
+        uploaded.push(await uploadForgeArtifact(args, requestId, {name: 'bag-rocking-audition-reel.wav', mimeType: 'audio/wav', bytes: encodeWav(movementReel), stage: 'reels/bag-movement', artifactType: 'bag-movement-audition-reel'}, google, auth));
+      }
       const manifest = {
         schemaVersion: SCHEMA_VERSION,
         engineVersion: ENGINE_VERSION,
@@ -1025,6 +1107,7 @@ async function segmentSourceOperation({google, auth, admin, user, args = {}, hel
         requestId,
         inputSha256,
         parent: {sourceRef: args.sourceRef, sha256: source.sha256, byteCount: source.byteCount, immutable: true},
+        sourceMechanism,
         eventOrder: events.map((event) => event.eventId),
         events: eventArtifacts,
         physicalProfiles: artifactReceipt(physicalProfilesUpload, 'physical-profiles'),
@@ -1080,6 +1163,7 @@ async function renderSourceConditionedOperation({google, auth, admin, user, args
     run: async ({requestId, inputSha256}) => {
       const source = await materializeImmutableSource(args);
       const sourceClip = decodeWav(await decodeWorkingPcm(source));
+      const sourceMechanism = normalizedSourceMechanism(args.sourceMechanism);
       const recipe = args.recipe && typeof args.recipe === 'object' && !Array.isArray(args.recipe) ? args.recipe : {};
       const candidates = Array.isArray(recipe.candidates) ? recipe.candidates : [];
       if (!candidates.length || candidates.length > MAX_CANDIDATES) throw forgeError(`recipe.candidates must contain 1-${MAX_CANDIDATES} candidates.`, 400, 'sfx_forge_candidates_required');
@@ -1088,8 +1172,13 @@ async function renderSourceConditionedOperation({google, auth, admin, user, args
       for (const candidate of candidates) {
         const layers = Array.isArray(candidate.layers) ? candidate.layers : [];
         if (!layers.length) throw forgeError('Every candidate requires at least one named physical source layer.', 400, 'sfx_forge_layers_required');
+        const outputKind = safeText(candidate.outputKind || 'composite', 80).toLowerCase();
+        if (!['impact_only', 'bag_movement', 'composite'].includes(outputKind)) {
+          throw forgeError('candidate.outputKind must be impact_only, bag_movement, or composite.', 400, 'sfx_forge_output_kind_invalid');
+        }
         const keys = new Set();
         for (const layer of layers) {
+          validateLayerMechanism(layer, sourceMechanism, outputKind);
           const region = layer.sourceTimeRange;
           if (!Array.isArray(region) || region.length !== 2) throw forgeError('Every source layer requires sourceTimeRange [start,end].', 400, 'sfx_forge_layer_range_required');
           assertFinite(region[0], 'layer.sourceTimeRange[0]', 0, sourceClip.duration);
@@ -1111,6 +1200,7 @@ async function renderSourceConditionedOperation({google, auth, admin, user, args
       for (let index = 0; index < candidates.length; index += 1) {
         const candidate = candidates[index];
         const candidateId = safeSegment(candidate.candidateId || `candidate-${index + 1}`, `candidate-${index + 1}`);
+        const outputKind = safeText(candidate.outputKind || 'composite', 80).toLowerCase();
         const controls = candidate.controls && typeof candidate.controls === 'object' ? candidate.controls : {};
         const layers = [];
         let duration = 0;
@@ -1138,8 +1228,12 @@ async function renderSourceConditionedOperation({google, auth, admin, user, args
         uploaded.push(artifact);
         renderedCandidates.push({
           candidateId,
+          outputKind,
           controls,
-          sourceRegions: candidate.layers.map((layer) => ({role: safeText(layer.role, 80) || 'unknown', sourceTimeRange: layer.sourceTimeRange, sourceRegionKey: sourceRegionKey(layer.sourceTimeRange)})),
+          sourceRegions: candidate.layers.map((layer) => {
+            const role = safeText(layer.role, 80).toLowerCase() || 'unknown';
+            return {role, domain: layerDomain(role), sourceTimeRange: layer.sourceTimeRange, sourceRegionKey: sourceRegionKey(layer.sourceTimeRange)};
+          }),
           metrics: {
             ...signalMetrics,
             standards,
@@ -1155,6 +1249,7 @@ async function renderSourceConditionedOperation({google, auth, admin, user, args
         seed: safeText(recipe.seed, 160) || 'deterministic-no-randomness',
         sourceRef: args.sourceRef,
         sourceSha256: source.sha256,
+        sourceMechanism,
         candidates,
       };
       const recipeSha256 = sha256Hex(Buffer.from(stableJson(canonicalRecipe), 'utf8'));
@@ -1167,6 +1262,7 @@ async function renderSourceConditionedOperation({google, auth, admin, user, args
         recipeSha256,
         recipe: canonicalRecipe,
         parent: {sourceRef: args.sourceRef, sha256: source.sha256, immutable: true},
+        sourceMechanism,
         candidates: renderedCandidates,
         forbiddenVariationStrategies: ['pitch_shifted_clones', 'untraceable_source_substitution', 'oscillator_as_material_identity'],
         humanAcceptance: 'unreviewed',
@@ -1219,6 +1315,11 @@ module.exports = {
     spectralProfile,
     conservativeClean,
     normalizedEvent,
+    normalizedSourceMechanism,
+    eventDomain,
+    layerDomain,
+    validateEventMechanism,
+    validateLayerMechanism,
     sourceRegionKey,
     applyLayerProcessing,
     standardsMetrics,
