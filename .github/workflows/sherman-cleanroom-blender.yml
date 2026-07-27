@@ -6,7 +6,6 @@ on:
       - agent/sherman-cleanroom-blender-a
     paths:
       - factory/sherman-cleanroom-a/**
-      - .github/workflows/sherman-cleanroom-blender.yml
   workflow_dispatch:
     inputs:
       confirm:
@@ -40,7 +39,7 @@ jobs:
             --volume "$GITHUB_WORKSPACE:/workspace:ro" \
             --volume "$RUNNER_TEMP/sherman-cleanroom-a:/output" \
             home-center-blender:cleanroom \
-            blender --background --factory-startup \
+            blender --background --factory-startup --python-exit-code 88 \
               --python /workspace/factory/sherman-cleanroom-a/build_sherman_cleanroom_a.py \
               -- --output /output
 
