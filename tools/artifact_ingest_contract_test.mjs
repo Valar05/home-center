@@ -77,6 +77,9 @@ class FakeDoc {
     if (this.map.has(this.id)) throw new Error('already exists');
     this.map.set(this.id, structuredClone(value));
   }
+  async set(value) {
+    this.map.set(this.id, structuredClone(value));
+  }
 }
 
 class FakeFirestore {
@@ -142,7 +145,7 @@ const replay = await service.ingestArtifactUploadOperation({admin, storage, user
 assert.equal(replay.reused, true);
 assert.equal(replay.indexes.byId.reused, true);
 
-const chunkPayload = Buffer.from('chunked-motion-packet');
+const chunkPayload = Buffer.from('abcdefghijklmnopqrstuvwxyz0123456789-CHUNKED-MOTION-PACKET');
 const chunkDigest = createHash('sha256').update(chunkPayload).digest('hex');
 const chunkArgs = {
   approved: true,
@@ -157,7 +160,7 @@ const chunkArgs = {
   provenance: {sourceAuthority: 'immutable-original-capture'},
 };
 await service.beginArtifactIngestOperation({admin, user, args: chunkArgs});
-const chunks = [chunkPayload.subarray(0, 7), chunkPayload.subarray(7)];
+const chunks = [...chunkPayload].map((byte) => Buffer.from([byte]));
 for (const [chunkIndex, chunk] of chunks.entries()) {
   await service.appendArtifactChunkOperation({
     storage,
@@ -181,6 +184,18 @@ assert.equal(committed.destination.sha256, chunkDigest);
 assert.equal(committed.transport.stagedObjectsDisposed, true);
 assert.equal([...storage.bucket(service.ARTIFACT_BUCKET).objects.keys()].some((name) => name.includes('/chunks/')), false);
 
+const abortArgs = {...chunkArgs, requestId: 'motion-packet-abort-v1', artifactId: 'motion-packet-abort'};
+await service.beginArtifactIngestOperation({admin, user, args: abortArgs});
+await service.appendArtifactChunkOperation({
+  storage,
+  user,
+  args: {...abortArgs, chunkIndex: 0, chunkBase64: Buffer.from('waste').toString('base64')},
+});
+const aborted = await service.abortArtifactIngestOperation({admin, storage, user, args: abortArgs});
+assert.equal(aborted.aborted, true);
+assert.equal(aborted.disposedObjectCount, 1);
+assert.equal(aborted.canonicalArtifactMutated, false);
+
 const markers = [
   "const HOME_CENTER_CONNECTOR_SCHEMA_REVISION = '2026-07-27.storage-artifact-ingest-v1'",
   "'storage_ingest_artifact'",
@@ -190,11 +205,13 @@ const markers = [
   "operation === 'storage.artifact.begin'",
   "operation === 'storage.artifact.append_chunk'",
   "operation === 'storage.artifact.commit'",
+  "operation === 'storage.artifact.abort'",
   "operation === 'storage.artifact.get'",
   "operation === 'storage.artifact.find_by_sha256'",
   "ingestArtifactUploadOperation",
   "storageIngestArtifactCatalogInputSchema",
 ];
 for (const marker of markers) assert.equal(bridge.includes(marker), true, 'missing bridge marker: ' + marker);
+assert.match(bridge, /function driveOperationRegistry\(\)[\s\S]*?version: '2026-07-27\.storage-artifact-ingest-v1'/);
 
 console.log('Storage artifact ingest contract passed.');
