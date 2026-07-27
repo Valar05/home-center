@@ -24,8 +24,8 @@ assert(homeCenterSource.includes('parseRenderGsRef'), 'Inline GIF delivery must 
 assert(!homeCenterSource.includes('https://storage.googleapis.com'), 'Inline GIF delivery must not fall back to public Storage URLs');
 assert(!homeCenterSource.includes('getSignedUrl'), 'Inline GIF delivery must not leak signed URLs');
 assert(commandCenterSource.includes('renderRequiredBundleKindsForOptions'), 'Command Center must use one helper for required render bundles');
-assert(commandCenterSource.includes('const effectiveRenderOptions'), 'Command Center wrapper must derive completion from effective render options');
-assert(commandCenterSource.includes("failureKind: status === 'completed' ? ''"), 'Completed lightweight renders must clear failureKind');
+assert(commandCenterSource.includes('const effectiveOptions'), 'Queued Command Center worker must derive completion from effective render options');
+assert(commandCenterSource.includes("status: completed ? 'completed' : 'failed'"), 'Completed queued renders must persist terminal state');
 assert(vanguardScript.includes("normalized_name = requested + '_rig'"), 'Vanguard resolver must allow only the known glTF _rig suffix');
 assert(vanguardScript.includes("forbidden = [name for name in available if name in {'Rest', 'Idle'}]"), 'Vanguard resolver must explicitly forbid Rest/Idle fallback');
 assert(vanguardScript.includes("'activeSemanticAction': semantic_action_name(action.name, expected_action)"), 'Vanguard native evidence must record semantic action separate from importer provenance');

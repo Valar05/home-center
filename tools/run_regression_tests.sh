@@ -43,6 +43,8 @@ node tools/command_center_cloud_activation_contract_test.mjs
 node tools/command_center_worker_lifecycle_contract_test.mjs
 node --check tools/command_center_blender_render_contract_test.mjs
 node tools/command_center_blender_render_contract_test.mjs
+node --check tools/command_center_render_queue_contract_test.mjs
+node tools/command_center_render_queue_contract_test.mjs
 node --check tools/command_center_blender_file_handoff_test.mjs
 node tools/command_center_blender_file_handoff_test.mjs
 node --check tools/home_center_render_blender_glb_protocol_test.mjs

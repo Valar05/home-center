@@ -1,6 +1,7 @@
 const {createHash, randomUUID} = require('node:crypto');
 const {Storage} = require('@google-cloud/storage');
 const {SecretManagerServiceClient} = require('@google-cloud/secret-manager');
+const {getFunctions} = require('firebase-admin/functions');
 const express = require('express');
 const {z} = require('zod/v4');
 const {McpServer} = require('@modelcontextprotocol/sdk/server/mcp.js');
@@ -109,10 +110,12 @@ const COMMAND_CENTER_DEFAULT_CLOUD_WORKER_IMAGE = process.env.COMMAND_CENTER_CLO
 const COMMAND_CENTER_DEFAULT_CLOUD_MACHINE_IMAGE_ID = 'cloud-debian-codex';
 const COMMAND_CENTER_PROVISIONING_STATUSES = Object.freeze(['requested', 'secrets_ready', 'job_created', 'activation_requested', 'routable', 'failed', 'blocked']);
 const COMMAND_CENTER_RENDER_TOOL_VERSION = 'command-center-blender-render-v1';
-const COMMAND_CENTER_RENDER_DEFAULT_SERVICE_URL = process.env.COMMAND_CENTER_RENDER_SERVICE_URL || '';
+const COMMAND_CENTER_RENDER_DEFAULT_SERVICE_URL = process.env.COMMAND_CENTER_RENDER_SERVICE_URL || 'https://command-center-blender-render-vxybsaualq-uc.a.run.app';
 const COMMAND_CENTER_RENDER_BUCKET = process.env.COMMAND_CENTER_RENDER_BUCKET || process.env.RENDER_CACHE_BUCKET || process.env.COMMAND_CENTER_GENERATED_BUCKET || process.env.HOME_CENTER_GENERATED_BUCKET || 'home-center-generated';
 const COMMAND_CENTER_RENDER_MAX_GLB_BYTES = Number(process.env.COMMAND_CENTER_RENDER_MAX_GLB_BYTES || 250 * 1024 * 1024);
 const COMMAND_CENTER_RENDER_MAX_SCRIPT_BYTES = Number(process.env.COMMAND_CENTER_RENDER_MAX_SCRIPT_BYTES || 1024 * 1024);
+const COMMAND_CENTER_RENDER_TASK_FUNCTION = process.env.COMMAND_CENTER_RENDER_TASK_FUNCTION || 'commandCenterRenderWorker';
+const COMMAND_CENTER_RENDER_LEASE_MS = Number(process.env.COMMAND_CENTER_RENDER_LEASE_MS || 35 * 60 * 1000);
 const COMMAND_CENTER_RENDER_REQUIRED_BUNDLE_KINDS = Object.freeze([
   'rendered_frames',
   'contact_sheet',
@@ -1624,48 +1627,295 @@ async function resolveRenderSources(caller, args, renderId) {
   return {glbRef: glb.ref, scriptRef: script.ref, stagedInputs: [glb.staged, script.staged].filter(Boolean)};
 }
 
-async function renderBlenderGlb(admin, extra, args = {}) {
+function renderArtifactIdentity(stagedInputs, role, ref) {
+  const item = (stagedInputs || []).find((candidate) => String(candidate.materializedFrom || '').toLowerCase().startsWith(role));
+  if (item && item.sha256 && item.byteCount) {
+    return {role, sha256: safeText(item.sha256, 64).toLowerCase(), byteCount: Number(item.byteCount), fileName: safeText(item.fileName, 240)};
+  }
+  return {role, compatibilityLocation: normalizeRenderRef(ref, role + 'Ref')};
+}
+
+function renderRequestContract({contractVersion, glbRef, scriptRef, stagedInputs, settings, executionContract}) {
+  return {
+    contractVersion,
+    artifacts: [renderArtifactIdentity(stagedInputs, 'glb', glbRef), renderArtifactIdentity(stagedInputs, 'script', scriptRef)],
+    settings,
+    executionContract,
+  };
+}
+
+function renderRequestInputHash(value) {
+  return fullHash(stableJson(renderRequestContract(value)));
+}
+
+function renderTaskId(inputHash, executionAttempt = 0) {
+  return 'render-' + fullHash(inputHash + ':' + Number(executionAttempt || 0)).slice(0, 48);
+}
+
+function renderStatusOperation(renderId) {
+  return {operation: 'render.status', args: {renderId}};
+}
+
+function boundedRenderRequestStatus(record = {}, attached = false) {
+  const status = safeText(record.status, 80) || 'queued';
+  const lease = safeObject(record.lease);
+  const stale = status === 'running' && Number(lease.expiresAtMs || 0) > 0 && Number(lease.expiresAtMs) <= Date.now();
+  const effectiveStatus = stale ? 'stalled' : status;
+  const result = safeObject(record.result);
+  return {
+    ok: ['queued', 'running', 'completed'].includes(effectiveStatus),
+    accepted: true,
+    attached,
+    contractVersion: safeText(record.contractVersion, 100) || 'home-center.blender-render-request.v2',
+    renderId: safeText(record.renderId, 180),
+    inputHash: safeText(record.inputHash, 64),
+    status: effectiveStatus,
+    state: effectiveStatus,
+    enqueueStatus: safeText(record.enqueueStatus, 80),
+    executionAttempt: Number(record.executionAttempt || 0),
+    statusOperation: renderStatusOperation(record.renderId),
+    timestamps: {
+      acceptedAtMs: Number(record.acceptedAtMs || record.createdAtMs || 0),
+      updatedAtMs: Number(record.updatedAtMs || 0),
+      startedAtMs: Number(record.startedAtMs || 0),
+      completedAtMs: Number(record.completedAtMs || 0),
+      failedAtMs: Number(record.failedAtMs || 0),
+    },
+    lease: lease.leaseId ? {leaseId: safeText(lease.leaseId, 180), holder: safeText(lease.holder, 120), acquiredAtMs: Number(lease.acquiredAtMs || 0), expiresAtMs: Number(lease.expiresAtMs || 0)} : null,
+    blockingError: safeText(record.error, 1200),
+    failureKind: safeText(record.failureKind, 80),
+    result: effectiveStatus === 'completed' ? cleanRenderResult(result, {renderId: record.renderId, cacheKey: record.cacheKey}) : null,
+  };
+}
+
+function renderIdempotencyRef(admin, caller, idempotencyKey) {
+  const ownerKey = ownerKeyFromCaller(caller);
+  const idemId = ownerKey + '_' + hashText('render.blender_glb:' + idempotencyKey, 32);
+  return collection(admin, COMMAND_CENTER_COLLECTIONS.idempotency).doc(idemId);
+}
+
+function taskAlreadyExists(error) {
+  return /task-already-exists|already exists|ALREADY_EXISTS/i.test(String(error && (error.code || error.message) || error));
+}
+
+async function enqueueRenderTask(payload) {
+  await getFunctions().taskQueue(COMMAND_CENTER_RENDER_TASK_FUNCTION).enqueue(payload, {
+    id: renderTaskId(payload.inputHash, payload.executionAttempt),
+    dispatchDeadlineSeconds: 1800,
+  });
+}
+
+async function ensureRenderTaskEnqueued(admin, record, enqueue = enqueueRenderTask) {
+  if (['enqueued', 'running', 'completed'].includes(safeText(record.enqueueStatus, 80))) return record;
+  try {
+    await enqueue({renderId: record.renderId, inputHash: record.inputHash, executionAttempt: Number(record.executionAttempt || 0)});
+  } catch (error) {
+    if (!taskAlreadyExists(error)) {
+      await collection(admin, COMMAND_CENTER_COLLECTIONS.renderRequests).doc(record.renderId).set({enqueueStatus: 'failed', status: 'enqueue_failed', error: safeText(error && error.message, 1200) || 'Task enqueue failed.', failureKind: 'render_task_enqueue_failed', updatedAtMs: Date.now()}, {merge: true});
+      const failure = new Error('render_task_enqueue_failed: ' + (safeText(error && error.message, 800) || 'Could not enqueue Blender render worker.'));
+      failure.status = 503;
+      failure.failureKind = 'render_task_enqueue_failed';
+      throw failure;
+    }
+  }
+  const updated = {...record, enqueueStatus: 'enqueued', status: record.status === 'enqueue_failed' ? 'queued' : record.status, updatedAtMs: Date.now()};
+  await collection(admin, COMMAND_CENTER_COLLECTIONS.renderRequests).doc(record.renderId).set({enqueueStatus: updated.enqueueStatus, status: updated.status, error: '', failureKind: '', updatedAtMs: updated.updatedAtMs}, {merge: true});
+  return updated;
+}
+
+async function prepareRenderRequest(caller, args = {}) {
+  const contractVersion = safeText(args.contractVersion, 100) || 'home-center.blender-render-request.v2';
+  const settings = normalizeRenderSettings(args.settings);
+  const executionContract = cleanRenderContract(args.executionContract);
+  const seedRenderId = safeText(args.renderId, 180) || 'render_' + hashText(ownerKeyFromCaller(caller) + ':' + safeText(args.idempotencyKey, 180), 32);
+  const resolvedSources = await resolveRenderSources(caller, args || {}, seedRenderId);
+  const glbRef = resolvedSources.glbRef;
+  const scriptRef = resolvedSources.scriptRef;
+  if ([glbRef, scriptRef].some((ref) => /^drive:\/\//i.test(ref))) {
+    throw renderInputError('Queued Blender renders cannot retain user OAuth credentials. Materialize drive:// inputs through artifact_transport.preflight and submit the resulting gs:// refs.', 400, 'render_async_requires_durable_staged_ref');
+  }
+  const stagedInputs = [...cleanRenderStagedInputs(args.stagedInputs), ...resolvedSources.stagedInputs];
+  const inputHash = renderRequestInputHash({contractVersion, glbRef, scriptRef, stagedInputs, settings, executionContract});
+  const renderId = safeText(args.renderId, 180) || renderRecordId(inputHash, caller);
+  return {contractVersion, glbRef, scriptRef, stagedInputs, settings, executionContract, inputHash, renderId};
+}
+
+async function renderBlenderGlb(admin, extra, args = {}, helpers = {}) {
   const caller = await callerFromExtra(admin, extra);
-  const accessToken = bearerFromExtra(extra);
-  return idempotentMutation(admin, caller, requireIdempotencyKey(args.idempotencyKey), 'render.blender_glb', async () => {
-    const contractVersion = safeText(args.contractVersion, 100) || 'home-center.blender-render-request.v2';
-    const settings = normalizeRenderSettings(args.settings);
-    const executionContract = cleanRenderContract(args.executionContract);
-    const requestedRenderId = safeText(args.renderId, 180) || `render_${hashText(ownerKeyFromCaller(caller) + ':' + safeText(args.idempotencyKey, 180), 32)}`;
-    const resolvedSources = await resolveRenderSources(caller, args || {}, requestedRenderId);
-    const glbRef = resolvedSources.glbRef;
-    const scriptRef = resolvedSources.scriptRef;
-    const stagedInputs = [...cleanRenderStagedInputs(args.stagedInputs), ...resolvedSources.stagedInputs];
-    const requestCacheKey = renderCacheLookupKey({contractVersion, glbRef, scriptRef, stagedInputs, settings, executionContract});
-    const renderId = safeText(args.renderId, 180) || renderRecordId(requestCacheKey, caller);
-    const ref = collection(admin, COMMAND_CENTER_COLLECTIONS.renderRequests).doc(renderId);
-    const existingSnap = await ref.get();
-    if (args.cache !== false && existingSnap.exists) {
-      const existing = existingSnap.data() || {};
+  const idempotencyKey = requireIdempotencyKey(args.idempotencyKey);
+  const prepared = await prepareRenderRequest(caller, args);
+  const db = admin.firestore();
+  const requestRef = collection(admin, COMMAND_CENTER_COLLECTIONS.renderRequests).doc(prepared.renderId);
+  const idemRef = renderIdempotencyRef(admin, caller, idempotencyKey);
+  let attached = false;
+  let record;
+  await db.runTransaction(async (transaction) => {
+    const [idemSnapshot, requestSnapshot] = await Promise.all([transaction.get(idemRef), transaction.get(requestRef)]);
+    if (idemSnapshot.exists) {
+      const existing = idemSnapshot.data() || {};
+      if (safeText(existing.inputHash, 64) !== prepared.inputHash) {
+        const conflict = new Error('idempotencyKey is already bound to different render artifact identities or settings.');
+        conflict.status = 409;
+        conflict.failureKind = 'render_idempotency_conflict';
+        throw conflict;
+      }
+      attached = true;
+    }
+    if (requestSnapshot.exists) {
+      const existing = requestSnapshot.data() || {};
       assertOwnerAccess(existing, caller, 'Command Center render request');
-      if (existing.status === 'completed' && existing.cacheKey) return {...cleanRenderResult(existing.result || {}, {renderId, cacheKey: existing.cacheKey}), cacheHit: true, persisted: true};
+      const existingHash = safeText(existing.inputHash, 64) || renderRequestInputHash(existing);
+      if (existingHash !== prepared.inputHash) {
+        const conflict = new Error('renderId is already bound to different render artifact identities or settings.');
+        conflict.status = 409;
+        conflict.failureKind = 'render_idempotency_conflict';
+        throw conflict;
+      }
+      record = {...existing, inputHash: prepared.inputHash};
+      attached = true;
+    } else {
+      const now = Date.now();
+      record = {
+        renderId: prepared.renderId,
+        inputHash: prepared.inputHash,
+        contractVersion: prepared.contractVersion,
+        status: 'queued',
+        enqueueStatus: 'pending',
+        executionAttempt: 0,
+        glbRef: prepared.glbRef,
+        scriptRef: prepared.scriptRef,
+        stagedInputs: prepared.stagedInputs,
+        settings: prepared.settings,
+        executionContract: prepared.executionContract,
+        cache: args.cache !== false,
+        toolVersion: COMMAND_CENTER_RENDER_TOOL_VERSION,
+        ownerKey: ownerKeyFromCaller(caller),
+        requestedBy: caller.actor,
+        requestedRenderId: safeText(args.renderId, 180),
+        acceptedAtMs: now,
+        createdAtMs: now,
+        updatedAtMs: now,
+        lease: null,
+        result: null,
+        error: '',
+        failureKind: '',
+      };
+      transaction.create(requestRef, record);
     }
-    const bucketInputs = await resolveRenderBucketInputs(admin, [glbRef, scriptRef], caller);
-    const startedAtMs = Date.now();
-    await ref.set({renderId, cacheKey: requestCacheKey, requestCacheKey, status: 'running', glbRef, scriptRef, stagedInputs, settings, executionContract, toolVersion: COMMAND_CENTER_RENDER_TOOL_VERSION, ownerKey: ownerKeyFromCaller(caller), requestedBy: caller.actor, createdAtMs: existingSnap.exists ? (existingSnap.data() || {}).createdAtMs || startedAtMs : startedAtMs, updatedAtMs: startedAtMs}, {merge: true});
-    try {
-      const serviceResult = await invokeRenderService({renderId, requestCacheKey, contractVersion, glbRef, scriptRef, stagedInputs, settings, executionContract, toolVersion: COMMAND_CENTER_RENDER_TOOL_VERSION, cache: args.cache !== false, bucketInputs, googleOAuthAccessToken: accessToken});
-      const result = cleanRenderResult(serviceResult, {renderId, cacheKey: serviceResult.cacheKey || requestCacheKey});
-      const presentKinds = result.validation && Array.isArray(result.validation.presentBundleKinds) ? result.validation.presentBundleKinds : [];
-      const effectiveRenderOptions = Object.prototype.hasOwnProperty.call(result.renderOptions || {}, 'includeBlend') || Object.prototype.hasOwnProperty.call(result.renderOptions || {}, 'includeDiagnostics') ? result.renderOptions : renderBundleOptionsFrom(settings, executionContract);
-      const requiredKinds = renderRequiredBundleKindsForOptions(effectiveRenderOptions);
-      const missingKinds = requiredKinds.filter((kind) => !presentKinds.includes(kind));
-      const status = result.ok && missingKinds.length === 0 ? 'completed' : 'failed';
-      const normalizedValidation = {...result.validation, ok: status === 'completed', missingBundleKinds: missingKinds, requiredBundleKinds: requiredKinds, renderOptions: effectiveRenderOptions};
-      const finalResult = {...result, ok: status === 'completed', status, failureKind: status === 'completed' ? '' : (result.failureKind || normalizedValidation.failureKind || 'artifact_publication'), missingBundleKinds: missingKinds, validation: normalizedValidation, renderOptions: effectiveRenderOptions, stagedInputs};
-      await ref.set({status, cacheKey: finalResult.cacheKey || requestCacheKey, result: finalResult, updatedAtMs: Date.now(), completedAtMs: status === 'completed' ? Date.now() : 0, failedAtMs: status === 'failed' ? Date.now() : 0}, {merge: true});
-      return finalResult;
-    } catch (err) {
-      const failed = cleanRenderResult(err.serviceResult || {}, {renderId, cacheKey: requestCacheKey});
-      const result = {...failed, ok: false, status: 'failed', failureKind: safeText(err.failureKind, 80) || 'transport', error: safeText(err.message || String(err), 2000), stagedInputs};
-      await ref.set({status: 'failed', result, error: result.error, failureKind: result.failureKind, updatedAtMs: Date.now(), failedAtMs: Date.now()}, {merge: true});
-      return result;
+    if (!idemSnapshot.exists) transaction.create(idemRef, {idempotencyKey, operation: 'render.blender_glb', inputHash: prepared.inputHash, renderId: prepared.renderId, caller: caller.actor, ownerKey: ownerKeyFromCaller(caller), createdAtMs: Date.now()});
+  });
+  const terminal = ['completed', 'failed', 'quarantined'].includes(safeText(record.status, 80));
+  if (!terminal) record = await ensureRenderTaskEnqueued(admin, record, helpers.enqueueRenderTask || enqueueRenderTask);
+  return boundedRenderRequestStatus(record, attached);
+}
+
+async function renderRequestStatus(admin, caller, args = {}) {
+  let renderId = safeText(args.renderId, 180);
+  if (!renderId && args.idempotencyKey) {
+    const idem = await renderIdempotencyRef(admin, caller, requireIdempotencyKey(args.idempotencyKey)).get();
+    if (idem.exists) renderId = safeText((idem.data() || {}).renderId, 180);
+  }
+  if (!renderId) {
+    const error = new Error('renderId or idempotencyKey is required.');
+    error.status = 400;
+    throw error;
+  }
+  const snapshot = await collection(admin, COMMAND_CENTER_COLLECTIONS.renderRequests).doc(renderId).get();
+  if (!snapshot.exists) return {ok: false, found: false, renderId, status: 'missing', state: 'missing'};
+  const record = snapshot.data() || {};
+  assertOwnerAccess(record, caller, 'Command Center render request');
+  return {found: true, ...boundedRenderRequestStatus(record, true)};
+}
+
+function ambiguousRenderFailure(error) {
+  const kind = safeText(error && (error.failureKind || error.serviceResult && error.serviceResult.failureKind), 80);
+  const status = Number(error && error.status || 0);
+  return !status || status >= 500 || ['transport', 'timeout', 'render_service_invocation_auth_failed'].includes(kind);
+}
+
+async function executeQueuedRenderRequest(admin, task = {}, helpers = {}) {
+  const renderId = safeText(task.renderId, 180);
+  const inputHash = safeText(task.inputHash, 64);
+  if (!renderId || !/^[a-f0-9]{64}$/.test(inputHash)) throw new Error('Queued render task requires renderId and 64-character inputHash.');
+  const ref = collection(admin, COMMAND_CENTER_COLLECTIONS.renderRequests).doc(renderId);
+  const leaseId = randomUUID();
+  let claimed;
+  await admin.firestore().runTransaction(async (transaction) => {
+    const snapshot = await transaction.get(ref);
+    if (!snapshot.exists) throw new Error('Queued render request not found: ' + renderId);
+    const record = snapshot.data() || {};
+    if (safeText(record.inputHash, 64) !== inputHash) {
+      transaction.set(ref, {status: 'quarantined', failureKind: 'render_task_input_conflict', error: 'Task inputHash did not match the preserved render request.', updatedAtMs: Date.now()}, {merge: true});
+      claimed = {terminal: true, record: {...record, status: 'quarantined'}};
+      return;
     }
+    if (['completed', 'failed', 'quarantined'].includes(record.status)) {
+      claimed = {terminal: true, record};
+      return;
+    }
+    const currentLease = safeObject(record.lease);
+    if (record.status === 'running' && Number(currentLease.expiresAtMs || 0) > Date.now()) {
+      claimed = {terminal: true, record};
+      return;
+    }
+    const now = Date.now();
+    const lease = {leaseId, holder: COMMAND_CENTER_RENDER_TASK_FUNCTION, acquiredAtMs: now, heartbeatAtMs: now, expiresAtMs: now + COMMAND_CENTER_RENDER_LEASE_MS};
+    claimed = {terminal: false, record: {...record, status: 'running', enqueueStatus: 'running', lease, startedAtMs: record.startedAtMs || now, updatedAtMs: now}};
+    transaction.set(ref, {status: 'running', enqueueStatus: 'running', lease, startedAtMs: record.startedAtMs || now, updatedAtMs: now, error: '', failureKind: ''}, {merge: true});
+  });
+  if (claimed.terminal) return boundedRenderRequestStatus(claimed.record, true);
+  const record = claimed.record;
+  try {
+    const bucketInputs = await resolveRenderBucketInputs(admin, [record.glbRef, record.scriptRef], {actor: record.requestedBy, ownerKey: record.ownerKey});
+    const invoke = helpers.invokeRenderService || invokeRenderService;
+    const serviceResult = await invoke({renderId, requestCacheKey: renderCacheLookupKey(record), contractVersion: record.contractVersion, glbRef: record.glbRef, scriptRef: record.scriptRef, stagedInputs: record.stagedInputs, settings: record.settings, executionContract: record.executionContract, toolVersion: COMMAND_CENTER_RENDER_TOOL_VERSION, cache: record.cache !== false, bucketInputs});
+    const cleaned = cleanRenderResult(serviceResult, {renderId, cacheKey: serviceResult.cacheKey || renderCacheLookupKey(record)});
+    const presentKinds = cleaned.validation && Array.isArray(cleaned.validation.presentBundleKinds) ? cleaned.validation.presentBundleKinds : [];
+    const effectiveOptions = cleaned.renderOptions && Object.keys(cleaned.renderOptions).length ? cleaned.renderOptions : renderBundleOptionsFrom(record.settings, record.executionContract);
+    const requiredKinds = renderRequiredBundleKindsForOptions(effectiveOptions);
+    const missingKinds = requiredKinds.filter((kind) => !presentKinds.includes(kind));
+    const completed = cleaned.ok && missingKinds.length === 0;
+    const finalResult = {...cleaned, ok: completed, status: completed ? 'completed' : 'failed', missingBundleKinds: missingKinds, stagedInputs: record.stagedInputs};
+    const now = Date.now();
+    await ref.set({status: completed ? 'completed' : 'failed', enqueueStatus: 'completed', result: finalResult, cacheKey: finalResult.cacheKey || '', failureKind: completed ? '' : (finalResult.failureKind || 'artifact_publication'), error: completed ? '' : (finalResult.error || 'Renderer returned an incomplete artifact bundle.'), lease: null, updatedAtMs: now, completedAtMs: completed ? now : 0, failedAtMs: completed ? 0 : now}, {merge: true});
+    return boundedRenderRequestStatus({...record, status: finalResult.status, enqueueStatus: 'completed', result: finalResult, lease: null, completedAtMs: completed ? now : 0, failedAtMs: completed ? 0 : now, updatedAtMs: now}, false);
+  } catch (error) {
+    const quarantined = ambiguousRenderFailure(error);
+    const now = Date.now();
+    const status = quarantined ? 'quarantined' : 'failed';
+    const failureKind = safeText(error && error.failureKind, 80) || (quarantined ? 'render_provider_outcome_ambiguous' : 'render_execution_failed');
+    const message = safeText(error && error.message, 1200) || 'Render worker failed.';
+    await ref.set({status, enqueueStatus: 'completed', failureKind, error: message, lease: null, updatedAtMs: now, failedAtMs: now}, {merge: true});
+    return boundedRenderRequestStatus({...record, status, enqueueStatus: 'completed', failureKind, error: message, lease: null, updatedAtMs: now, failedAtMs: now}, false);
+  }
+}
+
+async function reconcileRenderRequest(admin, caller, args = {}, helpers = {}) {
+  const renderId = safeText(args.renderId, 180);
+  const resolution = safeText(args.resolution, 80);
+  const evidence = safeText(args.evidence, 1200);
+  if (!renderId || resolution !== 'retry_safe' || !evidence) {
+    const error = new Error('render.reconcile requires renderId, resolution=retry_safe, and bounded reconciliation evidence.');
+    error.status = 400;
+    throw error;
+  }
+  return idempotentMutation(admin, caller, requireIdempotencyKey(args.idempotencyKey), 'render.reconcile', async () => {
+    const ref = collection(admin, COMMAND_CENTER_COLLECTIONS.renderRequests).doc(renderId);
+    let record;
+    await admin.firestore().runTransaction(async (transaction) => {
+      const snapshot = await transaction.get(ref);
+      if (!snapshot.exists) throw Object.assign(new Error('Render request not found.'), {status: 404});
+      const existing = snapshot.data() || {};
+      assertOwnerAccess(existing, caller, 'Command Center render request');
+      const lease = safeObject(existing.lease);
+      const expiredRunningLease = existing.status === 'running' && Number(lease.expiresAtMs || 0) > 0 && Number(lease.expiresAtMs) <= Date.now();
+      if (!['failed', 'quarantined', 'stalled', 'enqueue_failed'].includes(existing.status) && !expiredRunningLease) throw Object.assign(new Error('Only failed, quarantined, stalled, enqueue_failed, or expired-running renders can be reconciled for retry.'), {status: 409});
+      const executionAttempt = Number(existing.executionAttempt || 0) + 1;
+      record = {...existing, status: 'queued', enqueueStatus: 'pending', executionAttempt, reconciliation: {resolution, evidence, reconciledBy: caller.actor, reconciledAtMs: Date.now()}, updatedAtMs: Date.now(), error: '', failureKind: '', lease: null};
+      transaction.set(ref, record, {merge: true});
+    });
+    record = await ensureRenderTaskEnqueued(admin, record, helpers.enqueueRenderTask || enqueueRenderTask);
+    return boundedRenderRequestStatus(record, false);
   });
 }
 
@@ -4624,6 +4874,10 @@ async function runCommandCenterOperation(admin, extra, operation, args = {}) {
       return upsertProject(admin, await caller(), args || {});
     case 'render.blender_glb':
       return renderBlenderGlb(admin, extra, args || {});
+    case 'render.status':
+      return renderRequestStatus(admin, await caller(), args || {});
+    case 'render.reconcile':
+      return reconcileRenderRequest(admin, await caller(), args || {});
     case 'jobs.create':
       return createJob(admin, await caller(), args || {});
     case 'jobs.create_followup':
@@ -5024,7 +5278,7 @@ function createCommandCenterMcpServer({admin}) {
 
   server.registerTool('command_center.render.blender_glb', {
     title: 'Render GLB with Blender',
-    description: 'Non-agent Blender execution primitive: GLB plus script plus execution contract returns a durable 3D artifact bundle and visual evidence. Does not create Command Center jobs or Codex activations.',
+    description: 'Accept a non-agent Blender execution request and return a durable status receipt promptly. A leased one-attempt task publishes the 3D artifact bundle and visual evidence without holding the connector request open.',
     inputSchema: {
       idempotencyKey: z.string(),
       renderId: z.string().optional(),
@@ -5038,6 +5292,18 @@ function createCommandCenterMcpServer({admin}) {
       cache: z.boolean().optional(),
     },
   }, async (args, extra) => textResult(await renderBlenderGlb(admin, extra, args || {})));
+
+  server.registerTool('command_center.render.status', {
+    title: 'Get Blender render status',
+    description: 'Read the bounded durable status for an accepted Blender render without returning binary bodies or provider logs.',
+    inputSchema: {renderId: z.string().optional(), idempotencyKey: z.string().optional()},
+  }, async (args, extra) => textResult(await renderRequestStatus(admin, await callerFromExtra(admin, extra), args || {})));
+
+  server.registerTool('command_center.render.reconcile', {
+    title: 'Reconcile ambiguous Blender render',
+    description: 'Explicitly authorize one retry of a failed, stalled, or quarantined render after provider evidence proves retry is safe.',
+    inputSchema: {idempotencyKey: z.string(), renderId: z.string(), resolution: z.literal('retry_safe'), evidence: z.string()},
+  }, async (args, extra) => textResult(await reconcileRenderRequest(admin, await callerFromExtra(admin, extra), args || {})));
 
   server.registerTool('command_center.projects.resolve', {
     title: 'Resolve Command Center project',
@@ -5804,6 +6070,12 @@ module.exports = {
   renderBundleOptionsFrom,
   renderRequiredBundleKindsForOptions,
   renderBlenderGlb,
+  renderRequestStatus,
+  reconcileRenderRequest,
+  executeQueuedRenderRequest,
+  renderRequestInputHash,
+  renderRequestContract,
+  boundedRenderRequestStatus,
   resolveRenderSources,
   validateGlbBytes,
   validateScriptBytes,

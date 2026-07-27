@@ -92,6 +92,10 @@ deploy_credit_backed_http() {
   deploy_credit_backed_http_function ttsVoices 60s 'ELEVENLABS_API_KEY=ELEVENLABS_API_KEY:latest,CARTESIA_API_KEY=CARTESIA_API_KEY:latest'
 }
 
+deploy_command_center_render_worker() {
+  firebase deploy --project "$PROJECT" --only functions:commandCenterRenderWorker --force
+}
+
 deploy_she_raw_mcp() {
   gcloud functions deploy sheRawMcp \
     --gen2 \
@@ -108,13 +112,14 @@ deploy_she_raw_mcp() {
 for fn in $FUNCTIONS; do
   case "$fn" in
     commandCenterMcp) deploy_command_center_mcp ;;
+    commandCenterRenderWorker) deploy_command_center_render_worker ;;
     homeCenterMcp) deploy_home_center_mcp ;;
     audioLibraryApi) deploy_audio_library_api ;;
     creditBackedHttp) deploy_credit_backed_http ;;
     sheRawMcp) deploy_she_raw_mcp ;;
     *)
       echo "Unsupported gcloud deploy target: $fn" >&2
-      echo "Supported: commandCenterMcp homeCenterMcp audioLibraryApi creditBackedHttp sheRawMcp" >&2
+      echo "Supported: commandCenterMcp commandCenterRenderWorker homeCenterMcp audioLibraryApi creditBackedHttp sheRawMcp" >&2
       exit 2
       ;;
   esac
