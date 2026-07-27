@@ -751,6 +751,7 @@ async function verifiedRenderGifMcpContent(result = {}, {storage = null, google 
 async function attachRenderGifMcpContent(operationResult = {}, options = {}) {
   const cleanResult = JSON.parse(JSON.stringify(operationResult || {}));
   if (!cleanResult || cleanResult.operation !== 'render.blender_glb' || !cleanResult.result) return cleanResult;
+  if (safeText(cleanResult.result.status, 80) !== 'completed') return cleanResult;
   const inline = await verifiedRenderGifMcpContent(cleanResult.result, options).catch((err) => ({contentBlock: null, delivery: {ok: false, type: 'mcp_resource_link', mimeType: 'image/gif', artifactRef: safeText(cleanResult.result && cleanResult.result.loopingGifRef, 1600), durableRef: '', byteCount: 0, sha256: '', expectedByteCount: 0, expectedSha256: '', ceilingBytes: HOME_CENTER_RENDER_INLINE_GIF_MAX_BYTES, contentBlockType: '', errorCode: safeText(err && err.failureKind, 120) || 'render_gif_resource_link_failed', message: safeText(err && err.message, 500)}}));
   cleanResult.result.inlineMediaDelivery = inline.delivery;
   const receipt = renderReceiptWithoutInlinePayload(cleanResult, inline.delivery);

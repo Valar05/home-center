@@ -105,6 +105,11 @@ assert.equal(receipt.result.inlineMediaDelivery.contentBlockType, 'resource_link
 assert.equal(receipt.result.inlineMediaDelivery.sha256, gifSha);
 assert.equal(receipt.result.inlineMediaDelivery.durableRef, 'drive://driveGif12345');
 
+const queuedResult = await attachRenderGifMcpContent({operation: 'render.blender_glb', toolName: 'command_center.render.blender_glb', result: {ok: true, accepted: true, status: 'queued', renderId: 'queued-render'}}, {storage: fakeStorage});
+assert.equal(queuedResult.result.status, 'queued');
+assert.equal(queuedResult.result.inlineMediaDelivery, undefined, 'accepted receipts must not report a missing result artifact');
+assert.equal(queuedResult._mcpContent, undefined);
+
 const failureResult = await attachRenderGifMcpContent({operation: 'render.blender_glb', toolName: 'command_center.render.blender_glb', result}, {storage: fakeStorage});
 assert.deepEqual(failureResult._mcpContent.content.map((item) => item.type), ['text']);
 const failureReceipt = JSON.parse(failureResult._mcpContent.content[0].text);
