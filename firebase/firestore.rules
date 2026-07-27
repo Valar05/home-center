@@ -83,22 +83,46 @@ service cloud.firestore {
 
       match /smsCalendarIntake/{messageId} {
         allow create: if isMember(bucketId)
+          && request.resource.data.schemaVersion == "home-center.sms-calendar-intake.v2"
+          && request.resource.data.messageId == messageId
           && request.resource.data.createdByUid == request.auth.uid
-          && request.resource.data.status == "pending"
-          && request.resource.data.privacyScope == "appointment_reminder_candidate"
+          && request.resource.data.status == "received"
+          && request.resource.data.privacyScope == "sms_calendar_private"
           && request.resource.data.source.type == "android_notification"
+          && request.resource.data.source.transport == "android_google_messages_notification"
           && request.resource.data.source.packageName == "com.google.android.apps.messaging"
+          && request.resource.data.sourceTransport == "android_google_messages_notification"
+          && request.resource.data.sourceHash == request.resource.data.immutableHash
+          && request.resource.data.ingestionIdempotencyKey is string
+          && request.resource.data.ingestionIdempotencyKey.size() > 16
+          && request.resource.data.recipientDeviceId is string
           && request.resource.data.body is string
           && request.resource.data.body.size() > 0
           && request.resource.data.body.size() <= 12000;
-        allow read: if isMember(bucketId);
+        allow read: if isMember(bucketId)
+          && resource.data.createdByUid == request.auth.uid;
         allow update: if isMember(bucketId)
+          && resource.data.createdByUid == request.auth.uid
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+            "classification", "proposal", "status", "classifiedAtMs", "updatedAtMs"
+          ])
+          && request.resource.data.status in ["classified", "proposal_ready"]
+          && request.resource.data.schemaVersion == resource.data.schemaVersion
+          && request.resource.data.messageId == resource.data.messageId
           && request.resource.data.sender == resource.data.sender
           && request.resource.data.senderAddress == resource.data.senderAddress
+          && request.resource.data.recipientDeviceId == resource.data.recipientDeviceId
           && request.resource.data.body == resource.data.body
           && request.resource.data.receivedAtMs == resource.data.receivedAtMs
+          && request.resource.data.sourceTransport == resource.data.sourceTransport
           && request.resource.data.sourceHash == resource.data.sourceHash
-          && request.resource.data.createdByUid == resource.data.createdByUid;
+          && request.resource.data.immutableHash == resource.data.immutableHash
+          && request.resource.data.ingestionIdempotencyKey == resource.data.ingestionIdempotencyKey
+          && request.resource.data.source == resource.data.source
+          && request.resource.data.createdByUid == resource.data.createdByUid
+          && request.resource.data.createdAtMs == resource.data.createdAtMs
+          && request.resource.data.preservedAtMs == resource.data.preservedAtMs
+          && request.resource.data.privacyScope == resource.data.privacyScope;
         allow delete: if false;
       }
     }

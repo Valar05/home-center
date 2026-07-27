@@ -109,6 +109,7 @@ mkdir -p "$tmp/classes"
 javac -d "$tmp/classes" \
   app/src/main/java/com/dclar/homecenter/Command.java \
   app/src/main/java/com/dclar/homecenter/CommandParser.java \
+  app/src/main/java/com/dclar/homecenter/SmsCalendarIngestionContract.java \
   app/src/main/java/com/dclar/homecenter/SmsReminderClassifier.java \
   tools/CommandParserHarness.java \
   tools/SmsReminderClassifierHarness.java
