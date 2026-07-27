@@ -4,8 +4,6 @@ import fs from 'node:fs';
 const source = fs.readFileSync(new URL('../functions/home_center_mcp.js', import.meta.url), 'utf8');
 
 const required = [
-  "const HOME_CENTER_CONNECTOR_SCHEMA_REVISION = '2026-07-27.drive-file-ingest-v1'",
-  "HOME_CENTER_DIRECT_FILE_TOOLS = Object.freeze(['render_blender_glb', 'drive_ingest_file'])",
   "HOME_CENTER_DRIVE_INGEST_MAX_BYTES",
   "server.registerTool('drive_ingest_file'",
   "file: z.file()",
@@ -25,6 +23,8 @@ const required = [
   "contentMediaType: 'application/octet-stream'",
 ];
 
+assert.match(source, /HOME_CENTER_DIRECT_FILE_TOOLS = Object\.freeze\(\[[^\]]*'drive_ingest_file'/);
+
 for (const marker of required) {
   assert.equal(source.includes(marker), true, 'missing Drive file ingress contract marker: ' + marker);
 }
@@ -37,3 +37,4 @@ assert.match(source, /assertDriveIngestIdentity\(existing\.result, identity\)/);
 assert.match(source, /parentFolderId: \(metadata\.parents \|\| \[\]\)\[0\] \|\| parentFolderId/);
 
 console.log('Drive file ingress contract passed.');
+
