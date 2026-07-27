@@ -1,11 +1,12 @@
 # CODEX STARTS HERE
 
-## Current Objective
+## Current State
 
-Systemic artifact transport repair on `agent/systemic-artifact-transport`,
-based on remote `main` `7798c1b9cc116b89359febcee06ea8d22326f344`.
-The branch also includes the SMS Calendar proposal commits. Candidate 001 is the
-proof case, not the architecture boundary and not an accepted animation.
+Systemic artifact transport is implemented and live-verified on
+`agent/systemic-artifact-transport`, based on remote `main`
+`7798c1b9cc116b89359febcee06ea8d22326f344`. The branch also includes the SMS
+Calendar proposal commits. Candidate 001 completed the transport proof but
+remains quarantined pending hosted Pose-is-God visual review.
 
 ## Read First
 
@@ -51,13 +52,19 @@ Use a normal Linux/temp install from lockfiles for dependency-heavy tests. Andro
 shared storage can omit package-root files during npm extraction; that is an
 environment issue, not a reason to weaken tests.
 
-## Deployment Discipline
+## Deployment State
 
-Deploy the existing Blender service, then existing Command Center and Home Center
-functions. Confirm every intended revision receives 100% traffic. Enumerate Cloud
-Run services and jobs afterward; do not leave a proof service or job. Record the
-previous and new revisions in `docs/ARTIFACT_TRANSPORT_SYSTEM.md`. Re-run the
-connected tool schema and confirm `settings.gifFrames` is public.
+Production targets are `command-center-blender-render-00020-2bq`,
+`commandcentermcp-00072-jan`, `homecentermcp-00141-xin`, and private worker
+`commandcenterrenderworker-00001-wun`, all at 100% traffic. Queue
+`commandCenterRenderWorker` is RUNNING with concurrency four and one attempt.
+Cloud Run job count is zero. Do not remove the worker without also deleting its
+queue, and do not leave either behind during rollback. Exact rollback targets
+and proof receipts are in `docs/ARTIFACT_TRANSPORT_SYSTEM.md`.
+
+Repository and backend schemas include `settings.gifFrames`. The connected
+host catalog in the proving session remained cached on the older top-level tool
+schema; use the stable dispatcher until the connector is reconnected.
 
 ## Acceptance Guard
 

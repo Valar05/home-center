@@ -1,6 +1,6 @@
 # Systemic Artifact Transport
 
-Status: pre-implementation truth map
+Status: implemented, deployed, and live-verified; Candidate 001 remains visually quarantined
 
 Baseline: remote `main` at `7798c1b9cc116b89359febcee06ea8d22326f344`
 
@@ -33,11 +33,13 @@ Captured: 2026-07-27 America/Chicago
 | --- | --- |
 | Repository | `Valar05/home-center`, current `main` `7798c1b`. PRs #116-#118 added Drive ingress, Storage ingress, and a Base64 chunk fallback. SMS commits are replayed on `agent/systemic-artifact-transport`. |
 | Pose proof source | `Valar05/pose-lab-v2` draft PR #12, head `cceec91bc8097ce1adcd28e01689137ca9d93707`. Candidate remains quarantined. |
-| Home Center MCP | ACTIVE `homecentermcp-00137-fih`, Node 22, 1 CPU, 1 GiB, concurrency 80, timeout 300, updated `2026-07-27T08:52:45Z`. |
-| Command Center MCP | ACTIVE `commandcentermcp-00068-cuh`, Node 22, 0.1666 CPU, 256 MiB, concurrency 1, timeout 300. This is behind current repository worker guardrails. |
-| Blender renderer | ACTIVE `command-center-blender-render-00016-lgt`, 2 CPU, 4 GiB, concurrency 160, timeout 900, max scale 10. Repository `ops/worker_profiles.v1.json` instead requires 4 CPU, 8 GiB, concurrency 1, timeout 1800, max scale 4. |
-| Cloud Run Codex worker | Repository declares `command-center-debian-worker`, but no Cloud Run jobs are listed in `home-center-dclar/us-central1` and direct describe returns not found. |
-| Object storage | Canonical generated output bucket is `gs://home-center-generated`. Legacy render input staging is `gs://home-center-dclar-command-center-renders`. |
+| Home Center MCP | ACTIVE `homecentermcp-00141-xin`, build `afafc24d-b1b0-458e-9ce8-61e31cc2d5a3`, 100% traffic, readiness green. |
+| Command Center MCP | ACTIVE `commandcentermcp-00072-jan`, build `062c2cda-f653-4b1a-b4c7-85882b76a584`, 100% traffic, readiness green. |
+| Blender renderer | ACTIVE `command-center-blender-render-00020-2bq`, image digest `sha256:c4472114eaa28620aefb02b3b5c4e194cd1f5410f85a05a4f9923ec56b90d439`, 4 CPU, 8 GiB, concurrency 1, timeout 1800, max scale 4, 100% traffic. |
+| Render task worker | ACTIVE `commandcenterrenderworker-00001-wun`, build `58c33ee4-882f-4f3c-91b1-71020a287183`, 1 CPU, 512 MiB, concurrency 1, timeout 1800, max scale 4, private. |
+| Render task queue | RUNNING `commandCenterRenderWorker`, bounded to four concurrent dispatches and four dispatches/second, `maxAttempts=1`. |
+| Cloud Run jobs | Zero jobs in `home-center-dclar/us-central1` after deployment. The transport repair did not create a proof job. |
+| Object storage | Generated proof outputs are in `gs://home-center-generated`; immutable input staging/catalog remains in `gs://home-center-dclar-command-center-renders`. No proof bucket was created. |
 
 ## Transport Map
 
@@ -159,9 +161,11 @@ remove abandoned sessions only after a documented retention window.
 ## Measurements And Tests
 
 Synthetic equal-latency staging fixture (four files, 80 ms each): serialized
-`323 ms`; bounded concurrency four `122 ms`; measured speedup `2.65x`.
-This proves scheduler behavior, not provider throughput. Live provider timings
-remain recorded per phase in receipts and renderer manifests.
+`343 ms`; bounded concurrency four `91 ms`; measured speedup `3.77x`.
+This proves scheduler behavior, not provider throughput. Candidate 001 live timings
+were: accepted receipt `1.830 s`, queue-to-worker start `1.223 s`, input
+resolution wall time `408 ms`, Blender execution `51,862 ms`, output upload
+`10,003 ms`, and total renderer time `73,889 ms`.
 
 Automated contracts cover metadata-only requests, small host staging, bounded
 parallel multi-file ordering, interruption/resume, digest reuse, same/different
@@ -190,9 +194,14 @@ failure.
 
 ## Known Limitations
 
-- Work Mode host attachment marshalling remains host-owned. The repository can
-  now preflight durable refs and return specific owned-boundary errors, but it
-  cannot make a Drive URL inhabit a host `format: binary` slot.
+- Work Mode host attachment marshalling remains host-owned. Repository and live
+  backend publish `settings.gifFrames` from the shared v2 contract, but this
+  connected session still advertises a cached old top-level tool schema without
+  `settings`. The stable dispatcher is verified; refreshing the host connector
+  catalog requires a connector reconnect and cannot be forced by the service.
+- A Drive URL still cannot inhabit a host `format: binary` slot. Durable Drive
+  and GCS references must use preflight/the stable dispatcher instead of faking
+  a host attachment.
 - Drive exposes MD5 and byte length, not SHA-256. Preflight reports the
   repository-bound expected SHA and provider MD5 without claiming independent
   provider SHA verification.
@@ -203,10 +212,66 @@ failure.
 
 ## Rollback
 
-Roll back functions with `gcloud run services update-traffic <service> --to-revisions <previous>=100 --region us-central1 --project home-center-dclar` using the previous revisions recorded below. Roll back Blender the same way; do not create a parallel service. Repository rollback is a normal revert of the implementation commit. Existing immutable artifacts and receipts remain readable; resumable sessions can be explicitly aborted. No database migration must be reversed.
+Rollback uses existing revisions; do not create parallel resources. The immediate
+traffic targets are `commandcentermcp-00071-fod`,
+`homecentermcp-00140-wax`, and
+`command-center-blender-render-00019-vfq`. Use:
+
+`gcloud run services update-traffic SERVICE --to-revisions REVISION=100 --region us-central1 --project home-center-dclar`
+
+A full queue rollback must remove both source-owned resources together after
+routing Command Center to the pre-queue revision `commandcentermcp-00069-qin`:
+
+`gcloud functions delete commandCenterRenderWorker --gen2 --region us-central1 --project home-center-dclar`
+`gcloud tasks queues delete commandCenterRenderWorker --location us-central1 --project home-center-dclar`
+
+Repository rollback is a normal revert. Existing immutable artifacts and
+receipts remain readable; resumable sessions can be explicitly aborted. No
+database migration must be reversed.
 
 ## Deployment And Live Proof
 
-Pending live deployment receipts. This section must contain exact revisions,
-100% traffic confirmation, Candidate render receipt/manifest, replay receipt,
-large-file preflight, and post-deploy service/job inventory before completion.
+### Candidate 001
+
+Preflight request `regnet-candidate-001-preflight-c107-ae64-v1` resolved the
+GLB and script concurrently from their existing GCS objects: 720,363 bytes
+reused, zero transferred. Render request
+`regnet-candidate-001-transport-proof-async-v1` returned an accepted queued
+receipt in 1.830 seconds with input hash
+`e6f4cd4d83ce5969a252baa1a5cf84037b4bba4d190630f7c6cfba8508e2590b`.
+
+The worker completed on execution attempt zero. Blender exit was zero and the
+validation manifest preserved the exact source hashes `c1070777...a06b35` and
+`ae64b5ae...4bcea`. Cache key:
+`5ef0204dff92029110e88e23eb1b48bccb6963427f65d00bda30bb90691ec7c7`.
+Evidence includes eight fixed-camera and eight orthogonal renders:
+
+- manifest: `gs://home-center-generated/renders/blender/5ef0204dff92029110e88e23eb1b48bccb6963427f65d00bda30bb90691ec7c7/validation-manifest.json`;
+- front: `gs://home-center-generated/renders/blender/5ef0204dff92029110e88e23eb1b48bccb6963427f65d00bda30bb90691ec7c7/fixed/0-locked-k000.png`;
+- orthogonal: `gs://home-center-generated/renders/blender/5ef0204dff92029110e88e23eb1b48bccb6963427f65d00bda30bb90691ec7c7/diagnostic/0-orthogonal-k000.png`;
+- contact sheet: `gs://home-center-generated/renders/contact-sheets/5ef0204dff92029110e88e23eb1b48bccb6963427f65d00bda30bb90691ec7c7/contact-sheet.png`.
+
+Exact replay returned `attached=true`, the same cache key/input hash, unchanged
+accept/start/complete timestamps, and `executionAttempt=0`. Cloud logs between
+17:28Z and 17:45Z show one worker POST and one renderer POST only; replay caused
+zero additional renderer calls and no binary transfer. Candidate 001 remains
+`quarantined-pending-visual-review`; this is transport proof, not animation
+acceptance.
+
+### Large Durable Reference
+
+Request `meshy-large-reference-proof-live-v1` resolved the existing
+181,652,767-byte Drive ZIP in 270 ms as
+`server-side-reference-reuse`: 181,652,767 bytes reused, zero transferred.
+Drive byte length and MD5 matched; Drive does not expose SHA-256. Exact replay
+returned `attached=true` with the same acceptance timestamp and input hash
+`bbb4b85e076570b954f8324b5c4d27b4d6bc42d0bc3edf379505d8eb503c4e7c`.
+
+### Remote Resource Closure
+
+All four intended services have 100% traffic on the revisions listed under
+Authorities. Both readiness endpoints are green. The queue is RUNNING. Cloud
+Run job count is zero. The post-deploy service count increased only by the
+source-owned `commandcenterrenderworker`; no temporary service, job, queue,
+bucket, or proof deployment remains. The worker and queue are deployment-script
+owned and have paired rollback instructions above.
