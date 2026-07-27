@@ -1,0 +1,59 @@
+name: Sherman Cleanroom Review Egress
+
+on:
+  push:
+    branches:
+      - agent/sherman-cleanroom-blender-a
+    paths:
+      - .github/workflows/sherman-cleanroom-review-egress.yml
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      ROOT: gs://home-center-dclar-command-center-renders/sherman-factory/cleanroom-a/93a4b3dffead87db7ac1727bc96b5ec970364bcc/30305703791/sherman-cleanroom-a
+    steps:
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GCP_DEPLOY_SERVICE_ACCOUNT }}
+
+      - uses: google-github-actions/setup-gcloud@v2
+
+      - name: Build a contact sheet from the sealed Blender renders
+        run: |
+          mkdir -p "$RUNNER_TEMP/review"
+          for name in \
+            front left rear right top \
+            front_three_quarter rear_three_quarter low_front_three_quarter
+          do
+            gcloud storage cp "$ROOT/$name.png" "$RUNNER_TEMP/review/$name.png"
+          done
+          montage \
+            "$RUNNER_TEMP/review/front.png" \
+            "$RUNNER_TEMP/review/left.png" \
+            "$RUNNER_TEMP/review/rear.png" \
+            "$RUNNER_TEMP/review/right.png" \
+            "$RUNNER_TEMP/review/top.png" \
+            "$RUNNER_TEMP/review/front_three_quarter.png" \
+            "$RUNNER_TEMP/review/rear_three_quarter.png" \
+            "$RUNNER_TEMP/review/low_front_three_quarter.png" \
+            -tile 4x2 -geometry 512x512+8+8 -background '#111820' \
+            "$RUNNER_TEMP/review/contact-sheet.png"
+          sha256sum "$RUNNER_TEMP/review/contact-sheet.png"
+          gcloud storage cp --no-clobber \
+            "$RUNNER_TEMP/review/contact-sheet.png" \
+            "$ROOT/contact-sheet.png"
+
+      - name: Emit short-lived review links
+        run: |
+          gcloud storage ls -L "$ROOT/contact-sheet.png"
+          gcloud storage sign-url "$ROOT/contact-sheet.png" --duration=2h
+          gcloud storage sign-url "$ROOT/front_three_quarter.png" --duration=2h
+          gcloud storage sign-url "$ROOT/low_front_three_quarter.png" --duration=2h
