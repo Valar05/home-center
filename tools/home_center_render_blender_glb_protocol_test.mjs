@@ -10,9 +10,11 @@ const {
   HOME_CENTER_REGISTRY_VERSION,
   homeCenterHealthPayload,
   createHomeCenterMcpServer,
+  renderReviewArtifactCandidates,
+  renderReviewArtifactKey,
 } = require('../functions/home_center_mcp.js');
 
-assert.match(HOME_CENTER_CONNECTOR_SCHEMA_REVISION, /^2026-07-27\.artifact-transport-v1$/);
+assert.match(HOME_CENTER_CONNECTOR_SCHEMA_REVISION, /^2026-07-27\.render-review-egress-v1$/);
 assert.equal(HOME_CENTER_REGISTRY_VERSION, HOME_CENTER_CONNECTOR_SCHEMA_REVISION);
 assert.deepEqual([...HOME_CENTER_DIRECT_FILE_TOOLS], ['render_blender_glb', 'drive_ingest_file', 'storage_ingest_artifact']);
 
@@ -55,6 +57,35 @@ assert.equal(capabilities.connectorSchemaRevision, HOME_CENTER_CONNECTOR_SCHEMA_
 assert.deepEqual(capabilities.fileUploadTools[0].required, ['idempotencyKey', 'glbFile', 'scriptFile']);
 assert.equal(capabilities.fileUploadTools[0].inputs.glbFile.format, 'binary');
 assert.equal(capabilities.fileUploadTools[0].inputs.glbFile.contentMediaType, 'model/gltf-binary');
+
+assert.ok(capabilities.operationSurfaces.drive.operations.includes('render.review_artifacts'));
+assert.ok(capabilities.operationSurfaces.drive.writeOperations.includes('render.review_artifacts'));
+const reviewReceipt = {
+  status: 'completed',
+  renderId: 'render-review-test',
+  result: {
+    contactSheetRef: 'gs://proof/contact-sheets/contact-sheet.png',
+    diagnosticRenderRefs: ['gs://proof/diagnostic/0-orthogonal-k000.png'],
+    fixedCameraRenderRefs: ['gs://proof/fixed/0-locked-k000.png'],
+    loopingGifRef: 'gs://proof/gifs/walk-loop.gif',
+    artifactHashes: {
+      'contact-sheet.png': {sha256: '1'.repeat(64), byteCount: 1024},
+      'orthogonal-k000.png': {sha256: '2'.repeat(64), byteCount: 512},
+      'locked-k000.png': {sha256: '3'.repeat(64), byteCount: 512},
+      'walk-loop.gif': {sha256: '4'.repeat(64), byteCount: 256},
+    },
+  },
+};
+const review = renderReviewArtifactCandidates(reviewReceipt, {artifactKinds: ['contact_sheet', 'diagnostic_views']});
+assert.equal(review.renderId, 'render-review-test');
+assert.deepEqual(review.kinds, ['contact_sheet', 'diagnostic_views']);
+assert.deepEqual(review.candidates.map((item) => item.name), ['contact-sheet.png', 'orthogonal-k000.png']);
+assert.equal(review.expectedTotalBytes, 1536);
+assert.throws(() => renderReviewArtifactCandidates(reviewReceipt, {artifactKinds: ['arbitrary_gcs_path']}), /Unsupported render review artifactKinds/);
+const reviewKey = renderReviewArtifactKey({ownerEmail: 'drew@example.com', renderId: review.renderId, artifactRef: review.candidates[0].artifactRef, sha256: review.candidates[0].expectedSha256});
+assert.match(reviewKey, /^[a-f0-9]{64}$/);
+assert.equal(reviewKey, renderReviewArtifactKey({ownerEmail: 'DREW@example.com', renderId: review.renderId, artifactRef: review.candidates[0].artifactRef, sha256: review.candidates[0].expectedSha256}));
+assert.notEqual(reviewKey, renderReviewArtifactKey({ownerEmail: 'other@example.com', renderId: review.renderId, artifactRef: review.candidates[0].artifactRef, sha256: review.candidates[0].expectedSha256}));
 
 const registeredTool = server._registeredTools.render_blender_glb;
 const stringResult = registeredTool.inputSchema.safeParse({idempotencyKey: 'render-test', glbFile: '/tmp/a.glb', scriptFile: '/tmp/render.py'});
