@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import assert from 'node:assert/strict';
 import {createRequire} from 'node:module';
+import {readFileSync} from 'node:fs';
 
 const require = createRequire(import.meta.url);
 const {
@@ -13,6 +14,14 @@ const {
   renderReviewArtifactCandidates,
   renderReviewArtifactKey,
 } = require('../functions/home_center_mcp.js');
+
+const homeCenterSource = readFileSync(new URL('../functions/home_center_mcp.js', import.meta.url), 'utf8');
+const reviewOperationSource = homeCenterSource.slice(
+  homeCenterSource.indexOf('async function materializeRenderReviewArtifactsOperation'),
+  homeCenterSource.indexOf('function commandCenterOperationRegistryEntry'),
+);
+assert.match(reviewOperationSource, /commandCenterRenderRequestStatus\(admin, \{actor: ownerEmail\}, \{renderId\}\)/);
+assert.doesNotMatch(reviewOperationSource, /commandCenterOperationRunOperation/, 'review egress must use local render status instead of a nested MCP round trip');
 
 assert.match(HOME_CENTER_CONNECTOR_SCHEMA_REVISION, /^2026-07-27\.render-review-egress-v1$/);
 assert.equal(HOME_CENTER_REGISTRY_VERSION, HOME_CENTER_CONNECTOR_SCHEMA_REVISION);
