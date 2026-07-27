@@ -169,3 +169,225 @@ The implementation must:
 - agent-to-agent messaging;
 - a new scheduler, job system, audit store, or notification framework;
 - a proposal review UI.
+
+## Implemented Vertical Slice
+
+Implementation commits:
+
+- `e1dc838`: pre-implementation capability truth;
+- `b841556`: durable SMS Calendar proposal implementation.
+
+The implemented path is:
+
+`received -> classified -> proposal_ready -> approved | rejected -> calendar_written | failed`
+
+`preserved` is an immutable-record guarantee established during the `received`
+transition rather than a separately mutable status. An uncertain provider
+outcome enters `calendar_write_ambiguous` and can only leave through explicit
+reconciliation.
+
+### Ownership and Trust Boundaries
+
+- `SmsCalendarNotificationListener` owns Google Messages notification capture,
+  normalization, and preservation before interpretation.
+- `SmsReminderClassifier` owns deterministic, bounded interpretation and never
+  calls Google Calendar.
+- Household Firestore owns the immutable source record, derived classification,
+  proposal, approval, write state, and existing audit collection.
+- `sms_calendar_intake.js`, reached through the stable `drive_operation`
+  surface, owns authorized review and Calendar mutation.
+- Home Center MCP OAuth plus household membership gates status, approval,
+  rejection, proposal edits, Calendar writes, and reconciliation.
+- The connected user's Google OAuth credential performs Calendar writes. No
+  service account or autonomous scheduler was added.
+
+Parsing and the single bounded provider operation remain synchronous. No new
+worker, queue, lease, scheduler, audit store, or notification system was added.
+
+### Message and Proposal Contracts
+
+The normalized source envelope is `home-center.sms-calendar-intake.v2` and
+contains a stable message ID, sender, normalized sender address, recipient device
+identifier where available, body, received timestamp, source transport, raw
+source reference/hash, immutable source hash, and ingestion idempotency key.
+
+The structured classifier output contains classification, confidence, proposed
+title/start/end/duration/timezone/location/notes, bounded source excerpt,
+missing fields, ambiguity flags, classifier version and hash, inferred fields,
+and field-level provenance. Materially missing dates or times remain blocked.
+The documented default duration is 60 minutes and is always marked inferred.
+
+A proposal contains source and classification hashes, revision, proposal hash,
+normalized event fields, provenance, missing fields, ambiguity flags, and an
+approval-eligibility flag. Editing creates a new revision and clears any prior
+approval and write state.
+
+### Idempotency and Approval
+
+- Exact replay is determined by stable message ID plus immutable content hash and
+  attaches to the existing record.
+- Reuse of a message ID with changed immutable content raises
+  `SMS_INTAKE_IDEMPOTENCY_CONFLICT`.
+- Review operations bind request IDs to exact normalized input hashes. Reusing a
+  request ID with different input raises `REQUEST_ID_CONFLICT`.
+- Approval binds source message ID/hash, classification hash, proposal revision
+  and hash, actor identity, auth kind, timestamp, and optional reason.
+- Calendar execution revalidates that exact binding before any provider call.
+- Google Calendar receives a deterministic event ID and private source/proposal
+  properties. Replay returns the existing event instead of inserting another.
+
+If an insert times out or returns an uncertain network/provider result after it
+may have succeeded, the write enters `calendar_write_ambiguous`. Automatic
+insert retry is disabled. `reconcile_write` performs a read-only lookup by the
+deterministic provider ID; it never inserts.
+
+### Public Operations
+
+The SMS Calendar registry version is
+`2026-07-26.sms-calendar-proposal-v2` and exposes:
+
+- `sms_calendar.inbox`
+- `sms_calendar.get`
+- `sms_calendar.reconcile`
+- `sms_calendar.approve`
+- `sms_calendar.reject`
+- `sms_calendar.update_proposal`
+- `sms_calendar.create_event`
+- `sms_calendar.reconcile_write`
+
+`sms_calendar.propose` and `sms_calendar.dismiss` remain compatibility aliases
+for update and reject. Request-time `approved: true` is no longer an approval
+mechanism.
+
+Status responses are bounded. They expose stable record state, redacted sender,
+source hash/reference, classification/proposal summaries, approval/write state,
+blocking error or ambiguity, and timestamps. They do not expose raw SMS bodies,
+internal household bucket IDs, OAuth credentials, or unbounded provider/audit
+payloads.
+
+### Storage and Indexes
+
+The implementation reuses:
+
+- `households/{bucketId}/smsCalendarIntake/{messageId}`;
+- top-level `smsCalendarAudit`;
+- Google Calendar provider events.
+
+No collection or composite-index change is required. Firestore rules now permit
+only the creating household member to read raw intake records and permit Android
+updates only for bounded derived fields while preserving immutable source data.
+Server-side Admin SDK operations continue through the existing MCP boundary.
+
+No automatic deletion job exists. Raw source retention therefore follows the
+household Firestore record lifecycle until an explicit retention policy is
+implemented. This limitation is intentional and documented rather than hidden.
+
+### Configuration
+
+Required existing configuration:
+
+- Android Firebase sign-in and selected household bucket;
+- user-granted notification-listener access for Home Center;
+- Home Center MCP Google OAuth with `calendar.events` and existing identity
+  scopes;
+- household membership matching the connected Google email;
+- the existing production secrets configured by
+  `tools/deploy_functions_termux.sh`.
+
+No SMS read/send permission, Calendar service account, model API key, or new
+queue configuration is required.
+
+### Verification
+
+Passed against the implementation:
+
+`sh tools/check_no_secrets.sh`
+
+`python3 tools/home_center_regression_tests.py`
+
+`NODE_PATH=/storage/emulated/0/Documents/GodotProjects/home-center/functions/node_modules node tools/home_center_authorization_contract_test.mjs`
+
+`node tools/sms_calendar_contract_test.mjs`
+
+`javac ... SmsCalendarIngestionContract.java SmsReminderClassifier.java SmsReminderClassifierHarness.java`
+
+`java -cp <classes> com.dclar.homecenter.SmsReminderClassifierHarness`
+
+`./gradlew assembleDebug`
+
+The provider-double contract reports 16 passing cases and covers exact duplicate
+and conflict ingestion, non-calendar filtering, structured appointment parsing,
+relative time, ambiguity, inferred duration, approval and revision binding,
+idempotent Calendar write, ambiguity quarantine and reconciliation,
+authorization, and bounded redacted status. Firestore rules compiled under the
+local Firestore emulator.
+
+The diagnostic message
+`Dentist appointment Tuesday at 2:30 PM, 45 minutes, at River Dental.`
+produced a proposal with an explicit Tuesday start, explicit 45-minute duration,
+and normalized `River Dental` location in the Java classifier contract. The
+provider double then exercised approval, one provider insert, replay, and bounded
+final status without creating a real Calendar event.
+
+Android `0.2.59` / code `63` built successfully, APK v2 signature
+verification passed, the final APK was exported to
+`/storage/emulated/0/Download/HomeCenter-debug.apk`, and that exact final build
+was installed through Shizuku. Notification-listener access was verified as
+disabled and was not granted by automation.
+
+The committed MCP implementation was deployed through the repository-owned
+deployment script. Google Cloud reports `homeCenterMcp` ACTIVE on revision
+`homecentermcp-00125-jip` with 100% traffic and update time
+`2026-07-27T02:30:31.650543824Z`. A subsequent connected Home Center capability
+probe reported `2026-07-26.sms-calendar-proposal-v2`, 10 operations, and the
+expected write-operation classification. This proves cloud publication and
+registry routing; it does not prove a real SMS capture or Calendar insert.
+
+### Deployment
+
+Deploy the existing MCP owner from a reviewed commit:
+
+`sh tools/deploy_functions_termux.sh home-center-dclar homeCenterMcp`
+
+Deploy the reviewed Firestore rules with an authenticated Firebase CLI:
+
+`firebase deploy --only firestore:rules --project home-center-dclar`
+
+Build/install Android with the repository Gradle wrapper and the existing local
+Firebase configuration. Enable Home Center notification access manually only on
+the intended device and account.
+
+### Rollback
+
+1. Deploy `homeCenterMcp` from the prior known-good commit with the same
+   repository deploy script.
+2. Deploy the prior `firebase/firestore.rules` with Firebase CLI.
+3. Reinstall the prior Android APK/version if notification ingestion was enabled.
+4. Do not delete provider events automatically. Reconcile any test event by its
+   stored provider event ID and private source/proposal properties before manual
+   cleanup.
+
+No live Google Calendar event was created during this implementation pass, so
+there is no provider-side rollback item from the automated verification.
+
+### Known Limitations and Final Verification State
+
+- Real SMS capture is not verified because Home Center notification-listener
+  access is currently disabled. No device evidence is fabricated.
+- The deterministic parser supports the documented narrow appointment grammar;
+  unsupported natural language remains non-calendar or blocked for review.
+- Live Google Calendar mutation was not authorized for this pass. The complete
+  side-effect contract is verified through a provider double.
+- Firebase CLI is not authenticated in this environment. The updated Firestore
+  rules compile locally but are not deployed. Until they are deployed, the new
+  Android v2 intake create is expected to be rejected by production rules.
+- The new MCP revision must not be described as end-to-end production-ready
+  until the Firestore rules are deployed and a user manually enables notification
+  access for a harmless real-message acceptance test.
+- There is no proposal review UI; authorized review is through the existing Home
+  Center MCP tool surface.
+- Raw source retention has no automatic expiry.
+
+The exact next increment is a narrow proposal review UI over the existing
+bounded status, approve, reject, and update operations. It must not add another
+proposal store or Calendar mutation path.
