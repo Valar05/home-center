@@ -38,5 +38,6 @@ The preferred route is the top-level `storage_ingest_artifact` host-file slot. W
 - `storage.artifact.begin`
 - `storage.artifact.append_chunk`
 - `storage.artifact.commit`
+- `storage.artifact.abort`
 
-Chunks are individually SHA-verified, composed in GCS, verified as one artifact, committed through the same canonical path, and deleted only after successful publication. The fallback accepts at most 32 chunks and is transport machinery, not a second storage authority.
+Chunks are individually SHA-verified, hierarchically composed in GCS, verified as one artifact, committed through the same canonical path, and deleted only after successful publication. The fallback accepts at most 128 chunks. `abort` disposes only reproducible staging objects and records the failed session; it cannot mutate a canonical artifact. This is transport machinery, not a second storage authority.

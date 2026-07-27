@@ -31,6 +31,7 @@ const {
   beginArtifactIngestOperation,
   appendArtifactChunkOperation,
   commitArtifactIngestOperation,
+  abortArtifactIngestOperation,
   readArtifactOperation,
   findArtifactBySha256Operation,
 } = require('./artifact_ingest_service');
@@ -4359,7 +4360,7 @@ function runDroobiedooContextOperation(operation, args = {}) {
 
 function driveOperationRegistry() {
   return {
-    version: '2026-07-27.drive-file-ingest-v1',
+    version: '2026-07-27.storage-artifact-ingest-v1',
     invocationTool: 'drive_operation',
     cachePolicy: 'New bridge and simulation operations should be invokable through drive_operation so ChatGPT does not need a top-level MCP tool refresh for every backend code change. Cartesia TTS is a direct Home Center MCP provider operation; it must not be routed through Command Center jobs or workers.',
     operations: {
@@ -5141,6 +5142,7 @@ async function driveOperationRunOperation({google, admin, auth, user, extra = nu
     if (operation === 'storage.artifact.begin') result = await beginArtifactIngestOperation(common);
     if (operation === 'storage.artifact.append_chunk') result = await appendArtifactChunkOperation(common);
     if (operation === 'storage.artifact.commit') result = await commitArtifactIngestOperation(common);
+    if (operation === 'storage.artifact.abort') result = await abortArtifactIngestOperation(common);
     if (operation === 'storage.artifact.get') result = await readArtifactOperation(common);
     if (operation === 'storage.artifact.find_by_sha256') result = await findArtifactBySha256Operation(common);
     return {operation, registryVersion: registry.version, completed: true, result};

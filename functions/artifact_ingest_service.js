@@ -4,7 +4,7 @@ const {createHash} = require('node:crypto');
 
 const ARTIFACT_BUCKET = process.env.HOME_CENTER_ARTIFACT_BUCKET || 'home-center-generated';
 const ARTIFACT_INGEST_MAX_BYTES = Number(process.env.HOME_CENTER_ARTIFACT_INGEST_MAX_BYTES || 256 * 1024 * 1024);
-const ARTIFACT_CHUNK_MAX_BYTES = Number(process.env.HOME_CENTER_ARTIFACT_CHUNK_MAX_BYTES || 2 * 1024 * 1024);
+const ARTIFACT_CHUNK_MAX_BYTES = Number(process.env.HOME_CENTER_ARTIFACT_CHUNK_MAX_BYTES || 700 * 1024);
 let artifactStorage = null;
 
 function defaultStorage() {
@@ -394,6 +394,36 @@ async function appendArtifactChunkOperation({storage = defaultStorage(), user, a
   return {ok: true, requestId: identity.requestId, chunkIndex: index, objectName, byteCount: bytes.length, sha256: digest, verified: true, reused};
 }
 
+async function composeArtifactChunks(bucket, chunks, prefix, staging) {
+  let level = 0;
+  let current = chunks;
+  const intermediates = [];
+  while (current.length > 32) {
+    const next = [];
+    for (let start = 0; start < current.length; start += 32) {
+      const group = current.slice(start, start + 32);
+      const part = bucket.file(prefix + '/compose/level-' + String(level).padStart(2, '0') + '-' + String(start / 32).padStart(3, '0') + '.part');
+      if (group.length === 1) {
+        await group[0].copy(part, {preconditionOpts: {ifGenerationMatch: 0}});
+      } else {
+        await bucket.combine(group, part, {preconditionOpts: {ifGenerationMatch: 0}});
+      }
+      const readback = await readFile(part);
+      if (!readback.byteCount) throw fail('Intermediate artifact composition was empty.', 502, 'artifact_ingest_compose_empty');
+      intermediates.push(part);
+      next.push(part);
+    }
+    current = next;
+    level += 1;
+  }
+  if (current.length === 1) {
+    await current[0].copy(staging, {preconditionOpts: {ifGenerationMatch: 0}});
+  } else {
+    await bucket.combine(current, staging, {preconditionOpts: {ifGenerationMatch: 0}});
+  }
+  return intermediates;
+}
+
 async function commitArtifactIngestOperation({admin, storage = defaultStorage(), user, args = {}, recordAudit}) {
   if (args.approved !== true) throw fail('storage.artifact.commit requires approved=true.', 409, 'artifact_ingest_not_approved');
   const identity = normalizeIdentity(user, args);
@@ -401,8 +431,8 @@ async function commitArtifactIngestOperation({admin, storage = defaultStorage(),
     throw fail('Chunked ingest commit requires expectedByteCount and expectedSha256.');
   }
   const expectedChunks = Number(args.expectedChunks);
-  if (!Number.isSafeInteger(expectedChunks) || expectedChunks < 1 || expectedChunks > 32) {
-    throw fail('expectedChunks must be between 1 and 32.');
+  if (!Number.isSafeInteger(expectedChunks) || expectedChunks < 1 || expectedChunks > 128) {
+    throw fail('expectedChunks must be between 1 and 128.');
   }
   const bucket = storage.bucket(ARTIFACT_BUCKET);
   const prefix = sessionPrefix(identity) + '/chunks/';
@@ -414,20 +444,36 @@ async function commitArtifactIngestOperation({admin, storage = defaultStorage(),
     if (!file.name.endsWith(suffix)) throw fail('Chunk indexes are not contiguous from zero.', 409, 'artifact_ingest_chunk_order_mismatch');
   });
   const staging = bucket.file(sessionPrefix(identity) + '/assembled.part');
+  let intermediates = [];
   try {
-    if (chunks.length === 1) {
-      await chunks[0].copy(staging, {preconditionOpts: {ifGenerationMatch: 0}});
-    } else {
-      await bucket.combine(chunks, staging, {preconditionOpts: {ifGenerationMatch: 0}});
-    }
+    intermediates = await composeArtifactChunks(bucket, chunks, sessionPrefix(identity), staging);
   } catch (err) {
     if (![409, 412].includes(Number(err && err.code)) && !/condition|already exists/i.test(String(err && err.message))) throw err;
   }
   const assembled = await readFile(staging);
   const verified = assertExpected(identity, assembled.bytes);
   const result = await publishVerified({admin, storage, user, identity, verified, recordAudit});
-  await Promise.allSettled([...chunks, staging].map((file) => file.delete({ignoreNotFound: true})));
+  await Promise.allSettled([...chunks, ...intermediates, staging].map((file) => file.delete({ignoreNotFound: true})));
   return {...result, transport: {kind: 'chunked-mcp-fallback', expectedChunks, stagedObjectsDisposed: true}};
+}
+
+async function abortArtifactIngestOperation({admin, storage = defaultStorage(), user, args = {}, recordAudit = async () => {}}) {
+  if (args.approved !== true) throw fail('storage.artifact.abort requires approved=true.', 409, 'artifact_ingest_not_approved');
+  const identity = normalizeIdentity(user, args);
+  const bucket = storage.bucket(ARTIFACT_BUCKET);
+  const prefix = sessionPrefix(identity) + '/';
+  const [files] = await bucket.getFiles({prefix});
+  await Promise.all(files.map((file) => file.delete({ignoreNotFound: true})));
+  if (admin && typeof admin.firestore === 'function') {
+    const ref = admin.firestore().collection('artifactIngestSessions').doc(identity.requestId);
+    const snapshot = await ref.get();
+    if (snapshot.exists && typeof ref.set === 'function') {
+      await ref.set({...snapshot.data(), status: 'aborted', abortedAt: new Date().toISOString(), disposedObjectCount: files.length});
+    }
+  }
+  await recordAudit(admin, user, 'storage.artifact.abort', identity.artifactId,
+    'Disposed ' + files.length + ' reproducible staging object(s) for failed artifact session ' + identity.requestId + '.', identity.requestId + '-abort');
+  return {ok: true, aborted: true, requestId: identity.requestId, artifactId: identity.artifactId, disposedObjectCount: files.length, canonicalArtifactMutated: false};
 }
 
 async function readArtifactOperation({storage = defaultStorage(), user, args = {}}) {
@@ -465,7 +511,13 @@ function artifactOperationEntries() {
       summary: 'Compose, verify, catalog, and commit a chunked artifact upload.',
       write: true,
       requiresRequestId: true,
-      input: {approved: 'must be true', requestId: 'string', artifactId: 'string', artifactKind: 'string', project: 'string', name: 'string', mimeType: 'string', expectedByteCount: 'integer', expectedSha256: 'hex', expectedChunks: 'integer 1-32', provenance: 'object'},
+      input: {approved: 'must be true', requestId: 'string', artifactId: 'string', artifactKind: 'string', project: 'string', name: 'string', mimeType: 'string', expectedByteCount: 'integer', expectedSha256: 'hex', expectedChunks: 'integer 1-128', provenance: 'object'},
+    },
+    'storage.artifact.abort': {
+      summary: 'Dispose only reproducible staging objects for a failed artifact upload session.',
+      write: true,
+      requiresRequestId: true,
+      input: {approved: 'must be true', requestId: 'string', artifactId: 'string', artifactKind: 'string', project: 'string', name: 'string', mimeType: 'string'},
     },
     'storage.artifact.get': {
       summary: 'Read one immutable artifact manifest by artifactId.',
@@ -489,6 +541,7 @@ module.exports = {
   beginArtifactIngestOperation,
   appendArtifactChunkOperation,
   commitArtifactIngestOperation,
+  abortArtifactIngestOperation,
   readArtifactOperation,
   findArtifactBySha256Operation,
   normalizeIdentity,
