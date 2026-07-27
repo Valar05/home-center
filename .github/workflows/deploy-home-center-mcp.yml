@@ -59,10 +59,12 @@ jobs:
           COMMAND_CENTER_RENDER_SERVICE: command-center-blender-render
           COMMAND_CENTER_SKIP_SERVICE_ENABLE: "true"
         run: sh tools/deploy_command_center_blender_render.sh "$PROJECT"
-      - name: Verify existing dispatch and receipt services remain active
+      - name: Deploy Home Center MCP bridge
         env:
           GCLOUD_FUNCTIONS_REGION: ${{ env.REGION }}
           COMMAND_CENTER_MCP_URL: https://${{ env.REGION }}-${{ env.PROJECT }}.cloudfunctions.net/commandCenterMcp/mcp
+        run: sh tools/deploy_functions_termux.sh "$PROJECT" homeCenterMcp
+      - name: Verify dispatch and receipt services remain active
         run: |
           gcloud functions describe commandCenterMcp --gen2 --project "$PROJECT" --region "$REGION" --format='value(state)'
           gcloud functions describe commandCenterRenderWorker --gen2 --project "$PROJECT" --region "$REGION" --format='value(state)'
