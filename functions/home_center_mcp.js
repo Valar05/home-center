@@ -13,7 +13,11 @@ const {toJsonSchemaCompat} = require('./node_modules/@modelcontextprotocol/sdk/d
 const express = require('express');
 const {z} = require('zod/v4');
 const {CARTESIA_DEFAULT_MODEL_ID, CARTESIA_DEFAULT_VOICE_NAME, listCartesiaVoiceCatalog, listCartesiaVoices, normalizeCartesiaVoice, openCartesiaStream} = require('./hosted_speech_provider');
-const {renderBlenderGlb: commandCenterRenderBlenderGlb} = require('./command_center_mcp');
+const {
+  renderBlenderGlb: commandCenterRenderBlenderGlb,
+  renderBlenderBuild: commandCenterRenderBlenderBuild,
+  renderRequestStatus: commandCenterRenderRequestStatus,
+} = require('./command_center_mcp');
 const {boundedMap, rendererSettingsJsonSchema, preflightArtifactEnvelope} = require('./artifact_transport');
 const cartesiaPitchShift = require('./cartesia_pitch_shift');
 const {renderAudioOperation, audioRenderStatusOperation, inspectAudioArtifactsOperation, uploadVerified: uploadVerifiedArtifact} = require('./audio_render_service');
@@ -67,6 +71,7 @@ const MCP_AUTHORIZATION_SERVER_METADATA = `${MCP_PUBLIC_BASE}/.well-known/oauth-
 const MCP_GOOGLE_CALLBACK = process.env.HOME_CENTER_MCP_GOOGLE_CALLBACK || `${MCP_PUBLIC_BASE}/oauth/google-callback`;
 const COMMAND_CENTER_MCP_URL = process.env.COMMAND_CENTER_MCP_URL || 'https://us-central1-home-center-dclar.cloudfunctions.net/commandCenterMcp/mcp';
 const COMMAND_CENTER_RENDER_BUCKET = process.env.COMMAND_CENTER_RENDER_BUCKET || process.env.RENDER_CACHE_BUCKET || process.env.COMMAND_CENTER_BUCKET || 'home-center-generated';
+const HOME_CENTER_GENERATED_ARTIFACT_BUCKET = process.env.GENERATED_ARTIFACT_BUCKET || 'home-center-generated';
 const HOME_CENTER_RENDER_MAX_GLB_BYTES = Number(process.env.COMMAND_CENTER_RENDER_MAX_GLB_BYTES || 250 * 1024 * 1024);
 const HOME_CENTER_RENDER_MAX_SCRIPT_BYTES = Number(process.env.COMMAND_CENTER_RENDER_MAX_SCRIPT_BYTES || 1024 * 1024);
 const HOME_CENTER_DIRECT_RENDER_TEXT_LIMIT = 1024 * 1024;
@@ -573,6 +578,7 @@ function commandCenterOperationRegistry() {
       'projects.get': {summary: 'Read one persisted Command Center project packet.', readOnly: true, input: {projectId: 'string'}},
       'projects.upsert': {summary: 'Create or update a durable Command Center project binding.', readOnly: false, input: {projectId: 'string', repository: 'optional string', capability: 'optional string', repositoryBinding: 'optional object', availableWorkers: 'optional string[]', idempotencyKey: 'string'}},
       'render.blender_glb': {summary: 'Accept non-agent Blender execution from durable refs, authenticated GitHub sources, or top-level host files and return a durable queued/running/completed receipt. Prefer glbSource.provider=github for private repository GLBs when ChatGPT cannot expose the top-level binary upload tool; nested command_center_operation args cannot activate host file upload slots.', readOnly: false, topLevelFileTool: 'render_blender_glb', input: {glbRef: 'drive:// | bucket:// | gs:// GLB ref for dispatcher calls', glbSource: '{provider: github, repository: owner/name, ref: commit-or-branch, path: path/to/file.glb}', scriptRef: 'optional drive:// | bucket:// | gs:// Blender Python ref', scriptSource: 'optional authenticated GitHub Python descriptor', scriptText: 'optional inline Python script alternative', settings: 'optional object', executionContract: 'optional object', cache: 'optional boolean', idempotencyKey: 'string'}, output: {accepted: 'boolean', renderId: 'string', inputHash: 'sha256', status: 'queued|running|completed|failed|quarantined|stalled', statusOperation: 'render.status receipt'}},
+      'render.blender_build': {summary: 'Author a new 3D asset from Blender factory state in the existing private Cloud Run renderer. The authoring script is staged to durable GCS first; no input GLB or chat upload is accepted.', readOnly: false, input: {scriptRef: 'drive:// | bucket:// | gs:// Blender Python ref', scriptSource: '{provider: github, repository: owner/name, ref: immutable commit, path: path/to/build.py}', scriptText: 'optional inline Python script alternative', settings: 'optional object', executionContract: 'optional object', cache: 'optional boolean', idempotencyKey: 'string'}, output: {accepted: 'boolean', renderId: 'string', inputHash: 'sha256', status: 'queued|running|completed|failed|quarantined|stalled', statusOperation: 'render.status receipt'}},
       'render.status': {summary: 'Read bounded durable Blender render status without binary bodies or unbounded provider logs.', readOnly: true, input: {renderId: 'string or idempotencyKey'}, output: {status: 'queued|running|completed|failed|quarantined|stalled'}},
       'render.reconcile': {summary: 'Explicitly authorize one retry only after evidence proves an ambiguous failed/stalled/quarantined Blender outcome is safe to retry.', readOnly: false, input: {idempotencyKey: 'string', renderId: 'string', resolution: 'retry_safe', evidence: 'bounded string'}},
       'jobs.create': {summary: 'Create a durable worker ticket/job.', readOnly: false, input: {projectId: 'string', title: 'string', objective: 'string', acceptanceCriteria: 'string[]', workerRequirements: 'string[]', mutationPolicy: 'object', idempotencyKey: 'string'}},
@@ -705,6 +711,18 @@ function parseRenderGsRef(ref) {
   return {bucket: match[1], name: match[2], ref: text};
 }
 
+
+function parseRenderReviewGsRef(ref) {
+  const text = safeText(ref, 1600);
+  const match = text.match(/^gs:\/\/([^/]+)\/(.+)$/i);
+  if (!match) throw homeCenterRenderInputError('Render review delivery requires a private gs:// artifact ref sealed in the completed receipt.', 400, 'RENDER_REVIEW_ARTIFACT_REF_INVALID');
+  const allowedBuckets = new Set([COMMAND_CENTER_RENDER_BUCKET, HOME_CENTER_GENERATED_ARTIFACT_BUCKET].filter(Boolean));
+  if (!allowedBuckets.has(match[1])) throw homeCenterRenderInputError('Render review delivery refused artifact outside the configured private artifact buckets.', 403, 'RENDER_REVIEW_ARTIFACT_OWNER_SCOPE_FAILED');
+  const allowedPrefixes = ['command-center-renders/', 'renders/contact-sheets/', 'renders/blender/', 'renders/gifs/'];
+  if (!allowedPrefixes.some((prefix) => match[2].startsWith(prefix))) throw homeCenterRenderInputError('Render review delivery refused artifact outside the render review prefixes.', 403, 'RENDER_REVIEW_ARTIFACT_OWNER_SCOPE_FAILED');
+  return {bucket: match[1], name: match[2], ref: text};
+}
+
 function renderArtifactHashEntry(result = {}, rel = 'walk-loop.gif') {
   const direct = safeObject(result.artifactHashes);
   const bundle = safeObject(result.bundle);
@@ -721,7 +739,9 @@ function renderReceiptWithoutInlinePayload(operationResult = {}, delivery = null
 }
 
 async function verifiedRenderGifMcpContent(result = {}, {storage = null, google = null, auth = null, parentFolderId = ''} = {}) {
-  const renderResult = safeObject(result);
+  const envelope = safeObject(result);
+  const nestedResult = safeObject(envelope.result);
+  const renderResult = Object.keys(nestedResult).length ? nestedResult : envelope;
   const loopingGifRef = safeText(renderResult.loopingGifRef, 1600);
   const expected = renderArtifactHashEntry(renderResult, 'walk-loop.gif');
   const expectedSha256 = safeText(expected.sha256, 128).toLowerCase();
@@ -760,7 +780,10 @@ async function verifiedRenderGifMcpContent(result = {}, {storage = null, google 
 async function attachRenderGifMcpContent(operationResult = {}, options = {}) {
   const cleanResult = JSON.parse(JSON.stringify(operationResult || {}));
   if (!cleanResult || cleanResult.operation !== 'render.blender_glb' || !cleanResult.result) return cleanResult;
-  if (safeText(cleanResult.result.status, 80) !== 'completed' || cleanResult.result.attached === true) return cleanResult;
+  if (safeText(cleanResult.result.status, 80) !== 'completed') return cleanResult;
+  // boundedRenderRequestStatus(attached=true) means the completed receipt includes artifact metadata;
+  // it does not mean MCP media egress has already attached the verified GIF.
+  if (safeObject(cleanResult.result.inlineMediaDelivery).ok === true) return cleanResult;
   const inline = await verifiedRenderGifMcpContent(cleanResult.result, options).catch((err) => ({contentBlock: null, delivery: {ok: false, type: 'mcp_resource_link', mimeType: 'image/gif', artifactRef: safeText(cleanResult.result && cleanResult.result.loopingGifRef, 1600), durableRef: '', byteCount: 0, sha256: '', expectedByteCount: 0, expectedSha256: '', ceilingBytes: HOME_CENTER_RENDER_INLINE_GIF_MAX_BYTES, contentBlockType: '', errorCode: safeText(err && err.failureKind, 120) || 'render_gif_resource_link_failed', message: safeText(err && err.message, 500)}}));
   cleanResult.result.inlineMediaDelivery = inline.delivery;
   const receipt = renderReceiptWithoutInlinePayload(cleanResult, inline.delivery);
@@ -794,7 +817,7 @@ function renderReviewArtifactCandidates(statusReceipt = {}, args = {}) {
   const add = (kind, ref, hashKey) => {
     const artifactRef = safeText(ref, 1600);
     if (!artifactRef) return;
-    parseRenderGsRef(artifactRef);
+    parseRenderReviewGsRef(artifactRef);
     const expected = renderArtifactHashEntry(output, hashKey);
     const expectedSha256 = safeText(expected.sha256, 128).toLowerCase();
     const expectedByteCount = Number(expected.byteCount || 0) || 0;
@@ -808,13 +831,13 @@ function renderReviewArtifactCandidates(statusReceipt = {}, args = {}) {
   if (kinds.includes('contact_sheet')) add('contact_sheet', output.contactSheetRef, 'contact-sheet.png');
   if (kinds.includes('diagnostic_views')) {
     (Array.isArray(output.diagnosticRenderRefs) ? output.diagnosticRenderRefs : []).forEach((ref) => {
-      const parsed = parseRenderGsRef(ref);
+      const parsed = parseRenderReviewGsRef(ref);
       add('diagnostic_views', ref, parsed.name.split('/').pop().replace(/^\d+-/, ''));
     });
   }
   if (kinds.includes('fixed_camera_views')) {
     (Array.isArray(output.fixedCameraRenderRefs) ? output.fixedCameraRenderRefs : []).forEach((ref) => {
-      const parsed = parseRenderGsRef(ref);
+      const parsed = parseRenderReviewGsRef(ref);
       add('fixed_camera_views', ref, parsed.name.split('/').pop().replace(/^\d+-/, ''));
     });
   }
@@ -905,15 +928,7 @@ async function materializeRenderReviewArtifactsOperation({google, admin, auth, u
   const renderId = safeText(args.renderId, 180);
   if (!renderId) throw homeCenterRenderInputError('renderId is required.', 400, 'RENDER_REVIEW_RENDER_ID_REQUIRED');
   const parentFolderId = safeText(args.parentFolderId, 220) ? safeDriveFileId(args.parentFolderId) : '';
-  const statusLookup = helpers.statusLookup || (async () => commandCenterOperationRunOperation({
-    google,
-    admin,
-    googleClientId,
-    googleClientSecret,
-    githubToken,
-    extra,
-    args: {operation: 'render.status', args: {renderId}},
-  }));
+  const statusLookup = helpers.statusLookup || (async () => commandCenterRenderRequestStatus(admin, {actor: ownerEmail}, {renderId}));
   const statusEnvelope = await statusLookup({renderId, ownerEmail});
   const statusReceipt = safeObject(statusEnvelope && statusEnvelope.operation ? statusEnvelope.result : statusEnvelope);
   const review = renderReviewArtifactCandidates(statusReceipt, args);
@@ -921,7 +936,7 @@ async function materializeRenderReviewArtifactsOperation({google, admin, auth, u
   const storage = helpers.storage || new Storage();
   const publish = helpers.publishArtifact || publishRenderReviewArtifactToDrive;
   const artifacts = await boundedMap(review.candidates, 3, async (candidate) => {
-    const parsed = parseRenderGsRef(candidate.artifactRef);
+    const parsed = parseRenderReviewGsRef(candidate.artifactRef);
     const [downloaded] = await storage.bucket(parsed.bucket).file(parsed.name).download();
     const bytes = Buffer.isBuffer(downloaded) ? downloaded : Buffer.from(downloaded);
     const readbackSha256 = sha256RenderBytes(bytes);
@@ -1269,23 +1284,30 @@ function assertOneHomeCenterRenderSource(args, role) {
 
 async function materializeHomeCenterRenderSources({google, admin, googleClientId, googleClientSecret, extra, githubToken = () => '', args = {}}) {
   const operationArgs = {...args};
+  const buildMode = safeText(operationArgs.mode, 40) === 'build';
   const stagedInputs = Array.isArray(operationArgs.stagedInputs) ? operationArgs.stagedInputs.slice(0, 10) : [];
-  assertOneHomeCenterRenderSource(operationArgs, 'glb');
+  if (buildMode) {
+    if (renderSourceProvided(operationArgs, 'glbRef') || renderSourceProvided(operationArgs, 'glbSource') || isMcpFileLike(operationArgs.glbFile)) {
+      throw homeCenterRenderInputError('render.blender_build starts from Blender factory state and does not accept a GLB source.', 400, 'input_validation');
+    }
+  } else {
+    assertOneHomeCenterRenderSource(operationArgs, 'glb');
+  }
   const scriptCount = [safeText(operationArgs.scriptRef, 1200).length > 0, !!normalizeRenderGitHubSource(operationArgs.scriptSource, 'script'), isMcpFileLike(operationArgs.scriptFile), safeText(operationArgs.scriptText || operationArgs.inlineScript || operationArgs.script, HOME_CENTER_DIRECT_RENDER_TEXT_LIMIT + 1).length > 0].filter(Boolean).length;
   if (scriptCount !== 1) throw homeCenterRenderInputError('Exactly one Blender script source is required: provide scriptRef, scriptSource, scriptFile, or scriptText.', 400, 'input_validation');
-  const needsDrive = ['glbRef', 'scriptRef'].some((field) => safeText(operationArgs[field], 1200).toLowerCase().startsWith('drive://'));
-  const needsGitHub = !!normalizeRenderGitHubSource(operationArgs.glbSource, 'glb') || !!normalizeRenderGitHubSource(operationArgs.scriptSource, 'script');
+  const needsDrive = ['glbRef', 'scriptRef'].filter((field) => !buildMode || field !== 'glbRef').some((field) => safeText(operationArgs[field], 1200).toLowerCase().startsWith('drive://'));
+  const needsGitHub = (!buildMode && !!normalizeRenderGitHubSource(operationArgs.glbSource, 'glb')) || !!normalizeRenderGitHubSource(operationArgs.scriptSource, 'script');
   if (!needsDrive && !needsGitHub) return operationArgs;
   const {auth, user} = needsDrive ? await requestGoogleContext(extra, google, admin, googleClientId, googleClientSecret) : {auth: null, user: (await loadMcpAccessContext(admin, google, googleClientId, googleClientSecret, bearerTokenFromExtra(extra))).user};
   const seed = safeText(operationArgs.idempotencyKey, 180) || randomUUID();
   const renderId = safeText(operationArgs.renderId, 180) || 'render_' + createHash('sha256').update(homeCenterRenderOwnerKey(user) + ':' + seed).digest('hex').slice(0, 32);
   operationArgs.renderId = renderId;
   const tasks = [];
-  for (const [field, role] of [['glbRef', 'glb'], ['scriptRef', 'script']]) {
+  for (const [field, role] of (buildMode ? [['scriptRef', 'script']] : [['glbRef', 'glb'], ['scriptRef', 'script']])) {
     const ref = safeText(operationArgs[field], 1200);
     if (ref.toLowerCase().startsWith('drive://')) tasks.push({kind: 'drive', field, role, refField: field, sourceRef: ref});
   }
-  for (const [field, role, refField] of [['glbSource', 'glb', 'glbRef'], ['scriptSource', 'script', 'scriptRef']]) {
+  for (const [field, role, refField] of (buildMode ? [['scriptSource', 'script', 'scriptRef']] : [['glbSource', 'glb', 'glbRef'], ['scriptSource', 'script', 'scriptRef']])) {
     const source = normalizeRenderGitHubSource(operationArgs[field], role);
     if (source) tasks.push({kind: 'github', field, role, refField, source});
   }
@@ -1543,9 +1565,11 @@ async function commandCenterOperationRunOperation({google = null, admin = null, 
   delete operationArgs.type;
   delete operationArgs.toolName;
   delete operationArgs.args;
-  if (operation === 'render.blender_glb' && google && admin) {
+  if ((operation === 'render.blender_glb' || operation === 'render.blender_build') && google && admin) {
+    operationArgs.mode = operation === 'render.blender_build' ? 'build' : 'render_glb';
     const materializedArgs = await materializeHomeCenterRenderSources({google, admin, googleClientId, googleClientSecret, extra, githubToken, args: operationArgs});
-    const rendered = {operation, toolName, commandCenterMcpUrl: COMMAND_CENTER_MCP_URL, result: await commandCenterRenderBlenderGlb(admin, extra, materializedArgs)};
+    const invoke = operation === 'render.blender_build' ? commandCenterRenderBlenderBuild : commandCenterRenderBlenderGlb;
+    const rendered = {operation, toolName, commandCenterMcpUrl: COMMAND_CENTER_MCP_URL, result: await invoke(admin, extra, materializedArgs)};
     return attachRenderGifMcpContent(rendered, {google, auth: context.auth, parentFolderId: safeText(operationArgs.parentFolderId, 220)});
   }
 

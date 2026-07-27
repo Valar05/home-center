@@ -17,7 +17,12 @@ const server = http.createServer(async (req, res) => {
     if (req.method === 'GET' && req.url === '/health') return send(res, 200, {ok: true, service: 'command-center-blender-render'});
     if (req.method === 'POST' && req.url === '/render/glb') {
       const body = await readJson(req);
-      const result = await renderBundle(body);
+      const result = await renderBundle({...body, mode: 'render_glb'});
+      return send(res, result.ok ? 200 : 422, result);
+    }
+    if (req.method === 'POST' && req.url === '/render/build') {
+      const body = await readJson(req);
+      const result = await renderBundle({...body, mode: 'build'});
       return send(res, result.ok ? 200 : 422, result);
     }
     return send(res, 404, {ok: false, error: 'not found'});

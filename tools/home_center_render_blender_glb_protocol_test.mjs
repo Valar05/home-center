@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import assert from 'node:assert/strict';
 import {createRequire} from 'node:module';
+import {readFileSync} from 'node:fs';
 
 const require = createRequire(import.meta.url);
 const {
@@ -13,6 +14,14 @@ const {
   renderReviewArtifactCandidates,
   renderReviewArtifactKey,
 } = require('../functions/home_center_mcp.js');
+
+const homeCenterSource = readFileSync(new URL('../functions/home_center_mcp.js', import.meta.url), 'utf8');
+const reviewOperationSource = homeCenterSource.slice(
+  homeCenterSource.indexOf('async function materializeRenderReviewArtifactsOperation'),
+  homeCenterSource.indexOf('function commandCenterOperationRegistryEntry'),
+);
+assert.match(reviewOperationSource, /commandCenterRenderRequestStatus\(admin, \{actor: ownerEmail\}, \{renderId\}\)/);
+assert.doesNotMatch(reviewOperationSource, /commandCenterOperationRunOperation/, 'review egress must use local render status instead of a nested MCP round trip');
 
 assert.match(HOME_CENTER_CONNECTOR_SCHEMA_REVISION, /^2026-07-27\.render-review-egress-v1$/);
 assert.equal(HOME_CENTER_REGISTRY_VERSION, HOME_CENTER_CONNECTOR_SCHEMA_REVISION);
@@ -64,10 +73,10 @@ const reviewReceipt = {
   status: 'completed',
   renderId: 'render-review-test',
   result: {
-    contactSheetRef: 'gs://proof/contact-sheets/contact-sheet.png',
-    diagnosticRenderRefs: ['gs://proof/diagnostic/0-orthogonal-k000.png'],
-    fixedCameraRenderRefs: ['gs://proof/fixed/0-locked-k000.png'],
-    loopingGifRef: 'gs://proof/gifs/walk-loop.gif',
+    contactSheetRef: 'gs://home-center-generated/renders/contact-sheets/test/contact-sheet.png',
+    diagnosticRenderRefs: ['gs://home-center-generated/renders/blender/test/diagnostic/0-orthogonal-k000.png'],
+    fixedCameraRenderRefs: ['gs://home-center-generated/renders/blender/test/fixed/0-locked-k000.png'],
+    loopingGifRef: 'gs://home-center-generated/renders/gifs/test/walk-loop.gif',
     artifactHashes: {
       'contact-sheet.png': {sha256: '1'.repeat(64), byteCount: 1024},
       'orthogonal-k000.png': {sha256: '2'.repeat(64), byteCount: 512},
@@ -82,6 +91,9 @@ assert.deepEqual(review.kinds, ['contact_sheet', 'diagnostic_views']);
 assert.deepEqual(review.candidates.map((item) => item.name), ['contact-sheet.png', 'orthogonal-k000.png']);
 assert.equal(review.expectedTotalBytes, 1536);
 assert.throws(() => renderReviewArtifactCandidates(reviewReceipt, {artifactKinds: ['arbitrary_gcs_path']}), /Unsupported render review artifactKinds/);
+const outsideBucketReceipt = JSON.parse(JSON.stringify(reviewReceipt));
+outsideBucketReceipt.result.contactSheetRef = 'gs://attacker-controlled/renders/contact-sheets/test/contact-sheet.png';
+assert.throws(() => renderReviewArtifactCandidates(outsideBucketReceipt, {artifactKinds: ['contact_sheet']}), /configured private artifact buckets/);
 const reviewKey = renderReviewArtifactKey({ownerEmail: 'drew@example.com', renderId: review.renderId, artifactRef: review.candidates[0].artifactRef, sha256: review.candidates[0].expectedSha256});
 assert.match(reviewKey, /^[a-f0-9]{64}$/);
 assert.equal(reviewKey, renderReviewArtifactKey({ownerEmail: 'DREW@example.com', renderId: review.renderId, artifactRef: review.candidates[0].artifactRef, sha256: review.candidates[0].expectedSha256}));
