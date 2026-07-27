@@ -34,9 +34,9 @@ const {
 const DEFAULT_MCP_PUBLIC_BASE = 'https://us-central1-home-center-dclar.cloudfunctions.net/homeCenterMcp';
 const MCP_PUBLIC_BASE = process.env.HOME_CENTER_MCP_PUBLIC_BASE || DEFAULT_MCP_PUBLIC_BASE;
 const HOME_CENTER_MCP_SERVER_VERSION = '0.2.0';
-const HOME_CENTER_CONNECTOR_SCHEMA_REVISION = '2026-07-27.sfx-forge-v3';
+const HOME_CENTER_CONNECTOR_SCHEMA_REVISION = '2026-07-27.drive-file-ingest-v1';
 const HOME_CENTER_REGISTRY_VERSION = HOME_CENTER_CONNECTOR_SCHEMA_REVISION;
-const HOME_CENTER_DIRECT_FILE_TOOLS = Object.freeze(['render_blender_glb']);
+const HOME_CENTER_DIRECT_FILE_TOOLS = Object.freeze(['render_blender_glb', 'drive_ingest_file']);
 const MCP_RESOURCE = `${MCP_PUBLIC_BASE}/mcp`;
 const MCP_RESOURCE_METADATA = `${MCP_PUBLIC_BASE}/.well-known/oauth-protected-resource`;
 const MCP_LEGACY_RESOURCE_METADATA = `${MCP_PUBLIC_BASE}/oauth-protected-resource`;
@@ -49,6 +49,7 @@ const HOME_CENTER_RENDER_MAX_GLB_BYTES = Number(process.env.COMMAND_CENTER_RENDE
 const HOME_CENTER_RENDER_MAX_SCRIPT_BYTES = Number(process.env.COMMAND_CENTER_RENDER_MAX_SCRIPT_BYTES || 1024 * 1024);
 const HOME_CENTER_DIRECT_RENDER_TEXT_LIMIT = 1024 * 1024;
 const HOME_CENTER_RENDER_INLINE_GIF_MAX_BYTES = Number(process.env.HOME_CENTER_RENDER_INLINE_GIF_MAX_BYTES || 2 * 1024 * 1024);
+const HOME_CENTER_DRIVE_INGEST_MAX_BYTES = Number(process.env.HOME_CENTER_DRIVE_INGEST_MAX_BYTES || 256 * 1024 * 1024);
 const MCP_REQUIRED_SCOPES = [
   'https://www.googleapis.com/auth/drive',
   'https://www.googleapis.com/auth/documents',
@@ -1105,6 +1106,196 @@ async function renderBlenderGlbBridge({admin, extra, args = {}}) {
   return commandCenterRenderBlenderGlb(admin, extra, operationArgs);
 }
 
+
+function requireTopLevelDriveIngestUpload(args = {}) {
+  const value = args.file;
+  if (!isMcpFileLike(value)) {
+    const err = new Error('file must be a top-level uploaded MCP file. Do not pass a string path, URL, Base64 value, ref, or nested JSON descriptor.');
+    err.status = 400;
+    err.code = 'drive_ingest_file_required';
+    throw err;
+  }
+  return value;
+}
+
+function cleanDriveIngestFileName(value) {
+  const base = safeText(value, 240)
+    .replace(/\\/g, '/')
+    .split('/')
+    .pop()
+    .replace(/[\u0000-\u001f\u007f]/g, '')
+    .trim();
+  return base || 'upload.bin';
+}
+
+function driveIngestMimeType(value) {
+  const mimeType = safeText(value, 160).toLowerCase();
+  return /^[a-z0-9.+-]+\/[a-z0-9.+-]+$/i.test(mimeType) ? mimeType : 'application/octet-stream';
+}
+
+function driveIngestConflict(message) {
+  const err = new Error(message);
+  err.status = 409;
+  err.code = 'drive_ingest_idempotency_conflict';
+  return err;
+}
+
+function assertDriveIngestIdentity(result = {}, identity = {}) {
+  if (safeText(result.sha256, 128).toLowerCase() !== identity.sha256) {
+    throw driveIngestConflict('requestId was reused with different file bytes.');
+  }
+  if (safeText(result.name, 240) !== identity.name) {
+    throw driveIngestConflict('requestId was reused with a different Drive filename.');
+  }
+  if (safeText(result.mimeType, 160).toLowerCase() !== identity.mimeType) {
+    throw driveIngestConflict('requestId was reused with a different MIME type.');
+  }
+  if (safeText(result.parentFolderId, 220) !== identity.parentFolderId) {
+    throw driveIngestConflict('requestId was reused with a different destination folder.');
+  }
+}
+
+async function driveIngestFileOperation({google, admin, auth, user, args = {}}) {
+  const requestId = stableRequestId(args.requestId);
+  const uploaded = requireTopLevelDriveIngestUpload(args);
+  const declaredSize = Number(uploaded.size || 0);
+  if (Number.isFinite(declaredSize) && declaredSize > HOME_CENTER_DRIVE_INGEST_MAX_BYTES) {
+    const err = new Error('file exceeds the Home Center Drive ingest ceiling of ' + HOME_CENTER_DRIVE_INGEST_MAX_BYTES + ' bytes.');
+    err.status = 413;
+    err.code = 'drive_ingest_file_too_large';
+    throw err;
+  }
+
+  const bytes = mediaBuffer(await uploaded.arrayBuffer());
+  if (!bytes.length) {
+    const err = new Error('file is empty.');
+    err.status = 400;
+    err.code = 'drive_ingest_file_empty';
+    throw err;
+  }
+  if (bytes.length > HOME_CENTER_DRIVE_INGEST_MAX_BYTES) {
+    const err = new Error('file exceeds the Home Center Drive ingest ceiling of ' + HOME_CENTER_DRIVE_INGEST_MAX_BYTES + ' bytes.');
+    err.status = 413;
+    err.code = 'drive_ingest_file_too_large';
+    throw err;
+  }
+
+  const name = cleanDriveIngestFileName(args.name || args.fileName || uploaded.name);
+  const mimeType = driveIngestMimeType(args.mimeType || uploaded.type);
+  const parentFolderId = safeText(args.parentFolderId, 220) ? safeDriveFileId(args.parentFolderId) : '';
+  const sha256 = sha256Hex(bytes);
+  const expectedSha256 = safeText(args.expectedSha256, 128).toLowerCase();
+  if (expectedSha256 && !/^[a-f0-9]{64}$/.test(expectedSha256)) {
+    const err = new Error('expectedSha256 must be a lowercase or uppercase 64-character hexadecimal SHA-256 digest.');
+    err.status = 400;
+    err.code = 'drive_ingest_expected_sha256_invalid';
+    throw err;
+  }
+  if (expectedSha256 && expectedSha256 !== sha256) {
+    const err = new Error('Uploaded file SHA-256 did not match expectedSha256.');
+    err.status = 400;
+    err.code = 'drive_ingest_expected_sha256_mismatch';
+    throw err;
+  }
+
+  const identity = {name, mimeType, parentFolderId, sha256};
+  const existing = await existingAudit(admin, requestId);
+  if (existing && ['success', 'completed'].includes(safeText(existing.status, 80)) && existing.result) {
+    assertDriveIngestIdentity(existing.result, identity);
+    return {...existing.result, idempotent: true, audit: existing};
+  }
+
+  const drive = google.drive({version: 'v3', auth});
+  const markerQuery = "trashed=false and appProperties has { key='homeCenterRequestId' and value='" + driveQueryLiteral(requestId, 160) + "' }";
+  const marked = await drive.files.list({
+    q: markerQuery,
+    pageSize: 3,
+    fields: 'files(' + driveFields('appProperties') + ')',
+    supportsAllDrives: true,
+    includeItemsFromAllDrives: true,
+  });
+  const matches = marked.data && marked.data.files || [];
+  if (matches.length > 1) throw driveIngestConflict('Multiple Drive files carry this Home Center requestId; mutation is quarantined.');
+  let rawMetadata = matches[0] || null;
+  if (rawMetadata) {
+    const markerSha256 = safeText(rawMetadata.appProperties && rawMetadata.appProperties.homeCenterSha256, 128).toLowerCase();
+    if (markerSha256 && markerSha256 !== sha256) throw driveIngestConflict('requestId was reused with different file bytes.');
+    const markerParent = (rawMetadata.parents || [])[0] || '';
+    if (safeText(rawMetadata.name, 240) !== name || safeText(rawMetadata.mimeType, 160).toLowerCase() !== mimeType || markerParent !== parentFolderId) {
+      throw driveIngestConflict('requestId was reused with different Drive metadata.');
+    }
+  } else {
+    const created = await drive.files.create({
+      requestBody: {
+        name,
+        mimeType,
+        ...(parentFolderId ? {parents: [parentFolderId]} : {}),
+        appProperties: {
+          homeCenterRequestId: requestId,
+          homeCenterSha256: sha256,
+          homeCenterOperation: 'drive.ingestFile',
+        },
+      },
+      media: {mimeType, body: Readable.from([bytes])},
+      fields: driveFields('appProperties'),
+      supportsAllDrives: true,
+    });
+    rawMetadata = created.data || {};
+  }
+
+  const metadata = cleanDriveFile(rawMetadata);
+  const fileId = safeDriveFileId(metadata.id);
+  const readback = await drive.files.get({fileId, alt: 'media', supportsAllDrives: true}, {responseType: 'arraybuffer'});
+  const readbackBytes = mediaBuffer(readback.data);
+  const readbackSha256 = sha256Hex(readbackBytes);
+  const verified = readbackBytes.length === bytes.length && readbackSha256 === sha256;
+  if (!verified) {
+    const err = new Error('Drive readback verification failed after ingest.');
+    err.status = 502;
+    err.code = 'drive_ingest_readback_mismatch';
+    throw err;
+  }
+
+  const result = {
+    operation: 'drive.ingestFile',
+    fileId,
+    id: fileId,
+    name: metadata.name || name,
+    mimeType: metadata.mimeType || mimeType,
+    webViewLink: metadata.webViewLink || '',
+    durableRef: 'drive://' + fileId,
+    parentFolderId: (metadata.parents || [])[0] || parentFolderId,
+    byteCount: bytes.length,
+    sha256,
+    readbackByteCount: readbackBytes.length,
+    readbackSha256,
+    verified: true,
+    auditRequestId: requestId,
+  };
+  assertDriveIngestIdentity(result, identity);
+  const audit = await auditWrite(admin, {
+    actor: user.email || user.uid || 'unknown',
+    authKind: user.authKind,
+    tool: 'drive_ingest_file',
+    operation: 'drive.ingestFile',
+    requestId,
+    fileId,
+    affectedFileIds: [fileId],
+    oldMetadata: null,
+    newMetadata: metadata,
+    oldParents: [],
+    newParents: metadata.parents || [],
+    reversible: false,
+    rollback: null,
+    callerNote: args.callerNote,
+    providerSummary: safeText(args.callerNote, 400) || ('Ingested and verified Drive file ' + result.name + ' (' + result.byteCount + ' bytes).'),
+    result,
+    inputSha256: sha256,
+  });
+  await recordActionAudit(admin, user, 'drive.ingestFile', fileId, safeText(args.callerNote, 400) || ('Ingested and verified Drive file ' + result.name + ' (' + result.byteCount + ' bytes).'), requestId).catch(() => {});
+  return {...result, audit: audit.audit};
+}
+
 function mcpTextContentJson(result, label) {
   const text = (((result || {}).content || []).find((item) => item && item.type === 'text') || {}).text || '';
   if (!text) return result;
@@ -1201,8 +1392,30 @@ function renderBlenderGlbCatalogInputSchema() {
   };
 }
 
+
+function driveIngestFileCatalogInputSchema() {
+  return {
+    type: 'object',
+    properties: {
+      requestId: {type: 'string', description: 'Stable idempotency and audit request id.'},
+      file: hostFileUploadInputSchema({
+        contentMediaType: 'application/octet-stream',
+        description: 'Required top-level host-file upload. Do not pass a path, URL, Base64 string, ref, or nested JSON descriptor.',
+      }),
+      name: {type: 'string', description: 'Optional Drive filename override.'},
+      mimeType: {type: 'string', description: 'Optional MIME type override.'},
+      parentFolderId: {type: 'string', description: 'Optional destination Drive folder id.'},
+      expectedSha256: {type: 'string', description: 'Optional expected hexadecimal SHA-256 digest for caller-side provenance locking.'},
+      callerNote: {type: 'string', description: 'Optional human-readable audit summary.'},
+    },
+    required: ['requestId', 'file'],
+    additionalProperties: false,
+  };
+}
+
 function publishedToolInputSchema(name, schema, pipeStrategy = 'input') {
   if (name === 'render_blender_glb') return renderBlenderGlbCatalogInputSchema();
+  if (name === 'drive_ingest_file') return driveIngestFileCatalogInputSchema();
   return mcpToolJsonSchema(schema, pipeStrategy);
 }
 
@@ -4111,7 +4324,7 @@ function runDroobiedooContextOperation(operation, args = {}) {
 
 function driveOperationRegistry() {
   return {
-    version: '2026-07-27.sfx-forge-v3',
+    version: '2026-07-27.drive-file-ingest-v1',
     invocationTool: 'drive_operation',
     cachePolicy: 'New bridge and simulation operations should be invokable through drive_operation so ChatGPT does not need a top-level MCP tool refresh for every backend code change. Cartesia TTS is a direct Home Center MCP provider operation; it must not be routed through Command Center jobs or workers.',
     operations: {
@@ -5163,14 +5376,25 @@ function homeCenterCapabilitiesPayload(server) {
       commandCenter: operationRegistrySummary(commandCenterOperationRegistry()),
       smsCalendar: operationRegistrySummary(smsCalendarOperationRegistry()),
     },
-    fileUploadTools: [{
-      name: 'render_blender_glb',
-      required: ['idempotencyKey', 'glbFile', 'scriptFile'],
-      inputs: {
-        glbFile: {format: 'binary', contentMediaType: 'model/gltf-binary'},
-        scriptFile: {format: 'binary', contentMediaType: 'text/x-python'},
+    fileUploadTools: [
+      {
+        name: 'render_blender_glb',
+        required: ['idempotencyKey', 'glbFile', 'scriptFile'],
+        inputs: {
+          glbFile: {format: 'binary', contentMediaType: 'model/gltf-binary'},
+          scriptFile: {format: 'binary', contentMediaType: 'text/x-python'},
+        },
       },
-    }],
+      {
+        name: 'drive_ingest_file',
+        required: ['requestId', 'file'],
+        inputs: {
+          file: {format: 'binary', contentMediaType: 'application/octet-stream'},
+        },
+        maxBytes: HOME_CENTER_DRIVE_INGEST_MAX_BYTES,
+        verification: ['expectedSha256', 'Drive readback byte count', 'Drive readback SHA-256'],
+      },
+    ],
     safety: {
       writesRequireRequestId: true,
       writesRequireApprovedTrue: true,
@@ -5357,6 +5581,27 @@ function createHomeCenterMcpServer({google, admin, googleClientId, googleClientS
   }, async (args, extra) => {
     const {user} = await requestGoogleContext(extra, google, admin, googleClientId, googleClientSecret);
     return textResult(await simulationOperationRunOperation({admin, user, args: args || {}}));
+  });
+
+
+  server.registerTool('drive_ingest_file', {
+    title: 'Ingest file to Drive',
+    description: 'Upload one top-level ChatGPT Work Mode file to private Google Drive, verify byte count and SHA-256 by readback, and audit the write. Use this reusable ingress for ZIPs and other files that are not already in Drive.',
+    inputSchema: {
+      requestId: z.string().describe('Stable idempotency and audit request id.'),
+      file: z.file().describe('Required top-level uploaded file. This must be a ChatGPT Work Mode host file upload, not a path, URL, Base64 value, ref, or nested JSON descriptor.'),
+      name: z.string().optional().describe('Optional Drive filename override.'),
+      mimeType: z.string().optional().describe('Optional MIME type override.'),
+      parentFolderId: z.string().optional().describe('Optional destination Drive folder id.'),
+      expectedSha256: z.string().optional().describe('Optional expected hexadecimal SHA-256 digest for caller-side provenance locking.'),
+      callerNote: z.string().optional().describe('Optional human-readable audit summary.'),
+    },
+    securitySchemes: MCP_OAUTH_SECURITY_SCHEMES,
+    _meta: {securitySchemes: MCP_OAUTH_SECURITY_SCHEMES},
+    annotations: {readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: true},
+  }, async (args, extra) => {
+    const context = await requireCreditGatedContext({google, admin, googleClientId, googleClientSecret, extra, surface: 'drive_ingest_file'});
+    return textResult(await driveIngestFileOperation({google, admin, auth: context.auth, user: context.user, args: args || {}}));
   });
 
   server.registerTool('render_blender_glb', {
