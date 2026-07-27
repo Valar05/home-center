@@ -12,6 +12,10 @@ else
   FUNCTIONS="commandCenterMcp homeCenterMcp"
 fi
 
+case " $FUNCTIONS " in
+  *" homeCenterMcp "*) sh "$ROOT/tools/assert_home_center_mcp_main_release.sh" "$ROOT" ;;
+esac
+
 deploy_command_center_mcp() {
   gcloud functions deploy commandCenterMcp \
     --gen2 \

@@ -37,6 +37,8 @@ node --check tools/command_center_verbose_worker_smoke.mjs
 node --check cloud-worker/src/cloud_run_worker.mjs
 sh -n tools/deploy_command_center_cloud_worker.sh
 sh -n tools/deploy_functions_termux.sh
+sh -n tools/assert_home_center_mcp_main_release.sh
+node tools/home_center_mcp_main_release_gate_test.mjs
 node tools/home_center_production_deploy_contract_test.mjs
 node tools/command_center_mcp_contract_test.mjs
 node tools/command_center_cloud_activation_contract_test.mjs

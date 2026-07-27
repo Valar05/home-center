@@ -32,6 +32,11 @@ jobs:
       REGION: ${{ inputs.region || 'us-central1' }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: refs/heads/main
+          fetch-depth: 0
+      - name: Enforce immutable main release source
+        run: sh tools/assert_home_center_mcp_main_release.sh "$GITHUB_WORKSPACE"
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
