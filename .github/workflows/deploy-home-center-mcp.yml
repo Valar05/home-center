@@ -48,4 +48,4 @@ jobs:
         env:
           GCLOUD_FUNCTIONS_REGION: ${{ env.REGION }}
           COMMAND_CENTER_MCP_URL: https://${{ env.REGION }}-${{ env.PROJECT }}.cloudfunctions.net/commandCenterMcp/mcp
-        run: sh tools/deploy_functions_termux.sh "$PROJECT" commandCenterMcp homeCenterMcp audioLibraryApi creditBackedHttp
+        run: sh tools/deploy_functions_termux.sh "$PROJECT" homeCenterMcp
