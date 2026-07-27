@@ -53,18 +53,17 @@ jobs:
           workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
           service_account: ${{ secrets.GCP_DEPLOY_SERVICE_ACCOUNT }}
       - uses: google-github-actions/setup-gcloud@v2
-      - name: Verify deployed Cloud Run Blender revision
-        run: |
-          gcloud run services describe command-center-blender-render \
-            --project "$PROJECT" \
-            --region "$REGION" \
-            --format='yaml(metadata.name,status.latestReadyRevisionName,status.traffic,spec.template.spec.containers[0].image)'
-      - name: Deploy existing Home Center dispatcher in place
+      - name: Deploy corrected Cloud Run Blender revision in place
+        env:
+          GCLOUD_REGION: ${{ env.REGION }}
+          COMMAND_CENTER_RENDER_SERVICE: command-center-blender-render
+          COMMAND_CENTER_SKIP_SERVICE_ENABLE: "true"
+        run: sh tools/deploy_command_center_blender_render.sh "$PROJECT"
+      - name: Verify existing dispatch and receipt services remain active
         env:
           GCLOUD_FUNCTIONS_REGION: ${{ env.REGION }}
           COMMAND_CENTER_MCP_URL: https://${{ env.REGION }}-${{ env.PROJECT }}.cloudfunctions.net/commandCenterMcp/mcp
         run: |
-          SERVICE_URL="$(gcloud run services describe command-center-blender-render --project "$PROJECT" --region "$REGION" --format='value(status.url)')"
-          test -n "$SERVICE_URL"
-          COMMAND_CENTER_RENDER_SERVICE_URL="$SERVICE_URL" \
-          sh tools/deploy_functions_termux.sh "$PROJECT" homeCenterMcp
+          gcloud functions describe commandCenterMcp --gen2 --project "$PROJECT" --region "$REGION" --format='value(state)'
+          gcloud functions describe commandCenterRenderWorker --gen2 --project "$PROJECT" --region "$REGION" --format='value(state)'
+          gcloud functions describe homeCenterMcp --gen2 --project "$PROJECT" --region "$REGION" --format='value(state)'
