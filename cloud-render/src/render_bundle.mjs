@@ -32,6 +32,14 @@ const BUILD_REQUIRED_BUNDLE_KINDS = [
   'three_d_artifact',
 ];
 
+function rendererInputSettings(value = {}) {
+  const settings = value && typeof value === 'object' && !Array.isArray(value) ? {...value} : {};
+  for (const key of ['authoredKeys', 'evidenceFrames', 'gifFrames', 'gifTimingMs']) {
+    if (Array.isArray(settings[key]) && settings[key].length === 0) delete settings[key];
+  }
+  return settings;
+}
+
 function typedError(message, status = 400, failureKind = 'input_validation') {
   const err = new Error(message);
   err.status = status;
@@ -428,7 +436,7 @@ export async function renderBundle(request = {}) {
   const timings = {startedAtMs: nowMs()};
   try {
     const mode = request.mode === 'build' ? 'build' : 'render_glb';
-    const compatibility = renderCompatibility({settings: request.settings || {}, contractVersion: request.contractVersion || BLENDER_RENDER_CONTRACT_VERSION, backend: {contractVersions: [BLENDER_RENDER_CONTRACT_VERSION], backendVersion: TOOL_VERSION}});
+    const compatibility = renderCompatibility({settings: rendererInputSettings(request.settings), contractVersion: request.contractVersion || BLENDER_RENDER_CONTRACT_VERSION, backend: {contractVersions: [BLENDER_RENDER_CONTRACT_VERSION], backendVersion: TOOL_VERSION}});
     const settings = compatibility.settings;
     const options = renderBundleOptions({...request, settings});
     const requiredBundleKinds = requiredBundleKindsFor(options, mode);
