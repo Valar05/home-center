@@ -100,7 +100,7 @@ for (const summary of Object.values(capabilities.operationSurfaces)) {
   assert(summary.operationCount >= summary.operations.length);
   assert(summary.operations.length <= 200);
 }
-for (const operation of ['sfx.analyze_source', 'sfx.segment', 'sfx.render', 'sfx.status', 'sfx.artifacts']) {
+for (const operation of ['sfx.analyze_source', 'sfx.transcribe_slate', 'sfx.segment', 'sfx.render', 'sfx.status', 'sfx.artifacts']) {
   assert(capabilities.operationSurfaces.drive.operations.includes(operation), `live Drive registry must expose ${operation}`);
 }
 assert.deepEqual(capabilities.fileUploadTools, [{
