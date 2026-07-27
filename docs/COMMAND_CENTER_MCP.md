@@ -437,12 +437,12 @@ That command treats Playwright Chromium desktop ChatGPT as the primary visible i
 
 This is the loop-closing path. If ChatGPT cannot see a separate `commandCenterMcp` tool namespace, it must not stop; it should call Home Center `command_center_operation`.
 
-Automatic discovery must be shallow. Agents should call Home Center `health` first and read `discoverability.automaticDiscovery.commandCenter`. Do not require drilling through nested `capabilities` to learn that Command Center exists. That health packet includes the direct MCP URL, registry version, normal invocation tool, string-capable `drive_operation` fallback, stale enum-schema tunnel, and reconnect advice.
+Status surfaces have one responsibility each. Home Center and Command Center `health` report process liveness only. `readiness` reports bounded required-configuration checks. `capabilities` reports deterministic top-level tool names and names-only operation summaries. Detailed worker-pool and end-to-end probe diagnostics remain under `system.health`.
 
 Normal flow:
 
-1. Call Home Center `health`; it advertises `discoverability.automaticDiscovery.commandCenter`.
-2. Call `command_center_operation` with `operation=health`; the bridged Command Center health result must return `ok=true` and `invokable=true`.
+1. Call Home Center `health` for liveness and `readiness` before accepting work.
+2. Call Home Center `capabilities` when operation-name discovery is needed, then call `command_center_operation` with `operation=health`; the bridged operation result must return `ok=true` and `invokable=true`.
 3. Resolve a project with `operation=projects.resolve` when needed.
 4. Create a follow-up worker action with `operation=jobs.create`.
 5. Recover or supervise with `operation=jobs.get`, `jobs.get_events`, `jobs.get_artifacts`, and `jobs.get_summary`.

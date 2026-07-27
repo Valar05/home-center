@@ -586,7 +586,7 @@ async function testDriveOperationRegistryRunner() {
   assert.deepEqual(result.result.sheetNames, sheetNames);
   assert.equal(admin._docs.get('driveBridgeAudit/drive-operation-workbook-001:import').operation, 'workbook.importXlsx');
   const registry = createHomeCenterMcpServer({google: {}, admin: {}, googleClientId: () => '', googleClientSecret: () => ''})._registeredTools.health;
-  assert(registry, 'health tool exists for registry discovery');
+  assert(registry, 'health tool exists for liveness');
 }
 
 
@@ -665,6 +665,7 @@ function testMcpToolSurface() {
   const minimal = createHomeCenterMcpServer({google: {}, admin: {}, googleClientId: () => '', googleClientSecret: () => ''});
   assert.deepEqual(Object.keys(minimal._registeredTools), [
     'health',
+    'readiness',
     'drive_search',
     'drive_read',
     'sheets_search',
@@ -686,7 +687,8 @@ function testMcpToolSurface() {
   assert(extendedTools.includes('drive_move'));
   assert(extendedTools.includes('drive_workflow_run'));
   assert(extendedTools.includes('drive_operation'));
-  assert(minimal._registeredTools.health, 'minimal server exposes health for registry discovery');
+  assert(minimal._registeredTools.health, 'minimal server exposes liveness');
+  assert(minimal._registeredTools.readiness, 'minimal server exposes readiness');
   assert(extendedTools.includes('workbook_import_xlsx'));
   assert(extendedTools.includes('sheets_create'));
   assert(extendedTools.includes('sheets_update_values'));

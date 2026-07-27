@@ -6,15 +6,18 @@ const require = createRequire(import.meta.url);
 const {
   HOME_CENTER_CONNECTOR_SCHEMA_REVISION,
   HOME_CENTER_DIRECT_FILE_TOOLS,
+  HOME_CENTER_MCP_SERVER_VERSION,
   HOME_CENTER_REGISTRY_VERSION,
+  homeCenterHealthPayload,
   createHomeCenterMcpServer,
 } = require('../functions/home_center_mcp.js');
 
-assert.match(HOME_CENTER_CONNECTOR_SCHEMA_REVISION, /^2026-07-26\.integrated-capabilities-security-v1$/);
+assert.match(HOME_CENTER_CONNECTOR_SCHEMA_REVISION, /^2026-07-26\.status-contract-v1$/);
 assert.equal(HOME_CENTER_REGISTRY_VERSION, HOME_CENTER_CONNECTOR_SCHEMA_REVISION);
 assert.deepEqual([...HOME_CENTER_DIRECT_FILE_TOOLS], ['render_blender_glb']);
 
-const server = createHomeCenterMcpServer({google: {}, admin: {}, googleClientId: '', googleClientSecret: ''});
+process.env.HOME_CENTER_MCP_EXTENDED_TOOLS = 'true';
+const server = createHomeCenterMcpServer({google: {}, admin: {firestore() { return {}; }}, googleClientId: () => 'configured', googleClientSecret: () => 'configured'});
 const toolNames = Object.keys(server._registeredTools || {}).filter((name) => name === 'render_blender_glb');
 assert.deepEqual(toolNames, ['render_blender_glb'], 'render_blender_glb must be registered exactly once as a top-level Home Center tool');
 
@@ -41,16 +44,15 @@ assert.equal(props.scriptText, undefined, 'direct tool must not advertise script
 
 const healthResult = await server._registeredTools.health.handler({}, {});
 const health = JSON.parse(healthResult.content[0].text);
-assert.equal(health.registryVersion, HOME_CENTER_REGISTRY_VERSION);
-assert.equal(health.connectorSchemaRevision, HOME_CENTER_CONNECTOR_SCHEMA_REVISION);
-assert.equal(health.catalogCacheKey, HOME_CENTER_CONNECTOR_SCHEMA_REVISION);
-assert.deepEqual(health.directFileTools, ['render_blender_glb']);
-assert.deepEqual(health.directToolContracts.render_blender_glb.required, ['idempotencyKey', 'glbFile', 'scriptFile']);
-assert.equal(health.directToolContracts.render_blender_glb.binaryInputs.glbFile.format, 'binary');
-assert.equal(health.directToolContracts.render_blender_glb.binaryInputs.glbFile.contentMediaType, 'model/gltf-binary');
-assert.equal(health.directToolContracts.render_blender_glb.binaryInputs.glbFile.contentEncoding, undefined);
-assert.equal(health.discoverability.topLevelDirectTools.render_blender_glb.status, 'published');
-assert.equal(health.discoverability.commandCenter.registryVersion, HOME_CENTER_REGISTRY_VERSION);
+assert.deepEqual(health, homeCenterHealthPayload());
+assert.equal(health.version, HOME_CENTER_MCP_SERVER_VERSION);
+const capabilitiesResult = await server._registeredTools.capabilities.handler({}, {});
+const capabilities = JSON.parse(capabilitiesResult.content[0].text);
+assert.equal(capabilities.registryVersion, HOME_CENTER_REGISTRY_VERSION);
+assert.equal(capabilities.connectorSchemaRevision, HOME_CENTER_CONNECTOR_SCHEMA_REVISION);
+assert.deepEqual(capabilities.fileUploadTools[0].required, ['idempotencyKey', 'glbFile', 'scriptFile']);
+assert.equal(capabilities.fileUploadTools[0].inputs.glbFile.format, 'binary');
+assert.equal(capabilities.fileUploadTools[0].inputs.glbFile.contentMediaType, 'model/gltf-binary');
 
 const registeredTool = server._registeredTools.render_blender_glb;
 const stringResult = registeredTool.inputSchema.safeParse({idempotencyKey: 'render-test', glbFile: '/tmp/a.glb', scriptFile: '/tmp/render.py'});
@@ -58,4 +60,5 @@ assert.equal(stringResult.success, false, 'strings passed as files must fail sch
 assert.match(String(stringResult.error), /expected file, received string/);
 const fileResult = registeredTool.inputSchema.safeParse({idempotencyKey: 'render-test', glbFile: new File([new Uint8Array([1, 2, 3])], 'a.glb', {type: 'model/gltf-binary'}), scriptFile: new File([new Uint8Array([4, 5])], 'render.py', {type: 'text/x-python'})});
 assert.equal(fileResult.success, true, 'top-level File objects must pass schema validation');
+delete process.env.HOME_CENTER_MCP_EXTENDED_TOOLS;
 console.log('Home Center render_blender_glb protocol/schema test: OK');

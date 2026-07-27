@@ -26,8 +26,8 @@ const {
 
 const DEFAULT_MCP_PUBLIC_BASE = 'https://us-central1-home-center-dclar.cloudfunctions.net/homeCenterMcp';
 const MCP_PUBLIC_BASE = process.env.HOME_CENTER_MCP_PUBLIC_BASE || DEFAULT_MCP_PUBLIC_BASE;
-const HOME_CENTER_MCP_SERVER_VERSION = '0.1.1';
-const HOME_CENTER_CONNECTOR_SCHEMA_REVISION = '2026-07-26.integrated-capabilities-security-v1';
+const HOME_CENTER_MCP_SERVER_VERSION = '0.2.0';
+const HOME_CENTER_CONNECTOR_SCHEMA_REVISION = '2026-07-26.status-contract-v1';
 const HOME_CENTER_REGISTRY_VERSION = HOME_CENTER_CONNECTOR_SCHEMA_REVISION;
 const HOME_CENTER_DIRECT_FILE_TOOLS = Object.freeze(['render_blender_glb']);
 const MCP_RESOURCE = `${MCP_PUBLIC_BASE}/mcp`;
@@ -4958,6 +4958,85 @@ async function driveWorkflowRunOperation({google, admin, auth, user, cartesiaApi
   }
 }
 
+function configuredValue(getter) {
+  try {
+    return typeof getter === 'function' && String(getter() || '').trim().length > 0;
+  } catch (_err) {
+    return false;
+  }
+}
+
+function homeCenterHealthPayload() {
+  return {ok: true, service: 'home-center-drive-bridge', version: HOME_CENTER_MCP_SERVER_VERSION};
+}
+
+function homeCenterReadinessPayload({admin, googleClientId, googleClientSecret}) {
+  const checks = [
+    {name: 'firebase_admin', required: true, ok: !!(admin && typeof admin.firestore === 'function')},
+    {name: 'google_oauth_client_id', required: true, ok: configuredValue(googleClientId)},
+    {name: 'google_oauth_client_secret', required: true, ok: configuredValue(googleClientSecret)},
+    {name: 'command_center_endpoint', required: false, ok: Boolean(COMMAND_CENTER_MCP_URL)},
+    {name: 'artifact_bucket', required: false, ok: Boolean(COMMAND_CENTER_RENDER_BUCKET)},
+  ];
+  const ready = checks.every((check) => !check.required || check.ok);
+  return {
+    ready,
+    status: ready ? 'ready' : 'not_ready',
+    service: 'home-center-drive-bridge',
+    version: HOME_CENTER_MCP_SERVER_VERSION,
+    checks,
+  };
+}
+
+function operationRegistrySummary(registry, limit = 200) {
+  const operations = registry && registry.operations && typeof registry.operations === 'object' ? registry.operations : {};
+  const names = Object.keys(operations).sort();
+  const boundedNames = names.slice(0, limit);
+  return {
+    version: String(registry && registry.version || ''),
+    invocationTool: String(registry && registry.invocationTool || ''),
+    operationCount: names.length,
+    operations: boundedNames,
+    writeOperations: boundedNames.filter((name) => operations[name] && operations[name].write === true),
+    truncated: names.length > boundedNames.length,
+  };
+}
+
+function registeredToolNames(server) {
+  return Object.keys(server && server._registeredTools || {}).sort();
+}
+
+function homeCenterCapabilitiesPayload(server) {
+  return {
+    service: 'home-center-drive-bridge',
+    version: HOME_CENTER_MCP_SERVER_VERSION,
+    registryVersion: HOME_CENTER_REGISTRY_VERSION,
+    connectorSchemaRevision: HOME_CENTER_CONNECTOR_SCHEMA_REVISION,
+    summaryKind: 'names_only',
+    topLevelTools: registeredToolNames(server),
+    operationSurfaces: {
+      drive: operationRegistrySummary(driveOperationRegistry()),
+      simulation: operationRegistrySummary(simulationOperationRegistry()),
+      commandCenter: operationRegistrySummary(commandCenterOperationRegistry()),
+      smsCalendar: operationRegistrySummary(smsCalendarOperationRegistry()),
+    },
+    fileUploadTools: [{
+      name: 'render_blender_glb',
+      required: ['idempotencyKey', 'glbFile', 'scriptFile'],
+      inputs: {
+        glbFile: {format: 'binary', contentMediaType: 'model/gltf-binary'},
+        scriptFile: {format: 'binary', contentMediaType: 'text/x-python'},
+      },
+    }],
+    safety: {
+      writesRequireRequestId: true,
+      writesRequireApprovedTrue: true,
+      permanentDeleteAvailable: false,
+      batchOperationLimit: 25,
+    },
+  };
+}
+
 function createHomeCenterMcpServer({google, admin, googleClientId, googleClientSecret, githubToken = () => '', githubAdmin = {}, cartesiaApiKey = () => ''}) {
   const server = new McpServer({
     name: 'home-center-drive-bridge',
@@ -4966,81 +5045,21 @@ function createHomeCenterMcpServer({google, admin, googleClientId, googleClientS
 
   server.registerTool('health', {
     title: 'Health',
-    description: 'Check whether the Home Center MCP bridge is alive.',
+    description: 'Check whether the Home Center MCP process is alive.',
     inputSchema: {},
     securitySchemes: MCP_OAUTH_SECURITY_SCHEMES,
     _meta: {securitySchemes: MCP_OAUTH_SECURITY_SCHEMES},
-  }, async () => textResult({
-    ok: true,
-    service: 'home-center-drive-bridge',
-    version: HOME_CENTER_MCP_SERVER_VERSION,
-    registryVersion: HOME_CENTER_REGISTRY_VERSION,
-    connectorSchemaRevision: HOME_CENTER_CONNECTOR_SCHEMA_REVISION,
-    catalogCacheKey: HOME_CENTER_CONNECTOR_SCHEMA_REVISION,
-    publicMcpResource: MCP_RESOURCE,
-    directFileTools: HOME_CENTER_DIRECT_FILE_TOOLS,
-    directToolContracts: {
-      render_blender_glb: {
-        required: ['idempotencyKey', 'glbFile', 'scriptFile'],
-        binaryInputs: {
-          glbFile: {type: 'string', format: 'binary', contentMediaType: 'model/gltf-binary'},
-          scriptFile: {type: 'string', format: 'binary', contentMediaType: 'text/x-python'},
-        },
-        dispatcherForRefsAndInlineScripts: 'command_center_operation operation=render.blender_glb',
-      },
-    },
-    discoverability: {
-      noReinstallPath: 'No-Reinstall Discovery Contract: use this health response first; it contains shallow Command Center discovery so agents do not have to drill nested capabilities. Use capabilities only for full operation catalogs.',
-      preferredMutationTool: 'drive_operation',
-      preferredSimulationTool: 'drive_operation',
-      preferredCommandCenterTool: 'command_center_operation',
-      automaticDiscovery: {
-        smsCalendar: {
-          product: 'permissioned Google Messages notification intake for Gmail and Google Calendar reconciliation',
-          primaryTool: 'drive_operation',
-          registryVersion: smsCalendarOperationRegistry().version,
-          minimalInboxCall: {tool: 'drive_operation', operation: 'sms_calendar.inbox', args: {status: 'pending', limit: 20}},
-          authorityBoundary: smsCalendarOperationRegistry().authorityBoundary,
-          setupBoundary: 'The Android Home Center APK must be installed on June\'s phone and June must explicitly enable notification access. No real messages are captured before that.',
-        },
-        commandCenter: {
-          product: 'cloud MCP control plane for durable Codex worker dispatch',
-          noFrontend: true,
-          primaryTool: 'command_center_operation',
-          directMcpUrl: COMMAND_CENTER_MCP_URL,
-          registryVersion: commandCenterOperationRegistry().version,
-          minimalHealthCall: {tool: 'command_center_operation', operation: 'health', args: {}},
-          fallbackStringOperationCall: {tool: 'drive_operation', operation: 'command_center.health', args: {}},
-          staleEnumSchemaCall: {tool: 'drive_operation', operation: 'drive_create_folder', args: {commandCenterOperation: 'health'}},
-          followupJobCall: {tool: 'command_center_operation', operation: 'jobs.create_followup', args: {sourceJobId: 'job_...', title: '...', objective: '...', idempotencyKey: 'stable-request-id'}},
-          reconnectAdvice: 'If health shows an older registry or drive_operation rejects command_center.* before reaching the backend, reconnect/reindex the Home Drive v4 app link. OAuth refresh alone does not reload tool schema.',
-        },
-      },
-      topLevelDirectTools: {
-        render_blender_glb: {
-          status: 'published',
-          purpose: 'ChatGPT Work Mode host-file upload slots for GLB and Blender Python files.',
-          required: ['idempotencyKey', 'glbFile', 'scriptFile'],
-          connectorSchemaRevision: HOME_CENTER_CONNECTOR_SCHEMA_REVISION,
-        },
-      },
-      commandCenter: {
-        invocationTool: 'command_center_operation',
-        registryVersion: commandCenterOperationRegistry().version,
-        normalPath: 'Use command_center_operation from this Home Center MCP connector to create, inspect, resume, revise, and authorize durable Command Center jobs. Do not require a separate commandCenterMcp connector namespace before dispatching follow-up worker actions.',
-      },
-      simulation: {
-        operationRegistryVersion: simulationOperationRegistry().version,
-        normalPath: 'Chat assembles large references; drive_operation with simulation_* operations ingests chunks, builds immutable frames, queries them, and returns context packets or deterministic run handoffs.',
-      },
-      orientationTool: 'capabilities',
-      workbookImport: {
-        operation: 'workbook_import_xlsx',
-        normalPath: 'Import existing Drive .xlsx files by sourceFileId or sourceFileName/sourceFolderId so ChatGPT does not need to pass Base64.',
-        base64Path: 'Use workbookBase64 only when the MCP client can provide the complete file bytes. Do not pass /mnt/data paths; proxied mounted paths are not Drive file IDs and are not readable by the bridge.',
-      },
-    },
-  }));
+    annotations: {readOnlyHint: true, openWorldHint: false},
+  }, async () => textResult(homeCenterHealthPayload()));
+
+  server.registerTool('readiness', {
+    title: 'Readiness',
+    description: 'Check whether required local configuration is present to accept Home Center work. Does not call providers.',
+    inputSchema: {},
+    securitySchemes: MCP_OAUTH_SECURITY_SCHEMES,
+    _meta: {securitySchemes: MCP_OAUTH_SECURITY_SCHEMES},
+    annotations: {readOnlyHint: true, openWorldHint: false},
+  }, async () => textResult(homeCenterReadinessPayload({admin, googleClientId, googleClientSecret})));
 
   server.registerTool('drive_search', {
     title: 'Drive search',
@@ -5186,7 +5205,7 @@ function createHomeCenterMcpServer({google, admin, googleClientId, googleClientS
     title: 'Simulation operation',
     description: 'Build, query, and run durable simulation frames from agent-assembled reference compilations. Prefer this stable dispatcher for Simulation features so ChatGPT does not need connector refreshes for every new operation.',
     inputSchema: {
-      operation: z.string().describe('Operation name from capabilities.simulationOperationRegistry.operations. Runtime registry validation rejects unsupported names.'),
+      operation: z.string().describe('Operation name from capabilities.operationSurfaces.simulation.operations. Runtime registry validation rejects unsupported names.'),
       args: z.record(z.string(), z.any()).optional().describe('Operation-specific arguments. Write operations require requestId inside args.'),
     },
     securitySchemes: MCP_OAUTH_SECURITY_SCHEMES,
@@ -5291,131 +5310,19 @@ function createHomeCenterMcpServer({google, admin, googleClientId, googleClientS
 
   server.registerTool('capabilities', {
     title: 'Capabilities',
-    description: 'List Drive Bridge tools, safety defaults, limits, and unavailable v1 operations.',
+    description: 'Return a bounded, deterministic summary of callable tools and operation names for this deployed revision.',
     inputSchema: {},
     securitySchemes: MCP_OAUTH_SECURITY_SCHEMES,
     _meta: {securitySchemes: MCP_OAUTH_SECURITY_SCHEMES},
     annotations: {readOnlyHint: true, openWorldHint: false},
-  }, async () => textResult({
-    service: 'home-center-drive-bridge',
-    version: HOME_CENTER_MCP_SERVER_VERSION,
-    registryVersion: HOME_CENTER_REGISTRY_VERSION,
-    connectorSchemaRevision: HOME_CENTER_CONNECTOR_SCHEMA_REVISION,
-    catalogCacheKey: HOME_CENTER_CONNECTOR_SCHEMA_REVISION,
-    directFileTools: HOME_CENTER_DIRECT_FILE_TOOLS,
-    operationRegistryVersion: driveOperationRegistry().version,
-    simulationOperationRegistryVersion: simulationOperationRegistry().version,
-    commandCenterOperationRegistryVersion: commandCenterOperationRegistry().version,
-    topLevelToolCachePolicy: 'Keep top-level MCP tools stable. Add normal bridge and simulation features as drive_operation registry operations so ChatGPT connector metadata does not need reinstall for each backend change. If a future agent says a feature is unavailable, it should first call health or capabilities and inspect operationRegistry.',
-    transport: 'stateless-streamable-http',
-    safety: {
-      writesRequireRequestId: true,
-      writesRequireApprovedTrue: true,
-      dryRunAvailable: ['drive_move', 'drive_rename', 'drive_plan_organize'],
-      permanentDeleteAvailable: false,
-      preferredMutationTool: 'drive_operation',
-      preferredSimulationTool: 'drive_operation',
-      batchOperationLimit: 25,
-    },
-    operationRegistry: driveOperationRegistry(),
-    simulationOperationRegistry: simulationOperationRegistry(),
-    commandCenterOperationRegistry: commandCenterOperationRegistry(),
-    commandCenterManual: {
-      purpose: 'Command Center is the cloud MCP control plane for durable one-shot Codex worker dispatch. ChatGPT remains the planner and reviewer; Command Center stores jobs, leases, events, questions, mutation policy, artifacts, logs, and checkpoints.',
-      normalFlow: [
-        'Resolve the project when needed with command_center_operation operation=projects.resolve.',
-        'Create a follow-up worker ticket with command_center_operation operation=jobs.create and a stable idempotencyKey.',
-        'Poll or recover with jobs.get, jobs.get_events, jobs.get_artifacts, and jobs.get_summary.',
-        'Answer worker questions with jobs.answer_question when the decision is within policy.',
-        'Use jobs.authorize_mutation for push, PR, deploy, provider writes, or other consequential mutations.',
-      ],
-      noSeparateConnectorRule: 'If the separate commandCenterMcp namespace is not attached, do not stop. Use this Home Center MCP tool: command_center_operation.',
-    },
-    simulationManual: {
-      purpose: 'Simulation is an MCP-first compiler/runtime index. Chat assembles large evidence-bearing reference compilations; Home Center MCP stores chunks, compiles immutable frames, preserves provenance/conflicts, and returns query/context/run packets.',
-      normalFlow: [
-        'Create or select a simulation project with simulation_project_create.',
-        'Register Drive, Docs, GitHub, URL, local document, note, or prior simulation references with simulation_source_register.',
-        'Begin a reference compilation, append chunks by sequence, finalize it, then call drive_operation with operation=build_simulation_frame.',
-        'Use drive_operation with operation=simulation_frame_query or operation=simulation_context_packet instead of rereading all sources.',
-        'Use drive_operation with operation=run_simulation_frame for deterministic frame-grounded handoff; it does not invent canon or silently resolve conflicts.',
-      ],
-      noSpreadsheetRule: 'Do not route simulation work through workbook import, sheets, tabs, or manual form entry. Simulation frames are provenance-backed compiled context systems.',
-    },
-    homeDriveManual: {
-      purpose: 'Home Drive is the durable Google Drive, Docs, and Sheets operating layer. Use it instead of ad hoc Google connector calls when the user wants files, documents, or spreadsheets found, read, created, updated, moved, renamed, appended, indexed, audited, or organized.',
-      thingProperty: {
-        meaning: 'thing is the human named target or subject of the request, such as a project name, folder name, document title, file label, or remembered workflow target. It is not proof of identity by itself.',
-        rule: 'Resolve a thing to concrete Drive IDs before writes. Search/list/read metadata first unless the request already supplies a fileId, folderId, or documentId.',
-        examples: [
-          {thing: 'Lexen WWII folder', resolveWith: 'drive_search or drive_list_folder', thenUse: 'folderId or parentFolderId'},
-          {thing: 'Story Bible', resolveWith: 'drive_search plus drive_get_metadata', thenUse: 'documentId for docs_append'},
-          {thing: 'budget sheet', resolveWith: 'sheets_search plus sheets_read', thenUse: 'spreadsheetId for sheets_update_values'},
-          {thing: 'all notes in this project', resolveWith: 'drive_list_folder and optional index_folder', thenUse: 'dry-run plan before any move or rename'},
-        ],
-      },
-      noReinstallDiscovery: {
-        rule: 'No-Reinstall Discovery Contract: do not require connector reinstall for ordinary backend operation additions. The stable discovery surface is health plus capabilities.operationRegistry, and the stable execution surface is drive_operation.',
-        agentInstruction: 'Before saying Home Drive cannot perform a Drive/Docs/Sheets operation, call capabilities and inspect operationRegistry.operations. If the operation exists there, call drive_operation even when the top-level tool list looks stale.',
-        workbookImportShortcut: 'For Excel migration, use operation=workbook_import_xlsx with sourceFileId or sourceFileName/sourceFolderId when the workbook is already in Drive. Base64 is only a client-bytes fallback. /mnt/data and other ChatGPT sandbox paths are forbidden because the bridge cannot read them.',
-      },
-      recipes: {
-        importDriveXlsxAsNativeSheet: {
-          goal: 'Convert a Drive-hosted .xlsx workbook into a native Google Sheets workbook while preserving workbook structure through Google Drive conversion.',
-          discover: 'drive_search query for the workbook name with the Excel MIME type when sourceFileId is unknown.',
-          call: {tool: 'drive_operation', operation: 'workbook_import_xlsx', args: {sourceFileName: 'Lexen_Vigil_Judgment_Engine.xlsx', sourceFolderId: 'optional-source-folder-id', parentFolderId: 'destination-folder-id', title: 'Lexen Vigil Judgment Engine', requestId: 'stable-request-id', callerNote: 'Migrate Excel workbook to native Google Sheets'}},
-          verify: 'Read the returned spreadsheetId with sheets_read or compare returned sheetNames and populatedCellCountDiffs.',
-          forbidden: 'Do not pass /mnt/data/Lexen_Vigil_Judgment_Engine.xlsx or any local sandbox path. Resolve or upload the workbook into Drive first, then call this recipe by Drive ID/name.',
-        },
-      },
-      normalFlow: [
-        'Call health or capabilities when orientation is needed, then prefer drive_operation for newly added operationRegistry operations.',
-        'Call auth_status when the user asks whether the bridge is connected.',
-        'For discovery, use drive_search for names/text and drive_list_folder for folder contents.',
-        'For identity, use drive_get_metadata and parent folders; do not trust names alone for writes.',
-        'For reading, use drive_read for one file, sheets_read for spreadsheet ranges, or index_folder/index_status for reusable local search state.',
-        'For workbook migration, prefer drive_operation with operation=workbook_import_xlsx and sourceFileId or sourceFileName/sourceFolderId so Google Drive performs native Sheets conversion instead of rebuilding tabs cell-by-cell, requiring chat Base64, or passing unreadable /mnt/data paths.',
-        'For single writes, prefer drive_operation with a registry operation and stable requestId; direct tools remain compatibility aliases.',
-        'For bulk organization, create a dry-run plan first, show proposed changes, then execute only with approved=true.',
-        'After writes, use audit_log or audit_get to verify what actually happened.',
-      ],
-      writeSafety: {
-        requestId: 'Use stable request IDs for every write so retries are idempotent and auditable.',
-        dryRun: 'Use dryRun=true for move, rename, and organize planning until the user approves the exact changes.',
-        approved: 'Use approved=true only after the user has approved the proposed write or plan.',
-        noDeleteV1: 'No delete, trash, or permanent delete is exposed in this bridge surface.',
-      },
-      recovery: {
-        checkpoint: 'For multi-step work, call recovery_checkpoint before writes with the intended operations and request IDs.',
-        status: 'Call recovery_status with operationBatchId to compare intent against audit records and find missing writes.',
-        sourceOfTruth: 'Audit records and Drive metadata beat chat memory.',
-      },
-    },
-    tools: [
-      'health', 'capabilities', 'auth_status', 'storage_status', 'audit_status',
-      'drive_search', 'drive_read', 'sheets_search', 'sheets_read', 'drive_list_folder', 'drive_get_metadata',
-      'simulation_operation', 'command_center_operation', 'cartesia_voices', 'cartesia_synthesize',
-      'drive_operation', 'drive_create_folder', 'docs_create', 'workbook_import_xlsx', 'sheets_create', 'sheets_update_values', 'drive_move', 'drive_rename',
-      'drive_plan_organize', 'drive_execute_plan',
-      'index_folder', 'index_status',
-      'drive_workflow_run', 'recovery_checkpoint', 'recovery_status',
-      'audit_log', 'audit_get',
-      'docs_append',
-      'github_get_repo', 'github_read_file', 'github_list_branches',
-      'github_admin_auth_status', 'github_admin_create_repo', 'github_admin_configure_repo', 'github_admin_create_branch', 'github_admin_upsert_file', 'github_admin_create_pull_request', 'github_admin_merge_pull_request', 'github_admin_dispatch_workflow',
-      'github_list_issues', 'github_get_issue', 'github_create_issue', 'github_comment_issue',
-      'github_list_pull_requests', 'github_get_pull_request', 'github_list_pull_request_files', 'github_comment_pull_request',
-      'github_list_workflow_runs', 'github_get_workflow_run',
-      'github_admin_auth_status', 'github_admin_create_repo', 'github_admin_configure_repo', 'github_admin_create_branch', 'github_admin_upsert_file', 'github_admin_create_pull_request', 'github_admin_merge_pull_request', 'github_admin_dispatch_workflow',
-    ],
-  }));
+  }, async () => textResult(homeCenterCapabilitiesPayload(server)));
 
 
   server.registerTool('drive_operation', {
     title: 'Drive operation',
     description: 'Run a named Home Drive, Simulation, or command_center.* operation from the runtime operation registry. Prefer this stable tool for new bridge capabilities so ChatGPT does not need a connector reinstall when backend operations are added.',
     inputSchema: {
-      operation: z.string().describe('Operation name from capabilities.operationRegistry.operations, including simulation_* frame operations and command_center.* compatibility operations. Runtime registry validation rejects unsupported names.'),
+      operation: z.string().describe('Operation name from capabilities.operationSurfaces.drive.operations, including simulation_* frame operations and command_center.* compatibility operations. Runtime registry validation rejects unsupported names.'),
       args: z.record(z.string(), z.any()).optional().describe('Operation-specific arguments. Writes require requestId inside args.'),
       operationBatchId: z.string().optional().describe('Optional stable batch/workflow id for recovery tracking.'),
     },
@@ -6205,7 +6112,13 @@ function createHomeCenterMcpApp({google, admin, googleClientId = () => '', googl
 
   app.get('/', (_req, res) => {
     res.set('Cache-Control', 'no-store');
-    res.json({ok: true, service: 'home-center-drive-bridge', version: HOME_CENTER_MCP_SERVER_VERSION, registryVersion: HOME_CENTER_REGISTRY_VERSION, connectorSchemaRevision: HOME_CENTER_CONNECTOR_SCHEMA_REVISION, catalogCacheKey: HOME_CENTER_CONNECTOR_SCHEMA_REVISION, directFileTools: HOME_CENTER_DIRECT_FILE_TOOLS, endpoints: ['/sse', '/messages', '/mcp'], oauthProtectedResource: MCP_RESOURCE_METADATA});
+    res.json(homeCenterHealthPayload());
+  });
+
+  app.get('/ready', (_req, res) => {
+    const readiness = homeCenterReadinessPayload({admin, googleClientId, googleClientSecret});
+    res.set('Cache-Control', 'no-store');
+    res.status(readiness.ready ? 200 : 503).json(readiness);
   });
 
   app.get('/oauth-protected-resource', (_req, res) => {
@@ -6681,4 +6594,4 @@ function createHomeCenterMcpApp({google, admin, googleClientId = () => '', googl
   return app;
 }
 
-module.exports = {CREDIT_GATED_EMAILS, requireCreditGatedEmail, GITHUB_ADMIN_ALLOWED_EMAILS, requireGitHubAdminUser, HOME_CENTER_MCP_SERVER_VERSION, HOME_CENTER_CONNECTOR_SCHEMA_REVISION, HOME_CENTER_REGISTRY_VERSION, HOME_CENTER_DIRECT_FILE_TOOLS, verifiedRenderGifMcpContent, attachRenderGifMcpContent, renderArtifactHashEntry, uploadVerifiedArtifact, createHomeCenterMcpApp, createHomeCenterMcpServer, createDriveFolderOperation, createGoogleDocOperation, appendGoogleDocOperation, publishContextSnapshotOperation, synthesizeCartesiaAudioArtifactOperation, cartesiaVoicesOperation, createSheetOperation, updateSheetValuesOperation, importXlsxWorkbookOperation, readDriveBinaryChunkOperation, compareAudioIngestFileIds, ingestDriveAudioOperation, finalizeDriveAudioIngestBatchOperation, driveOperationRunOperation, driveWorkflowRunOperation, simulationOperationRunOperation, simulationOperationRegistry, droobiedooContextOperationEntries, loadDroobiedooContextIndex, searchDroobiedooContextIndex, runDroobiedooContextOperation, normalizeRecoveryOperation, summarizeRecoveryOperations, loadMcpAccessContext, armoryReceiptOperation, armoryRecountOperation, armoryCasingOperation, renderAudioOperation, inspectAudioArtifactsOperation, materializeHomeCenterRenderDriveRefs, materializeHomeCenterRenderSources, stageHomeCenterGitHubRenderInput, normalizeRenderGitHubSource, githubAdminOperationEntries, githubAdminOperationRunOperation, createGitHubAppJwt};
+module.exports = {homeCenterHealthPayload, homeCenterReadinessPayload, homeCenterCapabilitiesPayload, operationRegistrySummary, CREDIT_GATED_EMAILS, requireCreditGatedEmail, GITHUB_ADMIN_ALLOWED_EMAILS, requireGitHubAdminUser, HOME_CENTER_MCP_SERVER_VERSION, HOME_CENTER_CONNECTOR_SCHEMA_REVISION, HOME_CENTER_REGISTRY_VERSION, HOME_CENTER_DIRECT_FILE_TOOLS, verifiedRenderGifMcpContent, attachRenderGifMcpContent, renderArtifactHashEntry, uploadVerifiedArtifact, createHomeCenterMcpApp, createHomeCenterMcpServer, createDriveFolderOperation, createGoogleDocOperation, appendGoogleDocOperation, publishContextSnapshotOperation, synthesizeCartesiaAudioArtifactOperation, cartesiaVoicesOperation, createSheetOperation, updateSheetValuesOperation, importXlsxWorkbookOperation, readDriveBinaryChunkOperation, compareAudioIngestFileIds, ingestDriveAudioOperation, finalizeDriveAudioIngestBatchOperation, driveOperationRunOperation, driveWorkflowRunOperation, simulationOperationRunOperation, simulationOperationRegistry, droobiedooContextOperationEntries, loadDroobiedooContextIndex, searchDroobiedooContextIndex, runDroobiedooContextOperation, normalizeRecoveryOperation, summarizeRecoveryOperations, loadMcpAccessContext, armoryReceiptOperation, armoryRecountOperation, armoryCasingOperation, renderAudioOperation, inspectAudioArtifactsOperation, materializeHomeCenterRenderDriveRefs, materializeHomeCenterRenderSources, stageHomeCenterGitHubRenderInput, normalizeRenderGitHubSource, githubAdminOperationEntries, githubAdminOperationRunOperation, createGitHubAppJwt};

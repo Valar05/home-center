@@ -121,16 +121,9 @@ operation: jobs.create | jobs.get | jobs.get_events | jobs.get_artifacts | jobs.
 
 This avoids a dead-end where ChatGPT can see Home Center tools but cannot discover a separate `commandCenterMcp` namespace. The standalone Command Center MCP endpoint still exists for direct MCP clients and worker-control tooling.
 
-Automatic discovery must start at Home Center `health`, not nested `capabilities`. The health response includes `discoverability.automaticDiscovery.commandCenter` with:
+Status and discovery are separate contracts. Home Center `health` reports only process liveness. `readiness` reports bounded required-configuration checks without calling providers or returning secret values. `capabilities` reports deterministic top-level tool names and names-only operation summaries. Detailed Command Center worker diagnostics remain under the existing `system.health` operation.
 
-- the primary tool: `command_center_operation`;
-- the direct Command Center MCP URL;
-- a minimal `operation=health` call;
-- the string-capable `drive_operation operation=command_center.health` fallback;
-- the stale enum-schema tunnel: `drive_operation operation=drive_create_folder` with `args.commandCenterOperation`;
-- reconnect advice when a mounted connector still reports an older registry.
-
-If ChatGPT still sees the older `Home Drive v4` schema after OAuth refresh, reconnect or reindex the app/link. OAuth refresh updates credentials only; it does not necessarily reload tool metadata.
+Use `command_center_operation` for Command Center work through the connected Home Center surface. The standalone Command Center MCP endpoint remains available to direct MCP clients.
 
 The Firebase export is `commandCenterMcp` and its MCP endpoint is:
 
@@ -159,6 +152,7 @@ https://us-central1-home-center-dclar.cloudfunctions.net/homeCenterMcp/sse
 Default public MCP tools:
 
 - `health`
+- `readiness`
 - `drive_search`
 - `drive_read`
 - `docs_append`
@@ -168,15 +162,15 @@ Default public MCP tools:
 - `drive_create_folder`
 - `docs_create`
 
-The scalable Drive bridge path is `drive_operation`: call `capabilities` for `operationRegistry`, then invoke operations by name without waiting for ChatGPT to refresh top-level MCP tools. The scalable Simulation path is `simulation_operation`: call `capabilities` for `simulationOperationRegistry`, then build/query/run simulation frames by operation name. The bridge also exposes audited `workbook_import_xlsx` for Excel-to-native-Google-Sheets migration. It can convert an existing Drive `.xlsx` by `sourceFileId` or `sourceFileName`/`sourceFolderId`, or accept uploaded `.xlsx` bytes when the client can provide them. It uses Google Drive conversion and returns the new spreadsheet ID, tab names, import warnings, populated-cell count diffs when source counts are supplied, and an audit entry. Extended MCP tools also include audited `sheets_create` and `sheets_update_values` when `HOME_CENTER_MCP_EXTENDED_TOOLS=true`. No Sheets delete/trash tool is exposed.
+The scalable Drive bridge path is `drive_operation`: call `capabilities` and inspect `operationSurfaces.drive.operations`, then invoke operations by name without waiting for ChatGPT to refresh top-level MCP tools. The scalable Simulation path is `simulation_operation`: inspect `operationSurfaces.simulation.operations`, then build/query/run simulation frames by operation name. The bridge also exposes audited `workbook_import_xlsx` for Excel-to-native-Google-Sheets migration. It can convert an existing Drive `.xlsx` by `sourceFileId` or `sourceFileName`/`sourceFolderId`, or accept uploaded `.xlsx` bytes when the client can provide them. It uses Google Drive conversion and returns the new spreadsheet ID, tab names, import warnings, populated-cell count diffs when source counts are supplied, and an audit entry. Extended MCP tools also include audited `sheets_create` and `sheets_update_values` when `HOME_CENTER_MCP_EXTENDED_TOOLS=true`. No Sheets delete/trash tool is exposed.
 
 ### No-Reinstall Discovery Contract
 
 Future agents should not require a connector reinstall for ordinary Home Drive or Simulation backend additions. The stable discovery path is:
 
-1. Call `health` if only a minimal tool is available.
-2. Call `capabilities` when available.
-3. Read `capabilities.operationRegistry.operations` for Drive or `capabilities.simulationOperationRegistry.operations` for Simulation.
+1. Call `health` for liveness.
+2. Call `readiness` when deciding whether the revision can safely accept work.
+3. Call `capabilities` and read `operationSurfaces.drive.operations` or `operationSurfaces.simulation.operations`.
 4. Execute supported Drive mutations through `drive_operation` with a stable `requestId`; execute Simulation project/reference/frame operations through `simulation_operation`.
 
 For Excel migration, the normal ChatGPT path is not Base64 and not a local `/mnt/data` path. If the workbook is already in Drive, call `drive_operation` with `operation=workbook_import_xlsx` and pass `sourceFileId`, or `sourceFileName` plus `sourceFolderId`. Use `workbookBase64` only when the MCP client can provide the complete XLSX bytes. If a workbook exists only as a ChatGPT attachment and the runtime has no typed file-bytes handoff, first place the workbook in Drive, then import it by Drive ID or name.
