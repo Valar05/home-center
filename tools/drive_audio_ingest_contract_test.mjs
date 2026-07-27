@@ -202,4 +202,77 @@ await assert.rejects(() => ingestDriveAudioOperation({
   storage,
   recordAudit: async () => {},
 }), /MD5/);
+await assert.rejects(() => ingestDriveAudioOperation({
+  google,
+  admin,
+  auth: {},
+  user: {email: 'dclarke1005@gmail.com'},
+  args: {
+    ...args,
+    fileId: 'drive-source-missing-provenance',
+    batchId: 'sfx-source-contract-missing-provenance',
+    requestId: 'sfx-source-contract-missing-provenance',
+    project: 'sfx-armory',
+    stage: 'sources',
+  },
+  storage,
+  recordAudit: async () => {},
+}), /sources stage requires sourceKind, creator, and rightsBasis/);
+
+const sourceArgs = {
+  ...args,
+  fileId: 'drive-source-5678',
+  batchId: 'sfx-source-contract-20260726',
+  requestId: 'sfx-source-contract-20260726',
+  project: 'sfx-armory',
+  stage: 'sources',
+  objectName: 'audio/dclarke1005@gmail.com/sfx-armory/sources/drive-source-5678-Track-31.m4a',
+  sourcePath: 'My Drive/Track-31.m4a',
+  sourceKind: 'foley_recording',
+  creator: 'Drew Clarke',
+  rightsBasis: 'self_recorded',
+  captureDevice: 'Pixel 10 Pro XL',
+  captureApp: 'Dolby recording',
+  recordedAt: '2026-07-27T02:40:14.731Z',
+  annotationStatus: 'embedded_spoken_labels_unparsed',
+  semanticAuthority: 'source_audio',
+  sourceNotes: 'Spoken labels in the recording are the semantic authority for strike order.',
+};
+const sourceResult = await ingestDriveAudioOperation({
+  google,
+  admin,
+  auth: {},
+  user: {email: 'dclarke1005@gmail.com'},
+  args: sourceArgs,
+  storage,
+  recordAudit: async (...entry) => audit.push(entry),
+});
+assert.equal(sourceResult.verified, true);
+assert.equal(sourceResult.destination.stage, 'sources');
+assert.equal(sourceResult.sourceMetadata.sourceKind, 'foley_recording');
+assert.equal(sourceResult.sourceMetadata.creator, 'Drew Clarke');
+assert.equal(sourceResult.sourceMetadata.rightsBasis, 'self_recorded');
+assert.equal(sourceResult.sourceMetadata.annotationStatus, 'embedded_spoken_labels_unparsed');
+assert.equal(sourceResult.sourceMetadata.semanticAuthority, 'source_audio');
+assert.match(sourceResult.indexes.catalog.storageRef, /sfx-armory\/sources\/drive-source-5678\.json$/);
+const sourceIndex = JSON.parse(objectStore.get(sourceResult.indexes.byDriveId.objectName).bytes.toString('utf8'));
+assert.equal(sourceIndex.schemaVersion, 'home-center.audio-index.v2');
+assert.deepEqual(sourceIndex.sourceMetadata, sourceResult.sourceMetadata);
+const sourceObjectMetadata = objectStore.get(sourceResult.destination.objectName).metadata.metadata;
+assert.equal(sourceObjectMetadata.sourceKind, 'foley_recording');
+assert.equal(sourceObjectMetadata.rightsBasis, 'self_recorded');
+assert.equal(sourceObjectMetadata.annotationStatus, 'embedded_spoken_labels_unparsed');
+
+const sourceReused = await ingestDriveAudioOperation({
+  google,
+  admin,
+  auth: {},
+  user: {email: 'dclarke1005@gmail.com'},
+  args: {...sourceArgs, requestId: 'sfx-source-contract-reuse-20260726'},
+  storage,
+  recordAudit: async () => {},
+});
+assert.equal(sourceReused.reused, true);
+assert.deepEqual(sourceReused.sourceMetadata, sourceResult.sourceMetadata);
+
 console.log(JSON.stringify({ok: true, storageRef: result.destination.storageRef, sha256: result.destination.sha256, reused: reused.reused, indexes: result.indexes, manifest: sealed.manifest.storageRef}, null, 2));
