@@ -141,6 +141,11 @@ assert.deepEqual(commandCenterHealthPayload(), {
   ok: true,
   service: 'command-center-mcp',
   version: COMMAND_CENTER_MCP_SERVER_VERSION,
+  codexWorkerDiscovery: {
+    state: 'permanently_disabled',
+    code: 'command_center_codex_worker_discovery_permanently_disabled',
+    disabledAt: '2026-07-27',
+  },
 });
 const commandReady = commandCenterReadinessPayload({admin});
 assert.equal(commandReady.ready, true);
@@ -153,7 +158,10 @@ assert.deepEqual(commandHealth, commandCenterHealthPayload());
 assert.deepEqual(commandReadiness, commandReady);
 assert.deepEqual(commandCapabilities, commandCenterCapabilitiesPayload(commandServer));
 assert.deepEqual(commandCapabilities.topLevelTools, sortedUnique(commandCapabilities.topLevelTools));
-assert.equal(commandCapabilities.diagnosticsOperation, 'system.health');
+assert.equal(commandCapabilities.diagnosticsOperation, 'health');
+assert.equal(commandCapabilities.codexWorkerDiscovery.state, 'permanently_disabled');
+assert(!commandCapabilities.topLevelTools.includes('command_center.workers.list'));
+assert(commandCapabilities.topLevelTools.includes('command_center.render.blender_glb'));
 assert(JSON.stringify(commandCapabilities).length < 10000);
 
 const homeRoot = await fetchApp(createHomeCenterMcpApp({google: {}, admin, ...oauth}), '/');

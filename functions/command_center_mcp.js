@@ -11,7 +11,82 @@ const DEFAULT_COMMAND_CENTER_PUBLIC_BASE = 'https://us-central1-home-center-dcla
 const COMMAND_CENTER_PUBLIC_BASE = process.env.COMMAND_CENTER_MCP_PUBLIC_BASE || DEFAULT_COMMAND_CENTER_PUBLIC_BASE;
 const COMMAND_CENTER_RESOURCE = `${COMMAND_CENTER_PUBLIC_BASE}/mcp`;
 const COMMAND_CENTER_RESOURCE_METADATA = `${COMMAND_CENTER_PUBLIC_BASE}/.well-known/oauth-protected-resource`;
-const COMMAND_CENTER_MCP_SERVER_VERSION = '0.2.0';
+const COMMAND_CENTER_MCP_SERVER_VERSION = '0.3.0';
+const COMMAND_CENTER_CODEX_WORKER_DISCOVERY_DISABLED = true;
+const COMMAND_CENTER_CODEX_WORKER_DISCOVERY_DISABLED_CODE = 'command_center_codex_worker_discovery_permanently_disabled';
+const COMMAND_CENTER_CODEX_WORKER_DISCOVERY_DISABLED_MESSAGE = 'Command Center Codex worker discovery was permanently disabled on 2026-07-27. This operation cannot discover, provision, route, wake, register, lease, or resume Codex workers.';
+const COMMAND_CENTER_CODEX_WORKER_DISCOVERY_DISABLED_OPERATIONS = Object.freeze([
+  'system.health',
+  'jobs.create',
+  'jobs.create_followup',
+  'jobs.dispatch_queued',
+  'jobs.resume',
+  'jobs.answer_question',
+  'agents.create_activation',
+  'agents.get_resume_packet',
+  'agents.record_codex_cloud_ref',
+  'agents.record_artifact',
+  'agents.complete_activation',
+  'workers.provision',
+  'provisioning.inspect',
+  'provisioning.reconcile',
+  'machine_images.register',
+  'machine_images.list',
+  'machine_images.inspect',
+  'codex_sessions.create',
+  'codex_sessions.list',
+  'codex_sessions.inspect',
+  'codex_sessions.reconcile',
+  'hosts.list',
+  'hosts.inspect',
+  'workers.register_oneshot',
+  'workers.wake',
+  'workers.retire',
+  'workers.list',
+  'workers.inspect',
+  'routing.explain',
+  'workers.reconcile',
+  'workers.request_restart',
+  'proof.run_multi_worker',
+  'proof.run_multi_session',
+  'workers.get_capabilities',
+]);
+const COMMAND_CENTER_CODEX_WORKER_DISCOVERY_DISABLED_OPERATION_SET = new Set(COMMAND_CENTER_CODEX_WORKER_DISCOVERY_DISABLED_OPERATIONS);
+const COMMAND_CENTER_CODEX_WORKER_DISCOVERY_DISABLED_TOOL_NAMES = Object.freeze(
+  COMMAND_CENTER_CODEX_WORKER_DISCOVERY_DISABLED_OPERATIONS.map((operation) => `command_center.${operation}`),
+);
+
+function normalizeCodexWorkerDiscoveryOperation(value) {
+  return String(value || '').trim().replace(/^command_center\./, '');
+}
+
+function isCodexWorkerDiscoveryOperationDisabled(operation) {
+  return COMMAND_CENTER_CODEX_WORKER_DISCOVERY_DISABLED_OPERATION_SET.has(normalizeCodexWorkerDiscoveryOperation(operation));
+}
+
+function codexWorkerDiscoveryDisabledError(operation) {
+  const normalizedOperation = normalizeCodexWorkerDiscoveryOperation(operation);
+  const err = new Error(COMMAND_CENTER_CODEX_WORKER_DISCOVERY_DISABLED_MESSAGE);
+  err.status = 410;
+  err.code = COMMAND_CENTER_CODEX_WORKER_DISCOVERY_DISABLED_CODE;
+  err.failureKind = COMMAND_CENTER_CODEX_WORKER_DISCOVERY_DISABLED_CODE;
+  err.operation = normalizedOperation;
+  return err;
+}
+
+function assertCodexWorkerDiscoveryOperationEnabled(operation) {
+  if (COMMAND_CENTER_CODEX_WORKER_DISCOVERY_DISABLED && isCodexWorkerDiscoveryOperationDisabled(operation)) {
+    throw codexWorkerDiscoveryDisabledError(operation);
+  }
+}
+
+function removeDisabledCodexWorkerDiscoveryTools(server) {
+  if (!COMMAND_CENTER_CODEX_WORKER_DISCOVERY_DISABLED) return server;
+  for (const toolName of COMMAND_CENTER_CODEX_WORKER_DISCOVERY_DISABLED_TOOL_NAMES) {
+    delete server._registeredTools[toolName];
+  }
+  return server;
+}
 const HOME_CENTER_AUTHORIZATION_SERVER_BASE = process.env.HOME_CENTER_MCP_PUBLIC_BASE || 'https://us-central1-home-center-dclar.cloudfunctions.net/homeCenterMcp';
 const COMMAND_CENTER_COLLECTIONS = Object.freeze({
   projects: 'commandCenterProjects',
@@ -4633,6 +4708,7 @@ function normalizeCommandCenterOperationName(value) {
 
 async function runCommandCenterOperation(admin, extra, operation, args = {}) {
   const op = normalizeCommandCenterOperationName(operation);
+  assertCodexWorkerDiscoveryOperationEnabled(op);
   const caller = async () => callerFromExtra(admin, extra);
   switch (op) {
     case 'health':
@@ -5000,7 +5076,16 @@ async function listByJob(admin, collectionName, jobId, limit = 50) {
 }
 
 function commandCenterHealthPayload() {
-  return {ok: true, service: 'command-center-mcp', version: COMMAND_CENTER_MCP_SERVER_VERSION};
+  return {
+    ok: true,
+    service: 'command-center-mcp',
+    version: COMMAND_CENTER_MCP_SERVER_VERSION,
+    codexWorkerDiscovery: {
+      state: 'permanently_disabled',
+      code: COMMAND_CENTER_CODEX_WORKER_DISCOVERY_DISABLED_CODE,
+      disabledAt: '2026-07-27',
+    },
+  };
 }
 
 function commandCenterReadinessPayload({admin}) {
@@ -5023,7 +5108,8 @@ function commandCenterCapabilitiesPayload(server) {
     version: COMMAND_CENTER_MCP_SERVER_VERSION,
     summaryKind: 'names_only',
     topLevelTools: Object.keys(server && server._registeredTools || {}).sort(),
-    diagnosticsOperation: 'system.health',
+    diagnosticsOperation: 'health',
+    codexWorkerDiscovery: commandCenterHealthPayload().codexWorkerDiscovery,
   };
 }
 
@@ -5402,7 +5488,7 @@ function createCommandCenterMcpServer({admin}) {
     description: 'Quarantine a stale worker registration without deleting audit history.',
     inputSchema: {idempotencyKey: z.string(), workerId: z.string(), reason: z.string().optional()},
   }, async (args, extra) => textResult(await retireWorker(admin, await callerFromExtra(admin, extra), args || {})));
-  return server;
+  return removeDisabledCodexWorkerDiscoveryTools(server);
 }
 
 function commandCenterProtectedResourceMetadata() {
@@ -5439,6 +5525,16 @@ function createCommandCenterMcpApp({admin}) {
   app.get('/.well-known/oauth-protected-resource', (_req, res) => { res.set('Cache-Control', 'no-store'); res.json(commandCenterProtectedResourceMetadata()); });
   app.get('/.well-known/oauth-authorization-server', (_req, res) => { res.set('Cache-Control', 'no-store'); res.json(commandCenterAuthorizationServerMetadata()); });
   const sendWorkerError = (res, err) => res.status(err.status || 500).json({ok: false, error: safeText(err.message, 500) || 'Command Center worker gateway failure.'});
+  const sendCodexWorkerDiscoveryTombstone = (_req, res) => res.status(410).json({
+    ok: false,
+    error: {
+      code: COMMAND_CENTER_CODEX_WORKER_DISCOVERY_DISABLED_CODE,
+      message: COMMAND_CENTER_CODEX_WORKER_DISCOVERY_DISABLED_MESSAGE,
+      state: 'permanently_disabled',
+      disabledAt: '2026-07-27',
+    },
+  });
+  app.use(['/agent', '/worker'], sendCodexWorkerDiscoveryTombstone);
 
   app.post('/agent/claim', async (req, res) => {
     try {
@@ -5743,6 +5839,14 @@ function createCommandCenterMcpApp({admin}) {
 
 module.exports = {
   COMMAND_CENTER_MCP_SERVER_VERSION,
+  COMMAND_CENTER_CODEX_WORKER_DISCOVERY_DISABLED,
+  COMMAND_CENTER_CODEX_WORKER_DISCOVERY_DISABLED_CODE,
+  COMMAND_CENTER_CODEX_WORKER_DISCOVERY_DISABLED_MESSAGE,
+  COMMAND_CENTER_CODEX_WORKER_DISCOVERY_DISABLED_OPERATIONS,
+  COMMAND_CENTER_CODEX_WORKER_DISCOVERY_DISABLED_TOOL_NAMES,
+  isCodexWorkerDiscoveryOperationDisabled,
+  assertCodexWorkerDiscoveryOperationEnabled,
+  removeDisabledCodexWorkerDiscoveryTools,
   commandCenterHealthPayload,
   commandCenterReadinessPayload,
   commandCenterCapabilitiesPayload,

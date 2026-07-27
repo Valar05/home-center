@@ -1,6 +1,10 @@
 #!/data/data/com.termux/files/usr/bin/sh
 set -eu
 
+echo "command_center_codex_worker_discovery_permanently_disabled: Cloud Codex worker deployment was permanently disabled on 2026-07-27." >&2
+exit 64
+
+# Historical implementation retained below for audit archaeology. It is unreachable.
 ROOT="$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)"
 PROJECT="${1:-${FIREBASE_PROJECT:-home-center-dclar}}"
 REGION="${GCLOUD_REGION:-us-central1}"

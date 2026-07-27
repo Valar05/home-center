@@ -13,7 +13,12 @@ const {toJsonSchemaCompat} = require('./node_modules/@modelcontextprotocol/sdk/d
 const express = require('express');
 const {z} = require('zod/v4');
 const {CARTESIA_DEFAULT_MODEL_ID, CARTESIA_DEFAULT_VOICE_NAME, listCartesiaVoiceCatalog, listCartesiaVoices, normalizeCartesiaVoice, openCartesiaStream} = require('./hosted_speech_provider');
-const {renderBlenderGlb: commandCenterRenderBlenderGlb} = require('./command_center_mcp');
+const {
+  renderBlenderGlb: commandCenterRenderBlenderGlb,
+  COMMAND_CENTER_CODEX_WORKER_DISCOVERY_DISABLED_CODE,
+  isCodexWorkerDiscoveryOperationDisabled,
+  assertCodexWorkerDiscoveryOperationEnabled,
+} = require('./command_center_mcp');
 const cartesiaPitchShift = require('./cartesia_pitch_shift');
 const {renderAudioOperation, audioRenderStatusOperation, inspectAudioArtifactsOperation, uploadVerified: uploadVerifiedArtifact} = require('./audio_render_service');
 const {
@@ -548,11 +553,11 @@ function parseMcpPayload(text, label) {
 }
 
 function commandCenterOperationRegistry() {
-  return {
+  const registry = {
     version: HOME_CENTER_REGISTRY_VERSION,
     invocationTool: 'command_center_operation',
     commandCenterMcpUrl: COMMAND_CENTER_MCP_URL,
-    purpose: 'Expose Command Center dispatch and managed knowledge-bucket operations through the already-installed Home Center MCP connector so ChatGPT can create, inspect, resume, revise, authorize, and preserve worker knowledge without discovering a second MCP app.',
+    purpose: 'Expose retained Command Center project, historical evidence, managed knowledge-bucket operations, app-control, browser, and non-agent render operations through the already-installed Home Center MCP connector. Codex worker discovery and execution initiation are permanently disabled.',
     operations: {
       health: {summary: 'Check Command Center MCP health and tool exposure.', readOnly: true, input: {}},
       'projects.resolve': {summary: 'Resolve an active project before creating a job.', readOnly: false, input: {repository: 'optional string', capability: 'optional string', projectId: 'optional string', idempotencyKey: 'string'}},
@@ -605,6 +610,15 @@ function commandCenterOperationRegistry() {
       'workers.register_oneshot': {summary: 'Register a prepared one-shot Codex worker.', readOnly: false, input: {worker: 'object', idempotencyKey: 'string'}},
     },
   };
+  registry.operations = Object.fromEntries(
+    Object.entries(registry.operations).filter(([operation]) => !isCodexWorkerDiscoveryOperationDisabled(operation)),
+  );
+  registry.codexWorkerDiscovery = {
+    state: 'permanently_disabled',
+    code: COMMAND_CENTER_CODEX_WORKER_DISCOVERY_DISABLED_CODE,
+    disabledAt: '2026-07-27',
+  };
+  return registry;
 }
 
 function supportedCommandCenterOperationTypes() {
@@ -614,6 +628,7 @@ function supportedCommandCenterOperationTypes() {
 function commandCenterToolName(operation) {
   const raw = safeText(operation, 120);
   const op = raw.startsWith('command_center.') ? raw.slice('command_center.'.length) : raw;
+  assertCodexWorkerDiscoveryOperationEnabled(op);
   if (!commandCenterOperationRegistry().operations[op]) throw Object.assign(new Error('Unsupported command_center_operation operation: ' + op), {status: 400});
   return op.startsWith('command_center.') ? op : `command_center.${op}`;
 }
@@ -1315,8 +1330,9 @@ function mcpTextContentJson(result, label) {
 
 async function commandCenterOperationRunOperation({google = null, admin = null, googleClientId = '', googleClientSecret = '', githubToken = () => '', extra, args = {}}) {
   const operation = safeText(args.operation || args.type || args.toolName, 120);
-  const toolName = commandCenterToolName(operation);
   if (!operation) throw Object.assign(new Error('operation is required.'), {status: 400});
+  assertCodexWorkerDiscoveryOperationEnabled(operation);
+  const toolName = commandCenterToolName(operation);
   const context = await requireCreditGatedContext({google, admin, googleClientId, googleClientSecret, extra, surface: 'command_center_operation'});
   const operationArgs = args.args && typeof args.args === 'object' && !Array.isArray(args.args) ? {...args.args} : {...args};
   delete operationArgs.operation;
@@ -7064,4 +7080,4 @@ function createHomeCenterMcpApp({google, admin, googleClientId = () => '', googl
   return app;
 }
 
-module.exports = {homeCenterHealthPayload, homeCenterReadinessPayload, homeCenterCapabilitiesPayload, operationRegistrySummary, CREDIT_GATED_EMAILS, requireCreditGatedEmail, GITHUB_ADMIN_ALLOWED_EMAILS, requireGitHubAdminUser, HOME_CENTER_MCP_SERVER_VERSION, HOME_CENTER_CONNECTOR_SCHEMA_REVISION, HOME_CENTER_REGISTRY_VERSION, HOME_CENTER_DIRECT_FILE_TOOLS, verifiedRenderGifMcpContent, attachRenderGifMcpContent, renderArtifactHashEntry, uploadVerifiedArtifact, createHomeCenterMcpApp, createHomeCenterMcpServer, createDriveFolderOperation, createGoogleDocOperation, appendGoogleDocOperation, publishContextSnapshotOperation, synthesizeCartesiaAudioArtifactOperation, cartesiaVoicesOperation, createSheetOperation, updateSheetValuesOperation, importXlsxWorkbookOperation, readDriveBinaryChunkOperation, compareAudioIngestFileIds, ingestDriveAudioOperation, finalizeDriveAudioIngestBatchOperation, driveOperationRunOperation, driveWorkflowRunOperation, simulationOperationRunOperation, simulationOperationRegistry, droobiedooContextOperationEntries, loadDroobiedooContextIndex, searchDroobiedooContextIndex, runDroobiedooContextOperation, normalizeRecoveryOperation, summarizeRecoveryOperations, loadMcpAccessContext, armoryReceiptOperation, armoryRecountOperation, armoryCasingOperation, renderAudioOperation, inspectAudioArtifactsOperation, materializeHomeCenterRenderDriveRefs, materializeHomeCenterRenderSources, stageHomeCenterGitHubRenderInput, normalizeRenderGitHubSource, githubAdminOperationEntries, githubAdminOperationRunOperation, createGitHubAppJwt};
+module.exports = {commandCenterOperationRegistry, supportedCommandCenterOperationTypes, commandCenterToolName, commandCenterOperationRunOperation, homeCenterHealthPayload, homeCenterReadinessPayload, homeCenterCapabilitiesPayload, operationRegistrySummary, CREDIT_GATED_EMAILS, requireCreditGatedEmail, GITHUB_ADMIN_ALLOWED_EMAILS, requireGitHubAdminUser, HOME_CENTER_MCP_SERVER_VERSION, HOME_CENTER_CONNECTOR_SCHEMA_REVISION, HOME_CENTER_REGISTRY_VERSION, HOME_CENTER_DIRECT_FILE_TOOLS, verifiedRenderGifMcpContent, attachRenderGifMcpContent, renderArtifactHashEntry, uploadVerifiedArtifact, createHomeCenterMcpApp, createHomeCenterMcpServer, createDriveFolderOperation, createGoogleDocOperation, appendGoogleDocOperation, publishContextSnapshotOperation, synthesizeCartesiaAudioArtifactOperation, cartesiaVoicesOperation, createSheetOperation, updateSheetValuesOperation, importXlsxWorkbookOperation, readDriveBinaryChunkOperation, compareAudioIngestFileIds, ingestDriveAudioOperation, finalizeDriveAudioIngestBatchOperation, driveOperationRunOperation, driveWorkflowRunOperation, simulationOperationRunOperation, simulationOperationRegistry, droobiedooContextOperationEntries, loadDroobiedooContextIndex, searchDroobiedooContextIndex, runDroobiedooContextOperation, normalizeRecoveryOperation, summarizeRecoveryOperations, loadMcpAccessContext, armoryReceiptOperation, armoryRecountOperation, armoryCasingOperation, renderAudioOperation, inspectAudioArtifactsOperation, materializeHomeCenterRenderDriveRefs, materializeHomeCenterRenderSources, stageHomeCenterGitHubRenderInput, normalizeRenderGitHubSource, githubAdminOperationEntries, githubAdminOperationRunOperation, createGitHubAppJwt};

@@ -1,5 +1,9 @@
 # Command Center MCP
 
+> Permanent boundary, effective 2026-07-27: Command Center no longer discovers, provisions, routes, wakes, registers, leases, or resumes Codex workers. The `/agent/*` and `/worker/*` gateways return HTTP 410. Worker, host, machine-image, provisioning, Codex-session, routing, multi-worker proof, activation creation, and execution-job initiation operations are removed from advertised MCP capabilities. Historical records and the implementation notes below are retained only as audit archaeology. They are not an available capability.
+>
+> Non-agent Blender rendering, render queues/workers, project records, managed knowledge buckets, app-control, browser operations, and read-only historical job/agent evidence remain separate and are not disabled by this tombstone. The authoritative removal contract is `docs/COMMAND_CENTER_CODEX_WORKER_DISCOVERY_TOMBSTONE.md`.
+
 ## Blender GLB Render File Handoff
 
 For ChatGPT Work Mode uploaded GLB/script files, use the Home Center MCP top-level tool `render_blender_glb`. Do not put `glbFile` or `scriptFile` inside `command_center_operation.args`; nested dispatcher args are JSON and do not activate the host uploader.
@@ -27,9 +31,12 @@ Use the GitHub descriptor for private repository GLBs when ChatGPT cannot see th
 The top-level Home Center tool accepts only host-uploaded `glbFile` and `scriptFile` fields, then invokes the Command Center renderer function directly so the existing upload handler can stage exact bytes and return immutable `gs://` refs. It is a convenience path, not the critical path.
 
 
-Type: cloud MCP control plane / execution dispatch / worker supervision
-Status: v1 one-shot worker substrate
-Date: 2026-07-10
+## Archived Codex Worker Design (Non-Operational)
+
+Type: historical cloud MCP control plane / disabled execution dispatch / disabled worker supervision
+Status: permanently disabled; audit archaeology only
+Original date: 2026-07-10
+Disabled: 2026-07-27
 
 Command Center is a cloud-hosted MCP control plane that ChatGPT calls to dispatch, supervise, and preserve execution work.
 
