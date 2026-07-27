@@ -309,6 +309,10 @@ assert.equal(rendered.ok, true);
 assert.equal(rendered.candidates.length, 2);
 assert.ok(/^[a-f0-9]{64}$/.test(rendered.recipeSha256));
 assert.ok(rendered.candidates.every((candidate) => candidate.state === 'candidate' && candidate.humanAcceptance === 'unreviewed'));
+assert.ok(rendered.candidates.every((candidate) => !Object.hasOwn(candidate.metrics, 'integratedLufs')));
+assert.ok(rendered.candidates.every((candidate) => candidate.metrics.standards.standard === 'EBU R128 / ITU-R BS.1770 via FFmpeg ebur128'));
+assert.ok(rendered.candidates.every((candidate) => Number.isFinite(candidate.metrics.standards.integratedLufs)));
+assert.ok(rendered.candidates.every((candidate) => Number.isFinite(candidate.metrics.standards.truePeakDbtp)));
 assert.equal(rendered.renderManifest.verified, true);
 
 await assert.rejects(
