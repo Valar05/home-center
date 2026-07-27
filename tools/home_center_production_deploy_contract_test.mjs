@@ -11,6 +11,7 @@ assert.match(script, /creditBackedHttp\) deploy_credit_backed_http ;;/);
 assert.equal((workflow.match(/^concurrency:/gm) || []).length, 1);
 assert.match(workflow, /workflow_dispatch:/);
 assert.doesNotMatch(workflow, /^  push:/m);
-assert.match(workflow, /commandCenterMcp homeCenterMcp audioLibraryApi creditBackedHttp/);
+assert.match(workflow, /gcloud services enable speech\.googleapis\.com --project="\$PROJECT"/);
+assert.match(workflow, /deploy_functions_termux\.sh "\$PROJECT" homeCenterMcp/);
 assert.doesNotMatch(workflow, /deploy_command_center_cloud_worker|sheRawMcp|firebase deploy --only firestore/);
 console.log('Home Center production deploy contract: OK');

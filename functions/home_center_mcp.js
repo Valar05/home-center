@@ -18,6 +18,7 @@ const cartesiaPitchShift = require('./cartesia_pitch_shift');
 const {renderAudioOperation, audioRenderStatusOperation, inspectAudioArtifactsOperation, uploadVerified: uploadVerifiedArtifact} = require('./audio_render_service');
 const {
   analyzeSourceOperation,
+  transcribeSlateOperation,
   segmentSourceOperation,
   renderSourceConditionedOperation,
   sfxForgeStatusOperation,
@@ -4110,7 +4111,7 @@ function runDroobiedooContextOperation(operation, args = {}) {
 
 function driveOperationRegistry() {
   return {
-    version: '2026-07-27.sfx-forge-v1',
+    version: '2026-07-27.sfx-forge-v2',
     invocationTool: 'drive_operation',
     cachePolicy: 'New bridge and simulation operations should be invokable through drive_operation so ChatGPT does not need a top-level MCP tool refresh for every backend code change. Cartesia TTS is a direct Home Center MCP provider operation; it must not be routed through Command Center jobs or workers.',
     operations: {
@@ -4261,12 +4262,20 @@ function driveOperationRegistry() {
         output: {ok: 'boolean', status: 'missing|running|completed|failed', requestId: 'string', result: 'completed receipt when available'},
       },
       'sfx.analyze_source': {
-        summary: 'Verify one immutable canonical SFX source, decode a hashed PCM working descendant, measure EBU R128/BS.1770 loudness and true peak, detect transient candidates, transcribe spoken slate segments, and publish waveform/spectrogram/analysis evidence without replacing the source.',
+        summary: 'Verify one immutable canonical SFX source, decode a hashed PCM working descendant, measure EBU R128/BS.1770 loudness and true peak, detect transient candidates, and publish waveform/spectrogram/analysis evidence without replacing the source or calling a speech provider.',
         write: true,
         requiresRequestId: true,
         requiredScopes: [],
-        input: {sourceRef: 'immutable canonical gs:// audio ref', expectedSha256: 'required immutable parent SHA-256', requestId: 'stable idempotency key', approved: 'must be true for execution authorization; never artistic acceptance', family: 'SFX family name', transcription: 'optional object with enabled and model', publishToDrive: 'optional boolean; publishes verified descendants to Drive', parentFolderId: 'optional Drive folder id'},
-        output: {source: 'verified immutable parent receipt', decode: 'hashed PCM16 WAV working descendant', measurements: 'sample metrics plus EBU R128/ITU-R BS.1770 evidence', transientAnalysis: 'ordered mechanical candidates', transcription: 'timestamped provider slate assist', artifacts: 'verified GCS descendants with optional Drive refs', humanAcceptance: 'always unreviewed'},
+        input: {sourceRef: 'immutable canonical gs:// audio ref', expectedSha256: 'required immutable parent SHA-256', requestId: 'stable idempotency key', approved: 'must be true for execution authorization; never artistic acceptance', family: 'SFX family name', publishToDrive: 'optional boolean; publishes verified descendants to Drive', parentFolderId: 'optional Drive folder id'},
+        output: {source: 'verified immutable parent receipt', decode: 'hashed PCM16 WAV working descendant', measurements: 'sample metrics plus EBU R128/ITU-R BS.1770 evidence', transientAnalysis: 'ordered mechanical candidates', artifacts: 'verified GCS descendants with optional Drive refs', humanAcceptance: 'always unreviewed'},
+      },
+      'sfx.transcribe_slate': {
+        summary: 'Create a hashed 16 kHz mono FLAC descendant and use Google Cloud Speech-to-Text through project identity to return word-timestamped spoken-slate evidence without rerunning mechanical analysis.',
+        write: true,
+        requiresRequestId: true,
+        requiredScopes: [],
+        input: {sourceRef: 'immutable canonical gs:// audio ref', expectedSha256: 'required immutable parent SHA-256', requestId: 'stable idempotency key', approved: 'execution authorization only', family: 'SFX family name', transcription: 'optional object with languageCode, model, and explicit phrase hints', publishToDrive: 'optional boolean', parentFolderId: 'optional Drive folder id'},
+        output: {source: 'verified immutable parent receipt', recognitionInput: 'hashed FLAC working descendant and recipe', transcription: 'Google Cloud segments, words, confidence, timestamps, and provenance', artifacts: 'verified descendants with optional Drive refs', humanAcceptance: 'always unreviewed'},
       },
       'sfx.segment': {
         summary: 'Turn an ordered human-readable event manifest into immutable-parent raw cuts, conservative cleaned dry cuts, rejected cuts, component categories, a normalized navigation reel, and a raw-versus-cleaned A/B reel.',
@@ -4837,7 +4846,7 @@ async function ingestDriveAudioOperation({google, admin, auth, user, args = {}, 
   }
 }
 
-async function driveOperationRunOperation({google, admin, auth, user, extra = null, googleClientId = '', googleClientSecret = '', githubToken = () => '', githubAdmin = {}, cartesiaApiKey = () => '', openAiApiKey = () => '', args = {}}) {
+async function driveOperationRunOperation({google, admin, auth, user, extra = null, googleClientId = '', googleClientSecret = '', githubToken = () => '', githubAdmin = {}, cartesiaApiKey = () => '', args = {}}) {
   const operation = safeText(args.operation || args.type || args.toolName, 120);
   if (!operation) throw Object.assign(new Error('operation is required.'), {status: 400});
   const registry = driveOperationRegistry();
@@ -4913,7 +4922,12 @@ async function driveOperationRunOperation({google, admin, auth, user, extra = nu
   }
   if (operation === 'sfx.analyze_source') {
     requireCreditGatedEmail(user && user.email, 'sfx.analyze_source');
-    const result = await analyzeSourceOperation({google, auth, admin, user, openAiApiKey, args: operationArgs, helpers: {createRequestId, existingAudit, auditWrite}});
+    const result = await analyzeSourceOperation({google, auth, admin, user, args: operationArgs, helpers: {createRequestId, existingAudit, auditWrite}});
+    return {operation, registryVersion: registry.version, completed: result.status === 'completed', result};
+  }
+  if (operation === 'sfx.transcribe_slate') {
+    requireCreditGatedEmail(user && user.email, 'sfx.transcribe_slate');
+    const result = await transcribeSlateOperation({google, auth, admin, user, args: operationArgs, helpers: {createRequestId, existingAudit, auditWrite}});
     return {operation, registryVersion: registry.version, completed: result.status === 'completed', result};
   }
   if (operation === 'sfx.segment') {
@@ -5166,7 +5180,7 @@ function homeCenterCapabilitiesPayload(server) {
   };
 }
 
-function createHomeCenterMcpServer({google, admin, googleClientId, googleClientSecret, githubToken = () => '', githubAdmin = {}, cartesiaApiKey = () => '', openAiApiKey = () => ''}) {
+function createHomeCenterMcpServer({google, admin, googleClientId, googleClientSecret, githubToken = () => '', githubAdmin = {}, cartesiaApiKey = () => ''}) {
   const server = new McpServer({
     name: 'home-center-drive-bridge',
     version: HOME_CENTER_MCP_SERVER_VERSION,
@@ -5461,10 +5475,10 @@ function createHomeCenterMcpServer({google, admin, googleClientId, googleClientS
   }, async (args, extra) => {
     const operation = safeText((args || {}).operation || (args || {}).type || (args || {}).toolName, 120);
     if (operation.startsWith('command_center.') || commandCenterCompatOperation(args || {})) {
-      return mcpToolResult(await driveOperationRunOperation({google, admin, auth: null, user: null, extra, googleClientId, googleClientSecret, githubAdmin, cartesiaApiKey, openAiApiKey, args: args || {}}));
+      return mcpToolResult(await driveOperationRunOperation({google, admin, auth: null, user: null, extra, googleClientId, googleClientSecret, githubAdmin, cartesiaApiKey, args: args || {}}));
     }
     const {auth, user} = await requestGoogleContext(extra, google, admin, googleClientId, googleClientSecret);
-    return mcpToolResult(await driveOperationRunOperation({google, admin, auth, user, extra, googleClientId, googleClientSecret, githubAdmin, cartesiaApiKey, openAiApiKey, args: args || {}}));
+    return mcpToolResult(await driveOperationRunOperation({google, admin, auth, user, extra, googleClientId, googleClientSecret, githubAdmin, cartesiaApiKey, args: args || {}}));
   });
 
   server.registerTool('auth_status', {
@@ -6233,7 +6247,7 @@ function createHomeCenterMcpServer({google, admin, googleClientId, googleClientS
   return server;
 }
 
-function createHomeCenterMcpApp({google, admin, googleClientId = () => '', googleClientSecret = () => '', githubToken = () => '', githubAdmin = {}, cartesiaApiKey = () => '', openAiApiKey = () => ''}) {
+function createHomeCenterMcpApp({google, admin, googleClientId = () => '', googleClientSecret = () => '', githubToken = () => '', githubAdmin = {}, cartesiaApiKey = () => ''}) {
   const app = express();
   app.use(express.json({limit: '80mb'}));
   app.use(express.urlencoded({extended: false, limit: '256kb'}));
@@ -6668,7 +6682,7 @@ function createHomeCenterMcpApp({google, admin, googleClientId = () => '', googl
     res.on('close', () => {
       delete transports[transport.sessionId];
     });
-    const server = createHomeCenterMcpServer({google, admin, googleClientId, googleClientSecret, githubToken, githubAdmin, cartesiaApiKey, openAiApiKey});
+    const server = createHomeCenterMcpServer({google, admin, googleClientId, googleClientSecret, githubToken, githubAdmin, cartesiaApiKey});
     await server.connect(transport);
   });
 
@@ -6694,7 +6708,7 @@ function createHomeCenterMcpApp({google, admin, googleClientId = () => '', googl
       res.status(405).json({jsonrpc: '2.0', error: {code: -32000, message: 'Method not allowed.'}, id: null});
       return;
     }
-      const server = createHomeCenterMcpServer({google, admin, googleClientId, googleClientSecret, githubToken, githubAdmin, cartesiaApiKey, openAiApiKey});
+      const server = createHomeCenterMcpServer({google, admin, googleClientId, googleClientSecret, githubToken, githubAdmin, cartesiaApiKey});
     const transport = new StreamableHTTPServerTransport({sessionIdGenerator: undefined});
     let closed = false;
     const closeTransport = async () => {

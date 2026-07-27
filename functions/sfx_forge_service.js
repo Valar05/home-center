@@ -3,6 +3,7 @@ const fs = require('node:fs/promises');
 const os = require('node:os');
 const path = require('node:path');
 const {spawn} = require('node:child_process');
+const speech = require('@google-cloud/speech');
 let ffmpegPath = process.env.FFMPEG_PATH || '';
 if (!ffmpegPath) {
   try {
@@ -45,7 +46,9 @@ const SCHEMA_VERSION = 'home-center.sfx-forge.v1';
 const MAX_SOURCE_BYTES = Number(process.env.HOME_CENTER_SFX_MAX_SOURCE_BYTES || 25 * 1024 * 1024);
 const MAX_EVENTS = Number(process.env.HOME_CENTER_SFX_MAX_EVENTS || 240);
 const MAX_CANDIDATES = Number(process.env.HOME_CENTER_SFX_MAX_CANDIDATES || 32);
-const DEFAULT_TRANSCRIPTION_MODEL = process.env.HOME_CENTER_SFX_TRANSCRIPTION_MODEL || 'gpt-4o-transcribe-diarize';
+const DEFAULT_TRANSCRIPTION_MODEL = process.env.HOME_CENTER_SFX_TRANSCRIPTION_MODEL || 'latest_long';
+const DEFAULT_TRANSCRIPTION_LANGUAGE = process.env.HOME_CENTER_SFX_TRANSCRIPTION_LANGUAGE || 'en-US';
+let sharedGoogleSpeechClient = null;
 
 function forgeError(message, status = 400, code = 'sfx_forge_failed') {
   const err = new Error(message);
@@ -161,6 +164,31 @@ async function decodeWorkingPcm(source) {
   return withSourceFiles(source, async ({dir, input}) => {
     const output = path.join(dir, 'working-pcm16.wav');
     await runProcess(ffmpegPath, ['-hide_banner', '-nostdin', '-y', '-i', input, '-map', '0:a:0', '-ar', '48000', '-ac', '2', '-c:a', 'pcm_s16le', output]);
+    return fs.readFile(output);
+  });
+}
+
+async function buildSlateRecognitionFlac(source) {
+  return withSourceFiles(source, async ({dir, input}) => {
+    const output = path.join(dir, 'slate-asr-16k-mono.flac');
+    await runProcess(ffmpegPath, [
+      '-hide_banner',
+      '-nostdin',
+      '-y',
+      '-i',
+      input,
+      '-map',
+      '0:a:0',
+      '-ar',
+      '16000',
+      '-ac',
+      '1',
+      '-c:a',
+      'flac',
+      '-compression_level',
+      '8',
+      output,
+    ]);
     return fs.readFile(output);
   });
 }
@@ -339,55 +367,101 @@ function detectTransients(clip) {
   };
 }
 
-async function transcribeSlate(source, openAiApiKey, options = {}) {
-  if (options.enabled === false) return null;
-  const apiKey = typeof openAiApiKey === 'function' ? openAiApiKey() : openAiApiKey;
-  if (!safeText(apiKey, 1000)) throw forgeError('OPENAI_API_KEY is not configured for slate transcription.', 503, 'sfx_forge_transcription_unavailable');
-  const model = safeText(options.model, 120) || DEFAULT_TRANSCRIPTION_MODEL;
-  const form = new FormData();
-  form.set('file', new Blob([source.bytes], {type: source.mimeType || 'audio/mp4'}), source.name || 'source.m4a');
-  form.set('model', model);
-  if (model === 'gpt-4o-transcribe-diarize') {
-    form.set('response_format', 'diarized_json');
-    form.set('chunking_strategy', 'auto');
-  } else if (model === 'whisper-1') {
-    form.set('response_format', 'verbose_json');
-    form.append('timestamp_granularities[]', 'segment');
-    form.append('timestamp_granularities[]', 'word');
-  } else {
-    form.set('response_format', 'json');
+function protobufDurationSeconds(value) {
+  if (!value || typeof value !== 'object') return 0;
+  const seconds = safeNumber(value.seconds, 0);
+  const nanos = safeNumber(value.nanos, 0);
+  return seconds + nanos / 1e9;
+}
+
+function googleSpeechClient(client = null) {
+  if (client) return client;
+  if (!sharedGoogleSpeechClient) sharedGoogleSpeechClient = new speech.SpeechClient();
+  return sharedGoogleSpeechClient;
+}
+
+function normalizeGoogleSpeechResponse(response = {}) {
+  const segments = [];
+  const words = [];
+  for (const [index, result] of (Array.isArray(response.results) ? response.results : []).entries()) {
+    const alternative = result && Array.isArray(result.alternatives) ? result.alternatives[0] : null;
+    if (!alternative) continue;
+    const segmentWords = (Array.isArray(alternative.words) ? alternative.words : []).map((entry) => ({
+      word: safeText(entry.word, 300),
+      start: Number(protobufDurationSeconds(entry.startTime).toFixed(3)),
+      end: Number(protobufDurationSeconds(entry.endTime).toFixed(3)),
+      confidence: Number.isFinite(entry.confidence) ? entry.confidence : null,
+      speakerTag: Number.isFinite(entry.speakerTag) ? entry.speakerTag : null,
+    }));
+    words.push(...segmentWords);
+    const resultEnd = protobufDurationSeconds(result.resultEndTime);
+    segments.push({
+      id: `speech-${String(index + 1).padStart(3, '0')}`,
+      start: segmentWords.length ? segmentWords[0].start : null,
+      end: segmentWords.length ? segmentWords[segmentWords.length - 1].end : resultEnd || null,
+      text: safeText(alternative.transcript, 4000),
+      confidence: Number.isFinite(alternative.confidence) ? alternative.confidence : null,
+      words: segmentWords,
+    });
   }
-  const response = await fetch('https://api.openai.com/v1/audio/transcriptions', {
-    method: 'POST',
-    headers: {Authorization: `Bearer ${apiKey}`},
-    body: form,
-  });
-  const text = await response.text();
-  let payload = null;
-  try { payload = text ? JSON.parse(text) : {}; } catch (_) { payload = {text}; }
-  if (!response.ok) throw forgeError(`Slate transcription failed: HTTP ${response.status} ${safeText(payload && (payload.error && payload.error.message || payload.text), 600)}`, 502, 'sfx_forge_transcription_failed');
   return {
-    provider: 'openai',
-    endpoint: 'audio.transcriptions',
-    model,
-    responseFormat: model === 'gpt-4o-transcribe-diarize' ? 'diarized_json' : model === 'whisper-1' ? 'verbose_json' : 'json',
-    responseSha256: sha256Hex(Buffer.from(stableJson(payload), 'utf8')),
-    text: safeText(payload.text, 20000),
-    language: safeText(payload.language, 80),
-    duration: safeNumber(payload.duration, 0) || null,
-    segments: Array.isArray(payload.segments) ? payload.segments.map((segment) => ({
-      id: segment.id,
-      speaker: safeText(segment.speaker, 80),
-      start: safeNumber(segment.start, 0),
-      end: safeNumber(segment.end, 0),
-      text: safeText(segment.text, 4000),
-      avgLogprob: Number.isFinite(segment.avg_logprob) ? segment.avg_logprob : null,
-      noSpeechProbability: Number.isFinite(segment.no_speech_prob) ? segment.no_speech_prob : null,
-    })) : [],
-    words: Array.isArray(payload.words) ? payload.words.map((word) => ({start: safeNumber(word.start, 0), end: safeNumber(word.end, 0), word: safeText(word.word, 300)})) : [],
-    usage: payload.usage || null,
-    semanticAuthority: 'transcription_assist_only_source_audio_remains_authority',
+    segments,
+    words,
+    text: safeText(segments.map((segment) => segment.text).filter(Boolean).join(' '), 20000),
   };
+}
+
+async function transcribeSlateWithGoogle({asrRef, asrSha256, parentRef, parentSha256}, options = {}, client = null) {
+  const model = safeText(options.model, 120) || DEFAULT_TRANSCRIPTION_MODEL;
+  const languageCode = safeText(options.languageCode, 80) || DEFAULT_TRANSCRIPTION_LANGUAGE;
+  const phrases = Array.isArray(options.phrases)
+    ? options.phrases.map((value) => safeText(value, 120)).filter(Boolean).slice(0, 100)
+    : [];
+  const config = {
+    encoding: 'FLAC',
+    sampleRateHertz: 16000,
+    audioChannelCount: 1,
+    languageCode,
+    model,
+    enableAutomaticPunctuation: true,
+    enableWordTimeOffsets: true,
+    enableWordConfidence: true,
+    maxAlternatives: 1,
+    profanityFilter: false,
+  };
+  if (phrases.length) config.speechContexts = [{phrases}];
+  const request = {config, audio: {uri: asrRef}};
+  let response;
+  try {
+    const [operation] = await googleSpeechClient(client).longRunningRecognize(request);
+    [response] = await operation.promise();
+  } catch (err) {
+    throw forgeError(`Google Cloud slate transcription failed: ${safeText(err && err.message, 800)}`, 502, 'sfx_forge_transcription_failed');
+  }
+  const normalized = normalizeGoogleSpeechResponse(response);
+  const evidence = {
+    provider: 'google_cloud_speech_to_text',
+    apiVersion: 'v1',
+    method: 'speech.longRunningRecognize',
+    authentication: 'application_default_credentials_project_identity',
+    model,
+    languageCode,
+    sourceAudioRef: parentRef,
+    parentSha256,
+    recognitionInputRef: asrRef,
+    recognitionInputSha256: asrSha256,
+    recognitionInputFormat: {container: 'FLAC', sampleRateHertz: 16000, channels: 1, normalized: false},
+    config: {
+      enableAutomaticPunctuation: true,
+      enableWordTimeOffsets: true,
+      enableWordConfidence: true,
+      phraseCount: phrases.length,
+    },
+    ...normalized,
+    semanticAuthority: 'transcription_assist_only_source_audio_remains_authority',
+    humanAcceptance: 'unreviewed',
+  };
+  return {...evidence, responseSha256: sha256Hex(Buffer.from(stableJson(evidence), 'utf8'))};
 }
 
 function artifactReceipt(artifact, role = '') {
@@ -491,7 +565,7 @@ async function withForgeIdempotency({operation, user, admin, args, helpers, run}
   }
 }
 
-async function analyzeSourceOperation({google, auth, admin, user, openAiApiKey = () => '', args = {}, helpers = {}}) {
+async function analyzeSourceOperation({google, auth, admin, user, args = {}, helpers = {}}) {
   return withForgeIdempotency({
     operation: 'sfx.analyze_source',
     user,
@@ -499,6 +573,9 @@ async function analyzeSourceOperation({google, auth, admin, user, openAiApiKey =
     args,
     helpers,
     run: async ({requestId, inputSha256}) => {
+      if (args.transcription && args.transcription.enabled === true) {
+        throw forgeError('Slate transcription is a separate Google Cloud stage. Run sfx.transcribe_slate after analysis.', 400, 'sfx_forge_transcription_stage_required');
+      }
       const source = await materializeImmutableSource(args);
       const wavBytes = await decodeWorkingPcm(source);
       const clip = decodeWav(wavBytes);
@@ -508,7 +585,6 @@ async function analyzeSourceOperation({google, auth, admin, user, openAiApiKey =
         : 0;
       const r128 = await standardsMetrics(source);
       const transientAnalysis = detectTransients(clip);
-      const transcription = await transcribeSlate(source, openAiApiKey, args.transcription || {});
       const uploaded = [];
       uploaded.push(await uploadForgeArtifact(args, requestId, {name: 'working-pcm16.wav', mimeType: 'audio/wav', bytes: wavBytes, stage: 'working', artifactType: 'working-descendant'}, google, auth));
       uploaded.push(await uploadForgeArtifact(args, requestId, {name: 'source-waveform.png', mimeType: 'image/png', bytes: waveformPng(clip, 1800, 480), stage: 'evidence', artifactType: 'waveform'}, google, auth));
@@ -545,7 +621,7 @@ async function analyzeSourceOperation({google, auth, admin, user, openAiApiKey =
           standards: r128,
         },
         transientAnalysis,
-        transcription,
+        transcription: null,
         semanticAuthority: 'source_audio',
         metricsGrantArtisticAcceptance: false,
         humanAcceptance: 'unreviewed',
@@ -553,19 +629,96 @@ async function analyzeSourceOperation({google, auth, admin, user, openAiApiKey =
       const reportBytes = Buffer.from(JSON.stringify(report, null, 2), 'utf8');
       const reportUpload = await uploadForgeArtifact(args, requestId, {name: 'source-analysis.json', mimeType: 'application/json', bytes: reportBytes, stage: 'qa', artifactType: 'analysis'}, google, auth);
       uploaded.push(reportUpload);
-      if (transcription) {
-        const transcriptBytes = Buffer.from(JSON.stringify(transcription, null, 2), 'utf8');
-        uploaded.push(await uploadForgeArtifact(args, requestId, {name: 'spoken-slate-transcription.json', mimeType: 'application/json', bytes: transcriptBytes, stage: 'annotations', artifactType: 'transcription'}, google, auth));
-      }
       return {
         source: report.source,
         decode: report.decode,
         measurements: report.measurements,
         transientAnalysis,
-        transcription,
+        transcription: null,
         artifacts: uploaded.map((artifact) => artifactReceipt(artifact)),
         analysisManifest: artifactReceipt(reportUpload, 'source-analysis'),
         canonicalSourceReplaced: false,
+      };
+    },
+  });
+}
+
+async function transcribeSlateOperation({google, auth, admin, user, speechClient = null, args = {}, helpers = {}}) {
+  return withForgeIdempotency({
+    operation: 'sfx.transcribe_slate',
+    user,
+    admin,
+    args,
+    helpers,
+    run: async ({requestId, inputSha256}) => {
+      const source = await materializeImmutableSource(args);
+      const asrBytes = await buildSlateRecognitionFlac(source);
+      const asrUpload = await uploadForgeArtifact(args, requestId, {
+        name: 'slate-asr-16k-mono.flac',
+        mimeType: 'audio/flac',
+        bytes: asrBytes,
+        stage: 'working',
+        artifactType: 'speech-recognition-descendant',
+      }, google, auth);
+      const transcription = await transcribeSlateWithGoogle({
+        asrRef: asrUpload.storageRef,
+        asrSha256: asrUpload.sha256,
+        parentRef: args.sourceRef,
+        parentSha256: source.sha256,
+      }, args.transcription || {}, speechClient);
+      const manifest = {
+        schemaVersion: SCHEMA_VERSION,
+        engineVersion: ENGINE_VERSION,
+        operation: 'sfx.transcribe_slate',
+        requestId,
+        inputSha256,
+        source: {
+          storageRef: args.sourceRef,
+          name: source.name,
+          mimeType: source.mimeType,
+          byteCount: source.byteCount,
+          sha256: source.sha256,
+          immutableParent: true,
+          canonicalReplaced: false,
+        },
+        recognitionInput: {
+          storageRef: asrUpload.storageRef,
+          byteCount: asrUpload.byteCount,
+          sha256: asrUpload.sha256,
+          format: 'FLAC 16 kHz mono',
+          normalized: false,
+          recipe: {
+            tool: 'ffmpeg',
+            sourceStream: '0:a:0',
+            sampleRateHertz: 16000,
+            channels: 1,
+            codec: 'flac',
+            compressionLevel: 8,
+          },
+        },
+        transcription,
+        semanticAuthority: 'source_audio',
+        humanAcceptance: 'unreviewed',
+      };
+      const transcriptUpload = await uploadForgeArtifact(args, requestId, {
+        name: 'spoken-slate-transcription.json',
+        mimeType: 'application/json',
+        bytes: Buffer.from(JSON.stringify(manifest, null, 2), 'utf8'),
+        stage: 'annotations',
+        artifactType: 'transcription',
+      }, google, auth);
+      return {
+        source: manifest.source,
+        recognitionInput: manifest.recognitionInput,
+        transcription,
+        artifacts: [
+          artifactReceipt(asrUpload, 'speech-recognition-input'),
+          artifactReceipt(transcriptUpload, 'spoken-slate-transcription'),
+        ],
+        transcriptManifest: artifactReceipt(transcriptUpload, 'spoken-slate-transcription'),
+        canonicalSourceReplaced: false,
+        providerExecution: 'google_cloud_project_identity',
+        remoteOpenAiApiUsed: false,
       };
     },
   });
@@ -861,7 +1014,9 @@ module.exports = {
   ENGINE_VERSION,
   SCHEMA_VERSION,
   DEFAULT_TRANSCRIPTION_MODEL,
+  DEFAULT_TRANSCRIPTION_LANGUAGE,
   analyzeSourceOperation,
+  transcribeSlateOperation,
   segmentSourceOperation,
   renderSourceConditionedOperation,
   sfxForgeStatusOperation,
@@ -875,6 +1030,8 @@ module.exports = {
     applyLayerProcessing,
     standardsMetrics,
     decodeWorkingPcm,
-    transcribeSlate,
+    buildSlateRecognitionFlac,
+    normalizeGoogleSpeechResponse,
+    transcribeSlateWithGoogle,
   },
 };

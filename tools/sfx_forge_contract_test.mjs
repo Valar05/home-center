@@ -8,6 +8,7 @@ const require = createRequire(import.meta.url);
 const {uploadGeneratedArtifact} = require('../functions/artifact_bucket.js');
 const {
   analyzeSourceOperation,
+  transcribeSlateOperation,
   segmentSourceOperation,
   renderSourceConditionedOperation,
   sfxForgeStatusOperation,
@@ -63,11 +64,49 @@ const helpers = {
   },
 };
 const user = {email: 'dclarke1005@gmail.com', authKind: 'contract-test'};
+const speechClient = {
+  async longRunningRecognize(request) {
+    assert.equal(request.audio.uri.startsWith('gs://'), true);
+    assert.equal(request.config.encoding, 'FLAC');
+    assert.equal(request.config.sampleRateHertz, 16000);
+    assert.equal(request.config.enableWordTimeOffsets, true);
+    return [{
+      async promise() {
+        return [{
+          results: [
+            {
+              alternatives: [{
+                transcript: 'room tone',
+                confidence: 0.96,
+                words: [
+                  {word: 'room', startTime: {seconds: 0, nanos: 100000000}, endTime: {seconds: 0, nanos: 350000000}, confidence: 0.97},
+                  {word: 'tone', startTime: {seconds: 0, nanos: 360000000}, endTime: {seconds: 0, nanos: 620000000}, confidence: 0.95},
+                ],
+              }],
+            },
+            {
+              alternatives: [{
+                transcript: 'clean body punch take one',
+                confidence: 0.91,
+                words: [
+                  {word: 'clean', startTime: {seconds: 0, nanos: 700000000}, endTime: {seconds: 0, nanos: 820000000}, confidence: 0.93},
+                  {word: 'body', startTime: {seconds: 0, nanos: 830000000}, endTime: {seconds: 0, nanos: 930000000}, confidence: 0.92},
+                  {word: 'punch', startTime: {seconds: 0, nanos: 940000000}, endTime: {seconds: 1, nanos: 50000000}, confidence: 0.91},
+                  {word: 'take', startTime: {seconds: 1, nanos: 60000000}, endTime: {seconds: 1, nanos: 130000000}, confidence: 0.9},
+                  {word: 'one', startTime: {seconds: 1, nanos: 140000000}, endTime: {seconds: 1, nanos: 200000000}, confidence: 0.89},
+                ],
+              }],
+            },
+          ],
+        }];
+      },
+    }];
+  },
+};
 
 const analyzed = await analyzeSourceOperation({
   admin: {},
   user,
-  openAiApiKey: () => '',
   helpers,
   args: {
     sourceRef: source.storageRef,
@@ -98,10 +137,51 @@ assert.ok(analyzed.artifacts.every((artifact) => artifact.verified && artifact.s
 assert.equal(analyzed.noCommandCenter, true);
 assert.equal(analyzed.noCodexWorker, true);
 
+await assert.rejects(
+  () => analyzeSourceOperation({
+    admin: {},
+    user,
+    helpers,
+    args: {
+      sourceRef: source.storageRef,
+      expectedSha256: source.sha256,
+      requestId: 'sfx-forge-analyze-transcription-rejected',
+      approved: true,
+      transcription: {enabled: true},
+    },
+  }),
+  /separate Google Cloud stage/,
+);
+
+const transcribed = await transcribeSlateOperation({
+  admin: {},
+  user,
+  speechClient,
+  helpers,
+  args: {
+    sourceRef: source.storageRef,
+    expectedSha256: source.sha256,
+    requestId: 'sfx-forge-transcribe-contract',
+    approved: true,
+    owner: 'drew',
+    ownerEmail: user.email,
+    family: 'heavy-bag',
+    transcription: {languageCode: 'en-US', model: 'latest_long'},
+  },
+});
+assert.equal(transcribed.ok, true);
+assert.equal(transcribed.providerExecution, 'google_cloud_project_identity');
+assert.equal(transcribed.remoteOpenAiApiUsed, false);
+assert.equal(transcribed.transcription.provider, 'google_cloud_speech_to_text');
+assert.equal(transcribed.transcription.words.length, 7);
+assert.equal(transcribed.transcription.segments[1].start, 0.7);
+assert.equal(transcribed.recognitionInput.format, 'FLAC 16 kHz mono');
+assert.equal(transcribed.recognitionInput.normalized, false);
+assert.ok(transcribed.artifacts.every((artifact) => artifact.verified && artifact.sha256 === artifact.readbackSha256));
+
 const replay = await analyzeSourceOperation({
   admin: {},
   user,
-  openAiApiKey: () => '',
   helpers,
   args: {
     sourceRef: source.storageRef,
@@ -259,7 +339,9 @@ assert.equal(status.status, 'completed');
 assert.equal(status.humanAcceptance, 'unreviewed');
 
 const deployScript = readFileSync(new URL('./deploy_functions_termux.sh', import.meta.url), 'utf8');
-assert.match(deployScript, /OPENAI_API_KEY=OPENAI_API_KEY:latest/, 'homeCenterMcp deploy must bind the existing OpenAI transcription secret');
+const homeCenterSecrets = deployScript.match(/home_center_mcp_secrets_arg\(\) \{([\s\S]*?)\n\}/);
+assert.ok(homeCenterSecrets, 'homeCenterMcp secret binding helper must exist');
+assert.doesNotMatch(homeCenterSecrets[1], /OPENAI_API_KEY/, 'homeCenterMcp must not bind the dead OpenAI transcription secret');
 
 assert.equal(silence({duration: 0.01, sampleRate: 48000, channels: 2}).sampleRate, 48000);
 console.log(JSON.stringify({
@@ -267,6 +349,7 @@ console.log(JSON.stringify({
   engineVersion: ENGINE_VERSION,
   schemaVersion: SCHEMA_VERSION,
   analyzedArtifacts: analyzed.artifacts.length,
+  transcriptionArtifacts: transcribed.artifacts.length,
   detectedTransients: analyzed.transientAnalysis.candidates.length,
   segmentedEvents: segmented.events.length,
   renderedCandidates: rendered.candidates.length,
