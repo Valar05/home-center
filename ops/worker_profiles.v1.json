@@ -126,6 +126,28 @@
       "profile": "browser-session",
       "state": "target",
       "promotionGate": "Prove one isolated browser session per instance and bounded session cleanup before cloud promotion."
+    },
+    "fortress-model-foundry": {
+      "profile": "media-forge-light",
+      "state": "bound",
+      "reason": "Direct glTF compilation owns one isolated artifact per instance and scales independent namespaced jobs across instances.",
+      "deployment": {
+        "path": "tools/deploy_foundry_worker.sh",
+        "kind": "cloud-functions",
+        "resourceNameDefault": "foundryassetworker",
+        "requiredMarkers": [
+          "worker_profile_contract.mjs\" shell fortress-model-foundry",
+          "validate-resolved fortress-model-foundry",
+          "verify-live fortress-model-foundry",
+          "--concurrency=\"$WORKER_CONCURRENCY\""
+        ],
+        "forbiddenMarkers": [
+          "FOUNDRY_WORKER_CPU",
+          "FOUNDRY_WORKER_MEMORY",
+          "FOUNDRY_WORKER_CONCURRENCY",
+          "FOUNDRY_WORKER_MAX_INSTANCES"
+        ]
+      }
     }
   },
   "deploymentDiscovery": {

@@ -153,3 +153,7 @@ The contract is healthy when:
 - the MCP control plane remains outside forge profiles;
 - target assignments cannot be described as deployed;
 - resource promotions carry same-input runtime evidence.
+
+## Fortress Model Foundry
+
+`fortress-model-foundry` is bound to `media-forge-light` through `tools/deploy_foundry_worker.sh`. Each instance owns one direct-GLB compilation, scales to zero, and accepts independent namespaced jobs up to the profile maximum. The worker never invokes Blender and publishes only hash-addressed outputs. Deployment is incomplete until the script verifies the backing Cloud Run service against `ops/worker_profiles.v1.json`.
