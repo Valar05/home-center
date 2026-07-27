@@ -159,7 +159,7 @@ async function main() {
   const resourceMetadataResponse = await fetch(`${base}/.well-known/oauth-protected-resource`);
   const resourceMetadataText = await resourceMetadataResponse.text();
   const resourceMetadata = parseJson(resourceMetadataText, 'home protected resource metadata');
-  add('protected_resource_metadata_exposes_catalog_revision', resourceMetadataResponse.status === 200 && resourceMetadata.connector_schema_revision === '2026-07-25.blender-direct-file-catalog-v1' && Array.isArray(resourceMetadata.direct_file_tools) && resourceMetadata.direct_file_tools.includes('render_blender_glb'), {status: resourceMetadataResponse.status, connector_schema_revision: resourceMetadata.connector_schema_revision || '', registry_version: resourceMetadata.registry_version || '', direct_file_tools: resourceMetadata.direct_file_tools || []});
+  add('protected_resource_metadata_exposes_catalog_revision', resourceMetadataResponse.status === 200 && resourceMetadata.connector_schema_revision === '2026-07-26.status-contract-v1' && Array.isArray(resourceMetadata.direct_file_tools) && resourceMetadata.direct_file_tools.includes('render_blender_glb'), {status: resourceMetadataResponse.status, connector_schema_revision: resourceMetadata.connector_schema_revision || '', registry_version: resourceMetadata.registry_version || '', direct_file_tools: resourceMetadata.direct_file_tools || []});
 
   const init = await postMcp(args.mcpUrl, args.bearerToken, {
     jsonrpc: '2.0',
@@ -173,7 +173,17 @@ async function main() {
   const healthTool = await postMcp(args.mcpUrl, args.bearerToken, {jsonrpc: '2.0', id: 9, method: 'tools/call', params: {name: 'health', arguments: {}}});
   const healthToolJson = parseMcpResponse(healthTool.text, 'home health');
   const healthToolContent = toolContentJson(healthToolJson, 'home health content');
-  add('home_health_reports_live_catalog_revision', healthTool.status === 200 && healthToolContent.registryVersion === '2026-07-25.blender-direct-file-catalog-v1' && healthToolContent.connectorSchemaRevision === '2026-07-25.blender-direct-file-catalog-v1' && Array.isArray(healthToolContent.directFileTools) && healthToolContent.directFileTools.includes('render_blender_glb'), {status: healthTool.status, registryVersion: healthToolContent.registryVersion || '', connectorSchemaRevision: healthToolContent.connectorSchemaRevision || '', directFileTools: healthToolContent.directFileTools || []});
+  add('home_health_is_liveness_only', healthTool.status === 200 && healthToolContent.ok === true && Object.keys(healthToolContent).sort().join(',') === 'ok,service,version', {status: healthTool.status, health: healthToolContent});
+
+  const readinessTool = await postMcp(args.mcpUrl, args.bearerToken, {jsonrpc: '2.0', id: 8, method: 'tools/call', params: {name: 'readiness', arguments: {}}});
+  const readinessToolJson = parseMcpResponse(readinessTool.text, 'home readiness');
+  const readinessToolContent = toolContentJson(readinessToolJson, 'home readiness content');
+  add('home_readiness_reports_ready', readinessTool.status === 200 && readinessToolContent.ready === true, {status: readinessTool.status, readiness: readinessToolContent});
+
+  const capabilitiesTool = await postMcp(args.mcpUrl, args.bearerToken, {jsonrpc: '2.0', id: 7, method: 'tools/call', params: {name: 'capabilities', arguments: {}}});
+  const capabilitiesToolJson = parseMcpResponse(capabilitiesTool.text, 'home capabilities');
+  const capabilitiesToolContent = toolContentJson(capabilitiesToolJson, 'home capabilities content');
+  add('home_capabilities_reports_live_catalog_revision', capabilitiesTool.status === 200 && capabilitiesToolContent.registryVersion === '2026-07-26.status-contract-v1' && capabilitiesToolContent.connectorSchemaRevision === '2026-07-26.status-contract-v1' && capabilitiesToolContent.summaryKind === 'names_only' && Array.isArray(capabilitiesToolContent.topLevelTools) && capabilitiesToolContent.topLevelTools.includes('render_blender_glb'), {status: capabilitiesTool.status, registryVersion: capabilitiesToolContent.registryVersion || '', connectorSchemaRevision: capabilitiesToolContent.connectorSchemaRevision || '', capabilityBytes: Buffer.byteLength(JSON.stringify(capabilitiesToolContent))});
 
   const listed = await postMcp(args.mcpUrl, args.bearerToken, {jsonrpc: '2.0', id: 11, method: 'tools/list', params: {}});
   const listJson = parseMcpResponse(listed.text, 'home tools/list');

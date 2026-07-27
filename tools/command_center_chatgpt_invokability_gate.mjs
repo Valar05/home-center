@@ -8,6 +8,8 @@ const DEFAULT_EVIDENCE_DIR = 'tools/command_center_invokability_evidence';
 const EXPECTED_TOOLS = [
   'command_center_operation',
   'command_center.health',
+  'command_center.readiness',
+  'command_center.capabilities',
   'command_center.projects.resolve',
   'command_center.projects.get',
   'command_center.render.blender_glb',
@@ -197,7 +199,11 @@ async function main() {
 
   const health = await callTool(args.mcpUrl, protocolToken, 12, 'command_center.health', {});
   const healthJson = contentJson(health.json, 'command_center.health result');
-  add('health_tool_invokable', health.response.status === 200 && healthJson.ok === true && healthJson.invokable === true, {status: health.response.status, health: healthJson});
+  add('health_tool_alive', health.response.status === 200 && healthJson.ok === true && Object.keys(healthJson).sort().join(',') === 'ok,service,version', {status: health.response.status, health: healthJson});
+
+  const readiness = await callTool(args.mcpUrl, protocolToken, 16, 'command_center.readiness', {});
+  const readinessJson = contentJson(readiness.json, 'command_center.readiness result');
+  add('readiness_tool_ready', readiness.response.status === 200 && readinessJson.ready === true, {status: readiness.response.status, readiness: readinessJson});
 
   const dispatcherHealth = await callTool(args.mcpUrl, protocolToken, 15, 'command_center_operation', {operation: 'health', args: {}});
   const dispatcherHealthJson = contentJson(dispatcherHealth.json, 'command_center_operation health result');

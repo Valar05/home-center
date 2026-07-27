@@ -15,6 +15,7 @@ Home Center contains the active Drive Bridge implementation in Firebase Function
 Default public tools:
 
 - `health`
+- `readiness`
 - `drive_search`
 - `drive_read`
 - `docs_append`
@@ -23,15 +24,15 @@ Default public tools:
 - `drive_create_folder`
 - `docs_create`
 
-The scalable bridge path is `drive_operation`: call `capabilities` for `operationRegistry`, then invoke operations by name without waiting for ChatGPT to refresh top-level MCP tools. The bridge also exposes audited `workbook_import_xlsx` for Excel workbook migration into native Google Sheets by using Google Drive conversion rather than manual sheet reconstruction. Extended MCP tools also include audited `sheets_create` and `sheets_update_values` when `HOME_CENTER_MCP_EXTENDED_TOOLS=true`. No Sheets delete/trash tool is exposed.
+The scalable bridge path is `drive_operation`: call `capabilities` and inspect `operationSurfaces.drive.operations`, then invoke operations by name without waiting for ChatGPT to refresh top-level MCP tools. The bridge also exposes audited `workbook_import_xlsx` for Excel workbook migration into native Google Sheets by using Google Drive conversion rather than manual sheet reconstruction. Extended MCP tools also include audited `sheets_create` and `sheets_update_values` when `HOME_CENTER_MCP_EXTENDED_TOOLS=true`. No Sheets delete/trash tool is exposed.
 
 ### No-Reinstall Discovery Contract
 
 Future agents should not require a connector reinstall for ordinary Home Drive backend additions. The stable discovery path is:
 
-1. Call `health` if only a minimal tool is available.
-2. Call `capabilities` when available.
-3. Read `capabilities.operationRegistry.operations`.
+1. Call `health` for process liveness.
+2. Call `readiness` for required-configuration checks.
+3. Call `capabilities` and read `operationSurfaces.drive.operations`.
 4. Execute supported mutations through `drive_operation` with a stable `requestId`.
 
 For Excel migration, the normal ChatGPT path is not Base64 and not a local `/mnt/data` path. If the workbook is already in Drive, call `drive_operation` with `operation=workbook_import_xlsx` and pass `sourceFileId`, or `sourceFileName` plus `sourceFolderId`. Use `workbookBase64` only when the MCP client can provide the complete XLSX bytes. If a workbook exists only as a ChatGPT attachment and the runtime has no typed file-bytes handoff, first place the workbook in Drive, then import it by Drive ID or name.
@@ -74,7 +75,7 @@ One shared Drive Bridge implementation sits behind both MCP tools and ChatGPT Ac
 
 ### Stable Operation Registry
 
-Top-level MCP tools should stay stable. New Drive Bridge mutations should be added as operations in `capabilities.operationRegistry.operations` and invoked through `drive_operation` with `operation` plus operation-specific `args`. Direct top-level tools may remain as compatibility aliases, but future ChatGPT agents should not need to reinstall the connector for every backend operation addition.
+Top-level MCP tools should stay stable. New Drive Bridge mutations should be added to the runtime registry, published by name in `capabilities.operationSurfaces.drive.operations`, and invoked through `drive_operation` with `operation` plus operation-specific `args`. Direct top-level tools may remain as compatibility aliases, but future ChatGPT agents should not need to reinstall the connector for every backend operation addition.
 
 
 ### `workbook_import_xlsx`

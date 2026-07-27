@@ -11,6 +11,7 @@ const DEFAULT_COMMAND_CENTER_PUBLIC_BASE = 'https://us-central1-home-center-dcla
 const COMMAND_CENTER_PUBLIC_BASE = process.env.COMMAND_CENTER_MCP_PUBLIC_BASE || DEFAULT_COMMAND_CENTER_PUBLIC_BASE;
 const COMMAND_CENTER_RESOURCE = `${COMMAND_CENTER_PUBLIC_BASE}/mcp`;
 const COMMAND_CENTER_RESOURCE_METADATA = `${COMMAND_CENTER_PUBLIC_BASE}/.well-known/oauth-protected-resource`;
+const COMMAND_CENTER_MCP_SERVER_VERSION = '0.2.0';
 const HOME_CENTER_AUTHORIZATION_SERVER_BASE = process.env.HOME_CENTER_MCP_PUBLIC_BASE || 'https://us-central1-home-center-dclar.cloudfunctions.net/homeCenterMcp';
 const COMMAND_CENTER_COLLECTIONS = Object.freeze({
   projects: 'commandCenterProjects',
@@ -4998,17 +4999,54 @@ async function listByJob(admin, collectionName, jobId, limit = 50) {
   return rows.slice(0, limit);
 }
 
+function commandCenterHealthPayload() {
+  return {ok: true, service: 'command-center-mcp', version: COMMAND_CENTER_MCP_SERVER_VERSION};
+}
+
+function commandCenterReadinessPayload({admin}) {
+  const checks = [
+    {name: 'firebase_admin', required: true, ok: !!(admin && typeof admin.firestore === 'function')},
+  ];
+  const ready = checks.every((check) => !check.required || check.ok);
+  return {
+    ready,
+    status: ready ? 'ready' : 'not_ready',
+    service: 'command-center-mcp',
+    version: COMMAND_CENTER_MCP_SERVER_VERSION,
+    checks,
+  };
+}
+
+function commandCenterCapabilitiesPayload(server) {
+  return {
+    service: 'command-center-mcp',
+    version: COMMAND_CENTER_MCP_SERVER_VERSION,
+    summaryKind: 'names_only',
+    topLevelTools: Object.keys(server && server._registeredTools || {}).sort(),
+    diagnosticsOperation: 'system.health',
+  };
+}
+
 function createCommandCenterMcpServer({admin}) {
-  const server = new McpServer({name: 'home-center-command-center', version: '0.1.0'});
+  const server = new McpServer({name: 'home-center-command-center', version: COMMAND_CENTER_MCP_SERVER_VERSION});
 
   server.registerTool('command_center.health', {
     title: 'Command Center health',
-    description: 'Cheap invokability probe for ChatGPT remote MCP attachment. Does not create jobs or mutate state.',
+    description: 'Check whether the Command Center MCP process is alive.',
     inputSchema: {},
-  }, async (_args, extra) => {
-    const caller = await callerFromExtra(admin, extra);
-    return textResult({ok: true, service: 'command-center-mcp', invokable: true, hasFrontend: false, commandCenterMcpUrl: COMMAND_CENTER_RESOURCE, authorizationServer: HOME_CENTER_AUTHORIZATION_SERVER_BASE, actor: caller.actor});
-  });
+  }, async () => textResult(commandCenterHealthPayload()));
+
+  server.registerTool('command_center.readiness', {
+    title: 'Command Center readiness',
+    description: 'Check whether required local configuration is present to accept Command Center work. Does not inspect workers.',
+    inputSchema: {},
+  }, async () => textResult(commandCenterReadinessPayload({admin})));
+
+  server.registerTool('command_center.capabilities', {
+    title: 'Command Center capabilities',
+    description: 'Return a bounded, deterministic summary of callable tools for this deployed revision.',
+    inputSchema: {},
+  }, async () => textResult(commandCenterCapabilitiesPayload(server)));
 
   server.registerTool('command_center_operation', {
     title: 'Command Center operation dispatcher',
@@ -5389,7 +5427,15 @@ function createCommandCenterMcpApp({admin}) {
   const app = express();
   app.use(express.json({limit: '4mb'}));
   app.use(express.urlencoded({extended: false, limit: '256kb'}));
-  app.get('/', (_req, res) => res.json({ok: true, service: 'command-center-mcp', product: 'cloud MCP control plane', endpoints: ['/mcp'], hasFrontend: false}));
+  app.get('/', (_req, res) => {
+    res.set('Cache-Control', 'no-store');
+    res.json(commandCenterHealthPayload());
+  });
+  app.get('/ready', (_req, res) => {
+    const readiness = commandCenterReadinessPayload({admin});
+    res.set('Cache-Control', 'no-store');
+    res.status(readiness.ready ? 200 : 503).json(readiness);
+  });
   app.get('/.well-known/oauth-protected-resource', (_req, res) => { res.set('Cache-Control', 'no-store'); res.json(commandCenterProtectedResourceMetadata()); });
   app.get('/.well-known/oauth-authorization-server', (_req, res) => { res.set('Cache-Control', 'no-store'); res.json(commandCenterAuthorizationServerMetadata()); });
   const sendWorkerError = (res, err) => res.status(err.status || 500).json({ok: false, error: safeText(err.message, 500) || 'Command Center worker gateway failure.'});
@@ -5696,6 +5742,10 @@ function createCommandCenterMcpApp({admin}) {
 }
 
 module.exports = {
+  COMMAND_CENTER_MCP_SERVER_VERSION,
+  commandCenterHealthPayload,
+  commandCenterReadinessPayload,
+  commandCenterCapabilitiesPayload,
   COMMAND_CENTER_ALLOWED_EMAILS,
   requireCommandCenterAllowedEmail,
   COMMAND_CENTER_COLLECTIONS,

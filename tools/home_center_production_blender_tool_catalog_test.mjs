@@ -5,7 +5,7 @@ import path from 'node:path';
 import {homedir} from 'node:os';
 
 const DEFAULT_MCP_URL = 'https://us-central1-home-center-dclar.cloudfunctions.net/homeCenterMcp/mcp';
-const EXPECTED_REVISION = '2026-07-26.integrated-capabilities-security-v1';
+const EXPECTED_REVISION = '2026-07-26.status-contract-v1';
 
 function parseArgs(argv) {
   const args = {
@@ -130,6 +130,22 @@ const healthResponse = await postMcp(args.mcpUrl, tokenInfo.token, {jsonrpc: '2.
 assert.equal(healthResponse.status, 200, `health failed HTTP ${healthResponse.status}`);
 const healthPayload = parseMcpResponse(healthResponse.text, 'health response');
 const health = textToolJson(healthPayload, 'health text receipt');
+assert.deepEqual(Object.keys(health), ['ok', 'service', 'version'], 'health must remain a liveness-only payload');
+assert.equal(health.ok, true);
+
+const readinessResponse = await postMcp(args.mcpUrl, tokenInfo.token, {jsonrpc: '2.0', id: 'readiness', method: 'tools/call', params: {name: 'readiness', arguments: {}}});
+assert.equal(readinessResponse.status, 200, `readiness failed HTTP ${readinessResponse.status}`);
+const readinessPayload = parseMcpResponse(readinessResponse.text, 'readiness response');
+const readiness = textToolJson(readinessPayload, 'readiness text receipt');
+assert.equal(readiness.ready, true, 'production Home Center must report ready');
+
+const capabilitiesResponse = await postMcp(args.mcpUrl, tokenInfo.token, {jsonrpc: '2.0', id: 'capabilities', method: 'tools/call', params: {name: 'capabilities', arguments: {}}});
+assert.equal(capabilitiesResponse.status, 200, `capabilities failed HTTP ${capabilitiesResponse.status}`);
+const capabilitiesPayload = parseMcpResponse(capabilitiesResponse.text, 'capabilities response');
+const capabilities = textToolJson(capabilitiesPayload, 'capabilities text receipt');
+assert.equal(capabilities.registryVersion, EXPECTED_REVISION, 'capabilities registry revision must match deployed catalog revision');
+assert.equal(capabilities.connectorSchemaRevision, EXPECTED_REVISION, 'capabilities schema revision must match deployed catalog revision');
+assert.equal(capabilities.summaryKind, 'names_only');
 
 const listResponse = await postMcp(args.mcpUrl, tokenInfo.token, {jsonrpc: '2.0', id: 'tools', method: 'tools/list', params: {}});
 assert.equal(listResponse.status, 200, `tools/list failed HTTP ${listResponse.status}: ${listResponse.text.slice(0, 500)}`);
@@ -149,8 +165,7 @@ assert.equal(props.scriptRef, undefined, 'direct host-file tool must not adverti
 assert.equal(props.scriptText, undefined, 'direct host-file tool must not advertise scriptText');
 assert.equal(tool.annotations?.idempotentHint, true, 'direct render tool must remain idempotent');
 assert.equal(tool.annotations?.openWorldHint, false, 'direct render tool must not advertise open-world execution');
-assert.equal(health.registryVersion, EXPECTED_REVISION, 'health registry revision must match deployed catalog revision');
-assert.equal(health.connectorSchemaRevision, EXPECTED_REVISION, 'health schema revision must match deployed catalog revision');
+assert(capabilities.topLevelTools.includes('render_blender_glb'), 'capabilities must name the direct Blender tool');
 
 const evidence = {
   ok: true,
@@ -158,8 +173,11 @@ const evidence = {
   tokenSource: tokenInfo.source,
   tokenRefreshed: tokenInfo.refreshed,
   tokenLoadReason: tokenInfo.reason,
-  registryVersion: health.registryVersion,
-  connectorSchemaRevision: health.connectorSchemaRevision,
+  health,
+  readiness,
+  registryVersion: capabilities.registryVersion,
+  connectorSchemaRevision: capabilities.connectorSchemaRevision,
+  capabilitiesByteCount: Buffer.byteLength(JSON.stringify(capabilities)),
   toolCount: tools.length,
   renderBlenderGlb: {
     title: tool.title,
