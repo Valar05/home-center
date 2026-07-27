@@ -1954,6 +1954,21 @@ function summarizeRecoveryOperations(intendedOperations = [], auditByRequestId =
   return {operations, completed, missing, failed, nextOperation: missing[0] || null, complete: missing.length === 0 && failed.length === 0};
 }
 
+function normalizeHomeCenterMcpToolName(value) {
+  const name = safeText(value, 160);
+  const prefix = 'home_center_drive.';
+  return name.startsWith(prefix) ? name.slice(prefix.length) : name;
+}
+
+function normalizeHomeCenterMcpRequestBody(body) {
+  if (Array.isArray(body)) return body.map((entry) => normalizeHomeCenterMcpRequestBody(entry));
+  if (!body || typeof body !== 'object' || body.method !== 'tools/call') return body;
+  const params = body.params && typeof body.params === 'object' ? body.params : {};
+  const normalizedName = normalizeHomeCenterMcpToolName(params.name);
+  if (!normalizedName || normalizedName === params.name) return body;
+  return {...body, params: {...params, name: normalizedName}};
+}
+
 function mcpToolCallFields(req) {
   const body = req && req.body && typeof req.body === 'object' ? req.body : {};
   const params = body.params && typeof body.params === 'object' ? body.params : {};
@@ -7333,6 +7348,7 @@ function createHomeCenterMcpApp({google, admin, googleClientId = () => '', googl
   });
 
   app.all('/mcp', async (req, res) => {
+    req.body = normalizeHomeCenterMcpRequestBody(req.body);
     const toolCallFields = mcpToolCallFields(req);
     if (rejectMissingTransportAuth(req, res)) {
       connectorLog('mcp_reject_missing_auth', req, toolCallFields);
@@ -7372,4 +7388,4 @@ function createHomeCenterMcpApp({google, admin, googleClientId = () => '', googl
   return app;
 }
 
-module.exports = {artifactTransportPreflightOperation, artifactTransportStatusOperation, homeCenterHealthPayload, homeCenterReadinessPayload, homeCenterCapabilitiesPayload, operationRegistrySummary, CREDIT_GATED_EMAILS, requireCreditGatedEmail, GITHUB_ADMIN_ALLOWED_EMAILS, requireGitHubAdminUser, HOME_CENTER_MCP_SERVER_VERSION, HOME_CENTER_CONNECTOR_SCHEMA_REVISION, HOME_CENTER_REGISTRY_VERSION, HOME_CENTER_DIRECT_FILE_TOOLS, verifiedRenderGifMcpContent, attachRenderGifMcpContent, renderArtifactHashEntry, renderReviewArtifactCandidates, renderReviewArtifactKey, publishRenderReviewArtifactToDrive, materializeRenderReviewArtifactsOperation, driveOperationRegistry, uploadVerifiedArtifact, createHomeCenterMcpApp, createHomeCenterMcpServer, createDriveFolderOperation, createGoogleDocOperation, appendGoogleDocOperation, publishContextSnapshotOperation, synthesizeCartesiaAudioArtifactOperation, cartesiaVoicesOperation, createSheetOperation, updateSheetValuesOperation, importXlsxWorkbookOperation, readDriveBinaryChunkOperation, compareAudioIngestFileIds, ingestDriveAudioOperation, finalizeDriveAudioIngestBatchOperation, driveOperationRunOperation, driveWorkflowRunOperation, simulationOperationRunOperation, simulationOperationRegistry, droobiedooContextOperationEntries, loadDroobiedooContextIndex, searchDroobiedooContextIndex, runDroobiedooContextOperation, normalizeRecoveryOperation, summarizeRecoveryOperations, loadMcpAccessContext, armoryReceiptOperation, armoryRecountOperation, armoryCasingOperation, renderAudioOperation, inspectAudioArtifactsOperation, materializeHomeCenterRenderDriveRefs, materializeHomeCenterRenderSources, stageHomeCenterGitHubRenderInput, normalizeRenderGitHubSource, githubAdminOperationEntries, githubAdminOperationRunOperation, createGitHubAppJwt};
+module.exports = {normalizeHomeCenterMcpToolName, normalizeHomeCenterMcpRequestBody, artifactTransportPreflightOperation, artifactTransportStatusOperation, homeCenterHealthPayload, homeCenterReadinessPayload, homeCenterCapabilitiesPayload, operationRegistrySummary, CREDIT_GATED_EMAILS, requireCreditGatedEmail, GITHUB_ADMIN_ALLOWED_EMAILS, requireGitHubAdminUser, HOME_CENTER_MCP_SERVER_VERSION, HOME_CENTER_CONNECTOR_SCHEMA_REVISION, HOME_CENTER_REGISTRY_VERSION, HOME_CENTER_DIRECT_FILE_TOOLS, verifiedRenderGifMcpContent, attachRenderGifMcpContent, renderArtifactHashEntry, renderReviewArtifactCandidates, renderReviewArtifactKey, publishRenderReviewArtifactToDrive, materializeRenderReviewArtifactsOperation, driveOperationRegistry, uploadVerifiedArtifact, createHomeCenterMcpApp, createHomeCenterMcpServer, createDriveFolderOperation, createGoogleDocOperation, appendGoogleDocOperation, publishContextSnapshotOperation, synthesizeCartesiaAudioArtifactOperation, cartesiaVoicesOperation, createSheetOperation, updateSheetValuesOperation, importXlsxWorkbookOperation, readDriveBinaryChunkOperation, compareAudioIngestFileIds, ingestDriveAudioOperation, finalizeDriveAudioIngestBatchOperation, driveOperationRunOperation, driveWorkflowRunOperation, simulationOperationRunOperation, simulationOperationRegistry, droobiedooContextOperationEntries, loadDroobiedooContextIndex, searchDroobiedooContextIndex, runDroobiedooContextOperation, normalizeRecoveryOperation, summarizeRecoveryOperations, loadMcpAccessContext, armoryReceiptOperation, armoryRecountOperation, armoryCasingOperation, renderAudioOperation, inspectAudioArtifactsOperation, materializeHomeCenterRenderDriveRefs, materializeHomeCenterRenderSources, stageHomeCenterGitHubRenderInput, normalizeRenderGitHubSource, githubAdminOperationEntries, githubAdminOperationRunOperation, createGitHubAppJwt};
