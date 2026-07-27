@@ -103,14 +103,25 @@ for (const summary of Object.values(capabilities.operationSurfaces)) {
 for (const operation of ['sfx.analyze_source', 'sfx.transcribe_slate', 'sfx.segment', 'sfx.render', 'sfx.status', 'sfx.artifacts']) {
   assert(capabilities.operationSurfaces.drive.operations.includes(operation), `live Drive registry must expose ${operation}`);
 }
-assert.deepEqual(capabilities.fileUploadTools, [{
-  name: 'render_blender_glb',
-  required: ['idempotencyKey', 'glbFile', 'scriptFile'],
-  inputs: {
-    glbFile: {format: 'binary', contentMediaType: 'model/gltf-binary'},
-    scriptFile: {format: 'binary', contentMediaType: 'text/x-python'},
+assert.deepEqual(capabilities.fileUploadTools, [
+  {
+    name: 'render_blender_glb',
+    required: ['idempotencyKey', 'glbFile', 'scriptFile'],
+    inputs: {
+      glbFile: {format: 'binary', contentMediaType: 'model/gltf-binary'},
+      scriptFile: {format: 'binary', contentMediaType: 'text/x-python'},
+    },
   },
-}]);
+  {
+    name: 'drive_ingest_file',
+    required: ['requestId', 'file'],
+    inputs: {
+      file: {format: 'binary', contentMediaType: 'application/octet-stream'},
+    },
+    maxBytes: 256 * 1024 * 1024,
+    verification: ['expectedSha256', 'Drive readback byte count', 'Drive readback SHA-256'],
+  },
+]);
 const homeCapabilitiesText = JSON.stringify(capabilities);
 assert(homeCapabilitiesText.length < 20000, `capabilities payload grew to ${homeCapabilitiesText.length} bytes`);
 for (const forbidden of ['commandCenterManual', 'simulationManual', 'homeDriveManual', 'discoverability', 'recipes', 'reconnectAdvice', 'client-secret-is-configured']) {
