@@ -1519,6 +1519,58 @@ function cleanRenderResult(serviceResult = {}, fallback = {}) {
   };
 }
 
+function boundedCompletedRenderResult(value = {}) {
+  const result = cleanRenderResult(value);
+  const validation = safeObject(result.validation);
+  const playback = safeObject(result.gifPlaybackContract || validation.gifPlaybackContract);
+  const artifactHashes = Object.fromEntries(Object.entries(safeObject(result.artifactHashes)).sort(([a], [b]) => a.localeCompare(b)).slice(0, 64).map(([name, item]) => [safeText(name, 240), {sha256: safeText(item && item.sha256, 64), byteCount: Number(item && item.byteCount || 0)}]));
+  return {
+    ok: result.ok,
+    status: result.status,
+    cacheHit: result.cacheHit,
+    renderId: result.renderId,
+    cacheKey: result.cacheKey,
+    renderRefs: result.renderRefs.slice(0, 24),
+    contactSheetRef: result.contactSheetRef,
+    loopingGifRef: result.loopingGifRef,
+    threeDArtifactRefs: result.threeDArtifactRefs.slice(0, 8),
+    modifiedBlendRef: result.modifiedBlendRef,
+    animatedGlbRef: result.animatedGlbRef,
+    nativeDataRefs: result.nativeDataRefs.slice(0, 8),
+    originalScriptRef: result.originalScriptRef,
+    scriptInputHashesRef: result.scriptInputHashesRef,
+    blenderVersionSettingsRef: result.blenderVersionSettingsRef,
+    stdoutRef: result.stdoutRef,
+    stderrRef: result.stderrRef,
+    fixedCameraRenderRefs: result.fixedCameraRenderRefs.slice(0, 24),
+    diagnosticRenderRefs: result.diagnosticRenderRefs.slice(0, 24),
+    validationManifestRef: result.validationManifestRef || result.manifestRef,
+    validation: {
+      ok: validation.ok === true,
+      schema: safeText(validation.schema, 120),
+      blenderExitCode: Number(validation.blenderExitCode || 0),
+      blenderSignal: safeText(validation.blenderSignal, 80),
+      failureKind: safeText(validation.failureKind, 80),
+      presentBundleKinds: safeList(validation.presentBundleKinds, 32, 120),
+      missingBundleKinds: safeList(validation.missingBundleKinds, 32, 120),
+      glbHash: safeText(validation.glbHash, 64),
+      scriptHash: safeText(validation.scriptHash, 64),
+      timings: safeObject(validation.timings || result.timings),
+      gifPlayback: {
+        gifFrameSelection: safeText(playback.gifFrameSelection, 80),
+        gifFrames: safeList(playback.gifFrames, 32, 32).map(Number),
+        gifTimingMs: safeList(playback.gifTimingMs, 32, 32).map(Number),
+        allowRepeatedGifFrames: playback.allowRepeatedGifFrames === true,
+        selectedFrames: (Array.isArray(playback.selectedFrames) ? playback.selectedFrames : []).slice(0, 32).map((item) => ({playbackIndex: Number(item.playbackIndex || 0), evidenceFrame: Number(item.evidenceFrame || 0), name: safeText(item.name, 240), timingMs: Number(item.timingMs || 0)})),
+      },
+    },
+    artifactHashes,
+    renderOptions: safeObject(result.renderOptions),
+    error: result.error,
+    failureKind: result.failureKind,
+  };
+}
+
 async function invokeRenderService(payload) {
   const serviceUrl = COMMAND_CENTER_RENDER_DEFAULT_SERVICE_URL;
   if (!serviceUrl) {
@@ -1684,7 +1736,7 @@ function boundedRenderRequestStatus(record = {}, attached = false) {
     lease: lease.leaseId ? {leaseId: safeText(lease.leaseId, 180), holder: safeText(lease.holder, 120), acquiredAtMs: Number(lease.acquiredAtMs || 0), expiresAtMs: Number(lease.expiresAtMs || 0)} : null,
     blockingError: safeText(record.error, 1200),
     failureKind: safeText(record.failureKind, 80),
-    result: effectiveStatus === 'completed' ? cleanRenderResult(result, {renderId: record.renderId, cacheKey: record.cacheKey}) : null,
+    result: effectiveStatus === 'completed' ? boundedCompletedRenderResult({...result, renderId: result.renderId || record.renderId, cacheKey: result.cacheKey || record.cacheKey}) : null,
   };
 }
 
@@ -6076,6 +6128,7 @@ module.exports = {
   renderRequestInputHash,
   renderRequestContract,
   boundedRenderRequestStatus,
+  boundedCompletedRenderResult,
   resolveRenderSources,
   validateGlbBytes,
   validateScriptBytes,

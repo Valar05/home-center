@@ -110,6 +110,10 @@ assert.equal(queuedResult.result.status, 'queued');
 assert.equal(queuedResult.result.inlineMediaDelivery, undefined, 'accepted receipts must not report a missing result artifact');
 assert.equal(queuedResult._mcpContent, undefined);
 
+const attachedReplay = await attachRenderGifMcpContent({operation: 'render.blender_glb', toolName: 'command_center.render.blender_glb', result: {...result, attached: true}}, {storage: fakeStorage, google: fakeGoogle(), auth: {}});
+assert.equal(attachedReplay.result.inlineMediaDelivery, undefined, 'attached replay must not republish immutable GIF bytes');
+assert.equal(attachedReplay._mcpContent, undefined);
+
 const failureResult = await attachRenderGifMcpContent({operation: 'render.blender_glb', toolName: 'command_center.render.blender_glb', result}, {storage: fakeStorage});
 assert.deepEqual(failureResult._mcpContent.content.map((item) => item.type), ['text']);
 const failureReceipt = JSON.parse(failureResult._mcpContent.content[0].text);

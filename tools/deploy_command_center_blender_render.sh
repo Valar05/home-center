@@ -7,7 +7,7 @@ REGION="${GCLOUD_REGION:-us-central1}"
 REPOSITORY="${COMMAND_CENTER_RENDER_REPOSITORY:-command-center-workers}"
 SERVICE="${COMMAND_CENTER_RENDER_SERVICE:-command-center-blender-render}"
 IMAGE="${REGION}-docker.pkg.dev/${PROJECT}/${REPOSITORY}/blender-render:latest"
-CACHE_BUCKET="${COMMAND_CENTER_RENDER_BUCKET:-${HOME_CENTER_GENERATED_BUCKET:-home-center-generated}}"
+CACHE_BUCKET="${COMMAND_CENTER_RENDER_BUCKET:-${HOME_CENTER_GENERATED_BUCKET:-home-center-dclar-command-center-renders}}"
 SERVICE_ACCOUNT="${COMMAND_CENTER_RENDER_SERVICE_ACCOUNT:-}"
 
 eval "$(node "$ROOT/tools/worker_profile_contract.mjs" shell command-center-blender-render)"
