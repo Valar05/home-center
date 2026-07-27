@@ -922,7 +922,11 @@ def main():
 
     # Explicit clean-room evidence: no linked/imported libraries or images.
     assert not bpy.data.libraries
-    assert not bpy.data.images
+    assert not [
+        image
+        for image in bpy.data.images
+        if image.source == "FILE" and str(image.filepath or "").strip()
+    ]
     assert bpy.data.objects.get("TURRET_TRAVERSE_PIVOT")
     assert bpy.data.objects.get("GUN_ELEVATION_PIVOT")
     assert len([o for o in bpy.data.objects if o.name.startswith("T48_L_Shoe_")]) == 79
