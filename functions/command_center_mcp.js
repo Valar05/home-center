@@ -6,6 +6,7 @@ const {z} = require('zod/v4');
 const {McpServer} = require('@modelcontextprotocol/sdk/server/mcp.js');
 const {StreamableHTTPServerTransport} = require('@modelcontextprotocol/sdk/server/streamableHttp.js');
 const {APP_CONTROL_COLLECTIONS, APP_CONTROL_DEFAULT_SEEDS, appControlProfileObjectId, appControlProfilePath} = require('./app_control_cloud');
+const {boundedMap, normalizeRendererSettings} = require('./artifact_transport');
 
 const DEFAULT_COMMAND_CENTER_PUBLIC_BASE = 'https://us-central1-home-center-dclar.cloudfunctions.net/commandCenterMcp';
 const COMMAND_CENTER_PUBLIC_BASE = process.env.COMMAND_CENTER_MCP_PUBLIC_BASE || DEFAULT_COMMAND_CENTER_PUBLIC_BASE;
@@ -1383,18 +1384,22 @@ function renderStorage() {
 
 async function stageRenderUpload({caller, renderId, role, fileName, bytes, contentType}) {
   if (!COMMAND_CENTER_RENDER_BUCKET) throw renderInputError('COMMAND_CENTER_RENDER_BUCKET is not configured for uploaded render files.', 503, 'transport');
+  const startedAtMs = Date.now();
   const hash = sha256Bytes(bytes);
   const safeRole = role === 'glb' ? 'glb' : 'script';
   const safeFile = cleanUploadFileName(fileName, safeRole === 'glb' ? 'input.glb' : 'render.py');
-  const objectName = `temp/render-inputs/${ownerKeyFromCaller(caller)}/${safeText(renderId, 180) || 'render'}/${safeRole}-${hash}-${safeFile}`;
-  await renderStorage().bucket(COMMAND_CENTER_RENDER_BUCKET).file(objectName).save(bytes, {
-    resumable: false,
-    metadata: {
-      contentType: contentType || (safeRole === 'glb' ? 'model/gltf-binary' : 'text/x-python'),
-      metadata: {sha256: hash, role: safeRole, renderer: COMMAND_CENTER_RENDER_TOOL_VERSION},
-    },
-  });
-  return {ref: `gs://${COMMAND_CENTER_RENDER_BUCKET}/${objectName}`, sha256: hash, byteCount: bytes.length, fileName: safeFile, materializedFrom: safeRole + 'File'};
+  const objectName = 'artifacts/sha256/' + hash + '/' + safeFile;
+  const file = renderStorage().bucket(COMMAND_CENTER_RENDER_BUCKET).file(objectName);
+  let reused = false;
+  try {
+    await file.save(bytes, {resumable: false, metadata: {contentType: contentType || (safeRole === 'glb' ? 'model/gltf-binary' : 'text/x-python'), metadata: {sha256: hash, byteCount: String(bytes.length), role: safeRole, renderer: COMMAND_CENTER_RENDER_TOOL_VERSION}}, preconditionOpts: {ifGenerationMatch: 0}});
+  } catch (err) {
+    if (![409, 412].includes(Number(err && err.code)) && !/condition|already exists/i.test(String(err && err.message))) throw err;
+    reused = true;
+    const [existing] = await file.download();
+    if (existing.length !== bytes.length || sha256Bytes(existing) !== hash) throw renderInputError('Digest-addressed render artifact exists with different bytes.', 409, 'artifact_digest_collision');
+  }
+  return {ref: 'gs://' + COMMAND_CENTER_RENDER_BUCKET + '/' + objectName, sha256: hash, byteCount: bytes.length, fileName: safeFile, materializedFrom: safeRole + 'File', reused, transferredBytes: reused ? 0 : bytes.length, reusedBytes: reused ? bytes.length : 0, stagingMs: Math.max(0, Date.now() - startedAtMs), materializedBy: 'command_center_mcp.artifact_transport.v1'};
 }
 
 function hasInlineScript(args) {
@@ -1406,29 +1411,7 @@ function renderSourceCount(...values) {
 }
 
 function normalizeRenderSettings(value = {}) {
-  const src = safeObject(value);
-  const settings = {
-    width: Math.max(64, Math.min(Number(src.width || 1280) || 1280, 4096)),
-    height: Math.max(64, Math.min(Number(src.height || 960) || 960, 4096)),
-    camera: safeText(src.camera, 120) || 'front_3q',
-    outputName: safeText(src.outputName, 180) || 'render.png',
-    samples: Math.max(1, Math.min(Number(src.samples || src.renderSamples || 64) || 64, 128)),
-    fixedCameras: safeList(src.fixedCameras || ['front_3q'], 12, 120),
-    diagnosticViews: safeList(src.diagnosticViews || ['front', 'side', 'top'], 12, 120),
-  };
-  return {
-    ...settings,
-    action: safeText(src.action, 120),
-    expectedAction: safeText(src.expectedAction, 120),
-    authoredKeys: safeNumberList(src.authoredKeys, 160),
-    evidenceFrames: safeNumberList(src.evidenceFrames, 160),
-    gifFrames: safeNumberList(src.gifFrames, 160),
-    gifTimingMs: safeNumberList(src.gifTimingMs, 160),
-    allowRepeatedGifFrames: src.allowRepeatedGifFrames === true,
-    includeBlend: src.includeBlend === false ? false : true,
-    includeDiagnostics: src.includeDiagnostics === false ? false : true,
-    renderOptions: safeObject(src.renderOptions),
-  };
+  return normalizeRendererSettings(value);
 }
 
 function stableJson(value) {
@@ -1477,6 +1460,7 @@ function cleanRenderContract(value = {}) {
 function renderCacheLookupKey(args = {}) {
   return fullHash(stableJson({
     toolVersion: COMMAND_CENTER_RENDER_TOOL_VERSION,
+    contractVersion: safeText(args.contractVersion, 100) || 'home-center.blender-render-request.v2',
     glbRef: normalizeRenderRef(args.glbRef, 'glbRef'),
     scriptRef: normalizeRenderRef(args.scriptRef, 'scriptRef'),
     settings: normalizeRenderSettings(args.settings),
@@ -1612,55 +1596,39 @@ async function resolveRenderBucketInputs(admin, refs = [], caller = {}) {
 async function resolveRenderSources(caller, args, renderId) {
   const glbHasFile = isFileLike(args.glbFile);
   const glbHasRef = safeText(args.glbRef, 1200).length > 0;
-  if (renderSourceCount(glbHasFile, glbHasRef) !== 1) {
-    throw renderInputError('Exactly one GLB source is required: provide glbFile or glbRef, but not both.');
-  }
-
+  if (renderSourceCount(glbHasFile, glbHasRef) !== 1) throw renderInputError('Exactly one GLB source is required: provide glbFile or glbRef, but not both.');
   const scriptHasFile = isFileLike(args.scriptFile);
   const scriptHasRef = safeText(args.scriptRef, 1200).length > 0;
   const scriptHasInline = hasInlineScript(args);
-  if (renderSourceCount(scriptHasFile, scriptHasRef, scriptHasInline) !== 1) {
-    throw renderInputError('Exactly one Blender script source is required: provide scriptFile, scriptRef, or scriptText.');
-  }
+  if (renderSourceCount(scriptHasFile, scriptHasRef, scriptHasInline) !== 1) throw renderInputError('Exactly one Blender script source is required: provide scriptFile, scriptRef, or scriptText.');
 
-  let glbRef = '';
-  let scriptRef = '';
-  const stagedInputs = [];
-  if (glbHasFile) {
-    const bytes = await bytesFromFileLike(args.glbFile, 'glbFile');
-    validateGlbBytes(bytes, 'glbFile');
-    const staged = await stageRenderUpload({caller, renderId, role: 'glb', fileName: args.glbFile.name, bytes, contentType: args.glbFile.type || 'model/gltf-binary'});
-    glbRef = staged.ref;
-    stagedInputs.push(staged);
-  } else {
-    glbRef = normalizeRenderRef(args.glbRef, 'glbRef');
-  }
-
-  if (scriptHasFile) {
-    const bytes = await bytesFromFileLike(args.scriptFile, 'scriptFile');
-    validateScriptBytes(bytes, 'scriptFile');
-    const staged = await stageRenderUpload({caller, renderId, role: 'script', fileName: args.scriptFile.name, bytes, contentType: args.scriptFile.type || 'text/x-python'});
-    scriptRef = staged.ref;
-    stagedInputs.push(staged);
-  } else if (scriptHasInline) {
-    const text = safeText(args.scriptText || args.inlineScript || args.script, COMMAND_CENTER_RENDER_MAX_SCRIPT_BYTES + 1);
-    const bytes = Buffer.from(text, 'utf8');
-    validateScriptBytes(bytes, 'scriptText');
-    const staged = await stageRenderUpload({caller, renderId, role: 'script', fileName: 'inline-render.py', bytes, contentType: 'text/x-python'});
-    staged.materializedFrom = 'scriptText';
-    scriptRef = staged.ref;
-    stagedInputs.push(staged);
-  } else {
-    scriptRef = normalizeRenderRef(args.scriptRef, 'scriptRef');
-  }
-
-  return {glbRef, scriptRef, stagedInputs};
+  const tasks = [
+    async () => {
+      if (!glbHasFile) return {role: 'glb', ref: normalizeRenderRef(args.glbRef, 'glbRef'), staged: null};
+      const bytes = await bytesFromFileLike(args.glbFile, 'glbFile');
+      validateGlbBytes(bytes, 'glbFile');
+      const staged = await stageRenderUpload({caller, renderId, role: 'glb', fileName: args.glbFile.name, bytes, contentType: args.glbFile.type || 'model/gltf-binary'});
+      return {role: 'glb', ref: staged.ref, staged};
+    },
+    async () => {
+      if (scriptHasRef) return {role: 'script', ref: normalizeRenderRef(args.scriptRef, 'scriptRef'), staged: null};
+      const file = scriptHasFile ? args.scriptFile : {name: 'inline-render.py', type: 'text/x-python', arrayBuffer: async () => Buffer.from(safeText(args.scriptText || args.inlineScript || args.script, COMMAND_CENTER_RENDER_MAX_SCRIPT_BYTES + 1), 'utf8')};
+      const bytes = await bytesFromFileLike(file, scriptHasFile ? 'scriptFile' : 'scriptText');
+      validateScriptBytes(bytes, scriptHasFile ? 'scriptFile' : 'scriptText');
+      const staged = await stageRenderUpload({caller, renderId, role: 'script', fileName: file.name, bytes, contentType: file.type || 'text/x-python'});
+      if (!scriptHasFile) staged.materializedFrom = 'scriptText';
+      return {role: 'script', ref: staged.ref, staged};
+    },
+  ];
+  const [glb, script] = await boundedMap(tasks, 2, (task) => task());
+  return {glbRef: glb.ref, scriptRef: script.ref, stagedInputs: [glb.staged, script.staged].filter(Boolean)};
 }
 
 async function renderBlenderGlb(admin, extra, args = {}) {
   const caller = await callerFromExtra(admin, extra);
   const accessToken = bearerFromExtra(extra);
   return idempotentMutation(admin, caller, requireIdempotencyKey(args.idempotencyKey), 'render.blender_glb', async () => {
+    const contractVersion = safeText(args.contractVersion, 100) || 'home-center.blender-render-request.v2';
     const settings = normalizeRenderSettings(args.settings);
     const executionContract = cleanRenderContract(args.executionContract);
     const requestedRenderId = safeText(args.renderId, 180) || `render_${hashText(ownerKeyFromCaller(caller) + ':' + safeText(args.idempotencyKey, 180), 32)}`;
@@ -1668,7 +1636,7 @@ async function renderBlenderGlb(admin, extra, args = {}) {
     const glbRef = resolvedSources.glbRef;
     const scriptRef = resolvedSources.scriptRef;
     const stagedInputs = [...cleanRenderStagedInputs(args.stagedInputs), ...resolvedSources.stagedInputs];
-    const requestCacheKey = renderCacheLookupKey({glbRef, scriptRef, stagedInputs, settings, executionContract});
+    const requestCacheKey = renderCacheLookupKey({contractVersion, glbRef, scriptRef, stagedInputs, settings, executionContract});
     const renderId = safeText(args.renderId, 180) || renderRecordId(requestCacheKey, caller);
     const ref = collection(admin, COMMAND_CENTER_COLLECTIONS.renderRequests).doc(renderId);
     const existingSnap = await ref.get();
@@ -1681,7 +1649,7 @@ async function renderBlenderGlb(admin, extra, args = {}) {
     const startedAtMs = Date.now();
     await ref.set({renderId, cacheKey: requestCacheKey, requestCacheKey, status: 'running', glbRef, scriptRef, stagedInputs, settings, executionContract, toolVersion: COMMAND_CENTER_RENDER_TOOL_VERSION, ownerKey: ownerKeyFromCaller(caller), requestedBy: caller.actor, createdAtMs: existingSnap.exists ? (existingSnap.data() || {}).createdAtMs || startedAtMs : startedAtMs, updatedAtMs: startedAtMs}, {merge: true});
     try {
-      const serviceResult = await invokeRenderService({renderId, requestCacheKey, glbRef, scriptRef, stagedInputs, settings, executionContract, toolVersion: COMMAND_CENTER_RENDER_TOOL_VERSION, cache: args.cache !== false, bucketInputs, googleOAuthAccessToken: accessToken});
+      const serviceResult = await invokeRenderService({renderId, requestCacheKey, contractVersion, glbRef, scriptRef, stagedInputs, settings, executionContract, toolVersion: COMMAND_CENTER_RENDER_TOOL_VERSION, cache: args.cache !== false, bucketInputs, googleOAuthAccessToken: accessToken});
       const result = cleanRenderResult(serviceResult, {renderId, cacheKey: serviceResult.cacheKey || requestCacheKey});
       const presentKinds = result.validation && Array.isArray(result.validation.presentBundleKinds) ? result.validation.presentBundleKinds : [];
       const effectiveRenderOptions = Object.prototype.hasOwnProperty.call(result.renderOptions || {}, 'includeBlend') || Object.prototype.hasOwnProperty.call(result.renderOptions || {}, 'includeDiagnostics') ? result.renderOptions : renderBundleOptionsFrom(settings, executionContract);

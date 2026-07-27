@@ -33,8 +33,8 @@ const commandCenter = fs.readFileSync(new URL('../functions/command_center_mcp.j
 const homeCenter = fs.readFileSync(new URL('../functions/home_center_mcp.js', import.meta.url), 'utf8');
 assert(commandCenter.includes("'home-center-generated'"), 'Command Center staging must default to generated bucket');
 assert(homeCenter.includes("'home-center-generated'"), 'Home Center staging must default to generated bucket');
-assert(commandCenter.includes('temp/render-inputs'), 'Command Center render uploads must stage under temp/');
-assert(homeCenter.includes('temp/render-inputs'), 'Home Center render uploads must stage under temp/');
+assert(commandCenter.includes("'artifacts/sha256/' + hash"), 'Command Center render uploads must use digest-addressed immutable staging');
+assert(homeCenter.includes("'artifacts/sha256/' + hash"), 'Home Center render uploads must use digest-addressed immutable staging');
 
 const audioSource = fs.readFileSync(new URL('../functions/audio_render_service.js', import.meta.url), 'utf8');
 assert(audioSource.includes('uploadGeneratedArtifact'), 'audio.render must upload to generated bucket');

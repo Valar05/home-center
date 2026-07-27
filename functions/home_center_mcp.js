@@ -14,6 +14,7 @@ const express = require('express');
 const {z} = require('zod/v4');
 const {CARTESIA_DEFAULT_MODEL_ID, CARTESIA_DEFAULT_VOICE_NAME, listCartesiaVoiceCatalog, listCartesiaVoices, normalizeCartesiaVoice, openCartesiaStream} = require('./hosted_speech_provider');
 const {renderBlenderGlb: commandCenterRenderBlenderGlb} = require('./command_center_mcp');
+const {boundedMap, rendererSettingsJsonSchema, preflightArtifactEnvelope} = require('./artifact_transport');
 const cartesiaPitchShift = require('./cartesia_pitch_shift');
 const {renderAudioOperation, audioRenderStatusOperation, inspectAudioArtifactsOperation, uploadVerified: uploadVerifiedArtifact} = require('./audio_render_service');
 const {
@@ -29,6 +30,10 @@ const {
   artifactOperationEntries,
   ingestArtifactUploadOperation,
   beginArtifactIngestOperation,
+  beginResumableArtifactIngestOperation,
+  resumableArtifactStatusOperation,
+  resumeResumableArtifactIngestOperation,
+  commitResumableArtifactIngestOperation,
   appendArtifactChunkOperation,
   commitArtifactIngestOperation,
   abortArtifactIngestOperation,
@@ -45,7 +50,7 @@ const {
 const DEFAULT_MCP_PUBLIC_BASE = 'https://us-central1-home-center-dclar.cloudfunctions.net/homeCenterMcp';
 const MCP_PUBLIC_BASE = process.env.HOME_CENTER_MCP_PUBLIC_BASE || DEFAULT_MCP_PUBLIC_BASE;
 const HOME_CENTER_MCP_SERVER_VERSION = '0.2.0';
-const HOME_CENTER_CONNECTOR_SCHEMA_REVISION = '2026-07-27.storage-artifact-ingest-v1';
+const HOME_CENTER_CONNECTOR_SCHEMA_REVISION = '2026-07-27.artifact-transport-v1';
 const HOME_CENTER_REGISTRY_VERSION = HOME_CENTER_CONNECTOR_SCHEMA_REVISION;
 const HOME_CENTER_DIRECT_FILE_TOOLS = Object.freeze(['render_blender_glb', 'drive_ingest_file', 'storage_ingest_artifact']);
 const MCP_RESOURCE = `${MCP_PUBLIC_BASE}/mcp`;
@@ -1022,17 +1027,21 @@ async function stageHomeCenterGitHubRenderInput({githubToken, user, renderId, ro
 
 async function stageHomeCenterRenderInput({user, renderId, role, sourceRef, fileName, bytes, contentType}) {
   if (!COMMAND_CENTER_RENDER_BUCKET) throw homeCenterRenderInputError('COMMAND_CENTER_RENDER_BUCKET is not configured for render input staging.', 503, 'transport');
+  const startedAtMs = Date.now();
   const hash = sha256RenderBytes(bytes);
   const safeFile = cleanRenderUploadName(fileName, renderFallbackName(role));
-  const objectName = 'temp/render-inputs/home-center-bridge/' + homeCenterRenderOwnerKey(user) + '/' + (safeText(renderId, 180) || 'render') + '/' + role + '-' + hash + '-' + safeFile;
-  await new Storage().bucket(COMMAND_CENTER_RENDER_BUCKET).file(objectName).save(bytes, {
-    resumable: false,
-    metadata: {
-      contentType: contentType || renderContentType(role),
-      metadata: {sha256: hash, role, materializedBy: 'home_center_mcp.command_center_operation', sourceKind: sourceRef && sourceRef.startsWith('drive://') ? 'drive' : 'uploaded'},
-    },
-  });
-  return {ref: 'gs://' + COMMAND_CENTER_RENDER_BUCKET + '/' + objectName, sha256: hash, byteCount: bytes.length, fileName: safeFile, materializedFrom: sourceRef && sourceRef.startsWith('drive://') ? role + 'DriveRef' : role + 'File', sourceRef: sourceRef && sourceRef.startsWith('drive://') ? 'drive://' + driveRenderFileId(sourceRef) : '', materializedBy: 'home_center_mcp.command_center_operation'};
+  const objectName = 'artifacts/sha256/' + hash + '/' + safeFile;
+  const file = new Storage().bucket(COMMAND_CENTER_RENDER_BUCKET).file(objectName);
+  let reused = false;
+  try {
+    await file.save(bytes, {resumable: false, metadata: {contentType: contentType || renderContentType(role), metadata: {sha256: hash, byteCount: String(bytes.length), role, materializedBy: 'home_center_mcp.artifact_transport.v1', sourceKind: sourceRef && sourceRef.startsWith('drive://') ? 'drive' : 'uploaded'}}, preconditionOpts: {ifGenerationMatch: 0}});
+  } catch (err) {
+    if (![409, 412].includes(Number(err && err.code)) && !/condition|already exists/i.test(String(err && err.message))) throw err;
+    reused = true;
+    const [existing] = await file.download();
+    if (existing.length !== bytes.length || sha256RenderBytes(existing) !== hash) throw homeCenterRenderInputError('Digest-addressed render artifact exists with different bytes.', 409, 'artifact_digest_collision');
+  }
+  return {ref: 'gs://' + COMMAND_CENTER_RENDER_BUCKET + '/' + objectName, sha256: hash, byteCount: bytes.length, fileName: safeFile, materializedFrom: sourceRef && sourceRef.startsWith('drive://') ? role + 'DriveRef' : role + 'File', sourceRef: sourceRef && sourceRef.startsWith('drive://') ? 'drive://' + driveRenderFileId(sourceRef) : '', materializedBy: 'home_center_mcp.artifact_transport.v1', reused, transferredBytes: reused ? 0 : bytes.length, reusedBytes: reused ? bytes.length : 0, stagingMs: Math.max(0, Date.now() - startedAtMs)};
 }
 
 async function materializeHomeCenterRenderDriveRefs({google, admin, googleClientId, googleClientSecret, extra, githubToken = () => '', args = {}}) {
@@ -1066,19 +1075,24 @@ async function materializeHomeCenterRenderSources({google, admin, googleClientId
   const seed = safeText(operationArgs.idempotencyKey, 180) || randomUUID();
   const renderId = safeText(operationArgs.renderId, 180) || 'render_' + createHash('sha256').update(homeCenterRenderOwnerKey(user) + ':' + seed).digest('hex').slice(0, 32);
   operationArgs.renderId = renderId;
+  const tasks = [];
   for (const [field, role] of [['glbRef', 'glb'], ['scriptRef', 'script']]) {
     const ref = safeText(operationArgs[field], 1200);
-    if (!ref.toLowerCase().startsWith('drive://')) continue;
-    const staged = await stageHomeCenterDriveRenderInput({google, auth, user, renderId, role, sourceRef: ref});
-    operationArgs[field] = staged.ref;
-    stagedInputs.push(staged);
+    if (ref.toLowerCase().startsWith('drive://')) tasks.push({kind: 'drive', field, role, refField: field, sourceRef: ref});
   }
   for (const [field, role, refField] of [['glbSource', 'glb', 'glbRef'], ['scriptSource', 'script', 'scriptRef']]) {
     const source = normalizeRenderGitHubSource(operationArgs[field], role);
-    if (!source) continue;
-    const staged = await stageHomeCenterGitHubRenderInput({githubToken, user, renderId, role, source});
-    operationArgs[refField] = staged.ref;
-    delete operationArgs[field];
+    if (source) tasks.push({kind: 'github', field, role, refField, source});
+  }
+  const results = await boundedMap(tasks, 2, async (task) => {
+    const staged = task.kind === 'drive'
+      ? await stageHomeCenterDriveRenderInput({google, auth, user, renderId, role: task.role, sourceRef: task.sourceRef})
+      : await stageHomeCenterGitHubRenderInput({githubToken, user, renderId, role: task.role, source: task.source});
+    return {task, staged};
+  });
+  for (const {task, staged} of results) {
+    operationArgs[task.refField] = staged.ref;
+    if (task.kind === 'github') delete operationArgs[task.field];
     stagedInputs.push(staged);
   }
   operationArgs.stagedInputs = stagedInputs;
@@ -1103,6 +1117,7 @@ function normalizeDirectRenderBlenderGlbArgs(args = {}) {
   }
   return {
     idempotencyKey: args.idempotencyKey,
+    contractVersion: safeText(args.contractVersion, 100) || 'home-center.blender-render-request.v2',
     renderId: args.renderId,
     glbFile: args.glbFile,
     scriptFile: args.scriptFile,
@@ -1385,6 +1400,7 @@ function renderBlenderGlbCatalogInputSchema() {
         type: 'string',
         description: 'Optional caller-provided render id.',
       },
+      contractVersion: {type: 'string', enum: ['home-center.blender-render-request.v2'], description: 'Versioned renderer request contract.'},
       glbFile: hostFileUploadInputSchema({
         contentMediaType: 'model/gltf-binary',
         description: 'Required top-level host-file upload containing a binary GLB model. Do not pass a path, URL, Base64 string, ref, or JSON descriptor.',
@@ -1393,6 +1409,7 @@ function renderBlenderGlbCatalogInputSchema() {
         contentMediaType: 'text/x-python',
         description: 'Required top-level host-file upload containing the Blender Python render script. Do not pass a path, URL, Base64 string, ref, or JSON descriptor.',
       }),
+      settings: rendererSettingsJsonSchema(),
       cache: {
         type: 'boolean',
         description: 'Use cached render artifacts when the backend cache key already exists. Defaults to true.',
@@ -4360,7 +4377,7 @@ function runDroobiedooContextOperation(operation, args = {}) {
 
 function driveOperationRegistry() {
   return {
-    version: '2026-07-27.storage-artifact-ingest-v1',
+    version: '2026-07-27.artifact-transport-v1',
     invocationTool: 'drive_operation',
     cachePolicy: 'New bridge and simulation operations should be invokable through drive_operation so ChatGPT does not need a top-level MCP tool refresh for every backend code change. Cartesia TTS is a direct Home Center MCP provider operation; it must not be routed through Command Center jobs or workers.',
     operations: {
@@ -5096,6 +5113,68 @@ async function ingestDriveAudioOperation({google, admin, auth, user, args = {}, 
   }
 }
 
+async function artifactTransportPreflightOperation({google, admin, auth, user, args = {}}) {
+  const requestId = safeText(args.requestId, 180);
+  if (!requestId) throw homeCenterRenderInputError('requestId is required.', 400, 'ARTIFACT_REQUEST_ID_REQUIRED');
+  const artifacts = Array.isArray(args.artifacts) ? args.artifacts : [];
+  const consumer = safeObject(args.consumer);
+  const storage = new Storage();
+  const drive = google && auth ? google.drive({version: 'v3', auth}) : null;
+  const receipt = await preflightArtifactEnvelope({
+    requestId,
+    operation: safeText(args.targetOperation, 120) || 'artifact_transport.preflight',
+    artifacts,
+    consumer,
+    concurrency: Number(args.concurrency || 4),
+    resolver: async (plan) => {
+      const identity = plan.reference.identity;
+      if (plan.location.kind === 'gcs') {
+        const match = /^gs:\/\/([^/]+)\/(.+)$/.exec(plan.location.uri);
+        if (!match) throw homeCenterRenderInputError('Invalid GCS URI.', 400, 'ARTIFACT_GCS_URI_INVALID');
+        const [metadata] = await storage.bucket(match[1]).file(match[2]).getMetadata();
+        const actualBytes = Number(metadata.size || 0);
+        const actualSha = safeText(metadata.metadata && metadata.metadata.sha256, 64).toLowerCase();
+        if (actualBytes !== identity.byteLength) throw homeCenterRenderInputError('GCS object byte length does not match artifact identity.', 409, 'ARTIFACT_BYTE_LENGTH_MISMATCH');
+        if (!actualSha) throw homeCenterRenderInputError('GCS object lacks verified sha256 metadata.', 409, 'ARTIFACT_SHA256_METADATA_MISSING');
+        if (actualSha !== identity.sha256) throw homeCenterRenderInputError('GCS object sha256 metadata does not match artifact identity.', 409, 'ARTIFACT_SHA256_MISMATCH');
+        return {resolvable: true, reusedBytes: plan.action === 'reuse' ? actualBytes : 0, transferredBytes: 0, verification: {sha256Match: true, byteLengthMatch: true, generation: safeText(metadata.generation, 80)}};
+      }
+      if (plan.location.kind === 'drive') {
+        if (!drive) throw homeCenterRenderInputError('Drive reference requires authenticated Google Drive access.', 401, 'ARTIFACT_DRIVE_AUTH_REQUIRED');
+        const response = await drive.files.get({fileId: plan.location.fileId, supportsAllDrives: true, fields: 'id,name,mimeType,size,md5Checksum,modifiedTime'});
+        const actualBytes = Number(response.data && response.data.size || 0);
+        if (actualBytes !== identity.byteLength) throw homeCenterRenderInputError('Drive file byte length does not match artifact identity.', 409, 'ARTIFACT_BYTE_LENGTH_MISMATCH');
+        return {resolvable: true, reusedBytes: plan.action === 'reuse' ? actualBytes : 0, transferredBytes: 0, verification: {byteLengthMatch: true, expectedSha256: identity.sha256, providerSha256Available: false, providerMd5: safeText(response.data && response.data.md5Checksum, 64), fileId: safeText(response.data && response.data.id, 240)}};
+      }
+      if (plan.location.kind === 'github') return {resolvable: true, reusedBytes: plan.action === 'reuse' ? identity.byteLength : 0, transferredBytes: 0, verification: {expectedSha256: identity.sha256, immutableRef: plan.location.ref}};
+      if (plan.location.kind === 'inline_metadata') return {resolvable: true, reusedBytes: 0, transferredBytes: 0, verification: {metadataOnly: true}};
+      throw homeCenterRenderInputError('Reference kind requires staging and cannot be proven by preflight alone: ' + plan.location.kind + '.', 422, 'ARTIFACT_STAGING_REQUIRED');
+    },
+  });
+  if (admin && typeof admin.firestore === 'function') {
+    const ref = admin.firestore().collection('artifactTransportReceipts').doc(requestId);
+    const snapshot = await ref.get();
+    const owner = safeText(user && user.email, 320).toLowerCase();
+    if (snapshot.exists) {
+      const existing = snapshot.data() || {};
+      if (existing.inputHash !== receipt.inputHash) throw homeCenterRenderInputError('requestId is already bound to different artifact identities.', 409, 'ARTIFACT_IDEMPOTENCY_CONFLICT');
+      return {...existing.receipt, attached: true};
+    }
+    await ref.create({requestId, inputHash: receipt.inputHash, owner, receipt, createdAt: new Date().toISOString()});
+  }
+  return {...receipt, attached: false};
+}
+
+async function artifactTransportStatusOperation({admin, user, args = {}}) {
+  const requestId = safeText(args.requestId, 180);
+  if (!requestId) throw homeCenterRenderInputError('requestId is required.', 400, 'ARTIFACT_REQUEST_ID_REQUIRED');
+  const snapshot = await admin.firestore().collection('artifactTransportReceipts').doc(requestId).get();
+  if (!snapshot.exists) throw homeCenterRenderInputError('Artifact transport receipt not found.', 404, 'ARTIFACT_RECEIPT_NOT_FOUND');
+  const data = snapshot.data() || {};
+  if (safeText(data.owner, 320).toLowerCase() !== safeText(user && user.email, 320).toLowerCase()) throw homeCenterRenderInputError('Artifact transport receipt is not owned by this caller.', 403, 'ARTIFACT_RECEIPT_FORBIDDEN');
+  return data.receipt;
+}
+
 async function driveOperationRunOperation({google, admin, auth, user, extra = null, googleClientId = '', googleClientSecret = '', githubToken = () => '', githubAdmin = {}, cartesiaApiKey = () => '', args = {}}) {
   const operation = safeText(args.operation || args.type || args.toolName, 120);
   if (!operation) throw Object.assign(new Error('operation is required.'), {status: 400});
@@ -5137,8 +5216,20 @@ async function driveOperationRunOperation({google, admin, auth, user, extra = nu
   }
   if (artifactOperationEntries()[operation]) {
     requireCreditGatedEmail(user && user.email, operation);
+    if (operation === 'artifact_transport.preflight') {
+      const result = await artifactTransportPreflightOperation({google, admin, auth, user, args: operationArgs});
+      return {operation, registryVersion: registry.version, completed: result.state === 'accepted', result};
+    }
+    if (operation === 'artifact_transport.status') {
+      const result = await artifactTransportStatusOperation({admin, user, args: operationArgs});
+      return {operation, registryVersion: registry.version, completed: result.state === 'accepted', result};
+    }
     const common = {admin, user, args: operationArgs, recordAudit: recordActionAudit};
     let result;
+    if (operation === 'storage.artifact.resumable_begin') result = await beginResumableArtifactIngestOperation(common);
+    if (operation === 'storage.artifact.resumable_status') result = await resumableArtifactStatusOperation(common);
+    if (operation === 'storage.artifact.resumable_resume') result = await resumeResumableArtifactIngestOperation(common);
+    if (operation === 'storage.artifact.resumable_commit') result = await commitResumableArtifactIngestOperation(common);
     if (operation === 'storage.artifact.begin') result = await beginArtifactIngestOperation(common);
     if (operation === 'storage.artifact.append_chunk') result = await appendArtifactChunkOperation(common);
     if (operation === 'storage.artifact.commit') result = await commitArtifactIngestOperation(common);
@@ -7064,4 +7155,4 @@ function createHomeCenterMcpApp({google, admin, googleClientId = () => '', googl
   return app;
 }
 
-module.exports = {homeCenterHealthPayload, homeCenterReadinessPayload, homeCenterCapabilitiesPayload, operationRegistrySummary, CREDIT_GATED_EMAILS, requireCreditGatedEmail, GITHUB_ADMIN_ALLOWED_EMAILS, requireGitHubAdminUser, HOME_CENTER_MCP_SERVER_VERSION, HOME_CENTER_CONNECTOR_SCHEMA_REVISION, HOME_CENTER_REGISTRY_VERSION, HOME_CENTER_DIRECT_FILE_TOOLS, verifiedRenderGifMcpContent, attachRenderGifMcpContent, renderArtifactHashEntry, uploadVerifiedArtifact, createHomeCenterMcpApp, createHomeCenterMcpServer, createDriveFolderOperation, createGoogleDocOperation, appendGoogleDocOperation, publishContextSnapshotOperation, synthesizeCartesiaAudioArtifactOperation, cartesiaVoicesOperation, createSheetOperation, updateSheetValuesOperation, importXlsxWorkbookOperation, readDriveBinaryChunkOperation, compareAudioIngestFileIds, ingestDriveAudioOperation, finalizeDriveAudioIngestBatchOperation, driveOperationRunOperation, driveWorkflowRunOperation, simulationOperationRunOperation, simulationOperationRegistry, droobiedooContextOperationEntries, loadDroobiedooContextIndex, searchDroobiedooContextIndex, runDroobiedooContextOperation, normalizeRecoveryOperation, summarizeRecoveryOperations, loadMcpAccessContext, armoryReceiptOperation, armoryRecountOperation, armoryCasingOperation, renderAudioOperation, inspectAudioArtifactsOperation, materializeHomeCenterRenderDriveRefs, materializeHomeCenterRenderSources, stageHomeCenterGitHubRenderInput, normalizeRenderGitHubSource, githubAdminOperationEntries, githubAdminOperationRunOperation, createGitHubAppJwt};
+module.exports = {artifactTransportPreflightOperation, artifactTransportStatusOperation, homeCenterHealthPayload, homeCenterReadinessPayload, homeCenterCapabilitiesPayload, operationRegistrySummary, CREDIT_GATED_EMAILS, requireCreditGatedEmail, GITHUB_ADMIN_ALLOWED_EMAILS, requireGitHubAdminUser, HOME_CENTER_MCP_SERVER_VERSION, HOME_CENTER_CONNECTOR_SCHEMA_REVISION, HOME_CENTER_REGISTRY_VERSION, HOME_CENTER_DIRECT_FILE_TOOLS, verifiedRenderGifMcpContent, attachRenderGifMcpContent, renderArtifactHashEntry, uploadVerifiedArtifact, createHomeCenterMcpApp, createHomeCenterMcpServer, createDriveFolderOperation, createGoogleDocOperation, appendGoogleDocOperation, publishContextSnapshotOperation, synthesizeCartesiaAudioArtifactOperation, cartesiaVoicesOperation, createSheetOperation, updateSheetValuesOperation, importXlsxWorkbookOperation, readDriveBinaryChunkOperation, compareAudioIngestFileIds, ingestDriveAudioOperation, finalizeDriveAudioIngestBatchOperation, driveOperationRunOperation, driveWorkflowRunOperation, simulationOperationRunOperation, simulationOperationRegistry, droobiedooContextOperationEntries, loadDroobiedooContextIndex, searchDroobiedooContextIndex, runDroobiedooContextOperation, normalizeRecoveryOperation, summarizeRecoveryOperations, loadMcpAccessContext, armoryReceiptOperation, armoryRecountOperation, armoryCasingOperation, renderAudioOperation, inspectAudioArtifactsOperation, materializeHomeCenterRenderDriveRefs, materializeHomeCenterRenderSources, stageHomeCenterGitHubRenderInput, normalizeRenderGitHubSource, githubAdminOperationEntries, githubAdminOperationRunOperation, createGitHubAppJwt};

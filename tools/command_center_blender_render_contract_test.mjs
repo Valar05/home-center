@@ -2,6 +2,7 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 
+const artifactTransport = fs.readFileSync(new URL('../functions/artifact_transport.js', import.meta.url), 'utf8');
 const commandCenter = fs.readFileSync(new URL('../functions/command_center_mcp.js', import.meta.url), 'utf8');
 const homeCenter = fs.readFileSync(new URL('../functions/home_center_mcp.js', import.meta.url), 'utf8');
 const renderService = fs.readFileSync(new URL('../cloud-render/src/render_bundle.mjs', import.meta.url), 'utf8');
@@ -98,7 +99,11 @@ assert(renderService.includes('includeDiagnostics'));
 assert(commandCenter.includes('timings'));
 assert(commandCenter.includes('renderOptions'));
 assert(commandCenter.includes('includeBlend'));
-assert(commandCenter.includes('samples: Math.max(1, Math.min(Number(src.samples || src.renderSamples || 64) || 64, 128))'));
+assert(commandCenter.includes('return normalizeRendererSettings(value)'));
+assert(artifactTransport.includes('samples: Math.max(1, Math.min(Number(src.samples || src.renderSamples || 64) || 64, 128))'));
+assert(artifactTransport.includes('gifFrames'));
+assert(renderService.includes('PUBLISH_CONCURRENCY'));
+assert(renderService.includes('Promise.all(['));
 assert(commandCenter.includes("kind) => resolved.includeDiagnostics || kind !== 'diagnostic_view_renders'"));
 assert(renderService.includes("if (ext === '.gif') return 'image/gif';"));
 assert(commandCenter.includes('loopingGifRef'));

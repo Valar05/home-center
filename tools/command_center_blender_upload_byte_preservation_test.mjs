@@ -5,6 +5,7 @@ import {createRequire} from 'node:module';
 import Module from 'node:module';
 
 const saves = [];
+const objects = new Map();
 const originalLoad = Module._load;
 Module._load = function patchedLoad(request, parent, isMain) {
   if (request === '@google-cloud/storage') {
@@ -15,8 +16,10 @@ Module._load = function patchedLoad(request, parent, isMain) {
             file(objectName) {
               return {
                 async save(bytes, options) {
-                  saves.push({bucketId, objectName, bytes: Buffer.from(bytes), options});
+                  if (objects.has(objectName) && options?.preconditionOpts?.ifGenerationMatch === 0) { const error = new Error('precondition failed'); error.code = 412; throw error; }
+                  const copy=Buffer.from(bytes); objects.set(objectName,copy); saves.push({bucketId, objectName, bytes: copy, options});
                 },
+                async download() { return [Buffer.from(objects.get(objectName))]; },
               };
             },
           };
@@ -53,9 +56,12 @@ const result = await resolveRenderSources(
 );
 assert.equal(saves.length, 2, 'both uploads must be staged by the upload handler');
 assert.deepEqual(saves.map((save) => createHash('sha256').update(save.bytes).digest('hex')).sort(), [createHash('sha256').update(glbBytes).digest('hex'), createHash('sha256').update(scriptBytes).digest('hex')].sort());
-assert.equal(Buffer.compare(saves.find((save) => save.objectName.includes('/glb-')).bytes, glbBytes), 0, 'GLB bytes must be preserved exactly');
-assert.equal(Buffer.compare(saves.find((save) => save.objectName.includes('/script-')).bytes, scriptBytes), 0, 'script bytes must be preserved exactly');
+assert.equal(Buffer.compare(saves.find((save) => save.objectName.includes('artifacts/sha256/') && save.objectName.endsWith('/vanguard.glb')).bytes, glbBytes), 0, 'GLB bytes must be preserved exactly');
+assert.equal(Buffer.compare(saves.find((save) => save.objectName.includes('artifacts/sha256/') && save.objectName.endsWith('/render.py')).bytes, scriptBytes), 0, 'script bytes must be preserved exactly');
 assert.equal(result.stagedInputs.length, 2);
+const replay = await resolveRenderSources({actor: 'byte-test@example.com', ownerKey: 'owner_byte_test'}, {glbFile: new File([glbBytes], 'vanguard.glb', {type: 'model/gltf-binary'}), scriptFile: new File([scriptBytes], 'render.py', {type: 'text/x-python'})}, 'render_replay');
+assert.equal(saves.length, 2, 'digest replay must not upload duplicate bytes');
+assert.equal(replay.stagedInputs.every((item) => item.reused && item.transferredBytes === 0), true);
 assert(result.glbRef.startsWith('gs://'));
 assert(result.scriptRef.startsWith('gs://'));
 console.log('Command Center Blender upload byte-preservation test: OK');

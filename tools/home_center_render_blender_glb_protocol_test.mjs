@@ -12,9 +12,9 @@ const {
   createHomeCenterMcpServer,
 } = require('../functions/home_center_mcp.js');
 
-assert.match(HOME_CENTER_CONNECTOR_SCHEMA_REVISION, /^2026-07-26\.status-contract-v1$/);
+assert.match(HOME_CENTER_CONNECTOR_SCHEMA_REVISION, /^2026-07-27\.artifact-transport-v1$/);
 assert.equal(HOME_CENTER_REGISTRY_VERSION, HOME_CENTER_CONNECTOR_SCHEMA_REVISION);
-assert.deepEqual([...HOME_CENTER_DIRECT_FILE_TOOLS], ['render_blender_glb']);
+assert.deepEqual([...HOME_CENTER_DIRECT_FILE_TOOLS], ['render_blender_glb', 'drive_ingest_file', 'storage_ingest_artifact']);
 
 process.env.HOME_CENTER_MCP_EXTENDED_TOOLS = 'true';
 const server = createHomeCenterMcpServer({google: {}, admin: {firestore() { return {}; }}, googleClientId: () => 'configured', googleClientSecret: () => 'configured'});
@@ -37,6 +37,8 @@ assert.match(props.glbFile?.description || '', /top-level host-file upload.*bina
 assert.equal(props.scriptFile?.format, 'binary');
 assert.equal(props.scriptFile?.contentEncoding, undefined, 'ChatGPT host-file catalog schema must not publish JSON contentEncoding for binary upload slots');
 assert.equal(props.scriptFile?.contentMediaType, 'text/x-python');
+assert.equal(props.settings?.properties?.gifFrames?.type, 'array');
+assert.equal(props.settings?.properties?.gifTimingMs?.type, 'array');
 assert.match(props.scriptFile?.description || '', /top-level host-file upload.*Blender Python/i);
 assert.equal(props.glbRef, undefined, 'direct tool must not advertise glbRef');
 assert.equal(props.scriptRef, undefined, 'direct tool must not advertise scriptRef');

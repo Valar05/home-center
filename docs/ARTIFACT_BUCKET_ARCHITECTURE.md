@@ -117,3 +117,5 @@ Do not make generated artifact buckets public. Human consumption should use Driv
 - `functions/command_center_mcp.js`: Command Center render upload staging uses the generated bucket.
 - `cloud-render/src/render_bundle.mjs`: Blender bundles, frames, contact sheets, GIFs, logs, GLBs, manifests, and hashes write to the generated bucket layout.
 - `tools/setup_generated_artifact_bucket.sh`: live bucket creation and lifecycle configuration.
+
+Digest-addressed immutable render inputs use `artifacts/sha256/<sha256>/<filename>`. Request-scoped `temp/render-inputs` paths are legacy cache locations only; new host staging reuses exact bytes by digest.

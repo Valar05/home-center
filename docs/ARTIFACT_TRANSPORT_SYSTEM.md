@@ -103,3 +103,110 @@ with bounded concurrency, verify bytes before ready, and return versioned
 receipts with structured field errors. Legacy Base64 chunks may remain only as a
 small explicitly deprecated compatibility adapter; they cannot be the large-file
 path.
+
+
+## Implemented Contract
+
+Implementation status: repository-verified; deployment and live proof follow this section.
+
+- Canonical reference: `home-center.artifact-reference.v1` separates immutable
+  `sha256`, `byteLength`, `mediaType`, and `fileName` from a location
+  union: GCS, Drive, GitHub, host upload, Command Center bucket, or inline
+  metadata.
+- Transport receipt: `home-center.artifact-transport.v1` binds request ID to
+  logical operation, artifact identities, and consumer capabilities. Temporary
+  URLs are excluded from identity and bounded status.
+- Renderer request: `home-center.blender-render-request.v2`. Home Center's
+  public JSON schema and Command Center/renderer validation are generated from
+  `functions/artifact_transport.js`; `gifFrames` and `gifTimingMs` are
+  present at all owned boundaries.
+- Preflight states are `accepted|failed`; resumable publication uses
+  `staging -> uploaded -> ready -> completed` and fails closed before
+  publication on any range or whole-object digest mismatch.
+- Long binary ingress uses a private GCS resumable session. Raw bytes travel
+  directly from the client to GCS. Commit range-reads and SHA-verifies every
+  declared chunk at bounded concurrency four, stream-verifies the whole object,
+  then server-side copies it into the existing immutable catalog.
+- Legacy Base64 chunks are compatibility-only and capped at 65,536 decoded
+  bytes. Renderer inline Base64 has the same cap. The observed 880 KiB connector
+  failure establishes that JSON is not a file transport; no larger JSON
+  threshold is used.
+- Independent Home Center Drive/GitHub sources, Command Center host files,
+  renderer input resolution, and renderer output publication use bounded
+  concurrency. Result arrays retain deterministic input order.
+- Host render staging uses `artifacts/sha256/<digest>/<filename>`, create-if-
+  absent, and verifies any preexisting object before reporting reuse.
+
+## Operations
+
+| Operation | Contract |
+| --- | --- |
+| `artifact_transport.preflight` | Resolve an artifact-reference array, verify provider metadata, choose reuse/stage path, persist bounded receipt. |
+| `artifact_transport.status` | Owner-only bounded receipt; no bytes, tokens, or private URLs. |
+| `storage.artifact.resumable_begin` | Bind request and chunk manifest, create private GCS raw-binary upload target, return accepted receipt. |
+| `storage.artifact.resumable_resume` | Owner-only reissue of the private session target. |
+| `storage.artifact.resumable_status` | Owner-only progress without session target. |
+| `storage.artifact.resumable_commit` | Verify ranges and whole object, publish by server-side copy, catalog, dispose staging object. |
+
+Firestore adds `artifactTransportReceipts` and
+`artifactTransportUploadSessions`. Both use direct document lookup by request
+ID; no composite index is required. The latter contains the private resumable
+session URL and is reachable only through authenticated, owner-checked
+operations. Retention cleanup is intentionally not automatic; explicit abort or
+successful commit disposes staging bytes, and a future scheduled policy may
+remove abandoned sessions only after a documented retention window.
+
+## Measurements And Tests
+
+Synthetic equal-latency staging fixture (four files, 80 ms each): serialized
+`323 ms`; bounded concurrency four `122 ms`; measured speedup `2.65x`.
+This proves scheduler behavior, not provider throughput. Live provider timings
+remain recorded per phase in receipts and renderer manifests.
+
+Automated contracts cover metadata-only requests, small host staging, bounded
+parallel multi-file ordering, interruption/resume, digest reuse, same/different
+idempotency input, corrupt chunk, wrong length, unsupported/expired references,
+schema disagreement, concurrent jobs, sibling failure isolation, and redacted
+logs. The exact Candidate 001 preflight fixture resolves 720,363 bytes with zero
+transfer; the existing 181,652,767-byte Drive ZIP resolves with zero transfer.
+
+## Security And Privacy
+
+Operational status strips authorization, signed/upload URLs, request bodies,
+Base64, and raw bytes. Provider errors are bounded and field-specific. GCS and
+Drive resolution use the existing service/user identities. Receipt reads are
+owner checked; artifact operations remain credit-gated. Binary publication is
+create-if-absent and digest verified. No SMS or unrelated user-data path changed.
+
+## Compatibility And Archaeology
+
+The merged Base64 chunk implementation remains only for small old clients. It
+is not removed abruptly, but its advertised summary and hard cap now make the
+migration explicit. Request-scoped render staging and blind output overwrite are
+superseded by digest-addressed objects. Source-descriptor GitHub cache objects
+remain valid locations and are adopted by preflight; they need not be recopied.
+GitHub Actions quota exhaustion remains a separate retention/storage-policy
+failure.
+
+## Known Limitations
+
+- Work Mode host attachment marshalling remains host-owned. The repository can
+  now preflight durable refs and return specific owned-boundary errors, but it
+  cannot make a Drive URL inhabit a host `format: binary` slot.
+- Drive exposes MD5 and byte length, not SHA-256. Preflight reports the
+  repository-bound expected SHA and provider MD5 without claiming independent
+  provider SHA verification.
+- The local Termux runtime lacks ImageMagick `convert`; GIF encode/decode is
+  verified in the Cloud Run image, which installs ImageMagick.
+- Candidate 001 remains quarantined after transport execution until hosted
+  visual Pose-is-God review accepts it.
+
+## Rollback
+
+Roll back functions with `gcloud run services update-traffic <service> --to-revisions <previous>=100 --region us-central1 --project home-center-dclar` using the previous revisions recorded below. Roll back Blender the same way; do not create a parallel service. Repository rollback is a normal revert of the implementation commit. Existing immutable artifacts and receipts remain readable; resumable sessions can be explicitly aborted. No database migration must be reversed.
+
+## Deployment And Live Proof
+
+Pending live deployment receipts. This section must contain exact revisions,
+100% traffic confirmation, Candidate render receipt/manifest, replay receipt,
+large-file preflight, and post-deploy service/job inventory before completion.
