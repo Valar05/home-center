@@ -144,3 +144,5 @@ Mechanical acceptance requires:
 - no fabricated human acceptance.
 
 Human listening remains a separate authority.
+
+Integrated loudness is not reported for a sub-400 ms or otherwise ungated impulse. FFmpeg's `-70 LUFS` gate floor is preserved only in parser evidence and normalized to `integratedLufs: null`, `integratedLoudnessApplicable: false` in the candidate receipt. True peak, duration, decode, clipping, signal metrics, and hashes remain valid. Longer movement or ambience candidates may carry applicable integrated loudness.
