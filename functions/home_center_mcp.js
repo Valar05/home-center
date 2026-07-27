@@ -4103,7 +4103,7 @@ function runDroobiedooContextOperation(operation, args = {}) {
 
 function driveOperationRegistry() {
   return {
-    version: '2026-07-26.armory-range-audio-library-ingest-v1',
+    version: '2026-07-26.sfx-source-ingest-v1',
     invocationTool: 'drive_operation',
     cachePolicy: 'New bridge and simulation operations should be invokable through drive_operation so ChatGPT does not need a top-level MCP tool refresh for every backend code change. Cartesia TTS is a direct Home Center MCP provider operation; it must not be routed through Command Center jobs or workers.',
     operations: {
@@ -4146,8 +4146,8 @@ function driveOperationRegistry() {
         write: true,
         requiresRequestId: true,
         requiredScopes: ['https://www.googleapis.com/auth/drive'],
-        input: {fileId: 'string', batchId: 'required stable migration batch id', requestId: 'string', approved: 'must be true', objectName: 'optional deterministic audio/ object name', project: 'optional string', stage: 'optional finals|parts|probes|rejected|unclassified', sourcePath: 'optional original Drive path', expectedSize: 'optional integer', expectedDriveMd5: 'optional Drive MD5 hex', ownerEmail: 'optional owner override; defaults authenticated user', sharedWith: 'optional email array'},
-        output: {verified: 'boolean', reused: 'boolean', source: 'Drive id/name/size/MD5/path', destination: 'bucket/object/gs URI/size/SHA-256/metadata', indexes: 'immutable by-drive-id, owner/project/stage catalog, and batch-item JSON receipts', readback: 'byte count/SHA-256', driveMutated: 'false'},
+        input: {fileId: 'string', batchId: 'required stable migration batch id', requestId: 'string', approved: 'must be true', objectName: 'optional deterministic audio/ object name', project: 'optional string', stage: 'optional sources|finals|parts|probes|rejected|unclassified', sourcePath: 'optional original Drive path', expectedSize: 'optional integer', expectedDriveMd5: 'optional Drive MD5 hex', ownerEmail: 'optional owner override; defaults authenticated user', sharedWith: 'optional email array', sourceKind: 'required for sources: foley_recording|generated|licensed|public_domain|unknown', creator: 'required for sources', rightsBasis: 'required for sources: self_recorded|commissioned|licensed|public_domain|unknown', captureDevice: 'optional string', captureApp: 'optional string', recordedAt: 'optional ISO timestamp', annotationStatus: 'optional embedded_spoken_labels_unparsed|unlabeled|partial|cataloged', semanticAuthority: 'optional source_audio|creator_notes|catalog_review|unknown', sourceNotes: 'optional bounded string'},
+        output: {verified: 'boolean', reused: 'boolean', source: 'Drive id/name/size/MD5/path', destination: 'bucket/object/gs URI/size/SHA-256/metadata', sourceMetadata: 'immutable provenance and annotation state for source-stage audio', indexes: 'immutable by-drive-id, owner/project/stage catalog, and batch-item JSON receipts', readback: 'byte count/SHA-256', driveMutated: 'false'},
         agentRecipe: {
           whenUserSays: 'Ingest, backfill, or migrate an existing Drive audio artifact into the canonical generated-audio bucket.',
           prefer: 'Call drive_operation once per file with operation=audio.ingest_drive, approved=true, a stable batchId/requestId, and explicit project/stage/sourcePath metadata. Keep Drive untouched until the batch is sealed and a later human-approved cleanup manifest exists.',
@@ -4388,10 +4388,58 @@ function sanitizeAudioIngestSegment(value, fallback = 'item') {
 
 function normalizedAudioIngestStage(value) {
   const stage = safeText(value, 80).toLowerCase() || 'unclassified';
-  if (!['finals', 'parts', 'probes', 'rejected', 'unclassified'].includes(stage)) {
-    throw Object.assign(new Error('stage must be finals, parts, probes, rejected, or unclassified.'), {status: 400});
+  if (!['sources', 'finals', 'parts', 'probes', 'rejected', 'unclassified'].includes(stage)) {
+    throw Object.assign(new Error('stage must be sources, finals, parts, probes, rejected, or unclassified.'), {status: 400});
   }
   return stage;
+}
+
+function normalizedAudioSourceMetadata(args = {}, stage = 'unclassified') {
+  const sourceKind = safeText(args.sourceKind, 80).toLowerCase();
+  const creator = safeText(args.creator, 320);
+  const rightsBasis = safeText(args.rightsBasis, 80).toLowerCase();
+  const captureDevice = safeText(args.captureDevice, 320);
+  const captureApp = safeText(args.captureApp, 320);
+  const recordedAt = safeText(args.recordedAt, 80);
+  const annotationStatus = safeText(args.annotationStatus, 80).toLowerCase();
+  const semanticAuthority = safeText(args.semanticAuthority, 80).toLowerCase();
+  const notes = safeText(args.sourceNotes, 1600);
+  const supplied = [sourceKind, creator, rightsBasis, captureDevice, captureApp, recordedAt, annotationStatus, semanticAuthority, notes].some(Boolean);
+  if (stage !== 'sources' && !supplied) return null;
+
+  const allowedSourceKinds = ['foley_recording', 'generated', 'licensed', 'public_domain', 'unknown'];
+  const allowedRights = ['self_recorded', 'commissioned', 'licensed', 'public_domain', 'unknown'];
+  const allowedAnnotationStatuses = ['embedded_spoken_labels_unparsed', 'unlabeled', 'partial', 'cataloged'];
+  const allowedAuthorities = ['source_audio', 'creator_notes', 'catalog_review', 'unknown'];
+  if (sourceKind && !allowedSourceKinds.includes(sourceKind)) {
+    throw Object.assign(new Error('sourceKind is not supported.'), {status: 400});
+  }
+  if (rightsBasis && !allowedRights.includes(rightsBasis)) {
+    throw Object.assign(new Error('rightsBasis is not supported.'), {status: 400});
+  }
+  if (annotationStatus && !allowedAnnotationStatuses.includes(annotationStatus)) {
+    throw Object.assign(new Error('annotationStatus is not supported.'), {status: 400});
+  }
+  if (semanticAuthority && !allowedAuthorities.includes(semanticAuthority)) {
+    throw Object.assign(new Error('semanticAuthority is not supported.'), {status: 400});
+  }
+  if (recordedAt && Number.isNaN(Date.parse(recordedAt))) {
+    throw Object.assign(new Error('recordedAt must be an ISO-compatible timestamp.'), {status: 400});
+  }
+  if (stage === 'sources' && (!sourceKind || !creator || !rightsBasis)) {
+    throw Object.assign(new Error('sources stage requires sourceKind, creator, and rightsBasis.'), {status: 400});
+  }
+  return {
+    sourceKind: sourceKind || 'unknown',
+    creator,
+    rightsBasis: rightsBasis || 'unknown',
+    captureDevice,
+    captureApp,
+    recordedAt,
+    annotationStatus: annotationStatus || (stage === 'sources' ? 'unlabeled' : 'unlabeled'),
+    semanticAuthority: semanticAuthority || (stage === 'sources' ? 'source_audio' : 'unknown'),
+    notes,
+  };
 }
 
 function validatedAudioIngestObjectName(value) {
@@ -4449,7 +4497,8 @@ function sameAudioIndexIdentity(existing, expected) {
     safeText(existing.source.fileId, 220) === safeText(expected.source.fileId, 220) &&
     safeText(existing.destination.objectName, 1024) === safeText(expected.destination.objectName, 1024) &&
     safeText(existing.destination.sha256, 64).toLowerCase() === safeText(expected.destination.sha256, 64).toLowerCase() &&
-    Number(existing.destination.byteCount || 0) === Number(expected.destination.byteCount || 0);
+    Number(existing.destination.byteCount || 0) === Number(expected.destination.byteCount || 0) &&
+    JSON.stringify(existing.sourceMetadata || null) === JSON.stringify(expected.sourceMetadata || null);
 }
 
 async function writeImmutableAudioIndex(bucket, objectName, payload, createdFiles, identityCheck = sameAudioIndexIdentity) {
@@ -4480,13 +4529,14 @@ async function writeImmutableAudioIndex(bucket, objectName, payload, createdFile
   return {objectName, storageRef: 'gs://' + AUDIO_INGEST_BUCKET + '/' + objectName, byteCount: readback.bytes.length, sha256: readback.sha256, reused: false};
 }
 
-async function writeAudioIngestIndexes({bucket, batchId, fileId, ownerSegment, project, stage, source, destination}) {
+async function writeAudioIngestIndexes({bucket, batchId, fileId, ownerSegment, project, stage, source, destination, sourceMetadata = null}) {
   const createdFiles = [];
   const base = {
-    schemaVersion: 'home-center.audio-index.v1',
+    schemaVersion: sourceMetadata ? 'home-center.audio-index.v2' : 'home-center.audio-index.v1',
     indexedAt: new Date().toISOString(),
     source,
     destination,
+    sourceMetadata,
     classification: {ownerEmail: destination.ownerEmail, project, stage},
     verification: {verified: true, byteCountMatch: source.byteCount === destination.byteCount, sha256Match: source.sha256 === destination.sha256},
     retention: {driveMutated: false, driveTrashEligible: false, status: 'preserved-pending-sealed-batch-playback-and-explicit-approval'},
@@ -4606,6 +4656,7 @@ async function ingestDriveAudioOperation({google, admin, auth, user, args = {}, 
   }
   const project = sanitizeAudioIngestSegment(args.project, 'unclassified');
   const stage = normalizedAudioIngestStage(args.stage);
+  const sourceMetadata = normalizedAudioSourceMetadata(args, stage);
   const sourcePath = safeText(args.sourcePath, 1000);
   const sharedWith = Array.isArray(args.sharedWith) ? args.sharedWith.map((email) => safeText(email, 320).toLowerCase()).filter(Boolean) : [];
   const ownerSegment = sanitizeAudioIngestSegment(ownerEmail, 'legacy');
@@ -4631,8 +4682,8 @@ async function ingestDriveAudioOperation({google, admin, auth, user, args = {}, 
       throw Object.assign(new Error('Existing canonical destination failed readback verification.'), {status: 502});
     }
     const sourceReceipt = {fileId, name: sourceName, mimeType, byteCount: totalSize, sha256: readback.sha256, driveMd5Checksum: driveMd5, sourcePath, webViewLink: metadata.webViewLink || ''};
-    const destinationReceipt = {bucket: bucketName, objectName, storageRef: 'gs://' + bucketName + '/' + objectName, byteCount: readback.byteCount, sha256: readback.sha256, ownerEmail, project, stage};
-    const indexes = await writeAudioIngestIndexes({bucket, batchId, fileId, ownerSegment, project, stage, source: sourceReceipt, destination: destinationReceipt});
+    const destinationReceipt = {bucket: bucketName, objectName, storageRef: 'gs://' + bucketName + '/' + objectName, byteCount: readback.byteCount, sha256: readback.sha256, ownerEmail, project, stage, sourceMetadata};
+    const indexes = await writeAudioIngestIndexes({bucket, batchId, fileId, ownerSegment, project, stage, source: sourceReceipt, destination: destinationReceipt, sourceMetadata});
     return {
       ok: true,
       verified: true,
@@ -4641,6 +4692,7 @@ async function ingestDriveAudioOperation({google, admin, auth, user, args = {}, 
       batchId,
       source: sourceReceipt,
       destination: destinationReceipt,
+      sourceMetadata,
       indexes,
       readback,
       driveMutated: false,
@@ -4699,6 +4751,13 @@ async function ingestDriveAudioOperation({google, admin, auth, user, args = {}, 
       sourceDriveMd5: driveMd5,
       sourceDrivePath: sourcePath,
       sourceDriveName: sourceName,
+      sourceKind: sourceMetadata ? sourceMetadata.sourceKind : '',
+      sourceCreator: sourceMetadata ? sourceMetadata.creator : '',
+      rightsBasis: sourceMetadata ? sourceMetadata.rightsBasis : '',
+      captureDevice: sourceMetadata ? sourceMetadata.captureDevice : '',
+      captureApp: sourceMetadata ? sourceMetadata.captureApp : '',
+      annotationStatus: sourceMetadata ? sourceMetadata.annotationStatus : '',
+      semanticAuthority: sourceMetadata ? sourceMetadata.semanticAuthority : '',
       ingestStatus: 'verified',
       migrationPolicy: 'drive-preserved-pending-explicit-cleanup',
     };
@@ -4708,8 +4767,8 @@ async function ingestDriveAudioOperation({google, admin, auth, user, args = {}, 
       throw Object.assign(new Error('Canonical GCS destination failed readback verification.'), {status: 502});
     }
     const sourceReceipt = {fileId, name: sourceName, mimeType, byteCount: sourceByteCount, sha256: sourceSha256, driveMd5Checksum: driveMd5, sourcePath, webViewLink: metadata.webViewLink || ''};
-    const destinationReceipt = {bucket: bucketName, objectName, storageRef: 'gs://' + bucketName + '/' + objectName, byteCount: readback.byteCount, sha256: readback.sha256, ownerEmail, project, stage, metadata: customMetadata};
-    const indexes = await writeAudioIngestIndexes({bucket, batchId, fileId, ownerSegment, project, stage, source: sourceReceipt, destination: destinationReceipt});
+    const destinationReceipt = {bucket: bucketName, objectName, storageRef: 'gs://' + bucketName + '/' + objectName, byteCount: readback.byteCount, sha256: readback.sha256, ownerEmail, project, stage, sourceMetadata, metadata: customMetadata};
+    const indexes = await writeAudioIngestIndexes({bucket, batchId, fileId, ownerSegment, project, stage, source: sourceReceipt, destination: destinationReceipt, sourceMetadata});
     destinationCreated = false;
     await recordAudit(admin, user, 'audio.ingest_drive', fileId, 'Ingested verified Drive audio to gs://' + bucketName + '/' + objectName + ' and wrote bucket indexes without mutating Drive.', requestId);
     return {
@@ -4720,6 +4779,7 @@ async function ingestDriveAudioOperation({google, admin, auth, user, args = {}, 
       batchId,
       source: sourceReceipt,
       destination: destinationReceipt,
+      sourceMetadata,
       indexes,
       readback,
       driveMutated: false,
