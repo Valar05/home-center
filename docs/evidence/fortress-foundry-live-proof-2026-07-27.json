@@ -1,0 +1,512 @@
+{
+  "capturedAt": "2026-07-27T23:00:59.431Z",
+  "endpoint": "https://us-central1-home-center-dclar.cloudfunctions.net/homeCenterMcp/mcp",
+  "capabilitiesFoundry": [
+    "foundry.asset.inspect",
+    "foundry.asset.promote",
+    "foundry.asset.run",
+    "foundry.asset.status"
+  ],
+  "accepted": [
+    {
+      "label": "mechanical",
+      "jobId": "6441c62d21983e877c7e8ccdbc6dcf7f9b0b6719",
+      "inputHash": "a2d1b12c88a973864561cdfde39a70d48d2103a3364482130cf5a65e0d73c157",
+      "state": "queued",
+      "attached": false
+    },
+    {
+      "label": "character",
+      "jobId": "bcfb6c0b64160bcb19d11bb3732372e1108329d6",
+      "inputHash": "c47bcfa3f7e7036f65bfefb9feb29a0c3806900b1afc812fac7630d09eab92cc",
+      "state": "queued",
+      "attached": false
+    },
+    {
+      "label": "animation",
+      "jobId": "6af33792cc3e2410f4bc8e41f29514b3dce27646",
+      "inputHash": "578577b877e578c2500b511267d82995e5d9aa87606c7c8b7e1468eea4030ae1",
+      "state": "queued",
+      "attached": false
+    }
+  ],
+  "completed": [
+    {
+      "label": "mechanical",
+      "jobId": "6441c62d21983e877c7e8ccdbc6dcf7f9b0b6719",
+      "inputHash": "a2d1b12c88a973864561cdfde39a70d48d2103a3364482130cf5a65e0d73c157",
+      "resultHash": "e44adc8341e5efc3e0e59c4d8d16a9f4cbe7fafd7ea4b3c30b60755834702eb4",
+      "cacheKey": "34b41e9c6d8aa4d99953f96325c69e7e426a541ac9c9325815ff73b17de6f2b1",
+      "report": {
+        "kernelVersion": "fortress-model-foundry.v1",
+        "recipeVersion": "home-center.foundry-recipe.v1",
+        "domain": "hard_surface",
+        "reviewPreset": "fixed-four-view",
+        "bounds": {
+          "min": [
+            -1.399999976158142,
+            -0.6800000035762788,
+            -0.8800000035762787
+          ],
+          "size": [
+            2.799999952316284,
+            1.6499999916553498,
+            1.7600000071525574
+          ],
+          "max": [
+            1.399999976158142,
+            0.9699999880790711,
+            0.8800000035762787
+          ]
+        },
+        "triangleCount": 632,
+        "vertexCount": 1896,
+        "componentCount": 10,
+        "validation": {
+          "manifoldClosedComponents": 10,
+          "nonManifoldComponents": 0,
+          "degenerateTriangles": 0,
+          "invalidNormals": 0
+        },
+        "animations": [],
+        "skins": [],
+        "preservation": null
+      },
+      "artifacts": [
+        {
+          "kind": "contactSheet",
+          "name": "contact-sheet.png",
+          "status": 200,
+          "byteLength": 35703,
+          "sha256": "bfc6afe5710a83d91f3d14f3bc9530b097b519729977cd007931ee4d2756ea29",
+          "url": "https://us-central1-home-center-dclar.cloudfunctions.net/homeCenterMcp/foundry/artifacts/860c9e63436d301d1201fbdac689b04e954b2d62/contact-sheet.png"
+        },
+        {
+          "kind": "manifest",
+          "name": "foundry-manifest.json",
+          "status": 200,
+          "byteLength": 5467,
+          "sha256": "e90625af46a932ed38f9ba46a58b68d4dbb857e9b7b7e8f2bbd0bddd6e0786bb",
+          "url": "https://us-central1-home-center-dclar.cloudfunctions.net/homeCenterMcp/foundry/artifacts/860c9e63436d301d1201fbdac689b04e954b2d62/foundry-manifest.json"
+        },
+        {
+          "kind": "glb",
+          "name": "foundry-result.glb",
+          "status": 200,
+          "byteLength": 22748,
+          "sha256": "8ed9ba959d3ba243764782961dfa69ccc7298ea2d6e734d17b03cf9ea7f9061f",
+          "url": "https://us-central1-home-center-dclar.cloudfunctions.net/homeCenterMcp/foundry/artifacts/860c9e63436d301d1201fbdac689b04e954b2d62/foundry-result.glb"
+        },
+        {
+          "kind": "evidence",
+          "name": "preservation-evidence.json",
+          "status": 200,
+          "byteLength": 3,
+          "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+          "url": "https://us-central1-home-center-dclar.cloudfunctions.net/homeCenterMcp/foundry/artifacts/860c9e63436d301d1201fbdac689b04e954b2d62/preservation-evidence.json"
+        },
+        {
+          "kind": "report",
+          "name": "validation-report.json",
+          "status": 200,
+          "byteLength": 4033,
+          "sha256": "c11bad008fa3012f539fae102ad724b2fdff307c0e24dbb6e09e9a163d6af5a6",
+          "url": "https://us-central1-home-center-dclar.cloudfunctions.net/homeCenterMcp/foundry/artifacts/860c9e63436d301d1201fbdac689b04e954b2d62/validation-report.json"
+        }
+      ],
+      "viewerUrl": "https://valar05.github.io/model-viewer-lab/model-viewer.html?src=https%3A%2F%2Fus-central1-home-center-dclar.cloudfunctions.net%2FhomeCenterMcp%2Ffoundry%2Fartifacts%2F860c9e63436d301d1201fbdac689b04e954b2d62%2Ffoundry-result.glb&manifest=https%3A%2F%2Fus-central1-home-center-dclar.cloudfunctions.net%2FhomeCenterMcp%2Ffoundry%2Fartifacts%2F860c9e63436d301d1201fbdac689b04e954b2d62%2Ffoundry-manifest.json&title=Foundry%20live-mechanical-20260727-v1",
+      "viewerHttpStatus": 200,
+      "promotionId": "860c9e63436d301d1201fbdac689b04e954b2d62"
+    },
+    {
+      "label": "character",
+      "jobId": "bcfb6c0b64160bcb19d11bb3732372e1108329d6",
+      "inputHash": "c47bcfa3f7e7036f65bfefb9feb29a0c3806900b1afc812fac7630d09eab92cc",
+      "resultHash": "5080b3e51028b8bebefd185725788f68fe5f294f99e494d1331e515f93128721",
+      "cacheKey": "0e2560187031e13dfd0ce9293ee3bd82edd3ecf6edf1159cc6cbadf8c00f9fc7",
+      "report": {
+        "kernelVersion": "fortress-model-foundry.v1",
+        "recipeVersion": "home-center.foundry-recipe.v1",
+        "domain": "character_setup",
+        "reviewPreset": "fixed-four-view",
+        "bounds": {
+          "min": [
+            -0.375,
+            -0.824999988079071,
+            -0.1899999976158142
+          ],
+          "size": [
+            1.8850000023841857,
+            1.649999976158142,
+            0.3799999952316284
+          ],
+          "max": [
+            1.5100000023841857,
+            0.824999988079071,
+            0.1899999976158142
+          ]
+        },
+        "triangleCount": 56,
+        "vertexCount": 168,
+        "componentCount": 2,
+        "validation": {
+          "manifoldClosedComponents": 1,
+          "nonManifoldComponents": 1,
+          "degenerateTriangles": 16,
+          "invalidNormals": 48
+        },
+        "animations": [
+          {
+            "name": "fixture_idle",
+            "channelCount": 1,
+            "duration": 1
+          }
+        ],
+        "skins": [
+          {
+            "name": "fixture-skin",
+            "joints": [
+              "hips",
+              "spine",
+              "hand_r",
+              "weapon_socket_r"
+            ]
+          }
+        ],
+        "preservation": {
+          "meshHashEqual": true,
+          "originalInverseBindPrefixPreserved": true,
+          "rigidPropSkinned": false,
+          "originalJointOrderPreserved": true,
+          "animationHashEqual": true,
+          "addedJoint": "weapon_socket_r"
+        }
+      },
+      "artifacts": [
+        {
+          "kind": "contactSheet",
+          "name": "contact-sheet.png",
+          "status": 200,
+          "byteLength": 9074,
+          "sha256": "09af1d08a43285e80e398366e743d2949db1a3dc2c9010c32cd3e45fb95149ec",
+          "url": "https://us-central1-home-center-dclar.cloudfunctions.net/homeCenterMcp/foundry/artifacts/0e81ea01ccc06a3aa1d4cfb6bdd1427d279270b8/contact-sheet.png"
+        },
+        {
+          "kind": "manifest",
+          "name": "foundry-manifest.json",
+          "status": 200,
+          "byteLength": 3861,
+          "sha256": "756bc23b56a752e8ae482f2624c0ced6a13dffb9a2716cb77a594247d6890de3",
+          "url": "https://us-central1-home-center-dclar.cloudfunctions.net/homeCenterMcp/foundry/artifacts/0e81ea01ccc06a3aa1d4cfb6bdd1427d279270b8/foundry-manifest.json"
+        },
+        {
+          "kind": "glb",
+          "name": "foundry-result.glb",
+          "status": 200,
+          "byteLength": 12036,
+          "sha256": "c03ac237d87065bbb69cf3ee0780b6f2927390de53f26c685571560c5e7bbfb5",
+          "url": "https://us-central1-home-center-dclar.cloudfunctions.net/homeCenterMcp/foundry/artifacts/0e81ea01ccc06a3aa1d4cfb6bdd1427d279270b8/foundry-result.glb"
+        },
+        {
+          "kind": "evidence",
+          "name": "preservation-evidence.json",
+          "status": 200,
+          "byteLength": 6975,
+          "sha256": "322a6b6bcea71d4c09ea6b7943233f8801e3dfe8b52fc19577ee622379297328",
+          "url": "https://us-central1-home-center-dclar.cloudfunctions.net/homeCenterMcp/foundry/artifacts/0e81ea01ccc06a3aa1d4cfb6bdd1427d279270b8/preservation-evidence.json"
+        },
+        {
+          "kind": "skeletalOverlay",
+          "name": "skeletal-overlay.png",
+          "status": 200,
+          "byteLength": 2854,
+          "sha256": "e6a30f0c77405f63ba2c3a36a00061de7306db44fc288bc5601138e9fade30b7",
+          "url": "https://us-central1-home-center-dclar.cloudfunctions.net/homeCenterMcp/foundry/artifacts/0e81ea01ccc06a3aa1d4cfb6bdd1427d279270b8/skeletal-overlay.png"
+        },
+        {
+          "kind": "report",
+          "name": "validation-report.json",
+          "status": 200,
+          "byteLength": 2343,
+          "sha256": "82d27da5e3e5061569659532fb5816bac3262d125b4a9c377adaf5a20d759de1",
+          "url": "https://us-central1-home-center-dclar.cloudfunctions.net/homeCenterMcp/foundry/artifacts/0e81ea01ccc06a3aa1d4cfb6bdd1427d279270b8/validation-report.json"
+        }
+      ],
+      "viewerUrl": "https://valar05.github.io/model-viewer-lab/model-viewer.html?src=https%3A%2F%2Fus-central1-home-center-dclar.cloudfunctions.net%2FhomeCenterMcp%2Ffoundry%2Fartifacts%2F0e81ea01ccc06a3aa1d4cfb6bdd1427d279270b8%2Ffoundry-result.glb&manifest=https%3A%2F%2Fus-central1-home-center-dclar.cloudfunctions.net%2FhomeCenterMcp%2Ffoundry%2Fartifacts%2F0e81ea01ccc06a3aa1d4cfb6bdd1427d279270b8%2Ffoundry-manifest.json&title=Foundry%20live-character-20260727-v1",
+      "viewerHttpStatus": 200,
+      "promotionId": "0e81ea01ccc06a3aa1d4cfb6bdd1427d279270b8"
+    },
+    {
+      "label": "animation",
+      "jobId": "6af33792cc3e2410f4bc8e41f29514b3dce27646",
+      "inputHash": "578577b877e578c2500b511267d82995e5d9aa87606c7c8b7e1468eea4030ae1",
+      "resultHash": "2d2345f3feaca07acd23644836af1e7beb619defd8507203b57403a4f9cb90e6",
+      "cacheKey": "387f9bc791d0134a73d833421fc763261f39a6270313d4037196b3538333e376",
+      "report": {
+        "kernelVersion": "fortress-model-foundry.v1",
+        "recipeVersion": "home-center.foundry-recipe.v1",
+        "domain": "animation",
+        "reviewPreset": "fixed-four-view",
+        "bounds": {
+          "min": [
+            -0.375,
+            -0.824999988079071,
+            -0.1899999976158142
+          ],
+          "size": [
+            0.75,
+            1.649999976158142,
+            0.3799999952316284
+          ],
+          "max": [
+            0.375,
+            0.824999988079071,
+            0.1899999976158142
+          ]
+        },
+        "triangleCount": 28,
+        "vertexCount": 84,
+        "componentCount": 1,
+        "validation": {
+          "manifoldClosedComponents": 0,
+          "nonManifoldComponents": 1,
+          "degenerateTriangles": 16,
+          "invalidNormals": 48
+        },
+        "animations": [
+          {
+            "name": "fixture_idle_foundry",
+            "channelCount": 1,
+            "duration": 1.2000000476837158
+          }
+        ],
+        "skins": [
+          {
+            "name": "fixture-skin",
+            "joints": [
+              "hips",
+              "spine",
+              "hand_r"
+            ]
+          }
+        ],
+        "preservation": {
+          "duration": 1.2,
+          "changedChannels": 1,
+          "sourceClip": "fixture_idle",
+          "skinHashEqual": true,
+          "geometryHashEqual": true,
+          "outputClip": "fixture_idle_foundry"
+        }
+      },
+      "artifacts": [
+        {
+          "kind": "contactSheet",
+          "name": "contact-sheet.png",
+          "status": 200,
+          "byteLength": 8061,
+          "sha256": "500f519e4074f7c288223c63ff15e86d7da3894803945ebf9aecbecd02882360",
+          "url": "https://us-central1-home-center-dclar.cloudfunctions.net/homeCenterMcp/foundry/artifacts/a8887f20b16fde70ef990a41c2a31414752d9901/contact-sheet.png"
+        },
+        {
+          "kind": "manifest",
+          "name": "foundry-manifest.json",
+          "status": 200,
+          "byteLength": 3283,
+          "sha256": "acf464bb30178b7b2f1bf8d536c4428d3814218ed0cf986cf11d81a0a23a6c3c",
+          "url": "https://us-central1-home-center-dclar.cloudfunctions.net/homeCenterMcp/foundry/artifacts/a8887f20b16fde70ef990a41c2a31414752d9901/foundry-manifest.json"
+        },
+        {
+          "kind": "glb",
+          "name": "foundry-result.glb",
+          "status": 200,
+          "byteLength": 8352,
+          "sha256": "5102fd2fa2a04e5f8a03cb02e0b4cf06abc61687cce7505358dfbc2aebe36d0f",
+          "url": "https://us-central1-home-center-dclar.cloudfunctions.net/homeCenterMcp/foundry/artifacts/a8887f20b16fde70ef990a41c2a31414752d9901/foundry-result.glb"
+        },
+        {
+          "kind": "evidence",
+          "name": "preservation-evidence.json",
+          "status": 200,
+          "byteLength": 6032,
+          "sha256": "f8166b735f9b7211494fe51cc0b12f07e3cea2ac17fd8157a1ddab8d872c49db",
+          "url": "https://us-central1-home-center-dclar.cloudfunctions.net/homeCenterMcp/foundry/artifacts/a8887f20b16fde70ef990a41c2a31414752d9901/preservation-evidence.json"
+        },
+        {
+          "kind": "skeletalOverlay",
+          "name": "skeletal-overlay.png",
+          "status": 200,
+          "byteLength": 2837,
+          "sha256": "3d63215f20f6eb866a441ae79a1afbc9fa9ed4b41cd9976c875b3742dc658196",
+          "url": "https://us-central1-home-center-dclar.cloudfunctions.net/homeCenterMcp/foundry/artifacts/a8887f20b16fde70ef990a41c2a31414752d9901/skeletal-overlay.png"
+        },
+        {
+          "kind": "report",
+          "name": "validation-report.json",
+          "status": 200,
+          "byteLength": 1816,
+          "sha256": "26d178595d3e4ef1040f9dbb364a244377054a386b76195dbd521657053b7de1",
+          "url": "https://us-central1-home-center-dclar.cloudfunctions.net/homeCenterMcp/foundry/artifacts/a8887f20b16fde70ef990a41c2a31414752d9901/validation-report.json"
+        }
+      ],
+      "viewerUrl": "https://valar05.github.io/model-viewer-lab/model-viewer.html?src=https%3A%2F%2Fus-central1-home-center-dclar.cloudfunctions.net%2FhomeCenterMcp%2Ffoundry%2Fartifacts%2Fa8887f20b16fde70ef990a41c2a31414752d9901%2Ffoundry-result.glb&manifest=https%3A%2F%2Fus-central1-home-center-dclar.cloudfunctions.net%2FhomeCenterMcp%2Ffoundry%2Fartifacts%2Fa8887f20b16fde70ef990a41c2a31414752d9901%2Ffoundry-manifest.json&title=Foundry%20live-animation-20260727-v1",
+      "viewerHttpStatus": 200,
+      "promotionId": "a8887f20b16fde70ef990a41c2a31414752d9901"
+    }
+  ],
+  "replay": {
+    "attached": true,
+    "jobId": "6441c62d21983e877c7e8ccdbc6dcf7f9b0b6719",
+    "inputHash": "a2d1b12c88a973864561cdfde39a70d48d2103a3364482130cf5a65e0d73c157",
+    "state": "completed",
+    "duplicateBinaryTransfer": 0
+  },
+  "humanAcceptance": "unreviewed",
+  "isolation": {
+    "a": {
+      "jobId": "6441c62d21983e877c7e8ccdbc6dcf7f9b0b6719",
+      "inputHash": "a2d1b12c88a973864561cdfde39a70d48d2103a3364482130cf5a65e0d73c157",
+      "cacheKey": "34b41e9c6d8aa4d99953f96325c69e7e426a541ac9c9325815ff73b17de6f2b1",
+      "promotionId": "860c9e63436d301d1201fbdac689b04e954b2d62",
+      "viewerUrl": "https://valar05.github.io/model-viewer-lab/model-viewer.html?src=https%3A%2F%2Fus-central1-home-center-dclar.cloudfunctions.net%2FhomeCenterMcp%2Ffoundry%2Fartifacts%2F860c9e63436d301d1201fbdac689b04e954b2d62%2Ffoundry-result.glb&manifest=https%3A%2F%2Fus-central1-home-center-dclar.cloudfunctions.net%2FhomeCenterMcp%2Ffoundry%2Fartifacts%2F860c9e63436d301d1201fbdac689b04e954b2d62%2Ffoundry-manifest.json&title=Foundry%20live-mechanical-20260727-v1"
+    },
+    "b": {
+      "label": "mechanical-isolation-b",
+      "jobId": "cab5dc074eba49d9ef1844d534a819e0d63f3d12",
+      "inputHash": "96808c83d5b4c74a0d4c83b3cea47061efac8bc3f266cec670a7c9507f105400",
+      "resultHash": "e44adc8341e5efc3e0e59c4d8d16a9f4cbe7fafd7ea4b3c30b60755834702eb4",
+      "cacheKey": "2b6fafc8fe8f44493a3fecf7d485cc5790f272768abf947f16dad406292de7db",
+      "promotionId": "050b6aeef49e494233dcffdfbd0770c6d9ec6b3b",
+      "viewerUrl": "https://valar05.github.io/model-viewer-lab/model-viewer.html?src=https%3A%2F%2Fus-central1-home-center-dclar.cloudfunctions.net%2FhomeCenterMcp%2Ffoundry%2Fartifacts%2F050b6aeef49e494233dcffdfbd0770c6d9ec6b3b%2Ffoundry-result.glb&manifest=https%3A%2F%2Fus-central1-home-center-dclar.cloudfunctions.net%2FhomeCenterMcp%2Ffoundry%2Fartifacts%2F050b6aeef49e494233dcffdfbd0770c6d9ec6b3b%2Ffoundry-manifest.json&title=Foundry%20live-mechanical-20260727-isolation-b",
+      "artifacts": [
+        {
+          "kind": "contactSheet",
+          "name": "contact-sheet.png",
+          "mediaType": "image/png",
+          "byteLength": 35703,
+          "sha256": "bfc6afe5710a83d91f3d14f3bc9530b097b519729977cd007931ee4d2756ea29",
+          "storageRef": "gs://home-center-generated/foundry/v1/4d27b7e75b7c82c17ff779cc/live-mechanical-20260727-isolation-b/96808c83d5b4c74a0d4c83b3cea47061efac8bc3f266cec670a7c9507f105400/e44adc8341e5efc3e0e59c4d8d16a9f4cbe7fafd7ea4b3c30b60755834702eb4/contact-sheet.png"
+        },
+        {
+          "kind": "manifest",
+          "name": "foundry-manifest.json",
+          "mediaType": "application/json",
+          "byteLength": 5467,
+          "sha256": "e90625af46a932ed38f9ba46a58b68d4dbb857e9b7b7e8f2bbd0bddd6e0786bb",
+          "storageRef": "gs://home-center-generated/foundry/v1/4d27b7e75b7c82c17ff779cc/live-mechanical-20260727-isolation-b/96808c83d5b4c74a0d4c83b3cea47061efac8bc3f266cec670a7c9507f105400/e44adc8341e5efc3e0e59c4d8d16a9f4cbe7fafd7ea4b3c30b60755834702eb4/foundry-manifest.json"
+        },
+        {
+          "kind": "glb",
+          "name": "foundry-result.glb",
+          "mediaType": "model/gltf-binary",
+          "byteLength": 22748,
+          "sha256": "8ed9ba959d3ba243764782961dfa69ccc7298ea2d6e734d17b03cf9ea7f9061f",
+          "storageRef": "gs://home-center-generated/foundry/v1/4d27b7e75b7c82c17ff779cc/live-mechanical-20260727-isolation-b/96808c83d5b4c74a0d4c83b3cea47061efac8bc3f266cec670a7c9507f105400/e44adc8341e5efc3e0e59c4d8d16a9f4cbe7fafd7ea4b3c30b60755834702eb4/foundry-result.glb"
+        },
+        {
+          "kind": "evidence",
+          "name": "preservation-evidence.json",
+          "mediaType": "application/json",
+          "byteLength": 3,
+          "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+          "storageRef": "gs://home-center-generated/foundry/v1/4d27b7e75b7c82c17ff779cc/live-mechanical-20260727-isolation-b/96808c83d5b4c74a0d4c83b3cea47061efac8bc3f266cec670a7c9507f105400/e44adc8341e5efc3e0e59c4d8d16a9f4cbe7fafd7ea4b3c30b60755834702eb4/preservation-evidence.json"
+        },
+        {
+          "kind": "report",
+          "name": "validation-report.json",
+          "mediaType": "application/json",
+          "byteLength": 4033,
+          "sha256": "c11bad008fa3012f539fae102ad724b2fdff307c0e24dbb6e09e9a163d6af5a6",
+          "storageRef": "gs://home-center-generated/foundry/v1/4d27b7e75b7c82c17ff779cc/live-mechanical-20260727-isolation-b/96808c83d5b4c74a0d4c83b3cea47061efac8bc3f266cec670a7c9507f105400/e44adc8341e5efc3e0e59c4d8d16a9f4cbe7fafd7ea4b3c30b60755834702eb4/validation-report.json"
+        }
+      ]
+    },
+    "checks": {
+      "distinctJobId": true,
+      "distinctInputHash": true,
+      "distinctCacheKey": true,
+      "distinctPromotionId": true,
+      "distinctViewerUrl": true,
+      "identicalDeterministicResultHash": true,
+      "distinctStorageRefs": true
+    }
+  },
+  "nonFoundrySmoke": {
+    "health": {
+      "ok": true,
+      "service": "home-center-drive-bridge"
+    },
+    "storage": {
+      "ok": true,
+      "collections": 16
+    },
+    "armory": {
+      "operation": "armory.recount",
+      "completed": true,
+      "totalCasings": 0
+    }
+  },
+  "repository": {
+    "repository": "Valar05/home-center",
+    "branch": "agent/fortress-model-foundry",
+    "deployedSourceCommit": "93ed62758a2ed508b3179ab3b696c4f099f7b2e9",
+    "stackBaseCommit": "f9704ee6c5cd1b998002a62e1e49a388d1762577",
+    "remoteMainAtStart": "777969c5feb43bd292ac8c41b1e3a656169be6f2",
+    "pullRequest": "https://github.com/Valar05/home-center/pull/121"
+  },
+  "topLevelMcp": {
+    "toolCount": 58,
+    "baselineSha256": "64fe900eeaaf2928c2b6114829ee758ff73cc05700373085a1ae63b6484d05f1",
+    "deployedSha256": "64fe900eeaaf2928c2b6114829ee758ff73cc05700373085a1ae63b6484d05f1",
+    "equal": true,
+    "topLevelFoundryTools": []
+  },
+  "deployment": {
+    "worker": {
+      "revision": "foundryassetworker-00001-bip",
+      "build": "d3931fc8-4d07-4101-a4d4-432e71c18f81",
+      "sourceGeneration": "1785192903737764",
+      "cpu": 4,
+      "memory": "4Gi",
+      "concurrency": 1,
+      "maxInstances": 8,
+      "timeoutSeconds": 1800
+    },
+    "mcp": {
+      "revision": "homecentermcp-00147-ket",
+      "build": "490ef3db-d5b6-4465-bf7b-8e33881968a4",
+      "sourceGeneration": "1785193045885667"
+    },
+    "queue": {
+      "name": "foundryAssetWorker",
+      "state": "RUNNING",
+      "maxConcurrentDispatches": 8,
+      "maxDispatchesPerSecond": 4,
+      "maxAttempts": 1,
+      "pendingTasks": 0
+    },
+    "rollback": {
+      "mcpRevision": "homecentermcp-00146-jub",
+      "workerAndQueueRemoval": "delete foundryAssetWorker function and queue together after draining"
+    }
+  },
+  "hostAdapter": {
+    "status": "host_tool_name_prefix_mismatch",
+    "reconnectPerformed": false,
+    "reauthorizationPerformed": false,
+    "observedCalls": [
+      {
+        "requestedSurface": "Home Center Drive capabilities",
+        "sentToolName": "home_center_drive.capabilities",
+        "error": "Unknown tool"
+      },
+      {
+        "requestedSurface": "Home Center Drive drive_operation",
+        "sentToolName": "home_center_drive.drive_operation",
+        "error": "Unknown tool"
+      }
+    ],
+    "canonicalEndpointProof": "Direct authenticated MCP calls to capabilities and drive_operation succeeded.",
+    "ownedBy": "ChatGPT/Codex app adapter; no server wrapper or connector-manifest change was made."
+  }
+}

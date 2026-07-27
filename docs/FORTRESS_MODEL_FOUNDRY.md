@@ -191,3 +191,25 @@ A rollback must not leave either the worker or its task queue orphaned.
 - Static review images use a deterministic fixed wireframe projection; human acceptance occurs in the shared cloud viewer.
 - Public promotion makes the selected immutable review artifacts accessible by unguessable content-bound links. Private-only review delivery is a separate access-control increment.
 - Retargeting, IK, clip composition, root-motion edits, UV transforms, mesh weld/repair recipes, and broader hard-surface commands remain explicit future additions, not claimed capability.
+
+## Live Deployment Evidence - 2026-07-27
+
+Deployed source commit: `93ed62758a2ed508b3179ab3b696c4f099f7b2e9`.
+
+- Worker revision: `foundryassetworker-00001-bip`; build `d3931fc8-4d07-4101-a4d4-432e71c18f81`.
+- MCP revision: `homecentermcp-00147-ket`; build `490ef3db-d5b6-4465-bf7b-8e33881968a4`.
+- MCP rollback revision: `homecentermcp-00146-jub`.
+- Queue: `foundryAssetWorker`, RUNNING, concurrency 8, dispatch rate 4/s, one attempt, zero pending tasks after proof.
+- Post-deploy authenticated `tools/list`: 58 tools; SHA-256 `64fe900eeaaf2928c2b6114829ee758ff73cc05700373085a1ae63b6484d05f1`; no top-level Foundry tool.
+- Dynamic discovery returned all four Foundry operations.
+- Mechanical, character setup, and animation jobs completed concurrently. Every promoted artifact was downloaded from its immutable URL and matched receipt byte length and SHA-256.
+- Exact mechanical replay attached to the completed job and transferred zero duplicate bytes.
+- A second identical mechanical recipe under another namespace produced distinct job ID, input hash, cache key, promotion ID, storage references, and viewer URL while preserving the same deterministic result hash.
+- Existing health, storage status, and `armory.recount` smokes passed after deployment.
+- Human visual acceptance remains `unreviewed`. Mechanical completion does not imply artistic acceptance.
+
+Complete hashes, receipts, reports, links, and isolation evidence are checked in at `docs/evidence/fortress-foundry-live-proof-2026-07-27.json`.
+
+### Host Adapter Blocker
+
+The already-installed Home Center Drive app remained present and did not request reconnection or reauthorization, but this Codex host adapter sent `home_center_drive.capabilities` and `home_center_drive.drive_operation`. The MCP correctly exposes the unchanged canonical names `capabilities` and `drive_operation`, so those prefixed calls failed with `Unknown tool` before reaching Foundry. Direct authenticated calls to the same deployed MCP endpoint succeeded. This is classified as `host_tool_name_prefix_mismatch`; no connector manifest, top-level schema, alias wrapper, or reinstall workaround was added.
