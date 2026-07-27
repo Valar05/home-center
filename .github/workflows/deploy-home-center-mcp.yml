@@ -57,6 +57,7 @@ jobs:
         env:
           GCLOUD_REGION: ${{ env.REGION }}
           COMMAND_CENTER_RENDER_SERVICE: command-center-blender-render
+          COMMAND_CENTER_SKIP_SERVICE_ENABLE: "true"
         run: sh tools/deploy_command_center_blender_render.sh "$PROJECT"
       - name: Deploy existing Home Center dispatch and receipt services in place
         env:
