@@ -944,13 +944,26 @@ async function renderSourceConditionedOperation({google, auth, admin, user, args
         let mixed = timeline({duration: Math.min(sourceClip.duration, duration + 0.05), sampleRate: sourceClip.sampleRate, channels: 2, items: layers});
         mixed = limit(mixed, safeNumber(candidate.ceilingDb, -1));
         const bytes = encodeWav(mixed);
+        const measured = measure(mixed);
+        const {
+          integratedLufs: _legacyRmsDerivedLufs,
+          ...signalMetrics
+        } = measured;
+        const standards = await standardsMetrics({
+          bytes,
+          name: `${candidateId}.wav`,
+          mimeType: 'audio/wav',
+        });
         const artifact = await uploadForgeArtifact(args, requestId, {name: `${candidateId}.wav`, mimeType: 'audio/wav', bytes, stage: 'candidates', artifactType: 'source-conditioned-candidate'}, google, auth);
         uploaded.push(artifact);
         renderedCandidates.push({
           candidateId,
           controls,
           sourceRegions: candidate.layers.map((layer) => ({role: safeText(layer.role, 80) || 'unknown', sourceTimeRange: layer.sourceTimeRange, sourceRegionKey: sourceRegionKey(layer.sourceTimeRange)})),
-          metrics: measure(mixed),
+          metrics: {
+            ...signalMetrics,
+            standards,
+          },
           artifact: artifactReceipt(artifact, 'candidate'),
           state: 'candidate',
           humanAcceptance: 'unreviewed',
