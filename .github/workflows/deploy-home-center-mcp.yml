@@ -44,8 +44,6 @@ jobs:
           workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
           service_account: ${{ secrets.GCP_DEPLOY_SERVICE_ACCOUNT }}
       - uses: google-github-actions/setup-gcloud@v2
-      - name: Ensure SFX speech service
-        run: gcloud services enable speech.googleapis.com --project="$PROJECT"
       - name: Deploy Home Center services
         env:
           GCLOUD_FUNCTIONS_REGION: ${{ env.REGION }}
