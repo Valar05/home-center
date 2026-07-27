@@ -13,7 +13,7 @@ const {toJsonSchemaCompat} = require('./node_modules/@modelcontextprotocol/sdk/d
 const express = require('express');
 const {z} = require('zod/v4');
 const {CARTESIA_DEFAULT_MODEL_ID, CARTESIA_DEFAULT_VOICE_NAME, listCartesiaVoiceCatalog, listCartesiaVoices, normalizeCartesiaVoice, openCartesiaStream} = require('./hosted_speech_provider');
-const {renderBlenderGlb: commandCenterRenderBlenderGlb} = require('./command_center_mcp');
+const {renderBlenderGlb: commandCenterRenderBlenderGlb, renderRequestStatus: commandCenterRenderRequestStatus} = require('./command_center_mcp');
 const {boundedMap, rendererSettingsJsonSchema, preflightArtifactEnvelope} = require('./artifact_transport');
 const cartesiaPitchShift = require('./cartesia_pitch_shift');
 const {renderAudioOperation, audioRenderStatusOperation, inspectAudioArtifactsOperation, uploadVerified: uploadVerifiedArtifact} = require('./audio_render_service');
@@ -912,15 +912,7 @@ async function materializeRenderReviewArtifactsOperation({google, admin, auth, u
   const renderId = safeText(args.renderId, 180);
   if (!renderId) throw homeCenterRenderInputError('renderId is required.', 400, 'RENDER_REVIEW_RENDER_ID_REQUIRED');
   const parentFolderId = safeText(args.parentFolderId, 220) ? safeDriveFileId(args.parentFolderId) : '';
-  const statusLookup = helpers.statusLookup || (async () => commandCenterOperationRunOperation({
-    google,
-    admin,
-    googleClientId,
-    googleClientSecret,
-    githubToken,
-    extra,
-    args: {operation: 'render.status', args: {renderId}},
-  }));
+  const statusLookup = helpers.statusLookup || (async () => commandCenterRenderRequestStatus(admin, {actor: ownerEmail}, {renderId}));
   const statusEnvelope = await statusLookup({renderId, ownerEmail});
   const statusReceipt = safeObject(statusEnvelope && statusEnvelope.operation ? statusEnvelope.result : statusEnvelope);
   const review = renderReviewArtifactCandidates(statusReceipt, args);
