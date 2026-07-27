@@ -8,6 +8,11 @@ for (const fn of ['agentToolTurn', 'agentTurn', 'creativePromptSmoke', 'turnCont
   assert.match(script, new RegExp('deploy_credit_backed_http_function ' + fn + ' '));
 }
 assert.match(script, /creditBackedHttp\) deploy_credit_backed_http ;;/);
+assert.match(script, /gcloud functions deploy commandCenterRenderWorker/);
+assert.match(script, /gcloud tasks queues "\$QUEUE_ACTION" "\$QUEUE"/);
+assert.match(script, /--max-concurrent-dispatches=4/);
+assert.match(script, /--max-attempts=1/);
+assert.doesNotMatch(script, /firebase deploy --project "\$PROJECT" --only functions:commandCenterRenderWorker/);
 assert.equal((workflow.match(/^concurrency:/gm) || []).length, 1);
 assert.match(workflow, /workflow_dispatch:/);
 assert.doesNotMatch(workflow, /^  push:/m);

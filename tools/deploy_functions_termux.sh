@@ -93,7 +93,53 @@ deploy_credit_backed_http() {
 }
 
 deploy_command_center_render_worker() {
-  firebase deploy --project "$PROJECT" --only functions:commandCenterRenderWorker --force
+  QUEUE="commandCenterRenderWorker"
+  PROJECT_NUMBER="$(gcloud projects describe "$PROJECT" --format='value(projectNumber)')"
+  TASK_SERVICE_ACCOUNT="${COMMAND_CENTER_RENDER_TASK_SERVICE_ACCOUNT:-${PROJECT_NUMBER}-compute@developer.gserviceaccount.com}"
+
+  gcloud functions deploy commandCenterRenderWorker \
+    --gen2 \
+    --project="$PROJECT" \
+    --region="$REGION" \
+    --runtime=nodejs22 \
+    --source="$ROOT/functions" \
+    --entry-point=commandCenterRenderWorker \
+    --trigger-http \
+    --no-allow-unauthenticated \
+    --timeout=1800s \
+    --memory=512Mi \
+    --cpu=1 \
+    --concurrency=1 \
+    --max-instances=4 \
+    --service-account="$TASK_SERVICE_ACCOUNT" \
+    --set-env-vars=LOG_EXECUTION_ID=true,COMMAND_CENTER_RENDER_SERVICE_URL="${COMMAND_CENTER_RENDER_SERVICE_URL:-https://command-center-blender-render-vxybsaualq-uc.a.run.app}",COMMAND_CENTER_RENDER_BUCKET="${COMMAND_CENTER_RENDER_BUCKET:-home-center-dclar-command-center-renders}"
+
+  gcloud projects add-iam-policy-binding "$PROJECT" \
+    --member="serviceAccount:${TASK_SERVICE_ACCOUNT}" \
+    --role=roles/cloudtasks.enqueuer >/dev/null
+  gcloud iam service-accounts add-iam-policy-binding "$TASK_SERVICE_ACCOUNT" \
+    --project="$PROJECT" \
+    --member="serviceAccount:${TASK_SERVICE_ACCOUNT}" \
+    --role=roles/iam.serviceAccountUser >/dev/null
+  gcloud functions add-invoker-policy-binding commandCenterRenderWorker \
+    --project="$PROJECT" \
+    --region="$REGION" \
+    --member="serviceAccount:${TASK_SERVICE_ACCOUNT}" >/dev/null
+
+  if gcloud tasks queues describe "$QUEUE" --project="$PROJECT" --location="$REGION" >/dev/null 2>&1; then
+    QUEUE_ACTION=update
+  else
+    QUEUE_ACTION=create
+  fi
+  gcloud tasks queues "$QUEUE_ACTION" "$QUEUE" \
+    --project="$PROJECT" \
+    --location="$REGION" \
+    --max-concurrent-dispatches=4 \
+    --max-dispatches-per-second=4 \
+    --max-attempts=1 \
+    --max-retry-duration=0s
+  gcloud tasks queues describe "$QUEUE" --project="$PROJECT" --location="$REGION" \
+    --format='yaml(name,state,rateLimits,retryConfig)'
 }
 
 deploy_she_raw_mcp() {
