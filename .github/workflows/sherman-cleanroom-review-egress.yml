@@ -57,8 +57,16 @@ jobs:
             "$ROOT/contact-sheet.png"
 
       - name: Emit short-lived review links
+        env:
+          SERVICE_ACCOUNT: ${{ secrets.GCP_DEPLOY_SERVICE_ACCOUNT }}
         run: |
           gcloud storage ls -L "$ROOT/contact-sheet.png"
-          gcloud storage sign-url "$ROOT/contact-sheet.png" --duration=2h
-          gcloud storage sign-url "$ROOT/front_three_quarter.png" --duration=2h
-          gcloud storage sign-url "$ROOT/low_front_three_quarter.png" --duration=2h
+          gcloud storage sign-url "$ROOT/contact-sheet.png" \
+            --duration=2h \
+            --impersonate-service-account="$SERVICE_ACCOUNT"
+          gcloud storage sign-url "$ROOT/front_three_quarter.png" \
+            --duration=2h \
+            --impersonate-service-account="$SERVICE_ACCOUNT"
+          gcloud storage sign-url "$ROOT/low_front_three_quarter.png" \
+            --duration=2h \
+            --impersonate-service-account="$SERVICE_ACCOUNT"
