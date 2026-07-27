@@ -50,7 +50,7 @@ const {
 const DEFAULT_MCP_PUBLIC_BASE = 'https://us-central1-home-center-dclar.cloudfunctions.net/homeCenterMcp';
 const MCP_PUBLIC_BASE = process.env.HOME_CENTER_MCP_PUBLIC_BASE || DEFAULT_MCP_PUBLIC_BASE;
 const HOME_CENTER_MCP_SERVER_VERSION = '0.2.0';
-const HOME_CENTER_CONNECTOR_SCHEMA_REVISION = '2026-07-27.artifact-transport-v1';
+const HOME_CENTER_CONNECTOR_SCHEMA_REVISION = '2026-07-27.render-review-egress-v1';
 const HOME_CENTER_REGISTRY_VERSION = HOME_CENTER_CONNECTOR_SCHEMA_REVISION;
 const HOME_CENTER_DIRECT_FILE_TOOLS = Object.freeze(['render_blender_glb', 'drive_ingest_file', 'storage_ingest_artifact']);
 const MCP_RESOURCE = `${MCP_PUBLIC_BASE}/mcp`;
@@ -65,6 +65,9 @@ const HOME_CENTER_RENDER_MAX_GLB_BYTES = Number(process.env.COMMAND_CENTER_RENDE
 const HOME_CENTER_RENDER_MAX_SCRIPT_BYTES = Number(process.env.COMMAND_CENTER_RENDER_MAX_SCRIPT_BYTES || 1024 * 1024);
 const HOME_CENTER_DIRECT_RENDER_TEXT_LIMIT = 1024 * 1024;
 const HOME_CENTER_RENDER_INLINE_GIF_MAX_BYTES = Number(process.env.HOME_CENTER_RENDER_INLINE_GIF_MAX_BYTES || 2 * 1024 * 1024);
+const HOME_CENTER_RENDER_REVIEW_MAX_ARTIFACTS = Number(process.env.HOME_CENTER_RENDER_REVIEW_MAX_ARTIFACTS || 20);
+const HOME_CENTER_RENDER_REVIEW_MAX_ARTIFACT_BYTES = Number(process.env.HOME_CENTER_RENDER_REVIEW_MAX_ARTIFACT_BYTES || 16 * 1024 * 1024);
+const HOME_CENTER_RENDER_REVIEW_MAX_TOTAL_BYTES = Number(process.env.HOME_CENTER_RENDER_REVIEW_MAX_TOTAL_BYTES || 64 * 1024 * 1024);
 const HOME_CENTER_DRIVE_INGEST_MAX_BYTES = Number(process.env.HOME_CENTER_DRIVE_INGEST_MAX_BYTES || 256 * 1024 * 1024);
 const MCP_REQUIRED_SCOPES = [
   'https://www.googleapis.com/auth/drive',
@@ -759,6 +762,199 @@ async function attachRenderGifMcpContent(operationResult = {}, options = {}) {
   if (inline.contentBlock) content.push(inline.contentBlock);
   cleanResult._mcpContent = {content};
   return cleanResult;
+}
+
+
+const RENDER_REVIEW_KIND_ORDER = Object.freeze(['contact_sheet', 'diagnostic_views', 'fixed_camera_views', 'looping_gif']);
+const RENDER_REVIEW_KIND_SET = new Set(RENDER_REVIEW_KIND_ORDER);
+
+function normalizeRenderReviewKinds(value) {
+  const requested = Array.isArray(value) && value.length ? value : ['contact_sheet', 'diagnostic_views'];
+  const kinds = [...new Set(requested.map((item) => safeText(item, 80)).filter(Boolean))];
+  const unsupported = kinds.filter((kind) => !RENDER_REVIEW_KIND_SET.has(kind));
+  if (unsupported.length) throw homeCenterRenderInputError('Unsupported render review artifactKinds: ' + unsupported.join(', '), 400, 'RENDER_REVIEW_KIND_UNSUPPORTED');
+  return RENDER_REVIEW_KIND_ORDER.filter((kind) => kinds.includes(kind));
+}
+
+function renderReviewArtifactCandidates(statusReceipt = {}, args = {}) {
+  const receipt = safeObject(statusReceipt);
+  const output = Object.keys(safeObject(receipt.result)).length ? safeObject(receipt.result) : receipt;
+  const status = safeText(receipt.status || receipt.state || output.status, 80);
+  if (status !== 'completed') throw homeCenterRenderInputError('Render review artifacts are available only for completed render receipts.', 409, 'RENDER_REVIEW_NOT_COMPLETED');
+  const renderId = safeText(receipt.renderId || output.renderId, 180);
+  if (!renderId) throw homeCenterRenderInputError('Completed render receipt is missing renderId.', 502, 'RENDER_REVIEW_RENDER_ID_MISSING');
+  const kinds = normalizeRenderReviewKinds(args.artifactKinds);
+  const candidates = [];
+  const add = (kind, ref, hashKey) => {
+    const artifactRef = safeText(ref, 1600);
+    if (!artifactRef) return;
+    parseRenderGsRef(artifactRef);
+    const expected = renderArtifactHashEntry(output, hashKey);
+    const expectedSha256 = safeText(expected.sha256, 128).toLowerCase();
+    const expectedByteCount = Number(expected.byteCount || 0) || 0;
+    if (!expectedSha256 || !expectedByteCount) throw homeCenterRenderInputError('Completed render receipt is missing hash metadata for ' + hashKey + '.', 502, 'RENDER_REVIEW_HASH_MISSING');
+    if (expectedByteCount > HOME_CENTER_RENDER_REVIEW_MAX_ARTIFACT_BYTES) throw homeCenterRenderInputError(hashKey + ' exceeds the per-artifact review egress limit.', 413, 'RENDER_REVIEW_ARTIFACT_TOO_LARGE');
+    const lower = hashKey.toLowerCase();
+    const mimeType = lower.endsWith('.gif') ? 'image/gif' : lower.endsWith('.png') ? 'image/png' : '';
+    if (!mimeType) throw homeCenterRenderInputError(hashKey + ' is not a supported review image.', 400, 'RENDER_REVIEW_MIME_UNSUPPORTED');
+    candidates.push({kind, artifactRef, hashKey, name: hashKey, mimeType, expectedSha256, expectedByteCount});
+  };
+  if (kinds.includes('contact_sheet')) add('contact_sheet', output.contactSheetRef, 'contact-sheet.png');
+  if (kinds.includes('diagnostic_views')) {
+    (Array.isArray(output.diagnosticRenderRefs) ? output.diagnosticRenderRefs : []).forEach((ref) => {
+      const parsed = parseRenderGsRef(ref);
+      add('diagnostic_views', ref, parsed.name.split('/').pop().replace(/^\d+-/, ''));
+    });
+  }
+  if (kinds.includes('fixed_camera_views')) {
+    (Array.isArray(output.fixedCameraRenderRefs) ? output.fixedCameraRenderRefs : []).forEach((ref) => {
+      const parsed = parseRenderGsRef(ref);
+      add('fixed_camera_views', ref, parsed.name.split('/').pop().replace(/^\d+-/, ''));
+    });
+  }
+  if (kinds.includes('looping_gif')) add('looping_gif', output.loopingGifRef, 'walk-loop.gif');
+  if (!candidates.length) throw homeCenterRenderInputError('Completed render receipt did not name any requested review artifacts.', 404, 'RENDER_REVIEW_ARTIFACTS_MISSING');
+  if (candidates.length > HOME_CENTER_RENDER_REVIEW_MAX_ARTIFACTS) throw homeCenterRenderInputError('Render review request exceeds max artifact count ' + HOME_CENTER_RENDER_REVIEW_MAX_ARTIFACTS + '.', 413, 'RENDER_REVIEW_TOO_MANY_ARTIFACTS');
+  const expectedTotalBytes = candidates.reduce((sum, item) => sum + item.expectedByteCount, 0);
+  if (expectedTotalBytes > HOME_CENTER_RENDER_REVIEW_MAX_TOTAL_BYTES) throw homeCenterRenderInputError('Render review request exceeds max total bytes ' + HOME_CENTER_RENDER_REVIEW_MAX_TOTAL_BYTES + '.', 413, 'RENDER_REVIEW_TOTAL_TOO_LARGE');
+  return {renderId, kinds, expectedTotalBytes, candidates};
+}
+
+function renderReviewArtifactKey({ownerEmail = '', renderId = '', artifactRef = '', sha256 = ''} = {}) {
+  return createHash('sha256').update([safeText(ownerEmail, 320).toLowerCase(), safeText(renderId, 180), safeText(artifactRef, 1600), safeText(sha256, 128).toLowerCase()].join('\n')).digest('hex');
+}
+
+function renderReviewFileName(renderId, artifactName) {
+  const prefix = safeText(renderId, 80).replace(/[^A-Za-z0-9_.-]+/g, '-') || 'render';
+  const name = safeText(artifactName, 180).replace(/[^A-Za-z0-9_.-]+/g, '-') || 'review.png';
+  return (prefix + '--' + name).slice(0, 240);
+}
+
+async function publishRenderReviewArtifactToDrive({google, auth, user, parentFolderId = '', renderId, candidate, bytes}) {
+  const ownerEmail = safeText(user && user.email, 320).toLowerCase();
+  const artifactKey = renderReviewArtifactKey({ownerEmail, renderId, artifactRef: candidate.artifactRef, sha256: candidate.expectedSha256});
+  const drive = google.drive({version: 'v3', auth});
+  const query = "trashed=false and appProperties has { key='homeCenterRenderReviewKey' and value='" + driveQueryLiteral(artifactKey, 120) + "' }";
+  const found = await drive.files.list({
+    q: query,
+    pageSize: 10,
+    orderBy: 'createdTime asc',
+    fields: 'files(id,name,mimeType,webViewLink,parents,size,appProperties,createdTime)',
+    spaces: 'drive',
+  });
+  const existing = Array.isArray(found.data && found.data.files) ? found.data.files[0] : null;
+  let metadata = existing || null;
+  if (!metadata) {
+    const created = await drive.files.create({
+      requestBody: {
+        name: renderReviewFileName(renderId, candidate.name),
+        mimeType: candidate.mimeType,
+        ...(parentFolderId ? {parents: [parentFolderId]} : {}),
+        appProperties: {
+          homeCenterRenderReviewKey: artifactKey,
+          homeCenterRenderId: safeText(renderId, 120),
+          homeCenterSha256: candidate.expectedSha256,
+          homeCenterArtifactKind: candidate.kind,
+        },
+      },
+      media: {mimeType: candidate.mimeType, body: Readable.from([bytes])},
+      fields: 'id,name,mimeType,webViewLink,parents,size,appProperties,createdTime',
+      supportsAllDrives: true,
+    });
+    metadata = created.data || {};
+  }
+  const fileId = safeDriveFileId(metadata && metadata.id);
+  const readback = await drive.files.get({fileId, alt: 'media', supportsAllDrives: true}, {responseType: 'arraybuffer'});
+  const readbackBytes = Buffer.isBuffer(readback.data) ? readback.data : Buffer.from(readback.data);
+  const readbackSha256 = sha256RenderBytes(readbackBytes);
+  if (readbackBytes.length !== candidate.expectedByteCount || readbackSha256 !== candidate.expectedSha256) {
+    throw homeCenterRenderInputError('Drive review artifact readback did not match completed render receipt for ' + candidate.name + '.', 502, 'RENDER_REVIEW_DRIVE_READBACK_MISMATCH');
+  }
+  const resourceLink = {type: 'resource_link', uri: 'drive://' + fileId, name: metadata.name || renderReviewFileName(renderId, candidate.name), mimeType: candidate.mimeType, size: candidate.expectedByteCount};
+  return {
+    kind: candidate.kind,
+    name: candidate.name,
+    artifactRef: candidate.artifactRef,
+    sha256: candidate.expectedSha256,
+    byteCount: candidate.expectedByteCount,
+    fileId,
+    durableRef: 'drive://' + fileId,
+    webViewLink: metadata.webViewLink || '',
+    reused: !!existing,
+    verified: true,
+    readbackByteCount: readbackBytes.length,
+    readbackSha256,
+    resourceLink,
+  };
+}
+
+async function materializeRenderReviewArtifactsOperation({google, admin, auth, user, extra = null, googleClientId = '', googleClientSecret = '', githubToken = () => '', args = {}}, helpers = {}) {
+  if (args.approved !== true) throw homeCenterRenderInputError('approved=true is required to publish render review artifacts to Drive.', 400, 'RENDER_REVIEW_APPROVAL_REQUIRED');
+  const requestId = createRequestId(args.requestId);
+  const ownerEmail = requireCreditGatedEmail(user && user.email, 'render.review_artifacts');
+  const readAudit = helpers.existingAudit || existingAudit;
+  const writeAudit = helpers.auditWrite || auditWrite;
+  const prior = await readAudit(admin, requestId);
+  if (prior && prior.status === 'success' && prior.result) return {...prior.result, idempotent: true, audit: prior};
+  const renderId = safeText(args.renderId, 180);
+  if (!renderId) throw homeCenterRenderInputError('renderId is required.', 400, 'RENDER_REVIEW_RENDER_ID_REQUIRED');
+  const parentFolderId = safeText(args.parentFolderId, 220) ? safeDriveFileId(args.parentFolderId) : '';
+  const statusLookup = helpers.statusLookup || (async () => commandCenterOperationRunOperation({
+    google,
+    admin,
+    googleClientId,
+    googleClientSecret,
+    githubToken,
+    extra,
+    args: {operation: 'render.status', args: {renderId}},
+  }));
+  const statusEnvelope = await statusLookup({renderId, ownerEmail});
+  const statusReceipt = safeObject(statusEnvelope && statusEnvelope.operation ? statusEnvelope.result : statusEnvelope);
+  const review = renderReviewArtifactCandidates(statusReceipt, args);
+  if (review.renderId !== renderId) throw homeCenterRenderInputError('Render status receipt did not match requested renderId.', 409, 'RENDER_REVIEW_RENDER_ID_MISMATCH');
+  const storage = helpers.storage || new Storage();
+  const publish = helpers.publishArtifact || publishRenderReviewArtifactToDrive;
+  const artifacts = await boundedMap(review.candidates, 3, async (candidate) => {
+    const parsed = parseRenderGsRef(candidate.artifactRef);
+    const [downloaded] = await storage.bucket(parsed.bucket).file(parsed.name).download();
+    const bytes = Buffer.isBuffer(downloaded) ? downloaded : Buffer.from(downloaded);
+    const readbackSha256 = sha256RenderBytes(bytes);
+    if (bytes.length !== candidate.expectedByteCount || readbackSha256 !== candidate.expectedSha256) {
+      throw homeCenterRenderInputError('Private GCS review artifact did not match completed render receipt for ' + candidate.name + '.', 502, 'RENDER_REVIEW_GCS_READBACK_MISMATCH');
+    }
+    return publish({google, auth, user, parentFolderId, renderId, candidate, bytes});
+  });
+  const result = {
+    ok: true,
+    operation: 'render.review_artifacts',
+    requestId,
+    renderId,
+    status: 'completed',
+    artifactKinds: review.kinds,
+    expectedTotalBytes: review.expectedTotalBytes,
+    artifactCount: artifacts.length,
+    artifacts,
+  };
+  const audit = await writeAudit(admin, {
+    actor: ownerEmail,
+    authKind: user.authKind,
+    tool: 'drive_operation',
+    operation: 'render.review_artifacts',
+    requestId,
+    fileId: artifacts[0] && artifacts[0].fileId || '',
+    affectedFileIds: artifacts.map((item) => item.fileId).filter(Boolean),
+    oldMetadata: null,
+    newMetadata: {renderId, artifactKinds: review.kinds, artifactCount: artifacts.length},
+    oldParents: [],
+    newParents: parentFolderId ? [parentFolderId] : [],
+    reversible: false,
+    rollback: null,
+    callerNote: args.callerNote,
+    providerSummary: safeText(args.callerNote, 400) || ('Published ' + artifacts.length + ' verified review artifacts for completed render ' + renderId + '.'),
+    result,
+    inputSha256: createHash('sha256').update(review.candidates.map((item) => item.expectedSha256).join('\n')).digest('hex'),
+  });
+  return {...result, audit: audit.audit};
 }
 
 function validateHomeCenterRenderBytes(bytes, role, label) {
@@ -4380,11 +4576,18 @@ function runDroobiedooContextOperation(operation, args = {}) {
 
 function driveOperationRegistry() {
   return {
-    version: '2026-07-27.artifact-transport-v1',
+    version: '2026-07-27.render-review-egress-v1',
     invocationTool: 'drive_operation',
     cachePolicy: 'New bridge and simulation operations should be invokable through drive_operation so ChatGPT does not need a top-level MCP tool refresh for every backend code change. Cartesia TTS is a direct Home Center MCP provider operation; it must not be routed through Command Center jobs or workers.',
     operations: {
       ...artifactOperationEntries(),
+      'render.review_artifacts': {
+        summary: 'Materialize hash-verified review images already named by an owner-scoped completed Blender render receipt as authenticated Drive resource links.',
+        write: true,
+        requiresRequestId: true,
+        requiredScopes: ['https://www.googleapis.com/auth/drive'],
+        input: {renderId: 'string', artifactKinds: 'optional contact_sheet|diagnostic_views|fixed_camera_views|looping_gif[]', parentFolderId: 'optional string', approved: 'true', requestId: 'string', callerNote: 'optional string'},
+      },
       drive_create_folder: {
         summary: 'Create a Google Drive folder and audit the write.',
         write: true,
@@ -5196,6 +5399,12 @@ async function driveOperationRunOperation({google, admin, auth, user, extra = nu
     delete operationArgs.command_center_tool;
     const result = await commandCenterOperationRunOperation({google, admin, googleClientId, googleClientSecret, githubToken, extra, args: {operation: compatCommandCenterOperation, args: operationArgs}});
     return {operation, compatibilityRoute: 'drive_operation.command_center', commandCenterOperation: compatCommandCenterOperation, registryVersion: registry.version, completed: true, result: result.result};
+  }
+  if (operation === 'render.review_artifacts') {
+    const result = await materializeRenderReviewArtifactsOperation({google, admin, auth, user, extra, googleClientId, googleClientSecret, githubToken, args: operationArgs});
+    const wrapped = {operation, registryVersion: registry.version, completed: true, result};
+    wrapped._mcpContent = {content: [{type: 'text', text: jsonText(wrapped)}, ...result.artifacts.map((item) => item.resourceLink).filter(Boolean)]};
+    return wrapped;
   }
   if (operation.startsWith('droobiedoo.')) {
     const result = runDroobiedooContextOperation(operation, operationArgs);
@@ -7158,4 +7367,4 @@ function createHomeCenterMcpApp({google, admin, googleClientId = () => '', googl
   return app;
 }
 
-module.exports = {artifactTransportPreflightOperation, artifactTransportStatusOperation, homeCenterHealthPayload, homeCenterReadinessPayload, homeCenterCapabilitiesPayload, operationRegistrySummary, CREDIT_GATED_EMAILS, requireCreditGatedEmail, GITHUB_ADMIN_ALLOWED_EMAILS, requireGitHubAdminUser, HOME_CENTER_MCP_SERVER_VERSION, HOME_CENTER_CONNECTOR_SCHEMA_REVISION, HOME_CENTER_REGISTRY_VERSION, HOME_CENTER_DIRECT_FILE_TOOLS, verifiedRenderGifMcpContent, attachRenderGifMcpContent, renderArtifactHashEntry, uploadVerifiedArtifact, createHomeCenterMcpApp, createHomeCenterMcpServer, createDriveFolderOperation, createGoogleDocOperation, appendGoogleDocOperation, publishContextSnapshotOperation, synthesizeCartesiaAudioArtifactOperation, cartesiaVoicesOperation, createSheetOperation, updateSheetValuesOperation, importXlsxWorkbookOperation, readDriveBinaryChunkOperation, compareAudioIngestFileIds, ingestDriveAudioOperation, finalizeDriveAudioIngestBatchOperation, driveOperationRunOperation, driveWorkflowRunOperation, simulationOperationRunOperation, simulationOperationRegistry, droobiedooContextOperationEntries, loadDroobiedooContextIndex, searchDroobiedooContextIndex, runDroobiedooContextOperation, normalizeRecoveryOperation, summarizeRecoveryOperations, loadMcpAccessContext, armoryReceiptOperation, armoryRecountOperation, armoryCasingOperation, renderAudioOperation, inspectAudioArtifactsOperation, materializeHomeCenterRenderDriveRefs, materializeHomeCenterRenderSources, stageHomeCenterGitHubRenderInput, normalizeRenderGitHubSource, githubAdminOperationEntries, githubAdminOperationRunOperation, createGitHubAppJwt};
+module.exports = {artifactTransportPreflightOperation, artifactTransportStatusOperation, homeCenterHealthPayload, homeCenterReadinessPayload, homeCenterCapabilitiesPayload, operationRegistrySummary, CREDIT_GATED_EMAILS, requireCreditGatedEmail, GITHUB_ADMIN_ALLOWED_EMAILS, requireGitHubAdminUser, HOME_CENTER_MCP_SERVER_VERSION, HOME_CENTER_CONNECTOR_SCHEMA_REVISION, HOME_CENTER_REGISTRY_VERSION, HOME_CENTER_DIRECT_FILE_TOOLS, verifiedRenderGifMcpContent, attachRenderGifMcpContent, renderArtifactHashEntry, renderReviewArtifactCandidates, renderReviewArtifactKey, publishRenderReviewArtifactToDrive, materializeRenderReviewArtifactsOperation, driveOperationRegistry, uploadVerifiedArtifact, createHomeCenterMcpApp, createHomeCenterMcpServer, createDriveFolderOperation, createGoogleDocOperation, appendGoogleDocOperation, publishContextSnapshotOperation, synthesizeCartesiaAudioArtifactOperation, cartesiaVoicesOperation, createSheetOperation, updateSheetValuesOperation, importXlsxWorkbookOperation, readDriveBinaryChunkOperation, compareAudioIngestFileIds, ingestDriveAudioOperation, finalizeDriveAudioIngestBatchOperation, driveOperationRunOperation, driveWorkflowRunOperation, simulationOperationRunOperation, simulationOperationRegistry, droobiedooContextOperationEntries, loadDroobiedooContextIndex, searchDroobiedooContextIndex, runDroobiedooContextOperation, normalizeRecoveryOperation, summarizeRecoveryOperations, loadMcpAccessContext, armoryReceiptOperation, armoryRecountOperation, armoryCasingOperation, renderAudioOperation, inspectAudioArtifactsOperation, materializeHomeCenterRenderDriveRefs, materializeHomeCenterRenderSources, stageHomeCenterGitHubRenderInput, normalizeRenderGitHubSource, githubAdminOperationEntries, githubAdminOperationRunOperation, createGitHubAppJwt};
