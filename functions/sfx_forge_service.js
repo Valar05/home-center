@@ -766,6 +766,155 @@ function conservativeClean(raw) {
   return cleaned;
 }
 
+function stableDecayIndex(envelope, startIndex, threshold, consecutive = 3) {
+  for (let i = startIndex; i <= envelope.length - consecutive; i += 1) {
+    let below = true;
+    for (let j = 0; j < consecutive; j += 1) {
+      if (envelope[i + j].rms > threshold) {
+        below = false;
+        break;
+      }
+    }
+    if (below) return i;
+  }
+  return -1;
+}
+
+function eventPhysicalProfile(clip) {
+  const mono = monoSamples(clip);
+  const frameSize = Math.max(16, Math.round(clip.sampleRate * 0.005));
+  const hop = Math.max(8, Math.round(clip.sampleRate * 0.0025));
+  const envelope = [];
+  for (let frame = 0; frame + frameSize <= mono.length; frame += hop) {
+    let sumSquares = 0;
+    let peak = 0;
+    for (let i = 0; i < frameSize; i += 1) {
+      const value = Math.abs(mono[frame + i]);
+      peak = Math.max(peak, value);
+      sumSquares += value * value;
+    }
+    envelope.push({
+      frame: frame + Math.floor(frameSize / 2),
+      rms: Math.sqrt(sumSquares / frameSize),
+      peak,
+    });
+  }
+  let peakIndex = 0;
+  for (let i = 1; i < envelope.length; i += 1) {
+    if (envelope[i].rms > envelope[peakIndex].rms) peakIndex = i;
+  }
+  const peakEntry = envelope[peakIndex] || {frame: 0, rms: 0, peak: 0};
+  let onsetIndex = peakIndex;
+  while (onsetIndex > 0 && envelope[onsetIndex - 1].rms > peakEntry.rms * 0.1) onsetIndex -= 1;
+  const decay20Index = stableDecayIndex(envelope, peakIndex + 1, peakEntry.rms * 0.1);
+  const decay40Index = stableDecayIndex(envelope, peakIndex + 1, peakEntry.rms * 0.01);
+  const tailOffsetFrames = Math.min(
+    Math.max(0, mono.length - frameSize),
+    peakEntry.frame + Math.round(clip.sampleRate * Math.min(0.3, clip.duration * 0.5)),
+  );
+  const onsetSpectral = spectralProfile(mono, clip.sampleRate, peakEntry.frame);
+  const tailSpectral = spectralProfile(mono, clip.sampleRate, tailOffsetFrames);
+  const persistentPeaks = onsetSpectral.dominantPeaks.map((onsetPeak) => {
+    const tailPeak = tailSpectral.dominantPeaks
+      .map((entry) => ({...entry, deltaHz: Math.abs(entry.frequencyHz - onsetPeak.frequencyHz)}))
+      .sort((a, b) => a.deltaHz - b.deltaHz)[0];
+    if (!tailPeak || tailPeak.deltaHz > Math.max(25, onsetPeak.frequencyHz * 0.08)) return null;
+    return {
+      onsetFrequencyHz: onsetPeak.frequencyHz,
+      tailFrequencyHz: tailPeak.frequencyHz,
+      deltaHz: Number(tailPeak.deltaHz.toFixed(1)),
+      onsetRelativeDb: onsetPeak.relativeDb,
+      tailRelativeDb: tailPeak.relativeDb,
+    };
+  }).filter(Boolean);
+  const basic = measure(clip);
+  return {
+    durationSeconds: Number(clip.duration.toFixed(4)),
+    signal: {
+      samplePeak: basic.peak,
+      rms: Math.sqrt(mono.reduce((sum, value) => sum + value * value, 0) / Math.max(1, mono.length)),
+      crestFactorDb: basic.peak > 0 && mono.length
+        ? 20 * Math.log10(basic.peak / Math.max(1e-12, Math.sqrt(mono.reduce((sum, value) => sum + value * value, 0) / mono.length)))
+        : 0,
+      clippingSampleCount: basic.clippingCount,
+    },
+    transientEnvelope: {
+      method: '5 ms RMS envelope, 2.5 ms hop',
+      peakTimeSeconds: Number((peakEntry.frame / clip.sampleRate).toFixed(4)),
+      peakRms: peakEntry.rms,
+      peak: peakEntry.peak,
+      attackMs: Number(((peakEntry.frame - (envelope[onsetIndex] && envelope[onsetIndex].frame || peakEntry.frame)) / clip.sampleRate * 1000).toFixed(2)),
+      decay20DbMs: decay20Index >= 0
+        ? Number(((envelope[decay20Index].frame - peakEntry.frame) / clip.sampleRate * 1000).toFixed(2))
+        : null,
+      decay40DbMs: decay40Index >= 0
+        ? Number(((envelope[decay40Index].frame - peakEntry.frame) / clip.sampleRate * 1000).toFixed(2))
+        : null,
+      tailRms: envelope.length ? envelope.slice(Math.floor(envelope.length * 0.8)).reduce((sum, entry) => sum + entry.rms, 0) / Math.max(1, envelope.length - Math.floor(envelope.length * 0.8)) : 0,
+    },
+    spectralEnvelope: {
+      onset: onsetSpectral,
+      tailOffsetSeconds: Number((tailOffsetFrames / clip.sampleRate).toFixed(4)),
+      tail: tailSpectral,
+      lowMidMassRatio: Number(((onsetSpectral.bandEnergyRatio.mass || 0) + (onsetSpectral.bandEnergyRatio.lowMid || 0)).toFixed(6)),
+    },
+    resonantPeaks: onsetSpectral.dominantPeaks,
+    tonalPersistence: {
+      matchedPeakCount: persistentPeaks.length,
+      matches: persistentPeaks,
+    },
+    metricsGrantArtisticAcceptance: false,
+  };
+}
+
+function numericSummary(values) {
+  const finite = values.filter(Number.isFinite);
+  if (!finite.length) return {count: 0, mean: null, standardDeviation: null, minimum: null, maximum: null};
+  const mean = finite.reduce((sum, value) => sum + value, 0) / finite.length;
+  const variance = finite.reduce((sum, value) => sum + (value - mean) ** 2, 0) / finite.length;
+  return {
+    count: finite.length,
+    mean,
+    standardDeviation: Math.sqrt(variance),
+    minimum: Math.min(...finite),
+    maximum: Math.max(...finite),
+  };
+}
+
+function buildPhysicalFamilyProfiles(eventArtifacts) {
+  const usable = eventArtifacts.filter((entry) => entry.cleaned && !['rejected', 'unusable'].includes(entry.event.disposition));
+  const classes = [...new Set(usable.map((entry) => entry.event.strikeActionClass))];
+  return classes.map((strikeActionClass) => {
+    const members = usable.filter((entry) => entry.event.strikeActionClass === strikeActionClass);
+    return {
+      strikeActionClass,
+      eventIds: members.map((entry) => entry.event.eventId),
+      mechanicallyUsableEventCount: members.length,
+      signal: {
+        samplePeak: numericSummary(members.map((entry) => entry.physicalProfile.signal.samplePeak)),
+        rms: numericSummary(members.map((entry) => entry.physicalProfile.signal.rms)),
+        crestFactorDb: numericSummary(members.map((entry) => entry.physicalProfile.signal.crestFactorDb)),
+      },
+      transientEnvelope: {
+        attackMs: numericSummary(members.map((entry) => entry.physicalProfile.transientEnvelope.attackMs)),
+        decay20DbMs: numericSummary(members.map((entry) => entry.physicalProfile.transientEnvelope.decay20DbMs)),
+        decay40DbMs: numericSummary(members.map((entry) => entry.physicalProfile.transientEnvelope.decay40DbMs)),
+      },
+      spectralEnvelope: {
+        centroidHz: numericSummary(members.map((entry) => entry.physicalProfile.spectralEnvelope.onset.spectralCentroidHz)),
+        flatness: numericSummary(members.map((entry) => entry.physicalProfile.spectralEnvelope.onset.spectralFlatness)),
+        lowMidMassRatio: numericSummary(members.map((entry) => entry.physicalProfile.spectralEnvelope.lowMidMassRatio)),
+      },
+      tonalPersistence: {
+        matchedPeakCount: numericSummary(members.map((entry) => entry.physicalProfile.tonalPersistence.matchedPeakCount)),
+      },
+      strikeToStrikeVariation: 'Reported as population standardDeviation beside each measured family feature.',
+      humanAcceptance: 'unreviewed',
+      profilesGrantArtisticAcceptance: false,
+    };
+  });
+}
+
 async function segmentSourceOperation({google, auth, admin, user, args = {}, helpers = {}}) {
   return withForgeIdempotency({
     operation: 'sfx.segment',
@@ -802,6 +951,7 @@ async function segmentSourceOperation({google, auth, admin, user, args = {}, hel
           event,
           parentSourceRef: args.sourceRef,
           parentSourceSha256: source.sha256,
+          physicalProfile: eventPhysicalProfile(raw),
           raw: artifactReceipt(rawUpload, rejected ? 'rejected-raw' : 'raw-event'),
           cleaned: null,
           cleanupRecipe: {
@@ -834,6 +984,34 @@ async function segmentSourceOperation({google, auth, admin, user, args = {}, hel
         }
         eventArtifacts.push(entry);
       }
+      const physicalProfiles = {
+        schemaVersion: SCHEMA_VERSION,
+        engineVersion: ENGINE_VERSION,
+        operation: 'sfx.segment.physical_profiles',
+        requestId,
+        inputSha256,
+        parent: {sourceRef: args.sourceRef, sha256: source.sha256, byteCount: source.byteCount, immutable: true},
+        measurementScope: 'mechanically usable, non-rejected source events; human acceptance remains unreviewed',
+        events: eventArtifacts.map((entry) => ({
+          eventId: entry.event.eventId,
+          strikeActionClass: entry.event.strikeActionClass,
+          eventType: entry.event.eventType,
+          disposition: entry.event.disposition,
+          sourceTimeRange: entry.event.impactTimeRange,
+          profile: entry.physicalProfile,
+        })),
+        families: buildPhysicalFamilyProfiles(eventArtifacts),
+        standardsNote: 'No integrated loudness is reported for event cuts. Source-wide EBU R128 / ITU-R BS.1770 evidence remains in sfx.analyze_source; candidate standards measurements are produced by sfx.render.',
+        humanAcceptance: 'unreviewed',
+      };
+      const physicalProfilesUpload = await uploadForgeArtifact(args, requestId, {
+        name: 'physical-profiles.json',
+        mimeType: 'application/json',
+        bytes: Buffer.from(JSON.stringify(physicalProfiles, null, 2), 'utf8'),
+        stage: 'qa',
+        artifactType: 'physical-profiles',
+      }, google, auth);
+      uploaded.push(physicalProfilesUpload);
       if (auditionParts.length) {
         const reel = concat(auditionParts);
         uploaded.push(await uploadForgeArtifact(args, requestId, {name: 'normalized-audition-reel.wav', mimeType: 'audio/wav', bytes: encodeWav(reel), stage: 'reels', artifactType: 'audition-reel'}, google, auth));
@@ -849,6 +1027,7 @@ async function segmentSourceOperation({google, auth, admin, user, args = {}, hel
         parent: {sourceRef: args.sourceRef, sha256: source.sha256, byteCount: source.byteCount, immutable: true},
         eventOrder: events.map((event) => event.eventId),
         events: eventArtifacts,
+        physicalProfiles: artifactReceipt(physicalProfilesUpload, 'physical-profiles'),
         categories: Object.fromEntries([...new Set(events.map((event) => event.eventType))].map((type) => [type, events.filter((event) => event.eventType === type).map((event) => event.eventId)])),
         humanAcceptance: 'unreviewed',
         canonicalSourceReplaced: false,
@@ -861,6 +1040,7 @@ async function segmentSourceOperation({google, auth, admin, user, args = {}, hel
         events: eventArtifacts,
         artifacts: uploaded.map((artifact) => artifactReceipt(artifact)),
         eventManifest: artifactReceipt(manifestUpload, 'event-manifest'),
+        physicalProfiles: artifactReceipt(physicalProfilesUpload, 'physical-profiles'),
         rejectedEventIds: events.filter((event) => ['rejected', 'unusable'].includes(event.disposition)).map((event) => event.eventId),
         canonicalSourceReplaced: false,
       };

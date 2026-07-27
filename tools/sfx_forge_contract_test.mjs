@@ -265,6 +265,10 @@ assert.ok(segmented.events[1].cleaned);
 assert.equal(segmented.events[1].cleanupRecipe.normalization, false);
 assert.equal(segmented.events[1].cleanupRecipe.tailPreserved, true);
 assert.equal(segmented.events[2].cleaned, null);
+assert.ok(Number.isFinite(segmented.events[1].physicalProfile.signal.crestFactorDb));
+assert.ok(Number.isFinite(segmented.events[1].physicalProfile.spectralEnvelope.lowMidMassRatio));
+assert.equal(segmented.events[1].physicalProfile.metricsGrantArtisticAcceptance, false);
+assert.equal(segmented.physicalProfiles.verified, true);
 assert.equal(segmented.eventManifest.verified, true);
 
 const recipe = {
