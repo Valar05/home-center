@@ -34,7 +34,7 @@ const {
 const DEFAULT_MCP_PUBLIC_BASE = 'https://us-central1-home-center-dclar.cloudfunctions.net/homeCenterMcp';
 const MCP_PUBLIC_BASE = process.env.HOME_CENTER_MCP_PUBLIC_BASE || DEFAULT_MCP_PUBLIC_BASE;
 const HOME_CENTER_MCP_SERVER_VERSION = '0.2.0';
-const HOME_CENTER_CONNECTOR_SCHEMA_REVISION = '2026-07-26.status-contract-v1';
+const HOME_CENTER_CONNECTOR_SCHEMA_REVISION = '2026-07-27.sfx-forge-v3';
 const HOME_CENTER_REGISTRY_VERSION = HOME_CENTER_CONNECTOR_SCHEMA_REVISION;
 const HOME_CENTER_DIRECT_FILE_TOOLS = Object.freeze(['render_blender_glb']);
 const MCP_RESOURCE = `${MCP_PUBLIC_BASE}/mcp`;
@@ -4111,7 +4111,7 @@ function runDroobiedooContextOperation(operation, args = {}) {
 
 function driveOperationRegistry() {
   return {
-    version: '2026-07-27.sfx-forge-v2',
+    version: '2026-07-27.sfx-forge-v3',
     invocationTool: 'drive_operation',
     cachePolicy: 'New bridge and simulation operations should be invokable through drive_operation so ChatGPT does not need a top-level MCP tool refresh for every backend code change. Cartesia TTS is a direct Home Center MCP provider operation; it must not be routed through Command Center jobs or workers.',
     operations: {
@@ -4266,32 +4266,32 @@ function driveOperationRegistry() {
         write: true,
         requiresRequestId: true,
         requiredScopes: [],
-        input: {sourceRef: 'immutable canonical gs:// audio ref', expectedSha256: 'required immutable parent SHA-256', requestId: 'stable idempotency key', approved: 'must be true for execution authorization; never artistic acceptance', family: 'SFX family name', publishToDrive: 'optional boolean; publishes verified descendants to Drive', parentFolderId: 'optional Drive folder id'},
-        output: {source: 'verified immutable parent receipt', decode: 'hashed PCM16 WAV working descendant', measurements: 'sample metrics plus EBU R128/ITU-R BS.1770 evidence', transientAnalysis: 'ordered mechanical candidates', artifacts: 'verified GCS descendants with optional Drive refs', humanAcceptance: 'always unreviewed'},
+        input: {sourceRef: 'immutable canonical gs:// audio ref', expectedSha256: 'required immutable parent SHA-256', requestId: 'stable idempotency key', approved: 'must be true for execution authorization; never artistic acceptance', family: 'SFX family name'},
+        output: {source: 'verified immutable parent receipt', decode: 'hashed PCM16 WAV working descendant', measurements: 'sample metrics plus EBU R128/ITU-R BS.1770 evidence', transientAnalysis: 'ordered mechanical candidates', artifacts: 'verified GCS descendants', humanAcceptance: 'always unreviewed'},
       },
       'sfx.transcribe_slate': {
         summary: 'Create a hashed 16 kHz mono FLAC descendant and use Google Cloud Speech-to-Text through project identity to return word-timestamped spoken-slate evidence without rerunning mechanical analysis.',
         write: true,
         requiresRequestId: true,
         requiredScopes: [],
-        input: {sourceRef: 'immutable canonical gs:// audio ref', expectedSha256: 'required immutable parent SHA-256', requestId: 'stable idempotency key', approved: 'execution authorization only', family: 'SFX family name', transcription: 'optional object with languageCode, model, and explicit phrase hints', publishToDrive: 'optional boolean', parentFolderId: 'optional Drive folder id'},
-        output: {source: 'verified immutable parent receipt', recognitionInput: 'hashed FLAC working descendant and recipe', transcription: 'Google Cloud segments, words, confidence, timestamps, and provenance', artifacts: 'verified descendants with optional Drive refs', humanAcceptance: 'always unreviewed'},
+        input: {sourceRef: 'immutable canonical gs:// audio ref', expectedSha256: 'required immutable parent SHA-256', requestId: 'stable idempotency key', approved: 'execution authorization only', family: 'SFX family name', transcription: 'optional object with languageCode, model, and explicit phrase hints'},
+        output: {source: 'verified immutable parent receipt', recognitionInput: 'hashed FLAC working descendant and recipe', transcription: 'Google Cloud segments, words, confidence, timestamps, and provenance', artifacts: 'verified descendants', humanAcceptance: 'always unreviewed'},
       },
       'sfx.segment': {
-        summary: 'Turn an ordered human-readable event manifest into immutable-parent raw cuts, conservative cleaned dry cuts, rejected cuts, component categories, a normalized navigation reel, and a raw-versus-cleaned A/B reel.',
+        summary: 'Turn an ordered human-readable event manifest into immutable-parent raw cuts, conservative cleaned dry cuts, rejected cuts, component categories, and separate impact-only and bag-movement review reels.',
         write: true,
         requiresRequestId: true,
         requiredScopes: [],
-        input: {sourceRef: 'immutable canonical gs:// audio ref', expectedSha256: 'required immutable parent SHA-256', requestId: 'stable idempotency key', approved: 'execution authorization only', family: 'SFX family name', events: 'ordered event manifest with spokenLabelTimeRange and impactTimeRange', publishToDrive: 'optional boolean', parentFolderId: 'optional Drive folder id'},
-        output: {parent: 'immutable source lineage', events: 'per-event raw/clean/rejected receipts and recipes', eventManifest: 'verified manifest', artifacts: 'verified descendants', humanAcceptance: 'always unreviewed'},
+        input: {sourceRef: 'immutable canonical gs:// audio ref', expectedSha256: 'required immutable parent SHA-256', requestId: 'stable idempotency key', approved: 'execution authorization only', family: 'SFX family name', sourceMechanism: 'fixtureType/floorCoupled evidence; floor-standing sources reject hanging-bag semantics', events: 'ordered event manifest with spokenLabelTimeRange, impactTimeRange, and explicit impact or bag-movement eventType'},
+        output: {parent: 'immutable source lineage', sourceMechanism: 'normalized fixture evidence', events: 'per-event raw/clean/rejected receipts, domains, and recipes', eventManifest: 'verified manifest', artifacts: 'verified descendants including separate impact and bag-rocking reels', humanAcceptance: 'always unreviewed'},
       },
       'sfx.render': {
-        summary: 'Render deterministic source-conditioned SFX candidates from named physical source regions and semantic controls. Reject clone families, preserve the full recipe and seed, and never use oscillators as material identity.',
+        summary: 'Render deterministic impact-only, bag-movement, or explicit composite SFX candidates from named physical source regions and semantic controls. Reject fixture-incompatible layers and clone families.',
         write: true,
         requiresRequestId: true,
         requiredScopes: [],
-        input: {sourceRef: 'immutable canonical gs:// audio ref', expectedSha256: 'required immutable parent SHA-256', requestId: 'stable idempotency key', approved: 'execution authorization only', family: 'SFX family name', recipe: 'versioned candidate/layer/source-region/semantic-control recipe', publishToDrive: 'optional boolean', parentFolderId: 'optional Drive folder id'},
-        output: {recipeSha256: 'canonical deterministic recipe hash', candidates: 'candidate receipts and lineage', renderManifest: 'verified manifest', humanAcceptance: 'always unreviewed'},
+        input: {sourceRef: 'immutable canonical gs:// audio ref', expectedSha256: 'required immutable parent SHA-256', requestId: 'stable idempotency key', approved: 'execution authorization only', family: 'SFX family name', sourceMechanism: 'fixtureType/floorCoupled evidence', recipe: 'versioned candidate recipe; every candidate declares outputKind and named layer source regions'},
+        output: {recipeSha256: 'canonical deterministic recipe hash', sourceMechanism: 'normalized fixture evidence', candidates: 'domain-labeled candidate receipts and lineage', renderManifest: 'verified manifest', humanAcceptance: 'always unreviewed'},
       },
       'sfx.status': {
         summary: 'Read an SFX Forge request audit/status without retrying a provider or starting work.',

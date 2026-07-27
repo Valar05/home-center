@@ -224,6 +224,11 @@ const segmented = await segmentSourceOperation({
     owner: 'drew',
     ownerEmail: user.email,
     family: 'heavy-bag',
+    sourceMechanism: {
+      fixtureType: 'floor_standing',
+      floorCoupled: true,
+      semanticAuthority: 'human_source_description',
+    },
     events: [
       {
         eventId: 'room-001',
@@ -254,11 +259,19 @@ const segmented = await segmentSourceOperation({
         rejectionReason: 'contract fixture rejection',
         confidence: 0.8,
       },
+      {
+        eventId: 'bag-rocking-001',
+        labelSlateText: 'post-impact floor-bag rocking',
+        impactTimeRange: [0.82, 0.98],
+        eventType: 'bag_rocking',
+        strikeActionClass: 'none',
+        confidence: 0.95,
+      },
     ],
   },
 });
 assert.equal(segmented.ok, true);
-assert.equal(segmented.events.length, 3);
+assert.equal(segmented.events.length, 4);
 assert.deepEqual(segmented.rejectedEventIds, ['impact-rejected-001']);
 assert.ok(segmented.events[1].raw);
 assert.ok(segmented.events[1].cleaned);
@@ -270,6 +283,34 @@ assert.ok(Number.isFinite(segmented.events[1].physicalProfile.spectralEnvelope.l
 assert.equal(segmented.events[1].physicalProfile.metricsGrantArtisticAcceptance, false);
 assert.equal(segmented.physicalProfiles.verified, true);
 assert.equal(segmented.eventManifest.verified, true);
+assert.equal(segmented.events[1].event.eventDomain, 'impact');
+assert.equal(segmented.events[3].event.eventDomain, 'bag_movement');
+assert.ok(segmented.artifacts.some((artifact) => artifact.name === 'impact-only-audition-reel.wav'));
+assert.ok(segmented.artifacts.some((artifact) => artifact.name === 'bag-rocking-audition-reel.wav'));
+
+await assert.rejects(
+  () => segmentSourceOperation({
+    admin: {},
+    user,
+    helpers,
+    args: {
+      sourceRef: source.storageRef,
+      expectedSha256: source.sha256,
+      requestId: 'sfx-forge-floor-suspension-event-rejection-contract',
+      approved: true,
+      owner: 'drew',
+      ownerEmail: user.email,
+      family: 'heavy-bag',
+      sourceMechanism: {fixtureType: 'floor_standing'},
+      events: [{
+        eventId: 'impossible-suspension',
+        impactTimeRange: [0.2, 0.4],
+        eventType: 'suspension_movement',
+      }],
+    },
+  }),
+  /incompatible with floor-standing source mechanism/,
+);
 
 const recipe = {
   schemaVersion: SCHEMA_VERSION,
@@ -278,6 +319,7 @@ const recipe = {
   candidates: [
     {
       candidateId: 'clean-body-001',
+      outputKind: 'impact_only',
       controls: {force: 0.55, mass: 0.7, distance: 0.05, intensity: 0.45},
       layers: [
         {role: 'contact', sourceTimeRange: [0.19, 0.27], gainDb: -1},
@@ -286,6 +328,7 @@ const recipe = {
     },
     {
       candidateId: 'heavy-cross-001',
+      outputKind: 'impact_only',
       controls: {force: 0.9, mass: 0.8, distance: 0.08, intensity: 0.7},
       layers: [
         {role: 'contact', sourceTimeRange: [0.64, 0.72], gainDb: -2},
@@ -306,6 +349,7 @@ const rendered = await renderSourceConditionedOperation({
     owner: 'drew',
     ownerEmail: user.email,
     family: 'heavy-bag',
+    sourceMechanism: {fixtureType: 'floor_standing', floorCoupled: true},
     recipe,
   },
 });
@@ -313,11 +357,39 @@ assert.equal(rendered.ok, true);
 assert.equal(rendered.candidates.length, 2);
 assert.ok(/^[a-f0-9]{64}$/.test(rendered.recipeSha256));
 assert.ok(rendered.candidates.every((candidate) => candidate.state === 'candidate' && candidate.humanAcceptance === 'unreviewed'));
+assert.ok(rendered.candidates.every((candidate) => candidate.outputKind === 'impact_only'));
+assert.ok(rendered.candidates.every((candidate) => candidate.sourceRegions.every((region) => region.domain === 'impact')));
 assert.ok(rendered.candidates.every((candidate) => !Object.hasOwn(candidate.metrics, 'integratedLufs')));
 assert.ok(rendered.candidates.every((candidate) => candidate.metrics.standards.standard === 'EBU R128 / ITU-R BS.1770 via FFmpeg ebur128'));
 assert.ok(rendered.candidates.every((candidate) => Number.isFinite(candidate.metrics.standards.integratedLufs)));
 assert.ok(rendered.candidates.every((candidate) => Number.isFinite(candidate.metrics.standards.truePeakDbtp)));
 assert.equal(rendered.renderManifest.verified, true);
+
+await assert.rejects(
+  () => renderSourceConditionedOperation({
+    admin: {},
+    user,
+    helpers,
+    args: {
+      sourceRef: source.storageRef,
+      expectedSha256: source.sha256,
+      requestId: 'sfx-forge-floor-suspension-layer-rejection-contract',
+      approved: true,
+      owner: 'drew',
+      ownerEmail: user.email,
+      family: 'heavy-bag',
+      sourceMechanism: {fixtureType: 'floor_standing'},
+      recipe: {
+        candidates: [{
+          candidateId: 'invalid-floor-suspension',
+          outputKind: 'impact_only',
+          layers: [{role: 'suspension', sourceTimeRange: [0.2, 0.4]}],
+        }],
+      },
+    },
+  }),
+  /suspended-bag layer and cannot be used with a floor-standing source/,
+);
 
 await assert.rejects(
   () => renderSourceConditionedOperation({
