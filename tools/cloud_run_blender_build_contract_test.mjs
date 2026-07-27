@@ -9,6 +9,7 @@ const recipe = fs.readFileSync(new URL('../factory/sherman-cleanroom-cloudrun-a/
 
 assert.match(server, /POST' && req\.url === '\/render\/build'/);
 assert.match(renderer, /COMMAND_CENTER_BLENDER_MODE: mode/);
+assert.match(renderer, /Array\.isArray\(settings\[key\]\) && settings\[key\]\.length === 0/);
 assert.match(renderer, /mode === 'build' \? Promise\.resolve\(Buffer\.alloc\(0\)\)/);
 assert.match(renderer, /empty Blender factory scene \+ authoring script/);
 assert.match(commandCenter, /case 'render\.blender_build'/);
