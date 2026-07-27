@@ -26,6 +26,11 @@ jobs:
 
       - uses: google-github-actions/setup-gcloud@v2
 
+      - name: Install contact-sheet renderer
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends imagemagick
+
       - name: Build a contact sheet from the sealed Blender renders
         run: |
           mkdir -p "$RUNNER_TEMP/review"
