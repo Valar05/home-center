@@ -8,7 +8,7 @@ on:
       - .github/workflows/sherman-cleanroom-review-egress.yml
 
 permissions:
-  contents: read
+  contents: write
   id-token: write
 
 jobs:
@@ -52,21 +52,23 @@ jobs:
             -tile 4x2 -geometry 512x512+8+8 -background '#111820' \
             "$RUNNER_TEMP/review/contact-sheet.png"
           sha256sum "$RUNNER_TEMP/review/contact-sheet.png"
+          convert "$RUNNER_TEMP/review/contact-sheet.png" \
+            -resize '1800x1800>' -strip -quality 86 \
+            "$RUNNER_TEMP/review/contact-sheet-review.jpg"
           gcloud storage cp --no-clobber \
             "$RUNNER_TEMP/review/contact-sheet.png" \
             "$ROOT/contact-sheet.png"
 
-      - name: Emit short-lived review links
+      - name: Publish bounded GitHub review derivative
         env:
-          SERVICE_ACCOUNT: ${{ secrets.GCP_DEPLOY_SERVICE_ACCOUNT }}
+          GH_TOKEN: ${{ github.token }}
         run: |
           gcloud storage ls -L "$ROOT/contact-sheet.png"
-          gcloud storage sign-url "$ROOT/contact-sheet.png" \
-            --duration=2h \
-            --impersonate-service-account="$SERVICE_ACCOUNT"
-          gcloud storage sign-url "$ROOT/front_three_quarter.png" \
-            --duration=2h \
-            --impersonate-service-account="$SERVICE_ACCOUNT"
-          gcloud storage sign-url "$ROOT/low_front_three_quarter.png" \
-            --duration=2h \
-            --impersonate-service-account="$SERVICE_ACCOUNT"
+          REVIEW_PATH="reviews/sherman-cleanroom-a/93a4b3dffead87db7ac1727bc96b5ec970364bcc/contact-sheet-review.jpg"
+          REVIEW_CONTENT="$(base64 -w0 "$RUNNER_TEMP/review/contact-sheet-review.jpg")"
+          gh api \
+            --method PUT \
+            "repos/$GITHUB_REPOSITORY/contents/$REVIEW_PATH" \
+            -f message='Add Sherman clean-room Blender review sheet' \
+            -f branch="$GITHUB_REF_NAME" \
+            -f content="$REVIEW_CONTENT"
