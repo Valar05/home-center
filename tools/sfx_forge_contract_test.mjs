@@ -361,7 +361,10 @@ assert.ok(rendered.candidates.every((candidate) => candidate.outputKind === 'imp
 assert.ok(rendered.candidates.every((candidate) => candidate.sourceRegions.every((region) => region.domain === 'impact')));
 assert.ok(rendered.candidates.every((candidate) => !Object.hasOwn(candidate.metrics, 'integratedLufs')));
 assert.ok(rendered.candidates.every((candidate) => candidate.metrics.standards.standard === 'EBU R128 / ITU-R BS.1770 via FFmpeg ebur128'));
-assert.ok(rendered.candidates.every((candidate) => Number.isFinite(candidate.metrics.standards.integratedLufs)));
+assert.ok(rendered.candidates.every((candidate) => candidate.metrics.duration < 0.4));
+assert.ok(rendered.candidates.every((candidate) => candidate.metrics.standards.integratedLoudnessApplicable === false));
+assert.ok(rendered.candidates.every((candidate) => candidate.metrics.standards.integratedLufs === null));
+assert.ok(rendered.candidates.every((candidate) => candidate.metrics.standards.integratedLoudnessReason === 'not_reported_for_sub_400_ms_or_ungated_impulse'));
 assert.ok(rendered.candidates.every((candidate) => Number.isFinite(candidate.metrics.standards.truePeakDbtp)));
 assert.equal(rendered.renderManifest.verified, true);
 
