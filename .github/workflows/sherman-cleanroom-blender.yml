@@ -1,0 +1,78 @@
+name: Sherman Cleanroom Blender
+
+on:
+  push:
+    branches:
+      - agent/sherman-cleanroom-blender-a
+    paths:
+      - factory/sherman-cleanroom-a/**
+      - .github/workflows/sherman-cleanroom-blender.yml
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: Type build to confirm the clean-room Blender run
+        required: true
+        default: build
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: sherman-cleanroom-blender-a
+  cancel-in-progress: false
+
+jobs:
+  build:
+    if: ${{ github.event_name == 'push' || inputs.confirm == 'build' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build the existing Home Center Blender image
+        run: docker build -f cloud-render/Dockerfile -t home-center-blender:cleanroom .
+
+      - name: Author and render the Sherman in Blender from an empty scene
+        run: |
+          mkdir -p "$RUNNER_TEMP/sherman-cleanroom-a"
+          docker run --rm \
+            --volume "$GITHUB_WORKSPACE:/workspace:ro" \
+            --volume "$RUNNER_TEMP/sherman-cleanroom-a:/output" \
+            home-center-blender:cleanroom \
+            blender --background --factory-startup \
+              --python /workspace/factory/sherman-cleanroom-a/build_sherman_cleanroom_a.py \
+              -- --output /output
+
+      - name: Verify required Blender outputs
+        run: |
+          test -s "$RUNNER_TEMP/sherman-cleanroom-a/sherman-m4a3-75w-cleanroom-a.blend"
+          test -s "$RUNNER_TEMP/sherman-cleanroom-a/sherman-m4a3-75w-cleanroom-a.glb"
+          test -s "$RUNNER_TEMP/sherman-cleanroom-a/build-manifest.json"
+          test "$(find "$RUNNER_TEMP/sherman-cleanroom-a" -maxdepth 1 -name '*.png' | wc -l)" -eq 8
+          sha256sum "$RUNNER_TEMP"/sherman-cleanroom-a/* > "$RUNNER_TEMP/sherman-cleanroom-a/SHA256SUMS"
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GCP_DEPLOY_SERVICE_ACCOUNT }}
+
+      - uses: google-github-actions/setup-gcloud@v2
+
+      - name: Publish immutable build to GCS
+        env:
+          DESTINATION: gs://home-center-dclar-command-center-renders/sherman-factory/cleanroom-a/${{ github.sha }}/${{ github.run_id }}
+        run: |
+          gcloud storage cp --no-clobber --recursive \
+            "$RUNNER_TEMP/sherman-cleanroom-a" \
+            "$DESTINATION/"
+          printf '%s\n' "$DESTINATION/sherman-cleanroom-a/" > "$RUNNER_TEMP/sherman-cleanroom-a/GCS_ARTIFACT_ROOT.txt"
+
+      - name: Preserve a GitHub review bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: sherman-cleanroom-a-${{ github.run_id }}
+          path: ${{ runner.temp }}/sherman-cleanroom-a/
+          retention-days: 7
+          if-no-files-found: error
