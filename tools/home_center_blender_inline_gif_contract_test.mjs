@@ -24,8 +24,8 @@ assert(homeCenterSource.includes('parseRenderGsRef'), 'Inline GIF delivery must 
 assert(!homeCenterSource.includes('https://storage.googleapis.com'), 'Inline GIF delivery must not fall back to public Storage URLs');
 assert(!homeCenterSource.includes('getSignedUrl'), 'Inline GIF delivery must not leak signed URLs');
 assert(commandCenterSource.includes('renderRequiredBundleKindsForOptions'), 'Command Center must use one helper for required render bundles');
-assert(commandCenterSource.includes('const effectiveRenderOptions'), 'Command Center wrapper must derive completion from effective render options');
-assert(commandCenterSource.includes("failureKind: status === 'completed' ? ''"), 'Completed lightweight renders must clear failureKind');
+assert(commandCenterSource.includes('const effectiveOptions'), 'Queued Command Center worker must derive completion from effective render options');
+assert(commandCenterSource.includes("status: completed ? 'completed' : 'failed'"), 'Completed queued renders must persist terminal state');
 assert(vanguardScript.includes("normalized_name = requested + '_rig'"), 'Vanguard resolver must allow only the known glTF _rig suffix');
 assert(vanguardScript.includes("forbidden = [name for name in available if name in {'Rest', 'Idle'}]"), 'Vanguard resolver must explicitly forbid Rest/Idle fallback');
 assert(vanguardScript.includes("'activeSemanticAction': semantic_action_name(action.name, expected_action)"), 'Vanguard native evidence must record semantic action separate from importer provenance');
@@ -104,6 +104,15 @@ assert.equal(receipt.result.inlineMediaDelivery.ok, true);
 assert.equal(receipt.result.inlineMediaDelivery.contentBlockType, 'resource_link');
 assert.equal(receipt.result.inlineMediaDelivery.sha256, gifSha);
 assert.equal(receipt.result.inlineMediaDelivery.durableRef, 'drive://driveGif12345');
+
+const queuedResult = await attachRenderGifMcpContent({operation: 'render.blender_glb', toolName: 'command_center.render.blender_glb', result: {ok: true, accepted: true, status: 'queued', renderId: 'queued-render'}}, {storage: fakeStorage});
+assert.equal(queuedResult.result.status, 'queued');
+assert.equal(queuedResult.result.inlineMediaDelivery, undefined, 'accepted receipts must not report a missing result artifact');
+assert.equal(queuedResult._mcpContent, undefined);
+
+const attachedReplay = await attachRenderGifMcpContent({operation: 'render.blender_glb', toolName: 'command_center.render.blender_glb', result: {...result, attached: true}}, {storage: fakeStorage, google: fakeGoogle(), auth: {}});
+assert.equal(attachedReplay.result.inlineMediaDelivery, undefined, 'attached replay must not republish immutable GIF bytes');
+assert.equal(attachedReplay._mcpContent, undefined);
 
 const failureResult = await attachRenderGifMcpContent({operation: 'render.blender_glb', toolName: 'command_center.render.blender_glb', result}, {storage: fakeStorage});
 assert.deepEqual(failureResult._mcpContent.content.map((item) => item.type), ['text']);

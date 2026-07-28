@@ -43,6 +43,8 @@ node tools/command_center_cloud_activation_contract_test.mjs
 node tools/command_center_worker_lifecycle_contract_test.mjs
 node --check tools/command_center_blender_render_contract_test.mjs
 node tools/command_center_blender_render_contract_test.mjs
+node --check tools/command_center_render_queue_contract_test.mjs
+node tools/command_center_render_queue_contract_test.mjs
 node --check tools/command_center_blender_file_handoff_test.mjs
 node tools/command_center_blender_file_handoff_test.mjs
 node --check tools/home_center_render_blender_glb_protocol_test.mjs
@@ -109,6 +111,7 @@ mkdir -p "$tmp/classes"
 javac -d "$tmp/classes" \
   app/src/main/java/com/dclar/homecenter/Command.java \
   app/src/main/java/com/dclar/homecenter/CommandParser.java \
+  app/src/main/java/com/dclar/homecenter/SmsCalendarIngestionContract.java \
   app/src/main/java/com/dclar/homecenter/SmsReminderClassifier.java \
   tools/CommandParserHarness.java \
   tools/SmsReminderClassifierHarness.java

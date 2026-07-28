@@ -1,10 +1,12 @@
 'use strict';
 
 const {createHash} = require('node:crypto');
+const {boundedMap, sha256Json, LEGACY_BASE64_MAX_BYTES, ARTIFACT_TRANSPORT_VERSION} = require('./artifact_transport');
 
 const ARTIFACT_BUCKET = process.env.HOME_CENTER_ARTIFACT_BUCKET || 'home-center-generated';
 const ARTIFACT_INGEST_MAX_BYTES = Number(process.env.HOME_CENTER_ARTIFACT_INGEST_MAX_BYTES || 256 * 1024 * 1024);
-const ARTIFACT_CHUNK_MAX_BYTES = Number(process.env.HOME_CENTER_ARTIFACT_CHUNK_MAX_BYTES || 700 * 1024);
+const ARTIFACT_CHUNK_MAX_BYTES = Math.min(Number(process.env.HOME_CENTER_ARTIFACT_CHUNK_MAX_BYTES || LEGACY_BASE64_MAX_BYTES), LEGACY_BASE64_MAX_BYTES);
+const ARTIFACT_RESUMABLE_CHUNK_MAX_BYTES = Number(process.env.HOME_CENTER_ARTIFACT_RESUMABLE_CHUNK_MAX_BYTES || 16 * 1024 * 1024);
 let artifactStorage = null;
 
 function defaultStorage() {
@@ -147,6 +149,22 @@ async function readFile(file) {
   return {bytes: buffer, byteCount: buffer.length, sha256: sha256(buffer)};
 }
 
+async function digestFile(file, range = null) {
+  if (typeof file.createReadStream !== 'function') return readFile(file);
+  const hash = createHash('sha256');
+  let count = 0;
+  const options = range ? {start: range.start, end: range.end} : {};
+  for await (const chunk of file.createReadStream(options)) { const bytes = Buffer.from(chunk); hash.update(bytes); count += bytes.length; }
+  return {byteCount: count, sha256: hash.digest('hex')};
+}
+
+function assertExpectedDigest(identity, digest) {
+  if (!digest || !Number.isSafeInteger(digest.byteCount) || digest.byteCount < 1) throw fail('Artifact file is empty.', 400, 'artifact_ingest_empty');
+  if (identity.expectedByteCount !== null && identity.expectedByteCount !== digest.byteCount) throw fail('Artifact byte count did not match expectedByteCount.', 409, 'artifact_ingest_byte_count_mismatch');
+  if (identity.expectedSha256 && identity.expectedSha256 !== digest.sha256) throw fail('Artifact SHA-256 did not match expectedSha256.', 409, 'artifact_ingest_sha256_mismatch');
+  return digest;
+}
+
 async function saveImmutableJson(bucket, objectName, value, sameIdentity) {
   const file = bucket.file(objectName);
   const payload = Buffer.from(JSON.stringify(value, null, 2) + '\n');
@@ -216,31 +234,17 @@ async function publishVerified({admin, storage = defaultStorage(), user, identit
   const destination = bucket.file(identity.objectName);
   let reused = false;
   try {
-    await destination.save(verified.bytes, {
-      resumable: false,
-      validation: false,
+    const metadata = {
       contentType: identity.mimeType,
-      metadata: {
-        contentType: identity.mimeType,
-        metadata: {
-          artifactId: identity.artifactId,
-          artifactKind: identity.artifactKind,
-          project: identity.project,
-          ownerEmail: identity.ownerEmail,
-          lifecycleState: identity.lifecycleState,
-          requestId: identity.requestId,
-          sha256: verified.sha256,
-          byteCount: String(verified.byteCount),
-          ingestStatus: 'verified',
-        },
-      },
-      preconditionOpts: {ifGenerationMatch: 0},
-    });
+      metadata: {artifactId: identity.artifactId, artifactKind: identity.artifactKind, project: identity.project, ownerEmail: identity.ownerEmail, lifecycleState: identity.lifecycleState, requestId: identity.requestId, sha256: verified.sha256, byteCount: String(verified.byteCount), ingestStatus: 'verified'},
+    };
+    if (verified.sourceFile) await verified.sourceFile.copy(destination, {metadata, preconditionOpts: {ifGenerationMatch: 0}});
+    else await destination.save(verified.bytes, {resumable: false, validation: false, contentType: identity.mimeType, metadata, preconditionOpts: {ifGenerationMatch: 0}});
   } catch (err) {
     if (![409, 412].includes(Number(err && err.code)) && !/condition|already exists/i.test(String(err && err.message))) throw err;
     reused = true;
   }
-  const readback = await readFile(destination);
+  const readback = await digestFile(destination);
   if (readback.byteCount !== verified.byteCount || readback.sha256 !== verified.sha256) {
     throw fail('Canonical GCS artifact failed byte-count/SHA-256 readback verification.', 502, 'artifact_ingest_readback_mismatch');
   }
@@ -450,11 +454,76 @@ async function commitArtifactIngestOperation({admin, storage = defaultStorage(),
   } catch (err) {
     if (![409, 412].includes(Number(err && err.code)) && !/condition|already exists/i.test(String(err && err.message))) throw err;
   }
-  const assembled = await readFile(staging);
-  const verified = assertExpected(identity, assembled.bytes);
+  const assembled = assertExpectedDigest(identity, await digestFile(staging));
+  const verified = {...assembled, sourceFile: staging};
   const result = await publishVerified({admin, storage, user, identity, verified, recordAudit});
   await Promise.allSettled([...chunks, ...intermediates, staging].map((file) => file.delete({ignoreNotFound: true})));
   return {...result, transport: {kind: 'chunked-mcp-fallback', expectedChunks, stagedObjectsDisposed: true}};
+}
+
+function normalizeResumableChunks(args, identity) {
+  const chunks = Array.isArray(args.chunks) ? args.chunks : [];
+  if (!chunks.length || chunks.length > 128) throw fail('chunks must contain 1-128 independently hashed ranges.', 400, 'artifact_resumable_chunks_required');
+  let offset = 0;
+  return chunks.map((chunk, index) => {
+    const item = chunk && typeof chunk === 'object' ? chunk : {};
+    const byteCount = Number(item.byteCount);
+    const start = Number(item.offset);
+    if (Number(item.index) !== index || start !== offset || !Number.isSafeInteger(byteCount) || byteCount < 1 || byteCount > ARTIFACT_RESUMABLE_CHUNK_MAX_BYTES) throw fail('chunks must be contiguous, ordered, and within the configured chunk ceiling.', 400, 'artifact_resumable_chunk_manifest_invalid');
+    const digest = expectedSha(item.sha256, 'chunks[' + index + '].sha256');
+    if (!digest) throw fail('Every resumable chunk requires sha256.', 400, 'artifact_resumable_chunk_sha256_required');
+    offset += byteCount;
+    return {index, offset: start, byteCount, sha256: digest};
+  }).map((chunk, index, all) => {
+    if (index === all.length - 1 && chunk.offset + chunk.byteCount !== identity.expectedByteCount) throw fail('Chunk ranges do not total expectedByteCount.', 409, 'artifact_resumable_chunk_total_mismatch');
+    return chunk;
+  });
+}
+
+function resumableObjectName(identity) { return sessionPrefix(identity) + '/resumable-upload.part'; }
+function resumableSessionRef(admin, requestIdValue) { return admin.firestore().collection('artifactTransportUploadSessions').doc(requestIdValue); }
+function publicResumableReceipt(data, uploadUrl = '') {
+  const out = {schemaVersion: ARTIFACT_TRANSPORT_VERSION, requestId: data.requestId, inputHash: data.inputHash, state: data.state, acceptedAt: data.acceptedAt, artifact: data.artifact, chunks: data.chunks, progress: data.progress || {verifiedChunks: 0, totalChunks: data.chunks.length, verifiedBytes: 0, totalBytes: data.artifact.byteLength}, statusResource: {operation: 'storage.artifact.resumable_status', requestId: data.requestId}, contractVersion: 'gcs-resumable-raw-binary-v1'};
+  if (uploadUrl) out.uploadTarget = {method: 'PUT', url: uploadUrl, protocol: 'gcs-resumable', contentRangeRequired: true};
+  return out;
+}
+
+async function beginResumableArtifactIngestOperation({admin, storage = defaultStorage(), user, args = {}}) {
+  if (args.approved !== true) throw fail('storage.artifact.resumable_begin requires approved=true.', 409, 'artifact_ingest_not_approved');
+  if (!admin || typeof admin.firestore !== 'function') throw fail('Durable resumable sessions require Firestore.', 503, 'artifact_resumable_store_required');
+  const identity = normalizeIdentity(user, args);
+  if (!Number.isSafeInteger(identity.expectedByteCount) || identity.expectedByteCount < 1 || !identity.expectedSha256) throw fail('Resumable ingest requires expectedByteCount and expectedSha256.');
+  const chunks = normalizeResumableChunks(args, identity);
+  const artifact = {sha256: identity.expectedSha256, byteLength: identity.expectedByteCount, mediaType: identity.mimeType, fileName: identity.name};
+  const inputHash = sha256Json({artifact, chunks, ownerEmail: identity.ownerEmail, artifactId: identity.artifactId});
+  const ref = resumableSessionRef(admin, identity.requestId); const existing = await ref.get();
+  if (existing.exists) { const data=existing.data()||{}; if(data.inputHash!==inputHash) throw fail('requestId is already bound to different resumable inputs.',409,'artifact_resumable_idempotency_conflict'); return {...publicResumableReceipt(data, data.uploadUrl), attached:true}; }
+  const file = storage.bucket(ARTIFACT_BUCKET).file(resumableObjectName(identity));
+  if (typeof file.createResumableUpload !== 'function') throw fail('Storage adapter does not support native resumable upload sessions.', 501, 'artifact_resumable_unsupported');
+  const [uploadUrl] = await file.createResumableUpload({metadata: {contentType: identity.mimeType, metadata: {requestId: identity.requestId, expectedSha256: identity.expectedSha256, expectedByteCount: String(identity.expectedByteCount), transportVersion: ARTIFACT_TRANSPORT_VERSION}}});
+  const data={requestId:identity.requestId,inputHash,state:'staging',acceptedAt:new Date().toISOString(),ownerEmail:identity.ownerEmail,identity,artifact,chunks,objectName:resumableObjectName(identity),uploadUrl,progress:{verifiedChunks:0,totalChunks:chunks.length,verifiedBytes:0,totalBytes:identity.expectedByteCount}};
+  await ref.create(data); return {...publicResumableReceipt(data, uploadUrl), attached:false};
+}
+
+async function loadResumableSession(admin, user, args) {
+  const id=requestId(args.requestId); const ref=resumableSessionRef(admin,id); const snap=await ref.get(); if(!snap.exists) throw fail('Resumable artifact session not found.',404,'artifact_resumable_not_found'); const data=snap.data()||{};
+  if (data.ownerEmail !== ownerEmail(user)) throw fail('Resumable artifact session is not owned by this caller.',403,'artifact_resumable_forbidden'); return {ref,data};
+}
+
+async function resumableArtifactStatusOperation({admin, storage=defaultStorage(), user, args={}}) {
+  const {data}=await loadResumableSession(admin,user,args); const file=storage.bucket(ARTIFACT_BUCKET).file(data.objectName); let progress=data.progress; let state=data.state;
+  try { const digest=await digestFile(file); if(digest.byteCount===data.artifact.byteLength) {state='uploaded'; progress={...progress,uploadedBytes:digest.byteCount};} } catch (_err) {}
+  return {...publicResumableReceipt({...data,state,progress}), attached:true};
+}
+
+async function resumeResumableArtifactIngestOperation({admin,user,args={}}) { const {data}=await loadResumableSession(admin,user,args); if(!data.uploadUrl) throw fail('Resumable upload target has expired and must be restarted.',410,'artifact_resumable_target_expired'); return {...publicResumableReceipt(data,data.uploadUrl),attached:true}; }
+
+async function commitResumableArtifactIngestOperation({admin,storage=defaultStorage(),user,args={},recordAudit}) {
+  if(args.approved!==true) throw fail('storage.artifact.resumable_commit requires approved=true.',409,'artifact_ingest_not_approved'); const {ref,data}=await loadResumableSession(admin,user,args); const file=storage.bucket(ARTIFACT_BUCKET).file(data.objectName);
+  const verifiedChunks=await boundedMap(data.chunks,4,async(chunk)=>{const digest=await digestFile(file,{start:chunk.offset,end:chunk.offset+chunk.byteCount-1}); if(digest.byteCount!==chunk.byteCount) throw fail('Resumable chunk byte length mismatch at index '+chunk.index+'.',409,'artifact_resumable_chunk_length_mismatch'); if(digest.sha256!==chunk.sha256) throw fail('Resumable chunk SHA-256 mismatch at index '+chunk.index+'.',409,'artifact_resumable_chunk_sha256_mismatch'); return {...chunk,verified:true};});
+  const whole=assertExpectedDigest(data.identity,await digestFile(file)); await ref.set({...data,state:'ready',progress:{verifiedChunks:verifiedChunks.length,totalChunks:verifiedChunks.length,verifiedBytes:whole.byteCount,totalBytes:whole.byteCount},verifiedAt:new Date().toISOString()});
+  const result=await publishVerified({admin,storage,user,identity:data.identity,verified:{...whole,sourceFile:file},recordAudit}); await ref.set({...data,uploadUrl:'',state:'completed',progress:{verifiedChunks:verifiedChunks.length,totalChunks:verifiedChunks.length,verifiedBytes:whole.byteCount,totalBytes:whole.byteCount},result:{durableRef:result.durableRef,destination:result.destination},completedAt:new Date().toISOString()});
+  await file.delete({ignoreNotFound:true}); return {...result,transport:{kind:'gcs-resumable-raw-binary-v1',verifiedChunks:verifiedChunks.length,transferredOutsideMcpJson:true}};
 }
 
 async function abortArtifactIngestOperation({admin, storage = defaultStorage(), user, args = {}, recordAudit = async () => {}}) {
@@ -495,6 +564,22 @@ async function findArtifactBySha256Operation({storage = defaultStorage(), args =
 
 function artifactOperationEntries() {
   return {
+    'artifact_transport.preflight': {
+      summary: 'Resolve and validate a versioned content-addressed artifact envelope before submission.',
+      write: false,
+      requiresRequestId: true,
+      input: {requestId: 'string', artifacts: 'artifact-reference.v1 array', consumer: 'supported/direct location kinds', concurrency: 'integer 1-8'},
+    },
+    'artifact_transport.status': {
+      summary: 'Read one bounded artifact transport preflight receipt by requestId.',
+      write: false,
+      requiresRequestId: true,
+      input: {requestId: 'string'},
+    },
+    'storage.artifact.resumable_begin': {summary: 'Create a native GCS resumable raw-binary upload target with hash-bound chunk ranges.', write: true, requiresRequestId: true, input: {approved: 'must be true', requestId: 'string', artifactId: 'string', artifactKind: 'string', project: 'string', name: 'string', mimeType: 'string', expectedByteCount: 'integer', expectedSha256: 'hex', chunks: 'ordered index/offset/byteCount/sha256 array'}},
+    'storage.artifact.resumable_status': {summary: 'Read bounded progress for a resumable artifact session without exposing its private upload URL.', write: false, requiresRequestId: true, input: {requestId: 'string'}},
+    'storage.artifact.resumable_resume': {summary: 'Return the private raw-binary upload target to the authenticated session owner.', write: false, requiresRequestId: true, input: {requestId: 'string'}},
+    'storage.artifact.resumable_commit': {summary: 'Range-hash every chunk, stream-hash the whole artifact, and publish by server-side copy.', write: true, requiresRequestId: true, input: {approved: 'must be true', requestId: 'string'}},
     'storage.artifact.begin': {
       summary: 'Begin a verified chunked artifact upload session for connector-refresh fallback.',
       write: true,
@@ -502,7 +587,7 @@ function artifactOperationEntries() {
       input: {approved: 'must be true', requestId: 'string', artifactId: 'string', artifactKind: 'string', project: 'string', name: 'string', mimeType: 'string', expectedByteCount: 'integer', expectedSha256: 'hex', provenance: 'object'},
     },
     'storage.artifact.append_chunk': {
-      summary: 'Append one hash-verified Base64 chunk to an artifact upload session.',
+      summary: 'Deprecated small-file compatibility only: append one Base64 chunk no larger than 64 KiB.',
       write: true,
       requiresRequestId: true,
       input: {approved: 'must be true', requestId: 'string', artifactId: 'string', artifactKind: 'string', project: 'string', name: 'string', mimeType: 'string', chunkIndex: 'integer', chunkBase64: 'string', chunkSha256: 'hex'},
@@ -536,9 +621,14 @@ module.exports = {
   ARTIFACT_BUCKET,
   ARTIFACT_INGEST_MAX_BYTES,
   ARTIFACT_CHUNK_MAX_BYTES,
+  ARTIFACT_RESUMABLE_CHUNK_MAX_BYTES,
   artifactOperationEntries,
   ingestArtifactUploadOperation,
   beginArtifactIngestOperation,
+  beginResumableArtifactIngestOperation,
+  resumableArtifactStatusOperation,
+  resumeResumableArtifactIngestOperation,
+  commitResumableArtifactIngestOperation,
   appendArtifactChunkOperation,
   commitArtifactIngestOperation,
   abortArtifactIngestOperation,

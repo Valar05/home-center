@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import assert from 'node:assert/strict';
 import {createRequire} from 'node:module';
+import {readFileSync} from 'node:fs';
 
 const require = createRequire(import.meta.url);
 const {
@@ -10,11 +11,21 @@ const {
   HOME_CENTER_REGISTRY_VERSION,
   homeCenterHealthPayload,
   createHomeCenterMcpServer,
+  renderReviewArtifactCandidates,
+  renderReviewArtifactKey,
 } = require('../functions/home_center_mcp.js');
 
-assert.match(HOME_CENTER_CONNECTOR_SCHEMA_REVISION, /^2026-07-26\.status-contract-v1$/);
+const homeCenterSource = readFileSync(new URL('../functions/home_center_mcp.js', import.meta.url), 'utf8');
+const reviewOperationSource = homeCenterSource.slice(
+  homeCenterSource.indexOf('async function materializeRenderReviewArtifactsOperation'),
+  homeCenterSource.indexOf('function commandCenterOperationRegistryEntry'),
+);
+assert.match(reviewOperationSource, /commandCenterRenderRequestStatus\(admin, \{actor: ownerEmail\}, \{renderId\}\)/);
+assert.doesNotMatch(reviewOperationSource, /commandCenterOperationRunOperation/, 'review egress must use local render status instead of a nested MCP round trip');
+
+assert.match(HOME_CENTER_CONNECTOR_SCHEMA_REVISION, /^2026-07-27\.render-review-egress-v1$/);
 assert.equal(HOME_CENTER_REGISTRY_VERSION, HOME_CENTER_CONNECTOR_SCHEMA_REVISION);
-assert.deepEqual([...HOME_CENTER_DIRECT_FILE_TOOLS], ['render_blender_glb']);
+assert.deepEqual([...HOME_CENTER_DIRECT_FILE_TOOLS], ['render_blender_glb', 'drive_ingest_file', 'storage_ingest_artifact']);
 
 process.env.HOME_CENTER_MCP_EXTENDED_TOOLS = 'true';
 const server = createHomeCenterMcpServer({google: {}, admin: {firestore() { return {}; }}, googleClientId: () => 'configured', googleClientSecret: () => 'configured'});
@@ -37,6 +48,8 @@ assert.match(props.glbFile?.description || '', /top-level host-file upload.*bina
 assert.equal(props.scriptFile?.format, 'binary');
 assert.equal(props.scriptFile?.contentEncoding, undefined, 'ChatGPT host-file catalog schema must not publish JSON contentEncoding for binary upload slots');
 assert.equal(props.scriptFile?.contentMediaType, 'text/x-python');
+assert.equal(props.settings?.properties?.gifFrames?.type, 'array');
+assert.equal(props.settings?.properties?.gifTimingMs?.type, 'array');
 assert.match(props.scriptFile?.description || '', /top-level host-file upload.*Blender Python/i);
 assert.equal(props.glbRef, undefined, 'direct tool must not advertise glbRef');
 assert.equal(props.scriptRef, undefined, 'direct tool must not advertise scriptRef');
@@ -53,6 +66,38 @@ assert.equal(capabilities.connectorSchemaRevision, HOME_CENTER_CONNECTOR_SCHEMA_
 assert.deepEqual(capabilities.fileUploadTools[0].required, ['idempotencyKey', 'glbFile', 'scriptFile']);
 assert.equal(capabilities.fileUploadTools[0].inputs.glbFile.format, 'binary');
 assert.equal(capabilities.fileUploadTools[0].inputs.glbFile.contentMediaType, 'model/gltf-binary');
+
+assert.ok(capabilities.operationSurfaces.drive.operations.includes('render.review_artifacts'));
+assert.ok(capabilities.operationSurfaces.drive.writeOperations.includes('render.review_artifacts'));
+const reviewReceipt = {
+  status: 'completed',
+  renderId: 'render-review-test',
+  result: {
+    contactSheetRef: 'gs://home-center-generated/renders/contact-sheets/test/contact-sheet.png',
+    diagnosticRenderRefs: ['gs://home-center-generated/renders/blender/test/diagnostic/0-orthogonal-k000.png'],
+    fixedCameraRenderRefs: ['gs://home-center-generated/renders/blender/test/fixed/0-locked-k000.png'],
+    loopingGifRef: 'gs://home-center-generated/renders/gifs/test/walk-loop.gif',
+    artifactHashes: {
+      'contact-sheet.png': {sha256: '1'.repeat(64), byteCount: 1024},
+      'orthogonal-k000.png': {sha256: '2'.repeat(64), byteCount: 512},
+      'locked-k000.png': {sha256: '3'.repeat(64), byteCount: 512},
+      'walk-loop.gif': {sha256: '4'.repeat(64), byteCount: 256},
+    },
+  },
+};
+const review = renderReviewArtifactCandidates(reviewReceipt, {artifactKinds: ['contact_sheet', 'diagnostic_views']});
+assert.equal(review.renderId, 'render-review-test');
+assert.deepEqual(review.kinds, ['contact_sheet', 'diagnostic_views']);
+assert.deepEqual(review.candidates.map((item) => item.name), ['contact-sheet.png', 'orthogonal-k000.png']);
+assert.equal(review.expectedTotalBytes, 1536);
+assert.throws(() => renderReviewArtifactCandidates(reviewReceipt, {artifactKinds: ['arbitrary_gcs_path']}), /Unsupported render review artifactKinds/);
+const outsideBucketReceipt = JSON.parse(JSON.stringify(reviewReceipt));
+outsideBucketReceipt.result.contactSheetRef = 'gs://attacker-controlled/renders/contact-sheets/test/contact-sheet.png';
+assert.throws(() => renderReviewArtifactCandidates(outsideBucketReceipt, {artifactKinds: ['contact_sheet']}), /configured private artifact buckets/);
+const reviewKey = renderReviewArtifactKey({ownerEmail: 'drew@example.com', renderId: review.renderId, artifactRef: review.candidates[0].artifactRef, sha256: review.candidates[0].expectedSha256});
+assert.match(reviewKey, /^[a-f0-9]{64}$/);
+assert.equal(reviewKey, renderReviewArtifactKey({ownerEmail: 'DREW@example.com', renderId: review.renderId, artifactRef: review.candidates[0].artifactRef, sha256: review.candidates[0].expectedSha256}));
+assert.notEqual(reviewKey, renderReviewArtifactKey({ownerEmail: 'other@example.com', renderId: review.renderId, artifactRef: review.candidates[0].artifactRef, sha256: review.candidates[0].expectedSha256}));
 
 const registeredTool = server._registeredTools.render_blender_glb;
 const stringResult = registeredTool.inputSchema.safeParse({idempotencyKey: 'render-test', glbFile: '/tmp/a.glb', scriptFile: '/tmp/render.py'});

@@ -4,7 +4,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import {spawnSync} from 'node:child_process';
-import {buildGifPlaybackContract, makeLoopingGif} from '../cloud-render/src/render_bundle.mjs';
+import {buildGifPlaybackContract, makeLoopingGif, selectGifEvidenceFiles} from '../cloud-render/src/render_bundle.mjs';
 
 function hasTool(name) {
   return spawnSync(name, ['-version'], {encoding: 'utf8', timeout: 5000}).status === 0;
@@ -40,6 +40,17 @@ assert.deepEqual(contract.evidenceFrames, [0, 1, 2, 3]);
 assert.deepEqual(contract.gifFrames, [0, 2, 1]);
 assert.deepEqual(contract.gifTimingMs, [110, 90, 130]);
 assert.deepEqual(contract.selectedFrames.map((frame) => frame.sourceIndex), [0, 2, 1]);
+const nonContiguousEvidence = [
+  {index: 12, file: 'locked-a.png'},
+  {index: 27, file: 'locked-b.png'},
+  {index: 43, file: 'orthogonal-a.png'},
+];
+const nonContiguousPlayback = {gifFrames: [12, 43, 27]};
+assert.deepEqual(
+  selectGifEvidenceFiles(nonContiguousEvidence, nonContiguousPlayback),
+  ['locked-a.png', 'orthogonal-a.png', 'locked-b.png'],
+  'runtime GIF selection must resolve declared frame identities rather than array offsets',
+);
 assert(!contract.gifFrames.includes(3), 'excluded evidence frame must not enter GIF playback contract');
 assert.throws(() => buildGifPlaybackContract(fakeFrames, {evidenceFrames: [0, 1, 2, 3], gifFrames: [], gifTimingMs: []}, {}), /gifFrames must not be empty/);
 assert.throws(() => buildGifPlaybackContract(fakeFrames, {evidenceFrames: [0, 1, 2, 3], gifFrames: [4], gifTimingMs: [100]}, {}), /index 4 is out of range for 4 evidence frames/);

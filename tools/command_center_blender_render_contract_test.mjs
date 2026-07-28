@@ -2,11 +2,13 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 
+const artifactTransport = fs.readFileSync(new URL('../functions/artifact_transport.js', import.meta.url), 'utf8');
 const commandCenter = fs.readFileSync(new URL('../functions/command_center_mcp.js', import.meta.url), 'utf8');
 const homeCenter = fs.readFileSync(new URL('../functions/home_center_mcp.js', import.meta.url), 'utf8');
 const renderService = fs.readFileSync(new URL('../cloud-render/src/render_bundle.mjs', import.meta.url), 'utf8');
 const server = fs.readFileSync(new URL('../cloud-render/src/server.mjs', import.meta.url), 'utf8');
 const dockerfile = fs.readFileSync(new URL('../cloud-render/Dockerfile', import.meta.url), 'utf8');
+const functionsIndex = fs.readFileSync(new URL('../functions/index.js', import.meta.url), 'utf8');
 
 assert(commandCenter.includes("server.registerTool('command_center.render.blender_glb'"));
 assert(homeCenter.includes("'render.blender_glb'"));
@@ -49,8 +51,13 @@ assert(homeCenter.includes('renderReceiptWithoutInlinePayload'), 'Home Center re
 assert(!homeCenter.includes('getSignedUrl'), 'Home Center render delivery must not use signed URLs');
 assert(!homeCenter.includes('https://storage.googleapis.com'), 'Home Center render delivery must not use public GCS URLs');
 assert(commandCenter.includes('renderRequiredBundleKindsForOptions'), 'Command Center must derive lightweight bundle requirements through one helper');
-assert(commandCenter.includes('const effectiveRenderOptions'), 'Command Center must derive wrapper status from effective render options');
-assert(commandCenter.includes("failureKind: status === 'completed' ? ''"), 'Command Center must clear failureKind for completed lightweight renders');
+assert(commandCenter.includes('const effectiveOptions'), 'Queued worker must derive completion from effective render options');
+assert(commandCenter.includes("status: completed ? 'completed' : 'failed'"), 'Queued worker must persist terminal completion state');
+assert(commandCenter.includes('render_provider_outcome_ambiguous'), 'Ambiguous renderer outcomes must be quarantined');
+assert(commandCenter.includes("operation: 'render.status'"), 'Accepted receipts must expose bounded status lookup');
+assert(commandCenter.includes("resolution !== 'retry_safe'"), 'Ambiguous retries must require explicit reconciliation');
+assert(functionsIndex.includes('onTaskDispatched'), 'Blender execution must run through a durable task queue');
+assert(functionsIndex.includes('maxAttempts: 1'), 'Renderer task delivery must not automatically retry ambiguous mutations');
 assert(homeCenter.includes('githubStreamAndValidateMs'));
 assert(homeCenter.includes('cacheLookupMs'));
 assert(commandCenter.includes('glbFile: z.file().optional()'));
@@ -78,6 +85,7 @@ assert(deployScript.includes('validate-resolved command-center-blender-render'))
 assert(!deployScript.includes('COMMAND_CENTER_RENDER_MIN_INSTANCES'));
 assert(deployScript.includes('--min-instances "$WORKER_MIN_INSTANCES"'));
 assert(deployScript.includes('--cpu-boost'));
+assert(deployScript.includes('RENDER_TIMEOUT_MS=${COMMAND_CENTER_RENDER_TIMEOUT_MS:-1200000}'), 'Renderer deploy must preserve the measured 20-minute subprocess ceiling');
 assert(renderService.includes('blenderExitCode'));
 assert(renderService.includes('loopingGifRef'));
 assert(renderService.includes('gifPlaybackContractRef'));
@@ -98,7 +106,11 @@ assert(renderService.includes('includeDiagnostics'));
 assert(commandCenter.includes('timings'));
 assert(commandCenter.includes('renderOptions'));
 assert(commandCenter.includes('includeBlend'));
-assert(commandCenter.includes('samples: Math.max(1, Math.min(Number(src.samples || src.renderSamples || 64) || 64, 128))'));
+assert(commandCenter.includes('return normalizeRendererSettings(value)'));
+assert(artifactTransport.includes('samples: Math.max(1, Math.min(Number(src.samples || src.renderSamples || 64) || 64, 128))'));
+assert(artifactTransport.includes('gifFrames'));
+assert(renderService.includes('PUBLISH_CONCURRENCY'));
+assert(renderService.includes('Promise.all(['));
 assert(commandCenter.includes("kind) => resolved.includeDiagnostics || kind !== 'diagnostic_view_renders'"));
 assert(renderService.includes("if (ext === '.gif') return 'image/gif';"));
 assert(commandCenter.includes('loopingGifRef'));
