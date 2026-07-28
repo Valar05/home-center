@@ -562,13 +562,13 @@ function commandCenterOperationRegistry() {
     purpose: 'Expose retained Command Center project operations, managed knowledge-bucket operations, app-control, and browser operations through the already-installed Home Center MCP connector.',
     operations: {
       health: {summary: 'Check Command Center MCP health and tool exposure.', readOnly: true, input: {}},
-      'projects.resolve': {summary: 'Resolve an active project before creating a job.', readOnly: false, input: {repository: 'optional string', capability: 'optional string', projectId: 'optional string', idempotencyKey: 'string'}},
+      'projects.resolve': {summary: 'Resolve an active project before invoking a retained capability.', readOnly: false, input: {repository: 'optional string', capability: 'optional string', projectId: 'optional string', idempotencyKey: 'string'}},
       'projects.get': {summary: 'Read one persisted Command Center project packet.', readOnly: true, input: {projectId: 'string'}},
       'projects.upsert': {summary: 'Create or update a durable Command Center project binding.', readOnly: false, input: {projectId: 'string', repository: 'optional string', capability: 'optional string', repositoryBinding: 'optional object', idempotencyKey: 'string'}},
       'bucket.get_layout': {summary: 'Read Command Center managed knowledge bucket lanes and storage policy.', readOnly: true, input: {}},
-      'bucket.put_object': {summary: 'Write durable execution memory, scratch/promoted skills, or cross-repo notes. Secrets are rejected.', readOnly: false, input: {kind: 'memory.past_log|memory.current_condensed|skill.scratch|skill.promoted|note.cross_repo', title: 'string', summary: 'optional string', body: 'optional string', objectUri: 'optional string', projectId: 'optional string', repository: 'optional string', jobId: 'optional string', tags: 'optional string[]', evidenceRefs: 'optional string[]', idempotencyKey: 'string'}},
+      'bucket.put_object': {summary: 'Write durable execution memory, scratch/promoted skills, or cross-repo notes. Secrets are rejected.', readOnly: false, input: {kind: 'memory.past_log|memory.current_condensed|skill.scratch|skill.promoted|note.cross_repo', title: 'string', summary: 'optional string', body: 'optional string', objectUri: 'optional string', projectId: 'optional string', repository: 'optional string', tags: 'optional string[]', evidenceRefs: 'optional string[]', idempotencyKey: 'string'}},
       'bucket.get_object': {summary: 'Read one Command Center bucket object by id.', readOnly: true, input: {objectId: 'string'}},
-      'bucket.list_objects': {summary: 'List Command Center bucket objects by kind, project, repository, job, or tag.', readOnly: true, input: {kind: 'optional string', projectId: 'optional string', repository: 'optional string', jobId: 'optional string', tag: 'optional string', limit: 'optional number'}},
+      'bucket.list_objects': {summary: 'List Command Center bucket objects by kind, project, repository, or tag.', readOnly: true, input: {kind: 'optional string', projectId: 'optional string', repository: 'optional string', tag: 'optional string', limit: 'optional number'}},
       'bucket.promote_skill': {summary: 'Promote a scratch skill bucket object into the promoted skill lane with provenance.', readOnly: false, input: {objectId: 'string', evidenceRefs: 'optional string[]', idempotencyKey: 'string'}},
       'app_control.seed_profiles': {summary: 'Publish built-in app-control seed profiles into Home Center cloud Firestore and managed bucket.', readOnly: false, input: {idempotencyKey: 'string'}},
       'app_control.put_profile': {summary: 'Create or update a cloud app-control profile versioned by Android package and app version.', readOnly: false, input: {profile: 'object', idempotencyKey: 'string'}},
@@ -5365,9 +5365,9 @@ function createHomeCenterMcpServer({google, admin, googleClientId, googleClientS
 
   server.registerTool('command_center_operation', {
     title: 'Command Center operation',
-    description: 'Invoke Command Center dispatch and job-control operations through the already-connected Home Center MCP app. Use this when ChatGPT needs to create a follow-up worker job, inspect events/artifacts, answer worker questions, or authorize a mutation without relying on a separate Command Center connector namespace.',
+    description: 'Invoke retained Command Center project, managed knowledge-bucket, app-control, and browser operations through the already-connected Home Center MCP app.',
     inputSchema: {
-      operation: z.string().describe('Operation name from the Command Center operation registry, such as jobs.create, jobs.get_events, jobs.get_artifacts, jobs.answer_question, or jobs.authorize_mutation. Runtime registry validation rejects unsupported names.'),
+      operation: z.string().describe('Operation name from the retained Command Center registry: health, projects.*, bucket.*, app_control.*, browser_sessions.*, browser_discoveries.*, or browser_playbooks.*. Retired execution names are rejected permanently.'),
       args: z.record(z.string(), z.any()).optional().describe('Operation-specific arguments. Mutating operations require idempotencyKey inside args.'),
     },
     securitySchemes: MCP_OAUTH_SECURITY_SCHEMES,

@@ -4,9 +4,6 @@ import fs from 'node:fs';
 
 const packageJson = JSON.parse(fs.readFileSync(new URL('../browser-worker/package.json', import.meta.url), 'utf8'));
 const workerSource = fs.readFileSync(new URL('../browser-worker/src/browser_worker.mjs', import.meta.url), 'utf8');
-const chatgptDebugSource = fs.readFileSync(new URL('../browser-worker/src/chatgpt_plugin_debug.mjs', import.meta.url), 'utf8');
-const cleanSlateSource = fs.readFileSync(new URL('../browser-worker/src/chatgpt_clean_slate_verify.mjs', import.meta.url), 'utf8');
-const cleanSlateWrapper = fs.readFileSync(new URL('../tools/run_chatgpt_clean_slate_verify.sh', import.meta.url), 'utf8');
 const docs = fs.readFileSync(new URL('../docs/BROWSER_HANDS.md', import.meta.url), 'utf8');
 
 assert.equal(packageJson.dependencies.playwright, 'latest');
@@ -31,25 +28,17 @@ assert.match(workerSource, /html_id_data_testid_aria_role_label_first_no_pixel_c
 assert.doesNotMatch(workerSource, /pixel_coordinates'\s*,\s*\n\s*}\);/);
 assert.match(workerSource, /not a robot/);
 assert.match(workerSource, /redacted/);
-assert.match(packageJson.scripts['debug:chatgpt-plugin'], /chatgpt_plugin_debug/);
-
-assert.match(packageJson.scripts.check, /chatgpt_clean_slate_verify/);
-assert.match(packageJson.scripts['verify:chatgpt-clean-slate'], /chatgpt_clean_slate_verify/);
-assert.match(cleanSlateSource, /launchPersistentContext/);
-assert.match(cleanSlateSource, /HOME_CENTER_CHATGPT_PROFILE_DIR/);
-assert.match(cleanSlateSource, /SingletonLock/);
-assert.match(cleanSlateSource, /connector_state_only_no_cloud_bucket_deletion/);
-assert.match(cleanSlateSource, /bucket\.put_object/);
-assert.match(cleanSlateSource, /bucket\.get_object/);
-assert.match(cleanSlateSource, /blocked_chatgpt_auth/);
-assert.match(cleanSlateSource, /blocked_chatgpt_ui/);
-assert.match(cleanSlateSource, /Home Center/);
-assert.match(cleanSlateSource, /Command Center/);
-assert.match(cleanSlateWrapper, /proot-distro login debian/);
-assert.match(cleanSlateWrapper, /HOME_CENTER_CHROMIUM_EXECUTABLE=\/usr\/bin\/chromium/);
-assert.match(chatgptDebugSource, /chatgpt\.com/);
-assert.match(chatgptDebugSource, /blocked_chatgpt_auth/);
-assert.match(chatgptDebugSource, /blocked_chatgpt_ui/);
+assert.doesNotMatch(JSON.stringify(packageJson.scripts), /chatgpt|connector|clean.slate/i);
+const retiredConnectorPaths = [
+  '../browser-worker/src/chatgpt_clean_slate_verify.mjs',
+  '../browser-worker/src/chatgpt_plugin_debug.mjs',
+  '../tools/connect_chatgpt_home_center_fast.sh',
+  '../tools/chatgpt_connector_acceptance_gate.mjs',
+  '../tools/shizuku_live_playwright_chatgpt_home_center.sh',
+];
+for (const retiredPath of retiredConnectorPaths) assert.equal(fs.existsSync(new URL(retiredPath, import.meta.url)), false, retiredPath + ' must stay deleted');
+const chromeSeed = fs.readFileSync(new URL('../functions/app_control_seed/com.android.chrome.150.0.7871.114+787111433.json', import.meta.url), 'utf8');
+assert.doesNotMatch(chromeSeed, /chatgptCommandCenterConnector|plugin_asdk_app|Command Center connector/i);
 assert.match(docs, /Playwright is an essential Home Center app function/);
 assert.match(docs, /Amazon is not prioritized/);
 assert.match(docs, /Debian\/proot/);

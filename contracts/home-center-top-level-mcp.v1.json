@@ -500,7 +500,7 @@
       "openWorldHint": true,
       "readOnlyHint": false
     },
-    "description": "Invoke Command Center dispatch and job-control operations through the already-connected Home Center MCP app. Use this when ChatGPT needs to create a follow-up worker job, inspect events/artifacts, answer worker questions, or authorize a mutation without relying on a separate Command Center connector namespace.",
+    "description": "Invoke retained Command Center project, managed knowledge-bucket, app-control, and browser operations through the already-connected Home Center MCP app.",
     "execution": {
       "taskSupport": "forbidden"
     },
@@ -516,7 +516,7 @@
           "type": "object"
         },
         "operation": {
-          "description": "Operation name from the Command Center operation registry, such as jobs.create, jobs.get_events, jobs.get_artifacts, jobs.answer_question, or jobs.authorize_mutation. Runtime registry validation rejects unsupported names.",
+          "description": "Operation name from the retained Command Center registry: health, projects.*, bucket.*, app_control.*, browser_sessions.*, browser_discoveries.*, or browser_playbooks.*. Retired execution names are rejected permanently.",
           "type": "string"
         }
       },

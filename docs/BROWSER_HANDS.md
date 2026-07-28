@@ -25,7 +25,7 @@ If a browser task must touch Android Chrome itself, use Shizuku/Chrome app-contr
 ```text
 Home Center / ChatGPT / Android app
   -> command_center_operation browser_sessions.*
-    -> Command Center browser session + learning records
+    -> Home Center browser session + learning records
       -> registered browser worker
         -> browser-worker package
           -> Debian/proot Playwright desktop Chromium on device
@@ -61,13 +61,12 @@ This is not background automation and not a default fallback. It is foreground c
 
 Foreground task learning still cannot promote coordinate-only browser behavior to trusted playbooks. Trusted replay must extract DOM/accessibility selectors with Playwright or an equivalent semantic browser channel before it can serve June-style automatic assistance.
 
-The ChatGPT connector retrospective is the current concrete case study: `docs/CHATGPT_COMMAND_CENTER_CONNECTOR_RETROSPECTIVE.md`.
 
-## Command Center Visual QA
+## Home Center Visual QA
 
-Command Center visual QA is a browser-worker responsibility, not a generic
-Codex executor proof. A verified final-render lane must produce a terminal
-Command Center job with a completed browser episode and artifact records for
+Home Center visual QA is a browser-worker responsibility. A verified cloud
+review lane must produce an immutable request receipt, a completed browser
+episode, and artifact records for
 `visual_qa_manifest.json`, `screenshot.png`, and `browser_episode.json`. A
 `browser_sessions.act` record with status `requested` is only a request; it is
 not screenshot evidence and must not be used as visual acceptance.
@@ -125,27 +124,3 @@ Default surface:
 ```
 
 Android Chrome may be linked through app-control profiles and Shizuku when the Chrome app itself is the execution surface, but the first browser-hands implementation is Playwright desktop Chromium running locally through Debian/proot when the worker is on a phone.
-
-## Chrome Frame Learning
-
-Real Android Chrome frame discoveries belong to the same Home Center browser-hands learning path as Playwright runs. The frame launcher is a Termux runner, not a separate product workflow.
-
-A bounded Chrome frame run must write a Home Center learning envelope containing both:
-
-```text
-command_center_operation app_control.record_run
-command_center_operation browser_sessions.record_episode
-```
-
-Use `tools/chrome_frame_learning_envelope.mjs` to build that envelope and `tools/submit_chrome_frame_learning.mjs` to submit it. Do not treat a `.txt` launcher log, a screenshot, or terminal stdout as the durable learning store.
-
-
-## Clean-Slate ChatGPT Web Verification
-
-Use the Playwright-first clean-slate verifier when ChatGPT web must prove it can consume Home Center and Command Center after connector churn:
-
-```sh
-sh tools/run_chatgpt_clean_slate_verify.sh --run-id clean-slate-$(date +%Y%m%d%H%M%S)
-```
-
-For the final no-op proof, add `--verify-prompt`. The verifier uses a persistent Debian/proot Chromium profile, records screenshots and DOM summaries under `generated/chatgpt-plugin-debug/<runId>/`, and writes `clean_slate_result.json`. Clean slate means connector state only: do not delete Home Center cloud buckets, app-control profiles, browser episodes, or browser playbooks. If ChatGPT auth needs visible human action, use the bounded Chrome frame lane and stop if the frame is lost.

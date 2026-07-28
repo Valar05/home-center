@@ -49,7 +49,7 @@ const COMMAND_CENTER_BUCKET_LAYOUT = Object.freeze({
   },
   lanes: {
     'memory/past-logs': {kind: 'memory.past_log', role: 'append-only historical execution logs and evidence summaries'},
-    'memory/current-condensed': {kind: 'memory.current_condensed', role: 'latest compact resumable state per job or project'},
+    'memory/current-condensed': {kind: 'memory.current_condensed', role: 'latest compact resumable state per project'},
     'skills/scratch': {kind: 'skill.scratch', role: 'unpromoted candidate procedures captured from runs'},
     'skills/promoted': {kind: 'skill.promoted', role: 'reviewed reusable procedures with acceptance evidence'},
     'notes/cross-repo': {kind: 'note.cross_repo', role: 'project-spanning engineering notes and links'},
@@ -226,15 +226,6 @@ function cleanProjectId(value, repository = '') {
   return projectId;
 }
 
-function cleanJobId(value) {
-  const jobId = safeText(value, 140);
-  if (!/^job_[A-Za-z0-9_-]{8,120}$/.test(jobId)) {
-    const err = new Error('A valid jobId is required.');
-    err.status = 400;
-    throw err;
-  }
-  return jobId;
-}
 
 function cleanBucketId(value) {
   const bucketId = slug(safeText(value, 120) || COMMAND_CENTER_DEFAULT_BUCKET_ID, COMMAND_CENTER_DEFAULT_BUCKET_ID);
@@ -299,7 +290,6 @@ function cleanBucketObject(args = {}, caller = {}) {
   const objectPath = cleanBucketPath(args.path, kind, title);
   const nowMs = Date.now();
   const projectId = args.projectId ? cleanProjectId(args.projectId) : '';
-  const jobId = args.jobId ? cleanJobId(args.jobId) : '';
   const contentHash = body ? fullHash(body) : safeText(args.contentHash, 128);
   const objectId = safeText(args.objectId, 180) || `bucket_${hashText(`${bucketId}:${objectPath}:${contentHash || nowMs}`, 32)}`;
   return {
@@ -315,7 +305,6 @@ function cleanBucketObject(args = {}, caller = {}) {
     contentHash,
     projectId,
     repository: safeText(args.repository, 240),
-    jobId,
     sourceRefs: safeList(args.sourceRefs, 80, 800),
     evidenceRefs: safeList(args.evidenceRefs, 80, 800),
     tags: safeList(args.tags, 80, 120),
@@ -358,7 +347,6 @@ async function appendEvent(admin, event) {
   const payload = {
     eventId,
     type: safeText(event.type, 120),
-    jobId: safeText(event.jobId, 140),
     projectId: safeText(event.projectId, 120),
     summary: safeText(event.summary, 2000),
     requiresHumanDecision: event.requiresHumanDecision === true,
@@ -390,10 +378,7 @@ async function upsertBucketObject(admin, args, caller) {
 async function putBucketObject(admin, caller, args) {
   return idempotentMutation(admin, caller, requireIdempotencyKey(args.idempotencyKey), 'bucket.put_object', async () => {
     const object = await upsertBucketObject(admin, args, caller);
-    const eventJobId = object.jobId || '';
-    if (eventJobId) {
-      await appendEvent(admin, {type: 'bucket_object_written', jobId: eventJobId, projectId: object.projectId, actor: caller.actor, summary: object.title, evidenceRefs: [`bucket://${object.bucketId}/${object.path}`], data: {objectId: object.objectId, kind: object.kind, path: object.path}});
-    }
+    await appendEvent(admin, {type: 'bucket_object_written', projectId: object.projectId, actor: caller.actor, summary: object.title, evidenceRefs: [`bucket://${object.bucketId}/${object.path}`], data: {objectId: object.objectId, kind: object.kind, path: object.path}});
     return {object, bucketLayout: COMMAND_CENTER_BUCKET_LAYOUT};
   });
 }
@@ -416,7 +401,6 @@ async function listBucketObjects(admin, args = {}, caller = null) {
   const bucketId = cleanBucketId(args.bucketId);
   const kind = args.kind ? cleanBucketKind(args.kind) : '';
   const projectId = args.projectId ? cleanProjectId(args.projectId) : '';
-  const jobId = args.jobId ? cleanJobId(args.jobId) : '';
   const repository = safeText(args.repository, 240);
   const tag = safeText(args.tag, 120);
   const limit = Math.max(1, Math.min(Number(args.limit) || 50, 100));
@@ -428,7 +412,6 @@ async function listBucketObjects(admin, args = {}, caller = null) {
     if (object.bucketId !== bucketId) return;
     if (kind && object.kind !== kind) return;
     if (projectId && object.projectId !== projectId) return;
-    if (jobId && object.jobId !== jobId) return;
     if (repository && object.repository !== repository) return;
     if (tag && !(Array.isArray(object.tags) && object.tags.includes(tag))) return;
     objects.push(object);
@@ -712,7 +695,7 @@ async function requestBrowserAction(admin, caller, args = {}) {
       createdBy: caller.actor,
       createdAtMs: Date.now(),
     };
-    await appendEvent(admin, {type: 'browser_action_' + status, jobId: safeText(args.jobId, 140), projectId: 'home-center', actor: caller.actor, summary: `${action}: ${status}`, data: payload});
+    await appendEvent(admin, {type: 'browser_action_' + status, projectId: 'home-center', actor: caller.actor, summary: `${action}: ${status}`, data: payload});
     return {action: payload};
   });
 }
@@ -1166,7 +1149,6 @@ function createCommandCenterMcpServer({admin}) {
       contentHash: z.string().optional(),
       projectId: z.string().optional(),
       repository: z.string().optional(),
-      jobId: z.string().optional(),
       sourceRefs: z.array(z.string()).optional(),
       evidenceRefs: z.array(z.string()).optional(),
       tags: z.array(z.string()).optional(),
@@ -1184,7 +1166,7 @@ function createCommandCenterMcpServer({admin}) {
   server.registerTool('command_center.bucket.list_objects', {
     title: 'List Command Center bucket objects',
     description: 'List durable Command Center bucket memory, skills, and cross-repo notes with optional filters.',
-    inputSchema: {bucketId: z.string().optional(), kind: z.enum(COMMAND_CENTER_BUCKET_KINDS).optional(), projectId: z.string().optional(), repository: z.string().optional(), jobId: z.string().optional(), tag: z.string().optional(), limit: z.number().optional()},
+    inputSchema: {bucketId: z.string().optional(), kind: z.enum(COMMAND_CENTER_BUCKET_KINDS).optional(), projectId: z.string().optional(), repository: z.string().optional(), tag: z.string().optional(), limit: z.number().optional()},
   }, async (args, extra) => textResult(await listBucketObjects(admin, args || {}, await callerFromExtra(admin, extra))));
 
   server.registerTool('command_center.bucket.promote_skill', {
@@ -1239,7 +1221,7 @@ function createCommandCenterMcpServer({admin}) {
   server.registerTool('command_center.browser_sessions.act', {
     title: 'Request browser-hands action',
     description: 'Record or request a constrained browser action. Sensitive, purchase, payment, CAPTCHA, and account-security actions are blocked for human control.',
-    inputSchema: {idempotencyKey: z.string(), sessionId: z.string(), actionId: z.string().optional(), action: z.string(), target: z.record(z.string(), z.any()).optional(), value: z.string().optional(), reason: z.string().optional(), jobId: z.string().optional()},
+    inputSchema: {idempotencyKey: z.string(), sessionId: z.string(), actionId: z.string().optional(), action: z.string(), target: z.record(z.string(), z.any()).optional(), value: z.string().optional(), reason: z.string().optional()},
   }, async (args, extra) => textResult(await requestBrowserAction(admin, await callerFromExtra(admin, extra), args || {})));
 
   server.registerTool('command_center.browser_sessions.record_episode', {

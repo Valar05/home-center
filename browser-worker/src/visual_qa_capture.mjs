@@ -158,7 +158,7 @@ export async function runVisualQaCapture(options = {}) {
     const episode = {
       episodeId,
       sessionId,
-      intent: safeText(options.intent, 2000) || 'Command Center visual QA capture for ' + target,
+      intent: safeText(options.intent, 2000) || 'Home Center visual QA capture for ' + target,
       origin: new URL(page.url()).origin,
       url: page.url(),
       title: snapshot.title,
@@ -177,7 +177,7 @@ export async function runVisualQaCapture(options = {}) {
     const manifest = {
       schema: 'command-center-visual-qa-evidence-v1',
       target,
-      captureKind: 'command-center-cloud-screenshot',
+      captureKind: 'home-center-cloud-review',
       jobId,
       sessionId,
       browserEpisode: {episodeId, outcome: episode.outcome},
@@ -221,7 +221,7 @@ export function commandCenterArtifactsForVisualQa(result, options = {}) {
       required: true,
       origin,
       workspacePath: result.manifestPath,
-      metadata: {origin, jobId, episodeId, captureKind: 'command-center-cloud-screenshot', target: result.manifest?.target || ''},
+      metadata: {origin, jobId, episodeId, captureKind: 'home-center-cloud-review', target: result.manifest?.target || ''},
     },
     {
       name: 'screenshot.png',
