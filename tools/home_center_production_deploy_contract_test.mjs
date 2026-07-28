@@ -6,6 +6,7 @@ const foundryScript = fs.readFileSync(new URL('deploy_foundry_worker.sh', import
 const releaseScript = fs.readFileSync(new URL('deploy_foundry_v2_release.sh', import.meta.url), 'utf8');
 const workflow = fs.readFileSync(new URL('../.github/workflows/deploy-home-center-mcp.yml', import.meta.url), 'utf8');
 const mainGate = fs.readFileSync(new URL('assert_home_center_mcp_main_release.sh', import.meta.url), 'utf8');
+const bucketScript = fs.readFileSync(new URL('setup_generated_artifact_bucket.sh', import.meta.url), 'utf8');
 
 for (const fn of ['agentToolTurn','agentTurn','creativePromptSmoke','turnContractSmoke','metalPromptSmoke','tts','speak','ttsVoices']) assert.match(functionsScript,new RegExp('deploy_credit_backed_http_function '+fn+' '));
 assert.match(functionsScript,/creditBackedHttp\) deploy_credit_backed_http ;;/);
@@ -15,6 +16,8 @@ assert.match(functionsScript,/homeCenterMcp\) deploy_home_center_mcp ;;/);
 assert.match(functionsScript,/commandCenterMcp[\s\S]*assert_home_center_mcp_main_release\.sh/);
 assert.match(foundryScript,/assert_home_center_mcp_main_release\.sh/);
 assert.match(foundryScript,/FOUNDRY_RELEASE_QUEUE_GUARDED/);
+assert.doesNotMatch(foundryScript,/projects add-iam-policy-binding|iam service-accounts add-iam-policy-binding/);
+assert.doesNotMatch(bucketScript,/gcloud services enable/);
 assert.match(releaseScript,/tasks queues pause/);
 assert.match(releaseScript,/trap resume_queue EXIT HUP INT TERM/);
 assert.match(releaseScript,/deploy_foundry_worker\.sh/);

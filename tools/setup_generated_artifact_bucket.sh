@@ -9,8 +9,7 @@ COMMAND_CENTER_SA="${COMMAND_CENTER_SERVICE_ACCOUNT:-}"
 WORKER_SA="${COMMAND_CENTER_WORKER_SERVICE_ACCOUNT:-}"
 TMP_JSON="${TMPDIR:-/tmp}/home-center-generated-lifecycle-$$.json"
 
-gcloud services enable storage.googleapis.com --project "$PROJECT" >/dev/null
-
+# Required APIs are provisioned once; the release identity intentionally cannot enable services.
 if ! gcloud storage buckets describe "gs://${BUCKET}" --project "$PROJECT" >/dev/null 2>&1; then
   gcloud storage buckets create "gs://${BUCKET}" \
     --project "$PROJECT" \
