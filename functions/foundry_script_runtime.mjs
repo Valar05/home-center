@@ -15,7 +15,7 @@ const API = Object.freeze({
   rig: ['addBone', 'renameBone', 'orientBone', 'reparentBone', 'attachRigid'],
   animation: ['trim', 'retime', 'setKey', 'deleteKey', 'loop', 'rootMotion'],
   review: ['fixedViews'],
-  validation: ['assert'],
+  validation: ['assert', 'productionBudget'],
 });
 
 function fail(code, message, details = {}) {
