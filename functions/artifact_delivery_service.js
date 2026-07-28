@@ -174,7 +174,7 @@ function renderReferenceCandidates(output = {}) {
     ['animated_glb', output.animatedGlbRef, ''],
     ['original_script', output.originalScriptRef, ''],
     ['script_input_hashes', output.scriptInputHashesRef, ''],
-    ['blender_version_settings', output.blenderVersionSettingsRef, ''],
+    ['producer_version_settings', output.blenderVersionSettingsRef, ''],
     ['stdout', output.stdoutRef, ''],
     ['stderr', output.stderrRef, ''],
   ];
@@ -220,12 +220,13 @@ function uniqueCandidates(receipt, artifactNames = []) {
 const RECEIPT_SOURCES = Object.freeze([
   {kind: 'drive_audit', collection: 'driveBridgeAudit', terminal: (record) => ['completed', 'success'].includes(text(record.status || record.result && record.result.status, 80)), owner: (record) => text(record.actor || record.ownerEmail || record.result && record.result.ownerEmail, 320).toLowerCase()},
   {kind: 'foundry', collection: 'foundryAssetJobs', terminal: (record) => text(record.state, 80) === 'completed', owner: (record) => text(record.owner, 320).toLowerCase()},
-  {kind: 'blender_render', collection: 'commandCenterRenderRequests', terminal: (record) => text(record.status, 80) === 'completed', owner: (record) => text(record.requestedBy, 320).toLowerCase()},
+  {kind: 'archived_receipt', public: false, collection: 'commandCenterRenderRequests', terminal: (record) => text(record.status, 80) === 'completed', owner: (record) => text(record.requestedBy, 320).toLowerCase(), legacyOwnerKey: true},
 ]);
 
 async function resolveProducerReceipt({admin, ownerEmail, producerReceiptId, producerKind = ''}) {
-  const sources = producerKind ? RECEIPT_SOURCES.filter((source) => source.kind === producerKind) : RECEIPT_SOURCES;
-  if (!sources.length) throw fail('artifact_delivery.producer_kind_unsupported', 'Unsupported producerKind.', 400, {supported: RECEIPT_SOURCES.map((source) => source.kind)});
+  const publicSources = RECEIPT_SOURCES.filter((source) => source.public !== false);
+  const sources = producerKind ? publicSources.filter((source) => source.kind === producerKind) : RECEIPT_SOURCES;
+  if (!sources.length) throw fail('artifact_delivery.producer_kind_unsupported', 'Unsupported producerKind.', 400, {supported: publicSources.map((source) => source.kind)});
   const snapshots = await Promise.all(sources.map(async (source) => ({source, snapshot: await admin.firestore().collection(source.collection).doc(producerReceiptId).get()})));
   const found = snapshots.filter((item) => item.snapshot.exists);
   if (!found.length) throw fail('artifact_delivery.receipt_not_found', 'Producer receipt was not found.', 404);
@@ -235,7 +236,7 @@ async function resolveProducerReceipt({admin, ownerEmail, producerReceiptId, pro
   const recordedOwner = source.owner(receipt);
   const expectedOwnerKey = ownerKey(ownerEmail);
   const renderOwnerKey = text(receipt.ownerKey, 80);
-  if (recordedOwner ? recordedOwner !== ownerEmail : source.kind !== 'blender_render' || renderOwnerKey !== expectedOwnerKey) {
+  if (recordedOwner ? recordedOwner !== ownerEmail : !source.legacyOwnerKey || renderOwnerKey !== expectedOwnerKey) {
     throw fail('artifact_delivery.receipt_forbidden', 'Producer receipt is not owned by the authenticated caller.', 403);
   }
   if (!source.terminal(receipt)) throw fail('artifact_delivery.receipt_not_terminal', 'Only terminal successful producer receipts can be materialized.', 409);

@@ -253,13 +253,13 @@ await assert.rejects(
   (error) => error.failureKind === 'artifact_review.successor_unchanged',
 );
 
-const renderReceipt = {
+const archivedProducerReceipt = {
   requestedBy: ownerEmail,
   ownerKey: 'owner_' + sha(Buffer.from(ownerEmail)).slice(0, 32),
   status: 'completed',
   result: {
     contactSheetRef: 'gs://home-center-generated/renders/contact-sheets/test/contact-sheet.png',
-    fixedCameraRenderRefs: ['gs://home-center-generated/renders/blender/test/fixed/0-front.png'],
+    fixedCameraRenderRefs: ['gs://home-center-generated/renders/archive/test/fixed/0-front.png'],
     loopingGifRef: 'gs://home-center-generated/renders/gifs/test/walk-loop.gif',
     artifactHashes: {
       'contact-sheet.png': {sha256: '1'.repeat(64), byteCount: 100},
@@ -268,7 +268,7 @@ const renderReceipt = {
     },
   },
 };
-assert.deepEqual(uniqueCandidates(renderReceipt).candidates.map((item) => item.role), ['contact_sheet', 'fixed_camera', 'looping_gif']);
+assert.deepEqual(uniqueCandidates(archivedProducerReceipt).candidates.map((item) => item.role), ['contact_sheet', 'fixed_camera', 'looping_gif']);
 const foundryReceipt = {owner: ownerEmail, state: 'completed', result: {artifacts: [{kind: 'model', name: 'foundry.glb', mediaType: 'model/gltf-binary', byteLength: 99, sha256: '4'.repeat(64), storageRef: 'gs://home-center-generated/foundry/foundry.glb'}]}};
 assert.equal(uniqueCandidates(foundryReceipt).candidates[0].name, 'foundry.glb');
 

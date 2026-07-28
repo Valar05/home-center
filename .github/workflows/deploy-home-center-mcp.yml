@@ -49,8 +49,9 @@ jobs:
           workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
           service_account: ${{ secrets.GCP_DEPLOY_SERVICE_ACCOUNT }}
       - uses: google-github-actions/setup-gcloud@v2
-      - name: Deploy Home Center services
+      - name: Deploy Foundry V2 and Home Center services
         env:
           GCLOUD_FUNCTIONS_REGION: ${{ env.REGION }}
           COMMAND_CENTER_MCP_URL: https://${{ env.REGION }}-${{ env.PROJECT }}.cloudfunctions.net/commandCenterMcp/mcp
-        run: sh tools/deploy_functions_termux.sh "$PROJECT" homeCenterMcp
+          HOME_CENTER_MCP_BEARER_TOKEN: ${{ secrets.HOME_CENTER_MCP_BEARER_TOKEN }}
+        run: sh tools/deploy_foundry_v2_release.sh "$PROJECT"

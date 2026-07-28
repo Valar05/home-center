@@ -8,6 +8,9 @@ ASSIGNMENT="fortress-model-foundry"
 QUEUE="foundryAssetWorker"
 SERVICE="foundryassetworker"
 
+sh "$ROOT/tools/assert_home_center_mcp_main_release.sh" "$ROOT"
+[ "${FOUNDRY_RELEASE_QUEUE_GUARDED:-}" = "true" ] || { echo "Foundry worker deploy requires tools/deploy_foundry_v2_release.sh so its queue remains paused across the worker and MCP swap." >&2; exit 24; }
+
 eval "$(node "$ROOT/tools/worker_profile_contract.mjs" shell fortress-model-foundry)"
 node "$ROOT/tools/worker_profile_contract.mjs" validate-resolved fortress-model-foundry \
   cpu="$WORKER_CPU" memory="$WORKER_MEMORY" concurrency="$WORKER_CONCURRENCY" \

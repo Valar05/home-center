@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import {createRequire} from 'node:module';
 const require = createRequire(import.meta.url);
 const transport = require('../functions/artifact_transport.js');
-const {ARTIFACT_REFERENCE_VERSION, BLENDER_RENDER_CONTRACT_VERSION, ArtifactTransportError, sha256Bytes, normalizeArtifactReference, planArtifactLocation, boundedMap, rendererSettingsJsonSchema, normalizeRendererSettings, renderCompatibility, preflightArtifactEnvelope, structuredArtifactError} = transport;
+const {ARTIFACT_REFERENCE_VERSION, ArtifactTransportError, sha256Bytes, normalizeArtifactReference, planArtifactLocation, boundedMap, preflightArtifactEnvelope, structuredArtifactError} = transport;
 
 const bytes = Buffer.from('artifact-transport-contract');
 const identity = {sha256: sha256Bytes(bytes), byteLength: bytes.length, mediaType: 'application/octet-stream', fileName: 'fixture.bin'};
@@ -36,11 +36,9 @@ assert.throws(() => normalizeArtifactReference({...gcs(), identity: {...identity
 // 10 unsupported reference and 11 expired reference.
 assert.throws(() => normalizeArtifactReference({...gcs(), locations: [{kind: 'ftp', uri: 'ftp://bad'}]}), (e) => e.code === 'ARTIFACT_REFERENCE_KIND_UNSUPPORTED');
 assert.throws(() => planArtifactLocation({...gcs(), locations: [{kind: 'gcs', uri: 'gs://bucket/object', expiresAt: '2000-01-01T00:00:00Z'}]}, {supportedLocationKinds: ['gcs']}), (e) => e.code === 'ARTIFACT_REFERENCE_EXPIRED');
-// 12 public/backend schema agreement includes gifFrames and version negotiation.
-const settingsSchema = rendererSettingsJsonSchema(); assert.ok(settingsSchema.properties.gifFrames); assert.ok(settingsSchema.properties.gifTimingMs);
-const settings = normalizeRendererSettings({gifFrames: [0, 2], gifTimingMs: [100, 120]}); assert.deepEqual(settings.gifFrames, [0, 2]);
-assert.throws(() => renderCompatibility({settings, contractVersion: 'old', backend: {contractVersions: [BLENDER_RENDER_CONTRACT_VERSION]}}), (e) => e.code === 'ARTIFACT_CONTRACT_VERSION_UNSUPPORTED');
-assert.throws(() => normalizeRendererSettings({gifFrames: [0, 2], gifTimingMs: [100]}), (e) => e.code === 'RENDER_GIF_TIMING_LENGTH_MISMATCH');
+// 12 the generic transport contract stays producer-neutral.
+assert.equal('renderCompatibility' in transport, false);
+assert.equal('rendererSettingsJsonSchema' in transport, false);
 // 13 two concurrent jobs retain independent receipts.
 const jobs = await Promise.all(['job-a', 'job-b'].map((requestId) => preflightArtifactEnvelope({requestId, artifacts: [gcs(requestId)], consumer: {supportedLocationKinds: ['gcs'], directLocationKinds: ['gcs']}})));
 assert.deepEqual(jobs.map((j) => j.requestId), ['job-a', 'job-b']); assert.notEqual(jobs[0].inputHash, jobs[1].inputHash);

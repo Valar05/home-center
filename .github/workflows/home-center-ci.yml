@@ -21,7 +21,6 @@ jobs:
           cache-dependency-path: |
             functions/package-lock.json
             browser-worker/package-lock.json
-            cloud-render/package-lock.json
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
@@ -33,7 +32,7 @@ jobs:
         run: npm --prefix functions ci
       - name: Install optional package dependencies when lockfiles exist
         run: |
-          for dir in browser-worker cloud-render cloud-worker; do
+          for dir in browser-worker; do
             if [ -f "$dir/package-lock.json" ]; then npm --prefix "$dir" ci; fi
           done
       - name: Run CI validation subset

@@ -55,7 +55,7 @@ function artifactPrefix({owner = 'drew', stage = 'temp', artifactType = '', mime
   }
   if (type === 'contact_sheet' || type === 'contact-sheet' || /contact-sheet/.test(lowerName)) return 'renders/contact-sheets';
   if (type === 'gif' || type === 'looping_gif' || lowerName.endsWith('.gif')) return 'renders/gifs';
-  if (type === 'render' || type === 'rendered_frames' || type === 'frame' || type === 'blender') return 'renders/blender';
+  if (type === 'render' || type === 'rendered_frames' || type === 'frame') return 'renders';
   if (type === 'image' || /^image\//.test(mimeType)) return 'images';
   if (type === 'glb' || lowerName.endsWith('.glb')) return 'glb';
   if (type === 'video' || /^video\//.test(mimeType)) return 'video';
