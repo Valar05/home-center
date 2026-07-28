@@ -19,6 +19,8 @@ python3 tools/home_center_regression_tests.py
 node --check functions/command_center_mcp.js
 node --check tools/home_center_authorization_contract_test.mjs
 node tools/home_center_authorization_contract_test.mjs
+node --check tools/grounded_motion_oauth_contract_test.mjs
+node tools/grounded_motion_oauth_contract_test.mjs
 node --check tools/home_center_status_contract_test.mjs
 node tools/home_center_status_contract_test.mjs
 node --check functions/sms_calendar_intake.js
