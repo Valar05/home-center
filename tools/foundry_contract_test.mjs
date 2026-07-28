@@ -217,6 +217,13 @@ assert.equal(loft.report.validation.invalidNormals,0);
 assert.ok(loft.report.hierarchy.some((node) => node.name === 'cast-shell' && node.parent === 'elevation-pivot'));
 const loftReplay = await runFoundryKernel({plan:loftPlan,domain:'hard_surface',reviewPreset:'fixed-six-view'});
 assert.equal(digest(loft.glb),digest(loftReplay.glb),'section loft must be deterministic');
+const loftBooleanScript = "foundry.scene.createSectionLoft('outer',{sections:[{z:-1,profile:[[-1,-0.5],[0,-0.7],[1,-0.5],[1.2,0],[0.9,0.7],[0,0.85],[-0.9,0.7],[-1.2,0]]},{z:0,profile:[[-1.1,-0.48],[0,-0.68],[1.1,-0.48],[1.3,0],[0.95,0.75],[0,0.9],[-0.95,0.75],[-1.3,0]]},{z:1,profile:[[-0.9,-0.42],[0,-0.6],[0.9,-0.42],[1.05,0],[0.78,0.62],[0,0.76],[-0.78,0.62],[-1.05,0]]}]}); foundry.scene.createSectionLoft('inner',{sections:[{z:-0.8,profile:[[-0.78,-0.34],[0,-0.5],[0.78,-0.34],[0.92,0],[0.68,0.53],[0,0.65],[-0.68,0.53],[-0.92,0]]},{z:0,profile:[[-0.88,-0.32],[0,-0.48],[0.88,-0.32],[1.02,0],[0.73,0.57],[0,0.7],[-0.73,0.57],[-1.02,0]]},{z:0.8,profile:[[-0.7,-0.28],[0,-0.42],[0.7,-0.28],[0.82,0],[0.58,0.46],[0,0.58],[-0.58,0.46],[-0.82,0]]}]}); foundry.mesh.boolean('outer','inner','subtract','hollow-shell');";
+const loftBooleanPlan = await executeFoundryScript({version:FOUNDRY_SCRIPT_VERSION,text:loftBooleanScript,seed:93});
+const loftBoolean = await runFoundryKernel({plan:loftBooleanPlan,domain:'hard_surface',reviewPreset:'fixed-six-view'});
+assert.equal(loftBoolean.report.componentCount,1);
+assert.equal(loftBoolean.report.validation.manifoldClosedComponents,1);
+assert.equal(loftBoolean.report.validation.degenerateTriangles,0);
+assert.equal(loftBoolean.report.validation.invalidNormals,0);
 const badLoftPlan = await executeFoundryScript({version:FOUNDRY_SCRIPT_VERSION,text:"foundry.scene.createSectionLoft('bad',{sections:[{z:0,profile:[[0,0],[1,0],[0,1]]},{z:1,profile:[[0,0],[1,0],[1,1],[0,1]]}]});",seed:92});
 await assert.rejects(() => runFoundryKernel({plan:badLoftPlan,domain:'hard_surface'}), (error) => error.code === 'foundry.geometry.section_correspondence');
 
