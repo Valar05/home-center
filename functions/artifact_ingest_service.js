@@ -300,14 +300,22 @@ async function publishVerified({admin, storage = defaultStorage(), user, identit
     },
   };
   const base = ['indexes', 'artifacts', 'v1'];
+  const ownerDigestBase = ['indexes', 'artifacts', 'v2', 'by-owner-sha256'];
   const manifestName = identity.objectName.replace(/\/[^/]+$/, '/artifact-manifest.json');
   const indexes = {
     manifest: publicImmutableIndex(await saveImmutableJson(bucket, manifestName, manifest, sameArtifact)),
     byId: publicImmutableIndex(await saveImmutableJson(bucket, [...base, 'by-id', identity.ownerSegment, identity.artifactId + '.json'].join('/'), manifest, sameArtifact)),
-    bySha256: publicImmutableIndex(await saveImmutableJson(bucket, [...base, 'by-sha256', verified.sha256 + '.json'].join('/'), manifest, sameArtifact)),
+    bySha256: publicImmutableIndex(await saveImmutableJson(bucket, [...ownerDigestBase, identity.ownerSegment, verified.sha256 + '.json'].join('/'), manifest, sameArtifact)),
     catalog: publicImmutableIndex(await saveImmutableJson(bucket, [...base, 'catalog', identity.ownerSegment, identity.project, identity.artifactKind, identity.lifecycleState, identity.artifactId + '.json'].join('/'), manifest, sameArtifact)),
     request: publicImmutableIndex(await saveImmutableJson(bucket, [...base, 'requests', identity.ownerSegment, identity.requestId + '.json'].join('/'), manifest, sameArtifact)),
   };
+  // Keep the legacy global digest index only when it is empty or already names
+  // this exact artifact. Cross-owner digest collisions must not block ingest.
+  try {
+    indexes.legacyBySha256 = publicImmutableIndex(await saveImmutableJson(bucket, [...base, 'by-sha256', verified.sha256 + '.json'].join('/'), manifest, sameArtifact));
+  } catch (error) {
+    if (!error || error.code !== 'artifact_index_conflict') throw error;
+  }
   const commandCenter = await writeCommandCenterReceipt(admin, manifest);
   await recordAudit(admin, user, 'storage.ingest_artifact', identity.artifactId,
     'Published verified proposed artifact ' + storageRef + ' and recorded immutable catalog receipts.', identity.requestId);
@@ -571,12 +579,24 @@ async function readArtifactOperation({storage = defaultStorage(), user, args = {
   return {ok: true, manifest};
 }
 
-async function findArtifactBySha256Operation({storage = defaultStorage(), args = {}}) {
+async function findArtifactBySha256Operation({storage = defaultStorage(), user, args = {}}) {
   const digest = expectedSha(args.sha256, 'sha256');
   if (!digest) throw fail('sha256 is required.');
-  const file = storage.bucket(ARTIFACT_BUCKET).file(['indexes', 'artifacts', 'v1', 'by-sha256', digest + '.json'].join('/'));
-  const manifest = JSON.parse((await readFile(file)).bytes.toString('utf8'));
-  return {ok: true, manifest};
+  const owner = ownerEmail(user);
+  const ownerSegment = slug(owner, 'owner', 320);
+  const bucket = storage.bucket(ARTIFACT_BUCKET);
+  const ownerFile = bucket.file(['indexes', 'artifacts', 'v2', 'by-owner-sha256', ownerSegment, digest + '.json'].join('/'));
+  try {
+    const manifest = JSON.parse((await readFile(ownerFile)).bytes.toString('utf8'));
+    if (manifest.ownerEmail !== owner) throw fail('Artifact digest index is not owned by this caller.', 403, 'artifact_digest_forbidden');
+    return {ok: true, manifest};
+  } catch (error) {
+    if (Number(error && error.code) !== 404 && Number(error && error.status) !== 404 && !/not found|no such object/i.test(String(error && error.message))) throw error;
+  }
+  const legacyFile = bucket.file(['indexes', 'artifacts', 'v1', 'by-sha256', digest + '.json'].join('/'));
+  const manifest = JSON.parse((await readFile(legacyFile)).bytes.toString('utf8'));
+  if (manifest.ownerEmail !== owner) throw fail('Artifact digest was not found for this owner.', 404, 'artifact_digest_not_found');
+  return {ok: true, manifest, compatibility: {legacyIndex: true}};
 }
 
 function artifactOperationEntries() {

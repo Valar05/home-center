@@ -91,7 +91,41 @@
           "order": "ASCENDING"
         }
       ]
+    },
+    {
+      "collectionGroup": "gcsFilesystemPaths",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {"fieldPath": "ownerHash", "order": "ASCENDING"},
+        {"fieldPath": "state", "order": "ASCENDING"},
+        {"fieldPath": "path", "order": "ASCENDING"}
+      ]
+    },
+    {
+      "collectionGroup": "gcsFilesystemTrashEntries",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {"fieldPath": "ownerHash", "order": "ASCENDING"},
+        {"fieldPath": "state", "order": "ASCENDING"},
+        {"fieldPath": "path", "order": "ASCENDING"}
+      ]
+    },
+    {
+      "collectionGroup": "gcsFilesystemVersions",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {"fieldPath": "ownerHash", "order": "ASCENDING"},
+        {"fieldPath": "fileId", "order": "ASCENDING"},
+        {"fieldPath": "ordinal", "order": "DESCENDING"}
+      ]
     }
   ],
-  "fieldOverrides": []
+  "fieldOverrides": [
+    {
+      "collectionGroup": "gcsFilesystemTrashEntries",
+      "fieldPath": "expiresAt",
+      "ttl": true,
+      "indexes": []
+    }
+  ]
 }

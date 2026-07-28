@@ -13,13 +13,15 @@ The prior Cloud Blender execution lane and Command Center Codex worker discovery
 1. `docs/FORTRESS_MODEL_FOUNDRY.md`
 2. `docs/ARTIFACT_TRANSPORT_SYSTEM.md`
 3. `docs/ARTIFACT_BUCKET_ARCHITECTURE.md`
-4. `docs/WORKER_RESOURCE_CONTRACT.md`
-5. `docs/archive/CLOUD_EXECUTION_RETIREMENT_2026-07-27.md`
+4. `docs/AUTHENTICATED_GCS_FILESYSTEM.md`
+5. `docs/WORKER_RESOURCE_CONTRACT.md`
+6. `docs/archive/CLOUD_EXECUTION_RETIREMENT_2026-07-27.md`
 
 ## Stable Contracts
 
 - Home MCP entry point: `drive_operation`.
 - Foundry operations: `foundry.asset.inspect`, `foundry.asset.run`, `foundry.asset.status`, `foundry.asset.promote`.
+- Filesystem operations: `storage.filesystem.*`, dynamically discovered below `drive_operation`; never top-level tools.
 - Run contract: `home-center.foundry-run.v2`.
 - Script contract: `foundry-js.v1`.
 - Top-level MCP tool count after retirement: 57.
@@ -30,6 +32,7 @@ The prior Cloud Blender execution lane and Command Center Codex worker discovery
 ## Verification
 
 `node tools/foundry_contract_test.mjs`
+`node tools/gcs_filesystem_contract_test.mjs`
 `node tools/cloud_blender_retirement_contract_test.mjs`
 `node tools/worker_profile_contract_test.mjs`
 `node tools/generate_home_center_public_manifest.mjs --check`

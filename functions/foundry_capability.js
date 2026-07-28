@@ -21,6 +21,7 @@ const FOUNDRY_MAX_SOURCE_BYTES = Number(process.env.FOUNDRY_MAX_SOURCE_BYTES || 
 const FOUNDRY_MAX_SCRIPT_BYTES = Number(process.env.FOUNDRY_MAX_SCRIPT_BYTES || 256 * 1024);
 const FOUNDRY_MAX_OUTPUT_BYTES = Number(process.env.FOUNDRY_MAX_OUTPUT_BYTES || 256 * 1024 * 1024);
 const FOUNDRY_LOG_MAX_BYTES = Number(process.env.FOUNDRY_LOG_MAX_BYTES || 64 * 1024);
+const FOUNDRY_STATUS_LOG_EXCERPT_BYTES = Math.max(1024, Math.min(Number(process.env.FOUNDRY_STATUS_LOG_EXCERPT_BYTES) || 8 * 1024, 16 * 1024));
 const JOBS = 'foundryAssetJobs';
 const IDEMPOTENCY = 'foundryAssetIdempotency';
 const PUBLICATIONS = 'foundryArtifactPromotions';
@@ -173,6 +174,52 @@ function boundedJobReceipt(record) {
   };
 }
 
+function redactFailureLog(value) {
+  return String(value || '')
+    .replace(/(authorization\s*:\s*bearer\s+)[^\s]+/gi, '$1[REDACTED]')
+    .replace(/([?&](?:x-goog-signature|x-goog-credential|token|access_token)=)[^&\s]+/gi, '$1[REDACTED]')
+    .replace(/((?:api[_-]?key|secret|password)\s*[=:]\s*)[^\s,;]+/gi, '$1[REDACTED]');
+}
+
+async function boundedFailureLogs({storage = storageClient(), record}) {
+  if (record.state !== 'failed' || !record.failureLogs || typeof record.failureLogs !== 'object') return null;
+  const attempt = Number(record.executionAttempt || 0);
+  const expectedPrefix = 'foundry/v2/' + record.ownerHash + '/' + record.namespace + '/' + record.inputHash + '/attempt-' + attempt + '/logs/';
+  const out = {};
+  for (const streamName of ['stdout', 'stderr']) {
+    const descriptor = record.failureLogs[streamName];
+    if (!descriptor) continue;
+    const storageRef = text(descriptor.storageRef, 1600);
+    const expectedRef = 'gs://' + ARTIFACT_BUCKET + '/' + expectedPrefix + streamName + '.log';
+    const byteLength = Number(descriptor.byteLength || 0);
+    const digest = text(descriptor.sha256, 64).toLowerCase();
+    const base = {storageRef, byteLength, sha256: digest};
+    if (storageRef !== expectedRef || !Number.isSafeInteger(byteLength) || byteLength < 0 || !/^[a-f0-9]{64}$/.test(digest)) {
+      out[streamName] = {...base, readbackVerified: false, error: {code: 'foundry.failure_log.invalid_descriptor', message: 'Stored failure-log identity does not match this job.'}};
+      continue;
+    }
+    try {
+      const [bytes] = await storage.bucket(ARTIFACT_BUCKET).file(expectedPrefix + streamName + '.log').download();
+      const value = Buffer.from(bytes);
+      if (value.length !== byteLength || sha256(value) !== digest) {
+        out[streamName] = {...base, readbackVerified: false, error: {code: 'foundry.failure_log.readback_mismatch', message: 'Stored failure-log bytes do not match their receipt.'}};
+        continue;
+      }
+      const excerptBytes = value.subarray(Math.max(0, value.length - FOUNDRY_STATUS_LOG_EXCERPT_BYTES));
+      out[streamName] = {
+        ...base,
+        readbackVerified: true,
+        excerpt: redactFailureLog(excerptBytes.toString('utf8')),
+        excerptByteLength: excerptBytes.length,
+        excerptTruncated: value.length > excerptBytes.length || !!record.logsTruncated,
+      };
+    } catch (error) {
+      out[streamName] = {...base, readbackVerified: false, error: {code: 'foundry.failure_log.read_failed', message: text(error.message || String(error), 500)}};
+    }
+  }
+  return out;
+}
+
 async function defaultEnqueue(payload) {
   await getFunctions().taskQueue(FOUNDRY_TASK_FUNCTION).enqueue(payload, {id: 'foundry-' + payload.jobId + '-' + (payload.executionAttempt || 0), dispatchDeadlineSeconds: Math.ceil(FOUNDRY_TIMEOUT_MS / 1000)});
 }
@@ -221,14 +268,17 @@ async function inspectFoundryAsset(context) {
   const args = context.args || {};
   return queueFoundryRun({...context, args: {...args, __internalInspect: true, contractVersion: FOUNDRY_RUN_VERSION, domain: 'inspect', script: {kind: 'inline', version: FOUNDRY_SCRIPT_VERSION, filename: 'inspect.foundry.js', text: "foundry.asset.inspect(); foundry.review.fixedViews(['front','back','left','right','top','perspective']);"}, parameters: {}, reviewPreset: 'fixed-six-view'}});
 }
-async function foundryStatus({admin, user, args = {}}) {
+async function foundryStatus({admin, storage = storageClient(), user, args = {}}) {
   const jobId = text(args.jobId, 80);
   if (!/^[a-f0-9]{40}$/.test(jobId)) throw fail('foundry.job_id_invalid', 'jobId is invalid.');
   const snapshot = await admin.firestore().collection(JOBS).doc(jobId).get();
   if (!snapshot.exists) throw fail('foundry.job_not_found', 'Foundry job was not found.', 404);
   const record = snapshot.data() || {};
   if (record.owner !== ownerEmail(user)) throw fail('foundry.job_forbidden', 'Foundry job is not owned by this caller.', 403);
-  return boundedJobReceipt(record);
+  const receipt = boundedJobReceipt(record);
+  const failureLogs = await boundedFailureLogs({storage, record});
+  if (failureLogs) receipt.failureLogs = failureLogs;
+  return receipt;
 }
 function publicArtifactUrl(publicationId, name) { return FOUNDRY_PUBLIC_BASE + '/foundry/artifacts/' + encodeURIComponent(publicationId) + '/' + encodeURIComponent(name); }
 function publicationLinks(publication, namespace) {
@@ -335,7 +385,7 @@ async function executeFoundryJob(admin, payload = {}, dependencies = {}) {
 async function runFoundryOperation({operation, admin, storage, user, args, enqueue}) {
   if (operation === 'foundry.asset.inspect') return inspectFoundryAsset({admin, storage, user, args, enqueue});
   if (operation === 'foundry.asset.run') return queueFoundryRun({admin, storage, user, args, enqueue});
-  if (operation === 'foundry.asset.status') return foundryStatus({admin, user, args});
+  if (operation === 'foundry.asset.status') return foundryStatus({admin, storage, user, args});
   if (operation === 'foundry.asset.promote') return promoteFoundryResult({admin, user, args});
   throw fail('foundry.operation.unsupported', 'Unsupported Foundry operation: ' + operation);
 }

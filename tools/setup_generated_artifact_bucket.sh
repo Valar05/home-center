@@ -30,6 +30,7 @@ cat > "$TMP_JSON" <<'JSON'
   "rule": [
     {"action": {"type": "Delete"}, "condition": {"age": 7, "matchesPrefix": ["temp/"]}},
     {"action": {"type": "Delete"}, "condition": {"age": 30, "matchesPrefix": ["audio/drew/voice-tests/", "audio/june/voice-tests/", "audio/shared/voice-tests/"]}},
+    {"action": {"type": "Delete"}, "condition": {"age": 30, "matchesPrefix": ["indexes/filesystem/v1/trash/"]}},
     {"action": {"type": "Delete"}, "condition": {"age": 14, "matchesPrefix": ["logs/"]}}
   ]
 }

@@ -47,6 +47,12 @@ const {
   installFoundryArtifactRoutes,
 } = require('./foundry_capability');
 const {
+  filesystemOperationEntries,
+  runFilesystemOperation,
+  projectArtifactOperation,
+  streamFilesystemContent,
+} = require('./gcs_filesystem_service');
+const {
   CALENDAR_SCOPE: SMS_CALENDAR_SCOPE,
   GMAIL_SCOPE: SMS_GMAIL_SCOPE,
   registry: smsCalendarOperationRegistry,
@@ -3833,12 +3839,13 @@ function runDroobiedooContextOperation(operation, args = {}) {
 
 function driveOperationRegistry() {
   return {
-    version: '2026-07-27.receipt-delivery-v1',
+    version: '2026-07-28.gcs-filesystem-v1',
     invocationTool: 'drive_operation',
     cachePolicy: 'New bridge and simulation operations should be invokable through drive_operation so ChatGPT does not need a top-level MCP tool refresh for every backend code change. Cartesia TTS is a direct Home Center MCP provider operation; it must not be routed through Command Center jobs or workers.',
     operations: {
       ...artifactOperationEntries(),
       ...foundryOperationEntries(),
+      ...filesystemOperationEntries(),
       'artifact.delivery.materialize_receipt': {
         summary: 'Materialize supported artifacts named by one owner-scoped terminal producer receipt as hash-verified private Drive resource links without rerendering or changing human acceptance.',
         write: true,
@@ -4692,6 +4699,13 @@ async function driveOperationRunOperation({google, admin, auth, user, extra = nu
     const result = await runFoundryOperation({operation, admin, user, args: operationArgs});
     return {operation, registryVersion: registry.version, completed: result.state === 'completed' || !!result.immutable, result};
   }
+  if (filesystemOperationEntries()[operation]) {
+    requireCreditGatedEmail(user && user.email, operation);
+    const result = await runFilesystemOperation({operation, admin, user, args: operationArgs});
+    const wrapped = {operation, registryVersion: registry.version, completed: true, result};
+    if (operation === 'storage.filesystem.download' && result.resourceLink) wrapped._mcpContent = {content: [{type: 'text', text: jsonText(wrapped)}, result.resourceLink]};
+    return wrapped;
+  }
   if (operation === 'artifact.delivery.materialize_receipt') {
     requireCreditGatedEmail(user && user.email, operation);
     const result = await materializeReceiptArtifactsOperation({google, admin, auth, user, args: operationArgs});
@@ -4751,6 +4765,11 @@ async function driveOperationRunOperation({google, admin, auth, user, extra = nu
     if (operation === 'storage.artifact.abort') result = await abortArtifactIngestOperation(common);
     if (operation === 'storage.artifact.get') result = await readArtifactOperation(common);
     if (operation === 'storage.artifact.find_by_sha256') result = await findArtifactBySha256Operation(common);
+    if (result && result.artifactId && ['storage.artifact.resumable_commit', 'storage.artifact.commit', 'storage.artifact.get', 'storage.artifact.find_by_sha256'].includes(operation)) {
+      result.filesystem = await projectArtifactOperation({admin, user, artifactId: result.artifactId, requestId: 'project-' + result.artifactId + '-' + String(result.destination && result.destination.sha256 || result.manifest && result.manifest.destination && result.manifest.destination.sha256 || '').slice(0, 16)});
+    } else if (result && result.manifest && result.manifest.artifactId && ['storage.artifact.get', 'storage.artifact.find_by_sha256'].includes(operation)) {
+      result.filesystem = await projectArtifactOperation({admin, user, artifactId: result.manifest.artifactId});
+    }
     return {operation, registryVersion: registry.version, completed: true, result};
   }
   if (operation === 'armory.receipt') {
@@ -5281,7 +5300,9 @@ function createHomeCenterMcpServer({google, admin, googleClientId, googleClientS
     annotations: {readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: true},
   }, async (args, extra) => {
     const context = await requireCreditGatedContext({google, admin, googleClientId, googleClientSecret, extra, surface: 'storage_ingest_artifact'});
-    return textResult(await ingestArtifactUploadOperation({admin, user: context.user, args: args || {}, recordAudit: recordActionAudit}));
+    const result = await ingestArtifactUploadOperation({admin, user: context.user, args: args || {}, recordAudit: recordActionAudit});
+    result.filesystem = await projectArtifactOperation({admin, user: context.user, artifactId: result.artifactId, requestId: 'project-' + result.artifactId + '-' + result.destination.sha256.slice(0, 16)});
+    return textResult(result);
   });
 
   server.registerTool('drive_ingest_file', {
@@ -6181,6 +6202,23 @@ function createHomeCenterMcpApp({google, admin, googleClientId = () => '', googl
   app.use(express.urlencoded({extended: false, limit: '256kb'}));
   installFoundryArtifactRoutes(app, {admin});
   const transports = {};
+
+  app.all('/filesystem/files/:fileId/versions/:versionId/content', async (req, res) => {
+    try {
+      if (!['GET', 'HEAD'].includes(req.method)) throw Object.assign(new Error('GET or HEAD required.'), {status: 405, code: 'storage.filesystem.method_not_allowed'});
+      if (rejectMissingTransportAuth(req, res)) return;
+      const match = String(req.get('Authorization') || '').match(/^Bearer\s+(.+)$/i);
+      const accessToken = match && match[1];
+      let context = await loadMcpAccessContext(admin, google, googleClientId, googleClientSecret, accessToken);
+      if (!context) context = {user: await googleIdentityFromToken(accessToken)};
+      requireCreditGatedEmail(context.user && context.user.email, 'storage.filesystem.download');
+      await streamFilesystemContent({admin, user: context.user, fileId: safeText(req.params.fileId, 80), versionId: safeText(req.params.versionId, 80), req, res});
+    } catch (error) {
+      if (res.headersSent) { res.destroy(error); return; }
+      if (error.wwwAuthenticate) res.set('WWW-Authenticate', error.wwwAuthenticate);
+      res.status(error.status || 500).json({error: error.code || error.failureKind || 'storage.filesystem.download_failed', message: safeText(error.message || String(error), 800), details: error.details || {}});
+    }
+  });
 
   app.get('/', (_req, res) => {
     res.set('Cache-Control', 'no-store');

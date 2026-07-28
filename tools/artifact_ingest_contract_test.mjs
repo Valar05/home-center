@@ -152,6 +152,14 @@ assert.ok(Buffer.byteLength(JSON.stringify(direct)) < 16 * 1024, "ingest receipt
 const replay = await service.ingestArtifactUploadOperation({admin, storage, user, args: uploadArgs});
 assert.equal(replay.reused, true);
 assert.equal(replay.indexes.byId.reused, true);
+assert.match(direct.indexes.bySha256.objectName, /^indexes\/artifacts\/v2\/by-owner-sha256\/dclarke1005@gmail\.com\//);
+const foundForOwner = await service.findArtifactBySha256Operation({storage, user, args: {sha256: digest}});
+assert.equal(foundForOwner.manifest.artifactId, direct.artifactId);
+await assert.rejects(
+  service.findArtifactBySha256Operation({storage, user: {email: 'someone@example.com'}, args: {sha256: digest}}),
+  (error) => error.code === 'artifact_digest_not_found' && error.status === 404,
+  'legacy digest compatibility must not expose another owner',
+);
 
 const replaySessionId = "resumable-completed-replay-v1";
 const directManifest = JSON.parse(storage.bucket(service.ARTIFACT_BUCKET).objects.get("indexes/artifacts/v1/by-id/dclarke1005@gmail.com/motion-packet-direct.json").bytes.toString("utf8"));
@@ -241,6 +249,6 @@ const markers = [
 ];
 for (const marker of markers) assert.equal(bridge.includes(marker), true, 'missing bridge marker: ' + marker);
 assert.equal(HOME_CENTER_CONNECTOR_SCHEMA_REVISION, publicManifest.registryRevision, 'ingest must inherit the generated Home MCP registry revision');
-assert.match(bridge, /function driveOperationRegistry\(\)[\s\S]*?version: '2026-07-27\.receipt-delivery-v1'/);
+assert.match(bridge, /function driveOperationRegistry\(\)[\s\S]*?version: '2026-07-28\.gcs-filesystem-v1'/);
 
 console.log('Storage artifact ingest contract passed.');
