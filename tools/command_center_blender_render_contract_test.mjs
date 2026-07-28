@@ -53,7 +53,7 @@ assert(!homeCenter.includes('https://storage.googleapis.com'), 'Home Center rend
 assert(commandCenter.includes('renderRequiredBundleKindsForOptions'), 'Command Center must derive lightweight bundle requirements through one helper');
 assert(commandCenter.includes('const effectiveOptions'), 'Queued worker must derive completion from effective render options');
 assert(commandCenter.includes("status: completed ? 'completed' : 'failed'"), 'Queued worker must persist terminal completion state');
-assert(commandCenter.includes('render_provider_outcome_ambiguous'), 'Ambiguous renderer outcomes must be quarantined');
+assert(commandCenter.includes('render_provider_outcome_ambiguous'), 'Ambiguous renderer outcomes must require reconciliation without blind retry');
 assert(commandCenter.includes("operation: 'render.status'"), 'Accepted receipts must expose bounded status lookup');
 assert(commandCenter.includes("resolution !== 'retry_safe'"), 'Ambiguous retries must require explicit reconciliation');
 assert(functionsIndex.includes('onTaskDispatched'), 'Blender execution must run through a durable task queue');

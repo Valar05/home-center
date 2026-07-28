@@ -51,6 +51,8 @@ node --check tools/command_center_blender_file_handoff_test.mjs
 node tools/command_center_blender_file_handoff_test.mjs
 node --check tools/home_center_render_blender_glb_protocol_test.mjs
 node tools/home_center_render_blender_glb_protocol_test.mjs
+node tools/render_input_preflight_contract_test.mjs
+node tools/artifact_delivery_contract_test.mjs
 node --check tools/home_center_blender_inline_gif_contract_test.mjs
 node tools/home_center_blender_inline_gif_contract_test.mjs
 node --check tools/blender_gif_construction_contract_test.mjs

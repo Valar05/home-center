@@ -6589,8 +6589,8 @@
       }
     }
   ],
-  "manifestSha256": "db08ac23a79a77f30720efd01a4a53658eb113e62bff3785a892966a330872cd",
-  "registryRevision": "2026-07-27.render-review-egress-v1",
+  "manifestSha256": "0516b82b78044dabce417a4c06479cb658a7cc641bc1533d73fbfd8d4d20ba9e",
+  "registryRevision": "2026-07-27.receipt-delivery-v1",
   "schemaVersion": "home-center.public-tool-manifest.v1",
   "toolCount": 58
 }

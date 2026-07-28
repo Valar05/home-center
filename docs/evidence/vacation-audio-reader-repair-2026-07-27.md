@@ -82,7 +82,30 @@ public manifest SHA-256 is
 
 ## Live Proof
 
-Pending merge to `main`, exact-main deployment, authenticated receipt-only
-registration of both parts, Audio Reader browse/play calls, and byte identity
-readback. Do not replace this section with health-only evidence or private
-`gs://` references.
+The repair merged through PR #122 at exact main commit
+`d56b7b1748bfc448177c078aedaaaebad42b8215`. Home Center MCP revision
+`homecentermcp-00152-nen` serves 100% traffic and reports that exact source
+commit. Audio Reader remains `audiolibraryapi-00012-dil`; no unchanged audio
+service was redeployed. Rollback targets are `homecentermcp-00151-yec` and
+`audiolibraryapi-00011-yaj`.
+
+Both producer receipts were registered live through authenticated
+`drive_operation(operation="audio.render_register")` as
+`dclarke1005@gmail.com`, project `vacation-of-a-lifetime`, stage
+`review`, and `humanAcceptance=unreviewed`. Legacy `approved:true`
+metadata was removed. Exact replay returned the same catalog identities with
+`copiedBytes=0`, `rerendered=false`, `resynthesized=false`,
+`public=false`, and `driveCopy=false`.
+
+Authenticated Reader browse found both records through `catalog-index-v1`.
+Production playback returned private HTTP 206 ranges without exposing signed
+URLs:
+
+- Part 6: `bytes 0-65535/3096594`, 65,536 OGG bytes, range SHA-256
+  `65e3d7a51ec74134a033e941751e090ef8e1f0e205c6f7e6cbee6f65c21b18ba`.
+- Part 7: `bytes 0-65535/6105347`, 65,536 OGG bytes, range SHA-256
+  `70279551772d643cc60f18021f8f35ade5691c6ef2ddaf8739eb80bbf4207c46`.
+
+Source byte lengths, full SHA-256 digests, and GCS generations remained exactly
+those recorded under Immutable Sources. Temporary Reader stream-token records
+were deleted after proof.

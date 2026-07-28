@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import assert from 'node:assert/strict';
 import {createHash} from 'node:crypto';
+import {readFileSync} from 'node:fs';
 import {createRequire} from 'node:module';
 
 const require = createRequire(import.meta.url);
@@ -111,11 +112,57 @@ assert.deepEqual(status.result.validation.gifPlayback.gifTimingMs, [100, 120]);
 assert.ok(JSON.stringify(status).length < 50000, 'status must remain bounded when the provider result contains an unbounded bundle');
 assert.equal(JSON.stringify(status).includes('Bearer'), false);
 
+const isolationArgs = ['alpha', 'beta'].map((namespace, index) => ({
+  ...baseArgs,
+  renderId: 'render-isolation-' + namespace,
+  idempotencyKey: 'queue-isolation-' + namespace,
+  stagedInputs: [
+    {...stagedInputs[0], ref: 'gs://proof/' + namespace + '/input.glb', sha256: String(6 + index).repeat(64)},
+    {...stagedInputs[1], ref: 'gs://proof/' + namespace + '/render.py', sha256: String(8 + index).repeat(64)},
+  ],
+}));
+const isolationReceipts = await Promise.all(isolationArgs.map((args) => renderBlenderGlb(admin, extra, args, {enqueueRenderTask})));
+assert.notEqual(isolationReceipts[0].renderId, isolationReceipts[1].renderId);
+assert.notEqual(isolationReceipts[0].inputHash, isolationReceipts[1].inputHash);
+const isolationTasks = enqueued.slice(-2);
+const isolationCompleted = await Promise.all(isolationTasks.map((task, index) => executeQueuedRenderRequest(admin, task, {invokeRenderService: async () => {
+  const namespace = index === 0 ? 'alpha' : 'beta';
+  const contactBytes = 100 + index;
+  const manifestBytes = 200 + index;
+  return {
+    ok: true,
+    status: 'completed',
+    cacheKey: String(index + 1).repeat(64),
+    refs: {
+      renderedFrames: ['gs://proof/' + namespace + '/frame.png'],
+      contactSheet: 'gs://proof/' + namespace + '/contact-sheet.png',
+      validationManifest: 'gs://proof/' + namespace + '/validation-manifest.json',
+      fixedCameraRenders: ['gs://proof/' + namespace + '/front.png'],
+      diagnosticViewRenders: ['gs://proof/' + namespace + '/side.png'],
+      threeDArtifacts: ['gs://proof/' + namespace + '/result.glb'],
+    },
+    artifactHashes: {
+      'contact-sheet.png': {sha256: String(index + 1).repeat(64), byteCount: contactBytes},
+      'validation-manifest.json': {sha256: String(index + 3).repeat(64), byteCount: manifestBytes},
+    },
+    validationManifest: {presentBundleKinds: requiredKinds, ok: true},
+  };
+}})));
+assert.notEqual(isolationCompleted[0].inputHash, isolationCompleted[1].inputHash);
+assert.notEqual(isolationCompleted[0].result.cacheKey, isolationCompleted[1].result.cacheKey);
+assert.notEqual(isolationCompleted[0].result.contactSheetRef, isolationCompleted[1].result.contactSheetRef);
+assert.notEqual(isolationCompleted[0].result.validationManifestRef, isolationCompleted[1].result.validationManifestRef);
+const isolationStatus = await Promise.all(isolationReceipts.map((item) => renderRequestStatus(admin, caller, {renderId: item.renderId})));
+assert.deepEqual(isolationStatus.map((item) => item.renderId), ['render-isolation-alpha', 'render-isolation-beta']);
+assert.equal(new Set(isolationStatus.map((item) => item.result.cacheKey)).size, 2);
+const commandSource = readFileSync(new URL('../functions/command_center_mcp.js', import.meta.url), 'utf8');
+assert.doesNotMatch(commandSource, /globalLatestRender|latestRenderArtifact|renderLatest/, 'render isolation must not introduce a mutable global latest');
+
 const ambiguousArgs = {...baseArgs, idempotencyKey: 'queue-proof-ambiguous', stagedInputs: [stagedInputs[0], {...stagedInputs[1], sha256: '4'.repeat(64)}]};
 const ambiguous = await renderBlenderGlb(admin, extra, ambiguousArgs, {enqueueRenderTask});
 const ambiguousTask = enqueued.at(-1);
-const quarantined = await executeQueuedRenderRequest(admin, ambiguousTask, {invokeRenderService: async () => { const error = new Error('connection closed after request dispatch'); error.status = 503; error.failureKind = 'transport'; throw error; }});
-assert.equal(quarantined.status, 'quarantined');
+const needsReconciliation = await executeQueuedRenderRequest(admin, ambiguousTask, {invokeRenderService: async () => { const error = new Error('connection closed after request dispatch'); error.status = 503; error.failureKind = 'transport'; throw error; }});
+assert.equal(needsReconciliation.status, 'needs_reconciliation');
 const beforeReconcile = enqueued.length;
 const reconciled = await reconcileRenderRequest(admin, caller, {renderId: ambiguous.renderId, resolution: 'retry_safe', evidence: 'Provider logs show no output manifest and aborted process.', idempotencyKey: 'reconcile-ambiguous-1'}, {enqueueRenderTask});
 assert.equal(reconciled.status, 'queued');
@@ -131,4 +178,4 @@ assert.equal(stalledStatus.status, 'stalled');
 const stalledReconcile = await reconcileRenderRequest(admin, caller, {renderId: stalled.renderId, resolution: 'retry_safe', evidence: 'Lease expired and provider inventory contains no output manifest.', idempotencyKey: 'reconcile-stalled-1'}, {enqueueRenderTask});
 assert.equal(stalledReconcile.status, 'queued');
 assert.equal(stalledReconcile.executionAttempt, 1);
-console.log(JSON.stringify({ok: true, firstReceipt: first, completedStatus: status.status, ambiguousStatus: quarantined.status, stalledStatus: stalledStatus.status, enqueueCount: enqueued.length, invokeCount}, null, 2));
+console.log(JSON.stringify({ok: true, firstReceipt: first, completedStatus: status.status, ambiguousStatus: needsReconciliation.status, stalledStatus: stalledStatus.status, enqueueCount: enqueued.length, invokeCount, isolation: isolationStatus.map((item) => ({renderId: item.renderId, inputHash: item.inputHash, cacheKey: item.result.cacheKey, manifestRef: item.result.validationManifestRef}))}, null, 2));
