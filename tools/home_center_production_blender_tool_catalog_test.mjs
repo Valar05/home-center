@@ -1,11 +1,16 @@
 #!/usr/bin/env node
 import assert from 'node:assert/strict';
+import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 import {homedir} from 'node:os';
+import {execFileSync} from 'node:child_process';
 
 const DEFAULT_MCP_URL = 'https://us-central1-home-center-dclar.cloudfunctions.net/homeCenterMcp/mcp';
-const EXPECTED_REVISION = '2026-07-26.status-contract-v1';
+const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
+const PUBLIC_MANIFEST = JSON.parse(fs.readFileSync(path.join(ROOT, 'contracts/home-center-public-tool-manifest.v1.json'), 'utf8'));
+const EXPECTED_REVISION = PUBLIC_MANIFEST.registryRevision;
+const EXPECTED_SOURCE_COMMIT = process.env.HOME_CENTER_EXPECTED_SOURCE_COMMIT || execFileSync('git', ['rev-parse', 'HEAD'], {cwd: ROOT, encoding: 'utf8'}).trim();
 
 function parseArgs(argv) {
   const args = {
@@ -34,6 +39,15 @@ function parseJson(text, label) {
   } catch (err) {
     throw new Error(`${label} did not return JSON: ${String(text || '').slice(0, 500)}`);
   }
+}
+
+function stable(value) {
+  if (Array.isArray(value)) return value.map(stable);
+  if (value && typeof value === 'object') return Object.fromEntries(Object.keys(value).sort().map((key) => [key, stable(value[key])]));
+  return value;
+}
+function canonicalHash(value) {
+  return crypto.createHash('sha256').update(Buffer.from(JSON.stringify(stable(value)))).digest('hex');
 }
 
 function parseMcpResponse(text, label) {
@@ -138,6 +152,11 @@ assert.equal(readinessResponse.status, 200, `readiness failed HTTP ${readinessRe
 const readinessPayload = parseMcpResponse(readinessResponse.text, 'readiness response');
 const readiness = textToolJson(readinessPayload, 'readiness text receipt');
 assert.equal(readiness.ready, true, 'production Home Center must report ready');
+assert.equal(readiness.releaseIdentity?.sourceRepository, 'Valar05/home-center');
+assert.equal(readiness.releaseIdentity?.sourceCommit, EXPECTED_SOURCE_COMMIT);
+assert.equal(readiness.releaseIdentity?.sourceRef, 'refs/heads/main');
+assert.equal(readiness.releaseIdentity?.publicManifestSha256, PUBLIC_MANIFEST.manifestSha256);
+assert.match(readiness.releaseIdentity?.deployedServiceRevision || '', /^homecentermcp-/);
 
 const capabilitiesResponse = await postMcp(args.mcpUrl, tokenInfo.token, {jsonrpc: '2.0', id: 'capabilities', method: 'tools/call', params: {name: 'capabilities', arguments: {}}});
 assert.equal(capabilitiesResponse.status, 200, `capabilities failed HTTP ${capabilitiesResponse.status}`);
@@ -146,11 +165,16 @@ const capabilities = textToolJson(capabilitiesPayload, 'capabilities text receip
 assert.equal(capabilities.registryVersion, EXPECTED_REVISION, 'capabilities registry revision must match deployed catalog revision');
 assert.equal(capabilities.connectorSchemaRevision, EXPECTED_REVISION, 'capabilities schema revision must match deployed catalog revision');
 assert.equal(capabilities.summaryKind, 'names_only');
+assert.deepEqual(capabilities.releaseIdentity, readiness.releaseIdentity);
 
 const listResponse = await postMcp(args.mcpUrl, tokenInfo.token, {jsonrpc: '2.0', id: 'tools', method: 'tools/list', params: {}});
 assert.equal(listResponse.status, 200, `tools/list failed HTTP ${listResponse.status}: ${listResponse.text.slice(0, 500)}`);
 const listed = parseMcpResponse(listResponse.text, 'tools/list response');
 const tools = listed.result?.tools || [];
+const canonicalTools = stable([...tools].sort((a, b) => a.name.localeCompare(b.name)));
+assert.deepEqual(canonicalTools, PUBLIC_MANIFEST.entries.map((entry) => entry.tool), 'production tools/list disagrees with the generated public manifest');
+assert.equal(canonicalHash(canonicalTools), PUBLIC_MANIFEST.canonicalToolsSha256);
+assert.equal(tools.length, PUBLIC_MANIFEST.toolCount);
 const renderTools = tools.filter((tool) => tool.name === 'render_blender_glb');
 assert.equal(renderTools.length, 1, 'production tools/list must expose exactly one render_blender_glb tool');
 const tool = renderTools[0];
@@ -176,6 +200,9 @@ const evidence = {
   health,
   readiness,
   registryVersion: capabilities.registryVersion,
+  releaseIdentity: capabilities.releaseIdentity,
+  publicManifestSha256: PUBLIC_MANIFEST.manifestSha256,
+  canonicalToolsSha256: canonicalHash(canonicalTools),
   connectorSchemaRevision: capabilities.connectorSchemaRevision,
   capabilitiesByteCount: Buffer.byteLength(JSON.stringify(capabilities)),
   toolCount: tools.length,

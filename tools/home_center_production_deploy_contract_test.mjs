@@ -26,5 +26,7 @@ assert.match(workflow, /Enforce immutable main release source/);
 assert.doesNotMatch(workflow, /^  push:/m);
 assert.doesNotMatch(workflow, /gcloud services enable/, 'deploy identity must not require Service Usage Admin');
 assert.match(workflow, /deploy_functions_termux\.sh "\$PROJECT" homeCenterMcp/);
+for (const name of ['HOME_CENTER_SOURCE_REPOSITORY', 'HOME_CENTER_SOURCE_COMMIT', 'HOME_CENTER_SOURCE_REF', 'HOME_CENTER_PUBLIC_MANIFEST_SHA256']) assert.match(script, new RegExp(name));
+assert.match(script, /contracts\/home-center-public-tool-manifest\.v1\.json/);
 assert.doesNotMatch(workflow, /deploy_command_center_cloud_worker|sheRawMcp|firebase deploy --only firestore/);
 console.log('Home Center production deploy contract: OK');

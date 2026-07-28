@@ -4,7 +4,7 @@
 
 Fortress Model Foundry is a dynamically discovered Home Center capability pack. It is not a top-level MCP tool, MCP server, connector, plugin, or viewer.
 
-The installed MCP boundary remains the authenticated `tools/list` captured in `contracts/home-center-top-level-mcp.v1.json`. Its canonical SHA-256 is:
+The installed MCP boundary remains the authenticated `tools/list` captured in `contracts/home-center-top-level-mcp.v1.json`. `tools/generate_home_center_public_manifest.mjs` now regenerates and checks both that immutable baseline and `contracts/home-center-public-tool-manifest.v1.json`, including descriptions, annotations, complete input schemas, file-bearing fields, and per-tool schema hashes. Its canonical SHA-256 is:
 
 `64fe900eeaaf2928c2b6114829ee758ff73cc05700373085a1ae63b6484d05f1`
 

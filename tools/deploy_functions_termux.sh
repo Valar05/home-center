@@ -6,6 +6,11 @@ PROJECT="${1:-${FIREBASE_PROJECT:-home-center-dclar}}"
 REGION="${GCLOUD_FUNCTIONS_REGION:-us-central1}"
 shift || true
 
+SOURCE_REPOSITORY="Valar05/home-center"
+SOURCE_COMMIT="$(git -C "$ROOT" rev-parse HEAD)"
+SOURCE_REF="refs/heads/main"
+PUBLIC_MANIFEST_SHA256="$(node -e "const m=require(process.argv[1]); process.stdout.write(m.manifestSha256)" "$ROOT/contracts/home-center-public-tool-manifest.v1.json")"
+
 if [ "$#" -gt 0 ]; then
   FUNCTIONS="$*"
 else
@@ -47,7 +52,7 @@ deploy_home_center_mcp() {
     --timeout=300s \
     --memory=1Gi \
     --cpu=1 \
-    --set-env-vars=HOME_CENTER_MCP_EXTENDED_TOOLS=true,HOME_CENTER_GITHUB_ADMIN_ENABLED=true,HOME_CENTER_GITHUB_ADMIN_OWNERS="${HOME_CENTER_GITHUB_ADMIN_OWNERS:-Valar05}",COMMAND_CENTER_RENDER_SERVICE_URL="${COMMAND_CENTER_RENDER_SERVICE_URL:-https://command-center-blender-render-vxybsaualq-uc.a.run.app}",COMMAND_CENTER_RENDER_BUCKET="${COMMAND_CENTER_RENDER_BUCKET:-home-center-dclar-command-center-renders}",COMMAND_CENTER_MCP_URL="${COMMAND_CENTER_MCP_URL:-https://us-central1-home-center-dclar.cloudfunctions.net/commandCenterMcp/mcp}" \
+    --set-env-vars=HOME_CENTER_MCP_EXTENDED_TOOLS=true,HOME_CENTER_SOURCE_REPOSITORY="$SOURCE_REPOSITORY",HOME_CENTER_SOURCE_COMMIT="$SOURCE_COMMIT",HOME_CENTER_SOURCE_REF="$SOURCE_REF",HOME_CENTER_PUBLIC_MANIFEST_SHA256="$PUBLIC_MANIFEST_SHA256",HOME_CENTER_GITHUB_ADMIN_ENABLED=true,HOME_CENTER_GITHUB_ADMIN_OWNERS="${HOME_CENTER_GITHUB_ADMIN_OWNERS:-Valar05}",COMMAND_CENTER_RENDER_SERVICE_URL="${COMMAND_CENTER_RENDER_SERVICE_URL:-https://command-center-blender-render-vxybsaualq-uc.a.run.app}",COMMAND_CENTER_RENDER_BUCKET="${COMMAND_CENTER_RENDER_BUCKET:-home-center-dclar-command-center-renders}",COMMAND_CENTER_MCP_URL="${COMMAND_CENTER_MCP_URL:-https://us-central1-home-center-dclar.cloudfunctions.net/commandCenterMcp/mcp}" \
     --set-secrets="$(home_center_mcp_secrets_arg)"
 }
 

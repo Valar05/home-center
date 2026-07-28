@@ -5724,12 +5724,25 @@ function configuredValue(getter) {
   }
 }
 
+function homeCenterReleaseIdentity() {
+  return {
+    sourceRepository: safeText(process.env.HOME_CENTER_SOURCE_REPOSITORY, 240) || 'unknown',
+    sourceCommit: safeText(process.env.HOME_CENTER_SOURCE_COMMIT, 80) || 'unknown',
+    sourceRef: safeText(process.env.HOME_CENTER_SOURCE_REF, 240) || 'unknown',
+    registrySchemaRevision: HOME_CENTER_CONNECTOR_SCHEMA_REVISION,
+    publicManifestSha256: safeText(process.env.HOME_CENTER_PUBLIC_MANIFEST_SHA256, 64) || 'unknown',
+    deployedServiceRevision: safeText(process.env.K_REVISION, 160) || 'unknown',
+  };
+}
+
 function homeCenterHealthPayload() {
   return {ok: true, service: 'home-center-drive-bridge', version: HOME_CENTER_MCP_SERVER_VERSION};
 }
 
 function homeCenterReadinessPayload({admin, googleClientId, googleClientSecret}) {
+  const releaseIdentity = homeCenterReleaseIdentity();
   const checks = [
+    {name: 'main_release_identity', required: true, ok: releaseIdentity.sourceRepository === 'Valar05/home-center' && releaseIdentity.sourceRef === 'refs/heads/main' && /^[a-f0-9]{40}$/.test(releaseIdentity.sourceCommit) && /^[a-f0-9]{64}$/.test(releaseIdentity.publicManifestSha256)},
     {name: 'firebase_admin', required: true, ok: !!(admin && typeof admin.firestore === 'function')},
     {name: 'google_oauth_client_id', required: true, ok: configuredValue(googleClientId)},
     {name: 'google_oauth_client_secret', required: true, ok: configuredValue(googleClientSecret)},
@@ -5742,6 +5755,7 @@ function homeCenterReadinessPayload({admin, googleClientId, googleClientSecret})
     status: ready ? 'ready' : 'not_ready',
     service: 'home-center-drive-bridge',
     version: HOME_CENTER_MCP_SERVER_VERSION,
+    releaseIdentity,
     checks,
   };
 }
@@ -5770,6 +5784,7 @@ function homeCenterCapabilitiesPayload(server) {
     version: HOME_CENTER_MCP_SERVER_VERSION,
     registryVersion: HOME_CENTER_REGISTRY_VERSION,
     connectorSchemaRevision: HOME_CENTER_CONNECTOR_SCHEMA_REVISION,
+    releaseIdentity: homeCenterReleaseIdentity(),
     summaryKind: 'names_only',
     topLevelTools: registeredToolNames(server),
     operationSurfaces: {
@@ -7418,4 +7433,4 @@ function createHomeCenterMcpApp({google, admin, googleClientId = () => '', googl
   return app;
 }
 
-module.exports = {artifactTransportPreflightOperation, artifactTransportStatusOperation, homeCenterHealthPayload, homeCenterReadinessPayload, homeCenterCapabilitiesPayload, operationRegistrySummary, CREDIT_GATED_EMAILS, requireCreditGatedEmail, GITHUB_ADMIN_ALLOWED_EMAILS, requireGitHubAdminUser, HOME_CENTER_MCP_SERVER_VERSION, HOME_CENTER_CONNECTOR_SCHEMA_REVISION, HOME_CENTER_REGISTRY_VERSION, HOME_CENTER_DIRECT_FILE_TOOLS, verifiedRenderGifMcpContent, attachRenderGifMcpContent, renderArtifactHashEntry, renderReviewArtifactCandidates, renderReviewArtifactKey, publishRenderReviewArtifactToDrive, materializeRenderReviewArtifactsOperation, driveOperationRegistry, uploadVerifiedArtifact, createHomeCenterMcpApp, createHomeCenterMcpServer, createDriveFolderOperation, createGoogleDocOperation, appendGoogleDocOperation, publishContextSnapshotOperation, synthesizeCartesiaAudioArtifactOperation, cartesiaVoicesOperation, createSheetOperation, updateSheetValuesOperation, importXlsxWorkbookOperation, readDriveBinaryChunkOperation, compareAudioIngestFileIds, ingestDriveAudioOperation, finalizeDriveAudioIngestBatchOperation, driveOperationRunOperation, driveWorkflowRunOperation, simulationOperationRunOperation, simulationOperationRegistry, droobiedooContextOperationEntries, loadDroobiedooContextIndex, searchDroobiedooContextIndex, runDroobiedooContextOperation, normalizeRecoveryOperation, summarizeRecoveryOperations, loadMcpAccessContext, armoryReceiptOperation, armoryRecountOperation, armoryCasingOperation, renderAudioOperation, inspectAudioArtifactsOperation, materializeHomeCenterRenderDriveRefs, materializeHomeCenterRenderSources, stageHomeCenterGitHubRenderInput, normalizeRenderGitHubSource, githubAdminOperationEntries, githubAdminOperationRunOperation, createGitHubAppJwt};
+module.exports = {artifactTransportPreflightOperation, homeCenterReleaseIdentity, artifactTransportStatusOperation, homeCenterHealthPayload, homeCenterReadinessPayload, homeCenterCapabilitiesPayload, operationRegistrySummary, CREDIT_GATED_EMAILS, requireCreditGatedEmail, GITHUB_ADMIN_ALLOWED_EMAILS, requireGitHubAdminUser, HOME_CENTER_MCP_SERVER_VERSION, HOME_CENTER_CONNECTOR_SCHEMA_REVISION, HOME_CENTER_REGISTRY_VERSION, HOME_CENTER_DIRECT_FILE_TOOLS, verifiedRenderGifMcpContent, attachRenderGifMcpContent, renderArtifactHashEntry, renderReviewArtifactCandidates, renderReviewArtifactKey, publishRenderReviewArtifactToDrive, materializeRenderReviewArtifactsOperation, driveOperationRegistry, uploadVerifiedArtifact, createHomeCenterMcpApp, createHomeCenterMcpServer, createDriveFolderOperation, createGoogleDocOperation, appendGoogleDocOperation, publishContextSnapshotOperation, synthesizeCartesiaAudioArtifactOperation, cartesiaVoicesOperation, createSheetOperation, updateSheetValuesOperation, importXlsxWorkbookOperation, readDriveBinaryChunkOperation, compareAudioIngestFileIds, ingestDriveAudioOperation, finalizeDriveAudioIngestBatchOperation, driveOperationRunOperation, driveWorkflowRunOperation, simulationOperationRunOperation, simulationOperationRegistry, droobiedooContextOperationEntries, loadDroobiedooContextIndex, searchDroobiedooContextIndex, runDroobiedooContextOperation, normalizeRecoveryOperation, summarizeRecoveryOperations, loadMcpAccessContext, armoryReceiptOperation, armoryRecountOperation, armoryCasingOperation, renderAudioOperation, inspectAudioArtifactsOperation, materializeHomeCenterRenderDriveRefs, materializeHomeCenterRenderSources, stageHomeCenterGitHubRenderInput, normalizeRenderGitHubSource, githubAdminOperationEntries, githubAdminOperationRunOperation, createGitHubAppJwt};
