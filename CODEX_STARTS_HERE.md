@@ -39,3 +39,5 @@ The prior Cloud Blender execution lane and Command Center Codex worker discovery
 `sh tools/home_center_ci_validate.sh`
 
 Mechanical completion is not human acceptance. A completed Foundry job must publish immutable fixed-view evidence and a shared-viewer URL as `review_ready/unreviewed`. Promotion requires a separate accepted review record bound to the exact receipt and result hash.
+
+Every vertex must serve a visible or mechanical purpose. Foundry topology calls require purpose coverage plus operation, component, asset, and commissioned-scene ceilings. Global crash limits are not production budgets. Promotion requires separate `topologyValid`, `budgetValid`, and human-reviewed `purposeValid` evidence, including a remove-or-merge challenge.
