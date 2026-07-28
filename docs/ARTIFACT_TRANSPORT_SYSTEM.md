@@ -4,6 +4,8 @@ Home Center uses content-addressed identity independently from transport locatio
 
 Substantial binary data must not cross chat, JSON/Base64, logs, stdout, or a PTY. Prefer existing durable references or server-side copy. Upload immutable bytes once, reuse by digest, verify length and SHA-256 before readiness, and stage independent files with bounded concurrency and deterministic manifest ordering.
 
+The controlled four-file staging benchmark (`node tools/artifact_transport_performance_test.mjs`) measured 325 ms serialized versus 91 ms with bounded concurrency 4 on four independent 80 ms stages, a 3.57x wall-clock speedup. This is a transport-scheduler benchmark, not a claim about provider or render execution time.
+
 Long operations separate reference resolution, queueing, staging, acceptance, execution, publication, and human review. Exact idempotency binds logical inputs and artifact digests. Changed inputs under the same key fail. Ambiguous external mutation uses `needs_reconciliation`; rejected creative output uses `rejected` or `revision_requested` and links a changed successor.
 
 ## Active Paths
