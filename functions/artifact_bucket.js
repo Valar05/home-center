@@ -1,5 +1,6 @@
 const {createHash} = require('node:crypto');
-const {Readable} = require('node:stream');
+const {Readable, Transform} = require('node:stream');
+const {pipeline} = require('node:stream/promises');
 
 const DEFAULT_GENERATED_BUCKET = 'home-center-generated';
 const GENERATED_ARTIFACT_BUCKET = process.env.HOME_CENTER_GENERATED_BUCKET || process.env.COMMAND_CENTER_GENERATED_BUCKET || DEFAULT_GENERATED_BUCKET;
@@ -63,7 +64,7 @@ function artifactPrefix({owner = 'drew', stage = 'temp', artifactType = '', mime
   return 'temp';
 }
 
-function artifactMetadata({owner = 'drew', ownerEmail = '', sharedWith = '', project = 'home-center', stage = 'temp', engine = 'home-center', createdBy = 'home-center', jobId = '', commit = '', timestamp = '', approved = false, requestId = '', sha256 = '', byteCount = 0, artifactType = '', mimeType = ''} = {}) {
+function artifactMetadata({owner = 'drew', ownerEmail = '', sharedWith = '', project = 'home-center', stage = 'temp', engine = 'home-center', createdBy = 'home-center', jobId = '', commit = '', timestamp = '', approved = false, executionAuthorized = false, authorizationState = '', humanAcceptance = 'unreviewed', requestId = '', sha256 = '', byteCount = 0, artifactType = '', mimeType = ''} = {}) {
   return {
     owner: metadataValue(owner, 120) || 'drew',
     ownerEmail: metadataValue(ownerEmail, 320),
@@ -76,6 +77,9 @@ function artifactMetadata({owner = 'drew', ownerEmail = '', sharedWith = '', pro
     commit: metadataValue(commit, 80),
     timestamp: metadataValue(timestamp || new Date().toISOString(), 80),
     approved: boolMetadata(approved),
+    executionAuthorized: boolMetadata(executionAuthorized),
+    authorizationState: metadataValue(authorizationState, 80),
+    humanAcceptance: metadataValue(humanAcceptance, 80) || 'unreviewed',
     requestId: metadataValue(requestId, 180),
     sha256: metadataValue(sha256, 80),
     byteCount: String(Number(byteCount) || 0),
@@ -111,14 +115,107 @@ async function readObject(ref) {
   return {bytes, bucket: parsed.bucket, object: parsed.object, contentType: meta.contentType || '', metadata: meta.metadata || {}};
 }
 
-async function uploadGeneratedArtifact({bucket = GENERATED_ARTIFACT_BUCKET, bytes, name, mimeType = 'application/octet-stream', owner = 'drew', ownerEmail = '', sharedWith = '', project = 'home-center', stage = 'temp', engine = 'home-center', createdBy = 'home-center', jobId = '', commit = '', approved = false, requestId = '', artifactType = 'artifact', prefix = ''} = {}) {
+
+async function verifyGeneratedArtifact(ref, expected = {}) {
+  const parsed = parseGsRef(ref);
+  if (!parsed) throw new Error('Invalid generated artifact ref: ' + ref);
+  const expectedSha256 = safeText(expected.sha256, 80).toLowerCase();
+  const expectedByteCount = Number(expected.byteCount);
+  if (TEST_FAKE) {
+    const stored = fakeObjects.get('gs://' + parsed.bucket + '/' + parsed.object);
+    if (!stored) throw new Error('Generated artifact not found: ' + ref);
+    const byteCount = stored.bytes.length;
+    const sha256 = sha256Hex(stored.bytes);
+    if (Number.isFinite(expectedByteCount) && expectedByteCount >= 0 && byteCount !== expectedByteCount) throw new Error('Generated artifact byte count mismatch: ' + ref);
+    if (expectedSha256 && sha256 !== expectedSha256) throw new Error('Generated artifact sha256 mismatch: ' + ref);
+    return {ref, bucket: parsed.bucket, object: parsed.object, byteCount, sha256, contentType: stored.contentType || '', metadata: {...stored.metadata}, generation: 'test-generation'};
+  }
+  const file = storage().bucket(parsed.bucket).file(parsed.object);
+  const [providerMetadata] = await file.getMetadata();
+  const byteCount = Number(providerMetadata.size || 0);
+  if (Number.isFinite(expectedByteCount) && expectedByteCount >= 0 && byteCount !== expectedByteCount) throw new Error('Generated artifact byte count mismatch: ' + ref);
+  const digest = createHash('sha256');
+  let streamedBytes = 0;
+  await pipeline(file.createReadStream(), new Transform({
+    transform(chunk, _encoding, callback) {
+      streamedBytes += chunk.length;
+      digest.update(chunk);
+      callback();
+    },
+  }));
+  const sha256 = digest.digest('hex');
+  if (streamedBytes !== byteCount) throw new Error('Generated artifact stream length mismatch: ' + ref);
+  if (expectedSha256 && sha256 !== expectedSha256) throw new Error('Generated artifact sha256 mismatch: ' + ref);
+  return {ref, bucket: parsed.bucket, object: parsed.object, byteCount, sha256, contentType: providerMetadata.contentType || '', metadata: providerMetadata.metadata || {}, generation: safeText(providerMetadata.generation, 80), metageneration: safeText(providerMetadata.metageneration, 80)};
+}
+
+async function replaceGeneratedArtifactMetadata(ref, metadata = {}) {
+  const parsed = parseGsRef(ref);
+  if (!parsed) throw new Error('Invalid generated artifact ref: ' + ref);
+  const cleanMetadata = Object.fromEntries(Object.entries(metadata || {}).map(([key, value]) => [key, metadataValue(value, 4000)]));
+  if (TEST_FAKE) {
+    const key = 'gs://' + parsed.bucket + '/' + parsed.object;
+    const stored = fakeObjects.get(key);
+    if (!stored) throw new Error('Generated artifact not found: ' + ref);
+    stored.metadata = cleanMetadata;
+    fakeObjects.set(key, stored);
+    return {ref, generation: 'test-generation', metadata: {...cleanMetadata}};
+  }
+  const file = storage().bucket(parsed.bucket).file(parsed.object);
+  const [before] = await file.getMetadata();
+  const [after] = await file.setMetadata({metadata: cleanMetadata}, {preconditionOpts: {ifMetagenerationMatch: Number(before.metageneration || 0)}});
+  if (safeText(after.generation, 80) !== safeText(before.generation, 80)) throw new Error('Generated artifact bytes changed while updating metadata: ' + ref);
+  return {ref, generation: safeText(after.generation, 80), metageneration: safeText(after.metageneration, 80), metadata: after.metadata || cleanMetadata};
+}
+
+async function readGeneratedJsonObject(objectName, bucket = GENERATED_ARTIFACT_BUCKET) {
+  const cleanObject = safeText(objectName, 1200).replace(/^\/+/, '');
+  if (!cleanObject) throw new Error('Generated JSON object name is required.');
+  if (TEST_FAKE) {
+    const stored = fakeObjects.get('gs://' + bucket + '/' + cleanObject);
+    if (!stored) return null;
+    return {value: JSON.parse(stored.bytes.toString('utf8')), bytes: Buffer.from(stored.bytes), contentType: stored.contentType || '', metadata: {...stored.metadata}};
+  }
+  const file = storage().bucket(bucket).file(cleanObject);
+  const [exists] = await file.exists();
+  if (!exists) return null;
+  const [bytes] = await file.download();
+  const [providerMetadata] = await file.getMetadata();
+  return {value: JSON.parse(bytes.toString('utf8')), bytes, contentType: providerMetadata.contentType || '', metadata: providerMetadata.metadata || {}, generation: safeText(providerMetadata.generation, 80)};
+}
+
+async function writeGeneratedJsonObject(objectName, value, {bucket = GENERATED_ARTIFACT_BUCKET, metadata = {}, ifAbsent = true} = {}) {
+  const cleanObject = safeText(objectName, 1200).replace(/^\/+/, '');
+  if (!cleanObject) throw new Error('Generated JSON object name is required.');
+  const bytes = Buffer.from(JSON.stringify(value, null, 2), 'utf8');
+  const cleanMetadata = Object.fromEntries(Object.entries(metadata || {}).map(([key, item]) => [key, metadataValue(item, 4000)]));
+  if (TEST_FAKE) {
+    const key = 'gs://' + bucket + '/' + cleanObject;
+    if (ifAbsent && fakeObjects.has(key)) {
+      const existing = fakeObjects.get(key);
+      return {object: cleanObject, storageRef: key, byteCount: existing.bytes.length, sha256: sha256Hex(existing.bytes), reused: true};
+    }
+    fakeObjects.set(key, {bytes, contentType: 'application/json', metadata: cleanMetadata});
+    return {object: cleanObject, storageRef: key, byteCount: bytes.length, sha256: sha256Hex(bytes), reused: false};
+  }
+  const file = storage().bucket(bucket).file(cleanObject);
+  try {
+    await file.save(bytes, {resumable: false, validation: 'crc32c', ...(ifAbsent ? {preconditionOpts: {ifGenerationMatch: 0}} : {}), metadata: {contentType: 'application/json', metadata: cleanMetadata}});
+    return {object: cleanObject, storageRef: 'gs://' + bucket + '/' + cleanObject, byteCount: bytes.length, sha256: sha256Hex(bytes), reused: false};
+  } catch (err) {
+    if (!ifAbsent || Number(err && err.code) !== 412) throw err;
+    const existing = await readGeneratedJsonObject(cleanObject, bucket);
+    return {object: cleanObject, storageRef: 'gs://' + bucket + '/' + cleanObject, byteCount: existing.bytes.length, sha256: sha256Hex(existing.bytes), reused: true};
+  }
+}
+async function uploadGeneratedArtifact({bucket = GENERATED_ARTIFACT_BUCKET, bytes, name, mimeType = 'application/octet-stream', owner = 'drew', ownerEmail = '', sharedWith = '', project = 'home-center', stage = 'temp', engine = 'home-center', createdBy = 'home-center', jobId = '', commit = '', approved = false, executionAuthorized = false, authorizationState = '', humanAcceptance = 'unreviewed', requestId = '', artifactType = 'artifact', prefix = ''} = {}) {
   if (!Buffer.isBuffer(bytes)) bytes = Buffer.from(bytes || '');
   const sha256 = sha256Hex(bytes);
   const byteCount = bytes.length;
   const cleanName = safeSegment(name, 'artifact.bin');
   const basePrefix = prefix ? safeText(prefix, 500).replace(/^\/+|\/+$/g, '') : artifactPrefix({owner, stage, artifactType, mimeType, name});
   const object = `${basePrefix}/${timestampId()}-${requestId ? safeSegment(requestId, 'request') + '-' : ''}${sha256.slice(0, 16)}-${cleanName}`;
-  const metadata = artifactMetadata({owner, ownerEmail, sharedWith, project, stage, engine, createdBy, jobId, commit, timestamp: new Date().toISOString(), approved, requestId, sha256, byteCount, artifactType, mimeType});
+  const metadata = artifactMetadata({owner, ownerEmail, sharedWith, project, stage, engine, createdBy, jobId, commit, timestamp: new Date().toISOString(), approved, executionAuthorized, authorizationState, humanAcceptance, requestId, sha256, byteCount, artifactType, mimeType});
   await saveObject({bucket, object, bytes, contentType: mimeType, metadata});
   const ref = `gs://${bucket}/${object}`;
   const readback = await readObject(ref);
@@ -163,4 +260,4 @@ async function inspectGeneratedArtifact(ref) {
   return {durableRef: ref, bucket: item.bucket, object: item.object, name: item.object.split('/').pop() || '', mimeType: item.contentType || item.metadata.mimeType || '', byteCount: item.bytes.length, sha256: sha256Hex(item.bytes), metadata: item.metadata || {}, bytes: item.bytes};
 }
 
-module.exports = {DEFAULT_GENERATED_BUCKET, GENERATED_ARTIFACT_BUCKET, artifactPrefix, artifactMetadata, parseGsRef, uploadGeneratedArtifact, publishGeneratedArtifactToDrive, inspectGeneratedArtifact, sha256Hex};
+module.exports = {DEFAULT_GENERATED_BUCKET, GENERATED_ARTIFACT_BUCKET, artifactPrefix, artifactMetadata, parseGsRef, uploadGeneratedArtifact, publishGeneratedArtifactToDrive, inspectGeneratedArtifact, verifyGeneratedArtifact, replaceGeneratedArtifactMetadata, readGeneratedJsonObject, writeGeneratedJsonObject, sha256Hex};

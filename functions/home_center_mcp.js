@@ -21,6 +21,7 @@ const {
 const {boundedMap, rendererSettingsJsonSchema, preflightArtifactEnvelope} = require('./artifact_transport');
 const cartesiaPitchShift = require('./cartesia_pitch_shift');
 const {renderAudioOperation, audioRenderStatusOperation, inspectAudioArtifactsOperation, uploadVerified: uploadVerifiedArtifact} = require('./audio_render_service');
+const {recoverAudioRenderRegistrationOperation} = require('./audio_catalog_service');
 const {
   analyzeSourceOperation,
   transcribeSlateOperation,
@@ -737,7 +738,7 @@ function renderReceiptWithoutInlinePayload(operationResult = {}, delivery = null
   return clean;
 }
 
-async function verifiedRenderGifMcpContent(result = {}, {storage = null, google = null, auth = null, parentFolderId = ''} = {}) {
+async function verifiedRenderGifMcpContent(result = {}, {storage = null, google = null, auth = null, user = null, parentFolderId = '', publishArtifact = null} = {}) {
   const envelope = safeObject(result);
   const nestedResult = safeObject(envelope.result);
   const renderResult = Object.keys(nestedResult).length ? nestedResult : envelope;
@@ -771,9 +772,10 @@ async function verifiedRenderGifMcpContent(result = {}, {storage = null, google 
     return {contentBlock: null, delivery: {...deliveryBase, byteCount: buffer.length, sha256: readbackSha256, errorCode: 'render_gif_resource_link_readback_mismatch', message: 'Private GCS GIF readback did not match renderer hash metadata.'}};
   }
   if (!google || !auth) return {contentBlock: null, delivery: {...deliveryBase, ok: false, byteCount: buffer.length, sha256: readbackSha256, errorCode: 'render_gif_resource_link_auth_missing', message: 'Verified GIF readback succeeded, but authenticated Drive context was unavailable for resource_link creation.'}};
-  const uploaded = await uploadVerifiedArtifact({google, auth, parentFolderId, item: {name: 'walk-loop.gif', format: 'gif', mimeType: 'image/gif', bytes: buffer, byteCount: buffer.length, sha256: readbackSha256, clipMetrics: {}}});
-  const contentBlock = uploaded.chatGptFileRef;
-  return {contentBlock, delivery: {...deliveryBase, ok: true, durableRef: uploaded.driveDurableRef || uploaded.chatGptFileRef && uploaded.chatGptFileRef.uri || uploaded.durableRef, byteCount: uploaded.byteCount, sha256: uploaded.sha256, readbackByteCount: uploaded.readbackByteCount, readbackSha256: uploaded.readbackSha256, fileId: uploaded.fileId || '', contentBlockType: contentBlock.type, message: 'Private GCS GIF readback verified and attached as authenticated resource_link.'}};
+  const publish = publishArtifact || publishRenderReviewArtifactToDrive;
+  const uploaded = await publish({google, auth, user: user || {}, parentFolderId, renderId: safeText(renderResult.renderId, 180) || safeText(envelope.renderId, 180) || 'render', candidate: {kind: 'looping_gif', artifactRef: loopingGifRef, expectedSha256, expectedByteCount, name: 'walk-loop.gif', mimeType: 'image/gif'}, bytes: buffer});
+  const contentBlock = uploaded.resourceLink;
+  return {contentBlock, delivery: {...deliveryBase, ok: true, durableRef: uploaded.durableRef, byteCount: uploaded.byteCount, sha256: uploaded.sha256, readbackByteCount: uploaded.readbackByteCount, readbackSha256: uploaded.readbackSha256, fileId: uploaded.fileId || '', reused: uploaded.reused === true, contentBlockType: contentBlock.type, message: 'Private GCS GIF readback verified and attached as authenticated resource_link.'}};
 }
 
 async function attachRenderGifMcpContent(operationResult = {}, options = {}) {
@@ -1569,7 +1571,7 @@ async function commandCenterOperationRunOperation({google = null, admin = null, 
     const materializedArgs = await materializeHomeCenterRenderSources({google, admin, googleClientId, googleClientSecret, extra, githubToken, args: operationArgs});
     const invoke = operation === 'render.blender_build' ? commandCenterRenderBlenderBuild : commandCenterRenderBlenderGlb;
     const rendered = {operation, toolName, commandCenterMcpUrl: COMMAND_CENTER_MCP_URL, result: await invoke(admin, extra, materializedArgs)};
-    return attachRenderGifMcpContent(rendered, {google, auth: context.auth, parentFolderId: safeText(operationArgs.parentFolderId, 220)});
+    return attachRenderGifMcpContent(rendered, {google, auth: context.auth, user: context.user, parentFolderId: safeText(operationArgs.parentFolderId, 220)});
   }
 
   const bearerToken = bearerTokenFromExtra(extra);
@@ -4738,17 +4740,25 @@ function driveOperationRegistry() {
         output: {provider: 'cartesia', catalog: 'provider_live', filters: 'object', supportedFilters: 'object', pagination: 'object', voices: 'array with id/name/language/locale/gender/accent/country/metadata'},
       },
       'audio.render': {
-        summary: 'Render deterministic procedural, source-backed, or direct Cartesia speech audio inside Home Center MCP through a declarative JSON recipe. Speech nodes resolve character profiles such as Isaac/Clyde, forward structured Cartesia emotion/speed/volume generation_config, apply tempo-preserving pitch, and return verified Drive artifacts plus a structured inline-playable MCP audio block. It never creates a Command Center job, Codex execution, LLM prompt, worker lease, GitHub Actions renderer, or Termux runtime process.',
+        summary: 'Render deterministic procedural, source-backed, or direct Cartesia speech audio inside Home Center MCP through a declarative JSON recipe. Completion requires verified GCS bytes, server-derived owner registration, authenticated Audio Reader discovery, and a bounded playback probe; human acceptance remains unreviewed. It never creates a Command Center job, Codex execution, LLM prompt, GitHub Actions renderer, or Termux runtime process.',
         write: true,
         requiresRequestId: true,
-        requiredScopes: ['https://www.googleapis.com/auth/drive'],
+        requiredScopes: [],
         input: {scriptText: 'required JSON audio recipe DSL; no imports, network, shell, process, filesystem, or arbitrary code execution; supports speech, audition, speech_sequence, and block_mix nodes with text, speaker, character or voiceName/voiceId, modelId, emotion, speed, volume, pitchSemitones, pauseMs, master, and bounded concurrency', sources: 'optional object binding friendly names to inline contentBase64 or drive:// refs; WAV sources decode to clips', settings: 'optional deterministic renderer settings including seed, sampleRate, timeoutMs, allowClipping, speechDefaults, speechConcurrency', returnInlineAudio: 'optional boolean; defaults true for small audio, set false for long-form responses so durable resource links remain authoritative', idempotencyKey: 'string alias for requestId', requestId: 'string', parentFolderId: 'optional Drive folder id', callerNote: 'optional string'},
-        output: {ok: 'true', status: 'completed', renderer: 'home-center-deterministic-audio-v1', primaryOutput: 'inline playable audio plus durable Drive ref', speech: 'Cartesia speech provenance with resolved character profile, exact segment speaker ownership, emotion, speed, volume, pitch, duration ratio, sequence metadata, and take metadata', outputs: 'array with name, MIME, duration, sampleRate, channels, codec, bytes, SHA-256, readback hash, peak, LUFS, clipping, durable ref, ChatGPT file ref', manifest: 'verified JSON manifest artifact', noAgentRuntime: 'true'},
+        output: {ok: 'true only after canonical Reader registration', status: 'completed|registration_required', renderer: 'home-center-deterministic-audio-v1', primaryOutput: 'verified canonical GCS audio identity', readerRegistration: 'owner-scoped catalog, discovery, playback probe, and byte-preservation evidence', humanAcceptance: 'unreviewed until a separate human verdict', speech: 'bounded Cartesia provenance when speech nodes exist', outputs: 'verified artifact identities', manifest: 'verified JSON manifest artifact', noAgentRuntime: 'true'},
         agentRecipe: {
           whenUserSays: 'Render procedural sound effects, ambience, foley, layered audio beds, stems, waveform, or spectrogram directly from ChatGPT.',
           prefer: 'Call drive_operation with operation=audio.render. Keep scriptText as the Home Center JSON audio DSL; use speech/audition/speech_sequence recipe nodes for direct Cartesia speech, separate emotional contexts, and long-form attributed dialogue. Do not use Command Center, Codex, workers, GitHub Actions, or a newly exposed top-level MCP tool.',
-          verification: 'Treat ok=true/status=completed, verified output/readback hashes, non-silent metrics, and the returned text receipt plus resource_link as authoritative. Inline audio is optional and size-bounded.',
+          verification: 'Treat success as authoritative only when ok=true/status=completed and readerRegistration proves unchanged bytes, owner-scoped discovery, and playback. Mechanical completion never means human approval.',
         },
+      },
+      'audio.render_register': {
+        summary: 'Recover authenticated Audio Reader registration for the primary playable output of an owner-scoped terminal audio.render receipt. This operation never rerenders, calls Cartesia, copies to Drive, exposes the object publicly, or changes human acceptance.',
+        write: true,
+        requiresRequestId: true,
+        requiredScopes: [],
+        input: {requestId: 'required owner-scoped terminal audio.render receipt id; arbitrary GCS paths and URLs are forbidden'},
+        output: {status: 'completed', execution: 'registration_only', registration: 'byte-preserving owner-scoped catalog, discovery, and playback evidence', humanAcceptance: 'unreviewed', idempotent: 'true on exact replay'},
       },
       'audio.render_artifacts': {
         summary: 'Read back audio.render durable artifact refs through Home Center MCP Google OAuth, verify byte count/SHA-256 against expected receipt metadata, and return redacted container/header evidence. This is the direct verifier for ChatGPT-side acceptance and does not expose Drive OAuth tokens or signed URLs.',
@@ -5511,13 +5521,18 @@ async function driveOperationRunOperation({google, admin, auth, user, extra = nu
     delete cleanResult._mcpContent;
     return {operation, registryVersion: registry.version, completed: cleanResult.status === 'completed', result: cleanResult, _mcpContent: mcpContent};
   }
+  if (operation === 'audio.render_register') {
+    requireCreditGatedEmail(user && user.email, 'audio.render_register');
+    const result = await recoverAudioRenderRegistrationOperation({admin, user, args: operationArgs});
+    return {operation, registryVersion: registry.version, completed: result.status === 'completed', result};
+  }
   if (operation === 'audio.render_artifacts') {
     const result = await inspectAudioArtifactsOperation({google, auth, args: operationArgs});
     return {operation, registryVersion: registry.version, completed: true, result};
   }
   if (operation === 'audio.render_status') {
     const requestId = createRequestId(operationArgs.requestId || operationArgs.idempotencyKey);
-    const result = await audioRenderStatusOperation({admin, requestId, helpers: {existingAudit, auditWrite}});
+    const result = await audioRenderStatusOperation({admin, user, requestId, helpers: {existingAudit, auditWrite}});
     return {operation, registryVersion: registry.version, completed: true, result};
   }
   if (operation === 'sfx.analyze_source') {
@@ -6039,7 +6054,7 @@ function createHomeCenterMcpServer({google, admin, googleClientId, googleClientS
     securitySchemes: MCP_OAUTH_SECURITY_SCHEMES,
     _meta: {securitySchemes: MCP_OAUTH_SECURITY_SCHEMES},
     annotations: {readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false},
-  }, async (args, extra) => mcpToolResult(await (async () => { const context = await requireCreditGatedContext({google, admin, googleClientId, googleClientSecret, extra, surface: 'render_blender_glb'}); return attachRenderGifMcpContent({operation: 'render.blender_glb', toolName: 'render_blender_glb', commandCenterMcpUrl: COMMAND_CENTER_MCP_URL, result: await renderBlenderGlbBridge({admin, extra, args: args || {}})}, {google, auth: context.auth, parentFolderId: safeText(args && args.parentFolderId, 220)}); })()));
+  }, async (args, extra) => mcpToolResult(await (async () => { const context = await requireCreditGatedContext({google, admin, googleClientId, googleClientSecret, extra, surface: 'render_blender_glb'}); return attachRenderGifMcpContent({operation: 'render.blender_glb', toolName: 'render_blender_glb', commandCenterMcpUrl: COMMAND_CENTER_MCP_URL, result: await renderBlenderGlbBridge({admin, extra, args: args || {}})}, {google, auth: context.auth, user: context.user, parentFolderId: safeText(args && args.parentFolderId, 220)}); })()));
 
   server.registerTool('cartesia_voices', {
     title: 'Cartesia voices',

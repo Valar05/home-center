@@ -74,7 +74,7 @@ assert(commandCenter.includes('validateScriptBytes'));
 assert(homeCenter.includes("topLevelFileTool: 'render_blender_glb'"));
 assert(homeCenter.includes('nested command_center_operation args cannot activate host file upload slots'));
 assert(renderService.includes('decodeUploadObject'));
-assert(renderService.includes('Network and process escape are disabled inside Command Center Blender render scripts'));
+assert(renderService.includes('Network and process escape are disabled inside Command Center Blender scripts'));
 assert(renderService.includes("--python-exit-code', '88"));
 assert(renderService.includes("_np.bool = bool"));
 assert(renderService.includes("LIBGL_ALWAYS_SOFTWARE: '1'"));

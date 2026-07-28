@@ -673,6 +673,8 @@ function testMcpToolSurface() {
     'workbook_import_xlsx',
     'docs_append',
     'simulation_operation',
+    'storage_ingest_artifact',
+    'drive_ingest_file',
     'render_blender_glb',
     'cartesia_voices',
     'cartesia_synthesize',

@@ -1,5 +1,16 @@
 # CODEX STARTS HERE
 
+## 2026-07-27 Release Consolidation
+
+The active release rule is stricter than older deployment notes below: Home
+Center MCP may publish only from a clean HEAD exactly equal to `origin/main`.
+Feature-branch deployment is forbidden. Current unmerged work repairs Vacation
+Day 1 Parts 6 and 7 through receipt-only Audio Reader registration and makes
+future `audio.render` completion depend on owner-scoped Reader discovery and
+playback. Read `docs/evidence/vacation-audio-reader-repair-2026-07-27.md` for
+the immutable hashes, tests, pre-deploy revisions, and live-proof gate. Older
+revision notes remain archaeology, not current deployment authority.
+
 ## Current State
 
 Systemic artifact transport is implemented and live-verified on

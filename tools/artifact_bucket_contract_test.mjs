@@ -11,7 +11,7 @@ const artifactBucket = require('../functions/artifact_bucket.js');
 const doc = fs.readFileSync(new URL('../docs/ARTIFACT_BUCKET_ARCHITECTURE.md', import.meta.url), 'utf8');
 assert(doc.includes('gs://home-center-generated'), 'architecture doc must name canonical generated bucket');
 assert(doc.includes('Drive is a publishing destination, not a render cache'), 'architecture doc must keep Drive out of render-cache authority');
-for (const key of ['owner', 'project', 'stage', 'engine', 'createdBy', 'jobId', 'commit', 'timestamp', 'approved']) assert(doc.includes('"' + key + '"'), 'metadata contract must include ' + key);
+for (const key of ['owner', 'ownerEmail', 'project', 'stage', 'engine', 'createdBy', 'jobId', 'commit', 'timestamp', 'executionAuthorized', 'authorizationState', 'humanAcceptance']) assert(doc.includes('"' + key + '"'), 'metadata contract must include ' + key);
 for (const rule of ['temp/`: delete after 7 days', 'delete after 30 days', '`logs/`: delete after 14 days']) assert(doc.includes(rule), 'lifecycle doc missing ' + rule);
 
 const deployFunctions = fs.readFileSync(new URL('../tools/deploy_functions_termux.sh', import.meta.url), 'utf8');
@@ -54,6 +54,7 @@ assert.equal(uploaded.metadata.stage, 'temp');
 assert.equal(uploaded.metadata.engine, 'contract-test');
 assert.equal(uploaded.metadata.createdBy, 'contract-test');
 assert.equal(uploaded.metadata.approved, 'false');
+assert.equal(uploaded.metadata.humanAcceptance, 'unreviewed');
 const inspected = await artifactBucket.inspectGeneratedArtifact(uploaded.durableRef);
 assert.equal(inspected.sha256, uploaded.sha256);
 assert.equal(inspected.metadata.sha256, uploaded.sha256);

@@ -7,6 +7,7 @@ const zlib = require('node:zlib');
 const {CARTESIA_DEFAULT_MODEL_ID, CARTESIA_DEFAULT_VOICE_NAME, openCartesiaStream} = require('./hosted_speech_provider');
 const cartesiaPitchShift = require('./cartesia_pitch_shift');
 const {GENERATED_ARTIFACT_BUCKET, parseGsRef, uploadGeneratedArtifact, publishGeneratedArtifactToDrive, inspectGeneratedArtifact} = require('./artifact_bucket');
+const {registerPrimaryAudioFromReceipt} = require('./audio_catalog_service');
 
 const DEFAULT_SAMPLE_RATE = 48000;
 const MAX_DURATION_SECONDS = Number(process.env.HOME_CENTER_AUDIO_RENDER_MAX_SECONDS || 900);
@@ -1192,15 +1193,15 @@ function parseSharedWith(value) {
   return text.split(/[;,\s]+/).map((entry) => safeText(entry, 320).toLowerCase()).filter(Boolean);
 }
 
-function audioArtifactContext(args = {}, rendered = null, item = null) {
+function audioArtifactContext(args = {}, rendered = null, item = null, user = {}) {
   const settings = args.settings && typeof args.settings === 'object' && !Array.isArray(args.settings) ? args.settings : {};
-  const stage = safeText(args.stage || settings.stage || (args.approved === true || settings.approved === true ? 'final' : 'voice-test'), 120) || 'voice-test';
+  const stage = safeText(args.stage || settings.stage || 'review', 120) || 'review';
   const project = safeText(args.project || settings.project || 'home-center', 160) || 'home-center';
-  const ownerEmail = safeText(args.ownerEmail || settings.ownerEmail || args.owner || settings.owner || 'drew', 320).toLowerCase();
-  const owner = safeText(args.owner || settings.owner || ownerEmail || 'drew', 120) || 'drew';
+  const ownerEmail = safeText(user && user.email, 320).toLowerCase();
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(ownerEmail)) throw audioError('Authenticated owner email is required for audio artifact publication.', 401, 'audio_render_owner_required');
   const engine = rendered && rendered.usesCartesia ? 'cartesia' : safeText(args.engine || settings.engine || 'home-center-audio', 120) || 'home-center-audio';
   const artifactType = item && /^image\//.test(item.mimeType) ? 'image' : 'audio';
-  return {owner, ownerEmail, sharedWith: parseSharedWith(args.sharedWith || settings.sharedWith), project, stage, engine, createdBy: 'home-center-mcp', jobId: safeText(args.jobId || settings.jobId, 180), commit: safeText(args.commit || settings.commit || process.env.K_REVISION || process.env.FUNCTION_TARGET || '', 80), approved: args.approved === true || settings.approved === true, requestId: safeText(args.requestId || args.idempotencyKey, 180), artifactType};
+  return {owner: ownerEmail, ownerEmail, sharedWith: parseSharedWith(args.sharedWith || settings.sharedWith), project, stage, engine, createdBy: 'home-center-mcp', jobId: safeText(args.jobId || settings.jobId, 180), commit: safeText(args.commit || settings.commit || process.env.K_REVISION || process.env.FUNCTION_TARGET || '', 80), approved: false, executionAuthorized: true, authorizationState: 'owner_scoped', humanAcceptance: 'unreviewed', requestId: safeText(args.requestId || args.idempotencyKey, 180), artifactType};
 }
 
 function shouldPublishAudioToDrive(args = {}, parentFolderId = '') {
@@ -1418,10 +1419,10 @@ function audioRenderJobRequest(args = {}, settings = {}) {
     returnInlineAudio: args.returnInlineAudio === false ? false : undefined,
     publishToDrive: args.publishToDrive === false ? false : args.publishToDrive === true ? true : undefined,
     parentFolderId: safeText(args.parentFolderId, 220),
-    owner: safeText(args.owner, 120),
     project: safeText(args.project, 160),
     stage: safeText(args.stage, 120),
-    approved: args.approved === true,
+    executionAuthorization: 'authenticated_owner',
+    humanAcceptance: 'unreviewed',
     manifestName: safeText(args.manifestName, 240),
     callerNote: safeText(args.callerNote, 800),
   };
@@ -1446,6 +1447,11 @@ function audioRenderAcceptedReceipt({requestId, inputSha256, status = 'queued', 
     progress: progress || audit && audit.progress || {phase: status, synthesizedTakes: 0, totalTakes: 0, outputCount: 0},
   };
   return {...receipt, _mcpContent: {content: [{type: 'text', text: JSON.stringify(receipt, null, 2)}]}};
+}
+
+function readerRegistrationComplete(result = {}) {
+  const registration = result && result.readerRegistration;
+  return Boolean(registration && registration.authorization && registration.authorization.state === 'owner_scoped' && registration.discovery && registration.discovery.ok === true && registration.playback && registration.playback.ok === true && registration.bytePreservation && registration.bytePreservation.unchanged === true);
 }
 
 function inputConflict(existing, inputSha256) {
@@ -1528,7 +1534,7 @@ async function executeAudioRenderJob({google, admin, auth, user, args = {}, help
     } finally {
       await renderHeartbeat.stop();
     }
-    const artifactContextBase = audioArtifactContext(args, rendered);
+    const artifactContextBase = audioArtifactContext(args, rendered, null, user);
     const publishToDrive = shouldPublishAudioToDrive(args, parentFolderId);
     if (rendered.finalMetrics.silent) throw audioError('Rendered audio is silent.', 422, 'audio_render_silent_output');
     if (rendered.finalMetrics.clippingCount > 0 && settings.allowClipping !== true) throw audioError('Rendered audio clipped; lower gain or enable allowClipping explicitly.', 422, 'audio_render_clipped_output');
@@ -1566,12 +1572,22 @@ async function executeAudioRenderJob({google, admin, auth, user, args = {}, help
     publicationHeartbeat = null;
     phaseTimings.manifestPublicationMs = Date.now() - manifestStartedAtMs;
     phaseTimings.totalMs = Date.now() - startedAtMs;
-    const result = {...manifest, phaseTimings: {...manifest.phaseTimings, ...phaseTimings}, manifest: {fileId: manifestUpload.fileId, durableRef: manifestUpload.durableRef, storageRef: manifestUpload.storageRef, driveDurableRef: manifestUpload.driveDurableRef, primaryStore: manifestUpload.primaryStore, metadata: manifestUpload.metadata, byteCount: manifestUpload.byteCount, sha256: manifestUpload.sha256, readbackByteCount: manifestUpload.readbackByteCount, readbackSha256: manifestUpload.readbackSha256}, primaryOutput: manifest.outputs.find((item) => primary && item.name === primary.name) || manifest.outputs[0], ok: true, status: 'completed', completedAtMs: Date.now()};
+    const baseResult = {...manifest, phaseTimings: {...manifest.phaseTimings, ...phaseTimings}, manifest: {fileId: manifestUpload.fileId, durableRef: manifestUpload.durableRef, storageRef: manifestUpload.storageRef, driveDurableRef: manifestUpload.driveDurableRef, primaryStore: manifestUpload.primaryStore, metadata: manifestUpload.metadata, byteCount: manifestUpload.byteCount, sha256: manifestUpload.sha256, readbackByteCount: manifestUpload.readbackByteCount, readbackSha256: manifestUpload.readbackSha256}, primaryOutput: manifest.outputs.find((item) => primary && item.name === primary.name) || manifest.outputs[0], ok: false, status: 'registration_required', humanAcceptance: 'unreviewed'};
     const affectedStorageRefs = uploaded.map((u) => u.storageRef).concat([manifestUpload.storageRef]).filter(Boolean);
     const affectedFileIds = uploaded.map((u) => u.fileId).concat([manifestUpload.fileId]).filter(Boolean);
-    const audit = await writeAudioAudit(helpers, admin, {actor, authKind, tool: 'audio.render', operation: 'audio.render', requestId, status: 'completed', fileId: primary && (primary.fileId || primary.storageRef) || '', affectedFileIds, affectedStorageRefs, callerNote: args.callerNote, providerSummary: 'Rendered deterministic audio artifact ' + (primary && primary.name || 'audio') + ' (' + (primary && primary.byteCount || 0) + ' bytes).', result, inputSha256, progress: audioProgressPatch(progress, {phase: 'completed', outputCount: uploaded.length + 1, completedAtMs: result.completedAtMs}), lease: null});
+    let readerRegistration;
+    try {
+      const register = helpers.registerPrimaryAudioFromReceipt || registerPrimaryAudioFromReceipt;
+      readerRegistration = await register({ownerEmail: actor, receipt: {operation: 'audio.render', requestId, status: 'completed', result: baseResult}});
+    } catch (registrationError) {
+      const registrationRequired = {...baseResult, registrationError: {code: safeText(registrationError && (registrationError.failureKind || registrationError.code), 120) || 'audio_catalog_registration_failed', message: safeText(registrationError && registrationError.message, 500)}, recoveryOperation: {operation: 'audio.render_register', args: {requestId}}, completedAtMs: null};
+      await writeAudioAudit(helpers, admin, {actor, authKind, tool: 'audio.render', operation: 'audio.render', requestId, status: 'registration_required', fileId: primary && (primary.fileId || primary.storageRef) || '', affectedFileIds, affectedStorageRefs, callerNote: args.callerNote, providerSummary: 'audio.render produced verified bytes but Reader registration is required.', result: registrationRequired, inputSha256, progress: audioProgressPatch(progress, {phase: 'registration_required', outputCount: uploaded.length + 1, errorCode: registrationRequired.registrationError.code}), lease: null});
+      return registrationRequired;
+    }
+    const result = {...baseResult, ok: true, status: 'completed', readerRegistration, reviewReady: readerRegistration.discovery.ok === true && readerRegistration.playback.ok === true, completedAtMs: Date.now()};
+    const audit = await writeAudioAudit(helpers, admin, {actor, authKind, tool: 'audio.render', operation: 'audio.render', requestId, status: 'completed', fileId: primary && (primary.fileId || primary.storageRef) || '', affectedFileIds, affectedStorageRefs, callerNote: args.callerNote, providerSummary: 'Rendered and privately registered audio artifact ' + (primary && primary.name || 'audio') + ' (' + (primary && primary.byteCount || 0) + ' bytes).', result, inputSha256, progress: audioProgressPatch(progress, {phase: 'completed', outputCount: uploaded.length + 1, completedAtMs: result.completedAtMs}), lease: null});
     result.audit = audit.audit ? {...audit.audit, result: null} : audit.audit;
-    if (helpers.recordActionAudit) await helpers.recordActionAudit(admin, user || {}, 'audio.render', primary && (primary.storageRef || primary.fileId) || '', 'Rendered deterministic audio artifact ' + (primary && primary.name || 'audio') + ' (' + (primary && primary.byteCount || 0) + ' bytes).', requestId).catch(() => {});
+    if (helpers.recordActionAudit) await helpers.recordActionAudit(admin, user || {}, 'audio.render', primary && (primary.storageRef || primary.fileId) || '', 'Rendered and privately registered audio artifact ' + (primary && primary.name || 'audio') + ' (' + (primary && primary.byteCount || 0) + ' bytes).', requestId).catch(() => {});
     const inlinePrimary = rendered.rendered.find((item) => primary && item.name === primary.name);
     const content = [{type: 'text', text: JSON.stringify(result, null, 2)}];
     if (primary && primary.chatGptFileRef) content.push(primary.chatGptFileRef);
@@ -1599,8 +1615,11 @@ async function renderAudioOperation({google, admin, auth, user, args = {}, helpe
   const {requestId, inputSha256} = normalized;
   const existing = helpers.existingAudit ? await helpers.existingAudit(admin, requestId) : null;
   if (existing && inputConflict(existing, inputSha256)) throw audioError('idempotencyKey was reused with different audio.render inputs.', 409, 'audio_render_idempotency_conflict');
-  if (existing && (existing.status === 'success' || existing.status === 'completed') && existing.result) return {...existing.result, idempotent: true, audit: existing, _mcpContent: null};
-  if (existing && ['queued', 'running', 'stalled', 'recoverable', 'failed'].includes(safeText(existing.status, 80))) return audioRenderAcceptedReceipt({requestId, inputSha256, status: safeText(existing.status, 80), audit: existing, idempotent: true});
+  if (existing && (existing.status === 'success' || existing.status === 'completed') && existing.result) {
+    if (readerRegistrationComplete(existing.result)) return {...existing.result, idempotent: true, audit: existing, _mcpContent: null};
+    return {...existing.result, ok: false, status: 'registration_required', idempotent: true, recoveryOperation: {operation: 'audio.render_register', args: {requestId}}, audit: existing, _mcpContent: null};
+  }
+  if (existing && ['queued', 'running', 'stalled', 'recoverable', 'registration_required', 'failed'].includes(safeText(existing.status, 80))) return audioRenderAcceptedReceipt({requestId, inputSha256, status: safeText(existing.status, 80), audit: existing, idempotent: true});
   const actor = audioJobActor(user);
   const authKind = user && user.authKind;
   const queuedAtMs = Date.now();
@@ -1612,10 +1631,13 @@ async function renderAudioOperation({google, admin, auth, user, args = {}, helpe
   return audioRenderAcceptedReceipt({requestId, inputSha256, status: 'queued', audit: {timestampMs: queuedAtMs, submittedAtMs: queuedAtMs, progress}, idempotent: false});
 }
 
-async function audioRenderStatusOperation({admin, requestId, helpers = {}}) {
+async function audioRenderStatusOperation({admin, user, requestId, helpers = {}}) {
   const audit = helpers.existingAudit ? await helpers.existingAudit(admin, requestId) : null;
   if (!audit) return {ok: false, operation: 'audio.render_status', requestId, status: 'missing'};
+  const ownerEmail = safeText(user && user.email, 320).toLowerCase();
+  if (!ownerEmail || safeText(audit.actor, 320).toLowerCase() !== ownerEmail) throw audioError('The audio.render receipt is not owned by this caller.', 403, 'audio_render_receipt_forbidden');
   let status = audit.status === 'success' ? 'completed' : safeText(audit.status, 80) || 'completed';
+  if (status === 'completed' && !readerRegistrationComplete(audit.result || {})) status = 'registration_required';
   const now = Date.now();
   const heartbeatAtMs = audit.lease && Number(audit.lease.heartbeatAtMs || 0) || Number(audit.updatedAtMs || audit.timestampMs || 0);
   const stale = ['queued', 'running'].includes(status) && heartbeatAtMs && now - heartbeatAtMs > AUDIO_RENDER_STALE_MS;
@@ -1626,4 +1648,4 @@ async function audioRenderStatusOperation({admin, requestId, helpers = {}}) {
   return {ok: status !== 'missing', operation: 'audio.render_status', requestId, status, state: status, inputSha256: audit.inputSha256 || audit.result && audit.result.inputSha256 || '', result: audit.result || null, progress: audit.progress || null, lease: audit.lease || null, timestamps: {timestampMs: audit.timestampMs || 0, submittedAtMs: audit.submittedAtMs || audit.timestampMs || 0, updatedAtMs: audit.updatedAtMs || audit.timestampMs || 0, heartbeatAtMs}, audit: {...audit, result: null}};
 }
 
-module.exports = {renderAudioOperation, audioRenderStatusOperation, executeAudioRenderJob, inspectAudioArtifactsOperation, uploadVerified, renderRecipe, sanitizeRecipeText, materializeSources, resolveSpeechProfile, CARTESIA_SUPPORTED_EMOTIONS, CANONICAL_CHARACTER_PROFILES, limits: {MAX_DURATION_SECONDS, MAX_WAV_OUTPUT_BYTES, MAX_ENCODED_OUTPUT_BYTES, SPEECH_SEQUENCE_MAX_SEGMENTS, SPEECH_SEQUENCE_DEFAULT_CONCURRENCY, INLINE_AUDIO_MAX_BYTES}, primitives: {Clip, silence, tone, noise, trim, concat, loop, fade, crossfade, gain, normalizePeak, normalizeLufs, pan, pitchShift, timeStretch, reverse, biquadLike, compress, limit, distort, delay, reverb, envelope, timeline, blockMix, duck, resample, toChannels, encodeWav, decodeWav, waveformPng, spectrogramPng, measure, layerSwordImpact, layerTavernCellar}};
+module.exports = {readerRegistrationComplete, renderAudioOperation, audioRenderStatusOperation, executeAudioRenderJob, inspectAudioArtifactsOperation, uploadVerified, renderRecipe, sanitizeRecipeText, materializeSources, resolveSpeechProfile, CARTESIA_SUPPORTED_EMOTIONS, CANONICAL_CHARACTER_PROFILES, limits: {MAX_DURATION_SECONDS, MAX_WAV_OUTPUT_BYTES, MAX_ENCODED_OUTPUT_BYTES, SPEECH_SEQUENCE_MAX_SEGMENTS, SPEECH_SEQUENCE_DEFAULT_CONCURRENCY, INLINE_AUDIO_MAX_BYTES}, primitives: {Clip, silence, tone, noise, trim, concat, loop, fade, crossfade, gain, normalizePeak, normalizeLufs, pan, pitchShift, timeStretch, reverse, biquadLike, compress, limit, distort, delay, reverb, envelope, timeline, blockMix, duck, resample, toChannels, encodeWav, decodeWav, waveformPng, spectrogramPng, measure, layerSwordImpact, layerTavernCellar}};

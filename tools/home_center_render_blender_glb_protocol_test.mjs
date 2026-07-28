@@ -18,7 +18,7 @@ const {
 const homeCenterSource = readFileSync(new URL('../functions/home_center_mcp.js', import.meta.url), 'utf8');
 const reviewOperationSource = homeCenterSource.slice(
   homeCenterSource.indexOf('async function materializeRenderReviewArtifactsOperation'),
-  homeCenterSource.indexOf('function commandCenterOperationRegistryEntry'),
+  homeCenterSource.indexOf('function validateHomeCenterRenderBytes'),
 );
 assert.match(reviewOperationSource, /commandCenterRenderRequestStatus\(admin, \{actor: ownerEmail\}, \{renderId\}\)/);
 assert.doesNotMatch(reviewOperationSource, /commandCenterOperationRunOperation/, 'review egress must use local render status instead of a nested MCP round trip');
