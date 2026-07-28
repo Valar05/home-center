@@ -81,7 +81,7 @@ const MCP_REQUIRED_SCOPES = [
   SMS_GMAIL_SCOPE,
   SMS_CALENDAR_SCOPE,
 ];
-const GROUNDED_MOTION_MCP_RESOURCE = process.env.GROUNDED_MOTION_MCP_RESOURCE || 'https://grounded-motion-mcp-286457226942.us-central1.run.app/mcp';
+const GROUNDED_MOTION_MCP_RESOURCE = process.env.GROUNDED_MOTION_MCP_RESOURCE || 'https://grounded-motion-mcp-220218838446.us-central1.run.app/mcp';
 const GROUNDED_MOTION_MCP_SCOPE = 'grounded-motion:vanguard-canary';
 const GROUNDED_MOTION_ALLOWED_EMAIL = 'dclarke1005@gmail.com';
 const MCP_OAUTH_SECURITY_SCHEMES = [{type: 'oauth2', scopes: MCP_REQUIRED_SCOPES}];
