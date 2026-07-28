@@ -181,14 +181,10 @@ function sectionLoftData(sectionsValue, optionsValue = {}) {
     normals[index] /= length; normals[index + 1] /= length; normals[index + 2] /= length;
   }
   const addCap = (sectionIndex, outward) => {
-    const section = sections[sectionIndex], base = positions.length / 3;
-    for (const [x, y] of section.profile) {
-      positions.push(x, y, section.z);
-      normals.push(0, 0, outward);
-    }
+    const base = sectionIndex * pointCount;
     for (let index = 1; index < pointCount - 1; index++) {
-      if (outward > 0) indices.push(base, base + index, base + index + 1);
-      else indices.push(base, base + index + 1, base + index);
+      if (outward > 0) addTriangle(base, base + index, base + index + 1);
+      else addTriangle(base, base + index + 1, base + index);
     }
   };
   if (options.capStart !== false) addCap(0, -1);
