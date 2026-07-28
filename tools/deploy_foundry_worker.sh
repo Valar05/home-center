@@ -37,13 +37,8 @@ gcloud functions deploy foundryAssetWorker \
   --service-account="$TASK_SERVICE_ACCOUNT" \
   --set-env-vars=LOG_EXECUTION_ID=true,HOME_CENTER_ARTIFACT_BUCKET="${HOME_CENTER_ARTIFACT_BUCKET:-home-center-generated}"
 
-gcloud projects add-iam-policy-binding "$PROJECT" \
-  --member="serviceAccount:${TASK_SERVICE_ACCOUNT}" \
-  --role=roles/cloudtasks.enqueuer >/dev/null
-gcloud iam service-accounts add-iam-policy-binding "$TASK_SERVICE_ACCOUNT" \
-  --project="$PROJECT" \
-  --member="serviceAccount:${TASK_SERVICE_ACCOUNT}" \
-  --role=roles/iam.serviceAccountUser >/dev/null
+# Project-level task and service-account IAM is provisioned once. Release automation
+# updates runtime resources but intentionally cannot rewrite project IAM.
 gcloud functions add-invoker-policy-binding foundryAssetWorker \
   --project="$PROJECT" \
   --region="$REGION" \
