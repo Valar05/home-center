@@ -73,6 +73,6 @@ Run:
 
 `sh tools/home_center_ci_validate.sh`
 
-`tools/deploy_foundry_v2_release.sh` deploys the committed Firestore indexes and TTL plus the generated-bucket lifecycle before replacing code, then verifies the deployed source identity. Home Center may be published only from a clean commit equal to current `origin/main` through that guarded release script.
+`tools/deploy_foundry_v2_release.sh` deploys the committed Firestore indexes and TTL through the active GCP identity plus the generated-bucket lifecycle before replacing code, then verifies the deployed source identity. It does not require a separate interactive Firebase login. Home Center may be published only from a clean commit equal to current `origin/main` through that guarded release script.
 
 Rollback the service to the immediately previous recorded Home Center revision and retain the new Firestore collections and immutable GCS objects. They are additive and do not alter older artifact identities.
