@@ -5027,7 +5027,7 @@ function operationRegistrySummary(registry, limit = 200) {
     invocationTool: String(registry && registry.invocationTool || ''),
     operationCount: names.length,
     operations: boundedNames,
-    writeOperations: boundedNames.filter((name) => operations[name] && operations[name].write === true),
+    writeOperations: boundedNames.filter((name) => operations[name] && (operations[name].write === true || operations[name].readOnly === false)),
     truncated: names.length > boundedNames.length,
   };
 }
