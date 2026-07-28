@@ -11,11 +11,7 @@ QUEUE_WAS_RUNNING=false
 
 sh "$ROOT/tools/assert_home_center_mcp_main_release.sh" "$ROOT"
 
-if ! command -v firebase >/dev/null 2>&1; then
-  echo "Firebase CLI is required to deploy the committed Firestore indexes and TTL policy." >&2
-  exit 127
-fi
-firebase deploy --only firestore --project "$PROJECT"
+node "$ROOT/tools/deploy_firestore_config_gcloud.mjs" "$PROJECT"
 sh "$ROOT/tools/setup_generated_artifact_bucket.sh" "$PROJECT"
 
 if gcloud tasks queues describe "$QUEUE" --project="$PROJECT" --location="$REGION" >/dev/null 2>&1; then
