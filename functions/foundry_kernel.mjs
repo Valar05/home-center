@@ -39,6 +39,100 @@ function vector(value, length, fallback, field) {
 }
 function options(value) { return value && typeof value === 'object' && !Array.isArray(value) ? value : {}; }
 
+const VERTEX_PURPOSES = Object.freeze([
+  'silhouette',
+  'manufactured_form_transition',
+  'mechanical_interface',
+  'articulation',
+  'closure',
+  'stable_edge_highlight',
+  'demonstrated_shading_correction',
+]);
+function positiveInteger(value, field, maximum = Number.MAX_SAFE_INTEGER) {
+  const number = Number(value);
+  if (!Number.isInteger(number) || number <= 0 || number > maximum) throw fail('foundry.geometry.invalid_budget', field + ' must be a positive integer.', {field, value});
+  return number;
+}
+function purposeEntry(value, field) {
+  const entry = options(value), purpose = String(entry.purpose || ''), rationale = String(entry.rationale || '').trim();
+  if (!VERTEX_PURPOSES.includes(purpose)) throw fail('foundry.geometry.purpose_required', field + ' requires an allowed vertex purpose.', {field, allowed: VERTEX_PURPOSES});
+  if (rationale.length < 12 || rationale.length > 500) throw fail('foundry.geometry.purpose_required', field + ' requires a concrete rationale.', {field});
+  return {purpose, rationale};
+}
+function topologyContract(specValue, operation, requirements = {}) {
+  const spec = options(specValue), contract = options(spec.topology);
+  if (contract.coverage !== 'all_output_vertices') throw fail('foundry.geometry.purpose_coverage', operation + ' must cover all output vertices.', {operation});
+  const primary = purposeEntry(contract, operation + '.topology');
+  const maxOutputVertices = positiveInteger(contract.maxOutputVertices, operation + '.topology.maxOutputVertices', MAX_VERTICES);
+  const maxOutputTriangles = positiveInteger(contract.maxOutputTriangles, operation + '.topology.maxOutputTriangles', MAX_TRIANGLES);
+  const maxGrowthRatio = Number(contract.maxGrowthRatio);
+  if (!Number.isFinite(maxGrowthRatio) || maxGrowthRatio < 1 || maxGrowthRatio > 100) throw fail('foundry.geometry.invalid_budget', operation + '.topology.maxGrowthRatio must be between 1 and 100.', {operation});
+  const simplification = options(contract.simplification), maxVisibleErrorPx = Number(simplification.maxVisibleErrorPx);
+  if (simplification.method !== 'remove_or_merge' || simplification.status !== 'pending_review' || !Number.isFinite(maxVisibleErrorPx) || maxVisibleErrorPx <= 0 || maxVisibleErrorPx > 4) {
+    throw fail('foundry.geometry.simplification_required', operation + ' requires a pending remove-or-merge challenge with a bounded visible-error tolerance.', {operation});
+  }
+  const validatePurposeList = (name, expected) => {
+    if (!expected) return [];
+    const list = Array.isArray(contract[name]) ? contract[name] : [];
+    if (list.length !== expected) throw fail('foundry.geometry.purpose_coverage', operation + '.topology.' + name + ' must cover exactly ' + expected + ' generated coordinates.', {operation, expected, actual: list.length});
+    return list.map((entry, index) => ({index, ...purposeEntry(entry, operation + '.topology.' + name + '[' + index + ']')}));
+  };
+  const sectionPurposes = validatePurposeList('sectionPurposes', requirements.sectionCount || 0);
+  const profilePointPurposes = validatePurposeList('profilePointPurposes', requirements.profileCount || 0);
+  let sampling = null;
+  if (requirements.segmentCount) {
+    sampling = options(contract.sampling);
+    if (sampling.basis !== 'projected_error' || positiveInteger(sampling.segmentCount, operation + '.topology.sampling.segmentCount', 128) !== requirements.segmentCount || !(Number(sampling.projectedRadiusPx) > 0) || !(Number(sampling.maxErrorPx) > 0)) {
+      throw fail('foundry.geometry.sampling_required', operation + ' requires projected-error sampling that matches the generated segment count.', {operation, expectedSegments: requirements.segmentCount});
+    }
+    sampling = {basis: 'projected_error', segmentCount: requirements.segmentCount, projectedRadiusPx: Number(sampling.projectedRadiusPx), maxErrorPx: Number(sampling.maxErrorPx)};
+  }
+  return {operation, coverage: contract.coverage, ...primary, maxOutputVertices, maxOutputTriangles, maxGrowthRatio, simplification: {method: 'remove_or_merge', status: 'pending_review', maxVisibleErrorPx}, sectionPurposes, profilePointPurposes, sampling};
+}
+function geometryCounts(data) {
+  return {vertices: data.positions.length / 3, triangles: data.indices.length / 3};
+}
+function enforceOperationBudget(contract, counts, inputCounts = null, phase = 'output') {
+  if (counts.vertices > contract.maxOutputVertices || counts.triangles > contract.maxOutputTriangles) {
+    throw fail('foundry.geometry.operation_budget_exceeded', contract.operation + ' exceeds its declared output budget.', {operation: contract.operation, phase, counts, maxOutputVertices: contract.maxOutputVertices, maxOutputTriangles: contract.maxOutputTriangles});
+  }
+  const growthRatio = inputCounts ? Math.max(counts.vertices / Math.max(1, inputCounts.vertices), counts.triangles / Math.max(1, inputCounts.triangles)) : 1;
+  if (growthRatio > contract.maxGrowthRatio) throw fail('foundry.geometry.growth_budget_exceeded', contract.operation + ' exceeds its declared growth ratio.', {operation: contract.operation, phase, counts, inputCounts, growthRatio, maxGrowthRatio: contract.maxGrowthRatio});
+  return {...contract, counts, inputCounts, growthRatio, budgetValid: true, purposeDeclared: true};
+}
+function normalizeProductionBudget(value) {
+  const budget = options(value), asset = options(budget.asset), scene = options(budget.scene), componentsValue = options(budget.components);
+  const components = Object.fromEntries(Object.entries(componentsValue).map(([name, component]) => [boundedName(name, 'component'), {
+    maxVertices: positiveInteger(options(component).maxVertices, 'components.' + name + '.maxVertices', MAX_VERTICES),
+    maxTriangles: positiveInteger(options(component).maxTriangles, 'components.' + name + '.maxTriangles', MAX_TRIANGLES),
+  }]));
+  if (!Object.keys(components).length) throw fail('foundry.geometry.production_budget_required', 'A hard-surface production budget must allocate every component.');
+  return {
+    asset: {maxVertices: positiveInteger(asset.maxVertices, 'asset.maxVertices', MAX_VERTICES), maxTriangles: positiveInteger(asset.maxTriangles, 'asset.maxTriangles', MAX_TRIANGLES)},
+    components,
+    scene: {
+      instances: positiveInteger(scene.instances, 'scene.instances', 10000),
+      maxExpandedVertices: positiveInteger(scene.maxExpandedVertices, 'scene.maxExpandedVertices'),
+      maxExpandedTriangles: positiveInteger(scene.maxExpandedTriangles, 'scene.maxExpandedTriangles'),
+    },
+  };
+}
+function enforceProductionBudget(report, budget) {
+  if (!budget) throw fail('foundry.geometry.production_budget_required', 'Hard-surface work requires component, asset, and commissioned-scene budgets.');
+  if (report.sourceVertexCount > budget.asset.maxVertices || report.sourceTriangleCount > budget.asset.maxTriangles) throw fail('foundry.geometry.asset_budget_exceeded', 'Unique source geometry exceeds the declared asset budget.', {vertices: report.sourceVertexCount, triangles: report.sourceTriangleCount, budget: budget.asset});
+  const seen = new Set();
+  for (const component of report.components) {
+    const allocation = budget.components[component.node];
+    if (!allocation) throw fail('foundry.geometry.component_budget_missing', 'No production allocation exists for component: ' + component.node, {component: component.node});
+    seen.add(component.node);
+    if (component.vertices > allocation.maxVertices || component.triangles > allocation.maxTriangles) throw fail('foundry.geometry.component_budget_exceeded', 'Component exceeds its declared production allocation.', {component: component.node, vertices: component.vertices, triangles: component.triangles, budget: allocation});
+  }
+  for (const name of Object.keys(budget.components)) if (!seen.has(name)) throw fail('foundry.geometry.component_budget_unused', 'Declared component allocation did not resolve to output geometry: ' + name, {component: name});
+  const expandedVertices = report.expandedVertexCount * budget.scene.instances, expandedTriangles = report.expandedTriangleCount * budget.scene.instances;
+  if (expandedVertices > budget.scene.maxExpandedVertices || expandedTriangles > budget.scene.maxExpandedTriangles) throw fail('foundry.geometry.scene_budget_exceeded', 'Commissioned scene exceeds its declared expanded geometry budget.', {instances: budget.scene.instances, expandedVertices, expandedTriangles, budget: budget.scene});
+  return {...budget, expandedVertices, expandedTriangles, budgetValid: true};
+}
+
 async function io() {
   await Promise.all([MeshoptDecoder.ready, MeshoptEncoder.ready]);
   return new NodeIO()
@@ -294,7 +388,7 @@ async function manifoldModule() {
 function nodeMatrix(node) {
   return new Matrix4().compose(new Vector3(...node.getTranslation()), new Quaternion(...node.getRotation()), new Vector3(...node.getScale()));
 }
-async function booleanNodes(doc, targetName, toolName, mode, resultName) {
+async function booleanNodes(doc, targetName, toolName, mode, resultName, contractSpec) {
   const target = nodeByName(doc, targetName), tool = nodeByName(doc, toolName);
   const primitiveOf = (node) => {
     const primitives = node.getMesh()?.listPrimitives() || [];
@@ -310,6 +404,9 @@ async function booleanNodes(doc, targetName, toolName, mode, resultName) {
     return {manifold: new module.Manifold(new module.Mesh({numProp: 3, triVerts: new Uint32Array(raw), vertProperties: transformed})), material: primitive.getMaterial()};
   };
   const a = toManifold(target), b = toManifold(tool);
+  const primitiveCounts = (node) => { const primitive = primitiveOf(node); return {vertices: primitive.getAttribute('POSITION').getArray().length / 3, triangles: primitive.getIndices().getArray().length / 3}; };
+  const targetCounts = primitiveCounts(target), toolCounts = primitiveCounts(tool), inputCounts = {vertices: targetCounts.vertices + toolCounts.vertices, triangles: targetCounts.triangles + toolCounts.triangles};
+  const contract = topologyContract(contractSpec, 'mesh.boolean');
   let result;
   try {
     if (mode === 'union') result = a.manifold.add(b.manifold);
@@ -321,13 +418,14 @@ async function booleanNodes(doc, targetName, toolName, mode, resultName) {
     const positions = new Float32Array(output.numVert * 3);
     for (let index = 0; index < output.numVert; index++) positions.set(output.position(index), index * 3);
     const data = {positions, normals: new Float32Array(positions.length), indices: new Uint32Array(output.triVerts)};
+    const topology = enforceOperationBudget(contract, geometryCounts(data), inputCounts, 'transactional_output');
     const name = resultName ? uniqueNodeName(doc, resultName) : target.getName();
     const scene = doc.getRoot().listScenes()[0] || doc.createScene('Foundry Scene');
     const targetMesh = target.getMesh(), toolMesh = tool.getMesh();
     detach(doc, target); detach(doc, tool); target.dispose(); tool.dispose(); targetMesh?.dispose(); toolMesh?.dispose();
     const node = addNodeWithMesh(doc, scene, name, data, a.material);
     recalculatePrimitiveNormals(doc, node.getMesh().listPrimitives()[0], name);
-    return node;
+    return {node, topology};
   } finally {
     a.manifold.delete(); b.manifold.delete(); if (result) result.delete();
   }
@@ -399,17 +497,38 @@ export async function sourceDocument(sourceBytes) {
 
 export async function executeFoundryPlan({doc, plan, domain = 'hard_surface'}) {
   if (!plan || !Array.isArray(plan.operations)) throw fail('foundry.script.invalid_plan', 'Foundry operation plan is required.');
-  const before = preservationEvidence(doc), changes = [], touched = new Set(), scene = doc.getRoot().listScenes()[0] || doc.createScene('Foundry Scene');
-  let reviewViews = [...SUPPORTED_VIEWS];
+  const before = preservationEvidence(doc), changes = [], touched = new Set(), topology = [], scene = doc.getRoot().listScenes()[0] || doc.createScene('Foundry Scene');
+  let reviewViews = [...SUPPORTED_VIEWS], productionBudget = null;
   for (let index = 0; index < plan.operations.length; index++) {
     const entry = plan.operations[index], args = Array.isArray(entry.args) ? entry.args : [], key = entry.namespace + '.' + entry.operation;
     try {
       if (key === 'asset.inspect') { changes.push({index, operation: key, effect: 'inspection_requested'}); continue; }
-      if (key === 'scene.createGroup') { const name = boundedName(args[0]); const spec = options(args[1]); const node = doc.createNode(uniqueNodeName(doc, name)); if (spec.translation) node.setTranslation(vector(spec.translation, 3, [0, 0, 0], 'translation')); if (spec.rotation) node.setRotation(vector(spec.rotation, 4, [0, 0, 0, 1], 'rotation')); if (spec.scale) node.setScale(vector(spec.scale, 3, [1, 1, 1], 'scale')); scene.addChild(node); touched.add(name); }
-      else if (key === 'scene.createBox') { const name = boundedName(args[0]); const spec = options(args[1]); addNodeWithMesh(doc, scene, name, boxData(spec.size || [1, 1, 1], spec.bevel || 0), spec.material ? materialByName(doc, spec.material) : null, spec); touched.add(name); }
-      else if (key === 'scene.createCylinder') { const name = boundedName(args[0]); const spec = options(args[1]); addNodeWithMesh(doc, scene, name, cylinderData(Number(spec.radius || 0.5), Number(spec.depth || 1), Number(spec.segments || 24)), spec.material ? materialByName(doc, spec.material) : null, spec); touched.add(name); }
-      else if (key === 'scene.createProfileExtrusion') { const name = boundedName(args[0]); const spec = options(args[1]); addNodeWithMesh(doc, scene, name, profileExtrusionData(spec.profile, spec.depth), spec.material ? materialByName(doc, spec.material) : null, spec); touched.add(name); }
-      else if (key === 'scene.createSectionLoft') { const name = boundedName(args[0]); const spec = options(args[1]); addNodeWithMesh(doc, scene, name, sectionLoftData(spec.sections, spec), spec.material ? materialByName(doc, spec.material) : null, spec); touched.add(name); }
+      if (key === 'validation.productionBudget') { if (productionBudget) throw fail('foundry.geometry.production_budget_duplicate', 'Only one production budget may be declared.'); productionBudget = normalizeProductionBudget(args[0]); }
+      else if (key === 'scene.createGroup') { const name = boundedName(args[0]); const spec = options(args[1]); const node = doc.createNode(uniqueNodeName(doc, name)); if (spec.translation) node.setTranslation(vector(spec.translation, 3, [0, 0, 0], 'translation')); if (spec.rotation) node.setRotation(vector(spec.rotation, 4, [0, 0, 0, 1], 'rotation')); if (spec.scale) node.setScale(vector(spec.scale, 3, [1, 1, 1], 'scale')); scene.addChild(node); touched.add(name); }
+      else if (key === 'scene.createBox') {
+        const name = boundedName(args[0]), spec = options(args[1]), contract = topologyContract(spec, key), data = boxData(spec.size || [1, 1, 1], spec.bevel || 0);
+        topology.push({...enforceOperationBudget(contract, geometryCounts(data), null, 'preflight'), component: name});
+        addNodeWithMesh(doc, scene, name, data, spec.material ? materialByName(doc, spec.material) : null, spec); touched.add(name);
+      }
+      else if (key === 'scene.createCylinder') {
+        const name = boundedName(args[0]), spec = options(args[1]), segments = Math.max(6, Math.min(128, Math.floor(Number(spec.segments) || 24))), contract = topologyContract(spec, key, {segmentCount: segments}), data = cylinderData(Number(spec.radius || 0.5), Number(spec.depth || 1), segments);
+        topology.push({...enforceOperationBudget(contract, geometryCounts(data), null, 'preflight'), component: name});
+        addNodeWithMesh(doc, scene, name, data, spec.material ? materialByName(doc, spec.material) : null, spec); touched.add(name);
+      }
+      else if (key === 'scene.createProfileExtrusion') {
+        const name = boundedName(args[0]), spec = options(args[1]), profileCount = Array.isArray(spec.profile) ? spec.profile.length : 0, contract = topologyContract(spec, key, {profileCount}), data = profileExtrusionData(spec.profile, spec.depth);
+        topology.push({...enforceOperationBudget(contract, geometryCounts(data), null, 'preflight'), component: name});
+        addNodeWithMesh(doc, scene, name, data, spec.material ? materialByName(doc, spec.material) : null, spec); touched.add(name);
+      }
+      else if (key === 'scene.createSectionLoft') {
+        const name = boundedName(args[0]), spec = options(args[1]), sectionCount = Array.isArray(spec.sections) ? spec.sections.length : 0, profileCount = sectionCount && Array.isArray(spec.sections[0].profile) ? spec.sections[0].profile.length : 0;
+        const contract = topologyContract(spec, key, {sectionCount, profileCount});
+        const predicted = {vertices: sectionCount * profileCount, triangles: Math.max(0, sectionCount - 1) * profileCount * 2 + (spec.capStart === false ? 0 : Math.max(0, profileCount - 2)) + (spec.capEnd === false ? 0 : Math.max(0, profileCount - 2))};
+        enforceOperationBudget(contract, predicted, null, 'preflight');
+        const data = sectionLoftData(spec.sections, spec);
+        topology.push({...enforceOperationBudget(contract, geometryCounts(data), null, 'output'), component: name});
+        addNodeWithMesh(doc, scene, name, data, spec.material ? materialByName(doc, spec.material) : null, spec); touched.add(name);
+      }
       else if (key === 'scene.transform') { const node = nodeByName(doc, args[0]), spec = options(args[1]); if (spec.translation) node.setTranslation(vector(spec.translation, 3, null, 'translation')); if (spec.rotation) node.setRotation(vector(spec.rotation, 4, null, 'rotation')); if (spec.scale) node.setScale(vector(spec.scale, 3, null, 'scale')); touched.add(node.getName()); }
       else if (key === 'scene.rename') { const node = nodeByName(doc, args[0]), name = uniqueNodeName(doc, args[1]); touched.add(node.getName()); node.setName(name); touched.add(name); }
       else if (key === 'scene.reparent') { const node = nodeByName(doc, args[0]); attachTo(doc, node, args[1] || ''); touched.add(node.getName()); }
@@ -420,7 +539,7 @@ export async function executeFoundryPlan({doc, plan, domain = 'hard_surface'}) {
       else if (key === 'scene.separate') { const source = nodeByName(doc, args[0]), primitives = source.getMesh()?.listPrimitives() || []; if (primitives.length < 2) throw fail('foundry.scene.separate_unneeded', 'Separate requires a mesh with multiple primitives.'); primitives.forEach((primitive, primitiveIndex) => { const mesh = doc.createMesh(source.getName() + '-part-' + primitiveIndex).addPrimitive(primitive); const node = doc.createNode(uniqueNodeName(doc, source.getName() + '-part-' + primitiveIndex)).setMesh(mesh).setTranslation(source.getTranslation()).setRotation(source.getRotation()).setScale(source.getScale()); attachTo(doc, node, source.getParentNode()?.getName() || ''); touched.add(node.getName()); }); source.dispose(); }
       else if (key === 'mesh.recalculateNormals') { const node = nodeByName(doc, args[0]); for (const primitive of node.getMesh()?.listPrimitives() || []) recalculatePrimitiveNormals(doc, primitive, node.getName()); touched.add(node.getName()); }
       else if (key === 'mesh.weld') { const node = nodeByName(doc, args[0]), tolerance = Math.max(1e-9, Math.min(1, Number(args[1]) || 1e-6)); for (const primitive of node.getMesh()?.listPrimitives() || []) weldPrimitive(doc, primitive, tolerance); touched.add(node.getName()); }
-      else if (key === 'mesh.boolean') { const node = await booleanNodes(doc, args[0], args[1], String(args[2] || 'union'), args[3] || ''); touched.add(node.getName()); }
+      else if (key === 'mesh.boolean') { const result = await booleanNodes(doc, args[0], args[1], String(args[2] || 'union'), args[3] || '', args[4]); topology.push({...result.topology, component: result.node.getName()}); touched.add(result.node.getName()); }
       else if (key === 'material.create') { const name = boundedName(args[0], 'material'), spec = options(args[1]); if (doc.getRoot().listMaterials().some((entry) => entry.getName() === name)) throw fail('foundry.material.name_conflict', 'Material already exists: ' + name); doc.createMaterial(name).setBaseColorFactor(vector(spec.baseColor, 4, [0.5, 0.5, 0.5, 1], 'baseColor')).setMetallicFactor(Math.max(0, Math.min(1, Number(spec.metallic) || 0))).setRoughnessFactor(Math.max(0, Math.min(1, Number(spec.roughness ?? 0.7)))); }
       else if (key === 'material.assign') { const node = nodeByName(doc, args[0]), material = materialByName(doc, args[1]); for (const primitive of node.getMesh()?.listPrimitives() || []) primitive.setMaterial(material); touched.add(node.getName()); }
       else if (key === 'rig.addBone') { const parent = nodeByName(doc, args[0]), name = uniqueNodeName(doc, args[1]), spec = options(args[2]), bone = doc.createNode(name).setTranslation(vector(spec.translation, 3, [0, 0, 0], 'translation')).setRotation(vector(spec.rotation, 4, [0, 0, 0, 1], 'rotation')); parent.addChild(bone); if (spec.addToSkin !== false) { const skin = doc.getRoot().listSkins().find((entry) => entry.listJoints().includes(parent)); if (!skin) throw fail('foundry.rig.skin_not_found', 'Parent bone is not part of a skin.', {parent: parent.getName()}); const old = skin.getInverseBindMatrices()?.getArray(), next = new Float32Array((skin.listJoints().length + 1) * 16); for (let matrix = 0; matrix < skin.listJoints().length + 1; matrix++) next.set([1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1], matrix * 16); if (old) next.set(old); skin.setInverseBindMatrices(accessor(doc, rootBuffer(doc), name + ':inverse-bind', Accessor.Type.MAT4, next)).addJoint(bone); } touched.add(name); }
@@ -443,14 +562,15 @@ export async function executeFoundryPlan({doc, plan, domain = 'hard_surface'}) {
       throw error;
     }
   }
+  if (domain === 'hard_surface' && !productionBudget) throw fail('foundry.geometry.production_budget_required', 'Hard-surface work requires a production budget before output can become a candidate.');
   const after = preservationEvidence(doc);
-  return {domain, reviewViews, notes: plan.notes || [], changes: changes.slice(0, 500), touched: Array.from(touched).sort().slice(0, 500), before, after, preservation: {untouchedDataRecorded: true, beforeHashes: before.hashes, afterHashes: after.hashes}};
+  return {domain, reviewViews, productionBudget, topology: topology.slice(0, 500), notes: plan.notes || [], changes: changes.slice(0, 500), touched: Array.from(touched).sort().slice(0, 500), before, after, preservation: {untouchedDataRecorded: true, beforeHashes: before.hashes, afterHashes: after.hashes}};
 }
 
 function edgeKey(a, b) { return a < b ? a + ':' + b : b + ':' + a; }
 function vertexKey(position, index) { return [position[index * 3], position[index * 3 + 1], position[index * 3 + 2]].map((value) => Math.round(value * 1000000)).join(','); }
 export function inspectDocument(doc) {
-  const root = doc.getRoot(); let triangles = 0, vertices = 0, degenerateTriangles = 0, invalidNormals = 0; const components = [];
+  const root = doc.getRoot(); let triangles = 0, vertices = 0, sourceTriangles = 0, sourceVertices = 0, degenerateTriangles = 0, invalidNormals = 0; const components = [], seenMeshes = new Set();
   for (const node of root.listNodes()) {
     const mesh = node.getMesh(); if (!mesh) continue; let nodeTriangles = 0, nodeVertices = 0, boundaryEdges = 0, nonManifoldEdges = 0;
     for (const primitive of mesh.listPrimitives()) {
@@ -460,19 +580,23 @@ export function inspectDocument(doc) {
       for (let i = 0; i + 2 < indices.length; i += 3) { const a = vertexKey(position, indices[i]), b = vertexKey(position, indices[i + 1]), c = vertexKey(position, indices[i + 2]); if (a === b || b === c || c === a) degenerateTriangles += 1; for (const key of [edgeKey(a, b), edgeKey(b, c), edgeKey(c, a)]) edges.set(key, (edges.get(key) || 0) + 1); nodeTriangles += 1; }
       for (const countValue of edges.values()) { if (countValue === 1) boundaryEdges += 1; if (countValue > 2) nonManifoldEdges += 1; }
     }
-    triangles += nodeTriangles; vertices += nodeVertices; components.push({node: node.getName(), mesh: mesh.getName(), triangles: nodeTriangles, vertices: nodeVertices, boundaryEdges, nonManifoldEdges, instanced: root.listNodes().filter((candidate) => candidate.getMesh() === mesh).length > 1});
+    triangles += nodeTriangles; vertices += nodeVertices; if (!seenMeshes.has(mesh)) { seenMeshes.add(mesh); sourceTriangles += nodeTriangles; sourceVertices += nodeVertices; } components.push({node: node.getName(), mesh: mesh.getName(), triangles: nodeTriangles, vertices: nodeVertices, boundaryEdges, nonManifoldEdges, instanced: root.listNodes().filter((candidate) => candidate.getMesh() === mesh).length > 1});
   }
   if (vertices > MAX_VERTICES || triangles > MAX_TRIANGLES) throw fail('foundry.limit.geometry', 'Geometry exceeds Foundry limits.', {vertices, triangles, maxVertices: MAX_VERTICES, maxTriangles: MAX_TRIANGLES});
   const boundRoot = root.listScenes()[0] || root.listNodes()[0];
   const bounds = boundRoot ? getBounds(boundRoot) : {min: [0, 0, 0], max: [0, 0, 0]};
-  return {kernelVersion: FOUNDRY_KERNEL_VERSION, bounds: {min: Array.from(bounds.min), max: Array.from(bounds.max), size: Array.from(bounds.min).map((value, index) => bounds.max[index] - value)}, triangleCount: triangles, vertexCount: vertices, componentCount: components.length, components: components.slice(0, 200), validation: {degenerateTriangles, invalidNormals, nonManifoldComponents: components.filter((entry) => entry.nonManifoldEdges > 0).length, manifoldClosedComponents: components.filter((entry) => entry.boundaryEdges === 0 && entry.nonManifoldEdges === 0).length}, hierarchy: root.listNodes().slice(0, 500).map((node) => ({name: node.getName(), parent: node.getParentNode()?.getName() || null, mesh: node.getMesh()?.getName() || null, skin: node.getSkin()?.getName() || null})), animations: root.listAnimations().map((animation) => ({name: animation.getName(), channelCount: animation.listChannels().length, duration: Math.max(0, ...animation.listSamplers().map((sampler) => { const values = sampler.getInput()?.getArray(); return values?.length ? values[values.length - 1] : 0; }))})), skins: root.listSkins().map((skin) => ({name: skin.getName(), joints: skin.listJoints().map((node) => node.getName())}))};
+  const nonManifoldComponents = components.filter((entry) => entry.nonManifoldEdges > 0).length, openComponents = components.filter((entry) => entry.boundaryEdges > 0).length;
+  return {kernelVersion: FOUNDRY_KERNEL_VERSION, bounds: {min: Array.from(bounds.min), max: Array.from(bounds.max), size: Array.from(bounds.min).map((value, index) => bounds.max[index] - value)}, triangleCount: triangles, vertexCount: vertices, sourceTriangleCount: sourceTriangles, sourceVertexCount: sourceVertices, expandedTriangleCount: triangles, expandedVertexCount: vertices, componentCount: components.length, components: components.slice(0, 200), validation: {degenerateTriangles, invalidNormals, nonManifoldComponents, openComponents, manifoldClosedComponents: components.filter((entry) => entry.boundaryEdges === 0 && entry.nonManifoldEdges === 0).length, topologyValid: degenerateTriangles === 0 && invalidNormals === 0 && nonManifoldComponents === 0 && openComponents === 0}, hierarchy: root.listNodes().slice(0, 500).map((node) => ({name: node.getName(), parent: node.getParentNode()?.getName() || null, mesh: node.getMesh()?.getName() || null, skin: node.getSkin()?.getName() || null})), animations: root.listAnimations().map((animation) => ({name: animation.getName(), channelCount: animation.listChannels().length, duration: Math.max(0, ...animation.listSamplers().map((sampler) => { const values = sampler.getInput()?.getArray(); return values?.length ? values[values.length - 1] : 0; }))})), skins: root.listSkins().map((skin) => ({name: skin.getName(), joints: skin.listJoints().map((node) => node.getName())}))};
 }
 
 export async function runFoundryKernel({sourceBytes = null, plan, domain = 'hard_surface', reviewPreset = 'fixed-six-view'}) {
   if (!['hard_surface', 'character_setup', 'animation', 'inspect'].includes(domain)) throw fail('foundry.domain.unsupported', 'Unsupported Foundry domain: ' + domain);
   const doc = await sourceDocument(sourceBytes);
   const evidence = await executeFoundryPlan({doc, plan, domain});
-  const report = inspectDocument(doc);
+  const report = inspectDocument(doc), production = domain === 'hard_surface' ? enforceProductionBudget(report, evidence.productionBudget) : null;
+  report.validation = {...report.validation, budgetValid: domain === 'hard_surface' ? true : null, purposeValid: domain === 'hard_surface' ? false : null, purposeState: domain === 'hard_surface' ? 'pending_remove_or_merge_review' : 'not_applicable'};
+  report.production = production;
+  report.topologyEvidence = evidence.topology;
   const glb = domain === 'inspect' && sourceBytes
     ? Buffer.from(sourceBytes)
     : Buffer.from(await (await io()).writeBinary(doc));
