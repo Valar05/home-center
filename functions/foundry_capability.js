@@ -307,9 +307,16 @@ async function promoteFoundryResult({admin, user, args = {}}) {
   if (record.owner !== owner || review.ownerEmail !== owner) throw fail('foundry.job_forbidden', 'Job or review is not owned by this caller.', 403);
   if (record.state !== 'completed' || !record.result || record.result.resultHash !== resultHash) throw fail('foundry.promotion.result_conflict', 'Promotion must bind the exact terminal Foundry result.', 409);
   if (review.verdict !== 'accepted' || !review.result || review.result.promotionAllowed !== true || review.result.producer && review.result.producer.receiptId !== jobId) throw fail('foundry.promotion.review_not_accepted', 'Review does not accept this exact Foundry receipt.', 409);
+  if (record.domain === 'hard_surface') {
+    const validation = record.result.report && record.result.report.validation || {}, simplificationEvidence = review.result.simplificationEvidence;
+    if (validation.topologyValid !== true || validation.budgetValid !== true) throw fail('foundry.promotion.machine_gates_failed', 'Hard-surface topology and production budgets must pass before promotion.', 409, {topologyValid: validation.topologyValid, budgetValid: validation.budgetValid});
+    if (review.result.purposeValid !== true || !Array.isArray(simplificationEvidence) || !simplificationEvidence.length || simplificationEvidence.some((entry) => !entry || entry.status !== 'passed' || entry.method !== 'remove_or_merge' || !Array.isArray(entry.views) || !entry.views.length || !(Number(entry.maxVisibleErrorPx) > 0))) {
+      throw fail('foundry.promotion.purpose_review_required', 'Hard-surface promotion requires accepted remove-or-merge evidence for the exact result.', 409);
+    }
+  }
   const promotionId = sha256(Buffer.from('promotion:' + jobId + ':' + resultHash + ':' + reviewRequestId)).slice(0, 40), ref = admin.firestore().collection(PUBLICATIONS).doc(promotionId);
   const artifacts = Object.fromEntries(record.result.artifacts.map((artifact) => [artifact.name, {name: artifact.name, kind: artifact.kind, mediaType: artifact.mediaType, byteLength: artifact.byteLength, sha256: artifact.sha256, bucket: artifact.bucket, objectName: artifact.objectName}]));
-  const promotion = {contractVersion: 'home-center.foundry-promotion.v2', promotionId, publicationId: promotionId, jobId, resultHash, reviewRequestId, ownerHash: record.ownerHash, namespace: record.namespace, artifacts, publicationKind: 'accepted_promotion', humanAcceptance: 'accepted', immutable: true, promotedAt: new Date().toISOString()};
+  const promotion = {contractVersion: 'home-center.foundry-promotion.v2', promotionId, publicationId: promotionId, jobId, resultHash, reviewRequestId, ownerHash: record.ownerHash, namespace: record.namespace, artifacts, publicationKind: 'accepted_promotion', topologyValid: record.result.report?.validation?.topologyValid ?? null, budgetValid: record.result.report?.validation?.budgetValid ?? null, purposeValid: record.domain === 'hard_surface' ? true : null, humanAcceptance: 'accepted', immutable: true, promotedAt: new Date().toISOString()};
   const existing = await ref.get(); if (!existing.exists) await ref.create(promotion);
   const links = publicationLinks(promotion, record.namespace), bounded = {promotionId, resultHash, reviewRequestId, humanAcceptance: 'accepted', immutable: true, ...links, promotedAt: promotion.promotedAt};
   await jobSnapshot.ref.set({result: {...record.result, promotion: bounded}, humanAcceptance: 'accepted', updatedAt: new Date().toISOString()}, {merge: true});
