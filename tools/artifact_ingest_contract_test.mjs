@@ -143,6 +143,12 @@ assert.equal(direct.destination.sha256, digest);
 assert.equal(direct.commandCenter.recorded, true);
 assert.equal(direct.commandCenter.documentId, 'dclarke1005@gmail.com--motion-packet-direct');
 assert.equal(direct.indexes.byId.reused, false);
+for (const index of Object.values(direct.indexes)) {
+  assert.equal("bytes" in index, false, "ingest receipts must not serialize immutable index bodies");
+  assert.match(index.sha256, /^[a-f0-9]{64}$/);
+  assert.ok(index.byteCount > 0);
+}
+assert.ok(Buffer.byteLength(JSON.stringify(direct)) < 16 * 1024, "ingest receipt must remain bounded");
 const replay = await service.ingestArtifactUploadOperation({admin, storage, user, args: uploadArgs});
 assert.equal(replay.reused, true);
 assert.equal(replay.indexes.byId.reused, true);
@@ -184,6 +190,8 @@ const committed = await service.commitArtifactIngestOperation({
 assert.equal(committed.verified, true);
 assert.equal(committed.destination.sha256, chunkDigest);
 assert.equal(committed.transport.stagedObjectsDisposed, true);
+assert.ok(Object.values(committed.indexes).every((index) => !("bytes" in index)), "chunked commit leaked index bytes");
+assert.ok(Buffer.byteLength(JSON.stringify(committed)) < 16 * 1024, "chunked commit receipt must remain bounded");
 assert.equal([...storage.bucket(service.ARTIFACT_BUCKET).objects.keys()].some((name) => name.includes('/chunks/')), false);
 
 const abortArgs = {...chunkArgs, requestId: 'motion-packet-abort-v1', artifactId: 'motion-packet-abort'};

@@ -229,6 +229,16 @@ async function writeCommandCenterReceipt(admin, manifest) {
   return {recorded: true, reused: false, documentId};
 }
 
+function publicImmutableIndex(index) {
+  return {
+    objectName: index.objectName,
+    storageRef: index.storageRef,
+    reused: index.reused === true,
+    byteCount: Number(index.byteCount || 0),
+    sha256: text(index.sha256, 64).toLowerCase(),
+  };
+}
+
 async function publishVerified({admin, storage = defaultStorage(), user, identity, verified, recordAudit = async () => {}}) {
   const bucket = storage.bucket(ARTIFACT_BUCKET);
   const destination = bucket.file(identity.objectName);
@@ -292,11 +302,11 @@ async function publishVerified({admin, storage = defaultStorage(), user, identit
   const base = ['indexes', 'artifacts', 'v1'];
   const manifestName = identity.objectName.replace(/\/[^/]+$/, '/artifact-manifest.json');
   const indexes = {
-    manifest: await saveImmutableJson(bucket, manifestName, manifest, sameArtifact),
-    byId: await saveImmutableJson(bucket, [...base, 'by-id', identity.ownerSegment, identity.artifactId + '.json'].join('/'), manifest, sameArtifact),
-    bySha256: await saveImmutableJson(bucket, [...base, 'by-sha256', verified.sha256 + '.json'].join('/'), manifest, sameArtifact),
-    catalog: await saveImmutableJson(bucket, [...base, 'catalog', identity.ownerSegment, identity.project, identity.artifactKind, identity.lifecycleState, identity.artifactId + '.json'].join('/'), manifest, sameArtifact),
-    request: await saveImmutableJson(bucket, [...base, 'requests', identity.ownerSegment, identity.requestId + '.json'].join('/'), manifest, sameArtifact),
+    manifest: publicImmutableIndex(await saveImmutableJson(bucket, manifestName, manifest, sameArtifact)),
+    byId: publicImmutableIndex(await saveImmutableJson(bucket, [...base, 'by-id', identity.ownerSegment, identity.artifactId + '.json'].join('/'), manifest, sameArtifact)),
+    bySha256: publicImmutableIndex(await saveImmutableJson(bucket, [...base, 'by-sha256', verified.sha256 + '.json'].join('/'), manifest, sameArtifact)),
+    catalog: publicImmutableIndex(await saveImmutableJson(bucket, [...base, 'catalog', identity.ownerSegment, identity.project, identity.artifactKind, identity.lifecycleState, identity.artifactId + '.json'].join('/'), manifest, sameArtifact)),
+    request: publicImmutableIndex(await saveImmutableJson(bucket, [...base, 'requests', identity.ownerSegment, identity.requestId + '.json'].join('/'), manifest, sameArtifact)),
   };
   const commandCenter = await writeCommandCenterReceipt(admin, manifest);
   await recordAudit(admin, user, 'storage.ingest_artifact', identity.artifactId,
