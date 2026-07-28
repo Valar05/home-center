@@ -176,10 +176,6 @@ function sectionLoftData(sectionsValue, optionsValue = {}) {
       addTriangle(lower + pointIndex, upper + next, upper + pointIndex);
     }
   }
-  for (let index = 0; index < normals.length; index += 3) {
-    const length = Math.hypot(normals[index], normals[index + 1], normals[index + 2]) || 1;
-    normals[index] /= length; normals[index + 1] /= length; normals[index + 2] /= length;
-  }
   const addCap = (sectionIndex, outward) => {
     const base = sectionIndex * pointCount;
     for (let index = 1; index < pointCount - 1; index++) {
@@ -189,6 +185,10 @@ function sectionLoftData(sectionsValue, optionsValue = {}) {
   };
   if (options.capStart !== false) addCap(0, -1);
   if (options.capEnd !== false) addCap(sections.length - 1, 1);
+  for (let index = 0; index < normals.length; index += 3) {
+    const length = Math.hypot(normals[index], normals[index + 1], normals[index + 2]) || 1;
+    normals[index] /= length; normals[index + 1] /= length; normals[index + 2] /= length;
+  }
   return {positions: new Float32Array(positions), normals: new Float32Array(normals), indices: new Uint32Array(indices)};
 }
 function makeMesh(doc, name, data, material = null) {
