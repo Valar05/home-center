@@ -4,12 +4,18 @@ import {createRequire} from 'node:module';
 
 const require = createRequire(import.meta.url);
 process.env.HOME_CENTER_MCP_EXTENDED_TOOLS = 'true';
+process.env.HOME_CENTER_SOURCE_REPOSITORY = 'Valar05/home-center';
+process.env.HOME_CENTER_SOURCE_COMMIT = '0123456789abcdef0123456789abcdef01234567';
+process.env.HOME_CENTER_SOURCE_REF = 'refs/heads/main';
+process.env.HOME_CENTER_PUBLIC_MANIFEST_SHA256 = 'a'.repeat(64);
+process.env.K_REVISION = 'homecentermcp-test-revision';
 const {
   HOME_CENTER_MCP_SERVER_VERSION,
   HOME_CENTER_CONNECTOR_SCHEMA_REVISION,
   createHomeCenterMcpApp,
   createHomeCenterMcpServer,
   homeCenterHealthPayload,
+  homeCenterReleaseIdentity,
   homeCenterReadinessPayload,
   homeCenterCapabilitiesPayload,
   operationRegistrySummary,
@@ -59,11 +65,14 @@ assert.deepEqual(homeCenterHealthPayload(), {
   version: HOME_CENTER_MCP_SERVER_VERSION,
 });
 assert.deepEqual(Object.keys(homeCenterHealthPayload()), ['ok', 'service', 'version']);
+assert.deepEqual(homeCenterReleaseIdentity(), {sourceRepository: 'Valar05/home-center', sourceCommit: '0123456789abcdef0123456789abcdef01234567', sourceRef: 'refs/heads/main', registrySchemaRevision: HOME_CENTER_CONNECTOR_SCHEMA_REVISION, publicManifestSha256: 'a'.repeat(64), deployedServiceRevision: 'homecentermcp-test-revision'});
 
 const homeReady = homeCenterReadinessPayload({admin, ...oauth});
 assert.equal(homeReady.ready, true);
 assert.equal(homeReady.status, 'ready');
+assert.deepEqual(homeReady.releaseIdentity, homeCenterReleaseIdentity());
 assert.deepEqual(homeReady.checks.map((check) => check.name), [
+  'main_release_identity',
   'firebase_admin',
   'google_oauth_client_id',
   'google_oauth_client_secret',
@@ -71,6 +80,10 @@ assert.deepEqual(homeReady.checks.map((check) => check.name), [
   'artifact_bucket',
 ]);
 assert(!JSON.stringify(homeReady).includes('client-secret-is-configured'));
+const savedSourceCommit = process.env.HOME_CENTER_SOURCE_COMMIT;
+delete process.env.HOME_CENTER_SOURCE_COMMIT;
+assert.equal(homeCenterReadinessPayload({admin, ...oauth}).ready, false, 'missing immutable main identity must fail readiness');
+process.env.HOME_CENTER_SOURCE_COMMIT = savedSourceCommit;
 assert.equal(homeCenterReadinessPayload({admin: null, googleClientId: () => '', googleClientSecret: () => ''}).ready, false);
 
 const bounded = operationRegistrySummary({version: 'v1', invocationTool: 'dispatch', operations: {z: {write: true}, a: {write: false}, m: {write: true}}}, 2);
@@ -92,6 +105,7 @@ assert.deepEqual(readiness, homeReady);
 assert.deepEqual(capabilities, homeCenterCapabilitiesPayload(homeServer));
 assert.deepEqual(capabilities, textJson(await homeServer._registeredTools.capabilities.handler({}, {})), 'capabilities must be deterministic');
 assert.equal(capabilities.registryVersion, HOME_CENTER_CONNECTOR_SCHEMA_REVISION);
+assert.deepEqual(capabilities.releaseIdentity, homeCenterReleaseIdentity());
 assert.equal(capabilities.summaryKind, 'names_only');
 assert.deepEqual(capabilities.topLevelTools, sortedUnique(capabilities.topLevelTools));
 for (const summary of Object.values(capabilities.operationSurfaces)) {

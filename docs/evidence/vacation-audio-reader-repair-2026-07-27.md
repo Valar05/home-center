@@ -65,6 +65,21 @@ registration target. The bytes are not a mutation target.
 - Foundry exact replay duplicate uploads: `0`.
 - Blender attached GIF replay duplicate Drive creates: `0`.
 
+## Catalog Contradiction And Repair
+
+The first post-deploy protocol gate rejected production even though the service
+was healthy: production capabilities reported
+`2026-07-27.render-review-egress-v1`, while
+`tools/home_center_production_blender_tool_catalog_test.mjs` still required
+`2026-07-26.status-contract-v1`. The owning layer was the repository test,
+not the Work Mode host or MCP runtime. The replacement manifest is generated
+from the same `createHomeCenterMcpServer` registrations used by runtime. It
+contains 58 complete public tool contracts, per-tool schema hashes and
+file-bearing fields. Canonical tools SHA-256 remains
+`64fe900eeaaf2928c2b6114829ee758ff73cc05700373085a1ae63b6484d05f1`;
+public manifest SHA-256 is
+`db08ac23a79a77f30720efd01a4a53658eb113e62bff3785a892966a330872cd`.
+
 ## Live Proof
 
 Pending merge to `main`, exact-main deployment, authenticated receipt-only
