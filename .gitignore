@@ -88,3 +88,6 @@ tools/command_center_invokability_evidence/command_center_invokability_live-afte
 tools/command_center_invokability_evidence/command_center_invokability_live-worker-list-check-*.json
 tools/she_raw_evidence/she_raw_cloud_introspection_*.json
 tools/she_raw_evidence/she_raw_operational_health_contract_fix_*.json
+
+# Local CI reports; GitHub uploads these from the runner.
+/generated/ci-reports/

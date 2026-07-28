@@ -1,0 +1,4094 @@
+[
+  {
+    "_meta": {
+      "securitySchemes": [
+        {
+          "scopes": [
+            "https://www.googleapis.com/auth/drive",
+            "https://www.googleapis.com/auth/documents",
+            "https://www.googleapis.com/auth/spreadsheets",
+            "https://www.googleapis.com/auth/gmail.readonly",
+            "https://www.googleapis.com/auth/calendar.events"
+          ],
+          "type": "oauth2"
+        }
+      ]
+    },
+    "annotations": {
+      "openWorldHint": false,
+      "readOnlyHint": true
+    },
+    "description": "Read one audit entry by requestId.",
+    "execution": {
+      "taskSupport": "forbidden"
+    },
+    "inputSchema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "properties": {
+        "requestId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "requestId"
+      ],
+      "type": "object"
+    },
+    "name": "audit_get",
+    "securitySchemes": [
+      {
+        "scopes": [
+          "https://www.googleapis.com/auth/drive",
+          "https://www.googleapis.com/auth/documents",
+          "https://www.googleapis.com/auth/spreadsheets",
+          "https://www.googleapis.com/auth/gmail.readonly",
+          "https://www.googleapis.com/auth/calendar.events"
+        ],
+        "type": "oauth2"
+      }
+    ],
+    "title": "Audit get"
+  },
+  {
+    "_meta": {
+      "securitySchemes": [
+        {
+          "scopes": [
+            "https://www.googleapis.com/auth/drive",
+            "https://www.googleapis.com/auth/documents",
+            "https://www.googleapis.com/auth/spreadsheets",
+            "https://www.googleapis.com/auth/gmail.readonly",
+            "https://www.googleapis.com/auth/calendar.events"
+          ],
+          "type": "oauth2"
+        }
+      ]
+    },
+    "annotations": {
+      "openWorldHint": false,
+      "readOnlyHint": true
+    },
+    "description": "Read recent Drive Bridge write audit entries, optionally filtered by fileId or requestId.",
+    "execution": {
+      "taskSupport": "forbidden"
+    },
+    "inputSchema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "properties": {
+        "fileId": {
+          "type": "string"
+        },
+        "limit": {
+          "default": 20,
+          "maximum": 50,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "requestId": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "name": "audit_log",
+    "securitySchemes": [
+      {
+        "scopes": [
+          "https://www.googleapis.com/auth/drive",
+          "https://www.googleapis.com/auth/documents",
+          "https://www.googleapis.com/auth/spreadsheets",
+          "https://www.googleapis.com/auth/gmail.readonly",
+          "https://www.googleapis.com/auth/calendar.events"
+        ],
+        "type": "oauth2"
+      }
+    ],
+    "title": "Audit log"
+  },
+  {
+    "_meta": {
+      "securitySchemes": [
+        {
+          "scopes": [
+            "https://www.googleapis.com/auth/drive",
+            "https://www.googleapis.com/auth/documents",
+            "https://www.googleapis.com/auth/spreadsheets",
+            "https://www.googleapis.com/auth/gmail.readonly",
+            "https://www.googleapis.com/auth/calendar.events"
+          ],
+          "type": "oauth2"
+        }
+      ]
+    },
+    "annotations": {
+      "openWorldHint": false,
+      "readOnlyHint": true
+    },
+    "description": "Check whether the audit log store is reachable and return the most recent audit entry metadata.",
+    "execution": {
+      "taskSupport": "forbidden"
+    },
+    "inputSchema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "properties": {},
+      "type": "object"
+    },
+    "name": "audit_status",
+    "securitySchemes": [
+      {
+        "scopes": [
+          "https://www.googleapis.com/auth/drive",
+          "https://www.googleapis.com/auth/documents",
+          "https://www.googleapis.com/auth/spreadsheets",
+          "https://www.googleapis.com/auth/gmail.readonly",
+          "https://www.googleapis.com/auth/calendar.events"
+        ],
+        "type": "oauth2"
+      }
+    ],
+    "title": "Audit status"
+  },
+  {
+    "_meta": {
+      "securitySchemes": [
+        {
+          "scopes": [
+            "https://www.googleapis.com/auth/drive",
+            "https://www.googleapis.com/auth/documents",
+            "https://www.googleapis.com/auth/spreadsheets",
+            "https://www.googleapis.com/auth/gmail.readonly",
+            "https://www.googleapis.com/auth/calendar.events"
+          ],
+          "type": "oauth2"
+        }
+      ]
+    },
+    "annotations": {
+      "openWorldHint": true,
+      "readOnlyHint": true
+    },
+    "description": "Verify the connected Google OAuth identity available to this MCP call.",
+    "execution": {
+      "taskSupport": "forbidden"
+    },
+    "inputSchema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "properties": {},
+      "type": "object"
+    },
+    "name": "auth_status",
+    "securitySchemes": [
+      {
+        "scopes": [
+          "https://www.googleapis.com/auth/drive",
+          "https://www.googleapis.com/auth/documents",
+          "https://www.googleapis.com/auth/spreadsheets",
+          "https://www.googleapis.com/auth/gmail.readonly",
+          "https://www.googleapis.com/auth/calendar.events"
+        ],
+        "type": "oauth2"
+      }
+    ],
+    "title": "Auth status"
+  },
+  {
+    "_meta": {
+      "securitySchemes": [
+        {
+          "scopes": [
+            "https://www.googleapis.com/auth/drive",
+            "https://www.googleapis.com/auth/documents",
+            "https://www.googleapis.com/auth/spreadsheets",
+            "https://www.googleapis.com/auth/gmail.readonly",
+            "https://www.googleapis.com/auth/calendar.events"
+          ],
+          "type": "oauth2"
+        }
+      ]
+    },
+    "annotations": {
+      "openWorldHint": false,
+      "readOnlyHint": true
+    },
+    "description": "Return a bounded, deterministic summary of callable tools and operation names for this deployed revision.",
+    "execution": {
+      "taskSupport": "forbidden"
+    },
+    "inputSchema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "properties": {},
+      "type": "object"
+    },
+    "name": "capabilities",
+    "securitySchemes": [
+      {
+        "scopes": [
+          "https://www.googleapis.com/auth/drive",
+          "https://www.googleapis.com/auth/documents",
+          "https://www.googleapis.com/auth/spreadsheets",
+          "https://www.googleapis.com/auth/gmail.readonly",
+          "https://www.googleapis.com/auth/calendar.events"
+        ],
+        "type": "oauth2"
+      }
+    ],
+    "title": "Capabilities"
+  },
+  {
+    "_meta": {
+      "securitySchemes": [
+        {
+          "scopes": [
+            "https://www.googleapis.com/auth/drive",
+            "https://www.googleapis.com/auth/documents",
+            "https://www.googleapis.com/auth/spreadsheets",
+            "https://www.googleapis.com/auth/gmail.readonly",
+            "https://www.googleapis.com/auth/calendar.events"
+          ],
+          "type": "oauth2"
+        }
+      ]
+    },
+    "annotations": {
+      "destructiveHint": false,
+      "idempotentHint": true,
+      "openWorldHint": true,
+      "readOnlyHint": false
+    },
+    "description": "Synthesize one or more speaker segments with Cartesia directly, stitch them into one audio file, save it as a private Drive artifact, verify readback byte count and SHA-256, and audit the write. This does not use Command Center jobs or workers.",
+    "execution": {
+      "taskSupport": "forbidden"
+    },
+    "inputSchema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "properties": {
+        "callerNote": {
+          "description": "Human-readable summary for the audit log.",
+          "type": "string"
+        },
+        "format": {
+          "default": "wav",
+          "enum": [
+            "wav",
+            "raw"
+          ],
+          "type": "string"
+        },
+        "modelId": {
+          "description": "Default Cartesia model id.",
+          "type": "string"
+        },
+        "name": {
+          "description": "Optional Drive filename.",
+          "type": "string"
+        },
+        "parentFolderId": {
+          "description": "Optional Drive folder ID for the audio artifact.",
+          "type": "string"
+        },
+        "pauseMs": {
+          "description": "Optional silence inserted between stitched segments. Defaults to 0.",
+          "maximum": 5000,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "pitchSemitones": {
+          "default": 0,
+          "description": "Optional tempo-preserving pitch shift in semitones for all segments unless a segment overrides it. Must be a finite JSON number from -12 to 12.",
+          "maximum": 12,
+          "minimum": -12,
+          "type": "number"
+        },
+        "requestId": {
+          "description": "Stable idempotency/audit request id. Required.",
+          "type": "string"
+        },
+        "sampleRate": {
+          "default": 24000,
+          "maximum": 48000,
+          "minimum": 8000,
+          "type": "integer"
+        },
+        "segments": {
+          "description": "Ordered speaker segments. Each segment is synthesized separately with its own optional Cartesia voice and pitch shift, then stitched into one output file.",
+          "items": {
+            "properties": {
+              "modelId": {
+                "type": "string"
+              },
+              "pitchSemitones": {
+                "description": "Optional per-segment tempo-preserving pitch shift override in semitones, finite JSON number from -12 to 12.",
+                "maximum": 12,
+                "minimum": -12,
+                "type": "number"
+              },
+              "speaker": {
+                "type": "string"
+              },
+              "text": {
+                "type": "string"
+              },
+              "voiceId": {
+                "type": "string"
+              },
+              "voiceName": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "text"
+            ],
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "text": {
+          "description": "Single-speaker text. Omit when segments is supplied.",
+          "type": "string"
+        },
+        "voiceId": {
+          "description": "Default Cartesia voice id for segments that do not specify one.",
+          "type": "string"
+        },
+        "voiceName": {
+          "description": "Default Cartesia voice name for segments that do not specify one.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "requestId"
+      ],
+      "type": "object"
+    },
+    "name": "cartesia_synthesize",
+    "securitySchemes": [
+      {
+        "scopes": [
+          "https://www.googleapis.com/auth/drive",
+          "https://www.googleapis.com/auth/documents",
+          "https://www.googleapis.com/auth/spreadsheets",
+          "https://www.googleapis.com/auth/gmail.readonly",
+          "https://www.googleapis.com/auth/calendar.events"
+        ],
+        "type": "oauth2"
+      }
+    ],
+    "title": "Cartesia synthesize"
+  },
+  {
+    "_meta": {
+      "securitySchemes": [
+        {
+          "scopes": [
+            "https://www.googleapis.com/auth/drive",
+            "https://www.googleapis.com/auth/documents",
+            "https://www.googleapis.com/auth/spreadsheets",
+            "https://www.googleapis.com/auth/gmail.readonly",
+            "https://www.googleapis.com/auth/calendar.events"
+          ],
+          "type": "oauth2"
+        }
+      ]
+    },
+    "annotations": {
+      "openWorldHint": true,
+      "readOnlyHint": true
+    },
+    "description": "List or search Cartesia voices by calling the hosted Cartesia provider directly from Home Center MCP. This does not create or inspect Command Center jobs, workers, leases, or Codex sessions.",
+    "execution": {
+      "taskSupport": "forbidden"
+    },
+    "inputSchema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "properties": {
+        "accent": {
+          "description": "Optional accent metadata filter applied to the returned Cartesia page when accent metadata is present.",
+          "type": "string"
+        },
+        "country": {
+          "description": "Optional country metadata filter applied to the returned Cartesia page when country metadata is present.",
+          "type": "string"
+        },
+        "endingBefore": {
+          "description": "Cartesia ending_before voice ID cursor.",
+          "type": "string"
+        },
+        "gender": {
+          "description": "Cartesia gender presentation filter.",
+          "enum": [
+            "masculine",
+            "feminine",
+            "gender_neutral"
+          ],
+          "type": "string"
+        },
+        "includePreviewUrl": {
+          "description": "Include Cartesia preview_file_url expansion when available. Defaults to true.",
+          "type": "boolean"
+        },
+        "isOwner": {
+          "description": "When true, return only voices owned by the Cartesia organization.",
+          "type": "boolean"
+        },
+        "language": {
+          "description": "Cartesia language or language-locale filter such as ru, en, or en_GB.",
+          "type": "string"
+        },
+        "limit": {
+          "default": 100,
+          "description": "Cartesia provider page size, 1-100.",
+          "maximum": 100,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "locale": {
+          "description": "Language-locale alias passed to Cartesia as language when language is not supplied.",
+          "type": "string"
+        },
+        "pageToken": {
+          "description": "Alias for Cartesia starting_after pagination cursor.",
+          "type": "string"
+        },
+        "q": {
+          "description": "Alias for query.",
+          "type": "string"
+        },
+        "query": {
+          "description": "Optional text passed to Cartesia as q to search voice names, descriptions, and voice IDs.",
+          "type": "string"
+        },
+        "startingAfter": {
+          "description": "Cartesia starting_after voice ID cursor.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "name": "cartesia_voices",
+    "securitySchemes": [
+      {
+        "scopes": [
+          "https://www.googleapis.com/auth/drive",
+          "https://www.googleapis.com/auth/documents",
+          "https://www.googleapis.com/auth/spreadsheets",
+          "https://www.googleapis.com/auth/gmail.readonly",
+          "https://www.googleapis.com/auth/calendar.events"
+        ],
+        "type": "oauth2"
+      }
+    ],
+    "title": "Cartesia voices"
+  },
+  {
+    "_meta": {
+      "securitySchemes": [
+        {
+          "scopes": [
+            "https://www.googleapis.com/auth/drive",
+            "https://www.googleapis.com/auth/documents",
+            "https://www.googleapis.com/auth/spreadsheets",
+            "https://www.googleapis.com/auth/gmail.readonly",
+            "https://www.googleapis.com/auth/calendar.events"
+          ],
+          "type": "oauth2"
+        }
+      ]
+    },
+    "annotations": {
+      "destructiveHint": false,
+      "idempotentHint": true,
+      "openWorldHint": true,
+      "readOnlyHint": false
+    },
+    "description": "Invoke Command Center dispatch and job-control operations through the already-connected Home Center MCP app. Use this when ChatGPT needs to create a follow-up worker job, inspect events/artifacts, answer worker questions, or authorize a mutation without relying on a separate Command Center connector namespace.",
+    "execution": {
+      "taskSupport": "forbidden"
+    },
+    "inputSchema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "properties": {
+        "args": {
+          "additionalProperties": {},
+          "description": "Operation-specific arguments. Mutating operations require idempotencyKey inside args.",
+          "propertyNames": {
+            "type": "string"
+          },
+          "type": "object"
+        },
+        "operation": {
+          "description": "Operation name from the Command Center operation registry, such as jobs.create, jobs.get_events, jobs.get_artifacts, jobs.answer_question, or jobs.authorize_mutation. Runtime registry validation rejects unsupported names.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "operation"
+      ],
+      "type": "object"
+    },
+    "name": "command_center_operation",
+    "securitySchemes": [
+      {
+        "scopes": [
+          "https://www.googleapis.com/auth/drive",
+          "https://www.googleapis.com/auth/documents",
+          "https://www.googleapis.com/auth/spreadsheets",
+          "https://www.googleapis.com/auth/gmail.readonly",
+          "https://www.googleapis.com/auth/calendar.events"
+        ],
+        "type": "oauth2"
+      }
+    ],
+    "title": "Command Center operation"
+  },
+  {
+    "_meta": {
+      "securitySchemes": [
+        {
+          "scopes": [
+            "https://www.googleapis.com/auth/drive",
+            "https://www.googleapis.com/auth/documents",
+            "https://www.googleapis.com/auth/spreadsheets",
+            "https://www.googleapis.com/auth/gmail.readonly",
+            "https://www.googleapis.com/auth/calendar.events"
+          ],
+          "type": "oauth2"
+        }
+      ]
+    },
+    "annotations": {
+      "destructiveHint": false,
+      "idempotentHint": true,
+      "openWorldHint": true,
+      "readOnlyHint": false
+    },
+    "description": "Append text to an existing Google Doc and write an audit record. This is a write action and should be approved by the user.",
+    "execution": {
+      "taskSupport": "forbidden"
+    },
+    "inputSchema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "properties": {
+        "callerNote": {
+          "description": "Human-readable summary for the audit log.",
+          "type": "string"
+        },
+        "documentId": {
+          "description": "Google Doc file ID.",
+          "type": "string"
+        },
+        "heading": {
+          "description": "Optional heading to insert before appended text.",
+          "type": "string"
+        },
+        "requestId": {
+          "description": "Optional idempotency/audit request id.",
+          "type": "string"
+        },
+        "text": {
+          "description": "Text to append.",
+          "minLength": 1,
+          "type": "string"
+        }
+      },
+      "required": [
+        "documentId",
+        "text"
+      ],
+      "type": "object"
+    },
+    "name": "docs_append",
+    "securitySchemes": [
+      {
+        "scopes": [
+          "https://www.googleapis.com/auth/drive",
+          "https://www.googleapis.com/auth/documents",
+          "https://www.googleapis.com/auth/spreadsheets",
+          "https://www.googleapis.com/auth/gmail.readonly",
+          "https://www.googleapis.com/auth/calendar.events"
+        ],
+        "type": "oauth2"
+      }
+    ],
+    "title": "Docs append"
+  },
+  {
+    "_meta": {
+      "securitySchemes": [
+        {
+          "scopes": [
+            "https://www.googleapis.com/auth/drive",
+            "https://www.googleapis.com/auth/documents",
+            "https://www.googleapis.com/auth/spreadsheets",
+            "https://www.googleapis.com/auth/gmail.readonly",
+            "https://www.googleapis.com/auth/calendar.events"
+          ],
+          "type": "oauth2"
+        }
+      ]
+    },
+    "annotations": {
+      "destructiveHint": false,
+      "idempotentHint": true,
+      "openWorldHint": true,
+      "readOnlyHint": false
+    },
+    "description": "Create a Google Doc, optionally place it in a Drive folder, optionally insert initial text, and write an audit record.",
+    "execution": {
+      "taskSupport": "forbidden"
+    },
+    "inputSchema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "properties": {
+        "callerNote": {
+          "type": "string"
+        },
+        "initialText": {
+          "type": "string"
+        },
+        "parentFolderId": {
+          "type": "string"
+        },
+        "requestId": {
+          "type": "string"
+        },
+        "title": {
+          "minLength": 1,
+          "type": "string"
+        }
+      },
+      "required": [
+        "title"
+      ],
+      "type": "object"
+    },
+    "name": "docs_create",
+    "securitySchemes": [
+      {
+        "scopes": [
+          "https://www.googleapis.com/auth/drive",
+          "https://www.googleapis.com/auth/documents",
+          "https://www.googleapis.com/auth/spreadsheets",
+          "https://www.googleapis.com/auth/gmail.readonly",
+          "https://www.googleapis.com/auth/calendar.events"
+        ],
+        "type": "oauth2"
+      }
+    ],
+    "title": "Docs create"
+  },
+  {
+    "_meta": {
+      "securitySchemes": [
+        {
+          "scopes": [
+            "https://www.googleapis.com/auth/drive",
+            "https://www.googleapis.com/auth/documents",
+            "https://www.googleapis.com/auth/spreadsheets",
+            "https://www.googleapis.com/auth/gmail.readonly",
+            "https://www.googleapis.com/auth/calendar.events"
+          ],
+          "type": "oauth2"
+        }
+      ]
+    },
+    "annotations": {
+      "destructiveHint": false,
+      "idempotentHint": true,
+      "openWorldHint": true,
+      "readOnlyHint": false
+    },
+    "description": "Create a Google Drive folder and write an audit record.",
+    "execution": {
+      "taskSupport": "forbidden"
+    },
+    "inputSchema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "properties": {
+        "callerNote": {
+          "type": "string"
+        },
+        "name": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "parentFolderId": {
+          "type": "string"
+        },
+        "requestId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "type": "object"
+    },
+    "name": "drive_create_folder",
+    "securitySchemes": [
+      {
+        "scopes": [
+          "https://www.googleapis.com/auth/drive",
+          "https://www.googleapis.com/auth/documents",
+          "https://www.googleapis.com/auth/spreadsheets",
+          "https://www.googleapis.com/auth/gmail.readonly",
+          "https://www.googleapis.com/auth/calendar.events"
+        ],
+        "type": "oauth2"
+      }
+    ],
+    "title": "Drive create folder"
+  },
+  {
+    "_meta": {
+      "securitySchemes": [
+        {
+          "scopes": [
+            "https://www.googleapis.com/auth/drive",
+            "https://www.googleapis.com/auth/documents",
+            "https://www.googleapis.com/auth/spreadsheets",
+            "https://www.googleapis.com/auth/gmail.readonly",
+            "https://www.googleapis.com/auth/calendar.events"
+          ],
+          "type": "oauth2"
+        }
+      ]
+    },
+    "annotations": {
+      "destructiveHint": false,
+      "idempotentHint": true,
+      "openWorldHint": true,
+      "readOnlyHint": false
+    },
+    "description": "Execute an approved staged Drive organize plan. Requires approved=true and requestId.",
+    "execution": {
+      "taskSupport": "forbidden"
+    },
+    "inputSchema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "properties": {
+        "approved": {
+          "type": "boolean"
+        },
+        "callerNote": {
+          "type": "string"
+        },
+        "planId": {
+          "type": "string"
+        },
+        "requestId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "planId",
+        "approved",
+        "requestId"
+      ],
+      "type": "object"
+    },
+    "name": "drive_execute_plan",
+    "securitySchemes": [
+      {
+        "scopes": [
+          "https://www.googleapis.com/auth/drive",
+          "https://www.googleapis.com/auth/documents",
+          "https://www.googleapis.com/auth/spreadsheets",
+          "https://www.googleapis.com/auth/gmail.readonly",
+          "https://www.googleapis.com/auth/calendar.events"
+        ],
+        "type": "oauth2"
+      }
+    ],
+    "title": "Drive execute plan"
+  },
+  {
+    "_meta": {
+      "securitySchemes": [
+        {
+          "scopes": [
+            "https://www.googleapis.com/auth/drive",
+            "https://www.googleapis.com/auth/documents",
+            "https://www.googleapis.com/auth/spreadsheets",
+            "https://www.googleapis.com/auth/gmail.readonly",
+            "https://www.googleapis.com/auth/calendar.events"
+          ],
+          "type": "oauth2"
+        }
+      ]
+    },
+    "annotations": {
+      "openWorldHint": true,
+      "readOnlyHint": true
+    },
+    "description": "Get Drive metadata and parent folder names for a file or folder.",
+    "execution": {
+      "taskSupport": "forbidden"
+    },
+    "inputSchema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "properties": {
+        "fileId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "fileId"
+      ],
+      "type": "object"
+    },
+    "name": "drive_get_metadata",
+    "securitySchemes": [
+      {
+        "scopes": [
+          "https://www.googleapis.com/auth/drive",
+          "https://www.googleapis.com/auth/documents",
+          "https://www.googleapis.com/auth/spreadsheets",
+          "https://www.googleapis.com/auth/gmail.readonly",
+          "https://www.googleapis.com/auth/calendar.events"
+        ],
+        "type": "oauth2"
+      }
+    ],
+    "title": "Drive get metadata"
+  },
+  {
+    "_meta": {
+      "securitySchemes": [
+        {
+          "scopes": [
+            "https://www.googleapis.com/auth/drive",
+            "https://www.googleapis.com/auth/documents",
+            "https://www.googleapis.com/auth/spreadsheets",
+            "https://www.googleapis.com/auth/gmail.readonly",
+            "https://www.googleapis.com/auth/calendar.events"
+          ],
+          "type": "oauth2"
+        }
+      ]
+    },
+    "annotations": {
+      "destructiveHint": false,
+      "idempotentHint": true,
+      "openWorldHint": true,
+      "readOnlyHint": false
+    },
+    "description": "Upload one top-level ChatGPT Work Mode file to private Google Drive, verify byte count and SHA-256 by readback, and audit the write. Use this reusable ingress for ZIPs and other files that are not already in Drive.",
+    "execution": {
+      "taskSupport": "forbidden"
+    },
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "callerNote": {
+          "description": "Optional human-readable audit summary.",
+          "type": "string"
+        },
+        "expectedSha256": {
+          "description": "Optional expected hexadecimal SHA-256 digest for caller-side provenance locking.",
+          "type": "string"
+        },
+        "file": {
+          "contentMediaType": "application/octet-stream",
+          "description": "Required top-level host-file upload. Do not pass a path, URL, Base64 string, ref, or nested JSON descriptor.",
+          "format": "binary",
+          "type": "string"
+        },
+        "mimeType": {
+          "description": "Optional MIME type override.",
+          "type": "string"
+        },
+        "name": {
+          "description": "Optional Drive filename override.",
+          "type": "string"
+        },
+        "parentFolderId": {
+          "description": "Optional destination Drive folder id.",
+          "type": "string"
+        },
+        "requestId": {
+          "description": "Stable idempotency and audit request id.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "requestId",
+        "file"
+      ],
+      "type": "object"
+    },
+    "name": "drive_ingest_file",
+    "securitySchemes": [
+      {
+        "scopes": [
+          "https://www.googleapis.com/auth/drive",
+          "https://www.googleapis.com/auth/documents",
+          "https://www.googleapis.com/auth/spreadsheets",
+          "https://www.googleapis.com/auth/gmail.readonly",
+          "https://www.googleapis.com/auth/calendar.events"
+        ],
+        "type": "oauth2"
+      }
+    ],
+    "title": "Ingest file to Drive"
+  },
+  {
+    "_meta": {
+      "securitySchemes": [
+        {
+          "scopes": [
+            "https://www.googleapis.com/auth/drive",
+            "https://www.googleapis.com/auth/documents",
+            "https://www.googleapis.com/auth/spreadsheets",
+            "https://www.googleapis.com/auth/gmail.readonly",
+            "https://www.googleapis.com/auth/calendar.events"
+          ],
+          "type": "oauth2"
+        }
+      ]
+    },
+    "annotations": {
+      "openWorldHint": true,
+      "readOnlyHint": true
+    },
+    "description": "List a Drive folder by stable file IDs. Optional recursive mode walks child folders up to the limit.",
+    "execution": {
+      "taskSupport": "forbidden"
+    },
+    "inputSchema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "properties": {
+        "folderId": {
+          "type": "string"
+        },
+        "includeTrashed": {
+          "default": false,
+          "type": "boolean"
+        },
+        "limit": {
+          "default": 100,
+          "maximum": 500,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "recursive": {
+          "default": false,
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "folderId"
+      ],
+      "type": "object"
+    },
+    "name": "drive_list_folder",
+    "securitySchemes": [
+      {
+        "scopes": [
+          "https://www.googleapis.com/auth/drive",
+          "https://www.googleapis.com/auth/documents",
+          "https://www.googleapis.com/auth/spreadsheets",
+          "https://www.googleapis.com/auth/gmail.readonly",
+          "https://www.googleapis.com/auth/calendar.events"
+        ],
+        "type": "oauth2"
+      }
+    ],
+    "title": "Drive list folder"
+  },
+  {
+    "_meta": {
+      "securitySchemes": [
+        {
+          "scopes": [
+            "https://www.googleapis.com/auth/drive",
+            "https://www.googleapis.com/auth/documents",
+            "https://www.googleapis.com/auth/spreadsheets",
+            "https://www.googleapis.com/auth/gmail.readonly",
+            "https://www.googleapis.com/auth/calendar.events"
+          ],
+          "type": "oauth2"
+        }
+      ]
+    },
+    "annotations": {
+      "destructiveHint": false,
+      "idempotentHint": true,
+      "openWorldHint": true,
+      "readOnlyHint": false
+    },
+    "description": "Move a Drive file or folder. dryRun=true previews; execution requires requestId and approved=true.",
+    "execution": {
+      "taskSupport": "forbidden"
+    },
+    "inputSchema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "properties": {
+        "approved": {
+          "default": false,
+          "type": "boolean"
+        },
+        "callerNote": {
+          "type": "string"
+        },
+        "dryRun": {
+          "default": true,
+          "type": "boolean"
+        },
+        "fileId": {
+          "type": "string"
+        },
+        "removeFromCurrentParents": {
+          "default": true,
+          "type": "boolean"
+        },
+        "requestId": {
+          "type": "string"
+        },
+        "targetFolderId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "fileId",
+        "targetFolderId"
+      ],
+      "type": "object"
+    },
+    "name": "drive_move",
+    "securitySchemes": [
+      {
+        "scopes": [
+          "https://www.googleapis.com/auth/drive",
+          "https://www.googleapis.com/auth/documents",
+          "https://www.googleapis.com/auth/spreadsheets",
+          "https://www.googleapis.com/auth/gmail.readonly",
+          "https://www.googleapis.com/auth/calendar.events"
+        ],
+        "type": "oauth2"
+      }
+    ],
+    "title": "Drive move"
+  },
+  {
+    "_meta": {
+      "securitySchemes": [
+        {
+          "scopes": [
+            "https://www.googleapis.com/auth/drive",
+            "https://www.googleapis.com/auth/documents",
+            "https://www.googleapis.com/auth/spreadsheets",
+            "https://www.googleapis.com/auth/gmail.readonly",
+            "https://www.googleapis.com/auth/calendar.events"
+          ],
+          "type": "oauth2"
+        }
+      ]
+    },
+    "annotations": {
+      "destructiveHint": false,
+      "idempotentHint": true,
+      "openWorldHint": true,
+      "readOnlyHint": false
+    },
+    "description": "Run a named Home Drive, Simulation, or command_center.* operation from the runtime operation registry. Prefer this stable tool for new bridge capabilities so ChatGPT does not need a connector reinstall when backend operations are added.",
+    "execution": {
+      "taskSupport": "forbidden"
+    },
+    "inputSchema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "properties": {
+        "args": {
+          "additionalProperties": {},
+          "description": "Operation-specific arguments. Writes require requestId inside args.",
+          "propertyNames": {
+            "type": "string"
+          },
+          "type": "object"
+        },
+        "operation": {
+          "description": "Operation name from capabilities.operationSurfaces.drive.operations, including simulation_* frame operations and command_center.* compatibility operations. Runtime registry validation rejects unsupported names.",
+          "type": "string"
+        },
+        "operationBatchId": {
+          "description": "Optional stable batch/workflow id for recovery tracking.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "operation"
+      ],
+      "type": "object"
+    },
+    "name": "drive_operation",
+    "securitySchemes": [
+      {
+        "scopes": [
+          "https://www.googleapis.com/auth/drive",
+          "https://www.googleapis.com/auth/documents",
+          "https://www.googleapis.com/auth/spreadsheets",
+          "https://www.googleapis.com/auth/gmail.readonly",
+          "https://www.googleapis.com/auth/calendar.events"
+        ],
+        "type": "oauth2"
+      }
+    ],
+    "title": "Drive operation"
+  },
+  {
+    "_meta": {
+      "securitySchemes": [
+        {
+          "scopes": [
+            "https://www.googleapis.com/auth/drive",
+            "https://www.googleapis.com/auth/documents",
+            "https://www.googleapis.com/auth/spreadsheets",
+            "https://www.googleapis.com/auth/gmail.readonly",
+            "https://www.googleapis.com/auth/calendar.events"
+          ],
+          "type": "oauth2"
+        }
+      ]
+    },
+    "annotations": {
+      "openWorldHint": true,
+      "readOnlyHint": true
+    },
+    "description": "Build a staged organize plan from folder children and simple name-match rules. Does not mutate Drive.",
+    "execution": {
+      "taskSupport": "forbidden"
+    },
+    "inputSchema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "properties": {
+        "dryRun": {
+          "default": true,
+          "type": "boolean"
+        },
+        "folderId": {
+          "type": "string"
+        },
+        "goal": {
+          "type": "string"
+        },
+        "limit": {
+          "default": 50,
+          "maximum": 100,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "rules": {
+          "items": {
+            "properties": {
+              "match": {
+                "type": "string"
+              },
+              "renamePattern": {
+                "type": "string"
+              },
+              "targetFolderId": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "match",
+              "targetFolderId"
+            ],
+            "type": "object"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "folderId"
+      ],
+      "type": "object"
+    },
+    "name": "drive_plan_organize",
+    "securitySchemes": [
+      {
+        "scopes": [
+          "https://www.googleapis.com/auth/drive",
+          "https://www.googleapis.com/auth/documents",
+          "https://www.googleapis.com/auth/spreadsheets",
+          "https://www.googleapis.com/auth/gmail.readonly",
+          "https://www.googleapis.com/auth/calendar.events"
+        ],
+        "type": "oauth2"
+      }
+    ],
+    "title": "Drive plan organize"
+  },
+  {
+    "_meta": {
+      "securitySchemes": [
+        {
+          "scopes": [
+            "https://www.googleapis.com/auth/drive",
+            "https://www.googleapis.com/auth/documents",
+            "https://www.googleapis.com/auth/spreadsheets",
+            "https://www.googleapis.com/auth/gmail.readonly",
+            "https://www.googleapis.com/auth/calendar.events"
+          ],
+          "type": "oauth2"
+        }
+      ]
+    },
+    "annotations": {
+      "openWorldHint": true,
+      "readOnlyHint": true
+    },
+    "description": "Read or export a Google Drive file by file ID.",
+    "execution": {
+      "taskSupport": "forbidden"
+    },
+    "inputSchema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "properties": {
+        "exportFormat": {
+          "default": "text/plain",
+          "enum": [
+            "text/plain",
+            "text/markdown",
+            "application/pdf"
+          ],
+          "type": "string"
+        },
+        "fileId": {
+          "description": "Google Drive file ID.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "fileId"
+      ],
+      "type": "object"
+    },
+    "name": "drive_read",
+    "securitySchemes": [
+      {
+        "scopes": [
+          "https://www.googleapis.com/auth/drive",
+          "https://www.googleapis.com/auth/documents",
+          "https://www.googleapis.com/auth/spreadsheets",
+          "https://www.googleapis.com/auth/gmail.readonly",
+          "https://www.googleapis.com/auth/calendar.events"
+        ],
+        "type": "oauth2"
+      }
+    ],
+    "title": "Drive read"
+  },
+  {
+    "_meta": {
+      "securitySchemes": [
+        {
+          "scopes": [
+            "https://www.googleapis.com/auth/drive",
+            "https://www.googleapis.com/auth/documents",
+            "https://www.googleapis.com/auth/spreadsheets",
+            "https://www.googleapis.com/auth/gmail.readonly",
+            "https://www.googleapis.com/auth/calendar.events"
+          ],
+          "type": "oauth2"
+        }
+      ]
+    },
+    "annotations": {
+      "destructiveHint": false,
+      "idempotentHint": true,
+      "openWorldHint": true,
+      "readOnlyHint": false
+    },
+    "description": "Rename a Drive file or folder. dryRun=true previews; execution requires requestId and approved=true.",
+    "execution": {
+      "taskSupport": "forbidden"
+    },
+    "inputSchema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "properties": {
+        "approved": {
+          "default": false,
+          "type": "boolean"
+        },
+        "callerNote": {
+          "type": "string"
+        },
+        "dryRun": {
+          "default": true,
+          "type": "boolean"
+        },
+        "fileId": {
+          "type": "string"
+        },
+        "newName": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "requestId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "fileId",
+        "newName"
+      ],
+      "type": "object"
+    },
+    "name": "drive_rename",
+    "securitySchemes": [
+      {
+        "scopes": [
+          "https://www.googleapis.com/auth/drive",
+          "https://www.googleapis.com/auth/documents",
+          "https://www.googleapis.com/auth/spreadsheets",
+          "https://www.googleapis.com/auth/gmail.readonly",
+          "https://www.googleapis.com/auth/calendar.events"
+        ],
+        "type": "oauth2"
+      }
+    ],
+    "title": "Drive rename"
+  },
+  {
+    "_meta": {
+      "securitySchemes": [
+        {
+          "scopes": [
+            "https://www.googleapis.com/auth/drive",
+            "https://www.googleapis.com/auth/documents",
+            "https://www.googleapis.com/auth/spreadsheets",
+            "https://www.googleapis.com/auth/gmail.readonly",
+            "https://www.googleapis.com/auth/calendar.events"
+          ],
+          "type": "oauth2"
+        }
+      ]
+    },
+    "annotations": {
+      "openWorldHint": true,
+      "readOnlyHint": true
+    },
+    "description": "Search Google Drive files visible to the connected Google account. Query is plain text, not raw Drive syntax.",
+    "execution": {
+      "taskSupport": "forbidden"
+    },
+    "inputSchema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "properties": {
+        "folderId": {
+          "description": "Optional parent folder ID.",
+          "type": "string"
+        },
+        "limit": {
+          "default": 20,
+          "maximum": 50,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "mimeTypes": {
+          "description": "Optional MIME type filters.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "query": {
+          "description": "Plain text to search in name and fullText.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "name": "drive_search",
+    "securitySchemes": [
+      {
+        "scopes": [
+          "https://www.googleapis.com/auth/drive",
+          "https://www.googleapis.com/auth/documents",
+          "https://www.googleapis.com/auth/spreadsheets",
+          "https://www.googleapis.com/auth/gmail.readonly",
+          "https://www.googleapis.com/auth/calendar.events"
+        ],
+        "type": "oauth2"
+      }
+    ],
+    "title": "Drive search"
+  },
+  {
+    "_meta": {
+      "securitySchemes": [
+        {
+          "scopes": [
+            "https://www.googleapis.com/auth/drive",
+            "https://www.googleapis.com/auth/documents",
+            "https://www.googleapis.com/auth/spreadsheets",
+            "https://www.googleapis.com/auth/gmail.readonly",
+            "https://www.googleapis.com/auth/calendar.events"
+          ],
+          "type": "oauth2"
+        }
+      ]
+    },
+    "annotations": {
+      "destructiveHint": false,
+      "idempotentHint": true,
+      "openWorldHint": true,
+      "readOnlyHint": false
+    },
+    "description": "Checkpoint and optionally execute an approved multi-step Drive/Docs workflow in one bridge-owned call. This reduces ChatGPT connector fragility by keeping workflow state server-side.",
+    "execution": {
+      "taskSupport": "forbidden"
+    },
+    "inputSchema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "properties": {
+        "approved": {
+          "default": false,
+          "description": "Must be true to execute writes. False stores the checkpoint only.",
+          "type": "boolean"
+        },
+        "callerNote": {
+          "type": "string"
+        },
+        "objective": {
+          "description": "Human-readable workflow objective.",
+          "type": "string"
+        },
+        "operations": {
+          "items": {
+            "properties": {
+              "callerNote": {
+                "type": "string"
+              },
+              "documentId": {
+                "type": "string"
+              },
+              "documentKey": {
+                "description": "Use a previous docs_create output key.",
+                "type": "string"
+              },
+              "expectedPopulatedCellCounts": {
+                "additionalProperties": {
+                  "type": "number"
+                },
+                "propertyNames": {
+                  "type": "string"
+                },
+                "type": "object"
+              },
+              "expectedSheetNames": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "fileId": {
+                "type": "string"
+              },
+              "fileKey": {
+                "type": "string"
+              },
+              "fileName": {
+                "type": "string"
+              },
+              "heading": {
+                "type": "string"
+              },
+              "initialText": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "newName": {
+                "type": "string"
+              },
+              "parentFolderId": {
+                "type": "string"
+              },
+              "parentFolderKey": {
+                "description": "Use a previous operation output key.",
+                "type": "string"
+              },
+              "removeFromCurrentParents": {
+                "type": "boolean"
+              },
+              "requestId": {
+                "type": "string"
+              },
+              "saveAs": {
+                "description": "Output key for created folder/doc ids.",
+                "type": "string"
+              },
+              "sourceFileId": {
+                "type": "string"
+              },
+              "sourceFileName": {
+                "type": "string"
+              },
+              "sourceFolderId": {
+                "type": "string"
+              },
+              "sourceQuery": {
+                "type": "string"
+              },
+              "summary": {
+                "type": "string"
+              },
+              "targetFolderId": {
+                "type": "string"
+              },
+              "targetFolderKey": {
+                "type": "string"
+              },
+              "text": {
+                "type": "string"
+              },
+              "title": {
+                "type": "string"
+              },
+              "type": {
+                "enum": [
+                  "drive_create_folder",
+                  "docs_create",
+                  "docs_append",
+                  "workbook_import_xlsx",
+                  "sheets_create",
+                  "sheets_update_values",
+                  "drive_move",
+                  "drive_rename"
+                ],
+                "type": "string"
+              },
+              "workbookBase64": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "type"
+            ],
+            "type": "object"
+          },
+          "maxItems": 25,
+          "minItems": 1,
+          "type": "array"
+        },
+        "workflowId": {
+          "description": "Stable workflow id. Also used as the recovery operationBatchId.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "workflowId",
+        "operations"
+      ],
+      "type": "object"
+    },
+    "name": "drive_workflow_run",
+    "securitySchemes": [
+      {
+        "scopes": [
+          "https://www.googleapis.com/auth/drive",
+          "https://www.googleapis.com/auth/documents",
+          "https://www.googleapis.com/auth/spreadsheets",
+          "https://www.googleapis.com/auth/gmail.readonly",
+          "https://www.googleapis.com/auth/calendar.events"
+        ],
+        "type": "oauth2"
+      }
+    ],
+    "title": "Drive workflow run"
+  },
+  {
+    "_meta": {
+      "securitySchemes": [
+        {
+          "scopes": [
+            "https://www.googleapis.com/auth/drive",
+            "https://www.googleapis.com/auth/documents",
+            "https://www.googleapis.com/auth/spreadsheets",
+            "https://www.googleapis.com/auth/gmail.readonly",
+            "https://www.googleapis.com/auth/calendar.events"
+          ],
+          "type": "oauth2"
+        }
+      ]
+    },
+    "annotations": {
+      "openWorldHint": true,
+      "readOnlyHint": true
+    },
+    "description": "Inspect Home Center GitHub admin authority without exposing secrets.",
+    "execution": {
+      "taskSupport": "forbidden"
+    },
+    "inputSchema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "properties": {},
+      "type": "object"
+    },
+    "name": "github_admin_auth_status",
+    "securitySchemes": [
+      {
+        "scopes": [
+          "https://www.googleapis.com/auth/drive",
+          "https://www.googleapis.com/auth/documents",
+          "https://www.googleapis.com/auth/spreadsheets",
+          "https://www.googleapis.com/auth/gmail.readonly",
+          "https://www.googleapis.com/auth/calendar.events"
+        ],
+        "type": "oauth2"
+      }
+    ],
+    "title": "GitHub admin auth status"
+  },
+  {
+    "_meta": {
+      "securitySchemes": [
+        {
+          "scopes": [
+            "https://www.googleapis.com/auth/drive",
+            "https://www.googleapis.com/auth/documents",
+            "https://www.googleapis.com/auth/spreadsheets",
+            "https://www.googleapis.com/auth/gmail.readonly",
+            "https://www.googleapis.com/auth/calendar.events"
+          ],
+          "type": "oauth2"
+        }
+      ]
+    },
+    "annotations": {
+      "destructiveHint": false,
+      "idempotentHint": true,
+      "openWorldHint": true,
+      "readOnlyHint": false
+    },
+    "description": "Update safe repository settings through GitHub admin authority and audit the mutation.",
+    "execution": {
+      "taskSupport": "forbidden"
+    },
+    "inputSchema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "properties": {
+        "allow_auto_merge": {
+          "type": "boolean"
+        },
+        "allow_merge_commit": {
+          "type": "boolean"
+        },
+        "allow_rebase_merge": {
+          "type": "boolean"
+        },
+        "allow_squash_merge": {
+          "type": "boolean"
+        },
+        "callerNote": {
+          "type": "string"
+        },
+        "default_branch": {
+          "type": "string"
+        },
+        "delete_branch_on_merge": {
+          "type": "boolean"
+        },
+        "description": {
+          "type": "string"
+        },
+        "has_issues": {
+          "type": "boolean"
+        },
+        "has_projects": {
+          "type": "boolean"
+        },
+        "has_wiki": {
+          "type": "boolean"
+        },
+        "homepage": {
+          "type": "string"
+        },
+        "repo": {
+          "type": "string"
+        },
+        "requestId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "repo",
+        "requestId"
+      ],
+      "type": "object"
+    },
+    "name": "github_admin_configure_repo",
+    "securitySchemes": [
+      {
+        "scopes": [
+          "https://www.googleapis.com/auth/drive",
+          "https://www.googleapis.com/auth/documents",
+          "https://www.googleapis.com/auth/spreadsheets",
+          "https://www.googleapis.com/auth/gmail.readonly",
+          "https://www.googleapis.com/auth/calendar.events"
+        ],
+        "type": "oauth2"
+      }
+    ],
+    "title": "GitHub admin configure repo"
+  },
+  {
+    "_meta": {
+      "securitySchemes": [
+        {
+          "scopes": [
+            "https://www.googleapis.com/auth/drive",
+            "https://www.googleapis.com/auth/documents",
+            "https://www.googleapis.com/auth/spreadsheets",
+            "https://www.googleapis.com/auth/gmail.readonly",
+            "https://www.googleapis.com/auth/calendar.events"
+          ],
+          "type": "oauth2"
+        }
+      ]
+    },
+    "annotations": {
+      "destructiveHint": false,
+      "idempotentHint": true,
+      "openWorldHint": true,
+      "readOnlyHint": false
+    },
+    "description": "Create a branch from an existing branch or explicit SHA and audit the mutation.",
+    "execution": {
+      "taskSupport": "forbidden"
+    },
+    "inputSchema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "properties": {
+        "branch": {
+          "type": "string"
+        },
+        "callerNote": {
+          "type": "string"
+        },
+        "fromBranch": {
+          "type": "string"
+        },
+        "repo": {
+          "type": "string"
+        },
+        "requestId": {
+          "type": "string"
+        },
+        "sha": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "repo",
+        "branch",
+        "requestId"
+      ],
+      "type": "object"
+    },
+    "name": "github_admin_create_branch",
+    "securitySchemes": [
+      {
+        "scopes": [
+          "https://www.googleapis.com/auth/drive",
+          "https://www.googleapis.com/auth/documents",
+          "https://www.googleapis.com/auth/spreadsheets",
+          "https://www.googleapis.com/auth/gmail.readonly",
+          "https://www.googleapis.com/auth/calendar.events"
+        ],
+        "type": "oauth2"
+      }
+    ],
+    "title": "GitHub admin create branch"
+  },
+  {
+    "_meta": {
+      "securitySchemes": [
+        {
+          "scopes": [
+            "https://www.googleapis.com/auth/drive",
+            "https://www.googleapis.com/auth/documents",
+            "https://www.googleapis.com/auth/spreadsheets",
+            "https://www.googleapis.com/auth/gmail.readonly",
+            "https://www.googleapis.com/auth/calendar.events"
+          ],
+          "type": "oauth2"
+        }
+      ]
+    },
+    "annotations": {
+      "destructiveHint": false,
+      "idempotentHint": true,
+      "openWorldHint": true,
+      "readOnlyHint": false
+    },
+    "description": "Open a pull request and audit the mutation.",
+    "execution": {
+      "taskSupport": "forbidden"
+    },
+    "inputSchema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "properties": {
+        "base": {
+          "type": "string"
+        },
+        "body": {
+          "type": "string"
+        },
+        "callerNote": {
+          "type": "string"
+        },
+        "draft": {
+          "type": "boolean"
+        },
+        "head": {
+          "type": "string"
+        },
+        "repo": {
+          "type": "string"
+        },
+        "requestId": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "repo",
+        "title",
+        "head",
+        "requestId"
+      ],
+      "type": "object"
+    },
+    "name": "github_admin_create_pull_request",
+    "securitySchemes": [
+      {
+        "scopes": [
+          "https://www.googleapis.com/auth/drive",
+          "https://www.googleapis.com/auth/documents",
+          "https://www.googleapis.com/auth/spreadsheets",
+          "https://www.googleapis.com/auth/gmail.readonly",
+          "https://www.googleapis.com/auth/calendar.events"
+        ],
+        "type": "oauth2"
+      }
+    ],
+    "title": "GitHub admin create pull request"
+  },
+  {
+    "_meta": {
+      "securitySchemes": [
+        {
+          "scopes": [
+            "https://www.googleapis.com/auth/drive",
+            "https://www.googleapis.com/auth/documents",
+            "https://www.googleapis.com/auth/spreadsheets",
+            "https://www.googleapis.com/auth/gmail.readonly",
+            "https://www.googleapis.com/auth/calendar.events"
+          ],
+          "type": "oauth2"
+        }
+      ]
+    },
+    "annotations": {
+      "destructiveHint": false,
+      "idempotentHint": true,
+      "openWorldHint": true,
+      "readOnlyHint": false
+    },
+    "description": "Create a GitHub repository through the configured Home Center GitHub admin authority and audit the mutation.",
+    "execution": {
+      "taskSupport": "forbidden"
+    },
+    "inputSchema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "properties": {
+        "autoInit": {
+          "type": "boolean"
+        },
+        "callerNote": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "owner": {
+          "type": "string"
+        },
+        "ownerType": {
+          "default": "org",
+          "enum": [
+            "org",
+            "user"
+          ],
+          "type": "string"
+        },
+        "requestId": {
+          "type": "string"
+        },
+        "visibility": {
+          "default": "private",
+          "enum": [
+            "private",
+            "public",
+            "internal"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "owner",
+        "name",
+        "requestId"
+      ],
+      "type": "object"
+    },
+    "name": "github_admin_create_repo",
+    "securitySchemes": [
+      {
+        "scopes": [
+          "https://www.googleapis.com/auth/drive",
+          "https://www.googleapis.com/auth/documents",
+          "https://www.googleapis.com/auth/spreadsheets",
+          "https://www.googleapis.com/auth/gmail.readonly",
+          "https://www.googleapis.com/auth/calendar.events"
+        ],
+        "type": "oauth2"
+      }
+    ],
+    "title": "GitHub admin create repo"
+  },
+  {
+    "_meta": {
+      "securitySchemes": [
+        {
+          "scopes": [
+            "https://www.googleapis.com/auth/drive",
+            "https://www.googleapis.com/auth/documents",
+            "https://www.googleapis.com/auth/spreadsheets",
+            "https://www.googleapis.com/auth/gmail.readonly",
+            "https://www.googleapis.com/auth/calendar.events"
+          ],
+          "type": "oauth2"
+        }
+      ]
+    },
+    "annotations": {
+      "destructiveHint": false,
+      "idempotentHint": true,
+      "openWorldHint": true,
+      "readOnlyHint": false
+    },
+    "description": "Dispatch a GitHub Actions workflow by workflow id/file and ref, then audit the mutation.",
+    "execution": {
+      "taskSupport": "forbidden"
+    },
+    "inputSchema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "properties": {
+        "callerNote": {
+          "type": "string"
+        },
+        "inputs": {
+          "additionalProperties": {},
+          "propertyNames": {
+            "type": "string"
+          },
+          "type": "object"
+        },
+        "ref": {
+          "type": "string"
+        },
+        "repo": {
+          "type": "string"
+        },
+        "requestId": {
+          "type": "string"
+        },
+        "workflowId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "repo",
+        "workflowId",
+        "requestId"
+      ],
+      "type": "object"
+    },
+    "name": "github_admin_dispatch_workflow",
+    "securitySchemes": [
+      {
+        "scopes": [
+          "https://www.googleapis.com/auth/drive",
+          "https://www.googleapis.com/auth/documents",
+          "https://www.googleapis.com/auth/spreadsheets",
+          "https://www.googleapis.com/auth/gmail.readonly",
+          "https://www.googleapis.com/auth/calendar.events"
+        ],
+        "type": "oauth2"
+      }
+    ],
+    "title": "GitHub admin dispatch workflow"
+  },
+  {
+    "_meta": {
+      "securitySchemes": [
+        {
+          "scopes": [
+            "https://www.googleapis.com/auth/drive",
+            "https://www.googleapis.com/auth/documents",
+            "https://www.googleapis.com/auth/spreadsheets",
+            "https://www.googleapis.com/auth/gmail.readonly",
+            "https://www.googleapis.com/auth/calendar.events"
+          ],
+          "type": "oauth2"
+        }
+      ]
+    },
+    "annotations": {
+      "destructiveHint": false,
+      "idempotentHint": true,
+      "openWorldHint": true,
+      "readOnlyHint": false
+    },
+    "description": "Merge a pull request only when expectedHeadSha matches and required checks are green, then audit the mutation.",
+    "execution": {
+      "taskSupport": "forbidden"
+    },
+    "inputSchema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "properties": {
+        "allowNoChecks": {
+          "type": "boolean"
+        },
+        "callerNote": {
+          "type": "string"
+        },
+        "commitMessage": {
+          "type": "string"
+        },
+        "commitTitle": {
+          "type": "string"
+        },
+        "expectedHeadSha": {
+          "type": "string"
+        },
+        "mergeMethod": {
+          "default": "squash",
+          "enum": [
+            "merge",
+            "squash",
+            "rebase"
+          ],
+          "type": "string"
+        },
+        "pullNumber": {
+          "maximum": 9007199254740991,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "repo": {
+          "type": "string"
+        },
+        "requestId": {
+          "type": "string"
+        },
+        "requireGreenChecks": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "repo",
+        "pullNumber",
+        "expectedHeadSha",
+        "requestId"
+      ],
+      "type": "object"
+    },
+    "name": "github_admin_merge_pull_request",
+    "securitySchemes": [
+      {
+        "scopes": [
+          "https://www.googleapis.com/auth/drive",
+          "https://www.googleapis.com/auth/documents",
+          "https://www.googleapis.com/auth/spreadsheets",
+          "https://www.googleapis.com/auth/gmail.readonly",
+          "https://www.googleapis.com/auth/calendar.events"
+        ],
+        "type": "oauth2"
+      }
+    ],
+    "title": "GitHub admin merge pull request"
+  },
+  {
+    "_meta": {
+      "securitySchemes": [
+        {
+          "scopes": [
+            "https://www.googleapis.com/auth/drive",
+            "https://www.googleapis.com/auth/documents",
+            "https://www.googleapis.com/auth/spreadsheets",
+            "https://www.googleapis.com/auth/gmail.readonly",
+            "https://www.googleapis.com/auth/calendar.events"
+          ],
+          "type": "oauth2"
+        }
+      ]
+    },
+    "annotations": {
+      "destructiveHint": false,
+      "idempotentHint": true,
+      "openWorldHint": true,
+      "readOnlyHint": false
+    },
+    "description": "Create or update one repository file on a branch and audit the commit.",
+    "execution": {
+      "taskSupport": "forbidden"
+    },
+    "inputSchema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "properties": {
+        "branch": {
+          "type": "string"
+        },
+        "callerNote": {
+          "type": "string"
+        },
+        "content": {
+          "type": "string"
+        },
+        "contentBase64": {
+          "type": "string"
+        },
+        "message": {
+          "type": "string"
+        },
+        "path": {
+          "type": "string"
+        },
+        "repo": {
+          "type": "string"
+        },
+        "requestId": {
+          "type": "string"
+        },
+        "sha": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "repo",
+        "path",
+        "requestId"
+      ],
+      "type": "object"
+    },
+    "name": "github_admin_upsert_file",
+    "securitySchemes": [
+      {
+        "scopes": [
+          "https://www.googleapis.com/auth/drive",
+          "https://www.googleapis.com/auth/documents",
+          "https://www.googleapis.com/auth/spreadsheets",
+          "https://www.googleapis.com/auth/gmail.readonly",
+          "https://www.googleapis.com/auth/calendar.events"
+        ],
+        "type": "oauth2"
+      }
+    ],
+    "title": "GitHub admin upsert file"
+  },
+  {
+    "_meta": {
+      "securitySchemes": [
+        {
+          "scopes": [
+            "https://www.googleapis.com/auth/drive",
+            "https://www.googleapis.com/auth/documents",
+            "https://www.googleapis.com/auth/spreadsheets",
+            "https://www.googleapis.com/auth/gmail.readonly",
+            "https://www.googleapis.com/auth/calendar.events"
+          ],
+          "type": "oauth2"
+        }
+      ]
+    },
+    "annotations": {
+      "destructiveHint": false,
+      "idempotentHint": true,
+      "openWorldHint": true,
+      "readOnlyHint": false
+    },
+    "description": "Add a comment to an authenticated GitHub issue and write an audit record.",
+    "execution": {
+      "taskSupport": "forbidden"
+    },
+    "inputSchema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "properties": {
+        "body": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "callerNote": {
+          "type": "string"
+        },
+        "number": {
+          "maximum": 9007199254740991,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "repo": {
+          "type": "string"
+        },
+        "requestId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "number",
+        "body"
+      ],
+      "type": "object"
+    },
+    "name": "github_comment_issue",
+    "securitySchemes": [
+      {
+        "scopes": [
+          "https://www.googleapis.com/auth/drive",
+          "https://www.googleapis.com/auth/documents",
+          "https://www.googleapis.com/auth/spreadsheets",
+          "https://www.googleapis.com/auth/gmail.readonly",
+          "https://www.googleapis.com/auth/calendar.events"
+        ],
+        "type": "oauth2"
+      }
+    ],
+    "title": "GitHub comment issue"
+  },
+  {
+    "_meta": {
+      "securitySchemes": [
+        {
+          "scopes": [
+            "https://www.googleapis.com/auth/drive",
+            "https://www.googleapis.com/auth/documents",
+            "https://www.googleapis.com/auth/spreadsheets",
+            "https://www.googleapis.com/auth/gmail.readonly",
+            "https://www.googleapis.com/auth/calendar.events"
+          ],
+          "type": "oauth2"
+        }
+      ]
+    },
+    "annotations": {
+      "destructiveHint": false,
+      "idempotentHint": true,
+      "openWorldHint": true,
+      "readOnlyHint": false
+    },
+    "description": "Add a conversation comment to an authenticated GitHub pull request and write an audit record.",
+    "execution": {
+      "taskSupport": "forbidden"
+    },
+    "inputSchema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "properties": {
+        "body": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "callerNote": {
+          "type": "string"
+        },
+        "number": {
+          "maximum": 9007199254740991,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "repo": {
+          "type": "string"
+        },
+        "requestId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "number",
+        "body"
+      ],
+      "type": "object"
+    },
+    "name": "github_comment_pull_request",
+    "securitySchemes": [
+      {
+        "scopes": [
+          "https://www.googleapis.com/auth/drive",
+          "https://www.googleapis.com/auth/documents",
+          "https://www.googleapis.com/auth/spreadsheets",
+          "https://www.googleapis.com/auth/gmail.readonly",
+          "https://www.googleapis.com/auth/calendar.events"
+        ],
+        "type": "oauth2"
+      }
+    ],
+    "title": "GitHub comment pull request"
+  },
+  {
+    "_meta": {
+      "securitySchemes": [
+        {
+          "scopes": [
+            "https://www.googleapis.com/auth/drive",
+            "https://www.googleapis.com/auth/documents",
+            "https://www.googleapis.com/auth/spreadsheets",
+            "https://www.googleapis.com/auth/gmail.readonly",
+            "https://www.googleapis.com/auth/calendar.events"
+          ],
+          "type": "oauth2"
+        }
+      ]
+    },
+    "annotations": {
+      "destructiveHint": false,
+      "idempotentHint": true,
+      "openWorldHint": true,
+      "readOnlyHint": false
+    },
+    "description": "Create an authenticated GitHub issue and write an audit record. Does not close, delete, or mutate code.",
+    "execution": {
+      "taskSupport": "forbidden"
+    },
+    "inputSchema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "properties": {
+        "body": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "callerNote": {
+          "type": "string"
+        },
+        "labels": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "repo": {
+          "type": "string"
+        },
+        "requestId": {
+          "type": "string"
+        },
+        "title": {
+          "minLength": 1,
+          "type": "string"
+        }
+      },
+      "required": [
+        "title",
+        "body"
+      ],
+      "type": "object"
+    },
+    "name": "github_create_issue",
+    "securitySchemes": [
+      {
+        "scopes": [
+          "https://www.googleapis.com/auth/drive",
+          "https://www.googleapis.com/auth/documents",
+          "https://www.googleapis.com/auth/spreadsheets",
+          "https://www.googleapis.com/auth/gmail.readonly",
+          "https://www.googleapis.com/auth/calendar.events"
+        ],
+        "type": "oauth2"
+      }
+    ],
+    "title": "GitHub create issue"
+  },
+  {
+    "_meta": {
+      "securitySchemes": [
+        {
+          "scopes": [
+            "https://www.googleapis.com/auth/drive",
+            "https://www.googleapis.com/auth/documents",
+            "https://www.googleapis.com/auth/spreadsheets",
+            "https://www.googleapis.com/auth/gmail.readonly",
+            "https://www.googleapis.com/auth/calendar.events"
+          ],
+          "type": "oauth2"
+        }
+      ]
+    },
+    "annotations": {
+      "openWorldHint": true,
+      "readOnlyHint": true
+    },
+    "description": "Read an authenticated GitHub issue and its comments.",
+    "execution": {
+      "taskSupport": "forbidden"
+    },
+    "inputSchema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "properties": {
+        "number": {
+          "maximum": 9007199254740991,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "repo": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "number"
+      ],
+      "type": "object"
+    },
+    "name": "github_get_issue",
+    "securitySchemes": [
+      {
+        "scopes": [
+          "https://www.googleapis.com/auth/drive",
+          "https://www.googleapis.com/auth/documents",
+          "https://www.googleapis.com/auth/spreadsheets",
+          "https://www.googleapis.com/auth/gmail.readonly",
+          "https://www.googleapis.com/auth/calendar.events"
+        ],
+        "type": "oauth2"
+      }
+    ],
+    "title": "GitHub get issue"
+  },
+  {
+    "_meta": {
+      "securitySchemes": [
+        {
+          "scopes": [
+            "https://www.googleapis.com/auth/drive",
+            "https://www.googleapis.com/auth/documents",
+            "https://www.googleapis.com/auth/spreadsheets",
+            "https://www.googleapis.com/auth/gmail.readonly",
+            "https://www.googleapis.com/auth/calendar.events"
+          ],
+          "type": "oauth2"
+        }
+      ]
+    },
+    "annotations": {
+      "openWorldHint": true,
+      "readOnlyHint": true
+    },
+    "description": "Read authenticated GitHub pull request metadata and conversation comments.",
+    "execution": {
+      "taskSupport": "forbidden"
+    },
+    "inputSchema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "properties": {
+        "number": {
+          "maximum": 9007199254740991,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "repo": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "number"
+      ],
+      "type": "object"
+    },
+    "name": "github_get_pull_request",
+    "securitySchemes": [
+      {
+        "scopes": [
+          "https://www.googleapis.com/auth/drive",
+          "https://www.googleapis.com/auth/documents",
+          "https://www.googleapis.com/auth/spreadsheets",
+          "https://www.googleapis.com/auth/gmail.readonly",
+          "https://www.googleapis.com/auth/calendar.events"
+        ],
+        "type": "oauth2"
+      }
+    ],
+    "title": "GitHub get pull request"
+  },
+  {
+    "_meta": {
+      "securitySchemes": [
+        {
+          "scopes": [
+            "https://www.googleapis.com/auth/drive",
+            "https://www.googleapis.com/auth/documents",
+            "https://www.googleapis.com/auth/spreadsheets",
+            "https://www.googleapis.com/auth/gmail.readonly",
+            "https://www.googleapis.com/auth/calendar.events"
+          ],
+          "type": "oauth2"
+        }
+      ]
+    },
+    "annotations": {
+      "openWorldHint": true,
+      "readOnlyHint": true
+    },
+    "description": "Read authenticated GitHub repository metadata for owner/name.",
+    "execution": {
+      "taskSupport": "forbidden"
+    },
+    "inputSchema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "properties": {
+        "repo": {
+          "description": "owner/name. Defaults to Valar05/home-center.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "name": "github_get_repo",
+    "securitySchemes": [
+      {
+        "scopes": [
+          "https://www.googleapis.com/auth/drive",
+          "https://www.googleapis.com/auth/documents",
+          "https://www.googleapis.com/auth/spreadsheets",
+          "https://www.googleapis.com/auth/gmail.readonly",
+          "https://www.googleapis.com/auth/calendar.events"
+        ],
+        "type": "oauth2"
+      }
+    ],
+    "title": "GitHub get repo"
+  },
+  {
+    "_meta": {
+      "securitySchemes": [
+        {
+          "scopes": [
+            "https://www.googleapis.com/auth/drive",
+            "https://www.googleapis.com/auth/documents",
+            "https://www.googleapis.com/auth/spreadsheets",
+            "https://www.googleapis.com/auth/gmail.readonly",
+            "https://www.googleapis.com/auth/calendar.events"
+          ],
+          "type": "oauth2"
+        }
+      ]
+    },
+    "annotations": {
+      "openWorldHint": true,
+      "readOnlyHint": true
+    },
+    "description": "Read one GitHub Actions workflow run and its jobs for an authenticated repository.",
+    "execution": {
+      "taskSupport": "forbidden"
+    },
+    "inputSchema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "properties": {
+        "repo": {
+          "type": "string"
+        },
+        "runId": {
+          "maximum": 9007199254740991,
+          "minimum": 1,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "runId"
+      ],
+      "type": "object"
+    },
+    "name": "github_get_workflow_run",
+    "securitySchemes": [
+      {
+        "scopes": [
+          "https://www.googleapis.com/auth/drive",
+          "https://www.googleapis.com/auth/documents",
+          "https://www.googleapis.com/auth/spreadsheets",
+          "https://www.googleapis.com/auth/gmail.readonly",
+          "https://www.googleapis.com/auth/calendar.events"
+        ],
+        "type": "oauth2"
+      }
+    ],
+    "title": "GitHub get workflow run"
+  },
+  {
+    "_meta": {
+      "securitySchemes": [
+        {
+          "scopes": [
+            "https://www.googleapis.com/auth/drive",
+            "https://www.googleapis.com/auth/documents",
+            "https://www.googleapis.com/auth/spreadsheets",
+            "https://www.googleapis.com/auth/gmail.readonly",
+            "https://www.googleapis.com/auth/calendar.events"
+          ],
+          "type": "oauth2"
+        }
+      ]
+    },
+    "annotations": {
+      "openWorldHint": true,
+      "readOnlyHint": true
+    },
+    "description": "List branches in an authenticated GitHub repository.",
+    "execution": {
+      "taskSupport": "forbidden"
+    },
+    "inputSchema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "properties": {
+        "limit": {
+          "default": 50,
+          "maximum": 100,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "repo": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "name": "github_list_branches",
+    "securitySchemes": [
+      {
+        "scopes": [
+          "https://www.googleapis.com/auth/drive",
+          "https://www.googleapis.com/auth/documents",
+          "https://www.googleapis.com/auth/spreadsheets",
+          "https://www.googleapis.com/auth/gmail.readonly",
+          "https://www.googleapis.com/auth/calendar.events"
+        ],
+        "type": "oauth2"
+      }
+    ],
+    "title": "GitHub list branches"
+  },
+  {
+    "_meta": {
+      "securitySchemes": [
+        {
+          "scopes": [
+            "https://www.googleapis.com/auth/drive",
+            "https://www.googleapis.com/auth/documents",
+            "https://www.googleapis.com/auth/spreadsheets",
+            "https://www.googleapis.com/auth/gmail.readonly",
+            "https://www.googleapis.com/auth/calendar.events"
+          ],
+          "type": "oauth2"
+        }
+      ]
+    },
+    "annotations": {
+      "openWorldHint": true,
+      "readOnlyHint": true
+    },
+    "description": "List authenticated GitHub issues. Pull requests are filtered out.",
+    "execution": {
+      "taskSupport": "forbidden"
+    },
+    "inputSchema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "properties": {
+        "labels": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "limit": {
+          "default": 30,
+          "maximum": 100,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "repo": {
+          "type": "string"
+        },
+        "state": {
+          "default": "open",
+          "enum": [
+            "open",
+            "closed",
+            "all"
+          ],
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "name": "github_list_issues",
+    "securitySchemes": [
+      {
+        "scopes": [
+          "https://www.googleapis.com/auth/drive",
+          "https://www.googleapis.com/auth/documents",
+          "https://www.googleapis.com/auth/spreadsheets",
+          "https://www.googleapis.com/auth/gmail.readonly",
+          "https://www.googleapis.com/auth/calendar.events"
+        ],
+        "type": "oauth2"
+      }
+    ],
+    "title": "GitHub list issues"
+  },
+  {
+    "_meta": {
+      "securitySchemes": [
+        {
+          "scopes": [
+            "https://www.googleapis.com/auth/drive",
+            "https://www.googleapis.com/auth/documents",
+            "https://www.googleapis.com/auth/spreadsheets",
+            "https://www.googleapis.com/auth/gmail.readonly",
+            "https://www.googleapis.com/auth/calendar.events"
+          ],
+          "type": "oauth2"
+        }
+      ]
+    },
+    "annotations": {
+      "openWorldHint": true,
+      "readOnlyHint": true
+    },
+    "description": "List changed files for an authenticated GitHub pull request.",
+    "execution": {
+      "taskSupport": "forbidden"
+    },
+    "inputSchema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "properties": {
+        "limit": {
+          "default": 100,
+          "maximum": 100,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "number": {
+          "maximum": 9007199254740991,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "repo": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "number"
+      ],
+      "type": "object"
+    },
+    "name": "github_list_pull_request_files",
+    "securitySchemes": [
+      {
+        "scopes": [
+          "https://www.googleapis.com/auth/drive",
+          "https://www.googleapis.com/auth/documents",
+          "https://www.googleapis.com/auth/spreadsheets",
+          "https://www.googleapis.com/auth/gmail.readonly",
+          "https://www.googleapis.com/auth/calendar.events"
+        ],
+        "type": "oauth2"
+      }
+    ],
+    "title": "GitHub list pull request files"
+  },
+  {
+    "_meta": {
+      "securitySchemes": [
+        {
+          "scopes": [
+            "https://www.googleapis.com/auth/drive",
+            "https://www.googleapis.com/auth/documents",
+            "https://www.googleapis.com/auth/spreadsheets",
+            "https://www.googleapis.com/auth/gmail.readonly",
+            "https://www.googleapis.com/auth/calendar.events"
+          ],
+          "type": "oauth2"
+        }
+      ]
+    },
+    "annotations": {
+      "openWorldHint": true,
+      "readOnlyHint": true
+    },
+    "description": "List authenticated GitHub pull requests.",
+    "execution": {
+      "taskSupport": "forbidden"
+    },
+    "inputSchema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "properties": {
+        "limit": {
+          "default": 30,
+          "maximum": 100,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "repo": {
+          "type": "string"
+        },
+        "state": {
+          "default": "open",
+          "enum": [
+            "open",
+            "closed",
+            "all"
+          ],
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "name": "github_list_pull_requests",
+    "securitySchemes": [
+      {
+        "scopes": [
+          "https://www.googleapis.com/auth/drive",
+          "https://www.googleapis.com/auth/documents",
+          "https://www.googleapis.com/auth/spreadsheets",
+          "https://www.googleapis.com/auth/gmail.readonly",
+          "https://www.googleapis.com/auth/calendar.events"
+        ],
+        "type": "oauth2"
+      }
+    ],
+    "title": "GitHub list pull requests"
+  },
+  {
+    "_meta": {
+      "securitySchemes": [
+        {
+          "scopes": [
+            "https://www.googleapis.com/auth/drive",
+            "https://www.googleapis.com/auth/documents",
+            "https://www.googleapis.com/auth/spreadsheets",
+            "https://www.googleapis.com/auth/gmail.readonly",
+            "https://www.googleapis.com/auth/calendar.events"
+          ],
+          "type": "oauth2"
+        }
+      ]
+    },
+    "annotations": {
+      "openWorldHint": true,
+      "readOnlyHint": true
+    },
+    "description": "List recent GitHub Actions workflow runs for an authenticated repository.",
+    "execution": {
+      "taskSupport": "forbidden"
+    },
+    "inputSchema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "properties": {
+        "branch": {
+          "type": "string"
+        },
+        "event": {
+          "type": "string"
+        },
+        "limit": {
+          "default": 30,
+          "maximum": 100,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "repo": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "name": "github_list_workflow_runs",
+    "securitySchemes": [
+      {
+        "scopes": [
+          "https://www.googleapis.com/auth/drive",
+          "https://www.googleapis.com/auth/documents",
+          "https://www.googleapis.com/auth/spreadsheets",
+          "https://www.googleapis.com/auth/gmail.readonly",
+          "https://www.googleapis.com/auth/calendar.events"
+        ],
+        "type": "oauth2"
+      }
+    ],
+    "title": "GitHub list workflow runs"
+  },
+  {
+    "_meta": {
+      "securitySchemes": [
+        {
+          "scopes": [
+            "https://www.googleapis.com/auth/drive",
+            "https://www.googleapis.com/auth/documents",
+            "https://www.googleapis.com/auth/spreadsheets",
+            "https://www.googleapis.com/auth/gmail.readonly",
+            "https://www.googleapis.com/auth/calendar.events"
+          ],
+          "type": "oauth2"
+        }
+      ]
+    },
+    "annotations": {
+      "openWorldHint": true,
+      "readOnlyHint": true
+    },
+    "description": "Read a text file from an authenticated GitHub repository by path and optional ref.",
+    "execution": {
+      "taskSupport": "forbidden"
+    },
+    "inputSchema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "properties": {
+        "path": {
+          "type": "string"
+        },
+        "ref": {
+          "type": "string"
+        },
+        "repo": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "path"
+      ],
+      "type": "object"
+    },
+    "name": "github_read_file",
+    "securitySchemes": [
+      {
+        "scopes": [
+          "https://www.googleapis.com/auth/drive",
+          "https://www.googleapis.com/auth/documents",
+          "https://www.googleapis.com/auth/spreadsheets",
+          "https://www.googleapis.com/auth/gmail.readonly",
+          "https://www.googleapis.com/auth/calendar.events"
+        ],
+        "type": "oauth2"
+      }
+    ],
+    "title": "GitHub read file"
+  },
+  {
+    "_meta": {
+      "securitySchemes": [
+        {
+          "scopes": [
+            "https://www.googleapis.com/auth/drive",
+            "https://www.googleapis.com/auth/documents",
+            "https://www.googleapis.com/auth/spreadsheets",
+            "https://www.googleapis.com/auth/gmail.readonly",
+            "https://www.googleapis.com/auth/calendar.events"
+          ],
+          "type": "oauth2"
+        }
+      ]
+    },
+    "annotations": {
+      "openWorldHint": false,
+      "readOnlyHint": true
+    },
+    "description": "Check whether the Home Center MCP process is alive.",
+    "execution": {
+      "taskSupport": "forbidden"
+    },
+    "inputSchema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "properties": {},
+      "type": "object"
+    },
+    "name": "health",
+    "securitySchemes": [
+      {
+        "scopes": [
+          "https://www.googleapis.com/auth/drive",
+          "https://www.googleapis.com/auth/documents",
+          "https://www.googleapis.com/auth/spreadsheets",
+          "https://www.googleapis.com/auth/gmail.readonly",
+          "https://www.googleapis.com/auth/calendar.events"
+        ],
+        "type": "oauth2"
+      }
+    ],
+    "title": "Health"
+  },
+  {
+    "_meta": {
+      "securitySchemes": [
+        {
+          "scopes": [
+            "https://www.googleapis.com/auth/drive",
+            "https://www.googleapis.com/auth/documents",
+            "https://www.googleapis.com/auth/spreadsheets",
+            "https://www.googleapis.com/auth/gmail.readonly",
+            "https://www.googleapis.com/auth/calendar.events"
+          ],
+          "type": "oauth2"
+        }
+      ]
+    },
+    "annotations": {
+      "openWorldHint": true,
+      "readOnlyHint": true
+    },
+    "description": "Index folder contents into Firestore for later search/status. Idempotent; unchanged files are skipped.",
+    "execution": {
+      "taskSupport": "forbidden"
+    },
+    "inputSchema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "properties": {
+        "folderId": {
+          "type": "string"
+        },
+        "limit": {
+          "default": 50,
+          "maximum": 200,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "mimeTypes": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "recursive": {
+          "default": false,
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "folderId"
+      ],
+      "type": "object"
+    },
+    "name": "index_folder",
+    "securitySchemes": [
+      {
+        "scopes": [
+          "https://www.googleapis.com/auth/drive",
+          "https://www.googleapis.com/auth/documents",
+          "https://www.googleapis.com/auth/spreadsheets",
+          "https://www.googleapis.com/auth/gmail.readonly",
+          "https://www.googleapis.com/auth/calendar.events"
+        ],
+        "type": "oauth2"
+      }
+    ],
+    "title": "Index folder"
+  },
+  {
+    "_meta": {
+      "securitySchemes": [
+        {
+          "scopes": [
+            "https://www.googleapis.com/auth/drive",
+            "https://www.googleapis.com/auth/documents",
+            "https://www.googleapis.com/auth/spreadsheets",
+            "https://www.googleapis.com/auth/gmail.readonly",
+            "https://www.googleapis.com/auth/calendar.events"
+          ],
+          "type": "oauth2"
+        }
+      ]
+    },
+    "annotations": {
+      "openWorldHint": false,
+      "readOnlyHint": true
+    },
+    "description": "Return recent indexed Drive records.",
+    "execution": {
+      "taskSupport": "forbidden"
+    },
+    "inputSchema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "properties": {
+        "limit": {
+          "default": 20,
+          "maximum": 50,
+          "minimum": 1,
+          "type": "integer"
+        }
+      },
+      "type": "object"
+    },
+    "name": "index_status",
+    "securitySchemes": [
+      {
+        "scopes": [
+          "https://www.googleapis.com/auth/drive",
+          "https://www.googleapis.com/auth/documents",
+          "https://www.googleapis.com/auth/spreadsheets",
+          "https://www.googleapis.com/auth/gmail.readonly",
+          "https://www.googleapis.com/auth/calendar.events"
+        ],
+        "type": "oauth2"
+      }
+    ],
+    "title": "Index status"
+  },
+  {
+    "_meta": {
+      "securitySchemes": [
+        {
+          "scopes": [
+            "https://www.googleapis.com/auth/drive",
+            "https://www.googleapis.com/auth/documents",
+            "https://www.googleapis.com/auth/spreadsheets",
+            "https://www.googleapis.com/auth/gmail.readonly",
+            "https://www.googleapis.com/auth/calendar.events"
+          ],
+          "type": "oauth2"
+        }
+      ]
+    },
+    "annotations": {
+      "openWorldHint": false,
+      "readOnlyHint": true
+    },
+    "description": "Check whether required local configuration is present to accept Home Center work. Does not call providers.",
+    "execution": {
+      "taskSupport": "forbidden"
+    },
+    "inputSchema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "properties": {},
+      "type": "object"
+    },
+    "name": "readiness",
+    "securitySchemes": [
+      {
+        "scopes": [
+          "https://www.googleapis.com/auth/drive",
+          "https://www.googleapis.com/auth/documents",
+          "https://www.googleapis.com/auth/spreadsheets",
+          "https://www.googleapis.com/auth/gmail.readonly",
+          "https://www.googleapis.com/auth/calendar.events"
+        ],
+        "type": "oauth2"
+      }
+    ],
+    "title": "Readiness"
+  },
+  {
+    "_meta": {
+      "securitySchemes": [
+        {
+          "scopes": [
+            "https://www.googleapis.com/auth/drive",
+            "https://www.googleapis.com/auth/documents",
+            "https://www.googleapis.com/auth/spreadsheets",
+            "https://www.googleapis.com/auth/gmail.readonly",
+            "https://www.googleapis.com/auth/calendar.events"
+          ],
+          "type": "oauth2"
+        }
+      ]
+    },
+    "annotations": {
+      "destructiveHint": false,
+      "idempotentHint": true,
+      "openWorldHint": false,
+      "readOnlyHint": false
+    },
+    "description": "Record intended write operations before executing a multi-step workflow. This does not mutate Drive.",
+    "execution": {
+      "taskSupport": "forbidden"
+    },
+    "inputSchema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "properties": {
+        "callerNote": {
+          "type": "string"
+        },
+        "intendedOperations": {
+          "items": {
+            "properties": {
+              "operationId": {
+                "type": "string"
+              },
+              "requestId": {
+                "type": "string"
+              },
+              "summary": {
+                "type": "string"
+              },
+              "targetId": {
+                "type": "string"
+              },
+              "targetName": {
+                "type": "string"
+              },
+              "toolName": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "toolName"
+            ],
+            "type": "object"
+          },
+          "maxItems": 50,
+          "minItems": 1,
+          "type": "array"
+        },
+        "objective": {
+          "description": "Human-readable workflow objective.",
+          "type": "string"
+        },
+        "operationBatchId": {
+          "description": "Stable id for this batch of intended writes.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "operationBatchId",
+        "objective",
+        "intendedOperations"
+      ],
+      "type": "object"
+    },
+    "name": "recovery_checkpoint",
+    "securitySchemes": [
+      {
+        "scopes": [
+          "https://www.googleapis.com/auth/drive",
+          "https://www.googleapis.com/auth/documents",
+          "https://www.googleapis.com/auth/spreadsheets",
+          "https://www.googleapis.com/auth/gmail.readonly",
+          "https://www.googleapis.com/auth/calendar.events"
+        ],
+        "type": "oauth2"
+      }
+    ],
+    "title": "Recovery checkpoint"
+  },
+  {
+    "_meta": {
+      "securitySchemes": [
+        {
+          "scopes": [
+            "https://www.googleapis.com/auth/drive",
+            "https://www.googleapis.com/auth/documents",
+            "https://www.googleapis.com/auth/spreadsheets",
+            "https://www.googleapis.com/auth/gmail.readonly",
+            "https://www.googleapis.com/auth/calendar.events"
+          ],
+          "type": "oauth2"
+        }
+      ]
+    },
+    "annotations": {
+      "openWorldHint": false,
+      "readOnlyHint": true
+    },
+    "description": "Compare a recovery checkpoint against Drive Bridge and action audit records to identify completed and missing writes.",
+    "execution": {
+      "taskSupport": "forbidden"
+    },
+    "inputSchema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "properties": {
+        "operationBatchId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "operationBatchId"
+      ],
+      "type": "object"
+    },
+    "name": "recovery_status",
+    "securitySchemes": [
+      {
+        "scopes": [
+          "https://www.googleapis.com/auth/drive",
+          "https://www.googleapis.com/auth/documents",
+          "https://www.googleapis.com/auth/spreadsheets",
+          "https://www.googleapis.com/auth/gmail.readonly",
+          "https://www.googleapis.com/auth/calendar.events"
+        ],
+        "type": "oauth2"
+      }
+    ],
+    "title": "Recovery status"
+  },
+  {
+    "_meta": {
+      "securitySchemes": [
+        {
+          "scopes": [
+            "https://www.googleapis.com/auth/drive",
+            "https://www.googleapis.com/auth/documents",
+            "https://www.googleapis.com/auth/spreadsheets",
+            "https://www.googleapis.com/auth/gmail.readonly",
+            "https://www.googleapis.com/auth/calendar.events"
+          ],
+          "type": "oauth2"
+        }
+      ]
+    },
+    "annotations": {
+      "destructiveHint": false,
+      "idempotentHint": true,
+      "openWorldHint": false,
+      "readOnlyHint": false
+    },
+    "description": "Top-level file-bearing Blender renderer for ChatGPT Work Mode. Use this instead of command_center_operation when supplying uploaded GLB or Python files; nested dispatcher args cannot activate host file upload slots.",
+    "execution": {
+      "taskSupport": "forbidden"
+    },
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "cache": {
+          "description": "Use cached render artifacts when the backend cache key already exists. Defaults to true.",
+          "type": "boolean"
+        },
+        "contractVersion": {
+          "description": "Versioned renderer request contract.",
+          "enum": [
+            "home-center.blender-render-request.v2"
+          ],
+          "type": "string"
+        },
+        "glbFile": {
+          "contentMediaType": "model/gltf-binary",
+          "description": "Required top-level host-file upload containing a binary GLB model. Do not pass a path, URL, Base64 string, ref, or JSON descriptor.",
+          "format": "binary",
+          "type": "string"
+        },
+        "idempotencyKey": {
+          "description": "Stable idempotency key for this render request.",
+          "type": "string"
+        },
+        "renderId": {
+          "description": "Optional caller-provided render id.",
+          "type": "string"
+        },
+        "scriptFile": {
+          "contentMediaType": "text/x-python",
+          "description": "Required top-level host-file upload containing the Blender Python render script. Do not pass a path, URL, Base64 string, ref, or JSON descriptor.",
+          "format": "binary",
+          "type": "string"
+        },
+        "settings": {
+          "additionalProperties": false,
+          "properties": {
+            "action": {
+              "type": "string"
+            },
+            "allowRepeatedGifFrames": {
+              "type": "boolean"
+            },
+            "authoredKeys": {
+              "items": {
+                "minimum": 0,
+                "type": "integer"
+              },
+              "maxItems": 160,
+              "type": "array"
+            },
+            "camera": {
+              "type": "string"
+            },
+            "diagnosticViews": {
+              "items": {
+                "type": "string"
+              },
+              "maxItems": 12,
+              "type": "array"
+            },
+            "evidenceFrames": {
+              "items": {
+                "minimum": 0,
+                "type": "integer"
+              },
+              "maxItems": 160,
+              "type": "array"
+            },
+            "expectedAction": {
+              "type": "string"
+            },
+            "fixedCameras": {
+              "items": {
+                "type": "string"
+              },
+              "maxItems": 12,
+              "type": "array"
+            },
+            "gifFrames": {
+              "items": {
+                "minimum": 0,
+                "type": "integer"
+              },
+              "maxItems": 160,
+              "minItems": 1,
+              "type": "array"
+            },
+            "gifTimingMs": {
+              "items": {
+                "exclusiveMinimum": 0,
+                "type": "number"
+              },
+              "maxItems": 160,
+              "minItems": 1,
+              "type": "array"
+            },
+            "height": {
+              "maximum": 4096,
+              "minimum": 64,
+              "type": "integer"
+            },
+            "includeBlend": {
+              "type": "boolean"
+            },
+            "includeDiagnostics": {
+              "type": "boolean"
+            },
+            "outputName": {
+              "type": "string"
+            },
+            "samples": {
+              "maximum": 128,
+              "minimum": 1,
+              "type": "integer"
+            },
+            "width": {
+              "maximum": 4096,
+              "minimum": 64,
+              "type": "integer"
+            }
+          },
+          "type": "object"
+        }
+      },
+      "required": [
+        "idempotencyKey",
+        "glbFile",
+        "scriptFile"
+      ],
+      "type": "object"
+    },
+    "name": "render_blender_glb",
+    "securitySchemes": [
+      {
+        "scopes": [
+          "https://www.googleapis.com/auth/drive",
+          "https://www.googleapis.com/auth/documents",
+          "https://www.googleapis.com/auth/spreadsheets",
+          "https://www.googleapis.com/auth/gmail.readonly",
+          "https://www.googleapis.com/auth/calendar.events"
+        ],
+        "type": "oauth2"
+      }
+    ],
+    "title": "Render GLB with Blender"
+  },
+  {
+    "_meta": {
+      "securitySchemes": [
+        {
+          "scopes": [
+            "https://www.googleapis.com/auth/drive",
+            "https://www.googleapis.com/auth/documents",
+            "https://www.googleapis.com/auth/spreadsheets",
+            "https://www.googleapis.com/auth/gmail.readonly",
+            "https://www.googleapis.com/auth/calendar.events"
+          ],
+          "type": "oauth2"
+        }
+      ]
+    },
+    "annotations": {
+      "destructiveHint": false,
+      "idempotentHint": true,
+      "openWorldHint": true,
+      "readOnlyHint": false
+    },
+    "description": "Create a Google Sheet, optionally place it in a Drive folder, optionally write initial rows, and write an audit record.",
+    "execution": {
+      "taskSupport": "forbidden"
+    },
+    "inputSchema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "properties": {
+        "callerNote": {
+          "description": "Human-readable summary for the audit log.",
+          "type": "string"
+        },
+        "parentFolderId": {
+          "description": "Optional Drive folder ID.",
+          "type": "string"
+        },
+        "requestId": {
+          "description": "Optional idempotency/audit request id.",
+          "type": "string"
+        },
+        "sheetTitle": {
+          "description": "Initial sheet tab title. Defaults to Sheet1.",
+          "type": "string"
+        },
+        "title": {
+          "description": "Spreadsheet title.",
+          "minLength": 1,
+          "type": "string"
+        },
+        "values": {
+          "description": "Optional initial rows written at A1.",
+          "items": {
+            "items": {},
+            "type": "array"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "title"
+      ],
+      "type": "object"
+    },
+    "name": "sheets_create",
+    "securitySchemes": [
+      {
+        "scopes": [
+          "https://www.googleapis.com/auth/drive",
+          "https://www.googleapis.com/auth/documents",
+          "https://www.googleapis.com/auth/spreadsheets",
+          "https://www.googleapis.com/auth/gmail.readonly",
+          "https://www.googleapis.com/auth/calendar.events"
+        ],
+        "type": "oauth2"
+      }
+    ],
+    "title": "Sheets create"
+  },
+  {
+    "_meta": {
+      "securitySchemes": [
+        {
+          "scopes": [
+            "https://www.googleapis.com/auth/drive",
+            "https://www.googleapis.com/auth/documents",
+            "https://www.googleapis.com/auth/spreadsheets",
+            "https://www.googleapis.com/auth/gmail.readonly",
+            "https://www.googleapis.com/auth/calendar.events"
+          ],
+          "type": "oauth2"
+        }
+      ]
+    },
+    "annotations": {
+      "openWorldHint": true,
+      "readOnlyHint": true
+    },
+    "description": "Read values and lightweight metadata from a Google Sheet range.",
+    "execution": {
+      "taskSupport": "forbidden"
+    },
+    "inputSchema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "properties": {
+        "range": {
+          "description": "A1 notation range. Defaults to A1:Z100.",
+          "type": "string"
+        },
+        "spreadsheetId": {
+          "description": "Google Sheet spreadsheet ID.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "spreadsheetId"
+      ],
+      "type": "object"
+    },
+    "name": "sheets_read",
+    "securitySchemes": [
+      {
+        "scopes": [
+          "https://www.googleapis.com/auth/drive",
+          "https://www.googleapis.com/auth/documents",
+          "https://www.googleapis.com/auth/spreadsheets",
+          "https://www.googleapis.com/auth/gmail.readonly",
+          "https://www.googleapis.com/auth/calendar.events"
+        ],
+        "type": "oauth2"
+      }
+    ],
+    "title": "Sheets read"
+  },
+  {
+    "_meta": {
+      "securitySchemes": [
+        {
+          "scopes": [
+            "https://www.googleapis.com/auth/drive",
+            "https://www.googleapis.com/auth/documents",
+            "https://www.googleapis.com/auth/spreadsheets",
+            "https://www.googleapis.com/auth/gmail.readonly",
+            "https://www.googleapis.com/auth/calendar.events"
+          ],
+          "type": "oauth2"
+        }
+      ]
+    },
+    "annotations": {
+      "openWorldHint": true,
+      "readOnlyHint": true
+    },
+    "description": "Search Google Sheets visible to the connected Google account. Query is plain text, not raw Drive syntax.",
+    "execution": {
+      "taskSupport": "forbidden"
+    },
+    "inputSchema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "properties": {
+        "folderId": {
+          "description": "Optional parent Drive folder ID.",
+          "type": "string"
+        },
+        "limit": {
+          "default": 20,
+          "maximum": 50,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "query": {
+          "description": "Plain text to search in sheet names.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "name": "sheets_search",
+    "securitySchemes": [
+      {
+        "scopes": [
+          "https://www.googleapis.com/auth/drive",
+          "https://www.googleapis.com/auth/documents",
+          "https://www.googleapis.com/auth/spreadsheets",
+          "https://www.googleapis.com/auth/gmail.readonly",
+          "https://www.googleapis.com/auth/calendar.events"
+        ],
+        "type": "oauth2"
+      }
+    ],
+    "title": "Sheets search"
+  },
+  {
+    "_meta": {
+      "securitySchemes": [
+        {
+          "scopes": [
+            "https://www.googleapis.com/auth/drive",
+            "https://www.googleapis.com/auth/documents",
+            "https://www.googleapis.com/auth/spreadsheets",
+            "https://www.googleapis.com/auth/gmail.readonly",
+            "https://www.googleapis.com/auth/calendar.events"
+          ],
+          "type": "oauth2"
+        }
+      ]
+    },
+    "annotations": {
+      "destructiveHint": false,
+      "idempotentHint": true,
+      "openWorldHint": true,
+      "readOnlyHint": false
+    },
+    "description": "Update values in a Google Sheet range and write an audit record. Does not delete sheets or files.",
+    "execution": {
+      "taskSupport": "forbidden"
+    },
+    "inputSchema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "properties": {
+        "callerNote": {
+          "description": "Human-readable summary for the audit log.",
+          "type": "string"
+        },
+        "range": {
+          "description": "A1 notation range to update.",
+          "type": "string"
+        },
+        "requestId": {
+          "description": "Optional idempotency/audit request id.",
+          "type": "string"
+        },
+        "spreadsheetId": {
+          "description": "Google Sheet spreadsheet ID.",
+          "type": "string"
+        },
+        "valueInputOption": {
+          "default": "USER_ENTERED",
+          "enum": [
+            "USER_ENTERED",
+            "RAW"
+          ],
+          "type": "string"
+        },
+        "values": {
+          "description": "Rows to write.",
+          "items": {
+            "items": {},
+            "type": "array"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "spreadsheetId",
+        "range",
+        "values"
+      ],
+      "type": "object"
+    },
+    "name": "sheets_update_values",
+    "securitySchemes": [
+      {
+        "scopes": [
+          "https://www.googleapis.com/auth/drive",
+          "https://www.googleapis.com/auth/documents",
+          "https://www.googleapis.com/auth/spreadsheets",
+          "https://www.googleapis.com/auth/gmail.readonly",
+          "https://www.googleapis.com/auth/calendar.events"
+        ],
+        "type": "oauth2"
+      }
+    ],
+    "title": "Sheets update values"
+  },
+  {
+    "_meta": {
+      "securitySchemes": [
+        {
+          "scopes": [
+            "https://www.googleapis.com/auth/drive",
+            "https://www.googleapis.com/auth/documents",
+            "https://www.googleapis.com/auth/spreadsheets",
+            "https://www.googleapis.com/auth/gmail.readonly",
+            "https://www.googleapis.com/auth/calendar.events"
+          ],
+          "type": "oauth2"
+        }
+      ]
+    },
+    "annotations": {
+      "destructiveHint": false,
+      "idempotentHint": true,
+      "openWorldHint": false,
+      "readOnlyHint": false
+    },
+    "description": "Build, query, and run durable simulation frames from agent-assembled reference compilations. Prefer this stable dispatcher for Simulation features so ChatGPT does not need connector refreshes for every new operation.",
+    "execution": {
+      "taskSupport": "forbidden"
+    },
+    "inputSchema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "properties": {
+        "args": {
+          "additionalProperties": {},
+          "description": "Operation-specific arguments. Write operations require requestId inside args.",
+          "propertyNames": {
+            "type": "string"
+          },
+          "type": "object"
+        },
+        "operation": {
+          "description": "Operation name from capabilities.operationSurfaces.simulation.operations. Runtime registry validation rejects unsupported names.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "operation"
+      ],
+      "type": "object"
+    },
+    "name": "simulation_operation",
+    "securitySchemes": [
+      {
+        "scopes": [
+          "https://www.googleapis.com/auth/drive",
+          "https://www.googleapis.com/auth/documents",
+          "https://www.googleapis.com/auth/spreadsheets",
+          "https://www.googleapis.com/auth/gmail.readonly",
+          "https://www.googleapis.com/auth/calendar.events"
+        ],
+        "type": "oauth2"
+      }
+    ],
+    "title": "Simulation operation"
+  },
+  {
+    "_meta": {
+      "securitySchemes": [
+        {
+          "scopes": [
+            "https://www.googleapis.com/auth/drive",
+            "https://www.googleapis.com/auth/documents",
+            "https://www.googleapis.com/auth/spreadsheets",
+            "https://www.googleapis.com/auth/gmail.readonly",
+            "https://www.googleapis.com/auth/calendar.events"
+          ],
+          "type": "oauth2"
+        }
+      ]
+    },
+    "annotations": {
+      "destructiveHint": false,
+      "idempotentHint": true,
+      "openWorldHint": true,
+      "readOnlyHint": false
+    },
+    "description": "Upload one top-level Work Mode file to canonical private Cloud Storage, verify SHA-256 and byte count by readback, write immutable indexes, and record a Command Center artifact receipt. This never writes Google Drive.",
+    "execution": {
+      "taskSupport": "forbidden"
+    },
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "artifactId": {
+          "description": "Stable artifact identity.",
+          "type": "string"
+        },
+        "artifactKind": {
+          "description": "Artifact class such as source-motion.",
+          "type": "string"
+        },
+        "callerNote": {
+          "description": "Optional audit summary.",
+          "type": "string"
+        },
+        "expectedByteCount": {
+          "description": "Optional expected byte count.",
+          "type": "integer"
+        },
+        "expectedSha256": {
+          "description": "Required caller-side SHA-256 provenance lock.",
+          "type": "string"
+        },
+        "file": {
+          "contentMediaType": "application/octet-stream",
+          "description": "Required top-level host-file upload for canonical Cloud Storage artifact ingress.",
+          "format": "binary",
+          "type": "string"
+        },
+        "mimeType": {
+          "description": "Optional MIME type override.",
+          "type": "string"
+        },
+        "name": {
+          "description": "Optional canonical filename override.",
+          "type": "string"
+        },
+        "project": {
+          "description": "Owning project or factory lane.",
+          "type": "string"
+        },
+        "provenance": {
+          "description": "Bounded source identity and curation provenance.",
+          "type": "object"
+        },
+        "requestId": {
+          "description": "Stable idempotency and audit request id.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "requestId",
+        "file",
+        "artifactId",
+        "artifactKind",
+        "project",
+        "expectedSha256"
+      ],
+      "type": "object"
+    },
+    "name": "storage_ingest_artifact",
+    "securitySchemes": [
+      {
+        "scopes": [
+          "https://www.googleapis.com/auth/drive",
+          "https://www.googleapis.com/auth/documents",
+          "https://www.googleapis.com/auth/spreadsheets",
+          "https://www.googleapis.com/auth/gmail.readonly",
+          "https://www.googleapis.com/auth/calendar.events"
+        ],
+        "type": "oauth2"
+      }
+    ],
+    "title": "Ingest artifact to Storage"
+  },
+  {
+    "_meta": {
+      "securitySchemes": [
+        {
+          "scopes": [
+            "https://www.googleapis.com/auth/drive",
+            "https://www.googleapis.com/auth/documents",
+            "https://www.googleapis.com/auth/spreadsheets",
+            "https://www.googleapis.com/auth/gmail.readonly",
+            "https://www.googleapis.com/auth/calendar.events"
+          ],
+          "type": "oauth2"
+        }
+      ]
+    },
+    "annotations": {
+      "openWorldHint": false,
+      "readOnlyHint": true
+    },
+    "description": "Report the bridge persistence collections used for index, plans, and audit.",
+    "execution": {
+      "taskSupport": "forbidden"
+    },
+    "inputSchema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "properties": {},
+      "type": "object"
+    },
+    "name": "storage_status",
+    "securitySchemes": [
+      {
+        "scopes": [
+          "https://www.googleapis.com/auth/drive",
+          "https://www.googleapis.com/auth/documents",
+          "https://www.googleapis.com/auth/spreadsheets",
+          "https://www.googleapis.com/auth/gmail.readonly",
+          "https://www.googleapis.com/auth/calendar.events"
+        ],
+        "type": "oauth2"
+      }
+    ],
+    "title": "Storage status"
+  },
+  {
+    "_meta": {
+      "securitySchemes": [
+        {
+          "scopes": [
+            "https://www.googleapis.com/auth/drive",
+            "https://www.googleapis.com/auth/documents",
+            "https://www.googleapis.com/auth/spreadsheets",
+            "https://www.googleapis.com/auth/gmail.readonly",
+            "https://www.googleapis.com/auth/calendar.events"
+          ],
+          "type": "oauth2"
+        }
+      ]
+    },
+    "annotations": {
+      "destructiveHint": false,
+      "idempotentHint": true,
+      "openWorldHint": true,
+      "readOnlyHint": false
+    },
+    "description": "Import a Drive-hosted or client-supplied .xlsx workbook into a native Google Sheets workbook using Google Drive conversion. Prefer sourceFileId or sourceFileName/sourceFolderId for ChatGPT workflows; use workbookBase64 only when the client can provide complete file bytes. Preserves worksheet order, names, values, formulas, merges, freeze panes, and formatting where Drive supports them. Writes an audit record.",
+    "execution": {
+      "taskSupport": "forbidden"
+    },
+    "inputSchema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "properties": {
+        "callerNote": {
+          "description": "Human-readable summary for the audit log.",
+          "type": "string"
+        },
+        "expectedPopulatedCellCounts": {
+          "additionalProperties": {
+            "type": "number"
+          },
+          "description": "Optional source populated-cell counts by worksheet name for diff reporting.",
+          "propertyNames": {
+            "type": "string"
+          },
+          "type": "object"
+        },
+        "expectedSheetNames": {
+          "description": "Optional source worksheet names for post-conversion verification.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "fileName": {
+          "description": "Original workbook file name.",
+          "type": "string"
+        },
+        "parentFolderId": {
+          "description": "Optional Drive folder ID for the converted native Google Sheet.",
+          "type": "string"
+        },
+        "requestId": {
+          "description": "Stable idempotency/audit request id. Required.",
+          "type": "string"
+        },
+        "sourceFileId": {
+          "description": "Preferred Drive file ID for an existing .xlsx file to download and convert without passing Base64.",
+          "type": "string"
+        },
+        "sourceFileName": {
+          "description": "Preferred Drive .xlsx filename to resolve when sourceFileId is not known; pair with sourceFolderId when possible.",
+          "type": "string"
+        },
+        "sourceFolderId": {
+          "description": "Optional Drive folder ID to search for sourceFileName/sourceQuery.",
+          "type": "string"
+        },
+        "sourceQuery": {
+          "description": "Optional Drive filename search query for an existing .xlsx workbook.",
+          "type": "string"
+        },
+        "title": {
+          "description": "Optional native Google Sheet title override.",
+          "type": "string"
+        },
+        "workbookBase64": {
+          "description": "Complete Base64 encoded .xlsx bytes. Use only when the client can provide the whole uploaded workbook payload; ChatGPT attachment references alone are not enough.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "requestId"
+      ],
+      "type": "object"
+    },
+    "name": "workbook_import_xlsx",
+    "securitySchemes": [
+      {
+        "scopes": [
+          "https://www.googleapis.com/auth/drive",
+          "https://www.googleapis.com/auth/documents",
+          "https://www.googleapis.com/auth/spreadsheets",
+          "https://www.googleapis.com/auth/gmail.readonly",
+          "https://www.googleapis.com/auth/calendar.events"
+        ],
+        "type": "oauth2"
+      }
+    ],
+    "title": "Workbook import XLSX"
+  }
+]

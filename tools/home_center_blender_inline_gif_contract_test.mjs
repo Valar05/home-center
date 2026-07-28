@@ -14,8 +14,8 @@ const audioRenderSource = fs.readFileSync(new URL('../functions/audio_render_ser
 const vanguardScript = fs.readFileSync(new URL('../tools/vanguard_walk_render_blender.py', import.meta.url), 'utf8');
 
 assert(homeCenterSource.includes('verifiedRenderGifMcpContent'), 'Home Center must verify private GCS GIF readback before MCP media attachment');
-assert(homeCenterSource.includes('uploadVerifiedArtifact'), 'Home Center Blender GIF delivery must reuse the audio.render verified upload helper');
-assert(audioRenderSource.includes("type: 'resource_link'"), 'The reused audio.render helper must produce resource_link content');
+assert(homeCenterSource.includes('publishRenderReviewArtifactToDrive'), 'Home Center Blender GIF delivery must reuse digest-keyed render review publication');
+assert(audioRenderSource.includes("type: 'resource_link'"), 'audio.render compatibility delivery must remain a resource_link');
 assert(!homeCenterSource.includes("type: 'image', data: buffer.toString('"), 'Home Center render GIF delivery must not use MCP ImageContent for animated GIFs');
 assert(!homeCenterSource.includes("type: 'resource',\n    resource:"), 'Home Center render GIF delivery must not use embedded resource bytes for animated GIFs');
 assert(homeCenterSource.includes("mimeType: 'image/gif'"), 'Home Center must preserve GIF MIME type');
@@ -55,13 +55,16 @@ const fakeStorage = {
   },
 };
 const driveStore = new Map();
+let createCalls = 0;
 const fakeGoogle = () => ({drive() { return {files: {
+  async list() { return {data: {files: [...driveStore.values()].map((item) => ({...item.metadata, size: String(item.bytes.length)}))}}; },
   async create(params) {
+    createCalls += 1;
     const chunks = [];
     for await (const chunk of params.media.body) chunks.push(Buffer.from(chunk));
     const bytes = Buffer.concat(chunks);
     const id = 'driveGif12345';
-    driveStore.set(id, {bytes, metadata: {id, name: params.requestBody.name, mimeType: params.requestBody.mimeType, webViewLink: 'https://drive/' + id, parents: params.requestBody.parents || []}});
+    driveStore.set(id, {bytes, metadata: {id, name: params.requestBody.name, mimeType: params.requestBody.mimeType, webViewLink: 'https://drive/' + id, parents: params.requestBody.parents || [], appProperties: params.requestBody.appProperties || {}}});
     return {data: {...driveStore.get(id).metadata, size: String(bytes.length)}};
   },
   async get(params) {
@@ -71,21 +74,22 @@ const fakeGoogle = () => ({drive() { return {files: {
     return {data: {...item.metadata, size: String(item.bytes.length)}};
   },
 }}; }});
-const verified = await verifiedRenderGifMcpContent(result, {storage: fakeStorage, google: fakeGoogle(), auth: {}, parentFolderId: 'folder12345'});
+const renderUser = {email: 'dclarke1005@gmail.com'};
+const verified = await verifiedRenderGifMcpContent(result, {storage: fakeStorage, google: fakeGoogle(), auth: {}, user: renderUser, parentFolderId: 'folder12345'});
 assert.equal(verified.delivery.ok, true);
 assert.equal(verified.delivery.byteCount, gifBytes.length);
 assert.equal(verified.delivery.sha256, gifSha);
 assert.equal(verified.delivery.mimeType, 'image/gif');
 assert.equal(verified.contentBlock.type, 'resource_link');
 assert.equal(verified.contentBlock.mimeType, 'image/gif');
-assert.equal(verified.contentBlock.name, 'walk-loop.gif');
+assert.ok(verified.contentBlock.name.endsWith('walk-loop.gif'));
 assert.equal(verified.contentBlock.uri, 'drive://driveGif12345');
 assert.equal(verified.contentBlock.size, gifBytes.length);
 assert.equal(verified.delivery.durableRef, 'drive://driveGif12345');
 assert.equal(verified.delivery.readbackByteCount, gifBytes.length);
 assert.equal(verified.delivery.readbackSha256, gifSha);
 
-const operationResult = await attachRenderGifMcpContent({operation: 'render.blender_glb', toolName: 'command_center.render.blender_glb', result}, {storage: fakeStorage, google: fakeGoogle(), auth: {}, parentFolderId: 'folder12345'});
+const operationResult = await attachRenderGifMcpContent({operation: 'render.blender_glb', toolName: 'command_center.render.blender_glb', result}, {storage: fakeStorage, google: fakeGoogle(), auth: {}, user: renderUser, parentFolderId: 'folder12345'});
 assert.ok(Array.isArray(operationResult._mcpContent.content));
 assert.equal(operationResult._mcpContent.content.length, 2);
 const textBlock = operationResult._mcpContent.content.find((item) => item.type === 'text');
@@ -94,7 +98,7 @@ assert.ok(textBlock);
 assert.ok(linkBlock);
 assert.equal(operationResult._mcpContent.content[0].type, 'text');
 assert.equal(linkBlock.mimeType, 'image/gif');
-assert.equal(linkBlock.name, 'walk-loop.gif');
+assert.ok(linkBlock.name.endsWith('walk-loop.gif'));
 assert.ok(!operationResult._mcpContent.content.some((item) => item.type === 'image' || item.type === 'resource' || item.type === 'audio'), 'GIF delivery must not return unsupported media content blocks');
 assert.ok(!textBlock.text.includes(gifBytes.toString('base64')), 'JSON receipt must not contain Base64 media');
 assert.ok(!textBlock.text.includes('https://storage.googleapis.com'), 'JSON receipt must not contain a public Storage URL');
@@ -110,9 +114,13 @@ assert.equal(queuedResult.result.status, 'queued');
 assert.equal(queuedResult.result.inlineMediaDelivery, undefined, 'accepted receipts must not report a missing result artifact');
 assert.equal(queuedResult._mcpContent, undefined);
 
-const attachedReplay = await attachRenderGifMcpContent({operation: 'render.blender_glb', toolName: 'command_center.render.blender_glb', result: {...result, attached: true}}, {storage: fakeStorage, google: fakeGoogle(), auth: {}});
-assert.equal(attachedReplay.result.inlineMediaDelivery, undefined, 'attached replay must not republish immutable GIF bytes');
-assert.equal(attachedReplay._mcpContent, undefined);
+const createCallsBeforeReplay = createCalls;
+const attachedReplay = await attachRenderGifMcpContent({operation: 'render.blender_glb', toolName: 'command_center.render.blender_glb', result: {...result, attached: true}}, {storage: fakeStorage, google: fakeGoogle(), auth: {}, user: renderUser});
+assert.equal(attachedReplay.result.inlineMediaDelivery.ok, true);
+assert.equal(attachedReplay.result.inlineMediaDelivery.reused, true);
+assert.equal(attachedReplay.result.inlineMediaDelivery.durableRef, verified.delivery.durableRef);
+assert.equal(createCalls, createCallsBeforeReplay, 'attached replay must not republish immutable GIF bytes');
+assert.ok(attachedReplay._mcpContent.content.some((item) => item.type === 'resource_link'), 'attached replay must remain reviewable without duplicate publication');
 
 const failureResult = await attachRenderGifMcpContent({operation: 'render.blender_glb', toolName: 'command_center.render.blender_glb', result}, {storage: fakeStorage});
 assert.deepEqual(failureResult._mcpContent.content.map((item) => item.type), ['text']);

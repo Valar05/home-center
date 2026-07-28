@@ -10,6 +10,7 @@ const {CREDIT_GATED_EMAILS, requireCreditGatedEmail, createHomeCenterMcpApp, cre
 const {audioLibraryHandler} = require('./audio_library_api');
 const {createCommandCenterMcpApp, executeQueuedRenderRequest} = require('./command_center_mcp');
 const {createSheRawMcpApp} = require('./she_raw_mcp');
+const {executeFoundryJob} = require('./foundry_capability');
 const {CARTESIA_DEFAULT_MODEL_ID, CARTESIA_DEFAULT_VOICE_NAME, listCartesiaVoiceCatalog, listCartesiaVoices, normalizeCartesiaVoice, openCartesiaStream} = require('./hosted_speech_provider');
 
 admin.initializeApp();
@@ -3192,6 +3193,20 @@ exports.commandCenterRenderWorker = onTaskDispatched({
   invoker: 'private',
 }, async (request) => {
   await executeQueuedRenderRequest(admin, request.data || {});
+});
+
+exports.foundryAssetWorker = onTaskDispatched({
+  region: 'us-central1',
+  retryConfig: {maxAttempts: 1},
+  rateLimits: {maxConcurrentDispatches: 8, maxDispatchesPerSecond: 4},
+  timeoutSeconds: 1800,
+  memory: '4GiB',
+  cpu: 4,
+  concurrency: 1,
+  maxInstances: 8,
+  invoker: 'private',
+}, async (request) => {
+  await executeFoundryJob(admin, request.data || {});
 });
 
 exports.sheRawMcp = onRequest({timeoutSeconds: 300}, createSheRawMcpApp({admin}));

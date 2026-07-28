@@ -69,15 +69,18 @@ Every generated artifact must include custom metadata with this shape or a stric
 
 ```json
 {
-  "owner": "drew",
+  "owner": "authenticated@example.com",
+  "ownerEmail": "authenticated@example.com",
   "project": "fleshpunk",
-  "stage": "voice-test",
+  "stage": "review",
   "engine": "cartesia",
-  "createdBy": "command-center",
+  "createdBy": "home-center-mcp",
   "jobId": "...",
   "commit": "...",
   "timestamp": "...",
-  "approved": "false",
+  "executionAuthorized": "true",
+  "authorizationState": "owner_scoped",
+  "humanAcceptance": "unreviewed",
   "sha256": "...",
   "byteCount": "..."
 }
@@ -92,13 +95,15 @@ request
   -> Home Center or Command Center
   -> Cloud Storage generated bucket
   -> validation and readback hash check
-  -> if approved or explicitly requested: publish a Drive copy
-  -> return GCS durable refs plus Drive resource links when published
+  -> register owner-scoped review artifacts in the authenticated Reader
+  -> keep human acceptance separate as unreviewed until a verdict exists
+  -> if explicitly requested: publish a Drive copy
+  -> return GCS identity plus private Reader delivery evidence
 ```
 
 Renderers and audio generators must not write directly to Drive as their primary output. Drive upload is a publish step after Cloud Storage readback succeeds.
 
-For backward compatibility, `audio.render` can still return a Drive `resource_link` for existing clients, but its canonical `durableRef` is the `gs://` object.
+For backward compatibility, `audio.render` can still return a Drive `resource_link` when explicitly requested, but its canonical identity is the `gs://` object and its completion gate is private Audio Reader registration, discovery, and playback.
 
 ## Permissions
 
@@ -112,7 +117,8 @@ Do not make generated artifact buckets public. Human consumption should use Driv
 ## Implementation Owners
 
 - `functions/artifact_bucket.js`: canonical GCS upload, metadata, readback verification, and Drive publish helper.
-- `functions/audio_render_service.js`: audio artifacts write to GCS first, then optionally publish to Drive.
+- `functions/audio_render_service.js`: audio artifacts write to GCS first and complete only after Reader registration.
+- `functions/audio_catalog_service.js`: receipt-only, owner-scoped Audio Reader registration, byte-preserving metadata repair, discovery, and playback probes.
 - `functions/home_center_mcp.js`: top-level render file staging uses the generated bucket.
 - `functions/command_center_mcp.js`: Command Center render upload staging uses the generated bucket.
 - `cloud-render/src/render_bundle.mjs`: Blender bundles, frames, contact sheets, GIFs, logs, GLBs, manifests, and hashes write to the generated bucket layout.

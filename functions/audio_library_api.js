@@ -108,6 +108,8 @@ function audioMetadata(file, metadata, email) {
     stage: safeText(custom.stage, 120),
     manifestObject: safeText(custom.manifestObject, 1000),
     sha256: safeText(custom.sha256, 128),
+    authorizationState: safeText(custom.authorizationState, 80) || (accessFor(metadata, email) ? 'owner_scoped' : ''),
+    humanAcceptance: safeText(custom.humanAcceptance, 80) || 'unreviewed',
   };
 }
 
@@ -222,6 +224,8 @@ function indexAudioMetadata(index, email) {
     stage,
     manifestObject: safeText(metadata.manifestObject, 1000),
     sha256: safeText(destination.sha256 || metadata.sha256, 128),
+    authorizationState: safeText(index.authorization && index.authorization.state || metadata.authorizationState, 80) || 'owner_scoped',
+    humanAcceptance: safeText(index.humanAcceptance && index.humanAcceptance.state || metadata.humanAcceptance, 80) || 'unreviewed',
   };
 }
 
@@ -409,4 +413,6 @@ module.exports = {
   browseAudio,
   normalizeFolder,
   indexAudioMetadata,
+  authorizedFile,
+  playAudio,
 };

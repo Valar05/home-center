@@ -1,5 +1,16 @@
 # CODEX STARTS HERE
 
+## 2026-07-27 Release Consolidation
+
+The active release rule is stricter than older deployment notes below: Home
+Center MCP may publish only from a clean HEAD exactly equal to `origin/main`.
+Feature-branch deployment is forbidden. Current unmerged work repairs Vacation
+Day 1 Parts 6 and 7 through receipt-only Audio Reader registration and makes
+future `audio.render` completion depend on owner-scoped Reader discovery and
+playback. Read `docs/evidence/vacation-audio-reader-repair-2026-07-27.md` for
+the immutable hashes, tests, pre-deploy revisions, and live-proof gate. Older
+revision notes remain archaeology, not current deployment authority.
+
 ## Current State
 
 Systemic artifact transport is implemented and live-verified on
@@ -71,3 +82,9 @@ schema; use the stable dispatcher until the connector is reconnected.
 Transport success means exact bytes reached Blender, outputs and manifests were
 published, and replay transferred zero bytes. It does not release Candidate 001
 from quarantine. Only the hosted visual review lane can do that.
+
+## Fortress Model Foundry Branch
+
+The focused Foundry work is in `agent/fortress-model-foundry`, stacked on `agent/systemic-artifact-transport`. Read `docs/FORTRESS_MODEL_FOUNDRY.md` first. Foundry registers only below the existing `drive_operation` boundary. The authenticated production baseline is checked in at `contracts/home-center-top-level-mcp.v1.json`; its canonical SHA-256 is `64fe900eeaaf2928c2b6114829ee758ff73cc05700373085a1ae63b6484d05f1`. Run `node tools/foundry_contract_test.mjs` before review or deployment. Do not add a top-level Foundry tool, a second viewer, a Blender fallback, or a mutable `latest`.
+
+Foundry live proof is in `docs/evidence/fortress-foundry-live-proof-2026-07-27.json`. Deployed revisions are `foundryassetworker-00001-bip` and `homecentermcp-00147-ket`; MCP rollback is `homecentermcp-00146-jub`. The canonical server path is green, while the Codex app adapter remains blocked by a host-owned `home_center_drive.` tool-name prefix mismatch. Do not alter the MCP contract to compensate.

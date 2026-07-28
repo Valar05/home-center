@@ -19,7 +19,9 @@ node "$ROOT/tools/worker_profile_contract.mjs" validate-resolved command-center-
   "maxInstances=$WORKER_MAX_INSTANCES" \
   "timeoutSeconds=$WORKER_TIMEOUT_SECONDS"
 
-gcloud services enable run.googleapis.com cloudbuild.googleapis.com artifactregistry.googleapis.com storage.googleapis.com --project "$PROJECT" >/dev/null
+if [ "${COMMAND_CENTER_SKIP_SERVICE_ENABLE:-false}" != "true" ]; then
+  gcloud services enable run.googleapis.com cloudbuild.googleapis.com artifactregistry.googleapis.com storage.googleapis.com --project "$PROJECT" >/dev/null
+fi
 
 if ! gcloud artifacts repositories describe "$REPOSITORY" --project "$PROJECT" --location "$REGION" >/dev/null 2>&1; then
   gcloud artifacts repositories create "$REPOSITORY" --project "$PROJECT" --location "$REGION" --repository-format docker --description "Command Center worker and render images" >/dev/null
@@ -29,7 +31,44 @@ if ! gcloud storage buckets describe "gs://${CACHE_BUCKET}" --project "$PROJECT"
   gcloud storage buckets create "gs://${CACHE_BUCKET}" --project "$PROJECT" --location "$REGION" --uniform-bucket-level-access >/dev/null
 fi
 
-gcloud builds submit "$ROOT" --project "$PROJECT" --config "$ROOT/cloud-render/cloudbuild.yaml" --substitutions "_IMAGE=${IMAGE}"
+if [ -n "${COMMAND_CENTER_RENDER_BUILD_ID:-}" ]; then
+  ATTEMPT=0
+  while :; do
+    BUILD_STATUS="$(gcloud builds describe "$COMMAND_CENTER_RENDER_BUILD_ID" --project "$PROJECT" --format='value(status)')"
+    case "$BUILD_STATUS" in
+      SUCCESS) break ;;
+      FAILURE|INTERNAL_ERROR|TIMEOUT|CANCELLED|EXPIRED)
+        echo "Cloud Build ${COMMAND_CENTER_RENDER_BUILD_ID} failed with status ${BUILD_STATUS}." >&2
+        exit 1
+        ;;
+    esac
+    ATTEMPT=$((ATTEMPT + 1))
+    if [ "$ATTEMPT" -ge 60 ]; then
+      echo "Cloud Build ${COMMAND_CENTER_RENDER_BUILD_ID} did not finish within the bounded poll window." >&2
+      exit 1
+    fi
+    sleep 10
+  done
+else
+  COMMAND_CENTER_RENDER_BUILD_ID="$(gcloud builds submit "$ROOT" --async --project "$PROJECT" --config "$ROOT/cloud-render/cloudbuild.yaml" --substitutions "_IMAGE=${IMAGE}" --format='value(id)')"
+  ATTEMPT=0
+  while :; do
+    BUILD_STATUS="$(gcloud builds describe "$COMMAND_CENTER_RENDER_BUILD_ID" --project "$PROJECT" --format='value(status)')"
+    case "$BUILD_STATUS" in
+      SUCCESS) break ;;
+      FAILURE|INTERNAL_ERROR|TIMEOUT|CANCELLED|EXPIRED)
+        echo "Cloud Build ${COMMAND_CENTER_RENDER_BUILD_ID} failed with status ${BUILD_STATUS}." >&2
+        exit 1
+        ;;
+    esac
+    ATTEMPT=$((ATTEMPT + 1))
+    if [ "$ATTEMPT" -ge 60 ]; then
+      echo "Cloud Build ${COMMAND_CENTER_RENDER_BUILD_ID} did not finish within the bounded poll window." >&2
+      exit 1
+    fi
+    sleep 10
+  done
+fi
 
 SERVICE_ACCOUNT_ARG=""
 if [ -n "$SERVICE_ACCOUNT" ]; then

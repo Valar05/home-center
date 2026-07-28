@@ -7,7 +7,7 @@ const speech = require('@google-cloud/speech');
 let ffmpegPath = process.env.FFMPEG_PATH || '';
 if (!ffmpegPath) {
   try {
-    ffmpegPath = require('ffmpeg-static');
+    ffmpegPath = require('ffmpeg-static') || process.env.FFMPEG_PATH || 'ffmpeg';
   } catch {
     ffmpegPath = 'ffmpeg';
   }

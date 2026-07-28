@@ -13,10 +13,15 @@ const {toJsonSchemaCompat} = require('./node_modules/@modelcontextprotocol/sdk/d
 const express = require('express');
 const {z} = require('zod/v4');
 const {CARTESIA_DEFAULT_MODEL_ID, CARTESIA_DEFAULT_VOICE_NAME, listCartesiaVoiceCatalog, listCartesiaVoices, normalizeCartesiaVoice, openCartesiaStream} = require('./hosted_speech_provider');
-const {renderBlenderGlb: commandCenterRenderBlenderGlb, renderRequestStatus: commandCenterRenderRequestStatus} = require('./command_center_mcp');
+const {
+  renderBlenderGlb: commandCenterRenderBlenderGlb,
+  renderBlenderBuild: commandCenterRenderBlenderBuild,
+  renderRequestStatus: commandCenterRenderRequestStatus,
+} = require('./command_center_mcp');
 const {boundedMap, rendererSettingsJsonSchema, preflightArtifactEnvelope} = require('./artifact_transport');
 const cartesiaPitchShift = require('./cartesia_pitch_shift');
 const {renderAudioOperation, audioRenderStatusOperation, inspectAudioArtifactsOperation, uploadVerified: uploadVerifiedArtifact} = require('./audio_render_service');
+const {recoverAudioRenderRegistrationOperation} = require('./audio_catalog_service');
 const {
   analyzeSourceOperation,
   transcribeSlateOperation,
@@ -40,6 +45,11 @@ const {
   readArtifactOperation,
   findArtifactBySha256Operation,
 } = require('./artifact_ingest_service');
+const {
+  foundryOperationEntries,
+  runFoundryOperation,
+  installFoundryArtifactRoutes,
+} = require('./foundry_capability');
 const {
   CALENDAR_SCOPE: SMS_CALENDAR_SCOPE,
   GMAIL_SCOPE: SMS_GMAIL_SCOPE,
@@ -568,6 +578,7 @@ function commandCenterOperationRegistry() {
       'projects.get': {summary: 'Read one persisted Command Center project packet.', readOnly: true, input: {projectId: 'string'}},
       'projects.upsert': {summary: 'Create or update a durable Command Center project binding.', readOnly: false, input: {projectId: 'string', repository: 'optional string', capability: 'optional string', repositoryBinding: 'optional object', availableWorkers: 'optional string[]', idempotencyKey: 'string'}},
       'render.blender_glb': {summary: 'Accept non-agent Blender execution from durable refs, authenticated GitHub sources, or top-level host files and return a durable queued/running/completed receipt. Prefer glbSource.provider=github for private repository GLBs when ChatGPT cannot expose the top-level binary upload tool; nested command_center_operation args cannot activate host file upload slots.', readOnly: false, topLevelFileTool: 'render_blender_glb', input: {glbRef: 'drive:// | bucket:// | gs:// GLB ref for dispatcher calls', glbSource: '{provider: github, repository: owner/name, ref: commit-or-branch, path: path/to/file.glb}', scriptRef: 'optional drive:// | bucket:// | gs:// Blender Python ref', scriptSource: 'optional authenticated GitHub Python descriptor', scriptText: 'optional inline Python script alternative', settings: 'optional object', executionContract: 'optional object', cache: 'optional boolean', idempotencyKey: 'string'}, output: {accepted: 'boolean', renderId: 'string', inputHash: 'sha256', status: 'queued|running|completed|failed|quarantined|stalled', statusOperation: 'render.status receipt'}},
+      'render.blender_build': {summary: 'Author a new 3D asset from Blender factory state in the existing private Cloud Run renderer. The authoring script is staged to durable GCS first; no input GLB or chat upload is accepted.', readOnly: false, input: {scriptRef: 'drive:// | bucket:// | gs:// Blender Python ref', scriptSource: '{provider: github, repository: owner/name, ref: immutable commit, path: path/to/build.py}', scriptText: 'optional inline Python script alternative', settings: 'optional object', executionContract: 'optional object', cache: 'optional boolean', idempotencyKey: 'string'}, output: {accepted: 'boolean', renderId: 'string', inputHash: 'sha256', status: 'queued|running|completed|failed|quarantined|stalled', statusOperation: 'render.status receipt'}},
       'render.status': {summary: 'Read bounded durable Blender render status without binary bodies or unbounded provider logs.', readOnly: true, input: {renderId: 'string or idempotencyKey'}, output: {status: 'queued|running|completed|failed|quarantined|stalled'}},
       'render.reconcile': {summary: 'Explicitly authorize one retry only after evidence proves an ambiguous failed/stalled/quarantined Blender outcome is safe to retry.', readOnly: false, input: {idempotencyKey: 'string', renderId: 'string', resolution: 'retry_safe', evidence: 'bounded string'}},
       'jobs.create': {summary: 'Create a durable worker ticket/job.', readOnly: false, input: {projectId: 'string', title: 'string', objective: 'string', acceptanceCriteria: 'string[]', workerRequirements: 'string[]', mutationPolicy: 'object', idempotencyKey: 'string'}},
@@ -727,8 +738,10 @@ function renderReceiptWithoutInlinePayload(operationResult = {}, delivery = null
   return clean;
 }
 
-async function verifiedRenderGifMcpContent(result = {}, {storage = null, google = null, auth = null, parentFolderId = ''} = {}) {
-  const renderResult = safeObject(result);
+async function verifiedRenderGifMcpContent(result = {}, {storage = null, google = null, auth = null, user = null, parentFolderId = '', publishArtifact = null} = {}) {
+  const envelope = safeObject(result);
+  const nestedResult = safeObject(envelope.result);
+  const renderResult = Object.keys(nestedResult).length ? nestedResult : envelope;
   const loopingGifRef = safeText(renderResult.loopingGifRef, 1600);
   const expected = renderArtifactHashEntry(renderResult, 'walk-loop.gif');
   const expectedSha256 = safeText(expected.sha256, 128).toLowerCase();
@@ -759,15 +772,19 @@ async function verifiedRenderGifMcpContent(result = {}, {storage = null, google 
     return {contentBlock: null, delivery: {...deliveryBase, byteCount: buffer.length, sha256: readbackSha256, errorCode: 'render_gif_resource_link_readback_mismatch', message: 'Private GCS GIF readback did not match renderer hash metadata.'}};
   }
   if (!google || !auth) return {contentBlock: null, delivery: {...deliveryBase, ok: false, byteCount: buffer.length, sha256: readbackSha256, errorCode: 'render_gif_resource_link_auth_missing', message: 'Verified GIF readback succeeded, but authenticated Drive context was unavailable for resource_link creation.'}};
-  const uploaded = await uploadVerifiedArtifact({google, auth, parentFolderId, item: {name: 'walk-loop.gif', format: 'gif', mimeType: 'image/gif', bytes: buffer, byteCount: buffer.length, sha256: readbackSha256, clipMetrics: {}}});
-  const contentBlock = uploaded.chatGptFileRef;
-  return {contentBlock, delivery: {...deliveryBase, ok: true, durableRef: uploaded.driveDurableRef || uploaded.chatGptFileRef && uploaded.chatGptFileRef.uri || uploaded.durableRef, byteCount: uploaded.byteCount, sha256: uploaded.sha256, readbackByteCount: uploaded.readbackByteCount, readbackSha256: uploaded.readbackSha256, fileId: uploaded.fileId || '', contentBlockType: contentBlock.type, message: 'Private GCS GIF readback verified and attached as authenticated resource_link.'}};
+  const publish = publishArtifact || publishRenderReviewArtifactToDrive;
+  const uploaded = await publish({google, auth, user: user || {}, parentFolderId, renderId: safeText(renderResult.renderId, 180) || safeText(envelope.renderId, 180) || 'render', candidate: {kind: 'looping_gif', artifactRef: loopingGifRef, expectedSha256, expectedByteCount, name: 'walk-loop.gif', mimeType: 'image/gif'}, bytes: buffer});
+  const contentBlock = uploaded.resourceLink;
+  return {contentBlock, delivery: {...deliveryBase, ok: true, durableRef: uploaded.durableRef, byteCount: uploaded.byteCount, sha256: uploaded.sha256, readbackByteCount: uploaded.readbackByteCount, readbackSha256: uploaded.readbackSha256, fileId: uploaded.fileId || '', reused: uploaded.reused === true, contentBlockType: contentBlock.type, message: 'Private GCS GIF readback verified and attached as authenticated resource_link.'}};
 }
 
 async function attachRenderGifMcpContent(operationResult = {}, options = {}) {
   const cleanResult = JSON.parse(JSON.stringify(operationResult || {}));
   if (!cleanResult || cleanResult.operation !== 'render.blender_glb' || !cleanResult.result) return cleanResult;
-  if (safeText(cleanResult.result.status, 80) !== 'completed' || cleanResult.result.attached === true) return cleanResult;
+  if (safeText(cleanResult.result.status, 80) !== 'completed') return cleanResult;
+  // boundedRenderRequestStatus(attached=true) means the completed receipt includes artifact metadata;
+  // it does not mean MCP media egress has already attached the verified GIF.
+  if (safeObject(cleanResult.result.inlineMediaDelivery).ok === true) return cleanResult;
   const inline = await verifiedRenderGifMcpContent(cleanResult.result, options).catch((err) => ({contentBlock: null, delivery: {ok: false, type: 'mcp_resource_link', mimeType: 'image/gif', artifactRef: safeText(cleanResult.result && cleanResult.result.loopingGifRef, 1600), durableRef: '', byteCount: 0, sha256: '', expectedByteCount: 0, expectedSha256: '', ceilingBytes: HOME_CENTER_RENDER_INLINE_GIF_MAX_BYTES, contentBlockType: '', errorCode: safeText(err && err.failureKind, 120) || 'render_gif_resource_link_failed', message: safeText(err && err.message, 500)}}));
   cleanResult.result.inlineMediaDelivery = inline.delivery;
   const receipt = renderReceiptWithoutInlinePayload(cleanResult, inline.delivery);
@@ -1268,23 +1285,30 @@ function assertOneHomeCenterRenderSource(args, role) {
 
 async function materializeHomeCenterRenderSources({google, admin, googleClientId, googleClientSecret, extra, githubToken = () => '', args = {}}) {
   const operationArgs = {...args};
+  const buildMode = safeText(operationArgs.mode, 40) === 'build';
   const stagedInputs = Array.isArray(operationArgs.stagedInputs) ? operationArgs.stagedInputs.slice(0, 10) : [];
-  assertOneHomeCenterRenderSource(operationArgs, 'glb');
+  if (buildMode) {
+    if (renderSourceProvided(operationArgs, 'glbRef') || renderSourceProvided(operationArgs, 'glbSource') || isMcpFileLike(operationArgs.glbFile)) {
+      throw homeCenterRenderInputError('render.blender_build starts from Blender factory state and does not accept a GLB source.', 400, 'input_validation');
+    }
+  } else {
+    assertOneHomeCenterRenderSource(operationArgs, 'glb');
+  }
   const scriptCount = [safeText(operationArgs.scriptRef, 1200).length > 0, !!normalizeRenderGitHubSource(operationArgs.scriptSource, 'script'), isMcpFileLike(operationArgs.scriptFile), safeText(operationArgs.scriptText || operationArgs.inlineScript || operationArgs.script, HOME_CENTER_DIRECT_RENDER_TEXT_LIMIT + 1).length > 0].filter(Boolean).length;
   if (scriptCount !== 1) throw homeCenterRenderInputError('Exactly one Blender script source is required: provide scriptRef, scriptSource, scriptFile, or scriptText.', 400, 'input_validation');
-  const needsDrive = ['glbRef', 'scriptRef'].some((field) => safeText(operationArgs[field], 1200).toLowerCase().startsWith('drive://'));
-  const needsGitHub = !!normalizeRenderGitHubSource(operationArgs.glbSource, 'glb') || !!normalizeRenderGitHubSource(operationArgs.scriptSource, 'script');
+  const needsDrive = ['glbRef', 'scriptRef'].filter((field) => !buildMode || field !== 'glbRef').some((field) => safeText(operationArgs[field], 1200).toLowerCase().startsWith('drive://'));
+  const needsGitHub = (!buildMode && !!normalizeRenderGitHubSource(operationArgs.glbSource, 'glb')) || !!normalizeRenderGitHubSource(operationArgs.scriptSource, 'script');
   if (!needsDrive && !needsGitHub) return operationArgs;
   const {auth, user} = needsDrive ? await requestGoogleContext(extra, google, admin, googleClientId, googleClientSecret) : {auth: null, user: (await loadMcpAccessContext(admin, google, googleClientId, googleClientSecret, bearerTokenFromExtra(extra))).user};
   const seed = safeText(operationArgs.idempotencyKey, 180) || randomUUID();
   const renderId = safeText(operationArgs.renderId, 180) || 'render_' + createHash('sha256').update(homeCenterRenderOwnerKey(user) + ':' + seed).digest('hex').slice(0, 32);
   operationArgs.renderId = renderId;
   const tasks = [];
-  for (const [field, role] of [['glbRef', 'glb'], ['scriptRef', 'script']]) {
+  for (const [field, role] of (buildMode ? [['scriptRef', 'script']] : [['glbRef', 'glb'], ['scriptRef', 'script']])) {
     const ref = safeText(operationArgs[field], 1200);
     if (ref.toLowerCase().startsWith('drive://')) tasks.push({kind: 'drive', field, role, refField: field, sourceRef: ref});
   }
-  for (const [field, role, refField] of [['glbSource', 'glb', 'glbRef'], ['scriptSource', 'script', 'scriptRef']]) {
+  for (const [field, role, refField] of (buildMode ? [['scriptSource', 'script', 'scriptRef']] : [['glbSource', 'glb', 'glbRef'], ['scriptSource', 'script', 'scriptRef']])) {
     const source = normalizeRenderGitHubSource(operationArgs[field], role);
     if (source) tasks.push({kind: 'github', field, role, refField, source});
   }
@@ -1542,10 +1566,12 @@ async function commandCenterOperationRunOperation({google = null, admin = null, 
   delete operationArgs.type;
   delete operationArgs.toolName;
   delete operationArgs.args;
-  if (operation === 'render.blender_glb' && google && admin) {
+  if ((operation === 'render.blender_glb' || operation === 'render.blender_build') && google && admin) {
+    operationArgs.mode = operation === 'render.blender_build' ? 'build' : 'render_glb';
     const materializedArgs = await materializeHomeCenterRenderSources({google, admin, googleClientId, googleClientSecret, extra, githubToken, args: operationArgs});
-    const rendered = {operation, toolName, commandCenterMcpUrl: COMMAND_CENTER_MCP_URL, result: await commandCenterRenderBlenderGlb(admin, extra, materializedArgs)};
-    return attachRenderGifMcpContent(rendered, {google, auth: context.auth, parentFolderId: safeText(operationArgs.parentFolderId, 220)});
+    const invoke = operation === 'render.blender_build' ? commandCenterRenderBlenderBuild : commandCenterRenderBlenderGlb;
+    const rendered = {operation, toolName, commandCenterMcpUrl: COMMAND_CENTER_MCP_URL, result: await invoke(admin, extra, materializedArgs)};
+    return attachRenderGifMcpContent(rendered, {google, auth: context.auth, user: context.user, parentFolderId: safeText(operationArgs.parentFolderId, 220)});
   }
 
   const bearerToken = bearerTokenFromExtra(extra);
@@ -4586,6 +4612,7 @@ function driveOperationRegistry() {
     cachePolicy: 'New bridge and simulation operations should be invokable through drive_operation so ChatGPT does not need a top-level MCP tool refresh for every backend code change. Cartesia TTS is a direct Home Center MCP provider operation; it must not be routed through Command Center jobs or workers.',
     operations: {
       ...artifactOperationEntries(),
+      ...foundryOperationEntries(),
       'render.review_artifacts': {
         summary: 'Materialize hash-verified review images already named by an owner-scoped completed Blender render receipt as authenticated Drive resource links.',
         write: true,
@@ -4713,17 +4740,25 @@ function driveOperationRegistry() {
         output: {provider: 'cartesia', catalog: 'provider_live', filters: 'object', supportedFilters: 'object', pagination: 'object', voices: 'array with id/name/language/locale/gender/accent/country/metadata'},
       },
       'audio.render': {
-        summary: 'Render deterministic procedural, source-backed, or direct Cartesia speech audio inside Home Center MCP through a declarative JSON recipe. Speech nodes resolve character profiles such as Isaac/Clyde, forward structured Cartesia emotion/speed/volume generation_config, apply tempo-preserving pitch, and return verified Drive artifacts plus a structured inline-playable MCP audio block. It never creates a Command Center job, Codex execution, LLM prompt, worker lease, GitHub Actions renderer, or Termux runtime process.',
+        summary: 'Render deterministic procedural, source-backed, or direct Cartesia speech audio inside Home Center MCP through a declarative JSON recipe. Completion requires verified GCS bytes, server-derived owner registration, authenticated Audio Reader discovery, and a bounded playback probe; human acceptance remains unreviewed. It never creates a Command Center job, Codex execution, LLM prompt, GitHub Actions renderer, or Termux runtime process.',
         write: true,
         requiresRequestId: true,
-        requiredScopes: ['https://www.googleapis.com/auth/drive'],
+        requiredScopes: [],
         input: {scriptText: 'required JSON audio recipe DSL; no imports, network, shell, process, filesystem, or arbitrary code execution; supports speech, audition, speech_sequence, and block_mix nodes with text, speaker, character or voiceName/voiceId, modelId, emotion, speed, volume, pitchSemitones, pauseMs, master, and bounded concurrency', sources: 'optional object binding friendly names to inline contentBase64 or drive:// refs; WAV sources decode to clips', settings: 'optional deterministic renderer settings including seed, sampleRate, timeoutMs, allowClipping, speechDefaults, speechConcurrency', returnInlineAudio: 'optional boolean; defaults true for small audio, set false for long-form responses so durable resource links remain authoritative', idempotencyKey: 'string alias for requestId', requestId: 'string', parentFolderId: 'optional Drive folder id', callerNote: 'optional string'},
-        output: {ok: 'true', status: 'completed', renderer: 'home-center-deterministic-audio-v1', primaryOutput: 'inline playable audio plus durable Drive ref', speech: 'Cartesia speech provenance with resolved character profile, exact segment speaker ownership, emotion, speed, volume, pitch, duration ratio, sequence metadata, and take metadata', outputs: 'array with name, MIME, duration, sampleRate, channels, codec, bytes, SHA-256, readback hash, peak, LUFS, clipping, durable ref, ChatGPT file ref', manifest: 'verified JSON manifest artifact', noAgentRuntime: 'true'},
+        output: {ok: 'true only after canonical Reader registration', status: 'completed|registration_required', renderer: 'home-center-deterministic-audio-v1', primaryOutput: 'verified canonical GCS audio identity', readerRegistration: 'owner-scoped catalog, discovery, playback probe, and byte-preservation evidence', humanAcceptance: 'unreviewed until a separate human verdict', speech: 'bounded Cartesia provenance when speech nodes exist', outputs: 'verified artifact identities', manifest: 'verified JSON manifest artifact', noAgentRuntime: 'true'},
         agentRecipe: {
           whenUserSays: 'Render procedural sound effects, ambience, foley, layered audio beds, stems, waveform, or spectrogram directly from ChatGPT.',
           prefer: 'Call drive_operation with operation=audio.render. Keep scriptText as the Home Center JSON audio DSL; use speech/audition/speech_sequence recipe nodes for direct Cartesia speech, separate emotional contexts, and long-form attributed dialogue. Do not use Command Center, Codex, workers, GitHub Actions, or a newly exposed top-level MCP tool.',
-          verification: 'Treat ok=true/status=completed, verified output/readback hashes, non-silent metrics, and the returned text receipt plus resource_link as authoritative. Inline audio is optional and size-bounded.',
+          verification: 'Treat success as authoritative only when ok=true/status=completed and readerRegistration proves unchanged bytes, owner-scoped discovery, and playback. Mechanical completion never means human approval.',
         },
+      },
+      'audio.render_register': {
+        summary: 'Recover authenticated Audio Reader registration for the primary playable output of an owner-scoped terminal audio.render receipt. This operation never rerenders, calls Cartesia, copies to Drive, exposes the object publicly, or changes human acceptance.',
+        write: true,
+        requiresRequestId: true,
+        requiredScopes: [],
+        input: {requestId: 'required owner-scoped terminal audio.render receipt id; arbitrary GCS paths and URLs are forbidden'},
+        output: {status: 'completed', execution: 'registration_only', registration: 'byte-preserving owner-scoped catalog, discovery, and playback evidence', humanAcceptance: 'unreviewed', idempotent: 'true on exact replay'},
       },
       'audio.render_artifacts': {
         summary: 'Read back audio.render durable artifact refs through Home Center MCP Google OAuth, verify byte count/SHA-256 against expected receipt metadata, and return redacted container/header evidence. This is the direct verifier for ChatGPT-side acceptance and does not expose Drive OAuth tokens or signed URLs.',
@@ -5405,6 +5440,11 @@ async function driveOperationRunOperation({google, admin, auth, user, extra = nu
     const result = await commandCenterOperationRunOperation({google, admin, googleClientId, googleClientSecret, githubToken, extra, args: {operation: compatCommandCenterOperation, args: operationArgs}});
     return {operation, compatibilityRoute: 'drive_operation.command_center', commandCenterOperation: compatCommandCenterOperation, registryVersion: registry.version, completed: true, result: result.result};
   }
+  if (foundryOperationEntries()[operation]) {
+    requireCreditGatedEmail(user && user.email, operation);
+    const result = await runFoundryOperation({operation, admin, user, args: operationArgs});
+    return {operation, registryVersion: registry.version, completed: result.state === 'completed' || !!result.immutable, result};
+  }
   if (operation === 'render.review_artifacts') {
     const result = await materializeRenderReviewArtifactsOperation({google, admin, auth, user, extra, googleClientId, googleClientSecret, githubToken, args: operationArgs});
     const wrapped = {operation, registryVersion: registry.version, completed: true, result};
@@ -5481,13 +5521,18 @@ async function driveOperationRunOperation({google, admin, auth, user, extra = nu
     delete cleanResult._mcpContent;
     return {operation, registryVersion: registry.version, completed: cleanResult.status === 'completed', result: cleanResult, _mcpContent: mcpContent};
   }
+  if (operation === 'audio.render_register') {
+    requireCreditGatedEmail(user && user.email, 'audio.render_register');
+    const result = await recoverAudioRenderRegistrationOperation({admin, user, args: operationArgs});
+    return {operation, registryVersion: registry.version, completed: result.status === 'completed', result};
+  }
   if (operation === 'audio.render_artifacts') {
     const result = await inspectAudioArtifactsOperation({google, auth, args: operationArgs});
     return {operation, registryVersion: registry.version, completed: true, result};
   }
   if (operation === 'audio.render_status') {
     const requestId = createRequestId(operationArgs.requestId || operationArgs.idempotencyKey);
-    const result = await audioRenderStatusOperation({admin, requestId, helpers: {existingAudit, auditWrite}});
+    const result = await audioRenderStatusOperation({admin, user, requestId, helpers: {existingAudit, auditWrite}});
     return {operation, registryVersion: registry.version, completed: true, result};
   }
   if (operation === 'sfx.analyze_source') {
@@ -6009,7 +6054,7 @@ function createHomeCenterMcpServer({google, admin, googleClientId, googleClientS
     securitySchemes: MCP_OAUTH_SECURITY_SCHEMES,
     _meta: {securitySchemes: MCP_OAUTH_SECURITY_SCHEMES},
     annotations: {readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false},
-  }, async (args, extra) => mcpToolResult(await (async () => { const context = await requireCreditGatedContext({google, admin, googleClientId, googleClientSecret, extra, surface: 'render_blender_glb'}); return attachRenderGifMcpContent({operation: 'render.blender_glb', toolName: 'render_blender_glb', commandCenterMcpUrl: COMMAND_CENTER_MCP_URL, result: await renderBlenderGlbBridge({admin, extra, args: args || {}})}, {google, auth: context.auth, parentFolderId: safeText(args && args.parentFolderId, 220)}); })()));
+  }, async (args, extra) => mcpToolResult(await (async () => { const context = await requireCreditGatedContext({google, admin, googleClientId, googleClientSecret, extra, surface: 'render_blender_glb'}); return attachRenderGifMcpContent({operation: 'render.blender_glb', toolName: 'render_blender_glb', commandCenterMcpUrl: COMMAND_CENTER_MCP_URL, result: await renderBlenderGlbBridge({admin, extra, args: args || {}})}, {google, auth: context.auth, user: context.user, parentFolderId: safeText(args && args.parentFolderId, 220)}); })()));
 
   server.registerTool('cartesia_voices', {
     title: 'Cartesia voices',
@@ -6886,6 +6931,7 @@ function createHomeCenterMcpApp({google, admin, googleClientId = () => '', googl
   const app = express();
   app.use(express.json({limit: '80mb'}));
   app.use(express.urlencoded({extended: false, limit: '256kb'}));
+  installFoundryArtifactRoutes(app, {admin});
   const transports = {};
 
   app.get('/', (_req, res) => {
