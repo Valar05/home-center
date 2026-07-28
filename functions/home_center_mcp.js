@@ -81,7 +81,42 @@ const MCP_REQUIRED_SCOPES = [
   SMS_GMAIL_SCOPE,
   SMS_CALENDAR_SCOPE,
 ];
+const GROUNDED_MOTION_MCP_RESOURCE = process.env.GROUNDED_MOTION_MCP_RESOURCE || 'https://grounded-motion-mcp-286457226942.us-central1.run.app/mcp';
+const GROUNDED_MOTION_MCP_SCOPE = 'grounded-motion:vanguard-canary';
+const GROUNDED_MOTION_ALLOWED_EMAIL = 'dclarke1005@gmail.com';
 const MCP_OAUTH_SECURITY_SCHEMES = [{type: 'oauth2', scopes: MCP_REQUIRED_SCOPES}];
+const OAUTH_RESOURCE_GRANTS = Object.freeze({
+  [MCP_RESOURCE]: Object.freeze({
+    resource: MCP_RESOURCE,
+    scopes: Object.freeze([...MCP_REQUIRED_SCOPES]),
+    googleScopes: Object.freeze(['openid', 'email', ...MCP_REQUIRED_SCOPES]),
+    allowedEmails: null,
+  }),
+  [GROUNDED_MOTION_MCP_RESOURCE]: Object.freeze({
+    resource: GROUNDED_MOTION_MCP_RESOURCE,
+    scopes: Object.freeze([GROUNDED_MOTION_MCP_SCOPE]),
+    googleScopes: Object.freeze(['openid', 'email']),
+    allowedEmails: Object.freeze([GROUNDED_MOTION_ALLOWED_EMAIL]),
+  }),
+});
+
+function resolveOAuthGrant(resourceValue, scopeValue) {
+  const resource = String(resourceValue || MCP_RESOURCE).trim();
+  const grant = OAUTH_RESOURCE_GRANTS[resource];
+  if (!grant) {
+    const err = new Error('invalid_target');
+    err.status = 400;
+    throw err;
+  }
+  const requested = String(scopeValue || '').trim().split(/\s+/).filter(Boolean);
+  const scopes = requested.length ? requested : [...grant.scopes];
+  if (scopes.some((scope) => !grant.scopes.includes(scope))) {
+    const err = new Error('invalid_scope');
+    err.status = 400;
+    throw err;
+  }
+  return {...grant, scopes};
+}
 const CREDIT_GATED_EMAILS = Object.freeze([
   'dclarke1005@gmail.com',
   'junewren28@gmail.com',
@@ -470,12 +505,20 @@ function providerValue(value) {
   return typeof value === 'function' ? value() : value;
 }
 
-async function loadMcpAccessContext(admin, google, googleClientId, googleClientSecret, accessToken) {
+async function loadMcpAccessContext(admin, google, googleClientId, googleClientSecret, accessToken, requiredResource = MCP_RESOURCE) {
   const snap = await oauthCollection(admin, 'mcpOAuthAccessTokens').doc(tokenHash(accessToken)).get();
   if (!snap.exists) return null;
   const data = snap.data() || {};
   if (data.revokedAtMs || safeNumber(data.expiresAtMs, 0) <= Date.now()) {
     const err = new Error(data.revokedAtMs ? 'Home Center OAuth token was revoked. Reconnect the client.' : 'Home Center OAuth token expired. Reconnect the ChatGPT app.');
+    err.status = 401;
+    err.wwwAuthenticate = oauthChallenge();
+    throw err;
+  }
+  const resource = safeText(data.resource, 1200) || MCP_RESOURCE;
+  const scopes = Array.isArray(data.scopes) && data.scopes.length ? data.scopes.map((scope) => safeText(scope, 500)).filter(Boolean) : [...MCP_REQUIRED_SCOPES];
+  if (requiredResource && resource !== requiredResource) {
+    const err = new Error('Home Center OAuth token is bound to a different MCP resource. Reconnect this client.');
     err.status = 401;
     err.wwwAuthenticate = oauthChallenge();
     throw err;
@@ -490,6 +533,13 @@ async function loadMcpAccessContext(admin, google, googleClientId, googleClientS
     user: {email: safeText(data.email, 320).toLowerCase(), authKind: 'home_center_mcp_oauth'},
     auth,
     accessToken,
+    oauth: {
+      clientId: safeText(data.clientId, 800),
+      resource,
+      scopes,
+      issuer: MCP_PUBLIC_BASE,
+      expiresAtMs: safeNumber(data.expiresAtMs, 0),
+    },
   };
 }
 
@@ -990,7 +1040,7 @@ function authorizationServerMetadata() {
     grant_types_supported: ['authorization_code', 'refresh_token'],
     code_challenge_methods_supported: ['S256'],
     token_endpoint_auth_methods_supported: ['none'],
-    scopes_supported: MCP_REQUIRED_SCOPES,
+    scopes_supported: [...new Set([...MCP_REQUIRED_SCOPES, GROUNDED_MOTION_MCP_SCOPE])],
   };
 }
 
@@ -999,7 +1049,7 @@ function openIdConfigurationMetadata() {
     ...authorizationServerMetadata(),
     userinfo_endpoint: `${MCP_PUBLIC_BASE}/oauth/userinfo`,
     jwks_uri: `${MCP_PUBLIC_BASE}/oauth/jwks`,
-    claims_supported: ['sub', 'email', 'email_verified'],
+    claims_supported: ['sub', 'email', 'email_verified', 'client_id', 'resource', 'scopes', 'issuer', 'expires_at'],
     subject_types_supported: ['public'],
     id_token_signing_alg_values_supported: ['RS256'],
   };
@@ -6266,7 +6316,7 @@ function createHomeCenterMcpApp({google, admin, googleClientId = () => '', googl
       connectorLog('userinfo_start', req);
       if (rejectMissingTransportAuth(req, res)) return;
       const accessToken = String(req.get('Authorization') || '').replace(/^Bearer\s+/i, '');
-      const context = await loadMcpAccessContext(admin, google, googleClientId(), googleClientSecret(), accessToken);
+      const context = await loadMcpAccessContext(admin, google, googleClientId(), googleClientSecret(), accessToken, null);
       if (!context || !context.user || !context.user.email) {
         res.set('WWW-Authenticate', oauthChallenge());
         res.status(401).json({error: 'invalid_token'});
@@ -6277,6 +6327,11 @@ function createHomeCenterMcpApp({google, admin, googleClientId = () => '', googl
         sub: tokenHash(context.user.email),
         email: context.user.email,
         email_verified: true,
+        client_id: context.oauth.clientId,
+        resource: context.oauth.resource,
+        scopes: context.oauth.scopes,
+        issuer: context.oauth.issuer,
+        expires_at: Math.floor(context.oauth.expiresAtMs / 1000),
       });
     } catch (err) {
       if (err.wwwAuthenticate) res.set('WWW-Authenticate', err.wwwAuthenticate);
@@ -6321,6 +6376,7 @@ function createHomeCenterMcpApp({google, admin, googleClientId = () => '', googl
       const browserHandoff = shouldUseConnectorHandoff(req, redirectUri);
       const chatgptConnector = isChatgptConnectorRedirectUri(redirectUri);
       const oauthFlowId = tokenHashPrefix(`${clientId}:${state}:${Date.now()}:${randomUUID()}`);
+      const grant = resolveOAuthGrant(req.query.resource, req.query.scope);
       if (responseType !== 'code' || !clientId || !redirectUri) {
         res.status(400).send('invalid_request');
         return;
@@ -6343,6 +6399,10 @@ function createHomeCenterMcpApp({google, admin, googleClientId = () => '', googl
         browserHandoff,
         chatgptConnector,
         oauthFlowId,
+        resource: grant.resource,
+        scopes: grant.scopes,
+        googleScopes: grant.googleScopes,
+        allowedEmails: grant.allowedEmails,
         createdAtMs: Date.now(),
         expiresAtMs: Date.now() + 10 * 60 * 1000,
       });
@@ -6350,7 +6410,7 @@ function createHomeCenterMcpApp({google, admin, googleClientId = () => '', googl
       const url = client.generateAuthUrl({
         access_type: 'offline',
         prompt: 'consent',
-        scope: ['openid', 'email', ...MCP_REQUIRED_SCOPES],
+        scope: grant.googleScopes,
         state: flowState,
       });
       if (browserHandoff) {
@@ -6364,7 +6424,7 @@ function createHomeCenterMcpApp({google, admin, googleClientId = () => '', googl
       res.redirect(url);
     } catch (err) {
       connectorLog('authorize_error', req, {error: safeText(err.message || String(err), 300)});
-      res.status(500).send(err.message || String(err));
+      res.status(err.status || 500).send(err.message || String(err));
     }
   });
 
@@ -6422,6 +6482,12 @@ function createHomeCenterMcpApp({google, admin, googleClientId = () => '', googl
         res.redirect(redirectWithParams(stateData.redirectUri, {error: 'access_denied', error_description: 'verified_google_email_required', state: stateData.state}));
         return;
       }
+      const allowedEmails = Array.isArray(stateData.allowedEmails) ? stateData.allowedEmails.map((value) => safeText(value, 320).toLowerCase()) : null;
+      if (allowedEmails && !allowedEmails.includes(email)) {
+        await stateSnap.ref.delete();
+        res.redirect(redirectWithParams(stateData.redirectUri, {error: 'access_denied', error_description: 'grounded_motion_email_not_allowed', state: stateData.state}));
+        return;
+      }
       if (stateData.browserHandoff) {
         await stateSnap.ref.set({
           googleTokens: tokens,
@@ -6445,6 +6511,8 @@ function createHomeCenterMcpApp({google, admin, googleClientId = () => '', googl
         email,
         oauthFlowId: stateData.oauthFlowId || '',
         chatgptConnector: !!stateData.chatgptConnector,
+        resource: safeText(stateData.resource, 1200) || MCP_RESOURCE,
+        scopes: Array.isArray(stateData.scopes) ? stateData.scopes : [...MCP_REQUIRED_SCOPES],
         createdAtMs: Date.now(),
         expiresAtMs: Date.now() + 10 * 60 * 1000,
       });
@@ -6524,6 +6592,8 @@ function createHomeCenterMcpApp({google, admin, googleClientId = () => '', googl
         oauthFlowId: stateData.oauthFlowId || '',
         chatgptConnector: !!stateData.chatgptConnector,
         flowState,
+        resource: safeText(stateData.resource, 1200) || MCP_RESOURCE,
+        scopes: Array.isArray(stateData.scopes) ? stateData.scopes : [...MCP_REQUIRED_SCOPES],
         createdAtMs: Date.now(),
         expiresAtMs: Date.now() + 10 * 60 * 1000,
       });
@@ -6561,8 +6631,14 @@ function createHomeCenterMcpApp({google, admin, googleClientId = () => '', googl
           return;
         }
         const refreshData = refreshSnap.data() || {};
+        const refreshResource = safeText(req.body && req.body.resource, 1200);
+        const boundRefreshResource = safeText(refreshData.resource, 1200) || MCP_RESOURCE;
         if (refreshData.clientId !== clientId || refreshData.revokedAtMs) {
           res.status(400).json({error: 'invalid_grant'});
+          return;
+        }
+        if (refreshResource && refreshResource !== boundRefreshResource) {
+          res.status(400).json({error: 'invalid_target'});
           return;
         }
         const accessToken = randomToken(32);
@@ -6572,17 +6648,21 @@ function createHomeCenterMcpApp({google, admin, googleClientId = () => '', googl
           email: refreshData.email,
           googleTokens: refreshData.googleTokens,
           refreshTokenHash: tokenHash(refreshToken),
+          resource: safeText(refreshData.resource, 1200) || MCP_RESOURCE,
+          scopes: Array.isArray(refreshData.scopes) ? refreshData.scopes : [...MCP_REQUIRED_SCOPES],
           createdAtMs: Date.now(),
           expiresAtMs,
         });
         connectorLog('token_refresh_success', req, {emailHash: tokenHashPrefix(refreshData.email), expiresIn: 3300});
-        res.json({access_token: accessToken, token_type: 'Bearer', expires_in: 3300, scope: MCP_REQUIRED_SCOPES.join(' ')});
+        const refreshScopes = Array.isArray(refreshData.scopes) ? refreshData.scopes : [...MCP_REQUIRED_SCOPES];
+        res.json({access_token: accessToken, token_type: 'Bearer', expires_in: 3300, scope: refreshScopes.join(' ')});
         return;
       }
 
       const code = safeText(req.body && req.body.code, 4096);
       const redirectUri = safeText(req.body && req.body.redirect_uri, 1200);
       const verifier = safeText(req.body && req.body.code_verifier, 300);
+      const tokenResource = safeText(req.body && req.body.resource, 1200);
       if (grantType !== 'authorization_code' || !code || !clientId || !redirectUri) {
         res.status(400).json({error: 'invalid_request'});
         return;
@@ -6597,6 +6677,11 @@ function createHomeCenterMcpApp({google, admin, googleClientId = () => '', googl
       if (safeNumber(data.expiresAtMs, 0) <= Date.now() || data.clientId !== clientId || data.redirectUri !== redirectUri) {
         connectorLog('token_invalid_grant', req, {clientIdPrefix: safeText(data.clientId || clientId, 80).slice(0, 28), redirectHost: redirectHost(redirectUri), oauthFlowId: data.oauthFlowId || '', chatgptConnector: !!data.chatgptConnector, reason: 'expired_client_or_redirect_mismatch'});
         res.status(400).json({error: 'invalid_grant'});
+        return;
+      }
+      const boundResource = safeText(data.resource, 1200) || MCP_RESOURCE;
+      if (tokenResource && tokenResource !== boundResource) {
+        res.status(400).json({error: 'invalid_target'});
         return;
       }
       if (data.codeChallenge) {
@@ -6615,6 +6700,8 @@ function createHomeCenterMcpApp({google, admin, googleClientId = () => '', googl
         clientId,
         email: data.email,
         googleTokens: data.googleTokens,
+        resource: boundResource,
+        scopes: Array.isArray(data.scopes) ? data.scopes : [...MCP_REQUIRED_SCOPES],
         createdAtMs: Date.now(),
         updatedAtMs: Date.now(),
       });
@@ -6623,6 +6710,8 @@ function createHomeCenterMcpApp({google, admin, googleClientId = () => '', googl
         email: data.email,
         googleTokens: data.googleTokens,
         refreshTokenHash,
+        resource: boundResource,
+        scopes: Array.isArray(data.scopes) ? data.scopes : [...MCP_REQUIRED_SCOPES],
         createdAtMs: Date.now(),
         expiresAtMs,
       });
@@ -6630,7 +6719,8 @@ function createHomeCenterMcpApp({google, admin, googleClientId = () => '', googl
         await oauthCollection(admin, 'mcpOAuthStates').doc(safeText(data.flowState, 300)).delete().catch(() => {});
       }
       connectorLog('token_success', req, {clientIdPrefix: safeText(data.clientId || clientId, 80).slice(0, 28), redirectHost: redirectHost(redirectUri), oauthFlowId: data.oauthFlowId || '', chatgptConnector: !!data.chatgptConnector, emailHash: tokenHashPrefix(data.email), expiresIn: 3300, issuedRefreshToken: true});
-      res.json({access_token: accessToken, refresh_token: refreshToken, token_type: 'Bearer', expires_in: 3300, scope: MCP_REQUIRED_SCOPES.join(' ')});
+      const issuedScopes = Array.isArray(data.scopes) ? data.scopes : [...MCP_REQUIRED_SCOPES];
+      res.json({access_token: accessToken, refresh_token: refreshToken, token_type: 'Bearer', expires_in: 3300, scope: issuedScopes.join(' ')});
     } catch (err) {
       connectorLog('token_error', req, {error: safeText(err.message || String(err), 300)});
       res.status(500).json({error: 'server_error', error_description: err.message || String(err)});
@@ -6704,4 +6794,4 @@ function createHomeCenterMcpApp({google, admin, googleClientId = () => '', googl
   return app;
 }
 
-module.exports = {linkArtifactReviewSuccessorOperation, recordArtifactReviewOperation, materializeReceiptArtifactsOperation, artifactTransportPreflightOperation, homeCenterReleaseIdentity, artifactTransportStatusOperation, homeCenterHealthPayload, homeCenterReadinessPayload, homeCenterCapabilitiesPayload, operationRegistrySummary, CREDIT_GATED_EMAILS, requireCreditGatedEmail, GITHUB_ADMIN_ALLOWED_EMAILS, requireGitHubAdminUser, HOME_CENTER_MCP_SERVER_VERSION, HOME_CENTER_CONNECTOR_SCHEMA_REVISION, HOME_CENTER_REGISTRY_VERSION, HOME_CENTER_DIRECT_FILE_TOOLS, driveOperationRegistry, uploadVerifiedArtifact, createHomeCenterMcpApp, createHomeCenterMcpServer, createDriveFolderOperation, createGoogleDocOperation, appendGoogleDocOperation, publishContextSnapshotOperation, synthesizeCartesiaAudioArtifactOperation, cartesiaVoicesOperation, createSheetOperation, updateSheetValuesOperation, importXlsxWorkbookOperation, readDriveBinaryChunkOperation, compareAudioIngestFileIds, ingestDriveAudioOperation, finalizeDriveAudioIngestBatchOperation, driveOperationRunOperation, driveWorkflowRunOperation, simulationOperationRunOperation, simulationOperationRegistry, droobiedooContextOperationEntries, loadDroobiedooContextIndex, searchDroobiedooContextIndex, runDroobiedooContextOperation, normalizeRecoveryOperation, summarizeRecoveryOperations, loadMcpAccessContext, armoryReceiptOperation, armoryRecountOperation, armoryCasingOperation, renderAudioOperation, inspectAudioArtifactsOperation, githubAdminOperationEntries, githubAdminOperationRunOperation, createGitHubAppJwt};
+module.exports = {resolveOAuthGrant, GROUNDED_MOTION_MCP_RESOURCE, GROUNDED_MOTION_MCP_SCOPE, linkArtifactReviewSuccessorOperation, recordArtifactReviewOperation, materializeReceiptArtifactsOperation, artifactTransportPreflightOperation, homeCenterReleaseIdentity, artifactTransportStatusOperation, homeCenterHealthPayload, homeCenterReadinessPayload, homeCenterCapabilitiesPayload, operationRegistrySummary, CREDIT_GATED_EMAILS, requireCreditGatedEmail, GITHUB_ADMIN_ALLOWED_EMAILS, requireGitHubAdminUser, HOME_CENTER_MCP_SERVER_VERSION, HOME_CENTER_CONNECTOR_SCHEMA_REVISION, HOME_CENTER_REGISTRY_VERSION, HOME_CENTER_DIRECT_FILE_TOOLS, driveOperationRegistry, uploadVerifiedArtifact, createHomeCenterMcpApp, createHomeCenterMcpServer, createDriveFolderOperation, createGoogleDocOperation, appendGoogleDocOperation, publishContextSnapshotOperation, synthesizeCartesiaAudioArtifactOperation, cartesiaVoicesOperation, createSheetOperation, updateSheetValuesOperation, importXlsxWorkbookOperation, readDriveBinaryChunkOperation, compareAudioIngestFileIds, ingestDriveAudioOperation, finalizeDriveAudioIngestBatchOperation, driveOperationRunOperation, driveWorkflowRunOperation, simulationOperationRunOperation, simulationOperationRegistry, droobiedooContextOperationEntries, loadDroobiedooContextIndex, searchDroobiedooContextIndex, runDroobiedooContextOperation, normalizeRecoveryOperation, summarizeRecoveryOperations, loadMcpAccessContext, armoryReceiptOperation, armoryRecountOperation, armoryCasingOperation, renderAudioOperation, inspectAudioArtifactsOperation, githubAdminOperationEntries, githubAdminOperationRunOperation, createGitHubAppJwt};
