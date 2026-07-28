@@ -26,46 +26,23 @@ node --check tools/sms_calendar_contract_test.mjs
 node tools/sms_calendar_contract_test.mjs
 node --check functions/she_raw_mcp.js
 node --check tools/command_center_mcp_contract_test.mjs
-node --check tools/command_center_cloud_activation_contract_test.mjs
-node --check tools/command_center_worker_lifecycle_contract_test.mjs
-node --check tools/command_center_two_dispatch_acceptance.mjs
-node --check tools/command_center_chatgpt_invokability_gate.mjs
-node --check tools/command_center_home_bridge_invokability_gate.mjs
-node --check tools/command_center_real_capability_gate.mjs
-node --check tools/command_center_oneshot_worker.mjs
-node --check tools/command_center_verbose_worker_smoke.mjs
-node --check cloud-worker/src/cloud_run_worker.mjs
-sh -n tools/deploy_command_center_cloud_worker.sh
 sh -n tools/deploy_functions_termux.sh
 sh -n tools/assert_home_center_mcp_main_release.sh
 node tools/home_center_mcp_main_release_gate_test.mjs
 node tools/home_center_production_deploy_contract_test.mjs
 node tools/command_center_mcp_contract_test.mjs
-node tools/command_center_cloud_activation_contract_test.mjs
-node tools/command_center_worker_lifecycle_contract_test.mjs
-node --check tools/command_center_blender_render_contract_test.mjs
-node tools/command_center_blender_render_contract_test.mjs
-node --check tools/command_center_render_queue_contract_test.mjs
-node tools/command_center_render_queue_contract_test.mjs
-node --check tools/command_center_blender_file_handoff_test.mjs
-node tools/command_center_blender_file_handoff_test.mjs
-node --check tools/home_center_render_blender_glb_protocol_test.mjs
-node tools/home_center_render_blender_glb_protocol_test.mjs
-node tools/render_input_preflight_contract_test.mjs
+node --check functions/foundry_capability.js
+node --check functions/foundry_script_runtime.mjs
+node --check functions/foundry_kernel.mjs
+node --check functions/foundry_review_renderer.mjs
+node --check functions/foundry_worker_process.mjs
+node --check tools/foundry_contract_test.mjs
+node tools/foundry_contract_test.mjs
+node --check tools/cloud_blender_retirement_contract_test.mjs
+node tools/cloud_blender_retirement_contract_test.mjs
 node tools/artifact_delivery_contract_test.mjs
-node --check tools/home_center_blender_inline_gif_contract_test.mjs
-node tools/home_center_blender_inline_gif_contract_test.mjs
-node --check tools/blender_gif_construction_contract_test.mjs
-node tools/blender_gif_construction_contract_test.mjs
-node --check tools/home_center_render_drive_ref_materialization_test.mjs
-node tools/home_center_render_drive_ref_materialization_test.mjs
-node --check tools/home_center_render_github_source_materialization_test.mjs
-node tools/home_center_render_github_source_materialization_test.mjs
-node --check tools/command_center_blender_upload_byte_preservation_test.mjs
-node tools/command_center_blender_upload_byte_preservation_test.mjs
 node --check tools/she_raw_cloud_introspection_gate.mjs
 node --check tools/she_raw_seed_corpus_firestore.mjs
-node tools/command_center_oneshot_worker.mjs --self-test
 node --check functions/index.js
 node --check functions/hosted_speech_provider.js
 node --check functions/audio_library_api.js

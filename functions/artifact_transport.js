@@ -4,7 +4,6 @@ const {createHash} = require('node:crypto');
 
 const ARTIFACT_TRANSPORT_VERSION = 'home-center.artifact-transport.v1';
 const ARTIFACT_REFERENCE_VERSION = 'home-center.artifact-reference.v1';
-const BLENDER_RENDER_CONTRACT_VERSION = 'home-center.blender-render-request.v2';
 const DEFAULT_STAGE_CONCURRENCY = 4;
 const MAX_STAGE_CONCURRENCY = 8;
 const LEGACY_BASE64_MAX_BYTES = 64 * 1024;
@@ -215,84 +214,6 @@ async function boundedMap(values, concurrency, mapper) {
   return results;
 }
 
-function rendererSettingsJsonSchema() {
-  return {
-    type: 'object',
-    additionalProperties: false,
-    properties: {
-      width: {type: 'integer', minimum: 64, maximum: 4096},
-      height: {type: 'integer', minimum: 64, maximum: 4096},
-      camera: {type: 'string'},
-      outputName: {type: 'string'},
-      samples: {type: 'integer', minimum: 1, maximum: 128},
-      fixedCameras: {type: 'array', items: {type: 'string'}, maxItems: 12},
-      diagnosticViews: {type: 'array', items: {type: 'string'}, maxItems: 12},
-      action: {type: 'string'},
-      expectedAction: {type: 'string'},
-      authoredKeys: {type: 'array', items: {type: 'integer', minimum: 0}, maxItems: 160},
-      evidenceFrames: {type: 'array', items: {type: 'integer', minimum: 0}, maxItems: 160},
-      gifFrames: {type: 'array', items: {type: 'integer', minimum: 0}, minItems: 1, maxItems: 160},
-      gifTimingMs: {type: 'array', items: {type: 'number', exclusiveMinimum: 0}, minItems: 1, maxItems: 160},
-      allowRepeatedGifFrames: {type: 'boolean'},
-      includeBlend: {type: 'boolean'},
-      includeDiagnostics: {type: 'boolean'},
-    },
-  };
-}
-
-function normalizeNumberList(value, field, max = 160) {
-  if (value === undefined) return [];
-  if (!Array.isArray(value)) throw new ArtifactTransportError('RENDER_FIELD_TYPE_INVALID', field + ' must be an array.', {field});
-  if (value.length > max) throw new ArtifactTransportError('RENDER_FIELD_TOO_LARGE', field + ' exceeds ' + max + ' entries.', {field});
-  return value.map((item, index) => {
-    const number = Number(item);
-    if (!Number.isFinite(number)) throw new ArtifactTransportError('RENDER_FIELD_VALUE_INVALID', field + '[' + index + '] must be finite.', {field: field + '[' + index + ']'});
-    return number;
-  });
-}
-
-function normalizeRendererSettings(value = {}) {
-  const src = value && typeof value === 'object' && !Array.isArray(value) ? value : {};
-  const evidenceFrames = normalizeNumberList(src.evidenceFrames, 'settings.evidenceFrames').map((value, index) => {
-    if (!Number.isInteger(value) || value < 0) throw new ArtifactTransportError('RENDER_FRAME_INVALID', 'settings.evidenceFrames[' + index + '] must be a non-negative integer.', {field: 'settings.evidenceFrames[' + index + ']'});
-    return value;
-  });
-  const gifFrames = normalizeNumberList(src.gifFrames, 'settings.gifFrames').map((value, index) => {
-    if (!Number.isInteger(value) || value < 0) throw new ArtifactTransportError('RENDER_FRAME_INVALID', 'settings.gifFrames[' + index + '] must be a non-negative integer.', {field: 'settings.gifFrames[' + index + ']'});
-    return value;
-  });
-  const gifTimingMs = normalizeNumberList(src.gifTimingMs, 'settings.gifTimingMs');
-  if (src.gifFrames !== undefined && !gifFrames.length) throw new ArtifactTransportError('RENDER_GIF_FRAMES_EMPTY', 'settings.gifFrames must not be empty.', {field: 'settings.gifFrames'});
-  if (gifFrames.length && gifTimingMs.length !== gifFrames.length) throw new ArtifactTransportError('RENDER_GIF_TIMING_LENGTH_MISMATCH', 'settings.gifTimingMs length must equal settings.gifFrames length.', {field: 'settings.gifTimingMs', details: {gifFrames: gifFrames.length, gifTimingMs: gifTimingMs.length}});
-  for (let index = 0; index < gifTimingMs.length; index += 1) if (gifTimingMs[index] <= 0) throw new ArtifactTransportError('RENDER_GIF_TIMING_INVALID', 'settings.gifTimingMs[' + index + '] must be positive.', {field: 'settings.gifTimingMs[' + index + ']'});
-  if (gifFrames.length && src.allowRepeatedGifFrames !== true && new Set(gifFrames).size !== gifFrames.length) throw new ArtifactTransportError('RENDER_GIF_FRAME_DUPLICATE', 'settings.gifFrames contains a duplicate index.', {field: 'settings.gifFrames'});
-  return {
-    width: Math.max(64, Math.min(Number(src.width || 1280) || 1280, 4096)),
-    height: Math.max(64, Math.min(Number(src.height || 960) || 960, 4096)),
-    camera: boundedText(src.camera, 120) || 'front_3q',
-    outputName: boundedText(src.outputName, 180) || 'render.png',
-    samples: Math.max(1, Math.min(Number(src.samples || src.renderSamples || 64) || 64, 128)),
-    fixedCameras: (Array.isArray(src.fixedCameras) ? src.fixedCameras : ['front_3q']).slice(0, 12).map((item) => boundedText(item, 120)).filter(Boolean),
-    diagnosticViews: (Array.isArray(src.diagnosticViews) ? src.diagnosticViews : ['front', 'side', 'top']).slice(0, 12).map((item) => boundedText(item, 120)).filter(Boolean),
-    action: boundedText(src.action, 120),
-    expectedAction: boundedText(src.expectedAction, 120),
-    authoredKeys: normalizeNumberList(src.authoredKeys, 'settings.authoredKeys').filter((item) => Number.isInteger(item) && item >= 0),
-    evidenceFrames,
-    gifFrames,
-    gifTimingMs,
-    allowRepeatedGifFrames: src.allowRepeatedGifFrames === true,
-    includeBlend: src.includeBlend !== false,
-    includeDiagnostics: src.includeDiagnostics !== false,
-  };
-}
-
-function renderCompatibility({settings = {}, contractVersion = BLENDER_RENDER_CONTRACT_VERSION, backend = {}} = {}) {
-  const supportedVersions = Array.isArray(backend.contractVersions) && backend.contractVersions.length ? backend.contractVersions : [BLENDER_RENDER_CONTRACT_VERSION];
-  if (!supportedVersions.includes(contractVersion)) throw new ArtifactTransportError('ARTIFACT_CONTRACT_VERSION_UNSUPPORTED', 'Renderer contractVersion is not supported by the backend.', {field: 'contractVersion', status: 409, details: {requested: contractVersion, supported: supportedVersions}});
-  const normalized = normalizeRendererSettings(settings);
-  return {compatible: true, contractVersion, settings: normalized, backendVersion: boundedText(backend.backendVersion, 120)};
-}
-
 async function preflightArtifactEnvelope({requestId, operation = 'artifact_transport.preflight', artifacts = [], consumer = {}, concurrency = DEFAULT_STAGE_CONCURRENCY, resolver = async (plan) => ({...plan, resolvable: true})} = {}) {
   const stableRequestId = boundedText(requestId, 180);
   if (!stableRequestId) throw new ArtifactTransportError('ARTIFACT_REQUEST_ID_REQUIRED', 'requestId is required.', {field: 'requestId'});
@@ -342,7 +263,6 @@ function artifactReferenceJsonSchema() {
 module.exports = {
   ARTIFACT_TRANSPORT_VERSION,
   ARTIFACT_REFERENCE_VERSION,
-  BLENDER_RENDER_CONTRACT_VERSION,
   DEFAULT_STAGE_CONCURRENCY,
   MAX_STAGE_CONCURRENCY,
   LEGACY_BASE64_MAX_BYTES,
@@ -361,9 +281,6 @@ module.exports = {
   referenceIdentityKey,
   planArtifactLocation,
   boundedMap,
-  rendererSettingsJsonSchema,
-  normalizeRendererSettings,
-  renderCompatibility,
   preflightArtifactEnvelope,
   artifactReferenceJsonSchema,
 };

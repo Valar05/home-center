@@ -110,7 +110,6 @@ async function main() {
   add('cloud_seed_app_control_profile', 'node', ['tools/app_control_seed_cloud.mjs', '--rest']);
   add('submit_chatgpt_connector_learning', 'sh', ['tools/learn_chatgpt_connector_frame_lane.sh', '--submit', '--run-id', `${args.runId}-learning`, '--json']);
   add('backend_home_center_bridge', 'node', ['tools/command_center_home_bridge_invokability_gate.mjs', '--json', '--run-id', `${args.runId}-home`]);
-  add('backend_command_center_direct', 'node', ['tools/command_center_chatgpt_invokability_gate.mjs', '--json', '--run-id', `${args.runId}-direct`]);
 
   const cleanArgs = ['tools/run_chatgpt_clean_slate_verify.sh', '--run-id', `${args.runId}-clean`, '--wait-ms', args.waitMs, '--ensure-home-center-connected'];
   if (args.verifyPrompt) cleanArgs.push('--verify-prompt');

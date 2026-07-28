@@ -65,7 +65,7 @@ Executable capabilities are tools with machine-readable metadata. Agents are cap
 
 Workflow definitions should become data, not one-off chat instructions. V1 records workflow runs and their artifacts before attempting a full event automation engine.
 
-Command Center is the cloud MCP dispatch plane for this workflow layer. Its repo-local contract is `docs/COMMAND_CENTER_MCP.md`: ChatGPT dispatches, Command Center persists and supervises, and user-owned Codex workers execute. It is not a frontend, chat UI, planner, primary memory system, or competing agent.
+Command Center is the retained project, knowledge-bucket, app-control, and browser-learning compatibility plane for this workflow layer. Its repo-local contract is `docs/COMMAND_CENTER_MCP.md`. Command Center Codex execution is retired; owned asynchronous capabilities such as Foundry use their own isolated workers behind Home Center registries.
 
 Command Center's managed knowledge bucket is the durable organization surface for execution memory and cross-repository engineering learning. It separates `memory/past-logs`, `memory/current-condensed`, `skills/scratch`, `skills/promoted`, and `notes/cross-repo` so worker evidence, resumable state, candidate procedures, promoted skills, and repo-spanning notes do not collapse into one catch-all document.
 

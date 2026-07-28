@@ -208,8 +208,6 @@ async function main() {
   if (!args.skipBackend) {
     const home = run('node', ['tools/command_center_home_bridge_invokability_gate.mjs', '--json', '--run-id', `${args.runId}-home`], {env: envWithToken});
     report.backend.homeBridge = {...latestJsonLine(home.stdout), exitCode: home.status, ok: home.ok, stderr: home.stderr.slice(0, 2000)};
-    const direct = run('node', ['tools/command_center_chatgpt_invokability_gate.mjs', '--json', '--run-id', `${args.runId}-direct`], {env: envWithToken});
-    report.backend.commandCenterDirect = {...latestJsonLine(direct.stdout), exitCode: direct.status, ok: direct.ok, stderr: direct.stderr.slice(0, 2000)};
   }
 
   if (!args.skipPlaywright) {

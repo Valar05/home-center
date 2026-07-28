@@ -15,26 +15,21 @@ for (const key of ['owner', 'ownerEmail', 'project', 'stage', 'engine', 'created
 for (const rule of ['temp/`: delete after 7 days', 'delete after 30 days', '`logs/`: delete after 14 days']) assert(doc.includes(rule), 'lifecycle doc missing ' + rule);
 
 const deployFunctions = fs.readFileSync(new URL('../tools/deploy_functions_termux.sh', import.meta.url), 'utf8');
-const deployRender = fs.readFileSync(new URL('../tools/deploy_command_center_blender_render.sh', import.meta.url), 'utf8');
+const deployFoundry = fs.readFileSync(new URL('../tools/deploy_foundry_worker.sh', import.meta.url), 'utf8');
 const setupBucket = fs.readFileSync(new URL('../tools/setup_generated_artifact_bucket.sh', import.meta.url), 'utf8');
 assert(deployFunctions.includes('--runtime=nodejs22'), 'functions deploy must use Node 22');
 assert(deployFunctions.includes('HOME_CENTER_GENERATED_BUCKET'), 'functions deploy must configure generated bucket');
 assert(deployFunctions.includes('home-center-generated'), 'functions deploy must default to generated bucket');
-assert(deployRender.includes('HOME_CENTER_GENERATED_BUCKET'), 'render deploy must configure generated bucket');
-assert(deployRender.includes('RENDER_CACHE_BUCKET=${CACHE_BUCKET}'), 'render service must receive generated bucket as render bucket');
+assert(deployFoundry.includes('HOME_CENTER_ARTIFACT_BUCKET'), 'Foundry deploy must configure the canonical artifact bucket');
 assert(setupBucket.includes('--uniform-bucket-level-access'), 'bucket setup must enforce uniform access');
 assert(setupBucket.includes('--public-access-prevention'), 'bucket setup must prevent public access');
 assert(setupBucket.includes('--versioning'), 'bucket setup must enable versioning');
 assert(setupBucket.includes('"age": 7') && setupBucket.includes('"age": 30') && setupBucket.includes('"age": 14'), 'bucket setup must install lifecycle rules');
 
-const renderSource = fs.readFileSync(new URL('../cloud-render/src/render_bundle.mjs', import.meta.url), 'utf8');
-for (const needle of ['HOME_CENTER_GENERATED_BUCKET', 'renders/blender', 'renders/contact-sheets', 'renders/gifs', 'logs/blender', 'glb/', 'owner', 'project', 'stage', 'approved']) assert(renderSource.includes(needle), 'cloud renderer storage contract missing ' + needle);
-const commandCenter = fs.readFileSync(new URL('../functions/command_center_mcp.js', import.meta.url), 'utf8');
-const homeCenter = fs.readFileSync(new URL('../functions/home_center_mcp.js', import.meta.url), 'utf8');
-assert(commandCenter.includes("'home-center-generated'"), 'Command Center staging must default to generated bucket');
-assert(homeCenter.includes("'home-center-generated'"), 'Home Center staging must default to generated bucket');
-assert(commandCenter.includes("'artifacts/sha256/' + hash"), 'Command Center render uploads must use digest-addressed immutable staging');
-assert(homeCenter.includes("'artifacts/sha256/' + hash"), 'Home Center render uploads must use digest-addressed immutable staging');
+assert.equal(artifactBucket.artifactPrefix({artifactType: 'glb', name: 'specimen.glb'}), 'glb');
+assert.equal(artifactBucket.artifactPrefix({artifactType: 'contact_sheet', name: 'review.png'}), 'renders/contact-sheets');
+assert.equal(artifactBucket.artifactPrefix({artifactType: 'rendered_frames', name: 'front.png'}), 'renders');
+assert.notEqual(artifactBucket.artifactPrefix({artifactType: 'rendered_frames', name: 'front.png'}), 'renders/blender');
 
 const audioSource = fs.readFileSync(new URL('../functions/audio_render_service.js', import.meta.url), 'utf8');
 assert(audioSource.includes('uploadGeneratedArtifact'), 'audio.render must upload to generated bucket');
@@ -49,10 +44,6 @@ assert.equal(uploaded.durableRef.startsWith('gs://home-center-generated/logs/'),
 assert.equal(uploaded.sha256, createHash('sha256').update(bytes).digest('hex'));
 assert.equal(uploaded.readbackSha256, uploaded.sha256);
 assert.equal(uploaded.metadata.owner, 'drew');
-assert.equal(uploaded.metadata.project, 'home-center');
-assert.equal(uploaded.metadata.stage, 'temp');
-assert.equal(uploaded.metadata.engine, 'contract-test');
-assert.equal(uploaded.metadata.createdBy, 'contract-test');
 assert.equal(uploaded.metadata.approved, 'false');
 assert.equal(uploaded.metadata.humanAcceptance, 'unreviewed');
 const inspected = await artifactBucket.inspectGeneratedArtifact(uploaded.durableRef);

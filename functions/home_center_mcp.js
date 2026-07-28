@@ -13,13 +13,7 @@ const {toJsonSchemaCompat} = require('./node_modules/@modelcontextprotocol/sdk/d
 const express = require('express');
 const {z} = require('zod/v4');
 const {CARTESIA_DEFAULT_MODEL_ID, CARTESIA_DEFAULT_VOICE_NAME, listCartesiaVoiceCatalog, listCartesiaVoices, normalizeCartesiaVoice, openCartesiaStream} = require('./hosted_speech_provider');
-const {
-  renderBlenderGlb: commandCenterRenderBlenderGlb,
-  renderBlenderBuild: commandCenterRenderBlenderBuild,
-  renderRequestStatus: commandCenterRenderRequestStatus,
-} = require('./command_center_mcp');
-const {boundedMap, rendererSettingsJsonSchema, preflightArtifactEnvelope} = require('./artifact_transport');
-const {gitLfsPointer, validateGlbBytes: validateSharedGlbBytes, validatePythonScriptBytes} = require('./render_input_validation');
+const {preflightArtifactEnvelope} = require('./artifact_transport');
 const cartesiaPitchShift = require('./cartesia_pitch_shift');
 const {renderAudioOperation, audioRenderStatusOperation, inspectAudioArtifactsOperation, uploadVerified: uploadVerifiedArtifact} = require('./audio_render_service');
 const {recoverAudioRenderRegistrationOperation} = require('./audio_catalog_service');
@@ -62,9 +56,9 @@ const {
 const DEFAULT_MCP_PUBLIC_BASE = 'https://us-central1-home-center-dclar.cloudfunctions.net/homeCenterMcp';
 const MCP_PUBLIC_BASE = process.env.HOME_CENTER_MCP_PUBLIC_BASE || DEFAULT_MCP_PUBLIC_BASE;
 const HOME_CENTER_MCP_SERVER_VERSION = '0.2.0';
-const HOME_CENTER_CONNECTOR_SCHEMA_REVISION = '2026-07-27.receipt-delivery-v1';
+const HOME_CENTER_CONNECTOR_SCHEMA_REVISION = '2026-07-27.foundry-v2';
 const HOME_CENTER_REGISTRY_VERSION = HOME_CENTER_CONNECTOR_SCHEMA_REVISION;
-const HOME_CENTER_DIRECT_FILE_TOOLS = Object.freeze(['render_blender_glb', 'drive_ingest_file', 'storage_ingest_artifact']);
+const HOME_CENTER_DIRECT_FILE_TOOLS = Object.freeze(['drive_ingest_file', 'storage_ingest_artifact']);
 const MCP_RESOURCE = `${MCP_PUBLIC_BASE}/mcp`;
 const MCP_RESOURCE_METADATA = `${MCP_PUBLIC_BASE}/.well-known/oauth-protected-resource`;
 const MCP_LEGACY_RESOURCE_METADATA = `${MCP_PUBLIC_BASE}/oauth-protected-resource`;
@@ -72,15 +66,7 @@ const MCP_COMPAT_RESOURCE_METADATA = `${MCP_PUBLIC_BASE}/oauth-protected-resourc
 const MCP_AUTHORIZATION_SERVER_METADATA = `${MCP_PUBLIC_BASE}/.well-known/oauth-authorization-server`;
 const MCP_GOOGLE_CALLBACK = process.env.HOME_CENTER_MCP_GOOGLE_CALLBACK || `${MCP_PUBLIC_BASE}/oauth/google-callback`;
 const COMMAND_CENTER_MCP_URL = process.env.COMMAND_CENTER_MCP_URL || 'https://us-central1-home-center-dclar.cloudfunctions.net/commandCenterMcp/mcp';
-const COMMAND_CENTER_RENDER_BUCKET = process.env.COMMAND_CENTER_RENDER_BUCKET || process.env.RENDER_CACHE_BUCKET || process.env.COMMAND_CENTER_BUCKET || 'home-center-generated';
-const HOME_CENTER_GENERATED_ARTIFACT_BUCKET = process.env.GENERATED_ARTIFACT_BUCKET || 'home-center-generated';
-const HOME_CENTER_RENDER_MAX_GLB_BYTES = Number(process.env.COMMAND_CENTER_RENDER_MAX_GLB_BYTES || 250 * 1024 * 1024);
-const HOME_CENTER_RENDER_MAX_SCRIPT_BYTES = Number(process.env.COMMAND_CENTER_RENDER_MAX_SCRIPT_BYTES || 1024 * 1024);
-const HOME_CENTER_DIRECT_RENDER_TEXT_LIMIT = 1024 * 1024;
-const HOME_CENTER_RENDER_INLINE_GIF_MAX_BYTES = Number(process.env.HOME_CENTER_RENDER_INLINE_GIF_MAX_BYTES || 2 * 1024 * 1024);
-const HOME_CENTER_RENDER_REVIEW_MAX_ARTIFACTS = Number(process.env.HOME_CENTER_RENDER_REVIEW_MAX_ARTIFACTS || 20);
-const HOME_CENTER_RENDER_REVIEW_MAX_ARTIFACT_BYTES = Number(process.env.HOME_CENTER_RENDER_REVIEW_MAX_ARTIFACT_BYTES || 16 * 1024 * 1024);
-const HOME_CENTER_RENDER_REVIEW_MAX_TOTAL_BYTES = Number(process.env.HOME_CENTER_RENDER_REVIEW_MAX_TOTAL_BYTES || 64 * 1024 * 1024);
+const HOME_CENTER_GENERATED_ARTIFACT_BUCKET = process.env.GENERATED_ARTIFACT_BUCKET || process.env.HOME_CENTER_ARTIFACT_BUCKET || 'home-center-generated';
 const HOME_CENTER_DRIVE_INGEST_MAX_BYTES = Number(process.env.HOME_CENTER_DRIVE_INGEST_MAX_BYTES || 256 * 1024 * 1024);
 const MCP_REQUIRED_SCOPES = [
   'https://www.googleapis.com/auth/drive',
@@ -573,39 +559,12 @@ function commandCenterOperationRegistry() {
     version: HOME_CENTER_REGISTRY_VERSION,
     invocationTool: 'command_center_operation',
     commandCenterMcpUrl: COMMAND_CENTER_MCP_URL,
-    purpose: 'Expose Command Center dispatch and managed knowledge-bucket operations through the already-installed Home Center MCP connector so ChatGPT can create, inspect, resume, revise, authorize, and preserve worker knowledge without discovering a second MCP app.',
+    purpose: 'Expose retained Command Center project operations, managed knowledge-bucket operations, app-control, and browser operations through the already-installed Home Center MCP connector.',
     operations: {
       health: {summary: 'Check Command Center MCP health and tool exposure.', readOnly: true, input: {}},
       'projects.resolve': {summary: 'Resolve an active project before creating a job.', readOnly: false, input: {repository: 'optional string', capability: 'optional string', projectId: 'optional string', idempotencyKey: 'string'}},
       'projects.get': {summary: 'Read one persisted Command Center project packet.', readOnly: true, input: {projectId: 'string'}},
-      'projects.upsert': {summary: 'Create or update a durable Command Center project binding.', readOnly: false, input: {projectId: 'string', repository: 'optional string', capability: 'optional string', repositoryBinding: 'optional object', availableWorkers: 'optional string[]', idempotencyKey: 'string'}},
-      'render.blender_glb': {summary: 'Accept non-agent Blender execution from durable refs, authenticated GitHub sources, or top-level host files and return a durable queued/running/completed receipt. Prefer glbSource.provider=github for private repository GLBs when ChatGPT cannot expose the top-level binary upload tool; nested command_center_operation args cannot activate host file upload slots.', readOnly: false, topLevelFileTool: 'render_blender_glb', input: {glbRef: 'drive:// | bucket:// | gs:// GLB ref for dispatcher calls', glbSource: '{provider: github, repository: owner/name, ref: commit-or-branch, path: path/to/file.glb}', scriptRef: 'optional drive:// | bucket:// | gs:// Blender Python ref', scriptSource: 'optional authenticated GitHub Python descriptor', scriptText: 'optional inline Python script alternative', settings: 'optional object', executionContract: 'optional object', cache: 'optional boolean', idempotencyKey: 'string'}, output: {accepted: 'boolean', renderId: 'string', inputHash: 'sha256', status: 'queued|running|completed|failed|needs_reconciliation|stalled', statusOperation: 'render.status receipt'}},
-      'render.blender_build': {summary: 'Author a new 3D asset from Blender factory state in the existing private Cloud Run renderer. The authoring script is staged to durable GCS first; no input GLB or chat upload is accepted.', readOnly: false, input: {scriptRef: 'drive:// | bucket:// | gs:// Blender Python ref', scriptSource: '{provider: github, repository: owner/name, ref: immutable commit, path: path/to/build.py}', scriptText: 'optional inline Python script alternative', settings: 'optional object', executionContract: 'optional object', cache: 'optional boolean', idempotencyKey: 'string'}, output: {accepted: 'boolean', renderId: 'string', inputHash: 'sha256', status: 'queued|running|completed|failed|needs_reconciliation|stalled', statusOperation: 'render.status receipt'}},
-      'render.status': {summary: 'Read bounded durable Blender render status without binary bodies or unbounded provider logs.', readOnly: true, input: {renderId: 'string or idempotencyKey'}, output: {status: 'queued|running|completed|failed|needs_reconciliation|stalled'}},
-      'render.reconcile': {summary: 'Explicitly authorize one retry only after evidence proves an ambiguous needs_reconciliation, failed, or stalled Blender outcome is safe to retry.', readOnly: false, input: {idempotencyKey: 'string', renderId: 'string', resolution: 'retry_safe', evidence: 'bounded string'}},
-      'jobs.create': {summary: 'Create a durable worker ticket/job.', readOnly: false, input: {projectId: 'string', title: 'string', objective: 'string', acceptanceCriteria: 'string[]', workerRequirements: 'string[]', mutationPolicy: 'object', idempotencyKey: 'string'}},
-      'jobs.create_followup': {summary: 'Create a new linked invocation from a source job handoff without rewriting the old job.', readOnly: false, input: {sourceJobId: 'string', title: 'string', objective: 'string', acceptanceCriteria: 'optional string[]', constraints: 'optional string[]', mutationPolicy: 'optional object', idempotencyKey: 'string'}},
-      'jobs.get': {summary: 'Read one Command Center job packet.', readOnly: true, input: {jobId: 'string'}},
-      'jobs.list': {summary: 'List recent Command Center jobs.', readOnly: true, input: {projectId: 'optional string', status: 'optional string', limit: 'optional number'}},
-      'jobs.reconcile_stale': {summary: 'Dry-run or expire stale nonterminal Command Center jobs and leases.', readOnly: false, input: {dryRun: 'optional boolean', olderThanMs: 'optional number', statuses: 'optional string[]', limit: 'optional number', idempotencyKey: 'required when dryRun=false'}},
-      'jobs.dispatch_queued': {summary: 'Dry-run or lease queued recoverable jobs to the least-loaded compatible worker; retry expired jobs only when requested.', readOnly: false, input: {dryRun: 'optional boolean', retryExpired: 'optional boolean', limit: 'optional number', maxDispatch: 'optional number', idempotencyKey: 'required when dryRun=false'}},
-      'jobs.cancel': {summary: 'Cancel a job with an audit event.', readOnly: false, input: {jobId: 'string', reason: 'optional string', idempotencyKey: 'string'}},
-      'jobs.resume': {summary: 'Resume a job from checkpoint.', readOnly: false, input: {jobId: 'string', reason: 'optional string', idempotencyKey: 'string'}},
-      'jobs.revise': {summary: 'Revise a job packet with new constraints or acceptance criteria.', readOnly: false, input: {jobId: 'string', revision: 'object', idempotencyKey: 'string'}},
-      'jobs.answer_question': {summary: 'Answer a worker question and let the job continue when policy allows.', readOnly: false, input: {jobId: 'string', questionId: 'optional string', answer: 'string', decision: 'optional string', idempotencyKey: 'string'}},
-      'jobs.authorize_mutation': {summary: 'Approve or reject a requested worker mutation.', readOnly: false, input: {jobId: 'string', action: 'string', approved: 'boolean', reason: 'optional string', evidenceRefs: 'optional string[]', idempotencyKey: 'string'}},
-      'jobs.get_summary': {summary: 'Read compact resumable job summary/checkpoint.', readOnly: true, input: {jobId: 'string'}},
-      'jobs.get_handoff': {summary: 'Read review/correction handoff synthesized from job state, events, logs, artifacts, checkpoints, and bucket objects.', readOnly: true, input: {jobId: 'string'}},
-      'jobs.get_events': {summary: 'Read structured job events.', readOnly: true, input: {jobId: 'string', limit: 'optional number'}},
-      'jobs.get_logs': {summary: 'Read job log metadata.', readOnly: true, input: {jobId: 'string', limit: 'optional number'}},
-      'jobs.get_artifacts': {summary: 'Read job artifact metadata.', readOnly: true, input: {jobId: 'string', limit: 'optional number'}},
-      'agents.upsert_repo_agent': {summary: 'Create or update a durable repo/project agent identity for real OpenAI Codex cloud activations.', readOnly: false, input: {projectId: 'string', agentId: 'optional string', repository: 'optional string', contextRefs: 'optional string[]', idempotencyKey: 'string'}},
-      'agents.create_activation': {summary: 'Create a dormant-to-active packet for a durable Codex worker session. Repo binding is optional; Cloud Run Debian workers restore/write GCS workspace snapshots.', readOnly: false, input: {agentId: 'optional string', projectId: 'optional string', repository: 'optional string', sessionId: 'optional string', prompt: 'string', workerRequirements: 'optional string[]', currentWorkspaceSnapshotRef: 'optional string', acceptanceCriteria: 'optional string[]', artifactRequirements: 'optional string[]', idempotencyKey: 'string'}},
-      'agents.get_resume_packet': {summary: 'Read the durable packet a bridge uses to start or resume the real Codex cloud surface.', readOnly: true, input: {activationId: 'string'}},
-      'agents.record_codex_cloud_ref': {summary: 'Record the real ChatGPT/OpenAI Codex cloud task URL or resume handle for an activation.', readOnly: false, input: {activationId: 'string', url: 'optional string', status: 'optional string', idempotencyKey: 'string'}},
-      'agents.record_artifact': {summary: 'Record a redacted artifact from a real Codex cloud activation.', readOnly: false, input: {activationId: 'string', name: 'string', uri: 'optional string', body: 'optional string', idempotencyKey: 'string'}},
-      'agents.complete_activation': {summary: 'Mark a durable Codex worker activation terminal and write Command Center memory. Completed durable sessions require artifact evidence and next snapshot when requested.', readOnly: false, input: {activationId: 'string', status: 'completed|failed|canceled|needs_human', finalSummary: 'optional string', nextWorkspaceSnapshotRef: 'optional string', idempotencyKey: 'string'}},
-      'agents.get_handoff': {summary: 'Read a ChatGPT-reviewable handoff for a real Codex cloud activation.', readOnly: true, input: {activationId: 'string'}},
+      'projects.upsert': {summary: 'Create or update a durable Command Center project binding.', readOnly: false, input: {projectId: 'string', repository: 'optional string', capability: 'optional string', repositoryBinding: 'optional object', idempotencyKey: 'string'}},
       'bucket.get_layout': {summary: 'Read Command Center managed knowledge bucket lanes and storage policy.', readOnly: true, input: {}},
       'bucket.put_object': {summary: 'Write durable execution memory, scratch/promoted skills, or cross-repo notes. Secrets are rejected.', readOnly: false, input: {kind: 'memory.past_log|memory.current_condensed|skill.scratch|skill.promoted|note.cross_repo', title: 'string', summary: 'optional string', body: 'optional string', objectUri: 'optional string', projectId: 'optional string', repository: 'optional string', jobId: 'optional string', tags: 'optional string[]', evidenceRefs: 'optional string[]', idempotencyKey: 'string'}},
       'bucket.get_object': {summary: 'Read one Command Center bucket object by id.', readOnly: true, input: {objectId: 'string'}},
@@ -623,10 +582,6 @@ function commandCenterOperationRegistry() {
       'browser_discoveries.list': {summary: 'List browser discoveries by origin, task, or state.', readOnly: true, input: {origin: 'optional string', task: 'optional string', state: 'optional string', limit: 'optional number'}},
       'browser_discoveries.promote': {summary: 'Promote a validated browser discovery into trusted household playbook guidance.', readOnly: false, input: {discoveryId: 'string', guidance: 'optional string', playbook: 'optional object', evidenceRefs: 'optional string[]', idempotencyKey: 'string'}},
       'browser_playbooks.lookup': {summary: 'Lookup a trusted Playwright DOM/accessibility browser playbook by origin, taskKey, shareScope, or replayAudience.', readOnly: true, input: {origin: 'optional string', taskKey: 'optional string', task: 'optional string', shareScope: 'optional string', replayAudience: 'optional string', limit: 'optional number'}},
-      'workers.list': {summary: 'List registered Command Center workers.', readOnly: true, input: {}},
-      'workers.get_capabilities': {summary: 'Read one worker capability packet.', readOnly: true, input: {workerId: 'string'}},
-      'workers.wake': {summary: 'Invoke a configured real Cloud Run worker so liveness can be proven by heartbeat.', readOnly: false, input: {workerId: 'string', activationId: 'optional string', sessionId: 'optional string', projectId: 'optional string', reason: 'optional string', runLabel: 'optional string', idempotencyKey: 'string'}},
-      'workers.register_oneshot': {summary: 'Register a prepared one-shot Codex worker.', readOnly: false, input: {worker: 'object', idempotencyKey: 'string'}},
     },
   };
 }
@@ -638,6 +593,18 @@ function supportedCommandCenterOperationTypes() {
 function commandCenterToolName(operation) {
   const raw = safeText(operation, 120);
   const op = raw.startsWith('command_center.') ? raw.slice('command_center.'.length) : raw;
+  if (['agents.', 'workers.', 'hosts.', 'jobs.', 'machine_images.', 'provisioning.', 'codex_sessions.', 'routing.', 'proof.'].some((prefix) => op.startsWith(prefix))) {
+    const error = new Error('Command Center Codex agents, jobs, sessions, and workers are permanently retired and are not a Home Center capability.');
+    error.status = 410;
+    error.code = 'capability_retired.command_center_codex';
+    throw error;
+  }
+  if (new Set(['render.blender_glb', 'render.blender_build', 'render.status', 'render.reconcile']).has(op)) {
+    const error = new Error('This rendering capability is retired. Use drive_operation with operation=foundry.asset.run.');
+    error.status = 410;
+    error.code = 'capability_retired.use_foundry';
+    throw error;
+  }
   if (!commandCenterOperationRegistry().operations[op]) throw Object.assign(new Error('Unsupported command_center_operation operation: ' + op), {status: 400});
   return op.startsWith('command_center.') ? op : `command_center.${op}`;
 }
@@ -660,703 +627,6 @@ async function postCommandCenterMcp(body, bearerToken) {
   }
   return parseMcpPayload(text, 'Command Center MCP response');
 }
-
-function homeCenterRenderInputError(message, status = 400, failureKind = 'input_validation') {
-  const err = new Error(message);
-  err.status = status;
-  err.failureKind = failureKind;
-  return err;
-}
-
-function isMcpFileLike(value) {
-  return value && typeof value === 'object' && typeof value.arrayBuffer === 'function' && typeof value.name === 'string';
-}
-
-function homeCenterRenderOwnerKey(user = {}) {
-  return safeText(user.email || user.sub || user.uid || 'unknown', 320).replace(/[^A-Za-z0-9_.@-]+/g, '_') || 'unknown';
-}
-
-function driveRenderFileId(ref) {
-  const raw = safeText(ref, 1200).replace(/^drive:\/\//i, '');
-  const id = raw.split(/[?#/]/).filter(Boolean).pop() || raw;
-  if (!/^[A-Za-z0-9_-]{8,220}$/.test(id)) throw homeCenterRenderInputError('drive input ref has an invalid file id.', 400, 'input_validation');
-  return id;
-}
-
-function renderInputRoleFromField(fieldName) {
-  return fieldName === 'glbRef' || fieldName === 'glbFile' ? 'glb' : 'script';
-}
-
-function renderContentType(role) {
-  return role === 'glb' ? 'model/gltf-binary' : 'text/x-python';
-}
-
-function renderFallbackName(role) {
-  return role === 'glb' ? 'input.glb' : 'render.py';
-}
-
-function cleanRenderUploadName(value, fallback) {
-  const clean = safeText(value, 240).replace(/\\/g, '/').split('/').pop().replace(/[^A-Za-z0-9_.-]+/g, '-').replace(/^-+|-+$/g, '');
-  return clean || fallback;
-}
-
-function sha256RenderBytes(bytes) {
-  return createHash('sha256').update(bytes).digest('hex');
-}
-
-function parseRenderGsRef(ref) {
-  const text = safeText(ref, 1600);
-  const match = text.match(/^gs:\/\/([^/]+)\/(.+)$/i);
-  if (!match) throw homeCenterRenderInputError('Inline render delivery requires a private gs:// artifact ref.', 400, 'render_inline_artifact_ref_invalid');
-  if (match[1] !== COMMAND_CENTER_RENDER_BUCKET) throw homeCenterRenderInputError('Inline render delivery refused artifact outside the configured private render bucket.', 403, 'render_inline_artifact_owner_scope_failed');
-  if (!match[2].startsWith('command-center-renders/') && !match[2].startsWith('renders/gifs/')) throw homeCenterRenderInputError('Inline render delivery refused artifact outside the render artifact prefix.', 403, 'render_inline_artifact_owner_scope_failed');
-  return {bucket: match[1], name: match[2], ref: text};
-}
-
-
-function parseRenderReviewGsRef(ref) {
-  const text = safeText(ref, 1600);
-  const match = text.match(/^gs:\/\/([^/]+)\/(.+)$/i);
-  if (!match) throw homeCenterRenderInputError('Render review delivery requires a private gs:// artifact ref sealed in the completed receipt.', 400, 'RENDER_REVIEW_ARTIFACT_REF_INVALID');
-  const allowedBuckets = new Set([COMMAND_CENTER_RENDER_BUCKET, HOME_CENTER_GENERATED_ARTIFACT_BUCKET].filter(Boolean));
-  if (!allowedBuckets.has(match[1])) throw homeCenterRenderInputError('Render review delivery refused artifact outside the configured private artifact buckets.', 403, 'RENDER_REVIEW_ARTIFACT_OWNER_SCOPE_FAILED');
-  const allowedPrefixes = ['command-center-renders/', 'renders/contact-sheets/', 'renders/blender/', 'renders/gifs/'];
-  if (!allowedPrefixes.some((prefix) => match[2].startsWith(prefix))) throw homeCenterRenderInputError('Render review delivery refused artifact outside the render review prefixes.', 403, 'RENDER_REVIEW_ARTIFACT_OWNER_SCOPE_FAILED');
-  return {bucket: match[1], name: match[2], ref: text};
-}
-
-function renderArtifactHashEntry(result = {}, rel = 'walk-loop.gif') {
-  const direct = safeObject(result.artifactHashes);
-  const bundle = safeObject(result.bundle);
-  const bundled = safeObject(bundle.artifactHashes);
-  return safeObject(direct[rel] || bundled[rel]);
-}
-
-function renderReceiptWithoutInlinePayload(operationResult = {}, delivery = null) {
-  const clean = JSON.parse(JSON.stringify(operationResult || {}));
-  if (clean && clean.result) {
-    clean.result.inlineMediaDelivery = delivery ? {...delivery, data: undefined, base64: undefined} : null;
-  }
-  return clean;
-}
-
-async function verifiedRenderGifMcpContent(result = {}, {storage = null, google = null, auth = null, user = null, parentFolderId = '', publishArtifact = null} = {}) {
-  const envelope = safeObject(result);
-  const nestedResult = safeObject(envelope.result);
-  const renderResult = Object.keys(nestedResult).length ? nestedResult : envelope;
-  const loopingGifRef = safeText(renderResult.loopingGifRef, 1600);
-  const expected = renderArtifactHashEntry(renderResult, 'walk-loop.gif');
-  const expectedSha256 = safeText(expected.sha256, 128).toLowerCase();
-  const expectedByteCount = Number(expected.byteCount || 0) || 0;
-  const deliveryBase = {
-    ok: false,
-    type: 'mcp_resource_link',
-    mimeType: 'image/gif',
-    artifactRef: loopingGifRef,
-    durableRef: '',
-    byteCount: 0,
-    sha256: '',
-    expectedByteCount,
-    expectedSha256,
-    ceilingBytes: HOME_CENTER_RENDER_INLINE_GIF_MAX_BYTES,
-    contentBlockType: '',
-    errorCode: '',
-    message: '',
-  };
-  if (!loopingGifRef) return {contentBlock: null, delivery: {...deliveryBase, errorCode: 'render_gif_resource_link_missing_ref', message: 'Renderer did not return loopingGifRef.'}};
-  if (!expectedSha256 || !expectedByteCount) return {contentBlock: null, delivery: {...deliveryBase, errorCode: 'render_gif_resource_link_missing_hash', message: 'Renderer did not return walk-loop.gif byte count and SHA-256.'}};
-  const parsed = parseRenderGsRef(loopingGifRef);
-  const client = storage || new Storage();
-  const [bytes] = await client.bucket(parsed.bucket).file(parsed.name).download();
-  const buffer = Buffer.isBuffer(bytes) ? bytes : Buffer.from(bytes);
-  const readbackSha256 = sha256RenderBytes(buffer);
-  if (buffer.length !== expectedByteCount || readbackSha256 !== expectedSha256) {
-    return {contentBlock: null, delivery: {...deliveryBase, byteCount: buffer.length, sha256: readbackSha256, errorCode: 'render_gif_resource_link_readback_mismatch', message: 'Private GCS GIF readback did not match renderer hash metadata.'}};
-  }
-  if (!google || !auth) return {contentBlock: null, delivery: {...deliveryBase, ok: false, byteCount: buffer.length, sha256: readbackSha256, errorCode: 'render_gif_resource_link_auth_missing', message: 'Verified GIF readback succeeded, but authenticated Drive context was unavailable for resource_link creation.'}};
-  const publish = publishArtifact || publishRenderReviewArtifactToDrive;
-  const uploaded = await publish({google, auth, user: user || {}, parentFolderId, renderId: safeText(renderResult.renderId, 180) || safeText(envelope.renderId, 180) || 'render', candidate: {kind: 'looping_gif', artifactRef: loopingGifRef, expectedSha256, expectedByteCount, name: 'walk-loop.gif', mimeType: 'image/gif'}, bytes: buffer});
-  const contentBlock = uploaded.resourceLink;
-  return {contentBlock, delivery: {...deliveryBase, ok: true, durableRef: uploaded.durableRef, byteCount: uploaded.byteCount, sha256: uploaded.sha256, readbackByteCount: uploaded.readbackByteCount, readbackSha256: uploaded.readbackSha256, fileId: uploaded.fileId || '', reused: uploaded.reused === true, contentBlockType: contentBlock.type, message: 'Private GCS GIF readback verified and attached as authenticated resource_link.'}};
-}
-
-async function attachRenderGifMcpContent(operationResult = {}, options = {}) {
-  const cleanResult = JSON.parse(JSON.stringify(operationResult || {}));
-  if (!cleanResult || cleanResult.operation !== 'render.blender_glb' || !cleanResult.result) return cleanResult;
-  if (safeText(cleanResult.result.status, 80) !== 'completed') return cleanResult;
-  // boundedRenderRequestStatus(attached=true) means the completed receipt includes artifact metadata;
-  // it does not mean MCP media egress has already attached the verified GIF.
-  if (safeObject(cleanResult.result.inlineMediaDelivery).ok === true) return cleanResult;
-  const inline = await verifiedRenderGifMcpContent(cleanResult.result, options).catch((err) => ({contentBlock: null, delivery: {ok: false, type: 'mcp_resource_link', mimeType: 'image/gif', artifactRef: safeText(cleanResult.result && cleanResult.result.loopingGifRef, 1600), durableRef: '', byteCount: 0, sha256: '', expectedByteCount: 0, expectedSha256: '', ceilingBytes: HOME_CENTER_RENDER_INLINE_GIF_MAX_BYTES, contentBlockType: '', errorCode: safeText(err && err.failureKind, 120) || 'render_gif_resource_link_failed', message: safeText(err && err.message, 500)}}));
-  cleanResult.result.inlineMediaDelivery = inline.delivery;
-  const receipt = renderReceiptWithoutInlinePayload(cleanResult, inline.delivery);
-  const content = [{type: 'text', text: jsonText(receipt)}];
-  if (inline.contentBlock) content.push(inline.contentBlock);
-  cleanResult._mcpContent = {content};
-  return cleanResult;
-}
-
-
-const RENDER_REVIEW_KIND_ORDER = Object.freeze(['contact_sheet', 'diagnostic_views', 'fixed_camera_views', 'looping_gif']);
-const RENDER_REVIEW_KIND_SET = new Set(RENDER_REVIEW_KIND_ORDER);
-
-function normalizeRenderReviewKinds(value) {
-  const requested = Array.isArray(value) && value.length ? value : ['contact_sheet', 'diagnostic_views'];
-  const kinds = [...new Set(requested.map((item) => safeText(item, 80)).filter(Boolean))];
-  const unsupported = kinds.filter((kind) => !RENDER_REVIEW_KIND_SET.has(kind));
-  if (unsupported.length) throw homeCenterRenderInputError('Unsupported render review artifactKinds: ' + unsupported.join(', '), 400, 'RENDER_REVIEW_KIND_UNSUPPORTED');
-  return RENDER_REVIEW_KIND_ORDER.filter((kind) => kinds.includes(kind));
-}
-
-function renderReviewArtifactCandidates(statusReceipt = {}, args = {}) {
-  const receipt = safeObject(statusReceipt);
-  const output = Object.keys(safeObject(receipt.result)).length ? safeObject(receipt.result) : receipt;
-  const status = safeText(receipt.status || receipt.state || output.status, 80);
-  if (status !== 'completed') throw homeCenterRenderInputError('Render review artifacts are available only for completed render receipts.', 409, 'RENDER_REVIEW_NOT_COMPLETED');
-  const renderId = safeText(receipt.renderId || output.renderId, 180);
-  if (!renderId) throw homeCenterRenderInputError('Completed render receipt is missing renderId.', 502, 'RENDER_REVIEW_RENDER_ID_MISSING');
-  const kinds = normalizeRenderReviewKinds(args.artifactKinds);
-  const candidates = [];
-  const add = (kind, ref, hashKey) => {
-    const artifactRef = safeText(ref, 1600);
-    if (!artifactRef) return;
-    parseRenderReviewGsRef(artifactRef);
-    const expected = renderArtifactHashEntry(output, hashKey);
-    const expectedSha256 = safeText(expected.sha256, 128).toLowerCase();
-    const expectedByteCount = Number(expected.byteCount || 0) || 0;
-    if (!expectedSha256 || !expectedByteCount) throw homeCenterRenderInputError('Completed render receipt is missing hash metadata for ' + hashKey + '.', 502, 'RENDER_REVIEW_HASH_MISSING');
-    if (expectedByteCount > HOME_CENTER_RENDER_REVIEW_MAX_ARTIFACT_BYTES) throw homeCenterRenderInputError(hashKey + ' exceeds the per-artifact review egress limit.', 413, 'RENDER_REVIEW_ARTIFACT_TOO_LARGE');
-    const lower = hashKey.toLowerCase();
-    const mimeType = lower.endsWith('.gif') ? 'image/gif' : lower.endsWith('.png') ? 'image/png' : '';
-    if (!mimeType) throw homeCenterRenderInputError(hashKey + ' is not a supported review image.', 400, 'RENDER_REVIEW_MIME_UNSUPPORTED');
-    candidates.push({kind, artifactRef, hashKey, name: hashKey, mimeType, expectedSha256, expectedByteCount});
-  };
-  if (kinds.includes('contact_sheet')) add('contact_sheet', output.contactSheetRef, 'contact-sheet.png');
-  if (kinds.includes('diagnostic_views')) {
-    (Array.isArray(output.diagnosticRenderRefs) ? output.diagnosticRenderRefs : []).forEach((ref) => {
-      const parsed = parseRenderReviewGsRef(ref);
-      add('diagnostic_views', ref, parsed.name.split('/').pop().replace(/^\d+-/, ''));
-    });
-  }
-  if (kinds.includes('fixed_camera_views')) {
-    (Array.isArray(output.fixedCameraRenderRefs) ? output.fixedCameraRenderRefs : []).forEach((ref) => {
-      const parsed = parseRenderReviewGsRef(ref);
-      add('fixed_camera_views', ref, parsed.name.split('/').pop().replace(/^\d+-/, ''));
-    });
-  }
-  if (kinds.includes('looping_gif')) add('looping_gif', output.loopingGifRef, 'walk-loop.gif');
-  if (!candidates.length) throw homeCenterRenderInputError('Completed render receipt did not name any requested review artifacts.', 404, 'RENDER_REVIEW_ARTIFACTS_MISSING');
-  if (candidates.length > HOME_CENTER_RENDER_REVIEW_MAX_ARTIFACTS) throw homeCenterRenderInputError('Render review request exceeds max artifact count ' + HOME_CENTER_RENDER_REVIEW_MAX_ARTIFACTS + '.', 413, 'RENDER_REVIEW_TOO_MANY_ARTIFACTS');
-  const expectedTotalBytes = candidates.reduce((sum, item) => sum + item.expectedByteCount, 0);
-  if (expectedTotalBytes > HOME_CENTER_RENDER_REVIEW_MAX_TOTAL_BYTES) throw homeCenterRenderInputError('Render review request exceeds max total bytes ' + HOME_CENTER_RENDER_REVIEW_MAX_TOTAL_BYTES + '.', 413, 'RENDER_REVIEW_TOTAL_TOO_LARGE');
-  return {renderId, kinds, expectedTotalBytes, candidates};
-}
-
-function renderReviewArtifactKey({ownerEmail = '', renderId = '', artifactRef = '', sha256 = ''} = {}) {
-  return createHash('sha256').update([safeText(ownerEmail, 320).toLowerCase(), safeText(renderId, 180), safeText(artifactRef, 1600), safeText(sha256, 128).toLowerCase()].join('\n')).digest('hex');
-}
-
-function renderReviewFileName(renderId, artifactName) {
-  const prefix = safeText(renderId, 80).replace(/[^A-Za-z0-9_.-]+/g, '-') || 'render';
-  const name = safeText(artifactName, 180).replace(/[^A-Za-z0-9_.-]+/g, '-') || 'review.png';
-  return (prefix + '--' + name).slice(0, 240);
-}
-
-async function publishRenderReviewArtifactToDrive({google, auth, user, parentFolderId = '', renderId, candidate, bytes}) {
-  const ownerEmail = safeText(user && user.email, 320).toLowerCase();
-  const artifactKey = renderReviewArtifactKey({ownerEmail, renderId, artifactRef: candidate.artifactRef, sha256: candidate.expectedSha256});
-  const drive = google.drive({version: 'v3', auth});
-  const query = "trashed=false and appProperties has { key='homeCenterRenderReviewKey' and value='" + driveQueryLiteral(artifactKey, 120) + "' }";
-  const found = await drive.files.list({
-    q: query,
-    pageSize: 10,
-    orderBy: 'createdTime asc',
-    fields: 'files(id,name,mimeType,webViewLink,parents,size,appProperties,createdTime)',
-    spaces: 'drive',
-  });
-  const existing = Array.isArray(found.data && found.data.files) ? found.data.files[0] : null;
-  let metadata = existing || null;
-  if (!metadata) {
-    const created = await drive.files.create({
-      requestBody: {
-        name: renderReviewFileName(renderId, candidate.name),
-        mimeType: candidate.mimeType,
-        ...(parentFolderId ? {parents: [parentFolderId]} : {}),
-        appProperties: {
-          homeCenterRenderReviewKey: artifactKey,
-          homeCenterRenderId: safeText(renderId, 120),
-          homeCenterSha256: candidate.expectedSha256,
-          homeCenterArtifactKind: candidate.kind,
-        },
-      },
-      media: {mimeType: candidate.mimeType, body: Readable.from([bytes])},
-      fields: 'id,name,mimeType,webViewLink,parents,size,appProperties,createdTime',
-      supportsAllDrives: true,
-    });
-    metadata = created.data || {};
-  }
-  const fileId = safeDriveFileId(metadata && metadata.id);
-  const readback = await drive.files.get({fileId, alt: 'media', supportsAllDrives: true}, {responseType: 'arraybuffer'});
-  const readbackBytes = Buffer.isBuffer(readback.data) ? readback.data : Buffer.from(readback.data);
-  const readbackSha256 = sha256RenderBytes(readbackBytes);
-  if (readbackBytes.length !== candidate.expectedByteCount || readbackSha256 !== candidate.expectedSha256) {
-    throw homeCenterRenderInputError('Drive review artifact readback did not match completed render receipt for ' + candidate.name + '.', 502, 'RENDER_REVIEW_DRIVE_READBACK_MISMATCH');
-  }
-  const resourceLink = {type: 'resource_link', uri: 'drive://' + fileId, name: metadata.name || renderReviewFileName(renderId, candidate.name), mimeType: candidate.mimeType, size: candidate.expectedByteCount};
-  return {
-    kind: candidate.kind,
-    name: candidate.name,
-    artifactRef: candidate.artifactRef,
-    sha256: candidate.expectedSha256,
-    byteCount: candidate.expectedByteCount,
-    fileId,
-    durableRef: 'drive://' + fileId,
-    webViewLink: metadata.webViewLink || '',
-    reused: !!existing,
-    verified: true,
-    readbackByteCount: readbackBytes.length,
-    readbackSha256,
-    resourceLink,
-  };
-}
-
-async function materializeRenderReviewArtifactsOperation({google, admin, auth, user, extra = null, googleClientId = '', googleClientSecret = '', githubToken = () => '', args = {}}, helpers = {}) {
-  if (args.approved !== true) throw homeCenterRenderInputError('approved=true is required to publish render review artifacts to Drive.', 400, 'RENDER_REVIEW_APPROVAL_REQUIRED');
-  const requestId = createRequestId(args.requestId);
-  const ownerEmail = requireCreditGatedEmail(user && user.email, 'render.review_artifacts');
-  const readAudit = helpers.existingAudit || existingAudit;
-  const writeAudit = helpers.auditWrite || auditWrite;
-  const prior = await readAudit(admin, requestId);
-  if (prior && prior.status === 'success' && prior.result) return {...prior.result, idempotent: true, audit: prior};
-  const renderId = safeText(args.renderId, 180);
-  if (!renderId) throw homeCenterRenderInputError('renderId is required.', 400, 'RENDER_REVIEW_RENDER_ID_REQUIRED');
-  const parentFolderId = safeText(args.parentFolderId, 220) ? safeDriveFileId(args.parentFolderId) : '';
-  const statusLookup = helpers.statusLookup || (async () => commandCenterRenderRequestStatus(admin, {actor: ownerEmail}, {renderId}));
-  const statusEnvelope = await statusLookup({renderId, ownerEmail});
-  const statusReceipt = safeObject(statusEnvelope && statusEnvelope.operation ? statusEnvelope.result : statusEnvelope);
-  const review = renderReviewArtifactCandidates(statusReceipt, args);
-  if (review.renderId !== renderId) throw homeCenterRenderInputError('Render status receipt did not match requested renderId.', 409, 'RENDER_REVIEW_RENDER_ID_MISMATCH');
-  const storage = helpers.storage || new Storage();
-  const publish = helpers.publishArtifact || publishRenderReviewArtifactToDrive;
-  const artifacts = await boundedMap(review.candidates, 3, async (candidate) => {
-    const parsed = parseRenderReviewGsRef(candidate.artifactRef);
-    const [downloaded] = await storage.bucket(parsed.bucket).file(parsed.name).download();
-    const bytes = Buffer.isBuffer(downloaded) ? downloaded : Buffer.from(downloaded);
-    const readbackSha256 = sha256RenderBytes(bytes);
-    if (bytes.length !== candidate.expectedByteCount || readbackSha256 !== candidate.expectedSha256) {
-      throw homeCenterRenderInputError('Private GCS review artifact did not match completed render receipt for ' + candidate.name + '.', 502, 'RENDER_REVIEW_GCS_READBACK_MISMATCH');
-    }
-    return publish({google, auth, user, parentFolderId, renderId, candidate, bytes});
-  });
-  const result = {
-    ok: true,
-    operation: 'render.review_artifacts',
-    requestId,
-    renderId,
-    status: 'completed',
-    artifactKinds: review.kinds,
-    expectedTotalBytes: review.expectedTotalBytes,
-    artifactCount: artifacts.length,
-    artifacts,
-  };
-  const audit = await writeAudit(admin, {
-    actor: ownerEmail,
-    authKind: user.authKind,
-    tool: 'drive_operation',
-    operation: 'render.review_artifacts',
-    requestId,
-    fileId: artifacts[0] && artifacts[0].fileId || '',
-    affectedFileIds: artifacts.map((item) => item.fileId).filter(Boolean),
-    oldMetadata: null,
-    newMetadata: {renderId, artifactKinds: review.kinds, artifactCount: artifacts.length},
-    oldParents: [],
-    newParents: parentFolderId ? [parentFolderId] : [],
-    reversible: false,
-    rollback: null,
-    callerNote: args.callerNote,
-    providerSummary: safeText(args.callerNote, 400) || ('Published ' + artifacts.length + ' verified review artifacts for completed render ' + renderId + '.'),
-    result,
-    inputSha256: createHash('sha256').update(review.candidates.map((item) => item.expectedSha256).join('\n')).digest('hex'),
-  });
-  return {...result, audit: audit.audit};
-}
-
-function validateHomeCenterRenderBytes(bytes, role, label) {
-  const options = {maxBytes: role === 'glb' ? HOME_CENTER_RENDER_MAX_GLB_BYTES : HOME_CENTER_RENDER_MAX_SCRIPT_BYTES, makeError: homeCenterRenderInputError};
-  return role === 'glb' ? validateSharedGlbBytes(bytes, label, options) : validatePythonScriptBytes(bytes, label, options);
-}
-
-function renderStreamValidator(role, label) {
-  const hash = createHash('sha256');
-  let byteCount = 0;
-  let header = Buffer.alloc(0);
-  const scriptChunks = [];
-  const maxBytes = role === 'glb' ? HOME_CENTER_RENDER_MAX_GLB_BYTES : HOME_CENTER_RENDER_MAX_SCRIPT_BYTES;
-  const stream = new Transform({
-    transform(chunk, _encoding, callback) {
-      const bytes = Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk);
-      byteCount += bytes.length;
-      if (byteCount > maxBytes) return callback(homeCenterRenderInputError(label + ' exceeds max ' + role + ' size ' + maxBytes + ' bytes.', 413, 'input_validation'));
-      if (header.length < 1024) header = Buffer.concat([header, bytes.slice(0, 1024 - header.length)]);
-      if (role === 'script') scriptChunks.push(bytes);
-      hash.update(bytes);
-      callback(null, bytes);
-    },
-    flush(callback) {
-      try {
-        if (role === 'glb') {
-          if (gitLfsPointer(header)) throw homeCenterRenderInputError(label + ' contains Git LFS pointer text instead of GLB bytes.', 422, 'invalid_binary.git_lfs_pointer');
-          if (byteCount < 12 || header.length < 12) throw homeCenterRenderInputError(label + ' is too small to be a GLB file.', 400, 'invalid_binary.glb_too_small');
-          if (header.slice(0, 4).toString('ascii') !== 'glTF') throw homeCenterRenderInputError(label + ' is not a GLB: missing glTF magic.', 422, 'invalid_binary.glb_magic');
-          if (header.readUInt32LE(4) !== 2) throw homeCenterRenderInputError(label + ' must be GLB version 2.', 422, 'invalid_binary.glb_version');
-          if (header.readUInt32LE(8) !== byteCount) throw homeCenterRenderInputError(label + ' GLB length header does not match downloaded byte count.', 422, 'invalid_binary.glb_length');
-        } else {
-          validatePythonScriptBytes(Buffer.concat(scriptChunks), label, {maxBytes, makeError: homeCenterRenderInputError});
-        }
-        callback();
-      } catch (error) {
-        callback(error);
-      }
-    },
-  });
-  stream.digest = () => ({sha256: hash.digest('hex'), byteCount});
-  return stream;
-}
-
-function renderReadableFromMedia(media) {
-  const data = media && media.data;
-  if (data && typeof data.pipe === 'function') return data;
-  return Readable.from([mediaBuffer(data)]);
-}
-
-function validateRenderMediaSize(size, role, label) {
-  const declared = Number(size || 0);
-  if (!Number.isFinite(declared) || declared <= 0) return;
-  const maxBytes = role === 'glb' ? HOME_CENTER_RENDER_MAX_GLB_BYTES : HOME_CENTER_RENDER_MAX_SCRIPT_BYTES;
-  if (declared > maxBytes) throw homeCenterRenderInputError(label + ' exceeds max ' + role + ' size ' + maxBytes + ' bytes.', 413, 'input_validation');
-}
-
-async function downloadDriveRenderInput({google, auth, ref, role}) {
-  try {
-    const drive = google.drive({version: 'v3', auth});
-    const fileId = driveRenderFileId(ref);
-    const meta = await drive.files.get({fileId, fields: 'id,name,mimeType,size,modifiedTime', supportsAllDrives: true});
-    const media = await drive.files.get({fileId, alt: 'media', supportsAllDrives: true}, {responseType: 'arraybuffer'});
-    const bytes = mediaBuffer(media.data);
-    validateHomeCenterRenderBytes(bytes, role, 'drive://' + fileId);
-    return {fileId, name: safeText(meta.data && meta.data.name, 240) || renderFallbackName(role), mimeType: safeText(meta.data && meta.data.mimeType, 160), bytes};
-  } catch (err) {
-    const wrapped = homeCenterRenderInputError('drive_input_download_auth_failed: Home Center could not download authorized Drive render input for ' + role + '.', err.status || err.code === 404 ? 404 : 401, 'drive_input_download_auth_failed');
-    wrapped.cause = err;
-    throw wrapped;
-  }
-}
-
-async function stageHomeCenterDriveRenderInput({google, auth, user, renderId, role, sourceRef}) {
-  if (!COMMAND_CENTER_RENDER_BUCKET) throw homeCenterRenderInputError('COMMAND_CENTER_RENDER_BUCKET is not configured for render input staging.', 503, 'transport');
-  const fileId = driveRenderFileId(sourceRef);
-  const label = 'drive://' + fileId;
-  try {
-    const drive = google.drive({version: 'v3', auth});
-    const meta = await drive.files.get({fileId, fields: 'id,name,mimeType,size,modifiedTime', supportsAllDrives: true});
-    validateRenderMediaSize(meta.data && meta.data.size, role, label);
-    const media = await drive.files.get({fileId, alt: 'media', supportsAllDrives: true}, {responseType: 'stream'});
-    const safeFile = cleanRenderUploadName(meta.data && meta.data.name, renderFallbackName(role));
-    const ownerKey = homeCenterRenderOwnerKey(user);
-    const basePrefix = 'temp/render-inputs/home-center-bridge/' + ownerKey + '/' + (safeText(renderId, 180) || 'render') + '/';
-    const tempName = basePrefix + '.tmp-' + role + '-' + randomUUID() + '-' + safeFile;
-    const bucket = new Storage().bucket(COMMAND_CENTER_RENDER_BUCKET);
-    const tempFile = bucket.file(tempName);
-    const validator = renderStreamValidator(role, label);
-    try {
-      await pipeline(renderReadableFromMedia(media), validator, tempFile.createWriteStream({
-        resumable: false,
-        metadata: {contentType: safeText(meta.data && meta.data.mimeType, 160) || renderContentType(role)},
-      }));
-    } catch (err) {
-      await tempFile.delete({ignoreNotFound: true}).catch(() => null);
-      throw err;
-    }
-    const digest = validator.digest();
-    const finalName = basePrefix + role + '-' + digest.sha256 + '-' + safeFile;
-    await tempFile.move(finalName);
-    const finalFile = bucket.file(finalName);
-    await finalFile.setMetadata({
-      contentType: safeText(meta.data && meta.data.mimeType, 160) || renderContentType(role),
-      metadata: {sha256: digest.sha256, byteCount: String(digest.byteCount), role, materializedBy: 'home_center_mcp.command_center_operation', sourceKind: 'drive'},
-    });
-    return {ref: 'gs://' + COMMAND_CENTER_RENDER_BUCKET + '/' + finalName, sha256: digest.sha256, byteCount: digest.byteCount, fileName: safeFile, materializedFrom: role + 'DriveRef', sourceRef: label, materializedBy: 'home_center_mcp.command_center_operation'};
-  } catch (err) {
-    if (err && err.phase === 'input_validation') throw err;
-    const wrapped = homeCenterRenderInputError('drive_input_download_auth_failed: Home Center could not stream authorized Drive render input for ' + role + '.', err.status || err.code === 404 ? 404 : 401, 'drive_input_download_auth_failed');
-    wrapped.cause = err;
-    throw wrapped;
-  }
-}
-
-
-function normalizeRenderGitHubSource(value, role) {
-  const source = safeObject(value);
-  const provider = safeText(source.provider, 40).toLowerCase();
-  if (!provider && !Object.keys(source).length) return null;
-  if (provider !== 'github') throw homeCenterRenderInputError(role + 'Source provider must be github.', 400, 'input_validation');
-  const repository = safeGitHubRepo(source.repository || source.repo, 'Valar05/home-center');
-  const ref = safeGitHubRef(source.ref || source.sha || source.branch);
-  const filePath = safeGitHubPath(source.path || source.filePath);
-  return {provider: 'github', repository, ref, path: filePath};
-}
-
-function renderGitHubSourceRef(source) {
-  return 'github://' + source.repository + '@' + (source.ref || 'default') + '/' + source.path;
-}
-
-function renderNowMs() { return Date.now(); }
-function renderSourceCacheKey(role, label) {
-  return createHash('sha256').update(role + ':' + label).digest('hex');
-}
-function renderGitHubCacheManifestName(role, label) {
-  return 'temp/render-inputs/github-cache/' + role + '/' + renderSourceCacheKey(role, label) + '.json';
-}
-function renderGitHubCacheObjectName(role, label, digest, safeFile) {
-  return 'temp/render-inputs/github-cache/' + role + '/' + renderSourceCacheKey(role, label) + '-' + digest.sha256 + '-' + safeFile;
-}
-async function readCachedGitHubRenderInput(bucket, role, label) {
-  const manifestFile = bucket.file(renderGitHubCacheManifestName(role, label));
-  const [exists] = await manifestFile.exists();
-  if (!exists) return null;
-  try {
-    const [bytes] = await manifestFile.download();
-    const manifest = JSON.parse(bytes.toString('utf8'));
-    if (manifest.sourceRef !== label || manifest.role !== role || !manifest.ref || !manifest.sha256 || !manifest.byteCount) return null;
-    const cachedFile = bucket.file(String(manifest.ref).replace(/^gs:\/\/[^/]+\//, ''));
-    const [objectExists] = await cachedFile.exists();
-    if (!objectExists) return null;
-    return manifest;
-  } catch (_err) {
-    return null;
-  }
-}
-async function writeCachedGitHubRenderInput(bucket, role, label, digest, safeFile, tempFile, contentType, normalized) {
-  const cacheObjectName = renderGitHubCacheObjectName(role, label, digest, safeFile);
-  await tempFile.move(cacheObjectName);
-  const cachedFile = bucket.file(cacheObjectName);
-  await cachedFile.setMetadata({
-    contentType: renderContentType(role),
-    metadata: {sha256: digest.sha256, byteCount: String(digest.byteCount), role, materializedBy: 'home_center_mcp.command_center_operation', sourceKind: 'github-cache', repository: normalized.repository, ref: normalized.ref, path: normalized.path},
-  });
-  const manifest = {
-    ref: 'gs://' + COMMAND_CENTER_RENDER_BUCKET + '/' + cacheObjectName,
-    sha256: digest.sha256,
-    byteCount: digest.byteCount,
-    fileName: safeFile,
-    role,
-    sourceRef: label,
-    contentType: contentType || renderContentType(role),
-    materializedBy: 'home_center_mcp.command_center_operation',
-    materializedFrom: role + 'GitHubSourceCache',
-    source: normalized,
-    cachedAtMs: Date.now(),
-  };
-  await bucket.file(renderGitHubCacheManifestName(role, label)).save(JSON.stringify(manifest, null, 2), {
-    resumable: false,
-    metadata: {contentType: 'application/json', metadata: {role, sourceKind: 'github-cache-manifest', sourceRefHash: renderSourceCacheKey(role, label)}},
-  });
-  return manifest;
-}
-
-async function stageHomeCenterGitHubRenderInput({githubToken, user, renderId, role, source}) {
-  if (!COMMAND_CENTER_RENDER_BUCKET) throw homeCenterRenderInputError('COMMAND_CENTER_RENDER_BUCKET is not configured for render input staging.', 503, 'transport');
-  const normalized = normalizeRenderGitHubSource(source, role);
-  if (!normalized) throw homeCenterRenderInputError(role + 'Source is required.', 400, 'input_validation');
-  const token = githubTokenValue(githubToken);
-  if (!token) throw homeCenterRenderInputError('GITHUB_TOKEN secret is not configured for Home Center GitHub render sources.', 503, 'github_input_download_auth_failed');
-  const label = renderGitHubSourceRef(normalized);
-  const safeFile = cleanRenderUploadName(normalized.path.split('/').pop(), renderFallbackName(role));
-  const timings = {startedAtMs: renderNowMs()};
-  const bucket = new Storage().bucket(COMMAND_CENTER_RENDER_BUCKET);
-  const cached = await readCachedGitHubRenderInput(bucket, role, label);
-  timings.cacheLookupMs = Math.max(0, renderNowMs() - timings.startedAtMs);
-  if (cached) {
-    timings.totalMs = Math.max(0, renderNowMs() - timings.startedAtMs);
-    return {
-      ref: cached.ref,
-      sha256: cached.sha256,
-      byteCount: cached.byteCount,
-      fileName: cached.fileName || safeFile,
-      materializedFrom: role + 'GitHubSourceCache',
-      sourceRef: label,
-      materializedBy: 'home_center_mcp.command_center_operation',
-      source: normalized,
-      cacheHit: true,
-      timings,
-    };
-  }
-  const filePath = normalized.path.split('/').map(encodeURIComponent).join('/');
-  const route = githubRepoRoute(normalized.repository, `/contents/${filePath}${githubQuery({ref: normalized.ref})}`);
-  const fetchStartedAtMs = renderNowMs();
-  const response = await fetch(`https://api.github.com${route}`, {
-    method: 'GET',
-    headers: {...githubHeaders(token), Accept: 'application/vnd.github.raw'},
-    signal: AbortSignal.timeout(Number(process.env.HOME_CENTER_RENDER_GITHUB_TIMEOUT_MS || 120000)),
-  });
-  timings.githubOpenMs = Math.max(0, renderNowMs() - fetchStartedAtMs);
-  if (!response.ok) {
-    let message = response.statusText;
-    try {
-      const json = await response.json();
-      message = safeText(json && json.message, 500) || message;
-    } catch (_err) {}
-    throw homeCenterRenderInputError('github_input_download_auth_failed: Home Center could not download authenticated GitHub render input for ' + role + ' (HTTP ' + response.status + ': ' + message + ').', response.status === 404 ? 404 : 401, 'github_input_download_auth_failed');
-  }
-  validateRenderMediaSize(response.headers.get('content-length'), role, label);
-  if (!response.body) throw homeCenterRenderInputError('github_input_download_auth_failed: GitHub response did not include a readable body for ' + role + '.', 502, 'github_input_download_auth_failed');
-  const tempName = 'temp/render-inputs/github-cache/' + role + '/.tmp-' + role + '-github-' + randomUUID() + '-' + safeFile;
-  const tempFile = bucket.file(tempName);
-  const validator = renderStreamValidator(role, label);
-  const streamStartedAtMs = renderNowMs();
-  try {
-    await pipeline(Readable.fromWeb(response.body), validator, tempFile.createWriteStream({
-      resumable: false,
-      metadata: {contentType: response.headers.get('content-type') || renderContentType(role)},
-    }));
-  } catch (err) {
-    await tempFile.delete({ignoreNotFound: true}).catch(() => null);
-    throw err;
-  }
-  timings.githubStreamAndValidateMs = Math.max(0, renderNowMs() - streamStartedAtMs);
-  const digest = validator.digest();
-  const cacheWriteStartedAtMs = renderNowMs();
-  const manifest = await writeCachedGitHubRenderInput(bucket, role, label, digest, safeFile, tempFile, response.headers.get('content-type') || renderContentType(role), normalized);
-  timings.cacheWriteMs = Math.max(0, renderNowMs() - cacheWriteStartedAtMs);
-  timings.totalMs = Math.max(0, renderNowMs() - timings.startedAtMs);
-  return {
-    ref: manifest.ref,
-    sha256: manifest.sha256,
-    byteCount: manifest.byteCount,
-    fileName: manifest.fileName,
-    materializedFrom: role + 'GitHubSource',
-    sourceRef: label,
-    materializedBy: 'home_center_mcp.command_center_operation',
-    source: normalized,
-    cacheHit: false,
-    timings,
-  };
-}
-
-async function stageHomeCenterRenderInput({user, renderId, role, sourceRef, fileName, bytes, contentType}) {
-  if (!COMMAND_CENTER_RENDER_BUCKET) throw homeCenterRenderInputError('COMMAND_CENTER_RENDER_BUCKET is not configured for render input staging.', 503, 'transport');
-  const startedAtMs = Date.now();
-  const hash = sha256RenderBytes(bytes);
-  const safeFile = cleanRenderUploadName(fileName, renderFallbackName(role));
-  const objectName = 'artifacts/sha256/' + hash + '/' + safeFile;
-  const file = new Storage().bucket(COMMAND_CENTER_RENDER_BUCKET).file(objectName);
-  let reused = false;
-  try {
-    await file.save(bytes, {resumable: false, metadata: {contentType: contentType || renderContentType(role), metadata: {sha256: hash, byteCount: String(bytes.length), role, materializedBy: 'home_center_mcp.artifact_transport.v1', sourceKind: sourceRef && sourceRef.startsWith('drive://') ? 'drive' : 'uploaded'}}, preconditionOpts: {ifGenerationMatch: 0}});
-  } catch (err) {
-    if (![409, 412].includes(Number(err && err.code)) && !/condition|already exists/i.test(String(err && err.message))) throw err;
-    reused = true;
-    const [existing] = await file.download();
-    if (existing.length !== bytes.length || sha256RenderBytes(existing) !== hash) throw homeCenterRenderInputError('Digest-addressed render artifact exists with different bytes.', 409, 'artifact_digest_collision');
-  }
-  return {ref: 'gs://' + COMMAND_CENTER_RENDER_BUCKET + '/' + objectName, sha256: hash, byteCount: bytes.length, fileName: safeFile, materializedFrom: sourceRef && sourceRef.startsWith('drive://') ? role + 'DriveRef' : role + 'File', sourceRef: sourceRef && sourceRef.startsWith('drive://') ? 'drive://' + driveRenderFileId(sourceRef) : '', materializedBy: 'home_center_mcp.artifact_transport.v1', reused, transferredBytes: reused ? 0 : bytes.length, reusedBytes: reused ? bytes.length : 0, stagingMs: Math.max(0, Date.now() - startedAtMs)};
-}
-
-async function materializeHomeCenterRenderDriveRefs({google, admin, googleClientId, googleClientSecret, extra, githubToken = () => '', args = {}}) {
-  return materializeHomeCenterRenderSources({google, admin, googleClientId, googleClientSecret, extra, githubToken, args});
-}
-
-function renderSourceProvided(args, field) {
-  const value = args[field];
-  if (field.endsWith('Source')) return !!normalizeRenderGitHubSource(value, field === 'glbSource' ? 'glb' : 'script');
-  return safeText(value, 1200).length > 0;
-}
-
-function assertOneHomeCenterRenderSource(args, role) {
-  const refField = role + 'Ref';
-  const sourceField = role + 'Source';
-  const fileField = role + 'File';
-  const count = [renderSourceProvided(args, refField), renderSourceProvided(args, sourceField), isMcpFileLike(args[fileField])].filter(Boolean).length;
-  if (count !== 1) throw homeCenterRenderInputError('Exactly one ' + role.toUpperCase() + ' source is required for render.blender_glb: provide ' + refField + ', ' + sourceField + ', or ' + fileField + ', but not more than one.', 400, 'input_validation');
-}
-
-async function materializeHomeCenterRenderSources({google, admin, googleClientId, googleClientSecret, extra, githubToken = () => '', args = {}}) {
-  const operationArgs = {...args};
-  const buildMode = safeText(operationArgs.mode, 40) === 'build';
-  const stagedInputs = Array.isArray(operationArgs.stagedInputs) ? operationArgs.stagedInputs.slice(0, 10) : [];
-  if (buildMode) {
-    if (renderSourceProvided(operationArgs, 'glbRef') || renderSourceProvided(operationArgs, 'glbSource') || isMcpFileLike(operationArgs.glbFile)) {
-      throw homeCenterRenderInputError('render.blender_build starts from Blender factory state and does not accept a GLB source.', 400, 'input_validation');
-    }
-  } else {
-    assertOneHomeCenterRenderSource(operationArgs, 'glb');
-  }
-  const scriptCount = [safeText(operationArgs.scriptRef, 1200).length > 0, !!normalizeRenderGitHubSource(operationArgs.scriptSource, 'script'), isMcpFileLike(operationArgs.scriptFile), safeText(operationArgs.scriptText || operationArgs.inlineScript || operationArgs.script, HOME_CENTER_DIRECT_RENDER_TEXT_LIMIT + 1).length > 0].filter(Boolean).length;
-  if (scriptCount !== 1) throw homeCenterRenderInputError('Exactly one Blender script source is required: provide scriptRef, scriptSource, scriptFile, or scriptText.', 400, 'input_validation');
-  const needsDrive = ['glbRef', 'scriptRef'].filter((field) => !buildMode || field !== 'glbRef').some((field) => safeText(operationArgs[field], 1200).toLowerCase().startsWith('drive://'));
-  const needsGitHub = (!buildMode && !!normalizeRenderGitHubSource(operationArgs.glbSource, 'glb')) || !!normalizeRenderGitHubSource(operationArgs.scriptSource, 'script');
-  if (!needsDrive && !needsGitHub) return operationArgs;
-  const {auth, user} = needsDrive ? await requestGoogleContext(extra, google, admin, googleClientId, googleClientSecret) : {auth: null, user: (await loadMcpAccessContext(admin, google, googleClientId, googleClientSecret, bearerTokenFromExtra(extra))).user};
-  const seed = safeText(operationArgs.idempotencyKey, 180) || randomUUID();
-  const renderId = safeText(operationArgs.renderId, 180) || 'render_' + createHash('sha256').update(homeCenterRenderOwnerKey(user) + ':' + seed).digest('hex').slice(0, 32);
-  operationArgs.renderId = renderId;
-  const tasks = [];
-  for (const [field, role] of (buildMode ? [['scriptRef', 'script']] : [['glbRef', 'glb'], ['scriptRef', 'script']])) {
-    const ref = safeText(operationArgs[field], 1200);
-    if (ref.toLowerCase().startsWith('drive://')) tasks.push({kind: 'drive', field, role, refField: field, sourceRef: ref});
-  }
-  for (const [field, role, refField] of (buildMode ? [['scriptSource', 'script', 'scriptRef']] : [['glbSource', 'glb', 'glbRef'], ['scriptSource', 'script', 'scriptRef']])) {
-    const source = normalizeRenderGitHubSource(operationArgs[field], role);
-    if (source) tasks.push({kind: 'github', field, role, refField, source});
-  }
-  const results = await boundedMap(tasks, 2, async (task) => {
-    const staged = task.kind === 'drive'
-      ? await stageHomeCenterDriveRenderInput({google, auth, user, renderId, role: task.role, sourceRef: task.sourceRef})
-      : await stageHomeCenterGitHubRenderInput({githubToken, user, renderId, role: task.role, source: task.source});
-    return {task, staged};
-  });
-  for (const {task, staged} of results) {
-    operationArgs[task.refField] = staged.ref;
-    if (task.kind === 'github') delete operationArgs[task.field];
-    stagedInputs.push(staged);
-  }
-  operationArgs.stagedInputs = stagedInputs;
-  return operationArgs;
-}
-
-function requireTopLevelRenderUpload(args = {}, fieldName) {
-  const value = args[fieldName];
-  if (!isMcpFileLike(value)) {
-    throw homeCenterRenderInputError(fieldName + ' must be a top-level uploaded MCP file. Do not pass a string path, URL, Base64, ref, or nested JSON descriptor.');
-  }
-  return value;
-}
-
-function normalizeDirectRenderBlenderGlbArgs(args = {}) {
-  requireTopLevelRenderUpload(args, 'glbFile');
-  requireTopLevelRenderUpload(args, 'scriptFile');
-  const forbidden = ['glbRef', 'scriptRef', 'scriptText', 'inlineScript', 'script'];
-  const providedForbidden = forbidden.filter((key) => safeText(args[key], HOME_CENTER_DIRECT_RENDER_TEXT_LIMIT + 1).length > 0);
-  if (providedForbidden.length) {
-    throw homeCenterRenderInputError('render_blender_glb accepts only top-level glbFile and scriptFile uploads for model/script sources. Use command_center_operation operation=render.blender_glb for ' + providedForbidden.join(', ') + '.');
-  }
-  return {
-    idempotencyKey: args.idempotencyKey,
-    contractVersion: safeText(args.contractVersion, 100) || 'home-center.blender-render-request.v2',
-    renderId: args.renderId,
-    glbFile: args.glbFile,
-    scriptFile: args.scriptFile,
-    settings: safeObject(args.settings),
-    executionContract: safeObject(args.executionContract),
-    cache: args.cache,
-  };
-}
-
-async function renderBlenderGlbBridge({admin, extra, args = {}}) {
-  const operationArgs = normalizeDirectRenderBlenderGlbArgs(args);
-  return commandCenterRenderBlenderGlb(admin, extra, operationArgs);
-}
-
 
 function requireTopLevelDriveIngestUpload(args = {}) {
   const value = args.file;
@@ -1563,13 +833,6 @@ async function commandCenterOperationRunOperation({google = null, admin = null, 
   delete operationArgs.type;
   delete operationArgs.toolName;
   delete operationArgs.args;
-  if ((operation === 'render.blender_glb' || operation === 'render.blender_build') && google && admin) {
-    operationArgs.mode = operation === 'render.blender_build' ? 'build' : 'render_glb';
-    const materializedArgs = await materializeHomeCenterRenderSources({google, admin, googleClientId, googleClientSecret, extra, githubToken, args: operationArgs});
-    const invoke = operation === 'render.blender_build' ? commandCenterRenderBlenderBuild : commandCenterRenderBlenderGlb;
-    const rendered = {operation, toolName, commandCenterMcpUrl: COMMAND_CENTER_MCP_URL, result: await invoke(admin, extra, materializedArgs)};
-    return attachRenderGifMcpContent(rendered, {google, auth: context.auth, user: context.user, parentFolderId: safeText(operationArgs.parentFolderId, 220)});
-  }
 
   const bearerToken = bearerTokenFromExtra(extra);
 
@@ -1614,39 +877,6 @@ function hostFileUploadInputSchema({description, contentMediaType}) {
     description,
   };
 }
-
-function renderBlenderGlbCatalogInputSchema() {
-  return {
-    type: 'object',
-    properties: {
-      idempotencyKey: {
-        type: 'string',
-        description: 'Stable idempotency key for this render request.',
-      },
-      renderId: {
-        type: 'string',
-        description: 'Optional caller-provided render id.',
-      },
-      contractVersion: {type: 'string', enum: ['home-center.blender-render-request.v2'], description: 'Versioned renderer request contract.'},
-      glbFile: hostFileUploadInputSchema({
-        contentMediaType: 'model/gltf-binary',
-        description: 'Required top-level host-file upload containing a binary GLB model. Do not pass a path, URL, Base64 string, ref, or JSON descriptor.',
-      }),
-      scriptFile: hostFileUploadInputSchema({
-        contentMediaType: 'text/x-python',
-        description: 'Required top-level host-file upload containing the Blender Python render script. Do not pass a path, URL, Base64 string, ref, or JSON descriptor.',
-      }),
-      settings: rendererSettingsJsonSchema(),
-      cache: {
-        type: 'boolean',
-        description: 'Use cached render artifacts when the backend cache key already exists. Defaults to true.',
-      },
-    },
-    required: ['idempotencyKey', 'glbFile', 'scriptFile'],
-    additionalProperties: false,
-  };
-}
-
 
 function storageIngestArtifactCatalogInputSchema() {
   return {
@@ -1693,7 +923,6 @@ function driveIngestFileCatalogInputSchema() {
 }
 
 function publishedToolInputSchema(name, schema, pipeStrategy = 'input') {
-  if (name === 'render_blender_glb') return renderBlenderGlbCatalogInputSchema();
   if (name === 'drive_ingest_file') return driveIngestFileCatalogInputSchema();
   if (name === 'storage_ingest_artifact') return storageIngestArtifactCatalogInputSchema();
   return mcpToolJsonSchema(schema, pipeStrategy);
@@ -4610,19 +3839,12 @@ function driveOperationRegistry() {
     operations: {
       ...artifactOperationEntries(),
       ...foundryOperationEntries(),
-      'render.review_artifacts': {
-        summary: 'Compatibility adapter for materializing hash-verified review images already named by an owner-scoped completed Blender render receipt.',
-        write: true,
-        requiresRequestId: true,
-        requiredScopes: ['https://www.googleapis.com/auth/drive'],
-        input: {renderId: 'string', artifactKinds: 'optional contact_sheet|diagnostic_views|fixed_camera_views|looping_gif[]', parentFolderId: 'optional string', approved: 'legacy execution authorization; does not mean human acceptance', requestId: 'string', callerNote: 'optional string'},
-      },
       'artifact.delivery.materialize_receipt': {
         summary: 'Materialize supported artifacts named by one owner-scoped terminal producer receipt as hash-verified private Drive resource links without rerendering or changing human acceptance.',
         write: true,
         requiresRequestId: true,
         requiredScopes: ['https://www.googleapis.com/auth/drive'],
-        input: {producerReceiptId: 'string; receipt only, never a GCS path or URL', producerKind: 'optional drive_audit|foundry|blender_render', artifactNames: 'optional artifact role or filename array', parentFolderId: 'optional string', requestId: 'string'},
+        input: {producerReceiptId: 'string; receipt only, never a GCS path or URL', producerKind: 'optional drive_audit|foundry', artifactNames: 'optional artifact role or filename array', parentFolderId: 'optional string', requestId: 'string'},
         output: {status: 'review_ready after source and Drive readback verification', transportState: 'bytes transferred/reused, concurrency, and no-rerender evidence', authorization: 'owner_scoped', humanAcceptance: 'preserved separately and never changed', artifacts: 'bounded private Drive resource links with SHA-256 and byte length'},
       },
       'artifact.review.record': {
@@ -4635,7 +3857,7 @@ function driveOperationRegistry() {
         summary: 'Link a rejected or revision-requested review record to a distinct owner-scoped terminal corrective producer receipt.',
         write: true,
         requiresRequestId: true,
-        input: {reviewRequestId: 'string', successorReceiptId: 'string', producerKind: 'optional drive_audit|foundry|blender_render', artifactNames: 'optional artifact selectors', requestId: 'string'},
+        input: {reviewRequestId: 'string', successorReceiptId: 'string', producerKind: 'optional drive_audit|foundry', artifactNames: 'optional artifact selectors', requestId: 'string'},
       },
       drive_create_folder: {
         summary: 'Create a Google Drive folder and audit the write.',
@@ -5376,9 +4598,17 @@ async function ingestDriveAudioOperation({google, admin, auth, user, args = {}, 
   }
 }
 
+function artifactTransportOperationError(message, status, code) {
+  const error = new Error(message);
+  error.status = status;
+  error.code = code;
+  error.failureKind = 'artifact_transport';
+  return error;
+}
+
 async function artifactTransportPreflightOperation({google, admin, auth, user, args = {}}) {
   const requestId = safeText(args.requestId, 180);
-  if (!requestId) throw homeCenterRenderInputError('requestId is required.', 400, 'ARTIFACT_REQUEST_ID_REQUIRED');
+  if (!requestId) throw artifactTransportOperationError('requestId is required.', 400, 'ARTIFACT_REQUEST_ID_REQUIRED');
   const artifacts = Array.isArray(args.artifacts) ? args.artifacts : [];
   const consumer = safeObject(args.consumer);
   const storage = new Storage();
@@ -5393,25 +4623,25 @@ async function artifactTransportPreflightOperation({google, admin, auth, user, a
       const identity = plan.reference.identity;
       if (plan.location.kind === 'gcs') {
         const match = /^gs:\/\/([^/]+)\/(.+)$/.exec(plan.location.uri);
-        if (!match) throw homeCenterRenderInputError('Invalid GCS URI.', 400, 'ARTIFACT_GCS_URI_INVALID');
+        if (!match) throw artifactTransportOperationError('Invalid GCS URI.', 400, 'ARTIFACT_GCS_URI_INVALID');
         const [metadata] = await storage.bucket(match[1]).file(match[2]).getMetadata();
         const actualBytes = Number(metadata.size || 0);
         const actualSha = safeText(metadata.metadata && metadata.metadata.sha256, 64).toLowerCase();
-        if (actualBytes !== identity.byteLength) throw homeCenterRenderInputError('GCS object byte length does not match artifact identity.', 409, 'ARTIFACT_BYTE_LENGTH_MISMATCH');
-        if (!actualSha) throw homeCenterRenderInputError('GCS object lacks verified sha256 metadata.', 409, 'ARTIFACT_SHA256_METADATA_MISSING');
-        if (actualSha !== identity.sha256) throw homeCenterRenderInputError('GCS object sha256 metadata does not match artifact identity.', 409, 'ARTIFACT_SHA256_MISMATCH');
+        if (actualBytes !== identity.byteLength) throw artifactTransportOperationError('GCS object byte length does not match artifact identity.', 409, 'ARTIFACT_BYTE_LENGTH_MISMATCH');
+        if (!actualSha) throw artifactTransportOperationError('GCS object lacks verified sha256 metadata.', 409, 'ARTIFACT_SHA256_METADATA_MISSING');
+        if (actualSha !== identity.sha256) throw artifactTransportOperationError('GCS object sha256 metadata does not match artifact identity.', 409, 'ARTIFACT_SHA256_MISMATCH');
         return {resolvable: true, reusedBytes: plan.action === 'reuse' ? actualBytes : 0, transferredBytes: 0, verification: {sha256Match: true, byteLengthMatch: true, generation: safeText(metadata.generation, 80)}};
       }
       if (plan.location.kind === 'drive') {
-        if (!drive) throw homeCenterRenderInputError('Drive reference requires authenticated Google Drive access.', 401, 'ARTIFACT_DRIVE_AUTH_REQUIRED');
+        if (!drive) throw artifactTransportOperationError('Drive reference requires authenticated Google Drive access.', 401, 'ARTIFACT_DRIVE_AUTH_REQUIRED');
         const response = await drive.files.get({fileId: plan.location.fileId, supportsAllDrives: true, fields: 'id,name,mimeType,size,md5Checksum,modifiedTime'});
         const actualBytes = Number(response.data && response.data.size || 0);
-        if (actualBytes !== identity.byteLength) throw homeCenterRenderInputError('Drive file byte length does not match artifact identity.', 409, 'ARTIFACT_BYTE_LENGTH_MISMATCH');
+        if (actualBytes !== identity.byteLength) throw artifactTransportOperationError('Drive file byte length does not match artifact identity.', 409, 'ARTIFACT_BYTE_LENGTH_MISMATCH');
         return {resolvable: true, reusedBytes: plan.action === 'reuse' ? actualBytes : 0, transferredBytes: 0, verification: {byteLengthMatch: true, expectedSha256: identity.sha256, providerSha256Available: false, providerMd5: safeText(response.data && response.data.md5Checksum, 64), fileId: safeText(response.data && response.data.id, 240)}};
       }
       if (plan.location.kind === 'github') return {resolvable: true, reusedBytes: plan.action === 'reuse' ? identity.byteLength : 0, transferredBytes: 0, verification: {expectedSha256: identity.sha256, immutableRef: plan.location.ref}};
       if (plan.location.kind === 'inline_metadata') return {resolvable: true, reusedBytes: 0, transferredBytes: 0, verification: {metadataOnly: true}};
-      throw homeCenterRenderInputError('Reference kind requires staging and cannot be proven by preflight alone: ' + plan.location.kind + '.', 422, 'ARTIFACT_STAGING_REQUIRED');
+      throw artifactTransportOperationError('Reference kind requires staging and cannot be proven by preflight alone: ' + plan.location.kind + '.', 422, 'ARTIFACT_STAGING_REQUIRED');
     },
   });
   if (admin && typeof admin.firestore === 'function') {
@@ -5420,7 +4650,7 @@ async function artifactTransportPreflightOperation({google, admin, auth, user, a
     const owner = safeText(user && user.email, 320).toLowerCase();
     if (snapshot.exists) {
       const existing = snapshot.data() || {};
-      if (existing.inputHash !== receipt.inputHash) throw homeCenterRenderInputError('requestId is already bound to different artifact identities.', 409, 'ARTIFACT_IDEMPOTENCY_CONFLICT');
+      if (existing.inputHash !== receipt.inputHash) throw artifactTransportOperationError('requestId is already bound to different artifact identities.', 409, 'ARTIFACT_IDEMPOTENCY_CONFLICT');
       return {...existing.receipt, attached: true};
     }
     await ref.create({requestId, inputHash: receipt.inputHash, owner, receipt, createdAt: new Date().toISOString()});
@@ -5430,11 +4660,11 @@ async function artifactTransportPreflightOperation({google, admin, auth, user, a
 
 async function artifactTransportStatusOperation({admin, user, args = {}}) {
   const requestId = safeText(args.requestId, 180);
-  if (!requestId) throw homeCenterRenderInputError('requestId is required.', 400, 'ARTIFACT_REQUEST_ID_REQUIRED');
+  if (!requestId) throw artifactTransportOperationError('requestId is required.', 400, 'ARTIFACT_REQUEST_ID_REQUIRED');
   const snapshot = await admin.firestore().collection('artifactTransportReceipts').doc(requestId).get();
-  if (!snapshot.exists) throw homeCenterRenderInputError('Artifact transport receipt not found.', 404, 'ARTIFACT_RECEIPT_NOT_FOUND');
+  if (!snapshot.exists) throw artifactTransportOperationError('Artifact transport receipt not found.', 404, 'ARTIFACT_RECEIPT_NOT_FOUND');
   const data = snapshot.data() || {};
-  if (safeText(data.owner, 320).toLowerCase() !== safeText(user && user.email, 320).toLowerCase()) throw homeCenterRenderInputError('Artifact transport receipt is not owned by this caller.', 403, 'ARTIFACT_RECEIPT_FORBIDDEN');
+  if (safeText(data.owner, 320).toLowerCase() !== safeText(user && user.email, 320).toLowerCase()) throw artifactTransportOperationError('Artifact transport receipt is not owned by this caller.', 403, 'ARTIFACT_RECEIPT_FORBIDDEN');
   return data.receipt;
 }
 
@@ -5478,12 +4708,6 @@ async function driveOperationRunOperation({google, admin, auth, user, extra = nu
     requireCreditGatedEmail(user && user.email, operation);
     const result = await linkArtifactReviewSuccessorOperation({admin, user, args: operationArgs});
     return {operation, registryVersion: registry.version, completed: true, result};
-  }
-  if (operation === 'render.review_artifacts') {
-    const result = await materializeRenderReviewArtifactsOperation({google, admin, auth, user, extra, googleClientId, googleClientSecret, githubToken, args: operationArgs});
-    const wrapped = {operation, registryVersion: registry.version, completed: true, result};
-    wrapped._mcpContent = {content: [{type: 'text', text: jsonText(wrapped)}, ...result.artifacts.map((item) => item.resourceLink).filter(Boolean)]};
-    return wrapped;
   }
   if (operation.startsWith('droobiedoo.')) {
     const result = runDroobiedooContextOperation(operation, operationArgs);
@@ -5781,7 +5005,7 @@ function homeCenterReadinessPayload({admin, googleClientId, googleClientSecret})
     {name: 'google_oauth_client_id', required: true, ok: configuredValue(googleClientId)},
     {name: 'google_oauth_client_secret', required: true, ok: configuredValue(googleClientSecret)},
     {name: 'command_center_endpoint', required: false, ok: Boolean(COMMAND_CENTER_MCP_URL)},
-    {name: 'artifact_bucket', required: false, ok: Boolean(COMMAND_CENTER_RENDER_BUCKET)},
+    {name: 'artifact_bucket', required: false, ok: Boolean(HOME_CENTER_GENERATED_ARTIFACT_BUCKET)},
   ];
   const ready = checks.every((check) => !check.required || check.ok);
   return {
@@ -5828,14 +5052,6 @@ function homeCenterCapabilitiesPayload(server) {
       smsCalendar: operationRegistrySummary(smsCalendarOperationRegistry()),
     },
     fileUploadTools: [
-      {
-        name: 'render_blender_glb',
-        required: ['idempotencyKey', 'glbFile', 'scriptFile'],
-        inputs: {
-          glbFile: {format: 'binary', contentMediaType: 'model/gltf-binary'},
-          scriptFile: {format: 'binary', contentMediaType: 'text/x-python'},
-        },
-      },
       {
         name: 'drive_ingest_file',
         required: ['requestId', 'file'],
@@ -6087,23 +5303,6 @@ function createHomeCenterMcpServer({google, admin, googleClientId, googleClientS
     const context = await requireCreditGatedContext({google, admin, googleClientId, googleClientSecret, extra, surface: 'drive_ingest_file'});
     return textResult(await driveIngestFileOperation({google, admin, auth: context.auth, user: context.user, args: args || {}}));
   });
-
-  server.registerTool('render_blender_glb', {
-    title: 'Render GLB with Blender',
-    description: 'Top-level file-bearing Blender renderer for ChatGPT Work Mode. Use this instead of command_center_operation when supplying uploaded GLB or Python files; nested dispatcher args cannot activate host file upload slots.',
-    inputSchema: {
-      idempotencyKey: z.string().describe('Stable idempotency key for this render request.'),
-      renderId: z.string().optional().describe('Optional caller-provided render id.'),
-      glbFile: z.file().describe('Required top-level uploaded binary GLB file. This must be a ChatGPT Work Mode host file upload, not a string path, URL, Base64, ref, or JSON descriptor.'),
-      scriptFile: z.file().describe('Required top-level uploaded Blender Python .py file. This must be a ChatGPT Work Mode host file upload, not a string path, URL, Base64, ref, or JSON descriptor.'),
-      settings: z.record(z.string(), z.any()).optional().describe('Optional renderer settings already supported by the Blender backend.'),
-      executionContract: z.record(z.string(), z.any()).optional().describe('Optional execution contract metadata for the Blender backend.'),
-      cache: z.boolean().optional().describe('Use cached render artifacts when the backend cache key already exists. Defaults to true.'),
-    },
-    securitySchemes: MCP_OAUTH_SECURITY_SCHEMES,
-    _meta: {securitySchemes: MCP_OAUTH_SECURITY_SCHEMES},
-    annotations: {readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false},
-  }, async (args, extra) => mcpToolResult(await (async () => { const context = await requireCreditGatedContext({google, admin, googleClientId, googleClientSecret, extra, surface: 'render_blender_glb'}); return attachRenderGifMcpContent({operation: 'render.blender_glb', toolName: 'render_blender_glb', commandCenterMcpUrl: COMMAND_CENTER_MCP_URL, result: await renderBlenderGlbBridge({admin, extra, args: args || {}})}, {google, auth: context.auth, user: context.user, parentFolderId: safeText(args && args.parentFolderId, 220)}); })()));
 
   server.registerTool('cartesia_voices', {
     title: 'Cartesia voices',
@@ -7467,4 +6666,4 @@ function createHomeCenterMcpApp({google, admin, googleClientId = () => '', googl
   return app;
 }
 
-module.exports = {validateHomeCenterRenderBytes, linkArtifactReviewSuccessorOperation, recordArtifactReviewOperation, materializeReceiptArtifactsOperation, artifactTransportPreflightOperation, homeCenterReleaseIdentity, artifactTransportStatusOperation, homeCenterHealthPayload, homeCenterReadinessPayload, homeCenterCapabilitiesPayload, operationRegistrySummary, CREDIT_GATED_EMAILS, requireCreditGatedEmail, GITHUB_ADMIN_ALLOWED_EMAILS, requireGitHubAdminUser, HOME_CENTER_MCP_SERVER_VERSION, HOME_CENTER_CONNECTOR_SCHEMA_REVISION, HOME_CENTER_REGISTRY_VERSION, HOME_CENTER_DIRECT_FILE_TOOLS, verifiedRenderGifMcpContent, attachRenderGifMcpContent, renderArtifactHashEntry, renderReviewArtifactCandidates, renderReviewArtifactKey, publishRenderReviewArtifactToDrive, materializeRenderReviewArtifactsOperation, driveOperationRegistry, uploadVerifiedArtifact, createHomeCenterMcpApp, createHomeCenterMcpServer, createDriveFolderOperation, createGoogleDocOperation, appendGoogleDocOperation, publishContextSnapshotOperation, synthesizeCartesiaAudioArtifactOperation, cartesiaVoicesOperation, createSheetOperation, updateSheetValuesOperation, importXlsxWorkbookOperation, readDriveBinaryChunkOperation, compareAudioIngestFileIds, ingestDriveAudioOperation, finalizeDriveAudioIngestBatchOperation, driveOperationRunOperation, driveWorkflowRunOperation, simulationOperationRunOperation, simulationOperationRegistry, droobiedooContextOperationEntries, loadDroobiedooContextIndex, searchDroobiedooContextIndex, runDroobiedooContextOperation, normalizeRecoveryOperation, summarizeRecoveryOperations, loadMcpAccessContext, armoryReceiptOperation, armoryRecountOperation, armoryCasingOperation, renderAudioOperation, inspectAudioArtifactsOperation, materializeHomeCenterRenderDriveRefs, materializeHomeCenterRenderSources, stageHomeCenterGitHubRenderInput, normalizeRenderGitHubSource, githubAdminOperationEntries, githubAdminOperationRunOperation, createGitHubAppJwt};
+module.exports = {linkArtifactReviewSuccessorOperation, recordArtifactReviewOperation, materializeReceiptArtifactsOperation, artifactTransportPreflightOperation, homeCenterReleaseIdentity, artifactTransportStatusOperation, homeCenterHealthPayload, homeCenterReadinessPayload, homeCenterCapabilitiesPayload, operationRegistrySummary, CREDIT_GATED_EMAILS, requireCreditGatedEmail, GITHUB_ADMIN_ALLOWED_EMAILS, requireGitHubAdminUser, HOME_CENTER_MCP_SERVER_VERSION, HOME_CENTER_CONNECTOR_SCHEMA_REVISION, HOME_CENTER_REGISTRY_VERSION, HOME_CENTER_DIRECT_FILE_TOOLS, driveOperationRegistry, uploadVerifiedArtifact, createHomeCenterMcpApp, createHomeCenterMcpServer, createDriveFolderOperation, createGoogleDocOperation, appendGoogleDocOperation, publishContextSnapshotOperation, synthesizeCartesiaAudioArtifactOperation, cartesiaVoicesOperation, createSheetOperation, updateSheetValuesOperation, importXlsxWorkbookOperation, readDriveBinaryChunkOperation, compareAudioIngestFileIds, ingestDriveAudioOperation, finalizeDriveAudioIngestBatchOperation, driveOperationRunOperation, driveWorkflowRunOperation, simulationOperationRunOperation, simulationOperationRegistry, droobiedooContextOperationEntries, loadDroobiedooContextIndex, searchDroobiedooContextIndex, runDroobiedooContextOperation, normalizeRecoveryOperation, summarizeRecoveryOperations, loadMcpAccessContext, armoryReceiptOperation, armoryRecountOperation, armoryCasingOperation, renderAudioOperation, inspectAudioArtifactsOperation, githubAdminOperationEntries, githubAdminOperationRunOperation, createGitHubAppJwt};

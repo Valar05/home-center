@@ -4,14 +4,18 @@ import fs from 'node:fs';
 import fsp from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
-import {spawn} from 'node:child_process';
+import {EventEmitter} from 'node:events';
+import {PassThrough} from 'node:stream';
 import {createRequire} from 'node:module';
 import {fileURLToPath} from 'node:url';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const require = createRequire(import.meta.url);
+const require = createRequire(path.join(root, 'functions/package.json'));
+const {Accessor, Document, NodeIO} = await import(new URL('../functions/node_modules/@gltf-transform/core/dist/index.js', import.meta.url));
+const {PNG} = require('pngjs');
 const {
-  FOUNDRY_RECIPE_VERSION,
+  FOUNDRY_RUN_VERSION,
+  FOUNDRY_SCRIPT_VERSION,
   foundryOperationEntries,
   queueFoundryRun,
   foundryStatus,
@@ -21,28 +25,30 @@ const {
   runFoundryOperation,
 } = require('../functions/foundry_capability.js');
 const {driveOperationRegistry, createHomeCenterMcpServer} = require('../functions/home_center_mcp.js');
+const {executeFoundryScript} = await import('../functions/foundry_script_runtime.mjs');
 const {runFoundryKernel, inspectGlbBytes} = await import('../functions/foundry_kernel.mjs');
+const {assertReviewImageNonBlank, buildContactSheet, REVIEW_WIDTH, REVIEW_HEIGHT} = await import('../functions/foundry_review_renderer.mjs');
 
 function stable(value) {
   if (Array.isArray(value)) return value.map(stable);
   if (value && typeof value === 'object') return Object.fromEntries(Object.keys(value).sort().map((key) => [key, stable(value[key])]));
   return value;
 }
-function hash(value) { return crypto.createHash('sha256').update(Buffer.isBuffer(value) ? value : Buffer.from(JSON.stringify(stable(value)))).digest('hex'); }
+function digest(value) { return crypto.createHash('sha256').update(Buffer.isBuffer(value) ? value : Buffer.from(JSON.stringify(stable(value)))).digest('hex'); }
 
 class Snapshot {
-  constructor(value) { this.value = value; this.exists = value !== undefined; }
+  constructor(ref, value) { this.ref = ref; this.value = value; this.exists = value !== undefined; }
   data() { return structuredClone(this.value); }
 }
 class Ref {
   constructor(store, key) { this.store = store; this.key = key; }
-  async get() { return new Snapshot(this.store.get(this.key)); }
+  async get() { return new Snapshot(this, this.store.get(this.key)); }
   async create(value) { if (this.store.has(this.key)) { const error = new Error('already exists'); error.code = 6; throw error; } this.store.set(this.key, structuredClone(value)); }
-  async set(value, options = {}) { const next = options.merge ? {...(this.store.get(this.key) || {}), ...structuredClone(value)} : structuredClone(value); this.store.set(this.key, next); }
+  async set(value, options = {}) { this.store.set(this.key, options.merge ? {...(this.store.get(this.key) || {}), ...structuredClone(value)} : structuredClone(value)); }
 }
 class Firestore {
   constructor() { this.store = new Map(); this.transactionTail = Promise.resolve(); }
-  collection(name) { return {doc: (id) => new Ref(this.store, `${name}/${id}`)}; }
+  collection(name) { return {doc: (id) => new Ref(this.store, name + '/' + id)}; }
   async runTransaction(fn) {
     const run = this.transactionTail.then(() => fn({get: (ref) => ref.get(), create: (ref, value) => ref.create(value), set: (ref, value, options) => ref.set(value, options)}));
     this.transactionTail = run.catch(() => {});
@@ -58,167 +64,216 @@ class FakeStorage {
       name,
       file(objectName) {
         return {
-          async download(options = {}) { const bytes = self.objects.get(`${name}/${objectName}`); if (!bytes) throw new Error(`missing object ${name}/${objectName}`); if (options.destination) { await fsp.writeFile(options.destination, bytes); return; } return [Buffer.from(bytes)]; },
-          createReadStream() { const {Readable} = require('node:stream'); const bytes = self.objects.get(`${name}/${objectName}`); return Readable.from(bytes ? [bytes] : []); },
+          async download(options = {}) {
+            const bytes = self.objects.get(name + '/' + objectName);
+            if (!bytes) throw new Error('missing object ' + name + '/' + objectName);
+            if (options.destination) { await fsp.writeFile(options.destination, bytes); return; }
+            return [Buffer.from(bytes)];
+          },
+          createReadStream() { const {Readable} = require('node:stream'); return Readable.from([self.objects.get(name + '/' + objectName) || Buffer.alloc(0)]); },
         };
       },
-      async upload(localPath, options) { const key = `${name}/${options.destination}`; if (self.objects.has(key)) { const error = new Error('conditionNotMet'); error.code = 412; throw error; } self.objects.set(key, await fsp.readFile(localPath)); self.uploadCalls += 1; },
+      async upload(localPath, options) {
+        const key = name + '/' + options.destination;
+        if (self.objects.has(key)) { const error = new Error('conditionNotMet'); error.code = 412; throw error; }
+        self.objects.set(key, await fsp.readFile(localPath));
+        self.uploadCalls += 1;
+      },
     };
   }
 }
 
-const recipes = {
-  mechanical: {version: FOUNDRY_RECIPE_VERSION, domain: 'hard_surface', commands: [{op: 'mechanical_specimen'}]},
-  setup: {version: FOUNDRY_RECIPE_VERSION, domain: 'character_setup', commands: [{op: 'add_weapon_bone'}, {op: 'attach_rigid_prop'}]},
-  animation: {version: FOUNDRY_RECIPE_VERSION, domain: 'animation', commands: [{op: 'trim_clip'}, {op: 'retime_clip'}, {op: 'set_rotation_key'}]},
-};
-const fixture = {kind: 'foundry_fixture', fixtureId: 'foundry-character-v1'};
+async function characterFixture() {
+  const doc = new Document();
+  const buffer = doc.createBuffer('fixture-buffer');
+  const scene = doc.createScene('Fixture Scene');
+  const position = doc.createAccessor('body-position', buffer).setType(Accessor.Type.VEC3).setArray(new Float32Array([-0.5,0,0, 0.5,0,0, 0,1,0]));
+  const normal = doc.createAccessor('body-normal', buffer).setType(Accessor.Type.VEC3).setArray(new Float32Array([0,0,1, 0,0,1, 0,0,1]));
+  const joints = doc.createAccessor('body-joints', buffer).setType(Accessor.Type.VEC4).setArray(new Uint16Array([0,0,0,0, 0,0,0,0, 0,0,0,0]));
+  const weights = doc.createAccessor('body-weights', buffer).setType(Accessor.Type.VEC4).setArray(new Float32Array([1,0,0,0, 1,0,0,0, 1,0,0,0]));
+  const indices = doc.createAccessor('body-indices', buffer).setType(Accessor.Type.SCALAR).setArray(new Uint16Array([0,1,2]));
+  const primitive = doc.createPrimitive().setAttribute('POSITION', position).setAttribute('NORMAL', normal).setAttribute('JOINTS_0', joints).setAttribute('WEIGHTS_0', weights).setIndices(indices);
+  const body = doc.createNode('body').setMesh(doc.createMesh('body-mesh').addPrimitive(primitive));
+  const rootBone = doc.createNode('root');
+  const hand = doc.createNode('hand_r').setTranslation([0.4,0.8,0]);
+  rootBone.addChild(hand);
+  const ibm = doc.createAccessor('inverse-bind', buffer).setType(Accessor.Type.MAT4).setArray(new Float32Array([1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1, 1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1]));
+  const skin = doc.createSkin('fixture-skin').addJoint(rootBone).addJoint(hand).setSkeleton(rootBone).setInverseBindMatrices(ibm);
+  body.setSkin(skin);
+  const weaponPrimitive = doc.createPrimitive().setAttribute('POSITION', doc.createAccessor('weapon-position', buffer).setType(Accessor.Type.VEC3).setArray(new Float32Array([0,0,0, 0.3,0,0, 0,0.08,0]))).setIndices(doc.createAccessor('weapon-indices', buffer).setType(Accessor.Type.SCALAR).setArray(new Uint16Array([0,1,2])));
+  const weapon = doc.createNode('weapon').setMesh(doc.createMesh('weapon-mesh').addPrimitive(weaponPrimitive));
+  scene.addChild(rootBone).addChild(body).addChild(weapon);
+  const times = doc.createAccessor('idle-times', buffer).setType(Accessor.Type.SCALAR).setArray(new Float32Array([0,1,2]));
+  const rotations = doc.createAccessor('idle-rotations', buffer).setType(Accessor.Type.VEC4).setArray(new Float32Array([0,0,0,1, 0,0.258819,0,0.965926, 0,0,0,1]));
+  const sampler = doc.createAnimationSampler('idle-sampler').setInput(times).setOutput(rotations).setInterpolation('LINEAR');
+  const channel = doc.createAnimationChannel('idle-channel').setSampler(sampler).setTargetNode(hand).setTargetPath('rotation');
+  doc.createAnimation('idle').addSampler(sampler).addChannel(channel);
+  return Buffer.from(await new NodeIO().writeBinary(doc));
+}
 
-// Complete authenticated production tools/list representation is immutable.
+function reviewPng(blank = false) {
+  const png = new PNG({width: REVIEW_WIDTH, height: REVIEW_HEIGHT});
+  for (let y = 0; y < REVIEW_HEIGHT; y++) for (let x = 0; x < REVIEW_WIDTH; x++) {
+    const offset = (y * REVIEW_WIDTH + x) * 4;
+    const model = !blank && x > 130 && x < 510 && y > 110 && y < 540;
+    png.data[offset] = model ? 80 + (x % 120) : 23;
+    png.data[offset + 1] = model ? 130 + (y % 90) : 26;
+    png.data[offset + 2] = model ? 95 : 24;
+    png.data[offset + 3] = 255;
+  }
+  return PNG.sync.write(png);
+}
+
+function fakeWorkerSpawn(glbBytes) {
+  return (_command, args) => {
+    const child = new EventEmitter();
+    child.pid = 999999;
+    child.stdout = new PassThrough();
+    child.stderr = new PassThrough();
+    child.kill = () => {};
+    const outputDir = args.at(-1);
+    setTimeout(async () => {
+      try {
+        await fsp.mkdir(outputDir, {recursive: true});
+        const png = reviewPng(false);
+        const artifacts = {
+          'foundry-result.glb': glbBytes,
+          'fixed-front.png': png,
+          'fixed-back.png': png,
+          'fixed-left.png': png,
+          'fixed-right.png': png,
+          'fixed-top.png': png,
+          'fixed-perspective.png': png,
+          'contact-sheet.png': buildContactSheet({front:png,back:png,left:png,right:png,top:png,perspective:png}, ['front','back','left','right','top','perspective']),
+          'validation-report.json': Buffer.from(JSON.stringify({kernelVersion:'test',runVersion:FOUNDRY_RUN_VERSION,domain:'hard_surface',triangleCount:1,componentCount:1,validation:{}})),
+          'preservation-evidence.json': Buffer.from('{}'),
+          'change-evidence.json': Buffer.from('{}'),
+          'foundry-manifest.json': Buffer.from(JSON.stringify({schemaVersion:'home-center.foundry-result.v2',humanAcceptance:'unreviewed'})),
+        };
+        await Promise.all(Object.entries(artifacts).map(([name, bytes]) => fsp.writeFile(path.join(outputDir, name), bytes)));
+        child.stdout.end('{"ok":true}\n'); child.stderr.end(); child.emit('close', 0, null);
+      } catch (error) { child.stderr.end(String(error)); child.stdout.end(); child.emit('close', 1, null); }
+    }, 10);
+    return child;
+  };
+}
+
 process.env.HOME_CENTER_MCP_EXTENDED_TOOLS = 'true';
 const server = createHomeCenterMcpServer({google: {}, admin: {firestore() { return {}; }}, googleClientId: () => 'configured', googleClientSecret: () => 'configured'});
-const listed = await server.server._requestHandlers.get('tools/list')({method: 'tools/list', params: {}}, {});
-const currentTools = stable([...(listed.tools || [])].sort((a, b) => a.name.localeCompare(b.name)));
-const baselineTools = JSON.parse(fs.readFileSync(path.join(root, 'contracts/home-center-top-level-mcp.v1.json'), 'utf8'));
-assert.deepEqual(currentTools, baselineTools, 'complete installed top-level MCP contract changed');
-assert.equal(hash(currentTools), '64fe900eeaaf2928c2b6114829ee758ff73cc05700373085a1ae63b6484d05f1');
-assert.equal(currentTools.length, 58);
-assert.deepEqual(currentTools.filter((tool) => /foundry/i.test(tool.name)), [], 'Foundry must never become a top-level MCP tool');
+const listed = await server.server._requestHandlers.get('tools/list')({method:'tools/list',params:{}},{});
+const currentTools = stable([...(listed.tools || [])].sort((a,b) => a.name.localeCompare(b.name)));
+const committedTools = JSON.parse(fs.readFileSync(path.join(root, 'contracts/home-center-top-level-mcp.v1.json'), 'utf8'));
+assert.deepEqual(currentTools, committedTools, 'committed top-level MCP contract drifted');
+assert.equal(currentTools.some((tool) => /foundry/i.test(tool.name)), false, 'Foundry leaked into top-level MCP');
+assert.equal(currentTools.some((tool) => tool.name === 'render_blender_glb'), false, 'retired renderer remains top-level');
 delete process.env.HOME_CENTER_MCP_EXTENDED_TOOLS;
 
 const dynamic = Object.keys(foundryOperationEntries()).sort();
-assert.deepEqual(dynamic, ['foundry.asset.inspect', 'foundry.asset.promote', 'foundry.asset.run', 'foundry.asset.status']);
-for (const operation of dynamic) assert.ok(driveOperationRegistry().operations[operation], `${operation} is not dynamically discoverable`);
+assert.deepEqual(dynamic, ['foundry.asset.inspect','foundry.asset.promote','foundry.asset.run','foundry.asset.status']);
+for (const operation of dynamic) assert.ok(driveOperationRegistry().operations[operation], operation + ' is not dynamically discoverable');
 assert.equal(driveOperationRegistry().invocationTool, 'drive_operation');
-await assert.rejects(() => runFoundryOperation({operation: 'foundry.asset.unknown', admin: fakeAdmin(), user: {email: 'owner@example.com'}, args: {}}), (error) => error.code === 'foundry.operation.unsupported');
 
-await assert.rejects(() => runFoundryKernel({recipe: {...recipes.mechanical, version: 'v0'}}), (error) => error.code === 'foundry.recipe.unsupported_version');
-await assert.rejects(() => runFoundryKernel({recipe: {...recipes.mechanical, commands: [{op: 'arbitrary_boolean'}]}}), (error) => error.code === 'foundry.recipe.unsupported_operation');
+const hardScript = "foundry.material.create('steel',{baseColor:[0.22,0.28,0.25,1],metallic:0.7,roughness:0.38}); foundry.scene.createProfileExtrusion('body',{profile:[[-1,-0.5],[1,-0.5],[1,0.5],[-1,0.5]],depth:0.6,material:'steel'}); foundry.scene.createCylinder('wheel',{radius:0.32,depth:0.22,segments:20,translation:[-0.65,-0.42,0],material:'steel'}); foundry.scene.array('wheel',{count:3,offset:[0.65,0,0],namePrefix:'wheel'}); foundry.scene.mirror('wheel','z',{name:'wheel-mirror'}); foundry.mesh.recalculateNormals('body'); foundry.review.fixedViews(['front','back','left','right','top','perspective']);";
+const hardPlanA = await executeFoundryScript({version:FOUNDRY_SCRIPT_VERSION,text:hardScript,parameters:{},seed:77});
+const hardPlanB = await executeFoundryScript({version:FOUNDRY_SCRIPT_VERSION,text:hardScript,parameters:{},seed:77});
+assert.deepEqual(hardPlanA, hardPlanB);
+assert.equal(hardPlanA.operationCount, 7);
+await assert.rejects(() => executeFoundryScript({version:'foundry-js.v0',text:hardScript}), (error) => error.code === 'foundry.script.unsupported_version');
+await assert.rejects(() => executeFoundryScript({version:FOUNDRY_SCRIPT_VERSION,text:'fetch("https://example.com")'}), (error) => error.code === 'foundry.script.failed');
+await assert.rejects(() => runFoundryKernel({plan:{operations:[{namespace:'mesh',operation:'arbitrary',args:[]}],notes:[]}}), (error) => error.code === 'foundry.script.unsupported_operation');
+const hardA = await runFoundryKernel({plan:hardPlanA,domain:'hard_surface',reviewPreset:'fixed-six-view'});
+const hardB = await runFoundryKernel({plan:hardPlanB,domain:'hard_surface',reviewPreset:'fixed-six-view'});
+assert.equal(digest(hardA.glb), digest(hardB.glb), 'procedural GLB must be deterministic');
+assert.ok(hardA.report.triangleCount > 0 && hardA.report.componentCount >= 5);
+assert.ok(hardA.report.validation.manifoldClosedComponents >= 1);
 
-const mechanicalA = await runFoundryKernel({recipe: recipes.mechanical, parameters: {segments: 20}});
-const mechanicalB = await runFoundryKernel({recipe: recipes.mechanical, parameters: {segments: 20}});
-assert.equal(hash(mechanicalA.glb), hash(mechanicalB.glb), 'mechanical GLB is not deterministic');
-assert.equal(hash(mechanicalA.contactSheet), hash(mechanicalB.contactSheet), 'mechanical review evidence is not deterministic');
-assert.ok(mechanicalA.report.triangleCount > 0 && mechanicalA.report.componentCount >= 4);
-assert.ok(mechanicalA.report.validation.manifoldClosedComponents >= 1);
+const fixtureBytes = await characterFixture();
+const before = await inspectGlbBytes(fixtureBytes);
+const setupPlan = await executeFoundryScript({version:FOUNDRY_SCRIPT_VERSION,text:"foundry.rig.addBone('hand_r','weapon_socket_r',{translation:[0.18,0,0]}); foundry.rig.attachRigid('weapon','weapon_socket_r',{translation:[0.04,0,0]}); foundry.validation.assert('node_exists','weapon_socket_r');",seed:1});
+const setup = await runFoundryKernel({sourceBytes:fixtureBytes,plan:setupPlan,domain:'character_setup'});
+const setupInspect = await inspectGlbBytes(setup.glb);
+assert.equal(setup.evidence.preservation.beforeHashes.meshes, setup.evidence.preservation.afterHashes.meshes, 'character mesh arrays changed');
+assert.equal(setup.evidence.preservation.beforeHashes.animations, setup.evidence.preservation.afterHashes.animations, 'unrelated clips changed');
+assert.ok(setupInspect.report.skins[0].joints.includes('weapon_socket_r'));
+assert.ok(setupInspect.report.hierarchy.some((node) => node.name === 'weapon' && node.parent === 'weapon_socket_r' && node.skin === null));
+assert.equal(before.preservation.hashes.meshes, setup.evidence.preservation.beforeHashes.meshes);
 
-const setup = await runFoundryKernel({recipe: recipes.setup, fixtureId: 'foundry-character-v1'});
-assert.equal(setup.report.preservation.meshHashEqual, true);
-assert.equal(setup.report.preservation.animationHashEqual, true);
-assert.equal(setup.report.preservation.originalJointOrderPreserved, true);
-assert.equal(setup.report.preservation.originalInverseBindPrefixPreserved, true);
-assert.equal(setup.report.preservation.addedJoint, 'weapon_socket_r');
-assert.equal(setup.report.preservation.rigidPropSkinned, false);
-const setupRoundTrip = await inspectGlbBytes(setup.glb);
-assert.ok(setupRoundTrip.report.skins[0].joints.includes('weapon_socket_r'));
-assert.ok(setupRoundTrip.report.hierarchy.some((node) => node.name === 'fixture_weapon' && node.parent === 'weapon_socket_r'));
+const animationPlan = await executeFoundryScript({version:FOUNDRY_SCRIPT_VERSION,text:"foundry.animation.trim('idle',{start:0.25,end:1.75,duration:1.5,outputClip:'idle_foundry'}); foundry.animation.retime('idle_foundry',1.2); foundry.animation.setKey('idle_foundry','hand_r','rotation',0.6,[0,0.382683,0,0.92388]); foundry.animation.loop('idle_foundry');",seed:2});
+const animation = await runFoundryKernel({sourceBytes:fixtureBytes,plan:animationPlan,domain:'animation'});
+const animationInspect = await inspectGlbBytes(animation.glb);
+assert.equal(animation.evidence.preservation.beforeHashes.meshes, animation.evidence.preservation.afterHashes.meshes, 'animation mutated geometry');
+assert.equal(animation.evidence.preservation.beforeHashes.skins, animation.evidence.preservation.afterHashes.skins, 'animation mutated skin');
+assert.equal(animationInspect.report.animations[0].name, 'idle_foundry');
+assert.ok(Math.abs(animationInspect.report.animations[0].duration - 1.2) < 0.0001);
 
-const animation = await runFoundryKernel({recipe: recipes.animation, fixtureId: 'foundry-character-v1'});
-assert.equal(animation.report.preservation.geometryHashEqual, true);
-assert.equal(animation.report.preservation.skinHashEqual, true);
-assert.equal(animation.report.preservation.outputClip, 'fixture_idle_foundry');
-assert.ok(animation.skeletalOverlay.length > 100);
-const animationRoundTrip = await inspectGlbBytes(animation.glb);
-assert.equal(animationRoundTrip.report.animations[0].name, 'fixture_idle_foundry');
-assert.ok(Math.abs(animationRoundTrip.report.animations[0].duration - 1.2) < 0.0001, 'animation was not retimed to the requested duration');
+assert.throws(() => assertReviewImageNonBlank(reviewPng(true), 'blank.png'), (error) => error.code === 'foundry.review.blank_canvas');
+assertReviewImageNonBlank(reviewPng(false), 'visible.png');
 
 const admin = fakeAdmin();
 const storage = new FakeStorage();
-const enqueued = [];
-const enqueue = async (payload) => { enqueued.push(structuredClone(payload)); };
-const user = {email: 'owner@example.com'};
-const baseArgs = {recipe: recipes.mechanical, parameters: {segments: 16}, reviewPreset: 'fixed-four-view', idempotencyKey: 'mechanical-1', namespace: 'specimen-a'};
-const accepted = await runFoundryOperation({operation: 'foundry.asset.run', admin, storage, user, args: baseArgs, enqueue});
-assert.equal(accepted.accepted, true);
-assert.equal(accepted.attached, false);
-assert.equal(enqueued.length, 1);
-const attached = await queueFoundryRun({admin, storage, user, args: baseArgs, enqueue});
-assert.equal(attached.attached, true);
-assert.equal(attached.jobId, accepted.jobId);
-assert.equal(enqueued.length, 1, 'idempotent replay enqueued duplicate work');
-await assert.rejects(() => queueFoundryRun({admin, storage, user, args: {...baseArgs, parameters: {segments: 18}}, enqueue}), (error) => error.code === 'foundry.idempotency_conflict');
+const owner = 'owner@example.com';
+const sourceSha = digest(fixtureBytes), sourceObject = 'canonical/fixture-character.glb', artifactId = 'fixture-character';
+storage.objects.set('home-center-generated/' + sourceObject, fixtureBytes);
+storage.objects.set('home-center-generated/indexes/artifacts/v1/by-id/' + owner + '/' + artifactId + '.json', Buffer.from(JSON.stringify({source:{name:'fixture-character.glb',mimeType:'model/gltf-binary'},destination:{bucket:'home-center-generated',objectName:sourceObject,byteCount:fixtureBytes.length,sha256:sourceSha}})));
+const enqueued = [], enqueue = async (payload) => enqueued.push(structuredClone(payload));
+const user = {email:owner};
+const baseArgs = {contractVersion:FOUNDRY_RUN_VERSION,domain:'hard_surface',script:{kind:'inline',version:FOUNDRY_SCRIPT_VERSION,filename:'specimen.js',text:hardScript},parameters:{},reviewPreset:'fixed-six-view',idempotencyKey:'mechanical-1',namespace:'specimen-a'};
+const accepted = await queueFoundryRun({admin,storage,user,args:baseArgs,enqueue});
+assert.equal(accepted.attached,false); assert.equal(enqueued.length,1);
+const attached = await queueFoundryRun({admin,storage,user,args:baseArgs,enqueue});
+assert.equal(attached.attached,true); assert.equal(attached.jobId,accepted.jobId); assert.equal(enqueued.length,1);
+await assert.rejects(() => queueFoundryRun({admin,storage,user,args:{...baseArgs,parameters:{changed:true}},enqueue}), (error) => error.code === 'foundry.idempotency_conflict');
+await assert.rejects(() => queueFoundryRun({admin,storage,user,args:{...baseArgs,idempotencyKey:'legacy',recipe:{version:'v1'}},enqueue}), (error) => error.code === 'foundry.contract.retired');
 
-const inspectAccepted = await runFoundryOperation({operation: 'foundry.asset.inspect', admin, storage, user, args: {source: fixture, idempotencyKey: 'inspect-fixture', namespace: 'inspect-fixture'}, enqueue});
-assert.equal(inspectAccepted.accepted, true);
-assert.equal(enqueued.length, 2);
+const inspectAccepted = await runFoundryOperation({operation:'foundry.asset.inspect',admin,storage,user,args:{source:{kind:'home_center_artifact',artifactId,sha256:sourceSha,byteLength:fixtureBytes.length},idempotencyKey:'inspect-1',namespace:'inspect-a'},enqueue});
+assert.equal(inspectAccepted.accepted,true); assert.equal(enqueued.length,2);
+const acceptedB = await queueFoundryRun({admin,storage,user,args:{...baseArgs,idempotencyKey:'mechanical-2',namespace:'specimen-b'},enqueue});
+assert.notEqual(acceptedB.jobId,accepted.jobId); assert.notEqual(acceptedB.inputHash,accepted.inputHash);
 
-const acceptedB = await queueFoundryRun({admin, storage, user, args: {...baseArgs, idempotencyKey: 'mechanical-2', namespace: 'specimen-b'}, enqueue});
-assert.notEqual(acceptedB.jobId, accepted.jobId);
-assert.notEqual(acceptedB.inputHash, accepted.inputHash);
-assert.equal(enqueued.length, 3);
+const workerSpawn = fakeWorkerSpawn(hardA.glb);
+const completedA = await executeFoundryJob(admin,enqueued[0],{storage,spawnImpl:workerSpawn});
+const uploadsAfterA = storage.uploadCalls;
+const replayA = await executeFoundryJob(admin,enqueued[0],{storage,spawnImpl:workerSpawn});
+assert.equal(replayA.result.resultHash,completedA.result.resultHash); assert.equal(storage.uploadCalls,uploadsAfterA,'exact replay uploaded bytes');
+const completedB = await executeFoundryJob(admin,enqueued[2],{storage,spawnImpl:workerSpawn});
+assert.notEqual(completedA.result.cacheKey,completedB.result.cacheKey);
+assert.ok(completedA.result.artifacts.every((item) => item.storageRef.includes('/specimen-a/')));
+assert.ok(completedB.result.artifacts.every((item) => item.storageRef.includes('/specimen-b/')));
+assert.ok(completedA.result.artifacts.every((item) => !item.storageRef.toLowerCase().includes('/latest')));
+assert.equal(completedA.result.review.transportState,'review_ready');
+assert.equal(completedA.result.review.humanAcceptance,'unreviewed');
+assert.match(completedA.result.review.viewerUrl,/^https:\/\/valar05\.github\.io\/model-viewer-lab\/model-viewer\.html\?/);
+assert.ok(Buffer.byteLength(JSON.stringify(completedA)) < 64*1024);
 
-const completedA = await executeFoundryJob(admin, enqueued[0], {storage});
-const uploadCountAfterA = storage.uploadCalls;
-const replayA = await executeFoundryJob(admin, enqueued[0], {storage});
-assert.equal(replayA.result.resultHash, completedA.result.resultHash);
-assert.equal(storage.uploadCalls, uploadCountAfterA, 'completed replay duplicated immutable uploads');
-const completedB = await executeFoundryJob(admin, enqueued[2], {storage});
-assert.notEqual(completedA.result.cacheKey, completedB.result.cacheKey);
-assert.ok(completedA.result.artifacts.every((artifact) => artifact.storageRef.includes('/specimen-a/')));
-assert.ok(completedB.result.artifacts.every((artifact) => artifact.storageRef.includes('/specimen-b/')));
-assert.ok(completedA.result.artifacts.every((artifact) => !artifact.storageRef.toLowerCase().includes('/latest')));
-assert.ok(Buffer.byteLength(JSON.stringify(completedA)) < 64 * 1024, 'Foundry receipt is unbounded');
+const concurrent = await queueFoundryRun({admin,storage,user,args:{...baseArgs,idempotencyKey:'concurrent',namespace:'specimen-concurrent'},enqueue});
+const payload = enqueued.at(-1), beforeConcurrent = storage.uploadCalls;
+const concurrentResults = await Promise.all([executeFoundryJob(admin,payload,{storage,spawnImpl:workerSpawn}),executeFoundryJob(admin,payload,{storage,spawnImpl:workerSpawn})]);
+assert.ok(concurrentResults.some((item) => item.state === 'completed'));
+assert.equal(storage.uploadCalls - beforeConcurrent, 14, 'concurrent attachment duplicated output or logs');
+assert.equal((await foundryStatus({admin,user,args:{jobId:concurrent.jobId}})).state,'completed');
 
-const leaseAccepted = await queueFoundryRun({admin, storage, user, args: {...baseArgs, idempotencyKey: 'mechanical-lease', namespace: 'specimen-lease'}, enqueue});
-const leasePayload = enqueued.at(-1);
-const uploadsBeforeLease = storage.uploadCalls;
-const leaseResults = await Promise.all([executeFoundryJob(admin, leasePayload, {storage}), executeFoundryJob(admin, leasePayload, {storage})]);
-assert.ok(leaseResults.some((receipt) => receipt.state === 'completed'));
-assert.equal(storage.uploadCalls - uploadsBeforeLease, 7, 'active duplicate delivery executed or uploaded twice');
-assert.equal((await foundryStatus({admin, user, args: {jobId: leaseAccepted.jobId}})).state, 'completed');
-assert.ok([...storage.objects.keys()].some((key) => key.includes('/logs/stdout.log')), 'bounded stdout log was not persisted');
-assert.ok([...storage.objects.keys()].some((key) => key.includes('/logs/stderr.log')), 'bounded stderr log was not persisted');
+const timeoutAccepted = await queueFoundryRun({admin,storage,user,args:{...baseArgs,idempotencyKey:'timeout',namespace:'specimen-timeout'},enqueue});
+await assert.rejects(() => executeFoundryJob(admin,enqueued.at(-1),{storage,timeoutMs:50,spawnImpl:(_command,_args) => {const child=new EventEmitter();child.pid=999998;child.stdout=new PassThrough();child.stderr=new PassThrough();child.kill=()=>{child.stdout.end();child.stderr.end();child.emit('close',null,'SIGKILL');};return child;}}), (error) => error.code === 'foundry.worker.timeout');
+assert.equal((await foundryStatus({admin,user,args:{jobId:timeoutAccepted.jobId}})).execution.timedOut,true);
+await assert.rejects(() => foundryStatus({admin,user:{email:'other@example.com'},args:{jobId:accepted.jobId}}), (error) => error.code === 'foundry.job_forbidden');
 
-const timeoutAccepted = await queueFoundryRun({admin, storage, user, args: {...baseArgs, idempotencyKey: 'mechanical-timeout', namespace: 'specimen-timeout'}, enqueue});
-const timeoutPayload = enqueued.at(-1);
-await assert.rejects(() => executeFoundryJob(admin, timeoutPayload, {storage, timeoutMs: 100, spawnImpl: (_command, _args, options) => spawn(process.execPath, ['-e', 'setInterval(() => {}, 1000)'], options)}), (error) => error.code === 'foundry.worker.timeout');
-const timeoutStatus = await foundryStatus({admin, user, args: {jobId: timeoutAccepted.jobId}});
-assert.equal(timeoutStatus.state, 'failed');
-assert.equal(timeoutStatus.execution.timedOut, true);
-assert.ok([...storage.objects.keys()].some((key) => key.includes('/specimen-timeout/') && key.includes('/attempt-0/logs/stdout.log')), 'failed worker logs were not persisted');
+admin.db.store.set('artifactReviewRecords/review-accepted',{ownerEmail:owner,verdict:'accepted',result:{promotionAllowed:true,producer:{receiptId:accepted.jobId}}});
+const promoted = await promoteFoundryResult({admin,user,args:{jobId:accepted.jobId,resultHash:completedA.result.resultHash,reviewRequestId:'review-accepted',requestId:'promote-1'}});
+assert.equal(promoted.humanAcceptance,'accepted');
+const promotedReplay = await promoteFoundryResult({admin,user,args:{jobId:accepted.jobId,resultHash:completedA.result.resultHash,reviewRequestId:'review-accepted',requestId:'promote-1'}});
+assert.equal(promotedReplay.promotionId,promoted.promotionId);
+await assert.rejects(() => promoteFoundryResult({admin,user,args:{jobId:accepted.jobId,resultHash:completedA.result.resultHash,reviewRequestId:'missing'} }), (error) => error.code === 'foundry.promotion.review_not_found');
 
-const status = await runFoundryOperation({operation: 'foundry.asset.status', admin, user, args: {jobId: accepted.jobId}});
-assert.equal(status.state, 'completed');
-await assert.rejects(() => foundryStatus({admin, user: {email: 'other@example.com'}, args: {jobId: accepted.jobId}}), (error) => error.code === 'foundry.job_forbidden');
-const promotion = await runFoundryOperation({operation: 'foundry.asset.promote', admin, user, args: {approved: true, jobId: accepted.jobId, resultHash: completedA.result.resultHash, requestId: 'promote-1'}});
-const promotionReplay = await promoteFoundryResult({admin, user, args: {approved: true, jobId: accepted.jobId, resultHash: completedA.result.resultHash, requestId: 'promote-1'}});
-assert.deepEqual(promotionReplay, promotion);
-assert.match(promotion.viewerUrl, /^https:\/\/valar05\.github\.io\/model-viewer-lab\/model-viewer\.html\?/);
-assert.ok(promotion.links.some((link) => link.kind === 'glb'));
-assert.ok(promotion.links.every((link) => link.url.includes(promotion.promotionId)));
-await assert.rejects(() => promoteFoundryResult({admin, user, args: {approved: false, jobId: accepted.jobId, resultHash: completedA.result.resultHash}}), (error) => error.code === 'foundry.promotion.approval_required');
-
-const timeoutRoot = await fsp.mkdtemp(path.join(os.tmpdir(), 'foundry-timeout-test-'));
+const logRoot = await fsp.mkdtemp(path.join(os.tmpdir(),'foundry-log-'));
 try {
-  const timeoutResult = await runChildProcess({requestPath: path.join(timeoutRoot, 'request.json'), outputDir: timeoutRoot, stdoutPath: path.join(timeoutRoot, 'stdout.log'), stderrPath: path.join(timeoutRoot, 'stderr.log'), timeoutMs: 100, spawnImpl: (_command, _args, options) => spawn(process.execPath, ['-e', 'setInterval(() => {}, 1000)'], options)});
-  assert.equal(timeoutResult.timedOut, true);
-  assert.notEqual(timeoutResult.signal, null);
-} finally { await fsp.rm(timeoutRoot, {recursive: true, force: true}); }
+  const result = await runChildProcess({requestPath:path.join(logRoot,'request.json'),outputDir:logRoot,stdoutPath:path.join(logRoot,'stdout.log'),stderrPath:path.join(logRoot,'stderr.log'),timeoutMs:2000,spawnImpl:(_command,_args,options) => require('node:child_process').spawn(process.execPath,['-e',"process.stdout.write('x'.repeat(100000));process.stderr.write('y'.repeat(100000))"],options)});
+  assert.equal(result.code,0); assert.equal(result.stdout.truncated,true); assert.equal(result.stderr.truncated,true);
+} finally { await fsp.rm(logRoot,{recursive:true,force:true}); }
 
-const logRoot = await fsp.mkdtemp(path.join(os.tmpdir(), 'foundry-log-test-'));
-try {
-  const logResult = await runChildProcess({requestPath: path.join(logRoot, 'request.json'), outputDir: logRoot, stdoutPath: path.join(logRoot, 'stdout.log'), stderrPath: path.join(logRoot, 'stderr.log'), timeoutMs: 2000, spawnImpl: (_command, _args, options) => spawn(process.execPath, ['-e', `process.stdout.write('x'.repeat(100000)); process.stderr.write('y'.repeat(100000))`], options)});
-  assert.equal(logResult.code, 0);
-  assert.equal(logResult.stdout.truncated, true);
-  assert.equal(logResult.stderr.truncated, true);
-  assert.ok(logResult.stdout.bytes <= 64 * 1024 && logResult.stderr.bytes <= 64 * 1024);
-} finally { await fsp.rm(logRoot, {recursive: true, force: true}); }
-
-for (const file of ['functions/foundry_capability.js', 'functions/foundry_kernel.mjs', 'functions/foundry_worker_process.mjs']) {
-  const source = fs.readFileSync(path.join(root, file), 'utf8');
-  assert.doesNotMatch(source, /\bbpy\b|spawn\s*\([^\n]*blender|exec(?:File)?\s*\([^\n]*blender/i, `${file} contains a Blender invocation`);
-  assert.doesNotMatch(source, /[\/'"]latest[\/'"]|globalLatest|latestArtifact/i, `${file} contains mutable latest behavior`);
+for (const file of ['functions/foundry_capability.js','functions/foundry_kernel.mjs','functions/foundry_worker_process.mjs','functions/foundry_review_renderer.mjs','functions/foundry_script_runtime.mjs']) {
+  const source = fs.readFileSync(path.join(root,file),'utf8');
+  assert.doesNotMatch(source,/\bbpy\b|spawn\s*\([^\n]*blender|exec(?:File)?\s*\([^\n]*blender/i,file + ' invokes retired renderer');
+  assert.doesNotMatch(source,/[\/'"]latest[\/'"]|globalLatest|latestArtifact/i,file + ' uses mutable latest');
 }
 
-console.log(JSON.stringify({
-  ok: true,
-  baselineTopLevelMcpHash: hash(baselineTools),
-  finalTopLevelMcpHash: hash(currentTools),
-  dynamicOperations: dynamic,
-  deterministicMechanicalGlbSha256: hash(mechanicalA.glb),
-  characterGlbSha256: hash(setup.glb),
-  animationGlbSha256: hash(animation.glb),
-  isolatedJobs: [completedA.jobId, completedB.jobId],
-  immutableObjects: storage.objects.size,
-  duplicateUploadsOnReplay: 0,
-}, null, 2));
+console.log(JSON.stringify({ok:true,topLevelMcpHash:digest(currentTools),dynamicOperations:dynamic,mechanicalSha256:digest(hardA.glb),characterSha256:digest(setup.glb),animationSha256:digest(animation.glb),isolatedJobs:[completedA.jobId,completedB.jobId],duplicateUploadsOnReplay:0},null,2));
