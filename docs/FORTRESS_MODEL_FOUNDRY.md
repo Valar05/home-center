@@ -1,215 +1,82 @@
-# Fortress Model Foundry
+# Fortress Model Foundry V2
 
 ## Boundary
 
-Fortress Model Foundry is a dynamically discovered Home Center capability pack. It is not a top-level MCP tool, MCP server, connector, plugin, or viewer.
+Foundry is Home Center's asynchronous, sandboxed direct-GLB scripting engine. One `foundry.asset.run` submission loads a complete immutable GLB outside chat, executes one bounded `foundry-js.v1` program, applies a batch of scene, mesh, material, rig, animation, validation, and camera operations, renders fixed evidence, and exports one immutable successor.
 
-The installed MCP boundary remains the authenticated `tools/list` captured in `contracts/home-center-top-level-mcp.v1.json`. `tools/generate_home_center_public_manifest.mjs` now regenerates and checks both that immutable baseline and `contracts/home-center-public-tool-manifest.v1.json`, including descriptions, annotations, complete input schemas, file-bearing fields, and per-tool schema hashes. Its canonical SHA-256 is:
-
-`64fe900eeaaf2928c2b6114829ee758ff73cc05700373085a1ae63b6484d05f1`
-
-Foundry registers below the existing `drive_operation` tool in `driveOperationRegistry()`. The dynamically discoverable operation IDs are:
-
-- `foundry.asset.inspect`
-- `foundry.asset.run`
-- `foundry.asset.status`
-- `foundry.asset.promote`
-
-The top-level tool name, description, annotations, and input schema are unchanged. `tools/foundry_contract_test.mjs` compares the complete canonical tool array, not only the names, and rejects any top-level Foundry tool.
+Foundry is dynamically registered below `drive_operation`. It is not a top-level MCP tool, plugin, connector, generic organic generator, synchronous per-operation chat API, or alternate viewer.
 
 ## Existing Owners
 
-- Dynamic discovery and routing: `drive_operation` and `driveOperationRegistry()` in `functions/home_center_mcp.js`.
-- Artifact ingress and immutable identity: `functions/artifact_ingest_service.js`.
-- Asynchronous dispatch: Firebase Cloud Tasks and `foundryAssetWorker`.
-- Worker sizing and scaling: `media-forge-light` in `ops/worker_profiles.v1.json`.
-- Durable artifacts: the existing `HOME_CENTER_ARTIFACT_BUCKET` bucket.
-- Human review: the shared Model Viewer Lab at `https://valar05.github.io/model-viewer-lab/model-viewer.html`.
+- Discovery and dispatch: `driveOperationRegistry()` in `functions/home_center_mcp.js`.
+- Immutable source identity: `functions/artifact_ingest_service.js`.
+- Planning sandbox: `functions/foundry_script_runtime.mjs` using QuickJS.
+- Direct GLB kernel: `functions/foundry_kernel.mjs` using glTF Transform, Three.js math, meshoptimizer, and manifold-3d.
+- Visual evidence: `functions/foundry_review_renderer.mjs` using Three.js in isolated headless Chromium.
+- Isolated execution: `foundryAssetWorker` and `functions/foundry_worker_process.mjs`.
+- Review: immutable artifact routes plus the shared Model Viewer Lab.
 
-No Command Center Codex worker, Blender service, second viewer, or mutable global `latest` participates.
+No ordinary Foundry execution invokes an external 3D application or falls back to a retired renderer.
 
-## Trust And State
-
-The controller accepts only an authenticated owner. A Home Center artifact source is resolved through that owner's immutable artifact manifest. The manifest byte length and SHA-256 are bound into the logical request. The worker downloads the canonical object and verifies both before execution.
-
-The durable state flow is:
-
-`accepted -> queued -> running -> completed | failed`
-
-Publication is separate:
-
-`completed/private_unpromoted -> explicitly approved immutable promotion`
-
-Only `foundry.asset.promote` creates public review links. It accepts an owner-scoped terminal successful job, exact result hash, and `approved=true`. Promotion never recompiles a model and never changes human acceptance state.
-
-## Request Contract
+## Contract
 
 `foundry.asset.run` accepts:
 
-- `source`: omitted only for procedural hard-surface work, or a `home_center_artifact` / `foundry_fixture` reference;
-- `recipe`: `home-center.foundry-recipe.v1`;
-- `parameters`: bounded JSON object, maximum 32 KiB;
-- `reviewPreset`: currently `fixed-four-view`;
-- `idempotencyKey`: exact replay binding;
-- `namespace`: mandatory isolated job namespace.
+- `contractVersion: home-center.foundry-run.v2`;
+- `domain: hard_surface | character_setup | animation`;
+- optional exact owner-scoped `home_center_artifact` source for procedural hard-surface work, required otherwise;
+- inline or owner-scoped artifact script using `foundry-js.v1`;
+- bounded parameters;
+- `reviewPreset: fixed-six-view`;
+- mandatory idempotency key and isolated namespace;
+- optional exact parent job/result binding for a successor.
 
-The input hash binds capability version, resolved immutable source identity, recipe, parameters, review preset, and namespace. Reusing an idempotency key with changed input fails with `foundry.idempotency_conflict`. Exact replay attaches to the existing job and does not enqueue or upload again.
+Recipe-based V1 requests return `foundry.contract.retired`. Unknown versions and operations fail explicitly.
 
-## MVP Recipe Vocabulary
+## Script API
 
-### Hard Surface
+The sandbox emits a bounded operation plan. It has no network, process, module, worker, wall-clock, eval, or Function access. Planning is limited to 256 KiB of script, 64 MiB, five seconds, 4096 operations, and 100 bounded notes.
 
-The first specimen uses a profile extrusion with chamfered/beveled corners, material assignment, mirrored bracket instances, repeated wheel instances, a socket component, and topology/normal/bounds validation.
+Namespaces cover:
 
-Supported MVP command:
+- `asset.inspect`;
+- profile, box, cylinder, transform, reparent, instance, array, mirror, and separation scene work;
+- normal repair, weld, and bounded manifold boolean mesh work;
+- material creation and assignment;
+- bone add, rename, orient, reparent, and rigid prop attachment;
+- clip trim, retime, key edit, loop, and controlled root motion;
+- fixed views and bounded validation assertions.
 
-- `mechanical_specimen`
+Unsupported operations stop honestly. Weight painting, automatic arbitrary rigging, organic geometry, sculpting, general modifier compatibility, and implicit fallback are out of scope.
 
-The kernel is deliberately bounded. Arbitrary booleans, sculpting, organic generation, and a modifier ecosystem are unsupported.
+## State And Identity
 
-### Character Setup
+`accepted -> queued -> running -> completed | failed`
 
-The first specimen uses the deterministic `foundry-character-v1` fixture. It adds `weapon_socket_r` below `hand_r`, appends one inverse-bind matrix while preserving the original prefix and joint order, and attaches an unskinned rigid prop below the new joint.
+Successful execution publishes:
 
-Supported MVP commands:
+`completed -> review_ready/unreviewed -> accepted | rejected | revision_requested`
 
-- `add_weapon_bone`
-- `attach_rigid_prop`
+Outputs use `foundry/v2/{ownerHash}/{namespace}/{inputHash}/{resultHash}/...`. Identity binds immutable source and script hashes, parameters, domain, namespace, review preset, contract versions, and exact parent lineage. Exact replay attaches and transfers zero duplicate bytes. No mutable `latest` exists.
 
-The preservation evidence compares pre-existing mesh geometry, JOINTS/WEIGHTS accessors, morph target data, materials, animations, original joint order, and original inverse-bind bytes. Weight painting and automatic rigging are unsupported.
+Rejected work remains immutable evidence and must link to a changed successor plan. Promotion requires an accepted owner-scoped review record bound to the exact job and result hash.
 
-### Animation
+## Review Gate
 
-The first specimen trims `fixture_idle`, interpolates exact boundary keys, retimes the result, adjusts one deliberate rotation key, and exports `fixture_idle_foundry`.
+Each successful run must contain the successor GLB, six fixed PNGs, a contact sheet, optional skeletal overlay, validation report, preservation evidence, change evidence, manifest, and bounded logs. Every output is SHA-256 and byte-length verified after storage readback.
 
-Supported MVP commands:
-
-- `trim_clip`
-- `retime_clip`
-- `set_rotation_key`
-
-Geometry and skin evidence must remain byte-identical at the accessor level. Compatible-skeleton retargeting, IK recipes, clip combining, mirroring, and root-motion edits remain later bounded increments.
-
-## Worker Isolation
-
-`foundryAssetWorker` launches `functions/foundry_worker_process.mjs` as a detached Node process. The parent:
-
-- uses one artifact per worker instance;
-- streams stdout and stderr to separate 64 KiB bounded files;
-- kills the complete process group on timeout;
-- verifies source bytes before launch;
-- enforces source, parameter, geometry, runtime, and output ceilings;
-- publishes output files only after worker success;
-- readback-verifies every output byte length and SHA-256;
-- stores bounded logs privately and omits their contents from chat receipts.
-
-The normal path uses glTF Transform and PNGJS. It never invokes Blender and has no Blender fallback.
-
-## Immutable Addressing
-
-Successful outputs use:
-
-`foundry/v1/{ownerHash}/{namespace}/{inputHash}/{resultHash}/{filename}`
-
-Durable artifacts include:
-
-- `foundry-result.glb`
-- `contact-sheet.png`
-- `skeletal-overlay.png` for character domains
-- `validation-report.json`
-- `preservation-evidence.json`
-- `foundry-manifest.json`
-- bounded private stdout/stderr logs
-
-Promotion links use an immutable `promotionId` derived from `jobId` and `resultHash`. Model Viewer deep links bind the exact promoted GLB and manifest URLs. There is no `latest` alias.
-
-## Limits
-
-- Source GLB: 256 MiB default.
-- Parameters: 32 KiB.
-- Commands: 64.
-- Vertices: 250,000.
-- Triangles: 500,000.
-- Output aggregate: 256 MiB default.
-- Worker runtime: 10 minutes by default, hard ceiling 25 minutes; deployment ceiling 30 minutes.
-- Worker logs: 64 KiB per stream.
-- Worker concurrency: one artifact per instance; maximum eight instances from `media-forge-light`.
-
-## Verification
-
-```sh
-npm --prefix functions ci
-node tools/foundry_contract_test.mjs
-node tools/worker_profile_contract_test.mjs
-sh tools/home_center_ci_validate.sh
-```
-
-The Foundry contract test covers the three specimens, GLB round trips, preservation, dynamic discovery, complete top-level MCP equality, unsupported versions/commands, exact replay, idempotency conflict, namespace isolation, immutable addressing, timeout termination, bounded logs, explicit promotion, viewer-link stability, zero duplicate uploads, no mutable latest, and no Blender invocation.
+The Three.js renderer samples output pixels. Uniform or empty canvases fail with `foundry.review.blank_canvas`; no review packet is published. Final visual judgment uses only the immutable cloud URL and shared viewer.
 
 ## Deployment
 
-Deploy the worker first:
+Only run:
 
-```sh
-sh tools/deploy_foundry_worker.sh home-center-dclar
-```
+`sh tools/deploy_foundry_v2_release.sh home-center-dclar`
 
-The script resolves resources from `ops/worker_profiles.v1.json`, validates before deployment, creates or updates the private task queue, and verifies the backing Cloud Run service after deployment.
+The script refuses a branch, dirty tree, stale main, or unguarded worker-only deployment. It pauses `foundryAssetWorker`, deploys the worker and both MCP functions from one merged main commit, verifies release identity, and resumes the queue.
 
-Then deploy the existing MCP function without changing connector registration:
+## Verification
 
-```sh
-sh tools/deploy_functions_termux.sh home-center-dclar homeCenterMcp
-```
+`node tools/foundry_contract_test.mjs` proves deterministic hard-surface compilation, weapon-bone insertion and rigid attachment, animation editing without geometry/skin mutation, dynamic discovery, exact replay, namespace isolation, bounded logs, timeout termination, review publication, explicit promotion, no top-level Foundry tool, no mutable latest, and no retired-renderer invocation.
 
-After deployment:
-
-1. Authenticate to the existing MCP endpoint and recapture canonical `tools/list`.
-2. Require SHA-256 `64fe900eeaaf2928c2b6114829ee758ff73cc05700373085a1ae63b6484d05f1`.
-3. Call existing `capabilities` and verify the four namespaced Foundry operations.
-4. Invoke specimens through existing `drive_operation`.
-5. Poll `foundry.asset.status` to terminal state.
-6. Explicitly promote the successful result and open immutable review links.
-7. Replay the exact run and verify no duplicate queueing or object upload.
-8. Run two namespaces concurrently and verify distinct job IDs, input hashes, cache keys, manifests, and promotions.
-
-No connector uninstall, reinstall, reconnect, or reauthorization is part of deployment.
-
-## Rollback
-
-1. Route `homeCenterMcp` to the exact prior verified revision.
-2. Disable new submissions by removing the Foundry operation entries in a follow-up repository commit and redeploying that verified commit.
-3. Delete the `foundryAssetWorker` function and `foundryAssetWorker` queue together only after confirming no jobs are queued or running.
-4. Retain immutable result objects and promotion receipts according to artifact retention policy; do not delete human review evidence as part of code rollback.
-
-A rollback must not leave either the worker or its task queue orphaned.
-
-## Known Limitations
-
-- The fixture proves preservation and bounded transforms; arbitrary production rigs require explicit compatibility recipes.
-- No weight painting, automatic rigging, organic generation, sculpting, arbitrary booleans, Cycles, `.blend` compatibility, or Blender fallback.
-- Static review images use a deterministic fixed wireframe projection; human acceptance occurs in the shared cloud viewer.
-- Public promotion makes the selected immutable review artifacts accessible by unguessable content-bound links. Private-only review delivery is a separate access-control increment.
-- Retargeting, IK, clip composition, root-motion edits, UV transforms, mesh weld/repair recipes, and broader hard-surface commands remain explicit future additions, not claimed capability.
-
-## Live Deployment Evidence - 2026-07-27
-
-Deployed source commit: `93ed62758a2ed508b3179ab3b696c4f099f7b2e9`.
-
-- Worker revision: `foundryassetworker-00001-bip`; build `d3931fc8-4d07-4101-a4d4-432e71c18f81`.
-- MCP revision: `homecentermcp-00147-ket`; build `490ef3db-d5b6-4465-bf7b-8e33881968a4`.
-- MCP rollback revision: `homecentermcp-00146-jub`.
-- Queue: `foundryAssetWorker`, RUNNING, concurrency 8, dispatch rate 4/s, one attempt, zero pending tasks after proof.
-- Post-deploy authenticated `tools/list`: 58 tools; SHA-256 `64fe900eeaaf2928c2b6114829ee758ff73cc05700373085a1ae63b6484d05f1`; no top-level Foundry tool.
-- Dynamic discovery returned all four Foundry operations.
-- Mechanical, character setup, and animation jobs completed concurrently. Every promoted artifact was downloaded from its immutable URL and matched receipt byte length and SHA-256.
-- Exact mechanical replay attached to the completed job and transferred zero duplicate bytes.
-- A second identical mechanical recipe under another namespace produced distinct job ID, input hash, cache key, promotion ID, storage references, and viewer URL while preserving the same deterministic result hash.
-- Existing health, storage status, and `armory.recount` smokes passed after deployment.
-- Human visual acceptance remains `unreviewed`. Mechanical completion does not imply artistic acceptance.
-
-Complete hashes, receipts, reports, links, and isolation evidence are checked in at `docs/evidence/fortress-foundry-live-proof-2026-07-27.json`.
-
-### Host Adapter Blocker
-
-The already-installed Home Center Drive app remained present and did not request reconnection or reauthorization, but this Codex host adapter sent `home_center_drive.capabilities` and `home_center_drive.drive_operation`. The MCP correctly exposes the unchanged canonical names `capabilities` and `drive_operation`, so those prefixed calls failed with `Unknown tool` before reaching Foundry. Direct authenticated calls to the same deployed MCP endpoint succeeded. This is classified as `host_tool_name_prefix_mismatch`; no connector manifest, top-level schema, alias wrapper, or reinstall workaround was added.
+Live acceptance additionally requires authenticated dynamic discovery, three completed cloud specimens, immutable URL readback, visible shared-viewer evidence, and two namespaced jobs that cannot resolve to each other.

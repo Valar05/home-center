@@ -10,25 +10,27 @@ const {Storage} = require('@google-cloud/storage');
 const {getFunctions} = require('firebase-admin/functions');
 const {ARTIFACT_BUCKET, readArtifactOperation} = require('./artifact_ingest_service');
 
-const FOUNDRY_CAPABILITY_VERSION = 'fortress-model-foundry.v1';
-const FOUNDRY_RECIPE_VERSION = 'home-center.foundry-recipe.v1';
+const FOUNDRY_CAPABILITY_VERSION = 'fortress-model-foundry.v2';
+const FOUNDRY_RUN_VERSION = 'home-center.foundry-run.v2';
+const FOUNDRY_SCRIPT_VERSION = 'foundry-js.v1';
 const FOUNDRY_TASK_FUNCTION = process.env.FOUNDRY_TASK_FUNCTION || 'foundryAssetWorker';
 const FOUNDRY_VIEWER_BASE = process.env.FOUNDRY_VIEWER_BASE || 'https://valar05.github.io/model-viewer-lab/model-viewer.html';
 const FOUNDRY_PUBLIC_BASE = process.env.HOME_CENTER_MCP_PUBLIC_BASE || 'https://us-central1-home-center-dclar.cloudfunctions.net/homeCenterMcp';
 const FOUNDRY_TIMEOUT_MS = Math.min(Number(process.env.FOUNDRY_TIMEOUT_MS || 10 * 60 * 1000), 25 * 60 * 1000);
 const FOUNDRY_MAX_SOURCE_BYTES = Number(process.env.FOUNDRY_MAX_SOURCE_BYTES || 256 * 1024 * 1024);
+const FOUNDRY_MAX_SCRIPT_BYTES = Number(process.env.FOUNDRY_MAX_SCRIPT_BYTES || 256 * 1024);
 const FOUNDRY_MAX_OUTPUT_BYTES = Number(process.env.FOUNDRY_MAX_OUTPUT_BYTES || 256 * 1024 * 1024);
 const FOUNDRY_LOG_MAX_BYTES = Number(process.env.FOUNDRY_LOG_MAX_BYTES || 64 * 1024);
 const JOBS = 'foundryAssetJobs';
 const IDEMPOTENCY = 'foundryAssetIdempotency';
-const PROMOTIONS = 'foundryArtifactPromotions';
+const PUBLICATIONS = 'foundryArtifactPromotions';
+const REVIEW_RECORDS = 'artifactReviewRecords';
 let defaultStorageClient = null;
 
 function storageClient() {
   if (!defaultStorageClient) defaultStorageClient = new Storage();
   return defaultStorageClient;
 }
-
 function sha256(bytes) { return createHash('sha256').update(bytes).digest('hex'); }
 function stable(value) {
   if (Array.isArray(value)) return value.map(stable);
@@ -37,62 +39,40 @@ function stable(value) {
 }
 function hashJson(value) { return sha256(Buffer.from(JSON.stringify(stable(value)))); }
 function text(value, max = 500) { const clean = typeof value === 'string' ? value.trim() : ''; return clean.slice(0, max); }
-function slug(value, fallback = '', max = 120) { return (text(value, max).toLowerCase().replace(/[^a-z0-9._-]+/g, '-').replace(/^-+|-+$/g, '') || fallback); }
+function slug(value, fallback = '', max = 120) { return text(value, max).toLowerCase().replace(/[^a-z0-9._-]+/g, '-').replace(/^-+|-+$/g, '') || fallback; }
 function fail(code, message, status = 400, details = {}) { const error = new Error(message); error.code = code; error.status = status; error.details = details; return error; }
 function ownerEmail(user) { const owner = text(user && user.email, 320).toLowerCase(); if (!owner) throw fail('foundry.owner_required', 'An authenticated owner is required.', 401); return owner; }
 function ownerKey(owner) { return sha256(Buffer.from(owner.toLowerCase())).slice(0, 24); }
-function assertDigest(value, field) { const digest = text(value, 64).toLowerCase(); if (!/^[a-f0-9]{64}$/.test(digest)) throw fail('foundry.reference.invalid_digest', `${field} must be a SHA-256 digest.`, 400, {field}); return digest; }
+function assertDigest(value, field) { const digest = text(value, 64).toLowerCase(); if (!/^[a-f0-9]{64}$/.test(digest)) throw fail('foundry.reference.invalid_digest', field + ' must be a SHA-256 digest.', 400, {field}); return digest; }
 function filename(value) { const clean = text(value, 240).replace(/\\/g, '/').split('/').pop().replace(/[^A-Za-z0-9._-]/g, '-'); if (!clean) throw fail('foundry.reference.invalid_filename', 'A stable logical filename is required.'); return clean; }
 function mediaType(value) { const clean = text(value, 160).toLowerCase(); return /^[a-z0-9.+-]+\/[a-z0-9.+-]+$/i.test(clean) ? clean : 'application/octet-stream'; }
 
 function foundryOperationEntries() {
   return {
     'foundry.asset.inspect': {
-      summary: 'Queue bounded GLB scene, hierarchy, mesh, skin, animation, bounds, and validation inspection without changing source bytes.',
+      summary: 'Queue owner-scoped direct-GLB inspection and six-view evidence without changing source bytes.',
       write: true,
       requiresRequestId: true,
-      input: {source: 'home_center_artifact or foundry_fixture reference', idempotencyKey: 'string', namespace: 'string', reviewPreset: 'optional string'},
+      input: {source: 'home_center_artifact with required sha256 and byteLength', idempotencyKey: 'string', namespace: 'string', reviewPreset: 'optional fixed-six-view'},
     },
     'foundry.asset.run': {
-      summary: 'Queue one versioned deterministic hard-surface, character-setup, or animation recipe in an isolated direct-GLB worker.',
+      summary: 'Queue one sandboxed Foundry JavaScript program that loads a complete immutable GLB, performs batched direct-GLB edits, and publishes one immutable unreviewed successor.',
       write: true,
       requiresRequestId: true,
-      input: {source: 'optional home_center_artifact or foundry_fixture reference', recipe: 'home-center.foundry-recipe.v1 document', parameters: 'bounded object', reviewPreset: 'string', idempotencyKey: 'string', namespace: 'distinct string'},
+      input: {contractVersion: FOUNDRY_RUN_VERSION, domain: 'hard_surface|character_setup|animation', source: 'optional home_center_artifact with required sha256 and byteLength', script: 'inline foundry-js.v1 text or owner-scoped home_center_artifact reference', parameters: 'bounded object', reviewPreset: 'fixed-six-view', idempotencyKey: 'string', namespace: 'distinct string', parent: 'optional {jobId,resultHash}'},
+      output: {accepted: 'boolean', jobId: 'stable string', inputHash: 'sha256', state: 'queued|running|completed|failed', review: 'immutable links when completed; humanAcceptance remains unreviewed'},
     },
     'foundry.asset.status': {
-      summary: 'Read one bounded owner-scoped Foundry job receipt.',
+      summary: 'Read one bounded owner-scoped Foundry job receipt, including immutable review links when ready.',
       write: false,
       input: {jobId: 'string'},
     },
     'foundry.asset.promote': {
-      summary: 'Explicitly publish immutable review artifacts from one owner-scoped successful Foundry result without rerunning it.',
+      summary: 'Promote an immutable Foundry result only after a separate accepted artifact review record; never rerun or rewrite bytes.',
       write: true,
-      input: {jobId: 'string', resultHash: 'hex', approved: 'must be true', requestId: 'string'},
+      input: {jobId: 'string', resultHash: 'hex', reviewRequestId: 'accepted artifact review record', requestId: 'string'},
     },
   };
-}
-
-function normalizeRecipe(recipe) {
-  if (!recipe || typeof recipe !== 'object' || Array.isArray(recipe)) throw fail('foundry.recipe.required', 'recipe is required.');
-  if (recipe.version !== FOUNDRY_RECIPE_VERSION) throw fail('foundry.recipe.unsupported_version', `Unsupported recipe version: ${recipe.version || 'missing'}`, 400, {supported: [FOUNDRY_RECIPE_VERSION]});
-  const domain = text(recipe.domain, 40);
-  if (!['hard_surface', 'character_setup', 'animation', 'inspect'].includes(domain)) throw fail('foundry.recipe.unsupported_domain', `Unsupported Foundry domain: ${domain}`);
-  const commands = Array.isArray(recipe.commands) ? recipe.commands : [];
-  if (commands.length > 64) throw fail('foundry.limit.commands', 'A recipe may contain at most 64 commands.', 413);
-  const supported = {
-    hard_surface: ['mechanical_specimen'],
-    character_setup: ['add_weapon_bone', 'attach_rigid_prop'],
-    animation: ['trim_clip', 'retime_clip', 'set_rotation_key'],
-    inspect: ['inspect'],
-  }[domain];
-  const normalizedCommands = commands.map((command, index) => {
-    if (!command || typeof command !== 'object' || Array.isArray(command)) throw fail('foundry.recipe.invalid_command', `Recipe command ${index} must be an object.`);
-    if (!supported.includes(command.op)) throw fail('foundry.recipe.unsupported_operation', `Unsupported ${domain} operation: ${text(command.op, 120) || "missing"}`, 400, {supported});
-    return stable(command);
-  });
-  const normalized = {version: FOUNDRY_RECIPE_VERSION, domain, commands: normalizedCommands};
-  if (Buffer.byteLength(JSON.stringify(normalized)) > 64 * 1024) throw fail('foundry.limit.recipe', 'Foundry recipe exceeds 64 KiB.', 413);
-  return normalized;
 }
 
 function normalizeParameters(value) {
@@ -101,95 +81,115 @@ function normalizeParameters(value) {
   if (bytes > 32 * 1024) throw fail('foundry.limit.parameters', 'Foundry parameters exceed 32 KiB.', 413);
   return parameters;
 }
-
-async function resolveSource({storage = storageClient(), user, source, recipe}) {
-  if (!source) {
-    if (recipe.domain !== 'hard_surface') throw fail('foundry.source.required', `${recipe.domain} requires an existing GLB artifact or fixture.`);
-    return null;
-  }
-  if (!source || typeof source !== 'object' || Array.isArray(source)) throw fail('foundry.reference.invalid', 'source must be an artifact reference object.');
-  if (source.kind === 'foundry_fixture') {
-    const fixtureId = text(source.fixtureId, 120);
-    if (fixtureId !== 'foundry-character-v1') throw fail('foundry.reference.unsupported_fixture', `Unsupported Foundry fixture: ${fixtureId}`);
-    return {kind: 'foundry_fixture', fixtureId, sha256: hashJson({fixtureId, version: 1}), byteLength: 0, mediaType: 'model/gltf-binary', filename: `${fixtureId}.glb`};
-  }
-  if (source.kind !== 'home_center_artifact') throw fail('foundry.reference.unsupported_type', `Unsupported artifact reference type: ${text(source.kind, 80) || 'missing'}`);
-  const artifactId = slug(source.artifactId, '', 180);
-  if (!artifactId) throw fail('foundry.reference.artifact_id_required', 'source.artifactId is required.');
+function normalizeDomain(value, allowInspect = false) {
+  const domain = text(value, 40);
+  const supported = allowInspect ? ['hard_surface', 'character_setup', 'animation', 'inspect'] : ['hard_surface', 'character_setup', 'animation'];
+  if (!supported.includes(domain)) throw fail('foundry.domain.unsupported', 'Unsupported Foundry domain: ' + (domain || 'missing'), 400, {supported});
+  return domain;
+}
+async function resolveArtifactReference({storage, user, reference, role, maxBytes, allowedMediaTypes}) {
+  if (!reference || typeof reference !== 'object' || Array.isArray(reference) || reference.kind !== 'home_center_artifact') throw fail('foundry.reference.unsupported_type', role + ' must be a home_center_artifact reference.');
+  const artifactId = slug(reference.artifactId, '', 180);
+  if (!artifactId) throw fail('foundry.reference.artifact_id_required', role + '.artifactId is required.');
+  const expectedSha = assertDigest(reference.sha256, role + '.sha256');
+  const expectedLength = Number(reference.byteLength);
+  if (!Number.isSafeInteger(expectedLength) || expectedLength < 1) throw fail('foundry.reference.invalid_length', role + '.byteLength is required and must be positive.');
   const {manifest} = await readArtifactOperation({storage, user, args: {artifactId}});
   const destination = manifest && manifest.destination || {};
-  const digest = assertDigest(destination.sha256, 'source.sha256');
+  const digest = assertDigest(destination.sha256, role + '.sha256');
   const byteLength = Number(destination.byteCount || 0);
-  if (!Number.isSafeInteger(byteLength) || byteLength < 1 || byteLength > FOUNDRY_MAX_SOURCE_BYTES) throw fail('foundry.reference.invalid_length', 'Source byte length is invalid or exceeds the Foundry ceiling.', 413, {byteLength, max: FOUNDRY_MAX_SOURCE_BYTES});
-  if (source.sha256 && assertDigest(source.sha256, 'source.sha256') !== digest) throw fail('foundry.reference.digest_conflict', 'Source digest does not match the immutable artifact manifest.', 409);
-  if (source.byteLength !== undefined && Number(source.byteLength) !== byteLength) throw fail('foundry.reference.length_conflict', 'Source byte length does not match the immutable artifact manifest.', 409);
+  if (byteLength !== expectedLength) throw fail('foundry.reference.length_conflict', role + ' byte length does not match the immutable artifact manifest.', 409, {expected: expectedLength, actual: byteLength});
+  if (digest !== expectedSha) throw fail('foundry.reference.digest_conflict', role + ' digest does not match the immutable artifact manifest.', 409, {expected: expectedSha, actual: digest});
+  if (byteLength > maxBytes) throw fail('foundry.reference.invalid_length', role + ' exceeds the Foundry ceiling.', 413, {byteLength, max: maxBytes});
   const objectName = text(destination.objectName, 1000);
-  if (!objectName) throw fail('foundry.reference.storage_missing', 'Artifact manifest has no canonical storage object.', 409);
-  return {kind: 'home_center_artifact', artifactId, sha256: digest, byteLength, mediaType: mediaType(manifest.source && manifest.source.mimeType), filename: filename(manifest.source && manifest.source.name || `${artifactId}.glb`), bucket: text(destination.bucket, 240) || ARTIFACT_BUCKET, objectName};
+  if (!objectName) throw fail('foundry.reference.storage_missing', role + ' artifact has no canonical storage object.', 409);
+  const type = mediaType(manifest.source && manifest.source.mimeType);
+  if (allowedMediaTypes && !allowedMediaTypes.has(type)) throw fail('foundry.reference.invalid_media_type', role + ' media type is not supported.', 415, {mediaType: type, supported: Array.from(allowedMediaTypes)});
+  return {kind: 'home_center_artifact', artifactId, sha256: digest, byteLength, mediaType: type, filename: filename(manifest.source && manifest.source.name || artifactId), bucket: text(destination.bucket, 240) || ARTIFACT_BUCKET, objectName};
+}
+async function resolveSource({storage = storageClient(), user, source, domain}) {
+  if (!source) {
+    if (domain !== 'hard_surface') throw fail('foundry.source.required', domain + ' requires an immutable GLB source.');
+    return null;
+  }
+  return resolveArtifactReference({storage, user, reference: source, role: 'source', maxBytes: FOUNDRY_MAX_SOURCE_BYTES, allowedMediaTypes: new Set(['model/gltf-binary', 'application/octet-stream'])});
+}
+async function resolveScript({storage = storageClient(), user, script}) {
+  if (!script || typeof script !== 'object' || Array.isArray(script)) throw fail('foundry.script.required', 'script is required.');
+  if (script.kind === 'inline') {
+    if (script.version !== FOUNDRY_SCRIPT_VERSION) throw fail('foundry.script.unsupported_version', 'Unsupported Foundry script version: ' + (script.version || 'missing'), 400, {supported: [FOUNDRY_SCRIPT_VERSION]});
+    const scriptText = typeof script.text === 'string' ? script.text : '';
+    const byteLength = Buffer.byteLength(scriptText, 'utf8');
+    if (!scriptText.trim()) throw fail('foundry.script.required', 'Inline Foundry script text is empty.');
+    if (byteLength > FOUNDRY_MAX_SCRIPT_BYTES) throw fail('foundry.limit.script', 'Foundry script exceeds 256 KiB.', 413);
+    const digest = sha256(Buffer.from(scriptText));
+    if (script.sha256 && assertDigest(script.sha256, 'script.sha256') !== digest) throw fail('foundry.script.digest_conflict', 'Inline script digest does not match its text.', 409);
+    return {kind: 'inline', version: FOUNDRY_SCRIPT_VERSION, sha256: digest, byteLength, mediaType: 'text/javascript', filename: filename(script.filename || 'foundry-script.js'), text: scriptText};
+  }
+  const resolved = await resolveArtifactReference({storage, user, reference: script, role: 'script', maxBytes: FOUNDRY_MAX_SCRIPT_BYTES, allowedMediaTypes: new Set(['text/javascript', 'application/javascript', 'text/plain'])});
+  return {...resolved, version: FOUNDRY_SCRIPT_VERSION};
+}
+async function resolveParent({admin, owner, parent, source}) {
+  if (!parent) return null;
+  const jobId = text(parent.jobId, 80), resultHash = assertDigest(parent.resultHash, 'parent.resultHash');
+  if (!/^[a-f0-9]{40}$/.test(jobId)) throw fail('foundry.parent.job_id_invalid', 'parent.jobId is invalid.');
+  const snapshot = await admin.firestore().collection(JOBS).doc(jobId).get();
+  if (!snapshot.exists) throw fail('foundry.parent.not_found', 'Parent Foundry job was not found.', 404);
+  const record = snapshot.data() || {};
+  if (record.owner !== owner) throw fail('foundry.parent.forbidden', 'Parent Foundry job is not owned by this caller.', 403);
+  if (record.state !== 'completed' || !record.result || record.result.resultHash !== resultHash) throw fail('foundry.parent.result_conflict', 'Parent must bind an exact terminal Foundry result.', 409);
+  const glb = record.result.artifacts.find((artifact) => artifact.kind === 'glb');
+  if (source && glb && source.sha256 !== glb.sha256) throw fail('foundry.parent.source_conflict', 'Successor source must match the exact parent GLB digest.', 409, {parentSha256: glb.sha256, sourceSha256: source.sha256});
+  return {jobId, resultHash, revision: Number(record.revision || 0) + 1};
 }
 
 function acceptedReceipt(record, attached = false) {
-  return {
-    contractVersion: 'home-center.foundry-job.v1',
-    capabilityVersion: FOUNDRY_CAPABILITY_VERSION,
-    accepted: true,
-    attached,
-    jobId: record.jobId,
-    namespace: record.namespace,
-    inputHash: record.inputHash,
-    state: record.state,
-    statusOperation: 'foundry.asset.status',
-    statusArgs: {jobId: record.jobId},
-    timestamps: {acceptedAt: record.acceptedAt, updatedAt: record.updatedAt},
-  };
+  return {contractVersion: 'home-center.foundry-job.v2', capabilityVersion: FOUNDRY_CAPABILITY_VERSION, accepted: true, attached, jobId: record.jobId, namespace: record.namespace, inputHash: record.inputHash, state: record.state, statusOperation: 'foundry.asset.status', statusArgs: {jobId: record.jobId}, timestamps: {acceptedAt: record.acceptedAt, updatedAt: record.updatedAt}};
 }
-
 function boundedReport(report) {
   if (!report) return null;
-  return {kernelVersion: report.kernelVersion, recipeVersion: report.recipeVersion, domain: report.domain, reviewPreset: report.reviewPreset, bounds: report.bounds, triangleCount: report.triangleCount, vertexCount: report.vertexCount, componentCount: report.componentCount, validation: report.validation, animations: (report.animations || []).slice(0, 20), skins: (report.skins || []).slice(0, 20), preservation: report.preservation || null};
+  return {kernelVersion: report.kernelVersion, runVersion: report.runVersion, domain: report.domain, reviewPreset: report.reviewPreset, bounds: report.bounds, triangleCount: report.triangleCount, vertexCount: report.vertexCount, componentCount: report.componentCount, validation: report.validation, animations: (report.animations || []).slice(0, 20), skins: (report.skins || []).slice(0, 20), preservation: report.preservation || null};
 }
-
 function boundedJobReceipt(record) {
   const result = record.result || null;
+  const legacy = record.contractVersion !== 'home-center.foundry-job.v2';
   return {
-    contractVersion: 'home-center.foundry-job.v1',
-    capabilityVersion: FOUNDRY_CAPABILITY_VERSION,
+    contractVersion: legacy ? record.contractVersion || 'home-center.foundry-job.v1' : 'home-center.foundry-job.v2',
+    capabilityVersion: record.capabilityVersion || FOUNDRY_CAPABILITY_VERSION,
     jobId: record.jobId,
     namespace: record.namespace,
     inputHash: record.inputHash,
     state: record.state,
-    domain: record.recipe && record.recipe.domain,
-    source: record.source ? {kind: record.source.kind, artifactId: record.source.artifactId || null, fixtureId: record.source.fixtureId || null, sha256: record.source.sha256, byteLength: record.source.byteLength, filename: record.source.filename} : null,
-    recipe: {version: record.recipe && record.recipe.version, commandCount: Array.isArray(record.recipe && record.recipe.commands) ? record.recipe.commands.length : 0},
+    domain: record.domain || record.recipe && record.recipe.domain,
+    revision: Number(record.revision || 0),
+    parent: record.parent || null,
+    legacyReadOnly: legacy,
+    source: record.source ? {kind: record.source.kind, artifactId: record.source.artifactId || null, sha256: record.source.sha256, byteLength: record.source.byteLength, filename: record.source.filename} : null,
+    script: record.script ? {kind: record.script.kind, artifactId: record.script.artifactId || null, version: record.script.version, sha256: record.script.sha256, byteLength: record.script.byteLength, filename: record.script.filename} : null,
     timestamps: {acceptedAt: record.acceptedAt, startedAt: record.startedAt || null, completedAt: record.completedAt || null, failedAt: record.failedAt || null, updatedAt: record.updatedAt},
     execution: {attempt: Number(record.executionAttempt || 0), timedOut: !!record.timedOut, logBytes: record.logBytes || {stdout: 0, stderr: 0}, logsTruncated: !!record.logsTruncated},
     blockingError: record.blockingError ? {code: text(record.blockingError.code, 120), message: text(record.blockingError.message, 1200)} : null,
-    result: result ? {resultHash: result.resultHash, cacheKey: result.cacheKey, report: boundedReport(result.report), artifacts: result.artifacts.map((artifact) => ({kind: artifact.kind, name: artifact.name, mediaType: artifact.mediaType, byteLength: artifact.byteLength, sha256: artifact.sha256, storageRef: artifact.storageRef})), promotion: result.promotion || null} : null,
+    result: result ? {resultHash: result.resultHash, cacheKey: result.cacheKey, report: boundedReport(result.report), artifacts: result.artifacts.map((artifact) => ({kind: artifact.kind, name: artifact.name, mediaType: artifact.mediaType, byteLength: artifact.byteLength, sha256: artifact.sha256, storageRef: artifact.storageRef})), review: result.review || null, promotion: result.promotion || null} : null,
   };
 }
 
 async function defaultEnqueue(payload) {
-  await getFunctions().taskQueue(FOUNDRY_TASK_FUNCTION).enqueue(payload, {id: `foundry-${payload.jobId}-${payload.executionAttempt || 0}`, dispatchDeadlineSeconds: Math.ceil(FOUNDRY_TIMEOUT_MS / 1000)});
+  await getFunctions().taskQueue(FOUNDRY_TASK_FUNCTION).enqueue(payload, {id: 'foundry-' + payload.jobId + '-' + (payload.executionAttempt || 0), dispatchDeadlineSeconds: Math.ceil(FOUNDRY_TIMEOUT_MS / 1000)});
 }
-
 async function queueFoundryRun({admin, storage = storageClient(), user, args = {}, enqueue = defaultEnqueue}) {
-  const owner = ownerEmail(user);
-  const recipe = normalizeRecipe(args.recipe);
-  const source = await resolveSource({storage, user, source: args.source || null, recipe});
-  const idempotencyKey = slug(args.idempotencyKey || args.requestId, '', 180);
-  const namespace = slug(args.namespace, '', 120);
+  if (args.recipe) throw fail('foundry.contract.retired', 'Recipe-based Foundry V1 execution is retired. Use home-center.foundry-run.v2 with a foundry-js.v1 script.', 410, {replacement: 'foundry.asset.run'});
+  if (args.contractVersion !== FOUNDRY_RUN_VERSION) throw fail('foundry.contract.unsupported_version', 'Unsupported Foundry run contract: ' + (args.contractVersion || 'missing'), 400, {supported: [FOUNDRY_RUN_VERSION]});
+  const owner = ownerEmail(user), domain = normalizeDomain(args.domain, args.__internalInspect === true), source = await resolveSource({storage, user, source: args.source || null, domain}), script = await resolveScript({storage, user, script: args.script});
+  const idempotencyKey = slug(args.idempotencyKey || args.requestId, '', 180), namespace = slug(args.namespace, '', 120);
   if (!idempotencyKey) throw fail('foundry.idempotency_key_required', 'idempotencyKey is required.');
   if (!namespace) throw fail('foundry.namespace_required', 'A distinct job namespace is required.');
-  const parameters = normalizeParameters(args.parameters);
-  const reviewPreset = slug(args.reviewPreset, 'fixed-four-view', 80);
-  const logical = {capabilityVersion: FOUNDRY_CAPABILITY_VERSION, source, recipe, parameters, reviewPreset, namespace};
-  const inputHash = hashJson(logical);
-  const ownerHash = ownerKey(owner);
-  const jobId = sha256(Buffer.from(`${ownerHash}:${namespace}:${inputHash}`)).slice(0, 40);
-  const idemId = `${ownerHash}-${sha256(Buffer.from(idempotencyKey)).slice(0, 32)}`;
-  const jobRef = admin.firestore().collection(JOBS).doc(jobId);
-  const idemRef = admin.firestore().collection(IDEMPOTENCY).doc(idemId);
-  const now = new Date().toISOString();
+  const parameters = normalizeParameters(args.parameters), reviewPreset = slug(args.reviewPreset, 'fixed-six-view', 80);
+  if (reviewPreset !== 'fixed-six-view') throw fail('foundry.review.unsupported_preset', 'Foundry V2 supports fixed-six-view.', 400, {supported: ['fixed-six-view']});
+  const parent = await resolveParent({admin, owner, parent: args.parent || null, source});
+  const scriptIdentity = {...script}; delete scriptIdentity.text;
+  const logical = {capabilityVersion: FOUNDRY_CAPABILITY_VERSION, contractVersion: FOUNDRY_RUN_VERSION, domain, source, script: scriptIdentity, parameters, reviewPreset, namespace, parent};
+  const inputHash = hashJson(logical), ownerHash = ownerKey(owner), jobId = sha256(Buffer.from(ownerHash + ':' + namespace + ':' + inputHash)).slice(0, 40), idemId = ownerHash + '-' + sha256(Buffer.from(idempotencyKey)).slice(0, 32);
+  const jobRef = admin.firestore().collection(JOBS).doc(jobId), idemRef = admin.firestore().collection(IDEMPOTENCY).doc(idemId), now = new Date().toISOString();
   let attached = false;
   await admin.firestore().runTransaction(async (transaction) => {
     const idemSnap = await transaction.get(idemRef);
@@ -199,9 +199,9 @@ async function queueFoundryRun({admin, storage = storageClient(), user, args = {
       attached = true;
       return;
     }
-    const record = {contractVersion: 'home-center.foundry-job.v1', capabilityVersion: FOUNDRY_CAPABILITY_VERSION, jobId, owner, ownerHash, namespace, inputHash, idempotencyKeyHash: sha256(Buffer.from(idempotencyKey)), source, recipe, parameters, reviewPreset, state: 'accepted', enqueueStatus: 'pending', executionAttempt: 0, acceptedAt: now, updatedAt: now};
+    const record = {contractVersion: 'home-center.foundry-job.v2', capabilityVersion: FOUNDRY_CAPABILITY_VERSION, jobId, owner, ownerHash, namespace, inputHash, idempotencyKeyHash: sha256(Buffer.from(idempotencyKey)), source, script, domain, parameters, reviewPreset, parent, revision: parent ? parent.revision : 0, state: 'accepted', enqueueStatus: 'pending', executionAttempt: 0, acceptedAt: now, updatedAt: now, humanAcceptance: 'unreviewed'};
     transaction.create(jobRef, record);
-    transaction.create(idemRef, {jobId, ownerHash, namespace, inputHash, createdAt: now});
+    transaction.create(idemRef, {jobId, ownerHash, namespace, inputHash, contractVersion: FOUNDRY_RUN_VERSION, createdAt: now});
   });
   if (attached) {
     const snapshot = await jobRef.get();
@@ -213,17 +213,14 @@ async function queueFoundryRun({admin, storage = storageClient(), user, args = {
     await jobRef.set({state: 'queued', enqueueStatus: 'enqueued', updatedAt: new Date().toISOString()}, {merge: true});
   } catch (error) {
     await jobRef.set({state: 'enqueue_failed', enqueueStatus: 'failed', blockingError: {code: 'foundry.enqueue_failed', message: text(error.message || String(error), 1200)}, updatedAt: new Date().toISOString()}, {merge: true});
-    throw fail('foundry.enqueue_failed', `Foundry worker enqueue failed: ${text(error.message || String(error), 600)}`, 503);
+    throw fail('foundry.enqueue_failed', 'Foundry worker enqueue failed: ' + text(error.message || String(error), 600), 503);
   }
-  const snapshot = await jobRef.get();
-  return acceptedReceipt(snapshot.data(), false);
+  return acceptedReceipt((await jobRef.get()).data(), false);
 }
-
 async function inspectFoundryAsset(context) {
   const args = context.args || {};
-  return queueFoundryRun({...context, args: {...args, recipe: {version: FOUNDRY_RECIPE_VERSION, domain: 'inspect', commands: [{op: 'inspect'}]}, parameters: {}, reviewPreset: args.reviewPreset || 'fixed-four-view'}});
+  return queueFoundryRun({...context, args: {...args, __internalInspect: true, contractVersion: FOUNDRY_RUN_VERSION, domain: 'inspect', script: {kind: 'inline', version: FOUNDRY_SCRIPT_VERSION, filename: 'inspect.foundry.js', text: "foundry.asset.inspect(); foundry.review.fixedViews(['front','back','left','right','top','perspective']);"}, parameters: {}, reviewPreset: 'fixed-six-view'}});
 }
-
 async function foundryStatus({admin, user, args = {}}) {
   const jobId = text(args.jobId, 80);
   if (!/^[a-f0-9]{40}$/.test(jobId)) throw fail('foundry.job_id_invalid', 'jobId is invalid.');
@@ -233,243 +230,120 @@ async function foundryStatus({admin, user, args = {}}) {
   if (record.owner !== ownerEmail(user)) throw fail('foundry.job_forbidden', 'Foundry job is not owned by this caller.', 403);
   return boundedJobReceipt(record);
 }
-
-function publicArtifactUrl(promotionId, name) {
-  return `${FOUNDRY_PUBLIC_BASE}/foundry/artifacts/${encodeURIComponent(promotionId)}/${encodeURIComponent(name)}`;
+function publicArtifactUrl(publicationId, name) { return FOUNDRY_PUBLIC_BASE + '/foundry/artifacts/' + encodeURIComponent(publicationId) + '/' + encodeURIComponent(name); }
+function publicationLinks(publication, namespace) {
+  const links = Object.values(publication.artifacts).map((artifact) => ({kind: artifact.kind, name: artifact.name, mediaType: artifact.mediaType, byteLength: artifact.byteLength, sha256: artifact.sha256, url: publicArtifactUrl(publication.publicationId || publication.promotionId, artifact.name)}));
+  const glb = links.find((artifact) => artifact.kind === 'glb'), manifest = links.find((artifact) => artifact.kind === 'manifest');
+  const viewerUrl = glb ? FOUNDRY_VIEWER_BASE + '?src=' + encodeURIComponent(glb.url) + (manifest ? '&manifest=' + encodeURIComponent(manifest.url) : '') + '&title=' + encodeURIComponent('Foundry ' + namespace) : null;
+  return {links, viewerUrl};
 }
-
+async function publishReviewPacket({admin, record, resultHash, artifacts}) {
+  const publicationId = sha256(Buffer.from('review:' + record.jobId + ':' + resultHash)).slice(0, 40), ref = admin.firestore().collection(PUBLICATIONS).doc(publicationId);
+  const artifactMap = Object.fromEntries(artifacts.map((artifact) => [artifact.name, {name: artifact.name, kind: artifact.kind, mediaType: artifact.mediaType, byteLength: artifact.byteLength, sha256: artifact.sha256, bucket: artifact.bucket, objectName: artifact.objectName}]));
+  const publication = {contractVersion: 'home-center.foundry-review-publication.v2', publicationId, jobId: record.jobId, resultHash, ownerHash: record.ownerHash, namespace: record.namespace, artifacts: artifactMap, publicationKind: 'automatic_review', transportState: 'review_ready', humanAcceptance: 'unreviewed', immutable: true, publishedAt: new Date().toISOString()};
+  const existing = await ref.get();
+  if (!existing.exists) await ref.create(publication);
+  else if (existing.data().resultHash !== resultHash) throw fail('foundry.review.publication_conflict', 'Review publication identity conflict.', 409);
+  const links = publicationLinks(publication, record.namespace);
+  return {publicationId, resultHash, immutable: true, transportState: 'review_ready', humanAcceptance: 'unreviewed', ...links, publishedAt: publication.publishedAt};
+}
 async function promoteFoundryResult({admin, user, args = {}}) {
-  if (args.approved !== true) throw fail('foundry.promotion.approval_required', 'Foundry promotion requires approved=true.', 409);
-  const jobId = text(args.jobId, 80);
-  const resultHash = assertDigest(args.resultHash, 'resultHash');
-  const jobRef = admin.firestore().collection(JOBS).doc(jobId);
-  const snapshot = await jobRef.get();
-  if (!snapshot.exists) throw fail('foundry.job_not_found', 'Foundry job was not found.', 404);
-  const record = snapshot.data() || {};
-  if (record.owner !== ownerEmail(user)) throw fail('foundry.job_forbidden', 'Foundry job is not owned by this caller.', 403);
-  if (record.state !== 'completed' || !record.result) throw fail('foundry.promotion.not_ready', 'Only a successful terminal Foundry result may be promoted.', 409);
-  if (record.result.resultHash !== resultHash) throw fail('foundry.promotion.result_conflict', 'Promotion resultHash does not match the terminal Foundry result.', 409);
-  const promotionId = sha256(Buffer.from(`${jobId}:${resultHash}`)).slice(0, 40);
-  const promotionRef = admin.firestore().collection(PROMOTIONS).doc(promotionId);
-  const existing = await promotionRef.get();
-  let promotion;
-  if (existing.exists) promotion = existing.data();
-  else {
-    const artifacts = Object.fromEntries(record.result.artifacts.map((artifact) => [artifact.name, {name: artifact.name, kind: artifact.kind, mediaType: artifact.mediaType, byteLength: artifact.byteLength, sha256: artifact.sha256, bucket: artifact.bucket, objectName: artifact.objectName}]));
-    promotion = {contractVersion: 'home-center.foundry-promotion.v1', promotionId, jobId, resultHash, ownerHash: record.ownerHash, namespace: record.namespace, artifacts, approvedAt: new Date().toISOString(), immutable: true};
-    await promotionRef.create(promotion);
-  }
-  const links = Object.values(promotion.artifacts).map((artifact) => ({kind: artifact.kind, name: artifact.name, mediaType: artifact.mediaType, byteLength: artifact.byteLength, sha256: artifact.sha256, url: publicArtifactUrl(promotionId, artifact.name)}));
-  const glb = links.find((artifact) => artifact.kind === 'glb');
-  const manifest = links.find((artifact) => artifact.kind === 'manifest');
-  const viewerUrl = glb ? `${FOUNDRY_VIEWER_BASE}?src=${encodeURIComponent(glb.url)}${manifest ? `&manifest=${encodeURIComponent(manifest.url)}` : ''}&title=${encodeURIComponent(`Foundry ${record.namespace}`)}` : null;
-  const bounded = {promotionId, resultHash, immutable: true, links, viewerUrl, promotedAt: promotion.approvedAt};
-  await jobRef.set({result: {...record.result, promotion: bounded}, updatedAt: new Date().toISOString()}, {merge: true});
+  const owner = ownerEmail(user), jobId = text(args.jobId, 80), resultHash = assertDigest(args.resultHash, 'resultHash'), reviewRequestId = text(args.reviewRequestId, 180);
+  if (!reviewRequestId) throw fail('foundry.promotion.review_required', 'An accepted artifact review record is required.', 409);
+  const [jobSnapshot, reviewSnapshot] = await Promise.all([admin.firestore().collection(JOBS).doc(jobId).get(), admin.firestore().collection(REVIEW_RECORDS).doc(reviewRequestId).get()]);
+  if (!jobSnapshot.exists) throw fail('foundry.job_not_found', 'Foundry job was not found.', 404);
+  if (!reviewSnapshot.exists) throw fail('foundry.promotion.review_not_found', 'Artifact review record was not found.', 404);
+  const record = jobSnapshot.data() || {}, review = reviewSnapshot.data() || {};
+  if (record.owner !== owner || review.ownerEmail !== owner) throw fail('foundry.job_forbidden', 'Job or review is not owned by this caller.', 403);
+  if (record.state !== 'completed' || !record.result || record.result.resultHash !== resultHash) throw fail('foundry.promotion.result_conflict', 'Promotion must bind the exact terminal Foundry result.', 409);
+  if (review.verdict !== 'accepted' || !review.result || review.result.promotionAllowed !== true || review.result.producer && review.result.producer.receiptId !== jobId) throw fail('foundry.promotion.review_not_accepted', 'Review does not accept this exact Foundry receipt.', 409);
+  const promotionId = sha256(Buffer.from('promotion:' + jobId + ':' + resultHash + ':' + reviewRequestId)).slice(0, 40), ref = admin.firestore().collection(PUBLICATIONS).doc(promotionId);
+  const artifacts = Object.fromEntries(record.result.artifacts.map((artifact) => [artifact.name, {name: artifact.name, kind: artifact.kind, mediaType: artifact.mediaType, byteLength: artifact.byteLength, sha256: artifact.sha256, bucket: artifact.bucket, objectName: artifact.objectName}]));
+  const promotion = {contractVersion: 'home-center.foundry-promotion.v2', promotionId, publicationId: promotionId, jobId, resultHash, reviewRequestId, ownerHash: record.ownerHash, namespace: record.namespace, artifacts, publicationKind: 'accepted_promotion', humanAcceptance: 'accepted', immutable: true, promotedAt: new Date().toISOString()};
+  const existing = await ref.get(); if (!existing.exists) await ref.create(promotion);
+  const links = publicationLinks(promotion, record.namespace), bounded = {promotionId, resultHash, reviewRequestId, humanAcceptance: 'accepted', immutable: true, ...links, promotedAt: promotion.promotedAt};
+  await jobSnapshot.ref.set({result: {...record.result, promotion: bounded}, humanAcceptance: 'accepted', updatedAt: new Date().toISOString()}, {merge: true});
   return bounded;
 }
 
 function boundedLogWriter(filePath, limit) {
-  const stream = fs.createWriteStream(filePath, {flags: 'wx'});
-  let bytes = 0, truncated = false;
-  return {
-    write(chunk) { const buffer = Buffer.from(chunk); const remaining = Math.max(0, limit - bytes); if (remaining) stream.write(buffer.subarray(0, remaining)); bytes += Math.min(buffer.length, remaining); if (buffer.length > remaining) truncated = true; },
-    end() { return new Promise((resolve, reject) => { stream.once('error', reject); stream.end(resolve); }); },
-    stats() { return {bytes, truncated}; },
-  };
+  const stream = fs.createWriteStream(filePath, {flags: 'wx'}); let bytes = 0, truncated = false;
+  return {write(chunk) { const buffer = Buffer.from(chunk), remaining = Math.max(0, limit - bytes); if (remaining) stream.write(buffer.subarray(0, remaining)); bytes += Math.min(buffer.length, remaining); if (buffer.length > remaining) truncated = true; }, end() { return new Promise((resolve, reject) => { stream.once('error', reject); stream.end(resolve); }); }, stats() { return {bytes, truncated}; }};
 }
-
 async function runChildProcess({requestPath, outputDir, stdoutPath, stderrPath, timeoutMs = FOUNDRY_TIMEOUT_MS, spawnImpl = spawn}) {
-  const child = spawnImpl(process.execPath, [path.join(__dirname, 'foundry_worker_process.mjs'), requestPath, outputDir], {cwd: __dirname, detached: true, stdio: ['ignore', 'pipe', 'pipe'], env: {...process.env, FOUNDRY_WORKER: 'true'}});
-  const stdout = boundedLogWriter(stdoutPath, FOUNDRY_LOG_MAX_BYTES);
-  const stderr = boundedLogWriter(stderrPath, FOUNDRY_LOG_MAX_BYTES);
+  const child = spawnImpl(process.execPath, ['--max-old-space-size=3072', path.join(__dirname, 'foundry_worker_process.mjs'), requestPath, outputDir], {cwd: __dirname, detached: true, stdio: ['ignore', 'pipe', 'pipe'], env: {...process.env, FOUNDRY_WORKER: 'true'}});
+  const stdout = boundedLogWriter(stdoutPath, FOUNDRY_LOG_MAX_BYTES), stderr = boundedLogWriter(stderrPath, FOUNDRY_LOG_MAX_BYTES);
   child.stdout.on('data', (chunk) => stdout.write(chunk)); child.stderr.on('data', (chunk) => stderr.write(chunk));
   let timedOut = false;
-  const exit = await new Promise((resolve, reject) => {
-    const timer = setTimeout(() => { timedOut = true; try { process.kill(-child.pid, 'SIGKILL'); } catch (_) { try { child.kill('SIGKILL'); } catch (_) {} } }, timeoutMs);
-    child.once('error', (error) => { clearTimeout(timer); reject(error); });
-    child.once('close', (code, signal) => { clearTimeout(timer); resolve({code, signal}); });
-  });
+  const exit = await new Promise((resolve, reject) => { const timer = setTimeout(() => { timedOut = true; try { process.kill(-child.pid, 'SIGKILL'); } catch (_) { try { child.kill('SIGKILL'); } catch (_) {} } }, timeoutMs); child.once('error', (error) => { clearTimeout(timer); reject(error); }); child.once('close', (code, signal) => { clearTimeout(timer); resolve({code, signal}); }); });
   await Promise.all([stdout.end(), stderr.end()]);
   return {...exit, timedOut, stdout: stdout.stats(), stderr: stderr.stats()};
 }
-
 async function validateGlbFile(filePath, expectedByteLength) {
   const handle = await fsp.open(filePath, 'r');
-  try {
-    const header = Buffer.alloc(12); const {bytesRead} = await handle.read(header, 0, 12, 0);
-    if (bytesRead !== 12 || header.toString('ascii', 0, 4) !== 'glTF') throw fail('foundry.source.invalid_glb_magic', 'Source is not a binary glTF file.', 415);
-    const version = header.readUInt32LE(4), declaredLength = header.readUInt32LE(8);
-    if (version !== 2) throw fail('foundry.source.unsupported_glb_version', `Foundry requires GLB version 2; received ${version}.`, 415);
-    if (declaredLength !== expectedByteLength) throw fail('foundry.source.glb_length_mismatch', 'GLB declared length does not match the verified artifact byte length.', 409, {declaredLength, expectedByteLength});
-  } finally { await handle.close(); }
+  try { const header = Buffer.alloc(12), {bytesRead} = await handle.read(header, 0, 12, 0); if (bytesRead !== 12 || header.toString('ascii', 0, 4) !== 'glTF') throw fail('foundry.source.invalid_glb_magic', 'Source is not a binary glTF file.', 415); const version = header.readUInt32LE(4), declaredLength = header.readUInt32LE(8); if (version !== 2) throw fail('foundry.source.unsupported_glb_version', 'Foundry requires GLB version 2; received ' + version + '.', 415); if (declaredLength !== expectedByteLength) throw fail('foundry.source.glb_length_mismatch', 'GLB declared length does not match verified bytes.', 409, {declaredLength, expectedByteLength}); } finally { await handle.close(); }
 }
-
-async function digestFile(filePath) {
-  const hash = createHash('sha256'); let byteLength = 0;
-  for await (const chunk of fs.createReadStream(filePath)) { hash.update(chunk); byteLength += chunk.length; }
-  return {sha256: hash.digest('hex'), byteLength};
-}
-
-function artifactKind(name) {
-  if (name.endsWith('.glb')) return 'glb';
-  if (name === 'contact-sheet.png') return 'contactSheet';
-  if (name === 'skeletal-overlay.png') return 'skeletalOverlay';
-  if (name === 'foundry-manifest.json') return 'manifest';
-  if (name === 'validation-report.json') return 'report';
-  if (name === 'preservation-evidence.json') return 'evidence';
-  return 'artifact';
-}
-
-function contentType(name) {
-  if (name.endsWith('.glb')) return 'model/gltf-binary';
-  if (name.endsWith('.png')) return 'image/png';
-  if (name.endsWith('.json')) return 'application/json';
-  return 'application/octet-stream';
-}
-
+async function digestFile(filePath) { const hash = createHash('sha256'); let byteLength = 0; for await (const chunk of fs.createReadStream(filePath)) { hash.update(chunk); byteLength += chunk.length; } return {sha256: hash.digest('hex'), byteLength}; }
+function artifactKind(name) { if (name.endsWith('.glb')) return 'glb'; if (/^fixed-.*\.png$/.test(name)) return 'fixedView'; if (name === 'contact-sheet.png') return 'contactSheet'; if (name === 'skeletal-overlay.png') return 'skeletalOverlay'; if (name === 'foundry-manifest.json') return 'manifest'; if (name === 'validation-report.json') return 'report'; if (name === 'preservation-evidence.json') return 'evidence'; if (name === 'change-evidence.json') return 'changeEvidence'; return 'artifact'; }
+function contentType(name) { if (name.endsWith('.glb')) return 'model/gltf-binary'; if (name.endsWith('.png')) return 'image/png'; if (name.endsWith('.json')) return 'application/json'; return 'application/octet-stream'; }
 async function uploadImmutableFile({storage = storageClient(), bucketName = ARTIFACT_BUCKET, localPath, objectName, metadata}) {
-  const file = storage.bucket(bucketName).file(objectName);
-  const expected = await digestFile(localPath);
-  let reused = false;
-  try {
-    await storage.bucket(bucketName).upload(localPath, {destination: objectName, resumable: expected.byteLength > 8 * 1024 * 1024, validation: 'crc32c', preconditionOpts: {ifGenerationMatch: 0}, metadata: {contentType: metadata.mediaType, metadata}});
-  } catch (error) {
-    if (![409, 412].includes(Number(error && error.code)) && !/condition|already exists/i.test(String(error && error.message))) throw error;
-    reused = true;
-  }
-  const [remote] = await file.download();
-  const actual = {byteLength: remote.length, sha256: sha256(remote)};
-  if (actual.byteLength !== expected.byteLength || actual.sha256 !== expected.sha256) throw fail('foundry.output.readback_mismatch', `Foundry output failed readback verification: ${path.basename(localPath)}`, 502);
-  return {...expected, bucket: bucketName, objectName, storageRef: `gs://${bucketName}/${objectName}`, reused};
+  const file = storage.bucket(bucketName).file(objectName), expected = await digestFile(localPath); let reused = false;
+  try { await storage.bucket(bucketName).upload(localPath, {destination: objectName, resumable: expected.byteLength > 8 * 1024 * 1024, validation: 'crc32c', preconditionOpts: {ifGenerationMatch: 0}, metadata: {contentType: metadata.mediaType, metadata}}); }
+  catch (error) { if (![409, 412].includes(Number(error && error.code)) && !/condition|already exists/i.test(String(error && error.message))) throw error; reused = true; }
+  const [remote] = await file.download(), actual = {byteLength: remote.length, sha256: sha256(remote)};
+  if (actual.byteLength !== expected.byteLength || actual.sha256 !== expected.sha256) throw fail('foundry.output.readback_mismatch', 'Foundry output failed readback verification: ' + path.basename(localPath), 502);
+  return {...expected, bucket: bucketName, objectName, storageRef: 'gs://' + bucketName + '/' + objectName, reused};
 }
-
+async function downloadVerified(storage, identity, destination, role) {
+  await storage.bucket(identity.bucket).file(identity.objectName).download({destination});
+  const digest = await digestFile(destination);
+  if (digest.byteLength !== identity.byteLength || digest.sha256 !== identity.sha256) throw fail('foundry.' + role + '.readback_mismatch', 'Foundry ' + role + ' failed byte length or SHA-256 verification.', 409);
+  return digest;
+}
 async function executeFoundryJob(admin, payload = {}, dependencies = {}) {
-  const storage = dependencies.storage || storageClient();
-  const jobId = text(payload.jobId, 80);
-  const jobRef = admin.firestore().collection(JOBS).doc(jobId);
-  let record = null;
-  let shouldExecute = true;
-  const leaseId = randomUUID();
-  const nowMs = Date.now();
-  const startedAt = new Date(nowMs).toISOString();
-  await admin.firestore().runTransaction(async (transaction) => {
-    const snapshot = await transaction.get(jobRef);
-    if (!snapshot.exists) throw fail('foundry.job_not_found', 'Foundry worker job was not found.', 404);
-    record = snapshot.data() || {};
-    if (record.inputHash !== payload.inputHash) throw fail('foundry.worker.input_conflict', 'Worker payload input hash does not match the durable job.', 409);
-    if (record.state === 'completed') { shouldExecute = false; return; }
-    if (record.state === 'running' && Number(record.leaseExpiresAtMs || 0) > nowMs) { shouldExecute = false; return; }
-    transaction.set(jobRef, {state: 'running', startedAt: record.startedAt || startedAt, updatedAt: startedAt, executionAttempt: Number(payload.executionAttempt || 0), leaseId, leaseExpiresAtMs: nowMs + FOUNDRY_TIMEOUT_MS + 60 * 1000}, {merge: true});
-  });
+  const storage = dependencies.storage || storageClient(), jobId = text(payload.jobId, 80), jobRef = admin.firestore().collection(JOBS).doc(jobId); let record = null, shouldExecute = true;
+  const leaseId = randomUUID(), nowMs = Date.now(), startedAt = new Date(nowMs).toISOString();
+  await admin.firestore().runTransaction(async (transaction) => { const snapshot = await transaction.get(jobRef); if (!snapshot.exists) throw fail('foundry.job_not_found', 'Foundry worker job was not found.', 404); record = snapshot.data() || {}; if (record.inputHash !== payload.inputHash) throw fail('foundry.worker.input_conflict', 'Worker payload input hash does not match durable job.', 409); if (record.state === 'completed' || record.state === 'running' && Number(record.leaseExpiresAtMs || 0) > nowMs) { shouldExecute = false; return; } if (record.contractVersion !== 'home-center.foundry-job.v2') throw fail('foundry.contract.retired', 'Queued Foundry V1 execution is retired.', 410); transaction.set(jobRef, {state: 'running', startedAt: record.startedAt || startedAt, updatedAt: startedAt, executionAttempt: Number(payload.executionAttempt || 0), leaseId, leaseExpiresAtMs: nowMs + FOUNDRY_TIMEOUT_MS + 60000}, {merge: true}); });
   if (!shouldExecute) return boundedJobReceipt(record);
-  const tempDir = await fsp.mkdtemp(path.join(os.tmpdir(), `foundry-${jobId}-`));
-  const inputPath = path.join(tempDir, 'source.glb');
-  const requestPath = path.join(tempDir, 'request.json');
-  const outputDir = path.join(tempDir, 'output');
-  const stdoutPath = path.join(tempDir, 'stdout.log');
-  const stderrPath = path.join(tempDir, 'stderr.log');
-  await fsp.mkdir(outputDir);
-  let execution = null;
+  const tempDir = await fsp.mkdtemp(path.join(os.tmpdir(), 'foundry-' + jobId + '-')), inputPath = path.join(tempDir, 'source.glb'), scriptPath = path.join(tempDir, 'foundry-script.js'), requestPath = path.join(tempDir, 'request.json'), outputDir = path.join(tempDir, 'output'), stdoutPath = path.join(tempDir, 'stdout.log'), stderrPath = path.join(tempDir, 'stderr.log');
+  await fsp.mkdir(outputDir); let execution = null;
   try {
-    if (record.source && record.source.kind === 'home_center_artifact') {
-      await storage.bucket(record.source.bucket).file(record.source.objectName).download({destination: inputPath});
-      const digest = await digestFile(inputPath);
-      if (digest.byteLength !== record.source.byteLength || digest.sha256 !== record.source.sha256) throw fail('foundry.source.readback_mismatch', 'Foundry source failed byte length or SHA-256 verification.', 409);
-      await validateGlbFile(inputPath, digest.byteLength);
-    }
-    await fsp.writeFile(requestPath, JSON.stringify({recipe: record.recipe, parameters: record.parameters, reviewPreset: record.reviewPreset, fixtureId: record.source && record.source.fixtureId || '', sourcePath: record.source && record.source.kind === 'home_center_artifact' ? inputPath : ''}));
+    if (record.source) { await downloadVerified(storage, record.source, inputPath, 'source'); await validateGlbFile(inputPath, record.source.byteLength); }
+    if (record.script.kind === 'home_center_artifact') await downloadVerified(storage, record.script, scriptPath, 'script');
+    const request = {contractVersion: FOUNDRY_RUN_VERSION, domain: record.domain, parameters: record.parameters, reviewPreset: record.reviewPreset, scriptVersion: record.script.version, scriptSeed: parseInt(record.inputHash.slice(0, 8), 16), scriptPath: record.script.kind === 'home_center_artifact' ? scriptPath : '', scriptText: record.script.kind === 'inline' ? record.script.text : '', sourcePath: record.source ? inputPath : ''};
+    await fsp.writeFile(requestPath, JSON.stringify(request));
     execution = await runChildProcess({requestPath, outputDir, stdoutPath, stderrPath, timeoutMs: dependencies.timeoutMs || FOUNDRY_TIMEOUT_MS, spawnImpl: dependencies.spawnImpl || spawn});
-    if (execution.timedOut) throw fail('foundry.worker.timeout', 'Foundry worker exceeded its bounded runtime and the process tree was terminated.', 504);
-    if (execution.code !== 0) throw fail('foundry.worker.failed', `Foundry worker exited with code ${execution.code}; inspect bounded job logs.`, 500, {signal: execution.signal});
-    const names = (await fsp.readdir(outputDir)).sort();
-    let totalBytes = 0;
-    const identities = [];
+    if (execution.timedOut) throw fail('foundry.worker.timeout', 'Foundry worker exceeded bounded runtime and the process tree was terminated.', 504);
+    if (execution.code !== 0) throw fail('foundry.worker.failed', 'Foundry worker exited with code ' + execution.code + '; inspect bounded job logs.', 500, {signal: execution.signal});
+    const names = (await fsp.readdir(outputDir)).sort(); let totalBytes = 0; const identities = [];
     for (const name of names) { const digest = await digestFile(path.join(outputDir, name)); totalBytes += digest.byteLength; identities.push({name, ...digest}); }
-    if (totalBytes > FOUNDRY_MAX_OUTPUT_BYTES) throw fail('foundry.limit.output', 'Foundry outputs exceed the configured ceiling.', 413, {totalBytes, max: FOUNDRY_MAX_OUTPUT_BYTES});
-    const resultHash = hashJson(identities);
-    const cacheKey = sha256(Buffer.from(`${record.namespace}:${record.inputHash}:${resultHash}`));
-    const prefix = `foundry/v1/${record.ownerHash}/${record.namespace}/${record.inputHash}/${resultHash}`;
-    const artifacts = [];
-    for (const identity of identities) {
-      const kind = artifactKind(identity.name), type = contentType(identity.name);
-      const uploaded = await uploadImmutableFile({storage, localPath: path.join(outputDir, identity.name), objectName: `${prefix}/${identity.name}`, metadata: {jobId, namespace: record.namespace, inputHash: record.inputHash, resultHash, kind, mediaType: type, sha256: identity.sha256, byteLength: String(identity.byteLength)}});
-      artifacts.push({kind, name: identity.name, mediaType: type, ...uploaded});
-    }
+    if (totalBytes > FOUNDRY_MAX_OUTPUT_BYTES) throw fail('foundry.limit.output', 'Foundry outputs exceed configured ceiling.', 413, {totalBytes, max: FOUNDRY_MAX_OUTPUT_BYTES});
+    const resultHash = hashJson(identities), cacheKey = sha256(Buffer.from(record.namespace + ':' + record.inputHash + ':' + resultHash)), prefix = 'foundry/v2/' + record.ownerHash + '/' + record.namespace + '/' + record.inputHash + '/' + resultHash, artifacts = [];
+    for (const identity of identities) { const kind = artifactKind(identity.name), type = contentType(identity.name), uploaded = await uploadImmutableFile({storage, localPath: path.join(outputDir, identity.name), objectName: prefix + '/' + identity.name, metadata: {jobId, namespace: record.namespace, inputHash: record.inputHash, resultHash, kind, mediaType: type, sha256: identity.sha256, byteLength: String(identity.byteLength)}}); artifacts.push({kind, name: identity.name, mediaType: type, ...uploaded}); }
     const logs = {};
-    for (const [streamName, localPath] of [['stdout', stdoutPath], ['stderr', stderrPath]]) {
-      const uploaded = await uploadImmutableFile({storage, localPath, objectName: `${prefix}/logs/${streamName}.log`, metadata: {jobId, namespace: record.namespace, inputHash: record.inputHash, resultHash, kind: `${streamName}Log`, mediaType: 'text/plain'}});
-      logs[streamName] = {storageRef: uploaded.storageRef, byteLength: uploaded.byteLength, sha256: uploaded.sha256};
-    }
-    const report = JSON.parse(await fsp.readFile(path.join(outputDir, 'validation-report.json'), 'utf8'));
-    const completedAt = new Date().toISOString();
-    const result = {resultHash, cacheKey, report, artifacts, logs, totalBytes, immutable: true, publicationState: 'private_unpromoted'};
-    await jobRef.set({state: 'completed', completedAt, updatedAt: completedAt, result, logBytes: {stdout: execution.stdout.bytes, stderr: execution.stderr.bytes}, logsTruncated: execution.stdout.truncated || execution.stderr.truncated, timedOut: false, blockingError: null, leaseId: null, leaseExpiresAtMs: 0}, {merge: true});
+    for (const [streamName, localPath] of [['stdout', stdoutPath], ['stderr', stderrPath]]) { const uploaded = await uploadImmutableFile({storage, localPath, objectName: prefix + '/logs/' + streamName + '.log', metadata: {jobId, namespace: record.namespace, inputHash: record.inputHash, resultHash, kind: streamName + 'Log', mediaType: 'text/plain'}}); logs[streamName] = {storageRef: uploaded.storageRef, byteLength: uploaded.byteLength, sha256: uploaded.sha256}; }
+    const report = JSON.parse(await fsp.readFile(path.join(outputDir, 'validation-report.json'), 'utf8')), review = await publishReviewPacket({admin, record, resultHash, artifacts}), completedAt = new Date().toISOString(), result = {resultHash, cacheKey, report, artifacts, logs, totalBytes, immutable: true, publicationState: 'review_ready', review};
+    await jobRef.set({state: 'completed', completedAt, updatedAt: completedAt, result, humanAcceptance: 'unreviewed', logBytes: {stdout: execution.stdout.bytes, stderr: execution.stderr.bytes}, logsTruncated: execution.stdout.truncated || execution.stderr.truncated, timedOut: false, blockingError: null, leaseId: null, leaseExpiresAtMs: 0}, {merge: true});
     return boundedJobReceipt({...record, state: 'completed', completedAt, updatedAt: completedAt, result, logBytes: {stdout: execution.stdout.bytes, stderr: execution.stderr.bytes}, logsTruncated: execution.stdout.truncated || execution.stderr.truncated});
   } catch (error) {
-    const failedAt = new Date().toISOString();
-    const failureLogs = {};
-    if (execution) {
-      for (const [streamName, localPath] of [['stdout', stdoutPath], ['stderr', stderrPath]]) {
-        try {
-          const uploaded = await uploadImmutableFile({storage, localPath, objectName: `foundry/v1/${record.ownerHash}/${record.namespace}/${record.inputHash}/attempt-${Number(payload.executionAttempt || 0)}/logs/${streamName}.log`, metadata: {jobId, namespace: record.namespace, inputHash: record.inputHash, kind: `${streamName}Log`, mediaType: 'text/plain'}});
-          failureLogs[streamName] = {storageRef: uploaded.storageRef, byteLength: uploaded.byteLength, sha256: uploaded.sha256};
-        } catch (_) {}
-      }
-    }
+    const failedAt = new Date().toISOString(), failureLogs = {};
+    if (execution) for (const [streamName, localPath] of [['stdout', stdoutPath], ['stderr', stderrPath]]) try { const uploaded = await uploadImmutableFile({storage, localPath, objectName: 'foundry/v2/' + record.ownerHash + '/' + record.namespace + '/' + record.inputHash + '/attempt-' + Number(payload.executionAttempt || 0) + '/logs/' + streamName + '.log', metadata: {jobId, namespace: record.namespace, inputHash: record.inputHash, kind: streamName + 'Log', mediaType: 'text/plain'}}); failureLogs[streamName] = {storageRef: uploaded.storageRef, byteLength: uploaded.byteLength, sha256: uploaded.sha256}; } catch (_) {}
     await jobRef.set({state: 'failed', failedAt, updatedAt: failedAt, timedOut: error.code === 'foundry.worker.timeout', logBytes: execution ? {stdout: execution.stdout.bytes, stderr: execution.stderr.bytes} : {stdout: 0, stderr: 0}, logsTruncated: execution ? execution.stdout.truncated || execution.stderr.truncated : false, failureLogs, leaseId: null, leaseExpiresAtMs: 0, blockingError: {code: text(error.code, 120) || 'foundry.worker.failed', message: text(error.message || String(error), 1200)}}, {merge: true});
     throw error;
-  } finally {
-    await fsp.rm(tempDir, {recursive: true, force: true});
-  }
+  } finally { await fsp.rm(tempDir, {recursive: true, force: true}); }
 }
-
 async function runFoundryOperation({operation, admin, storage, user, args, enqueue}) {
   if (operation === 'foundry.asset.inspect') return inspectFoundryAsset({admin, storage, user, args, enqueue});
   if (operation === 'foundry.asset.run') return queueFoundryRun({admin, storage, user, args, enqueue});
   if (operation === 'foundry.asset.status') return foundryStatus({admin, user, args});
   if (operation === 'foundry.asset.promote') return promoteFoundryResult({admin, user, args});
-  throw fail('foundry.operation.unsupported', `Unsupported Foundry operation: ${operation}`);
+  throw fail('foundry.operation.unsupported', 'Unsupported Foundry operation: ' + operation);
 }
-
 function installFoundryArtifactRoutes(app, {admin, storage = storageClient()}) {
-  app.get('/foundry/artifacts/:promotionId/:name', async (req, res) => {
-    try {
-      const promotionId = text(req.params.promotionId, 80);
-      const name = filename(req.params.name);
-      if (!/^[a-f0-9]{40}$/.test(promotionId)) throw fail('foundry.promotion.invalid', 'Promotion identifier is invalid.', 404);
-      const snapshot = await admin.firestore().collection(PROMOTIONS).doc(promotionId).get();
-      if (!snapshot.exists) throw fail('foundry.promotion.not_found', 'Promoted Foundry artifact was not found.', 404);
-      const promotion = snapshot.data() || {};
-      const artifact = promotion.artifacts && promotion.artifacts[name];
-      if (!artifact || artifact.name !== name) throw fail('foundry.promotion.artifact_not_found', 'Promoted Foundry artifact was not found.', 404);
-      res.set('Access-Control-Allow-Origin', '*');
-      res.set('Cache-Control', 'public, max-age=31536000, immutable');
-      res.set('Content-Type', artifact.mediaType);
-      res.set('Content-Length', String(artifact.byteLength));
-      res.set('ETag', `"${artifact.sha256}"`);
-      res.set('X-Content-Type-Options', 'nosniff');
-      storage.bucket(artifact.bucket).file(artifact.objectName).createReadStream().on('error', (error) => { if (!res.headersSent) res.status(502).json({error: 'foundry.artifact.read_failed', message: text(error.message, 300)}); else res.destroy(error); }).pipe(res);
-    } catch (error) {
-      res.status(error.status || 500).json({error: error.code || 'foundry.artifact.failed', message: text(error.message || String(error), 600), details: error.details || {}});
-    }
+  app.get('/foundry/artifacts/:publicationId/:name', async (req, res) => {
+    try { const publicationId = text(req.params.publicationId, 80), name = filename(req.params.name); if (!/^[a-f0-9]{40}$/.test(publicationId)) throw fail('foundry.publication.invalid', 'Publication identifier is invalid.', 404); const snapshot = await admin.firestore().collection(PUBLICATIONS).doc(publicationId).get(); if (!snapshot.exists) throw fail('foundry.publication.not_found', 'Foundry review artifact was not found.', 404); const publication = snapshot.data() || {}, artifact = publication.artifacts && publication.artifacts[name]; if (!artifact || artifact.name !== name) throw fail('foundry.publication.artifact_not_found', 'Foundry review artifact was not found.', 404); res.set('Access-Control-Allow-Origin', '*'); res.set('Cache-Control', 'public, max-age=31536000, immutable'); res.set('Content-Type', artifact.mediaType); res.set('Content-Length', String(artifact.byteLength)); res.set('ETag', '"' + artifact.sha256 + '"'); res.set('X-Content-Type-Options', 'nosniff'); storage.bucket(artifact.bucket).file(artifact.objectName).createReadStream().on('error', (error) => { if (!res.headersSent) res.status(502).json({error: 'foundry.artifact.read_failed', message: text(error.message, 300)}); else res.destroy(error); }).pipe(res); }
+    catch (error) { res.status(error.status || 500).json({error: error.code || 'foundry.artifact.failed', message: text(error.message || String(error), 600), details: error.details || {}}); }
   });
 }
 
-module.exports = {
-  FOUNDRY_CAPABILITY_VERSION,
-  FOUNDRY_RECIPE_VERSION,
-  FOUNDRY_TASK_FUNCTION,
-  foundryOperationEntries,
-  normalizeRecipe,
-  resolveSource,
-  queueFoundryRun,
-  inspectFoundryAsset,
-  foundryStatus,
-  promoteFoundryResult,
-  executeFoundryJob,
-  runFoundryOperation,
-  installFoundryArtifactRoutes,
-  boundedJobReceipt,
-  runChildProcess,
-  hashJson,
-};
+module.exports = {FOUNDRY_CAPABILITY_VERSION, FOUNDRY_RUN_VERSION, FOUNDRY_SCRIPT_VERSION, FOUNDRY_TASK_FUNCTION, foundryOperationEntries, resolveSource, resolveScript, queueFoundryRun, inspectFoundryAsset, foundryStatus, promoteFoundryResult, executeFoundryJob, runFoundryOperation, installFoundryArtifactRoutes, boundedJobReceipt, runChildProcess, hashJson};
