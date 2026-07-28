@@ -37,6 +37,7 @@ tools/creative_prompt_evidence/
 *_SECRET*
 *secret*.json
 *credentials*.json
+gha-creds-*.json
 
 # Editor/OS noise
 .DS_Store
