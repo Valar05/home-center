@@ -49,6 +49,14 @@ Namespaces cover:
 
 Unsupported operations stop honestly. Weight painting, automatic arbitrary rigging, organic geometry, sculpting, general modifier compatibility, and implicit fallback are out of scope.
 
+## Geometry Economy Contract
+
+Every topology-producing operation must declare a topology contract before it runs: complete vertex-purpose coverage, output vertex and triangle ceilings, maximum growth ratio, and a pending remove-or-merge challenge at the commissioned viewing error. Section lofts must justify every station and profile point; cylinders must record their screen-error sampling basis; Boolean output is constructed transactionally and discarded before replacing its operands when it exceeds its ceiling.
+
+A hard-surface script must also declare component, complete-asset, and commissioned-scene budgets. The kernel preflights predictable expansion and reports unique source cost separately from expanded scene cost. The 250k-vertex/500k-triangle limits remain crash fuses only.
+
+Machine completion reports `topologyValid` and `budgetValid`; `purposeValid` remains false until the accepted review record includes a remove-or-merge comparison for the exact immutable result. All three gates are required for promotion. None sets human visual acceptance by itself.
+
 ## State And Identity
 
 `accepted -> queued -> running -> completed | failed`
@@ -81,6 +89,6 @@ The script refuses a branch, dirty tree, stale main, or unguarded worker-only de
 
 ## Verification
 
-`node tools/foundry_contract_test.mjs` proves deterministic hard-surface compilation, weapon-bone insertion and rigid attachment, animation editing without geometry/skin mutation, dynamic discovery, exact replay, namespace isolation, bounded logs, timeout termination, review publication, explicit promotion, no top-level Foundry tool, no mutable latest, and no retired-renderer invocation.
+`node tools/foundry_contract_test.mjs` proves deterministic hard-surface compilation, vertex-purpose coverage, production-budget enforcement, preflight rejection of the historical 20k-class loft request, transactional Boolean limits, promotion gating, weapon-bone insertion and rigid attachment, animation editing without geometry/skin mutation, dynamic discovery, exact replay, namespace isolation, bounded logs, timeout termination, review publication, no top-level Foundry tool, no mutable latest, and no retired-renderer invocation.
 
 Live acceptance additionally requires authenticated dynamic discovery, three completed cloud specimens, immutable URL readback, visible shared-viewer evidence, and two namespaced jobs that cannot resolve to each other.
