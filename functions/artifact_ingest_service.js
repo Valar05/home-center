@@ -530,6 +530,13 @@ async function resumeResumableArtifactIngestOperation({admin,user,args={}}) { co
 
 async function commitResumableArtifactIngestOperation({admin,storage=defaultStorage(),user,args={},recordAudit}) {
   if(args.approved!==true) throw fail('storage.artifact.resumable_commit requires approved=true.',409,'artifact_ingest_not_approved'); const {ref,data}=await loadResumableSession(admin,user,args); const file=storage.bucket(ARTIFACT_BUCKET).file(data.objectName);
+  if(data.state==="completed") {
+    const artifactId=text(data.identity && data.identity.artifactId,180);
+    const {manifest}=await readArtifactOperation({storage,user,args:{artifactId}});
+    const destination=manifest && manifest.destination || {};
+    if(Number(destination.byteCount||0)!==Number(data.artifact && data.artifact.byteLength||0) || text(destination.sha256,64).toLowerCase()!==text(data.artifact && data.artifact.sha256,64).toLowerCase()) throw fail("Completed resumable session conflicts with its canonical artifact manifest.",409,"artifact_resumable_completed_identity_conflict");
+    return {ok:true,verified:true,reused:true,requestId:data.requestId,artifactId,lifecycleState:manifest.lifecycleState,durableRef:"home-center://artifacts/"+artifactId,destination,verification:manifest.verification,provenance:manifest.source && manifest.source.provenance || {},transport:{kind:"gcs-resumable-raw-binary-v1",verifiedChunks:Array.isArray(data.chunks)?data.chunks.length:0,transferredOutsideMcpJson:true,transferredBytes:0,exactReplay:true}};
+  }
   const verifiedChunks=await boundedMap(data.chunks,4,async(chunk)=>{const digest=await digestFile(file,{start:chunk.offset,end:chunk.offset+chunk.byteCount-1}); if(digest.byteCount!==chunk.byteCount) throw fail('Resumable chunk byte length mismatch at index '+chunk.index+'.',409,'artifact_resumable_chunk_length_mismatch'); if(digest.sha256!==chunk.sha256) throw fail('Resumable chunk SHA-256 mismatch at index '+chunk.index+'.',409,'artifact_resumable_chunk_sha256_mismatch'); return {...chunk,verified:true};});
   const whole=assertExpectedDigest(data.identity,await digestFile(file)); await ref.set({...data,state:'ready',progress:{verifiedChunks:verifiedChunks.length,totalChunks:verifiedChunks.length,verifiedBytes:whole.byteCount,totalBytes:whole.byteCount},verifiedAt:new Date().toISOString()});
   const result=await publishVerified({admin,storage,user,identity:data.identity,verified:{...whole,sourceFile:file},recordAudit}); await ref.set({...data,uploadUrl:'',state:'completed',progress:{verifiedChunks:verifiedChunks.length,totalChunks:verifiedChunks.length,verifiedBytes:whole.byteCount,totalBytes:whole.byteCount},result:{durableRef:result.durableRef,destination:result.destination},completedAt:new Date().toISOString()});
