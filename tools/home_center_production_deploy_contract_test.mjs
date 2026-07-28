@@ -33,6 +33,7 @@ assert.match(workflow,/ref: refs\/heads\/main/);
 assert.match(workflow,/fetch-depth: 0/);
 assert.match(workflow,/Enforce immutable main release source/);
 assert.match(workflow,/deploy_foundry_v2_release\.sh "\$PROJECT"/);
+assert.match(workflow,/HOME_CENTER_MCP_REFRESH_TOKEN: \$\{\{ secrets\.HOME_CENTER_MCP_REFRESH_TOKEN \}\}/);
 assert.doesNotMatch(workflow,/^  push:/m);
 assert.doesNotMatch(workflow,/deploy-cloud-run-blender|commandCenterRenderWorker|render_blender_glb/);
 for (const name of ['HOME_CENTER_SOURCE_REPOSITORY','HOME_CENTER_SOURCE_COMMIT','HOME_CENTER_SOURCE_REF','HOME_CENTER_PUBLIC_MANIFEST_SHA256']) assert.match(functionsScript,new RegExp(name));

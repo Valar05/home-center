@@ -54,4 +54,5 @@ jobs:
           GCLOUD_FUNCTIONS_REGION: ${{ env.REGION }}
           COMMAND_CENTER_MCP_URL: https://${{ env.REGION }}-${{ env.PROJECT }}.cloudfunctions.net/commandCenterMcp/mcp
           HOME_CENTER_MCP_BEARER_TOKEN: ${{ secrets.HOME_CENTER_MCP_BEARER_TOKEN }}
+          HOME_CENTER_MCP_REFRESH_TOKEN: ${{ secrets.HOME_CENTER_MCP_REFRESH_TOKEN }}
         run: sh tools/deploy_foundry_v2_release.sh "$PROJECT"
