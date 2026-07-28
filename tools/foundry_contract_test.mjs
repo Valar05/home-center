@@ -127,7 +127,7 @@ function reviewPng(blank = false) {
   return PNG.sync.write(png);
 }
 
-function fakeWorkerSpawn(glbBytes) {
+function fakeWorkerSpawn(glbBytes, validationReport = {kernelVersion:'test',runVersion:FOUNDRY_RUN_VERSION,domain:'hard_surface',triangleCount:1,componentCount:1,validation:{topologyValid:true,budgetValid:true,purposeValid:false}}) {
   return (_command, args) => {
     const child = new EventEmitter();
     child.pid = 999999;
@@ -148,7 +148,7 @@ function fakeWorkerSpawn(glbBytes) {
           'fixed-top.png': png,
           'fixed-perspective.png': png,
           'contact-sheet.png': buildContactSheet({front:png,back:png,left:png,right:png,top:png,perspective:png}, ['front','back','left','right','top','perspective']),
-          'validation-report.json': Buffer.from(JSON.stringify({kernelVersion:'test',runVersion:FOUNDRY_RUN_VERSION,domain:'hard_surface',triangleCount:1,componentCount:1,validation:{}})),
+          'validation-report.json': Buffer.from(JSON.stringify(validationReport)),
           'preservation-evidence.json': Buffer.from('{}'),
           'change-evidence.json': Buffer.from('{}'),
           'foundry-manifest.json': Buffer.from(JSON.stringify({schemaVersion:'home-center.foundry-result.v2',humanAcceptance:'unreviewed'})),
@@ -192,11 +192,25 @@ assert.deepEqual(dynamic, ['foundry.asset.inspect','foundry.asset.promote','foun
 for (const operation of dynamic) assert.ok(driveOperationRegistry().operations[operation], operation + ' is not dynamically discoverable');
 assert.equal(driveOperationRegistry().invocationTool, 'drive_operation');
 
-const hardScript = "foundry.material.create('steel',{baseColor:[0.22,0.28,0.25,1],metallic:0.7,roughness:0.38}); foundry.scene.createProfileExtrusion('body',{profile:[[-1,-0.5],[1,-0.5],[1,0.5],[-1,0.5]],depth:0.6,material:'steel'}); foundry.scene.createCylinder('wheel',{radius:0.32,depth:0.22,segments:20,translation:[-0.65,-0.42,0],material:'steel'}); foundry.scene.array('wheel',{count:3,offset:[0.65,0,0],namePrefix:'wheel'}); foundry.scene.mirror('wheel','z',{name:'wheel-mirror'}); foundry.mesh.recalculateNormals('body'); foundry.review.fixedViews(['front','back','left','right','top','perspective']);";
+const purpose = (rationale, purposeName = 'silhouette') => ({purpose:purposeName,rationale});
+function topologySpec(base, {purposeName = 'silhouette', rationale = 'Required by the commissioned visible form.', maxVertices = 1024, maxTriangles = 2048, maxGrowthRatio = 4, sectionCount = 0, profileCount = 0, segmentCount = 0} = {}) {
+  const topology = {coverage:'all_output_vertices',...purpose(rationale,purposeName),maxOutputVertices:maxVertices,maxOutputTriangles:maxTriangles,maxGrowthRatio,simplification:{method:'remove_or_merge',status:'pending_review',maxVisibleErrorPx:0.75}};
+  if (sectionCount) topology.sectionPurposes = Array.from({length:sectionCount},(_,index)=>purpose('Section '+index+' marks a required form transition.','manufactured_form_transition'));
+  if (profileCount) topology.profilePointPurposes = Array.from({length:profileCount},(_,index)=>purpose('Profile point '+index+' controls the required silhouette.','silhouette'));
+  if (segmentCount) topology.sampling = {basis:'projected_error',segmentCount,projectedRadiusPx:160,maxErrorPx:0.75};
+  return {...base,topology};
+}
+function productionBudget(components, overrides = {}) {
+  return {asset:{maxVertices:overrides.assetVertices || 4096,maxTriangles:overrides.assetTriangles || 8192},components:Object.fromEntries(components.map((name)=>[name,{maxVertices:overrides.componentVertices || 2048,maxTriangles:overrides.componentTriangles || 4096}])),scene:{instances:overrides.instances || 24,maxExpandedVertices:overrides.sceneVertices || 1000000,maxExpandedTriangles:overrides.sceneTriangles || 2000000}};
+}
+const hardBudget = productionBudget(['body','wheel','wheel-1','wheel-2','wheel-mirror']);
+const bodySpec = topologySpec({profile:[[-1,-0.5],[1,-0.5],[1,0.5],[-1,0.5]],depth:0.6,material:'steel'},{profileCount:4,maxVertices:128,maxTriangles:64,rationale:'The four profile corners define the armor silhouette.'});
+const wheelSpec = topologySpec({radius:0.32,depth:0.22,segments:20,translation:[-0.65,-0.42,0],material:'steel'},{segmentCount:20,maxVertices:512,maxTriangles:128,rationale:'The wheel arc sampling preserves its projected silhouette.'});
+const hardScript = "foundry.validation.productionBudget("+JSON.stringify(hardBudget)+"); foundry.material.create('steel',{baseColor:[0.22,0.28,0.25,1],metallic:0.7,roughness:0.38}); foundry.scene.createProfileExtrusion('body',"+JSON.stringify(bodySpec)+"); foundry.scene.createCylinder('wheel',"+JSON.stringify(wheelSpec)+"); foundry.scene.array('wheel',{count:3,offset:[0.65,0,0],namePrefix:'wheel'}); foundry.scene.mirror('wheel','z',{name:'wheel-mirror'}); foundry.mesh.recalculateNormals('body'); foundry.review.fixedViews(['front','back','left','right','top','perspective']);";
 const hardPlanA = await executeFoundryScript({version:FOUNDRY_SCRIPT_VERSION,text:hardScript,parameters:{},seed:77});
 const hardPlanB = await executeFoundryScript({version:FOUNDRY_SCRIPT_VERSION,text:hardScript,parameters:{},seed:77});
 assert.deepEqual(hardPlanA, hardPlanB);
-assert.equal(hardPlanA.operationCount, 7);
+assert.equal(hardPlanA.operationCount, 8);
 await assert.rejects(() => executeFoundryScript({version:'foundry-js.v0',text:hardScript}), (error) => error.code === 'foundry.script.unsupported_version');
 await assert.rejects(() => executeFoundryScript({version:FOUNDRY_SCRIPT_VERSION,text:'fetch("https://example.com")'}), (error) => error.code === 'foundry.script.failed');
 await assert.rejects(() => runFoundryKernel({plan:{operations:[{namespace:'mesh',operation:'arbitrary',args:[]}],notes:[]}}), (error) => error.code === 'foundry.script.unsupported_operation');
@@ -205,8 +219,14 @@ const hardB = await runFoundryKernel({plan:hardPlanB,domain:'hard_surface',revie
 assert.equal(digest(hardA.glb), digest(hardB.glb), 'procedural GLB must be deterministic');
 assert.ok(hardA.report.triangleCount > 0 && hardA.report.componentCount >= 5);
 assert.ok(hardA.report.validation.manifoldClosedComponents >= 1);
+assert.equal(hardA.report.validation.topologyValid,true);
+assert.equal(hardA.report.validation.budgetValid,true);
+assert.equal(hardA.report.validation.purposeValid,false);
+assert.equal(hardA.report.topologyEvidence.length,2);
 
-const loftScript = "foundry.material.create('cast',{baseColor:[0.32,0.36,0.31,1],metallic:0.2,roughness:0.74}); foundry.scene.createSectionLoft('cast-shell',{sections:[{z:-1,profile:[[-1,-0.5],[0,-0.72],[1,-0.5],[1.2,0],[0.9,0.68],[0,0.82],[-0.9,0.68],[-1.2,0]]},{z:0,profile:[[-1.1,-0.45],[0,-0.66],[1.1,-0.45],[1.3,0],[0.96,0.75],[0,0.9],[-0.96,0.75],[-1.3,0]]},{z:1,profile:[[-0.82,-0.38],[0,-0.55],[0.82,-0.38],[0.98,0],[0.72,0.58],[0,0.7],[-0.72,0.58],[-0.98,0]]}],material:'cast'}); foundry.scene.createGroup('elevation-pivot',{translation:[0,0,0]}); foundry.scene.reparent('cast-shell','elevation-pivot'); foundry.review.fixedViews(['front','back','left','right','top','perspective']);";
+const loftSections = [{z:-1,profile:[[-1,-0.5],[0,-0.72],[1,-0.5],[1.2,0],[0.9,0.68],[0,0.82],[-0.9,0.68],[-1.2,0]]},{z:0,profile:[[-1.1,-0.45],[0,-0.66],[1.1,-0.45],[1.3,0],[0.96,0.75],[0,0.9],[-0.96,0.75],[-1.3,0]]},{z:1,profile:[[-0.82,-0.38],[0,-0.55],[0.82,-0.38],[0.98,0],[0.72,0.58],[0,0.7],[-0.72,0.58],[-0.98,0]]}];
+const loftSpec = topologySpec({sections:loftSections,material:'cast'},{sectionCount:3,profileCount:8,maxVertices:64,maxTriangles:64,rationale:'The loft intersections define the cast shell silhouette.'});
+const loftScript = "foundry.validation.productionBudget("+JSON.stringify(productionBudget(['cast-shell'],{assetVertices:64,assetTriangles:64,componentVertices:64,componentTriangles:64}))+"); foundry.material.create('cast',{baseColor:[0.32,0.36,0.31,1],metallic:0.2,roughness:0.74}); foundry.scene.createSectionLoft('cast-shell',"+JSON.stringify(loftSpec)+"); foundry.scene.createGroup('elevation-pivot',{translation:[0,0,0]}); foundry.scene.reparent('cast-shell','elevation-pivot'); foundry.review.fixedViews(['front','back','left','right','top','perspective']);";
 const loftPlan = await executeFoundryScript({version:FOUNDRY_SCRIPT_VERSION,text:loftScript,seed:91});
 const loft = await runFoundryKernel({plan:loftPlan,domain:'hard_surface',reviewPreset:'fixed-six-view'});
 assert.equal(loft.report.componentCount,1);
@@ -217,15 +237,31 @@ assert.equal(loft.report.validation.invalidNormals,0);
 assert.ok(loft.report.hierarchy.some((node) => node.name === 'cast-shell' && node.parent === 'elevation-pivot'));
 const loftReplay = await runFoundryKernel({plan:loftPlan,domain:'hard_surface',reviewPreset:'fixed-six-view'});
 assert.equal(digest(loft.glb),digest(loftReplay.glb),'section loft must be deterministic');
-const loftBooleanScript = "foundry.scene.createSectionLoft('outer',{sections:[{z:-1,profile:[[-1,-0.5],[0,-0.7],[1,-0.5],[1.2,0],[0.9,0.7],[0,0.85],[-0.9,0.7],[-1.2,0]]},{z:0,profile:[[-1.1,-0.48],[0,-0.68],[1.1,-0.48],[1.3,0],[0.95,0.75],[0,0.9],[-0.95,0.75],[-1.3,0]]},{z:1,profile:[[-0.9,-0.42],[0,-0.6],[0.9,-0.42],[1.05,0],[0.78,0.62],[0,0.76],[-0.78,0.62],[-1.05,0]]}]}); foundry.scene.createSectionLoft('inner',{sections:[{z:-0.8,profile:[[-0.78,-0.34],[0,-0.5],[0.78,-0.34],[0.92,0],[0.68,0.53],[0,0.65],[-0.68,0.53],[-0.92,0]]},{z:0,profile:[[-0.88,-0.32],[0,-0.48],[0.88,-0.32],[1.02,0],[0.73,0.57],[0,0.7],[-0.73,0.57],[-1.02,0]]},{z:0.8,profile:[[-0.7,-0.28],[0,-0.42],[0.7,-0.28],[0.82,0],[0.58,0.46],[0,0.58],[-0.58,0.46],[-0.82,0]]}]}); foundry.mesh.boolean('outer','inner','subtract','hollow-shell');";
+
+const outerSpec = topologySpec({sections:[{z:-1,profile:[[-1,-0.5],[0,-0.7],[1,-0.5],[1.2,0],[0.9,0.7],[0,0.85],[-0.9,0.7],[-1.2,0]]},{z:0,profile:[[-1.1,-0.48],[0,-0.68],[1.1,-0.48],[1.3,0],[0.95,0.75],[0,0.9],[-0.95,0.75],[-1.3,0]]},{z:1,profile:[[-0.9,-0.42],[0,-0.6],[0.9,-0.42],[1.05,0],[0.78,0.62],[0,0.76],[-0.78,0.62],[-1.05,0]]}]},{sectionCount:3,profileCount:8,maxVertices:64,maxTriangles:64});
+const innerSpec = topologySpec({sections:[{z:-0.8,profile:[[-0.78,-0.34],[0,-0.5],[0.78,-0.34],[0.92,0],[0.68,0.53],[0,0.65],[-0.68,0.53],[-0.92,0]]},{z:0,profile:[[-0.88,-0.32],[0,-0.48],[0.88,-0.32],[1.02,0],[0.73,0.57],[0,0.7],[-0.73,0.57],[-1.02,0]]},{z:0.8,profile:[[-0.7,-0.28],[0,-0.42],[0.7,-0.28],[0.82,0],[0.58,0.46],[0,0.58],[-0.58,0.46],[-0.82,0]]}]},{sectionCount:3,profileCount:8,maxVertices:64,maxTriangles:64});
+const booleanContract = topologySpec({},{purposeName:'mechanical_interface',rationale:'The subtraction boundary creates the required hollow interface.',maxVertices:2048,maxTriangles:4096,maxGrowthRatio:20});
+const loftBooleanScript = "foundry.validation.productionBudget("+JSON.stringify(productionBudget(['hollow-shell'],{assetVertices:2048,assetTriangles:4096,componentVertices:2048,componentTriangles:4096}))+"); foundry.scene.createSectionLoft('outer',"+JSON.stringify(outerSpec)+"); foundry.scene.createSectionLoft('inner',"+JSON.stringify(innerSpec)+"); foundry.mesh.boolean('outer','inner','subtract','hollow-shell',"+JSON.stringify(booleanContract)+");";
 const loftBooleanPlan = await executeFoundryScript({version:FOUNDRY_SCRIPT_VERSION,text:loftBooleanScript,seed:93});
 const loftBoolean = await runFoundryKernel({plan:loftBooleanPlan,domain:'hard_surface',reviewPreset:'fixed-six-view'});
 assert.equal(loftBoolean.report.componentCount,1);
 assert.equal(loftBoolean.report.validation.manifoldClosedComponents,1);
 assert.equal(loftBoolean.report.validation.degenerateTriangles,0);
 assert.equal(loftBoolean.report.validation.invalidNormals,0);
-const badLoftPlan = await executeFoundryScript({version:FOUNDRY_SCRIPT_VERSION,text:"foundry.scene.createSectionLoft('bad',{sections:[{z:0,profile:[[0,0],[1,0],[0,1]]},{z:1,profile:[[0,0],[1,0],[1,1],[0,1]]}]});",seed:92});
+
+const badSections = [{z:0,profile:[[0,0],[1,0],[0,1]]},{z:1,profile:[[0,0],[1,0],[1,1],[0,1]]}];
+const badLoftSpec = topologySpec({sections:badSections},{sectionCount:2,profileCount:3,maxVertices:32,maxTriangles:32});
+const badLoftScript = "foundry.validation.productionBudget("+JSON.stringify(productionBudget(['bad']))+"); foundry.scene.createSectionLoft('bad',"+JSON.stringify(badLoftSpec)+");";
+const badLoftPlan = await executeFoundryScript({version:FOUNDRY_SCRIPT_VERSION,text:badLoftScript,seed:92});
 await assert.rejects(() => runFoundryKernel({plan:badLoftPlan,domain:'hard_surface'}), (error) => error.code === 'foundry.geometry.section_correspondence');
+
+const missingPurposeScript = "const sections=[{z:0,profile:[[0,0],[1,0],[0,1]]},{z:1,profile:[[0,0],[1,0],[0,1]]}]; foundry.validation.productionBudget("+JSON.stringify(productionBudget(['missing']))+"); foundry.scene.createSectionLoft('missing',{sections,topology:{coverage:'all_output_vertices',purpose:'silhouette',rationale:'Required visible triangular prism silhouette.',maxOutputVertices:32,maxOutputTriangles:32,maxGrowthRatio:2,simplification:{method:'remove_or_merge',status:'pending_review',maxVisibleErrorPx:0.75},sectionPurposes:[{purpose:'silhouette',rationale:'Only one section is deliberately covered.'}],profilePointPurposes:Array.from({length:3},()=>({purpose:'silhouette',rationale:'Each point controls the visible silhouette.'}))}});";
+const missingPurposePlan = await executeFoundryScript({version:FOUNDRY_SCRIPT_VERSION,text:missingPurposeScript,seed:94});
+await assert.rejects(() => runFoundryKernel({plan:missingPurposePlan,domain:'hard_surface'}), (error) => error.code === 'foundry.geometry.purpose_coverage');
+
+const runawayScript = "const profile=Array.from({length:256},(_,i)=>{const a=i*Math.PI*2/256;return [Math.cos(a),Math.sin(a)];}); const sections=Array.from({length:96},(_,i)=>({z:i,profile})); const sectionPurposes=Array.from({length:96},(_,i)=>({purpose:'manufactured_form_transition',rationale:'Section '+i+' claims a required transition.'})); const profilePointPurposes=Array.from({length:256},(_,i)=>({purpose:'silhouette',rationale:'Point '+i+' claims required silhouette control.'})); foundry.validation.productionBudget("+JSON.stringify(productionBudget(['runaway']))+"); foundry.scene.createSectionLoft('runaway',{sections,topology:{coverage:'all_output_vertices',purpose:'silhouette',rationale:'The requested loft claims complete visible silhouette control.',maxOutputVertices:1000,maxOutputTriangles:5000,maxGrowthRatio:2,simplification:{method:'remove_or_merge',status:'pending_review',maxVisibleErrorPx:0.75},sectionPurposes,profilePointPurposes}});";
+const runawayPlan = await executeFoundryScript({version:FOUNDRY_SCRIPT_VERSION,text:runawayScript,seed:95});
+await assert.rejects(() => runFoundryKernel({plan:runawayPlan,domain:'hard_surface'}), (error) => error.code === 'foundry.geometry.operation_budget_exceeded' && error.details.phase === 'preflight');
 
 const fixtureBytes = await characterFixture();
 const before = await inspectGlbBytes(fixtureBytes);
@@ -277,7 +313,7 @@ assert.equal(inspectAccepted.accepted,true); assert.equal(enqueued.length,2);
 const acceptedB = await queueFoundryRun({admin,storage,user,args:{...baseArgs,idempotencyKey:'mechanical-2',namespace:'specimen-b'},enqueue});
 assert.notEqual(acceptedB.jobId,accepted.jobId); assert.notEqual(acceptedB.inputHash,accepted.inputHash);
 
-const workerSpawn = fakeWorkerSpawn(hardA.glb);
+const workerSpawn = fakeWorkerSpawn(hardA.glb, hardA.report);
 const completedA = await executeFoundryJob(admin,enqueued[0],{storage,spawnImpl:workerSpawn});
 const uploadsAfterA = storage.uploadCalls;
 const replayA = await executeFoundryJob(admin,enqueued[0],{storage,spawnImpl:workerSpawn});
@@ -323,7 +359,9 @@ const tamperedFailureStatus = await foundryStatus({admin,storage,user,args:{jobI
 assert.equal(tamperedFailureStatus.failureLogs.stderr.readbackVerified,false);
 assert.equal(tamperedFailureStatus.failureLogs.stderr.error.code,'foundry.failure_log.readback_mismatch');
 
-admin.db.store.set('artifactReviewRecords/review-accepted',{ownerEmail:owner,verdict:'accepted',result:{promotionAllowed:true,producer:{receiptId:accepted.jobId}}});
+admin.db.store.set('artifactReviewRecords/review-purpose-missing',{ownerEmail:owner,verdict:'accepted',result:{promotionAllowed:true,producer:{receiptId:accepted.jobId}}});
+await assert.rejects(() => promoteFoundryResult({admin,user,args:{jobId:accepted.jobId,resultHash:completedA.result.resultHash,reviewRequestId:'review-purpose-missing'}}), (error) => error.code === 'foundry.promotion.purpose_review_required');
+admin.db.store.set('artifactReviewRecords/review-accepted',{ownerEmail:owner,verdict:'accepted',result:{promotionAllowed:true,producer:{receiptId:accepted.jobId},purposeValid:true,simplificationEvidence:[{component:'complete-asset',method:'remove_or_merge',status:'passed',views:['front','back','left','right','top','perspective'],maxVisibleErrorPx:0.75}]}});
 const promoted = await promoteFoundryResult({admin,user,args:{jobId:accepted.jobId,resultHash:completedA.result.resultHash,reviewRequestId:'review-accepted',requestId:'promote-1'}});
 assert.equal(promoted.humanAcceptance,'accepted');
 const promotedReplay = await promoteFoundryResult({admin,user,args:{jobId:accepted.jobId,resultHash:completedA.result.resultHash,reviewRequestId:'review-accepted',requestId:'promote-1'}});
