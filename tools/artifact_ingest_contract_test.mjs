@@ -153,6 +153,25 @@ const replay = await service.ingestArtifactUploadOperation({admin, storage, user
 assert.equal(replay.reused, true);
 assert.equal(replay.indexes.byId.reused, true);
 
+const replaySessionId = "resumable-completed-replay-v1";
+const directManifest = JSON.parse(storage.bucket(service.ARTIFACT_BUCKET).objects.get("indexes/artifacts/v1/by-id/dclarke1005@gmail.com/motion-packet-direct.json").bytes.toString("utf8"));
+await firestore.collection("artifactTransportUploadSessions").doc(replaySessionId).create({
+  requestId: replaySessionId,
+  state: "completed",
+  ownerEmail: user.email,
+  identity: {...identity, requestId: replaySessionId, artifactId: directManifest.artifactId},
+  artifact: {sha256: directManifest.destination.sha256, byteLength: directManifest.destination.byteCount},
+  chunks: [{index: 0, offset: 0, byteCount: directManifest.destination.byteCount, sha256: directManifest.destination.sha256}],
+  objectName: "deleted-staging-object",
+  uploadUrl: "",
+});
+const completedReplay = await service.commitResumableArtifactIngestOperation({admin, storage, user, args: {approved: true, requestId: replaySessionId}});
+assert.equal(completedReplay.transport.exactReplay, true);
+assert.equal(completedReplay.transport.transferredBytes, 0);
+assert.equal(completedReplay.destination.sha256, directManifest.destination.sha256);
+assert.equal(completedReplay.reused, true);
+assert.equal(storage.bucket(service.ARTIFACT_BUCKET).objects.has("deleted-staging-object"), false);
+
 const chunkPayload = Buffer.from('abcdefghijklmnopqrstuvwxyz0123456789-CHUNKED-MOTION-PACKET');
 const chunkDigest = createHash('sha256').update(chunkPayload).digest('hex');
 const chunkArgs = {
