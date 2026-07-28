@@ -93,6 +93,9 @@ async function characterFixture() {
   const weights = doc.createAccessor('body-weights', buffer).setType(Accessor.Type.VEC4).setArray(new Float32Array([1,0,0,0, 1,0,0,0, 1,0,0,0]));
   const indices = doc.createAccessor('body-indices', buffer).setType(Accessor.Type.SCALAR).setArray(new Uint16Array([0,1,2]));
   const primitive = doc.createPrimitive().setAttribute('POSITION', position).setAttribute('NORMAL', normal).setAttribute('JOINTS_0', joints).setAttribute('WEIGHTS_0', weights).setIndices(indices);
+  const texture = doc.createTexture('body-albedo').setImage(new Uint8Array(reviewPng(false))).setMimeType('image/png');
+  const material = doc.createMaterial('body-material').setBaseColorTexture(texture).setBaseColorFactor([0.8,0.7,0.6,1]);
+  primitive.setMaterial(material);
   const body = doc.createNode('body').setMesh(doc.createMesh('body-mesh').addPrimitive(primitive));
   const rootBone = doc.createNode('root');
   const hand = doc.createNode('hand_r').setTranslation([0.4,0.8,0]);
@@ -158,6 +161,22 @@ function fakeWorkerSpawn(glbBytes) {
   };
 }
 
+function fakeFailingSpawn(stdoutText, stderrText) {
+  return () => {
+    const child = new EventEmitter();
+    child.pid = 999997;
+    child.stdout = new PassThrough();
+    child.stderr = new PassThrough();
+    child.kill = () => {};
+    setTimeout(() => {
+      child.stdout.end(stdoutText);
+      child.stderr.end(stderrText);
+      child.emit('close', 1, null);
+    }, 10);
+    return child;
+  };
+}
+
 process.env.HOME_CENTER_MCP_EXTENDED_TOOLS = 'true';
 const server = createHomeCenterMcpServer({google: {}, admin: {firestore() { return {}; }}, googleClientId: () => 'configured', googleClientSecret: () => 'configured'});
 const listed = await server.server._requestHandlers.get('tools/list')({method:'tools/list',params:{}},{});
@@ -189,6 +208,13 @@ assert.ok(hardA.report.validation.manifoldClosedComponents >= 1);
 
 const fixtureBytes = await characterFixture();
 const before = await inspectGlbBytes(fixtureBytes);
+assert.equal(before.preservation.materials[0].baseColorTexture, 'body-albedo');
+assert.equal(before.preservation.textures[0].mimeType, 'image/png');
+const inspectPlan = await executeFoundryScript({version:FOUNDRY_SCRIPT_VERSION,text:"foundry.asset.inspect(); foundry.review.fixedViews(['front','back','left','right','top','perspective']);",seed:3});
+const inspected = await runFoundryKernel({sourceBytes:fixtureBytes,plan:inspectPlan,domain:'inspect'});
+assert.deepEqual(inspected.glb, fixtureBytes, 'inspect must preserve exact source GLB bytes');
+assert.equal(inspected.evidence.preservation.beforeHashes.materials, inspected.evidence.preservation.afterHashes.materials);
+assert.equal(inspected.evidence.preservation.beforeHashes.textures, inspected.evidence.preservation.afterHashes.textures);
 const setupPlan = await executeFoundryScript({version:FOUNDRY_SCRIPT_VERSION,text:"foundry.rig.addBone('hand_r','weapon_socket_r',{translation:[0.18,0,0]}); foundry.rig.attachRigid('weapon','weapon_socket_r',{translation:[0.04,0,0]}); foundry.validation.assert('node_exists','weapon_socket_r');",seed:1});
 const setup = await runFoundryKernel({sourceBytes:fixtureBytes,plan:setupPlan,domain:'character_setup'});
 const setupInspect = await inspectGlbBytes(setup.glb);
@@ -256,6 +282,25 @@ const timeoutAccepted = await queueFoundryRun({admin,storage,user,args:{...baseA
 await assert.rejects(() => executeFoundryJob(admin,enqueued.at(-1),{storage,timeoutMs:50,spawnImpl:(_command,_args) => {const child=new EventEmitter();child.pid=999998;child.stdout=new PassThrough();child.stderr=new PassThrough();child.kill=()=>{child.stdout.end();child.stderr.end();child.emit('close',null,'SIGKILL');};return child;}}), (error) => error.code === 'foundry.worker.timeout');
 assert.equal((await foundryStatus({admin,user,args:{jobId:timeoutAccepted.jobId}})).execution.timedOut,true);
 await assert.rejects(() => foundryStatus({admin,user:{email:'other@example.com'},args:{jobId:accepted.jobId}}), (error) => error.code === 'foundry.job_forbidden');
+
+const failureAccepted = await queueFoundryRun({admin,storage,user,args:{...baseArgs,idempotencyKey:'failure-log',namespace:'specimen-failure-log'},enqueue});
+const sensitiveFailureLine = ['material failure Authorization:', 'Bearer', 'private-token'].join(' ') + '\n';
+await assert.rejects(
+  () => executeFoundryJob(admin,enqueued.at(-1),{storage,spawnImpl:fakeFailingSpawn('worker context\n',sensitiveFailureLine)}),
+  (error) => error.code === 'foundry.worker.failed',
+);
+const failureStatus = await foundryStatus({admin,storage,user,args:{jobId:failureAccepted.jobId}});
+assert.equal(failureStatus.state,'failed');
+assert.equal(failureStatus.failureLogs.stderr.readbackVerified,true);
+assert.match(failureStatus.failureLogs.stderr.excerpt,/material failure/);
+assert.doesNotMatch(failureStatus.failureLogs.stderr.excerpt,/private-token/);
+assert.match(failureStatus.failureLogs.stderr.excerpt,/\[REDACTED\]/);
+assert.equal(failureStatus.failureLogs.stdout.sha256,digest(Buffer.from('worker context\n')));
+const failureObject = failureStatus.failureLogs.stderr.storageRef.replace('gs://home-center-generated/','');
+storage.objects.set('home-center-generated/' + failureObject,Buffer.from('tampered'));
+const tamperedFailureStatus = await foundryStatus({admin,storage,user,args:{jobId:failureAccepted.jobId}});
+assert.equal(tamperedFailureStatus.failureLogs.stderr.readbackVerified,false);
+assert.equal(tamperedFailureStatus.failureLogs.stderr.error.code,'foundry.failure_log.readback_mismatch');
 
 admin.db.store.set('artifactReviewRecords/review-accepted',{ownerEmail:owner,verdict:'accepted',result:{promotionAllowed:true,producer:{receiptId:accepted.jobId}}});
 const promoted = await promoteFoundryResult({admin,user,args:{jobId:accepted.jobId,resultHash:completedA.result.resultHash,reviewRequestId:'review-accepted',requestId:'promote-1'}});

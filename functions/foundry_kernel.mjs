@@ -171,7 +171,7 @@ export function preservationEvidence(doc) {
   }))}));
   const skins = root.listSkins().map((skin) => ({name: skin.getName(), joints: skin.listJoints().map((node) => node.getName()), inverseBindMatrices: typedArrayDigest(skin.getInverseBindMatrices()?.getArray())}));
   const animations = root.listAnimations().map((animation) => ({name: animation.getName(), channels: animation.listChannels().map((channel) => ({target: channel.getTargetNode()?.getName(), path: channel.getTargetPath(), interpolation: channel.getSampler()?.getInterpolation(), input: typedArrayDigest(channel.getSampler()?.getInput()?.getArray()), output: typedArrayDigest(channel.getSampler()?.getOutput()?.getArray())}))}));
-  const materials = root.listMaterials().map((material) => ({name: material.getName(), baseColorFactor: material.getBaseColorFactor(), metallicFactor: material.getMetallicFactor(), roughnessFactor: material.getRoughnessFactor(), baseColorTexture: material.getBaseColorTexture()?.getTexture()?.getName() || null}));
+  const materials = root.listMaterials().map((material) => ({name: material.getName(), baseColorFactor: material.getBaseColorFactor(), metallicFactor: material.getMetallicFactor(), roughnessFactor: material.getRoughnessFactor(), baseColorTexture: material.getBaseColorTexture()?.getName() || null}));
   const textures = root.listTextures().map((texture) => ({name: texture.getName(), mimeType: texture.getMimeType(), image: typedArrayDigest(texture.getImage())}));
   const evidence = {meshes, skins, animations, materials, textures};
   return {...evidence, hashes: Object.fromEntries(Object.entries(evidence).map(([key, value]) => [key, hashJson(value)]))};
@@ -401,7 +401,9 @@ export async function runFoundryKernel({sourceBytes = null, plan, domain = 'hard
   const doc = await sourceDocument(sourceBytes);
   const evidence = await executeFoundryPlan({doc, plan, domain});
   const report = inspectDocument(doc);
-  const glb = Buffer.from(await (await io()).writeBinary(doc));
+  const glb = domain === 'inspect' && sourceBytes
+    ? Buffer.from(sourceBytes)
+    : Buffer.from(await (await io()).writeBinary(doc));
   return {glb, report: {...report, runVersion: FOUNDRY_RUN_VERSION, domain, reviewPreset, preservation: evidence.preservation}, evidence, reviewViews: evidence.reviewViews, hashes: {glb: hashBytes(glb)}};
 }
 
