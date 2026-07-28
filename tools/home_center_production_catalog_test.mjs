@@ -30,18 +30,23 @@ function textToolJson(payload, label) {
   const text = payload?.result?.content?.find((item) => item.type === 'text')?.text || '';
   return parseJson(text, label);
 }
+async function refreshAccessToken(refreshToken, gatewayBase, source) {
+  const response = await fetch((gatewayBase || 'https://us-central1-home-center-dclar.cloudfunctions.net') + '/termuxTokenRefresh', {method: 'POST', headers: {'content-type': 'application/json'}, body: JSON.stringify({refreshToken})});
+  const body = parseJson(await response.text(), 'termuxTokenRefresh');
+  if (!response.ok || !body.ok || !body.access_token) throw new Error('Home Center token refresh failed with HTTP ' + response.status);
+  return {token: body.access_token, refreshed: true, source, tokenType: body.token_type || 'Bearer', expiresIn: Number(body.expires_in || 0)};
+}
 async function bearerToken() {
   if (process.env.HOME_CENTER_MCP_BEARER_TOKEN) return {token: process.env.HOME_CENTER_MCP_BEARER_TOKEN, refreshed: false, source: 'environment'};
-  if (!fs.existsSync(tokenConfig)) throw new Error('Authenticated tools/list requires HOME_CENTER_MCP_BEARER_TOKEN or ' + tokenConfig);
+  if (process.env.HOME_CENTER_MCP_REFRESH_TOKEN) return refreshAccessToken(process.env.HOME_CENTER_MCP_REFRESH_TOKEN, process.env.HOME_CENTER_GATEWAY_BASE, 'environment-refresh-token');
+  if (!fs.existsSync(tokenConfig)) throw new Error('Authenticated tools/list requires HOME_CENTER_MCP_BEARER_TOKEN, HOME_CENTER_MCP_REFRESH_TOKEN, or ' + tokenConfig);
   const current = parseJson(fs.readFileSync(tokenConfig, 'utf8'), tokenConfig);
   if (current.accessToken && Number(current.expiresAtMs || 0) > Date.now() + 60000) return {token: current.accessToken, refreshed: false, source: tokenConfig};
   if (!current.refreshToken) throw new Error('Home Center token config has no usable access or refresh token.');
-  const response = await fetch((current.gatewayBase || 'https://us-central1-home-center-dclar.cloudfunctions.net') + '/termuxTokenRefresh', {method: 'POST', headers: {'content-type': 'application/json'}, body: JSON.stringify({refreshToken: current.refreshToken})});
-  const body = parseJson(await response.text(), 'termuxTokenRefresh');
-  if (!response.ok || !body.ok || !body.access_token) throw new Error('Home Center token refresh failed with HTTP ' + response.status);
-  const next = {...current, accessToken: body.access_token, tokenType: body.token_type || 'Bearer', expiresAtMs: Date.now() + Number(body.expires_in || 0) * 1000, refreshedAt: new Date().toISOString()};
+  const refreshed = await refreshAccessToken(current.refreshToken, current.gatewayBase, tokenConfig);
+  const next = {...current, accessToken: refreshed.token, tokenType: refreshed.tokenType, expiresAtMs: Date.now() + refreshed.expiresIn * 1000, refreshedAt: new Date().toISOString()};
   fs.writeFileSync(tokenConfig, JSON.stringify(next, null, 2) + '\n', {mode: 0o600});
-  return {token: next.accessToken, refreshed: true, source: tokenConfig};
+  return refreshed;
 }
 async function post(token, body) {
   const response = await fetch(mcpUrl, {method: 'POST', headers: {authorization: 'Bearer ' + token, 'content-type': 'application/json', accept: 'application/json, text/event-stream'}, body: JSON.stringify(body)});
