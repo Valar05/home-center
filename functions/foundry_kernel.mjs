@@ -176,23 +176,19 @@ function sectionLoftData(sectionsValue, optionsValue = {}) {
       addTriangle(lower + pointIndex, upper + next, upper + pointIndex);
     }
   }
-  for (let index = 0; index < normals.length; index += 3) {
-    const length = Math.hypot(normals[index], normals[index + 1], normals[index + 2]) || 1;
-    normals[index] /= length; normals[index + 1] /= length; normals[index + 2] /= length;
-  }
   const addCap = (sectionIndex, outward) => {
-    const section = sections[sectionIndex], base = positions.length / 3;
-    for (const [x, y] of section.profile) {
-      positions.push(x, y, section.z);
-      normals.push(0, 0, outward);
-    }
+    const base = sectionIndex * pointCount;
     for (let index = 1; index < pointCount - 1; index++) {
-      if (outward > 0) indices.push(base, base + index, base + index + 1);
-      else indices.push(base, base + index + 1, base + index);
+      if (outward > 0) addTriangle(base, base + index, base + index + 1);
+      else addTriangle(base, base + index + 1, base + index);
     }
   };
   if (options.capStart !== false) addCap(0, -1);
   if (options.capEnd !== false) addCap(sections.length - 1, 1);
+  for (let index = 0; index < normals.length; index += 3) {
+    const length = Math.hypot(normals[index], normals[index + 1], normals[index + 2]) || 1;
+    normals[index] /= length; normals[index + 1] /= length; normals[index + 2] /= length;
+  }
   return {positions: new Float32Array(positions), normals: new Float32Array(normals), indices: new Uint32Array(indices)};
 }
 function makeMesh(doc, name, data, material = null) {
@@ -327,7 +323,8 @@ async function booleanNodes(doc, targetName, toolName, mode, resultName) {
     const data = {positions, normals: new Float32Array(positions.length), indices: new Uint32Array(output.triVerts)};
     const name = resultName ? uniqueNodeName(doc, resultName) : target.getName();
     const scene = doc.getRoot().listScenes()[0] || doc.createScene('Foundry Scene');
-    detach(doc, target); detach(doc, tool);
+    const targetMesh = target.getMesh(), toolMesh = tool.getMesh();
+    detach(doc, target); detach(doc, tool); target.dispose(); tool.dispose(); targetMesh?.dispose(); toolMesh?.dispose();
     const node = addNodeWithMesh(doc, scene, name, data, a.material);
     recalculatePrimitiveNormals(doc, node.getMesh().listPrimitives()[0], name);
     return node;
