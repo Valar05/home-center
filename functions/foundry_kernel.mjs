@@ -122,6 +122,79 @@ function profileExtrusionData(profileValue, depth) {
   for (let i = 0; i < count; i++) { const j = (i + 1) % count; faces.push([i, j, count + j], [i, count + j, count + i]); }
   return flatMeshData(vertices, faces);
 }
+function sectionLoftData(sectionsValue, optionsValue = {}) {
+  const options = optionsValue && typeof optionsValue === 'object' && !Array.isArray(optionsValue) ? optionsValue : {};
+  if (!Array.isArray(sectionsValue) || sectionsValue.length < 2 || sectionsValue.length > 96) {
+    throw fail('foundry.geometry.invalid_sections', 'Section loft requires 2-96 ordered sections.');
+  }
+  const sections = sectionsValue.map((entry, sectionIndex) => {
+    if (!entry || typeof entry !== 'object' || Array.isArray(entry)) throw fail('foundry.geometry.invalid_section', 'Each loft section must be an object.', {sectionIndex});
+    const z = Number(entry.z);
+    if (!Number.isFinite(z)) throw fail('foundry.geometry.invalid_section', 'Each loft section requires a finite z station.', {sectionIndex});
+    const profile = Array.isArray(entry.profile) ? entry.profile.map((point, pointIndex) => vector(point, 2, null, 'sections[' + sectionIndex + '].profile[' + pointIndex + ']')) : [];
+    if (profile.length < 3 || profile.length > 256) throw fail('foundry.geometry.invalid_section_profile', 'Each loft section requires 3-256 profile points.', {sectionIndex});
+    return {z, profile};
+  });
+  const pointCount = sections[0].profile.length;
+  if (sections.some((section) => section.profile.length !== pointCount)) throw fail('foundry.geometry.section_correspondence', 'All loft sections must have identical profile point counts.');
+  if (sections.length * pointCount > 32768) throw fail('foundry.geometry.section_vertex_limit', 'Section loft exceeds 32,768 side vertices.');
+  for (let index = 1; index < sections.length; index++) if (!(sections[index].z > sections[index - 1].z)) throw fail('foundry.geometry.section_order', 'Loft section z stations must be strictly increasing.', {sectionIndex: index});
+  const signedArea = (profile) => profile.reduce((sum, point, index) => {
+    const next = profile[(index + 1) % profile.length];
+    return sum + point[0] * next[1] - next[0] * point[1];
+  }, 0) / 2;
+  const signs = sections.map((section, sectionIndex) => {
+    const area = signedArea(section.profile);
+    if (Math.abs(area) < 1e-10) throw fail('foundry.geometry.section_area', 'Loft section profile area must be non-zero.', {sectionIndex});
+    return Math.sign(area);
+  });
+  if (signs.some((sign) => sign !== signs[0])) throw fail('foundry.geometry.section_winding', 'All loft section profiles must use the same winding.');
+  if (signs[0] < 0) for (const section of sections) section.profile.reverse();
+
+  const sideVertices = sections.flatMap((section) => section.profile.map(([x, y]) => [x, y, section.z]));
+  const positions = sideVertices.flat();
+  const normals = new Array(positions.length).fill(0);
+  const indices = [];
+  const addTriangle = (a, b, c) => {
+    indices.push(a, b, c);
+    const pa = sideVertices[a], pb = sideVertices[b], pc = sideVertices[c];
+    if (!pa || !pb || !pc) return;
+    const ux = pb[0] - pa[0], uy = pb[1] - pa[1], uz = pb[2] - pa[2];
+    const vx = pc[0] - pa[0], vy = pc[1] - pa[1], vz = pc[2] - pa[2];
+    const nx = uy * vz - uz * vy, ny = uz * vx - ux * vz, nz = ux * vy - uy * vx;
+    for (const vertex of [a, b, c]) {
+      normals[vertex * 3] += nx;
+      normals[vertex * 3 + 1] += ny;
+      normals[vertex * 3 + 2] += nz;
+    }
+  };
+  for (let sectionIndex = 0; sectionIndex < sections.length - 1; sectionIndex++) {
+    const lower = sectionIndex * pointCount, upper = (sectionIndex + 1) * pointCount;
+    for (let pointIndex = 0; pointIndex < pointCount; pointIndex++) {
+      const next = (pointIndex + 1) % pointCount;
+      addTriangle(lower + pointIndex, lower + next, upper + next);
+      addTriangle(lower + pointIndex, upper + next, upper + pointIndex);
+    }
+  }
+  for (let index = 0; index < normals.length; index += 3) {
+    const length = Math.hypot(normals[index], normals[index + 1], normals[index + 2]) || 1;
+    normals[index] /= length; normals[index + 1] /= length; normals[index + 2] /= length;
+  }
+  const addCap = (sectionIndex, outward) => {
+    const section = sections[sectionIndex], base = positions.length / 3;
+    for (const [x, y] of section.profile) {
+      positions.push(x, y, section.z);
+      normals.push(0, 0, outward);
+    }
+    for (let index = 1; index < pointCount - 1; index++) {
+      if (outward > 0) indices.push(base, base + index, base + index + 1);
+      else indices.push(base, base + index + 1, base + index);
+    }
+  };
+  if (options.capStart !== false) addCap(0, -1);
+  if (options.capEnd !== false) addCap(sections.length - 1, 1);
+  return {positions: new Float32Array(positions), normals: new Float32Array(normals), indices: new Uint32Array(indices)};
+}
 function makeMesh(doc, name, data, material = null) {
   const buffer = rootBuffer(doc);
   const primitive = doc.createPrimitive()
@@ -335,9 +408,11 @@ export async function executeFoundryPlan({doc, plan, domain = 'hard_surface'}) {
     const entry = plan.operations[index], args = Array.isArray(entry.args) ? entry.args : [], key = entry.namespace + '.' + entry.operation;
     try {
       if (key === 'asset.inspect') { changes.push({index, operation: key, effect: 'inspection_requested'}); continue; }
-      if (key === 'scene.createBox') { const name = boundedName(args[0]); const spec = options(args[1]); addNodeWithMesh(doc, scene, name, boxData(spec.size || [1, 1, 1], spec.bevel || 0), spec.material ? materialByName(doc, spec.material) : null, spec); touched.add(name); }
+      if (key === 'scene.createGroup') { const name = boundedName(args[0]); const spec = options(args[1]); const node = doc.createNode(uniqueNodeName(doc, name)); if (spec.translation) node.setTranslation(vector(spec.translation, 3, [0, 0, 0], 'translation')); if (spec.rotation) node.setRotation(vector(spec.rotation, 4, [0, 0, 0, 1], 'rotation')); if (spec.scale) node.setScale(vector(spec.scale, 3, [1, 1, 1], 'scale')); scene.addChild(node); touched.add(name); }
+      else if (key === 'scene.createBox') { const name = boundedName(args[0]); const spec = options(args[1]); addNodeWithMesh(doc, scene, name, boxData(spec.size || [1, 1, 1], spec.bevel || 0), spec.material ? materialByName(doc, spec.material) : null, spec); touched.add(name); }
       else if (key === 'scene.createCylinder') { const name = boundedName(args[0]); const spec = options(args[1]); addNodeWithMesh(doc, scene, name, cylinderData(Number(spec.radius || 0.5), Number(spec.depth || 1), Number(spec.segments || 24)), spec.material ? materialByName(doc, spec.material) : null, spec); touched.add(name); }
       else if (key === 'scene.createProfileExtrusion') { const name = boundedName(args[0]); const spec = options(args[1]); addNodeWithMesh(doc, scene, name, profileExtrusionData(spec.profile, spec.depth), spec.material ? materialByName(doc, spec.material) : null, spec); touched.add(name); }
+      else if (key === 'scene.createSectionLoft') { const name = boundedName(args[0]); const spec = options(args[1]); addNodeWithMesh(doc, scene, name, sectionLoftData(spec.sections, spec), spec.material ? materialByName(doc, spec.material) : null, spec); touched.add(name); }
       else if (key === 'scene.transform') { const node = nodeByName(doc, args[0]), spec = options(args[1]); if (spec.translation) node.setTranslation(vector(spec.translation, 3, null, 'translation')); if (spec.rotation) node.setRotation(vector(spec.rotation, 4, null, 'rotation')); if (spec.scale) node.setScale(vector(spec.scale, 3, null, 'scale')); touched.add(node.getName()); }
       else if (key === 'scene.rename') { const node = nodeByName(doc, args[0]), name = uniqueNodeName(doc, args[1]); touched.add(node.getName()); node.setName(name); touched.add(name); }
       else if (key === 'scene.reparent') { const node = nodeByName(doc, args[0]); attachTo(doc, node, args[1] || ''); touched.add(node.getName()); }

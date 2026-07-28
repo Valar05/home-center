@@ -40,7 +40,7 @@ The sandbox emits a bounded operation plan. It has no network, process, module, 
 Namespaces cover:
 
 - `asset.inspect`;
-- profile, box, cylinder, transform, reparent, instance, array, mirror, and separation scene work;
+- section-loft, profile, box, cylinder, empty pivot group, transform, reparent, instance, array, mirror, and separation scene work;
 - normal repair, weld, and bounded manifold boolean mesh work;
 - material creation and assignment;
 - bone add, rename, orient, reparent, and rigid prop attachment;
