@@ -86,7 +86,7 @@ assert.equal(homeCenterReadinessPayload({admin, ...oauth}).ready, false, 'missin
 process.env.HOME_CENTER_SOURCE_COMMIT = savedSourceCommit;
 assert.equal(homeCenterReadinessPayload({admin: null, googleClientId: () => '', googleClientSecret: () => ''}).ready, false);
 
-const bounded = operationRegistrySummary({version: 'v1', invocationTool: 'dispatch', operations: {z: {write: true}, a: {write: false}, m: {write: true}}}, 2);
+const bounded = operationRegistrySummary({version: 'v1', invocationTool: 'dispatch', operations: {z: {write: true}, a: {write: false}, m: {readOnly: false}}}, 2);
 assert.deepEqual(bounded, {
   version: 'v1',
   invocationTool: 'dispatch',
@@ -116,6 +116,12 @@ for (const summary of Object.values(capabilities.operationSurfaces)) {
 }
 for (const operation of ['sfx.analyze_source', 'sfx.transcribe_slate', 'sfx.segment', 'sfx.render', 'sfx.status', 'sfx.artifacts']) {
   assert(capabilities.operationSurfaces.drive.operations.includes(operation), `live Drive registry must expose ${operation}`);
+}
+for (const operation of ['projects.resolve', 'projects.upsert', 'bucket.put_object', 'bucket.promote_skill', 'app_control.record_run', 'browser_sessions.create']) {
+  assert(capabilities.operationSurfaces.commandCenter.writeOperations.includes(operation), `Command Center mutation must be advertised as a write: ${operation}`);
+}
+for (const operation of ['health', 'projects.get', 'bucket.get_object', 'bucket.list_objects', 'browser_sessions.observe']) {
+  assert(!capabilities.operationSurfaces.commandCenter.writeOperations.includes(operation), `Command Center read must not be advertised as a write: ${operation}`);
 }
 assert.deepEqual(capabilities.fileUploadTools, [
   {
