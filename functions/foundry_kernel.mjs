@@ -323,7 +323,8 @@ async function booleanNodes(doc, targetName, toolName, mode, resultName) {
     const data = {positions, normals: new Float32Array(positions.length), indices: new Uint32Array(output.triVerts)};
     const name = resultName ? uniqueNodeName(doc, resultName) : target.getName();
     const scene = doc.getRoot().listScenes()[0] || doc.createScene('Foundry Scene');
-    detach(doc, target); detach(doc, tool); target.dispose(); tool.dispose();
+    const targetMesh = target.getMesh(), toolMesh = tool.getMesh();
+    detach(doc, target); detach(doc, tool); target.dispose(); tool.dispose(); targetMesh?.dispose(); toolMesh?.dispose();
     const node = addNodeWithMesh(doc, scene, name, data, a.material);
     recalculatePrimitiveNormals(doc, node.getMesh().listPrimitives()[0], name);
     return node;
