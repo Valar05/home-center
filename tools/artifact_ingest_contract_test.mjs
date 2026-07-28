@@ -197,7 +197,7 @@ assert.equal(aborted.disposedObjectCount, 1);
 assert.equal(aborted.canonicalArtifactMutated, false);
 
 const markers = [
-  "const HOME_CENTER_CONNECTOR_SCHEMA_REVISION = '2026-07-27.render-review-egress-v1'",
+  "const HOME_CENTER_CONNECTOR_SCHEMA_REVISION = '2026-07-27.receipt-delivery-v1'",
   "'storage_ingest_artifact'",
   "server.registerTool('storage_ingest_artifact'",
   "file: z.file()",
@@ -212,6 +212,6 @@ const markers = [
   "storageIngestArtifactCatalogInputSchema",
 ];
 for (const marker of markers) assert.equal(bridge.includes(marker), true, 'missing bridge marker: ' + marker);
-assert.match(bridge, /function driveOperationRegistry\(\)[\s\S]*?version: '2026-07-27\.render-review-egress-v1'/);
+assert.match(bridge, /function driveOperationRegistry\(\)[\s\S]*?version: '2026-07-27\.receipt-delivery-v1'/);
 
 console.log('Storage artifact ingest contract passed.');

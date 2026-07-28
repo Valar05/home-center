@@ -23,7 +23,7 @@ const reviewOperationSource = homeCenterSource.slice(
 assert.match(reviewOperationSource, /commandCenterRenderRequestStatus\(admin, \{actor: ownerEmail\}, \{renderId\}\)/);
 assert.doesNotMatch(reviewOperationSource, /commandCenterOperationRunOperation/, 'review egress must use local render status instead of a nested MCP round trip');
 
-assert.match(HOME_CENTER_CONNECTOR_SCHEMA_REVISION, /^2026-07-27\.render-review-egress-v1$/);
+assert.match(HOME_CENTER_CONNECTOR_SCHEMA_REVISION, /^2026-07-27\.receipt-delivery-v1$/);
 assert.equal(HOME_CENTER_REGISTRY_VERSION, HOME_CENTER_CONNECTOR_SCHEMA_REVISION);
 assert.deepEqual([...HOME_CENTER_DIRECT_FILE_TOOLS], ['render_blender_glb', 'drive_ingest_file', 'storage_ingest_artifact']);
 
@@ -68,6 +68,7 @@ assert.equal(capabilities.fileUploadTools[0].inputs.glbFile.format, 'binary');
 assert.equal(capabilities.fileUploadTools[0].inputs.glbFile.contentMediaType, 'model/gltf-binary');
 
 assert.ok(capabilities.operationSurfaces.drive.operations.includes('render.review_artifacts'));
+assert.ok(capabilities.operationSurfaces.drive.operations.includes('artifact.delivery.materialize_receipt'));
 assert.ok(capabilities.operationSurfaces.drive.writeOperations.includes('render.review_artifacts'));
 const reviewReceipt = {
   status: 'completed',

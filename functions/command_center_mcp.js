@@ -8,6 +8,7 @@ const {McpServer} = require('@modelcontextprotocol/sdk/server/mcp.js');
 const {StreamableHTTPServerTransport} = require('@modelcontextprotocol/sdk/server/streamableHttp.js');
 const {APP_CONTROL_COLLECTIONS, APP_CONTROL_DEFAULT_SEEDS, appControlProfileObjectId, appControlProfilePath} = require('./app_control_cloud');
 const {boundedMap, normalizeRendererSettings} = require('./artifact_transport');
+const {validateGlbBytes: validateSharedGlbBytes, validatePythonScriptBytes} = require('./render_input_validation');
 
 const DEFAULT_COMMAND_CENTER_PUBLIC_BASE = 'https://us-central1-home-center-dclar.cloudfunctions.net/commandCenterMcp';
 const COMMAND_CENTER_PUBLIC_BASE = process.env.COMMAND_CENTER_MCP_PUBLIC_BASE || DEFAULT_COMMAND_CENTER_PUBLIC_BASE;
@@ -1378,19 +1379,11 @@ async function bytesFromFileLike(value, role) {
 }
 
 function validateGlbBytes(bytes, label) {
-  if (!Buffer.isBuffer(bytes) || bytes.length < 12) throw renderInputError(label + ' is too small to be a GLB file.');
-  if (bytes.length > COMMAND_CENTER_RENDER_MAX_GLB_BYTES) throw renderInputError(label + ' exceeds max GLB size ' + COMMAND_CENTER_RENDER_MAX_GLB_BYTES + ' bytes.', 413, 'input_validation');
-  if (bytes.slice(0, 4).toString('ascii') !== 'glTF') throw renderInputError(label + ' is not a GLB: missing glTF magic.');
-  const version = bytes.readUInt32LE(4);
-  const declaredLength = bytes.readUInt32LE(8);
-  if (version !== 2) throw renderInputError(label + ' must be GLB version 2.');
-  if (declaredLength > bytes.length) throw renderInputError(label + ' declares more bytes than were uploaded.');
+  return validateSharedGlbBytes(bytes, label, {maxBytes: COMMAND_CENTER_RENDER_MAX_GLB_BYTES, makeError: renderInputError});
 }
 
 function validateScriptBytes(bytes, label) {
-  if (!Buffer.isBuffer(bytes) || bytes.length === 0) throw renderInputError(label + ' is empty.');
-  if (bytes.length > COMMAND_CENTER_RENDER_MAX_SCRIPT_BYTES) throw renderInputError(label + ' exceeds max script size ' + COMMAND_CENTER_RENDER_MAX_SCRIPT_BYTES + ' bytes.', 413, 'input_validation');
-  if (bytes.includes(0)) throw renderInputError(label + ' must be a text Python script, not binary data.');
+  return validatePythonScriptBytes(bytes, label, {maxBytes: COMMAND_CENTER_RENDER_MAX_SCRIPT_BYTES, makeError: renderInputError});
 }
 
 function renderStorage() {
@@ -1892,7 +1885,7 @@ async function renderBlenderGlb(admin, extra, args = {}, helpers = {}) {
     }
     if (!idemSnapshot.exists) transaction.create(idemRef, {idempotencyKey, operation: prepared.mode === 'build' ? 'render.blender_build' : 'render.blender_glb', inputHash: prepared.inputHash, renderId: prepared.renderId, caller: caller.actor, ownerKey: ownerKeyFromCaller(caller), createdAtMs: Date.now()});
   });
-  const terminal = ['completed', 'failed', 'quarantined'].includes(safeText(record.status, 80));
+  const terminal = ['completed', 'failed', 'quarantined', 'needs_reconciliation'].includes(safeText(record.status, 80));
   if (!terminal) record = await ensureRenderTaskEnqueued(admin, record, helpers.enqueueRenderTask || enqueueRenderTask);
   return boundedRenderRequestStatus(record, attached);
 }
@@ -1941,7 +1934,7 @@ async function executeQueuedRenderRequest(admin, task = {}, helpers = {}) {
       claimed = {terminal: true, record: {...record, status: 'quarantined'}};
       return;
     }
-    if (['completed', 'failed', 'quarantined'].includes(record.status)) {
+    if (['completed', 'failed', 'quarantined', 'needs_reconciliation'].includes(record.status)) {
       claimed = {terminal: true, record};
       return;
     }
@@ -1975,7 +1968,7 @@ async function executeQueuedRenderRequest(admin, task = {}, helpers = {}) {
   } catch (error) {
     const quarantined = ambiguousRenderFailure(error);
     const now = Date.now();
-    const status = quarantined ? 'quarantined' : 'failed';
+    const status = quarantined ? 'needs_reconciliation' : 'failed';
     const failureKind = safeText(error && error.failureKind, 80) || (quarantined ? 'render_provider_outcome_ambiguous' : 'render_execution_failed');
     const message = safeText(error && error.message, 1200) || 'Render worker failed.';
     await ref.set({status, enqueueStatus: 'completed', failureKind, error: message, lease: null, updatedAtMs: now, failedAtMs: now}, {merge: true});
@@ -2002,7 +1995,7 @@ async function reconcileRenderRequest(admin, caller, args = {}, helpers = {}) {
       assertOwnerAccess(existing, caller, 'Command Center render request');
       const lease = safeObject(existing.lease);
       const expiredRunningLease = existing.status === 'running' && Number(lease.expiresAtMs || 0) > 0 && Number(lease.expiresAtMs) <= Date.now();
-      if (!['failed', 'quarantined', 'stalled', 'enqueue_failed'].includes(existing.status) && !expiredRunningLease) throw Object.assign(new Error('Only failed, quarantined, stalled, enqueue_failed, or expired-running renders can be reconciled for retry.'), {status: 409});
+      if (!['failed', 'quarantined', 'needs_reconciliation', 'stalled', 'enqueue_failed'].includes(existing.status) && !expiredRunningLease) throw Object.assign(new Error('Only failed, needs_reconciliation, legacy quarantined, stalled, enqueue_failed, or expired-running renders can be reconciled for retry.'), {status: 409});
       const executionAttempt = Number(existing.executionAttempt || 0) + 1;
       record = {...existing, status: 'queued', enqueueStatus: 'pending', executionAttempt, reconciliation: {resolution, evidence, reconciledBy: caller.actor, reconciledAtMs: Date.now()}, updatedAtMs: Date.now(), error: '', failureKind: '', lease: null};
       transaction.set(ref, record, {merge: true});
@@ -5411,7 +5404,7 @@ function createCommandCenterMcpServer({admin}) {
 
   server.registerTool('command_center.render.reconcile', {
     title: 'Reconcile ambiguous Blender render',
-    description: 'Explicitly authorize one retry of a failed, stalled, or quarantined render after provider evidence proves retry is safe.',
+    description: 'Explicitly authorize one retry of a failed, stalled, or needs_reconciliation render after provider evidence proves retry is safe; legacy quarantined records remain compatible.',
     inputSchema: {idempotencyKey: z.string(), renderId: z.string(), resolution: z.literal('retry_safe'), evidence: z.string()},
   }, async (args, extra) => textResult(await reconcileRenderRequest(admin, await callerFromExtra(admin, extra), args || {})));
 

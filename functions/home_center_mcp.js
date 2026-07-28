@@ -19,9 +19,11 @@ const {
   renderRequestStatus: commandCenterRenderRequestStatus,
 } = require('./command_center_mcp');
 const {boundedMap, rendererSettingsJsonSchema, preflightArtifactEnvelope} = require('./artifact_transport');
+const {gitLfsPointer, validateGlbBytes: validateSharedGlbBytes, validatePythonScriptBytes} = require('./render_input_validation');
 const cartesiaPitchShift = require('./cartesia_pitch_shift');
 const {renderAudioOperation, audioRenderStatusOperation, inspectAudioArtifactsOperation, uploadVerified: uploadVerifiedArtifact} = require('./audio_render_service');
 const {recoverAudioRenderRegistrationOperation} = require('./audio_catalog_service');
+const {materializeReceiptArtifactsOperation, recordArtifactReviewOperation, linkArtifactReviewSuccessorOperation} = require('./artifact_delivery_service');
 const {
   analyzeSourceOperation,
   transcribeSlateOperation,
@@ -60,7 +62,7 @@ const {
 const DEFAULT_MCP_PUBLIC_BASE = 'https://us-central1-home-center-dclar.cloudfunctions.net/homeCenterMcp';
 const MCP_PUBLIC_BASE = process.env.HOME_CENTER_MCP_PUBLIC_BASE || DEFAULT_MCP_PUBLIC_BASE;
 const HOME_CENTER_MCP_SERVER_VERSION = '0.2.0';
-const HOME_CENTER_CONNECTOR_SCHEMA_REVISION = '2026-07-27.render-review-egress-v1';
+const HOME_CENTER_CONNECTOR_SCHEMA_REVISION = '2026-07-27.receipt-delivery-v1';
 const HOME_CENTER_REGISTRY_VERSION = HOME_CENTER_CONNECTOR_SCHEMA_REVISION;
 const HOME_CENTER_DIRECT_FILE_TOOLS = Object.freeze(['render_blender_glb', 'drive_ingest_file', 'storage_ingest_artifact']);
 const MCP_RESOURCE = `${MCP_PUBLIC_BASE}/mcp`;
@@ -577,10 +579,10 @@ function commandCenterOperationRegistry() {
       'projects.resolve': {summary: 'Resolve an active project before creating a job.', readOnly: false, input: {repository: 'optional string', capability: 'optional string', projectId: 'optional string', idempotencyKey: 'string'}},
       'projects.get': {summary: 'Read one persisted Command Center project packet.', readOnly: true, input: {projectId: 'string'}},
       'projects.upsert': {summary: 'Create or update a durable Command Center project binding.', readOnly: false, input: {projectId: 'string', repository: 'optional string', capability: 'optional string', repositoryBinding: 'optional object', availableWorkers: 'optional string[]', idempotencyKey: 'string'}},
-      'render.blender_glb': {summary: 'Accept non-agent Blender execution from durable refs, authenticated GitHub sources, or top-level host files and return a durable queued/running/completed receipt. Prefer glbSource.provider=github for private repository GLBs when ChatGPT cannot expose the top-level binary upload tool; nested command_center_operation args cannot activate host file upload slots.', readOnly: false, topLevelFileTool: 'render_blender_glb', input: {glbRef: 'drive:// | bucket:// | gs:// GLB ref for dispatcher calls', glbSource: '{provider: github, repository: owner/name, ref: commit-or-branch, path: path/to/file.glb}', scriptRef: 'optional drive:// | bucket:// | gs:// Blender Python ref', scriptSource: 'optional authenticated GitHub Python descriptor', scriptText: 'optional inline Python script alternative', settings: 'optional object', executionContract: 'optional object', cache: 'optional boolean', idempotencyKey: 'string'}, output: {accepted: 'boolean', renderId: 'string', inputHash: 'sha256', status: 'queued|running|completed|failed|quarantined|stalled', statusOperation: 'render.status receipt'}},
-      'render.blender_build': {summary: 'Author a new 3D asset from Blender factory state in the existing private Cloud Run renderer. The authoring script is staged to durable GCS first; no input GLB or chat upload is accepted.', readOnly: false, input: {scriptRef: 'drive:// | bucket:// | gs:// Blender Python ref', scriptSource: '{provider: github, repository: owner/name, ref: immutable commit, path: path/to/build.py}', scriptText: 'optional inline Python script alternative', settings: 'optional object', executionContract: 'optional object', cache: 'optional boolean', idempotencyKey: 'string'}, output: {accepted: 'boolean', renderId: 'string', inputHash: 'sha256', status: 'queued|running|completed|failed|quarantined|stalled', statusOperation: 'render.status receipt'}},
-      'render.status': {summary: 'Read bounded durable Blender render status without binary bodies or unbounded provider logs.', readOnly: true, input: {renderId: 'string or idempotencyKey'}, output: {status: 'queued|running|completed|failed|quarantined|stalled'}},
-      'render.reconcile': {summary: 'Explicitly authorize one retry only after evidence proves an ambiguous failed/stalled/quarantined Blender outcome is safe to retry.', readOnly: false, input: {idempotencyKey: 'string', renderId: 'string', resolution: 'retry_safe', evidence: 'bounded string'}},
+      'render.blender_glb': {summary: 'Accept non-agent Blender execution from durable refs, authenticated GitHub sources, or top-level host files and return a durable queued/running/completed receipt. Prefer glbSource.provider=github for private repository GLBs when ChatGPT cannot expose the top-level binary upload tool; nested command_center_operation args cannot activate host file upload slots.', readOnly: false, topLevelFileTool: 'render_blender_glb', input: {glbRef: 'drive:// | bucket:// | gs:// GLB ref for dispatcher calls', glbSource: '{provider: github, repository: owner/name, ref: commit-or-branch, path: path/to/file.glb}', scriptRef: 'optional drive:// | bucket:// | gs:// Blender Python ref', scriptSource: 'optional authenticated GitHub Python descriptor', scriptText: 'optional inline Python script alternative', settings: 'optional object', executionContract: 'optional object', cache: 'optional boolean', idempotencyKey: 'string'}, output: {accepted: 'boolean', renderId: 'string', inputHash: 'sha256', status: 'queued|running|completed|failed|needs_reconciliation|stalled', statusOperation: 'render.status receipt'}},
+      'render.blender_build': {summary: 'Author a new 3D asset from Blender factory state in the existing private Cloud Run renderer. The authoring script is staged to durable GCS first; no input GLB or chat upload is accepted.', readOnly: false, input: {scriptRef: 'drive:// | bucket:// | gs:// Blender Python ref', scriptSource: '{provider: github, repository: owner/name, ref: immutable commit, path: path/to/build.py}', scriptText: 'optional inline Python script alternative', settings: 'optional object', executionContract: 'optional object', cache: 'optional boolean', idempotencyKey: 'string'}, output: {accepted: 'boolean', renderId: 'string', inputHash: 'sha256', status: 'queued|running|completed|failed|needs_reconciliation|stalled', statusOperation: 'render.status receipt'}},
+      'render.status': {summary: 'Read bounded durable Blender render status without binary bodies or unbounded provider logs.', readOnly: true, input: {renderId: 'string or idempotencyKey'}, output: {status: 'queued|running|completed|failed|needs_reconciliation|stalled'}},
+      'render.reconcile': {summary: 'Explicitly authorize one retry only after evidence proves an ambiguous needs_reconciliation, failed, or stalled Blender outcome is safe to retry.', readOnly: false, input: {idempotencyKey: 'string', renderId: 'string', resolution: 'retry_safe', evidence: 'bounded string'}},
       'jobs.create': {summary: 'Create a durable worker ticket/job.', readOnly: false, input: {projectId: 'string', title: 'string', objective: 'string', acceptanceCriteria: 'string[]', workerRequirements: 'string[]', mutationPolicy: 'object', idempotencyKey: 'string'}},
       'jobs.create_followup': {summary: 'Create a new linked invocation from a source job handoff without rewriting the old job.', readOnly: false, input: {sourceJobId: 'string', title: 'string', objective: 'string', acceptanceCriteria: 'optional string[]', constraints: 'optional string[]', mutationPolicy: 'optional object', idempotencyKey: 'string'}},
       'jobs.get': {summary: 'Read one Command Center job packet.', readOnly: true, input: {jobId: 'string'}},
@@ -980,46 +982,41 @@ async function materializeRenderReviewArtifactsOperation({google, admin, auth, u
 }
 
 function validateHomeCenterRenderBytes(bytes, role, label) {
-  if (role === 'glb') {
-    if (!Buffer.isBuffer(bytes) || bytes.length < 12) throw homeCenterRenderInputError(label + ' is too small to be a GLB file.');
-    if (bytes.length > HOME_CENTER_RENDER_MAX_GLB_BYTES) throw homeCenterRenderInputError(label + ' exceeds max GLB size ' + HOME_CENTER_RENDER_MAX_GLB_BYTES + ' bytes.', 413, 'input_validation');
-    if (bytes.slice(0, 4).toString('ascii') !== 'glTF') throw homeCenterRenderInputError(label + ' is not a GLB: missing glTF magic.');
-    if (bytes.readUInt32LE(4) !== 2) throw homeCenterRenderInputError(label + ' must be GLB version 2.');
-    if (bytes.readUInt32LE(8) > bytes.length) throw homeCenterRenderInputError(label + ' declares more bytes than were downloaded.');
-    return;
-  }
-  if (!Buffer.isBuffer(bytes) || bytes.length === 0) throw homeCenterRenderInputError(label + ' is empty.');
-  if (bytes.length > HOME_CENTER_RENDER_MAX_SCRIPT_BYTES) throw homeCenterRenderInputError(label + ' exceeds max script size ' + HOME_CENTER_RENDER_MAX_SCRIPT_BYTES + ' bytes.', 413, 'input_validation');
-  if (bytes.includes(0)) throw homeCenterRenderInputError(label + ' must be a text Python script, not binary data.');
+  const options = {maxBytes: role === 'glb' ? HOME_CENTER_RENDER_MAX_GLB_BYTES : HOME_CENTER_RENDER_MAX_SCRIPT_BYTES, makeError: homeCenterRenderInputError};
+  return role === 'glb' ? validateSharedGlbBytes(bytes, label, options) : validatePythonScriptBytes(bytes, label, options);
 }
 
 function renderStreamValidator(role, label) {
   const hash = createHash('sha256');
   let byteCount = 0;
   let header = Buffer.alloc(0);
-  let sawNul = false;
+  const scriptChunks = [];
   const maxBytes = role === 'glb' ? HOME_CENTER_RENDER_MAX_GLB_BYTES : HOME_CENTER_RENDER_MAX_SCRIPT_BYTES;
   const stream = new Transform({
     transform(chunk, _encoding, callback) {
       const bytes = Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk);
       byteCount += bytes.length;
       if (byteCount > maxBytes) return callback(homeCenterRenderInputError(label + ' exceeds max ' + role + ' size ' + maxBytes + ' bytes.', 413, 'input_validation'));
-      if (header.length < 12) header = Buffer.concat([header, bytes.slice(0, 12 - header.length)]);
-      if (role === 'script' && bytes.includes(0)) sawNul = true;
+      if (header.length < 1024) header = Buffer.concat([header, bytes.slice(0, 1024 - header.length)]);
+      if (role === 'script') scriptChunks.push(bytes);
       hash.update(bytes);
       callback(null, bytes);
     },
     flush(callback) {
-      if (role === 'glb') {
-        if (byteCount < 12 || header.length < 12) return callback(homeCenterRenderInputError(label + ' is too small to be a GLB file.'));
-        if (header.slice(0, 4).toString('ascii') !== 'glTF') return callback(homeCenterRenderInputError(label + ' is not a GLB: missing glTF magic.'));
-        if (header.readUInt32LE(4) !== 2) return callback(homeCenterRenderInputError(label + ' must be GLB version 2.'));
-        if (header.readUInt32LE(8) !== byteCount) return callback(homeCenterRenderInputError(label + ' GLB length header does not match downloaded byte count.'));
-      } else {
-        if (byteCount === 0) return callback(homeCenterRenderInputError(label + ' is empty.'));
-        if (sawNul) return callback(homeCenterRenderInputError(label + ' must be a text Python script, not binary data.'));
+      try {
+        if (role === 'glb') {
+          if (gitLfsPointer(header)) throw homeCenterRenderInputError(label + ' contains Git LFS pointer text instead of GLB bytes.', 422, 'invalid_binary.git_lfs_pointer');
+          if (byteCount < 12 || header.length < 12) throw homeCenterRenderInputError(label + ' is too small to be a GLB file.', 400, 'invalid_binary.glb_too_small');
+          if (header.slice(0, 4).toString('ascii') !== 'glTF') throw homeCenterRenderInputError(label + ' is not a GLB: missing glTF magic.', 422, 'invalid_binary.glb_magic');
+          if (header.readUInt32LE(4) !== 2) throw homeCenterRenderInputError(label + ' must be GLB version 2.', 422, 'invalid_binary.glb_version');
+          if (header.readUInt32LE(8) !== byteCount) throw homeCenterRenderInputError(label + ' GLB length header does not match downloaded byte count.', 422, 'invalid_binary.glb_length');
+        } else {
+          validatePythonScriptBytes(Buffer.concat(scriptChunks), label, {maxBytes, makeError: homeCenterRenderInputError});
+        }
+        callback();
+      } catch (error) {
+        callback(error);
       }
-      callback();
     },
   });
   stream.digest = () => ({sha256: hash.digest('hex'), byteCount});
@@ -4607,18 +4604,38 @@ function runDroobiedooContextOperation(operation, args = {}) {
 
 function driveOperationRegistry() {
   return {
-    version: '2026-07-27.render-review-egress-v1',
+    version: '2026-07-27.receipt-delivery-v1',
     invocationTool: 'drive_operation',
     cachePolicy: 'New bridge and simulation operations should be invokable through drive_operation so ChatGPT does not need a top-level MCP tool refresh for every backend code change. Cartesia TTS is a direct Home Center MCP provider operation; it must not be routed through Command Center jobs or workers.',
     operations: {
       ...artifactOperationEntries(),
       ...foundryOperationEntries(),
       'render.review_artifacts': {
-        summary: 'Materialize hash-verified review images already named by an owner-scoped completed Blender render receipt as authenticated Drive resource links.',
+        summary: 'Compatibility adapter for materializing hash-verified review images already named by an owner-scoped completed Blender render receipt.',
         write: true,
         requiresRequestId: true,
         requiredScopes: ['https://www.googleapis.com/auth/drive'],
-        input: {renderId: 'string', artifactKinds: 'optional contact_sheet|diagnostic_views|fixed_camera_views|looping_gif[]', parentFolderId: 'optional string', approved: 'true', requestId: 'string', callerNote: 'optional string'},
+        input: {renderId: 'string', artifactKinds: 'optional contact_sheet|diagnostic_views|fixed_camera_views|looping_gif[]', parentFolderId: 'optional string', approved: 'legacy execution authorization; does not mean human acceptance', requestId: 'string', callerNote: 'optional string'},
+      },
+      'artifact.delivery.materialize_receipt': {
+        summary: 'Materialize supported artifacts named by one owner-scoped terminal producer receipt as hash-verified private Drive resource links without rerendering or changing human acceptance.',
+        write: true,
+        requiresRequestId: true,
+        requiredScopes: ['https://www.googleapis.com/auth/drive'],
+        input: {producerReceiptId: 'string; receipt only, never a GCS path or URL', producerKind: 'optional drive_audit|foundry|blender_render', artifactNames: 'optional artifact role or filename array', parentFolderId: 'optional string', requestId: 'string'},
+        output: {status: 'review_ready after source and Drive readback verification', transportState: 'bytes transferred/reused, concurrency, and no-rerender evidence', authorization: 'owner_scoped', humanAcceptance: 'preserved separately and never changed', artifacts: 'bounded private Drive resource links with SHA-256 and byte length'},
+      },
+      'artifact.review.record': {
+        summary: 'Record an owner-scoped human verdict for one review-ready delivery while preserving the candidate and requiring a concrete fix-forward plan for rejection.',
+        write: true,
+        requiresRequestId: true,
+        input: {deliveryRequestId: 'string', verdict: 'accepted|rejected|revision_requested|unreviewed', reason: 'required for rejection or revision', successorPlan: 'required operation, idempotencyKey, and concrete changes for rejection or revision', requestId: 'string'},
+      },
+      'artifact.review.link_successor': {
+        summary: 'Link a rejected or revision-requested review record to a distinct owner-scoped terminal corrective producer receipt.',
+        write: true,
+        requiresRequestId: true,
+        input: {reviewRequestId: 'string', successorReceiptId: 'string', producerKind: 'optional drive_audit|foundry|blender_render', artifactNames: 'optional artifact selectors', requestId: 'string'},
       },
       drive_create_folder: {
         summary: 'Create a Google Drive folder and audit the write.',
@@ -5444,6 +5461,23 @@ async function driveOperationRunOperation({google, admin, auth, user, extra = nu
     requireCreditGatedEmail(user && user.email, operation);
     const result = await runFoundryOperation({operation, admin, user, args: operationArgs});
     return {operation, registryVersion: registry.version, completed: result.state === 'completed' || !!result.immutable, result};
+  }
+  if (operation === 'artifact.delivery.materialize_receipt') {
+    requireCreditGatedEmail(user && user.email, operation);
+    const result = await materializeReceiptArtifactsOperation({google, admin, auth, user, args: operationArgs});
+    const wrapped = {operation, registryVersion: registry.version, completed: result.status === 'review_ready', result};
+    wrapped._mcpContent = {content: [{type: 'text', text: jsonText(wrapped)}, ...result.artifacts.map((item) => item.delivery && item.delivery.resourceLink).filter(Boolean)]};
+    return wrapped;
+  }
+  if (operation === 'artifact.review.record') {
+    requireCreditGatedEmail(user && user.email, operation);
+    const result = await recordArtifactReviewOperation({admin, user, args: operationArgs});
+    return {operation, registryVersion: registry.version, completed: true, result};
+  }
+  if (operation === 'artifact.review.link_successor') {
+    requireCreditGatedEmail(user && user.email, operation);
+    const result = await linkArtifactReviewSuccessorOperation({admin, user, args: operationArgs});
+    return {operation, registryVersion: registry.version, completed: true, result};
   }
   if (operation === 'render.review_artifacts') {
     const result = await materializeRenderReviewArtifactsOperation({google, admin, auth, user, extra, googleClientId, googleClientSecret, githubToken, args: operationArgs});
@@ -7433,4 +7467,4 @@ function createHomeCenterMcpApp({google, admin, googleClientId = () => '', googl
   return app;
 }
 
-module.exports = {artifactTransportPreflightOperation, homeCenterReleaseIdentity, artifactTransportStatusOperation, homeCenterHealthPayload, homeCenterReadinessPayload, homeCenterCapabilitiesPayload, operationRegistrySummary, CREDIT_GATED_EMAILS, requireCreditGatedEmail, GITHUB_ADMIN_ALLOWED_EMAILS, requireGitHubAdminUser, HOME_CENTER_MCP_SERVER_VERSION, HOME_CENTER_CONNECTOR_SCHEMA_REVISION, HOME_CENTER_REGISTRY_VERSION, HOME_CENTER_DIRECT_FILE_TOOLS, verifiedRenderGifMcpContent, attachRenderGifMcpContent, renderArtifactHashEntry, renderReviewArtifactCandidates, renderReviewArtifactKey, publishRenderReviewArtifactToDrive, materializeRenderReviewArtifactsOperation, driveOperationRegistry, uploadVerifiedArtifact, createHomeCenterMcpApp, createHomeCenterMcpServer, createDriveFolderOperation, createGoogleDocOperation, appendGoogleDocOperation, publishContextSnapshotOperation, synthesizeCartesiaAudioArtifactOperation, cartesiaVoicesOperation, createSheetOperation, updateSheetValuesOperation, importXlsxWorkbookOperation, readDriveBinaryChunkOperation, compareAudioIngestFileIds, ingestDriveAudioOperation, finalizeDriveAudioIngestBatchOperation, driveOperationRunOperation, driveWorkflowRunOperation, simulationOperationRunOperation, simulationOperationRegistry, droobiedooContextOperationEntries, loadDroobiedooContextIndex, searchDroobiedooContextIndex, runDroobiedooContextOperation, normalizeRecoveryOperation, summarizeRecoveryOperations, loadMcpAccessContext, armoryReceiptOperation, armoryRecountOperation, armoryCasingOperation, renderAudioOperation, inspectAudioArtifactsOperation, materializeHomeCenterRenderDriveRefs, materializeHomeCenterRenderSources, stageHomeCenterGitHubRenderInput, normalizeRenderGitHubSource, githubAdminOperationEntries, githubAdminOperationRunOperation, createGitHubAppJwt};
+module.exports = {validateHomeCenterRenderBytes, linkArtifactReviewSuccessorOperation, recordArtifactReviewOperation, materializeReceiptArtifactsOperation, artifactTransportPreflightOperation, homeCenterReleaseIdentity, artifactTransportStatusOperation, homeCenterHealthPayload, homeCenterReadinessPayload, homeCenterCapabilitiesPayload, operationRegistrySummary, CREDIT_GATED_EMAILS, requireCreditGatedEmail, GITHUB_ADMIN_ALLOWED_EMAILS, requireGitHubAdminUser, HOME_CENTER_MCP_SERVER_VERSION, HOME_CENTER_CONNECTOR_SCHEMA_REVISION, HOME_CENTER_REGISTRY_VERSION, HOME_CENTER_DIRECT_FILE_TOOLS, verifiedRenderGifMcpContent, attachRenderGifMcpContent, renderArtifactHashEntry, renderReviewArtifactCandidates, renderReviewArtifactKey, publishRenderReviewArtifactToDrive, materializeRenderReviewArtifactsOperation, driveOperationRegistry, uploadVerifiedArtifact, createHomeCenterMcpApp, createHomeCenterMcpServer, createDriveFolderOperation, createGoogleDocOperation, appendGoogleDocOperation, publishContextSnapshotOperation, synthesizeCartesiaAudioArtifactOperation, cartesiaVoicesOperation, createSheetOperation, updateSheetValuesOperation, importXlsxWorkbookOperation, readDriveBinaryChunkOperation, compareAudioIngestFileIds, ingestDriveAudioOperation, finalizeDriveAudioIngestBatchOperation, driveOperationRunOperation, driveWorkflowRunOperation, simulationOperationRunOperation, simulationOperationRegistry, droobiedooContextOperationEntries, loadDroobiedooContextIndex, searchDroobiedooContextIndex, runDroobiedooContextOperation, normalizeRecoveryOperation, summarizeRecoveryOperations, loadMcpAccessContext, armoryReceiptOperation, armoryRecountOperation, armoryCasingOperation, renderAudioOperation, inspectAudioArtifactsOperation, materializeHomeCenterRenderDriveRefs, materializeHomeCenterRenderSources, stageHomeCenterGitHubRenderInput, normalizeRenderGitHubSource, githubAdminOperationEntries, githubAdminOperationRunOperation, createGitHubAppJwt};

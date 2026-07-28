@@ -1,6 +1,6 @@
 # Systemic Artifact Transport
 
-Status: implemented, deployed, and live-verified; Candidate 001 remains visually quarantined
+Status: implemented, deployed, and live-verified; Candidate 001 transport is preserved but visual output is rejected pending a changed successor
 
 Baseline: remote `main` at `7798c1b9cc116b89359febcee06ea8d22326f344`
 
@@ -32,7 +32,7 @@ Captured: 2026-07-27 America/Chicago
 | Authority | Current truth |
 | --- | --- |
 | Repository | `Valar05/home-center`, current `main` `7798c1b`. PRs #116-#118 added Drive ingress, Storage ingress, and a Base64 chunk fallback. SMS commits are replayed on `agent/systemic-artifact-transport`. |
-| Pose proof source | `Valar05/pose-lab-v2` draft PR #12, head `cceec91bc8097ce1adcd28e01689137ca9d93707`. Candidate remains quarantined. |
+| Pose proof source | `Valar05/pose-lab-v2` draft PR #12, head `cceec91bc8097ce1adcd28e01689137ca9d93707`. Candidate transport evidence remains preserved; its visual result is rejected pending a changed successor. |
 | Home Center MCP | ACTIVE `homecentermcp-00141-xin`, build `afafc24d-b1b0-458e-9ce8-61e31cc2d5a3`, 100% traffic, readiness green. |
 | Command Center MCP | ACTIVE `commandcentermcp-00072-jan`, build `062c2cda-f653-4b1a-b4c7-85882b76a584`, 100% traffic, readiness green. |
 | Blender renderer | ACTIVE `command-center-blender-render-00020-2bq`, image digest `sha256:c4472114eaa28620aefb02b3b5c4e194cd1f5410f85a05a4f9923ec56b90d439`, 4 CPU, 8 GiB, concurrency 1, timeout 1800, max scale 4, 100% traffic. |
@@ -86,8 +86,7 @@ Both exact digests already exist in the private legacy render-input bucket under
 GitHub-cache objects. The repair must adopt/reuse those objects by digest. It
 must not fetch GitHub or ask Drew to upload them again.
 
-Candidate status remains `quarantined-pending-visual-review`. Transport proof may
-establish execution, byte identity, and output publication only.
+The legacy receipt says `quarantined-pending-visual-review`; under the current failure doctrine this is a rejected visual candidate with preserved transport evidence. It must link to a changed successor rather than block the source or project.
 
 ## Large-File Proof Authority
 
@@ -207,8 +206,7 @@ failure.
   provider SHA verification.
 - The local Termux runtime lacks ImageMagick `convert`; GIF encode/decode is
   verified in the Cloud Run image, which installs ImageMagick.
-- Candidate 001 remains quarantined after transport execution until hosted
-  visual Pose-is-God review accepts it.
+- Candidate 001 visual output is rejected. Its transport evidence remains preserved while a changed successor is required for hosted Pose-is-God review.
 
 ## Exact Next Increment
 
@@ -263,8 +261,7 @@ Exact replay returned `attached=true`, the same cache key/input hash, unchanged
 accept/start/complete timestamps, and `executionAttempt=0`. Cloud logs between
 17:28Z and 17:45Z show one worker POST and one renderer POST only; replay caused
 zero additional renderer calls and no binary transfer. Candidate 001 remains
-`quarantined-pending-visual-review`; this is transport proof, not animation
-acceptance.
+`rejected` for visual acceptance; this is preserved transport proof, not animation acceptance.
 
 ### Large Durable Reference
 
@@ -283,3 +280,42 @@ Run job count is zero. The post-deploy service count increased only by the
 source-owned `commandcenterrenderworker`; no temporary service, job, queue,
 bucket, or proof deployment remains. The worker and queue are deployment-script
 owned and have paired rollback instructions above.
+
+## 2026-07-27 Receipt Delivery And Fix-Forward Continuation
+
+The stable invocation surface remains `drive_operation`; no top-level MCP tool
+was added or changed.
+
+- `artifact.delivery.materialize_receipt` accepts an owner-scoped terminal
+  receipt ID from `driveBridgeAudit`, `foundryAssetJobs`, or
+  `commandCenterRenderRequests`. It accepts no arbitrary path, URL, or GCS
+  reference. It discovers only hash-bound artifacts sealed in the receipt.
+- GLB, PNG, GIF, MP4, WAV/OGG/MP3/FLAC, JSON, PDF, text, Markdown, and Python
+  artifacts are stream-verified in GCS and again after private Drive delivery.
+  Independent artifacts run at bounded concurrency three and keep deterministic
+  manifest ordering. Exact replay returns the stored receipt without restaging;
+  a new request for the same immutable identity reuses the Drive delivery key.
+- Transport status, owner authorization, and human acceptance are separate.
+  Delivery reports `review_ready` while preserving the producer verdict,
+  normally `unreviewed`; it never fabricates `approved:true`.
+- `artifact.review.record` records
+  `accepted|rejected|revision_requested|unreviewed` only against a
+  review-ready receipt. Rejection or revision requires a reason and a concrete
+  changed successor plan. `artifact.review.link_successor` binds that review
+  to a distinct terminal corrective receipt while preserving the rejected
+  candidate and hashes.
+- Shared render preflight rejects Git LFS pointer text as
+  `invalid_binary.git_lfs_pointer`, requires exact GLB declared length,
+  decodes scripts as strict UTF-8, and parses bounded Python syntax with
+  `@lezer/python`. Home Center and Command Center use the same validator.
+- Ambiguous renderer execution now becomes `needs_reconciliation`, not a
+  generic creative-output quarantine. Legacy `quarantined` records remain
+  compatible with explicit reconciliation.
+
+Focused contract evidence: six independent artifact kinds, concurrency three,
+zero source reads on exact replay, zero duplicate Drive creates, digest reuse on
+a second request, preserved `unreviewed` state, rejected-candidate preservation,
+and distinct successor linkage. The canonical 58-tool MCP representation remains
+`64fe900eeaaf2928c2b6114829ee758ff73cc05700373085a1ae63b6484d05f1`.
+Deployment and live receipt proof are intentionally pending merge to exact
+`main`; feature-branch publication is forbidden.

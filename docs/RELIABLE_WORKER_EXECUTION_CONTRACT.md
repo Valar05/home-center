@@ -73,7 +73,7 @@ Every external operation is classified as one of:
 - `ambiguous_cost_bearing`;
 - `non_retryable`.
 
-When a paid or irreversible provider request may have been accepted but its response was lost, the job enters `quarantined`. It is never retried automatically. Provider IDs, timestamps, checkpoint evidence, and billing certainty are preserved for reconciliation.
+When a paid or irreversible provider request may have been accepted but its response was lost, the job enters `needs_reconciliation`. It is never retried automatically. `quarantined` is reserved for integrity or ownership conflicts, not unfinished creative work. Provider IDs, timestamps, checkpoint evidence, and billing certainty are preserved for reconciliation.
 
 Infrastructure retries must not become accidental billing retries.
 
@@ -102,7 +102,7 @@ Conversation context is not an operational log sink.
 3. Conflicting replay fails closed.
 4. Recovery resumes from the newest verified checkpoint without repeating completed units.
 5. An expired lease cannot permit two workers to publish one result.
-6. Ambiguous paid-provider outcomes quarantine without automatic retry.
+6. Ambiguous paid-provider outcomes enter `needs_reconciliation` without automatic retry.
 7. Safe transient work retries only within declared limits.
 8. `publishToDrive: false` creates no Drive artifact.
 9. Large output is exposed by resource reference, not inline status.
