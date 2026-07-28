@@ -61,6 +61,10 @@ Outputs use `foundry/v2/{ownerHash}/{namespace}/{inputHash}/{resultHash}/...`. I
 
 Rejected work remains immutable evidence and must link to a changed successor plan. Promotion requires an accepted owner-scoped review record bound to the exact job and result hash.
 
+`foundry.asset.status` authenticates the caller before returning failure evidence. Failed jobs include only bounded, redacted tails from the exact owner/namespace/input/attempt log objects after byte-length and SHA-256 readback verification. Logs never appear in run receipts, capability listings, or another owner's status.
+
+Inspect-only jobs preserve the exact source GLB bytes as their successor. Structural inspection uses the glTF Transform texture API directly, so embedded material textures are inspected without dereferencing a nonexistent wrapper. This is the regression contract for the hash-locked Regnet material-bearing source.
+
 ## Review Gate
 
 Each successful run must contain the successor GLB, six fixed PNGs, a contact sheet, optional skeletal overlay, validation report, preservation evidence, change evidence, manifest, and bounded logs. Every output is SHA-256 and byte-length verified after storage readback.
