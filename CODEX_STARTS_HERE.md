@@ -23,8 +23,8 @@ The prior Cloud Blender execution lane and Command Center Codex worker discovery
 - Run contract: `home-center.foundry-run.v2`.
 - Script contract: `foundry-js.v1`.
 - Top-level MCP tool count after retirement: 57.
-- Canonical top-level MCP SHA-256: `493136e63dc41390f05fcea79d4dc6038f8a5dd8836e738965a3dd10adb5fbdb`.
-- Public manifest SHA-256: generated in `contracts/home-center-public-tool-manifest.v1.json`; never hand-edit it.
+- Canonical top-level MCP SHA-256: `5c7cee977116422e47ae817920d41b63227d841348fd6c0769f6c9f1568b6498`.
+- Public manifest SHA-256: `1a8592c9645de28951734999259a819cd66ca2521327001fb372fab4a7c80779`; generated in `contracts/home-center-public-tool-manifest.v1.json`, never hand-edited.
 - Shared viewer: `https://valar05.github.io/model-viewer-lab/model-viewer.html`.
 
 ## Verification
