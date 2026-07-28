@@ -1,12 +1,12 @@
 # Home Center
 
-Home Center is the authenticated household operations and execution surface. The Android app is the human approval and device-control hub; the MCP services expose durable Google Drive, Docs, Sheets, simulation, and Command Center workflows to ChatGPT and paired Codex workers. Repository state, audit records, checkpoints, and artifact receipts preserve continuity across chats, devices, and cloud execution.
+Home Center is the authenticated household operations and execution surface. The Android app is the human approval and device-control hub; the MCP services expose durable Google Drive, Docs, Sheets, simulation, artifact, Foundry, and retained Command Center workflows to ChatGPT. Repository state, audit records, and artifact receipts preserve continuity across chats, devices, and cloud execution.
 
 The product boundary is deliberate:
 
 - people approve sensitive actions through Home Center or an explicit connected-client confirmation;
 - stable operation registries let clients discover backend capabilities without a connector reinstall for every addition;
-- Command Center dispatches and supervises worker execution while ChatGPT remains the planning and conversational surface;
+- asynchronous producers such as Foundry own their isolated execution contracts while ChatGPT remains the planning and conversational surface;
 - write operations use scoped authority, stable request IDs, and audit records;
 - the Android shopping list and voice commands are basic household workflows, not the product definition.
 
@@ -94,44 +94,20 @@ Home Center should own installed-app automation profiles. Termux/Shizuku scripts
 
 ## Command Center MCP
 
-Command Center is a separate cloud MCP control plane for dispatching, supervising, and preserving Codex worker execution. It has no frontend and no independent chat interface. ChatGPT remains the planner and conversational surface; Command Center persists projects, tickets, leases, events, questions, mutation approvals, logs, artifacts, and checkpoints; user-owned Codex workers execute.
+Command Center is a retained compatibility MCP for project bindings, managed knowledge buckets, app-control records, and browser-session learning. It has no frontend and no independent chat interface. Home Center reaches it through the stable `command_center_operation` dispatcher.
 
-Portable Command Center execution uses durable worker sessions as the hard gate: a Cloud Run Debian worker must restore a Command Center/GCS workspace snapshot before execution and write the next snapshot before completed success. Cloud workers do not require a repository, and one repository may have multiple workers with different capabilities or policies.
+Command Center Codex agents, jobs, sessions, worker discovery, provisioning, leases, and heartbeats are permanently retired. They are not cataloged or executable. Historical data remains private evidence and does not make the producer callable. New asynchronous artifact work uses its owned Home Center capability, such as `drive_operation` with `foundry.asset.run`.
 
-Termux can debug ChatGPT MCP app/plugin installation with the one-command Playwright Chrome debugger:
+Termux can debug ChatGPT MCP app/plugin installation with `node tools/debug_chatgpt_plugin_install.mjs`. The debugger verifies the retained Home Center and Command Center surfaces; it does not dispatch a Codex worker.
 
-```sh
-node tools/debug_chatgpt_plugin_install.mjs
-```
-
-This uses Debian/proot Playwright Chromium for ChatGPT page evidence, then combines Home Center MCP, Command Center MCP, pairing, and Cloud Run connector-log checks. See `docs/CHATGPT_PLUGIN_INSTALL_DEBUG.md`.
-
-If ChatGPT requires human verification, do not launch a full-phone app takeover. Use the bounded Chrome frame helper only. The helper writes a Home Center learning envelope so Termux and Home Center remain the same workflow with different inputs:
-
-```sh
-sh tools/launch_chatgpt_chrome_frame.sh https://chatgpt.com/
-```
-
-Normal ChatGPT invocation should use the already-connected Home Center MCP app first:
+Normal retained Command Center invocation uses the already-connected Home Center MCP app:
 
 ```text
 tool: command_center_operation
-operation: jobs.create | jobs.get | jobs.get_events | jobs.get_artifacts | jobs.answer_question | jobs.authorize_mutation
+operation: projects.get | bucket.list_objects | app_control.get_profile | browser_playbooks.lookup
 ```
 
-This avoids a dead-end where ChatGPT can see Home Center tools but cannot discover a separate `commandCenterMcp` namespace. The standalone Command Center MCP endpoint still exists for direct MCP clients and worker-control tooling.
-
-Status and discovery are separate contracts. Home Center `health` reports only process liveness. `readiness` reports bounded required-configuration checks without calling providers or returning secret values. `capabilities` reports deterministic top-level tool names and names-only operation summaries. Detailed Command Center worker diagnostics remain under the existing `system.health` operation.
-
-Use `command_center_operation` for Command Center work through the connected Home Center surface. The standalone Command Center MCP endpoint remains available to direct MCP clients.
-
-The Firebase export is `commandCenterMcp` and its MCP endpoint is:
-
-```text
-https://us-central1-home-center-dclar.cloudfunctions.net/commandCenterMcp/mcp
-```
-
-The current implementation supports durable one-shot worker dispatch, streaming executor events, persisted artifacts, handoff synthesis, linked follow-up jobs, and the Command Center knowledge bucket. See `docs/COMMAND_CENTER_MCP.md`.
+The standalone endpoint remains available to direct MCP clients at `https://us-central1-home-center-dclar.cloudfunctions.net/commandCenterMcp/mcp`. See `docs/COMMAND_CENTER_MCP.md`.
 
 ## Regular ChatGPT App / MCP Setup
 

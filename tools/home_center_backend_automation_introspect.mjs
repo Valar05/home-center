@@ -40,10 +40,7 @@ function count(pattern, source) {
 const commandCenter = read(COMMAND_CENTER);
 const index = read(INDEX);
 const operations = caseNames(commandCenter, 'runCommandCenterOperation');
-const automationOperations = operations.filter((op) => /^(workers|agents|jobs|app_control|browser_sessions|browser_discoveries|browser_playbooks|bucket)\./.test(op));
-const defaultWorkerCaps = unique(Array.from(commandCenter.matchAll(/advertisedCapabilities\s*:\s*\[([\s\S]*?)\]/g)).flatMap((match) => Array.from(match[1].matchAll(/'([^']+)'/g)).map((item) => item[1])));
-const cloudRunJobConfigured = commandCenter.includes("channel.mode === 'cloud_run_job'") && commandCenter.includes('invokeCloudRunJobActivation');
-const workerEndpoints = unique(Array.from(commandCenter.matchAll(/app\.post\('([^']+)'/g)).map((match) => match[1]).filter((route) => route.startsWith('/agent/')));
+const automationOperations = operations.filter((op) => /^(app_control|browser_sessions|browser_discoveries|browser_playbooks|bucket)\./.test(op));
 const homeGatewayExports = unique(Array.from(index.matchAll(/exports\.([A-Za-z0-9_]+)\s*=/g)).map((match) => match[1]));
 const result = {
   ok: true,
@@ -54,12 +51,9 @@ const result = {
     operations,
     automationOperationCount: automationOperations.length,
     automationOperations,
-    workerEndpoints,
-    cloudRunJobConfigured,
-    defaultWorkerCapabilities: defaultWorkerCaps,
     appControlProfileSurface: operations.some((op) => op.startsWith('app_control.')),
     browserAutomationSurface: operations.some((op) => op.startsWith('browser_')),
-    durableWorkerSurface: operations.some((op) => op.startsWith('workers.')) && operations.some((op) => op.startsWith('agents.')),
+    retiredCodexSurfaceAbsent: !operations.some((op) => /^(workers|agents|jobs|hosts|codex_sessions|machine_images|provisioning|routing|proof)\./.test(op)),
   },
   homeGateway: {
     exportCount: homeGatewayExports.length,
@@ -68,11 +62,11 @@ const result = {
     termuxTokenRefreshExported: homeGatewayExports.includes('termuxTokenRefresh'),
   },
   codeSignals: {
-    workerRecordFunctions: count(/workerRecords|selectWorker|isWorkerLeaseEligible/g, commandCenter),
+    retiredCodexExecutionMentions: count(/capability_retired\.command_center_codex/g, commandCenter),
     shizukuMentions: count(/shizuku|rish/gi, commandCenter + index),
     commandCenterOperationMentions: count(/command_center_operation/g, commandCenter + index),
   },
 };
 fs.mkdirSync(path.dirname(OUT), {recursive: true});
 fs.writeFileSync(OUT, JSON.stringify(result, null, 2) + '\n');
-console.log(JSON.stringify({ok: true, output: path.relative(ROOT, OUT), operations: operations.length, automationOperations: automationOperations.length, cloudRunJobConfigured}, null, 2));
+console.log(JSON.stringify({ok: true, output: path.relative(ROOT, OUT), operations: operations.length, automationOperations: automationOperations.length, retiredCodexExecution: true}, null, 2));

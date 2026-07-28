@@ -26,7 +26,7 @@ assert.ok(agents.includes('CI is authoritative'), 'AGENTS.md must name CI as the
 
 const profiles = registry.profiles || {};
 const assignments = registry.assignments || {};
-for (const required of ['control-plane', 'codex-job', 'media-forge-light', 'media-forge-heavy', 'browser-session']) {
+for (const required of ['control-plane', 'media-forge-light', 'media-forge-heavy', 'browser-session']) {
   assert.ok(profiles[required], `missing profile ${required}`);
   assert.ok(doctrine.includes('`' + required + '`'), `doctrine must explain ${required}`);
 }
@@ -129,57 +129,37 @@ for (const file of Object.keys(exemptions)) {
 }
 
 assert.equal(assignments['home-center-mcp'].profile, 'control-plane');
-assert.equal(assignments['command-center-blender-render'].profile, 'media-forge-heavy');
+assert.equal(assignments['command-center-blender-render'], undefined, 'retired renderer profile must stay deleted');
+assert.equal(assignments['fortress-model-foundry'].profile, 'media-forge-light');
+assert.equal(assignments['fortress-model-foundry'].state, 'bound');
 assert.equal(assignments['home-center-audio-render'].state, 'target');
-assert.equal(profiles['media-forge-heavy'].cpu, 4);
-assert.equal(profiles['media-forge-heavy'].memory, '8Gi');
-assert.equal(profiles['media-forge-heavy'].maxInstances, 4);
+assert.equal(profiles['media-forge-light'].cpu, 4);
+assert.equal(profiles['media-forge-light'].memory, '4Gi');
+assert.equal(profiles['media-forge-light'].maxInstances, 8);
 
-const blenderShell = execFileSync(process.execPath, [helperPath, 'shell', 'command-center-blender-render'], {encoding: 'utf8'});
-assert.ok(blenderShell.includes("WORKER_CPU='4'"));
-assert.ok(blenderShell.includes("WORKER_MEMORY='8Gi'"));
-assert.ok(blenderShell.includes("WORKER_CONCURRENCY='1'"));
+const foundryShell = execFileSync(process.execPath, [helperPath, 'shell', 'fortress-model-foundry'], {encoding: 'utf8'});
+assert.ok(foundryShell.includes("WORKER_CPU='4'"));
+assert.ok(foundryShell.includes("WORKER_MEMORY='4Gi'"));
+assert.ok(foundryShell.includes("WORKER_CONCURRENCY='1'"));
 
 const serviceFixture = {
   spec: {
     template: {
-      metadata: {annotations: {'autoscaling.knative.dev/maxScale': '4'}},
+      metadata: {annotations: {'autoscaling.knative.dev/maxScale': '8'}},
       spec: {
         containerConcurrency: 1,
         timeoutSeconds: 1800,
-        containers: [{resources: {limits: {cpu: '4000m', memory: '8Gi'}}}],
+        containers: [{resources: {limits: {cpu: '4000m', memory: '4Gi'}}}],
       },
     },
   },
 };
-const jobFixture = {
-  spec: {
-    template: {
-      spec: {
-        taskCount: 1,
-        template: {
-          spec: {
-            maxRetries: 0,
-            timeoutSeconds: 3600,
-            containers: [{resources: {limits: {cpu: '2', memory: '4Gi'}}}],
-          },
-        },
-      },
-    },
-  },
-};
-
 function verifyFixture(name, fixture) {
-  return spawnSync(process.execPath, [helperPath, 'verify-live', name], {
-    input: JSON.stringify(fixture),
-    encoding: 'utf8',
-  });
+  return spawnSync(process.execPath, [helperPath, 'verify-live', name], {input: JSON.stringify(fixture), encoding: 'utf8'});
 }
-
-assert.equal(verifyFixture('command-center-blender-render', serviceFixture).status, 0, 'service live-readback fixture must pass');
-assert.equal(verifyFixture('command-center-codex', jobFixture).status, 0, 'job live-readback fixture must pass');
+assert.equal(verifyFixture('fortress-model-foundry', serviceFixture).status, 0, 'Foundry live-readback fixture must pass');
 serviceFixture.spec.template.spec.containerConcurrency = 80;
-assert.notEqual(verifyFixture('command-center-blender-render', serviceFixture).status, 0, 'live drift must fail closed');
+assert.notEqual(verifyFixture('fortress-model-foundry', serviceFixture).status, 0, 'Foundry live drift must fail closed');
 
 const ci = fs.readFileSync(ciPath, 'utf8');
 assert.ok(ci.includes('node tools/worker_profile_contract_test.mjs'), 'Home Center CI must run worker profile contract');

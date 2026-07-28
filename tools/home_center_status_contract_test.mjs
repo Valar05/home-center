@@ -119,14 +119,6 @@ for (const operation of ['sfx.analyze_source', 'sfx.transcribe_slate', 'sfx.segm
 }
 assert.deepEqual(capabilities.fileUploadTools, [
   {
-    name: 'render_blender_glb',
-    required: ['idempotencyKey', 'glbFile', 'scriptFile'],
-    inputs: {
-      glbFile: {format: 'binary', contentMediaType: 'model/gltf-binary'},
-      scriptFile: {format: 'binary', contentMediaType: 'text/x-python'},
-    },
-  },
-  {
     name: 'drive_ingest_file',
     required: ['requestId', 'file'],
     inputs: {
@@ -155,6 +147,7 @@ assert.deepEqual(commandCenterHealthPayload(), {
   ok: true,
   service: 'command-center-mcp',
   version: COMMAND_CENTER_MCP_SERVER_VERSION,
+  hasFrontend: false,
 });
 const commandReady = commandCenterReadinessPayload({admin});
 assert.equal(commandReady.ready, true);
