@@ -41,7 +41,7 @@ Mutation receipts are also written immutably under `indexes/filesystem/v1/receip
 
 Every mutation requires `approved: true`, a stable `requestId`, and authenticated ownership. This approval authorizes execution; it does not imply human acceptance. New files retain `humanAcceptance: unreviewed` unless a separate owned review flow changes it.
 
-Mutations of an existing file require `expectedVersionId`. Exact replay attaches to the existing receipt and performs no duplicate byte staging. Reusing a request ID with different logical inputs returns `storage.filesystem.idempotency_conflict`. A stale head returns `storage.filesystem.version_conflict`.
+Mutations of an existing file require `expectedVersionId`. Exact-input idempotency is checked before current-head or current-path validation, so replay still attaches after later moves, versions, trash, or restore operations and performs no duplicate byte staging. Reusing a request ID with different logical inputs returns `storage.filesystem.idempotency_conflict`. A new request against a stale head returns `storage.filesystem.version_conflict`.
 
 Overwrite and historical restore create successor versions; they do not erase history. There is no permanent-delete operation.
 

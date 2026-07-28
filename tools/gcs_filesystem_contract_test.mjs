@@ -146,6 +146,23 @@ const trashList = await service.listFilesOperation({admin, user, args: {state: '
 const restoredTrash = await service.restoreFileOperation({admin, storage, user, args: {approved: true, requestId: 'restore-trash-v1', fileId: copied.file.fileId, expectedVersionId: copied.version.versionId}});
 assert.equal(restoredTrash.file.state, 'active'); assert.equal(restoredTrash.file.path, '/archive/renamed.bin'); assert.equal((await service.listFilesOperation({admin, user, args: {state: 'trash'}})).count, 0);
 
+const lateReplays = await Promise.all([
+  service.appendFileOperation({admin, storage, user, args: {approved: true, requestId: 'append-beta-v1', fileId: created.file.fileId, expectedVersionId: created.version.versionId, source: {kind: 'home_center_artifact', artifactId: beta.artifactId, sha256: beta.digest, byteLength: beta.bytes.length}}}),
+  service.copyFileOperation({admin, storage, user, args: {approved: true, requestId: 'copy-v1', fileId: created.file.fileId, expectedVersionId: appended.version.versionId, path: '/copies/input.bin'}}),
+  service.moveFileOperation({admin, storage, user, args: {approved: true, requestId: 'move-v1', fileId: copied.file.fileId, expectedVersionId: copied.version.versionId, path: '/archive/input.bin'}}),
+  service.renameFileOperation({admin, storage, user, args: {approved: true, requestId: 'rename-v1', fileId: copied.file.fileId, expectedVersionId: copied.version.versionId, name: 'renamed.bin'}}),
+  service.overwriteFileOperation({admin, storage, user, args: {approved: true, requestId: 'overwrite-gamma-v1', fileId: created.file.fileId, expectedVersionId: appended.version.versionId, source: {kind: 'home_center_artifact', artifactId: gamma.artifactId, sha256: gamma.digest, byteLength: gamma.bytes.length}}}),
+  service.restoreFileOperation({admin, storage, user, args: {approved: true, requestId: 'restore-alpha-version-v1', fileId: created.file.fileId, expectedVersionId: overwritten.version.versionId, versionId: created.version.versionId}}),
+  service.trashFileOperation({admin, storage, user, args: {approved: true, requestId: 'trash-v1', fileId: copied.file.fileId, expectedVersionId: copied.version.versionId}}),
+  service.restoreFileOperation({admin, storage, user, args: {approved: true, requestId: 'restore-trash-v1', fileId: copied.file.fileId, expectedVersionId: copied.version.versionId}}),
+]);
+assert.equal(lateReplays.every((receipt) => receipt.attached === true), true, 'every mutation must attach on exact replay after later state changes');
+await assert.rejects(
+  service.appendFileOperation({admin, storage, user, args: {approved: true, requestId: 'append-beta-v1', fileId: created.file.fileId, expectedVersionId: created.version.versionId, source: {kind: 'home_center_artifact', artifactId: gamma.artifactId, sha256: gamma.digest, byteLength: gamma.bytes.length}}}),
+  (error) => error.code === 'storage.filesystem.idempotency_conflict',
+  'changed inputs must still conflict before current-head validation',
+);
+
 assert.equal([...storage.objects.keys()].some((key) => /base64|pty/i.test(key)), false);
 assert.equal(JSON.stringify([...db.store.values()]).includes(owner), true, 'owner provenance must be retained in file records');
 assert.equal(JSON.stringify(created).includes(alpha.bytes.toString('base64')), false, 'receipt must not contain source bytes');

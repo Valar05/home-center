@@ -120,7 +120,14 @@ async function existingMutation(admin, ownerKey, id, inputHash) {
   if (!snap.exists) return {ref, receipt: null};
   const value = snap.data() || {};
   if (value.inputHash !== inputHash) throw fail('storage.filesystem.idempotency_conflict', 'requestId is already bound to different filesystem inputs.', 409);
-  return {ref, receipt: value.receipt || value};
+  if (value.receipt) return {ref, receipt: value.receipt};
+  for (let attempt = 0; attempt < 50; attempt += 1) {
+    await new Promise((resolve) => setTimeout(resolve, 100));
+    const current = await ref.get(), record = current.data() || {};
+    if (record.inputHash !== inputHash) throw fail('storage.filesystem.idempotency_conflict', 'requestId is already bound to different filesystem inputs.', 409);
+    if (record.receipt) return {ref, receipt: record.receipt};
+  }
+  throw fail('storage.filesystem.mutation_in_progress', 'The exact filesystem mutation is still committing; retry the same requestId.', 409);
 }
 async function saveReceipt(storage, ownerKey, id, receipt) {
   const objectName = 'indexes/filesystem/v1/receipts/' + ownerKey + '/' + sha256(Buffer.from(id)) + '.json';
@@ -146,22 +153,24 @@ async function finalizeMutation({admin, storage, ownerKey, mutationRef, receipt}
 function mutationBase(operation, id, inputHash, file, version = null) {
   return {schemaVersion: FILESYSTEM_VERSION, operation, requestId: id, inputHash, status: 'completed', file: publicFile(file), version: publicVersion(version), authorization: {state: 'owner_scoped', derivedFrom: 'authenticated_principal'}, humanAcceptance: file.humanAcceptance || 'unreviewed', transport: {binaryInJson: false, copiedBytes: 0}, discovery: {ok: true, stat: true, list: true}, completedAt: new Date().toISOString()};
 }
-async function createFileOperation({admin, storage = storageClient(), user, args = {}, internalProjection = false, internalOperation = 'storage.filesystem.create'}) {
+async function createFileOperation({admin, storage = storageClient(), user, args = {}, internalProjection = false, internalOperation = 'storage.filesystem.create', internalInputHash = ''}) {
   if (!internalProjection) assertApproved(args);
   const owner = ownerEmail(user), ownerKey = ownerHash(owner), id = requestId(args.requestId), pathValue = normalizePath(args.path);
   const logical = {operation: internalOperation, path: pathValue, source: args.source || {kind: 'empty'}, humanAcceptance: text(args.humanAcceptance, 40) || 'unreviewed'};
-  const inputHash = hashJson(logical), existing = await existingMutation(admin, ownerKey, id, inputHash); if (existing.receipt) return {...existing.receipt, attached: true};
+  const inputHash = internalInputHash || hashJson(logical), existing = await existingMutation(admin, ownerKey, id, inputHash); if (existing.receipt) return {...existing.receipt, attached: true};
   const source = await resolveSource({admin, storage, user, source: logical.source, ownerKey});
   const now = new Date().toISOString(), fileId = sha256(Buffer.from(ownerKey + ':file:' + id + ':' + pathValue)).slice(0, 40), versionId = hashJson({fileId, ordinal: 1, source: {sha256: source.sha256, byteLength: source.byteLength, mediaType: source.mediaType}, operation: logical.operation});
   const file = {schemaVersion: FILESYSTEM_VERSION, ownerHash: ownerKey, ownerEmail: owner, fileId, path: pathValue, pathHash: sha256(Buffer.from(pathValue)), state: 'active', currentVersionId: versionId, versionCount: 1, name: baseName(pathValue), mediaType: source.mediaType, byteLength: source.byteLength, sha256: source.sha256, humanAcceptance: logical.humanAcceptance, createdAt: now, updatedAt: now};
   const version = {schemaVersion: FILESYSTEM_VERSION, ownerHash: ownerKey, fileId, versionId, ordinal: 1, sha256: source.sha256, byteLength: source.byteLength, mediaType: source.mediaType, filename: fileName(source.filename || baseName(pathValue)), location: {bucket: source.bucket, objectName: source.objectName, storageRef: source.storageRef}, generation: source.generation || '', parentVersionId: null, operation: logical.operation, provenance: source.provenance || {}, createdAt: now};
   const r = refs(admin, ownerKey, fileId, pathValue, versionId, id);
+  let raced = false;
   await r.db.runTransaction(async (tx) => {
     const [idem, occupied] = await Promise.all([tx.get(r.mutation), tx.get(r.path)]);
-    if (idem.exists) { if ((idem.data() || {}).inputHash !== inputHash) throw fail('storage.filesystem.idempotency_conflict', 'requestId is already bound to different filesystem inputs.', 409); return; }
+    if (idem.exists) { if ((idem.data() || {}).inputHash !== inputHash) throw fail('storage.filesystem.idempotency_conflict', 'requestId is already bound to different filesystem inputs.', 409); raced = true; return; }
     if (occupied.exists) throw fail('storage.filesystem.path_exists', 'Filesystem path already exists.', 409, {path: pathValue});
     tx.create(r.file, file); tx.create(r.path, file); tx.create(r.version, version); tx.create(r.mutation, {schemaVersion: FILESYSTEM_VERSION, ownerHash: ownerKey, requestId: id, inputHash, status: 'committing', operation: logical.operation, createdAt: now});
   });
+  if (raced) return {...(await existingMutation(admin, ownerKey, id, inputHash)).receipt, attached: true};
   return finalizeMutation({admin, storage, ownerKey, mutationRef: r.mutation, receipt: mutationBase(logical.operation, id, inputHash, file, version)});
 }
 async function loadFile({admin, ownerKey, fileId, allowTrash = false}) {
@@ -177,24 +186,26 @@ function assertExpectedVersion(file, args) {
   if (!expected) throw fail('storage.filesystem.expected_version_required', 'expectedVersionId is required for mutation of an existing file.');
   if (file.currentVersionId !== expected) throw fail('storage.filesystem.version_conflict', 'Filesystem head changed since the caller read it.', 409, {expected, actual: file.currentVersionId});
 }
-async function installNewHead({admin, storage, user, args, operation, sourceResolver}) {
+async function installNewHead({admin, storage, user, args, operation, sourceResolver, inputHashOverride = ''}) {
   assertApproved(args);
   const owner = ownerEmail(user), ownerKey = ownerHash(owner), id = requestId(args.requestId), fileId = text(args.fileId, 64);
-  const file = await loadFile({admin, ownerKey, fileId}); assertExpectedVersion(file, args);
   const logical = {operation, fileId, expectedVersionId: args.expectedVersionId, source: args.source || null, versionId: args.versionId || null};
-  const inputHash = hashJson(logical), existing = await existingMutation(admin, ownerKey, id, inputHash); if (existing.receipt) return {...existing.receipt, attached: true};
+  const inputHash = inputHashOverride || hashJson(logical), existing = await existingMutation(admin, ownerKey, id, inputHash); if (existing.receipt) return {...existing.receipt, attached: true};
+  const file = await loadFile({admin, ownerKey, fileId}); assertExpectedVersion(file, args);
   const previous = await loadVersion({admin, ownerKey, versionId: file.currentVersionId});
   const source = await sourceResolver({admin, storage, user, ownerKey, file, previous});
   const ordinal = Number(file.versionCount || 1) + 1, now = new Date().toISOString(), versionId = hashJson({fileId, ordinal, parentVersionId: previous.versionId, operation, source: {sha256: source.sha256, byteLength: source.byteLength, mediaType: source.mediaType}});
   const version = {schemaVersion: FILESYSTEM_VERSION, ownerHash: ownerKey, fileId, versionId, ordinal, sha256: source.sha256, byteLength: source.byteLength, mediaType: source.mediaType, filename: fileName(source.filename || file.name), location: {bucket: source.bucket, objectName: source.objectName, storageRef: source.storageRef}, generation: source.generation || '', parentVersionId: previous.versionId, operation, provenance: source.provenance || {}, createdAt: now};
   const next = {...file, currentVersionId: versionId, versionCount: ordinal, mediaType: version.mediaType, byteLength: version.byteLength, sha256: version.sha256, updatedAt: now};
   const r = refs(admin, ownerKey, fileId, file.path, versionId, id);
+  let raced = false;
   await r.db.runTransaction(async (tx) => {
     const [idem, live] = await Promise.all([tx.get(r.mutation), tx.get(r.file)]);
-    if (idem.exists) return;
+    if (idem.exists) { if ((idem.data() || {}).inputHash !== inputHash) throw fail('storage.filesystem.idempotency_conflict', 'requestId is already bound to different filesystem inputs.', 409); raced = true; return; }
     const current = live.data() || {}; if (current.currentVersionId !== args.expectedVersionId) throw fail('storage.filesystem.version_conflict', 'Filesystem head changed during mutation.', 409);
     tx.create(r.version, version); tx.set(r.file, next); tx.set(r.path, next); tx.create(r.mutation, {schemaVersion: FILESYSTEM_VERSION, ownerHash: ownerKey, requestId: id, inputHash, status: 'committing', operation, createdAt: now});
   });
+  if (raced) return {...(await existingMutation(admin, ownerKey, id, inputHash)).receipt, attached: true};
   return finalizeMutation({admin, storage, ownerKey, mutationRef: r.mutation, receipt: mutationBase(operation, id, inputHash, next, version)});
 }
 async function overwriteFileOperation(context) {
@@ -223,26 +234,33 @@ async function appendFileOperation(context) {
 }
 async function copyFileOperation({admin, storage = storageClient(), user, args = {}}) {
   assertApproved(args);
-  const owner = ownerEmail(user), ownerKey = ownerHash(owner), sourceFile = await loadFile({admin, ownerKey, fileId: text(args.fileId, 64)}); assertExpectedVersion(sourceFile, args);
+  const owner = ownerEmail(user), ownerKey = ownerHash(owner), id = requestId(args.requestId), fileId = text(args.fileId, 64), destination = normalizePath(args.path);
+  const logical = {operation: 'storage.filesystem.copy', fileId, expectedVersionId: text(args.expectedVersionId, 64), path: destination};
+  const inputHash = hashJson(logical), existing = await existingMutation(admin, ownerKey, id, inputHash); if (existing.receipt) return {...existing.receipt, attached: true};
+  const sourceFile = await loadFile({admin, ownerKey, fileId}); assertExpectedVersion(sourceFile, args);
   const version = await loadVersion({admin, ownerKey, versionId: sourceFile.currentVersionId});
-  return createFileOperation({admin, storage, user, internalProjection: true, internalOperation: 'storage.filesystem.copy', args: {approved: true, requestId: args.requestId, path: args.path, humanAcceptance: sourceFile.humanAcceptance, source: {kind: 'filesystem_version', fileId: sourceFile.fileId, versionId: version.versionId, sha256: version.sha256}}});
+  return createFileOperation({admin, storage, user, internalProjection: true, internalOperation: 'storage.filesystem.copy', internalInputHash: inputHash, args: {approved: true, requestId: id, path: destination, humanAcceptance: sourceFile.humanAcceptance, source: {kind: 'filesystem_version', fileId: sourceFile.fileId, versionId: version.versionId, sha256: version.sha256}}});
 }
 async function relocateFileOperation({admin, storage = storageClient(), user, args = {}, operation = 'storage.filesystem.move'}) {
   assertApproved(args);
-  const owner = ownerEmail(user), ownerKey = ownerHash(owner), id = requestId(args.requestId), fileId = text(args.fileId, 64), file = await loadFile({admin, ownerKey, fileId}); assertExpectedVersion(file, args);
-  let destination;
-  if (operation === 'storage.filesystem.rename') destination = normalizePath(parentPath(file.path) + '/' + fileName(args.name)); else destination = normalizePath(args.path);
-  const logical = {operation, fileId, expectedVersionId: args.expectedVersionId, sourcePath: file.path, destination};
+  const owner = ownerEmail(user), ownerKey = ownerHash(owner), id = requestId(args.requestId), fileId = text(args.fileId, 64);
+  const target = operation === 'storage.filesystem.rename' ? {name: fileName(args.name)} : {path: normalizePath(args.path)};
+  const logical = {operation, fileId, expectedVersionId: text(args.expectedVersionId, 64), ...target};
   const inputHash = hashJson(logical), existing = await existingMutation(admin, ownerKey, id, inputHash); if (existing.receipt) return {...existing.receipt, attached: true};
+  const file = await loadFile({admin, ownerKey, fileId}); assertExpectedVersion(file, args);
+  let destination;
+  if (operation === 'storage.filesystem.rename') destination = normalizePath(parentPath(file.path) + '/' + target.name); else destination = target.path;
   if (destination === file.path) throw fail('storage.filesystem.path_unchanged', 'Destination path is unchanged.', 409);
   const now = new Date().toISOString(), next = {...file, path: destination, pathHash: sha256(Buffer.from(destination)), name: baseName(destination), updatedAt: now};
   const db = admin.firestore(), sourcePathRef = db.collection(PATHS).doc(pathId(ownerKey, file.path)), destinationRef = db.collection(PATHS).doc(pathId(ownerKey, destination)), mutationRef = db.collection(MUTATIONS).doc(mutationDocId(ownerKey, id)), fileRef = db.collection(FILES).doc(fileDocId(ownerKey, fileId));
+  let raced = false;
   await db.runTransaction(async (tx) => {
-    const [idem, current, occupied] = await Promise.all([tx.get(mutationRef), tx.get(fileRef), tx.get(destinationRef)]); if (idem.exists) return;
+    const [idem, current, occupied] = await Promise.all([tx.get(mutationRef), tx.get(fileRef), tx.get(destinationRef)]); if (idem.exists) { if ((idem.data() || {}).inputHash !== inputHash) throw fail('storage.filesystem.idempotency_conflict', 'requestId is already bound to different filesystem inputs.', 409); raced = true; return; }
     if (occupied.exists) throw fail('storage.filesystem.path_exists', 'Destination path already exists.', 409, {path: destination});
     if ((current.data() || {}).currentVersionId !== args.expectedVersionId) throw fail('storage.filesystem.version_conflict', 'Filesystem head changed during relocation.', 409);
     tx.delete(sourcePathRef); tx.set(destinationRef, next); tx.set(fileRef, next); tx.create(mutationRef, {schemaVersion: FILESYSTEM_VERSION, ownerHash: ownerKey, requestId: id, inputHash, status: 'committing', operation, createdAt: now});
   });
+  if (raced) return {...(await existingMutation(admin, ownerKey, id, inputHash)).receipt, attached: true};
   const version = await loadVersion({admin, ownerKey, versionId: next.currentVersionId});
   return finalizeMutation({admin, storage, ownerKey, mutationRef, receipt: mutationBase(operation, id, inputHash, next, version)});
 }
@@ -250,12 +268,15 @@ async function moveFileOperation(context) { return relocateFileOperation({...con
 async function renameFileOperation(context) { return relocateFileOperation({...context, operation: 'storage.filesystem.rename'}); }
 async function trashFileOperation({admin, storage = storageClient(), user, args = {}}) {
   assertApproved(args);
-  const owner = ownerEmail(user), ownerKey = ownerHash(owner), id = requestId(args.requestId), fileId = text(args.fileId, 64), file = await loadFile({admin, ownerKey, fileId}); assertExpectedVersion(file, args);
-  const logical = {operation: 'storage.filesystem.trash', fileId, expectedVersionId: args.expectedVersionId, path: file.path}, inputHash = hashJson(logical), existing = await existingMutation(admin, ownerKey, id, inputHash); if (existing.receipt) return {...existing.receipt, attached: true};
+  const owner = ownerEmail(user), ownerKey = ownerHash(owner), id = requestId(args.requestId), fileId = text(args.fileId, 64);
+  const logical = {operation: 'storage.filesystem.trash', fileId, expectedVersionId: text(args.expectedVersionId, 64)}, inputHash = hashJson(logical), existing = await existingMutation(admin, ownerKey, id, inputHash); if (existing.receipt) return {...existing.receipt, attached: true};
+  const file = await loadFile({admin, ownerKey, fileId}); assertExpectedVersion(file, args);
   const nowDate = new Date(), now = nowDate.toISOString(), expiresAt = new Date(nowDate.getTime() + TRASH_RETENTION_DAYS * 86400000), trashPath = '/.trash/' + now.slice(0, 10) + '/' + fileId + '/' + file.name;
   const next = {...file, state: 'trash', originalPath: file.path, path: trashPath, pathHash: sha256(Buffer.from(trashPath)), trashedAt: now, expiresAt, updatedAt: now};
   const r = refs(admin, ownerKey, fileId, file.path, '', id), trashRef = r.db.collection(TRASH).doc(fileDocId(ownerKey, fileId));
-  await r.db.runTransaction(async (tx) => { const [idem, current] = await Promise.all([tx.get(r.mutation), tx.get(r.file)]); if (idem.exists) return; if ((current.data() || {}).currentVersionId !== args.expectedVersionId) throw fail('storage.filesystem.version_conflict', 'Filesystem head changed during trash.', 409); tx.delete(r.path); tx.set(r.file, next); tx.set(trashRef, next); tx.create(r.mutation, {schemaVersion: FILESYSTEM_VERSION, ownerHash: ownerKey, requestId: id, inputHash, status: 'committing', operation: logical.operation, createdAt: now}); });
+  let raced = false;
+  await r.db.runTransaction(async (tx) => { const [idem, current] = await Promise.all([tx.get(r.mutation), tx.get(r.file)]); if (idem.exists) { if ((idem.data() || {}).inputHash !== inputHash) throw fail('storage.filesystem.idempotency_conflict', 'requestId is already bound to different filesystem inputs.', 409); raced = true; return; } if ((current.data() || {}).currentVersionId !== args.expectedVersionId) throw fail('storage.filesystem.version_conflict', 'Filesystem head changed during trash.', 409); tx.delete(r.path); tx.set(r.file, next); tx.set(trashRef, next); tx.create(r.mutation, {schemaVersion: FILESYSTEM_VERSION, ownerHash: ownerKey, requestId: id, inputHash, status: 'committing', operation: logical.operation, createdAt: now}); });
+  if (raced) return {...(await existingMutation(admin, ownerKey, id, inputHash)).receipt, attached: true};
   const version = await loadVersion({admin, ownerKey, versionId: next.currentVersionId});
   const trashPointerName = 'indexes/filesystem/v1/trash/' + ownerKey + '/' + sha256(Buffer.from(id)) + '.json';
   const trashPointerBytes = Buffer.from(JSON.stringify({schemaVersion: FILESYSTEM_VERSION, ownerHash: ownerKey, fileId, versionId: version.versionId, originalPath: file.path, trashPath, trashedAt: now, expiresAt: expiresAt.toISOString()}, null, 2) + '\n');
@@ -270,18 +291,23 @@ async function trashFileOperation({admin, storage = storageClient(), user, args 
 }
 async function restoreFileOperation({admin, storage = storageClient(), user, args = {}}) {
   assertApproved(args);
-  const owner = ownerEmail(user), ownerKey = ownerHash(owner), id = requestId(args.requestId), fileId = text(args.fileId, 64), file = await loadFile({admin, ownerKey, fileId, allowTrash: true}); assertExpectedVersion(file, args);
-  if (file.state === 'active' && args.versionId) return installNewHead({admin, storage, user, args, operation: 'storage.filesystem.restore', sourceResolver: async () => {
+  const owner = ownerEmail(user), ownerKey = ownerHash(owner), id = requestId(args.requestId), fileId = text(args.fileId, 64), requestedPath = args.path ? normalizePath(args.path) : null;
+  const logical = {operation: 'storage.filesystem.restore', fileId, expectedVersionId: text(args.expectedVersionId, 64), versionId: text(args.versionId, 64) || null, path: requestedPath};
+  const inputHash = hashJson(logical), existing = await existingMutation(admin, ownerKey, id, inputHash); if (existing.receipt) return {...existing.receipt, attached: true};
+  const file = await loadFile({admin, ownerKey, fileId, allowTrash: true}); assertExpectedVersion(file, args);
+  if (file.state === 'active' && args.versionId) return installNewHead({admin, storage, user, args, operation: 'storage.filesystem.restore', inputHashOverride: inputHash, sourceResolver: async () => {
     const version = await loadVersion({admin, ownerKey, versionId: text(args.versionId, 64)}); if (version.fileId !== fileId) throw fail('storage.filesystem.version_conflict', 'Historical version belongs to a different file.', 409); await verifyLocation(storage, version.location, version); return {...version.location, sha256: version.sha256, byteLength: version.byteLength, mediaType: version.mediaType, filename: version.filename, generation: version.generation, provenance: {operation: 'restore_version', restoredVersionId: version.versionId}};
   }});
   if (file.state !== 'trash') throw fail('storage.filesystem.restore_invalid_state', 'File is not in trash and no historical version was requested.', 409);
   const expiresAt = file.expiresAt && typeof file.expiresAt.toDate === 'function' ? file.expiresAt.toDate() : new Date(file.expiresAt);
   if (expiresAt.getTime() <= Date.now()) throw fail('storage.filesystem.trash_expired', 'Trash retention expired and this file is no longer restorable.', 410);
-  const destination = normalizePath(args.path || file.originalPath), logical = {operation: 'storage.filesystem.restore', fileId, expectedVersionId: args.expectedVersionId, destination}, inputHash = hashJson(logical), existing = await existingMutation(admin, ownerKey, id, inputHash); if (existing.receipt) return {...existing.receipt, attached: true};
+  const destination = requestedPath || normalizePath(file.originalPath);
   const now = new Date().toISOString(), next = {...file, state: 'active', path: destination, pathHash: sha256(Buffer.from(destination)), name: baseName(destination), originalPath: null, expiresAt: null, restoredAt: now, updatedAt: now};
   delete next.trashedAt;
   const r = refs(admin, ownerKey, fileId, destination, '', id), trashRef = r.db.collection(TRASH).doc(fileDocId(ownerKey, fileId));
-  await r.db.runTransaction(async (tx) => { const [idem, occupied, current] = await Promise.all([tx.get(r.mutation), tx.get(r.path), tx.get(r.file)]); if (idem.exists) return; if (occupied.exists) throw fail('storage.filesystem.path_exists', 'Restore destination already exists.', 409); if ((current.data() || {}).state !== 'trash') throw fail('storage.filesystem.restore_invalid_state', 'File left trash during restore.', 409); tx.set(r.path, next); tx.set(r.file, next); tx.delete(trashRef); tx.create(r.mutation, {schemaVersion: FILESYSTEM_VERSION, ownerHash: ownerKey, requestId: id, inputHash, status: 'committing', operation: logical.operation, createdAt: now}); });
+  let raced = false;
+  await r.db.runTransaction(async (tx) => { const [idem, occupied, current] = await Promise.all([tx.get(r.mutation), tx.get(r.path), tx.get(r.file)]); if (idem.exists) { if ((idem.data() || {}).inputHash !== inputHash) throw fail('storage.filesystem.idempotency_conflict', 'requestId is already bound to different filesystem inputs.', 409); raced = true; return; } if (occupied.exists) throw fail('storage.filesystem.path_exists', 'Restore destination already exists.', 409); if ((current.data() || {}).state !== 'trash') throw fail('storage.filesystem.restore_invalid_state', 'File left trash during restore.', 409); tx.set(r.path, next); tx.set(r.file, next); tx.delete(trashRef); tx.create(r.mutation, {schemaVersion: FILESYSTEM_VERSION, ownerHash: ownerKey, requestId: id, inputHash, status: 'committing', operation: logical.operation, createdAt: now}); });
+  if (raced) return {...(await existingMutation(admin, ownerKey, id, inputHash)).receipt, attached: true};
   const version = await loadVersion({admin, ownerKey, versionId: next.currentVersionId});
   return finalizeMutation({admin, storage, ownerKey, mutationRef: r.mutation, receipt: mutationBase(logical.operation, id, inputHash, next, version)});
 }
