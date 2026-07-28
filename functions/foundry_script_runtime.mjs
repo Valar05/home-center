@@ -9,7 +9,7 @@ export const FOUNDRY_SCRIPT_MAX_NOTES = 100;
 
 const API = Object.freeze({
   asset: ['inspect'],
-  scene: ['createBox', 'createCylinder', 'createProfileExtrusion', 'transform', 'rename', 'reparent', 'remove', 'instance', 'array', 'mirror', 'separate'],
+  scene: ['createBox', 'createCylinder', 'createProfileExtrusion', 'createSectionLoft', 'transform', 'rename', 'reparent', 'remove', 'instance', 'array', 'mirror', 'separate'],
   mesh: ['recalculateNormals', 'weld', 'boolean'],
   material: ['create', 'assign'],
   rig: ['addBone', 'renameBone', 'orientBone', 'reparentBone', 'attachRigid'],
