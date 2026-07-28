@@ -63,18 +63,8 @@ node --check tools/home_center_codex_pair.mjs
 node --check tools/home_center_install_contract_test.mjs
 node tools/home_center_install_contract_test.mjs
 node --check tools/drive_bridge_create_tools_test.mjs
-node --check tools/chatgpt_connector_acceptance_gate.mjs
-sh -n tools/connect_chatgpt_home_center_fast.sh
-sh -n tools/shizuku_live_playwright_chatgpt_home_center.sh
-node --check browser-worker/src/chatgpt_clean_slate_verify.mjs
 node --check tools/browser_worker_contract_test.mjs
 node tools/browser_worker_contract_test.mjs
-node --check tools/chrome_frame_learning_envelope.mjs
-node --check tools/submit_chrome_frame_learning.mjs
-node --check tools/chrome_frame_learning_contract_test.mjs
-node --check tools/chatgpt_connector_frame_learning_contract_test.mjs
-node tools/chrome_frame_learning_contract_test.mjs
-node tools/chatgpt_connector_frame_learning_contract_test.mjs
 node tools/home_center_artifact_register.mjs --self-test
 node tools/home_center_engineering_orient.mjs --self-test
 node --check tools/home_center_artifact_register.mjs

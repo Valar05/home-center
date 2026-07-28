@@ -9,7 +9,7 @@
   "seededAt": "2026-07-11",
   "source": {
     "kind": "android-shizuku-observation",
-    "summary": "Chrome freeform profile now includes Google search plus ChatGPT Command Center connector OAuth/frame-lane recovery learning.",
+    "summary": "Chrome freeform profile for Google search and general browser app-control learning.",
     "evidencePath": "/storage/emulated/0/Documents/GodotProjects/generated/android-shizuku-app-operator/chrome-scrambled-eggs-submit-20260711-094144",
     "observedChromeVersions": [
       {
@@ -22,8 +22,7 @@
         "versionCode": "699813532",
         "role": "secondary dumpsys block"
       }
-    ],
-    "lastLearningEvidencePath": "/storage/emulated/0/Documents/GodotProjects/home-center/tools/chatgpt_connector_evidence/chatgpt-hello-world-shizuku-20260711"
+    ]
   },
   "capabilities": {
     "backgroundIntent": "partial",
@@ -153,43 +152,6 @@
         "targetStatus": "human_authorized_foreground_burst_complete"
       },
       "promotionRule": "May create candidate browser discoveries immediately; trusted household replay requires Playwright DOM/accessibility selector ladders, not coordinates alone."
-    },
-    "chatgptCommandCenterConnector": {
-      "intent": "Reconnect and verify the ChatGPT web Command Center connector inside a bounded Android Chrome freeform frame without whole-phone takeover.",
-      "preferredPath": [
-        "Do not request Codex/tool approval prompts during live frame work; approval UI steals focus and destroys the nested-window state.",
-        "Launch https://chatgpt.com/#settings/Plugins/plugin_asdk_app_6a5257c067048191ba6c399095aedaeb with am start --display 0 --windowingMode 5 and verify Chrome freeform bounds before any tap.",
-        "If the installed ChatGPT app appears after OAuth callback, immediately force-stop com.openai.chatgpt and reopen the same ChatGPT web connector URL in Chrome freeform.",
-        "Capture screencap before any uiautomator dump. Treat XML failure on Google/OAuth WebViews as non-fatal when the screenshot and window bounds are valid.",
-        "If the connector page shows Connected to the Google account, stop. Do not send prompts until connected-state evidence exists."
-      ],
-      "frameFallback": [
-        "Bounds observed: [449, 867, 997, 1947]. Every tap must be inside this rectangle or the run stops.",
-        "Command Center settings route: https://chatgpt.com/#settings/Plugins/plugin_asdk_app_6a5257c067048191ba6c399095aedaeb",
-        "Disconnected page Connect button observed near [873,1306][919,1325].",
-        "ChatGPT consent Sign in with Command Center observed near [609,1390][774,1422].",
-        "Google account chooser Drew row observed near [466,1759][980,1947], but when the row is fully visible use center around [650,1055] in the full screenshot coordinate space.",
-        "Google unverified app Advanced link observed near [585,1255]; unsafe continue link observed near [650,1347].",
-        "Google sign-in Continue observed near [820,1715]; access consent Continue observed near [820,1858]."
-      ],
-      "successSignals": [
-        "Chrome remains com.android.chrome in freeform windowingMode=5/freeform with bounds inside the declared frame.",
-        "ChatGPT web connector page shows Command Center and Connected to dclarke1005@gmail.com.",
-        "Connector Actions section loads or shows no actions only after connected state, not while disconnected."
-      ],
-      "stopSignals": [
-        "Codex approval prompt would be required for the next command.",
-        "Top app becomes com.openai.chatgpt and cannot be quarantined back to Chrome web frame.",
-        "Chrome cannot be verified in freeform/bounded mode.",
-        "The page is disconnected and OAuth cannot proceed inside the bounded frame."
-      ],
-      "metricsBaseline": {
-        "manualLearningRunDate": "2026-07-11",
-        "elapsedMsApprox": 1500000,
-        "uiActionCountApprox": 18,
-        "status": "slow_success_connected_after_oauth",
-        "targetNextRunElapsedMs": 5000
-      }
     }
   },
   "failureFixes": [
@@ -204,22 +166,6 @@
     {
       "symptom": "Automation is slow and foregrounded",
       "fix": "Promote this profile to Home Center cloud and execute from app-specific config instead of terminal click scripts."
-    },
-    {
-      "symptom": "Codex approval prompt appears during bounded Chrome automation",
-      "fix": "Do not run approval-gated commands in the live frame lane. Pre-approve reusable prefixes or stop and report the missing permission before opening/focusing the frame."
-    },
-    {
-      "symptom": "OAuth callback opens the installed ChatGPT app instead of ChatGPT web in Chrome",
-      "fix": "Treat the app as wrong-surface leakage. force-stop com.openai.chatgpt and reopen the ChatGPT connector settings URL in Chrome with --windowingMode 5."
-    },
-    {
-      "symptom": "uiautomator dump fails or omits Google/OAuth WebView controls",
-      "fix": "Capture screencap first, use screenshot-guided bounded taps only for the known OAuth controls, and record XML failure as evidence instead of blocking the run."
-    },
-    {
-      "symptom": "Prompt is sent before connector connected state is proven",
-      "fix": "Make connected-state screenshot/XML evidence a hard gate before any ChatGPT prompt or mutation acceptance test."
     }
   ],
   "metricsBaseline": {

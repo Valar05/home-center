@@ -5,11 +5,9 @@
   "type": "module",
   "description": "Home Center browser-hands worker. Playwright desktop Chromium is a first-class app function for accessible web tasks and learning capture.",
   "scripts": {
-    "check": "node --check src/browser_worker.mjs && node --check src/visual_qa_capture.mjs && node --check src/run_visual_qa_capture.mjs && node --check src/smoke_google_search.mjs && node --check src/chatgpt_plugin_debug.mjs && node --check src/chatgpt_clean_slate_verify.mjs && node --check src/chatgpt_hello_world_noop_acceptance.mjs && node --check src/doctor.mjs",
+    "check": "node --check src/browser_worker.mjs && node --check src/visual_qa_capture.mjs && node --check src/run_visual_qa_capture.mjs && node --check src/smoke_google_search.mjs && node --check src/doctor.mjs",
     "doctor": "node src/doctor.mjs",
-    "debug:chatgpt-plugin": "node src/chatgpt_plugin_debug.mjs",
     "smoke:google": "node src/smoke_google_search.mjs",
-    "verify:chatgpt-clean-slate": "node src/chatgpt_clean_slate_verify.mjs",
     "visual-qa": "node src/run_visual_qa_capture.mjs"
   },
   "dependencies": {

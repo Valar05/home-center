@@ -119,55 +119,6 @@ A workflow stays `candidate` until another run proves it is measurably faster an
 
 Chrome browser tasks should prefer the Playwright `browser-worker/` desktop Chromium runtime when the goal is web understanding, narration, DOM/action learning, or reusable browser playbooks. On Android, that means Debian/proot on the device with Debian-native Node and Chromium. Android Shizuku/Chrome app-control profiles remain the Chrome-app/window fallback lane for device-specific control, freeform bounds, and visible manual assistance.
 
-## Shared Termux / Home Center Workflow
+## Shared Runtime Rule
 
-Termux and Home Center are different inputs to the same code path. A Termux script may launch, observe, or debug an app, but it must emit the same `command_center_operation` payloads that the Home Center app, a paired worker, or a cloud executor would submit.
-
-For Chrome frame observations the shared envelope is:
-
-```text
-tools/chrome_frame_learning_envelope.mjs
-```
-
-It produces two operations:
-
-```text
-operation: app_control.record_run
-operation: browser_sessions.record_episode
-```
-
-Submit the envelope through Home Center MCP with:
-
-```sh
-node tools/submit_chrome_frame_learning.mjs --envelope tools/chatgpt_connector_evidence/chrome_frame_<runId>.learning.json
-```
-
-This keeps the durable learning in `appControlRuns`, browser episodes, discoveries, and bucket objects. The terminal transcript is only local evidence.
-
-## ChatGPT Command Center Connector Learning
-
-The painful 2026-07-11 OAuth/frame run is now a Chrome app-control workflow named `chatgptCommandCenterConnector` in the cloud seed profile:
-
-```text
-functions/app_control_seed/com.android.chrome.150.0.7871.114+787111433.json
-```
-
-Do not repeat the manual OAuth maze as the first move. Promote the learning from the existing evidence into Home Center cloud with:
-
-```sh
-sh tools/learn_chatgpt_connector_frame_lane.sh --submit
-```
-
-For local contract-only validation:
-
-```sh
-node tools/chatgpt_connector_frame_learning_contract_test.mjs
-```
-
-Captured hard lessons:
-
-- Approval prompts during live frame work kill the nested Chrome window. Pre-approve the Shizuku command lane before opening the frame, or stop before frame launch.
-- ChatGPT web auth may callback into the installed ChatGPT app. That app is the wrong surface; force-stop `com.openai.chatgpt` and reopen the ChatGPT web connector URL in Chrome freeform.
-- Google/OAuth WebViews can make XML unavailable. Capture screenshots first and use bounded, known controls only when the screenshot confirms the same page.
-- Connected-state evidence is mandatory before any ChatGPT prompt or mutation test. Prompt text in the composer is not success.
-- Coordinates in app-control profiles are containment/fallback evidence only. Reusable website intelligence belongs in browser playbooks with Playwright DOM/accessibility selectors so Drew's first-use discovery can automate June's later use.
+Termux, Home Center, paired-device, and browser-worker callers use the same retained app-control and browser operation contracts. Durable learning belongs in owner-scoped app-control runs, browser episodes, discoveries, and bucket objects. Terminal transcripts, screenshots, and coordinates are diagnostics only and cannot become trusted replay behavior.
