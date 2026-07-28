@@ -206,6 +206,19 @@ assert.equal(digest(hardA.glb), digest(hardB.glb), 'procedural GLB must be deter
 assert.ok(hardA.report.triangleCount > 0 && hardA.report.componentCount >= 5);
 assert.ok(hardA.report.validation.manifoldClosedComponents >= 1);
 
+const loftScript = "foundry.material.create('cast',{baseColor:[0.32,0.36,0.31,1],metallic:0.2,roughness:0.74}); foundry.scene.createSectionLoft('cast-shell',{sections:[{z:-1,profile:[[-1,-0.5],[0,-0.72],[1,-0.5],[1.2,0],[0.9,0.68],[0,0.82],[-0.9,0.68],[-1.2,0]]},{z:0,profile:[[-1.1,-0.45],[0,-0.66],[1.1,-0.45],[1.3,0],[0.96,0.75],[0,0.9],[-0.96,0.75],[-1.3,0]]},{z:1,profile:[[-0.82,-0.38],[0,-0.55],[0.82,-0.38],[0.98,0],[0.72,0.58],[0,0.7],[-0.72,0.58],[-0.98,0]]}],material:'cast'}); foundry.review.fixedViews(['front','back','left','right','top','perspective']);";
+const loftPlan = await executeFoundryScript({version:FOUNDRY_SCRIPT_VERSION,text:loftScript,seed:91});
+const loft = await runFoundryKernel({plan:loftPlan,domain:'hard_surface',reviewPreset:'fixed-six-view'});
+assert.equal(loft.report.componentCount,1);
+assert.equal(loft.report.triangleCount,44);
+assert.equal(loft.report.validation.manifoldClosedComponents,1);
+assert.equal(loft.report.validation.degenerateTriangles,0);
+assert.equal(loft.report.validation.invalidNormals,0);
+const loftReplay = await runFoundryKernel({plan:loftPlan,domain:'hard_surface',reviewPreset:'fixed-six-view'});
+assert.equal(digest(loft.glb),digest(loftReplay.glb),'section loft must be deterministic');
+const badLoftPlan = await executeFoundryScript({version:FOUNDRY_SCRIPT_VERSION,text:"foundry.scene.createSectionLoft('bad',{sections:[{z:0,profile:[[0,0],[1,0],[0,1]]},{z:1,profile:[[0,0],[1,0],[1,1],[0,1]]}]});",seed:92});
+await assert.rejects(() => runFoundryKernel({plan:badLoftPlan,domain:'hard_surface'}), (error) => error.code === 'foundry.geometry.section_correspondence');
+
 const fixtureBytes = await characterFixture();
 const before = await inspectGlbBytes(fixtureBytes);
 assert.equal(before.preservation.materials[0].baseColorTexture, 'body-albedo');
