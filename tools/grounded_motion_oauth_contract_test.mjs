@@ -10,6 +10,7 @@ const {
 } = require('../functions/home_center_mcp.js');
 
 const grounded = resolveOAuthGrant(GROUNDED_MOTION_MCP_RESOURCE, GROUNDED_MOTION_MCP_SCOPE);
+assert.equal(GROUNDED_MOTION_MCP_RESOURCE, 'https://grounded-motion-mcp-220218838446.us-central1.run.app/mcp');
 assert.equal(grounded.resource, GROUNDED_MOTION_MCP_RESOURCE);
 assert.deepEqual(grounded.scopes, [GROUNDED_MOTION_MCP_SCOPE]);
 assert.deepEqual(grounded.googleScopes, ['openid', 'email']);
