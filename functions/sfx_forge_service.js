@@ -134,7 +134,12 @@ async function materializeImmutableSource(args = {}) {
   const {sourceRef, expectedSha256} = normalizedSourceInput(args);
   const source = await inspectGeneratedArtifact(sourceRef);
   if (!source || !Buffer.isBuffer(source.bytes)) throw forgeError('Immutable source could not be materialized.', 404, 'sfx_forge_source_missing');
-  if (!/^audio\//i.test(safeText(source.mimeType, 120))) throw forgeError('Canonical source must have an audio MIME type.', 400, 'sfx_forge_source_mime_invalid');
+  const sourceMimeType = safeText(source.mimeType, 120);
+  const sourceName = safeText(source.name, 500);
+  const recognizedAudioName = /\.(wav|wave|ogg|oga|mp3|flac|m4a|aac)$/i.test(sourceName);
+  if (!/^audio\//i.test(sourceMimeType) && !recognizedAudioName) {
+    throw forgeError('Canonical source must have an audio MIME type or recognized audio filename.', 400, 'sfx_forge_source_mime_invalid');
+  }
   if (source.byteCount > MAX_SOURCE_BYTES) throw forgeError('Source exceeds the Forge v1 size limit.', 413, 'sfx_forge_source_too_large');
   if (source.sha256 !== expectedSha256) throw forgeError('Immutable parent source SHA-256 mismatch.', 409, 'sfx_forge_parent_hash_mismatch');
   return source;
