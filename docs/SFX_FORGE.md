@@ -37,7 +37,7 @@ Required input:
 }
 ```
 
-The source must already be an immutable object with an `audio/*` MIME type anywhere inside the canonical `home-center-generated` bucket. `audio.ingest_drive` remains the preferred intake path, but hash-verified artifact ingress paths are valid Forge parents without a Drive detour. The exact parent hash is mandatory. The operation:
+The source must already be an immutable audio object anywhere inside the canonical `home-center-generated` bucket. An `audio/*` MIME type is preferred; when provider Content-Type is missing, Forge accepts only a recognized audio filename and still requires successful decode. `audio.ingest_drive` remains the preferred intake path, but hash-verified artifact ingress paths are valid Forge parents without a Drive detour. The exact parent hash is mandatory. The operation:
 
 1. reads and hashes the immutable source;
 2. decodes a non-normalized 48 kHz stereo PCM16 working WAV;
