@@ -3,11 +3,12 @@ import path from 'node:path';
 import {createHash} from 'node:crypto';
 import {fileURLToPath} from 'node:url';
 import {createRequire} from 'node:module';
+import {createSubdivisionCage, subdivideCage} from '../functions/foundry_model_sheet.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const require = createRequire(path.join(root, 'functions/package.json'));
 const {PNG} = require('pngjs');
-const outputDir = path.join(root, 'docs', 'evidence', 'd78461-model-sheet-v6');
+const outputDir = path.join(root, 'docs', 'evidence', 'd78461-model-sheet-v7');
 fs.mkdirSync(outputDir, {recursive: true});
 
 const width = 640;
@@ -43,16 +44,16 @@ const frames = {
 
 const desiredWorld = {
   front: [
-    [-0.67, -0.47], [-0.80, -0.43], [-0.98, -0.24], [-1.07, 0.02], [-1.10, 0.30], [-1.04, 0.52], [-0.90, 0.72], [-0.67, 0.82],
-    [0.68, 0.82], [0.98, 0.75], [1.18, 0.62], [1.28, 0.48], [1.32, 0.28], [1.30, 0.05], [1.20, -0.20], [0.92, -0.43], [0.70, -0.47],
+    [-0.67, -0.47], [-0.78, -0.43], [-0.96, -0.25], [-1.06, 0], [-1.10, 0.30], [-1.05, 0.48], [-0.98, 0.60], [-0.885, 0.70], [-0.67, 0.81],
+    [0, 0.83], [0.68, 0.81], [0.92, 0.71], [1.05, 0.60], [1.14, 0.46], [1.18, 0.25], [1.17, 0.08], [1.12, 0], [1.04, -0.25], [0.82, -0.43], [0.68, -0.47],
   ],
   side: [
     [-1.30, -0.10], [-1.34, 0.06], [-1.34, 0.55], [-1.28, 0.72], [-1.16, 0.82], [-0.90, 0.86], [-0.48, 0.86], [-0.12, 0.82],
     [0.30, 0.73], [0.64, 0.59], [0.86, 0.48], [1.04, 0.36], [1.14, 0.21], [1.17, 0.02], [1.16, -0.20], [1.06, -0.31], [0.80, -0.40], [0.40, -0.47], [0, -0.50], [-0.40, -0.47], [-0.76, -0.40], [-1.06, -0.28], [-1.22, -0.18],
   ],
   top: [
-    [-0.74, -1.34], [-0.98, -1.18], [-1.10, -0.76], [-1.11, -0.24], [-1.16, 0.20], [-1.28, 0.50], [-1.24, 0.75], [-1.08, 0.98], [-0.82, 1.16],
-    [0.48, 1.16], [0.76, 0.98], [0.92, 0.72], [1.02, 0.34], [1.08, -0.24], [1.06, -0.78], [0.96, -1.18], [0.74, -1.34],
+    [-0.72, -1.34], [-0.96, -1.20], [-1.08, -0.82], [-1.10, -0.30], [-1.08, 0.12], [-1.10, 0.55], [-1.00, 0.82], [-0.80, 1.06], [-0.62, 1.16],
+    [0.52, 1.16], [0.82, 0.82], [0.98, 0.55], [1.08, 0.12], [1.10, -0.30], [1.08, -0.82], [0.96, -1.20], [0.72, -1.34],
   ],
 };
 
@@ -87,20 +88,89 @@ const apertures = {
 const xValues = [-1.34, -1.18, -0.72, 0.05, 0.88, 1.16];
 const bottoms = [-0.10, -0.27, -0.47, -0.51, -0.38, -0.20];
 const roofs = [0.68, 0.84, 0.86, 0.82, 0.52, 0.28];
-const widths = [1.00, 1.10, 1.12, 1.12, 0.80, 0.62];
+let widths = [0.74, 1.02, 1.10, 1.08, 0.78, 0.54];
 const yFractions = [0, 0.34, 0.72, 1];
 const widthByLevel = [0.78, 1.0, 1.04, 0.72];
-const rightCheekByStation = [0, 0.02, 0.06, 0.22, 0.62, 0.30];
+let rightCheekByStation = [0, 0, 0.015, 0.055, 0.16, 0.045];
 const rightCheekByLevel = [0.40, 1, 1, 0.65];
-const controlPoints = [];
-for (let i = 0; i <= 5; i++) for (let j = 0; j <= 3; j++) for (let k = 0; k <= 4; k++) {
-  if (!(i === 0 || i === 5 || j === 0 || j === 3 || k === 0 || k === 4)) continue;
-  const y = bottoms[i] + (roofs[i] - bottoms[i]) * yFractions[j];
-  const signedWidth = (k / 4 - 0.5) * 2;
-  const cheek = signedWidth < 0 ? rightCheekByStation[i] * rightCheekByLevel[j] * Math.abs(signedWidth) : 0;
-  const z = signedWidth * widths[i] * widthByLevel[j] - cheek;
-  controlPoints.push({id: 'x' + i + ':y' + j + ':z' + k, position: [xValues[i], y, z]});
+function buildControlPoints(widthSet, cheekSet) {
+  const points = [];
+  for (let i = 0; i <= 5; i++) for (let j = 0; j <= 3; j++) for (let k = 0; k <= 4; k++) {
+    if (!(i === 0 || i === 5 || j === 0 || j === 3 || k === 0 || k === 4)) continue;
+    const y = bottoms[i] + (roofs[i] - bottoms[i]) * yFractions[j];
+    const signedWidth = (k / 4 - 0.5) * 2;
+    const cheek = signedWidth < 0 ? cheekSet[i] * rightCheekByLevel[j] * Math.abs(signedWidth) : 0;
+    const z = signedWidth * widthSet[i] * widthByLevel[j] - cheek;
+    points.push({id: 'x' + i + ':y' + j + ':z' + k, position: [xValues[i], y, z]});
+  }
+  return points;
 }
+function cross2(o, a, b) { return (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0]); }
+function convexHull(points) {
+  const sorted = [...new Map(points.map((p) => [p[0].toFixed(7) + ':' + p[1].toFixed(7), p])).values()].sort((a, b) => a[0] - b[0] || a[1] - b[1]);
+  const lower = [], upper = [];
+  for (const p of sorted) { while (lower.length >= 2 && cross2(lower.at(-2), lower.at(-1), p) <= 0) lower.pop(); lower.push(p); }
+  for (let i = sorted.length - 1; i >= 0; i--) { const p = sorted[i]; while (upper.length >= 2 && cross2(upper.at(-2), upper.at(-1), p) <= 0) upper.pop(); upper.push(p); }
+  lower.pop(); upper.pop(); return lower.concat(upper);
+}
+function samplePolygon(points, spacing = 0.025) {
+  const out = [];
+  for (let i = 0; i < points.length; i++) {
+    const a = points[i], b = points[(i + 1) % points.length], length = Math.hypot(b[0] - a[0], b[1] - a[1]);
+    const count = Math.max(1, Math.ceil(length / spacing));
+    for (let n = 0; n < count; n++) out.push([a[0] + (b[0] - a[0]) * n / count, a[1] + (b[1] - a[1]) * n / count]);
+  }
+  return out;
+}
+function pointSegmentDistance(p, a, b) {
+  const dx = b[0] - a[0], dy = b[1] - a[1], denom = dx * dx + dy * dy;
+  const t = denom ? Math.max(0, Math.min(1, ((p[0] - a[0]) * dx + (p[1] - a[1]) * dy) / denom)) : 0;
+  return Math.hypot(p[0] - (a[0] + dx * t), p[1] - (a[1] + dy * t));
+}
+function nearestBoundary(point, polygon) {
+  let best = Infinity;
+  for (let i = 0; i < polygon.length; i++) best = Math.min(best, pointSegmentDistance(point, polygon[i], polygon[(i + 1) % polygon.length]));
+  return best;
+}
+function percentile(values, fraction) { const sorted = [...values].sort((a, b) => a - b); return sorted[Math.min(sorted.length - 1, Math.floor((sorted.length - 1) * fraction))] || 0; }
+function fitDiagnostics(widthSet, cheekSet) {
+  const cage = createSubdivisionCage({base: 'box', segments: [5, 3, 4], size: [2.7, 1.4, 2.2], controlPoints: buildControlPoints(widthSet, cheekSet)});
+  const surface = subdivideCage(cage, 2);
+  const views = {};
+  for (const viewName of ['front', 'top']) {
+    const projected = surface.positions.map((point) => viewName === 'front' ? [-point[2], point[1]] : [point[2], point[0]]);
+    const actual = convexHull(projected), target = desiredWorld[viewName];
+    const targetSamples = samplePolygon(target), actualSamples = samplePolygon(actual);
+    const forward = targetSamples.map((point) => nearestBoundary(point, actual));
+    const reverse = actualSamples.map((point) => nearestBoundary(point, target));
+    const p95 = percentile(forward, 0.95), reverseP95 = percentile(reverse, 0.95);
+    views[viewName] = {p95Meters: p95, p95RingFraction: p95 / scaleAnchor.meters, reverseP95Meters: reverseP95, maxMeters: Math.max(...forward)};
+  }
+  return {score: views.front.p95Meters + views.top.p95Meters + 0.05 * (views.front.maxMeters + views.top.maxMeters), views};
+}
+function fitCage(seedWidths, seedCheeks) {
+  let widthSet = [...seedWidths], cheekSet = [...seedCheeks], best = fitDiagnostics(widthSet, cheekSet), evaluations = 1;
+  for (const step of [0.16, 0.08, 0.04, 0.02, 0.01, 0.005, 0.0025]) {
+    let changed = true, sweeps = 0;
+    while (changed && sweeps++ < 5) {
+      changed = false;
+      for (const family of ['width', 'cheek']) for (let index = 0; index < 6; index++) {
+        for (const direction of [-1, 1]) {
+          const nextWidths = [...widthSet], nextCheeks = [...cheekSet];
+          if (family === 'width') nextWidths[index] = Math.max(0.35, Math.min(1.5, nextWidths[index] + direction * step));
+          else nextCheeks[index] = Math.max(0, Math.min(1.0, nextCheeks[index] + direction * step));
+          const candidate = fitDiagnostics(nextWidths, nextCheeks); evaluations++;
+          if (candidate.score + 1e-8 < best.score) { widthSet = nextWidths; cheekSet = nextCheeks; best = candidate; changed = true; }
+        }
+      }
+    }
+  }
+  return {widths: widthSet, cheeks: cheekSet, evaluations, ...best};
+}
+const fitted = fitCage(widths, rightCheekByStation);
+widths = fitted.widths;
+rightCheekByStation = fitted.cheeks;
+const controlPoints = buildControlPoints(widths, rightCheekByStation);
 
 function projectPoint(point, viewName) {
   const frame = frames[viewName];
@@ -188,7 +258,7 @@ for (const viewName of ['front', 'side', 'top']) {
 
 const modelSheet = {
   contractVersion: 'home-center.foundry-model-sheet.v1',
-  id: 'd78461-bare-casting-v6',
+  id: 'd78461-bare-casting-v7',
   units: 'm',
   axisFrame: {forward: [1, 0, 0], up: [0, 1, 0], left: [0, 0, 1]},
   scaleAnchor,
@@ -198,7 +268,7 @@ const modelSheet = {
     included: ['one connected cast shell', '69-inch ring opening', 'wide gun-mount aperture', 'commander opening', 'loader opening', 'left pistol-port opening', 'smoke-ejector opening'],
     excluded: ['mantlet', 'barrel', 'cupola', 'hatch covers', 'lifting eyes', 'fittings', 'textures', 'tank hull'],
     confidence: 'reference-constrained reconstruction; not a ballistic-thickness claim',
-    revisionBasis: 'Supersedes v5 after immutable overlays showed residual Catmull-Clark inward rounding at the front end; compensates at the existing front stations and uses a darker neutral review material so the cheek and bustle highlight breaks remain legible.',
+    revisionBasis: 'Supersedes v6 after the exaggerated cheek lobe was rejected as a reference-authority error; normalizes the D78461 cheek as a continuous asymmetric casting transition, retains the high bustle and casting apertures, and fits the bounded cage with the production Catmull-Clark kernel.',
   },
   provenance,
   views,
@@ -277,7 +347,7 @@ const packet = {
   createdAt: '2026-07-29',
   currentUserCommand: 'Repair Foundry with a first-class model-sheet workflow and prove it on the bare D78461 turret casting before generating another candidate.',
   forbiddenStalePremise: ['Blender generation', 'ring or section loft as acceptance', 'generic perspective views as model-sheet proof', 'full tank or accessorized turret candidate'],
-  predecessorProof: {jobId: '0a624e0dba9775fbca0636a79581b7453b479273', publicationId: 'bd87bb388c3918172e7b21f4ec5dfa2b36a81157', resultHash: '43b9aabc2a3629bb86f38e96abf7c8c1efc305c00b031f10579133cc49da80e4', verdict: 'revision_requested', promotionAllowed: false},
+  predecessorProof: {jobId: '3756ac92095ca1b8abcbdecdac630d6a1207cbec', publicationId: 'c2f2e97ef5f99b8890701ffe3efa5f5bcd5c1b43', resultHash: '776c457a8277472d4db020f28eced51a3dc8366f3af53866f26356d760356f8c', verdict: 'revision_requested', promotionAllowed: false},
   sourceAssets: Object.fromEntries(Object.entries(views).map(([name, view]) => [name, view.imageLocal])),
   script: {
     path: 'd78461-bare-casting.foundry.js',
@@ -285,7 +355,7 @@ const packet = {
     byteLength: Buffer.byteLength(script + '\n'),
     version: 'foundry-js.v1',
   },
-  cage: {base: 'box', segments: [5, 3, 4], authoredControlPoints: controlPoints.length, totalControlVertices: 96, subdivisionLevels: 2, expectedTrianglesBeforeBooleans: 3008, fitting: 'coordinate-descent fit against the locked front, side, and top contours with independently authored right-cheek and front-support controls; no plane averaging'},
+  cage: {base: 'box', segments: [5, 3, 4], authoredControlPoints: controlPoints.length, totalControlVertices: 96, subdivisionLevels: 2, expectedTrianglesBeforeBooleans: 3008, fitting: 'reproducible coordinate-descent using the production Foundry Catmull-Clark kernel against locked front and top contours while preserving the passing side fit; no plane averaging', fitDiagnostics: fitted},
   acceptance: {
     requiredRegisteredViews: ['front', 'side', 'top'],
     thresholds: {minIou: 0.92, maxP95BoundaryErrorRingFraction: 0.02, maxLandmarkErrorRingFraction: 0.01},

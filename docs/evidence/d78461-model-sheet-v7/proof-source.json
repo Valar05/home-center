@@ -1,0 +1,127 @@
+{
+  "schemaVersion": "home-center.foundry-proof-source.v1",
+  "createdAt": "2026-07-29",
+  "currentUserCommand": "Repair Foundry with a first-class model-sheet workflow and prove it on the bare D78461 turret casting before generating another candidate.",
+  "forbiddenStalePremise": [
+    "Blender generation",
+    "ring or section loft as acceptance",
+    "generic perspective views as model-sheet proof",
+    "full tank or accessorized turret candidate"
+  ],
+  "predecessorProof": {
+    "jobId": "3756ac92095ca1b8abcbdecdac630d6a1207cbec",
+    "publicationId": "c2f2e97ef5f99b8890701ffe3efa5f5bcd5c1b43",
+    "resultHash": "776c457a8277472d4db020f28eced51a3dc8366f3af53866f26356d760356f8c",
+    "verdict": "revision_requested",
+    "promotionAllowed": false
+  },
+  "sourceAssets": {
+    "front": {
+      "path": "d78461-front.png",
+      "sha256": "4f1f51928b84bdc38ac911625c6faa17b0fe99e0813b1c36ebe947cbbd6699ce",
+      "byteLength": 10794,
+      "mediaType": "image/png"
+    },
+    "side": {
+      "path": "d78461-side.png",
+      "sha256": "bbd625f6734834c58d2fe8c07a5104bc016edcef2f9b34a3482e8cf25fed5179",
+      "byteLength": 10886,
+      "mediaType": "image/png"
+    },
+    "top": {
+      "path": "d78461-top.png",
+      "sha256": "035c1fbad328a2db04d323bfd5944d97a0ac6587949466f073c3bb7f9bb9fd0d",
+      "byteLength": 12714,
+      "mediaType": "image/png"
+    }
+  },
+  "script": {
+    "path": "d78461-bare-casting.foundry.js",
+    "sha256": "2f70dddb95e6f421a0fb0417e57231c4c0ab29a3a75396876b03c6e97d89406b",
+    "byteLength": 13110,
+    "version": "foundry-js.v1"
+  },
+  "cage": {
+    "base": "box",
+    "segments": [
+      5,
+      3,
+      4
+    ],
+    "authoredControlPoints": 96,
+    "totalControlVertices": 96,
+    "subdivisionLevels": 2,
+    "expectedTrianglesBeforeBooleans": 3008,
+    "fitting": "reproducible coordinate-descent using the production Foundry Catmull-Clark kernel against locked front and top contours while preserving the passing side fit; no plane averaging",
+    "fitDiagnostics": {
+      "widths": [
+        0.75,
+        0.9575,
+        1.11,
+        1.08,
+        0.8550000000000001,
+        0.51
+      ],
+      "cheeks": [
+        0,
+        0.0025,
+        0.015,
+        0.055,
+        0.16,
+        0.24500000000000002
+      ],
+      "evaluations": 385,
+      "score": 0.07989555365253125,
+      "views": {
+        "front": {
+          "p95Meters": 0.036774861403372924,
+          "p95RingFraction": 0.020983031726219858,
+          "reverseP95Meters": 0.03547935227517751,
+          "maxMeters": 0.04845565837248001
+        },
+        "top": {
+          "p95Meters": 0.03851521467940987,
+          "p95RingFraction": 0.0219760439800353,
+          "reverseP95Meters": 0.0386081483337135,
+          "maxMeters": 0.04365389302248905
+        }
+      }
+    }
+  },
+  "acceptance": {
+    "requiredRegisteredViews": [
+      "front",
+      "side",
+      "top"
+    ],
+    "thresholds": {
+      "minIou": 0.92,
+      "maxP95BoundaryErrorRingFraction": 0.02,
+      "maxLandmarkErrorRingFraction": 0.01
+    },
+    "passRule": "front_and_side_and_top",
+    "successorCandidateGate": "blocked_until_registered_fit_and_cloud_sense_and_human_artifact_review_are_accepted"
+  },
+  "provenance": [
+    {
+      "title": "TM 9-752, Tank, Medium M4A3, 15 September 1944",
+      "url": "https://www.ibiblio.org/hyperwar/USA/ref/TM/pdfs/TM9-752.pdf",
+      "license": "public-domain-us-government",
+      "publisher": "United States War Department",
+      "publishedAt": "1944-09-15",
+      "pages": [
+        "6 (Figure 3)",
+        "348-349 (Turret description)"
+      ],
+      "processing": "Figure 3 and the one-piece armor-steel casting description were used as public-domain shape and feature evidence. The scanned page is not republished here; this sheet is a clean schematic normalization."
+    },
+    {
+      "title": "Development of Armored Vehicles, Volume 1",
+      "url": "https://apps.dtic.mil/sti/pdfs/AD1116719.pdf",
+      "license": "public-domain-us-government",
+      "publisher": "United States Army, Army Ground Forces Board",
+      "publishedAt": "1947",
+      "processing": "Used as public-domain historical corroboration for the M4-series development context. No source plate is republished."
+    }
+  ]
+}
