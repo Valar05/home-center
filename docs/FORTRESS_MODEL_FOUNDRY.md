@@ -27,10 +27,10 @@ No ordinary Foundry execution invokes an external 3D application or falls back t
 - optional exact owner-scoped `home_center_artifact` source for procedural hard-surface work, required otherwise;
 - inline or owner-scoped artifact script using `foundry-js.v1`;
 - bounded parameters;
-- `reviewPreset: fixed-six-view`;
+- `reviewPreset: fixed-six-view | registered-model-sheet-only`;
 - mandatory idempotency key and isolated namespace;
 - optional exact parent job/result binding for a successor;
-- optional home-center.foundry-model-sheet.v1 with immutable, SHA-256-bound 640x640 front/side/top PNG planes, meter calibration, axes, outer silhouette and aperture-feature contours, cage-point landmarks, scale anchor, and public-domain provenance.
+- optional `home-center.foundry-model-sheet.v1` with strict public-domain front/side/top inputs, or backward-compatible `home-center.foundry-model-sheet.v2` with declared front/side planes, optional top, calibrated transforms, immutable PNG identities, and either strict public-domain provenance or explicitly non-production synthetic workflow-fixture provenance.
 
 Recipe-based V1 requests return `foundry.contract.retired`. Unknown versions and operations fail explicitly.
 
@@ -42,7 +42,7 @@ Namespaces cover:
 
 - `asset.inspect`;
 - Primitive construction: section-loft, profile, box, cylinder, box-derived subdivision-cage, empty pivot group, bounded array, mirror, instance, hierarchy, material assignment.
-- Mesh: deterministic Catmull-Clark subdivision, normal repair, weld, transactional Manifold Boolean.
+- Mesh: deterministic shared-cage silhouette fitting, Catmull-Clark subdivision, normal repair, weld, and transactional Manifold Boolean. `fitSubdivisionCage` uses the same bounded cage across every declared plane and exports its pre/post metrics and digest.
 - material creation and assignment;
 - bone add, rename, orient, reparent, and rigid prop attachment;
 - clip trim, retime, key edit, loop, and controlled root motion;
@@ -76,15 +76,17 @@ Inspect-only jobs preserve the exact source GLB bytes as their successor. Struct
 
 ## Model-Sheet Gate
 
-review.modelSheet is additive to the existing fixed-six-view lane. It requires one box-derived control cage and one final target node. The v1 tank frame is +X forward, +Y up, +Z vehicle left; front looks from +X, left side from +Z, and top from +Y. The input hash binds image artifact identities, the 69-inch D78461 ring anchor where used, plane calibration, contours, landmarks, and provenance.
+`review.modelSheet` requires one box-derived control cage and one final target node. V1 remains the strict front/side/top public-domain contract. V2 declares its plane order and requires front plus side; top is optional. Both contracts bind immutable reference image identities, meter calibration, axis frame, contours, cage-point landmarks, scale anchor, and provenance into the job input hash.
 
-The cage is evidence, not exported proxy geometry. A 4x3x4 box has 82 named surface control vertices and 80 quads; two deterministic Catmull-Clark levels produce 2,560 triangles before apertures or other bounded CSG. Model-sheet proof publishes, for each plane, the exact reference, cage overlay, final-surface overlay, and signed difference image, plus registration JSON, per-plane fit JSON, and a three-plane contact sheet.
+`foundry.mesh.fitSubdivisionCage` is the first-class fitting operation. It runs a bounded fixed-order coordinate-descent solver against every declared silhouette using the production Catmull-Clark surface, without exporting intermediate geometry or accepting per-view cages. Evidence records initial and final per-view boundary metrics, evaluation count, solver version, initial cage digest, and fitted shared-cage digest.
 
-A fit passes only when front, side, and top each pass silhouette IoU, p95 boundary error normalized to the scale anchor, and landmark error. Scores are never averaged across views. A model-sheet job with a red or missing fit report cannot be promoted even if a separate human review record is accepted.
+The cage is evidence, not exported proxy geometry. Model-sheet proof publishes each exact reference plane, cage overlay, final-surface overlay, signed difference image, registration JSON, fit JSON, contact sheet, and standalone `model-sheet-cage.json`. The registration, fit report, cage artifact, and manifest all bind the same cage digest.
+
+Each declared view must independently pass silhouette IoU, p95 boundary error normalized to the scale anchor, aperture error when present, and landmark error. Scores are never averaged across views. An asserted fit fails the worker closed, and a red or missing fit report cannot be promoted.
 
 ## Review Gate
 
-Each successful run must contain the successor GLB, six fixed PNGs, a contact sheet, optional skeletal overlay, validation report, preservation evidence, change evidence, manifest, and bounded logs. A model-sheet run must additionally contain all registered front/side/top evidence named above. Every output is SHA-256 and byte-length verified after storage readback.
+A `fixed-six-view` run contains the successor GLB, six fixed PNGs, a contact sheet, optional skeletal overlay, validation report, preservation evidence, change evidence, manifest, and bounded logs. A `registered-model-sheet-only` run intentionally omits generic perspective/fixed-view imagery and publishes only the GLB, declared registered-plane evidence, cage, reports, manifest, and logs. Every output is SHA-256 and byte-length verified after storage readback.
 
 The Three.js renderer samples output pixels. Uniform or empty canvases fail with `foundry.review.blank_canvas`; no review packet is published. Final visual judgment uses only the immutable cloud URL and shared viewer.
 
@@ -100,7 +102,7 @@ The script refuses a branch, dirty tree, stale main, or unguarded worker-only de
 
 `node tools/foundry_contract_test.mjs` proves deterministic hard-surface compilation, vertex-purpose coverage, production-budget enforcement, preflight rejection of the historical 20k-class loft request, transactional Boolean limits, promotion gating, weapon-bone insertion and rigid attachment, animation editing without geometry/skin mutation, dynamic discovery, exact replay, namespace isolation, bounded logs, timeout termination, review publication, no top-level Foundry tool, no mutable latest, and no retired-renderer invocation.
 
-`node tools/foundry_model_sheet_contract_test.mjs` proves cage limits, deterministic subdivision, non-exported cage evidence, strict three-plane/provenance input, independent per-plane rejection, aperture-edge fit math, repaired manifold CSG, geometry-economy enforcement, and the bounded bare D78461 casting.
+`node tools/foundry_model_sheet_contract_test.mjs` preserves the v1 three-plane contract. `node tools/foundry_front_side_workflow_contract_test.mjs` proves v2 front/side calibration, synthetic-fixture restrictions, initial-box failure, deterministic shared-cage fitting, standalone cage evidence, registered-only output policy, one closed crude volume, and the unchanged 57-tool public schema.
 
 Live acceptance additionally requires authenticated dynamic discovery, three completed cloud specimens, immutable URL readback, visible shared-viewer evidence, and two namespaced jobs that cannot resolve to each other.
 
@@ -111,3 +113,9 @@ The first model-sheet proof source is under docs/evidence/d78461-model-sheet-v1/
 Scope is the manufacturing casting: one connected shell with ring, gun, commander, loader, and left pistol-port openings. Mantlet, barrel, cupola, hatch covers, lifting eyes, fittings, textures, and tank hull are forbidden. The reference is a transparent schematic normalization of cited public-domain US government sources, not a claim to possess an original factory orthographic drawing or to reproduce ballistic thickness. No successor candidate may be generated until this casting has green registered fit, accepted cloud/Sense evidence, and an accepted artifact review bound to the exact result.
 
 The accepted proof is v8 under `docs/evidence/d78461-model-sheet-v8/`. Its `cloud-proof.json` binds the production job, immutable promoted artifacts, unchanged per-view fit thresholds, active accepted Sense frame, purpose review, and promotion. v1-v7 remain immutable red/revision evidence. The gate was unlocked by promotion `c14574a357c252215ab275fd2cdd6ea916fbd664`; the proof workflow generated no subsequent candidate.
+
+## Front/Side Workflow Proof
+
+The neutral proof fixture lives under `docs/evidence/foundry-front-side-proof-v1/` and is regenerated by `tools/build_foundry_front_side_proof_fixture.mjs`. Its Foundry script contains no authored control-point overrides, booleans, vehicle identity, apertures, accessories, fixed-view request, or perspective render. It creates one 34-control-vertex box cage, fits that shared cage to the calibrated front and side silhouettes, subdivides once into `Crude_Turret_Volume`, and requests registered-only evidence.
+
+Live acceptance is exactly one owner-scoped `foundry.asset.run` job through `drive_operation`. Read-only status polling and idempotent attachment to that same job are allowed; a second namespace, changed geometry, relaxed threshold, successor, aesthetic review, or promotion is forbidden. The immutable automatic-review publication and Sense record are the terminal receipts.

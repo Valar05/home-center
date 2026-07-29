@@ -22,6 +22,8 @@ const FOUNDRY_MAX_SCRIPT_BYTES = Number(process.env.FOUNDRY_MAX_SCRIPT_BYTES || 
 const FOUNDRY_MAX_MODEL_SHEET_IMAGE_BYTES = 16 * 1024 * 1024;
 const FOUNDRY_MAX_MODEL_SHEET_BYTES = 48 * 1024 * 1024;
 const FOUNDRY_MODEL_SHEET_VERSION = 'home-center.foundry-model-sheet.v1';
+const FOUNDRY_MODEL_SHEET_VERSION_V2 = 'home-center.foundry-model-sheet.v2';
+const FOUNDRY_MODEL_SHEET_VERSIONS = Object.freeze([FOUNDRY_MODEL_SHEET_VERSION, FOUNDRY_MODEL_SHEET_VERSION_V2]);
 const FOUNDRY_MAX_OUTPUT_BYTES = Number(process.env.FOUNDRY_MAX_OUTPUT_BYTES || 256 * 1024 * 1024);
 const FOUNDRY_LOG_MAX_BYTES = Number(process.env.FOUNDRY_LOG_MAX_BYTES || 64 * 1024);
 const FOUNDRY_STATUS_LOG_EXCERPT_BYTES = Math.max(1024, Math.min(Number(process.env.FOUNDRY_STATUS_LOG_EXCERPT_BYTES) || 8 * 1024, 16 * 1024));
@@ -63,7 +65,7 @@ function foundryOperationEntries() {
       summary: 'Queue one sandboxed Foundry JavaScript program that loads a complete immutable GLB, performs batched direct-GLB edits, and publishes one immutable unreviewed successor.',
       write: true,
       requiresRequestId: true,
-      input: {contractVersion: FOUNDRY_RUN_VERSION, domain: 'hard_surface|character_setup|animation', source: 'optional home_center_artifact with required sha256 and byteLength', script: 'inline foundry-js.v1 text or owner-scoped home_center_artifact reference', parameters: 'bounded object', reviewPreset: 'fixed-six-view', modelSheet: 'optional calibrated home-center.foundry-model-sheet.v1 with immutable front/side/top PNG artifacts', idempotencyKey: 'string', namespace: 'distinct string', parent: 'optional {jobId,resultHash}'},
+      input: {contractVersion: FOUNDRY_RUN_VERSION, domain: 'hard_surface|character_setup|animation', source: 'optional home_center_artifact with required sha256 and byteLength', script: 'inline foundry-js.v1 text or owner-scoped home_center_artifact reference', parameters: 'bounded object', reviewPreset: 'fixed-six-view|registered-model-sheet-only', modelSheet: 'optional calibrated model sheet: v1 front/side/top or v2 declared front/side planes with immutable PNG artifacts', idempotencyKey: 'string', namespace: 'distinct string', parent: 'optional {jobId,resultHash}'},
       output: {accepted: 'boolean', jobId: 'stable string', inputHash: 'sha256', state: 'queued|running|completed|failed', review: 'immutable links when completed; humanAcceptance remains unreviewed'},
     },
     'foundry.asset.status': {
@@ -173,8 +175,15 @@ function assertOrthogonal(a, b, field) {
 }
 async function resolveModelSheet({storage = storageClient(), user, modelSheet}) {
   if (!modelSheet) return null;
-  if (!modelSheet || typeof modelSheet !== 'object' || Array.isArray(modelSheet) || modelSheet.contractVersion !== FOUNDRY_MODEL_SHEET_VERSION) {
-    throw fail('foundry.model_sheet.unsupported_version', 'A home-center.foundry-model-sheet.v1 object is required.', 400, {supported: [FOUNDRY_MODEL_SHEET_VERSION]});
+  if (!modelSheet || typeof modelSheet !== 'object' || Array.isArray(modelSheet) || !FOUNDRY_MODEL_SHEET_VERSIONS.includes(modelSheet.contractVersion)) {
+    throw fail('foundry.model_sheet.unsupported_version', 'A supported Home Center model-sheet object is required.', 400, {supported: FOUNDRY_MODEL_SHEET_VERSIONS});
+  }
+  const contractVersion = modelSheet.contractVersion;
+  const viewNames = contractVersion === FOUNDRY_MODEL_SHEET_VERSION
+    ? ['front', 'side', 'top']
+    : Array.isArray(modelSheet.viewOrder) ? [...new Set(modelSheet.viewOrder.map((value) => text(value, 20)).filter(Boolean))] : Object.keys(modelSheet.views || {});
+  if (viewNames.length < 2 || !viewNames.includes('front') || !viewNames.includes('side') || viewNames.some((name) => !['front', 'side', 'top'].includes(name)) || Object.keys(modelSheet.views || {}).some((name) => !viewNames.includes(name))) {
+    throw fail('foundry.model_sheet.view_order_invalid', 'Model-sheet v2 requires declared front and side planes; top is optional and every supplied view must be declared.', 400, {viewOrder: viewNames});
   }
   const id = slug(modelSheet.id, '', 160);
   if (!id) throw fail('foundry.model_sheet.id_required', 'modelSheet.id is required.');
@@ -191,18 +200,19 @@ async function resolveModelSheet({storage = storageClient(), user, modelSheet}) 
   if (!scaleAnchor.name || !Number.isFinite(scaleAnchor.meters) || scaleAnchor.meters <= 0 || scaleAnchor.meters > 100) {
     throw fail('foundry.model_sheet.scale_anchor_invalid', 'A named, positive scale anchor in meters is required.');
   }
-  const provenance = Array.isArray(modelSheet.provenance) ? modelSheet.provenance.map((entry, index) => ({
-    title: text(entry && entry.title, 300),
-    url: text(entry && entry.url, 1200),
-    license: text(entry && entry.license, 120),
-    publisher: text(entry && entry.publisher, 240),
-    publishedAt: text(entry && entry.publishedAt, 40),
-    pages: Array.isArray(entry && entry.pages) ? entry.pages.slice(0, 32).map((value) => text(value, 120)).filter(Boolean) : [],
-    processing: text(entry && entry.processing, 1000),
+  const authorityValue = modelSheet.authority && typeof modelSheet.authority === 'object' && !Array.isArray(modelSheet.authority) ? modelSheet.authority : {};
+  const authority = contractVersion === FOUNDRY_MODEL_SHEET_VERSION_V2 ? {
+    scope: text(authorityValue.scope, 120), exactIdentity: text(authorityValue.exactIdentity, 300), productionUse: authorityValue.productionUse === true,
+  } : null;
+  const provenance = Array.isArray(modelSheet.provenance) ? modelSheet.provenance.map((entry) => ({
+    sourceKind: text(entry && entry.sourceKind, 80) || 'public_domain_reference', title: text(entry && entry.title, 300), url: text(entry && entry.url, 1200), license: text(entry && entry.license, 120), publisher: text(entry && entry.publisher, 240), publishedAt: text(entry && entry.publishedAt, 40),
+    pages: Array.isArray(entry && entry.pages) ? entry.pages.slice(0, 32).map((value) => text(value, 120)).filter(Boolean) : [], generator: text(entry && entry.generator, 200), generatorVersion: text(entry && entry.generatorVersion, 120), inputSha256: text(entry && entry.inputSha256, 64).toLowerCase(), processing: text(entry && entry.processing, 1000),
   })) : [];
-  if (!provenance.length || provenance.some((entry) => !entry.title || !/^https:\/\//.test(entry.url) || entry.license !== 'public-domain-us-government')) {
-    throw fail('foundry.model_sheet.provenance_required', 'Every model sheet requires cited public-domain US-government provenance and processing notes.');
-  }
+  const publicDomainValid = provenance.length && provenance.every((entry) => entry.title && entry.url.startsWith('https://') && entry.license === 'public-domain-us-government');
+  const syntheticValid = contractVersion === FOUNDRY_MODEL_SHEET_VERSION_V2 && authority.scope === 'workflow_fixture' && authority.exactIdentity && authority.productionUse === false
+    && provenance.length && provenance.every((entry) => entry.sourceKind === 'synthetic_fixture' && entry.title && entry.generator && entry.generatorVersion && /^[a-f0-9]{64}$/.test(entry.inputSha256) && entry.processing);
+  if (!publicDomainValid && !syntheticValid) throw fail('foundry.model_sheet.provenance_required', 'Model sheets require cited public-domain provenance, or v2 synthetic workflow-fixture provenance explicitly barred from production use.');
+  const resolvedProvenance = contractVersion === FOUNDRY_MODEL_SHEET_VERSION ? provenance.map(({title, url, license, publisher, publishedAt, pages, processing}) => ({title, url, license, publisher, publishedAt, pages, processing})) : provenance;
   const frameLeft = [forward[1] * up[2] - forward[2] * up[1], forward[2] * up[0] - forward[0] * up[2], forward[0] * up[1] - forward[1] * up[0]];
   if (frameLeft.some((value, index) => Math.abs(value - left[index]) > 0.001)) throw fail('foundry.model_sheet.axis_handedness', 'axisFrame must satisfy forward cross up equals left.', 400);
   const expected = {
@@ -212,9 +222,9 @@ async function resolveModelSheet({storage = storageClient(), user, modelSheet}) 
   };
   const views = {};
   let totalBytes = 0;
-  for (const viewName of ['front', 'side', 'top']) {
+  for (const viewName of viewNames) {
     const raw = modelSheet.views && modelSheet.views[viewName];
-    if (!raw || typeof raw !== 'object' || Array.isArray(raw)) throw fail('foundry.model_sheet.view_required', 'Model sheet requires front, side, and top views.', 400, {view: viewName});
+    if (!raw || typeof raw !== 'object' || Array.isArray(raw)) throw fail('foundry.model_sheet.view_required', 'Model sheet is missing a declared registered view.', 400, {view: viewName});
     if (Number(raw.width) !== 640 || Number(raw.height) !== 640) throw fail('foundry.model_sheet.image_dimensions', 'Registered model-sheet planes must be declared as 640x640.', 400, {view: viewName});
     const image = await resolveArtifactReference({storage, user, reference: raw.image, role: 'modelSheet.views.' + viewName + '.image', maxBytes: FOUNDRY_MAX_MODEL_SHEET_IMAGE_BYTES, allowedMediaTypes: new Set(['image/png'])});
     totalBytes += image.byteLength;
@@ -254,7 +264,9 @@ async function resolveModelSheet({storage = storageClient(), user, modelSheet}) 
     views[viewName] = {width: 640, height: 640, image, camera, originPx, originWorld, pixelsPerMeter, contourPx, aperturesPx, landmarks};
   }
   if (totalBytes > FOUNDRY_MAX_MODEL_SHEET_BYTES) throw fail('foundry.limit.model_sheet', 'Model-sheet images exceed the 48 MiB aggregate ceiling.', 413, {totalBytes, max: FOUNDRY_MAX_MODEL_SHEET_BYTES});
-  return {contractVersion: FOUNDRY_MODEL_SHEET_VERSION, id, units: 'm', axisFrame: {forward, up, left}, scaleAnchor, provenance, views};
+  const resolved = {contractVersion, id, units: 'm', axisFrame: {forward, up, left}, scaleAnchor, provenance: resolvedProvenance, views};
+  if (contractVersion === FOUNDRY_MODEL_SHEET_VERSION_V2) { resolved.authority = authority; resolved.viewOrder = viewNames; }
+  return resolved;
 }
 
 async function resolveParent({admin, owner, parent, source}) {
@@ -358,7 +370,9 @@ async function queueFoundryRun({admin, storage = storageClient(), user, args = {
   if (!idempotencyKey) throw fail('foundry.idempotency_key_required', 'idempotencyKey is required.');
   if (!namespace) throw fail('foundry.namespace_required', 'A distinct job namespace is required.');
   const parameters = normalizeParameters(args.parameters), reviewPreset = slug(args.reviewPreset, 'fixed-six-view', 80);
-  if (reviewPreset !== 'fixed-six-view') throw fail('foundry.review.unsupported_preset', 'Foundry V2 supports fixed-six-view.', 400, {supported: ['fixed-six-view']});
+  const supportedReviewPresets = ['fixed-six-view', 'registered-model-sheet-only'];
+  if (!supportedReviewPresets.includes(reviewPreset)) throw fail('foundry.review.unsupported_preset', 'Foundry V2 received an unsupported review preset.', 400, {supported: supportedReviewPresets});
+  if (reviewPreset === 'registered-model-sheet-only' && (!modelSheet || modelSheet.contractVersion !== FOUNDRY_MODEL_SHEET_VERSION_V2)) throw fail('foundry.review.model_sheet_v2_required', 'registered-model-sheet-only requires a v2 calibrated model sheet.', 400);
   const parent = await resolveParent({admin, owner, parent: args.parent || null, source});
   const scriptIdentity = {...script}; delete scriptIdentity.text;
   const logical = {capabilityVersion: FOUNDRY_CAPABILITY_VERSION, contractVersion: FOUNDRY_RUN_VERSION, domain, source, script: scriptIdentity, parameters, reviewPreset, modelSheet, namespace, parent};
@@ -434,7 +448,7 @@ async function promoteFoundryResult({admin, user, args = {}}) {
   const record = jobSnapshot.data() || {}, review = reviewSnapshot.data() || {};
   if (record.owner !== owner || review.ownerEmail !== owner) throw fail('foundry.job_forbidden', 'Job or review is not owned by this caller.', 403);
   if (record.state !== 'completed' || !record.result || record.result.resultHash !== resultHash) throw fail('foundry.promotion.result_conflict', 'Promotion must bind the exact terminal Foundry result.', 409);
-  if (record.modelSheet && record.result?.report?.modelSheetFit?.overallPass !== true) throw fail('foundry.promotion.model_sheet_fit_required', 'Model-sheet front, side, and top fit must all pass before promotion.', 409, {modelSheetId: record.modelSheet.id});
+  if (record.modelSheet && record.result?.report?.modelSheetFit?.overallPass !== true) throw fail('foundry.promotion.model_sheet_fit_required', 'Every declared model-sheet view must pass before promotion.', 409, {modelSheetId: record.modelSheet.id});
   if (review.verdict !== 'accepted' || !review.result || review.result.promotionAllowed !== true || review.result.producer && review.result.producer.receiptId !== jobId) throw fail('foundry.promotion.review_not_accepted', 'Review does not accept this exact Foundry receipt.', 409);
   if (record.domain === 'hard_surface') {
     const validation = record.result.report && record.result.report.validation || {}, simplificationEvidence = review.result.simplificationEvidence;
@@ -470,7 +484,7 @@ async function validateGlbFile(filePath, expectedByteLength) {
   try { const header = Buffer.alloc(12), {bytesRead} = await handle.read(header, 0, 12, 0); if (bytesRead !== 12 || header.toString('ascii', 0, 4) !== 'glTF') throw fail('foundry.source.invalid_glb_magic', 'Source is not a binary glTF file.', 415); const version = header.readUInt32LE(4), declaredLength = header.readUInt32LE(8); if (version !== 2) throw fail('foundry.source.unsupported_glb_version', 'Foundry requires GLB version 2; received ' + version + '.', 415); if (declaredLength !== expectedByteLength) throw fail('foundry.source.glb_length_mismatch', 'GLB declared length does not match verified bytes.', 409, {declaredLength, expectedByteLength}); } finally { await handle.close(); }
 }
 async function digestFile(filePath) { const hash = createHash('sha256'); let byteLength = 0; for await (const chunk of fs.createReadStream(filePath)) { hash.update(chunk); byteLength += chunk.length; } return {sha256: hash.digest('hex'), byteLength}; }
-function artifactKind(name) { if (name.endsWith('.glb')) return 'glb'; if (/^fixed-.*\.png$/.test(name)) return 'fixedView'; if (/^reference-(front|side|top)\.png$/.test(name)) return 'modelSheetReference'; if (/^overlay-(front|side|top)-(cage|surface)\.png$/.test(name)) return 'modelSheetOverlay'; if (/^difference-(front|side|top)\.png$/.test(name)) return 'modelSheetDifference'; if (name === 'model-sheet-contact-sheet.png') return 'modelSheetContactSheet'; if (name === 'model-sheet-registration.json') return 'modelSheetRegistration'; if (name === 'model-sheet-fit-report.json') return 'modelSheetFitReport'; if (name === 'contact-sheet.png') return 'contactSheet'; if (name === 'skeletal-overlay.png') return 'skeletalOverlay'; if (name === 'foundry-manifest.json') return 'manifest'; if (name === 'validation-report.json') return 'report'; if (name === 'preservation-evidence.json') return 'evidence'; if (name === 'change-evidence.json') return 'changeEvidence'; return 'artifact'; }
+function artifactKind(name) { if (name.endsWith('.glb')) return 'glb'; if (/^fixed-.*\.png$/.test(name)) return 'fixedView'; if (/^reference-(front|side|top)\.png$/.test(name)) return 'modelSheetReference'; if (/^overlay-(front|side|top)-(cage|surface)\.png$/.test(name)) return 'modelSheetOverlay'; if (/^difference-(front|side|top)\.png$/.test(name)) return 'modelSheetDifference'; if (name === 'model-sheet-contact-sheet.png') return 'modelSheetContactSheet'; if (name === 'model-sheet-cage.json') return 'modelSheetCage'; if (name === 'model-sheet-registration.json') return 'modelSheetRegistration'; if (name === 'model-sheet-fit-report.json') return 'modelSheetFitReport'; if (name === 'contact-sheet.png') return 'contactSheet'; if (name === 'skeletal-overlay.png') return 'skeletalOverlay'; if (name === 'foundry-manifest.json') return 'manifest'; if (name === 'validation-report.json') return 'report'; if (name === 'preservation-evidence.json') return 'evidence'; if (name === 'change-evidence.json') return 'changeEvidence'; return 'artifact'; }
 function contentType(name) { if (name.endsWith('.glb')) return 'model/gltf-binary'; if (name.endsWith('.png')) return 'image/png'; if (name.endsWith('.json')) return 'application/json'; return 'application/octet-stream'; }
 async function uploadImmutableFile({storage = storageClient(), bucketName = ARTIFACT_BUCKET, localPath, objectName, metadata}) {
   const file = storage.bucket(bucketName).file(objectName), expected = await digestFile(localPath); let reused = false;
@@ -498,7 +512,7 @@ async function executeFoundryJob(admin, payload = {}, dependencies = {}) {
     if (record.script.kind === 'home_center_artifact') await downloadVerified(storage, record.script, scriptPath, 'script');
     const workerModelSheet = modelSheetFromRecord(record);
     if (workerModelSheet) {
-      for (const viewName of ['front', 'side', 'top']) {
+      for (const viewName of workerModelSheet.viewOrder || Object.keys(workerModelSheet.views || {})) {
         const imagePath = path.join(tempDir, 'model-sheet-' + viewName + '.png');
         await downloadVerified(storage, workerModelSheet.views[viewName].image, imagePath, 'model_sheet_' + viewName);
         workerModelSheet.views[viewName].imagePath = imagePath;
@@ -540,4 +554,4 @@ function installFoundryArtifactRoutes(app, {admin, storage = storageClient()}) {
   });
 }
 
-module.exports = {FOUNDRY_CAPABILITY_VERSION, FOUNDRY_RUN_VERSION, FOUNDRY_SCRIPT_VERSION, FOUNDRY_MODEL_SHEET_VERSION, FOUNDRY_TASK_FUNCTION, foundryOperationEntries, resolveSource, resolveScript, resolveModelSheet, modelSheetRecordFields, modelSheetFromRecord, queueFoundryRun, inspectFoundryAsset, foundryStatus, promoteFoundryResult, executeFoundryJob, runFoundryOperation, installFoundryArtifactRoutes, boundedJobReceipt, runChildProcess, hashJson};
+module.exports = {FOUNDRY_CAPABILITY_VERSION, FOUNDRY_RUN_VERSION, FOUNDRY_SCRIPT_VERSION, FOUNDRY_MODEL_SHEET_VERSION, FOUNDRY_MODEL_SHEET_VERSION_V2, FOUNDRY_MODEL_SHEET_VERSIONS, FOUNDRY_TASK_FUNCTION, foundryOperationEntries, resolveSource, resolveScript, resolveModelSheet, modelSheetRecordFields, modelSheetFromRecord, queueFoundryRun, inspectFoundryAsset, foundryStatus, promoteFoundryResult, executeFoundryJob, runFoundryOperation, installFoundryArtifactRoutes, boundedJobReceipt, runChildProcess, hashJson};

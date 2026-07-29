@@ -1,0 +1,92 @@
+{
+  "schemaVersion": "home-center.foundry-front-side-proof-source.v1",
+  "currentUserCommand": "Implement the first-class front/side model-sheet workflow and run exactly one deterministic proof on one crude turret volume.",
+  "forbiddenStalePremise": [
+    "D78461 or Sherman identity",
+    "manual cage control points in the Foundry proof script",
+    "beautification",
+    "geometry retry",
+    "candidate iteration"
+  ],
+  "modelSheet": {
+    "id": "foundry-front-side-crude-turret-v1",
+    "viewOrder": [
+      "front",
+      "side"
+    ],
+    "inputSha256": "36bac187497f145f216268f3aa8aa0c2e7b81aea47b83bb3a18fbc927897ed58"
+  },
+  "cage": {
+    "spec": {
+      "base": "box",
+      "segments": [
+        3,
+        2,
+        2
+      ],
+      "size": [
+        2.2,
+        1.2,
+        1.6
+      ]
+    },
+    "initialCageSha256": "b393b8be32451027d59874de52513945a264162c00894348f7c7d3cbd06cf6ce",
+    "expectedFittedCageSha256": "25d2be5bab004003deac66ced78fea2b8285d25d8ec6db37767c7f794e6c4375",
+    "solver": "deterministic-coordinate-descent-v1",
+    "evaluations": 2041,
+    "initialMetrics": {
+      "objective": 0.185831961656807,
+      "views": {
+        "front": {
+          "p95BoundaryErrorPx": 20.839816842673113,
+          "reverseP95BoundaryErrorPx": 21.085060322188987,
+          "maxBoundaryErrorPx": 21.816372203112056,
+          "ringPixels": 360,
+          "p95BoundaryErrorRingFraction": 0.05788838011853643,
+          "reverseP95BoundaryErrorRingFraction": 0.05856961200608052,
+          "maxBoundaryErrorRingFraction": 0.06060103389753349,
+          "score": 0.12373011619232095
+        },
+        "side": {
+          "p95BoundaryErrorPx": 10.534743774282319,
+          "reverseP95BoundaryErrorPx": 10.314841684937694,
+          "maxBoundaryErrorPx": 12.55899089995796,
+          "ringPixels": 360,
+          "p95BoundaryErrorRingFraction": 0.02926317715078422,
+          "reverseP95BoundaryErrorRingFraction": 0.028652338013715816,
+          "maxBoundaryErrorRingFraction": 0.034886085833216555,
+          "score": 0.06210184546448603
+        }
+      }
+    },
+    "finalMetrics": {
+      "objective": 0.02010905770985833,
+      "views": {
+        "front": {
+          "p95BoundaryErrorPx": 1.5575609654009253,
+          "reverseP95BoundaryErrorPx": 1.5339532325450216,
+          "maxBoundaryErrorPx": 2.494867252353592,
+          "ringPixels": 360,
+          "p95BoundaryErrorRingFraction": 0.004326558237224792,
+          "reverseP95BoundaryErrorRingFraction": 0.004260981201513949,
+          "maxBoundaryErrorRingFraction": 0.006930186812093311,
+          "score": 0.009419161856189939
+        },
+        "side": {
+          "p95BoundaryErrorPx": 1.729195744409434,
+          "reverseP95BoundaryErrorPx": 1.7619967140804833,
+          "maxBoundaryErrorPx": 2.9764170735892055,
+          "ringPixels": 360,
+          "p95BoundaryErrorRingFraction": 0.004803321512248428,
+          "reverseP95BoundaryErrorRingFraction": 0.004894435316890231,
+          "maxBoundaryErrorRingFraction": 0.00826782520441446,
+          "score": 0.010689895853668394
+        }
+      }
+    }
+  },
+  "script": {
+    "path": "crude-turret-proof.foundry.js",
+    "sha256": "bff0194bc3c78c7a334b073665ae4f4800f34173aa58be4b0839000593a855b1"
+  }
+}

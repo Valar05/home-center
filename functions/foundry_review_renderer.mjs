@@ -5,6 +5,7 @@ import {fileURLToPath} from 'node:url';
 import puppeteer from 'puppeteer-core';
 import chromium from '@sparticuz/chromium';
 import pngjs from 'pngjs';
+import {subdivisionCageDigest} from './foundry_model_sheet.mjs';
 
 const {PNG} = pngjs;
 export const REVIEW_WIDTH = 640;
@@ -372,8 +373,11 @@ export function evaluateApertureFit({aperturesPx = [], edgePixels = [], ringPixe
 
 export async function renderModelSheetEvidence({glbPath, modelSheet, review, cage, thresholds, timeoutMs = 120000}) {
   if (!modelSheet || !review || !cage) throw fail('foundry.review.model_sheet_missing', 'Registered model-sheet rendering requires the sheet, cage, and review target.');
+  const viewNames = Array.isArray(review.views) ? [...review.views] : Object.keys(modelSheet.views || {});
+  if (viewNames.length < 2 || !viewNames.includes('front') || !viewNames.includes('side')) throw fail('foundry.review.invalid_model_sheet_views', 'Registered evidence requires declared front and side views.', {views: viewNames});
+  const sharedCageSha256 = subdivisionCageDigest(cage);
   const references = {};
-  for (const viewName of ['front', 'side', 'top']) {
+  for (const viewName of viewNames) {
     const bytes = await fs.readFile(modelSheet.views[viewName].imagePath);
     const image = PNG.sync.read(bytes);
     if (image.width !== REVIEW_WIDTH || image.height !== REVIEW_HEIGHT) throw fail('foundry.model_sheet.image_dimensions', viewName + ' reference must decode to 640x640.', {width: image.width, height: image.height});
@@ -395,7 +399,7 @@ export async function renderModelSheetEvidence({glbPath, modelSheet, review, cag
     const canvas = await page.$('canvas');
     if (!canvas) throw fail('foundry.review.canvas_missing', 'Three.js registered-review canvas was not created.');
     const artifacts = {}, viewReports = {}, registrations = {};
-    for (const viewName of ['front', 'side', 'top']) {
+    for (const viewName of viewNames) {
       const view = modelSheet.views[viewName];
       const config = {originPx: view.originPx, originWorld: view.originWorld, pixelsPerMeter: view.pixelsPerMeter, camera: view.camera, target: review.target};
       const cageCamera = await page.evaluate((payload) => window.renderFoundryRegistered(payload.config, 'cage', payload.cage), {config, cage});
@@ -429,11 +433,12 @@ export async function renderModelSheetEvidence({glbPath, modelSheet, review, cag
       artifacts['overlay-' + viewName + '-surface.png'] = contourOverlay(references[viewName], surfaceMask.mask, edgeMask.mask, view.contourPx, view.aperturesPx || [], [65, 225, 120]);
       artifacts['difference-' + viewName + '.png'] = differenceImage(references[viewName], targetMask, surfaceMask.mask);
     }
-    const contactViews = Object.fromEntries(['front', 'side', 'top'].map((viewName) => [viewName, artifacts['overlay-' + viewName + '-surface.png']]));
-    artifacts['model-sheet-contact-sheet.png'] = buildContactSheet(contactViews, ['front', 'side', 'top']);
-    const overallPass = ['front', 'side', 'top'].every((viewName) => viewReports[viewName].pass);
-    const fitReport = {contractVersion: 'home-center.foundry-model-sheet-fit.v1', modelSheetId: modelSheet.id, scaleAnchor: modelSheet.scaleAnchor, thresholds, views: viewReports, overallPass, passRule: 'front_and_side_and_top'};
-    const registration = {contractVersion: 'home-center.foundry-model-sheet-registration.v1', modelSheetId: modelSheet.id, axisFrame: modelSheet.axisFrame, provenance: modelSheet.provenance, views: registrations};
+    const contactViews = Object.fromEntries(viewNames.map((viewName) => [viewName, artifacts['overlay-' + viewName + '-surface.png']]));
+    artifacts['model-sheet-contact-sheet.png'] = buildContactSheet(contactViews, viewNames);
+    const overallPass = viewNames.every((viewName) => viewReports[viewName].pass);
+    const passRule = viewNames.join('_and_');
+    const fitReport = {contractVersion: 'home-center.foundry-model-sheet-fit.v1', modelSheetId: modelSheet.id, viewOrder: viewNames, sharedCageSha256, scaleAnchor: modelSheet.scaleAnchor, thresholds, views: viewReports, overallPass, passRule};
+    const registration = {contractVersion: 'home-center.foundry-model-sheet-registration.v1', modelSheetId: modelSheet.id, viewOrder: viewNames, sharedCageSha256, axisFrame: modelSheet.axisFrame, authority: modelSheet.authority || null, provenance: modelSheet.provenance, views: registrations};
     return {artifacts, fitReport, registration};
   } catch (error) {
     if (error.code) throw error;
