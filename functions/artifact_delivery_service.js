@@ -65,6 +65,7 @@ const MIME_BY_EXTENSION = Object.freeze({
   '.txt': 'text/plain',
   '.md': 'text/markdown',
   '.py': 'text/x-python',
+  '.log': 'text/plain',
 });
 
 const SUPPORTED_MIME = new Set(Object.values(MIME_BY_EXTENSION));
@@ -107,7 +108,10 @@ function normalizedCandidate(value, context = {}) {
   const byteLength = Number(value.byteCount || value.byteLength || value.expectedByteCount || value.readbackByteCount || 0);
   if (!/^[a-f0-9]{64}$/.test(digest) || !Number.isSafeInteger(byteLength) || byteLength < 1) return null;
   const parsed = parseReceiptGsRef(ref);
-  const name = filename(value.name || value.filename || context.name || parsed.objectName.split('/').pop());
+  const explicitName = text(value.name || value.filename, 240);
+  const contextName = text(context.name, 240);
+  const contextHasKnownExtension = Object.keys(MIME_BY_EXTENSION).some((suffix) => contextName.toLowerCase().endsWith(suffix));
+  const name = filename(explicitName || (contextHasKnownExtension ? contextName : parsed.objectName.split('/').pop()));
   const mediaType = inferredMime(name, value.mimeType || value.mediaType || value.contentType);
   return {
     role: text(value.role || value.kind || context.role || context.name, 120) || 'artifact',

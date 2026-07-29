@@ -142,6 +142,13 @@ const artifacts = [
 const objects = new Map(artifacts.map((item) => [item.storageRef, {bytes: bytes[Object.keys(bytes).find((key) => item.name.endsWith(key === 'json' ? '.json' : '.' + key))] || Buffer.alloc(0)}]));
 for (const item of artifacts) objects.set(item.storageRef, {bytes: item.name.endsWith('.glb') ? bytes.glb : item.name.endsWith('.png') ? bytes.png : item.name.endsWith('.gif') ? bytes.gif : item.name.endsWith('.json') ? bytes.json : item.name.endsWith('.wav') ? bytes.wav : bytes.mp4});
 
+const foundryStdout = Buffer.from('foundry worker log\n');
+const foundryStdoutRef = 'gs://home-center-generated/foundry/proof/logs/stdout.log';
+const foundryReceiptSelection = uniqueCandidates({result: {logs: {stdout: {storageRef: foundryStdoutRef, byteLength: foundryStdout.length, sha256: sha(foundryStdout)}}}}, ['stdout.log']);
+assert.equal(foundryReceiptSelection.candidates.length, 1, 'Foundry log receipt must be deliverable');
+assert.equal(foundryReceiptSelection.candidates[0].name, 'stdout.log');
+assert.equal(foundryReceiptSelection.candidates[0].mediaType, 'text/plain');
+
 const producerReceiptId = 'receipt-delivery-contract-001';
 const receipt = {
   actor: ownerEmail,
