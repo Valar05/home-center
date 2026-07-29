@@ -130,7 +130,7 @@ const booleanResult = await runFoundryKernel({plan: booleanPlan, domain: 'hard_s
 assert.equal(booleanResult.report.validation.manifoldClosedComponents, 1, 'basic Foundry boolean is not closed');
 assert.equal(booleanResult.report.validation.nonManifoldComponents, 0, 'basic Foundry boolean is non-manifold');
 
-const proofScript = fs.readFileSync(path.join(root, 'docs/evidence/d78461-model-sheet-v1/d78461-bare-casting.foundry.js'), 'utf8');
+const proofScript = fs.readFileSync(path.join(root, 'docs/evidence/d78461-model-sheet-v2/d78461-bare-casting.foundry.js'), 'utf8');
 const proofPlan = await executeFoundryScript({version: 'foundry-js.v1', text: proofScript, seed: 78461});
 const proof = await runFoundryKernel({plan: proofPlan, domain: 'hard_surface', modelSheet: {contractVersion: FOUNDRY_MODEL_SHEET_VERSION}});
 assert.equal(proof.report.componentCount, 1);
@@ -139,6 +139,7 @@ assert.equal(proof.report.validation.nonManifoldComponents, 0);
 assert.equal(proof.report.validation.degenerateTriangles, 0);
 assert.ok(proof.report.triangleCount <= 6000, 'D78461 casting exceeded the proof triangle ceiling');
 assert.equal(proof.report.hierarchy[0].name, 'D78461_Bare_Casting');
+assert.equal(proof.evidence.cageEvidence['d78461-cage'].positions.length, 96, 'revised D78461 proof must exercise the 96-control cage');
 
 const storage = new FakeStorage();
 const owner = 'owner@example.com';

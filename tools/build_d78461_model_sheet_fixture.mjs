@@ -7,17 +7,17 @@ import {createRequire} from 'node:module';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const require = createRequire(path.join(root, 'functions/package.json'));
 const {PNG} = require('pngjs');
-const outputDir = path.join(root, 'docs', 'evidence', 'd78461-model-sheet-v1');
+const outputDir = path.join(root, 'docs', 'evidence', 'd78461-model-sheet-v2');
 fs.mkdirSync(outputDir, {recursive: true});
 
 const width = 640;
 const height = 640;
 const pixelsPerMeter = 220;
-const originPx = [320, 360];
+const originPx = [320, 330];
 const scaleAnchor = {name: 'turret-ring-inside-diameter', meters: 1.7526};
 const provenance = [
   {
-    title: 'TM 9-759, Tank, Medium M4A3, 15 September 1944',
+    title: 'TM 9-752, Tank, Medium M4A3, 15 September 1944',
     url: 'https://www.ibiblio.org/hyperwar/USA/ref/TM/pdfs/TM9-752.pdf',
     license: 'public-domain-us-government',
     publisher: 'United States War Department',
@@ -43,16 +43,16 @@ const frames = {
 
 const desiredWorld = {
   front: [
-    [-0.78, -0.43], [-0.95, -0.34], [-1.02, -0.06], [-1.00, 0.35], [-0.90, 0.65], [-0.58, 0.73],
-    [0, 0.75], [0.58, 0.73], [0.90, 0.65], [1.00, 0.35], [1.02, -0.06], [0.95, -0.34], [0.78, -0.43],
+    [-0.67, -0.47], [-0.78, -0.43], [-0.96, -0.25], [-1.06, 0], [-1.095, 0.16], [-1.10, 0.30], [-1.05, 0.48], [-0.98, 0.60], [-0.885, 0.70], [-0.67, 0.81],
+    [0, 0.83], [0.67, 0.81], [0.885, 0.70], [0.98, 0.60], [1.05, 0.48], [1.10, 0.30], [1.095, 0.16], [1.06, 0], [0.96, -0.25], [0.78, -0.43], [0.67, -0.47],
   ],
   side: [
-    [-1.23, -0.17], [-1.25, 0.36], [-1.10, 0.62], [-0.76, 0.73], [-0.05, 0.75], [0.63, 0.65],
-    [1.07, 0.46], [1.16, 0.13], [1.08, -0.25], [0.71, -0.42], [0.36, -0.47], [-0.73, -0.46], [-1.14, -0.34],
+    [-1.34, -0.12], [-1.34, 0.43], [-1.22, 0.68], [-1.02, 0.80], [-0.70, 0.84], [0.10, 0.80],
+    [0.70, 0.62], [1.08, 0.39], [1.16, 0.10], [1.08, -0.25], [0.76, -0.44], [0.30, -0.50], [-0.72, -0.47], [-1.12, -0.30],
   ],
   top: [
-    [-0.73, -1.23], [-1.00, -0.76], [-1.04, -0.05], [-0.93, 0.63], [-0.60, 1.15],
-    [0.60, 1.15], [0.93, 0.63], [1.04, -0.05], [1.00, -0.76], [0.73, -1.23],
+    [-0.72, -1.34], [-0.96, -1.23], [-1.08, -0.88], [-1.10, -0.35], [-1.08, 0.12], [-0.92, 0.68], [-0.60, 1.16],
+    [0.60, 1.16], [0.92, 0.68], [1.08, 0.12], [1.10, -0.35], [1.08, -0.88], [0.96, -1.23], [0.72, -1.34],
   ],
 };
 
@@ -84,15 +84,15 @@ const apertures = {
   top: [ellipsePixels([0.34, -0.43], [0.27, 0.27]), ellipsePixels([-0.38, 0.21], [0.23, 0.23])],
 };
 
-const xValues = [-1.239215, -0.906699, 0.027068, 0.720604, 1.15];
-const bottoms = [-0.314304, -0.4332, -0.47, -0.452088, -0.220836];
-const roofs = [0.541286, 0.72688, 0.75, 0.65, 0.400826];
-const widths = [0.709145, 1.0368, 1.04, 0.913876, 0.619731];
-const yFractions = [0, 0.36, 0.72, 1];
-const widthByLevel = [0.9105824, 1, 1, 0.7958575];
+const xValues = [-1.34, -1.14, -0.74, 0.08, 0.73, 1.16];
+const bottoms = [-0.12, -0.30, -0.47, -0.50, -0.45, -0.22];
+const roofs = [0.58, 0.80, 0.84, 0.80, 0.62, 0.34];
+const widths = [0.76, 1.02, 1.10, 1.08, 0.92, 0.58];
+const yFractions = [0, 0.34, 0.72, 1];
+const widthByLevel = [0.78, 1.0, 1.04, 0.72];
 const controlPoints = [];
-for (let i = 0; i <= 4; i++) for (let j = 0; j <= 3; j++) for (let k = 0; k <= 2; k++) {
-  if (!(i === 0 || i === 4 || j === 0 || j === 3 || k === 0)) continue;
+for (let i = 0; i <= 5; i++) for (let j = 0; j <= 3; j++) for (let k = 0; k <= 2; k++) {
+  if (!(i === 0 || i === 5 || j === 0 || j === 3 || k === 0)) continue;
   const y = bottoms[i] + (roofs[i] - bottoms[i]) * yFractions[j];
   const z = (k / 4 - 0.5) * 2 * widths[i] * widthByLevel[j];
   controlPoints.push({id: 'x' + i + ':y' + j + ':z' + k, position: [xValues[i], y, z]});
@@ -114,8 +114,8 @@ function mirroredPoint(id) {
 }
 const landmarkIds = {
   front: ['x1:y0:z0', 'x1:y0:z4', 'x1:y3:z0', 'x1:y3:z4'],
-  side: ['x0:y0:z0', 'x4:y0:z0', 'x0:y3:z0', 'x4:y3:z0'],
-  top: ['x0:y1:z0', 'x0:y1:z4', 'x4:y1:z0', 'x4:y1:z4'],
+  side: ['x0:y0:z0', 'x5:y0:z0', 'x0:y3:z0', 'x5:y3:z0'],
+  top: ['x0:y1:z0', 'x0:y1:z4', 'x5:y1:z0', 'x5:y1:z4'],
 };
 
 function pointInPolygon(x, y, polygon) {
@@ -184,7 +184,7 @@ for (const viewName of ['front', 'side', 'top']) {
 
 const modelSheet = {
   contractVersion: 'home-center.foundry-model-sheet.v1',
-  id: 'd78461-bare-casting-v1',
+  id: 'd78461-bare-casting-v2',
   units: 'm',
   axisFrame: {forward: [1, 0, 0], up: [0, 1, 0], left: [0, 0, 1]},
   scaleAnchor,
@@ -194,6 +194,7 @@ const modelSheet = {
     included: ['one connected cast shell', '69-inch ring opening', 'gun aperture', 'commander opening', 'loader opening', 'left pistol-port opening'],
     excluded: ['mantlet', 'barrel', 'cupola', 'hatch covers', 'lifting eyes', 'fittings', 'textures', 'tank hull'],
     confidence: 'reference-constrained reconstruction; not a ballistic-thickness claim',
+    revisionBasis: 'Supersedes the first D78461 proof after cloud and Sense review found a pillow-like shell; strengthens high-bustle rear rise, cheek undercuts, and roof-to-bustle transition.',
   },
   provenance,
   views,
@@ -220,7 +221,7 @@ const productionBudget = {
 };
 const subdivisionSpec = topologySpec(
   {scheme: 'catmull-clark', levels: 2, output: 'd78461-casting-shell', material: 'cast-steel'},
-  {rationale: 'The fitted cage vertices carry the registered front, side, and top casting silhouette.', maxOutputVertices: 1600, maxOutputTriangles: 3000},
+  {rationale: 'The fitted cage vertices carry the registered front, side, and top casting silhouette.', maxOutputVertices: 1600, maxOutputTriangles: 3200},
 );
 const cylinder = (base, segments, rationale) => topologySpec(base, {
   purpose: 'mechanical_interface', rationale, segmentCount: segments, maxOutputVertices: 1024, maxOutputTriangles: 320, maxGrowthRatio: 4,
@@ -244,7 +245,7 @@ const script = [
   "foundry.validation.productionBudget(" + JSON.stringify(productionBudget) + ");",
   "foundry.material.create('cast-steel',{baseColor:[0.34,0.37,0.34,1],metallic:0.15,roughness:0.82});",
   "const controlPoints = " + JSON.stringify(controlPoints) + ";",
-  "foundry.scene.createSubdivisionCage('d78461-cage',{base:'box',segments:[4,3,4],size:[2.4,1.2,2.08],symmetry:{axis:'z'},controlPoints});",
+  "foundry.scene.createSubdivisionCage('d78461-cage',{base:'box',segments:[5,3,4],size:[2.7,1.4,2.2],symmetry:{axis:'z'},controlPoints});",
   "foundry.mesh.subdivide('d78461-cage'," + JSON.stringify(subdivisionSpec) + ");",
   "foundry.scene.createCylinder('ring-cavity'," + JSON.stringify(ringCylinder) + ");",
   "foundry.mesh.boolean('d78461-casting-shell','ring-cavity','subtract','d78461-ring-open'," + JSON.stringify(ringBoolean) + ");",
@@ -268,6 +269,7 @@ const packet = {
   createdAt: '2026-07-29',
   currentUserCommand: 'Repair Foundry with a first-class model-sheet workflow and prove it on the bare D78461 turret casting before generating another candidate.',
   forbiddenStalePremise: ['Blender generation', 'ring or section loft as acceptance', 'generic perspective views as model-sheet proof', 'full tank or accessorized turret candidate'],
+  predecessorProof: {jobId: 'd5c7cbb98e53a3a5f62ff8d27e2674fbbf81ebea', publicationId: '6f9fe1018260e45a9d0bd21c4ce1565fcf9446ae', reviewRequestId: 'd78461-review-revision-6d5001f5', verdict: 'revision_requested', promotionAllowed: false},
   sourceAssets: Object.fromEntries(Object.entries(views).map(([name, view]) => [name, view.imageLocal])),
   script: {
     path: 'd78461-bare-casting.foundry.js',
@@ -275,7 +277,7 @@ const packet = {
     byteLength: Buffer.byteLength(script + '\n'),
     version: 'foundry-js.v1',
   },
-  cage: {base: 'box', segments: [4, 3, 4], authoredControlPoints: controlPoints.length, totalControlVertices: 82, subdivisionLevels: 2, expectedTrianglesBeforeBooleans: 2560, fitting: 'coordinate-descent fit against the locked front, side, and top contours; no plane averaging'},
+  cage: {base: 'box', segments: [5, 3, 4], authoredControlPoints: controlPoints.length, totalControlVertices: 96, subdivisionLevels: 2, expectedTrianglesBeforeBooleans: 3008, fitting: 'coordinate-descent fit against the locked front, side, and top contours; no plane averaging'},
   acceptance: {
     requiredRegisteredViews: ['front', 'side', 'top'],
     thresholds: {minIou: 0.92, maxP95BoundaryErrorRingFraction: 0.02, maxLandmarkErrorRingFraction: 0.01},
