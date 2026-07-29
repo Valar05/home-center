@@ -85,6 +85,23 @@ function normalizeParameters(value) {
   if (bytes > 32 * 1024) throw fail('foundry.limit.parameters', 'Foundry parameters exceed 32 KiB.', 413);
   return parameters;
 }
+
+function modelSheetRecordFields(modelSheet) {
+  if (!modelSheet) return {modelSheet: null, modelSheetJson: null};
+  const modelSheetJson = JSON.stringify(modelSheet), byteLength = Buffer.byteLength(modelSheetJson);
+  if (byteLength > 512 * 1024) throw fail('foundry.limit.model_sheet_record', 'Resolved model-sheet registration exceeds the durable job-record ceiling.', 413, {byteLength, max: 512 * 1024});
+  return {
+    modelSheet: {contractVersion: modelSheet.contractVersion, id: modelSheet.id, units: modelSheet.units, scaleAnchor: modelSheet.scaleAnchor},
+    modelSheetJson,
+  };
+}
+function modelSheetFromRecord(record) {
+  if (record && typeof record.modelSheetJson === 'string' && record.modelSheetJson) {
+    try { return JSON.parse(record.modelSheetJson); }
+    catch (_) { throw fail('foundry.model_sheet.record_invalid', 'Durable model-sheet JSON could not be decoded.', 500); }
+  }
+  return record && record.modelSheet && record.modelSheet.views ? JSON.parse(JSON.stringify(record.modelSheet)) : null;
+}
 function normalizeDomain(value, allowInspect = false) {
   const domain = text(value, 40);
   const supported = allowInspect ? ['hard_surface', 'character_setup', 'animation', 'inspect'] : ['hard_surface', 'character_setup', 'animation'];
@@ -345,6 +362,7 @@ async function queueFoundryRun({admin, storage = storageClient(), user, args = {
   const parent = await resolveParent({admin, owner, parent: args.parent || null, source});
   const scriptIdentity = {...script}; delete scriptIdentity.text;
   const logical = {capabilityVersion: FOUNDRY_CAPABILITY_VERSION, contractVersion: FOUNDRY_RUN_VERSION, domain, source, script: scriptIdentity, parameters, reviewPreset, modelSheet, namespace, parent};
+  const modelSheetRecord = modelSheetRecordFields(modelSheet);
   const inputHash = hashJson(logical), ownerHash = ownerKey(owner), jobId = sha256(Buffer.from(ownerHash + ':' + namespace + ':' + inputHash)).slice(0, 40), idemId = ownerHash + '-' + sha256(Buffer.from(idempotencyKey)).slice(0, 32);
   const jobRef = admin.firestore().collection(JOBS).doc(jobId), idemRef = admin.firestore().collection(IDEMPOTENCY).doc(idemId), now = new Date().toISOString();
   let attached = false;
@@ -356,7 +374,7 @@ async function queueFoundryRun({admin, storage = storageClient(), user, args = {
       attached = true;
       return;
     }
-    const record = {contractVersion: 'home-center.foundry-job.v2', capabilityVersion: FOUNDRY_CAPABILITY_VERSION, jobId, owner, ownerHash, namespace, inputHash, idempotencyKeyHash: sha256(Buffer.from(idempotencyKey)), source, script, domain, parameters, reviewPreset, modelSheet, parent, revision: parent ? parent.revision : 0, state: 'accepted', enqueueStatus: 'pending', executionAttempt: 0, acceptedAt: now, updatedAt: now, humanAcceptance: 'unreviewed'};
+    const record = {contractVersion: 'home-center.foundry-job.v2', capabilityVersion: FOUNDRY_CAPABILITY_VERSION, jobId, owner, ownerHash, namespace, inputHash, idempotencyKeyHash: sha256(Buffer.from(idempotencyKey)), source, script, domain, parameters, reviewPreset, ...modelSheetRecord, parent, revision: parent ? parent.revision : 0, state: 'accepted', enqueueStatus: 'pending', executionAttempt: 0, acceptedAt: now, updatedAt: now, humanAcceptance: 'unreviewed'};
     transaction.create(jobRef, record);
     transaction.create(idemRef, {jobId, ownerHash, namespace, inputHash, contractVersion: FOUNDRY_RUN_VERSION, createdAt: now});
   });
@@ -478,7 +496,7 @@ async function executeFoundryJob(admin, payload = {}, dependencies = {}) {
   try {
     if (record.source) { await downloadVerified(storage, record.source, inputPath, 'source'); await validateGlbFile(inputPath, record.source.byteLength); }
     if (record.script.kind === 'home_center_artifact') await downloadVerified(storage, record.script, scriptPath, 'script');
-    const workerModelSheet = record.modelSheet ? JSON.parse(JSON.stringify(record.modelSheet)) : null;
+    const workerModelSheet = modelSheetFromRecord(record);
     if (workerModelSheet) {
       for (const viewName of ['front', 'side', 'top']) {
         const imagePath = path.join(tempDir, 'model-sheet-' + viewName + '.png');
@@ -522,4 +540,4 @@ function installFoundryArtifactRoutes(app, {admin, storage = storageClient()}) {
   });
 }
 
-module.exports = {FOUNDRY_CAPABILITY_VERSION, FOUNDRY_RUN_VERSION, FOUNDRY_SCRIPT_VERSION, FOUNDRY_MODEL_SHEET_VERSION, FOUNDRY_TASK_FUNCTION, foundryOperationEntries, resolveSource, resolveScript, resolveModelSheet, queueFoundryRun, inspectFoundryAsset, foundryStatus, promoteFoundryResult, executeFoundryJob, runFoundryOperation, installFoundryArtifactRoutes, boundedJobReceipt, runChildProcess, hashJson};
+module.exports = {FOUNDRY_CAPABILITY_VERSION, FOUNDRY_RUN_VERSION, FOUNDRY_SCRIPT_VERSION, FOUNDRY_MODEL_SHEET_VERSION, FOUNDRY_TASK_FUNCTION, foundryOperationEntries, resolveSource, resolveScript, resolveModelSheet, modelSheetRecordFields, modelSheetFromRecord, queueFoundryRun, inspectFoundryAsset, foundryStatus, promoteFoundryResult, executeFoundryJob, runFoundryOperation, installFoundryArtifactRoutes, boundedJobReceipt, runChildProcess, hashJson};

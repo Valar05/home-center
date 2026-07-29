@@ -7,7 +7,7 @@ import {fileURLToPath} from 'node:url';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const require = createRequire(path.join(root, 'functions/package.json'));
-const {FOUNDRY_MODEL_SHEET_VERSION, resolveModelSheet} = require('../functions/foundry_capability.js');
+const {FOUNDRY_MODEL_SHEET_VERSION, resolveModelSheet, modelSheetRecordFields, modelSheetFromRecord} = require('../functions/foundry_capability.js');
 const {executeFoundryScript} = await import('../functions/foundry_script_runtime.mjs');
 const {runFoundryKernel} = await import('../functions/foundry_kernel.mjs');
 const {createSubdivisionCage, subdivideCage} = await import('../functions/foundry_model_sheet.mjs');
@@ -167,6 +167,17 @@ const resolved = await resolveModelSheet({storage, user: {email: owner}, modelSh
 assert.equal(resolved.contractVersion, FOUNDRY_MODEL_SHEET_VERSION);
 assert.deepEqual(Object.keys(resolved.views), ['front', 'side', 'top']);
 assert.equal(resolved.views.front.image.sha256, images.front.sha256);
+const recordFields = modelSheetRecordFields(resolved);
+assert.deepEqual(recordFields.modelSheet, {contractVersion: FOUNDRY_MODEL_SHEET_VERSION, id: resolved.id, units: 'm', scaleAnchor: resolved.scaleAnchor});
+assert.equal(typeof recordFields.modelSheetJson, 'string');
+assert.deepEqual(modelSheetFromRecord(recordFields), resolved);
+const rejectDirectNestedArrays = (value, path = 'record') => {
+  if (Array.isArray(value)) {
+    assert.equal(value.some(Array.isArray), false, path + ' contains a Firestore-invalid directly nested array');
+    value.forEach((entry, index) => rejectDirectNestedArrays(entry, path + '[' + index + ']'));
+  } else if (value && typeof value === 'object') for (const [key, entry] of Object.entries(value)) rejectDirectNestedArrays(entry, path + '.' + key);
+};
+rejectDirectNestedArrays(recordFields);
 await assert.rejects(
   () => resolveModelSheet({storage, user: {email: owner}, modelSheet: {...sheet, provenance: []}}),
   (error) => error.code === 'foundry.model_sheet.provenance_required',
