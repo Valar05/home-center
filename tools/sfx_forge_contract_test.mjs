@@ -52,7 +52,7 @@ const source = await uploadGeneratedArtifact({
 const nonAudioPrefixSource = await uploadGeneratedArtifact({
   bytes: sourceBytes,
   name: 'fixture-ingress-heavy-bag-source.wav',
-  mimeType: 'audio/wav',
+  mimeType: 'application/octet-stream',
   owner: 'drew',
   ownerEmail: 'dclarke1005@gmail.com',
   project: 'sfx-armory',
