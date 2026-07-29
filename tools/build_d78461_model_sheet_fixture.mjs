@@ -347,7 +347,7 @@ const packet = {
   createdAt: '2026-07-29',
   currentUserCommand: 'Repair Foundry with a first-class model-sheet workflow and prove it on the bare D78461 turret casting before generating another candidate.',
   forbiddenStalePremise: ['Blender generation', 'ring or section loft as acceptance', 'generic perspective views as model-sheet proof', 'full tank or accessorized turret candidate'],
-  predecessorProof: {jobId: '3756ac92095ca1b8abcbdecdac630d6a1207cbec', publicationId: 'c2f2e97ef5f99b8890701ffe3efa5f5bcd5c1b43', resultHash: '776c457a8277472d4db020f28eced51a3dc8366f3af53866f26356d760356f8c', verdict: 'revision_requested', promotionAllowed: false},
+  predecessorProof: {jobId: '61d497ba9a6db38b971a8faed9576da57576cd29', publicationId: 'ae01d6cd4029fac96f3ab7da3ef543591211d082', resultHash: '93c80fb81dc191570835ad9724c51ff7f124aae4a09be4068973ec464ee809e4', verdict: 'revision_requested', promotionAllowed: false},
   sourceAssets: Object.fromEntries(Object.entries(views).map(([name, view]) => [name, view.imageLocal])),
   script: {
     path: 'd78461-bare-casting.foundry.js',

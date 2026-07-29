@@ -1,0 +1,125 @@
+{
+  "schemaVersion": "home-center.foundry-cloud-proof.v1",
+  "acceptedAt": "2026-07-29T14:54:50.031Z",
+  "status": "accepted_and_promoted",
+  "currentUserCommand": "Repair Foundry with a first-class model-sheet workflow: calibrated front/side/top reference planes, a box-derived subdivision cage fitted across all views, and registered overlay evidence; prove it on the bare D78461 turret casting before generating another candidate.",
+  "fixture": {
+    "modelSheetId": "d78461-bare-casting-v8",
+    "sourceCommit": "8ab9ef5",
+    "scriptSha256": "54dc789a1637fba5e172c949f729467dfd62d899bab17a6daf2b64f11fc41892",
+    "cage": {
+      "base": "box",
+      "segments": [
+        5,
+        3,
+        4
+      ],
+      "authoredControlPoints": 96,
+      "subdivisionLevels": 2
+    }
+  },
+  "release": {
+    "sourceCommit": "b32b00c399d7943e6c1572a453d7ee18295f070a",
+    "foundryWorkerRevision": "foundryassetworker-00017-foc",
+    "commandCenterMcpRevision": "commandcentermcp-00090-yiv",
+    "homeCenterMcpRevision": "homecentermcp-00177-vox"
+  },
+  "foundry": {
+    "jobId": "6987afc9feae628fb0bce23037e12e5dfcc1db00",
+    "inputHash": "54948afb728082a72c931217c2f73a7a6c372e83f9e71397bad174660d300fe4",
+    "resultHash": "7bfa1b217a4de94546718058938b29230544ce88e7f92bc02c98562bb0b4ae67",
+    "automaticReviewPublicationId": "7e87f9c349cbd28e22b9b38bbbe89b6f890af98b",
+    "promotionId": "c14574a357c252215ab275fd2cdd6ea916fbd664",
+    "glb": {
+      "sha256": "33c02a67d393263628407efd0a7d8ab68a766a03e1813e8a17c254a00fced02f",
+      "byteLength": 988272
+    },
+    "topology": {
+      "vertices": 2568,
+      "triangles": 5108,
+      "components": 1,
+      "manifoldClosedComponents": 1,
+      "nonManifoldComponents": 0,
+      "degenerateTriangles": 0,
+      "topologyValid": true,
+      "budgetValid": true
+    }
+  },
+  "registeredFit": {
+    "contractVersion": "home-center.foundry-model-sheet-fit.v1",
+    "overallPass": true,
+    "thresholds": {
+      "minIou": 0.92,
+      "maxP95BoundaryErrorRingFraction": 0.02,
+      "maxLandmarkErrorRingFraction": 0.01
+    },
+    "views": {
+      "front": {
+        "silhouetteIou": 0.9847795303614294,
+        "p95BoundaryErrorRingFraction": 0.012064883704846804,
+        "pass": true
+      },
+      "side": {
+        "silhouetteIou": 0.9685007712157431,
+        "p95BoundaryErrorRingFraction": 0.01975060608867247,
+        "pass": true
+      },
+      "top": {
+        "silhouetteIou": 0.9871761801230792,
+        "p95BoundaryErrorRingFraction": 0.011464544160520115,
+        "pass": true
+      }
+    }
+  },
+  "sense": {
+    "projectId": "foundry-d78461-sense",
+    "compilationId": "d78461-sense-7bfa1b21-v8",
+    "frameId": "d78461-sense-frame-7bfa1b21-v8",
+    "version": 3,
+    "compilationHash": "6db5df6fa80cf9864a9a783e8c70f49acfe73f8df597872cb851dcb5be50e0b4",
+    "verdict": "accepted",
+    "recordCountsByType": {
+      "evidence": 1,
+      "measurement": 1,
+      "observation": 1,
+      "constraint": 1,
+      "decision": 1,
+      "action": 1
+    },
+    "unresolvedConflictCount": 0
+  },
+  "artifactReview": {
+    "deliveryRequestId": "foundry-d78461-v8-delivery-7bfa1b21",
+    "reviewRequestId": "foundry-d78461-v8-review-7bfa1b21",
+    "verdict": "accepted",
+    "promotionAllowed": true,
+    "purposeValid": true,
+    "simplificationEvidence": [
+      {
+        "component": "d78461-cage-evidence-only",
+        "method": "remove_or_merge",
+        "status": "passed",
+        "views": [
+          "front",
+          "side",
+          "top",
+          "perspective"
+        ],
+        "maxVisibleErrorPx": 0.75
+      }
+    ]
+  },
+  "promotedUrls": {
+    "modelSheetContactSheet": "https://us-central1-home-center-dclar.cloudfunctions.net/homeCenterMcp/foundry/artifacts/c14574a357c252215ab275fd2cdd6ea916fbd664/model-sheet-contact-sheet.png",
+    "fitReport": "https://us-central1-home-center-dclar.cloudfunctions.net/homeCenterMcp/foundry/artifacts/c14574a357c252215ab275fd2cdd6ea916fbd664/model-sheet-fit-report.json",
+    "contactSheet": "https://us-central1-home-center-dclar.cloudfunctions.net/homeCenterMcp/foundry/artifacts/c14574a357c252215ab275fd2cdd6ea916fbd664/contact-sheet.png",
+    "glb": "https://us-central1-home-center-dclar.cloudfunctions.net/homeCenterMcp/foundry/artifacts/c14574a357c252215ab275fd2cdd6ea916fbd664/foundry-result.glb",
+    "manifest": "https://us-central1-home-center-dclar.cloudfunctions.net/homeCenterMcp/foundry/artifacts/c14574a357c252215ab275fd2cdd6ea916fbd664/foundry-manifest.json",
+    "viewer": "https://valar05.github.io/model-viewer-lab/model-viewer.html?src=https%3A%2F%2Fus-central1-home-center-dclar.cloudfunctions.net%2FhomeCenterMcp%2Ffoundry%2Fartifacts%2Fc14574a357c252215ab275fd2cdd6ea916fbd664%2Ffoundry-result.glb&manifest=https%3A%2F%2Fus-central1-home-center-dclar.cloudfunctions.net%2FhomeCenterMcp%2Ffoundry%2Fartifacts%2Fc14574a357c252215ab275fd2cdd6ea916fbd664%2Ffoundry-manifest.json&title=Foundry%20d78461-bare-casting-model-sheet-v8-8ab9ef5"
+  },
+  "history": {
+    "v1ThroughV7": "immutable red/revision evidence; v7 was the final predecessor and failed front/top p95 by a narrow margin",
+    "candidateGeneratedAfterProof": false,
+    "candidateGate": "unlocked_by_accepted_promotion_but_no_candidate_generated"
+  }
+}
