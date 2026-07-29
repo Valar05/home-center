@@ -7,7 +7,7 @@ import {createRequire} from 'node:module';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const require = createRequire(path.join(root, 'functions/package.json'));
 const {PNG} = require('pngjs');
-const outputDir = path.join(root, 'docs', 'evidence', 'd78461-model-sheet-v4');
+const outputDir = path.join(root, 'docs', 'evidence', 'd78461-model-sheet-v5');
 fs.mkdirSync(outputDir, {recursive: true});
 
 const width = 640;
@@ -87,10 +87,10 @@ const apertures = {
 const xValues = [-1.34, -1.18, -0.72, 0.05, 0.88, 1.16];
 const bottoms = [-0.10, -0.27, -0.47, -0.51, -0.38, -0.20];
 const roofs = [0.68, 0.84, 0.86, 0.82, 0.52, 0.28];
-const widths = [0.76, 1.03, 1.10, 1.10, 0.72, 0.50];
+const widths = [0.95, 1.08, 1.12, 1.12, 0.76, 0.52];
 const yFractions = [0, 0.34, 0.72, 1];
 const widthByLevel = [0.78, 1.0, 1.04, 0.72];
-const rightCheekByStation = [0, 0, 0.03, 0.10, 0.30, 0.05];
+const rightCheekByStation = [0, 0.02, 0.06, 0.20, 0.55, 0.10];
 const rightCheekByLevel = [0.40, 1, 1, 0.65];
 const controlPoints = [];
 for (let i = 0; i <= 5; i++) for (let j = 0; j <= 3; j++) for (let k = 0; k <= 4; k++) {
@@ -188,7 +188,7 @@ for (const viewName of ['front', 'side', 'top']) {
 
 const modelSheet = {
   contractVersion: 'home-center.foundry-model-sheet.v1',
-  id: 'd78461-bare-casting-v4',
+  id: 'd78461-bare-casting-v5',
   units: 'm',
   axisFrame: {forward: [1, 0, 0], up: [0, 1, 0], left: [0, 0, 1]},
   scaleAnchor,
@@ -198,7 +198,7 @@ const modelSheet = {
     included: ['one connected cast shell', '69-inch ring opening', 'wide gun-mount aperture', 'commander opening', 'loader opening', 'left pistol-port opening', 'smoke-ejector opening'],
     excluded: ['mantlet', 'barrel', 'cupola', 'hatch covers', 'lifting eyes', 'fittings', 'textures', 'tank hull'],
     confidence: 'reference-constrained reconstruction; not a ballistic-thickness claim',
-    revisionBasis: 'Supersedes v3 after cloud review found the correct asymmetry numerically present but visually too weak; adds a dedicated front support station, a decisive right-front cheek mass, a flatter mantlet face transition, a high-bustle shoulder, and the smoke-ejector casting opening.',
+    revisionBasis: 'Supersedes v4 after registered cloud overlays exposed front and top undershoot; moves the same bounded cage outward at the right cheek and rear-bustle corners without relaxing the calibrated target planes.',
   },
   provenance,
   views,
@@ -277,7 +277,7 @@ const packet = {
   createdAt: '2026-07-29',
   currentUserCommand: 'Repair Foundry with a first-class model-sheet workflow and prove it on the bare D78461 turret casting before generating another candidate.',
   forbiddenStalePremise: ['Blender generation', 'ring or section loft as acceptance', 'generic perspective views as model-sheet proof', 'full tank or accessorized turret candidate'],
-  predecessorProof: {jobId: '2c7fe49c7537a4d4b81a333d738c693c16d3d522', publicationId: 'afb0d35cd9d07db1c3aaad8247bdeaf56aabb907', resultHash: '018bb22d6eb212a85e6660bc73b4decd46f6f6c55359f3d76bfdd91f6542ddc7', verdict: 'revision_requested', promotionAllowed: false},
+  predecessorProof: {jobId: '1ef6fa75910304e01c50cd226a8d7d30d348d45b', publicationId: '4cc74d1bb5c65d8e0ae52d0bd12d5eb6c264b2a2', resultHash: '696b985678f8eb0b6980e3c9911872a83685668353f0b4577a89384a9d2c1b90', verdict: 'revision_requested', promotionAllowed: false},
   sourceAssets: Object.fromEntries(Object.entries(views).map(([name, view]) => [name, view.imageLocal])),
   script: {
     path: 'd78461-bare-casting.foundry.js',
