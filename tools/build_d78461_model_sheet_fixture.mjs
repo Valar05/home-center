@@ -7,7 +7,7 @@ import {createRequire} from 'node:module';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const require = createRequire(path.join(root, 'functions/package.json'));
 const {PNG} = require('pngjs');
-const outputDir = path.join(root, 'docs', 'evidence', 'd78461-model-sheet-v2');
+const outputDir = path.join(root, 'docs', 'evidence', 'd78461-model-sheet-v3');
 fs.mkdirSync(outputDir, {recursive: true});
 
 const width = 640;
@@ -44,15 +44,15 @@ const frames = {
 const desiredWorld = {
   front: [
     [-0.67, -0.47], [-0.78, -0.43], [-0.96, -0.25], [-1.06, 0], [-1.095, 0.16], [-1.10, 0.30], [-1.05, 0.48], [-0.98, 0.60], [-0.885, 0.70], [-0.67, 0.81],
-    [0, 0.83], [0.67, 0.81], [0.885, 0.70], [0.98, 0.60], [1.05, 0.48], [1.10, 0.30], [1.095, 0.16], [1.06, 0], [0.96, -0.25], [0.78, -0.43], [0.67, -0.47],
+    [0, 0.83], [0.68, 0.81], [0.90, 0.70], [1.00, 0.60], [1.08, 0.48], [1.13, 0.30], [1.13, 0.16], [1.10, 0], [1.01, -0.25], [0.81, -0.43], [0.68, -0.47],
   ],
   side: [
-    [-1.34, -0.12], [-1.34, 0.43], [-1.22, 0.68], [-1.02, 0.80], [-0.70, 0.84], [0.10, 0.80],
-    [0.70, 0.62], [1.08, 0.39], [1.16, 0.10], [1.08, -0.25], [0.76, -0.44], [0.30, -0.50], [-0.72, -0.47], [-1.12, -0.30],
+    [-1.30, -0.10], [-1.34, 0.06], [-1.34, 0.49], [-1.30, 0.645], [-1.20, 0.75], [-1.10, 0.80], [-0.95, 0.827], [-0.70, 0.836], [-0.40, 0.827], [0, 0.782],
+    [0.40, 0.69], [0.65, 0.605], [0.80, 0.541], [0.98, 0.441], [1.10, 0.336], [1.15, 0.15], [1.12, -0.10], [1.10, -0.227], [0.98, -0.318], [0.80, -0.386], [0.65, -0.418], [0.40, -0.455], [0, -0.477], [-0.40, -0.468], [-0.70, -0.427], [-0.95, -0.355], [-1.10, -0.286], [-1.20, -0.223],
   ],
   top: [
-    [-0.72, -1.34], [-0.96, -1.23], [-1.08, -0.88], [-1.10, -0.35], [-1.08, 0.12], [-0.92, 0.68], [-0.60, 1.16],
-    [0.60, 1.16], [0.92, 0.68], [1.08, 0.12], [1.10, -0.35], [1.08, -0.88], [0.96, -1.23], [0.72, -1.34],
+    [-0.72, -1.34], [-0.96, -1.20], [-1.08, -0.82], [-1.10, -0.30], [-1.08, 0.12], [-1.02, 0.68], [-0.76, 1.02], [-0.55, 1.16],
+    [0.52, 1.16], [0.86, 0.68], [1.08, 0.12], [1.10, -0.30], [1.08, -0.82], [0.96, -1.20], [0.72, -1.34],
   ],
 };
 
@@ -84,17 +84,21 @@ const apertures = {
   top: [ellipsePixels([0.34, -0.43], [0.27, 0.27]), ellipsePixels([-0.38, 0.21], [0.23, 0.23])],
 };
 
-const xValues = [-1.34, -1.14, -0.74, 0.08, 0.73, 1.16];
-const bottoms = [-0.12, -0.30, -0.47, -0.50, -0.45, -0.22];
-const roofs = [0.58, 0.80, 0.84, 0.80, 0.62, 0.34];
-const widths = [0.76, 1.02, 1.10, 1.08, 0.92, 0.58];
+const xValues = [-1.34, -1.16, -0.70, 0.12, 0.92, 1.16];
+const bottoms = [-0.10, -0.28, -0.47, -0.50, -0.40, -0.20];
+const roofs = [0.62, 0.82, 0.85, 0.80, 0.52, 0.30];
+const widths = [0.74, 1.02, 1.10, 1.08, 0.78, 0.54];
 const yFractions = [0, 0.34, 0.72, 1];
 const widthByLevel = [0.78, 1.0, 1.04, 0.72];
+const rightCheekByStation = [0, 0, 0.015, 0.055, 0.16, 0.045];
+const rightCheekByLevel = [0.45, 1, 1, 0.55];
 const controlPoints = [];
-for (let i = 0; i <= 5; i++) for (let j = 0; j <= 3; j++) for (let k = 0; k <= 2; k++) {
-  if (!(i === 0 || i === 5 || j === 0 || j === 3 || k === 0)) continue;
+for (let i = 0; i <= 5; i++) for (let j = 0; j <= 3; j++) for (let k = 0; k <= 4; k++) {
+  if (!(i === 0 || i === 5 || j === 0 || j === 3 || k === 0 || k === 4)) continue;
   const y = bottoms[i] + (roofs[i] - bottoms[i]) * yFractions[j];
-  const z = (k / 4 - 0.5) * 2 * widths[i] * widthByLevel[j];
+  const signedWidth = (k / 4 - 0.5) * 2;
+  const cheek = signedWidth < 0 ? rightCheekByStation[i] * rightCheekByLevel[j] * Math.abs(signedWidth) : 0;
+  const z = signedWidth * widths[i] * widthByLevel[j] - cheek;
   controlPoints.push({id: 'x' + i + ':y' + j + ':z' + k, position: [xValues[i], y, z]});
 }
 
@@ -184,7 +188,7 @@ for (const viewName of ['front', 'side', 'top']) {
 
 const modelSheet = {
   contractVersion: 'home-center.foundry-model-sheet.v1',
-  id: 'd78461-bare-casting-v2',
+  id: 'd78461-bare-casting-v3',
   units: 'm',
   axisFrame: {forward: [1, 0, 0], up: [0, 1, 0], left: [0, 0, 1]},
   scaleAnchor,
@@ -194,7 +198,7 @@ const modelSheet = {
     included: ['one connected cast shell', '69-inch ring opening', 'gun aperture', 'commander opening', 'loader opening', 'left pistol-port opening'],
     excluded: ['mantlet', 'barrel', 'cupola', 'hatch covers', 'lifting eyes', 'fittings', 'textures', 'tank hull'],
     confidence: 'reference-constrained reconstruction; not a ballistic-thickness claim',
-    revisionBasis: 'Supersedes the first D78461 proof after cloud and Sense review found a pillow-like shell; strengthens high-bustle rear rise, cheek undercuts, and roof-to-bustle transition.',
+    revisionBasis: 'Supersedes v2 after cloud and Sense review found a generic symmetric soap-bar shell; authors the D78461 thick right cheek asymmetrically and tightens bustle and front-face support.',
   },
   provenance,
   views,
@@ -245,7 +249,7 @@ const script = [
   "foundry.validation.productionBudget(" + JSON.stringify(productionBudget) + ");",
   "foundry.material.create('cast-steel',{baseColor:[0.34,0.37,0.34,1],metallic:0.15,roughness:0.82});",
   "const controlPoints = " + JSON.stringify(controlPoints) + ";",
-  "foundry.scene.createSubdivisionCage('d78461-cage',{base:'box',segments:[5,3,4],size:[2.7,1.4,2.2],symmetry:{axis:'z'},controlPoints});",
+  "foundry.scene.createSubdivisionCage('d78461-cage',{base:'box',segments:[5,3,4],size:[2.7,1.4,2.2],controlPoints});",
   "foundry.mesh.subdivide('d78461-cage'," + JSON.stringify(subdivisionSpec) + ");",
   "foundry.scene.createCylinder('ring-cavity'," + JSON.stringify(ringCylinder) + ");",
   "foundry.mesh.boolean('d78461-casting-shell','ring-cavity','subtract','d78461-ring-open'," + JSON.stringify(ringBoolean) + ");",
@@ -269,7 +273,7 @@ const packet = {
   createdAt: '2026-07-29',
   currentUserCommand: 'Repair Foundry with a first-class model-sheet workflow and prove it on the bare D78461 turret casting before generating another candidate.',
   forbiddenStalePremise: ['Blender generation', 'ring or section loft as acceptance', 'generic perspective views as model-sheet proof', 'full tank or accessorized turret candidate'],
-  predecessorProof: {jobId: 'd5c7cbb98e53a3a5f62ff8d27e2674fbbf81ebea', publicationId: '6f9fe1018260e45a9d0bd21c4ce1565fcf9446ae', reviewRequestId: 'd78461-review-revision-6d5001f5', verdict: 'revision_requested', promotionAllowed: false},
+  predecessorProof: {jobId: '2be44b6238b8be73c86bf99836ac5b7b85663f67', publicationId: 'e7fc927403dcfac94089bc8bebe89ea3928bcfd7', reviewRequestId: 'd78461-review-revision-4a4d2337', verdict: 'revision_requested', promotionAllowed: false},
   sourceAssets: Object.fromEntries(Object.entries(views).map(([name, view]) => [name, view.imageLocal])),
   script: {
     path: 'd78461-bare-casting.foundry.js',
@@ -277,7 +281,7 @@ const packet = {
     byteLength: Buffer.byteLength(script + '\n'),
     version: 'foundry-js.v1',
   },
-  cage: {base: 'box', segments: [5, 3, 4], authoredControlPoints: controlPoints.length, totalControlVertices: 96, subdivisionLevels: 2, expectedTrianglesBeforeBooleans: 3008, fitting: 'coordinate-descent fit against the locked front, side, and top contours; no plane averaging'},
+  cage: {base: 'box', segments: [5, 3, 4], authoredControlPoints: controlPoints.length, totalControlVertices: 96, subdivisionLevels: 2, expectedTrianglesBeforeBooleans: 3008, fitting: 'coordinate-descent fit against the locked front, side, and top contours with independently authored right-cheek controls; no plane averaging'},
   acceptance: {
     requiredRegisteredViews: ['front', 'side', 'top'],
     thresholds: {minIou: 0.92, maxP95BoundaryErrorRingFraction: 0.02, maxLandmarkErrorRingFraction: 0.01},
