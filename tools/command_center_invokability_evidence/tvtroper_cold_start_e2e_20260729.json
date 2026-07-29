@@ -1,0 +1,59 @@
+{
+  "ok": true,
+  "lane": "deployed-home-center-mcp-to-private-cloud-run-to-bigquery-search-index",
+  "mcp_url": "https://us-central1-home-center-dclar.cloudfunctions.net/homeCenterMcp/mcp",
+  "home_center_revision": "homecentermcp-00176-kax",
+  "started_at": "2026-07-29T13:55:24.156Z",
+  "completed_at": "2026-07-29T13:55:29.848Z",
+  "tool_count": 58,
+  "preserved_tools": [
+    "readiness",
+    "storage_ingest_artifact",
+    "drive_ingest_file"
+  ],
+  "gcs_only": true,
+  "cold_process": {
+    "boot_id": "42c40afa-aab2-4a5e-a4fb-c1c07959f843",
+    "booted_at": "2026-07-29T13:55:26.491Z",
+    "service": "tvtroper-retrieval"
+  },
+  "search": {
+    "query": "Deal with the Devil",
+    "count": 8,
+    "record_id": "e6b9b194c987da1ad90f9c18b22d9f72",
+    "title": "Deal with the Devil",
+    "source_url": "https://tvtropes.org/pmwiki/pmwiki.php/Main/DealWithTheDevil",
+    "zip_entry": "pages/ns_Main_scraped.jsonl",
+    "line_number": 9120,
+    "request_id": "77d525063bdc33a1c174c41736e4e30a"
+  },
+  "fetch": {
+    "record_id": "e6b9b194c987da1ad90f9c18b22d9f72",
+    "source_url": "https://tvtropes.org/pmwiki/pmwiki.php/Main/DealWithTheDevil",
+    "html_bytes": 225435,
+    "html_sha256": "452580a9b9d1daa491108d07e9ff5d38fa75de6a980a982b7e14de0cbc756eea",
+    "request_id": "0ad4b458228d1903c174c41736e4e984",
+    "provenance": {
+      "archive": "gs://home-center-dclar-hyperbolic-corpus/source/huggingface.co/datasets/RyokoExtra/TvTroper/resolve/main/pages.zip",
+      "archive_generation": "1785329930364030",
+      "zip_entry": "pages/ns_Main_scraped.jsonl",
+      "line_number": 9120,
+      "crc32": "a8943cd8",
+      "full_record_store": "BigQuery loaded from GCS index/v2 shards"
+    }
+  },
+  "cloud_run_log_proof": {
+    "revision": "tvtroper-retrieval-00004-g4b",
+    "scaling_reason": "AUTOSCALING",
+    "instance_start_timestamp": "2026-07-29T13:55:26.027179Z",
+    "service_started_timestamp": "2026-07-29T13:55:26.517855Z",
+    "boot_id": "42c40afa-aab2-4a5e-a4fb-c1c07959f843"
+  },
+  "bigquery_search_proof": {
+    "job_id": "job_q1cDJCMLirXxVN8y3-JR8vGXbE2u",
+    "index_usage_mode": "FULLY_USED",
+    "index_name": "tvtroper_text_search",
+    "coverage_percentage": 100,
+    "unindexed_row_count": 0
+  }
+}

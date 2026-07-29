@@ -1,0 +1,18 @@
+{
+  "ok": true,
+  "updated_after_cold_start_evidence": true,
+  "cold_boot_id": "42c40afa-aab2-4a5e-a4fb-c1c07959f843",
+  "scratch_object_id": "skill_hyperbolic_tvtroper_gcs_retrieval_v1_scratch",
+  "promoted_object_id": "bucket_ac6d4f5dee5dc8cb00928e86f0e05794",
+  "promoted_path": "skills/promoted/hyperbolic/tvtroper-gcs-retrieval-v1.md",
+  "promotion_state": "promoted",
+  "evidence_refs": [
+    "gcs://home-center-dclar-hyperbolic-corpus/source/huggingface.co/datasets/RyokoExtra/TvTroper/resolve/main/pages.zip#1785329930364030",
+    "bq://home-center-dclar/hyperbolic_corpus/tvtroper_records#tvtroper_text_search-coverage-100",
+    "cloud-run://home-center-dclar/us-central1/tvtroper-retrieval/revisions/tvtroper-retrieval-00004-g4b#boot-42c40afa-aab2-4a5e-a4fb-c1c07959f843",
+    "mcp://homeCenterMcp/revisions/homecentermcp-00176-kax/tools/tvtroper_operation",
+    "repo://Valar05/home-center/tools/command_center_invokability_evidence/tvtroper_cold_start_e2e_20260729.json"
+  ],
+  "verified_at": "2026-07-29T13:56:42.647Z",
+  "evidence_refs_deduplicated_at": "2026-07-29T13:58:36.053Z"
+}

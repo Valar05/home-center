@@ -72,6 +72,8 @@ const MCP_COMPAT_RESOURCE_METADATA = `${MCP_PUBLIC_BASE}/oauth-protected-resourc
 const MCP_AUTHORIZATION_SERVER_METADATA = `${MCP_PUBLIC_BASE}/.well-known/oauth-authorization-server`;
 const MCP_GOOGLE_CALLBACK = process.env.HOME_CENTER_MCP_GOOGLE_CALLBACK || `${MCP_PUBLIC_BASE}/oauth/google-callback`;
 const COMMAND_CENTER_MCP_URL = process.env.COMMAND_CENTER_MCP_URL || 'https://us-central1-home-center-dclar.cloudfunctions.net/commandCenterMcp/mcp';
+const TVTROPER_RETRIEVAL_URL = process.env.TVTROPER_RETRIEVAL_URL || '';
+const TVTROPER_OPERATION_REGISTRY_VERSION = 'tvtroper-gcs-retrieval-v1';
 const HOME_CENTER_GENERATED_ARTIFACT_BUCKET = process.env.GENERATED_ARTIFACT_BUCKET || process.env.HOME_CENTER_ARTIFACT_BUCKET || 'home-center-generated';
 const HOME_CENTER_DRIVE_INGEST_MAX_BYTES = Number(process.env.HOME_CENTER_DRIVE_INGEST_MAX_BYTES || 256 * 1024 * 1024);
 const MCP_REQUIRED_SCOPES = [
@@ -3889,13 +3891,31 @@ function runDroobiedooContextOperation(operation, args = {}) {
   throw Object.assign(new Error('Unsupported Droobiedoo context operation: ' + operation), {status: 400});
 }
 
+function tvtroperOperationEntries() {
+  return {
+    tvtroper_operation: {
+      summary: 'Search the deployed GCS-backed RyokoExtra/TvTroper corpus or fetch one exact full record through the stable drive_operation dispatcher.',
+      write: false,
+      requiresRequestId: false,
+      input: {operation: 'status|search|get', args: 'search: {query, limit?}; get: {record_id returned by search}'},
+      output: {operation: 'status|search|get', registryVersion: TVTROPER_OPERATION_REGISTRY_VERSION, gcsOnly: true, result: 'provider health, search results, or exact full HTML record with archive provenance'},
+      agentRecipe: {
+        whenUserSays: 'Search TV Tropes or read a complete TVTroper corpus record.',
+        prefer: 'Call drive_operation with operation=tvtroper_operation and nested args.operation=search, then call it again with nested args.operation=get and the exact returned record_id.',
+        verification: 'A search snippet is not record-level proof. Fetch the exact returned record_id and verify the full HTML and archive provenance.',
+      },
+    },
+  };
+}
+
 function driveOperationRegistry() {
   return {
-    version: '2026-07-28.gcs-filesystem-v1',
+    version: '2026-07-29.tvtroper-dispatcher-v1',
     invocationTool: 'drive_operation',
     cachePolicy: 'New bridge and simulation operations should be invokable through drive_operation so ChatGPT does not need a top-level MCP tool refresh for every backend code change. Cartesia TTS is a direct Home Center MCP provider operation; it must not be routed through Command Center jobs or workers.',
     operations: {
       ...artifactOperationEntries(),
+      ...tvtroperOperationEntries(),
       ...foundryOperationEntries(),
       ...filesystemOperationEntries(),
       'artifact.delivery.materialize_receipt': {
@@ -4727,11 +4747,34 @@ async function artifactTransportStatusOperation({admin, user, args = {}}) {
   return data.receipt;
 }
 
+async function tvTroperRetrievalOperation({google, args = {}}) {
+  const operation = safeText(args.operation, 80);
+  const operationArgs = safeObject(args.args);
+  const entries = {status: {method: 'GET', path: '/health'}, search: {method: 'POST', path: '/search'}, get: {method: 'POST', path: '/get'}};
+  const entry = entries[operation];
+  if (!entry) throw Object.assign(new Error('tvtroper operation must be one of: status, search, get.'), {status: 400});
+  if (!TVTROPER_RETRIEVAL_URL) throw Object.assign(new Error('TVTROPER_RETRIEVAL_URL is not configured.'), {status: 503});
+  const auth = new google.auth.GoogleAuth();
+  const client = await auth.getIdTokenClient(TVTROPER_RETRIEVAL_URL);
+  try {
+    const response = await client.request({url: TVTROPER_RETRIEVAL_URL + entry.path, method: entry.method, data: entry.method === 'POST' ? operationArgs : undefined, timeout: 120000});
+    return {operation, registryVersion: TVTROPER_OPERATION_REGISTRY_VERSION, gcsOnly: true, result: response.data};
+  } catch (err) {
+    const status = safeNumber(err && err.response && err.response.status, 0) || safeNumber(err && err.code, 0) || 502;
+    const providerMessage = safeText(err && err.response && err.response.data && (err.response.data.error || err.response.data.message), 500) || safeText(err.message || String(err), 500);
+    throw Object.assign(new Error('TvTroper retrieval failed: ' + providerMessage), {status});
+  }
+}
+
 async function driveOperationRunOperation({google, admin, auth, user, extra = null, googleClientId = '', googleClientSecret = '', githubToken = () => '', githubAdmin = {}, cartesiaApiKey = () => '', args = {}}) {
   const operation = safeText(args.operation || args.type || args.toolName, 120);
   if (!operation) throw Object.assign(new Error('operation is required.'), {status: 400});
   const registry = driveOperationRegistry();
   if (!registry.operations[operation]) throw Object.assign(new Error('Unsupported drive_operation operation: ' + operation), {status: 400});
+  if (tvtroperOperationEntries()[operation]) {
+    const result = await tvTroperRetrievalOperation({google, args: safeObject(args.args)});
+    return {operation, registryVersion: registry.version, completed: true, result};
+  }
   const operationArgs = args.args && typeof args.args === 'object' && !Array.isArray(args.args) ? args.args : {...args};
   delete operationArgs.operation;
   delete operationArgs.type;
@@ -6796,4 +6839,4 @@ function createHomeCenterMcpApp({google, admin, googleClientId = () => '', googl
   return app;
 }
 
-module.exports = {resolveOAuthGrant, GROUNDED_MOTION_MCP_RESOURCE, GROUNDED_MOTION_MCP_SCOPE, linkArtifactReviewSuccessorOperation, recordArtifactReviewOperation, materializeReceiptArtifactsOperation, artifactTransportPreflightOperation, homeCenterReleaseIdentity, artifactTransportStatusOperation, homeCenterHealthPayload, homeCenterReadinessPayload, homeCenterCapabilitiesPayload, operationRegistrySummary, CREDIT_GATED_EMAILS, requireCreditGatedEmail, GITHUB_ADMIN_ALLOWED_EMAILS, requireGitHubAdminUser, HOME_CENTER_MCP_SERVER_VERSION, HOME_CENTER_CONNECTOR_SCHEMA_REVISION, HOME_CENTER_REGISTRY_VERSION, HOME_CENTER_DIRECT_FILE_TOOLS, driveOperationRegistry, uploadVerifiedArtifact, createHomeCenterMcpApp, createHomeCenterMcpServer, createDriveFolderOperation, createGoogleDocOperation, appendGoogleDocOperation, publishContextSnapshotOperation, synthesizeCartesiaAudioArtifactOperation, cartesiaVoicesOperation, createSheetOperation, updateSheetValuesOperation, importXlsxWorkbookOperation, readDriveBinaryChunkOperation, compareAudioIngestFileIds, ingestDriveAudioOperation, finalizeDriveAudioIngestBatchOperation, driveOperationRunOperation, driveWorkflowRunOperation, simulationOperationRunOperation, simulationOperationRegistry, droobiedooContextOperationEntries, loadDroobiedooContextIndex, searchDroobiedooContextIndex, runDroobiedooContextOperation, normalizeRecoveryOperation, summarizeRecoveryOperations, loadMcpAccessContext, armoryReceiptOperation, armoryRecountOperation, armoryCasingOperation, renderAudioOperation, inspectAudioArtifactsOperation, githubAdminOperationEntries, githubAdminOperationRunOperation, createGitHubAppJwt};
+module.exports = {TVTROPER_OPERATION_REGISTRY_VERSION, tvtroperOperationEntries, tvTroperRetrievalOperation, resolveOAuthGrant, GROUNDED_MOTION_MCP_RESOURCE, GROUNDED_MOTION_MCP_SCOPE, linkArtifactReviewSuccessorOperation, recordArtifactReviewOperation, materializeReceiptArtifactsOperation, artifactTransportPreflightOperation, homeCenterReleaseIdentity, artifactTransportStatusOperation, homeCenterHealthPayload, homeCenterReadinessPayload, homeCenterCapabilitiesPayload, operationRegistrySummary, CREDIT_GATED_EMAILS, requireCreditGatedEmail, GITHUB_ADMIN_ALLOWED_EMAILS, requireGitHubAdminUser, HOME_CENTER_MCP_SERVER_VERSION, HOME_CENTER_CONNECTOR_SCHEMA_REVISION, HOME_CENTER_REGISTRY_VERSION, HOME_CENTER_DIRECT_FILE_TOOLS, driveOperationRegistry, uploadVerifiedArtifact, createHomeCenterMcpApp, createHomeCenterMcpServer, createDriveFolderOperation, createGoogleDocOperation, appendGoogleDocOperation, publishContextSnapshotOperation, synthesizeCartesiaAudioArtifactOperation, cartesiaVoicesOperation, createSheetOperation, updateSheetValuesOperation, importXlsxWorkbookOperation, readDriveBinaryChunkOperation, compareAudioIngestFileIds, ingestDriveAudioOperation, finalizeDriveAudioIngestBatchOperation, driveOperationRunOperation, driveWorkflowRunOperation, simulationOperationRunOperation, simulationOperationRegistry, droobiedooContextOperationEntries, loadDroobiedooContextIndex, searchDroobiedooContextIndex, runDroobiedooContextOperation, normalizeRecoveryOperation, summarizeRecoveryOperations, loadMcpAccessContext, armoryReceiptOperation, armoryRecountOperation, armoryCasingOperation, renderAudioOperation, inspectAudioArtifactsOperation, githubAdminOperationEntries, githubAdminOperationRunOperation, createGitHubAppJwt};
