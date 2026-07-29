@@ -49,6 +49,19 @@ const source = await uploadGeneratedArtifact({
   prefix: 'audio/drew/sfx-armory/sources',
 });
 
+const nonAudioPrefixSource = await uploadGeneratedArtifact({
+  bytes: sourceBytes,
+  name: 'fixture-ingress-heavy-bag-source.wav',
+  mimeType: 'audio/wav',
+  owner: 'drew',
+  ownerEmail: 'dclarke1005@gmail.com',
+  project: 'sfx-armory',
+  stage: 'sources',
+  artifactType: 'audio',
+  requestId: 'sfx-fixture-ingress-source',
+  prefix: 'rotoscoping/drew/sfx-source/fixture-ingress',
+});
+
 const audits = new Map();
 const helpers = {
   createRequestId(value) {
@@ -136,6 +149,41 @@ assert.ok(analyzed.transientAnalysis.candidates.length >= 2);
 assert.ok(analyzed.artifacts.every((artifact) => artifact.verified && artifact.sha256 === artifact.readbackSha256));
 assert.equal(analyzed.noCommandCenter, true);
 assert.equal(analyzed.noCodexWorker, true);
+
+const analyzedIngressSource = await analyzeSourceOperation({
+  admin: {},
+  user,
+  helpers,
+  args: {
+    sourceRef: nonAudioPrefixSource.storageRef,
+    expectedSha256: nonAudioPrefixSource.sha256,
+    requestId: 'sfx-forge-analyze-ingress-prefix-contract',
+    approved: true,
+    owner: 'drew',
+    ownerEmail: user.email,
+    family: 'ambient-ingress',
+    transcription: {enabled: false},
+  },
+});
+assert.equal(analyzedIngressSource.ok, true);
+assert.equal(analyzedIngressSource.source.sha256, nonAudioPrefixSource.sha256);
+assert.equal(analyzedIngressSource.canonicalSourceReplaced, false);
+
+await assert.rejects(
+  () => analyzeSourceOperation({
+    admin: {},
+    user,
+    helpers,
+    args: {
+      sourceRef: 'gs://foreign-generated/audio/fixture.wav',
+      expectedSha256: source.sha256,
+      requestId: 'sfx-forge-reject-foreign-bucket-contract',
+      approved: true,
+      transcription: {enabled: false},
+    },
+  }),
+  /canonical generated bucket/,
+);
 
 await assert.rejects(
   () => analyzeSourceOperation({
