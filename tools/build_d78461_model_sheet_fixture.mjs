@@ -8,7 +8,7 @@ import {createSubdivisionCage, subdivideCage} from '../functions/foundry_model_s
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const require = createRequire(path.join(root, 'functions/package.json'));
 const {PNG} = require('pngjs');
-const outputDir = path.join(root, 'docs', 'evidence', 'd78461-model-sheet-v7');
+const outputDir = path.join(root, 'docs', 'evidence', 'd78461-model-sheet-v8');
 fs.mkdirSync(outputDir, {recursive: true});
 
 const width = 640;
@@ -44,16 +44,16 @@ const frames = {
 
 const desiredWorld = {
   front: [
-    [-0.67, -0.47], [-0.78, -0.43], [-0.96, -0.25], [-1.06, 0], [-1.10, 0.30], [-1.05, 0.48], [-0.98, 0.60], [-0.885, 0.70], [-0.67, 0.81],
-    [0, 0.83], [0.68, 0.81], [0.92, 0.71], [1.05, 0.60], [1.14, 0.46], [1.18, 0.25], [1.17, 0.08], [1.12, 0], [1.04, -0.25], [0.82, -0.43], [0.68, -0.47],
+    [-0.67, -0.50], [-0.78, -0.46], [-0.97, -0.27], [-1.08, 0], [-1.115, 0.30], [-1.065, 0.48], [-0.99, 0.60], [-0.89, 0.72], [-0.67, 0.85],
+    [0, 0.86], [0.68, 0.85], [0.92, 0.72], [1.02, 0.60], [1.11, 0.46], [1.14, 0.25], [1.13, 0.08], [1.10, 0], [1.01, -0.25], [0.80, -0.46], [0.68, -0.50],
   ],
   side: [
     [-1.30, -0.10], [-1.34, 0.06], [-1.34, 0.55], [-1.28, 0.72], [-1.16, 0.82], [-0.90, 0.86], [-0.48, 0.86], [-0.12, 0.82],
     [0.30, 0.73], [0.64, 0.59], [0.86, 0.48], [1.04, 0.36], [1.14, 0.21], [1.17, 0.02], [1.16, -0.20], [1.06, -0.31], [0.80, -0.40], [0.40, -0.47], [0, -0.50], [-0.40, -0.47], [-0.76, -0.40], [-1.06, -0.28], [-1.22, -0.18],
   ],
   top: [
-    [-0.72, -1.34], [-0.96, -1.20], [-1.08, -0.82], [-1.10, -0.30], [-1.08, 0.12], [-1.10, 0.55], [-1.00, 0.82], [-0.80, 1.06], [-0.62, 1.16],
-    [0.52, 1.16], [0.82, 0.82], [0.98, 0.55], [1.08, 0.12], [1.10, -0.30], [1.08, -0.82], [0.96, -1.20], [0.72, -1.34],
+    [-0.72, -1.34], [-0.94, -1.20], [-1.10, -0.82], [-1.14, -0.30], [-1.12, 0.12], [-1.07, 0.55], [-0.98, 0.82], [-0.80, 1.06], [-0.62, 1.16],
+    [0.52, 1.16], [0.80, 0.82], [0.95, 0.55], [1.05, 0.12], [1.10, -0.30], [1.08, -0.82], [0.94, -1.20], [0.72, -1.34],
   ],
 };
 
@@ -258,7 +258,7 @@ for (const viewName of ['front', 'side', 'top']) {
 
 const modelSheet = {
   contractVersion: 'home-center.foundry-model-sheet.v1',
-  id: 'd78461-bare-casting-v7',
+  id: 'd78461-bare-casting-v8',
   units: 'm',
   axisFrame: {forward: [1, 0, 0], up: [0, 1, 0], left: [0, 0, 1]},
   scaleAnchor,
@@ -268,7 +268,7 @@ const modelSheet = {
     included: ['one connected cast shell', '69-inch ring opening', 'wide gun-mount aperture', 'commander opening', 'loader opening', 'left pistol-port opening', 'smoke-ejector opening'],
     excluded: ['mantlet', 'barrel', 'cupola', 'hatch covers', 'lifting eyes', 'fittings', 'textures', 'tank hull'],
     confidence: 'reference-constrained reconstruction; not a ballistic-thickness claim',
-    revisionBasis: 'Supersedes v6 after the exaggerated cheek lobe was rejected as a reference-authority error; normalizes the D78461 cheek as a continuous asymmetric casting transition, retains the high bustle and casting apertures, and fits the bounded cage with the production Catmull-Clark kernel.',
+    revisionBasis: 'Supersedes v7 after its registered cloud overlays exposed cross-plane calibration conflicts. Front height now agrees with the passing side envelope, and top sections agree with the front asymmetric cheek envelope before the bounded cage is refit with the production Catmull-Clark kernel.',
   },
   provenance,
   views,
