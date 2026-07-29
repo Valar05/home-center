@@ -28,7 +28,7 @@ Required input:
 
 ```json
 {
-  "sourceRef": "gs://home-center-generated/audio/.../Track-31.m4a",
+  "sourceRef": "gs://home-center-generated/<immutable-audio-path>/Track-31.m4a",
   "expectedSha256": "64 lowercase hex characters",
   "requestId": "stable-idempotency-key",
   "approved": true,
@@ -37,7 +37,7 @@ Required input:
 }
 ```
 
-The source must already live under the canonical generated-audio bucket. The exact parent hash is mandatory. The operation:
+The source must already be an immutable object with an `audio/*` MIME type anywhere inside the canonical `home-center-generated` bucket. `audio.ingest_drive` remains the preferred intake path, but hash-verified artifact ingress paths are valid Forge parents without a Drive detour. The exact parent hash is mandatory. The operation:
 
 1. reads and hashes the immutable source;
 2. decodes a non-normalized 48 kHz stereo PCM16 working WAV;
