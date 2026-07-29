@@ -84,6 +84,7 @@ const MCP_REQUIRED_SCOPES = [
 const GROUNDED_MOTION_MCP_RESOURCE = process.env.GROUNDED_MOTION_MCP_RESOURCE || 'https://grounded-motion-mcp-220218838446.us-central1.run.app/mcp';
 const GROUNDED_MOTION_MCP_SCOPE = 'grounded-motion:vanguard-canary';
 const GROUNDED_MOTION_ALLOWED_EMAIL = 'dclarke1005@gmail.com';
+const OAUTH_OFFLINE_ACCESS_SCOPE = 'offline_access';
 const MCP_OAUTH_SECURITY_SCHEMES = [{type: 'oauth2', scopes: MCP_REQUIRED_SCOPES}];
 const OAUTH_RESOURCE_GRANTS = Object.freeze({
   [MCP_RESOURCE]: Object.freeze({
@@ -110,7 +111,8 @@ function resolveOAuthGrant(resourceValue, scopeValue) {
   }
   const requested = String(scopeValue || '').trim().split(/\s+/).filter(Boolean);
   const scopes = requested.length ? requested : [...grant.scopes];
-  if (scopes.some((scope) => !grant.scopes.includes(scope))) {
+  const allowedScopes = [...grant.scopes, OAUTH_OFFLINE_ACCESS_SCOPE];
+  if (scopes.some((scope) => !allowedScopes.includes(scope))) {
     const err = new Error('invalid_scope');
     err.status = 400;
     throw err;
@@ -1040,7 +1042,7 @@ function authorizationServerMetadata() {
     grant_types_supported: ['authorization_code', 'refresh_token'],
     code_challenge_methods_supported: ['S256'],
     token_endpoint_auth_methods_supported: ['none'],
-    scopes_supported: [...new Set([...MCP_REQUIRED_SCOPES, GROUNDED_MOTION_MCP_SCOPE])],
+    scopes_supported: [...new Set([...MCP_REQUIRED_SCOPES, GROUNDED_MOTION_MCP_SCOPE, OAUTH_OFFLINE_ACCESS_SCOPE])],
   };
 }
 
