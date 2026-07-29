@@ -130,7 +130,7 @@ const booleanResult = await runFoundryKernel({plan: booleanPlan, domain: 'hard_s
 assert.equal(booleanResult.report.validation.manifoldClosedComponents, 1, 'basic Foundry boolean is not closed');
 assert.equal(booleanResult.report.validation.nonManifoldComponents, 0, 'basic Foundry boolean is non-manifold');
 
-const proofScript = fs.readFileSync(path.join(root, 'docs/evidence/d78461-model-sheet-v3/d78461-bare-casting.foundry.js'), 'utf8');
+const proofScript = fs.readFileSync(path.join(root, 'docs/evidence/d78461-model-sheet-v4/d78461-bare-casting.foundry.js'), 'utf8');
 const proofPlan = await executeFoundryScript({version: 'foundry-js.v1', text: proofScript, seed: 78461});
 const proof = await runFoundryKernel({plan: proofPlan, domain: 'hard_surface', modelSheet: {contractVersion: FOUNDRY_MODEL_SHEET_VERSION}});
 assert.equal(proof.report.componentCount, 1);

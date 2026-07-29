@@ -7,7 +7,7 @@ import {createRequire} from 'node:module';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const require = createRequire(path.join(root, 'functions/package.json'));
 const {PNG} = require('pngjs');
-const outputDir = path.join(root, 'docs', 'evidence', 'd78461-model-sheet-v3');
+const outputDir = path.join(root, 'docs', 'evidence', 'd78461-model-sheet-v4');
 fs.mkdirSync(outputDir, {recursive: true});
 
 const width = 640;
@@ -43,16 +43,16 @@ const frames = {
 
 const desiredWorld = {
   front: [
-    [-0.67, -0.47], [-0.78, -0.43], [-0.96, -0.25], [-1.06, 0], [-1.095, 0.16], [-1.10, 0.30], [-1.05, 0.48], [-0.98, 0.60], [-0.885, 0.70], [-0.67, 0.81],
-    [0, 0.83], [0.68, 0.81], [0.90, 0.70], [1.00, 0.60], [1.08, 0.48], [1.13, 0.30], [1.13, 0.16], [1.10, 0], [1.01, -0.25], [0.81, -0.43], [0.68, -0.47],
+    [-0.67, -0.47], [-0.80, -0.43], [-0.98, -0.24], [-1.07, 0.02], [-1.10, 0.30], [-1.04, 0.52], [-0.90, 0.72], [-0.67, 0.82],
+    [0.68, 0.82], [0.98, 0.75], [1.18, 0.62], [1.28, 0.48], [1.32, 0.28], [1.30, 0.05], [1.20, -0.20], [0.92, -0.43], [0.70, -0.47],
   ],
   side: [
-    [-1.30, -0.10], [-1.34, 0.06], [-1.34, 0.49], [-1.30, 0.645], [-1.20, 0.75], [-1.10, 0.80], [-0.95, 0.827], [-0.70, 0.836], [-0.40, 0.827], [0, 0.782],
-    [0.40, 0.69], [0.65, 0.605], [0.80, 0.541], [0.98, 0.441], [1.10, 0.336], [1.15, 0.15], [1.12, -0.10], [1.10, -0.227], [0.98, -0.318], [0.80, -0.386], [0.65, -0.418], [0.40, -0.455], [0, -0.477], [-0.40, -0.468], [-0.70, -0.427], [-0.95, -0.355], [-1.10, -0.286], [-1.20, -0.223],
+    [-1.30, -0.10], [-1.34, 0.06], [-1.34, 0.55], [-1.28, 0.72], [-1.16, 0.82], [-0.90, 0.86], [-0.48, 0.86], [-0.12, 0.82],
+    [0.30, 0.73], [0.64, 0.59], [0.86, 0.48], [1.04, 0.36], [1.14, 0.21], [1.17, 0.02], [1.16, -0.20], [1.06, -0.31], [0.80, -0.40], [0.40, -0.47], [0, -0.50], [-0.40, -0.47], [-0.76, -0.40], [-1.06, -0.28], [-1.22, -0.18],
   ],
   top: [
-    [-0.72, -1.34], [-0.96, -1.20], [-1.08, -0.82], [-1.10, -0.30], [-1.08, 0.12], [-1.02, 0.68], [-0.76, 1.02], [-0.55, 1.16],
-    [0.52, 1.16], [0.86, 0.68], [1.08, 0.12], [1.10, -0.30], [1.08, -0.82], [0.96, -1.20], [0.72, -1.34],
+    [-0.74, -1.34], [-0.98, -1.18], [-1.10, -0.76], [-1.11, -0.24], [-1.16, 0.20], [-1.28, 0.50], [-1.24, 0.75], [-1.08, 0.98], [-0.82, 1.16],
+    [0.48, 1.16], [0.76, 0.98], [0.92, 0.72], [1.02, 0.34], [1.08, -0.24], [1.06, -0.78], [0.96, -1.18], [0.74, -1.34],
   ],
 };
 
@@ -79,19 +79,19 @@ function ellipsePixels(center, radii, segments = 32) {
   return out;
 }
 const apertures = {
-  front: [ellipsePixels([0, 0.12], [0.22, 0.22])],
+  front: [ellipsePixels([0.08, 0.10], [0.34, 0.27])],
   side: [ellipsePixels([-0.45, 0.15], [0.16, 0.16])],
-  top: [ellipsePixels([0.34, -0.43], [0.27, 0.27]), ellipsePixels([-0.38, 0.21], [0.23, 0.23])],
+  top: [ellipsePixels([0.34, -0.43], [0.27, 0.27]), ellipsePixels([-0.38, 0.21], [0.23, 0.23]), ellipsePixels([-0.20, -0.72], [0.10, 0.10])],
 };
 
-const xValues = [-1.34, -1.16, -0.70, 0.12, 0.92, 1.16];
-const bottoms = [-0.10, -0.28, -0.47, -0.50, -0.40, -0.20];
-const roofs = [0.62, 0.82, 0.85, 0.80, 0.52, 0.30];
-const widths = [0.74, 1.02, 1.10, 1.08, 0.78, 0.54];
+const xValues = [-1.34, -1.18, -0.72, 0.05, 0.88, 1.16];
+const bottoms = [-0.10, -0.27, -0.47, -0.51, -0.38, -0.20];
+const roofs = [0.68, 0.84, 0.86, 0.82, 0.52, 0.28];
+const widths = [0.76, 1.03, 1.10, 1.10, 0.72, 0.50];
 const yFractions = [0, 0.34, 0.72, 1];
 const widthByLevel = [0.78, 1.0, 1.04, 0.72];
-const rightCheekByStation = [0, 0, 0.015, 0.055, 0.16, 0.045];
-const rightCheekByLevel = [0.45, 1, 1, 0.55];
+const rightCheekByStation = [0, 0, 0.03, 0.10, 0.30, 0.05];
+const rightCheekByLevel = [0.40, 1, 1, 0.65];
 const controlPoints = [];
 for (let i = 0; i <= 5; i++) for (let j = 0; j <= 3; j++) for (let k = 0; k <= 4; k++) {
   if (!(i === 0 || i === 5 || j === 0 || j === 3 || k === 0 || k === 4)) continue;
@@ -188,17 +188,17 @@ for (const viewName of ['front', 'side', 'top']) {
 
 const modelSheet = {
   contractVersion: 'home-center.foundry-model-sheet.v1',
-  id: 'd78461-bare-casting-v3',
+  id: 'd78461-bare-casting-v4',
   units: 'm',
   axisFrame: {forward: [1, 0, 0], up: [0, 1, 0], left: [0, 0, 1]},
   scaleAnchor,
   authority: {
     scope: 'manufacturing_casting',
     exactIdentity: 'D78461 high-bustle 75-mm wet-stowage turret casting',
-    included: ['one connected cast shell', '69-inch ring opening', 'gun aperture', 'commander opening', 'loader opening', 'left pistol-port opening'],
+    included: ['one connected cast shell', '69-inch ring opening', 'wide gun-mount aperture', 'commander opening', 'loader opening', 'left pistol-port opening', 'smoke-ejector opening'],
     excluded: ['mantlet', 'barrel', 'cupola', 'hatch covers', 'lifting eyes', 'fittings', 'textures', 'tank hull'],
     confidence: 'reference-constrained reconstruction; not a ballistic-thickness claim',
-    revisionBasis: 'Supersedes v2 after cloud and Sense review found a generic symmetric soap-bar shell; authors the D78461 thick right cheek asymmetrically and tightens bustle and front-face support.',
+    revisionBasis: 'Supersedes v3 after cloud review found the correct asymmetry numerically present but visually too weak; adds a dedicated front support station, a decisive right-front cheek mass, a flatter mantlet face transition, a high-bustle shoulder, and the smoke-ejector casting opening.',
   },
   provenance,
   views,
@@ -234,15 +234,17 @@ const booleanSpec = (rationale) => topologySpec({}, {
   purpose: 'mechanical_interface', rationale, maxOutputVertices: 6000, maxOutputTriangles: 6000, maxGrowthRatio: 20,
 });
 const ringCylinder = cylinder({radius: 0.8763, depth: 0.72, segments: 64, translation: [0, -0.25, 0], rotation: [0, 0, 0.7071067811865476, 0.7071067811865476]}, 64, 'The 64-sample ring tool establishes the calibrated 69-inch turret-ring interface.');
-const gunCylinder = cylinder({radius: 0.22, depth: 0.55, segments: 48, translation: [1.04, 0.12, 0]}, 48, 'The gun opening sampling preserves its registered front-view mechanical rim.');
+const gunCylinder = cylinder({radius: 0.22, depth: 0.72, segments: 48, translation: [1.08, 0.10, -0.08], scale: [1, 1.23, 1.55]}, 48, 'The gun opening sampling preserves its registered front-view mechanical rim.');
 const commanderCylinder = cylinder({radius: 0.27, depth: 0.38, segments: 48, translation: [-0.43, 0.67, 0.34], rotation: [0, 0, 0.7071067811865476, 0.7071067811865476]}, 48, 'The commander opening sampling preserves its registered top-view mechanical rim.');
 const loaderCylinder = cylinder({radius: 0.23, depth: 0.38, segments: 48, translation: [0.21, 0.64, -0.38], rotation: [0, 0, 0.7071067811865476, 0.7071067811865476]}, 48, 'The loader opening sampling preserves its registered top-view mechanical rim.');
 const pistolCylinder = cylinder({radius: 0.16, depth: 0.80, segments: 40, translation: [-0.45, 0.15, 0.96], rotation: [0, 0.7071067811865476, 0, 0.7071067811865476]}, 40, 'The pistol-port sampling preserves its registered left-side mechanical rim.');
+const smokeCylinder = cylinder({radius: 0.10, depth: 0.34, segments: 32, translation: [-0.72, 0.76, -0.20], rotation: [0, 0, 0.7071067811865476, 0.7071067811865476]}, 32, 'The smoke-ejector opening is an identifying D78461 roof interface.');
 const ringBoolean = booleanSpec('The subtraction boundary creates the required 69-inch ring interface.');
 const gunBoolean = booleanSpec('The subtraction boundary creates the required gun opening.');
 const commanderBoolean = booleanSpec('The subtraction boundary creates the required commander opening.');
 const loaderBoolean = booleanSpec('The subtraction boundary creates the required loader opening.');
 const pistolBoolean = booleanSpec('The subtraction boundary creates the required left pistol-port opening.');
+const smokeBoolean = booleanSpec('The subtraction boundary creates the D78461 smoke-ejector opening.');
 
 const script = [
   "foundry.note('D78461 manufacturing casting only',{excluded:['mantlet','barrel','cupola','hatch covers','lifting eyes','fittings','textures','tank hull']});",
@@ -260,7 +262,9 @@ const script = [
   "foundry.scene.createCylinder('loader-opening'," + JSON.stringify(loaderCylinder) + ");",
   "foundry.mesh.boolean('d78461-commander-open','loader-opening','subtract','d78461-loader-open'," + JSON.stringify(loaderBoolean) + ");",
   "foundry.scene.createCylinder('pistol-port-opening'," + JSON.stringify(pistolCylinder) + ");",
-  "foundry.mesh.boolean('d78461-loader-open','pistol-port-opening','subtract','D78461_Bare_Casting'," + JSON.stringify(pistolBoolean) + ");",
+  "foundry.mesh.boolean('d78461-loader-open','pistol-port-opening','subtract','d78461-pistol-open'," + JSON.stringify(pistolBoolean) + ");",
+  "foundry.scene.createCylinder('smoke-ejector-opening'," + JSON.stringify(smokeCylinder) + ");",
+  "foundry.mesh.boolean('d78461-pistol-open','smoke-ejector-opening','subtract','D78461_Bare_Casting'," + JSON.stringify(smokeBoolean) + ");",
   "foundry.validation.assert('node_exists','D78461_Bare_Casting');",
   "foundry.review.modelSheet({cage:'d78461-cage',target:'D78461_Bare_Casting',views:['front','side','top']});",
   "foundry.validation.assert('model_sheet_fit',{minIou:0.92,maxP95BoundaryErrorRingFraction:0.02,maxLandmarkErrorRingFraction:0.01});",
@@ -273,7 +277,7 @@ const packet = {
   createdAt: '2026-07-29',
   currentUserCommand: 'Repair Foundry with a first-class model-sheet workflow and prove it on the bare D78461 turret casting before generating another candidate.',
   forbiddenStalePremise: ['Blender generation', 'ring or section loft as acceptance', 'generic perspective views as model-sheet proof', 'full tank or accessorized turret candidate'],
-  predecessorProof: {jobId: '2be44b6238b8be73c86bf99836ac5b7b85663f67', publicationId: 'e7fc927403dcfac94089bc8bebe89ea3928bcfd7', reviewRequestId: 'd78461-review-revision-4a4d2337', verdict: 'revision_requested', promotionAllowed: false},
+  predecessorProof: {jobId: '2c7fe49c7537a4d4b81a333d738c693c16d3d522', publicationId: 'afb0d35cd9d07db1c3aaad8247bdeaf56aabb907', resultHash: '018bb22d6eb212a85e6660bc73b4decd46f6f6c55359f3d76bfdd91f6542ddc7', verdict: 'revision_requested', promotionAllowed: false},
   sourceAssets: Object.fromEntries(Object.entries(views).map(([name, view]) => [name, view.imageLocal])),
   script: {
     path: 'd78461-bare-casting.foundry.js',
@@ -281,7 +285,7 @@ const packet = {
     byteLength: Buffer.byteLength(script + '\n'),
     version: 'foundry-js.v1',
   },
-  cage: {base: 'box', segments: [5, 3, 4], authoredControlPoints: controlPoints.length, totalControlVertices: 96, subdivisionLevels: 2, expectedTrianglesBeforeBooleans: 3008, fitting: 'coordinate-descent fit against the locked front, side, and top contours with independently authored right-cheek controls; no plane averaging'},
+  cage: {base: 'box', segments: [5, 3, 4], authoredControlPoints: controlPoints.length, totalControlVertices: 96, subdivisionLevels: 2, expectedTrianglesBeforeBooleans: 3008, fitting: 'coordinate-descent fit against the locked front, side, and top contours with independently authored right-cheek and front-support controls; no plane averaging'},
   acceptance: {
     requiredRegisteredViews: ['front', 'side', 'top'],
     thresholds: {minIou: 0.92, maxP95BoundaryErrorRingFraction: 0.02, maxLandmarkErrorRingFraction: 0.01},
