@@ -9,12 +9,12 @@ export const FOUNDRY_SCRIPT_MAX_NOTES = 100;
 
 const API = Object.freeze({
   asset: ['inspect'],
-  scene: ['createGroup', 'createBox', 'createCylinder', 'createProfileExtrusion', 'createSectionLoft', 'transform', 'rename', 'reparent', 'remove', 'instance', 'array', 'mirror', 'separate'],
-  mesh: ['recalculateNormals', 'weld', 'boolean'],
+  scene: ['createGroup', 'createBox', 'createCylinder', 'createProfileExtrusion', 'createSectionLoft', 'createSubdivisionCage', 'transform', 'rename', 'reparent', 'remove', 'instance', 'array', 'mirror', 'separate'],
+  mesh: ['recalculateNormals', 'weld', 'boolean', 'subdivide'],
   material: ['create', 'assign'],
   rig: ['addBone', 'renameBone', 'orientBone', 'reparentBone', 'attachRigid'],
   animation: ['trim', 'retime', 'setKey', 'deleteKey', 'loop', 'rootMotion'],
-  review: ['fixedViews'],
+  review: ['fixedViews', 'modelSheet'],
   validation: ['assert', 'productionBudget'],
 });
 

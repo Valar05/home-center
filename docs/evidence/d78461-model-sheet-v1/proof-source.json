@@ -1,0 +1,86 @@
+{
+  "schemaVersion": "home-center.foundry-proof-source.v1",
+  "createdAt": "2026-07-29",
+  "currentUserCommand": "Repair Foundry with a first-class model-sheet workflow and prove it on the bare D78461 turret casting before generating another candidate.",
+  "forbiddenStalePremise": [
+    "Blender generation",
+    "ring or section loft as acceptance",
+    "generic perspective views as model-sheet proof",
+    "full tank or accessorized turret candidate"
+  ],
+  "sourceAssets": {
+    "front": {
+      "path": "d78461-front.png",
+      "sha256": "5257838eb492d2cb3eba53a75539d8d8519d9d090d9f086a7e1ff28e3a0bbdc6",
+      "byteLength": 9060,
+      "mediaType": "image/png"
+    },
+    "side": {
+      "path": "d78461-side.png",
+      "sha256": "d303d5ee701244953099f2e0752b1372ba3b2c30bcc39b23fcd50721e8828e69",
+      "byteLength": 9912,
+      "mediaType": "image/png"
+    },
+    "top": {
+      "path": "d78461-top.png",
+      "sha256": "ce37656bb739a158854cfbda662c40e80d93707e9bdae71202b4ed696e6bb95a",
+      "byteLength": 11752,
+      "mediaType": "image/png"
+    }
+  },
+  "script": {
+    "path": "d78461-bare-casting.foundry.js",
+    "sha256": "dbf33c04f6cb886c5732e9f0da39528b39446068cebd063fb7bb9cdb861a543f",
+    "byteLength": 9706,
+    "version": "foundry-js.v1"
+  },
+  "cage": {
+    "base": "box",
+    "segments": [
+      4,
+      3,
+      4
+    ],
+    "authoredControlPoints": 48,
+    "totalControlVertices": 82,
+    "subdivisionLevels": 2,
+    "expectedTrianglesBeforeBooleans": 2560,
+    "fitting": "coordinate-descent fit against the locked front, side, and top contours; no plane averaging"
+  },
+  "acceptance": {
+    "requiredRegisteredViews": [
+      "front",
+      "side",
+      "top"
+    ],
+    "thresholds": {
+      "minIou": 0.92,
+      "maxP95BoundaryErrorRingFraction": 0.02,
+      "maxLandmarkErrorRingFraction": 0.01
+    },
+    "passRule": "front_and_side_and_top",
+    "successorCandidateGate": "blocked_until_registered_fit_and_cloud_sense_and_human_artifact_review_are_accepted"
+  },
+  "provenance": [
+    {
+      "title": "TM 9-759, Tank, Medium M4A3, 15 September 1944",
+      "url": "https://www.ibiblio.org/hyperwar/USA/ref/TM/pdfs/TM9-752.pdf",
+      "license": "public-domain-us-government",
+      "publisher": "United States War Department",
+      "publishedAt": "1944-09-15",
+      "pages": [
+        "6 (Figure 3)",
+        "348-349 (Turret description)"
+      ],
+      "processing": "Figure 3 and the one-piece armor-steel casting description were used as public-domain shape and feature evidence. The scanned page is not republished here; this sheet is a clean schematic normalization."
+    },
+    {
+      "title": "Development of Armored Vehicles, Volume 1",
+      "url": "https://apps.dtic.mil/sti/pdfs/AD1116719.pdf",
+      "license": "public-domain-us-government",
+      "publisher": "United States Army, Army Ground Forces Board",
+      "publishedAt": "1947",
+      "processing": "Used as public-domain historical corroboration for the M4-series development context. No source plate is republished."
+    }
+  ]
+}

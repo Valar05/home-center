@@ -20,6 +20,7 @@
     "ffmpeg-static": "^5.2.0",
     "firebase-admin": "^12.7.0",
     "firebase-functions": "^6.0.1",
+    "gl-catmull-clark": "1.0.0",
     "googleapis": "^144.0.0",
     "manifold-3d": "3.5.1",
     "meshoptimizer": "1.2.0",

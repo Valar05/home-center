@@ -4,6 +4,7 @@ import {KHRONOS_EXTENSIONS} from '@gltf-transform/extensions';
 import {Matrix4, Quaternion, Vector3} from 'three';
 import initManifold from 'manifold-3d';
 import {MeshoptDecoder, MeshoptEncoder} from 'meshoptimizer';
+import {createSubdivisionCage, subdivideCage} from './foundry_model_sheet.mjs';
 
 export const FOUNDRY_KERNEL_VERSION = 'fortress-model-foundry.v2';
 export const FOUNDRY_RUN_VERSION = 'home-center.foundry-run.v2';
@@ -182,6 +183,20 @@ function flatMeshData(vertices, faces) {
     indices.push(base, base + 1, base + 2);
   }
   return {positions: new Float32Array(positions), normals: new Float32Array(normals), indices: new Uint32Array(indices)};
+}
+function indexedMeshData(vertices, faces) {
+  const positions = new Float32Array(vertices.flat());
+  const normals = new Float32Array(positions.length);
+  const indices = new Uint32Array(faces.flat());
+  for (const face of faces) {
+    const normal = faceNormal(vertices[face[0]], vertices[face[1]], vertices[face[2]]);
+    for (const index of face) for (let component = 0; component < 3; component++) normals[index * 3 + component] += normal[component];
+  }
+  for (let index = 0; index < normals.length; index += 3) {
+    const length = Math.hypot(normals[index], normals[index + 1], normals[index + 2]) || 1;
+    normals[index] /= length; normals[index + 1] /= length; normals[index + 2] /= length;
+  }
+  return {positions, normals, indices};
 }
 function boxData(size = [1, 1, 1], bevel = 0) {
   const [sx, sy, sz] = vector(size, 3, [1, 1, 1], 'size');
@@ -401,7 +416,9 @@ async function booleanNodes(doc, targetName, toolName, mode, resultName, contrac
     if (!position || !raw) throw fail('foundry.mesh.boolean_unsupported', 'Boolean operands require indexed POSITION data.', {node: node.getName()});
     const matrix = nodeMatrix(node), point = new Vector3(), transformed = new Float32Array(position.length);
     for (let index = 0; index < position.length; index += 3) { point.set(position[index], position[index + 1], position[index + 2]).applyMatrix4(matrix); transformed.set([point.x, point.y, point.z], index); }
-    return {manifold: new module.Manifold(new module.Mesh({numProp: 3, triVerts: new Uint32Array(raw), vertProperties: transformed})), material: primitive.getMaterial()};
+    const manifoldMesh = new module.Mesh({numProp: 3, triVerts: new Uint32Array(raw), vertProperties: transformed});
+    manifoldMesh.merge();
+    return {manifold: new module.Manifold(manifoldMesh), material: primitive.getMaterial()};
   };
   const a = toManifold(target), b = toManifold(tool);
   const primitiveCounts = (node) => { const primitive = primitiveOf(node); return {vertices: primitive.getAttribute('POSITION').getArray().length / 3, triangles: primitive.getIndices().getArray().length / 3}; };
@@ -415,6 +432,7 @@ async function booleanNodes(doc, targetName, toolName, mode, resultName, contrac
     else throw fail('foundry.mesh.boolean_mode', 'Boolean mode must be union, subtract, or intersect.', {mode});
     if (result.isEmpty()) throw fail('foundry.mesh.boolean_empty', 'Boolean produced an empty result.');
     const output = result.getMesh();
+    output.merge();
     const positions = new Float32Array(output.numVert * 3);
     for (let index = 0; index < output.numVert; index++) positions.set(output.position(index), index * 3);
     const data = {positions, normals: new Float32Array(positions.length), indices: new Uint32Array(output.triVerts)};
@@ -495,16 +513,18 @@ export async function sourceDocument(sourceBytes) {
   catch (error) { throw fail('foundry.source.unsupported_glb', 'GLB could not be decoded without data loss: ' + String(error.message || error).slice(0, 600)); }
 }
 
-export async function executeFoundryPlan({doc, plan, domain = 'hard_surface'}) {
+export async function executeFoundryPlan({doc, plan, domain = 'hard_surface', modelSheet = null}) {
   if (!plan || !Array.isArray(plan.operations)) throw fail('foundry.script.invalid_plan', 'Foundry operation plan is required.');
   const before = preservationEvidence(doc), changes = [], touched = new Set(), topology = [], scene = doc.getRoot().listScenes()[0] || doc.createScene('Foundry Scene');
-  let reviewViews = [...SUPPORTED_VIEWS], productionBudget = null;
+  const cages = new Map();
+  let reviewViews = [...SUPPORTED_VIEWS], productionBudget = null, modelSheetReview = null, modelSheetFitAssertion = null;
   for (let index = 0; index < plan.operations.length; index++) {
     const entry = plan.operations[index], args = Array.isArray(entry.args) ? entry.args : [], key = entry.namespace + '.' + entry.operation;
     try {
       if (key === 'asset.inspect') { changes.push({index, operation: key, effect: 'inspection_requested'}); continue; }
       if (key === 'validation.productionBudget') { if (productionBudget) throw fail('foundry.geometry.production_budget_duplicate', 'Only one production budget may be declared.'); productionBudget = normalizeProductionBudget(args[0]); }
       else if (key === 'scene.createGroup') { const name = boundedName(args[0]); const spec = options(args[1]); const node = doc.createNode(uniqueNodeName(doc, name)); if (spec.translation) node.setTranslation(vector(spec.translation, 3, [0, 0, 0], 'translation')); if (spec.rotation) node.setRotation(vector(spec.rotation, 4, [0, 0, 0, 1], 'rotation')); if (spec.scale) node.setScale(vector(spec.scale, 3, [1, 1, 1], 'scale')); scene.addChild(node); touched.add(name); }
+      else if (key === 'scene.createSubdivisionCage') { const name = boundedName(args[0], 'cage'); if (cages.has(name)) throw fail('foundry.cage.name_conflict', 'Subdivision cage already exists: ' + name); cages.set(name, createSubdivisionCage(args[1])); touched.add(name); }
       else if (key === 'scene.createBox') {
         const name = boundedName(args[0]), spec = options(args[1]), contract = topologyContract(spec, key), data = boxData(spec.size || [1, 1, 1], spec.bevel || 0);
         topology.push({...enforceOperationBudget(contract, geometryCounts(data), null, 'preflight'), component: name});
@@ -540,6 +560,7 @@ export async function executeFoundryPlan({doc, plan, domain = 'hard_surface'}) {
       else if (key === 'mesh.recalculateNormals') { const node = nodeByName(doc, args[0]); for (const primitive of node.getMesh()?.listPrimitives() || []) recalculatePrimitiveNormals(doc, primitive, node.getName()); touched.add(node.getName()); }
       else if (key === 'mesh.weld') { const node = nodeByName(doc, args[0]), tolerance = Math.max(1e-9, Math.min(1, Number(args[1]) || 1e-6)); for (const primitive of node.getMesh()?.listPrimitives() || []) weldPrimitive(doc, primitive, tolerance); touched.add(node.getName()); }
       else if (key === 'mesh.boolean') { const result = await booleanNodes(doc, args[0], args[1], String(args[2] || 'union'), args[3] || '', args[4]); topology.push({...result.topology, component: result.node.getName()}); touched.add(result.node.getName()); }
+      else if (key === 'mesh.subdivide') { const cageName = boundedName(args[0], 'cage'), cage = cages.get(cageName); if (!cage) throw fail('foundry.cage.not_found', 'Subdivision cage not found: ' + cageName); const spec = options(args[1]), contract = topologyContract(spec, key), output = boundedName(spec.output || cageName + '-surface', 'output'), subdivision = subdivideCage(cage, spec.levels ?? 2); const data = indexedMeshData(subdivision.positions, subdivision.faces), inputCounts = {vertices: cage.positions.length, triangles: cage.faces.length * 2}; topology.push({...enforceOperationBudget(contract, geometryCounts(data), inputCounts, 'output'), component: output}); addNodeWithMesh(doc, scene, output, data, spec.material ? materialByName(doc, spec.material) : null, spec); cage.subdivision = {output, levels: subdivision.levels, triangleCount: subdivision.triangleCount}; touched.add(output); }
       else if (key === 'material.create') { const name = boundedName(args[0], 'material'), spec = options(args[1]); if (doc.getRoot().listMaterials().some((entry) => entry.getName() === name)) throw fail('foundry.material.name_conflict', 'Material already exists: ' + name); doc.createMaterial(name).setBaseColorFactor(vector(spec.baseColor, 4, [0.5, 0.5, 0.5, 1], 'baseColor')).setMetallicFactor(Math.max(0, Math.min(1, Number(spec.metallic) || 0))).setRoughnessFactor(Math.max(0, Math.min(1, Number(spec.roughness ?? 0.7)))); }
       else if (key === 'material.assign') { const node = nodeByName(doc, args[0]), material = materialByName(doc, args[1]); for (const primitive of node.getMesh()?.listPrimitives() || []) primitive.setMaterial(material); touched.add(node.getName()); }
       else if (key === 'rig.addBone') { const parent = nodeByName(doc, args[0]), name = uniqueNodeName(doc, args[1]), spec = options(args[2]), bone = doc.createNode(name).setTranslation(vector(spec.translation, 3, [0, 0, 0], 'translation')).setRotation(vector(spec.rotation, 4, [0, 0, 0, 1], 'rotation')); parent.addChild(bone); if (spec.addToSkin !== false) { const skin = doc.getRoot().listSkins().find((entry) => entry.listJoints().includes(parent)); if (!skin) throw fail('foundry.rig.skin_not_found', 'Parent bone is not part of a skin.', {parent: parent.getName()}); const old = skin.getInverseBindMatrices()?.getArray(), next = new Float32Array((skin.listJoints().length + 1) * 16); for (let matrix = 0; matrix < skin.listJoints().length + 1; matrix++) next.set([1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1], matrix * 16); if (old) next.set(old); skin.setInverseBindMatrices(accessor(doc, rootBuffer(doc), name + ':inverse-bind', Accessor.Type.MAT4, next)).addJoint(bone); } touched.add(name); }
@@ -553,8 +574,9 @@ export async function executeFoundryPlan({doc, plan, domain = 'hard_surface'}) {
       else if (key === 'animation.deleteKey') { const clip = clipByName(doc, args[0]); deleteAnimationKey(clip, String(args[1]), String(args[2]), Number(args[3])); touched.add(String(args[1])); }
       else if (key === 'animation.loop') { const clip = clipByName(doc, args[0]); for (const channel of clip.listChannels()) { const sampler = channel.getSampler(), input = sampler.getInput()?.getArray(), output = sampler.getOutput()?.getArray(); if (!input?.length || !output?.length) continue; const width = output.length / input.length; output.set(output.slice(0, width), output.length - width); } }
       else if (key === 'animation.rootMotion') { const clip = clipByName(doc, args[0]), rootName = String(args[1]), spec = options(args[2]); const channel = clip.listChannels().find((entry) => entry.getTargetNode()?.getName() === rootName && entry.getTargetPath() === 'translation'); if (!channel) throw fail('foundry.animation.root_motion_not_found', 'Root translation channel was not found.', {root: rootName}); const values = channel.getSampler().getOutput().getArray(); const offset = vector(spec.offset, 3, [0, 0, 0], 'offset'); for (let valueIndex = 0; valueIndex < values.length; valueIndex += 3) for (let axis = 0; axis < 3; axis++) values[valueIndex + axis] += offset[axis]; touched.add(rootName); }
+      else if (key === 'review.modelSheet') { if (!modelSheet) throw fail('foundry.model_sheet.required', 'review.modelSheet requires a calibrated model-sheet input.'); const spec = options(args[0]), cageName = boundedName(spec.cage, 'cage'), target = boundedName(spec.target, 'target'); if (!cages.has(cageName)) throw fail('foundry.cage.not_found', 'Review cage not found: ' + cageName); nodeByName(doc, target); const views = Array.isArray(spec.views) ? [...new Set(spec.views.map(String))] : ['front', 'side', 'top']; if (views.length !== 3 || ['front', 'side', 'top'].some((view) => !views.includes(view))) throw fail('foundry.review.invalid_model_sheet_views', 'Model-sheet review requires front, side, and top.'); modelSheetReview = {cage: cageName, target, views}; }
       else if (key === 'review.fixedViews') { const requested = Array.isArray(args[0]) ? args[0].map(String) : []; if (!requested.length || requested.some((view) => !SUPPORTED_VIEWS.includes(view))) throw fail('foundry.review.invalid_views', 'Fixed views must use supported camera names.', {supported: SUPPORTED_VIEWS}); reviewViews = [...new Set(requested)]; }
-      else if (key === 'validation.assert') { const assertion = String(args[0]), value = args[1]; if (assertion === 'node_exists') nodeByName(doc, value); else if (assertion === 'clip_exists') clipByName(doc, value); else if (assertion === 'skin_exists' && !doc.getRoot().listSkins().some((skin) => skin.getName() === value)) throw fail('foundry.validation.assertion_failed', 'Skin assertion failed: ' + value); else if (!['node_exists', 'clip_exists', 'skin_exists'].includes(assertion)) throw fail('foundry.validation.unsupported_assertion', 'Unsupported validation assertion: ' + assertion); }
+      else if (key === 'validation.assert') { const assertion = String(args[0]), value = args[1]; if (assertion === 'model_sheet_fit') { if (!modelSheetReview) throw fail('foundry.review.model_sheet_missing', 'model_sheet_fit requires review.modelSheet first.'); const spec = options(value); modelSheetFitAssertion = {minIou: Math.max(0, Math.min(1, Number(spec.minIou ?? 0.9))), maxP95BoundaryErrorRingFraction: Math.max(0, Number(spec.maxP95BoundaryErrorRingFraction ?? 0.03)), maxLandmarkErrorRingFraction: Math.max(0, Number(spec.maxLandmarkErrorRingFraction ?? 0.02))}; } else if (assertion === 'node_exists') nodeByName(doc, value); else if (assertion === 'clip_exists') clipByName(doc, value); else if (assertion === 'skin_exists' && !doc.getRoot().listSkins().some((skin) => skin.getName() === value)) throw fail('foundry.validation.assertion_failed', 'Skin assertion failed: ' + value); else if (!['node_exists', 'clip_exists', 'skin_exists', 'model_sheet_fit'].includes(assertion)) throw fail('foundry.validation.unsupported_assertion', 'Unsupported validation assertion: ' + assertion); }
       else throw fail('foundry.script.unsupported_operation', 'Unsupported Foundry operation: ' + key, {operation: key});
       changes.push({index, operation: key, touched: Array.from(touched).slice(-10)});
     } catch (error) {
@@ -564,11 +586,12 @@ export async function executeFoundryPlan({doc, plan, domain = 'hard_surface'}) {
   }
   if (domain === 'hard_surface' && !productionBudget) throw fail('foundry.geometry.production_budget_required', 'Hard-surface work requires a production budget before output can become a candidate.');
   const after = preservationEvidence(doc);
-  return {domain, reviewViews, productionBudget, topology: topology.slice(0, 500), notes: plan.notes || [], changes: changes.slice(0, 500), touched: Array.from(touched).sort().slice(0, 500), before, after, preservation: {untouchedDataRecorded: true, beforeHashes: before.hashes, afterHashes: after.hashes}};
+  const cageEvidence = Object.fromEntries(Array.from(cages.entries()).map(([name, cage]) => [name, cage]));
+  return {domain, reviewViews, productionBudget, topology: topology.slice(0, 500), modelSheetReview, modelSheetFitAssertion, cageEvidence, notes: plan.notes || [], changes: changes.slice(0, 500), touched: Array.from(touched).sort().slice(0, 500), before, after, preservation: {untouchedDataRecorded: true, beforeHashes: before.hashes, afterHashes: after.hashes}};
 }
 
 function edgeKey(a, b) { return a < b ? a + ':' + b : b + ':' + a; }
-function vertexKey(position, index) { return [position[index * 3], position[index * 3 + 1], position[index * 3 + 2]].map((value) => Math.round(value * 1000000)).join(','); }
+function vertexKey(position, index) { return [position[index * 3], position[index * 3 + 1], position[index * 3 + 2]].map((value) => Math.round(value * 1000000000)).join(','); }
 export function inspectDocument(doc) {
   const root = doc.getRoot(); let triangles = 0, vertices = 0, sourceTriangles = 0, sourceVertices = 0, degenerateTriangles = 0, invalidNormals = 0; const components = [], seenMeshes = new Set();
   for (const node of root.listNodes()) {
@@ -576,8 +599,19 @@ export function inspectDocument(doc) {
     for (const primitive of mesh.listPrimitives()) {
       const position = primitive.getAttribute('POSITION')?.getArray(), normal = primitive.getAttribute('NORMAL')?.getArray(), index = primitive.getIndices()?.getArray(), count = position ? position.length / 3 : 0; nodeVertices += count;
       if (normal) for (let i = 0; i < normal.length; i += 3) if (Math.abs(Math.hypot(normal[i], normal[i + 1], normal[i + 2]) - 1) > 0.02) invalidNormals += 1;
-      const indices = index ? Array.from(index) : Array.from({length: count}, (_, i) => i), edges = new Map();
-      for (let i = 0; i + 2 < indices.length; i += 3) { const a = vertexKey(position, indices[i]), b = vertexKey(position, indices[i + 1]), c = vertexKey(position, indices[i + 2]); if (a === b || b === c || c === a) degenerateTriangles += 1; for (const key of [edgeKey(a, b), edgeKey(b, c), edgeKey(c, a)]) edges.set(key, (edges.get(key) || 0) + 1); nodeTriangles += 1; }
+      const indices = index ? Array.from(index) : Array.from({length: count}, (_, i) => i), coordinateEdges = new Map(), indexEdges = new Map();
+      for (let i = 0; i + 2 < indices.length; i += 3) {
+        const raw = [indices[i], indices[i + 1], indices[i + 2]], keys = raw.map((entry) => vertexKey(position, entry));
+        if (keys[0] === keys[1] || keys[1] === keys[2] || keys[2] === keys[0]) degenerateTriangles += 1;
+        for (const [a, b] of [[0, 1], [1, 2], [2, 0]]) {
+          const coordinateKey = edgeKey(keys[a], keys[b]), indexKey = edgeKey(raw[a], raw[b]);
+          coordinateEdges.set(coordinateKey, (coordinateEdges.get(coordinateKey) || 0) + 1);
+          indexEdges.set(indexKey, (indexEdges.get(indexKey) || 0) + 1);
+        }
+        nodeTriangles += 1;
+      }
+      const edgeScore = (edges) => Array.from(edges.values()).filter((value) => value !== 2).length;
+      const edges = edgeScore(indexEdges) <= edgeScore(coordinateEdges) ? indexEdges : coordinateEdges;
       for (const countValue of edges.values()) { if (countValue === 1) boundaryEdges += 1; if (countValue > 2) nonManifoldEdges += 1; }
     }
     triangles += nodeTriangles; vertices += nodeVertices; if (!seenMeshes.has(mesh)) { seenMeshes.add(mesh); sourceTriangles += nodeTriangles; sourceVertices += nodeVertices; } components.push({node: node.getName(), mesh: mesh.getName(), triangles: nodeTriangles, vertices: nodeVertices, boundaryEdges, nonManifoldEdges, instanced: root.listNodes().filter((candidate) => candidate.getMesh() === mesh).length > 1});
@@ -589,10 +623,10 @@ export function inspectDocument(doc) {
   return {kernelVersion: FOUNDRY_KERNEL_VERSION, bounds: {min: Array.from(bounds.min), max: Array.from(bounds.max), size: Array.from(bounds.min).map((value, index) => bounds.max[index] - value)}, triangleCount: triangles, vertexCount: vertices, sourceTriangleCount: sourceTriangles, sourceVertexCount: sourceVertices, expandedTriangleCount: triangles, expandedVertexCount: vertices, componentCount: components.length, components: components.slice(0, 200), validation: {degenerateTriangles, invalidNormals, nonManifoldComponents, openComponents, manifoldClosedComponents: components.filter((entry) => entry.boundaryEdges === 0 && entry.nonManifoldEdges === 0).length, topologyValid: degenerateTriangles === 0 && invalidNormals === 0 && nonManifoldComponents === 0 && openComponents === 0}, hierarchy: root.listNodes().slice(0, 500).map((node) => ({name: node.getName(), parent: node.getParentNode()?.getName() || null, mesh: node.getMesh()?.getName() || null, skin: node.getSkin()?.getName() || null})), animations: root.listAnimations().map((animation) => ({name: animation.getName(), channelCount: animation.listChannels().length, duration: Math.max(0, ...animation.listSamplers().map((sampler) => { const values = sampler.getInput()?.getArray(); return values?.length ? values[values.length - 1] : 0; }))})), skins: root.listSkins().map((skin) => ({name: skin.getName(), joints: skin.listJoints().map((node) => node.getName())}))};
 }
 
-export async function runFoundryKernel({sourceBytes = null, plan, domain = 'hard_surface', reviewPreset = 'fixed-six-view'}) {
+export async function runFoundryKernel({sourceBytes = null, plan, domain = 'hard_surface', reviewPreset = 'fixed-six-view', modelSheet = null}) {
   if (!['hard_surface', 'character_setup', 'animation', 'inspect'].includes(domain)) throw fail('foundry.domain.unsupported', 'Unsupported Foundry domain: ' + domain);
   const doc = await sourceDocument(sourceBytes);
-  const evidence = await executeFoundryPlan({doc, plan, domain});
+  const evidence = await executeFoundryPlan({doc, plan, domain, modelSheet});
   const report = inspectDocument(doc), production = domain === 'hard_surface' ? enforceProductionBudget(report, evidence.productionBudget) : null;
   report.validation = {...report.validation, budgetValid: domain === 'hard_surface' ? true : null, purposeValid: domain === 'hard_surface' ? false : null, purposeState: domain === 'hard_surface' ? 'pending_remove_or_merge_review' : 'not_applicable'};
   report.production = production;
