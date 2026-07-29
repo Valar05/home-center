@@ -237,6 +237,18 @@ assert.equal(review.successor.state, 'planned');
 assert.equal(review.successor.priorCandidateChanged, true);
 const reviewReplay = await recordArtifactReviewOperation({admin, user: {email: ownerEmail}, args: reviewArgs});
 assert.equal(reviewReplay.idempotent, true);
+const simplificationEvidence = [{component: 'D78461_Bare_Casting', method: 'remove_or_merge', status: 'passed', views: ['front', 'side', 'top', 'perspective'], maxVisibleErrorPx: 0.75, comparison: 'The evidence cage is removed from the exported result while the fitted surface remains within the commissioned registered-view bound.'}];
+const acceptedReviewArgs = {requestId: 'review-accepted-purpose-001', deliveryRequestId: base.args.requestId, verdict: 'accepted', reason: 'Registered visual evidence accepted.', simplificationEvidence};
+const acceptedReview = await recordArtifactReviewOperation({admin, user: {email: ownerEmail}, args: acceptedReviewArgs});
+assert.equal(acceptedReview.promotionAllowed, true);
+assert.equal(acceptedReview.purposeValid, true);
+assert.deepEqual(acceptedReview.simplificationEvidence, simplificationEvidence);
+const acceptedReplay = await recordArtifactReviewOperation({admin, user: {email: ownerEmail}, args: acceptedReviewArgs});
+assert.equal(acceptedReplay.idempotent, true);
+await assert.rejects(
+  () => recordArtifactReviewOperation({admin, user: {email: ownerEmail}, args: {...acceptedReviewArgs, requestId: 'review-invalid-purpose', simplificationEvidence: [{...simplificationEvidence[0], method: 'handwave'}]}}),
+  (error) => error.failureKind === 'artifact_review.simplification_evidence_invalid',
+);
 await assert.rejects(
   () => recordArtifactReviewOperation({admin, user: {email: ownerEmail}, args: {...reviewArgs, requestId: 'review-missing-plan', successorPlan: undefined}}),
   (error) => error.failureKind === 'artifact_review.successor_plan_incomplete',

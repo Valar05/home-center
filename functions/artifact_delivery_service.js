@@ -449,6 +449,28 @@ function normalizedSuccessorPlan(value) {
   return {operation, idempotencyKey, changes};
 }
 
+const REVIEW_EVIDENCE_VIEWS = new Set(['front', 'back', 'left', 'right', 'side', 'top', 'perspective']);
+
+function normalizedSimplificationEvidence(value) {
+  if (value == null) return [];
+  if (!Array.isArray(value) || !value.length || value.length > 64) {
+    throw fail('artifact_review.simplification_evidence_invalid', 'simplificationEvidence must contain 1-64 remove-or-merge comparisons.', 400);
+  }
+  return value.map((entry, index) => {
+    if (!entry || typeof entry !== 'object' || Array.isArray(entry)) throw fail('artifact_review.simplification_evidence_invalid', 'Every simplification comparison must be an object.', 400, {index});
+    const component = text(entry.component, 240);
+    const method = text(entry.method, 80);
+    const status = text(entry.status, 80);
+    const views = Array.from(new Set((Array.isArray(entry.views) ? entry.views : []).map((view) => text(view, 80).toLowerCase()).filter(Boolean)));
+    const maxVisibleErrorPx = Number(entry.maxVisibleErrorPx);
+    const comparison = text(entry.comparison || entry.reason, 1600);
+    if (!component || method !== 'remove_or_merge' || status !== 'passed' || !views.length || views.some((view) => !REVIEW_EVIDENCE_VIEWS.has(view)) || !Number.isFinite(maxVisibleErrorPx) || maxVisibleErrorPx <= 0 || maxVisibleErrorPx > 64) {
+      throw fail('artifact_review.simplification_evidence_invalid', 'Each comparison requires a component, method=remove_or_merge, status=passed, supported views, and maxVisibleErrorPx from 0-64.', 400, {index});
+    }
+    return {component, method, status, views, maxVisibleErrorPx, ...(comparison ? {comparison} : {})};
+  });
+}
+
 async function recordArtifactReviewOperation({admin, user, args = {}}) {
   const requestId = text(args.requestId, 180);
   const deliveryRequestId = text(args.deliveryRequestId, 180);
@@ -468,7 +490,9 @@ async function recordArtifactReviewOperation({admin, user, args = {}}) {
   if (needsSuccessor && !successorPlan) throw fail('artifact_review.successor_plan_incomplete', 'Rejected or revision-requested work requires a successorPlan with operation, idempotencyKey, and concrete changes.', 400);
   const reason = text(args.reason, 1600);
   if (['rejected', 'revision_requested'].includes(verdict) && !reason) throw fail('artifact_review.reason_required', 'Rejected or revision-requested work requires a bounded reason.', 400);
-  const inputHash = hashJson({contractVersion: CONTRACT_VERSION, deliveryRequestId, verdict, reason, successorPlan});
+  const simplificationEvidence = normalizedSimplificationEvidence(args.simplificationEvidence);
+  const purposeValid = verdict === 'accepted' && simplificationEvidence.length > 0;
+  const inputHash = hashJson({contractVersion: CONTRACT_VERSION, deliveryRequestId, verdict, reason, successorPlan, simplificationEvidence});
   const ref = admin.firestore().collection(REVIEW_COLLECTION).doc(requestId);
   const prior = await ref.get();
   if (prior.exists) {
@@ -488,6 +512,8 @@ async function recordArtifactReviewOperation({admin, user, args = {}}) {
     humanAcceptance: {state: verdict, reviewedBy: ownerEmail, reviewedAtMs: Date.now(), reason},
     candidatePreserved: true,
     promotionAllowed: verdict === 'accepted',
+    purposeValid,
+    simplificationEvidence,
     successor: successorPlan ? {state: 'planned', plan: successorPlan, priorCandidateChanged: true} : null,
   };
   const record = {requestId, ownerEmail, inputHash, deliveryRequestId, verdict, status: 'completed', result, createdAtMs: result.humanAcceptance.reviewedAtMs};

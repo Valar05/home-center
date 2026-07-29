@@ -3910,7 +3910,7 @@ function driveOperationRegistry() {
         summary: 'Record an owner-scoped human verdict for one review-ready delivery while preserving the candidate and requiring a concrete fix-forward plan for rejection.',
         write: true,
         requiresRequestId: true,
-        input: {deliveryRequestId: 'string', verdict: 'accepted|rejected|revision_requested|unreviewed', reason: 'required for rejection or revision', successorPlan: 'required operation, idempotencyKey, and concrete changes for rejection or revision', requestId: 'string'},
+        input: {deliveryRequestId: 'string', verdict: 'accepted|rejected|revision_requested|unreviewed', reason: 'required for rejection or revision', successorPlan: 'required operation, idempotencyKey, and concrete changes for rejection or revision', simplificationEvidence: 'optional 1-64 validated remove_or_merge comparisons; required by hard-surface promotion', requestId: 'string'},
       },
       'artifact.review.link_successor': {
         summary: 'Link a rejected or revision-requested review record to a distinct owner-scoped terminal corrective producer receipt.',
