@@ -445,6 +445,50 @@ function timeline({duration, sampleRate = DEFAULT_SAMPLE_RATE, channels = 2, ite
   return out;
 }
 
+function prepareRoomReflections(room, sampleRate) {
+  if (!room || typeof room !== 'object' || Array.isArray(room) || room.enabled === false) return null;
+  const sizeMeters = safeNumber(room.sizeMeters, 8);
+  const decaySeconds = safeNumber(room.decaySeconds, 0.8);
+  const preDelayMs = safeNumber(room.preDelayMs, Math.min(250, sizeMeters * 2 / 343 * 1000 * 0.18));
+  const wetDb = safeNumber(room.wetDb, -18);
+  const damping = safeNumber(room.damping, 0.45);
+  const stereoSpread = safeNumber(room.stereoSpread, 0.6);
+  const reflectionCount = Math.floor(safeNumber(room.reflectionCount, 12));
+  assertFinite(sizeMeters, 'room sizeMeters', 1, 120);
+  assertFinite(decaySeconds, 'room decaySeconds', 0.05, 8);
+  assertFinite(preDelayMs, 'room preDelayMs', 0, 250);
+  assertFinite(wetDb, 'room wetDb', -60, 0);
+  assertFinite(damping, 'room damping', 0, 1);
+  assertFinite(stereoSpread, 'room stereoSpread', 0, 1);
+  assertFinite(reflectionCount, 'room reflectionCount', 4, 24);
+  const preDelaySeconds = preDelayMs / 1000;
+  const roundTripSeconds = Math.max(0.006, Math.min(0.7, sizeMeters * 2 / 343));
+  const wet = Math.pow(10, wetDb / 20);
+  const taps = [];
+  for (let i = 0; i < reflectionCount; i++) {
+    const phase = (i + 1) / reflectionCount;
+    const earlyDelay = roundTripSeconds * (0.22 + phase * 1.78);
+    const lateDelay = decaySeconds * Math.pow(phase, 1.7) * 0.92;
+    const delaySeconds = preDelaySeconds + Math.max(earlyDelay, lateDelay);
+    const decay = Math.exp(-4.6 * Math.max(0, delaySeconds - preDelaySeconds) / decaySeconds);
+    const irregularity = 0.82 + (((i * 37) % 11) / 50);
+    const side = i % 2 ? 1 : -1;
+    const pan = side * stereoSpread * (0.3 + 0.7 * (((i * 0.61803398875) % 1)));
+    taps.push({
+      delayFrames: Math.max(1, Math.round(delaySeconds * sampleRate)),
+      gain: wet * decay * irregularity,
+      pan,
+      damping: Math.min(0.96, damping * (0.45 + phase * 0.55)),
+    });
+  }
+  taps.sort((a, b) => a.delayFrames - b.delayFrames);
+  return {
+    sizeMeters, decaySeconds, preDelayMs, wetDb, damping, stereoSpread, reflectionCount,
+    taps,
+    maxDelayFrames: taps.reduce((max, tap) => Math.max(max, tap.delayFrames), 0),
+  };
+}
+
 async function blockMix({duration, sampleRate = DEFAULT_SAMPLE_RATE, channels = 2, blockFrames = 65536, items = [], onProgress = null} = {}) {
   assertFinite(duration, 'duration', 0, MAX_DURATION_SECONDS);
   channels = Math.max(1, Math.min(8, Math.floor(channels)));
@@ -465,14 +509,18 @@ async function blockMix({duration, sampleRate = DEFAULT_SAMPLE_RATE, channels = 
     const monoLeft = panValue <= 0 ? 1 : 1 - panValue;
     const monoRight = panValue >= 0 ? 1 : 1 + panValue;
     const duckClip = item.duckClip ? ensureClip(item.duckClip, 'block_mix duckBy ' + index) : null;
+    const room = prepareRoomReflections(item.room, sampleRate);
     return {
-      clip, atFrame, sourceOffsetFrames, looped, durationFrames, gainMult,
+      clip, atFrame, sourceOffsetFrames, looped, durationFrames,
+      renderFrames: durationFrames + (room ? room.maxDelayFrames : 0),
+      gainMult,
       fadeInFrames: Math.max(0, Math.round(safeNumber(item.fadeIn, 0) * sampleRate)),
       fadeOutFrames: Math.max(0, Math.round(safeNumber(item.fadeOut, 0) * sampleRate)),
       monoLeft, monoRight,
       duckClip,
       duckAtFrame: Math.round(safeNumber(item.duckAt, 0) * sampleRate),
       duckAmount: Math.pow(10, -Math.abs(safeNumber(item.duckAmountDb, 6)) / 20),
+      room,
     };
   });
 
@@ -493,12 +541,12 @@ async function blockMix({duration, sampleRate = DEFAULT_SAMPLE_RATE, channels = 
     const blockEnd = Math.min(out.frames, blockStart + blockFrames);
     for (const item of prepared) {
       const itemStart = Math.max(blockStart, item.atFrame, 0);
-      const itemEnd = Math.min(blockEnd, item.atFrame + item.durationFrames, out.frames);
+      const itemEnd = Math.min(blockEnd, item.atFrame + item.renderFrames, out.frames);
       if (itemEnd <= itemStart) continue;
       const sourceRatio = item.clip.sampleRate / sampleRate;
       const duckRatio = item.duckClip ? item.duckClip.sampleRate / sampleRate : 1;
       const directFrames = sourceRatio === 1 && !item.looped;
-      const constantGain = !item.fadeInFrames && !item.fadeOutFrames && !item.duckClip;
+      const constantGain = !item.fadeInFrames && !item.fadeOutFrames && !item.duckClip && !item.room;
       if (directFrames && constantGain && item.clip.channelCount === 1 && channels === 2) {
         const source = item.clip.channels[0];
         const left = out.channels[0], right = out.channels[1];
@@ -526,6 +574,60 @@ async function blockMix({duration, sampleRate = DEFAULT_SAMPLE_RATE, channels = 
         const localFrame = frame - item.atFrame;
         const sourceFrame = item.sourceOffsetFrames + localFrame * sourceRatio;
         let itemGain = item.gainMult;
+        if (item.room) {
+          let duckGain = 1;
+          if (item.duckClip) {
+            const keyFrame = (frame - item.duckAtFrame) * duckRatio;
+            let key = 0;
+            for (let keyChannel = 0; keyChannel < item.duckClip.channelCount; keyChannel++) key = Math.max(key, Math.abs(sampleAt(item.duckClip, keyFrame, keyChannel, false)));
+            key = Math.min(1, key * 4);
+            duckGain = 1 - key * (1 - item.duckAmount);
+          }
+          const sourceEnvelope = (sourceLocalFrame) => {
+            if (sourceLocalFrame < 0 || sourceLocalFrame >= item.durationFrames) return 0;
+            let value = 1;
+            if (item.fadeInFrames && sourceLocalFrame < item.fadeInFrames) value *= sourceLocalFrame / item.fadeInFrames;
+            const remaining = item.durationFrames - sourceLocalFrame;
+            if (item.fadeOutFrames && remaining < item.fadeOutFrames) value *= Math.max(0, remaining / item.fadeOutFrames);
+            return value;
+          };
+          const directEnvelope = sourceEnvelope(localFrame);
+          if (directEnvelope > 0) {
+            const directGain = item.gainMult * directEnvelope * duckGain;
+            if (item.clip.channelCount === 1 && channels === 2) {
+              const value = sampleAt(item.clip, sourceFrame, 0, item.looped) * directGain;
+              out.channels[0][frame] += value * item.monoLeft;
+              out.channels[1][frame] += value * item.monoRight;
+            } else {
+              for (let channel = 0; channel < channels; channel++) out.channels[channel][frame] += sampleAt(item.clip, sourceFrame, channel, item.looped) * directGain;
+            }
+          }
+          for (const tap of item.room.taps) {
+            const reflectedLocalFrame = localFrame - tap.delayFrames;
+            const reflectedEnvelope = sourceEnvelope(reflectedLocalFrame);
+            if (reflectedEnvelope <= 0) continue;
+            const reflectedSourceFrame = item.sourceOffsetFrames + reflectedLocalFrame * sourceRatio;
+            const wetGain = item.gainMult * reflectedEnvelope * duckGain * tap.gain;
+            if (item.clip.channelCount === 1 && channels === 2) {
+              const current = sampleAt(item.clip, reflectedSourceFrame, 0, item.looped);
+              const previous = sampleAt(item.clip, reflectedSourceFrame - sourceRatio, 0, item.looped);
+              const previous2 = sampleAt(item.clip, reflectedSourceFrame - sourceRatio * 2, 0, item.looped);
+              const damped = current * (1 - tap.damping) + (current * 0.5 + previous * 0.3 + previous2 * 0.2) * tap.damping;
+              const left = tap.pan <= 0 ? 1 : 1 - tap.pan;
+              const right = tap.pan >= 0 ? 1 : 1 + tap.pan;
+              out.channels[0][frame] += damped * wetGain * left;
+              out.channels[1][frame] += damped * wetGain * right;
+            } else {
+              for (let channel = 0; channel < channels; channel++) {
+                const current = sampleAt(item.clip, reflectedSourceFrame, channel, item.looped);
+                const previous = sampleAt(item.clip, reflectedSourceFrame - sourceRatio, channel, item.looped);
+                const damped = current * (1 - tap.damping * 0.5) + previous * tap.damping * 0.5;
+                out.channels[channel][frame] += damped * wetGain;
+              }
+            }
+          }
+          continue;
+        }
         if (item.fadeInFrames && localFrame < item.fadeInFrames) itemGain *= localFrame / item.fadeInFrames;
         const remaining = item.durationFrames - localFrame;
         if (item.fadeOutFrames && remaining < item.fadeOutFrames) itemGain *= Math.max(0, remaining / item.fadeOutFrames);
