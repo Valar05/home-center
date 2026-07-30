@@ -16,7 +16,7 @@ const {CARTESIA_DEFAULT_MODEL_ID, CARTESIA_DEFAULT_VOICE_NAME, listCartesiaVoice
 const {preflightArtifactEnvelope} = require('./artifact_transport');
 const cartesiaPitchShift = require('./cartesia_pitch_shift');
 const {renderAudioOperation, audioRenderStatusOperation, inspectAudioArtifactsOperation, uploadVerified: uploadVerifiedArtifact} = require('./audio_render_service');
-const {recoverAudioRenderRegistrationOperation} = require('./audio_catalog_service');
+const {recoverAudioRenderRegistrationOperation, linkDriveAudioToReaderStageOperation} = require('./audio_catalog_service');
 const {materializeReceiptArtifactsOperation, recordArtifactReviewOperation, linkArtifactReviewSuccessorOperation} = require('./artifact_delivery_service');
 const {
   analyzeSourceOperation,
@@ -63,7 +63,7 @@ const {
 const DEFAULT_MCP_PUBLIC_BASE = 'https://us-central1-home-center-dclar.cloudfunctions.net/homeCenterMcp';
 const MCP_PUBLIC_BASE = process.env.HOME_CENTER_MCP_PUBLIC_BASE || DEFAULT_MCP_PUBLIC_BASE;
 const HOME_CENTER_MCP_SERVER_VERSION = '0.2.0';
-const HOME_CENTER_CONNECTOR_SCHEMA_REVISION = '2026-07-30.github-artifact-delivery-v1';
+const HOME_CENTER_CONNECTOR_SCHEMA_REVISION = '2026-07-30.audio-reader-link-v1';
 const HOME_CENTER_REGISTRY_VERSION = HOME_CENTER_CONNECTOR_SCHEMA_REVISION;
 const HOME_CENTER_DIRECT_FILE_TOOLS = Object.freeze(['drive_ingest_file', 'storage_ingest_artifact']);
 const MCP_RESOURCE = `${MCP_PUBLIC_BASE}/mcp`;
@@ -3944,7 +3944,7 @@ function tvtroperOperationEntries() {
 
 function driveOperationRegistry() {
   return {
-    version: '2026-07-30.github-artifact-delivery-v1',
+    version: '2026-07-30.audio-reader-link-v1',
     invocationTool: 'drive_operation',
     cachePolicy: 'New bridge and simulation operations should be invokable through drive_operation so ChatGPT does not need a top-level MCP tool refresh for every backend code change. Cartesia TTS is a direct Home Center MCP provider operation; it must not be routed through Command Center jobs or workers.',
     operations: {
@@ -4103,6 +4103,14 @@ function driveOperationRegistry() {
           prefer: 'Call drive_operation with operation=audio.render. Keep scriptText as the Home Center JSON audio DSL; use speech/audition/speech_sequence recipe nodes for direct Cartesia speech, separate emotional contexts, and long-form attributed dialogue. Do not use Command Center, Codex, workers, GitHub Actions, or a newly exposed top-level MCP tool.',
           verification: 'Treat success as authoritative only when ok=true/status=completed and readerRegistration proves unchanged bytes, owner-scoped discovery, and playback. Mechanical completion never means human approval.',
         },
+      },
+      'audio.reader_link': {
+        summary: 'Link one verified owner-scoped Drive audio index into an existing Audio Reader project/stage without copying bytes, mutating Drive, rerendering, changing human acceptance, or removing the original catalog record.',
+        write: true,
+        requiresRequestId: true,
+        requiredScopes: [],
+        input: {fileId: 'required existing verified Drive audio file id', requestId: 'stable idempotency/audit id', approved: 'must be true', project: 'target existing Reader project', stage: 'target existing Reader stage'},
+        output: {status: 'linked', catalog: 'owner-scoped target catalog projection and reuse state', discovery: 'authenticated Reader folder/item proof', playback: 'bounded header proof', transport: 'zero-copy/no-render/no-Drive-mutation evidence', bytePreservation: 'unchanged immutable identity'},
       },
       'audio.render_register': {
         summary: 'Recover authenticated Audio Reader registration for the primary playable output of an owner-scoped terminal audio.render receipt. This operation never rerenders, calls Cartesia, copies to Drive, exposes the object publicly, or changes human acceptance.',
@@ -4934,6 +4942,12 @@ async function driveOperationRunOperation({google, admin, auth, user, extra = nu
     const mcpContent = cleanResult._mcpContent;
     delete cleanResult._mcpContent;
     return {operation, registryVersion: registry.version, completed: cleanResult.status === 'completed', result: cleanResult, _mcpContent: mcpContent};
+  }
+  if (operation === 'audio.reader_link') {
+    requireCreditGatedEmail(user && user.email, 'audio.reader_link');
+    const result = await linkDriveAudioToReaderStageOperation({user, args: operationArgs});
+    await recordActionAudit(admin, user, 'audio.reader_link', result.fileId, 'Linked verified audio into Reader folder ' + result.discovery.folder + ' without copying bytes or mutating Drive.', result.requestId);
+    return {operation, registryVersion: registry.version, completed: result.status === 'linked', result};
   }
   if (operation === 'audio.render_register') {
     requireCreditGatedEmail(user && user.email, 'audio.render_register');
