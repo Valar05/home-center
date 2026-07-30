@@ -15,7 +15,7 @@ node "$ROOT/tools/worker_profile_contract.mjs" validate-resolved home-center-ble
 if ! gcloud artifacts repositories describe home-center --project="$PROJECT" --location="$REGION" >/dev/null 2>&1; then gcloud artifacts repositories create home-center --project="$PROJECT" --location="$REGION" --repository-format=docker --description="Home Center deterministic executors"; fi
 HEAD_SHA="$(git -C "$ROOT" rev-parse HEAD)"
 IMAGE="$REGION-docker.pkg.dev/$PROJECT/home-center/home-center-blender:$HEAD_SHA"
-gcloud builds submit "$ROOT/blender_workspace" --project="$PROJECT" --tag="$IMAGE"
+gcloud builds submit "$ROOT/blender_workspace" --project="$PROJECT" --tag="$IMAGE" --suppress-logs
 PROJECT_NUMBER="$(gcloud projects describe "$PROJECT" --format='value(projectNumber)')"
 TASK_SERVICE_ACCOUNT="${BLENDER_WORKSPACE_TASK_SERVICE_ACCOUNT:-${PROJECT_NUMBER}-compute@developer.gserviceaccount.com}"
 gcloud run deploy "$SERVICE" --project="$PROJECT" --region="$REGION" --image="$IMAGE" --no-allow-unauthenticated --service-account="$TASK_SERVICE_ACCOUNT" --cpu="$WORKER_CPU" --memory="$WORKER_MEMORY" --concurrency="$WORKER_CONCURRENCY" --min-instances="$WORKER_MIN_INSTANCES" --max-instances="$WORKER_MAX_INSTANCES" --timeout="${WORKER_TIMEOUT_SECONDS}s" --set-env-vars=HOME_CENTER_ARTIFACT_BUCKET="${HOME_CENTER_ARTIFACT_BUCKET:-home-center-generated}",BLENDER_WORKSPACE_TIMEOUT_SECONDS=1700
