@@ -93,7 +93,7 @@ async function createWorkspace({admin, user, args}) {
     const now = new Date().toISOString();
     tx.create(workspaceRef(admin, workspaceId), {contractVersion: CONTRACT_VERSION, workspaceId, workspaceName: text(args.workspaceName, 160) || 'Blender Workspace', owner, ownerHash: ownerHash(owner), currentRevisionId: null, pendingOperationId: operationId, revisionIds: [], createdAt: now, updatedAt: now});
     tx.create(revisionRef(admin, revisionId), {contractVersion: CONTRACT_VERSION, workspaceId, revisionId, parentRevisionId: null, owner, state: 'reserved', createdByOperationId: operationId, createdAt: now});
-    tx.create(operationRef(admin, operationId), {contractVersion: CONTRACT_VERSION, operationId, kind: 'create', state: 'queued', owner, ownerHash: ownerHash(owner), workspaceId, targetRevisionId: revisionId, baseRevisionId: null, inputHash, source, recipe: inputRecipe, humanAcceptance: 'unreviewed', createdAt: now, updatedAt: now});
+    tx.create(operationRef(admin, operationId), {contractVersion: CONTRACT_VERSION, operationId, kind: 'create', state: 'queued', owner, ownerHash: ownerHash(owner), workspaceId, targetRevisionId: revisionId, baseRevisionId: null, inputHash, source, recipeJson: JSON.stringify(inputRecipe), humanAcceptance: 'unreviewed', createdAt: now, updatedAt: now});
     tx.create(idemRef, {owner, kind: 'create', inputHash, operationId, workspaceId, revisionId, createdAt: now});
   });
   if (!attached) await enqueue(admin, operationId);
@@ -116,7 +116,7 @@ async function reserveMutation({admin, user, args, kind}) {
     if (ws.pendingOperationId) throw fail('blender.workspace.concurrent_mutation', 'Another mutation is pending for this workspace.', 409, {pendingOperationId: ws.pendingOperationId});
     const now = new Date().toISOString(); tx.update(wsRef, {pendingOperationId: operationId, updatedAt: now});
     tx.create(revisionRef(admin, targetRevisionId), {contractVersion: CONTRACT_VERSION, workspaceId, revisionId: targetRevisionId, parentRevisionId: baseRevisionId, restoredFromRevisionId: kind === 'restore' ? sourceRevisionId : null, owner, state: 'reserved', createdByOperationId: operationId, createdAt: now});
-    tx.create(operationRef(admin, operationId), {contractVersion: CONTRACT_VERSION, operationId, kind, state: 'queued', owner, ownerHash: ownerHash(owner), workspaceId, baseRevisionId, sourceRevisionId, targetRevisionId, inputHash, recipe, humanAcceptance: 'unreviewed', createdAt: now, updatedAt: now});
+    tx.create(operationRef(admin, operationId), {contractVersion: CONTRACT_VERSION, operationId, kind, state: 'queued', owner, ownerHash: ownerHash(owner), workspaceId, baseRevisionId, sourceRevisionId, targetRevisionId, inputHash, recipeJson: JSON.stringify(recipe), humanAcceptance: 'unreviewed', createdAt: now, updatedAt: now});
     tx.create(idemRef, {owner, kind, inputHash, operationId, workspaceId, targetRevisionId, createdAt: now});
   });
   if (!attached) await enqueue(admin, operationId);

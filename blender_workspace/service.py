@@ -22,6 +22,10 @@ GCS = storage.Client(project=PROJECT)
 LOCK = threading.Lock()
 
 def now(): return datetime.now(timezone.utc).isoformat()
+def record_recipe(record):
+    raw=record.get('recipeJson')
+    if isinstance(raw,str) and raw: return json.loads(raw)
+    return record.get('recipe') or {}
 def digest(path):
     h=hashlib.sha256(); size=0
     with open(path,'rb') as f:
@@ -111,7 +115,7 @@ def process(operation_id):
     if record is None: return
     record['operationId']=operation_id
     with tempfile.TemporaryDirectory(prefix='blender-workspace-') as td:
-        td=Path(td); out=td/'output'; out.mkdir(); request={'operation':record['kind'],'recipe':record.get('recipe') or {},'request':record.get('request') or {},'workspaceId':record['workspaceId'],'revisionId':record.get('targetRevisionId') or record.get('revisionId'),'inputHash':record['inputHash']}
+        td=Path(td); out=td/'output'; out.mkdir(); recipe=record_recipe(record); request={'operation':record['kind'],'recipe':recipe,'request':record.get('request') or {},'workspaceId':record['workspaceId'],'revisionId':record.get('targetRevisionId') or record.get('revisionId'),'inputHash':record['inputHash']}
         try:
             source=None
             if record['kind']=='create' and record.get('source',{}).get('kind')=='home_center_artifact': source=record['source']
@@ -136,7 +140,7 @@ def process(operation_id):
             result={'workspaceId':record['workspaceId'],'revisionId':record.get('targetRevisionId') or record.get('revisionId'),'artifacts':artifacts,'blenderVersion':'4.5.12','containerRevision':os.environ.get('K_REVISION',''),'inputHash':record['inputHash'],'humanAcceptance':'unreviewed','immutable':True}
             if record.get('targetRevisionId'):
                 byname={a['name']:a for a in artifacts}; inspection=json.loads((out/'inspection.json').read_text()); validation=json.loads((out/'validation.json').read_text()); scene=byname['scene.blend']; scene['format']='blend'
-                revision={'state':'completed','scene':scene,'inspection':inspection,'validation':validation,'completedAt':now(),'updatedAt':now(),'recipeHash':hashlib.sha256(json.dumps(record.get('recipe') or {},sort_keys=True,separators=(',',':')).encode()).hexdigest(),'blenderVersion':'4.5.12'}
+                revision={'state':'completed','scene':scene,'inspection':inspection,'validation':validation,'completedAt':now(),'updatedAt':now(),'recipeHash':hashlib.sha256(json.dumps(recipe,sort_keys=True,separators=(',',':')).encode()).hexdigest(),'blenderVersion':'4.5.12'}
                 complete_mutation(record,revision,result)
             else: opref.set({'state':'completed','result':result,'humanAcceptance':'unreviewed','completedAt':now(),'updatedAt':now()},merge=True)
         except Exception as e:
