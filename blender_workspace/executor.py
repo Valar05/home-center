@@ -312,7 +312,7 @@ def render_views():
         if o.type=='LIGHT':bpy.data.objects.remove(o,do_unlink=True)
     setup_light((center.x-radius*1.2,center.y-radius*.1,center.z+radius*.15),2400,radius*.35);bpy.data.objects.remove(cam,do_unlink=True);cam=setup_camera(views['three-quarter'],center,False);scene.render.filepath=str(OUT/'raking-three-quarter.png');bpy.ops.render.render(write_still=True)
     if bpy.data.actions:
-        scene.render.resolution_x=480;scene.render.resolution_y=360;scene.frame_start=1;scene.frame_end=min(72,max(2,int(max(a.frame_range[1] for a in bpy.data.actions))));scene.render.image_settings.file_format='FFMPEG';scene.render.ffmpeg.format='MPEG4';scene.render.ffmpeg.codec='H264';scene.render.ffmpeg.constant_rate_factor='MEDIUM';scene.render.filepath=str(OUT/'animation-preview.mp4');bpy.ops.render.render(animation=True)
+        scene.render.resolution_x=320;scene.render.resolution_y=240;scene.frame_start=1;action_end=min(72,max(2,int(max(a.frame_range[1] for a in bpy.data.actions))));scene.frame_step=max(1,math.ceil((action_end-scene.frame_start)/12));scene.frame_end=action_end+scene.frame_step;scene.render.fps=12;scene.render.image_settings.file_format='FFMPEG';scene.render.ffmpeg.format='MPEG4';scene.render.ffmpeg.codec='H264';scene.render.ffmpeg.constant_rate_factor='MEDIUM';scene.render.filepath=str(OUT/'animation-preview.mp4');bpy.ops.render.render(animation=True)
 
 def export_scene():
     bpy.ops.export_scene.gltf(filepath=str(OUT/'scene.glb'),export_format='GLB',export_animations=True,export_animation_mode='NLA_TRACKS',export_force_sampling=True,export_apply=False)
