@@ -30,7 +30,7 @@ function ownerHash(owner) { return sha256(Buffer.from(owner)).slice(0, 24); }
 function requestKey(args) { const value = text(args.idempotencyKey || args.requestId, 180); if (!value) throw fail('blender.workspace.idempotency_required', 'idempotencyKey is required.'); return value; }
 function approved(args) { if (args.approved !== true) throw fail('blender.workspace.approval_required', 'approved=true is required for workspace mutations.', 409); }
 function id(prefix, value, length = 32) { return prefix + '_' + sha256(Buffer.from(value)).slice(0, length); }
-function projectId(admin) { return process.env.GOOGLE_CLOUD_PROJECT || process.env.GCLOUD_PROJECT || admin.app().options.projectId || ''; }
+function projectId(admin) { return process.env.BLENDER_WORKSPACE_PROJECT || process.env.GOOGLE_CLOUD_PROJECT || process.env.GCLOUD_PROJECT || admin.app().options.projectId || ''; }
 function revisionRef(admin, revisionId) { return admin.firestore().collection(REVISIONS).doc(revisionId); }
 function workspaceRef(admin, workspaceId) { return admin.firestore().collection(WORKSPACES).doc(workspaceId); }
 function operationRef(admin, operationId) { return admin.firestore().collection(OPERATIONS).doc(operationId); }
