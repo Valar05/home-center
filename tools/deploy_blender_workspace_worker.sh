@@ -10,7 +10,7 @@ sh "$ROOT/tools/assert_home_center_mcp_main_release.sh" "$ROOT"
 [ "${BLENDER_RELEASE_GUARDED:-}" = "true" ] || { echo "Blender workspace deploy requires tools/deploy_blender_workspace_release.sh." >&2; exit 24; }
 eval "$(node "$ROOT/tools/worker_profile_contract.mjs" shell home-center-blender-workspace)"
 node "$ROOT/tools/worker_profile_contract.mjs" validate-resolved home-center-blender-workspace cpu="$WORKER_CPU" memory="$WORKER_MEMORY" concurrency="$WORKER_CONCURRENCY" minInstances="$WORKER_MIN_INSTANCES" maxInstances="$WORKER_MAX_INSTANCES" timeoutSeconds="$WORKER_TIMEOUT_SECONDS"
-gcloud services enable run.googleapis.com cloudbuild.googleapis.com artifactregistry.googleapis.com cloudtasks.googleapis.com --project="$PROJECT" >/dev/null
+# Required APIs are provisioned outside this least-privilege release lane.\n# The concrete Artifact Registry, Cloud Build, Cloud Run, and Cloud Tasks calls below fail closed if an API is unavailable.
 if ! gcloud artifacts repositories describe home-center --project="$PROJECT" --location="$REGION" >/dev/null 2>&1; then gcloud artifacts repositories create home-center --project="$PROJECT" --location="$REGION" --repository-format=docker --description="Home Center deterministic executors"; fi
 HEAD_SHA="$(git -C "$ROOT" rev-parse HEAD)"
 IMAGE="$REGION-docker.pkg.dev/$PROJECT/home-center/home-center-blender:$HEAD_SHA"
