@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import {Readable} from 'node:stream';
+import {EventEmitter} from 'node:events';
 import {createHash} from 'node:crypto';
 import {createRequire} from 'node:module';
 import fs from 'node:fs';
@@ -26,7 +27,17 @@ const {uploadGeneratedArtifact} = require('../functions/artifact_bucket.js');
 const cartesiaPitchShift = require('../functions/cartesia_pitch_shift.js');
 const {sanitizeRecipeText, renderRecipe, executeAudioRenderJob, materializeSources, resolveSpeechProfile, CARTESIA_SUPPORTED_EMOTIONS, primitives} = require('../functions/audio_render_service.js');
 
-const {tone, noise, silence, trim, concat, loop, fade, crossfade, gain, normalizePeak, normalizeLufs, pan, pitchShift, timeStretch, reverse, biquadLike, compress, limit, distort, delay, reverb, envelope, timeline, blockMix, duck, resample, toChannels, encodeWav, decodeWav, waveformPng, spectrogramPng, measure} = primitives;
+const {tone, noise, silence, trim, concat, loop, fade, crossfade, gain, normalizePeak, normalizeLufs, pan, pitchShift, timeStretch, reverse, biquadLike, compress, limit, distort, delay, reverb, envelope, timeline, blockMix, duck, resample, toChannels, encodeWav, decodeWav, waveformPng, spectrogramPng, measure, waitForWritableDrain} = primitives;
+
+{
+  const blockedInput = new EventEmitter();
+  const encoderTimeout = new Promise((_, reject) => setImmediate(() => reject(Object.assign(new Error('test encoder timeout'), {failureKind: 'audio_render_encoder_timeout'}))));
+  await assert.rejects(
+    () => waitForWritableDrain(blockedInput, encoderTimeout),
+    (err) => err && err.failureKind === 'audio_render_encoder_timeout',
+    'blocked encoder input must terminate when the encoder timeout fires instead of waiting forever for drain',
+  );
+}
 
 function sha256(buffer) { return createHash('sha256').update(buffer).digest('hex'); }
 
@@ -441,7 +452,12 @@ assert.equal(completedLong.artifactStore.drivePublish, 'disabled');
 const completedAudit = collectionStore('driveBridgeAudit').get('audio-render-long-sequence-001');
 assert.equal(completedAudit.status, 'completed');
 assert.equal(completedAudit.affectedFileIds.length, 0, 'GCS-only render must not record Drive file ids');
-assert.equal(completedAudit.affectedStorageRefs.length, 2, 'GCS-only render records output and manifest refs');
+assert.equal(completedAudit.affectedStorageRefs.length, 3, 'GCS-only paid render records output, manifest, and reusable speech checkpoint refs');
+assert.ok(completedAudit.progress.speechCheckpoint, 'paid render must retain a reusable speech checkpoint');
+assert.equal(completedAudit.progress.speechCheckpoint.verified, true);
+assert.equal(completedAudit.progress.speechCheckpoint.reusableWithoutProviderCall, true);
+assert.ok(completedAudit.progress.speechCheckpoint.durableRef.startsWith('gs://home-center-generated/'));
+assert.equal(completedAudit.result.speechCheckpoint.sha256, completedAudit.progress.speechCheckpoint.sha256);
 assert.equal(completedAudit.progress.phase, 'completed');
 assert.ok(completedAudit.progress.synthesizedTakes >= 120, 'worker must checkpoint individual synthesized takes');
 const routedLongExpected = completedLong.outputs.map((item) => ({durableRef: item.durableRef, byteCount: item.byteCount, sha256: item.sha256}));
