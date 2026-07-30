@@ -63,7 +63,7 @@ const {
 const DEFAULT_MCP_PUBLIC_BASE = 'https://us-central1-home-center-dclar.cloudfunctions.net/homeCenterMcp';
 const MCP_PUBLIC_BASE = process.env.HOME_CENTER_MCP_PUBLIC_BASE || DEFAULT_MCP_PUBLIC_BASE;
 const HOME_CENTER_MCP_SERVER_VERSION = '0.2.0';
-const HOME_CENTER_CONNECTOR_SCHEMA_REVISION = '2026-07-29.blender-workspace-v1';
+const HOME_CENTER_CONNECTOR_SCHEMA_REVISION = '2026-07-30.github-artifact-delivery-v1';
 const HOME_CENTER_REGISTRY_VERSION = HOME_CENTER_CONNECTOR_SCHEMA_REVISION;
 const HOME_CENTER_DIRECT_FILE_TOOLS = Object.freeze(['drive_ingest_file', 'storage_ingest_artifact']);
 const MCP_RESOURCE = `${MCP_PUBLIC_BASE}/mcp`;
@@ -2287,6 +2287,39 @@ async function githubAdminRequest(githubAdmin, route, options = {}) {
   return {json, status: response.status, authMode: tokenInfo.mode, appError: tokenInfo.appError || null};
 }
 
+
+async function verifyGitHubDeliveryCandidate(githubAdmin, candidate) {
+  const repository = safeText(candidate && candidate.repository, 240);
+  const ref = safeText(candidate && candidate.ref, 80).toLowerCase();
+  const artifactPath = safeText(candidate && candidate.path, 1000).replace(/^\/+/, '');
+  if (!/^[^/]+\/[^/]+$/.test(repository) || !/^[a-f0-9]{40}$/.test(ref) || !artifactPath || artifactPath.includes('..')) {
+    throw Object.assign(new Error('GitHub delivery candidate must use an immutable commit and safe repository path.'), {status: 400, failureKind: 'artifact_delivery.github_reference_invalid'});
+  }
+  const tokenInfo = await githubAdminToken(githubAdmin);
+  const route = githubAdminRouteForRepo(repository, '/contents/' + artifactPath.split('/').map(encodeURIComponent).join('/') + '?ref=' + encodeURIComponent(ref));
+  const response = await fetch('https://api.github.com' + route, {
+    headers: githubHeaders(tokenInfo.token, {Accept: 'application/vnd.github.raw+json'}),
+  });
+  if (!response.ok) {
+    throw Object.assign(new Error('GitHub artifact read failed with status ' + response.status + '.'), {status: response.status === 404 ? 404 : 502, failureKind: 'artifact_delivery.github_read_failed'});
+  }
+  const bytes = Buffer.from(await response.arrayBuffer());
+  const digest = createHash('sha256').update(bytes).digest('hex');
+  if (bytes.length !== candidate.byteLength) {
+    throw Object.assign(new Error('GitHub artifact byte length does not match the receipt identity.'), {status: 409, failureKind: 'artifact_delivery.github_length_mismatch'});
+  }
+  if (digest !== candidate.sha256) {
+    throw Object.assign(new Error('GitHub artifact SHA-256 does not match the receipt identity.'), {status: 409, failureKind: 'artifact_delivery.github_sha256_mismatch'});
+  }
+  return {
+    file: {createReadStream: () => Readable.from([bytes])},
+    generation: ref,
+    byteLength: bytes.length,
+    sha256: digest,
+    authMode: tokenInfo.mode,
+  };
+}
+
 function githubAdminRouteForRepo(repo, suffix = '') {
   return githubRepoRoute(repo, suffix);
 }
@@ -3911,7 +3944,7 @@ function tvtroperOperationEntries() {
 
 function driveOperationRegistry() {
   return {
-    version: '2026-07-29.blender-workspace-v1',
+    version: '2026-07-30.github-artifact-delivery-v1',
     invocationTool: 'drive_operation',
     cachePolicy: 'New bridge and simulation operations should be invokable through drive_operation so ChatGPT does not need a top-level MCP tool refresh for every backend code change. Cartesia TTS is a direct Home Center MCP provider operation; it must not be routed through Command Center jobs or workers.',
     operations: {
@@ -3924,7 +3957,7 @@ function driveOperationRegistry() {
         write: true,
         requiresRequestId: true,
         requiredScopes: ['https://www.googleapis.com/auth/drive'],
-        input: {producerReceiptId: 'string; receipt only, never a GCS path or URL', producerKind: 'optional drive_audit|blender_workspace|foundry_historical', artifactNames: 'optional artifact role or filename array', parentFolderId: 'optional string', requestId: 'string'},
+        input: {producerReceiptId: 'string; receipt only, never a GCS path or URL', producerKind: 'optional artifact_transport|drive_audit|blender_workspace|foundry_historical', artifactNames: 'optional artifact role or filename array', parentFolderId: 'optional string', requestId: 'string'},
         output: {status: 'review_ready after source and Drive readback verification', transportState: 'bytes transferred/reused, concurrency, and no-rerender evidence', authorization: 'owner_scoped', humanAcceptance: 'preserved separately and never changed', artifacts: 'bounded private Drive resource links with SHA-256 and byte length'},
       },
       'artifact.review.record': {
@@ -3937,7 +3970,7 @@ function driveOperationRegistry() {
         summary: 'Link a rejected or revision-requested review record to a distinct owner-scoped terminal corrective producer receipt.',
         write: true,
         requiresRequestId: true,
-        input: {reviewRequestId: 'string', successorReceiptId: 'string', producerKind: 'optional drive_audit|blender_workspace|foundry_historical', artifactNames: 'optional artifact selectors', requestId: 'string'},
+        input: {reviewRequestId: 'string', successorReceiptId: 'string', producerKind: 'optional artifact_transport|drive_audit|blender_workspace|foundry_historical', artifactNames: 'optional artifact selectors', requestId: 'string'},
       },
       drive_create_folder: {
         summary: 'Create a Google Drive folder and audit the write.',
@@ -4809,7 +4842,10 @@ async function driveOperationRunOperation({google, admin, auth, user, extra = nu
   }
   if (operation === 'artifact.delivery.materialize_receipt') {
     requireCreditGatedEmail(user && user.email, operation);
-    const result = await materializeReceiptArtifactsOperation({google, admin, auth, user, args: operationArgs});
+    const result = await materializeReceiptArtifactsOperation(
+      {google, admin, auth, user, args: operationArgs},
+      {verifyGithubCandidate: (candidate) => verifyGitHubDeliveryCandidate(githubAdmin, candidate)},
+    );
     const wrapped = {operation, registryVersion: registry.version, completed: result.status === 'review_ready', result};
     wrapped._mcpContent = {content: [{type: 'text', text: jsonText(wrapped)}, ...result.artifacts.map((item) => item.delivery && item.delivery.resourceLink).filter(Boolean)]};
     return wrapped;

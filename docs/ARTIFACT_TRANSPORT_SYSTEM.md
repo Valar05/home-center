@@ -13,7 +13,8 @@ Long operations separate reference resolution, queueing, staging, acceptance, ex
 - Top-level Work Mode bytes enter through `drive_ingest_file` or `storage_ingest_artifact`.
 - Durable GLBs and scripts are resolved as exact owner-scoped Home Center artifacts.
 - `artifact_transport.preflight` reports resolution, hashes, sizes, chosen path, reuse, concurrency, and compatibility.
-- `artifact.delivery.materialize_receipt` discovers only artifacts named by one terminal owner-scoped receipt, verifies GCS readback, and reuses private Drive delivery by digest.
+- `artifact.delivery.materialize_receipt` discovers only artifacts named by one terminal owner-scoped receipt, verifies GCS or immutable GitHub readback, and reuses private Drive delivery by digest.
+- Pose Lab can publish an exact candidate to an immutable GitHub commit, register it through `artifact_transport.preflight`, and materialize that owner-scoped receipt to Drive without copying binary bytes through chat.
 - Persistent Blender workspaces publish immutable revision-bound review routes and use the shared viewer.
 
 Historical renderer receipts remain a private internal receipt source for generic read-only materialization. Their old producer name is not accepted or advertised. Materialization never re-executes a producer or alters human acceptance.

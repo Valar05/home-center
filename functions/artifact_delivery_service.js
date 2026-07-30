@@ -125,6 +125,39 @@ function normalizedCandidate(value, context = {}) {
   };
 }
 
+
+function normalizedGitHubCandidate(value, context = {}) {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
+  const identity = value.identity && typeof value.identity === 'object' ? value.identity : null;
+  const locations = [
+    value.location,
+    ...(Array.isArray(value.locations) ? value.locations : []),
+  ].filter(Boolean);
+  const location = locations.find((item) => item && item.kind === 'github');
+  if (!identity || !location) return null;
+  const digest = text(identity.sha256 || identity.digest, 64).toLowerCase();
+  const byteLength = Number(identity.byteLength || identity.byteCount || identity.size || 0);
+  const repository = text(location.repository || location.repo, 240);
+  const ref = text(location.ref || location.sha, 80).toLowerCase();
+  const artifactPath = text(location.path || location.filePath, 1000).replace(/^\/+/, '');
+  if (!/^[a-f0-9]{64}$/.test(digest) || !Number.isSafeInteger(byteLength) || byteLength < 1) return null;
+  if (!/^[^/]+\/[^/]+$/.test(repository) || !/^[a-f0-9]{40}$/.test(ref)) return null;
+  if (!artifactPath || artifactPath.includes('..')) return null;
+  const name = filename(identity.fileName || identity.name || artifactPath.split('/').pop());
+  return {
+    role: text(value.role || context.role || context.name, 120) || 'artifact',
+    name,
+    mediaType: inferredMime(name, identity.mediaType || identity.mimeType),
+    byteLength,
+    sha256: digest,
+    sourceKind: 'github',
+    repository,
+    ref,
+    path: artifactPath,
+    storageRef: 'github://' + repository + '@' + ref + '/' + artifactPath,
+  };
+}
+
 function recursivelyExtractArtifacts(root) {
   const candidates = [];
   const seenObjects = new Set();
@@ -137,7 +170,7 @@ function recursivelyExtractArtifacts(root) {
     if (typeof value !== 'object') return;
     if (seenObjects.has(value)) return;
     seenObjects.add(value);
-    const candidate = normalizedCandidate(value, context);
+    const candidate = normalizedCandidate(value, context) || normalizedGitHubCandidate(value, context);
     if (candidate) candidates.push(candidate);
     Object.entries(value).slice(0, 256).forEach(([key, child]) => visit(child, {name: key, role: context.role || key}, depth + 1));
   }
@@ -222,6 +255,7 @@ function uniqueCandidates(receipt, artifactNames = []) {
 }
 
 const RECEIPT_SOURCES = Object.freeze([
+  {kind: 'artifact_transport', collection: 'artifactTransportReceipts', terminal: (record) => text(record.receipt && record.receipt.state, 80) === 'accepted', owner: (record) => text(record.owner, 320).toLowerCase()},
   {kind: 'drive_audit', collection: 'driveBridgeAudit', terminal: (record) => ['completed', 'success'].includes(text(record.status || record.result && record.result.status, 80)), owner: (record) => text(record.actor || record.ownerEmail || record.result && record.result.ownerEmail, 320).toLowerCase()},
   {kind: 'blender_workspace', collection: 'blenderWorkspaceOperations', terminal: (record) => text(record.state, 80) === 'completed', owner: (record) => text(record.owner, 320).toLowerCase()},
   {kind: 'foundry_historical', collection: 'foundryAssetJobs', terminal: (record) => text(record.state, 80) === 'completed', owner: (record) => text(record.owner, 320).toLowerCase()},
@@ -388,7 +422,7 @@ async function materializeReceiptArtifactsOperation({google, admin, auth, user, 
     producerKind: resolved.producerKind,
     producerReceiptId,
     parentFolderId,
-    artifacts: selection.candidates.map((item) => ({role: item.role, name: item.name, mediaType: item.mediaType, byteLength: item.byteLength, sha256: item.sha256})),
+    artifacts: selection.candidates.map((item) => ({role: item.role, name: item.name, mediaType: item.mediaType, byteLength: item.byteLength, sha256: item.sha256, sourceKind: item.sourceKind || 'gcs'})),
   });
   const receiptRef = admin.firestore().collection(DELIVERY_COLLECTION).doc(requestId);
   const prior = await receiptRef.get();
@@ -402,7 +436,15 @@ async function materializeReceiptArtifactsOperation({google, admin, auth, user, 
   const publisher = helpers.publish || publishToDrive;
   const map = helpers.boundedMap || boundedMap;
   const artifacts = await map(selection.candidates, CONCURRENCY, async (candidate) => {
-    const verified = await verifyGcsCandidate(storage, candidate);
+    let verified;
+    if (candidate.sourceKind === 'github') {
+      if (typeof helpers.verifyGithubCandidate !== 'function') {
+        throw fail('artifact_delivery.github_verifier_missing', 'GitHub artifact delivery requires the authenticated GitHub verifier.', 503);
+      }
+      verified = await helpers.verifyGithubCandidate(candidate);
+    } else {
+      verified = await verifyGcsCandidate(storage, candidate);
+    }
     return publisher({google, auth, ownerEmail, parentFolderId, candidate, verified});
   });
   const reusedBytes = artifacts.filter((item) => item.delivery.reused).reduce((sum, item) => sum + item.byteLength, 0);
