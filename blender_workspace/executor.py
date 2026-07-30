@@ -285,7 +285,9 @@ def setup_camera(location,target=(0,0,0),ortho=False):
 def setup_light(location,energy=1600,size=5):
     d=bpy.data.lights.new('Review_Key','AREA');d.energy=energy;d.shape='DISK';d.size=size;o=bpy.data.objects.new('Review_Key',d);bpy.context.scene.collection.objects.link(o);o.location=location;o.rotation_euler=(Vector((0,0,0))-o.location).to_track_quat('-Z','Y').to_euler()
 def render_views():
-    scene=bpy.context.scene; scene.render.engine='BLENDER_EEVEE_NEXT'; scene.render.resolution_x=640;scene.render.resolution_y=480;scene.render.resolution_percentage=100;scene.render.image_settings.file_format='PNG'; scene.world.color=(.035,.035,.045); scene.view_settings.look='AgX - Medium High Contrast'
+    scene=bpy.context.scene
+    if scene.world is None: scene.world=bpy.data.worlds.new('Review_World')
+    scene.render.engine='BLENDER_EEVEE_NEXT'; scene.render.resolution_x=640;scene.render.resolution_y=480;scene.render.resolution_percentage=100;scene.render.image_settings.file_format='PNG'; scene.world.color=(.035,.035,.045); scene.view_settings.look='AgX - Medium High Contrast'
     clay=bpy.data.materials.new('Review_Clay');clay.diffuse_color=(.32,.36,.38,1);clay.metallic=.05;clay.roughness=.6
     for o in bpy.data.objects:
         if o.type=='MESH':o.data.materials.clear();o.data.materials.append(clay)
