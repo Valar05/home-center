@@ -132,7 +132,14 @@ def process(operation_id):
             run=subprocess.run(cmd,capture_output=True,text=True,timeout=TIMEOUT,env={**os.environ,'PYTHONNOUSERSITE':'1'})
             (out/'stdout.log').write_text(run.stdout[-65536:]); (out/'stderr.log').write_text(run.stderr[-65536:])
             if run.returncode: raise RuntimeError(f'Blender exited {run.returncode}: {run.stderr[-2000:]}')
-            if record['kind']=='render': contact_sheet(out)
+            required={'create':['scene.blend','inspection.json','validation.json'],'mutate':['scene.blend','inspection.json','validation.json'],'restore':['scene.blend','inspection.json','validation.json'],'render':['clay-front.png','clay-side.png','clay-rear.png','clay-top.png','clay-three-quarter.png','wire-front.png','wire-side.png','wire-three-quarter.png','raking-three-quarter.png'],'export':['scene.blend','scene.glb','inspection.json','validation.json']}[record['kind']]
+            missing=[name for name in required if not (out/name).is_file()]
+            if missing: raise RuntimeError('Blender completed without required outputs: '+','.join(missing))
+            if record['kind']=='render':
+                contact_sheet(out)
+                if not (out/'contact-sheet.png').is_file(): raise RuntimeError('render contact sheet was not produced')
+                inspection=DB.collection('blenderWorkspaceRevisions').document(record['revisionId']).get().to_dict().get('inspection') or {}
+                if inspection.get('actions') and not (out/'animation-preview.mp4').is_file(): raise RuntimeError('animation preview was not produced')
             prefix=(f"blender/workspaces/v1/{record['ownerHash']}/{record['workspaceId']}/revisions/{record.get('targetRevisionId')}" if record.get('targetRevisionId') else f"blender/workspaces/v1/{record['ownerHash']}/{record['workspaceId']}/revisions/{record['revisionId']}/derived/{operation_id}")
             artifacts=[]
             for p in sorted(out.iterdir()):
