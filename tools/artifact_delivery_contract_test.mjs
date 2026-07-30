@@ -291,8 +291,83 @@ assert.deepEqual(uniqueCandidates(archivedProducerReceipt).candidates.map((item)
 const blenderReceipt = {owner: ownerEmail, state: 'completed', result: {artifacts: [{kind: 'model', name: 'workspace.glb', mediaType: 'model/gltf-binary', byteLength: 99, sha256: '4'.repeat(64), storageRef: 'gs://home-center-generated/blender/workspace.glb'}]}};
 assert.equal(uniqueCandidates(blenderReceipt).candidates[0].name, 'workspace.glb');
 
+
+const githubBytes = Buffer.from('GIF89a-private-pose-lab-candidate');
+const githubDigest = sha(githubBytes);
+const githubProducerReceiptId = 'pose-lab-github-preflight-001';
+const githubReceipt = {
+  owner: ownerEmail,
+  receipt: {
+    state: 'accepted',
+    artifacts: [{
+      role: 'vanguard-false-edge-oberhau-gif',
+      identity: {
+        sha256: githubDigest,
+        byteLength: githubBytes.length,
+        mediaType: 'image/gif',
+        fileName: 'Vanguard_False_Edge_Oberhau_Complete_8_Pose.gif',
+      },
+      location: {
+        kind: 'github',
+        repository: 'Valar05/pose-lab-v2',
+        ref: 'a'.repeat(40),
+        path: 'public/assets/vanguard/fleshpunk/falseedgeoberhau/Vanguard_False_Edge_Oberhau_Complete_8_Pose.gif',
+      },
+      resolvable: true,
+    }],
+  },
+};
+const githubAdmin = fakeAdmin(new Map([['artifactTransportReceipts/' + githubProducerReceiptId, githubReceipt]]));
+const githubGoogle = fakeGoogle();
+let githubVerifyCount = 0;
+const githubDelivery = await materializeReceiptArtifactsOperation({
+  google: githubGoogle,
+  admin: githubAdmin,
+  auth: {},
+  user: {email: ownerEmail},
+  args: {
+    requestId: 'github-delivery-request-001',
+    producerReceiptId: githubProducerReceiptId,
+    producerKind: 'artifact_transport',
+  },
+}, {
+  verifyGithubCandidate: async (candidate) => {
+    githubVerifyCount += 1;
+    assert.equal(candidate.sourceKind, 'github');
+    assert.equal(candidate.ref, 'a'.repeat(40));
+    assert.equal(candidate.sha256, githubDigest);
+    return {
+      file: {createReadStream: () => Readable.from([githubBytes])},
+      generation: candidate.ref,
+      byteLength: githubBytes.length,
+      sha256: githubDigest,
+    };
+  },
+});
+assert.equal(githubDelivery.status, 'review_ready');
+assert.equal(githubDelivery.producer.kind, 'artifact_transport');
+assert.equal(githubDelivery.artifacts[0].delivery.readbackSha256, githubDigest);
+assert.equal(githubDelivery.artifacts[0].source.storageRef.startsWith('github://Valar05/pose-lab-v2@'), true);
+assert.equal(githubVerifyCount, 1);
+const githubReplay = await materializeReceiptArtifactsOperation({
+  google: githubGoogle,
+  admin: githubAdmin,
+  auth: {},
+  user: {email: ownerEmail},
+  args: {
+    requestId: 'github-delivery-request-001',
+    producerReceiptId: githubProducerReceiptId,
+    producerKind: 'artifact_transport',
+  },
+}, {
+  verifyGithubCandidate: async () => { throw new Error('exact replay must not refetch GitHub'); },
+});
+assert.equal(githubReplay.idempotent, true);
+assert.equal(githubVerifyCount, 1);
+
 const registry = driveOperationRegistry();
 assert.ok(registry.operations['artifact.delivery.materialize_receipt']);
+assert.ok(registry.operations['artifact.delivery.materialize_receipt'].input.producerKind.includes('artifact_transport'));
 assert.ok(registry.operations['artifact.review.record']);
 assert.ok(registry.operations['artifact.review.link_successor']);
 assert.equal(registry.operations['artifact.delivery.materialize_receipt'].input.storageRef, undefined);
