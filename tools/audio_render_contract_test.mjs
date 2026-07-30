@@ -171,6 +171,26 @@ assert.ok(blockProgress.length > 1, 'block_mix must report bounded progress');
 assert.equal(blockProgress.at(-1).framesProcessed, blockMixed.frames);
 assert.equal(blockProgress.at(-1).blockIndex, blockProgress.at(-1).blockCount);
 assert.equal(measure(blockMixed).silent, false);
+
+const roomProbeSource = tone({frequency: 720, duration: 0.025, sampleRate, channels: 1, gain: 0.18});
+const roomProbe = await blockMix({
+  duration: 0.8, sampleRate, channels: 2, blockFrames: 4096,
+  items: [{
+    clip: roomProbeSource,
+    at: 0,
+    room: {sizeMeters: 24, decaySeconds: 0.62, preDelayMs: 18, wetDb: -8, damping: 0.55, stereoSpread: 0.9, reflectionCount: 10},
+  }],
+});
+let roomTailEnergy = 0;
+let roomStereoDelta = 0;
+for (let i = Math.round(sampleRate * 0.12); i < roomProbe.frames; i++) {
+  roomTailEnergy += Math.abs(roomProbe.channels[0][i]) + Math.abs(roomProbe.channels[1][i]);
+  roomStereoDelta += Math.abs(roomProbe.channels[0][i] - roomProbe.channels[1][i]);
+}
+assert.ok(roomTailEnergy > 0.01, 'room-size reflections must survive after the dry source ends');
+assert.ok(roomStereoDelta > 0.001, 'room-size reflections must create deterministic stereo spread');
+assert.equal(measure(roomProbe).clippingCount, 0);
+
 const wav = encodeWav(toChannels(base, 2));
 assert.equal(wav.slice(0,4).toString('ascii'), 'RIFF');
 assert.equal(decodeWav(wav).channelCount, 2);
