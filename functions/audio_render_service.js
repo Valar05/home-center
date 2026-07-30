@@ -10,7 +10,7 @@ const {GENERATED_ARTIFACT_BUCKET, parseGsRef, uploadGeneratedArtifact, publishGe
 const {registerPrimaryAudioFromReceipt} = require('./audio_catalog_service');
 
 const DEFAULT_SAMPLE_RATE = 48000;
-const MAX_DURATION_SECONDS = Number(process.env.HOME_CENTER_AUDIO_RENDER_MAX_SECONDS || 900);
+const MAX_DURATION_SECONDS = Number(process.env.HOME_CENTER_AUDIO_RENDER_MAX_SECONDS || 1800);
 const MAX_ENCODED_OUTPUT_BYTES = Number(process.env.HOME_CENTER_AUDIO_RENDER_MAX_ENCODED_BYTES || 24 * 1024 * 1024);
 const MAX_WAV_OUTPUT_BYTES = Number(process.env.HOME_CENTER_AUDIO_RENDER_MAX_WAV_BYTES || 64 * 1024 * 1024);
 const MAX_OUTPUT_BYTES = Number(process.env.HOME_CENTER_AUDIO_RENDER_MAX_OUTPUT_BYTES || MAX_WAV_OUTPUT_BYTES);
