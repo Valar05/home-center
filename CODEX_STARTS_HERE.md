@@ -2,42 +2,34 @@
 
 ## Current Authority
 
-Home Center publishes only from a clean commit that is exactly current `origin/main`. The release path is `tools/deploy_foundry_v2_release.sh`; it pauses the Foundry queue across the worker and MCP swap, verifies the deployed main commit and manifest hash, and resumes the queue through a trap.
+Home Center publishes only from a clean commit exactly matching `origin/main`. The sole mechanical-workspace release path is `tools/deploy_blender_workspace_release.sh`.
 
-The active 3D authoring lane is Fortress Model Foundry V2. It is dynamically discovered below the existing `drive_operation` MCP tool. Do not add a top-level Foundry tool or a second viewer.
-
-The prior Cloud Blender execution lane and Command Center Codex worker discovery are retired. They are not catalogs, fallbacks, deploy targets, or repair candidates. Guessed calls return a 410 retirement error. Historical producer receipts remain readable only through generic owner-scoped receipt delivery.
+Blender is the active modeling and animation kernel. Persistent owner-scoped `.blend` scenes are controlled through the eight `blender.workspace.*` operations beneath `drive_operation`. Foundry is retired and must never be selected; see `docs/architecture/FOUNDRY_RETIREMENT_2026-07-29.md`.
 
 ## Read First
 
-1. `docs/FORTRESS_MODEL_FOUNDRY.md`
+1. `docs/BLENDER_WORKSPACES.md`
 2. `docs/ARTIFACT_TRANSPORT_SYSTEM.md`
 3. `docs/ARTIFACT_BUCKET_ARCHITECTURE.md`
 4. `docs/AUTHENTICATED_GCS_FILESYSTEM.md`
 5. `docs/WORKER_RESOURCE_CONTRACT.md`
-6. `docs/archive/CLOUD_EXECUTION_RETIREMENT_2026-07-27.md`
 
 ## Stable Contracts
 
 - Home MCP entry point: `drive_operation`.
-- Foundry operations: `foundry.asset.inspect`, `foundry.asset.run`, `foundry.asset.status`, `foundry.asset.promote`.
-- Filesystem operations: `storage.filesystem.*`, dynamically discovered below `drive_operation`; never top-level tools.
-- Run contract: `home-center.foundry-run.v2`.
-- Script contract: `foundry-js.v1`.
-- Top-level MCP tool count after retirement: 57.
-- Canonical top-level MCP SHA-256: `5c7cee977116422e47ae817920d41b63227d841348fd6c0769f6c9f1568b6498`.
-- Public manifest SHA-256: `1a8592c9645de28951734999259a819cd66ca2521327001fb372fab4a7c80779`; generated in `contracts/home-center-public-tool-manifest.v1.json`, never hand-edited.
+- Workspace recipe: `home-center.blender-workspace-recipe.v1`.
+- Complete scenes are immutable `.blend` revisions with an explicit current pointer.
+- Every mutation requires `baseRevisionId`; stale or concurrent writes fail closed.
+- Blender performs geometry and animation; JavaScript does not implement mesh algorithms.
+- Top-level MCP tool count remains 57.
 - Shared viewer: `https://valar05.github.io/model-viewer-lab/model-viewer.html`.
+- Human visual acceptance outranks receipts and geometry metrics.
 
 ## Verification
 
-`node tools/foundry_contract_test.mjs`
+`node tools/blender_workspace_contract_test.mjs`
+`node tools/foundry_retirement_guard_test.mjs`
 `node tools/gcs_filesystem_contract_test.mjs`
-`node tools/cloud_blender_retirement_contract_test.mjs`
 `node tools/worker_profile_contract_test.mjs`
 `node tools/generate_home_center_public_manifest.mjs --check`
 `sh tools/home_center_ci_validate.sh`
-
-Mechanical completion is not human acceptance. A completed Foundry job must publish immutable fixed-view evidence and a shared-viewer URL as `review_ready/unreviewed`. Promotion requires a separate accepted review record bound to the exact receipt and result hash.
-
-Every vertex must serve a visible or mechanical purpose. Foundry topology calls require purpose coverage plus operation, component, asset, and commissioned-scene ceilings. Global crash limits are not production budgets. Promotion requires separate `topologyValid`, `budgetValid`, and human-reviewed `purposeValid` evidence, including a remove-or-merge challenge.

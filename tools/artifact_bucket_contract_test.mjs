@@ -15,12 +15,12 @@ for (const key of ['owner', 'ownerEmail', 'project', 'stage', 'engine', 'created
 for (const rule of ['temp/`: delete after 7 days', 'delete after 30 days', '`logs/`: delete after 14 days']) assert(doc.includes(rule), 'lifecycle doc missing ' + rule);
 
 const deployFunctions = fs.readFileSync(new URL('../tools/deploy_functions_termux.sh', import.meta.url), 'utf8');
-const deployFoundry = fs.readFileSync(new URL('../tools/deploy_foundry_worker.sh', import.meta.url), 'utf8');
+const deployBlender = fs.readFileSync(new URL('../tools/deploy_blender_workspace_worker.sh', import.meta.url), 'utf8');
 const setupBucket = fs.readFileSync(new URL('../tools/setup_generated_artifact_bucket.sh', import.meta.url), 'utf8');
 assert(deployFunctions.includes('--runtime=nodejs22'), 'functions deploy must use Node 22');
 assert(deployFunctions.includes('HOME_CENTER_GENERATED_BUCKET'), 'functions deploy must configure generated bucket');
 assert(deployFunctions.includes('home-center-generated'), 'functions deploy must default to generated bucket');
-assert(deployFoundry.includes('HOME_CENTER_ARTIFACT_BUCKET'), 'Foundry deploy must configure the canonical artifact bucket');
+assert(deployBlender.includes('HOME_CENTER_ARTIFACT_BUCKET'), 'Blender workspace deploy must configure the canonical artifact bucket');
 assert(setupBucket.includes('--uniform-bucket-level-access'), 'bucket setup must enforce uniform access');
 assert(setupBucket.includes('--public-access-prevention'), 'bucket setup must prevent public access');
 assert(setupBucket.includes('--versioning'), 'bucket setup must enable versioning');

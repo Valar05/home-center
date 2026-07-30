@@ -1,5 +1,4 @@
 const {onRequest} = require('firebase-functions/v2/https');
-const {onTaskDispatched} = require('firebase-functions/v2/tasks');
 const {defineSecret} = require('firebase-functions/params');
 const admin = require('firebase-admin');
 const {google} = require('googleapis');
@@ -10,7 +9,6 @@ const {CREDIT_GATED_EMAILS, requireCreditGatedEmail, createHomeCenterMcpApp, cre
 const {audioLibraryHandler} = require('./audio_library_api');
 const {createCommandCenterMcpApp} = require('./command_center_mcp');
 const {createSheRawMcpApp} = require('./she_raw_mcp');
-const {executeFoundryJob} = require('./foundry_capability');
 const {CARTESIA_DEFAULT_MODEL_ID, CARTESIA_DEFAULT_VOICE_NAME, listCartesiaVoiceCatalog, listCartesiaVoices, normalizeCartesiaVoice, openCartesiaStream} = require('./hosted_speech_provider');
 
 admin.initializeApp();
@@ -3180,20 +3178,6 @@ async function askOpenAIToolTurn(body, user = {}) {
 exports.homeCenterMcp = onRequest({timeoutSeconds: 300, secrets: [GOOGLE_OAUTH_CLIENT_ID, GOOGLE_OAUTH_CLIENT_SECRET, GITHUB_TOKEN, GITHUB_APP_ID, GITHUB_APP_INSTALLATION_ID, GITHUB_APP_PRIVATE_KEY, GITHUB_BOOTSTRAP_TOKEN, CARTESIA_API_KEY]}, createHomeCenterMcpApp({google, admin, googleClientId: () => GOOGLE_OAUTH_CLIENT_ID.value() || process.env.GOOGLE_OAUTH_CLIENT_ID || '', googleClientSecret: () => GOOGLE_OAUTH_CLIENT_SECRET.value() || process.env.GOOGLE_OAUTH_CLIENT_SECRET || '', githubToken: () => GITHUB_TOKEN.value() || process.env.GITHUB_TOKEN || '', githubAdmin: {appId: () => GITHUB_APP_ID.value() || process.env.GITHUB_APP_ID || '', installationId: () => GITHUB_APP_INSTALLATION_ID.value() || process.env.GITHUB_APP_INSTALLATION_ID || '', privateKey: () => GITHUB_APP_PRIVATE_KEY.value() || process.env.GITHUB_APP_PRIVATE_KEY || '', bootstrapToken: () => GITHUB_BOOTSTRAP_TOKEN.value() || process.env.GITHUB_BOOTSTRAP_TOKEN || '', allowedOwners: () => process.env.HOME_CENTER_GITHUB_ADMIN_OWNERS || 'Valar05'}, cartesiaApiKey: () => CARTESIA_API_KEY.value() || process.env.CARTESIA_API_KEY || ''}));
 
 exports.commandCenterMcp = onRequest({timeoutSeconds: 300}, createCommandCenterMcpApp({admin}));
-
-exports.foundryAssetWorker = onTaskDispatched({
-  region: 'us-central1',
-  retryConfig: {maxAttempts: 1},
-  rateLimits: {maxConcurrentDispatches: 8, maxDispatchesPerSecond: 4},
-  timeoutSeconds: 1800,
-  memory: '4GiB',
-  cpu: 4,
-  concurrency: 1,
-  maxInstances: 8,
-  invoker: 'private',
-}, async (request) => {
-  await executeFoundryJob(admin, request.data || {});
-});
 
 exports.sheRawMcp = onRequest({timeoutSeconds: 300}, createSheRawMcpApp({admin}));
 

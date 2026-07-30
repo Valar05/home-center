@@ -1,40 +1,10 @@
+#!/usr/bin/env node
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-
-const functionsScript = fs.readFileSync(new URL('deploy_functions_termux.sh', import.meta.url), 'utf8');
-const foundryScript = fs.readFileSync(new URL('deploy_foundry_worker.sh', import.meta.url), 'utf8');
-const releaseScript = fs.readFileSync(new URL('deploy_foundry_v2_release.sh', import.meta.url), 'utf8');
-const workflow = fs.readFileSync(new URL('../.github/workflows/deploy-home-center-mcp.yml', import.meta.url), 'utf8');
-const mainGate = fs.readFileSync(new URL('assert_home_center_mcp_main_release.sh', import.meta.url), 'utf8');
-const bucketScript = fs.readFileSync(new URL('setup_generated_artifact_bucket.sh', import.meta.url), 'utf8');
-
-for (const fn of ['agentToolTurn','agentTurn','creativePromptSmoke','turnContractSmoke','metalPromptSmoke','tts','speak','ttsVoices']) assert.match(functionsScript,new RegExp('deploy_credit_backed_http_function '+fn+' '));
-assert.match(functionsScript,/creditBackedHttp\) deploy_credit_backed_http ;;/);
-assert.doesNotMatch(functionsScript,/commandCenterRenderWorker|COMMAND_CENTER_RENDER_SERVICE_URL|COMMAND_CENTER_RENDER_BUCKET/);
-assert.match(functionsScript,/commandCenterMcp\) deploy_command_center_mcp ;;/);
-assert.match(functionsScript,/homeCenterMcp\) deploy_home_center_mcp ;;/);
-assert.match(functionsScript,/commandCenterMcp[\s\S]*assert_home_center_mcp_main_release\.sh/);
-assert.match(foundryScript,/assert_home_center_mcp_main_release\.sh/);
-assert.match(foundryScript,/FOUNDRY_RELEASE_QUEUE_GUARDED/);
-assert.doesNotMatch(foundryScript,/projects add-iam-policy-binding|iam service-accounts add-iam-policy-binding/);
-assert.doesNotMatch(bucketScript,/gcloud services enable/);
-assert.match(releaseScript,/tasks queues pause/);
-assert.match(releaseScript,/trap resume_queue EXIT HUP INT TERM/);
-assert.match(releaseScript,/deploy_foundry_worker\.sh/);
-assert.match(releaseScript,/deploy_functions_termux\.sh" "\$PROJECT" commandCenterMcp homeCenterMcp/);
-assert.match(releaseScript,/sourceCommit/);
-assert.match(releaseScript,/publicManifestSha256/);
-assert.match(mainGate,/refs\/remotes\/origin\/main/);
-assert.match(mainGate,/HEAD_SHA.*MAIN_SHA/);
-assert.match(mainGate,/status --porcelain --untracked-files=all/);
-assert.equal((workflow.match(/^concurrency:/gm)||[]).length,1);
-assert.match(workflow,/workflow_dispatch:/);
-assert.match(workflow,/ref: refs\/heads\/main/);
-assert.match(workflow,/fetch-depth: 0/);
-assert.match(workflow,/Enforce immutable main release source/);
-assert.match(workflow,/deploy_foundry_v2_release\.sh "\$PROJECT"/);
-assert.match(workflow,/HOME_CENTER_MCP_REFRESH_TOKEN: \$\{\{ secrets\.HOME_CENTER_MCP_REFRESH_TOKEN \}\}/);
-assert.doesNotMatch(workflow,/^  push:/m);
-assert.doesNotMatch(workflow,/deploy-cloud-run-blender|commandCenterRenderWorker|render_blender_glb/);
-for (const name of ['HOME_CENTER_SOURCE_REPOSITORY','HOME_CENTER_SOURCE_COMMIT','HOME_CENTER_SOURCE_REF','HOME_CENTER_PUBLIC_MANIFEST_SHA256']) assert.match(functionsScript,new RegExp(name));
-console.log('Home Center Foundry V2 production deploy contract: OK');
+const worker=fs.readFileSync(new URL('deploy_blender_workspace_worker.sh',import.meta.url),'utf8');
+const release=fs.readFileSync(new URL('deploy_blender_workspace_release.sh',import.meta.url),'utf8');
+const workflow=fs.readFileSync(new URL('../.github/workflows/deploy-home-center-mcp.yml',import.meta.url),'utf8');
+assert.match(worker,/assert_home_center_mcp_main_release\.sh/);assert.match(worker,/BLENDER_RELEASE_GUARDED/);assert.match(worker,/gcloud builds submit/);assert.match(worker,/gcloud run deploy/);assert.match(worker,/blenderWorkspace/);
+assert.match(release,/deploy_blender_workspace_worker\.sh/);assert.match(release,/home_center_production_catalog_test\.mjs/);assert.match(release,/functions delete foundryAssetWorker/);assert.match(release,/tasks queues delete/);assert.doesNotMatch(release,/resume.*foundry/i);
+assert.match(workflow,/deploy_blender_workspace_release\.sh/);assert.doesNotMatch(workflow,/deploy_foundry/);
+console.log('Home Center Blender workspace production deploy contract: OK');

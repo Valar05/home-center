@@ -142,12 +142,12 @@ const artifacts = [
 const objects = new Map(artifacts.map((item) => [item.storageRef, {bytes: bytes[Object.keys(bytes).find((key) => item.name.endsWith(key === 'json' ? '.json' : '.' + key))] || Buffer.alloc(0)}]));
 for (const item of artifacts) objects.set(item.storageRef, {bytes: item.name.endsWith('.glb') ? bytes.glb : item.name.endsWith('.png') ? bytes.png : item.name.endsWith('.gif') ? bytes.gif : item.name.endsWith('.json') ? bytes.json : item.name.endsWith('.wav') ? bytes.wav : bytes.mp4});
 
-const foundryStdout = Buffer.from('foundry worker log\n');
-const foundryStdoutRef = 'gs://home-center-generated/foundry/proof/logs/stdout.log';
-const foundryReceiptSelection = uniqueCandidates({result: {logs: {stdout: {storageRef: foundryStdoutRef, byteLength: foundryStdout.length, sha256: sha(foundryStdout)}}}}, ['stdout.log']);
-assert.equal(foundryReceiptSelection.candidates.length, 1, 'Foundry log receipt must be deliverable');
-assert.equal(foundryReceiptSelection.candidates[0].name, 'stdout.log');
-assert.equal(foundryReceiptSelection.candidates[0].mediaType, 'text/plain');
+const blenderStdout = Buffer.from('blender workspace log\n');
+const blenderStdoutRef = 'gs://home-center-generated/blender/workspaces/proof/logs/stdout.log';
+const blenderReceiptSelection = uniqueCandidates({result: {logs: {stdout: {storageRef: blenderStdoutRef, byteLength: blenderStdout.length, sha256: sha(blenderStdout)}}}}, ['stdout.log']);
+assert.equal(blenderReceiptSelection.candidates.length, 1, 'Blender workspace log receipt must be deliverable');
+assert.equal(blenderReceiptSelection.candidates[0].name, 'stdout.log');
+assert.equal(blenderReceiptSelection.candidates[0].mediaType, 'text/plain');
 
 const producerReceiptId = 'receipt-delivery-contract-001';
 const receipt = {
@@ -228,7 +228,7 @@ assert.equal(partialRetry.transportState.transferredBytes, partialArtifacts[1].b
 assert.equal(partialRetry.transportState.reusedBytes, partialArtifacts[0].byteCount + partialArtifacts[2].byteCount);
 assert.equal(google.createCount, createsBeforePartial + 3);
 
-const reviewArgs = {requestId: 'review-rejected-001', deliveryRequestId: base.args.requestId, verdict: 'revision_requested', reason: 'Front silhouette is correct but the attachment is reversed.', successorPlan: {operation: 'foundry.asset.run', idempotencyKey: 'corrective-foundry-001', changes: 'Reverse the attachment and preserve the accepted body.'}};
+const reviewArgs = {requestId: 'review-rejected-001', deliveryRequestId: base.args.requestId, verdict: 'revision_requested', reason: 'Front silhouette is correct but the attachment is reversed.', successorPlan: {operation: 'blender.workspace.mutate', idempotencyKey: 'corrective-blender-001', changes: 'Reverse the attachment and preserve the accepted body.'}};
 const review = await recordArtifactReviewOperation({admin, user: {email: ownerEmail}, args: reviewArgs});
 assert.equal(review.humanAcceptance.state, 'revision_requested');
 assert.equal(review.candidatePreserved, true);
@@ -258,7 +258,7 @@ await assert.rejects(
   (error) => error.failureKind === 'artifact_review.idempotency_conflict',
 );
 const successorArtifact = artifact('specimen-successor.glb', 'model/gltf-binary', Buffer.from('glTF-corrected-successor'), 'model');
-initial.set('driveBridgeAudit/successor-producer-001', {actor: ownerEmail, operation: 'foundry.asset.run', status: 'completed', result: {status: 'completed', humanAcceptance: 'unreviewed', outputs: [successorArtifact]}});
+initial.set('driveBridgeAudit/successor-producer-001', {actor: ownerEmail, operation: 'blender.workspace.mutate', status: 'completed', result: {status: 'completed', humanAcceptance: 'unreviewed', outputs: [successorArtifact]}});
 const successor = await linkArtifactReviewSuccessorOperation({admin, user: {email: ownerEmail}, args: {requestId: 'review-link-001', reviewRequestId: reviewArgs.requestId, successorReceiptId: 'successor-producer-001', producerKind: 'drive_audit'}});
 assert.equal(successor.prior.receiptId, producerReceiptId);
 assert.equal(successor.successor.receiptId, 'successor-producer-001');
@@ -288,8 +288,8 @@ const archivedProducerReceipt = {
   },
 };
 assert.deepEqual(uniqueCandidates(archivedProducerReceipt).candidates.map((item) => item.role), ['contact_sheet', 'fixed_camera', 'looping_gif']);
-const foundryReceipt = {owner: ownerEmail, state: 'completed', result: {artifacts: [{kind: 'model', name: 'foundry.glb', mediaType: 'model/gltf-binary', byteLength: 99, sha256: '4'.repeat(64), storageRef: 'gs://home-center-generated/foundry/foundry.glb'}]}};
-assert.equal(uniqueCandidates(foundryReceipt).candidates[0].name, 'foundry.glb');
+const blenderReceipt = {owner: ownerEmail, state: 'completed', result: {artifacts: [{kind: 'model', name: 'workspace.glb', mediaType: 'model/gltf-binary', byteLength: 99, sha256: '4'.repeat(64), storageRef: 'gs://home-center-generated/blender/workspace.glb'}]}};
+assert.equal(uniqueCandidates(blenderReceipt).candidates[0].name, 'workspace.glb');
 
 const registry = driveOperationRegistry();
 assert.ok(registry.operations['artifact.delivery.materialize_receipt']);

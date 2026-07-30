@@ -76,25 +76,25 @@
       "state": "target",
       "promotionGate": "Prove one isolated browser session per instance and bounded session cleanup before cloud promotion."
     },
-    "fortress-model-foundry": {
-      "profile": "media-forge-light",
+    "home-center-blender-workspace": {
+      "profile": "media-forge-heavy",
       "state": "bound",
-      "reason": "Direct glTF compilation owns one isolated artifact per instance and scales independent namespaced jobs across instances.",
+      "reason": "One deterministic Blender workspace recipe mutates or derives artifacts from one explicit immutable scene revision per instance.",
       "deployment": {
-        "path": "tools/deploy_foundry_worker.sh",
-        "kind": "cloud-functions",
-        "resourceNameDefault": "foundryassetworker",
+        "path": "tools/deploy_blender_workspace_worker.sh",
+        "kind": "cloud-run-service",
+        "resourceNameDefault": "home-center-blender",
         "requiredMarkers": [
-          "worker_profile_contract.mjs\" shell fortress-model-foundry",
-          "validate-resolved fortress-model-foundry",
-          "verify-live fortress-model-foundry",
+          "worker_profile_contract.mjs\" shell home-center-blender-workspace",
+          "validate-resolved home-center-blender-workspace",
+          "verify-live home-center-blender-workspace",
           "--concurrency=\"$WORKER_CONCURRENCY\""
         ],
         "forbiddenMarkers": [
-          "FOUNDRY_WORKER_CPU",
-          "FOUNDRY_WORKER_MEMORY",
-          "FOUNDRY_WORKER_CONCURRENCY",
-          "FOUNDRY_WORKER_MAX_INSTANCES"
+          "BLENDER_WORKER_CPU",
+          "BLENDER_WORKER_MEMORY",
+          "BLENDER_WORKER_CONCURRENCY",
+          "BLENDER_WORKER_MAX_INSTANCES"
         ]
       }
     }

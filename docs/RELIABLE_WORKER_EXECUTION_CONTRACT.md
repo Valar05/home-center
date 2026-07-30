@@ -6,7 +6,7 @@ Validation: `node tools/worker_execution_contract_test.mjs`
 
 ## Outcome
 
-Long-running, expensive, externally billed, or failure-prone work returns a durable receipt instead of holding a client connection open. The same contract governs active audio, media, Foundry, browser, and future explicitly registered workers. Retired Cloud Blender and Command Center Codex executors are not implementations of this contract.
+Long-running, expensive, externally billed, or failure-prone work returns a durable receipt instead of holding a client connection open. The same contract governs active audio, media, persistent Blender workspace, browser, and future explicitly registered workers. Retired custom geometry and Command Center Codex executors are not implementations of this contract.
 
 Worker sizing is defined separately by `ops/worker_profiles.v1.json`. Sizing answers **where and with what resources** work runs. This contract answers **how work remains safe, recoverable, and observable**.
 

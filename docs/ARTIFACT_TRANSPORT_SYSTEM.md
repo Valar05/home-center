@@ -14,7 +14,7 @@ Long operations separate reference resolution, queueing, staging, acceptance, ex
 - Durable GLBs and scripts are resolved as exact owner-scoped Home Center artifacts.
 - `artifact_transport.preflight` reports resolution, hashes, sizes, chosen path, reuse, concurrency, and compatibility.
 - `artifact.delivery.materialize_receipt` discovers only artifacts named by one terminal owner-scoped receipt, verifies GCS readback, and reuses private Drive delivery by digest.
-- Foundry publishes immutable cloud review routes directly and uses the shared viewer.
+- Persistent Blender workspaces publish immutable revision-bound review routes and use the shared viewer.
 
 Historical renderer receipts remain a private internal receipt source for generic read-only materialization. Their old producer name is not accepted or advertised. Materialization never re-executes a producer or alters human acceptance.
 

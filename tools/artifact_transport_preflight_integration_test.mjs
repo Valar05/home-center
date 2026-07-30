@@ -5,7 +5,7 @@ import {createRequire} from 'node:module';
 const sourceSha = 'c10707777c404e9dda6af4d9cd450b321d12688402ac6894d54859cd30a06b35';
 const scriptSha = 'ae64b5aec3a7fbf37aaba249074fc9f1ff48a7ef0d10e83907cdd7c75fd4bcea';
 const sourceObject = 'artifacts/sha256/' + sourceSha + '/diagnostic-regnet-sprint-stop.glb';
-const scriptObject = 'artifacts/sha256/' + scriptSha + '/candidate-001.foundry.js';
+const scriptObject = 'artifacts/sha256/' + scriptSha + '/candidate-001.blender-recipe.json';
 const gcsMeta = new Map([
   ['home-center-generated/' + sourceObject, {size: '682056', generation: '101', metadata: {sha256: sourceSha}}],
   ['home-center-generated/' + scriptObject, {size: '38307', generation: '102', metadata: {sha256: scriptSha}}],
@@ -25,14 +25,14 @@ const require = createRequire(import.meta.url);
 const {artifactTransportPreflightOperation, artifactTransportStatusOperation} = require('../functions/home_center_mcp.js');
 const ref = (role, identity, uri) => ({schemaVersion: 'home-center.artifact-reference.v1', role, identity, locations: [{kind: 'gcs', uri}]});
 const glb = ref('source_glb', {sha256: sourceSha, byteLength: 682056, mediaType: 'model/gltf-binary', fileName: 'diagnostic-regnet-sprint-stop.glb'}, 'gs://home-center-generated/' + sourceObject);
-const script = ref('foundry_script', {sha256: scriptSha, byteLength: 38307, mediaType: 'application/javascript', fileName: 'candidate-001.foundry.js'}, 'gs://home-center-generated/' + scriptObject);
-const args = {requestId: 'regnet-candidate-001-foundry-transport-proof', targetOperation: 'foundry.asset.run', artifacts: [glb, script], consumer: {supportedLocationKinds: ['gcs'], directLocationKinds: ['gcs']}, concurrency: 2};
+const script = ref('blender_recipe', {sha256: scriptSha, byteLength: 38307, mediaType: 'application/json', fileName: 'candidate-001.blender-recipe.json'}, 'gs://home-center-generated/' + scriptObject);
+const args = {requestId: 'regnet-candidate-001-blender-transport-proof', targetOperation: 'blender.workspace.mutate', artifacts: [glb, script], consumer: {supportedLocationKinds: ['gcs'], directLocationKinds: ['gcs']}, concurrency: 2};
 const first = await artifactTransportPreflightOperation({google, admin, auth: {}, user, args});
 assert.equal(first.state, 'accepted');
 assert.equal(first.attached, false);
 assert.equal(first.totals.transferredBytes, 0);
 assert.equal(first.totals.reusedBytes, 720363);
-assert.deepEqual(first.artifacts.map((item) => item.role), ['source_glb', 'foundry_script']);
+assert.deepEqual(first.artifacts.map((item) => item.role), ['source_glb', 'blender_recipe']);
 assert.equal(first.artifacts.every((item) => item.verification.sha256Match), true);
 const replay = await artifactTransportPreflightOperation({google, admin, auth: {}, user, args});
 assert.equal(replay.attached, true);
@@ -45,4 +45,4 @@ assert.equal(large.state, 'accepted');
 assert.equal(large.totals.transferredBytes, 0);
 assert.equal(large.totals.reusedBytes, 181652767);
 assert.equal(large.artifacts[0].verification.providerMd5, '1569b7cce0ffdd7d547c4eb6b1aa7384');
-console.log(JSON.stringify({ok: true, foundry: {artifacts: 2, reusedBytes: first.totals.reusedBytes, transferredBytes: 0, hashes: first.artifacts.map((item) => item.identity.sha256)}, largeDrive: {byteLength: 181652767, transferredBytes: 0, reusedBytes: 181652767}, idempotentAttach: true}, null, 2));
+console.log(JSON.stringify({ok: true, blenderWorkspace: {artifacts: 2, reusedBytes: first.totals.reusedBytes, transferredBytes: 0, hashes: first.artifacts.map((item) => item.identity.sha256)}, largeDrive: {byteLength: 181652767, transferredBytes: 0, reusedBytes: 181652767}, idempotentAttach: true}, null, 2));
