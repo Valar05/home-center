@@ -1,0 +1,231 @@
+{
+  "schemaVersion": "home-center.foundry-legacy-allowlist.v1",
+  "policy": "Every entry is historical, retirement enforcement, or a fail-closed tombstone. No entry may register or dispatch geometry work.",
+  "paths": [
+    {
+      "path": "AGENTS.md",
+      "reason": "active guidance states retirement or historical read-only boundary"
+    },
+    {
+      "path": "CODEX_STARTS_HERE.md",
+      "reason": "active guidance states retirement or historical read-only boundary"
+    },
+    {
+      "path": "config/foundry_legacy_allowlist.v1.json",
+      "reason": "the explicit legacy allowlist itself"
+    },
+    {
+      "path": "docs/ARTIFACT_BUCKET_ARCHITECTURE.md",
+      "reason": "active guidance states retirement or historical read-only boundary"
+    },
+    {
+      "path": "docs/architecture/FOUNDRY_RETIREMENT_2026-07-29.md",
+      "reason": "authoritative retirement record"
+    },
+    {
+      "path": "docs/archive/foundry/CLOUD_EXECUTION_RETIREMENT_2026-07-27.md",
+      "reason": "bannered historical documentation"
+    },
+    {
+      "path": "docs/archive/foundry/FORTRESS_MODEL_FOUNDRY.md",
+      "reason": "bannered historical documentation"
+    },
+    {
+      "path": "docs/archive/foundry/README.md",
+      "reason": "bannered historical documentation"
+    },
+    {
+      "path": "docs/evidence/d78461-model-sheet-v1/d78461-bare-casting.foundry.js",
+      "reason": "immutable historical evidence; bytes and recorded status preserved"
+    },
+    {
+      "path": "docs/evidence/d78461-model-sheet-v1/model-sheet.local.json",
+      "reason": "immutable historical evidence; bytes and recorded status preserved"
+    },
+    {
+      "path": "docs/evidence/d78461-model-sheet-v1/proof-source.json",
+      "reason": "immutable historical evidence; bytes and recorded status preserved"
+    },
+    {
+      "path": "docs/evidence/d78461-model-sheet-v2/d78461-bare-casting.foundry.js",
+      "reason": "immutable historical evidence; bytes and recorded status preserved"
+    },
+    {
+      "path": "docs/evidence/d78461-model-sheet-v2/model-sheet.local.json",
+      "reason": "immutable historical evidence; bytes and recorded status preserved"
+    },
+    {
+      "path": "docs/evidence/d78461-model-sheet-v2/proof-source.json",
+      "reason": "immutable historical evidence; bytes and recorded status preserved"
+    },
+    {
+      "path": "docs/evidence/d78461-model-sheet-v3/d78461-bare-casting.foundry.js",
+      "reason": "immutable historical evidence; bytes and recorded status preserved"
+    },
+    {
+      "path": "docs/evidence/d78461-model-sheet-v3/model-sheet.local.json",
+      "reason": "immutable historical evidence; bytes and recorded status preserved"
+    },
+    {
+      "path": "docs/evidence/d78461-model-sheet-v3/proof-source.json",
+      "reason": "immutable historical evidence; bytes and recorded status preserved"
+    },
+    {
+      "path": "docs/evidence/d78461-model-sheet-v4/d78461-bare-casting.foundry.js",
+      "reason": "immutable historical evidence; bytes and recorded status preserved"
+    },
+    {
+      "path": "docs/evidence/d78461-model-sheet-v4/model-sheet.local.json",
+      "reason": "immutable historical evidence; bytes and recorded status preserved"
+    },
+    {
+      "path": "docs/evidence/d78461-model-sheet-v4/proof-source.json",
+      "reason": "immutable historical evidence; bytes and recorded status preserved"
+    },
+    {
+      "path": "docs/evidence/d78461-model-sheet-v5/d78461-bare-casting.foundry.js",
+      "reason": "immutable historical evidence; bytes and recorded status preserved"
+    },
+    {
+      "path": "docs/evidence/d78461-model-sheet-v5/model-sheet.local.json",
+      "reason": "immutable historical evidence; bytes and recorded status preserved"
+    },
+    {
+      "path": "docs/evidence/d78461-model-sheet-v5/proof-source.json",
+      "reason": "immutable historical evidence; bytes and recorded status preserved"
+    },
+    {
+      "path": "docs/evidence/d78461-model-sheet-v6/d78461-bare-casting.foundry.js",
+      "reason": "immutable historical evidence; bytes and recorded status preserved"
+    },
+    {
+      "path": "docs/evidence/d78461-model-sheet-v6/model-sheet.local.json",
+      "reason": "immutable historical evidence; bytes and recorded status preserved"
+    },
+    {
+      "path": "docs/evidence/d78461-model-sheet-v6/proof-source.json",
+      "reason": "immutable historical evidence; bytes and recorded status preserved"
+    },
+    {
+      "path": "docs/evidence/d78461-model-sheet-v7/d78461-bare-casting.foundry.js",
+      "reason": "immutable historical evidence; bytes and recorded status preserved"
+    },
+    {
+      "path": "docs/evidence/d78461-model-sheet-v7/model-sheet.local.json",
+      "reason": "immutable historical evidence; bytes and recorded status preserved"
+    },
+    {
+      "path": "docs/evidence/d78461-model-sheet-v7/proof-source.json",
+      "reason": "immutable historical evidence; bytes and recorded status preserved"
+    },
+    {
+      "path": "docs/evidence/d78461-model-sheet-v8/cloud-proof.json",
+      "reason": "immutable historical evidence; bytes and recorded status preserved"
+    },
+    {
+      "path": "docs/evidence/d78461-model-sheet-v8/d78461-bare-casting.foundry.js",
+      "reason": "immutable historical evidence; bytes and recorded status preserved"
+    },
+    {
+      "path": "docs/evidence/d78461-model-sheet-v8/model-sheet.local.json",
+      "reason": "immutable historical evidence; bytes and recorded status preserved"
+    },
+    {
+      "path": "docs/evidence/d78461-model-sheet-v8/proof-source.json",
+      "reason": "immutable historical evidence; bytes and recorded status preserved"
+    },
+    {
+      "path": "docs/evidence/fortress-foundry-live-proof-2026-07-27.json",
+      "reason": "immutable historical evidence; bytes and recorded status preserved"
+    },
+    {
+      "path": "docs/evidence/foundry-front-side-proof-v1/crude-turret-proof.foundry.js",
+      "reason": "immutable historical evidence; bytes and recorded status preserved"
+    },
+    {
+      "path": "docs/evidence/foundry-front-side-proof-v1/model-sheet.local.json",
+      "reason": "immutable historical evidence; bytes and recorded status preserved"
+    },
+    {
+      "path": "docs/evidence/foundry-front-side-proof-v1/proof-source.json",
+      "reason": "immutable historical evidence; bytes and recorded status preserved"
+    },
+    {
+      "path": "docs/evidence/vacation-audio-reader-repair-2026-07-27.md",
+      "reason": "immutable historical evidence; bytes and recorded status preserved"
+    },
+    {
+      "path": "functions/artifact_delivery_service.js",
+      "reason": "read-only historical receipt materialization"
+    },
+    {
+      "path": "functions/blender_workspace_capability.js",
+      "reason": "structured fail-closed tombstone for cached direct calls"
+    },
+    {
+      "path": "functions/home_center_mcp.js",
+      "reason": "structured fail-closed tombstone for cached direct calls"
+    },
+    {
+      "path": "functions/legacy_foundry_artifacts.js",
+      "reason": "read-only stable historical artifact route; no authoring imports"
+    },
+    {
+      "path": "tools/blender_workspace_contract_test.mjs",
+      "reason": "retirement enforcement, deployment deletion, or negative contract assertion"
+    },
+    {
+      "path": "tools/cloud_blender_retirement_contract_test.mjs",
+      "reason": "retirement enforcement, deployment deletion, or negative contract assertion"
+    },
+    {
+      "path": "tools/deploy_blender_workspace_release.sh",
+      "reason": "retirement enforcement, deployment deletion, or negative contract assertion"
+    },
+    {
+      "path": "tools/foundry_retirement_guard_test.mjs",
+      "reason": "CI enforcement of retirement and allowlist"
+    },
+    {
+      "path": "tools/gcs_filesystem_contract_test.mjs",
+      "reason": "retirement enforcement, deployment deletion, or negative contract assertion"
+    },
+    {
+      "path": "tools/home_center_ci_validate.sh",
+      "reason": "retirement enforcement, deployment deletion, or negative contract assertion"
+    },
+    {
+      "path": "tools/home_center_production_catalog_test.mjs",
+      "reason": "retirement enforcement, deployment deletion, or negative contract assertion"
+    },
+    {
+      "path": "tools/home_center_production_deploy_contract_test.mjs",
+      "reason": "retirement enforcement, deployment deletion, or negative contract assertion"
+    },
+    {
+      "path": "tools/publish_foundry_retirement_record.mjs",
+      "reason": "retirement enforcement, deployment deletion, or negative contract assertion"
+    },
+    {
+      "path": "tools/worker_profile_contract_test.mjs",
+      "reason": "retirement enforcement, deployment deletion, or negative contract assertion"
+    }
+  ],
+  "historicalStorage": [
+    {
+      "kind": "gcs-prefix",
+      "value": "gs://home-center-generated/foundry/v2/",
+      "access": "read-only"
+    },
+    {
+      "kind": "firestore-collection",
+      "value": "foundryAssetJobs",
+      "access": "read-only historical receipts"
+    },
+    {
+      "kind": "firestore-collection",
+      "value": "foundryArtifactPromotions",
+      "access": "read-only stable artifact URLs"
+    }
+  ]
+}

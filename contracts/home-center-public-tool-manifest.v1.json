@@ -6260,8 +6260,8 @@
       }
     }
   ],
-  "manifestSha256": "1a8592c9645de28951734999259a819cd66ca2521327001fb372fab4a7c80779",
-  "registryRevision": "2026-07-27.foundry-v2",
+  "manifestSha256": "c3e2543387e90b37d187b1de564f1ff2448a4bf53851bd0120627295b7284dcf",
+  "registryRevision": "2026-07-29.blender-workspace-v1",
   "schemaVersion": "home-center.public-tool-manifest.v1",
   "toolCount": 57
 }

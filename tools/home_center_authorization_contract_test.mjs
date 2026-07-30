@@ -45,7 +45,7 @@ for (const email of [june, tim, 'outsider@example.com']) {
 
 const source = readFileSync(new URL('../functions/home_center_mcp.js', import.meta.url), 'utf8');
 assert.doesNotMatch(source, /server\.registerTool\('render_blender_glb'/);
-assert.match(source, /capability_retired\.use_foundry/);
+assert.match(source, /capability_retired\.use_blender_workspace/);
 assert.match(source, /async function githubAdminOperationRunOperation\([^)]*\) \{\n  requireGitHubAdminUser\(user\);/);
 
 const hostedSource = readFileSync(new URL('../functions/index.js', import.meta.url), 'utf8');

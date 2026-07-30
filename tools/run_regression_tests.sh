@@ -33,13 +33,6 @@ sh -n tools/assert_home_center_mcp_main_release.sh
 node tools/home_center_mcp_main_release_gate_test.mjs
 node tools/home_center_production_deploy_contract_test.mjs
 node tools/command_center_mcp_contract_test.mjs
-node --check functions/foundry_capability.js
-node --check functions/foundry_script_runtime.mjs
-node --check functions/foundry_kernel.mjs
-node --check functions/foundry_review_renderer.mjs
-node --check functions/foundry_worker_process.mjs
-node --check tools/foundry_contract_test.mjs
-node tools/foundry_contract_test.mjs
 node --check tools/cloud_blender_retirement_contract_test.mjs
 node tools/cloud_blender_retirement_contract_test.mjs
 node tools/artifact_delivery_contract_test.mjs

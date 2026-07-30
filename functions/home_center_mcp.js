@@ -42,10 +42,11 @@ const {
   findArtifactBySha256Operation,
 } = require('./artifact_ingest_service');
 const {
-  foundryOperationEntries,
-  runFoundryOperation,
-  installFoundryArtifactRoutes,
-} = require('./foundry_capability');
+  operationEntries: blenderWorkspaceOperationEntries,
+  runOperation: runBlenderWorkspaceOperation,
+  retiredFoundryError,
+} = require('./blender_workspace_capability');
+const {installLegacyFoundryArtifactRoutes} = require('./legacy_foundry_artifacts');
 const {
   filesystemOperationEntries,
   runFilesystemOperation,
@@ -62,7 +63,7 @@ const {
 const DEFAULT_MCP_PUBLIC_BASE = 'https://us-central1-home-center-dclar.cloudfunctions.net/homeCenterMcp';
 const MCP_PUBLIC_BASE = process.env.HOME_CENTER_MCP_PUBLIC_BASE || DEFAULT_MCP_PUBLIC_BASE;
 const HOME_CENTER_MCP_SERVER_VERSION = '0.2.0';
-const HOME_CENTER_CONNECTOR_SCHEMA_REVISION = '2026-07-27.foundry-v2';
+const HOME_CENTER_CONNECTOR_SCHEMA_REVISION = '2026-07-29.blender-workspace-v1';
 const HOME_CENTER_REGISTRY_VERSION = HOME_CENTER_CONNECTOR_SCHEMA_REVISION;
 const HOME_CENTER_DIRECT_FILE_TOOLS = Object.freeze(['drive_ingest_file', 'storage_ingest_artifact']);
 const MCP_RESOURCE = `${MCP_PUBLIC_BASE}/mcp`;
@@ -660,9 +661,9 @@ function commandCenterToolName(operation) {
     throw error;
   }
   if (new Set(['render.blender_glb', 'render.blender_build', 'render.status', 'render.reconcile']).has(op)) {
-    const error = new Error('This rendering capability is retired. Use drive_operation with operation=foundry.asset.run.');
+    const error = new Error('This legacy rendering capability is retired. Use drive_operation with blender.workspace.create, blender.workspace.mutate, blender.workspace.render, or blender.workspace.export.');
     error.status = 410;
-    error.code = 'capability_retired.use_foundry';
+    error.code = 'capability_retired.use_blender_workspace';
     throw error;
   }
   if (!commandCenterOperationRegistry().operations[op]) throw Object.assign(new Error('Unsupported command_center_operation operation: ' + op), {status: 400});
@@ -3910,20 +3911,20 @@ function tvtroperOperationEntries() {
 
 function driveOperationRegistry() {
   return {
-    version: '2026-07-29.tvtroper-dispatcher-v1',
+    version: '2026-07-29.blender-workspace-v1',
     invocationTool: 'drive_operation',
     cachePolicy: 'New bridge and simulation operations should be invokable through drive_operation so ChatGPT does not need a top-level MCP tool refresh for every backend code change. Cartesia TTS is a direct Home Center MCP provider operation; it must not be routed through Command Center jobs or workers.',
     operations: {
       ...artifactOperationEntries(),
       ...tvtroperOperationEntries(),
-      ...foundryOperationEntries(),
+      ...blenderWorkspaceOperationEntries(),
       ...filesystemOperationEntries(),
       'artifact.delivery.materialize_receipt': {
         summary: 'Materialize supported artifacts named by one owner-scoped terminal producer receipt as hash-verified private Drive resource links without rerendering or changing human acceptance.',
         write: true,
         requiresRequestId: true,
         requiredScopes: ['https://www.googleapis.com/auth/drive'],
-        input: {producerReceiptId: 'string; receipt only, never a GCS path or URL', producerKind: 'optional drive_audit|foundry', artifactNames: 'optional artifact role or filename array', parentFolderId: 'optional string', requestId: 'string'},
+        input: {producerReceiptId: 'string; receipt only, never a GCS path or URL', producerKind: 'optional drive_audit|blender_workspace|foundry_historical', artifactNames: 'optional artifact role or filename array', parentFolderId: 'optional string', requestId: 'string'},
         output: {status: 'review_ready after source and Drive readback verification', transportState: 'bytes transferred/reused, concurrency, and no-rerender evidence', authorization: 'owner_scoped', humanAcceptance: 'preserved separately and never changed', artifacts: 'bounded private Drive resource links with SHA-256 and byte length'},
       },
       'artifact.review.record': {
@@ -3936,7 +3937,7 @@ function driveOperationRegistry() {
         summary: 'Link a rejected or revision-requested review record to a distinct owner-scoped terminal corrective producer receipt.',
         write: true,
         requiresRequestId: true,
-        input: {reviewRequestId: 'string', successorReceiptId: 'string', producerKind: 'optional drive_audit|foundry', artifactNames: 'optional artifact selectors', requestId: 'string'},
+        input: {reviewRequestId: 'string', successorReceiptId: 'string', producerKind: 'optional drive_audit|blender_workspace|foundry_historical', artifactNames: 'optional artifact selectors', requestId: 'string'},
       },
       drive_create_folder: {
         summary: 'Create a Google Drive folder and audit the write.',
@@ -4769,6 +4770,10 @@ async function tvTroperRetrievalOperation({google, args = {}}) {
 async function driveOperationRunOperation({google, admin, auth, user, extra = null, googleClientId = '', googleClientSecret = '', githubToken = () => '', githubAdmin = {}, cartesiaApiKey = () => '', args = {}}) {
   const operation = safeText(args.operation || args.type || args.toolName, 120);
   if (!operation) throw Object.assign(new Error('operation is required.'), {status: 400});
+  if (operation.startsWith('foundry.')) {
+    const retired = retiredFoundryError(operation);
+    return {operation, registryVersion: driveOperationRegistry().version, completed: false, error: {code: retired.code, message: retired.message, status: retired.status, ...retired.details}};
+  }
   const registry = driveOperationRegistry();
   if (!registry.operations[operation]) throw Object.assign(new Error('Unsupported drive_operation operation: ' + operation), {status: 400});
   if (tvtroperOperationEntries()[operation]) {
@@ -4789,10 +4794,11 @@ async function driveOperationRunOperation({google, admin, auth, user, extra = nu
     const result = await commandCenterOperationRunOperation({google, admin, googleClientId, googleClientSecret, githubToken, extra, args: {operation: compatCommandCenterOperation, args: operationArgs}});
     return {operation, compatibilityRoute: 'drive_operation.command_center', commandCenterOperation: compatCommandCenterOperation, registryVersion: registry.version, completed: true, result: result.result};
   }
-  if (foundryOperationEntries()[operation]) {
+  if (blenderWorkspaceOperationEntries()[operation]) {
     requireCreditGatedEmail(user && user.email, operation);
-    const result = await runFoundryOperation({operation, admin, user, args: operationArgs});
-    return {operation, registryVersion: registry.version, completed: result.state === 'completed' || !!result.immutable, result};
+    const result = await runBlenderWorkspaceOperation({operation, admin, user, args: operationArgs});
+    const completed = ['blender.workspace.inspect', 'blender.workspace.history', 'blender.workspace.status'].includes(operation) ? result.state !== 'queued' && result.state !== 'running' : false;
+    return {operation, registryVersion: registry.version, completed, result};
   }
   if (filesystemOperationEntries()[operation]) {
     requireCreditGatedEmail(user && user.email, operation);
@@ -6295,7 +6301,7 @@ function createHomeCenterMcpApp({google, admin, googleClientId = () => '', googl
   const app = express();
   app.use(express.json({limit: '80mb'}));
   app.use(express.urlencoded({extended: false, limit: '256kb'}));
-  installFoundryArtifactRoutes(app, {admin});
+  installLegacyFoundryArtifactRoutes(app, {admin});
   const transports = {};
 
   app.all('/filesystem/files/:fileId/versions/:versionId/content', async (req, res) => {

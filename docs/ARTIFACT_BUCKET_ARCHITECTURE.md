@@ -4,7 +4,7 @@ Canonical generated storage is private `gs://home-center-generated`. Source belo
 
 ## Active Layout
 
-Digest-addressed active layouts include `artifacts/sha256/`, `foundry/v2/`, `filesystem/v1/blobs/`, `indexes/filesystem/v1/`, `audio/`, `images/`, `video/`, `logs/`, and `temp/`. Foundry writes immutable GLBs and review evidence below `foundry/v2/<owner-hash>/<namespace>/<input-hash>/`. No active producer writes to a Blender-specific prefix.
+Digest-addressed active layouts include `artifacts/sha256/`, `blender/workspaces/v1/`, `filesystem/v1/blobs/`, `indexes/filesystem/v1/`, `audio/`, `images/`, `video/`, `logs/`, and `temp/`. Persistent Blender workspaces store owner-scoped immutable `.blend` revisions and derived evidence below `blender/workspaces/v1/<owner-hash>/<workspace-id>/`. The historical `foundry/v2/` prefix is read-only.
 
 Every durable object carries string metadata for `"owner"`, `"ownerEmail"`, `"project"`, `"stage"`, `"engine"`, `"createdBy"`, `"jobId"`, `"commit"`, `"timestamp"`, `"executionAuthorized"`, `"authorizationState"`, and `"humanAcceptance"`, plus SHA-256, byte count, media type, request identity, and artifact type. Authorization and human acceptance are separate. New output defaults to `humanAcceptance=unreviewed` and is never marked approved by transport code.
 
@@ -22,4 +22,4 @@ Lifecycle cleanup is explicit and bucket-managed:
 
 Historical retired-producer objects remain read-only evidence. Generic receipt delivery may materialize an owner-scoped artifact from a real terminal receipt, but no active execution route points to a retired producer.
 
-Implementation owners are `functions/artifact_ingest_service.js`, `functions/artifact_transport.js`, `functions/artifact_delivery_service.js`, `functions/artifact_bucket.js`, `functions/audio_catalog_service.js`, `functions/gcs_filesystem_service.js`, and `functions/foundry_capability.js`.
+Implementation owners are `functions/artifact_ingest_service.js`, `functions/artifact_transport.js`, `functions/artifact_delivery_service.js`, `functions/artifact_bucket.js`, `functions/audio_catalog_service.js`, `functions/gcs_filesystem_service.js`, and `functions/blender_workspace_capability.js`.

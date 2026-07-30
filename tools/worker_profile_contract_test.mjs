@@ -129,37 +129,24 @@ for (const file of Object.keys(exemptions)) {
 }
 
 assert.equal(assignments['home-center-mcp'].profile, 'control-plane');
-assert.equal(assignments['command-center-blender-render'], undefined, 'retired renderer profile must stay deleted');
-assert.equal(assignments['fortress-model-foundry'].profile, 'media-forge-light');
-assert.equal(assignments['fortress-model-foundry'].state, 'bound');
+assert.equal(assignments['command-center-blender-render'], undefined, 'retired generic renderer profile must stay deleted');
+assert.equal(assignments['fortress-model-foundry'], undefined, 'retired custom geometry worker must stay deleted');
+assert.equal(assignments['home-center-blender-workspace'].profile, 'media-forge-heavy');
+assert.equal(assignments['home-center-blender-workspace'].state, 'bound');
 assert.equal(assignments['home-center-audio-render'].state, 'target');
-assert.equal(profiles['media-forge-light'].cpu, 4);
-assert.equal(profiles['media-forge-light'].memory, '4Gi');
-assert.equal(profiles['media-forge-light'].maxInstances, 8);
+assert.equal(profiles['media-forge-heavy'].cpu, 4);
+assert.equal(profiles['media-forge-heavy'].memory, '8Gi');
+assert.equal(profiles['media-forge-heavy'].maxInstances, 4);
 
-const foundryShell = execFileSync(process.execPath, [helperPath, 'shell', 'fortress-model-foundry'], {encoding: 'utf8'});
-assert.ok(foundryShell.includes("WORKER_CPU='4'"));
-assert.ok(foundryShell.includes("WORKER_MEMORY='4Gi'"));
-assert.ok(foundryShell.includes("WORKER_CONCURRENCY='1'"));
-
-const serviceFixture = {
-  spec: {
-    template: {
-      metadata: {annotations: {'autoscaling.knative.dev/maxScale': '8'}},
-      spec: {
-        containerConcurrency: 1,
-        timeoutSeconds: 1800,
-        containers: [{resources: {limits: {cpu: '4000m', memory: '4Gi'}}}],
-      },
-    },
-  },
-};
-function verifyFixture(name, fixture) {
-  return spawnSync(process.execPath, [helperPath, 'verify-live', name], {input: JSON.stringify(fixture), encoding: 'utf8'});
-}
-assert.equal(verifyFixture('fortress-model-foundry', serviceFixture).status, 0, 'Foundry live-readback fixture must pass');
+const blenderShell = execFileSync(process.execPath, [helperPath, 'shell', 'home-center-blender-workspace'], {encoding: 'utf8'});
+assert.ok(blenderShell.includes("WORKER_CPU='4'"));
+assert.ok(blenderShell.includes("WORKER_MEMORY='8Gi'"));
+assert.ok(blenderShell.includes("WORKER_CONCURRENCY='1'"));
+const serviceFixture = {spec:{template:{metadata:{annotations:{'autoscaling.knative.dev/maxScale':'4'}},spec:{containerConcurrency:1,timeoutSeconds:1800,containers:[{resources:{limits:{cpu:'4000m',memory:'8Gi'}}}]}}}};
+function verifyFixture(name, fixture) { return spawnSync(process.execPath, [helperPath, 'verify-live', name], {input: JSON.stringify(fixture), encoding: 'utf8'}); }
+assert.equal(verifyFixture('home-center-blender-workspace', serviceFixture).status, 0, 'Blender workspace live-readback fixture must pass');
 serviceFixture.spec.template.spec.containerConcurrency = 80;
-assert.notEqual(verifyFixture('fortress-model-foundry', serviceFixture).status, 0, 'Foundry live drift must fail closed');
+assert.notEqual(verifyFixture('home-center-blender-workspace', serviceFixture).status, 0, 'Blender workspace live drift must fail closed');
 
 const ci = fs.readFileSync(ciPath, 'utf8');
 assert.ok(ci.includes('node tools/worker_profile_contract_test.mjs'), 'Home Center CI must run worker profile contract');

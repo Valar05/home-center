@@ -970,9 +970,9 @@ function normalizeCommandCenterOperationName(value) {
 const RETIRED_RENDER_OPERATIONS = new Set(['render.blender_glb', 'render.blender_build', 'render.status', 'render.reconcile']);
 function assertNotRetiredOperation(operation) {
   if (!RETIRED_RENDER_OPERATIONS.has(operation)) return;
-  const error = new Error('This rendering capability is retired. Use drive_operation with operation=foundry.asset.run.');
+  const error = new Error('This rendering capability is retired. Use Home Center drive_operation with blender.workspace.create, blender.workspace.mutate, blender.workspace.render, or blender.workspace.export.');
   error.status = 410;
-  error.code = 'capability_retired.use_foundry';
+  error.code = 'capability_retired.use_blender_workspace';
   throw error;
 }
 

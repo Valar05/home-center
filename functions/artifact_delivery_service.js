@@ -223,7 +223,8 @@ function uniqueCandidates(receipt, artifactNames = []) {
 
 const RECEIPT_SOURCES = Object.freeze([
   {kind: 'drive_audit', collection: 'driveBridgeAudit', terminal: (record) => ['completed', 'success'].includes(text(record.status || record.result && record.result.status, 80)), owner: (record) => text(record.actor || record.ownerEmail || record.result && record.result.ownerEmail, 320).toLowerCase()},
-  {kind: 'foundry', collection: 'foundryAssetJobs', terminal: (record) => text(record.state, 80) === 'completed', owner: (record) => text(record.owner, 320).toLowerCase()},
+  {kind: 'blender_workspace', collection: 'blenderWorkspaceOperations', terminal: (record) => text(record.state, 80) === 'completed', owner: (record) => text(record.owner, 320).toLowerCase()},
+  {kind: 'foundry_historical', collection: 'foundryAssetJobs', terminal: (record) => text(record.state, 80) === 'completed', owner: (record) => text(record.owner, 320).toLowerCase()},
   {kind: 'archived_receipt', public: false, collection: 'commandCenterRenderRequests', terminal: (record) => text(record.status, 80) === 'completed', owner: (record) => text(record.requestedBy, 320).toLowerCase(), legacyOwnerKey: true},
 ]);
 

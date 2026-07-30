@@ -389,7 +389,7 @@ require_absent(home_center_mcp, 'simulationManual', 'Home Center capabilities do
 require_absent(home_center_mcp, 'homeDriveManual', 'Home Center capabilities do not embed the Home Drive manual')
 require_absent(home_center_mcp, 'automaticDiscovery', 'Home Center health does not embed discovery instructions')
 require_contains(home_center_mcp, "capability_retired.command_center_codex", 'Home Center rejects retired Codex agent and worker operations')
-require_contains(home_center_mcp, "...foundryOperationEntries()", 'Home Center dynamically discovers Foundry below drive_operation')
+require_contains(home_center_mcp, "...blenderWorkspaceOperationEntries()", 'Home Center dynamically discovers Blender workspaces below drive_operation')
 require_absent(home_center_mcp, "'agents.create_activation':", 'Home Center no longer advertises Codex agents')
 require_absent(home_center_mcp, "'workers.list':", 'Home Center no longer advertises Codex workers')
 require_absent(command_center_mcp, "server.registerTool('command_center.agents.", 'Command Center no longer registers Codex agents')

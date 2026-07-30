@@ -1,3 +1,5 @@
+RETIRED — HISTORICAL RECORD ONLY — DO NOT USE FOR AUTHORING
+
 # Fortress Model Foundry V2
 
 ## Boundary

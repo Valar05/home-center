@@ -1,3 +1,5 @@
+RETIRED — HISTORICAL RECORD ONLY — DO NOT USE FOR AUTHORING
+
 # Cloud Execution Retirement - 2026-07-27
 
 This record preserves archaeology only. It is not an operation catalog or deployment guide.

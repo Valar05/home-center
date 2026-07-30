@@ -1,12 +1,12 @@
 # Home Center
 
-Home Center is the authenticated household operations and execution surface. The Android app is the human approval and device-control hub; the MCP services expose durable Google Drive, Docs, Sheets, simulation, artifact, Foundry, and retained Command Center workflows to ChatGPT. Repository state, audit records, and artifact receipts preserve continuity across chats, devices, and cloud execution.
+Home Center is the authenticated household operations and execution surface. The Android app is the human approval and device-control hub; the MCP services expose durable Google Drive, Docs, Sheets, simulation, artifact, persistent Blender-workspace, and retained Command Center workflows to ChatGPT. Repository state, audit records, and artifact receipts preserve continuity across chats, devices, and cloud execution.
 
 The product boundary is deliberate:
 
 - people approve sensitive actions through Home Center or an explicit connected-client confirmation;
 - stable operation registries let clients discover backend capabilities without a connector reinstall for every addition;
-- asynchronous producers such as Foundry own their isolated execution contracts while ChatGPT remains the planning and conversational surface;
+- deterministic producers such as persistent Blender workspaces own their isolated execution contracts while ChatGPT remains the planning and conversational surface;
 - write operations use scoped authority, stable request IDs, and audit records;
 - the Android shopping list and voice commands are basic household workflows, not the product definition.
 
@@ -96,7 +96,7 @@ Home Center should own installed-app automation profiles. Termux/Shizuku scripts
 
 Command Center is a retained compatibility MCP for project bindings, managed knowledge buckets, app-control records, and browser-session learning. It has no frontend and no independent chat interface. Home Center reaches it through the stable `command_center_operation` dispatcher.
 
-Command Center Codex agents, jobs, sessions, worker discovery, provisioning, leases, and heartbeats are permanently retired. They are not cataloged or executable. Historical data remains private evidence and does not make the producer callable. New asynchronous artifact work uses its owned Home Center capability, such as `drive_operation` with `foundry.asset.run`.
+Command Center Codex agents, jobs, sessions, worker discovery, provisioning, leases, and heartbeats are permanently retired. They are not cataloged or executable. Historical data remains private evidence and does not make the producer callable. Mechanical asset work uses the persistent Home Center Blender workspace operations beneath `drive_operation`; retired geometry routes cannot dispatch.
 
 Termux can debug ChatGPT MCP app/plugin installation with `node tools/debug_chatgpt_plugin_install.mjs`. The debugger verifies the retained Home Center and Command Center surfaces; it does not dispatch a Codex worker.
 
