@@ -5,7 +5,7 @@ process.env.HOME_CENTER_ARTIFACT_BUCKET_TEST_FAKE = '1';
 process.env.HOME_CENTER_GENERATED_BUCKET = 'home-center-generated';
 const require = createRequire(import.meta.url);
 const artifactBucket = require('../functions/artifact_bucket.js');
-const {recoverAudioRenderRegistrationOperation, registerPrimaryAudioFromReceipt} = require('../functions/audio_catalog_service.js');
+const {recoverAudioRenderRegistrationOperation, registerPrimaryAudioFromReceipt, linkDriveAudioToReaderStageOperation} = require('../functions/audio_catalog_service.js');
 const {driveOperationRunOperation, createHomeCenterMcpServer} = require('../functions/home_center_mcp.js');
 
 function fakeAdmin() {
@@ -89,6 +89,64 @@ await assert.rejects(() => recoverAudioRenderRegistrationOperation({admin, user:
 const direct = await registerPrimaryAudioFromReceipt({ownerEmail, receipt: {...receipt, result: {...receipt.result, readerRegistration: undefined}}});
 assert.equal(direct.catalog.reused, true);
 assert.equal(direct.transport.copiedBytes, 0);
+const readerLinkFileId = 'drive-file-reader-link-123';
+const readerLinkSourceObject = 'indexes/audio/v1/by-drive-id/' + readerLinkFileId + '.json';
+const readerLinkSource = {
+  schemaVersion: 'home-center.audio-index.v1',
+  indexedAt: '2026-07-30T00:00:00.000Z',
+  source: {fileId: readerLinkFileId, name: legacy.name, mimeType: 'audio/ogg', sourcePath: 'Generated/' + legacy.name},
+  destination: {
+    bucket: 'home-center-generated',
+    objectName: legacy.storageRef.slice('gs://home-center-generated/'.length),
+    storageRef: legacy.storageRef,
+    byteCount: legacy.byteCount,
+    sha256: legacy.sha256,
+    contentType: 'audio/ogg',
+    ownerEmail,
+    project: 'vacation-of-a-lifetime',
+    stage: 'chapter-2-complete',
+  },
+  classification: {ownerEmail, project: 'vacation-of-a-lifetime', stage: 'chapter-2-complete'},
+  authorization: {state: 'owner_scoped', ownerEmail},
+  humanAcceptance: {state: 'unreviewed', approved: false},
+};
+await artifactBucket.writeGeneratedJsonObject(readerLinkSourceObject, readerLinkSource, {ifAbsent: true});
+const linkBefore = await artifactBucket.verifyGeneratedArtifact(legacy.storageRef, legacy);
+const linkArgs = {
+  approved: true,
+  requestId: 'vacation-day2-reader-finals-link-contract',
+  fileId: readerLinkFileId,
+  project: 'vacation-of-a-lifetime',
+  stage: 'finals',
+};
+const linked = await linkDriveAudioToReaderStageOperation({user: {email: ownerEmail}, args: linkArgs});
+assert.equal(linked.status, 'linked');
+assert.equal(linked.discovery.ok, true);
+assert.equal(linked.discovery.folder, 'vacation-of-a-lifetime/finals');
+assert.equal(linked.discovery.item.sha256, legacy.sha256);
+assert.equal(linked.playback.ok, true);
+assert.equal(linked.playback.probe.container, 'ogg');
+assert.deepEqual(linked.transport, {copiedBytes: 0, rerendered: false, resynthesized: false, public: false, driveCopy: false, driveMutated: false});
+assert.equal(linked.bytePreservation.unchanged, true);
+assert.equal(linked.catalog.objectName, 'indexes/audio/v1/catalog/dclarke1005-gmail-com/vacation-of-a-lifetime/finals/' + readerLinkFileId + '.json');
+assert.equal(linked.catalog.originalCatalogPreserved, true);
+const linkAfter = await artifactBucket.verifyGeneratedArtifact(legacy.storageRef, legacy);
+assert.equal(linkAfter.sha256, linkBefore.sha256);
+assert.equal(linkAfter.byteCount, linkBefore.byteCount);
+assert.equal(linkAfter.generation, linkBefore.generation);
+const linkedReplay = await linkDriveAudioToReaderStageOperation({user: {email: ownerEmail}, args: linkArgs});
+assert.equal(linkedReplay.catalog.reused, true);
+await assert.rejects(() => linkDriveAudioToReaderStageOperation({user: {email: 'junewren28@gmail.com'}, args: linkArgs}), /not owned/);
+const routedLink = await driveOperationRunOperation({
+  admin,
+  user: {email: ownerEmail},
+  args: {operation: 'audio.reader_link', args: {...linkArgs, requestId: 'vacation-day2-reader-finals-link-routed-contract'}},
+});
+assert.equal(routedLink.operation, 'audio.reader_link');
+assert.equal(routedLink.completed, true);
+assert.equal(routedLink.result.catalog.reused, true);
+assert.equal(routedLink.result.transport.copiedBytes, 0);
+
 const server = createHomeCenterMcpServer({google: {}, admin});
 assert.ok(!server._registeredTools.audio_render_register, 'registration recovery must remain below drive_operation');
 console.log('Home Center audio Reader registration contract: OK');
