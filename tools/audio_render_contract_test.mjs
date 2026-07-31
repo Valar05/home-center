@@ -508,7 +508,10 @@ assert.equal(legacyStatus.result.status, 'registration_required', 'legacy comple
 const staleAudit = {...completedAudit, status: 'running', result: null, lease: {heartbeatAtMs: Date.now() - 20 * 60 * 1000}, progress: {phase: 'synthesizing', synthesizedTakes: 7, totalTakes: 120}};
 collectionStore('driveBridgeAudit').set('audio-render-stale-001', staleAudit);
 const staleStatus = await driveOperationRunOperation({google: fakeGoogle(), admin, auth: {}, user: {email: 'dclarke1005@gmail.com', authKind: 'google_oauth_bearer'}, args: {operation: 'audio.render_status', args: {requestId: 'audio-render-stale-001'}}});
-assert.equal(staleStatus.result.status, 'stalled', 'stale running work must not remain zombie-running');
+assert.equal(staleStatus.result.status, 'needs_reconciliation', 'paid partial work without byte checkpoints must fail closed');
+assert.equal(staleStatus.result.progress.recoverySafety.synthesizedTakes, 7);
+assert.equal(staleStatus.result.progress.recoverySafety.durableTakeCheckpoints, 0);
+assert.equal(staleStatus.result.progress.recoverySafety.paidReplayAllowed, false);
 assert.equal(cartesiaCalls.length, providerCallsBeforeReplay, 'stale watchdog must not retry paid synthesis');
 globalThis.__cartesiaFake = {durationSeconds: null, delayMs: 0, gain: 0.32};
 
