@@ -128,7 +128,7 @@ assert.equal(linked.playback.ok, true);
 assert.equal(linked.playback.probe.container, 'ogg');
 assert.deepEqual(linked.transport, {copiedBytes: 0, rerendered: false, resynthesized: false, public: false, driveCopy: false, driveMutated: false});
 assert.equal(linked.bytePreservation.unchanged, true);
-assert.equal(linked.catalog.objectName, 'indexes/audio/v1/catalog/dclarke1005-gmail-com/vacation-of-a-lifetime/finals/' + readerLinkFileId + '.json');
+assert.equal(linked.catalog.objectName, 'indexes/audio/v1/catalog/dclarke1005@gmail.com/vacation-of-a-lifetime/finals/' + readerLinkFileId + '.json');
 assert.equal(linked.catalog.originalCatalogPreserved, true);
 const linkAfter = await artifactBucket.verifyGeneratedArtifact(legacy.storageRef, legacy);
 assert.equal(linkAfter.sha256, linkBefore.sha256);
