@@ -56,6 +56,50 @@ function sha256(bytes) {
   return createHash('sha256').update(bytes).digest('hex');
 }
 
+function inspectArtifactHeader(bytes, identity = {}) {
+  const buffer = Buffer.isBuffer(bytes) ? bytes : Buffer.from(bytes || []);
+  const name = fileName(identity.name || identity.fileName || 'artifact.bin').toLowerCase();
+  const declaredMime = mimeType(identity.mimeType);
+  const prefix = buffer.subarray(0, Math.min(buffer.length, 512));
+  const utf8 = prefix.toString('utf8').replace(/^\uFEFF/, '');
+  if (/^version https:\/\/git-lfs\.github\.com\/spec\/v1(?:\r?\n|$)/.test(utf8)) throw fail('Git LFS pointer text is not artifact bytes.', 422, 'artifact_ingest_git_lfs_pointer');
+  if (/^data:[^;,]{1,160};base64,/i.test(utf8) || /^\s*\{\s*"(?:file|path|url|ref|contentBase64)"\s*:/i.test(utf8)) throw fail('Artifact upload received a text descriptor instead of raw file bytes.', 422, 'artifact_ingest_descriptor_not_binary');
+  const magic = {
+    glb: buffer.length >= 12 && buffer.toString('ascii', 0, 4) === 'glTF',
+    png: buffer.length >= 8 && buffer.subarray(0, 8).equals(Buffer.from([0x89,0x50,0x4e,0x47,0x0d,0x0a,0x1a,0x0a])),
+    jpg: buffer.length >= 3 && buffer[0] === 0xff && buffer[1] === 0xd8 && buffer[2] === 0xff,
+    zip: buffer.length >= 4 && buffer[0] === 0x50 && buffer[1] === 0x4b && [0x03,0x05,0x07].includes(buffer[2]) && [0x04,0x06,0x08].includes(buffer[3]),
+    wav: buffer.length >= 12 && buffer.toString('ascii', 0, 4) === 'RIFF' && buffer.toString('ascii', 8, 12) === 'WAVE',
+    ogg: buffer.length >= 4 && buffer.toString('ascii', 0, 4) === 'OggS',
+    pdf: buffer.length >= 5 && buffer.toString('ascii', 0, 5) === '%PDF-',
+    gzip: buffer.length >= 2 && buffer[0] === 0x1f && buffer[1] === 0x8b,
+  };
+  if (magic.glb) {
+    const version = buffer.readUInt32LE(4);
+    const declaredLength = buffer.readUInt32LE(8);
+    if (version !== 2 || declaredLength !== buffer.length) throw fail('GLB header version or declared length is invalid.', 422, 'artifact_ingest_glb_header_invalid');
+  }
+  const expected = [];
+  if (name.endsWith('.glb') || declaredMime === 'model/gltf-binary') expected.push('glb');
+  if (name.endsWith('.png') || declaredMime === 'image/png') expected.push('png');
+  if (/\.jpe?g$/.test(name) || declaredMime === 'image/jpeg') expected.push('jpg');
+  if (name.endsWith('.zip') || declaredMime === 'application/zip') expected.push('zip');
+  if (name.endsWith('.wav') || /audio\/(?:wav|wave|x-wav)/.test(declaredMime)) expected.push('wav');
+  if (name.endsWith('.ogg') || declaredMime === 'audio/ogg') expected.push('ogg');
+  if (name.endsWith('.pdf') || declaredMime === 'application/pdf') expected.push('pdf');
+  if (name.endsWith('.gz') || declaredMime === 'application/gzip') expected.push('gzip');
+  if (expected.length && !expected.some((kind) => magic[kind])) throw fail('Artifact bytes do not match the declared filename or MIME type.', 422, 'artifact_ingest_magic_mismatch');
+  return {valid: true, detectedKind: Object.keys(magic).find((kind) => magic[kind]) || 'unknown', declaredMime, inspectedBytes: prefix.length};
+}
+
+function decodeStrictBase64(value) {
+  const encoded = text(value, ARTIFACT_CHUNK_MAX_BYTES * 2).replace(/\s+/g, '');
+  if (!encoded || encoded.length % 4 !== 0 || !/^[A-Za-z0-9+/]*={0,2}$/.test(encoded)) throw fail('chunkBase64 must be canonical Base64.', 400, 'artifact_ingest_chunk_base64_invalid');
+  const bytes = Buffer.from(encoded, 'base64');
+  if (bytes.toString('base64') !== encoded) throw fail('chunkBase64 is not canonical Base64.', 400, 'artifact_ingest_chunk_base64_invalid');
+  return bytes;
+}
+
 function expectedSha(value, field = 'expectedSha256') {
   const clean = text(value, 128).toLowerCase();
   if (clean && !/^[a-f0-9]{64}$/.test(clean)) throw fail(field + ' must be a 64-character hexadecimal SHA-256 digest.');
@@ -348,6 +392,7 @@ async function ingestArtifactUploadOperation({admin, storage = defaultStorage(),
   const declared = Number(uploaded.size || 0);
   if (declared > ARTIFACT_INGEST_MAX_BYTES) throw fail('Artifact exceeds the configured ingest ceiling.', 413, 'artifact_ingest_too_large');
   const verified = assertExpected(identity, Buffer.from(await uploaded.arrayBuffer()));
+  verified.header = inspectArtifactHeader(verified.bytes, identity);
   return publishVerified({admin, storage, user, identity, verified, recordAudit});
 }
 
@@ -388,9 +433,7 @@ async function appendArtifactChunkOperation({storage = defaultStorage(), user, a
   const identity = normalizeIdentity(user, args);
   const index = Number(args.chunkIndex);
   if (!Number.isSafeInteger(index) || index < 0 || index > 99999) throw fail('chunkIndex must be a non-negative safe integer.');
-  const encoded = text(args.chunkBase64, ARTIFACT_CHUNK_MAX_BYTES * 2);
-  if (!encoded) throw fail('chunkBase64 is required.');
-  const bytes = Buffer.from(encoded, 'base64');
+  const bytes = decodeStrictBase64(args.chunkBase64);
   if (!bytes.length || bytes.length > ARTIFACT_CHUNK_MAX_BYTES) throw fail('Chunk is empty or exceeds chunkMaxBytes.', 413, 'artifact_ingest_chunk_too_large');
   const digest = sha256(bytes);
   const expected = expectedSha(args.chunkSha256, 'chunkSha256');
@@ -473,7 +516,8 @@ async function commitArtifactIngestOperation({admin, storage = defaultStorage(),
     if (![409, 412].includes(Number(err && err.code)) && !/condition|already exists/i.test(String(err && err.message))) throw err;
   }
   const assembled = assertExpectedDigest(identity, await digestFile(staging));
-  const verified = {...assembled, sourceFile: staging};
+  const headerRead = await readFile(staging);
+  const verified = {...assembled, sourceFile: staging, header: inspectArtifactHeader(headerRead.bytes, identity)};
   const result = await publishVerified({admin, storage, user, identity, verified, recordAudit});
   await Promise.allSettled([...chunks, ...intermediates, staging].map((file) => file.delete({ignoreNotFound: true})));
   return {...result, transport: {kind: 'chunked-mcp-fallback', expectedChunks, stagedObjectsDisposed: true}};
@@ -546,7 +590,7 @@ async function commitResumableArtifactIngestOperation({admin,storage=defaultStor
     return {ok:true,verified:true,reused:true,requestId:data.requestId,artifactId,lifecycleState:manifest.lifecycleState,durableRef:"home-center://artifacts/"+artifactId,destination,verification:manifest.verification,provenance:manifest.source && manifest.source.provenance || {},transport:{kind:"gcs-resumable-raw-binary-v1",verifiedChunks:Array.isArray(data.chunks)?data.chunks.length:0,transferredOutsideMcpJson:true,transferredBytes:0,exactReplay:true}};
   }
   const verifiedChunks=await boundedMap(data.chunks,4,async(chunk)=>{const digest=await digestFile(file,{start:chunk.offset,end:chunk.offset+chunk.byteCount-1}); if(digest.byteCount!==chunk.byteCount) throw fail('Resumable chunk byte length mismatch at index '+chunk.index+'.',409,'artifact_resumable_chunk_length_mismatch'); if(digest.sha256!==chunk.sha256) throw fail('Resumable chunk SHA-256 mismatch at index '+chunk.index+'.',409,'artifact_resumable_chunk_sha256_mismatch'); return {...chunk,verified:true};});
-  const whole=assertExpectedDigest(data.identity,await digestFile(file)); await ref.set({...data,state:'ready',progress:{verifiedChunks:verifiedChunks.length,totalChunks:verifiedChunks.length,verifiedBytes:whole.byteCount,totalBytes:whole.byteCount},verifiedAt:new Date().toISOString()});
+  const whole=assertExpectedDigest(data.identity,await digestFile(file)); const headerRead=await readFile(file); whole.header=inspectArtifactHeader(headerRead.bytes,data.identity); await ref.set({...data,state:'ready',progress:{verifiedChunks:verifiedChunks.length,totalChunks:verifiedChunks.length,verifiedBytes:whole.byteCount,totalBytes:whole.byteCount},verifiedAt:new Date().toISOString()});
   const result=await publishVerified({admin,storage,user,identity:data.identity,verified:{...whole,sourceFile:file},recordAudit}); await ref.set({...data,uploadUrl:'',state:'completed',progress:{verifiedChunks:verifiedChunks.length,totalChunks:verifiedChunks.length,verifiedBytes:whole.byteCount,totalBytes:whole.byteCount},result:{durableRef:result.durableRef,destination:result.destination},completedAt:new Date().toISOString()});
   await file.delete({ignoreNotFound:true}); return {...result,transport:{kind:'gcs-resumable-raw-binary-v1',verifiedChunks:verifiedChunks.length,transferredOutsideMcpJson:true}};
 }
@@ -673,4 +717,6 @@ module.exports = {
   findArtifactBySha256Operation,
   normalizeIdentity,
   assertExpected,
+  inspectArtifactHeader,
+  decodeStrictBase64,
 };
