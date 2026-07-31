@@ -1863,7 +1863,13 @@ async function audioRenderStatusOperation({admin, user, requestId, helpers = {}}
     const message = ambiguousPaidPartial
       ? 'The worker expired after paid takes that were not individually byte-checkpointed. Provider evidence must be recovered or quarantined before any retry.'
       : 'The render worker heartbeat expired. Existing durable checkpoints may be inspected before same-receipt recovery.';
-    await helpers.auditWrite(admin, {...audit, actor: audit.actor || 'unknown', authKind: audit.authKind, tool: 'audio.render', operation: 'audio.render', requestId, status, providerSummary: 'audio.render ' + status + ' after heartbeat expiry; no paid retry was launched.', result: audit.result || {ok: false, status, inputSha256: audit.inputSha256, code, message}, inputSha256: audit.inputSha256, progress: audioProgressPatch(progress, {phase: status, stalledAtMs: now, recoverySafety: {totalTakes, synthesizedTakes, durableTakeCheckpoints: takeCheckpoints, completeSpeechCheckpoint, paidReplayAllowed: false}}), lease: null}).catch(() => {});
+    const failureResult = audit.result || {ok: false, status, inputSha256: audit.inputSha256, code, message};
+    const updatedProgress = audioProgressPatch(progress, {phase: status, stalledAtMs: now, recoverySafety: {totalTakes, synthesizedTakes, durableTakeCheckpoints: takeCheckpoints, completeSpeechCheckpoint, paidReplayAllowed: false}});
+    audit.status = status;
+    audit.result = failureResult;
+    audit.progress = updatedProgress;
+    audit.lease = null;
+    await helpers.auditWrite(admin, {...audit, actor: audit.actor || 'unknown', authKind: audit.authKind, tool: 'audio.render', operation: 'audio.render', requestId, status, providerSummary: 'audio.render ' + status + ' after heartbeat expiry; no paid retry was launched.', result: failureResult, inputSha256: audit.inputSha256, progress: updatedProgress, lease: null}).catch(() => {});
   }
   return {ok: status !== 'missing', operation: 'audio.render_status', requestId, status, state: status, inputSha256: audit.inputSha256 || audit.result && audit.result.inputSha256 || '', result: audit.result || null, progress: audit.progress || null, lease: audit.lease || null, timestamps: {timestampMs: audit.timestampMs || 0, submittedAtMs: audit.submittedAtMs || audit.timestampMs || 0, updatedAtMs: audit.updatedAtMs || audit.timestampMs || 0, heartbeatAtMs}, audit: {...audit, result: null}};
 }
