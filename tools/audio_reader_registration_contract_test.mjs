@@ -23,9 +23,16 @@ function fakeAdmin() {
           },
         };
       },
+      async add(value) {
+        const id = 'auto-' + store.size;
+        store.set(id, value);
+        return {id};
+      },
     };
   };
-  return {firestore: () => ({collection}), collections};
+  const firestore = () => ({collection});
+  firestore.FieldValue = {serverTimestamp: () => 'server-timestamp'};
+  return {firestore, collections};
 }
 
 const ownerEmail = 'dclarke1005@gmail.com';
