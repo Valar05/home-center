@@ -1,4 +1,6 @@
-const assert = require('node:assert/strict');
+import assert from 'node:assert/strict';
+import {createRequire} from 'node:module';
+const require = createRequire(import.meta.url);
 const {inspectArtifactHeader, decodeStrictBase64} = require('../functions/artifact_ingest_service');
 
 const glb = Buffer.alloc(12);
