@@ -80,6 +80,7 @@ try {
   process.env.HOME_CENTER_GITHUB_ADMIN_OWNERS = 'Valar05';
   const liveStatus = await githubAdminOperationRunOperation({admin: fakeAdmin(), user, githubAdmin, args: {operation: 'github_admin.auth_status', args: {}}});
   assert.equal(liveStatus.enabled, true);
+  assert.equal(installationTokenAttempts, 2, 'transient installation-token 502 is retried');
   const bridgeStatus = await driveOperationRunOperation({admin: fakeAdmin(), user, githubAdmin, args: {operation: 'github_admin.auth_status', args: {}}});
   assert.equal(bridgeStatus.completed, true);
   assert.equal(bridgeStatus.result.enabled, true);
@@ -87,7 +88,6 @@ try {
   assert.equal(liveStatus.authenticated, true);
   assert.equal(liveStatus.providerReachable, true);
   assert.equal(liveStatus.primaryCredential, 'github_app_installation');
-  assert.equal(installationTokenAttempts, 2, 'transient installation-token 502 is retried');
   assert.deepEqual(liveStatus.allowedOwners, ['Valar05']);
   assert.equal(liveStatus.secretsExposed, false);
 
