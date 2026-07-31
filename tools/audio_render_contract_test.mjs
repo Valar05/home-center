@@ -25,9 +25,11 @@ assert(homeCenterSource.includes("requireCreditGatedEmail(user && user.email, 'a
 const {driveOperationRunOperation, createHomeCenterMcpServer} = require('../functions/home_center_mcp.js');
 const {uploadGeneratedArtifact} = require('../functions/artifact_bucket.js');
 const cartesiaPitchShift = require('../functions/cartesia_pitch_shift.js');
-const {sanitizeRecipeText, renderRecipe, executeAudioRenderJob, materializeSources, resolveSpeechProfile, CARTESIA_SUPPORTED_EMOTIONS, primitives} = require('../functions/audio_render_service.js');
+const {sanitizeRecipeText, renderRecipe, executeAudioRenderJob, materializeSources, resolveSpeechProfile, CARTESIA_SUPPORTED_EMOTIONS, limits, primitives} = require('../functions/audio_render_service.js');
 
 const {tone, noise, silence, trim, concat, loop, fade, crossfade, gain, normalizePeak, normalizeLufs, pan, pitchShift, timeStretch, reverse, biquadLike, compress, limit, distort, delay, reverb, envelope, timeline, blockMix, duck, resample, toChannels, encodeWav, decodeWav, waveformPng, spectrogramPng, measure, waitForWritableDrain} = primitives;
+
+assert.ok(limits.MAX_SOURCE_BYTES >= limits.MAX_WAV_OUTPUT_BYTES, 'downstream source ceiling must accept every reusable WAV checkpoint the renderer can create');
 
 {
   const blockedInput = new EventEmitter();
