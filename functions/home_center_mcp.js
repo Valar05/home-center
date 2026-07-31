@@ -2030,6 +2030,36 @@ function githubHeaders(token, extra = {}) {
   };
 }
 
+const GITHUB_TRANSIENT_STATUS_CODES = new Set([408, 429, 500, 502, 503, 504]);
+
+function githubRetryDelayMs(response, attempt) {
+  const retryAfter = response && response.headers && typeof response.headers.get === 'function' ?
+    Number(response.headers.get('retry-after')) : NaN;
+  if (Number.isFinite(retryAfter) && retryAfter >= 0) return Math.min(5000, Math.max(0, retryAfter * 1000));
+  return Math.min(2000, 200 * (2 ** Math.max(0, attempt - 1)));
+}
+
+async function githubFetchWithRetry(url, requestOptions = {}, retryOptions = {}) {
+  const method = safeText(requestOptions.method || 'GET', 16).toUpperCase();
+  const retrySafe = ['GET', 'HEAD'].includes(method) || retryOptions.retryUnsafe === true;
+  const maxAttempts = retrySafe ? Math.max(1, Math.min(4, Math.floor(safeNumber(retryOptions.maxAttempts, 3)))) : 1;
+  let lastError = null;
+  for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
+    let response;
+    try {
+      response = await fetch(url, requestOptions);
+    } catch (err) {
+      lastError = err;
+      if (attempt >= maxAttempts) throw err;
+      await new Promise((resolve) => setTimeout(resolve, githubRetryDelayMs(null, attempt)));
+      continue;
+    }
+    if (!GITHUB_TRANSIENT_STATUS_CODES.has(response.status) || attempt >= maxAttempts) return response;
+    await new Promise((resolve) => setTimeout(resolve, githubRetryDelayMs(response, attempt)));
+  }
+  throw lastError || new Error('GitHub request exhausted retry attempts.');
+}
+
 async function githubRequest(githubToken, route, options = {}) {
   const token = githubTokenValue(githubToken);
   if (!token) {
@@ -2037,7 +2067,7 @@ async function githubRequest(githubToken, route, options = {}) {
     err.status = 503;
     throw err;
   }
-  const response = await fetch(`https://api.github.com${route}`, {
+  const response = await githubFetchWithRetry(`https://api.github.com${route}`, {
     method: options.method || 'GET',
     headers: githubHeaders(token),
     body: options.body ? JSON.stringify(options.body) : undefined,
@@ -2235,10 +2265,10 @@ async function githubAdminInstallationToken(githubAdmin = {}) {
     throw err;
   }
   const jwt = createGitHubAppJwt(appId, privateKey);
-  const response = await fetch(`https://api.github.com/app/installations/${encodeURIComponent(installationId)}/access_tokens`, {
+  const response = await githubFetchWithRetry(`https://api.github.com/app/installations/${encodeURIComponent(installationId)}/access_tokens`, {
     method: 'POST',
     headers: githubHeaders(jwt),
-  });
+  }, {retryUnsafe: true});
   const text = await response.text();
   const json = text ? JSON.parse(text) : null;
   if (!response.ok || !json || !json.token) {
@@ -2268,7 +2298,7 @@ async function githubAdminToken(githubAdmin = {}, options = {}) {
 
 async function githubAdminRequest(githubAdmin, route, options = {}) {
   const tokenInfo = await githubAdminToken(githubAdmin, options);
-  const response = await fetch(`https://api.github.com${route}`, {
+  const response = await githubFetchWithRetry(`https://api.github.com${route}`, {
     method: options.method || 'GET',
     headers: githubHeaders(tokenInfo.token, options.accept ? {Accept: options.accept} : {}),
     body: options.body ? JSON.stringify(options.body) : undefined,
