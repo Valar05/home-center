@@ -256,7 +256,7 @@ function uniqueCandidates(receipt, artifactNames = []) {
 
 const RECEIPT_SOURCES = Object.freeze([
   {kind: 'artifact_transport', collection: 'artifactTransportReceipts', terminal: (record) => text(record.receipt && record.receipt.state, 80) === 'accepted', owner: (record) => text(record.owner, 320).toLowerCase()},
-  {kind: 'drive_audit', collection: 'driveBridgeAudit', terminal: (record) => ['completed', 'success'].includes(text(record.status || record.result && record.result.status, 80)), owner: (record) => text(record.actor || record.ownerEmail || record.result && record.result.ownerEmail, 320).toLowerCase()},
+  {kind: 'drive_audit', collection: 'driveBridgeAudit', terminal: (record) => ['completed', 'success', 'failed', 'stalled', 'needs_reconciliation', 'registration_required'].includes(text(record.status || record.result && record.result.status, 80)), owner: (record) => text(record.actor || record.ownerEmail || record.result && record.result.ownerEmail, 320).toLowerCase()},
   {kind: 'blender_workspace', collection: 'blenderWorkspaceOperations', terminal: (record) => text(record.state, 80) === 'completed', owner: (record) => text(record.owner, 320).toLowerCase()},
   {kind: 'foundry_historical', collection: 'foundryAssetJobs', terminal: (record) => text(record.state, 80) === 'completed', owner: (record) => text(record.owner, 320).toLowerCase()},
   {kind: 'archived_receipt', public: false, collection: 'commandCenterRenderRequests', terminal: (record) => text(record.status, 80) === 'completed', owner: (record) => text(record.requestedBy, 320).toLowerCase(), legacyOwnerKey: true},
@@ -278,8 +278,13 @@ async function resolveProducerReceipt({admin, ownerEmail, producerReceiptId, pro
   if (recordedOwner ? recordedOwner !== ownerEmail : !source.legacyOwnerKey || renderOwnerKey !== expectedOwnerKey) {
     throw fail('artifact_delivery.receipt_forbidden', 'Producer receipt is not owned by the authenticated caller.', 403);
   }
-  if (!source.terminal(receipt)) throw fail('artifact_delivery.receipt_not_terminal', 'Only terminal successful producer receipts can be materialized.', 409);
-  return {producerKind: source.kind, collection: source.collection, receipt};
+  if (!source.terminal(receipt)) throw fail('artifact_delivery.receipt_not_terminal', 'Producer receipt is not terminal or recoverable.', 409);
+  const receiptState = text(receipt.status || receipt.result && receipt.result.status, 80);
+  if (!['completed', 'success'].includes(receiptState)) {
+    try { uniqueCandidates(receipt, []); }
+    catch (_error) { throw fail('artifact_delivery.failed_receipt_has_no_verified_candidate', 'Failed or stalled producer receipts are recoverable only when they already contain hash-bound artifact bytes.', 409); }
+  }
+  return {producerKind: source.kind, collection: source.collection, receipt, receiptState};
 }
 
 function humanAcceptance(receipt) {
@@ -454,7 +459,7 @@ async function materializeReceiptArtifactsOperation({google, admin, auth, user, 
     contractVersion: CONTRACT_VERSION,
     operation: 'artifact.delivery.materialize_receipt',
     requestId,
-    producer: {kind: resolved.producerKind, receiptId: producerReceiptId},
+    producer: {kind: resolved.producerKind, receiptId: producerReceiptId, receiptState: resolved.receiptState || 'completed', producerSuccessRequired: false},
     status: 'review_ready',
     transportState: {state: 'completed', artifactCount: artifacts.length, expectedBytes: selection.totalBytes, transferredBytes, reusedBytes, concurrency: CONCURRENCY, rerendered: false, resynthesized: false, public: false},
     authorization: {state: 'owner_scoped', ownerEmail},
