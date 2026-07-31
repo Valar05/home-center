@@ -22,6 +22,9 @@ const MAX_GRAPH_NODES = Number(process.env.HOME_CENTER_AUDIO_RENDER_MAX_GRAPH_NO
 const DEFAULT_TIMEOUT_MS = Number(process.env.HOME_CENTER_AUDIO_RENDER_TIMEOUT_MS || 55000);
 const AUDIO_RENDER_LEASE_MS = Number(process.env.HOME_CENTER_AUDIO_RENDER_LEASE_MS || 120000);
 const AUDIO_RENDER_STALE_MS = Number(process.env.HOME_CENTER_AUDIO_RENDER_STALE_MS || 10 * 60 * 1000);
+const AUDIO_RENDER_MAX_ACTIVE_JOBS = Math.max(1, Math.min(8, Number(process.env.HOME_CENTER_AUDIO_RENDER_MAX_ACTIVE_JOBS || 2)));
+const audioRenderQueue = [];
+let activeAudioRenderJobs = 0;
 
 const SPEECH_MAX_TEXT_CHARS = 12000;
 const CARTESIA_SPEECH_SAMPLE_RATE_MAX = 48000;
@@ -1798,11 +1801,23 @@ async function executeAudioRenderJob({google, admin, auth, user, args = {}, help
   }
 }
 
+function drainAudioRenderQueue() {
+  while (activeAudioRenderJobs < AUDIO_RENDER_MAX_ACTIVE_JOBS && audioRenderQueue.length) {
+    const context = audioRenderQueue.shift();
+    activeAudioRenderJobs += 1;
+    setImmediate(() => {
+      executeAudioRenderJob(context).catch(() => {}).finally(() => {
+        activeAudioRenderJobs -= 1;
+        drainAudioRenderQueue();
+      });
+    });
+  }
+}
+
 function startAudioRenderBackground(context) {
   if (context.args && context.args.disableBackgroundWorker === true) return;
-  setImmediate(() => {
-    executeAudioRenderJob(context).catch(() => {});
-  });
+  audioRenderQueue.push(context);
+  drainAudioRenderQueue();
 }
 
 async function renderAudioOperation({google, admin, auth, user, args = {}, helpers = {}, cartesiaApiKey = () => ''}) {
@@ -1814,7 +1829,7 @@ async function renderAudioOperation({google, admin, auth, user, args = {}, helpe
     if (readerRegistrationComplete(existing.result)) return {...existing.result, idempotent: true, audit: existing, _mcpContent: null};
     return {...existing.result, ok: false, status: 'registration_required', idempotent: true, recoveryOperation: {operation: 'audio.render_register', args: {requestId}}, audit: existing, _mcpContent: null};
   }
-  if (existing && ['queued', 'running', 'stalled', 'recoverable', 'registration_required', 'failed'].includes(safeText(existing.status, 80))) return audioRenderAcceptedReceipt({requestId, inputSha256, status: safeText(existing.status, 80), audit: existing, idempotent: true});
+  if (existing && ['queued', 'running', 'stalled', 'needs_reconciliation', 'recoverable', 'registration_required', 'failed'].includes(safeText(existing.status, 80))) return audioRenderAcceptedReceipt({requestId, inputSha256, status: safeText(existing.status, 80), audit: existing, idempotent: true});
   const actor = audioJobActor(user);
   const authKind = user && user.authKind;
   const queuedAtMs = Date.now();
@@ -1837,8 +1852,18 @@ async function audioRenderStatusOperation({admin, user, requestId, helpers = {}}
   const heartbeatAtMs = audit.lease && Number(audit.lease.heartbeatAtMs || 0) || Number(audit.updatedAtMs || audit.timestampMs || 0);
   const stale = ['queued', 'running'].includes(status) && heartbeatAtMs && now - heartbeatAtMs > AUDIO_RENDER_STALE_MS;
   if (stale && helpers.auditWrite) {
-    status = 'stalled';
-    await helpers.auditWrite(admin, {...audit, actor: audit.actor || 'unknown', authKind: audit.authKind, tool: 'audio.render', operation: 'audio.render', requestId, status, providerSummary: 'audio.render stalled after heartbeat expiry; no paid retry was launched.', result: audit.result || {ok: false, status, inputSha256: audit.inputSha256, code: 'audio_render_stalled', message: 'The render worker heartbeat expired. Existing provider outcome is ambiguous; inspect checkpoints before resuming.'}, inputSha256: audit.inputSha256, progress: audioProgressPatch(audit.progress || {}, {phase: 'stalled', stalledAtMs: now}), lease: null}).catch(() => {});
+    const progress = audit.progress || {};
+    const totalTakes = Number(progress.totalTakes || 0);
+    const synthesizedTakes = Number(progress.synthesizedTakes || 0);
+    const takeCheckpoints = Array.isArray(progress.speechTakeCheckpoints) ? progress.speechTakeCheckpoints.filter(Boolean).length : 0;
+    const completeSpeechCheckpoint = Boolean(progress.speechCheckpoint && progress.speechCheckpoint.verified === true && progress.speechCheckpoint.reusableWithoutProviderCall === true);
+    const ambiguousPaidPartial = totalTakes > 0 && synthesizedTakes > takeCheckpoints && !completeSpeechCheckpoint;
+    status = ambiguousPaidPartial ? 'needs_reconciliation' : 'stalled';
+    const code = ambiguousPaidPartial ? 'audio_render_paid_partial_needs_reconciliation' : 'audio_render_stalled';
+    const message = ambiguousPaidPartial
+      ? 'The worker expired after paid takes that were not individually byte-checkpointed. Provider evidence must be recovered or quarantined before any retry.'
+      : 'The render worker heartbeat expired. Existing durable checkpoints may be inspected before same-receipt recovery.';
+    await helpers.auditWrite(admin, {...audit, actor: audit.actor || 'unknown', authKind: audit.authKind, tool: 'audio.render', operation: 'audio.render', requestId, status, providerSummary: 'audio.render ' + status + ' after heartbeat expiry; no paid retry was launched.', result: audit.result || {ok: false, status, inputSha256: audit.inputSha256, code, message}, inputSha256: audit.inputSha256, progress: audioProgressPatch(progress, {phase: status, stalledAtMs: now, recoverySafety: {totalTakes, synthesizedTakes, durableTakeCheckpoints: takeCheckpoints, completeSpeechCheckpoint, paidReplayAllowed: false}}), lease: null}).catch(() => {});
   }
   return {ok: status !== 'missing', operation: 'audio.render_status', requestId, status, state: status, inputSha256: audit.inputSha256 || audit.result && audit.result.inputSha256 || '', result: audit.result || null, progress: audit.progress || null, lease: audit.lease || null, timestamps: {timestampMs: audit.timestampMs || 0, submittedAtMs: audit.submittedAtMs || audit.timestampMs || 0, updatedAtMs: audit.updatedAtMs || audit.timestampMs || 0, heartbeatAtMs}, audit: {...audit, result: null}};
 }
