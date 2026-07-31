@@ -46,14 +46,23 @@ const githubAdmin = {
   bootstrapToken: () => 'bootstrap-token-for-tests',
   allowedOwners: () => 'Valar05',
 };
+let installationTokenAttempts = 0;
+let dispatchAttempts = 0;
 const originalFetch = global.fetch;
 const originalEnabled = process.env.HOME_CENTER_GITHUB_ADMIN_ENABLED;
 const originalOwners = process.env.HOME_CENTER_GITHUB_ADMIN_OWNERS;
 try {
   global.fetch = async (url, options = {}) => {
     const parsed = new URL(url);
-    if (parsed.pathname === '/app/installations/67890/access_tokens') return response(201, {token: 'installation-token-for-tests'});
-    if (parsed.pathname === '/repos/Valar05/home-center/actions/workflows/ci.yml/dispatches' && options.method === 'POST') return response(204, null);
+    if (parsed.pathname === '/app/installations/67890/access_tokens') {
+      installationTokenAttempts += 1;
+      if (installationTokenAttempts === 1) return response(502, {message: 'transient gateway'});
+      return response(201, {token: 'installation-token-for-tests'});
+    }
+    if (parsed.pathname === '/repos/Valar05/home-center/actions/workflows/ci.yml/dispatches' && options.method === 'POST') {
+      dispatchAttempts += 1;
+      return response(204, null);
+    }
     if (parsed.pathname === '/repos/Valar05/home-center/pulls/10') return response(200, {number: 10, draft: false, head: {ref: 'feature', sha: 'current-sha'}, base: {ref: 'main', sha: 'base-sha'}});
     if (parsed.pathname === '/repos/Valar05/home-center/pulls/11') return response(200, {number: 11, draft: false, head: {ref: 'feature', sha: 'ok-sha'}, base: {ref: 'main', sha: 'base-sha'}});
     if (parsed.pathname === '/repos/Valar05/home-center/commits/ok-sha/status') return response(200, {state: 'pending', statuses: [{context: 'ci'}], total_count: 1});
@@ -78,6 +87,7 @@ try {
   assert.equal(liveStatus.authenticated, true);
   assert.equal(liveStatus.providerReachable, true);
   assert.equal(liveStatus.primaryCredential, 'github_app_installation');
+  assert.equal(installationTokenAttempts, 2, 'transient installation-token 502 is retried');
   assert.deepEqual(liveStatus.allowedOwners, ['Valar05']);
   assert.equal(liveStatus.secretsExposed, false);
 
@@ -112,6 +122,7 @@ try {
   const dispatchArgs = {repo: 'Valar05/home-center', workflowId: 'ci.yml', ref: 'main', inputs: {nonce: 'github-admin-contract'}, requestId: 'dispatch-contract-1'};
   const dispatch = await githubAdminOperationRunOperation({admin, user, githubAdmin, args: {operation: 'github_admin.workflows.dispatch', args: dispatchArgs}});
   assert.equal(dispatch.dispatched, true);
+  assert.equal(dispatchAttempts, 1, 'workflow dispatch POST is never blindly retried');
   assert.equal(dispatch.authMode, 'github_app_installation');
   const replay = await githubAdminOperationRunOperation({admin, user, githubAdmin, args: {operation: 'github_admin.workflows.dispatch', args: dispatchArgs}});
   assert.equal(replay.idempotent, true);
