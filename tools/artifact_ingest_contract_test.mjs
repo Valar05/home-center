@@ -119,7 +119,7 @@ const storage = new FakeStorage();
 const firestore = new FakeFirestore();
 const admin = {firestore: () => firestore};
 const user = {email: 'dclarke1005@gmail.com'};
-const payload = Buffer.from('motion-packet');
+const payload = Buffer.concat([Buffer.from([0x50, 0x4b, 0x03, 0x04]), Buffer.from('motion-packet')]);
 const digest = createHash('sha256').update(payload).digest('hex');
 const uploadArgs = {
   requestId: 'motion-packet-direct-v1',
@@ -180,7 +180,7 @@ assert.equal(completedReplay.destination.sha256, directManifest.destination.sha2
 assert.equal(completedReplay.reused, true);
 assert.equal(storage.bucket(service.ARTIFACT_BUCKET).objects.has("deleted-staging-object"), false);
 
-const chunkPayload = Buffer.from('abcdefghijklmnopqrstuvwxyz0123456789-CHUNKED-MOTION-PACKET');
+const chunkPayload = Buffer.concat([Buffer.from([0x50, 0x4b, 0x03, 0x04]), Buffer.from('abcdefghijklmnopqrstuvwxyz0123456789-CHUNKED-MOTION-PACKET')]);
 const chunkDigest = createHash('sha256').update(chunkPayload).digest('hex');
 const chunkArgs = {
   approved: true,
