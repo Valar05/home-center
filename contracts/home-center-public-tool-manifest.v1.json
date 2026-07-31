@@ -6260,8 +6260,8 @@
       }
     }
   ],
-  "manifestSha256": "dbff8479dc90abeafa756bef832d6d6a7c5117dac55ab5efe33ac8be5fdeff9c",
-  "registryRevision": "2026-07-30.github-artifact-delivery-v1",
+  "manifestSha256": "da69d3a68585823d1f8b224ee9dd16cd59ed49eaeff7bd2aa60ce58abdcd11eb",
+  "registryRevision": "2026-07-30.audio-reader-link-v1",
   "schemaVersion": "home-center.public-tool-manifest.v1",
   "toolCount": 57
 }

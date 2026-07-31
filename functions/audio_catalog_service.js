@@ -198,6 +198,113 @@ async function registerPrimaryAudioFromReceipt({ownerEmail, receipt, bucket = nu
   return registerAudioArtifactForReader({ownerEmail, output, producerReceiptId: receipt.requestId, project, stage, bucket});
 }
 
+
+function sameReaderLink(existing, expected) {
+  return existing && expected
+    && safeText(existing.destination && existing.destination.objectName, 1400) === safeText(expected.destination && expected.destination.objectName, 1400)
+    && safeText(existing.destination && existing.destination.sha256, 80) === safeText(expected.destination && expected.destination.sha256, 80)
+    && Number(existing.destination && existing.destination.byteCount || 0) === Number(expected.destination && expected.destination.byteCount || 0)
+    && safeEmail(existing.classification && existing.classification.ownerEmail || existing.destination && existing.destination.ownerEmail) === safeEmail(expected.classification && expected.classification.ownerEmail)
+    && safeText(existing.classification && existing.classification.project, 240) === safeText(expected.classification && expected.classification.project, 240)
+    && safeText(existing.classification && existing.classification.stage, 240) === safeText(expected.classification && expected.classification.stage, 240);
+}
+
+async function linkDriveAudioToReaderStageOperation({user, args = {}, bucket = null}) {
+  if (args.approved !== true) throw fail('audio_catalog.link_approval_required', 'audio.reader_link requires approved=true.', 409);
+  const requestId = safeText(args.requestId, 180);
+  if (!requestId) throw fail('audio_catalog.link_request_required', 'requestId is required.', 400);
+  const fileId = safeText(args.fileId, 240);
+  if (!/^[A-Za-z0-9_-]{8,240}$/.test(fileId)) throw fail('audio_catalog.link_file_required', 'A valid Drive file ID is required.', 400);
+  const owner = safeEmail(user && user.email);
+  if (!owner) throw fail('audio_catalog.auth_required', 'Authenticated owner identity is required.', 401);
+  const project = segment(args.project, 'unclassified');
+  const stage = segment(args.stage, 'finals');
+  const byDriveObject = 'indexes/audio/v1/by-drive-id/' + fileId + '.json';
+  const sourceRead = await readGeneratedJsonObject(byDriveObject, GENERATED_ARTIFACT_BUCKET);
+  if (!sourceRead) throw fail('audio_catalog.link_source_missing', 'The verified Drive audio index was not found.', 404);
+  const sourceIndex = sourceRead.value || {};
+  const sourceDestination = sourceIndex.destination || {};
+  const sourceClassification = sourceIndex.classification || {};
+  const indexedOwner = safeEmail(sourceClassification.ownerEmail || sourceDestination.ownerEmail);
+  if (indexedOwner !== owner) throw fail('audio_catalog.link_source_forbidden', 'The verified Drive audio index is not owned by this caller.', 403);
+  const objectName = safeText(sourceDestination.objectName, 1400);
+  const sha256 = safeText(sourceDestination.sha256, 80).toLowerCase();
+  const byteCount = Number(sourceDestination.byteCount || 0);
+  if (!objectName || !/^[a-f0-9]{64}$/.test(sha256) || !Number.isSafeInteger(byteCount) || byteCount <= 0) {
+    throw fail('audio_catalog.link_identity_missing', 'The verified Drive audio index lacks immutable destination identity.', 409);
+  }
+  const storageRef = safeText(sourceDestination.storageRef, 1600) || ('gs://' + GENERATED_ARTIFACT_BUCKET + '/' + objectName);
+  const verifiedBefore = await verifyGeneratedArtifact(storageRef, {sha256, byteCount});
+  const linkedAt = new Date().toISOString();
+  const linkedIndex = {
+    ...sourceIndex,
+    indexedAt: linkedAt,
+    destination: {...sourceDestination, project, stage},
+    classification: {...sourceClassification, ownerEmail: owner, project, stage},
+    authorization: sourceIndex.authorization || {state: 'owner_scoped', ownerEmail: owner, derivedFrom: 'authenticated_principal'},
+    humanAcceptance: sourceIndex.humanAcceptance || {state: 'unreviewed', approved: false},
+    readerProjection: {
+      schemaVersion: 'home-center.audio-reader-projection.v1',
+      requestId,
+      linkedAt,
+      sourceIndexObject: byDriveObject,
+      priorProject: segment(sourceClassification.project || sourceDestination.project, 'unclassified'),
+      priorStage: segment(sourceClassification.stage || sourceDestination.stage, 'unclassified'),
+      project,
+      stage,
+      originalCatalogPreserved: true,
+    },
+  };
+  const catalogObject = [CATALOG_ROOT, segment(owner), project, stage, fileId + '.json'].join('/');
+  const existing = await readGeneratedJsonObject(catalogObject, GENERATED_ARTIFACT_BUCKET);
+  if (existing && !sameReaderLink(existing.value, linkedIndex)) {
+    throw fail('audio_catalog.link_conflict', 'The target Reader catalog link already exists with different immutable identity.', 409);
+  }
+  const written = existing
+    ? {object: catalogObject, storageRef: 'gs://' + GENERATED_ARTIFACT_BUCKET + '/' + catalogObject, byteCount: existing.bytes.length, reused: true}
+    : await writeGeneratedJsonObject(catalogObject, linkedIndex, {metadata: {ownerEmail: owner, sha256, schemaVersion: 'home-center.audio-reader-projection.v1', humanAcceptance: 'unreviewed'}, ifAbsent: true});
+  const readback = await readGeneratedJsonObject(catalogObject, GENERATED_ARTIFACT_BUCKET);
+  if (!readback || !sameReaderLink(readback.value, linkedIndex)) {
+    throw fail('audio_catalog.link_readback_failed', 'The Reader catalog link failed readback validation.', 502);
+  }
+  const effectiveBucket = bucket || (process.env.HOME_CENTER_ARTIFACT_BUCKET_TEST_FAKE === '1' ? null : storage().bucket(GENERATED_ARTIFACT_BUCKET));
+  let discovery;
+  if (effectiveBucket) {
+    const folder = project + '/' + stage;
+    const browsed = await browseAudio(effectiveBucket, {folder}, owner);
+    const item = browsed.items.find((candidate) => candidate.name === objectName && candidate.sha256 === sha256);
+    if (!item) throw fail('audio_catalog.link_discovery_failed', 'The linked audio was not discoverable through the authenticated Reader catalog.', 502);
+    await authorizedFile(effectiveBucket, objectName, owner);
+    discovery = {ok: true, folder, item: {id: item.id, name: item.name, displayName: item.displayName, contentType: item.contentType, size: item.size, sha256: item.sha256, ownerEmail: item.ownerEmail, access: item.access, project: item.project, stage: item.stage, humanAcceptance: item.humanAcceptance || 'unreviewed'}};
+  } else {
+    const item = indexAudioMetadata(readback.value, owner);
+    if (!item) throw fail('audio_catalog.link_discovery_failed', 'The linked audio was not discoverable through the authenticated Reader catalog.', 502);
+    discovery = {ok: true, folder: project + '/' + stage, item};
+  }
+  const mimeType = safeText(sourceIndex.source && sourceIndex.source.mimeType || sourceDestination.contentType || verifiedBefore.contentType, 160) || 'application/octet-stream';
+  const name = safeText(sourceIndex.source && sourceIndex.source.name, 500) || objectName.split('/').pop() || objectName;
+  const probe = await playbackProbe(storageRef, mimeType, name, effectiveBucket);
+  const verifiedAfter = await verifyGeneratedArtifact(storageRef, {sha256, byteCount});
+  if (verifiedAfter.generation !== verifiedBefore.generation || verifiedAfter.sha256 !== verifiedBefore.sha256 || verifiedAfter.byteCount !== verifiedBefore.byteCount) {
+    throw fail('audio_catalog.link_byte_preservation_failed', 'Artifact identity changed while linking it to the Reader.', 502);
+  }
+  return {
+    ok: true,
+    status: 'linked',
+    requestId,
+    fileId,
+    ownerEmail: owner,
+    sourceIndex: {objectName: byDriveObject, project: segment(sourceClassification.project || sourceDestination.project, 'unclassified'), stage: segment(sourceClassification.stage || sourceDestination.stage, 'unclassified')},
+    catalog: {objectName: catalogObject, storageRef: written.storageRef, reused: written.reused === true, originalCatalogPreserved: true},
+    discovery,
+    playback: {ok: true, authenticatedReader: true, probe},
+    authorization: {ok: true, state: 'owner_scoped'},
+    humanAcceptance: safeText(linkedIndex.humanAcceptance && linkedIndex.humanAcceptance.state, 80) || 'unreviewed',
+    transport: {copiedBytes: 0, rerendered: false, resynthesized: false, public: false, driveCopy: false, driveMutated: false},
+    bytePreservation: {before: {byteCount: verifiedBefore.byteCount, sha256: verifiedBefore.sha256, generation: verifiedBefore.generation}, after: {byteCount: verifiedAfter.byteCount, sha256: verifiedAfter.sha256, generation: verifiedAfter.generation}, unchanged: true},
+  };
+}
+
 async function recoverAudioRenderRegistrationOperation({admin, user, args = {}, bucket = null}) {
   const requestId = safeText(args.requestId || args.producerReceiptId, 180);
   if (!requestId) throw fail('audio_catalog.receipt_required', 'requestId is required.', 400);
@@ -222,4 +329,5 @@ module.exports = {
   registerAudioArtifactForReader,
   registerPrimaryAudioFromReceipt,
   recoverAudioRenderRegistrationOperation,
+  linkDriveAudioToReaderStageOperation,
 };
