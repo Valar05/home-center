@@ -315,10 +315,31 @@ async function recoverAudioRenderRegistrationOperation({admin, user, args = {}, 
   if (!snapshot.exists) throw fail('audio_catalog.receipt_not_found', 'The audio.render producer receipt was not found.', 404);
   const receipt = snapshot.data() || {};
   if (safeEmail(receipt.actor) !== ownerEmail) throw fail('audio_catalog.receipt_forbidden', 'The audio.render producer receipt is not owned by this caller.', 403);
-  const registration = await registerPrimaryAudioFromReceipt({ownerEmail, receipt, bucket});
-  const recovery = {operation: 'audio.render_register', requestId, status: 'completed', execution: 'registration_only', ownerEmail, authorizationState: 'owner_scoped', humanAcceptance: 'unreviewed', registration, idempotent: registration.catalog.reused === true, completedAtMs: Date.now()};
-  await admin.firestore().collection('audioRenderRegistrations').doc(requestId).set(recovery, {merge: false});
-  await ref.set({result: {...(receipt.result || {}), readerRegistration: registration, humanAcceptance: 'unreviewed'}, readerRegistration: registration, updatedAtMs: Date.now()}, {merge: true});
+
+  const outputIndex = args.outputIndex === undefined ? 0 : Number(args.outputIndex);
+  if (!Number.isSafeInteger(outputIndex) || outputIndex < 0) throw fail('audio_catalog.output_index_invalid', 'outputIndex must be a non-negative integer.', 400);
+  let registration;
+  if (outputIndex === 0) {
+    registration = await registerPrimaryAudioFromReceipt({ownerEmail, receipt, bucket});
+  } else {
+    const result = receipt.result || {};
+    const audioOutputs = (Array.isArray(result.outputs) ? result.outputs : []).filter((item) => AUDIO_TYPES.test(safeText(item && item.mimeType, 160)) || AUDIO_EXTENSIONS.test(safeText(item && item.name, 500)));
+    const output = audioOutputs[outputIndex];
+    if (!output) throw fail('audio_catalog.output_index_missing', 'The requested playable audio output was not found in the terminal receipt.', 404);
+    const project = safeText(output.metadata && output.metadata.project || result.project || 'home-center', 160);
+    const stage = safeText(output.metadata && output.metadata.stage || result.stage || 'review', 120) || 'review';
+    registration = await registerAudioArtifactForReader({ownerEmail, output, producerReceiptId: requestId, project, stage, bucket});
+  }
+  const recoveryId = outputIndex === 0 ? requestId : requestId + '-output-' + outputIndex;
+  const recovery = {operation: 'audio.render_register', requestId, outputIndex, status: 'completed', execution: 'registration_only', ownerEmail, authorizationState: 'owner_scoped', humanAcceptance: 'unreviewed', registration, idempotent: registration.catalog.reused === true, completedAtMs: Date.now()};
+  await admin.firestore().collection('audioRenderRegistrations').doc(recoveryId).set(recovery, {merge: false});
+  if (outputIndex === 0) {
+    await ref.set({result: {...(receipt.result || {}), readerRegistration: registration, humanAcceptance: 'unreviewed'}, readerRegistration: registration, updatedAtMs: Date.now()}, {merge: true});
+  } else {
+    const prior = Array.isArray(receipt.result && receipt.result.additionalReaderRegistrations) ? receipt.result.additionalReaderRegistrations : [];
+    const additionalReaderRegistrations = prior.filter((item) => Number(item.outputIndex) !== outputIndex).concat([{outputIndex, registration}]);
+    await ref.set({result: {...(receipt.result || {}), additionalReaderRegistrations, humanAcceptance: 'unreviewed'}, additionalReaderRegistrations, updatedAtMs: Date.now()}, {merge: true});
+  }
   return recovery;
 }
 

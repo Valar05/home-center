@@ -93,6 +93,50 @@ await assert.rejects(() => recoverAudioRenderRegistrationOperation({admin, user:
 admin.collections.get('driveBridgeAudit').set('running-receipt', {...receipt, requestId: 'running-receipt', status: 'running'});
 await assert.rejects(() => recoverAudioRenderRegistrationOperation({admin, user: {email: ownerEmail}, args: {requestId: 'running-receipt'}}), /terminal successful/);
 
+const secondary = await artifactBucket.uploadGeneratedArtifact({
+  bytes: Buffer.concat([Buffer.from('OggS', 'ascii'), Buffer.alloc(384, 9)]),
+  name: 'Vacation-of-a-Lifetime-Day-3-Scene-01B-Walkway-Station-Tram.mp3',
+  mimeType: 'audio/mpeg',
+  owner: ownerEmail,
+  ownerEmail,
+  project: 'vacation-of-a-lifetime',
+  stage: 'chapter-3',
+  requestId: 'vacation-day3-scene1-secondary-contract',
+  artifactType: 'audio',
+});
+const multiReceipt = {
+  ...receipt,
+  requestId: 'vacation-day3-scene1-multi-output-contract',
+  result: {
+    ...receipt.result,
+    outputs: [
+      receipt.result.primaryOutput,
+      {name: secondary.name, mimeType: secondary.mimeType, byteCount: secondary.byteCount, sha256: secondary.sha256, durableRef: secondary.storageRef, storageRef: secondary.storageRef, metadata: secondary.metadata},
+    ],
+  },
+};
+admin.collections.get('driveBridgeAudit').set(multiReceipt.requestId, multiReceipt);
+const secondaryRouted = await driveOperationRunOperation({
+  admin,
+  user: {email: ownerEmail},
+  args: {operation: 'audio.render_register', args: {requestId: multiReceipt.requestId, outputIndex: 1}},
+});
+assert.equal(secondaryRouted.completed, true);
+assert.equal(secondaryRouted.result.outputIndex, 1);
+assert.equal(secondaryRouted.result.execution, 'registration_only');
+assert.equal(secondaryRouted.result.registration.artifact.sha256, secondary.sha256);
+assert.equal(secondaryRouted.result.registration.discovery.ok, true);
+assert.equal(secondaryRouted.result.registration.playback.ok, true);
+assert.deepEqual(secondaryRouted.result.registration.transport, {copiedBytes: 0, rerendered: false, resynthesized: false, public: false, driveCopy: false});
+const multiStored = admin.collections.get('driveBridgeAudit').get(multiReceipt.requestId);
+assert.equal(multiStored.result.readerRegistration, undefined, 'secondary registration must not overwrite the primary registration slot');
+assert.equal(multiStored.result.additionalReaderRegistrations.length, 1);
+assert.equal(multiStored.result.additionalReaderRegistrations[0].outputIndex, 1);
+assert.equal(multiStored.result.additionalReaderRegistrations[0].registration.artifact.sha256, secondary.sha256);
+const secondaryReplay = await recoverAudioRenderRegistrationOperation({admin, user: {email: ownerEmail}, args: {requestId: multiReceipt.requestId, outputIndex: 1}});
+assert.equal(secondaryReplay.idempotent, true);
+assert.equal(secondaryReplay.registration.catalog.storageRef, secondaryRouted.result.registration.catalog.storageRef);
+
 const direct = await registerPrimaryAudioFromReceipt({ownerEmail, receipt: {...receipt, result: {...receipt.result, readerRegistration: undefined}}});
 assert.equal(direct.catalog.reused, true);
 assert.equal(direct.transport.copiedBytes, 0);
