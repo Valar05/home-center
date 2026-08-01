@@ -61,17 +61,23 @@ const {
 } = require('./sms_calendar_intake');
 
 const DEFAULT_MCP_PUBLIC_BASE = 'https://us-central1-home-center-dclar.cloudfunctions.net/homeCenterMcp';
+const DEFAULT_MCP_AUTHORIZATION_SERVER_BASE = 'https://homecentermcp-vxybsaualq-uc.a.run.app';
 const MCP_PUBLIC_BASE = process.env.HOME_CENTER_MCP_PUBLIC_BASE || DEFAULT_MCP_PUBLIC_BASE;
+const MCP_AUTHORIZATION_SERVER_BASE = process.env.HOME_CENTER_MCP_AUTHORIZATION_SERVER_BASE || DEFAULT_MCP_AUTHORIZATION_SERVER_BASE;
 const HOME_CENTER_MCP_SERVER_VERSION = '0.2.0';
 const HOME_CENTER_CONNECTOR_SCHEMA_REVISION = '2026-07-30.audio-reader-link-v1';
 const HOME_CENTER_REGISTRY_VERSION = HOME_CENTER_CONNECTOR_SCHEMA_REVISION;
 const HOME_CENTER_DIRECT_FILE_TOOLS = Object.freeze(['drive_ingest_file', 'storage_ingest_artifact']);
-const MCP_RESOURCE = `${MCP_PUBLIC_BASE}/mcp`;
-const MCP_RESOURCE_METADATA = `${MCP_PUBLIC_BASE}/.well-known/oauth-protected-resource`;
+const MCP_RESOURCE = `${MCP_AUTHORIZATION_SERVER_BASE}/mcp`;
+const MCP_LEGACY_RESOURCE = `${MCP_PUBLIC_BASE}/mcp`;
+const MCP_RESOURCE_METADATA = `${MCP_AUTHORIZATION_SERVER_BASE}/.well-known/oauth-protected-resource`;
 const MCP_PATH_RESOURCE_METADATA = `${MCP_RESOURCE_METADATA}/mcp`;
-const MCP_LEGACY_RESOURCE_METADATA = `${MCP_PUBLIC_BASE}/oauth-protected-resource`;
+const MCP_LEGACY_RESOURCE_METADATA = `${MCP_PUBLIC_BASE}/.well-known/oauth-protected-resource`;
+const MCP_LEGACY_RESOURCE_METADATA_ALIAS = `${MCP_PUBLIC_BASE}/oauth-protected-resource`;
 const MCP_COMPAT_RESOURCE_METADATA = `${MCP_PUBLIC_BASE}/oauth-protected-resource-v2`;
-const MCP_AUTHORIZATION_SERVER_METADATA = `${MCP_PUBLIC_BASE}/.well-known/oauth-authorization-server`;
+const MCP_AUTHORIZATION_SERVER_METADATA = `${MCP_AUTHORIZATION_SERVER_BASE}/.well-known/oauth-authorization-server`;
+// Keep Google's already-registered callback stable while moving MCP discovery and token exchange
+// to a path-free issuer that clean OAuth clients can discover according to RFC 8414.
 const MCP_GOOGLE_CALLBACK = process.env.HOME_CENTER_MCP_GOOGLE_CALLBACK || `${MCP_PUBLIC_BASE}/oauth/google-callback`;
 const COMMAND_CENTER_MCP_URL = process.env.COMMAND_CENTER_MCP_URL || 'https://us-central1-home-center-dclar.cloudfunctions.net/commandCenterMcp/mcp';
 const TVTROPER_RETRIEVAL_URL = process.env.TVTROPER_RETRIEVAL_URL || '';
@@ -93,6 +99,12 @@ const MCP_OAUTH_SECURITY_SCHEMES = [{type: 'oauth2', scopes: MCP_REQUIRED_SCOPES
 const OAUTH_RESOURCE_GRANTS = Object.freeze({
   [MCP_RESOURCE]: Object.freeze({
     resource: MCP_RESOURCE,
+    scopes: Object.freeze([...MCP_REQUIRED_SCOPES]),
+    googleScopes: Object.freeze(['openid', 'email', ...MCP_REQUIRED_SCOPES]),
+    allowedEmails: null,
+  }),
+  [MCP_LEGACY_RESOURCE]: Object.freeze({
+    resource: MCP_LEGACY_RESOURCE,
     scopes: Object.freeze([...MCP_REQUIRED_SCOPES]),
     googleScopes: Object.freeze(['openid', 'email', ...MCP_REQUIRED_SCOPES]),
     allowedEmails: null,
@@ -414,7 +426,7 @@ function shouldUseConnectorHandoff(req, redirectUri) {
 function mcpMountedPath(pathname) {
   const cleanPath = String(pathname || '').startsWith('/') ? String(pathname || '') : `/${pathname || ''}`;
   try {
-    const basePath = new URL(MCP_PUBLIC_BASE).pathname.replace(/\/$/, '');
+    const basePath = new URL(MCP_AUTHORIZATION_SERVER_BASE).pathname.replace(/\/$/, '');
     return `${basePath}${cleanPath}`;
   } catch (_) {
     return cleanPath;
@@ -514,6 +526,12 @@ function providerValue(value) {
   return typeof value === 'function' ? value() : value;
 }
 
+function oauthResourceMatches(resource, requiredResource) {
+  if (!requiredResource) return true;
+  if (requiredResource === MCP_RESOURCE) return resource === MCP_RESOURCE || resource === MCP_LEGACY_RESOURCE;
+  return resource === requiredResource;
+}
+
 async function loadMcpAccessContext(admin, google, googleClientId, googleClientSecret, accessToken, requiredResource = MCP_RESOURCE) {
   const snap = await oauthCollection(admin, 'mcpOAuthAccessTokens').doc(tokenHash(accessToken)).get();
   if (!snap.exists) return null;
@@ -526,7 +544,7 @@ async function loadMcpAccessContext(admin, google, googleClientId, googleClientS
   }
   const resource = safeText(data.resource, 1200) || MCP_RESOURCE;
   const scopes = Array.isArray(data.scopes) && data.scopes.length ? data.scopes.map((scope) => safeText(scope, 500)).filter(Boolean) : [...MCP_REQUIRED_SCOPES];
-  if (requiredResource && resource !== requiredResource) {
+  if (!oauthResourceMatches(resource, requiredResource)) {
     const err = new Error('Home Center OAuth token is bound to a different MCP resource. Reconnect this client.');
     err.status = 401;
     err.wwwAuthenticate = oauthChallenge();
@@ -546,7 +564,7 @@ async function loadMcpAccessContext(admin, google, googleClientId, googleClientS
       clientId: safeText(data.clientId, 800),
       resource,
       scopes,
-      issuer: MCP_PUBLIC_BASE,
+      issuer: MCP_AUTHORIZATION_SERVER_BASE,
       expiresAtMs: safeNumber(data.expiresAtMs, 0),
     },
   };
@@ -1024,11 +1042,11 @@ function oauthProtectedResourceMetadata() {
     connector_schema_revision: HOME_CENTER_CONNECTOR_SCHEMA_REVISION,
     catalog_cache_key: HOME_CENTER_CONNECTOR_SCHEMA_REVISION,
     direct_file_tools: HOME_CENTER_DIRECT_FILE_TOOLS,
-    authorization_servers: [MCP_PUBLIC_BASE],
+    authorization_servers: [MCP_AUTHORIZATION_SERVER_BASE],
     scopes_supported: MCP_REQUIRED_SCOPES,
     bearer_methods_supported: ['header'],
     resource_documentation: `${MCP_PUBLIC_BASE}/`,
-    metadata_aliases: [MCP_PATH_RESOURCE_METADATA, MCP_LEGACY_RESOURCE_METADATA, MCP_COMPAT_RESOURCE_METADATA],
+    metadata_aliases: [MCP_PATH_RESOURCE_METADATA, MCP_LEGACY_RESOURCE_METADATA, MCP_LEGACY_RESOURCE_METADATA_ALIAS, MCP_COMPAT_RESOURCE_METADATA],
   };
 }
 
@@ -1038,13 +1056,13 @@ function oauthChallenge() {
 
 function authorizationServerMetadata() {
   return {
-    issuer: MCP_PUBLIC_BASE,
+    issuer: MCP_AUTHORIZATION_SERVER_BASE,
     service_version: HOME_CENTER_MCP_SERVER_VERSION,
     registry_version: HOME_CENTER_REGISTRY_VERSION,
     connector_schema_revision: HOME_CENTER_CONNECTOR_SCHEMA_REVISION,
-    authorization_endpoint: `${MCP_PUBLIC_BASE}/oauth/authorize`,
-    token_endpoint: `${MCP_PUBLIC_BASE}/oauth/token`,
-    registration_endpoint: `${MCP_PUBLIC_BASE}/oauth/register`,
+    authorization_endpoint: `${MCP_AUTHORIZATION_SERVER_BASE}/oauth/authorize`,
+    token_endpoint: `${MCP_AUTHORIZATION_SERVER_BASE}/oauth/token`,
+    registration_endpoint: `${MCP_AUTHORIZATION_SERVER_BASE}/oauth/register`,
     response_types_supported: ['code'],
     grant_types_supported: ['authorization_code', 'refresh_token'],
     code_challenge_methods_supported: ['S256'],
@@ -1056,8 +1074,8 @@ function authorizationServerMetadata() {
 function openIdConfigurationMetadata() {
   return {
     ...authorizationServerMetadata(),
-    userinfo_endpoint: `${MCP_PUBLIC_BASE}/oauth/userinfo`,
-    jwks_uri: `${MCP_PUBLIC_BASE}/oauth/jwks`,
+    userinfo_endpoint: `${MCP_AUTHORIZATION_SERVER_BASE}/oauth/userinfo`,
+    jwks_uri: `${MCP_AUTHORIZATION_SERVER_BASE}/oauth/jwks`,
     claims_supported: ['sub', 'email', 'email_verified', 'client_id', 'resource', 'scopes', 'issuer', 'expires_at'],
     subject_types_supported: ['public'],
     id_token_signing_alg_values_supported: ['RS256'],
@@ -7015,4 +7033,4 @@ function createHomeCenterMcpApp({google, admin, googleClientId = () => '', googl
   return app;
 }
 
-module.exports = {TVTROPER_OPERATION_REGISTRY_VERSION, tvtroperOperationEntries, tvTroperRetrievalOperation, resolveOAuthGrant, GROUNDED_MOTION_MCP_RESOURCE, GROUNDED_MOTION_MCP_SCOPE, linkArtifactReviewSuccessorOperation, recordArtifactReviewOperation, materializeReceiptArtifactsOperation, artifactTransportPreflightOperation, homeCenterReleaseIdentity, artifactTransportStatusOperation, homeCenterHealthPayload, homeCenterReadinessPayload, homeCenterCapabilitiesPayload, operationRegistrySummary, CREDIT_GATED_EMAILS, requireCreditGatedEmail, GITHUB_ADMIN_ALLOWED_EMAILS, requireGitHubAdminUser, HOME_CENTER_MCP_SERVER_VERSION, HOME_CENTER_CONNECTOR_SCHEMA_REVISION, HOME_CENTER_REGISTRY_VERSION, HOME_CENTER_DIRECT_FILE_TOOLS, driveOperationRegistry, uploadVerifiedArtifact, createHomeCenterMcpApp, createHomeCenterMcpServer, createDriveFolderOperation, createGoogleDocOperation, appendGoogleDocOperation, publishContextSnapshotOperation, synthesizeCartesiaAudioArtifactOperation, cartesiaVoicesOperation, createSheetOperation, updateSheetValuesOperation, importXlsxWorkbookOperation, readDriveBinaryChunkOperation, compareAudioIngestFileIds, ingestDriveAudioOperation, finalizeDriveAudioIngestBatchOperation, driveOperationRunOperation, driveWorkflowRunOperation, simulationOperationRunOperation, simulationOperationRegistry, droobiedooContextOperationEntries, loadDroobiedooContextIndex, searchDroobiedooContextIndex, runDroobiedooContextOperation, normalizeRecoveryOperation, summarizeRecoveryOperations, loadMcpAccessContext, armoryReceiptOperation, armoryRecountOperation, armoryCasingOperation, renderAudioOperation, inspectAudioArtifactsOperation, githubAdminOperationEntries, githubAdminOperationRunOperation, createGitHubAppJwt};
+module.exports = {oauthResourceMatches, TVTROPER_OPERATION_REGISTRY_VERSION, tvtroperOperationEntries, tvTroperRetrievalOperation, resolveOAuthGrant, GROUNDED_MOTION_MCP_RESOURCE, GROUNDED_MOTION_MCP_SCOPE, linkArtifactReviewSuccessorOperation, recordArtifactReviewOperation, materializeReceiptArtifactsOperation, artifactTransportPreflightOperation, homeCenterReleaseIdentity, artifactTransportStatusOperation, homeCenterHealthPayload, homeCenterReadinessPayload, homeCenterCapabilitiesPayload, operationRegistrySummary, CREDIT_GATED_EMAILS, requireCreditGatedEmail, GITHUB_ADMIN_ALLOWED_EMAILS, requireGitHubAdminUser, HOME_CENTER_MCP_SERVER_VERSION, HOME_CENTER_CONNECTOR_SCHEMA_REVISION, HOME_CENTER_REGISTRY_VERSION, HOME_CENTER_DIRECT_FILE_TOOLS, driveOperationRegistry, uploadVerifiedArtifact, createHomeCenterMcpApp, createHomeCenterMcpServer, createDriveFolderOperation, createGoogleDocOperation, appendGoogleDocOperation, publishContextSnapshotOperation, synthesizeCartesiaAudioArtifactOperation, cartesiaVoicesOperation, createSheetOperation, updateSheetValuesOperation, importXlsxWorkbookOperation, readDriveBinaryChunkOperation, compareAudioIngestFileIds, ingestDriveAudioOperation, finalizeDriveAudioIngestBatchOperation, driveOperationRunOperation, driveWorkflowRunOperation, simulationOperationRunOperation, simulationOperationRegistry, droobiedooContextOperationEntries, loadDroobiedooContextIndex, searchDroobiedooContextIndex, runDroobiedooContextOperation, normalizeRecoveryOperation, summarizeRecoveryOperations, loadMcpAccessContext, armoryReceiptOperation, armoryRecountOperation, armoryCasingOperation, renderAudioOperation, inspectAudioArtifactsOperation, githubAdminOperationEntries, githubAdminOperationRunOperation, createGitHubAppJwt};
