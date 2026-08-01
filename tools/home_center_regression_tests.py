@@ -426,6 +426,7 @@ require_contains(read('.github/workflows/home-center-ci.yml'), 'sh tools/home_ce
 require_contains(read('.github/workflows/deploy-home-center-mcp.yml'), 'id-token: write', 'Home Center MCP deploy workflow uses GitHub OIDC permission')
 require_contains(read('.github/workflows/deploy-home-center-mcp.yml'), 'google-github-actions/auth@v2', 'Home Center MCP deploy authenticates to Google through OIDC action')
 require_contains(read('.github/workflows/deploy-home-center-mcp.yml'), 'GCP_WORKLOAD_IDENTITY_PROVIDER', 'Home Center MCP deploy expects WIF provider secret instead of JSON key')
+require_contains(read('.github/workflows/deploy-home-center-mcp.yml'), 'HOME_CENTER_GITHUB_ADMIN_USER_PROFILES_B64', 'Home Center MCP deploy forwards the persistent per-user GitHub installation profiles')
 require_absent(read('.github/workflows/deploy-home-center-mcp.yml'), 'credentials_json', 'Home Center MCP deploy must not use service account JSON credentials')
 require_contains(read('.github/workflows/deploy-firestore.yml'), 'firebase deploy --only firestore', 'Firestore deploy workflow moves rules/index deploy out of Termux')
 require_contains(read('.devcontainer/devcontainer.json'), 'google-cloud-cli', 'Devcontainer includes gcloud CLI')

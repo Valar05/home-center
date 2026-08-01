@@ -55,4 +55,5 @@ jobs:
           COMMAND_CENTER_MCP_URL: https://${{ env.REGION }}-${{ env.PROJECT }}.cloudfunctions.net/commandCenterMcp/mcp
           HOME_CENTER_MCP_BEARER_TOKEN: ${{ secrets.HOME_CENTER_MCP_BEARER_TOKEN }}
           HOME_CENTER_MCP_REFRESH_TOKEN: ${{ secrets.HOME_CENTER_MCP_REFRESH_TOKEN }}
+          HOME_CENTER_GITHUB_ADMIN_USER_PROFILES_B64: ${{ secrets.HOME_CENTER_GITHUB_ADMIN_USER_PROFILES_B64 }}
         run: sh tools/deploy_blender_workspace_release.sh "$PROJECT"
