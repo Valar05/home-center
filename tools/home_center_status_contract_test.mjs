@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 import assert from 'node:assert/strict';
+import {createHash} from 'node:crypto';
 import {createRequire} from 'node:module';
 
 const require = createRequire(import.meta.url);
@@ -34,6 +35,36 @@ const oauth = {
   googleClientId: () => 'client-id-is-configured',
   googleClientSecret: () => 'client-secret-is-configured',
 };
+
+function sha256(value) {
+  return createHash('sha256').update(String(value || '')).digest('hex');
+}
+
+function oauthTokenAdmin(initialDocs = new Map()) {
+  const docs = new Map(initialDocs);
+  return {
+    _docs: docs,
+    firestore() {
+      return {
+        collection(name) {
+          return {
+            doc(id) {
+              const key = `${name}/${id}`;
+              return {
+                async get() {
+                  return {exists: docs.has(key), data: () => docs.get(key)};
+                },
+                async set(payload, options = {}) {
+                  docs.set(key, options.merge && docs.has(key) ? {...docs.get(key), ...payload} : payload);
+                },
+              };
+            },
+          };
+        },
+      };
+    },
+  };
+}
 
 function textJson(result) {
   assert.equal(result.content?.length, 1);
@@ -188,6 +219,58 @@ assert.equal(oauthAuthorizationMetadataBody.issuer, 'https://homecentermcp-vxybs
 assert.equal(oauthAuthorizationMetadataBody.authorization_endpoint, 'https://homecentermcp-vxybsaualq-uc.a.run.app/oauth/authorize');
 assert.equal(oauthAuthorizationMetadataBody.token_endpoint, 'https://homecentermcp-vxybsaualq-uc.a.run.app/oauth/token');
 assert.equal(oauthAuthorizationMetadataBody.registration_endpoint, 'https://homecentermcp-vxybsaualq-uc.a.run.app/oauth/register');
+
+// Regression: OAuth refresh grants issued before resource binding have no resource field.
+// After the path-free issuer migration, old clients still submit the legacy resource while
+// the server's fallback is canonical. Both identifiers name this same Home Center install.
+const refreshToken = 'fixture-refresh-token-never-log';
+const refreshClientId = 'home_center_mcp_fixture_client';
+const legacyResource = 'https://us-central1-home-center-dclar.cloudfunctions.net/homeCenterMcp/mcp';
+const canonicalResource = 'https://homecentermcp-vxybsaualq-uc.a.run.app/mcp';
+const refreshAdmin = oauthTokenAdmin(new Map([
+  [`mcpOAuthRefreshTokens/${sha256(refreshToken)}`, {
+    clientId: refreshClientId,
+    email: 'fixture@example.invalid',
+    googleTokens: {refresh_token: 'fixture-google-refresh-token'},
+    scopes: ['https://www.googleapis.com/auth/drive'],
+    createdAtMs: Date.now() - 60_000,
+  }],
+]));
+const refreshApp = createHomeCenterMcpApp({google: {}, admin: refreshAdmin, ...oauth});
+const legacyRefreshResponse = await fetchApp(refreshApp, '/oauth/token', {
+  method: 'POST',
+  headers: {'content-type': 'application/x-www-form-urlencoded'},
+  body: new URLSearchParams({
+    grant_type: 'refresh_token',
+    refresh_token: refreshToken,
+    client_id: refreshClientId,
+    resource: legacyResource,
+  }),
+});
+assert.equal(legacyRefreshResponse.status, 200, 'pre-resource refresh grants must survive the issuer migration');
+const legacyRefreshBody = await legacyRefreshResponse.json();
+assert.equal(legacyRefreshBody.token_type, 'Bearer');
+assert.equal(typeof legacyRefreshBody.access_token, 'string');
+const refreshedAccessRecords = [...refreshAdmin._docs.entries()].filter(([key]) => key.startsWith('mcpOAuthAccessTokens/'));
+assert.equal(refreshedAccessRecords.length, 1);
+assert.equal(refreshedAccessRecords[0][1].resource, canonicalResource, 'successful refresh migrates the access token to the canonical resource');
+
+const unrelatedRefreshResponse = await fetchApp(refreshApp, '/oauth/token', {
+  method: 'POST',
+  headers: {'content-type': 'application/x-www-form-urlencoded'},
+  body: new URLSearchParams({
+    grant_type: 'refresh_token',
+    refresh_token: refreshToken,
+    client_id: refreshClientId,
+    resource: 'https://unrelated.example/mcp',
+  }),
+});
+assert.equal(unrelatedRefreshResponse.status, 400);
+assert.deepEqual(await unrelatedRefreshResponse.json(), {
+  error: 'invalid_target',
+  error_description: 'resource_not_bound_to_refresh_grant',
+});
+
 const unauthenticatedMcp = await fetchApp(homeApp, '/mcp', {
   method: 'POST',
   headers: {'content-type': 'application/json', accept: 'application/json, text/event-stream'},

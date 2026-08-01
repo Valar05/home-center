@@ -528,8 +528,9 @@ function providerValue(value) {
 
 function oauthResourceMatches(resource, requiredResource) {
   if (!requiredResource) return true;
-  if (requiredResource === MCP_RESOURCE) return resource === MCP_RESOURCE || resource === MCP_LEGACY_RESOURCE;
-  return resource === requiredResource;
+  if (resource === requiredResource) return true;
+  const homeCenterResources = new Set([MCP_RESOURCE, MCP_LEGACY_RESOURCE]);
+  return homeCenterResources.has(resource) && homeCenterResources.has(requiredResource);
 }
 
 async function loadMcpAccessContext(admin, google, googleClientId, googleClientSecret, accessToken, requiredResource = MCP_RESOURCE) {
@@ -6876,8 +6877,9 @@ function createHomeCenterMcpApp({google, admin, googleClientId = () => '', googl
           res.status(400).json({error: 'invalid_grant'});
           return;
         }
-        if (refreshResource && refreshResource !== boundRefreshResource) {
-          res.status(400).json({error: 'invalid_target'});
+        if (refreshResource && !oauthResourceMatches(boundRefreshResource, refreshResource)) {
+          connectorLog('token_invalid_target', req, {clientIdPrefix: safeText(clientId, 80).slice(0, 28), reason: 'refresh_resource_mismatch'});
+          res.status(400).json({error: 'invalid_target', error_description: 'resource_not_bound_to_refresh_grant'});
           return;
         }
         const accessToken = randomToken(32);
@@ -6919,8 +6921,9 @@ function createHomeCenterMcpApp({google, admin, googleClientId = () => '', googl
         return;
       }
       const boundResource = safeText(data.resource, 1200) || MCP_RESOURCE;
-      if (tokenResource && tokenResource !== boundResource) {
-        res.status(400).json({error: 'invalid_target'});
+      if (tokenResource && !oauthResourceMatches(boundResource, tokenResource)) {
+        connectorLog('token_invalid_target', req, {clientIdPrefix: safeText(data.clientId || clientId, 80).slice(0, 28), redirectHost: redirectHost(redirectUri), oauthFlowId: data.oauthFlowId || '', chatgptConnector: !!data.chatgptConnector, reason: 'authorization_code_resource_mismatch'});
+        res.status(400).json({error: 'invalid_target', error_description: 'resource_not_bound_to_authorization_grant'});
         return;
       }
       if (data.codeChallenge) {
