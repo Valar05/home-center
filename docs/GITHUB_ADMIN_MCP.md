@@ -41,7 +41,13 @@ Runtime environment:
 - `HOME_CENTER_GITHUB_ADMIN_OWNERS=Valar05` preserves Drew's owner allowlist.
 - `HOME_CENTER_GITHUB_ADMIN_USER_PROFILES_B64` contains Base64-encoded JSON profiles for additional users.
 
-Do not put tokens or private keys in the profile JSON. It contains only email-to-installation routing metadata. For example:
+Do not put tokens or private keys in the profile JSON. It contains only email-to-installation routing metadata. After each person installs the existing app, list the app's sanitized installation inventory with:
+
+```sh
+sh tools/github_admin_gh_bootstrap.sh installations generated/github_admin/github-app.private-key.pem
+```
+
+The command prints only the app name/install URL plus account/login, installation ID, target type, and repository selection. It never prints the App JWT or private key. Use the verified account and ID in the profile JSON:
 
 ```json
 {

@@ -419,6 +419,7 @@ require_contains(read('tools/deploy_functions_termux.sh'), 'GITHUB_APP_PRIVATE_K
 require_contains(read('tools/deploy_functions_termux.sh'), 'GITHUB_BOOTSTRAP_TOKEN=GITHUB_BOOTSTRAP_TOKEN:latest', 'Termux function deploy binds optional GitHub bootstrap token secret to Home Center MCP')
 require_contains(read('tools/deploy_functions_termux.sh'), 'HOME_CENTER_GITHUB_ADMIN_USER_PROFILES_B64=', 'Termux function deploy carries reviewed per-user GitHub installation profiles')
 require_contains(read('tools/setup_github_admin_secrets.sh'), 'GITHUB_APP_PRIVATE_KEY', 'GitHub admin setup helper ingests the app private key secret')
+require_contains(read('tools/github_admin_gh_bootstrap.sh'), 'installations)', 'GitHub admin bootstrap can list sanitized per-user App installations')
 require_contains(read('docs/GITHUB_ADMIN_MCP.md'), 'github_admin.pull_requests.merge', 'GitHub admin docs include PR merge operation')
 
 require_contains(read('.github/workflows/home-center-ci.yml'), 'workflow_dispatch:', 'GitHub Actions exposes manual Home Center CI dispatch')
