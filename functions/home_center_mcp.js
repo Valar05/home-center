@@ -68,6 +68,7 @@ const HOME_CENTER_REGISTRY_VERSION = HOME_CENTER_CONNECTOR_SCHEMA_REVISION;
 const HOME_CENTER_DIRECT_FILE_TOOLS = Object.freeze(['drive_ingest_file', 'storage_ingest_artifact']);
 const MCP_RESOURCE = `${MCP_PUBLIC_BASE}/mcp`;
 const MCP_RESOURCE_METADATA = `${MCP_PUBLIC_BASE}/.well-known/oauth-protected-resource`;
+const MCP_PATH_RESOURCE_METADATA = `${MCP_RESOURCE_METADATA}/mcp`;
 const MCP_LEGACY_RESOURCE_METADATA = `${MCP_PUBLIC_BASE}/oauth-protected-resource`;
 const MCP_COMPAT_RESOURCE_METADATA = `${MCP_PUBLIC_BASE}/oauth-protected-resource-v2`;
 const MCP_AUTHORIZATION_SERVER_METADATA = `${MCP_PUBLIC_BASE}/.well-known/oauth-authorization-server`;
@@ -1027,7 +1028,7 @@ function oauthProtectedResourceMetadata() {
     scopes_supported: MCP_REQUIRED_SCOPES,
     bearer_methods_supported: ['header'],
     resource_documentation: `${MCP_PUBLIC_BASE}/`,
-    metadata_aliases: [MCP_LEGACY_RESOURCE_METADATA, MCP_COMPAT_RESOURCE_METADATA],
+    metadata_aliases: [MCP_PATH_RESOURCE_METADATA, MCP_LEGACY_RESOURCE_METADATA, MCP_COMPAT_RESOURCE_METADATA],
   };
 }
 
@@ -6507,10 +6508,14 @@ function createHomeCenterMcpApp({google, admin, googleClientId = () => '', googl
     res.json(oauthProtectedResourceMetadata());
   });
 
-  app.get('/.well-known/oauth-protected-resource', (_req, res) => {
+  const sendOAuthProtectedResourceMetadata = (_req, res) => {
     res.set('Cache-Control', 'no-store');
     res.json(oauthProtectedResourceMetadata());
-  });
+  };
+  app.get('/.well-known/oauth-protected-resource', sendOAuthProtectedResourceMetadata);
+  // Some OAuth clients derive the RFC 9728 metadata path from the /mcp resource path
+  // before they receive the explicit WWW-Authenticate resource_metadata URL.
+  app.get('/.well-known/oauth-protected-resource/mcp', sendOAuthProtectedResourceMetadata);
 
   app.get('/.well-known/oauth-authorization-server', (_req, res) => {
     res.set('Cache-Control', 'no-store');
