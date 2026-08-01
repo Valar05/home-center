@@ -39,6 +39,8 @@ function response(status, body) {
 const {privateKey} = generateKeyPairSync('rsa', {modulusLength: 2048});
 const privateKeyPem = privateKey.export({type: 'pkcs8', format: 'pem'});
 const user = {email: 'dclarke1005@gmail.com', authKind: 'test'};
+const juneUser = {email: 'junewren28@gmail.com', authKind: 'test'};
+const timUser = {email: 'timothypomeroy07@gmail.com', authKind: 'test'};
 const githubAdmin = {
   appId: () => '12345',
   installationId: () => '67890',
@@ -46,8 +48,17 @@ const githubAdmin = {
   bootstrapToken: () => 'bootstrap-token-for-tests',
   allowedOwners: () => 'Valar05',
 };
+const scopedProfilesB64 = Buffer.from(JSON.stringify({
+  'junewren28@gmail.com': {owners: ['JuneGitHub'], installationId: '222'},
+  'timothypomeroy07@gmail.com': {owners: ['TimGitHub'], installationId: '333'},
+})).toString('base64');
+const scopedGithubAdmin = {
+  ...githubAdmin,
+  userProfiles: () => scopedProfilesB64,
+};
 let installationTokenAttempts = 0;
-let dispatchAttempts = 0;
+let drewDispatchAttempts = 0;
+let scopedDispatchAttempts = 0;
 const originalFetch = global.fetch;
 const originalEnabled = process.env.HOME_CENTER_GITHUB_ADMIN_ENABLED;
 const originalOwners = process.env.HOME_CENTER_GITHUB_ADMIN_OWNERS;
@@ -59,8 +70,14 @@ try {
       if (installationTokenAttempts === 1) return response(502, {message: 'transient gateway'});
       return response(201, {token: 'installation-token-for-tests'});
     }
+    if (parsed.pathname === '/app/installations/222/access_tokens') return response(201, {token: 'june-installation-token'});
+    if (parsed.pathname === '/app/installations/333/access_tokens') return response(201, {token: 'tim-installation-token'});
     if (parsed.pathname === '/repos/Valar05/home-center/actions/workflows/ci.yml/dispatches' && options.method === 'POST') {
-      dispatchAttempts += 1;
+      drewDispatchAttempts += 1;
+      return response(204, null);
+    }
+    if (['/repos/JuneGitHub/june-project/actions/workflows/ci.yml/dispatches', '/repos/TimGitHub/tim-project/actions/workflows/ci.yml/dispatches'].includes(parsed.pathname) && options.method === 'POST') {
+      scopedDispatchAttempts += 1;
       return response(204, null);
     }
     if (parsed.pathname === '/repos/Valar05/home-center/pulls/10') return response(200, {number: 10, draft: false, head: {ref: 'feature', sha: 'current-sha'}, base: {ref: 'main', sha: 'base-sha'}});
@@ -88,8 +105,42 @@ try {
   assert.equal(liveStatus.authenticated, true);
   assert.equal(liveStatus.providerReachable, true);
   assert.equal(liveStatus.primaryCredential, 'github_app_installation');
+  assert.equal(liveStatus.credentialScope, 'legacy_drew', 'Drew keeps the existing installation binding');
+  assert.equal(liveStatus.fallbackCredentialConfigured, true, 'Drew keeps the existing optional bootstrap authority');
   assert.deepEqual(liveStatus.allowedOwners, ['Valar05']);
   assert.equal(liveStatus.secretsExposed, false);
+
+  const juneStatus = await githubAdminOperationRunOperation({admin: fakeAdmin(), user: juneUser, githubAdmin: scopedGithubAdmin, args: {operation: 'github_admin.auth_status', args: {}}});
+  assert.equal(juneStatus.enabled, true);
+  assert.equal(juneStatus.credentialScope, 'user_profile');
+  assert.deepEqual(juneStatus.allowedOwners, ['JuneGitHub']);
+  assert.equal(juneStatus.fallbackCredentialConfigured, false, 'June never inherits Drew bootstrap authority');
+  assert.equal(juneStatus.requestIdOwnershipEnforced, true);
+
+  const timStatus = await githubAdminOperationRunOperation({admin: fakeAdmin(), user: timUser, githubAdmin: scopedGithubAdmin, args: {operation: 'github_admin.auth_status', args: {}}});
+  assert.equal(timStatus.enabled, true);
+  assert.deepEqual(timStatus.allowedOwners, ['TimGitHub']);
+  assert.equal(timStatus.fallbackCredentialConfigured, false);
+
+  await assert.rejects(
+    githubAdminOperationRunOperation({admin: fakeAdmin(), user: juneUser, githubAdmin: scopedGithubAdmin, args: {operation: 'github_admin.workflows.dispatch', args: {repo: 'Valar05/home-center', workflowId: 'ci.yml', ref: 'main', requestId: 'june-cross-owner'}}}),
+    (err) => err && err.code === 'github_admin_owner_not_allowed'
+  );
+  await assert.rejects(
+    githubAdminOperationRunOperation({admin: fakeAdmin(), user: juneUser, githubAdmin: scopedGithubAdmin, args: {operation: 'github_admin.repos.create', args: {owner: 'JuneGitHub', ownerType: 'user', name: 'new-repo', requestId: 'june-personal-create'}}}),
+    (err) => err && err.code === 'github_admin_user_token_missing'
+  );
+
+  const scopedAuditAdmin = fakeAdmin();
+  const juneDispatch = await githubAdminOperationRunOperation({admin: scopedAuditAdmin, user: juneUser, githubAdmin: scopedGithubAdmin, args: {operation: 'github_admin.workflows.dispatch', args: {repo: 'JuneGitHub/june-project', workflowId: 'ci.yml', ref: 'main', requestId: 'personal-dispatch-june'}}});
+  const timDispatch = await githubAdminOperationRunOperation({admin: scopedAuditAdmin, user: timUser, githubAdmin: scopedGithubAdmin, args: {operation: 'github_admin.workflows.dispatch', args: {repo: 'TimGitHub/tim-project', workflowId: 'ci.yml', ref: 'main', requestId: 'personal-dispatch-tim'}}});
+  assert.equal(juneDispatch.dispatched, true);
+  assert.equal(timDispatch.dispatched, true);
+  assert.equal(scopedDispatchAttempts, 2, 'each user dispatches only through the matching personal installation');
+  await assert.rejects(
+    githubAdminOperationRunOperation({admin: scopedAuditAdmin, user: timUser, githubAdmin: scopedGithubAdmin, args: {operation: 'github_admin.workflows.dispatch', args: {repo: 'TimGitHub/tim-project', workflowId: 'ci.yml', ref: 'main', requestId: 'personal-dispatch-june'}}}),
+    (err) => err && err.code === 'github_admin_request_id_owner_conflict'
+  );
 
   process.env.HOME_CENTER_GITHUB_ADMIN_ENABLED = 'false';
   const disabledStatus = await githubAdminOperationRunOperation({admin: fakeAdmin(), user, githubAdmin, args: {operation: 'github_admin.auth_status', args: {}}});
@@ -110,7 +161,7 @@ try {
 
   await assert.rejects(
     githubAdminOperationRunOperation({admin: fakeAdmin(), user, githubAdmin, args: {operation: 'github_admin.branches.create', args: {repo: 'OtherOwner/home-center', branch: 'blocked', fromBranch: 'main', requestId: 'owner-blocked'}}}),
-    /outside the Home Center GitHub admin allowlist/
+    /outside this Home Center user's GitHub Admin profile/
   );
 
   await assert.rejects(
@@ -122,7 +173,7 @@ try {
   const dispatchArgs = {repo: 'Valar05/home-center', workflowId: 'ci.yml', ref: 'main', inputs: {nonce: 'github-admin-contract'}, requestId: 'dispatch-contract-1'};
   const dispatch = await githubAdminOperationRunOperation({admin, user, githubAdmin, args: {operation: 'github_admin.workflows.dispatch', args: dispatchArgs}});
   assert.equal(dispatch.dispatched, true);
-  assert.equal(dispatchAttempts, 1, 'workflow dispatch POST is never blindly retried');
+  assert.equal(drewDispatchAttempts, 1, 'workflow dispatch POST is never blindly retried');
   assert.equal(dispatch.authMode, 'github_app_installation');
   const replay = await githubAdminOperationRunOperation({admin, user, githubAdmin, args: {operation: 'github_admin.workflows.dispatch', args: dispatchArgs}});
   assert.equal(replay.idempotent, true);
