@@ -45,7 +45,7 @@ function sortedUnique(values) {
   return [...new Set(values)].sort();
 }
 
-async function fetchApp(app, pathname) {
+async function fetchApp(app, pathname, init) {
   const listener = app.listen(0, '127.0.0.1');
   await new Promise((resolve, reject) => {
     listener.once('listening', resolve);
@@ -53,7 +53,7 @@ async function fetchApp(app, pathname) {
   });
   try {
     const address = listener.address();
-    return await fetch(`http://127.0.0.1:${address.port}${pathname}`);
+    return await fetch(`http://127.0.0.1:${address.port}${pathname}`, init);
   } finally {
     await new Promise((resolve) => listener.close(resolve));
   }
@@ -177,8 +177,24 @@ const oauthResourceMetadata = await fetchApp(homeApp, '/.well-known/oauth-protec
 assert.equal(oauthResourceMetadata.status, 200);
 assert.equal(oauthResourceMetadata.headers.get('cache-control'), 'no-store');
 const oauthResourceMetadataBody = await oauthResourceMetadata.json();
-assert.equal(oauthResourceMetadataBody.resource, 'https://us-central1-home-center-dclar.cloudfunctions.net/homeCenterMcp/mcp');
-assert(oauthResourceMetadataBody.metadata_aliases.includes('https://us-central1-home-center-dclar.cloudfunctions.net/homeCenterMcp/.well-known/oauth-protected-resource/mcp'));
+assert.equal(oauthResourceMetadataBody.resource, 'https://homecentermcp-vxybsaualq-uc.a.run.app/mcp');
+assert.deepEqual(oauthResourceMetadataBody.authorization_servers, ['https://homecentermcp-vxybsaualq-uc.a.run.app']);
+assert(oauthResourceMetadataBody.metadata_aliases.includes('https://homecentermcp-vxybsaualq-uc.a.run.app/.well-known/oauth-protected-resource/mcp'));
+assert(oauthResourceMetadataBody.metadata_aliases.includes('https://us-central1-home-center-dclar.cloudfunctions.net/homeCenterMcp/.well-known/oauth-protected-resource'));
+const oauthAuthorizationMetadata = await fetchApp(homeApp, '/.well-known/oauth-authorization-server');
+assert.equal(oauthAuthorizationMetadata.status, 200);
+const oauthAuthorizationMetadataBody = await oauthAuthorizationMetadata.json();
+assert.equal(oauthAuthorizationMetadataBody.issuer, 'https://homecentermcp-vxybsaualq-uc.a.run.app');
+assert.equal(oauthAuthorizationMetadataBody.authorization_endpoint, 'https://homecentermcp-vxybsaualq-uc.a.run.app/oauth/authorize');
+assert.equal(oauthAuthorizationMetadataBody.token_endpoint, 'https://homecentermcp-vxybsaualq-uc.a.run.app/oauth/token');
+assert.equal(oauthAuthorizationMetadataBody.registration_endpoint, 'https://homecentermcp-vxybsaualq-uc.a.run.app/oauth/register');
+const unauthenticatedMcp = await fetchApp(homeApp, '/mcp', {
+  method: 'POST',
+  headers: {'content-type': 'application/json', accept: 'application/json, text/event-stream'},
+  body: JSON.stringify({jsonrpc: '2.0', id: 1, method: 'tools/list', params: {}}),
+});
+assert.equal(unauthenticatedMcp.status, 401);
+assert.match(unauthenticatedMcp.headers.get('www-authenticate') || '', /resource_metadata="https:\/\/homecentermcp-vxybsaualq-uc\.a\.run\.app\/\.well-known\/oauth-protected-resource"/);
 const oauthPathResourceMetadata = await fetchApp(homeApp, '/.well-known/oauth-protected-resource/mcp');
 assert.equal(oauthPathResourceMetadata.status, 200);
 assert.equal(oauthPathResourceMetadata.headers.get('cache-control'), 'no-store');

@@ -8,6 +8,7 @@ const {
   GROUNDED_MOTION_MCP_RESOURCE,
   GROUNDED_MOTION_MCP_SCOPE,
   createHomeCenterMcpApp,
+  oauthResourceMatches,
 } = require('../functions/home_center_mcp.js');
 
 const grounded = resolveOAuthGrant(GROUNDED_MOTION_MCP_RESOURCE, GROUNDED_MOTION_MCP_SCOPE);
@@ -32,8 +33,16 @@ assert.throws(
 );
 
 const home = resolveOAuthGrant('', '');
+assert.equal(home.resource, 'https://homecentermcp-vxybsaualq-uc.a.run.app/mcp');
 assert(home.googleScopes.includes('https://www.googleapis.com/auth/drive'));
 assert.equal(home.allowedEmails, null);
+const legacyHomeResource = 'https://us-central1-home-center-dclar.cloudfunctions.net/homeCenterMcp/mcp';
+const legacyHome = resolveOAuthGrant(legacyHomeResource, '');
+assert.equal(legacyHome.resource, legacyHomeResource);
+assert.equal(legacyHome.allowedEmails, null);
+assert.equal(oauthResourceMatches(home.resource, home.resource), true);
+assert.equal(oauthResourceMatches(legacyHome.resource, home.resource), true, 'existing Home Center tokens remain valid');
+assert.equal(oauthResourceMatches('https://unregistered.example/mcp', home.resource), false);
 
 const app = createHomeCenterMcpApp({
   google: {},
