@@ -130,6 +130,21 @@ case "$MODE" in
     echo "GitHub App created: $html_url"
     echo "Install it for $OWNER, then run: sh tools/github_admin_gh_bootstrap.sh installation generated/github_admin/github-app.private-key.pem"
     ;;
+  installations)
+    pem_file="${2:-generated/github_admin/github-app.private-key.pem}"
+    if [ ! -f "$pem_file" ]; then
+      echo "Private key file not found: $pem_file" >&2
+      echo "Use: sh tools/github_admin_gh_bootstrap.sh installations generated/github_admin/github-app.private-key.pem" >&2
+      exit 2
+    fi
+    app_id="$(gcloud secrets versions access latest --secret=GITHUB_APP_ID --project "$PROJECT")"
+    jwt="$(create_jwt "$app_id" "$pem_file")"
+    tmp="$(mktemp)"
+    app_tmp="$(mktemp)"
+    gh api -H "Authorization: Bearer $jwt" -H "Accept: application/vnd.github+json" /app > "$app_tmp"
+    gh api -H "Authorization: Bearer $jwt" -H "Accept: application/vnd.github+json" /app/installations > "$tmp"
+    node -e 'const fs=require("fs"); const app=JSON.parse(fs.readFileSync(process.argv[1],"utf8")); const rows=JSON.parse(fs.readFileSync(process.argv[2],"utf8")); process.stdout.write(JSON.stringify({app:{name:app.name||"",slug:app.slug||"",installUrl:app.slug?`https://github.com/apps/${app.slug}/installations/new`:""},installations:(Array.isArray(rows)?rows:[]).map((x)=>({id:String(x.id||""),account:x.account&&x.account.login||"",targetType:x.target_type||"",repositorySelection:x.repository_selection||""}))},null,2));' "$app_tmp" "$tmp"
+    ;;
   installation)
     pem_file="${2:-generated/github_admin/github-app.private-key.pem}"
     if [ ! -f "$pem_file" ]; then
@@ -146,7 +161,7 @@ case "$MODE" in
     set_secret GITHUB_APP_INSTALLATION_ID "$installation_id"
     ;;
   *)
-    echo "Usage: sh tools/github_admin_gh_bootstrap.sh status|save-bootstrap|manifest|convert CODE|installation [pem_file]" >&2
+    echo "Usage: sh tools/github_admin_gh_bootstrap.sh status|save-bootstrap|manifest|convert CODE|installations [pem_file]|installation [pem_file]" >&2
     exit 2
     ;;
 esac

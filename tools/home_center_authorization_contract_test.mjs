@@ -13,7 +13,7 @@ const approvedCreditUsers = [drew, june, tim];
 
 assert.deepEqual(home.CREDIT_GATED_EMAILS, approvedCreditUsers);
 assert.deepEqual(commandCenter.COMMAND_CENTER_ALLOWED_EMAILS, approvedCreditUsers);
-assert.deepEqual(home.GITHUB_ADMIN_ALLOWED_EMAILS, [drew]);
+assert.deepEqual(home.GITHUB_ADMIN_ALLOWED_EMAILS, approvedCreditUsers);
 
 for (const email of approvedCreditUsers) {
   assert.equal(home.requireCreditGatedEmail(email), email);
@@ -24,23 +24,25 @@ for (const email of ['', 'outsider@example.com', 'drew@example.com']) {
   assert.throws(() => commandCenter.requireCommandCenterAllowedEmail(email), /restricted to approved Home Center accounts/);
 }
 
-assert.equal(home.requireGitHubAdminUser({email: drew}), drew);
-for (const email of [june, tim, 'outsider@example.com', '']) {
+for (const email of approvedCreditUsers) {
+  assert.equal(home.requireGitHubAdminUser({email}), email);
+}
+for (const email of ['outsider@example.com', '']) {
   assert.throws(
     () => home.requireGitHubAdminUser({email}),
     (err) => err && err.status === 403 && err.code === 'github_admin_forbidden_email'
   );
 }
-for (const email of [june, tim, 'outsider@example.com']) {
-  await assert.rejects(
-    home.githubAdminOperationRunOperation({
-      admin: {},
-      user: {email},
-      githubAdmin: {},
-      args: {operation: 'github_admin.auth_status', args: {}},
-    }),
-    (err) => err && err.status === 403 && err.code === 'github_admin_forbidden_email'
-  );
+for (const email of [june, tim]) {
+  const status = await home.githubAdminOperationRunOperation({
+    admin: {},
+    user: {email},
+    githubAdmin: {},
+    args: {operation: 'github_admin.auth_status', args: {}},
+  });
+  assert.equal(status.enabled, false);
+  assert.equal(status.profileConfigured, false);
+  assert.ok(status.disabledReasons.some((reason) => reason.code === 'github_admin_user_profile_missing'));
 }
 
 const source = readFileSync(new URL('../functions/home_center_mcp.js', import.meta.url), 'utf8');
