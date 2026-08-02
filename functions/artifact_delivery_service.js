@@ -335,7 +335,27 @@ async function publishToDrive({google, auth, ownerEmail, parentFolderId, candida
   const digestKey = deliveryDigestKey(ownerEmail, candidate);
   const query = "trashed=false and appProperties has { key='homeCenterArtifactDeliveryDigestKey' and value='" + driveQueryValue(digestKey) + "' }";
   const found = await drive.files.list({q: query, pageSize: 10, orderBy: 'createdTime asc', fields: 'files(id,name,mimeType,webViewLink,parents,size,appProperties,createdTime)', spaces: 'drive'});
-  const existing = Array.isArray(found.data && found.data.files) ? found.data.files[0] : null;
+  let existing = Array.isArray(found.data && found.data.files) ? found.data.files[0] : null;
+  let adoptedReadback = null;
+  if (!existing && parentFolderId) {
+    const existingQuery = "trashed=false and name='" + driveQueryValue(candidate.name) + "' and '" + driveQueryValue(parentFolderId) + "' in parents";
+    const sameFolder = await drive.files.list({q: existingQuery, pageSize: 25, orderBy: 'createdTime asc', fields: 'files(id,name,mimeType,webViewLink,parents,size,appProperties,createdTime)', spaces: 'drive'});
+    const possible = (Array.isArray(sameFolder.data && sameFolder.data.files) ? sameFolder.data.files : []).filter((item) =>
+      text(item && item.name, 240) === candidate.name &&
+      text(item && item.mimeType, 160) === candidate.mediaType &&
+      Number(item && item.size || 0) === candidate.byteLength &&
+      Array.isArray(item && item.parents) && item.parents.includes(parentFolderId)
+    );
+    for (const item of possible) {
+      const response = await drive.files.get({fileId: item.id, alt: 'media', supportsAllDrives: true}, {responseType: 'stream'});
+      const readback = await digestStream(response.data);
+      if (readback.byteLength === candidate.byteLength && readback.sha256 === candidate.sha256) {
+        existing = item;
+        adoptedReadback = readback;
+        break;
+      }
+    }
+  }
   let metadata = existing;
   if (!metadata) {
     const created = await drive.files.create({
@@ -358,8 +378,11 @@ async function publishToDrive({google, auth, ownerEmail, parentFolderId, candida
   }
   const fileId = text(metadata && metadata.id, 240);
   if (!fileId) throw fail('artifact_delivery.drive_file_id_missing', 'Drive did not return a delivery file ID.', 502);
-  const response = await drive.files.get({fileId, alt: 'media', supportsAllDrives: true}, {responseType: 'stream'});
-  const readback = await digestStream(response.data);
+  let readback = adoptedReadback;
+  if (!readback) {
+    const response = await drive.files.get({fileId, alt: 'media', supportsAllDrives: true}, {responseType: 'stream'});
+    readback = await digestStream(response.data);
+  }
   if (readback.byteLength !== candidate.byteLength || readback.sha256 !== candidate.sha256) throw fail('artifact_delivery.drive_readback_mismatch', 'Drive delivery readback does not match producer receipt for ' + candidate.name + '.', 502);
   return {
     role: candidate.role,
