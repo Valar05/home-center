@@ -236,7 +236,9 @@ assert.equal(aborted.canonicalArtifactMutated, false);
 const markers = [
   "'storage_ingest_artifact'",
   "server.registerTool('storage_ingest_artifact'",
-  "file: z.file()",
+  "openAiFileParamZodSchema(z",
+  "'openai/fileParams': ['file']",
+  "materializeOpenAiHostFile",
   "artifactOperationEntries()",
   "operation === 'storage.artifact.begin'",
   "operation === 'storage.artifact.append_chunk'",

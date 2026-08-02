@@ -26,7 +26,7 @@ assert.doesNotMatch(bridge, /server\.registerTool\(['"]tvtroper_operation['"]/);
 assert.match(bridge, /gcsOnly: true/);
 assert.match(deploy, /TVTROPER_RETRIEVAL_URL=.*tvtroper-retrieval-vxybsaualq-uc\.a\.run\.app/);
 assert.equal(manifest.toolCount, 57);
-assert.equal(manifest.canonicalToolsSha256, '5c7cee977116422e47ae817920d41b63227d841348fd6c0769f6c9f1568b6498');
+assert.equal(manifest.canonicalToolsSha256, '218fc0b22087642b6e05c743022fd8454113aa183b30818d20c54f4da69b5734');
 assert.equal(manifest.entries.some((entry) => entry.name === 'tvtroper_operation'), false);
 
 process.env.TVTROPER_RETRIEVAL_URL = 'https://tvtroper.test';

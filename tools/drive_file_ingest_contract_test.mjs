@@ -6,7 +6,9 @@ const source = fs.readFileSync(new URL('../functions/home_center_mcp.js', import
 const required = [
   "HOME_CENTER_DRIVE_INGEST_MAX_BYTES",
   "server.registerTool('drive_ingest_file'",
-  "file: z.file()",
+  "openAiFileParamZodSchema(z",
+  "'openai/fileParams': ['file']",
+  "materializeOpenAiHostFile",
   "await uploaded.arrayBuffer()",
   "expectedSha256",
   "drive_ingest_idempotency_conflict",
@@ -20,7 +22,7 @@ const required = [
   "verified: true",
   "inputSha256: sha256",
   "driveIngestFileCatalogInputSchema",
-  "contentMediaType: 'application/octet-stream'",
+  "required: ['download_url', 'file_id']",
 ];
 
 assert.match(source, /HOME_CENTER_DIRECT_FILE_TOOLS = Object\.freeze\(\[[^\]]*'drive_ingest_file'/);

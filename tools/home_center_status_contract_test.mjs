@@ -160,7 +160,7 @@ assert.deepEqual(capabilities.fileUploadTools, [
     name: 'drive_ingest_file',
     required: ['requestId', 'file'],
     inputs: {
-      file: {format: 'binary', contentMediaType: 'application/octet-stream'},
+      file: {binding: 'openai/fileParams', type: 'object', required: ['download_url', 'file_id'], optional: ['mime_type', 'file_name']},
     },
     maxBytes: 256 * 1024 * 1024,
     verification: ['expectedSha256', 'Drive readback byte count', 'Drive readback SHA-256'],
@@ -169,7 +169,7 @@ assert.deepEqual(capabilities.fileUploadTools, [
     name: 'storage_ingest_artifact',
     required: ['requestId', 'file', 'artifactId', 'artifactKind', 'project', 'expectedSha256'],
     inputs: {
-      file: {format: 'binary', contentMediaType: 'application/octet-stream'},
+      file: {binding: 'openai/fileParams', type: 'object', required: ['download_url', 'file_id'], optional: ['mime_type', 'file_name']},
     },
     maxBytes: 256 * 1024 * 1024,
     verification: ['expectedSha256', 'GCS readback byte count', 'GCS readback SHA-256', 'immutable indexes', 'Command Center artifact receipt'],

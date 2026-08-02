@@ -14,6 +14,7 @@ const express = require('express');
 const {z} = require('zod/v4');
 const {CARTESIA_DEFAULT_MODEL_ID, CARTESIA_DEFAULT_VOICE_NAME, listCartesiaVoiceCatalog, listCartesiaVoices, normalizeCartesiaVoice, openCartesiaStream} = require('./hosted_speech_provider');
 const {preflightArtifactEnvelope} = require('./artifact_transport');
+const {openAiFileParamJsonSchema, openAiFileParamZodSchema, materializeOpenAiHostFile} = require('./host_file_ingress');
 const cartesiaPitchShift = require('./cartesia_pitch_shift');
 const {renderAudioOperation, audioRenderStatusOperation, inspectAudioArtifactsOperation, uploadVerified: uploadVerifiedArtifact} = require('./audio_render_service');
 const {recoverAudioRenderRegistrationOperation, linkDriveAudioToReaderStageOperation} = require('./audio_catalog_service');
@@ -65,7 +66,7 @@ const DEFAULT_MCP_AUTHORIZATION_SERVER_BASE = 'https://homecentermcp-vxybsaualq-
 const MCP_PUBLIC_BASE = process.env.HOME_CENTER_MCP_PUBLIC_BASE || DEFAULT_MCP_PUBLIC_BASE;
 const MCP_AUTHORIZATION_SERVER_BASE = process.env.HOME_CENTER_MCP_AUTHORIZATION_SERVER_BASE || DEFAULT_MCP_AUTHORIZATION_SERVER_BASE;
 const HOME_CENTER_MCP_SERVER_VERSION = '0.2.0';
-const HOME_CENTER_CONNECTOR_SCHEMA_REVISION = '2026-07-30.audio-reader-link-v1';
+const HOME_CENTER_CONNECTOR_SCHEMA_REVISION = '2026-08-01.host-file-ingress-v2';
 const HOME_CENTER_REGISTRY_VERSION = HOME_CENTER_CONNECTOR_SCHEMA_REVISION;
 const HOME_CENTER_DIRECT_FILE_TOOLS = Object.freeze(['drive_ingest_file', 'storage_ingest_artifact']);
 const MCP_RESOURCE = `${MCP_AUTHORIZATION_SERVER_BASE}/mcp`;
@@ -719,15 +720,13 @@ async function postCommandCenterMcp(body, bearerToken) {
   return parseMcpPayload(text, 'Command Center MCP response');
 }
 
-function requireTopLevelDriveIngestUpload(args = {}) {
-  const value = args.file;
-  if (!isMcpFileLike(value)) {
-    const err = new Error('file must be a top-level uploaded MCP file. Do not pass a string path, URL, Base64 value, ref, or nested JSON descriptor.');
-    err.status = 400;
-    err.code = 'drive_ingest_file_required';
-    throw err;
+async function requireTopLevelDriveIngestUpload(args = {}) {
+  try {
+    return await materializeOpenAiHostFile(args.file, {maxBytes: HOME_CENTER_DRIVE_INGEST_MAX_BYTES});
+  } catch (error) {
+    if (error && error.code === 'host_file_required') error.code = 'drive_ingest_file_required';
+    throw error;
   }
-  return value;
 }
 
 function cleanDriveIngestFileName(value) {
@@ -769,7 +768,7 @@ function assertDriveIngestIdentity(result = {}, identity = {}) {
 
 async function driveIngestFileOperation({google, admin, auth, user, args = {}}) {
   const requestId = stableRequestId(args.requestId);
-  const uploaded = requireTopLevelDriveIngestUpload(args);
+  const uploaded = await requireTopLevelDriveIngestUpload(args);
   const declaredSize = Number(uploaded.size || 0);
   if (Number.isFinite(declaredSize) && declaredSize > HOME_CENTER_DRIVE_INGEST_MAX_BYTES) {
     const err = new Error('file exceeds the Home Center Drive ingest ceiling of ' + HOME_CENTER_DRIVE_INGEST_MAX_BYTES + ' bytes.');
@@ -960,13 +959,8 @@ function mcpToolJsonSchema(schema, pipeStrategy = 'input') {
   return toJsonSchemaCompat(objectSchema, {strictUnions: true, pipeStrategy});
 }
 
-function hostFileUploadInputSchema({description, contentMediaType}) {
-  return {
-    type: 'string',
-    format: 'binary',
-    contentMediaType,
-    description,
-  };
+function hostFileUploadInputSchema({description}) {
+  return openAiFileParamJsonSchema(description);
 }
 
 function storageIngestArtifactCatalogInputSchema() {
@@ -5368,7 +5362,7 @@ function homeCenterCapabilitiesPayload(server) {
         name: 'drive_ingest_file',
         required: ['requestId', 'file'],
         inputs: {
-          file: {format: 'binary', contentMediaType: 'application/octet-stream'},
+          file: {binding: 'openai/fileParams', type: 'object', required: ['download_url', 'file_id'], optional: ['mime_type', 'file_name']},
         },
         maxBytes: HOME_CENTER_DRIVE_INGEST_MAX_BYTES,
         verification: ['expectedSha256', 'Drive readback byte count', 'Drive readback SHA-256'],
@@ -5377,7 +5371,7 @@ function homeCenterCapabilitiesPayload(server) {
         name: 'storage_ingest_artifact',
         required: ['requestId', 'file', 'artifactId', 'artifactKind', 'project', 'expectedSha256'],
         inputs: {
-          file: {format: 'binary', contentMediaType: 'application/octet-stream'},
+          file: {binding: 'openai/fileParams', type: 'object', required: ['download_url', 'file_id'], optional: ['mime_type', 'file_name']},
         },
         maxBytes: ARTIFACT_INGEST_MAX_BYTES,
         verification: ['expectedSha256', 'GCS readback byte count', 'GCS readback SHA-256', 'immutable indexes', 'Command Center artifact receipt'],
@@ -5577,7 +5571,7 @@ function createHomeCenterMcpServer({google, admin, googleClientId, googleClientS
     description: 'Upload one top-level Work Mode file to canonical private Cloud Storage, verify SHA-256 and byte count by readback, write immutable indexes, and record a Command Center artifact receipt. This never writes Google Drive.',
     inputSchema: {
       requestId: z.string().describe('Stable idempotency and audit request id.'),
-      file: z.file().describe('Required top-level uploaded file. Paths, URLs, Base64 values, refs, and nested descriptors are rejected.'),
+      file: openAiFileParamZodSchema(z, 'Required top-level ChatGPT host file. Paths, handles, raw URLs, Base64 values, refs, and nested descriptors are rejected.'),
       artifactId: z.string().describe('Stable artifact identity.'),
       artifactKind: z.string().describe('Artifact class such as source-motion.'),
       project: z.string().describe('Owning project or factory lane.'),
@@ -5589,11 +5583,12 @@ function createHomeCenterMcpServer({google, admin, googleClientId, googleClientS
       callerNote: z.string().optional().describe('Optional audit summary.'),
     },
     securitySchemes: MCP_OAUTH_SECURITY_SCHEMES,
-    _meta: {securitySchemes: MCP_OAUTH_SECURITY_SCHEMES},
+    _meta: {securitySchemes: MCP_OAUTH_SECURITY_SCHEMES, 'openai/fileParams': ['file']},
     annotations: {readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: true},
   }, async (args, extra) => {
     const context = await requireCreditGatedContext({google, admin, googleClientId, googleClientSecret, extra, surface: 'storage_ingest_artifact'});
-    const result = await ingestArtifactUploadOperation({admin, user: context.user, args: args || {}, recordAudit: recordActionAudit});
+    const uploaded = await materializeOpenAiHostFile(args && args.file, {maxBytes: ARTIFACT_INGEST_MAX_BYTES});
+    const result = await ingestArtifactUploadOperation({admin, user: context.user, args: {...(args || {}), file: uploaded}, recordAudit: recordActionAudit});
     result.filesystem = await projectArtifactOperation({admin, user: context.user, artifactId: result.artifactId, requestId: 'project-' + result.artifactId + '-' + result.destination.sha256.slice(0, 16)});
     return textResult(result);
   });
@@ -5603,7 +5598,7 @@ function createHomeCenterMcpServer({google, admin, googleClientId, googleClientS
     description: 'Upload one top-level ChatGPT Work Mode file to private Google Drive, verify byte count and SHA-256 by readback, and audit the write. Use this reusable ingress for ZIPs and other files that are not already in Drive.',
     inputSchema: {
       requestId: z.string().describe('Stable idempotency and audit request id.'),
-      file: z.file().describe('Required top-level uploaded file. This must be a ChatGPT Work Mode host file upload, not a path, URL, Base64 value, ref, or nested JSON descriptor.'),
+      file: openAiFileParamZodSchema(z, 'Required top-level ChatGPT Work Mode host file. Paths, handles, raw URLs, Base64 values, refs, and nested descriptors are rejected.'),
       name: z.string().optional().describe('Optional Drive filename override.'),
       mimeType: z.string().optional().describe('Optional MIME type override.'),
       parentFolderId: z.string().optional().describe('Optional destination Drive folder id.'),
@@ -5611,7 +5606,7 @@ function createHomeCenterMcpServer({google, admin, googleClientId, googleClientS
       callerNote: z.string().optional().describe('Optional human-readable audit summary.'),
     },
     securitySchemes: MCP_OAUTH_SECURITY_SCHEMES,
-    _meta: {securitySchemes: MCP_OAUTH_SECURITY_SCHEMES},
+    _meta: {securitySchemes: MCP_OAUTH_SECURITY_SCHEMES, 'openai/fileParams': ['file']},
     annotations: {readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: true},
   }, async (args, extra) => {
     const context = await requireCreditGatedContext({google, admin, googleClientId, googleClientSecret, extra, surface: 'drive_ingest_file'});
