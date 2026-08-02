@@ -7,7 +7,8 @@
     "node": "22"
   },
   "scripts": {
-    "lint": "node --check index.js"
+    "lint": "node --check index.js && node --check home_center_mcp.js",
+    "test:sites-drive": "node --test home_center_sites_drive_test.js"
   },
   "dependencies": {
     "@gltf-transform/core": "4.4.2",
@@ -23,6 +24,7 @@
     "firebase-functions": "^6.0.1",
     "gl-catmull-clark": "1.0.0",
     "googleapis": "^144.0.0",
+    "isomorphic-git": "^1.40.0",
     "manifold-3d": "3.5.1",
     "meshoptimizer": "1.2.0",
     "pngjs": "7.0.0",
