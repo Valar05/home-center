@@ -251,6 +251,6 @@ const markers = [
 ];
 for (const marker of markers) assert.equal(bridge.includes(marker), true, 'missing bridge marker: ' + marker);
 assert.equal(HOME_CENTER_CONNECTOR_SCHEMA_REVISION, publicManifest.registryRevision, 'ingest must inherit the generated Home MCP registry revision');
-assert.match(bridge, /function driveOperationRegistry\(\)[\s\S]*?version: '2026-07-30\.audio-reader-link-v1'/);
+assert.match(bridge, /function driveOperationRegistry\(\)[\s\S]*?version: HOME_CENTER_REGISTRY_VERSION/);
 
 console.log('Storage artifact ingest contract passed.');

@@ -6340,8 +6340,8 @@
       }
     }
   ],
-  "manifestSha256": "5d1345714dec37cc0ff3f52f70d3360dec5cc14daadcc45d0d448ca65e75a179",
-  "registryRevision": "2026-08-01.host-file-ingress-v2",
+  "manifestSha256": "bfea510ab2cd6717e95b9e377314f3f3b1a4e925abd9e9d6474db5f7aa85f37f",
+  "registryRevision": "2026-08-02.blender-render-deprecated-v1",
   "schemaVersion": "home-center.public-tool-manifest.v1",
   "toolCount": 57
 }
