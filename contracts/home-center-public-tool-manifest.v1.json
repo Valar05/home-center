@@ -6340,8 +6340,8 @@
       }
     }
   ],
-  "manifestSha256": "bfea510ab2cd6717e95b9e377314f3f3b1a4e925abd9e9d6474db5f7aa85f37f",
-  "registryRevision": "2026-08-02.blender-render-deprecated-v1",
+  "manifestSha256": "5aef0ea7a5960ffa7c624c18525c92b3f41e8f649a345a2465739b66138c34c3",
+  "registryRevision": "2026-08-02.sites-source-drive-share-v1",
   "schemaVersion": "home-center.public-tool-manifest.v1",
   "toolCount": 57
 }
