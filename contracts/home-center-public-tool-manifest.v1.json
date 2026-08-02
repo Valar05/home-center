@@ -1,5 +1,5 @@
 {
-  "canonicalToolsSha256": "218fc0b22087642b6e05c743022fd8454113aa183b30818d20c54f4da69b5734",
+  "canonicalToolsSha256": "b0cdba53b112d4c2fa0638deb85d304ac71d0ea0b8c187a2d30e600094b158ed",
   "entries": [
     {
       "annotations": {
@@ -1361,19 +1361,10 @@
         }
       ],
       "inputSchema": {
-        "additionalProperties": false,
-        "properties": {
-          "callerNote": {
-            "description": "Optional human-readable audit summary.",
-            "type": "string"
-          },
-          "expectedSha256": {
-            "description": "Optional expected hexadecimal SHA-256 digest for caller-side provenance locking.",
-            "type": "string"
-          },
-          "file": {
+        "$defs": {
+          "OpenAIFile": {
             "additionalProperties": false,
-            "description": "Required top-level host-file upload. Do not pass a path, URL, Base64 string, ref, or nested JSON descriptor.",
+            "description": "ChatGPT host file supplied through openai/fileParams.",
             "properties": {
               "download_url": {
                 "type": "string"
@@ -1393,6 +1384,20 @@
               "file_id"
             ],
             "type": "object"
+          }
+        },
+        "additionalProperties": false,
+        "properties": {
+          "callerNote": {
+            "description": "Optional human-readable audit summary.",
+            "type": "string"
+          },
+          "expectedSha256": {
+            "description": "Optional expected hexadecimal SHA-256 digest for caller-side provenance locking.",
+            "type": "string"
+          },
+          "file": {
+            "$ref": "#/$defs/OpenAIFile"
           },
           "mimeType": {
             "description": "Optional MIME type override.",
@@ -1418,7 +1423,7 @@
         "type": "object"
       },
       "name": "drive_ingest_file",
-      "schemaHash": "6d22d71a688f362ea3bbf26ebfdab3559b738f614a679ec59be494b75c806f9c",
+      "schemaHash": "886eed112952a6ccfe8fe80170f671deecc6c48fe4336040d220d158b20a9b22",
       "tool": {
         "_meta": {
           "openai/fileParams": [
@@ -1448,19 +1453,10 @@
           "taskSupport": "forbidden"
         },
         "inputSchema": {
-          "additionalProperties": false,
-          "properties": {
-            "callerNote": {
-              "description": "Optional human-readable audit summary.",
-              "type": "string"
-            },
-            "expectedSha256": {
-              "description": "Optional expected hexadecimal SHA-256 digest for caller-side provenance locking.",
-              "type": "string"
-            },
-            "file": {
+          "$defs": {
+            "OpenAIFile": {
               "additionalProperties": false,
-              "description": "Required top-level host-file upload. Do not pass a path, URL, Base64 string, ref, or nested JSON descriptor.",
+              "description": "ChatGPT host file supplied through openai/fileParams.",
               "properties": {
                 "download_url": {
                   "type": "string"
@@ -1480,6 +1476,20 @@
                 "file_id"
               ],
               "type": "object"
+            }
+          },
+          "additionalProperties": false,
+          "properties": {
+            "callerNote": {
+              "description": "Optional human-readable audit summary.",
+              "type": "string"
+            },
+            "expectedSha256": {
+              "description": "Optional expected hexadecimal SHA-256 digest for caller-side provenance locking.",
+              "type": "string"
+            },
+            "file": {
+              "$ref": "#/$defs/OpenAIFile"
             },
             "mimeType": {
               "description": "Optional MIME type override.",
@@ -5898,6 +5908,31 @@
         }
       ],
       "inputSchema": {
+        "$defs": {
+          "OpenAIFile": {
+            "additionalProperties": false,
+            "description": "ChatGPT host file supplied through openai/fileParams.",
+            "properties": {
+              "download_url": {
+                "type": "string"
+              },
+              "file_id": {
+                "type": "string"
+              },
+              "file_name": {
+                "type": "string"
+              },
+              "mime_type": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "download_url",
+              "file_id"
+            ],
+            "type": "object"
+          }
+        },
         "additionalProperties": false,
         "properties": {
           "artifactId": {
@@ -5921,27 +5956,7 @@
             "type": "string"
           },
           "file": {
-            "additionalProperties": false,
-            "description": "Required top-level host-file upload for canonical Cloud Storage artifact ingress.",
-            "properties": {
-              "download_url": {
-                "type": "string"
-              },
-              "file_id": {
-                "type": "string"
-              },
-              "file_name": {
-                "type": "string"
-              },
-              "mime_type": {
-                "type": "string"
-              }
-            },
-            "required": [
-              "download_url",
-              "file_id"
-            ],
-            "type": "object"
+            "$ref": "#/$defs/OpenAIFile"
           },
           "mimeType": {
             "description": "Optional MIME type override.",
@@ -5975,7 +5990,7 @@
         "type": "object"
       },
       "name": "storage_ingest_artifact",
-      "schemaHash": "64b3907001729ac5a0c4027b9687146129c76cb80aefc411d760e43492377d95",
+      "schemaHash": "16c8e61dd3f24b5c10c1b8c97b63d8ef979e59cc3c5c5b52d54dfbbd7096cbfe",
       "tool": {
         "_meta": {
           "openai/fileParams": [
@@ -6005,6 +6020,31 @@
           "taskSupport": "forbidden"
         },
         "inputSchema": {
+          "$defs": {
+            "OpenAIFile": {
+              "additionalProperties": false,
+              "description": "ChatGPT host file supplied through openai/fileParams.",
+              "properties": {
+                "download_url": {
+                  "type": "string"
+                },
+                "file_id": {
+                  "type": "string"
+                },
+                "file_name": {
+                  "type": "string"
+                },
+                "mime_type": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "download_url",
+                "file_id"
+              ],
+              "type": "object"
+            }
+          },
           "additionalProperties": false,
           "properties": {
             "artifactId": {
@@ -6028,27 +6068,7 @@
               "type": "string"
             },
             "file": {
-              "additionalProperties": false,
-              "description": "Required top-level host-file upload for canonical Cloud Storage artifact ingress.",
-              "properties": {
-                "download_url": {
-                  "type": "string"
-                },
-                "file_id": {
-                  "type": "string"
-                },
-                "file_name": {
-                  "type": "string"
-                },
-                "mime_type": {
-                  "type": "string"
-                }
-              },
-              "required": [
-                "download_url",
-                "file_id"
-              ],
-              "type": "object"
+              "$ref": "#/$defs/OpenAIFile"
             },
             "mimeType": {
               "description": "Optional MIME type override.",
@@ -6340,8 +6360,8 @@
       }
     }
   ],
-  "manifestSha256": "5aef0ea7a5960ffa7c624c18525c92b3f41e8f649a345a2465739b66138c34c3",
-  "registryRevision": "2026-08-02.sites-source-drive-share-v1",
+  "manifestSha256": "824164463d1d3796c37ec55c73aec38edfbbcd0fe3409529d0a00407f68516f9",
+  "registryRevision": "2026-08-02.host-file-binding-v2",
   "schemaVersion": "home-center.public-tool-manifest.v1",
   "toolCount": 57
 }

@@ -69,7 +69,7 @@ const DEFAULT_MCP_AUTHORIZATION_SERVER_BASE = 'https://homecentermcp-vxybsaualq-
 const MCP_PUBLIC_BASE = process.env.HOME_CENTER_MCP_PUBLIC_BASE || DEFAULT_MCP_PUBLIC_BASE;
 const MCP_AUTHORIZATION_SERVER_BASE = process.env.HOME_CENTER_MCP_AUTHORIZATION_SERVER_BASE || DEFAULT_MCP_AUTHORIZATION_SERVER_BASE;
 const HOME_CENTER_MCP_SERVER_VERSION = '0.2.0';
-const HOME_CENTER_CONNECTOR_SCHEMA_REVISION = '2026-08-02.sites-source-drive-share-v1';
+const HOME_CENTER_CONNECTOR_SCHEMA_REVISION = '2026-08-02.host-file-binding-v2';
 const HOME_CENTER_REGISTRY_VERSION = HOME_CENTER_CONNECTOR_SCHEMA_REVISION;
 const HOME_CENTER_DIRECT_FILE_TOOLS = Object.freeze(['drive_ingest_file', 'storage_ingest_artifact']);
 const MCP_RESOURCE = `${MCP_AUTHORIZATION_SERVER_BASE}/mcp`;
@@ -964,13 +964,18 @@ function mcpToolJsonSchema(schema, pipeStrategy = 'input') {
   return toJsonSchemaCompat(objectSchema, {strictUnions: true, pipeStrategy});
 }
 
-function hostFileUploadInputSchema({description}) {
-  return openAiFileParamJsonSchema(description);
+function openAiFileCatalogDefinition() {
+  return openAiFileParamJsonSchema('ChatGPT host file supplied through openai/fileParams.');
+}
+
+function hostFileUploadInputSchema() {
+  return {$ref: '#/$defs/OpenAIFile'};
 }
 
 function storageIngestArtifactCatalogInputSchema() {
   return {
     type: 'object',
+    $defs: {OpenAIFile: openAiFileCatalogDefinition()},
     properties: {
       requestId: {type: 'string', description: 'Stable idempotency and audit request id.'},
       file: hostFileUploadInputSchema({
@@ -995,6 +1000,7 @@ function storageIngestArtifactCatalogInputSchema() {
 function driveIngestFileCatalogInputSchema() {
   return {
     type: 'object',
+    $defs: {OpenAIFile: openAiFileCatalogDefinition()},
     properties: {
       requestId: {type: 'string', description: 'Stable idempotency and audit request id.'},
       file: hostFileUploadInputSchema({
@@ -2997,8 +3003,7 @@ async function githubAdminCheckMergePreconditions(githubAdmin, user, repo, numbe
   if (status.state !== 'success' && !(args.allowNoChecks === true && Array.isArray(status.statuses) && !status.statuses.length)) {
     throw Object.assign(new Error(`Required commit statuses are not green: ${status.state || 'unknown'}.`), {status: 409, code: 'github_admin_checks_not_green', combinedState: status.state || 'unknown'});
   }
-  return {pullRequest, combinedStatus: {state: status.state || '', totalCount: status.total_count || 0}};
-}
+  return {pullRequest, combinedStatus: {state: status.state || '', totalCount: status.total_count || 0}};}
 
 async function githubAdminMergePullRequestOperation({admin, user, githubAdmin, args = {}}) {
   requireGitHubAdminUser(user);
@@ -5998,7 +6003,6 @@ function createHomeCenterMcpServer({google, admin, googleClientId, googleClientS
     const context = await requireCreditGatedContext({google, admin, googleClientId, googleClientSecret, extra, surface: 'drive_ingest_file'});
     return textResult(await driveIngestFileOperation({google, admin, auth: context.auth, user: context.user, args: args || {}}));
   });
-
   server.registerTool('cartesia_voices', {
     title: 'Cartesia voices',
     description: 'List or search Cartesia voices by calling the hosted Cartesia provider directly from Home Center MCP. This does not create or inspect Command Center jobs, workers, leases, or Codex sessions.',

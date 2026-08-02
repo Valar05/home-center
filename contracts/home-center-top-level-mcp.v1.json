@@ -880,19 +880,10 @@
       "taskSupport": "forbidden"
     },
     "inputSchema": {
-      "additionalProperties": false,
-      "properties": {
-        "callerNote": {
-          "description": "Optional human-readable audit summary.",
-          "type": "string"
-        },
-        "expectedSha256": {
-          "description": "Optional expected hexadecimal SHA-256 digest for caller-side provenance locking.",
-          "type": "string"
-        },
-        "file": {
+      "$defs": {
+        "OpenAIFile": {
           "additionalProperties": false,
-          "description": "Required top-level host-file upload. Do not pass a path, URL, Base64 string, ref, or nested JSON descriptor.",
+          "description": "ChatGPT host file supplied through openai/fileParams.",
           "properties": {
             "download_url": {
               "type": "string"
@@ -912,6 +903,20 @@
             "file_id"
           ],
           "type": "object"
+        }
+      },
+      "additionalProperties": false,
+      "properties": {
+        "callerNote": {
+          "description": "Optional human-readable audit summary.",
+          "type": "string"
+        },
+        "expectedSha256": {
+          "description": "Optional expected hexadecimal SHA-256 digest for caller-side provenance locking.",
+          "type": "string"
+        },
+        "file": {
+          "$ref": "#/$defs/OpenAIFile"
         },
         "mimeType": {
           "description": "Optional MIME type override.",
@@ -3719,6 +3724,31 @@
       "taskSupport": "forbidden"
     },
     "inputSchema": {
+      "$defs": {
+        "OpenAIFile": {
+          "additionalProperties": false,
+          "description": "ChatGPT host file supplied through openai/fileParams.",
+          "properties": {
+            "download_url": {
+              "type": "string"
+            },
+            "file_id": {
+              "type": "string"
+            },
+            "file_name": {
+              "type": "string"
+            },
+            "mime_type": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "download_url",
+            "file_id"
+          ],
+          "type": "object"
+        }
+      },
       "additionalProperties": false,
       "properties": {
         "artifactId": {
@@ -3742,27 +3772,7 @@
           "type": "string"
         },
         "file": {
-          "additionalProperties": false,
-          "description": "Required top-level host-file upload for canonical Cloud Storage artifact ingress.",
-          "properties": {
-            "download_url": {
-              "type": "string"
-            },
-            "file_id": {
-              "type": "string"
-            },
-            "file_name": {
-              "type": "string"
-            },
-            "mime_type": {
-              "type": "string"
-            }
-          },
-          "required": [
-            "download_url",
-            "file_id"
-          ],
-          "type": "object"
+          "$ref": "#/$defs/OpenAIFile"
         },
         "mimeType": {
           "description": "Optional MIME type override.",
