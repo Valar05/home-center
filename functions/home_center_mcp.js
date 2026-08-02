@@ -1442,21 +1442,31 @@ async function materializeSitesSourceVersionOperation({google, admin, auth, user
     const root = await ensureMaterializedDriveFolder({drive, requestId, sourcePath: '.', name: folderName, parentFolderId, sourceCommit});
     const folderIds = {'': root.id};
     const folderReceipts = [];
+    const directoryPaths = [...new Set(sourceFiles.flatMap((sourceFile) => {
+      const parts = sourceFile.path.split('/').slice(0, -1);
+      return parts.map((_, index) => parts.slice(0, index + 1).join('/'));
+    }))].sort((a, b) => {
+      const depth = a.split('/').length - b.split('/').length;
+      return depth || a.localeCompare(b);
+    });
+    for (const directoryPath of directoryPaths) {
+      const parts = directoryPath.split('/');
+      const parentPath = parts.slice(0, -1).join('/');
+      const directoryName = parts[parts.length - 1];
+      const folder = await ensureMaterializedDriveFolder({drive, requestId, sourcePath: directoryPath, name: directoryName, parentFolderId: folderIds[parentPath], sourceCommit});
+      folderIds[directoryPath] = folder.id;
+      folderReceipts.push({path: directoryPath, folderId: folder.id, verified: true});
+    }
     const fileReceipts = [];
-    for (const sourceFile of sourceFiles) {
-      const parts = sourceFile.path.split('/');
-      let currentPath = '';
-      for (const directoryName of parts.slice(0, -1)) {
-        const nextPath = currentPath ? currentPath + '/' + directoryName : directoryName;
-        if (!folderIds[nextPath]) {
-          const folder = await ensureMaterializedDriveFolder({drive, requestId, sourcePath: nextPath, name: directoryName, parentFolderId: folderIds[currentPath], sourceCommit});
-          folderIds[nextPath] = folder.id;
-          folderReceipts.push({path: nextPath, folderId: folder.id, verified: true});
-        }
-        currentPath = nextPath;
-      }
-      const uploaded = await ensureMaterializedDriveFile({drive, requestId, sourcePath: sourceFile.path, name: sourceFile.name, parentFolderId: folderIds[currentPath], sourceCommit, bytes: sourceFile.bytes, mimeType: sourceFile.mimeType});
-      fileReceipts.push({path: sourceFile.path, fileId: uploaded.id, byteCount: uploaded.byteCount, sha256: uploaded.sha256, readbackByteCount: uploaded.readbackByteCount, readbackSha256: uploaded.readbackSha256, verified: true, mode: sourceFile.mode});
+    const verificationConcurrency = Math.max(1, Math.min(8, Math.floor(safeNumber(args.verificationConcurrency, 8))));
+    for (let offset = 0; offset < sourceFiles.length; offset += verificationConcurrency) {
+      const batch = sourceFiles.slice(offset, offset + verificationConcurrency);
+      const batchReceipts = await Promise.all(batch.map(async (sourceFile) => {
+        const parentPath = sourceFile.path.split('/').slice(0, -1).join('/');
+        const uploaded = await ensureMaterializedDriveFile({drive, requestId, sourcePath: sourceFile.path, name: sourceFile.name, parentFolderId: folderIds[parentPath], sourceCommit, bytes: sourceFile.bytes, mimeType: sourceFile.mimeType});
+        return {path: sourceFile.path, fileId: uploaded.id, byteCount: uploaded.byteCount, sha256: uploaded.sha256, readbackByteCount: uploaded.readbackByteCount, readbackSha256: uploaded.readbackSha256, verified: true, mode: sourceFile.mode};
+      }));
+      fileReceipts.push(...batchReceipts);
     }
 
     const aggregateSha256 = sha256Hex(Buffer.from(sourceFiles.map((file) => `${file.mode.toString(8)} ${file.sha256} ${file.path}\n`).join(''), 'utf8'));
