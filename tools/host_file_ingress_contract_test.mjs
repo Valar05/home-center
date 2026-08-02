@@ -66,10 +66,13 @@ test('tool discovery advertises exact OpenAI file parameter contract', async () 
   for (const name of ['drive_ingest_file', 'storage_ingest_artifact']) {
     const tool = listed.tools.find((entry) => entry.name === name);
     assert.deepEqual(tool._meta['openai/fileParams'], ['file']);
-    assert.equal(tool.inputSchema.properties.file.type, 'object');
-    assert.deepEqual(tool.inputSchema.properties.file.required, ['download_url', 'file_id']);
-    assert.deepEqual(Object.keys(tool.inputSchema.properties.file.properties).sort(), ['download_url', 'file_id', 'file_name', 'mime_type']);
-    assert.equal(tool.inputSchema.properties.file.additionalProperties, false);
+    assert.deepEqual(tool.inputSchema.properties.file, {$ref: '#/$defs/OpenAIFile'});
+    const fileSchema = tool.inputSchema.$defs.OpenAIFile;
+    assert.equal(fileSchema.type, 'object');
+    assert.deepEqual(fileSchema.required, ['download_url', 'file_id']);
+    assert.deepEqual(Object.keys(fileSchema.properties).sort(), ['download_url', 'file_id', 'file_name', 'mime_type']);
+    assert.equal(fileSchema.additionalProperties, false);
+    assert.notEqual(tool.inputSchema.properties.file.type, 'string');
   }
 });
 
