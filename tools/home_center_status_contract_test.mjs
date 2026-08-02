@@ -13,6 +13,7 @@ process.env.K_REVISION = 'homecentermcp-test-revision';
 const {
   HOME_CENTER_MCP_SERVER_VERSION,
   HOME_CENTER_CONNECTOR_SCHEMA_REVISION,
+  mcpRequestMountedPath,
   createHomeCenterMcpApp,
   createHomeCenterMcpServer,
   homeCenterHealthPayload,
@@ -204,6 +205,13 @@ const homeRoot = await fetchApp(createHomeCenterMcpApp({google: {}, admin, ...oa
 assert.equal(homeRoot.status, 200);
 assert.deepEqual(await homeRoot.json(), homeCenterHealthPayload());
 const homeApp = createHomeCenterMcpApp({google: {}, admin, ...oauth});
+const canonicalRequest = {get(name) { return name.toLowerCase() === 'host' ? 'homecentermcp-vxybsaualq-uc.a.run.app' : ''; }};
+const legacyRequest = {get(name) { return name.toLowerCase() === 'host' ? 'us-central1-home-center-dclar.cloudfunctions.net' : ''; }};
+const forwardedLegacyRequest = {get(name) { return name.toLowerCase() === 'x-forwarded-host' ? 'us-central1-home-center-dclar.cloudfunctions.net' : 'internal.run.app'; }};
+assert.equal(mcpRequestMountedPath(canonicalRequest, '/oauth/handoff-complete'), '/oauth/handoff-complete');
+assert.equal(mcpRequestMountedPath(legacyRequest, '/oauth/handoff-complete'), '/homeCenterMcp/oauth/handoff-complete');
+assert.equal(mcpRequestMountedPath(forwardedLegacyRequest, '/oauth/handoff-status'), '/homeCenterMcp/oauth/handoff-status');
+
 const oauthResourceMetadata = await fetchApp(homeApp, '/.well-known/oauth-protected-resource');
 assert.equal(oauthResourceMetadata.status, 200);
 assert.equal(oauthResourceMetadata.headers.get('cache-control'), 'no-store');
