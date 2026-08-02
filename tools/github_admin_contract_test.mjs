@@ -59,6 +59,7 @@ const scopedGithubAdmin = {
 let installationTokenAttempts = 0;
 let drewDispatchAttempts = 0;
 let scopedDispatchAttempts = 0;
+const rulesetMutations = [];
 const originalFetch = global.fetch;
 const originalEnabled = process.env.HOME_CENTER_GITHUB_ADMIN_ENABLED;
 const originalOwners = process.env.HOME_CENTER_GITHUB_ADMIN_OWNERS;
@@ -83,11 +84,29 @@ try {
     if (parsed.pathname === '/repos/Valar05/home-center/pulls/10') return response(200, {number: 10, draft: false, head: {ref: 'feature', sha: 'current-sha'}, base: {ref: 'main', sha: 'base-sha'}});
     if (parsed.pathname === '/repos/Valar05/home-center/pulls/11') return response(200, {number: 11, draft: false, head: {ref: 'feature', sha: 'ok-sha'}, base: {ref: 'main', sha: 'base-sha'}});
     if (parsed.pathname === '/repos/Valar05/home-center/commits/ok-sha/status') return response(200, {state: 'pending', statuses: [{context: 'ci'}], total_count: 1});
+    if (parsed.pathname === '/users/Valar05/repos') return response(200, [
+      {id: 1, name: 'active', full_name: 'Valar05/active', visibility: 'public', default_branch: 'main', size: 42, pushed_at: '2026-08-02T00:00:00Z'},
+      {id: 2, name: 'empty', full_name: 'Valar05/empty', visibility: 'public', default_branch: '', size: 0},
+      {id: 3, name: 'legacy', full_name: 'Valar05/legacy', visibility: 'public', default_branch: 'master', size: 4},
+      {id: 4, name: 'archive', full_name: 'Valar05/archive', visibility: 'public', default_branch: 'main', size: 4, archived: true},
+      {id: 5, name: 'fork', full_name: 'Valar05/fork', visibility: 'public', default_branch: 'main', size: 4, fork: true},
+    ]);
+    if (/^\/repos\/Valar05\/(active|empty|legacy|archive|fork)\/rulesets$/.test(parsed.pathname) && (!options.method || options.method === 'GET')) return response(200, []);
+    if (parsed.pathname === '/repos/Valar05/active' && (!options.method || options.method === 'GET')) return response(200, {id: 1, name: 'active', full_name: 'Valar05/active', visibility: 'public', default_branch: 'main', size: 42, pushed_at: '2026-08-02T00:00:00Z'});
+    if (parsed.pathname === '/repos/Valar05/active/rulesets' && options.method === 'POST') {
+      const body = JSON.parse(options.body); rulesetMutations.push({method: 'POST', body});
+      return response(201, {id: 42, ...body, source_type: 'Repository', source: 'Valar05/active'});
+    }
+    if (parsed.pathname === '/repos/Valar05/active/rulesets/42' && (!options.method || options.method === 'GET')) return response(200, {id: 42, name: 'Default branch baseline', target: 'branch', source_type: 'Repository', source: 'Valar05/active', enforcement: 'active', conditions: {ref_name: {include: ['~DEFAULT_BRANCH'], exclude: []}}, rules: [{type: 'pull_request', parameters: {required_approving_review_count: 1}}]});
+    if (parsed.pathname === '/repos/Valar05/active/rulesets/42' && options.method === 'PUT') {
+      const body = JSON.parse(options.body); rulesetMutations.push({method: 'PUT', body});
+      return response(200, {id: 42, ...body, source_type: 'Repository', source: 'Valar05/active'});
+    }
     throw new Error(`Unexpected GitHub mock route: ${options.method || 'GET'} ${parsed.pathname}`);
   };
 
   const registry = githubAdminOperationEntries();
-  for (const op of ['github_admin.auth_status', 'github_admin.repos.create', 'github_admin.repos.configure', 'github_admin.branches.create', 'github_admin.files.upsert', 'github_admin.pull_requests.create', 'github_admin.pull_requests.merge', 'github_admin.workflows.dispatch']) {
+  for (const op of ['github_admin.auth_status', 'github_admin.repos.create', 'github_admin.repos.configure', 'github_admin.branches.create', 'github_admin.files.upsert', 'github_admin.pull_requests.create', 'github_admin.pull_requests.merge', 'github_admin.workflows.dispatch', 'github_admin.inventory_rulesets', 'github_admin.create_ruleset', 'github_admin.update_ruleset', 'github_admin.verify_ruleset_readback']) {
     assert.ok(registry[op], `registry exposes ${op}`);
   }
   assert.equal(registry['github_admin.pull_requests.merge'].requiresRequestId, true);
@@ -169,6 +188,42 @@ try {
     /requestId is required/
   );
 
+  const inventory = await githubAdminOperationRunOperation({admin: fakeAdmin(), user, githubAdmin, args: {operation: 'github_admin.inventory_rulesets', args: {owner: 'Valar05', legacyRepos: ['Valar05/legacy']}}});
+  assert.equal(inventory.mutationPerformed, false);
+  assert.equal(inventory.eligibleCount, 1);
+  assert.equal(inventory.exceptionCount, 4);
+  assert.deepEqual(inventory.repositories.find((repo) => repo.name === 'empty').exceptionReasons, ['empty']);
+  assert.deepEqual(inventory.repositories.find((repo) => repo.name === 'legacy').exceptionReasons, ['legacy']);
+  assert.deepEqual(inventory.repositories.find((repo) => repo.name === 'archive').exceptionReasons, ['archived']);
+  assert.deepEqual(inventory.repositories.find((repo) => repo.name === 'fork').exceptionReasons, ['fork_shaped']);
+
+  const rulesetAdmin = fakeAdmin();
+  const createdRuleset = await githubAdminOperationRunOperation({admin: rulesetAdmin, user, githubAdmin, args: {operation: 'github_admin.create_ruleset', args: {repo: 'Valar05/active', name: 'Default branch baseline', enforcement: 'active', rules: [{type: 'pull_request', parameters: {required_approving_review_count: 1}}], requestId: 'ruleset-create-contract'}}});
+  assert.equal(createdRuleset.rulesetId, 42);
+  assert.deepEqual(rulesetMutations[0].body.conditions, {ref_name: {include: ['~DEFAULT_BRANCH'], exclude: []}});
+  assert.equal(rulesetMutations[0].body.target, 'branch');
+  assert.ok(!rulesetMutations[0].body.rules.some((rule) => rule.type === 'required_status_checks'));
+
+  const updatedRuleset = await githubAdminOperationRunOperation({admin: rulesetAdmin, user, githubAdmin, args: {operation: 'github_admin.update_ruleset', args: {repo: 'Valar05/active', rulesetId: 42, rules: [{type: 'required_linear_history'}], requestId: 'ruleset-update-contract'}}});
+  assert.equal(updatedRuleset.rulesetId, 42);
+  assert.deepEqual(rulesetMutations[1].body.conditions.ref_name.include, ['~DEFAULT_BRANCH']);
+  assert.deepEqual(rulesetMutations[1].body.rules, [{type: 'required_linear_history'}]);
+
+  await assert.rejects(
+    githubAdminOperationRunOperation({admin: fakeAdmin(), user, githubAdmin, args: {operation: 'github_admin.create_ruleset', args: {repo: 'Valar05/active', name: 'bad CI gate', rules: [{type: 'required_status_checks'}], requestId: 'ruleset-ci-blocked'}}}),
+    (err) => err && err.code === 'github_admin_ruleset_ci_checks_forbidden'
+  );
+  await assert.rejects(
+    githubAdminOperationRunOperation({admin: fakeAdmin(), user, githubAdmin, args: {operation: 'github_admin.create_ruleset', args: {repo: 'Valar05/active', name: 'legacy blocked', rules: [{type: 'required_linear_history'}], legacyRepos: ['Valar05/active'], requestId: 'ruleset-legacy-blocked'}}}),
+    (err) => err && err.code === 'github_admin_ruleset_repository_excluded'
+  );
+
+  const receipt = await githubAdminOperationRunOperation({admin: fakeAdmin(), user, githubAdmin, args: {operation: 'github_admin.verify_ruleset_readback', args: {repo: 'Valar05/active', rulesetId: 42, expectedName: 'Default branch baseline', expectedEnforcement: 'active'}}});
+  assert.equal(receipt.verified, true);
+  assert.equal(receipt.mutationPerformed, false);
+  assert.equal(receipt.checks.defaultBranchOnly, true);
+  assert.equal(receipt.checks.noCiRequirements, true);
+
   const admin = fakeAdmin();
   const dispatchArgs = {repo: 'Valar05/home-center', workflowId: 'ci.yml', ref: 'main', inputs: {nonce: 'github-admin-contract'}, requestId: 'dispatch-contract-1'};
   const dispatch = await githubAdminOperationRunOperation({admin, user, githubAdmin, args: {operation: 'github_admin.workflows.dispatch', args: dispatchArgs}});
@@ -204,6 +259,7 @@ try {
   const source = readFileSync(new URL('../functions/home_center_mcp.js', import.meta.url), 'utf8');
   assert.match(source, /server\.registerTool\('github_get_repo'/, 'existing authenticated GitHub read tool remains registered');
   assert.match(source, /function githubRequest\(githubToken/, 'existing authenticated GitHub read request path remains present');
+  assert.doesNotMatch(source, /server\.registerTool\('github_admin_(inventory_rulesets|create_ruleset|update_ruleset|verify_ruleset_readback)'/, 'ruleset operations do not change the top-level MCP tool contract');
 } finally {
   global.fetch = originalFetch;
   if (originalEnabled === undefined) delete process.env.HOME_CENTER_GITHUB_ADMIN_ENABLED;

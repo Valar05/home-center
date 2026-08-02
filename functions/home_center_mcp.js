@@ -69,7 +69,7 @@ const DEFAULT_MCP_AUTHORIZATION_SERVER_BASE = 'https://homecentermcp-vxybsaualq-
 const MCP_PUBLIC_BASE = process.env.HOME_CENTER_MCP_PUBLIC_BASE || DEFAULT_MCP_PUBLIC_BASE;
 const MCP_AUTHORIZATION_SERVER_BASE = process.env.HOME_CENTER_MCP_AUTHORIZATION_SERVER_BASE || DEFAULT_MCP_AUTHORIZATION_SERVER_BASE;
 const HOME_CENTER_MCP_SERVER_VERSION = '0.2.0';
-const HOME_CENTER_CONNECTOR_SCHEMA_REVISION = '2026-08-02.host-file-binding-v2';
+const HOME_CENTER_CONNECTOR_SCHEMA_REVISION = '2026-08-02.github-rulesets-v1';
 const HOME_CENTER_REGISTRY_VERSION = HOME_CENTER_CONNECTOR_SCHEMA_REVISION;
 const HOME_CENTER_DIRECT_FILE_TOOLS = Object.freeze(['drive_ingest_file', 'storage_ingest_artifact']);
 const MCP_RESOURCE = `${MCP_AUTHORIZATION_SERVER_BASE}/mcp`;
@@ -2803,6 +2803,170 @@ function cleanGitHubAdminBranch(branch = {}) {
   return {ref: branch.ref || '', sha: branch.object && branch.object.sha || '', url: branch.url || ''};
 }
 
+function githubRulesetLegacyRepos(args = {}) {
+  const configured = safeText(process.env.HOME_CENTER_GITHUB_RULESET_LEGACY_REPOS || '', 12000).split(',');
+  const supplied = Array.isArray(args.legacyRepos) ? args.legacyRepos : [];
+  return new Set(configured.concat(supplied).map((value) => safeText(value, 240).toLowerCase()).filter(Boolean));
+}
+
+function cleanGitHubRulesetRepository(repo = {}, args = {}) {
+  const fullName = safeText(repo.full_name || `${repo.owner && repo.owner.login || ''}/${repo.name || ''}`, 240);
+  const reasons = [];
+  if (repo.private || safeText(repo.visibility, 20).toLowerCase() === 'private') reasons.push('not_public');
+  if (repo.archived) reasons.push('archived');
+  if (repo.fork || repo.parent || repo.source || repo.mirror_url) reasons.push('fork_shaped');
+  if (!repo.default_branch || (Number(repo.size || 0) === 0 && !repo.pushed_at)) reasons.push('empty');
+  const topics = Array.isArray(repo.topics) ? repo.topics.map((topic) => safeText(topic, 80).toLowerCase()) : [];
+  if (githubRulesetLegacyRepos(args).has(fullName.toLowerCase()) || topics.includes('legacy')) reasons.push('legacy');
+  return {
+    id: repo.id || 0,
+    name: repo.name || '',
+    fullName,
+    visibility: repo.private ? 'private' : safeText(repo.visibility || 'public', 20),
+    defaultBranch: repo.default_branch || '',
+    archived: !!repo.archived,
+    forkShaped: !!(repo.fork || repo.parent || repo.source || repo.mirror_url),
+    empty: !repo.default_branch || (Number(repo.size || 0) === 0 && !repo.pushed_at),
+    legacy: reasons.includes('legacy'),
+    eligible: reasons.length === 0,
+    exceptionReasons: reasons,
+    htmlUrl: repo.html_url || '',
+  };
+}
+
+function requireEligibleGitHubRulesetRepository(repo, args = {}) {
+  const repository = cleanGitHubRulesetRepository(repo, args);
+  if (!repository.eligible) {
+    throw Object.assign(new Error(`Repository ${repository.fullName} is excluded from Home Center ruleset changes: ${repository.exceptionReasons.join(', ')}.`), {status: 409, code: 'github_admin_ruleset_repository_excluded', repository});
+  }
+  return repository;
+}
+
+function cleanGitHubRuleset(ruleset = {}) {
+  return {
+    id: Number(ruleset.id || 0), name: ruleset.name || '', target: ruleset.target || '', sourceType: ruleset.source_type || '', source: ruleset.source || '', enforcement: ruleset.enforcement || '',
+    bypassActors: Array.isArray(ruleset.bypass_actors) ? ruleset.bypass_actors.map((actor) => ({actorId: actor.actor_id === null ? null : Number(actor.actor_id || 0), actorType: actor.actor_type || '', bypassMode: actor.bypass_mode || ''})) : [],
+    conditions: ruleset.conditions || null, rules: Array.isArray(ruleset.rules) ? ruleset.rules : [],
+    htmlUrl: ruleset._links && ruleset._links.html && ruleset._links.html.href || '', createdAt: ruleset.created_at || '', updatedAt: ruleset.updated_at || '',
+  };
+}
+
+function normalizeGitHubRulesetRules(value) {
+  if (!Array.isArray(value) || !value.length || value.length > 50) throw Object.assign(new Error('rules must contain between 1 and 50 GitHub ruleset rules.'), {status: 400, code: 'github_admin_ruleset_rules_required'});
+  const rules = value.map((rule) => {
+    if (!rule || typeof rule !== 'object' || Array.isArray(rule)) throw Object.assign(new Error('each ruleset rule must be an object.'), {status: 400, code: 'github_admin_ruleset_invalid_rule'});
+    const type = safeText(rule.type, 120);
+    if (!/^[a-z][a-z0-9_]{1,119}$/.test(type)) throw Object.assign(new Error('each ruleset rule requires a valid type.'), {status: 400, code: 'github_admin_ruleset_invalid_rule_type'});
+    if (['required_status_checks', 'required_workflows'].includes(type)) throw Object.assign(new Error(`Home Center rulesets must not require unstable CI checks (${type}).`), {status: 400, code: 'github_admin_ruleset_ci_checks_forbidden'});
+    return rule.parameters === undefined ? {type} : {type, parameters: rule.parameters};
+  });
+  if (Buffer.byteLength(JSON.stringify(rules), 'utf8') > 100000) throw Object.assign(new Error('ruleset rules payload is too large.'), {status: 413, code: 'github_admin_ruleset_rules_too_large'});
+  return rules;
+}
+
+function normalizeGitHubRulesetBypassActors(value) {
+  if (value === undefined) return [];
+  if (!Array.isArray(value) || value.length > 50) throw Object.assign(new Error('bypassActors must be an array of at most 50 actors.'), {status: 400, code: 'github_admin_ruleset_invalid_bypass_actors'});
+  return value.map((actor) => {
+    const actorType = safeText(actor && (actor.actorType || actor.actor_type), 40);
+    const bypassMode = safeText(actor && (actor.bypassMode || actor.bypass_mode) || 'always', 40);
+    if (!['Integration', 'OrganizationAdmin', 'RepositoryRole', 'Team', 'DeployKey', 'User'].includes(actorType)) throw Object.assign(new Error('bypass actor type is invalid.'), {status: 400, code: 'github_admin_ruleset_invalid_bypass_actor'});
+    if (!['always', 'pull_request', 'exempt'].includes(bypassMode)) throw Object.assign(new Error('bypass mode is invalid.'), {status: 400, code: 'github_admin_ruleset_invalid_bypass_mode'});
+    const actorId = actor && (actor.actorId !== undefined ? actor.actorId : actor.actor_id);
+    if (!['DeployKey', 'OrganizationAdmin'].includes(actorType) && (!Number.isInteger(Number(actorId)) || Number(actorId) < 1)) throw Object.assign(new Error(`actorId is required for ${actorType} bypass actors.`), {status: 400, code: 'github_admin_ruleset_bypass_actor_id_required'});
+    const normalized = {actor_type: actorType, bypass_mode: bypassMode};
+    if (actorType === 'DeployKey') normalized.actor_id = null;
+    else if (actorType !== 'OrganizationAdmin') normalized.actor_id = Number(actorId);
+    return normalized;
+  });
+}
+
+async function githubAdminRulesetRepository(githubAdmin, user, repo, args = {}) {
+  const cleanRepo = safeGitHubRepo(repo);
+  requireGitHubAdminOwner(githubAdmin, user, cleanRepo.split('/')[0]);
+  const response = await githubAdminRequest(githubAdmin, user, githubAdminRouteForRepo(cleanRepo));
+  return {repo: cleanRepo, repository: requireEligibleGitHubRulesetRepository(response.json || {}, args), authMode: response.authMode};
+}
+
+async function githubAdminInventoryRulesetsOperation({user, githubAdmin, args = {}}) {
+  requireGitHubAdminUser(user);
+  const owner = requireGitHubAdminOwner(githubAdmin, user, args.owner || githubAdminOwners(githubAdmin, user)[0]);
+  const limit = Math.max(1, Math.min(500, Math.floor(Number(args.limit || 200)) || 200));
+  const repositories = [];
+  let authMode = '';
+  for (let page = 1; repositories.length < limit; page += 1) {
+    const perPage = Math.min(100, limit - repositories.length);
+    const response = await githubAdminRequest(githubAdmin, user, `/users/${encodeURIComponent(owner)}/repos${githubQuery({type: 'owner', sort: 'full_name', direction: 'asc', per_page: perPage, page})}`);
+    authMode = response.authMode;
+    const batch = Array.isArray(response.json) ? response.json : [];
+    repositories.push(...batch);
+    if (batch.length < perPage) break;
+  }
+  const inventory = [];
+  for (const rawRepo of repositories.slice(0, limit)) {
+    const repository = cleanGitHubRulesetRepository(rawRepo, args);
+    let rulesets = [];
+    if (repository.visibility === 'public') {
+      const response = await githubAdminRequest(githubAdmin, user, githubAdminRouteForRepo(repository.fullName, `/rulesets${githubQuery({includes_parents: false, targets: 'branch', per_page: 100})}`));
+      rulesets = (Array.isArray(response.json) ? response.json : []).map(cleanGitHubRuleset);
+    }
+    inventory.push({...repository, rulesetCount: rulesets.length, rulesets});
+  }
+  const publicRepositories = inventory.filter((repo) => repo.visibility === 'public');
+  return {ok: true, owner, authMode, scope: {visibility: 'public', target: 'branch', ref: '~DEFAULT_BRANCH'}, repositories: publicRepositories, eligibleCount: publicRepositories.filter((repo) => repo.eligible).length, exceptionCount: publicRepositories.filter((repo) => !repo.eligible).length, mutationPerformed: false};
+}
+
+function githubRulesetMutationBody(args = {}, before = null) {
+  const enforcement = safeText(args.enforcement || before && before.enforcement || 'active', 20);
+  if (!['disabled', 'active', 'evaluate'].includes(enforcement)) throw Object.assign(new Error('enforcement must be disabled, active, or evaluate.'), {status: 400, code: 'github_admin_ruleset_invalid_enforcement'});
+  const name = safeText(args.name || before && before.name, 120);
+  if (!name) throw Object.assign(new Error('ruleset name is required.'), {status: 400, code: 'github_admin_ruleset_name_required'});
+  return {name, target: 'branch', enforcement, bypass_actors: normalizeGitHubRulesetBypassActors(args.bypassActors !== undefined ? args.bypassActors : before && before.bypassActors || []), conditions: {ref_name: {include: ['~DEFAULT_BRANCH'], exclude: []}}, rules: normalizeGitHubRulesetRules(args.rules !== undefined ? args.rules : before && before.rules)};
+}
+
+async function githubAdminCreateRulesetOperation({admin, user, githubAdmin, args = {}}) {
+  requireGitHubAdminUser(user); requireGitHubAdminEnabled();
+  const requestId = createRequestId(args.requestId);
+  const existing = await existingGitHubAdminAudit(admin, user, requestId);
+  if (existing && existing.status === 'success' && existing.result) return {...existing.result, idempotent: true, audit: existing};
+  const checked = await githubAdminRulesetRepository(githubAdmin, user, args.repo, args);
+  const response = await githubAdminRequest(githubAdmin, user, githubAdminRouteForRepo(checked.repo, '/rulesets'), {method: 'POST', body: githubRulesetMutationBody(args)});
+  const ruleset = cleanGitHubRuleset(response.json || {});
+  const result = {repo: checked.repo, repository: checked.repository, ruleset, rulesetId: ruleset.id, status: response.status, authMode: response.authMode, auditRequestId: requestId};
+  const audit = await auditWrite(admin, {actor: user.email || user.uid || 'unknown', authKind: user.authKind, tool: 'github_admin.create_ruleset', operation: 'github.admin.create_ruleset', requestId, fileId: `github:${checked.repo}:ruleset:${ruleset.id}`, affectedFileIds: [`github:${checked.repo}:ruleset:${ruleset.id}`], oldMetadata: null, newMetadata: ruleset, oldParents: [], newParents: [checked.repository.defaultBranch], reversible: false, rollback: null, callerNote: args.callerNote, providerSummary: `Created default-branch ruleset ${ruleset.name} in ${checked.repo}.`, result});
+  return {...result, audit: audit.audit};
+}
+
+async function githubAdminUpdateRulesetOperation({admin, user, githubAdmin, args = {}}) {
+  requireGitHubAdminUser(user); requireGitHubAdminEnabled();
+  const requestId = createRequestId(args.requestId);
+  const existing = await existingGitHubAdminAudit(admin, user, requestId);
+  if (existing && existing.status === 'success' && existing.result) return {...existing.result, idempotent: true, audit: existing};
+  const checked = await githubAdminRulesetRepository(githubAdmin, user, args.repo, args);
+  const rulesetId = Number(args.rulesetId);
+  if (!Number.isInteger(rulesetId) || rulesetId < 1) throw Object.assign(new Error('rulesetId must be a positive integer.'), {status: 400, code: 'github_admin_ruleset_id_required'});
+  const route = githubAdminRouteForRepo(checked.repo, `/rulesets/${rulesetId}`);
+  const before = cleanGitHubRuleset((await githubAdminRequest(githubAdmin, user, `${route}${githubQuery({includes_parents: false})}`)).json || {});
+  if (before.sourceType && before.sourceType !== 'Repository') throw Object.assign(new Error('Only repository-owned rulesets may be updated.'), {status: 409, code: 'github_admin_ruleset_not_repository_owned'});
+  const response = await githubAdminRequest(githubAdmin, user, route, {method: 'PUT', body: githubRulesetMutationBody(args, before)});
+  const ruleset = cleanGitHubRuleset(response.json || {});
+  const result = {repo: checked.repo, repository: checked.repository, ruleset, rulesetId, before, status: response.status, authMode: response.authMode, auditRequestId: requestId};
+  const audit = await auditWrite(admin, {actor: user.email || user.uid || 'unknown', authKind: user.authKind, tool: 'github_admin.update_ruleset', operation: 'github.admin.update_ruleset', requestId, fileId: `github:${checked.repo}:ruleset:${rulesetId}`, affectedFileIds: [`github:${checked.repo}:ruleset:${rulesetId}`], oldMetadata: before, newMetadata: ruleset, oldParents: [checked.repository.defaultBranch], newParents: [checked.repository.defaultBranch], reversible: false, rollback: null, callerNote: args.callerNote, providerSummary: `Updated default-branch ruleset ${ruleset.name} in ${checked.repo}.`, result});
+  return {...result, audit: audit.audit};
+}
+
+async function githubAdminVerifyRulesetReadbackOperation({user, githubAdmin, args = {}}) {
+  requireGitHubAdminUser(user);
+  const checked = await githubAdminRulesetRepository(githubAdmin, user, args.repo, args);
+  const rulesetId = Number(args.rulesetId);
+  if (!Number.isInteger(rulesetId) || rulesetId < 1) throw Object.assign(new Error('rulesetId must be a positive integer.'), {status: 400, code: 'github_admin_ruleset_id_required'});
+  const response = await githubAdminRequest(githubAdmin, user, githubAdminRouteForRepo(checked.repo, `/rulesets/${rulesetId}${githubQuery({includes_parents: false})}`));
+  const ruleset = cleanGitHubRuleset(response.json || {});
+  const checks = {idMatches: ruleset.id === rulesetId, repositoryOwned: !ruleset.sourceType || ruleset.sourceType === 'Repository', branchTarget: ruleset.target === 'branch', defaultBranchOnly: !!(ruleset.conditions && ruleset.conditions.ref_name && Array.isArray(ruleset.conditions.ref_name.include) && ruleset.conditions.ref_name.include.length === 1 && ruleset.conditions.ref_name.include[0] === '~DEFAULT_BRANCH' && Array.isArray(ruleset.conditions.ref_name.exclude) && ruleset.conditions.ref_name.exclude.length === 0), noCiRequirements: !ruleset.rules.some((rule) => ['required_status_checks', 'required_workflows'].includes(rule && rule.type)), expectedNameMatches: !safeText(args.expectedName, 120) || ruleset.name === safeText(args.expectedName, 120), expectedEnforcementMatches: !safeText(args.expectedEnforcement, 20) || ruleset.enforcement === safeText(args.expectedEnforcement, 20)};
+  const verified = Object.values(checks).every(Boolean);
+  return {ok: verified, verified, repo: checked.repo, repository: checked.repository, rulesetId, ruleset, checks, status: response.status, authMode: response.authMode, mutationPerformed: false, verifiedAt: new Date().toISOString()};
+}
+
 function safeGitHubAdminStatusSecret(githubAdmin, key, envKey, max = 12000) {
   try {
     return {value: githubAdminSecretValue(githubAdmin, key, envKey, max), error: null};
@@ -2874,7 +3038,7 @@ async function githubAdminAuthStatusOperation({user, githubAdmin = {}}) {
     disabledReasons,
     diagnostics: {installationProbe},
     secretsExposed: false,
-    supportedOperations: ['github_admin.auth_status', 'github_admin.repos.create', 'github_admin.repos.configure', 'github_admin.branches.create', 'github_admin.files.upsert', 'github_admin.pull_requests.create', 'github_admin.pull_requests.merge', 'github_admin.workflows.dispatch'],
+    supportedOperations: ['github_admin.auth_status', 'github_admin.repos.create', 'github_admin.repos.configure', 'github_admin.branches.create', 'github_admin.files.upsert', 'github_admin.pull_requests.create', 'github_admin.pull_requests.merge', 'github_admin.workflows.dispatch', 'github_admin.inventory_rulesets', 'github_admin.create_ruleset', 'github_admin.update_ruleset', 'github_admin.verify_ruleset_readback'],
   };
 }
 async function githubAdminCreateRepoOperation({admin, user, githubAdmin, args = {}}) {
@@ -3061,6 +3225,10 @@ async function githubAdminOperationRunOperation({admin, user, githubAdmin = {}, 
   if (operation === 'github_admin.pull_requests.create') return githubAdminCreatePullRequestOperation({admin, user, githubAdmin, args: operationArgs});
   if (operation === 'github_admin.pull_requests.merge') return githubAdminMergePullRequestOperation({admin, user, githubAdmin, args: operationArgs});
   if (operation === 'github_admin.workflows.dispatch') return githubAdminDispatchWorkflowOperation({admin, user, githubAdmin, args: operationArgs});
+  if (operation === 'github_admin.inventory_rulesets') return githubAdminInventoryRulesetsOperation({user, githubAdmin, args: operationArgs});
+  if (operation === 'github_admin.create_ruleset') return githubAdminCreateRulesetOperation({admin, user, githubAdmin, args: operationArgs});
+  if (operation === 'github_admin.update_ruleset') return githubAdminUpdateRulesetOperation({admin, user, githubAdmin, args: operationArgs});
+  if (operation === 'github_admin.verify_ruleset_readback') return githubAdminVerifyRulesetReadbackOperation({user, githubAdmin, args: operationArgs});
   throw Object.assign(new Error('Unsupported GitHub admin operation: ' + operation), {status: 400, code: 'github_admin_unsupported_operation'});
 }
 
@@ -3074,6 +3242,10 @@ function githubAdminOperationEntries() {
     'github_admin.pull_requests.create': {summary: 'Open a pull request from head to base.', write: true, requiresRequestId: true, requiredPermissions: ['Pull requests: write'], input: {repo: 'owner/name', title: 'string', head: 'branch', base: 'branch', body: 'optional string', draft: 'optional boolean', requestId: 'string'}},
     'github_admin.pull_requests.merge': {summary: 'Merge a pull request only when expectedHeadSha matches and required checks are green.', write: true, requiresRequestId: true, requiredPermissions: ['Contents: write'], input: {repo: 'owner/name', pullNumber: 'number', expectedHeadSha: 'required SHA', mergeMethod: 'merge|squash|rebase', requireGreenChecks: 'optional boolean default true', allowNoChecks: 'optional boolean', requestId: 'string'}},
     'github_admin.workflows.dispatch': {summary: 'Dispatch a GitHub Actions workflow by workflow id/file and ref.', write: true, requiresRequestId: true, requiredPermissions: ['Actions: write'], input: {repo: 'owner/name', workflowId: 'string or number', ref: 'branch/tag/SHA', inputs: 'optional object', requestId: 'string'}},
+    'github_admin.inventory_rulesets': {summary: 'Inventory branch rulesets for public owner repositories and classify empty, legacy, archived, and fork-shaped exceptions.', write: false, requiredPermissions: ['Metadata: read'], input: {owner: 'string default profile owner', legacyRepos: 'optional owner/name[]', limit: 'optional number'}},
+    'github_admin.create_ruleset': {summary: 'Create an audited repository ruleset scoped only to the public repository default branch, excluding legacy repository shapes and CI requirements.', write: true, requiresRequestId: true, requiredPermissions: ['Administration: write'], input: {repo: 'owner/name', name: 'string', enforcement: 'disabled|active|evaluate', bypassActors: 'optional actor[]', rules: 'rule[] excluding required_status_checks and required_workflows', legacyRepos: 'optional owner/name[]', requestId: 'string'}},
+    'github_admin.update_ruleset': {summary: 'Update an audited repository ruleset while preserving public/default-branch scope, repository exceptions, and the no-CI-check boundary.', write: true, requiresRequestId: true, requiredPermissions: ['Administration: write'], input: {repo: 'owner/name', rulesetId: 'number', name: 'optional string', enforcement: 'optional disabled|active|evaluate', bypassActors: 'optional actor[]', rules: 'optional rule[] excluding required_status_checks and required_workflows', legacyRepos: 'optional owner/name[]', requestId: 'string'}},
+    'github_admin.verify_ruleset_readback': {summary: 'Read one repository ruleset back and verify its id, ownership, default-branch scope, and no-CI-check boundary.', write: false, requiredPermissions: ['Metadata: read'], input: {repo: 'owner/name', rulesetId: 'number', expectedName: 'optional string', expectedEnforcement: 'optional string', legacyRepos: 'optional owner/name[]'}},
   };
 }
 

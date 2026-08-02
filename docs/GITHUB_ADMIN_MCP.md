@@ -85,10 +85,16 @@ Preferred durable invocation is `drive_operation` with these registry names:
 - `github_admin.pull_requests.create`
 - `github_admin.pull_requests.merge`
 - `github_admin.workflows.dispatch`
+- `github_admin.inventory_rulesets`
+- `github_admin.create_ruleset`
+- `github_admin.update_ruleset`
+- `github_admin.verify_ruleset_readback`
 
 Top-level aliases are also exposed when the connector schema is fresh: `github_admin_auth_status`, `github_admin_create_repo`, `github_admin_configure_repo`, `github_admin_create_branch`, `github_admin_upsert_file`, `github_admin_create_pull_request`, `github_admin_merge_pull_request`, and `github_admin_dispatch_workflow`.
 
 Every mutation requires `requestId` and writes a `driveBridgeAudit` record owned by the authenticated Home Center actor. Reusing another user's request ID fails with `github_admin_request_id_owner_conflict`; it cannot replay their result. PR merge additionally requires `expectedHeadSha` and rejects draft PRs, head-SHA mismatch, and non-green commit status unless the caller explicitly sets `requireGreenChecks=false`.
+
+Ruleset operations remain inside `drive_operation`; no new top-level MCP tool is added. Inventory and verification are read-only. Create and update always target `branch` with the exact `~DEFAULT_BRANCH` ref condition, require `Administration: write`, and reject `required_status_checks` and `required_workflows` rules. They re-read repository metadata and refuse non-public, empty, configured-legacy, archived, fork, or mirror-shaped repositories. Configure legacy exceptions through `HOME_CENTER_GITHUB_RULESET_LEGACY_REPOS=owner/name,...` or the operation's `legacyRepos` input.
 
 ## Boundaries
 

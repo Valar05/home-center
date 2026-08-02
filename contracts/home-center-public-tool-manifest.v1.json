@@ -6360,8 +6360,8 @@
       }
     }
   ],
-  "manifestSha256": "824164463d1d3796c37ec55c73aec38edfbbcd0fe3409529d0a00407f68516f9",
-  "registryRevision": "2026-08-02.host-file-binding-v2",
+  "manifestSha256": "a2f1a3bff467e6e0cff0393a404b4940c460c13512d34202595ac99bd24c7fcb",
+  "registryRevision": "2026-08-02.github-rulesets-v1",
   "schemaVersion": "home-center.public-tool-manifest.v1",
   "toolCount": 57
 }
