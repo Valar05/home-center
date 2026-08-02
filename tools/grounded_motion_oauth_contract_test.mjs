@@ -41,8 +41,10 @@ const legacyHome = resolveOAuthGrant(legacyHomeResource, '');
 assert.equal(legacyHome.resource, legacyHomeResource);
 assert.equal(legacyHome.allowedEmails, null);
 assert.equal(oauthResourceMatches(home.resource, home.resource), true);
-assert.equal(oauthResourceMatches(legacyHome.resource, home.resource), true, 'existing Home Center tokens remain valid');
+assert.equal(oauthResourceMatches(legacyHome.resource, home.resource), true, 'legacy Home Center grants remain valid for the canonical resource');
+assert.equal(oauthResourceMatches(home.resource, legacyHome.resource), true, 'canonical Home Center grants remain valid for legacy clients');
 assert.equal(oauthResourceMatches('https://unregistered.example/mcp', home.resource), false);
+assert.equal(oauthResourceMatches(home.resource, 'https://unregistered.example/mcp'), false);
 
 const app = createHomeCenterMcpApp({
   google: {},

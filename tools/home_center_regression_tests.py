@@ -495,7 +495,7 @@ require_contains(home_center_mcp, 'authorization_servers: [MCP_AUTHORIZATION_SER
 require_contains(home_center_mcp, 'const MCP_RESOURCE = `${MCP_AUTHORIZATION_SERVER_BASE}/mcp`', 'MCP OAuth advertises the path-free Cloud Run resource')
 require_contains(home_center_mcp, 'const MCP_LEGACY_RESOURCE = `${MCP_PUBLIC_BASE}/mcp`', 'MCP OAuth preserves the existing Cloud Functions resource as a compatibility identity')
 require_contains(home_center_mcp, 'const MCP_RESOURCE_METADATA = `${MCP_AUTHORIZATION_SERVER_BASE}/.well-known/oauth-protected-resource`', 'MCP OAuth challenge points at root-level protected-resource metadata')
-require_contains(home_center_mcp, 'resource === MCP_RESOURCE || resource === MCP_LEGACY_RESOURCE', 'existing Cloud Functions-bound access tokens remain accepted')
+require_contains(home_center_mcp, 'return homeCenterResources.has(resource) && homeCenterResources.has(requiredResource)', 'canonical and legacy Home Center resource identities remain mutually compatible')
 require_contains(home_center_mcp, 'metadata_aliases: [MCP_PATH_RESOURCE_METADATA, MCP_LEGACY_RESOURCE_METADATA, MCP_LEGACY_RESOURCE_METADATA_ALIAS, MCP_COMPAT_RESOURCE_METADATA]', 'MCP protected resource metadata advertises path-derived and legacy challenge aliases')
 require_contains(home_center_mcp, 'issuer: MCP_AUTHORIZATION_SERVER_BASE', 'MCP OAuth issuer has no Cloud Functions path prefix')
 require_contains(home_center_mcp, 'authorization_endpoint: `${MCP_AUTHORIZATION_SERVER_BASE}/oauth/authorize`', 'MCP OAuth authorization endpoint uses the discoverable issuer origin')
