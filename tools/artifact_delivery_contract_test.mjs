@@ -435,6 +435,7 @@ assert.equal(githubVerifyCount, 1);
 const registry = driveOperationRegistry();
 assert.ok(registry.operations['artifact.delivery.materialize_receipt']);
 assert.ok(registry.operations['artifact.delivery.materialize_receipt'].input.producerKind.includes('artifact_transport'));
+assert.ok(registry.operations['artifact.delivery.materialize_receipt'].input.producerKind.includes('storage_ingest'));
 assert.ok(registry.operations['artifact.review.record']);
 assert.ok(registry.operations['artifact.review.link_successor']);
 assert.equal(registry.operations['artifact.delivery.materialize_receipt'].input.storageRef, undefined);
