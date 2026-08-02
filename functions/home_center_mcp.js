@@ -4093,7 +4093,7 @@ function driveOperationRegistry() {
         write: true,
         requiresRequestId: true,
         requiredScopes: ['https://www.googleapis.com/auth/drive'],
-        input: {producerReceiptId: 'string; receipt only, never a GCS path or URL', producerKind: 'optional artifact_transport|drive_audit|blender_workspace|foundry_historical', artifactNames: 'optional artifact role or filename array', parentFolderId: 'optional string', requestId: 'string'},
+        input: {producerReceiptId: 'string; receipt only, never a GCS path or URL', producerKind: 'optional artifact_transport|storage_ingest|drive_audit|blender_workspace|foundry_historical', artifactNames: 'optional artifact role or filename array', parentFolderId: 'optional string', requestId: 'string'},
         output: {status: 'review_ready after source and Drive readback verification', transportState: 'bytes transferred/reused, concurrency, and no-rerender evidence', authorization: 'owner_scoped', humanAcceptance: 'preserved separately and never changed', artifacts: 'bounded private Drive resource links with SHA-256 and byte length'},
       },
       'artifact.review.record': {
@@ -4106,7 +4106,7 @@ function driveOperationRegistry() {
         summary: 'Link a rejected or revision-requested review record to a distinct owner-scoped terminal corrective producer receipt.',
         write: true,
         requiresRequestId: true,
-        input: {reviewRequestId: 'string', successorReceiptId: 'string', producerKind: 'optional artifact_transport|drive_audit|blender_workspace|foundry_historical', artifactNames: 'optional artifact selectors', requestId: 'string'},
+        input: {reviewRequestId: 'string', successorReceiptId: 'string', producerKind: 'optional artifact_transport|storage_ingest|drive_audit|blender_workspace|foundry_historical', artifactNames: 'optional artifact selectors', requestId: 'string'},
       },
       drive_create_folder: {
         summary: 'Create a Google Drive folder and audit the write.',
