@@ -125,6 +125,7 @@ assert.deepEqual(bounded, {
   operationCount: 3,
   operations: ['a', 'm'],
   writeOperations: ['m'],
+  deprecatedOperations: {},
   truncated: true,
 });
 
@@ -138,7 +139,13 @@ assert.deepEqual(capabilities, homeCenterCapabilitiesPayload(homeServer));
 assert.deepEqual(capabilities, textJson(await homeServer._registeredTools.capabilities.handler({}, {})), 'capabilities must be deterministic');
 assert.equal(capabilities.registryVersion, HOME_CENTER_CONNECTOR_SCHEMA_REVISION);
 assert.deepEqual(capabilities.releaseIdentity, homeCenterReleaseIdentity());
-assert.equal(capabilities.summaryKind, 'names_only');
+assert.equal(capabilities.summaryKind, 'names_and_deprecations');
+const renderDeprecation = capabilities.operationSurfaces.drive.deprecatedOperations['blender.workspace.render'];
+assert.equal(renderDeprecation.deprecated, true);
+assert.equal(renderDeprecation.status, 'deprecated');
+assert.equal(renderDeprecation.retainedForCompatibility, true);
+assert.match(renderDeprecation.agentPolicy, /Do not select/);
+assert.deepEqual(renderDeprecation.alternatives, ['blender.workspace.inspect', 'blender.workspace.export']);
 assert.deepEqual(capabilities.topLevelTools, sortedUnique(capabilities.topLevelTools));
 for (const summary of Object.values(capabilities.operationSurfaces)) {
   assert.deepEqual(summary.operations, sortedUnique(summary.operations));

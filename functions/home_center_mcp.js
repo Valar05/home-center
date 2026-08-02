@@ -5328,12 +5328,23 @@ function operationRegistrySummary(registry, limit = 200) {
   const operations = registry && registry.operations && typeof registry.operations === 'object' ? registry.operations : {};
   const names = Object.keys(operations).sort();
   const boundedNames = names.slice(0, limit);
+  const deprecatedOperations = Object.fromEntries(boundedNames.filter((name) => operations[name] && operations[name].deprecated === true).map((name) => {
+    const entry = operations[name];
+    return [name, {
+      deprecated: true,
+      status: String(entry.status || 'deprecated'),
+      retainedForCompatibility: entry.retainedForCompatibility === true,
+      agentPolicy: String(entry.agentPolicy || ''),
+      alternatives: Array.isArray(entry.alternatives) ? entry.alternatives.map((value) => String(value)).slice(0, 12) : [],
+    }];
+  }));
   return {
     version: String(registry && registry.version || ''),
     invocationTool: String(registry && registry.invocationTool || ''),
     operationCount: names.length,
     operations: boundedNames,
     writeOperations: boundedNames.filter((name) => operations[name] && (operations[name].write === true || operations[name].readOnly === false)),
+    deprecatedOperations,
     truncated: names.length > boundedNames.length,
   };
 }
@@ -5349,7 +5360,7 @@ function homeCenterCapabilitiesPayload(server) {
     registryVersion: HOME_CENTER_REGISTRY_VERSION,
     connectorSchemaRevision: HOME_CENTER_CONNECTOR_SCHEMA_REVISION,
     releaseIdentity: homeCenterReleaseIdentity(),
-    summaryKind: 'names_only',
+    summaryKind: 'names_and_deprecations',
     topLevelTools: registeredToolNames(server),
     operationSurfaces: {
       drive: operationRegistrySummary(driveOperationRegistry()),
