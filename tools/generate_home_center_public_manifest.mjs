@@ -19,17 +19,30 @@ function stable(value) {
 function canonicalBytes(value) { return Buffer.from(JSON.stringify(stable(value))); }
 function sha256(value) { return crypto.createHash('sha256').update(Buffer.isBuffer(value) ? value : canonicalBytes(value)).digest('hex'); }
 function pretty(value) { return JSON.stringify(stable(value), null, 2) + '\n'; }
+function resolveLocalSchema(root, schema) {
+  const ref = schema?.$ref;
+  if (typeof ref !== 'string' || !ref.startsWith('#/$defs/')) return schema || {};
+  const key = decodeURIComponent(ref.slice('#/$defs/'.length).replace(/~1/g, '/').replace(/~0/g, '~'));
+  return root?.$defs?.[key] || schema || {};
+}
 function fileBearingFields(tool) {
-  const properties = tool?.inputSchema?.properties || {};
+  const inputSchema = tool?.inputSchema || {};
+  const properties = inputSchema.properties || {};
   const openAiFileParams = new Set(tool?._meta?.['openai/fileParams'] || []);
   return Object.entries(properties)
-    .filter(([field, schema]) => openAiFileParams.has(field) || (schema && (schema.format === 'binary' || schema.contentMediaType || schema.contentEncoding)))
-    .map(([field, schema]) => ({
-      field,
-      binding: openAiFileParams.has(field) ? 'openai/fileParams' : 'legacy-binary-schema',
-      schemaType: schema?.type || '',
-      requiredProperties: schema?.required || [],
-    }));
+    .filter(([field, schema]) => {
+      const resolved = resolveLocalSchema(inputSchema, schema);
+      return openAiFileParams.has(field) || (resolved && (resolved.format === 'binary' || resolved.contentMediaType || resolved.contentEncoding));
+    })
+    .map(([field, schema]) => {
+      const resolved = resolveLocalSchema(inputSchema, schema);
+      return {
+        field,
+        binding: openAiFileParams.has(field) ? 'openai/fileParams' : 'legacy-binary-schema',
+        schemaType: resolved?.type || '',
+        requiredProperties: resolved?.required || [],
+      };
+    });
 }
 
 const server = createHomeCenterMcpServer({google: {}, admin: {firestore() { return {}; }}, googleClientId: () => 'configured', googleClientSecret: () => 'configured'});
