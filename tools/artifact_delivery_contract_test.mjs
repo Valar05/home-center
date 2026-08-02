@@ -95,15 +95,24 @@ function fakeGoogle() {
       return {
         files: {
           async list({q}) {
-            const match = /value='([^']+)'/.exec(q);
-            const key = match ? match[1] : '';
-            return {data: {files: [...files.values()].filter((item) => item.appProperties.homeCenterArtifactDeliveryDigestKey === key)}};
+            const digestMatch = /value='([^']+)'/.exec(q);
+            if (digestMatch) {
+              const key = digestMatch[1];
+              return {data: {files: [...files.values()].filter((item) => item.appProperties && item.appProperties.homeCenterArtifactDeliveryDigestKey === key)}};
+            }
+            const nameMatch = /name='([^']+)'/.exec(q);
+            const parentMatch = /and '([^']+)' in parents/.exec(q);
+            const name = nameMatch ? nameMatch[1] : '';
+            const parent = parentMatch ? parentMatch[1] : '';
+            return {data: {files: [...files.values()].filter((item) =>
+              item.name === name && Array.isArray(item.parents) && item.parents.includes(parent)
+            )}};
           },
           async create({requestBody, media}) {
             const bytes = await streamBytes(media.body);
             createCount += 1;
             const id = 'drive-artifact-' + createCount;
-            const value = {id, name: requestBody.name, mimeType: requestBody.mimeType, webViewLink: 'https://drive.google.test/file/d/' + id + '/view', appProperties: requestBody.appProperties, bytes};
+            const value = {id, name: requestBody.name, mimeType: requestBody.mimeType, webViewLink: 'https://drive.google.test/file/d/' + id + '/view', parents: requestBody.parents || [], size: String(bytes.length), appProperties: requestBody.appProperties, bytes};
             files.set(id, value);
             return {data: value};
           },
@@ -229,13 +238,40 @@ const storageDeliveryArgs = {
   producerKind: 'storage_ingest',
   parentFolderId: 'home-mtv-folder',
 };
+const manuallyPlacedWrongId = 'manually-placed-wrong-v4';
+google.files.set(manuallyPlacedWrongId, {
+  id: manuallyPlacedWrongId,
+  name: storedVideoName,
+  mimeType: 'video/mp4',
+  webViewLink: 'https://drive.google.test/file/d/' + manuallyPlacedWrongId + '/view',
+  parents: ['home-mtv-folder'],
+  size: String(storedVideoBytes.length),
+  appProperties: {},
+  bytes: Buffer.alloc(storedVideoBytes.length, 0),
+});
+const manuallyPlacedFileId = 'manually-placed-through-the-slit-v4';
+google.files.set(manuallyPlacedFileId, {
+  id: manuallyPlacedFileId,
+  name: storedVideoName,
+  mimeType: 'video/mp4',
+  webViewLink: 'https://drive.google.test/file/d/' + manuallyPlacedFileId + '/view',
+  parents: ['home-mtv-folder'],
+  size: String(storedVideoBytes.length),
+  appProperties: {},
+  bytes: storedVideoBytes,
+});
+const createsBeforeStorageDelivery = google.createCount;
 const storageDelivery = await materializeReceiptArtifactsOperation({...base, args: storageDeliveryArgs}, {storage});
 assert.equal(storageDelivery.status, 'review_ready');
 assert.equal(storageDelivery.producer.kind, 'storage_ingest');
 assert.equal(storageDelivery.artifacts.length, 1);
 assert.equal(storageDelivery.artifacts[0].name, storedVideoName);
+assert.equal(storageDelivery.artifacts[0].delivery.fileId, manuallyPlacedFileId);
 assert.equal(storageDelivery.artifacts[0].delivery.readbackSha256, storedVideoSha);
-assert.equal(storageDelivery.artifacts[0].delivery.reused, false);
+assert.equal(storageDelivery.artifacts[0].delivery.reused, true);
+assert.equal(storageDelivery.transportState.transferredBytes, 0);
+assert.equal(storageDelivery.transportState.reusedBytes, storedVideoBytes.length);
+assert.equal(google.createCount, createsBeforeStorageDelivery, 'exact manually placed Drive bytes must be adopted without duplication');
 const createsAfterStorageDelivery = google.createCount;
 const storageDigestReplay = await materializeReceiptArtifactsOperation(
   {...base, args: {...storageDeliveryArgs, requestId: 'storage-ingest-delivery-002'}},
