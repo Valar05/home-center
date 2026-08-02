@@ -7,10 +7,12 @@ const capability=require('../functions/blender_workspace_capability.js');
 const expected=['blender.workspace.create','blender.workspace.export','blender.workspace.history','blender.workspace.inspect','blender.workspace.mutate','blender.workspace.render','blender.workspace.restore','blender.workspace.status'];
 assert.deepEqual(Object.keys(capability.operationEntries()).sort(),expected);
 assert.equal(capability.RECIPE_VERSION,'home-center.blender-workspace-recipe.v1');
+assert.equal(capability.REGISTRY_VERSION,'2026-08-02.blender-render-deprecated-v1');
+const renderEntry=capability.operationEntries()['blender.workspace.render'];assert.equal(renderEntry.deprecated,true);assert.equal(renderEntry.status,'deprecated');assert.equal(renderEntry.retainedForCompatibility,true);assert.match(renderEntry.agentPolicy,/Do not select/);assert.deepEqual(renderEntry.alternatives,['blender.workspace.inspect','blender.workspace.export']);
 for(const [name,entry] of Object.entries(capability.operationEntries())){
  assert.match(name,/^blender\.workspace\./);assert.ok(entry.summary);if(entry.write)assert.equal(entry.requiresRequestId,true);
 }
-const retired=capability.retiredFoundryError('foundry.asset.run');assert.equal(retired.code,'CAPABILITY_RETIRED');assert.equal(retired.status,410);assert.equal(retired.details.dispatched,false);assert.ok(retired.details.replacement.includes('blender.workspace.mutate'));
+const retired=capability.retiredFoundryError('foundry.asset.run');assert.equal(retired.code,'CAPABILITY_RETIRED');assert.equal(retired.status,410);assert.equal(retired.details.dispatched,false);assert.ok(retired.details.replacement.includes('blender.workspace.mutate'));assert.equal(retired.details.replacement.includes('blender.workspace.render'),false);
 const control=fs.readFileSync(new URL('../functions/blender_workspace_capability.js',import.meta.url),'utf8');
 for(const marker of ['baseRevisionId','currentRevisionId','pendingOperationId','revision_conflict','blenderWorkspaceRevisions','getSignedUrl','CloudTasksClient']) assert.ok(control.toLowerCase().includes(marker.toLowerCase()),'control plane missing '+marker);
 assert.match(control,/recipe\.operations/);assert.match(control,/recipeJson: JSON\.stringify/);assert.doesNotMatch(control,/eval\(|new Function|child_process/);

@@ -32,8 +32,8 @@ assert.equal(manifest.entries.some((entry) => entry.name === 'tvtroper_operation
 process.env.TVTROPER_RETRIEVAL_URL = 'https://tvtroper.test';
 const require = createRequire(import.meta.url);
 const homeCenter = require(path.join(root, 'functions/home_center_mcp.js'));
-assert.equal(homeCenter.HOME_CENTER_CONNECTOR_SCHEMA_REVISION, '2026-07-29.blender-workspace-v1');
-assert.equal(homeCenter.driveOperationRegistry().version, '2026-07-29.blender-workspace-v1');
+assert.equal(homeCenter.HOME_CENTER_CONNECTOR_SCHEMA_REVISION, '2026-08-02.blender-render-deprecated-v1');
+assert.equal(homeCenter.driveOperationRegistry().version, '2026-08-02.blender-render-deprecated-v1');
 assert(homeCenter.driveOperationRegistry().operations.tvtroper_operation);
 
 const calls = [];
@@ -57,7 +57,7 @@ const search = await homeCenter.driveOperationRunOperation({
   args: {operation: 'tvtroper_operation', args: {operation: 'search', args: {query: 'Deal with the Devil', limit: 3}}},
 });
 assert.equal(search.operation, 'tvtroper_operation');
-assert.equal(search.registryVersion, '2026-07-29.blender-workspace-v1');
+assert.equal(search.registryVersion, '2026-08-02.blender-render-deprecated-v1');
 assert.equal(search.completed, true);
 assert.equal(search.result.operation, 'search');
 assert.equal(search.result.gcsOnly, true);

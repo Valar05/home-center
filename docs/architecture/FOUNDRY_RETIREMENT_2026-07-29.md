@@ -14,7 +14,7 @@ Agents must use exactly these live operations through `drive_operation`:
 - `blender.workspace.history`
 - `blender.workspace.mutate`
 - `blender.workspace.restore`
-- `blender.workspace.render`
+- `blender.workspace.render` — deprecated compatibility operation; do not select for new work
 - `blender.workspace.export`
 - `blender.workspace.status`
 

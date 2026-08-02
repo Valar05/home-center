@@ -66,7 +66,7 @@ const DEFAULT_MCP_AUTHORIZATION_SERVER_BASE = 'https://homecentermcp-vxybsaualq-
 const MCP_PUBLIC_BASE = process.env.HOME_CENTER_MCP_PUBLIC_BASE || DEFAULT_MCP_PUBLIC_BASE;
 const MCP_AUTHORIZATION_SERVER_BASE = process.env.HOME_CENTER_MCP_AUTHORIZATION_SERVER_BASE || DEFAULT_MCP_AUTHORIZATION_SERVER_BASE;
 const HOME_CENTER_MCP_SERVER_VERSION = '0.2.0';
-const HOME_CENTER_CONNECTOR_SCHEMA_REVISION = '2026-08-01.host-file-ingress-v2';
+const HOME_CENTER_CONNECTOR_SCHEMA_REVISION = '2026-08-02.blender-render-deprecated-v1';
 const HOME_CENTER_REGISTRY_VERSION = HOME_CENTER_CONNECTOR_SCHEMA_REVISION;
 const HOME_CENTER_DIRECT_FILE_TOOLS = Object.freeze(['drive_ingest_file', 'storage_ingest_artifact']);
 const MCP_RESOURCE = `${MCP_AUTHORIZATION_SERVER_BASE}/mcp`;
@@ -692,7 +692,7 @@ function commandCenterToolName(operation) {
     throw error;
   }
   if (new Set(['render.blender_glb', 'render.blender_build', 'render.status', 'render.reconcile']).has(op)) {
-    const error = new Error('This legacy rendering capability is retired. Use drive_operation with blender.workspace.create, blender.workspace.mutate, blender.workspace.render, or blender.workspace.export.');
+    const error = new Error('This legacy rendering capability is retired. Use drive_operation with blender.workspace.create, blender.workspace.mutate, blender.workspace.inspect, or blender.workspace.export. blender.workspace.render is deprecated and retained only for compatibility.');
     error.status = 410;
     error.code = 'capability_retired.use_blender_workspace';
     throw error;
@@ -4080,7 +4080,7 @@ function tvtroperOperationEntries() {
 
 function driveOperationRegistry() {
   return {
-    version: '2026-07-30.audio-reader-link-v1',
+    version: HOME_CENTER_REGISTRY_VERSION,
     invocationTool: 'drive_operation',
     cachePolicy: 'New bridge and simulation operations should be invokable through drive_operation so ChatGPT does not need a top-level MCP tool refresh for every backend code change. Cartesia TTS is a direct Home Center MCP provider operation; it must not be routed through Command Center jobs or workers.',
     operations: {
