@@ -1,5 +1,5 @@
 {
-  "canonicalToolsSha256": "5c7cee977116422e47ae817920d41b63227d841348fd6c0769f6c9f1568b6498",
+  "canonicalToolsSha256": "218fc0b22087642b6e05c743022fd8454113aa183b30818d20c54f4da69b5734",
   "entries": [
     {
       "annotations": {
@@ -1351,10 +1351,13 @@
       "description": "Upload one top-level ChatGPT Work Mode file to private Google Drive, verify byte count and SHA-256 by readback, and audit the write. Use this reusable ingress for ZIPs and other files that are not already in Drive.",
       "fileBearingFields": [
         {
-          "contentEncoding": "",
-          "contentMediaType": "application/octet-stream",
+          "binding": "openai/fileParams",
           "field": "file",
-          "format": "binary"
+          "requiredProperties": [
+            "download_url",
+            "file_id"
+          ],
+          "schemaType": "object"
         }
       ],
       "inputSchema": {
@@ -1369,10 +1372,27 @@
             "type": "string"
           },
           "file": {
-            "contentMediaType": "application/octet-stream",
+            "additionalProperties": false,
             "description": "Required top-level host-file upload. Do not pass a path, URL, Base64 string, ref, or nested JSON descriptor.",
-            "format": "binary",
-            "type": "string"
+            "properties": {
+              "download_url": {
+                "type": "string"
+              },
+              "file_id": {
+                "type": "string"
+              },
+              "file_name": {
+                "type": "string"
+              },
+              "mime_type": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "download_url",
+              "file_id"
+            ],
+            "type": "object"
           },
           "mimeType": {
             "description": "Optional MIME type override.",
@@ -1398,9 +1418,12 @@
         "type": "object"
       },
       "name": "drive_ingest_file",
-      "schemaHash": "1e616afd371bec3683249f0c390411c969212cf2dc876964e35ba9b9b78c8c4a",
+      "schemaHash": "6d22d71a688f362ea3bbf26ebfdab3559b738f614a679ec59be494b75c806f9c",
       "tool": {
         "_meta": {
+          "openai/fileParams": [
+            "file"
+          ],
           "securitySchemes": [
             {
               "scopes": [
@@ -1436,10 +1459,27 @@
               "type": "string"
             },
             "file": {
-              "contentMediaType": "application/octet-stream",
+              "additionalProperties": false,
               "description": "Required top-level host-file upload. Do not pass a path, URL, Base64 string, ref, or nested JSON descriptor.",
-              "format": "binary",
-              "type": "string"
+              "properties": {
+                "download_url": {
+                  "type": "string"
+                },
+                "file_id": {
+                  "type": "string"
+                },
+                "file_name": {
+                  "type": "string"
+                },
+                "mime_type": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "download_url",
+                "file_id"
+              ],
+              "type": "object"
             },
             "mimeType": {
               "description": "Optional MIME type override.",
@@ -5848,10 +5888,13 @@
       "description": "Upload one top-level Work Mode file to canonical private Cloud Storage, verify SHA-256 and byte count by readback, write immutable indexes, and record a Command Center artifact receipt. This never writes Google Drive.",
       "fileBearingFields": [
         {
-          "contentEncoding": "",
-          "contentMediaType": "application/octet-stream",
+          "binding": "openai/fileParams",
           "field": "file",
-          "format": "binary"
+          "requiredProperties": [
+            "download_url",
+            "file_id"
+          ],
+          "schemaType": "object"
         }
       ],
       "inputSchema": {
@@ -5878,10 +5921,27 @@
             "type": "string"
           },
           "file": {
-            "contentMediaType": "application/octet-stream",
+            "additionalProperties": false,
             "description": "Required top-level host-file upload for canonical Cloud Storage artifact ingress.",
-            "format": "binary",
-            "type": "string"
+            "properties": {
+              "download_url": {
+                "type": "string"
+              },
+              "file_id": {
+                "type": "string"
+              },
+              "file_name": {
+                "type": "string"
+              },
+              "mime_type": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "download_url",
+              "file_id"
+            ],
+            "type": "object"
           },
           "mimeType": {
             "description": "Optional MIME type override.",
@@ -5915,9 +5975,12 @@
         "type": "object"
       },
       "name": "storage_ingest_artifact",
-      "schemaHash": "fb4ed60ac559acb6a8fa640774693e34b092688cbbc453fb74bbf9282d682984",
+      "schemaHash": "64b3907001729ac5a0c4027b9687146129c76cb80aefc411d760e43492377d95",
       "tool": {
         "_meta": {
+          "openai/fileParams": [
+            "file"
+          ],
           "securitySchemes": [
             {
               "scopes": [
@@ -5965,10 +6028,27 @@
               "type": "string"
             },
             "file": {
-              "contentMediaType": "application/octet-stream",
+              "additionalProperties": false,
               "description": "Required top-level host-file upload for canonical Cloud Storage artifact ingress.",
-              "format": "binary",
-              "type": "string"
+              "properties": {
+                "download_url": {
+                  "type": "string"
+                },
+                "file_id": {
+                  "type": "string"
+                },
+                "file_name": {
+                  "type": "string"
+                },
+                "mime_type": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "download_url",
+                "file_id"
+              ],
+              "type": "object"
             },
             "mimeType": {
               "description": "Optional MIME type override.",
@@ -6260,8 +6340,8 @@
       }
     }
   ],
-  "manifestSha256": "da69d3a68585823d1f8b224ee9dd16cd59ed49eaeff7bd2aa60ce58abdcd11eb",
-  "registryRevision": "2026-07-30.audio-reader-link-v1",
+  "manifestSha256": "5d1345714dec37cc0ff3f52f70d3360dec5cc14daadcc45d0d448ca65e75a179",
+  "registryRevision": "2026-08-01.host-file-ingress-v2",
   "schemaVersion": "home-center.public-tool-manifest.v1",
   "toolCount": 57
 }

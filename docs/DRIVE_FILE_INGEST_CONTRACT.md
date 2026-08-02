@@ -5,7 +5,8 @@
 ## Input
 
 - `requestId`: stable idempotency and audit key.
-- `file`: top-level host file upload. Paths, URLs, Base64 strings, and nested descriptors are rejected.
+- `file`: top-level ChatGPT host file parameter. Discovery declares `_meta["openai/fileParams"] = ["file"]`; ChatGPT supplies an object containing required `download_url` and `file_id`, with optional `mime_type` and `file_name`.
+- Home Center accepts that typed object only. Workspace paths, bare attachment handles, arbitrary URL strings, Base64 strings, and nested descriptors are rejected.
 - `name`, `mimeType`, and `parentFolderId`: optional Drive metadata.
 - `expectedSha256`: optional caller-side provenance lock.
 - `callerNote`: bounded audit summary.
@@ -14,7 +15,7 @@ The default ceiling is 256 MiB and can be lowered through `HOME_CENTER_DRIVE_ING
 
 ## Safety and recovery
 
-The bridge hashes the received bytes before mutation. A reused request ID must match the same bytes, filename, MIME type, and destination folder. The Drive object carries private app properties for request ID and SHA-256, allowing recovery after an ambiguous response without creating a second copy. Multiple matching objects quarantine the request.
+The ingress adapter validates a credential-free HTTPS host-file URL, rejects private/reserved network destinations and unsafe redirects, enforces the byte ceiling while streaming, and does not log the signed URL or file handle. The bridge hashes the received bytes before mutation. A reused request ID must match the same bytes, filename, MIME type, and destination folder. The Drive object carries private app properties for request ID and SHA-256, allowing recovery after an ambiguous response without creating a second copy. Multiple matching objects quarantine the request.
 
 Files are created private by default. No public permission is added.
 

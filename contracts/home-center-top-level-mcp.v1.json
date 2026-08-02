@@ -853,6 +853,9 @@
   },
   {
     "_meta": {
+      "openai/fileParams": [
+        "file"
+      ],
       "securitySchemes": [
         {
           "scopes": [
@@ -888,10 +891,27 @@
           "type": "string"
         },
         "file": {
-          "contentMediaType": "application/octet-stream",
+          "additionalProperties": false,
           "description": "Required top-level host-file upload. Do not pass a path, URL, Base64 string, ref, or nested JSON descriptor.",
-          "format": "binary",
-          "type": "string"
+          "properties": {
+            "download_url": {
+              "type": "string"
+            },
+            "file_id": {
+              "type": "string"
+            },
+            "file_name": {
+              "type": "string"
+            },
+            "mime_type": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "download_url",
+            "file_id"
+          ],
+          "type": "object"
         },
         "mimeType": {
           "description": "Optional MIME type override.",
@@ -3672,6 +3692,9 @@
   },
   {
     "_meta": {
+      "openai/fileParams": [
+        "file"
+      ],
       "securitySchemes": [
         {
           "scopes": [
@@ -3719,10 +3742,27 @@
           "type": "string"
         },
         "file": {
-          "contentMediaType": "application/octet-stream",
+          "additionalProperties": false,
           "description": "Required top-level host-file upload for canonical Cloud Storage artifact ingress.",
-          "format": "binary",
-          "type": "string"
+          "properties": {
+            "download_url": {
+              "type": "string"
+            },
+            "file_id": {
+              "type": "string"
+            },
+            "file_name": {
+              "type": "string"
+            },
+            "mime_type": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "download_url",
+            "file_id"
+          ],
+          "type": "object"
         },
         "mimeType": {
           "description": "Optional MIME type override.",

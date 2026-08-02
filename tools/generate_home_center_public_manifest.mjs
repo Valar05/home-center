@@ -21,9 +21,15 @@ function sha256(value) { return crypto.createHash('sha256').update(Buffer.isBuff
 function pretty(value) { return JSON.stringify(stable(value), null, 2) + '\n'; }
 function fileBearingFields(tool) {
   const properties = tool?.inputSchema?.properties || {};
+  const openAiFileParams = new Set(tool?._meta?.['openai/fileParams'] || []);
   return Object.entries(properties)
-    .filter(([, schema]) => schema && (schema.format === 'binary' || schema.contentMediaType || schema.contentEncoding))
-    .map(([field, schema]) => ({field, format: schema.format || '', contentMediaType: schema.contentMediaType || '', contentEncoding: schema.contentEncoding || ''}));
+    .filter(([field, schema]) => openAiFileParams.has(field) || (schema && (schema.format === 'binary' || schema.contentMediaType || schema.contentEncoding)))
+    .map(([field, schema]) => ({
+      field,
+      binding: openAiFileParams.has(field) ? 'openai/fileParams' : 'legacy-binary-schema',
+      schemaType: schema?.type || '',
+      requiredProperties: schema?.required || [],
+    }));
 }
 
 const server = createHomeCenterMcpServer({google: {}, admin: {firestore() { return {}; }}, googleClientId: () => 'configured', googleClientSecret: () => 'configured'});
