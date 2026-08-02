@@ -3,7 +3,10 @@ const {Readable, Transform} = require('node:stream');
 const {pipeline} = require('node:stream/promises');
 const {Storage} = require('@google-cloud/storage');
 const fs = require('node:fs');
+const os = require('node:os');
 const path = require('node:path');
+const isoGit = require('isomorphic-git');
+const isoGitHttp = require('isomorphic-git/http/node');
 const {McpServer} = require('@modelcontextprotocol/sdk/server/mcp.js');
 const {SSEServerTransport} = require('@modelcontextprotocol/sdk/server/sse.js');
 const {StreamableHTTPServerTransport} = require('@modelcontextprotocol/sdk/server/streamableHttp.js');
@@ -66,7 +69,7 @@ const DEFAULT_MCP_AUTHORIZATION_SERVER_BASE = 'https://homecentermcp-vxybsaualq-
 const MCP_PUBLIC_BASE = process.env.HOME_CENTER_MCP_PUBLIC_BASE || DEFAULT_MCP_PUBLIC_BASE;
 const MCP_AUTHORIZATION_SERVER_BASE = process.env.HOME_CENTER_MCP_AUTHORIZATION_SERVER_BASE || DEFAULT_MCP_AUTHORIZATION_SERVER_BASE;
 const HOME_CENTER_MCP_SERVER_VERSION = '0.2.0';
-const HOME_CENTER_CONNECTOR_SCHEMA_REVISION = '2026-08-02.blender-render-deprecated-v1';
+const HOME_CENTER_CONNECTOR_SCHEMA_REVISION = '2026-08-02.sites-source-drive-share-v1';
 const HOME_CENTER_REGISTRY_VERSION = HOME_CENTER_CONNECTOR_SCHEMA_REVISION;
 const HOME_CENTER_DIRECT_FILE_TOOLS = Object.freeze(['drive_ingest_file', 'storage_ingest_artifact']);
 const MCP_RESOURCE = `${MCP_AUTHORIZATION_SERVER_BASE}/mcp`;
@@ -85,6 +88,8 @@ const TVTROPER_RETRIEVAL_URL = process.env.TVTROPER_RETRIEVAL_URL || '';
 const TVTROPER_OPERATION_REGISTRY_VERSION = 'tvtroper-gcs-retrieval-v1';
 const HOME_CENTER_GENERATED_ARTIFACT_BUCKET = process.env.GENERATED_ARTIFACT_BUCKET || process.env.HOME_CENTER_ARTIFACT_BUCKET || 'home-center-generated';
 const HOME_CENTER_DRIVE_INGEST_MAX_BYTES = Number(process.env.HOME_CENTER_DRIVE_INGEST_MAX_BYTES || 256 * 1024 * 1024);
+const HOME_CENTER_SITES_SOURCE_MAX_FILES = Number(process.env.HOME_CENTER_SITES_SOURCE_MAX_FILES || 2000);
+const HOME_CENTER_SITES_SOURCE_MAX_BYTES = Number(process.env.HOME_CENTER_SITES_SOURCE_MAX_BYTES || 256 * 1024 * 1024);
 const MCP_REQUIRED_SCOPES = [
   'https://www.googleapis.com/auth/drive',
   'https://www.googleapis.com/auth/documents',
@@ -1249,6 +1254,331 @@ async function existingAudit(admin, requestId) {
   if (!id) return null;
   const snap = await mcpCollection(admin, 'driveBridgeAudit').doc(id).get();
   return snap.exists ? snap.data() : null;
+}
+
+function safeSitesSourceRepositoryUrl(value) {
+  let parsed;
+  try {
+    parsed = new URL(safeText(value, 2000));
+  } catch (_) {
+    throw Object.assign(new Error('repositoryUrl must be a valid HTTPS Sites source repository URL.'), {status: 400});
+  }
+  if (parsed.protocol !== 'https:' || parsed.hostname !== 'git.chatgpt-team.site' || !parsed.pathname.endsWith('.git') || parsed.username || parsed.password) {
+    throw Object.assign(new Error('repositoryUrl must be an uncredentialed git.chatgpt-team.site HTTPS URL ending in .git.'), {status: 400});
+  }
+  return parsed.toString();
+}
+
+function safeSitesSourceCommit(value) {
+  const commit = safeText(value, 80).toLowerCase();
+  if (!/^[a-f0-9]{40}$/.test(commit)) throw Object.assign(new Error('sourceCommit must be an exact 40-character Git commit SHA.'), {status: 400});
+  return commit;
+}
+
+function safeSitesSourceBranch(value) {
+  const branch = safeText(value || 'main', 240);
+  if (!branch || branch.startsWith('-') || branch.includes('..') || /[~^:?*[\\\s]/.test(branch)) {
+    throw Object.assign(new Error('sourceBranch is not a safe Git branch name.'), {status: 400});
+  }
+  return branch;
+}
+
+function safeSitesSourcePath(value) {
+  const sourcePath = String(value || '').replace(/\\\\/g, '/');
+  if (!sourcePath || sourcePath.startsWith('/') || sourcePath.split('/').some((part) => !part || part === '.' || part === '..') || /[\u0000-\u001f\u007f]/.test(sourcePath)) {
+    throw Object.assign(new Error('Sites source repository returned an unsafe path.'), {status: 502});
+  }
+  return sourcePath;
+}
+
+function sourcePathMarker(sourcePath) {
+  return createHash('sha256').update(String(sourcePath), 'utf8').digest('hex');
+}
+
+function sourceMimeType(sourcePath) {
+  const extension = path.extname(sourcePath).toLowerCase();
+  const known = {
+    '.css': 'text/css', '.csv': 'text/csv', '.gif': 'image/gif', '.glb': 'model/gltf-binary', '.gltf': 'model/gltf+json',
+    '.htm': 'text/html', '.html': 'text/html', '.ico': 'image/x-icon', '.jpeg': 'image/jpeg', '.jpg': 'image/jpeg',
+    '.js': 'text/javascript', '.json': 'application/json', '.md': 'text/markdown', '.mjs': 'text/javascript', '.mp3': 'audio/mpeg',
+    '.ogg': 'audio/ogg', '.png': 'image/png', '.svg': 'image/svg+xml', '.toml': 'application/toml', '.ts': 'text/typescript',
+    '.tsx': 'text/tsx', '.txt': 'text/plain', '.wasm': 'application/wasm', '.wav': 'audio/wav', '.webm': 'video/webm',
+    '.webp': 'image/webp', '.xml': 'application/xml', '.yaml': 'application/yaml', '.yml': 'application/yaml', '.zip': 'application/zip',
+  };
+  return known[extension] || 'application/octet-stream';
+}
+
+async function findMaterializedDriveNode(drive, requestId, sourcePath) {
+  const request = driveQueryLiteral(requestId, 160);
+  const marker = driveQueryLiteral(sourcePathMarker(sourcePath), 128);
+  const result = await drive.files.list({
+    q: `trashed=false and appProperties has { key='homeCenterRequestId' and value='${request}' } and appProperties has { key='homeCenterSourcePathSha256' and value='${marker}' }`,
+    pageSize: 2,
+    fields: `files(${driveFields('appProperties')})`,
+    supportsAllDrives: true,
+    includeItemsFromAllDrives: true,
+  });
+  const files = result.data && result.data.files || [];
+  if (files.length > 1) throw Object.assign(new Error('Materialization marker resolved to multiple Drive nodes.'), {status: 409});
+  return files[0] || null;
+}
+
+function sourceNodeProperties(requestId, sourcePath, sourceCommit, nodeKind) {
+  return {
+    homeCenterOperation: 'sites.source_version.materialize_drive',
+    homeCenterRequestId: requestId,
+    homeCenterSourcePathSha256: sourcePathMarker(sourcePath),
+    homeCenterSourceCommit: sourceCommit,
+    homeCenterSourceNodeKind: nodeKind,
+  };
+}
+
+async function ensureMaterializedDriveFolder({drive, requestId, sourcePath, name, parentFolderId, sourceCommit}) {
+  const existing = await findMaterializedDriveNode(drive, requestId, sourcePath);
+  if (existing) {
+    if (existing.mimeType !== 'application/vnd.google-apps.folder' || existing.name !== name || !(existing.parents || []).includes(parentFolderId)) {
+      throw Object.assign(new Error('Existing materialization folder marker conflicts with the requested source tree.'), {status: 409});
+    }
+    return cleanDriveFile(existing, sourcePath);
+  }
+  const created = await drive.files.create({
+    requestBody: {
+      name,
+      mimeType: 'application/vnd.google-apps.folder',
+      parents: [parentFolderId],
+      appProperties: sourceNodeProperties(requestId, sourcePath, sourceCommit, 'folder'),
+    },
+    fields: driveFields('appProperties'),
+    supportsAllDrives: true,
+  });
+  return cleanDriveFile(created.data || {}, sourcePath);
+}
+
+async function ensureMaterializedDriveFile({drive, requestId, sourcePath, name, parentFolderId, sourceCommit, bytes, mimeType, nodeKind = 'file'}) {
+  const expectedSha256 = sha256Hex(bytes);
+  let metadata = await findMaterializedDriveNode(drive, requestId, sourcePath);
+  if (metadata) {
+    if (metadata.mimeType !== mimeType || metadata.name !== name || !(metadata.parents || []).includes(parentFolderId)) {
+      throw Object.assign(new Error('Existing materialization file marker conflicts with the requested source tree.'), {status: 409});
+    }
+  } else {
+    metadata = (await drive.files.create({
+      requestBody: {
+        name,
+        mimeType,
+        parents: [parentFolderId],
+        appProperties: sourceNodeProperties(requestId, sourcePath, sourceCommit, nodeKind),
+      },
+      media: {mimeType, body: Readable.from([bytes])},
+      fields: driveFields('appProperties'),
+      supportsAllDrives: true,
+    })).data || {};
+  }
+  const fileId = safeDriveFileId(metadata.id);
+  const readback = await drive.files.get({fileId, alt: 'media', supportsAllDrives: true}, {responseType: 'arraybuffer'});
+  const readbackBytes = mediaBuffer(readback.data);
+  const readbackSha256 = sha256Hex(readbackBytes);
+  if (readbackBytes.length !== bytes.length || readbackSha256 !== expectedSha256) {
+    throw Object.assign(new Error('Drive source-file readback verification failed for ' + sourcePath + '.'), {status: 502});
+  }
+  const clean = cleanDriveFile(metadata, sourcePath);
+  return {...clean, byteCount: bytes.length, sha256: expectedSha256, readbackByteCount: readbackBytes.length, readbackSha256, verified: true};
+}
+
+async function materializeSitesSourceVersionOperation({google, admin, auth, user, args = {}}) {
+  if (args.approved !== true) throw Object.assign(new Error('sites.source_version.materialize_drive requires approved=true.'), {status: 409});
+  const requestId = createRequestId(args.requestId);
+  const existingAuditRecord = await existingAudit(admin, requestId);
+  if (existingAuditRecord && existingAuditRecord.status === 'success' && existingAuditRecord.result) return {...existingAuditRecord.result, idempotent: true, audit: existingAuditRecord};
+  const repositoryUrl = safeSitesSourceRepositoryUrl(args.repositoryUrl);
+  const repositoryToken = typeof args.repositoryToken === 'string' ? args.repositoryToken.trim() : '';
+  if (repositoryToken.length < 20 || repositoryToken.length > 8192) throw Object.assign(new Error('A valid short-lived Sites repositoryToken is required.'), {status: 400});
+  const sourceCommit = safeSitesSourceCommit(args.sourceCommit);
+  const sourceBranch = safeSitesSourceBranch(args.sourceBranch || 'main');
+  const parentFolderId = safeDriveFileId(args.parentFolderId);
+  const folderName = safeText(args.folderName || 'Sites Source ' + sourceCommit.slice(0, 12), 240);
+  if (!folderName) throw Object.assign(new Error('folderName is required.'), {status: 400});
+  const expectedSourceFileCount = args.expectedSourceFileCount === undefined ? null : Math.floor(safeNumber(args.expectedSourceFileCount, -1));
+  const projectId = safeText(args.projectId, 240);
+  const versionId = safeText(args.versionId, 320);
+  const versionNumber = Math.floor(safeNumber(args.versionNumber, 0));
+  const tempDir = await fs.promises.mkdtemp(path.join(os.tmpdir(), 'home-center-sites-source-'));
+  const drive = google.drive({version: 'v3', auth});
+  try {
+    try {
+      await isoGit.clone({
+        fs,
+        http: isoGitHttp,
+        dir: tempDir,
+        url: repositoryUrl,
+        ref: sourceBranch,
+        singleBranch: true,
+        depth: 1,
+        headers: {Authorization: 'Bearer ' + repositoryToken},
+        onAuth: () => ({username: 'oauth2', password: repositoryToken}),
+      });
+    } catch (_) {
+      throw Object.assign(new Error('Sites source repository clone failed. Obtain a fresh short-lived credential and retry with the same requestId.'), {status: 502, code: 'sites_source_clone_failed'});
+    }
+    const resolvedCommit = safeSitesSourceCommit(await isoGit.resolveRef({fs, dir: tempDir, ref: 'HEAD'}));
+    if (resolvedCommit !== sourceCommit) throw Object.assign(new Error('Sites repository HEAD does not match sourceCommit.'), {status: 409});
+    const trackedPaths = (await isoGit.listFiles({fs, dir: tempDir})).map(safeSitesSourcePath).sort();
+    if (!trackedPaths.length || trackedPaths.length > HOME_CENTER_SITES_SOURCE_MAX_FILES) throw Object.assign(new Error('Sites source file count is empty or exceeds the configured materialization limit.'), {status: 413});
+    if (expectedSourceFileCount !== null && expectedSourceFileCount !== trackedPaths.length) throw Object.assign(new Error('Sites source file count does not match expectedSourceFileCount.'), {status: 409});
+
+    const sourceFiles = [];
+    let totalSourceBytes = 0;
+    for (const sourcePath of trackedPaths) {
+      const absolutePath = path.join(tempDir, ...sourcePath.split('/'));
+      const bytes = await fs.promises.readFile(absolutePath);
+      const stat = await fs.promises.lstat(absolutePath);
+      totalSourceBytes += bytes.length;
+      if (totalSourceBytes > HOME_CENTER_SITES_SOURCE_MAX_BYTES) throw Object.assign(new Error('Sites source bytes exceed the configured materialization limit.'), {status: 413});
+      sourceFiles.push({path: sourcePath, name: path.posix.basename(sourcePath), bytes, byteCount: bytes.length, sha256: sha256Hex(bytes), mode: stat.mode & 0o777, mimeType: sourceMimeType(sourcePath)});
+    }
+
+    const parent = await getDriveMetadata(drive, parentFolderId);
+    if (parent.mimeType !== 'application/vnd.google-apps.folder') throw Object.assign(new Error('parentFolderId must identify a Google Drive folder.'), {status: 400});
+    const root = await ensureMaterializedDriveFolder({drive, requestId, sourcePath: '.', name: folderName, parentFolderId, sourceCommit});
+    const folderIds = {'': root.id};
+    const folderReceipts = [];
+    const fileReceipts = [];
+    for (const sourceFile of sourceFiles) {
+      const parts = sourceFile.path.split('/');
+      let currentPath = '';
+      for (const directoryName of parts.slice(0, -1)) {
+        const nextPath = currentPath ? currentPath + '/' + directoryName : directoryName;
+        if (!folderIds[nextPath]) {
+          const folder = await ensureMaterializedDriveFolder({drive, requestId, sourcePath: nextPath, name: directoryName, parentFolderId: folderIds[currentPath], sourceCommit});
+          folderIds[nextPath] = folder.id;
+          folderReceipts.push({path: nextPath, folderId: folder.id, verified: true});
+        }
+        currentPath = nextPath;
+      }
+      const uploaded = await ensureMaterializedDriveFile({drive, requestId, sourcePath: sourceFile.path, name: sourceFile.name, parentFolderId: folderIds[currentPath], sourceCommit, bytes: sourceFile.bytes, mimeType: sourceFile.mimeType});
+      fileReceipts.push({path: sourceFile.path, fileId: uploaded.id, byteCount: uploaded.byteCount, sha256: uploaded.sha256, readbackByteCount: uploaded.readbackByteCount, readbackSha256: uploaded.readbackSha256, verified: true, mode: sourceFile.mode});
+    }
+
+    const aggregateSha256 = sha256Hex(Buffer.from(sourceFiles.map((file) => `${file.mode.toString(8)} ${file.sha256} ${file.path}\n`).join(''), 'utf8'));
+    const manifestPayload = {
+      schemaVersion: 'home-center.sites-source-drive.v1',
+      createdAt: new Date().toISOString(),
+      ownerEmail: safeText(user && user.email, 320).toLowerCase(),
+      source: {projectId, versionId, versionNumber, repositoryUrl, sourceBranch, sourceCommit, sourceFileCount: sourceFiles.length, sourceByteCount: totalSourceBytes, aggregateSha256},
+      savedArchiveProvenance: {
+        archiveFormat: safeText(args.archiveFormat, 40),
+        sedimentFileId: safeText(args.sedimentFileId, 240),
+        contentHash: safeText(args.archiveContentHash, 160),
+        fileCount: Math.floor(safeNumber(args.archiveFileCount, 0)) || null,
+        sizeBytes: Math.floor(safeNumber(args.archiveSizeBytes, 0)) || null,
+        note: 'Provider-reported saved deployment archive provenance; source tree verification is recorded separately.',
+      },
+      drive: {rootFolderId: root.id, rootFolderName: root.name, parentFolderId, sourceFileCount: fileReceipts.length, createdSubfolderCount: folderReceipts.length, everyFileReadbackVerified: fileReceipts.every((file) => file.verified && file.sha256 === file.readbackSha256 && file.byteCount === file.readbackByteCount)},
+      files: fileReceipts.map((file) => ({path: file.path, fileId: file.fileId, byteCount: file.byteCount, sha256: file.sha256, mode: file.mode})),
+    };
+    const manifestBytes = Buffer.from(JSON.stringify(manifestPayload, null, 2) + '\n', 'utf8');
+    const manifest = await ensureMaterializedDriveFile({drive, requestId, sourcePath: '__home_center_source_manifest__', name: 'SOURCE_PROVENANCE.json', parentFolderId: root.id, sourceCommit, bytes: manifestBytes, mimeType: 'application/json', nodeKind: 'manifest'});
+    const result = {
+      operation: 'sites.source_version.materialize_drive',
+      projectId,
+      versionId,
+      versionNumber,
+      sourceCommit,
+      sourceBranch,
+      sourceFileCount: sourceFiles.length,
+      sourceByteCount: totalSourceBytes,
+      aggregateSha256,
+      savedArchiveFileCount: manifestPayload.savedArchiveProvenance.fileCount,
+      savedArchiveSizeBytes: manifestPayload.savedArchiveProvenance.sizeBytes,
+      rootFolderId: root.id,
+      rootFolderName: root.name,
+      webViewLink: root.webViewLink,
+      parentFolderId,
+      createdSubfolderCount: folderReceipts.length,
+      verifiedSourceFileCount: fileReceipts.length,
+      manifestFileId: manifest.id,
+      manifestSha256: manifest.sha256,
+      everyFileReadbackVerified: manifestPayload.drive.everyFileReadbackVerified,
+      credentialPersisted: false,
+      credentialReturned: false,
+      auditRequestId: requestId,
+    };
+    const audit = await auditWrite(admin, {
+      actor: user.email || user.uid || 'unknown', authKind: user.authKind, tool: 'drive_operation', operation: 'sites.source_version.materialize_drive', requestId,
+      fileId: root.id, affectedFileIds: [root.id, manifest.id, ...fileReceipts.map((file) => file.fileId)], oldMetadata: null, newMetadata: root,
+      oldParents: [], newParents: root.parents || [], reversible: false, rollback: null, callerNote: args.callerNote,
+      providerSummary: `Materialized Sites source version ${versionNumber || versionId || sourceCommit} into Drive folder ${root.name}; ${fileReceipts.length} source files passed byte/SHA-256 readback.`, result,
+    });
+    return {...result, audit: audit.audit};
+  } finally {
+    await fs.promises.rm(tempDir, {recursive: true, force: true}).catch(() => {});
+  }
+}
+
+function normalizedDriveShareRole(value) {
+  const role = safeText(value || 'reader', 40).toLowerCase();
+  if (!['reader', 'commenter', 'writer'].includes(role)) throw Object.assign(new Error('role must be reader, commenter, or writer.'), {status: 400});
+  return role;
+}
+
+function safeShareEmail(value) {
+  const email = safeText(value, 320).toLowerCase();
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw Object.assign(new Error('email must be a valid recipient email address.'), {status: 400});
+  return email;
+}
+
+function shareRoleSatisfies(actual, requested) {
+  const rank = {reader: 1, commenter: 2, writer: 3, owner: 4};
+  return (rank[actual] || 0) >= (rank[requested] || 0);
+}
+
+async function shareDriveFolderOperation({google, admin, auth, user, args = {}}) {
+  if (args.approved !== true) throw Object.assign(new Error('drive.share_folder requires approved=true.'), {status: 409});
+  const requestId = createRequestId(args.requestId);
+  const existingAuditRecord = await existingAudit(admin, requestId);
+  if (existingAuditRecord && existingAuditRecord.status === 'success' && existingAuditRecord.result) return {...existingAuditRecord.result, idempotent: true, audit: existingAuditRecord};
+  const folderId = safeDriveFileId(args.folderId);
+  const email = safeShareEmail(args.email);
+  const role = normalizedDriveShareRole(args.role);
+  const drive = google.drive({version: 'v3', auth});
+  const folder = await getDriveMetadata(drive, folderId);
+  if (folder.mimeType !== 'application/vnd.google-apps.folder') throw Object.assign(new Error('folderId must identify a Google Drive folder.'), {status: 400});
+  const permissionFields = 'permissions(id,type,role,emailAddress,displayName,pendingOwner)';
+  const beforeList = (await drive.permissions.list({fileId: folderId, fields: permissionFields, supportsAllDrives: true})).data.permissions || [];
+  let permission = beforeList.find((item) => safeText(item.emailAddress, 320).toLowerCase() === email) || null;
+  let reused = false;
+  let upgraded = false;
+  if (permission && shareRoleSatisfies(permission.role, role)) {
+    reused = true;
+  } else if (permission) {
+    permission = (await drive.permissions.update({fileId: folderId, permissionId: permission.id, requestBody: {role}, fields: 'id,type,role,emailAddress,displayName,pendingOwner', supportsAllDrives: true})).data || permission;
+    upgraded = true;
+  } else {
+    permission = (await drive.permissions.create({
+      fileId: folderId,
+      requestBody: {type: 'user', role, emailAddress: email},
+      sendNotificationEmail: args.sendNotificationEmail !== false,
+      emailMessage: safeText(args.emailMessage, 1000) || undefined,
+      fields: 'id,type,role,emailAddress,displayName,pendingOwner',
+      supportsAllDrives: true,
+    })).data || {};
+  }
+  const afterList = (await drive.permissions.list({fileId: folderId, fields: permissionFields, supportsAllDrives: true})).data.permissions || [];
+  const verifiedPermission = afterList.find((item) => safeText(item.emailAddress, 320).toLowerCase() === email && shareRoleSatisfies(item.role, role));
+  if (!verifiedPermission) throw Object.assign(new Error('Drive permission readback did not confirm the requested recipient and role.'), {status: 502});
+  const result = {
+    operation: 'drive.share_folder', folderId, folderName: folder.name, webViewLink: folder.webViewLink, email, requestedRole: role,
+    permission: {id: verifiedPermission.id, type: verifiedPermission.type, role: verifiedPermission.role, emailAddress: verifiedPermission.emailAddress, displayName: verifiedPermission.displayName || ''},
+    verified: true, reused, upgraded, notificationRequested: args.sendNotificationEmail !== false && !reused, auditRequestId: requestId,
+  };
+  const audit = await auditWrite(admin, {
+    actor: user.email || user.uid || 'unknown', authKind: user.authKind, tool: 'drive_operation', operation: 'drive.share_folder', requestId,
+    fileId: folderId, affectedFileIds: [folderId], oldMetadata: {permissions: beforeList.map((item) => ({id: item.id, type: item.type, role: item.role, emailAddress: item.emailAddress || ''}))},
+    newMetadata: {permission: result.permission}, oldParents: folder.parents || [], newParents: folder.parents || [], reversible: true,
+    rollback: {operation: 'drive.permissions.delete', fileId: folderId, permissionId: verifiedPermission.id}, callerNote: args.callerNote,
+    providerSummary: `Shared Drive folder ${folder.name || folderId} with ${email} as ${verifiedPermission.role} and verified the permission by readback.`, result,
+  });
+  return {...result, audit: audit.audit};
 }
 
 async function existingActionAudit(admin, requestId) {
@@ -4142,6 +4472,32 @@ function driveOperationRegistry() {
           verification: 'Verify every chunkSha256 before append and verify final byte count against totalSize. Never substitute another synthesis provider because binary transfer failed.',
         },
       },
+      'sites.source_version.materialize_drive': {
+        summary: 'Clone one exact saved Sites source commit through its short-lived repository credential, materialize the complete editable tree into a Drive folder, verify every file by byte-count/SHA-256 readback, and write a provenance manifest without retaining the credential.',
+        write: true,
+        requiresRequestId: true,
+        requiredScopes: ['https://www.googleapis.com/auth/drive'],
+        input: {projectId: 'opaque Sites project id', versionId: 'opaque saved Sites version id', versionNumber: 'user-facing version number', repositoryUrl: 'uncredentialed git.chatgpt-team.site HTTPS URL', repositoryToken: 'short-lived Sites source repository token; never persisted or returned', sourceBranch: 'optional branch, default main', sourceCommit: 'exact 40-character commit SHA', expectedSourceFileCount: 'optional exact tracked source file count', parentFolderId: 'Drive destination parent folder id', folderName: 'Drive source-folder name', archiveFormat: 'optional provider-reported saved archive format', sedimentFileId: 'optional opaque provider archive id', archiveContentHash: 'optional provider-reported saved archive hash', archiveFileCount: 'optional provider-reported saved archive file count', archiveSizeBytes: 'optional provider-reported saved archive bytes', approved: 'must be true', requestId: 'stable idempotency key', callerNote: 'optional string'},
+        output: {rootFolderId: 'Drive folder id', sourceCommit: 'verified commit', sourceFileCount: 'tracked source files', verifiedSourceFileCount: 'files passing Drive byte/SHA-256 readback', aggregateSha256: 'canonical path/mode/file-hash manifest digest', manifestFileId: 'SOURCE_PROVENANCE.json Drive id', credentialPersisted: 'always false', credentialReturned: 'always false'},
+        agentRecipe: {
+          whenUserSays: 'Export, recover, or materialize an exact Sites source version into Drive.',
+          prefer: 'Resolve the exact project/version through Sites, obtain a fresh short-lived source repository credential, then call this operation once with its exact commit and Drive destination. Never copy or log the credential elsewhere.',
+          verification: 'Require exact commit match, expected source count when known, everyFileReadbackVerified=true, matching verifiedSourceFileCount/sourceFileCount, and a readable SOURCE_PROVENANCE.json manifest.',
+        },
+      },
+      'drive.share_folder': {
+        summary: 'Share one existing Google Drive folder with one explicit email recipient, then verify the recipient and effective role by permission-list readback.',
+        write: true,
+        requiresRequestId: true,
+        requiredScopes: ['https://www.googleapis.com/auth/drive'],
+        input: {folderId: 'Google Drive folder id', email: 'explicit recipient email', role: 'optional reader|commenter|writer, default reader', sendNotificationEmail: 'optional boolean, default true', emailMessage: 'optional notification message', approved: 'must be true', requestId: 'stable idempotency key', callerNote: 'optional string'},
+        output: {folderId: 'string', email: 'normalized recipient', requestedRole: 'string', permission: 'verified Drive permission', verified: 'boolean', reused: 'boolean', upgraded: 'boolean'},
+        agentRecipe: {
+          whenUserSays: 'Share a Drive folder with a named email recipient.',
+          prefer: 'Resolve and verify the exact folder first, preserve the explicit recipient address, use the least role that fulfills the request, and call with approved=true.',
+          verification: 'Require verified=true and a permission readback whose emailAddress and role satisfy the request. A successful create response without list readback is not delivery.',
+        },
+      },
       'audio.ingest_drive': {
         summary: 'Stream one Drive-hosted audio file into canonical generated storage, verify source and GCS readback bytes/SHA-256, and write append-safe bucket indexes without mutating Drive.',
         write: true,
@@ -4962,6 +5318,15 @@ async function driveOperationRunOperation({google, admin, auth, user, extra = nu
   delete operationArgs.type;
   delete operationArgs.toolName;
   delete operationArgs.args;
+  if (operation === 'sites.source_version.materialize_drive') {
+    requireCreditGatedEmail(user && user.email, operation);
+    const result = await materializeSitesSourceVersionOperation({google, admin, auth, user, args: operationArgs});
+    return {operation, registryVersion: registry.version, completed: result.everyFileReadbackVerified === true && result.verifiedSourceFileCount === result.sourceFileCount, result};
+  }
+  if (operation === 'drive.share_folder') {
+    const result = await shareDriveFolderOperation({google, admin, auth, user, args: operationArgs});
+    return {operation, registryVersion: registry.version, completed: result.verified === true, result};
+  }
   const compatCommandCenterOperation = commandCenterCompatOperation(args);
   if (compatCommandCenterOperation) {
     delete operationArgs.commandCenterOperation;
@@ -7049,4 +7414,4 @@ function createHomeCenterMcpApp({google, admin, googleClientId = () => '', googl
   return app;
 }
 
-module.exports = {mcpRequestMountedPath, oauthResourceMatches, TVTROPER_OPERATION_REGISTRY_VERSION, tvtroperOperationEntries, tvTroperRetrievalOperation, resolveOAuthGrant, GROUNDED_MOTION_MCP_RESOURCE, GROUNDED_MOTION_MCP_SCOPE, linkArtifactReviewSuccessorOperation, recordArtifactReviewOperation, materializeReceiptArtifactsOperation, artifactTransportPreflightOperation, homeCenterReleaseIdentity, artifactTransportStatusOperation, homeCenterHealthPayload, homeCenterReadinessPayload, homeCenterCapabilitiesPayload, operationRegistrySummary, CREDIT_GATED_EMAILS, requireCreditGatedEmail, GITHUB_ADMIN_ALLOWED_EMAILS, requireGitHubAdminUser, HOME_CENTER_MCP_SERVER_VERSION, HOME_CENTER_CONNECTOR_SCHEMA_REVISION, HOME_CENTER_REGISTRY_VERSION, HOME_CENTER_DIRECT_FILE_TOOLS, driveOperationRegistry, uploadVerifiedArtifact, createHomeCenterMcpApp, createHomeCenterMcpServer, createDriveFolderOperation, createGoogleDocOperation, appendGoogleDocOperation, publishContextSnapshotOperation, synthesizeCartesiaAudioArtifactOperation, cartesiaVoicesOperation, createSheetOperation, updateSheetValuesOperation, importXlsxWorkbookOperation, readDriveBinaryChunkOperation, compareAudioIngestFileIds, ingestDriveAudioOperation, finalizeDriveAudioIngestBatchOperation, driveOperationRunOperation, driveWorkflowRunOperation, simulationOperationRunOperation, simulationOperationRegistry, droobiedooContextOperationEntries, loadDroobiedooContextIndex, searchDroobiedooContextIndex, runDroobiedooContextOperation, normalizeRecoveryOperation, summarizeRecoveryOperations, loadMcpAccessContext, armoryReceiptOperation, armoryRecountOperation, armoryCasingOperation, renderAudioOperation, inspectAudioArtifactsOperation, githubAdminOperationEntries, githubAdminOperationRunOperation, createGitHubAppJwt};
+module.exports = {mcpRequestMountedPath, oauthResourceMatches, TVTROPER_OPERATION_REGISTRY_VERSION, tvtroperOperationEntries, tvTroperRetrievalOperation, resolveOAuthGrant, GROUNDED_MOTION_MCP_RESOURCE, GROUNDED_MOTION_MCP_SCOPE, linkArtifactReviewSuccessorOperation, recordArtifactReviewOperation, materializeReceiptArtifactsOperation, artifactTransportPreflightOperation, homeCenterReleaseIdentity, artifactTransportStatusOperation, homeCenterHealthPayload, homeCenterReadinessPayload, homeCenterCapabilitiesPayload, operationRegistrySummary, CREDIT_GATED_EMAILS, requireCreditGatedEmail, GITHUB_ADMIN_ALLOWED_EMAILS, requireGitHubAdminUser, HOME_CENTER_MCP_SERVER_VERSION, HOME_CENTER_CONNECTOR_SCHEMA_REVISION, HOME_CENTER_REGISTRY_VERSION, HOME_CENTER_DIRECT_FILE_TOOLS, driveOperationRegistry, uploadVerifiedArtifact, createHomeCenterMcpApp, createHomeCenterMcpServer, createDriveFolderOperation, createGoogleDocOperation, appendGoogleDocOperation, publishContextSnapshotOperation, synthesizeCartesiaAudioArtifactOperation, cartesiaVoicesOperation, createSheetOperation, updateSheetValuesOperation, importXlsxWorkbookOperation, readDriveBinaryChunkOperation, materializeSitesSourceVersionOperation, shareDriveFolderOperation, safeSitesSourceRepositoryUrl, safeSitesSourceCommit, safeSitesSourceBranch, safeShareEmail, compareAudioIngestFileIds, ingestDriveAudioOperation, finalizeDriveAudioIngestBatchOperation, driveOperationRunOperation, driveWorkflowRunOperation, simulationOperationRunOperation, simulationOperationRegistry, droobiedooContextOperationEntries, loadDroobiedooContextIndex, searchDroobiedooContextIndex, runDroobiedooContextOperation, normalizeRecoveryOperation, summarizeRecoveryOperations, loadMcpAccessContext, armoryReceiptOperation, armoryRecountOperation, armoryCasingOperation, renderAudioOperation, inspectAudioArtifactsOperation, githubAdminOperationEntries, githubAdminOperationRunOperation, createGitHubAppJwt};
