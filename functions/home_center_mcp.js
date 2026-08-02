@@ -423,17 +423,24 @@ function shouldUseConnectorHandoff(req, redirectUri) {
   return ua.includes('android') || ua.includes('mobile');
 }
 
-function mcpMountedPath(pathname) {
+function mcpRequestMountedPath(req, pathname) {
   const cleanPath = String(pathname || '').startsWith('/') ? String(pathname || '') : `/${pathname || ''}`;
   try {
-    const basePath = new URL(MCP_AUTHORIZATION_SERVER_BASE).pathname.replace(/\/$/, '');
+    const publicBase = new URL(MCP_PUBLIC_BASE);
+    const authorizationBase = new URL(MCP_AUTHORIZATION_SERVER_BASE);
+    const forwardedHost = safeText(req && req.get && req.get('X-Forwarded-Host'), 300).split(',')[0].trim().split(':')[0].toLowerCase();
+    const requestHost = safeText(req && req.get && req.get('Host'), 300).trim().split(':')[0].toLowerCase();
+    const base = forwardedHost === publicBase.hostname.toLowerCase() || requestHost === publicBase.hostname.toLowerCase()
+      ? publicBase
+      : authorizationBase;
+    const basePath = base.pathname.replace(/\/$/, '');
     return `${basePath}${cleanPath}`;
   } catch (_) {
     return cleanPath;
   }
 }
 
-function renderSecureBrowserOAuthHandoff(googleAuthUrl, flowState, mode = 'secure-browser') {
+function renderSecureBrowserOAuthHandoff(req, googleAuthUrl, flowState, mode = 'secure-browser') {
   const safeUrl = htmlEscape(googleAuthUrl);
   const chatgptMobile = mode === 'chatgpt-mobile';
   const title = chatgptMobile ? 'Complete Home Center sign-in' : 'Open Home Center sign-in in a secure browser';
@@ -441,8 +448,8 @@ function renderSecureBrowserOAuthHandoff(googleAuthUrl, flowState, mode = 'secur
     ? 'Keep this page open. Complete Google sign-in in the browser tab that opens, then return here if ChatGPT does not resume automatically. This page will finish the ChatGPT connector.'
     : 'Google blocked this sign-in surface because it looks like an embedded browser. Open Google sign-in in Chrome or another system browser, then return here. This page will finish the ChatGPT connector automatically.';
   const button = chatgptMobile ? 'Continue with Google' : 'Continue in secure browser';
-  const handoffStatusPath = mcpMountedPath('/oauth/handoff-status');
-  const handoffCompletePath = mcpMountedPath('/oauth/handoff-complete');
+  const handoffStatusPath = mcpRequestMountedPath(req, '/oauth/handoff-status');
+  const handoffCompletePath = mcpRequestMountedPath(req, '/oauth/handoff-complete');
   return `<!doctype html>
 <html lang="en">
 <head>
@@ -6657,7 +6664,7 @@ function createHomeCenterMcpApp({google, admin, googleClientId = () => '', googl
         const redirectMode = chatgptConnector ? 'chatgpt_mobile_handoff' : 'secure_browser_handoff';
         connectorLog('authorize_secure_browser_handoff', req, {googleCallbackHost: redirectHost(MCP_GOOGLE_CALLBACK), redirectMode, chatgptConnector, oauthFlowId});
         res.set('Cache-Control', 'no-store');
-        res.status(200).type('html').send(renderSecureBrowserOAuthHandoff(url, flowState, chatgptConnector ? 'chatgpt-mobile' : 'secure-browser'));
+        res.status(200).type('html').send(renderSecureBrowserOAuthHandoff(req, url, flowState, chatgptConnector ? 'chatgpt-mobile' : 'secure-browser'));
         return;
       }
       connectorLog('authorize_redirect_google', req, {googleCallbackHost: redirectHost(MCP_GOOGLE_CALLBACK), redirectMode: 'direct', chatgptConnector, oauthFlowId});
@@ -6737,7 +6744,7 @@ function createHomeCenterMcpApp({google, admin, googleClientId = () => '', googl
         }, {merge: true});
         connectorLog('google_callback_handoff_ready', req, {clientIdPrefix: safeText(stateData.clientId, 80).slice(0, 28), redirectHost: redirectHost(stateData.redirectUri), oauthFlowId: stateData.oauthFlowId || '', chatgptConnector: !!stateData.chatgptConnector, emailHash: tokenHashPrefix(email)});
         res.set('Cache-Control', 'no-store');
-        res.status(200).type('html').send(renderSecureBrowserOAuthComplete('Home Center approved Google sign-in. Finishing the ChatGPT connector now...', `${mcpMountedPath('/oauth/handoff-complete')}?state=${encodeURIComponent(flowState)}`));
+        res.status(200).type('html').send(renderSecureBrowserOAuthComplete('Home Center approved Google sign-in. Finishing the ChatGPT connector now...', `${mcpRequestMountedPath(req, '/oauth/handoff-complete')}?state=${encodeURIComponent(flowState)}`));
         return;
       }
       const code = randomToken(32);
@@ -7036,4 +7043,4 @@ function createHomeCenterMcpApp({google, admin, googleClientId = () => '', googl
   return app;
 }
 
-module.exports = {oauthResourceMatches, TVTROPER_OPERATION_REGISTRY_VERSION, tvtroperOperationEntries, tvTroperRetrievalOperation, resolveOAuthGrant, GROUNDED_MOTION_MCP_RESOURCE, GROUNDED_MOTION_MCP_SCOPE, linkArtifactReviewSuccessorOperation, recordArtifactReviewOperation, materializeReceiptArtifactsOperation, artifactTransportPreflightOperation, homeCenterReleaseIdentity, artifactTransportStatusOperation, homeCenterHealthPayload, homeCenterReadinessPayload, homeCenterCapabilitiesPayload, operationRegistrySummary, CREDIT_GATED_EMAILS, requireCreditGatedEmail, GITHUB_ADMIN_ALLOWED_EMAILS, requireGitHubAdminUser, HOME_CENTER_MCP_SERVER_VERSION, HOME_CENTER_CONNECTOR_SCHEMA_REVISION, HOME_CENTER_REGISTRY_VERSION, HOME_CENTER_DIRECT_FILE_TOOLS, driveOperationRegistry, uploadVerifiedArtifact, createHomeCenterMcpApp, createHomeCenterMcpServer, createDriveFolderOperation, createGoogleDocOperation, appendGoogleDocOperation, publishContextSnapshotOperation, synthesizeCartesiaAudioArtifactOperation, cartesiaVoicesOperation, createSheetOperation, updateSheetValuesOperation, importXlsxWorkbookOperation, readDriveBinaryChunkOperation, compareAudioIngestFileIds, ingestDriveAudioOperation, finalizeDriveAudioIngestBatchOperation, driveOperationRunOperation, driveWorkflowRunOperation, simulationOperationRunOperation, simulationOperationRegistry, droobiedooContextOperationEntries, loadDroobiedooContextIndex, searchDroobiedooContextIndex, runDroobiedooContextOperation, normalizeRecoveryOperation, summarizeRecoveryOperations, loadMcpAccessContext, armoryReceiptOperation, armoryRecountOperation, armoryCasingOperation, renderAudioOperation, inspectAudioArtifactsOperation, githubAdminOperationEntries, githubAdminOperationRunOperation, createGitHubAppJwt};
+module.exports = {mcpRequestMountedPath, oauthResourceMatches, TVTROPER_OPERATION_REGISTRY_VERSION, tvtroperOperationEntries, tvTroperRetrievalOperation, resolveOAuthGrant, GROUNDED_MOTION_MCP_RESOURCE, GROUNDED_MOTION_MCP_SCOPE, linkArtifactReviewSuccessorOperation, recordArtifactReviewOperation, materializeReceiptArtifactsOperation, artifactTransportPreflightOperation, homeCenterReleaseIdentity, artifactTransportStatusOperation, homeCenterHealthPayload, homeCenterReadinessPayload, homeCenterCapabilitiesPayload, operationRegistrySummary, CREDIT_GATED_EMAILS, requireCreditGatedEmail, GITHUB_ADMIN_ALLOWED_EMAILS, requireGitHubAdminUser, HOME_CENTER_MCP_SERVER_VERSION, HOME_CENTER_CONNECTOR_SCHEMA_REVISION, HOME_CENTER_REGISTRY_VERSION, HOME_CENTER_DIRECT_FILE_TOOLS, driveOperationRegistry, uploadVerifiedArtifact, createHomeCenterMcpApp, createHomeCenterMcpServer, createDriveFolderOperation, createGoogleDocOperation, appendGoogleDocOperation, publishContextSnapshotOperation, synthesizeCartesiaAudioArtifactOperation, cartesiaVoicesOperation, createSheetOperation, updateSheetValuesOperation, importXlsxWorkbookOperation, readDriveBinaryChunkOperation, compareAudioIngestFileIds, ingestDriveAudioOperation, finalizeDriveAudioIngestBatchOperation, driveOperationRunOperation, driveWorkflowRunOperation, simulationOperationRunOperation, simulationOperationRegistry, droobiedooContextOperationEntries, loadDroobiedooContextIndex, searchDroobiedooContextIndex, runDroobiedooContextOperation, normalizeRecoveryOperation, summarizeRecoveryOperations, loadMcpAccessContext, armoryReceiptOperation, armoryRecountOperation, armoryCasingOperation, renderAudioOperation, inspectAudioArtifactsOperation, githubAdminOperationEntries, githubAdminOperationRunOperation, createGitHubAppJwt};
