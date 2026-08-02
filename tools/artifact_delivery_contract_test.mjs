@@ -194,6 +194,73 @@ assert.equal(digestReuse.artifacts.every((item) => item.delivery.reused), true);
 const duplicateCreates = google.createCount - artifacts.length;
 assert.equal(duplicateCreates, 0);
 
+const storedVideoBytes = Buffer.from('....ftypisom-through-the-slit-v4-storage-fixture');
+const storedVideoName = 'Through_the_Slit_Bounded_Haunted_Gameplay_Cinematic_V4.mp4';
+const storedVideoSha = sha(storedVideoBytes);
+const storedVideoRef = 'gs://home-center-generated/rotoscoping/dclarke1005@gmail.com/video/through-the-slit-v4/' + storedVideoName;
+objects.set(storedVideoRef, {bytes: storedVideoBytes, metadataSha: storedVideoSha});
+const storageReceiptId = 'through-the-slit-v4';
+initial.set('commandCenterArtifactCatalog/' + storageReceiptId, {
+  schemaVersion: 'home-center.artifact.v1',
+  artifactId: storageReceiptId,
+  artifactKind: 'video',
+  project: 'fortress-online',
+  lifecycleState: 'proposed',
+  ownerEmail,
+  source: {transport: 'chatgpt-work-mode', name: storedVideoName, mimeType: 'video/mp4'},
+  destination: {
+    bucket: 'home-center-generated',
+    objectName: storedVideoRef.replace('gs://home-center-generated/', ''),
+    storageRef: storedVideoRef,
+    byteCount: storedVideoBytes.length,
+    sha256: storedVideoSha,
+  },
+  verification: {
+    verified: true,
+    readbackByteCount: storedVideoBytes.length,
+    readbackSha256: storedVideoSha,
+    byteCountMatch: true,
+    sha256Match: true,
+  },
+});
+const storageDeliveryArgs = {
+  requestId: 'storage-ingest-delivery-001',
+  producerReceiptId: storageReceiptId,
+  producerKind: 'storage_ingest',
+  parentFolderId: 'home-mtv-folder',
+};
+const storageDelivery = await materializeReceiptArtifactsOperation({...base, args: storageDeliveryArgs}, {storage});
+assert.equal(storageDelivery.status, 'review_ready');
+assert.equal(storageDelivery.producer.kind, 'storage_ingest');
+assert.equal(storageDelivery.artifacts.length, 1);
+assert.equal(storageDelivery.artifacts[0].name, storedVideoName);
+assert.equal(storageDelivery.artifacts[0].delivery.readbackSha256, storedVideoSha);
+assert.equal(storageDelivery.artifacts[0].delivery.reused, false);
+const createsAfterStorageDelivery = google.createCount;
+const storageDigestReplay = await materializeReceiptArtifactsOperation(
+  {...base, args: {...storageDeliveryArgs, requestId: 'storage-ingest-delivery-002'}},
+  {storage},
+);
+assert.equal(storageDigestReplay.artifacts[0].delivery.reused, true);
+assert.equal(storageDigestReplay.transportState.transferredBytes, 0);
+assert.equal(storageDigestReplay.transportState.reusedBytes, storedVideoBytes.length);
+assert.equal(google.createCount, createsAfterStorageDelivery, 'storage-ingest delivery must not duplicate an identical Drive file');
+
+initial.set('commandCenterArtifactCatalog/unverified-storage-artifact', {
+  artifactId: 'unverified-storage-artifact',
+  lifecycleState: 'proposed',
+  ownerEmail,
+  destination: {storageRef: storedVideoRef, byteCount: storedVideoBytes.length, sha256: storedVideoSha},
+  verification: {verified: false},
+});
+await assert.rejects(
+  () => materializeReceiptArtifactsOperation(
+    {...base, args: {requestId: 'storage-ingest-unverified-rejected', producerReceiptId: 'unverified-storage-artifact', producerKind: 'storage_ingest'}},
+    {storage},
+  ),
+  (error) => error.failureKind === 'artifact_delivery.receipt_not_terminal',
+);
+
 await assert.rejects(
   () => materializeReceiptArtifactsOperation({...base, args: {...base.args, artifactNames: ['manifest.json']}}, {storage}),
   (error) => error.failureKind === 'artifact_delivery.idempotency_conflict',
