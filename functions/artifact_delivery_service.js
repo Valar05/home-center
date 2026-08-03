@@ -70,9 +70,10 @@ const MIME_BY_EXTENSION = Object.freeze({
 
 const SUPPORTED_MIME = new Set(Object.values(MIME_BY_EXTENSION));
 
-function inferredMime(name, value) {
+function inferredMime(name, value, {allowGeneric = false} = {}) {
   const explicit = text(value, 160).toLowerCase();
   if (SUPPORTED_MIME.has(explicit)) return explicit;
+  if (allowGeneric && explicit === 'application/octet-stream') return explicit;
   const lower = name.toLowerCase();
   const extension = Object.keys(MIME_BY_EXTENSION).find((suffix) => lower.endsWith(suffix));
   const inferred = extension ? MIME_BY_EXTENSION[extension] : '';
@@ -112,11 +113,14 @@ function normalizedCandidate(value, context = {}) {
   const contextName = text(context.name, 240);
   const contextHasKnownExtension = Object.keys(MIME_BY_EXTENSION).some((suffix) => contextName.toLowerCase().endsWith(suffix));
   const name = filename(explicitName || (contextHasKnownExtension ? contextName : parsed.objectName.split('/').pop()));
-  const mediaType = inferredMime(name, value.mimeType || value.mediaType || value.contentType);
+  const declaredMediaType = text(value.mimeType || value.mediaType || value.contentType, 160).toLowerCase();
+  const metadataComplete = !(name.toLowerCase().endsWith('.bin') && declaredMediaType === 'application/octet-stream');
+  const mediaType = inferredMime(name, declaredMediaType, {allowGeneric: !metadataComplete});
   return {
     role: text(value.role || value.kind || context.role || context.name, 120) || 'artifact',
     name,
     mediaType,
+    metadataComplete,
     byteLength,
     sha256: digest,
     storageRef: parsed.ref,
@@ -227,7 +231,59 @@ function renderReferenceCandidates(output = {}) {
   return candidates;
 }
 
-function uniqueCandidates(receipt, artifactNames = []) {
+function normalizedArtifactMetadata(value) {
+  if (value === undefined || value === null) return [];
+  if (!Array.isArray(value) || !value.length || value.length > MAX_ARTIFACTS) {
+    throw fail('artifact_delivery.metadata_invalid', 'artifactMetadata must contain 1-' + MAX_ARTIFACTS + ' SHA-bound metadata entries.', 400);
+  }
+  const seen = new Set();
+  return value.map((entry, index) => {
+    if (!entry || typeof entry !== 'object' || Array.isArray(entry)) {
+      throw fail('artifact_delivery.metadata_invalid', 'Every artifactMetadata entry must be an object.', 400, {index});
+    }
+    const digest = text(entry.sha256, 64).toLowerCase();
+    const requestedName = text(entry.name, 240);
+    const safeName = filename(requestedName, '');
+    const requestedMime = text(entry.mimeType, 160).toLowerCase();
+    if (!/^[a-f0-9]{64}$/.test(digest) || !requestedName || safeName !== requestedName || !requestedMime) {
+      throw fail('artifact_delivery.metadata_invalid', 'Each artifactMetadata entry requires an exact SHA-256, safe filename, and supported MIME type.', 400, {index});
+    }
+    const mediaType = inferredMime(safeName, requestedMime);
+    if (mediaType !== requestedMime) {
+      throw fail('artifact_delivery.metadata_mismatch', 'artifactMetadata MIME type must match the filename extension.', 409, {index, name: safeName, mimeType: requestedMime});
+    }
+    if (seen.has(digest)) throw fail('artifact_delivery.metadata_duplicate', 'artifactMetadata contains the same SHA-256 more than once.', 409, {index, sha256: digest});
+    seen.add(digest);
+    return {sha256: digest, name: safeName, mediaType};
+  });
+}
+
+function applyArtifactMetadata(candidates, value) {
+  const overrides = normalizedArtifactMetadata(value);
+  const byDigest = new Map(overrides.map((entry) => [entry.sha256, entry]));
+  const matched = new Set();
+  const updated = candidates.map((candidate) => {
+    const override = byDigest.get(candidate.sha256);
+    if (!override) return candidate;
+    matched.add(candidate.sha256);
+    if (candidate.metadataComplete !== false &&
+        (candidate.name !== override.name || candidate.mediaType !== override.mediaType)) {
+      throw fail('artifact_delivery.metadata_override_forbidden', 'Complete receipt metadata cannot be renamed or retyped during delivery.', 409, {sha256: candidate.sha256, name: candidate.name});
+    }
+    return {...candidate, name: override.name, mediaType: override.mediaType, metadataComplete: true};
+  });
+  const missing = overrides.filter((entry) => !matched.has(entry.sha256));
+  if (missing.length) {
+    throw fail('artifact_delivery.metadata_sha_missing', 'artifactMetadata does not match an artifact in the producer receipt.', 404, {sha256: missing.map((entry) => entry.sha256)});
+  }
+  const incomplete = updated.filter((candidate) => candidate.metadataComplete === false);
+  if (incomplete.length) {
+    throw fail('artifact_delivery.metadata_required', 'Generic artifact.bin receipts require exact SHA-bound artifactMetadata before Drive delivery.', 422, {sha256: incomplete.map((entry) => entry.sha256)});
+  }
+  return updated;
+}
+
+function uniqueCandidates(receipt, artifactNames = [], artifactMetadata = []) {
   const output = receipt && receipt.result && typeof receipt.result === 'object' ? receipt.result : receipt;
   const all = [...recursivelyExtractArtifacts(output), ...renderReferenceCandidates(output)];
   const byIdentity = new Map();
@@ -235,7 +291,7 @@ function uniqueCandidates(receipt, artifactNames = []) {
     const key = [candidate.sha256, candidate.byteLength, candidate.mediaType, candidate.name].join(':');
     if (!byIdentity.has(key)) byIdentity.set(key, candidate);
   });
-  let candidates = [...byIdentity.values()].sort((a, b) => (a.role + '\n' + a.name + '\n' + a.sha256).localeCompare(b.role + '\n' + b.name + '\n' + b.sha256));
+  let candidates = applyArtifactMetadata([...byIdentity.values()], artifactMetadata).sort((a, b) => (a.role + '\n' + a.name + '\n' + a.sha256).localeCompare(b.role + '\n' + b.name + '\n' + b.sha256));
   const selectors = (Array.isArray(artifactNames) ? artifactNames : []).map((value) => text(value, 240)).filter(Boolean);
   if (selectors.length) {
     const selected = new Set(selectors);
@@ -281,11 +337,11 @@ async function resolveProducerReceipt({admin, ownerEmail, producerReceiptId, pro
   }
   if (!source.terminal(receipt)) throw fail('artifact_delivery.receipt_not_terminal', 'Producer receipt is not terminal or recoverable.', 409);
   const receiptState = text(receipt.status || receipt.result && receipt.result.status, 80);
-  if (!['completed', 'success'].includes(receiptState)) {
+  if (source.kind !== 'storage_ingest' && !['completed', 'success'].includes(receiptState)) {
     try { uniqueCandidates(receipt, []); }
     catch (_error) { throw fail('artifact_delivery.failed_receipt_has_no_verified_candidate', 'Failed or stalled producer receipts are recoverable only when they already contain hash-bound artifact bytes.', 409); }
   }
-  return {producerKind: source.kind, collection: source.collection, receipt, receiptState};
+  return {producerKind: source.kind, collection: source.collection, receipt, receiptState: receiptState || (source.kind === 'storage_ingest' ? 'verified' : '')};
 }
 
 function humanAcceptance(receipt) {
@@ -445,7 +501,7 @@ async function materializeReceiptArtifactsOperation({google, admin, auth, user, 
   if (parentFolderId && !/^[A-Za-z0-9_-]{8,220}$/.test(parentFolderId)) throw fail('artifact_delivery.parent_invalid', 'parentFolderId is invalid.', 400);
   const lookup = helpers.resolveReceipt || resolveProducerReceipt;
   const resolved = await lookup({admin, ownerEmail, producerReceiptId, producerKind});
-  const selection = uniqueCandidates(resolved.receipt, args.artifactNames);
+  const selection = uniqueCandidates(resolved.receipt, args.artifactNames, args.artifactMetadata);
   const inputHash = hashJson({
     contractVersion: CONTRACT_VERSION,
     producerKind: resolved.producerKind,
@@ -648,6 +704,7 @@ module.exports = {
   deliveryDigestKey,
   digestStream,
   humanAcceptance,
+  applyArtifactMetadata,
   linkArtifactReviewSuccessorOperation,
   recordArtifactReviewOperation,
   materializeReceiptArtifactsOperation,
