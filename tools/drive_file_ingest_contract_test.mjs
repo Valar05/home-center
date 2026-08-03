@@ -41,7 +41,7 @@ function fakeGoogle({readbackTransform = (bytes) => bytes} = {}) {
           const chunks = [];
           for await (const chunk of params.media.body) chunks.push(Buffer.from(chunk));
           state.uploaded = Buffer.concat(chunks);
-          return {data: {id: 'file-12345678', name: params.requestBody.name, mimeType: params.requestBody.mimeType, parents: params.requestBody.parents || [], appProperties: params.requestBody.appProperties, webViewLink: 'https://drive.google.test/file-12345678'}};
+          return {data: {id: 'file-12345678', name: params.requestBody.name, mimeType: params.requestBody.mimeType, parents: params.requestBody.parents || ['my-drive-root-1234'], appProperties: params.requestBody.appProperties, webViewLink: 'https://drive.google.test/file-12345678'}};
         },
         async get(_params, options = {}) {
           state.responseTypes.push(options.responseType);

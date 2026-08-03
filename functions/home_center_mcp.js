@@ -772,7 +772,7 @@ function assertDriveIngestIdentity(result = {}, identity = {}) {
   if (safeText(result.mimeType, 160).toLowerCase() !== identity.mimeType) {
     throw driveIngestConflict('requestId was reused with a different MIME type.');
   }
-  if (safeText(result.parentFolderId, 220) !== identity.parentFolderId) {
+  if (identity.parentFolderId && safeText(result.parentFolderId, 220) !== identity.parentFolderId) {
     throw driveIngestConflict('requestId was reused with a different destination folder.');
   }
 }
@@ -840,7 +840,7 @@ async function driveIngestFileOperationWithUpload({google, admin, auth, user, ar
     const markerSha256 = safeText(rawMetadata.appProperties && rawMetadata.appProperties.homeCenterSha256, 128).toLowerCase();
     if (markerSha256 && markerSha256 !== sha256) throw driveIngestConflict('requestId was reused with different file bytes.');
     const markerParent = (rawMetadata.parents || [])[0] || '';
-    if (safeText(rawMetadata.name, 240) !== name || safeText(rawMetadata.mimeType, 160).toLowerCase() !== mimeType || markerParent !== parentFolderId) {
+    if (safeText(rawMetadata.name, 240) !== name || safeText(rawMetadata.mimeType, 160).toLowerCase() !== mimeType || (parentFolderId && markerParent !== parentFolderId)) {
       throw driveIngestConflict('requestId was reused with different Drive metadata.');
     }
   } else {
