@@ -248,8 +248,10 @@ function normalizedArtifactMetadata(value) {
     if (!/^[a-f0-9]{64}$/.test(digest) || !requestedName || safeName !== requestedName || !requestedMime) {
       throw fail('artifact_delivery.metadata_invalid', 'Each artifactMetadata entry requires an exact SHA-256, safe filename, and supported MIME type.', 400, {index});
     }
-    const mediaType = inferredMime(safeName, requestedMime);
-    if (mediaType !== requestedMime) {
+    const lowerName = safeName.toLowerCase();
+    const extension = Object.keys(MIME_BY_EXTENSION).find((suffix) => lowerName.endsWith(suffix));
+    const mediaType = extension ? MIME_BY_EXTENSION[extension] : '';
+    if (!mediaType || mediaType !== requestedMime) {
       throw fail('artifact_delivery.metadata_mismatch', 'artifactMetadata MIME type must match the filename extension.', 409, {index, name: safeName, mimeType: requestedMime});
     }
     if (seen.has(digest)) throw fail('artifact_delivery.metadata_duplicate', 'artifactMetadata contains the same SHA-256 more than once.', 409, {index, sha256: digest});
