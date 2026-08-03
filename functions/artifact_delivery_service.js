@@ -73,7 +73,7 @@ const SUPPORTED_MIME = new Set(Object.values(MIME_BY_EXTENSION));
 function inferredMime(name, value, {allowGeneric = false} = {}) {
   const explicit = text(value, 160).toLowerCase();
   if (SUPPORTED_MIME.has(explicit)) return explicit;
-  if (allowGeneric && explicit === 'application/octet-stream') return explicit;
+  if (allowGeneric && (!explicit || explicit === 'application/octet-stream')) return 'application/octet-stream';
   const lower = name.toLowerCase();
   const extension = Object.keys(MIME_BY_EXTENSION).find((suffix) => lower.endsWith(suffix));
   const inferred = extension ? MIME_BY_EXTENSION[extension] : '';
@@ -114,7 +114,7 @@ function normalizedCandidate(value, context = {}) {
   const contextHasKnownExtension = Object.keys(MIME_BY_EXTENSION).some((suffix) => contextName.toLowerCase().endsWith(suffix));
   const name = filename(explicitName || (contextHasKnownExtension ? contextName : parsed.objectName.split('/').pop()));
   const declaredMediaType = text(value.mimeType || value.mediaType || value.contentType, 160).toLowerCase();
-  const metadataComplete = !(name.toLowerCase().endsWith('.bin') && declaredMediaType === 'application/octet-stream');
+  const metadataComplete = !(name.toLowerCase().endsWith('.bin') && (!declaredMediaType || declaredMediaType === 'application/octet-stream'));
   const mediaType = inferredMime(name, declaredMediaType, {allowGeneric: !metadataComplete});
   return {
     role: text(value.role || value.kind || context.role || context.name, 120) || 'artifact',
