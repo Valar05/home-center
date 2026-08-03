@@ -1,0 +1,25 @@
+import assert from 'node:assert/strict';
+import {createRequire} from 'node:module';
+const require=createRequire(import.meta.url);
+const provider=require('../functions/gemini_speech_provider.js');
+const pcm=Buffer.alloc(provider.GEMINI_SAMPLE_RATE*2/4);for(let i=0;i<pcm.length;i+=2)pcm.writeInt16LE(i%400===0?12000:1000,i);
+let calls=0,lastBody=null;
+const okFetch=async(_url,init={})=>{calls++;lastBody=init.body?JSON.parse(init.body):null;return {ok:true,status:200,headers:{get:()=>null},json:async()=>init.body?{output_audio:{data:pcm.toString('base64')},usage:{totalTokenCount:42}}:{name:'models/'+provider.GEMINI_TTS_MODEL,displayName:'Gemini TTS'},text:async()=>''};};
+const exact='  [whispers] Keep both leading spaces.  ';
+const result=await provider.synthesizeGeminiPcm({apiKeyGetter:()=> 'test-key',text:exact,voiceName:'Kore',direction:'Close, urgent, restrained.',fetchImpl:okFetch,maxRetries:0});
+assert.equal(result.transcript,exact);
+assert.equal(result.metrics.sampleRate,24000);
+assert.equal(result.metrics.channelCount,1);
+assert.equal(result.metrics.bitDepth,16);
+assert.equal(result.metrics.byteCount,pcm.length);
+assert.deepEqual(result.expressiveTags,['whispers']);
+assert.match(lastBody.input,/Director notes \(do not speak\): Close, urgent, restrained\./);
+assert.ok(lastBody.input.endsWith(exact));
+assert.deepEqual(lastBody.generation_config.speech_config,[{voice:'Kore'}]);
+await assert.rejects(()=>provider.synthesizeGeminiPcm({apiKeyGetter:()=> 'test-key',text:'[invented] no',fetchImpl:okFetch,maxRetries:0}),(error)=>error.failureKind==='gemini_expressive_tag_unsupported');
+const stale=await provider.refreshGeminiCatalog({apiKeyGetter:()=>'',force:true,fetchImpl:okFetch});
+assert.equal(stale.stale,true);assert.equal(stale.cacheState,'stale_missing_secret');assert.equal(stale.voices.length,30);
+let retryCalls=0;const retryFetch=async()=>{retryCalls++;if(retryCalls===1)return {ok:false,status:429,headers:{get:()=> '0'},text:async()=> 'quota'};return {ok:true,status:200,headers:{get:()=>null},json:async()=>({output_audio:{data:pcm.toString('base64')}}),text:async()=>''};};
+const retried=await provider.synthesizeGeminiPcm({apiKeyGetter:()=> 'test-key',text:'Retry once.',fetchImpl:retryFetch,maxRetries:1});assert.equal(retried.requestAttemptCount,2);
+const {renderRecipe}=require('../functions/audio_render_service.js');const previousFetch=global.fetch;global.fetch=okFetch;try{const rendered=await renderRecipe({sampleRate:24000,graph:[{id:'voice',op:'speech',provider:'gemini',voiceName:'Puck',direction:'Bright and decisive.',text:'Exact line.'}],final:'voice',outputs:[{name:'voice.wav',format:'wav',clip:'voice'}]}, {}, {geminiApiKey:()=> 'test-key'});assert.equal(rendered.usesGemini,true);assert.equal(rendered.usesCartesia,false);assert.equal(rendered.speechProvenance[0].provider,'gemini');assert.equal(rendered.speechProvenance[0].transcript,'Exact line.');assert.equal(rendered.rendered[0].bytes.toString('ascii',0,4),'RIFF');}finally{global.fetch=previousFetch;}
+console.log('Home Center Gemini TTS contract: OK');

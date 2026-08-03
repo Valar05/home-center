@@ -40,6 +40,9 @@ node --check tools/she_raw_cloud_introspection_gate.mjs
 node --check tools/she_raw_seed_corpus_firestore.mjs
 node --check functions/index.js
 node --check functions/hosted_speech_provider.js
+node --check functions/gemini_speech_provider.js
+node --check functions/gemini_tts_artifact_service.js
+node tools/gemini_tts_contract_test.mjs
 node --check functions/audio_library_api.js
 node --check tools/audio_library_contract_test.mjs
 node tools/audio_library_contract_test.mjs

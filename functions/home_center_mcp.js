@@ -16,6 +16,8 @@ const {toJsonSchemaCompat} = require('./node_modules/@modelcontextprotocol/sdk/d
 const express = require('express');
 const {z} = require('zod/v4');
 const {CARTESIA_DEFAULT_MODEL_ID, CARTESIA_DEFAULT_VOICE_NAME, listCartesiaVoiceCatalog, listCartesiaVoices, normalizeCartesiaVoice, openCartesiaStream} = require('./hosted_speech_provider');
+const {refreshGeminiCatalog} = require('./gemini_speech_provider');
+const {synthesizeGeminiArtifact} = require('./gemini_tts_artifact_service');
 const {preflightArtifactEnvelope} = require('./artifact_transport');
 const {openAiFileParamJsonSchema, openAiFileParamZodSchema, materializeOpenAiHostFile, materializeOpenAiHostFileToTemp} = require('./host_file_ingress');
 const {
@@ -74,8 +76,8 @@ const DEFAULT_MCP_PUBLIC_BASE = 'https://us-central1-home-center-dclar.cloudfunc
 const DEFAULT_MCP_AUTHORIZATION_SERVER_BASE = 'https://homecentermcp-vxybsaualq-uc.a.run.app';
 const MCP_PUBLIC_BASE = process.env.HOME_CENTER_MCP_PUBLIC_BASE || DEFAULT_MCP_PUBLIC_BASE;
 const MCP_AUTHORIZATION_SERVER_BASE = process.env.HOME_CENTER_MCP_AUTHORIZATION_SERVER_BASE || DEFAULT_MCP_AUTHORIZATION_SERVER_BASE;
-const HOME_CENTER_MCP_SERVER_VERSION = '0.2.0';
-const HOME_CENTER_CONNECTOR_SCHEMA_REVISION = '2026-08-02.drive-binary-read-write-v1';
+const HOME_CENTER_MCP_SERVER_VERSION = '0.3.0';
+const HOME_CENTER_CONNECTOR_SCHEMA_REVISION = '2026-08-02.gemini-flash-tts-v1';
 const HOME_CENTER_REGISTRY_VERSION = HOME_CENTER_CONNECTOR_SCHEMA_REVISION;
 const HOME_CENTER_DIRECT_FILE_TOOLS = Object.freeze(['drive_ingest_file', 'storage_ingest_artifact']);
 const MCP_RESOURCE = `${MCP_AUTHORIZATION_SERVER_BASE}/mcp`;
@@ -4208,7 +4210,7 @@ function cartesiaVoiceMetadataFilterMatch(voice, args = {}) {
   return true;
 }
 
-async function cartesiaVoicesOperation({cartesiaApiKey = () => '', args = {}}) {
+async function cartesiaVoicesOperation({cartesiaApiKey = () => '', geminiApiKey = () => '', args = {}}) {
   const query = safeText(args.query || args.q, 240);
   const limit = chatGptLimit(args.limit, 100, 100);
   const catalog = await listCartesiaVoiceCatalog({
@@ -4326,6 +4328,30 @@ async function synthesizeCartesiaAudioArtifactOperation({google, admin, auth, us
   });
   await recordActionAudit(admin, user, 'tts.synthesize', fileId, safeText(args.callerNote, 400) || 'Synthesized Cartesia audio artifact ' + name + ' (' + digest.byteCount + ' bytes).', requestId);
   return {...result, audit: audit.audit};
+}
+
+function speechProviderSelection(args = {}) {
+  const requested = safeText(args.provider || 'auto', 40).toLowerCase() || 'auto';
+  if (!['auto', 'cartesia', 'gemini'].includes(requested)) throw Object.assign(new Error('provider must be auto, cartesia, or gemini.'), {status: 400, failureKind: 'tts_provider_invalid'});
+  const segments = Array.isArray(args.segments) ? args.segments : [];
+  const requiresGemini = Boolean(safeText(args.direction || args.naturalLanguageDirection, 2000)) || /\[[^\]\r\n]+\]/.test(String(args.text || args.transcript || '')) || segments.some((segment) => Boolean(safeText(segment && (segment.direction || segment.naturalLanguageDirection), 2000)) || /\[[^\]\r\n]+\]/.test(String(segment && (segment.text || segment.transcript) || '')));
+  return {requested, selected: requested === 'auto' ? (requiresGemini ? 'gemini' : 'cartesia') : requested, reason: requested === 'auto' ? (requiresGemini ? 'required_features' : 'backward_compatible_default') : 'explicit_provider'};
+}
+
+async function synthesizeSpeechAudioArtifactOperation(context) {
+  const routing = speechProviderSelection(context.args || {});
+  if (routing.selected === 'gemini') {
+    try {
+      return {...await synthesizeGeminiArtifact({...context, helpers: {createRequestId, existingAudit, auditWrite, recordActionAudit, safeDriveFileId}}), routing};
+    } catch (error) {
+      const policy = context.args && context.args.fallbackPolicy && typeof context.args.fallbackPolicy === 'object' ? context.args.fallbackPolicy : {};
+      const allowed = Array.isArray(policy.allowedProviders) ? policy.allowedProviders.map((value) => safeText(value, 40).toLowerCase()) : [];
+      if (policy.allowFallback !== true || !allowed.includes('cartesia')) throw error;
+      const fallback = await synthesizeCartesiaAudioArtifactOperation({...context, args: {...context.args, provider: 'cartesia'}});
+      return {...fallback, routing: {...routing, fallback: {authorized: true, from: 'gemini', to: 'cartesia', triggerCode: safeText(error && (error.failureKind || error.code), 120)}}};
+    }
+  }
+  return {...await synthesizeCartesiaAudioArtifactOperation(context), routing};
 }
 
 async function appendGoogleDocOperation({google, admin, auth, user, args = {}}) {
@@ -4819,22 +4845,22 @@ function driveOperationRegistry() {
         },
       },
       'tts.voices': {
-        summary: 'List or search Cartesia voices by calling the hosted Cartesia provider directly from Home Center MCP; no Command Center job or worker is involved.',
+        summary: 'List or search Cartesia and Gemini TTS voices through Home Center MCP with TTL, cache age, and visibly stale provider state; no Command Center job or worker is involved.',
         write: false,
         requiredScopes: [],
-        input: {query: 'optional string passed to Cartesia q', q: 'optional alias for query', limit: 'optional number, 1-100 per Cartesia page', pageToken: 'optional alias for starting_after', startingAfter: 'optional Cartesia pagination cursor', endingBefore: 'optional Cartesia pagination cursor', language: 'optional Cartesia language or locale filter such as ru or en_GB', locale: 'optional language-locale alias passed as language', gender: 'optional masculine, feminine, or gender_neutral', isOwner: 'optional boolean', accent: 'optional metadata filter applied to returned provider page', country: 'optional metadata filter applied to returned provider page', includePreviewUrl: 'optional boolean, defaults true'},
-        output: {provider: 'cartesia', catalog: 'provider_live', filters: 'object', supportedFilters: 'object', pagination: 'object', voices: 'array with id/name/language/locale/gender/accent/country/metadata'},
+        input: {provider: 'optional auto, cartesia, or gemini; auto returns both provider catalogs', forceRefresh: 'optional boolean to refresh live capability state', query: 'optional string passed to Cartesia q', q: 'optional alias for query', limit: 'optional number, 1-100 per Cartesia page', pageToken: 'optional alias for starting_after', startingAfter: 'optional Cartesia pagination cursor', endingBefore: 'optional Cartesia pagination cursor', language: 'optional Cartesia language or locale filter such as ru or en_GB', locale: 'optional language-locale alias passed as language', gender: 'optional masculine, feminine, or gender_neutral', isOwner: 'optional boolean', accent: 'optional metadata filter applied to returned provider page', country: 'optional metadata filter applied to returned provider page', includePreviewUrl: 'optional boolean, defaults true'},
+        output: {provider: 'auto|cartesia|gemini', catalog: 'provider_live or official_voice_catalog_plus_live_model_probe', filters: 'object', supportedFilters: 'object', pagination: 'object', voices: 'array with id/name/language/locale/gender/accent/country/metadata'},
       },
       'audio.render': {
-        summary: 'Render deterministic procedural, source-backed, or direct Cartesia speech audio inside Home Center MCP through a declarative JSON recipe. Completion requires verified GCS bytes, server-derived owner registration, authenticated Audio Reader discovery, and a bounded playback probe; human acceptance remains unreviewed. It never creates a Command Center job, Codex execution, LLM prompt, GitHub Actions renderer, or Termux runtime process.',
+        summary: 'Render deterministic procedural, source-backed, or direct Cartesia or Gemini speech audio inside Home Center MCP through a declarative JSON recipe. Completion requires verified GCS bytes, server-derived owner registration, authenticated Audio Reader discovery, and a bounded playback probe; human acceptance remains unreviewed. It never creates a Command Center job, Codex execution, LLM prompt, GitHub Actions renderer, or Termux runtime process.',
         write: true,
         requiresRequestId: true,
         requiredScopes: [],
         input: {scriptText: 'required JSON audio recipe DSL; no imports, network, shell, process, filesystem, or arbitrary code execution; supports speech, audition, speech_sequence, and block_mix nodes with text, speaker, character or voiceName/voiceId, modelId, emotion, speed, volume, pitchSemitones, pauseMs, master, and bounded concurrency', sources: 'optional object binding friendly names to inline contentBase64 or drive:// refs; WAV sources decode to clips', settings: 'optional deterministic renderer settings including seed, sampleRate, timeoutMs, allowClipping, speechDefaults, speechConcurrency', returnInlineAudio: 'optional boolean; defaults true for small audio, set false for long-form responses so durable resource links remain authoritative', idempotencyKey: 'string alias for requestId', requestId: 'string', parentFolderId: 'optional Drive folder id', callerNote: 'optional string'},
-        output: {ok: 'true only after canonical Reader registration', status: 'completed|registration_required', renderer: 'home-center-deterministic-audio-v1', primaryOutput: 'verified canonical GCS audio identity', readerRegistration: 'owner-scoped catalog, discovery, playback probe, and byte-preservation evidence', humanAcceptance: 'unreviewed until a separate human verdict', speech: 'bounded Cartesia provenance when speech nodes exist', outputs: 'verified artifact identities', manifest: 'verified JSON manifest artifact', noAgentRuntime: 'true'},
+        output: {ok: 'true only after canonical Reader registration', status: 'completed|registration_required', renderer: 'home-center-deterministic-audio-v1', primaryOutput: 'verified canonical GCS audio identity', readerRegistration: 'owner-scoped catalog, discovery, playback probe, and byte-preservation evidence', humanAcceptance: 'unreviewed until a separate human verdict', speech: 'bounded provider-explicit Cartesia or Gemini provenance when speech nodes exist', outputs: 'verified artifact identities', manifest: 'verified JSON manifest artifact', noAgentRuntime: 'true'},
         agentRecipe: {
           whenUserSays: 'Render procedural sound effects, ambience, foley, layered audio beds, stems, waveform, or spectrogram directly from ChatGPT.',
-          prefer: 'Call drive_operation with operation=audio.render. Keep scriptText as the Home Center JSON audio DSL; use speech/audition/speech_sequence recipe nodes for direct Cartesia speech, separate emotional contexts, and long-form attributed dialogue. Do not use Command Center, Codex, workers, GitHub Actions, or a newly exposed top-level MCP tool.',
+          prefer: 'Call drive_operation with operation=audio.render. Keep scriptText as the Home Center JSON audio DSL; use speech/audition/speech_sequence recipe nodes with provider=gemini for direct synchronous Gemini speech or provider=cartesia for compatible Cartesia speech, separate emotional contexts, and long-form attributed dialogue. Do not use Command Center, Codex, workers, GitHub Actions, or a newly exposed top-level MCP tool.',
           verification: 'Treat success as authoritative only when ok=true/status=completed and readerRegistration proves unchanged bytes, owner-scoped discovery, and playback. Mechanical completion never means human approval.',
         },
       },
@@ -4915,15 +4941,15 @@ function driveOperationRegistry() {
         output: {ok: 'boolean', artifacts: 'readback and decode evidence'},
       },
       'tts.synthesize': {
-        summary: 'Synthesize one or more speaker segments with Cartesia directly, stitch them into one audio file, save it as a private Drive artifact, verify readback byte count and SHA-256, and audit the write. No Command Center job or worker is involved.',
+        summary: 'Synthesize one or more speaker segments with Cartesia directly, stitch them into one audio file, save it as a private Drive artifact, verify readback byte count and SHA-256, and audit the write. No Command Center job or worker is involved. Explicit provider=gemini adds Gemini 3.1 Flash TTS through the same contract; provider=auto remains backward-compatible.',
         write: true,
         requiresRequestId: true,
         requiredScopes: ['https://www.googleapis.com/auth/drive'],
-        input: {text: 'string for single-speaker synthesis, or omit when segments is supplied', segments: 'optional array of {speaker,text,voiceName,voiceId,modelId,pitchSemitones}; segments are synthesized separately and stitched in order', voiceName: 'optional default Cartesia voice name, default Katie - Friendly Fixer', voiceId: 'optional default Cartesia voice id', modelId: 'optional default Cartesia model id', pitchSemitones: 'optional tempo-preserving pitch shift default, finite number -12 through 12, default 0', format: 'optional wav or raw, default wav', sampleRate: 'optional number, default 24000', pauseMs: 'optional silence between stitched segments, default 0', name: 'optional Drive filename', parentFolderId: 'optional Drive folder id', requestId: 'string', callerNote: 'optional string'},
-        output: {provider: 'cartesia', fileId: 'string', webViewLink: 'string', byteCount: 'number', sha256: 'string', readbackByteCount: 'number', readbackSha256: 'string', verified: 'boolean', segmentCount: 'number', segments: 'array', voiceName: 'string', modelId: 'string', audit: 'object'},
+        input: {provider: 'optional gemini, cartesia, or auto; auto preserves Cartesia unless required Gemini features are declared', direction: 'optional natural-language Gemini direction', text: 'exact string for single-speaker synthesis, or omit when segments is supplied', segments: 'optional array of {speaker,text,voiceName,voiceId,modelId,pitchSemitones}; segments are synthesized separately and stitched in order', voiceName: 'optional default Cartesia voice name, default Katie - Friendly Fixer', voiceId: 'optional default Cartesia voice id', modelId: 'optional default Cartesia model id', pitchSemitones: 'optional tempo-preserving pitch shift default, finite number -12 through 12, default 0', format: 'optional wav or raw, default wav', sampleRate: 'optional number, default 24000', pauseMs: 'optional silence between stitched segments, default 0', name: 'optional Drive filename', parentFolderId: 'optional Drive folder id', requestId: 'string', callerNote: 'optional string'},
+        output: {provider: 'gemini|cartesia', fileId: 'string', webViewLink: 'string', byteCount: 'number', sha256: 'string', readbackByteCount: 'number', readbackSha256: 'string', verified: 'boolean', segmentCount: 'number', segments: 'array', voiceName: 'string', modelId: 'string', audit: 'object'},
         agentRecipe: {
-          whenUserSays: 'Generate TTS, make speech, narrate text, produce a Cartesia audio file, or render multiple speakers into one stitched audio artifact from ChatGPT.',
-          prefer: 'Call cartesia_synthesize directly, or drive_operation with operation=tts.synthesize when the top-level alias is unavailable. Return the Drive link and verification metadata to the user; do not inline Base64 audio in chat. Do not create a Command Center job for Cartesia synthesis.',
+          whenUserSays: 'Generate TTS, make speech, narrate text, produce a Gemini or Cartesia audio file, or render multiple speakers into one stitched audio artifact from ChatGPT.',
+          prefer: 'Call drive_operation with operation=tts.synthesize and provider=gemini for directed or expressive Gemini speech; existing Cartesia callers remain compatible. Return the Drive link and verification metadata to the user; do not inline Base64 audio in chat. Do not create a Command Center job for Cartesia synthesis.',
           verification: 'Treat verified=true with matching byteCount/SHA-256 readback and the returned segmentCount/segments as the acceptance signal.',
         },
       },
@@ -5542,7 +5568,7 @@ async function tvTroperRetrievalOperation({google, args = {}}) {
   }
 }
 
-async function driveOperationRunOperation({google, admin, auth, user, extra = null, googleClientId = '', googleClientSecret = '', githubToken = () => '', githubAdmin = {}, cartesiaApiKey = () => '', args = {}}) {
+async function driveOperationRunOperation({google, admin, auth, user, extra = null, googleClientId = '', googleClientSecret = '', githubToken = () => '', githubAdmin = {}, cartesiaApiKey = () => '', geminiApiKey = () => '', args = {}}) {
   const operation = safeText(args.operation || args.type || args.toolName, 120);
   if (!operation) throw Object.assign(new Error('operation is required.'), {status: 400});
   if (operation.startsWith('foundry.')) {
@@ -5691,12 +5717,16 @@ async function driveOperationRunOperation({google, admin, auth, user, extra = nu
   }
   if (operation === 'tts.voices') {
     await requireCreditGatedContext({google, admin, googleClientId, googleClientSecret, extra, user, auth, surface: 'tts.voices'});
-    const result = await cartesiaVoicesOperation({cartesiaApiKey, args: operationArgs});
+    const provider = operationArgs.provider === undefined ? 'cartesia' : (safeText(operationArgs.provider || 'auto', 40).toLowerCase() || 'auto');
+    if (!['auto', 'cartesia', 'gemini'].includes(provider)) throw Object.assign(new Error('provider must be auto, cartesia, or gemini.'), {status: 400});
+    const cartesia = provider === 'gemini' ? null : await cartesiaVoicesOperation({cartesiaApiKey, args: operationArgs});
+    const gemini = provider === 'cartesia' ? null : await refreshGeminiCatalog({apiKeyGetter: geminiApiKey, force: operationArgs.forceRefresh === true});
+    const result = provider === 'cartesia' ? cartesia : provider === 'gemini' ? gemini : {provider: 'auto', providers: {cartesia, gemini}, routing: {backwardCompatibleDefault: 'cartesia', featureRequiredProvider: {naturalLanguageDirection: 'gemini', expressiveTags: 'gemini'}, silentFallback: false}};
     return {operation, registryVersion: registry.version, completed: true, result};
   }
   if (operation === 'audio.render') {
     requireCreditGatedEmail(user && user.email, 'audio.render');
-    const result = await renderAudioOperation({google, admin, auth, user, cartesiaApiKey, args: operationArgs, helpers: {createRequestId, existingAudit, auditWrite, recordActionAudit, safeDriveFileId}});
+    const result = await renderAudioOperation({google, admin, auth, user, cartesiaApiKey, geminiApiKey, args: operationArgs, helpers: {createRequestId, existingAudit, auditWrite, recordActionAudit, safeDriveFileId}});
     const cleanResult = {...result};
     const mcpContent = cleanResult._mcpContent;
     delete cleanResult._mcpContent;
@@ -5753,11 +5783,11 @@ async function driveOperationRunOperation({google, admin, auth, user, extra = nu
   }
   const workflowId = safeOperationBatchId(args.operationBatchId || operationArgs.operationBatchId || operationArgs.requestId || ('drive-operation-' + randomUUID()));
   const outputs = {};
-  const result = await runDriveWorkflowOperation({google, admin, auth, user, workflowId, operation: {type: operation, ...operationArgs}, index: 0, outputs, cartesiaApiKey});
+  const result = await runDriveWorkflowOperation({google, admin, auth, user, workflowId, operation: {type: operation, ...operationArgs}, index: 0, outputs, cartesiaApiKey, geminiApiKey});
   return {operation, registryVersion: registry.version, workflowId, completed: result.status === 'completed', outputKey: result.outputKey || '', result: result.result, outputs};
 }
 
-async function runDriveWorkflowOperation({google, admin, auth, user, workflowId, operation, index, outputs, cartesiaApiKey = () => ''}) {
+async function runDriveWorkflowOperation({google, admin, auth, user, workflowId, operation, index, outputs, cartesiaApiKey = () => '', geminiApiKey = () => ''}) {
   const type = safeText(operation.type || operation.toolName || operation.tool, 120);
   const requestId = workflowOperationRequestId(workflowId, operation, index);
   const callerNote = safeText(operation.callerNote, 800) || ('Workflow ' + workflowId + ' step ' + (index + 1) + ': ' + type);
@@ -5796,7 +5826,7 @@ async function runDriveWorkflowOperation({google, admin, auth, user, workflowId,
   }
   if (type === 'tts.synthesize') {
     requireCreditGatedEmail(user && user.email, 'tts.synthesize');
-    const result = await synthesizeCartesiaAudioArtifactOperation({google, admin, auth, user, cartesiaApiKey, args: {...operation, requestId, callerNote, parentFolderId: workflowResolvedId(operation.parentFolderId || operation.parentFolderKey, outputs)}});
+    const result = await synthesizeSpeechAudioArtifactOperation({google, admin, auth, user, cartesiaApiKey, geminiApiKey, args: {...operation, requestId, callerNote, parentFolderId: workflowResolvedId(operation.parentFolderId || operation.parentFolderKey, outputs)}});
     outputs[workflowOutputKey(operation, index)] = result.fileId || result.id || '';
     return {index, type, requestId, status: 'completed', outputKey: workflowOutputKey(operation, index), result};
   }
@@ -5842,7 +5872,7 @@ async function runDriveWorkflowOperation({google, admin, auth, user, workflowId,
   throw Object.assign(new Error('Unsupported workflow operation type: ' + type), {status: 400});
 }
 
-async function driveWorkflowRunOperation({google, admin, auth, user, cartesiaApiKey = () => '', args = {}}) {
+async function driveWorkflowRunOperation({google, admin, auth, user, cartesiaApiKey = () => '', geminiApiKey = () => '', args = {}}) {
   const workflowId = safeOperationBatchId(args.workflowId || args.operationBatchId);
   const operations = Array.isArray(args.operations) ? args.operations.slice(0, 25) : [];
   if (!operations.length) throw Object.assign(new Error('operations must contain at least one operation.'), {status: 400});
@@ -5888,7 +5918,7 @@ async function driveWorkflowRunOperation({google, admin, auth, user, cartesiaApi
   const results = [];
   try {
     for (let index = 0; index < operations.length; index += 1) {
-      const result = await runDriveWorkflowOperation({google, admin, auth, user, workflowId, operation: operations[index] || {}, index, outputs, cartesiaApiKey});
+      const result = await runDriveWorkflowOperation({google, admin, auth, user, workflowId, operation: operations[index] || {}, index, outputs, cartesiaApiKey, geminiApiKey});
       results.push(result);
       await workflowRef.set({status: 'running', updatedAtMs: nowMs(), outputs, results}, {merge: true});
     }
@@ -6020,7 +6050,7 @@ function homeCenterCapabilitiesPayload(server) {
   };
 }
 
-function createHomeCenterMcpServer({google, admin, googleClientId, googleClientSecret, githubToken = () => '', githubAdmin = {}, cartesiaApiKey = () => ''}) {
+function createHomeCenterMcpServer({google, admin, googleClientId, googleClientSecret, githubToken = () => '', githubAdmin = {}, cartesiaApiKey = () => '', geminiApiKey = () => ''}) {
   const server = new McpServer({
     name: 'home-center-drive-bridge',
     version: HOME_CENTER_MCP_SERVER_VERSION,
@@ -6345,10 +6375,10 @@ function createHomeCenterMcpServer({google, admin, googleClientId, googleClientS
   }, async (args, extra) => {
     const operation = safeText((args || {}).operation || (args || {}).type || (args || {}).toolName, 120);
     if (operation.startsWith('command_center.') || commandCenterCompatOperation(args || {})) {
-      return mcpToolResult(await driveOperationRunOperation({google, admin, auth: null, user: null, extra, googleClientId, googleClientSecret, githubAdmin, cartesiaApiKey, args: args || {}}));
+      return mcpToolResult(await driveOperationRunOperation({google, admin, auth: null, user: null, extra, googleClientId, googleClientSecret, githubAdmin, cartesiaApiKey, geminiApiKey, args: args || {}}));
     }
     const {auth, user} = await requestGoogleContext(extra, google, admin, googleClientId, googleClientSecret);
-    return mcpToolResult(await driveOperationRunOperation({google, admin, auth, user, extra, googleClientId, googleClientSecret, githubAdmin, cartesiaApiKey, args: args || {}}));
+    return mcpToolResult(await driveOperationRunOperation({google, admin, auth, user, extra, googleClientId, googleClientSecret, githubAdmin, cartesiaApiKey, geminiApiKey, args: args || {}}));
   });
 
   server.registerTool('auth_status', {
@@ -7010,7 +7040,7 @@ function createHomeCenterMcpServer({google, admin, googleClientId, googleClientS
     annotations: {readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: true},
   }, async (args, extra) => {
     const {auth, user} = await requestGoogleContext(extra, google, admin, googleClientId, googleClientSecret);
-    return textResult(await driveWorkflowRunOperation({google, admin, auth, user, cartesiaApiKey, args: args || {}}));
+    return textResult(await driveWorkflowRunOperation({google, admin, auth, user, cartesiaApiKey, geminiApiKey, args: args || {}}));
   });
 
   server.registerTool('recovery_checkpoint', {
@@ -7117,7 +7147,7 @@ function createHomeCenterMcpServer({google, admin, googleClientId, googleClientS
   return server;
 }
 
-function createHomeCenterMcpApp({google, admin, googleClientId = () => '', googleClientSecret = () => '', githubToken = () => '', githubAdmin = {}, cartesiaApiKey = () => ''}) {
+function createHomeCenterMcpApp({google, admin, googleClientId = () => '', googleClientSecret = () => '', githubToken = () => '', githubAdmin = {}, cartesiaApiKey = () => '', geminiApiKey = () => ''}) {
   const app = express();
   app.use(express.json({limit: '80mb'}));
   app.use(express.urlencoded({extended: false, limit: '256kb'}));
@@ -7616,7 +7646,7 @@ function createHomeCenterMcpApp({google, admin, googleClientId = () => '', googl
     res.on('close', () => {
       delete transports[transport.sessionId];
     });
-    const server = createHomeCenterMcpServer({google, admin, googleClientId, googleClientSecret, githubToken, githubAdmin, cartesiaApiKey});
+    const server = createHomeCenterMcpServer({google, admin, googleClientId, googleClientSecret, githubToken, githubAdmin, cartesiaApiKey, geminiApiKey});
     await server.connect(transport);
   });
 
@@ -7642,7 +7672,7 @@ function createHomeCenterMcpApp({google, admin, googleClientId = () => '', googl
       res.status(405).json({jsonrpc: '2.0', error: {code: -32000, message: 'Method not allowed.'}, id: null});
       return;
     }
-      const server = createHomeCenterMcpServer({google, admin, googleClientId, googleClientSecret, githubToken, githubAdmin, cartesiaApiKey});
+      const server = createHomeCenterMcpServer({google, admin, googleClientId, googleClientSecret, githubToken, githubAdmin, cartesiaApiKey, geminiApiKey});
     const transport = new StreamableHTTPServerTransport({sessionIdGenerator: undefined});
     let closed = false;
     const closeTransport = async () => {
