@@ -2,6 +2,13 @@
 
 const dns = require('node:dns/promises');
 const net = require('node:net');
+const fs = require('node:fs');
+const fsp = require('node:fs/promises');
+const os = require('node:os');
+const path = require('node:path');
+const {createHash, randomUUID} = require('node:crypto');
+const {Readable, Transform} = require('node:stream');
+const {pipeline} = require('node:stream/promises');
 
 const MAX_REDIRECTS = 3;
 const FILE_ID_PATTERN = /^[A-Za-z0-9._:-]{3,512}$/;
@@ -126,7 +133,7 @@ async function responseBytes(response, maxBytes) {
   return bytes;
 }
 
-async function materializeOpenAiHostFile(value, {maxBytes, fetchImpl = globalThis.fetch, resolveHostname = dns.lookup} = {}) {
+async function openHostFileResponse(value, {maxBytes, fetchImpl = globalThis.fetch, resolveHostname = dns.lookup} = {}) {
   const file = normalizeFileParam(value);
   if (!Number.isSafeInteger(maxBytes) || maxBytes < 1) throw new TypeError('maxBytes must be a positive safe integer.');
   if (typeof fetchImpl !== 'function') throw new TypeError('fetchImpl must be a function.');
@@ -151,6 +158,16 @@ async function materializeOpenAiHostFile(value, {maxBytes, fetchImpl = globalThi
     const expired = response && [401, 403, 404, 410].includes(Number(response.status));
     throw fail(expired ? 'ChatGPT host file is unavailable or expired; attach the file again.' : 'ChatGPT host file download failed before bytes were received.', expired ? 400 : 502, expired ? 'host_file_expired' : 'host_file_download_unavailable');
   }
+  const declared = Number(response.headers && response.headers.get && response.headers.get('content-length'));
+  if (Number.isFinite(declared) && declared > maxBytes) {
+    throw fail('file exceeds the configured Home Center ingest ceiling.', 413, 'host_file_too_large');
+  }
+  return {file, response};
+}
+
+async function materializeOpenAiHostFile(value, options = {}) {
+  const {maxBytes} = options;
+  const {file, response} = await openHostFileResponse(value, options);
   const bytes = await responseBytes(response, maxBytes);
   if (!bytes.length) throw fail('file is empty.', 400, 'host_file_empty');
   const responseMime = response.headers && response.headers.get && response.headers.get('content-type') || '';
@@ -165,6 +182,53 @@ async function materializeOpenAiHostFile(value, {maxBytes, fetchImpl = globalThi
   };
 }
 
+async function materializeOpenAiHostFileToTemp(value, options = {}) {
+  const {maxBytes, tempDir = os.tmpdir()} = options;
+  const {file, response} = await openHostFileResponse(value, options);
+  const tempPath = path.join(tempDir, 'home-center-host-file-' + randomUUID() + '.part');
+  const hash = createHash('sha256');
+  let count = 0;
+  const source = response.body && typeof response.body[Symbol.asyncIterator] === 'function'
+    ? Readable.from(response.body)
+    : Readable.from([Buffer.from(await response.arrayBuffer())]);
+  const verifier = new Transform({
+    transform(chunk, encoding, callback) {
+      const bytes = Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk, encoding);
+      count += bytes.length;
+      if (count > maxBytes) return callback(fail('file exceeds the configured Home Center ingest ceiling.', 413, 'host_file_too_large'));
+      hash.update(bytes);
+      callback(null, bytes);
+    },
+  });
+  try {
+    await pipeline(source, verifier, fs.createWriteStream(tempPath, {flags: 'wx', mode: 0o600}));
+    if (!count) throw fail('file is empty.', 400, 'host_file_empty');
+    const responseMime = response.headers && response.headers.get && response.headers.get('content-type') || '';
+    const name = file.fileName || 'upload.bin';
+    const type = file.mimeType || String(responseMime).split(';')[0].trim() || 'application/octet-stream';
+    let cleaned = false;
+    return {
+      name,
+      type,
+      size: count,
+      sha256: hash.digest('hex'),
+      fileId: file.fileId,
+      tempPath,
+      createReadStream: () => fs.createReadStream(tempPath),
+      cleanup: async () => {
+        if (cleaned) return;
+        cleaned = true;
+        await fsp.unlink(tempPath).catch((error) => {
+          if (!error || error.code !== 'ENOENT') throw error;
+        });
+      },
+    };
+  } catch (error) {
+    await fsp.unlink(tempPath).catch(() => {});
+    throw error;
+  }
+}
+
 module.exports = {
   openAiFileParamJsonSchema,
   openAiFileParamZodSchema,
@@ -172,4 +236,5 @@ module.exports = {
   ipIsPublic,
   assertPublicHttpsUrl,
   materializeOpenAiHostFile,
+  materializeOpenAiHostFileToTemp,
 };

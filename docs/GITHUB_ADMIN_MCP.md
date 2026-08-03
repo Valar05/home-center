@@ -44,10 +44,10 @@ Runtime environment:
 Do not put tokens or private keys in the profile JSON. It contains only email-to-installation routing metadata. After each person installs the existing app, list the app's sanitized installation inventory with:
 
 ```sh
-sh tools/github_admin_gh_bootstrap.sh installations generated/github_admin/github-app.private-key.pem
+sh tools/github_admin_gh_bootstrap.sh installations
 ```
 
-The command prints only the app name/install URL plus account/login, installation ID, target type, and repository selection. It never prints the App JWT or private key. Use the verified account and ID in the profile JSON:
+The command reads the latest key from Secret Manager into a mode-600 Termux-private temporary directory, deletes it on exit, and prints only the app name/install URL plus account/login, installation ID, target type, and repository selection. It never writes a repository or shared-storage PEM and never prints the App JWT or private key. Use the verified account and ID in the profile JSON:
 
 ```json
 {
@@ -69,7 +69,7 @@ HOME_CENTER_GITHUB_ADMIN_USER_PROFILES_B64="$(printf '%s' "$PROFILE_JSON" | base
 export HOME_CENTER_GITHUB_ADMIN_USER_PROFILES_B64
 ```
 
-Use `tools/setup_github_admin_secrets.sh home-center-dclar` after exporting the GitHub App secret values. The helper writes Secret Manager versions without printing them. The profile environment value is supplied by `tools/deploy_functions_termux.sh` and must be reviewed before the main-only deployment.
+For an existing app key, run `sh tools/github_admin_gh_bootstrap.sh ingest-key /TERMUX-PRIVATE/PATH/new-key.pem`; for the full initial setup, run `tools/setup_github_admin_secrets.sh home-center-dclar /TERMUX-PRIVATE/PATH/new-key.pem` after exporting only the App and installation IDs. Private-key environment variables are intentionally rejected. Delete the source download after the new deployed revision passes authenticated inventory, then revoke the superseded key in GitHub App Settings and disable its old Secret Manager version.
 
 Without the feature flag, `github_admin.auth_status` remains inspectable but every mutation fails closed. Its v2 response reports the authenticated actor, credential scope, bound-installation state, allowed owners, provider probe, and disabled reasons without exposing credentials.
 

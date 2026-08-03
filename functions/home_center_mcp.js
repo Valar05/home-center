@@ -17,7 +17,13 @@ const express = require('express');
 const {z} = require('zod/v4');
 const {CARTESIA_DEFAULT_MODEL_ID, CARTESIA_DEFAULT_VOICE_NAME, listCartesiaVoiceCatalog, listCartesiaVoices, normalizeCartesiaVoice, openCartesiaStream} = require('./hosted_speech_provider');
 const {preflightArtifactEnvelope} = require('./artifact_transport');
-const {openAiFileParamJsonSchema, openAiFileParamZodSchema, materializeOpenAiHostFile} = require('./host_file_ingress');
+const {openAiFileParamJsonSchema, openAiFileParamZodSchema, materializeOpenAiHostFile, materializeOpenAiHostFileToTemp} = require('./host_file_ingress');
+const {
+  beginDriveBinaryReadOperation,
+  readDriveBinarySessionChunkOperation,
+  driveBinaryReadStatusOperation,
+  completeDriveBinaryReadOperation,
+} = require('./drive_binary_read_service');
 const cartesiaPitchShift = require('./cartesia_pitch_shift');
 const {renderAudioOperation, audioRenderStatusOperation, inspectAudioArtifactsOperation, uploadVerified: uploadVerifiedArtifact} = require('./audio_render_service');
 const {recoverAudioRenderRegistrationOperation, linkDriveAudioToReaderStageOperation} = require('./audio_catalog_service');
@@ -69,7 +75,7 @@ const DEFAULT_MCP_AUTHORIZATION_SERVER_BASE = 'https://homecentermcp-vxybsaualq-
 const MCP_PUBLIC_BASE = process.env.HOME_CENTER_MCP_PUBLIC_BASE || DEFAULT_MCP_PUBLIC_BASE;
 const MCP_AUTHORIZATION_SERVER_BASE = process.env.HOME_CENTER_MCP_AUTHORIZATION_SERVER_BASE || DEFAULT_MCP_AUTHORIZATION_SERVER_BASE;
 const HOME_CENTER_MCP_SERVER_VERSION = '0.2.0';
-const HOME_CENTER_CONNECTOR_SCHEMA_REVISION = '2026-08-02.github-rulesets-v1';
+const HOME_CENTER_CONNECTOR_SCHEMA_REVISION = '2026-08-02.drive-binary-read-write-v1';
 const HOME_CENTER_REGISTRY_VERSION = HOME_CENTER_CONNECTOR_SCHEMA_REVISION;
 const HOME_CENTER_DIRECT_FILE_TOOLS = Object.freeze(['drive_ingest_file', 'storage_ingest_artifact']);
 const MCP_RESOURCE = `${MCP_AUTHORIZATION_SERVER_BASE}/mcp`;
@@ -727,7 +733,7 @@ async function postCommandCenterMcp(body, bearerToken) {
 
 async function requireTopLevelDriveIngestUpload(args = {}) {
   try {
-    return await materializeOpenAiHostFile(args.file, {maxBytes: HOME_CENTER_DRIVE_INGEST_MAX_BYTES});
+    return await materializeOpenAiHostFileToTemp(args.file, {maxBytes: HOME_CENTER_DRIVE_INGEST_MAX_BYTES});
   } catch (error) {
     if (error && error.code === 'host_file_required') error.code = 'drive_ingest_file_required';
     throw error;
@@ -771,25 +777,16 @@ function assertDriveIngestIdentity(result = {}, identity = {}) {
   }
 }
 
-async function driveIngestFileOperation({google, admin, auth, user, args = {}}) {
+async function driveIngestFileOperationWithUpload({google, admin, auth, user, args = {}, uploaded}) {
   const requestId = stableRequestId(args.requestId);
-  const uploaded = await requireTopLevelDriveIngestUpload(args);
   const declaredSize = Number(uploaded.size || 0);
-  if (Number.isFinite(declaredSize) && declaredSize > HOME_CENTER_DRIVE_INGEST_MAX_BYTES) {
-    const err = new Error('file exceeds the Home Center Drive ingest ceiling of ' + HOME_CENTER_DRIVE_INGEST_MAX_BYTES + ' bytes.');
-    err.status = 413;
-    err.code = 'drive_ingest_file_too_large';
-    throw err;
-  }
-
-  const bytes = mediaBuffer(await uploaded.arrayBuffer());
-  if (!bytes.length) {
+  if (!Number.isSafeInteger(declaredSize) || declaredSize < 1) {
     const err = new Error('file is empty.');
     err.status = 400;
     err.code = 'drive_ingest_file_empty';
     throw err;
   }
-  if (bytes.length > HOME_CENTER_DRIVE_INGEST_MAX_BYTES) {
+  if (declaredSize > HOME_CENTER_DRIVE_INGEST_MAX_BYTES) {
     const err = new Error('file exceeds the Home Center Drive ingest ceiling of ' + HOME_CENTER_DRIVE_INGEST_MAX_BYTES + ' bytes.');
     err.status = 413;
     err.code = 'drive_ingest_file_too_large';
@@ -799,7 +796,13 @@ async function driveIngestFileOperation({google, admin, auth, user, args = {}}) 
   const name = cleanDriveIngestFileName(args.name || args.fileName || uploaded.name);
   const mimeType = driveIngestMimeType(args.mimeType || uploaded.type);
   const parentFolderId = safeText(args.parentFolderId, 220) ? safeDriveFileId(args.parentFolderId) : '';
-  const sha256 = sha256Hex(bytes);
+  const sha256 = safeText(uploaded.sha256, 64).toLowerCase();
+  if (!/^[a-f0-9]{64}$/.test(sha256) || typeof uploaded.createReadStream !== 'function') {
+    const err = new Error('Streamed host-file materialization did not produce a valid SHA-256 receipt.');
+    err.status = 502;
+    err.code = 'drive_ingest_materialization_invalid';
+    throw err;
+  }
   const expectedSha256 = safeText(args.expectedSha256, 128).toLowerCase();
   if (expectedSha256 && !/^[a-f0-9]{64}$/.test(expectedSha256)) {
     const err = new Error('expectedSha256 must be a lowercase or uppercase 64-character hexadecimal SHA-256 digest.');
@@ -852,7 +855,7 @@ async function driveIngestFileOperation({google, admin, auth, user, args = {}}) 
           homeCenterOperation: 'drive.ingestFile',
         },
       },
-      media: {mimeType, body: Readable.from([bytes])},
+      media: {mimeType, body: uploaded.createReadStream()},
       fields: driveFields('appProperties'),
       supportsAllDrives: true,
     });
@@ -861,10 +864,16 @@ async function driveIngestFileOperation({google, admin, auth, user, args = {}}) 
 
   const metadata = cleanDriveFile(rawMetadata);
   const fileId = safeDriveFileId(metadata.id);
-  const readback = await drive.files.get({fileId, alt: 'media', supportsAllDrives: true}, {responseType: 'arraybuffer'});
-  const readbackBytes = mediaBuffer(readback.data);
-  const readbackSha256 = sha256Hex(readbackBytes);
-  const verified = readbackBytes.length === bytes.length && readbackSha256 === sha256;
+  const readback = await drive.files.get({fileId, alt: 'media', supportsAllDrives: true}, {responseType: 'stream'});
+  if (!readback.data || typeof readback.data.on !== 'function') {
+    const err = new Error('Drive did not return a readable stream for ingest verification.');
+    err.status = 502;
+    err.code = 'drive_ingest_readback_unavailable';
+    throw err;
+  }
+  const readbackDigest = await hashReadableStream(readback.data);
+  const readbackSha256 = readbackDigest.sha256;
+  const verified = readbackDigest.byteCount === declaredSize && readbackSha256 === sha256;
   if (!verified) {
     const err = new Error('Drive readback verification failed after ingest.');
     err.status = 502;
@@ -881,9 +890,9 @@ async function driveIngestFileOperation({google, admin, auth, user, args = {}}) 
     webViewLink: metadata.webViewLink || '',
     durableRef: 'drive://' + fileId,
     parentFolderId: (metadata.parents || [])[0] || parentFolderId,
-    byteCount: bytes.length,
+    byteCount: declaredSize,
     sha256,
-    readbackByteCount: readbackBytes.length,
+    readbackByteCount: readbackDigest.byteCount,
     readbackSha256,
     verified: true,
     auditRequestId: requestId,
@@ -910,6 +919,15 @@ async function driveIngestFileOperation({google, admin, auth, user, args = {}}) 
   });
   await recordActionAudit(admin, user, 'drive.ingestFile', fileId, safeText(args.callerNote, 400) || ('Ingested and verified Drive file ' + result.name + ' (' + result.byteCount + ' bytes).'), requestId).catch(() => {});
   return {...result, audit: audit.audit};
+}
+
+async function driveIngestFileOperation(context) {
+  const uploaded = await requireTopLevelDriveIngestUpload(context.args || {});
+  try {
+    return await driveIngestFileOperationWithUpload({...context, uploaded});
+  } finally {
+    await uploaded.cleanup();
+  }
 }
 
 function mcpTextContentJson(result, label) {
@@ -4659,6 +4677,43 @@ function driveOperationRegistry() {
           verification: 'Verify every chunkSha256 before append and verify final byte count against totalSize. Never substitute another synthesis provider because binary transfer failed.',
         },
       },
+      drive_binary_read_begin: {
+        summary: 'Open an owner-bound, hash-verified read session for one stored Drive binary without changing the top-level MCP catalog.',
+        write: false,
+        requiresRequestId: true,
+        requiredScopes: ['https://www.googleapis.com/auth/drive'],
+        input: {fileId: 'string', requestId: 'stable session id', chunkSize: 'optional integer 1-262144, default 131072'},
+        output: {requestId: 'string', source: 'immutable Drive metadata snapshot', fileSha256: 'whole-file SHA-256', chunkSize: 'number', chunkCount: 'number', verifiedSource: 'true'},
+      },
+      drive_binary_read_chunk: {
+        summary: 'Read one indexed chunk from a verified Drive binary session and persist its bounded progress receipt.',
+        write: false,
+        requiresRequestId: true,
+        requiredScopes: ['https://www.googleapis.com/auth/drive'],
+        input: {requestId: 'binary read session id', chunkIndex: 'integer from 0 to chunkCount-1'},
+        output: {requestId: 'string', chunkIndex: 'number', offset: 'number', byteCount: 'number', chunkSha256: 'string', chunkBase64: 'string', nextChunkIndex: 'number or null', eof: 'boolean'},
+      },
+      drive_binary_read_status: {
+        summary: 'Resume a Drive binary read by reporting served and missing chunk indexes after verifying the source snapshot is unchanged.',
+        write: false,
+        requiresRequestId: true,
+        requiredScopes: ['https://www.googleapis.com/auth/drive'],
+        input: {requestId: 'binary read session id'},
+        output: {servedChunks: 'ordered integer array', missingChunks: 'ordered integer array', servedCount: 'number', remainingCount: 'number', verifiedSource: 'true'},
+      },
+      drive_binary_read_complete: {
+        summary: 'Complete a Drive binary read only after every chunk was served and reconstructed byte count/SHA-256 match a fresh whole-file readback.',
+        write: false,
+        requiresRequestId: true,
+        requiredScopes: ['https://www.googleapis.com/auth/drive'],
+        input: {requestId: 'binary read session id', reconstructedByteCount: 'integer', reconstructedSha256: '64-character SHA-256 hex'},
+        output: {verified: 'true', reconstructedByteCount: 'number', reconstructedSha256: 'string', readbackByteCount: 'number', readbackSha256: 'string', completedAt: 'ISO timestamp'},
+        agentRecipe: {
+          whenUserSays: 'Download, recover, or locally reconstruct a complete stored Drive binary.',
+          prefer: 'Begin once, fetch missing chunk indexes in order, verify each chunk SHA-256 before append, resume from status after interruption, then complete with the reconstructed whole-file identity.',
+          verification: 'Accept only complete.verified=true with matching reconstructed and final Drive readback byte counts and SHA-256 values.',
+        },
+      },
       'sites.source_version.materialize_drive': {
         summary: 'Clone one exact saved Sites source commit through its short-lived repository credential, materialize the complete editable tree into a Drive folder, verify every file by byte-count/SHA-256 readback, and write a provenance manifest without retaining the credential.',
         write: true,
@@ -5505,6 +5560,22 @@ async function driveOperationRunOperation({google, admin, auth, user, extra = nu
   delete operationArgs.type;
   delete operationArgs.toolName;
   delete operationArgs.args;
+  if (operation === 'drive_binary_read_begin') {
+    const result = await beginDriveBinaryReadOperation({google, admin, auth, user, args: operationArgs, maxBytes: HOME_CENTER_DRIVE_INGEST_MAX_BYTES});
+    return {operation, registryVersion: registry.version, completed: true, result};
+  }
+  if (operation === 'drive_binary_read_chunk') {
+    const result = await readDriveBinarySessionChunkOperation({google, admin, auth, user, args: operationArgs, maxBytes: HOME_CENTER_DRIVE_INGEST_MAX_BYTES});
+    return {operation, registryVersion: registry.version, completed: true, result};
+  }
+  if (operation === 'drive_binary_read_status') {
+    const result = await driveBinaryReadStatusOperation({google, admin, auth, user, args: operationArgs, maxBytes: HOME_CENTER_DRIVE_INGEST_MAX_BYTES});
+    return {operation, registryVersion: registry.version, completed: true, result};
+  }
+  if (operation === 'drive_binary_read_complete') {
+    const result = await completeDriveBinaryReadOperation({google, admin, auth, user, args: operationArgs, maxBytes: HOME_CENTER_DRIVE_INGEST_MAX_BYTES});
+    return {operation, registryVersion: registry.version, completed: result.verified === true, result};
+  }
   if (operation === 'sites.source_version.materialize_drive') {
     requireCreditGatedEmail(user && user.email, operation);
     const result = await materializeSitesSourceVersionOperation({google, admin, auth, user, args: operationArgs});
@@ -7600,4 +7671,4 @@ function createHomeCenterMcpApp({google, admin, googleClientId = () => '', googl
   return app;
 }
 
-module.exports = {mcpRequestMountedPath, oauthResourceMatches, TVTROPER_OPERATION_REGISTRY_VERSION, tvtroperOperationEntries, tvTroperRetrievalOperation, resolveOAuthGrant, GROUNDED_MOTION_MCP_RESOURCE, GROUNDED_MOTION_MCP_SCOPE, linkArtifactReviewSuccessorOperation, recordArtifactReviewOperation, materializeReceiptArtifactsOperation, artifactTransportPreflightOperation, homeCenterReleaseIdentity, artifactTransportStatusOperation, homeCenterHealthPayload, homeCenterReadinessPayload, homeCenterCapabilitiesPayload, operationRegistrySummary, CREDIT_GATED_EMAILS, requireCreditGatedEmail, GITHUB_ADMIN_ALLOWED_EMAILS, requireGitHubAdminUser, HOME_CENTER_MCP_SERVER_VERSION, HOME_CENTER_CONNECTOR_SCHEMA_REVISION, HOME_CENTER_REGISTRY_VERSION, HOME_CENTER_DIRECT_FILE_TOOLS, driveOperationRegistry, uploadVerifiedArtifact, createHomeCenterMcpApp, createHomeCenterMcpServer, createDriveFolderOperation, createGoogleDocOperation, appendGoogleDocOperation, publishContextSnapshotOperation, synthesizeCartesiaAudioArtifactOperation, cartesiaVoicesOperation, createSheetOperation, updateSheetValuesOperation, importXlsxWorkbookOperation, readDriveBinaryChunkOperation, materializeSitesSourceVersionOperation, shareDriveFolderOperation, safeSitesSourceRepositoryUrl, safeSitesSourceCommit, safeSitesSourceBranch, safeShareEmail, compareAudioIngestFileIds, ingestDriveAudioOperation, finalizeDriveAudioIngestBatchOperation, driveOperationRunOperation, driveWorkflowRunOperation, simulationOperationRunOperation, simulationOperationRegistry, droobiedooContextOperationEntries, loadDroobiedooContextIndex, searchDroobiedooContextIndex, runDroobiedooContextOperation, normalizeRecoveryOperation, summarizeRecoveryOperations, loadMcpAccessContext, armoryReceiptOperation, armoryRecountOperation, armoryCasingOperation, renderAudioOperation, inspectAudioArtifactsOperation, githubAdminOperationEntries, githubAdminOperationRunOperation, createGitHubAppJwt};
+module.exports = {mcpRequestMountedPath, oauthResourceMatches, TVTROPER_OPERATION_REGISTRY_VERSION, tvtroperOperationEntries, tvTroperRetrievalOperation, resolveOAuthGrant, GROUNDED_MOTION_MCP_RESOURCE, GROUNDED_MOTION_MCP_SCOPE, linkArtifactReviewSuccessorOperation, recordArtifactReviewOperation, materializeReceiptArtifactsOperation, artifactTransportPreflightOperation, homeCenterReleaseIdentity, artifactTransportStatusOperation, homeCenterHealthPayload, homeCenterReadinessPayload, homeCenterCapabilitiesPayload, operationRegistrySummary, CREDIT_GATED_EMAILS, requireCreditGatedEmail, GITHUB_ADMIN_ALLOWED_EMAILS, requireGitHubAdminUser, HOME_CENTER_MCP_SERVER_VERSION, HOME_CENTER_CONNECTOR_SCHEMA_REVISION, HOME_CENTER_REGISTRY_VERSION, HOME_CENTER_DIRECT_FILE_TOOLS, driveOperationRegistry, uploadVerifiedArtifact, createHomeCenterMcpApp, createHomeCenterMcpServer, createDriveFolderOperation, createGoogleDocOperation, appendGoogleDocOperation, publishContextSnapshotOperation, driveIngestFileOperation, driveIngestFileOperationWithUpload, synthesizeCartesiaAudioArtifactOperation, cartesiaVoicesOperation, createSheetOperation, updateSheetValuesOperation, importXlsxWorkbookOperation, readDriveBinaryChunkOperation, materializeSitesSourceVersionOperation, shareDriveFolderOperation, safeSitesSourceRepositoryUrl, safeSitesSourceCommit, safeSitesSourceBranch, safeShareEmail, compareAudioIngestFileIds, ingestDriveAudioOperation, finalizeDriveAudioIngestBatchOperation, driveOperationRunOperation, driveWorkflowRunOperation, simulationOperationRunOperation, simulationOperationRegistry, droobiedooContextOperationEntries, loadDroobiedooContextIndex, searchDroobiedooContextIndex, runDroobiedooContextOperation, normalizeRecoveryOperation, summarizeRecoveryOperations, loadMcpAccessContext, armoryReceiptOperation, armoryRecountOperation, armoryCasingOperation, renderAudioOperation, inspectAudioArtifactsOperation, githubAdminOperationEntries, githubAdminOperationRunOperation, createGitHubAppJwt};

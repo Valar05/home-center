@@ -6360,8 +6360,8 @@
       }
     }
   ],
-  "manifestSha256": "a2f1a3bff467e6e0cff0393a404b4940c460c13512d34202595ac99bd24c7fcb",
-  "registryRevision": "2026-08-02.github-rulesets-v1",
+  "manifestSha256": "e536df665ea9ae9b178336f217531bf361fb20f4a1c0ee33330a214856063da7",
+  "registryRevision": "2026-08-02.drive-binary-read-write-v1",
   "schemaVersion": "home-center.public-tool-manifest.v1",
   "toolCount": 57
 }

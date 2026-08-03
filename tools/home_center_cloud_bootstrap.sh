@@ -65,7 +65,7 @@ write_summary() {
     printf '\n%s\n\n' '## Useful commands'
     printf '%s\n' '- sh tools/home_center_cloud_bootstrap.sh manifest'
     printf '%s\n' '- sh tools/github_admin_gh_bootstrap.sh convert CODE_FROM_GITHUB_REDIRECT'
-    printf '%s\n' '- sh tools/github_admin_gh_bootstrap.sh installation generated/github_admin/github-app.private-key.pem'
+    printf '%s\n' '- sh tools/github_admin_gh_bootstrap.sh installation'
     printf '%s\n' '- sh tools/home_center_cloud_bootstrap.sh run'
   } > "$REPORT"
   rm -f "$missing_file"
@@ -111,11 +111,11 @@ save_bootstrap_if_possible() {
 }
 
 install_env_secrets_if_possible() {
-  if [ -n "${GITHUB_APP_ID:-}" ] && [ -n "${GITHUB_APP_INSTALLATION_ID:-}" ] && [ -n "${GITHUB_APP_PRIVATE_KEY:-}" ]; then
-    sh tools/setup_github_admin_secrets.sh "$PROJECT"
+  if [ -n "${GITHUB_APP_ID:-}" ] && [ -n "${GITHUB_APP_INSTALLATION_ID:-}" ] && [ -n "${GITHUB_APP_PRIVATE_KEY_FILE:-}" ]; then
+    sh tools/setup_github_admin_secrets.sh "$PROJECT" "$GITHUB_APP_PRIVATE_KEY_FILE"
     return 0
   fi
-  log "skip: set GITHUB_APP_ID, GITHUB_APP_INSTALLATION_ID, and GITHUB_APP_PRIVATE_KEY to install full GitHub App authority"
+  log "skip: set GITHUB_APP_ID, GITHUB_APP_INSTALLATION_ID, and GITHUB_APP_PRIVATE_KEY_FILE to install full GitHub App authority"
   return 1
 }
 

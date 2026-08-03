@@ -1,5 +1,9 @@
 import assert from 'node:assert/strict';
+import {createHash} from 'node:crypto';
+import {access, mkdtemp, readFile, readdir, rm} from 'node:fs/promises';
 import {createRequire} from 'node:module';
+import {tmpdir} from 'node:os';
+import path from 'node:path';
 import test from 'node:test';
 
 const require = createRequire(import.meta.url);
@@ -42,6 +46,37 @@ test('generated Work Mode artifact uses the same typed boundary', async () => {
   const file = await materialize(descriptor({file_id: 'file_generated_001', file_name: 'generated.txt'}));
   assert.equal(file.fileId, 'file_generated_001');
   assert.deepEqual(Buffer.from(await file.arrayBuffer()), fixture);
+});
+
+test('Drive ingress spools fragmented bytes privately and deletes them on cleanup', async (t) => {
+  const directory = await mkdtemp(path.join(tmpdir(), 'home-center-host-file-test-'));
+  t.after(() => rm(directory, {recursive: true, force: true}));
+  const streamed = await ingress.materializeOpenAiHostFileToTemp(descriptor({mime_type: 'application/octet-stream'}), {
+    maxBytes: 1024,
+    tempDir: directory,
+    resolveHostname: publicDns,
+    fetchImpl: async () => response(new Blob([fixture.subarray(0, 4), fixture.subarray(4)])),
+  });
+  assert.equal(streamed.size, fixture.length);
+  assert.equal(streamed.sha256, createHash('sha256').update(fixture).digest('hex'));
+  assert.deepEqual(await readFile(streamed.tempPath), fixture);
+  assert.deepEqual(await new Promise((resolve, reject) => {
+    const chunks = [];
+    streamed.createReadStream().on('data', (chunk) => chunks.push(chunk)).on('end', () => resolve(Buffer.concat(chunks))).on('error', reject);
+  }), fixture);
+  await streamed.cleanup();
+  await streamed.cleanup();
+  await assert.rejects(() => access(streamed.tempPath), {code: 'ENOENT'});
+});
+
+test('streamed Drive ingress removes partial temporary bytes on overflow', async (t) => {
+  const directory = await mkdtemp(path.join(tmpdir(), 'home-center-host-file-overflow-'));
+  t.after(() => rm(directory, {recursive: true, force: true}));
+  await assert.rejects(
+    () => ingress.materializeOpenAiHostFileToTemp(descriptor(), {maxBytes: 4, tempDir: directory, resolveHostname: publicDns, fetchImpl: async () => response(fixture, {headers: {'content-type': 'text/plain'}})}),
+    (error) => error.code === 'host_file_too_large',
+  );
+  assert.deepEqual(await readdir(directory), []);
 });
 
 test('plain paths and attachment handle strings fail closed', async () => {

@@ -15,7 +15,7 @@ The default ceiling is 256 MiB and can be lowered through `HOME_CENTER_DRIVE_ING
 
 ## Safety and recovery
 
-The ingress adapter validates a credential-free HTTPS host-file URL, rejects private/reserved network destinations and unsafe redirects, enforces the byte ceiling while streaming, and does not log the signed URL or file handle. The bridge hashes the received bytes before mutation. A reused request ID must match the same bytes, filename, MIME type, and destination folder. The Drive object carries private app properties for request ID and SHA-256, allowing recovery after an ambiguous response without creating a second copy. Multiple matching objects quarantine the request.
+The ingress adapter validates a credential-free HTTPS host-file URL, rejects private/reserved network destinations and unsafe redirects, and streams the response into a mode-600 function-private temporary file while enforcing the byte ceiling and computing SHA-256. It never logs the signed URL or file handle and never buffers the full attachment in process memory. Drive upload and Drive readback are both streamed; the temporary file is deleted in a guaranteed cleanup boundary. A reused request ID must match the same bytes, filename, MIME type, and destination folder. The Drive object carries private app properties for request ID and SHA-256, allowing recovery after an ambiguous response without creating a second copy. Multiple matching objects quarantine the request.
 
 Files are created private by default. No public permission is added.
 
@@ -31,3 +31,14 @@ A successful receipt requires:
 - a completed Drive Bridge audit record containing the input SHA-256.
 
 The operation is not accepted merely because Google returned a file ID.
+
+## Complete binary readback
+
+Stored Drive binaries use owner-bound sessions beneath the stable drive_operation tool; the top-level MCP catalog does not change:
+
+1. drive_binary_read_begin streams and hashes the whole Drive object, snapshots its metadata, and returns chunk count and whole-file SHA-256.
+2. drive_binary_read_chunk returns one indexed Base64 range plus its own SHA-256 and records only the bounded progress receipt in Firestore.
+3. drive_binary_read_status verifies that the Drive snapshot is unchanged and returns served and missing chunk indexes for recovery.
+4. drive_binary_read_complete requires the reconstructed byte count and SHA-256, requires every chunk receipt, then streams and hashes Drive again before returning verified true.
+
+Sessions reject another owner, Google-native files, empty or oversized binaries, source mutation, missing chunks, and reconstructed-identity mismatch. The older drive_read_binary_chunk operation remains available for compatibility.
