@@ -282,6 +282,69 @@ assert.equal(storageDigestReplay.transportState.transferredBytes, 0);
 assert.equal(storageDigestReplay.transportState.reusedBytes, storedVideoBytes.length);
 assert.equal(google.createCount, createsAfterStorageDelivery, 'storage-ingest delivery must not duplicate an identical Drive file');
 
+const genericSheetBytes = Buffer.from('legacy-generic-png-bytes');
+const genericSheetSha = sha(genericSheetBytes);
+const genericSheetRef = 'gs://home-center-generated/rotoscoping/dclarke1005@gmail.com/artifact/legacy-generic-sheet/artifact.bin';
+objects.set(genericSheetRef, {bytes: genericSheetBytes, metadataSha: genericSheetSha});
+const genericReceiptId = ownerEmail + '--legacy-generic-sheet';
+initial.set('commandCenterArtifactCatalog/' + genericReceiptId, {
+  schemaVersion: 'home-center.artifact.v1',
+  artifactId: 'legacy-generic-sheet',
+  artifactKind: 'artifact',
+  project: 'unclassified',
+  lifecycleState: 'proposed',
+  ownerEmail,
+  source: {transport: 'chatgpt-work-mode', name: 'artifact.bin', mimeType: 'application/octet-stream'},
+  destination: {
+    bucket: 'home-center-generated',
+    objectName: genericSheetRef.replace('gs://home-center-generated/', ''),
+    storageRef: genericSheetRef,
+    byteCount: genericSheetBytes.length,
+    sha256: genericSheetSha,
+  },
+  verification: {
+    verified: true,
+    readbackByteCount: genericSheetBytes.length,
+    readbackSha256: genericSheetSha,
+    byteCountMatch: true,
+    sha256Match: true,
+  },
+});
+const genericDeliveryBase = {
+  requestId: 'generic-storage-delivery-001',
+  producerReceiptId: genericReceiptId,
+  producerKind: 'storage_ingest',
+  parentFolderId: 'home-mtv-folder',
+};
+await assert.rejects(
+  () => materializeReceiptArtifactsOperation({...base, args: genericDeliveryBase}, {storage}),
+  (error) => error.failureKind === 'artifact_delivery.metadata_required',
+);
+await assert.rejects(
+  () => materializeReceiptArtifactsOperation({
+    ...base,
+    args: {...genericDeliveryBase, artifactMetadata: [{sha256: genericSheetSha, name: 'April_Sheet.png', mimeType: 'image/gif'}]},
+  }, {storage}),
+  (error) => error.failureKind === 'artifact_delivery.metadata_mismatch',
+);
+await assert.rejects(
+  () => materializeReceiptArtifactsOperation({
+    ...base,
+    args: {...genericDeliveryBase, artifactMetadata: [{sha256: 'f'.repeat(64), name: 'April_Sheet.png', mimeType: 'image/png'}]},
+  }, {storage}),
+  (error) => error.failureKind === 'artifact_delivery.metadata_sha_missing',
+);
+const genericDelivery = await materializeReceiptArtifactsOperation({
+  ...base,
+  args: {...genericDeliveryBase, artifactMetadata: [{sha256: genericSheetSha, name: 'April_Sheet.png', mimeType: 'image/png'}]},
+}, {storage});
+assert.equal(genericDelivery.producer.receiptState, 'verified');
+assert.equal(genericDelivery.artifacts.length, 1);
+assert.equal(genericDelivery.artifacts[0].name, 'April_Sheet.png');
+assert.equal(genericDelivery.artifacts[0].mimeType, 'image/png');
+assert.equal(genericDelivery.artifacts[0].sha256, genericSheetSha);
+assert.equal(genericDelivery.artifacts[0].delivery.readbackSha256, genericSheetSha);
+
 initial.set('commandCenterArtifactCatalog/unverified-storage-artifact', {
   artifactId: 'unverified-storage-artifact',
   lifecycleState: 'proposed',
@@ -472,6 +535,7 @@ const registry = driveOperationRegistry();
 assert.ok(registry.operations['artifact.delivery.materialize_receipt']);
 assert.ok(registry.operations['artifact.delivery.materialize_receipt'].input.producerKind.includes('artifact_transport'));
 assert.ok(registry.operations['artifact.delivery.materialize_receipt'].input.producerKind.includes('storage_ingest'));
+assert.ok(registry.operations['artifact.delivery.materialize_receipt'].input.artifactMetadata.includes('SHA-256'));
 assert.ok(registry.operations['artifact.review.record']);
 assert.ok(registry.operations['artifact.review.link_successor']);
 assert.equal(registry.operations['artifact.delivery.materialize_receipt'].input.storageRef, undefined);
