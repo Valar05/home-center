@@ -1714,7 +1714,7 @@ async function executeAudioRenderJob({google, admin, auth, user, args = {}, help
         if (at >= 0) segmentCheckpoints[at] = checkpoint; else segmentCheckpoints.push(checkpoint);
         progress = audioProgressPatch(progress, {phase: 'segment_checkpointed', segmentCheckpoints});
       }
-      progress = audioProgressPatch(progress, {phase: 'synthesizing', synthesizedTakes: Math.max((progress.synthesizedTakes || 0) + 1, (take.segmentIndex || 0) + 1), lastTake: {segmentIndex: take.segmentIndex, speaker: take.speaker, character: take.character, voiceId: take.voiceId, transcriptSha256: take.transcriptSha256, providerByteCount: take.providerByteCount, duration: take.duration}});
+      progress = audioProgressPatch(progress, {phase: 'synthesizing', synthesizedTakes: Math.max((progress.synthesizedTakes || 0) + 1, (take.segmentIndex || 0) + 1), lastTake: {segmentIndex: take.segmentIndex, speaker: take.speaker, character: take.character, voiceId: take.voiceId, transcriptSha256: take.transcriptSha256, providerByteCount: take.providerByteCount, duration: take.duration, reusedCheckpoint: take.reusedCheckpoint === true, requestAttemptCount: take.requestAttemptCount}});
       await writeAudioAudit(helpers, admin, {actor, authKind, tool: 'audio.render', operation: 'audio.render', requestId, status: 'running', callerNote: args.callerNote, providerSummary: 'audio.render verified speech segment ' + progress.synthesizedTakes + ' of ' + progress.totalTakes + '.', result: null, inputSha256, progress, lease: leaseState()}).catch(() => {});
     };
     const renderHeartbeat = startAudioHeartbeatLoop(async () => {
