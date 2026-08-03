@@ -497,7 +497,8 @@ function renderSecureBrowserOAuthHandoff(req, googleAuthUrl, flowState, mode = '
           return;
         }
       } catch (_) {}
-      setTimeout(pollHandoff, 2000);    }
+      setTimeout(pollHandoff, 2000);
+    }
     setTimeout(pollHandoff, 1000);
   </script>
 </body>
@@ -996,7 +997,8 @@ function storageIngestArtifactCatalogInputSchema() {
   };
 }
 
-function driveIngestFileCatalogInputSchema() {  return {
+function driveIngestFileCatalogInputSchema() {
+  return {
     type: 'object',
     $defs: {OpenAIFile: openAiFileCatalogDefinition()},
     properties: {
@@ -1495,7 +1497,8 @@ async function materializeSitesSourceVersionOperation({google, admin, auth, user
     const result = {
       operation: 'sites.source_version.materialize_drive',
       projectId,
-      versionId,      versionNumber,
+      versionId,
+      versionNumber,
       sourceCommit,
       sourceBranch,
       sourceFileCount: sourceFiles.length,
@@ -1994,7 +1997,8 @@ async function simulationSourceRegister({admin, user, args = {}}) {
 async function simulationReferenceBegin({admin, user, args = {}}) {
   const requestId = stableRequestId(args.requestId);
   const existing = await existingSimulationAudit(admin, requestId);
-  if (existing && existing.status === 'success') return {idempotent: true, audit: existing};  const projectId = simulationId('sim-project', args.projectId);
+  if (existing && existing.status === 'success') return {idempotent: true, audit: existing};
+  const projectId = simulationId('sim-project', args.projectId);
   await requireSimulationProject(admin, projectId);
   const compilationId = simulationId('sim-compilation', args.compilationId);
   const payload = {
@@ -2493,7 +2497,8 @@ function cleanGitHubIssue(issue = {}) {
     commentCount: issue.comments || 0,
     body: safeText(issue.body, 12000),
     isPullRequest: !!issue.pull_request,
-  };}
+  };
+}
 
 function cleanGitHubPullRequest(pr = {}) {
   return {
@@ -2992,7 +2997,8 @@ async function githubAdminAuthStatusOperation({user, githubAdmin = {}}) {
   const appId = appIdSecret.value;
   const privateKeyConfigured = !!privateKeySecret.value;
   const bootstrapConfigured = !!(bootstrapSecret.value || adminTokenSecret.value);
-  const appConfigured = !!(appId && profile.installationId && privateKeyConfigured);  const disabledReasons = [];
+  const appConfigured = !!(appId && profile.installationId && privateKeyConfigured);
+  const disabledReasons = [];
   let installationProbe = {code: 'not_applicable'};
   let authenticated = false;
   let providerReachable = false;
@@ -3491,7 +3497,8 @@ async function importXlsxWorkbookOperation({google, admin, auth, user, args = {}
       mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
       body: Readable.from(workbookBuffer),
     },
-    fields: driveFields(),    supportsAllDrives: true,
+    fields: driveFields(),
+    supportsAllDrives: true,
   });
   const metadata = cleanDriveFile(created.data || {});
   const spreadsheetId = safeDriveFileId(metadata.id);
@@ -3990,7 +3997,8 @@ async function publishContextSnapshotOperation({google, admin, auth, user, args 
     rollback: null,
     callerNote: args.callerNote,
     providerSummary: safeText(args.callerNote, 400) || `Published ${name} (${digest.byteCount} bytes, sha256 ${digest.sha256}).`,
-    result,  });
+    result,
+  });
   await recordActionAudit(admin, user, 'contextSync.publishSnapshot', fileId, safeText(args.callerNote, 400) || `Published ${name} (${digest.byteCount} bytes).`, requestId);
   return {...result, audit: audit.audit};
 }
@@ -4489,7 +4497,8 @@ function searchDroobiedooContextIndex(index, args = {}) {
   const queryTokens = droobiedooTokens(query);
   const kinds = Array.isArray(args.kinds) ? new Set(args.kinds.map((kind) => safeText(kind, 80)).filter(Boolean)) : null;
   const limit = chatGptLimit(args.limit, 10, 50);
-  return (Array.isArray(index.entries) ? index.entries : [])    .filter((entry) => !kinds || kinds.has(entry.kind))
+  return (Array.isArray(index.entries) ? index.entries : [])
+    .filter((entry) => !kinds || kinds.has(entry.kind))
     .map((entry) => ({entry, score: droobiedooScoreEntry(entry, queryTokens)}))
     .filter((item) => item.score > 0)
     .sort((a, b) => b.score - a.score || safeText(a.entry.path, 500).localeCompare(safeText(b.entry.path, 500)))
@@ -4988,7 +4997,8 @@ function normalizedAudioIngestStage(value) {
   if (!['sources', 'finals', 'parts', 'probes', 'rejected', 'unclassified'].includes(stage)) {
     throw Object.assign(new Error('stage must be sources, finals, parts, probes, rejected, or unclassified.'), {status: 400});
   }
-  return stage;}
+  return stage;
+}
 
 function normalizedAudioSourceMetadata(args = {}, stage = 'unclassified') {
   const sourceKind = safeText(args.sourceKind, 80).toLowerCase();
@@ -5487,7 +5497,8 @@ async function driveOperationRunOperation({google, admin, auth, user, extra = nu
   const registry = driveOperationRegistry();
   if (!registry.operations[operation]) throw Object.assign(new Error('Unsupported drive_operation operation: ' + operation), {status: 400});
   if (tvtroperOperationEntries()[operation]) {
-    const result = await tvTroperRetrievalOperation({google, args: safeObject(args.args)});    return {operation, registryVersion: registry.version, completed: true, result};
+    const result = await tvTroperRetrievalOperation({google, args: safeObject(args.args)});
+    return {operation, registryVersion: registry.version, completed: true, result};
   }
   const operationArgs = args.args && typeof args.args === 'object' && !Array.isArray(args.args) ? args.args : {...args};
   delete operationArgs.operation;
@@ -5987,6 +5998,7 @@ function createHomeCenterMcpServer({google, admin, googleClientId, googleClientS
     });
     return textResult({results: (result.data.files || []).map(chatGptDriveFile)});
   });
+
   server.registerTool('drive_read', {
     title: 'Drive read',
     description: 'Read or export a Google Drive file by file ID.',
@@ -6486,6 +6498,7 @@ function createHomeCenterMcpServer({google, admin, googleClientId, googleClientS
     const {user} = await requestGoogleContext(extra, google, admin, googleClientId, googleClientSecret);
     return textResult(await githubAdminDispatchWorkflowOperation({admin, user, githubAdmin, args: args || {}}));
   });
+
   server.registerTool('github_get_repo', {
     title: 'GitHub get repo',
     description: 'Read authenticated GitHub repository metadata for owner/name.',
@@ -6984,7 +6997,8 @@ function createHomeCenterMcpServer({google, admin, googleClientId, googleClientS
     if (!snap.exists) throw Object.assign(new Error('operationBatchId not found in recovery checkpoints.'), {status: 404});
     const checkpoint = snap.data() || {};
     const auditByRequestId = {};
-    const operations = Array.isArray(checkpoint.intendedOperations) ? checkpoint.intendedOperations : [];    for (const operation of operations) {
+    const operations = Array.isArray(checkpoint.intendedOperations) ? checkpoint.intendedOperations : [];
+    for (const operation of operations) {
       const requestId = safeText(operation && operation.requestId, 160);
       if (!requestId) continue;
       auditByRequestId[requestId] = {
@@ -7483,7 +7497,8 @@ function createHomeCenterMcpApp({google, admin, googleClientId = () => '', googl
           res.status(400).json({error: 'invalid_grant', error_description: 'pkce_verification_failed'});
           return;
         }
-      }      const accessToken = randomToken(32);
+      }
+      const accessToken = randomToken(32);
       const refreshToken = randomToken(40);
       const refreshTokenHash = tokenHash(refreshToken);
       const expiresAtMs = Date.now() + 55 * 60 * 1000;
