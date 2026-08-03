@@ -4451,7 +4451,8 @@ async function recordVoiceTierTelemetry(admin, user, requestId, receipt, result)
     updatedAtMs: Date.now(),
   };
   await admin.firestore().collection('voiceRenderTelemetry').doc(telemetryId).set(record, {merge: true});
-  return {...record, telemetryId, owner: undefined};
+  const {owner: _owner, ...publicRecord} = record;
+  return {...publicRecord, telemetryId};
 }
 
 async function replaceSuccessfulTierAuditResult(admin, requestId, result, providerSummary) {
