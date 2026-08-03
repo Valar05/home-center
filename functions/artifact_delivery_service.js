@@ -232,8 +232,8 @@ function renderReferenceCandidates(output = {}) {
 }
 
 function normalizedArtifactMetadata(value) {
-  if (value === undefined || value === null) return [];
-  if (!Array.isArray(value) || !value.length || value.length > MAX_ARTIFACTS) {
+  if (value === undefined || value === null || (Array.isArray(value) && !value.length)) return [];
+  if (!Array.isArray(value) || value.length > MAX_ARTIFACTS) {
     throw fail('artifact_delivery.metadata_invalid', 'artifactMetadata must contain 1-' + MAX_ARTIFACTS + ' SHA-bound metadata entries.', 400);
   }
   const seen = new Set();
