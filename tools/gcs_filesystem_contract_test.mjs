@@ -99,7 +99,7 @@ assert.deepEqual(operationNames.sort(), ['storage.filesystem.append', 'storage.f
 for (const name of operationNames) assert.ok(driveOperationRegistry().operations[name], `${name} missing from dynamic registry`);
 const topLevel = JSON.parse(fs.readFileSync(path.join(root, 'contracts/home-center-top-level-mcp.v1.json'), 'utf8'));
 assert.equal(topLevel.some((tool) => /foundry|storage\.filesystem/i.test(tool.name)), false, 'dynamic capability leaked into top-level MCP');
-assert.equal(sha(Buffer.from(JSON.stringify(topLevel))), 'b0cdba53b112d4c2fa0638deb85d304ac71d0ea0b8c187a2d30e600094b158ed');
+assert.equal(sha(Buffer.from(JSON.stringify(topLevel))), 'ffe116594b4e7f64cd5b4702c972c6914b1354f8e24f8efe3562617364c9be88');
 
 await assert.rejects(service.createFileOperation({admin, storage, user, args: {requestId: 'not-approved', path: '/work/no.bin', source: {kind: 'empty'}}}), (error) => error.code === 'storage.filesystem.authorization_required');
 const createArgs = {approved: true, requestId: 'create-alpha-v1', path: '/work/input.bin', humanAcceptance: 'unreviewed', source: {kind: 'home_center_artifact', artifactId: alpha.artifactId, sha256: alpha.digest, byteLength: alpha.bytes.length}};

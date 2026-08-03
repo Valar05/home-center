@@ -18,6 +18,7 @@ const {z} = require('zod/v4');
 const {CARTESIA_DEFAULT_MODEL_ID, CARTESIA_DEFAULT_VOICE_NAME, listCartesiaVoiceCatalog, listCartesiaVoices, normalizeCartesiaVoice, openCartesiaStream} = require('./hosted_speech_provider');
 const {refreshGeminiCatalog} = require('./gemini_speech_provider');
 const {synthesizeGeminiArtifact} = require('./gemini_tts_artifact_service');
+const voiceTierPolicy = require('./voice_tier_policy');
 const {preflightArtifactEnvelope} = require('./artifact_transport');
 const {openAiFileParamJsonSchema, openAiFileParamZodSchema, materializeOpenAiHostFile, materializeOpenAiHostFileToTemp} = require('./host_file_ingress');
 const {
@@ -77,7 +78,7 @@ const DEFAULT_MCP_AUTHORIZATION_SERVER_BASE = 'https://homecentermcp-vxybsaualq-
 const MCP_PUBLIC_BASE = process.env.HOME_CENTER_MCP_PUBLIC_BASE || DEFAULT_MCP_PUBLIC_BASE;
 const MCP_AUTHORIZATION_SERVER_BASE = process.env.HOME_CENTER_MCP_AUTHORIZATION_SERVER_BASE || DEFAULT_MCP_AUTHORIZATION_SERVER_BASE;
 const HOME_CENTER_MCP_SERVER_VERSION = '0.3.0';
-const HOME_CENTER_CONNECTOR_SCHEMA_REVISION = '2026-08-02.drive-binary-read-write-v1';
+const HOME_CENTER_CONNECTOR_SCHEMA_REVISION = '2026-08-03.voice-tiers-host-file-v1';
 const HOME_CENTER_REGISTRY_VERSION = HOME_CENTER_CONNECTOR_SCHEMA_REVISION;
 const HOME_CENTER_DIRECT_FILE_TOOLS = Object.freeze(['drive_ingest_file', 'storage_ingest_artifact']);
 const MCP_RESOURCE = `${MCP_AUTHORIZATION_SERVER_BASE}/mcp`;
@@ -4339,6 +4340,9 @@ function speechProviderSelection(args = {}) {
 }
 
 async function synthesizeSpeechAudioArtifactOperation(context) {
+  const tierConfig = voiceTierPolicy.loadVoiceTierConfig();
+  const tier = voiceTierPolicy.requestedTier(context.args || {}, tierConfig);
+  if (tier) return synthesizeTieredSpeechAudioArtifactOperation(context, tier, tierConfig);
   const routing = speechProviderSelection(context.args || {});
   if (routing.selected === 'gemini') {
     try {
@@ -4352,6 +4356,164 @@ async function synthesizeSpeechAudioArtifactOperation(context) {
     }
   }
   return {...await synthesizeCartesiaAudioArtifactOperation(context), routing};
+}
+
+function degradedVoiceArtifactName(args, tier, requestId) {
+  const requested = safeText(args.name || args.fileName || args.title, 220) || ('voice-' + requestId + '.wav');
+  const at = requested.lastIndexOf('.');
+  const base = at > 0 ? requested.slice(0, at) : requested;
+  const extension = at > 0 ? requested.slice(at) : '.wav';
+  return base + '.degraded-' + tier + extension;
+}
+
+function tierRouteArgs(args, route, requestedTier, degraded, requestId) {
+  return {
+    ...args,
+    provider: route.provider,
+    modelId: route.modelId,
+    voiceTier: undefined,
+    tier: undefined,
+    qualityTier: undefined,
+    useCase: undefined,
+    voiceUseCase: undefined,
+    purpose: undefined,
+    ...(degraded ? {name: degradedVoiceArtifactName(args, route.tier, requestId)} : {}),
+    _voiceTierRequested: requestedTier,
+    _voiceTierRendered: route.tier,
+  };
+}
+
+function safeCanonRerenderRequest(args = {}) {
+  return {
+    text: typeof args.text === 'string' ? args.text : typeof args.transcript === 'string' ? args.transcript : '',
+    segments: Array.isArray(args.segments) ? args.segments : [],
+    voiceName: safeText(args.voiceName, 160),
+    voiceId: safeText(args.voiceId, 200),
+    direction: safeText(args.direction || args.naturalLanguageDirection, 2000),
+    acceptedVoice: args.acceptedVoice === true || args.voiceAccepted === true || args.humanAcceptance === 'accepted',
+    lockVoice: args.lockVoice === true,
+    lockDirection: args.lockDirection === true,
+    name: safeText(args.name || args.fileName || args.title, 220),
+    parentFolderId: safeText(args.parentFolderId, 220),
+    format: safeText(args.format || args.container || 'wav', 20),
+    sampleRate: Number(args.sampleRate || 24000),
+    pauseMs: Number(args.pauseMs || 0),
+  };
+}
+
+async function queueCanonRerender(admin, user, args, requestId, degradedResult, reasonCode, tierConfig) {
+  const actor = safeText(user && (user.email || user.uid), 320) || 'unknown';
+  const queueId = createHash('sha256').update(actor + '\n' + requestId).digest('hex');
+  const rerenderRequestId = requestId + '-canon-rerender-v1';
+  const entry = {
+    schemaVersion: 'home-center.canon-rerender-queue.v1',
+    queueId,
+    status: 'queued',
+    owner: actor,
+    originalRequestId: requestId,
+    rerenderRequestId,
+    requestedTier: 'canon',
+    targetProvider: 'gemini',
+    targetModelId: voiceTierPolicy.primaryRoute('canon', tierConfig).modelId,
+    reasonCode: safeText(reasonCode, 160) || 'canon_quota_fallback',
+    preservedRequest: safeCanonRerenderRequest(args),
+    preservedVoiceAndDirection: true,
+    degradedArtifact: degradedResult ? {fileId: degradedResult.fileId || '', durableRef: degradedResult.durableRef || '', renderedTier: degradedResult.renderedTier || degradedResult.qualityTier || '', byteCount: degradedResult.byteCount || 0, sha256: degradedResult.sha256 || ''} : null,
+    overwriteExistingCanon: false,
+    nextOperation: {operation: 'tts.synthesize', args: {requestId: rerenderRequestId, voiceTier: 'canon', rerenderQueueId: queueId}},
+    createdAtMs: Date.now(),
+    updatedAtMs: Date.now(),
+  };
+  await admin.firestore().collection('voiceCanonRerenderQueue').doc(queueId).set(entry, {merge: true});
+  return {queueId, status: 'queued', rerenderRequestId, targetModelId: entry.targetModelId, preservedVoiceAndDirection: true, overwriteExistingCanon: false, statusOperation: {operation: 'tts.canon_rerender_status', args: {queueId}}};
+}
+
+async function recordVoiceTierTelemetry(admin, user, requestId, receipt, result) {
+  const actor = safeText(user && (user.email || user.uid), 320) || 'unknown';
+  const telemetryId = createHash('sha256').update(actor + '\n' + requestId).digest('hex');
+  const record = {
+    schemaVersion: 'home-center.voice-render-telemetry.v1',
+    requestId,
+    owner: actor,
+    requestedTier: receipt.requestedTier,
+    renderedTier: receipt.renderedTier,
+    degraded: receipt.degraded,
+    canon: receipt.canon,
+    provider: safeText(result && result.provider, 40),
+    modelId: safeText(result && result.modelId, 160),
+    byteCount: Number(result && result.byteCount || 0),
+    durationSeconds: Number(result && result.duration || 0),
+    attempts: receipt.attempts,
+    totalLatencyMs: receipt.attempts.reduce((sum, item) => sum + Number(item.latencyMs || 0), 0),
+    estimatedCostUsd: Number(receipt.attempts.reduce((sum, item) => sum + Number(item.estimatedCostUsd || 0), 0).toFixed(8)),
+    quotaFallbackCount: receipt.attempts.filter((item) => item.quotaError === true).length,
+    transcriptSha256: safeText(result && result.transcriptSha256, 64),
+    updatedAtMs: Date.now(),
+  };
+  await admin.firestore().collection('voiceRenderTelemetry').doc(telemetryId).set(record, {merge: true});
+  return {...record, telemetryId, owner: undefined};
+}
+
+async function synthesizeTieredSpeechAudioArtifactOperation(context, tier, tierConfig) {
+  const requestId = createRequestId(context.args && context.args.requestId);
+  const existing = await existingAudit(context.admin, requestId);
+  if (existing && existing.status === 'success' && existing.result) {
+    return {...existing.result, idempotent: true, audit: {...existing, result: null}};
+  }
+  const routes = voiceTierPolicy.downwardRoutes(tier, tierConfig);
+  const locks = voiceTierPolicy.acceptedLocks(context.args || {});
+  const attempts = [];
+  let lastQuotaError = null;
+  for (let index = 0; index < routes.length; index += 1) {
+    const route = routes[index];
+    if (index > 0) {
+      const preservation = voiceTierPolicy.routePreservesLocks(routes[0], route, locks);
+      if (!preservation.ok) {
+        attempts.push({tier: route.tier, provider: route.provider, modelId: route.modelId, status: 'blocked', code: preservation.reason, quotaError: false, latencyMs: 0, estimatedCostUsd: 0});
+        continue;
+      }
+    }
+    const startedAtMs = Date.now();
+    try {
+      const routeArgs = tierRouteArgs(context.args || {}, route, tier, index > 0, requestId);
+      const result = route.provider === 'gemini'
+        ? await synthesizeGeminiArtifact({...context, args: routeArgs, helpers: {createRequestId, existingAudit, auditWrite, recordActionAudit, safeDriveFileId}})
+        : await synthesizeCartesiaAudioArtifactOperation({...context, args: routeArgs});
+      const cost = voiceTierPolicy.estimateCost(route, {duration: result.duration, usage: result.usageEvidence && result.usageEvidence.providerReported && result.usageEvidence.providerReported[0], text: context.args && (context.args.text || context.args.transcript) || ''});
+      attempts.push({tier: route.tier, provider: route.provider, modelId: route.modelId, status: 'success', code: '', quotaError: false, latencyMs: Date.now() - startedAtMs, estimatedCostUsd: cost.estimatedUsd, costBasis: cost.basis});
+      let queue = null;
+      const provisional = voiceTierPolicy.tierReceipt({requested: tier, rendered: route.tier, config: tierConfig, attempts});
+      const decorated = {...result, requestedTier: tier, renderedTier: route.tier, qualityTier: route.tier, degraded: provisional.degraded, canon: provisional.canon, canonEligible: provisional.canonEligible, overwriteCanonAllowed: false};
+      if (tier === 'canon' && route.tier !== 'canon') queue = await queueCanonRerender(context.admin, context.user, context.args || {}, requestId, decorated, lastQuotaError && (lastQuotaError.failureKind || lastQuotaError.code), tierConfig);
+      const receipt = voiceTierPolicy.tierReceipt({requested: tier, rendered: route.tier, config: tierConfig, attempts, queue});
+      const telemetry = await recordVoiceTierTelemetry(context.admin, context.user, requestId, receipt, decorated);
+      const finalResult = {...decorated, voiceTier: receipt, telemetry, routing: {requested: 'tier', selected: route.provider, reason: 'voice_tier_policy', tier, modelId: route.modelId, fallback: receipt.degraded ? {authorized: true, reason: 'quota_only', downward: true} : null}};
+      await auditWrite(context.admin, {actor: context.user.email || context.user.uid || 'unknown', authKind: context.user.authKind, tool: 'tts.synthesize', operation: 'tts.synthesize', requestId, status: 'success', fileId: finalResult.fileId || '', affectedFileIds: [finalResult.fileId, ...(finalResult.segmentCheckpoints || []).map((item) => item.fileId)].filter(Boolean), callerNote: context.args && context.args.callerNote, providerSummary: 'Synthesized verified ' + route.tier + ' voice artifact through ' + route.provider + '; degraded=' + receipt.degraded + '.', result: finalResult, inputSha256: finalResult.transcriptSha256 || '', lease: null});
+      return finalResult;
+    } catch (error) {
+      const quotaError = voiceTierPolicy.isQuotaError(error);
+      attempts.push({tier: route.tier, provider: route.provider, modelId: route.modelId, status: 'failed', code: safeText(error && (error.failureKind || error.code), 160) || 'voice_provider_failed', quotaError, latencyMs: Date.now() - startedAtMs, estimatedCostUsd: 0});
+      if (!quotaError) throw error;
+      lastQuotaError = error;
+    }
+  }
+  if (tier === 'canon' && lastQuotaError) {
+    const queue = await queueCanonRerender(context.admin, context.user, context.args || {}, requestId, null, lastQuotaError.failureKind || lastQuotaError.code, tierConfig);
+    lastQuotaError.providerFailure = {...(lastQuotaError.providerFailure || {}), preservedProgress: 'No fallback could preserve accepted voice and direction.', recoveryReference: queue.queueId, safeNextAction: 'Inspect tts.canon_rerender_status and retry the queued canon request later.'};
+  }
+  throw lastQuotaError || Object.assign(new Error('No configured voice tier route could preserve the accepted voice and direction.'), {status: 503, failureKind: 'voice_tier_no_compatible_route'});
+}
+
+async function canonRerenderStatusOperation({admin, user, args = {}}) {
+  const queueId = safeText(args.queueId, 160);
+  if (!/^[a-f0-9]{64}$/.test(queueId)) throw Object.assign(new Error('queueId must be a 64-character hexadecimal identifier.'), {status: 400, failureKind: 'canon_rerender_queue_id_invalid'});
+  const snap = await admin.firestore().collection('voiceCanonRerenderQueue').doc(queueId).get();
+  if (!snap.exists) return {ok: false, status: 'missing', queueId};
+  const entry = snap.data() || {};
+  const actor = safeText(user && (user.email || user.uid), 320);
+  if (!actor || safeText(entry.owner, 320).toLowerCase() !== actor.toLowerCase()) throw Object.assign(new Error('Canon rerender queue entry is not owned by this caller.'), {status: 403, failureKind: 'canon_rerender_forbidden'});
+  const {preservedRequest, owner, ...publicEntry} = entry;
+  return {ok: true, ...publicEntry, preserved: {voiceName: safeText(preservedRequest && preservedRequest.voiceName, 160), voiceId: safeText(preservedRequest && preservedRequest.voiceId, 200), directionSha256: createHash('sha256').update(String(preservedRequest && preservedRequest.direction || '')).digest('hex'), acceptedVoice: Boolean(preservedRequest && preservedRequest.acceptedVoice)}, dialogueStoredPrivately: true};
 }
 
 async function appendGoogleDocOperation({google, admin, auth, user, args = {}}) {
@@ -4851,16 +5013,30 @@ function driveOperationRegistry() {
         input: {provider: 'optional auto, cartesia, or gemini; auto returns both provider catalogs', forceRefresh: 'optional boolean to refresh live capability state', query: 'optional string passed to Cartesia q', q: 'optional alias for query', limit: 'optional number, 1-100 per Cartesia page', pageToken: 'optional alias for starting_after', startingAfter: 'optional Cartesia pagination cursor', endingBefore: 'optional Cartesia pagination cursor', language: 'optional Cartesia language or locale filter such as ru or en_GB', locale: 'optional language-locale alias passed as language', gender: 'optional masculine, feminine, or gender_neutral', isOwner: 'optional boolean', accent: 'optional metadata filter applied to returned provider page', country: 'optional metadata filter applied to returned provider page', includePreviewUrl: 'optional boolean, defaults true'},
         output: {provider: 'auto|cartesia|gemini', catalog: 'provider_live or official_voice_catalog_plus_live_model_probe', filters: 'object', supportedFilters: 'object', pagination: 'object', voices: 'array with id/name/language/locale/gender/accent/country/metadata'},
       },
+      'tts.tier_policy': {
+        summary: 'Read the deployed config-driven utility, draft, and canon voice-render policy, model routes, cost assumptions, and downward-only safeguards.',
+        write: false,
+        requiredScopes: [],
+        input: {},
+        output: {schemaVersion: 'string', revision: 'string', configSha256: 'string', hierarchy: 'utility,draft,canon', tiers: 'resolved provider/model routes', safeguards: 'quota-only downward fallback, degraded/canon and voice-lock rules'},
+      },
+      'tts.canon_rerender_status': {
+        summary: 'Inspect one owner-scoped queued canon rerender without exposing stored dialogue or starting a paid provider call.',
+        write: false,
+        requiredScopes: [],
+        input: {queueId: '64-character queue receipt id'},
+        output: {ok: 'boolean', status: 'queued|completed|missing', targetProvider: 'gemini', targetModelId: 'configured Gemini Pro TTS model', preserved: 'voice and direction hash evidence'},
+      },
       'audio.render': {
         summary: 'Render deterministic procedural, source-backed, or direct Cartesia or Gemini speech audio inside Home Center MCP through a declarative JSON recipe. Completion requires verified GCS bytes, server-derived owner registration, authenticated Audio Reader discovery, and a bounded playback probe; human acceptance remains unreviewed. It never creates a Command Center job, Codex execution, LLM prompt, GitHub Actions renderer, or Termux runtime process.',
         write: true,
         requiresRequestId: true,
         requiredScopes: [],
-        input: {scriptText: 'required JSON audio recipe DSL; no imports, network, shell, process, filesystem, or arbitrary code execution; supports speech, audition, speech_sequence, and block_mix nodes with text, speaker, character or voiceName/voiceId, modelId, emotion, speed, volume, pitchSemitones, pauseMs, master, and bounded concurrency', sources: 'optional object binding friendly names to inline contentBase64 or drive:// refs; WAV sources decode to clips', settings: 'optional deterministic renderer settings including seed, sampleRate, timeoutMs, allowClipping, speechDefaults, speechConcurrency', returnInlineAudio: 'optional boolean; defaults true for small audio, set false for long-form responses so durable resource links remain authoritative', idempotencyKey: 'string alias for requestId', requestId: 'string', parentFolderId: 'optional Drive folder id', callerNote: 'optional string'},
+        input: {scriptText: 'required JSON audio recipe DSL; no imports, network, shell, process, filesystem, or arbitrary code execution; supports speech, audition, speech_sequence, and block_mix nodes; speech nodes accept voiceTier=utility|draft|canon or useCase=ui|captions|audition|dialogue|final_performance plus acceptedVoice/lockDirection; legacy provider-explicit callers remain supported', sources: 'optional object binding friendly names to inline contentBase64 or drive:// refs; WAV sources decode to clips', settings: 'optional deterministic renderer settings including seed, sampleRate, timeoutMs, allowClipping, speechDefaults, speechConcurrency', returnInlineAudio: 'optional boolean; defaults true for small audio, set false for long-form responses so durable resource links remain authoritative', idempotencyKey: 'string alias for requestId', requestId: 'string', parentFolderId: 'optional Drive folder id', callerNote: 'optional string'},
         output: {ok: 'true only after canonical Reader registration', status: 'completed|registration_required', renderer: 'home-center-deterministic-audio-v1', primaryOutput: 'verified canonical GCS audio identity', readerRegistration: 'owner-scoped catalog, discovery, playback probe, and byte-preservation evidence', humanAcceptance: 'unreviewed until a separate human verdict', speech: 'bounded provider-explicit Cartesia or Gemini provenance when speech nodes exist', outputs: 'verified artifact identities', manifest: 'verified JSON manifest artifact', noAgentRuntime: 'true'},
         agentRecipe: {
           whenUserSays: 'Render procedural sound effects, ambience, foley, layered audio beds, stems, waveform, or spectrogram directly from ChatGPT.',
-          prefer: 'Call drive_operation with operation=audio.render. Keep scriptText as the Home Center JSON audio DSL; use speech/audition/speech_sequence recipe nodes with provider=gemini for direct synchronous Gemini speech or provider=cartesia for compatible Cartesia speech, separate emotional contexts, and long-form attributed dialogue. Do not use Command Center, Codex, workers, GitHub Actions, or a newly exposed top-level MCP tool.',
+          prefer: 'Call drive_operation with operation=audio.render. Keep scriptText as the Home Center JSON audio DSL; use voiceTier or useCase for utility, draft, and canon policy routing, or an explicit provider for legacy-compatible direct routing. Do not use Command Center, Codex, workers, GitHub Actions, or a newly exposed top-level MCP tool.',
           verification: 'Treat success as authoritative only when ok=true/status=completed and readerRegistration proves unchanged bytes, owner-scoped discovery, and playback. Mechanical completion never means human approval.',
         },
       },
@@ -4945,7 +5121,7 @@ function driveOperationRegistry() {
         write: true,
         requiresRequestId: true,
         requiredScopes: ['https://www.googleapis.com/auth/drive'],
-        input: {provider: 'optional gemini, cartesia, or auto; auto preserves Cartesia unless required Gemini features are declared', direction: 'optional natural-language Gemini direction', text: 'exact string for single-speaker synthesis, or omit when segments is supplied', segments: 'optional array of {speaker,text,voiceName,voiceId,modelId,pitchSemitones}; segments are synthesized separately and stitched in order', voiceName: 'optional default Cartesia voice name, default Katie - Friendly Fixer', voiceId: 'optional default Cartesia voice id', modelId: 'optional default Cartesia model id', pitchSemitones: 'optional tempo-preserving pitch shift default, finite number -12 through 12, default 0', format: 'optional wav or raw, default wav', sampleRate: 'optional number, default 24000', pauseMs: 'optional silence between stitched segments, default 0', name: 'optional Drive filename', parentFolderId: 'optional Drive folder id', requestId: 'string', callerNote: 'optional string'},
+        input: {voiceTier: 'optional utility, draft, or canon; config routes utility to cheapest configured TTS, draft to Gemini Flash TTS, canon to Gemini Pro TTS', useCase: 'optional ui, captions, audition, dialogue, or final_performance alias for voiceTier', provider: 'optional legacy gemini, cartesia, or auto when voiceTier is omitted', direction: 'optional natural-language direction; preserved across compatible downward fallback', text: 'exact string for single-speaker synthesis, or omit when segments is supplied', segments: 'optional array of {speaker,text,voiceName,voiceId,modelId,pitchSemitones}; segments are synthesized separately and stitched in order', voiceName: 'optional named voice', voiceId: 'optional provider voice id', acceptedVoice: 'optional boolean locking accepted casting against incompatible provider fallback', lockDirection: 'optional boolean preventing fallback to a provider that cannot preserve direction', modelId: 'optional legacy direct-provider model id; tier policy overrides it', pitchSemitones: 'optional tempo-preserving pitch shift default, finite number -12 through 12, default 0', format: 'optional wav or raw, default wav', sampleRate: 'optional number, default 24000', pauseMs: 'optional silence between stitched segments, default 0', name: 'optional Drive filename; degraded fallback receives an explicit degraded-tier suffix', parentFolderId: 'optional Drive folder id', requestId: 'string', callerNote: 'optional string'},
         output: {provider: 'gemini|cartesia', fileId: 'string', webViewLink: 'string', byteCount: 'number', sha256: 'string', readbackByteCount: 'number', readbackSha256: 'string', verified: 'boolean', segmentCount: 'number', segments: 'array', voiceName: 'string', modelId: 'string', audit: 'object'},
         agentRecipe: {
           whenUserSays: 'Generate TTS, make speech, narrate text, produce a Gemini or Cartesia audio file, or render multiple speakers into one stitched audio artifact from ChatGPT.',
@@ -5722,6 +5898,13 @@ async function driveOperationRunOperation({google, admin, auth, user, extra = nu
     const cartesia = provider === 'gemini' ? null : await cartesiaVoicesOperation({cartesiaApiKey, args: operationArgs});
     const gemini = provider === 'cartesia' ? null : await refreshGeminiCatalog({apiKeyGetter: geminiApiKey, force: operationArgs.forceRefresh === true});
     const result = provider === 'cartesia' ? cartesia : provider === 'gemini' ? gemini : {provider: 'auto', providers: {cartesia, gemini}, routing: {backwardCompatibleDefault: 'cartesia', featureRequiredProvider: {naturalLanguageDirection: 'gemini', expressiveTags: 'gemini'}, silentFallback: false}};
+    return {operation, registryVersion: registry.version, completed: true, result};
+  }
+  if (operation === 'tts.tier_policy') {
+    return {operation, registryVersion: registry.version, completed: true, result: voiceTierPolicy.publicPolicy()};
+  }
+  if (operation === 'tts.canon_rerender_status') {
+    const result = await canonRerenderStatusOperation({admin, user, args: operationArgs});
     return {operation, registryVersion: registry.version, completed: true, result};
   }
   if (operation === 'audio.render') {

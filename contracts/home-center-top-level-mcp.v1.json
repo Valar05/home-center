@@ -882,27 +882,166 @@
     "inputSchema": {
       "$defs": {
         "OpenAIFile": {
-          "additionalProperties": false,
-          "description": "ChatGPT host file supplied through openai/fileParams.",
-          "properties": {
-            "download_url": {
-              "type": "string"
+          "anyOf": [
+            {
+              "additionalProperties": false,
+              "anyOf": [
+                {
+                  "required": [
+                    "download_url"
+                  ]
+                },
+                {
+                  "required": [
+                    "file_url"
+                  ]
+                },
+                {
+                  "required": [
+                    "image_url"
+                  ]
+                },
+                {
+                  "required": [
+                    "url"
+                  ]
+                }
+              ],
+              "properties": {
+                "bytes": {
+                  "type": "number"
+                },
+                "content_type": {
+                  "type": "string"
+                },
+                "detail": {
+                  "type": "string"
+                },
+                "download_url": {
+                  "type": "string"
+                },
+                "file_id": {
+                  "type": "string"
+                },
+                "file_name": {
+                  "type": "string"
+                },
+                "file_url": {
+                  "type": "string"
+                },
+                "filename": {
+                  "type": "string"
+                },
+                "id": {
+                  "type": "string"
+                },
+                "image_url": {
+                  "type": "string"
+                },
+                "mimeType": {
+                  "type": "string"
+                },
+                "mime_type": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "size": {
+                  "type": "number"
+                },
+                "type": {
+                  "type": "string"
+                },
+                "url": {
+                  "type": "string"
+                }
+              },
+              "type": "object"
             },
-            "file_id": {
-              "type": "string"
-            },
-            "file_name": {
-              "type": "string"
-            },
-            "mime_type": {
-              "type": "string"
+            {
+              "items": {
+                "additionalProperties": false,
+                "anyOf": [
+                  {
+                    "required": [
+                      "download_url"
+                    ]
+                  },
+                  {
+                    "required": [
+                      "file_url"
+                    ]
+                  },
+                  {
+                    "required": [
+                      "image_url"
+                    ]
+                  },
+                  {
+                    "required": [
+                      "url"
+                    ]
+                  }
+                ],
+                "properties": {
+                  "bytes": {
+                    "type": "number"
+                  },
+                  "content_type": {
+                    "type": "string"
+                  },
+                  "detail": {
+                    "type": "string"
+                  },
+                  "download_url": {
+                    "type": "string"
+                  },
+                  "file_id": {
+                    "type": "string"
+                  },
+                  "file_name": {
+                    "type": "string"
+                  },
+                  "file_url": {
+                    "type": "string"
+                  },
+                  "filename": {
+                    "type": "string"
+                  },
+                  "id": {
+                    "type": "string"
+                  },
+                  "image_url": {
+                    "type": "string"
+                  },
+                  "mimeType": {
+                    "type": "string"
+                  },
+                  "mime_type": {
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "size": {
+                    "type": "number"
+                  },
+                  "type": {
+                    "type": "string"
+                  },
+                  "url": {
+                    "type": "string"
+                  }
+                },
+                "type": "object"
+              },
+              "maxItems": 1,
+              "minItems": 1,
+              "type": "array"
             }
-          },
-          "required": [
-            "download_url",
-            "file_id"
           ],
-          "type": "object"
+          "description": "ChatGPT host file supplied through openai/fileParams."
         }
       },
       "additionalProperties": false,
@@ -3726,27 +3865,166 @@
     "inputSchema": {
       "$defs": {
         "OpenAIFile": {
-          "additionalProperties": false,
-          "description": "ChatGPT host file supplied through openai/fileParams.",
-          "properties": {
-            "download_url": {
-              "type": "string"
+          "anyOf": [
+            {
+              "additionalProperties": false,
+              "anyOf": [
+                {
+                  "required": [
+                    "download_url"
+                  ]
+                },
+                {
+                  "required": [
+                    "file_url"
+                  ]
+                },
+                {
+                  "required": [
+                    "image_url"
+                  ]
+                },
+                {
+                  "required": [
+                    "url"
+                  ]
+                }
+              ],
+              "properties": {
+                "bytes": {
+                  "type": "number"
+                },
+                "content_type": {
+                  "type": "string"
+                },
+                "detail": {
+                  "type": "string"
+                },
+                "download_url": {
+                  "type": "string"
+                },
+                "file_id": {
+                  "type": "string"
+                },
+                "file_name": {
+                  "type": "string"
+                },
+                "file_url": {
+                  "type": "string"
+                },
+                "filename": {
+                  "type": "string"
+                },
+                "id": {
+                  "type": "string"
+                },
+                "image_url": {
+                  "type": "string"
+                },
+                "mimeType": {
+                  "type": "string"
+                },
+                "mime_type": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "size": {
+                  "type": "number"
+                },
+                "type": {
+                  "type": "string"
+                },
+                "url": {
+                  "type": "string"
+                }
+              },
+              "type": "object"
             },
-            "file_id": {
-              "type": "string"
-            },
-            "file_name": {
-              "type": "string"
-            },
-            "mime_type": {
-              "type": "string"
+            {
+              "items": {
+                "additionalProperties": false,
+                "anyOf": [
+                  {
+                    "required": [
+                      "download_url"
+                    ]
+                  },
+                  {
+                    "required": [
+                      "file_url"
+                    ]
+                  },
+                  {
+                    "required": [
+                      "image_url"
+                    ]
+                  },
+                  {
+                    "required": [
+                      "url"
+                    ]
+                  }
+                ],
+                "properties": {
+                  "bytes": {
+                    "type": "number"
+                  },
+                  "content_type": {
+                    "type": "string"
+                  },
+                  "detail": {
+                    "type": "string"
+                  },
+                  "download_url": {
+                    "type": "string"
+                  },
+                  "file_id": {
+                    "type": "string"
+                  },
+                  "file_name": {
+                    "type": "string"
+                  },
+                  "file_url": {
+                    "type": "string"
+                  },
+                  "filename": {
+                    "type": "string"
+                  },
+                  "id": {
+                    "type": "string"
+                  },
+                  "image_url": {
+                    "type": "string"
+                  },
+                  "mimeType": {
+                    "type": "string"
+                  },
+                  "mime_type": {
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "size": {
+                    "type": "number"
+                  },
+                  "type": {
+                    "type": "string"
+                  },
+                  "url": {
+                    "type": "string"
+                  }
+                },
+                "type": "object"
+              },
+              "maxItems": 1,
+              "minItems": 1,
+              "type": "array"
             }
-          },
-          "required": [
-            "download_url",
-            "file_id"
           ],
-          "type": "object"
+          "description": "ChatGPT host file supplied through openai/fileParams."
         }
       },
       "additionalProperties": false,

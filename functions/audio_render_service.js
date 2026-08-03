@@ -6,6 +6,7 @@ const {spawn} = require('node:child_process');
 const zlib = require('node:zlib');
 const {CARTESIA_DEFAULT_MODEL_ID, CARTESIA_DEFAULT_VOICE_NAME, openCartesiaStream} = require('./hosted_speech_provider');
 const {GEMINI_TTS_MODEL, GEMINI_SAMPLE_RATE, synthesizeGeminiPcm} = require('./gemini_speech_provider');
+const voiceTierPolicy = require('./voice_tier_policy');
 const cartesiaPitchShift = require('./cartesia_pitch_shift');
 const {GENERATED_ARTIFACT_BUCKET, parseGsRef, uploadGeneratedArtifact, publishGeneratedArtifactToDrive, inspectGeneratedArtifact} = require('./artifact_bucket');
 const {registerPrimaryAudioFromReceipt} = require('./audio_catalog_service');
@@ -789,7 +790,12 @@ function validateEmotion(value, fallback = 'neutral') {
 
 function resolveSpeechProfile(op = {}, context = {}) {
   const defaults = context.speechDefaults && typeof context.speechDefaults === 'object' && !Array.isArray(context.speechDefaults) ? context.speechDefaults : {};
-  const requestedProvider = safeText(op.provider || defaults.provider || 'auto', 40).toLowerCase() || 'auto';
+  const tierConfig = context.voiceTierConfig || voiceTierPolicy.loadVoiceTierConfig();
+  const explicitTier = safeText(op.voiceTier || op.tier || op.qualityTier || defaults.voiceTier || defaults.tier, 40);
+  const explicitProvider = safeText(op.provider || defaults.provider, 40);
+  const voiceTier = voiceTierPolicy.requestedTier({...defaults, ...op}, tierConfig);
+  const tierRoute = voiceTier ? voiceTierPolicy.primaryRoute(voiceTier, tierConfig) : null;
+  const requestedProvider = tierRoute ? tierRoute.provider : (safeText(op.provider || defaults.provider || 'auto', 40).toLowerCase() || 'auto');
   if (!['auto', 'cartesia', 'gemini'].includes(requestedProvider)) throw audioError('speech.provider must be auto, cartesia, or gemini.', 400, 'audio_render_speech_provider_invalid');
   const provider = requestedProvider === 'auto' ? (safeText(op.direction || op.naturalLanguageDirection, 2000) || /\[[^\]\r\n]+\]/.test(String(op.text || op.transcript || '')) ? 'gemini' : 'cartesia') : requestedProvider;
   const profile = provider === 'cartesia' ? canonicalCharacterProfile(op.character) : null;
@@ -805,7 +811,7 @@ function resolveSpeechProfile(op = {}, context = {}) {
     canonicalCharacter: Boolean(profile),
     voiceName: pickText('voiceName', 120, provider === 'gemini' ? (safeText(defaults.voiceName, 120) || 'Kore') : ((profile && profile.voiceName) || safeText(defaults.voiceName, 120) || CARTESIA_DEFAULT_VOICE_NAME)),
     voiceId: provider === 'gemini' ? '' : pickText('voiceId', 160, (profile && profile.voiceId) || safeText(defaults.voiceId, 160)),
-    modelId: provider === 'gemini' ? GEMINI_TTS_MODEL : pickText('modelId', 120, (profile && profile.modelId) || safeText(defaults.modelId, 120) || CARTESIA_DEFAULT_MODEL_ID),
+    modelId: provider === 'gemini' ? (tierRoute ? tierRoute.modelId : GEMINI_TTS_MODEL) : (tierRoute ? tierRoute.modelId : pickText('modelId', 120, (profile && profile.modelId) || safeText(defaults.modelId, 120) || CARTESIA_DEFAULT_MODEL_ID)),
     speed: optionalFinite(op.speed, 'speed', 0.6, 1.5, profile && profile.speed !== undefined ? profile.speed : optionalFinite(defaults.speed, 'speechDefaults.speed', 0.6, 1.5, undefined)),
     volume: optionalFinite(op.volume, 'volume', 0.5, 2.0, optionalFinite(defaults.volume, 'speechDefaults.volume', 0.5, 2.0, undefined)),
     emotion: validateEmotion(op.emotion === undefined ? defaults.emotion : op.emotion, validateEmotion(defaults.emotion, 'neutral')),
@@ -813,6 +819,10 @@ function resolveSpeechProfile(op = {}, context = {}) {
       ? (profile && profile.pitchSemitones !== undefined ? cartesiaPitchShift.safePitchSemitones(profile.pitchSemitones, 'canonical pitchSemitones') : defaultPitch)
       : cartesiaPitchShift.safePitchSemitones(op.pitchSemitones, 'pitchSemitones'),
     direction: safeText(op.direction || op.naturalLanguageDirection, 2000) || (profile ? profile.direction : ''),
+    voiceTier,
+    tierConfig,
+    tierRoutes: voiceTier ? voiceTierPolicy.downwardRoutes(voiceTier, tierConfig) : [],
+    tierLocks: voiceTierPolicy.acceptedLocks({...defaults, ...op}),
   };
   if (!resolved.voiceId && !resolved.voiceName) resolved.voiceName = provider === 'gemini' ? 'Kore' : CARTESIA_DEFAULT_VOICE_NAME;
   return resolved;
@@ -842,29 +852,58 @@ async function synthesizeSpeechClip(op = {}, context = {}, overrides = {}) {
     if (typeof context.onSpeechTake === 'function') await context.onSpeechTake(provenance, clip);
     return {clip, profile, speech: null, provenance};
   }
-  const sampleRate = profile.provider === 'gemini' ? GEMINI_SAMPLE_RATE : Math.max(8000, Math.min(CARTESIA_SPEECH_SAMPLE_RATE_MAX, Math.floor(safeNumber(op.sampleRate, context.sampleRate || DEFAULT_SAMPLE_RATE)) || DEFAULT_SAMPLE_RATE));
+  const sampleRate = profile.voiceTier || profile.provider === 'gemini' ? GEMINI_SAMPLE_RATE : Math.max(8000, Math.min(CARTESIA_SPEECH_SAMPLE_RATE_MAX, Math.floor(safeNumber(op.sampleRate, context.sampleRate || DEFAULT_SAMPLE_RATE)) || DEFAULT_SAMPLE_RATE));
   const generationConfig = {emotion: profile.emotion};
   if (profile.speed !== undefined) generationConfig.speed = profile.speed;
   if (profile.volume !== undefined) generationConfig.volume = profile.volume;
   const startedAtMs = Date.now();
   let speech, pcm;
-  if (profile.provider === 'gemini') {
-    speech = await synthesizeGeminiPcm({apiKeyGetter: context.geminiApiKey, text, voiceName: profile.voiceName, direction: profile.direction, speaker: safeText(overrides.speaker || op.speaker || profile.character, 120)});
-    pcm = speech.pcm;
-    context.usesGemini = true;
-  } else {
-    speech = await openCartesiaStream(text, {apiKeyGetter: context.cartesiaApiKey, voiceName: profile.voiceName, voiceId: profile.voiceId, modelId: profile.modelId, format: 'raw', sampleRate, generationConfig});
-    const response = speech.response;
-    if (!response.ok) {
-      const detail = await response.text().catch(() => '');
-      const err = new Error('Cartesia speech HTTP ' + response.status + (detail ? ': ' + safeText(detail, 500) : ''));
-      err.status = response.status;
-      err.failureKind = response.status === 429 ? 'audio_render_speech_provider_rate_limited' : 'audio_render_speech_provider_failed';
-      throw err;
+  const tierAttempts = [];
+  const routes = profile.voiceTier ? profile.tierRoutes : [{provider: profile.provider, modelId: profile.modelId, tier: '', voiceNamespace: profile.provider, supportsDirection: profile.provider === 'gemini', configuredMarginalUsdPerSecond: 0}];
+  let lastError = null;
+  for (let routeIndex = 0; routeIndex < routes.length; routeIndex += 1) {
+    const route = routes[routeIndex];
+    if (routeIndex > 0) {
+      const preservation = voiceTierPolicy.routePreservesLocks(routes[0], route, profile.tierLocks);
+      if (!preservation.ok) {
+        tierAttempts.push({tier: route.tier, provider: route.provider, modelId: route.modelId, status: 'blocked', code: preservation.reason, quotaError: false, latencyMs: 0, estimatedCostUsd: 0});
+        continue;
+      }
     }
-    pcm = Buffer.from(await response.arrayBuffer());
-    context.usesCartesia = true;
+    const attemptStartedAtMs = Date.now();
+    try {
+      if (route.provider === 'gemini') {
+        speech = await synthesizeGeminiPcm({apiKeyGetter: context.geminiApiKey, text, voiceName: profile.voiceName, direction: profile.direction, speaker: safeText(overrides.speaker || op.speaker || profile.character, 120), modelId: route.modelId});
+        pcm = speech.pcm;
+        context.usesGemini = true;
+      } else {
+        const cartesiaVoiceName = routeIndex > 0 && routes[0].voiceNamespace !== route.voiceNamespace ? CARTESIA_DEFAULT_VOICE_NAME : profile.voiceName;
+        const cartesiaVoiceId = routeIndex > 0 && routes[0].voiceNamespace !== route.voiceNamespace ? '' : profile.voiceId;
+        speech = await openCartesiaStream(text, {apiKeyGetter: context.cartesiaApiKey, voiceName: cartesiaVoiceName, voiceId: cartesiaVoiceId, modelId: route.modelId, format: 'raw', sampleRate, generationConfig});
+        const response = speech.response;
+        if (!response.ok) {
+          const detail = await response.text().catch(() => '');
+          const err = new Error('Cartesia speech HTTP ' + response.status + (detail ? ': ' + safeText(detail, 500) : ''));
+          err.status = response.status;
+          err.failureKind = response.status === 429 ? 'audio_render_speech_provider_rate_limited' : 'audio_render_speech_provider_failed';
+          throw err;
+        }
+        pcm = Buffer.from(await response.arrayBuffer());
+        context.usesCartesia = true;
+      }
+      profile.provider = route.provider;
+      profile.modelId = route.modelId;
+      profile.renderedTier = route.tier || profile.voiceTier || '';
+      tierAttempts.push({tier: route.tier || '', provider: route.provider, modelId: route.modelId, status: 'success', code: '', quotaError: false, latencyMs: Date.now() - attemptStartedAtMs, estimatedCostUsd: 0});
+      break;
+    } catch (error) {
+      const quotaError = voiceTierPolicy.isQuotaError(error);
+      tierAttempts.push({tier: route.tier || '', provider: route.provider, modelId: route.modelId, status: 'failed', code: safeText(error && (error.failureKind || error.code), 160) || 'voice_provider_failed', quotaError, latencyMs: Date.now() - attemptStartedAtMs, estimatedCostUsd: 0});
+      lastError = error;
+      if (!quotaError) throw error;
+    }
   }
+  if (!pcm) throw lastError || audioError('No configured downward voice route could preserve accepted voice and direction.', 503, 'voice_tier_no_compatible_route');
   const providerElapsedMs = Date.now() - startedAtMs;
   if (!pcm.length) throw audioError('Speech provider returned empty speech audio.', 502, 'audio_render_speech_provider_empty');
   if ((pcm.length & 1) === 1) throw audioError('Speech provider returned odd-length PCM for speech.', 502, 'audio_render_speech_provider_pcm_invalid');
@@ -876,6 +915,14 @@ async function synthesizeSpeechClip(op = {}, context = {}, overrides = {}) {
   const takeName = safeText(overrides.takeName || op.takeName || op.takeId || op.id, 120) || ('speech_' + (context.speechProvenance.length + 1));
   const inputFrames = shifted.inputFrames || (pcm.length / 2);
   const outputFrames = shifted.outputFrames || (shifted.pcm.length / 2);
+  const tierCost = voiceTierPolicy.estimateCost(routes.find((route) => route.provider === profile.provider && route.modelId === profile.modelId) || routes[0], {duration: clip.duration, usage: speech.usage || null, text});
+  if (tierAttempts.length) {
+    const successfulAttempt = tierAttempts.find((attempt) => attempt.status === 'success');
+    if (successfulAttempt) { successfulAttempt.estimatedCostUsd = tierCost.estimatedUsd; successfulAttempt.costBasis = tierCost.basis; }
+  }
+  const requestedTier = profile.voiceTier || '';
+  const renderedTier = profile.renderedTier || requestedTier;
+  const tierReceipt = requestedTier ? voiceTierPolicy.tierReceipt({requested: requestedTier, rendered: renderedTier, config: profile.tierConfig, attempts: tierAttempts}) : null;
   const provenance = {
     takeName,
     provider: profile.provider,
@@ -917,7 +964,18 @@ async function synthesizeSpeechClip(op = {}, context = {}, overrides = {}) {
     providerTimingMs: providerElapsedMs,
     retryCount: 0,
     contentHash,
+    requestedTier,
+    renderedTier,
+    qualityTier: renderedTier,
+    degraded: tierReceipt ? tierReceipt.degraded : false,
+    canon: tierReceipt ? tierReceipt.canon : false,
+    canonEligible: tierReceipt ? tierReceipt.canonEligible : false,
+    overwriteCanonAllowed: false,
+    voiceTier: tierReceipt,
+    estimatedCostUsd: tierCost.estimatedUsd,
+    costBasis: tierCost.basis,
   };
+  if (tierReceipt) context.voiceTierReceipts.push(tierReceipt);
   if (!overrides.deferProvenance) context.speechProvenance.push(provenance);
   if (typeof context.onSpeechTake === 'function') await context.onSpeechTake(provenance, clip);
   return {clip, profile, speech, provenance};
@@ -1262,12 +1320,12 @@ async function applyOp(op, clips, sources, context) {
       if (!safeText(seg.character, 120) && !safeText(seg.voiceId, 160) && !safeText(seg.voiceName, 120)) throw audioError('speech_sequence.segments[' + i + '] requires character, voiceId, or voiceName.', 400, 'audio_render_validation_failed');
     }
     const pause = silence({duration: Math.max(0, Math.min(5, safeNumber(op.pauseMs, 0) / 1000)), sampleRate: sr, channels: 1});
-    const sequenceUsesGemini = segments.some((segment) => safeText(segment.provider || op.provider || context.speechDefaults.provider, 40).toLowerCase() === 'gemini' || Boolean(safeText(segment.direction || segment.naturalLanguageDirection || op.direction || op.naturalLanguageDirection, 2000)));
+    const sequenceUsesGemini = segments.some((segment) => ['draft', 'canon'].includes(voiceTierPolicy.requestedTier({...context.speechDefaults, ...op, ...segment}, context.voiceTierConfig)) || safeText(segment.provider || op.provider || context.speechDefaults.provider, 40).toLowerCase() === 'gemini' || Boolean(safeText(segment.direction || segment.naturalLanguageDirection || op.direction || op.naturalLanguageDirection, 2000)));
     const requestedConcurrency = sequenceUsesGemini ? Math.min(2, Math.max(1, Number(op.concurrency || 1))) : (op.concurrency === undefined ? context.speechConcurrency : op.concurrency);
     const startedAtMs = Date.now();
     const {results, maxActive} = await mapLimitOrdered(segments, requestedConcurrency, async (segment, index) => {
       const seg = segment && typeof segment === 'object' && !Array.isArray(segment) ? segment : {};
-      return await synthesizeSpeechClip({...seg, sampleRate: op.sampleRate || seg.sampleRate || sr}, context, {segmentIndex: index, speaker: seg.speaker, takeName: safeText(op.id, 80) + '_' + index, label: safeText(op.id, 80) + '_' + index, deferProvenance: true});
+      return await synthesizeSpeechClip({...seg, op: 'speech_sequence', voiceTier: seg.voiceTier || seg.tier || op.voiceTier || op.tier, useCase: seg.useCase || op.useCase, provider: seg.provider || op.provider, sampleRate: op.sampleRate || seg.sampleRate || sr}, context, {segmentIndex: index, speaker: seg.speaker, takeName: safeText(op.id, 80) + '_' + index, label: safeText(op.id, 80) + '_' + index, deferProvenance: true});
     });
     const parts = [];
     for (let i = 0; i < results.length; i++) {
@@ -1309,7 +1367,7 @@ async function renderRecipe(recipe, sources, settings = {}) {
   const graph = Array.isArray(recipe.graph) ? recipe.graph : [];
   if (!graph.length || graph.length > MAX_GRAPH_NODES) throw audioError('Recipe graph must contain 1 to ' + MAX_GRAPH_NODES + ' nodes.', 400, 'audio_render_validation_failed');
   const clips = new Map();
-  const context = {sampleRate, seed, speechDefaults: recipe.speechDefaults || settings.speechDefaults || {}, cartesiaApiKey: settings.cartesiaApiKey || (() => ''), geminiApiKey: settings.geminiApiKey || (() => ''), speechConcurrency: settings.speechConcurrency || recipe.speechConcurrency || SPEECH_SEQUENCE_DEFAULT_CONCURRENCY, onSpeechTake: settings.onSpeechTake, onRenderProgress: settings.onRenderProgress, segmentCheckpoints: settings.segmentCheckpoints || [], speechProvenance: [], speechSequences: [], auditionTakes: [], usesCartesia: false, usesGemini: false};
+  const context = {sampleRate, seed, speechDefaults: recipe.speechDefaults || settings.speechDefaults || {}, cartesiaApiKey: settings.cartesiaApiKey || (() => ''), geminiApiKey: settings.geminiApiKey || (() => ''), speechConcurrency: settings.speechConcurrency || recipe.speechConcurrency || SPEECH_SEQUENCE_DEFAULT_CONCURRENCY, onSpeechTake: settings.onSpeechTake, onRenderProgress: settings.onRenderProgress, segmentCheckpoints: settings.segmentCheckpoints || [], speechProvenance: [], speechSequences: [], auditionTakes: [], voiceTierConfig: voiceTierPolicy.loadVoiceTierConfig(), voiceTierReceipts: [], usesCartesia: false, usesGemini: false};
   const graphStartedAtMs = Date.now();
   for (const op of graph) await applyOp(op || {}, clips, sources, context);
   const graphElapsedMs = Date.now() - graphStartedAtMs;
@@ -1346,7 +1404,7 @@ async function renderRecipe(recipe, sources, settings = {}) {
     const m = measure(clip);
     rendered.push({name, format, mimeType, bytes, clipMetrics: m, byteCount: bytes.length, sha256: sha256Hex(bytes)});
   }
-  return {clips, finalClip, rendered, finalMetrics, seed, sampleRate, phaseTimings: {graphElapsedMs}, speechProvenance: context.speechProvenance, speechSequences: context.speechSequences, auditionTakes: context.auditionTakes, usesCartesia: context.usesCartesia, usesGemini: context.usesGemini};
+  return {clips, finalClip, rendered, finalMetrics, seed, sampleRate, phaseTimings: {graphElapsedMs}, speechProvenance: context.speechProvenance, speechSequences: context.speechSequences, auditionTakes: context.auditionTakes, voiceTierReceipts: context.voiceTierReceipts, usesCartesia: context.usesCartesia, usesGemini: context.usesGemini};
 }
 
 function parseSharedWith(value) {
@@ -1585,6 +1643,8 @@ function recipeUsesGemini(recipe = {}) {
     if (!['speech', 'speech_sequence'].includes(type)) return false;
     const candidates = type === 'speech_sequence' ? (Array.isArray(op.segments) ? op.segments : []) : [op];
     return candidates.some((segment) => {
+      const tier = voiceTierPolicy.requestedTier({...defaults, ...op, ...(segment || {})}, voiceTierPolicy.loadVoiceTierConfig());
+      if (tier === 'draft' || tier === 'canon') return true;
       const provider = safeText(segment && segment.provider || op.provider || defaults.provider || 'auto', 40).toLowerCase();
       return provider === 'gemini' || (provider === 'auto' && (safeText(segment && (segment.direction || segment.naturalLanguageDirection) || op.direction || op.naturalLanguageDirection, 2000) || /\[[^\]\r\n]+\]/.test(String(segment && (segment.text || segment.transcript) || op.text || op.transcript || ''))));
     });
@@ -1632,6 +1692,75 @@ function audioRenderAcceptedReceipt({requestId, inputSha256, status = 'queued', 
 function readerRegistrationComplete(result = {}) {
   const registration = result && result.readerRegistration;
   return Boolean(registration && registration.authorization && registration.authorization.state === 'owner_scoped' && registration.discovery && registration.discovery.ok === true && registration.playback && registration.playback.ok === true && registration.bytePreservation && registration.bytePreservation.unchanged === true);
+}
+
+function summarizeVoiceTiers(receipts = []) {
+  const active = receipts.filter((receipt) => receipt && receipt.requestedTier);
+  if (!active.length) return null;
+  const requested = [...new Set(active.map((receipt) => receipt.requestedTier))];
+  const rendered = [...new Set(active.map((receipt) => receipt.renderedTier))];
+  const degraded = active.some((receipt) => receipt.degraded === true);
+  const canon = requested.length === 1 && requested[0] === 'canon' && rendered.length === 1 && rendered[0] === 'canon' && !degraded;
+  return {
+    schemaVersion: 'home-center.voice-tier-render-summary.v1',
+    requestedTier: requested.length === 1 ? requested[0] : 'mixed',
+    renderedTier: rendered.length === 1 ? rendered[0] : 'mixed',
+    qualityTier: rendered.length === 1 ? rendered[0] : 'mixed',
+    degraded,
+    canon,
+    canonEligible: canon,
+    overwriteCanonAllowed: false,
+    segmentReceiptCount: active.length,
+    attempts: active.flatMap((receipt) => receipt.attempts || []),
+    estimatedCostUsd: Number(active.flatMap((receipt) => receipt.attempts || []).reduce((sum, attempt) => sum + Number(attempt.estimatedCostUsd || 0), 0).toFixed(8)),
+    totalProviderLatencyMs: active.flatMap((receipt) => receipt.attempts || []).reduce((sum, attempt) => sum + Number(attempt.latencyMs || 0), 0),
+  };
+}
+
+function recipeRequestsCanon(recipe = {}) {
+  const defaults = recipe.speechDefaults && typeof recipe.speechDefaults === 'object' ? recipe.speechDefaults : {};
+  return (Array.isArray(recipe.graph) ? recipe.graph : []).some((op) => {
+    const type = safeText(op && (op.op || op.type), 80).toLowerCase();
+    if (!['speech', 'speech_sequence', 'audition'].includes(type)) return false;
+    const segments = type === 'speech_sequence' && Array.isArray(op.segments) ? op.segments : [op];
+    return segments.some((segment) => voiceTierPolicy.requestedTier({...defaults, ...op, ...segment}, voiceTierPolicy.loadVoiceTierConfig()) === 'canon');
+  });
+}
+
+function degradedOutputName(name, renderedTier) {
+  const safe = safeText(name, 240) || 'audio.wav';
+  const at = safe.lastIndexOf('.');
+  const base = at > 0 ? safe.slice(0, at) : safe;
+  const extension = at > 0 ? safe.slice(at) : '';
+  return base + '.degraded-' + safeText(renderedTier || 'fallback', 40) + extension;
+}
+
+async function queueAudioCanonRerender(admin, user, args, requestId, voiceTier) {
+  if (!voiceTier || voiceTier.requestedTier !== 'canon' || !voiceTier.degraded) return null;
+  const owner = safeText(user && (user.email || user.uid), 320) || 'unknown';
+  const queueId = sha256Hex(Buffer.from(owner + '\n' + requestId, 'utf8'));
+  const scriptText = safeText(args.scriptText || args.recipeText, 700000);
+  const queue = {
+    schemaVersion: 'home-center.canon-rerender-queue.v1',
+    queueId,
+    status: 'queued',
+    owner,
+    originalRequestId: requestId,
+    rerenderRequestId: requestId + '-canon-rerender-v1',
+    requestedTier: 'canon',
+    targetProvider: 'gemini',
+    targetModelId: voiceTierPolicy.primaryRoute('canon').modelId,
+    reasonCode: 'canon_quota_fallback',
+    preservedRequest: {scriptText, settings: args.settings || {}, parentFolderId: safeText(args.parentFolderId, 220), publishToDrive: args.publishToDrive !== false, project: safeText(args.project, 160), stage: safeText(args.stage, 120)},
+    preservedVoiceAndDirection: true,
+    dialogueStoredPrivately: true,
+    overwriteExistingCanon: false,
+    nextOperation: {operation: 'audio.render', args: {requestId: requestId + '-canon-rerender-v1', recover: false}},
+    createdAtMs: Date.now(),
+    updatedAtMs: Date.now(),
+  };
+  await admin.firestore().collection('voiceCanonRerenderQueue').doc(queueId).set(queue, {merge: true});
+  return {queueId, status: 'queued', rerenderRequestId: queue.rerenderRequestId, targetModelId: queue.targetModelId, preservedVoiceAndDirection: true, overwriteExistingCanon: false, statusOperation: {operation: 'tts.canon_rerender_status', args: {queueId}}};
 }
 
 function inputConflict(existing, inputSha256) {
@@ -1784,7 +1913,14 @@ async function executeAudioRenderJob({google, admin, auth, user, args = {}, help
     } finally {
       await renderHeartbeat.stop();
     }
-    const artifactContextBase = audioArtifactContext(args, rendered, null, user);
+    const voiceTier = summarizeVoiceTiers(rendered.voiceTierReceipts || []);
+    const canonRerenderQueue = await queueAudioCanonRerender(admin, user, args, requestId, voiceTier);
+    if (voiceTier && voiceTier.degraded) {
+      rendered.rendered = rendered.rendered.map((item) => ({...item, name: degradedOutputName(item.name, voiceTier.renderedTier), requestedTier: voiceTier.requestedTier, renderedTier: voiceTier.renderedTier, qualityTier: voiceTier.qualityTier, degraded: true, canon: false, canonEligible: false, overwriteCanonAllowed: false}));
+    } else if (voiceTier) {
+      rendered.rendered = rendered.rendered.map((item) => ({...item, requestedTier: voiceTier.requestedTier, renderedTier: voiceTier.renderedTier, qualityTier: voiceTier.qualityTier, degraded: false, canon: voiceTier.canon, canonEligible: voiceTier.canonEligible, overwriteCanonAllowed: false}));
+    }
+    const artifactContextBase = {...audioArtifactContext(args, rendered, null, user), ...(voiceTier ? {requestedTier: voiceTier.requestedTier, renderedTier: voiceTier.renderedTier, qualityTier: voiceTier.qualityTier, degraded: voiceTier.degraded, canon: voiceTier.canon, canonEligible: voiceTier.canonEligible, overwriteCanonAllowed: false} : {})};
     const publishToDrive = shouldPublishAudioToDrive(args, parentFolderId);
     if (rendered.finalMetrics.silent) throw audioError('Rendered audio is silent.', 422, 'audio_render_silent_output');
     if (rendered.finalMetrics.clippingCount > 0 && settings.allowClipping !== true) throw audioError('Rendered audio clipped; lower gain or enable allowClipping explicitly.', 422, 'audio_render_clipped_output');
@@ -1807,10 +1943,11 @@ async function executeAudioRenderJob({google, admin, auth, user, args = {}, help
     const primary = uploaded.find((item) => item.mimeType === 'audio/ogg') || uploaded.find((item) => /^audio\//.test(item.mimeType)) || uploaded[0];
     const manifest = {
       operation: 'audio.render', renderer: 'home-center-deterministic-audio-v1', artifactStore: {primary: 'gcs', bucket: GENERATED_ARTIFACT_BUCKET, drivePublish: publishToDrive ? 'post_render_publish_step' : 'disabled', driveIsRenderCache: false}, runtimeBoundary: rendered.usesGemini ? 'Home Center MCP synchronous direct execution to Gemini API with deterministic processing; no queue, worker, lease, Command Center, Codex, OpenAI API, GitHub Actions, or Termux runtime path.' : 'Home Center MCP async audio worker; direct Cartesia provider only when speech nodes are present; no Command Center, Codex, LLM, GitHub Actions renderer, or Termux runtime path.',
+      voiceTier, requestedTier: voiceTier && voiceTier.requestedTier || '', renderedTier: voiceTier && voiceTier.renderedTier || '', qualityTier: voiceTier && voiceTier.qualityTier || '', degraded: voiceTier ? voiceTier.degraded : false, canon: voiceTier ? voiceTier.canon : false, canonEligible: voiceTier ? voiceTier.canonEligible : false, overwriteCanonAllowed: false, canonRerenderQueue,
       requestId, inputSha256, seed: rendered.seed, sampleRate: rendered.sampleRate, phaseTimings: {...phaseTimings, ...rendered.phaseTimings, totalBeforeManifestMs: Date.now() - startedAtMs}, finalMetrics: {...rendered.finalMetrics, integratedLufs: Number.isFinite(rendered.finalMetrics.integratedLufs) ? rendered.finalMetrics.integratedLufs : null},
       sourceCount: Object.keys(materializedSources).length, sources: Object.values(materializedSources).map((src) => ({name: src.name, originalRef: src.originalRef, provider: src.provider, mimeType: src.mimeType, byteCount: src.byteCount, sha256: src.sha256, decoded: src.decoded})),
-      speech: {usesCartesia: rendered.usesCartesia, usesGemini: rendered.usesGemini, segmentCheckpoints: progress.segmentCheckpoints || [], supportedEmotions: CARTESIA_SUPPORTED_EMOTIONS, canonicalProfiles: Object.fromEntries(Object.entries(CANONICAL_CHARACTER_PROFILES).filter(([key, profile]) => key === String(profile.character).toLowerCase()).map(([key, profile]) => [key, {character: profile.character, aliases: profile.aliases, provider: profile.provider, voiceName: profile.voiceName, voiceId: profile.voiceId, modelId: profile.modelId, speed: profile.speed, pitchSemitones: profile.pitchSemitones, direction: profile.direction}])), takes: rendered.speechProvenance, sequences: rendered.speechSequences, auditionTakes: rendered.auditionTakes, limits: {maxDurationSeconds: MAX_DURATION_SECONDS, maxSpeechSequenceSegments: SPEECH_SEQUENCE_MAX_SEGMENTS, defaultSpeechConcurrency: SPEECH_SEQUENCE_DEFAULT_CONCURRENCY, maxWavBytes: MAX_WAV_OUTPUT_BYTES, maxEncodedBytes: MAX_ENCODED_OUTPUT_BYTES, inlineAudioMaxBytes: INLINE_AUDIO_MAX_BYTES}},
-      outputs: uploaded.map((item) => ({name: item.name, mimeType: item.mimeType, duration: item.clipMetrics.duration, sampleRate: item.clipMetrics.sampleRate, channelCount: item.clipMetrics.channelCount, bitDepth: item.mimeType === 'audio/wav' ? 16 : null, codec: item.format === 'ogg' ? 'vorbis' : item.format, byteCount: item.byteCount, sha256: item.sha256, readbackByteCount: item.readbackByteCount, readbackSha256: item.readbackSha256, peak: item.clipMetrics.peak, integratedLufs: Number.isFinite(item.clipMetrics.integratedLufs) ? item.clipMetrics.integratedLufs : null, clippingCount: item.clipMetrics.clippingCount, durableRef: item.durableRef, storageRef: item.storageRef, primaryStore: item.primaryStore, metadata: item.metadata, driveDurableRef: item.driveDurableRef, fileId: item.fileId, chatGptFileRef: item.chatGptFileRef, webViewLink: item.webViewLink})),
+      speech: {usesCartesia: rendered.usesCartesia, usesGemini: rendered.usesGemini, voiceTier, segmentCheckpoints: progress.segmentCheckpoints || [], supportedEmotions: CARTESIA_SUPPORTED_EMOTIONS, canonicalProfiles: Object.fromEntries(Object.entries(CANONICAL_CHARACTER_PROFILES).filter(([key, profile]) => key === String(profile.character).toLowerCase()).map(([key, profile]) => [key, {character: profile.character, aliases: profile.aliases, provider: profile.provider, voiceName: profile.voiceName, voiceId: profile.voiceId, modelId: profile.modelId, speed: profile.speed, pitchSemitones: profile.pitchSemitones, direction: profile.direction}])), takes: rendered.speechProvenance, sequences: rendered.speechSequences, auditionTakes: rendered.auditionTakes, limits: {maxDurationSeconds: MAX_DURATION_SECONDS, maxSpeechSequenceSegments: SPEECH_SEQUENCE_MAX_SEGMENTS, defaultSpeechConcurrency: SPEECH_SEQUENCE_DEFAULT_CONCURRENCY, maxWavBytes: MAX_WAV_OUTPUT_BYTES, maxEncodedBytes: MAX_ENCODED_OUTPUT_BYTES, inlineAudioMaxBytes: INLINE_AUDIO_MAX_BYTES}},
+      outputs: uploaded.map((item) => ({name: item.name, mimeType: item.mimeType, duration: item.clipMetrics.duration, sampleRate: item.clipMetrics.sampleRate, channelCount: item.clipMetrics.channelCount, bitDepth: item.mimeType === 'audio/wav' ? 16 : null, codec: item.format === 'ogg' ? 'vorbis' : item.format, byteCount: item.byteCount, sha256: item.sha256, readbackByteCount: item.readbackByteCount, readbackSha256: item.readbackSha256, peak: item.clipMetrics.peak, integratedLufs: Number.isFinite(item.clipMetrics.integratedLufs) ? item.clipMetrics.integratedLufs : null, clippingCount: item.clipMetrics.clippingCount, durableRef: item.durableRef, storageRef: item.storageRef, primaryStore: item.primaryStore, metadata: item.metadata, driveDurableRef: item.driveDurableRef, fileId: item.fileId, chatGptFileRef: item.chatGptFileRef, webViewLink: item.webViewLink, requestedTier: voiceTier && voiceTier.requestedTier || '', renderedTier: voiceTier && voiceTier.renderedTier || '', qualityTier: voiceTier && voiceTier.qualityTier || '', degraded: voiceTier ? voiceTier.degraded : false, canon: voiceTier ? voiceTier.canon : false, canonEligible: voiceTier ? voiceTier.canonEligible : false, overwriteCanonAllowed: false})),
       speechCheckpoint,
       noAgentRuntime: true, noCommandCenter: true, noCodex: true, noGithubActionsRenderer: true, noTermuxRuntime: true,
     };
@@ -1818,7 +1955,8 @@ async function executeAudioRenderJob({google, admin, auth, user, args = {}, help
     publicationSubphase = 'manifest';
     progress = audioProgressPatch(progress, {phase: 'publishing_artifacts', publicationSubphase, publishedOutputCount: uploaded.length, publicationTargetCount: rendered.rendered.length + 1});
     const manifestStartedAtMs = Date.now();
-    const manifestUpload = await uploadVerified({google, auth, parentFolderId, item: {name: safeText(args.manifestName, 240) || 'audio-render-manifest-' + requestId + '.json', format: 'json', mimeType: 'application/json', bytes: manifestBytes, byteCount: manifestBytes.length, sha256: sha256Hex(manifestBytes), clipMetrics: rendered.finalMetrics}, artifactContext: {...artifactContextBase, artifactType: 'manifest'}, publishToDrive});
+    const manifestBaseName = safeText(args.manifestName, 240) || 'audio-render-manifest-' + requestId + '.json';
+    const manifestUpload = await uploadVerified({google, auth, parentFolderId, item: {name: voiceTier && voiceTier.degraded ? degradedOutputName(manifestBaseName, voiceTier.renderedTier) : manifestBaseName, format: 'json', mimeType: 'application/json', bytes: manifestBytes, byteCount: manifestBytes.length, sha256: sha256Hex(manifestBytes), clipMetrics: rendered.finalMetrics}, artifactContext: {...artifactContextBase, artifactType: 'manifest'}, publishToDrive});
     await publicationHeartbeat.stop();
     publicationHeartbeat = null;
     phaseTimings.manifestPublicationMs = Date.now() - manifestStartedAtMs;
@@ -1836,6 +1974,12 @@ async function executeAudioRenderJob({google, admin, auth, user, args = {}, help
       return registrationRequired;
     }
     const result = {...baseResult, ok: true, status: 'completed', readerRegistration, reviewReady: readerRegistration.discovery.ok === true && readerRegistration.playback.ok === true, completedAtMs: Date.now()};
+    if (voiceTier) {
+      const telemetryId = sha256Hex(Buffer.from(actor + '\n' + requestId, 'utf8'));
+      const telemetry = {schemaVersion: 'home-center.voice-render-telemetry.v1', requestId, owner: actor, operation: 'audio.render', requestedTier: voiceTier.requestedTier, renderedTier: voiceTier.renderedTier, qualityTier: voiceTier.qualityTier, degraded: voiceTier.degraded, canon: voiceTier.canon, provider: rendered.usesGemini ? 'gemini' : rendered.usesCartesia ? 'cartesia' : '', models: [...new Set(rendered.speechProvenance.map((take) => take.modelId).filter(Boolean))], segmentCount: rendered.speechProvenance.length, estimatedCostUsd: voiceTier.estimatedCostUsd, providerLatencyMs: voiceTier.totalProviderLatencyMs, totalLatencyMs: phaseTimings.totalMs, quotaFallbackCount: voiceTier.attempts.filter((attempt) => attempt.quotaError === true).length, byteCount: primary && primary.byteCount || 0, sha256: primary && primary.sha256 || '', updatedAtMs: Date.now()};
+      await admin.firestore().collection('voiceRenderTelemetry').doc(telemetryId).set(telemetry, {merge: true});
+      result.telemetry = {...telemetry, owner: undefined, telemetryId};
+    }
     const audit = await writeAudioAudit(helpers, admin, {actor, authKind, tool: 'audio.render', operation: 'audio.render', requestId, status: 'completed', fileId: primary && (primary.fileId || primary.storageRef) || '', affectedFileIds, affectedStorageRefs, callerNote: args.callerNote, providerSummary: 'Rendered and privately registered audio artifact ' + (primary && primary.name || 'audio') + ' (' + (primary && primary.byteCount || 0) + ' bytes).', result, inputSha256, progress: audioProgressPatch(progress, {phase: 'completed', outputCount: uploaded.length + 1, completedAtMs: result.completedAtMs}), lease: null});
     result.audit = audit.audit ? {...audit.audit, result: null} : audit.audit;
     if (helpers.recordActionAudit) await helpers.recordActionAudit(admin, user || {}, 'audio.render', primary && (primary.storageRef || primary.fileId) || '', 'Rendered and privately registered audio artifact ' + (primary && primary.name || 'audio') + ' (' + (primary && primary.byteCount || 0) + ' bytes).', requestId).catch(() => {});
@@ -1848,7 +1992,12 @@ async function executeAudioRenderJob({google, admin, auth, user, args = {}, help
     return result;
   } catch (err) {
     if (publicationHeartbeat) await publicationHeartbeat.stop();
-    const failure = {ok: false, status: 'failed', code: safeText(err && (err.failureKind || err.code), 120) || 'audio_render_failed', message: safeText(err && err.message, 500), whatFailed: safeText(err && err.message, 500), preservedProgress: err && err.providerFailure && err.providerFailure.preservedProgress || (progress.speechCheckpoint ? 'Verified speech checkpoint preserved.' : 'No durable speech checkpoint was completed.'), possibleProviderUsage: Boolean(err && err.providerFailure && err.providerFailure.possibleProviderUsage), retrySensible: Boolean(err && err.providerFailure && err.providerFailure.retrySensible), recoveryReference: err && err.providerFailure && err.providerFailure.recoveryReference || requestId, safeNextAction: err && err.providerFailure && err.providerFailure.safeNextAction || 'Inspect audio.render_status and retry only with the same idempotency key.', inputSha256, speechCheckpoint: progress.speechCheckpoint || null, failedAtMs: Date.now()};
+    let canonRerenderQueue = null;
+    if (voiceTierPolicy.isQuotaError(err) && recipeRequestsCanon(recipe)) {
+      canonRerenderQueue = await queueAudioCanonRerender(admin, user, args, requestId, {requestedTier: 'canon', renderedTier: '', degraded: true}).catch(() => null);
+      if (canonRerenderQueue) err.providerFailure = {...(err.providerFailure || {}), recoveryReference: canonRerenderQueue.queueId, safeNextAction: 'Inspect tts.canon_rerender_status and retry the queued canon render later.'};
+    }
+    const failure = {ok: false, status: 'failed', code: safeText(err && (err.failureKind || err.code), 120) || 'audio_render_failed', message: safeText(err && err.message, 500), whatFailed: safeText(err && err.message, 500), preservedProgress: err && err.providerFailure && err.providerFailure.preservedProgress || (progress.speechCheckpoint ? 'Verified speech checkpoint preserved.' : 'No durable speech checkpoint was completed.'), possibleProviderUsage: Boolean(err && err.providerFailure && err.providerFailure.possibleProviderUsage), retrySensible: Boolean(err && err.providerFailure && err.providerFailure.retrySensible), recoveryReference: err && err.providerFailure && err.providerFailure.recoveryReference || requestId, safeNextAction: err && err.providerFailure && err.providerFailure.safeNextAction || 'Inspect audio.render_status and retry only with the same idempotency key.', inputSha256, speechCheckpoint: progress.speechCheckpoint || null, canonRerenderQueue, failedAtMs: Date.now()};
     await writeAudioAudit(helpers, admin, {actor, authKind, tool: 'audio.render', operation: 'audio.render', requestId, status: 'failed', callerNote: args.callerNote, providerSummary: 'audio.render failed: ' + failure.code, result: failure, inputSha256, progress: audioProgressPatch(progress, {phase: 'failed', errorCode: failure.code}), lease: null}).catch(() => {});
     throw err;
   }

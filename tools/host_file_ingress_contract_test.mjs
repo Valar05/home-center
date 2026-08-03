@@ -48,6 +48,25 @@ test('generated Work Mode artifact uses the same typed boundary', async () => {
   assert.deepEqual(Buffer.from(await file.arrayBuffer()), fixture);
 });
 
+test('current Responses input_file and input_image aliases preserve binary/photo metadata', async () => {
+  const binary = await materialize({type: 'input_file', file_id: 'file_binary_001', file_url: 'https://files.example.test/download/binary', filename: 'archive.bin', mime_type: 'application/octet-stream'});
+  assert.equal(binary.fileId, 'file_binary_001');
+  assert.equal(binary.name, 'archive.bin');
+  assert.equal(binary.type, 'application/octet-stream');
+  assert.deepEqual(Buffer.from(await binary.arrayBuffer()), fixture);
+  const photo = await materialize({type: 'input_image', image_url: 'https://files.example.test/download/photo', filename: 'fortress.png', mimeType: 'image/png'});
+  assert.match(photo.fileId, /^url-[a-f0-9]{32}$/);
+  assert.equal(photo.name, 'fortress.png');
+  assert.equal(photo.type, 'image/png');
+  assert.deepEqual(Buffer.from(await photo.arrayBuffer()), fixture);
+});
+
+test('one-element file arrays from host binding are accepted', async () => {
+  const file = await materialize([descriptor({file_id: 'file_array_001'})]);
+  assert.equal(file.fileId, 'file_array_001');
+  assert.deepEqual(Buffer.from(await file.arrayBuffer()), fixture);
+});
+
 test('Drive ingress spools fragmented bytes privately and deletes them on cleanup', async (t) => {
   const directory = await mkdtemp(path.join(tmpdir(), 'home-center-host-file-test-'));
   t.after(() => rm(directory, {recursive: true, force: true}));
@@ -85,7 +104,7 @@ test('plain paths and attachment handle strings fail closed', async () => {
 });
 
 test('malformed, expired, oversized, and unsafe files return bounded errors', async () => {
-  await assert.rejects(() => materialize({download_url: 'https://files.example.test/x'}), (error) => error.code === 'host_file_schema_invalid' && !error.message.includes('https://'));
+  await assert.rejects(() => materialize({file_id: 'file_missing_url'}), (error) => error.code === 'host_file_schema_invalid');
   await assert.rejects(() => materialize(descriptor(), {fetchImpl: async () => new Response('', {status: 410})}), (error) => error.code === 'host_file_expired' && /attach the file again/i.test(error.message));
   await assert.rejects(() => materialize(descriptor(), {fetchImpl: async () => new Response('x', {status: 200, headers: {'content-length': '2048'}})}), (error) => error.code === 'host_file_too_large');
   await assert.rejects(() => materialize(descriptor({download_url: 'http://files.example.test/x'})), (error) => error.code === 'host_file_url_forbidden');
@@ -103,10 +122,12 @@ test('tool discovery advertises exact OpenAI file parameter contract', async () 
     assert.deepEqual(tool._meta['openai/fileParams'], ['file']);
     assert.deepEqual(tool.inputSchema.properties.file, {$ref: '#/$defs/OpenAIFile'});
     const fileSchema = tool.inputSchema.$defs.OpenAIFile;
-    assert.equal(fileSchema.type, 'object');
-    assert.deepEqual(fileSchema.required, ['download_url', 'file_id']);
-    assert.deepEqual(Object.keys(fileSchema.properties).sort(), ['download_url', 'file_id', 'file_name', 'mime_type']);
-    assert.equal(fileSchema.additionalProperties, false);
+    assert.equal(fileSchema.anyOf.length, 2);
+    const objectSchema = fileSchema.anyOf[0];
+    assert.equal(objectSchema.type, 'object');
+    assert.deepEqual(objectSchema.anyOf.map((entry) => entry.required[0]), ['download_url', 'file_url', 'image_url', 'url']);
+    for (const key of ['download_url', 'file_url', 'image_url', 'file_id', 'filename', 'mime_type', 'mimeType', 'type']) assert.ok(objectSchema.properties[key]);
+    assert.equal(objectSchema.additionalProperties, false);
     assert.notEqual(tool.inputSchema.properties.file.type, 'string');
   }
 });
@@ -115,6 +136,7 @@ test('cold module reload preserves file binding behavior', () => {
   const modulePath = require.resolve('../functions/host_file_ingress.js');
   delete require.cache[modulePath];
   const cold = require(modulePath);
-  assert.deepEqual(cold.openAiFileParamJsonSchema().required, ['download_url', 'file_id']);
+  assert.equal(cold.openAiFileParamJsonSchema().anyOf.length, 2);
   assert.equal(cold.normalizeFileParam(descriptor()).fileId, 'file_fixture_001');
+  assert.equal(cold.normalizeFileParam({type: 'input_file', file_url: 'https://files.example.test/x', filename: 'x.bin'}).fileName, 'x.bin');
 });

@@ -2,6 +2,20 @@
 
 Home Center exposes `gemini-3.1-flash-tts-preview` through the existing `drive_operation` names `tts.voices`, `tts.synthesize`, and `audio.render`. It does not add a top-level MCP tool.
 
+## Voice quality tiers
+
+Callers may select `voiceTier` (`utility`, `draft`, or `canon`) or the equivalent `useCase` aliases. The configuration is loaded from `HOME_CENTER_VOICE_TIER_CONFIG_JSON` when supplied and otherwise uses the checked-in defaults:
+
+- `utility` / `ui` / `captions`: the enabled route with the lowest configured marginal cost, currently Cartesia `sonic-3.5` under the prepaid-credit configuration.
+- `draft` / `audition` / `dialogue`: Gemini `gemini-3.1-flash-tts-preview`.
+- `canon` / `final_performance`: Gemini `gemini-2.5-pro-preview-tts`. Google does not currently expose a Gemini 3.1 Pro TTS model; the approved model allowlist rejects non-speech Gemini Pro identifiers.
+
+Legacy calls that omit both tier and use case retain the existing explicit/auto provider behavior. This prevents a deployed Cartesia caller from silently changing provider or billing merely because tiers were added.
+
+Fallback is attempted only after a quota/rate-limit result and only to a lower tier. An accepted voice or locked direction blocks a provider-namespace change that cannot preserve it. Every fallback artifact and manifest receives a `.degraded-<rendered-tier>` filename, `degraded:true`, `canon:false`, `canonEligible:false`, and `overwriteCanonAllowed:false`. A degraded or quota-blocked canon request creates an owner-scoped rerender queue receipt that preserves the exact private request, accepted voice, and direction; `tts.canon_rerender_status` exposes status and hashes without returning dialogue. The queue never overwrites an existing canon artifact.
+
+`tts.tier_policy` returns the active configuration revision, digest, routes, and safeguards as text. Tier receipts and `voiceRenderTelemetry` record route attempts, real quota outcomes, provider/model, latency, configured cost estimate, bytes, and hashes. Dialogue and secrets remain absent from infrastructure summaries.
+
 The authorized live lane is:
 
 ```text

@@ -43,6 +43,7 @@ node --check functions/hosted_speech_provider.js
 node --check functions/gemini_speech_provider.js
 node --check functions/gemini_tts_artifact_service.js
 node tools/gemini_tts_contract_test.mjs
+node tools/voice_tier_contract_test.mjs
 node --check functions/audio_library_api.js
 node --check tools/audio_library_contract_test.mjs
 node tools/audio_library_contract_test.mjs
@@ -68,6 +69,7 @@ node tools/home_center_engineering_orient.mjs --self-test
 node --check tools/home_center_artifact_register.mjs
 node --check tools/home_center_engineering_orient.mjs
 node tools/drive_bridge_create_tools_test.mjs
+node tools/host_file_ingress_contract_test.mjs
 node --check tools/droobiedoo_context_source_contract_test.mjs
 node tools/droobiedoo_context_source_contract_test.mjs
 node tools/home_center_calendar_time_test.js

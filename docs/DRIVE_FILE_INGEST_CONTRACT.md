@@ -5,8 +5,8 @@
 ## Input
 
 - `requestId`: stable idempotency and audit key.
-- `file`: top-level ChatGPT host file parameter. Discovery declares `_meta["openai/fileParams"] = ["file"]`; ChatGPT supplies an object containing required `download_url` and `file_id`, with optional `mime_type` and `file_name`.
-- Home Center accepts that typed object only. Workspace paths, bare attachment handles, arbitrary URL strings, Base64 strings, and nested descriptors are rejected.
+- `file`: top-level ChatGPT host file parameter. Discovery declares `_meta["openai/fileParams"] = ["file"]`. Home Center accepts the legacy `download_url`/`file_id` descriptor and current Responses-compatible `input_file` (`file_url`, optional `file_id`, `filename`) and `input_image` (`image_url`, optional `file_id`, `filename`, `detail`) descriptors. Camel-case MIME aliases and the host's one-element file array binding are normalized at this boundary.
+- Home Center accepts those typed objects only. When the host omits a file ID, Home Center derives a stable non-secret ID from the validated URL for idempotency; the URL itself is never logged. Workspace paths, bare attachment handles, arbitrary URL strings, Base64 strings, multi-file arrays, and nested descriptors are rejected.
 - `name`, `mimeType`, and `parentFolderId`: optional Drive metadata.
 - `expectedSha256`: optional caller-side provenance lock.
 - `callerNote`: bounded audit summary.
@@ -16,6 +16,8 @@ The default ceiling is 256 MiB and can be lowered through `HOME_CENTER_DRIVE_ING
 ## Safety and recovery
 
 The ingress adapter validates a credential-free HTTPS host-file URL, rejects private/reserved network destinations and unsafe redirects, and streams the response into a mode-600 function-private temporary file while enforcing the byte ceiling and computing SHA-256. It never logs the signed URL or file handle and never buffers the full attachment in process memory. Drive upload and Drive readback are both streamed; the temporary file is deleted in a guaranteed cleanup boundary. A reused request ID must match the same bytes, filename, MIME type, and destination folder. The Drive object carries private app properties for request ID and SHA-256, allowing recovery after an ambiguous response without creating a second copy. Multiple matching objects quarantine the request.
+
+Photo and general binary inputs use the same byte-preserving stream. MIME type and filename affect metadata only; no text decoding, image transcoding, Base64 round trip, or newline normalization is performed.
 
 Files are created private by default. No public permission is added.
 

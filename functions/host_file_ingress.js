@@ -21,48 +21,78 @@ function fail(message, status = 400, code = 'host_file_invalid') {
 }
 
 function openAiFileParamJsonSchema(description = 'Required top-level ChatGPT host file.') {
-  return {
+  const objectSchema = {
     type: 'object',
     properties: {
       download_url: {type: 'string'},
+      file_url: {type: 'string'},
+      image_url: {type: 'string'},
+      url: {type: 'string'},
       file_id: {type: 'string'},
+      id: {type: 'string'},
       mime_type: {type: 'string'},
+      mimeType: {type: 'string'},
+      content_type: {type: 'string'},
       file_name: {type: 'string'},
+      filename: {type: 'string'},
+      name: {type: 'string'},
+      type: {type: 'string'},
+      detail: {type: 'string'},
+      size: {type: 'number'},
+      bytes: {type: 'number'},
     },
-    required: ['download_url', 'file_id'],
+    anyOf: [{required: ['download_url']}, {required: ['file_url']}, {required: ['image_url']}, {required: ['url']}],
     additionalProperties: false,
-    description,
   };
+  return {anyOf: [objectSchema, {type: 'array', minItems: 1, maxItems: 1, items: objectSchema}], description};
 }
 
 function openAiFileParamZodSchema(z, description = 'Required top-level ChatGPT host file.') {
-  return z.object({
-    download_url: z.string(),
-    file_id: z.string(),
+  const object = z.object({
+    download_url: z.string().optional(),
+    file_url: z.string().optional(),
+    image_url: z.string().optional(),
+    url: z.string().optional(),
+    file_id: z.string().optional(),
+    id: z.string().optional(),
     mime_type: z.string().optional(),
+    mimeType: z.string().optional(),
+    content_type: z.string().optional(),
     file_name: z.string().optional(),
-  }).strict().describe(description);
+    filename: z.string().optional(),
+    name: z.string().optional(),
+    type: z.string().optional(),
+    detail: z.string().optional(),
+    size: z.number().optional(),
+    bytes: z.number().optional(),
+  }).strict().refine((value) => Boolean(value.download_url || value.file_url || value.image_url || value.url), {message: 'A host file URL is required.'});
+  return z.union([object, z.array(object).length(1)]).describe(description);
 }
 
 function normalizeFileParam(value) {
+  if (Array.isArray(value) && value.length === 1) value = value[0];
   if (!value || typeof value !== 'object' || Array.isArray(value)) {
     throw fail('file must be a top-level ChatGPT host file object; paths, handles, URLs, Base64 strings, and nested descriptors are rejected.', 400, 'host_file_required');
   }
   const keys = Object.keys(value);
-  const allowed = new Set(['download_url', 'file_id', 'mime_type', 'file_name']);
+  const allowed = new Set(['download_url', 'file_url', 'image_url', 'url', 'file_id', 'id', 'mime_type', 'mimeType', 'content_type', 'file_name', 'filename', 'name', 'type', 'detail', 'size', 'bytes']);
   if (keys.some((key) => !allowed.has(key))) {
     throw fail('file contains unsupported fields and was not accepted as a ChatGPT host file.', 400, 'host_file_schema_invalid');
   }
-  const downloadUrl = typeof value.download_url === 'string' ? value.download_url.trim() : '';
-  const fileId = typeof value.file_id === 'string' ? value.file_id.trim() : '';
-  if (!downloadUrl || !FILE_ID_PATTERN.test(fileId)) {
-    throw fail('file is missing a valid ChatGPT file_id or download_url; the attachment may be malformed or expired.', 400, 'host_file_schema_invalid');
+  const downloadUrl = [value.download_url, value.file_url, value.image_url, value.url].find((candidate) => typeof candidate === 'string' && candidate.trim()) || '';
+  const suppliedFileId = [value.file_id, value.id].find((candidate) => typeof candidate === 'string' && candidate.trim()) || '';
+  const fileId = suppliedFileId.trim() || ('url-' + createHash('sha256').update(String(downloadUrl).trim()).digest('hex').slice(0, 32));
+  if (!downloadUrl.trim() || !FILE_ID_PATTERN.test(fileId)) {
+    throw fail('file is missing a valid ChatGPT file URL or file identifier; the attachment may be malformed or expired.', 400, 'host_file_schema_invalid');
   }
+  const discriminator = typeof value.type === 'string' ? value.type.trim() : '';
+  const typeMime = discriminator.includes('/') ? discriminator : '';
   return {
-    downloadUrl,
+    downloadUrl: downloadUrl.trim(),
     fileId,
-    mimeType: typeof value.mime_type === 'string' ? value.mime_type.trim().slice(0, 160) : '',
-    fileName: typeof value.file_name === 'string' ? value.file_name.trim().slice(0, 240) : '',
+    mimeType: String(value.mime_type || value.mimeType || value.content_type || typeMime || '').trim().slice(0, 160),
+    fileName: String(value.file_name || value.filename || value.name || '').trim().slice(0, 240),
+    inputKind: discriminator === 'input_image' ? 'photo' : discriminator === 'input_file' ? 'binary' : 'host_file',
   };
 }
 
