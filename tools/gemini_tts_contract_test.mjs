@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import {createRequire} from 'node:module';
 const require=createRequire(import.meta.url);
+import fs from 'node:fs';
 const provider=require('../functions/gemini_speech_provider.js');
 const pcm=Buffer.alloc(provider.GEMINI_SAMPLE_RATE*2/4);for(let i=0;i<pcm.length;i+=2)pcm.writeInt16LE(i%400===0?12000:1000,i);
 let calls=0,lastBody=null;
@@ -22,4 +23,5 @@ assert.equal(stale.stale,true);assert.equal(stale.cacheState,'stale_missing_secr
 let retryCalls=0;const retryFetch=async()=>{retryCalls++;if(retryCalls===1)return {ok:false,status:429,headers:{get:()=> '0'},text:async()=> 'quota'};return {ok:true,status:200,headers:{get:()=>null},json:async()=>({output_audio:{data:pcm.toString('base64')}}),text:async()=>''};};
 const retried=await provider.synthesizeGeminiPcm({apiKeyGetter:()=> 'test-key',text:'Retry once.',fetchImpl:retryFetch,maxRetries:1});assert.equal(retried.requestAttemptCount,2);
 const {renderRecipe}=require('../functions/audio_render_service.js');const previousFetch=global.fetch;global.fetch=okFetch;try{const rendered=await renderRecipe({sampleRate:24000,graph:[{id:'voice',op:'speech',provider:'gemini',voiceName:'Puck',direction:'Bright and decisive.',text:'Exact line.'}],final:'voice',outputs:[{name:'voice.wav',format:'wav',clip:'voice'}]}, {}, {geminiApiKey:()=> 'test-key'});assert.equal(rendered.usesGemini,true);assert.equal(rendered.usesCartesia,false);assert.equal(rendered.speechProvenance[0].provider,'gemini');assert.equal(rendered.speechProvenance[0].transcript,'Exact line.');assert.equal(rendered.rendered[0].bytes.toString('ascii',0,4),'RIFF');}finally{global.fetch=previousFetch;}
+const deploy=fs.readFileSync(new URL('./deploy_functions_termux.sh',import.meta.url),'utf8');assert.match(deploy,/GEMINI_API_KEY=GEMINI_API_KEY:latest/);
 console.log('Home Center Gemini TTS contract: OK');
