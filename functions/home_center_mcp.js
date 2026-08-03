@@ -4454,13 +4454,36 @@ async function recordVoiceTierTelemetry(admin, user, requestId, receipt, result)
   return {...record, telemetryId, owner: undefined};
 }
 
+async function replaceSuccessfulTierAuditResult(admin, requestId, result, providerSummary) {
+  const ref = mcpCollection(admin, 'driveBridgeAudit').doc(stableRequestId(requestId));
+  const snap = await ref.get();
+  const stored = snap.exists ? snap.data() || {} : {};
+  if (!snap.exists || !['success', 'completed'].includes(stored.status)) throw Object.assign(new Error('Tier receipt could not bind to a terminal provider audit.'), {status: 502, failureKind: 'voice_tier_audit_missing'});
+  const prior = stored.result || {};
+  if ((prior.fileId && prior.fileId !== result.fileId) || (prior.sha256 && prior.sha256 !== result.sha256)) throw Object.assign(new Error('Tier receipt identity did not match the terminal provider audit.'), {status: 502, failureKind: 'voice_tier_audit_identity_mismatch'});
+  await ref.set({result, providerSummary: safeText(providerSummary, 1000), updatedAtMs: nowMs()}, {merge: true});
+  return {...stored, result: null, providerSummary: safeText(providerSummary, 1000)};
+}
+
 async function synthesizeTieredSpeechAudioArtifactOperation(context, tier, tierConfig) {
   const requestId = createRequestId(context.args && context.args.requestId);
+  const routes = voiceTierPolicy.downwardRoutes(tier, tierConfig);
   const existing = await existingAudit(context.admin, requestId);
   if (existing && existing.status === 'success' && existing.result) {
-    return {...existing.result, idempotent: true, audit: {...existing, result: null}};
+    if (existing.result.voiceTier && existing.result.requestedTier) return {...existing.result, idempotent: true, audit: {...existing, result: null}};
+    const renderedRoute = routes.find((route) => route.provider === existing.result.provider && route.modelId === existing.result.modelId);
+    if (!renderedRoute) throw Object.assign(new Error('Stored provider receipt does not match an authorized route for this voice tier.'), {status: 409, failureKind: 'voice_tier_idempotency_route_mismatch'});
+    const attempts = [{tier: renderedRoute.tier, provider: renderedRoute.provider, modelId: renderedRoute.modelId, status: 'reused', code: '', quotaError: false, latencyMs: 0, estimatedCostUsd: 0, costBasis: 'idempotent_replay'}];
+    let queue = null;
+    const provisional = voiceTierPolicy.tierReceipt({requested: tier, rendered: renderedRoute.tier, config: tierConfig, attempts});
+    const decorated = {...existing.result, requestedTier: tier, renderedTier: renderedRoute.tier, qualityTier: renderedRoute.tier, degraded: provisional.degraded, canon: provisional.canon, canonEligible: provisional.canonEligible, overwriteCanonAllowed: false};
+    if (tier === 'canon' && renderedRoute.tier !== 'canon') queue = await queueCanonRerender(context.admin, context.user, context.args || {}, requestId, decorated, 'idempotent_degraded_receipt_recovery', tierConfig);
+    const receipt = voiceTierPolicy.tierReceipt({requested: tier, rendered: renderedRoute.tier, config: tierConfig, attempts, queue});
+    const telemetry = await recordVoiceTierTelemetry(context.admin, context.user, requestId, receipt, decorated);
+    const finalResult = {...decorated, voiceTier: receipt, telemetry, routing: {requested: 'tier', selected: renderedRoute.provider, reason: 'voice_tier_policy', tier, modelId: renderedRoute.modelId, fallback: receipt.degraded ? {authorized: true, reason: 'quota_only', downward: true} : null}};
+    const audit = await replaceSuccessfulTierAuditResult(context.admin, requestId, finalResult, 'Recovered tier labels for an idempotent verified provider receipt; no provider call was made.');
+    return {...finalResult, idempotent: true, audit};
   }
-  const routes = voiceTierPolicy.downwardRoutes(tier, tierConfig);
   const locks = voiceTierPolicy.acceptedLocks(context.args || {});
   const attempts = [];
   let lastQuotaError = null;
@@ -4488,7 +4511,9 @@ async function synthesizeTieredSpeechAudioArtifactOperation(context, tier, tierC
       const receipt = voiceTierPolicy.tierReceipt({requested: tier, rendered: route.tier, config: tierConfig, attempts, queue});
       const telemetry = await recordVoiceTierTelemetry(context.admin, context.user, requestId, receipt, decorated);
       const finalResult = {...decorated, voiceTier: receipt, telemetry, routing: {requested: 'tier', selected: route.provider, reason: 'voice_tier_policy', tier, modelId: route.modelId, fallback: receipt.degraded ? {authorized: true, reason: 'quota_only', downward: true} : null}};
-      await auditWrite(context.admin, {actor: context.user.email || context.user.uid || 'unknown', authKind: context.user.authKind, tool: 'tts.synthesize', operation: 'tts.synthesize', requestId, status: 'success', fileId: finalResult.fileId || '', affectedFileIds: [finalResult.fileId, ...(finalResult.segmentCheckpoints || []).map((item) => item.fileId)].filter(Boolean), callerNote: context.args && context.args.callerNote, providerSummary: 'Synthesized verified ' + route.tier + ' voice artifact through ' + route.provider + '; degraded=' + receipt.degraded + '.', result: finalResult, inputSha256: finalResult.transcriptSha256 || '', lease: null});
+      const providerSummary = 'Synthesized verified ' + route.tier + ' voice artifact through ' + route.provider + '; degraded=' + receipt.degraded + '.';
+      await auditWrite(context.admin, {actor: context.user.email || context.user.uid || 'unknown', authKind: context.user.authKind, tool: 'tts.synthesize', operation: 'tts.synthesize', requestId, status: 'success', fileId: finalResult.fileId || '', affectedFileIds: [finalResult.fileId, ...(finalResult.segmentCheckpoints || []).map((item) => item.fileId)].filter(Boolean), callerNote: context.args && context.args.callerNote, providerSummary, result: finalResult, inputSha256: finalResult.transcriptSha256 || '', lease: null});
+      await replaceSuccessfulTierAuditResult(context.admin, requestId, finalResult, providerSummary);
       return finalResult;
     } catch (error) {
       const quotaError = voiceTierPolicy.isQuotaError(error);
