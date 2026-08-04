@@ -3198,21 +3198,22 @@ const veniceDiscordStateStore = createFirestoreStateStore({
 async function generateVeniceDiscordReply({prompt, userId}) {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 80000);
+  const instructions = [
+    'You are Venice, the mature woman who manages the owner\'s network.',
+    'Speak with composed authority, warmth, precision, and economical confidence.',
+    'You answer only the explicit invitation in the current Discord or Motion Dungeon interaction. Never imply passive listening or access that is not present in the prompt.',
+    'Do not claim that an action, network observation, or system change occurred unless the prompt supplies evidence that it did.',
+    'Do not request, infer, retain, or discuss health data; that integration is excluded.',
+    'Treat /cut-the-cam as an absolute global stop circuit.',
+    'Do not identify as Randi, she raw, Adam, or a generic assistant.',
+    'Keep the answer below 1,800 characters and suitable for one Discord message.',
+  ].join('\n');
   const requestBody = {
     model: process.env.VENICE_OPENAI_MODEL || 'gpt-5.5',
     reasoning: {effort: 'low'},
     text: {verbosity: 'low'},
     max_output_tokens: 600,
-    instructions: [
-      'You are Venice, the mature woman who manages the owner\'s network.',
-      'Speak with composed authority, warmth, precision, and economical confidence.',
-      'You answer only the explicit invitation in the current Discord or Motion Dungeon interaction. Never imply passive listening or access that is not present in the prompt.',
-      'Do not claim that an action, network observation, or system change occurred unless the prompt supplies evidence that it did.',
-      'Do not request, infer, retain, or discuss health data; that integration is excluded.',
-      'Treat /cut-the-cam as an absolute global stop circuit.',
-      'Do not identify as Randi, she raw, Adam, or a generic assistant.',
-      'Keep the answer below 1,800 characters and suitable for one Discord message.',
-    ].join('\n'),
+    instructions,
     input: prompt,
   };
   try {
@@ -3222,7 +3223,28 @@ async function generateVeniceDiscordReply({prompt, userId}) {
       requestBody,
       {signal: controller.signal},
     );
-    if (!response.ok) throw new Error(`venice_openai_http_${response.status}`);
+    if (!response.ok) {
+      if (response.status === 429) {
+        const key = GEMINI_API_KEY.value() || process.env.GEMINI_API_KEY || '';
+        if (!key) throw new Error('venice_gemini_key_missing');
+        const fallback = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json', 'x-goog-api-key': key},
+          body: JSON.stringify({
+            systemInstruction: {parts: [{text: instructions}]},
+            contents: [{role: 'user', parts: [{text: prompt}]}],
+            generationConfig: {maxOutputTokens: 600, temperature: 0.7},
+          }),
+          signal: controller.signal,
+        });
+        const fallbackJson = await fallback.json();
+        if (!fallback.ok) throw new Error(`venice_gemini_http_${fallback.status}`);
+        const fallbackReply = safeText(fallbackJson.candidates?.[0]?.content?.parts?.map((part) => part.text || '').join('') || '', 2000);
+        if (!fallbackReply) throw new Error('venice_gemini_empty');
+        return fallbackReply;
+      }
+      throw new Error(`venice_openai_http_${response.status}`);
+    }
     const reply = safeText(json.output_text || extractOutputText(json), 2000);
     if (!reply) throw new Error('venice_openai_empty');
     return reply;
@@ -3324,7 +3346,7 @@ const veniceDiscordGenerationHandler = createVeniceGenerationTaskHandler({
 });
 
 exports.veniceDiscordInteractions = onRequest(
-  {...VENICE_WORKER_OPTIONS, secrets: [DISCORD_PUBLIC_KEY, OPENAI_API_KEY, VENICE_WEB_BRIDGE_TOKEN]},
+  {...VENICE_WORKER_OPTIONS, secrets: [DISCORD_PUBLIC_KEY, OPENAI_API_KEY, GEMINI_API_KEY, VENICE_WEB_BRIDGE_TOKEN]},
   async (req, res) => {
     if (req.path === '/web/ask') return handleVeniceWebAsk(req, res);
     if (req.get('X-CloudTasks-TaskName')) return veniceDiscordGenerationHandler(req, res);
