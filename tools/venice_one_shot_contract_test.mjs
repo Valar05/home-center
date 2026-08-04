@@ -84,6 +84,8 @@ for (const source of [outer, inner, nodeSource]) {
 assert.doesNotMatch(deploy, /DISCORD_BOT_TOKEN/);
 assert.match(deploy, /gcloud secrets describe DISCORD_PUBLIC_KEY/);
 assert.match(deploy, /roles\/datastore\.user/);
+assert.match(deploy, /FUNCTIONS_DISCOVERY_TIMEOUT="\$\{FUNCTIONS_DISCOVERY_TIMEOUT:-60\}"/);
+assert.match(deploy, /firebase deploy --only functions:veniceDiscordInteractions[^\n]+--force/);
 assert.match(functionsIndex, /defineSecret\('DISCORD_PUBLIC_KEY'\)/);
 assert.doesNotMatch(functionsIndex, /defineSecret\('DISCORD_BOT_TOKEN'\)/);
 assert.ok(ci.includes('node tools/venice_one_shot_contract_test.mjs'));
