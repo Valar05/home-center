@@ -61,6 +61,14 @@ if ! gcloud secrets describe OPENAI_API_KEY \
   echo "Required Venice generation secret metadata is unavailable: OPENAI_API_KEY" >&2
   exit 1
 fi
+if ! gcloud secrets describe VENICE_WEB_BRIDGE_TOKEN \
+  --project "$PROJECT" \
+  --no-log-http \
+  --verbosity=error \
+  --quiet >/dev/null; then
+  echo "Required Venice web bridge secret metadata is unavailable: VENICE_WEB_BRIDGE_TOKEN" >&2
+  exit 1
+fi
 gcloud secrets versions access latest \
   --secret=DISCORD_PUBLIC_KEY \
   --project "$PROJECT" \
@@ -72,6 +80,20 @@ const fs = require("fs");
 const value = fs.readFileSync(0, "utf8").trim();
 if (!/^[0-9a-f]{64}$/i.test(value)) {
   process.stderr.write("DISCORD_PUBLIC_KEY latest version is not a 32-byte hex verification key.\n");
+  process.exit(1);
+}
+'
+gcloud secrets versions access latest \
+  --secret=VENICE_WEB_BRIDGE_TOKEN \
+  --project "$PROJECT" \
+  --no-log-http \
+  --verbosity=error \
+  --quiet \
+  | node -e '
+const fs = require("fs");
+const value = fs.readFileSync(0, "utf8").trim();
+if (value.length < 32) {
+  process.stderr.write("VENICE_WEB_BRIDGE_TOKEN latest version is too short.\n");
   process.exit(1);
 }
 '

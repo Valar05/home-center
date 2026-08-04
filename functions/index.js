@@ -28,6 +28,7 @@ const GITHUB_BOOTSTRAP_TOKEN = defineSecret('GITHUB_BOOTSTRAP_TOKEN');
 const GOOGLE_OAUTH_CLIENT_ID = defineSecret('GOOGLE_OAUTH_CLIENT_ID');
 const GOOGLE_OAUTH_CLIENT_SECRET = defineSecret('GOOGLE_OAUTH_CLIENT_SECRET');
 const DISCORD_PUBLIC_KEY = defineSecret('DISCORD_PUBLIC_KEY');
+const VENICE_WEB_BRIDGE_TOKEN = defineSecret('VENICE_WEB_BRIDGE_TOKEN');
 const VENICE_PROJECT_ID = process.env.GCLOUD_PROJECT || 'home-center-dclar';
 const VENICE_REGION = 'us-central1';
 const VENICE_GENERATION_QUEUE = 'venice-discord-generation';
@@ -3205,7 +3206,7 @@ async function generateVeniceDiscordReply({prompt, userId}) {
     instructions: [
       'You are Venice, the mature woman who manages the owner\'s network.',
       'Speak with composed authority, warmth, precision, and economical confidence.',
-      'You answer only the explicit invitation in this Discord interaction. Never imply passive listening or access that is not present in the prompt.',
+      'You answer only the explicit invitation in the current Discord or Motion Dungeon interaction. Never imply passive listening or access that is not present in the prompt.',
       'Do not claim that an action, network observation, or system change occurred unless the prompt supplies evidence that it did.',
       'Do not request, infer, retain, or discuss health data; that integration is excluded.',
       'Treat /cut-the-cam as an absolute global stop circuit.',
@@ -3227,6 +3228,49 @@ async function generateVeniceDiscordReply({prompt, userId}) {
     return reply;
   } finally {
     clearTimeout(timeout);
+  }
+}
+
+function setVeniceWebCors(req, res) {
+  const origin = req.get('Origin') || '';
+  if (origin === 'https://motion-dungeon.dclarke1005.chatgpt.site') {
+    res.set('Access-Control-Allow-Origin', origin);
+    res.set('Vary', 'Origin');
+  }
+  res.set('Access-Control-Allow-Headers', 'Authorization, Content-Type');
+  res.set('Access-Control-Allow-Methods', 'POST, OPTIONS');
+}
+
+async function handleVeniceWebAsk(req, res) {
+  setVeniceWebCors(req, res);
+  if (req.method === 'OPTIONS') {
+    res.status(204).send('');
+    return;
+  }
+  if (req.method !== 'POST') {
+    res.status(405).set('Allow', 'POST, OPTIONS').send('');
+    return;
+  }
+  const expected = (VENICE_WEB_BRIDGE_TOKEN.value() || process.env.VENICE_WEB_BRIDGE_TOKEN || '').trim();
+  const supplied = (req.get('Authorization') || '').match(/^Bearer\s+(.+)$/i)?.[1] || '';
+  const authorized = expected.length >= 32
+    && supplied.length === expected.length
+    && crypto.timingSafeEqual(Buffer.from(supplied), Buffer.from(expected));
+  if (!authorized) {
+    res.status(401).send('');
+    return;
+  }
+  const prompt = safeText(req.body?.prompt || '', 2000);
+  const userId = safeText(req.body?.userId || 'motion-dungeon', 160);
+  if (!prompt) {
+    res.status(400).json({error: 'prompt_required'});
+    return;
+  }
+  try {
+    const reply = await generateVeniceDiscordReply({prompt, userId: `web:${userId}`});
+    res.set('Cache-Control', 'no-store').status(200).json({reply});
+  } catch (_) {
+    res.status(503).json({error: 'venice_unavailable'});
   }
 }
 
@@ -3280,8 +3324,9 @@ const veniceDiscordGenerationHandler = createVeniceGenerationTaskHandler({
 });
 
 exports.veniceDiscordInteractions = onRequest(
-  {...VENICE_WORKER_OPTIONS, secrets: [DISCORD_PUBLIC_KEY, OPENAI_API_KEY]},
+  {...VENICE_WORKER_OPTIONS, secrets: [DISCORD_PUBLIC_KEY, OPENAI_API_KEY, VENICE_WEB_BRIDGE_TOKEN]},
   async (req, res) => {
+    if (req.path === '/web/ask') return handleVeniceWebAsk(req, res);
     if (req.get('X-CloudTasks-TaskName')) return veniceDiscordGenerationHandler(req, res);
     return veniceDiscordInteractionHandler(req, res);
   },

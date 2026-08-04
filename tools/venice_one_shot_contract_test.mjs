@@ -85,12 +85,15 @@ for (const source of [outer, inner, nodeSource]) {
 }
 assert.doesNotMatch(deploy, /DISCORD_BOT_TOKEN/);
 assert.match(deploy, /gcloud secrets describe DISCORD_PUBLIC_KEY/);
+assert.match(deploy, /gcloud secrets describe VENICE_WEB_BRIDGE_TOKEN/);
 assert.match(deploy, /roles\/datastore\.user/);
 assert.match(deploy, /FUNCTIONS_DISCOVERY_TIMEOUT="\$\{FUNCTIONS_DISCOVERY_TIMEOUT:-60\}"/);
 assert.match(deploy, /firebase deploy --only functions:veniceDiscordInteractions[^\n]+--force/);
 assert.match(functionsIndex, /defineSecret\('DISCORD_PUBLIC_KEY'\)/);
+assert.match(functionsIndex, /defineSecret\('VENICE_WEB_BRIDGE_TOKEN'\)/);
 assert.doesNotMatch(functionsIndex, /defineSecret\('DISCORD_BOT_TOKEN'\)/);
 assert.match(functionsIndex, /VENICE_TASK_TARGET_URL = 'https:\/\/venicediscordinteractions-vxybsaualq-uc\.a\.run\.app'/);
+assert.match(functionsIndex, /req\.path === '\/web\/ask'/);
 assert.doesNotMatch(functionsIndex, /oidcToken:[\s\S]{0,400}cloudfunctions\.net/);
 assert.ok(ci.includes('node tools/venice_one_shot_contract_test.mjs'));
 assert.ok(!ci.includes('venice_custody_contract_test.mjs'));
