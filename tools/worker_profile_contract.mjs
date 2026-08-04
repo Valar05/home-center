@@ -36,6 +36,7 @@ function expectedFor(name) {
       minInstances: profile.minInstances,
       maxInstances: profile.maxInstances,
     });
+    if (assignment.serviceAccount) expected.serviceAccount = assignment.serviceAccount;
   } else {
     Object.assign(expected, {
       tasks: profile.taskConcurrency,
@@ -62,6 +63,7 @@ function emitShell(name) {
     timeoutSeconds: 'WORKER_TIMEOUT_SECONDS',
     tasks: 'WORKER_TASKS',
     maxRetries: 'WORKER_MAX_RETRIES',
+    serviceAccount: 'WORKER_SERVICE_ACCOUNT',
   };
   for (const [key, value] of Object.entries(expected)) {
     process.stdout.write(`${names[key]}=${shellQuote(value)}\n`);
@@ -159,6 +161,11 @@ function liveValues(name, live) {
       timeoutSeconds: first(live, [
         'spec.template.spec.timeoutSeconds',
         'template.timeout',
+      ]),
+      serviceAccount: first(live, [
+        'spec.template.spec.serviceAccountName',
+        'template.serviceAccount',
+        'serviceConfig.serviceAccountEmail',
       ]),
     };
   }

@@ -7,7 +7,8 @@
     "node": "22"
   },
   "scripts": {
-    "lint": "node --check index.js && node --check home_center_mcp.js",
+    "lint": "node --check index.js && node --check home_center_mcp.js && node --check venice_discord.js",
+    "test:venice-discord": "node --test venice_discord.test.js",
     "test:sites-drive": "node --test home_center_sites_drive_test.js"
   },
   "dependencies": {
