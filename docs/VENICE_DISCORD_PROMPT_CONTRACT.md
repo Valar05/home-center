@@ -49,6 +49,26 @@ carrier is enabled.
 - Audit records contain identifiers and outcomes only, carry an `expireAt`
   timestamp 30 days after creation, and are governed by a Firestore TTL policy.
 
+## Driver advance: generative dialogue
+
+- `/venice ask` acknowledges within Discord's interaction deadline, then uses
+  the interaction webhook token to replace the deferred response with one
+  bounded Venice reply. No bot token is needed or restored.
+- Generation is allowed only while Venice is `PRESENT` in the invoking room.
+  The runtime checks the durable cut epoch and state epoch before generation
+  and again before delivery. A racing `/venice withdraw`, other consent-state
+  transition, or `/cut-the-cam` deletes the deferred response.
+- Prompt text and the Discord interaction token exist only in the signed
+  Discord request, one authenticated single-attempt Cloud Tasks payload, and
+  provider/webhook transit. The task is removed on completion. Generated text
+  exists only in provider/webhook transit and Discord. Firestore state, audit
+  records, usage records, and infrastructure logs remain content-free.
+- Venice is the mature woman who manages Drew's network. She must distinguish
+  supplied evidence from inference, claim no unobserved access or action, and
+  keep health-data integration excluded.
+- Each invitation is stateless in this phase. Durable conversation memory is
+  not implied by the consent carrier and requires a separate contract.
+
 ## Forbidden stale premises
 
 - Do not create a duplicate Sites backend while Home Center already owns the

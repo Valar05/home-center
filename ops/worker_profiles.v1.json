@@ -76,7 +76,7 @@
       "profile": "discord-interaction-control",
       "state": "bound",
       "serviceAccount": "venice-discord-runtime@home-center-dclar.iam.gserviceaccount.com",
-      "reason": "Discord signature verification, consent-state transitions, and immediate interaction callbacks are bounded control-plane work deployed through a narrow Firebase Functions release surface.",
+      "reason": "Discord signature verification, consent-state transitions, immediate callbacks, and bounded single-message generation tasks share one narrow Firebase Functions release surface.",
       "deployment": {
         "path": "tools/deploy_venice_discord.sh",
         "kind": "firebase-functions",
@@ -87,7 +87,10 @@
           "WORKER_SERVICE_ACCOUNT",
           "EXPECTED_PROJECT=\"home-center-dclar\"",
           "roles/datastore.user",
+          "roles/cloudtasks.enqueuer",
           "DISCORD_PUBLIC_KEY",
+          "OPENAI_API_KEY",
+          "venice-discord-generation",
           "--only functions:veniceDiscordInteractions",
           "--approve-warm-cost"
         ],

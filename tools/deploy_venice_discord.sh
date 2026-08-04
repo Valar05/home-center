@@ -53,6 +53,14 @@ if ! gcloud secrets describe DISCORD_PUBLIC_KEY \
   echo "Required Venice public-key metadata is unavailable: DISCORD_PUBLIC_KEY" >&2
   exit 1
 fi
+if ! gcloud secrets describe OPENAI_API_KEY \
+  --project "$PROJECT" \
+  --no-log-http \
+  --verbosity=error \
+  --quiet >/dev/null; then
+  echo "Required Venice generation secret metadata is unavailable: OPENAI_API_KEY" >&2
+  exit 1
+fi
 gcloud secrets versions access latest \
   --secret=DISCORD_PUBLIC_KEY \
   --project "$PROJECT" \
@@ -84,6 +92,53 @@ gcloud projects add-iam-policy-binding "$PROJECT" \
   --no-log-http \
   --verbosity=error \
   --quiet >/dev/null
+
+gcloud projects add-iam-policy-binding "$PROJECT" \
+  --member="serviceAccount:$WORKER_SERVICE_ACCOUNT" \
+  --role="roles/cloudtasks.enqueuer" \
+  --condition=None \
+  --no-log-http \
+  --verbosity=error \
+  --quiet >/dev/null
+
+gcloud iam service-accounts add-iam-policy-binding "$WORKER_SERVICE_ACCOUNT" \
+  --member="serviceAccount:$WORKER_SERVICE_ACCOUNT" \
+  --role="roles/iam.serviceAccountUser" \
+  --project "$PROJECT" \
+  --condition=None \
+  --no-log-http \
+  --verbosity=error \
+  --quiet >/dev/null
+
+gcloud secrets add-iam-policy-binding OPENAI_API_KEY \
+  --member="serviceAccount:$WORKER_SERVICE_ACCOUNT" \
+  --role="roles/secretmanager.secretAccessor" \
+  --project "$PROJECT" \
+  --condition=None \
+  --no-log-http \
+  --verbosity=error \
+  --quiet >/dev/null
+
+if gcloud tasks queues describe venice-discord-generation \
+  --location "$REGION" \
+  --project "$PROJECT" \
+  --quiet >/dev/null 2>&1; then
+  gcloud tasks queues update venice-discord-generation \
+    --location "$REGION" \
+    --project "$PROJECT" \
+    --max-attempts=1 \
+    --max-concurrent-dispatches=4 \
+    --max-dispatches-per-second=4 \
+    --quiet >/dev/null
+else
+  gcloud tasks queues create venice-discord-generation \
+    --location "$REGION" \
+    --project "$PROJECT" \
+    --max-attempts=1 \
+    --max-concurrent-dispatches=4 \
+    --max-dispatches-per-second=4 \
+    --quiet >/dev/null
+fi
 
 gcloud projects get-iam-policy "$PROJECT" \
   --format=json \

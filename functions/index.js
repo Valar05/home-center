@@ -2,6 +2,7 @@ const {onRequest} = require('firebase-functions/v2/https');
 const {defineSecret} = require('firebase-functions/params');
 const admin = require('firebase-admin');
 const {google} = require('googleapis');
+const {CloudTasksClient} = require('@google-cloud/tasks');
 const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
@@ -10,7 +11,7 @@ const {audioLibraryHandler} = require('./audio_library_api');
 const {createCommandCenterMcpApp} = require('./command_center_mcp');
 const {createSheRawMcpApp} = require('./she_raw_mcp');
 const {CARTESIA_DEFAULT_MODEL_ID, CARTESIA_DEFAULT_VOICE_NAME, listCartesiaVoiceCatalog, listCartesiaVoices, normalizeCartesiaVoice, openCartesiaStream} = require('./hosted_speech_provider');
-const {createFirestoreStateStore, createVeniceDiscordHandler} = require('./venice_discord');
+const {createFirestoreStateStore, createVeniceDiscordHandler, createVeniceGenerationTaskHandler, generationTaskInput} = require('./venice_discord');
 const VENICE_WORKER_OPTIONS = require('./venice_worker_profile.generated');
 
 admin.initializeApp();
@@ -27,6 +28,12 @@ const GITHUB_BOOTSTRAP_TOKEN = defineSecret('GITHUB_BOOTSTRAP_TOKEN');
 const GOOGLE_OAUTH_CLIENT_ID = defineSecret('GOOGLE_OAUTH_CLIENT_ID');
 const GOOGLE_OAUTH_CLIENT_SECRET = defineSecret('GOOGLE_OAUTH_CLIENT_SECRET');
 const DISCORD_PUBLIC_KEY = defineSecret('DISCORD_PUBLIC_KEY');
+const VENICE_PROJECT_ID = process.env.GCLOUD_PROJECT || 'home-center-dclar';
+const VENICE_REGION = 'us-central1';
+const VENICE_GENERATION_QUEUE = 'venice-discord-generation';
+const VENICE_INTERACTIONS_URL = `https://${VENICE_REGION}-${VENICE_PROJECT_ID}.cloudfunctions.net/veniceDiscordInteractions`;
+const VENICE_RUNTIME_SERVICE_ACCOUNT = 'venice-discord-runtime@home-center-dclar.iam.gserviceaccount.com';
+const veniceTasksClient = new CloudTasksClient();
 const CREATIVE_OPENAI_TIMEOUT_MS = 85000;
 const CREATIVE_SALVAGE_TIMEOUT_MS = 25000;
 const EVIDENCE_FINALIZER_TIMEOUT_MS = 45000;
@@ -3184,12 +3191,97 @@ const veniceDiscordStateStore = createFirestoreStateStore({
   fieldValue: admin.firestore.FieldValue,
 });
 
+async function generateVeniceDiscordReply({prompt, userId}) {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 80000);
+  const requestBody = {
+    model: process.env.VENICE_OPENAI_MODEL || 'gpt-5.5',
+    reasoning: {effort: 'low'},
+    text: {verbosity: 'low'},
+    max_output_tokens: 600,
+    instructions: [
+      'You are Venice, the mature woman who manages Drew\'s network.',
+      'Speak with composed authority, warmth, precision, and economical confidence.',
+      'You answer only the explicit invitation in this Discord interaction. Never imply passive listening or access that is not present in the prompt.',
+      'Do not claim that an action, network observation, or system change occurred unless the prompt supplies evidence that it did.',
+      'Do not request, infer, retain, or discuss health data; that integration is excluded.',
+      'Treat /cut-the-cam as an absolute global stop circuit.',
+      'Do not identify as Randi, she raw, Adam, or a generic assistant.',
+      'Keep the answer below 1,800 characters and suitable for one Discord message.',
+    ].join('\n'),
+    input: prompt,
+  };
+  try {
+    const {response, json} = await fetchOpenAIResponses(
+      {uid: `discord:${safeText(userId, 160)}`, email: ''},
+      'venice_discord',
+      requestBody,
+      {signal: controller.signal},
+    );
+    if (!response.ok) throw new Error(`venice_openai_http_${response.status}`);
+    const reply = safeText(json.output_text || extractOutputText(json), 2000);
+    if (!reply) throw new Error('venice_openai_empty');
+    return reply;
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
+async function enqueueVeniceDiscordGeneration(task) {
+  const cleanTask = generationTaskInput(task);
+  const cleanInteractionId = cleanTask.interactionId;
+  const parent = veniceTasksClient.queuePath(VENICE_PROJECT_ID, VENICE_REGION, VENICE_GENERATION_QUEUE);
+  const name = veniceTasksClient.taskPath(VENICE_PROJECT_ID, VENICE_REGION, VENICE_GENERATION_QUEUE, `venice-${cleanInteractionId}`);
+  try {
+    await veniceTasksClient.createTask({
+      parent,
+      task: {
+        name,
+        httpRequest: {
+          httpMethod: 'POST',
+          url: VENICE_INTERACTIONS_URL,
+          headers: {'Content-Type': 'application/json'},
+          oidcToken: {
+            serviceAccountEmail: VENICE_RUNTIME_SERVICE_ACCOUNT,
+            audience: VENICE_INTERACTIONS_URL,
+          },
+          body: Buffer.from(JSON.stringify(cleanTask), 'utf8').toString('base64'),
+        },
+      },
+    });
+  } catch (err) {
+    if (Number(err && err.code) !== 6) throw err;
+  }
+}
+
+async function verifyVeniceTaskRequest(req) {
+  const taskName = safeText(req.get('X-CloudTasks-TaskName') || '', 500);
+  const authorization = req.get('Authorization') || '';
+  const token = authorization.match(/^Bearer\s+(.+)$/i)?.[1] || '';
+  if (!taskName.includes(`/queues/${VENICE_GENERATION_QUEUE}/tasks/`) || !token) return false;
+  const ticket = await new google.auth.OAuth2().verifyIdToken({idToken: token, audience: VENICE_INTERACTIONS_URL});
+  const payload = ticket.getPayload() || {};
+  return payload.email === VENICE_RUNTIME_SERVICE_ACCOUNT && payload.email_verified !== false;
+}
+
+const veniceDiscordInteractionHandler = createVeniceDiscordHandler({
+  publicKeyGetter: () => DISCORD_PUBLIC_KEY.value() || process.env.DISCORD_PUBLIC_KEY || '',
+  store: veniceDiscordStateStore,
+  enqueueGeneration: enqueueVeniceDiscordGeneration,
+});
+
+const veniceDiscordGenerationHandler = createVeniceGenerationTaskHandler({
+  verifyTaskRequest: verifyVeniceTaskRequest,
+  generateReply: generateVeniceDiscordReply,
+  store: veniceDiscordStateStore,
+});
+
 exports.veniceDiscordInteractions = onRequest(
-  {...VENICE_WORKER_OPTIONS, secrets: [DISCORD_PUBLIC_KEY]},
-  createVeniceDiscordHandler({
-    publicKeyGetter: () => DISCORD_PUBLIC_KEY.value() || process.env.DISCORD_PUBLIC_KEY || '',
-    store: veniceDiscordStateStore,
-  }),
+  {...VENICE_WORKER_OPTIONS, secrets: [DISCORD_PUBLIC_KEY, OPENAI_API_KEY]},
+  async (req, res) => {
+    if (req.get('X-CloudTasks-TaskName')) return veniceDiscordGenerationHandler(req, res);
+    return veniceDiscordInteractionHandler(req, res);
+  },
 );
 
 exports.homeCenterMcp = onRequest({timeoutSeconds: 300, secrets: [GOOGLE_OAUTH_CLIENT_ID, GOOGLE_OAUTH_CLIENT_SECRET, GITHUB_TOKEN, GITHUB_APP_ID, GITHUB_APP_INSTALLATION_ID, GITHUB_APP_PRIVATE_KEY, GITHUB_BOOTSTRAP_TOKEN, GEMINI_API_KEY, CARTESIA_API_KEY]}, createHomeCenterMcpApp({google, admin, googleClientId: () => GOOGLE_OAUTH_CLIENT_ID.value() || process.env.GOOGLE_OAUTH_CLIENT_ID || '', googleClientSecret: () => GOOGLE_OAUTH_CLIENT_SECRET.value() || process.env.GOOGLE_OAUTH_CLIENT_SECRET || '', githubToken: () => GITHUB_TOKEN.value() || process.env.GITHUB_TOKEN || '', githubAdmin: {appId: () => GITHUB_APP_ID.value() || process.env.GITHUB_APP_ID || '', installationId: () => GITHUB_APP_INSTALLATION_ID.value() || process.env.GITHUB_APP_INSTALLATION_ID || '', privateKey: () => GITHUB_APP_PRIVATE_KEY.value() || process.env.GITHUB_APP_PRIVATE_KEY || '', bootstrapToken: () => GITHUB_BOOTSTRAP_TOKEN.value() || process.env.GITHUB_BOOTSTRAP_TOKEN || '', allowedOwners: () => process.env.HOME_CENTER_GITHUB_ADMIN_OWNERS || 'Valar05', userProfiles: () => process.env.HOME_CENTER_GITHUB_ADMIN_USER_PROFILES_B64 || ''}, cartesiaApiKey: () => CARTESIA_API_KEY.value() || process.env.CARTESIA_API_KEY || '', geminiApiKey: () => GEMINI_API_KEY.value() || process.env.GEMINI_API_KEY || ''}));

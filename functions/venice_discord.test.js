@@ -8,6 +8,7 @@ const {
   VENICE_ALLOWED_CHANNEL_IDS,
   createFirestoreStateStore,
   createVeniceDiscordHandler,
+  createVeniceGenerationTaskHandler,
   dispatchVeniceInteraction,
   verifyDiscordRequest,
 } = require('./venice_discord');
@@ -38,9 +39,12 @@ class MemoryStore {
     return result;
   }
 
-  async guard(cutEpoch) {
+  async guard(cutEpoch, {channelId = '', stateEpoch = null} = {}) {
     if (this.guardHook) await this.guardHook();
-    return this.state.state !== 'CUT' && this.state.cutEpoch === cutEpoch;
+    if (this.state.state === 'CUT' || this.state.cutEpoch !== cutEpoch) return false;
+    if (channelId && this.state.rooms[channelId] !== 'PRESENT') return false;
+    if (Number.isSafeInteger(stateEpoch) && this.state.epoch !== stateEpoch) return false;
+    return true;
   }
 }
 
@@ -64,6 +68,7 @@ function interaction({
       };
   return {
     id: id || crypto.randomUUID(),
+    token: 'transient-interaction-token',
     type: 2,
     application_id: applicationId,
     guild_id: guildId,
@@ -189,6 +194,181 @@ test('begin and ask are explicit, public, and do not persist prompt content', as
   assert.equal(ask.status, 200);
   assert.equal(ask.body.data.flags, undefined);
   assert.doesNotMatch(JSON.stringify([...store.audit.entries()]), new RegExp(secretPrompt));
+});
+
+test('the HTTPS handler defers an accepted ask only after a content-bounded task is enqueued', async () => {
+  const {publicKey, privateKey} = crypto.generateKeyPairSync('ed25519');
+  const publicKeyHex = publicKey.export({format: 'der', type: 'spki'}).subarray(-32).toString('hex');
+  const store = new MemoryStore();
+  await dispatchVeniceInteraction(interaction({id: 'generated-begin', command: 'begin'}), store);
+  const secretPrompt = 'A private invitation that must remain transient';
+  const payload = interaction({id: 'generated-ask', command: 'ask', prompt: secretPrompt});
+  let queuedTask;
+  const handler = createVeniceDiscordHandler({
+    publicKeyGetter: () => publicKeyHex,
+    store,
+    enqueueGeneration: async (task) => { queuedTask = task; },
+  });
+  const response = responseRecorder();
+
+  await handler(signedRequest(Buffer.from(JSON.stringify(payload)), privateKey), response);
+
+  assert.equal(response.statusCode, 200);
+  assert.deepEqual(response.body, {type: 5, data: {}});
+  assert.equal(queuedTask.prompt, secretPrompt);
+  assert.equal(queuedTask.interactionToken, 'transient-interaction-token');
+  assert.equal(queuedTask.cutEpoch, 0);
+  assert.equal(queuedTask.stateEpoch, 1);
+  assert.doesNotMatch(JSON.stringify([...store.audit.entries()]), new RegExp(secretPrompt));
+});
+
+test('an authenticated generation task delivers one bounded reply without mentions or content persistence', async () => {
+  const store = new MemoryStore();
+  await dispatchVeniceInteraction(interaction({id: 'generation-task-begin', command: 'begin'}), store);
+  const secretPrompt = 'A task prompt that remains outside Firestore';
+  const webhookCalls = [];
+  const handler = createVeniceGenerationTaskHandler({
+    verifyTaskRequest: async () => true,
+    store,
+    generateReply: async (task) => task.prompt === secretPrompt ? 'Venice answers without pinging @everyone.' : '',
+    webhookFetch: async (url, options) => {
+      webhookCalls.push({url, options});
+      return {ok: true, status: 200};
+    },
+  });
+  const response = responseRecorder();
+  await handler({body: {
+    applicationId: VENICE_APPLICATION_ID,
+    interactionToken: 'transient-interaction-token',
+    interactionId: '1234567890',
+    channelId: VENICE_ALLOWED_CHANNEL_IDS[0],
+    userId: '1234567890',
+    prompt: secretPrompt,
+    cutEpoch: 0,
+    stateEpoch: 1,
+  }}, response);
+
+  assert.equal(response.statusCode, 204);
+  assert.equal(webhookCalls.length, 1);
+  assert.equal(webhookCalls[0].options.method, 'PATCH');
+  assert.deepEqual(JSON.parse(webhookCalls[0].options.body), {
+    content: 'Venice answers without pinging @everyone.',
+    allowed_mentions: {parse: []},
+  });
+  assert.doesNotMatch(JSON.stringify([...store.audit.entries()]), new RegExp(secretPrompt));
+});
+
+test('a global cut racing an authenticated generation task deletes the deferred response', async () => {
+  const store = new MemoryStore();
+  await dispatchVeniceInteraction(interaction({id: 'generation-cut-begin', command: 'begin'}), store);
+  const webhookCalls = [];
+  const handler = createVeniceGenerationTaskHandler({
+    verifyTaskRequest: async () => true,
+    store,
+    generateReply: async () => {
+      store.state = {...store.state, state: 'CUT', epoch: store.state.epoch + 1, cutEpoch: store.state.cutEpoch + 1};
+      return 'This output must never be published.';
+    },
+    webhookFetch: async (url, options) => {
+      webhookCalls.push({url, options});
+      return {ok: true, status: 204};
+    },
+  });
+  const response = responseRecorder();
+  await handler({body: {
+    applicationId: VENICE_APPLICATION_ID,
+    interactionToken: 'transient-interaction-token',
+    interactionId: '1234567891',
+    channelId: VENICE_ALLOWED_CHANNEL_IDS[0],
+    userId: '1234567890',
+    prompt: 'Answer after a racing cut',
+    cutEpoch: 0,
+    stateEpoch: 1,
+  }}, response);
+
+  assert.equal(response.statusCode, 204);
+  assert.deepEqual(webhookCalls.map((call) => call.options.method), ['DELETE']);
+  assert.doesNotMatch(JSON.stringify(webhookCalls), /must never be published/i);
+});
+
+test('room withdrawal before task execution deletes the deferred response without calling the provider', async () => {
+  const store = new MemoryStore();
+  await dispatchVeniceInteraction(interaction({id: 'generation-withdraw-begin', command: 'begin'}), store);
+  await dispatchVeniceInteraction(interaction({id: 'generation-withdraw', command: 'withdraw'}), store);
+  const webhookCalls = [];
+  let generated = false;
+  const handler = createVeniceGenerationTaskHandler({
+    verifyTaskRequest: async () => true,
+    store,
+    generateReply: async () => { generated = true; return 'must not run'; },
+    webhookFetch: async (url, options) => {
+      webhookCalls.push({url, options});
+      return {ok: true, status: 204};
+    },
+  });
+  const response = responseRecorder();
+  await handler({body: {
+    applicationId: VENICE_APPLICATION_ID,
+    interactionToken: 'transient-interaction-token',
+    interactionId: '1234567893',
+    channelId: VENICE_ALLOWED_CHANNEL_IDS[0],
+    userId: '1234567890',
+    prompt: 'This invitation was withdrawn before execution',
+    cutEpoch: 0,
+    stateEpoch: 1,
+  }}, response);
+
+  assert.equal(response.statusCode, 204);
+  assert.equal(generated, false);
+  assert.deepEqual(webhookCalls.map((call) => call.options.method), ['DELETE']);
+});
+
+test('generation task failure produces only a content-free safe follow-up and logs', async () => {
+  const store = new MemoryStore();
+  await dispatchVeniceInteraction(interaction({id: 'generation-failure-begin', command: 'begin'}), store);
+  const secretPrompt = 'failure prompt that cannot enter logs';
+  const webhookCalls = [];
+  const logs = [];
+  const handler = createVeniceGenerationTaskHandler({
+    verifyTaskRequest: async () => true,
+    store,
+    generateReply: async () => { throw new Error(secretPrompt); },
+    webhookFetch: async (url, options) => {
+      webhookCalls.push({url, options});
+      return {ok: true, status: 200};
+    },
+    logger: {error: (...args) => logs.push(args)},
+  });
+  const response = responseRecorder();
+  await handler({body: {
+    applicationId: VENICE_APPLICATION_ID,
+    interactionToken: 'transient-interaction-token',
+    interactionId: '1234567892',
+    channelId: VENICE_ALLOWED_CHANNEL_IDS[0],
+    userId: '1234567890',
+    prompt: secretPrompt,
+    cutEpoch: 0,
+    stateEpoch: 1,
+  }}, response);
+
+  assert.equal(response.statusCode, 204);
+  assert.equal(webhookCalls.length, 1);
+  assert.equal(webhookCalls[0].options.method, 'PATCH');
+  assert.match(JSON.parse(webhookCalls[0].options.body).content, /could not answer/i);
+  assert.doesNotMatch(JSON.stringify(logs), new RegExp(secretPrompt));
+  assert.doesNotMatch(JSON.stringify([...store.audit.entries()]), new RegExp(secretPrompt));
+});
+
+test('generation tasks fail closed without authenticated queue identity', async () => {
+  const store = new MemoryStore();
+  const handler = createVeniceGenerationTaskHandler({
+    verifyTaskRequest: async () => false,
+    store,
+    generateReply: async () => { throw new Error('must not run'); },
+  });
+  const response = responseRecorder();
+  await handler({body: {}}, response);
+  assert.equal(response.statusCode, 401);
 });
 
 test('/cut-the-cam is global, durable in state, unilateral, and idempotent', async () => {

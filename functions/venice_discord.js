@@ -8,6 +8,8 @@ const VENICE_ALLOWED_CHANNEL_SET = new Set(VENICE_ALLOWED_CHANNEL_IDS);
 const DISCORD_SEND_MESSAGES = 1n << 11n;
 const DISCORD_VIEW_CHANNEL = 1n << 10n;
 const DISCORD_EPHEMERAL = 1 << 6;
+const DISCORD_API_BASE = 'https://discord.com/api/v10';
+const DISCORD_MESSAGE_MAX_CHARS = 2000;
 const SIGNATURE_MAX_AGE_MS = 5 * 60 * 1000;
 const MAX_INTERACTION_BODY_BYTES = 256 * 1024;
 const AUDIT_RETENTION_MS = 30 * 24 * 60 * 60 * 1000;
@@ -58,6 +60,72 @@ function interactionReply(content, {ephemeral = false} = {}) {
   };
   if (ephemeral) data.flags = DISCORD_EPHEMERAL;
   return {type: 4, data};
+}
+
+function interactionDeferredReply() {
+  return {type: 5, data: {}};
+}
+
+function interactionPrompt(interaction) {
+  const subcommand = interaction.data?.options?.find((option) => option?.type === 1 && option?.name === 'ask');
+  const prompt = subcommand?.options?.find((option) => option?.type === 3 && option?.name === 'prompt')?.value;
+  return typeof prompt === 'string' ? prompt.trim().slice(0, 1800) : '';
+}
+
+function generatedReplyText(value) {
+  const text = typeof value === 'string' ? value.trim() : '';
+  if (!text) throw new Error('empty_generation');
+  return text.length <= DISCORD_MESSAGE_MAX_CHARS ? text : `${text.slice(0, DISCORD_MESSAGE_MAX_CHARS - 1).trimEnd()}…`;
+}
+
+function interactionWebhookUrl(interaction) {
+  const applicationId = String(interaction.application_id || '');
+  const token = String(interaction.token || '');
+  if (applicationId !== VENICE_APPLICATION_ID || !token || token.length > 512) throw new Error('invalid_interaction_webhook');
+  return `${DISCORD_API_BASE}/webhooks/${encodeURIComponent(applicationId)}/${encodeURIComponent(token)}/messages/@original`;
+}
+
+function generationTaskInput(value = {}) {
+  const applicationId = String(value.applicationId || '');
+  const interactionToken = String(value.interactionToken || '');
+  const interactionId = String(value.interactionId || '');
+  const channelId = String(value.channelId || '');
+  const userId = String(value.userId || '');
+  const prompt = typeof value.prompt === 'string' ? value.prompt.trim().slice(0, 1800) : '';
+  const cutEpoch = Number(value.cutEpoch);
+  const stateEpoch = Number(value.stateEpoch);
+  if (
+    applicationId !== VENICE_APPLICATION_ID
+    || !VENICE_ALLOWED_CHANNEL_SET.has(channelId)
+    || !interactionToken
+    || interactionToken.length > 512
+    || !/^\d{1,32}$/.test(interactionId)
+    || !/^\d{1,32}$/.test(userId)
+    || !prompt
+    || !Number.isSafeInteger(cutEpoch)
+    || cutEpoch < 0
+    || !Number.isSafeInteger(stateEpoch)
+    || stateEpoch < 0
+  ) throw new Error('invalid_generation_task');
+  return {applicationId, interactionToken, interactionId, channelId, userId, prompt, cutEpoch, stateEpoch};
+}
+
+function taskInteraction(task) {
+  return {application_id: task.applicationId, token: task.interactionToken};
+}
+
+async function editOriginalInteraction(interaction, content, webhookFetch = fetch) {
+  const response = await webhookFetch(interactionWebhookUrl(interaction), {
+    method: 'PATCH',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({content: generatedReplyText(content), allowed_mentions: {parse: []}}),
+  });
+  if (!response.ok) throw new Error(`discord_webhook_http_${response.status}`);
+}
+
+async function deleteOriginalInteraction(interaction, webhookFetch = fetch) {
+  const response = await webhookFetch(interactionWebhookUrl(interaction), {method: 'DELETE'});
+  if (!response.ok && response.status !== 404) throw new Error(`discord_webhook_delete_http_${response.status}`);
 }
 
 function statusText(state, channelId) {
@@ -146,7 +214,7 @@ function stateDecision(command, before, channelId, {canPublicReply = true} = {})
     if (before.rooms[channelId] !== 'PRESENT') {
       return {nextState: before, outcome: 'blocked_inactive', responseKey: 'dormant', public: false, controlPlane: true};
     }
-    return {nextState: before, outcome: 'accepted_stub', responseKey: 'asked', public: true, controlPlane: false};
+    return {nextState: before, outcome: 'accepted_generation', responseKey: 'asked', public: true, controlPlane: false};
   }
 
   return {nextState: before, outcome: 'unknown_command', responseKey: 'unavailable', public: false, controlPlane: true};
@@ -190,7 +258,7 @@ async function dispatchVeniceInteraction(interaction, store) {
     }
   }
 
-  return {status: 200, body: responseFromDecision(decision, context.channelId)};
+  return {status: 200, body: responseFromDecision(decision, context.channelId), command, decision};
 }
 
 function discordPublicKey(publicKeyHex) {
@@ -289,16 +357,19 @@ function createFirestoreStateStore({firestore, fieldValue, now = () => Date.now(
         return {...reduced, before, after, replayed: false};
       });
     },
-    async guard(cutEpoch) {
+    async guard(cutEpoch, {channelId = '', stateEpoch = null} = {}) {
       const snapshot = await stateRef.get();
       if (!snapshot.exists) return false;
       const current = cloneState(snapshot.data());
-      return current.state !== 'CUT' && current.cutEpoch === cutEpoch;
+      if (current.state === 'CUT' || current.cutEpoch !== cutEpoch) return false;
+      if (channelId && current.rooms[channelId] !== 'PRESENT') return false;
+      if (Number.isSafeInteger(stateEpoch) && current.epoch !== stateEpoch) return false;
+      return true;
     },
   };
 }
 
-function createVeniceDiscordHandler({publicKeyGetter, store, now = () => Date.now(), logger = console}) {
+function createVeniceDiscordHandler({publicKeyGetter, store, enqueueGeneration = null, now = () => Date.now(), logger = console}) {
   return async function veniceDiscordHandler(req, res) {
     if (req.method !== 'POST') {
       res.status(405).set('Allow', 'POST').send('');
@@ -357,6 +428,36 @@ function createVeniceDiscordHandler({publicKeyGetter, store, now = () => Date.no
         res.status(result.status).send('');
         return;
       }
+      const shouldGenerate = result.command === 'venice.ask'
+        && result.decision?.outcome === 'accepted_generation'
+        && typeof enqueueGeneration === 'function';
+      if (shouldGenerate) {
+        const prompt = interactionPrompt(interaction);
+        if (!prompt) {
+          res.status(200).type('application/json').send(interactionReply(RESPONSE_TEXT.unavailable, {ephemeral: true}));
+          return;
+        }
+        try {
+          await enqueueGeneration({
+            applicationId: String(interaction.application_id || ''),
+            interactionToken: String(interaction.token || ''),
+            prompt,
+            userId: String(interaction.member?.user?.id || interaction.user?.id || ''),
+            channelId: String(interaction.channel_id || ''),
+            interactionId: String(interaction.id || ''),
+            cutEpoch: result.decision.after.cutEpoch,
+            stateEpoch: result.decision.after.epoch,
+          });
+          res.status(200).type('application/json').send(interactionDeferredReply());
+        } catch (_) {
+          logger.error('venice_discord_enqueue_failed', {
+            interactionId: String(interaction.id || ''),
+            outcome: 'content_free_failure',
+          });
+          res.status(200).type('application/json').send(interactionReply('Venice could not accept this invitation. The carrier remains open; `/cut-the-cam` remains live.', {ephemeral: true}));
+        }
+        return;
+      }
       res.status(result.status).type('application/json').send(result.body);
     } catch (_) {
       logger.error('venice_discord_interaction_failed', {
@@ -364,6 +465,56 @@ function createVeniceDiscordHandler({publicKeyGetter, store, now = () => Date.no
         outcome: 'fail_closed',
       });
       res.status(503).send('');
+    }
+  };
+}
+
+function createVeniceGenerationTaskHandler({verifyTaskRequest, generateReply, store, webhookFetch = fetch, logger = console}) {
+  return async function veniceGenerationTaskHandler(req, res) {
+    let task;
+    try {
+      const verified = await verifyTaskRequest(req);
+      if (!verified) {
+        res.status(401).send('');
+        return;
+      }
+      task = generationTaskInput(req.body || {});
+    } catch (_) {
+      res.status(400).send('');
+      return;
+    }
+
+    const interaction = taskInteraction(task);
+    const guardOptions = {channelId: task.channelId, stateEpoch: task.stateEpoch};
+    try {
+      if (!await store.guard(task.cutEpoch, guardOptions)) {
+        await deleteOriginalInteraction(interaction, webhookFetch);
+        res.status(204).send('');
+        return;
+      }
+      const reply = await generateReply(task);
+      if (!await store.guard(task.cutEpoch, guardOptions)) {
+        await deleteOriginalInteraction(interaction, webhookFetch);
+        res.status(204).send('');
+        return;
+      }
+      await editOriginalInteraction(interaction, reply, webhookFetch);
+      res.status(204).send('');
+    } catch (_) {
+      logger.error('venice_discord_generation_failed', {
+        interactionId: task.interactionId,
+        outcome: 'content_free_failure',
+      });
+      try {
+        if (!await store.guard(task.cutEpoch, guardOptions)) await deleteOriginalInteraction(interaction, webhookFetch);
+        else await editOriginalInteraction(interaction, 'Venice could not answer this invitation. The carrier remains open; `/cut-the-cam` remains live.', webhookFetch);
+      } catch (_) {
+        logger.error('venice_discord_followup_failed', {
+          interactionId: task.interactionId,
+          outcome: 'content_free_failure',
+        });
+      }
+      res.status(204).send('');
     }
   };
 }
@@ -377,7 +528,13 @@ module.exports = {
   commandName,
   createFirestoreStateStore,
   createVeniceDiscordHandler,
+  createVeniceGenerationTaskHandler,
+  deleteOriginalInteraction,
   dispatchVeniceInteraction,
+  editOriginalInteraction,
+  generatedReplyText,
+  generationTaskInput,
+  interactionPrompt,
   stateDecision,
   verifyDiscordRequest,
 };
