@@ -54,6 +54,9 @@ carrier is enabled.
 - `/venice ask` acknowledges within Discord's interaction deadline, then uses
   the interaction webhook token to replace the deferred response with one
   bounded Venice reply. No bot token is needed or restored.
+- Cloud Tasks targets the Gen 2 function's canonical `run.app` URL and uses
+  that exact URL as the OIDC audience; the public `cloudfunctions.net`
+  compatibility endpoint remains reserved for Discord interactions.
 - Generation is allowed only while Venice is `PRESENT` in the invoking room.
   The runtime checks the durable cut epoch and state epoch before generation
   and again before delivery. A racing `/venice withdraw`, other consent-state

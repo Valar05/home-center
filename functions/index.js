@@ -31,7 +31,10 @@ const DISCORD_PUBLIC_KEY = defineSecret('DISCORD_PUBLIC_KEY');
 const VENICE_PROJECT_ID = process.env.GCLOUD_PROJECT || 'home-center-dclar';
 const VENICE_REGION = 'us-central1';
 const VENICE_GENERATION_QUEUE = 'venice-discord-generation';
-const VENICE_INTERACTIONS_URL = `https://${VENICE_REGION}-${VENICE_PROJECT_ID}.cloudfunctions.net/veniceDiscordInteractions`;
+// Cloud Tasks OIDC must target the Gen 2 function's canonical Cloud Run URL.
+// The cloudfunctions.net compatibility URL accepts Discord's public webhook,
+// but it is not the canonical audience for an authenticated Gen 2 invocation.
+const VENICE_TASK_TARGET_URL = 'https://venicediscordinteractions-vxybsaualq-uc.a.run.app';
 const VENICE_RUNTIME_SERVICE_ACCOUNT = 'venice-discord-runtime@home-center-dclar.iam.gserviceaccount.com';
 const veniceTasksClient = new CloudTasksClient();
 const CREATIVE_OPENAI_TIMEOUT_MS = 85000;
@@ -3239,11 +3242,11 @@ async function enqueueVeniceDiscordGeneration(task) {
         name,
         httpRequest: {
           httpMethod: 'POST',
-          url: VENICE_INTERACTIONS_URL,
+          url: VENICE_TASK_TARGET_URL,
           headers: {'Content-Type': 'application/json'},
           oidcToken: {
             serviceAccountEmail: VENICE_RUNTIME_SERVICE_ACCOUNT,
-            audience: VENICE_INTERACTIONS_URL,
+            audience: VENICE_TASK_TARGET_URL,
           },
           body: Buffer.from(JSON.stringify(cleanTask), 'utf8').toString('base64'),
         },
@@ -3259,7 +3262,7 @@ async function verifyVeniceTaskRequest(req) {
   const authorization = req.get('Authorization') || '';
   const token = authorization.match(/^Bearer\s+(.+)$/i)?.[1] || '';
   if (!taskName.includes(`/queues/${VENICE_GENERATION_QUEUE}/tasks/`) || !token) return false;
-  const ticket = await new google.auth.OAuth2().verifyIdToken({idToken: token, audience: VENICE_INTERACTIONS_URL});
+  const ticket = await new google.auth.OAuth2().verifyIdToken({idToken: token, audience: VENICE_TASK_TARGET_URL});
   const payload = ticket.getPayload() || {};
   return payload.email === VENICE_RUNTIME_SERVICE_ACCOUNT && payload.email_verified !== false;
 }
