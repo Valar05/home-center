@@ -69,6 +69,14 @@ if ! gcloud secrets describe VENICE_WEB_BRIDGE_TOKEN \
   echo "Required Venice web bridge secret metadata is unavailable: VENICE_WEB_BRIDGE_TOKEN" >&2
   exit 1
 fi
+if ! gcloud secrets describe GEMINI_API_KEY \
+  --project "$PROJECT" \
+  --no-log-http \
+  --verbosity=error \
+  --quiet >/dev/null; then
+  echo "Required Venice fallback secret metadata is unavailable: GEMINI_API_KEY" >&2
+  exit 1
+fi
 gcloud secrets versions access latest \
   --secret=DISCORD_PUBLIC_KEY \
   --project "$PROJECT" \
