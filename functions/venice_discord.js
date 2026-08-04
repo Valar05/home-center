@@ -1,11 +1,9 @@
 const crypto = require('crypto');
+const VENICE_DISCORD_CONTRACT = require('./venice_discord_contract.json');
 
-const VENICE_APPLICATION_ID = '1534113573708763196';
-const VENICE_GUILD_ID = '1534104765796192356';
-const VENICE_ALLOWED_CHANNEL_IDS = Object.freeze([
-  '1534104766643437620',
-  '1534105192226623610',
-]);
+const VENICE_APPLICATION_ID = VENICE_DISCORD_CONTRACT.applicationId;
+const VENICE_GUILD_ID = VENICE_DISCORD_CONTRACT.guildId;
+const VENICE_ALLOWED_CHANNEL_IDS = Object.freeze([...VENICE_DISCORD_CONTRACT.allowedChannelIds]);
 const VENICE_ALLOWED_CHANNEL_SET = new Set(VENICE_ALLOWED_CHANNEL_IDS);
 const DISCORD_SEND_MESSAGES = 1n << 11n;
 const DISCORD_VIEW_CHANNEL = 1n << 10n;
@@ -17,40 +15,7 @@ const ED25519_SPKI_PREFIX = Buffer.from('302a300506032b6570032100', 'hex');
 const ROOM_STATES = new Set(['DORMANT', 'PRESENT', 'WITHDRAWN']);
 const GLOBAL_STATES = new Set(['DORMANT', 'PRESENT', 'WITHDRAWN', 'CUT']);
 
-const VENICE_COMMANDS = Object.freeze([
-  {
-    type: 1,
-    name: 'venice',
-    description: 'Invite or withdraw Venice in an assigned room.',
-    dm_permission: false,
-    options: [
-      {type: 1, name: 'begin', description: 'Invite Venice into the current scene.'},
-      {
-        type: 1,
-        name: 'ask',
-        description: 'Address Venice through the explicit interaction carrier.',
-        options: [
-          {
-            type: 3,
-            name: 'prompt',
-            description: 'The invitation or question for Venice.',
-            required: true,
-            min_length: 1,
-            max_length: 1800,
-          },
-        ],
-      },
-      {type: 1, name: 'withdraw', description: 'Withdraw Venice from the current scene.'},
-      {type: 1, name: 'status', description: 'Show the current consent state privately.'},
-    ],
-  },
-  {
-    type: 1,
-    name: 'cut-the-cam',
-    description: 'Immediately stop Venice across every assigned channel.',
-    dm_permission: false,
-  },
-]);
+const VENICE_COMMANDS = Object.freeze(VENICE_DISCORD_CONTRACT.commands);
 
 const RESPONSE_TEXT = Object.freeze({
   begun: 'Venice is present. Explicit invitations only; `/cut-the-cam` remains live.',

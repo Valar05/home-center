@@ -44,6 +44,8 @@ carrier is enabled.
 - The bot token exists only as concealed direct input, short-lived child-process
   memory, and redirected stdin during one-shot command registration. The child
   exits and clears its token reference immediately after Discord responds.
+  Discord still retains the credential until Drew resets it again; that
+  post-registration reset is required before the ceremony is complete.
 - Audit records contain identifiers and outcomes only, carry an `expireAt`
   timestamp 30 days after creation, and are governed by a Firestore TTL policy.
 
@@ -70,7 +72,9 @@ Acceptance requires all of the following:
    dedicated service account.
 4. Guild commands are registered against the exact application and guild.
 5. Discord accepts the deployed HTTPS interactions endpoint.
-6. Live Discord verification proves an allowed-channel command works, a
+6. Drew resets the now-unneeded bot token again after registration so the
+   one-shot credential is no longer valid at Discord.
+7. Live Discord verification proves an allowed-channel command works, a
    disallowed route produces no public output, and `/cut-the-cam` blocks later
    ordinary output across both channels.
 

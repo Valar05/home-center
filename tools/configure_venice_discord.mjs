@@ -43,42 +43,23 @@ if (cli.length !== 2 || cli[0] !== '--endpoint' || cli[1] !== expectedEndpoint) 
   throw new Error('The one-shot configuration requires the exact governed endpoint.');
 }
 
-const VENICE_APPLICATION_ID = '1534113573708763196';
-const VENICE_GUILD_ID = '1534104765796192356';
-const VENICE_COMMANDS = Object.freeze([
-  {
-    type: 1,
-    name: 'venice',
-    description: 'Invite or withdraw Venice in an assigned room.',
-    dm_permission: false,
-    options: [
-      {type: 1, name: 'begin', description: 'Invite Venice into the current scene.'},
-      {
-        type: 1,
-        name: 'ask',
-        description: 'Address Venice through the explicit interaction carrier.',
-        options: [
-          {
-            type: 3,
-            name: 'prompt',
-            description: 'The invitation or question for Venice.',
-            required: true,
-            min_length: 1,
-            max_length: 1800,
-          },
-        ],
-      },
-      {type: 1, name: 'withdraw', description: 'Withdraw Venice from the current scene.'},
-      {type: 1, name: 'status', description: 'Show the current consent state privately.'},
-    ],
-  },
-  {
-    type: 1,
-    name: 'cut-the-cam',
-    description: 'Immediately stop Venice across every assigned channel.',
-    dm_permission: false,
-  },
-]);
+const contractBytes = Buffer.from(process.env.VENICE_DISCORD_CONTRACT_BASE64 || '', 'base64');
+const contractHash = crypto.createHash('sha256').update(contractBytes).digest('hex');
+if (contractHash !== process.env.VENICE_DISCORD_CONTRACT_SHA256) {
+  throw new Error('The governed Discord contract hash changed.');
+}
+const contract = JSON.parse(contractBytes.toString('utf8'));
+const VENICE_APPLICATION_ID = String(contract.applicationId || '');
+const VENICE_GUILD_ID = String(contract.guildId || '');
+const VENICE_COMMANDS = contract.commands;
+if (
+  VENICE_APPLICATION_ID !== '1534113573708763196'
+  || VENICE_GUILD_ID !== '1534104765796192356'
+  || JSON.stringify(contract.allowedChannelIds) !== JSON.stringify(['1534104766643437620', '1534105192226623610'])
+  || !Array.isArray(VENICE_COMMANDS)
+) {
+  throw new Error('The governed Discord contract is invalid.');
+}
 
 process.stdout.write('VENICE_ONE_SHOT_READY\n');
 let botToken = fs.readFileSync(0, 'utf8').trim();

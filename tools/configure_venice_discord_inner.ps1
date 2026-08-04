@@ -7,13 +7,15 @@ $ExpectedEndpoint = 'https://us-central1-home-center-dclar.cloudfunctions.net/ve
 $ExpectedNodeSourceSha256 = $env:VENICE_NODE_SOURCE_SHA256
 $token = $null
 $secureToken = $null
-$nodeSource = $null
 
 if ($env:VENICE_TRUSTED_ONE_SHOT_LAUNCHER -ne '1') {
   throw 'Use tools/configure_venice_discord.ps1 to start the short-lived token process.'
 }
 if ($env:VENICE_TRUSTED_NODE -ne $ExpectedNode -or -not $env:VENICE_NODE_SOURCE_BASE64) {
   throw 'The one-shot launcher did not provide the governed Node runtime and source.'
+}
+if (-not $env:VENICE_DISCORD_CONTRACT_BASE64 -or -not $env:VENICE_DISCORD_CONTRACT_SHA256) {
+  throw 'The one-shot launcher did not provide the governed Discord contract.'
 }
 $nodeItem = Microsoft.PowerShell.Management\Get-Item -LiteralPath $ExpectedNode -ErrorAction Stop
 if ($nodeItem.Attributes -band [IO.FileAttributes]::ReparsePoint) { throw 'The governed Node runtime is a reparse point.' }
@@ -24,7 +26,6 @@ $sha = [Security.Cryptography.SHA256]::Create()
 try { $nodeSourceHash = ([BitConverter]::ToString($sha.ComputeHash($nodeBytes))).Replace('-', '').ToLowerInvariant() }
 finally { $sha.Dispose() }
 if ($nodeSourceHash -ne $ExpectedNodeSourceSha256) { throw 'The governed Node source hash changed.' }
-$nodeSource = [Text.Encoding]::UTF8.GetString($nodeBytes)
 $nodeBytes = $null
 
 function Quote-ProcessArgument {
@@ -34,9 +35,10 @@ function Quote-ProcessArgument {
 }
 
 try {
-  $startInfo = New-Object System.Diagnostics.ProcessStartInfo
+  $startInfo = [System.Diagnostics.ProcessStartInfo]::new()
   $startInfo.FileName = $ExpectedNode
-  $startInfo.Arguments = (@('--input-type=module', '--eval', $nodeSource, '--', '--endpoint', $ExpectedEndpoint) | ForEach-Object {
+  $nodeBootstrap = "await import('data:text/javascript;base64,'+process.env.VENICE_NODE_SOURCE_BASE64)"
+  $startInfo.Arguments = (@('--input-type=module', '--eval', $nodeBootstrap, '--', '--endpoint', $ExpectedEndpoint) | ForEach-Object {
     Quote-ProcessArgument ([string]$_)
   }) -join ' '
   $startInfo.UseShellExecute = $false
@@ -53,8 +55,11 @@ try {
   $startInfo.EnvironmentVariables['VENICE_TRUSTED_ONE_SHOT_NODE'] = '1'
   $startInfo.EnvironmentVariables['VENICE_TRUSTED_NODE'] = $ExpectedNode
   $startInfo.EnvironmentVariables['VENICE_TRUSTED_NODE_SHA256'] = $nodeHash
+  $startInfo.EnvironmentVariables['VENICE_NODE_SOURCE_BASE64'] = $env:VENICE_NODE_SOURCE_BASE64
+  $startInfo.EnvironmentVariables['VENICE_DISCORD_CONTRACT_BASE64'] = $env:VENICE_DISCORD_CONTRACT_BASE64
+  $startInfo.EnvironmentVariables['VENICE_DISCORD_CONTRACT_SHA256'] = $env:VENICE_DISCORD_CONTRACT_SHA256
 
-  $process = New-Object System.Diagnostics.Process
+  $process = [System.Diagnostics.Process]::new()
   $process.StartInfo = $startInfo
   [void]$process.Start()
   $ready = $process.StandardOutput.ReadLine()
@@ -89,5 +94,4 @@ finally {
   $token = $null
   if ($secureToken) { $secureToken.Dispose() }
   $secureToken = $null
-  $nodeSource = $null
 }
