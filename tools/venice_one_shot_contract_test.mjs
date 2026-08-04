@@ -41,7 +41,9 @@ assert.doesNotMatch(outer, /Read-Host/);
 assert.doesNotMatch(outer, /Clipboard/i);
 
 assert.match(inner, /Read-Host -AsSecureString/);
-assert.match(inner, /clipboard use is prohibited/i);
+assert.match(inner, /paste the newly reset Discord bot token once/i);
+assert.match(inner, /Set-Clipboard -Value ''/);
+assert.match(inner, /token rotation remains required/i);
 assert.match(inner, /SecureStringToBSTR/);
 assert.match(inner, /ZeroFreeBSTR/);
 assert.match(inner, /StandardInput\.Write\(\$token\)/);
@@ -53,7 +55,7 @@ assert.ok(
   inner.indexOf('$ready = $process.StandardOutput.ReadLine()') < inner.indexOf('$secureToken = Read-Host'),
   'the reviewed Node process must be loaded and ready before Drew enters the token',
 );
-assert.doesNotMatch(inner, /Get-Clipboard|Set-Clipboard/i);
+assert.doesNotMatch(inner, /Get-Clipboard/i);
 assert.doesNotMatch(inner, /gcloud|Secret Manager|secrets versions/i);
 
 const guardIndex = nodeSource.indexOf('assertTrustedLaunch();');
@@ -117,7 +119,7 @@ console.log(JSON.stringify({
   ok: true,
   flow: 'one-shot-stdin-only',
   cleanOriginMainRequired: true,
-  clipboardProhibited: true,
+  clipboardClearedAfterPaste: true,
   botTokenPersistedLocally: false,
   postRegistrationRevocationRequired: true,
   runtimeBindsPublicKeyOnly: true,

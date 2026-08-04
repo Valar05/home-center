@@ -70,7 +70,13 @@ try {
     throw 'The governed Discord configurator did not become ready.'
   }
 
-  $secureToken = Read-Host -AsSecureString -Prompt 'Drew: type the newly reset Discord bot token directly; clipboard use is prohibited'
+  $secureToken = Read-Host -AsSecureString -Prompt 'Drew: paste the newly reset Discord bot token once; the clipboard will be cleared immediately and token rotation remains required'
+  try {
+    Microsoft.PowerShell.Management\Set-Clipboard -Value ''
+  }
+  catch {
+    throw 'The launcher could not clear the clipboard, so the token was not used. Clear the clipboard and retry.'
+  }
   $tokenPointer = [Runtime.InteropServices.Marshal]::SecureStringToBSTR($secureToken)
   try { $token = [Runtime.InteropServices.Marshal]::PtrToStringBSTR($tokenPointer) }
   finally { [Runtime.InteropServices.Marshal]::ZeroFreeBSTR($tokenPointer) }
