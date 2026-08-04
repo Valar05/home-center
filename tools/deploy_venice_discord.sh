@@ -53,6 +53,20 @@ if ! gcloud secrets describe DISCORD_PUBLIC_KEY \
   echo "Required Venice public-key metadata is unavailable: DISCORD_PUBLIC_KEY" >&2
   exit 1
 fi
+gcloud secrets versions access latest \
+  --secret=DISCORD_PUBLIC_KEY \
+  --project "$PROJECT" \
+  --no-log-http \
+  --verbosity=error \
+  --quiet \
+  | node -e '
+const fs = require("fs");
+const value = fs.readFileSync(0, "utf8").trim();
+if (!/^[0-9a-f]{64}$/i.test(value)) {
+  process.stderr.write("DISCORD_PUBLIC_KEY latest version is not a 32-byte hex verification key.\n");
+  process.exit(1);
+}
+'
 
 if ! gcloud iam service-accounts describe "$WORKER_SERVICE_ACCOUNT" \
   --project "$PROJECT" \
