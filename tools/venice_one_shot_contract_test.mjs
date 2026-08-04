@@ -42,7 +42,7 @@ assert.doesNotMatch(outer, /Clipboard/i);
 
 assert.match(inner, /Read-Host -AsSecureString/);
 assert.match(inner, /paste the newly reset Discord bot token once/i);
-assert.match(inner, /Set-Clipboard -Value ''/);
+assert.match(inner, /Set-Clipboard -Value ' '/);
 assert.match(inner, /token rotation remains required/i);
 assert.match(inner, /SecureStringToBSTR/);
 assert.match(inner, /ZeroFreeBSTR/);

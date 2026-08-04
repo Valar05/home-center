@@ -72,7 +72,7 @@ try {
 
   $secureToken = Read-Host -AsSecureString -Prompt 'Drew: paste the newly reset Discord bot token once; the clipboard will be cleared immediately and token rotation remains required'
   try {
-    Microsoft.PowerShell.Management\Set-Clipboard -Value ''
+    Microsoft.PowerShell.Management\Set-Clipboard -Value ' '
   }
   catch {
     throw 'The launcher could not clear the clipboard, so the token was not used. Clear the clipboard and retry.'
