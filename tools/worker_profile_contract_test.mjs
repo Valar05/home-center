@@ -26,7 +26,7 @@ assert.ok(agents.includes('CI is authoritative'), 'AGENTS.md must name CI as the
 
 const profiles = registry.profiles || {};
 const assignments = registry.assignments || {};
-for (const required of ['control-plane', 'media-forge-light', 'media-forge-heavy', 'browser-session']) {
+for (const required of ['control-plane', 'discord-interaction-control', 'media-forge-light', 'media-forge-heavy', 'browser-session']) {
   assert.ok(profiles[required], `missing profile ${required}`);
   assert.ok(doctrine.includes('`' + required + '`'), `doctrine must explain ${required}`);
 }
@@ -137,6 +137,58 @@ assert.equal(assignments['home-center-audio-render'].state, 'target');
 assert.equal(profiles['media-forge-heavy'].cpu, 4);
 assert.equal(profiles['media-forge-heavy'].memory, '8Gi');
 assert.equal(profiles['media-forge-heavy'].maxInstances, 4);
+assert.equal(assignments['venice-discord-interactions'].profile, 'discord-interaction-control');
+assert.equal(assignments['venice-discord-interactions'].state, 'bound');
+assert.equal(
+  assignments['venice-discord-interactions'].serviceAccount,
+  'venice-discord-runtime@home-center-dclar.iam.gserviceaccount.com',
+);
+assert.equal(profiles['discord-interaction-control'].memory, '512Mi');
+assert.equal(profiles['discord-interaction-control'].minInstances, 1);
+assert.equal(profiles['discord-interaction-control'].maxInstances, 1);
+assert.match(profiles['discord-interaction-control'].billingGuard, /explicit owner approval/i);
+assert.match(profiles['discord-interaction-control'].billingGuard, /capped at one total instance/i);
+
+const veniceDeployPath = path.join(root, assignments['venice-discord-interactions'].deployment.path);
+const veniceDeploySource = fs.readFileSync(veniceDeployPath, 'utf8');
+assert.match(veniceDeploySource, /EXPECTED_PROJECT="home-center-dclar"/);
+assert.match(veniceDeploySource, /gcloud secrets describe DISCORD_PUBLIC_KEY/);
+assert.match(veniceDeploySource, /gcloud projects add-iam-policy-binding/);
+assert.match(veniceDeploySource, /roles\/datastore\.user/);
+assert.match(veniceDeploySource, /gcloud projects get-iam-policy/);
+assert.doesNotMatch(veniceDeploySource, /DISCORD_BOT_TOKEN/);
+assert.doesNotMatch(veniceDeploySource, /verify_venice_iam\.mjs/);
+const shellPath = process.platform === 'win32'
+  ? path.join(process.env.ProgramFiles || 'C:\\Program Files', 'Git', 'bin', 'sh.exe')
+  : 'sh';
+assert.ok(process.platform !== 'win32' || fs.existsSync(shellPath), 'Git shell is required for the Windows refusal test');
+const refusedWarmDeploy = spawnSync(shellPath, [veniceDeployPath], {encoding: 'utf8'});
+assert.equal(refusedWarmDeploy.status, 2, 'Venice deploy must refuse without explicit warm-cost approval');
+assert.match(refusedWarmDeploy.stderr, /exactly one 512 MiB instance warm/i);
+assert.match(refusedWarmDeploy.stderr, /capped at one total instance/i);
+
+const veniceServiceFixture = {
+  spec: {template: {metadata: {annotations: {
+    'autoscaling.knative.dev/minScale': '1',
+    'autoscaling.knative.dev/maxScale': '1',
+  }}, spec: {
+    serviceAccountName: 'venice-discord-runtime@home-center-dclar.iam.gserviceaccount.com',
+    containerConcurrency: 80,
+    timeoutSeconds: 300,
+    containers: [{resources: {limits: {cpu: '1000m', memory: '512Mi'}}}],
+  }}},
+};
+assert.equal(
+  verifyFixture('venice-discord-interactions', veniceServiceFixture).status,
+  0,
+  'Venice live-readback fixture must prove its dedicated service account',
+);
+veniceServiceFixture.spec.template.spec.serviceAccountName = '220218838446-compute@developer.gserviceaccount.com';
+assert.notEqual(
+  verifyFixture('venice-discord-interactions', veniceServiceFixture).status,
+  0,
+  'Venice live readback must reject the broad default service account',
+);
 
 const blenderShell = execFileSync(process.execPath, [helperPath, 'shell', 'home-center-blender-workspace'], {encoding: 'utf8'});
 assert.ok(blenderShell.includes("WORKER_CPU='4'"));

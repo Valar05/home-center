@@ -10,6 +10,8 @@ const {audioLibraryHandler} = require('./audio_library_api');
 const {createCommandCenterMcpApp} = require('./command_center_mcp');
 const {createSheRawMcpApp} = require('./she_raw_mcp');
 const {CARTESIA_DEFAULT_MODEL_ID, CARTESIA_DEFAULT_VOICE_NAME, listCartesiaVoiceCatalog, listCartesiaVoices, normalizeCartesiaVoice, openCartesiaStream} = require('./hosted_speech_provider');
+const {createFirestoreStateStore, createVeniceDiscordHandler} = require('./venice_discord');
+const VENICE_WORKER_OPTIONS = require('./venice_worker_profile.generated');
 
 admin.initializeApp();
 
@@ -24,6 +26,7 @@ const GITHUB_APP_PRIVATE_KEY = defineSecret('GITHUB_APP_PRIVATE_KEY');
 const GITHUB_BOOTSTRAP_TOKEN = defineSecret('GITHUB_BOOTSTRAP_TOKEN');
 const GOOGLE_OAUTH_CLIENT_ID = defineSecret('GOOGLE_OAUTH_CLIENT_ID');
 const GOOGLE_OAUTH_CLIENT_SECRET = defineSecret('GOOGLE_OAUTH_CLIENT_SECRET');
+const DISCORD_PUBLIC_KEY = defineSecret('DISCORD_PUBLIC_KEY');
 const CREATIVE_OPENAI_TIMEOUT_MS = 85000;
 const CREATIVE_SALVAGE_TIMEOUT_MS = 25000;
 const EVIDENCE_FINALIZER_TIMEOUT_MS = 45000;
@@ -3175,6 +3178,19 @@ async function askOpenAIToolTurn(body, user = {}) {
   }
 }
 
+
+const veniceDiscordStateStore = createFirestoreStateStore({
+  firestore: admin.firestore(),
+  fieldValue: admin.firestore.FieldValue,
+});
+
+exports.veniceDiscordInteractions = onRequest(
+  {...VENICE_WORKER_OPTIONS, secrets: [DISCORD_PUBLIC_KEY]},
+  createVeniceDiscordHandler({
+    publicKeyGetter: () => DISCORD_PUBLIC_KEY.value() || process.env.DISCORD_PUBLIC_KEY || '',
+    store: veniceDiscordStateStore,
+  }),
+);
 
 exports.homeCenterMcp = onRequest({timeoutSeconds: 300, secrets: [GOOGLE_OAUTH_CLIENT_ID, GOOGLE_OAUTH_CLIENT_SECRET, GITHUB_TOKEN, GITHUB_APP_ID, GITHUB_APP_INSTALLATION_ID, GITHUB_APP_PRIVATE_KEY, GITHUB_BOOTSTRAP_TOKEN, GEMINI_API_KEY, CARTESIA_API_KEY]}, createHomeCenterMcpApp({google, admin, googleClientId: () => GOOGLE_OAUTH_CLIENT_ID.value() || process.env.GOOGLE_OAUTH_CLIENT_ID || '', googleClientSecret: () => GOOGLE_OAUTH_CLIENT_SECRET.value() || process.env.GOOGLE_OAUTH_CLIENT_SECRET || '', githubToken: () => GITHUB_TOKEN.value() || process.env.GITHUB_TOKEN || '', githubAdmin: {appId: () => GITHUB_APP_ID.value() || process.env.GITHUB_APP_ID || '', installationId: () => GITHUB_APP_INSTALLATION_ID.value() || process.env.GITHUB_APP_INSTALLATION_ID || '', privateKey: () => GITHUB_APP_PRIVATE_KEY.value() || process.env.GITHUB_APP_PRIVATE_KEY || '', bootstrapToken: () => GITHUB_BOOTSTRAP_TOKEN.value() || process.env.GITHUB_BOOTSTRAP_TOKEN || '', allowedOwners: () => process.env.HOME_CENTER_GITHUB_ADMIN_OWNERS || 'Valar05', userProfiles: () => process.env.HOME_CENTER_GITHUB_ADMIN_USER_PROFILES_B64 || ''}, cartesiaApiKey: () => CARTESIA_API_KEY.value() || process.env.CARTESIA_API_KEY || '', geminiApiKey: () => GEMINI_API_KEY.value() || process.env.GEMINI_API_KEY || ''}));
 
