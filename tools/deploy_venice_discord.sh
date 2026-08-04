@@ -128,7 +128,11 @@ if (!active) {
 
 npm --prefix functions ci --ignore-scripts --no-audit --no-fund
 
-firebase deploy --only functions:veniceDiscordInteractions --project "$PROJECT"
+# The shared Functions entrypoint can exceed Firebase's default 10-second
+# discovery window on a cold Windows checkout. The owner-approved warm instance
+# also requires Firebase's explicit billing acknowledgement.
+export FUNCTIONS_DISCOVERY_TIMEOUT="${FUNCTIONS_DISCOVERY_TIMEOUT:-60}"
+firebase deploy --only functions:veniceDiscordInteractions --project "$PROJECT" --force
 
 SERVICE_NAME="$(gcloud functions describe veniceDiscordInteractions \
   --gen2 \
