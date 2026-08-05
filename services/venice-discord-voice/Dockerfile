@@ -1,0 +1,13 @@
+FROM node:22-bookworm-slim
+
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends ca-certificates ffmpeg \
+  && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci --omit=dev
+COPY core.js gemini_tts.js server.js ./
+
+ENV NODE_ENV=production
+CMD ["node", "server.js"]

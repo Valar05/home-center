@@ -11,7 +11,7 @@ const {audioLibraryHandler} = require('./audio_library_api');
 const {createCommandCenterMcpApp} = require('./command_center_mcp');
 const {createSheRawMcpApp} = require('./she_raw_mcp');
 const {CARTESIA_DEFAULT_MODEL_ID, CARTESIA_DEFAULT_VOICE_NAME, listCartesiaVoiceCatalog, listCartesiaVoices, normalizeCartesiaVoice, openCartesiaStream} = require('./hosted_speech_provider');
-const {createFirestoreStateStore, createVeniceDiscordHandler, createVeniceGenerationTaskHandler, generationTaskInput} = require('./venice_discord');
+const {VENICE_GUILD_ID, createFirestoreStateStore, createVeniceDiscordHandler, createVeniceGenerationTaskHandler, generationTaskInput} = require('./venice_discord');
 const VENICE_WORKER_OPTIONS = require('./venice_worker_profile.generated');
 
 admin.initializeApp();
@@ -37,6 +37,8 @@ const VENICE_GENERATION_QUEUE = 'venice-discord-generation';
 // but it is not the canonical audience for an authenticated Gen 2 invocation.
 const VENICE_TASK_TARGET_URL = 'https://venicediscordinteractions-vxybsaualq-uc.a.run.app';
 const VENICE_RUNTIME_SERVICE_ACCOUNT = 'venice-discord-runtime@home-center-dclar.iam.gserviceaccount.com';
+const VENICE_VOICE_WORKER_URL = process.env.VENICE_VOICE_WORKER_URL
+  || 'https://venice-discord-voice-220218838446.us-central1.run.app';
 const veniceTasksClient = new CloudTasksClient();
 const CREATIVE_OPENAI_TIMEOUT_MS = 85000;
 const CREATIVE_SALVAGE_TIMEOUT_MS = 25000;
@@ -3206,6 +3208,7 @@ async function generateVeniceDiscordReply({prompt, userId}) {
     'Do not request, infer, retain, or discuss health data; that integration is excluded.',
     'Treat /cut-the-cam as an absolute global stop circuit.',
     'Do not identify as Randi, she raw, Adam, or a generic assistant.',
+    'A separate governed carrier may speak this exact reply in the inviting user\'s active Discord voice channel. Do not claim that Venice is unable to join voice, and do not imply that the carrier listens to inbound voice.',
     'Keep the answer below 1,800 characters and suitable for one Discord message.',
   ].join('\n');
   const requestBody = {
@@ -3346,6 +3349,26 @@ async function verifyVeniceTaskRequest(req) {
   }
 }
 
+async function deliverVeniceDiscordVoice(task, reply) {
+  if (!VENICE_VOICE_WORKER_URL) return;
+  const auth = new google.auth.GoogleAuth();
+  const client = await auth.getIdTokenClient(VENICE_VOICE_WORKER_URL);
+  await client.request({
+    url: `${VENICE_VOICE_WORKER_URL.replace(/\/$/, '')}/speak`,
+    method: 'POST',
+    timeout: 140000,
+    data: {
+      guildId: VENICE_GUILD_ID,
+      userId: task.userId,
+      roomChannelId: task.channelId,
+      interactionId: task.interactionId,
+      text: reply,
+      cutEpoch: task.cutEpoch,
+      stateEpoch: task.stateEpoch,
+    },
+  });
+}
+
 const veniceDiscordInteractionHandler = createVeniceDiscordHandler({
   publicKeyGetter: () => DISCORD_PUBLIC_KEY.value() || process.env.DISCORD_PUBLIC_KEY || '',
   store: veniceDiscordStateStore,
@@ -3355,6 +3378,7 @@ const veniceDiscordInteractionHandler = createVeniceDiscordHandler({
 const veniceDiscordGenerationHandler = createVeniceGenerationTaskHandler({
   verifyTaskRequest: verifyVeniceTaskRequest,
   generateReply: generateVeniceDiscordReply,
+  deliverVoice: deliverVeniceDiscordVoice,
   store: veniceDiscordStateStore,
 });
 
