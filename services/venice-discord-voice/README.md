@@ -7,6 +7,8 @@ voice channel currently occupied by the invoking user.
 - Every request must match the durable Firestore consent state and exact epochs.
 - A state change, room withdrawal, or global cut stops playback and disconnects.
 - It disconnects after each reply.
+- Speech is buffered as normalized Ogg/Opus with a receive preroll so Discord
+  clients have time to attach before the first spoken sample.
 - `VENICE_VOICE_NAME` is a candidate carrier voice, not canonical Venice identity.
 
 The service expects `DISCORD_BOT_TOKEN` and `GEMINI_API_KEY` as secret-backed

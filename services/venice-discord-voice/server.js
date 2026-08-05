@@ -1,8 +1,6 @@
 'use strict';
 
 const http = require('node:http');
-const {spawn} = require('node:child_process');
-const {Readable} = require('node:stream');
 const {initializeApp} = require('firebase-admin/app');
 const {getFirestore} = require('firebase-admin/firestore');
 const {
@@ -16,6 +14,7 @@ const {
   joinVoiceChannel,
 } = require('@discordjs/voice');
 const {ChannelType, Client, Events, GatewayIntentBits, PermissionFlagsBits} = require('discord.js');
+const {createDiscordOggStream} = require('./audio_pipeline');
 const {publicError, stateAllowsSpeech, validateSpeakRequest} = require('./core');
 const {SAMPLE_RATE, synthesizeGeminiPcm} = require('./gemini_tts');
 
@@ -23,6 +22,7 @@ const PORT = Math.max(1, Number(process.env.PORT || 8080));
 const GUILD_ID = String(process.env.VENICE_DISCORD_GUILD_ID || '1534104765796192356');
 const VOICE_NAME = String(process.env.VENICE_VOICE_NAME || 'Kore');
 const IDLE_DISCONNECT_MS = Math.max(500, Number(process.env.VENICE_IDLE_DISCONNECT_MS || 1500));
+const AUDIO_PREROLL_MS = Math.max(500, Number(process.env.VENICE_AUDIO_PREROLL_MS || 1200));
 const MAX_BODY_BYTES = 12 * 1024;
 
 initializeApp();
@@ -77,23 +77,6 @@ client.on('error', (error) => {
   contentFreeLog('error', 'venice_voice_gateway_error', {code: String(error && error.code || 'unknown')});
 });
 
-function pcmToDiscordStream(pcm) {
-  const ffmpeg = spawn('ffmpeg', [
-    '-hide_banner', '-loglevel', 'error',
-    '-f', 's16le', '-ar', String(SAMPLE_RATE), '-ac', '1', '-i', 'pipe:0',
-    '-f', 's16le', '-ar', '48000', '-ac', '2', 'pipe:1',
-  ], {stdio: ['pipe', 'pipe', 'pipe']});
-  let stderr = '';
-  ffmpeg.stderr.on('data', (chunk) => { stderr = (stderr + chunk.toString('utf8')).slice(-500); });
-  ffmpeg.once('error', () => ffmpeg.stdout.destroy(new Error('voice_connection_failed')));
-  ffmpeg.once('close', (code) => {
-    if (code && !ffmpeg.stdout.destroyed) ffmpeg.stdout.destroy(new Error('voice_connection_failed'));
-    if (code) contentFreeLog('error', 'venice_voice_ffmpeg_failed', {code, detailLength: stderr.length});
-  });
-  Readable.from([pcm]).pipe(ffmpeg.stdin);
-  return ffmpeg.stdout;
-}
-
 async function playOne(task) {
   if (!discordReady) throw new Error('discord_not_ready');
   if (!consentReady) throw new Error('consent_state_unavailable');
@@ -147,10 +130,20 @@ async function playOne(task) {
   active.set(task.guildId, {connection, player, task});
   try {
     connection.subscribe(player);
-    const resource = createAudioResource(pcmToDiscordStream(speech.pcm), {inputType: StreamType.Raw});
+    const encoded = createDiscordOggStream(speech.pcm, {
+      sampleRate: SAMPLE_RATE,
+      prerollMs: AUDIO_PREROLL_MS,
+      logger: (fields) => contentFreeLog('error', fields.event, fields),
+    });
+    const encodingDone = encoded.done.catch((error) => {
+      encoded.stream.destroy(error);
+      throw error;
+    });
+    const resource = createAudioResource(encoded.stream, {inputType: StreamType.OggOpus});
     player.play(resource);
     await entersState(player, AudioPlayerStatus.Playing, 10000);
     await entersState(player, AudioPlayerStatus.Idle, 120000);
+    const encoding = await encodingDone;
     const current = active.get(task.guildId);
     if (!current || current.task.interactionId !== task.interactionId || !stateAllowsSpeech(consentState, task)) {
       throw new Error('consent_state_changed');
@@ -164,6 +157,11 @@ async function playOne(task) {
       interactionId: task.interactionId,
       voiceName: speech.voiceName,
       voiceIdentity: 'candidate_noncanonical',
+      sourceDurationMs: speech.metrics.durationMs,
+      sourcePeak: speech.metrics.peak,
+      sourceRms: speech.metrics.rms,
+      encodedBytes: encoding.outputBytes,
+      prerollMs: encoding.prerollMs,
     });
     return {voiceChannelId: voiceChannel.id, voiceName: speech.voiceName};
   } catch (error) {

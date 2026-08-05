@@ -7,7 +7,7 @@ RUN apt-get update \
 WORKDIR /app
 COPY package*.json ./
 RUN npm ci --omit=dev
-COPY core.js gemini_tts.js server.js ./
+COPY audio_pipeline.js core.js gemini_tts.js server.js ./
 
 ENV NODE_ENV=production
 CMD ["node", "server.js"]

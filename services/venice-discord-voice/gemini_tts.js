@@ -21,11 +21,20 @@ function validatePcm(pcm) {
     throw new Error('tts_unavailable');
   }
   let peak = 0;
+  let sumSquares = 0;
   for (let index = 0; index < pcm.length; index += 2) {
-    peak = Math.max(peak, Math.abs(pcm.readInt16LE(index)));
+    const sample = pcm.readInt16LE(index);
+    peak = Math.max(peak, Math.abs(sample));
+    sumSquares += sample * sample;
   }
   if (!peak) throw new Error('tts_unavailable');
-  return pcm;
+  const frames = pcm.length / 2;
+  return {
+    byteCount: pcm.length,
+    durationMs: Math.round(frames / SAMPLE_RATE * 1000),
+    peak: Number((peak / 32768).toFixed(4)),
+    rms: Number((Math.sqrt(sumSquares / frames) / 32768).toFixed(4)),
+  };
 }
 
 async function synthesizeGeminiPcm({apiKey, text, voiceName = 'Kore', fetchImpl = fetch}) {
@@ -66,7 +75,8 @@ async function synthesizeGeminiPcm({apiKey, text, voiceName = 'Kore', fetchImpl 
         : null);
     if (!audio || typeof audio.data !== 'string') throw new Error('tts_unavailable');
     if (audio.sample_rate !== undefined && Number(audio.sample_rate) !== SAMPLE_RATE) throw new Error('tts_unavailable');
-    return {pcm: validatePcm(Buffer.from(audio.data, 'base64')), voiceName: selectedVoice, model};
+    const pcm = Buffer.from(audio.data, 'base64');
+    return {pcm, metrics: validatePcm(pcm), voiceName: selectedVoice, model};
   } catch (error) {
     if (error && error.message === 'tts_unavailable') throw error;
     throw new Error('tts_unavailable');
