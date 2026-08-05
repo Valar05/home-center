@@ -3325,12 +3325,25 @@ async function enqueueVeniceDiscordGeneration(task) {
 
 async function verifyVeniceTaskRequest(req) {
   const taskName = safeText(req.get('X-CloudTasks-TaskName') || '', 500);
+  const queueName = safeText(req.get('X-CloudTasks-QueueName') || '', 200);
   const authorization = req.get('Authorization') || '';
   const token = authorization.match(/^Bearer\s+(.+)$/i)?.[1] || '';
-  if (!taskName.includes(`/queues/${VENICE_GENERATION_QUEUE}/tasks/`) || !token) return false;
-  const ticket = await new google.auth.OAuth2().verifyIdToken({idToken: token, audience: VENICE_TASK_TARGET_URL});
-  const payload = ticket.getPayload() || {};
-  return payload.email === VENICE_RUNTIME_SERVICE_ACCOUNT && payload.email_verified !== false;
+  const shortTaskName = /^venice-\d{1,32}$/.test(taskName);
+  const fullTaskName = taskName.includes(`/queues/${VENICE_GENERATION_QUEUE}/tasks/venice-`);
+  const queueMatches = queueName === VENICE_GENERATION_QUEUE || fullTaskName;
+  if ((!shortTaskName && !fullTaskName) || !queueMatches || !token) return false;
+  try {
+    const ticket = await new google.auth.OAuth2().verifyIdToken({idToken: token, audience: VENICE_TASK_TARGET_URL});
+    const payload = ticket.getPayload() || {};
+    return payload.email === VENICE_RUNTIME_SERVICE_ACCOUNT && payload.email_verified !== false;
+  } catch (err) {
+    console.warn('venice_task_token_verification_failed', {
+      taskNamePresent: true,
+      errorCode: safeText(err && err.code, 80),
+      errorMessage: safeText(err && err.message, 240),
+    });
+    return false;
+  }
 }
 
 const veniceDiscordInteractionHandler = createVeniceDiscordHandler({
