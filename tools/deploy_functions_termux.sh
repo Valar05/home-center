@@ -18,7 +18,7 @@ else
 fi
 
 case " $FUNCTIONS " in
-  *" homeCenterMcp "*|*" commandCenterMcp "*) sh "$ROOT/tools/assert_home_center_mcp_main_release.sh" "$ROOT" ;;
+  *" homeCenterMcp "*|*" commandCenterMcp "*|*" localVoiceFarm "*) sh "$ROOT/tools/assert_home_center_mcp_main_release.sh" "$ROOT" ;;
 esac
 
 deploy_command_center_mcp() {
@@ -54,6 +54,21 @@ deploy_home_center_mcp() {
     --cpu=1 \
     --set-env-vars=HOME_CENTER_MCP_EXTENDED_TOOLS=true,HOME_CENTER_SOURCE_REPOSITORY="$SOURCE_REPOSITORY",HOME_CENTER_SOURCE_COMMIT="$SOURCE_COMMIT",HOME_CENTER_SOURCE_REF="$SOURCE_REF",HOME_CENTER_PUBLIC_MANIFEST_SHA256="$PUBLIC_MANIFEST_SHA256",HOME_CENTER_GITHUB_ADMIN_ENABLED=true,HOME_CENTER_GITHUB_ADMIN_OWNERS="${HOME_CENTER_GITHUB_ADMIN_OWNERS:-Valar05}",HOME_CENTER_GITHUB_ADMIN_USER_PROFILES_B64="${HOME_CENTER_GITHUB_ADMIN_USER_PROFILES_B64:-}",COMMAND_CENTER_MCP_URL="${COMMAND_CENTER_MCP_URL:-https://us-central1-home-center-dclar.cloudfunctions.net/commandCenterMcp/mcp}",TVTROPER_RETRIEVAL_URL="${TVTROPER_RETRIEVAL_URL:-https://tvtroper-retrieval-vxybsaualq-uc.a.run.app}",BLENDER_WORKSPACE_PROJECT="${BLENDER_WORKSPACE_PROJECT:-$PROJECT}",BLENDER_WORKSPACE_TASK_URL="${BLENDER_WORKSPACE_TASK_URL:-}",BLENDER_WORKSPACE_TASK_SERVICE_ACCOUNT="${BLENDER_WORKSPACE_TASK_SERVICE_ACCOUNT:-}",BLENDER_WORKSPACE_QUEUE="${BLENDER_WORKSPACE_QUEUE:-blenderWorkspace}",BLENDER_WORKSPACE_REGION="${BLENDER_WORKSPACE_REGION:-us-central1}" \
     --set-secrets="$(home_center_mcp_secrets_arg)"
+}
+
+deploy_local_voice_farm() {
+  gcloud functions deploy localVoiceFarm \
+    --gen2 \
+    --project="$PROJECT" \
+    --region="$REGION" \
+    --runtime=nodejs22 \
+    --source="$ROOT/functions" \
+    --entry-point=localVoiceFarm \
+    --trigger-http \
+    --allow-unauthenticated \
+    --timeout=300s \
+    --memory=1Gi \
+    --set-env-vars=HOME_CENTER_LOCAL_VOICE_ORIGIN="https://${REGION}-${PROJECT}.cloudfunctions.net/localVoiceFarm"
 }
 
 deploy_audio_library_api() {
@@ -118,12 +133,13 @@ for fn in $FUNCTIONS; do
   case "$fn" in
     commandCenterMcp) deploy_command_center_mcp ;;
     homeCenterMcp) deploy_home_center_mcp ;;
+    localVoiceFarm) deploy_local_voice_farm ;;
     audioLibraryApi) deploy_audio_library_api ;;
     creditBackedHttp) deploy_credit_backed_http ;;
     sheRawMcp) deploy_she_raw_mcp ;;
     *)
       echo "Unsupported gcloud deploy target: $fn" >&2
-      echo "Supported: commandCenterMcp homeCenterMcp audioLibraryApi creditBackedHttp sheRawMcp" >&2
+      echo "Supported: commandCenterMcp homeCenterMcp localVoiceFarm audioLibraryApi creditBackedHttp sheRawMcp" >&2
       exit 2
       ;;
   esac
