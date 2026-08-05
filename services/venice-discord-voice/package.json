@@ -8,15 +8,13 @@
   },
   "scripts": {
     "start": "node server.js",
-    "test": "node --test core.test.js",
-    "lint": "node --check server.js && node --check core.js && node --check gemini_tts.js"
+    "test": "node --test *.test.js",
+    "lint": "node --check server.js && node --check audio_pipeline.js && node --check core.js && node --check gemini_tts.js"
   },
   "dependencies": {
     "@discordjs/voice": "0.19.2",
     "discord.js": "14.27.0",
-    "firebase-admin": "14.2.0",
-    "opusscript": "0.1.1",
-    "tweetnacl": "1.0.3"
+    "firebase-admin": "14.2.0"
   },
   "overrides": {
     "uuid": "11.1.1"
