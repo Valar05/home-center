@@ -10,6 +10,7 @@ const {
   createVeniceDiscordHandler,
   createVeniceGenerationTaskHandler,
   dispatchVeniceInteraction,
+  veniceRoleplayInstruction,
   voiceDeliveryProfile,
   verifyDiscordRequest,
 } = require('./venice_discord');
@@ -40,6 +41,18 @@ test('explicit voice cues select governed candidates and random routing is stabl
   const replay = voiceDeliveryProfile('voice: random Read this line.', '2002');
   assert.deepEqual(first, replay);
   assert.ok(['Zephyr', 'Laomedeia', 'Sulafat', 'Puck', 'Vindemiatrix'].includes(first.voiceName));
+});
+
+test('roleplay policy keeps threshold clean and reserves adult fiction for velvet-room', () => {
+  const threshold = veniceRoleplayInstruction(VENICE_ALLOWED_CHANNEL_IDS[0]);
+  const velvet = veniceRoleplayInstruction(VENICE_ALLOWED_CHANNEL_IDS[1]);
+  const unclassified = veniceRoleplayInstruction('');
+  assert.match(threshold, /clothing and attire are allowed/i);
+  assert.match(threshold, /keep roleplay non-explicit/i);
+  assert.match(velvet, /private adult velvet-room/i);
+  assert.match(velvet, /consensual fictional adult roleplay/i);
+  assert.match(velvet, /never involve minors, coercion/i);
+  assert.match(unclassified, /no verified private-adult room context/i);
 });
 
 class MemoryStore {

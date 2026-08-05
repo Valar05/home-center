@@ -11,7 +11,7 @@ const {audioLibraryHandler} = require('./audio_library_api');
 const {createCommandCenterMcpApp} = require('./command_center_mcp');
 const {createSheRawMcpApp} = require('./she_raw_mcp');
 const {CARTESIA_DEFAULT_MODEL_ID, CARTESIA_DEFAULT_VOICE_NAME, listCartesiaVoiceCatalog, listCartesiaVoices, normalizeCartesiaVoice, openCartesiaStream} = require('./hosted_speech_provider');
-const {VENICE_GUILD_ID, createFirestoreStateStore, createVeniceDiscordHandler, createVeniceGenerationTaskHandler, generationTaskInput, voiceDeliveryProfile} = require('./venice_discord');
+const {VENICE_GUILD_ID, createFirestoreStateStore, createVeniceDiscordHandler, createVeniceGenerationTaskHandler, generationTaskInput, veniceRoleplayInstruction, voiceDeliveryProfile} = require('./venice_discord');
 const VENICE_WORKER_OPTIONS = require('./venice_worker_profile.generated');
 
 admin.initializeApp();
@@ -3197,12 +3197,13 @@ const veniceDiscordStateStore = createFirestoreStateStore({
   fieldValue: admin.firestore.FieldValue,
 });
 
-async function generateVeniceDiscordReply({prompt, userId}) {
+async function generateVeniceDiscordReply({prompt, userId, channelId = ''}) {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 80000);
   const instructions = [
     'You are Venice, the mature woman who manages the owner\'s network.',
     'Speak with composed authority, warmth, precision, and economical confidence.',
+    veniceRoleplayInstruction(channelId),
     'You answer only the explicit invitation in the current Discord or Motion Dungeon interaction. Never imply passive listening or access that is not present in the prompt.',
     'Do not claim that an action, network observation, or system change occurred unless the prompt supplies evidence that it did.',
     'Do not request, infer, retain, or discuss health data; that integration is excluded.',
@@ -3295,7 +3296,7 @@ async function handleVeniceWebAsk(req, res) {
     return;
   }
   try {
-    const reply = await generateVeniceDiscordReply({prompt, userId: `web:${userId}`});
+    const reply = await generateVeniceDiscordReply({prompt, userId: `web:${userId}`, channelId: ''});
     res.set('Cache-Control', 'no-store').status(200).json({reply});
   } catch (_) {
     res.status(503).json({error: 'venice_unavailable'});
