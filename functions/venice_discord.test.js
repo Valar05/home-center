@@ -19,7 +19,7 @@ const {
 
 const APP_PERMISSIONS = '84992';
 
-test('voice delivery routes roleplay to whisper and ordinary turns to chipper', () => {
+test('voice delivery keeps whisper as the default for roleplay and ordinary turns', () => {
   assert.deepEqual(voiceDeliveryProfile('Begin a roleplay scene in the moonlit arcade.', '1001'), {
     mode: 'whisper',
     voiceName: 'Achernar',
@@ -29,12 +29,16 @@ test('voice delivery routes roleplay to whisper and ordinary turns to chipper', 
     voiceName: 'Achernar',
   });
   assert.deepEqual(voiceDeliveryProfile('How is the evening going?', '1003'), {
-    mode: 'chipper',
-    voiceName: 'Zephyr',
+    mode: 'whisper',
+    voiceName: 'Achernar',
   });
 });
 
 test('explicit voice cues select governed candidates and random routing is stable', () => {
+  assert.deepEqual(voiceDeliveryProfile('voice: chipper Give a quick update.', '2000'), {
+    mode: 'chipper',
+    voiceName: 'Zephyr',
+  });
   assert.deepEqual(voiceDeliveryProfile('voice: playful Tell a clean joke.', '2001'), {
     mode: 'playful',
     voiceName: 'Puck',

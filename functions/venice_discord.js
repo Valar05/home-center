@@ -89,11 +89,14 @@ function interactionPrompt(interaction) {
   return typeof prompt === 'string' ? prompt.trim().slice(0, 1800) : '';
 }
 
+function isVeniceRoleplayPrompt(promptValue) {
+  const prompt = typeof promptValue === 'string' ? promptValue.trim() : '';
+  return /\b(role\s*-?\s*play|roleplay|in[ -]?character|stay in character|scene (?:starts?|opens?|begins?)|pretend|dress up|let(?:'s| us) play)\b/i.test(prompt)
+    || /\*[^*\r\n]{2,240}\*/.test(prompt);
+}
+
 function voiceDeliveryProfile(promptValue, interactionId = '') {
   const prompt = typeof promptValue === 'string' ? promptValue.trim() : '';
-  const roleplay = /\b(role\s*-?\s*play|roleplay|in[ -]?character|stay in character|scene (?:starts?|opens?|begins?)|pretend|dress up|let(?:'s| us) play)\b/i.test(prompt)
-    || /\*[^*\r\n]{2,240}\*/.test(prompt);
-  if (roleplay) return VENICE_VOICE_PROFILES.whisper;
   const explicit = prompt.match(/\bvoice\s*:\s*(whisper|chipper|warm|firm|playful|gentle|random)\b/i)?.[1]?.toLowerCase();
   if (explicit === 'random') {
     const seed = String(interactionId || prompt);
@@ -102,12 +105,12 @@ function voiceDeliveryProfile(promptValue, interactionId = '') {
     return VENICE_ROTATING_VOICES[hash % VENICE_ROTATING_VOICES.length];
   }
   if (explicit && VENICE_VOICE_PROFILES[explicit]) return VENICE_VOICE_PROFILES[explicit];
-  return VENICE_VOICE_PROFILES.chipper;
+  return VENICE_VOICE_PROFILES.whisper;
 }
 
 function veniceReplyBudget(promptValue) {
   const prompt = typeof promptValue === 'string' ? promptValue.trim() : '';
-  const expanded = voiceDeliveryProfile(prompt).mode === 'whisper'
+  const expanded = isVeniceRoleplayPrompt(prompt)
     || /\b(detailed|extended|long(?:er)?|monologue|story|scene)\b/i.test(prompt);
   return expanded
     ? {maxChars: 1800, maxOutputTokens: 2400}
