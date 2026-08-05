@@ -30,6 +30,7 @@ const {
 const cartesiaPitchShift = require('./cartesia_pitch_shift');
 const {renderAudioOperation, audioRenderStatusOperation, inspectAudioArtifactsOperation, uploadVerified: uploadVerifiedArtifact} = require('./audio_render_service');
 const {recoverAudioRenderRegistrationOperation, linkDriveAudioToReaderStageOperation} = require('./audio_catalog_service');
+const {localVoiceOperationEntries, localVoiceOperationRunOperation} = require('./local_voice_farm_api');
 const {materializeReceiptArtifactsOperation, recordArtifactReviewOperation, linkArtifactReviewSuccessorOperation} = require('./artifact_delivery_service');
 const {
   analyzeSourceOperation,
@@ -5197,6 +5198,7 @@ function driveOperationRegistry() {
         requiredScopes: ['https://www.googleapis.com/auth/drive'],
         input: {fileId: 'string', newName: 'string', requestId: 'string', callerNote: 'optional string'},
       },
+      ...localVoiceOperationEntries(),
       ...smsCalendarOperationRegistry().operations,
       ...githubAdminOperationEntries(),
       ...droobiedooContextOperationEntries(),
@@ -5788,6 +5790,11 @@ async function driveOperationRunOperation({google, admin, auth, user, extra = nu
   delete operationArgs.type;
   delete operationArgs.toolName;
   delete operationArgs.args;
+  if (localVoiceOperationEntries()[operation]) {
+    requireCreditGatedEmail(user && user.email, operation);
+    const result = await localVoiceOperationRunOperation({admin, user, operation, args: operationArgs});
+    return {operation, registryVersion: registry.version, completed: true, result};
+  }
   if (operation === 'drive_binary_read_begin') {
     const result = await beginDriveBinaryReadOperation({google, admin, auth, user, args: operationArgs, maxBytes: HOME_CENTER_DRIVE_INGEST_MAX_BYTES});
     return {operation, registryVersion: registry.version, completed: true, result};
