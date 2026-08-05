@@ -1,0 +1,41 @@
+name: Venus Cauldron relay
+
+on:
+  pull_request:
+    paths:
+      - "functions/venus_cauldron_contract.js"
+      - "functions/venus_cauldron_contract.test.js"
+      - "functions/venus_cauldron_relay_api.js"
+      - "functions/venus_cauldron_relay_api.test.js"
+      - "functions/home_center_mcp.js"
+      - "functions/index.js"
+      - "workers/cauldron_venus_relay/**"
+      - ".github/workflows/venus-cauldron-relay.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Verify relay contracts
+        run: node --test functions/venus_cauldron_contract.test.js functions/venus_cauldron_relay_api.test.js
+      - name: Verify JavaScript syntax
+        run: |
+          node --check functions/venus_cauldron_contract.js
+          node --check functions/venus_cauldron_relay_api.js
+          node --check functions/home_center_mcp.js
+          node --check functions/index.js
+      - name: Verify worker syntax
+        run: python -m py_compile workers/cauldron_venus_relay/worker.py
+

@@ -31,6 +31,7 @@ const cartesiaPitchShift = require('./cartesia_pitch_shift');
 const {renderAudioOperation, audioRenderStatusOperation, inspectAudioArtifactsOperation, uploadVerified: uploadVerifiedArtifact} = require('./audio_render_service');
 const {recoverAudioRenderRegistrationOperation, linkDriveAudioToReaderStageOperation} = require('./audio_catalog_service');
 const {localVoiceOperationEntries, localVoiceOperationRunOperation} = require('./local_voice_farm_api');
+const {operationEntries: venusRelayOperationEntries, runOperation: venusRelayRunOperation} = require('./venus_cauldron_relay_api');
 const {materializeReceiptArtifactsOperation, recordArtifactReviewOperation, linkArtifactReviewSuccessorOperation} = require('./artifact_delivery_service');
 const {
   analyzeSourceOperation,
@@ -5199,6 +5200,7 @@ function driveOperationRegistry() {
         input: {fileId: 'string', newName: 'string', requestId: 'string', callerNote: 'optional string'},
       },
       ...localVoiceOperationEntries(),
+      ...venusRelayOperationEntries(),
       ...smsCalendarOperationRegistry().operations,
       ...githubAdminOperationEntries(),
       ...droobiedooContextOperationEntries(),
@@ -5793,6 +5795,11 @@ async function driveOperationRunOperation({google, admin, auth, user, extra = nu
   if (localVoiceOperationEntries()[operation]) {
     requireCreditGatedEmail(user && user.email, operation);
     const result = await localVoiceOperationRunOperation({admin, user, operation, args: operationArgs});
+    return {operation, registryVersion: registry.version, completed: true, result};
+  }
+  if (venusRelayOperationEntries()[operation]) {
+    requireCreditGatedEmail(user && user.email, operation);
+    const result = await venusRelayRunOperation({admin, user, operation, args: operationArgs});
     return {operation, registryVersion: registry.version, completed: true, result};
   }
   if (operation === 'drive_binary_read_begin') {

@@ -10,6 +10,7 @@ const {CREDIT_GATED_EMAILS, requireCreditGatedEmail, createHomeCenterMcpApp, cre
 const {audioLibraryHandler} = require('./audio_library_api');
 const {createCommandCenterMcpApp} = require('./command_center_mcp');
 const {createLocalVoiceFarmHandler} = require('./local_voice_farm_api');
+const {createHandler: createVenusCauldronRelayHandler} = require('./venus_cauldron_relay_api');
 const {createSheRawMcpApp} = require('./she_raw_mcp');
 const {CARTESIA_DEFAULT_MODEL_ID, CARTESIA_DEFAULT_VOICE_NAME, listCartesiaVoiceCatalog, listCartesiaVoices, normalizeCartesiaVoice, openCartesiaStream} = require('./hosted_speech_provider');
 const {VENICE_GUILD_ID, createFirestoreStateStore, createVeniceDiscordHandler, createVeniceGenerationTaskHandler, generationTaskInput, veniceReplyBudget, veniceReplyNeedsRepair, veniceRoleplayInstruction, voiceDeliveryProfile} = require('./venice_discord');
@@ -20,6 +21,7 @@ admin.initializeApp();
 const OPENAI_API_KEY = defineSecret('OPENAI_API_KEY');
 const ELEVENLABS_API_KEY = defineSecret('ELEVENLABS_API_KEY');
 const CARTESIA_API_KEY = defineSecret('CARTESIA_API_KEY');
+const VENUS_CAULDRON_CLIENT_KEY = defineSecret('VENUS_CAULDRON_CLIENT_KEY');
 const GEMINI_API_KEY = defineSecret('GEMINI_API_KEY');
 const GITHUB_TOKEN = defineSecret('GITHUB_TOKEN');
 const GITHUB_APP_ID = defineSecret('GITHUB_APP_ID');
@@ -3423,6 +3425,8 @@ exports.homeCenterMcp = onRequest({timeoutSeconds: 300, secrets: [GOOGLE_OAUTH_C
 exports.commandCenterMcp = onRequest({timeoutSeconds: 300}, createCommandCenterMcpApp({admin}));
 
 exports.localVoiceFarm = onRequest({timeoutSeconds: 300, memory: '1GiB'}, createLocalVoiceFarmHandler({admin}));
+
+exports.venusCauldronRelay = onRequest({timeoutSeconds: 60, memory: '1GiB', secrets: [VENUS_CAULDRON_CLIENT_KEY]}, createVenusCauldronRelayHandler({admin, clientKey: () => VENUS_CAULDRON_CLIENT_KEY.value() || process.env.VENUS_CAULDRON_CLIENT_KEY || ''}));
 
 exports.sheRawMcp = onRequest({timeoutSeconds: 300}, createSheRawMcpApp({admin}));
 
