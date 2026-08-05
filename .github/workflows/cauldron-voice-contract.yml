@@ -28,6 +28,8 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+      - name: Install locked Functions dependencies
+        run: npm ci --prefix functions --ignore-scripts
       - name: Verify ticket contract
         run: node --test functions/local_voice_farm_contract.test.js
       - name: Verify local voice contracts
