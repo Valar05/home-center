@@ -469,7 +469,7 @@ function createVeniceDiscordHandler({publicKeyGetter, store, enqueueGeneration =
   };
 }
 
-function createVeniceGenerationTaskHandler({verifyTaskRequest, generateReply, store, webhookFetch = fetch, logger = console}) {
+function createVeniceGenerationTaskHandler({verifyTaskRequest, generateReply, deliverVoice = null, store, webhookFetch = fetch, logger = console}) {
   return async function veniceGenerationTaskHandler(req, res) {
     let task;
     try {
@@ -499,6 +499,16 @@ function createVeniceGenerationTaskHandler({verifyTaskRequest, generateReply, st
         return;
       }
       await editOriginalInteraction(interaction, reply, webhookFetch);
+      if (typeof deliverVoice === 'function' && await store.guard(task.cutEpoch, guardOptions)) {
+        try {
+          await deliverVoice(task, reply);
+        } catch (_) {
+          logger.error('venice_discord_voice_delivery_failed', {
+            interactionId: task.interactionId,
+            outcome: 'content_free_failure',
+          });
+        }
+      }
       res.status(204).send('');
     } catch (_) {
       logger.error('venice_discord_generation_failed', {

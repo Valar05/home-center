@@ -258,6 +258,49 @@ test('an authenticated generation task delivers one bounded reply without mentio
   assert.doesNotMatch(JSON.stringify([...store.audit.entries()]), new RegExp(secretPrompt));
 });
 
+test('voice delivery occurs only after the final guard and cannot break the text reply', async () => {
+  const store = new MemoryStore();
+  await dispatchVeniceInteraction(interaction({id: 'voice-task-begin', command: 'begin'}), store);
+  const calls = [];
+  const logs = [];
+  const handler = createVeniceGenerationTaskHandler({
+    verifyTaskRequest: async () => true,
+    store,
+    generateReply: async () => 'A governed spoken reply.',
+    deliverVoice: async (voiceTask, reply) => {
+      calls.push({kind: 'voice', interactionId: voiceTask.interactionId, reply});
+      throw new Error('private provider detail');
+    },
+    webhookFetch: async (_url, options) => {
+      calls.push({kind: 'webhook', method: options.method});
+      return {ok: true, status: 200};
+    },
+    logger: {error: (...args) => logs.push(args)},
+  });
+  const response = responseRecorder();
+  await handler({body: {
+    applicationId: VENICE_APPLICATION_ID,
+    interactionToken: 'transient-interaction-token',
+    interactionId: '1234567899',
+    channelId: VENICE_ALLOWED_CHANNEL_IDS[0],
+    userId: '1234567890',
+    prompt: 'Speak this answer',
+    cutEpoch: 0,
+    stateEpoch: 1,
+  }}, response);
+
+  assert.equal(response.statusCode, 204);
+  assert.deepEqual(calls, [
+    {kind: 'webhook', method: 'PATCH'},
+    {kind: 'voice', interactionId: '1234567899', reply: 'A governed spoken reply.'},
+  ]);
+  assert.deepEqual(logs, [[
+    'venice_discord_voice_delivery_failed',
+    {interactionId: '1234567899', outcome: 'content_free_failure'},
+  ]]);
+  assert.doesNotMatch(JSON.stringify(logs), /private provider detail/i);
+});
+
 test('a global cut racing an authenticated generation task deletes the deferred response', async () => {
   const store = new MemoryStore();
   await dispatchVeniceInteraction(interaction({id: 'generation-cut-begin', command: 'begin'}), store);
