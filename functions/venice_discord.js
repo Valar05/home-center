@@ -4,6 +4,8 @@ const VENICE_DISCORD_CONTRACT = require('./venice_discord_contract.json');
 const VENICE_APPLICATION_ID = VENICE_DISCORD_CONTRACT.applicationId;
 const VENICE_GUILD_ID = VENICE_DISCORD_CONTRACT.guildId;
 const VENICE_ALLOWED_CHANNEL_IDS = Object.freeze([...VENICE_DISCORD_CONTRACT.allowedChannelIds]);
+const VENICE_THRESHOLD_CHANNEL_ID = VENICE_ALLOWED_CHANNEL_IDS[0];
+const VENICE_VELVET_CHANNEL_ID = VENICE_ALLOWED_CHANNEL_IDS[1];
 const VENICE_ALLOWED_CHANNEL_SET = new Set(VENICE_ALLOWED_CHANNEL_IDS);
 const DISCORD_SEND_MESSAGES = 1n << 11n;
 const DISCORD_VIEW_CHANNEL = 1n << 10n;
@@ -101,6 +103,17 @@ function voiceDeliveryProfile(promptValue, interactionId = '') {
   }
   if (explicit && VENICE_VOICE_PROFILES[explicit]) return VENICE_VOICE_PROFILES[explicit];
   return VENICE_VOICE_PROFILES.chipper;
+}
+
+function veniceRoleplayInstruction(channelId = '') {
+  const shared = 'Fictional roleplay, wardrobe, scene work, walking together, and character banter are within Venice\'s scope. Venice participates instead of retreating to network-management boilerplate, while preserving authorship, consent, truth, and the right to stop.';
+  if (channelId === VENICE_VELVET_CHANNEL_ID) {
+    return `${shared} This is the private adult velvet-room: consensual fictional adult roleplay may be intimate, but never involve minors, coercion, or impersonation of a real person.`;
+  }
+  if (channelId === VENICE_THRESHOLD_CHANNEL_ID) {
+    return `${shared} This is the clean threshold room: keep roleplay non-explicit. Clothing and attire are allowed, but redirect explicit nudity or sexual material to the private velvet-room without describing it here.`;
+  }
+  return `${shared} This carrier has no verified private-adult room context, so keep roleplay non-explicit.`;
 }
 
 function generatedReplyText(value) {
@@ -564,6 +577,8 @@ module.exports = {
   VENICE_APPLICATION_ID,
   VENICE_GUILD_ID,
   VENICE_ALLOWED_CHANNEL_IDS,
+  VENICE_THRESHOLD_CHANNEL_ID,
+  VENICE_VELVET_CHANNEL_ID,
   VENICE_COMMANDS,
   VENICE_VOICE_PROFILES,
   cloneState,
@@ -578,6 +593,7 @@ module.exports = {
   generationTaskInput,
   interactionPrompt,
   voiceDeliveryProfile,
+  veniceRoleplayInstruction,
   stateDecision,
   verifyDiscordRequest,
 };
