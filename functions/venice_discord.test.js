@@ -11,6 +11,8 @@ const {
   createVeniceGenerationTaskHandler,
   dispatchVeniceInteraction,
   veniceRoleplayInstruction,
+  veniceReplyNeedsRepair,
+  veniceReplyBudget,
   voiceDeliveryProfile,
   verifyDiscordRequest,
 } = require('./venice_discord');
@@ -53,6 +55,22 @@ test('roleplay policy keeps threshold clean and reserves adult fiction for velve
   assert.match(velvet, /consensual fictional adult roleplay/i);
   assert.match(velvet, /never involve minors, coercion/i);
   assert.match(unclassified, /no verified private-adult room context/i);
+});
+
+test('reply budgets stay concise for ordinary turns and expand for scenes', () => {
+  assert.deepEqual(veniceReplyBudget('How is the evening going?'), {maxChars: 600, maxOutputTokens: 1200});
+  assert.deepEqual(veniceReplyBudget('Begin a roleplay scene in Venice.'), {maxChars: 1800, maxOutputTokens: 2400});
+  assert.deepEqual(veniceReplyBudget('Give a detailed answer.'), {maxChars: 1800, maxOutputTokens: 2400});
+});
+
+test('reply completion guard catches token cutoffs and unbalanced stage directions', () => {
+  assert.equal(veniceReplyNeedsRepair('Venice walks beside Drew. "The path is clear."'), false);
+  assert.equal(veniceReplyNeedsRepair('(Venice smiles.)'), false);
+  assert.equal(veniceReplyNeedsRepair('(Venice leans in. She offers a lingering press of her lips'), true);
+  assert.equal(veniceReplyNeedsRepair('Venice says, "The path is clear.'), true);
+  assert.equal(veniceReplyNeedsRepair('Venice begins to answer', {status: 'incomplete'}), true);
+  assert.equal(veniceReplyNeedsRepair('Venice finishes.', {incomplete_details: {reason: 'max_output_tokens'}}), true);
+  assert.equal(veniceReplyNeedsRepair('Venice finishes.', {finishReason: 'MAX_TOKENS'}), true);
 });
 
 class MemoryStore {

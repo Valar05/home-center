@@ -105,6 +105,15 @@ function voiceDeliveryProfile(promptValue, interactionId = '') {
   return VENICE_VOICE_PROFILES.chipper;
 }
 
+function veniceReplyBudget(promptValue) {
+  const prompt = typeof promptValue === 'string' ? promptValue.trim() : '';
+  const expanded = voiceDeliveryProfile(prompt).mode === 'whisper'
+    || /\b(detailed|extended|long(?:er)?|monologue|story|scene)\b/i.test(prompt);
+  return expanded
+    ? {maxChars: 1800, maxOutputTokens: 2400}
+    : {maxChars: 600, maxOutputTokens: 1200};
+}
+
 function veniceRoleplayInstruction(channelId = '') {
   const shared = 'Fictional roleplay, wardrobe, scene work, walking together, and character banter are within Venice\'s scope. Venice participates instead of retreating to network-management boilerplate, while preserving authorship, consent, truth, and the right to stop.';
   if (channelId === VENICE_VELVET_CHANNEL_ID) {
@@ -120,6 +129,23 @@ function generatedReplyText(value) {
   const text = typeof value === 'string' ? value.trim() : '';
   if (!text) throw new Error('empty_generation');
   return text.length <= DISCORD_MESSAGE_MAX_CHARS ? text : `${text.slice(0, DISCORD_MESSAGE_MAX_CHARS - 1).trimEnd()}…`;
+}
+
+function veniceReplyNeedsRepair(value, responseMetadata = {}) {
+  const text = typeof value === 'string' ? value.trim() : '';
+  if (!text) return true;
+  if (responseMetadata?.status === 'incomplete' || responseMetadata?.incomplete_details?.reason) return true;
+  if (/max[_ -]?tokens|length/i.test(String(responseMetadata?.finishReason || responseMetadata?.finish_reason || ''))) return true;
+  if (text.length >= DISCORD_MESSAGE_MAX_CHARS) return true;
+  const closers = {'(': ')', '[': ']', '{': '}'};
+  for (const [open, close] of Object.entries(closers)) {
+    if ((text.split(open).length - 1) !== (text.split(close).length - 1)) return true;
+  }
+  if ((text.split('"').length - 1) % 2 !== 0) return true;
+  if ((text.split('“').length - 1) !== (text.split('”').length - 1)) return true;
+  if ((text.split('*').length - 1) % 2 !== 0) return true;
+  const visibleEnd = text.replace(/[\s*_`~]+$/g, '');
+  return !/[.!?…]["'”’\)\]\}]*$/.test(visibleEnd);
 }
 
 function interactionWebhookUrl(interaction) {
@@ -593,7 +619,9 @@ module.exports = {
   generationTaskInput,
   interactionPrompt,
   voiceDeliveryProfile,
+  veniceReplyBudget,
   veniceRoleplayInstruction,
+  veniceReplyNeedsRepair,
   stateDecision,
   verifyDiscordRequest,
 };
