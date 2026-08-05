@@ -11,5 +11,9 @@ voice channel currently occupied by the invoking user.
   clients have time to attach before the first spoken sample.
 - `VENICE_VOICE_NAME` is a candidate carrier voice, not canonical Venice identity.
 
+Voice delivery profiles are bounded and content-free in logs: roleplay cues route
+to `whisper`; ordinary turns default to `chipper`; explicit `voice:` cues may
+select `warm`, `firm`, `playful`, `gentle`, or `random` candidate delivery.
+
 The service expects `DISCORD_BOT_TOKEN` and `GEMINI_API_KEY` as secret-backed
 environment variables and is intended to be IAM-private.

@@ -2,7 +2,15 @@
 
 const SAMPLE_RATE = 24000;
 const DEFAULT_MODEL = 'gemini-3.1-flash-tts-preview';
-const ALLOWED_VOICES = new Set(['Kore', 'Achernar', 'Vindemiatrix', 'Sulafat']);
+const ALLOWED_VOICES = new Set(['Kore', 'Achernar', 'Vindemiatrix', 'Sulafat', 'Zephyr', 'Laomedeia', 'Puck']);
+const VOICE_DIRECTIONS = Object.freeze({
+  whisper: 'Perform in a close, controlled, fully intelligible whisper. Keep the volume present enough to hear clearly; do not become breath-only.',
+  chipper: 'Perform brightly, chipper and conversational, with warm forward energy and crisp articulation.',
+  warm: 'Perform with relaxed warmth, gentle emotional presence, and unhurried clarity.',
+  firm: 'Perform with composed authority, precision, and calm confidence.',
+  playful: 'Perform playfully and lightly, with clean comic timing and lively articulation.',
+  gentle: 'Perform gently and softly, with reassuring clarity and no urgency.',
+});
 
 function timeoutSignal(milliseconds) {
   const controller = new AbortController();
@@ -37,10 +45,11 @@ function validatePcm(pcm) {
   };
 }
 
-async function synthesizeGeminiPcm({apiKey, text, voiceName = 'Kore', fetchImpl = fetch}) {
+async function synthesizeGeminiPcm({apiKey, text, voiceName = 'Zephyr', voiceMode = 'chipper', fetchImpl = fetch}) {
   const key = String(apiKey || '').trim();
   const transcript = String(text || '').trim();
-  const selectedVoice = ALLOWED_VOICES.has(voiceName) ? voiceName : 'Kore';
+  const selectedVoice = ALLOWED_VOICES.has(voiceName) ? voiceName : 'Zephyr';
+  const selectedMode = VOICE_DIRECTIONS[voiceMode] ? voiceMode : 'chipper';
   if (!key || !transcript || transcript.length > 1800) throw new Error('tts_unavailable');
   const model = String(process.env.VENICE_TTS_MODEL || DEFAULT_MODEL).trim();
   const timer = timeoutSignal(55000);
@@ -51,7 +60,7 @@ async function synthesizeGeminiPcm({apiKey, text, voiceName = 'Kore', fetchImpl 
       body: JSON.stringify({
         model,
         input: [
-          'Director notes (do not speak): Candidate carrier voice, tearfully warm but composed. No imitation of a real person.',
+          `Director notes (do not speak): Candidate, noncanonical carrier voice. ${VOICE_DIRECTIONS[selectedMode]} Do not imitate a real person.`,
           'Speak the transcript exactly as supplied. Do not add, remove, or paraphrase words.',
           `Transcript:\n${transcript}`,
         ].join('\n'),
@@ -76,7 +85,7 @@ async function synthesizeGeminiPcm({apiKey, text, voiceName = 'Kore', fetchImpl 
     if (!audio || typeof audio.data !== 'string') throw new Error('tts_unavailable');
     if (audio.sample_rate !== undefined && Number(audio.sample_rate) !== SAMPLE_RATE) throw new Error('tts_unavailable');
     const pcm = Buffer.from(audio.data, 'base64');
-    return {pcm, metrics: validatePcm(pcm), voiceName: selectedVoice, model};
+    return {pcm, metrics: validatePcm(pcm), voiceName: selectedVoice, voiceMode: selectedMode, model};
   } catch (error) {
     if (error && error.message === 'tts_unavailable') throw error;
     throw new Error('tts_unavailable');
@@ -85,4 +94,4 @@ async function synthesizeGeminiPcm({apiKey, text, voiceName = 'Kore', fetchImpl 
   }
 }
 
-module.exports = {DEFAULT_MODEL, SAMPLE_RATE, synthesizeGeminiPcm, validatePcm};
+module.exports = {ALLOWED_VOICES, DEFAULT_MODEL, SAMPLE_RATE, VOICE_DIRECTIONS, synthesizeGeminiPcm, validatePcm};

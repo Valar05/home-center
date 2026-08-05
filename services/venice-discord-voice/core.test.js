@@ -13,12 +13,15 @@ const task = {
   text: 'Venice answers once.',
   cutEpoch: 4,
   stateEpoch: 9,
+  voiceMode: 'chipper',
+  voiceName: 'Zephyr',
 };
 
 test('validates one bounded, explicitly addressed speech task', () => {
   assert.deepEqual(validateSpeakRequest(task, guildId), task);
   assert.throws(() => validateSpeakRequest({...task, guildId: '999'}, guildId), /invalid_speak_request/);
   assert.throws(() => validateSpeakRequest({...task, text: 'x'.repeat(1801)}, guildId), /invalid_speak_request/);
+  assert.throws(() => validateSpeakRequest({...task, voiceMode: 'whisper', voiceName: 'Zephyr'}, guildId), /invalid_speak_request/);
 });
 
 test('speech requires the exact live consent epochs and source room', () => {

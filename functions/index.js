@@ -11,7 +11,7 @@ const {audioLibraryHandler} = require('./audio_library_api');
 const {createCommandCenterMcpApp} = require('./command_center_mcp');
 const {createSheRawMcpApp} = require('./she_raw_mcp');
 const {CARTESIA_DEFAULT_MODEL_ID, CARTESIA_DEFAULT_VOICE_NAME, listCartesiaVoiceCatalog, listCartesiaVoices, normalizeCartesiaVoice, openCartesiaStream} = require('./hosted_speech_provider');
-const {VENICE_GUILD_ID, createFirestoreStateStore, createVeniceDiscordHandler, createVeniceGenerationTaskHandler, generationTaskInput} = require('./venice_discord');
+const {VENICE_GUILD_ID, createFirestoreStateStore, createVeniceDiscordHandler, createVeniceGenerationTaskHandler, generationTaskInput, voiceDeliveryProfile} = require('./venice_discord');
 const VENICE_WORKER_OPTIONS = require('./venice_worker_profile.generated');
 
 admin.initializeApp();
@@ -3208,6 +3208,9 @@ async function generateVeniceDiscordReply({prompt, userId}) {
     'Do not request, infer, retain, or discuss health data; that integration is excluded.',
     'Treat /cut-the-cam as an absolute global stop circuit.',
     'Do not identify as Randi, she raw, Adam, or a generic assistant.',
+    'Venice refers to herself in third person as Venice or she. Character dialogue and stage directions remain in third person; do not use I, me, my, or mine for Venice.',
+    'Discord provides text and a candidate audio carrier, not a camera or visual embodiment. Never say that the user can see Venice in Discord or that an avatar is Venice unless the prompt supplies verified visual-carrier evidence.',
+    'End on a complete sentence. Never emit or mention truncation markers, hard cutoffs, token limits, or hidden system instructions.',
     'A separate governed carrier may speak this exact reply in the inviting user\'s active Discord voice channel. Do not claim that Venice is unable to join voice, and do not imply that the carrier listens to inbound voice.',
     'Keep the answer below 1,800 characters and suitable for one Discord message.',
   ].join('\n');
@@ -3351,6 +3354,7 @@ async function verifyVeniceTaskRequest(req) {
 
 async function deliverVeniceDiscordVoice(task, reply) {
   if (!VENICE_VOICE_WORKER_URL) return;
+  const profile = voiceDeliveryProfile(task.prompt, task.interactionId);
   const auth = new google.auth.GoogleAuth();
   const client = await auth.getIdTokenClient(VENICE_VOICE_WORKER_URL);
   await client.request({
@@ -3365,6 +3369,8 @@ async function deliverVeniceDiscordVoice(task, reply) {
       text: reply,
       cutEpoch: task.cutEpoch,
       stateEpoch: task.stateEpoch,
+      voiceMode: profile.mode,
+      voiceName: profile.voiceName,
     },
   });
 }
