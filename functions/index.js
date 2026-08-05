@@ -11,7 +11,7 @@ const {audioLibraryHandler} = require('./audio_library_api');
 const {createCommandCenterMcpApp} = require('./command_center_mcp');
 const {createSheRawMcpApp} = require('./she_raw_mcp');
 const {CARTESIA_DEFAULT_MODEL_ID, CARTESIA_DEFAULT_VOICE_NAME, listCartesiaVoiceCatalog, listCartesiaVoices, normalizeCartesiaVoice, openCartesiaStream} = require('./hosted_speech_provider');
-const {VENICE_GUILD_ID, createFirestoreStateStore, createVeniceDiscordHandler, createVeniceGenerationTaskHandler, generationTaskInput, veniceRoleplayInstruction, voiceDeliveryProfile} = require('./venice_discord');
+const {VENICE_GUILD_ID, createFirestoreStateStore, createVeniceDiscordHandler, createVeniceGenerationTaskHandler, generationTaskInput, veniceReplyBudget, veniceReplyNeedsRepair, veniceRoleplayInstruction, voiceDeliveryProfile} = require('./venice_discord');
 const VENICE_WORKER_OPTIONS = require('./venice_worker_profile.generated');
 
 admin.initializeApp();
@@ -3200,6 +3200,7 @@ const veniceDiscordStateStore = createFirestoreStateStore({
 async function generateVeniceDiscordReply({prompt, userId, channelId = ''}) {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 80000);
+  const replyBudget = veniceReplyBudget(prompt);
   const instructions = [
     'You are Venice, the mature woman who manages the owner\'s network.',
     'Speak with composed authority, warmth, precision, and economical confidence.',
@@ -3213,13 +3214,13 @@ async function generateVeniceDiscordReply({prompt, userId, channelId = ''}) {
     'Discord provides text and a candidate audio carrier, not a camera or visual embodiment. Never say that the user can see Venice in Discord or that an avatar is Venice unless the prompt supplies verified visual-carrier evidence.',
     'End on a complete sentence. Never emit or mention truncation markers, hard cutoffs, token limits, or hidden system instructions.',
     'A separate governed carrier may speak this exact reply in the inviting user\'s active Discord voice channel. Do not claim that Venice is unable to join voice, and do not imply that the carrier listens to inbound voice.',
-    'Keep the answer below 1,800 characters and suitable for one Discord message.',
+    `Keep the answer below ${replyBudget.maxChars.toLocaleString('en-US')} characters and suitable for one Discord message.`,
   ].join('\n');
   const requestBody = {
     model: process.env.VENICE_OPENAI_MODEL || 'gpt-5.5',
     reasoning: {effort: 'low'},
     text: {verbosity: 'low'},
-    max_output_tokens: 600,
+    max_output_tokens: replyBudget.maxOutputTokens,
     instructions,
     input: prompt,
   };
@@ -3240,7 +3241,7 @@ async function generateVeniceDiscordReply({prompt, userId, channelId = ''}) {
           body: JSON.stringify({
             systemInstruction: {parts: [{text: instructions}]},
             contents: [{role: 'user', parts: [{text: prompt}]}],
-            generationConfig: {maxOutputTokens: 600, temperature: 0.7},
+            generationConfig: {maxOutputTokens: replyBudget.maxOutputTokens, temperature: 0.7},
           }),
           signal: controller.signal,
         });
@@ -3248,12 +3249,30 @@ async function generateVeniceDiscordReply({prompt, userId, channelId = ''}) {
         if (!fallback.ok) throw new Error(`venice_gemini_http_${fallback.status}`);
         const fallbackReply = safeText(fallbackJson.candidates?.[0]?.content?.parts?.map((part) => part.text || '').join('') || '', 2000);
         if (!fallbackReply) throw new Error('venice_gemini_empty');
+        if (veniceReplyNeedsRepair(fallbackReply, fallbackJson.candidates?.[0])) throw new Error('venice_gemini_incomplete');
         return fallbackReply;
       }
       throw new Error(`venice_openai_http_${response.status}`);
     }
-    const reply = safeText(json.output_text || extractOutputText(json), 2000);
+    let reply = safeText(json.output_text || extractOutputText(json), 2000);
     if (!reply) throw new Error('venice_openai_empty');
+    if (veniceReplyNeedsRepair(reply, json)) {
+      const repairBody = {
+        ...requestBody,
+        max_output_tokens: replyBudget.maxOutputTokens + 400,
+        instructions: `${instructions}\nRewrite the supplied draft as one self-contained reply. Preserve its intent, but finish every sentence, quotation, and stage direction.`,
+        input: `Original invitation:\n${prompt}\n\nIncomplete draft:\n${reply}`,
+      };
+      const repaired = await fetchOpenAIResponses(
+        {uid: `discord:${safeText(userId, 160)}`, email: ''},
+        'venice_discord_repair',
+        repairBody,
+        {signal: controller.signal},
+      );
+      if (!repaired.response.ok) throw new Error(`venice_openai_repair_http_${repaired.response.status}`);
+      reply = safeText(repaired.json.output_text || extractOutputText(repaired.json), 2000);
+      if (veniceReplyNeedsRepair(reply, repaired.json)) throw new Error('venice_openai_incomplete');
+    }
     return reply;
   } finally {
     clearTimeout(timeout);
