@@ -264,7 +264,7 @@ async function uploadArtifact({admin, worker, ticketId, name, bytes, expectedSha
   const actualSha256 = hash(bytes);
   if (!/^[a-f0-9]{64}$/.test(String(expectedSha256 || '')) || actualSha256 !== expectedSha256) throw Object.assign(new Error('Upload SHA-256 mismatch.'), {status: 409, failureKind: 'local_voice_artifact_sha_mismatch'});
   const found = await ticketForWorker(admin, worker, ticketId);
-  if (!found.ticket.lease || found.ticket.lease.workerId !== worker.workerId) throw Object.assign(new Error('Worker does not own this ticket lease.'), {status: 409, failureKind: 'local_voice_lease_owner_mismatch'});
+  if (!found.ticket.lease || found.ticket.lease.workerId !== worker.workerId || Number(found.ticket.lease.expiresAtMs || 0) <= nowMs) throw Object.assign(new Error('Worker does not own a current ticket lease.'), {status: 409, failureKind: 'local_voice_lease_owner_mismatch'});
   const artifactRef = admin.firestore().collection(COLLECTIONS.artifacts).doc(artifactDocId(worker.ownerKey, ticketId, name));
   const prior = await artifactRef.get();
   if (prior.exists) {
@@ -307,7 +307,7 @@ async function downloadArtifact({admin, worker, ticketId, name}) {
 
 async function completeTicket({admin, worker, ticketId, args = {}, nowMs = Date.now()}) {
   const found = await ticketForWorker(admin, worker, ticketId);
-  if (!found.ticket.lease || found.ticket.lease.workerId !== worker.workerId) throw Object.assign(new Error('Worker does not own this ticket lease.'), {status: 409, failureKind: 'local_voice_lease_owner_mismatch'});
+  if (!found.ticket.lease || found.ticket.lease.workerId !== worker.workerId || Number(found.ticket.lease.expiresAtMs || 0) <= nowMs) throw Object.assign(new Error('Worker does not own a current ticket lease.'), {status: 409, failureKind: 'local_voice_lease_owner_mismatch'});
   const artifactSnap = await admin.firestore().collection(COLLECTIONS.artifacts).doc(artifactDocId(worker.ownerKey, ticketId, 'final.wav')).get();
   if (!artifactSnap.exists) throw Object.assign(new Error('Final WAV artifact is missing.'), {status: 409, failureKind: 'local_voice_final_missing'});
   const artifact = artifactSnap.data() || {};
@@ -359,6 +359,7 @@ function createLocalVoiceFarmHandler({admin}) {
   return async (req, res) => {
     try {
       const path = routePath(req);
+      if (req.method === 'GET' && path === 'health') return send(res, 200, {ok: true, service: 'local-voice-farm', apiVersion: API_VERSION, contractVersion: contract.CONTRACT_VERSION, provider: contract.PROVIDER_ID, engine: contract.ENGINE_ID, cloningEnabled: false});
       if (req.method === 'POST' && path === 'bootstrap') return send(res, 200, await exchangeBootstrap({admin, args: bodyObject(req)}));
       const worker = await authenticateWorker(admin, req);
       if (req.method === 'POST' && path === 'lease') return send(res, 200, await leaseTicket({admin, worker, args: bodyObject(req)}));
