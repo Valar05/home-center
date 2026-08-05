@@ -96,7 +96,8 @@ async function playOne(task) {
   const speech = await synthesizeGeminiPcm({
     apiKey: process.env.GEMINI_API_KEY,
     text: task.text,
-    voiceName: VOICE_NAME,
+    voiceName: task.voiceName || VOICE_NAME,
+    voiceMode: task.voiceMode,
   });
   if (!stateAllowsSpeech(consentState, task)) throw new Error('consent_state_changed');
 
@@ -156,6 +157,7 @@ async function playOne(task) {
       voiceChannelId: voiceChannel.id,
       interactionId: task.interactionId,
       voiceName: speech.voiceName,
+      voiceMode: speech.voiceMode,
       voiceIdentity: 'candidate_noncanonical',
       sourceDurationMs: speech.metrics.durationMs,
       sourcePeak: speech.metrics.peak,

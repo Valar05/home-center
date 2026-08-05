@@ -10,10 +10,37 @@ const {
   createVeniceDiscordHandler,
   createVeniceGenerationTaskHandler,
   dispatchVeniceInteraction,
+  voiceDeliveryProfile,
   verifyDiscordRequest,
 } = require('./venice_discord');
 
 const APP_PERMISSIONS = '84992';
+
+test('voice delivery routes roleplay to whisper and ordinary turns to chipper', () => {
+  assert.deepEqual(voiceDeliveryProfile('Begin a roleplay scene in the moonlit arcade.', '1001'), {
+    mode: 'whisper',
+    voiceName: 'Achernar',
+  });
+  assert.deepEqual(voiceDeliveryProfile('*Venice opens the door.*', '1002'), {
+    mode: 'whisper',
+    voiceName: 'Achernar',
+  });
+  assert.deepEqual(voiceDeliveryProfile('How is the evening going?', '1003'), {
+    mode: 'chipper',
+    voiceName: 'Zephyr',
+  });
+});
+
+test('explicit voice cues select governed candidates and random routing is stable', () => {
+  assert.deepEqual(voiceDeliveryProfile('voice: playful Tell a clean joke.', '2001'), {
+    mode: 'playful',
+    voiceName: 'Puck',
+  });
+  const first = voiceDeliveryProfile('voice: random Read this line.', '2002');
+  const replay = voiceDeliveryProfile('voice: random Read this line.', '2002');
+  assert.deepEqual(first, replay);
+  assert.ok(['Zephyr', 'Laomedeia', 'Sulafat', 'Puck', 'Vindemiatrix'].includes(first.voiceName));
+});
 
 class MemoryStore {
   constructor() {

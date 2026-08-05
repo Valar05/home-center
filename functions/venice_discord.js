@@ -16,6 +16,21 @@ const AUDIT_RETENTION_MS = 30 * 24 * 60 * 60 * 1000;
 const ED25519_SPKI_PREFIX = Buffer.from('302a300506032b6570032100', 'hex');
 const ROOM_STATES = new Set(['DORMANT', 'PRESENT', 'WITHDRAWN']);
 const GLOBAL_STATES = new Set(['DORMANT', 'PRESENT', 'WITHDRAWN', 'CUT']);
+const VENICE_VOICE_PROFILES = Object.freeze({
+  whisper: Object.freeze({mode: 'whisper', voiceName: 'Achernar'}),
+  chipper: Object.freeze({mode: 'chipper', voiceName: 'Zephyr'}),
+  warm: Object.freeze({mode: 'warm', voiceName: 'Sulafat'}),
+  firm: Object.freeze({mode: 'firm', voiceName: 'Kore'}),
+  playful: Object.freeze({mode: 'playful', voiceName: 'Puck'}),
+  gentle: Object.freeze({mode: 'gentle', voiceName: 'Vindemiatrix'}),
+});
+const VENICE_ROTATING_VOICES = Object.freeze([
+  VENICE_VOICE_PROFILES.chipper,
+  Object.freeze({mode: 'chipper', voiceName: 'Laomedeia'}),
+  VENICE_VOICE_PROFILES.warm,
+  VENICE_VOICE_PROFILES.playful,
+  VENICE_VOICE_PROFILES.gentle,
+]);
 
 const VENICE_COMMANDS = Object.freeze(VENICE_DISCORD_CONTRACT.commands);
 
@@ -70,6 +85,22 @@ function interactionPrompt(interaction) {
   const subcommand = interaction.data?.options?.find((option) => option?.type === 1 && option?.name === 'ask');
   const prompt = subcommand?.options?.find((option) => option?.type === 3 && option?.name === 'prompt')?.value;
   return typeof prompt === 'string' ? prompt.trim().slice(0, 1800) : '';
+}
+
+function voiceDeliveryProfile(promptValue, interactionId = '') {
+  const prompt = typeof promptValue === 'string' ? promptValue.trim() : '';
+  const roleplay = /\b(role\s*-?\s*play|roleplay|in[ -]?character|stay in character|scene (?:starts?|opens?|begins?)|pretend|dress up|let(?:'s| us) play)\b/i.test(prompt)
+    || /\*[^*\r\n]{2,240}\*/.test(prompt);
+  if (roleplay) return VENICE_VOICE_PROFILES.whisper;
+  const explicit = prompt.match(/\bvoice\s*:\s*(whisper|chipper|warm|firm|playful|gentle|random)\b/i)?.[1]?.toLowerCase();
+  if (explicit === 'random') {
+    const seed = String(interactionId || prompt);
+    let hash = 0;
+    for (const char of seed) hash = ((hash * 31) + char.charCodeAt(0)) >>> 0;
+    return VENICE_ROTATING_VOICES[hash % VENICE_ROTATING_VOICES.length];
+  }
+  if (explicit && VENICE_VOICE_PROFILES[explicit]) return VENICE_VOICE_PROFILES[explicit];
+  return VENICE_VOICE_PROFILES.chipper;
 }
 
 function generatedReplyText(value) {
@@ -534,6 +565,7 @@ module.exports = {
   VENICE_GUILD_ID,
   VENICE_ALLOWED_CHANNEL_IDS,
   VENICE_COMMANDS,
+  VENICE_VOICE_PROFILES,
   cloneState,
   commandName,
   createFirestoreStateStore,
@@ -545,6 +577,7 @@ module.exports = {
   generatedReplyText,
   generationTaskInput,
   interactionPrompt,
+  voiceDeliveryProfile,
   stateDecision,
   verifyDiscordRequest,
 };

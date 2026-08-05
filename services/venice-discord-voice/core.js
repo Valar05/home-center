@@ -2,6 +2,14 @@
 
 const DISCORD_ID = /^\d{1,32}$/;
 const MAX_SPEECH_CHARS = 1800;
+const VOICE_PROFILE_VOICES = Object.freeze({
+  whisper: new Set(['Achernar']),
+  chipper: new Set(['Zephyr', 'Laomedeia']),
+  warm: new Set(['Sulafat']),
+  firm: new Set(['Kore']),
+  playful: new Set(['Puck']),
+  gentle: new Set(['Vindemiatrix']),
+});
 
 function validateSpeakRequest(value, expectedGuildId) {
   const body = value && typeof value === 'object' && !Array.isArray(value) ? value : {};
@@ -12,6 +20,8 @@ function validateSpeakRequest(value, expectedGuildId) {
   const text = typeof body.text === 'string' ? body.text.trim() : '';
   const cutEpoch = Number(body.cutEpoch);
   const stateEpoch = Number(body.stateEpoch);
+  const voiceMode = String(body.voiceMode || 'chipper').toLowerCase();
+  const voiceName = String(body.voiceName || 'Zephyr');
   if (
     guildId !== expectedGuildId
     || !DISCORD_ID.test(userId)
@@ -23,8 +33,10 @@ function validateSpeakRequest(value, expectedGuildId) {
     || cutEpoch < 0
     || !Number.isSafeInteger(stateEpoch)
     || stateEpoch < 0
+    || !VOICE_PROFILE_VOICES[voiceMode]
+    || !VOICE_PROFILE_VOICES[voiceMode].has(voiceName)
   ) throw Object.assign(new Error('invalid_speak_request'), {status: 400});
-  return {guildId, userId, roomChannelId, interactionId, text, cutEpoch, stateEpoch};
+  return {guildId, userId, roomChannelId, interactionId, text, cutEpoch, stateEpoch, voiceMode, voiceName};
 }
 
 function normalizedConsentState(value) {
@@ -64,6 +76,7 @@ function publicError(error) {
 
 module.exports = {
   MAX_SPEECH_CHARS,
+  VOICE_PROFILE_VOICES,
   normalizedConsentState,
   publicError,
   stateAllowsSpeech,
