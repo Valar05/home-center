@@ -1,0 +1,43 @@
+name: Cauldron voice contract
+
+on:
+  pull_request:
+    paths:
+      - "functions/local_voice_farm_contract.js"
+      - "functions/local_voice_farm_contract.test.js"
+      - "workers/cauldron_voice_worker/**"
+      - ".github/workflows/cauldron-voice-contract.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Verify ticket contract
+        run: node --test functions/local_voice_farm_contract.test.js
+      - name: Verify JavaScript syntax
+        run: node --check functions/local_voice_farm_contract.js
+      - name: Verify worker syntax and model identities
+        run: |
+          python -m py_compile workers/cauldron_voice_worker/worker.py
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          manifest = json.loads(Path("workers/cauldron_voice_worker/model-manifest.json").read_text())
+          files = {item["name"]: item["sha256"] for item in manifest["model"]["files"]}
+          assert files["kokoro-v1.0.onnx"] == "7d5df8ecf7d4b1878015a32686053fd0eebe2bc377234608764cc0ef3636a6c5"
+          assert files["voices-v1.0.bin"] == "bca610b8308e8d99f32e6fe4197e7ec01679264efed0cac9140fe9c29f1fbf7d"
+          assert manifest["initialLane"]["cloningEnabled"] is False
+          PY
