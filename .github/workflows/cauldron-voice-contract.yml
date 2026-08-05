@@ -5,6 +5,10 @@ on:
     paths:
       - "functions/local_voice_farm_contract.js"
       - "functions/local_voice_farm_contract.test.js"
+      - "functions/local_voice_farm_api.js"
+      - "functions/local_voice_farm_api.test.js"
+      - "functions/home_center_mcp.js"
+      - "functions/index.js"
       - "workers/cauldron_voice_worker/**"
       - ".github/workflows/cauldron-voice-contract.yml"
   workflow_dispatch:
@@ -26,8 +30,15 @@ jobs:
           python-version: "3.12"
       - name: Verify ticket contract
         run: node --test functions/local_voice_farm_contract.test.js
+      - name: Verify local voice contracts
+        working-directory: functions
+        run: node --test local_voice_farm_contract.test.js local_voice_farm_api.test.js
       - name: Verify JavaScript syntax
-        run: node --check functions/local_voice_farm_contract.js
+        run: |
+          node --check functions/local_voice_farm_contract.js
+          node --check functions/local_voice_farm_api.js
+          node --check functions/home_center_mcp.js
+          node --check functions/index.js
       - name: Verify worker syntax and model identities
         run: |
           python -m py_compile workers/cauldron_voice_worker/worker.py
