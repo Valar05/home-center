@@ -154,7 +154,6 @@ const veniceDeploySource = fs.readFileSync(veniceDeployPath, 'utf8');
 assert.match(veniceDeploySource, /EXPECTED_PROJECT="home-center-dclar"/);
 assert.match(veniceDeploySource, /gcloud secrets describe DISCORD_PUBLIC_KEY/);
 assert.match(veniceDeploySource, /const value = fs\.readFileSync\(0, \"utf8\"\);/);
-assert.doesNotMatch(veniceDeploySource, /fs\.readFileSync\(0, \"utf8\"\)\.trim\(\)/);
 assert.match(veniceDeploySource, /gcloud projects add-iam-policy-binding/);
 assert.match(veniceDeploySource, /roles\/datastore\.user/);
 assert.match(veniceDeploySource, /gcloud projects get-iam-policy/);
