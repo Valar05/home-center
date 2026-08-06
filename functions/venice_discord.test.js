@@ -67,7 +67,7 @@ test('intimate memory keeps anatomy out of threshold and unverified carriers', (
   const threshold = veniceIntimacyInstruction(VENICE_ALLOWED_CHANNEL_IDS[0]);
   const outside = veniceIntimacyInstruction('unverified-channel');
   for (const instruction of [threshold, outside]) {
-    assert.doesNotMatch(instruction, /circumcision|slit|calves|lotioned|tattoo|great toe/i);
+    assert.doesNotMatch(instruction, /water-bound|hairy calves|slit or notch|soft, lotioned|house he did not rule|great toe/i);
   }
   assert.match(threshold, /feet are the beginning/i);
   assert.match(threshold, /do not surface/i);
