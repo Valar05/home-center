@@ -85,7 +85,7 @@ gcloud secrets versions access latest \
   --quiet \
   | node -e '
 const fs = require("fs");
-const value = fs.readFileSync(0, "utf8").trim();
+const value = fs.readFileSync(0, "utf8");
 if (!/^[0-9a-f]{64}$/i.test(value)) {
   process.stderr.write("DISCORD_PUBLIC_KEY latest version is not a 32-byte hex verification key.\n");
   process.exit(1);

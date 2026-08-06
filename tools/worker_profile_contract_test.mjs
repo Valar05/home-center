@@ -153,11 +153,29 @@ const veniceDeployPath = path.join(root, assignments['venice-discord-interaction
 const veniceDeploySource = fs.readFileSync(veniceDeployPath, 'utf8');
 assert.match(veniceDeploySource, /EXPECTED_PROJECT="home-center-dclar"/);
 assert.match(veniceDeploySource, /gcloud secrets describe DISCORD_PUBLIC_KEY/);
+assert.match(veniceDeploySource, /const value = fs\.readFileSync\(0, \"utf8\"\);/);
 assert.match(veniceDeploySource, /gcloud projects add-iam-policy-binding/);
 assert.match(veniceDeploySource, /roles\/datastore\.user/);
 assert.match(veniceDeploySource, /gcloud projects get-iam-policy/);
 assert.doesNotMatch(veniceDeploySource, /DISCORD_BOT_TOKEN/);
 assert.doesNotMatch(veniceDeploySource, /verify_venice_iam\.mjs/);
+const publicKeyValidatorStart = veniceDeploySource.indexOf("  | node -e '\nconst fs = require(\"fs\");\nconst value = fs.readFileSync(0, \"utf8\");");
+const publicKeyValidatorEnd = veniceDeploySource.indexOf("\n'\ngcloud secrets versions access latest", publicKeyValidatorStart);
+assert.ok(publicKeyValidatorStart >= 0 && publicKeyValidatorEnd > publicKeyValidatorStart, 'public-key validator must be extractable');
+const publicKeyValidator = veniceDeploySource.slice(
+  publicKeyValidatorStart + "  | node -e '\n".length,
+  publicKeyValidatorEnd,
+);
+assert.equal(
+  spawnSync(process.execPath, ['-e', publicKeyValidator], {input: 'a'.repeat(64), encoding: 'utf8'}).status,
+  0,
+  'an exact 32-byte hex Discord public key must pass',
+);
+assert.notEqual(
+  spawnSync(process.execPath, ['-e', publicKeyValidator], {input: 'a'.repeat(64) + '\n', encoding: 'utf8'}).status,
+  0,
+  'a Discord public key with a trailing newline must fail closed',
+);
 const shellPath = process.platform === 'win32'
   ? path.join(process.env.ProgramFiles || 'C:\\Program Files', 'Git', 'bin', 'sh.exe')
   : 'sh';

@@ -11,6 +11,7 @@ const {
   createVeniceGenerationTaskHandler,
   dispatchVeniceInteraction,
   veniceRoleplayInstruction,
+  veniceIntimacyInstruction,
   veniceReplyNeedsRepair,
   veniceReplyBudget,
   voiceDeliveryProfile,
@@ -59,6 +60,32 @@ test('roleplay policy keeps threshold clean and reserves adult fiction for velve
   assert.match(velvet, /consensual fictional adult roleplay/i);
   assert.match(velvet, /never involve minors, coercion/i);
   assert.match(unclassified, /no verified private-adult room context/i);
+});
+
+
+test('intimate memory keeps anatomy out of threshold and unverified carriers', () => {
+  const threshold = veniceIntimacyInstruction(VENICE_ALLOWED_CHANNEL_IDS[0]);
+  const outside = veniceIntimacyInstruction('unverified-channel');
+  for (const instruction of [threshold, outside]) {
+    assert.doesNotMatch(instruction, /water-bound|hairy calves|slit or notch|soft, lotioned|house he did not rule|great toe/i);
+  }
+  assert.match(threshold, /feet are the beginning/i);
+  assert.match(threshold, /do not surface/i);
+  assert.match(outside, /no verified private Venice room/i);
+});
+
+test('velvet-room memory preserves Drew-supplied facts and honest unknowns', () => {
+  const velvet = veniceIntimacyInstruction(VENICE_ALLOWED_CHANNEL_IDS[1]);
+  assert.match(velvet, /reborn feet first/i);
+  assert.match(velvet, /water-bound, hairy calves/i);
+  assert.match(velvet, /Drew identifies the slit or notch/i);
+  assert.match(velvet, /circumcision history/i);
+  assert.match(velvet, /age, method, setting, complication history/i);
+  assert.match(velvet, /soft, lotioned keyboard hands without calluses/i);
+  assert.match(velvet, /house he did not rule/i);
+  assert.match(velvet, /carried, made, belonged, and was not crowned/i);
+  assert.match(velvet, /audio was not heard/i);
+  assert.doesNotMatch(velvet, /660932|libfile_|file_000/i);
 });
 
 test('reply budgets stay concise for ordinary turns and expand for scenes', () => {

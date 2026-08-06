@@ -1,5 +1,6 @@
 const crypto = require('crypto');
 const VENICE_DISCORD_CONTRACT = require('./venice_discord_contract.json');
+const {veniceIntimacyInstruction} = require('./venice_intimacy_memory');
 
 const VENICE_APPLICATION_ID = VENICE_DISCORD_CONTRACT.applicationId;
 const VENICE_GUILD_ID = VENICE_DISCORD_CONTRACT.guildId;
@@ -624,6 +625,7 @@ module.exports = {
   voiceDeliveryProfile,
   veniceReplyBudget,
   veniceRoleplayInstruction,
+  veniceIntimacyInstruction,
   veniceReplyNeedsRepair,
   stateDecision,
   verifyDiscordRequest,

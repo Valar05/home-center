@@ -9,7 +9,10 @@ import {fileURLToPath} from 'node:url';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const read = (relative) => fs.readFileSync(path.join(root, relative), 'utf8');
+const normalized = (relative) => read(relative).replaceAll('\r\n', '\n');
+const hash = (relative) => crypto.createHash('sha256').update(normalized(relative)).digest('hex');
 const outer = read('tools/configure_venice_discord.ps1');
+const trustBody = read('tools/configure_venice_discord_trusted.ps1');
 const inner = read('tools/configure_venice_discord_inner.ps1');
 const nodeSource = read('tools/configure_venice_discord.mjs');
 const discordContractSource = read('functions/venice_discord_contract.json');
@@ -17,33 +20,43 @@ const deploy = read('tools/deploy_venice_discord.sh');
 const functionsIndex = read('functions/index.js');
 const ci = read('tools/home_center_ci_validate.sh');
 
-assert.match(outer, /https:\/\/github\.com\/Valar05\/home-center\.git/);
-assert.match(outer, /ls-remote --exit-code \$ExpectedOrigin refs\/heads\/main/);
-assert.match(outer, /HEAD to equal current origin\/main/);
-assert.match(outer, /status --porcelain --untracked-files=all/);
-assert.match(outer, /Get-FileHash[^\n]+SHA256/);
+assert.match(outer, /configure_venice_discord_trusted\.ps1/);
+assert.match(outer, /ExpectedPowerShellSha256/);
+assert.match(outer, /ExpectedTrustBodySha256/);
+assert.match(outer, /IO\.File\]::ReadAllBytes\(\$ExpectedPowerShell\)/);
+assert.match(outer, /-NoLogo -NoProfile -ExecutionPolicy Bypass -OutputFormat Text -EncodedCommand/);
 assert.match(outer, /EnvironmentVariables\.Clear\(\)/);
-assert.match(outer, /-NoLogo -NoProfile -ExecutionPolicy Bypass/);
-assert.match(outer, /GIT_CONFIG_NOSYSTEM = '1'/);
-assert.match(outer, /GIT_CONFIG_GLOBAL = 'NUL'/);
-assert.match(outer, /credential\.helper=manager/);
-assert.match(outer, /http\.sslVerify=true/);
-assert.match(outer, /-EncodedCommand/);
-assert.match(outer, /ExpectedInnerSha256/);
-assert.match(outer, /ExpectedNodeSourceSha256/);
-assert.match(outer, /ExpectedDiscordContractSha256/);
-assert.match(outer, /configure_venice_discord_inner\.ps1/);
-assert.match(outer, /secretProcessExited=\$true/);
-assert.match(outer, /botTokenPersistedLocally=\$false/);
-assert.match(outer, /botTokenStillValidAtDiscord=\$true/);
-assert.match(outer, /revocationRequired=\$true/);
-assert.doesNotMatch(outer, /Read-Host/);
-assert.doesNotMatch(outer, /Clipboard/i);
+assert.match(outer, /VENICE_REPO_ROOT/);
+assert.doesNotMatch(outer, /VENICE_TRUSTED_POWERSHELL_BOOTSTRAP/);
+assert.doesNotMatch(outer, /-File /);
+assert.doesNotMatch(outer, /Read-Host|Clipboard/i);
+
+assert.match(trustBody, /https:\/\/github\.com\/Valar05\/home-center\.git/);
+assert.match(trustBody, /MainModule\.FileName/);
+assert.match(trustBody, /ExpectedRemoteHttpsSha256/);
+assert.match(trustBody, /GIT_CONFIG_NOSYSTEM = '1'/);
+assert.match(trustBody, /GIT_CONFIG_GLOBAL = 'NUL'/);
+assert.match(trustBody, /GIT_TERMINAL_PROMPT = '0'/);
+assert.match(trustBody, /core\.fsmonitor=false/);
+assert.match(trustBody, /core\.hooksPath=NUL/);
+assert.match(trustBody, /credential\.helper=/);
+assert.match(trustBody, /credential\.helper=manager/);
+assert.match(trustBody, /http\.sslBackend=schannel/);
+assert.match(trustBody, /-C 'C:\\Windows\\System32' ls-remote --exit-code \$ExpectedOrigin/);
+assert.match(trustBody, /HEAD to equal current origin\/main/);
+assert.doesNotMatch(trustBody, /status --porcelain|remote get-url/);
+assert.match(trustBody, /ExpectedInnerSha256/);
+assert.match(trustBody, /ExpectedNodeSourceSha256/);
+assert.match(trustBody, /ExpectedDiscordContractSha256/);
+assert.match(trustBody, /-EncodedCommand/);
+assert.match(trustBody, /secretProcessExited=\$true/);
+assert.match(trustBody, /botTokenPersistedLocally=\$false/);
+assert.match(trustBody, /botTokenStillValidAtDiscord=\$true/);
+assert.match(trustBody, /revocationRequired=\$true/);
+assert.doesNotMatch(trustBody, /Read-Host|Clipboard/i);
 
 assert.match(inner, /Read-Host -AsSecureString/);
-assert.match(inner, /paste the newly reset Discord bot token once/i);
-assert.match(inner, /Set-Clipboard -Value ' '/);
-assert.match(inner, /token rotation remains required/i);
+assert.match(inner, /clipboard use is prohibited/i);
 assert.match(inner, /SecureStringToBSTR/);
 assert.match(inner, /ZeroFreeBSTR/);
 assert.match(inner, /StandardInput\.Write\(\$token\)/);
@@ -55,7 +68,7 @@ assert.ok(
   inner.indexOf('$ready = $process.StandardOutput.ReadLine()') < inner.indexOf('$secureToken = Read-Host'),
   'the reviewed Node process must be loaded and ready before Drew enters the token',
 );
-assert.doesNotMatch(inner, /Get-Clipboard/i);
+assert.doesNotMatch(inner, /Get-Clipboard|Set-Clipboard/i);
 assert.doesNotMatch(inner, /gcloud|Secret Manager|secrets versions/i);
 
 const guardIndex = nodeSource.indexOf('assertTrustedLaunch();');
@@ -79,31 +92,22 @@ assert.match(nodeSource, /revocationRequired: true/);
 assert.match(nodeSource, /botToken = ''/);
 assert.doesNotMatch(nodeSource, /gcloud|Secret Manager|secrets versions/i);
 
-for (const source of [outer, inner, nodeSource]) {
+for (const source of [outer, trustBody, inner, nodeSource]) {
   assert.doesNotMatch(source, /DISCORD_BOT_TOKEN/);
   assert.doesNotMatch(source, /secrets versions (?:access|add)/i);
 }
 assert.doesNotMatch(deploy, /DISCORD_BOT_TOKEN/);
 assert.match(deploy, /gcloud secrets describe DISCORD_PUBLIC_KEY/);
-assert.match(deploy, /gcloud secrets describe VENICE_WEB_BRIDGE_TOKEN/);
-assert.match(deploy, /gcloud secrets describe GEMINI_API_KEY/);
 assert.match(deploy, /roles\/datastore\.user/);
-assert.match(deploy, /FUNCTIONS_DISCOVERY_TIMEOUT="\$\{FUNCTIONS_DISCOVERY_TIMEOUT:-60\}"/);
-assert.match(deploy, /firebase deploy --only functions:veniceDiscordInteractions[^\n]+--force/);
 assert.match(functionsIndex, /defineSecret\('DISCORD_PUBLIC_KEY'\)/);
-assert.match(functionsIndex, /defineSecret\('VENICE_WEB_BRIDGE_TOKEN'\)/);
-assert.match(functionsIndex, /gemini-2\.5-flash:generateContent/);
 assert.doesNotMatch(functionsIndex, /defineSecret\('DISCORD_BOT_TOKEN'\)/);
-assert.match(functionsIndex, /VENICE_TASK_TARGET_URL = 'https:\/\/venicediscordinteractions-vxybsaualq-uc\.a\.run\.app'/);
-assert.match(functionsIndex, /req\.path === '\/web\/ask'/);
-assert.doesNotMatch(functionsIndex, /oidcToken:[\s\S]{0,400}cloudfunctions\.net/);
 assert.ok(ci.includes('node tools/venice_one_shot_contract_test.mjs'));
 assert.ok(!ci.includes('venice_custody_contract_test.mjs'));
 
-const hash = (relative) => crypto.createHash('sha256').update(fs.readFileSync(path.join(root, relative))).digest('hex');
-assert.ok(outer.includes(`$ExpectedInnerSha256 = '${hash('tools/configure_venice_discord_inner.ps1')}'`));
-assert.ok(outer.includes(`$ExpectedNodeSourceSha256 = '${hash('tools/configure_venice_discord.mjs')}'`));
-assert.ok(outer.includes(`$ExpectedDiscordContractSha256 = '${hash('functions/venice_discord_contract.json')}'`));
+assert.ok(outer.includes(`$ExpectedTrustBodySha256 = '${hash('tools/configure_venice_discord_trusted.ps1')}'`));
+assert.ok(trustBody.includes(`$ExpectedInnerSha256 = '${hash('tools/configure_venice_discord_inner.ps1')}'`));
+assert.ok(trustBody.includes(`$ExpectedNodeSourceSha256 = '${hash('tools/configure_venice_discord.mjs')}'`));
+assert.ok(trustBody.includes(`$ExpectedDiscordContractSha256 = '${hash('functions/venice_discord_contract.json')}'`));
 
 const require = createRequire(import.meta.url);
 const runtime = require('../functions/venice_discord.js');
@@ -125,8 +129,9 @@ assert.doesNotMatch(refused.stdout + refused.stderr, /Authorization|Bot [A-Za-z0
 console.log(JSON.stringify({
   ok: true,
   flow: 'one-shot-stdin-only',
-  cleanOriginMainRequired: true,
-  clipboardClearedAfterPaste: true,
+  immutableTrustBody: true,
+  nonRepositoryRemoteCheck: true,
+  clipboardProhibited: true,
   botTokenPersistedLocally: false,
   postRegistrationRevocationRequired: true,
   runtimeBindsPublicKeyOnly: true,

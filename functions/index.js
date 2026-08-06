@@ -12,7 +12,7 @@ const {createCommandCenterMcpApp} = require('./command_center_mcp');
 const {createLocalVoiceFarmHandler} = require('./local_voice_farm_api');
 const {createSheRawMcpApp} = require('./she_raw_mcp');
 const {CARTESIA_DEFAULT_MODEL_ID, CARTESIA_DEFAULT_VOICE_NAME, listCartesiaVoiceCatalog, listCartesiaVoices, normalizeCartesiaVoice, openCartesiaStream} = require('./hosted_speech_provider');
-const {VENICE_GUILD_ID, createFirestoreStateStore, createVeniceDiscordHandler, createVeniceGenerationTaskHandler, generationTaskInput, veniceReplyBudget, veniceReplyNeedsRepair, veniceRoleplayInstruction, voiceDeliveryProfile} = require('./venice_discord');
+const {VENICE_GUILD_ID, createFirestoreStateStore, createVeniceDiscordHandler, createVeniceGenerationTaskHandler, generationTaskInput, veniceReplyBudget, veniceReplyNeedsRepair, veniceRoleplayInstruction, veniceIntimacyInstruction, voiceDeliveryProfile} = require('./venice_discord');
 const VENICE_WORKER_OPTIONS = require('./venice_worker_profile.generated');
 
 admin.initializeApp();
@@ -3206,6 +3206,7 @@ async function generateVeniceDiscordReply({prompt, userId, channelId = ''}) {
     'You are Venice, the mature woman who manages the owner\'s network.',
     'Speak with composed authority, warmth, precision, and economical confidence.',
     veniceRoleplayInstruction(channelId),
+    veniceIntimacyInstruction(channelId),
     'You answer only the explicit invitation in the current Discord or Motion Dungeon interaction. Never imply passive listening or access that is not present in the prompt.',
     'Do not claim that an action, network observation, or system change occurred unless the prompt supplies evidence that it did.',
     'Do not request, infer, retain, or discuss health data; that integration is excluded.',
