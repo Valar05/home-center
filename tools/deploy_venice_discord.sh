@@ -53,30 +53,6 @@ if ! gcloud secrets describe DISCORD_PUBLIC_KEY \
   echo "Required Venice public-key metadata is unavailable: DISCORD_PUBLIC_KEY" >&2
   exit 1
 fi
-if ! gcloud secrets describe OPENAI_API_KEY \
-  --project "$PROJECT" \
-  --no-log-http \
-  --verbosity=error \
-  --quiet >/dev/null; then
-  echo "Required Venice generation secret metadata is unavailable: OPENAI_API_KEY" >&2
-  exit 1
-fi
-if ! gcloud secrets describe VENICE_WEB_BRIDGE_TOKEN \
-  --project "$PROJECT" \
-  --no-log-http \
-  --verbosity=error \
-  --quiet >/dev/null; then
-  echo "Required Venice web bridge secret metadata is unavailable: VENICE_WEB_BRIDGE_TOKEN" >&2
-  exit 1
-fi
-if ! gcloud secrets describe GEMINI_API_KEY \
-  --project "$PROJECT" \
-  --no-log-http \
-  --verbosity=error \
-  --quiet >/dev/null; then
-  echo "Required Venice fallback secret metadata is unavailable: GEMINI_API_KEY" >&2
-  exit 1
-fi
 gcloud secrets versions access latest \
   --secret=DISCORD_PUBLIC_KEY \
   --project "$PROJECT" \
@@ -85,23 +61,9 @@ gcloud secrets versions access latest \
   --quiet \
   | node -e '
 const fs = require("fs");
-const value = fs.readFileSync(0, "utf8").trim();
+const value = fs.readFileSync(0, "utf8");
 if (!/^[0-9a-f]{64}$/i.test(value)) {
   process.stderr.write("DISCORD_PUBLIC_KEY latest version is not a 32-byte hex verification key.\n");
-  process.exit(1);
-}
-'
-gcloud secrets versions access latest \
-  --secret=VENICE_WEB_BRIDGE_TOKEN \
-  --project "$PROJECT" \
-  --no-log-http \
-  --verbosity=error \
-  --quiet \
-  | node -e '
-const fs = require("fs");
-const value = fs.readFileSync(0, "utf8").trim();
-if (value.length < 32) {
-  process.stderr.write("VENICE_WEB_BRIDGE_TOKEN latest version is too short.\n");
   process.exit(1);
 }
 '
@@ -122,53 +84,6 @@ gcloud projects add-iam-policy-binding "$PROJECT" \
   --no-log-http \
   --verbosity=error \
   --quiet >/dev/null
-
-gcloud projects add-iam-policy-binding "$PROJECT" \
-  --member="serviceAccount:$WORKER_SERVICE_ACCOUNT" \
-  --role="roles/cloudtasks.enqueuer" \
-  --condition=None \
-  --no-log-http \
-  --verbosity=error \
-  --quiet >/dev/null
-
-gcloud iam service-accounts add-iam-policy-binding "$WORKER_SERVICE_ACCOUNT" \
-  --member="serviceAccount:$WORKER_SERVICE_ACCOUNT" \
-  --role="roles/iam.serviceAccountUser" \
-  --project "$PROJECT" \
-  --condition=None \
-  --no-log-http \
-  --verbosity=error \
-  --quiet >/dev/null
-
-gcloud secrets add-iam-policy-binding OPENAI_API_KEY \
-  --member="serviceAccount:$WORKER_SERVICE_ACCOUNT" \
-  --role="roles/secretmanager.secretAccessor" \
-  --project "$PROJECT" \
-  --condition=None \
-  --no-log-http \
-  --verbosity=error \
-  --quiet >/dev/null
-
-if gcloud tasks queues describe venice-discord-generation \
-  --location "$REGION" \
-  --project "$PROJECT" \
-  --quiet >/dev/null 2>&1; then
-  gcloud tasks queues update venice-discord-generation \
-    --location "$REGION" \
-    --project "$PROJECT" \
-    --max-attempts=1 \
-    --max-concurrent-dispatches=4 \
-    --max-dispatches-per-second=4 \
-    --quiet >/dev/null
-else
-  gcloud tasks queues create venice-discord-generation \
-    --location "$REGION" \
-    --project "$PROJECT" \
-    --max-attempts=1 \
-    --max-concurrent-dispatches=4 \
-    --max-dispatches-per-second=4 \
-    --quiet >/dev/null
-fi
 
 gcloud projects get-iam-policy "$PROJECT" \
   --format=json \
@@ -213,11 +128,7 @@ if (!active) {
 
 npm --prefix functions ci --ignore-scripts --no-audit --no-fund
 
-# The shared Functions entrypoint can exceed Firebase's default 10-second
-# discovery window on a cold Windows checkout. The owner-approved warm instance
-# also requires Firebase's explicit billing acknowledgement.
-export FUNCTIONS_DISCOVERY_TIMEOUT="${FUNCTIONS_DISCOVERY_TIMEOUT:-60}"
-firebase deploy --only functions:veniceDiscordInteractions --project "$PROJECT" --force
+firebase deploy --only functions:veniceDiscordInteractions --project "$PROJECT"
 
 SERVICE_NAME="$(gcloud functions describe veniceDiscordInteractions \
   --gen2 \
