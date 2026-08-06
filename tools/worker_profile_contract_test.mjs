@@ -160,7 +160,7 @@ assert.match(veniceDeploySource, /gcloud projects get-iam-policy/);
 assert.doesNotMatch(veniceDeploySource, /DISCORD_BOT_TOKEN/);
 assert.doesNotMatch(veniceDeploySource, /verify_venice_iam\.mjs/);
 const publicKeyValidatorStart = veniceDeploySource.indexOf("  | node -e '\nconst fs = require(\"fs\");\nconst value = fs.readFileSync(0, \"utf8\");");
-const publicKeyValidatorEnd = veniceDeploySource.indexOf("\n'\n\nif ! gcloud iam", publicKeyValidatorStart);
+const publicKeyValidatorEnd = veniceDeploySource.indexOf("\n'\ngcloud secrets versions access latest", publicKeyValidatorStart);
 assert.ok(publicKeyValidatorStart >= 0 && publicKeyValidatorEnd > publicKeyValidatorStart, 'public-key validator must be extractable');
 const publicKeyValidator = veniceDeploySource.slice(
   publicKeyValidatorStart + "  | node -e '\n".length,
