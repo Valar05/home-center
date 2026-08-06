@@ -1,0 +1,46 @@
+{
+  "schemaVersion": "home-center.cauldron-voice-model-candidates.v1",
+  "host": "THECAULDRON",
+  "issue": "https://github.com/Valar05/home-center/issues/185",
+  "candidates": [
+    {
+      "id": "kokoro-onnx-v1",
+      "lane": "utility",
+      "package": "kokoro-onnx",
+      "upstream": "https://github.com/thewh1teagle/kokoro-onnx",
+      "modelUrl": "https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.0/kokoro-v1.0.onnx",
+      "voicesUrl": "https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.0/voices-v1.0.bin",
+      "codeLicense": "MIT",
+      "weightLicense": "Apache-2.0",
+      "execution": "cpu",
+      "promotionState": "benchmark_candidate"
+    },
+    {
+      "id": "chatterbox-nano",
+      "lane": "character",
+      "package": "chatterbox-tts",
+      "upstream": "https://github.com/resemble-ai/chatterbox",
+      "codeLicense": "MIT",
+      "weightLicense": "upstream_model_card_required",
+      "execution": "cpu",
+      "consentRequired": true,
+      "promotionState": "benchmark_candidate"
+    },
+    {
+      "id": "chatterbox-turbo",
+      "lane": "character-gpu",
+      "package": "chatterbox-tts",
+      "upstream": "https://github.com/resemble-ai/chatterbox",
+      "codeLicense": "MIT",
+      "weightLicense": "upstream_model_card_required",
+      "execution": "cuda_single_owner",
+      "vramCeilingBytes": 4294967296,
+      "consentRequired": true,
+      "promotionState": "feasibility_candidate"
+    }
+  ],
+  "excluded": [{
+    "id": "f5-tts",
+    "reason": "Research-only: pretrained weights are CC-BY-NC and the 4 GB GPU has less operating margin."
+  }]
+}

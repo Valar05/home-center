@@ -1,0 +1,9 @@
+{
+  "schemaVersion": "home-center.cauldron-voice-canaries.v1",
+  "canaries": [
+    {"id": "utility-fortress-interface", "kind": "accessibility_prompt", "text": "Fortress interface ready."},
+    {"id": "ordinary-dialogue", "kind": "dialogue", "text": "The render queue is awake. Nothing has caught fire, and the machine remains available for ordinary work."},
+    {"id": "paralinguistic-character", "kind": "character", "requiresReference": true, "text": "The machinery behaved itself for once [chuckle]. Adam is documenting the anomaly."},
+    {"id": "automatic-split-longform", "kind": "longform", "text": "THECAULDRON receives one bounded request. The renderer must make its own split plan and preserve the submitted order. The first segment establishes the machine and the commission. The second segment proves that the renderer does not require a separate split operation. The third segment produces one stitched artifact with immutable hashes and a mechanical receipt. The fourth segment leaves artistic approval exactly where it belongs: with Drew after listening to the real output."}
+  ]
+}
