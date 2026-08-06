@@ -29,8 +29,11 @@ jobs:
           node-version: '22'
           cache: npm
           cache-dependency-path: functions/package-lock.json
-      - name: Install Firebase CLI
-        run: npm install --global firebase-tools@15.26.0
+      - name: Install release prerequisites
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes ripgrep
+          npm install --global firebase-tools@15.26.0
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v2
         with:
