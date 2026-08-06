@@ -40,5 +40,23 @@ jobs:
           workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
           service_account: ${{ secrets.GCP_DEPLOY_SERVICE_ACCOUNT }}
       - uses: google-github-actions/setup-gcloud@v2
+      - name: Authorize bounded Venice secret validation
+        run: |
+          for secret in DISCORD_PUBLIC_KEY OPENAI_API_KEY VENICE_WEB_BRIDGE_TOKEN GEMINI_API_KEY; do
+            gcloud secrets add-iam-policy-binding "$secret" \
+              --project=home-center-dclar \
+              --member="serviceAccount:${{ secrets.GCP_DEPLOY_SERVICE_ACCOUNT }}" \
+              --role=roles/secretmanager.viewer \
+              --condition=None \
+              --quiet
+          done
+          for secret in DISCORD_PUBLIC_KEY VENICE_WEB_BRIDGE_TOKEN; do
+            gcloud secrets add-iam-policy-binding "$secret" \
+              --project=home-center-dclar \
+              --member="serviceAccount:${{ secrets.GCP_DEPLOY_SERVICE_ACCOUNT }}" \
+              --role=roles/secretmanager.secretAccessor \
+              --condition=None \
+              --quiet
+          done
       - name: Deploy Venice Discord interaction runtime
         run: sh tools/deploy_venice_discord.sh home-center-dclar --approve-warm-cost
