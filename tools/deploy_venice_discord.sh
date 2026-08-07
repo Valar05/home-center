@@ -115,39 +115,30 @@ if ! gcloud iam service-accounts describe "$WORKER_SERVICE_ACCOUNT" \
     --quiet
 fi
 
-gcloud projects add-iam-policy-binding "$PROJECT" \
-  --member="serviceAccount:$WORKER_SERVICE_ACCOUNT" \
-  --role="roles/datastore.user" \
-  --condition=None \
-  --no-log-http \
-  --verbosity=error \
-  --quiet >/dev/null
-
-gcloud projects add-iam-policy-binding "$PROJECT" \
-  --member="serviceAccount:$WORKER_SERVICE_ACCOUNT" \
-  --role="roles/cloudtasks.enqueuer" \
-  --condition=None \
-  --no-log-http \
-  --verbosity=error \
-  --quiet >/dev/null
-
-gcloud iam service-accounts add-iam-policy-binding "$WORKER_SERVICE_ACCOUNT" \
-  --member="serviceAccount:$WORKER_SERVICE_ACCOUNT" \
-  --role="roles/iam.serviceAccountUser" \
+# IAM is owner-managed and intentionally outside this deploy lane. The release
+# identity must never mutate IAM. Owner-provisioned prerequisites are:
+# - $WORKER_SERVICE_ACCOUNT has roles/datastore.user and roles/cloudtasks.enqueuer.
+# - the deploy identity can act as $WORKER_SERVICE_ACCOUNT.
+# - OPENAI_API_KEY grants $WORKER_SERVICE_ACCOUNT roles/secretmanager.secretAccessor.
+gcloud secrets get-iam-policy OPENAI_API_KEY \
   --project "$PROJECT" \
-  --condition=None \
+  --format=json \
   --no-log-http \
   --verbosity=error \
-  --quiet >/dev/null
-
-gcloud secrets add-iam-policy-binding OPENAI_API_KEY \
-  --member="serviceAccount:$WORKER_SERVICE_ACCOUNT" \
-  --role="roles/secretmanager.secretAccessor" \
-  --project "$PROJECT" \
-  --condition=None \
-  --no-log-http \
-  --verbosity=error \
-  --quiet >/dev/null
+  --quiet \
+  | node -e '
+const fs = require("fs");
+const policy = JSON.parse(fs.readFileSync(0, "utf8"));
+const expected = "serviceAccount:venice-discord-runtime@home-center-dclar.iam.gserviceaccount.com";
+const granted = (policy.bindings || []).some((binding) =>
+  binding.role === "roles/secretmanager.secretAccessor"
+  && !binding.condition
+  && (binding.members || []).includes(expected));
+if (!granted) {
+  process.stderr.write("Dedicated Venice runtime is missing unconditional OPENAI_API_KEY secret access.\n");
+  process.exit(1);
+}
+'
 
 if gcloud tasks queues describe venice-discord-generation \
   --location "$REGION" \
@@ -169,25 +160,6 @@ else
     --max-dispatches-per-second=4 \
     --quiet >/dev/null
 fi
-
-gcloud projects get-iam-policy "$PROJECT" \
-  --format=json \
-  --no-log-http \
-  --verbosity=error \
-  --quiet \
-  | node -e '
-const fs = require("fs");
-const policy = JSON.parse(fs.readFileSync(0, "utf8"));
-const expected = "serviceAccount:venice-discord-runtime@home-center-dclar.iam.gserviceaccount.com";
-const granted = (policy.bindings || []).some((binding) =>
-  binding.role === "roles/datastore.user"
-  && !binding.condition
-  && (binding.members || []).includes(expected));
-if (!granted) {
-  process.stderr.write("Dedicated Venice runtime is missing unconditional roles/datastore.user.\n");
-  process.exit(1);
-}
-'
 
 gcloud firestore fields ttls update expireAt \
   --collection-group=veniceDiscordAudit \
