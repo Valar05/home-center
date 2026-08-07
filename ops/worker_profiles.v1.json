@@ -76,10 +76,10 @@
       "profile": "discord-interaction-control",
       "state": "bound",
       "serviceAccount": "venice-discord-runtime@home-center-dclar.iam.gserviceaccount.com",
-      "reason": "Discord signature verification, consent-state transitions, immediate callbacks, and bounded single-message generation tasks share one narrow Firebase Functions release surface.",
+      "reason": "Discord signature verification, consent-state transitions, immediate callbacks, and bounded single-message generation tasks share one narrow Gen 2 Cloud Functions release surface.",
       "deployment": {
         "path": "tools/deploy_venice_discord.sh",
-        "kind": "firebase-functions",
+        "kind": "cloud-functions",
         "requiredMarkers": [
           "worker_profile_contract.mjs shell venice-discord-interactions",
           "validate-resolved venice-discord-interactions",
@@ -91,7 +91,7 @@
           "DISCORD_PUBLIC_KEY",
           "OPENAI_API_KEY",
           "venice-discord-generation",
-          "--only functions:veniceDiscordInteractions",
+          "gcloud functions deploy veniceDiscordInteractions",
           "--approve-warm-cost"
         ],
         "forbiddenMarkers": [

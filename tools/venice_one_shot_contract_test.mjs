@@ -99,6 +99,10 @@ for (const source of [outer, trustBody, inner, nodeSource]) {
 assert.doesNotMatch(deploy, /DISCORD_BOT_TOKEN/);
 assert.match(deploy, /gcloud secrets describe DISCORD_PUBLIC_KEY/);
 assert.match(deploy, /roles\/datastore\.user/);
+assert.match(deploy, /gcloud functions deploy veniceDiscordInteractions/);
+assert.match(deploy, /--set-secrets="DISCORD_PUBLIC_KEY=DISCORD_PUBLIC_KEY:latest,OPENAI_API_KEY=OPENAI_API_KEY:latest,GEMINI_API_KEY=GEMINI_API_KEY:latest,VENICE_WEB_BRIDGE_TOKEN=VENICE_WEB_BRIDGE_TOKEN:latest"/);
+assert.doesNotMatch(deploy, /firebase deploy/);
+assert.doesNotMatch(deploy, /ELEVENLABS_API_KEY|CARTESIA_API_KEY|GITHUB_APP_PRIVATE_KEY/);
 assert.match(functionsIndex, /defineSecret\('DISCORD_PUBLIC_KEY'\)/);
 assert.doesNotMatch(functionsIndex, /defineSecret\('DISCORD_BOT_TOKEN'\)/);
 assert.ok(ci.includes('node tools/venice_one_shot_contract_test.mjs'));

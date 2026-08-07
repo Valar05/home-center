@@ -185,11 +185,27 @@ if (!active) {
 
 npm --prefix functions ci --ignore-scripts --no-audit --no-fund
 
-# The shared Functions entrypoint can exceed Firebase's default 10-second
-# discovery window on a cold Windows checkout. The owner-approved warm instance
-# also requires Firebase's explicit billing acknowledgement.
-export FUNCTIONS_DISCOVERY_TIMEOUT="${FUNCTIONS_DISCOVERY_TIMEOUT:-60}"
-firebase deploy --only functions:veniceDiscordInteractions --project "$PROJECT" --force
+# Firebase's --only selector still evaluates every defineSecret in the shared
+# entrypoint before deployment. Deploy this one Gen 2 function directly so the
+# release identity never needs metadata access to unrelated project secrets.
+gcloud functions deploy veniceDiscordInteractions \
+  --gen2 \
+  --project "$PROJECT" \
+  --region "$REGION" \
+  --runtime=nodejs22 \
+  --source=functions \
+  --entry-point=veniceDiscordInteractions \
+  --trigger-http \
+  --allow-unauthenticated \
+  --cpu="$WORKER_CPU" \
+  --memory="$WORKER_MEMORY" \
+  --concurrency="$WORKER_CONCURRENCY" \
+  --min-instances="$WORKER_MIN_INSTANCES" \
+  --max-instances="$WORKER_MAX_INSTANCES" \
+  --timeout="${WORKER_TIMEOUT_SECONDS}s" \
+  --service-account="$WORKER_SERVICE_ACCOUNT" \
+  --set-secrets="DISCORD_PUBLIC_KEY=DISCORD_PUBLIC_KEY:latest,OPENAI_API_KEY=OPENAI_API_KEY:latest,GEMINI_API_KEY=GEMINI_API_KEY:latest,VENICE_WEB_BRIDGE_TOKEN=VENICE_WEB_BRIDGE_TOKEN:latest" \
+  --quiet
 
 SERVICE_NAME="$(gcloud functions describe veniceDiscordInteractions \
   --gen2 \
