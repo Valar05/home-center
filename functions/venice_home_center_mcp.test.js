@@ -175,6 +175,40 @@ test('one Venice tool call round returns the final reply after MCP execution', a
   assert.match(requests[1].input[1].output, /main/);
 });
 
+test('an empty model turn before tool execution retries once with an explicit tool-or-reply recovery prompt', async () => {
+  const calls = [];
+  const requests = [];
+  const context = baseContext({
+    allowMutations: true,
+    homeCenterServer: fakeToolServer([{
+      name: 'home_center_work_request',
+      handler: async (args) => {
+        calls.push(args);
+        return {taskId: 'work-1', status: 'queued'};
+      },
+    }]),
+  });
+  let turn = 0;
+  const reply = await runVeniceHomeCenterToolLoop({
+    context,
+    prompt: 'make the project with github',
+    requestBody: {model: 'gpt-5.5', instructions: 'test'},
+    fetchOpenAIResponses: async (body) => {
+      requests.push(body);
+      turn += 1;
+      if (turn === 1) return {response: {ok: true, status: 200}, json: {output: [], output_text: ''}};
+      if (turn === 2) return {response: {ok: true, status: 200}, json: functionCall('call-1', 'home_center_work_request', {requestText: 'make the project with github'})};
+      return {response: {ok: true, status: 200}, json: finalText('Home Center queued the project request.')};
+    },
+    extractOutputText: (json) => json.output_text || '',
+    veniceReplyNeedsRepair: () => false,
+  });
+  assert.equal(reply, 'Home Center queued the project request.');
+  assert.equal(calls.length, 1);
+  assert.equal(requests.length, 3);
+  assert.match(String(requests[1].input), /Recovery rule:/);
+});
+
 test('sequential Venice tool calls continue across rounds', async () => {
   const seen = [];
   const context = baseContext({

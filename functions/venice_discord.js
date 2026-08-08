@@ -916,9 +916,11 @@ function createVeniceGenerationTaskHandler({verifyTaskRequest, generateReply, de
       }
       res.status(204).send('');
     } catch (_) {
+      const err = _;
       logger.error('venice_discord_generation_failed', {
         interactionId: task.interactionId,
         outcome: 'content_free_failure',
+        errorCode: safeText(err && (err.code || (err.status ? `http_${err.status}` : err.name)), 120),
       });
       try {
         if (!await store.guard(task.cutEpoch, guardOptions)) await deleteOriginalInteraction(interaction, webhookFetch);

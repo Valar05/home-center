@@ -526,17 +526,29 @@ async function runVeniceHomeCenterToolLoop({
   const baseRequest = {...safeObject(requestBody), tools: openAiTools};
   let input = prompt;
   let toolExecutionStarted = false;
+  let emptyFinalRecoveryUsed = false;
   for (let round = 0; round < maxToolRounds; round += 1) {
     context.toolRound = round;
     const {response, json} = await fetchOpenAIResponses({...baseRequest, input});
     if (!response.ok) {
       if (response.status === 429 && !toolExecutionStarted && typeof geminiFallback === 'function') return geminiFallback();
-      throw new Error(`venice_openai_http_${response.status}`);
+      const err = new Error(`venice_openai_http_${response.status}`);
+      err.code = `venice_openai_http_${response.status}`;
+      throw err;
     }
     const calls = extractOpenAiFunctionCalls(json);
     if (!calls.length) {
       let reply = safeText(json.output_text || extractOutputText(json), 2000);
-      if (!reply) throw new Error('venice_openai_empty');
+      if (!reply) {
+        if (!toolExecutionStarted && !emptyFinalRecoveryUsed) {
+          emptyFinalRecoveryUsed = true;
+          input = `${prompt}\n\nRecovery rule: either call the appropriate Home Center tool now, or reply to Drew in one complete Discord-safe message. Do not return an empty response.`;
+          continue;
+        }
+        const err = new Error('venice_openai_empty');
+        err.code = 'venice_openai_empty';
+        throw err;
+      }
       if (veniceReplyNeedsRepair(reply, json)) {
         if (typeof repairReply !== 'function') throw new Error('venice_openai_incomplete');
         reply = await repairReply(reply);
