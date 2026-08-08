@@ -53,7 +53,8 @@ function promptDeniesMutation(prompt = '') {
 }
 
 function promptDirectlyAuthorizesMutation(prompt = '') {
-  return /\b(fix|repair|patch|change|modify|edit|update|create|write|add|commit|branch|pull request|pr|merge|save|upsert|start|begin|initialize|initialise|bootstrap|set up|setup)\b/.test(prompt);
+  return /\b(fix|repair|patch|change|modify|edit|update|create|write|add|commit|branch|pull request|pr|merge|save|upsert|start|begin|initialize|initialise|bootstrap|set up|setup)\b/.test(prompt)
+    || /\bmake\s+(?:the|a|an)\b/.test(prompt);
 }
 
 function promptLooksLikeMutationFollowThrough(prompt = '') {
