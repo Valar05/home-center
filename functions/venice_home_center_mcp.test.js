@@ -502,6 +502,7 @@ test('Fortress session-control prompts are classified separately from general mu
   assert.equal(fortressControlIntentFromPrompt('Fortress online.'), 'fortress_online');
   assert.equal(fortressControlIntentFromPrompt('Where were we?'), 'session_status');
   assert.equal(fortressControlIntentFromPrompt('We\'re fixing Vanguard SwordAttack3 drift.'), 'objective_update');
+  assert.equal(fortressControlIntentFromPrompt('Fortress online, the task is fleshpunk secret garden.'), 'objective_update');
   assert.equal(fortressControlIntentFromPrompt('Tell me how you would fix it.'), '');
 });
 

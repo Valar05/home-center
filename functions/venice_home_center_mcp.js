@@ -60,12 +60,17 @@ function promptAuthorizesMutation(promptValue) {
 function fortressControlIntentFromPrompt(promptValue) {
   const prompt = safeText(promptValue, 4000).toLowerCase();
   if (!prompt) return '';
+  if (
+    /^(we('| a)?re)\s+(fixing|working on|patching|repairing|debugging|investigating)\b/.test(prompt)
+    || /^(current objective|objective is|task is)\b/.test(prompt)
+    || /\bfortress online\b[\s,:;-]+(?:the\s+)?(?:task|objective)\s+is\b/.test(prompt)
+    || /\bfortress online\b[\s,:;-]+(we('| a)?re)\s+(fixing|working on|patching|repairing|debugging|investigating)\b/.test(prompt)
+  ) {
+    return 'objective_update';
+  }
   if (/\bfortress online\b/.test(prompt)) return 'fortress_online';
   if (/\b(where were we|what were we (doing|fixing|working on)|what is the current objective|what were we working on|did that finish|did it finish|what happened to that)\b/.test(prompt)) {
     return 'session_status';
-  }
-  if (/^(we('| a)?re)\s+(fixing|working on|patching|repairing|debugging|investigating)\b/.test(prompt) || /^(current objective|objective is)\b/.test(prompt)) {
-    return 'objective_update';
   }
   return '';
 }

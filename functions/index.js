@@ -12,7 +12,7 @@ const {createCommandCenterMcpApp} = require('./command_center_mcp');
 const {createLocalVoiceFarmHandler} = require('./local_voice_farm_api');
 const {createSheRawMcpApp} = require('./she_raw_mcp');
 const {CARTESIA_DEFAULT_MODEL_ID, CARTESIA_DEFAULT_VOICE_NAME, listCartesiaVoiceCatalog, listCartesiaVoices, normalizeCartesiaVoice, openCartesiaStream} = require('./hosted_speech_provider');
-const {VENICE_GUILD_ID, createFirestoreConversationStore, createFirestoreStateStore, createVeniceDiscordHandler, createVeniceGenerationTaskHandler, generationTaskInput, veniceReplyBudget, veniceReplyNeedsRepair, veniceRoleplayInstruction, veniceIntimacyInstruction, voiceDeliveryProfile} = require('./venice_discord');
+const {VENICE_GUILD_ID, createFirestoreConversationStore, createFirestoreStateStore, createVeniceDiscordHandler, createVeniceGenerationTaskHandler, generationTaskInput, veniceConversationId, veniceReplyBudget, veniceReplyNeedsRepair, veniceRoleplayInstruction, veniceIntimacyInstruction, voiceDeliveryProfile} = require('./venice_discord');
 const {promptAuthorizesMutation, runVeniceHomeCenterToolLoop, runVeniceFortressControlTurn, fortressControlIntentFromPrompt} = require('./venice_home_center_mcp');
 const VENICE_WORKER_OPTIONS = require('./venice_worker_profile.generated');
 
@@ -3203,12 +3203,22 @@ const veniceDiscordConversationStore = createFirestoreConversationStore({
   fieldValue: admin.firestore.FieldValue,
 });
 
-async function generateVeniceDiscordReply({prompt, userId, channelId = '', interactionId = '', cutEpoch = null, stateEpoch = null, controlTurn = null}) {
+async function generateVeniceDiscordReply({prompt, userId, guildId = '', channelId = '', interactionId = '', cutEpoch = null, stateEpoch = null, controlTurn = null}) {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 80000);
   const replyBudget = veniceReplyBudget(prompt);
   const mutationAuthorized = promptAuthorizesMutation(prompt);
   const fortressControlIntent = fortressControlIntentFromPrompt(prompt);
+  const normalizedPrompt = safeText(prompt, 4000).toLowerCase();
+  const combinesFortressOrientation = fortressControlIntent === 'objective_update' && /\bfortress online\b/.test(normalizedPrompt);
+  let recentTranscript = '';
+  if (guildId && channelId && Number.isSafeInteger(cutEpoch) && cutEpoch >= 0 && Number.isSafeInteger(stateEpoch) && stateEpoch >= 0) {
+    try {
+      const conversation = await veniceDiscordConversationStore.readConversation(veniceConversationId({guildId, channelId, cutEpoch, stateEpoch}));
+      recentTranscript = safeText(conversation && conversation.transcript, 6000);
+      if (recentTranscript.length > 2500) recentTranscript = recentTranscript.slice(-2500);
+    } catch (_) {}
+  }
   const veniceToolContext = {
     admin,
     runtimeServiceAccount: VENICE_RUNTIME_SERVICE_ACCOUNT,
@@ -3249,7 +3259,11 @@ async function generateVeniceDiscordReply({prompt, userId, channelId = '', inter
   } else if (fortressControlIntent === 'session_status') {
     fortressInstructions.push('For this request, answer only from durable Home Center session state. Call fortress_online, home_center_session_status, or home_center_work_status before answering. Do not answer "Where were we?" or task-finish questions from vibes or unsupported memory.');
   } else if (fortressControlIntent === 'objective_update') {
-    fortressInstructions.push('Drew is stating or revising the active work objective. Call home_center_session_update before answering so Home Center durably records the objective, then answer consistently with the updated session state.');
+    if (combinesFortressOrientation) {
+      fortressInstructions.push('Drew is reorienting and revising the active work objective in the same turn. Call fortress_online first, then call home_center_session_update so Home Center durably records the objective before answering from the updated session state.');
+    } else {
+      fortressInstructions.push('Drew is stating or revising the active work objective. Call home_center_session_update before answering so Home Center durably records the objective, then answer consistently with the updated session state.');
+    }
   }
   if (mutationAuthorized) {
     fortressInstructions.push('For explicit engineering actions such as fix, patch, repair, or update requests, create or inspect durable Home Center work state before claiming completion. Use home_center_work_request to record the work request and home_center_work_status to report the durable result or receipt.');
@@ -3306,7 +3320,7 @@ async function generateVeniceDiscordReply({prompt, userId, channelId = '', inter
         ...requestBody,
         max_output_tokens: replyBudget.maxOutputTokens + 400,
         instructions: `${instructions}\nRewrite the supplied draft as one self-contained reply. Preserve its intent, but finish every sentence, quotation, and stage direction.`,
-        input: `Original invitation:\n${prompt}\n\nIncomplete draft:\n${reply}`,
+        input: `${recentTranscript ? `Recent Discord transcript:\n${recentTranscript}\n\n` : ''}Original invitation:\n${prompt}\n\nIncomplete draft:\n${reply}`,
       };
       const repaired = await fetchOpenAIResponses(
         {uid: `discord:${safeText(userId, 160)}`, email: ''},
@@ -3321,7 +3335,7 @@ async function generateVeniceDiscordReply({prompt, userId, channelId = '', inter
     };
     return runVeniceHomeCenterToolLoop({
       context: veniceToolContext,
-      prompt,
+      prompt: recentTranscript ? `Recent Discord transcript:\n${recentTranscript}\n\nCurrent invitation:\n${prompt}` : prompt,
       requestBody,
       fetchOpenAIResponses: (body) => fetchOpenAIResponses(
         openAiUser,
