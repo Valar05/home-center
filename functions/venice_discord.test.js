@@ -6,14 +6,19 @@ const {
   VENICE_APPLICATION_ID,
   VENICE_GUILD_ID,
   VENICE_ALLOWED_CHANNEL_IDS,
+  createFirestoreConversationStore,
   createFirestoreStateStore,
   createVeniceDiscordHandler,
   createVeniceGenerationTaskHandler,
   dispatchVeniceInteraction,
+  formatVeniceTranscript,
+  classifyVeniceControlTurn,
+  generationTaskInput,
   veniceRoleplayInstruction,
   veniceIntimacyInstruction,
   veniceReplyNeedsRepair,
   veniceReplyBudget,
+  veniceConversationId,
   voiceDeliveryProfile,
   verifyDiscordRequest,
 } = require('./venice_discord');
@@ -143,6 +148,8 @@ function interaction({
   guildId = VENICE_GUILD_ID,
   applicationId = VENICE_APPLICATION_ID,
   command = 'status',
+  userId = '1234567890',
+  userDisplayName = 'Drew',
   prompt = 'private prompt that must never enter the audit',
 } = {}) {
   const data = command === 'cut-the-cam'
@@ -163,7 +170,7 @@ function interaction({
     guild_id: guildId,
     channel_id: channelId,
     app_permissions: APP_PERMISSIONS,
-    member: {user: {id: 'operator-1'}},
+    member: {user: {id: userId, username: userDisplayName, global_name: userDisplayName}},
     data,
   };
 }
@@ -285,6 +292,25 @@ test('begin and ask are explicit, public, and do not persist prompt content', as
   assert.doesNotMatch(JSON.stringify([...store.audit.entries()]), new RegExp(secretPrompt));
 });
 
+test('Fortress Online control turns are classified only for exact command variants', () => {
+  assert.deepEqual(classifyVeniceControlTurn('fortress online'), {
+    kind: 'fortress_online',
+    normalizedPrompt: 'fortress online',
+    source: 'discord_control_turn',
+  });
+  assert.deepEqual(classifyVeniceControlTurn('FORTRESS ONLINE'), {
+    kind: 'fortress_online',
+    normalizedPrompt: 'fortress online',
+    source: 'discord_control_turn',
+  });
+  assert.deepEqual(classifyVeniceControlTurn('Fortress online.'), {
+    kind: 'fortress_online',
+    normalizedPrompt: 'fortress online',
+    source: 'discord_control_turn',
+  });
+  assert.equal(classifyVeniceControlTurn('Can you explain what fortress online means?'), null);
+});
+
 test('the HTTPS handler defers an accepted ask only after a content-bounded task is enqueued', async () => {
   const {publicKey, privateKey} = crypto.generateKeyPairSync('ed25519');
   const publicKeyHex = publicKey.export({format: 'der', type: 'spki'}).subarray(-32).toString('hex');
@@ -308,7 +334,31 @@ test('the HTTPS handler defers an accepted ask only after a content-bounded task
   assert.equal(queuedTask.interactionToken, 'transient-interaction-token');
   assert.equal(queuedTask.cutEpoch, 0);
   assert.equal(queuedTask.stateEpoch, 1);
+  assert.equal(queuedTask.controlTurn, null);
   assert.doesNotMatch(JSON.stringify([...store.audit.entries()]), new RegExp(secretPrompt));
+});
+
+test('the HTTPS handler marks exact Fortress Online asks as control turns before enqueue', async () => {
+  const {publicKey, privateKey} = crypto.generateKeyPairSync('ed25519');
+  const publicKeyHex = publicKey.export({format: 'der', type: 'spki'}).subarray(-32).toString('hex');
+  const store = new MemoryStore();
+  await dispatchVeniceInteraction(interaction({id: 'fortress-begin', command: 'begin'}), store);
+  const payload = interaction({id: 'fortress-ask', command: 'ask', prompt: 'FORTRESS ONLINE'});
+  let queuedTask;
+  const handler = createVeniceDiscordHandler({
+    publicKeyGetter: () => publicKeyHex,
+    store,
+    enqueueGeneration: async (task) => { queuedTask = task; },
+  });
+  const response = responseRecorder();
+  await handler(signedRequest(Buffer.from(JSON.stringify(payload)), privateKey), response);
+  assert.equal(response.statusCode, 200);
+  assert.deepEqual(queuedTask.controlTurn, {
+    kind: 'fortress_online',
+    normalizedPrompt: 'fortress online',
+    source: 'discord_control_turn',
+  });
+  assert.equal(queuedTask.controlTurn.kind, 'fortress_online');
 });
 
 test('an authenticated generation task delivers one bounded reply without mentions or content persistence', async () => {
@@ -328,6 +378,7 @@ test('an authenticated generation task delivers one bounded reply without mentio
   const response = responseRecorder();
   await handler({body: {
     applicationId: VENICE_APPLICATION_ID,
+    guildId: VENICE_GUILD_ID,
     interactionToken: 'transient-interaction-token',
     interactionId: '1234567890',
     channelId: VENICE_ALLOWED_CHANNEL_IDS[0],
@@ -369,6 +420,7 @@ test('voice delivery occurs only after the final guard and cannot break the text
   const response = responseRecorder();
   await handler({body: {
     applicationId: VENICE_APPLICATION_ID,
+    guildId: VENICE_GUILD_ID,
     interactionToken: 'transient-interaction-token',
     interactionId: '1234567899',
     channelId: VENICE_ALLOWED_CHANNEL_IDS[0],
@@ -409,6 +461,7 @@ test('a global cut racing an authenticated generation task deletes the deferred 
   const response = responseRecorder();
   await handler({body: {
     applicationId: VENICE_APPLICATION_ID,
+    guildId: VENICE_GUILD_ID,
     interactionToken: 'transient-interaction-token',
     interactionId: '1234567891',
     channelId: VENICE_ALLOWED_CHANNEL_IDS[0],
@@ -441,6 +494,7 @@ test('room withdrawal before task execution deletes the deferred response withou
   const response = responseRecorder();
   await handler({body: {
     applicationId: VENICE_APPLICATION_ID,
+    guildId: VENICE_GUILD_ID,
     interactionToken: 'transient-interaction-token',
     interactionId: '1234567893',
     channelId: VENICE_ALLOWED_CHANNEL_IDS[0],
@@ -474,6 +528,7 @@ test('generation task failure produces only a content-free safe follow-up and lo
   const response = responseRecorder();
   await handler({body: {
     applicationId: VENICE_APPLICATION_ID,
+    guildId: VENICE_GUILD_ID,
     interactionToken: 'transient-interaction-token',
     interactionId: '1234567892',
     channelId: VENICE_ALLOWED_CHANNEL_IDS[0],
@@ -501,6 +556,225 @@ test('generation tasks fail closed without authenticated queue identity', async 
   const response = responseRecorder();
   await handler({body: {}}, response);
   assert.equal(response.statusCode, 401);
+});
+
+test('slash-command exchanges persist Drew and Venice turns in chronological transcript order', async () => {
+  const store = new MemoryStore();
+  const firestore = new FakeFirestore();
+  const fieldValue = {serverTimestamp: () => ({serverTimestamp: true})};
+  let nowMs = Date.UTC(2026, 7, 8, 18, 0, 0);
+  const conversationStore = createFirestoreConversationStore({firestore, fieldValue, now: () => nowMs += 1000});
+  await dispatchVeniceInteraction(interaction({id: 'begin-history', command: 'begin'}), store);
+  const {publicKey, privateKey} = crypto.generateKeyPairSync('ed25519');
+  const publicKeyHex = publicKey.export({format: 'der', type: 'spki'}).subarray(-32).toString('hex');
+  let queuedTask = null;
+  const interactionHandler = createVeniceDiscordHandler({
+    publicKeyGetter: () => publicKeyHex,
+    store,
+    conversationStore,
+    enqueueGeneration: async (task) => { queuedTask = task; },
+  });
+  const generationHandler = createVeniceGenerationTaskHandler({
+    verifyTaskRequest: async () => true,
+    store,
+    conversationStore,
+    generateReply: async (task) => {
+      if (task.prompt === 'Are you angry with me?') return "I'm not mad, Drew.";
+      if (task.prompt === 'Then why did you say that?') return 'That phrase came from a previous conversation.';
+      throw new Error('unexpected prompt');
+    },
+    webhookFetch: async () => ({ok: true, status: 200}),
+  });
+
+  for (const payload of [
+    interaction({id: '223456789012345670', command: 'ask', prompt: 'Are you angry with me?'}),
+    interaction({id: '223456789012345671', command: 'ask', prompt: 'Then why did you say that?'}),
+  ]) {
+    const response = responseRecorder();
+    await interactionHandler(signedRequest(Buffer.from(JSON.stringify(payload)), privateKey), response);
+    assert.equal(response.statusCode, 200);
+    assert.deepEqual(response.body, {type: 5, data: {}});
+    const generationResponse = responseRecorder();
+    await generationHandler({body: queuedTask}, generationResponse);
+    assert.equal(generationResponse.statusCode, 204);
+  }
+
+  const exported = await conversationStore.readConversation({
+    guildId: VENICE_GUILD_ID,
+    channelId: VENICE_ALLOWED_CHANNEL_IDS[0],
+    cutEpoch: 0,
+    stateEpoch: 1,
+  });
+  assert.deepEqual(exported.turns.map((turn) => ({
+    speakerKind: turn.speakerKind,
+    speakerDisplayName: turn.speakerDisplayName,
+    recipientAgentId: turn.recipientAgentId,
+    recipientUserId: turn.recipientUserId,
+    transport: turn.transport,
+    commandName: turn.commandName,
+    text: turn.text,
+  })), [
+    {
+      speakerKind: 'user',
+      speakerDisplayName: 'Drew',
+      recipientAgentId: 'Venice',
+      recipientUserId: '',
+      transport: 'slash_command',
+      commandName: 'venice.ask',
+      text: 'Are you angry with me?',
+    },
+    {
+      speakerKind: 'agent',
+      speakerDisplayName: 'Venice',
+      recipientAgentId: 'Venice',
+      recipientUserId: '1234567890',
+      transport: 'slash_command',
+      commandName: 'venice.ask',
+      text: "I'm not mad, Drew.",
+    },
+    {
+      speakerKind: 'user',
+      speakerDisplayName: 'Drew',
+      recipientAgentId: 'Venice',
+      recipientUserId: '',
+      transport: 'slash_command',
+      commandName: 'venice.ask',
+      text: 'Then why did you say that?',
+    },
+    {
+      speakerKind: 'agent',
+      speakerDisplayName: 'Venice',
+      recipientAgentId: 'Venice',
+      recipientUserId: '1234567890',
+      transport: 'slash_command',
+      commandName: 'venice.ask',
+      text: 'That phrase came from a previous conversation.',
+    },
+  ]);
+  assert.equal(exported.transcript, [
+    'Drew: Are you angry with me?',
+    "Venice: I'm not mad, Drew.",
+    'Drew: Then why did you say that?',
+    'Venice: That phrase came from a previous conversation.',
+  ].join('\n'));
+});
+
+test('replayed slash interactions do not duplicate user turns or enqueue a second generation task', async () => {
+  const store = new MemoryStore();
+  const firestore = new FakeFirestore();
+  const fieldValue = {serverTimestamp: () => ({serverTimestamp: true})};
+  const conversationStore = createFirestoreConversationStore({firestore, fieldValue, now: () => Date.UTC(2026, 7, 8, 19, 0, 0)});
+  await dispatchVeniceInteraction(interaction({id: 'begin-dedup', command: 'begin'}), store);
+  const {publicKey, privateKey} = crypto.generateKeyPairSync('ed25519');
+  const publicKeyHex = publicKey.export({format: 'der', type: 'spki'}).subarray(-32).toString('hex');
+  let enqueueCount = 0;
+  const payload = interaction({id: '223456789012345672', command: 'ask', prompt: 'Keep this once.'});
+  const handler = createVeniceDiscordHandler({
+    publicKeyGetter: () => publicKeyHex,
+    store,
+    conversationStore,
+    enqueueGeneration: async () => { enqueueCount += 1; },
+  });
+
+  await handler(signedRequest(Buffer.from(JSON.stringify(payload)), privateKey), responseRecorder());
+  await handler(signedRequest(Buffer.from(JSON.stringify(payload)), privateKey), responseRecorder());
+
+  const exported = await conversationStore.readConversation({
+    guildId: VENICE_GUILD_ID,
+    channelId: VENICE_ALLOWED_CHANNEL_IDS[0],
+    cutEpoch: 0,
+    stateEpoch: 1,
+  });
+  assert.equal(enqueueCount, 1);
+  assert.deepEqual(exported.turns.map((turn) => turn.text), ['Keep this once.']);
+});
+
+test('voice transcript turns persist as text with provenance and no raw audio requirement', async () => {
+  const firestore = new FakeFirestore();
+  const fieldValue = {serverTimestamp: () => ({serverTimestamp: true})};
+  let nowMs = Date.UTC(2026, 7, 8, 20, 0, 0);
+  const conversationStore = createFirestoreConversationStore({firestore, fieldValue, now: () => nowMs += 1000});
+  const locator = {
+    guildId: VENICE_GUILD_ID,
+    channelId: VENICE_ALLOWED_CHANNEL_IDS[0],
+    cutEpoch: 3,
+    stateEpoch: 9,
+  };
+  await conversationStore.appendTurn({
+    ...locator,
+    interactionId: '323456789012345670',
+    speakerKind: 'user',
+    speakerId: 'operator-1',
+    speakerDisplayName: 'Drew',
+    recipientAgentId: 'Venice',
+    text: 'show me what you mean',
+    transport: 'voice',
+    commandName: 'voice.ask',
+    metadata: {transcriptSource: 'speech_to_text'},
+  });
+  await conversationStore.appendTurn({
+    ...locator,
+    interactionId: '323456789012345670',
+    speakerKind: 'agent',
+    speakerId: 'Venice',
+    speakerDisplayName: 'Venice',
+    recipientAgentId: 'Venice',
+    recipientUserId: 'operator-1',
+    text: 'Venice will show the thing she just described.',
+    transport: 'voice',
+    commandName: 'voice.ask',
+  });
+  const exported = await conversationStore.readConversation(locator);
+  assert.deepEqual(exported.turns.map((turn) => ({
+    transport: turn.transport,
+    text: turn.text,
+    metadata: turn.metadata,
+  })), [
+    {transport: 'voice', text: 'show me what you mean', metadata: {transcriptSource: 'speech_to_text'}},
+    {transport: 'voice', text: 'Venice will show the thing she just described.', metadata: {}},
+  ]);
+  assert.equal(exported.transcript, 'Drew: show me what you mean\nVenice: Venice will show the thing she just described.');
+});
+
+test('conversation history survives store recreation and transcript formatting stays stable', async () => {
+  const firestore = new FakeFirestore();
+  const fieldValue = {serverTimestamp: () => ({serverTimestamp: true})};
+  const locator = {
+    guildId: VENICE_GUILD_ID,
+    channelId: VENICE_ALLOWED_CHANNEL_IDS[0],
+    cutEpoch: 1,
+    stateEpoch: 7,
+  };
+  const firstStore = createFirestoreConversationStore({firestore, fieldValue, now: () => Date.UTC(2026, 7, 8, 21, 0, 0)});
+  await firstStore.appendTurn({
+    ...locator,
+    interactionId: '423456789012345670',
+    speakerKind: 'user',
+    speakerId: 'operator-1',
+    speakerDisplayName: 'Drew',
+    recipientAgentId: 'Venice',
+    text: 'Normal text turn.',
+    transport: 'text',
+    commandName: 'discord.message',
+  });
+  await firstStore.appendTurn({
+    ...locator,
+    interactionId: '423456789012345670',
+    speakerKind: 'agent',
+    speakerId: 'Venice',
+    speakerDisplayName: 'Venice',
+    recipientAgentId: 'Venice',
+    recipientUserId: 'operator-1',
+    text: 'Normal text reply.',
+    transport: 'text',
+    commandName: 'discord.message',
+  });
+
+  const secondStore = createFirestoreConversationStore({firestore, fieldValue, now: () => Date.UTC(2026, 7, 8, 22, 0, 0)});
+  const exported = await secondStore.readConversation(locator);
+  assert.equal(exported.conversationId, veniceConversationId(locator));
+  assert.equal(formatVeniceTranscript(exported.turns), 'Drew: Normal text turn.\nVenice: Normal text reply.');
+  assert.deepEqual(exported.turns.map((turn) => turn.recipientAgentId), ['Venice', 'Venice']);
 });
 
 test('/cut-the-cam is global, durable in state, unilateral, and idempotent', async () => {
@@ -595,6 +869,14 @@ class FakeSnapshot {
   data() { return this.value === undefined ? undefined : structuredClone(this.value); }
 }
 
+class FakeQuerySnapshot {
+  constructor(docs) {
+    this.docs = docs;
+    this.empty = docs.length === 0;
+    this.size = docs.length;
+  }
+}
+
 class FakeFirestore {
   constructor() {
     this.documents = new Map();
@@ -602,10 +884,28 @@ class FakeFirestore {
   }
   collection(name) {
     return {
+      get: async () => {
+        const prefix = `${name}/`;
+        const docs = [];
+        for (const [key, value] of this.documents.entries()) {
+          if (!key.startsWith(prefix)) continue;
+          const rest = key.slice(prefix.length);
+          if (rest.includes('/')) continue;
+          const id = rest;
+          docs.push({
+            id,
+            ref: {key},
+            data: () => structuredClone(value),
+          });
+        }
+        docs.sort((left, right) => left.id.localeCompare(right.id));
+        return new FakeQuerySnapshot(docs);
+      },
       doc: (id) => {
         const key = `${name}/${id}`;
         return {
           key,
+          id,
           get: async () => new FakeSnapshot(this.documents.get(key)),
         };
       },

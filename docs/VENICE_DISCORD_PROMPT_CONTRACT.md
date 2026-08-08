@@ -63,14 +63,17 @@ carrier is enabled.
   transition, or `/cut-the-cam` deletes the deferred response.
 - Prompt text and the Discord interaction token exist only in the signed
   Discord request, one authenticated single-attempt Cloud Tasks payload, and
-  provider/webhook transit. The task is removed on completion. Generated text
-  exists only in provider/webhook transit and Discord. Firestore state, audit
-  records, usage records, and infrastructure logs remain content-free.
+  provider/webhook transit. The task is removed on completion. Firestore
+  consent state, audit records, usage records, and infrastructure logs remain
+  content-free.
 - Venice is the mature woman who manages Drew's network. She must distinguish
   supplied evidence from inference, claim no unobserved access or action, and
   keep health-data integration excluded.
-- Each invitation is stateless in this phase. Durable conversation memory is
-  not implied by the consent carrier and requires a separate contract.
+- Accepted conversational turns are durably recorded as structured
+  conversation history with speaker, recipient, timestamp, channel/session
+  provenance, and input-transport metadata. Slash-command and
+  voice-transcript text are retained as text; raw audio is not retained by
+  this contract.
 
 ## Forbidden stale premises
 

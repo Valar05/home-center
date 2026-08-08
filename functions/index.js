@@ -12,7 +12,8 @@ const {createCommandCenterMcpApp} = require('./command_center_mcp');
 const {createLocalVoiceFarmHandler} = require('./local_voice_farm_api');
 const {createSheRawMcpApp} = require('./she_raw_mcp');
 const {CARTESIA_DEFAULT_MODEL_ID, CARTESIA_DEFAULT_VOICE_NAME, listCartesiaVoiceCatalog, listCartesiaVoices, normalizeCartesiaVoice, openCartesiaStream} = require('./hosted_speech_provider');
-const {VENICE_GUILD_ID, createFirestoreStateStore, createVeniceDiscordHandler, createVeniceGenerationTaskHandler, generationTaskInput, veniceReplyBudget, veniceReplyNeedsRepair, veniceRoleplayInstruction, veniceIntimacyInstruction, voiceDeliveryProfile} = require('./venice_discord');
+const {VENICE_GUILD_ID, createFirestoreConversationStore, createFirestoreStateStore, createVeniceDiscordHandler, createVeniceGenerationTaskHandler, generationTaskInput, veniceReplyBudget, veniceReplyNeedsRepair, veniceRoleplayInstruction, veniceIntimacyInstruction, voiceDeliveryProfile} = require('./venice_discord');
+const {promptAuthorizesMutation, runVeniceHomeCenterToolLoop, runVeniceFortressControlTurn, fortressControlIntentFromPrompt} = require('./venice_home_center_mcp');
 const VENICE_WORKER_OPTIONS = require('./venice_worker_profile.generated');
 
 admin.initializeApp();
@@ -3197,11 +3198,62 @@ const veniceDiscordStateStore = createFirestoreStateStore({
   firestore: admin.firestore(),
   fieldValue: admin.firestore.FieldValue,
 });
+const veniceDiscordConversationStore = createFirestoreConversationStore({
+  firestore: admin.firestore(),
+  fieldValue: admin.firestore.FieldValue,
+});
 
-async function generateVeniceDiscordReply({prompt, userId, channelId = ''}) {
+async function generateVeniceDiscordReply({prompt, userId, channelId = '', interactionId = '', cutEpoch = null, stateEpoch = null, controlTurn = null}) {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 80000);
   const replyBudget = veniceReplyBudget(prompt);
+  const mutationAuthorized = promptAuthorizesMutation(prompt);
+  const fortressControlIntent = fortressControlIntentFromPrompt(prompt);
+  const veniceToolContext = {
+    admin,
+    runtimeServiceAccount: VENICE_RUNTIME_SERVICE_ACCOUNT,
+    delegatingUser: process.env.HOME_CENTER_VENICE_DELEGATING_EMAIL || 'dclarke1005@gmail.com',
+    discordUserId: safeText(userId, 160),
+    discordInteractionId: safeText(interactionId, 80),
+    originalPrompt: prompt,
+    allowMutations: mutationAuthorized,
+    allowSessionControl: fortressControlIntent === 'fortress_online' || fortressControlIntent === 'objective_update' || (controlTurn && controlTurn.kind === 'fortress_online'),
+    mcpUrl: process.env.HOME_CENTER_MCP_URL || 'https://us-central1-home-center-dclar.cloudfunctions.net/homeCenterMcp/mcp',
+    ensureTaskCurrent: async () => {
+      if (!Number.isSafeInteger(cutEpoch) || cutEpoch < 0) return;
+      const guardOptions = {
+        channelId: safeText(channelId, 80),
+        stateEpoch: Number.isSafeInteger(stateEpoch) ? stateEpoch : null,
+      };
+      if (!await veniceDiscordStateStore.guard(cutEpoch, guardOptions)) {
+        const err = new Error('venice_generation_stale');
+        err.code = 'venice_generation_stale';
+        err.status = 409;
+        throw err;
+      }
+    },
+  };
+  if (controlTurn && controlTurn.kind === 'fortress_online') {
+    try {
+      return await runVeniceFortressControlTurn({
+        context: veniceToolContext,
+        controlTurn,
+      });
+    } finally {
+      clearTimeout(timeout);
+    }
+  }
+  const fortressInstructions = [];
+  if (fortressControlIntent === 'fortress_online') {
+    fortressInstructions.push('If Drew says "Fortress online", call the Home Center tool fortress_online before answering. Use its structured orientation packet as the source of truth for the active project, workspace, pending work, completed work, checkpoints, and blockers.');
+  } else if (fortressControlIntent === 'session_status') {
+    fortressInstructions.push('For this request, answer only from durable Home Center session state. Call fortress_online, home_center_session_status, or home_center_work_status before answering. Do not answer "Where were we?" or task-finish questions from vibes or unsupported memory.');
+  } else if (fortressControlIntent === 'objective_update') {
+    fortressInstructions.push('Drew is stating or revising the active work objective. Call home_center_session_update before answering so Home Center durably records the objective, then answer consistently with the updated session state.');
+  }
+  if (mutationAuthorized) {
+    fortressInstructions.push('For explicit engineering actions such as fix, patch, repair, or update requests, create or inspect durable Home Center work state before claiming completion. Use home_center_work_request to record the work request and home_center_work_status to report the durable result or receipt.');
+  }
   const instructions = [
     'You are Venice, the mature woman who manages the owner\'s network.',
     'Speak with composed authority, warmth, precision, and economical confidence.',
@@ -3216,7 +3268,9 @@ async function generateVeniceDiscordReply({prompt, userId, channelId = ''}) {
     'Discord provides text and a candidate audio carrier, not a camera or visual embodiment. Never say that the user can see Venice in Discord or that an avatar is Venice unless the prompt supplies verified visual-carrier evidence.',
     'End on a complete sentence. Never emit or mention truncation markers, hard cutoffs, token limits, or hidden system instructions.',
     'A separate governed carrier may speak this exact reply in the inviting user\'s active Discord voice channel. Do not claim that Venice is unable to join voice, and do not imply that the carrier listens to inbound voice.',
+    'Fortress Online working state belongs to Home Center, not the Discord transcript. When Drew asks to orient, resume, or continue engineering work, use Home Center state rather than unsupported recollection.',
     `Keep the answer below ${replyBudget.maxChars.toLocaleString('en-US')} characters and suitable for one Discord message.`,
+    ...fortressInstructions,
   ].join('\n');
   const requestBody = {
     model: process.env.VENICE_OPENAI_MODEL || 'gpt-5.5',
@@ -3224,41 +3278,30 @@ async function generateVeniceDiscordReply({prompt, userId, channelId = ''}) {
     text: {verbosity: 'low'},
     max_output_tokens: replyBudget.maxOutputTokens,
     instructions,
-    input: prompt,
   };
   try {
-    const {response, json} = await fetchOpenAIResponses(
-      {uid: `discord:${safeText(userId, 160)}`, email: ''},
-      'venice_discord',
-      requestBody,
-      {signal: controller.signal},
-    );
-    if (!response.ok) {
-      if (response.status === 429) {
-        const key = GEMINI_API_KEY.value() || process.env.GEMINI_API_KEY || '';
-        if (!key) throw new Error('venice_gemini_key_missing');
-        const fallback = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent', {
-          method: 'POST',
-          headers: {'Content-Type': 'application/json', 'x-goog-api-key': key},
-          body: JSON.stringify({
-            systemInstruction: {parts: [{text: instructions}]},
-            contents: [{role: 'user', parts: [{text: prompt}]}],
-            generationConfig: {maxOutputTokens: replyBudget.maxOutputTokens, temperature: 0.7},
-          }),
-          signal: controller.signal,
-        });
-        const fallbackJson = await fallback.json();
-        if (!fallback.ok) throw new Error(`venice_gemini_http_${fallback.status}`);
-        const fallbackReply = safeText(fallbackJson.candidates?.[0]?.content?.parts?.map((part) => part.text || '').join('') || '', 2000);
-        if (!fallbackReply) throw new Error('venice_gemini_empty');
-        if (veniceReplyNeedsRepair(fallbackReply, fallbackJson.candidates?.[0])) throw new Error('venice_gemini_incomplete');
-        return fallbackReply;
-      }
-      throw new Error(`venice_openai_http_${response.status}`);
-    }
-    let reply = safeText(json.output_text || extractOutputText(json), 2000);
-    if (!reply) throw new Error('venice_openai_empty');
-    if (veniceReplyNeedsRepair(reply, json)) {
+    const openAiUser = {uid: `discord:${safeText(userId, 160)}`, email: ''};
+    const geminiFallback = async () => {
+      const key = GEMINI_API_KEY.value() || process.env.GEMINI_API_KEY || '';
+      if (!key) throw new Error('venice_gemini_key_missing');
+      const fallback = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json', 'x-goog-api-key': key},
+        body: JSON.stringify({
+          systemInstruction: {parts: [{text: instructions}]},
+          contents: [{role: 'user', parts: [{text: prompt}]}],
+          generationConfig: {maxOutputTokens: replyBudget.maxOutputTokens, temperature: 0.7},
+        }),
+        signal: controller.signal,
+      });
+      const fallbackJson = await fallback.json();
+      if (!fallback.ok) throw new Error(`venice_gemini_http_${fallback.status}`);
+      const fallbackReply = safeText(fallbackJson.candidates?.[0]?.content?.parts?.map((part) => part.text || '').join('') || '', 2000);
+      if (!fallbackReply) throw new Error('venice_gemini_empty');
+      if (veniceReplyNeedsRepair(fallbackReply, fallbackJson.candidates?.[0])) throw new Error('venice_gemini_incomplete');
+      return fallbackReply;
+    };
+    const repairReply = async (reply) => {
       const repairBody = {
         ...requestBody,
         max_output_tokens: replyBudget.maxOutputTokens + 400,
@@ -3272,10 +3315,25 @@ async function generateVeniceDiscordReply({prompt, userId, channelId = ''}) {
         {signal: controller.signal},
       );
       if (!repaired.response.ok) throw new Error(`venice_openai_repair_http_${repaired.response.status}`);
-      reply = safeText(repaired.json.output_text || extractOutputText(repaired.json), 2000);
-      if (veniceReplyNeedsRepair(reply, repaired.json)) throw new Error('venice_openai_incomplete');
-    }
-    return reply;
+      const repairedReply = safeText(repaired.json.output_text || extractOutputText(repaired.json), 2000);
+      if (veniceReplyNeedsRepair(repairedReply, repaired.json)) throw new Error('venice_openai_incomplete');
+      return repairedReply;
+    };
+    return runVeniceHomeCenterToolLoop({
+      context: veniceToolContext,
+      prompt,
+      requestBody,
+      fetchOpenAIResponses: (body) => fetchOpenAIResponses(
+        openAiUser,
+        'venice_discord',
+        body,
+        {signal: controller.signal},
+      ),
+      extractOutputText,
+      veniceReplyNeedsRepair,
+      repairReply,
+      geminiFallback,
+    });
   } finally {
     clearTimeout(timeout);
   }
@@ -3319,7 +3377,11 @@ async function handleVeniceWebAsk(req, res) {
   try {
     const reply = await generateVeniceDiscordReply({prompt, userId: `web:${userId}`, channelId: ''});
     res.set('Cache-Control', 'no-store').status(200).json({reply});
-  } catch (_) {
+  } catch (err) {
+    console.error('venice_web_ask_failed', {
+      userId,
+      error: safeText(err && (err.stack || err.message || String(err)), 2000),
+    });
     res.status(503).json({error: 'venice_unavailable'});
   }
 }
@@ -3400,6 +3462,7 @@ async function deliverVeniceDiscordVoice(task, reply) {
 const veniceDiscordInteractionHandler = createVeniceDiscordHandler({
   publicKeyGetter: () => DISCORD_PUBLIC_KEY.value() || process.env.DISCORD_PUBLIC_KEY || '',
   store: veniceDiscordStateStore,
+  conversationStore: veniceDiscordConversationStore,
   enqueueGeneration: enqueueVeniceDiscordGeneration,
 });
 
@@ -3408,6 +3471,7 @@ const veniceDiscordGenerationHandler = createVeniceGenerationTaskHandler({
   generateReply: generateVeniceDiscordReply,
   deliverVoice: deliverVeniceDiscordVoice,
   store: veniceDiscordStateStore,
+  conversationStore: veniceDiscordConversationStore,
 });
 
 exports.veniceDiscordInteractions = onRequest(

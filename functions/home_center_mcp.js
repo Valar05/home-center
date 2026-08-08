@@ -68,6 +68,14 @@ const {
   streamFilesystemContent,
 } = require('./gcs_filesystem_service');
 const {
+  callerFromHomeCenterUser,
+  fortressOnlineOperation,
+  homeCenterSessionStatusOperation,
+  homeCenterSessionUpdateOperation,
+  homeCenterWorkRequestOperation,
+  homeCenterWorkStatusOperation,
+} = require('./home_center_fortress');
+const {
   CALENDAR_SCOPE: SMS_CALENDAR_SCOPE,
   GMAIL_SCOPE: SMS_GMAIL_SCOPE,
   registry: smsCalendarOperationRegistry,
@@ -275,6 +283,37 @@ function bearerTokenFromExtra(extra) {
     throw err;
   }
   return match[1];
+}
+
+function internalHomeCenterAuthFromExtra(extra) {
+  if (!extra || typeof extra !== 'object' || Array.isArray(extra)) return null;
+  const context = extra.homeCenterAuth;
+  if (!context) return null;
+  if (typeof context !== 'object' || Array.isArray(context)) {
+    const err = new Error('Internal Home Center auth context must be an object.');
+    err.status = 500;
+    throw err;
+  }
+  const user = safeObject(context.user);
+  if (!user.email || !context.auth) {
+    const err = new Error('Internal Home Center auth context requires user.email and auth.');
+    err.status = 500;
+    throw err;
+  }
+  return {
+    ...context,
+    user: {
+      ...user,
+      email: safeText(user.email, 320).toLowerCase(),
+      authKind: safeText(user.authKind, 80) || 'internal_delegation',
+      actorKind: safeText(user.actorKind, 80),
+      actorId: safeText(user.actorId, 120),
+      runtimeServiceAccount: safeText(user.runtimeServiceAccount, 320),
+      delegatingUser: safeText(user.delegatingUser || user.email, 320).toLowerCase(),
+      discordUserId: safeText(user.discordUserId, 80),
+      discordInteractionId: safeText(user.discordInteractionId, 80),
+    },
+  };
 }
 
 function hasBearerAuthorization(req) {
@@ -579,9 +618,27 @@ async function loadMcpAccessContext(admin, google, googleClientId, googleClientS
   auth.on('tokens', async (tokens) => {
     const merged = {...(data.googleTokens || {}), ...tokens};
     await snap.ref.set({googleTokens: merged, updatedAtMs: Date.now()}, {merge: true});
+    const email = safeText(data.email, 320).toLowerCase();
+    if (email) {
+      await admin.firestore().collection('googleToolTokens').doc(email).set({
+        tokens: merged,
+        email,
+        source: safeText(data.source, 80) || safeText(data.authKind, 80) || 'home_center_mcp_oauth',
+        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+      }, {merge: true});
+    }
   });
   return {
-    user: {email: safeText(data.email, 320).toLowerCase(), authKind: 'home_center_mcp_oauth'},
+    user: {
+      email: safeText(data.email, 320).toLowerCase(),
+      authKind: safeText(data.authKind, 80) || 'home_center_mcp_oauth',
+      actorKind: safeText(data.actorKind, 80),
+      actorId: safeText(data.actorId, 120),
+      runtimeServiceAccount: safeText(data.runtimeServiceAccount, 320),
+      delegatingUser: safeText(data.delegatingUser || data.email, 320).toLowerCase(),
+      discordUserId: safeText(data.discordUserId, 80),
+      discordInteractionId: safeText(data.discordInteractionId, 80),
+    },
     auth,
     accessToken,
     oauth: {
@@ -590,6 +647,73 @@ async function loadMcpAccessContext(admin, google, googleClientId, googleClientS
       scopes,
       issuer: MCP_AUTHORIZATION_SERVER_BASE,
       expiresAtMs: safeNumber(data.expiresAtMs, 0),
+    },
+  };
+}
+
+async function createDelegatedHomeCenterAuthContext({
+  admin,
+  google,
+  googleClientId,
+  googleClientSecret,
+  delegatingUser,
+  authKind = 'venice_home_center_delegation',
+  actorKind = '',
+  actorId = '',
+  runtimeServiceAccount = '',
+  discordUserId = '',
+  discordInteractionId = '',
+} = {}) {
+  const email = safeText(delegatingUser, 320).toLowerCase();
+  if (!email) {
+    const err = new Error('delegatingUser is required for delegated Home Center auth.');
+    err.status = 500;
+    throw err;
+  }
+  const snap = await admin.firestore().collection('googleToolTokens').doc(email).get();
+  if (!snap.exists) {
+    const err = new Error('Google tools are not connected for the delegated Home Center account.');
+    err.status = 409;
+    err.code = 'google_tools_not_connected';
+    throw err;
+  }
+  const data = snap.data() || {};
+  if (!data.tokens || typeof data.tokens !== 'object') {
+    const err = new Error('Delegated Home Center account is missing renewable Google tool tokens.');
+    err.status = 409;
+    err.code = 'google_tools_not_connected';
+    throw err;
+  }
+  const auth = googleOAuthClient(google, providerValue(googleClientId), providerValue(googleClientSecret));
+  let currentTokens = {...safeObject(data.tokens)};
+  auth.setCredentials(currentTokens);
+  auth.on('tokens', async (tokens) => {
+    currentTokens = {...currentTokens, ...safeObject(tokens)};
+    await snap.ref.set({
+      tokens: currentTokens,
+      email,
+      source: safeText(data.source, 80) || 'venice_home_center_delegation',
+      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+    }, {merge: true});
+  });
+  return {
+    user: {
+      email,
+      authKind: safeText(authKind, 80) || 'venice_home_center_delegation',
+      actorKind: safeText(actorKind, 80),
+      actorId: safeText(actorId, 120),
+      runtimeServiceAccount: safeText(runtimeServiceAccount, 320),
+      delegatingUser: email,
+      discordUserId: safeText(discordUserId, 80),
+      discordInteractionId: safeText(discordInteractionId, 80),
+    },
+    auth,
+    oauth: {
+      resource: MCP_RESOURCE,
+      scopes: [...MCP_REQUIRED_SCOPES],
+      issuer: MCP_AUTHORIZATION_SERVER_BASE,
+      delegated: true,
+      tokenSource: 'googleToolTokens',
     },
   };
 }
@@ -620,6 +744,8 @@ async function googleIdentityFromToken(accessToken) {
 }
 
 async function requestGoogleContext(extra, google, admin, googleClientId, googleClientSecret) {
+  const internal = internalHomeCenterAuthFromExtra(extra);
+  if (internal) return internal;
   const accessToken = bearerTokenFromExtra(extra);
   const proxied = await loadMcpAccessContext(admin, google, googleClientId, googleClientSecret, accessToken);
   if (proxied) return proxied;
@@ -1046,25 +1172,40 @@ function publishedToolInputSchema(name, schema, pipeStrategy = 'input') {
   return mcpToolJsonSchema(schema, pipeStrategy);
 }
 
+function registeredHomeCenterTools(server) {
+  return Object.entries(server._registeredTools)
+    .filter(([, tool]) => tool.enabled)
+    .map(([name, tool]) => {
+      const securitySchemes = (tool._meta && tool._meta.securitySchemes) || MCP_OAUTH_SECURITY_SCHEMES;
+      const definition = {
+        name,
+        title: tool.title,
+        description: tool.description,
+        inputSchema: publishedToolInputSchema(name, tool.inputSchema, 'input'),
+        securitySchemes,
+        annotations: tool.annotations,
+        execution: tool.execution,
+        _meta: {...(tool._meta || {}), securitySchemes},
+      };
+      if (tool.outputSchema) definition.outputSchema = mcpToolJsonSchema(tool.outputSchema, 'output');
+      return definition;
+    });
+}
+
+async function callRegisteredHomeCenterTool(server, name, args = {}, extra = {}) {
+  const cleanName = safeText(name, 160);
+  const tool = cleanName ? server._registeredTools[cleanName] : null;
+  if (!tool) throw Object.assign(new Error('Unknown Home Center MCP tool.'), {status: 404, code: 'home_center_mcp_tool_not_found'});
+  if (!tool.enabled) throw Object.assign(new Error('Home Center MCP tool is disabled.'), {status: 403, code: 'home_center_mcp_tool_disabled'});
+  if (!args || typeof args !== 'object' || Array.isArray(args)) {
+    throw Object.assign(new Error('Tool arguments must be a JSON object.'), {status: 400, code: 'home_center_mcp_invalid_arguments'});
+  }
+  return tool.handler(args, extra);
+}
+
 function installAuthenticatedToolsListHandler(server) {
   server.server.setRequestHandler(ListToolsRequestSchema, () => ({
-    tools: Object.entries(server._registeredTools)
-      .filter(([, tool]) => tool.enabled)
-      .map(([name, tool]) => {
-        const securitySchemes = (tool._meta && tool._meta.securitySchemes) || MCP_OAUTH_SECURITY_SCHEMES;
-        const definition = {
-          name,
-          title: tool.title,
-          description: tool.description,
-          inputSchema: publishedToolInputSchema(name, tool.inputSchema, 'input'),
-          securitySchemes,
-          annotations: tool.annotations,
-          execution: tool.execution,
-          _meta: {...(tool._meta || {}), securitySchemes},
-        };
-        if (tool.outputSchema) definition.outputSchema = mcpToolJsonSchema(tool.outputSchema, 'output');
-        return definition;
-      }),
+    tools: registeredHomeCenterTools(server),
   }));
 }
 
@@ -6551,6 +6692,105 @@ function createHomeCenterMcpServer({google, admin, googleClientId, googleClientS
     return textResult(await synthesizeCartesiaAudioArtifactOperation({google, admin, auth, user, cartesiaApiKey, args: args || {}}));
   });
 
+  server.registerTool('fortress_online', {
+    title: 'Fortress Online',
+    description: 'Resolve or create the active Home Center project/workspace session for the authenticated owner and return a compact orientation packet for Venice.',
+    inputSchema: {
+      requestId: z.string().optional().describe('Optional stable request id for provenance.'),
+      projectId: z.string().optional().describe('Optional Home Center project id hint.'),
+      repository: z.string().optional().describe('Optional repository hint when the project must be resolved or created.'),
+      workspaceId: z.string().optional().describe('Optional workspace id hint.'),
+      workspaceLabel: z.string().optional().describe('Optional workspace label override.'),
+      currentObjective: z.string().optional().describe('Optional objective to seed when creating a fresh session.'),
+      checkpointRef: z.string().optional().describe('Optional checkpoint reference to seed when creating a fresh session.'),
+    },
+    securitySchemes: MCP_OAUTH_SECURITY_SCHEMES,
+    _meta: {securitySchemes: MCP_OAUTH_SECURITY_SCHEMES},
+    annotations: {readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false},
+  }, async (args, extra) => {
+    const {user} = await requestGoogleContext(extra, google, admin, googleClientId, googleClientSecret);
+    const caller = callerFromHomeCenterUser(user, 'Venice');
+    return textResult(await fortressOnlineOperation({admin, caller, args: args || {}}));
+  });
+
+  server.registerTool('home_center_session_status', {
+    title: 'Home Center session status',
+    description: 'Read the active Home Center project/workspace session orientation for the authenticated owner and Venice.',
+    inputSchema: {
+      agentId: z.string().optional().describe('Optional agent id override. Defaults to Venice.'),
+    },
+    securitySchemes: MCP_OAUTH_SECURITY_SCHEMES,
+    _meta: {securitySchemes: MCP_OAUTH_SECURITY_SCHEMES},
+    annotations: {readOnlyHint: true, openWorldHint: false},
+  }, async (args, extra) => {
+    const {user} = await requestGoogleContext(extra, google, admin, googleClientId, googleClientSecret);
+    const caller = callerFromHomeCenterUser(user, safeText((args || {}).agentId, 80) || 'Venice');
+    return textResult(await homeCenterSessionStatusOperation({admin, caller, args: args || {}}));
+  });
+
+  server.registerTool('home_center_session_update', {
+    title: 'Home Center session update',
+    description: 'Update durable Home Center working-session state such as current objective, workspace, blockers, checkpoint reference, or artifact references.',
+    inputSchema: {
+      requestId: z.string().optional().describe('Optional stable request id for provenance.'),
+      projectId: z.string().optional().describe('Optional project id hint when creating a fresh session.'),
+      repository: z.string().optional().describe('Optional repository hint when creating a fresh session.'),
+      workspaceId: z.string().optional().describe('Optional workspace id override.'),
+      workspaceLabel: z.string().optional().describe('Optional workspace label override.'),
+      currentObjective: z.string().optional().describe('Durable current objective text.'),
+      objectiveStatement: z.string().optional().describe('Optional original user phrasing for provenance.'),
+      checkpointRef: z.string().optional().describe('Optional durable checkpoint reference.'),
+      blockers: z.array(z.string()).optional().describe('Optional blocker strings.'),
+      artifactRefs: z.array(z.string()).optional().describe('Optional artifact or receipt references to associate with the active session.'),
+    },
+    securitySchemes: MCP_OAUTH_SECURITY_SCHEMES,
+    _meta: {securitySchemes: MCP_OAUTH_SECURITY_SCHEMES},
+    annotations: {readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false},
+  }, async (args, extra) => {
+    const {user} = await requestGoogleContext(extra, google, admin, googleClientId, googleClientSecret);
+    const caller = callerFromHomeCenterUser(user, 'Venice');
+    return textResult(await homeCenterSessionUpdateOperation({admin, caller, args: args || {}}));
+  });
+
+  server.registerTool('home_center_work_request', {
+    title: 'Home Center work request',
+    description: 'Record a durable Home Center work request for the active session, normalize its high-level state, and return a durable receipt. Use route=fortress_session_probe for the continuity test capability path.',
+    inputSchema: {
+      requestId: z.string().optional().describe('Optional stable request id for provenance.'),
+      projectId: z.string().optional().describe('Optional project id hint when creating a fresh session.'),
+      repository: z.string().optional().describe('Optional repository hint when creating a fresh session.'),
+      workspaceId: z.string().optional().describe('Optional workspace id override.'),
+      taskId: z.string().optional().describe('Optional stable task id override.'),
+      taskKind: z.string().optional().describe('Optional task kind label.'),
+      route: z.string().optional().describe('Optional execution route. Use fortress_session_probe for the supported continuity test lane; unrouted work remains durably requested.'),
+      requestText: z.string().describe('The work request to record and route.'),
+      artifactRefs: z.array(z.string()).optional().describe('Optional artifact or receipt refs already associated with this request.'),
+      subsystemRefs: z.array(z.string()).optional().describe('Optional subsystem-specific refs or receipt ids.'),
+    },
+    securitySchemes: MCP_OAUTH_SECURITY_SCHEMES,
+    _meta: {securitySchemes: MCP_OAUTH_SECURITY_SCHEMES},
+    annotations: {readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false},
+  }, async (args, extra) => {
+    const {user} = await requestGoogleContext(extra, google, admin, googleClientId, googleClientSecret);
+    const caller = callerFromHomeCenterUser(user, 'Venice');
+    return textResult(await homeCenterWorkRequestOperation({admin, caller, args: args || {}}));
+  });
+
+  server.registerTool('home_center_work_status', {
+    title: 'Home Center work status',
+    description: 'Read the durable status and receipt for one Home Center work request. Defaults to the active session\'s most recent work item.',
+    inputSchema: {
+      taskId: z.string().optional().describe('Optional Home Center work task id. Defaults to the active session\'s last work item.'),
+    },
+    securitySchemes: MCP_OAUTH_SECURITY_SCHEMES,
+    _meta: {securitySchemes: MCP_OAUTH_SECURITY_SCHEMES},
+    annotations: {readOnlyHint: true, openWorldHint: false},
+  }, async (args, extra) => {
+    const {user} = await requestGoogleContext(extra, google, admin, googleClientId, googleClientSecret);
+    const caller = callerFromHomeCenterUser(user, 'Venice');
+    return textResult(await homeCenterWorkStatusOperation({admin, caller, args: args || {}}));
+  });
+
   server.registerTool('command_center_operation', {
     title: 'Command Center operation',
     description: 'Invoke retained Command Center project, managed knowledge-bucket, app-control, and browser operations through the already-connected Home Center MCP app.',
@@ -7917,4 +8157,4 @@ function createHomeCenterMcpApp({google, admin, googleClientId = () => '', googl
   return app;
 }
 
-module.exports = {mcpRequestMountedPath, oauthResourceMatches, TVTROPER_OPERATION_REGISTRY_VERSION, tvtroperOperationEntries, tvTroperRetrievalOperation, resolveOAuthGrant, GROUNDED_MOTION_MCP_RESOURCE, GROUNDED_MOTION_MCP_SCOPE, linkArtifactReviewSuccessorOperation, recordArtifactReviewOperation, materializeReceiptArtifactsOperation, artifactTransportPreflightOperation, homeCenterReleaseIdentity, artifactTransportStatusOperation, homeCenterHealthPayload, homeCenterReadinessPayload, homeCenterCapabilitiesPayload, operationRegistrySummary, CREDIT_GATED_EMAILS, requireCreditGatedEmail, GITHUB_ADMIN_ALLOWED_EMAILS, requireGitHubAdminUser, HOME_CENTER_MCP_SERVER_VERSION, HOME_CENTER_CONNECTOR_SCHEMA_REVISION, HOME_CENTER_REGISTRY_VERSION, HOME_CENTER_DIRECT_FILE_TOOLS, driveOperationRegistry, uploadVerifiedArtifact, createHomeCenterMcpApp, createHomeCenterMcpServer, createDriveFolderOperation, createGoogleDocOperation, appendGoogleDocOperation, publishContextSnapshotOperation, driveIngestFileOperation, driveIngestFileOperationWithUpload, synthesizeCartesiaAudioArtifactOperation, cartesiaVoicesOperation, createSheetOperation, updateSheetValuesOperation, importXlsxWorkbookOperation, readDriveBinaryChunkOperation, materializeSitesSourceVersionOperation, shareDriveFolderOperation, safeSitesSourceRepositoryUrl, safeSitesSourceCommit, safeSitesSourceBranch, safeShareEmail, compareAudioIngestFileIds, ingestDriveAudioOperation, finalizeDriveAudioIngestBatchOperation, driveOperationRunOperation, driveWorkflowRunOperation, simulationOperationRunOperation, simulationOperationRegistry, droobiedooContextOperationEntries, loadDroobiedooContextIndex, searchDroobiedooContextIndex, runDroobiedooContextOperation, normalizeRecoveryOperation, summarizeRecoveryOperations, loadMcpAccessContext, armoryReceiptOperation, armoryRecountOperation, armoryCasingOperation, renderAudioOperation, inspectAudioArtifactsOperation, githubAdminOperationEntries, githubAdminOperationRunOperation, createGitHubAppJwt};
+module.exports = {mcpRequestMountedPath, oauthResourceMatches, TVTROPER_OPERATION_REGISTRY_VERSION, tvtroperOperationEntries, tvTroperRetrievalOperation, resolveOAuthGrant, GROUNDED_MOTION_MCP_RESOURCE, GROUNDED_MOTION_MCP_SCOPE, linkArtifactReviewSuccessorOperation, recordArtifactReviewOperation, materializeReceiptArtifactsOperation, artifactTransportPreflightOperation, homeCenterReleaseIdentity, artifactTransportStatusOperation, homeCenterHealthPayload, homeCenterReadinessPayload, homeCenterCapabilitiesPayload, operationRegistrySummary, CREDIT_GATED_EMAILS, requireCreditGatedEmail, GITHUB_ADMIN_ALLOWED_EMAILS, requireGitHubAdminUser, HOME_CENTER_MCP_SERVER_VERSION, HOME_CENTER_CONNECTOR_SCHEMA_REVISION, HOME_CENTER_REGISTRY_VERSION, HOME_CENTER_DIRECT_FILE_TOOLS, driveOperationRegistry, uploadVerifiedArtifact, createHomeCenterMcpApp, createHomeCenterMcpServer, createDriveFolderOperation, createGoogleDocOperation, appendGoogleDocOperation, publishContextSnapshotOperation, driveIngestFileOperation, driveIngestFileOperationWithUpload, synthesizeCartesiaAudioArtifactOperation, cartesiaVoicesOperation, createSheetOperation, updateSheetValuesOperation, importXlsxWorkbookOperation, readDriveBinaryChunkOperation, materializeSitesSourceVersionOperation, shareDriveFolderOperation, safeSitesSourceRepositoryUrl, safeSitesSourceCommit, safeSitesSourceBranch, safeShareEmail, compareAudioIngestFileIds, ingestDriveAudioOperation, finalizeDriveAudioIngestBatchOperation, driveOperationRunOperation, driveWorkflowRunOperation, simulationOperationRunOperation, simulationOperationRegistry, droobiedooContextOperationEntries, loadDroobiedooContextIndex, searchDroobiedooContextIndex, runDroobiedooContextOperation, normalizeRecoveryOperation, summarizeRecoveryOperations, loadMcpAccessContext, createDelegatedHomeCenterAuthContext, registeredHomeCenterTools, callRegisteredHomeCenterTool, armoryReceiptOperation, armoryRecountOperation, armoryCasingOperation, renderAudioOperation, inspectAudioArtifactsOperation, githubAdminOperationEntries, githubAdminOperationRunOperation, createGitHubAppJwt};

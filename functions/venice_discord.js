@@ -48,6 +48,180 @@ const RESPONSE_TEXT = Object.freeze({
   permissions: 'Venice cannot safely answer with the current channel permissions.',
 });
 
+const VENICE_CONVERSATION_COLLECTION = 'veniceDiscordConversations';
+const VENICE_CONVERSATION_TURNS_SUBCOLLECTION = 'turns';
+const VENICE_ALLOWED_INPUT_TRANSPORTS = new Set(['text', 'slash_command', 'voice']);
+
+function safeText(value, max = 4000) {
+  const text = typeof value === 'string' ? value.trim() : '';
+  return text.length > max ? text.slice(0, max) : text;
+}
+
+function safeInteger(value, fallback = -1) {
+  const number = Number(value);
+  return Number.isSafeInteger(number) ? number : fallback;
+}
+
+function normalizedInputTransport(value, fallback = 'text') {
+  const transport = safeText(value, 40).toLowerCase();
+  return VENICE_ALLOWED_INPUT_TRANSPORTS.has(transport) ? transport : fallback;
+}
+
+function discordUserDisplayName(interaction) {
+  const memberUser = interaction && interaction.member && interaction.member.user ? interaction.member.user : {};
+  const directUser = interaction && interaction.user ? interaction.user : {};
+  return safeText(
+    memberUser.global_name
+      || memberUser.username
+      || directUser.global_name
+      || directUser.username,
+    160,
+  );
+}
+
+function veniceConversationId({guildId = '', channelId = '', cutEpoch = null, stateEpoch = null} = {}) {
+  const cleanGuildId = safeText(guildId, 40);
+  const cleanChannelId = safeText(channelId, 40);
+  const cleanCutEpoch = safeInteger(cutEpoch);
+  const cleanStateEpoch = safeInteger(stateEpoch);
+  if (!cleanGuildId || !cleanChannelId || cleanCutEpoch < 0 || cleanStateEpoch < 0) {
+    const err = new Error('invalid_venice_conversation_locator');
+    err.status = 400;
+    throw err;
+  }
+  return `${cleanGuildId}:${cleanChannelId}:${cleanCutEpoch}:${cleanStateEpoch}`;
+}
+
+function veniceConversationTurnOrder({interactionId = '', speakerKind = 'user'} = {}) {
+  const phase = speakerKind === 'agent' ? '1' : '0';
+  return `${safeText(interactionId, 40).padStart(32, '0')}:${phase}`;
+}
+
+function veniceConversationTurnId({interactionId = '', speakerKind = 'user'} = {}) {
+  return `${safeText(interactionId, 40)}:${speakerKind === 'agent' ? 'assistant' : 'user'}`;
+}
+
+function veniceTranscriptSpeaker(turn = {}) {
+  if (turn.speakerKind === 'agent') return 'Venice';
+  return safeText(turn.speakerDisplayName, 160) || 'User';
+}
+
+function formatVeniceTranscript(turns = []) {
+  return turns
+    .map((turn) => `${veniceTranscriptSpeaker(turn)}: ${safeText(turn && turn.text, 4000)}`)
+    .filter(Boolean)
+    .join('\n');
+}
+
+function normalizedConversationTurn(input = {}, now = () => Date.now()) {
+  const speakerKind = safeText(input.speakerKind, 20).toLowerCase() === 'agent' ? 'agent' : 'user';
+  const transport = normalizedInputTransport(input.transport, speakerKind === 'user' ? 'text' : 'slash_command');
+  const interactionId = safeText(input.interactionId, 40);
+  const text = safeText(input.text, 4000);
+  if (!interactionId || !text) {
+    const err = new Error('invalid_venice_conversation_turn');
+    err.status = 400;
+    throw err;
+  }
+  const conversationId = veniceConversationId(input);
+  return {
+    conversationId,
+    turnId: veniceConversationTurnId({interactionId, speakerKind}),
+    orderKey: veniceConversationTurnOrder({interactionId, speakerKind}),
+    recordedAtMs: now(),
+    guildId: safeText(input.guildId, 40),
+    channelId: safeText(input.channelId, 40),
+    cutEpoch: safeInteger(input.cutEpoch),
+    stateEpoch: safeInteger(input.stateEpoch),
+    interactionId,
+    speakerKind,
+    speakerId: safeText(input.speakerId, 160),
+    speakerDisplayName: speakerKind === 'agent' ? 'Venice' : safeText(input.speakerDisplayName, 160),
+    recipientAgentId: safeText(input.recipientAgentId, 80) || 'Venice',
+    recipientUserId: safeText(input.recipientUserId, 160),
+    text,
+    transport,
+    commandName: safeText(input.commandName, 80),
+    ephemeral: input.ephemeral === true,
+    durable: input.durable !== false,
+    source: safeText(input.source, 80) || 'discord',
+    metadata: input.metadata && typeof input.metadata === 'object' && !Array.isArray(input.metadata)
+      ? JSON.parse(JSON.stringify(input.metadata))
+      : {},
+  };
+}
+
+function createNoopConversationStore() {
+  return {
+    async appendTurn() { return null; },
+    async readConversation(locator) {
+      return {conversationId: typeof locator === 'string' ? locator : veniceConversationId(locator), turns: [], transcript: ''};
+    },
+  };
+}
+
+function createFirestoreConversationStore({firestore, fieldValue, now = () => Date.now()}) {
+  const conversationCollection = firestore.collection(VENICE_CONVERSATION_COLLECTION);
+  const turnsPath = (conversationId) => `${VENICE_CONVERSATION_COLLECTION}/${conversationId}/${VENICE_CONVERSATION_TURNS_SUBCOLLECTION}`;
+  return {
+    async appendTurn(input) {
+      const turn = normalizedConversationTurn(input, now);
+      const conversationRef = conversationCollection.doc(turn.conversationId);
+      const turnRef = firestore.collection(turnsPath(turn.conversationId)).doc(turn.turnId);
+      return firestore.runTransaction(async (transaction) => {
+        const [conversationSnapshot, turnSnapshot] = await Promise.all([
+          transaction.get(conversationRef),
+          transaction.get(turnRef),
+        ]);
+        if (turnSnapshot.exists) return turnSnapshot.data() || turn;
+        const conversationWrite = {
+          conversationId: turn.conversationId,
+          guildId: turn.guildId,
+          channelId: turn.channelId,
+          cutEpoch: turn.cutEpoch,
+          stateEpoch: turn.stateEpoch,
+          updatedAt: fieldValue.serverTimestamp(),
+          updatedAtMs: turn.recordedAtMs,
+          lastInteractionId: turn.interactionId,
+          lastTurnOrderKey: turn.orderKey,
+          lastTransport: turn.transport,
+          recipientAgentId: turn.recipientAgentId,
+          recipientUserId: turn.recipientUserId,
+        };
+        if (!conversationSnapshot.exists) {
+          conversationWrite.createdAt = fieldValue.serverTimestamp();
+          conversationWrite.createdAtMs = turn.recordedAtMs;
+        }
+        transaction.set(conversationRef, conversationWrite, {merge: true});
+        transaction.set(turnRef, {
+          ...turn,
+          recordedAt: fieldValue.serverTimestamp(),
+        }, {merge: false});
+        return turn;
+      });
+    },
+    async readConversation(locator) {
+      const conversationId = typeof locator === 'string' ? locator : veniceConversationId(locator);
+      const conversationSnapshot = await conversationCollection.doc(conversationId).get();
+      const turnsSnapshot = await firestore.collection(turnsPath(conversationId)).get();
+      const turns = (Array.isArray(turnsSnapshot.docs) ? turnsSnapshot.docs : [])
+        .map((doc) => doc && typeof doc.data === 'function' ? doc.data() : null)
+        .filter(Boolean)
+        .sort((left, right) => {
+          const order = String(left.orderKey || '').localeCompare(String(right.orderKey || ''));
+          if (order !== 0) return order;
+          return safeInteger(left.recordedAtMs, 0) - safeInteger(right.recordedAtMs, 0);
+        });
+      return {
+        conversationId,
+        conversation: conversationSnapshot.exists ? (conversationSnapshot.data() || {}) : null,
+        turns,
+        transcript: formatVeniceTranscript(turns),
+      };
+    },
+  };
+}
+
 function cloneState(value = {}) {
   const state = GLOBAL_STATES.has(value.state) ? value.state : 'DORMANT';
   const epoch = Number.isSafeInteger(value.epoch) && value.epoch >= 0 ? value.epoch : 0;
@@ -67,6 +241,7 @@ function interactionContext(interaction, command) {
     guildId: String(interaction.guild_id || ''),
     channelId: String(interaction.channel_id || ''),
     userId: String(interaction.member?.user?.id || interaction.user?.id || ''),
+    userDisplayName: discordUserDisplayName(interaction),
     command,
   };
 }
@@ -88,6 +263,40 @@ function interactionPrompt(interaction) {
   const subcommand = interaction.data?.options?.find((option) => option?.type === 1 && option?.name === 'ask');
   const prompt = subcommand?.options?.find((option) => option?.type === 3 && option?.name === 'prompt')?.value;
   return typeof prompt === 'string' ? prompt.trim().slice(0, 1800) : '';
+}
+
+function normalizedControlPrompt(promptValue) {
+  const prompt = typeof promptValue === 'string' ? promptValue : '';
+  return prompt
+    .replace(/\s+/g, ' ')
+    .trim()
+    .replace(/[.!?]+$/g, '')
+    .trim()
+    .toLowerCase();
+}
+
+function normalizedControlTurn(value = {}) {
+  const turn = value && typeof value === 'object' && !Array.isArray(value) ? value : {};
+  const kind = safeText(turn.kind, 80).toLowerCase();
+  if (kind === 'fortress_online') {
+    return {
+      kind: 'fortress_online',
+      normalizedPrompt: 'fortress online',
+      source: safeText(turn.source, 80) || 'discord_control_turn',
+    };
+  }
+  return null;
+}
+
+function classifyVeniceControlTurn(promptValue) {
+  if (normalizedControlPrompt(promptValue) === 'fortress online') {
+    return {
+      kind: 'fortress_online',
+      normalizedPrompt: 'fortress online',
+      source: 'discord_control_turn',
+    };
+  }
+  return null;
 }
 
 function isVeniceRoleplayPrompt(promptValue) {
@@ -161,15 +370,21 @@ function interactionWebhookUrl(interaction) {
 
 function generationTaskInput(value = {}) {
   const applicationId = String(value.applicationId || '');
+  const guildId = String(value.guildId || '');
   const interactionToken = String(value.interactionToken || '');
   const interactionId = String(value.interactionId || '');
   const channelId = String(value.channelId || '');
   const userId = String(value.userId || '');
+  const userDisplayName = safeText(value.userDisplayName, 160);
   const prompt = typeof value.prompt === 'string' ? value.prompt.trim().slice(0, 1800) : '';
   const cutEpoch = Number(value.cutEpoch);
   const stateEpoch = Number(value.stateEpoch);
+  const inputTransport = normalizedInputTransport(value.inputTransport, 'slash_command');
+  const commandName = safeText(value.commandName, 80) || 'venice.ask';
+  const controlTurn = normalizedControlTurn(value.controlTurn);
   if (
     applicationId !== VENICE_APPLICATION_ID
+    || guildId !== VENICE_GUILD_ID
     || !VENICE_ALLOWED_CHANNEL_SET.has(channelId)
     || !interactionToken
     || interactionToken.length > 512
@@ -181,7 +396,21 @@ function generationTaskInput(value = {}) {
     || !Number.isSafeInteger(stateEpoch)
     || stateEpoch < 0
   ) throw new Error('invalid_generation_task');
-  return {applicationId, interactionToken, interactionId, channelId, userId, prompt, cutEpoch, stateEpoch};
+  return {
+    applicationId,
+    guildId,
+    interactionToken,
+    interactionId,
+    channelId,
+    userId,
+    userDisplayName,
+    prompt,
+    cutEpoch,
+    stateEpoch,
+    inputTransport,
+    commandName,
+    controlTurn,
+  };
 }
 
 function taskInteraction(task) {
@@ -443,7 +672,7 @@ function createFirestoreStateStore({firestore, fieldValue, now = () => Date.now(
   };
 }
 
-function createVeniceDiscordHandler({publicKeyGetter, store, enqueueGeneration = null, now = () => Date.now(), logger = console}) {
+function createVeniceDiscordHandler({publicKeyGetter, store, conversationStore = createNoopConversationStore(), enqueueGeneration = null, now = () => Date.now(), logger = console}) {
   return async function veniceDiscordHandler(req, res) {
     if (req.method !== 'POST') {
       res.status(405).set('Allow', 'POST').send('');
@@ -507,26 +736,71 @@ function createVeniceDiscordHandler({publicKeyGetter, store, enqueueGeneration =
         && typeof enqueueGeneration === 'function';
       if (shouldGenerate) {
         const prompt = interactionPrompt(interaction);
+        const controlTurn = classifyVeniceControlTurn(prompt);
         if (!prompt) {
           res.status(200).type('application/json').send(interactionReply(RESPONSE_TEXT.unavailable, {ephemeral: true}));
           return;
         }
+        if (result.decision?.replayed) {
+          res.status(200).type('application/json').send(interactionDeferredReply());
+          return;
+        }
         try {
+          const context = interactionContext(interaction, result.command);
+          const conversationId = veniceConversationId({
+            guildId: context.guildId,
+            channelId: context.channelId,
+            cutEpoch: result.decision.after.cutEpoch,
+            stateEpoch: result.decision.after.epoch,
+          });
+          await conversationStore.appendTurn({
+            guildId: context.guildId,
+            channelId: context.channelId,
+            cutEpoch: result.decision.after.cutEpoch,
+            stateEpoch: result.decision.after.epoch,
+            interactionId: context.interactionId,
+            speakerKind: 'user',
+            speakerId: context.userId,
+            speakerDisplayName: context.userDisplayName,
+            recipientAgentId: 'Venice',
+            text: prompt,
+            transport: 'slash_command',
+            commandName: result.command,
+            source: 'discord_interaction',
+            metadata: {
+              controlTurnKind: controlTurn && controlTurn.kind ? controlTurn.kind : '',
+            },
+          });
+          if (logger && typeof logger.info === 'function') {
+            logger.info('venice_conversation_turn_persisted', {
+              interactionId: context.interactionId,
+              conversationId,
+              speakerKind: 'user',
+              transport: 'slash_command',
+              commandName: result.command,
+            });
+          }
           await enqueueGeneration({
             applicationId: String(interaction.application_id || ''),
+            guildId: String(interaction.guild_id || ''),
             interactionToken: String(interaction.token || ''),
             prompt,
             userId: String(interaction.member?.user?.id || interaction.user?.id || ''),
+            userDisplayName: discordUserDisplayName(interaction),
             channelId: String(interaction.channel_id || ''),
             interactionId: String(interaction.id || ''),
             cutEpoch: result.decision.after.cutEpoch,
             stateEpoch: result.decision.after.epoch,
+            inputTransport: 'slash_command',
+            commandName: result.command,
+            controlTurn,
           });
           res.status(200).type('application/json').send(interactionDeferredReply());
-        } catch (_) {
+        } catch (err) {
           logger.error('venice_discord_enqueue_failed', {
             interactionId: String(interaction.id || ''),
             outcome: 'content_free_failure',
+            conversationPersistenceFailed: !!(err && err.code === 'invalid_venice_conversation_turn'),
           });
           res.status(200).type('application/json').send(interactionReply('Venice could not accept this invitation. The carrier remains open; `/cut-the-cam` remains live.', {ephemeral: true}));
         }
@@ -543,7 +817,7 @@ function createVeniceDiscordHandler({publicKeyGetter, store, enqueueGeneration =
   };
 }
 
-function createVeniceGenerationTaskHandler({verifyTaskRequest, generateReply, deliverVoice = null, store, webhookFetch = fetch, logger = console}) {
+function createVeniceGenerationTaskHandler({verifyTaskRequest, generateReply, deliverVoice = null, store, conversationStore = createNoopConversationStore(), webhookFetch = fetch, logger = console}) {
   return async function veniceGenerationTaskHandler(req, res) {
     let task;
     try {
@@ -573,6 +847,44 @@ function createVeniceGenerationTaskHandler({verifyTaskRequest, generateReply, de
         return;
       }
       await editOriginalInteraction(interaction, reply, webhookFetch);
+      try {
+        const conversationId = veniceConversationId(task);
+        await conversationStore.appendTurn({
+          guildId: task.guildId,
+          channelId: task.channelId,
+          cutEpoch: task.cutEpoch,
+          stateEpoch: task.stateEpoch,
+          interactionId: task.interactionId,
+          speakerKind: 'agent',
+          speakerId: 'Venice',
+          speakerDisplayName: 'Venice',
+          recipientAgentId: 'Venice',
+          recipientUserId: task.userId,
+          text: reply,
+          transport: task.inputTransport || 'slash_command',
+          commandName: task.commandName || 'venice.ask',
+          source: 'discord_generation',
+          metadata: {
+            inputTransport: task.inputTransport || 'slash_command',
+            userDisplayName: task.userDisplayName || '',
+            controlTurnKind: task.controlTurn && task.controlTurn.kind ? task.controlTurn.kind : '',
+          },
+        });
+        if (logger && typeof logger.info === 'function') {
+          logger.info('venice_conversation_turn_persisted', {
+            interactionId: task.interactionId,
+            conversationId,
+            speakerKind: 'agent',
+            transport: task.inputTransport || 'slash_command',
+            commandName: task.commandName || 'venice.ask',
+          });
+        }
+      } catch (_) {
+        logger.error('venice_discord_history_persist_failed', {
+          interactionId: task.interactionId,
+          outcome: 'content_free_failure',
+        });
+      }
       if (typeof deliverVoice === 'function' && await store.guard(task.cutEpoch, guardOptions)) {
         try {
           await deliverVoice(task, reply);
@@ -613,15 +925,20 @@ module.exports = {
   VENICE_VOICE_PROFILES,
   cloneState,
   commandName,
+  createFirestoreConversationStore,
   createFirestoreStateStore,
   createVeniceDiscordHandler,
   createVeniceGenerationTaskHandler,
   deleteOriginalInteraction,
   dispatchVeniceInteraction,
   editOriginalInteraction,
+  formatVeniceTranscript,
   generatedReplyText,
   generationTaskInput,
+  classifyVeniceControlTurn,
   interactionPrompt,
+  normalizedConversationTurn,
+  veniceConversationId,
   voiceDeliveryProfile,
   veniceReplyBudget,
   veniceRoleplayInstruction,
