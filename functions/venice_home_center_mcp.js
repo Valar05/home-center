@@ -49,12 +49,13 @@ function usesHttpMcpTransport(context) {
 }
 
 function promptDeniesMutation(prompt = '') {
-  return /\b(do not change|do not modify|do not edit|do not create|do not write|read only|read-only|inspect only|tell me how|how would you|explain how|propose|plan only|without changing)\b/.test(prompt);
+  return /\b(do not change|do not modify|do not edit|do not create|do not write|read only|read-only|inspect only|tell me how|how would you|explain how|propose|plan only|without changing|make (?:a )?plan|draft (?:a )?plan)\b/.test(prompt);
 }
 
 function promptDirectlyAuthorizesMutation(prompt = '') {
   return /\b(fix|repair|patch|change|modify|edit|update|create|write|add|commit|branch|pull request|pr|merge|save|upsert|start|begin|initialize|initialise|bootstrap|set up|setup)\b/.test(prompt)
-    || /\bmake\s+(?:the|a|an)\b/.test(prompt);
+    || /\bmake\s+(?:the|a|an)\b/.test(prompt)
+    || /\b(make|build|open|ship|launch)\b/.test(prompt) && /\b(project|repo|repository|branch|pull request|pr|file|patch|fix)\b/.test(prompt);
 }
 
 function promptLooksLikeMutationFollowThrough(prompt = '') {
