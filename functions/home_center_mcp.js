@@ -3219,10 +3219,29 @@ async function githubAdminCreateRepoOperation({admin, user, githubAdmin, args = 
   const body = {name, description: safeText(args.description, 1000), private: visibility === 'private', visibility, auto_init: args.autoInit === true};
   if (safeText(args.homepage, 1000)) body.homepage = safeText(args.homepage, 1000);
   const route = ownerType === 'user' ? '/user/repos' : `/orgs/${encodeURIComponent(owner)}/repos`;
-  const {json, authMode, status} = await githubAdminRequest(githubAdmin, user, route, {method: 'POST', body, preferBootstrap: ownerType === 'user'});
-  const repo = cleanGitHubAdminRepo(json || {});
-  const result = {repo, repoFullName: repo.fullName, htmlUrl: repo.htmlUrl, status, authMode, auditRequestId: requestId};
-  const audit = await auditWrite(admin, {actor: user.email || user.uid || 'unknown', authKind: user.authKind, tool: 'github_admin.repos.create', operation: 'github.admin.repos.create', requestId, fileId: `github:${repo.fullName || owner + '/' + name}`, affectedFileIds: [`github:${repo.fullName || owner + '/' + name}`], oldMetadata: null, newMetadata: repo, oldParents: [], newParents: [owner], reversible: false, rollback: null, callerNote: args.callerNote, providerSummary: `Created GitHub repository ${repo.fullName || owner + '/' + name}.`, result});
+  const repoFullName = `${owner}/${name}`;
+  let repo;
+  let authMode = '';
+  let status = 0;
+  let alreadyExisted = false;
+  try {
+    const created = await githubAdminRequest(githubAdmin, user, route, {method: 'POST', body, preferBootstrap: ownerType === 'user'});
+    repo = cleanGitHubAdminRepo(created.json || {});
+    authMode = created.authMode;
+    status = created.status;
+  } catch (err) {
+    const message = safeText(err && err.message, 1000).toLowerCase();
+    const existingRepoConflict = [409, 422].includes(Number(err && err.status))
+      && /already exists|name already exists|repository creation failed/.test(message);
+    if (!existingRepoConflict) throw err;
+    const resolved = await githubAdminRequest(githubAdmin, user, githubAdminRouteForRepo(repoFullName));
+    repo = cleanGitHubAdminRepo(resolved.json || {});
+    authMode = resolved.authMode;
+    status = resolved.status;
+    alreadyExisted = true;
+  }
+  const result = {repo, repoFullName: repo.fullName || repoFullName, htmlUrl: repo.htmlUrl, status, authMode, auditRequestId: requestId, alreadyExisted};
+  const audit = await auditWrite(admin, {actor: user.email || user.uid || 'unknown', authKind: user.authKind, tool: 'github_admin.repos.create', operation: 'github.admin.repos.create', requestId, fileId: `github:${repo.fullName || repoFullName}`, affectedFileIds: [`github:${repo.fullName || repoFullName}`], oldMetadata: alreadyExisted ? repo : null, newMetadata: repo, oldParents: [], newParents: [owner], reversible: false, rollback: null, callerNote: args.callerNote, providerSummary: alreadyExisted ? `GitHub repository ${repo.fullName || repoFullName} already existed; returned existing metadata.` : `Created GitHub repository ${repo.fullName || repoFullName}.`, result});
   return {...result, audit: audit.audit};
 }
 
