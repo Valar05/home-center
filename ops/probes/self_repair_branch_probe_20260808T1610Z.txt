@@ -1,0 +1,3 @@
+Self-repair branch probe
+Timestamp: 2026-08-08T16:10:00Z
+Purpose: verify branch/write/PR control path only; no workflow dispatch.
