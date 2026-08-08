@@ -606,4 +606,6 @@ test('prompt mutation authority is fail-closed for explanation-only prompts and 
   assert.equal(promptAuthorizesMutation('Use Home Center to inspect Valar05/home-center. Do not change anything.'), false);
   assert.equal(promptAuthorizesMutation('Fix yourself, create a branch, update the file, and open a pull request.'), true);
   assert.equal(promptAuthorizesMutation('Start the project then with GitHub.'), true);
+  assert.equal(promptAuthorizesMutation('make it', 'Valar05: start the project then with github\nVenice: Drew, Venice can start it with GitHub, but she will not claim the private repository exists until Home Center confirms the durable result.'), true);
+  assert.equal(promptAuthorizesMutation('make it', 'Valar05: tell me how you would fix it\nVenice: Here is the plan.'), false);
 });

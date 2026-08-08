@@ -48,13 +48,36 @@ function usesHttpMcpTransport(context) {
   return !!safeText(context && context.mcpUrl, 2000);
 }
 
-function promptAuthorizesMutation(promptValue) {
+function promptDeniesMutation(prompt = '') {
+  return /\b(do not change|do not modify|do not edit|do not create|do not write|read only|read-only|inspect only|tell me how|how would you|explain how|propose|plan only|without changing)\b/.test(prompt);
+}
+
+function promptDirectlyAuthorizesMutation(prompt = '') {
+  return /\b(fix|repair|patch|change|modify|edit|update|create|write|add|commit|branch|pull request|pr|merge|save|upsert|start|begin|initialize|initialise|bootstrap|set up|setup)\b/.test(prompt);
+}
+
+function promptLooksLikeMutationFollowThrough(prompt = '') {
+  return /^(make|do|start|begin|create|build|ship|open|run)\s+(it|that|this)\b/.test(prompt)
+    || /^go ahead\b/.test(prompt)
+    || /^yes[, ]+(make|do|start|begin|create|build|ship|open|run)\b/.test(prompt);
+}
+
+function promptAuthorizesMutation(promptValue, recentTranscriptValue = '') {
   const prompt = safeText(promptValue, 4000).toLowerCase();
   if (!prompt) return false;
-  if (/\b(do not change|do not modify|do not edit|do not create|do not write|read only|read-only|inspect only|tell me how|how would you|explain how|propose|plan only|without changing)\b/.test(prompt)) {
-    return false;
-  }
-  return /\b(fix|repair|patch|change|modify|edit|update|create|write|add|commit|branch|pull request|pr|merge|save|upsert|start|begin|initialize|initialise|bootstrap|set up|setup)\b/.test(prompt);
+  if (promptDeniesMutation(prompt)) return false;
+  if (promptDirectlyAuthorizesMutation(prompt)) return true;
+  if (!promptLooksLikeMutationFollowThrough(prompt)) return false;
+  const recentTranscript = safeText(recentTranscriptValue, 6000).toLowerCase();
+  if (!recentTranscript) return false;
+  const recentUserTurns = recentTranscript
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .filter((line) => !/^venice\s*:/i.test(line))
+    .slice(-6)
+    .map((line) => line.replace(/^[^:]+:\s*/, ''));
+  return recentUserTurns.some((line) => !promptDeniesMutation(line) && promptDirectlyAuthorizesMutation(line));
 }
 
 function fortressControlIntentFromPrompt(promptValue) {

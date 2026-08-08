@@ -3207,10 +3207,6 @@ async function generateVeniceDiscordReply({prompt, userId, guildId = '', channel
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 80000);
   const replyBudget = veniceReplyBudget(prompt);
-  const mutationAuthorized = promptAuthorizesMutation(prompt);
-  const fortressControlIntent = fortressControlIntentFromPrompt(prompt);
-  const normalizedPrompt = safeText(prompt, 4000).toLowerCase();
-  const combinesFortressOrientation = fortressControlIntent === 'objective_update' && /\bfortress online\b/.test(normalizedPrompt);
   let recentTranscript = '';
   if (guildId && channelId && Number.isSafeInteger(cutEpoch) && cutEpoch >= 0 && Number.isSafeInteger(stateEpoch) && stateEpoch >= 0) {
     try {
@@ -3219,6 +3215,10 @@ async function generateVeniceDiscordReply({prompt, userId, guildId = '', channel
       if (recentTranscript.length > 2500) recentTranscript = recentTranscript.slice(-2500);
     } catch (_) {}
   }
+  const mutationAuthorized = promptAuthorizesMutation(prompt, recentTranscript);
+  const fortressControlIntent = fortressControlIntentFromPrompt(prompt);
+  const normalizedPrompt = safeText(prompt, 4000).toLowerCase();
+  const combinesFortressOrientation = fortressControlIntent === 'objective_update' && /\bfortress online\b/.test(normalizedPrompt);
   const veniceToolContext = {
     admin,
     runtimeServiceAccount: VENICE_RUNTIME_SERVICE_ACCOUNT,
