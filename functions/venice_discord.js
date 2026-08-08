@@ -344,6 +344,25 @@ function generatedReplyText(value) {
   return text.length <= DISCORD_MESSAGE_MAX_CHARS ? text : `${text.slice(0, DISCORD_MESSAGE_MAX_CHARS - 1).trimEnd()}…`;
 }
 
+function visiblePromptPrefix({prompt, userDisplayName}) {
+  const promptText = typeof prompt === 'string' ? prompt.trim() : '';
+  if (!promptText) return '';
+  const displayName = typeof userDisplayName === 'string' && userDisplayName.trim() ? userDisplayName.trim() : 'Drew';
+  const compactPrompt = promptText.length <= 320 ? promptText : `${promptText.slice(0, 319).trimEnd()}…`;
+  return `**${displayName}:** ${compactPrompt}\n\n`;
+}
+
+function visibleGenerationReply(task, reply) {
+  const baseReply = generatedReplyText(reply);
+  if (!task || task.commandName !== 'venice.ask') return baseReply;
+  const prefix = visiblePromptPrefix(task);
+  if (!prefix) return baseReply;
+  const remaining = DISCORD_MESSAGE_MAX_CHARS - prefix.length;
+  if (remaining <= 0) return generatedReplyText(prefix);
+  if (baseReply.length <= remaining) return `${prefix}${baseReply}`;
+  return `${prefix}${baseReply.slice(0, remaining - 1).trimEnd()}…`;
+}
+
 function veniceReplyNeedsRepair(value, responseMetadata = {}) {
   const text = typeof value === 'string' ? value.trim() : '';
   if (!text) return true;
@@ -846,7 +865,7 @@ function createVeniceGenerationTaskHandler({verifyTaskRequest, generateReply, de
         res.status(204).send('');
         return;
       }
-      await editOriginalInteraction(interaction, reply, webhookFetch);
+      await editOriginalInteraction(interaction, visibleGenerationReply(task, reply), webhookFetch);
       try {
         const conversationId = veniceConversationId(task);
         await conversationStore.appendTurn({

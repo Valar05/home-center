@@ -605,4 +605,5 @@ test('prompt mutation authority is fail-closed for explanation-only prompts and 
   assert.equal(promptAuthorizesMutation('Tell me how you would fix yourself.'), false);
   assert.equal(promptAuthorizesMutation('Use Home Center to inspect Valar05/home-center. Do not change anything.'), false);
   assert.equal(promptAuthorizesMutation('Fix yourself, create a branch, update the file, and open a pull request.'), true);
+  assert.equal(promptAuthorizesMutation('Start the project then with GitHub.'), true);
 });

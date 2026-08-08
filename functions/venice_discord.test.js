@@ -392,7 +392,7 @@ test('an authenticated generation task delivers one bounded reply without mentio
   assert.equal(webhookCalls.length, 1);
   assert.equal(webhookCalls[0].options.method, 'PATCH');
   assert.deepEqual(JSON.parse(webhookCalls[0].options.body), {
-    content: 'Venice answers without pinging @everyone.',
+    content: '**Drew:** A task prompt that remains outside Firestore\n\nVenice answers without pinging @everyone.',
     allowed_mentions: {parse: []},
   });
   assert.doesNotMatch(JSON.stringify([...store.audit.entries()]), new RegExp(secretPrompt));
