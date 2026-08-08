@@ -1779,6 +1779,80 @@
       ]
     },
     "annotations": {
+      "destructiveHint": false,
+      "idempotentHint": true,
+      "openWorldHint": false,
+      "readOnlyHint": false
+    },
+    "description": "Resolve or create the active Home Center project/workspace session for the authenticated owner and return a compact orientation packet for Venice.",
+    "execution": {
+      "taskSupport": "forbidden"
+    },
+    "inputSchema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "properties": {
+        "checkpointRef": {
+          "description": "Optional checkpoint reference to seed when creating a fresh session.",
+          "type": "string"
+        },
+        "currentObjective": {
+          "description": "Optional objective to seed when creating a fresh session.",
+          "type": "string"
+        },
+        "projectId": {
+          "description": "Optional Home Center project id hint.",
+          "type": "string"
+        },
+        "repository": {
+          "description": "Optional repository hint when the project must be resolved or created.",
+          "type": "string"
+        },
+        "requestId": {
+          "description": "Optional stable request id for provenance.",
+          "type": "string"
+        },
+        "workspaceId": {
+          "description": "Optional workspace id hint.",
+          "type": "string"
+        },
+        "workspaceLabel": {
+          "description": "Optional workspace label override.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "name": "fortress_online",
+    "securitySchemes": [
+      {
+        "scopes": [
+          "https://www.googleapis.com/auth/drive",
+          "https://www.googleapis.com/auth/documents",
+          "https://www.googleapis.com/auth/spreadsheets",
+          "https://www.googleapis.com/auth/gmail.readonly",
+          "https://www.googleapis.com/auth/calendar.events"
+        ],
+        "type": "oauth2"
+      }
+    ],
+    "title": "Fortress Online"
+  },
+  {
+    "_meta": {
+      "securitySchemes": [
+        {
+          "scopes": [
+            "https://www.googleapis.com/auth/drive",
+            "https://www.googleapis.com/auth/documents",
+            "https://www.googleapis.com/auth/spreadsheets",
+            "https://www.googleapis.com/auth/gmail.readonly",
+            "https://www.googleapis.com/auth/calendar.events"
+          ],
+          "type": "oauth2"
+        }
+      ]
+    },
+    "annotations": {
       "openWorldHint": true,
       "readOnlyHint": true
     },
@@ -3196,6 +3270,289 @@
       }
     ],
     "title": "Health"
+  },
+  {
+    "_meta": {
+      "securitySchemes": [
+        {
+          "scopes": [
+            "https://www.googleapis.com/auth/drive",
+            "https://www.googleapis.com/auth/documents",
+            "https://www.googleapis.com/auth/spreadsheets",
+            "https://www.googleapis.com/auth/gmail.readonly",
+            "https://www.googleapis.com/auth/calendar.events"
+          ],
+          "type": "oauth2"
+        }
+      ]
+    },
+    "annotations": {
+      "openWorldHint": false,
+      "readOnlyHint": true
+    },
+    "description": "Read the active Home Center project/workspace session orientation for the authenticated owner and Venice.",
+    "execution": {
+      "taskSupport": "forbidden"
+    },
+    "inputSchema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "properties": {
+        "agentId": {
+          "description": "Optional agent id override. Defaults to Venice.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "name": "home_center_session_status",
+    "securitySchemes": [
+      {
+        "scopes": [
+          "https://www.googleapis.com/auth/drive",
+          "https://www.googleapis.com/auth/documents",
+          "https://www.googleapis.com/auth/spreadsheets",
+          "https://www.googleapis.com/auth/gmail.readonly",
+          "https://www.googleapis.com/auth/calendar.events"
+        ],
+        "type": "oauth2"
+      }
+    ],
+    "title": "Home Center session status"
+  },
+  {
+    "_meta": {
+      "securitySchemes": [
+        {
+          "scopes": [
+            "https://www.googleapis.com/auth/drive",
+            "https://www.googleapis.com/auth/documents",
+            "https://www.googleapis.com/auth/spreadsheets",
+            "https://www.googleapis.com/auth/gmail.readonly",
+            "https://www.googleapis.com/auth/calendar.events"
+          ],
+          "type": "oauth2"
+        }
+      ]
+    },
+    "annotations": {
+      "destructiveHint": false,
+      "idempotentHint": true,
+      "openWorldHint": false,
+      "readOnlyHint": false
+    },
+    "description": "Update durable Home Center working-session state such as current objective, workspace, blockers, checkpoint reference, or artifact references.",
+    "execution": {
+      "taskSupport": "forbidden"
+    },
+    "inputSchema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "properties": {
+        "artifactRefs": {
+          "description": "Optional artifact or receipt references to associate with the active session.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "blockers": {
+          "description": "Optional blocker strings.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "checkpointRef": {
+          "description": "Optional durable checkpoint reference.",
+          "type": "string"
+        },
+        "currentObjective": {
+          "description": "Durable current objective text.",
+          "type": "string"
+        },
+        "objectiveStatement": {
+          "description": "Optional original user phrasing for provenance.",
+          "type": "string"
+        },
+        "projectId": {
+          "description": "Optional project id hint when creating a fresh session.",
+          "type": "string"
+        },
+        "repository": {
+          "description": "Optional repository hint when creating a fresh session.",
+          "type": "string"
+        },
+        "requestId": {
+          "description": "Optional stable request id for provenance.",
+          "type": "string"
+        },
+        "workspaceId": {
+          "description": "Optional workspace id override.",
+          "type": "string"
+        },
+        "workspaceLabel": {
+          "description": "Optional workspace label override.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "name": "home_center_session_update",
+    "securitySchemes": [
+      {
+        "scopes": [
+          "https://www.googleapis.com/auth/drive",
+          "https://www.googleapis.com/auth/documents",
+          "https://www.googleapis.com/auth/spreadsheets",
+          "https://www.googleapis.com/auth/gmail.readonly",
+          "https://www.googleapis.com/auth/calendar.events"
+        ],
+        "type": "oauth2"
+      }
+    ],
+    "title": "Home Center session update"
+  },
+  {
+    "_meta": {
+      "securitySchemes": [
+        {
+          "scopes": [
+            "https://www.googleapis.com/auth/drive",
+            "https://www.googleapis.com/auth/documents",
+            "https://www.googleapis.com/auth/spreadsheets",
+            "https://www.googleapis.com/auth/gmail.readonly",
+            "https://www.googleapis.com/auth/calendar.events"
+          ],
+          "type": "oauth2"
+        }
+      ]
+    },
+    "annotations": {
+      "destructiveHint": false,
+      "idempotentHint": true,
+      "openWorldHint": false,
+      "readOnlyHint": false
+    },
+    "description": "Record a durable Home Center work request for the active session, normalize its high-level state, and return a durable receipt. Use route=fortress_session_probe for the continuity test capability path.",
+    "execution": {
+      "taskSupport": "forbidden"
+    },
+    "inputSchema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "properties": {
+        "artifactRefs": {
+          "description": "Optional artifact or receipt refs already associated with this request.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "projectId": {
+          "description": "Optional project id hint when creating a fresh session.",
+          "type": "string"
+        },
+        "repository": {
+          "description": "Optional repository hint when creating a fresh session.",
+          "type": "string"
+        },
+        "requestId": {
+          "description": "Optional stable request id for provenance.",
+          "type": "string"
+        },
+        "requestText": {
+          "description": "The work request to record and route.",
+          "type": "string"
+        },
+        "route": {
+          "description": "Optional execution route. Use fortress_session_probe for the supported continuity test lane; unrouted work remains durably requested.",
+          "type": "string"
+        },
+        "subsystemRefs": {
+          "description": "Optional subsystem-specific refs or receipt ids.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "taskId": {
+          "description": "Optional stable task id override.",
+          "type": "string"
+        },
+        "taskKind": {
+          "description": "Optional task kind label.",
+          "type": "string"
+        },
+        "workspaceId": {
+          "description": "Optional workspace id override.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "requestText"
+      ],
+      "type": "object"
+    },
+    "name": "home_center_work_request",
+    "securitySchemes": [
+      {
+        "scopes": [
+          "https://www.googleapis.com/auth/drive",
+          "https://www.googleapis.com/auth/documents",
+          "https://www.googleapis.com/auth/spreadsheets",
+          "https://www.googleapis.com/auth/gmail.readonly",
+          "https://www.googleapis.com/auth/calendar.events"
+        ],
+        "type": "oauth2"
+      }
+    ],
+    "title": "Home Center work request"
+  },
+  {
+    "_meta": {
+      "securitySchemes": [
+        {
+          "scopes": [
+            "https://www.googleapis.com/auth/drive",
+            "https://www.googleapis.com/auth/documents",
+            "https://www.googleapis.com/auth/spreadsheets",
+            "https://www.googleapis.com/auth/gmail.readonly",
+            "https://www.googleapis.com/auth/calendar.events"
+          ],
+          "type": "oauth2"
+        }
+      ]
+    },
+    "annotations": {
+      "openWorldHint": false,
+      "readOnlyHint": true
+    },
+    "description": "Read the durable status and receipt for one Home Center work request. Defaults to the active session's most recent work item.",
+    "execution": {
+      "taskSupport": "forbidden"
+    },
+    "inputSchema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "properties": {
+        "taskId": {
+          "description": "Optional Home Center work task id. Defaults to the active session's last work item.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "name": "home_center_work_status",
+    "securitySchemes": [
+      {
+        "scopes": [
+          "https://www.googleapis.com/auth/drive",
+          "https://www.googleapis.com/auth/documents",
+          "https://www.googleapis.com/auth/spreadsheets",
+          "https://www.googleapis.com/auth/gmail.readonly",
+          "https://www.googleapis.com/auth/calendar.events"
+        ],
+        "type": "oauth2"
+      }
+    ],
+    "title": "Home Center work status"
   },
   {
     "_meta": {

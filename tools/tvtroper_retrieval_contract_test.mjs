@@ -25,15 +25,15 @@ assert.match(bridge, /tvtroper_operation:/);
 assert.doesNotMatch(bridge, /server\.registerTool\(['"]tvtroper_operation['"]/);
 assert.match(bridge, /gcsOnly: true/);
 assert.match(deploy, /TVTROPER_RETRIEVAL_URL=.*tvtroper-retrieval-vxybsaualq-uc\.a\.run\.app/);
-assert.equal(manifest.toolCount, 57);
-assert.equal(manifest.canonicalToolsSha256, '218fc0b22087642b6e05c743022fd8454113aa183b30818d20c54f4da69b5734');
+assert.equal(manifest.toolCount, 62);
+assert.equal(manifest.canonicalToolsSha256, 'db882595ec9aadcc0caa57ff457e2c5d20bd9dae43b121038d84409a0a9561f7');
 assert.equal(manifest.entries.some((entry) => entry.name === 'tvtroper_operation'), false);
 
 process.env.TVTROPER_RETRIEVAL_URL = 'https://tvtroper.test';
 const require = createRequire(import.meta.url);
 const homeCenter = require(path.join(root, 'functions/home_center_mcp.js'));
-assert.equal(homeCenter.HOME_CENTER_CONNECTOR_SCHEMA_REVISION, '2026-08-02.blender-render-deprecated-v1');
-assert.equal(homeCenter.driveOperationRegistry().version, '2026-08-02.blender-render-deprecated-v1');
+assert.equal(homeCenter.HOME_CENTER_CONNECTOR_SCHEMA_REVISION, '2026-08-03.voice-tiers-host-file-v1');
+assert.equal(homeCenter.driveOperationRegistry().version, '2026-08-03.voice-tiers-host-file-v1');
 assert(homeCenter.driveOperationRegistry().operations.tvtroper_operation);
 
 const calls = [];
@@ -57,7 +57,7 @@ const search = await homeCenter.driveOperationRunOperation({
   args: {operation: 'tvtroper_operation', args: {operation: 'search', args: {query: 'Deal with the Devil', limit: 3}}},
 });
 assert.equal(search.operation, 'tvtroper_operation');
-assert.equal(search.registryVersion, '2026-08-02.blender-render-deprecated-v1');
+assert.equal(search.registryVersion, '2026-08-03.voice-tiers-host-file-v1');
 assert.equal(search.completed, true);
 assert.equal(search.result.operation, 'search');
 assert.equal(search.result.gcsOnly, true);
