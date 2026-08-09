@@ -9,6 +9,7 @@ const {
   homeCenterToolsToOpenAI,
   listVeniceHomeCenterTools,
   promptAuthorizesMutation,
+  promptRequestsEngineeringWork,
   runVeniceFortressControlTurn,
   runVeniceHomeCenterToolLoop,
 } = require('./venice_home_center_mcp');
@@ -209,6 +210,39 @@ test('an empty model turn before tool execution retries once with an explicit to
   assert.match(String(requests[1].input), /Recovery rule:/);
 });
 
+test('explicit engineering requests are durably routed before model output and retry the safe work route once', async () => {
+  let executions = 0;
+  const context = baseContext({
+    allowMutations: true,
+    requireEngineeringWork: true,
+    discordInteractionId: 'engineering-1',
+    homeCenterServer: fakeToolServer([{
+      name: 'home_center_work_request',
+      handler: async (args) => {
+        executions += 1;
+        if (executions === 1) throw new Error('transient route failure');
+        return {work: {taskId: args.taskId, normalizedState: 'REQUESTED'}};
+      },
+    }]),
+  });
+  const requests = [];
+  const reply = await runVeniceHomeCenterToolLoop({
+    context,
+    prompt: 'Start a coding project that improves camera vision.',
+    requestBody: {model: 'gpt-5.5', instructions: 'test'},
+    fetchOpenAIResponses: async (body) => {
+      requests.push(body);
+      return {response: {ok: true, status: 200}, json: finalText('Home Center recorded the camera-vision code request.')};
+    },
+    extractOutputText: (json) => json.output_text || '',
+    veniceReplyNeedsRepair: () => false,
+  });
+  assert.equal(reply, 'Home Center recorded the camera-vision code request.');
+  assert.equal(executions, 2);
+  assert.match(String(requests[0].input), /Durable work evidence/);
+  assert.doesNotMatch(String(requests[0].input), /image artifact/i);
+});
+
 test('sequential Venice tool calls continue across rounds', async () => {
   const seen = [];
   const context = baseContext({
@@ -288,6 +322,33 @@ test('non-quota OpenAI failures do not use the fallback lane', async () => {
     }),
     /venice_openai_http_500/,
   );
+});
+
+test('engineering requests reroute provider failures through the configured fallback lane', async () => {
+  let fallbackContext = null;
+  const context = baseContext({
+    allowMutations: true,
+    requireEngineeringWork: true,
+    homeCenterServer: fakeToolServer([{
+      name: 'home_center_work_request',
+      handler: async () => ({work: {taskId: 'work-engineering', normalizedState: 'REQUESTED'}}),
+    }]),
+  });
+  const reply = await runVeniceHomeCenterToolLoop({
+    context,
+    prompt: 'Start a coding project that improves camera vision.',
+    requestBody: {model: 'gpt-5.5', instructions: 'test'},
+    fetchOpenAIResponses: async () => ({response: {ok: false, status: 500}, json: {}}),
+    extractOutputText: () => '',
+    veniceReplyNeedsRepair: () => false,
+    geminiFallback: async (details) => {
+      fallbackContext = details;
+      return 'Home Center recorded the code request; the reply was rerouted.';
+    },
+  });
+  assert.match(reply, /rerouted/);
+  assert.equal(fallbackContext.toolExecutionStarted, true);
+  assert.match(fallbackContext.recoveryReason, /venice_openai_http_500/);
 });
 
 test('quota exhaustion after tool execution has started uses the configured fallback lane with tool evidence', async () => {
@@ -649,4 +710,7 @@ test('prompt mutation authority is fail-closed for explanation-only prompts and 
   assert.equal(promptAuthorizesMutation('Make a plan for the project on GitHub.'), false);
   assert.equal(promptAuthorizesMutation('make it', 'Valar05: start the project then with github\nVenice: Drew, Venice can start it with GitHub, but she will not claim the private repository exists until Home Center confirms the durable result.'), true);
   assert.equal(promptAuthorizesMutation('make it', 'Valar05: tell me how you would fix it\nVenice: Here is the plan.'), false);
+  assert.equal(promptRequestsEngineeringWork('Start a coding project that improves camera vision.'), true);
+  assert.equal(promptRequestsEngineeringWork('Generate an image of a better camera angle.'), false);
+  assert.equal(promptRequestsEngineeringWork('Tell me how you would improve camera vision.'), false);
 });

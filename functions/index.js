@@ -13,7 +13,7 @@ const {createLocalVoiceFarmHandler} = require('./local_voice_farm_api');
 const {createSheRawMcpApp} = require('./she_raw_mcp');
 const {CARTESIA_DEFAULT_MODEL_ID, CARTESIA_DEFAULT_VOICE_NAME, listCartesiaVoiceCatalog, listCartesiaVoices, normalizeCartesiaVoice, openCartesiaStream} = require('./hosted_speech_provider');
 const {VENICE_GUILD_ID, createFirestoreConversationStore, createFirestoreStateStore, createVeniceDiscordHandler, createVeniceGenerationTaskHandler, generationTaskInput, veniceConversationId, veniceReplyBudget, veniceReplyNeedsRepair, veniceRoleplayInstruction, veniceIntimacyInstruction, voiceDeliveryProfile} = require('./venice_discord');
-const {promptAuthorizesMutation, runVeniceHomeCenterToolLoop, runVeniceFortressControlTurn, fortressControlIntentFromPrompt} = require('./venice_home_center_mcp');
+const {promptAuthorizesMutation, promptRequestsEngineeringWork, runVeniceHomeCenterToolLoop, runVeniceFortressControlTurn, fortressControlIntentFromPrompt} = require('./venice_home_center_mcp');
 const VENICE_WORKER_OPTIONS = require('./venice_worker_profile.generated');
 
 admin.initializeApp();
@@ -3216,6 +3216,7 @@ async function generateVeniceDiscordReply({prompt, userId, guildId = '', channel
     } catch (_) {}
   }
   const mutationAuthorized = promptAuthorizesMutation(prompt, recentTranscript);
+  const engineeringWorkRequired = promptRequestsEngineeringWork(prompt, recentTranscript);
   const fortressControlIntent = fortressControlIntentFromPrompt(prompt);
   const normalizedPrompt = safeText(prompt, 4000).toLowerCase();
   const combinesFortressOrientation = fortressControlIntent === 'objective_update' && /\bfortress online\b/.test(normalizedPrompt);
@@ -3227,6 +3228,7 @@ async function generateVeniceDiscordReply({prompt, userId, guildId = '', channel
     discordInteractionId: safeText(interactionId, 80),
     originalPrompt: prompt,
     allowMutations: mutationAuthorized,
+    requireEngineeringWork: engineeringWorkRequired,
     allowSessionControl: fortressControlIntent === 'fortress_online' || fortressControlIntent === 'objective_update' || (controlTurn && controlTurn.kind === 'fortress_online'),
     mcpUrl: process.env.HOME_CENTER_MCP_URL || 'https://us-central1-home-center-dclar.cloudfunctions.net/homeCenterMcp/mcp',
     ensureTaskCurrent: async () => {
@@ -3267,6 +3269,9 @@ async function generateVeniceDiscordReply({prompt, userId, guildId = '', channel
   }
   if (mutationAuthorized) {
     fortressInstructions.push('For explicit engineering actions such as fix, patch, repair, or update requests, create or inspect durable Home Center work state before claiming completion. Use home_center_work_request to record the work request and home_center_work_status to report the durable result or receipt.');
+  }
+  if (engineeringWorkRequired) {
+    fortressInstructions.push('This is an explicit engineering request. It is not an image-generation request unless Drew explicitly asks to generate an image. Do not render, imagine, describe, or claim an image artifact in place of creating or routing the requested code work.');
   }
   const instructions = [
     'You are Venice, the mature woman who manages the owner\'s network.',

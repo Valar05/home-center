@@ -10,6 +10,7 @@ const VENICE_MAX_TOOL_ROUNDS = 8;
 const VENICE_ALLOWED_RUNTIME_SERVICE_ACCOUNT = 'venice-discord-runtime@home-center-dclar.iam.gserviceaccount.com';
 const HOME_CENTER_MCP_URL = process.env.HOME_CENTER_MCP_URL || 'https://us-central1-home-center-dclar.cloudfunctions.net/homeCenterMcp/mcp';
 const VENICE_SESSION_CONTROL_TOOLS = new Set(['fortress_online', 'home_center_session_update']);
+const VENICE_ENGINEERING_WORK_TOOL = 'home_center_work_request';
 
 function safeText(value, max = 12000) {
   const text = typeof value === 'string' ? value.trim() : '';
@@ -80,6 +81,13 @@ function promptAuthorizesMutation(promptValue, recentTranscriptValue = '') {
     .slice(-6)
     .map((line) => line.replace(/^[^:]+:\s*/, ''));
   return recentUserTurns.some((line) => !promptDeniesMutation(line) && promptDirectlyAuthorizesMutation(line));
+}
+
+function promptRequestsEngineeringWork(promptValue, recentTranscriptValue = '') {
+  if (!promptAuthorizesMutation(promptValue, recentTranscriptValue)) return false;
+  return /\b(code|coding|software|application|app|repository|repo|function|feature|bug|camera|vision|image recognition|computer vision|pipeline)\b/i.test(
+    safeText(promptValue, 4000),
+  );
 }
 
 function fortressControlIntentFromPrompt(promptValue) {
@@ -512,6 +520,36 @@ function homeCenterToolsToOpenAI(mcpTools) {
   })).filter((tool) => tool.name);
 }
 
+function engineeringWorkTaskId(context = {}) {
+  const interactionId = safeText(context.discordInteractionId || context.interactionId, 80) || 'unknown';
+  return safeText(`venice-engineering-${interactionId}`, 120);
+}
+
+async function recordRequiredEngineeringWork(context, tools, prompt) {
+  const args = {
+    taskId: engineeringWorkTaskId(context),
+    taskKind: 'code_engineering_request',
+    route: 'venice_engineering_recovery',
+    requestText: safeText(prompt, 2000),
+  };
+  let lastError;
+  for (let attempt = 0; attempt < 2; attempt += 1) {
+    try {
+      await ensureVeniceTaskCurrent(context);
+      return await callVeniceHomeCenterTool(context, VENICE_ENGINEERING_WORK_TOOL, args, {
+        tools,
+        callIndex: attempt,
+      });
+    } catch (err) {
+      lastError = err;
+    }
+  }
+  const err = new Error('venice_engineering_work_route_failed');
+  err.code = 'venice_engineering_work_route_failed';
+  err.cause = lastError;
+  throw err;
+}
+
 async function runVeniceHomeCenterToolLoop({
   context,
   prompt,
@@ -528,12 +566,17 @@ async function runVeniceHomeCenterToolLoop({
   const baseRequest = {...safeObject(requestBody), tools: openAiTools};
   let input = prompt;
   let toolExecutionStarted = false;
+  if (context && context.requireEngineeringWork === true) {
+    const work = await recordRequiredEngineeringWork(context, tools, prompt);
+    toolExecutionStarted = true;
+    input = `${prompt}\n\nHome Center engineering work was recorded before this reply. Durable work evidence: ${safeText(JSON.stringify(work), 4000)}. Do not claim implementation, visual output, or a completed route beyond this evidence.`;
+  }
   let emptyFinalRecoveryUsed = false;
   for (let round = 0; round < maxToolRounds; round += 1) {
     context.toolRound = round;
     const {response, json} = await fetchOpenAIResponses({...baseRequest, input});
     if (!response.ok) {
-      if (response.status === 429 && typeof geminiFallback === 'function') {
+      if ((response.status === 429 || context?.requireEngineeringWork === true) && typeof geminiFallback === 'function') {
         return geminiFallback({
           promptText: prompt,
           input,
@@ -595,5 +638,6 @@ module.exports = {
   runVeniceFortressControlTurn,
   runVeniceHomeCenterToolLoop,
   promptAuthorizesMutation,
+  promptRequestsEngineeringWork,
   fortressControlIntentFromPrompt,
 };
