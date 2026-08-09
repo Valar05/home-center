@@ -290,9 +290,10 @@ test('non-quota OpenAI failures do not use the fallback lane', async () => {
   );
 });
 
-test('quota exhaustion after tool execution has started does not switch lanes', async () => {
+test('quota exhaustion after tool execution has started uses the configured fallback lane with tool evidence', async () => {
   let executions = 0;
   let fallbackCalls = 0;
+  let fallbackContext = null;
   const context = baseContext({
     homeCenterServer: fakeToolServer([{
       name: 'health',
@@ -304,35 +305,38 @@ test('quota exhaustion after tool execution has started does not switch lanes', 
     }]),
   });
   let turn = 0;
-  await assert.rejects(
-    runVeniceHomeCenterToolLoop({
-      context,
-      prompt: 'Check health, then continue.',
-      requestBody: {model: 'gpt-5.5', instructions: 'test'},
-      fetchOpenAIResponses: async () => {
-        turn += 1;
-        if (turn === 1) {
-          return {
-            response: {ok: true, status: 200},
-            json: functionCall('call-1', 'health', {}),
-          };
-        }
+  const reply = await runVeniceHomeCenterToolLoop({
+    context,
+    prompt: 'Check health, then continue.',
+    requestBody: {model: 'gpt-5.5', instructions: 'test'},
+    fetchOpenAIResponses: async () => {
+      turn += 1;
+      if (turn === 1) {
         return {
-          response: {ok: false, status: 429},
-          json: {},
+          response: {ok: true, status: 200},
+          json: functionCall('call-1', 'health', {}),
         };
-      },
-      extractOutputText: () => '',
-      veniceReplyNeedsRepair: () => false,
-      geminiFallback: async () => {
-        fallbackCalls += 1;
-        return 'fallback reply';
-      },
-    }),
-    /venice_openai_http_429/,
-  );
+      }
+      return {
+        response: {ok: false, status: 429},
+        json: {},
+      };
+    },
+    extractOutputText: () => '',
+    veniceReplyNeedsRepair: () => false,
+    geminiFallback: async (details) => {
+      fallbackCalls += 1;
+      fallbackContext = details;
+      return 'fallback reply';
+    },
+  });
+  assert.equal(reply, 'fallback reply');
   assert.equal(executions, 1);
-  assert.equal(fallbackCalls, 0);
+  assert.equal(fallbackCalls, 1);
+  assert.equal(fallbackContext.toolExecutionStarted, true);
+  assert.match(String(fallbackContext.recoveryReason), /venice_openai_http_429/);
+  assert.ok(Array.isArray(fallbackContext.input));
+  assert.ok(fallbackContext.input.some((item) => item && item.type === 'function_call_output'));
 });
 
 test('unknown tool names fail closed', async () => {

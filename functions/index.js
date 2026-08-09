@@ -3286,6 +3286,7 @@ async function generateVeniceDiscordReply({prompt, userId, guildId = '', channel
     `Keep the answer below ${replyBudget.maxChars.toLocaleString('en-US')} characters and suitable for one Discord message.`,
     ...fortressInstructions,
   ].join('\n');
+  const toolLoopPrompt = recentTranscript ? `Recent Discord transcript:\n${recentTranscript}\n\nCurrent invitation:\n${prompt}` : prompt;
   const requestBody = {
     model: process.env.VENICE_OPENAI_MODEL || 'gpt-5.5',
     reasoning: {effort: 'low'},
@@ -3295,15 +3296,45 @@ async function generateVeniceDiscordReply({prompt, userId, guildId = '', channel
   };
   try {
     const openAiUser = {uid: `discord:${safeText(userId, 160)}`, email: ''};
-    const geminiFallback = async () => {
+    const renderGeminiFallbackEvidence = (items) => {
+      if (!Array.isArray(items) || !items.length) return '';
+      return items.map((item, index) => {
+        if (!item || typeof item !== 'object') return '';
+        if (item.type === 'function_call') {
+          const argsText = typeof item.arguments === 'string' ? item.arguments : JSON.stringify(item.arguments || {});
+          return `Tool call ${index + 1}: ${safeText(item.name, 160) || 'unknown'} (${safeText(item.call_id, 160) || 'no-call-id'})\nArguments: ${safeText(argsText, 4000) || '{}'}`;
+        }
+        if (item.type === 'function_call_output') {
+          const outputText = typeof item.output === 'string' ? item.output : JSON.stringify(item.output || {});
+          return `Tool result ${index + 1}: ${safeText(item.call_id, 160) || 'no-call-id'}\n${safeText(outputText, 6000) || '(empty)'}`;
+        }
+        const messageText = safeText(extractOutputText({output: [item], output_text: ''}), 2000);
+        if (messageText) return `Model draft ${index + 1}:\n${messageText}`;
+        return `Context item ${index + 1}:\n${safeText(JSON.stringify(item), 2000)}`;
+      }).filter(Boolean).join('\n\n');
+    };
+    const geminiFallback = async (fallbackContext = {}) => {
       const key = GEMINI_API_KEY.value() || process.env.GEMINI_API_KEY || '';
       if (!key) throw new Error('venice_gemini_key_missing');
+      const fallbackPrompt = safeText(fallbackContext.promptText, 12000) || toolLoopPrompt;
+      const toolEvidence = renderGeminiFallbackEvidence(fallbackContext.input);
+      const fallbackInstructions = [
+        instructions,
+        safeText(fallbackContext.extraInstructions, 2000),
+        fallbackContext.toolExecutionStarted ? 'OpenAI quota was exhausted after Home Center tool activity. Finish the turn from the supplied durable tool evidence. Do not invent new tool calls, writes, receipts, or state.' : '',
+        toolEvidence ? 'If durable Home Center tool evidence is supplied, treat it as the only source of truth for actions, receipts, and current state.' : '',
+      ].filter(Boolean).join('\n');
+      const fallbackUserText = [
+        fallbackPrompt,
+        toolEvidence ? `Durable Home Center tool evidence:\n${toolEvidence}` : '',
+        safeText(fallbackContext.recoveryReason, 160) ? `Recovery reason: ${safeText(fallbackContext.recoveryReason, 160)}.` : '',
+      ].filter(Boolean).join('\n\n');
       const fallback = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent', {
         method: 'POST',
         headers: {'Content-Type': 'application/json', 'x-goog-api-key': key},
         body: JSON.stringify({
-          systemInstruction: {parts: [{text: instructions}]},
-          contents: [{role: 'user', parts: [{text: prompt}]}],
+          systemInstruction: {parts: [{text: fallbackInstructions}]},
+          contents: [{role: 'user', parts: [{text: fallbackUserText}]}],
           generationConfig: {maxOutputTokens: replyBudget.maxOutputTokens, temperature: 0.7},
         }),
         signal: controller.signal,
@@ -3328,14 +3359,23 @@ async function generateVeniceDiscordReply({prompt, userId, guildId = '', channel
         repairBody,
         {signal: controller.signal},
       );
-      if (!repaired.response.ok) throw new Error(`venice_openai_repair_http_${repaired.response.status}`);
+      if (!repaired.response.ok) {
+        if (repaired.response.status === 429) {
+          return geminiFallback({
+            promptText: `${recentTranscript ? `Recent Discord transcript:\n${recentTranscript}\n\n` : ''}Original invitation:\n${prompt}\n\nIncomplete draft:\n${reply}`,
+            extraInstructions: 'Rewrite the supplied draft as one self-contained reply. Preserve its intent, but finish every sentence, quotation, and stage direction.',
+            recoveryReason: `venice_openai_repair_http_${repaired.response.status}`,
+          });
+        }
+        throw new Error(`venice_openai_repair_http_${repaired.response.status}`);
+      }
       const repairedReply = safeText(repaired.json.output_text || extractOutputText(repaired.json), 2000);
       if (veniceReplyNeedsRepair(repairedReply, repaired.json)) throw new Error('venice_openai_incomplete');
       return repairedReply;
     };
     return runVeniceHomeCenterToolLoop({
       context: veniceToolContext,
-      prompt: recentTranscript ? `Recent Discord transcript:\n${recentTranscript}\n\nCurrent invitation:\n${prompt}` : prompt,
+      prompt: toolLoopPrompt,
       requestBody,
       fetchOpenAIResponses: (body) => fetchOpenAIResponses(
         openAiUser,

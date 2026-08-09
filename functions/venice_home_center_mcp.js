@@ -533,7 +533,15 @@ async function runVeniceHomeCenterToolLoop({
     context.toolRound = round;
     const {response, json} = await fetchOpenAIResponses({...baseRequest, input});
     if (!response.ok) {
-      if (response.status === 429 && !toolExecutionStarted && typeof geminiFallback === 'function') return geminiFallback();
+      if (response.status === 429 && typeof geminiFallback === 'function') {
+        return geminiFallback({
+          promptText: prompt,
+          input,
+          toolExecutionStarted,
+          toolRound: round,
+          recoveryReason: `venice_openai_http_${response.status}`,
+        });
+      }
       const err = new Error(`venice_openai_http_${response.status}`);
       err.code = `venice_openai_http_${response.status}`;
       throw err;
