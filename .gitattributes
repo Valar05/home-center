@@ -42,3 +42,4 @@
 
 # The deployment contract compares this generated source byte-for-byte.
 functions/venice_worker_profile.generated.js text eol=lf
+tools/deploy_venice_discord.sh text eol=lf
