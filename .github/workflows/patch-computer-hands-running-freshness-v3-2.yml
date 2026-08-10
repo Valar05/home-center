@@ -1,0 +1,49 @@
+name: Patch Computer Hands Running Freshness v3.2
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: patch-computer-hands-running-freshness-v3-2
+  cancel-in-progress: false
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Apply scheduler freshness fix
+        run: python3 tools/patch_computer_hands_running_freshness_v3_2.py
+      - name: Validate source
+        run: |
+          node --check functions/computer_hands_api.js
+          node --test functions/computer_hands_shared_lanes.test.js
+          python3 - <<'PY'
+          from pathlib import Path
+          s = Path('functions/computer_hands_api.js').read_text(encoding='utf-8')
+          assert 'const LEASE_TTL_MS = 3 * 60 * 1000;' in s
+          assert "onlineFreshnessMs = ['running', 'leased'].includes(state) ? LEASE_TTL_MS + 15000 : 30000" in s
+          assert 'online, lastSeenAtMs, updatedAtMs, onlineFreshnessMs' in s
+          print('running freshness v3.2 static acceptance passed')
+          PY
+          git diff --check
+      - name: Commit API correction
+        run: |
+          if git diff --quiet -- functions/computer_hands_api.js; then
+            echo 'API already fixed.'
+            exit 0
+          fi
+          git config user.name 'home-center-github-admin[bot]'
+          git config user.email 'home-center-github-admin[bot]@users.noreply.github.com'
+          git add functions/computer_hands_api.js
+          git commit -m 'Keep long Computer Hands actions online'
+          git push origin HEAD:main
