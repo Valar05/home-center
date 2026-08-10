@@ -55,10 +55,22 @@ jobs:
           workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
           service_account: ${{ secrets.GCP_DEPLOY_SERVICE_ACCOUNT }}
       - uses: google-github-actions/setup-gcloud@v2
-      - name: Deploy Command Center and Phone Hands relay
+      - name: Deploy Command Center MCP
         env:
           GCLOUD_FUNCTIONS_REGION: ${{ env.REGION }}
-        run: sh tools/deploy_functions_termux.sh "$PROJECT" commandCenterMcp phoneHandsRelay
+        run: sh tools/deploy_functions_termux.sh "$PROJECT" commandCenterMcp
+      - name: Deploy Phone Hands relay
+        run: |
+          gcloud functions deploy phoneHandsRelay \
+            --gen2 \
+            --project="$PROJECT" \
+            --region="$REGION" \
+            --runtime=nodejs22 \
+            --source="$GITHUB_WORKSPACE/functions" \
+            --entry-point=phoneHandsRelay \
+            --trigger-http \
+            --allow-unauthenticated \
+            --timeout=120s
       - name: Verify deployed functions and Command Center readiness
         run: |
           gcloud functions describe commandCenterMcp --gen2 --project="$PROJECT" --region="$REGION" --format='value(state,serviceConfig.uri)'
