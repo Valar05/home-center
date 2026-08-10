@@ -1,0 +1,130 @@
+name: Venice Nerve Current-Main Integration
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  integrate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: venice-nerve-media-presence-v3
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: functions/package-lock.json
+      - name: Import audited additive Venice Nerve files
+        run: |
+          git fetch origin venice-nerve-media-presence-v2
+          git checkout origin/venice-nerve-media-presence-v2 -- \
+            .github/workflows/venice-media-presence-contract.yml \
+            .github/workflows/venice-nerve-refresh-manifest.yml \
+            contracts/venice-body-turn.v1.schema.json \
+            contracts/venice-media-session.v1.schema.json \
+            docs/venice-chatgpt-aperture-v2.md \
+            docs/venice-media-presence-organ.md \
+            functions/venice_nerve_api.js \
+            functions/venice_nerve_api.test.js \
+            tools/venice_media_presence_contract_test.mjs \
+            venice-nerve/windows/home-center-venice-nerve.ps1 \
+            venice-nerve/windows/install.ps1
+      - name: Reapply only dedicated Nerve seams to current main
+        shell: python
+        run: |
+          from pathlib import Path
+          import json
+
+          mcp_path = Path('functions/home_center_mcp.js')
+          mcp = mcp_path.read_text()
+          nerve_import = "const {veniceNerveOperationEntries, veniceNerveOperationRunOperation} = require('./venice_nerve_api');"
+          body_import = "const {veniceBodyOperationEntries, veniceBodyOperationRunOperation} = require('./venice_body_router');"
+          if nerve_import not in mcp:
+              assert body_import in mcp
+              mcp = mcp.replace(body_import, body_import + '\n' + nerve_import, 1)
+          if '...veniceNerveOperationEntries()' not in mcp:
+              anchor = '    ...veniceBodyOperationEntries(),'
+              assert anchor in mcp
+              mcp = mcp.replace(anchor, anchor + '\n    ...veniceNerveOperationEntries(),', 1)
+          if 'veniceNerveOperationRunOperation({' not in mcp:
+              anchor = "  if (veniceBodyOperationEntries()[operation]) {\n    requireCreditGatedEmail(user && user.email, operation);\n    const result = await veniceBodyOperationRunOperation({extra, admin, user, operation, args: operationArgs});\n    return {operation, registryVersion: registry.version, completed: true, result};\n  }"
+              assert anchor in mcp
+              block = "\n  if (veniceNerveOperationEntries()[operation]) {\n    requireCreditGatedEmail(user && user.email, operation);\n    const result = await veniceNerveOperationRunOperation({admin, user, operation, args: operationArgs});\n    return {operation, registryVersion: registry.version, completed: true, result};\n  }"
+              mcp = mcp.replace(anchor, anchor + block, 1)
+          mcp_path.write_text(mcp)
+
+          index_path = Path('functions/index.js')
+          index = index_path.read_text()
+          browser_import = "const {createBrowserNerveHandler} = require('./browser_nerve_api');"
+          nerve_handler_import = "const {createVeniceNerveHandler} = require('./venice_nerve_api');"
+          if nerve_handler_import not in index:
+              assert browser_import in index
+              index = index.replace(browser_import, browser_import + '\n' + nerve_handler_import, 1)
+          browser_export = "exports.browserNerve = onRequest({timeoutSeconds: 300}, createBrowserNerveHandler({admin}));"
+          nerve_export = "exports.veniceNerve = onRequest({timeoutSeconds: 300}, createVeniceNerveHandler({admin}));"
+          if nerve_export not in index:
+              assert browser_export in index
+              index = index.replace(browser_export, browser_export + '\n\n' + nerve_export, 1)
+          index_path.write_text(index)
+
+          package_path = Path('functions/package.json')
+          package = json.loads(package_path.read_text())
+          lint = package['scripts']['lint']
+          if 'node --check venice_nerve_api.js' not in lint:
+              package['scripts']['lint'] = lint + ' && node --check venice_nerve_api.js'
+              package_path.write_text(json.dumps(package, indent=2) + '\n')
+
+          release_path = Path('tools/deploy_blender_workspace_release.sh')
+          release = release_path.read_text()
+          old_deploy = 'sh "$ROOT/tools/deploy_functions_termux.sh" "$PROJECT" commandCenterMcp homeCenterMcp localVoiceFarm computerHands'
+          new_deploy = old_deploy + ' veniceNerve'
+          if new_deploy not in release:
+              assert old_deploy in release
+              release = release.replace(old_deploy, new_deploy, 1)
+          if 'VENICE_NERVE_HEALTH_URL=' not in release:
+              anchor = "COMPUTER_HANDS_HEALTH_JSON=\"$COMPUTER_HANDS_HEALTH_JSON\" node -e 'const p=JSON.parse(process.env.COMPUTER_HANDS_HEALTH_JSON);if(!p.ok||p.service!==\"computer-hands\"||p.apiVersion!==\"home-center.computer-hands-api.v1\"||p.contractVersion!==\"home-center.computer-hands-contract.v1\"||p.fileLayer!==\"drive_sync\"||!Array.isArray(p.capabilities)||!p.capabilities.includes(\"screen.capture\")||!p.capabilities.includes(\"shell.exec\"))throw new Error(\"computer hands deployment health mismatch\");console.log(JSON.stringify(p))'"
+              assert anchor in release
+              nerve_health = "\nVENICE_NERVE_HEALTH_URL=\"https://${REGION}-${PROJECT}.cloudfunctions.net/veniceNerve/venice-nerve/v1/health\"\nVENICE_NERVE_HEALTH_JSON=\"$(curl --fail --silent --show-error \"$VENICE_NERVE_HEALTH_URL\")\"\nVENICE_NERVE_HEALTH_JSON=\"$VENICE_NERVE_HEALTH_JSON\" node -e 'const p=JSON.parse(process.env.VENICE_NERVE_HEALTH_JSON);if(!p.ok||p.service!==\"venice-nerve\"||p.apiVersion!==\"home-center.venice-nerve-api.v1\"||p.contractVersion!==\"venice-nerve-silk.transport.v1\"||p.fileLayer!==\"drive_sync\"||!Array.isArray(p.capabilities)||!p.capabilities.includes(\"venice.turn\"))throw new Error(\"venice nerve deployment health mismatch\");console.log(JSON.stringify(p))'"
+              release = release.replace(anchor, anchor + nerve_health, 1)
+          release_path.write_text(release)
+      - name: Validate merged anatomy
+        run: |
+          npm ci --prefix functions --ignore-scripts
+          node --check functions/venice_nerve_api.js
+          node --check functions/home_center_mcp.js
+          node --check functions/index.js
+          node --test functions/venice_nerve_api.test.js
+          node tools/venice_media_presence_contract_test.mjs
+          grep -q "browserNerveOperationEntries" functions/home_center_mcp.js
+          grep -q "veniceNerveOperationEntries" functions/home_center_mcp.js
+          grep -q "exports.browserNerve" functions/index.js
+          grep -q "exports.veniceNerve" functions/index.js
+          node tools/generate_home_center_public_manifest.mjs --check
+          git diff --check
+      - name: Commit current-main integration
+        run: |
+          git config user.name 'home-center-actions'
+          git config user.email 'home-center-actions@users.noreply.github.com'
+          git add \
+            .github/workflows/venice-media-presence-contract.yml \
+            .github/workflows/venice-nerve-refresh-manifest.yml \
+            contracts/venice-body-turn.v1.schema.json \
+            contracts/venice-media-session.v1.schema.json \
+            docs/venice-chatgpt-aperture-v2.md \
+            docs/venice-media-presence-organ.md \
+            functions/home_center_mcp.js \
+            functions/index.js \
+            functions/package.json \
+            functions/venice_nerve_api.js \
+            functions/venice_nerve_api.test.js \
+            tools/deploy_blender_workspace_release.sh \
+            tools/venice_media_presence_contract_test.mjs \
+            venice-nerve/windows/home-center-venice-nerve.ps1 \
+            venice-nerve/windows/install.ps1
+          git commit -m 'Reapply Venice Nerve on current main'
+          git push origin HEAD:venice-nerve-media-presence-v3
