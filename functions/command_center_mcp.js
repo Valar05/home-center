@@ -4,6 +4,7 @@ const {z} = require('zod/v4');
 const {McpServer} = require('@modelcontextprotocol/sdk/server/mcp.js');
 const {StreamableHTTPServerTransport} = require('@modelcontextprotocol/sdk/server/streamableHttp.js');
 const {APP_CONTROL_COLLECTIONS, APP_CONTROL_DEFAULT_SEEDS, appControlProfileObjectId, appControlProfilePath} = require('./app_control_cloud');
+const {registerCommandCenterPhoneTools} = require('./phone_hands_relay');
 const {enqueueBrowserNerveTicket} = require('./browser_nerve_api');
 
 const DEFAULT_COMMAND_CENTER_PUBLIC_BASE = 'https://us-central1-home-center-dclar.cloudfunctions.net/commandCenterMcp';
@@ -1215,6 +1216,8 @@ function createCommandCenterMcpServer({admin}) {
     description: 'Record redacted execution evidence, timings, frame-lane status, and learned fixes for a cloud app-control profile.',
     inputSchema: {idempotencyKey: z.string(), profileId: z.string(), workflow: z.string(), runId: z.string().optional(), packageName: z.string().optional(), deviceAlias: z.string().optional(), status: z.string().optional(), elapsedMs: z.number().optional(), uiActionCount: z.number().optional(), frameLane: z.record(z.string(), z.any()).optional(), summary: z.string().optional(), learnedFixes: z.array(z.string()).optional(), evidenceRefs: z.array(z.string()).optional()},
   }, async (args, extra) => textResult(await recordAppControlRun(admin, await callerFromExtra(admin, extra), args || {})));
+
+  registerCommandCenterPhoneTools(server, {admin, z, textResult, callerFromExtra});
 
   server.registerTool('command_center.browser_sessions.create', {
     title: 'Create browser-hands session',
