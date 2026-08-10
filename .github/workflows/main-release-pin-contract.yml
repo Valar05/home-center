@@ -1,0 +1,25 @@
+name: Main Release Pin Contract
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'tools/assert_home_center_mcp_main_release.sh'
+      - 'tools/home_center_mcp_main_release_gate_test.mjs'
+      - '.github/workflows/main-release-pin-contract.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate release gate shell syntax
+        run: sh -n tools/assert_home_center_mcp_main_release.sh
+      - name: Reproduce concurrent-main release semantics
+        run: node tools/home_center_mcp_main_release_gate_test.mjs
