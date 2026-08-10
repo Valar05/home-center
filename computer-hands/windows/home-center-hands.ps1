@@ -212,7 +212,7 @@ function Execute-Ticket([object]$Ticket) {
 
   $steps=@(Get-ActionArg $a 'steps' @())
   $stopOnError=[bool](Get-ActionArg $a 'stopOnError' $true)
-  $results=New-Object System.Collections.Generic.List[object]
+  $results=@()
   $completed=0
   $allOk=$true
   for($index=0;$index -lt $steps.Count;$index+=1){
@@ -224,20 +224,20 @@ function Execute-Ticket([object]$Ticket) {
     Write-ProgressState @{ticketId=$Ticket.ticketId;requestId=$Ticket.requestId;laneId=$Ticket.laneId;action=$action;progress=$progress}
     $heartbeat=Invoke-HandsApi 'POST' "tickets/$($Ticket.ticketId)/heartbeat" @{phase='packet_step';progress=$progress}
     if($heartbeat.cancelRequested -eq $true){
-      return @{ok=$false;cancelled=$true;packet=$true;completedSteps=$completed;totalSteps=$steps.Count;steps=@($results)}
+      return @{ok=$false;cancelled=$true;packet=$true;completedSteps=$completed;totalSteps=$steps.Count;steps=$results}
     }
     try{
       $stepResult=Execute-Action $stepAction $stepArgs
       $completed+=1
-      $results.Add([pscustomobject]@{id=$stepId;action=$stepAction;ok=($stepResult.ok -ne $false);result=$stepResult})
+      $results += [pscustomobject]@{id=$stepId;action=$stepAction;ok=($stepResult.ok -ne $false);result=$stepResult}
       if($stepResult.ok -eq $false){$allOk=$false;if($stopOnError){break}}
     }catch{
       $allOk=$false
-      $results.Add([pscustomobject]@{id=$stepId;action=$stepAction;ok=$false;error=$_.Exception.Message})
+      $results += [pscustomobject]@{id=$stepId;action=$stepAction;ok=$false;error=$_.Exception.Message}
       if($stopOnError){break}
     }
   }
-  return @{ok=$allOk;packet=$true;completedSteps=$completed;totalSteps=$steps.Count;steps=@($results)}
+  return @{ok=$allOk;packet=$true;completedSteps=$completed;totalSteps=$steps.Count;steps=$results}
 }
 
 Log "worker_start workerId=$WorkerId pid=$PID"
