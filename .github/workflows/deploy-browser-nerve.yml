@@ -4,52 +4,71 @@ on:
   workflow_dispatch:
     inputs:
       project:
-        description: GCP project ID
+        description: GCP project id
         required: true
         default: home-center-dclar
-      confirm:
-        description: Type deploy to proceed
+      region:
+        description: GCP region
         required: true
-        default: ""
+        default: us-central1
+      confirm:
+        description: Type deploy to confirm
+        required: true
 
 permissions:
   contents: read
   id-token: write
 
-env:
-  NODE_VERSION: '22'
+concurrency:
+  group: deploy-browser-nerve
+  cancel-in-progress: false
 
 jobs:
   deploy:
-    if: github.event.inputs.confirm == 'deploy'
+    if: ${{ inputs.confirm == 'deploy' }}
     runs-on: ubuntu-latest
+    env:
+      PROJECT: ${{ inputs.project || 'home-center-dclar' }}
+      REGION: ${{ inputs.region || 'us-central1' }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: refs/heads/main
+          fetch-depth: 0
+      - name: Enforce immutable main release source
+        run: sh tools/assert_home_center_mcp_main_release.sh "$GITHUB_WORKSPACE"
       - uses: actions/setup-node@v4
         with:
-          node-version: ${{ env.NODE_VERSION }}
+          node-version: '22'
           cache: npm
           cache-dependency-path: functions/package-lock.json
-      - uses: google-github-actions/auth@v2
-        with:
-          workload_identity_provider: ${{ secrets.HOME_RELEASE_WIF_PROVIDER }}
-          service_account: ${{ secrets.HOME_RELEASE_SERVICE_ACCOUNT }}
-      - uses: google-github-actions/setup-gcloud@v2
-        with:
-          project_id: ${{ github.event.inputs.project }}
-      - name: Install dependencies
-        run: |
-          npm ci --prefix functions --ignore-scripts
-          npm install -g firebase-tools@15.1.0
-      - name: Preflight exact Browser Nerve source
+      - run: npm --prefix functions ci
+      - name: Validate Browser Nerve source
         run: |
           node --check functions/browser_nerve_api.js
+          node --check functions/index.js
           grep -q "exports.browserNerve" functions/index.js
           grep -q "home-center.browser-nerve-contract.v1" functions/browser_nerve_api.js
-      - name: Deploy Browser Nerve only
-        run: firebase deploy --project "${{ github.event.inputs.project }}" --only functions:browserNerve --force
-      - name: Print deployment identity
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GCP_DEPLOY_SERVICE_ACCOUNT }}
+      - uses: google-github-actions/setup-gcloud@v2
+      - name: Deploy Browser Nerve
         run: |
-          echo "repo=${GITHUB_REPOSITORY}"
-          echo "sha=${GITHUB_SHA}"
-          echo "function=browserNerve"
+          gcloud functions deploy browserNerve \
+            --gen2 \
+            --project="$PROJECT" \
+            --region="$REGION" \
+            --runtime=nodejs22 \
+            --source="$GITHUB_WORKSPACE/functions" \
+            --entry-point=browserNerve \
+            --trigger-http \
+            --allow-unauthenticated \
+            --timeout=300s
+      - name: Verify Browser Nerve health
+        run: |
+          URL="https://${REGION}-${PROJECT}.cloudfunctions.net/browserNerve/browser-nerve/v1/health"
+          JSON="$(curl --fail --silent --show-error "$URL")"
+          JSON="$JSON" node -e 'const p=JSON.parse(process.env.JSON); if(!p.ok||p.service!=="browser-nerve"||p.apiVersion!=="home-center.browser-nerve-api.v1"||p.contractVersion!=="home-center.browser-nerve-contract.v1"||!Array.isArray(p.capabilities)||!p.capabilities.includes("click")||!p.capabilities.includes("type")||p.selectorPolicy!=="aria_role_name_then_testid_id_css_then_text") throw new Error("browser nerve deployment health mismatch"); console.log(JSON.stringify(p))'
