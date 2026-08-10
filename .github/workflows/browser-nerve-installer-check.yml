@@ -1,0 +1,34 @@
+name: Browser Nerve Installer Check
+
+on:
+  push:
+    paths:
+      - browser-nerve/windows/install.ps1
+      - .github/workflows/browser-nerve-installer-check.yml
+  pull_request:
+    paths:
+      - browser-nerve/windows/install.ps1
+      - .github/workflows/browser-nerve-installer-check.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Parse installer and verify private-repo staging contract
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $path = 'browser-nerve/windows/install.ps1'
+          $source = Get-Content -Raw $path
+          [void][scriptblock]::Create($source)
+          if ($source -notmatch '\[string\]\$SourceDirectory') { throw 'SourceDirectory parameter missing.' }
+          if ($source -notmatch 'authenticated pre-staged source') { throw 'Authenticated staging path missing.' }
+          if ($source -notmatch 'Copy-Item -LiteralPath \$sourceWorker') { throw 'Pre-staged worker copy missing.' }
+          if ($source -notmatch 'Copy-Item -LiteralPath \$sourceExecutor') { throw 'Pre-staged executor copy missing.' }
+          if ($source -notmatch 'Invoke-WebRequest') { throw 'Existing download path was accidentally removed.' }
+          Write-Host 'Browser Nerve installer contract OK'
