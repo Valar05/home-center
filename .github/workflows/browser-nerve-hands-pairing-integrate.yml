@@ -1,0 +1,64 @@
+name: Browser Nerve Hands Pairing Integration
+
+on:
+  push:
+    branches:
+      - feature/browser-nerve-hands-pairing
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  integrate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: feature/browser-nerve-hands-pairing
+      - name: Merge current main into candidate
+        run: |
+          git config user.name 'home-center-actions'
+          git config user.email 'home-center-actions@users.noreply.github.com'
+          git fetch origin main
+          git merge --no-edit origin/main
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: functions/package-lock.json
+      - run: npm ci --prefix functions --ignore-scripts
+      - name: Apply secure pairing patch twice
+        run: |
+          node tools/apply_browser_nerve_hands_pairing_patch.mjs
+          node tools/apply_browser_nerve_hands_pairing_patch.mjs
+      - name: Validate JavaScript and pairing tests
+        run: |
+          node --check functions/browser_nerve_api.js
+          node --check functions/browser_nerve_api.test.js
+          node --test functions/browser_nerve_api.test.js
+      - name: Parse installer
+        shell: pwsh
+        run: |
+          $ErrorActionPreference='Stop'
+          $source=Get-Content -Raw 'browser-nerve/windows/install.ps1'
+          [void][scriptblock]::Create($source)
+          if($source -notmatch 'PairWithComputerHands'){throw 'pairing installer mode missing'}
+          if($source -notmatch 'pair-computer-hands'){throw 'pairing endpoint call missing'}
+          if($source -notmatch 'ZeroFreeBSTR'){throw 'Computer Hands credential cleanup missing'}
+      - name: Enforce pairing boundary
+        run: |
+          grep -q "computerHandsWorkerTokens" functions/browser_nerve_api.js
+          grep -q "pair-computer-hands" functions/browser_nerve_api.js
+          grep -q "pairedFromComputerHandsWorkerId" functions/browser_nerve_api.js
+          ! grep -q "Computer Hands worker token.*console" functions/browser_nerve_api.js
+          git diff --check
+      - name: Commit generated pairing and push tested candidate
+        run: |
+          changed=$(git status --porcelain -- functions/browser_nerve_api.js functions/browser_nerve_api.test.js browser-nerve/windows/install.ps1)
+          if [ -n "$changed" ]; then
+            git add functions/browser_nerve_api.js functions/browser_nerve_api.test.js browser-nerve/windows/install.ps1
+            git commit -m 'Pair Browser Nerve from Computer Hands identity'
+          fi
+          git push origin HEAD:feature/browser-nerve-hands-pairing
