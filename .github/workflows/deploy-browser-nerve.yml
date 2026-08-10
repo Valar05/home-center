@@ -1,0 +1,55 @@
+name: Deploy Browser Nerve
+
+on:
+  workflow_dispatch:
+    inputs:
+      project:
+        description: GCP project ID
+        required: true
+        default: home-center-dclar
+      confirm:
+        description: Type deploy to proceed
+        required: true
+        default: ""
+
+permissions:
+  contents: read
+  id-token: write
+
+env:
+  NODE_VERSION: '22'
+
+jobs:
+  deploy:
+    if: github.event.inputs.confirm == 'deploy'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: functions/package-lock.json
+      - uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.HOME_RELEASE_WIF_PROVIDER }}
+          service_account: ${{ secrets.HOME_RELEASE_SERVICE_ACCOUNT }}
+      - uses: google-github-actions/setup-gcloud@v2
+        with:
+          project_id: ${{ github.event.inputs.project }}
+      - name: Install dependencies
+        run: |
+          npm ci --prefix functions --ignore-scripts
+          npm install -g firebase-tools@15.1.0
+      - name: Preflight exact Browser Nerve source
+        run: |
+          node --check functions/browser_nerve_api.js
+          grep -q "exports.browserNerve" functions/index.js
+          grep -q "home-center.browser-nerve-contract.v1" functions/browser_nerve_api.js
+      - name: Deploy Browser Nerve only
+        run: firebase deploy --project "${{ github.event.inputs.project }}" --only functions:browserNerve --force
+      - name: Print deployment identity
+        run: |
+          echo "repo=${GITHUB_REPOSITORY}"
+          echo "sha=${GITHUB_SHA}"
+          echo "function=browserNerve"
