@@ -51,7 +51,8 @@ function Read-Config {
 
 function Read-WorkerToken([object]$Cfg) {
   if (-not (Test-Path -LiteralPath $Cfg.tokenPath)) { throw 'Computer Hands token file is missing.' }
-  $secure = Get-Content -LiteralPath $Cfg.tokenPath -Raw | ConvertTo-SecureString
+  $serialized = (Get-Content -LiteralPath $Cfg.tokenPath -Raw).Trim()
+  $secure = $serialized | ConvertTo-SecureString
   $ptr = [Runtime.InteropServices.Marshal]::SecureStringToBSTR($secure)
   try { return [Runtime.InteropServices.Marshal]::PtrToStringBSTR($ptr) }
   finally { [Runtime.InteropServices.Marshal]::ZeroFreeBSTR($ptr) }
@@ -92,29 +93,39 @@ function Get-WindowList {
     $sb = New-Object Text.StringBuilder 1024
     [void][HomeCenterHandsNative]::GetWindowText($hwnd, $sb, $sb.Capacity)
     $title = $sb.ToString().Trim(); if (-not $title) { return $true }
-    [uint32]$pid = 0; [void][HomeCenterHandsNative]::GetWindowThreadProcessId($hwnd, [ref]$pid)
-    $name = ''; try { $name = (Get-Process -Id $pid -ErrorAction Stop).ProcessName } catch {}
-    $rows.Add([pscustomobject]@{handle=$hwnd.ToInt64(); pid=$pid; process=$name; title=$title}); return $true
+    [uint32]$windowProcessId = 0; [void][HomeCenterHandsNative]::GetWindowThreadProcessId($hwnd, [ref]$windowProcessId)
+    $name = ''; try { $name = (Get-Process -Id $windowProcessId -ErrorAction Stop).ProcessName } catch {}
+    $rows.Add([pscustomobject]@{handle=$hwnd.ToInt64(); pid=$windowProcessId; process=$name; title=$title}); return $true
   }
   [void][HomeCenterHandsNative]::EnumWindows($callback, [IntPtr]::Zero)
   return @{ok=$true; windows=@($rows | Select-Object -First 200); count=$rows.Count}
 }
 
-function Focus-Window([object]$Args) {
+function Get-ActionArg([object]$ActionArgs, [string]$Name, $Default = $null) {
+  if ($null -eq $ActionArgs) { return $Default }
+  $property = $ActionArgs.PSObject.Properties[$Name]
+  if ($null -eq $property) { return $Default }
+  if ($null -eq $property.Value) { return $Default }
+  return $property.Value
+}
+
+function Focus-Window([object]$ActionArgs) {
   $windows = (Get-WindowList).windows; $target = $null
-  if ($Args.pid) { $target = $windows | Where-Object { $_.pid -eq [int]$Args.pid } | Select-Object -First 1 }
-  elseif ($Args.title) { $needle=[string]$Args.title; $target=$windows | Where-Object { $_.title -like "*$needle*" } | Select-Object -First 1 }
+  $requestedPid = Get-ActionArg $ActionArgs 'pid' $null
+  $requestedTitle = [string](Get-ActionArg $ActionArgs 'title' '')
+  if ($null -ne $requestedPid) { $target = $windows | Where-Object { $_.pid -eq [int]$requestedPid } | Select-Object -First 1 }
+  elseif ($requestedTitle) { $needle=$requestedTitle; $target=$windows | Where-Object { $_.title -like "*$needle*" } | Select-Object -First 1 }
   if (-not $target) { throw 'Requested window was not found.' }
   $hwnd=[IntPtr]::new([int64]$target.handle); [void][HomeCenterHandsNative]::ShowWindowAsync($hwnd,9); Start-Sleep -Milliseconds 120
   return @{ok=[bool][HomeCenterHandsNative]::SetForegroundWindow($hwnd); window=$target}
 }
 
-function Capture-Screen([object]$Args) {
+function Capture-Screen([object]$ActionArgs) {
   $bounds=[System.Windows.Forms.SystemInformation]::VirtualScreen
   $source=New-Object Drawing.Bitmap $bounds.Width,$bounds.Height
   $g=[Drawing.Graphics]::FromImage($source); try{$g.CopyFromScreen($bounds.Left,$bounds.Top,0,0,$source.Size)}finally{$g.Dispose()}
   try {
-    $maxWidth=if($Args.maxWidth){[int]$Args.maxWidth}else{1280}; $quality=if($Args.quality){[int64]$Args.quality}else{55}
+    $maxWidth=[int](Get-ActionArg $ActionArgs 'maxWidth' 1280); $quality=[int64](Get-ActionArg $ActionArgs 'quality' 55)
     $scale=[Math]::Min(1.0,$maxWidth/[double]$source.Width); $w=[Math]::Max(1,[int]($source.Width*$scale)); $h=[Math]::Max(1,[int]($source.Height*$scale))
     $image=New-Object Drawing.Bitmap $w,$h; $rg=[Drawing.Graphics]::FromImage($image); try{$rg.DrawImage($source,0,0,$w,$h)}finally{$rg.Dispose()}
     try {
@@ -139,17 +150,17 @@ function Invoke-Key([string]$Key) {
   if($normalized.Length -eq 1){[Windows.Forms.SendKeys]::SendWait($normalized);return};throw "Unsupported key chord: $Key"
 }
 
-function Invoke-Mouse([object]$Args) {
-  [void][HomeCenterHandsNative]::SetCursorPos([int]$Args.x,[int]$Args.y);$event=if($Args.event){([string]$Args.event).ToLowerInvariant()}else{'click'};$button=if($Args.button){([string]$Args.button).ToLowerInvariant()}else{'left'}
+function Invoke-Mouse([object]$ActionArgs) {
+  $x=[int](Get-ActionArg $ActionArgs 'x' 0);$y=[int](Get-ActionArg $ActionArgs 'y' 0);$event=([string](Get-ActionArg $ActionArgs 'event' 'click')).ToLowerInvariant();$button=([string](Get-ActionArg $ActionArgs 'button' 'left')).ToLowerInvariant();[void][HomeCenterHandsNative]::SetCursorPos($x,$y)
   $down=if($button -eq 'right'){0x0008}elseif($button -eq 'middle'){0x0020}else{0x0002};$up=if($button -eq 'right'){0x0010}elseif($button -eq 'middle'){0x0040}else{0x0004}
   if($event -in @('down','click')){[HomeCenterHandsNative]::mouse_event($down,0,0,0,[UIntPtr]::Zero)};if($event -in @('up','click')){[HomeCenterHandsNative]::mouse_event($up,0,0,0,[UIntPtr]::Zero)}
-  return @{ok=$true;x=[int]$Args.x;y=[int]$Args.y;button=$button;event=$event}
+  return @{ok=$true;x=$x;y=$y;button=$button;event=$event}
 }
 
-function Run-Shell([object]$Args) {
-  $encoded=[Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes([string]$Args.command))
+function Run-Shell([object]$ActionArgs) {
+  $command=[string](Get-ActionArg $ActionArgs 'command' ''); if(-not $command){throw 'shell.exec command was missing from the leased ticket.'};$encoded=[Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes($command))
   $psi=New-Object Diagnostics.ProcessStartInfo;$psi.FileName='powershell.exe';$psi.Arguments="-NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -EncodedCommand $encoded"
-  if($Args.workingDirectory){$psi.WorkingDirectory=[string]$Args.workingDirectory};$psi.UseShellExecute=$false;$psi.RedirectStandardOutput=$true;$psi.RedirectStandardError=$true;$psi.CreateNoWindow=$true
+  $workingDirectory=[string](Get-ActionArg $ActionArgs 'workingDirectory' '');if($workingDirectory){$psi.WorkingDirectory=$workingDirectory};$psi.UseShellExecute=$false;$psi.RedirectStandardOutput=$true;$psi.RedirectStandardError=$true;$psi.CreateNoWindow=$true
   $p=New-Object Diagnostics.Process;$p.StartInfo=$psi;[void]$p.Start();$stdoutTask=$p.StandardOutput.ReadToEndAsync();$stderrTask=$p.StandardError.ReadToEndAsync()
   if(-not $p.WaitForExit(120000)){try{$p.Kill()}catch{};throw 'shell.exec exceeded 120 seconds.'};$stdout=$stdoutTask.Result;$stderr=$stderrTask.Result
   return @{ok=($p.ExitCode -eq 0);exitCode=$p.ExitCode;stdout=$stdout.Substring(0,[Math]::Min(120000,$stdout.Length));stderr=$stderr.Substring(0,[Math]::Min(60000,$stderr.Length))}
@@ -163,7 +174,7 @@ function Execute-Ticket([object]$Ticket) {
     'window.list'{return Get-WindowList}
     'window.focus'{return Focus-Window $a}
     'process.list'{return Get-ProcessList}
-    'process.start'{$sp=@{FilePath=[string]$a.command;PassThru=$true};if($a.arguments){$sp.ArgumentList=[string]$a.arguments};if($a.workingDirectory){$sp.WorkingDirectory=[string]$a.workingDirectory};$p=Start-Process @sp;return @{ok=$true;pid=$p.Id;name=$p.ProcessName}}
+    'process.start'{$command=[string](Get-ActionArg $a 'command' '');if(-not $command){throw 'process.start command was missing from the leased ticket.'};$sp=@{FilePath=$command;PassThru=$true};$processArguments=[string](Get-ActionArg $a 'arguments' '');$workingDirectory=[string](Get-ActionArg $a 'workingDirectory' '');if($processArguments){$sp.ArgumentList=$processArguments};if($workingDirectory){$sp.WorkingDirectory=$workingDirectory};$p=Start-Process @sp;return @{ok=$true;pid=$p.Id;name=$p.ProcessName}}
     'process.stop'{Stop-Process -Id ([int]$a.pid) -ErrorAction Stop;return @{ok=$true;pid=[int]$a.pid}}
     'input.type'{[HomeCenterHandsNative]::TypeUnicode([string]$a.text);return @{ok=$true;characters=([string]$a.text).Length}}
     'input.key'{Invoke-Key ([string]$a.key);return @{ok=$true;key=[string]$a.key}}
