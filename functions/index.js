@@ -10,6 +10,7 @@ const {CREDIT_GATED_EMAILS, requireCreditGatedEmail, createHomeCenterMcpApp, cre
 const {audioLibraryHandler} = require('./audio_library_api');
 const {createCommandCenterMcpApp} = require('./command_center_mcp');
 const {createLocalVoiceFarmHandler} = require('./local_voice_farm_api');
+const {createComputerHandsHandler} = require('./computer_hands_api');
 const {createSheRawMcpApp} = require('./she_raw_mcp');
 const {CARTESIA_DEFAULT_MODEL_ID, CARTESIA_DEFAULT_VOICE_NAME, listCartesiaVoiceCatalog, listCartesiaVoices, normalizeCartesiaVoice, openCartesiaStream} = require('./hosted_speech_provider');
 const {VENICE_GUILD_ID, createFirestoreConversationStore, createFirestoreStateStore, createVeniceDiscordHandler, createVeniceGenerationTaskHandler, generationTaskInput, veniceConversationId, veniceReplyBudget, veniceReplyNeedsRepair, veniceRoleplayInstruction, veniceIntimacyInstruction, voiceDeliveryProfile} = require('./venice_discord');
@@ -3547,6 +3548,8 @@ exports.homeCenterMcp = onRequest({timeoutSeconds: 300, secrets: [GOOGLE_OAUTH_C
 exports.commandCenterMcp = onRequest({timeoutSeconds: 300}, createCommandCenterMcpApp({admin}));
 
 exports.localVoiceFarm = onRequest({timeoutSeconds: 300, memory: '1GiB'}, createLocalVoiceFarmHandler({admin}));
+
+exports.computerHands = onRequest({timeoutSeconds: 300}, createComputerHandsHandler({admin}));
 
 exports.sheRawMcp = onRequest({timeoutSeconds: 300}, createSheRawMcpApp({admin}));
 
