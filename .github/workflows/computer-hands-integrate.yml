@@ -32,12 +32,15 @@ jobs:
       - name: Validate PowerShell syntax
         shell: pwsh
         run: |
-          $errors = $null
-          [void][System.Management.Automation.Language.Parser]::ParseFile((Resolve-Path 'computer-hands/worker.ps1'), [ref]$null, [ref]$errors)
-          if ($errors.Count) { $errors | Format-List | Out-String | Write-Error; exit 1 }
-          $errors = $null
-          [void][System.Management.Automation.Language.Parser]::ParseFile((Resolve-Path 'computer-hands/install.ps1'), [ref]$null, [ref]$errors)
-          if ($errors.Count) { $errors | Format-List | Out-String | Write-Error; exit 1 }
+          foreach ($path in @('computer-hands/worker.ps1', 'computer-hands/install.ps1', 'computer-hands/uninstall.ps1')) {
+            $tokens = $null
+            $errors = $null
+            [void][System.Management.Automation.Language.Parser]::ParseFile((Resolve-Path $path), [ref]$tokens, [ref]$errors)
+            if ($errors.Count) {
+              $errors | Format-List | Out-String | Write-Error
+              throw "PowerShell parser rejected $path"
+            }
+          }
       - name: Validate Computer Hands contract anchors
         shell: pwsh
         run: |
