@@ -1,0 +1,41 @@
+name: Patch Computer Hands Active Query v3.5
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+      - name: Apply active-ticket query patch
+        run: python tools/patch_computer_hands_active_query_v3_5.py
+      - name: Syntax and static acceptance
+        run: |
+          node --check functions/computer_hands_api.js
+          python - <<'PY'
+          from pathlib import Path
+          s = Path('functions/computer_hands_api.js').read_text()
+          needle = ".where('status', 'in', ['queued', 'leased', 'running']).limit(500).get()"
+          assert s.count(needle) >= 2, 'active-status queries missing'
+          assert "where('ownerKey', '==', owner).limit(100).get()" not in s
+          assert "where('ownerKey', '==', worker.ownerKey).limit(100).get()" not in s
+          assert "item.row.ownerKey !== worker.ownerKey" in s
+          PY
+      - name: Commit patch only
+        run: |
+          git config user.name "home-center-bot"
+          git config user.email "home-center-bot@users.noreply.github.com"
+          git add functions/computer_hands_api.js
+          git diff --cached --exit-code && exit 0
+          git commit -m "Fix Computer Hands active ticket discovery"
+          git push origin HEAD:main
