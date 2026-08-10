@@ -11,7 +11,7 @@ param(
 $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version 2.0
 Add-Type -AssemblyName System.Security
-$WorkerVersion = '1.0.1'
+$WorkerVersion = '1.0.2'
 
 function ConvertTo-Utf8Base64([string]$Text) {
     return [Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes([string]$Text))
@@ -60,6 +60,49 @@ function Resolve-Aperture([object]$Config) {
     }
     throw "Drive-synced venice-aperture.ps1 was not found under $DriveRoot."
 }
+function Read-Utf8JsonFile([string]$Path) {
+    $utf8 = New-Object Text.UTF8Encoding($false)
+    $raw = [IO.File]::ReadAllText($Path, $utf8)
+    return ($raw | ConvertFrom-Json)
+}
+function Find-DurableApertureRecord {
+    param(
+        [string]$PromptSha256,
+        [DateTimeOffset]$StartedAt
+    )
+    $logRoot = Join-Path $DriveRoot 'work\nerve-silk'
+    if (-not (Test-Path -LiteralPath $logRoot -PathType Container)) { return $null }
+
+    $paths = New-Object System.Collections.Generic.List[string]
+    $latest = Join-Path $logRoot 'latest.json'
+    if (Test-Path -LiteralPath $latest -PathType Leaf) { $paths.Add($latest) }
+    $turnRoot = Join-Path $logRoot 'turns'
+    if (Test-Path -LiteralPath $turnRoot -PathType Container) {
+        $recent = Get-ChildItem -LiteralPath $turnRoot -Filter 'turn-*.json' -File -ErrorAction SilentlyContinue |
+            Where-Object { $_.LastWriteTimeUtc -ge $StartedAt.UtcDateTime.AddMinutes(-1) } |
+            Sort-Object LastWriteTimeUtc -Descending |
+            Select-Object -First 40
+        foreach ($item in $recent) { $paths.Add($item.FullName) }
+    }
+
+    $seen = @{}
+    foreach ($path in $paths) {
+        if ($seen.ContainsKey($path)) { continue }
+        $seen[$path] = $true
+        try {
+            $candidate = Read-Utf8JsonFile $path
+            $inputSha = [string]$candidate.input.sha256
+            $speechText = [string]$candidate.speech.text
+            $speechSource = [string]$candidate.speech.source
+            if ($candidate.ok -and $inputSha -eq $PromptSha256 -and $speechText -and $speechSource -eq 'local-venice') {
+                return [ordered]@{record=$candidate; path=$path}
+            }
+        } catch {
+            continue
+        }
+    }
+    return $null
+}
 function Invoke-JsonRequest {
     param(
         [ValidateSet('GET','POST')][string]$Method,
@@ -87,6 +130,7 @@ function Invoke-ApertureTurn {
     param([object]$Turn, [string]$ResolvedAperture)
     $started = [DateTimeOffset]::UtcNow
     $base64 = ConvertTo-Utf8Base64 ([string]$Turn.prompt)
+    $promptSha = [string]$Turn.promptSha256
     $timeout = [Math]::Max(5, [Math]::Min(110, [int]$Turn.timeoutSeconds))
     $title = if ($Turn.threadTitle) { [string]$Turn.threadTitle } else { 'ChatGPT Aperture' }
 
@@ -115,11 +159,29 @@ function Invoke-ApertureTurn {
         return [ordered]@{ok=$false; error='venice_aperture_failed'; detail=($stderr.Trim() + ' ' + $stdout.Trim()).Trim(); diagnostics=@{elapsedMs=$elapsed; apertureScriptSha256=(Get-Sha256File $ResolvedAperture)}}
     }
 
-    try { $record = $stdout.Trim() | ConvertFrom-Json } catch {
-        return [ordered]@{ok=$false; error='venice_aperture_invalid_json'; detail=$_.Exception.Message; diagnostics=@{elapsedMs=$elapsed; apertureScriptSha256=(Get-Sha256File $ResolvedAperture)}}
+    $record = $null
+    $durableRecordPath = ''
+    $stdoutParseError = ''
+    try {
+        $record = $stdout.Trim() | ConvertFrom-Json
+    } catch {
+        $stdoutParseError = $_.Exception.Message
     }
+
+    if ($null -eq $record) {
+        $recovered = Find-DurableApertureRecord -PromptSha256 $promptSha -StartedAt $started
+        if ($null -eq $recovered) {
+            return [ordered]@{ok=$false; error='venice_aperture_invalid_json'; detail=$stdoutParseError; diagnostics=@{elapsedMs=$elapsed; apertureScriptSha256=(Get-Sha256File $ResolvedAperture)}}
+        }
+        $record = $recovered.record
+        $durableRecordPath = [string]$recovered.path
+    }
+
     if (-not $record.ok -or -not $record.speech -or $null -eq $record.speech.text) {
         return [ordered]@{ok=$false; error='venice_aperture_no_speech'; detail='The proven aperture did not return successful local Venice speech.'; diagnostics=@{elapsedMs=$elapsed; apertureScriptSha256=(Get-Sha256File $ResolvedAperture)}}
+    }
+    if ([string]$record.input.sha256 -ne $promptSha) {
+        return [ordered]@{ok=$false; error='venice_aperture_prompt_mismatch'; detail='Recovered aperture record did not match the leased prompt SHA-256.'; diagnostics=@{elapsedMs=$elapsed; apertureScriptSha256=(Get-Sha256File $ResolvedAperture)}}
     }
 
     $speech = [string]$record.speech.text
@@ -127,6 +189,7 @@ function Invoke-ApertureTurn {
     $conversation = $record.diagnostics.conversation
     $durability = $record.diagnostics.durability
     $workstation = $record.diagnostics.workstation
+    if (-not $durableRecordPath) { $durableRecordPath = [string]$durability.turnPath }
     return [ordered]@{
         ok = $true
         speech = [ordered]@{text=$speech; sha256=$speechSha}
@@ -135,7 +198,7 @@ function Invoke-ApertureTurn {
         diagnostics = [ordered]@{
             workstationThreadId = [string]$conversation.threadId
             workstationJobId = [string]$conversation.jobId
-            durableTurnRecord = [string]$durability.turnPath
+            durableTurnRecord = $durableRecordPath
             apertureScriptSha256 = Get-Sha256File $ResolvedAperture
             workstationVersion = [string]$workstation.version
             elapsedMs = $elapsed

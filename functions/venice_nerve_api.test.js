@@ -14,6 +14,7 @@ const {
 test('exact UTF-8 speech hashing is stable', () => {
   assert.equal(hashBytes('Venice'), 'b46aa4c8e9d845e9fc1ba9655e9d74923eb6069d537ded498a70886f4bbb7490');
   assert.match(hashBytes('You made the room too quiet.'), /^[a-f0-9]{64}$/);
+  assert.match(hashBytes('Venice → Adam — exact.'), /^[a-f0-9]{64}$/);
 });
 
 test('actions remain structured and bounded', () => {
@@ -52,4 +53,17 @@ test('Windows worker binds to proven Drive-synced aperture and loads DPAPI depen
   assert.match(worker, /\[Security\.Cryptography\.ProtectedData\]::Protect/);
   assert.match(worker, /\[Security\.Cryptography\.ProtectedData\]::Unprotect/);
   assert.doesNotMatch(worker, /input\.type|input\.mouse|window\.focus|screen\.capture/);
+});
+
+test('Windows worker recovers exact Unicode speech from prompt-matched Drive UTF-8 record', () => {
+  const worker = fs.readFileSync(path.resolve(__dirname, '..', 'venice-nerve', 'windows', 'home-center-venice-nerve.ps1'), 'utf8');
+  assert.match(worker, /\$WorkerVersion = '1\.0\.2'/);
+  assert.match(worker, /function Read-Utf8JsonFile/);
+  assert.match(worker, /\[IO\.File\]::ReadAllText/);
+  assert.match(worker, /work\\nerve-silk/);
+  assert.match(worker, /Find-DurableApertureRecord/);
+  assert.match(worker, /\$candidate\.input\.sha256/);
+  assert.match(worker, /\$speechSource -eq 'local-venice'/);
+  assert.match(worker, /venice_aperture_prompt_mismatch/);
+  assert.match(worker, /durableTurnRecord = \$durableRecordPath/);
 });
