@@ -15,34 +15,14 @@ from android_phone_hands_bridge import observe as hands_observe, act as hands_ac
 from android_phone_local_executive import execute as local_execute
 from android_phone_factory_tools import execute as factory_execute
 from android_armory_driver import execute as armory_execute
-try:
-    from glasshouse import append_event as _glasshouse_emit
-except Exception:
-    _glasshouse_emit = None
+from android_window_composer import execute as window_execute
 
 FACTORY_ACTIONS={
     'file_stat','file_hash','file_list','file_mkdir','file_copy','file_move',
     'armory_inventory','armory_ingest',
 }
 ARMORY_ACTIONS={'armory_doctor','armory_slice'}
-
-
-def glasshouse(kind, pane='phone', title='', text='', path='', data=None, focus=True):
-    if _glasshouse_emit is None:
-        return
-    try:
-        _glasshouse_emit(kind,pane=pane,title=title,text=text,path=path,data=data or {},focus=focus,source='phone-hands')
-    except Exception:
-        pass
-
-
-def pane_for_action(action):
-    kind=str(action.get('action') or '')
-    if kind in {'armory_slice'}: return 'render'
-    if kind in FACTORY_ACTIONS or kind in ARMORY_ACTIONS: return 'terminal'
-    if kind in {'observe','tap','swipe','text','keyevent','home','back','recents','launch','force_stop'}: return 'phone'
-    if kind=='dungeon_run': return 'terminal'
-    return 'phone'
+WINDOW_ACTIONS={'window_status','window_probe','window_compose','window_focus','window_swap'}
 
 
 def http(path, body=None, token=''):
@@ -86,7 +66,7 @@ def ensure_device():
     token=secrets.token_urlsafe(48)
     reg=http('/register',{
         'deviceId':DEVICE_ID,'deviceToken':token,'label':'Drew Android Phone',
-        'capabilities':['phone_hands','phone_files','armory_worker','local_qwen','coding_dungeon','voice']
+        'capabilities':['phone_hands','phone_files','armory_worker','window_composer','local_qwen','coding_dungeon','voice']
     },access_token())
     data={'deviceId':DEVICE_ID,'deviceToken':token,'registeredAt':time.time(),'registration':reg}
     NODE.write_text(json.dumps(data,indent=2)+'\n'); os.chmod(NODE,0o600); return data
@@ -106,37 +86,29 @@ def execute_action(action):
     if kind=='dungeon_run': return dungeon_run(action)
     if kind in FACTORY_ACTIONS: return factory_execute(action)
     if kind in ARMORY_ACTIONS: return armory_execute(action)
+    if kind in WINDOW_ACTIONS: return window_execute(action)
     return hands_act(action)
 
 
 def loop(once=False):
     dev=ensure_device(); did=dev['deviceId']; secret=dev['deviceToken']
     print(f'Home Center phone relay online: {did}',flush=True)
-    glasshouse('system',pane='phone',title=f'Phone relay online: {did}',data={'deviceId':did},focus=False)
     while True:
         try:
             pulled=http('/pull',{'deviceId':did,'deviceToken':secret,'leaseMs':90000})
             cmd=pulled.get('command')
             if cmd:
-                cid=cmd['commandId']; action=cmd.get('action') or {}; pane=pane_for_action(action); action_name=str(action.get('action') or 'unknown')
-                glasshouse('action',pane=pane,title=f'{action_name} · {cid}',data={'commandId':cid,'action':action},focus=True)
+                cid=cmd['commandId']
                 try:
-                    result=execute_action(action)
+                    result=execute_action(cmd.get('action') or {})
                     http('/complete',{'deviceId':did,'deviceToken':secret,'commandId':cid,'status':'completed','result':result})
-                    glasshouse('receipt',pane='receipt',title=f'{action_name} completed',data={'commandId':cid,'status':'completed','result':result},focus=True)
-                    if isinstance(result,dict):
-                        render_path=result.get('contactSheetPath') or result.get('renderPath') or result.get('imagePath')
-                        if render_path:
-                            glasshouse('render',pane='render',title=action_name,path=str(render_path),data={'commandId':cid},focus=True)
                     print(json.dumps({'commandId':cid,'status':'completed'},ensure_ascii=False),flush=True)
                 except Exception as exc:
                     http('/complete',{'deviceId':did,'deviceToken':secret,'commandId':cid,'status':'failed','error':str(exc)[:4000]})
-                    glasshouse('receipt',pane='receipt',title=f'{action_name} failed',text=str(exc),data={'commandId':cid,'status':'failed','error':str(exc)},focus=True)
                     print(json.dumps({'commandId':cid,'status':'failed','error':str(exc)},ensure_ascii=False),flush=True)
             if once: return
         except KeyboardInterrupt: raise
         except Exception as exc:
-            glasshouse('error',pane='receipt',title='phone relay error',text=str(exc),focus=True)
             print('phone-relay error: '+str(exc),file=sys.stderr,flush=True)
             if once: raise
         time.sleep(POLL)
