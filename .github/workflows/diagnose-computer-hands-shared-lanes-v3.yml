@@ -1,0 +1,33 @@
+name: Diagnose Computer Hands Shared Lanes v3
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+      - name: Run patcher without allowing partial source commit
+        shell: bash
+        run: |
+          set +e
+          output="$(python3 tools/patch_computer_hands_shared_lanes_v3.py 2>&1)"
+          code=$?
+          set -e
+          printf 'exit_code=%s\n%s\n' "$code" "$output" > tools/computer_hands_v3_patch_diagnostic.txt
+          if [ "$code" -ne 0 ]; then
+            git restore -- functions/computer_hands_api.js computer-hands/windows/home-center-hands.ps1 computer-hands/windows/repair.ps1 2>/dev/null || true
+            rm -f functions/computer_hands_shared_lanes.test.js
+          fi
+          git config user.name 'home-center-github-admin[bot]'
+          git config user.email 'home-center-github-admin[bot]@users.noreply.github.com'
+          git add tools/computer_hands_v3_patch_diagnostic.txt
+          git commit -m 'Record Computer Hands v3 patch diagnostic' || true
+          git push origin HEAD:main
