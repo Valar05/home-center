@@ -8,7 +8,7 @@ const PUBLIC_ORIGIN = process.env.HOME_CENTER_COMPUTER_HANDS_ORIGIN || 'https://
 const COLLECTIONS = Object.freeze({workers: 'computerHandsWorkers', bootstrap: 'computerHandsBootstrapCodes', tokens: 'computerHandsWorkerTokens', tickets: 'computerHandsTickets'});
 const BOOTSTRAP_TTL_MS = 10 * 60 * 1000;
 const TOKEN_TTL_MS = 90 * 24 * 60 * 60 * 1000;
-const LEASE_TTL_MS = 2 * 60 * 1000;
+const LEASE_TTL_MS = 3 * 60 * 1000;
 const MAX_RESULT_BYTES = 850 * 1024;
 const MAX_PACKET_STEPS = 32;
 const MAX_PACKET_ARGUMENT_BYTES = 96 * 1024;
@@ -115,10 +115,15 @@ async function workerStatusOperation({admin, user, args = {}}) {
   if (!snap.exists) return {workerId, status: 'not_registered', online: false, fileLayer: 'drive_sync', capabilities: SUPPORTED_ACTIONS, queueDepth: 0, activeLanes: []};
   const row = snap.data() || {};
   const lastSeenAtMs = Number(row.lastSeenAtMs || 0);
+  const updatedAtMs = Number(row.updatedAtMs || 0);
+  const state = safeText(row.state, 80) || 'unknown';
+  const onlineFreshnessMs = ['running', 'leased'].includes(state) ? LEASE_TTL_MS + 15000 : 30000;
+  const heartbeatAtMs = Math.max(lastSeenAtMs, ['running', 'leased'].includes(state) ? updatedAtMs : 0);
+  const online = heartbeatAtMs > 0 && Date.now() - heartbeatAtMs < onlineFreshnessMs;
   const pending = await admin.firestore().collection(COLLECTIONS.tickets).where('ownerKey', '==', owner).limit(100).get();
   const rows = pending.docs.map((doc) => doc.data() || {}).filter((item) => item.workerId === workerId && ['queued', 'leased', 'running'].includes(item.status));
   const activeLanes = [...new Set(rows.map((item) => safeLaneId(item.laneId || 'lane-default')))];
-  return {workerId, status: safeText(row.state, 80) || 'unknown', online: lastSeenAtMs > 0 && Date.now() - lastSeenAtMs < 30000, lastSeenAtMs, workerVersion: safeText(row.workerVersion, 120), machine: row.machine || null, capabilities: row.capabilities || SUPPORTED_ACTIONS, fileLayer: 'drive_sync', queueDepth: rows.length, activeLanes, lastServedLaneId: safeText(row.lastServedLaneId, 160)};
+  return {workerId, status: state, online, lastSeenAtMs, updatedAtMs, onlineFreshnessMs, workerVersion: safeText(row.workerVersion, 120), machine: row.machine || null, capabilities: row.capabilities || SUPPORTED_ACTIONS, fileLayer: 'drive_sync', queueDepth: rows.length, activeLanes, lastServedLaneId: safeText(row.lastServedLaneId, 160)};
 }
 
 async function createRequestOperation({admin, user, args = {}, nowMs = Date.now()}) {
