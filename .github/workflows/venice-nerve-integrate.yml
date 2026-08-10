@@ -1,0 +1,101 @@
+name: Venice Nerve Integration
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - venice-nerve-media-presence-v2
+    paths:
+      - 'functions/venice_nerve_api.js'
+      - 'functions/venice_nerve_api.test.js'
+      - 'venice-nerve/windows/**'
+      - '.github/workflows/venice-nerve-integrate.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  integrate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: venice-nerve-media-presence-v2
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: functions/package-lock.json
+      - name: Install function dependencies
+        run: npm ci --prefix functions --ignore-scripts
+      - name: Wire dedicated Venice Nerve into Home Center
+        shell: python
+        run: |
+          from pathlib import Path
+          import json
+
+          mcp_path = Path('functions/home_center_mcp.js')
+          mcp = mcp_path.read_text()
+          nerve_import = "const {veniceNerveOperationEntries, veniceNerveOperationRunOperation} = require('./venice_nerve_api');"
+          body_import = "const {veniceBodyOperationEntries, veniceBodyOperationRunOperation} = require('./venice_body_router');"
+          if nerve_import not in mcp:
+              assert body_import in mcp
+              mcp = mcp.replace(body_import, body_import + '\n' + nerve_import, 1)
+          if '...veniceNerveOperationEntries()' not in mcp:
+              anchor = '    ...veniceBodyOperationEntries(),'
+              assert anchor in mcp
+              mcp = mcp.replace(anchor, anchor + '\n    ...veniceNerveOperationEntries(),', 1)
+          if 'veniceNerveOperationRunOperation({' not in mcp:
+              anchor = "    const result = await veniceBodyOperationRunOperation({extra, admin, user, operation, args: operationArgs});\n    return {operation, registryVersion: registry.version, completed: true, result};\n  }"
+              assert anchor in mcp
+              block = "\n  if (veniceNerveOperationEntries()[operation]) {\n    requireCreditGatedEmail(user && user.email, operation);\n    const result = await veniceNerveOperationRunOperation({admin, user, operation, args: operationArgs});\n    return {operation, registryVersion: registry.version, completed: true, result};\n  }"
+              mcp = mcp.replace(anchor, anchor + block, 1)
+          mcp_path.write_text(mcp)
+
+          index_path = Path('functions/index.js')
+          index = index_path.read_text()
+          hands_import = "const {createComputerHandsHandler} = require('./computer_hands_api');"
+          nerve_handler_import = "const {createVeniceNerveHandler} = require('./venice_nerve_api');"
+          if nerve_handler_import not in index:
+              assert hands_import in index
+              index = index.replace(hands_import, hands_import + '\n' + nerve_handler_import, 1)
+          hands_export = "exports.computerHands = onRequest({timeoutSeconds: 300}, createComputerHandsHandler({admin}));"
+          nerve_export = "exports.veniceNerve = onRequest({timeoutSeconds: 300}, createVeniceNerveHandler({admin}));"
+          if nerve_export not in index:
+              assert hands_export in index
+              index = index.replace(hands_export, hands_export + '\n' + nerve_export, 1)
+          index_path.write_text(index)
+
+          package_path = Path('functions/package.json')
+          package = json.loads(package_path.read_text())
+          lint = package.get('scripts', {}).get('lint', '')
+          if 'venice_nerve_api.js' not in lint:
+              anchor = 'node --check computer_hands_api.js'
+              assert anchor in lint
+              package['scripts']['lint'] = lint.replace(anchor, anchor + ' && node --check venice_nerve_api.js', 1)
+              package_path.write_text(json.dumps(package, indent=2) + '\n')
+      - name: Validate syntax and Nerve contracts
+        run: |
+          node --check functions/venice_nerve_api.js
+          node --check functions/home_center_mcp.js
+          node --check functions/index.js
+          node --test functions/venice_nerve_api.test.js
+          grep -q "veniceNerveOperationEntries" functions/home_center_mcp.js
+          grep -q "exports.veniceNerve" functions/index.js
+          if grep -Eq "computer_hands_api|computerHandsOperation|windows-hands-01" functions/venice_nerve_api.js; then
+            echo 'Venice Nerve may not share the Computer Hands transport.' >&2
+            exit 1
+          fi
+          git diff --check
+      - name: Commit explicit MCP wiring
+        run: |
+          if git diff --quiet -- functions/home_center_mcp.js functions/index.js functions/package.json; then
+            echo 'Venice Nerve wiring already present.'
+            exit 0
+          fi
+          git config user.name 'home-center-actions'
+          git config user.email 'home-center-actions@users.noreply.github.com'
+          git add functions/home_center_mcp.js functions/index.js functions/package.json
+          git commit -m 'Wire dedicated Venice Nerve into Home Center MCP'
+          git push origin HEAD:venice-nerve-media-presence-v2
