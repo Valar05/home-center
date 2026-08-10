@@ -18,7 +18,7 @@ else
 fi
 
 case " $FUNCTIONS " in
-  *" homeCenterMcp "*|*" commandCenterMcp "*|*" localVoiceFarm "*) sh "$ROOT/tools/assert_home_center_mcp_main_release.sh" "$ROOT" ;;
+  *" homeCenterMcp "*|*" commandCenterMcp "*|*" localVoiceFarm "*|*" computerHands "*|*" veniceNerve "*) sh "$ROOT/tools/assert_home_center_mcp_main_release.sh" "$ROOT" ;;
 esac
 
 deploy_command_center_mcp() {
@@ -69,6 +69,33 @@ deploy_local_voice_farm() {
     --timeout=300s \
     --memory=1Gi \
     --set-env-vars=HOME_CENTER_LOCAL_VOICE_ORIGIN="https://${REGION}-${PROJECT}.cloudfunctions.net/localVoiceFarm"
+}
+
+deploy_computer_hands() {
+  gcloud functions deploy computerHands \
+    --gen2 \
+    --project="$PROJECT" \
+    --region="$REGION" \
+    --runtime=nodejs22 \
+    --source="$ROOT/functions" \
+    --entry-point=computerHands \
+    --trigger-http \
+    --allow-unauthenticated \
+    --timeout=300s
+}
+
+deploy_venice_nerve() {
+  gcloud functions deploy veniceNerve \
+    --gen2 \
+    --project="$PROJECT" \
+    --region="$REGION" \
+    --runtime=nodejs22 \
+    --source="$ROOT/functions" \
+    --entry-point=veniceNerve \
+    --trigger-http \
+    --allow-unauthenticated \
+    --timeout=300s \
+    --set-env-vars=HOME_CENTER_VENICE_NERVE_ORIGIN="https://${REGION}-${PROJECT}.cloudfunctions.net/veniceNerve"
 }
 
 deploy_audio_library_api() {
@@ -134,12 +161,14 @@ for fn in $FUNCTIONS; do
     commandCenterMcp) deploy_command_center_mcp ;;
     homeCenterMcp) deploy_home_center_mcp ;;
     localVoiceFarm) deploy_local_voice_farm ;;
+    computerHands) deploy_computer_hands ;;
+    veniceNerve) deploy_venice_nerve ;;
     audioLibraryApi) deploy_audio_library_api ;;
     creditBackedHttp) deploy_credit_backed_http ;;
     sheRawMcp) deploy_she_raw_mcp ;;
     *)
       echo "Unsupported gcloud deploy target: $fn" >&2
-      echo "Supported: commandCenterMcp homeCenterMcp localVoiceFarm audioLibraryApi creditBackedHttp sheRawMcp" >&2
+      echo "Supported: commandCenterMcp homeCenterMcp localVoiceFarm computerHands veniceNerve audioLibraryApi creditBackedHttp sheRawMcp" >&2
       exit 2
       ;;
   esac
