@@ -27,8 +27,18 @@ jobs:
           node-version: '22'
           cache: npm
           cache-dependency-path: functions/package-lock.json
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
       - name: Install function dependencies
         run: npm ci --prefix functions --ignore-scripts
+      - name: Install optional package dependencies
+        run: |
+          if [ -f browser-worker/package-lock.json ]; then npm --prefix browser-worker ci --ignore-scripts; fi
       - name: Wire dedicated Venice Nerve into Home Center
         shell: python
         run: |
@@ -71,14 +81,14 @@ jobs:
           package = json.loads(package_path.read_text())
           lint = package.get('scripts', {}).get('lint', '')
           if 'node --check venice_nerve_api.js' not in lint:
-              assert lint.strip(), 'functions/package.json lint script is empty'
+              assert lint.strip()
               package['scripts']['lint'] = lint + ' && node --check venice_nerve_api.js'
               package_path.write_text(json.dumps(package, indent=2) + '\n')
       - name: Refresh intentional public MCP baseline
         run: |
           node tools/generate_home_center_public_manifest.mjs
           node tools/generate_home_center_public_manifest.mjs --check
-      - name: Validate syntax and Nerve contracts
+      - name: Validate Nerve contracts
         run: |
           node --check functions/venice_nerve_api.js
           node --check functions/home_center_mcp.js
@@ -93,12 +103,24 @@ jobs:
           git diff --check
       - name: Commit explicit MCP wiring and manifest
         run: |
-          if git diff --quiet -- functions/home_center_mcp.js functions/index.js functions/package.json contracts/home-center-top-level-mcp.v1.json contracts/home-center-public-tool-manifest.v1.json; then
-            echo 'Venice Nerve wiring and public manifest already current.'
+          if ! git diff --quiet -- functions/home_center_mcp.js functions/index.js functions/package.json contracts/home-center-top-level-mcp.v1.json contracts/home-center-public-tool-manifest.v1.json; then
+            git config user.name 'home-center-actions'
+            git config user.email 'home-center-actions@users.noreply.github.com'
+            git add functions/home_center_mcp.js functions/index.js functions/package.json contracts/home-center-top-level-mcp.v1.json contracts/home-center-public-tool-manifest.v1.json
+            git commit -m 'Wire Venice Nerve and refresh Home Center manifest'
+            git push origin HEAD:venice-nerve-media-presence-v2
+          fi
+      - name: Diagnose full Home Center CI
+        run: |
+          if sh tools/home_center_ci_validate.sh; then
             exit 0
           fi
-          git config user.name 'home-center-actions'
-          git config user.email 'home-center-actions@users.noreply.github.com'
-          git add functions/home_center_mcp.js functions/index.js functions/package.json contracts/home-center-top-level-mcp.v1.json contracts/home-center-public-tool-manifest.v1.json
-          git commit -m 'Wire Venice Nerve and refresh Home Center manifest'
-          git push origin HEAD:venice-nerve-media-presence-v2
+          report=generated/ci-reports/home_center_ci_validate.json
+          if [ -f "$report" ]; then
+            failed="$(node -e "const x=require('./$report'); process.stdout.write(x.failedStep || 'unknown')")"
+            echo "::error title=Home Center CI failed step::$failed"
+            cat "$report"
+          else
+            echo "::error title=Home Center CI failed step::report was not produced"
+          fi
+          exit 1
