@@ -44,9 +44,12 @@ test('nerve implementation does not import or invoke Computer Hands', () => {
   assert.match(source, /speech SHA-256 did not match exact UTF-8 speech bytes/);
 });
 
-test('Windows worker binds to proven Drive-synced aperture and not body controls', () => {
+test('Windows worker binds to proven Drive-synced aperture and loads DPAPI dependency cold', () => {
   const worker = fs.readFileSync(path.resolve(__dirname, '..', 'venice-nerve', 'windows', 'home-center-venice-nerve.ps1'), 'utf8');
   assert.match(worker, /venice-aperture\.ps1/);
   assert.match(worker, /-MessageBase64/);
+  assert.match(worker, /Add-Type\s+-AssemblyName\s+System\.Security/);
+  assert.match(worker, /\[Security\.Cryptography\.ProtectedData\]::Protect/);
+  assert.match(worker, /\[Security\.Cryptography\.ProtectedData\]::Unprotect/);
   assert.doesNotMatch(worker, /input\.type|input\.mouse|window\.focus|screen\.capture/);
 });
