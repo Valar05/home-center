@@ -1,5 +1,5 @@
 param(
-  [Parameter(Mandatory=$true)][string]$BootstrapCode,
+  [string]$BootstrapCode = '',
   [string]$WorkerId = 'windows-hands-01',
   [string]$Origin = 'https://us-central1-home-center-dclar.cloudfunctions.net/computerHands',
   [string]$Repository = 'Valar05/home-center',
@@ -33,13 +33,15 @@ Move-Item -Force "$WorkerPath.download" $WorkerPath
 $health = Invoke-RestMethod -Method Get -Uri "$Origin/computer-hands/v1/health" -TimeoutSec 30
 if (-not $health.ok -or $health.fileLayer -ne 'drive_sync') { throw 'Computer Hands cloud health did not confirm drive_sync file ownership.' }
 
-if ($ForceRefreshToken -or -not (Test-Path -LiteralPath $TokenPath)) {
+$needsToken = $ForceRefreshToken -or -not (Test-Path -LiteralPath $TokenPath)
+if ($needsToken) {
+  if ([string]::IsNullOrWhiteSpace($BootstrapCode)) { throw 'BootstrapCode is required for first install or -ForceRefreshToken.' }
   $registration = Invoke-RestMethod -Method Post -Uri "$Origin/computer-hands/v1/bootstrap" -ContentType 'application/json' -Body (@{ bootstrapCode = $BootstrapCode; workerId = $WorkerId } | ConvertTo-Json -Compress) -TimeoutSec 30
   if (-not $registration.token) { throw 'Computer Hands bootstrap did not return a worker token.' }
   $secure = ConvertTo-SecureString ([string]$registration.token) -AsPlainText -Force
   $secure | ConvertFrom-SecureString | Set-Content -LiteralPath $TokenPath -Encoding ASCII
-} elseif (-not $BootstrapCode) {
-  Write-Host 'Existing DPAPI token retained.'
+} else {
+  Write-Host 'Existing DPAPI worker token retained.'
 }
 
 $config = [ordered]@{
@@ -62,17 +64,12 @@ $trigger = New-ScheduledTaskTrigger -AtLogOn -User "$env:USERDOMAIN\$env:USERNAM
 $principal = New-ScheduledTaskPrincipal -UserId "$env:USERDOMAIN\$env:USERNAME" -LogonType Interactive -RunLevel Limited
 $settings = New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -StartWhenAvailable -ExecutionTimeLimit ([TimeSpan]::Zero) -RestartCount 5 -RestartInterval (New-TimeSpan -Minutes 1)
 Register-ScheduledTask -TaskName $TaskName -Action $action -Trigger $trigger -Principal $principal -Settings $settings -Force | Out-Null
-
-Get-Process powershell -ErrorAction SilentlyContinue | Where-Object {
-  try { $_.Path -eq $ps -and $_.Id -ne $PID } catch { $false }
-} | Out-Null
-
 Start-ScheduledTask -TaskName $TaskName
 Start-Sleep -Seconds 2
 $task = Get-ScheduledTask -TaskName $TaskName
 $taskInfo = Get-ScheduledTaskInfo -TaskName $TaskName
 
-$result = [ordered]@{
+[ordered]@{
   ok = $true
   task = $TaskName
   taskState = [string]$task.State
@@ -84,5 +81,4 @@ $result = [ordered]@{
   tokenProtectedBy = 'Windows DPAPI current user'
   fileLayer = 'drive_sync'
   next = 'Verify computer_hands.worker.status through Home Center MCP.'
-}
-$result | ConvertTo-Json -Depth 5
+} | ConvertTo-Json -Depth 5
