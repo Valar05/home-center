@@ -1,0 +1,72 @@
+name: Deploy Computer Hands
+
+on:
+  workflow_dispatch:
+    inputs:
+      project:
+        description: GCP project id
+        required: true
+        default: home-center-dclar
+      region:
+        description: GCP region
+        required: true
+        default: us-central1
+      confirm:
+        description: Type deploy to confirm
+        required: true
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: deploy-computer-hands
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    if: ${{ inputs.confirm == 'deploy' }}
+    runs-on: ubuntu-latest
+    env:
+      PROJECT: ${{ inputs.project || 'home-center-dclar' }}
+      REGION: ${{ inputs.region || 'us-central1' }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: refs/heads/main
+          fetch-depth: 0
+      - name: Enforce immutable main release source
+        run: sh tools/assert_home_center_mcp_main_release.sh "$GITHUB_WORKSPACE"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: functions/package-lock.json
+      - run: npm --prefix functions ci
+      - name: Validate Computer Hands source
+        run: |
+          node --check functions/computer_hands_api.js
+          node --check functions/index.js
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GCP_DEPLOY_SERVICE_ACCOUNT }}
+      - uses: google-github-actions/setup-gcloud@v2
+      - name: Deploy Computer Hands
+        run: |
+          gcloud functions deploy computerHands \
+            --gen2 \
+            --project="$PROJECT" \
+            --region="$REGION" \
+            --runtime=nodejs22 \
+            --source="$GITHUB_WORKSPACE/functions" \
+            --entry-point=computerHands \
+            --trigger-http \
+            --allow-unauthenticated \
+            --timeout=300s
+      - name: Verify Computer Hands health
+        run: |
+          URL="https://${REGION}-${PROJECT}.cloudfunctions.net/computerHands/computer-hands/v1/health"
+          JSON="$(curl --fail --silent --show-error "$URL")"
+          JSON="$JSON" node -e 'const p=JSON.parse(process.env.JSON); if(!p.ok||p.service!=="computer-hands"||p.apiVersion!=="home-center.computer-hands-api.v1"||p.contractVersion!=="home-center.computer-hands-contract.v1"||p.fileLayer!=="drive_sync"||!Array.isArray(p.capabilities)||!p.capabilities.includes("screen.capture")||!p.capabilities.includes("shell.exec")) throw new Error("computer hands deployment health mismatch"); console.log(JSON.stringify(p))'
