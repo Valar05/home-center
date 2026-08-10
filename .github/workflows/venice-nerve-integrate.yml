@@ -110,6 +110,18 @@ jobs:
             git commit -m 'Wire Venice Nerve and refresh Home Center manifest'
             git push origin HEAD:venice-nerve-media-presence-v2
           fi
+      - name: Diagnose worker profile contract
+        run: |
+          set +e
+          output="$(node tools/worker_profile_contract_test.mjs 2>&1)"
+          code=$?
+          set -e
+          printf '%s\n' "$output"
+          if [ "$code" -ne 0 ]; then
+            first="$(printf '%s' "$output" | tail -n 18 | tr '\n' ' ' | sed 's/%/%25/g; s/\r/%0D/g; s/\n/%0A/g')"
+            echo "::error title=Worker profile assertion::$first"
+            exit "$code"
+          fi
       - name: Diagnose full Home Center CI
         run: |
           if sh tools/home_center_ci_validate.sh; then
