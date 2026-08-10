@@ -1,0 +1,57 @@
+name: Patch Phone Hands Command Center Compatibility
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: patch-phone-hands-command-center-compat
+  cancel-in-progress: false
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: refs/heads/main
+          fetch-depth: 0
+      - name: Add phone_hands operations to compatibility dispatcher
+        run: |
+          node <<'NODE'
+          const fs = require('fs');
+          const path = 'functions/command_center_mcp.js';
+          let text = fs.readFileSync(path, 'utf8');
+          const oldImport = "const {registerCommandCenterPhoneTools} = require('./phone_hands_relay');";
+          const newImport = "const {registerCommandCenterPhoneTools, enqueuePhoneCommand, getPhoneCommand, listPhoneDevices} = require('./phone_hands_relay');";
+          if (!text.includes(newImport)) {
+            if (!text.includes(oldImport)) throw new Error('phone_hands_relay import anchor missing');
+            text = text.replace(oldImport, newImport);
+          }
+          const anchor = "    case 'browser_sessions.create':\n      return createBrowserSession(admin, await caller(), args || {});";
+          const insertion = "    case 'phone_hands.devices':\n      return listPhoneDevices(admin, await caller());\n    case 'phone_hands.enqueue':\n      return enqueuePhoneCommand(admin, await caller(), args || {});\n    case 'phone_hands.get':\n      return getPhoneCommand(admin, await caller(), args || {});\n" + anchor;
+          if (!text.includes("case 'phone_hands.devices':")) {
+            if (!text.includes(anchor)) throw new Error('command center dispatcher anchor missing');
+            text = text.replace(anchor, insertion);
+          }
+          fs.writeFileSync(path, text);
+          NODE
+      - name: Validate
+        run: |
+          node --check functions/command_center_mcp.js
+          node --check functions/phone_hands_relay.js
+          node tools/phone_hands_relay_contract_test.mjs
+          git diff --check
+      - name: Commit compatibility fix
+        run: |
+          if git diff --quiet; then
+            echo 'compatibility dispatcher already current'
+            exit 0
+          fi
+          git config user.name 'home-center-phone-hands-patcher'
+          git config user.email 'actions@users.noreply.github.com'
+          git add functions/command_center_mcp.js
+          git commit -m 'Expose Phone Hands through Command Center dispatcher'
+          git push origin HEAD:main
