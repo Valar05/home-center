@@ -16,6 +16,7 @@ if ([string]::IsNullOrWhiteSpace($RepoPath)) {
 
 $Root = Join-Path ([Environment]::GetFolderPath('LocalApplicationData')) 'HomeCenter\ComputerHands'
 $WorkerPath = Join-Path $Root 'home-center-hands.ps1'
+$WatchdogPath = Join-Path $Root 'watchdog.ps1'
 $LaunchPath = Join-Path $Root 'launch.ps1'
 $ConfigPath = Join-Path $Root 'config.json'
 $TokenPath = Join-Path $Root 'worker-token.dpapi'
@@ -23,6 +24,7 @@ $StartupLog = Join-Path $Root 'startup.log'
 $WorkerLog = Join-Path $Root 'worker.log'
 $ProgressPath = Join-Path $Root 'progress.json'
 $TaskName = 'HomeCenterComputerHands'
+$WatchdogTaskName = 'HomeCenterComputerHandsWatchdog'
 
 New-Item -ItemType Directory -Force -Path $Root | Out-Null
 if (-not (Test-Path -LiteralPath $ConfigPath)) { throw "Missing Computer Hands config: $ConfigPath" }
@@ -34,6 +36,9 @@ if ($LASTEXITCODE -ne 0) { throw 'git fetch origin main failed.' }
 $workerText = & git -C $RepoPath show 'origin/main:computer-hands/windows/home-center-hands.ps1'
 if ($LASTEXITCODE -ne 0 -or [string]::IsNullOrWhiteSpace(($workerText -join "`n"))) { throw 'Could not read worker from origin/main.' }
 $workerText | Set-Content -LiteralPath $WorkerPath -Encoding UTF8
+$watchdogText = & git -C $RepoPath show 'origin/main:computer-hands/windows/watchdog.ps1'
+if ($LASTEXITCODE -ne 0 -or [string]::IsNullOrWhiteSpace(($watchdogText -join "`n"))) { throw 'Could not read watchdog from origin/main.' }
+$watchdogText | Set-Content -LiteralPath $WatchdogPath -Encoding UTF8
 
 $launch = @'
 param([string]$ConfigPath)
@@ -82,6 +87,12 @@ $settings = New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries -DontStopIfGoi
 Stop-ScheduledTask -TaskName $TaskName -ErrorAction SilentlyContinue
 Register-ScheduledTask -TaskName $TaskName -Action $action -Trigger $trigger -Principal $principal -Settings $settings -Force | Out-Null
 Start-ScheduledTask -TaskName $TaskName
+
+$watchdogArg = "-NoLogo -NoProfile -ExecutionPolicy Bypass -File `"$WatchdogPath`" -ConfigPath `"$ConfigPath`" -TaskName `"$TaskName`""
+$watchdogAction = New-ScheduledTaskAction -Execute $ps -Argument $watchdogArg
+Stop-ScheduledTask -TaskName $WatchdogTaskName -ErrorAction SilentlyContinue
+Register-ScheduledTask -TaskName $WatchdogTaskName -Action $watchdogAction -Trigger $trigger -Principal $principal -Settings $settings -Force | Out-Null
+Start-ScheduledTask -TaskName $WatchdogTaskName
 Start-Sleep -Seconds 6
 
 $task = Get-ScheduledTask -TaskName $TaskName
@@ -89,6 +100,8 @@ $info = Get-ScheduledTaskInfo -TaskName $TaskName
 $result = [ordered]@{
   ok = $true
   taskState = [string]$task.State
+  watchdogState = [string](Get-ScheduledTask -TaskName $WatchdogTaskName).State
+  watchdogPath = $WatchdogPath
   lastTaskResult = $info.LastTaskResult
   root = $Root
   configOrigin = [string]$cfg.origin
