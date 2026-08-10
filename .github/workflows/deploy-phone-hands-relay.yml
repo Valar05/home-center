@@ -1,0 +1,86 @@
+name: Deploy Phone Hands Relay
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/deploy-phone-hands-relay.yml'
+      - 'functions/phone_hands_relay.js'
+      - 'functions/command_center_mcp.js'
+      - 'functions/index.js'
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: deploy-phone-hands-relay
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      PROJECT: home-center-dclar
+      REGION: us-central1
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: refs/heads/main
+          fetch-depth: 0
+      - name: Enforce immutable main release source
+        run: sh tools/assert_home_center_mcp_main_release.sh "$GITHUB_WORKSPACE"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: functions/package-lock.json
+      - run: npm --prefix functions ci
+      - name: Validate relay and MCP source
+        run: |
+          node --check functions/phone_hands_relay.js
+          node --check functions/command_center_mcp.js
+          node --check functions/index.js
+          node tools/phone_hands_relay_contract_test.mjs
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GCP_DEPLOY_SERVICE_ACCOUNT }}
+      - uses: google-github-actions/setup-gcloud@v2
+      - name: Deploy Phone Hands relay
+        run: |
+          gcloud functions deploy phoneHandsRelay \
+            --gen2 \
+            --project="$PROJECT" \
+            --region="$REGION" \
+            --runtime=nodejs22 \
+            --source="$GITHUB_WORKSPACE/functions" \
+            --entry-point=phoneHandsRelay \
+            --trigger-http \
+            --allow-unauthenticated \
+            --timeout=120s
+      - name: Deploy updated Command Center MCP
+        run: |
+          gcloud functions deploy commandCenterMcp \
+            --gen2 \
+            --project="$PROJECT" \
+            --region="$REGION" \
+            --runtime=nodejs22 \
+            --source="$GITHUB_WORKSPACE/functions" \
+            --entry-point=commandCenterMcp \
+            --trigger-http \
+            --allow-unauthenticated \
+            --timeout=300s \
+            --set-env-vars=LOG_EXECUTION_ID=true
+      - name: Verify relay exists and enforces auth
+        run: |
+          URL="https://${REGION}-${PROJECT}.cloudfunctions.net/phoneHandsRelay/register"
+          BODY="$(mktemp)"
+          CODE="$(curl --silent --show-error -o "$BODY" -w '%{http_code}' -X POST -H 'Content-Type: application/json' -d '{}' "$URL")"
+          cat "$BODY"
+          test "$CODE" = 401
+          grep -q 'missing bearer token' "$BODY"
+      - name: Verify Command Center readiness
+        run: |
+          curl --fail --silent --show-error "https://${REGION}-${PROJECT}.cloudfunctions.net/commandCenterMcp/ready"
