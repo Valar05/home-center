@@ -1,0 +1,46 @@
+name: Patch Computer Hands Packet Array v3.1
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: patch-computer-hands-packet-array-v3-1
+  cancel-in-progress: false
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+      - name: Apply packet result-array fix
+        run: python3 tools/patch_computer_hands_packet_array_v3_1.py
+      - name: Validate focused worker structure
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          s = Path('computer-hands/windows/home-center-hands.ps1').read_text(encoding='utf-8')
+          assert '$results=@()' in s
+          assert '$results += [pscustomobject]' in s
+          assert 'steps=$results' in s
+          assert 'New-Object System.Collections.Generic.List[object]' not in s
+          assert 'steps=@($results)' not in s
+          print('packet array v3.1 static acceptance passed')
+          PY
+          git diff --check
+      - name: Commit worker fix
+        run: |
+          if git diff --quiet -- computer-hands/windows/home-center-hands.ps1; then
+            echo 'Worker already fixed.'
+            exit 0
+          fi
+          git config user.name 'home-center-github-admin[bot]'
+          git config user.email 'home-center-github-admin[bot]@users.noreply.github.com'
+          git add computer-hands/windows/home-center-hands.ps1
+          git commit -m 'Fix Computer Hands packet result assembly'
+          git push origin HEAD:main
