@@ -32,6 +32,7 @@ const {renderAudioOperation, audioRenderStatusOperation, inspectAudioArtifactsOp
 const {recoverAudioRenderRegistrationOperation, linkDriveAudioToReaderStageOperation} = require('./audio_catalog_service');
 const {localVoiceOperationEntries, localVoiceOperationRunOperation} = require('./local_voice_farm_api');
 const {computerHandsOperationEntries, computerHandsOperationRunOperation} = require('./computer_hands_api');
+const {veniceBodyOperationEntries, veniceBodyOperationRunOperation} = require('./venice_body_router');
 const {materializeReceiptArtifactsOperation, recordArtifactReviewOperation, linkArtifactReviewSuccessorOperation} = require('./artifact_delivery_service');
 const {
   analyzeSourceOperation,
@@ -5361,6 +5362,7 @@ function driveOperationRegistry() {
       },
       ...localVoiceOperationEntries(),
     ...computerHandsOperationEntries(),
+    ...veniceBodyOperationEntries(),
       ...smsCalendarOperationRegistry().operations,
       ...githubAdminOperationEntries(),
       ...droobiedooContextOperationEntries(),
@@ -5960,6 +5962,11 @@ async function driveOperationRunOperation({google, admin, auth, user, extra = nu
   if (computerHandsOperationEntries()[operation]) {
     requireCreditGatedEmail(user && user.email, operation);
     const result = await computerHandsOperationRunOperation({admin, user, operation, args: operationArgs});
+    return {operation, registryVersion: registry.version, completed: true, result};
+  }
+  if (veniceBodyOperationEntries()[operation]) {
+    requireCreditGatedEmail(user && user.email, operation);
+    const result = await veniceBodyOperationRunOperation({extra, admin, user, operation, args: operationArgs});
     return {operation, registryVersion: registry.version, completed: true, result};
   }
   if (operation === 'drive_binary_read_begin') {

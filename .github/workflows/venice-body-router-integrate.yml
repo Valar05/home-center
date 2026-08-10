@@ -1,0 +1,60 @@
+name: Venice Body Router Integration
+
+on:
+  push:
+    branches:
+      - feature/venice-body-router-v1
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  integrate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: feature/venice-body-router-v1
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: functions/package-lock.json
+      - name: Install function dependencies
+        run: npm ci --prefix functions --ignore-scripts
+      - name: Apply deterministic body-router wiring
+        run: node tools/apply_venice_body_router_patch.mjs
+      - name: Validate JavaScript syntax
+        run: |
+          node --check functions/venice_body_router.js
+          node --check functions/venice_body_router.test.js
+          node --check functions/command_center_mcp.js
+          node --check functions/home_center_mcp.js
+      - name: Run body-router acceptance tests
+        run: node --test functions/venice_body_router.test.js
+      - name: Validate architecture anchors
+        run: |
+          grep -q "veniceBodyOperationEntries" functions/home_center_mcp.js
+          grep -q "veniceBodyOperationRunOperation" functions/home_center_mcp.js
+          grep -q "runCommandCenterOperation," functions/command_center_mcp.js
+          grep -q "browser_nerve" functions/venice_body_router.js
+          grep -q "computer_hands" functions/venice_body_router.js
+          if grep -Eq "speech.*parse|parse.*speech" functions/venice_body_router.js; then
+            echo 'Venice speech must not become a command parser.' >&2
+            exit 1
+          fi
+      - name: Diff sanity
+        run: git diff --check
+      - name: Commit generated wiring
+        run: |
+          if ! git status --porcelain functions/home_center_mcp.js functions/command_center_mcp.js; then
+            echo 'Integration already applied.'
+            exit 0
+          fi
+          git config user.name 'home-center-actions'
+          git config user.email 'home-center-actions@users.noreply.github.com'
+          git add functions/home_center_mcp.js functions/command_center_mcp.js
+          git commit -m 'Wire Venice body router into Home Center MCP'
+          git push origin HEAD:feature/venice-body-router-v1
