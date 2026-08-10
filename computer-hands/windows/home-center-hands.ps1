@@ -176,16 +176,36 @@ function Invoke-Mouse([object]$ActionArgs) {
   return @{ok=$true;x=$x;y=$y;button=$button;event=$event}
 }
 
-function Run-Shell([object]$ActionArgs) {
+function Run-Shell([object]$ActionArgs, [object]$Ticket = $null) {
   $command=[string](Get-ActionArg $ActionArgs 'command' ''); if(-not $command){throw 'shell.exec command was missing from the leased ticket.'};$encoded=[Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes($command))
   $psi=New-Object Diagnostics.ProcessStartInfo;$psi.FileName='powershell.exe';$psi.Arguments="-NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -EncodedCommand $encoded"
   $workingDirectory=[string](Get-ActionArg $ActionArgs 'workingDirectory' '');if($workingDirectory){$psi.WorkingDirectory=$workingDirectory};$psi.UseShellExecute=$false;$psi.RedirectStandardOutput=$true;$psi.RedirectStandardError=$true;$psi.CreateNoWindow=$true
   $p=New-Object Diagnostics.Process;$p.StartInfo=$psi;[void]$p.Start();$stdoutTask=$p.StandardOutput.ReadToEndAsync();$stderrTask=$p.StandardError.ReadToEndAsync()
-  if(-not $p.WaitForExit(120000)){try{$p.Kill()}catch{};throw 'shell.exec exceeded 120 seconds.'};$stdout=$stdoutTask.Result;$stderr=$stderrTask.Result
+  $started=[DateTime]::UtcNow;$deadline=$started.AddSeconds(120);$nextHeartbeat=$started
+  while(-not $p.HasExited){
+    $now=[DateTime]::UtcNow
+    if($now -ge $deadline){try{$p.Kill()}catch{};try{[void]$p.WaitForExit(5000)}catch{};throw 'shell.exec exceeded 120 seconds.'}
+    if($null -ne $Ticket -and $now -ge $nextHeartbeat){
+      $elapsed=[Math]::Max(0,[int](($now-$started).TotalSeconds))
+      $progress=@{phase='shell_running';completedSteps=0;totalSteps=1;currentStepId='';currentAction='shell.exec';message=("Shell command running ({0}s)." -f $elapsed)}
+      Write-ProgressState @{phase='shell_running';ticketId=$Ticket.ticketId;requestId=$Ticket.requestId;laneId=$Ticket.laneId;action='shell.exec';progress=$progress}
+      $heartbeat=Invoke-HandsApi 'POST' "tickets/$($Ticket.ticketId)/heartbeat" @{phase='shell_running';progress=$progress}
+      if($heartbeat.cancelRequested -eq $true){
+        try{$p.Kill()}catch{};try{[void]$p.WaitForExit(5000)}catch{}
+        return @{ok=$false;cancelled=$true;exitCode=$null;stdout='';stderr='';message='shell.exec cancelled by owner'}
+      }
+      $nextHeartbeat=$now.AddSeconds(5)
+    }
+    Start-Sleep -Milliseconds 250
+  }
+  [void]$p.WaitForExit()
+  if(-not $stdoutTask.Wait(5000)){throw 'shell.exec stdout did not close after process exit.'}
+  if(-not $stderrTask.Wait(5000)){throw 'shell.exec stderr did not close after process exit.'}
+  $stdout=[string]$stdoutTask.Result;$stderr=[string]$stderrTask.Result
   return @{ok=($p.ExitCode -eq 0);exitCode=$p.ExitCode;stdout=$stdout.Substring(0,[Math]::Min(120000,$stdout.Length));stderr=$stderr.Substring(0,[Math]::Min(60000,$stderr.Length))}
 }
 
-function Execute-Action([string]$Action, [object]$ActionArgs) {
+function Execute-Action([string]$Action, [object]$ActionArgs, [object]$Ticket = $null) {
   $a=$ActionArgs
   switch($Action){
     'system.status'{return Get-SystemStatus}
@@ -200,7 +220,7 @@ function Execute-Action([string]$Action, [object]$ActionArgs) {
     'input.mouse'{return Invoke-Mouse $a}
     'clipboard.get'{return @{ok=$true;text=[string](Get-Clipboard -Raw -ErrorAction Stop)}}
     'clipboard.set'{Set-Clipboard -Value ([string]$a.text);return @{ok=$true;characters=([string]$a.text).Length}}
-    'shell.exec'{return Run-Shell $a}
+    'shell.exec'{return Run-Shell $a $Ticket}
     default{throw "Unsupported action: $Action"}
   }
 }
@@ -208,7 +228,7 @@ function Execute-Action([string]$Action, [object]$ActionArgs) {
 function Execute-Ticket([object]$Ticket) {
   $action=[string]$Ticket.action
   $a=$Ticket.arguments
-  if($action -ne 'packet.execute'){ return Execute-Action $action $a }
+  if($action -ne 'packet.execute'){ return Execute-Action $action $a $Ticket }
 
   $steps=@(Get-ActionArg $a 'steps' @())
   $stopOnError=[bool](Get-ActionArg $a 'stopOnError' $true)
@@ -227,7 +247,7 @@ function Execute-Ticket([object]$Ticket) {
       return @{ok=$false;cancelled=$true;packet=$true;completedSteps=$completed;totalSteps=$steps.Count;steps=$results}
     }
     try{
-      $stepResult=Execute-Action $stepAction $stepArgs
+      $stepResult=Execute-Action $stepAction $stepArgs $Ticket
       $completed+=1
       $results += [pscustomobject]@{id=$stepId;action=$stepAction;ok=($stepResult.ok -ne $false);result=$stepResult}
       if($stepResult.ok -eq $false){$allOk=$false;if($stopOnError){break}}
