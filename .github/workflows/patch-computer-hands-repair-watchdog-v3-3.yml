@@ -1,0 +1,54 @@
+name: Patch Computer Hands Repair Watchdog v3.3
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: patch-computer-hands-repair-watchdog-v3-3
+  cancel-in-progress: false
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+      - name: Apply repair watchdog patch
+        run: python3 tools/patch_computer_hands_repair_watchdog_v3_3.py
+      - name: Validate focused repair structure
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          s = Path('computer-hands/windows/repair.ps1').read_text(encoding='utf-8')
+          w = Path('computer-hands/windows/watchdog.ps1').read_text(encoding='utf-8')
+          required = [
+              "$WatchdogPath = Join-Path $Root 'watchdog.ps1'",
+              "$WatchdogTaskName = 'HomeCenterComputerHandsWatchdog'",
+              "origin/main:computer-hands/windows/watchdog.ps1",
+              "Register-ScheduledTask -TaskName $WatchdogTaskName",
+              "Start-ScheduledTask -TaskName $WatchdogTaskName",
+              "watchdogState =",
+              "(Get-Content -LiteralPath $TokenPath -Raw).Trim()",
+          ]
+          for item in required:
+              assert item in s, f'missing repair watchdog feature: {item}'
+          assert "stale_worker" in w and "Start-ScheduledTask -TaskName $TaskName" in w
+          print('repair watchdog v3.3 static acceptance passed')
+          PY
+          git diff --check
+      - name: Commit repair fix
+        run: |
+          if git diff --quiet -- computer-hands/windows/repair.ps1; then
+            echo 'Repair script already patched.'
+            exit 0
+          fi
+          git config user.name 'home-center-github-admin[bot]'
+          git config user.email 'home-center-github-admin[bot]@users.noreply.github.com'
+          git add computer-hands/windows/repair.ps1
+          git commit -m 'Install Computer Hands stale-worker watchdog'
+          git push origin HEAD:main
