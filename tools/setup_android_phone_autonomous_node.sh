@@ -38,7 +38,6 @@ HC_PHONE_WAKE_WORD='venice'
 HC_PHONE_REQUIRE_WAKE_WORD='1'
 HC_PHONE_LISTEN_SECONDS='6'
 HC_PHONE_EXEC_MAX_STEPS='6'
-# Adapters can be replaced without changing the executive:
 HC_PHONE_STT_CMD=''
 HC_PHONE_TTS_CMD=''
 HC_PHONE_VLAD_CMD=''
@@ -58,7 +57,9 @@ cat > "$HOME/bin/home-center-phone-brain" <<EOF
 set -euo pipefail
 source '$ENV'
 export HC_PHONE_LLM_MODEL HC_PHONE_LLM_URL HC_PHONE_LLM_MODEL_PATH HC_PHONE_WAKE_WORD HC_PHONE_REQUIRE_WAKE_WORD HC_PHONE_LISTEN_SECONDS HC_PHONE_EXEC_MAX_STEPS HC_PHONE_STT_CMD HC_PHONE_TTS_CMD HC_PHONE_VLAD_CMD
-exec llama-server -m "\$HC_PHONE_LLM_MODEL_PATH" --host 127.0.0.1 --port 8790 -c 4096 -t "\$(nproc)" --jinja
+# Do not force --jinja here. llama.cpp has had response_format/Jinja
+# incompatibilities; Qwen2.5 GGUF carries a usable chat template already.
+exec llama-server -m "\$HC_PHONE_LLM_MODEL_PATH" --host 127.0.0.1 --port 8790 -c 4096 -t "\$(nproc)"
 EOF
 chmod +x "$HOME/bin/home-center-phone-brain"
 
@@ -86,11 +87,11 @@ echo '[5/6] Starting local model'
 LOG="$STATE/phone-brain.log"
 PIDFILE="$STATE/phone-brain.pid"
 if [ -f "$PIDFILE" ] && kill -0 "$(cat "$PIDFILE")" 2>/dev/null; then
-  echo 'Local model already running.'
-else
-  nohup "$HOME/bin/home-center-phone-brain" >>"$LOG" 2>&1 &
-  echo $! > "$PIDFILE"
+  kill "$(cat "$PIDFILE")" 2>/dev/null || true
+  sleep 1
 fi
+nohup "$HOME/bin/home-center-phone-brain" >"$LOG" 2>&1 &
+echo $! > "$PIDFILE"
 
 for i in $(seq 1 60); do
   if curl -fsS http://127.0.0.1:8790/health >/dev/null 2>&1; then break; fi
@@ -105,5 +106,5 @@ python android_phone_local_executive.py 'Observe my phone and tell me what app i
 echo
 echo 'AUTONOMOUS PHONE CORE READY.'
 echo 'Text command: home-center-phone-ask "go home"'
-echo 'Voice loop:   home-center-phone-voice  (requires STT adapter; TTS falls back to Termux TTS)'
+echo 'Voice loop:   home-center-phone-voice'
 echo 'VAD adapter:  HC_PHONE_VLAD_CMD — codename Vlad the Impalementer.'
