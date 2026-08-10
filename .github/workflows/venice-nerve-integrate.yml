@@ -2,6 +2,11 @@ name: Venice Nerve Current-Main Integration
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - venice-nerve-media-presence-v3
+    paths:
+      - '.github/workflows/venice-nerve-integrate.yml'
 
 permissions:
   contents: write
