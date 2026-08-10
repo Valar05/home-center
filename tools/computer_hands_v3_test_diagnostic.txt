@@ -1,0 +1,42 @@
+patch_code=0
+Computer Hands shared lanes v3 patch applied
+check_code=0
+test_code=1
+TAP version 13
+# /home/runner/work/home-center/home-center/functions/computer_hands_shared_lanes.test.js:1
+# \\n'use strict';\\nconst test = require('node:test');\\nconst assert = require('node:assert/strict');\\nconst api = require('./computer_hands_api');\\n\\ntest('packet.execute sanitizes bounded multi-step packets', () => {\\n  const packet = api.sanitizeActionArgs('packet.execute', {label: 'archaeology', steps: [\\n    {id: 'status', action: 'system.status', arguments: {}},\\n    {id: 'windows', action: 'window.list', arguments: {}},\\n    {id: 'shell', action: 'shell.exec', arguments: {command: 'Get-Date'}},\\n  ]});\\n  assert.equal(packet.steps.length, 3);\\n  assert.equal(packet.steps[2].arguments.command, 'Get-Date');\\n  assert.equal(api.permissionClass('packet.execute', packet), 'high_risk_write');\\n});\\n\\ntest('packet nesting and oversize step counts fail closed', () => {\\n  assert.throws(() => api.sanitizeActionArgs('packet.execute', {steps: [{action: 'packet.execute', arguments: {steps: []}}]}), /Nested packet/);\\n  assert.throws(() => api.sanitizeActionArgs('packet.execute', {steps: Array.from({length: 33}, () => ({action: 'system.status'}))}), /1-32/);\\n});\\n\\ntest('lane ids preserve safe ids and hash unsafe thread names', () => {\\n  assert.equal(api.safeLaneId('chat.thread-01'), 'chat.thread-01');\\n  assert.match(api.safeLaneId('thread with spaces / punctuation'), /^lane-[0-9a-f]{24}$/);\\n});\\n
+# ^
+# SyntaxError: Invalid or unexpected token
+#     at wrapSafe (node:internal/modules/cjs/loader:1713:18)
+#     at Module._compile (node:internal/modules/cjs/loader:1755:20)
+#     at Object..js (node:internal/modules/cjs/loader:1913:10)
+#     at Module.load (node:internal/modules/cjs/loader:1505:32)
+#     at Function._load (node:internal/modules/cjs/loader:1309:12)
+#     at wrapModuleLoad (node:internal/modules/cjs/loader:254:19)
+#     at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:171:5)
+#     at node:internal/main/run_main_module:36:49
+# Node.js v22.23.1
+# Subtest: functions/computer_hands_shared_lanes.test.js
+not ok 1 - functions/computer_hands_shared_lanes.test.js
+  ---
+  duration_ms: 36.689036
+  type: 'test'
+  location: '/home/runner/work/home-center/home-center/functions/computer_hands_shared_lanes.test.js:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 0
+# fail 1
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 45.610959
+static_code=0
+static acceptance passed
+diff_code=0
