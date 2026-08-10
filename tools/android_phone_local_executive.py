@@ -17,7 +17,6 @@ Return exactly one JSON object and no prose:
 {"done":false,"say":"brief user-facing status","action":{"action":"home"}}
 or {"done":true,"say":"brief final response","action":null}.
 Use UI evidence. Prefer stopping over guessing. Never perform purchases, account-security changes, destructive deletion, permission escalation, messaging other people, or privacy-sensitive capture without explicit human instruction.
-/no_think
 '''
 
 def request_json(url, *, method='GET', body=None, timeout=30):
@@ -28,8 +27,6 @@ def request_json(url, *, method='GET', body=None, timeout=30):
         return json.loads(r.read().decode())
 
 def observe():
-    # Deliberately call the same Phone Hands implementation directly on-device.
-    # This avoids weakening the remote bridge's tailnet-only ingress policy.
     return hands_observe(True,False)
 
 def act(action):
@@ -37,15 +34,28 @@ def act(action):
         raise ValueError('planner requested disallowed action')
     return hands_act(action)
 
+def extract_message_text(out):
+    try:
+        msg=out['choices'][0]['message']
+    except (KeyError,IndexError,TypeError) as exc:
+        raise RuntimeError('llama-server returned no assistant message: '+json.dumps(out,ensure_ascii=False)[:2000]) from exc
+    for key in ('content','reasoning_content'):
+        value=msg.get(key)
+        if isinstance(value,str) and value.strip():
+            return value.strip()
+    raise RuntimeError('llama-server returned an empty assistant message: '+json.dumps(out,ensure_ascii=False)[:2000])
+
 def llm(messages):
     payload={'model':MODEL,'messages':messages,'temperature':0.1,'max_tokens':220,'response_format':{'type':'json_object'}}
     out=request_json(LLM_URL,method='POST',body=payload,timeout=60)
-    text=out['choices'][0]['message']['content'].strip()
-    try: return json.loads(text)
-    except json.JSONDecodeError:
+    text=extract_message_text(out)
+    try:
+        return json.loads(text)
+    except json.JSONDecodeError as exc:
         m=re.search(r'\{.*\}',text,re.S)
-        if not m: raise
-        return json.loads(m.group(0))
+        if m:
+            return json.loads(m.group(0))
+        raise RuntimeError('local model did not return JSON; text='+repr(text[:1000])) from exc
 
 def journal(event):
     JOURNAL.parent.mkdir(parents=True,exist_ok=True)
