@@ -10,7 +10,8 @@ param(
 
 $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version 2.0
-$WorkerVersion = '1.0.0'
+Add-Type -AssemblyName System.Security
+$WorkerVersion = '1.0.1'
 
 function ConvertTo-Utf8Base64([string]$Text) {
     return [Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes([string]$Text))
