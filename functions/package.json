@@ -7,7 +7,7 @@
     "node": "22"
   },
   "scripts": {
-    "lint": "node --check index.js && node --check home_center_mcp.js && node --check home_center_fortress.js && node --check venice_discord.js && node --check venice_home_center_mcp.js",
+    "lint": "node --check index.js && node --check home_center_mcp.js && node --check home_center_fortress.js && node --check venice_discord.js && node --check venice_home_center_mcp.js && node --check venice_nerve_api.js",
     "test:venice-discord": "node --test venice_discord.test.js",
     "test:venice-mcp": "node --test venice_home_center_mcp.test.js",
     "test:fortress-home-center": "node --test home_center_fortress.test.js",

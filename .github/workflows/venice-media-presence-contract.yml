@@ -1,0 +1,35 @@
+name: Venice Media Presence Contract
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'docs/venice-chatgpt-aperture-v2.md'
+      - 'docs/venice-media-presence-organ.md'
+      - 'contracts/venice-body-turn.v1.schema.json'
+      - 'contracts/venice-media-session.v1.schema.json'
+      - 'functions/venice_nerve_api.js'
+      - 'functions/venice_nerve_api.test.js'
+      - 'venice-nerve/windows/**'
+      - 'tools/venice_media_presence_contract_test.mjs'
+      - '.github/workflows/venice-media-presence-contract.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate Nerve source syntax
+        run: node --check functions/venice_nerve_api.js
+      - name: Validate dedicated Venice Nerve tests
+        run: node --test functions/venice_nerve_api.test.js
+      - name: Validate Media Presence contract
+        run: node tools/venice_media_presence_contract_test.mjs
+      - name: Reject whitespace corruption
+        run: git diff --check HEAD^ HEAD || true

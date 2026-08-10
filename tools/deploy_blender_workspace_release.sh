@@ -16,7 +16,7 @@ BLENDER_WORKSPACE_TASK_SERVICE_ACCOUNT="$(printf '%s\n' "$WORKER_ENV" | sed -n '
 [ -n "$BLENDER_WORKSPACE_TASK_URL" ] && [ -n "$BLENDER_WORKSPACE_TASK_SERVICE_ACCOUNT" ]
 BLENDER_WORKSPACE_PROJECT="$PROJECT"
 export BLENDER_WORKSPACE_PROJECT BLENDER_WORKSPACE_TASK_URL BLENDER_WORKSPACE_TASK_SERVICE_ACCOUNT
-sh "$ROOT/tools/deploy_functions_termux.sh" "$PROJECT" commandCenterMcp homeCenterMcp localVoiceFarm computerHands
+sh "$ROOT/tools/deploy_functions_termux.sh" "$PROJECT" commandCenterMcp homeCenterMcp localVoiceFarm computerHands veniceNerve
 READY_URL="https://${REGION}-${PROJECT}.cloudfunctions.net/homeCenterMcp/ready"
 READY_JSON="$(curl --fail --silent --show-error "$READY_URL")"
 READY_JSON="$READY_JSON" EXPECTED_COMMIT="$HEAD_SHA" EXPECTED_MANIFEST="$PUBLIC_MANIFEST_SHA256" node -e 'const p=JSON.parse(process.env.READY_JSON),i=p.releaseIdentity||{};if(!p.ready||i.sourceCommit!==process.env.EXPECTED_COMMIT||i.sourceRef!=="refs/heads/main"||i.publicManifestSha256!==process.env.EXPECTED_MANIFEST)throw new Error("deployed release identity mismatch");console.log(JSON.stringify(i))'
@@ -26,6 +26,9 @@ LOCAL_VOICE_HEALTH_JSON="$LOCAL_VOICE_HEALTH_JSON" node -e 'const p=JSON.parse(p
 COMPUTER_HANDS_HEALTH_URL="https://${REGION}-${PROJECT}.cloudfunctions.net/computerHands/computer-hands/v1/health"
 COMPUTER_HANDS_HEALTH_JSON="$(curl --fail --silent --show-error "$COMPUTER_HANDS_HEALTH_URL")"
 COMPUTER_HANDS_HEALTH_JSON="$COMPUTER_HANDS_HEALTH_JSON" node -e 'const p=JSON.parse(process.env.COMPUTER_HANDS_HEALTH_JSON);if(!p.ok||p.service!=="computer-hands"||p.apiVersion!=="home-center.computer-hands-api.v1"||p.contractVersion!=="home-center.computer-hands-contract.v1"||p.fileLayer!=="drive_sync"||!Array.isArray(p.capabilities)||!p.capabilities.includes("screen.capture")||!p.capabilities.includes("shell.exec"))throw new Error("computer hands deployment health mismatch");console.log(JSON.stringify(p))'
+VENICE_NERVE_HEALTH_URL="https://${REGION}-${PROJECT}.cloudfunctions.net/veniceNerve/venice-nerve/v1/health"
+VENICE_NERVE_HEALTH_JSON="$(curl --fail --silent --show-error "$VENICE_NERVE_HEALTH_URL")"
+VENICE_NERVE_HEALTH_JSON="$VENICE_NERVE_HEALTH_JSON" node -e 'const p=JSON.parse(process.env.VENICE_NERVE_HEALTH_JSON);if(!p.ok||p.service!=="venice-nerve"||p.apiVersion!=="home-center.venice-nerve-api.v1"||p.contractVersion!=="venice-nerve-silk.transport.v1"||p.fileLayer!=="drive_sync"||!Array.isArray(p.capabilities)||!p.capabilities.includes("venice.turn"))throw new Error("venice nerve deployment health mismatch");console.log(JSON.stringify(p))'
 HOME_CENTER_MCP_URL="https://${REGION}-${PROJECT}.cloudfunctions.net/homeCenterMcp/mcp" HOME_CENTER_EXPECTED_SOURCE_COMMIT="$HEAD_SHA" node "$ROOT/tools/home_center_production_catalog_test.mjs"
 if gcloud functions describe foundryAssetWorker --gen2 --project="$PROJECT" --region="$REGION" >/dev/null 2>&1; then gcloud functions delete foundryAssetWorker --gen2 --project="$PROJECT" --region="$REGION" --quiet; fi
 if gcloud tasks queues describe "$OLD_QUEUE" --project="$PROJECT" --location="$REGION" >/dev/null 2>&1; then gcloud tasks queues delete "$OLD_QUEUE" --project="$PROJECT" --location="$REGION" --quiet; fi

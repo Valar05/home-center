@@ -1,0 +1,40 @@
+name: Venice Nerve Source Contract
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'functions/venice_nerve_api.js'
+      - 'functions/venice_nerve_api.test.js'
+      - 'functions/home_center_mcp.js'
+      - 'functions/index.js'
+      - 'venice-nerve/windows/**'
+      - 'contracts/venice-body-turn.v1.schema.json'
+      - '.github/workflows/venice-nerve-integrate.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate dedicated Venice Nerve source
+        run: |
+          node --check functions/venice_nerve_api.js
+          node --check functions/home_center_mcp.js
+          node --check functions/index.js
+          node --test functions/venice_nerve_api.test.js
+          grep -q "browserNerveOperationEntries" functions/home_center_mcp.js
+          grep -q "veniceNerveOperationEntries" functions/home_center_mcp.js
+          grep -q "veniceNerveOperationRunOperation" functions/home_center_mcp.js
+          grep -q "exports.browserNerve" functions/index.js
+          grep -q "exports.veniceNerve" functions/index.js
+          if grep -Eq "computer_hands_api|computerHandsOperation|windows-hands-01" functions/venice_nerve_api.js; then
+            echo 'Venice Nerve may not share the Computer Hands transport.' >&2
+            exit 1
+          fi

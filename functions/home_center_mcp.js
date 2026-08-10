@@ -34,6 +34,7 @@ const {localVoiceOperationEntries, localVoiceOperationRunOperation} = require('.
 const {computerHandsOperationEntries, computerHandsOperationRunOperation} = require('./computer_hands_api');
 const {browserNerveOperationEntries, browserNerveOperationRunOperation} = require('./browser_nerve_api');
 const {veniceBodyOperationEntries, veniceBodyOperationRunOperation} = require('./venice_body_router');
+const {veniceNerveOperationEntries, veniceNerveOperationRunOperation} = require('./venice_nerve_api');
 const {materializeReceiptArtifactsOperation, recordArtifactReviewOperation, linkArtifactReviewSuccessorOperation} = require('./artifact_delivery_service');
 const {
   analyzeSourceOperation,
@@ -5365,6 +5366,7 @@ function driveOperationRegistry() {
     ...computerHandsOperationEntries(),
     ...browserNerveOperationEntries(),
     ...veniceBodyOperationEntries(),
+    ...veniceNerveOperationEntries(),
       ...smsCalendarOperationRegistry().operations,
       ...githubAdminOperationEntries(),
       ...droobiedooContextOperationEntries(),
@@ -5974,6 +5976,11 @@ async function driveOperationRunOperation({google, admin, auth, user, extra = nu
   if (veniceBodyOperationEntries()[operation]) {
     requireCreditGatedEmail(user && user.email, operation);
     const result = await veniceBodyOperationRunOperation({extra, admin, user, operation, args: operationArgs});
+    return {operation, registryVersion: registry.version, completed: true, result};
+  }
+  if (veniceNerveOperationEntries()[operation]) {
+    requireCreditGatedEmail(user && user.email, operation);
+    const result = await veniceNerveOperationRunOperation({admin, user, operation, args: operationArgs});
     return {operation, registryVersion: registry.version, completed: true, result};
   }
   if (operation === 'drive_binary_read_begin') {
