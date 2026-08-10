@@ -1,0 +1,60 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "home-center://contracts/venice-body-turn.v1",
+  "title": "Venice Body Turn v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "turnId", "speech", "actions", "observations", "diagnostics"],
+  "properties": {
+    "schema": {"const": "venice.body-turn.v1"},
+    "turnId": {"type": "string", "minLength": 8, "maxLength": 200},
+    "speech": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["text", "source", "transformedByOrchestrator", "sha256"],
+      "properties": {
+        "text": {"type": "string", "minLength": 1, "maxLength": 32000},
+        "source": {"const": "local-venice"},
+        "transformedByOrchestrator": {"const": false},
+        "sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"}
+      }
+    },
+    "actions": {
+      "type": "array",
+      "maxItems": 32,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["actionId", "verb", "args"],
+        "properties": {
+          "actionId": {"type": "string", "minLength": 8, "maxLength": 200},
+          "verb": {
+            "type": "string",
+            "enum": [
+              "look", "listen", "remember", "speak", "create", "play", "show",
+              "type", "click", "open", "close", "move", "render", "wait", "verify",
+              "media.create", "media.play", "media.pause", "media.resume", "media.stop",
+              "media.volume", "media.status"
+            ]
+          },
+          "args": {"type": "object"}
+        }
+      }
+    },
+    "observations": {
+      "type": "array",
+      "maxItems": 64,
+      "items": {"type": "object"}
+    },
+    "diagnostics": {
+      "type": "object",
+      "required": ["workerId"],
+      "properties": {
+        "workerId": {"type": "string", "minLength": 1},
+        "workstationThreadId": {"type": "string"},
+        "workstationJobId": {"type": "string"},
+        "durableTurnRecord": {"type": "string"}
+      }
+    }
+  }
+}
