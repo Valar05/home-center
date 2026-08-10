@@ -1,6 +1,17 @@
 name: Deploy Phone Hands Control Plane
 
 on:
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/deploy-phone-hands-control-plane.yml
+      - functions/phone_hands_relay.js
+      - functions/command_center_mcp.js
+      - functions/index.js
+      - contracts/home-center-public-tool-manifest.v1.json
+      - tools/deploy_functions_termux.sh
+      - tools/phone_hands_relay_contract_test.mjs
   workflow_dispatch:
     inputs:
       project:
@@ -25,7 +36,7 @@ concurrency:
 
 jobs:
   deploy:
-    if: ${{ inputs.confirm == 'deploy' }}
+    if: ${{ github.event_name == 'push' || inputs.confirm == 'deploy' }}
     runs-on: ubuntu-latest
     env:
       PROJECT: ${{ inputs.project || 'home-center-dclar' }}
