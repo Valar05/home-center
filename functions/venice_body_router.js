@@ -154,13 +154,13 @@ async function executeBrowser({admin, extra, args}) {
       idempotencyKey: stableKey(requestId, 'browser-create'),
       intent,
       startUrl: safeText(target.url || args.startUrl, 1000) || undefined,
-      surface: {runtime: 'playwright', browser: 'chromium', mode: 'desktop'},
+      surface: {runtime: 'browser_nerve', browser: 'chrome', mode: 'desktop', workerId: safeText(args.browserWorkerId, 160) || 'windows-browser-nerve-01'},
     });
     session = created.session || null;
     sessionId = safeText(session && session.sessionId, 180);
   }
   if (!sessionId) throw Object.assign(new Error('Browser Nerve did not return a sessionId.'), {status: 502});
-  if (verb === 'browser.observe' || verb === 'browser.status') {
+  if (verb === 'browser.status') {
     const observation = await runCommandCenterOperation(admin, extra, 'browser_sessions.observe', {sessionId, limit: 10});
     return {sessionId, session, observation, verified: observation && observation.found === true, state: observation && observation.found ? 'observed' : 'not_found'};
   }
@@ -171,16 +171,25 @@ async function executeBrowser({admin, extra, args}) {
     target,
     value: args.value === undefined ? undefined : String(args.value),
     reason: intent,
+    workerId: safeText(args.browserWorkerId, 160) || 'windows-browser-nerve-01',
   });
   let observation = null;
   let observeError = '';
-  try {
-    observation = await runCommandCenterOperation(admin, extra, 'browser_sessions.observe', {sessionId, limit: 20});
-  } catch (error) {
-    observeError = safeText(error && error.message, 1000);
-  }
   const actionRecord = action && action.action || null;
   const actionId = safeText(actionRecord && actionRecord.actionId, 180);
+  const actionStatus = safeText(actionRecord && actionRecord.status, 80);
+  const waitMs = Math.max(0, Math.min(Number(args.browserWaitMs) || 12000, 30000));
+  const deadline = Date.now() + (actionStatus === 'requested' ? waitMs : 0);
+  do {
+    try {
+      observation = await runCommandCenterOperation(admin, extra, 'browser_sessions.observe', {sessionId, limit: 20});
+      observeError = '';
+    } catch (error) {
+      observeError = safeText(error && error.message, 1000);
+    }
+    if (browserEpisodeVerifiesAction(observation, actionId) || Date.now() >= deadline) break;
+    await new Promise((resolve) => setTimeout(resolve, 250));
+  } while (true);
   const verified = browserEpisodeVerifiesAction(observation, actionId);
   return {
     sessionId,
@@ -209,6 +218,8 @@ function veniceBodyOperationEntries() {
         value: 'optional browser input value',
         intent: 'plain-language action intent, separate from Venice speech',
         browserSessionId: 'optional existing Browser Nerve session id',
+        browserWorkerId: 'optional Browser Nerve worker id',
+        browserWaitMs: 'optional 0-30000 bounded wait for durable episode evidence',
         laneId: 'optional Computer Hands lane id',
         workerId: 'optional Computer Hands worker id',
         fallbackAllowed: 'boolean default true',

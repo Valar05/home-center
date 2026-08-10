@@ -1,0 +1,87 @@
+name: Browser Nerve Executor Integration
+
+on:
+  push:
+    branches:
+      - feature/browser-nerve-executor-v1
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  integrate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: feature/browser-nerve-executor-v1
+      - name: Merge current main into candidate
+        run: |
+          git config user.name 'home-center-actions'
+          git config user.email 'home-center-actions@users.noreply.github.com'
+          git fetch origin main
+          git merge --no-edit origin/main
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: functions/package-lock.json
+      - name: Install Home Center function dependencies
+        run: npm ci --prefix functions --ignore-scripts
+      - name: Install Browser Nerve selector runtime
+        run: npm install --prefix browser-nerve/windows --omit=dev --no-audit --no-fund --ignore-scripts
+      - name: Apply deterministic Browser Nerve wiring twice
+        run: |
+          node tools/apply_browser_nerve_executor_patch.mjs
+          node tools/apply_browser_nerve_executor_patch.mjs
+      - name: Validate JavaScript syntax
+        run: |
+          node --check functions/browser_nerve_api.js
+          node --check functions/browser_nerve_api.test.js
+          node --check functions/command_center_mcp.js
+          node --check functions/home_center_mcp.js
+          node --check functions/venice_body_router.js
+          node --check functions/index.js
+          node --check browser-nerve/windows/browser-action.mjs
+      - name: Prove Puppeteer executor module loads
+        run: |
+          set +e
+          output=$(node browser-nerve/windows/browser-action.mjs 2>&1)
+          code=$?
+          set -e
+          echo "$output"
+          test "$code" -ne 0
+          echo "$output" | grep -q 'Usage: node browser-action.mjs'
+      - name: Parse Windows PowerShell scripts
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          [void][scriptblock]::Create((Get-Content -Raw 'browser-nerve/windows/install.ps1'))
+          [void][scriptblock]::Create((Get-Content -Raw 'browser-nerve/windows/home-center-browser-nerve.ps1'))
+          Write-Host 'PowerShell parse OK'
+      - name: Run Browser Nerve and router contract tests
+        run: node --test functions/browser_nerve_api.test.js functions/venice_body_router.test.js
+      - name: Enforce page-machine boundary
+        run: |
+          ! grep -R -n -E 'screen\.capture|input\.mouse|mouse_event|SetCursorPos|screenshot' browser-nerve/windows functions/browser_nerve_api.js
+          grep -q 'enqueueBrowserNerveTicket' functions/command_center_mcp.js
+          grep -q 'browserWaitMs' functions/venice_body_router.js
+          grep -q 'browserNerveOperationEntries' functions/home_center_mcp.js
+          grep -q 'exports.browserNerve' functions/index.js
+          grep -q 'windows-browser-nerve-01' functions/command_center_mcp.js
+      - name: Diff sanity
+        run: git diff --check
+      - name: Commit generated integration wiring if needed
+        run: |
+          changed=$(git status --porcelain -- functions/browser_nerve_api.js functions/command_center_mcp.js functions/home_center_mcp.js functions/venice_body_router.js functions/index.js browser-nerve/windows/install.ps1 browser-nerve/windows/home-center-browser-nerve.ps1)
+          if [ -n "$changed" ]; then
+            echo "$changed"
+            git add functions/browser_nerve_api.js functions/command_center_mcp.js functions/home_center_mcp.js functions/venice_body_router.js functions/index.js browser-nerve/windows/install.ps1 browser-nerve/windows/home-center-browser-nerve.ps1
+            git commit -m 'Wire Browser Nerve selector executor into Home Center'
+          else
+            echo 'Generated integration already applied.'
+          fi
+      - name: Push tested candidate including current main
+        run: git push origin HEAD:feature/browser-nerve-executor-v1

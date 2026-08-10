@@ -4,6 +4,7 @@ const {z} = require('zod/v4');
 const {McpServer} = require('@modelcontextprotocol/sdk/server/mcp.js');
 const {StreamableHTTPServerTransport} = require('@modelcontextprotocol/sdk/server/streamableHttp.js');
 const {APP_CONTROL_COLLECTIONS, APP_CONTROL_DEFAULT_SEEDS, appControlProfileObjectId, appControlProfilePath} = require('./app_control_cloud');
+const {enqueueBrowserNerveTicket} = require('./browser_nerve_api');
 
 const DEFAULT_COMMAND_CENTER_PUBLIC_BASE = 'https://us-central1-home-center-dclar.cloudfunctions.net/commandCenterMcp';
 const COMMAND_CENTER_PUBLIC_BASE = process.env.COMMAND_CENTER_MCP_PUBLIC_BASE || DEFAULT_COMMAND_CENTER_PUBLIC_BASE;
@@ -580,12 +581,12 @@ function cleanBrowserIntent(value) {
 function cleanBrowserSurface(value = {}) {
   const surface = safeObject(value);
   return {
-    runtime: safeText(surface.runtime, 80) || 'playwright',
-    browser: safeText(surface.browser, 80) || 'chromium',
+    runtime: safeText(surface.runtime, 80) || 'browser_nerve',
+    browser: safeText(surface.browser, 80) || 'chrome',
     mode: safeText(surface.mode, 80) || 'desktop',
     userAgentMode: safeText(surface.userAgentMode, 80) || 'desktop',
     viewport: safeObject(surface.viewport),
-    workerId: safeText(surface.workerId, 120),
+    workerId: safeText(surface.workerId, 120) || 'windows-browser-nerve-01',
     androidFallback: safeObject(surface.androidFallback),
   };
 }
@@ -695,8 +696,17 @@ async function requestBrowserAction(admin, caller, args = {}) {
       createdBy: caller.actor,
       createdAtMs: Date.now(),
     };
-    await appendEvent(admin, {type: 'browser_action_' + status, projectId: 'home-center', actor: caller.actor, summary: `${action}: ${status}`, data: payload});
-    return {action: payload};
+    let execution = null;
+    if (status === 'requested') {
+      execution = await enqueueBrowserNerveTicket({
+        admin,
+        caller,
+        args: {sessionId, actionId, action, target: payload.target, value: args.value, reason: payload.reason, workerId: safeText(args.workerId, 120) || 'windows-browser-nerve-01'},
+      });
+    }
+    const eventPayload = {...payload, execution: execution ? {ticketId: execution.ticketId, workerId: execution.workerId, status: execution.status} : null};
+    await appendEvent(admin, {type: 'browser_action_' + status, projectId: 'home-center', actor: caller.actor, summary: `${action}: ${status}`, data: eventPayload});
+    return {action: {...payload, execution}};
   });
 }
 
@@ -1221,7 +1231,7 @@ function createCommandCenterMcpServer({admin}) {
   server.registerTool('command_center.browser_sessions.act', {
     title: 'Request browser-hands action',
     description: 'Record or request a constrained browser action. Sensitive, purchase, payment, CAPTCHA, and account-security actions are blocked for human control.',
-    inputSchema: {idempotencyKey: z.string(), sessionId: z.string(), actionId: z.string().optional(), action: z.string(), target: z.record(z.string(), z.any()).optional(), value: z.string().optional(), reason: z.string().optional()},
+    inputSchema: {idempotencyKey: z.string(), sessionId: z.string(), actionId: z.string().optional(), action: z.string(), target: z.record(z.string(), z.any()).optional(), value: z.string().optional(), reason: z.string().optional(), workerId: z.string().optional()},
   }, async (args, extra) => textResult(await requestBrowserAction(admin, await callerFromExtra(admin, extra), args || {})));
 
   server.registerTool('command_center.browser_sessions.record_episode', {
