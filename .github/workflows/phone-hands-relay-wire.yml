@@ -1,0 +1,51 @@
+name: Phone Hands Relay Wiring
+on:
+  push:
+    branches: [feature/mobile-coding-dungeon]
+    paths:
+      - 'functions/phone_hands_relay.js'
+      - 'tools/android_phone_home_center_relay.py'
+      - 'tools/setup_android_phone_home_center_relay.sh'
+      - 'tools/apply_phone_hands_relay_wiring.mjs'
+      - '.github/workflows/phone-hands-relay-wire.yml'
+      - 'docs/PHONE_HANDS_CHATGPT_RELAY.md'
+  pull_request:
+    branches: [main, feature/android-phone-autonomous-voice-node]
+    paths:
+      - 'functions/phone_hands_relay.js'
+      - 'tools/android_phone_home_center_relay.py'
+      - 'tools/setup_android_phone_home_center_relay.sh'
+      - 'tools/apply_phone_hands_relay_wiring.mjs'
+      - '.github/workflows/phone-hands-relay-wire.yml'
+      - 'docs/PHONE_HANDS_CHATGPT_RELAY.md'
+permissions:
+  contents: write
+jobs:
+  wire:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feature/mobile-coding-dungeon
+          fetch-depth: 0
+      - name: Apply narrow MCP and function wiring
+        run: node tools/apply_phone_hands_relay_wiring.mjs
+      - name: Syntax checks
+        run: |
+          node --check functions/phone_hands_relay.js
+          node --check functions/command_center_mcp.js
+          node --check functions/index.js
+          python -m py_compile tools/android_phone_home_center_relay.py
+          git diff --check
+      - name: Commit generated wiring
+        if: github.event_name == 'push'
+        run: |
+          if git diff --quiet; then
+            echo 'wiring already current'
+            exit 0
+          fi
+          git config user.name 'home-center-relay-wirer'
+          git config user.email 'actions@users.noreply.github.com'
+          git add functions/command_center_mcp.js functions/index.js
+          git commit -m 'Wire Android Phone Hands relay into Command Center'
+          git push origin HEAD:feature/mobile-coding-dungeon
