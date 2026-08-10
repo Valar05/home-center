@@ -18,7 +18,7 @@ jobs:
         with:
           ref: refs/heads/main
           fetch-depth: 0
-      - name: Add phone_hands operations to compatibility dispatcher
+      - name: Add phone_hands operations to Command Center dispatcher
         run: |
           node <<'NODE'
           const fs = require('fs');
@@ -38,9 +38,29 @@ jobs:
           }
           fs.writeFileSync(path, text);
           NODE
+      - name: Add phone_hands operations to Home Center compatibility registry
+        run: |
+          node <<'NODE'
+          const fs = require('fs');
+          const path = 'functions/home_center_mcp.js';
+          let text = fs.readFileSync(path, 'utf8');
+          const anchor = "      'browser_sessions.create': {summary: 'Create a Playwright desktop Chromium browser-hands session.', readOnly: false, input: {intent: 'string', startUrl: 'optional string', surface: 'optional object', idempotencyKey: 'string'}},";
+          const insertion = [
+            "      'phone_hands.devices': {summary: 'List owner-scoped Android Phone Hands relay devices and last-seen state.', readOnly: true, input: {}},",
+            "      'phone_hands.enqueue': {summary: 'Enqueue a bounded Android Phone Hands action for an owner-scoped device.', readOnly: false, input: {idempotencyKey: 'string', deviceId: 'optional string default primary-phone', commandId: 'optional string', action: 'object', ttlMs: 'optional number'}},",
+            "      'phone_hands.get': {summary: 'Read status, result, or failure for one owner-scoped Phone Hands command.', readOnly: true, input: {commandId: 'string'}},",
+            anchor,
+          ].join('\n');
+          if (!text.includes("'phone_hands.devices':")) {
+            if (!text.includes(anchor)) throw new Error('home center command center registry anchor missing');
+            text = text.replace(anchor, insertion);
+          }
+          fs.writeFileSync(path, text);
+          NODE
       - name: Validate
         run: |
           node --check functions/command_center_mcp.js
+          node --check functions/home_center_mcp.js
           node --check functions/phone_hands_relay.js
           node tools/phone_hands_relay_contract_test.mjs
           git diff --check
@@ -52,6 +72,6 @@ jobs:
           fi
           git config user.name 'home-center-phone-hands-patcher'
           git config user.email 'actions@users.noreply.github.com'
-          git add functions/command_center_mcp.js
-          git commit -m 'Expose Phone Hands through Command Center dispatcher'
+          git add functions/command_center_mcp.js functions/home_center_mcp.js
+          git commit -m 'Expose Phone Hands through Home Center dispatcher'
           git push origin HEAD:main
