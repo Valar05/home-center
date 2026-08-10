@@ -1,0 +1,26 @@
+name: Control Plane Deploy Contract
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'tools/deploy_functions_termux.sh'
+      - 'tools/deploy_blender_workspace_release.sh'
+      - 'tools/deploy_function_targets_contract_test.mjs'
+      - '.github/workflows/control-plane-deploy-contract.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate requested deployment targets are implemented
+        run: node tools/deploy_function_targets_contract_test.mjs
+      - name: Validate deploy helper shell syntax
+        run: sh -n tools/deploy_functions_termux.sh && sh -n tools/deploy_blender_workspace_release.sh
