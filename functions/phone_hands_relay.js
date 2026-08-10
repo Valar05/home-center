@@ -22,7 +22,10 @@ function cleanDeviceId(value) {
 function cleanAction(value) {
   const body = safeObject(value);
   const action = safeText(body.action, 80);
-  const allowed = new Set(['observe','tap','swipe','text','keyevent','home','back','recents','launch','force_stop','dungeon_run','local_ask']);
+  const allowed = new Set([
+    'observe','tap','swipe','text','keyevent','home','back','recents','launch','force_stop','dungeon_run','local_ask',
+    'file_stat','file_hash','file_list','file_mkdir','file_copy','file_move','armory_inventory','armory_ingest',
+  ]);
   if (!allowed.has(action)) throw Object.assign(new Error(`unsupported phone action: ${action}`), {status: 400});
   return {...body, action};
 }
