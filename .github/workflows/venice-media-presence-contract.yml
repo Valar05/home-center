@@ -1,0 +1,26 @@
+name: Venice Media Presence Contract
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'docs/venice-chatgpt-aperture-v2.md'
+      - 'docs/venice-media-presence-organ.md'
+      - 'contracts/venice-body-turn.v1.schema.json'
+      - 'contracts/venice-media-session.v1.schema.json'
+      - 'tools/venice_media_presence_contract_test.mjs'
+      - '.github/workflows/venice-media-presence-contract.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate Venice Nerve and Media Presence contracts
+        run: node tools/venice_media_presence_contract_test.mjs
