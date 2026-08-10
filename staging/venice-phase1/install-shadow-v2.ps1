@@ -20,7 +20,7 @@ $expected = [ordered]@{
 if (-not (Test-Path -LiteralPath (Join-Path $RepoPath '.git'))) { throw "Home Center repo missing: $RepoPath" }
 if (-not (Test-Path -LiteralPath $RuntimeRoot)) { throw "Venice Runtime missing: $RuntimeRoot" }
 
-& git -C $RepoPath fetch origin main | Out-Null
+& git -C $RepoPath fetch --quiet origin main | Out-Null
 if ($LASTEXITCODE -ne 0) { throw 'git fetch origin main failed.' }
 $sourceCommit = (& git -C $RepoPath rev-parse origin/main).Trim()
 $b64 = ((& git -C $RepoPath show ('origin/main:' + $transportPath)) -join '')
@@ -80,15 +80,20 @@ $patchTemp = Join-Path $env:TEMP 'venice-apply-durable-shadow.ps1'
 $patchText = (& git -C $RepoPath show ('origin/main:' + $patchPath)) -join "`n"
 if ($LASTEXITCODE -ne 0 -or [string]::IsNullOrWhiteSpace($patchText)) { throw 'Could not read shadow integration patch from origin/main.' }
 [IO.File]::WriteAllText($patchTemp, $patchText, [Text.UTF8Encoding]::new($false))
-$patchOutput = (& powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File $patchTemp -RuntimeRoot $RuntimeRoot 2>&1 | Out-String)
-$patchExit = $LASTEXITCODE
+$patchStdout = Join-Path $env:TEMP 'venice-shadow-patch.stdout.txt'
+$patchStderr = Join-Path $env:TEMP 'venice-shadow-patch.stderr.txt'
+Remove-Item -LiteralPath $patchStdout,$patchStderr -Force -ErrorAction SilentlyContinue
+$patchProcess = Start-Process powershell.exe -ArgumentList @('-NoLogo','-NoProfile','-ExecutionPolicy','Bypass','-File',$patchTemp,'-RuntimeRoot',$RuntimeRoot) -Wait -PassThru -NoNewWindow -RedirectStandardOutput $patchStdout -RedirectStandardError $patchStderr
+$patchExit = $patchProcess.ExitCode
+$patchOutput = if (Test-Path -LiteralPath $patchStdout) { Get-Content -LiteralPath $patchStdout -Raw } else { '' }
+$patchErrorOutput = if (Test-Path -LiteralPath $patchStderr) { Get-Content -LiteralPath $patchStderr -Raw } else { '' }
 if ($patchExit -ne 0) {
   [pscustomobject]@{
     ok = $false
     phase1CoreInstalled = $true
     focusedTestsPassed = $true
     shadowRunnerIntegrated = $false
-    shadowPatchError = $patchOutput.Trim()
+    shadowPatchError = (($patchOutput + "`n" + $patchErrorOutput).Trim())
     sourceCommit = $sourceCommit
     zipSha256 = $zipHash
     installed = $installed

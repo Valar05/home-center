@@ -31,7 +31,7 @@ if (-not (Test-Path -LiteralPath $ConfigPath)) { throw "Missing Computer Hands c
 if (-not (Test-Path -LiteralPath $TokenPath)) { throw "Missing registered DPAPI worker token: $TokenPath" }
 
 # Pull only remote refs. Never merge, checkout, stash, reset, or alter the worktree.
-& git -C $RepoPath fetch origin main
+& git -C $RepoPath fetch --quiet origin main
 if ($LASTEXITCODE -ne 0) { throw 'git fetch origin main failed.' }
 $workerText = & git -C $RepoPath show 'origin/main:computer-hands/windows/home-center-hands.ps1'
 if ($LASTEXITCODE -ne 0 -or [string]::IsNullOrWhiteSpace(($workerText -join "`n"))) { throw 'Could not read worker from origin/main.' }
