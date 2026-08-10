@@ -1,0 +1,68 @@
+name: Deploy Phone Hands Control Plane
+
+on:
+  workflow_dispatch:
+    inputs:
+      project:
+        description: GCP project id
+        required: true
+        default: home-center-dclar
+      region:
+        description: GCP region
+        required: true
+        default: us-central1
+      confirm:
+        description: Type deploy to confirm
+        required: true
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: deploy-phone-hands-control-plane
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    if: ${{ inputs.confirm == 'deploy' }}
+    runs-on: ubuntu-latest
+    env:
+      PROJECT: ${{ inputs.project || 'home-center-dclar' }}
+      REGION: ${{ inputs.region || 'us-central1' }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: refs/heads/main
+          fetch-depth: 0
+      - name: Enforce immutable main release source
+        run: sh tools/assert_home_center_mcp_main_release.sh "$GITHUB_WORKSPACE"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: functions/package-lock.json
+      - run: npm --prefix functions ci
+      - name: Validate Phone Hands control plane
+        run: |
+          node --check functions/phone_hands_relay.js
+          node --check functions/command_center_mcp.js
+          node --check functions/index.js
+          node tools/phone_hands_relay_contract_test.mjs
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GCP_DEPLOY_SERVICE_ACCOUNT }}
+      - uses: google-github-actions/setup-gcloud@v2
+      - name: Deploy Command Center and Phone Hands relay
+        env:
+          GCLOUD_FUNCTIONS_REGION: ${{ env.REGION }}
+        run: sh tools/deploy_functions_termux.sh "$PROJECT" commandCenterMcp phoneHandsRelay
+      - name: Verify deployed functions and Command Center readiness
+        run: |
+          gcloud functions describe commandCenterMcp --gen2 --project="$PROJECT" --region="$REGION" --format='value(state,serviceConfig.uri)'
+          gcloud functions describe phoneHandsRelay --gen2 --project="$PROJECT" --region="$REGION" --format='value(state,serviceConfig.uri)'
+          READY_URL="https://${REGION}-${PROJECT}.cloudfunctions.net/commandCenterMcp/ready"
+          READY_JSON="$(curl --fail --silent --show-error "$READY_URL")"
+          READY_JSON="$READY_JSON" node -e 'const p=JSON.parse(process.env.READY_JSON); if(!p.ready || p.service!=="command-center-mcp") throw new Error("Command Center readiness failed"); console.log(JSON.stringify(p));'
