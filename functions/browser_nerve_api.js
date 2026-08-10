@@ -249,7 +249,9 @@ async function completeRequest({admin, worker, ticketId, args = {}, nowMs = Date
   await admin.firestore().collection(COLLECTIONS.sessions).doc(found.row.sessionId).set({
     status: ok ? 'ready' : 'action_failed', lastEpisodeId: episodeId, lastUrl: url, lastTitle: episode.title, updatedAtMs: nowMs,
   }, {merge: true});
-  await found.ref.set({status, lease: null, result: {...result, value: undefined}, completedAtMs: nowMs, updatedAtMs: nowMs}, {merge: true});
+  const storedResult = {...result};
+  delete storedResult.value;
+  await found.ref.set({status, lease: null, result: storedResult, completedAtMs: nowMs, updatedAtMs: nowMs}, {merge: true});
   await admin.firestore().collection(COLLECTIONS.workers).doc(workerDocId(worker.ownerKey, worker.workerId)).set({state: 'idle', lastSeenAtMs: nowMs, updatedAtMs: nowMs}, {merge: true});
   return {ticketId, actionId: found.row.actionId, sessionId: found.row.sessionId, status, episodeId, resultBytes: bytes};
 }

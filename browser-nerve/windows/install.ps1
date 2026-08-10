@@ -39,7 +39,8 @@ if (-not $health.ok -or $health.contractVersion -ne 'home-center.browser-nerve-c
 $node = (Get-Command node.exe -ErrorAction Stop).Source
 $npm = (Get-Command npm.cmd -ErrorAction Stop).Source
 $packagePath = Join-Path $Root 'package.json'
-@'{
+@'
+{
   "name": "home-center-browser-nerve-worker",
   "private": true,
   "type": "module",

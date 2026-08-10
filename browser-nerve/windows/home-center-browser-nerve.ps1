@@ -95,12 +95,24 @@ while ($true) {
     $ticket = $lease.ticket
     Log "ticket_leased id=$($ticket.ticketId) session=$($ticket.sessionId) action=$($ticket.action)"
     Write-Progress @{phase='leased';ticketId=$ticket.ticketId;sessionId=$ticket.sessionId;action=$ticket.action}
-    $hb = Invoke-Api 'POST' "tickets/$($ticket.ticketId)/heartbeat" @{phase='running';message="Executing $($ticket.action)";machine=$env:COMPUTERNAME;browser='chrome-cdp';workerVersion=$WorkerVersion}
-    if ($hb.cancelRequested -eq $true) { Write-Progress @{phase='cancelled';ticketId=$ticket.ticketId}; continue }
-    $result = Invoke-Executor $ticket
-    $completion = Invoke-Api 'POST' "tickets/$($ticket.ticketId)/complete" @{result=$result}
-    Write-Progress @{phase=$completion.status;ticketId=$ticket.ticketId;sessionId=$ticket.sessionId;action=$ticket.action;episodeId=$completion.episodeId;ok=($result.ok -ne $false)}
-    Log "ticket_complete id=$($ticket.ticketId) status=$($completion.status) episode=$($completion.episodeId)"
+    try {
+      $hb = Invoke-Api 'POST' "tickets/$($ticket.ticketId)/heartbeat" @{phase='running';message="Executing $($ticket.action)";machine=$env:COMPUTERNAME;browser='chrome-cdp';workerVersion=$WorkerVersion}
+      if ($hb.cancelRequested -eq $true) { Write-Progress @{phase='cancelled';ticketId=$ticket.ticketId}; continue }
+      $result = Invoke-Executor $ticket
+      $completion = Invoke-Api 'POST' "tickets/$($ticket.ticketId)/complete" @{result=$result}
+      Write-Progress @{phase=$completion.status;ticketId=$ticket.ticketId;sessionId=$ticket.sessionId;action=$ticket.action;episodeId=$completion.episodeId;ok=($result.ok -ne $false)}
+      Log "ticket_complete id=$($ticket.ticketId) status=$($completion.status) episode=$($completion.episodeId)"
+    } catch {
+      $detail = $_.Exception.Message
+      Log "ticket_action_failed id=$($ticket.ticketId) detail=$detail"
+      try {
+        $failed = Invoke-Api 'POST' "tickets/$($ticket.ticketId)/complete" @{result=@{ok=$false;error=$detail;workerVersion=$WorkerVersion;browser='chrome-cdp'}}
+        Write-Progress @{phase=$failed.status;ticketId=$ticket.ticketId;sessionId=$ticket.sessionId;action=$ticket.action;episodeId=$failed.episodeId;ok=$false;error=$detail}
+      } catch {
+        Log "ticket_failure_report_failed id=$($ticket.ticketId) detail=$($_.Exception.Message)"
+        Write-Progress @{phase='failure_report_failed';ticketId=$ticket.ticketId;error=$detail}
+      }
+    }
   } catch {
     Log "poll_or_action_error $($_.Exception.Message)"
     Write-Progress @{phase='error';message=$_.Exception.Message}
