@@ -120,8 +120,9 @@ async function workerStatusOperation({admin, user, args = {}}) {
   const onlineFreshnessMs = ['running', 'leased'].includes(state) ? LEASE_TTL_MS + 15000 : 30000;
   const heartbeatAtMs = Math.max(lastSeenAtMs, ['running', 'leased'].includes(state) ? updatedAtMs : 0);
   const online = heartbeatAtMs > 0 && Date.now() - heartbeatAtMs < onlineFreshnessMs;
-  const pending = await admin.firestore().collection(COLLECTIONS.tickets).where('ownerKey', '==', owner).limit(100).get();
-  const rows = pending.docs.map((doc) => doc.data() || {}).filter((item) => item.workerId === workerId && ['queued', 'leased', 'running'].includes(item.status));
+  // Query active states before filtering owner/worker so completed ticket history can never starve new work beyond an arbitrary historical limit.
+  const pending = await admin.firestore().collection(COLLECTIONS.tickets).where('status', 'in', ['queued', 'leased', 'running']).limit(500).get();
+  const rows = pending.docs.map((doc) => doc.data() || {}).filter((item) => item.ownerKey === owner && item.workerId === workerId);
   const activeLanes = [...new Set(rows.map((item) => safeLaneId(item.laneId || 'lane-default')))];
   return {workerId, status: state, online, lastSeenAtMs, updatedAtMs, onlineFreshnessMs, workerVersion: safeText(row.workerVersion, 120), machine: row.machine || null, capabilities: row.capabilities || SUPPORTED_ACTIONS, fileLayer: 'drive_sync', queueDepth: rows.length, activeLanes, lastServedLaneId: safeText(row.lastServedLaneId, 160)};
 }
@@ -181,9 +182,10 @@ async function leaseRequest({admin, worker, nowMs = Date.now()}) {
   const workerRef = admin.firestore().collection(COLLECTIONS.workers).doc(workerDocId(worker.ownerKey, worker.workerId));
   const workerSnap = await workerRef.get();
   const lastServedLaneId = safeLaneId((workerSnap.exists && workerSnap.data()?.lastServedLaneId) || 'lane-default');
-  const query = await admin.firestore().collection(COLLECTIONS.tickets).where('ownerKey', '==', worker.ownerKey).limit(100).get();
+  // Active-state query avoids historical-ticket starvation while retaining terminal receipts indefinitely.
+  const query = await admin.firestore().collection(COLLECTIONS.tickets).where('status', 'in', ['queued', 'leased', 'running']).limit(500).get();
   const eligible = query.docs.map((doc) => ({ref: doc.ref, row: doc.data() || {}})).filter((item) => {
-    if (item.row.workerId !== worker.workerId || item.row.cancelRequested === true || item.row.status === 'cancelled') return false;
+    if (item.row.ownerKey !== worker.ownerKey || item.row.workerId !== worker.workerId || item.row.cancelRequested === true || item.row.status === 'cancelled') return false;
     if (item.row.status === 'queued') return true;
     if (!['leased', 'running'].includes(item.row.status)) return false;
     return !item.row.lease || Number(item.row.lease.expiresAtMs || 0) <= nowMs;
