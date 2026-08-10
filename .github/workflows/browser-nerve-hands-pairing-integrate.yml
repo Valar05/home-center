@@ -10,36 +10,52 @@ permissions:
   contents: write
 
 jobs:
-  integrate:
+  node-contract:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          ref: feature/browser-nerve-hands-pairing
-      - name: Merge current main into candidate
+        with: {fetch-depth: 0, ref: feature/browser-nerve-hands-pairing}
+      - name: Merge current main
         run: |
           git config user.name 'home-center-actions'
           git config user.email 'home-center-actions@users.noreply.github.com'
           git fetch origin main
           git merge --no-edit origin/main
       - uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-          cache: npm
-          cache-dependency-path: functions/package-lock.json
+        with: {node-version: '22', cache: npm, cache-dependency-path: functions/package-lock.json}
       - run: npm ci --prefix functions --ignore-scripts
-      - name: Apply and normalize secure pairing patch twice
+      - name: Generate twice
         run: |
           node tools/apply_browser_nerve_hands_pairing_patch.mjs
           node tools/fix_browser_nerve_hands_pairing_generated.mjs
           node tools/apply_browser_nerve_hands_pairing_patch.mjs
           node tools/fix_browser_nerve_hands_pairing_generated.mjs
-      - name: Validate JavaScript and pairing tests
+      - name: Node syntax and tests
         run: |
           node --check functions/browser_nerve_api.js
           node --check functions/browser_nerve_api.test.js
           node --test functions/browser_nerve_api.test.js
+          git diff --check
+
+  powershell-contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: {fetch-depth: 0, ref: feature/browser-nerve-hands-pairing}
+      - name: Merge current main
+        run: |
+          git config user.name 'home-center-actions'
+          git config user.email 'home-center-actions@users.noreply.github.com'
+          git fetch origin main
+          git merge --no-edit origin/main
+      - uses: actions/setup-node@v4
+        with: {node-version: '22'}
+      - name: Generate twice
+        run: |
+          node tools/apply_browser_nerve_hands_pairing_patch.mjs
+          node tools/fix_browser_nerve_hands_pairing_generated.mjs
+          node tools/apply_browser_nerve_hands_pairing_patch.mjs
+          node tools/fix_browser_nerve_hands_pairing_generated.mjs
       - name: Parse installer
         shell: pwsh
         run: |
@@ -49,15 +65,57 @@ jobs:
           if($source -notmatch 'PairWithComputerHands'){throw 'pairing installer mode missing'}
           if($source -notmatch 'pair-computer-hands'){throw 'pairing endpoint call missing'}
           if($source -notmatch 'ZeroFreeBSTR'){throw 'Computer Hands credential cleanup missing'}
+
+  boundary-contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: {fetch-depth: 0, ref: feature/browser-nerve-hands-pairing}
+      - name: Merge current main
+        run: |
+          git config user.name 'home-center-actions'
+          git config user.email 'home-center-actions@users.noreply.github.com'
+          git fetch origin main
+          git merge --no-edit origin/main
+      - uses: actions/setup-node@v4
+        with: {node-version: '22'}
+      - name: Generate twice
+        run: |
+          node tools/apply_browser_nerve_hands_pairing_patch.mjs
+          node tools/fix_browser_nerve_hands_pairing_generated.mjs
+          node tools/apply_browser_nerve_hands_pairing_patch.mjs
+          node tools/fix_browser_nerve_hands_pairing_generated.mjs
       - name: Enforce pairing boundary
         run: |
           grep -q "computerHandsWorkerTokens" functions/browser_nerve_api.js
           grep -q "pair-computer-hands" functions/browser_nerve_api.js
           grep -q "pairedFromComputerHandsWorkerId" functions/browser_nerve_api.js
           ! grep -q "Computer Hands worker token.*console" functions/browser_nerve_api.js
-          ! grep -q "async function authenticateWorker.*async function authenticateComputerHandsPairing" functions/browser_nerve_api.js
+          count=$(grep -c "Computer Hands pairing is explicitly scoped to Browser Nerve worker identities" functions/browser_nerve_api.test.js)
+          test "$count" -eq 1
           git diff --check
-      - name: Commit generated pairing and push tested candidate
+
+  integrate:
+    needs: [node-contract, powershell-contract, boundary-contract]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: {fetch-depth: 0, ref: feature/browser-nerve-hands-pairing}
+      - name: Merge current main
+        run: |
+          git config user.name 'home-center-actions'
+          git config user.email 'home-center-actions@users.noreply.github.com'
+          git fetch origin main
+          git merge --no-edit origin/main
+      - uses: actions/setup-node@v4
+        with: {node-version: '22'}
+      - name: Generate tested pairing
+        run: |
+          node tools/apply_browser_nerve_hands_pairing_patch.mjs
+          node tools/fix_browser_nerve_hands_pairing_generated.mjs
+          node tools/apply_browser_nerve_hands_pairing_patch.mjs
+          node tools/fix_browser_nerve_hands_pairing_generated.mjs
+      - name: Commit generated pairing and push exact candidate
         run: |
           changed=$(git status --porcelain -- functions/browser_nerve_api.js functions/browser_nerve_api.test.js browser-nerve/windows/install.ps1)
           if [ -n "$changed" ]; then
