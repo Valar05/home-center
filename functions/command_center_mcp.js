@@ -1332,6 +1332,7 @@ module.exports = {
   cleanBrowserPlaybook,
   cleanProjectPacket,
   lookupBrowserPlaybook,
+  runCommandCenterOperation,
   createCommandCenterMcpApp,
   createCommandCenterMcpServer,
   cleanBucketObject,
