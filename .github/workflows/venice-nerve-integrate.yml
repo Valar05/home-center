@@ -74,6 +74,10 @@ jobs:
               assert lint.strip(), 'functions/package.json lint script is empty'
               package['scripts']['lint'] = lint + ' && node --check venice_nerve_api.js'
               package_path.write_text(json.dumps(package, indent=2) + '\n')
+      - name: Refresh intentional public MCP baseline
+        run: |
+          node tools/generate_home_center_public_manifest.mjs
+          node tools/generate_home_center_public_manifest.mjs --check
       - name: Validate syntax and Nerve contracts
         run: |
           node --check functions/venice_nerve_api.js
@@ -87,14 +91,14 @@ jobs:
             exit 1
           fi
           git diff --check
-      - name: Commit explicit MCP wiring
+      - name: Commit explicit MCP wiring and manifest
         run: |
-          if git diff --quiet -- functions/home_center_mcp.js functions/index.js functions/package.json; then
-            echo 'Venice Nerve wiring already present.'
+          if git diff --quiet -- functions/home_center_mcp.js functions/index.js functions/package.json contracts/home-center-top-level-mcp.v1.json contracts/home-center-public-tool-manifest.v1.json; then
+            echo 'Venice Nerve wiring and public manifest already current.'
             exit 0
           fi
           git config user.name 'home-center-actions'
           git config user.email 'home-center-actions@users.noreply.github.com'
-          git add functions/home_center_mcp.js functions/index.js functions/package.json
-          git commit -m 'Wire dedicated Venice Nerve into Home Center MCP'
+          git add functions/home_center_mcp.js functions/index.js functions/package.json contracts/home-center-top-level-mcp.v1.json contracts/home-center-public-tool-manifest.v1.json
+          git commit -m 'Wire Venice Nerve and refresh Home Center manifest'
           git push origin HEAD:venice-nerve-media-presence-v2
