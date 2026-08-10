@@ -7,7 +7,7 @@ $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
 if (-not (Test-Path -LiteralPath (Join-Path $RepoPath '.git'))) { throw "Home Center repo missing: $RepoPath" }
 
-& git -C $RepoPath fetch origin main | Out-Null
+& git -C $RepoPath fetch --quiet origin main | Out-Null
 if ($LASTEXITCODE -ne 0) { throw 'git fetch origin main failed.' }
 $sourceCommit = (& git -C $RepoPath rev-parse origin/main).Trim()
 
