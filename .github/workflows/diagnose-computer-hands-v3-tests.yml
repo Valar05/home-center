@@ -1,0 +1,59 @@
+name: Diagnose Computer Hands v3 Tests
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Run patch and capture every validation
+        shell: bash
+        run: |
+          set +e
+          python3 tools/patch_computer_hands_shared_lanes_v3.py > /tmp/patch.log 2>&1
+          patch_code=$?
+          node --check functions/computer_hands_api.js > /tmp/check.log 2>&1
+          check_code=$?
+          node --test functions/computer_hands_shared_lanes.test.js > /tmp/test.log 2>&1
+          test_code=$?
+          python3 - <<'PY' > /tmp/static.log 2>&1
+          from pathlib import Path
+          api = Path('functions/computer_hands_api.js').read_text(encoding='utf-8')
+          worker = Path('computer-hands/windows/home-center-hands.ps1').read_text(encoding='utf-8')
+          repair = Path('computer-hands/windows/repair.ps1').read_text(encoding='utf-8')
+          for required in ["const PACKET_ACTION = 'packet.execute'", 'const MAX_PACKET_STEPS = 32', 'function safeLaneId', 'async function cancelRequestOperation', 'lastServedLaneId', 'limit(100)']:
+              assert required in api, f'missing API feature: {required}'
+          for required in ['function Write-ProgressState', "if($action -ne 'packet.execute')", "phase='packet_step'", '$ProgressPath']:
+              assert required in worker, f'missing worker feature: {required}'
+          assert 'LOCAL_HANDS_PROGRESS.json' in repair
+          print('static acceptance passed')
+          PY
+          static_code=$?
+          git diff --check > /tmp/diff.log 2>&1
+          diff_code=$?
+          set -e
+          {
+            echo "patch_code=$patch_code"; cat /tmp/patch.log
+            echo "check_code=$check_code"; cat /tmp/check.log
+            echo "test_code=$test_code"; cat /tmp/test.log
+            echo "static_code=$static_code"; cat /tmp/static.log
+            echo "diff_code=$diff_code"; cat /tmp/diff.log
+          } > tools/computer_hands_v3_test_diagnostic.txt
+          git restore -- functions/computer_hands_api.js computer-hands/windows/home-center-hands.ps1 computer-hands/windows/repair.ps1 2>/dev/null || true
+          rm -f functions/computer_hands_shared_lanes.test.js
+          git config user.name 'home-center-github-admin[bot]'
+          git config user.email 'home-center-github-admin[bot]@users.noreply.github.com'
+          git add tools/computer_hands_v3_test_diagnostic.txt
+          git commit -m 'Record Computer Hands v3 test diagnostic' || true
+          git push origin HEAD:main
