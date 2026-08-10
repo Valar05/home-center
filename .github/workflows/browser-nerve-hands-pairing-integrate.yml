@@ -29,10 +29,12 @@ jobs:
           cache: npm
           cache-dependency-path: functions/package-lock.json
       - run: npm ci --prefix functions --ignore-scripts
-      - name: Apply secure pairing patch twice
+      - name: Apply and normalize secure pairing patch twice
         run: |
           node tools/apply_browser_nerve_hands_pairing_patch.mjs
+          node tools/fix_browser_nerve_hands_pairing_generated.mjs
           node tools/apply_browser_nerve_hands_pairing_patch.mjs
+          node tools/fix_browser_nerve_hands_pairing_generated.mjs
       - name: Validate JavaScript and pairing tests
         run: |
           node --check functions/browser_nerve_api.js
@@ -53,6 +55,7 @@ jobs:
           grep -q "pair-computer-hands" functions/browser_nerve_api.js
           grep -q "pairedFromComputerHandsWorkerId" functions/browser_nerve_api.js
           ! grep -q "Computer Hands worker token.*console" functions/browser_nerve_api.js
+          ! grep -q "async function authenticateWorker.*async function authenticateComputerHandsPairing" functions/browser_nerve_api.js
           git diff --check
       - name: Commit generated pairing and push tested candidate
         run: |
