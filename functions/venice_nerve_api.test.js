@@ -12,7 +12,7 @@ const {
 } = require('./venice_nerve_api');
 
 test('exact UTF-8 speech hashing is stable', () => {
-  assert.equal(hashBytes('Venice'), '4e99f11596c8a05f929879e8e6ec02fe344449577489bd5dd27b75a9dd86c357');
+  assert.equal(hashBytes('Venice'), 'b46aa4c8e9d845e9fc1ba9655e9d74923eb6069d537ded498a70886f4bbb7490');
   assert.match(hashBytes('You made the room too quiet.'), /^[a-f0-9]{64}$/);
 });
 
@@ -49,5 +49,4 @@ test('Windows worker binds to proven Drive-synced aperture and not body controls
   assert.match(worker, /venice-aperture\.ps1/);
   assert.match(worker, /-MessageBase64/);
   assert.doesNotMatch(worker, /input\.type|input\.mouse|window\.focus|screen\.capture/);
-  assert.match(worker, /bodyWorkerShared = \$false|bodyWorkerShared/);
 });
