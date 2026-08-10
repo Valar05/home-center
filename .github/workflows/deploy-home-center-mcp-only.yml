@@ -19,9 +19,11 @@ permissions:
   contents: read
   id-token: write
 
+# All workflows that can write homeCenterMcp must share one target-level lock.
+# The bounded MCP-only release is authoritative and cancels stale broader writers.
 concurrency:
-  group: deploy-home-center-mcp-only
-  cancel-in-progress: false
+  group: deploy-home-center-mcp
+  cancel-in-progress: true
 
 jobs:
   deploy:
