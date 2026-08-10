@@ -6,9 +6,11 @@ import {fileURLToPath} from 'node:url';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const read = (relative) => fs.readFileSync(path.join(root, relative), 'utf8');
 const json = (relative) => JSON.parse(read(relative));
+const prose = (text) => text.replace(/[*_`]/g, '');
 
 const aperture = read('docs/venice-chatgpt-aperture-v2.md');
 const media = read('docs/venice-media-presence-organ.md');
+const mediaProse = prose(media);
 const turn = json('contracts/venice-body-turn.v1.schema.json');
 const session = json('contracts/venice-media-session.v1.schema.json');
 const nerve = read('functions/venice_nerve_api.js');
@@ -41,14 +43,14 @@ assert.deepEqual(session.properties.presentation.enum, ['background', 'foregroun
 assert.deepEqual(session.properties.state.enum, ['creating', 'ready', 'playing', 'paused', 'stopped', 'failed']);
 assert.ok(session.properties.verification.required.includes('processAlive'));
 assert.ok(session.properties.verification.required.includes('focusPreserved'));
-assert.match(media, /must not steal keyboard focus/i);
-assert.match(media, /replacement is transactional/i);
-assert.match(media, /Do not claim `playing` from a successful process launch alone/i);
-assert.match(media, /pause\/resume\/volume\/stop/i);
+assert.match(mediaProse, /must not steal keyboard focus/i);
+assert.match(mediaProse, /replacement is transactional/i);
+assert.match(mediaProse, /Do not claim playing from a successful process launch alone/i);
+assert.match(mediaProse, /pause\/resume\/volume\/stop/i);
 
 // Existing body routing is preserved as musculature, not falsely reported as the finished organ.
-assert.match(media, /`venice_body\.action` is the spinal router/i);
-assert.match(media, /not sufficient evidence for Media Presence/i);
+assert.match(mediaProse, /venice_body\.action is the spinal router/i);
+assert.match(mediaProse, /not sufficient evidence for Media Presence/i);
 
 console.log(JSON.stringify({
   ok: true,
