@@ -1,0 +1,59 @@
+name: Patch Computer Hands Cooperative Shell v3.3
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: patch-computer-hands-cooperative-shell-v3-3
+  cancel-in-progress: false
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+      - name: Apply cooperative shell patch
+        run: python3 tools/patch_computer_hands_cooperative_shell_v3_3.py
+      - name: Validate focused worker structure
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          s = Path('computer-hands/windows/home-center-hands.ps1').read_text(encoding='utf-8')
+          required = [
+              "function Run-Shell([object]$ActionArgs, [object]$Ticket = $null)",
+              "phase='shell_running'",
+              "$heartbeat.cancelRequested -eq $true",
+              "Start-Sleep -Milliseconds 250",
+              "$stdoutTask.Wait(5000)",
+              "return Run-Shell $a $Ticket",
+              "Execute-Action $action $a $Ticket",
+              "Execute-Action $stepAction $stepArgs $Ticket",
+          ]
+          forbidden = [
+              "if(-not $p.WaitForExit(120000))",
+              "$stdout=$stdoutTask.Result;$stderr=$stderrTask.Result",
+          ]
+          for item in required:
+              assert item in s, f'missing cooperative shell feature: {item}'
+          for item in forbidden:
+              assert item not in s, f'legacy blocking shell pattern remains: {item}'
+          print('cooperative shell v3.3 static acceptance passed')
+          PY
+          git diff --check
+      - name: Commit worker fix
+        run: |
+          if git diff --quiet -- computer-hands/windows/home-center-hands.ps1; then
+            echo 'Worker already fixed.'
+            exit 0
+          fi
+          git config user.name 'home-center-github-admin[bot]'
+          git config user.email 'home-center-github-admin[bot]@users.noreply.github.com'
+          git add computer-hands/windows/home-center-hands.ps1
+          git commit -m 'Make Computer Hands shell execution cooperative'
+          git push origin HEAD:main
