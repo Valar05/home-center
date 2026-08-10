@@ -1,6 +1,6 @@
 #!/data/data/com.termux/files/usr/bin/python
 from __future__ import annotations
-import json, os, queue, subprocess, sys, tempfile, threading, time
+import json, os, subprocess, sys, tempfile, time
 from pathlib import Path
 
 from android_phone_local_executive import execute
@@ -29,31 +29,49 @@ def speak(text:str)->None:
         subprocess.run(['termux-tts-speak',text],check=False)
 
 
-def transcribe(wav:str)->str:
-    if STT_CMD:
-        return run_cmd(STT_CMD,wav=wav)
-    raise RuntimeError('HC_PHONE_STT_CMD is not configured')
+def android_speech_to_text()->str:
+    p=subprocess.run(['termux-speech-to-text'],text=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+    if p.returncode:
+        raise RuntimeError(p.stderr.strip() or 'termux-speech-to-text failed')
+    return p.stdout.strip()
+
+
+def transcribe_file(wav:str)->str:
+    if not STT_CMD:
+        raise RuntimeError('file STT requested but HC_PHONE_STT_CMD is empty')
+    return run_cmd(STT_CMD,wav=wav)
 
 
 def vlad_heard_speech(wav:str)->bool:
     """Vlad the Impalementer: local voice-activity gate.
 
-    Exit code 0 from HC_PHONE_VLAD_CMD means speech is present. If no external
-    detector is configured we permit transcription, so Vlad can be installed
-    independently without changing the executive contract.
+    HC_PHONE_VLAD_CMD must contain {wav}; exit 0 means the captured chunk contains
+    speech. When Vlad is not installed, Android SpeechRecognizer is used directly.
     """
-    if not VAD_CMD:
-        return True
-    cmd=VAD_CMD.replace('{wav}',wav)
-    return subprocess.run(cmd,shell=True).returncode==0
+    if not VAD_CMD: return True
+    return subprocess.run(VAD_CMD.replace('{wav}',wav),shell=True).returncode==0
 
 
 def record_once(path:str)->None:
     duration=os.getenv('HC_PHONE_LISTEN_SECONDS','6')
-    # Termux:API recorder is the lowest-friction bootstrap. A native streaming
-    # mic adapter can replace this later without touching the rest of the loop.
     subprocess.run(['termux-microphone-record','-f',path,'-l',duration],check=True)
     subprocess.run(['termux-microphone-record','-q'],check=False)
+
+
+def listen_once()->str:
+    # Bootstrap path: Android's recognizer gives us a working custom assistant
+    # immediately. Once offline Sherpa adapters are configured, capture a local
+    # audio chunk, let Vlad gate it, and transcribe locally.
+    if not STT_CMD and not VAD_CMD:
+        return android_speech_to_text()
+    fd,path=tempfile.mkstemp(prefix='hc-voice-',suffix='.wav'); os.close(fd)
+    try:
+        record_once(path)
+        if not vlad_heard_speech(path): return ''
+        return transcribe_file(path)
+    finally:
+        try: os.unlink(path)
+        except OSError: pass
 
 
 def normalize_intent(text:str)->str|None:
@@ -63,24 +81,18 @@ def normalize_intent(text:str)->str|None:
     if WAKE_WORD and WAKE_WORD in low:
         idx=low.find(WAKE_WORD)
         return t[idx+len(WAKE_WORD):].lstrip(' ,:;-') or 'What is on my screen?'
-    if os.getenv('HC_PHONE_REQUIRE_WAKE_WORD','1')=='1':
-        return None
+    if os.getenv('HC_PHONE_REQUIRE_WAKE_WORD','1')=='1': return None
     return t
 
 
 def loop()->None:
-    print(f'Phone voice assistant online; wake word={WAKE_WORD!r}; VAD=Vlad the Impalementer')
+    mode='offline-adapter' if STT_CMD else 'Android SpeechRecognizer bootstrap'
+    print(f'Phone voice assistant online; wake word={WAKE_WORD!r}; ears={mode}; VAD=Vlad the Impalementer')
     while True:
-        fd,path=tempfile.mkstemp(prefix='hc-voice-',suffix='.wav')
-        os.close(fd)
         try:
-            record_once(path)
-            if not vlad_heard_speech(path):
-                continue
-            text=transcribe(path)
+            text=listen_once()
             intent=normalize_intent(text)
-            if not intent:
-                continue
+            if not intent: continue
             result=execute(intent)
             speak(str(result.get('say') or 'Done.'))
             with (STATE/'phone-voice.jsonl').open('a') as f:
@@ -90,9 +102,5 @@ def loop()->None:
         except Exception as exc:
             print(f'voice-loop error: {exc}',file=sys.stderr)
             time.sleep(1)
-        finally:
-            try: os.unlink(path)
-            except OSError: pass
 
-if __name__=='__main__':
-    loop()
+if __name__=='__main__': loop()
