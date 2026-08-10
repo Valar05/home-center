@@ -16,7 +16,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          ref: feature/computer-hands-v1
+          ref: ${{ github.ref_name }}
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
@@ -32,7 +32,9 @@ jobs:
       - name: Validate PowerShell syntax
         shell: pwsh
         run: |
-          foreach ($path in @('computer-hands/worker.ps1', 'computer-hands/install.ps1', 'computer-hands/uninstall.ps1')) {
+          $paths = @('computer-hands/worker.ps1', 'computer-hands/install.ps1', 'computer-hands/uninstall.ps1')
+          if (Test-Path 'computer-hands/BOOTER.ps1') { $paths += 'computer-hands/BOOTER.ps1' }
+          foreach ($path in $paths) {
             $tokens = $null
             $errors = $null
             [void][System.Management.Automation.Language.Parser]::ParseFile((Resolve-Path $path), [ref]$tokens, [ref]$errors)
@@ -50,6 +52,16 @@ jobs:
           if ($mcp -notmatch 'computerHandsOperationRunOperation') { throw 'Computer Hands dispatcher missing' }
           if ($index -notmatch 'exports\.computerHands') { throw 'Computer Hands HTTPS function missing' }
           if ((Get-Content functions/computer_hands_api.js -Raw) -match "file\.read|file\.write|filesystem\.read|filesystem\.write") { throw 'Separate filesystem API is forbidden; Drive sync is the file layer.' }
+      - name: Validate booter evidence contract when present
+        shell: pwsh
+        run: |
+          if (-not (Test-Path 'computer-hands/BOOTER.ps1')) { Write-Host 'No BOOTER.ps1 on this ref.'; exit 0 }
+          $text = Get-Content 'computer-hands/BOOTER.ps1' -Raw
+          foreach ($required in @('drive_sync','Cloud-Health','Backup-ExistingState','Restore-BackupBestEffort','Self-Reflection','refusedClaims','endToEndHandsProven')) {
+            if (-not $text.Contains($required)) { throw "Missing booter contract marker: $required" }
+          }
+          if ($text -match "file\.read|file\.write|filesystem\.read|filesystem\.write|upload_file") { throw 'Booter must not create a competing file layer.' }
+          if ($text -notmatch 'does not claim end-to-end hands are proven') { throw 'Booter must refuse local-process-as-end-to-end proof.' }
       - name: Commit generated wiring
         shell: pwsh
         run: |
@@ -58,4 +70,4 @@ jobs:
           git config user.email 'home-center-actions@users.noreply.github.com'
           git add functions/home_center_mcp.js functions/index.js functions/package.json
           git commit -m 'Wire Computer Hands into Home Center MCP'
-          git push origin HEAD:feature/computer-hands-v1
+          git push origin HEAD:${{ github.ref_name }}
