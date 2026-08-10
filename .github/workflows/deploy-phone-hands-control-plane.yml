@@ -59,6 +59,10 @@ jobs:
         env:
           GCLOUD_FUNCTIONS_REGION: ${{ env.REGION }}
         run: sh tools/deploy_functions_termux.sh "$PROJECT" commandCenterMcp
+      - name: Deploy Home Center MCP connector surface
+        env:
+          GCLOUD_FUNCTIONS_REGION: ${{ env.REGION }}
+        run: sh tools/deploy_functions_termux.sh "$PROJECT" homeCenterMcp
       - name: Deploy Phone Hands relay
         run: |
           gcloud functions deploy phoneHandsRelay \
@@ -74,6 +78,7 @@ jobs:
       - name: Verify deployed functions and Command Center readiness
         run: |
           gcloud functions describe commandCenterMcp --gen2 --project="$PROJECT" --region="$REGION" --format='value(state,serviceConfig.uri)'
+          gcloud functions describe homeCenterMcp --gen2 --project="$PROJECT" --region="$REGION" --format='value(state,serviceConfig.uri)'
           gcloud functions describe phoneHandsRelay --gen2 --project="$PROJECT" --region="$REGION" --format='value(state,serviceConfig.uri)'
           READY_URL="https://${REGION}-${PROJECT}.cloudfunctions.net/commandCenterMcp/ready"
           READY_JSON="$(curl --fail --silent --show-error "$READY_URL")"
