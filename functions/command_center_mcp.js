@@ -4,7 +4,7 @@ const {z} = require('zod/v4');
 const {McpServer} = require('@modelcontextprotocol/sdk/server/mcp.js');
 const {StreamableHTTPServerTransport} = require('@modelcontextprotocol/sdk/server/streamableHttp.js');
 const {APP_CONTROL_COLLECTIONS, APP_CONTROL_DEFAULT_SEEDS, appControlProfileObjectId, appControlProfilePath} = require('./app_control_cloud');
-const {registerCommandCenterPhoneTools} = require('./phone_hands_relay');
+const {registerCommandCenterPhoneTools, enqueuePhoneCommand, getPhoneCommand, listPhoneDevices} = require('./phone_hands_relay');
 const {enqueueBrowserNerveTicket} = require('./browser_nerve_api');
 
 const DEFAULT_COMMAND_CENTER_PUBLIC_BASE = 'https://us-central1-home-center-dclar.cloudfunctions.net/commandCenterMcp';
@@ -1032,6 +1032,12 @@ async function runCommandCenterOperation(admin, extra, operation, args = {}) {
       return listAppControlProfiles(admin, args || {});
     case 'app_control.record_run':
       return recordAppControlRun(admin, await caller(), args || {});
+    case 'phone_hands.devices':
+      return listPhoneDevices(admin, await caller());
+    case 'phone_hands.enqueue':
+      return enqueuePhoneCommand(admin, await caller(), args || {});
+    case 'phone_hands.get':
+      return getPhoneCommand(admin, await caller(), args || {});
     case 'browser_sessions.create':
       return createBrowserSession(admin, await caller(), args || {});
     case 'browser_sessions.observe':
