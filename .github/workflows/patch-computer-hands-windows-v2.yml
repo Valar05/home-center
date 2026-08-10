@@ -1,0 +1,60 @@
+name: Patch Computer Hands Windows v2
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Apply deterministic Windows worker patch
+        run: python3 tools/patch_computer_hands_windows_v2.py
+
+      - name: Verify known defect patterns are gone
+        shell: python
+        run: |
+          from pathlib import Path
+          p = Path('computer-hands/windows/home-center-hands.ps1')
+          s = p.read_text(encoding='utf-8')
+          required = [
+              'function Get-ActionArg',
+              '$windowProcessId',
+              "Get-ActionArg $ActionArgs 'maxWidth' 1280",
+              "Get-ActionArg $ActionArgs 'quality' 55",
+              "Get-ActionArg $ActionArgs 'command' ''",
+              "(Get-Content -LiteralPath $Cfg.tokenPath -Raw).Trim()",
+          ]
+          forbidden = [
+              '[uint32]$pid = 0',
+              'function Capture-Screen([object]$Args)',
+              'function Run-Shell([object]$Args)',
+              'function Invoke-Mouse([object]$Args)',
+          ]
+          for item in required:
+              assert item in s, f'missing required worker fix: {item}'
+          for item in forbidden:
+              assert item not in s, f'legacy worker defect remains: {item}'
+          print('Computer Hands Windows v2 static acceptance passed')
+
+      - name: Diff validation
+        run: git diff --check
+
+      - name: Commit durable worker fix
+        run: |
+          if git diff --quiet -- computer-hands/windows/home-center-hands.ps1; then
+            echo 'Worker already patched.'
+            exit 0
+          fi
+          git config user.name 'home-center-github-admin[bot]'
+          git config user.email 'home-center-github-admin[bot]@users.noreply.github.com'
+          git add computer-hands/windows/home-center-hands.ps1
+          git commit -m 'Fix Computer Hands Windows worker argument handling'
+          git push origin HEAD:main
