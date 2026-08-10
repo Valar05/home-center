@@ -1,0 +1,61 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "home-center://contracts/venice-media-session.v1",
+  "title": "Venice Media Session v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema", "sessionId", "artifactRef", "kind", "purpose", "presentation",
+    "loop", "volume", "state", "requestedBy", "createdAtMs", "updatedAtMs",
+    "player", "verification"
+  ],
+  "properties": {
+    "schema": {"const": "venice.media-session.v1"},
+    "sessionId": {"type": "string", "minLength": 8, "maxLength": 200},
+    "artifactRef": {"type": "string", "minLength": 1, "maxLength": 1600},
+    "artifactSha256": {"type": ["string", "null"], "pattern": "^[a-f0-9]{64}$"},
+    "kind": {"enum": ["audio", "video"]},
+    "purpose": {"enum": ["ambience", "performance", "notification", "scene"]},
+    "presentation": {"enum": ["background", "foreground"]},
+    "loop": {"type": "boolean"},
+    "volume": {"type": "number", "minimum": 0, "maximum": 1},
+    "state": {"enum": ["creating", "ready", "playing", "paused", "stopped", "failed"]},
+    "requestedBy": {"enum": ["local-venice", "drew", "adam-orchestrator"]},
+    "presenceName": {"type": ["string", "null"], "maxLength": 120},
+    "createdAtMs": {"type": "integer", "minimum": 0},
+    "startedAtMs": {"type": ["integer", "null"], "minimum": 0},
+    "updatedAtMs": {"type": "integer", "minimum": 0},
+    "player": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["provider"],
+      "properties": {
+        "provider": {"type": "string", "minLength": 1, "maxLength": 160},
+        "processId": {"type": ["integer", "null"], "minimum": 0},
+        "windowId": {"type": ["string", "null"], "maxLength": 300}
+      }
+    },
+    "verification": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["processAlive", "focusPreserved", "checkedAtMs"],
+      "properties": {
+        "processAlive": {"type": "boolean"},
+        "windowObserved": {"type": "boolean"},
+        "foregroundObserved": {"type": "boolean"},
+        "fullscreenObserved": {"type": "boolean"},
+        "displayObserved": {"type": "boolean"},
+        "focusPreserved": {"type": "boolean"},
+        "checkedAtMs": {"type": "integer", "minimum": 0}
+      }
+    },
+    "failure": {
+      "type": ["object", "null"],
+      "additionalProperties": false,
+      "properties": {
+        "code": {"type": "string", "maxLength": 160},
+        "detail": {"type": "string", "maxLength": 2000}
+      }
+    }
+  }
+}
