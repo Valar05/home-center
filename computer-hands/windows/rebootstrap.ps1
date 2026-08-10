@@ -27,10 +27,11 @@ if (-not $registration.token) { throw 'Computer Hands bootstrap did not return a
 
 $secure = ConvertTo-SecureString ([string]$registration.token) -AsPlainText -Force
 $protected = $secure | ConvertFrom-SecureString
-Set-Content -LiteralPath $TokenPath -Value $protected -Encoding ASCII
+[IO.File]::WriteAllText($TokenPath, $protected, [Text.Encoding]::ASCII)
 
 # Prove the DPAPI payload can be decoded by this same interactive user before restarting.
-$roundTrip = Get-Content -LiteralPath $TokenPath -Raw | ConvertTo-SecureString
+$protectedRead = (Get-Content -LiteralPath $TokenPath -Raw).Trim()
+$roundTrip = $protectedRead | ConvertTo-SecureString
 $ptr = [Runtime.InteropServices.Marshal]::SecureStringToBSTR($roundTrip)
 try { $plain = [Runtime.InteropServices.Marshal]::PtrToStringBSTR($ptr) }
 finally { [Runtime.InteropServices.Marshal]::ZeroFreeBSTR($ptr) }
