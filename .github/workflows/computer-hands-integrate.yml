@@ -1,0 +1,58 @@
+name: Computer Hands Integration
+
+on:
+  push:
+    branches:
+      - feature/computer-hands-v1
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  integrate:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: feature/computer-hands-v1
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Apply deterministic Home Center wiring
+        shell: pwsh
+        run: node tools/apply_computer_hands_patch.mjs
+      - name: Validate JavaScript syntax
+        shell: pwsh
+        run: |
+          node --check functions/computer_hands_api.js
+          node --check functions/home_center_mcp.js
+          node --check functions/index.js
+      - name: Validate PowerShell syntax
+        shell: pwsh
+        run: |
+          $errors = $null
+          [void][System.Management.Automation.Language.Parser]::ParseFile((Resolve-Path 'computer-hands/worker.ps1'), [ref]$null, [ref]$errors)
+          if ($errors.Count) { $errors | Format-List | Out-String | Write-Error; exit 1 }
+          $errors = $null
+          [void][System.Management.Automation.Language.Parser]::ParseFile((Resolve-Path 'computer-hands/install.ps1'), [ref]$null, [ref]$errors)
+          if ($errors.Count) { $errors | Format-List | Out-String | Write-Error; exit 1 }
+      - name: Validate Computer Hands contract anchors
+        shell: pwsh
+        run: |
+          $mcp = Get-Content functions/home_center_mcp.js -Raw
+          $index = Get-Content functions/index.js -Raw
+          if ($mcp -notmatch 'computerHandsOperationEntries') { throw 'Computer Hands registry missing' }
+          if ($mcp -notmatch 'computerHandsOperationRunOperation') { throw 'Computer Hands dispatcher missing' }
+          if ($index -notmatch 'exports\.computerHands') { throw 'Computer Hands HTTPS function missing' }
+          if ((Get-Content functions/computer_hands_api.js -Raw) -match "file\.read|file\.write|filesystem\.read|filesystem\.write") { throw 'Separate filesystem API is forbidden; Drive sync is the file layer.' }
+      - name: Commit generated wiring
+        shell: pwsh
+        run: |
+          if (-not (git status --porcelain)) { Write-Host 'Integration already applied.'; exit 0 }
+          git config user.name 'home-center-actions'
+          git config user.email 'home-center-actions@users.noreply.github.com'
+          git add functions/home_center_mcp.js functions/index.js functions/package.json
+          git commit -m 'Wire Computer Hands into Home Center MCP'
+          git push origin HEAD:feature/computer-hands-v1
