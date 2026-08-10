@@ -70,10 +70,9 @@ jobs:
           package_path = Path('functions/package.json')
           package = json.loads(package_path.read_text())
           lint = package.get('scripts', {}).get('lint', '')
-          if 'venice_nerve_api.js' not in lint:
-              anchor = 'node --check computer_hands_api.js'
-              assert anchor in lint
-              package['scripts']['lint'] = lint.replace(anchor, anchor + ' && node --check venice_nerve_api.js', 1)
+          if 'node --check venice_nerve_api.js' not in lint:
+              assert lint.strip(), 'functions/package.json lint script is empty'
+              package['scripts']['lint'] = lint + ' && node --check venice_nerve_api.js'
               package_path.write_text(json.dumps(package, indent=2) + '\n')
       - name: Validate syntax and Nerve contracts
         run: |
