@@ -14,11 +14,13 @@ sys.path.insert(0,str(ROOT/'tools'))
 from android_phone_hands_bridge import observe as hands_observe, act as hands_act
 from android_phone_local_executive import execute as local_execute
 from android_phone_factory_tools import execute as factory_execute
+from android_armory_driver import execute as armory_execute
 
 FACTORY_ACTIONS={
     'file_stat','file_hash','file_list','file_mkdir','file_copy','file_move',
     'armory_inventory','armory_ingest',
 }
+ARMORY_ACTIONS={'armory_doctor','armory_slice'}
 
 
 def http(path, body=None, token=''):
@@ -58,14 +60,11 @@ def access_token():
 
 def ensure_device():
     CFG.mkdir(parents=True,exist_ok=True)
-    if NODE.exists():
-        return json.loads(NODE.read_text())
+    if NODE.exists(): return json.loads(NODE.read_text())
     token=secrets.token_urlsafe(48)
     reg=http('/register',{
-        'deviceId':DEVICE_ID,
-        'deviceToken':token,
-        'label':'Drew Android Phone',
-        'capabilities':['phone_hands','phone_files','armory_worker','local_qwen','coding_dungeon','voice'],
+        'deviceId':DEVICE_ID,'deviceToken':token,'label':'Drew Android Phone',
+        'capabilities':['phone_hands','phone_files','armory_worker','local_qwen','coding_dungeon','voice']
     },access_token())
     data={'deviceId':DEVICE_ID,'deviceToken':token,'registeredAt':time.time(),'registration':reg}
     NODE.write_text(json.dumps(data,indent=2)+'\n'); os.chmod(NODE,0o600); return data
@@ -80,14 +79,11 @@ def dungeon_run(payload):
 
 def execute_action(action):
     kind=action.get('action')
-    if kind=='observe':
-        return hands_observe(bool(action.get('ui',True)),bool(action.get('screen',False)))
-    if kind=='local_ask':
-        return local_execute(str(action.get('intent') or action.get('prompt') or 'What is on my screen?'))
-    if kind=='dungeon_run':
-        return dungeon_run(action)
-    if kind in FACTORY_ACTIONS:
-        return factory_execute(action)
+    if kind=='observe': return hands_observe(bool(action.get('ui',True)),bool(action.get('screen',False)))
+    if kind=='local_ask': return local_execute(str(action.get('intent') or action.get('prompt') or 'What is on my screen?'))
+    if kind=='dungeon_run': return dungeon_run(action)
+    if kind in FACTORY_ACTIONS: return factory_execute(action)
+    if kind in ARMORY_ACTIONS: return armory_execute(action)
     return hands_act(action)
 
 
@@ -114,5 +110,4 @@ def loop(once=False):
             if once: raise
         time.sleep(POLL)
 
-if __name__=='__main__':
-    loop('--once' in sys.argv)
+if __name__=='__main__': loop('--once' in sys.argv)
