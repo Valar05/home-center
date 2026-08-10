@@ -3,7 +3,7 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const {createHash} = require('node:crypto');
-const {CONTRACT_VERSION, SUPPORTED_ACTIONS, ownerKey, actionName} = require('./browser_nerve_api');
+const {CONTRACT_VERSION, SUPPORTED_ACTIONS, COMPUTER_HANDS_TOKEN_COLLECTION, ownerKey, actionName, pairedBrowserWorkerId} = require('./browser_nerve_api');
 
 test('Browser Nerve contract is selector worker v1', () => {
   assert.equal(CONTRACT_VERSION, 'home-center.browser-nerve-contract.v1');
@@ -25,4 +25,11 @@ test('Browser Nerve accepts only its explicit semantic action vocabulary', () =>
   assert.equal(actionName('wait_for'), 'wait_for');
   assert.throws(() => actionName('input.mouse'), /Unsupported Browser Nerve action/);
   assert.throws(() => actionName('purchase'), /Unsupported Browser Nerve action/);
+});
+
+
+test('Computer Hands pairing is explicitly scoped to Browser Nerve worker identities', () => {
+  assert.equal(COMPUTER_HANDS_TOKEN_COLLECTION, 'computerHandsWorkerTokens');
+  assert.equal(pairedBrowserWorkerId('windows-browser-nerve-01'), 'windows-browser-nerve-01');
+  assert.throws(() => pairedBrowserWorkerId('windows-hands-01'), /must begin with windows-browser-nerve-/);
 });
