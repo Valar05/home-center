@@ -21,6 +21,7 @@ $ConfigPath = Join-Path $Root 'config.json'
 $TokenPath = Join-Path $Root 'worker-token.dpapi'
 $StartupLog = Join-Path $Root 'startup.log'
 $WorkerLog = Join-Path $Root 'worker.log'
+$ProgressPath = Join-Path $Root 'progress.json'
 $TaskName = 'HomeCenterComputerHands'
 
 New-Item -ItemType Directory -Force -Path $Root | Out-Null
@@ -56,7 +57,11 @@ $launch | Set-Content -LiteralPath $LaunchPath -Encoding UTF8
 # Validate the registered token can still be decrypted as this Windows user.
 $cfg = Get-Content -LiteralPath $ConfigPath -Raw | ConvertFrom-Json
 if (-not $cfg.origin -or -not $cfg.workerId -or -not $cfg.tokenPath) { throw 'Computer Hands config is incomplete.' }
-$secure = Get-Content -LiteralPath $TokenPath -Raw | ConvertTo-SecureString
+$driveProgress = Get-PSDrive -PSProvider FileSystem | ForEach-Object { Join-Path $_.Root 'My Drive\Venice Runtime\Venice Reconstruction' } | Where-Object { Test-Path -LiteralPath $_ } | Select-Object -First 1
+if ($driveProgress) { $ProgressPath = Join-Path $driveProgress 'LOCAL_HANDS_PROGRESS.json' }
+$cfg | Add-Member -NotePropertyName progressPath -NotePropertyValue $ProgressPath -Force
+[IO.File]::WriteAllText($ConfigPath, ($cfg | ConvertTo-Json -Depth 8), [Text.UTF8Encoding]::new($false))
+$secure = (Get-Content -LiteralPath $TokenPath -Raw).Trim() | ConvertTo-SecureString
 $ptr = [Runtime.InteropServices.Marshal]::SecureStringToBSTR($secure)
 try {
   $plain = [Runtime.InteropServices.Marshal]::PtrToStringBSTR($ptr)
@@ -91,5 +96,7 @@ $result = [ordered]@{
   tokenDecrypt = 'ok'
   startupLog = if (Test-Path -LiteralPath $StartupLog) { @(Get-Content -LiteralPath $StartupLog -Tail 30) } else { @('startup.log missing') }
   workerLog = if (Test-Path -LiteralPath $WorkerLog) { @(Get-Content -LiteralPath $WorkerLog -Tail 30) } else { @('worker.log missing') }
+  progressPath = $ProgressPath
+  progress = if (Test-Path -LiteralPath $ProgressPath) { Get-Content -LiteralPath $ProgressPath -Raw } else { 'progress missing' }
 }
 $result | ConvertTo-Json -Depth 6

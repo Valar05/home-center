@@ -63,6 +63,8 @@ $Token = Read-WorkerToken $Cfg
 $Origin = ([string]$Cfg.origin).TrimEnd('/')
 $WorkerId = [string]$Cfg.workerId
 $LogPath = if ($Cfg.logPath) { [string]$Cfg.logPath } else { Join-Path (Split-Path $ConfigPath) 'worker.log' }
+$progressProperty = $Cfg.PSObject.Properties['progressPath']
+$ProgressPath = if ($progressProperty -and $progressProperty.Value) { [string]$progressProperty.Value } else { Join-Path (Split-Path $ConfigPath) 'progress.json' }
 
 function Log([string]$Message) {
   $line = "$(Get-Date -Format o) $Message"
@@ -72,6 +74,23 @@ function Log([string]$Message) {
     Get-Content -LiteralPath $LogPath -Tail 1000 | Set-Content -LiteralPath "$LogPath.tmp" -Encoding UTF8
     Move-Item -Force "$LogPath.tmp" $LogPath
   }
+}
+
+function Write-ProgressState([object]$State) {
+  try {
+    $payload = [ordered]@{
+      updatedAt = (Get-Date).ToUniversalTime().ToString('o')
+      workerId = $WorkerId
+      machine = $env:COMPUTERNAME
+      pid = $PID
+      state = $State
+    } | ConvertTo-Json -Depth 12
+    $directory = Split-Path -Parent $ProgressPath
+    if ($directory) { [IO.Directory]::CreateDirectory($directory) | Out-Null }
+    $temp = "$ProgressPath.tmp"
+    [IO.File]::WriteAllText($temp, $payload, [Text.UTF8Encoding]::new($false))
+    Move-Item -Force $temp $ProgressPath
+  } catch { Log "progress_write_failed $($_.Exception.Message)" }
 }
 
 function Invoke-HandsApi([string]$Method, [string]$Path, [object]$Body = $null) {
@@ -166,9 +185,9 @@ function Run-Shell([object]$ActionArgs) {
   return @{ok=($p.ExitCode -eq 0);exitCode=$p.ExitCode;stdout=$stdout.Substring(0,[Math]::Min(120000,$stdout.Length));stderr=$stderr.Substring(0,[Math]::Min(60000,$stderr.Length))}
 }
 
-function Execute-Ticket([object]$Ticket) {
-  $a=$Ticket.arguments
-  switch([string]$Ticket.action){
+function Execute-Action([string]$Action, [object]$ActionArgs) {
+  $a=$ActionArgs
+  switch($Action){
     'system.status'{return Get-SystemStatus}
     'screen.capture'{return Capture-Screen $a}
     'window.list'{return Get-WindowList}
@@ -182,15 +201,66 @@ function Execute-Ticket([object]$Ticket) {
     'clipboard.get'{return @{ok=$true;text=[string](Get-Clipboard -Raw -ErrorAction Stop)}}
     'clipboard.set'{Set-Clipboard -Value ([string]$a.text);return @{ok=$true;characters=([string]$a.text).Length}}
     'shell.exec'{return Run-Shell $a}
-    default{throw "Unsupported action: $($Ticket.action)"}
+    default{throw "Unsupported action: $Action"}
   }
 }
 
+function Execute-Ticket([object]$Ticket) {
+  $action=[string]$Ticket.action
+  $a=$Ticket.arguments
+  if($action -ne 'packet.execute'){ return Execute-Action $action $a }
+
+  $steps=@(Get-ActionArg $a 'steps' @())
+  $stopOnError=[bool](Get-ActionArg $a 'stopOnError' $true)
+  $results=New-Object System.Collections.Generic.List[object]
+  $completed=0
+  $allOk=$true
+  for($index=0;$index -lt $steps.Count;$index+=1){
+    $step=$steps[$index]
+    $stepId=[string](Get-ActionArg $step 'id' ("step-{0:d2}" -f ($index+1)))
+    $stepAction=[string](Get-ActionArg $step 'action' '')
+    $stepArgs=Get-ActionArg $step 'arguments' ([pscustomobject]@{})
+    $progress=@{phase='packet_step';completedSteps=$completed;totalSteps=$steps.Count;currentStepId=$stepId;currentAction=$stepAction;message=("Running {0}/{1}: {2}" -f ($index+1),$steps.Count,$stepAction)}
+    Write-ProgressState @{ticketId=$Ticket.ticketId;requestId=$Ticket.requestId;laneId=$Ticket.laneId;action=$action;progress=$progress}
+    $heartbeat=Invoke-HandsApi 'POST' "tickets/$($Ticket.ticketId)/heartbeat" @{phase='packet_step';progress=$progress}
+    if($heartbeat.cancelRequested -eq $true){
+      return @{ok=$false;cancelled=$true;packet=$true;completedSteps=$completed;totalSteps=$steps.Count;steps=@($results)}
+    }
+    try{
+      $stepResult=Execute-Action $stepAction $stepArgs
+      $completed+=1
+      $results.Add([pscustomobject]@{id=$stepId;action=$stepAction;ok=($stepResult.ok -ne $false);result=$stepResult})
+      if($stepResult.ok -eq $false){$allOk=$false;if($stopOnError){break}}
+    }catch{
+      $allOk=$false
+      $results.Add([pscustomobject]@{id=$stepId;action=$stepAction;ok=$false;error=$_.Exception.Message})
+      if($stopOnError){break}
+    }
+  }
+  return @{ok=$allOk;packet=$true;completedSteps=$completed;totalSteps=$steps.Count;steps=@($results)}
+}
+
 Log "worker_start workerId=$WorkerId pid=$PID"
+Write-ProgressState @{phase='worker_start';message='Computer Hands worker started.'}
 while($true){
   try{
-    $lease=Invoke-HandsApi 'POST' 'lease' @{};if(-not $lease.ticket){Start-Sleep -Seconds ([Math]::Max(1,[int]$lease.pollAfterSeconds));continue};$ticket=$lease.ticket;Log "ticket_leased id=$($ticket.ticketId) action=$($ticket.action)"
-    try{[void](Invoke-HandsApi 'POST' "tickets/$($ticket.ticketId)/heartbeat" @{phase='executing'});$result=Execute-Ticket $ticket;[void](Invoke-HandsApi 'POST' "tickets/$($ticket.ticketId)/complete" @{result=$result});Log "ticket_complete id=$($ticket.ticketId) ok=$($result.ok)"}
-    catch{$failure=@{ok=$false;error='worker_action_failed';detail=$_.Exception.Message;action=[string]$ticket.action};try{[void](Invoke-HandsApi 'POST' "tickets/$($ticket.ticketId)/complete" @{result=$failure})}catch{Log "ticket_failure_report_failed id=$($ticket.ticketId) detail=$($_.Exception.Message)"};Log "ticket_failed id=$($ticket.ticketId) detail=$($failure.detail)"}
-  }catch{Log "poll_error $($_.Exception.Message)";Start-Sleep -Seconds 5}
+    $lease=Invoke-HandsApi 'POST' 'lease' @{}
+    if(-not $lease.ticket){Write-ProgressState @{phase='idle';message='Waiting for work.'};Start-Sleep -Seconds ([Math]::Max(1,[int]$lease.pollAfterSeconds));continue}
+    $ticket=$lease.ticket
+    Log "ticket_leased id=$($ticket.ticketId) lane=$($ticket.laneId) action=$($ticket.action)"
+    Write-ProgressState @{phase='leased';ticketId=$ticket.ticketId;requestId=$ticket.requestId;laneId=$ticket.laneId;action=$ticket.action;progress=$ticket.progress}
+    try{
+      $heartbeat=Invoke-HandsApi 'POST' "tickets/$($ticket.ticketId)/heartbeat" @{phase='executing';progress=@{phase='executing';completedSteps=0;totalSteps=if($ticket.action -eq 'packet.execute'){@($ticket.arguments.steps).Count}else{1};currentStepId='';currentAction=[string]$ticket.action;message='Executing ticket.'}}
+      if($heartbeat.cancelRequested -eq $true){Write-ProgressState @{phase='cancelled';ticketId=$ticket.ticketId;laneId=$ticket.laneId;message='Ticket cancelled before execution.'};continue}
+      $result=Execute-Ticket $ticket
+      [void](Invoke-HandsApi 'POST' "tickets/$($ticket.ticketId)/complete" @{result=$result})
+      Write-ProgressState @{phase=if($result.cancelled){'cancelled'}elseif($result.ok -eq $false){'failed'}else{'completed'};ticketId=$ticket.ticketId;requestId=$ticket.requestId;laneId=$ticket.laneId;action=$ticket.action;result=$result}
+      Log "ticket_complete id=$($ticket.ticketId) ok=$($result.ok)"
+    }catch{
+      $failure=@{ok=$false;error='worker_action_failed';detail=$_.Exception.Message;action=[string]$ticket.action}
+      try{[void](Invoke-HandsApi 'POST' "tickets/$($ticket.ticketId)/complete" @{result=$failure})}catch{Log "ticket_failure_report_failed id=$($ticket.ticketId) detail=$($_.Exception.Message)"}
+      Write-ProgressState @{phase='failed';ticketId=$ticket.ticketId;requestId=$ticket.requestId;laneId=$ticket.laneId;action=$ticket.action;error=$failure.detail}
+      Log "ticket_failed id=$($ticket.ticketId) detail=$($failure.detail)"
+    }
+  }catch{Log "poll_error $($_.Exception.Message)";Write-ProgressState @{phase='poll_error';message=$_.Exception.Message};Start-Sleep -Seconds 3}
 }
