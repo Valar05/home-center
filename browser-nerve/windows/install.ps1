@@ -5,6 +5,7 @@ param(
   [string]$Repository = 'Valar05/home-center',
   [string]$Ref = 'main',
   [string]$SourceDirectory = '',
+  [switch]$PairWithComputerHands,
   [switch]$ForceRefreshToken
 )
 
@@ -65,9 +66,27 @@ finally { Pop-Location }
 
 $needsToken = $ForceRefreshToken -or -not (Test-Path -LiteralPath $TokenPath)
 if ($needsToken) {
-  if ([string]::IsNullOrWhiteSpace($BootstrapCode)) { throw 'BootstrapCode is required for first install or -ForceRefreshToken.' }
-  $registration = Invoke-RestMethod -Method Post -Uri "$Origin/browser-nerve/v1/bootstrap" -ContentType 'application/json' -Body (@{bootstrapCode=$BootstrapCode;workerId=$WorkerId}|ConvertTo-Json -Compress) -TimeoutSec 30
-  if (-not $registration.token) { throw 'Browser Nerve bootstrap did not return a worker token.' }
+  if (-not [string]::IsNullOrWhiteSpace($BootstrapCode)) {
+    $registration = Invoke-RestMethod -Method Post -Uri "$Origin/browser-nerve/v1/bootstrap" -ContentType 'application/json' -Body (@{bootstrapCode=$BootstrapCode;workerId=$WorkerId}|ConvertTo-Json -Compress) -TimeoutSec 30
+  } elseif ($PairWithComputerHands) {
+    $handsConfigPath = Join-Path $env:LOCALAPPDATA 'HomeCenter\ComputerHands\config.json'
+    if (-not (Test-Path -LiteralPath $handsConfigPath -PathType Leaf)) { throw "Computer Hands config not found for secure pairing: $handsConfigPath" }
+    $handsConfig = Get-Content -LiteralPath $handsConfigPath -Raw | ConvertFrom-Json
+    if (-not $handsConfig.workerId -or -not $handsConfig.tokenPath) { throw 'Computer Hands config is incomplete for secure pairing.' }
+    $serializedHandsToken = (Get-Content -LiteralPath ([string]$handsConfig.tokenPath) -Raw).Trim()
+    $handsSecure = $serializedHandsToken | ConvertTo-SecureString
+    $handsPtr = [Runtime.InteropServices.Marshal]::SecureStringToBSTR($handsSecure)
+    try {
+      $handsToken = [Runtime.InteropServices.Marshal]::PtrToStringBSTR($handsPtr)
+      $headers = @{Authorization="Bearer $handsToken";'X-Home-Center-Worker'=[string]$handsConfig.workerId}
+      $registration = Invoke-RestMethod -Method Post -Uri "$Origin/browser-nerve/v1/pair-computer-hands" -Headers $headers -ContentType 'application/json' -Body (@{workerId=$WorkerId}|ConvertTo-Json -Compress) -TimeoutSec 30
+    } finally {
+      [Runtime.InteropServices.Marshal]::ZeroFreeBSTR($handsPtr)
+    }
+  } else {
+    throw 'First install requires -BootstrapCode or -PairWithComputerHands.'
+  }
+  if (-not $registration.token) { throw 'Browser Nerve registration did not return a worker token.' }
   $secure = ConvertTo-SecureString ([string]$registration.token) -AsPlainText -Force
   $secure | ConvertFrom-SecureString | Set-Content -LiteralPath $TokenPath -Encoding ASCII
 } else { Write-Host 'Existing DPAPI worker token retained.' }

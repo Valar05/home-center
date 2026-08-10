@@ -18,6 +18,7 @@ const TOKEN_TTL_MS = 90 * 24 * 60 * 60 * 1000;
 const LEASE_TTL_MS = 3 * 60 * 1000;
 const MAX_RESULT_BYTES = 500 * 1024;
 const SUPPORTED_ACTIONS = Object.freeze(['navigate', 'observe', 'find', 'read', 'click', 'type', 'select', 'submit', 'scroll', 'wait_for']);
+const COMPUTER_HANDS_TOKEN_COLLECTION = 'computerHandsWorkerTokens';
 
 function safeText(value, max = 2000) {
   const text = value == null ? '' : String(value).trim();
@@ -104,6 +105,45 @@ async function exchangeBootstrap({admin, args = {}, nowMs = Date.now()}) {
     tx.set(admin.firestore().doc(record.workerRef), {state: 'registered', tokenDigest, updatedAtMs: nowMs, lastSeenAtMs: nowMs}, {merge: true});
   });
   return {status: 'registered', workerId, token, origin: PUBLIC_ORIGIN, contractVersion: CONTRACT_VERSION, expiresAtMs: nowMs + TOKEN_TTL_MS};
+}
+
+async function authenticateComputerHandsPairing(admin, req, nowMs = Date.now()) {
+  const match = String(req && typeof req.get === 'function' ? req.get('Authorization') || '' : '').match(/^Bearer\s+(.+)$/i);
+  if (!match) throw Object.assign(new Error('Computer Hands worker bearer token is required for pairing.'), {status: 401, failureKind: 'browser_nerve_hands_auth_required'});
+  const snap = await admin.firestore().collection(COMPUTER_HANDS_TOKEN_COLLECTION).doc(hash(match[1])).get();
+  if (!snap.exists) throw Object.assign(new Error('Computer Hands worker token is invalid.'), {status: 401, failureKind: 'browser_nerve_hands_auth_invalid'});
+  const hands = snap.data() || {};
+  if (hands.revokedAtMs || Number(hands.expiresAtMs || 0) <= nowMs) throw Object.assign(new Error('Computer Hands worker token is inactive.'), {status: 401, failureKind: 'browser_nerve_hands_auth_inactive'});
+  const headerWorker = safeId(req.get('X-Home-Center-Worker') || hands.workerId, 'computerHandsWorkerId');
+  if (headerWorker !== hands.workerId) throw Object.assign(new Error('Computer Hands worker identity mismatch.'), {status: 403, failureKind: 'browser_nerve_hands_worker_mismatch'});
+  if (!hands.ownerKey || !hands.ownerEmail) throw Object.assign(new Error('Computer Hands worker owner identity is incomplete.'), {status: 403, failureKind: 'browser_nerve_hands_owner_missing'});
+  return hands;
+}
+
+function pairedBrowserWorkerId(value) {
+  const workerId = safeId(value || 'windows-browser-nerve-01', 'workerId');
+  if (!/^windows-browser-nerve-[A-Za-z0-9_.:-]+$/.test(workerId)) throw Object.assign(new Error('Paired Browser Nerve workerId must begin with windows-browser-nerve-.'), {status: 400, failureKind: 'browser_nerve_pair_worker_invalid'});
+  return workerId;
+}
+
+async function pairWithComputerHands({admin, req, args = {}, nowMs = Date.now()}) {
+  const hands = await authenticateComputerHandsPairing(admin, req, nowMs);
+  const workerId = pairedBrowserWorkerId(args.workerId);
+  const token = randomBytes(32).toString('base64url');
+  const tokenDigest = hash(token);
+  const workerRef = admin.firestore().collection(COLLECTIONS.workers).doc(workerDocId(hands.ownerKey, workerId));
+  await admin.firestore().runTransaction(async (tx) => {
+    tx.set(admin.firestore().collection(COLLECTIONS.tokens).doc(tokenDigest), {
+      tokenDigest, workerId, ownerKey: hands.ownerKey, ownerEmail: hands.ownerEmail, capabilities: SUPPORTED_ACTIONS,
+      pairedFromComputerHandsWorkerId: hands.workerId, createdAtMs: nowMs, expiresAtMs: nowMs + TOKEN_TTL_MS, revokedAtMs: 0,
+    }, {merge: false});
+    tx.set(workerRef, {
+      apiVersion: API_VERSION, contractVersion: CONTRACT_VERSION, workerId, ownerKey: hands.ownerKey, ownerEmail: hands.ownerEmail,
+      capabilities: SUPPORTED_ACTIONS, selectorPolicy: 'aria_role_name_then_testid_id_css_then_text', state: 'registered',
+      pairedFromComputerHandsWorkerId: hands.workerId, tokenDigest, createdAtMs: nowMs, updatedAtMs: nowMs, lastSeenAtMs: nowMs,
+    }, {merge: true});
+  });
+  return {status: 'registered', workerId, token, origin: PUBLIC_ORIGIN, contractVersion: CONTRACT_VERSION, expiresAtMs: nowMs + TOKEN_TTL_MS, pairedFrom: 'computer_hands', computerHandsWorkerId: hands.workerId};
 }
 
 async function authenticateWorker(admin, req, nowMs = Date.now()) {
@@ -274,6 +314,7 @@ function createBrowserNerveHandler({admin}) {
       const path = routePath(req);
       if (req.method === 'GET' && path === 'health') return send(res, 200, {ok: true, service: 'browser-nerve', apiVersion: API_VERSION, contractVersion: CONTRACT_VERSION, capabilities: SUPPORTED_ACTIONS, selectorPolicy: 'aria_role_name_then_testid_id_css_then_text'});
       if (req.method === 'POST' && path === 'bootstrap') return send(res, 200, await exchangeBootstrap({admin, args: bodyObject(req)}));
+      if (req.method === 'POST' && path === 'pair-computer-hands') return send(res, 200, await pairWithComputerHands({admin, req, args: bodyObject(req)}));
       const worker = await authenticateWorker(admin, req);
       if (req.method === 'POST' && path === 'lease') return send(res, 200, await leaseRequest({admin, worker}));
       const match = path.match(/^tickets\/([^/]+)\/(heartbeat|complete)$/);
@@ -287,7 +328,7 @@ function createBrowserNerveHandler({admin}) {
 }
 
 module.exports = {
-  API_VERSION, CONTRACT_VERSION, PUBLIC_ORIGIN, COLLECTIONS, SUPPORTED_ACTIONS,
-  ownerKey, actionName, registerWorkerOperation, workerStatusOperation, enqueueBrowserNerveTicket,
+  API_VERSION, CONTRACT_VERSION, PUBLIC_ORIGIN, COLLECTIONS, SUPPORTED_ACTIONS, COMPUTER_HANDS_TOKEN_COLLECTION,
+  ownerKey, actionName, pairedBrowserWorkerId, pairWithComputerHands, registerWorkerOperation, workerStatusOperation, enqueueBrowserNerveTicket,
   browserNerveOperationEntries, browserNerveOperationRunOperation, createBrowserNerveHandler,
 };
