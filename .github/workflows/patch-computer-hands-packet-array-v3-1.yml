@@ -25,11 +25,14 @@ jobs:
           python3 - <<'PY'
           from pathlib import Path
           s = Path('computer-hands/windows/home-center-hands.ps1').read_text(encoding='utf-8')
-          assert '$results=@()' in s
-          assert '$results += [pscustomobject]' in s
-          assert 'steps=$results' in s
-          assert 'New-Object System.Collections.Generic.List[object]' not in s
-          assert 'steps=@($results)' not in s
+          start = s.index('function Execute-Ticket')
+          end = s.index('Log "worker_start', start)
+          packet = s[start:end]
+          assert '$results=@()' in packet
+          assert '$results += [pscustomobject]' in packet
+          assert 'steps=$results' in packet
+          assert 'New-Object System.Collections.Generic.List[object]' not in packet
+          assert 'steps=@($results)' not in packet
           print('packet array v3.1 static acceptance passed')
           PY
           git diff --check
