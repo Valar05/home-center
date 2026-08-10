@@ -1,0 +1,78 @@
+name: Computer Hands Booter Validation
+
+on:
+  pull_request:
+    paths:
+      - 'computer-hands/BOOTER.ps1'
+      - '.github/workflows/computer-hands-booter-validate.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Parse booter with Windows PowerShell
+        shell: powershell
+        run: |
+          $tokens = $null
+          $errors = $null
+          [void][System.Management.Automation.Language.Parser]::ParseFile((Resolve-Path 'computer-hands/BOOTER.ps1'), [ref]$tokens, [ref]$errors)
+          if ($errors.Count) { $errors | Format-List | Out-String | Write-Error; exit 1 }
+      - name: Parse booter with PowerShell 7
+        shell: pwsh
+        run: |
+          $tokens = $null
+          $errors = $null
+          [void][System.Management.Automation.Language.Parser]::ParseFile((Resolve-Path 'computer-hands/BOOTER.ps1'), [ref]$tokens, [ref]$errors)
+          if ($errors.Count) { $errors | Format-List | Out-String | Write-Error; exit 1 }
+      - name: Assert mission boundaries and evidence doctrine
+        shell: pwsh
+        run: |
+          $text = Get-Content 'computer-hands/BOOTER.ps1' -Raw
+          foreach ($required in @(
+            "home-center.computer-hands-contract.v1",
+            "home-center.computer-hands-api.v1",
+            "drive_sync",
+            "Cloud-Health",
+            "Backup-ExistingState",
+            "Restore-BackupBestEffort",
+            "Self-Reflection",
+            "refusedClaims",
+            "endToEndHandsProven",
+            "Computer Hands booter requires Windows"
+          )) {
+            if (-not $text.Contains($required)) { throw "Missing required booter doctrine/contract marker: $required" }
+          }
+          if ($text -match "file\.read|file\.write|filesystem\.read|filesystem\.write|upload_file") {
+            throw 'Booter must not create a competing file layer; Drive sync owns files.'
+          }
+          if ($text -notmatch "does not claim end-to-end hands are proven") {
+            throw 'Booter must explicitly refuse to turn local process state into end-to-end proof.'
+          }
+      - name: Static mode contract
+        shell: pwsh
+        run: |
+          $text = Get-Content 'computer-hands/BOOTER.ps1' -Raw
+          foreach ($mode in @('Install','Repair','Diagnose','Uninstall')) {
+            if (-not $text.Contains("'$mode'")) { throw "Missing mode: $mode" }
+          }
+          foreach ($phase in @('preflight','cloud-health','backup','bootstrap','worker-download','config','scheduled-task','startup-probe','completion','fatal')) {
+            if (-not $text.Contains("'$phase'")) { throw "Missing evidence phase: $phase" }
+          }
+      - name: Report validation receipt
+        shell: pwsh
+        run: |
+          [ordered]@{
+            ok = $true
+            script = 'computer-hands/BOOTER.ps1'
+            windowsPowerShellParsed = $true
+            pwshParsed = $true
+            fileLayer = 'drive_sync'
+            overclaimGuard = $true
+            rollbackPresent = $true
+            cloudPreflightPresent = $true
+          } | ConvertTo-Json -Compress
