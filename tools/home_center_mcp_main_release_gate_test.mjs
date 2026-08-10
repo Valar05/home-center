@@ -59,14 +59,42 @@ assert.equal(result.status, 23);
 assert.match(result.stderr, /is not the current origin\/main commit/);
 
 ok('git', ['reset', '--hard', 'origin/main'], repo);
-const head = ok('git', ['rev-parse', 'HEAD'], repo).stdout.trim();
-ok('git', ['checkout', '--detach', head], repo);
-result = gate({GITHUB_ACTIONS: 'true', GITHUB_REF: 'refs/heads/main', GITHUB_SHA: head});
+const pinnedHead = ok('git', ['rev-parse', 'HEAD'], repo).stdout.trim();
+ok('git', ['checkout', '--detach', pinnedHead], repo);
+result = gate({GITHUB_ACTIONS: 'true', GITHUB_REF: 'refs/heads/main', GITHUB_SHA: pinnedHead});
 assert.equal(result.status, 0, result.stderr);
 
-result = gate({GITHUB_ACTIONS: 'true', GITHUB_REF: 'refs/pull/121/merge', GITHUB_SHA: head});
+// Simulate another Home Center thread landing a normal descendant commit while
+// this immutable GitHub Actions deployment is still running.
+ok('git', ['switch', 'main'], repo);
+fs.writeFileSync(path.join(repo, 'tracked.txt'), 'newer main\n');
+ok('git', ['add', 'tracked.txt'], repo);
+ok('git', ['commit', '-m', 'concurrent main advance'], repo);
+ok('git', ['push', 'origin', 'main'], repo);
+const newerMain = ok('git', ['rev-parse', 'HEAD'], repo).stdout.trim();
+assert.notEqual(newerMain, pinnedHead);
+ok('git', ['checkout', '--detach', pinnedHead], repo);
+
+result = gate({GITHUB_ACTIONS: 'true', GITHUB_REF: 'refs/heads/main', GITHUB_SHA: pinnedHead});
+assert.equal(result.status, 0, result.stderr);
+assert.match(result.stdout, /verified pinned main release/);
+assert.match(result.stdout, /advanced safely to descendant/);
+
+// A detached checkout cannot borrow the pin exception without exact workflow identity.
+result = gate({GITHUB_ACTIONS: 'true', GITHUB_REF: 'refs/heads/main', GITHUB_SHA: newerMain});
 assert.equal(result.status, 23);
 assert.match(result.stderr, /source must be branch main/);
+
+result = gate({GITHUB_ACTIONS: 'true', GITHUB_REF: 'refs\/pull\/121\/merge', GITHUB_SHA: pinnedHead});
+assert.equal(result.status, 23);
+assert.match(result.stderr, /source must be branch main/);
+
+// Local/manual main releases remain current-tip only.
+ok('git', ['switch', 'main'], repo);
+ok('git', ['reset', '--hard', pinnedHead], repo);
+result = gate();
+assert.equal(result.status, 23);
+assert.match(result.stderr, /is not the current origin\/main commit/);
 
 fs.rmSync(tmp, {recursive: true, force: true});
 console.log('Home Center main-only MCP release gate: OK');
