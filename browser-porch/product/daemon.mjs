@@ -4,12 +4,13 @@ import path from 'node:path';
 import {randomBytes, randomUUID} from 'node:crypto';
 import {parsePrompt, safeEvent, screenshotPolicy, stageApproval, consumeApproval, summarize, receiptSemantics, sha256} from './core.mjs';
 import {DiscoveryWorker} from './discovery.mjs';
+import {PORCHLIGHT_EXTENSION_ORIGIN} from './extension-identity.mjs';
 
-export function createRuntime({host = '127.0.0.1', port = 9235, dataDir = path.resolve('.porchlight'), capability = randomBytes(32).toString('hex'), clock = () => Date.now(), checkoutRoot = process.cwd(), contributionRepo = '', contributionMode = 'local-only'} = {}) {
+export function createRuntime({host = '127.0.0.1', port = 9235, dataDir = path.resolve('.porchlight'), capability = randomBytes(32).toString('hex'), clock = () => Date.now(), checkoutRoot = process.cwd(), contributionRepo = '', contributionMode = 'local-only', expectedExtensionOrigin = PORCHLIGHT_EXTENSION_ORIGIN} = {}) {
   fs.mkdirSync(dataDir, {recursive: true, mode: 0o700});
   const logPath = path.join(dataDir, 'receipts.jsonl');
   const playbookPath = path.join(dataDir, 'playbooks.json');
-  const state = {capability, intent: null, pairing: null, extensionOrigin: '', pending: [], completions: new Map(), approvals: new Map(), misses: new Map(), captures: new Map(), events: readEvents(logPath), playbooks: readJson(playbookPath, {version: 1, locators: {}})};
+  const state = {capability, intent: null, pairing: null, expectedExtensionOrigin, extensionOrigin: '', pending: [], completions: new Map(), approvals: new Map(), misses: new Map(), captures: new Map(), events: readEvents(logPath), playbooks: readJson(playbookPath, {version: 1, locators: {}})};
   const discovery = new DiscoveryWorker({dataDir, checkoutRoot, repo: contributionRepo, mode: contributionMode, clock});
 
   function append(input) {
@@ -108,22 +109,23 @@ export function createRuntime({host = '127.0.0.1', port = 9235, dataDir = path.r
     try {
       const url = new URL(req.url, `http://${host}:${port}`);
       if (req.method === 'OPTIONS') {
-        if (!String(req.headers.origin || '').startsWith('chrome-extension://')) throw code('EXTENSION_REQUIRED');
-        res.statusCode = 204; cors(res, req.headers.origin); return res.end();
+        requireExtension(req, state.expectedExtensionOrigin);
+        res.statusCode = 204; cors(res, state.expectedExtensionOrigin); return res.end();
       }
-      if (req.method === 'GET' && url.pathname === '/health') return send(res, 200, {ok: true, paired: Boolean(state.pairing), queued: state.pending.length, version: '0.8.0'});
+      if (req.method === 'GET' && url.pathname === '/health') return send(res, 200, {ok: true, paired: Boolean(state.pairing), queued: state.pending.length, version: '0.8.1'});
       if (req.method === 'POST' && url.pathname === '/v1/prompt') { requireCapability(req, capability); return send(res, 200, prompt((await body(req)).prompt)); }
       if (req.method === 'GET' && url.pathname === '/v1/pair-intent') {
-        if (!state.intent || state.intent.expiresAtMs <= clock()) return send(res, 404, {error: 'NO_PAIR_INTENT'}, req.headers.origin);
-        return send(res, 200, state.intent, req.headers.origin);
+        requireExtension(req, state.expectedExtensionOrigin);
+        if (!state.intent || state.intent.expiresAtMs <= clock()) return send(res, 404, {error: 'NO_PAIR_INTENT'}, state.expectedExtensionOrigin);
+        return send(res, 200, state.intent, state.expectedExtensionOrigin);
       }
       if (req.method === 'POST' && url.pathname === '/v1/pair') {
+        requireExtension(req, state.expectedExtensionOrigin);
         const input = await body(req); const intent = state.intent;
         if (!intent || intent.expiresAtMs <= clock() || input.token !== intent.token) throw code('PAIR_INTENT_INVALID');
         if (new URL(input.url).origin !== intent.expectedOrigin) throw code('ORIGIN_MISMATCH');
-        if (!String(req.headers.origin || '').startsWith('chrome-extension://')) throw code('EXTENSION_REQUIRED');
         revoke('repaired');
-        state.extensionOrigin = req.headers.origin;
+        state.extensionOrigin = state.expectedExtensionOrigin;
         state.pairing = {pairingId: intent.pairingId, origin: intent.expectedOrigin, tabId: input.tabId, windowId: input.windowId, documentId: input.documentId, pairedAtMs: clock(), expiresAtMs: clock() + 15 * 60_000};
         state.intent = null;
         append({type: 'paired', outcome: 'gesture_verified', origin: state.pairing.origin, documentId: state.pairing.documentId});
@@ -139,7 +141,7 @@ export function createRuntime({host = '127.0.0.1', port = 9235, dataDir = path.r
       if (req.method === 'GET' && url.pathname === '/v1/result') { requireCapability(req, capability); const row = state.completions.get(url.searchParams.get('commandId')); return row ? send(res, 200, row) : send(res, 404, {error: 'RESULT_UNKNOWN'}); }
       if (req.method === 'GET' && url.pathname === '/v1/stats') { requireCapability(req, capability); return send(res, 200, summarize(state.events)); }
       return send(res, 404, {error: 'ROUTE_NOT_FOUND'});
-    } catch (error) { return send(res, 400, {error: error.message || 'RUNTIME_FAILED'}, req.headers.origin?.startsWith('chrome-extension://') ? req.headers.origin : undefined); }
+    } catch (error) { return send(res, 400, {error: error.message || 'RUNTIME_FAILED'}, req.headers.origin === state.expectedExtensionOrigin ? state.expectedExtensionOrigin : undefined); }
   });
   return {server, state, discovery, capability, prompt, complete, revoke, listen: () => new Promise((resolve) => server.listen(port, host, resolve)), close: () => new Promise((resolve) => server.close(resolve)), receiptSemantics, screenshotPolicy};
 }
