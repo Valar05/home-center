@@ -27,6 +27,7 @@ on:
 
 permissions:
   contents: write
+  issues: write
 
 jobs:
   build:
@@ -65,23 +66,25 @@ jobs:
             gradle :app:assembleDebug --no-daemon
           ) 2>&1 | tee /tmp/operator-overlay-ci.log
 
-      - name: Preserve feature-branch failure diagnostics
+      - name: Report feature-branch failure diagnostics
         if: failure() && github.event_name == 'push' && github.ref == 'refs/heads/feature/operator-overlay-v1'
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          mkdir -p tools/ci_diagnostics
+          LOG="$(mktemp)"
           if [ -s /tmp/operator-overlay-ci.log ]; then
-            cp /tmp/operator-overlay-ci.log tools/ci_diagnostics/operator-overlay-latest.txt
+            tail -c 50000 /tmp/operator-overlay-ci.log > "$LOG"
           else
-            printf 'Overlay workflow failed before verify/build logging began. Inspect run %s.\n' "${GITHUB_RUN_ID}" > tools/ci_diagnostics/operator-overlay-latest.txt
+            printf 'Overlay workflow failed before verify/build logging began. Inspect run %s.\n' "${GITHUB_RUN_ID}" > "$LOG"
           fi
-          git config user.name 'home-center-overlay-ci'
-          git config user.email 'actions@users.noreply.github.com'
-          git add tools/ci_diagnostics/operator-overlay-latest.txt
-          if ! git diff --cached --quiet; then
-            git commit -m 'Capture operator overlay CI failure'
-            git push origin HEAD:feature/operator-overlay-v1
-          fi
+          BODY="$(mktemp)"
+          {
+            printf '### Operator overlay CI failure\n\nRun `%s`, source `%s`.\n\n```text\n' "$GITHUB_RUN_ID" "$GITHUB_SHA"
+            cat "$LOG"
+            printf '\n```\n'
+          } > "$BODY"
+          gh issue comment 223 --repo "$GITHUB_REPOSITORY" --body-file "$BODY"
 
       - name: Create immutable build receipt
         id: receipt
