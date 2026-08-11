@@ -6,9 +6,13 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.graphics.Color;
+import android.graphics.Insets;
 import android.graphics.PixelFormat;
+import android.graphics.Rect;
 import android.graphics.drawable.GradientDrawable;
+import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
@@ -18,13 +22,17 @@ import android.text.method.ScrollingMovementMethod;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewConfiguration;
+import android.view.WindowInsets;
 import android.view.WindowManager;
+import android.view.WindowMetrics;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 public class OperatorOverlayService extends Service {
     public static final String ACTION_SCREEN_ACTIVITY = "com.homecenter.operatoroverlay.SCREEN_ACTIVITY";
+    public static final String ACTION_RESTORE = "com.homecenter.operatoroverlay.RESTORE";
 
     private static final String CHANNEL_ID = "home_center_operator";
     private static final int NOTIFICATION_ID = 4107;
@@ -41,19 +49,28 @@ public class OperatorOverlayService extends Service {
     private WindowManager.LayoutParams guardParams;
     private View touchGuard;
     private LinearLayout root;
+    private LinearLayout details;
+    private TextView dragHandle;
     private TextView status;
     private TextView screenBadge;
     private TextView meta;
     private TextView latest;
     private Button collapseButton;
+    private Button hideButton;
+    private Button compactControlButton;
     private Button muteButton;
     private Button controlButton;
-    private boolean expanded = false;
-    private boolean confirmDisable = false;
+    private boolean expandedText;
+    private boolean confirmDisable;
     private float downRawX;
     private float downRawY;
     private int downX;
     private int downY;
+    private boolean dragging;
+    private int dragThresholdPx;
+    private int expandedWidthPx;
+    private int lastMeasuredWidth;
+    private int lastMeasuredHeight;
 
     private final Runnable refresh = new Runnable() {
         @Override
@@ -82,16 +99,24 @@ public class OperatorOverlayService extends Service {
             long now = System.currentTimeMillis();
             int leaseMs = clamp(intent.getIntExtra("leaseMs", 2500), MIN_SCREEN_LEASE_MS, MAX_SCREEN_LEASE_MS);
             int yieldMs = clamp(intent.getIntExtra("yieldMs", 0), 0, MAX_SCREEN_YIELD_MS);
-            if (OperatorState.controlEnabled(this)) {
+            if (OperatorState.controlEnabled(this) && !OperatorState.overlayHidden(this)) {
                 long activeUntil = now + leaseMs;
-                long yieldUntil = Math.min(activeUntil, now + yieldMs);
-                OperatorState.setScreenActivity(this, activeUntil, yieldUntil);
+                OperatorState.setScreenActivity(this, activeUntil, Math.min(activeUntil, now + yieldMs));
             } else {
                 OperatorState.clearScreenActivity(this);
             }
-            refreshUi();
+        } else if (intent != null && ACTION_RESTORE.equals(intent.getAction())) {
+            restoreOverlay();
         }
+        refreshUi();
         return START_STICKY;
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        recomputeExpandedWidth();
+        handler.post(this::applyPresentationState);
     }
 
     @Override
@@ -102,19 +127,17 @@ public class OperatorOverlayService extends Service {
     @Override
     public void onDestroy() {
         handler.removeCallbacksAndMessages(null);
-        if (windowManager != null && root != null) {
-            try {
-                windowManager.removeView(root);
-            } catch (RuntimeException ignored) {
-            }
-        }
-        if (windowManager != null && touchGuard != null) {
-            try {
-                windowManager.removeView(touchGuard);
-            } catch (RuntimeException ignored) {
-            }
-        }
+        removeView(root);
+        removeView(touchGuard);
         super.onDestroy();
+    }
+
+    private void removeView(View view) {
+        if (windowManager == null || view == null) return;
+        try {
+            windowManager.removeView(view);
+        } catch (RuntimeException ignored) {
+        }
     }
 
     private void createNotificationChannel() {
@@ -123,32 +146,45 @@ public class OperatorOverlayService extends Service {
                 CHANNEL_ID,
                 "Home Center operator control",
                 NotificationManager.IMPORTANCE_LOW);
-        channel.setDescription("Keeps the visible Home Center operator control overlay alive.");
+        channel.setDescription("Local restore and safety controls for Home Center Phone Hands.");
         manager.createNotificationChannel(channel);
     }
 
     private Notification buildNotification() {
         Intent open = new Intent(this, MainActivity.class);
+        open.setAction(ACTION_RESTORE);
         PendingIntent pending = PendingIntent.getActivity(
                 this,
                 0,
                 open,
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+        String content = OperatorState.overlayHidden(this)
+                ? "Overlay hidden and control off — tap to restore"
+                : "Tap to restore or bring the local controls forward";
         return new Notification.Builder(this, CHANNEL_ID)
                 .setSmallIcon(android.R.drawable.stat_notify_sync_noanim)
                 .setContentTitle("Home Center operator control")
-                .setContentText("Visible control toggle is active")
+                .setContentText(content)
                 .setOngoing(true)
                 .setContentIntent(pending)
                 .build();
     }
 
+    private void updateNotification() {
+        getSystemService(NotificationManager.class).notify(NOTIFICATION_ID, buildNotification());
+    }
+
     private void createOverlay() {
         windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
+        dragThresholdPx = Math.max(
+                dp(OverlayUiPolicy.DRAG_THRESHOLD_DP),
+                ViewConfiguration.get(this).getScaledTouchSlop());
+        recomputeExpandedWidth();
 
-        // Full-screen input guard is present but touch-pass-through by default.
-        // It may consume local touches only during a short active-screen lease.
+        // This separate guard is inert by default and becomes touchable only for
+        // a bounded, explicit visible-screen operation lease.
         touchGuard = new View(this);
+        touchGuard.setContentDescription("Remote input active");
         touchGuard.setOnTouchListener((view, event) -> true);
         guardParams = new WindowManager.LayoutParams(
                 WindowManager.LayoutParams.MATCH_PARENT,
@@ -163,104 +199,260 @@ public class OperatorOverlayService extends Service {
 
         root = new LinearLayout(this);
         root.setOrientation(LinearLayout.VERTICAL);
-        root.setPadding(dp(10), dp(7), dp(10), dp(7));
-        root.setBackground(background(Color.rgb(31, 31, 31)));
+        root.setPadding(dp(8), dp(6), dp(8), dp(8));
+        root.setBackground(background(Color.rgb(27, 29, 34), Color.rgb(95, 104, 120)));
+        root.setElevation(dp(10));
 
-        LinearLayout header = new LinearLayout(this);
-        header.setOrientation(LinearLayout.HORIZONTAL);
-        header.setGravity(Gravity.CENTER_VERTICAL);
+        LinearLayout titleRow = new LinearLayout(this);
+        titleRow.setOrientation(LinearLayout.HORIZONTAL);
+        titleRow.setGravity(Gravity.CENTER_VERTICAL);
+
+        dragHandle = textView(14f, true);
+        dragHandle.setText("☰  HOME CENTER");
+        dragHandle.setContentDescription("Drag Home Center overlay. Tap to shrink or expand.");
+        dragHandle.setGravity(Gravity.CENTER_VERTICAL);
+        dragHandle.setMinWidth(dp(OverlayUiPolicy.MIN_TOUCH_TARGET_DP));
+        dragHandle.setMinHeight(dp(OverlayUiPolicy.MIN_TOUCH_TARGET_DP));
+        dragHandle.setPadding(dp(8), 0, dp(10), 0);
+        dragHandle.setOnClickListener(v -> setCollapsed(!OperatorState.panelCollapsed(this)));
+        dragHandle.setOnTouchListener(this::handleDrag);
+        titleRow.addView(dragHandle, new LinearLayout.LayoutParams(
+                0,
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                1f));
+
+        collapseButton = iconButton("−", "Shrink overlay");
+        collapseButton.setOnClickListener(v -> setCollapsed(!OperatorState.panelCollapsed(this)));
+        titleRow.addView(collapseButton);
+
+        compactControlButton = button("STOP");
+        compactControlButton.setContentDescription("Disable or enable Home Center control");
+        compactControlButton.setOnClickListener(v -> handleControlButton());
+        titleRow.addView(compactControlButton);
+
+        hideButton = iconButton("×", "Hide overlay and disable control; restore from notification");
+        hideButton.setOnClickListener(v -> hideOverlay());
+        titleRow.addView(hideButton);
+
+        details = new LinearLayout(this);
+        details.setOrientation(LinearLayout.VERTICAL);
+
+        LinearLayout statusRow = new LinearLayout(this);
+        statusRow.setOrientation(LinearLayout.HORIZONTAL);
+        statusRow.setGravity(Gravity.CENTER_VERTICAL);
 
         status = textView(14f, true);
         status.setText("HOME CENTER • OFFLINE");
-        LinearLayout.LayoutParams statusParams = new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f);
-        header.addView(status, statusParams);
-
-        collapseButton = button("Hide");
-        collapseButton.setOnClickListener(v -> {
-            boolean next = !OperatorState.panelCollapsed(this);
-            OperatorState.setPanelCollapsed(this, next);
-            applyCollapsedState();
-            refreshUi();
-        });
-        header.addView(collapseButton);
+        status.setContentDescription("Home Center connection and control state");
+        statusRow.addView(status, new LinearLayout.LayoutParams(
+                0,
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                1f));
 
         controlButton = button("Disable control");
+        controlButton.setContentDescription("Disable or enable Home Center control");
         controlButton.setOnClickListener(v -> handleControlButton());
-        header.addView(controlButton);
+        statusRow.addView(controlButton);
 
-        muteButton = button("Mute");
+        screenBadge = textView(12f, true);
+        screenBadge.setPadding(dp(8), dp(5), dp(8), dp(5));
+        screenBadge.setBackground(background(Color.rgb(42, 73, 96), Color.rgb(89, 163, 211)));
+        screenBadge.setVisibility(View.GONE);
+
+        meta = textView(11f, false);
+        meta.setTextColor(Color.rgb(190, 198, 212));
+        meta.setPadding(0, dp(6), 0, dp(2));
+
+        latest = textView(14f, false);
+        latest.setText(OperatorState.latestText(this));
+        latest.setMaxLines(2);
+        latest.setEllipsize(TextUtils.TruncateAt.END);
+        latest.setPadding(dp(8), dp(7), dp(8), dp(7));
+        latest.setBackground(background(Color.rgb(39, 42, 49), Color.rgb(67, 73, 86)));
+        latest.setVerticalScrollBarEnabled(true);
+        latest.setMovementMethod(ScrollingMovementMethod.getInstance());
+        latest.setContentDescription("Latest ChatGPT message. Tap to expand or collapse text.");
+        latest.setOnClickListener(v -> {
+            expandedText = !expandedText;
+            applyExpandedTextState();
+        });
+
+        LinearLayout actionRow = new LinearLayout(this);
+        actionRow.setOrientation(LinearLayout.HORIZONTAL);
+        actionRow.setGravity(Gravity.END | Gravity.CENTER_VERTICAL);
+        actionRow.setPadding(0, dp(4), 0, 0);
+
+        muteButton = button("Mute speech");
+        muteButton.setContentDescription("Mute or unmute Home Center status speech");
         muteButton.setOnClickListener(v -> {
             OperatorState.setMuted(this, !OperatorState.muted(this));
             refreshUi();
         });
+        actionRow.addView(muteButton);
 
-        screenBadge = textView(11f, true);
-        screenBadge.setPadding(0, dp(4), 0, dp(2));
-        screenBadge.setVisibility(View.GONE);
+        Button hideFullButton = button("Hide overlay");
+        hideFullButton.setContentDescription("Hide overlay and disable control; restore from notification");
+        hideFullButton.setOnClickListener(v -> hideOverlay());
+        actionRow.addView(hideFullButton);
 
-        meta = textView(11f, false);
-        meta.setPadding(0, dp(4), 0, dp(2));
+        details.addView(statusRow);
+        details.addView(screenBadge);
+        details.addView(meta);
+        details.addView(latest);
+        details.addView(actionRow);
+        root.addView(titleRow);
+        root.addView(details);
 
-        latest = textView(13f, false);
-        latest.setText(OperatorState.latestText(this));
-        latest.setMaxLines(2);
-        latest.setEllipsize(TextUtils.TruncateAt.END);
-        latest.setPadding(0, dp(2), 0, dp(2));
-        latest.setVerticalScrollBarEnabled(true);
-        latest.setMovementMethod(ScrollingMovementMethod.getInstance());
-        latest.setOnClickListener(v -> {
-            expanded = !expanded;
-            applyExpandedState();
-        });
-
-        root.addView(header);
-        root.addView(muteButton);
-        root.addView(screenBadge);
-        root.addView(meta);
-        root.addView(latest);
-
-        int screenWidth = getResources().getDisplayMetrics().widthPixels;
-        int overlayWidth = Math.min(screenWidth - dp(16), dp(440));
         windowParams = new WindowManager.LayoutParams(
-                overlayWidth,
+                expandedWidthPx,
                 WindowManager.LayoutParams.WRAP_CONTENT,
                 WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
                 WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE |
                         WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN,
                 PixelFormat.TRANSLUCENT);
         windowParams.gravity = Gravity.TOP | Gravity.START;
-        windowParams.x = dp(8);
-        windowParams.y = dp(28);
-
-        status.setOnTouchListener((view, event) -> {
-            switch (event.getActionMasked()) {
-                case MotionEvent.ACTION_DOWN:
-                    downRawX = event.getRawX();
-                    downRawY = event.getRawY();
-                    downX = windowParams.x;
-                    downY = windowParams.y;
-                    return true;
-                case MotionEvent.ACTION_MOVE:
-                    int proposedX = downX + (int) (event.getRawX() - downRawX);
-                    int proposedY = downY + (int) (event.getRawY() - downRawY);
-                    int displayWidth = getResources().getDisplayMetrics().widthPixels;
-                    int displayHeight = getResources().getDisplayMetrics().heightPixels;
-                    int viewWidth = windowParams.width > 0 ? windowParams.width : Math.max(root.getWidth(), dp(120));
-                    int viewHeight = Math.max(root.getHeight(), dp(52));
-                    int maxX = Math.max(0, displayWidth - viewWidth);
-                    int maxY = Math.max(0, displayHeight - viewHeight);
-                    windowParams.x = Math.max(0, Math.min(proposedX, maxX));
-                    windowParams.y = Math.max(0, Math.min(proposedY, maxY));
-                    windowManager.updateViewLayout(root, windowParams);
-                    return true;
-                default:
-                    return true;
-            }
-        });
+        windowParams.x = OperatorState.overlayX(this);
+        windowParams.y = OperatorState.overlayY(this);
 
         windowManager.addView(root, windowParams);
-        applyCollapsedState();
+        root.addOnLayoutChangeListener((view, left, top, right, bottom,
+                oldLeft, oldTop, oldRight, oldBottom) -> {
+            int width = right - left;
+            int height = bottom - top;
+            if (width != lastMeasuredWidth || height != lastMeasuredHeight) {
+                lastMeasuredWidth = width;
+                lastMeasuredHeight = height;
+                handler.post(this::clampAndPersistPosition);
+            }
+        });
+        root.setVisibility(OperatorState.overlayHidden(this) ? View.GONE : View.VISIBLE);
+        applyPresentationState();
         refreshUi();
+    }
+
+    private boolean handleDrag(View view, MotionEvent event) {
+        switch (event.getActionMasked()) {
+            case MotionEvent.ACTION_DOWN:
+                downRawX = event.getRawX();
+                downRawY = event.getRawY();
+                downX = windowParams.x;
+                downY = windowParams.y;
+                dragging = false;
+                return true;
+            case MotionEvent.ACTION_MOVE:
+                float deltaX = event.getRawX() - downRawX;
+                float deltaY = event.getRawY() - downRawY;
+                if (!dragging) {
+                    dragging = OverlayUiPolicy.isDrag(deltaX, deltaY, dragThresholdPx);
+                }
+                if (dragging) applyPosition(downX + (int) deltaX, downY + (int) deltaY);
+                return true;
+            case MotionEvent.ACTION_UP:
+                float upDeltaX = event.getRawX() - downRawX;
+                float upDeltaY = event.getRawY() - downRawY;
+                if (OverlayUiPolicy.isClick(upDeltaX, upDeltaY, dragThresholdPx)) {
+                    view.performClick();
+                }
+                clampAndPersistPosition();
+                dragging = false;
+                return true;
+            case MotionEvent.ACTION_CANCEL:
+                dragging = false;
+                clampAndPersistPosition();
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    private void applyPosition(int proposedX, int proposedY) {
+        if (root == null || windowParams == null || windowManager == null) return;
+        Rect visible = visibleBounds();
+        int[] position = OverlayUiPolicy.clampPosition(
+                proposedX,
+                proposedY,
+                visible.left,
+                visible.top,
+                visible.right,
+                visible.bottom,
+                Math.max(root.getWidth(), dp(OverlayUiPolicy.MIN_TOUCH_TARGET_DP)),
+                Math.max(root.getHeight(), dp(OverlayUiPolicy.MIN_TOUCH_TARGET_DP)),
+                dp(8));
+        windowParams.x = position[0];
+        windowParams.y = position[1];
+        windowManager.updateViewLayout(root, windowParams);
+    }
+
+    private Rect visibleBounds() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            WindowMetrics metrics = windowManager.getCurrentWindowMetrics();
+            Rect bounds = new Rect(metrics.getBounds());
+            Insets insets = metrics.getWindowInsets().getInsetsIgnoringVisibility(
+                    WindowInsets.Type.systemBars() | WindowInsets.Type.displayCutout());
+            bounds.left += insets.left;
+            bounds.top += insets.top;
+            bounds.right -= insets.right;
+            bounds.bottom -= insets.bottom;
+            return bounds;
+        }
+        return new Rect(
+                0,
+                0,
+                getResources().getDisplayMetrics().widthPixels,
+                getResources().getDisplayMetrics().heightPixels);
+    }
+
+    private void clampAndPersistPosition() {
+        if (root == null || windowParams == null || windowManager == null || root.getVisibility() != View.VISIBLE) return;
+        applyPosition(windowParams.x, windowParams.y);
+        OperatorState.setOverlayPosition(this, windowParams.x, windowParams.y);
+    }
+
+    private void setCollapsed(boolean collapsed) {
+        OperatorState.setPanelCollapsed(this, collapsed);
+        expandedText = false;
+        applyExpandedTextState();
+        applyPresentationState();
+    }
+
+    private void applyPresentationState() {
+        if (root == null || windowParams == null) return;
+        boolean collapsed = OperatorState.panelCollapsed(this);
+        details.setVisibility(collapsed ? View.GONE : View.VISIBLE);
+        hideButton.setVisibility(collapsed ? View.GONE : View.VISIBLE);
+        compactControlButton.setVisibility(collapsed ? View.VISIBLE : View.GONE);
+        collapseButton.setText(collapsed ? "+" : "−");
+        collapseButton.setContentDescription(collapsed ? "Expand overlay" : "Shrink overlay");
+        windowParams.width = collapsed ? WindowManager.LayoutParams.WRAP_CONTENT : expandedWidthPx;
+        windowManager.updateViewLayout(root, windowParams);
+        root.requestLayout();
+        root.post(this::clampAndPersistPosition);
+        refreshUi();
+    }
+
+    private void hideOverlay() {
+        if (root == null) return;
+        confirmDisable = false;
+        // Commit the fail-closed state before removing the user's visible escape.
+        OperatorState.setControlEnabled(this, false);
+        OperatorState.setOverlayHidden(this, OverlayUiPolicy.nextHidden(
+                false,
+                OverlayUiPolicy.VisibilityAction.HIDE));
+        syncTouchGuard(false);
+        root.setVisibility(View.GONE);
+        updateNotification();
+    }
+
+    private void restoreOverlay() {
+        OperatorState.setControlEnabled(this, false);
+        OperatorState.setOverlayHidden(this, OverlayUiPolicy.nextHidden(
+                true,
+                OverlayUiPolicy.VisibilityAction.RESTORE));
+        if (root != null) {
+            root.setVisibility(View.VISIBLE);
+            applyPresentationState();
+        }
+        updateNotification();
     }
 
     private void handleControlButton() {
@@ -273,7 +465,7 @@ public class OperatorOverlayService extends Service {
         }
         if (!confirmDisable) {
             confirmDisable = true;
-            controlButton.setText("Confirm disable");
+            refreshUi();
             handler.postDelayed(() -> {
                 confirmDisable = false;
                 refreshUi();
@@ -282,13 +474,15 @@ public class OperatorOverlayService extends Service {
         }
         confirmDisable = false;
         OperatorState.setControlEnabled(this, false);
+        syncTouchGuard(false);
         refreshUi();
     }
 
-    private void applyExpandedState() {
-        if (expanded) {
+    private void applyExpandedTextState() {
+        if (latest == null) return;
+        if (expandedText) {
             latest.setMaxLines(30);
-            latest.setMaxHeight(dp(560));
+            latest.setMaxHeight(dp(520));
             latest.setEllipsize(null);
         } else {
             latest.scrollTo(0, 0);
@@ -297,18 +491,7 @@ public class OperatorOverlayService extends Service {
             latest.setEllipsize(TextUtils.TruncateAt.END);
         }
         latest.requestLayout();
-        refreshUi();
-    }
-
-    private void applyCollapsedState() {
-        if (root == null) return;
-        boolean collapsed = OperatorState.panelCollapsed(this);
-        collapseButton.setText(collapsed ? "Show" : "Hide");
-        muteButton.setVisibility(collapsed ? View.GONE : View.VISIBLE);
-        screenBadge.setVisibility(View.GONE);
-        meta.setVisibility(collapsed ? View.GONE : View.VISIBLE);
-        latest.setVisibility(collapsed ? View.GONE : View.VISIBLE);
-        root.requestLayout();
+        latest.post(this::clampAndPersistPosition);
     }
 
     private void syncTouchGuard(boolean active) {
@@ -320,7 +503,7 @@ public class OperatorOverlayService extends Service {
             guardParams.flags = flags;
             windowManager.updateViewLayout(touchGuard, guardParams);
         }
-        touchGuard.setBackgroundColor(active ? Color.argb(8, 0, 0, 0) : Color.TRANSPARENT);
+        touchGuard.setBackgroundColor(active ? Color.argb(10, 12, 32, 52) : Color.TRANSPARENT);
     }
 
     private void refreshUi() {
@@ -334,58 +517,85 @@ public class OperatorOverlayService extends Service {
         boolean online = heartbeat > 0 && now - heartbeat <= ONLINE_WINDOW_MS;
         boolean screenActive = screenActiveUntil > now;
         boolean screenYield = screenYieldUntil > now;
+        boolean hidden = OperatorState.overlayHidden(this);
 
-        // Permission + liveness are necessary but not sufficient. Local input is
-        // blocked only while an explicit active-screen lease exists. During the
-        // short remote-input yield pulse the guard is temporarily pass-through
-        // so injected Android input reaches the target app rather than this guard.
-        syncTouchGuard(enabled && online && screenActive && !screenYield);
+        boolean guardActive = OverlayUiPolicy.touchGuardActive(
+                enabled,
+                online,
+                screenActive,
+                screenYield) && !hidden;
+        syncTouchGuard(guardActive);
 
         String state;
+        String compactState;
         int stateColor;
         if (!enabled) {
             state = "CONTROL OFF";
-            stateColor = Color.rgb(255, 130, 130);
+            compactState = "HC • OFF";
+            stateColor = Color.rgb(255, 145, 145);
         } else if (!online) {
             state = "HOME CENTER • OFFLINE";
-            stateColor = Color.rgb(255, 210, 130);
+            compactState = "HC • OFFLINE";
+            stateColor = Color.rgb(255, 211, 132);
         } else if (screenActive) {
             state = "REMOTE INPUT • ACTIVE";
-            stateColor = Color.rgb(150, 220, 255);
+            compactState = "HC • ACTIVE";
+            stateColor = Color.rgb(132, 211, 255);
         } else {
             state = "HOME CENTER • ON";
-            stateColor = Color.rgb(150, 255, 170);
+            compactState = "HC • ON";
+            stateColor = Color.rgb(151, 255, 178);
         }
         if (muted) state += " • MUTED";
         status.setText(state);
         status.setTextColor(stateColor);
+        dragHandle.setText(OperatorState.panelCollapsed(this)
+                ? "☰  " + compactState
+                : "☰  HOME CENTER");
+        dragHandle.setTextColor(stateColor);
 
         if (!OperatorState.panelCollapsed(this) && screenActive) {
             screenBadge.setVisibility(View.VISIBLE);
             screenBadge.setText(screenYield
-                    ? "REMOTE INPUT • action pulse"
-                    : "REMOTE INPUT • local input blocked");
+                    ? "REMOTE INPUT • action pulse — your touch remains available"
+                    : "REMOTE INPUT • local screen input temporarily reserved");
         } else {
             screenBadge.setVisibility(View.GONE);
         }
 
-        muteButton.setText(muted ? "Unmute" : "Mute");
+        muteButton.setText(muted ? "Unmute speech" : "Mute speech");
+        String fullControlLabel;
+        String compactControlLabel;
         if (!enabled) {
-            controlButton.setText("Enable control");
+            fullControlLabel = "Enable control";
+            compactControlLabel = "ENABLE";
         } else if (confirmDisable) {
-            controlButton.setText("Confirm disable");
+            fullControlLabel = "Confirm disable";
+            compactControlLabel = "CONFIRM";
         } else {
-            controlButton.setText("Disable control");
+            fullControlLabel = "Disable control";
+            compactControlLabel = "STOP";
         }
+        controlButton.setText(fullControlLabel);
+        compactControlButton.setText(compactControlLabel);
 
         String source = OperatorState.latestSource(this);
         long lastUpdate = OperatorState.lastUpdateMs(this);
-        String activeText = screenActive
+        String lease = screenActive
                 ? " • screen lease " + Math.max(1L, (screenActiveUntil - now + 999L) / 1000L) + "s"
                 : " • screen idle";
-        meta.setText(source + " • " + age(now, lastUpdate) + activeText +
-                (expanded ? " • tap text to collapse" : " • tap text to expand"));
+        meta.setText(source + " • " + age(now, lastUpdate) + lease +
+                (expandedText ? " • tap message to collapse" : " • tap message to expand"));
         latest.setText(OperatorState.latestText(this));
+    }
+
+    private void recomputeExpandedWidth() {
+        Rect visible = windowManager == null
+                ? new Rect(0, 0,
+                        getResources().getDisplayMetrics().widthPixels,
+                        getResources().getDisplayMetrics().heightPixels)
+                : visibleBounds();
+        expandedWidthPx = Math.max(dp(280), Math.min(visible.width() - dp(16), dp(420)));
     }
 
     private String age(long now, long then) {
@@ -410,19 +620,28 @@ public class OperatorOverlayService extends Service {
         Button button = new Button(this);
         button.setText(label);
         button.setTextSize(11f);
-        button.setMinHeight(dp(36));
-        button.setMinimumHeight(dp(36));
-        button.setMinWidth(0);
-        button.setMinimumWidth(0);
+        button.setAllCaps(false);
+        button.setMinHeight(dp(OverlayUiPolicy.MIN_TOUCH_TARGET_DP));
+        button.setMinimumHeight(dp(OverlayUiPolicy.MIN_TOUCH_TARGET_DP));
+        button.setMinWidth(dp(OverlayUiPolicy.MIN_TOUCH_TARGET_DP));
+        button.setMinimumWidth(dp(OverlayUiPolicy.MIN_TOUCH_TARGET_DP));
         button.setPadding(dp(8), 0, dp(8), 0);
         return button;
     }
 
-    private GradientDrawable background(int color) {
+    private Button iconButton(String label, String description) {
+        Button button = button(label);
+        button.setContentDescription(description);
+        button.setTextSize(18f);
+        button.setPadding(0, 0, 0, 0);
+        return button;
+    }
+
+    private GradientDrawable background(int color, int strokeColor) {
         GradientDrawable drawable = new GradientDrawable();
         drawable.setColor(color);
-        drawable.setCornerRadius(dp(12));
-        drawable.setStroke(dp(1), Color.rgb(90, 90, 90));
+        drawable.setCornerRadius(dp(14));
+        drawable.setStroke(dp(1), strokeColor);
         return drawable;
     }
 
