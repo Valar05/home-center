@@ -5,6 +5,7 @@ const patcher=fs.readFileSync('tools/apply_phone_hands_relay_wiring.mjs','utf8')
 const agent=fs.readFileSync('tools/android_phone_home_center_relay.py','utf8');
 const shell=fs.readFileSync('tools/android_phone_termux_shell.py','utf8');
 const overlay=fs.readFileSync('tools/android_operator_overlay.py','utf8');
+const overlayInstaller=fs.readFileSync('tools/setup_android_operator_overlay.sh','utf8');
 const overlayManifest=fs.readFileSync('android/operator-overlay/app/src/main/AndroidManifest.xml','utf8');
 const overlayService=fs.readFileSync('android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java','utf8');
 const factory=fs.readFileSync('tools/android_phone_factory_tools.py','utf8');
@@ -25,7 +26,10 @@ for (const s of overlayActions) {
 for (const forbidden of ['operator_overlay_enable','operator_overlay_disable','operator_overlay_set_control']) {
   if (relay.includes(forbidden) || overlay.includes(forbidden)) throw new Error('remote control-toggle mutation must not exist: '+forbidden);
 }
-for (const s of ['controlEnabled','muted','control_gate','STATE_URI','content query','ACTION_UPDATE','ACTION_HEARTBEAT']) if (!overlay.includes(s)) throw new Error('operator overlay enforcement contract missing '+s);
+for (const s of ['controlEnabled','muted','control_gate','STATE_URI','content query','ACTION_UPDATE','ACTION_HEARTBEAT','pm list packages']) if (!overlay.includes(s)) throw new Error('operator overlay enforcement/detection contract missing '+s);
+if (overlay.includes("pm path {shlex.quote(PACKAGE)}")) throw new Error('overlay installed detection must not rely on pm path stderr behavior');
+for (const s of ['/data/local/tmp/home-center-operator-overlay.apk','STAGED_SHA','pm install -r','grep -qx \'Success\'','pm list packages $PACKAGE','SYSTEM_ALERT_WINDOW: allow','control_enabled=']) if (!overlayInstaller.includes(s)) throw new Error('operator overlay installer verification contract missing '+s);
+if (overlayInstaller.includes("pm install -r '$OUT'")) throw new Error('installer must not pass shared-storage Termux path directly to system_server');
 for (const s of ['SYSTEM_ALERT_WINDOW','FOREGROUND_SERVICE_SPECIAL_USE','RECEIVE_BOOT_COMPLETED','android.permission.DUMP','OperatorOverlayService','OperatorStateProvider','BootReceiver']) if (!overlayManifest.includes(s)) throw new Error('operator overlay Android manifest missing '+s);
 for (const s of ['Confirm disable','Disable control','Enable control','Mute','Unmute','HOME CENTER • ON','HOME CENTER • OFFLINE','CONTROL OFF','setMaxLines(30)','setMaxLines(2)','touchGuard','MATCH_PARENT','FLAG_NOT_TOUCHABLE','syncTouchGuard','setOnTouchListener((view, event) -> true)','ScrollingMovementMethod','setVerticalScrollBarEnabled(true)','Math.min(proposed, maxY)','syncTouchGuard(enabled && online)']) if (!overlayService.includes(s)) throw new Error('operator overlay visible/guard/reachability/offline-safety UI contract missing '+s);
 if (!agent.includes("if kind=='status_say' and gate.get('muted')")) throw new Error('mute must suppress status speech at the relay');
@@ -46,4 +50,4 @@ for (const s of ['ALLOWED_ROOTS','verified_copy','sha256_file','glb_inventory','
 for (const s of ['--background','slice_receipt.json','blender_path','timeoutSeconds']) if (!armoryDriver.includes(s)) throw new Error('armory driver contract missing '+s);
 for (const s of ['separate(type=\'LOOSE\')','parts.json','contact_sheet_all_parts.png','reassembled.glb','semanticCategory']) if (!armoryBlender.includes(s)) throw new Error('armory Blender contract missing '+s);
 if (relay.includes('deviceToken:'+' token')) throw new Error('device token must not be returned by MCP');
-console.log('phone hands relay + operator overlay guard + offline pass-through + Termux shell + deterministic factory + Armory slicer contract: PASS');
+console.log('phone hands relay + operator overlay guard + verified install/detection + offline pass-through + Termux shell + deterministic factory + Armory slicer contract: PASS');
