@@ -13,7 +13,10 @@ models:
       - edit
       - apply
     defaultCompletionOptions:
-      contextLength: 4096
+      # Local model metadata reports 32,768 native context. Keep the offline
+      # coding lane at 8K: enough for judgement jars plus a useful completion
+      # without paying the memory cost of the full model window on 4GB VRAM.
+      contextLength: 8192
 
   - name: Qwen2.5 Coder 1.5B Local Autocomplete
     provider: ollama
