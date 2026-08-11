@@ -33,10 +33,14 @@ try {
     if (-not (Get-Command ollama -ErrorAction SilentlyContinue)) { Fail 'ollama is not on PATH' }
     Pass 'ollama command exists'
 
-    if (-not (Get-Command cn -ErrorAction SilentlyContinue)) { Fail 'cn is not on PATH' }
-    Pass 'Continue CLI command cn exists'
+    $cnCommand = Get-Command cn.cmd -ErrorAction SilentlyContinue
+    if (-not $cnCommand) { Fail 'Continue launcher cn.cmd is not on PATH' }
+    $cnPath = $cnCommand.Source
+    $evidence.continueLauncher = $cnPath
+    Pass "Continue launcher exists: $cnPath"
 
-    $cnVersion = (& cn --version 2>&1 | Out-String).Trim()
+    $cnVersion = (& $cnPath --version 2>&1 | Out-String).Trim()
+    if ($LASTEXITCODE -ne 0) { Fail "Continue version probe exited with code $LASTEXITCODE" }
     $evidence.continueVersion = $cnVersion
     Pass "Continue CLI version recorded: $cnVersion"
 
