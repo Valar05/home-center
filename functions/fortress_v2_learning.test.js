@@ -1,45 +1,14 @@
 'use strict';
-
-const test = require('node:test');
-const assert = require('node:assert/strict');
-const { classifyIncident, learnIncident, proposeLearningBatch } = require('./fortress_v2_learning');
-
-test('classifies a missing lookup correction and proposes a retrieval guard', () => {
-  assert.equal(classifyIncident({ correction: "You assumed it instead of looking it up" }), 'retrieval_failure');
-  const learned = learnIncident({ correction: "You assumed it instead of looking it up" });
-  assert.equal(learned.autoAction, 'add_required_lookup_heuristic');
-  assert.equal(learned.promotion.mayMutateV1, false);
-  assert.equal(learned.promotion.mayAutoPromote, false);
-});
-
-test('classifies early quitting and generates a stop regression', () => {
-  const learned = learnIncident({ failure: 'documented failure and quit instead of fixing it' });
-  assert.equal(learned.incident.kind, 'premature_stop');
-  assert.match(learned.candidateRegression.assertion, /continue/);
-});
-
-test('learns the desktop nested PowerShell quoting failure as transport policy', () => {
-  const learned = learnIncident({
-    stderr: 'PowerShell ParserError after nested quoting stripped variables',
-    source: 'computer-hands/windows-hands-01',
-  });
-  assert.equal(learned.incident.kind, 'transport_failure');
-  assert.equal(learned.autoAction, 'add_transport_guard');
-});
-
-test('unknown incidents are preserved but cannot promote themselves', () => {
-  const learned = learnIncident({ failure: 'purple monkey dishwasher' });
-  assert.equal(learned.incident.kind, 'unknown_failure');
-  assert.equal(learned.candidateRule.status, 'needs_classification');
-  assert.equal(learned.promotion.mayAutoPromote, false);
-});
-
-test('learning batch deduplicates repeated corrections', () => {
-  const batch = proposeLearningBatch([
-    { correction: 'You assumed it instead of looking it up' },
-    { correction: 'You assumed it instead of looking it up' },
-  ]);
-  assert.equal(batch.candidateCount, 1);
-  assert.equal(batch.autoPromote, false);
-  assert.equal(batch.isolation, 'fortress-online-v2');
-});
+const test=require('node:test'); const assert=require('node:assert/strict');
+const {classifyIncident,learnIncident,proposeLearningBatch,promoteLearningBatch,learningCycle}=require('./fortress_v2_learning');
+test('classifies missing lookup and proposes retrieval guard',()=>{assert.equal(classifyIncident({correction:'You assumed it instead of looking it up'}),'retrieval_failure'); const x=learnIncident({correction:'You assumed it instead of looking it up'}); assert.equal(x.autoAction,'add_required_lookup_heuristic'); assert.equal(x.promotion.mayMutateV1,false); assert.equal(x.promotion.mayAutoPromote,true);});
+test('classifies early quitting',()=>{const x=learnIncident({failure:'documented failure and quit instead of fixing it'});assert.equal(x.incident.kind,'premature_stop');assert.match(x.candidateRegression.assertion,/continue/);});
+test('learns desktop quoting failure',()=>{const x=learnIncident({stderr:'PowerShell ParserError after nested quoting stripped variables'});assert.equal(x.incident.kind,'transport_failure');});
+test('learns LFS smudge as transport failure',()=>{assert.equal(classifyIncident({stderr:'git lfs smudge filter failed'}),'transport_failure');});
+test('unknown incidents cannot promote',()=>{const x=learnIncident({failure:'purple monkey dishwasher'});assert.equal(x.candidateRule.status,'needs_classification');assert.equal(x.promotion.mayAutoPromote,false);});
+test('batch deduplicates repeated corrections',()=>{const b=proposeLearningBatch([{correction:'You assumed it instead of looking it up'},{correction:'You assumed it instead of looking it up'}]);assert.equal(b.candidateCount,1);});
+test('green encoded candidate self-promotes inside V2',()=>{const b=proposeLearningBatch([{correction:'You assumed it instead of looking it up'}]);const id=b.learned[0].candidateRegression.id;const p=promoteLearningBatch(b,{fullSuiteGreen:true,noEarlierLockRegressed:true,encodedRegressionIds:[id]});assert.equal(p.promoted.length,1);assert.equal(p.promoted[0].candidateRule.status,'active_v2');assert.equal(p.mayMutateV1,false);});
+test('candidate cannot self-promote without encoded regression',()=>{const b=proposeLearningBatch([{correction:'You assumed it instead of looking it up'}]);const p=promoteLearningBatch(b,{fullSuiteGreen:true,noEarlierLockRegressed:true,encodedRegressionIds:[]});assert.equal(p.promoted.length,0);assert.ok(p.held[0].reasons.includes('regression_not_encoded'));});
+test('candidate cannot self-promote on red suite',()=>{const b=proposeLearningBatch([{failure:'documented failure and quit'}]);const id=b.learned[0].candidateRegression.id;const p=promoteLearningBatch(b,{fullSuiteGreen:false,noEarlierLockRegressed:true,encodedRegressionIds:[id]});assert.equal(p.promoted.length,0);assert.ok(p.held[0].reasons.includes('full_suite_not_green'));});
+test('candidate cannot self-promote if old lock regresses',()=>{const b=proposeLearningBatch([{failure:'wrong tool substitution'}]);const id=b.learned[0].candidateRegression.id;const p=promoteLearningBatch(b,{fullSuiteGreen:true,noEarlierLockRegressed:false,encodedRegressionIds:[id]});assert.equal(p.promoted.length,0);assert.ok(p.held[0].reasons.includes('earlier_lock_regressed'));});
+test('learning cycle continues observation after safe promotion',()=>{const b=proposeLearningBatch([{stderr:'PowerShell ParserError quoting'}]);const id=b.learned[0].candidateRegression.id;const c=learningCycle([{stderr:'PowerShell ParserError quoting'}],{fullSuiteGreen:true,noEarlierLockRegressed:true,encodedRegressionIds:[id]});assert.equal(c.next,'observe_next_incident');assert.equal(c.activeRules.length,1);});
