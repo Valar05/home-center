@@ -1,0 +1,25 @@
+name: Home Center Offline Coding
+version: 1.0.0
+schema: v1
+
+# Deliberately local-only. Do not add cloud providers or remote MCPs here.
+models:
+  - name: Qwen2.5 Coder 7B Local
+    provider: ollama
+    model: qwen2.5-coder:7b
+    apiBase: http://127.0.0.1:11434
+    roles:
+      - chat
+      - edit
+      - apply
+    defaultCompletionOptions:
+      contextLength: 4096
+
+  - name: Qwen2.5 Coder 1.5B Local Autocomplete
+    provider: ollama
+    model: qwen2.5-coder:1.5b
+    apiBase: http://127.0.0.1:11434
+    roles:
+      - autocomplete
+    defaultCompletionOptions:
+      contextLength: 2048
