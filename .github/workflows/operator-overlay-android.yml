@@ -40,77 +40,42 @@ jobs:
       - name: Bootstrap, verify, and build overlay
         shell: bash
         run: |
-          set +e
-          set -o pipefail
-          (
-            set -euo pipefail
+          set -euo pipefail
 
-            echo '=== TOOLCHAIN ==='
-            java -version
-            python --version
-            node --version
+          echo '=== TOOLCHAIN ==='
+          java -version
+          python --version
+          node --version
 
-            SDK_ROOT="${ANDROID_SDK_ROOT:-${ANDROID_HOME:-/usr/local/lib/android/sdk}}"
-            if [ ! -d "$SDK_ROOT" ]; then
-              echo "Android SDK root missing: $SDK_ROOT" >&2
-              exit 41
-            fi
-            export ANDROID_SDK_ROOT="$SDK_ROOT"
-            export ANDROID_HOME="$SDK_ROOT"
-
-            SDKMANAGER="$SDK_ROOT/cmdline-tools/latest/bin/sdkmanager"
-            if [ ! -x "$SDKMANAGER" ]; then
-              SDKMANAGER="$(find "$SDK_ROOT/cmdline-tools" -type f -name sdkmanager -perm -111 2>/dev/null | head -1 || true)"
-            fi
-            if [ -z "$SDKMANAGER" ] || [ ! -x "$SDKMANAGER" ]; then
-              echo "sdkmanager not found under $SDK_ROOT" >&2
-              find "$SDK_ROOT" -maxdepth 4 -type f -name sdkmanager -print 2>/dev/null || true
-              exit 42
-            fi
-            echo "sdkmanager=$SDKMANAGER"
-            yes | "$SDKMANAGER" --licenses >/dev/null 2>&1 || true
-            "$SDKMANAGER" 'platforms;android-35' 'build-tools;35.0.0'
-
-            GRADLE_VERSION=8.9
-            GRADLE_HOME="/tmp/gradle-${GRADLE_VERSION}"
-            if [ ! -x "$GRADLE_HOME/bin/gradle" ]; then
-              curl -fL --retry 3 --retry-delay 2 \
-                "https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-bin.zip" \
-                -o /tmp/gradle.zip
-              rm -rf "$GRADLE_HOME"
-              unzip -q /tmp/gradle.zip -d /tmp
-            fi
-            "$GRADLE_HOME/bin/gradle" --version
-
-            echo '=== CONTRACTS ==='
-            python -m py_compile tools/android_operator_overlay.py tools/android_phone_home_center_relay.py
-            node --check functions/phone_hands_relay.js
-            node tools/phone_hands_relay_contract_test.mjs
-            git diff --check
-
-            echo '=== APK BUILD ==='
-            cd android/operator-overlay
-            "$GRADLE_HOME/bin/gradle" :app:assembleDebug --no-daemon --stacktrace
-          ) 2>&1 | tee /tmp/operator-overlay-ci.log
-          CODE=${PIPESTATUS[0]}
-
-          if [ "$CODE" -ne 0 ] && [ "$GITHUB_EVENT_NAME" = 'push' ] && [ "$GITHUB_REF" = 'refs/heads/feature/operator-overlay-v1' ]; then
-            DIAG="$(mktemp -d)"
-            {
-              printf 'Operator overlay CI failure\nrun=%s\nsource=%s\nexit=%s\n\n' "$GITHUB_RUN_ID" "$GITHUB_SHA" "$CODE"
-              tail -c 60000 /tmp/operator-overlay-ci.log
-            } > "$DIAG/operator-overlay-latest.txt"
-
-            git config user.name 'home-center-overlay-ci'
-            git config user.email 'actions@users.noreply.github.com'
-            git switch --orphan generated-operator-overlay-diagnostics
-            git rm -rf . >/dev/null 2>&1 || true
-            cp "$DIAG/operator-overlay-latest.txt" ./operator-overlay-latest.txt
-            git add operator-overlay-latest.txt
-            git commit -m "Operator overlay CI diagnostics for ${GITHUB_SHA}"
-            git push --force origin HEAD:refs/heads/generated/operator-overlay-diagnostics || true
+          SDK_ROOT="${ANDROID_SDK_ROOT:-${ANDROID_HOME:-/usr/local/lib/android/sdk}}"
+          test -d "$SDK_ROOT"
+          export ANDROID_SDK_ROOT="$SDK_ROOT"
+          export ANDROID_HOME="$SDK_ROOT"
+          SDKMANAGER="$SDK_ROOT/cmdline-tools/latest/bin/sdkmanager"
+          if [ ! -x "$SDKMANAGER" ]; then
+            SDKMANAGER="$(find "$SDK_ROOT/cmdline-tools" -type f -name sdkmanager -perm -111 2>/dev/null | head -1 || true)"
           fi
-          exit "$CODE"
+          test -n "$SDKMANAGER"
+          test -x "$SDKMANAGER"
+          yes | "$SDKMANAGER" --licenses >/dev/null 2>&1 || true
+          "$SDKMANAGER" 'platforms;android-35' 'build-tools;35.0.0' >/dev/null
+
+          GRADLE_HOME=/tmp/gradle-8.9
+          if [ ! -x "$GRADLE_HOME/bin/gradle" ]; then
+            curl -fsSL --retry 3 --retry-delay 2 \
+              https://services.gradle.org/distributions/gradle-8.9-bin.zip \
+              -o /tmp/gradle.zip
+            unzip -q /tmp/gradle.zip -d /tmp
+          fi
+
+          python -m py_compile tools/android_operator_overlay.py tools/android_phone_home_center_relay.py
+          node --check functions/phone_hands_relay.js
+          node tools/phone_hands_relay_contract_test.mjs
+          git diff --check
+
+          cd android/operator-overlay
+          "$GRADLE_HOME/bin/gradle" :app:assembleDebug --no-daemon --stacktrace
+          test -s app/build/outputs/apk/debug/app-debug.apk
 
       - name: Create immutable build receipt
         id: receipt
@@ -146,12 +111,6 @@ jobs:
           PY
           echo "sha256=$SHA" >> "$GITHUB_OUTPUT"
           cat build/operator-overlay/operator-overlay-receipt.json
-
-      - uses: actions/upload-artifact@v4
-        with:
-          name: operator-overlay-${{ github.sha }}
-          path: build/operator-overlay/
-          if-no-files-found: error
 
       - name: Publish exact APK from merged main
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
