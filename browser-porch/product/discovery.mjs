@@ -20,7 +20,7 @@ export class DiscoveryWorker {
     const label = publicLabel(command.target?.name);
     const key = sha256(JSON.stringify({publicOrigin, archetype, action: command.action, task: label.toLowerCase()}));
     const bucket = this.state.sites[site] ||= {publicOrigin, evidence: {}};
-    const row = bucket.evidence[key] ||= {pageArchetype: archetype, action: command.action, task: label || command.action, accessibleName: label, role: result.role || '', locatorStrategy: result.locatorStrategy || '', selectorHint: result.selectorHint || '', expectedPostcondition: expected(command.action), accessibilityFailure: result.accessibilityFailure || '', successes: 0, failures: 0, documents: []};
+    const row = bucket.evidence[key] ||= {pageArchetype: archetype, action: command.action, task: label || command.action, accessibleName: label, role: result.role || '', locatorStrategy: result.locatorStrategy || '', selectorHint: result.selectorHint || '', expectedPostcondition: expected(command.action), accessibilityFailure: result.accessibilityFailure || '', authRequired: Boolean(result.authRequired), successes: 0, failures: 0, documents: []};
     const doc = sha256(documentId || 'unknown');
     if (!row.documents.includes(doc)) row.documents.push(doc);
     row.successes += 1; row.lastVerifiedAt = new Date(this.clock()).toISOString();
