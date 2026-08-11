@@ -45,4 +45,7 @@ if ($ContinueArgs) {
 }
 
 & cn @cnArgs
-exit $LASTEXITCODE
+$continueExitCode = $LASTEXITCODE
+if ($continueExitCode -ne 0) {
+    throw "Continue CLI exited with code $continueExitCode."
+}
