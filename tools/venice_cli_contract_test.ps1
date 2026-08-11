@@ -18,13 +18,17 @@ $required = @(
     'venice-aperture.ps1',
     'VENICE_IDENTITY_PROFILE.md',
     '.env.venice',
+    'function Test-VeniceRecord',
     "speech.source -ne 'local-venice'",
     'exact Venice speech SHA-256 mismatch',
+    'aperture result failed identity/byte verification and no matching durable Nerve Silk record was found',
+    'Find-DurableApertureRecord -PromptSha256 $promptSha',
     'work\\nerve-silk\\latest.json',
     '127.0.0.1',
     '47261',
     'transformedByCli = $false',
     "cloudFallback = $false",
+    '[Console]::Error.WriteLine($errorEnvelope)',
     "exit 2",
     "exit 3",
     "exit 5"
@@ -42,4 +46,4 @@ if ($text -match 'computer_hands|shell\.exec|browser\.click|SendKeys|Set-Clipboa
 if (-not $installText.Contains("'venice.cmd'")) { throw 'installer must create the first-class venice command' }
 if (-not $installText.Contains("'venice.ps1'")) { throw 'installer must install the canonical CLI script' }
 
-Write-Output '{"ok":true,"contract":"home-center.venice-cli.v1","canonicalLocalSpeech":true,"cloudFallback":false,"bodySeparated":true}'
+Write-Output '{"ok":true,"contract":"home-center.venice-cli.v1","canonicalLocalSpeech":true,"durableRecovery":true,"cloudFallback":false,"bodySeparated":true}'
