@@ -45,7 +45,7 @@ if (overlayState.includes('getBoolean(KEY_CONTROL_ENABLED, true)')) throw new Er
 for (const s of ['screen_active_until_ms','screen_yield_until_ms','panel_collapsed','overlay_hidden']) if (!overlayProvider.includes(s)) throw new Error('operator state provider bounded state contract missing '+s);
 for (const s of ['MIN_TOUCH_TARGET_DP = 48','clampPosition','snapToNearestHorizontalEdge','shouldAutoCollapse','isDrag','nextHidden']) if (!overlayPolicy.includes(s)) throw new Error('operator overlay pure policy contract missing '+s);
 for (const s of ['gestureThresholdSeparatesTapFromDrag','dragArbitrationWorksInBothAxes','hideAndRestoreAreExplicitTransitions','edgeSnapChoosesNearestSafeEdge','autoCollapseWaitsForIdleAndNeverInterruptsDriving','positionClampsToInsetsAndEveryEdge','oversizedPanelStillLeavesLocalEscapeCornerReachable']) if (!overlayPolicyTest.includes(s)) throw new Error('operator overlay policy regression coverage missing '+s);
-if (!agent.includes("if kind=='status_say' and gate.get('muted')")) throw new Error('mute must suppress status speech at the relay');
+if (!agent.includes("if overlay_state.get('muted')")) throw new Error('mute must suppress status speech without requiring physical consent');
 if (!agent.includes("if kind in OVERLAY_ACTIONS")) throw new Error('overlay status/update actions must remain reachable when control is disabled');
 if (!agent.includes('gate=overlay_control_gate()')) throw new Error('visible-screen actions must pass the user-owned overlay control gate');
 const maintenanceBypass = agent.indexOf("if not screen:");
