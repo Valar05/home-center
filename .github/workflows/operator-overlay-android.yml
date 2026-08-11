@@ -96,14 +96,25 @@ jobs:
             "$GRADLE_HOME/bin/gradle" :app:assembleDebug --no-daemon --stacktrace
           ) 2>&1 | tee /tmp/operator-overlay-ci.log
           CODE=${PIPESTATUS[0]}
+
           if [ "$CODE" -ne 0 ] && [ "$GITHUB_EVENT_NAME" = 'push' ] && [ "$GITHUB_REF" = 'refs/heads/feature/operator-overlay-v1' ]; then
-            LOG="$(mktemp)"
-            tail -c 50000 /tmp/operator-overlay-ci.log > "$LOG"
+            mkdir -p tools/ci_diagnostics
+            {
+              printf 'Operator overlay CI failure\nrun=%s\nsource=%s\nexit=%s\n\n' "$GITHUB_RUN_ID" "$GITHUB_SHA" "$CODE"
+              tail -c 50000 /tmp/operator-overlay-ci.log
+            } > tools/ci_diagnostics/operator-overlay-latest.txt
+
+            git config user.name 'home-center-overlay-ci'
+            git config user.email 'actions@users.noreply.github.com'
+            git add tools/ci_diagnostics/operator-overlay-latest.txt
+            if ! git diff --cached --quiet; then
+              git commit -m 'Capture operator overlay CI failure'
+              git push origin HEAD:feature/operator-overlay-v1 || true
+            fi
+
             BODY="$(mktemp)"
             {
-              printf '### Operator overlay CI failure\n\nRun `%s`, source `%s`, exit `%s`.\n\n```text\n' "$GITHUB_RUN_ID" "$GITHUB_SHA" "$CODE"
-              cat "$LOG"
-              printf '\n```\n'
+              printf '### Operator overlay CI failure\n\nRun `%s`, source `%s`, exit `%s`. Durable scar: `tools/ci_diagnostics/operator-overlay-latest.txt`.\n' "$GITHUB_RUN_ID" "$GITHUB_SHA" "$CODE"
             } > "$BODY"
             gh api --method POST "repos/${GITHUB_REPOSITORY}/issues/223/comments" -f "body=$(cat "$BODY")" || true
           fi
