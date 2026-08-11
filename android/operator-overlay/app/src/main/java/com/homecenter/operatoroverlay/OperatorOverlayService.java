@@ -14,6 +14,7 @@ import android.os.IBinder;
 import android.os.Looper;
 import android.provider.Settings;
 import android.text.TextUtils;
+import android.text.method.ScrollingMovementMethod;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
@@ -41,9 +42,7 @@ public class OperatorOverlayService extends Service {
     private Button controlButton;
     private boolean expanded = false;
     private boolean confirmDisable = false;
-    private float downRawX;
     private float downRawY;
-    private int downX;
     private int downY;
 
     private final Runnable refresh = new Runnable() {
@@ -124,11 +123,10 @@ public class OperatorOverlayService extends Service {
     private void createOverlay() {
         windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
 
-        // The full-screen guard is intentionally a separate overlay window. It is
-        // added before the control strip so the strip remains usable above it.
-        // While control is enabled the guard consumes ordinary touches and keeps
-        // Drew from accidentally fighting Phone Hands. Disabling control makes the
-        // guard non-touchable without hiding the always-visible control strip.
+        // Separate full-screen guard: added first so the control strip remains on
+        // top. While control is enabled it consumes ordinary touches. When control
+        // is disabled it remains attached but becomes non-touchable, avoiding an
+        // ordering race that could ever cover the user's Disable/Enable button.
         touchGuard = new View(this);
         touchGuard.setOnTouchListener((view, event) -> true);
         guardParams = new WindowManager.LayoutParams(
@@ -174,6 +172,8 @@ public class OperatorOverlayService extends Service {
         latest.setMaxLines(2);
         latest.setEllipsize(TextUtils.TruncateAt.END);
         latest.setPadding(0, dp(2), 0, dp(2));
+        latest.setVerticalScrollBarEnabled(true);
+        latest.setMovementMethod(ScrollingMovementMethod.getInstance());
         latest.setOnClickListener(v -> {
             expanded = !expanded;
             applyExpandedState();
@@ -197,14 +197,14 @@ public class OperatorOverlayService extends Service {
         status.setOnTouchListener((view, event) -> {
             switch (event.getActionMasked()) {
                 case MotionEvent.ACTION_DOWN:
-                    downRawX = event.getRawX();
                     downRawY = event.getRawY();
-                    downX = windowParams.x;
                     downY = windowParams.y;
                     return true;
                 case MotionEvent.ACTION_MOVE:
-                    windowParams.x = downX + (int) (event.getRawX() - downRawX);
-                    windowParams.y = Math.max(0, downY + (int) (event.getRawY() - downRawY));
+                    int proposed = downY + (int) (event.getRawY() - downRawY);
+                    int maxY = Math.max(0, getResources().getDisplayMetrics().heightPixels - dp(64));
+                    windowParams.x = 0;
+                    windowParams.y = Math.max(0, Math.min(proposed, maxY));
                     windowManager.updateViewLayout(root, windowParams);
                     return true;
                 default:
@@ -244,6 +244,7 @@ public class OperatorOverlayService extends Service {
             latest.setMaxHeight(dp(560));
             latest.setEllipsize(null);
         } else {
+            latest.scrollTo(0, 0);
             latest.setMaxLines(2);
             latest.setMaxHeight(Integer.MAX_VALUE);
             latest.setEllipsize(TextUtils.TruncateAt.END);
