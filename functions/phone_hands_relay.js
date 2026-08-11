@@ -23,7 +23,7 @@ function cleanAction(value) {
   const body = safeObject(value);
   const action = safeText(body.action, 80);
   const allowed = new Set([
-    'observe','tap','swipe','text','keyevent','home','back','recents','launch','force_stop','dungeon_run','local_ask',
+    'observe','tap','swipe','text','keyevent','home','back','recents','launch','force_stop','dungeon_run','local_ask','phone_shell',
     'file_stat','file_hash','file_list','file_mkdir','file_copy','file_move','armory_inventory','armory_ingest','armory_doctor','armory_slice',
     'window_status','window_probe','window_compose','window_focus','window_swap',
     'status_tts_doctor','status_say',
