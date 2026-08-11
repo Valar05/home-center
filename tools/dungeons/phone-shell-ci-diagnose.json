@@ -2,7 +2,7 @@
   "name": "phone-shell-ci-diagnose",
   "owner": "Drew",
   "principal": "Adam",
-  "workspace": "~/storage/shared/GodotProjects/home-center",
+  "workspace": "~/storage/shared/Documents/GodotProjects/home-center-phone-hands",
   "objective": "Run the repository CI validation subset on the phone checkout and return the failing step/output without modifying code.",
   "steps": [
     {
