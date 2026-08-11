@@ -7,7 +7,7 @@ Browser Porch lets the existing Home Center Browser Nerve request a one-minute, 
 ## Components
 
 - `extension/`: minimal MV3 extension with only `activeTab`, `scripting`, and the loopback relay origin. It has no `cookies`, `tabs`, broad host, native messaging, or storage permission.
-- `relay.mjs`: loopback-only, memory-only broker. It carries pair intentions, receipts, one command at a time, completions, revocation, and append-only in-memory events.
+- `relay.mjs`: loopback-only, memory-only broker. It carries pair intentions, receipts, one command at a time, completions, revocation, and append-only in-memory events. Browser Nerve retrieval and command submission require the unhashed one-use intent nonce as an ephemeral lease proof; the receipt retains only its hash.
 - `contract.mjs`: exact origin/account/tab/tab-session/session/worker/commission/lease binding, replay controls, read-only default, and separately digest-bound mutation approval.
 
 The extension candidate executes only `inventory`. Although the contract defines two future mutation names and verifies a separate approval envelope, this candidate deliberately has no mutation executor. Extension restart loses the in-memory pairing and fails closed. The existing dedicated-profile Browser Nerve remains unchanged.
@@ -25,6 +25,7 @@ The extension candidate executes only `inventory`. Although the contract defines
 
 ```sh
 node --test browser-porch/contract.test.mjs
+node --test browser-porch/relay.test.mjs
 node --check browser-porch/contract.mjs
 node --check browser-porch/relay.mjs
 node --check browser-porch/extension/service-worker.js
