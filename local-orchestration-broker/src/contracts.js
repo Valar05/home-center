@@ -13,7 +13,7 @@ const STATES = Object.freeze({
 
 const CAPABILITY_KEYS = Object.freeze(['requested', 'implemented', 'tested', 'deployed', 'callable', 'delivered', 'accepted']);
 const READ_ONLY_OPERATIONS = Object.freeze(['health', 'identity']);
-const ADAPTER_NAMES = Object.freeze(['computer_hands', 'browser_nerve', 'venice_nerve', 'codex', 'continue', 'qwen', 'piper', 'local_assembler', 'local_playback', 'voice_aperture']);
+const ADAPTER_NAMES = Object.freeze(['computer_hands', 'browser_nerve', 'venice_nerve', 'venice_mobile', 'chatgpt', 'codex', 'continue', 'qwen', 'ollama', 'piper', 'local_assembler', 'local_playback', 'voice_aperture']);
 const SHA256 = /^[a-f0-9]{64}$/;
 const RFC3339 = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(?:\.\d{1,9})?Z$/;
 
@@ -210,21 +210,72 @@ function validateFindingCard(value) {
   return { ok: errors.length === 0, errors };
 }
 
-function validateReceipt(value) {
+function evidenceRecordPayload(value) {
+  const payload = { ...value };
+  delete payload.recordHash;
+  return payload;
+}
+
+function validateEvidenceRecord(value, path, errors, expectedKind) {
+  if (!isRecord(value)) return errors.push(`${path} must be a plain object`);
+  if (value.kind !== expectedKind) errors.push(`${path}.kind must be ${expectedKind}`);
+  for (const key of ['evidenceId', 'ref', 'verifierId']) requireText(value[key], `${path}.${key}`, errors);
+  for (const key of ['contentSha256', 'recordHash']) requireSha(value[key], `${path}.${key}`, errors);
+  requireRfc3339(value.verifiedAt, `${path}.verifiedAt`, errors);
+  if (expectedKind === 'ARTIFACT') {
+    if (!Number.isSafeInteger(value.byteSize) || value.byteSize < 0) errors.push(`${path}.byteSize must be a non-negative safe integer`);
+  }
+  if (expectedKind === 'TEST') {
+    requireText(value.command, `${path}.command`, errors);
+    requireSha(value.logSha256, `${path}.logSha256`, errors);
+    if (!Number.isSafeInteger(value.exitCode)) errors.push(`${path}.exitCode must be an integer`);
+    if (!/^[a-f0-9]{40}$/.test(value.head || '')) errors.push(`${path}.head must be a 40-character Git SHA`);
+  }
+  if (isRecord(value) && SHA256.test(value.recordHash || '') && sha256(evidenceRecordPayload(value)) !== value.recordHash) errors.push(`${path}.recordHash mismatch`);
+}
+
+function receiptDigestPayload(value) {
+  const payload = { ...value };
+  delete payload.receiptHash;
+  return payload;
+}
+
+function validateReceipt(value, options = {}) {
   const errors = [];
   if (!isRecord(value)) return { ok: false, errors: ['receipt must be a plain object'] };
-  for (const key of ['receiptId', 'commissionId', 'laneId', 'workerId', 'priorState', 'newState', 'remainingGate', 'nextAction']) requireText(value[key], `receipt.${key}`, errors);
+  for (const key of ['receiptId', 'commissionId', 'queueDocumentId', 'queueFolderId', 'queueRevision', 'stateOwner', 'laneId', 'workerId', 'sessionId', 'jobId', 'repository', 'worktree', 'branch', 'priorState', 'newState', 'remainingGate', 'nextAction']) requireText(value[key], `receipt.${key}`, errors);
   requireSha(value.commissionHash, 'receipt.commissionHash', errors);
+  requireSha(value.receiptHash, 'receipt.receiptHash', errors);
+  requireRfc3339(value.observedAt, 'receipt.observedAt', errors);
+  if (!/^[a-f0-9]{40}$/.test(value.head || '')) errors.push('receipt.head must be a 40-character Git SHA');
   requireEnum(value.jobState, STATES.job, 'receipt.jobState', errors);
   const capability = validateCapabilityStates(value.capabilityStates);
   errors.push(...capability.errors);
-  for (const key of ['artifacts', 'tests', 'findings']) requireStringArray(value[key], `receipt.${key}`, errors);
-  if (!Array.isArray(value.evidence) || value.evidence.length === 0) errors.push('receipt.evidence must be a non-empty array');
-  else value.evidence.forEach((item, index) => validateEvidence(item, `receipt.evidence[${index}]`, errors));
+  if (!Array.isArray(value.artifactEvidence)) errors.push('receipt.artifactEvidence must be an array');
+  else value.artifactEvidence.forEach((item, index) => validateEvidenceRecord(item, `receipt.artifactEvidence[${index}]`, errors, 'ARTIFACT'));
+  if (!Array.isArray(value.testEvidence)) errors.push('receipt.testEvidence must be an array');
+  else value.testEvidence.forEach((item, index) => validateEvidenceRecord(item, `receipt.testEvidence[${index}]`, errors, 'TEST'));
+  if (!Array.isArray(value.findingEvidence)) errors.push('receipt.findingEvidence must be an array');
+  else value.findingEvidence.forEach((finding, index) => {
+    if (!isRecord(finding)) return errors.push(`receipt.findingEvidence[${index}] must be a plain object`);
+    requireText(finding.findingId, `receipt.findingEvidence[${index}].findingId`, errors);
+    requireSha(finding.findingHash, `receipt.findingEvidence[${index}].findingHash`, errors);
+  });
   if (value.jobState === 'MATERIAL_TRANSITION') {
-    if (!Array.isArray(value.tests) || value.tests.length === 0) errors.push('MATERIAL_TRANSITION requires at least one test or verification receipt');
+    if (!Array.isArray(value.artifactEvidence) || value.artifactEvidence.length === 0) errors.push('MATERIAL_TRANSITION requires artifact evidence');
+    if (!Array.isArray(value.testEvidence) || value.testEvidence.length === 0) errors.push('MATERIAL_TRANSITION requires test evidence');
     if (value.priorState === value.newState) errors.push('MATERIAL_TRANSITION requires a changed state');
+    for (const record of value.testEvidence || []) {
+      if (record.exitCode !== 0) errors.push('MATERIAL_TRANSITION test evidence must have exitCode=0');
+      if (record.head !== value.head) errors.push('MATERIAL_TRANSITION test evidence head must equal receipt head');
+    }
+    if (typeof options.resolveEvidence !== 'function') errors.push('MATERIAL_TRANSITION requires a trusted evidence resolver');
+    else for (const record of [...(value.artifactEvidence || []), ...(value.testEvidence || [])]) {
+      const resolved = options.resolveEvidence(record.ref);
+      if (!isRecord(resolved) || canonicalJson(resolved) !== canonicalJson(record)) errors.push(`trusted evidence resolution failed for ${record.ref}`);
+    }
   }
+  if (errors.length === 0 && sha256(receiptDigestPayload(value)) !== value.receiptHash) errors.push('receipt.receiptHash mismatch');
   return { ok: errors.length === 0, errors };
 }
 
@@ -247,6 +298,8 @@ module.exports = {
   validateCapabilityStates,
   validateFindingCard,
   validateReceipt,
+  evidenceRecordPayload,
+  receiptDigestPayload,
   commissionDigestPayload,
   computeCommissionHash,
   canonicalJson,

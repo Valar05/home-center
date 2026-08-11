@@ -8,6 +8,7 @@ const {
   requireText,
   requireSha,
   requireRfc3339,
+  canonicalJson,
   sha256
 } = require('./contracts');
 
@@ -74,16 +75,18 @@ function validateQueueLease(lease) {
 function authorizeCompactionFence(lease, trusted, now) {
   const validation = validateQueueLease(lease);
   if (!validation.ok) throw new BrokerGateError('INVALID_LEASE', validation.errors.join('; '));
-  if (!isRecord(trusted)) throw new BrokerGateError('TRUST_STATE_MISSING', 'trusted queue fence is required');
+  if (!isRecord(trusted) || typeof trusted.registryId !== 'string' || trusted.registryId.trim()==='' || !Number.isSafeInteger(trusted.revision) || trusted.revision < 0 || !isRecord(trusted.leaseRecord) || !isRecord(trusted.records) || !Array.isArray(trusted.consumedLeaseIds) || !Array.isArray(trusted.consumedIdempotencyKeys)) throw new BrokerGateError('TRUST_STATE_MISSING', 'complete trusted persistent lease registry is required');
   requireNow(now);
-  equal(lease.documentId, trusted.documentId, 'QUEUE_MISMATCH', 'queue document');
-  equal(lease.folderId, trusted.folderId, 'QUEUE_MISMATCH', 'queue folder');
-  equal(lease.revision, trusted.revision, 'STALE_REVISION', 'queue revision');
-  equal(lease.stateOwner, trusted.stateOwner, 'OWNER_MISMATCH', 'state owner');
-  equal(lease.holderId, trusted.holderId, 'OWNER_MISMATCH', 'lease holder');
-  equal(lease.fencingToken, trusted.fencingToken, 'STALE_FENCE', 'fencing token');
+  const trustedValidation = validateQueueLease(trusted.leaseRecord);
+  if (!trustedValidation.ok) throw new BrokerGateError('TRUST_STATE_INVALID', trustedValidation.errors.join('; '));
+  equal(canonicalRecord(lease), canonicalRecord(trusted.leaseRecord), 'LEASE_IDENTITY_MISMATCH', 'complete lease record');
+  if (trusted.consumedLeaseIds.includes(lease.leaseId)) throw new BrokerGateError('LEASE_REPLAY', 'lease already consumed');
   if (Date.parse(now) >= Date.parse(lease.expiresAt)) throw new BrokerGateError('LEASE_EXPIRED', 'queue lease expired');
-  return Object.freeze({ authorized: true, leaseId: lease.leaseId, fencingToken: lease.fencingToken, requiredRevision: lease.revision });
+  const consumed = { ...lease, consumedAt: now };
+  if (canonicalRecord(trusted.records[lease.leaseId])!==canonicalRecord(lease)) throw new BrokerGateError('LEASE_IDENTITY_MISMATCH','registry lease record mismatch');
+  const cas = createConsumptionCas({ registry: trusted, recordId: lease.leaseId, currentRecord: lease, nextRecord: consumed, idempotencyKey: `queue-lease:${lease.leaseId}:${lease.leaseDigest}` });
+  const casValidation=validateConsumptionCas(cas,trusted); if(!casValidation.ok) throw new BrokerGateError('INVALID_CAS',casValidation.errors.join('; '));
+  return Object.freeze({ authorized: true, leaseId: lease.leaseId, leaseDigest: lease.leaseDigest, fencingToken: lease.fencingToken, requiredRevision: lease.revision, registryId: trusted.registryId, expectedRegistryRevision: trusted.revision, cas: Object.freeze(cas) });
 }
 
 function approvalDigestPayload(approval) {
@@ -124,17 +127,64 @@ function validateApproval(approval) {
   return { ok: errors.length === 0, errors };
 }
 
-function authorizeApproval(approval, requested, now) {
+function authorizeApproval(approval, requested, now, trustedRegistry) {
   const validation = validateApproval(approval);
   if (!validation.ok) throw new BrokerGateError('INVALID_APPROVAL', validation.errors.join('; '));
   if (!isRecord(requested)) throw new BrokerGateError('APPROVAL_SCOPE_MISSING', 'requested approval scope is required');
+  if (!isRecord(trustedRegistry) || !isRecord(trustedRegistry.records) || !isRecord(trustedRegistry.records[approval.approvalId]) || !Array.isArray(trustedRegistry.consumedIdempotencyKeys)) throw new BrokerGateError('TRUST_STATE_MISSING', 'trusted persistent approval registry is required');
   requireNow(now);
+  equal(canonicalRecord(approval), canonicalRecord(trustedRegistry.records[approval.approvalId]), 'APPROVAL_IDENTITY_MISMATCH', 'complete approval record');
   if (approval.state !== 'GRANTED_SCOPED' || approval.useCount !== 0) throw new BrokerGateError('APPROVAL_UNAVAILABLE', 'approval is not an unused scoped grant');
   if (Date.parse(now) >= Date.parse(approval.expiresAt)) throw new BrokerGateError('APPROVAL_EXPIRED', 'approval expired');
   for (const key of ['actor', 'action', 'target', 'artifactDigest', 'environment', 'commissionHash']) equal(approval[key], requested[key], 'APPROVAL_SCOPE_MISMATCH', key);
+  const idempotencyKey = requested.idempotencyKey;
+  if (typeof idempotencyKey !== 'string' || idempotencyKey.trim() === '') throw new BrokerGateError('APPROVAL_SCOPE_MISSING', 'approval idempotencyKey is required');
+  if (trustedRegistry.consumedIdempotencyKeys.includes(idempotencyKey)) throw new BrokerGateError('APPROVAL_REPLAY', 'approval idempotency key already consumed');
   const consumed = { ...approval, state: 'CONSUMED', useCount: 1, consumedAt: now };
   consumed.approvalDigest = sha256(approvalDigestPayload(consumed));
-  return Object.freeze(consumed);
+  const cas = createConsumptionCas({ registry: trustedRegistry, recordId: approval.approvalId, currentRecord: approval, nextRecord: consumed, idempotencyKey });
+  return Object.freeze({ consumed: Object.freeze(consumed), cas: Object.freeze(cas) });
+}
+
+function createConsumptionCas({ registry, recordId, currentRecord, nextRecord, idempotencyKey }) {
+  const value = {
+    registryId: registry.registryId,
+    expectedRegistryRevision: registry.revision,
+    recordId,
+    expectedRecordHash: sha256(currentRecord),
+    nextRecord,
+    nextRecordHash: sha256(nextRecord),
+    idempotencyKey
+  };
+  value.casHash = sha256(value);
+  return value;
+}
+
+function validateConsumptionCas(cas, trustedRegistry) {
+  const errors = [];
+  if (!isRecord(cas) || !isRecord(trustedRegistry) || !isRecord(trustedRegistry.records)) return { ok: false, errors: ['CAS and trusted registry must be plain objects'] };
+  for (const key of ['registryId', 'recordId', 'idempotencyKey']) requireText(cas[key], `cas.${key}`, errors);
+  for (const key of ['expectedRecordHash', 'nextRecordHash', 'casHash']) requireSha(cas[key], `cas.${key}`, errors);
+  if (!Number.isSafeInteger(cas.expectedRegistryRevision) || cas.expectedRegistryRevision !== trustedRegistry.revision) errors.push('CAS registry revision mismatch');
+  if (cas.registryId !== trustedRegistry.registryId) errors.push('CAS registry identity mismatch');
+  const current = trustedRegistry.records[cas.recordId];
+  if (!isRecord(current) || sha256(current) !== cas.expectedRecordHash) errors.push('CAS current record mismatch');
+  if (!isRecord(cas.nextRecord) || sha256(cas.nextRecord) !== cas.nextRecordHash) errors.push('CAS next record mismatch');
+  if (!Array.isArray(trustedRegistry.consumedIdempotencyKeys) || trustedRegistry.consumedIdempotencyKeys.includes(cas.idempotencyKey)) errors.push('CAS idempotency replay');
+  if (isRecord(cas)) {
+    const payload = { ...cas };
+    delete payload.casHash;
+    if (SHA256_LIKE(cas.casHash) && sha256(payload) !== cas.casHash) errors.push('CAS hash mismatch');
+  }
+  return { ok: errors.length === 0, errors };
+}
+
+function canonicalRecord(value) {
+  return canonicalJson(value);
+}
+
+function SHA256_LIKE(value) {
+  return typeof value === 'string' && /^[a-f0-9]{64}$/.test(value);
 }
 
 function requireNow(now) {
@@ -151,5 +201,7 @@ module.exports = {
   authorizeCompactionFence,
   approvalDigestPayload,
   validateApproval,
-  authorizeApproval
+  authorizeApproval,
+  createConsumptionCas,
+  validateConsumptionCas
 };

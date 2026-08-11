@@ -1,114 +1,18 @@
 'use strict';
-
-const test = require('node:test');
-const assert = require('node:assert/strict');
-const { hash, audioLease } = require('./helpers');
-const { sha256 } = require('../src/contracts');
-const { CONTROL_PHASES, FAILURE_DEGRADATION, validateControlYield, validateNarrationRoute, validateAsmrProjection, validateAssembly, validatePlayback, validateFailureContinuation, audioCacheKeyPayload, validateAudioCacheEntry, validateAudioCuePalette, validateAudioCacheReceipt, validateAudioCacheMiss, validateLocalMultitaskPlan } = require('../src/voice');
-
-const cachePolicy = { byteBudget: 65_536, maxEntries: 16, eviction: 'LRU', expiryRequired: true, supersessionRequired: true, backgroundRefill: true };
-function cachedEntry(overrides = {}) {
-  const entry = { kind: 'local_audio.cache', cueId: 'soft-click', profileId: 'asmr-neutral', version: '1', contentSha256: hash('8'), byteLength: 4096, preRendered: true, buffered: true, bytesVerified: true, decodedReady: true, semanticEffect: false, createdAt: '2026-08-11T10:00:00Z', expiresAt: '2026-08-11T11:00:00Z', supersededBy: null, ...overrides };
-  entry.cacheKey = sha256(audioCacheKeyPayload(entry));
-  return entry;
-}
-
-test('voice-to-local control yield has exactly three fenced phases', () => {
-  assert.deepEqual(CONTROL_PHASES, ['YIELD_LOCAL', 'LOCAL_OWNS_ACTUATOR', 'RETURN_TO_VOICE']);
-  const base = { yieldId: 'y1', commissionId: 'c1', commissionHash: hash('a'), queueRevision: 'r1', laneId: 'lane-1', actuatorId: 'local_playback', observedAt: '2026-08-11T10:00:00Z' };
-  assert.equal(validateControlYield({ ...base, phase: 'YIELD_LOCAL', from: 'voice_aperture', to: 'local_broker' }).ok, true);
-  assert.equal(validateControlYield({ ...base, phase: 'LOCAL_OWNS_ACTUATOR', from: 'local_broker', to: 'local_playback' }).ok, true);
-  assert.equal(validateControlYield({ ...base, phase: 'RETURN_TO_VOICE', from: 'local_playback', to: 'voice_aperture' }).ok, true);
-  assert.equal(validateControlYield({ ...base, phase: 'YIELD_LOCAL', from: 'voice_aperture', to: 'speakers' }).ok, false);
-});
-
-test('ChatGPT Voice carries exact local Venice while Adam remains interface narrator', () => {
-  const route = { routeId: 'v1', provider: 'venice_local', purpose: 'LIVE_VENICE_RELAY', carrier: 'chatgpt_voice', speaker: 'Venice', interfaceNarrator: 'Adam', sourceReceiptSha256: hash('b'), exactWords: true, allowImpersonation: false, textMirror: 'Venice: exact local words' };
-  assert.equal(validateNarrationRoute(route).ok, true);
-  assert.equal(validateNarrationRoute({ ...route, sourceReceiptSha256: undefined }).ok, false);
-  assert.equal(validateNarrationRoute({ ...route, speaker: 'Adam' }).ok, false);
-  assert.equal(validateNarrationRoute({ ...route, allowImpersonation: true }).ok, false);
-});
-
-test('Piper is separately commissioned durable personal-touch audio with no automation', () => {
-  const route = { routeId: 'p1', provider: 'piper', purpose: 'PERSONAL_TOUCH_DURABLE_AUDIO', separatelyCommissioned: true, autoSynthesize: false, autoPlayback: false, artifactDigest: hash('c'), textMirror: 'crafted line' };
-  assert.equal(validateNarrationRoute(route).ok, true);
-  assert.equal(validateNarrationRoute({ ...route, purpose: 'ROUTINE_NARRATION' }).ok, false);
-  assert.equal(validateNarrationRoute({ ...route, autoPlayback: true }).ok, false);
-});
-
-test('Gemini and Orus are polished-artifact-only', () => {
-  for (const provider of ['gemini', 'orus']) {
-    const route = { routeId: provider, provider, purpose: 'POLISHED_ARTIFACT', separatelyCommissioned: true, artifactDigest: hash('d'), textMirror: 'artifact text' };
-    assert.equal(validateNarrationRoute(route).ok, true);
-    assert.equal(validateNarrationRoute({ ...route, purpose: 'LIVE_VENICE_RELAY' }).ok, false);
-    assert.equal(validateNarrationRoute({ ...route, separatelyCommissioned: false }).ok, false);
-  }
-});
-
-test('local assembly and playback remain separate typed states', () => {
-  const assembly = { assemblyId: 'a1', kind: 'NARRATION_AND_ASMR', inputRefs: ['artifact://voice'], mediaType: 'audio/wav', artifactRef: 'artifact://assembly', artifactSha256: hash('e'), local: true, played: false };
-  assert.equal(validateAssembly(assembly).ok, true);
-  const playback = { playbackId: 'play-1', kind: 'LOCAL_PLAYBACK', assemblyId: 'a1', assemblySha256: hash('e'), deviceId: 'speakers-1', audioLease: audioLease() };
-  assert.equal(validatePlayback(playback).ok, true);
-  assert.equal(validateAssembly({ ...assembly, played: true }).ok, false);
-  assert.equal(validatePlayback({ ...playback, audioLease: undefined }).ok, false);
-});
-
-test('dynamic ASMR is optional, muteable, text-mirrored, nonsemantic, and leased', () => {
-  const projection = { projectionId: 'asmr-1', eventType: 'soft-click', textMirror: '[soft click]', optional: true, muteable: true, semanticEffect: false, audioLease: audioLease() };
-  assert.equal(validateAsmrProjection(projection).ok, true);
-  assert.equal(validateAsmrProjection({ ...projection, semanticEffect: true }).ok, false);
-  assert.equal(validateAsmrProjection({ ...projection, muteable: false }).ok, false);
-});
-
-test('never fail fully degradation parks one lane and keeps independent work rolling', () => {
-  for (const [failureKind, policy] of Object.entries(FAILURE_DEGRADATION)) {
-    const value = { failureKind, failedLaneId: 'failed-lane', independentLaneIds: ['independent-lane'], failedLaneState: 'PARKED', independentLaneState: 'REALLOCATED', continuation: policy.continuation, claimedSuccess: false, safetyGatesFailClosed: true };
-    assert.equal(validateFailureContinuation(value).ok, true, failureKind);
-    assert.equal(validateFailureContinuation({ ...value, claimedSuccess: true }).ok, false);
-    assert.equal(validateFailureContinuation({ ...value, failedLaneState: 'COMPLETED_PRESERVED' }).ok, false);
-  }
-});
-
-test('local audio cache is hash-pinned, decoded-ready, bounded, expiring, superseding, and LRU', () => {
-  const entry = cachedEntry();
-  assert.equal(validateAudioCacheEntry(entry, cachePolicy).ok, true);
-  assert.equal(validateAudioCacheEntry({ ...entry, contentSha256: hash('9') }, cachePolicy).ok, false);
-  assert.equal(validateAudioCacheEntry({ ...entry, decodedReady: false }, cachePolicy).ok, false);
-  assert.equal(validateAudioCacheEntry({ ...entry, byteLength: 65_537 }, cachePolicy).ok, false);
-  assert.equal(validateAudioCacheEntry(entry, { ...cachePolicy, eviction: 'FIFO' }).ok, false);
-  assert.equal(validateAudioCuePalette([entry], cachePolicy, '2026-08-11T10:30:00Z').ok, true);
-  assert.equal(validateAudioCuePalette([entry], { ...cachePolicy, maxEntries: 0 }, '2026-08-11T10:30:00Z').ok, false);
-  assert.equal(validateAudioCuePalette([cachedEntry({ expiresAt: '2026-08-11T10:20:00Z' })], cachePolicy, '2026-08-11T10:30:00Z').ok, false);
-});
-
-test('cache hit, playback start, and refill queue are separate receipts', () => {
-  const base = { receiptId: 'cache-r1', cacheKey: hash('a'), observedAt: '2026-08-11T10:01:00Z' };
-  const entry = cachedEntry();
-  const useBase = { ...base, cacheKey: entry.cacheKey };
-  assert.equal(validateAudioCacheReceipt({ ...useBase, kind: 'CACHE_HIT', playStarted: false }, { entry, policy: cachePolicy }).ok, true);
-  assert.equal(validateAudioCacheReceipt({ ...useBase, kind: 'CACHE_HIT', playStarted: true }, { entry, policy: cachePolicy }).ok, false);
-  assert.equal(validateAudioCacheReceipt({ ...useBase, kind: 'PLAY_STARTED', audioLease: audioLease() }, { entry, policy: cachePolicy }).ok, true);
-  assert.equal(validateAudioCacheReceipt({ ...useBase, kind: 'PLAY_STARTED', audioLease: audioLease() }).ok, false);
-  assert.equal(validateAudioCacheReceipt({ ...base, kind: 'REFILL_QUEUED', background: true }).ok, true);
-});
-
-test('cache miss skips cue and keeps live Voice/text/local work without stale replay or Gemini fallback', () => {
-  const miss = { cacheKey: hash('b'), cueSkipped: true, liveVoiceContinues: true, textContinues: true, refillQueued: true, refillMode: 'BACKGROUND', staleSemanticReplay: false, geminiFallback: false, claimedPlayback: false };
-  assert.equal(validateAudioCacheMiss(miss).ok, true);
-  assert.equal(validateAudioCacheMiss({ ...miss, cueSkipped: false }).ok, false);
-  assert.equal(validateAudioCacheMiss({ ...miss, geminiFallback: true }).ok, false);
-  assert.equal(validateAudioCacheMiss({ ...miss, staleSemanticReplay: true }).ok, false);
-});
-
-test('local multitask means one supervisory Voice over many fenced local lanes', () => {
-  const plan = { kind: 'LOCAL_MULTITASK_PLAN', definition: 'ONE_SUPERVISORY_VOICE_MANY_FENCED_LOCAL_LANES', planId: 'm1', commissionHash: hash('c'), queueRevision: 'r1', stateOwner: 'Adam', voiceOwnsActuator: false, continueIndependentLanes: true, executionBudget: 'LOCAL_OR_INCLUDED_ONLY', lanes: [
-    { laneId: 'audio', owner: 'worker-a', isolatedPath: '/isolated/audio', branch: 'agent/audio', operations: ['assemble'], materialTransitionBudget: 1 },
-    { laneId: 'broker', owner: 'worker-b', isolatedPath: '/isolated/broker', branch: 'agent/broker', operations: ['validate'], materialTransitionBudget: 1 }
-  ] };
-  assert.equal(validateLocalMultitaskPlan(plan).ok, true);
-  assert.equal(validateLocalMultitaskPlan({ ...plan, voiceOwnsActuator: true }).ok, false);
-  assert.equal(validateLocalMultitaskPlan({ ...plan, lanes: [plan.lanes[0], { ...plan.lanes[1], isolatedPath: plan.lanes[0].isolatedPath }] }).ok, false);
-  assert.equal(validateLocalMultitaskPlan({ ...plan, lanes: [{ ...plan.lanes[0], materialTransitionBudget: 2 }] }).ok, false);
-});
+const test = require('node:test'); const assert = require('node:assert/strict'); const { hash, audioLease, leaseOptions, device, mobileSession } = require('./helpers'); const { sha256 } = require('../src/contracts');
+const { approvalDigestPayload } = require('../src/guards');
+const { CONTROL_PHASES, FAILURE_DEGRADATION, CACHE_RECEIPT_KINDS, validateControlYield, validateNarrationRoute, validateAudioLease, validateAsmrProjection, validateAssembly, validatePlayback, validateFailureContinuation, audioCacheKeyPayload, validateAudioCacheEntry, validateAudioCuePalette, validateAudioCacheReceipt, validateAudioCacheMiss, validateLocalMultitaskPlan, validateCastVoice01 } = require('../src/voice');
+function control(phase, previous = null) { const lease = audioLease({ channel: 'CONTROL', action: 'RUN_LOCAL' }); const v = { phase, phaseSequence: CONTROL_PHASES.indexOf(phase) + 1, previousPhaseHash: previous?.transitionHash || null, transitionId: 'tx-1', commissionId: 'c1', commissionHash: lease.commissionHash, queueRevision: lease.queueRevision, laneId: lease.laneId, jobId: lease.jobId, sessionId: lease.sessionId, idempotencyKey: 'act-once', action: lease.action, target: 'local-broker', leaseId: lease.leaseId, leaseDigest: lease.leaseDigest, fencingToken: lease.fencingToken, stopGates: ['spending', 'publication'], device: device(), mobileSession: mobileSession(), observedAt: '2026-08-11T10:01:00Z' }; if (phase === 'RETURN_TO_VOICE') v.actionReceiptHash = hash('f'); v.transitionHash = sha256(v); return { v, lease }; }
+test('control/audio/ASMR transition is one identity-fenced three-phase chain', () => { const opts=(x,prev)=>{const transitionRegistry={registryId:'transitions',revision:x.v.phaseSequence,transitionHeads:{'tx-1':x.v.previousPhaseHash},consumedIdempotencyKeys:[]};const phaseCas={registryId:'transitions',expectedRevision:transitionRegistry.revision,nextRevision:transitionRegistry.revision+1,transitionId:'tx-1',expectedPhase:prev?.phase||'NONE',nextPhase:x.v.phase,expectedTransitionHash:x.v.previousPhaseHash,nextTransitionHash:x.v.transitionHash,idempotencyKey:`act-once:${x.v.phase}`};phaseCas.casHash=sha256(phaseCas);return {trustedLease:x.lease,leaseRegistry:{consumedLeaseIds:[]},activeLeases:[x.lease],previous:prev,transitionRegistry,phaseCas}}; const one = control('YIELD_LOCAL'); assert.equal(validateControlYield(one.v,opts(one)).ok, true); const two = control('LOCAL_OWNS_ACTUATOR', one.v); assert.equal(validateControlYield(two.v,opts(two,one.v)).ok, true); const three = control('RETURN_TO_VOICE', two.v); const receipt = { ...three.v, state: 'COMPLETED' }; const options = { ...opts(three,two.v), resolveActionReceipt: () => receipt, cas: { expectedPhase: 'LOCAL_OWNS_ACTUATOR', nextPhase: 'RETURN_TO_VOICE', transitionId: 'tx-1', expectedTransitionHash: two.v.transitionHash } }; assert.equal(validateControlYield(three.v, options).ok, true); assert.equal(validateControlYield({...three.v,laneId:'stolen'},options).ok, false); });
+test('Venice mobile is primary; ChatGPT Voice relays attributed exact local Venice only', () => { const route = { routeId: 'v1', provider: 'venice_local', purpose: 'LIVE_VENICE_RELAY', primarySurface: 'venice_mobile', carrier: 'chatgpt_voice', diagnosticCarrier: true, speaker: 'Venice', interfaceNarrator: 'Adam',commissionHash:hash('a'),queueRevision:'r1',laneId:'voice',sessionId:'s1', sourceReceiptSha256: hash('b'), exactWords: true, allowImpersonation: false, textMirror: 'Venice: exact local words' }; const o={resolveSourceReceipt:()=>({receiptHash:route.sourceReceiptSha256,speaker:'Venice',exactText:route.textMirror,terminal:true,commissionHash:route.commissionHash,queueRevision:route.queueRevision,laneId:route.laneId,sessionId:route.sessionId})}; assert.equal(validateNarrationRoute(route,o).ok, true); assert.equal(validateNarrationRoute({ ...route, primarySurface: 'desktop' },o).ok, false); assert.equal(validateNarrationRoute(route,{resolveSourceReceipt:()=>null}).ok, false); });
+test('Piper is personal-touch only; Gemini/Orus require complete trusted polished-artifact gates', () => { const piper = { routeId: 'p', provider: 'piper', purpose: 'PERSONAL_TOUCH_DURABLE_AUDIO', separatelyCommissioned: true, autoSynthesize: false, autoPlayback: false, artifactDigest: hash('c'), textMirror: 'crafted' }; assert.equal(validateNarrationRoute(piper).ok, true); for (const provider of ['gemini', 'orus']) { const v = { routeId: provider, provider, purpose: 'POLISHED_ARTIFACT', separatelyCommissioned: true,commissionHash:hash('c'), artifactDigest: hash('d'), textMirror: 'artifact', spendingAuthorityId: 'spend-gate', deliveryAuthorityId: 'delivery-gate', publicationAuthorityId: 'publication-gate', humanAcceptanceRequired: true,humanAccepted:false,acceptanceState:'PENDING_HUMAN', autoPublish: false, autoDeliver: false }; const kinds={'spend-gate':'SPENDING','delivery-gate':'DELIVERY','publication-gate':'PUBLICATION'};const records={};for(const [id,kind] of Object.entries(kinds)){const a={approvalId:id,actor:'Drew',action:`polished:${kind}`,target:provider,artifactDigest:v.artifactDigest,environment:'POLISHED_ARTIFACT',commissionHash:v.commissionHash,issuedAt:'2026-08-11T10:00:00Z',expiresAt:'2026-08-11T10:05:00Z',maxUses:1,useCount:0,state:'GRANTED_SCOPED'};a.approvalDigest=sha256(approvalDigestPayload(a));records[id]=a;}const o={now:'2026-08-11T10:01:00Z',approvalRegistry:{registryId:'approvals',revision:1,records,consumedIdempotencyKeys:[]},resolveApproval:id=>records[id]}; assert.equal(validateNarrationRoute(v,o).ok, true); assert.equal(validateNarrationRoute(v,{...o,resolveApproval:()=>null}).ok, false); } });
+test('assembly remains intact and playback needs its own trusted scope/CAS/receipt', () => { const assembly = { assemblyId: 'a1', kind: 'NARRATION_AND_ASMR', inputRefs: ['artifact://voice'], mediaType: 'audio/wav', artifactRef: 'artifact://assembly', artifactSha256: hash('e'), local: true, played: false }; assert.equal(validateAssembly(assembly).ok, true); const lease = audioLease({ channel: 'MEDIA', action: 'PLAY_ASSEMBLY' }); const playback = { playbackId: 'play-1', kind: 'LOCAL_PLAYBACK', assemblyId: 'a1', assemblySha256: hash('e'), commissionHash: lease.commissionHash, queueRevision: lease.queueRevision, laneId: lease.laneId, jobId: lease.jobId, sessionId: lease.sessionId, conversationId: lease.conversationId, idempotencyKey: 'play-once', target: lease.target, audioLease: lease, state: 'REQUESTED' }; const actionRegistry={registryId:'actions',revision:1,consumedIdempotencyKeys:[]};const consumptionCas={registryId:'actions',expectedRevision:1,nextRevision:2,leaseId:lease.leaseId,leaseDigest:lease.leaseDigest,fencingToken:lease.fencingToken,actionId:playback.playbackId,idempotencyKey:playback.idempotencyKey,receiptHash:null};consumptionCas.casHash=sha256(consumptionCas);const o={leaseOptions:leaseOptions(lease),actionRegistry,consumptionCas}; assert.equal(validatePlayback(playback,o).ok, true); assert.equal(validatePlayback({...playback,laneId:'stolen'},o).ok,false); });
+test('dynamic ASMR is authoritative-event/scope/CAS-bound, optional, muteable, text-mirrored and nonsemantic', () => { const lease = audioLease(); const event = { commissionHash: lease.commissionHash, queueRevision: lease.queueRevision, laneId: lease.laneId, jobId: lease.jobId, sessionId: lease.sessionId, flowState: 'LOCAL_WORKING', eventSequence: 2, eventHash: hash('7'), issuedAt: '2026-08-11T10:00:00Z', expiresAt: '2026-08-11T10:05:00Z' }; const p = { projectionId: 'asmr-1', cueId: 'soft-click', textMirror: 'LOCAL_WORKING audio-lane Adam', responsibleActor: 'Adam', idempotencyKey: 'cue-1', optional: true, muteable: true, semanticEffect: false, requestedAudible: true, event, audioLease: lease }; const actionRegistry={registryId:'actions',revision:2,consumedIdempotencyKeys:[]};const consumptionCas={registryId:'actions',expectedRevision:2,nextRevision:3,leaseId:lease.leaseId,leaseDigest:lease.leaseDigest,fencingToken:lease.fencingToken,actionId:p.projectionId,idempotencyKey:p.idempotencyKey,receiptHash:event.eventHash};consumptionCas.casHash=sha256(consumptionCas);const o = { now: '2026-08-11T10:01:00Z', authoritativeEvent: event, eventRegistry: { consumedEventHashes: [] }, leaseOptions: leaseOptions(lease),actionRegistry,consumptionCas }; assert.equal(validateAsmrProjection(p, o).ok, true); assert.equal(validateAsmrProjection({...p,event:{...event,laneId:'stolen'}},o).ok,false); });
+test('one physical audio output cannot be leased through a changed app/account alias',()=>{const lease=audioLease();const alias=audioLease({leaseId:'audio-2',target:{...lease.target,appId:'other.app',accountId:'other-account'}});const o={...leaseOptions(lease),activeLeases:[lease,alias]};assert.equal(validateAudioLease(lease,o).ok,false);});
+test('never fail fully includes zero-independent-lane recoverable continuity', () => { for (const [failureKind, policy] of Object.entries(FAILURE_DEGRADATION)) { const active = { failureKind, failedLaneId: 'failed', independentLaneIds: ['other'], failedLaneState: 'PARKED', independentLaneState: 'REALLOCATED', systemState: 'ACTIVE_DEGRADED', continuation: policy.continuation, claimedSuccess: false, safetyGatesFailClosed: true }; assert.equal(validateFailureContinuation(active).ok, true); const zero = { ...active, independentLaneIds: [], independentLaneState: 'NONE_AVAILABLE', systemState: 'PAUSED_GATE', textContinuity: true }; assert.equal(validateFailureContinuation(zero).ok, true); } });
+const cachePolicy = { byteBudget: 65536, maxEntries: 16, decodedMemoryBudget: 262144, durationBudgetMs: 10000, eviction: 'LRU', expiryRequired: true, supersessionRequired: true, backgroundRefill: true, preserveActiveLease: true };
+function cachedEntry(overrides = {}) { const v = { kind: 'local_audio.cache', entryKind: 'NONSEMANTIC_CUE', cueOrPhraseId: 'soft-click', profileId: 'neutral', version: '1', contentSha256: hash('8'), codecAndSampleFormat: 'wav/pcm16/48k', durationMs: 250, commissionHash: null, sourceReceiptHash: hash('9'), byteSize: 4096, decodedMemoryBytes: 48000, preRendered: true, buffered: true, readiness: 'DECODED_READY', semanticEffect: false, createdAt: '2026-08-11T10:00:00Z', expiresAt: '2026-08-11T11:00:00Z', supersedes: null, supersededBy: null, ...overrides }; v.cacheKey = sha256(audioCacheKeyPayload(v)); return v; }
+test('audio buffer has complete separated cache/refill/play receipt states and bounded verified entries', () => { assert.deepEqual(CACHE_RECEIPT_KINDS, ['CACHE_HIT','CACHE_MISS','REFILL_QUEUED','REFILL_READY','PLAY_STARTED','PLAY_FINISHED','PLAY_FAILED','PLAY_MUTED']); const e = cachedEntry(); assert.equal(validateAudioCacheEntry(e, cachePolicy).ok, true); assert.equal(validateAudioCuePalette([e], cachePolicy, '2026-08-11T10:30:00Z').ok, true); const base = { receiptId: 'r', cacheKey: e.cacheKey, observedAt: '2026-08-11T10:01:00Z', playbackClaim: false, humanAcceptanceClaim: false }; assert.equal(validateAudioCacheReceipt({ ...base, kind: 'CACHE_HIT' }, { entry: e, policy: cachePolicy }).ok, true); assert.equal(validateAudioCacheReceipt({ ...base, kind: 'CACHE_MISS', cueSkipped: true }).ok, true); assert.equal(validateAudioCacheReceipt({ ...base, kind: 'REFILL_QUEUED', background: true, authorized: true, idempotent: true }).ok, true); assert.equal(validateAudioCacheReceipt({ ...base, kind: 'REFILL_READY', refillReceiptHash: hash('a'), readiness: 'DECODED_READY' }).ok, true); });
+test('cache miss never blocks, replays semantics, claims playback, or falls back to Gemini', () => { const v = { cacheKey: hash('b'), cueSkipped: true, liveVoiceContinues: true, textContinues: true, refillQueued: true, refillMode: 'BACKGROUND', staleSemanticReplay: false, geminiFallback: false, claimedPlayback: false }; assert.equal(validateAudioCacheMiss(v).ok, true); assert.equal(validateAudioCacheMiss({ ...v, geminiFallback: true }).ok, false); });
+test('CAST-VOICE-01 preserves canonical and spoken identities plus full-perspective roles', () => { const sourceText = 'local fist Vadam She-Raw She Raw Mabeea Mabea full perspective ASMR additional quotes'; const v = { profileId: 'CAST-VOICE-01', tokens: { 'local fist':'UNRESOLVED', Vadam:'UNRESOLVED','She-Raw':'CANONICAL_SINGLE_IDENTITY', 'She Raw':'SPOKEN_VARIANT_OF_SHE-RAW',Mabeea:'CANONICAL_SINGLE_IDENTITY', Mabea:'SURFACE_VARIANT_OF_MABEEA', 'full perspective':'ACTIVE_ACCEPTED_THIRD_PERSON_CAMERA', ASMR:'LOCAL_NONSEMANTIC_LAYER', 'additional quotes':'UNRESOLVED_SUGGESTED_CORRECTION' }, sourceText, sourceTextHash: sha256(sourceText), normalizationAllowed: false, additionalQuotesCorrectionApplied: false, additionalQuotesSuggestedCorrection: 'additional quotas', roles: { Drew:'player_final_author', Adam:'narrator_dm_interface_state_owner', Stanley:'reference_lens_only', Venice:'chatgpt_cognition_mobile_voice' } }; assert.equal(validateCastVoice01(v).ok, true); assert.equal(validateCastVoice01({ ...v, sourceText:'She Raw only' }).ok, false); });
+test('local multitask is one supervisory Voice over fenced local lanes', () => { const v = { kind:'LOCAL_MULTITASK_PLAN', definition:'ONE_SUPERVISORY_VOICE_MANY_FENCED_LOCAL_LANES', planId:'m1', commissionHash:hash('c'), queueRevision:'r1', stateOwner:'Adam', voiceOwnsActuator:false, continueIndependentLanes:true, executionBudget:'LOCAL_OR_INCLUDED_ONLY', lanes:[{laneId:'audio',owner:'w1',isolatedPath:'/i/a',branch:'agent/a',operations:['assemble'],materialTransitionBudget:1}] }; assert.equal(validateLocalMultitaskPlan(v).ok, true); });

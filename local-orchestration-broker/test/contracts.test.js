@@ -2,8 +2,8 @@
 
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const { STATES, validateCommissionEnvelope, validateStateRecord, validateFindingCard, validateReceipt, canonicalJson, sha256 } = require('../src/contracts');
-const { hash, capabilityStates, commission, evidence } = require('./helpers');
+const { STATES, validateCommissionEnvelope, validateStateRecord, validateFindingCard, validateReceipt, receiptDigestPayload, canonicalJson, sha256 } = require('../src/contracts');
+const { hash, gitHead, capabilityStates, commission, artifactEvidence, testEvidence } = require('./helpers');
 
 test('state vocabularies are exact and reject invented states', () => {
   for (const [kind, value] of [['queue', 'OPEN'], ['lane', 'TRANSITION_VERIFIED'], ['job', 'MATERIAL_TRANSITION'], ['session', 'NONRESUMABLE_PROVEN'], ['approval', 'CONSUMED'], ['compaction', 'COMPACTED_READBACK_VERIFIED']]) assert.equal(validateStateRecord(kind, value).ok, true);
@@ -57,10 +57,19 @@ test('finding requires evidence, routing, and acknowledgements', () => {
 });
 
 test('material transition requires strict capability states and evidence', () => {
-  const receipt = { receiptId: 'r1', commissionId: 'c1', commissionHash: hash('e'), laneId: 'l1', workerId: 'w1', jobState: 'MATERIAL_TRANSITION', priorState: 'REVIEW_FAILED', newState: 'REVIEW_GAPS_REPAIRED_AND_TESTED_CANDIDATE', capabilityStates, artifacts: ['artifact://candidate'], tests: ['npm test'], evidence: [evidence()], findings: [], remainingGate: 'independent review', nextAction: 'review' };
-  assert.equal(validateReceipt(receipt).ok, true);
-  assert.equal(validateReceipt({ ...receipt, evidence: [] }).ok, false);
-  assert.equal(validateReceipt({ ...receipt, tests: [] }).ok, false);
+  const artifact = artifactEvidence();
+  const testReceipt = testEvidence();
+  const receipt = { receiptId: 'r1', commissionId: 'c1', commissionHash: hash('e'), queueDocumentId: 'doc', queueFolderId: 'folder', queueRevision: 'r1', stateOwner: 'Adam', laneId: 'l1', workerId: 'w1', sessionId: 's1', jobId: 'j1', repository: 'Valar05/home-center', worktree: '/isolated', branch: 'agent/broker', head: gitHead('a'), observedAt: '2026-08-11T10:02:00Z', jobState: 'MATERIAL_TRANSITION', priorState: 'REVIEW_FAILED', newState: 'REVIEW_GAPS_REPAIRED_AND_TESTED_CANDIDATE', capabilityStates, artifactEvidence: [artifact], testEvidence: [testReceipt], findingEvidence: [{ findingId: 'f1', findingHash: hash('1') }], remainingGate: 'independent review', nextAction: 'review' };
+  receipt.receiptHash = sha256(receiptDigestPayload(receipt));
+  const evidence = new Map([[artifact.ref, artifact], [testReceipt.ref, testReceipt]]);
+  const options = { resolveEvidence: ref => evidence.get(ref) };
+  assert.equal(validateReceipt(receipt, options).ok, true);
+  assert.equal(validateReceipt({ ...receipt, artifactEvidence: [] }, options).ok, false);
+  assert.equal(validateReceipt({ ...receipt, testEvidence: [] }, options).ok, false);
+  assert.equal(validateReceipt(receipt, {}).ok, false);
+  assert.equal(validateReceipt(receipt, { resolveEvidence: () => ({ ...artifact, contentSha256: hash('9') }) }).ok, false);
   assert.equal(validateReceipt({ ...receipt, capabilityStates: { implemented: true } }).ok, false);
   assert.equal(validateReceipt({ ...receipt, newState: receipt.priorState }).ok, false);
+  assert.equal(validateReceipt({ ...receipt, testEvidence: [{ ...testReceipt, exitCode: 1 }] }, options).ok, false);
+  assert.equal(validateReceipt({ ...receipt, testEvidence: [{ ...testReceipt, head: gitHead('b') }] }, options).ok, false);
 });
