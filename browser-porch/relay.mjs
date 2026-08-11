@@ -3,9 +3,10 @@ import {randomUUID} from 'node:crypto';
 import {createEphemeralState, createPairReceipt, authorizeCommand, revokePairing, sha256, validatePairIntent} from './contract.mjs';
 
 const state = createEphemeralState();
-export function createRelay({host = '127.0.0.1', port = 9234, extensionOrigin = process.env.HOME_CENTER_BROWSER_PORCH_EXTENSION_ORIGIN, nerveCapability = process.env.HOME_CENTER_BROWSER_PORCH_NERVE_CAPABILITY, eventSink = async () => {}} = {}) {
+export function createRelay({host = '127.0.0.1', port = 9234, extensionOrigin = process.env.HOME_CENTER_BROWSER_PORCH_EXTENSION_ORIGIN, nerveCapability = process.env.HOME_CENTER_BROWSER_PORCH_NERVE_CAPABILITY, eventSink} = {}) {
   if (!/^chrome-extension:\/\/[a-p]{32}$/.test(String(extensionOrigin || ''))) throw new Error('exact Browser Porch extension origin is required');
   if (String(nerveCapability || '').length < 32) throw new Error('ephemeral Browser Nerve capability is required');
+  if (typeof eventSink !== 'function') throw new Error('durable Home Center event sink integration is required');
   const state = createEphemeralState();
   const intents = new Map();
   const pending = new Map();
@@ -40,7 +41,8 @@ export function createRelay({host = '127.0.0.1', port = 9234, extensionOrigin = 
         if (!row) return send(res, 409, {ok: false, error: 'INTENT_NOT_REGISTERED'}, extensionOrigin);
         const observation = input.observation || {};
         if (!/^[A-Za-z0-9_.:-]{6,180}$/.test(String(observation.documentId || ''))) return send(res, 400, {ok: false, error: 'DOCUMENT_ID_REQUIRED'}, extensionOrigin);
-        const tabKey = `${extensionOrigin}:${observation.windowId}:${observation.tabId}:${observation.documentId}`;
+        retireExpired(Date.now());
+        const tabKey = `${extensionOrigin}:${observation.windowId}:${observation.tabId}`;
         if (activeTabs.has(tabKey)) return send(res, 409, {ok: false, error: 'TAB_LEASE_BUSY'}, extensionOrigin);
         const receipt = createPairReceipt(row.intent, {...observation, tabSessionId: observation.documentId, leaseId: `lease-${randomUUID()}`}, state);
         intents.delete(input.pairingId);
@@ -57,14 +59,17 @@ export function createRelay({host = '127.0.0.1', port = 9234, extensionOrigin = 
       if (req.method === 'POST' && url.pathname === '/v1/command') {
         requireNerve(req, nerveCapability);
         const command = await body(req);
+        retireExpired(Date.now());
         const receipt = state.receipts.get(command.pairingId);
         if (!receipt) return send(res, 404, {ok: false, error: 'PAIRING_UNKNOWN'});
+        if (state.revoked.has(command.pairingId) || receipt.expiresAtMs <= Date.now()) return send(res, 410, {ok: false, error: 'PAIRING_INACTIVE'});
         if (pending.has(command.pairingId)) return send(res, 409, {ok: false, error: 'PAIRING_LEASE_BUSY'});
         pending.set(command.pairingId, command);
         return send(res, 202, {ok: true, commandId: command.commandId});
       }
       if (req.method === 'GET' && url.pathname === '/v1/command') {
         requireExtension(req, extensionOrigin);
+        retireExpired(Date.now());
         const command = pending.get(url.searchParams.get('pairingId'));
         return command ? send(res, 200, {command}, extensionOrigin) : send(res, 204, undefined, extensionOrigin);
       }
@@ -104,6 +109,15 @@ export function createRelay({host = '127.0.0.1', port = 9234, extensionOrigin = 
       return send(res, Number(error.status) || 400, {ok: false, error: error.code || 'BROWSER_PORCH_FAILED', detail: error.message}, req.headers.origin === extensionOrigin ? extensionOrigin : undefined);
     }
   }).listen(port, host);
+
+  function retireExpired(nowMs) {
+    for (const [pairingId, receipt] of state.receipts) {
+      if (receipt.expiresAtMs > nowMs || state.revoked.has(pairingId)) continue;
+      state.revoked.add(pairingId);
+      pending.delete(pairingId);
+      for (const [key, value] of activeTabs) if (value === pairingId) activeTabs.delete(key);
+    }
+  }
 }
 
 function requireExtension(req, extensionOrigin) {
@@ -139,5 +153,3 @@ function send(res, status, value, origin) {
   if (origin) cors(res, origin);
   res.end(status === 204 ? '' : JSON.stringify(value));
 }
-
-if (process.argv[1] === new URL(import.meta.url).pathname) createRelay();
