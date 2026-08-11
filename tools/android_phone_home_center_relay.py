@@ -19,6 +19,7 @@ from android_armory_driver import execute as armory_execute
 from android_window_composer import execute as window_execute
 from android_phone_status_tts import execute as status_tts_execute
 from android_phone_termux_shell import execute as termux_shell_execute
+from android_phone_diagnostics import execute as diagnostics_execute
 from android_operator_overlay import (
     execute as overlay_execute,
     heartbeat as overlay_heartbeat,
@@ -34,12 +35,13 @@ ARMORY_ACTIONS={'armory_doctor','armory_slice'}
 WINDOW_ACTIONS={'window_status','window_probe','window_compose','window_focus','window_swap'}
 STATUS_TTS_ACTIONS={'status_tts_doctor','status_say'}
 TERMUX_SHELL_ACTIONS={'phone_shell'}
+DIAGNOSTIC_ACTIONS={'phone_diagnostics'}
 OVERLAY_ACTIONS={'operator_overlay_status','operator_overlay_start','operator_overlay_update'}
 SCREEN_DIRECT_ACTIONS={'tap','swipe','text','keyevent','home','back','recents','launch','force_stop'}
 SCREEN_WINDOW_ACTIONS={'window_compose','window_focus','window_swap'}
 DEVICE_CAPABILITIES=[
     'phone_hands','phone_files','armory_worker','window_composer','status_tts','termux_shell',
-    'operator_overlay','local_qwen','coding_dungeon','voice'
+    'operator_overlay','local_qwen','coding_dungeon','voice','phone_diagnostics_readonly'
 ]
 
 
@@ -142,6 +144,11 @@ def _dispatch_after_gate(action):
 
 def execute_action(action):
     kind=action.get('action')
+    # Drew's PHONE_DIAGNOSTICS_READONLY authority is a fixed-field, read-only
+    # plane.  It has no caller command/path and must remain independent from
+    # the visible interaction overlay.
+    if kind in DIAGNOSTIC_ACTIONS:
+        return diagnostics_execute(action)
     if kind in OVERLAY_ACTIONS:
         return overlay_execute(action)
 
