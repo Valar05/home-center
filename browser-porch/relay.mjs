@@ -1,5 +1,5 @@
 import http from 'node:http';
-import {createEphemeralState, createPairReceipt, authorizeCommand, revokePairing, validatePairIntent} from './contract.mjs';
+import {createEphemeralState, createPairReceipt, authorizeCommand, revokePairing, sha256, validatePairIntent} from './contract.mjs';
 
 const state = createEphemeralState();
 let intent = null;
@@ -24,9 +24,18 @@ export function createRelay({host = '127.0.0.1', port = 9234} = {}) {
         intent = null;
         return send(res, 201, {ok: true, receipt});
       }
+      if (req.method === 'GET' && url.pathname === '/v1/pairing') {
+        const receipt = state.receipts.get(url.searchParams.get('pairingId'));
+        if (!receipt) return send(res, 404, {ok: false, error: 'PAIRING_UNKNOWN'});
+        requireLeaseProof(req, receipt);
+        return send(res, 200, {receipt});
+      }
       if (req.method === 'POST' && url.pathname === '/v1/command') {
         const command = await body(req);
-        if (!state.receipts.has(command.pairingId)) return send(res, 404, {ok: false, error: 'PAIRING_UNKNOWN'});
+        const receipt = state.receipts.get(command.pairingId);
+        if (!receipt) return send(res, 404, {ok: false, error: 'PAIRING_UNKNOWN'});
+        requireLeaseProof(req, receipt);
+        if (pending.has(command.pairingId)) return send(res, 409, {ok: false, error: 'PAIRING_LEASE_BUSY'});
         pending.set(command.pairingId, command);
         return send(res, 202, {ok: true, commandId: command.commandId});
       }
@@ -58,6 +67,11 @@ export function createRelay({host = '127.0.0.1', port = 9234} = {}) {
       return send(res, 400, {ok: false, error: error.code || 'BROWSER_PORCH_FAILED', detail: error.message});
     }
   }).listen(port, host);
+}
+
+function requireLeaseProof(req, receipt) {
+  const proof = String(req.headers['x-browser-porch-lease'] || '');
+  if (!proof || sha256(proof) !== receipt.nonceHash) throw Object.assign(new Error('ephemeral lease proof mismatch'), {code: 'LEASE_PROOF_MISMATCH'});
 }
 
 async function body(req) {
