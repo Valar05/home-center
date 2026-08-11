@@ -6,6 +6,17 @@ Operate the primary Android phone through the authorized Home Center -> Phone Ha
 ## Authorized execution lane
 Use Home Center `command_center.phone_hands.*` against `primary-phone`. Prefer bounded `phone_shell` actions for Termux work. Do not substitute desktop, local scratch, Codex, or another device as deployment proof.
 
+## Executable handoff standard
+Whenever the user must touch Termux manually, the handoff is not complete until it contains one exact command they can paste and run immediately from their current shell.
+
+- The command must include any required `cd`, `git pull`, permissions, environment setup, or interpreter selection. Do not hand over only a filename, commit, repo fact, or vague instruction.
+- The interpreter in the command must match the script syntax. If the handoff says `sh script.sh`, the script must be valid under `sh`; do not use Bash-only `set -o pipefail`, `[[ ... ]]`, arrays, `source`, or other Bashisms.
+- Prefer POSIX `sh` for recovery/bootstrap scripts unless Bash is actually required. If Bash is required, invoke it explicitly with `bash script.sh` and ensure Bash exists in the target Termux environment.
+- Before publishing a recovery script, syntax-check it with the same interpreter the user will invoke. For POSIX scripts use `sh -n path/to/script.sh`; for Bash use `bash -n path/to/script.sh`.
+- A shebang does not save an explicitly wrong invocation. `sh ./script.sh` ignores a Bash shebang for language semantics.
+- User-facing recovery commands should be minimal and copy-pasteable. Avoid requiring them to infer working directory, executable bit, branch state, or interpreter.
+- If a handed-off command fails, fix the canonical script or command in the repository first, update this skill with the lesson, then give the corrected executable handoff. Do not leave the fix only in chat.
+
 ## One-command relay recovery
 When the primary phone still appears registered but `lastSeenAtMs` stops advancing and newly enqueued commands remain untouched, treat that as a relay-consumption failure rather than repeatedly polling stale command records.
 
@@ -14,6 +25,10 @@ The canonical recovery entrypoint is:
 `sh tools/home_center_phone_relay_recover.sh`
 
 Run it from the phone repo. It is idempotent: if the relay process is alive it leaves it alone; if absent it starts exactly one fresh relay, waits only on local process/log evidence, and prints a machine-readable receipt. Do not manually reconstruct the old `nohup python ...` incantation unless this script itself is broken.
+
+The preferred full user handoff is:
+
+`cd /storage/emulated/0/Documents/GodotProjects/home-center-phone-hands && git pull --ff-only origin main && sh tools/home_center_phone_relay_recover.sh`
 
 After recovery, use one fresh Home Center command to verify command consumption. If that command is consumed, continue the original job from actual phone state rather than rerunning completed installation steps.
 
