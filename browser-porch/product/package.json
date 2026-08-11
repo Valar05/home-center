@@ -1,0 +1,11 @@
+{
+  "name": "@porchlight/internet-access-map",
+  "version": "0.8.0",
+  "private": true,
+  "description": "A deterministic worker and living accessibility map of the internet",
+  "type": "module",
+  "engines": {"node": ">=22"},
+  "bin": {"porchlight": "./cli.mjs", "porchlight-map": "./map-cli.mjs"},
+  "scripts": {"test": "node --test product.test.mjs", "build": "node build-map.mjs . dist", "freshness": "node freshness.mjs ."},
+  "license": "AGPL-3.0-or-later"
+}
