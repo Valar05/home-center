@@ -26,8 +26,8 @@ for (const s of overlayActions) {
 for (const forbidden of ['operator_overlay_enable','operator_overlay_disable','operator_overlay_set_control']) {
   if (relay.includes(forbidden) || overlay.includes(forbidden)) throw new Error('remote control-toggle mutation must not exist: '+forbidden);
 }
-for (const s of ['controlEnabled','muted','control_gate','STATE_URI','content query','ACTION_UPDATE','ACTION_HEARTBEAT','pm list packages']) if (!overlay.includes(s)) throw new Error('operator overlay enforcement/detection contract missing '+s);
-if (overlay.includes("pm path {shlex.quote(PACKAGE)}")) throw new Error('overlay installed detection must not rely on pm path stderr behavior');
+for (const s of ['controlEnabled','muted','control_gate','STATE_URI','content query','ACTION_UPDATE','ACTION_HEARTBEAT','STATE_READ_ATTEMPTS','_read_state','operator state provider returned an incomplete row','dumpsys package','Home Center operator overlay is required; refusing remote phone control',"integer('control_enabled', 0)"]) if (!overlay.includes(s)) throw new Error('operator overlay fail-closed enforcement contract missing '+s);
+if (overlay.includes("if not state.get('installed'):\n        return state")) throw new Error('missing overlay state must never bypass the user control gate');
 for (const s of ['/data/local/tmp/home-center-operator-overlay.apk','STAGED_SHA','pm install -r','grep -qx \'Success\'','pm list packages $PACKAGE','SYSTEM_ALERT_WINDOW: allow','control_enabled=']) if (!overlayInstaller.includes(s)) throw new Error('operator overlay installer verification contract missing '+s);
 if (overlayInstaller.includes("pm install -r '$OUT'")) throw new Error('installer must not pass shared-storage Termux path directly to system_server');
 for (const s of ['SYSTEM_ALERT_WINDOW','FOREGROUND_SERVICE_SPECIAL_USE','RECEIVE_BOOT_COMPLETED','android.permission.DUMP','OperatorOverlayService','OperatorStateProvider','BootReceiver']) if (!overlayManifest.includes(s)) throw new Error('operator overlay Android manifest missing '+s);
@@ -50,4 +50,4 @@ for (const s of ['ALLOWED_ROOTS','verified_copy','sha256_file','glb_inventory','
 for (const s of ['--background','slice_receipt.json','blender_path','timeoutSeconds']) if (!armoryDriver.includes(s)) throw new Error('armory driver contract missing '+s);
 for (const s of ['separate(type=\'LOOSE\')','parts.json','contact_sheet_all_parts.png','reassembled.glb','semanticCategory']) if (!armoryBlender.includes(s)) throw new Error('armory Blender contract missing '+s);
 if (relay.includes('deviceToken:'+' token')) throw new Error('device token must not be returned by MCP');
-console.log('phone hands relay + operator overlay guard + verified install/detection + offline pass-through + Termux shell + deterministic factory + Armory slicer contract: PASS');
+console.log('phone hands relay + operator overlay guard + fail-closed state gate + verified install + offline pass-through + Termux shell + deterministic factory + Armory slicer contract: PASS');
