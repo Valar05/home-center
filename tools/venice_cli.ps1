@@ -261,6 +261,19 @@ function Invoke-CanonicalVenice([string]$Prompt) {
     }
 }
 
+function Confirm-VeniceSessionThread {
+    param([string]$ExpectedThreadId, $Result)
+    $currentThreadId = ''
+    try { $currentThreadId = [string]$Result.diagnostics.workstationThreadId } catch {}
+    if (-not $currentThreadId) {
+        throw 'VERIFICATION_FAILED: Venice REPL turn did not return a Workstation thread id; multi-turn continuity is unproven'
+    }
+    if ($ExpectedThreadId -and $currentThreadId -ne $ExpectedThreadId) {
+        throw ("VERIFICATION_FAILED: Venice REPL thread changed from $ExpectedThreadId to $currentThreadId; refusing amnesiac session")
+    }
+    return $currentThreadId
+}
+
 function Write-ExactSpeech([string]$Text) {
     $bytes = [Text.Encoding]::UTF8.GetBytes($Text)
     $stream = [Console]::OpenStandardOutput()
@@ -273,7 +286,7 @@ function Show-Help {
 Venice CLI — canonical local Venice, not a cloud fallback.
 
 Usage:
-  venice                         interactive local Venice
+  venice                         interactive local Venice; Workstation thread id is pinned and verified
   venice <prompt>                one-shot prompt; stdout is exact Venice speech bytes
   venice ask <prompt>            explicit one-shot prompt
   venice doctor                  readiness report
@@ -328,7 +341,8 @@ function Invoke-OneShot([string]$Prompt) {
 try {
     if (-not $CommandOrPrompt) {
         if ($Json) { throw 'BAD_INVOCATION: -Json requires a one-shot prompt' }
-        Write-Host 'Venice local. /quit exits; /doctor inspects canonical runtime.'
+        Write-Host 'Venice local. /quit exits; /doctor inspects canonical runtime. Workstation thread continuity is verified every turn.'
+        $sessionThreadId = ''
         while ($true) {
             $line = Read-Host 'venice'
             if ($null -eq $line) { break }
@@ -340,6 +354,7 @@ try {
                 continue
             }
             $result = Invoke-CanonicalVenice $line
+            $sessionThreadId = Confirm-VeniceSessionThread -ExpectedThreadId $sessionThreadId -Result $result
             Write-ExactSpeech ([string]$result.speech.text)
             Write-Host ''
         }
