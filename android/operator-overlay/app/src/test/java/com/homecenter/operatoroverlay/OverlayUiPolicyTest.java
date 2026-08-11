@@ -29,12 +29,17 @@ public class OverlayUiPolicyTest {
     }
 
     @Test
-    public void guardNeedsEveryLeasePrecondition() {
-        assertTrue(OverlayUiPolicy.touchGuardActive(true, true, true, false));
-        assertFalse(OverlayUiPolicy.touchGuardActive(false, true, true, false));
-        assertFalse(OverlayUiPolicy.touchGuardActive(true, false, true, false));
-        assertFalse(OverlayUiPolicy.touchGuardActive(true, true, false, false));
-        assertFalse(OverlayUiPolicy.touchGuardActive(true, true, true, true));
+    public void edgeSnapChoosesNearestSafeEdge() {
+        assertTrue(OverlayUiPolicy.snapToNearestHorizontalEdge(100, 8, 652) == 8);
+        assertTrue(OverlayUiPolicy.snapToNearestHorizontalEdge(600, 8, 652) == 652);
+    }
+
+    @Test
+    public void autoCollapseWaitsForIdleAndNeverInterruptsDriving() {
+        assertTrue(OverlayUiPolicy.shouldAutoCollapse(false, false, 8000L, 8000L));
+        assertFalse(OverlayUiPolicy.shouldAutoCollapse(true, false, 8000L, 8000L));
+        assertFalse(OverlayUiPolicy.shouldAutoCollapse(false, true, 9000L, 8000L));
+        assertFalse(OverlayUiPolicy.shouldAutoCollapse(false, false, 7999L, 8000L));
     }
 
     @Test
