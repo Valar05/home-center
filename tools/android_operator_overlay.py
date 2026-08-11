@@ -22,8 +22,11 @@ def _shell(command: str, timeout: float = 20) -> str:
 
 
 def installed() -> bool:
-    out = _shell(f'pm path {shlex.quote(PACKAGE)} 2>/dev/null || true')
-    return 'package:' in out
+    # `pm path` writes its successful package path to stderr under this rish build,
+    # while run_rish intentionally returns stdout only on successful commands.
+    # Package listing is stable stdout and therefore safe for deterministic gating.
+    out = _shell(f'pm list packages {shlex.quote(PACKAGE)} 2>/dev/null || true')
+    return f'package:{PACKAGE}' in {line.strip() for line in out.splitlines()}
 
 
 def _start_service() -> str:
