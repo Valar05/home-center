@@ -4,6 +4,7 @@ const relay=fs.readFileSync('functions/phone_hands_relay.js','utf8');
 const patcher=fs.readFileSync('tools/apply_phone_hands_relay_wiring.mjs','utf8');
 const agent=fs.readFileSync('tools/android_phone_home_center_relay.py','utf8');
 const shell=fs.readFileSync('tools/android_phone_termux_shell.py','utf8');
+const diagnostics=fs.readFileSync('tools/android_phone_diagnostics.py','utf8');
 const overlay=fs.readFileSync('tools/android_operator_overlay.py','utf8');
 const overlayInstaller=fs.readFileSync('tools/setup_android_operator_overlay.sh','utf8');
 const overlayWorkflow=fs.readFileSync('.github/workflows/operator-overlay-android.yml','utf8');
@@ -19,9 +20,15 @@ const armoryBlender=fs.readFileSync('tools/fleshpunk_armory_blender.py','utf8');
 const requiredRelay=['command_center.phone_hands.devices','command_center.phone_hands.enqueue','command_center.phone_hands.get','devicePull','deviceComplete','registerDevice'];
 for (const s of requiredRelay) if (!relay.includes(s)) throw new Error('relay contract missing '+s);
 for (const s of ["require('./phone_hands_relay')",'registerCommandCenterPhoneTools','exports.phoneHandsRelay']) if (!patcher.includes(s)) throw new Error('wiring patch missing '+s);
-for (const s of ['termuxTokenRefresh','android_phone_hands_bridge','dungeon_run','local_ask','/pull','/complete','android_phone_factory_tools','android_armory_driver','FACTORY_ACTIONS','ARMORY_ACTIONS','android_phone_termux_shell','TERMUX_SHELL_ACTIONS','android_operator_overlay','OVERLAY_ACTIONS','overlay_control_gate','overlay_heartbeat']) if (!agent.includes(s)) throw new Error('phone agent contract missing '+s);
+for (const s of ['termuxTokenRefresh','android_phone_hands_bridge','dungeon_run','local_ask','/pull','/complete','android_phone_factory_tools','android_armory_driver','FACTORY_ACTIONS','ARMORY_ACTIONS','android_phone_termux_shell','TERMUX_SHELL_ACTIONS','android_phone_diagnostics','DIAGNOSTIC_ACTIONS','phone_diagnostics_readonly','android_operator_overlay','OVERLAY_ACTIONS','overlay_control_gate','overlay_heartbeat']) if (!agent.includes(s)) throw new Error('phone agent contract missing '+s);
 for (const s of ["'phone_shell'",'timeoutSeconds','MAX_OUTPUT_CHARS','SECRET_PATTERNS','subprocess.run']) if (!shell.includes(s)) throw new Error('Termux shell contract missing '+s);
 if (!relay.includes("'phone_shell'")) throw new Error('relay action missing phone_shell');
+for (const s of ["'phone_diagnostics'",'cleanPhoneDiagnostics','phone.diagnostics.request.v1','GODOT_PROJECTS','commissionHash','previousChunkHash']) if (!relay.includes(s)) throw new Error('typed phone diagnostics relay contract missing '+s);
+for (const s of ['ROOTS','GODOT_PROJECTS','DiagnosticsEngine','capability_snapshot','tree_inventory','repo_status','toolchain_probe','cache_probe','file_manifest','PENDING_HOME_CENTER_POSTBACK','UNKNOWN_NO_EXEC','followlinks=False']) if (!diagnostics.includes(s)) throw new Error('phone diagnostics implementation contract missing '+s);
+for (const forbidden of ['import subprocess','import urllib','import socket','import requests','shell=True','os.system','eval(','exec(']) {
+  if (diagnostics.includes(forbidden)) throw new Error('phone diagnostics must not execute, write, or use network: '+forbidden);
+}
+if (agent.indexOf('if kind in DIAGNOSTIC_ACTIONS:') > agent.indexOf('gate=overlay_control_gate()')) throw new Error('typed diagnostics must not depend on the interaction overlay gate');
 
 const overlayActions=['operator_overlay_status','operator_overlay_start','operator_overlay_update'];
 for (const s of overlayActions) {
@@ -35,7 +42,7 @@ for (const s of ['controlEnabled','muted','control_gate','STATE_URI','content qu
 if (overlay.includes("if not state.get('installed'):\n        return state")) throw new Error('missing overlay state must never bypass the user control gate');
 for (const s of ['/data/local/tmp/home-center-operator-overlay.apk','STAGED_SHA','pm install -r',"grep -qx 'Success'",'pm list packages $PACKAGE','SYSTEM_ALERT_WINDOW: allow','control_enabled=']) if (!overlayInstaller.includes(s)) throw new Error('operator overlay installer verification contract missing '+s);
 if (overlayInstaller.includes("pm install -r '$OUT'")) throw new Error('installer must not pass shared-storage Termux path directly to system_server');
-for (const s of ['version_name = match.group(1)',"'touchGuardWhileEnabled': False","'touchGuardMode': 'active_screen_lease'","'activeScreenLeaseRequired': True","'panelDraggable': True","'panelCollapsible': True","'freshInstallControlOff': True","'dragTargetMinDp': 48","'positionPersistent': True","'safeAreaClamp': True","'hiddenStatePersistent': True","'localRestoreControlOff': True"]) if (!overlayWorkflow.includes(s)) throw new Error('operator overlay immutable receipt policy missing '+s);
+for (const s of ['operator-overlay-debug.keystore','keytool -genkeypair','APKSIGNER','signingCertificateSha256',"'durableSigningKey': True",'version_name = match.group(1)',"'touchGuardWhileEnabled': False","'touchGuardMode': 'active_screen_lease'","'activeScreenLeaseRequired': True","'panelDraggable': True","'panelCollapsible': True","'freshInstallControlOff': True","'dragTargetMinDp': 48","'positionPersistent': True","'safeAreaClamp': True","'hiddenStatePersistent': True","'localRestoreControlOff': True"]) if (!overlayWorkflow.includes(s)) throw new Error('operator overlay immutable receipt policy missing '+s);
 if (overlayWorkflow.includes("'versionName': '1.0.0'")) throw new Error('overlay workflow must derive artifact version from Gradle');
 for (const s of ['SYSTEM_ALERT_WINDOW','FOREGROUND_SERVICE_SPECIAL_USE','RECEIVE_BOOT_COMPLETED','android.permission.DUMP','OperatorOverlayService','OperatorStateProvider','BootReceiver']) if (!overlayManifest.includes(s)) throw new Error('operator overlay Android manifest missing '+s);
 for (const s of ['ACTION_SCREEN_ACTIVITY','ACTION_RESTORE','REMOTE INPUT • ACTIVE','REMOTE INPUT • local screen input temporarily reserved','REMOTE INPUT • action pulse','Hide overlay','panelCollapsed','screenActiveUntilMs','screenYieldUntilMs','Confirm disable','Disable control','Enable control','Mute speech','Unmute speech','HOME CENTER • ON','HOME CENTER • OFFLINE','CONTROL OFF','setMaxLines(30)','setMaxLines(2)','touchGuard','MATCH_PARENT','FLAG_NOT_TOUCHABLE','syncTouchGuard','setOnTouchListener((view, event) -> true)','ScrollingMovementMethod','setVerticalScrollBarEnabled(true)','ViewConfiguration','getScaledTouchSlop','MIN_TOUCH_TARGET_DP','setOverlayPosition','onConfigurationChanged','addOnLayoutChangeListener','WindowInsets.Type.displayCutout','touchGuardActive']) if (!overlayService.includes(s)) throw new Error('operator overlay polished active-screen/draggable/compact UI contract missing '+s);
@@ -65,4 +72,4 @@ for (const s of ['ALLOWED_ROOTS','verified_copy','sha256_file','glb_inventory','
 for (const s of ['--background','slice_receipt.json','blender_path','timeoutSeconds']) if (!armoryDriver.includes(s)) throw new Error('armory driver contract missing '+s);
 for (const s of ["separate(type='LOOSE')",'parts.json','contact_sheet_all_parts.png','reassembled.glb','semanticCategory']) if (!armoryBlender.includes(s)) throw new Error('armory Blender contract missing '+s);
 if (relay.includes('deviceToken:'+' token')) throw new Error('device token must not be returned by MCP');
-console.log('phone hands relay + active-screen-only guard + 48dp touch-slop drag + compact/persistent overlay + safe-area clamp + local hide/restore + fail-closed state + verified install + background Termux shell + deterministic factory + Armory slicer contract: PASS');
+console.log('phone hands relay + durable APK signer + active-screen-only guard + 48dp touch-slop drag + compact/persistent overlay + safe-area clamp + local hide/restore + fail-closed state + verified install + background Termux shell + deterministic factory + Armory slicer contract: PASS');
