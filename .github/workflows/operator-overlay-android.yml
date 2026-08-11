@@ -108,7 +108,9 @@ jobs:
           SDK_ROOT="${ANDROID_SDK_ROOT:-${ANDROID_HOME:-/usr/local/lib/android/sdk}}"
           APKSIGNER="$(find "$SDK_ROOT/build-tools" -type f -name apksigner -perm -111 | sort -V | tail -1)"
           test -x "$APKSIGNER"
-          CERT_SHA="$("$APKSIGNER" verify --print-certs "$APK" | awk -F': ' '/Signer #1 certificate SHA-256 digest/ {print $2; exit}')"
+          SIGNER_INFO="$("$APKSIGNER" verify --print-certs "$APK")"
+          printf '%s\n' "$SIGNER_INFO"
+          CERT_SHA="$(printf '%s\n' "$SIGNER_INFO" | sed -nE 's/^.*certificate SHA-256 digest:[[:space:]]*//p' | head -1)"
           test -n "$CERT_SHA"
           mkdir -p build/operator-overlay
           cp "$APK" build/operator-overlay/operator-overlay-debug.apk
