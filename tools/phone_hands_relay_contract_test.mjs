@@ -27,7 +27,7 @@ for (const forbidden of ['operator_overlay_enable','operator_overlay_disable','o
 }
 for (const s of ['controlEnabled','muted','control_gate','STATE_URI','content query','ACTION_UPDATE','ACTION_HEARTBEAT']) if (!overlay.includes(s)) throw new Error('operator overlay enforcement contract missing '+s);
 for (const s of ['SYSTEM_ALERT_WINDOW','FOREGROUND_SERVICE_SPECIAL_USE','RECEIVE_BOOT_COMPLETED','android.permission.DUMP','OperatorOverlayService','OperatorStateProvider','BootReceiver']) if (!overlayManifest.includes(s)) throw new Error('operator overlay Android manifest missing '+s);
-for (const s of ['Confirm disable','Disable control','Enable control','Mute','Unmute','HOME CENTER • ON','HOME CENTER • OFFLINE','CONTROL OFF','setMaxLines(30)','setMaxLines(2)']) if (!overlayService.includes(s)) throw new Error('operator overlay visible UI contract missing '+s);
+for (const s of ['Confirm disable','Disable control','Enable control','Mute','Unmute','HOME CENTER • ON','HOME CENTER • OFFLINE','CONTROL OFF','setMaxLines(30)','setMaxLines(2)','touchGuard','MATCH_PARENT','FLAG_NOT_TOUCHABLE','syncTouchGuard','setOnTouchListener((view, event) -> true)']) if (!overlayService.includes(s)) throw new Error('operator overlay visible/guard UI contract missing '+s);
 if (!agent.includes("if kind=='status_say' and gate.get('muted')")) throw new Error('mute must suppress status speech at the relay');
 if (!agent.includes("if kind in OVERLAY_ACTIONS")) throw new Error('overlay status/update actions must remain reachable when control is disabled');
 if (!agent.includes('gate=overlay_control_gate()')) throw new Error('ordinary remote phone actions must pass the user-owned overlay control gate');
@@ -46,4 +46,4 @@ for (const s of ['ALLOWED_ROOTS','verified_copy','sha256_file','glb_inventory','
 for (const s of ['--background','slice_receipt.json','blender_path','timeoutSeconds']) if (!armoryDriver.includes(s)) throw new Error('armory driver contract missing '+s);
 for (const s of ['separate(type=\'LOOSE\')','parts.json','contact_sheet_all_parts.png','reassembled.glb','semanticCategory']) if (!armoryBlender.includes(s)) throw new Error('armory Blender contract missing '+s);
 if (relay.includes('deviceToken:'+' token')) throw new Error('device token must not be returned by MCP');
-console.log('phone hands relay + operator overlay + Termux shell + deterministic factory + Armory slicer contract: PASS');
+console.log('phone hands relay + operator overlay guard + Termux shell + deterministic factory + Armory slicer contract: PASS');
