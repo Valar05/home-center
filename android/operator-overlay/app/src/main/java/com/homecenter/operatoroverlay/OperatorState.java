@@ -11,6 +11,12 @@ final class OperatorState {
     static final String KEY_LATEST_SOURCE = "latest_source";
     static final String KEY_LAST_UPDATE_MS = "last_update_ms";
     static final String KEY_LAST_HEARTBEAT_MS = "last_heartbeat_ms";
+    static final String KEY_SCREEN_ACTIVE_UNTIL_MS = "screen_active_until_ms";
+    static final String KEY_SCREEN_YIELD_UNTIL_MS = "screen_yield_until_ms";
+    static final String KEY_PANEL_COLLAPSED = "panel_collapsed";
+    static final String KEY_OVERLAY_HIDDEN = "overlay_hidden";
+    static final String KEY_OVERLAY_X = "overlay_x";
+    static final String KEY_OVERLAY_Y = "overlay_y";
 
     private OperatorState() {}
 
@@ -19,7 +25,8 @@ final class OperatorState {
     }
 
     static boolean controlEnabled(Context context) {
-        return prefs(context).getBoolean(KEY_CONTROL_ENABLED, true);
+        // The visible local switch is the authority. Missing state fails closed.
+        return prefs(context).getBoolean(KEY_CONTROL_ENABLED, false);
     }
 
     static boolean muted(Context context) {
@@ -42,12 +49,57 @@ final class OperatorState {
         return prefs(context).getLong(KEY_LAST_HEARTBEAT_MS, 0L);
     }
 
+    static long screenActiveUntilMs(Context context) {
+        return prefs(context).getLong(KEY_SCREEN_ACTIVE_UNTIL_MS, 0L);
+    }
+
+    static long screenYieldUntilMs(Context context) {
+        return prefs(context).getLong(KEY_SCREEN_YIELD_UNTIL_MS, 0L);
+    }
+
+    static boolean panelCollapsed(Context context) {
+        return prefs(context).getBoolean(KEY_PANEL_COLLAPSED, true);
+    }
+
+    static boolean overlayHidden(Context context) {
+        return prefs(context).getBoolean(KEY_OVERLAY_HIDDEN, false);
+    }
+
+    static int overlayX(Context context) {
+        return prefs(context).getInt(KEY_OVERLAY_X, 8);
+    }
+
+    static int overlayY(Context context) {
+        return prefs(context).getInt(KEY_OVERLAY_Y, 28);
+    }
+
     static void setControlEnabled(Context context, boolean enabled) {
-        prefs(context).edit().putBoolean(KEY_CONTROL_ENABLED, enabled).apply();
+        SharedPreferences.Editor editor = prefs(context).edit()
+                .putBoolean(KEY_CONTROL_ENABLED, enabled);
+        if (!enabled) {
+            editor.putLong(KEY_SCREEN_ACTIVE_UNTIL_MS, 0L)
+                    .putLong(KEY_SCREEN_YIELD_UNTIL_MS, 0L);
+        }
+        editor.commit();
     }
 
     static void setMuted(Context context, boolean muted) {
         prefs(context).edit().putBoolean(KEY_MUTED, muted).apply();
+    }
+
+    static void setPanelCollapsed(Context context, boolean collapsed) {
+        prefs(context).edit().putBoolean(KEY_PANEL_COLLAPSED, collapsed).apply();
+    }
+
+    static void setOverlayHidden(Context context, boolean hidden) {
+        prefs(context).edit().putBoolean(KEY_OVERLAY_HIDDEN, hidden).commit();
+    }
+
+    static void setOverlayPosition(Context context, int x, int y) {
+        prefs(context).edit()
+                .putInt(KEY_OVERLAY_X, x)
+                .putInt(KEY_OVERLAY_Y, y)
+                .apply();
     }
 
     static void updateText(Context context, String source, String text, long nowMs) {
@@ -65,5 +117,16 @@ final class OperatorState {
 
     static void heartbeat(Context context, long nowMs) {
         prefs(context).edit().putLong(KEY_LAST_HEARTBEAT_MS, nowMs).apply();
+    }
+
+    static void setScreenActivity(Context context, long activeUntilMs, long yieldUntilMs) {
+        prefs(context).edit()
+                .putLong(KEY_SCREEN_ACTIVE_UNTIL_MS, Math.max(0L, activeUntilMs))
+                .putLong(KEY_SCREEN_YIELD_UNTIL_MS, Math.max(0L, yieldUntilMs))
+                .apply();
+    }
+
+    static void clearScreenActivity(Context context) {
+        setScreenActivity(context, 0L, 0L);
     }
 }

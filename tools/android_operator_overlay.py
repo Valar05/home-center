@@ -15,9 +15,11 @@ RECEIVER = PACKAGE + '/.OverlayUpdateReceiver'
 STATE_URI = 'content://com.homecenter.operatoroverlay.state/state'
 ACTION_UPDATE = 'com.homecenter.operatoroverlay.UPDATE'
 ACTION_HEARTBEAT = 'com.homecenter.operatoroverlay.HEARTBEAT'
+ACTION_SCREEN_ACTIVITY = 'com.homecenter.operatoroverlay.SCREEN_ACTIVITY'
 MAX_TEXT_CHARS = 8000
 STATE_READ_ATTEMPTS = 3
 STATE_READ_DELAY_SECONDS = 0.12
+SCREEN_ACTIVITY_SETTLE_SECONDS = 0.24
 
 
 def _shell(command: str, timeout: float = 20) -> str:
@@ -25,8 +27,6 @@ def _shell(command: str, timeout: float = 20) -> str:
 
 
 def installed() -> bool:
-    # rish stdout can occasionally arrive empty even when the command succeeds.
-    # Retry a package-service primitive whose positive result names this package.
     for attempt in range(STATE_READ_ATTEMPTS):
         out = _shell(
             f'dumpsys package {shlex.quote(PACKAGE)} 2>/dev/null '
@@ -61,6 +61,10 @@ def _parse_state(raw: str) -> dict[str, Any]:
         'lastHeartbeatMs': integer('last_heartbeat_ms', 0),
         'lastUpdateMs': integer('last_update_ms', 0),
         'latestSource': text('latest_source', ''),
+        'screenActiveUntilMs': integer('screen_active_until_ms', 0),
+        'screenYieldUntilMs': integer('screen_yield_until_ms', 0),
+        'panelCollapsed': integer('panel_collapsed', 0) != 0,
+        'overlayHidden': integer('overlay_hidden', 0) != 0,
     }
 
 
@@ -99,6 +103,10 @@ def status() -> dict[str, Any]:
             'stateReadable': False,
             'controlEnabled': False,
             'muted': False,
+            'screenActiveUntilMs': 0,
+            'screenYieldUntilMs': 0,
+            'panelCollapsed': False,
+            'overlayHidden': True,
             'package': PACKAGE,
             'error': str(exc)[:2000],
         }
@@ -121,6 +129,23 @@ def heartbeat() -> dict[str, Any]:
         f'-n {shlex.quote(RECEIVER)}'
     )
     return {'ok': True, 'installed': True, 'sent': True, 'output': out[-1200:]}
+
+
+def screen_activity(lease_ms: int = 2500, yield_ms: int = 0) -> dict[str, Any]:
+    lease = max(250, min(int(lease_ms), 15000))
+    pulse = max(0, min(int(yield_ms), min(lease, 12000)))
+    out = _shell(
+        f'am start-foreground-service -a {shlex.quote(ACTION_SCREEN_ACTIVITY)} '
+        f'-n {shlex.quote(SERVICE)} --ei leaseMs {lease} --ei yieldMs {pulse}',
+        timeout=15,
+    )
+    time.sleep(SCREEN_ACTIVITY_SETTLE_SECONDS)
+    return {
+        'ok': True,
+        'leaseMs': lease,
+        'yieldMs': pulse,
+        'output': out[-1200:],
+    }
 
 
 def update(text: str, source: str = 'ChatGPT') -> dict[str, Any]:

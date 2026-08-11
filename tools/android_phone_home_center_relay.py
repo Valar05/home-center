@@ -19,7 +19,12 @@ from android_armory_driver import execute as armory_execute
 from android_window_composer import execute as window_execute
 from android_phone_status_tts import execute as status_tts_execute
 from android_phone_termux_shell import execute as termux_shell_execute
-from android_operator_overlay import execute as overlay_execute, heartbeat as overlay_heartbeat, control_gate as overlay_control_gate
+from android_operator_overlay import (
+    execute as overlay_execute,
+    heartbeat as overlay_heartbeat,
+    control_gate as overlay_control_gate,
+    screen_activity as overlay_screen_activity,
+)
 
 FACTORY_ACTIONS={
     'file_stat','file_hash','file_list','file_mkdir','file_copy','file_move',
@@ -30,6 +35,8 @@ WINDOW_ACTIONS={'window_status','window_probe','window_compose','window_focus','
 STATUS_TTS_ACTIONS={'status_tts_doctor','status_say'}
 TERMUX_SHELL_ACTIONS={'phone_shell'}
 OVERLAY_ACTIONS={'operator_overlay_status','operator_overlay_start','operator_overlay_update'}
+SCREEN_DIRECT_ACTIONS={'tap','swipe','text','keyevent','home','back','recents','launch','force_stop'}
+SCREEN_WINDOW_ACTIONS={'window_compose','window_focus','window_swap'}
 DEVICE_CAPABILITIES=[
     'phone_hands','phone_files','armory_worker','window_composer','status_tts','termux_shell',
     'operator_overlay','local_qwen','coding_dungeon','voice'
@@ -105,6 +112,34 @@ def dungeon_run(payload):
     return {'exit':p.returncode,'output':p.stdout[-20000:]}
 
 
+def _screen_profile(action):
+    kind=str(action.get('action') or '')
+    if kind=='observe' and (bool(action.get('ui',True)) or bool(action.get('screen',False))):
+        return {'leaseMs':2500,'yieldMs':0}
+    if kind=='swipe':
+        duration=max(1,min(int(action.get('duration_ms',300)),10000))
+        yield_ms=min(12000,duration+800)
+        return {'leaseMs':max(2500,yield_ms+1600),'yieldMs':yield_ms}
+    if kind in SCREEN_DIRECT_ACTIONS:
+        return {'leaseMs':2500,'yieldMs':900}
+    if kind in SCREEN_WINDOW_ACTIONS:
+        return {'leaseMs':3500,'yieldMs':900}
+    return None
+
+
+def _dispatch_after_gate(action):
+    kind=action.get('action')
+    if kind=='observe': return hands_observe(bool(action.get('ui',True)),bool(action.get('screen',False)))
+    if kind=='local_ask': return local_execute(str(action.get('intent') or action.get('prompt') or 'What is on my screen?'))
+    if kind=='dungeon_run': return dungeon_run(action)
+    if kind in FACTORY_ACTIONS: return factory_execute(action)
+    if kind in ARMORY_ACTIONS: return armory_execute(action)
+    if kind in WINDOW_ACTIONS: return window_execute(action)
+    if kind in STATUS_TTS_ACTIONS: return status_tts_execute(action)
+    if kind in TERMUX_SHELL_ACTIONS: return termux_shell_execute(action)
+    return hands_act(action)
+
+
 def execute_action(action):
     kind=action.get('action')
     if kind in OVERLAY_ACTIONS:
@@ -120,15 +155,23 @@ def execute_action(action):
             'reason':'Muted from the on-screen Home Center operator overlay',
         }
 
-    if kind=='observe': return hands_observe(bool(action.get('ui',True)),bool(action.get('screen',False)))
-    if kind=='local_ask': return local_execute(str(action.get('intent') or action.get('prompt') or 'What is on my screen?'))
-    if kind=='dungeon_run': return dungeon_run(action)
-    if kind in FACTORY_ACTIONS: return factory_execute(action)
-    if kind in ARMORY_ACTIONS: return armory_execute(action)
-    if kind in WINDOW_ACTIONS: return window_execute(action)
-    if kind in STATUS_TTS_ACTIONS: return status_tts_execute(action)
-    if kind in TERMUX_SHELL_ACTIONS: return termux_shell_execute(action)
-    return hands_act(action)
+    screen=_screen_profile(action)
+    if not screen:
+        return _dispatch_after_gate(action)
+
+    # Permission/liveness never imply screen ownership. Only explicit visible-screen
+    # actions open this short lease. For injected tap/swipe/key/text actions, the
+    # lease begins with a brief pass-through pulse so Android input reaches the
+    # target below the guard. The guard resumes immediately afterward and expires
+    # automatically if no further screen action renews it.
+    overlay_screen_activity(screen['leaseMs'],screen['yieldMs'])
+    try:
+        return _dispatch_after_gate(action)
+    finally:
+        try:
+            overlay_screen_activity(screen['leaseMs'],0)
+        except Exception as exc:
+            print('operator-overlay screen lease renewal warning: '+str(exc),file=sys.stderr,flush=True)
 
 
 def loop(once=False):

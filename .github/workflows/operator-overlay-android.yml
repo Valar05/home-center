@@ -74,6 +74,8 @@ jobs:
           git diff --check
 
           cd android/operator-overlay
+          "$GRADLE_HOME/bin/gradle" :app:testDebugUnitTest --no-daemon --stacktrace
+          "$GRADLE_HOME/bin/gradle" :app:compileDebugJavaWithJavac --no-daemon --stacktrace
           "$GRADLE_HOME/bin/gradle" :app:assembleDebug --no-daemon --stacktrace
           test -s app/build/outputs/apk/debug/app-debug.apk
 
@@ -90,12 +92,17 @@ jobs:
           mkdir -p build/operator-overlay
           cp "$APK" build/operator-overlay/operator-overlay-debug.apk
           python - "$SHA" "$BYTES" "$SOURCE_SHA" > build/operator-overlay/operator-overlay-receipt.json <<'PY'
-          import json, sys
+          import json, pathlib, re, sys
           sha, byte_count, source_sha = sys.argv[1:]
+          gradle = pathlib.Path('android/operator-overlay/app/build.gradle').read_text(encoding='utf-8')
+          match = re.search(r"versionName\s+'([^']+)'", gradle)
+          if not match:
+              raise SystemExit('versionName missing from overlay build.gradle')
+          version_name = match.group(1)
           print(json.dumps({
               'schemaVersion': 'home-center.operator-overlay-build.v1',
               'package': 'com.homecenter.operatoroverlay',
-              'versionName': '1.0.0',
+              'versionName': version_name,
               'sourceCommit': source_sha,
               'artifact': 'operator-overlay-debug.apk',
               'sha256': sha,
@@ -105,7 +112,21 @@ jobs:
                   'remoteReenableAllowed': False,
                   'disableRequiresConfirmation': True,
                   'muteIndependent': True,
-                  'touchGuardWhileEnabled': True,
+                  'touchGuardWhileEnabled': False,
+                  'touchGuardMode': 'active_screen_lease',
+                  'activeScreenLeaseRequired': True,
+                  'panelDraggable': True,
+                  'panelCollapsible': True,
+                  'panelCompactMode': True,
+                  'freshInstallControlOff': True,
+                  'dragTargetMinDp': 48,
+                  'tapDragUsesSystemTouchSlop': True,
+                  'positionPersistent': True,
+                  'safeAreaClamp': True,
+                  'hiddenStatePersistent': True,
+                  'localRestoreControlOff': True,
+                  'accessibilityLabels': True,
+                  'inputCaptureTimeBounded': True,
               },
           }, indent=2, sort_keys=True))
           PY
