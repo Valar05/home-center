@@ -120,4 +120,4 @@ jobs:
           cp "$PUB/operator-overlay-receipt.json" ./operator-overlay-receipt.json
           git add operator-overlay-debug.apk operator-overlay-receipt.json
           git commit -m "Publish operator overlay APK for ${SOURCE_SHA}"
-          git push --force origin HEAD:generated/operator-overlay-apk
+          git push --force origin HEAD:refs/heads/generated/operator-overlay-apk
