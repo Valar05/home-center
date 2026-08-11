@@ -13,22 +13,36 @@ This is intentionally separate from Venice's social/creative role and from Home 
 
 ## Known workstation model set
 
-The accepted target model tags are:
+The durable model chain is:
 
-- `qwen2.5-coder:7b` — primary local coding model for chat/edit/apply
-- `qwen2.5-coder:1.5b` — fast local autocomplete model
+- `qwen2.5-coder:7b` — already-installed base weights for local coding.
+- `home-center-qwen-coder:7b-8k` — repo-defined local runtime model derived from those base weights with `num_ctx 8192`; this is the model Continue uses for chat/edit/apply.
+- `qwen2.5-coder:1.5b` — fast local autocomplete model.
 
-Both are served by Ollama at `127.0.0.1:11434`.
+All are served by Ollama at `127.0.0.1:11434`. Creating the Home Center runtime model reuses the locally installed base layers; it is not a second model download.
 
 The configuration deliberately contains no cloud provider and no remote model fallback.
 
 ## Repository anatomy
 
 - `.continue/offline-config.yaml` — repo-pinned local-only Continue configuration.
+- `.continue/models/Modelfile.qwen2.5-coder-7b-8k` — pins the Ollama runtime context to 8192 tokens so Continue validation and the actual Ollama runner agree.
 - `.continue/rules/*judgement-jar*.md` — durable engineering judgement loaded as Continue rules.
-- `tools/cn-offline.ps1` — explicit CLI launcher that verifies local Ollama/model availability, injects every judgement jar, and starts `cn` with the repo-pinned configuration.
-- `tools/setup_offline_continue.ps1` — non-downloading setup/readiness script; optionally backs up and installs the offline config as the user's default Continue config.
-- `tools/test_offline_continue.ps1` — acceptance probe. It verifies local dependencies/configuration and obtains a response from Continue through local Qwen. `-RequireInternetDown` additionally requires a failed public-network reachability test.
+- `tools/cn-offline.ps1` — explicit CLI launcher that verifies local Ollama/base-model availability, locally materializes the pinned runtime model when missing, injects every judgement jar, and starts Continue with the repo-pinned configuration.
+- `tools/setup_offline_continue.ps1` — non-downloading setup/readiness script; prepares the pinned local runtime model and optionally backs up and installs the offline config as the user's default Continue config.
+- `tools/test_offline_continue.ps1` — acceptance probe. It verifies local dependencies/configuration, model parameters, observed Ollama runtime context, local Continue inference, and a bounded edit. `-RequireInternetDown` additionally requires public-network reachability checks to fail.
+
+## Windows Continue launcher trap
+
+The npm-installed `cn` command resolves through `cn.ps1` in PowerShell, and that shim exits its caller. That is hostile to a composable acceptance harness because a nested Continue call can terminate the parent PowerShell before its `catch`/`finally` blocks write evidence.
+
+The offline lane therefore resolves and invokes `cn.cmd` explicitly. It launches the same installed Continue CLI package as a child process while preserving the parent PowerShell evidence harness.
+
+## Context-length contract
+
+The installed Qwen2.5 Coder 7B metadata reports a 32,768-token native context, but Ollama on this workstation instantiated the base tag with a 4,096-token runtime context by default. Six judgement jars plus Continue's own prompt exceeded that window before useful generation.
+
+The offline lane does not rely on Continue 1.5.47 to propagate its YAML `contextLength` into Ollama. Instead, the repo-defined runtime model pins `PARAMETER num_ctx 8192`. Acceptance is not satisfied by YAML alone: after inference, Ollama itself must report the Home Center runtime model loaded with at least 8192 tokens of context.
 
 ## Judgement jars
 
@@ -83,17 +97,25 @@ Do not call this lane deployed solely because the repository files exist.
 
 A fresh workstation acceptance receipt must show:
 
-1. `cn` exists locally and its version is recorded;
-2. Ollama is reachable only through the configured local endpoint;
-3. both exact Qwen model tags are already installed;
-4. the loaded Continue configuration declares no cloud provider or non-local model endpoint;
-5. all judgement jars are present and loaded;
-6. with public internet unavailable, Continue returns a response through the local configuration;
-7. a bounded coding fixture can be edited by Continue, verified deterministically, and restored/cleaned up;
-8. the receipt records exact command output and result without treating local success as deployment of anything else.
+1. the Windows-isolated Continue launcher `cn.cmd` exists locally and its version is recorded;
+2. Ollama is reachable through the configured local endpoint;
+3. both exact Qwen base model tags are already installed;
+4. the pinned Home Center Qwen runtime model is created from local base layers and declares `num_ctx 8192`;
+5. the loaded Continue configuration declares no cloud provider or non-local model endpoint;
+6. all judgement jars are present and loaded;
+7. Continue returns the required inference token through the local configuration;
+8. Ollama itself reports the Home Center coder loaded with at least 8192 tokens of runtime context;
+9. a bounded coding fixture can be edited by Continue, verified deterministically, and restored/cleaned up;
+10. the receipt records exact command output and result without treating local success as deployment of anything else.
 
-The acceptance result is green only when the no-network inference and bounded edit both pass.
+For a literal air-gap acceptance, rerun the same contract with `-RequireInternetDown` while public networking is actually unavailable. A green connected-machine run proves the configured model path is local and cloud-free; it is not evidence that the network was physically absent.
+
+## Git LFS recovery hazard
+
+A fresh acceptance clone encountered a missing Git LFS payload in historical evidence and could not complete normal checkout. The source tree itself remained recoverable by setting `GIT_LFS_SKIP_SMUDGE=1` and retaining LFS pointer files.
+
+For disaster recovery, do not make source checkout depend on every historical binary payload still existing upstream. Preserve critical LFS artifacts separately through Home Center's durable file layer, and use skip-smudge source recovery when the binary archive is incomplete.
 
 ## Resilience note
 
-The offline lane should pin the final known-good Continue toolchain and preserve recovery artifacts through Home Center's durable file layer. Configuration in git is necessary but not sufficient for disaster recovery; installers/model artifacts must also survive the loss of the public network.
+The offline lane should pin the final known-good Continue toolchain and preserve recovery artifacts through Home Center's durable file layer. Configuration in git is necessary but not sufficient for disaster recovery; the Continue package, Ollama installer/runtime, base model blobs/manifests, required compilers/toolchains, and any critical LFS artifacts must also survive the loss of the public network.
