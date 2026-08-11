@@ -87,6 +87,29 @@ test('relay refuses to start without a durable event sink', () => {
   assert.throws(() => createRelay({port: 0, extensionOrigin: `chrome-extension://${'f'.repeat(32)}`, nerveCapability: 'g'.repeat(48)}), /event sink/);
 });
 
+test('durable sink failure rolls back pairing authority and tab fence', async (t) => {
+  const extensionOrigin = `chrome-extension://${'h'.repeat(32)}`;
+  const nerveCapability = 'i'.repeat(48);
+  const server = createRelay({port: 0, extensionOrigin, nerveCapability, eventSink: async () => { throw new Error('durable sink unavailable'); }});
+  await new Promise((resolve) => server.once('listening', resolve));
+  t.after(() => server.close());
+  const base = `http://127.0.0.1:${server.address().port}/v1`;
+  const now = Date.now();
+  const intent = {contractVersion: CONTRACT_VERSION, pairingId: 'pairing-sink-001', sessionId: 'session-sink-001', workerId: 'windows-browser-nerve-01', commissionId: 'browser-porch-01', commissionHash: sha256('commission'), expectedOrigin: CHATGPT_ORIGIN, expectedAccountHash: sha256('account'), nonce: 'nonce-sink-0001', issuedAtMs: now - 10, expiresAtMs: now + 30_000, mode: 'observe'};
+  const nerve = {authorization: `Bearer ${nerveCapability}`};
+  const extension = {origin: extensionOrigin};
+  const observation = {gesture: 'extension_action_click', windowId: 4, tabId: 5, documentId: 'document-sink-001', url: 'https://chatgpt.com/', authenticationState: 'dom_verified', accountHash: sha256('account')};
+  assert.equal((await post(`${base}/intent`, intent, nerve)).status, 201);
+  const failed = await post(`${base}/pair`, {pairingId: intent.pairingId, observation}, extension);
+  assert.equal(failed.status, 503);
+  assert.equal((await failed.json()).error, 'DURABLE_SINK_FAILED');
+  assert.equal((await fetch(`${base}/pairing?pairingId=${intent.pairingId}`, {headers: nerve})).status, 404);
+  assert.equal((await post(`${base}/command`, {pairingId: intent.pairingId, commandId: 'command-sink-001', action: 'inventory'}, nerve)).status, 404);
+  const retry = await post(`${base}/pair`, {pairingId: intent.pairingId, observation}, extension);
+  assert.equal(retry.status, 503);
+  assert.equal((await retry.json()).error, 'DURABLE_SINK_FAILED');
+});
+
 async function post(url, value, extra = {}) {
   return fetch(url, {method: 'POST', headers: {'content-type': 'application/json', ...extra}, body: JSON.stringify(value)});
 }
