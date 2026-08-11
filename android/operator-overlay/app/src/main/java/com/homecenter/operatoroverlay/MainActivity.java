@@ -19,9 +19,7 @@ public class MainActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
-        if (Settings.canDrawOverlays(this)) {
-            startOverlay();
-        }
+        if (Settings.canDrawOverlays(this)) startOverlay();
     }
 
     private void ensureOverlay() {
@@ -36,7 +34,12 @@ public class MainActivity extends Activity {
     }
 
     private void startOverlay() {
-        Intent service = new Intent(this, OperatorOverlayService.class);
+        // Launcher/notification restore is intentionally local and fail-closed:
+        // visibility returns, but control remains disabled until the user enables it.
+        OperatorState.setControlEnabled(this, false);
+        OperatorState.setOverlayHidden(this, false);
+        Intent service = new Intent(this, OperatorOverlayService.class)
+                .setAction(OperatorOverlayService.ACTION_RESTORE);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             startForegroundService(service);
         } else {
