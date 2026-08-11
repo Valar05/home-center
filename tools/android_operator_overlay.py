@@ -64,6 +64,7 @@ def _parse_state(raw: str) -> dict[str, Any]:
         'screenActiveUntilMs': integer('screen_active_until_ms', 0),
         'screenYieldUntilMs': integer('screen_yield_until_ms', 0),
         'panelCollapsed': integer('panel_collapsed', 0) != 0,
+        'overlayHidden': integer('overlay_hidden', 0) != 0,
     }
 
 
@@ -105,6 +106,7 @@ def status() -> dict[str, Any]:
             'screenActiveUntilMs': 0,
             'screenYieldUntilMs': 0,
             'panelCollapsed': False,
+            'overlayHidden': True,
             'package': PACKAGE,
             'error': str(exc)[:2000],
         }
