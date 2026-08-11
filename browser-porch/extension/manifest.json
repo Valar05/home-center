@@ -1,0 +1,10 @@
+{
+  "manifest_version": 3,
+  "name": "Home Center Browser Porch",
+  "version": "0.1.0",
+  "description": "Pairs one explicitly clicked ChatGPT tab to Home Center in observe-only mode.",
+  "permissions": ["activeTab", "scripting"],
+  "host_permissions": ["http://127.0.0.1:9234/*"],
+  "action": {"default_title": "Pair this tab with Home Center"},
+  "background": {"service_worker": "service-worker.js"}
+}
