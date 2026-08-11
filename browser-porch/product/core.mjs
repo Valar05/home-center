@@ -1,7 +1,7 @@
 import {createHash, randomUUID} from 'node:crypto';
 
 export const PRODUCT = 'Porchlight';
-export const VERSION = '0.8.0';
+export const VERSION = '0.8.1';
 export const SCHEMA = 'porchlight.runtime.v1';
 export const MOTIVATED_MODE = Object.freeze({status: 'central_permanent', ownOutcome: true, obviousAdjacentImprovement: true, boundedRecovery: true, authorityExpansion: false});
 export const OBSERVE = new Set(['observe', 'find', 'read', 'screenshot']);
