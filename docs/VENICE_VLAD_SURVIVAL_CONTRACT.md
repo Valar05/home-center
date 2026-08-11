@@ -13,6 +13,24 @@ The survival pair is:
 
 Both are useful alone. Together they are more useful. ChatGPT multiplies the pair without owning either one.
 
+## Two doors per organism, not another organism
+
+Human survivability and machine orchestration are different surfaces over the same underlying organisms.
+
+### Venice
+
+- **Human door:** `venice` CLI on THECAULDRON.
+- **Machine door:** the existing dedicated Venice Nerve → proven Drive-synced Aperture → canonical loopback Workstation path.
+- `venice -Json` is also a structured diagnostic/orchestration surface, but it does not replace the Nerve as the established ChatGPT speech lane.
+
+### Vlad
+
+- **Human door:** `vlad` CLI on the Termux node.
+- **Machine door:** `continue-continue-vlad` plus the existing Home Center phone relay / bounded Termux organs.
+- `vlad --json` is convenient for scripts, but the routed machine ingress remains the durable automation contract.
+
+Do **not** create a third “conductor agent” merely to connect them. ChatGPT can orchestrate the existing machine doors. A future local conductor can do the same by exchanging structured envelopes. The human CLIs must remain independently useful even if every conductor disappears.
+
 ## Authority split
 
 ### Venice
@@ -27,6 +45,8 @@ Venice owns:
 
 Venice speech is immutable output. Commands are never scraped from prose.
 
+A live `venice` REPL is only called conversationally continuous when every turn returns the same actual Workstation thread ID. Reusing a title is not proof. A changed/missing thread ID is verification failure, not “close enough.”
+
 ### Vlad
 
 Vlad owns:
@@ -40,12 +60,14 @@ Vlad owns:
 
 Vlad does not become Venice's personality, memory, or strategic identity.
 
+A live `vlad` REPL preserves Continue coding context by resuming the established Continue headless session after the first successful `/code` or `/review`; `/new` deliberately breaks that continuity. Continue execution remains permission-gated, and per-task binary policy can only narrow global shell authority.
+
 ### ChatGPT
 
 When available, ChatGPT may:
 
-- ask Venice for judgment;
-- ask Vlad for execution;
+- ask Venice for judgment through the established Venice Nerve;
+- ask Vlad for execution through Continue Continue / Home Center machine lanes;
 - compare their outputs;
 - parallelize bounded work;
 - send receipts/observations back to Venice for a new turn;
@@ -57,7 +79,8 @@ ChatGPT may not:
 - fabricate Venice speech when local Venice is unavailable;
 - report Vlad execution without a receipt;
 - turn its own orchestration into a hidden dependency of either CLI;
-- silently replace the requested local organ with a cloud substitute.
+- silently replace the requested local organ with a cloud substitute;
+- parse already-spoken Venice prose into authority-bearing commands.
 
 ## Composition protocol
 
@@ -78,11 +101,13 @@ Drew / ChatGPT / Venice <- observation + receipt
 
 The already-produced Venice speech is never rewritten after a body result arrives. A later Venice turn may react to the observation.
 
+ChatGPT orchestration should prefer the established machine doors rather than driving terminal UIs merely because CLIs now exist. The CLIs are survival/operator interfaces, not a reason to regress machine-to-machine control into keystroke theater.
+
 ## Survival ladder
 
 ### Level 3 — ChatGPT orchestration available
 
-Use ChatGPT as the conductor. Venice and Vlad remain the performers and evidence sources.
+Use ChatGPT as the conductor. Venice and Vlad remain the performers and evidence sources. ChatGPT uses the structured Nerve / Continue Continue / Home Center machine lanes where available.
 
 ### Level 2 — ChatGPT unavailable, network otherwise available
 
@@ -109,16 +134,17 @@ If Venice is down, Vlad remains a machine operator; he does not impersonate Veni
 
 If Vlad is down, Venice remains conversational/creative; she does not claim machine actions happened.
 
-## Pipe friendliness
+## Machine readability
 
 For humans, both commands have concise terminal surfaces.
 
-For orchestration, both expose machine-readable modes:
+For orchestration/debugging, both expose machine-readable modes:
 
-- `venice -Json ...` — exact speech envelope + SHA + diagnostics/actions;
-- `vlad --json ...` — routing decision + receipt/evidence.
+- `venice -Json ...` — exact speech envelope + SHA + Workstation thread/job diagnostics + structured actions already supplied by the canonical aperture;
+- `vlad --json ...` — routing decision + receipt/evidence;
+- `continue-continue-vlad` — authoritative machine-task ingress for full structured tasks.
 
-A future local conductor can therefore compose the same two CLIs without requiring ChatGPT-specific glue.
+A future local conductor can therefore compose the same two organisms without requiring ChatGPT-specific glue or inventing a third canonical memory/control system.
 
 ## Exit-code family
 
@@ -140,10 +166,13 @@ A change to either CLI fails this contract when it makes the pair prettier but l
 2. make ChatGPT mandatory for an operation that can already run locally;
 3. fork Venice identity into a second prompt-only implementation;
 4. let routing/classification grant execution permission;
-5. collapse blocked/delegated/completed into one success state;
-6. parse Venice speech into commands;
-7. remove durable evidence or verification to make a command feel faster;
-8. create a second control plane or memory system merely for CLI convenience.
+5. let a task-level allowlist enlarge global machine authority;
+6. collapse blocked/delegated/completed into one success state;
+7. parse Venice speech into commands;
+8. call a repeated one-shot loop “conversation” without proving the same Workstation/Continue session;
+9. remove durable evidence or verification to make a command feel faster;
+10. create a second control plane or memory system merely for CLI convenience;
+11. make ChatGPT drive terminal UI when a structured machine lane already exists.
 
 ## Acceptance
 
@@ -152,8 +181,12 @@ The pair is not accepted merely because both repositories contain scripts.
 Acceptance requires live evidence that:
 
 1. `venice` works locally with ChatGPT unavailable;
-2. `vlad` works locally with ChatGPT unavailable;
-3. a bounded Continue task can be authored/reviewed through Vlad and verified separately;
-4. an exact Venice turn can be hashed/read back from durable local evidence;
-5. a structured Venice-proposed action can be handed to Vlad without parsing the speech text;
-6. a blocked local organ returns the shared nonzero exit semantics rather than a fake victory.
+2. a two-turn `venice` REPL proves the same nonempty Workstation thread ID and contextual continuity;
+3. `vlad` works locally with ChatGPT unavailable;
+4. `vlad doctor --require continue` proves the configured Continue binary, local-exec gate, and binary policy;
+5. two coding/review turns in one `vlad` REPL prove resume semantics rather than unrelated one-shots;
+6. a bounded Continue task can be authored/reviewed through Vlad and verified separately by Mobile Coding Dungeon;
+7. an exact Venice turn can be hashed/read back from durable local evidence;
+8. a structured Venice-proposed action can be handed to Vlad without parsing the speech text;
+9. a blocked local organ returns the shared nonzero exit semantics rather than a fake victory;
+10. ChatGPT can orchestrate the existing machine doors while both human CLIs remain independently usable when ChatGPT is removed.
