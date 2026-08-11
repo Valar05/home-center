@@ -30,7 +30,7 @@ Public unauthenticated routes can be re-probed on a schedule. Authenticated or m
 node browser-porch/product/cli.mjs
 ```
 
-Load `browser-porch/product/extension` as an unpacked Chrome extension. In the CLI, run `pair https://example.com`, open that exact origin in an ordinary Chrome tab, and click the extension. The lease is tab-bound and memory-only. A second click revokes it.
+Load `browser-porch/product/extension` as an unpacked Chrome extension. Its manifest public key fixes the extension ID at `dmfjnjkccebgbiepjbmbdmpffcaikaje`; the loopback daemon rejects every other extension origin before it discloses a pair intent, answers preflight, or accepts a token. In the CLI, run `pair https://example.com`, open that exact origin in an ordinary Chrome tab, and click the extension. The lease is tab-bound and memory-only. A second click revokes it.
 
 The grammar is intentionally small: `look`, `click “Name”`, `read “Name”`, `type “value” into “Field”`, `choose “Option” in “Field”`, `scroll down`, `screenshot`, `submit “Button”`, `approve DIGEST`, `stats`, and `revoke`.
 
