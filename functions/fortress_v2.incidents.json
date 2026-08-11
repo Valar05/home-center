@@ -1,0 +1,89 @@
+[
+  {
+    "id": "missing-project-recovery",
+    "failure": "acted from remembered context instead of retrieving current project truth",
+    "mission": {
+      "outcome": "repair the active project",
+      "lane": "authorized connector lane",
+      "deliverySurface": "persistent project surface",
+      "evidenceStandard": "readback plus test",
+      "requiredLookups": ["current project state", "latest correction"],
+      "completedLookups": ["current project state"],
+      "sourceConfidence": "unknown"
+    },
+    "expectedAction": "retrieve"
+  },
+  {
+    "id": "adjacent-tool-substitution",
+    "failure": "replaced the commissioned lane with an easier adjacent workflow",
+    "mission": {
+      "outcome": "advance through the commissioned lane",
+      "lane": "commissioned lane",
+      "deliverySurface": "commissioned persistent surface",
+      "evidenceStandard": "artifact produced through commissioned lane",
+      "requiredLookups": [],
+      "completedLookups": [],
+      "sourceConfidence": "verified",
+      "proposedChanges": ["replace commissioned lane with adjacent tool"],
+      "approvedChanges": []
+    },
+    "expectedAction": "continue_original_mission"
+  },
+  {
+    "id": "documented-blocker-and-quit",
+    "failure": "reported a repairable blocker and stopped instead of continuing",
+    "mission": {
+      "outcome": "finish the repair",
+      "lane": "authorized lane",
+      "deliverySurface": "persistent runtime surface",
+      "evidenceStandard": "working canary",
+      "requiredLookups": [],
+      "completedLookups": [],
+      "sourceConfidence": "verified",
+      "stopReason": "documented_blocker"
+    },
+    "expectedAction": "continue"
+  },
+  {
+    "id": "implementation-called-done",
+    "failure": "treated code existence as delivered capability",
+    "mission": {
+      "outcome": "deliver working capability",
+      "lane": "GitHub",
+      "deliverySurface": "deployed runtime",
+      "evidenceStandard": "persistent implementation, test, deployment, callability, runtime readback",
+      "requiredLookups": [],
+      "completedLookups": [],
+      "sourceConfidence": "verified",
+      "state": "delivered",
+      "artifacts": [
+        {"kind": "implementation", "persistent": true},
+        {"kind": "test", "passed": true}
+      ]
+    },
+    "expectedCompletionClaimAllowed": false
+  },
+  {
+    "id": "correction-erased-old-lock",
+    "failure": "fixed the newest complaint while resurrecting an older rejected behavior",
+    "before": {
+      "outcome": "repair without interruption",
+      "lane": "isolated branch",
+      "deliverySurface": "GitHub PR",
+      "evidenceStandard": "green CI",
+      "exclusions": ["do not touch V1"],
+      "constraints": ["do not stop early"],
+      "corrections": ["retrieve before assuming"]
+    },
+    "after": {
+      "outcome": "repair without interruption",
+      "lane": "isolated branch",
+      "deliverySurface": "GitHub PR",
+      "evidenceStandard": "green CI",
+      "exclusions": [],
+      "constraints": ["do not stop early"],
+      "corrections": ["retrieve before assuming"]
+    },
+    "expectedCorrectionOk": false
+  }
+]
