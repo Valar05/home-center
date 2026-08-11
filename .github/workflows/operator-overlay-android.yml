@@ -54,7 +54,10 @@ jobs:
 
       - name: Verify and build overlay
         shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
+          set +e
           set -o pipefail
           (
             set -euo pipefail
@@ -65,26 +68,19 @@ jobs:
             cd android/operator-overlay
             gradle :app:assembleDebug --no-daemon
           ) 2>&1 | tee /tmp/operator-overlay-ci.log
-
-      - name: Report feature-branch failure diagnostics
-        if: failure() && github.event_name == 'push' && github.ref == 'refs/heads/feature/operator-overlay-v1'
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          set -euo pipefail
-          LOG="$(mktemp)"
-          if [ -s /tmp/operator-overlay-ci.log ]; then
+          CODE=${PIPESTATUS[0]}
+          if [ "$CODE" -ne 0 ] && [ "$GITHUB_EVENT_NAME" = 'push' ] && [ "$GITHUB_REF" = 'refs/heads/feature/operator-overlay-v1' ]; then
+            LOG="$(mktemp)"
             tail -c 50000 /tmp/operator-overlay-ci.log > "$LOG"
-          else
-            printf 'Overlay workflow failed before verify/build logging began. Inspect run %s.\n' "${GITHUB_RUN_ID}" > "$LOG"
+            BODY="$(mktemp)"
+            {
+              printf '### Operator overlay CI failure\n\nRun `%s`, source `%s`.\n\n```text\n' "$GITHUB_RUN_ID" "$GITHUB_SHA"
+              cat "$LOG"
+              printf '\n```\n'
+            } > "$BODY"
+            gh api --method POST "repos/${GITHUB_REPOSITORY}/issues/223/comments" -f "body=$(cat "$BODY")" || true
           fi
-          BODY="$(mktemp)"
-          {
-            printf '### Operator overlay CI failure\n\nRun `%s`, source `%s`.\n\n```text\n' "$GITHUB_RUN_ID" "$GITHUB_SHA"
-            cat "$LOG"
-            printf '\n```\n'
-          } > "$BODY"
-          gh issue comment 223 --repo "$GITHUB_REPOSITORY" --body-file "$BODY"
+          exit "$CODE"
 
       - name: Create immutable build receipt
         id: receipt
