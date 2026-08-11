@@ -145,19 +145,24 @@ def execute_action(action):
     if kind in OVERLAY_ACTIONS:
         return overlay_execute(action)
 
-    gate=overlay_control_gate()
-    if kind=='status_say' and gate.get('muted'):
-        return {
-            'ok':True,
-            'action':'status_say',
-            'muted':True,
-            'skipped':True,
-            'reason':'Muted from the on-screen Home Center operator overlay',
-        }
-
     screen=_screen_profile(action)
     if not screen:
+        # Diagnostics, development, files, local models, and maintenance never
+        # borrow physical-screen authority. Speech mute is state, not consent.
+        if kind=='status_say':
+            overlay_state=overlay_execute({'action':'operator_overlay_status'})
+            if overlay_state.get('muted'):
+                return {
+                    'ok':True,
+                    'action':'status_say',
+                    'muted':True,
+                    'skipped':True,
+                    'reason':'Muted from the on-screen Home Center operator overlay',
+                }
         return _dispatch_after_gate(action)
+
+    # Only a visible-screen action requires Drew's local control permission.
+    gate=overlay_control_gate()
 
     # Permission/liveness never imply screen ownership. Only explicit visible-screen
     # actions open this short lease. For injected tap/swipe/key/text actions, the
