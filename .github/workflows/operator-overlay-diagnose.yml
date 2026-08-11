@@ -1,0 +1,119 @@
+name: Operator Overlay Diagnose
+
+on:
+  push:
+    branches: [feature/operator-overlay-v1]
+    paths:
+      - 'android/operator-overlay/**'
+      - 'tools/android_operator_overlay.py'
+      - 'tools/android_phone_home_center_relay.py'
+      - 'tools/phone_hands_relay_contract_test.mjs'
+      - 'functions/phone_hands_relay.js'
+      - '.github/workflows/operator-overlay-diagnose.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  diagnose:
+    name: diagnose-${{ matrix.stage }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        stage:
+          - toolchain
+          - sdk
+          - gradle
+          - contracts
+          - project
+          - manifest
+          - javac
+          - assemble
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run ${{ matrix.stage }} probe
+        shell: bash
+        env:
+          STAGE: ${{ matrix.stage }}
+        run: |
+          set -euo pipefail
+
+          sdk_bootstrap() {
+            SDK_ROOT="${ANDROID_SDK_ROOT:-${ANDROID_HOME:-/usr/local/lib/android/sdk}}"
+            test -d "$SDK_ROOT"
+            export ANDROID_SDK_ROOT="$SDK_ROOT"
+            export ANDROID_HOME="$SDK_ROOT"
+            SDKMANAGER="$SDK_ROOT/cmdline-tools/latest/bin/sdkmanager"
+            if [ ! -x "$SDKMANAGER" ]; then
+              SDKMANAGER="$(find "$SDK_ROOT/cmdline-tools" -type f -name sdkmanager -perm -111 2>/dev/null | head -1 || true)"
+            fi
+            test -n "$SDKMANAGER"
+            test -x "$SDKMANAGER"
+            yes | "$SDKMANAGER" --licenses >/dev/null 2>&1 || true
+            "$SDKMANAGER" 'platforms;android-35' 'build-tools;35.0.0' >/dev/null
+          }
+
+          gradle_bootstrap() {
+            GRADLE_HOME=/tmp/gradle-8.9
+            if [ ! -x "$GRADLE_HOME/bin/gradle" ]; then
+              curl -fsSL --retry 3 --retry-delay 2 \
+                https://services.gradle.org/distributions/gradle-8.9-bin.zip \
+                -o /tmp/gradle.zip
+              unzip -q /tmp/gradle.zip -d /tmp
+            fi
+            test -x "$GRADLE_HOME/bin/gradle"
+          }
+
+          case "$STAGE" in
+            toolchain)
+              java -version
+              python --version
+              node --version
+              curl --version >/dev/null
+              unzip -v >/dev/null
+              ;;
+            sdk)
+              sdk_bootstrap
+              test -f "$ANDROID_SDK_ROOT/platforms/android-35/android.jar"
+              ;;
+            gradle)
+              gradle_bootstrap
+              "$GRADLE_HOME/bin/gradle" --version
+              ;;
+            contracts)
+              python -m py_compile tools/android_operator_overlay.py tools/android_phone_home_center_relay.py
+              node --check functions/phone_hands_relay.js
+              node tools/phone_hands_relay_contract_test.mjs
+              git diff --check
+              ;;
+            project)
+              sdk_bootstrap
+              gradle_bootstrap
+              cd android/operator-overlay
+              "$GRADLE_HOME/bin/gradle" :app:tasks --no-daemon
+              ;;
+            manifest)
+              sdk_bootstrap
+              gradle_bootstrap
+              cd android/operator-overlay
+              "$GRADLE_HOME/bin/gradle" :app:processDebugMainManifest --no-daemon --stacktrace
+              ;;
+            javac)
+              sdk_bootstrap
+              gradle_bootstrap
+              cd android/operator-overlay
+              "$GRADLE_HOME/bin/gradle" :app:compileDebugJavaWithJavac --no-daemon --stacktrace
+              ;;
+            assemble)
+              sdk_bootstrap
+              gradle_bootstrap
+              cd android/operator-overlay
+              "$GRADLE_HOME/bin/gradle" :app:assembleDebug --no-daemon --stacktrace
+              test -s app/build/outputs/apk/debug/app-debug.apk
+              ;;
+            *) exit 99 ;;
+          esac
