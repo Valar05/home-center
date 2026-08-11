@@ -31,6 +31,8 @@ public class OperatorOverlayService extends Service {
     private final Handler handler = new Handler(Looper.getMainLooper());
     private WindowManager windowManager;
     private WindowManager.LayoutParams windowParams;
+    private WindowManager.LayoutParams guardParams;
+    private View touchGuard;
     private LinearLayout root;
     private TextView status;
     private TextView meta;
@@ -39,8 +41,8 @@ public class OperatorOverlayService extends Service {
     private Button controlButton;
     private boolean expanded = false;
     private boolean confirmDisable = false;
-    private long downRawX;
-    private long downRawY;
+    private float downRawX;
+    private float downRawY;
     private int downX;
     private int downY;
 
@@ -84,6 +86,12 @@ public class OperatorOverlayService extends Service {
             } catch (RuntimeException ignored) {
             }
         }
+        if (windowManager != null && touchGuard != null) {
+            try {
+                windowManager.removeView(touchGuard);
+            } catch (RuntimeException ignored) {
+            }
+        }
         super.onDestroy();
     }
 
@@ -115,6 +123,23 @@ public class OperatorOverlayService extends Service {
 
     private void createOverlay() {
         windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
+
+        // The full-screen guard is intentionally a separate overlay window. It is
+        // added before the control strip so the strip remains usable above it.
+        // While control is enabled the guard consumes ordinary touches and keeps
+        // Drew from accidentally fighting Phone Hands. Disabling control makes the
+        // guard non-touchable without hiding the always-visible control strip.
+        touchGuard = new View(this);
+        touchGuard.setOnTouchListener((view, event) -> true);
+        guardParams = new WindowManager.LayoutParams(
+                WindowManager.LayoutParams.MATCH_PARENT,
+                WindowManager.LayoutParams.MATCH_PARENT,
+                WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
+                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE |
+                        WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN,
+                PixelFormat.TRANSLUCENT);
+        guardParams.gravity = Gravity.TOP | Gravity.START;
+        windowManager.addView(touchGuard, guardParams);
 
         root = new LinearLayout(this);
         root.setOrientation(LinearLayout.VERTICAL);
@@ -172,8 +197,8 @@ public class OperatorOverlayService extends Service {
         status.setOnTouchListener((view, event) -> {
             switch (event.getActionMasked()) {
                 case MotionEvent.ACTION_DOWN:
-                    downRawX = (long) event.getRawX();
-                    downRawY = (long) event.getRawY();
+                    downRawX = event.getRawX();
+                    downRawY = event.getRawY();
                     downX = windowParams.x;
                     downY = windowParams.y;
                     return true;
@@ -218,13 +243,25 @@ public class OperatorOverlayService extends Service {
             latest.setMaxLines(30);
             latest.setMaxHeight(dp(560));
             latest.setEllipsize(null);
-            meta.setText(meta.getText() + " • tap text to collapse");
         } else {
             latest.setMaxLines(2);
             latest.setMaxHeight(Integer.MAX_VALUE);
             latest.setEllipsize(TextUtils.TruncateAt.END);
         }
         latest.requestLayout();
+        refreshUi();
+    }
+
+    private void syncTouchGuard(boolean enabled) {
+        if (windowManager == null || touchGuard == null || guardParams == null) return;
+        int flags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE |
+                WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN;
+        if (!enabled) flags |= WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE;
+        if (guardParams.flags != flags) {
+            guardParams.flags = flags;
+            windowManager.updateViewLayout(touchGuard, guardParams);
+        }
+        touchGuard.setBackgroundColor(enabled ? Color.argb(8, 0, 0, 0) : Color.TRANSPARENT);
     }
 
     private void refreshUi() {
@@ -234,6 +271,8 @@ public class OperatorOverlayService extends Service {
         boolean muted = OperatorState.muted(this);
         long heartbeat = OperatorState.lastHeartbeatMs(this);
         boolean online = heartbeat > 0 && now - heartbeat <= ONLINE_WINDOW_MS;
+
+        syncTouchGuard(enabled);
 
         String state;
         int stateColor;
