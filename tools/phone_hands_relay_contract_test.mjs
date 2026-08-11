@@ -6,6 +6,7 @@ const agent=fs.readFileSync('tools/android_phone_home_center_relay.py','utf8');
 const shell=fs.readFileSync('tools/android_phone_termux_shell.py','utf8');
 const overlay=fs.readFileSync('tools/android_operator_overlay.py','utf8');
 const overlayInstaller=fs.readFileSync('tools/setup_android_operator_overlay.sh','utf8');
+const overlayWorkflow=fs.readFileSync('.github/workflows/operator-overlay-android.yml','utf8');
 const overlayManifest=fs.readFileSync('android/operator-overlay/app/src/main/AndroidManifest.xml','utf8');
 const overlayService=fs.readFileSync('android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java','utf8');
 const overlayState=fs.readFileSync('android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorState.java','utf8');
@@ -32,6 +33,8 @@ for (const s of ['controlEnabled','muted','control_gate','STATE_URI','content qu
 if (overlay.includes("if not state.get('installed'):\n        return state")) throw new Error('missing overlay state must never bypass the user control gate');
 for (const s of ['/data/local/tmp/home-center-operator-overlay.apk','STAGED_SHA','pm install -r',"grep -qx 'Success'",'pm list packages $PACKAGE','SYSTEM_ALERT_WINDOW: allow','control_enabled=']) if (!overlayInstaller.includes(s)) throw new Error('operator overlay installer verification contract missing '+s);
 if (overlayInstaller.includes("pm install -r '$OUT'")) throw new Error('installer must not pass shared-storage Termux path directly to system_server');
+for (const s of ['version_name = match.group(1)',"'touchGuardWhileEnabled': False","'touchGuardMode': 'active_screen_lease'","'activeScreenLeaseRequired': True","'panelDraggable': True","'panelCollapsible': True"]) if (!overlayWorkflow.includes(s)) throw new Error('operator overlay immutable receipt policy missing '+s);
+if (overlayWorkflow.includes("'versionName': '1.0.0'")) throw new Error('overlay workflow must derive artifact version from Gradle');
 for (const s of ['SYSTEM_ALERT_WINDOW','FOREGROUND_SERVICE_SPECIAL_USE','RECEIVE_BOOT_COMPLETED','android.permission.DUMP','OperatorOverlayService','OperatorStateProvider','BootReceiver']) if (!overlayManifest.includes(s)) throw new Error('operator overlay Android manifest missing '+s);
 for (const s of ['ACTION_SCREEN_ACTIVITY','REMOTE INPUT • ACTIVE','REMOTE INPUT • local input blocked','REMOTE INPUT • action pulse','Hide','Show','panelCollapsed','screenActiveUntilMs','screenYieldUntilMs','Confirm disable','Disable control','Enable control','Mute','Unmute','HOME CENTER • ON','HOME CENTER • OFFLINE','CONTROL OFF','setMaxLines(30)','setMaxLines(2)','touchGuard','MATCH_PARENT','FLAG_NOT_TOUCHABLE','syncTouchGuard','setOnTouchListener((view, event) -> true)','ScrollingMovementMethod','setVerticalScrollBarEnabled(true)','Math.min(proposedX, maxX)','Math.min(proposedY, maxY)','syncTouchGuard(enabled && online && screenActive && !screenYield)']) if (!overlayService.includes(s)) throw new Error('operator overlay active-screen/draggable/collapsible UI contract missing '+s);
 if (overlayService.includes('syncTouchGuard(enabled && online);')) throw new Error('enabled+online must never by itself block local input');
@@ -57,4 +60,4 @@ for (const s of ['ALLOWED_ROOTS','verified_copy','sha256_file','glb_inventory','
 for (const s of ['--background','slice_receipt.json','blender_path','timeoutSeconds']) if (!armoryDriver.includes(s)) throw new Error('armory driver contract missing '+s);
 for (const s of ["separate(type='LOOSE')",'parts.json','contact_sheet_all_parts.png','reassembled.glb','semanticCategory']) if (!armoryBlender.includes(s)) throw new Error('armory Blender contract missing '+s);
 if (relay.includes('deviceToken:'+' token')) throw new Error('device token must not be returned by MCP');
-console.log('phone hands relay + active-screen-only operator guard + draggable/collapsible panel + fail-closed state gate + verified install + offline pass-through + background Termux shell + deterministic factory + Armory slicer contract: PASS');
+console.log('phone hands relay + active-screen-only operator guard + draggable/collapsible panel + truthful immutable receipt + fail-closed state gate + verified install + offline pass-through + background Termux shell + deterministic factory + Armory slicer contract: PASS');
