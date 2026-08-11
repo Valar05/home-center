@@ -12,7 +12,10 @@ public class OperatorStateProvider extends ContentProvider {
             "muted",
             "last_heartbeat_ms",
             "last_update_ms",
-            "latest_source"
+            "latest_source",
+            "screen_active_until_ms",
+            "screen_yield_until_ms",
+            "panel_collapsed"
     };
 
     @Override
@@ -28,7 +31,10 @@ public class OperatorStateProvider extends ContentProvider {
                 OperatorState.muted(getContext()) ? 1 : 0,
                 OperatorState.lastHeartbeatMs(getContext()),
                 OperatorState.lastUpdateMs(getContext()),
-                OperatorState.latestSource(getContext())
+                OperatorState.latestSource(getContext()),
+                OperatorState.screenActiveUntilMs(getContext()),
+                OperatorState.screenYieldUntilMs(getContext()),
+                OperatorState.panelCollapsed(getContext()) ? 1 : 0
         });
         return cursor;
     }
