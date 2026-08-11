@@ -168,6 +168,10 @@
       "tools/deploy_firebase.sh": {
         "kind": "firebase-functions",
         "reason": "This is the legacy mixed Firebase control/data-plane deployment wrapper, not a worker deployment."
+      },
+      ".github/workflows/deploy-browser-nerve.yml": {
+        "kind": "cloud-functions",
+        "reason": "This deploys the Browser Nerve HTTP API and deterministic page-command control plane; it does not host an isolated browser session, so the browser-session worker remains a target."
       }
     }
   }
