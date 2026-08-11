@@ -6,6 +6,10 @@ let pairing = null; // Deliberately memory-only: extension restart revokes autho
 let stopped = false;
 
 chrome.action.onClicked.addListener(async (tab) => {
+  if (pairing) {
+    await revoke('visible_action_kill_switch');
+    return;
+  }
   stopped = false;
   pairing = null;
   try {
@@ -14,13 +18,13 @@ chrome.action.onClicked.addListener(async (tab) => {
     const observation = probe?.result || {};
     observation.gesture = 'extension_action_click';
     observation.tabId = tab.id;
-    observation.tabSessionId = crypto.randomUUID();
-    observation.leaseId = crypto.randomUUID();
+    observation.windowId = tab.windowId;
+    observation.documentId = probe?.documentId || '';
     if (observation.accountLabel) {
       observation.accountHash = await digest(observation.accountLabel);
       delete observation.accountLabel;
     }
-    const result = await jsonFetch(`${RELAY}/pair`, {intent, observation});
+    const result = await jsonFetch(`${RELAY}/pair`, {pairingId: intent.pairingId, observation});
     pairing = result.receipt;
     chrome.action.setBadgeText({tabId: tab.id, text: 'ON'});
     chrome.action.setBadgeBackgroundColor({tabId: tab.id, color: '#19723d'});
@@ -83,12 +87,12 @@ async function digest(value) {
 function probeCurrentTab() {
   const loginVisible = [...document.querySelectorAll('button,a')].some((node) => /^(log in|sign up)$/i.test((node.innerText || node.textContent || '').trim()));
   const profile = document.querySelector('[data-testid="profile-button"],button[aria-label*="profile" i],button[aria-label*="account" i]');
-  const accountLabel = profile?.getAttribute('aria-label') || profile?.textContent?.trim() || '';
+  const accountLabel = profile?.getAttribute('data-user-id') || profile?.getAttribute('data-account-id') || '';
   return {
     origin: location.origin,
     url: location.href,
     title: document.title,
-    authenticationState: !loginVisible && accountLabel ? 'dom_verified' : 'unverified',
+    authenticationState: !loginVisible && accountLabel ? 'dom_verified' : 'account_unverified',
     accountLabel,
     visibleConversationLinks: [...document.querySelectorAll('a[href*="/c/"]')].slice(0, 200).map((node) => ({href: node.href, title: (node.textContent || '').trim().slice(0, 300)})),
   };
