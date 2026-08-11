@@ -1,4 +1,4 @@
-﻿import test from "node:test";
+import test from "node:test";
 import assert from "node:assert/strict";
 import {
   ChatProjectRegistry, EmergencyAuthorityLedger, canonical, evaluateRoute,
@@ -71,4 +71,3 @@ test("100 receipt hashes are stable and request-sensitive", () => {
   for (let i = 0; i < 100; i++) hashes.add(evaluateRoute(req({ requestId: `req.${1000 + i}` }), table(), caps()).receiptSha256);
   assert.equal(hashes.size, 100);
 });
-
