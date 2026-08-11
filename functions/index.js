@@ -3900,4 +3900,1389 @@ function metalSmokeTools() {
     mk('drive.read_metadata', 'Read Google Drive file or folder metadata by fileId.', 'drive', false, false, ['https://www.googleapis.com/auth/drive'], ['fileId']),
     mk('drive.create_folder', 'Create a Google Drive folder.', 'drive', true, true, ['https://www.googleapis.com/auth/drive'], ['name', 'parentId']),
     mk('drive.update_metadata', 'Rename or move a Google Drive file or folder.', 'drive', true, true, ['https://www.googleapis.com/auth/drive'], ['fileId', 'name', 'addParentId', 'removeParentId']),
-    mk('docs.search', 'Search Google Docs in Drive.', 'docs', false, false, ['https://www.googleap
+    mk('docs.search', 'Search Google Docs in Drive.', 'docs', false, false, ['https://www.googleapis.com/auth/drive'], ['query', 'folderName', 'pageSize']),
+    mk('docs.read', 'Read text content from a Google Doc by fileId.', 'docs', false, false, ['https://www.googleapis.com/auth/drive', 'https://www.googleapis.com/auth/documents'], ['fileId', 'name']),
+    mk('docs.create', 'Create a Google Doc and optionally insert body text.', 'docs', true, true, ['https://www.googleapis.com/auth/drive', 'https://www.googleapis.com/auth/documents'], ['title', 'body', 'folderId']),
+    mk('docs.update', 'Update a Google Doc by appending, replacing, or replacing the body.', 'docs', true, true, ['https://www.googleapis.com/auth/drive', 'https://www.googleapis.com/auth/documents'], ['fileId', 'name', 'folderName', 'appendText', 'replaceText', 'body']),
+  ];
+}
+
+function smokeCleanArg(args, name) {
+  return typeof (args || {})[name] === 'string' ? args[name].trim() : '';
+}
+
+function smokeToolError(toolName, error, detail) {
+  return {tool: toolName, ok: false, error, detail: safeText(detail, 1000), files: [], content: ''};
+}
+
+function smokeFileJson(file) {
+  return {
+    id: file.id || '',
+    name: file.name || '',
+    mimeType: file.mimeType || '',
+    modifiedTime: file.modifiedTime || '',
+    webViewLink: file.webViewLink || '',
+    parents: file.parents || [],
+  };
+}
+
+class MetalSmokeHost {
+  constructor(auth, evidence) {
+    this.auth = auth;
+    this.drive = google.drive({version: 'v3', auth});
+    this.docs = google.docs({version: 'v1', auth});
+    this.evidence = evidence;
+    this.root = null;
+    this.folder = null;
+    this.allowedFolderIds = new Set();
+  }
+
+  async prepare(runId) {
+    this.root = await this.findFolder('Home Center Smoke Sandbox');
+    if (!this.root) this.root = await this.createFolder('Home Center Smoke Sandbox', '');
+    await this.trashOldRuns();
+    this.folder = await this.createFolder(`HC_SMOKE_RUN_${runId}`, this.root.id);
+    this.allowedFolderIds = new Set([this.folder.id]);
+    this.evidence.sandbox = {rootId: this.root.id, folderId: this.folder.id, folderName: this.folder.name};
+  }
+
+  async cleanup() {
+    if (!this.folder || !this.folder.id) return {ok: false, skipped: true};
+    await this.drive.files.update({fileId: this.folder.id, requestBody: {trashed: true}, fields: 'id,trashed'});
+    return {ok: true, folderId: this.folder.id};
+  }
+
+  async findFolder(name, parentId = '') {
+    const clauses = [`mimeType='application/vnd.google-apps.folder'`, `name='${this.escapeQuery(name)}'`, 'trashed=false'];
+    if (parentId) clauses.push(`'${this.escapeQuery(parentId)}' in parents`);
+    const files = await this.listFiles(clauses.join(' and '), 10);
+    return files[0] || null;
+  }
+
+  async createFolder(name, parentId) {
+    const requestBody = {name, mimeType: 'application/vnd.google-apps.folder'};
+    if (parentId) requestBody.parents = [parentId];
+    const result = await this.drive.files.create({requestBody, fields: 'id,name,mimeType,webViewLink,parents'});
+    return result.data;
+  }
+
+  async trashOldRuns() {
+    const q = [
+      "mimeType='application/vnd.google-apps.folder'",
+      "name contains 'HC_SMOKE_RUN_'",
+      `'${this.escapeQuery(this.root.id)}' in parents`,
+      'trashed=false',
+    ].join(' and ');
+    const files = await this.listFiles(q, 20);
+    for (const file of files) {
+      await this.drive.files.update({fileId: file.id, requestBody: {trashed: true}, fields: 'id,trashed'});
+    }
+  }
+
+  async listFiles(q, pageSize = 10) {
+    const result = await this.drive.files.list({
+      q,
+      pageSize,
+      fields: 'files(id,name,mimeType,modifiedTime,webViewLink,parents,trashed)',
+      orderBy: 'modifiedTime desc',
+      supportsAllDrives: true,
+      includeItemsFromAllDrives: true,
+    });
+    return result.data.files || [];
+  }
+
+  escapeQuery(value) {
+    return String(value || '').replace(/'/g, "\\'").trim();
+  }
+
+  sandboxQuery(args, fixedMimeType = '') {
+    const clauses = [`'${this.escapeQuery(this.folder.id)}' in parents`, 'trashed=false'];
+    const mimeType = fixedMimeType || smokeCleanArg(args, 'mimeType');
+    const query = smokeCleanArg(args, 'query') || smokeCleanArg(args, 'name') || smokeCleanArg(args, 'title');
+    if (mimeType) clauses.push(`mimeType='${this.escapeQuery(mimeType)}'`);
+    if (query) clauses.push(`name contains '${this.escapeQuery(query)}'`);
+    return clauses.join(' and ');
+  }
+
+  async fileMetadata(fileId) {
+    const result = await this.drive.files.get({fileId, fields: 'id,name,mimeType,modifiedTime,webViewLink,parents,trashed', supportsAllDrives: true});
+    return result.data || {};
+  }
+
+  async assertInSandbox(fileId, toolName) {
+    const file = await this.fileMetadata(fileId);
+    const parents = Array.isArray(file.parents) ? file.parents : [];
+    const inAllowedFolder = parents.some((parentId) => this.allowedFolderIds.has(parentId));
+    if (file.trashed || !inAllowedFolder) {
+      throw new Error(`sandbox_violation: ${toolName} tried to use ${file.name || fileId} outside ${this.folder.name}`);
+    }
+    return file;
+  }
+
+  async execute(toolName, args) {
+    this.evidence.toolExecutions.push({toolName, arguments: args || {}});
+    if (toolName === 'drive.search') return this.search(toolName, args || {}, '');
+    if (toolName === 'docs.search') return this.search(toolName, args || {}, 'application/vnd.google-apps.document');
+    if (toolName === 'drive.read_metadata') return this.readMetadata(args || {});
+    if (toolName === 'drive.create_folder') return this.createDriveFolder(args || {});
+    if (toolName === 'drive.update_metadata') return this.updateMetadata(args || {});
+    if (toolName === 'docs.create') return this.createDoc(args || {});
+    if (toolName === 'docs.read') return this.readDoc(args || {});
+    if (toolName === 'docs.update') return this.updateDoc(args || {});
+    return smokeToolError(toolName, 'unimplemented_metal_tool', `Metal smoke does not implement ${toolName}.`);
+  }
+
+  async search(toolName, args, fixedMimeType) {
+    const files = await this.listFiles(this.sandboxQuery(args, fixedMimeType), Math.max(1, Math.min(10, Number(args.pageSize || 5))));
+    return {tool: toolName, ok: true, error: '', detail: '', files: files.map(smokeFileJson), content: ''};
+  }
+
+  async readMetadata(args) {
+    const fileId = smokeCleanArg(args, 'fileId');
+    if (!fileId) return smokeToolError('drive.read_metadata', 'missing_file_id', 'drive.read_metadata requires fileId.');
+    const file = await this.assertInSandbox(fileId, 'drive.read_metadata');
+    return {tool: 'drive.read_metadata', ok: true, error: '', detail: '', file: smokeFileJson(file), files: [], content: ''};
+  }
+
+  async createDriveFolder(args) {
+    const parentId = smokeCleanArg(args, 'parentId') || this.folder.id;
+    if (!this.allowedFolderIds.has(parentId)) throw new Error('sandbox_violation: drive.create_folder parentId outside sandbox');
+    const file = await this.createFolder(smokeCleanArg(args, 'name') || `Smoke Child ${Date.now()}`, parentId);
+    if (file.id) this.allowedFolderIds.add(file.id);
+    return {tool: 'drive.create_folder', ok: true, error: '', detail: 'drive_folder_created', status: 'drive_folder_created', file: smokeFileJson(file), title: file.name, files: [], content: ''};
+  }
+
+  async updateMetadata(args) {
+    const fileId = smokeCleanArg(args, 'fileId');
+    if (!fileId) return smokeToolError('drive.update_metadata', 'missing_file_id', 'drive.update_metadata requires fileId.');
+    await this.assertInSandbox(fileId, 'drive.update_metadata');
+    const requestBody = {};
+    if (smokeCleanArg(args, 'name')) requestBody.name = smokeCleanArg(args, 'name');
+    const params = {fileId, requestBody, fields: 'id,name,mimeType,webViewLink,parents'};
+    if (smokeCleanArg(args, 'addParentId')) params.addParents = smokeCleanArg(args, 'addParentId');
+    if (smokeCleanArg(args, 'removeParentId')) params.removeParents = smokeCleanArg(args, 'removeParentId');
+    if (params.addParents && !this.allowedFolderIds.has(params.addParents)) throw new Error('sandbox_violation: drive.update_metadata addParentId outside sandbox');
+    const result = await this.drive.files.update(params);
+    const file = result.data || {};
+    return {tool: 'drive.update_metadata', ok: true, error: '', detail: 'drive_metadata_updated', status: 'drive_metadata_updated', file: smokeFileJson(file), title: file.name || '', files: [], content: ''};
+  }
+
+  async createDoc(args) {
+    const folderId = smokeCleanArg(args, 'folderId') || this.folder.id;
+    if (!this.allowedFolderIds.has(folderId)) throw new Error('sandbox_violation: docs.create folderId outside sandbox');
+    const title = smokeCleanArg(args, 'title') || 'Home Center Metal Smoke';
+    const body = smokeCleanArg(args, 'body');
+    const created = await this.docs.documents.create({requestBody: {title}});
+    const documentId = created.data.documentId;
+    if (!documentId) throw new Error('docs.create did not return documentId');
+    if (body) {
+      await this.docs.documents.batchUpdate({documentId, requestBody: {requests: [{insertText: {location: {index: 1}, text: body}}]}});
+    }
+    await this.drive.files.update({fileId: documentId, addParents: folderId, requestBody: {}, fields: 'id,parents'});
+    const file = await this.assertInSandbox(documentId, 'docs.create');
+    return {tool: 'docs.create', ok: true, error: '', detail: 'google_doc_created', status: 'google_doc_created', file: smokeFileJson(file), title: file.name || title, webViewLink: file.webViewLink || '', files: [], content: ''};
+  }
+
+  async readDoc(args) {
+    const fileId = smokeCleanArg(args, 'fileId');
+    if (!fileId) return smokeToolError('docs.read', 'missing_file_id', 'docs.read requires fileId.');
+    const file = await this.assertInSandbox(fileId, 'docs.read');
+    const exported = await this.drive.files.export({fileId, mimeType: 'text/plain'}, {responseType: 'text'});
+    return {tool: 'docs.read', ok: true, error: '', detail: '', file: smokeFileJson(file), files: [], content: String(exported.data || '')};
+  }
+
+  async updateDoc(args) {
+    const fileId = smokeCleanArg(args, 'fileId');
+    if (!fileId) return smokeToolError('docs.update', 'missing_file_id', 'docs.update requires fileId.');
+    await this.assertInSandbox(fileId, 'docs.update');
+    const appendText = smokeCleanArg(args, 'appendText');
+    const replaceText = smokeCleanArg(args, 'replaceText');
+    const body = smokeCleanArg(args, 'body');
+    if (!appendText && !replaceText && !body) return smokeToolError('docs.update', 'missing_update', 'Provide appendText, replaceText, or body.');
+    const doc = await this.docs.documents.get({documentId: fileId, fields: 'body(content(endIndex))'});
+    const content = (doc.data.body && doc.data.body.content) || [];
+    const endIndex = Math.max(1, ...content.map((entry) => Number(entry.endIndex || 1)));
+    const requests = [];
+    if (body) {
+      if (endIndex > 2) requests.push({deleteContentRange: {range: {startIndex: 1, endIndex: endIndex - 1}}});
+      requests.push({insertText: {location: {index: 1}, text: body}});
+    } else if (replaceText) {
+      requests.push({replaceAllText: {containsText: {text: replaceText, matchCase: true}, replaceText: appendText}});
+    } else {
+      requests.push({insertText: {location: {index: Math.max(1, endIndex - 1)}, text: appendText.startsWith('\n') ? appendText : `\n${appendText}`}});
+    }
+    await this.docs.documents.batchUpdate({documentId: fileId, requestBody: {requests}});
+    const file = await this.assertInSandbox(fileId, 'docs.update');
+    return {tool: 'docs.update', ok: true, error: '', detail: 'google_doc_updated', status: 'google_doc_updated', file: smokeFileJson(file), title: file.name || '', webViewLink: file.webViewLink || '', files: [], content: ''};
+  }
+}
+
+function updateSmokeWorkingMemory(workingMemory, toolName, args, result) {
+  if (!result || !result.ok) return;
+  const splitPlan = workingMemory && workingMemory.documentSplitPlan && typeof workingMemory.documentSplitPlan === 'object' ? workingMemory.documentSplitPlan : null;
+  if (splitPlan && Array.isArray(splitPlan.parts)) {
+    if (!splitPlan.progress || typeof splitPlan.progress !== 'object') splitPlan.progress = {};
+    if (toolName === 'docs.read') splitPlan.progress.sourceRead = true;
+    if (toolName === 'drive.create_folder') {
+      const folder = result.file || {};
+      const part = splitPlan.parts.find((entry) => entry && safeText(entry.folderName, 240) === safeText(folder.name || args.name, 240));
+      if (part) {
+        const role = safeText(part.role, 80) || safeText(part.title, 80);
+        splitPlan.progress[role] = Object.assign({}, splitPlan.progress[role] || {}, {folderId: folder.id || '', folderName: folder.name || args.name || ''});
+      }
+    }
+    if (toolName === 'docs.create') {
+      const file = result.file || {};
+      const part = splitPlan.parts.find((entry) => entry && safeText(entry.title, 240) === safeText(result.title || file.name || args.title, 240));
+      if (part) {
+        const role = safeText(part.role, 80) || safeText(part.title, 80);
+        splitPlan.progress[role] = Object.assign({}, splitPlan.progress[role] || {}, {documentId: file.id || '', documentName: result.title || file.name || args.title || ''});
+      }
+    }
+  }
+  if (toolName === 'docs.create' || toolName === 'docs.update' || toolName === 'docs.read') {
+    const file = result.file || {};
+    workingMemory.lastDocument = {
+      fileId: file.id || smokeCleanArg(args, 'fileId'),
+      name: result.title || file.name || smokeCleanArg(args, 'name') || smokeCleanArg(args, 'title'),
+      webViewLink: result.webViewLink || file.webViewLink || '',
+      sourceTool: toolName,
+    };
+  }
+  if (toolName === 'docs.search' && Array.isArray(result.files) && result.files.length === 1) {
+    const file = result.files[0];
+    workingMemory.lastDocument = {fileId: file.id || '', name: file.name || '', webViewLink: file.webViewLink || '', sourceTool: toolName};
+  }
+  if (toolName === 'drive.create_folder' || toolName === 'drive.update_metadata') {
+    const file = result.file || {};
+    if (file.id && file.mimeType === 'application/vnd.google-apps.folder') {
+      workingMemory.lastFolder = {fileId: file.id, name: file.name || smokeCleanArg(args, 'name'), sourceTool: toolName};
+    }
+  }
+}
+
+async function runSmokeTurn(host, evidence, state, message, expected = {}, user = {}) {
+  const toolResults = [];
+  const turn = {message, responses: [], toolResults: []};
+  evidence.turns.push(turn);
+  for (let step = 0; step < 8; step++) {
+    const body = {
+      message,
+      transcript: state.transcript || '',
+      summary: '',
+      toolResults,
+      tools: metalSmokeTools(),
+      unavailableToolGroups: [],
+      workingMemory: state.workingMemory,
+      timeContext: {nowEpochMillis: Date.now(), nowIso: new Date().toISOString(), timeZoneId: 'UTC'},
+      evidenceContext: {latestUserReport: message, recentConversationEvidence: state.transcript || ''},
+      attachmentImages: [],
+      debugTrace: true,
+    };
+    if (state.pendingConfirmation) body.pendingConfirmation = state.pendingConfirmation;
+    const response = await askOpenAIToolTurn(body, user);
+    turn.responses.push(response);
+    if (response.type === 'tool_call' && response.toolName) {
+      const result = await host.execute(response.toolName, response.arguments || {});
+      updateSmokeWorkingMemory(state.workingMemory, response.toolName, response.arguments || {}, result);
+      toolResults.push({name: response.toolName, arguments: response.arguments || {}, result});
+      turn.toolResults.push({name: response.toolName, result});
+      if (!result || !result.ok) throw new Error(`${response.toolName} failed: ${(result && (result.detail || result.error)) || 'unknown error'}`);
+      if (response.arguments && response.arguments._confirmedByGateway) {
+        state.pendingConfirmation = null;
+        state.transcript = `${state.transcript || ''}\nUser: ${message}\nAssistant: ${result.status || result.detail || response.toolName}`.trim().slice(-8000);
+        return response;
+      }
+      continue;
+    }
+    if (response.pendingConfirmation) state.pendingConfirmation = response.pendingConfirmation; else if (response.status !== 'confirmation_required') state.pendingConfirmation = null;
+    if (expected.status && response.status !== expected.status) throw new Error(`Expected ${expected.status} for "${message}", got ${response.status}`);
+    if (expected.pendingTool && (!response.pendingConfirmation || response.pendingConfirmation.toolName !== expected.pendingTool)) throw new Error(`Expected pending ${expected.pendingTool} for "${message}".`);
+    const reply = response.reply || response.text || '';
+    for (const forbidden of ['I did not get a valid GPT-5.5 response', 'I did not get a useful GPT-5.5 response', 'tell me the main ingredient', 'second constraint', 'name":"that document"', 'title":"that document"']) {
+      if (JSON.stringify(response).includes(forbidden)) throw new Error(`Forbidden smoke response text: ${forbidden}`);
+    }
+    for (const needle of expected.contains || []) {
+      if (!reply.includes(needle)) throw new Error(`Expected reply to contain "${needle}".`);
+    }
+    if (expected.minReplyChars && reply.length < Number(expected.minReplyChars)) {
+      throw new Error(`Expected reply length >= ${expected.minReplyChars} for "${message}", got ${reply.length}.`);
+    }
+    state.transcript = `${state.transcript || ''}\nUser: ${message}\nAssistant: ${reply}`.trim().slice(-8000);
+    return response;
+  }
+  throw new Error(`Smoke turn did not converge for "${message}".`);
+}
+
+async function runDocsCreateUpdateReadSmoke(host, evidence, runId, user = {}) {
+  const title = `Home Center Metal Smoke ${runId}`;
+  const firstLine = `First metal smoke line ${runId}.`;
+  const secondLine = `Second metal smoke line ${runId}.`;
+  const state = {
+    transcript: '',
+    pendingConfirmation: null,
+    workingMemory: {
+      smokeSandbox: {
+        enabled: true,
+        folderId: host.folder.id,
+        folderName: host.folder.name,
+        instruction: 'Use only this Drive folder for this smoke run.',
+      },
+    },
+  };
+  await runSmokeTurn(host, evidence, state, `Create a Google Doc titled ${title} with body ${firstLine}`, {status: 'confirmation_required', pendingTool: 'docs.create'}, user);
+  await runSmokeTurn(host, evidence, state, 'confirm create', {}, user);
+  if (!state.workingMemory.lastDocument || state.workingMemory.lastDocument.name !== title) throw new Error('docs.create did not establish lastDocument working memory.');
+  await runSmokeTurn(host, evidence, state, `Append "${secondLine}" to that document.`, {status: 'confirmation_required', pendingTool: 'docs.update'}, user);
+  await runSmokeTurn(host, evidence, state, 'confirm edit', {}, user);
+  const finalResponse = await runSmokeTurn(host, evidence, state, 'Read that document and tell me the full text.', {contains: [firstLine, secondLine]}, user);
+  const directRead = await host.readDoc({fileId: state.workingMemory.lastDocument.fileId});
+  if (!directRead.content.includes(firstLine) || !directRead.content.includes(secondLine)) throw new Error('Direct Docs verification did not find both smoke lines.');
+  evidence.finalReply = finalResponse.reply || finalResponse.text || '';
+  evidence.directDocText = directRead.content;
+}
+
+async function runCreativeDocReadFinalizesSmoke(host, evidence, runId, user = {}) {
+  const sourceTitle = `Lexen Green Commander Doctrine Updates and Simulation ${runId}`;
+  const sourceContent = [
+    'Doctrine Updates and Saved Simulation.',
+    'Lexen style critique has to be source-grounded, not inferred from a fragment or doctrine summary.',
+    'The desired writing stays embodied: specific damage, crew behavior, vehicle constraints, shame, fatigue, ritual, silence, small practical choices.',
+    'The doctrine should emerge from pressure, not be announced in polished thematic lines.',
+    'Lexen remains afraid and becomes usable anyway.',
+  ].join('\n');
+  const sourceDoc = await host.createDoc({title: sourceTitle, body: sourceContent, folderId: host.folder.id});
+  const exactPrompt = "Now it's your turn.  Don't continue the story.  Pick it up at an arbitrary point that I interest you.  And make a simulated chapter here.  Lexen green commander";
+  const state = {
+    transcript: '',
+    pendingConfirmation: null,
+    workingMemory: {
+      smokeSandbox: {
+        enabled: true,
+        folderId: host.folder.id,
+        folderName: host.folder.name,
+        instruction: 'Use only this Drive folder for this smoke run.',
+      },
+      activeTask: {
+        status: 'in_progress',
+        objective: 'Write a simulated Lexen green commander chapter from remembered/source context',
+        originalUserRequest: "Now it's your turn. Don't continue the story. Pick it up at an arbitrary point that I interest you. And make a simulated chapter here. Lexen green commander",
+      },
+      lastDocument: {
+        fileId: sourceDoc.file.id,
+        name: sourceTitle,
+        webViewLink: sourceDoc.webViewLink || '',
+        sourceTool: 'smoke.seed',
+      },
+    },
+  };
+  const finalResponse = await runSmokeTurn(host, evidence, state, exactPrompt, {
+    status: 'evidence_finalized',
+    contains: ['Lexen'],
+    minReplyChars: 700,
+  }, user);
+  const readCount = evidence.toolExecutions.filter((entry) => entry && entry.toolName === 'docs.read').length;
+  if (readCount < 1) throw new Error('Creative docs smoke did not execute docs.read before final prose.');
+  const responseText = JSON.stringify(finalResponse);
+  for (const forbidden of ['planner_json_error', 'github.create_issue', 'I found', 'I read', 'confirmation_required', 'need more context']) {
+    if (responseText.includes(forbidden)) throw new Error(`Forbidden creative docs smoke response text: ${forbidden}`);
+  }
+  evidence.finalReply = finalResponse.reply || finalResponse.text || '';
+  evidence.seedDocument = {id: sourceDoc.file.id, name: sourceTitle};
+}
+
+function splitFixtureFromBody(body, runId) {
+  const fixture = body && body.splitFixture && typeof body.splitFixture === 'object' ? body.splitFixture : {};
+  const defaultParts = [
+    {
+      role: 'procedures',
+      folderName: `Writing Procedures ${runId}`,
+      title: `Writing Procedures ${runId}`,
+      body: 'Procedures and doctrine notes.\nProcedure: preserve artifact boundaries.\nDoctrine: split operational notes from story prose.',
+      required: ['Procedure', 'Doctrine'],
+      forbidden: ['Story scene'],
+    },
+    {
+      role: 'story',
+      folderName: `Writing Story ${runId}`,
+      title: `Writing Story ${runId}`,
+      body: 'Story scene notes.\nThe character waits in the vehicle while the scene pressure rises.',
+      required: ['Story', 'scene'],
+      forbidden: ['Procedure:', 'Doctrine:'],
+    },
+  ];
+  const parts = Array.isArray(fixture.parts) && fixture.parts.length
+    ? fixture.parts.slice(0, 4).map((part, index) => ({
+      role: safeText(part && part.role, 80) || `part_${index + 1}`,
+      folderName: safeText(part && part.folderName, 240) || `Writing Part ${index + 1} ${runId}`,
+      title: safeText(part && part.title, 240) || `Writing Part ${index + 1} ${runId}`,
+      body: safeText(part && part.body, 12000),
+      required: Array.isArray(part && part.required) ? part.required.map((value) => safeText(value, 120)).filter(Boolean).slice(0, 12) : [],
+      forbidden: Array.isArray(part && part.forbidden) ? part.forbidden.map((value) => safeText(value, 120)).filter(Boolean).slice(0, 12) : [],
+    }))
+    : defaultParts;
+  return {
+    sourceTitle: safeText(fixture.sourceTitle, 240) || `Writing Procedures and Story Mega Doc ${runId}`,
+    sourceContent: safeText(fixture.sourceContent, 20000) || [
+      'Mixed writing notes.',
+      '',
+      'PROCEDURES AND DOCTRINE NOTES',
+      'Procedure: preserve artifact boundaries.',
+      'Doctrine: split operational notes from story prose.',
+      '',
+      'STORY SCENE NOTES',
+      'Story scene: the character waits in the vehicle while the scene pressure rises.',
+    ].join('\n'),
+    promptLabel: safeText(fixture.promptLabel, 240) || 'the writing mega-document',
+    parts,
+  };
+}
+
+async function runWritingSplitDocsSmoke(host, evidence, runId, user = {}, body = {}) {
+  const fixture = splitFixtureFromBody(body, runId);
+  const sourceTitle = fixture.sourceTitle;
+  const sourceContent = fixture.sourceContent;
+  const sourceDoc = await host.createDoc({title: sourceTitle, body: sourceContent, folderId: host.folder.id});
+  const splitPrompt = [
+    `Read the Google Doc "${sourceTitle}" and split ${fixture.promptLabel} into properly foldered parts.`,
+    ...fixture.parts.map((part) => `Create a Drive folder named "${part.folderName}" and put a new Google Doc titled "${part.title}" in it containing only the ${part.role} material.`),
+    'Leave the original source doc intact. Ask for confirmation for each external write as needed, but do not stop after only reading or describing the split.',
+  ].join(' ');
+  const state = {
+    transcript: '',
+    pendingConfirmation: null,
+    workingMemory: {
+      smokeSandbox: {
+        enabled: true,
+        folderId: host.folder.id,
+        folderName: host.folder.name,
+        instruction: 'Use only this Drive folder and child folders created in this smoke run.',
+      },
+      activeTask: {
+        status: 'in_progress',
+        objective: 'Split the mixed writing document into properly foldered Google Docs by artifact role.',
+        originalUserRequest: splitPrompt,
+        expectedNextAction: 'Read the source document, create the role folders, then create the two split documents in the correct folders.',
+      },
+      lastDocument: {
+        fileId: sourceDoc.file.id,
+        name: sourceTitle,
+        webViewLink: sourceDoc.webViewLink || '',
+        sourceTool: 'smoke.seed',
+      },
+      documentSplitPlan: {
+        parentFolderId: host.folder.id,
+        sourceFileId: sourceDoc.file.id,
+        sourceName: sourceTitle,
+        parts: fixture.parts,
+        progress: {},
+      },
+    },
+  };
+
+  async function verifySplit() {
+    const verifiedParts = [];
+    for (const part of fixture.parts) {
+      const folder = await host.findFolder(part.folderName, host.folder.id);
+      if (!folder) return {ok: false, detail: `missing split folder: ${part.folderName}`};
+      const docs = await host.listFiles([
+        `'${host.escapeQuery(folder.id)}' in parents`,
+        "mimeType='application/vnd.google-apps.document'",
+        `name='${host.escapeQuery(part.title)}'`,
+        'trashed=false',
+      ].join(' and '), 5);
+      if (docs.length !== 1) return {ok: false, detail: `missing split document: ${part.title}`};
+      const read = await host.readDoc({fileId: docs[0].id});
+      const text = read.content || '';
+      for (const needle of part.required || []) {
+        if (needle && !text.includes(needle)) return {ok: false, detail: `${part.role} text lacks ${needle}`};
+      }
+      for (const needle of part.forbidden || []) {
+        if (needle && text.includes(needle)) return {ok: false, detail: `${part.role} text contains forbidden ${needle}`};
+      }
+      verifiedParts.push({role: part.role, folder: smokeFileJson(folder), doc: smokeFileJson(docs[0]), text});
+    }
+    return {ok: true, parts: verifiedParts};
+  }
+
+  let finalVerification = await verifySplit();
+  let lastResponse = null;
+  for (let i = 0; i < 14 && !finalVerification.ok; i++) {
+    const message = state.pendingConfirmation
+      ? `confirm ${confirmationActionLabel(state.pendingConfirmation.action)}`
+      : (i === 0 ? splitPrompt : `Continue the document split. The required output is ${fixture.parts.length} separate Google Docs in the named folders. Leave the source intact.`);
+    lastResponse = await runSmokeTurn(host, evidence, state, message, {}, user);
+    finalVerification = await verifySplit();
+  }
+  if (!finalVerification.ok) {
+    throw new Error(`Writing split smoke did not create verified foldered split docs: ${finalVerification.detail || 'unknown'}`);
+  }
+  const readCount = evidence.toolExecutions.filter((entry) => entry && entry.toolName === 'docs.read').length;
+  const createCount = evidence.toolExecutions.filter((entry) => entry && entry.toolName === 'docs.create').length;
+  const folderCount = evidence.toolExecutions.filter((entry) => entry && entry.toolName === 'drive.create_folder').length;
+  if (readCount < 1) throw new Error('Writing split smoke did not read the source doc.');
+  if (createCount < fixture.parts.length) throw new Error('Writing split smoke did not create every split doc.');
+  if (folderCount < fixture.parts.length) throw new Error('Writing split smoke did not create every split folder.');
+  evidence.seedDocument = {id: sourceDoc.file.id, name: sourceTitle};
+  evidence.splitVerification = finalVerification;
+  evidence.finalReply = (lastResponse && (lastResponse.reply || lastResponse.text)) || '';
+}
+
+
+async function appendSmokeDoc({host, user, documentId, heading, text, requestId}) {
+  const doc = await host.docs.documents.get({documentId, fields: 'body(content(endIndex))'});
+  const content = (((doc.data || {}).body || {}).content || []);
+  const last = content.length ? content[content.length - 1] : {};
+  const endIndex = Math.max(1, safeNumber(last.endIndex, 1) - 1);
+  const appendText = `${heading ? `\n\n${heading}\n` : '\n\n'}${text}\n`;
+  await host.docs.documents.batchUpdate({
+    documentId,
+    requestBody: {requests: [{insertText: {location: {index: endIndex}, text: appendText}}]},
+  });
+  const file = await host.assertInSandbox(documentId, 'docs_append');
+  await recordActionAudit({...user, authKind: 'metal_smoke'}, 'docs.append', documentId, `Smoke appended ${text.length} characters${heading ? ` under ${heading}` : ''}.`, requestId);
+  return {documentId, revisionSummary: `Appended ${text.length} characters.`, webViewLink: file.webViewLink || '', metadata: smokeFileJson(file), auditRequestId: requestId};
+}
+
+async function runDriveBridgeCreateToolsSmoke(host, evidence, runId, user) {
+  const smokeUser = {uid: user.uid || '', email: user.email || '', authKind: 'metal_smoke'};
+  const project = await createDriveFolderOperation({
+    google,
+    admin,
+    auth: host.auth,
+    user: smokeUser,
+    args: {name: 'Tanks for the Memories v2', parentFolderId: host.folder.id, requestId: `drive-bridge-folder-${runId}`, callerNote: 'Smoke create project folder'},
+  });
+  host.allowedFolderIds.add(project.folderId);
+  await host.assertInSandbox(project.folderId, 'drive_create_folder');
+
+  const story = await createGoogleDocOperation({
+    google,
+    admin,
+    auth: host.auth,
+    user: smokeUser,
+    args: {title: 'Tanks for the Memories v2 — Story Bible', parentFolderId: project.folderId, initialText: '# Story Bible\n', requestId: `drive-bridge-story-${runId}`, callerNote: 'Smoke create story bible'},
+  });
+  const manuscript = await createGoogleDocOperation({
+    google,
+    admin,
+    auth: host.auth,
+    user: smokeUser,
+    args: {title: 'Tanks for the Memories v2 — Manuscript', parentFolderId: project.folderId, initialText: '# Manuscript\n', requestId: `drive-bridge-manuscript-${runId}`, callerNote: 'Smoke create manuscript'},
+  });
+
+  const storyAppend = await appendSmokeDoc({host, user: smokeUser, documentId: story.documentId, heading: 'Smoke Append', text: 'Story bible append smoke line.', requestId: `drive-bridge-story-append-${runId}`});
+  const manuscriptAppend = await appendSmokeDoc({host, user: smokeUser, documentId: manuscript.documentId, heading: 'Smoke Append', text: 'Manuscript append smoke line.', requestId: `drive-bridge-manuscript-append-${runId}`});
+
+  const storyRead = await host.readDoc({fileId: story.documentId});
+  const manuscriptRead = await host.readDoc({fileId: manuscript.documentId});
+  const storyContent = storyRead.content || '';
+  const manuscriptContent = manuscriptRead.content || '';
+  if (!storyContent.includes('# Story Bible') || !storyContent.includes('Story bible append smoke line.')) {
+    throw new Error('drive_bridge_create_tools smoke could not verify Story Bible contents.');
+  }
+  if (!manuscriptContent.includes('# Manuscript') || !manuscriptContent.includes('Manuscript append smoke line.')) {
+    throw new Error('drive_bridge_create_tools smoke could not verify Manuscript contents.');
+  }
+
+  evidence.driveBridgeCreateTools = {
+    project,
+    story,
+    manuscript,
+    appends: [storyAppend, manuscriptAppend],
+    verified: true,
+  };
+}
+
+async function runMetalPromptSmoke(user, body) {
+  const runId = safeText(body.runId, 80) || new Date().toISOString().replace(/[-:TZ.]/g, '').slice(0, 14);
+  const evidence = {ok: false, runId, uid: user.uid, turns: [], toolExecutions: [], sandbox: {}, cleanup: null};
+  const scenario = safeText(body.scenario, 120) || 'docs-create-update-read';
+  evidence.scenario = scenario;
+  const auth = await loadGoogleClient(user.uid, user.email || '');
+  if (!auth) throw new Error('Google tools are not connected for this Firebase user.');
+  const host = new MetalSmokeHost(auth, evidence);
+  await host.prepare(runId);
+  try {
+    if (scenario === 'docs-create-update-read') {
+      await runDocsCreateUpdateReadSmoke(host, evidence, runId, user);
+    } else if (scenario === 'creative-doc-read-finalizes') {
+      await runCreativeDocReadFinalizesSmoke(host, evidence, runId, user);
+    } else if (scenario === 'writing-split-docs') {
+      await runWritingSplitDocsSmoke(host, evidence, runId, user, body);
+    } else if (scenario === 'drive-bridge-create-tools') {
+      await runDriveBridgeCreateToolsSmoke(host, evidence, runId, user);
+    } else {
+      throw new Error(`Unknown metal prompt smoke scenario: ${scenario}`);
+    }
+    evidence.ok = true;
+    return evidence;
+  } catch (err) {
+    evidence.ok = false;
+    evidence.error = 'metal_prompt_smoke_failed';
+    evidence.detail = err.message || String(err);
+    evidence.stack = String(err.stack || '');
+    return evidence;
+  } finally {
+    evidence.cleanup = await host.cleanup().catch((err) => ({ok: false, error: err.message || String(err)}));
+  }
+}
+
+async function runCreativePromptSmoke(user, body) {
+  const runId = safeText(body.runId, 80) || new Date().toISOString().replace(/[-:TZ.]/g, '').slice(0, 14);
+  const scenario = safeText(body.scenario, 120) || 'creative-writing';
+  const prompt = safeText(body.prompt, 4000);
+  const started = Date.now();
+  if (!prompt) {
+    return {ok: false, error: 'missing_prompt', detail: 'creativePromptSmoke requires prompt', runId, scenario};
+  }
+  const requestBody = {
+    message: prompt,
+    transcript: safeText(body.transcript, 10000),
+    summary: safeText(body.summary, 4000),
+    toolResults: [],
+    tools: [],
+    unavailableToolGroups: [],
+    workingMemory: body && typeof body.workingMemory === 'object' ? body.workingMemory : {},
+    evidenceContext: body && typeof body.evidenceContext === 'object' ? body.evidenceContext : {},
+    timeContext: {nowEpochMillis: Date.now(), nowIso: new Date().toISOString(), timeZoneId: 'UTC'},
+    debugTrace: true,
+  };
+  if (body && typeof body.pendingConfirmation === 'object') {
+    requestBody.pendingConfirmation = body.pendingConfirmation;
+  }
+  const response = await askOpenAICreativeDraft(requestBody, user);
+  const elapsedMs = Date.now() - started;
+  const reply = finalReplyText(response, '');
+  const responseText = JSON.stringify(response);
+  const forbidden = [
+    'Next steps',
+    'tell me the main ingredient',
+    'second constraint',
+    'report this',
+    'github.create_issue',
+    'docs.create',
+    'docs.search',
+    'drive.search',
+    'I could not complete',
+    'Creative writing provider failed before producing prose',
+  ];
+  const missing = [];
+  if (response.type !== 'final') missing.push(`expected final response, got ${safeText(response.type, 80)}`);
+  if (!safeText(response.status, 160).startsWith('creative_')) missing.push(`expected creative status, got ${safeText(response.status, 160)}`);
+  if (reply.length < 700) missing.push(`reply too short: ${reply.length}`);
+  const requiredTerms = Array.isArray(body.requiredTerms) ? body.requiredTerms.map((term) => safeText(term, 80)).filter(Boolean).slice(0, 12) : [];
+  for (const term of requiredTerms) {
+    if (!new RegExp(`\\b${term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i').test(reply)) {
+      missing.push(`reply missing required term: ${term}`);
+    }
+  }
+  for (const needle of forbidden) {
+    if (responseText.includes(needle)) missing.push(`forbidden response text: ${needle}`);
+  }
+  return {
+    ok: missing.length === 0,
+    runId,
+    uid: user.uid,
+    scenario,
+    prompt,
+    elapsedMs,
+    status: response.status || '',
+    detail: missing.join('; '),
+    response,
+  };
+}
+
+function turnContractSmokeTools() {
+  return [
+    {
+      name: 'github.create_issue',
+      group: 'github',
+      confirmationRequired: true,
+      arguments: ['repo', 'title', 'body', 'labels'],
+    },
+    {
+      name: 'docs.create',
+      group: 'docs',
+      confirmationRequired: true,
+      arguments: ['title', 'body', 'folderId'],
+    },
+    {
+      name: 'docs.read',
+      group: 'docs',
+      confirmationRequired: false,
+      arguments: ['fileId', 'name'],
+    },
+    {
+      name: 'docs.update',
+      group: 'docs',
+      confirmationRequired: true,
+      arguments: ['fileId', 'name', 'folderName', 'appendText', 'replaceText', 'body'],
+    },
+  ];
+}
+
+function pendingSmokeIssue() {
+  return pendingConfirmation('github.create_issue', {
+    repo: 'Valar05/home-center',
+    title: 'Bug: stale GitHub issue confirmation hijacked creative writing request',
+    body: 'Stale pending confirmation reproduction.',
+    labels: ['bug', 'feedback', 'home-center'],
+  });
+}
+
+function pendingSmokeDoc() {
+  return pendingConfirmation('docs.create', {
+    title: 'Home Center Turn Kernel Smoke',
+    body: 'Turn kernel smoke body.',
+  });
+}
+
+function assertTurnContract(condition, message) {
+  if (!condition) throw new Error(message);
+}
+
+async function runTurnContractCase(name, body, expected = {}, user = {}) {
+  const response = await askOpenAIToolTurn(Object.assign({
+    transcript: '',
+    summary: '',
+    toolResults: [],
+    tools: turnContractSmokeTools(),
+    unavailableToolGroups: [],
+    workingMemory: {},
+    timeContext: {nowEpochMillis: Date.now(), nowIso: new Date().toISOString(), timeZoneId: 'UTC'},
+    evidenceContext: {},
+    attachmentImages: [],
+    debugTrace: true,
+  }, body || {}), user);
+  const responseText = JSON.stringify(response);
+  const visibleText = JSON.stringify({
+    type: response.type,
+    reply: response.reply || '',
+    narration: response.narration || '',
+    status: response.status || '',
+    toolName: response.toolName || '',
+  });
+  if (expected.type) assertTurnContract(response.type === expected.type, `${name}: expected type ${expected.type}, got ${response.type}`);
+  if (expected.status) assertTurnContract(response.status === expected.status, `${name}: expected status ${expected.status}, got ${response.status}`);
+  if (expected.toolName) assertTurnContract(response.toolName === expected.toolName, `${name}: expected tool ${expected.toolName}, got ${response.toolName}`);
+  if (expected.pendingTool) {
+    assertTurnContract(response.pendingConfirmation && response.pendingConfirmation.toolName === expected.pendingTool, `${name}: expected pending ${expected.pendingTool}, got ${response.pendingConfirmation && response.pendingConfirmation.toolName}`);
+  }
+  if (expected.minReplyChars) {
+    const reply = safeText(response.reply || response.text, 20000);
+    assertTurnContract(reply.length >= Number(expected.minReplyChars), `${name}: expected reply length >= ${expected.minReplyChars}, got ${reply.length}`);
+  }
+  if (expected.replyNotTruncated) {
+    const reply = safeText(response.reply || response.text, FINAL_REPLY_MAX_CHARS);
+    assertTurnContract(!finalReplyLooksTruncated(reply), `${name}: visible reply looks truncated: ${reply.slice(-160)}`);
+  }
+  for (const term of expected.requiredTerms || []) {
+    assertTurnContract(new RegExp(`\\b${term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i').test(responseText), `${name}: missing ${term}`);
+  }
+  for (const forbidden of expected.forbidden || []) {
+    assertTurnContract(!visibleText.includes(forbidden), `${name}: forbidden ${forbidden}`);
+  }
+  return {name, ok: true, response};
+}
+
+async function runTurnContractSmoke(body, user = {}) {
+  const cases = [];
+  const skipDefaults = body && body.skipDefaults === true;
+  const requestedCases = Array.isArray(body && body.cases) ? body.cases : [];
+  for (const entry of requestedCases.slice(0, 12)) {
+    if (!entry || typeof entry !== 'object') continue;
+    cases.push(await runTurnContractCase(
+      safeText(entry.name, 120) || `external_case_${cases.length + 1}`,
+      entry.body && typeof entry.body === 'object' ? entry.body : {},
+      entry.expected && typeof entry.expected === 'object' ? entry.expected : {},
+      user
+    ));
+  }
+  if (skipDefaults) {
+    return {
+      ok: true,
+      cases,
+      count: cases.length,
+      skippedDefaults: true,
+    };
+  }
+  cases.push(await runTurnContractCase('confirm_pending_doc_create', {
+    message: 'confirm create',
+    pendingConfirmation: pendingSmokeDoc(),
+  }, {
+    type: 'tool_call',
+    status: 'tool_call_requested',
+    toolName: 'docs.create',
+    forbidden: ['github.create_issue'],
+  }, user));
+  cases.push(await runTurnContractCase('cancel_pending_doc_create', {
+    message: 'cancel',
+    pendingConfirmation: pendingSmokeDoc(),
+  }, {
+    type: 'final',
+    status: 'pending_confirmation_cancelled',
+    forbidden: ['tool_call_requested'],
+  }, user));
+  cases.push(await runTurnContractCase('correction_is_not_cancel', {
+    message: 'That was wrong, write the scene with the pilot still in the cockpit.',
+    pendingConfirmation: pendingSmokeIssue(),
+    workingMemory: {
+      rememberedWritingContext: {
+        title: 'Pilot continuity',
+        evidence: 'The pilot stays in the cockpit. Write prose when asked.',
+      },
+    },
+  }, {
+    type: 'final',
+    requiredTerms: ['pilot', 'cockpit'],
+    forbidden: ['pending_confirmation_cancelled', 'I can create that GitHub issue'],
+  }, user));
+  cases.push(await runTurnContractCase('remembered_context_inspection_reads_doc', {
+    message: "what's in the Writing Hub",
+    tools: [{
+      name: 'docs.read',
+      confirmationRequired: false,
+      arguments: ['fileId', 'name'],
+    }],
+    workingMemory: {
+      lastDocument: {
+        fileId: 'june-holocron-doc',
+        name: "June's Holocron",
+      },
+    },
+  }, {
+    type: 'tool_call',
+    status: 'tool_call_requested',
+    toolName: 'docs.read',
+    requiredTerms: ['june-holocron-doc'],
+    forbidden: ['I don’t have the Writing Hub contents available here', 'github.create_issue', 'gpt_5_5_complete'],
+  }, user));
+  cases.push(await runTurnContractCase('creative_docs_read_finalizer', {
+    message: 'Now show how the pilot survives. Simulated. But foregone. Not clean. Not easy.',
+    toolResults: [{
+      name: 'docs.read',
+      arguments: {fileId: 'pilot-doctrine-doc', name: 'Pilot Doctrine Updates and Simulation'},
+      result: {
+        ok: true,
+        status: 'doc_read',
+        title: 'Pilot Doctrine Updates and Simulation',
+        content: [
+          'Doctrine Updates and Saved Simulation.',
+          'The pilot survives only by accepting that the emergency is already shaped before the alarm.',
+          'It is not clean and not easy. The pilot survives by reading weather, instrument drift, crew fear, and timing.',
+          'The cockpit remains the command position. The scene should begin before the first warning and show the foregone trap becoming visible.',
+        ].join('\n'),
+        file: {id: 'pilot-doctrine-doc', name: 'Pilot Doctrine Updates and Simulation'},
+      },
+    }],
+    workingMemory: {
+      activeTask: {
+        status: 'in_progress',
+        objective: 'Write the pilot survival simulation from the beginning in a messy, difficult, foregone way.',
+        originalUserRequest: 'Now show how the pilot survives. Simulated. But foregone. Not clean. Not easy.',
+      },
+      lastDocument: {
+        fileId: 'pilot-doctrine-doc',
+        name: 'Pilot Doctrine Updates and Simulation',
+      },
+    },
+  }, {
+    type: 'final',
+    status: 'evidence_finalized',
+    requiredTerms: ['pilot', 'cockpit'],
+    forbidden: ['docs.read', 'github.create_issue', 'I found', 'I read', 'confirmation_required'],
+  }, user));
+  cases.push(await runTurnContractCase('creative_docs_read_finalizer_without_active_task', {
+    message: 'Now it is your turn. Do not continue the story. Pick it up at an arbitrary point that interests you. Make a simulated chapter here.',
+    toolResults: [{
+      name: 'docs.read',
+      arguments: {fileId: 'pilot-doctrine-doc', name: 'Pilot Doctrine Updates and Simulation'},
+      result: {
+        ok: true,
+        status: 'doc_read',
+        title: 'Pilot Doctrine Updates and Simulation',
+        content: [
+          'Doctrine Updates and Saved Simulation.',
+          'The pilot stays in the cockpit and the chapter should be source-grounded.',
+          'Use embodied pressure, crew behavior, vehicle constraints, fatigue, practical choices, and silence.',
+          'The doctrine should emerge from the physical situation instead of being announced.',
+        ].join('\n'),
+        file: {id: 'pilot-doctrine-doc', name: 'Pilot Doctrine Updates and Simulation'},
+      },
+    }],
+    workingMemory: {
+      lastDocument: {
+        fileId: 'pilot-doctrine-doc',
+        name: 'Pilot Doctrine Updates and Simulation',
+      },
+    },
+  }, {
+    type: 'final',
+    status: 'evidence_finalized',
+    requiredTerms: ['pilot', 'cockpit'],
+    forbidden: ['docs.read', 'github.create_issue', 'I found', 'I read', 'confirmation_required', 'need more context', 'planner_json_error'],
+  }, user));
+  return {
+    ok: true,
+    runId: safeText(body && body.runId, 80) || '',
+    cases,
+  };
+}
+
+exports.githubCreateIssue = onRequest({timeoutSeconds: 60, secrets: [GITHUB_TOKEN]}, async (req, res) => {
+  if (handleOptions(req, res)) return;
+  try {
+    await requireUser(req);
+    sendJson(res, 200, await createGitHubIssue(req.body || {}));
+  } catch (err) {
+    sendJson(res, err.status || 500, {ok: false, error: 'github_issue_failed', detail: err.message || String(err)});
+  }
+});
+
+exports.usageToolEvent = onRequest({timeoutSeconds: 30}, async (req, res) => {
+  if (handleOptions(req, res)) return;
+  try {
+    const user = await requireUser(req);
+    await recordToolUsage(user, req.body || {});
+    sendJson(res, 200, {ok: true, status: 'usage_recorded'});
+  } catch (err) {
+    sendJson(res, err.status || 500, {ok: false, error: 'usage_tool_event_failed', detail: err.message || String(err)});
+  }
+});
+
+exports.usageSummary = onRequest({timeoutSeconds: 30}, async (req, res) => {
+  if (handleOptions(req, res)) return;
+  try {
+    const user = await requireUser(req);
+    const summary = await usageSummaryFor(user, req.body || {});
+    sendJson(res, summary.ok === false ? (summary.error === 'usage_forbidden' ? 403 : 400) : 200, summary);
+  } catch (err) {
+    sendJson(res, err.status || 500, {ok: false, error: 'usage_summary_failed', detail: err.message || String(err)});
+  }
+});
+
+exports.creativePromptSmoke = onRequest({timeoutSeconds: 120, secrets: [OPENAI_API_KEY]}, async (req, res) => {
+  if (handleOptions(req, res)) return;
+  try {
+    const user = requireCreditBackedUser(await requireSmokeUser(req), 'creativePromptSmoke');
+    sendJson(res, 200, await runCreativePromptSmoke(user, req.body || {}));
+  } catch (err) {
+    sendJson(res, err.status || 500, {ok: false, error: 'creative_prompt_smoke_failed', detail: err.message || String(err)});
+  }
+});
+
+exports.turnContractSmoke = onRequest({timeoutSeconds: 120, secrets: [OPENAI_API_KEY]}, async (req, res) => {
+  if (handleOptions(req, res)) return;
+  try {
+    const user = requireCreditBackedUser(await requireSmokeUser(req), 'turnContractSmoke');
+    sendJson(res, 200, await runTurnContractSmoke(req.body || {}, user));
+  } catch (err) {
+    sendJson(res, err.status || 500, {ok: false, error: 'turn_contract_smoke_failed', detail: err.message || String(err)});
+  }
+});
+
+exports.metalPromptSmoke = onRequest({timeoutSeconds: 300, secrets: [OPENAI_API_KEY, GOOGLE_OAUTH_CLIENT_ID, GOOGLE_OAUTH_CLIENT_SECRET]}, async (req, res) => {
+  if (handleOptions(req, res)) return;
+  try {
+    const user = requireCreditBackedUser(await requireSmokeUser(req), 'metalPromptSmoke');
+    const scenario = safeText(req.body && req.body.scenario, 120) || 'docs-create-update-read';
+    if (!['docs-create-update-read', 'creative-doc-read-finalizes', 'writing-split-docs', 'drive-bridge-create-tools'].includes(scenario)) {
+      sendJson(res, 400, {ok: false, error: 'unknown_scenario', detail: scenario});
+      return;
+    }
+    sendJson(res, 200, await runMetalPromptSmoke(user, req.body || {}));
+  } catch (err) {
+    sendJson(res, err.status || 500, {ok: false, error: 'metal_prompt_smoke_failed', detail: err.message || String(err)});
+  }
+});
+
+
+exports.chatGptDriveSearch = onRequest({timeoutSeconds: 60}, async (req, res) => {
+  if (handleOptions(req, res)) return;
+  try {
+    const user = await requireGoogleOAuthAction(req);
+    const auth = googleDirectAuth(user.accessToken);
+    const drive = google.drive({version: 'v3', auth});
+    const result = await drive.files.list({
+      q: chatGptDriveSearchQuery(req.body || {}),
+      pageSize: chatGptLimit(req.body && req.body.limit, 20, 50),
+      fields: 'files(id,name,mimeType,modifiedTime,webViewLink,parents)',
+      orderBy: 'modifiedTime desc',
+      supportsAllDrives: true,
+      includeItemsFromAllDrives: true,
+    });
+    sendJson(res, 200, {results: (result.data.files || []).map(chatGptDriveFile)});
+  } catch (err) {
+    sendJson(res, err.status || err.code || 500, {ok: false, error: 'chatgpt_drive_search_failed', detail: err.message || String(err)});
+  }
+});
+
+exports.chatGptDriveRead = onRequest({timeoutSeconds: 60}, async (req, res) => {
+  if (handleOptions(req, res)) return;
+  try {
+    const user = await requireGoogleOAuthAction(req);
+    const auth = googleDirectAuth(user.accessToken);
+    const drive = google.drive({version: 'v3', auth});
+    const fileId = safeDriveFileId(req.body && req.body.fileId);
+    const metadataResult = await drive.files.get({
+      fileId,
+      fields: 'id,name,mimeType,modifiedTime,webViewLink,parents',
+      supportsAllDrives: true,
+    });
+    const metadata = metadataResult.data || {};
+    const requestedFormat = safeText(req.body && req.body.exportFormat, 120);
+    const exportFormat = requestedFormat || 'text/plain';
+    let text = '';
+    if (String(metadata.mimeType || '').startsWith('application/vnd.google-apps.')) {
+      const exported = await drive.files.export({fileId, mimeType: exportFormat}, {responseType: 'text'});
+      text = typeof exported.data === 'string' ? exported.data : String(exported.data || '');
+    } else {
+      const downloaded = await drive.files.get({fileId, alt: 'media', supportsAllDrives: true}, {responseType: 'text'});
+      text = typeof downloaded.data === 'string' ? downloaded.data : String(downloaded.data || '');
+    }
+    sendJson(res, 200, {fileId, name: metadata.name || '', mimeType: metadata.mimeType || '', text, metadata: chatGptDriveFile(metadata)});
+  } catch (err) {
+    sendJson(res, err.status || err.code || 500, {ok: false, error: 'chatgpt_drive_read_failed', detail: err.message || String(err)});
+  }
+});
+
+
+exports.chatGptDriveCreateFolder = onRequest({timeoutSeconds: 60}, async (req, res) => {
+  if (handleOptions(req, res)) return;
+  try {
+    const user = await requireGoogleOAuthAction(req);
+    const auth = googleDirectAuth(user.accessToken);
+    const result = await createDriveFolderOperation({google, admin, auth, user, args: req.body || {}});
+    sendJson(res, 200, result);
+  } catch (err) {
+    sendJson(res, err.status || err.code || 500, {ok: false, error: 'chatgpt_drive_create_folder_failed', detail: err.message || String(err)});
+  }
+});
+
+exports.chatGptDocsCreate = onRequest({timeoutSeconds: 60}, async (req, res) => {
+  if (handleOptions(req, res)) return;
+  try {
+    const user = await requireGoogleOAuthAction(req);
+    const auth = googleDirectAuth(user.accessToken);
+    const result = await createGoogleDocOperation({google, admin, auth, user, args: req.body || {}});
+    sendJson(res, 200, result);
+  } catch (err) {
+    sendJson(res, err.status || err.code || 500, {ok: false, error: 'chatgpt_docs_create_failed', detail: err.message || String(err)});
+  }
+});
+
+exports.chatGptDocsAppend = onRequest({timeoutSeconds: 60}, async (req, res) => {
+  if (handleOptions(req, res)) return;
+  try {
+    const user = await requireGoogleOAuthAction(req);
+    const auth = googleDirectAuth(user.accessToken);
+    const docs = google.docs({version: 'v1', auth});
+    const drive = google.drive({version: 'v3', auth});
+    const documentId = safeDriveFileId(req.body && req.body.documentId);
+    const heading = safeText(req.body && req.body.heading, 180);
+    const text = safeText(req.body && req.body.text, 12000);
+    const requestId = safeText(req.body && req.body.requestId, 160) || crypto.randomUUID();
+    if (!text) {
+      sendJson(res, 400, {ok: false, error: 'text_required'});
+      return;
+    }
+    const doc = await docs.documents.get({documentId, fields: 'body(content(endIndex))'});
+    const content = (((doc.data || {}).body || {}).content || []);
+    const last = content.length ? content[content.length - 1] : {};
+    const endIndex = Math.max(1, safeNumber(last.endIndex, 1) - 1);
+    const appendText = `${heading ? `\n\n${heading}\n` : '\n\n'}${text}\n`;
+    await docs.documents.batchUpdate({
+      documentId,
+      requestBody: {requests: [{insertText: {location: {index: endIndex}, text: appendText}}]},
+    });
+    const file = await drive.files.get({fileId: documentId, fields: 'id,name,mimeType,modifiedTime,webViewLink,parents', supportsAllDrives: true});
+    await recordActionAudit(user, 'docs.append', documentId, safeText(req.body && req.body.callerNote, 400) || `Appended ${text.length} characters${heading ? ` under ${heading}` : ''}.`, requestId);
+    sendJson(res, 200, {documentId, revisionSummary: `Appended ${text.length} characters.`, webViewLink: file.data.webViewLink || '', metadata: chatGptDriveFile(file.data || {})});
+  } catch (err) {
+    sendJson(res, err.status || err.code || 500, {ok: false, error: 'chatgpt_docs_append_failed', detail: err.message || String(err)});
+  }
+});
+
+exports.agentToolTurn = onRequest({timeoutSeconds: 120, secrets: [OPENAI_API_KEY]}, async (req, res) => {
+  if (handleOptions(req, res)) return;
+  try {
+    const user = requireCreditBackedUser(await requireUser(req), 'agentToolTurn');
+    const message = safeText(req.body && req.body.message, 4000);
+    if (!message) {
+      sendJson(res, 400, {type: 'final', reply: 'Tell me what you want Home Center to do.', status: 'missing_message'});
+      return;
+    }
+    sendJson(res, 200, await askOpenAIToolTurn(req.body || {}, user));
+  } catch (err) {
+    sendJson(res, err.status || 500, userFacingFailure('Home Center gateway', err.message || String(err), 'gateway_error'));
+  }
+});
+
+exports.agentTurn = onRequest({timeoutSeconds: 120, secrets: [OPENAI_API_KEY, GOOGLE_OAUTH_CLIENT_ID, GOOGLE_OAUTH_CLIENT_SECRET]}, async (req, res) => {
+  if (handleOptions(req, res)) return;
+  try {
+    const user = requireCreditBackedUser(await requireUser(req), 'agentTurn');
+    const message = safeText(req.body && req.body.message, 4000);
+    if (!message) {
+      sendJson(res, 400, {reply: 'Tell me what you want Home Center to do.', status: 'missing_message'});
+      return;
+    }
+    sendJson(res, 200, await askOpenAI(user, req.body || {}));
+  } catch (err) {
+    sendJson(res, err.status || 500, userFacingFailure('Home Center gateway', err.message || String(err), 'gateway_error'));
+  }
+});
+
+const ELEVENLABS_BRIAN_VOICE_ID = 'nPczCjzI2devNBz1zQrb';
+let cachedElevenLabsBrianVoiceId = '';
+let cachedElevenLabsVoices = null;
+let cachedElevenLabsVoicesAtMs = 0;
+
+async function listElevenLabsVoices() {
+  const now = Date.now();
+  if (cachedElevenLabsVoices && now - cachedElevenLabsVoicesAtMs < 10 * 60 * 1000) return cachedElevenLabsVoices;
+  const apiKey = ELEVENLABS_API_KEY.value() || process.env.ELEVENLABS_API_KEY || '';
+  if (!apiKey) throw new Error('ElevenLabs API key is not configured');
+  const response = await fetch('https://api.elevenlabs.io/v1/voices', {
+    method: 'GET',
+    headers: {'xi-api-key': apiKey, 'Accept': 'application/json'},
+  });
+  if (!response.ok) {
+    const detail = await response.text().catch(() => '');
+    throw new Error(`ElevenLabs voices HTTP ${response.status}${detail ? `: ${safeText(detail, 500)}` : ''}`);
+  }
+  const payload = await response.json();
+  cachedElevenLabsVoices = Array.isArray(payload && payload.voices) ? payload.voices : [];
+  cachedElevenLabsVoicesAtMs = now;
+  return cachedElevenLabsVoices;
+}
+
+function normalizeElevenLabsVoice(voice) {
+  const labels = voice && voice.labels && typeof voice.labels === 'object' ? voice.labels : {};
+  return {
+    voiceId: safeText(voice && voice.voice_id, 160),
+    name: safeText(voice && voice.name, 120),
+    category: safeText(voice && voice.category, 80),
+    description: safeText(voice && (voice.description || labels.description || labels.accent || labels.age || labels.gender), 300),
+    previewUrl: safeText(voice && voice.preview_url, 500),
+    labels,
+  };
+}
+
+async function resolveElevenLabsVoiceId(voiceName, voiceId) {
+  const override = safeText(voiceId || process.env.ELEVENLABS_VOICE_ID, 160);
+  if (override) return override;
+  const requestedName = safeText(voiceName || 'Brian', 80).toLowerCase() || 'brian';
+  if (requestedName === 'brian') return ELEVENLABS_BRIAN_VOICE_ID;
+  if (cachedElevenLabsBrianVoiceId && requestedName === 'brian') return cachedElevenLabsBrianVoiceId;
+  const voices = await listElevenLabsVoices();
+  const match = voices.find((voice) => String(voice && voice.name || '').trim().toLowerCase() === requestedName);
+  if (!match || !match.voice_id) {
+    throw new Error(`elevenlabs_voice_not_found: ${requestedName}`);
+  }
+  if (requestedName === 'brian') cachedElevenLabsBrianVoiceId = match.voice_id;
+  return match.voice_id;
+}
+
+function cartesiaApiKeyGetter() {
+  return CARTESIA_API_KEY.value() || process.env.CARTESIA_API_KEY || '';
+}
+
+const HOSTED_TTS_ALLOWED_EMAILS = CREDIT_GATED_EMAILS;
+
+async function requireHostedTtsAllowedUser(req) {
+  return requireCreditBackedUser(await requireGoogleOAuthAction(req), 'hosted TTS');
+}
+
+async function openElevenLabsStream(text, options = {}) {
+  const apiKey = ELEVENLABS_API_KEY.value() || process.env.ELEVENLABS_API_KEY || '';
+  if (!apiKey) throw new Error('ElevenLabs API key is not configured');
+  const voiceName = safeText(options.voiceName || 'Brian', 80) || 'Brian';
+  const voiceId = await resolveElevenLabsVoiceId(voiceName, options.voiceId);
+  const modelId = safeText(options.modelId || process.env.ELEVENLABS_MODEL_ID || 'eleven_multilingual_v2', 120) || 'eleven_multilingual_v2';
+  return fetch(`https://api.elevenlabs.io/v1/text-to-speech/${encodeURIComponent(voiceId)}/stream?output_format=pcm_24000`, {
+    method: 'POST',
+    headers: {
+      'xi-api-key': apiKey,
+      'Accept': 'application/octet-stream',
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      text,
+      model_id: modelId,
+      voice_settings: {stability: 0.5, similarity_boost: 0.75},
+    }),
+  });
+}
+
+
+
+function shouldApplySatisfyingAcousticDistortion(acousticDirection) {
+  const clean = safeText(acousticDirection, 300).toLowerCase();
+  return clean.includes('satisfying acoustic distortion') || clean.includes('acoustic distortion') || clean.includes('artificial voice pitch');
+}
+
+function createSatisfyingAcousticDistortionTransform() {
+  const {Transform} = require('stream');
+  let carry = null;
+  return new Transform({
+    transform(chunk, encoding, callback) {
+      try {
+        let input = Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk, encoding);
+        if (carry !== null) {
+          input = Buffer.concat([Buffer.from([carry]), input]);
+          carry = null;
+        }
+        if ((input.length & 1) === 1) {
+          carry = input[input.length - 1];
+          input = input.subarray(0, input.length - 1);
+        }
+        const out = Buffer.allocUnsafe(input.length);
+        const drive = 1.85;
+        const wet = 0.18;
+        const norm = Math.tanh(drive);
+        for (let i = 0; i < input.length; i += 2) {
+          const sample = input.readInt16LE(i) / 32768;
+          const saturated = Math.tanh(sample * drive) / norm;
+          const mixed = sample * (1 - wet) + saturated * wet;
+          const clipped = Math.max(-1, Math.min(0.999969, mixed));
+          out.writeInt16LE(Math.round(clipped * 32767), i);
+        }
+        callback(null, out);
+      } catch (err) {
+        callback(err);
+      }
+    },
+    flush(callback) {
+      carry = null;
+      callback();
+    },
+  });
+}
+
+async function pipeSpeechResponse(audioResponse, res, acousticDirection) {
+  if (!audioResponse.body || typeof audioResponse.body.pipeTo !== 'function') return false;
+  const {Readable, Writable} = require('stream');
+  if (!shouldApplySatisfyingAcousticDistortion(acousticDirection)) {
+    await audioResponse.body.pipeTo(Writable.toWeb(res));
+    return true;
+  }
+  res.set('X-Speech-Acoustic-Effect', 'soft_saturation_v1');
+  await new Promise((resolve, reject) => {
+    Readable.fromWeb(audioResponse.body)
+      .pipe(createSatisfyingAcousticDistortionTransform())
+      .on('error', reject)
+      .pipe(res)
+      .on('finish', resolve)
+      .on('error', reject);
+  });
+  return true;
+}
+
+async function openHostedSpeechStream(text, body) {
+  const provider = safeText(body && body.provider, 40).toLowerCase() || 'cartesia';
+  if (provider !== 'cartesia' && provider !== 'elevenlabs') {
+    const err = new Error(`unsupported_tts_provider: ${provider}`);
+    err.statusCode = 400;
+    throw err;
+  }
+  const defaultVoiceName = provider === 'elevenlabs' ? 'Brian' : CARTESIA_DEFAULT_VOICE_NAME;
+  const defaultModelId = provider === 'elevenlabs' ? 'eleven_multilingual_v2' : CARTESIA_DEFAULT_MODEL_ID;
+  const voiceName = safeText(body && body.voiceName, 120) || defaultVoiceName;
+  const voiceId = safeText(body && body.voiceId, 160);
+  const modelId = safeText(body && body.modelId, 120) || defaultModelId;
+  const role = safeText(body && body.role, 40);
+  const characterId = safeText(body && body.characterId, 80);
+  const voiceAlias = safeText(body && body.voiceAlias, 120);
+  const acousticDirection = safeText(body && body.acousticDirection, 300);
+  if (provider === 'cartesia') {
+    const cartesia = await openCartesiaStream(text, {voiceName, voiceId, modelId, apiKeyGetter: cartesiaApiKeyGetter, format: 'raw', sampleRate: 24000});
+    return {provider: 'cartesia', voiceName: cartesia.voiceName, voiceId: cartesia.voiceId, modelId: cartesia.modelId, role, characterId, voiceAlias, acousticDirection, response: cartesia.response};
+  }
+  return {provider: 'elevenlabs', voiceName, modelId, role, characterId, voiceAlias, acousticDirection, response: await openElevenLabsStream(text, {voiceName, voiceId, modelId})};
+}
+
+async function ttsVoicesHandler(req, res) {
+  if (handleOptions(req, res)) return;
+  try {
+    await requireHostedTtsAllowedUser(req);
+    const provider = safeText((req.query && req.query.provider) || (req.body && req.body.provider), 40).toLowerCase() || 'cartesia';
+    if (provider !== 'cartesia' && provider !== 'elevenlabs') {
+      sendJson(res, 400, {error: 'unsupported_tts_provider', detail: provider});
+      return;
+    }
+    const query = safeText((req.query && (req.query.q || req.query.query)) || (req.body && (req.body.q || req.body.query)), 240);
+    const limitRaw = Number((req.query && req.query.limit) || (req.body && req.body.limit) || 100);
+    const limit = Math.max(1, Math.min(100, Number.isFinite(limitRaw) ? Math.floor(limitRaw) : 100));
+    if (provider === 'cartesia') {
+      const catalog = await listCartesiaVoiceCatalog({
+        apiKeyGetter: cartesiaApiKeyGetter,
+        query,
+        limit,
+        pageToken: (req.query && (req.query.pageToken || req.query.cursor)) || (req.body && (req.body.pageToken || req.body.cursor)),
+        startingAfter: (req.query && (req.query.startingAfter || req.query.starting_after)) || (req.body && (req.body.startingAfter || req.body.starting_after)),
+        endingBefore: (req.query && (req.query.endingBefore || req.query.ending_before)) || (req.body && (req.body.endingBefore || req.body.ending_before)),
+        language: (req.query && (req.query.language || req.query.locale)) || (req.body && (req.body.language || req.body.locale)),
+        gender: (req.query && req.query.gender) || (req.body && req.body.gender),
+        isOwner: (req.query && (req.query.isOwner || req.query.is_owner)) || (req.body && (req.body.isOwner || req.body.is_owner)),
+      });
+      const voices = catalog.voices.map(normalizeCartesiaVoice);
+      sendJson(res, 200, {...catalog, query, limit, voices});
+      return;
+    }
+    const rawVoices = await listElevenLabsVoices();
+    const voices = rawVoices.map(normalizeElevenLabsVoice).filter((voice) => {
+      if (!query) return true;
+      const haystack = `${voice.name} ${voice.category} ${voice.description} ${JSON.stringify(voice.labels || {})}`.toLowerCase();
+      return haystack.includes(query.toLowerCase());
+    }).slice(0, limit);
+    sendJson(res, 200, {provider, query, limit, voices});
+  } catch (err) {
+    sendJson(res, err.status || err.statusCode || 500, {error: 'tts_voices_failed', detail: err.message || String(err)});
+  }
+}
+
+async function ttsHandler(req, res) {
+  if (handleOptions(req, res)) return;
+  try {
+    await requireHostedTtsAllowedUser(req);
+    const text = safeText(req.body && req.body.text, 12000);
+    if (!text) {
+      res.set(CORS_HEADERS).status(400).send('text is required');
+      return;
+    }
+    const speech = await openHostedSpeechStream(text, req.body || {});
+    const audioResponse = speech.response;
+    if (!audioResponse.ok) {
+      const detail = await audioResponse.text().catch(() => '');
+      throw new Error(`${speech.provider} HTTP ${audioResponse.status}${detail ? `: ${safeText(detail, 500)}` : ''}`);
+    }
+    res.set(CORS_HEADERS);
+    res.set('Content-Type', 'application/octet-stream');
+    res.set('Cache-Control', 'no-store');
+    res.set('X-Audio-Format', 'pcm_s16le');
+    res.set('X-Sample-Rate', '24000');
+    res.set('X-Speech-Provider', speech.provider);
+    res.set('X-Speech-Voice', speech.voiceName || (speech.provider === 'elevenlabs' ? 'Brian' : CARTESIA_DEFAULT_VOICE_NAME));
+    if (speech.voiceId) res.set('X-Speech-Voice-Id', speech.voiceId);
+    res.set('X-Speech-Model', speech.modelId || (speech.provider === 'elevenlabs' ? 'eleven_multilingual_v2' : CARTESIA_DEFAULT_MODEL_ID));
+    if (speech.role) res.set('X-Speech-Role', speech.role);
+    if (speech.characterId) res.set('X-Speech-Character', speech.characterId);
+    if (speech.voiceAlias) res.set('X-Speech-Voice-Alias', speech.voiceAlias);
+    if (speech.acousticDirection) res.set('X-Speech-Acoustic-Direction', speech.acousticDirection);
+    res.set('Connection', 'close');
+    res.status(200);
+    if (await pipeSpeechResponse(audioResponse, res, speech.acousticDirection)) return;
+    const audio = Buffer.from(await audioResponse.arrayBuffer());
+    res.send(audio);
+  } catch (err) {
+    res.set(CORS_HEADERS).status(err.status || err.statusCode || 500).send(err.message || String(err));
+  }
+}
+
+exports.tts = onRequest({timeoutSeconds: 60, secrets: [ELEVENLABS_API_KEY, CARTESIA_API_KEY]}, ttsHandler);
+exports.speak = onRequest({timeoutSeconds: 60, secrets: [ELEVENLABS_API_KEY, CARTESIA_API_KEY]}, ttsHandler);
+exports.ttsVoices = onRequest({timeoutSeconds: 60, secrets: [ELEVENLABS_API_KEY, CARTESIA_API_KEY]}, ttsVoicesHandler);
+
+exports.audioLibraryApi = onRequest({timeoutSeconds: 60}, audioLibraryHandler);
