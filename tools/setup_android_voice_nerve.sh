@@ -27,3 +27,6 @@ if ! kill -0 "$(cat "$PID")" 2>/dev/null; then
 fi
 echo "Voice nerve running: $(cat "$PID")"
 tail -5 "$LOG"
+if command -v termux-tts-speak >/dev/null 2>&1; then
+  termux-tts-speak "Voice nerve online. Say Adam, voice nerve status, in ChatGPT Voice mode." || true
+fi
