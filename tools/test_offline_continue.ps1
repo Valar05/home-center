@@ -9,7 +9,11 @@ $repoRoot = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
 $configPath = Join-Path $repoRoot '.continue\offline-config.yaml'
 $launcherPath = Join-Path $repoRoot 'tools\cn-offline.ps1'
 $rulesPath = Join-Path $repoRoot '.continue\rules'
+$modelFilePath = Join-Path $repoRoot '.continue\models\Modelfile.qwen2.5-coder-7b-8k'
 $receiptDir = Join-Path $repoRoot 'generated\engineering_memory'
+$baseModel = 'qwen2.5-coder:7b'
+$runtimeModel = 'home-center-qwen-coder:7b-8k'
+$autocompleteModel = 'qwen2.5-coder:1.5b'
 
 $evidence = [ordered]@{
     schema = 'home-center.offline-continue-acceptance.v1'
@@ -50,15 +54,23 @@ try {
     if (-not (Test-Path $launcherPath)) { Fail "offline launcher missing: $launcherPath" }
     Pass 'offline launcher exists'
 
+    if (-not (Test-Path $modelFilePath)) { Fail "offline Qwen Modelfile missing: $modelFilePath" }
+    $modelFileText = Get-Content -Raw $modelFilePath
+    if ($modelFileText -notmatch '(?m)^FROM\s+qwen2\.5-coder:7b\s*$' -or $modelFileText -notmatch '(?m)^PARAMETER\s+num_ctx\s+8192\s*$') {
+        Fail 'offline Qwen Modelfile does not pin qwen2.5-coder:7b to num_ctx 8192'
+    }
+    Pass 'offline Qwen Modelfile pins the installed base model to num_ctx 8192'
+
     $configText = Get-Content -Raw $configPath
     if ($configText -notmatch 'provider:\s*ollama') { Fail 'offline config does not declare Ollama' }
+    if ($configText -notmatch 'model:\s*home-center-qwen-coder:7b-8k') { Fail 'offline config does not select the pinned 8K runtime model' }
     if ($configText -match 'provider:\s*(openai|anthropic|gemini|openrouter|groq|mistral|azure|bedrock)') {
         Fail 'offline config contains a cloud model provider'
     }
     if ($configText -match 'apiBase:\s*https?://(?!127\.0\.0\.1|localhost)') {
         Fail 'offline config contains a non-local model endpoint'
     }
-    Pass 'offline config has no declared cloud model provider or non-local model endpoint'
+    Pass 'offline config selects the pinned local runtime with no cloud provider or non-local model endpoint'
 
     $jarFiles = @(Get-ChildItem -Path $rulesPath -Filter '*judgement-jar*.md' -File | Sort-Object Name)
     if ($jarFiles.Count -lt 6) { Fail "expected at least six judgement jars; found $($jarFiles.Count)" }
@@ -73,11 +85,12 @@ try {
     Pass 'local Ollama API is reachable'
 
     $installedModels = @($tags.models | ForEach-Object { $_.name })
-    $requiredModels = @('qwen2.5-coder:7b', 'qwen2.5-coder:1.5b')
-    $evidence.requiredModels = $requiredModels
-    foreach ($requiredModel in $requiredModels) {
-        if ($requiredModel -notin $installedModels) { Fail "required local model is missing: $requiredModel" }
-        Pass "local model installed: $requiredModel"
+    $requiredBaseModels = @($baseModel, $autocompleteModel)
+    $evidence.requiredBaseModels = $requiredBaseModels
+    $evidence.runtimeModel = $runtimeModel
+    foreach ($requiredModel in $requiredBaseModels) {
+        if ($requiredModel -notin $installedModels) { Fail "required local base model is missing: $requiredModel" }
+        Pass "local base model installed: $requiredModel"
     }
 
     if ($RequireInternetDown) {
@@ -99,6 +112,22 @@ try {
         Fail "Continue did not return the acceptance token. Output: $probeText"
     }
     Pass 'Continue produced a response through the local Qwen configuration'
+
+    $showBody = @{model = $runtimeModel} | ConvertTo-Json
+    $runtimeDetails = Invoke-RestMethod -Uri 'http://127.0.0.1:11434/api/show' -Method Post -ContentType 'application/json' -Body $showBody -TimeoutSec 5
+    $evidence.runtimeModelParameters = [string]$runtimeDetails.parameters
+    if ([string]$runtimeDetails.parameters -notmatch '(?m)^num_ctx\s+8192\s*$') {
+        Fail "runtime model '$runtimeModel' does not declare num_ctx 8192"
+    }
+    Pass "runtime model '$runtimeModel' declares num_ctx 8192"
+
+    $loaded = Invoke-RestMethod -Uri 'http://127.0.0.1:11434/api/ps' -Method Get -TimeoutSec 5
+    $runtimeProcess = @($loaded.models | Where-Object { $_.name -eq $runtimeModel }) | Select-Object -First 1
+    if (-not $runtimeProcess) { Fail "runtime model '$runtimeModel' is not loaded after inference" }
+    $runtimeContext = [int64]$runtimeProcess.context_length
+    $evidence.observedRuntimeContextLength = $runtimeContext
+    if ($runtimeContext -lt 8192) { Fail "runtime model context is $runtimeContext; expected at least 8192" }
+    Pass "Ollama loaded '$runtimeModel' with an observed runtime context of $runtimeContext"
 
     $fixtureRoot = Join-Path ([System.IO.Path]::GetTempPath()) ("home-center-offline-continue-" + [Guid]::NewGuid().ToString('N'))
     New-Item -ItemType Directory -Force -Path $fixtureRoot | Out-Null
