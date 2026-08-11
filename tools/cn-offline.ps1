@@ -10,11 +10,15 @@ $repoRoot = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
 $configPath = Join-Path $repoRoot '.continue\offline-config.yaml'
 $rulesPath = Join-Path $repoRoot '.continue\rules'
 
-foreach ($commandName in @('ollama', 'cn')) {
-    if (-not (Get-Command $commandName -ErrorAction SilentlyContinue)) {
-        throw "Required local command '$commandName' is not available on PATH."
-    }
+if (-not (Get-Command ollama -ErrorAction SilentlyContinue)) {
+    throw "Required local command 'ollama' is not available on PATH."
 }
+
+$cnCommand = Get-Command cn.cmd -ErrorAction SilentlyContinue
+if (-not $cnCommand) {
+    throw "Required local Continue launcher 'cn.cmd' is not available on PATH. The PowerShell npm shim cn.ps1 is intentionally not used because it exits its caller."
+}
+$cnPath = $cnCommand.Source
 
 if (-not (Test-Path $configPath)) {
     throw "Offline Continue config is missing: $configPath"
@@ -44,7 +48,7 @@ if ($ContinueArgs) {
     $cnArgs += $ContinueArgs
 }
 
-& cn @cnArgs
+& $cnPath @cnArgs
 $continueExitCode = $LASTEXITCODE
 if ($continueExitCode -ne 0) {
     throw "Continue CLI exited with code $continueExitCode."
