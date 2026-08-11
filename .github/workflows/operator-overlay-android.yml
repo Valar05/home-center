@@ -51,16 +51,37 @@ jobs:
         with:
           gradle-version: '8.9'
 
-      - name: Verify relay and overlay contracts
+      - name: Verify and build overlay
+        shell: bash
         run: |
-          python -m py_compile tools/android_operator_overlay.py tools/android_phone_home_center_relay.py
-          node --check functions/phone_hands_relay.js
-          node tools/phone_hands_relay_contract_test.mjs
-          git diff --check
+          set -o pipefail
+          (
+            set -euo pipefail
+            python -m py_compile tools/android_operator_overlay.py tools/android_phone_home_center_relay.py
+            node --check functions/phone_hands_relay.js
+            node tools/phone_hands_relay_contract_test.mjs
+            git diff --check
+            cd android/operator-overlay
+            gradle :app:assembleDebug --no-daemon
+          ) 2>&1 | tee /tmp/operator-overlay-ci.log
 
-      - name: Build debug APK
-        working-directory: android/operator-overlay
-        run: gradle :app:assembleDebug --no-daemon
+      - name: Preserve feature-branch failure diagnostics
+        if: failure() && github.event_name == 'push' && github.ref == 'refs/heads/feature/operator-overlay-v1'
+        run: |
+          set -euo pipefail
+          mkdir -p tools/ci_diagnostics
+          if [ -s /tmp/operator-overlay-ci.log ]; then
+            cp /tmp/operator-overlay-ci.log tools/ci_diagnostics/operator-overlay-latest.txt
+          else
+            printf 'Overlay workflow failed before verify/build logging began. Inspect run %s.\n' "${GITHUB_RUN_ID}" > tools/ci_diagnostics/operator-overlay-latest.txt
+          fi
+          git config user.name 'home-center-overlay-ci'
+          git config user.email 'actions@users.noreply.github.com'
+          git add tools/ci_diagnostics/operator-overlay-latest.txt
+          if ! git diff --cached --quiet; then
+            git commit -m 'Capture operator overlay CI failure'
+            git push origin HEAD:feature/operator-overlay-v1
+          fi
 
       - name: Create immutable build receipt
         id: receipt
@@ -90,6 +111,7 @@ jobs:
                   'remoteReenableAllowed': False,
                   'disableRequiresConfirmation': True,
                   'muteIndependent': True,
+                  'touchGuardWhileEnabled': True,
               },
           }, indent=2, sort_keys=True))
           PY
