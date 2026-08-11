@@ -4,6 +4,7 @@ const relay=fs.readFileSync('functions/phone_hands_relay.js','utf8');
 const patcher=fs.readFileSync('tools/apply_phone_hands_relay_wiring.mjs','utf8');
 const agent=fs.readFileSync('tools/android_phone_home_center_relay.py','utf8');
 const shell=fs.readFileSync('tools/android_phone_termux_shell.py','utf8');
+const diagnostics=fs.readFileSync('tools/android_phone_diagnostics.py','utf8');
 const overlay=fs.readFileSync('tools/android_operator_overlay.py','utf8');
 const overlayInstaller=fs.readFileSync('tools/setup_android_operator_overlay.sh','utf8');
 const overlayWorkflow=fs.readFileSync('.github/workflows/operator-overlay-android.yml','utf8');
@@ -19,9 +20,15 @@ const armoryBlender=fs.readFileSync('tools/fleshpunk_armory_blender.py','utf8');
 const requiredRelay=['command_center.phone_hands.devices','command_center.phone_hands.enqueue','command_center.phone_hands.get','devicePull','deviceComplete','registerDevice'];
 for (const s of requiredRelay) if (!relay.includes(s)) throw new Error('relay contract missing '+s);
 for (const s of ["require('./phone_hands_relay')",'registerCommandCenterPhoneTools','exports.phoneHandsRelay']) if (!patcher.includes(s)) throw new Error('wiring patch missing '+s);
-for (const s of ['termuxTokenRefresh','android_phone_hands_bridge','dungeon_run','local_ask','/pull','/complete','android_phone_factory_tools','android_armory_driver','FACTORY_ACTIONS','ARMORY_ACTIONS','android_phone_termux_shell','TERMUX_SHELL_ACTIONS','android_operator_overlay','OVERLAY_ACTIONS','overlay_control_gate','overlay_heartbeat']) if (!agent.includes(s)) throw new Error('phone agent contract missing '+s);
+for (const s of ['termuxTokenRefresh','android_phone_hands_bridge','dungeon_run','local_ask','/pull','/complete','android_phone_factory_tools','android_armory_driver','FACTORY_ACTIONS','ARMORY_ACTIONS','android_phone_termux_shell','TERMUX_SHELL_ACTIONS','android_phone_diagnostics','DIAGNOSTIC_ACTIONS','phone_diagnostics_readonly','android_operator_overlay','OVERLAY_ACTIONS','overlay_control_gate','overlay_heartbeat']) if (!agent.includes(s)) throw new Error('phone agent contract missing '+s);
 for (const s of ["'phone_shell'",'timeoutSeconds','MAX_OUTPUT_CHARS','SECRET_PATTERNS','subprocess.run']) if (!shell.includes(s)) throw new Error('Termux shell contract missing '+s);
 if (!relay.includes("'phone_shell'")) throw new Error('relay action missing phone_shell');
+for (const s of ["'phone_diagnostics'",'cleanPhoneDiagnostics','phone.diagnostics.request.v1','GODOT_PROJECTS','commissionHash','previousChunkHash']) if (!relay.includes(s)) throw new Error('typed phone diagnostics relay contract missing '+s);
+for (const s of ['ROOTS','GODOT_PROJECTS','DiagnosticsEngine','capability_snapshot','tree_inventory','repo_status','toolchain_probe','cache_probe','file_manifest','PENDING_HOME_CENTER_POSTBACK','UNKNOWN_NO_EXEC','followlinks=False']) if (!diagnostics.includes(s)) throw new Error('phone diagnostics implementation contract missing '+s);
+for (const forbidden of ['import subprocess','import urllib','import socket','import requests','shell=True','os.system','eval(','exec(']) {
+  if (diagnostics.includes(forbidden)) throw new Error('phone diagnostics must not execute, write, or use network: '+forbidden);
+}
+if (agent.indexOf('if kind in DIAGNOSTIC_ACTIONS:') > agent.indexOf('gate=overlay_control_gate()')) throw new Error('typed diagnostics must not depend on the interaction overlay gate');
 
 const overlayActions=['operator_overlay_status','operator_overlay_start','operator_overlay_update'];
 for (const s of overlayActions) {
