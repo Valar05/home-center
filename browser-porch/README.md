@@ -7,7 +7,7 @@ Browser Porch lets the existing Home Center Browser Nerve request a one-minute, 
 ## Components
 
 - `extension/`: minimal MV3 extension with only `activeTab`, `scripting`, and the loopback relay origin. It has no `cookies`, `tabs`, broad host, native messaging, or storage permission.
-- `relay.mjs`: loopback-only, memory-only broker. It carries pair intentions, receipts, one command at a time, completions, revocation, and append-only in-memory events. Browser Nerve retrieval and command submission require the unhashed one-use intent nonce as an ephemeral lease proof; the receipt retains only its hash.
+- `relay.mjs`: loopback-only broker with exact installed-extension origin and a separate ephemeral Browser Nerve bearer capability. It accepts only server-registered intentions, mints the tab fence, permits one pending writer, matches completion to the exact pending command, and sends pair/revoke events through a required integration callback.
 - `contract.mjs`: exact origin/account/tab/tab-session/session/worker/commission/lease binding, replay controls, read-only default, and separately digest-bound mutation approval.
 
 The extension candidate executes only `inventory`. Although the contract defines two future mutation names and verifies a separate approval envelope, this candidate deliberately has no mutation executor. Extension restart loses the in-memory pairing and fails closed. The existing dedicated-profile Browser Nerve remains unchanged.
@@ -16,10 +16,12 @@ The extension candidate executes only `inventory`. Although the contract defines
 
 1. Browser Nerve starts the loopback relay on `127.0.0.1:9234` and POSTs one short-lived pair intent.
 2. Drew opens the already-authenticated ChatGPT tab and clicks Browser Porch.
-3. The extension proves the exact active origin and current DOM account marker, hashes the marker locally, and posts the receipt without returning the raw label.
+3. The extension requires a non-generic `data-user-id` or `data-account-id` DOM marker, hashes it locally, and posts the receipt without returning the raw identifier. A generic profile label never proves authentication and yields `account_unverified`.
 4. Browser Nerve compares the receipt with the intended account hash and may enqueue `inventory` only.
-5. Navigation, account change, tab close, expiry, extension restart, or revoke kills authority.
+5. Navigation, account change, tab close, expiry, or the visible second-click kill switch revokes authority. MV3 lifecycle/restart acceptance remains a separate installation canary; this source candidate makes no installed or callable claim.
 6. Chat/project mutations remain stopped until a later approval artifact binds the exact command digest and a reviewed mutation executor exists.
+
+The deployed Browser Nerve does not yet start this relay or durably consume its event callback. Canonical worker integration and Home Center receipt readback are explicit remaining gates, not capabilities claimed by this branch.
 
 ## Verification
 
