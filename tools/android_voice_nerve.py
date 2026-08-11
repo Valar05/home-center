@@ -3,25 +3,28 @@ from __future__ import annotations
 import hashlib, json, os, re, sys, time, xml.etree.ElementTree as ET
 from pathlib import Path
 
-ROOT=Path(__file__).resolve().parent.parent
-sys.path.insert(0,str(ROOT/'tools'))
+TOOLS=Path(__file__).resolve().parent
+ROOT=TOOLS.parent
+sys.path.insert(0,str(TOOLS))
 from android_phone_hands_bridge import ui_dump, foreground
 from android_window_composer import execute as window_execute
 from android_phone_status_tts import execute as tts_execute
 
 STATE=Path(os.path.expanduser('~/.local/state/home-center/voice-nerve.json'))
 LOG=Path(os.path.expanduser('~/.local/state/home-center/voice-nerve-events.jsonl'))
-POLL=float(os.getenv('HC_VOICE_NERVE_POLL_SECONDS','0.7'))
+POLL=float(os.getenv('HC_VOICE_NERVE_POLL_SECONDS','1.5'))
 COOLDOWN=float(os.getenv('HC_VOICE_NERVE_COOLDOWN_SECONDS','2.0'))
 
+# Explicit wake phrase is mandatory. This is important because ChatGPT renders both
+# sides of a conversation; arbitrary assistant text must never become an action.
 COMMANDS=[
-    (re.compile(r'\b(?:adam[, ]+)?(?:show|open|focus)(?: me)? (?:the )?(?:terminal|termux)\b',re.I), {'action':'window_swap','app':'termux'}, 'Terminal.'),
-    (re.compile(r'\b(?:adam[, ]+)?(?:show|open|focus)(?: me)? (?:the )?(?:browser|chrome)\b',re.I), {'action':'window_swap','app':'chrome'}, 'Browser.'),
-    (re.compile(r'\b(?:adam[, ]+)?(?:back to|show|focus)(?: me)? (?:chatgpt|chat gpt|chat)\b',re.I), {'action':'window_focus','app':'chatgpt'}, 'ChatGPT.'),
-    (re.compile(r'\b(?:adam[, ]+)?(?:pair|split|compose).*(?:chatgpt|chat gpt).*(?:termux|terminal)\b',re.I), {'action':'window_compose','primary':'chatgpt','secondary':'termux'}, 'ChatGPT and Termux paired.'),
-    (re.compile(r'\b(?:adam[, ]+)?(?:swap|switch).*(?:termux|terminal)\b',re.I), {'action':'window_swap','app':'termux'}, 'Terminal.'),
-    (re.compile(r'\b(?:adam[, ]+)?(?:swap|switch).*(?:chrome|browser)\b',re.I), {'action':'window_swap','app':'chrome'}, 'Browser.'),
-    (re.compile(r'\b(?:adam[, ]+)?voice nerve status\b',re.I), {'action':'voice_status'}, 'Voice nerve active.'),
+    (re.compile(r'^adam[,: ]+(?:show|open|focus)(?: me)? (?:the )?(?:terminal|termux)[.! ]*$',re.I), {'action':'window_swap','app':'termux'}, 'Terminal.'),
+    (re.compile(r'^adam[,: ]+(?:show|open|focus)(?: me)? (?:the )?(?:browser|chrome)[.! ]*$',re.I), {'action':'window_swap','app':'chrome'}, 'Browser.'),
+    (re.compile(r'^adam[,: ]+(?:back to|show|focus)(?: me)? (?:chatgpt|chat gpt|chat)[.! ]*$',re.I), {'action':'window_focus','app':'chatgpt'}, 'ChatGPT.'),
+    (re.compile(r'^adam[,: ]+(?:pair|split|compose).*(?:chatgpt|chat gpt).*(?:termux|terminal)[.! ]*$',re.I), {'action':'window_compose','primary':'chatgpt','secondary':'termux'}, 'ChatGPT and Termux paired.'),
+    (re.compile(r'^adam[,: ]+(?:swap|switch).*(?:termux|terminal)[.! ]*$',re.I), {'action':'window_swap','app':'termux'}, 'Terminal.'),
+    (re.compile(r'^adam[,: ]+(?:swap|switch).*(?:chrome|browser)[.! ]*$',re.I), {'action':'window_swap','app':'chrome'}, 'Browser.'),
+    (re.compile(r'^adam[,: ]+voice nerve status[.! ]*$',re.I), {'action':'voice_status'}, 'Voice nerve active.'),
 ]
 
 
@@ -46,11 +49,10 @@ def normalize(s:str)->str:
 
 
 def choose(lines:list[str]):
-    # Newest UI text tends to occur later in the hierarchy. Search backwards.
-    for raw in reversed(lines[-120:]):
+    for raw in reversed(lines[-160:]):
         text=normalize(raw)
         for pattern,action,spoken in COMMANDS:
-            if pattern.search(text): return text,action,spoken
+            if pattern.match(text): return text,action,spoken
     return None
 
 
@@ -66,15 +68,19 @@ def save_state(d):
 
 def run_once(state:dict):
     fg=foreground()
-    # Only inspect while ChatGPT exists in the current window focus context.
-    # In native split mode uiautomator can expose both window hierarchies.
+    # Only scan when ChatGPT participates in the active task context. In split mode
+    # it can be present without being the focused pane.
+    if 'com.openai.chatgpt' not in fg:
+        # ui_dump may still expose ChatGPT when the paired pane is focused, so permit
+        # the scan but at a slower cadence controlled by POLL.
+        pass
     xml=ui_dump()
     found=choose(texts(xml))
     if not found: return state,None
     utterance,action,spoken=found
     digest=hashlib.sha256(utterance.lower().encode()).hexdigest()
     now=time.time()
-    if digest==state.get('lastDigest') and now-float(state.get('lastAt',0))<30: return state,None
+    if digest==state.get('lastDigest') and now-float(state.get('lastAt',0))<60: return state,None
     if now-float(state.get('lastAt',0))<COOLDOWN: return state,None
     if action.get('action')=='voice_status': result={'ok':True,'status':'active'}
     else: result=window_execute(action)
@@ -88,7 +94,7 @@ def run_once(state:dict):
 
 def loop(once=False):
     state=load_state()
-    print('Home Center voice nerve online',flush=True)
+    print('Home Center voice nerve online; wake=Adam',flush=True)
     while True:
         try:
             state,event=run_once(state)
