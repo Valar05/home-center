@@ -30,6 +30,7 @@ export function createRelay({host = '127.0.0.1', port = 9234, extensionOrigin = 
       }
       if (req.method === 'GET' && url.pathname === '/v1/intent') {
         requireExtension(req, extensionOrigin);
+        retireExpired(Date.now());
         const row = [...intents.values()].sort((a, b) => a.intent.issuedAtMs - b.intent.issuedAtMs)[0];
         if (!row) return send(res, 404, {ok: false, error: 'NO_INTENT'}, extensionOrigin);
         return send(res, 200, row.intent, extensionOrigin);
@@ -45,9 +46,17 @@ export function createRelay({host = '127.0.0.1', port = 9234, extensionOrigin = 
         const tabKey = `${extensionOrigin}:${observation.windowId}:${observation.tabId}`;
         if (activeTabs.has(tabKey)) return send(res, 409, {ok: false, error: 'TAB_LEASE_BUSY'}, extensionOrigin);
         const receipt = createPairReceipt(row.intent, {...observation, tabSessionId: observation.documentId, leaseId: `lease-${randomUUID()}`}, state);
-        intents.delete(input.pairingId);
         activeTabs.set(tabKey, receipt.pairingId);
-        await eventSink({type: 'paired', receipt, intentHash: row.intentHash});
+        try {
+          await eventSink({type: 'paired', receipt, intentHash: row.intentHash});
+        } catch (error) {
+          activeTabs.delete(tabKey);
+          state.receipts.delete(receipt.pairingId);
+          state.usedNonces.delete(row.intent.nonce);
+          if (state.events.at(-1)?.type === 'paired' && state.events.at(-1)?.pairingId === receipt.pairingId) state.events.pop();
+          throw Object.assign(new Error(`durable pairing receipt failed: ${error.message}`), {code: 'DURABLE_SINK_FAILED', status: 503});
+        }
+        intents.delete(input.pairingId);
         return send(res, 201, {ok: true, receipt}, extensionOrigin);
       }
       if (req.method === 'GET' && url.pathname === '/v1/pairing') {
@@ -111,6 +120,7 @@ export function createRelay({host = '127.0.0.1', port = 9234, extensionOrigin = 
   }).listen(port, host);
 
   function retireExpired(nowMs) {
+    for (const [pairingId, row] of intents) if (row.intent.expiresAtMs <= nowMs) intents.delete(pairingId);
     for (const [pairingId, receipt] of state.receipts) {
       if (receipt.expiresAtMs > nowMs || state.revoked.has(pairingId)) continue;
       state.revoked.add(pairingId);
