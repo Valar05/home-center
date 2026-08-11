@@ -9,6 +9,7 @@ import {buildSitePack, validateSitePack} from './contribute.mjs';
 import {DiscoveryWorker} from './discovery.mjs';
 import {loadMap, queryMap, freshnessPlan, renderAccessibleHtml} from './map.mjs';
 import {createRuntime} from './daemon.mjs';
+import {PORCHLIGHT_EXTENSION_ID, PORCHLIGHT_EXTENSION_ORIGIN, PORCHLIGHT_EXTENSION_PUBLIC_KEY, chromeExtensionIdFromPublicKey} from './extension-identity.mjs';
 
 const temp = () => fs.mkdtempSync(path.join(os.tmpdir(), 'porchlight-test-'));
 const binding = {pairingId: 'pair-1', tabId: 7, documentId: 'doc-1', origin: 'https://portal.example'};
@@ -120,17 +121,36 @@ test('runtime automatically requests one sparse-DOM screenshot and stores no pix
   fs.rmSync(dir, {recursive: true, force: true});
 });
 
+test('manifest public key deterministically pins the Porchlight extension origin', () => {
+  const manifest = JSON.parse(fs.readFileSync(path.join(path.dirname(new URL(import.meta.url).pathname), 'extension/manifest.json')));
+  assert.equal(manifest.key, PORCHLIGHT_EXTENSION_PUBLIC_KEY);
+  assert.equal(chromeExtensionIdFromPublicKey(manifest.key), PORCHLIGHT_EXTENSION_ID);
+  assert.equal(PORCHLIGHT_EXTENSION_ORIGIN, 'chrome-extension://dmfjnjkccebgbiepjbmbdmpffcaikaje');
+});
+
 test('loopback relay performs gesture pairing, command delivery, completion, CORS, and revoke', async () => {
   const dir = temp(); const runtime = createRuntime({dataDir: dir, port: 0}); await runtime.listen();
-  const base = `http://127.0.0.1:${runtime.server.address().port}`; const origin = 'chrome-extension://abcdefghijklmnopabcdefghijklmnop';
+  const base = `http://127.0.0.1:${runtime.server.address().port}`; const origin = PORCHLIGHT_EXTENSION_ORIGIN; const wrongOrigin = 'chrome-extension://aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
   const pairingReady = runtime.prompt('pair https://example.com/private');
   assert.equal(pairingReady.expectedOrigin, 'https://example.com');
+  const wrongPreflight = await fetch(`${base}/v1/pair`, {method: 'OPTIONS', headers: {origin: wrongOrigin}});
+  assert.equal(wrongPreflight.status, 400);
+  const wrongIntent = await fetch(`${base}/v1/pair-intent`, {headers: {origin: wrongOrigin}});
+  assert.equal(wrongIntent.status, 400);
   const preflight = await fetch(`${base}/v1/pair`, {method: 'OPTIONS', headers: {origin}});
   assert.equal(preflight.status, 204);
   const intentResponse = await fetch(`${base}/v1/pair-intent`, {headers: {origin}}); const intent = await intentResponse.json();
+  const wrongPair = await fetch(`${base}/v1/pair`, {method: 'POST', headers: {origin: wrongOrigin, 'content-type': 'application/json'}, body: JSON.stringify({token: intent.token, url: 'https://example.com/private?id=1', tabId: 99, windowId: 99, documentId: 'hostile-doc'})});
+  assert.equal(wrongPair.status, 400);
   const pairResponse = await fetch(`${base}/v1/pair`, {method: 'POST', headers: {origin, 'content-type': 'application/json'}, body: JSON.stringify({token: intent.token, url: 'https://example.com/private?id=1', tabId: 2, windowId: 1, documentId: 'doc-1'})});
   assert.equal(pairResponse.status, 201); const {pairing} = await pairResponse.json();
   const queued = runtime.prompt('look');
+  const wrongCommand = await fetch(`${base}/v1/command?pairingId=${pairing.pairingId}`, {headers: {origin: wrongOrigin}});
+  assert.equal(wrongCommand.status, 400);
+  const wrongComplete = await fetch(`${base}/v1/complete`, {method: 'POST', headers: {origin: wrongOrigin, 'content-type': 'application/json'}, body: JSON.stringify({pairingId: pairing.pairingId, commandId: queued.commandId, result: {verified: true}})});
+  assert.equal(wrongComplete.status, 400);
+  const wrongRevoke = await fetch(`${base}/v1/revoke`, {method: 'POST', headers: {origin: wrongOrigin, 'content-type': 'application/json'}, body: JSON.stringify({pairingId: pairing.pairingId})});
+  assert.equal(wrongRevoke.status, 400);
   const commandResponse = await fetch(`${base}/v1/command?pairingId=${pairing.pairingId}`, {headers: {origin}});
   assert.equal((await commandResponse.json()).command.commandId, queued.commandId);
   const completeResponse = await fetch(`${base}/v1/complete`, {method: 'POST', headers: {origin, 'content-type': 'application/json'}, body: JSON.stringify({pairingId: pairing.pairingId, commandId: queued.commandId, result: {verified: true, locatorStrategy: 'semantic_inventory'}})});
