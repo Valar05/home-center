@@ -1,0 +1,20 @@
+{
+  "name": "phone-shell-ci-diagnose",
+  "owner": "Drew",
+  "principal": "Adam",
+  "workspace": "~/storage/shared/GodotProjects/home-center",
+  "objective": "Run the repository CI validation subset on the phone checkout and return the failing step/output without modifying code.",
+  "steps": [
+    {
+      "type": "verify",
+      "name": "home center ci validation",
+      "run": "sh tools/home_center_ci_validate.sh"
+    }
+  ],
+  "scars": [],
+  "stop": {
+    "max_cycles": 1,
+    "same_failure_limit": 1,
+    "command_timeout_seconds": 300
+  }
+}
