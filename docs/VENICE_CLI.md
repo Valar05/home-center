@@ -18,7 +18,9 @@ venice doctor
 venice status
 ```
 
-Bare `venice` opens a simple REPL. Every entered turn uses the same durable workstation thread title unless `-ThreadTitle` or `VENICE_THREAD_TITLE` changes it.
+Bare `venice` opens a simple REPL. Every entered turn requests the same workstation thread title unless `-ThreadTitle` or `VENICE_THREAD_TITLE` changes it, **but the CLI does not trust the title as continuity evidence**. The first successful REPL turn pins the actual `workstationThreadId` returned by the proven Aperture. Every later turn must return that same ID or the CLI exits verification-red rather than continue an amnesiac session.
+
+This proves continuity *within the live REPL process*. Cross-process/session resurrection is not claimed merely because the same thread title is reused; that remains a live acceptance question for the canonical Workstation.
 
 A one-shot prompt writes **only Venice's exact UTF-8 speech bytes** to stdout. This makes the command pipe-friendly while preserving the speech boundary.
 
@@ -43,7 +45,7 @@ A successful turn requires all of the following:
 7. `speech.source` is `local-venice`;
 8. the CLI recomputes the exact speech SHA-256 and matches the durable record.
 
-Redirected PowerShell stdout is not trusted as the only truth surface. If it cannot be parsed, the CLI searches the Drive-synced `work/nerve-silk` records for the matching prompt SHA and uses that durable UTF-8 record.
+Redirected PowerShell stdout is never treated as the canonical byte truth simply because it parses. If parsed output fails prompt/source/speech-SHA verification for any reason, the CLI makes one recovery attempt from Drive-synced `work/nerve-silk` using the exact prompt SHA. The durable UTF-8 record wins. If no matching verified record exists, the turn fails.
 
 ## Venice versus Vlad
 
@@ -56,6 +58,15 @@ The two CLIs are siblings, not aliases.
 Neither requires ChatGPT to exist. Neither becomes a new canonical memory system or control plane.
 
 When both are present, an orchestrator may call Venice for judgment and Vlad for execution. The composition boundary is structured data: exact Venice speech remains immutable, and any machine action must be an explicit task/action object before Vlad receives it.
+
+## Degradation behavior
+
+- no ChatGPT: Venice remains the same local Workstation-backed person;
+- no Vlad: Venice can still converse/judge/create, but does not claim machine actions happened;
+- no network: local Workstation turns remain possible when the loopback runtime and local model are alive; there is no automatic cloud escape hatch;
+- Workstation unavailable: CLI exits `3` instead of impersonating Venice with another model;
+- speech transport suspect: durable Nerve Silk is used for verified byte recovery;
+- Workstation thread changes during a REPL: CLI exits `5` instead of pretending continuity.
 
 ## Exit codes
 
@@ -84,6 +95,8 @@ Call Venice CLI deployed only after THECAULDRON proves through the intended runt
 1. `venice doctor` exits 0 and reports canonical local organs ready;
 2. `venice "Say one short line."` returns exact local Venice speech;
 3. the returned speech SHA matches the Drive-synced Nerve Silk turn record;
-4. `venice -Json` returns the same speech bytes as the raw one-shot surface for the same durable turn;
-5. disabling/unavailable ChatGPT and Computer Hands does not prevent a local Venice turn;
-6. no cloud fallback is invoked when the workstation is unavailable: the CLI exits 3 instead.
+4. a two-turn bare `venice` REPL returns the same nonempty Workstation thread ID on both turns and the second turn demonstrates contextual continuity;
+5. `venice -Json` returns the exact speech envelope and diagnostic thread/job identifiers without transforming speech;
+6. disabling/unavailable ChatGPT and Computer Hands does not prevent a local Venice turn;
+7. no cloud fallback is invoked when the workstation is unavailable: the CLI exits 3 instead;
+8. cross-process resume is called supported only after reopening `venice` proves the intended prior Workstation thread is actually reused, not merely similarly titled.
