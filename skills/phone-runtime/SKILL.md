@@ -6,6 +6,17 @@ Operate the primary Android phone through the authorized Home Center -> Phone Ha
 ## Authorized execution lane
 Use Home Center `command_center.phone_hands.*` against `primary-phone`. Prefer bounded `phone_shell` actions for Termux work. Do not substitute desktop, local scratch, Codex, or another device as deployment proof.
 
+## One-command relay recovery
+When the primary phone still appears registered but `lastSeenAtMs` stops advancing and newly enqueued commands remain untouched, treat that as a relay-consumption failure rather than repeatedly polling stale command records.
+
+The canonical recovery entrypoint is:
+
+`sh tools/home_center_phone_relay_recover.sh`
+
+Run it from the phone repo. It is idempotent: if the relay process is alive it leaves it alone; if absent it starts exactly one fresh relay, waits only on local process/log evidence, and prints a machine-readable receipt. Do not manually reconstruct the old `nohup python ...` incantation unless this script itself is broken.
+
+After recovery, use one fresh Home Center command to verify command consumption. If that command is consumed, continue the original job from actual phone state rather than rerunning completed installation steps.
+
 ## Long-running job discipline
 Compilation, package builds, model downloads, installs, renders, and other expensive phone-side jobs must be launched once and then left alone.
 
