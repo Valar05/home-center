@@ -1,0 +1,27 @@
+name: Porchlight map
+
+on:
+  pull_request:
+    paths:
+      - 'browser-porch/product/**'
+      - '.github/workflows/porchlight-map.yml'
+  schedule:
+    - cron: '17 5 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate-map-and-worker:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node --test browser-porch/product/product.test.mjs
+      - run: node browser-porch/product/build-map.mjs browser-porch/product /tmp/porchlight-map
+      - run: test -s /tmp/porchlight-map/index.html && test -s /tmp/porchlight-map/index.json
+      - run: node browser-porch/product/freshness.mjs browser-porch/product

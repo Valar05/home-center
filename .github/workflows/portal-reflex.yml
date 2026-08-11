@@ -1,0 +1,27 @@
+name: Portal Reflex
+
+on:
+  pull_request:
+    paths:
+      - 'browser-porch/**'
+      - '.github/workflows/portal-reflex.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  deterministic-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node --test browser-porch/contract.test.mjs browser-porch/relay.test.mjs browser-porch/portal-reflex.test.mjs
+      - run: node --check browser-porch/contract.mjs
+      - run: node --check browser-porch/relay.mjs
+      - run: node --check browser-porch/portal-reflex.mjs
+      - run: node --check browser-porch/extension/service-worker.js
+

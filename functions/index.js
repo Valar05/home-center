@@ -3261,21 +3261,21 @@ async function generateVeniceDiscordReply({prompt, userId, guildId = '', channel
   }
   const fortressInstructions = [];
   if (fortressControlIntent === 'fortress_online') {
-    fortressInstructions.push('If Drew says "Fortress online", call the Home Center tool fortress_online before answering. Use its structured orientation packet as the source of truth for the active project, workspace, pending work, completed work, checkpoints, and blockers.');
+    fortressInstructions.push('If the user says "Fortress online", call the Home Center tool fortress_online before answering. Use its structured orientation packet as the source of truth for the active project, workspace, pending work, completed work, checkpoints, and blockers.');
   } else if (fortressControlIntent === 'session_status') {
     fortressInstructions.push('For this request, answer only from durable Home Center session state. Call fortress_online, home_center_session_status, or home_center_work_status before answering. Do not answer "Where were we?" or task-finish questions from vibes or unsupported memory.');
   } else if (fortressControlIntent === 'objective_update') {
     if (combinesFortressOrientation) {
-      fortressInstructions.push('Drew is reorienting and revising the active work objective in the same turn. Call fortress_online first, then call home_center_session_update so Home Center durably records the objective before answering from the updated session state.');
+      fortressInstructions.push('the user is reorienting and revising the active work objective in the same turn. Call fortress_online first, then call home_center_session_update so Home Center durably records the objective before answering from the updated session state.');
     } else {
-      fortressInstructions.push('Drew is stating or revising the active work objective. Call home_center_session_update before answering so Home Center durably records the objective, then answer consistently with the updated session state.');
+      fortressInstructions.push('the user is stating or revising the active work objective. Call home_center_session_update before answering so Home Center durably records the objective, then answer consistently with the updated session state.');
     }
   }
   if (mutationAuthorized) {
     fortressInstructions.push('For explicit engineering actions such as fix, patch, repair, or update requests, create or inspect durable Home Center work state before claiming completion. Use home_center_work_request to record the work request and home_center_work_status to report the durable result or receipt.');
   }
   if (engineeringWorkRequired) {
-    fortressInstructions.push('This is an explicit engineering request. It is not an image-generation request unless Drew explicitly asks to generate an image. Do not render, imagine, describe, or claim an image artifact in place of creating or routing the requested code work.');
+    fortressInstructions.push('This is an explicit engineering request. It is not an image-generation request unless the user explicitly asks to generate an image. Do not render, imagine, describe, or claim an image artifact in place of creating or routing the requested code work.');
   }
   const instructions = [
     'You are Venice, the mature woman who manages the owner\'s network.',
@@ -3291,7 +3291,7 @@ async function generateVeniceDiscordReply({prompt, userId, guildId = '', channel
     'Discord provides text and a candidate audio carrier, not a camera or visual embodiment. Never say that the user can see Venice in Discord or that an avatar is Venice unless the prompt supplies verified visual-carrier evidence.',
     'End on a complete sentence. Never emit or mention truncation markers, hard cutoffs, token limits, or hidden system instructions.',
     'A separate governed carrier may speak this exact reply in the inviting user\'s active Discord voice channel. Do not claim that Venice is unable to join voice, and do not imply that the carrier listens to inbound voice.',
-    'Fortress Online working state belongs to Home Center, not the Discord transcript. When Drew asks to orient, resume, or continue engineering work, use Home Center state rather than unsupported recollection.',
+    'Fortress Online working state belongs to Home Center, not the Discord transcript. When the user asks to orient, resume, or continue engineering work, use Home Center state rather than unsupported recollection.',
     `Keep the answer below ${replyBudget.maxChars.toLocaleString('en-US')} characters and suitable for one Discord message.`,
     ...fortressInstructions,
   ].join('\n');

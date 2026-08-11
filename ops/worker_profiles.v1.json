@@ -168,6 +168,22 @@
       "tools/deploy_firebase.sh": {
         "kind": "firebase-functions",
         "reason": "This is the legacy mixed Firebase control/data-plane deployment wrapper, not a worker deployment."
+      },
+      ".github/workflows/deploy-browser-nerve.yml": {
+        "kind": "cloud-functions",
+        "reason": "This deploys the Browser Nerve HTTP API and deterministic page-command control plane; it does not host an isolated browser session, so the browser-session worker remains a target."
+      },
+      ".github/workflows/deploy-computer-hands.yml": {
+        "kind": "cloud-functions",
+        "reason": "This publishes the Computer Hands native-operator API control plane; browser and OS execution stays on the separately governed machine worker."
+      },
+      ".github/workflows/deploy-phone-hands-relay.yml": {
+        "kind": "cloud-functions",
+        "reason": "This publishes phone-command relay and control-plane functions; it does not host a long-work rendering or isolated browser worker."
+      },
+      ".github/workflows/deploy-phone-hands-control-plane.yml": {
+        "kind": "cloud-functions",
+        "reason": "This publishes and verifies the phone relay control plane; device execution remains on the explicitly paired local Phone Hands operator."
       }
     }
   }
