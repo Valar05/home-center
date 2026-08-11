@@ -6,7 +6,7 @@ const adapterInterfaces = Object.freeze(Object.fromEntries(ADAPTER_NAMES.map(nam
   name,
   mode: 'read_only',
   operations: READ_ONLY_OPERATIONS,
-  requiredIdentityFields: Object.freeze(['workerId', 'identityHash'])
+  requiredIdentityFields: Object.freeze(['commissionId', 'commissionHash', 'queueDocumentId', 'queueFolderId', 'queueRevision', 'stateOwner', 'laneId', 'laneOwner', 'workerId', 'identityHash'])
 })])));
 
 function getAdapterInterface(name) {
