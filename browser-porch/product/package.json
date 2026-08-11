@@ -1,10 +1,25 @@
 {
   "name": "@porchlight/internet-access-map",
-  "version": "0.8.0",
+  "version": "0.8.1",
   "description": "A deterministic worker and living accessibility map of the internet",
   "type": "module",
-  "engines": {"node": ">=22"},
-  "bin": {"porchlight": "./cli.mjs", "porchlight-map": "./map-cli.mjs"},
-  "files": ["*.mjs", "*.json", "extension", "site-packs", "README.md"],
-  "scripts": {"test": "node --test product.test.mjs", "build": "node build-map.mjs . dist", "freshness": "node freshness.mjs ."}
+  "engines": {
+    "node": ">=22"
+  },
+  "bin": {
+    "porchlight": "./cli.mjs",
+    "porchlight-map": "./map-cli.mjs"
+  },
+  "files": [
+    "*.mjs",
+    "*.json",
+    "extension",
+    "site-packs",
+    "README.md"
+  ],
+  "scripts": {
+    "test": "node --test product.test.mjs",
+    "build": "node build-map.mjs . dist",
+    "freshness": "node freshness.mjs ."
+  }
 }
