@@ -2,27 +2,18 @@ name: Fortress Online V2 Contract
 
 on:
   push:
-    branches:
-      - fortress-online-v2
+    branches: [fortress-online-v2]
     paths:
-      - 'functions/fortress_v2.js'
-      - 'functions/fortress_v2.test.js'
-      - 'functions/fortress_v2_incidents.test.js'
-      - 'functions/fortress_v2.incidents.json'
+      - 'functions/fortress_v2*'
       - '.github/workflows/fortress-v2-contract.yml'
       - 'docs/FORTRESS_ONLINE_V2.md'
   pull_request:
     paths:
-      - 'functions/fortress_v2.js'
-      - 'functions/fortress_v2.test.js'
-      - 'functions/fortress_v2_incidents.test.js'
-      - 'functions/fortress_v2.incidents.json'
+      - 'functions/fortress_v2*'
       - '.github/workflows/fortress-v2-contract.yml'
       - 'docs/FORTRESS_ONLINE_V2.md'
-
 permissions:
   contents: read
-
 jobs:
   contract:
     runs-on: ubuntu-latest
@@ -31,10 +22,12 @@ jobs:
         working-directory: functions
     steps:
       - uses: actions/checkout@v4
+        with:
+          lfs: false
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
       - name: Syntax check
-        run: node --check fortress_v2.js && node --check fortress_v2.test.js && node --check fortress_v2_incidents.test.js
-      - name: Run deterministic V2 gates
-        run: node --test fortress_v2.test.js fortress_v2_incidents.test.js
+        run: node --check fortress_v2.js && node --check fortress_v2.test.js && node --check fortress_v2_incidents.test.js && node --check fortress_v2_learning.js && node --check fortress_v2_learning.test.js
+      - name: Run complete deterministic V2 suite
+        run: node --test fortress_v2.test.js fortress_v2_incidents.test.js fortress_v2_learning.test.js
