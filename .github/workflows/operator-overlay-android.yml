@@ -38,21 +38,7 @@ jobs:
         with:
           fetch-depth: 0
 
-      - uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: '17'
-
-      - uses: android-actions/setup-android@v3
-
-      - name: Install Android SDK 35
-        run: sdkmanager 'platforms;android-35' 'build-tools;35.0.0'
-
-      - uses: gradle/actions/setup-gradle@v4
-        with:
-          gradle-version: '8.9'
-
-      - name: Verify and build overlay
+      - name: Bootstrap, verify, and build overlay
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
@@ -61,12 +47,53 @@ jobs:
           set -o pipefail
           (
             set -euo pipefail
+
+            echo '=== TOOLCHAIN ==='
+            java -version
+            python --version
+            node --version
+
+            SDK_ROOT="${ANDROID_SDK_ROOT:-${ANDROID_HOME:-/usr/local/lib/android/sdk}}"
+            if [ ! -d "$SDK_ROOT" ]; then
+              echo "Android SDK root missing: $SDK_ROOT" >&2
+              exit 41
+            fi
+            export ANDROID_SDK_ROOT="$SDK_ROOT"
+            export ANDROID_HOME="$SDK_ROOT"
+
+            SDKMANAGER="$SDK_ROOT/cmdline-tools/latest/bin/sdkmanager"
+            if [ ! -x "$SDKMANAGER" ]; then
+              SDKMANAGER="$(find "$SDK_ROOT/cmdline-tools" -type f -name sdkmanager -perm -111 2>/dev/null | head -1 || true)"
+            fi
+            if [ -z "$SDKMANAGER" ] || [ ! -x "$SDKMANAGER" ]; then
+              echo "sdkmanager not found under $SDK_ROOT" >&2
+              find "$SDK_ROOT" -maxdepth 4 -type f -name sdkmanager -print 2>/dev/null || true
+              exit 42
+            fi
+            echo "sdkmanager=$SDKMANAGER"
+            yes | "$SDKMANAGER" --licenses >/dev/null 2>&1 || true
+            "$SDKMANAGER" 'platforms;android-35' 'build-tools;35.0.0'
+
+            GRADLE_VERSION=8.9
+            GRADLE_HOME="/tmp/gradle-${GRADLE_VERSION}"
+            if [ ! -x "$GRADLE_HOME/bin/gradle" ]; then
+              curl -fL --retry 3 --retry-delay 2 \
+                "https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-bin.zip" \
+                -o /tmp/gradle.zip
+              rm -rf "$GRADLE_HOME"
+              unzip -q /tmp/gradle.zip -d /tmp
+            fi
+            "$GRADLE_HOME/bin/gradle" --version
+
+            echo '=== CONTRACTS ==='
             python -m py_compile tools/android_operator_overlay.py tools/android_phone_home_center_relay.py
             node --check functions/phone_hands_relay.js
             node tools/phone_hands_relay_contract_test.mjs
             git diff --check
+
+            echo '=== APK BUILD ==='
             cd android/operator-overlay
-            gradle :app:assembleDebug --no-daemon
+            "$GRADLE_HOME/bin/gradle" :app:assembleDebug --no-daemon --stacktrace
           ) 2>&1 | tee /tmp/operator-overlay-ci.log
           CODE=${PIPESTATUS[0]}
           if [ "$CODE" -ne 0 ] && [ "$GITHUB_EVENT_NAME" = 'push' ] && [ "$GITHUB_REF" = 'refs/heads/feature/operator-overlay-v1' ]; then
@@ -74,7 +101,7 @@ jobs:
             tail -c 50000 /tmp/operator-overlay-ci.log > "$LOG"
             BODY="$(mktemp)"
             {
-              printf '### Operator overlay CI failure\n\nRun `%s`, source `%s`.\n\n```text\n' "$GITHUB_RUN_ID" "$GITHUB_SHA"
+              printf '### Operator overlay CI failure\n\nRun `%s`, source `%s`, exit `%s`.\n\n```text\n' "$GITHUB_RUN_ID" "$GITHUB_SHA" "$CODE"
               cat "$LOG"
               printf '\n```\n'
             } > "$BODY"
