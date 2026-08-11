@@ -1,6 +1,10 @@
 param(
+    [string]$Prompt = '',
+    [switch]$Readonly,
+    [string[]]$Allow = @(),
+    [string[]]$Exclude = @(),
     [Parameter(ValueFromRemainingArguments = $true)]
-    [string[]]$ContinueArgs
+    [string[]]$ExtraArgs = @()
 )
 
 Set-StrictMode -Version Latest
@@ -44,8 +48,20 @@ Get-ChildItem -Path $rulesPath -Filter '*judgement-jar*.md' -File |
         $cnArgs += @('--rule', $_.FullName)
     }
 
-if ($ContinueArgs) {
-    $cnArgs += $ContinueArgs
+if ($Readonly) {
+    $cnArgs += '--readonly'
+}
+foreach ($toolName in $Allow) {
+    if ($toolName) { $cnArgs += @('--allow', $toolName) }
+}
+foreach ($toolName in $Exclude) {
+    if ($toolName) { $cnArgs += @('--exclude', $toolName) }
+}
+if ($Prompt) {
+    $cnArgs += @('-p', $Prompt)
+}
+if ($ExtraArgs) {
+    $cnArgs += $ExtraArgs
 }
 
 & $cnPath @cnArgs
