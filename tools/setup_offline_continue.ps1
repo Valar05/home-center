@@ -10,11 +10,15 @@ $sourceConfig = Join-Path $repoRoot '.continue\offline-config.yaml'
 $userContinueDir = Join-Path $HOME '.continue'
 $userConfig = Join-Path $userContinueDir 'config.yaml'
 
-foreach ($commandName in @('ollama', 'cn')) {
-    if (-not (Get-Command $commandName -ErrorAction SilentlyContinue)) {
-        throw "Required local command '$commandName' is not available on PATH. This setup does not download dependencies."
-    }
+if (-not (Get-Command ollama -ErrorAction SilentlyContinue)) {
+    throw "Required local command 'ollama' is not available on PATH. This setup does not download dependencies."
 }
+
+$cnCommand = Get-Command cn.cmd -ErrorAction SilentlyContinue
+if (-not $cnCommand) {
+    throw "Required local Continue launcher 'cn.cmd' is not available on PATH. This setup does not download dependencies."
+}
+$cnPath = $cnCommand.Source
 
 if (-not (Test-Path $sourceConfig)) {
     throw "Repository offline config is missing: $sourceConfig"
@@ -33,8 +37,12 @@ if ($missingModels.Count -gt 0) {
     throw "Required local model(s) missing: $($missingModels -join ', '). This setup will not download or replace them with cloud models."
 }
 
-$cnVersion = (& cn --version 2>&1 | Out-String).Trim()
+$cnVersion = (& $cnPath --version 2>&1 | Out-String).Trim()
+if ($LASTEXITCODE -ne 0) {
+    throw "Continue CLI version probe exited with code $LASTEXITCODE."
+}
 Write-Host "Continue CLI: $cnVersion"
+Write-Host "Continue launcher: $cnPath"
 Write-Host "Ollama models: $($requiredModels -join ', ')"
 Write-Host "Repo config: $sourceConfig"
 
