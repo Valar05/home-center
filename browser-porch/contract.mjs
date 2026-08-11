@@ -45,6 +45,7 @@ export function validatePairIntent(input, nowMs = Date.now()) {
     sessionId: id(input?.sessionId, 'sessionId'),
     workerId: id(input?.workerId, 'workerId'),
     commissionId: id(input?.commissionId, 'commissionId'),
+    commissionHash: hex(input?.commissionHash, 'commissionHash'),
     expectedOrigin: String(input?.expectedOrigin || ''),
     expectedAccountHash: hex(input?.expectedAccountHash, 'expectedAccountHash'),
     nonce: id(input?.nonce, 'nonce'),
@@ -76,6 +77,7 @@ export function createPairReceipt(intentInput, observation, state, nowMs = Date.
     sessionId: intent.sessionId,
     workerId: intent.workerId,
     commissionId: intent.commissionId,
+    commissionHash: intent.commissionHash,
     origin: intent.expectedOrigin,
     accountHash,
     tabId: observation.tabId,
@@ -102,10 +104,11 @@ export function authorizeCommand(pairing, command, state, nowMs = Date.now()) {
   if (!stored || stored.receiptHash !== pairing.receiptHash) fail('PAIRING_UNKNOWN', 'pairing receipt is unknown');
   if (state.revoked.has(stored.pairingId)) fail('PAIRING_REVOKED', 'pairing was revoked');
   if (stored.expiresAtMs <= nowMs) fail('STALE_PAIRING', 'pairing expired');
-  for (const key of ['sessionId', 'workerId', 'commissionId', 'origin', 'accountHash', 'tabId', 'tabSessionId', 'leaseId']) {
+  for (const key of ['sessionId', 'workerId', 'commissionId', 'commissionHash', 'origin', 'accountHash', 'tabId', 'tabSessionId', 'leaseId']) {
     if (command?.[key] !== stored[key]) fail(`${key.replace(/[A-Z]/g, (c) => `_${c}`).toUpperCase()}_MISMATCH`, `${key} differs from pairing`);
   }
   if (exactOrigin(command?.currentUrl) !== stored.origin) fail('TAB_NAVIGATED', 'paired tab left the exact origin');
+  if (command?.currentDocumentId !== stored.tabSessionId) fail('TAB_DOCUMENT_CHANGED', 'paired tab loaded a different document');
   if (command?.authenticationState !== 'dom_verified') fail('AUTHENTICATION_UNVERIFIED', 'current authentication is not verified');
   if (!constantEqual(String(command?.currentAccountHash || ''), stored.accountHash)) fail('ACCOUNT_MISMATCH', 'current account differs from pairing');
   const commandId = id(command?.commandId, 'commandId');
@@ -126,7 +129,7 @@ export function validateMutationApproval(pairing, command, state, nowMs = Date.n
   if (!approval) fail('MUTATION_NOT_APPROVED', 'mutation requires a separate scoped approval');
   const approvalId = id(approval.approvalId, 'approvalId');
   if (state.approvals.has(approvalId)) fail('APPROVAL_REPLAY', 'mutation approval was already consumed');
-  if (approval.pairingId !== pairing.pairingId || approval.sessionId !== pairing.sessionId || approval.workerId !== pairing.workerId || approval.commissionId !== pairing.commissionId) fail('APPROVAL_SCOPE_MISMATCH', 'approval binding differs from pairing');
+  if (approval.pairingId !== pairing.pairingId || approval.sessionId !== pairing.sessionId || approval.workerId !== pairing.workerId || approval.commissionId !== pairing.commissionId || approval.commissionHash !== pairing.commissionHash) fail('APPROVAL_SCOPE_MISMATCH', 'approval binding differs from pairing');
   if (approval.tabId !== pairing.tabId || approval.tabSessionId !== pairing.tabSessionId || approval.accountHash !== pairing.accountHash || approval.origin !== pairing.origin) fail('APPROVAL_SCOPE_MISMATCH', 'approval tab/account/origin differs from pairing');
   if (Number(approval.expiresAtMs) <= nowMs) fail('APPROVAL_EXPIRED', 'mutation approval expired');
   const digest = sha256(canonical({action: command.action, target: command.target || {}, valueHash: sha256(command.value || '')}));
