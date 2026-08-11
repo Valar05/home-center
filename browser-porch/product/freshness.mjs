@@ -6,4 +6,4 @@ const index = loadMap(root);
 const packs = index.sites.map((s) => JSON.parse(fs.readFileSync(path.join(root, 'site-packs', s.site, 'adapter.json'))));
 const due = freshnessPlan(packs);
 process.stdout.write(JSON.stringify({checkedAt: new Date().toISOString(), due}, null, 2) + '\n');
-if (due.some((x) => x.daysOld > 90)) process.exitCode = 2;
+if (due.length) process.exitCode = 2;
