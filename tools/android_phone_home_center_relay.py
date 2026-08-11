@@ -9,6 +9,7 @@ NODE=CFG/'phone-relay.json'
 BASE=os.getenv('HC_PHONE_RELAY_BASE','https://us-central1-home-center-dclar.cloudfunctions.net/phoneHandsRelay')
 DEVICE_ID=os.getenv('HC_PHONE_DEVICE_ID','primary-phone')
 POLL=float(os.getenv('HC_PHONE_RELAY_POLL_SECONDS','2.0'))
+OVERLAY_HEARTBEAT_SECONDS=float(os.getenv('HC_OPERATOR_OVERLAY_HEARTBEAT_SECONDS','10.0'))
 ROOT=Path(__file__).resolve().parent.parent
 sys.path.insert(0,str(ROOT/'tools'))
 from android_phone_hands_bridge import observe as hands_observe, act as hands_act
@@ -18,6 +19,7 @@ from android_armory_driver import execute as armory_execute
 from android_window_composer import execute as window_execute
 from android_phone_status_tts import execute as status_tts_execute
 from android_phone_termux_shell import execute as termux_shell_execute
+from android_operator_overlay import execute as overlay_execute, heartbeat as overlay_heartbeat, control_gate as overlay_control_gate
 
 FACTORY_ACTIONS={
     'file_stat','file_hash','file_list','file_mkdir','file_copy','file_move',
@@ -27,6 +29,11 @@ ARMORY_ACTIONS={'armory_doctor','armory_slice'}
 WINDOW_ACTIONS={'window_status','window_probe','window_compose','window_focus','window_swap'}
 STATUS_TTS_ACTIONS={'status_tts_doctor','status_say'}
 TERMUX_SHELL_ACTIONS={'phone_shell'}
+OVERLAY_ACTIONS={'operator_overlay_status','operator_overlay_start','operator_overlay_update'}
+DEVICE_CAPABILITIES=[
+    'phone_hands','phone_files','armory_worker','window_composer','status_tts','termux_shell',
+    'operator_overlay','local_qwen','coding_dungeon','voice'
+]
 
 
 def http(path, body=None, token=''):
@@ -64,14 +71,29 @@ def access_token():
     save_pair(cfg); return cfg['accessToken']
 
 
+def _registration_payload(token):
+    return {
+        'deviceId':DEVICE_ID,
+        'deviceToken':token,
+        'label':'Drew Android Phone',
+        'capabilities':DEVICE_CAPABILITIES,
+    }
+
+
 def ensure_device():
     CFG.mkdir(parents=True,exist_ok=True)
-    if NODE.exists(): return json.loads(NODE.read_text())
+    if NODE.exists():
+        data=json.loads(NODE.read_text())
+        token=str(data.get('deviceToken') or '')
+        if token:
+            try:
+                data['registration']=http('/register',_registration_payload(token),access_token())
+                NODE.write_text(json.dumps(data,indent=2)+'\n'); os.chmod(NODE,0o600)
+            except Exception as exc:
+                print('phone-relay registration refresh warning: '+str(exc),file=sys.stderr,flush=True)
+            return data
     token=secrets.token_urlsafe(48)
-    reg=http('/register',{
-        'deviceId':DEVICE_ID,'deviceToken':token,'label':'Drew Android Phone',
-        'capabilities':['phone_hands','phone_files','armory_worker','window_composer','status_tts','termux_shell','local_qwen','coding_dungeon','voice']
-    },access_token())
+    reg=http('/register',_registration_payload(token),access_token())
     data={'deviceId':DEVICE_ID,'deviceToken':token,'registeredAt':time.time(),'registration':reg}
     NODE.write_text(json.dumps(data,indent=2)+'\n'); os.chmod(NODE,0o600); return data
 
@@ -85,6 +107,19 @@ def dungeon_run(payload):
 
 def execute_action(action):
     kind=action.get('action')
+    if kind in OVERLAY_ACTIONS:
+        return overlay_execute(action)
+
+    gate=overlay_control_gate()
+    if kind=='status_say' and gate.get('muted'):
+        return {
+            'ok':True,
+            'action':'status_say',
+            'muted':True,
+            'skipped':True,
+            'reason':'Muted from the on-screen Home Center operator overlay',
+        }
+
     if kind=='observe': return hands_observe(bool(action.get('ui',True)),bool(action.get('screen',False)))
     if kind=='local_ask': return local_execute(str(action.get('intent') or action.get('prompt') or 'What is on my screen?'))
     if kind=='dungeon_run': return dungeon_run(action)
@@ -99,8 +134,17 @@ def execute_action(action):
 def loop(once=False):
     dev=ensure_device(); did=dev['deviceId']; secret=dev['deviceToken']
     print(f'Home Center phone relay online: {did}',flush=True)
+    last_overlay_heartbeat=0.0
     while True:
         try:
+            now=time.monotonic()
+            if now-last_overlay_heartbeat >= OVERLAY_HEARTBEAT_SECONDS:
+                try:
+                    overlay_heartbeat()
+                except Exception as exc:
+                    print('operator-overlay heartbeat warning: '+str(exc),file=sys.stderr,flush=True)
+                last_overlay_heartbeat=now
+
             pulled=http('/pull',{'deviceId':did,'deviceToken':secret,'leaseMs':90000})
             cmd=pulled.get('command')
             if cmd:

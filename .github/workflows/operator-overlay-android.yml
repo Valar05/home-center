@@ -1,0 +1,133 @@
+name: Operator Overlay Android
+
+on:
+  push:
+    branches:
+      - main
+      - feature/operator-overlay-v1
+    paths:
+      - 'android/operator-overlay/**'
+      - 'tools/android_operator_overlay.py'
+      - 'tools/android_phone_home_center_relay.py'
+      - 'tools/setup_android_operator_overlay.sh'
+      - 'tools/phone_hands_relay_contract_test.mjs'
+      - 'functions/phone_hands_relay.js'
+      - '.github/workflows/operator-overlay-android.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'android/operator-overlay/**'
+      - 'tools/android_operator_overlay.py'
+      - 'tools/android_phone_home_center_relay.py'
+      - 'tools/setup_android_operator_overlay.sh'
+      - 'tools/phone_hands_relay_contract_test.mjs'
+      - 'functions/phone_hands_relay.js'
+      - '.github/workflows/operator-overlay-android.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Bootstrap, verify, and build overlay
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          echo '=== TOOLCHAIN ==='
+          java -version
+          python --version
+          node --version
+
+          SDK_ROOT="${ANDROID_SDK_ROOT:-${ANDROID_HOME:-/usr/local/lib/android/sdk}}"
+          test -d "$SDK_ROOT"
+          export ANDROID_SDK_ROOT="$SDK_ROOT"
+          export ANDROID_HOME="$SDK_ROOT"
+          SDKMANAGER="$SDK_ROOT/cmdline-tools/latest/bin/sdkmanager"
+          if [ ! -x "$SDKMANAGER" ]; then
+            SDKMANAGER="$(find "$SDK_ROOT/cmdline-tools" -type f -name sdkmanager -perm -111 2>/dev/null | head -1 || true)"
+          fi
+          test -n "$SDKMANAGER"
+          test -x "$SDKMANAGER"
+          yes | "$SDKMANAGER" --licenses >/dev/null 2>&1 || true
+          "$SDKMANAGER" 'platforms;android-35' 'build-tools;35.0.0' >/dev/null
+
+          GRADLE_HOME=/tmp/gradle-8.9
+          if [ ! -x "$GRADLE_HOME/bin/gradle" ]; then
+            curl -fsSL --retry 3 --retry-delay 2 \
+              https://services.gradle.org/distributions/gradle-8.9-bin.zip \
+              -o /tmp/gradle.zip
+            unzip -q /tmp/gradle.zip -d /tmp
+          fi
+
+          python -m py_compile tools/android_operator_overlay.py tools/android_phone_home_center_relay.py
+          node --check functions/phone_hands_relay.js
+          node tools/phone_hands_relay_contract_test.mjs
+          git diff --check
+
+          cd android/operator-overlay
+          "$GRADLE_HOME/bin/gradle" :app:assembleDebug --no-daemon --stacktrace
+          test -s app/build/outputs/apk/debug/app-debug.apk
+
+      - name: Create immutable build receipt
+        id: receipt
+        env:
+          SOURCE_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          APK='android/operator-overlay/app/build/outputs/apk/debug/app-debug.apk'
+          test -s "$APK"
+          SHA="$(sha256sum "$APK" | awk '{print $1}')"
+          BYTES="$(stat -c '%s' "$APK")"
+          mkdir -p build/operator-overlay
+          cp "$APK" build/operator-overlay/operator-overlay-debug.apk
+          python - "$SHA" "$BYTES" "$SOURCE_SHA" > build/operator-overlay/operator-overlay-receipt.json <<'PY'
+          import json, sys
+          sha, byte_count, source_sha = sys.argv[1:]
+          print(json.dumps({
+              'schemaVersion': 'home-center.operator-overlay-build.v1',
+              'package': 'com.homecenter.operatoroverlay',
+              'versionName': '1.0.0',
+              'sourceCommit': source_sha,
+              'artifact': 'operator-overlay-debug.apk',
+              'sha256': sha,
+              'byteCount': int(byte_count),
+              'controlPolicy': {
+                  'visibleToggleAuthoritative': True,
+                  'remoteReenableAllowed': False,
+                  'disableRequiresConfirmation': True,
+                  'muteIndependent': True,
+                  'touchGuardWhileEnabled': True,
+              },
+          }, indent=2, sort_keys=True))
+          PY
+          echo "sha256=$SHA" >> "$GITHUB_OUTPUT"
+          cat build/operator-overlay/operator-overlay-receipt.json
+
+      - name: Publish exact APK from merged main
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        env:
+          SOURCE_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          PUB="$(mktemp -d)"
+          cp build/operator-overlay/operator-overlay-debug.apk "$PUB/operator-overlay-debug.apk"
+          cp build/operator-overlay/operator-overlay-receipt.json "$PUB/operator-overlay-receipt.json"
+
+          git config user.name 'home-center-operator-overlay-builder'
+          git config user.email 'actions@users.noreply.github.com'
+          git switch --orphan generated-operator-overlay-apk
+          git rm -rf . >/dev/null 2>&1 || true
+          cp "$PUB/operator-overlay-debug.apk" ./operator-overlay-debug.apk
+          cp "$PUB/operator-overlay-receipt.json" ./operator-overlay-receipt.json
+          git add operator-overlay-debug.apk operator-overlay-receipt.json
+          git commit -m "Publish operator overlay APK for ${SOURCE_SHA}"
+          git push --force origin HEAD:refs/heads/generated/operator-overlay-apk

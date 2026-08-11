@@ -27,6 +27,7 @@ function cleanAction(value) {
     'file_stat','file_hash','file_list','file_mkdir','file_copy','file_move','armory_inventory','armory_ingest','armory_doctor','armory_slice',
     'window_status','window_probe','window_compose','window_focus','window_swap',
     'status_tts_doctor','status_say',
+    'operator_overlay_status','operator_overlay_start','operator_overlay_update',
   ]);
   if (!allowed.has(action)) throw Object.assign(new Error(`unsupported phone action: ${action}`), {status: 400});
   return {...body, action};
