@@ -4,7 +4,7 @@ import {readFileSync} from 'node:fs';
 import {CONTRACT_VERSION, CHATGPT_ORIGIN, sha256, canonical, createEphemeralState, createPairReceipt, authorizeCommand, revokePairing} from './contract.mjs';
 
 const NOW = 1_786_452_000_000;
-const ACCOUNT = sha256('Drew local account label');
+const ACCOUNT = sha256('fixture local account label');
 const baseIntent = (overrides = {}) => ({contractVersion: CONTRACT_VERSION, pairingId: 'pairing-0001', sessionId: 'session-0001', workerId: 'windows-browser-nerve-01', commissionId: 'browser-porch-01', commissionHash: sha256('browser porch commission'), expectedOrigin: CHATGPT_ORIGIN, expectedAccountHash: ACCOUNT, nonce: 'nonce-000001', issuedAtMs: NOW - 1000, expiresAtMs: NOW + 59000, mode: 'observe', ...overrides});
 const observation = (overrides = {}) => ({gesture: 'extension_action_click', tabId: 37, url: 'https://chatgpt.com/', authenticationState: 'dom_verified', accountHash: ACCOUNT, tabSessionId: 'tab-session-0001', leaseId: 'lease-000001', ...overrides});
 
