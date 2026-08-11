@@ -92,7 +92,7 @@ try {
         Pass 'public reachability probe failed as required for offline acceptance'
     }
 
-    $probe = & $launcherPath --readonly -p 'Reply with exactly OFFLINE_CONTINUE_OK and nothing else.' 2>&1
+    $probe = & $launcherPath -Readonly -Prompt 'Reply with exactly OFFLINE_CONTINUE_OK and nothing else.' 2>&1
     $probeText = ($probe -join [Environment]::NewLine).Trim()
     $evidence.inferenceProbe = $probeText
     if ($probeText -notmatch 'OFFLINE_CONTINUE_OK') {
@@ -106,7 +106,7 @@ try {
         Set-Content -Path (Join-Path $fixtureRoot 'fixture.txt') -Value 'alpha' -NoNewline
         Push-Location $fixtureRoot
         try {
-            $editOutput = & $launcherPath --allow read_file --allow edit_existing_file --exclude run_terminal_command --exclude create_new_file -p 'Edit fixture.txt so its entire contents are exactly beta. Do not create or modify any other file.' 2>&1
+            $editOutput = & $launcherPath -Allow @('read_file', 'edit_existing_file') -Exclude @('run_terminal_command', 'create_new_file') -Prompt 'Edit fixture.txt so its entire contents are exactly beta. Do not create or modify any other file.' 2>&1
         } finally {
             Pop-Location
         }
