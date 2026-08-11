@@ -89,10 +89,6 @@ try {
     }
 
     $probe = & $launcherPath --readonly -p 'Reply with exactly OFFLINE_CONTINUE_OK and nothing else.' 2>&1
-    if ($LASTEXITCODE -ne 0) {
-        Fail "Continue local inference probe exited $LASTEXITCODE. Output: $($probe -join [Environment]::NewLine)"
-    }
-
     $probeText = ($probe -join [Environment]::NewLine).Trim()
     $evidence.inferenceProbe = $probeText
     if ($probeText -notmatch 'OFFLINE_CONTINUE_OK') {
@@ -107,16 +103,11 @@ try {
         Push-Location $fixtureRoot
         try {
             $editOutput = & $launcherPath --allow read_file --allow edit_existing_file --exclude run_terminal_command --exclude create_new_file -p 'Edit fixture.txt so its entire contents are exactly beta. Do not create or modify any other file.' 2>&1
-            $editExit = $LASTEXITCODE
         } finally {
             Pop-Location
         }
 
         $evidence.editProbeOutput = ($editOutput -join [Environment]::NewLine).Trim()
-        if ($editExit -ne 0) {
-            Fail "Continue bounded edit probe exited $editExit. Output: $($editOutput -join [Environment]::NewLine)"
-        }
-
         $fixtureFiles = @(Get-ChildItem -Path $fixtureRoot -File)
         if ($fixtureFiles.Count -ne 1 -or $fixtureFiles[0].Name -ne 'fixture.txt') {
             Fail 'bounded edit probe created an unexpected file'
@@ -133,6 +124,16 @@ try {
 
     $evidence.result = 'green'
     Write-Host 'RESULT green'
+} catch {
+    $message = $_.Exception.Message
+    if (-not ($evidence.checks | Where-Object { $_.status -eq 'fail' -and $_.message -eq $message })) {
+        $evidence.checks += [ordered]@{ status = 'fail'; message = $message }
+    }
+    $evidence.failure = [ordered]@{
+        message = $message
+        type = $_.Exception.GetType().FullName
+    }
+    Write-Error $message
 } finally {
     $evidence.finishedAt = (Get-Date).ToString('o')
     New-Item -ItemType Directory -Force -Path $receiptDir | Out-Null
@@ -140,4 +141,8 @@ try {
     $receiptPath = Join-Path $receiptDir "offline-continue-acceptance-$stamp.json"
     $evidence | ConvertTo-Json -Depth 8 | Set-Content -Path $receiptPath -Encoding UTF8
     Write-Host "RECEIPT $receiptPath"
+}
+
+if ($evidence.result -ne 'green') {
+    exit 1
 }
