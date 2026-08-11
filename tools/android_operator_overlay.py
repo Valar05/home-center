@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import re
 import shlex
+import time
 from typing import Any
 
 from android_phone_hands_bridge import run_rish
@@ -15,6 +16,8 @@ STATE_URI = 'content://com.homecenter.operatoroverlay.state/state'
 ACTION_UPDATE = 'com.homecenter.operatoroverlay.UPDATE'
 ACTION_HEARTBEAT = 'com.homecenter.operatoroverlay.HEARTBEAT'
 MAX_TEXT_CHARS = 8000
+STATE_READ_ATTEMPTS = 3
+STATE_READ_DELAY_SECONDS = 0.12
 
 
 def _shell(command: str, timeout: float = 20) -> str:
@@ -22,11 +25,18 @@ def _shell(command: str, timeout: float = 20) -> str:
 
 
 def installed() -> bool:
-    # `pm path` writes its successful package path to stderr under this rish build,
-    # while run_rish intentionally returns stdout only on successful commands.
-    # Package listing is stable stdout and therefore safe for deterministic gating.
-    out = _shell(f'pm list packages {shlex.quote(PACKAGE)} 2>/dev/null || true')
-    return f'package:{PACKAGE}' in {line.strip() for line in out.splitlines()}
+    # rish stdout can occasionally arrive empty even when the command succeeds.
+    # Retry a package-service primitive whose positive result names this package.
+    for attempt in range(STATE_READ_ATTEMPTS):
+        out = _shell(
+            f'dumpsys package {shlex.quote(PACKAGE)} 2>/dev/null '
+            f'| grep -m1 {shlex.quote("Package{")} || true'
+        )
+        if PACKAGE in out:
+            return True
+        if attempt + 1 < STATE_READ_ATTEMPTS:
+            time.sleep(STATE_READ_DELAY_SECONDS)
+    return False
 
 
 def _start_service() -> str:
@@ -46,7 +56,7 @@ def _parse_state(raw: str) -> dict[str, Any]:
         return match.group(1).strip() if match else default
 
     return {
-        'controlEnabled': integer('control_enabled', 1) != 0,
+        'controlEnabled': integer('control_enabled', 0) != 0,
         'muted': integer('muted', 0) != 0,
         'lastHeartbeatMs': integer('last_heartbeat_ms', 0),
         'lastUpdateMs': integer('last_update_ms', 0),
@@ -54,18 +64,24 @@ def _parse_state(raw: str) -> dict[str, Any]:
     }
 
 
+def _read_state() -> str:
+    last_error = 'operator state provider returned no readable row'
+    for attempt in range(STATE_READ_ATTEMPTS):
+        try:
+            raw = _shell(f'content query --uri {shlex.quote(STATE_URI)}', timeout=15)
+            if 'control_enabled=' in raw and 'muted=' in raw:
+                return raw
+            last_error = 'operator state provider returned an incomplete row'
+        except Exception as exc:
+            last_error = str(exc)[:2000]
+        if attempt + 1 < STATE_READ_ATTEMPTS:
+            time.sleep(STATE_READ_DELAY_SECONDS)
+    raise RuntimeError(last_error)
+
+
 def status() -> dict[str, Any]:
-    if not installed():
-        return {
-            'ok': True,
-            'installed': False,
-            'stateReadable': False,
-            'controlEnabled': True,
-            'muted': False,
-            'package': PACKAGE,
-        }
     try:
-        raw = _shell(f'content query --uri {shlex.quote(STATE_URI)}', timeout=15)
+        raw = _read_state()
         state = _parse_state(raw)
         return {
             'ok': True,
@@ -76,9 +92,10 @@ def status() -> dict[str, Any]:
             **state,
         }
     except Exception as exc:
+        present = installed()
         return {
             'ok': False,
-            'installed': True,
+            'installed': present,
             'stateReadable': False,
             'controlEnabled': False,
             'muted': False,
@@ -134,7 +151,7 @@ def update(text: str, source: str = 'ChatGPT') -> dict[str, Any]:
 def control_gate() -> dict[str, Any]:
     state = status()
     if not state.get('installed'):
-        return state
+        raise PermissionError('Home Center operator overlay is required; refusing remote phone control')
     if not state.get('stateReadable'):
         raise PermissionError('operator overlay state is unreadable; refusing remote phone control')
     if not state.get('controlEnabled'):
