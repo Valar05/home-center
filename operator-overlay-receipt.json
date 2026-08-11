@@ -1,0 +1,30 @@
+{
+  "artifact": "operator-overlay-debug.apk",
+  "byteCount": 24341,
+  "controlPolicy": {
+    "accessibilityLabels": true,
+    "activeScreenLeaseRequired": true,
+    "disableRequiresConfirmation": true,
+    "dragTargetMinDp": 48,
+    "freshInstallControlOff": true,
+    "hiddenStatePersistent": true,
+    "inputCaptureTimeBounded": true,
+    "localRestoreControlOff": true,
+    "muteIndependent": true,
+    "panelCollapsible": true,
+    "panelCompactMode": true,
+    "panelDraggable": true,
+    "positionPersistent": true,
+    "remoteReenableAllowed": false,
+    "safeAreaClamp": true,
+    "tapDragUsesSystemTouchSlop": true,
+    "touchGuardMode": "active_screen_lease",
+    "touchGuardWhileEnabled": false,
+    "visibleToggleAuthoritative": true
+  },
+  "package": "com.homecenter.operatoroverlay",
+  "schemaVersion": "home-center.operator-overlay-build.v1",
+  "sha256": "c542b044d4a07c7ac676d233dac14836f22b5b9c00edcbcffa7744dda24109b3",
+  "sourceCommit": "222b3f08d824d10b4738219e84e8d914e2b74ead",
+  "versionName": "1.2.0"
+}
