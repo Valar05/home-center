@@ -33,12 +33,14 @@ import android.widget.TextView;
 public class OperatorOverlayService extends Service {
     public static final String ACTION_SCREEN_ACTIVITY = "com.homecenter.operatoroverlay.SCREEN_ACTIVITY";
     public static final String ACTION_RESTORE = "com.homecenter.operatoroverlay.RESTORE";
+    public static final String ACTION_PANIC = "com.homecenter.operatoroverlay.PANIC";
 
     private static final String CHANNEL_ID = "home_center_operator";
     private static final int NOTIFICATION_ID = 4107;
     private static final long ONLINE_WINDOW_MS = 30000L;
     private static final long CONFIRM_WINDOW_MS = 6000L;
     private static final long REFRESH_MS = 200L;
+    private static final long AUTO_COLLAPSE_MS = 8000L;
     private static final int MIN_SCREEN_LEASE_MS = 250;
     private static final int MAX_SCREEN_LEASE_MS = 15000;
     private static final int MAX_SCREEN_YIELD_MS = 12000;
@@ -46,8 +48,6 @@ public class OperatorOverlayService extends Service {
     private final Handler handler = new Handler(Looper.getMainLooper());
     private WindowManager windowManager;
     private WindowManager.LayoutParams windowParams;
-    private WindowManager.LayoutParams guardParams;
-    private View touchGuard;
     private LinearLayout root;
     private LinearLayout details;
     private TextView dragHandle;
@@ -71,6 +71,7 @@ public class OperatorOverlayService extends Service {
     private int expandedWidthPx;
     private int lastMeasuredWidth;
     private int lastMeasuredHeight;
+    private long lastInteractionMs = System.currentTimeMillis();
 
     private final Runnable refresh = new Runnable() {
         @Override
@@ -95,7 +96,9 @@ public class OperatorOverlayService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        if (intent != null && ACTION_SCREEN_ACTIVITY.equals(intent.getAction())) {
+        if (intent != null && ACTION_PANIC.equals(intent.getAction())) {
+            panicStop();
+        } else if (intent != null && ACTION_SCREEN_ACTIVITY.equals(intent.getAction())) {
             long now = System.currentTimeMillis();
             int leaseMs = clamp(intent.getIntExtra("leaseMs", 2500), MIN_SCREEN_LEASE_MS, MAX_SCREEN_LEASE_MS);
             int yieldMs = clamp(intent.getIntExtra("yieldMs", 0), 0, MAX_SCREEN_YIELD_MS);
@@ -128,7 +131,6 @@ public class OperatorOverlayService extends Service {
     public void onDestroy() {
         handler.removeCallbacksAndMessages(null);
         removeView(root);
-        removeView(touchGuard);
         super.onDestroy();
     }
 
@@ -158,6 +160,12 @@ public class OperatorOverlayService extends Service {
                 0,
                 open,
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+        Intent panic = new Intent(this, OperatorOverlayService.class).setAction(ACTION_PANIC);
+        PendingIntent panicPending = PendingIntent.getService(
+                this,
+                1,
+                panic,
+                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
         String content = OperatorState.overlayHidden(this)
                 ? "Overlay hidden and control off — tap to restore"
                 : "Tap to restore or bring the local controls forward";
@@ -167,6 +175,7 @@ public class OperatorOverlayService extends Service {
                 .setContentText(content)
                 .setOngoing(true)
                 .setContentIntent(pending)
+                .addAction(android.R.drawable.ic_delete, "STOP CONTROL", panicPending)
                 .build();
     }
 
@@ -181,21 +190,8 @@ public class OperatorOverlayService extends Service {
                 ViewConfiguration.get(this).getScaledTouchSlop());
         recomputeExpandedWidth();
 
-        // This separate guard is inert by default and becomes touchable only for
-        // a bounded, explicit visible-screen operation lease.
-        touchGuard = new View(this);
-        touchGuard.setContentDescription("Remote input active");
-        touchGuard.setOnTouchListener((view, event) -> true);
-        guardParams = new WindowManager.LayoutParams(
-                WindowManager.LayoutParams.MATCH_PARENT,
-                WindowManager.LayoutParams.MATCH_PARENT,
-                WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
-                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE |
-                        WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE |
-                        WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN,
-                PixelFormat.TRANSLUCENT);
-        guardParams.gravity = Gravity.TOP | Gravity.START;
-        windowManager.addView(touchGuard, guardParams);
+        // Only this visible control panel is touchable. No transparent full-screen
+        // window is ever installed, including during an active driving lease.
 
         root = new LinearLayout(this);
         root.setOrientation(LinearLayout.VERTICAL);
@@ -333,6 +329,7 @@ public class OperatorOverlayService extends Service {
     private boolean handleDrag(View view, MotionEvent event) {
         switch (event.getActionMasked()) {
             case MotionEvent.ACTION_DOWN:
+                lastInteractionMs = System.currentTimeMillis();
                 downRawX = event.getRawX();
                 downRawY = event.getRawY();
                 downX = windowParams.x;
@@ -353,7 +350,7 @@ public class OperatorOverlayService extends Service {
                 if (OverlayUiPolicy.isClick(upDeltaX, upDeltaY, dragThresholdPx)) {
                     view.performClick();
                 }
-                clampAndPersistPosition();
+                snapAndPersistPosition();
                 dragging = false;
                 return true;
             case MotionEvent.ACTION_CANCEL:
@@ -408,7 +405,23 @@ public class OperatorOverlayService extends Service {
         OperatorState.setOverlayPosition(this, windowParams.x, windowParams.y);
     }
 
+    private void snapAndPersistPosition() {
+        if (root == null || windowParams == null || windowManager == null ||
+                root.getVisibility() != View.VISIBLE) return;
+        Rect visible = visibleBounds();
+        int edgeInset = dp(8);
+        int minX = visible.left + edgeInset;
+        int maxX = Math.max(
+                minX,
+                visible.right - Math.max(root.getWidth(), dp(OverlayUiPolicy.MIN_TOUCH_TARGET_DP)) - edgeInset);
+        applyPosition(
+                OverlayUiPolicy.snapToNearestHorizontalEdge(windowParams.x, minX, maxX),
+                windowParams.y);
+        OperatorState.setOverlayPosition(this, windowParams.x, windowParams.y);
+    }
+
     private void setCollapsed(boolean collapsed) {
+        lastInteractionMs = System.currentTimeMillis();
         OperatorState.setPanelCollapsed(this, collapsed);
         expandedText = false;
         applyExpandedTextState();
@@ -433,17 +446,18 @@ public class OperatorOverlayService extends Service {
     private void hideOverlay() {
         if (root == null) return;
         confirmDisable = false;
+        lastInteractionMs = System.currentTimeMillis();
         // Commit the fail-closed state before removing the user's visible escape.
         OperatorState.setControlEnabled(this, false);
         OperatorState.setOverlayHidden(this, OverlayUiPolicy.nextHidden(
                 false,
                 OverlayUiPolicy.VisibilityAction.HIDE));
-        syncTouchGuard(false);
         root.setVisibility(View.GONE);
         updateNotification();
     }
 
     private void restoreOverlay() {
+        lastInteractionMs = System.currentTimeMillis();
         OperatorState.setControlEnabled(this, false);
         OperatorState.setOverlayHidden(this, OverlayUiPolicy.nextHidden(
                 true,
@@ -456,6 +470,7 @@ public class OperatorOverlayService extends Service {
     }
 
     private void handleControlButton() {
+        lastInteractionMs = System.currentTimeMillis();
         boolean enabled = OperatorState.controlEnabled(this);
         if (!enabled) {
             confirmDisable = false;
@@ -474,8 +489,21 @@ public class OperatorOverlayService extends Service {
         }
         confirmDisable = false;
         OperatorState.setControlEnabled(this, false);
-        syncTouchGuard(false);
         refreshUi();
+    }
+
+    private void panicStop() {
+        confirmDisable = false;
+        lastInteractionMs = System.currentTimeMillis();
+        OperatorState.setControlEnabled(this, false);
+        OperatorState.clearScreenActivity(this);
+        OperatorState.setPanelCollapsed(this, true);
+        OperatorState.setOverlayHidden(this, false);
+        if (root != null) {
+            root.setVisibility(View.VISIBLE);
+            applyPresentationState();
+        }
+        updateNotification();
     }
 
     private void applyExpandedTextState() {
@@ -494,18 +522,6 @@ public class OperatorOverlayService extends Service {
         latest.post(this::clampAndPersistPosition);
     }
 
-    private void syncTouchGuard(boolean active) {
-        if (windowManager == null || touchGuard == null || guardParams == null) return;
-        int flags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE |
-                WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN;
-        if (!active) flags |= WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE;
-        if (guardParams.flags != flags) {
-            guardParams.flags = flags;
-            windowManager.updateViewLayout(touchGuard, guardParams);
-        }
-        touchGuard.setBackgroundColor(active ? Color.argb(10, 12, 32, 52) : Color.TRANSPARENT);
-    }
-
     private void refreshUi() {
         if (root == null) return;
         long now = System.currentTimeMillis();
@@ -517,14 +533,16 @@ public class OperatorOverlayService extends Service {
         boolean online = heartbeat > 0 && now - heartbeat <= ONLINE_WINDOW_MS;
         boolean screenActive = screenActiveUntil > now;
         boolean screenYield = screenYieldUntil > now;
-        boolean hidden = OperatorState.overlayHidden(this);
 
-        boolean guardActive = OverlayUiPolicy.touchGuardActive(
-                enabled,
-                online,
+        if (OverlayUiPolicy.shouldAutoCollapse(
+                OperatorState.panelCollapsed(this),
                 screenActive,
-                screenYield) && !hidden;
-        syncTouchGuard(guardActive);
+                now - lastInteractionMs,
+                AUTO_COLLAPSE_MS)) {
+            OperatorState.setPanelCollapsed(this, true);
+            applyPresentationState();
+            return;
+        }
 
         String state;
         String compactState;
@@ -547,18 +565,33 @@ public class OperatorOverlayService extends Service {
             stateColor = Color.rgb(151, 255, 178);
         }
         if (muted) state += " • MUTED";
+        long leaseSeconds = screenActive
+                ? Math.max(1L, (screenActiveUntil - now + 999L) / 1000L)
+                : 0L;
+        String spokenState = !enabled
+                ? "Home Center control off."
+                : !online
+                ? "Home Center ready but offline."
+                : screenActive
+                ? "Home Center driving. Lease expires in " + leaseSeconds + " seconds."
+                : "Home Center ready. Screen idle.";
+        if (muted) spokenState += " Speech muted.";
         status.setText(state);
         status.setTextColor(stateColor);
+        status.setContentDescription(spokenState);
         dragHandle.setText(OperatorState.panelCollapsed(this)
                 ? "☰  " + compactState
                 : "☰  HOME CENTER");
         dragHandle.setTextColor(stateColor);
+        dragHandle.setContentDescription(
+                spokenState + " Drag overlay. Tap to shrink or expand.");
 
         if (!OperatorState.panelCollapsed(this) && screenActive) {
             screenBadge.setVisibility(View.VISIBLE);
             screenBadge.setText(screenYield
-                    ? "REMOTE INPUT • action pulse — your touch remains available"
-                    : "REMOTE INPUT • local screen input temporarily reserved");
+                    ? "REMOTE INPUT • action pulse — Drew's touch remains available"
+                    : "REMOTE INPUT • driving lease " + leaseSeconds + "s — panel only");
+            screenBadge.setContentDescription(spokenState);
         } else {
             screenBadge.setVisibility(View.GONE);
         }
@@ -582,7 +615,7 @@ public class OperatorOverlayService extends Service {
         String source = OperatorState.latestSource(this);
         long lastUpdate = OperatorState.lastUpdateMs(this);
         String lease = screenActive
-                ? " • screen lease " + Math.max(1L, (screenActiveUntil - now + 999L) / 1000L) + "s"
+                ? " • screen lease " + leaseSeconds + "s"
                 : " • screen idle";
         meta.setText(source + " • " + age(now, lastUpdate) + lease +
                 (expandedText ? " • tap message to collapse" : " • tap message to expand"));
