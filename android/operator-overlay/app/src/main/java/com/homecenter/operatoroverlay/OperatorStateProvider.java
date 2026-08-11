@@ -15,7 +15,8 @@ public class OperatorStateProvider extends ContentProvider {
             "latest_source",
             "screen_active_until_ms",
             "screen_yield_until_ms",
-            "panel_collapsed"
+            "panel_collapsed",
+            "overlay_hidden"
     };
 
     @Override
@@ -34,7 +35,8 @@ public class OperatorStateProvider extends ContentProvider {
                 OperatorState.latestSource(getContext()),
                 OperatorState.screenActiveUntilMs(getContext()),
                 OperatorState.screenYieldUntilMs(getContext()),
-                OperatorState.panelCollapsed(getContext()) ? 1 : 0
+                OperatorState.panelCollapsed(getContext()) ? 1 : 0,
+                OperatorState.overlayHidden(getContext()) ? 1 : 0
         });
         return cursor;
     }
