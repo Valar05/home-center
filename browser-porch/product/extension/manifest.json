@@ -1,0 +1,10 @@
+{
+  "manifest_version": 3,
+  "name": "Porchlight — local portal reflex",
+  "version": "0.8.0",
+  "description": "Gesture-pairs one authenticated tab to a deterministic local DOM runtime.",
+  "permissions": ["activeTab", "scripting", "storage"],
+  "host_permissions": ["http://127.0.0.1:9235/*"],
+  "action": {"default_title": "Pair or revoke this tab"},
+  "background": {"service_worker": "service-worker.js"}
+}
