@@ -56,8 +56,13 @@ async function execute(command) {
   const tab = await chrome.tabs.get(pairing.tabId);
   const [probe] = await chrome.scripting.executeScript({target: {tabId: pairing.tabId}, func: probeCurrentTab});
   const current = probe?.result || {};
+  const currentDocumentId = probe?.documentId || '';
+  if (!currentDocumentId || currentDocumentId !== pairing.tabSessionId) {
+    await revoke('document_changed');
+    throw new Error('Paired Chrome document changed');
+  }
   const accountHash = current.accountLabel ? await digest(current.accountLabel) : '';
-  const envelope = {...command, currentUrl: tab.url, currentAccountHash: accountHash, authenticationState: current.authenticationState};
+  const envelope = {...command, currentUrl: tab.url, currentDocumentId, currentAccountHash: accountHash, authenticationState: current.authenticationState};
   const authorization = await jsonFetch(`${RELAY}/authorize`, {pairing, command: envelope});
   if (authorization.mode !== 'observe' || authorization.action !== 'inventory') throw new Error('Extension candidate permits inventory only');
   const result = {ok: true, origin: current.origin, url: current.url, title: current.title, authenticationState: current.authenticationState, accountHash, visibleConversationLinks: current.visibleConversationLinks};
