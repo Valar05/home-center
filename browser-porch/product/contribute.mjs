@@ -19,6 +19,7 @@ export function buildSitePack({site, origin, evidence, adapter = {}}) {
     selectorHint: sanitizeSelector(x.selectorHint),
     expectedPostcondition: String(x.expectedPostcondition || ''),
     accessibilityFailure: String(x.accessibilityFailure || ''),
+    authRequired: Boolean(x.authRequired),
     successes: Number(x.successes),
     failures: Number(x.failures || 0),
   }));
