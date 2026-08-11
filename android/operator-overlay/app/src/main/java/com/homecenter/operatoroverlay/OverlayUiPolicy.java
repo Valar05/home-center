@@ -24,14 +24,6 @@ final class OverlayUiPolicy {
         return action == VisibilityAction.HIDE;
     }
 
-    static boolean touchGuardActive(
-            boolean controlEnabled,
-            boolean online,
-            boolean screenActive,
-            boolean screenYield) {
-        return controlEnabled && online && screenActive && !screenYield;
-    }
-
     static int[] clampPosition(
             int proposedX,
             int proposedY,
@@ -47,6 +39,19 @@ final class OverlayUiPolicy {
         int maxX = Math.max(minX, visibleRight - Math.max(1, overlayWidth) - edgeInset);
         int maxY = Math.max(minY, visibleBottom - Math.max(1, overlayHeight) - edgeInset);
         return new int[]{clamp(proposedX, minX, maxX), clamp(proposedY, minY, maxY)};
+    }
+
+    static int snapToNearestHorizontalEdge(int x, int minX, int maxX) {
+        int clamped = clamp(x, minX, maxX);
+        return clamped - minX <= maxX - clamped ? minX : maxX;
+    }
+
+    static boolean shouldAutoCollapse(
+            boolean collapsed,
+            boolean screenActive,
+            long idleMs,
+            long thresholdMs) {
+        return !collapsed && !screenActive && idleMs >= thresholdMs;
     }
 
     private static int clamp(int value, int min, int max) {
