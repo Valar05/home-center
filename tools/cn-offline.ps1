@@ -45,7 +45,8 @@ function Get-LocalOllamaTags {
 
 $tags = Get-LocalOllamaTags
 $installedModels = @($tags.models | ForEach-Object { $_.name })
-$missingBaseModels = @($baseModel, $autocompleteModel | Where-Object { $_ -notin $installedModels })
+$requiredBaseModels = @($baseModel, $autocompleteModel)
+$missingBaseModels = @($requiredBaseModels | Where-Object { $_ -notin $installedModels })
 if ($missingBaseModels.Count -gt 0) {
     throw "Required local Ollama base model(s) are not installed: $($missingBaseModels -join ', '). This launcher will not download or substitute a cloud model."
 }
