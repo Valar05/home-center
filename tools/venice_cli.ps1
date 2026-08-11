@@ -72,6 +72,22 @@ function Read-Utf8JsonFile([string]$Path) {
     return ($raw | ConvertFrom-Json)
 }
 
+function Test-VeniceRecord {
+    param($Record, [string]$PromptSha256)
+    try {
+        if ($null -eq $Record -or -not [bool]$Record.ok) { return $false }
+        if ($null -eq $Record.input -or [string]$Record.input.sha256 -ne $PromptSha256) { return $false }
+        if ($null -eq $Record.speech -or $null -eq $Record.speech.text) { return $false }
+        if ([string]$Record.speech.source -ne 'local-venice') { return $false }
+        $recordedSpeechSha = [string]$Record.speech.sha256
+        if (-not $recordedSpeechSha) { return $false }
+        $computedSpeechSha = Get-Sha256Text ([string]$Record.speech.text)
+        return $computedSpeechSha -eq $recordedSpeechSha.ToLowerInvariant()
+    } catch {
+        return $false
+    }
+}
+
 function Find-DurableApertureRecord {
     param([string]$PromptSha256, [DateTimeOffset]$StartedAt)
     $logRoot = Join-Path $DriveRoot 'work\nerve-silk'
@@ -95,11 +111,7 @@ function Find-DurableApertureRecord {
         $seen[$path] = $true
         try {
             $candidate = Read-Utf8JsonFile $path
-            if ($candidate.ok -and
-                [string]$candidate.input.sha256 -eq $PromptSha256 -and
-                $null -ne $candidate.speech -and
-                $null -ne $candidate.speech.text -and
-                [string]$candidate.speech.source -eq 'local-venice') {
+            if (Test-VeniceRecord -Record $candidate -PromptSha256 $PromptSha256) {
                 return [ordered]@{ record = $candidate; path = $path }
             }
         } catch {}
@@ -192,9 +204,16 @@ function Invoke-CanonicalVenice([string]$Prompt) {
     $record = $null
     $recordPath = ''
     try { $record = $stdout.Trim() | ConvertFrom-Json } catch {}
-    if ($null -eq $record) {
+
+    # A parseable pipe is not the canonical byte truth. Redirected Windows
+    # PowerShell can preserve JSON syntax while damaging Unicode text. Any
+    # verification suspicion gets one recovery attempt from the Drive-synced
+    # Nerve Silk record keyed by this exact prompt SHA.
+    if (-not (Test-VeniceRecord -Record $record -PromptSha256 $promptSha)) {
         $recovered = Find-DurableApertureRecord -PromptSha256 $promptSha -StartedAt $started
-        if ($null -eq $recovered) { throw 'VERIFICATION_FAILED: aperture output was not valid JSON and no matching durable Nerve Silk record was found' }
+        if ($null -eq $recovered) {
+            throw 'VERIFICATION_FAILED: aperture result failed identity/byte verification and no matching durable Nerve Silk record was found'
+        }
         $record = $recovered.record
         $recordPath = [string]$recovered.path
     }
@@ -307,7 +326,6 @@ function Invoke-OneShot([string]$Prompt) {
 }
 
 try {
-    $recognized = @('ask','chat','doctor','status','help','--help','-h')
     if (-not $CommandOrPrompt) {
         if ($Json) { throw 'BAD_INVOCATION: -Json requires a one-shot prompt' }
         Write-Host 'Venice local. /quit exits; /doctor inspects canonical runtime.'
@@ -335,7 +353,11 @@ try {
         $report | ConvertTo-Json -Depth 12
         exit $(if ($report.ready) { 0 } else { 3 })
     }
-    if ($lower -eq 'status') { Write-Status; $d = Get-DoctorReport; exit $(if ($d.ready) { 0 } else { 3 }) }
+    if ($lower -eq 'status') {
+        Write-Status
+        $d = Get-DoctorReport
+        exit $(if ($d.ready) { 0 } else { 3 })
+    }
 
     if ($lower -in @('ask','chat')) {
         $prompt = ($Remaining -join ' ').Trim()
@@ -347,8 +369,12 @@ try {
     exit 0
 } catch {
     $message = [string]$_.Exception.Message
-    if ($Json) { [ordered]@{ schema=$Schema; ok=$false; error=$message } | ConvertTo-Json -Depth 6 | Write-Error }
-    else { [Console]::Error.WriteLine($message) }
+    if ($Json) {
+        $errorEnvelope = [ordered]@{ schema=$Schema; ok=$false; error=$message } | ConvertTo-Json -Compress -Depth 6
+        [Console]::Error.WriteLine($errorEnvelope)
+    } else {
+        [Console]::Error.WriteLine($message)
+    }
     if ($message.StartsWith('BAD_INVOCATION:')) { exit 2 }
     if ($message.StartsWith('BLOCKED:')) { exit 3 }
     if ($message.StartsWith('VERIFICATION_FAILED:')) { exit 5 }
