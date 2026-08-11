@@ -68,6 +68,22 @@ jobs:
             unzip -q /tmp/gradle.zip -d /tmp
           fi
 
+          mkdir -p "$HOME/.android"
+          SIGNING_BRANCH='generated/operator-overlay-apk'
+          if git fetch origin "$SIGNING_BRANCH" >/dev/null 2>&1 &&
+             git show "origin/$SIGNING_BRANCH:operator-overlay-debug.keystore" > "$HOME/.android/debug.keystore"; then
+            echo 'Restored persistent internal overlay signing key'
+          else
+            rm -f "$HOME/.android/debug.keystore"
+            keytool -genkeypair -noprompt \
+              -keystore "$HOME/.android/debug.keystore" \
+              -storepass android -alias androiddebugkey -keypass android \
+              -dname 'CN=Home Center Operator,O=Home Center,C=US' \
+              -keyalg RSA -keysize 2048 -validity 10000
+            echo 'Established persistent internal overlay signing key'
+          fi
+          chmod 600 "$HOME/.android/debug.keystore"
+
           python -m py_compile tools/android_operator_overlay.py tools/android_phone_home_center_relay.py
           node --check functions/phone_hands_relay.js
           node tools/phone_hands_relay_contract_test.mjs
@@ -89,11 +105,19 @@ jobs:
           test -s "$APK"
           SHA="$(sha256sum "$APK" | awk '{print $1}')"
           BYTES="$(stat -c '%s' "$APK")"
+          SDK_ROOT="${ANDROID_SDK_ROOT:-${ANDROID_HOME:-/usr/local/lib/android/sdk}}"
+          APKSIGNER="$(find "$SDK_ROOT/build-tools" -type f -name apksigner -perm -111 | sort -V | tail -1)"
+          test -x "$APKSIGNER"
+          SIGNER_INFO="$("$APKSIGNER" verify --print-certs "$APK")"
+          printf '%s\n' "$SIGNER_INFO"
+          CERT_SHA="$(printf '%s\n' "$SIGNER_INFO" | sed -nE 's/^.*certificate SHA-256 digest:[[:space:]]*//p' | head -1)"
+          test -n "$CERT_SHA"
           mkdir -p build/operator-overlay
           cp "$APK" build/operator-overlay/operator-overlay-debug.apk
-          python - "$SHA" "$BYTES" "$SOURCE_SHA" > build/operator-overlay/operator-overlay-receipt.json <<'PY'
+          cp "$HOME/.android/debug.keystore" build/operator-overlay/operator-overlay-debug.keystore
+          python - "$SHA" "$BYTES" "$SOURCE_SHA" "$CERT_SHA" > build/operator-overlay/operator-overlay-receipt.json <<'PY'
           import json, pathlib, re, sys
-          sha, byte_count, source_sha = sys.argv[1:]
+          sha, byte_count, source_sha, cert_sha = sys.argv[1:]
           gradle = pathlib.Path('android/operator-overlay/app/build.gradle').read_text(encoding='utf-8')
           match = re.search(r"versionName\s+'([^']+)'", gradle)
           if not match:
@@ -107,7 +131,9 @@ jobs:
               'artifact': 'operator-overlay-debug.apk',
               'sha256': sha,
               'byteCount': int(byte_count),
+              'signingCertificateSha256': cert_sha,
               'controlPolicy': {
+                  'durableSigningKey': True,
                   'visibleToggleAuthoritative': True,
                   'remoteReenableAllowed': False,
                   'disableRequiresConfirmation': True,
@@ -141,6 +167,7 @@ jobs:
           set -euo pipefail
           PUB="$(mktemp -d)"
           cp build/operator-overlay/operator-overlay-debug.apk "$PUB/operator-overlay-debug.apk"
+          cp build/operator-overlay/operator-overlay-debug.keystore "$PUB/operator-overlay-debug.keystore"
           cp build/operator-overlay/operator-overlay-receipt.json "$PUB/operator-overlay-receipt.json"
 
           git config user.name 'home-center-operator-overlay-builder'
@@ -148,7 +175,8 @@ jobs:
           git switch --orphan generated-operator-overlay-apk
           git rm -rf . >/dev/null 2>&1 || true
           cp "$PUB/operator-overlay-debug.apk" ./operator-overlay-debug.apk
+          cp "$PUB/operator-overlay-debug.keystore" ./operator-overlay-debug.keystore
           cp "$PUB/operator-overlay-receipt.json" ./operator-overlay-receipt.json
-          git add operator-overlay-debug.apk operator-overlay-receipt.json
+          git add operator-overlay-debug.apk operator-overlay-debug.keystore operator-overlay-receipt.json
           git commit -m "Publish operator overlay APK for ${SOURCE_SHA}"
           git push --force origin HEAD:refs/heads/generated/operator-overlay-apk
