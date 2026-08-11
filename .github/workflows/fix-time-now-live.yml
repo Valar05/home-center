@@ -26,145 +26,27 @@ jobs:
           ref: refs/heads/main
           fetch-depth: 0
 
-      - name: Install time.now into stable drive_operation pump
-        shell: python
-        run: |
-          from pathlib import Path
-          p = Path('functions/home_center_mcp.js')
-          s = p.read_text()
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: functions/package-lock.json
 
-          helper = r'''
-function timeNowOperationEntries() {
-  return {
-    'time.now': {
-      summary: 'Return the current system clock with raw UTC timestamp plus date-aware America/Chicago rendering. Read-only and model-free.',
-      write: false,
-      requiresRequestId: false,
-      requiredScopes: [],
-      input: {},
-      output: {
-        rawTimestamp: 'ISO-8601 UTC timestamp',
-        unixMs: 'integer Unix epoch milliseconds',
-        sourceTimezone: 'UTC',
-        local: 'America/Chicago date/time, UTC offset, and CST/CDT abbreviation',
-      },
-      agentRecipe: {
-        whenUserSays: 'What time/date is it, praise the Sun, daily update, or any task whose correctness depends on the real current date.',
-        prefer: 'Call drive_operation with operation=time.now before reasoning about the current date/time.',
-        verification: 'Use rawTimestamp as source truth and local.timeZone=America/Chicago for Drew/June local rendering. Never guess the date from conversation context.',
-      },
-    },
-  };
-}
+      - name: Install shared time.now
+        run: node tools/install_time_now_live.mjs
 
-function timeNowOperation(now = new Date()) {
-  if (!(now instanceof Date) || Number.isNaN(now.getTime())) {
-    throw Object.assign(new Error('time.now requires a valid system clock Date.'), {status: 500});
-  }
-  const timeZone = 'America/Chicago';
-  const baseOptions = {
-    timeZone,
-    year: 'numeric', month: '2-digit', day: '2-digit',
-    hour: '2-digit', minute: '2-digit', second: '2-digit',
-    hourCycle: 'h23',
-  };
-  const parts = Object.fromEntries(new Intl.DateTimeFormat('en-US', baseOptions).formatToParts(now).filter((p) => p.type !== 'literal').map((p) => [p.type, p.value]));
-  const zoneParts = new Intl.DateTimeFormat('en-US', {timeZone, timeZoneName: 'short'}).formatToParts(now);
-  const offsetParts = new Intl.DateTimeFormat('en-US', {timeZone, timeZoneName: 'shortOffset'}).formatToParts(now);
-  const abbreviation = (zoneParts.find((p) => p.type === 'timeZoneName') || {}).value || '';
-  const gmtOffset = (offsetParts.find((p) => p.type === 'timeZoneName') || {}).value || 'GMT';
-  const m = /^GMT([+-])(\d{1,2})(?::(\d{2}))?$/.exec(gmtOffset);
-  const offset = m ? `${m[1]}${String(m[2]).padStart(2, '0')}:${m[3] || '00'}` : '+00:00';
-  const localDate = `${parts.year}-${parts.month}-${parts.day}`;
-  const localTime = `${parts.hour}:${parts.minute}:${parts.second}`;
-  return {
-    ok: true,
-    rawTimestamp: now.toISOString(),
-    unixMs: now.getTime(),
-    sourceClock: 'runtime-system-clock',
-    sourceTimezone: 'UTC',
-    local: {
-      timeZone,
-      date: localDate,
-      time: localTime,
-      iso8601: `${localDate}T${localTime}${offset}`,
-      utcOffset: offset,
-      abbreviation,
-    },
-  };
-}
-'''
-          anchor = 'function driveOperationRegistry() {'
-          if 'function timeNowOperationEntries()' not in s:
-              if anchor not in s:
-                  raise SystemExit('driveOperationRegistry anchor missing')
-              s = s.replace(anchor, helper + '\n' + anchor, 1)
-
-          spread_anchor = '      ...tvtroperOperationEntries(),\n'
-          if '      ...timeNowOperationEntries(),\n' not in s:
-              if spread_anchor not in s:
-                  raise SystemExit('registry spread anchor missing')
-              s = s.replace(spread_anchor, spread_anchor + '      ...timeNowOperationEntries(),\n', 1)
-
-          dispatch_anchor = "  if (localVoiceOperationEntries()[operation]) {\n"
-          dispatch = "  if (operation === 'time.now') {\n    const result = timeNowOperation();\n    return {operation, registryVersion: registry.version, completed: true, result};\n  }\n"
-          if "if (operation === 'time.now')" not in s:
-              if dispatch_anchor not in s:
-                  raise SystemExit('dispatcher anchor missing')
-              s = s.replace(dispatch_anchor, dispatch + dispatch_anchor, 1)
-
-          export_anchor = 'module.exports = {'
-          # Export the pure function only when the module has a conventional export block; tests also exercise it through source evaluation below.
-          p.write_text(s)
-
-      - name: Write Time Truth 1.1 ten-test acceptance
-        shell: bash
-        run: |
-          cat > tools/time_now_1_1_acceptance.mjs <<'EOF'
-          import fs from 'node:fs';
-          import vm from 'node:vm';
-          import assert from 'node:assert/strict';
-
-          const src = fs.readFileSync('functions/home_center_mcp.js', 'utf8');
-          const start = src.indexOf('function timeNowOperationEntries()');
-          const end = src.indexOf('function driveOperationRegistry()', start);
-          assert.ok(start >= 0 && end > start, 'time.now helper block present');
-          const block = src.slice(start, end) + '\nthis.timeNowOperationEntries=timeNowOperationEntries; this.timeNowOperation=timeNowOperation;';
-          const ctx = {Intl, Date};
-          vm.createContext(ctx);
-          vm.runInContext(block, ctx);
-          const op = ctx.timeNowOperation;
-          const entries = ctx.timeNowOperationEntries;
-
-          let passed = 0;
-          const test = (name, fn) => { fn(); passed += 1; console.log(`ok ${passed} - ${name}`); };
-
-          test('registry exposes literal time.now', () => assert.ok(entries()['time.now']));
-          test('operation is read only', () => assert.equal(entries()['time.now'].write, false));
-          test('raw timestamp is UTC ISO', () => assert.equal(op(new Date('2026-08-11T23:20:00Z')).rawTimestamp, '2026-08-11T23:20:00.000Z'));
-          test('unix milliseconds match source', () => assert.equal(op(new Date('2026-08-11T23:20:00Z')).unixMs, Date.parse('2026-08-11T23:20:00Z')));
-          test('source timezone is identified', () => assert.equal(op(new Date('2026-08-11T23:20:00Z')).sourceTimezone, 'UTC'));
-          test('Chicago summer date renders correctly', () => assert.equal(op(new Date('2026-08-11T23:20:00Z')).local.date, '2026-08-11'));
-          test('Chicago summer time renders correctly', () => assert.equal(op(new Date('2026-08-11T23:20:00Z')).local.time, '18:20:00'));
-          test('Chicago summer offset is CDT -05:00', () => assert.equal(op(new Date('2026-08-11T23:20:00Z')).local.utcOffset, '-05:00'));
-          test('Chicago winter offset is CST -06:00', () => assert.equal(op(new Date('2026-01-11T23:20:00Z')).local.utcOffset, '-06:00'));
-          test('Chicago ISO rendering carries date-aware offset', () => assert.equal(op(new Date('2026-01-11T23:20:00Z')).local.iso8601, '2026-01-11T17:20:00-06:00'));
-          assert.equal(passed, 10);
-          console.log('TIME_TRUTH_1_1_PASS=10/10');
-          EOF
-
-      - name: Validate source and Time Truth acceptance
+      - name: Validate Time Truth 1.1
         run: |
           node --check functions/home_center_mcp.js
           node tools/time_now_1_1_acceptance.mjs
 
-      - name: Persist patch and acceptance test to main
+      - name: Persist implementation
         run: |
           git config user.name 'home-center-release-bot'
           git config user.email 'home-center-release-bot@users.noreply.github.com'
-          git add functions/home_center_mcp.js tools/time_now_1_1_acceptance.mjs
+          git add functions/home_center_mcp.js
           if git diff --cached --quiet; then
-            echo 'Patch already persisted.'
+            echo 'time.now source already persisted'
           else
             git commit -m 'fix: expose shared time.now through drive operation'
             git push origin HEAD:main
@@ -178,7 +60,7 @@ function timeNowOperation(now = new Date()) {
 
       - uses: google-github-actions/setup-gcloud@v2
 
-      - name: Deploy Home Center MCP with time.now
+      - name: Deploy Home Center MCP
         env:
           GCLOUD_FUNCTIONS_REGION: ${{ env.REGION }}
           COMMAND_CENTER_MCP_URL: https://${{ env.REGION }}-${{ env.PROJECT }}.cloudfunctions.net/commandCenterMcp/mcp
@@ -186,5 +68,4 @@ function timeNowOperation(now = new Date()) {
         run: sh tools/deploy_functions_termux.sh "$PROJECT" homeCenterMcp
 
       - name: Verify deployed function exists
-        run: |
-          gcloud functions describe homeCenterMcp --gen2 --project="$PROJECT" --region="$REGION" --format='value(state,serviceConfig.uri)'
+        run: gcloud functions describe homeCenterMcp --gen2 --project="$PROJECT" --region="$REGION" --format='value(state,serviceConfig.uri)'
