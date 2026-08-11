@@ -124,9 +124,9 @@ public class OperatorOverlayService extends Service {
         windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
 
         // Separate full-screen guard: added first so the control strip remains on
-        // top. While control is enabled it consumes ordinary touches. When control
-        // is disabled it remains attached but becomes non-touchable, avoiding an
-        // ordering race that could ever cover the user's Disable/Enable button.
+        // top. It consumes ordinary touches only while Home Center is both enabled
+        // and live. OFFLINE and CONTROL OFF remain touch-pass-through so a dead
+        // relay can never strand the user behind an active guard.
         touchGuard = new View(this);
         touchGuard.setOnTouchListener((view, event) -> true);
         guardParams = new WindowManager.LayoutParams(
@@ -253,16 +253,16 @@ public class OperatorOverlayService extends Service {
         refreshUi();
     }
 
-    private void syncTouchGuard(boolean enabled) {
+    private void syncTouchGuard(boolean active) {
         if (windowManager == null || touchGuard == null || guardParams == null) return;
         int flags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE |
                 WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN;
-        if (!enabled) flags |= WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE;
+        if (!active) flags |= WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE;
         if (guardParams.flags != flags) {
             guardParams.flags = flags;
             windowManager.updateViewLayout(touchGuard, guardParams);
         }
-        touchGuard.setBackgroundColor(enabled ? Color.argb(8, 0, 0, 0) : Color.TRANSPARENT);
+        touchGuard.setBackgroundColor(active ? Color.argb(8, 0, 0, 0) : Color.TRANSPARENT);
     }
 
     private void refreshUi() {
@@ -273,7 +273,7 @@ public class OperatorOverlayService extends Service {
         long heartbeat = OperatorState.lastHeartbeatMs(this);
         boolean online = heartbeat > 0 && now - heartbeat <= ONLINE_WINDOW_MS;
 
-        syncTouchGuard(enabled);
+        syncTouchGuard(enabled && online);
 
         String state;
         int stateColor;
