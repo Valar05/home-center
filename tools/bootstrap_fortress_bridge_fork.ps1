@@ -24,6 +24,8 @@ Require-Command gh
 
 Step 'Verifying GitHub authentication'
 Invoke-Checked { gh auth status } 'gh auth status'
+$authenticatedOwner = (gh api user --jq .login).Trim()
+if (-not $authenticatedOwner) { throw 'Unable to resolve authenticated GitHub owner.' }
 
 $fork = "$Owner/$ForkName"
 $forkExists = $true
@@ -32,7 +34,11 @@ if ($LASTEXITCODE -ne 0) { $forkExists = $false }
 
 if (-not $forkExists) {
     Step "Creating genuine GitHub fork $fork from $Upstream"
-    Invoke-Checked { gh repo fork $Upstream --org $Owner --fork-name $ForkName --clone=false --remote=false } 'gh repo fork'
+    if ($Owner -ieq $authenticatedOwner) {
+        Invoke-Checked { gh repo fork $Upstream --fork-name $ForkName --clone=false --remote=false } 'gh repo fork'
+    } else {
+        Invoke-Checked { gh repo fork $Upstream --org $Owner --fork-name $ForkName --clone=false --remote=false } 'gh repo fork'
+    }
 } else {
     Step "Fork already exists: $fork"
 }
