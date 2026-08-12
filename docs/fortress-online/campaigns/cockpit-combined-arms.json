@@ -4,7 +4,7 @@
   "owner": "Drew Clarke",
   "branch": "feat/fortress-cockpit-android",
   "pullRequest": 244,
-  "updatedAt": "2026-08-12T10:21:00-05:00",
+  "updatedAt": "2026-08-12T10:40:00-05:00",
   "mission": "Make the Android phone the sovereign deterministic Home Center control plane: persist state and scheduling locally, continue useful work offline, orchestrate local/browser/Gemini/fleet/cloud capability only through explicit adapters, and use Ollama only as a gated fallback classifier when deterministic routing cannot resolve a task.",
   "constraints": [
     "phone is sovereign control plane; cloud is optional muscle",
@@ -22,44 +22,54 @@
     "physical phone receipts are required for phone deployment acceptance",
     "wireless debugging may remain enabled continuously when it provides a durable trusted phone-laptop control network; do not optimize it away merely for CPU/power neatness",
     "Fortress Bridge should prefer a persistent trusted-WLAN bootstrap relationship and automatic recovery whenever Android-authorized state permits it",
-    "after reboot or Android revocation, any physical action requirement must be represented explicitly as managed bridge state rather than an unexplained rish traceback"
+    "after reboot or Android revocation, any physical action requirement must be represented explicitly as managed bridge state rather than an unexplained rish traceback",
+    "daemon means observe -> compare -> decide -> act if warranted -> verify -> persist -> sleep/backoff -> observe; unchanged state must sleep rather than poll or narrate"
   ],
   "capabilityState": {
     "phoneSovereignKernel": {
       "requested": true,
       "implemented": "SQLite WAL job/event kernel, config-driven lane registry, offline deferral, receipts, deterministic tick/daemon, Termux:Boot installer",
-      "tested": "unit/CI verification wired; current branch CI result pending",
+      "tested": "unit/CI verification wired; current branch CI pending",
       "deployed": false,
       "callable": false,
       "delivered": false,
       "accepted": false
     },
-    "deterministicPromptCompiler": {"requested":true,"implemented":true,"tested":"CI result pending on current lineage","deployed":false,"callable":false,"delivered":false,"accepted":false},
-    "androidCockpit": {"requested":true,"implemented":true,"tested":"Android CI result pending","deployed":false,"callable":false,"delivered":false,"accepted":false},
+    "deterministicPromptCompiler": {"requested":true,"implemented":true,"tested":"CI pending on current lineage","deployed":false,"callable":false,"delivered":false,"accepted":false},
+    "androidCockpit": {"requested":true,"implemented":true,"tested":"Android CI pending","deployed":false,"callable":false,"delivered":false,"accepted":false},
     "combinedArmsMultimedia": {"requested":true,"implemented":true,"tested":"routing/unit/smoke validation wired","deployed":false,"callable":false,"delivered":false,"accepted":false},
     "veniceReactorIntegration": {"requested":true,"implemented":true,"tested":"existing deterministic reactor present; runtime acceptance pending","deployed":false,"callable":false,"delivered":false,"accepted":false},
     "fleetGpuRouting": {"requested":true,"implemented":"planner/capability routing present","tested":"live remote reachability not proven","deployed":false,"callable":false,"delivered":false,"accepted":false},
     "chatgptBrowserFreeCompute": {"requested":true,"implemented":"existing Chromium Throne branch is known but not yet wired as a proven phone-kernel adapter on this lineage","tested":false,"deployed":false,"callable":false,"delivered":false,"accepted":false},
     "geminiFreeCompute": {"requested":true,"implemented":"lane reserved; adapter intentionally blocks until authoritative free-quota worker exists","tested":false,"deployed":false,"callable":false,"delivered":false,"accepted":false},
     "ollamaFallback": {"requested":true,"implemented":"config gate present, disabled by default; execution lane rejected","tested":"kernel test asserts disabled/rejected behavior","deployed":false,"callable":false,"delivered":false,"accepted":false},
-    "fortressBridge": {"requested":true,"implemented":false,"tested":false,"deployed":false,"callable":false,"delivered":false,"accepted":false,"designConstraint":"Genuine fork of RikkaApps/Shizuku under Drew ownership, preserving Binder/server machinery while rebranding identity and managing non-root trusted-WLAN bootstrap/recovery. Continuous wireless debugging is allowed and preferred when it creates a durable phone-laptop network."}
+    "daemonLoopSkill": {"requested":true,"implemented":"skills/daemon-loop/SKILL.md defines transition-driven observe/act/sleep/backoff semantics and daemon_loop_violation","tested":"loaded by existing all-SKILL discovery contract; dedicated V2 regression integration still pending","deployed":false,"callable":false,"delivered":true,"accepted":false},
+    "fortressBridge": {"requested":true,"implemented":"Home Center now contains a THECAULDRON bootstrap driver that creates/verifies a genuine GitHub fork, clones it, preserves upstream machinery, applies distinct package/permission/app identity, commits/pushes a fortress-bridge branch, and can build the debug APK. fortress-read now exposes managed bridge status and classifies Server is not running instead of false-green doctor state. Genuine Valar05/Shizuku fork itself is not yet established.","tested":"managed rish lifecycle regression test added; CI queued on current head; laptop fork/bootstrap not yet executed","deployed":false,"callable":false,"delivered":false,"accepted":false,"designConstraint":"Genuine fork of RikkaApps/Shizuku under Drew ownership, preserving Binder/server machinery while rebranding identity and managing non-root trusted-WLAN bootstrap/recovery. Continuous wireless debugging is allowed and preferred when it creates a durable phone-laptop network."}
   },
   "evidence": {
     "pullRequest": 244,
     "headBeforeBeachhead": "0818ead1a483cd4d6c083d46501a6d08eb36e352",
     "beachheadCommits": ["027b2f98a7a532f705a4478f7d4e662a04faba27","dda712b70f08d2a05f192496e72a7d72f7591237","73120b4089ad9e432a105056fc9fc5ff5d0ed4f8","c07f3cad2d21f23ec08ef8c1690e8fbdd593c2a4","baea7ea5095f648c1487e05857b0c9cdba18e779","2add4e09adaf2eb2f673450941823fa698cf9c7e"],
+    "daemonSkillCommit": "84a21bb4dfed4604c96116f5e062ba55d596b2e7",
+    "bridgeBootstrapDriverCommit": "904b4a3492e13903901822257768e8d9dd93b83c",
+    "bridgeManagedStateCommit": "7f31538ca485e0a9ec4568d8f4c6d40d6767fd13",
+    "bridgeRegressionCommit": "ac312f41d8ad09d3699bbc4d26c4fa1e8c979f97",
+    "ciWiringCommit": "7c0014ad383495a8d1bb6367e5e421619a6d59a0",
     "bridgeResearch": {
-      "upstreamSetup":"Shizuku supports wireless debugging on Android 11+ and requires restart after reboot under system limitations",
-      "trustedWlanFinding":"Shizuku 13.6-era reports and upstream issue evidence indicate non-root auto-start on Android 13+ when connected to trusted WLAN with WRITE_SECURE_SETTINGS granted"
-    }
+      "upstreamRepository":"RikkaApps/Shizuku, Apache-2.0, default branch master",
+      "upstreamBootReceiver":"On Android 13+ with WRITE_SECURE_SETTINGS and last launch mode ADB, BootCompleteReceiver enables adb_wifi_enabled and ADB_ENABLED, sets adb_allowed_connection_time to 0, discovers TLS ADB via mDNS, reuses persisted ADB key, and runs Starter.internalCommand through localhost ADB.",
+      "implication":"Fortress Bridge should preserve and instrument this proven boot organ rather than invent another privilege transport."
+    },
+    "latestHead": "7c0014ad383495a8d1bb6367e5e421619a6d59a0",
+    "ciObservation":"GitHub Actions runs for latest head were queued at last observation; daemon doctrine forbids hammering unchanged queued state."
   },
-  "nextAction": "Establish the genuine Valar05/Shizuku fork as Fortress Bridge, inspect current upstream trusted-WLAN/non-root bootstrap code, preserve that machinery, add Fortress-managed bridge health/recovery state, then return to physical-phone fortress-read playback acceptance.",
+  "nextAction": "When the existing Computer Hands/Home Center laptop actuator becomes callable from the worker surface, execute tools/bootstrap_fortress_bridge_fork.ps1 -Build on THECAULDRON exactly once, consume its fork/build receipt, then instrument the genuine fork lifecycle and return to primary-phone deployment and fortress-read audible acceptance. In parallel, consume CI only after a material run-state transition rather than polling.",
   "blockedBy": [
-    "Fortress Bridge fork not yet established",
-    "current worker has no exposed laptop/Computer Hands body lane",
+    "genuine Valar05/Shizuku fork bootstrap has not yet executed on THECAULDRON",
+    "current worker surface still does not expose the existing Home Center/Computer Hands invocation operation directly",
     "kernel not installed on primary phone",
     "Cockpit not installed on primary phone",
     "physical-phone bridge/playback acceptance still pending"
   ],
-  "updatePolicy": "Update on every material transition. Never advance capability state without state-specific external evidence."
+  "updatePolicy": "Update on every material transition. Never advance capability state without state-specific external evidence. Daemon loops back off and sleep on unchanged state instead of hammering connectors."
 }
