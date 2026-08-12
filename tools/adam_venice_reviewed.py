@@ -25,23 +25,36 @@ import venice_review as canonical_venice
 
 CHECKPOINT_STEPS = int(os.environ.get("HC_ADAM_CHECKPOINT_STEPS", "48"))
 BACKOFF_SECONDS = (1, 2, 4, 8, 15, 30)
+STEADY_BACKOFF_SECONDS = int(os.environ.get("HC_ADAM_STEADY_BACKOFF", "45"))
 STATE_DIR = Path(os.path.expanduser(os.environ.get("HC_STATE_DIR", "~/.local/state/home-center"))) / "adam-daemon"
 CODEX_DOC_NAMES = ("AGENTS.md", "MEMORIES.md", "SKILLS.md")
 CODEX_DOC_LIMIT = int(os.environ.get("HC_ADAM_CODEX_DOC_LIMIT", "24000"))
 
 
 def resilient_call_model(original, messages: list[dict], timeout: int = 120) -> str:
-    last = None
-    for attempt, delay in enumerate((0, *BACKOFF_SECONDS)):
-        if delay:
-            time.sleep(delay + random.uniform(0, min(1.0, delay * 0.2)))
+    """Retry transient phone-brain failures indefinitely without connector hammering.
+
+    The initial ramp is deliberately short enough for brief local restarts; after
+    it is exhausted the mission remains alive at a gentle steady cadence. An
+    external cancellation/signal (including the bounded acceptance harness) may
+    interrupt sleep or the underlying request and is not converted into a fake
+    successful retry.
+    """
+    failure_count = 0
+    while True:
+        if failure_count:
+            if failure_count <= len(BACKOFF_SECONDS):
+                delay = BACKOFF_SECONDS[failure_count - 1]
+            else:
+                delay = max(BACKOFF_SECONDS[-1], STEADY_BACKOFF_SECONDS)
+            time.sleep(delay + random.uniform(0, min(2.0, delay * 0.15)))
         try:
             return original(messages, timeout=timeout)
-        except Exception as exc:
-            last = exc
-            if attempt >= len(BACKOFF_SECONDS):
-                break
-    raise RuntimeError(f"phone model unavailable after daemon backoff burst: {last}") from last
+        except (KeyboardInterrupt, SystemExit):
+            raise
+        except Exception:
+            failure_count += 1
+            continue
 
 
 def repo_root(workspace: Path) -> Path | None:
@@ -167,7 +180,6 @@ def git_evidence(workspace: Path, base_commit: str | None = None) -> dict:
 
 
 def persist_venice_review(task: str, proposal: dict, review: dict) -> Path:
-    """Append durable proof that Venice was actually consulted before stopping."""
     STATE_DIR.mkdir(parents=True, exist_ok=True)
     ev = review.get("freshEvidence") or {}
     compact = {
