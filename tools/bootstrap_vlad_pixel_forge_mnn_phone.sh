@@ -5,19 +5,41 @@ STATE="${HC_PIXEL_FORGE_STATE:-$HOME/.local/state/home-center/pixel-forge}"
 MNN_ROOT="${HC_MNN_ROOT:-$HOME/workspace/MNN}"
 MNN_REF="${HC_MNN_REF:-3.4.1}"
 RECEIPT="$STATE/mnn-bootstrap.json"
+BUILD_SIGNATURE="mnn-${MNN_REF}-arm64-api26-lowmem-arm82-opencl-diffusion-opencv-imgcodecs-transformer-sep0-v1"
 mkdir -p "$STATE" "$(dirname "$MNN_ROOT")"
 python3 "$ROOT/tools/vlad_pixel_forge_probe.py" > "$STATE/probe.stdout.json"
-record(){ local ok="$1" state="$2" detail="$3" demo="${4:-}"; python3 - "$RECEIPT" "$ok" "$state" "$detail" "$MNN_ROOT" "$demo" "$MNN_REF" <<'PY'
+record(){ local ok="$1" state="$2" detail="$3" demo="${4:-}"; python3 - "$RECEIPT" "$ok" "$state" "$detail" "$MNN_ROOT" "$demo" "$MNN_REF" "$BUILD_SIGNATURE" <<'PY'
 import json,sys,time
-path,ok,state,detail,mnn,demo,ref=sys.argv[1:]
-obj={'schema':'vlad.pixel-forge.mnn-bootstrap.v4','ok':ok=='1','state':state,'detail':detail,'mnnRoot':mnn,'mnnRef':ref,'diffusionDemo':demo or None,'device':'primary-phone','ciUsed':False,'godotPolicy':'forge-only-not-delivery-runtime','recordedAtEpoch':int(time.time())}
+path,ok,state,detail,mnn,demo,ref,sig=sys.argv[1:]
+obj={'schema':'vlad.pixel-forge.mnn-bootstrap.v5','ok':ok=='1','state':state,'detail':detail,'mnnRoot':mnn,'mnnRef':ref,'buildSignature':sig,'diffusionDemo':demo or None,'device':'primary-phone','ciUsed':False,'godotRuntimeUsed':False,'godotPolicy':'forge-only-not-delivery-runtime','recordedAtEpoch':int(time.time())}
 open(path,'w',encoding='utf-8').write(json.dumps(obj,indent=2,sort_keys=True)+'\n'); print(json.dumps(obj,indent=2,sort_keys=True))
 PY
 }
-for tool in git cmake ninja clang python3; do command -v "$tool" >/dev/null 2>&1 || { record 0 BLOCKED "missing phone tool: $tool"; exit 10; }; done
 python3 - <<'PY' >/dev/null 2>&1 || { record 0 BLOCKED 'Python Pillow is required for canonical VPX packing; install it on the phone before Pixel Forge.'; exit 16; }
 from PIL import Image
 PY
+
+# Reuse a previously verified native build. Venice repair rounds should re-run
+# the phone specimen, not spend their time recompiling an unchanged MNN runtime.
+if [ -s "$RECEIPT" ] && [ -d "$MNN_ROOT/.git" ]; then
+  CACHED_DEMO="$(python3 - "$RECEIPT" "$MNN_REF" "$BUILD_SIGNATURE" <<'PY'
+import json,sys
+try:
+    x=json.load(open(sys.argv[1],encoding='utf-8'))
+    if x.get('ok') is True and x.get('mnnRef')==sys.argv[2] and x.get('buildSignature')==sys.argv[3]:
+        print(x.get('diffusionDemo') or '')
+except Exception:
+    pass
+PY
+)"
+  ACTUAL_REF="$(git -C "$MNN_ROOT" describe --tags --exact-match 2>/dev/null || true)"
+  if [ "$ACTUAL_REF" = "$MNN_REF" ] && [ -n "$CACHED_DEMO" ] && [ -x "$CACHED_DEMO" ] && [ -s "$STATE/mnn-libraries.txt" ]; then
+    record 1 REUSED "Reused verified MNN $MNN_REF Pixel Forge runtime; build signature unchanged." "$CACHED_DEMO"
+    exit 0
+  fi
+fi
+
+for tool in git cmake ninja clang python3; do command -v "$tool" >/dev/null 2>&1 || { record 0 BLOCKED "missing phone tool: $tool"; exit 10; }; done
 FREE_KB="$(df -Pk "$HOME" | awk 'NR==2 {print $4}')"; MIN_FREE_KB="${HC_PIXEL_FORGE_MIN_FREE_KB:-8388608}"
 [ "$FREE_KB" -ge "$MIN_FREE_KB" ] || { record 0 BLOCKED "insufficient free storage: ${FREE_KB}KiB; require ${MIN_FREE_KB}KiB"; exit 11; }
 NDK="${ANDROID_NDK:-${ANDROID_NDK_HOME:-}}"
