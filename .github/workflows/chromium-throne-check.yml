@@ -22,8 +22,6 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-          cache: npm
-          cache-dependency-path: chromium-throne/package-lock.json
       - run: npm install --no-audit --no-fund
       - run: npm run check
 
@@ -31,7 +29,10 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Parse installer and daemon launcher sources
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Parse installer and daemon sources
         shell: powershell
         run: |
           $ErrorActionPreference = 'Stop'
