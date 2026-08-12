@@ -4,7 +4,7 @@
   "owner": "Drew Clarke",
   "branch": "feat/fortress-cockpit-android",
   "pullRequest": 244,
-  "updatedAt": "2026-08-12T07:09:00-05:00",
+  "updatedAt": "2026-08-12T10:21:00-05:00",
   "mission": "Make the Android phone the sovereign deterministic Home Center control plane: persist state and scheduling locally, continue useful work offline, orchestrate local/browser/Gemini/fleet/cloud capability only through explicit adapters, and use Ollama only as a gated fallback classifier when deterministic routing cannot resolve a task.",
   "constraints": [
     "phone is sovereign control plane; cloud is optional muscle",
@@ -19,7 +19,10 @@
     "browser/Gemini/fleet outputs require deterministic artifact verification",
     "use phone compute aggressively but thermally humanely",
     "keep requested, implemented, tested, deployed, callable, delivered, and accepted distinct",
-    "physical phone receipts are required for phone deployment acceptance"
+    "physical phone receipts are required for phone deployment acceptance",
+    "wireless debugging may remain enabled continuously when it provides a durable trusted phone-laptop control network; do not optimize it away merely for CPU/power neatness",
+    "Fortress Bridge should prefer a persistent trusted-WLAN bootstrap relationship and automatic recovery whenever Android-authorized state permits it",
+    "after reboot or Android revocation, any physical action requirement must be represented explicitly as managed bridge state rather than an unexplained rish traceback"
   ],
   "capabilityState": {
     "phoneSovereignKernel": {
@@ -38,20 +41,25 @@
     "fleetGpuRouting": {"requested":true,"implemented":"planner/capability routing present","tested":"live remote reachability not proven","deployed":false,"callable":false,"delivered":false,"accepted":false},
     "chatgptBrowserFreeCompute": {"requested":true,"implemented":"existing Chromium Throne branch is known but not yet wired as a proven phone-kernel adapter on this lineage","tested":false,"deployed":false,"callable":false,"delivered":false,"accepted":false},
     "geminiFreeCompute": {"requested":true,"implemented":"lane reserved; adapter intentionally blocks until authoritative free-quota worker exists","tested":false,"deployed":false,"callable":false,"delivered":false,"accepted":false},
-    "ollamaFallback": {"requested":true,"implemented":"config gate present, disabled by default; execution lane rejected","tested":"kernel test asserts disabled/rejected behavior","deployed":false,"callable":false,"delivered":false,"accepted":false}
+    "ollamaFallback": {"requested":true,"implemented":"config gate present, disabled by default; execution lane rejected","tested":"kernel test asserts disabled/rejected behavior","deployed":false,"callable":false,"delivered":false,"accepted":false},
+    "fortressBridge": {"requested":true,"implemented":false,"tested":false,"deployed":false,"callable":false,"delivered":false,"accepted":false,"designConstraint":"Genuine fork of RikkaApps/Shizuku under Drew ownership, preserving Binder/server machinery while rebranding identity and managing non-root trusted-WLAN bootstrap/recovery. Continuous wireless debugging is allowed and preferred when it creates a durable phone-laptop network."}
   },
   "evidence": {
     "pullRequest": 244,
     "headBeforeBeachhead": "0818ead1a483cd4d6c083d46501a6d08eb36e352",
-    "beachheadCommits": ["027b2f98a7a532f705a4478f7d4e662a04faba27","dda712b70f08d2a05f192496e72a7d72f7591237","73120b4089ad9e432a105056fc9fc5ff5d0ed4f8","c07f3cad2d21f23ec08ef8c1690e8fbdd593c2a4","baea7ea5095f648c1487e05857b0c9cdba18e779","2add4e09adaf2eb2f673450941823fa698cf9c7e"]
+    "beachheadCommits": ["027b2f98a7a532f705a4478f7d4e662a04faba27","dda712b70f08d2a05f192496e72a7d72f7591237","73120b4089ad9e432a105056fc9fc5ff5d0ed4f8","c07f3cad2d21f23ec08ef8c1690e8fbdd593c2a4","baea7ea5095f648c1487e05857b0c9cdba18e779","2add4e09adaf2eb2f673450941823fa698cf9c7e"],
+    "bridgeResearch": {
+      "upstreamSetup":"Shizuku supports wireless debugging on Android 11+ and requires restart after reboot under system limitations",
+      "trustedWlanFinding":"Shizuku 13.6-era reports and upstream issue evidence indicate non-root auto-start on Android 13+ when connected to trusted WLAN with WRITE_SECURE_SETTINGS granted"
+    }
   },
-  "nextAction": "Consume current CI. If green, wire the existing Chromium Throne branch behind a deterministic phone-kernel adapter and add a real free-Gemini adapter only after authoritative quota verification. Then perform phone install/runtime acceptance through the authorized phone lane.",
+  "nextAction": "Establish the genuine Valar05/Shizuku fork as Fortress Bridge, inspect current upstream trusted-WLAN/non-root bootstrap code, preserve that machinery, add Fortress-managed bridge health/recovery state, then return to physical-phone fortress-read playback acceptance.",
   "blockedBy": [
-    "current branch CI not yet consumed",
+    "Fortress Bridge fork not yet established",
+    "current worker has no exposed laptop/Computer Hands body lane",
     "kernel not installed on primary phone",
     "Cockpit not installed on primary phone",
-    "Chromium Throne adapter not yet integrated into this branch",
-    "Gemini free quota/capability not yet verified into an adapter"
+    "physical-phone bridge/playback acceptance still pending"
   ],
   "updatePolicy": "Update on every material transition. Never advance capability state without state-specific external evidence."
 }
