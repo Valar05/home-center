@@ -1,0 +1,183 @@
+'use strict';
+
+const {createHash} = require('node:crypto');
+const {Storage} = require('@google-cloud/storage');
+
+const API_VERSION = 'home-center.venice-radio.v1';
+const DEFAULT_STATION = 'venice-asmr-primary';
+const DEFAULT_RETENTION = 30;
+const MAX_SEGMENT_BYTES = 2 * 1024 * 1024;
+const storage = new Storage();
+const BUCKET = process.env.HOME_CENTER_GENERATED_BUCKET || 'home-center-generated';
+
+function safeText(value, max = 800) {
+  const text = value == null ? '' : String(value).trim();
+  return text.length > max ? text.slice(0, max) : text;
+}
+function sha256(bytes) { return createHash('sha256').update(bytes).digest('hex'); }
+function safeStationId(value) {
+  const id = safeText(value || DEFAULT_STATION, 120);
+  if (!/^[A-Za-z0-9_.:-]{3,120}$/.test(id)) throw Object.assign(new Error('invalid_station_id'), {status: 400});
+  return id;
+}
+function ownerKey(email) { return createHash('sha256').update(String(email || '').trim().toLowerCase()).digest('hex').slice(0, 32); }
+function bearer(req) {
+  const match = String(req.get('Authorization') || '').match(/^Bearer\s+(.+)$/i);
+  if (!match) throw Object.assign(new Error('radio_auth_required'), {status: 401});
+  return match[1];
+}
+async function authenticate(admin, req) {
+  const token = bearer(req);
+  try {
+    const user = await admin.auth().verifyIdToken(token);
+    const email = safeText(user.email, 320).toLowerCase();
+    if (email) return {email, uid: safeText(user.uid, 160), authKind: 'firebase'};
+  } catch (_) {}
+  try {
+    const response = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {headers: {Authorization: `Bearer ${token}`}});
+    if (response.ok) {
+      const profile = await response.json();
+      const email = safeText(profile.email, 320).toLowerCase();
+      if (email && profile.email_verified !== false) return {email, uid: '', authKind: 'google_oauth'};
+    }
+  } catch (_) {}
+  const digest = sha256(Buffer.from(token, 'utf8'));
+  const snap = await admin.firestore().collection('termuxHubAccessTokens').doc(digest).get();
+  if (snap.exists) {
+    const row = snap.data() || {};
+    if (!row.revokedAtMs && Number(row.expiresAtMs || 0) > Date.now()) {
+      const email = safeText(row.email, 320).toLowerCase();
+      if (email) return {email, uid: safeText(row.uid, 160), authKind: 'termux_hub'};
+    }
+  }
+  throw Object.assign(new Error('radio_auth_invalid'), {status: 401});
+}
+function refs(admin, email, stationId) {
+  const owner = ownerKey(email);
+  const station = admin.firestore().collection('veniceRadioStations').doc(`${owner}_${stationId}`);
+  return {owner, station, segments: station.collection('segments')};
+}
+function segmentObjectName(owner, stationId, generation, sequence, ext = 'wav') {
+  return `radio/${owner}/${stationId}/g${generation}/s${String(sequence).padStart(10, '0')}.${ext}`;
+}
+async function prune({bucket, stationRef, segmentsRef, retentionSegments}) {
+  const snap = await segmentsRef.orderBy('sequence', 'desc').limit(Math.max(1, retentionSegments + 50)).get();
+  const rows = snap.docs.map((doc) => ({doc, row: doc.data() || {}}));
+  const stale = rows.slice(retentionSegments);
+  await Promise.all(stale.map(async ({doc, row}) => {
+    const objectName = safeText(row.objectName, 1200);
+    if (objectName) await bucket.file(objectName).delete({ignoreNotFound: true}).catch(() => {});
+    await doc.ref.delete().catch(() => {});
+  }));
+  await stationRef.set({retainedSegments: Math.min(rows.length, retentionSegments), prunedAtMs: Date.now()}, {merge: true});
+  return stale.length;
+}
+async function publishBegin({admin, user, body}) {
+  const stationId = safeStationId(body.stationId);
+  const retentionSegments = Math.max(3, Math.min(120, Number(body.retentionSegments || DEFAULT_RETENTION)));
+  const targetMs = Math.max(500, Math.min(15000, Number(body.segmentDurationTargetMs || 4000)));
+  const {station} = refs(admin, user.email, stationId);
+  const snap = await station.get();
+  const previous = snap.exists ? snap.data() || {} : {};
+  const generation = Math.max(1, Number(previous.generation || 0) + (body.reset === true ? 1 : (previous.generation ? 0 : 1)));
+  const now = Date.now();
+  const leaseExpiresAtMs = now + 10 * 60 * 1000;
+  await station.set({apiVersion: API_VERSION, stationId, ownerEmail: user.email, ownerKey: ownerKey(user.email), generation, headSequence: Number(previous.headSequence || 0), segmentDurationTargetMs: targetMs, retentionSegments, leaseExpiresAtMs, state: 'publishing', updatedAtMs: now, createdAtMs: Number(previous.createdAtMs || now)}, {merge: true});
+  return {ok: true, stationId, generation, headSequence: Number(previous.headSequence || 0), retentionSegments, segmentDurationTargetMs: targetMs, leaseExpiresAtMs};
+}
+async function publishSegment({admin, user, body}) {
+  const stationId = safeStationId(body.stationId);
+  const sequence = Number(body.sequence);
+  if (!Number.isSafeInteger(sequence) || sequence < 1) throw Object.assign(new Error('invalid_sequence'), {status: 400});
+  const raw = typeof body.audioBase64 === 'string' ? body.audioBase64 : '';
+  if (!raw || raw.length > Math.ceil(MAX_SEGMENT_BYTES * 4 / 3) + 16) throw Object.assign(new Error('invalid_segment_bytes'), {status: 413});
+  const bytes = Buffer.from(raw, 'base64');
+  if (!bytes.length || bytes.length > MAX_SEGMENT_BYTES) throw Object.assign(new Error('invalid_segment_bytes'), {status: 413});
+  const expectedSha = safeText(body.sha256, 64).toLowerCase();
+  const digest = sha256(bytes);
+  if (expectedSha && expectedSha !== digest) throw Object.assign(new Error('segment_sha256_mismatch'), {status: 409});
+  const contentType = safeText(body.contentType || 'audio/wav', 120);
+  const ext = contentType.includes('ogg') ? 'ogg' : (contentType.includes('mpeg') ? 'mp3' : 'wav');
+  const {owner, station, segments} = refs(admin, user.email, stationId);
+  const stationSnap = await station.get();
+  if (!stationSnap.exists) throw Object.assign(new Error('station_not_started'), {status: 409});
+  const state = stationSnap.data() || {};
+  const generation = Number(body.generation || state.generation || 1);
+  if (generation !== Number(state.generation || 0)) throw Object.assign(new Error('station_generation_mismatch'), {status: 409});
+  const expectedSequence = Number(state.headSequence || 0) + 1;
+  if (sequence !== expectedSequence) throw Object.assign(new Error(`sequence_must_be_${expectedSequence}`), {status: 409});
+  const objectName = segmentObjectName(owner, stationId, generation, sequence, ext);
+  const bucket = storage.bucket(BUCKET);
+  const file = bucket.file(objectName);
+  await file.save(bytes, {resumable: false, contentType, metadata: {metadata: {ownerEmail: user.email, stationId, generation: String(generation), sequence: String(sequence), sha256: digest}}});
+  const [saved] = await file.download();
+  const readbackSha = sha256(saved);
+  if (saved.length !== bytes.length || readbackSha !== digest) {
+    await file.delete({ignoreNotFound: true}).catch(() => {});
+    throw Object.assign(new Error('segment_readback_verification_failed'), {status: 502});
+  }
+  const durationMs = Math.max(0, Math.min(60000, Number(body.durationMs || 0)));
+  const now = Date.now();
+  const doc = segments.doc(String(sequence).padStart(10, '0'));
+  await admin.firestore().runTransaction(async (tx) => {
+    const fresh = await tx.get(station);
+    const row = fresh.data() || {};
+    if (Number(row.generation || 0) !== generation || Number(row.headSequence || 0) + 1 !== sequence) throw Object.assign(new Error('station_head_changed'), {status: 409});
+    tx.set(doc, {sequence, generation, objectName, contentType, byteCount: bytes.length, sha256: digest, durationMs, createdAtMs: now});
+    tx.set(station, {headSequence: sequence, updatedAtMs: now, leaseExpiresAtMs: now + 10 * 60 * 1000, state: 'publishing'}, {merge: true});
+  });
+  const retentionSegments = Math.max(3, Math.min(120, Number(state.retentionSegments || DEFAULT_RETENTION)));
+  const pruned = await prune({bucket, stationRef: station, segmentsRef: segments, retentionSegments});
+  return {ok: true, stationId, generation, sequence, byteCount: bytes.length, sha256: digest, durationMs, pruned};
+}
+async function status({admin, user, body}) {
+  const stationId = safeStationId(body.stationId);
+  const {station} = refs(admin, user.email, stationId);
+  const snap = await station.get();
+  if (!snap.exists) return {ok: true, stationId, state: 'absent', generation: 0, headSequence: 0};
+  const row = snap.data() || {};
+  return {ok: true, stationId, state: safeText(row.state, 40), generation: Number(row.generation || 0), headSequence: Number(row.headSequence || 0), segmentDurationTargetMs: Number(row.segmentDurationTargetMs || 4000), retentionSegments: Number(row.retentionSegments || DEFAULT_RETENTION), retainedSegments: Number(row.retainedSegments || 0), updatedAtMs: Number(row.updatedAtMs || 0)};
+}
+async function readSegment({admin, user, body}) {
+  const stationId = safeStationId(body.stationId);
+  const sequence = Number(body.sequence);
+  if (!Number.isSafeInteger(sequence) || sequence < 1) throw Object.assign(new Error('invalid_sequence'), {status: 400});
+  const {segments} = refs(admin, user.email, stationId);
+  const snap = await segments.doc(String(sequence).padStart(10, '0')).get();
+  if (!snap.exists) throw Object.assign(new Error('segment_not_found'), {status: 404});
+  const row = snap.data() || {};
+  const [bytes] = await storage.bucket(BUCKET).file(row.objectName).download();
+  const digest = sha256(bytes);
+  if (bytes.length !== Number(row.byteCount || -1) || digest !== row.sha256) throw Object.assign(new Error('segment_integrity_failed'), {status: 502});
+  return {ok: true, stationId, generation: Number(row.generation || 0), sequence, contentType: row.contentType || 'audio/wav', byteCount: bytes.length, sha256: digest, durationMs: Number(row.durationMs || 0), audioBase64: bytes.toString('base64')};
+}
+async function stop({admin, user, body}) {
+  const stationId = safeStationId(body.stationId);
+  const {station} = refs(admin, user.email, stationId);
+  await station.set({state: 'stopped', updatedAtMs: Date.now(), leaseExpiresAtMs: 0}, {merge: true});
+  return {ok: true, stationId, state: 'stopped'};
+}
+function createVeniceRadioHandler({admin}) {
+  return async (req, res) => {
+    res.set('Cache-Control', 'private, no-store');
+    try {
+      if (req.method !== 'POST') return res.status(405).json({ok: false, error: 'post_required'});
+      const user = await authenticate(admin, req);
+      const body = req.body && typeof req.body === 'object' ? req.body : {};
+      const action = safeText(body.action, 80);
+      const ctx = {admin, user, body};
+      let result;
+      if (action === 'radio.station.publish_begin') result = await publishBegin(ctx);
+      else if (action === 'radio.station.publish_segment') result = await publishSegment(ctx);
+      else if (action === 'radio.station.status') result = await status(ctx);
+      else if (action === 'radio.station.segment') result = await readSegment(ctx);
+      else if (action === 'radio.station.stop') result = await stop(ctx);
+      else throw Object.assign(new Error('unsupported_radio_action'), {status: 400});
+      res.status(200).json(result);
+    } catch (error) {
+      res.status(Number(error.status) || 500).json({ok: false, error: safeText(error.message || String(error), 300)});
+    }
+  };
+}
+
+module.exports = {API_VERSION, DEFAULT_STATION, DEFAULT_RETENTION, MAX_SEGMENT_BYTES, safeStationId, ownerKey, segmentObjectName, createVeniceRadioHandler};
