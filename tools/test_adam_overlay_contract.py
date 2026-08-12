@@ -26,8 +26,13 @@ for token in ["KEY_ADAM_REQUEST_ID", "KEY_ADAM_REQUEST_MODE", "KEY_ADAM_REQUEST_
     assert token in state, f"state missing {token}"
 for token in ["adam_request_id", "adam_request_mode", "adam_request_payload_b64"]:
     assert token in provider, f"provider missing {token}"
-for token in ["process_adam_overlay", "adam-last-request-id", "base64.b64decode", "operator_update", "ADAM_POLL_SECONDS"]:
+for token in ["process_adam_overlay", "adam-last-request-id", "base64.b64decode", "operator_update", "ADAM_POLL_SECONDS", "timeout=None", '"daemonWait":True']:
     assert token in daemon, f"daemon missing {token}"
+
+run_idx = daemon.index('result=run(["python3",str(Path(repo_root)/"tools"/"adam.py")')
+ack_idx = daemon.index('_set_last_adam_request_id(request_id)', run_idx)
+assert ack_idx > run_idx, "valid Adam overlay request is acknowledged before reviewed worker returns"
+assert 'payload=_operator_field(raw,"adam_request_payload_b64","");_set_last_adam_request_id(request_id)' not in daemon
 
 for token in [
     'ONE_SHOT_MODES = ("terminal", "chat", "continue", "vlad")',
@@ -49,6 +54,6 @@ assert 'local_exec_plan' not in router
 assert 'ACTIVE JUDGEMENT JARS (binding)' in worker
 assert 'def active_jars(' in worker
 assert 'Unstructured model prose is never shown' in worker
-assert 'Venice reviews every stop' in reviewed
+assert 'Canonical Venice reviews every stop' in reviewed
 assert 'Daemon Persistence and Connector Backoff' in reviewed
-print("Adam overlay transport / reviewed Codex-worker contract: PASS")
+print("Adam overlay transport / reviewed daemon Codex-worker contract: PASS")
