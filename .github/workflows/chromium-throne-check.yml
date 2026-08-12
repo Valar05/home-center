@@ -1,0 +1,40 @@
+name: Chromium Throne Check
+
+on:
+  pull_request:
+    paths:
+      - 'chromium-throne/**'
+      - '.github/workflows/chromium-throne-check.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'chromium-throne/**'
+      - '.github/workflows/chromium-throne-check.yml'
+
+jobs:
+  node-contract:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: chromium-throne
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: chromium-throne/package-lock.json
+      - run: npm install --no-audit --no-fund
+      - run: npm run check
+
+  windows-installer-parse:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Parse installer and daemon launcher sources
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $null = [scriptblock]::Create((Get-Content .\chromium-throne\windows\install.ps1 -Raw))
+          node --check .\chromium-throne\src\throne.mjs
+          node --check .\chromium-throne\src\protocol.mjs
