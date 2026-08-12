@@ -6,14 +6,22 @@ STATE="${HC_STATE_DIR:-$HOME/.local/state/home-center}"
 BIN_DIR="${HC_ADAM_BIN_DIR:-${PREFIX:-$HOME/.local}/bin}"
 TARGET="$BIN_DIR/adam"
 ROUTER="$ROOT/tools/adam.py"
-WORKER="$ROOT/tools/adam_venice_reviewed.py"
+WORKER="$ROOT/tools/adam_planned_venice.py"
 RECEIPT="$STATE/adam-cli-install-receipt.json"
 ACCEPT_RECEIPT="$STATE/adam-phone-worker-acceptance.json"
 BRAIN_RECEIPT="$STATE/adam-phone-brain-receipt.json"
 
 mkdir -p "$STATE" "$BIN_DIR"
-for f in "$ROUTER" "$WORKER" "$ROOT/tools/adam_codex_phone.py" "$ROOT/AGENTS.md" "$ROOT/MEMORIES.md" "$ROOT/SKILLS.md"; do
-  [ -f "$f" ] || { echo "BLOCKED: Adam/Codex component missing: $f" >&2; exit 2; }
+for f in \
+  "$ROUTER" \
+  "$WORKER" \
+  "$ROOT/tools/adam_venice_reviewed.py" \
+  "$ROOT/tools/adam_codex_phone.py" \
+  "$ROOT/tools/venice_plan_review.py" \
+  "$ROOT/tools/venice_review.py" \
+  "$ROOT/tools/venice_review_memory.py" \
+  "$ROOT/AGENTS.md" "$ROOT/MEMORIES.md" "$ROOT/SKILLS.md"; do
+  [ -f "$f" ] || { echo "BLOCKED: Adam/Codex/Venice component missing: $f" >&2; exit 2; }
 done
 PYTHON_BIN="$(command -v python3 || true)"
 [ -n "$PYTHON_BIN" ] || { echo 'BLOCKED: python3 missing.' >&2; exit 3; }
@@ -24,7 +32,19 @@ python3 tools/test_adam_overlay_delivery_state.py
 python3 tools/test_adam_cli_contract.py
 python3 tools/test_adam_codex_phone.py
 python3 tools/test_adam_venice_review_gate.py
-python3 -m py_compile tools/adam.py tools/adam_codex_phone.py tools/adam_venice_reviewed.py tools/accept_adam_executive_phone.py tools/vlad_swarm_daemon.py
+python3 tools/test_venice_plan_review.py
+python3 tools/test_venice_review_memory.py
+node --test tools/fortress_online_v2_boot.test.mjs
+python3 -m py_compile \
+  tools/adam.py \
+  tools/adam_codex_phone.py \
+  tools/adam_venice_reviewed.py \
+  tools/adam_planned_venice.py \
+  tools/venice_plan_review.py \
+  tools/venice_review.py \
+  tools/venice_review_memory.py \
+  tools/accept_adam_executive_phone.py \
+  tools/vlad_swarm_daemon.py
 
 TMP_TARGET="$TARGET.tmp.$$"
 cat > "$TMP_TARGET" <<EOF
@@ -49,7 +69,9 @@ bash tools/ensure_adam_phone_brain.sh | tee "$BRAIN_RECEIPT"
 grep -q '"ok":true' "$BRAIN_RECEIPT" || { echo 'BLOCKED: Adam phone model did not become healthy.' >&2; exit 5; }
 
 python3 tools/accept_adam_executive_phone.py | tee "$ACCEPT_RECEIPT"
-grep -q '"ok": true' "$ACCEPT_RECEIPT" || { echo 'BLOCKED: Adam Venice-reviewed Codex worker acceptance failed.' >&2; exit 6; }
+grep -q '"ok": true' "$ACCEPT_RECEIPT" || { echo 'BLOCKED: Adam planned/Venice-reviewed Codex worker acceptance failed.' >&2; exit 6; }
+grep -q '"venicePlanReviewReceiptVerified": true' "$ACCEPT_RECEIPT" || { echo 'BLOCKED: Adam pre-execution Venice plan receipt not verified.' >&2; exit 7; }
+grep -q '"veniceStopReviewReceiptVerified": true' "$ACCEPT_RECEIPT" || { echo 'BLOCKED: Adam completion Venice receipt not verified.' >&2; exit 8; }
 
 SOURCE_SHA="unknown"
 if command -v git >/dev/null 2>&1 && git -C "$ROOT" rev-parse HEAD >/dev/null 2>&1; then
@@ -63,18 +85,22 @@ path,source_commit,worker_sha,target,worker,canary,accept_path,brain_path=sys.ar
 accept=json.load(open(accept_path,encoding='utf-8'))
 brain=json.load(open(brain_path,encoding='utf-8'))
 obj={
-  'schema':'adam-cli-install-v10-codex-triplet-venice-daemon',
+  'schema':'adam-cli-install-v11-plan-venice-stop-memory-daemon',
   'ok':True,
   'sourceCommit':source_commit,
   'workerSha256':worker_sha,
   'target':target,
   'worker':worker,
-  'launcher':'termux-native-codex-worker-venice-reviewed',
-  'interactiveMode':'codex-worker-loop',
+  'launcher':'termux-native-codex-worker-planned-venice-reviewed',
+  'interactiveMode':'research-plan-jars-antagonize-venice-execute',
   'codexLocalDocs':accept.get('codexLocalDocs',[]),
   'codexLocalDocsLoaded':accept.get('codexLocalDocsLoaded') is True,
   'jarPersonalityGate':accept.get('jarGate') is True,
-  'veniceStopReview':accept.get('veniceStopReview') is True,
+  'venicePlanReview':accept.get('venicePlanReviewReceiptVerified') is True,
+  'venicePlanDirective':accept.get('venicePlanDirective'),
+  'selectedJudgmentJars':accept.get('selectedJudgmentJars',[]),
+  'veniceStopReview':accept.get('veniceStopReviewReceiptVerified') is True,
+  'veniceStopDirective':accept.get('veniceStopDirective'),
   'daemonBackoff':accept.get('daemonBackoff') is True,
   'knowsOwner':accept.get('knowsOwner') is True,
   'genericAssistantLeak':accept.get('genericAssistantLeak') is True,
@@ -87,4 +113,4 @@ open(path,'w',encoding='utf-8').write(json.dumps(obj,indent=2,sort_keys=True)+'\
 print(json.dumps(obj,indent=2,sort_keys=True))
 PY
 
-echo "ADAM CODEX-LOCAL/VENICE/DAEMON PHONE WORKER INSTALLED receipt=$RECEIPT"
+echo "ADAM RESEARCH/PLAN/JARS/VENICE/CODEX PHONE WORKER INSTALLED receipt=$RECEIPT"
