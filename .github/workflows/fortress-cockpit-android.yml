@@ -5,8 +5,11 @@ on:
     paths:
       - 'android/fortress-cockpit/**'
       - 'tools/fortress_prompt.py'
+      - 'tools/fortress_multimedia.py'
+      - 'tools/fortress_multimedia_test.py'
       - 'tools/setup_fortress_cockpit.sh'
       - 'config/fortress-prompt.json'
+      - 'config/fortress-multimedia.json'
       - '.github/workflows/fortress-cockpit-android.yml'
   workflow_dispatch:
 
@@ -19,11 +22,16 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
-      - name: Verify compiler and Android build
+      - name: Verify compiler, multimedia arsenal, and Android build
         shell: bash
         run: |
           set -euo pipefail
-          python -m py_compile tools/fortress_prompt.py
+          python -m py_compile tools/fortress_prompt.py tools/fortress_multimedia.py tools/fortress_multimedia_test.py
+          python tools/fortress_multimedia_test.py
+          FORTRESS_HOME_CENTER="$PWD" python tools/fortress_multimedia.py profile >/tmp/fortress-device-profile.json
+          FORTRESS_HOME_CENTER="$PWD" python tools/fortress_multimedia.py plan >/tmp/fortress-combined-arms-plan.json
+          python -m json.tool config/fortress-prompt.json >/dev/null
+          python -m json.tool config/fortress-multimedia.json >/dev/null
           bash -n tools/setup_fortress_cockpit.sh
           git diff --check
 
