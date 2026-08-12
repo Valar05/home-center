@@ -139,7 +139,7 @@ jobs:
           cat build/operator-overlay/operator-overlay-receipt.json
 
       - name: Publish exact APK from merged main
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        if: (github.event_name == 'push' && github.ref == 'refs/heads/main') || github.event_name == 'workflow_dispatch'
         env:
           SOURCE_SHA: ${{ github.sha }}
         run: |
