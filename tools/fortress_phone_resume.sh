@@ -31,35 +31,54 @@ bash tools/run_fortress_local_contracts.sh
 bash tools/fortress_refresh_phone_evidence.sh "$EVIDENCE"
 
 # Venice FAIL -> phone worker repair -> local tests -> durable push -> fresh phone
-# proof -> Venice again. She judges the same evidence that final acceptance stores.
+# proof -> Venice again. Default 0 means no arbitrary retry ceiling.
 python3 tools/fortress_venice_loop.py \
   --base "$BASE" \
   --head "$HEAD_REF" \
   --acceptance "$ACCEPTANCE" \
   --evidence-file "$EVIDENCE" \
-  --max-rounds "${HC_FORTRESS_VENICE_ROUNDS:-4}" \
+  --max-rounds "${HC_FORTRESS_VENICE_ROUNDS:-0}" \
   | tee "$STATE/$STAMP.venice-loop.json"
 
 python3 - "$STATE/$STAMP.venice-loop.json" "$EVIDENCE" "$RECEIPT" <<'PY'
-import json,sys,time
-loop=json.load(open(sys.argv[1],encoding='utf-8'))
-ev=json.load(open(sys.argv[2],encoding='utf-8'))
+import hashlib,json,sys,time
+loop_path,evidence_path,out_path=sys.argv[1:]
+loop_raw=open(loop_path,'rb').read(); ev_raw=open(evidence_path,'rb').read()
+loop=json.loads(loop_raw); ev=json.loads(ev_raw)
+rounds=loop.get('rounds') or []
+last=rounds[-1] if rounds else {}
+venice=last.get('venice') or {}
 obj={
-  'schema':'fortress-phone-resume-v5',
+  'schema':'fortress-phone-resume-v6',
   'ok': bool(loop.get('ok')) and bool(ev.get('ok')),
-  'veniceLoop': loop,
-  'phoneEvidence': ev,
+  'device':'primary-phone',
+  'venice':{
+    'passed': bool(venice.get('externalReviewGateSatisfied')),
+    'verdict': venice.get('verdict'),
+    'rounds': len(rounds),
+    'lastReviewReceipt': last.get('receipt'),
+    'loopSha256': hashlib.sha256(loop_raw).hexdigest(),
+  },
+  'phoneEvidence':{
+    'ok': bool(ev.get('ok')),
+    'evidenceSha256': ev.get('evidenceSha256'),
+    'receiptSha256': hashlib.sha256(ev_raw).hexdigest(),
+  },
   'ciUsed': False,
   'godotRuntimeUsed': False,
   'completedAtEpoch': int(time.time()),
 }
-open(sys.argv[3],'w',encoding='utf-8').write(json.dumps(obj,indent=2,sort_keys=True)+'\n')
-print(json.dumps(obj,indent=2,sort_keys=True))
+text=json.dumps(obj,indent=2,sort_keys=True)+'\n'
+if len(text.encode()) > 32768:
+  raise SystemExit('compact acceptance receipt unexpectedly exceeds 32 KiB')
+open(out_path,'w',encoding='utf-8').write(text)
+print(text,end='')
 if not obj['ok']:
   raise SystemExit(1)
 PY
 
-# Preserve phone-produced acceptance evidence durably after Venice PASS.
+# Preserve a compact phone-produced acceptance pointer after Venice PASS. Full
+# runtime/review receipts remain in phone state and are addressed by hashes.
 DEST="artifacts/fortress/phone/$STAMP.json"
 mkdir -p "$(dirname "$DEST")"
 cp "$RECEIPT" "$DEST"
