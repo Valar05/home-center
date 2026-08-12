@@ -8,6 +8,7 @@ python3 tools/test_fortress_phone_evidence.py
 python3 tools/test_vlad_overlay_self_heal_contract.py
 python3 tools/test_venice_selfheal_contract.py
 python3 tools/test_venice_review_memory.py
+python3 tools/test_venice_plan_review.py
 python3 tools/test_adam_cli_contract.py
 python3 tools/test_adam_overlay_contract.py
 node --test tools/fortress_online_v2_boot.test.mjs
@@ -21,5 +22,6 @@ python3 -m py_compile \
   tools/fortress_collect_phone_evidence.py \
   tools/venice_review.py \
   tools/venice_review_memory.py \
+  tools/venice_plan_review.py \
   tools/fortress_venice_loop.py
 printf 'FORTRESS LOCAL CONTRACTS PASS\n'
