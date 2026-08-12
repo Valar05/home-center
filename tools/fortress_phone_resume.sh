@@ -8,62 +8,39 @@ cd "$ROOT"
 
 STAMP="$(date +%Y%m%d-%H%M%S)"
 RECEIPT="$STATE/$STAMP.json"
-VENICE_RECEIPT="$STATE/$STAMP.venice.json"
-BASE="${HC_FORTRESS_BASE:-HEAD~1}"
+# Active Pixel Forge/overlay slice anchor. Override for a new commission.
+BASE="${HC_FORTRESS_BASE:-cf75f35f3a379f3612f6b8a560a53229c9c8417c}"
 HEAD_REF="${HC_FORTRESS_HEAD:-HEAD}"
-ACCEPTANCE="${HC_FORTRESS_ACCEPTANCE:-Recover Adam overlay on primary phone, establish Vlad Pixel Forge capability telemetry, and bootstrap the bounded phone-local MNN pixel-art experiment without GitHub CI or Godot runtime delivery.}"
-
-write_receipt() {
-  python3 - "$RECEIPT" "$@" <<'PY'
-import json,sys,time
-path=sys.argv[1]
-obj={'schema':'fortress-phone-resume-v1','createdAtEpoch':int(time.time()),'argv':sys.argv[2:]}
-open(path,'w',encoding='utf-8').write(json.dumps(obj,indent=2,sort_keys=True)+'\n')
-print(json.dumps(obj,indent=2,sort_keys=True))
-PY
-}
-
-ensure_venice() {
-  if python3 tools/venice_review.py --repo "$ROOT" --base "$BASE" --head "$HEAD_REF" --acceptance "$ACCEPTANCE" --receipt "$VENICE_RECEIPT"; then
-    return 0
-  fi
-
-  if grep -q 'ollama_unavailable' "$VENICE_RECEIPT" 2>/dev/null || ! curl -fsS http://127.0.0.1:11434/api/tags >/dev/null 2>&1; then
-    if command -v ollama >/dev/null 2>&1; then
-      (ollama serve >"$STATE/ollama.log" 2>&1 & echo $! >"$STATE/ollama.pid") || true
-      sleep 2
-    fi
-  fi
-
-  MODEL="${VENICE_REVIEW_MODEL:-qwen2.5-coder:1.5b}"
-  if command -v ollama >/dev/null 2>&1 && ! ollama list 2>/dev/null | awk 'NR>1{print $1}' | grep -qx "$MODEL"; then
-    ollama pull "$MODEL" || true
-  fi
-
-  python3 tools/venice_review.py --repo "$ROOT" --base "$BASE" --head "$HEAD_REF" --acceptance "$ACCEPTANCE" --receipt "$VENICE_RECEIPT"
-}
+ACCEPTANCE="${HC_FORTRESS_ACCEPTANCE:-Recover Adam overlay on primary phone, establish Vlad Pixel Forge capability telemetry, bootstrap and exercise the bounded phone-local MNN pixel-art experiment, compact survivors into tiny canonical artifacts, and obtain Venice semantic PASS after applying her critique. GitHub CI is forbidden; Godot may be a forge but is not the delivery runtime.}"
 
 # Canonical source first. No Actions/CI invocation.
 git fetch origin main
 git checkout main
 git pull --ff-only origin main
 
+# The phone is the proof body.
+bash tools/run_fortress_local_contracts.sh
 bash tools/recover_adam_overlay_phone.sh
 python3 tools/vlad_pixel_forge_probe.py | tee "$STATE/$STAMP.pixel-probe.json"
-
-# Bootstrap only after the probe succeeds. The bootstrap itself enforces bounded storage/headroom.
 bash tools/bootstrap_vlad_pixel_forge_mnn_phone.sh
 
-# Venice decides whether this coding slice may stop. If she is unavailable, repair and retry.
-ensure_venice
+# Venice is not a report-at-the-end step. FAIL -> repair through the deterministic
+# coding lane -> re-review. The loop exits nonzero only on a real repair-lane
+# boundary, bounded repeated failure, or an exception.
+python3 tools/fortress_venice_loop.py \
+  --base "$BASE" \
+  --head "$HEAD_REF" \
+  --acceptance "$ACCEPTANCE" \
+  --max-rounds "${HC_FORTRESS_VENICE_ROUNDS:-4}" \
+  | tee "$STATE/$STAMP.venice-loop.json"
 
-python3 - "$VENICE_RECEIPT" "$RECEIPT" <<'PY'
+python3 - "$STATE/$STAMP.venice-loop.json" "$RECEIPT" <<'PY'
 import json,sys,time
-v=json.load(open(sys.argv[1],encoding='utf-8'))
+loop=json.load(open(sys.argv[1],encoding='utf-8'))
 obj={
-  'schema':'fortress-phone-resume-v1',
-  'ok': bool(v.get('externalReviewGateSatisfied')),
-  'venice': v,
+  'schema':'fortress-phone-resume-v2',
+  'ok': bool(loop.get('ok')),
+  'veniceLoop': loop,
   'overlayReceipt': str(__import__('pathlib').Path.home()/'.local/state/home-center/adam-overlay-recovery.json'),
   'pixelProbe': 'recorded',
   'mnnBootstrap': 'attempted',
