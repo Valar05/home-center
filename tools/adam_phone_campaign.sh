@@ -44,7 +44,9 @@ receipts(){
 }
 backoff(){ local n="$1"; [ "$n" -gt 6 ] && n=6; local seq=(0 1 2 4 8 15 30); sleep "${seq[$n]}"; }
 
-preserve_local(){
+preserve_workspace(){
+  ORIGINAL_REF="$(git -C "$ROOT" symbolic-ref --short -q HEAD || git -C "$ROOT" rev-parse HEAD)" || return 1
+  printf '%s\n' "$ORIGINAL_REF" > "$STATE_ROOT/original-ref"
   PRESERVED_STASH=""
   if [ -n "$(git -C "$ROOT" status --porcelain)" ]; then
     local stamp
@@ -52,17 +54,25 @@ preserve_local(){
     git -C "$ROOT" stash push -u -m "adam-campaign-preserve-$stamp" >/dev/null || return 1
     PRESERVED_STASH="$(git -C "$ROOT" stash list -1 --format='%gd')"
     printf '%s\n' "$PRESERVED_STASH" > "$STATE_ROOT/preserved-stash"
-    json_state preserve-local preserved "phone edits preserved as $PRESERVED_STASH"
+    json_state preserve-local preserved "phone edits preserved as $PRESERVED_STASH; original ref=$ORIGINAL_REF"
+  else
+    json_state preserve-local preserved "clean workspace preserved; original ref=$ORIGINAL_REF"
   fi
 }
-restore_local(){
-  local stash="${PRESERVED_STASH:-}"
+restore_workspace(){
+  local original="${ORIGINAL_REF:-}" stash="${PRESERVED_STASH:-}"
+  [ -n "$original" ] || [ ! -f "$STATE_ROOT/original-ref" ] || original="$(cat "$STATE_ROOT/original-ref")"
   [ -n "$stash" ] || [ ! -f "$STATE_ROOT/preserved-stash" ] || stash="$(cat "$STATE_ROOT/preserved-stash")"
-  [ -n "$stash" ] || return 0
-  json_state restore-local running "restoring $stash"
-  if git -C "$ROOT" stash pop --index "$stash"; then rm -f "$STATE_ROOT/preserved-stash"; PRESERVED_STASH=""; return 0; fi
-  json_state reconcile-required blocked "preserved phone edits conflict while restoring $stash; stash/history retained"
-  return 1
+  if [ -n "$original" ]; then
+    json_state restore-ref running "restoring original ref $original"
+    if ! git -C "$ROOT" checkout "$original" >>"$LOG" 2>&1; then json_state reconcile-required blocked "could not restore original ref $original"; return 1; fi
+  fi
+  if [ -n "$stash" ]; then
+    json_state restore-local running "restoring $stash"
+    if ! git -C "$ROOT" stash pop --index "$stash" >>"$LOG" 2>&1; then json_state reconcile-required blocked "preserved phone edits conflict while restoring $stash; stash/history retained"; return 1; fi
+    rm -f "$STATE_ROOT/preserved-stash"; PRESERVED_STASH=""
+  fi
+  rm -f "$STATE_ROOT/original-ref"; ORIGINAL_REF=""
 }
 
 repair_with_adam(){
@@ -89,10 +99,9 @@ import json,os,sys,time
 home=os.path.expanduser('~/.local/state/home-center'); menu_ok=sys.argv[2]=='1'
 paths={'install':home+'/adam-cli-install-receipt.json','plan':home+'/adam-daemon/venice-plan-review-last.json','stop':home+'/adam-daemon/venice-review-last.json'}
 try:data={k:json.load(open(v,encoding='utf-8')) for k,v in paths.items()}
-except Exception as e:
- print(json.dumps({'ok':False,'error':str(e),'paths':paths}));raise SystemExit(2)
+except Exception as e: print(json.dumps({'ok':False,'error':str(e),'paths':paths}));raise SystemExit(2)
 ok=(data['install'].get('ok') is True and data['plan'].get('directive')=='PLAN_ALLOWED' and data['plan'].get('planPermissionGranted') is True and data['stop'].get('directive')=='STOP_ALLOWED' and data['stop'].get('externalReviewGateSatisfied') is True and menu_ok)
-obj={'schema':'adam-phone-campaign-receipt-v2','ok':ok,'paths':paths,'verifiedAtEpoch':int(time.time()),'continuingValue':{'stableCommand':'adam-campaign','commands':['run','resume','status','receipts','menu','overlay','phone-hands'],'state':home+'/adam-campaign/state.json','history':home+'/adam-campaign/history.jsonl','notificationMenu':menu_ok,'notificationMenuProbe':home+'/adam-campaign/menu-probe.log','overlayRecovery':True,'phoneHandsRecovery':True,'selfHeal':True,'daemonBackoff':True}}
+obj={'schema':'adam-phone-campaign-receipt-v2','ok':ok,'paths':paths,'verifiedAtEpoch':int(time.time()),'continuingValue':{'stableCommand':'adam-campaign','commands':['run','resume','status','receipts','menu','overlay','phone-hands'],'state':home+'/adam-campaign/state.json','history':home+'/adam-campaign/history.jsonl','notificationMenu':menu_ok,'notificationMenuProbe':home+'/adam-campaign/menu-probe.log','overlayRecovery':True,'phoneHandsRecovery':True,'selfHeal':True,'daemonBackoff':True,'workspacePreservation':True}}
 open(sys.argv[1],'w',encoding='utf-8').write(json.dumps(obj,indent=2,sort_keys=True)+'\n');print(json.dumps(obj,indent=2,sort_keys=True));raise SystemExit(0 if ok else 2)
 PY
 }
@@ -102,13 +111,13 @@ run_campaign(){
   mkdir "$LOCK" 2>/dev/null || { json_state already-running healthy "campaign already active; stable command/menu remain callable"; return 0; }
   trap 'rmdir "$LOCK" 2>/dev/null || true' EXIT INT TERM
   cd "$ROOT" || return 2
-  PRESERVED_STASH=""
+  PRESERVED_STASH=""; ORIGINAL_REF=""
   json_state bootstrap running "starting/resuming Adam phone campaign; continuing service already installed"
-  preserve_local || { json_state preserve-failed blocked "could not preserve local phone work"; return 3; }
+  preserve_workspace || { json_state preserve-failed blocked "could not preserve original branch/worktree"; return 3; }
   json_state sync running "syncing canonical main"
-  git fetch origin main >>"$LOG" 2>&1 || { restore_local || true; json_state sync-failed degraded "git fetch failed; adam-campaign resume will retry"; return 4; }
-  git checkout main >>"$LOG" 2>&1 || { restore_local || true; json_state sync-failed blocked "cannot checkout main"; return 5; }
-  git pull --ff-only origin main >>"$LOG" 2>&1 || { restore_local || true; json_state sync-failed degraded "fast-forward pull failed; preserved state retained for resume"; return 6; }
+  git fetch origin main >>"$LOG" 2>&1 || { restore_workspace || true; json_state sync-failed degraded "git fetch failed; adam-campaign resume will retry"; return 4; }
+  git checkout main >>"$LOG" 2>&1 || { restore_workspace || true; json_state sync-failed blocked "cannot checkout main"; return 5; }
+  git pull --ff-only origin main >>"$LOG" 2>&1 || { restore_workspace || true; json_state sync-failed degraded "fast-forward pull failed; preserved state retained for resume"; return 6; }
 
   local round=0
   while true; do
@@ -136,8 +145,8 @@ run_campaign(){
     bash tools/install_adam_cli.sh >"$STATE_ROOT/install.log" 2>&1 || true
   done
 
-  persist_repairs || { json_state persist-failed degraded "accepted locally but canonical persistence failed; adam-campaign resume will retry"; restore_local || true; return 21; }
-  restore_local || return 20
+  persist_repairs || { json_state persist-failed degraded "accepted locally but canonical persistence failed; adam-campaign resume will retry"; restore_workspace || true; return 21; }
+  restore_workspace || return 20
   install_service
   json_state healthy healthy "Adam campaign accepted; persistent self-heal/status/menu remain installed"
   cat "$LATEST"
