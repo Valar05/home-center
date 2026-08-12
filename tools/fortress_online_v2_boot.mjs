@@ -8,6 +8,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const SCRIPT_DIR = path.dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = path.resolve(SCRIPT_DIR, '..');
+const CONFIG_PATH = path.join(REPO_ROOT,'functions','fortress_v2_config.json');
 const REQUIRED_SKILL_DOCUMENTS = Object.freeze(['fortress-core','phone-runtime']);
 
 const CORE_SKILLS = Object.freeze([
@@ -30,6 +31,15 @@ function sha256(text){ return crypto.createHash('sha256').update(text).digest('h
 function uniq(xs){ return [...new Set(xs)]; }
 function splitRoots(raw){ return uniq(String(raw||'').split(path.delimiter).map(x=>x.trim()).filter(Boolean)); }
 function defaultSkillRoots(extra=[]){ return uniq([REPO_ROOT,...extra].map(x=>path.resolve(x))); }
+function loadRuntimeConfig(configPath=CONFIG_PATH){
+  if(!fs.existsSync(configPath)) throw new Error(`FORTRESS_BOOT_MISSING_CONFIG:${configPath}`);
+  const raw=fs.readFileSync(configPath,'utf8');
+  let value; try { value=JSON.parse(raw); } catch(err){ throw new Error(`FORTRESS_BOOT_INVALID_CONFIG:${err.message}`); }
+  if(value?.schema!=='fortress.online.v2.config.v1') throw new Error(`FORTRESS_BOOT_INVALID_CONFIG_SCHEMA:${value?.schema||'missing'}`);
+  const handoff=value?.operatorHandoff||{};
+  if(handoff.maxExecutableHandoffsPerTurn!==1 || handoff.requireReceiptBeforeNextHandoff!==true || handoff.forbidDownstreamCommandsBeforeReceipt!==true) throw new Error('FORTRESS_BOOT_INVALID_HANDOFF_POLICY');
+  return {path:path.resolve(configPath),raw,value,sha256:sha256(raw)};
+}
 function walkSkillFiles(root){
   const out=[];
   if(!fs.existsSync(root)) return out;
@@ -55,7 +65,10 @@ function renderCoreSkill(skill){
   const inv=skill.invariants?.length?`\ninvariants:\n- ${skill.invariants.join('\n- ')}`:'';
   return `# CORE SKILL: ${skill.id}\nrequired: ${skill.required===true}\npurpose: ${skill.purpose}${ops}${inv}`;
 }
-function buildBootCapsule({skillRoots, extraSkills=[]}={}){
+function renderRuntimeConfig(config){
+  return `# FORTRESS V2 RUNTIME CONFIG\nsource: ${config.path}\nsha256: ${config.sha256}\n${JSON.stringify(config.value,null,2)}`;
+}
+function buildBootCapsule({skillRoots, extraSkills=[], configPath=CONFIG_PATH}={}){
   const roots=skillRoots===undefined?defaultSkillRoots():defaultSkillRoots(skillRoots);
   const discovered=loadDiscoveredSkills(roots);
   const discoveredIds=new Set(discovered.map(x=>x.id));
@@ -63,17 +76,20 @@ function buildBootCapsule({skillRoots, extraSkills=[]}={}){
   const phone=CORE_SKILLS.find(x=>x.id==='phone-hands');
   if(!phone || !phone.operations?.includes('phone_hands.devices') || !phone.operations?.includes('phone_hands.enqueue') || !phone.operations?.includes('phone_hands.get')) requiredMissing.push('phone-hands-contract');
   if(requiredMissing.length) throw new Error(`FORTRESS_BOOT_MISSING_REQUIRED_SKILLS:${uniq(requiredMissing).join(',')}`);
+  const runtimeConfig=loadRuntimeConfig(configPath);
+  const configContent=renderRuntimeConfig(runtimeConfig);
 
   const loadedSkills=[
     ...CORE_SKILLS.map(skill=>({id:skill.id,source:'core-contract',required:true,sha256:sha256(renderCoreSkill(skill)),content:renderCoreSkill(skill)})),
+    {id:'runtime-config',source:'fortress_v2_config.json',required:true,file:runtimeConfig.path,sha256:runtimeConfig.sha256,content:configContent},
     ...discovered.map(skill=>({...skill,source:'SKILL.md',required:REQUIRED_SKILL_DOCUMENTS.includes(skill.id)})),
     ...extraSkills.map(skill=>({id:skill.id||'extra',source:'extra',required:skill.required===true,sha256:sha256(String(skill.content||'')),content:String(skill.content||'')})),
   ];
   const bootPrompt=loadedSkills.map(skill=>`\n--- FORTRESS SKILL ${skill.id} | ${skill.source} | sha256:${skill.sha256} ---\n${skill.content}`).join('\n');
   return {
-    kind:'fortress.online.v2.boot-capsule.v3',
+    kind:'fortress.online.v2.boot-capsule.v4',
     isolation:'fortress-online-v2',
-    policy:'load every discovered SKILL.md content; canonical skill books are boot-required; never first-match and stop',
+    policy:'load every discovered SKILL.md body and runtime configuration telemetry; canonical skill books and runtime config are boot-required; never first-match and stop',
     skillRoots:roots,
     requiredSkillDocuments:REQUIRED_SKILL_DOCUMENTS,
     coreSkillCount:CORE_SKILLS.length,
@@ -82,6 +98,7 @@ function buildBootCapsule({skillRoots, extraSkills=[]}={}){
     loadedSkills,
     bootPrompt,
     bootPromptSha256:sha256(bootPrompt),
+    configurationTelemetry:{path:runtimeConfig.path,sha256:runtimeConfig.sha256,revision:runtimeConfig.value.revision,operatorHandoff:runtimeConfig.value.operatorHandoff,incidents:runtimeConfig.value.telemetry?.incidents||[]},
     phoneHands:{required:true,operations:phone.operations,invariants:phone.invariants},
   };
 }
@@ -93,4 +110,4 @@ if(invokedAsScript){
   process.stdout.write(JSON.stringify(capsule,null,2)+'\n');
 }
 
-export { REPO_ROOT, REQUIRED_SKILL_DOCUMENTS, CORE_SKILLS, splitRoots, defaultSkillRoots, walkSkillFiles, loadDiscoveredSkills, buildBootCapsule };
+export { REPO_ROOT, CONFIG_PATH, REQUIRED_SKILL_DOCUMENTS, CORE_SKILLS, splitRoots, defaultSkillRoots, loadRuntimeConfig, walkSkillFiles, loadDiscoveredSkills, buildBootCapsule };
