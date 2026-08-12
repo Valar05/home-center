@@ -1,0 +1,43 @@
+name: Chromium Throne Contract
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'browser-porch/extension/**'
+      - 'tools/install_chromium_throne.ps1'
+      - '.github/workflows/chromium-throne-contract.yml'
+  pull_request:
+    paths:
+      - 'browser-porch/extension/**'
+      - 'tools/install_chromium_throne.ps1'
+      - '.github/workflows/chromium-throne-contract.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Syntax
+        run: |
+          node --check browser-porch/extension/service-worker.js
+          node --check browser-porch/extension/sidepanel.js
+          node --check browser-porch/extension/swarm-core.mjs
+      - name: Throne behavior
+        run: |
+          node --test browser-porch/extension/swarm-core.test.mjs
+          node --test browser-porch/extension/throne_context.test.mjs
+      - name: Installer contract
+        shell: pwsh
+        run: |
+          $src = Get-Content tools/install_chromium_throne.ps1 -Raw
+          if ($src -notmatch "0\.5\.0") { throw 'installer not pinned to Chromium Throne 0.5.0' }
+          if ($src -notmatch "automaticSwarmBabysitting = \$true") { throw 'installer receipt does not assert swarm babysitting' }
+          if ($src -notmatch "maxSwarmSlices = 12") { throw 'installer receipt does not bound swarm slices' }
