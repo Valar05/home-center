@@ -16,18 +16,19 @@ $RawBase = "https://raw.githubusercontent.com/Valar05/home-center/$PinnedExtensi
 Write-Host '[Chromium Throne] Installing real desktop runtime'
 New-Item -ItemType Directory -Force -Path $Root,$ExtensionDir,$BrowserRoot,$ProfileDir | Out-Null
 
-$LocalExtensionDir = $null
-if ($SourceRepo) {
-  $candidate = Join-Path $SourceRepo 'browser-porch\extension'
-  if (Test-Path $candidate) { $LocalExtensionDir = $candidate }
+$UseLocalGit = $false
+if ($SourceRepo -and (Test-Path (Join-Path $SourceRepo '.git'))) {
+  & git -C $SourceRepo cat-file -e "$PinnedExtensionCommit^{commit}" 2>$null
+  if ($LASTEXITCODE -eq 0) { $UseLocalGit = $true }
 }
 
 foreach ($name in $Files) {
   $dest = Join-Path $ExtensionDir $name
-  if ($LocalExtensionDir) {
-    $source = Join-Path $LocalExtensionDir $name
-    if (!(Test-Path $source)) { throw "Missing extension source file: $source" }
-    Copy-Item -Path $source -Destination $dest -Force
+  if ($UseLocalGit) {
+    $gitObject = "$PinnedExtensionCommit`:browser-porch/extension/$name"
+    $content = & git -C $SourceRepo show $gitObject
+    if ($LASTEXITCODE -ne 0) { throw "Failed to read pinned extension object: $gitObject" }
+    [IO.File]::WriteAllText($dest, (($content -join [Environment]::NewLine) + [Environment]::NewLine), (New-Object Text.UTF8Encoding($false)))
   } else {
     Invoke-WebRequest -UseBasicParsing -Uri "$RawBase/$name" -OutFile $dest
   }
@@ -74,7 +75,7 @@ Copy-Item $launcher $desktopLauncher -Force
 $receipt = [ordered]@{
   installedAt = (Get-Date).ToString('o')
   extensionCommit = $PinnedExtensionCommit
-  extensionSource = $(if ($LocalExtensionDir) { $LocalExtensionDir } else { $RawBase })
+  extensionSource = $(if ($UseLocalGit) { "git:$SourceRepo@$PinnedExtensionCommit" } else { $RawBase })
   extensionDir = $ExtensionDir
   extensionName = $manifest.name
   extensionVersion = $manifest.version
