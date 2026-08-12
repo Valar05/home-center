@@ -11,9 +11,12 @@ on:
       - 'tools/fortress_phone_kernel_test.py'
       - 'tools/fortress_cli.py'
       - 'tools/fortress_read_aloud.py'
+      - 'tools/fortress_read_aloud_test.py'
       - 'tools/android_phone_status_tts.py'
+      - 'tools/bootstrap_fortress_bridge_fork.ps1'
       - 'tools/setup_fortress_cockpit.sh'
       - 'tools/setup_fortress_phone_kernel.sh'
+      - 'skills/daemon-loop/SKILL.md'
       - 'config/fortress-prompt.json'
       - 'config/fortress-multimedia.json'
       - 'config/fortress-phone-kernel.json'
@@ -33,9 +36,10 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          python -m py_compile tools/fortress_prompt.py tools/fortress_multimedia.py tools/fortress_multimedia_test.py tools/fortress_phone_kernel.py tools/fortress_phone_kernel_test.py tools/fortress_cli.py tools/fortress_read_aloud.py tools/android_phone_status_tts.py
+          python -m py_compile tools/fortress_prompt.py tools/fortress_multimedia.py tools/fortress_multimedia_test.py tools/fortress_phone_kernel.py tools/fortress_phone_kernel_test.py tools/fortress_cli.py tools/fortress_read_aloud.py tools/fortress_read_aloud_test.py tools/android_phone_status_tts.py
           python tools/fortress_multimedia_test.py
           python tools/fortress_phone_kernel_test.py
+          python tools/fortress_read_aloud_test.py
           HOME="$(mktemp -d)" FORTRESS_HOME_CENTER="$PWD" python tools/fortress_cli.py --status >/tmp/fortress-cli-status.json
           HOME="$(mktemp -d)" FORTRESS_HOME_CENTER="$PWD" python tools/fortress_cli.py -c 'fortress status' >/tmp/fortress-cli-command.txt
           python tools/fortress_read_aloud.py --doctor >/tmp/fortress-read-doctor.json
