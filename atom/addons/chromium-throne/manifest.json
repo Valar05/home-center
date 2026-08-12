@@ -1,0 +1,35 @@
+{
+  "schema": "atom.addon.v1",
+  "id": "chromium-throne",
+  "name": "Chromium Throne",
+  "version": "0.2.0",
+  "host": "Atom",
+  "surface": "phone-command-center",
+  "entry": "index.html",
+  "offlinePrepared": true,
+  "terminalRequired": false,
+  "directChatgptOrchestration": false,
+  "capabilities": [
+    "command.submit",
+    "mission.observe",
+    "receipt.observe",
+    "diagnostic.repair",
+    "browser.tabs.observe",
+    "browser.tabs.command"
+  ],
+  "hostApi": {
+    "status": "/v1/atom/status",
+    "commands": "/v1/atom/commands",
+    "receipts": "/v1/atom/receipts",
+    "diagnose": "/v1/atom/diagnose",
+    "throneTabs": "/v1/atom/throne/tabs"
+  },
+  "rules": [
+    "Atom owns command routing and durable mission state.",
+    "Chromium Throne is an add-on, never the command authority.",
+    "The user never has to operate a ChatGPT terminal to advance a mission.",
+    "ChatGPT may be selected by Atom as a worker but is not a required user-facing surface.",
+    "All commands produce durable receipts or explicit blocked states.",
+    "Offline commands queue locally and are replayed when Atom becomes reachable."
+  ]
+}
