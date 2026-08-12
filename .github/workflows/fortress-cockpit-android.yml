@@ -1,0 +1,56 @@
+name: Fortress Cockpit Android
+
+on:
+  pull_request:
+    paths:
+      - 'android/fortress-cockpit/**'
+      - 'tools/fortress_prompt.py'
+      - 'tools/setup_fortress_cockpit.sh'
+      - 'config/fortress-prompt.json'
+      - '.github/workflows/fortress-cockpit-android.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify compiler and Android build
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile tools/fortress_prompt.py
+          bash -n tools/setup_fortress_cockpit.sh
+          git diff --check
+
+          SDK_ROOT="${ANDROID_SDK_ROOT:-${ANDROID_HOME:-/usr/local/lib/android/sdk}}"
+          export ANDROID_SDK_ROOT="$SDK_ROOT" ANDROID_HOME="$SDK_ROOT"
+          SDKMANAGER="$SDK_ROOT/cmdline-tools/latest/bin/sdkmanager"
+          if [ ! -x "$SDKMANAGER" ]; then
+            SDKMANAGER="$(find "$SDK_ROOT/cmdline-tools" -type f -name sdkmanager -perm -111 2>/dev/null | head -1)"
+          fi
+          yes | "$SDKMANAGER" --licenses >/dev/null 2>&1 || true
+          "$SDKMANAGER" 'platforms;android-35' 'build-tools;35.0.0' >/dev/null
+
+          GRADLE_HOME=/tmp/gradle-8.9
+          if [ ! -x "$GRADLE_HOME/bin/gradle" ]; then
+            curl -fsSL --retry 3 https://services.gradle.org/distributions/gradle-8.9-bin.zip -o /tmp/gradle.zip
+            unzip -q /tmp/gradle.zip -d /tmp
+          fi
+
+          cd android/fortress-cockpit
+          "$GRADLE_HOME/bin/gradle" :app:compileDebugJavaWithJavac :app:assembleDebug --no-daemon --stacktrace
+          test -s app/build/outputs/apk/debug/app-debug.apk
+
+      - name: Artifact receipt
+        shell: bash
+        run: |
+          set -euo pipefail
+          APK=android/fortress-cockpit/app/build/outputs/apk/debug/app-debug.apk
+          echo "source=${GITHUB_SHA}"
+          echo "bytes=$(stat -c '%s' "$APK")"
+          echo "sha256=$(sha256sum "$APK" | awk '{print $1}')"
