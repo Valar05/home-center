@@ -30,18 +30,11 @@ for required in \
   test -s "$REPO/$required" || { echo "BLOCKED: missing runtime file: $required" >&2; exit 2; }
 done
 
-# Adam's canonical voice is Pocket. Provision local PCM playback rather than
-# silently swapping to Android system TTS when ffplay is absent.
-if python - <<'PY'
-import importlib.util,sys
-sys.exit(0 if importlib.util.find_spec('pocket_tts') else 1)
-PY
-then
-  if ! command -v ffplay >/dev/null 2>&1; then
-    echo '[fortress] Pocket TTS present; provisioning ffmpeg/ffplay playback...'
-    pkg install -y ffmpeg
-  fi
-fi
+# Reuse the already-proven phone PocketTTS transport. Do not provision a second
+# player/model stack here. Adam differs by voice profile, not by audio plumbing.
+test -x "$HOME/bin/pocket-tts-phone" || { echo 'BLOCKED: existing PocketTTS phone wrapper missing: ~/bin/pocket-tts-phone' >&2; exit 3; }
+test -x /system/bin/am || { echo 'BLOCKED: Android activity launcher unavailable' >&2; exit 3; }
+mkdir -p /storage/emulated/0/Documents/FortressAudio
 
 mkdir -p "$STATE" "$BIN" "$BOOT" "$HOME/.config/home-center"
 python -m py_compile \
@@ -88,7 +81,7 @@ echo "$VOICE_DOCTOR"
 python - "$VOICE_DOCTOR" <<'PY'
 import json,sys
 r=json.loads(sys.argv[1])
-if not r.get('ok') or r.get('preferred')!='pocket-stream':
-    raise SystemExit('BLOCKED: Adam canonical Pocket voice is not callable: '+str(r.get('blockedReason') or r))
+if not r.get('ok') or r.get('preferred')!='pocket-home-center':
+    raise SystemExit('BLOCKED: shared Pocket/Home Center voice transport is not callable: '+str(r.get('blockedReason') or r))
 PY
 "$BIN/fortress-read" --profile
