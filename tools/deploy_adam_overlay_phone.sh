@@ -114,4 +114,5 @@ fi
 # adds no second daemon/service and leaves the overlay request protocol unchanged.
 bash tools/install_adam_cli.sh
 bash tools/setup_vlad_swarm_daemon.sh
-echo "ADAM OVERLAY + CLI DEPLOYED overlay_receipt=$RECEIPT cli_receipt=$STATE/adam-cli-install-receipt.json"
+bash tools/accept_adam_cli_phone.sh
+echo "ADAM OVERLAY + CLI ACCEPTED overlay_receipt=$RECEIPT cli_receipt=$STATE/adam-cli-install-receipt.json acceptance=$STATE/adam-cli-phone-acceptance.json"
