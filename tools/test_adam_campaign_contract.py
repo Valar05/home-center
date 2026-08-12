@@ -23,11 +23,13 @@ for token in [
 
 for token in [
     'adam-campaign', 'history.jsonl', 'preserve_local', 'restore_local',
-    'repair_with_adam', 'persist_repairs', 'while true', 'backoff',
+    'repair_with_adam', 'persist_repairs', 'write_acceptance', 'while true', 'backoff',
     'install_service', 'run|resume', 'status)', 'receipts)', 'overlay)', 'phone-hands)',
     'PLAN_ALLOWED', 'STOP_ALLOWED', 'Self-heal Adam phone campaign',
     'git rebase --abort', 'home_center_status_menu.sh" probe',
     "'notificationMenu':menu_ok", "adam-phone-campaign-receipt-v2",
+    'verify-failed repairing', 'repair_with_adam "$STATE_ROOT/verify.log"',
+    'accepted locally but canonical persistence failed; adam-campaign resume will retry',
 ]:
     assert token in campaign, token
 
@@ -36,6 +38,7 @@ assert 'for round in' not in campaign
 assert 'git stash push -u' in campaign
 assert 'git stash pop --index' in campaign
 assert 'git push origin HEAD:main' in campaign
+assert 'return "$verify_rc"' not in campaign
 
 for token in [
     "--ongoing true", "Resume Adam", "Status", "Recovery", "Overlay on", "Phone Hands", "Receipts", "Back",
