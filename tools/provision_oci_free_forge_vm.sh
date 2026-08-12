@@ -6,7 +6,6 @@ fail(){ printf '[blocked] %s\n' "$*" >&2; exit 1; }
 have(){ command -v "$1" >/dev/null 2>&1; }
 STATE_DIR="$HOME/.home-center/cloud-forge"
 mkdir -p "$STATE_DIR"
-OCI='proot-distro login debian -- oci'
 run_oci(){ proot-distro login debian -- oci "$@"; }
 ensure_cli(){
   have proot-distro || { say "Installing Termux Debian capsule"; pkg install -y proot-distro; }
@@ -20,13 +19,11 @@ ensure_cli(){
 ensure_auth(){
   if run_oci iam region list >/dev/null 2>&1; then ok "OCI authentication already valid"; return; fi
   say "Oracle account authentication is required once"
-  printf '%s\n' "The OCI CLI will open its login bootstrap. Complete the Oracle sign-in in your browser; it will create and upload the API key automatically."
+  printf '%s\n' "Complete Oracle sign-in when the OCI bootstrap opens it. It creates and uploads the API key automatically."
   proot-distro login debian -- oci setup bootstrap
   run_oci iam region list >/dev/null 2>&1 || fail "OCI authentication did not complete. Rerun after finishing Oracle login."
   ok "OCI authentication proven"
 }
-q(){ run_oci "$@" --query 'data' --raw-output; }
-first(){ sed -n '1p'; }
 ensure_network(){
   TENANCY=$(run_oci iam availability-domain list --query 'data[0]."compartment-id"' --raw-output)
   AD=$(run_oci iam availability-domain list --query 'data[0].name' --raw-output)
@@ -54,19 +51,19 @@ ensure_instance(){
   if [ -z "$INSTANCE" ] || [ "$INSTANCE" = null ]; then
     say "Selecting Always Free compute shape"
     SHAPE=VM.Standard.E2.1.Micro
-    IMAGE=$(run_oci compute image list --compartment-id "$TENANCY" --operating-system 'Oracle Linux' --shape "$SHAPE" --sort-by TIMECREATED --sort-order DESC --query 'data[0].id' --raw-output 2>/dev/null || true)
+    IMAGE=$(run_oci compute image list --compartment-id "$TENANCY" --operating-system Ubuntu --shape "$SHAPE" --sort-by TIMECREATED --sort-order DESC --query 'data[0].id' --raw-output 2>/dev/null || true)
     if [ -z "$IMAGE" ] || [ "$IMAGE" = null ]; then
       SHAPE=VM.Standard.A1.Flex
-      IMAGE=$(run_oci compute image list --compartment-id "$TENANCY" --operating-system 'Oracle Linux' --shape "$SHAPE" --sort-by TIMECREATED --sort-order DESC --query 'data[0].id' --raw-output)
+      IMAGE=$(run_oci compute image list --compartment-id "$TENANCY" --operating-system Ubuntu --shape "$SHAPE" --sort-by TIMECREATED --sort-order DESC --query 'data[0].id' --raw-output)
     fi
-    [ -n "$IMAGE" ] && [ "$IMAGE" != null ] || fail "No compatible Always Free image found."
+    [ -n "$IMAGE" ] && [ "$IMAGE" != null ] || fail "No compatible Ubuntu Always Free image found."
     PUBKEY=$(cat "$HOME/.ssh/id_ed25519.pub")
     META=$(python - <<PY
 import json
 print(json.dumps({'ssh_authorized_keys': '''$PUBKEY'''}))
 PY
 )
-    say "Launching Always Free VM with public IPv4"
+    say "Launching Always Free Ubuntu VM with public IPv4"
     if [ "$SHAPE" = VM.Standard.A1.Flex ]; then
       INSTANCE=$(run_oci compute instance launch --availability-domain "$AD" --compartment-id "$TENANCY" --display-name home-center-forge-01 --shape "$SHAPE" --shape-config '{"ocpus":1,"memoryInGBs":6}' --image-id "$IMAGE" --subnet-id "$SUBNET" --assign-public-ip true --metadata "$META" --wait-for-state RUNNING --query 'data.id' --raw-output)
     else
@@ -78,7 +75,7 @@ PY
   VNIC=$(run_oci compute vnic-attachment list --compartment-id "$TENANCY" --instance-id "$INSTANCE" --query 'data[0]."vnic-id"' --raw-output)
   HOST=$(run_oci network vnic get --vnic-id "$VNIC" --query 'data."public-ip"' --raw-output)
   [ -n "$HOST" ] && [ "$HOST" != null ] || fail "VM is running but has no public IPv4."
-  printf '%s\n' "FORGE_HOST=$HOST" "FORGE_USER=opc" "FORGE_PORT=22" > "$STATE_DIR/oci-provisioned.env"
+  printf '%s\n' "FORGE_HOST=$HOST" "FORGE_USER=ubuntu" "FORGE_PORT=22" > "$STATE_DIR/oci-provisioned.env"
   cat "$STATE_DIR/oci-provisioned.env"
   ok "OCI Always Free forge VM IPv4: $HOST"
 }
