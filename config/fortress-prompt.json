@@ -1,5 +1,9 @@
 {
-  "version": 1,
+  "version": 2,
+  "cockpit": {
+    "title": "Fortress Cockpit",
+    "subtitle": "Phone command center — deterministic, local, config-driven"
+  },
   "places": {
     "home": "$HOME",
     "home-center": "/storage/emulated/0/Documents/GodotProjects/home-center",
@@ -9,57 +13,68 @@
     {
       "name": "fortress-status",
       "phrases": ["status", "fortress status", "what is alive", "what's alive"],
-      "argv": ["python", "{repo}/tools/fortress_prompt.py", "--self-status"]
+      "argv": ["python", "{repo}/tools/fortress_prompt.py", "--self-status"],
+      "ui": {"label": "Fortress status", "group": "Fortress", "prominent": true, "description": "Compiler, config, and grammar health"}
     },
     {
       "name": "git-status",
       "phrases": ["git status", "repo status", "is this dirty"],
-      "argv": ["git", "status", "--short", "--branch"]
+      "argv": ["git", "status", "--short", "--branch"],
+      "ui": {"label": "Repo status", "group": "Repository"}
     },
     {
       "name": "git-pull",
       "phrases": ["git pull", "pull", "update this repo"],
-      "argv": ["git", "pull", "--ff-only"]
+      "argv": ["git", "pull", "--ff-only"],
+      "ui": {"label": "Update repo", "group": "Repository"}
     },
     {
       "name": "git-clean-preview",
       "phrases": ["git clean", "clean preview", "what is junk"],
-      "argv": ["git", "clean", "-nd"]
+      "argv": ["git", "clean", "-nd"],
+      "ui": {"label": "Preview junk", "group": "Repository", "description": "Dry preview only"}
     },
     {
       "name": "phone-relay-status",
       "phrases": ["phone relay status", "relay status", "is phone relay alive"],
-      "argv": ["sh", "{repo}/tools/home_center_phone_relay_recover.sh", "status"]
+      "argv": ["sh", "{repo}/tools/home_center_phone_relay_recover.sh", "status"],
+      "ui": {"label": "Relay status", "group": "Phone", "prominent": true}
     },
     {
       "name": "phone-relay-recover",
       "phrases": ["recover phone relay", "fix phone relay", "relay recover"],
-      "argv": ["sh", "{repo}/tools/home_center_phone_relay_recover.sh"]
+      "argv": ["sh", "{repo}/tools/home_center_phone_relay_recover.sh"],
+      "ui": {"label": "Recover relay", "group": "Phone", "description": "Restart the Home Center phone relay"}
     },
     {
       "name": "eve-status",
       "phrases": ["eve status", "weed schedule status", "session status"],
-      "argv": ["{home}/bin/eve-session", "status"]
+      "argv": ["{home}/bin/eve-session", "status"],
+      "ui": {"label": "Eve status", "group": "Eve"}
     },
     {
       "name": "eve-begin",
       "phrases": ["eve begin", "begin session", "start session"],
-      "argv": ["{home}/bin/eve-session", "begin"]
+      "argv": ["{home}/bin/eve-session", "begin"],
+      "ui": {"label": "Begin window", "group": "Eve"}
     },
     {
       "name": "eve-end",
       "phrases": ["eve end", "end session", "stop session"],
-      "argv": ["{home}/bin/eve-session", "end"]
+      "argv": ["{home}/bin/eve-session", "end"],
+      "ui": {"label": "End window", "group": "Eve"}
     },
     {
       "name": "eve-skip",
       "phrases": ["eve skip", "skip tonight", "skip session"],
-      "argv": ["{home}/bin/eve-session", "skip"]
+      "argv": ["{home}/bin/eve-session", "skip"],
+      "ui": {"label": "Skip tonight", "group": "Eve"}
     },
     {
       "name": "continue-here",
       "phrases": ["continue here", "code here", "continue"],
-      "argv": ["cn"]
+      "argv": ["cn"],
+      "ui": {"label": "Continue here", "group": "Coding", "prominent": true, "description": "Open the coding CLI in the current context"}
     }
   ]
 }
