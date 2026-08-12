@@ -3,16 +3,46 @@ set -euo pipefail
 
 ROOT="$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)"
 OUT="${HC_CAULDRON_OVERLAY_APK:-$ROOT/android/operator-overlay/app/build/outputs/apk/debug/app-debug.apk}"
-ENDPOINT="${FORTRESS_CAULDRON_SSH:-dclar@192.168.40.213}"
 STATE="$HOME/.local/state/home-center"
 mkdir -p "$STATE" "$(dirname "$OUT")"
 
 cd "$ROOT"
-python tools/ssh_axis.py check --target cauldron --json > "$STATE/cauldron-ssh-axis.json" || {
+
+# First try configured/cached endpoint. If it is stale, repair WLAN and discover
+# THECAULDRON by authenticated hostname, never by guessing an IP.
+if ! python tools/ssh_axis.py check --target cauldron --json > "$STATE/cauldron-ssh-axis.json"; then
   cat "$STATE/cauldron-ssh-axis.json" >&2
-  echo 'BLOCKED: THECAULDRON SSH Axis is not callable; refusing to pretend the desktop forge exists.' >&2
-  exit 41
-}
+  echo '[forge] Configured THECAULDRON endpoint is stale; recovering WLAN and rediscovering authenticated host.' >&2
+  set +e
+  RESOLVED="$(python tools/resolve_cauldron_ssh.py 2>"$STATE/cauldron-discovery.err")"
+  RESOLVE_RC=$?
+  set -e
+  if [ $RESOLVE_RC -ne 0 ] || [ -z "$RESOLVED" ]; then
+    cat "$STATE/cauldron-discovery.err" >&2 || true
+    printf '%s\n' "$RESOLVED" >&2
+    echo 'BLOCKED: THECAULDRON could not be rediscovered on the current WLAN with the existing SSH key.' >&2
+    exit 41
+  fi
+  export FORTRESS_CAULDRON_SSH="$RESOLVED"
+  echo "[forge] Rediscovered THECAULDRON endpoint: $FORTRESS_CAULDRON_SSH"
+  python tools/ssh_axis.py check --target cauldron --json > "$STATE/cauldron-ssh-axis.json" || {
+    cat "$STATE/cauldron-ssh-axis.json" >&2
+    echo 'BLOCKED: rediscovered THECAULDRON did not pass the end-to-end SSH Axis gate.' >&2
+    exit 41
+  }
+fi
+
+ENDPOINT="${FORTRESS_CAULDRON_SSH:-dclar@192.168.40.213}"
+# If resolver previously succeeded in another invocation, consume its durable endpoint.
+if [ "$ENDPOINT" = 'dclar@192.168.40.213' ] && [ -s "$HOME/.local/state/fortress-online/cauldron-ssh-endpoint.json" ]; then
+  CACHED="$(python - "$HOME/.local/state/fortress-online/cauldron-ssh-endpoint.json" <<'PY'
+import json,sys
+try: print(json.load(open(sys.argv[1],encoding='utf-8')).get('endpoint',''))
+except Exception: print('')
+PY
+)"
+  [ -z "$CACHED" ] || ENDPOINT="$CACHED"
+fi
 
 HOSTPORT="$ENDPOINT"
 PORT=22
@@ -22,7 +52,6 @@ if [[ "$HOSTPORT" =~ ^(.+):([0-9]+)$ ]]; then
 fi
 
 SOURCE_SHA="$(git rev-parse HEAD)"
-REMOTE_APK='C:\\Users\\Public\\home-center-adam-overlay.apk'
 REMOTE_PS="$STATE/build-adam-overlay-cauldron.ps1"
 cat > "$REMOTE_PS" <<'PS'
 $ErrorActionPreference = 'Stop'
