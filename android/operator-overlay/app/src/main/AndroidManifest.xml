@@ -3,57 +3,23 @@
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PROJECTION" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
 
-    <application
-        android:allowBackup="false"
-        android:label="Home Center Operator"
-        android:supportsRtl="true"
-        android:theme="@android:style/Theme.Material.Light.NoActionBar">
-
-        <activity
-            android:name=".MainActivity"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
+    <application android:allowBackup="false" android:label="Home Center Operator" android:supportsRtl="true" android:theme="@android:style/Theme.Material.Light.NoActionBar">
+        <activity android:name=".MainActivity" android:exported="true">
+            <intent-filter><action android:name="android.intent.action.MAIN" /><category android:name="android.intent.category.LAUNCHER" /></intent-filter>
         </activity>
-
-        <service
-            android:name=".OperatorOverlayService"
-            android:exported="true"
-            android:permission="android.permission.DUMP"
-            android:foregroundServiceType="specialUse">
-            <property
-                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
-                android:value="Persistent user-visible Home Center operator control overlay" />
+        <service android:name=".OperatorOverlayService" android:exported="true" android:permission="android.permission.DUMP" android:foregroundServiceType="specialUse">
+            <property android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE" android:value="Persistent user-visible Home Center operator control overlay" />
         </service>
-
-        <receiver
-            android:name=".OverlayUpdateReceiver"
-            android:exported="true"
-            android:permission="android.permission.DUMP">
-            <intent-filter>
-                <action android:name="com.homecenter.operatoroverlay.UPDATE" />
-                <action android:name="com.homecenter.operatoroverlay.HEARTBEAT" />
-            </intent-filter>
+        <service android:name=".VeniceAudioCaptureService" android:exported="false" android:foregroundServiceType="mediaProjection" />
+        <receiver android:name=".OverlayUpdateReceiver" android:exported="true" android:permission="android.permission.DUMP">
+            <intent-filter><action android:name="com.homecenter.operatoroverlay.UPDATE" /><action android:name="com.homecenter.operatoroverlay.HEARTBEAT" /></intent-filter>
         </receiver>
-
-        <receiver
-            android:name=".BootReceiver"
-            android:exported="false">
-            <intent-filter>
-                <action android:name="android.intent.action.BOOT_COMPLETED" />
-            </intent-filter>
-        </receiver>
-
-        <provider
-            android:name=".OperatorStateProvider"
-            android:authorities="com.homecenter.operatoroverlay.state"
-            android:exported="true"
-            android:readPermission="android.permission.DUMP"
-            android:grantUriPermissions="false" />
+        <receiver android:name=".BootReceiver" android:exported="false"><intent-filter><action android:name="android.intent.action.BOOT_COMPLETED" /></intent-filter></receiver>
+        <provider android:name=".OperatorStateProvider" android:authorities="com.homecenter.operatoroverlay.state" android:exported="true" android:readPermission="android.permission.DUMP" android:grantUriPermissions="false" />
     </application>
 </manifest>
