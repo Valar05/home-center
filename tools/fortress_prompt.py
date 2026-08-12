@@ -28,7 +28,6 @@ def deep_merge(base: Any, override: Any) -> Any:
         for key, value in override.items():
             out[key] = deep_merge(out[key], value) if key in out else value
         return out
-    # lists intentionally replace, so config authors can fully control grammar
     return override
 
 
@@ -100,11 +99,41 @@ def self_status(cfg: dict[str, Any]) -> int:
     return 0
 
 
+def catalog(cfg: dict[str, Any]) -> int:
+    items = []
+    for intent in cfg.get("intents", []):
+        ui = intent.get("ui") or {}
+        if not intent.get("enabled", True) or ui.get("hidden", False):
+            continue
+        phrases_list = [normalize(p) for p in intent.get("phrases", [])]
+        if not phrases_list:
+            continue
+        items.append({
+            "name": intent.get("name", "unnamed"),
+            "label": ui.get("label", phrases_list[0]),
+            "group": ui.get("group", "Commands"),
+            "prompt": ui.get("prompt", phrases_list[0]),
+            "description": ui.get("description", ""),
+            "destructive": bool(ui.get("destructive", False)),
+            "prominent": bool(ui.get("prominent", False)),
+            "phrases": phrases_list,
+        })
+    print(json.dumps({
+        "version": cfg.get("version", 1),
+        "title": (cfg.get("cockpit") or {}).get("title", "Fortress Cockpit"),
+        "subtitle": (cfg.get("cockpit") or {}).get("subtitle", "Deterministic phone command center"),
+        "items": items,
+    }))
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     argv = sys.argv[1:] if argv is None else argv
     cfg = load_config()
     if argv == ["--self-status"]:
         return self_status(cfg)
+    if argv == ["--catalog-json"]:
+        return catalog(cfg)
     if argv and argv[0] == "--list":
         for phrase, intent in phrases(cfg):
             print(f"{phrase}\t{intent.get('name','unnamed')}")
