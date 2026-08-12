@@ -18,13 +18,37 @@ mkdir -p "$OUTDIR" "$WORK" "$PLATFORM_DIR" "$(dirname "$KEYSTORE")"
 need_cmd() { command -v "$1" >/dev/null 2>&1; }
 
 install_termux_tools() {
+  local packages=()
+  need_cmd javac || packages+=(openjdk-17)
+  need_cmd keytool || packages+=(openjdk-17)
+  need_cmd aapt2 || packages+=(aapt2)
+  need_cmd d8 || packages+=(d8)
+  need_cmd apksigner || packages+=(apksigner)
+  need_cmd zip || packages+=(zip)
+  need_cmd unzip || packages+=(unzip)
+  need_cmd curl || packages+=(curl)
+
+  if [ ${#packages[@]} -gt 0 ]; then
+    # Deduplicate package names without assuming associative arrays on every shell build.
+    local unique=() p seen q
+    for p in "${packages[@]}"; do
+      seen=0
+      for q in "${unique[@]:-}"; do [ "$q" = "$p" ] && seen=1 && break; done
+      [ "$seen" -eq 1 ] || unique+=("$p")
+    done
+    echo "[build] Installing missing Termux packages: ${unique[*]}"
+    pkg install -y "${unique[@]}"
+  fi
+
   local missing=()
   for c in javac aapt2 d8 apksigner zip unzip curl keytool; do
     need_cmd "$c" || missing+=("$c")
   done
-  [ ${#missing[@]} -eq 0 ] && return 0
-  echo "[build] Installing Termux-native Android build tools: ${missing[*]}"
-  pkg install -y openjdk-17 aapt2 d8 apksigner zip unzip curl
+  [ ${#missing[@]} -eq 0 ] || {
+    echo "BLOCKED: required Termux build commands still unavailable after package install: ${missing[*]}" >&2
+    echo "Current repositories may not expose the package that provides them; no alternate toolchain was substituted." >&2
+    exit 30
+  }
 }
 
 ensure_android_jar() {
