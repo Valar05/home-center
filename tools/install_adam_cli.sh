@@ -12,7 +12,7 @@ ACCEPT_RECEIPT="$STATE/adam-phone-worker-acceptance.json"
 BRAIN_RECEIPT="$STATE/adam-phone-brain-receipt.json"
 
 mkdir -p "$STATE" "$BIN_DIR"
-for f in "$ROUTER" "$WORKER" "$ROOT/tools/adam_codex_phone.py" "$ROOT/AGENTS.md"; do
+for f in "$ROUTER" "$WORKER" "$ROOT/tools/adam_codex_phone.py" "$ROOT/AGENTS.md" "$ROOT/MEMORIES.md" "$ROOT/SKILLS.md"; do
   [ -f "$f" ] || { echo "BLOCKED: Adam/Codex component missing: $f" >&2; exit 2; }
 done
 PYTHON_BIN="$(command -v python3 || true)"
@@ -63,7 +63,7 @@ path,source_commit,worker_sha,target,worker,canary,accept_path,brain_path=sys.ar
 accept=json.load(open(accept_path,encoding='utf-8'))
 brain=json.load(open(brain_path,encoding='utf-8'))
 obj={
-  'schema':'adam-cli-install-v9-codex-local-venice-daemon',
+  'schema':'adam-cli-install-v10-codex-triplet-venice-daemon',
   'ok':True,
   'sourceCommit':source_commit,
   'workerSha256':worker_sha,
