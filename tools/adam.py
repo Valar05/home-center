@@ -4,7 +4,8 @@
 One-shot modes are user-selected and remain the transport contract used by the
 Android operator overlay. The interactive ``shell`` mode is only a thin prompt
 around those same explicit lanes; it does not infer, delegate, or auto-route.
-Every executed request still prints one bounded JSON receipt.
+Bare ``adam`` opens that deterministic shell. Every executed request still
+prints one bounded JSON receipt.
 """
 from __future__ import annotations
 
@@ -253,7 +254,7 @@ def run_shell(initial_lane: str, cwd: str, timeout: int):
 
 def main(argv=None):
     parser = argparse.ArgumentParser(prog="adam", description="Explicit no-agent Home Center console")
-    parser.add_argument("mode", choices=ONE_SHOT_MODES + ("shell",))
+    parser.add_argument("mode", nargs="?", choices=ONE_SHOT_MODES + ("shell",), default="shell")
     parser.add_argument("text", nargs="?", default="")
     parser.add_argument("--cwd", default=str(ROOT))
     parser.add_argument("--timeout", type=int, default=180)
