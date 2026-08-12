@@ -26,6 +26,7 @@ for token in [
     'repair_with_adam', 'persist_repairs', 'while true', 'backoff',
     'install_service', 'run|resume', 'status)', 'receipts)', 'overlay)', 'phone-hands)',
     'PLAN_ALLOWED', 'STOP_ALLOWED', 'Self-heal Adam phone campaign',
+    'git rebase --abort',
 ]:
     assert token in campaign, token
 
@@ -36,11 +37,12 @@ assert 'git stash pop --index' in campaign
 assert 'git push origin HEAD:main' in campaign
 
 for token in [
-    "--ongoing true", "Resume Adam", "Overlay on", "Repair Phone Hands",
-    'recover_adam_overlay_phone.sh', 'phone_hands_watchdog.sh', 'adam-campaign run'
+    "--ongoing true", "Resume Adam", "Status", "Recovery", "Overlay on", "Phone Hands", "Receipts", "Back",
+    'recover_adam_overlay_phone.sh', 'phone_hands_watchdog.sh', 'adam-campaign run',
+    'case "$MODE" in', 'recovery)', 'status)', 'receipts)'
 ]:
     assert token in menu, token
 
 assert 'install-service' in bootstrap
 assert 'adam-campaign" run' in bootstrap
-print('Adam continuing-value campaign + notification menu contract: PASS')
+print('Adam continuing-value campaign + nested notification menu contract: PASS')
