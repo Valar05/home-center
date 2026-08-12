@@ -19,7 +19,6 @@ OVERLAY_RECOVERY_COOLDOWN = int(os.environ.get("HC_OVERLAY_RECOVERY_COOLDOWN", "
 
 
 def now(): return int(time.time())
-
 def run(cmd, timeout=20, cwd=None):
     p=subprocess.run(cmd,text=True,capture_output=True,timeout=timeout,cwd=cwd)
     return {"cmd":cmd,"rc":p.returncode,"stdout":p.stdout.strip()[-4000:],"stderr":p.stderr.strip()[-4000:]}
@@ -61,7 +60,51 @@ def _last_adam_request_id():
     try:return int((STATE_DIR/"adam-last-request-id").read_text(encoding="utf-8").strip())
     except Exception:return 0
 def _set_last_adam_request_id(value):STATE_DIR.mkdir(parents=True,exist_ok=True);(STATE_DIR/"adam-last-request-id").write_text(str(int(value))+"\n",encoding="utf-8")
+
+def _pending_response_path(request_id):
+    STATE_DIR.mkdir(parents=True,exist_ok=True)
+    return STATE_DIR/f"adam-pending-response-{int(request_id):020d}.json"
+def _save_pending_response(data):
+    p=_pending_response_path(data["requestId"]);tmp=p.with_suffix(".tmp");tmp.write_text(json.dumps(data,indent=2,sort_keys=True)+"\n",encoding="utf-8");tmp.replace(p);return p
+def _pending_response_paths():
+    STATE_DIR.mkdir(parents=True,exist_ok=True);return sorted(STATE_DIR.glob("adam-pending-response-*.json"))
+def _load_pending_response(path):
+    try:return json.loads(path.read_text(encoding="utf-8"))
+    except Exception as exc:
+        append_receipt({"kind":"adam.delivery.pending.invalid","ok":False,"path":str(path),"error":f"{type(exc).__name__}: {exc}"})
+        return None
+def _deliver_pending_responses():
+    """Preserve request ordering: do not start newer work until older output is delivered."""
+    for path in _pending_response_paths():
+        data=_load_pending_response(path)
+        if not data:
+            # Corrupt delivery state is a real halt for this item; quarantine it
+            # rather than rerunning the potentially side-effecting task.
+            bad=path.with_suffix(".invalid.json")
+            try:path.replace(bad)
+            except Exception:pass
+            return False
+        request_id=int(data.get("requestId") or 0);mode=str(data.get("mode") or "unknown")
+        if request_id<=_last_adam_request_id():
+            try:path.unlink()
+            except Exception:pass
+            continue
+        next_attempt=int(data.get("nextAttemptEpoch") or 0)
+        if next_attempt>now():return False
+        update=operator_update(data.get("display", ""),f"Adam/{mode}")
+        if update["rc"]==0:
+            append_receipt({"kind":"adam.delivery","ok":True,"requestId":request_id,"mode":mode,"attempts":int(data.get("attempts") or 0)+1,"overlayUpdate":update,"pending":str(path)})
+            _set_last_adam_request_id(request_id)
+            try:path.unlink()
+            except Exception:pass
+            continue
+        attempts=int(data.get("attempts") or 0)+1;delay=min(60,2**min(attempts,5));data["attempts"]=attempts;data["nextAttemptEpoch"]=now()+delay;data["lastOverlayUpdate"]=update;_save_pending_response(data)
+        append_receipt({"kind":"adam.delivery","ok":False,"requestId":request_id,"mode":mode,"attempts":attempts,"backoffSeconds":delay,"nextAttemptEpoch":data["nextAttemptEpoch"],"overlayUpdate":update,"pending":str(path)})
+        return False
+    return True
+
 def process_adam_overlay(repo_root):
+    if not _deliver_pending_responses():return
     query=rish(f"content query --uri {shlex.quote(OPERATOR_STATE_URI)}")
     if query["rc"]!=0:return
     raw=query["stdout"]
@@ -72,17 +115,17 @@ def process_adam_overlay(repo_root):
     try:text=base64.b64decode(payload,validate=True).decode("utf-8")
     except Exception as exc:
         event={"kind":"adam.request","ok":False,"requestId":request_id,"mode":mode,"error":f"invalid_payload: {exc}"};append_receipt(event);operator_update(event["error"],f"Adam/{mode}");_set_last_adam_request_id(request_id);return
-    # Adam is daemon-governed. Do not impose a short caller timeout: the worker
-    # itself backs off transient dependencies, checkpoints long work, and may
+    # No short caller timeout. Adam owns transient backoff/checkpoints and may
     # stop only through canonical Venice review. If this process dies mid-run,
-    # the request remains unacknowledged and will be retried after restart.
+    # the request stays unacknowledged and is retried after restart.
     result=run(["python3",str(Path(repo_root)/"tools"/"adam.py"),mode,text,"--cwd",repo_root],timeout=None,cwd=repo_root);display=result["stdout"] or result["stderr"] or f"Adam {mode} exited {result['rc']}"
     try:
         parsed=json.loads(result["stdout"]);display=parsed.get("response") or parsed.get("stdout") or parsed.get("detail") or parsed.get("error") or display
         if parsed.get("stderr"):display=(str(display)+"\n"+str(parsed["stderr"])).strip()
     except Exception:pass
-    update=operator_update(display,f"Adam/{mode}");append_receipt({"kind":"adam.request","ok":result["rc"]==0 and update["rc"]==0,"requestId":request_id,"mode":mode,"result":result,"overlayUpdate":update,"daemonWait":True})
-    _set_last_adam_request_id(request_id)
+    pending={"schema":"adam-overlay-pending-response-v1","requestId":request_id,"mode":mode,"display":str(display)[:8000],"taskRc":result["rc"],"taskResult":result,"attempts":0,"nextAttemptEpoch":0,"createdAtEpoch":now()};pending_path=_save_pending_response(pending)
+    append_receipt({"kind":"adam.request.executed","ok":result["rc"]==0,"requestId":request_id,"mode":mode,"result":result,"pending":str(pending_path),"daemonWait":True})
+    _deliver_pending_responses()
 
 def _review_bucket(name):
     p=STATE_DIR/name;p.mkdir(parents=True,exist_ok=True);return p
