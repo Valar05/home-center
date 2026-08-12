@@ -87,7 +87,10 @@ persist_repairs(){
     git -C "$ROOT" commit -m "Self-heal Adam phone campaign" >>"$LOG" 2>&1 || return 1
   fi
   git -C "$ROOT" fetch origin main >>"$LOG" 2>&1 || return 1
-  git -C "$ROOT" rebase origin/main >>"$LOG" 2>&1 || return 1
+  if ! git -C "$ROOT" rebase origin/main >>"$LOG" 2>&1; then
+    git -C "$ROOT" rebase --abort >>"$LOG" 2>&1 || true
+    return 1
+  fi
   git -C "$ROOT" push origin HEAD:main >>"$LOG" 2>&1 || return 1
   return 0
 }
