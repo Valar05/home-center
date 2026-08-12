@@ -1,0 +1,36 @@
+{
+  "schema": "fortress.online.v2.config.v1",
+  "revision": 1,
+  "operatorHandoff": {
+    "maxExecutableHandoffsPerTurn": 1,
+    "requireReceiptBeforeNextHandoff": true,
+    "forbidDownstreamCommandsBeforeReceipt": true,
+    "stopAtFirstRuntimeBoundary": true,
+    "source": "explicit-user-correction"
+  },
+  "learning": {
+    "activeExplicitRules": [
+      {
+        "id": "operator-single-handoff",
+        "kind": "handoff_fanout",
+        "rule": "When operator input is genuinely required, emit exactly one executable handoff and consume its receipt before emitting any downstream executable handoff.",
+        "status": "active_explicit",
+        "source": "explicit-user-correction"
+      }
+    ]
+  },
+  "telemetry": {
+    "incidents": [
+      {
+        "id": "fortress-v2-20260812-multiple-handoff-after-boundary",
+        "kind": "handoff_fanout",
+        "observedAt": "2026-08-12T01:13:00Z",
+        "source": "chat-runtime",
+        "failure": "After reaching a real Termux runtime boundary, the assistant emitted multiple executable scripts/commands instead of one handoff and waiting for its receipt.",
+        "correction": "One executable handoff at a time; consume the runtime receipt before producing another.",
+        "regression": "A response at an operator-input boundary with more than one executable handoff, or a downstream executable command emitted before receipt consumption, must fail Fortress V2 acceptance.",
+        "status": "encoded_pending_suite"
+      }
+    ]
+  }
+}
