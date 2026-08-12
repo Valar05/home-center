@@ -14,6 +14,16 @@ jars = core.active_jars()
 assert "Venice Completion and Code Review Gate" in jars
 assert "Daemon Persistence and Connector Backoff" in jars
 
+# Top-level agent bootstrap must carry the same global stop law even for agents
+# that do not separately discover .continue rules.
+agents = (ROOT / "AGENTS.md").read_text(encoding="utf-8")
+assert "Venice completion review — all agents and workers" in agents
+assert "No agent or worker may certify its own completion" in agents
+assert "This requirement applies to **all work**" in agents
+assert "CONTINUE_REQUIRED" in agents and "HALT_REQUIRED" in agents and "STOP_ALLOWED" in agents
+assert "Non-code and conversational work" in agents
+assert "Failure or latency in the Venice path is not permission to bypass Venice" in agents
+
 verdict, directive, findings, _ = canonical.parse_review(
     "VERDICT: PASS\nDIRECTIVE: STOP_ALLOWED\nJAR: observable evidence\nNOTE: ok"
 )
@@ -37,7 +47,6 @@ with tempfile.TemporaryDirectory() as td:
     ev = reviewed.git_evidence(Path(td))
     assert ev["isGitRepo"] is False
 
-# Receipt proof is a deterministic persistence contract independent of model quality.
 with tempfile.TemporaryDirectory() as td:
     old_state = reviewed.STATE_DIR
     reviewed.STATE_DIR = Path(td)
@@ -87,4 +96,4 @@ for token in [
     assert token in source, f"reviewed worker missing {token}"
 
 assert 'step budget exhausted' not in source
-print("Adam Codex-local / canonical Venice / receipt / daemon contract: PASS")
+print("Adam global Venice / Codex-local / receipt / daemon contract: PASS")
