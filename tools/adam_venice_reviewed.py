@@ -5,7 +5,7 @@ This is the only conversational/executive entrypoint shipped as bare `adam`.
 The tiny local model proposes one typed action at a time. Deterministic code
 executes tools, loads Codex-local steering documents, checkpoints long work,
 backs off transient failures, and refuses to stop until canonical Venice review
-allows it.
+allows it. Every Venice ruling is persisted as evidence.
 """
 from __future__ import annotations
 
@@ -55,11 +55,7 @@ def repo_root(workspace: Path) -> Path | None:
 
 
 def codex_local_documents(workspace: Path) -> tuple[str, list[str]]:
-    """Load the actual Codex-local steering files that apply to this workspace.
-
-    Root documents are loaded first; deeper workspace documents follow so local
-    steering appears later in context. Missing optional files are not invented.
-    """
+    """Load actual project-local Codex steering files, root first then deeper."""
     root = repo_root(workspace) or ROOT
     dirs: list[Path] = []
     try:
@@ -102,7 +98,6 @@ def codex_local_documents(workspace: Path) -> tuple[str, list[str]]:
 
 
 def git_evidence(workspace: Path, base_commit: str | None = None) -> dict:
-    """Collect pinned task-base -> current HEAD plus staged/unstaged/untracked evidence."""
     evidence: dict[str, object] = {"workspace": str(workspace), "isGitRepo": False, "codeChanged": False}
     root = repo_root(workspace)
     if root is None:
@@ -171,6 +166,38 @@ def git_evidence(workspace: Path, base_commit: str | None = None) -> dict:
     return evidence
 
 
+def persist_venice_review(task: str, proposal: dict, review: dict) -> Path:
+    """Append durable proof that Venice was actually consulted before stopping."""
+    STATE_DIR.mkdir(parents=True, exist_ok=True)
+    ev = review.get("freshEvidence") or {}
+    compact = {
+        "schema": "adam-venice-stop-review-v1",
+        "createdAtEpoch": int(time.time()),
+        "taskSha256": hashlib.sha256(task.encode("utf-8")).hexdigest(),
+        "task": task[:4000],
+        "proposal": proposal,
+        "verdict": review.get("verdict"),
+        "directive": review.get("directive"),
+        "stopPermissionGranted": review.get("stopPermissionGranted") is True,
+        "externalReviewGateSatisfied": review.get("externalReviewGateSatisfied") is True,
+        "codeReviewFirst": review.get("codeReviewFirst") is True,
+        "judgmentJarApplied": review.get("judgmentJarApplied") or [],
+        "findings": review.get("findings") or [],
+        "reviewText": str(review.get("reviewText") or "")[:8000],
+        "baseCommit": ev.get("baseCommit"),
+        "headCommit": ev.get("headCommit"),
+        "diffFullSha256": ev.get("diffFullSha256"),
+    }
+    history = STATE_DIR / "venice-reviews.jsonl"
+    with history.open("a", encoding="utf-8") as f:
+        f.write(json.dumps(compact, ensure_ascii=False, sort_keys=True) + "\n")
+    last = STATE_DIR / "venice-review-last.json"
+    tmp = last.with_suffix(".tmp")
+    tmp.write_text(json.dumps(compact, ensure_ascii=False, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    tmp.replace(last)
+    return last
+
+
 def parse_canonical_review_compat(raw: str):
     verdict, directive, findings, jars = canonical_venice.parse_review(raw)
     malformed = {"reviewer_output_missing_strict_verdict", "reviewer_output_missing_strict_directive", "inconsistent_pass_directive", "fail_cannot_allow_stop"}
@@ -218,13 +245,14 @@ def canonical_venice_review(task: str, workspace: Path, proposal: dict, jars: st
         {"role": "system", "content": "You are Venice executing the canonical repository Judgment-Jar stop protocol. Return VERDICT/DIRECTIVE/JAR/FINDING/NOTE only."},
         {"role": "user", "content": prompt},
     ]
+    result = None
     for _ in range(max(1, attempts)):
         raw = worker.call_model(messages, timeout=120)
         verdict, directive, findings, applied, normalized = parse_canonical_review_compat(raw)
         malformed = {"reviewer_output_missing_strict_verdict", "reviewer_output_missing_strict_directive", "inconsistent_pass_directive", "fail_cannot_allow_stop"}
         if not any(f in malformed for f in findings):
             stop = verdict == "PASS" and directive == "STOP_ALLOWED" and all(bool(c.get("ok")) for c in checks)
-            return {
+            result = {
                 "schema": "venice-code-review-v2-phone",
                 "verdict": verdict,
                 "directive": directive,
@@ -238,27 +266,31 @@ def canonical_venice_review(task: str, workspace: Path, proposal: dict, jars: st
                 "codeReviewFirst": code_changed,
                 "freshEvidence": ev,
             }
+            break
         messages.append({"role": "assistant", "content": raw})
         messages.append({"role": "user", "content": "Malformed Venice review. Return only the canonical review fields; fail closed."})
-    return {
-        "schema": "venice-code-review-v2-phone",
-        "verdict": "FAIL",
-        "directive": "HALT_REQUIRED",
-        "stopPermissionGranted": False,
-        "continuationRequired": False,
-        "haltRequired": True,
-        "externalReviewGateSatisfied": False,
-        "judgmentJarApplied": ["unknowns remain unknown"],
-        "findings": ["canonical_venice_review_unavailable_after_recovery"],
-        "reviewText": "",
-        "codeReviewFirst": code_changed,
-        "freshEvidence": ev,
-    }
+    if result is None:
+        result = {
+            "schema": "venice-code-review-v2-phone",
+            "verdict": "FAIL",
+            "directive": "HALT_REQUIRED",
+            "stopPermissionGranted": False,
+            "continuationRequired": False,
+            "haltRequired": True,
+            "externalReviewGateSatisfied": False,
+            "judgmentJarApplied": ["unknowns remain unknown"],
+            "findings": ["canonical_venice_review_unavailable_after_recovery"],
+            "reviewText": "",
+            "codeReviewFirst": code_changed,
+            "freshEvidence": ev,
+        }
+    result["receipt"] = str(persist_venice_review(task, proposal, result))
+    return result
 
 
 def checkpoint(task: str, workspace: Path, step: int, messages: list[dict], task_base_commit: str | None) -> Path:
     STATE_DIR.mkdir(parents=True, exist_ok=True)
-    docs, loaded = codex_local_documents(workspace)
+    _, loaded = codex_local_documents(workspace)
     payload = {
         "schema": "adam-daemon-checkpoint-v3",
         "task": task,
@@ -315,11 +347,11 @@ def run_task(task: str, workspace: Path, max_steps: int | None = None, stop_afte
                         return 0
                     if review.get("continuationRequired"):
                         messages.append({"role": "assistant", "content": raw})
-                        messages.append({"role": "user", "content": "VENICE REVIEW: stopping denied. " + json.dumps({"findings": review.get("findings"), "reviewText": review.get("reviewText")}, ensure_ascii=False) + "\nEmit one valid typed action. Prose can talk only after Venice approval and can never execute."})
+                        messages.append({"role": "user", "content": "VENICE REVIEW: stopping denied. " + json.dumps({"findings": review.get("findings"), "reviewText": review.get("reviewText"), "receipt": review.get("receipt")}, ensure_ascii=False) + "\nEmit one valid typed action. Prose can talk only after Venice approval and can never execute."})
                         format_failures = 0
                         continue
                     path = checkpoint(task, workspace, step, messages, task_base_commit)
-                    print(f"Adam [halted]: Venice review path could not authorize prose fallback; checkpoint={path}; findings={review.get('findings')}")
+                    print(f"Adam [halted]: Venice review path could not authorize prose fallback; checkpoint={path}; receipt={review.get('receipt')}; findings={review.get('findings')}")
                     return 2
                 messages.append({"role": "assistant", "content": raw})
                 messages.append({"role": "user", "content": "FORMAT_ERROR: emit exactly one allowed tool JSON object."})
@@ -341,16 +373,17 @@ def run_task(task: str, workspace: Path, max_steps: int | None = None, stop_afte
                             "directive": "CONTINUE_REQUIRED",
                             "findings": review.get("findings"),
                             "reviewText": review.get("reviewText"),
+                            "receipt": review.get("receipt"),
                             "message": "Venice denied stopping. Repair the same slice and return for review.",
                         }, ensure_ascii=False)})
                         continue
                     path = checkpoint(task, workspace, step, messages, task_base_commit)
-                    print(f"Adam [halted]: Venice returned HALT_REQUIRED; checkpoint={path}; findings={review.get('findings')}")
+                    print(f"Adam [halted]: Venice returned HALT_REQUIRED; checkpoint={path}; receipt={review.get('receipt')}; findings={review.get('findings')}")
                     return 2
                 terminal, result = worker.execute_tool(workspace, action)
                 if result.get("terminal") == "finish":
                     status = result.get("status", "partial")
-                    print(f"Adam [{status}]: {str(result.get('text') or '').strip()}\nVenice review: STOP_ALLOWED. externalReviewGateSatisfied=true.")
+                    print(f"Adam [{status}]: {str(result.get('text') or '').strip()}\nVenice review: STOP_ALLOWED. externalReviewGateSatisfied=true. receipt={review.get('receipt')}")
                     return 0 if status == "done" else 2 if status == "blocked" else 1
                 print(str(result.get("text") or "").strip())
                 return 0
@@ -371,7 +404,7 @@ def run_interactive(cwd: str | None = None) -> int:
     workspace = Path(cwd or Path.cwd()).expanduser().resolve()
     if not workspace.is_dir():
         workspace = ROOT
-    print("Adam worker online. Codex-local docs loaded per task. Jar-governed. Daemon persistent. Venice reviews every stop.")
+    print("Adam worker online. Codex-local docs loaded per task. Jar-governed. Daemon persistent. Venice reviews every stop with receipts.")
     while True:
         try:
             text = input(f"adam {workspace}$ ")
@@ -387,7 +420,7 @@ def run_interactive(cwd: str | None = None) -> int:
         if stripped in {":exit", ":quit"}:
             return 0
         if stripped == ":help":
-            print(worker.help_text() + "\nCodex local steering is loaded from AGENTS/MEMORIES/SKILLS when present. Every terminal response requires canonical Venice review.")
+            print(worker.help_text() + "\nCodex local steering loads AGENTS/MEMORIES/SKILLS. Every terminal response requires canonical Venice review and a durable receipt.")
             continue
         if stripped == ":status":
             try:
@@ -401,13 +434,15 @@ def run_interactive(cwd: str | None = None) -> int:
                 venice = daemon = False
                 error = str(exc)
             print(json.dumps({
-                "schema": "adam-venice-reviewed-status-v7",
+                "schema": "adam-venice-reviewed-status-v8",
                 "workspace": str(workspace),
                 "model": worker.PHONE_LLM_MODEL,
                 "codexLocalDocuments": loaded,
                 "jarGate": venice and daemon,
                 "veniceProtocol": "tools/venice_review.py",
                 "veniceStopReview": venice,
+                "veniceLastReceipt": str(STATE_DIR / "venice-review-last.json"),
+                "veniceHistory": str(STATE_DIR / "venice-reviews.jsonl"),
                 "daemonPersistence": daemon,
                 "checkpointSteps": CHECKPOINT_STEPS,
                 "checkpoint": str(STATE_DIR / "current.json"),
