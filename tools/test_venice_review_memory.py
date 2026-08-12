@@ -31,7 +31,10 @@ with tempfile.TemporaryDirectory() as td:
         assert first[0]["occurrence"] == 1
         assert second[0]["occurrence"] == 2
         assert first[0]["fingerprint"] == second[0]["fingerprint"]
-        assert "No worker may terminate" in second[0]["rule"]
+        rule = second[0]["rule"]
+        assert "No worker may begin substantive execution" in rule
+        assert "terminate" in rule
+        assert "fresh Venice review receipt" in rule
         assert memory.MEMORY_PATH.is_file()
         lines = memory.MEMORY_PATH.read_text(encoding="utf-8").splitlines()
         assert len(lines) == 2
@@ -45,6 +48,8 @@ with tempfile.TemporaryDirectory() as td:
 
         passed = dict(receipt, directive="STOP_ALLOWED", verdict="PASS", findings=[])
         assert memory.persist_review(passed) == []
+        planned = dict(receipt, directive="PLAN_ALLOWED", verdict="PASS", findings=[])
+        assert memory.persist_review(planned) == []
         assert len(memory.MEMORY_PATH.read_text(encoding="utf-8").splitlines()) == 2
     finally:
         memory.STATE_DIR, memory.MEMORY_PATH, memory.LATEST_PATH = old_state, old_memory, old_latest
