@@ -6,7 +6,8 @@ service = (ROOT / "android/operator-overlay/app/src/main/java/com/homecenter/ope
 state = (ROOT / "android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorState.java").read_text(encoding="utf-8")
 provider = (ROOT / "android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorStateProvider.java").read_text(encoding="utf-8")
 daemon = (ROOT / "tools/vlad_swarm_daemon.py").read_text(encoding="utf-8")
-adam = (ROOT / "tools/adam.py").read_text(encoding="utf-8")
+router = (ROOT / "tools/adam.py").read_text(encoding="utf-8")
+worker = (ROOT / "tools/adam_codex_phone.py").read_text(encoding="utf-8")
 
 for token in [
     'adamModeButton("TERM", "terminal"',
@@ -26,18 +27,26 @@ for token in ["adam_request_id", "adam_request_mode", "adam_request_payload_b64"
     assert token in provider, f"provider missing {token}"
 for token in ["process_adam_overlay", "adam-last-request-id", "base64.b64decode", "operator_update", "ADAM_POLL_SECONDS"]:
     assert token in daemon, f"daemon missing {token}"
+
+# Overlay transport names are preserved, but only terminal remains a direct body
+# lane. CHAT/CONT/VLAD must enter the same Jar-governed Codex worker.
 for token in [
     'ONE_SHOT_MODES = ("terminal", "chat", "continue", "vlad")',
-    "cloudFallback=False",
-    "HC_ADAM_CONTINUE_CMD",
-    "qwen2.5-coder:1.5b",
-    "def run_mode(",
+    'WORKER = ROOT / "tools" / "adam_codex_phone.py"',
+    'jarGoverned=True',
+    'def run_worker(',
+    'def run_mode(',
 ]:
-    assert token in adam, f"adam router missing {token}"
+    assert token in router, f"adam body router missing {token}"
 
-# The Android overlay still submits only the four original explicit modes.
 assert '"shell"' not in service
-# No automatic route selection: each model lane is entered only by its explicit mode.
-assert 'run_chat(text' in adam and 'run_vlad(text' in adam and 'run_continue(text' in adam
-assert 'cloudFallback=True' not in adam
-print("Adam overlay explicit-mode/no-agent contract: PASS")
+assert 'if mode == "terminal"' in router
+assert 'return run_worker(mode, text, cwd, timeout)' in router
+assert 'ollama_generate' not in router
+assert 'local_exec_plan' not in router
+
+# Personality output is impossible without loading active Jars in the worker.
+assert 'ACTIVE JUDGEMENT JARS (binding)' in worker
+assert 'def active_jars(' in worker
+assert 'Unstructured model prose is never shown' in worker
+print("Adam overlay transport / Codex-worker contract: PASS")
