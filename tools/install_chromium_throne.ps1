@@ -18,7 +18,13 @@ New-Item -ItemType Directory -Force -Path $Root,$ExtensionDir,$BrowserRoot,$Prof
 
 $UseLocalGit = $false
 if ($SourceRepo -and (Test-Path (Join-Path $SourceRepo '.git'))) {
-  & git -C $SourceRepo cat-file -e "$PinnedExtensionCommit^{commit}" 2>$null
+  & cmd.exe /d /c "git -C `"$SourceRepo`" cat-file -e $PinnedExtensionCommit^{commit} >nul 2>&1"
+  if ($LASTEXITCODE -ne 0) {
+    Write-Host "[Chromium Throne] Fetching pinned extension commit through authenticated git"
+    & git -C $SourceRepo fetch origin $PinnedExtensionCommit
+    if ($LASTEXITCODE -ne 0) { throw "Failed to fetch pinned extension commit: $PinnedExtensionCommit" }
+  }
+  & cmd.exe /d /c "git -C `"$SourceRepo`" cat-file -e $PinnedExtensionCommit^{commit} >nul 2>&1"
   if ($LASTEXITCODE -eq 0) { $UseLocalGit = $true }
 }
 
@@ -26,9 +32,8 @@ foreach ($name in $Files) {
   $dest = Join-Path $ExtensionDir $name
   if ($UseLocalGit) {
     $gitObject = "$PinnedExtensionCommit`:browser-porch/extension/$name"
-    $content = & git -C $SourceRepo show $gitObject
+    & cmd.exe /d /c "git -C `"$SourceRepo`" show $gitObject > `"$dest`""
     if ($LASTEXITCODE -ne 0) { throw "Failed to read pinned extension object: $gitObject" }
-    [IO.File]::WriteAllText($dest, (($content -join [Environment]::NewLine) + [Environment]::NewLine), (New-Object Text.UTF8Encoding($false)))
   } else {
     Invoke-WebRequest -UseBasicParsing -Uri "$RawBase/$name" -OutFile $dest
   }
