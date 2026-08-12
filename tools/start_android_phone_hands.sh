@@ -61,9 +61,14 @@ if ! rish_exec -c 'id; dumpsys window 2>/dev/null | grep -E "mCurrentFocus|mFocu
   exit 3
 fi
 
-if ! rish_exec -c 'pm list packages 2>/dev/null | grep -i tailscale' | grep -q 'package:'; then
-  echo "BLOCKED: Tailscale Android app was not found through Android package state." >&2
-  exit 4
+# Android package-manager visibility is advisory evidence, not network truth.
+# Some Shizuku/rish/package-query combinations can emit valid package: lines
+# while still returning a non-zero pipeline status. Never block Phone Hands on
+# that introspection. The bridge itself and remote Tailscale health prove whether
+# the transport is actually usable.
+TAILSCALE_PACKAGES="$(rish_exec -c 'pm path com.tailscale.ipn 2>/dev/null || pm list packages 2>/dev/null | grep -i tailscale' 2>/dev/null || true)"
+if ! printf '%s\n' "$TAILSCALE_PACKAGES" | grep -q '^package:'; then
+  echo "WARNING: Tailscale Android package could not be proven from package-manager introspection; continuing to runtime network verification." >&2
 fi
 
 if [ ! -f "$ENV_FILE" ]; then
@@ -117,8 +122,7 @@ BRIDGE="$ROOT/tools/android_phone_hands_bridge.py"
 
 TAILSCALE_STATE="$(rish_exec -c 'dumpsys connectivity 2>/dev/null | grep -i tailscale | head -4' 2>/dev/null || true)"
 if [ -z "$TAILSCALE_STATE" ]; then
-  echo "WARNING: Tailscale package exists, but active VPN state could not be proven from dumpsys."
-  echo "Open Tailscale and make sure this phone is connected before remote verification."
+  echo "WARNING: active Tailscale VPN state could not be proven from dumpsys; remote health is authoritative." >&2
 fi
 
 if [ "$BACKGROUND" = "1" ]; then
