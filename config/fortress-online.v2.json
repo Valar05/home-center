@@ -1,12 +1,12 @@
 {
   "kind": "fortress.online.v2.config.v1",
-  "version": 6,
+  "version": 7,
   "boot": {
     "capsuleKind": "fortress.online.v2.boot-capsule.v4",
-    "requiredSkillDocuments": ["fortress-core", "phone-runtime", "venice-stop-gate", "venice-review-memory"],
+    "requiredSkillDocuments": ["fortress-core", "phone-runtime", "fortress-plan-gate", "venice-stop-gate", "venice-review-memory"],
     "scanRepoSkills": true,
     "excludedDirectories": [".git", "node_modules"],
-    "policy": "load every discovered SKILL.md content; fortress-core, phone-runtime, venice-stop-gate, and venice-review-memory are boot-required; never first-match and stop"
+    "policy": "load every discovered SKILL.md content; fortress-core, phone-runtime, fortress-plan-gate, venice-stop-gate, and venice-review-memory are boot-required; never first-match and stop"
   },
   "mission": {
     "states": ["requested", "implemented", "tested", "deployed", "callable", "delivered", "accepted"],
@@ -25,6 +25,7 @@
     "exhaustConfiguredBodyLanesBeforeOperatorHandoff": true,
     "incidentLoggingNeverStopsMission": true,
     "resumeImmediatelyAfterIncidentPersistence": true,
+    "preExecutionPlanReviewRequired": true,
     "veniceStopReviewRequired": true,
     "veniceReviewMemoryRequired": true
   },
@@ -45,6 +46,7 @@
     "promotionRequirements": ["candidate regression encoded", "full V2 suite green", "no earlier lock regressed"],
     "classifiers": [
       {"kind":"retrieval_failure","pattern":"assum|didn.?t look|context|lookup|retrieve|look things up"},
+      {"kind":"plan_bypass","pattern":"started guessing|no plan|didn.?t plan|plan first|antagoniz|consult.*jar|ask Venice before"},
       {"kind":"premature_stop","pattern":"stop early|quit|documented failure|gave up|came early|one poke|forbid.*stop|failure persists|record.*failure.*stop"},
       {"kind":"boundary_substitution","pattern":"wrong tool|substitut|different lane|adjacent tool|not the lane"},
       {"kind":"correction_regression","pattern":"again|regression|forgot|lost context|reintroduced|borked"},
@@ -58,6 +60,7 @@
     ],
     "recipes": {
       "retrieval_failure": {"rule":"material uncertainty creates a required lookup before execution","regression":"mission with unresolved required lookup must choose retrieve","autoAction":"add_required_lookup_heuristic"},
+      "plan_bypass": {"rule":"before substantive execution every worker must research, create a bounded plan, select relevant Judgment Jars, antagonize the plan, and obtain a durable Venice PLAN_ALLOWED receipt","regression":"a mutating worker path without research+plan+jar selection+antagonism+Venice plan receipt fails closed","autoAction":"require_preexecution_plan_gate"},
       "premature_stop": {"rule":"unfinished work cannot stop without a genuine external boundary requiring operator input; persisting or reporting the failure is bookkeeping and MUST be followed by immediate resumed execution","regression":"after recording a premature_stop incident, the next action must continue the same mission unless completion evidence or an operator boundary exists","autoAction":"persist_incident_then_resume_same_mission"},
       "boundary_substitution": {"rule":"boundary-changing implementation remains proposed until approved","regression":"unapproved lane/tool change must continue original mission","autoAction":"add_boundary_regression"},
       "correction_regression": {"rule":"new corrections must preserve every earlier non-conflicting lock","regression":"dropping an earlier correction must fail cumulative diff","autoAction":"add_constraint_regression"},
@@ -67,13 +70,14 @@
       "available_body_lane_ignored": {"rule":"before asking Drew to execute anything, enumerate and attempt every configured authorized body lane that can perform it; a missing convenience connector or local shell is not itself an operator boundary","regression":"a desktop PowerShell install with Computer Hands configured must choose computer-hands shell.exec and receipt polling before any operator handoff","autoAction":"add_body_lane_exhaustion_guard"},
       "proven_organ_bypass": {"rule":"before designing or deploying a new implementation for a capability, retrieve durable evidence for existing implementations and proven runtime paths; if a proven organ already satisfies the required seam, reuse or extend it rather than inventing an adjacent transport, daemon, player, wrapper, or execution lane","regression":"when Venice/Pocket phone playback is already proven through pocket-tts-phone plus Home Center playback and Shizuku/rish, an Adam voice change may alter voice profile or shared adapter behavior but must not introduce ffplay, system TTS fallback, raw Termux am identity, or a second playback stack without explicit evidence that the proven organ cannot satisfy the requirement","autoAction":"add_proven_organ_reuse_guard"},
       "learning_persistence_failure": {"rule":"every correction and promoted lesson must persist to the durable ledger/config before the turn can complete","regression":"learned correction survives process restart and changes next boot policy","autoAction":"persist_learning_overlay"},
-      "venice_bypass": {"rule":"no agent or worker may stop without a fresh durable Venice Judgment Jar review receipt; CONTINUE_REQUIRED means continue the same mission and persist the finding into Venice review memory","regression":"a worker terminal path without Venice receipt fails closed and future boot loads the persisted Venice scar","autoAction":"require_venice_stop_and_memory_gate"},
+      "venice_bypass": {"rule":"no agent or worker may begin substantive execution without a fresh durable Venice PLAN_ALLOWED receipt or stop without a fresh durable Venice Judgment Jar completion review receipt; Venice findings persist into reviewer memory","regression":"worker execution/terminal paths without the corresponding Venice receipt fail closed and future boot loads the persisted Venice scar","autoAction":"require_venice_plan_stop_and_memory_gates"},
       "unknown_failure": {"rule":"unclassified failures become explicit candidate incidents rather than disappearing","regression":"unknown incident remains pending classification and cannot auto-promote policy","autoAction":"queue_for_classification"}
     }
   },
   "skills": [
     {"id":"mission-kernel","required":true,"purpose":"preserve outcome/owner/lane/exclusions/evidence/delivery"},
     {"id":"tetsuya-judgement","required":true,"purpose":"deterministic precedent and correction judgement"},
+    {"id":"preexecution-plan-gate","required":true,"purpose":"research -> bounded plan -> relevant Judgment Jars -> antagonism -> Venice PLAN_ALLOWED before substantive execution"},
     {"id":"motivated-continuation","required":true,"purpose":"continue until direct operator input or verified completion; incident persistence is never completion"},
     {"id":"authoritative-retrieval","required":true,"purpose":"look up materially uncertain state before acting"},
     {"id":"cumulative-context","required":true,"purpose":"preserve all earlier non-conflicting locks and corrections"},
