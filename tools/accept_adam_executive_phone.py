@@ -25,7 +25,13 @@ def main() -> int:
     daemon_ok = "Daemon Persistence and Connector Backoff" in jars
     try:
         codex_docs, loaded = worker.codex_local_documents(ROOT)
-        codex_ok = "AGENTS.md" in loaded and "Repository Agent Instructions" in codex_docs
+        required = {"AGENTS.md", "MEMORIES.md", "SKILLS.md"}
+        codex_ok = required.issubset(set(loaded)) and all(token in codex_docs for token in (
+            "Repository Agent Instructions",
+            "Codex Local Memory",
+            "Codex Local Skills",
+            "Agent Handoff And Session Memory",
+        ))
     except Exception:
         loaded = []
         codex_ok = False
@@ -56,7 +62,7 @@ def main() -> int:
     generic = "how can i assist" in output.lower() or "hello, adam" in output.lower()
     ok = rc == 0 and not timed_out and jar_ok and venice_ok and daemon_ok and codex_ok and knows and not generic
     receipt = {
-        "schema": "adam-phone-codex-worker-acceptance-v4",
+        "schema": "adam-phone-codex-worker-acceptance-v5",
         "ok": ok,
         "jarGate": jar_ok,
         "veniceStopReview": venice_ok,
