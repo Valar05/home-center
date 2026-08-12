@@ -129,20 +129,21 @@ run_campaign(){
     backoff "$round"
   done
 
-  json_state verify running "verifying plan and completion receipts"
-  python3 - "$LATEST" <<'PY'
+  json_state verify running "verifying plan/completion receipts and continuing control surface"
+  if bash "$ROOT/tools/home_center_status_menu.sh" probe >"$STATE_ROOT/menu-probe.log" 2>&1; then MENU_OK=1; else MENU_OK=0; fi
+  python3 - "$LATEST" "$MENU_OK" <<'PY'
 import json,os,sys,time
-home=os.path.expanduser('~/.local/state/home-center')
+home=os.path.expanduser('~/.local/state/home-center'); menu_ok=sys.argv[2]=='1'
 paths={'install':home+'/adam-cli-install-receipt.json','plan':home+'/adam-daemon/venice-plan-review-last.json','stop':home+'/adam-daemon/venice-review-last.json'}
 data={k:json.load(open(v,encoding='utf-8')) for k,v in paths.items()}
-ok=(data['install'].get('ok') is True and data['plan'].get('directive')=='PLAN_ALLOWED' and data['plan'].get('planPermissionGranted') is True and data['stop'].get('directive')=='STOP_ALLOWED' and data['stop'].get('externalReviewGateSatisfied') is True)
-obj={'schema':'adam-phone-campaign-receipt-v1','ok':ok,'paths':paths,'verifiedAtEpoch':int(time.time()),'continuingValue':{'stableCommand':'adam-campaign','commands':['run','resume','status','receipts','menu','overlay','phone-hands'],'state':home+'/adam-campaign/state.json','history':home+'/adam-campaign/history.jsonl','notificationMenu':True,'overlayRecovery':True,'phoneHandsRecovery':True,'selfHeal':True,'daemonBackoff':True}}
+ok=(data['install'].get('ok') is True and data['plan'].get('directive')=='PLAN_ALLOWED' and data['plan'].get('planPermissionGranted') is True and data['stop'].get('directive')=='STOP_ALLOWED' and data['stop'].get('externalReviewGateSatisfied') is True and menu_ok)
+obj={'schema':'adam-phone-campaign-receipt-v2','ok':ok,'paths':paths,'verifiedAtEpoch':int(time.time()),'continuingValue':{'stableCommand':'adam-campaign','commands':['run','resume','status','receipts','menu','overlay','phone-hands'],'state':home+'/adam-campaign/state.json','history':home+'/adam-campaign/history.jsonl','notificationMenu':menu_ok,'notificationMenuProbe':home+'/adam-campaign/menu-probe.log','overlayRecovery':True,'phoneHandsRecovery':True,'selfHeal':True,'daemonBackoff':True}}
 open(sys.argv[1],'w',encoding='utf-8').write(json.dumps(obj,indent=2,sort_keys=True)+'\n')
 print(json.dumps(obj,indent=2,sort_keys=True))
 raise SystemExit(0 if ok else 2)
 PY
   local verify_rc=$?
-  if [ "$verify_rc" -ne 0 ]; then json_state verify-failed repairing "receipts did not prove PLAN_ALLOWED + STOP_ALLOWED"; restore_local || true; return "$verify_rc"; fi
+  if [ "$verify_rc" -ne 0 ]; then json_state verify-failed repairing "receipts or continuing notification control surface not proven"; restore_local || true; return "$verify_rc"; fi
 
   persist_repairs || { json_state persist-failed degraded "self-heal passed locally but canonical push failed; adam-campaign resume will retry persistence"; restore_local || true; return 21; }
   restore_local || return 20
