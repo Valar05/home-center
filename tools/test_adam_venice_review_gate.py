@@ -14,8 +14,6 @@ jars = core.active_jars()
 assert "Venice Completion and Code Review Gate" in jars
 assert "Daemon Persistence and Connector Backoff" in jars
 
-# Top-level agent bootstrap must carry the same global stop law even for agents
-# that do not separately discover .continue rules.
 agents = (ROOT / "AGENTS.md").read_text(encoding="utf-8")
 assert "Venice completion review — all agents and workers" in agents
 assert "No agent or worker may certify its own completion" in agents
@@ -32,6 +30,7 @@ verdict, directive, findings, _ = canonical.parse_review("plain prose")
 assert verdict == "FAIL" and directive == "HALT_REQUIRED" and findings
 
 assert reviewed.BACKOFF_SECONDS == (1, 2, 4, 8, 15, 30)
+assert reviewed.STEADY_BACKOFF_SECONDS >= reviewed.BACKOFF_SECONDS[-1]
 assert reviewed.CHECKPOINT_STEPS >= 8
 
 docs, loaded = reviewed.codex_local_documents(ROOT)
@@ -88,12 +87,12 @@ for token in [
     'externalReviewGateSatisfied',
     'CONTINUE_REQUIRED',
     'HALT_REQUIRED',
-    'phone model unavailable after daemon backoff burst',
-    'DAEMON_CHECKPOINT',
+    'STEADY_BACKOFF_SECONDS',
     'while True:',
     'stop_after_steps',
 ]:
     assert token in source, f"reviewed worker missing {token}"
 
 assert 'step budget exhausted' not in source
-print("Adam global Venice / Codex-local / receipt / daemon contract: PASS")
+assert 'raise RuntimeError(f"phone model unavailable after daemon backoff burst' not in source
+print("Adam global Venice / Codex-local / receipt / nonterminal-daemon contract: PASS")
