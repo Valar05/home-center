@@ -4,6 +4,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
+import { pathToFileURL } from 'node:url';
 
 const CORE_SKILLS = Object.freeze([
   { id:'mission-kernel', required:true, purpose:'preserve outcome/owner/lane/exclusions/evidence/delivery' },
@@ -63,7 +64,8 @@ function buildBootCapsule({skillRoots=[], extraSkills=[]}={}){
   };
 }
 
-if(import.meta.url===`file://${process.argv[1]}`){
+const invokedAsScript=process.argv[1] && import.meta.url===pathToFileURL(path.resolve(process.argv[1])).href;
+if(invokedAsScript){
   const roots=splitRoots(process.env.FORTRESS_SKILL_ROOTS);
   const capsule=buildBootCapsule({skillRoots:roots});
   process.stdout.write(JSON.stringify(capsule,null,2)+'\n');
