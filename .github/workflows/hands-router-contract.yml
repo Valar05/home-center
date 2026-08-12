@@ -1,0 +1,57 @@
+name: Hands Router Contract
+
+on:
+  pull_request:
+    paths:
+      - 'tools/hands_router.py'
+      - 'tools/hands_overlay.py'
+      - 'tools/vlad_swarm_daemon.py'
+      - 'tools/adam_audio_lab.py'
+      - 'tools/test_hands_router.py'
+      - 'tools/test_hands_overlay.py'
+      - 'tools/test_adam_audio_lab.py'
+      - 'tools/android_phone_hands_bridge.py'
+      - 'docs/ADAM_HANDS_AUDIO_AUTH_CONTRACT.md'
+      - '.github/workflows/hands-router-contract.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Python syntax
+        run: |
+          python -m py_compile \
+            tools/hands_router.py \
+            tools/hands_overlay.py \
+            tools/vlad_swarm_daemon.py \
+            tools/adam_audio_lab.py \
+            tools/test_hands_router.py \
+            tools/test_hands_overlay.py \
+            tools/test_adam_audio_lab.py
+      - name: Hands router contract
+        run: python tools/test_hands_router.py
+      - name: Overlay compiler contract
+        run: python tools/test_hands_overlay.py
+      - name: Audio graph contract
+        run: python tools/test_adam_audio_lab.py
+      - name: No model in executor vocabulary
+        run: |
+          python - <<'PY'
+          import importlib.util, pathlib
+          root=pathlib.Path('tools')
+          spec=importlib.util.spec_from_file_location('hr',root/'hands_router.py')
+          hr=importlib.util.module_from_spec(spec); spec.loader.exec_module(hr)
+          forbidden=('agent','model','decide','guess','local_ask','dungeon_run')
+          bad=[op for op in hr.OPS if any(word in op for word in forbidden)]
+          assert not bad, bad
+          assert 'phone.open_uri' in hr.OPS
+          print('finite executor vocabulary ok')
+          PY
