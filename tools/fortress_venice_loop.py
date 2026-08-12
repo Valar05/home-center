@@ -26,7 +26,7 @@ def evidence_text(path: str) -> str:
     if len(raw)>MAX_EVIDENCE_BYTES:
         raise ValueError(f'evidence file exceeds {MAX_EVIDENCE_BYTES} bytes: {p}')
     obj=json.loads(raw.decode('utf-8'))
-    if obj.get('schema')!='fortress.phone-evidence.v1' or obj.get('ok') is not True:
+    if obj.get('schema')!='fortress.phone-evidence.v2' or obj.get('ok') is not True:
         raise ValueError('runtime evidence is missing, invalid, or not successful')
     return json.dumps(obj, indent=2, sort_keys=True)
 
