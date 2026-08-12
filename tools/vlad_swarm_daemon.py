@@ -57,12 +57,27 @@ def _display(result):
  except Exception:pass
  return display
 
+def _audio_status(repo_root):
+ result=run(["python3",str(Path(repo_root)/"tools"/"adam_audio_lab.py"),"status"],timeout=30,cwd=repo_root)
+ try:return json.loads(result["stdout"]) if result["rc"]==0 else {}
+ except Exception:return {}
+
+def ensure_audio_lab(repo_root):
+ if os.environ.get("HC_ADAM_AUDIO_AUTOSTART","1").strip().lower() in {"0","off","false","disabled"}:return
+ status=_audio_status(repo_root)
+ if status.get("enabled",True) and not status.get("running",False):
+  result=run(["python3",str(Path(repo_root)/"tools"/"adam_audio_lab.py"),"start"],timeout=30,cwd=repo_root)
+  append_receipt({"kind":"adam.audio.ensure","ok":result["rc"]==0,"result":result})
+
 def _route_overlay(repo_root,mode,text):
  clean=text.strip(); lower=clean.lower()
  if lower=="hands status":return run(["python3",str(Path(repo_root)/"tools"/"hands_router.py"),"status"],timeout=30,cwd=repo_root),"Hands"
  if lower=="hands on":return run(["python3",str(Path(repo_root)/"tools"/"hands_router.py"),"on"],timeout=30,cwd=repo_root),"Hands"
  if lower=="hands off":return run(["python3",str(Path(repo_root)/"tools"/"hands_router.py"),"off"],timeout=30,cwd=repo_root),"Hands"
  if lower.startswith("hands "):return run(["python3",str(Path(repo_root)/"tools"/"hands_overlay.py"),clean],timeout=60,cwd=repo_root),"Hands"
+ if lower.startswith("login ") or lower.startswith("log in "):
+  url=clean.split(None,2)[-1] if lower.startswith("log in ") else clean.split(None,1)[1]
+  return run(["python3",str(Path(repo_root)/"tools"/"adam_login.py"),url],timeout=60,cwd=repo_root),"Adam/login"
  if lower in {"audio start","listen start","start listening"}:return run(["python3",str(Path(repo_root)/"tools"/"adam_audio_lab.py"),"start"],timeout=30,cwd=repo_root),"Adam/audio"
  if lower in {"audio stop","listen stop","stop listening"}:return run(["python3",str(Path(repo_root)/"tools"/"adam_audio_lab.py"),"stop"],timeout=30,cwd=repo_root),"Adam/audio"
  if lower in {"audio status","listen status"}:return run(["python3",str(Path(repo_root)/"tools"/"adam_audio_lab.py"),"status"],timeout=30,cwd=repo_root),"Adam/audio"
@@ -93,11 +108,11 @@ def process_review_inbox(repo_root):
   append_receipt({"kind":"venice.review","job":job.name,"ok":result["rc"]==0,"result":result,"receipt":str(receipt_path)}); job.rename(done/job.name)
 
 def heartbeat(repo_root):
- shizuku_ok=phone_health(); operator_heartbeat(); process_review_inbox(repo_root); append_receipt({"kind":"swarm.heartbeat","ok":True,"shizuku":shizuku_ok})
+ shizuku_ok=phone_health(); operator_heartbeat(); ensure_audio_lab(repo_root); process_review_inbox(repo_root); append_receipt({"kind":"swarm.heartbeat","ok":True,"shizuku":shizuku_ok})
 
 def main():
  ap=argparse.ArgumentParser(description="Deterministic Vlad swarm keeper"); ap.add_argument("--repo",default=os.environ.get("HC_REPO_ROOT",".")); ap.add_argument("--once",action="store_true"); ap.add_argument("--interval",type=int,default=INTERVAL); args=ap.parse_args(); repo_root=str(Path(args.repo).resolve())
- STATE_DIR.mkdir(parents=True,exist_ok=True); append_receipt({"kind":"swarm.start","ok":True,"repo":repo_root,"interval":args.interval}); next_heartbeat=0.0
+ STATE_DIR.mkdir(parents=True,exist_ok=True); append_receipt({"kind":"swarm.start","ok":True,"repo":repo_root,"interval":args.interval}); ensure_audio_lab(repo_root); next_heartbeat=0.0
  while True:
   try:
    process_adam_overlay(repo_root); current=time.monotonic()
