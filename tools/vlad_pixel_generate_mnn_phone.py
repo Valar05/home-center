@@ -19,9 +19,22 @@ def load_request(path:Path)->dict:
     if req.get('schema')!='vlad.pixel.request.v1': raise ValueError('unsupported request schema')
     expected=hashlib.sha256(canonical_request(req)).hexdigest()
     if req.get('requestSha256')!=expected: raise ValueError('request hash mismatch')
+    if int(req.get('width',0)) != 512 or int(req.get('height',0)) != 512:
+        raise ValueError('MNN 3.4.1 SD1.5 demo proof supports exactly 512x512')
     if not 1 <= int(req.get('steps',0)) <= 8: raise ValueError('steps out of bounds')
-    if int(req.get('width',0)) not in (256,384,512) or int(req.get('height',0)) not in (256,384,512): raise ValueError('dimensions out of bounds')
+    if float(req.get('cfg',1.0)) != 1.0:
+        raise ValueError('public MNN diffusion_demo has no CFG argument; Pixel Forge LCM proof requires cfg=1.0 metadata')
     return req
+
+
+def library_dirs()->list[str]:
+    path=STATE/'mnn-libraries.txt'
+    if not path.is_file(): return []
+    dirs=[]
+    for line in path.read_text(encoding='utf-8').splitlines():
+        p=Path(line.strip())
+        if p.suffix=='.so' and p.is_file(): dirs.append(str(p.parent))
+    return sorted(set(dirs))
 
 
 def main():
@@ -37,7 +50,7 @@ def main():
     missing=[name for name in required if not (MODEL_DIR/name).is_file()]
     if missing: raise SystemExit(f'model not staged; missing: {missing}')
 
-    demo_path=(STATE/'diffusion-demo.path')
+    demo_path=STATE/'diffusion-demo.path'
     if not demo_path.is_file(): raise SystemExit('MNN diffusion_demo path receipt missing; run bootstrap first')
     demo=Path(demo_path.read_text(encoding='utf-8').strip())
     if not demo.is_file(): raise SystemExit(f'MNN diffusion_demo missing: {demo}')
@@ -48,19 +61,20 @@ def main():
     intermediate=outdir/'neural.jpg'
     canonical=outdir/'sprite.vpx'
     receipt_path=outdir/'generation.json'
+    intermediate.unlink(missing_ok=True)
 
-    # MNN official diffusion_demo contract: resource, SD1.5 model type 0,
+    # MNN 3.4.1 official diffusion_demo contract: resource, SD1.5 model type 0,
     # memory-saving mode 0, OpenCL backend 3, iterations, seed, output, prompt.
-    lib_dirs={str(p.parent) for p in demo.parent.rglob('*.so')}
     env=os.environ.copy()
+    dirs=library_dirs()
     inherited=env.get('LD_LIBRARY_PATH','')
-    env['LD_LIBRARY_PATH']=':'.join(sorted(lib_dirs)+([inherited] if inherited else []))
+    env['LD_LIBRARY_PATH']=':'.join(dirs+([inherited] if inherited else []))
     cmd=[str(demo),str(MODEL_DIR),'0','0','3',str(req['steps']),str(req['seed']),str(intermediate),str(req['prompt'])]
     started=time.monotonic()
     proc=subprocess.run(cmd,cwd=str(outdir),env=env,text=True,capture_output=True,timeout=MAX_SECONDS)
     elapsed=time.monotonic()-started
     if proc.returncode!=0 or not intermediate.is_file() or intermediate.stat().st_size<=0:
-        receipt={'schema':'vlad.pixel.generate.v1','ok':False,'request':req,'cmd':cmd,'rc':proc.returncode,'stdout':proc.stdout[-6000:],'stderr':proc.stderr[-6000:],'elapsedSeconds':elapsed,'device':'primary-phone','ciUsed':False}
+        receipt={'schema':'vlad.pixel.generate.v2','ok':False,'request':req,'cmd':cmd,'rc':proc.returncode,'stdout':proc.stdout[-6000:],'stderr':proc.stderr[-6000:],'elapsedSeconds':elapsed,'ldLibraryDirs':dirs,'device':'primary-phone','ciUsed':False}
         receipt_path.write_text(json.dumps(receipt,indent=2,sort_keys=True)+'\n',encoding='utf-8')
         print(json.dumps(receipt,indent=2,sort_keys=True))
         return 20
@@ -73,8 +87,8 @@ def main():
     packed=json.loads(pack_receipt.read_text(encoding='utf-8')) if pack_receipt.is_file() else {}
     ok=pack.returncode==0 and canonical.is_file() and packed.get('intermediateDeleted') is True and not intermediate.exists()
     receipt={
-        'schema':'vlad.pixel.generate.v1','ok':ok,'request':req,'cmd':cmd,'rc':proc.returncode,
-        'stdout':proc.stdout[-6000:],'stderr':proc.stderr[-6000:],'elapsedSeconds':elapsed,
+        'schema':'vlad.pixel.generate.v2','ok':ok,'request':req,'cmd':cmd,'rc':proc.returncode,
+        'stdout':proc.stdout[-6000:],'stderr':proc.stderr[-6000:],'elapsedSeconds':elapsed,'ldLibraryDirs':dirs,
         'canonical':str(canonical),'canonicalBytes':canonical.stat().st_size if canonical.is_file() else 0,
         'pack':packed,'packRc':pack.returncode,'packStdout':pack.stdout[-3000:],'packStderr':pack.stderr[-3000:],
         'intermediateDeleted':not intermediate.exists(),'device':'primary-phone','ciUsed':False,'godotRuntimeUsed':False,
