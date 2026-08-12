@@ -13,11 +13,11 @@ for token in [
     '-DMNN_BUILD_OPENCV=ON',
     '-DMNN_IMGCODECS=ON',
     '-DMNN_SUPPORT_TRANSFORMER_FUSE=ON',
-    "status --porcelain",
+    'status --porcelain',
     'Pillow is required',
 ]: assert token in boot, f'MNN bootstrap missing {token}'
 for token in [
-    "for backend in (3,0)",
+    'for backend in (3,0)',
     "MODEL_DIR),'0','0',str(backend)",
     'supports exactly 512x512',
     "float(req.get('cfg',1.0)) != 1.0",
@@ -33,7 +33,7 @@ for token in [
 ]: assert token in resume, f'Fortress resume missing {token}'
 for token in ['fortress.phone-evidence.v1','intermediateDeleted','mnnRef','canonicalBytes']:
     assert token in collector, f'evidence collector missing {token}'
-for token in ['--evidence-file','RUNTIME EVIDENCE','repairPush','git\',\'push\',\'origin\',\'HEAD:main']:
+for token in ['--evidence-file','RUNTIME EVIDENCE','repairPush',"['git','push','origin','HEAD:main']"]:
     assert token in loop, f'Venice loop missing {token}'
 for text in (boot,gen,resume,collector,loop):
     low=text.lower()
