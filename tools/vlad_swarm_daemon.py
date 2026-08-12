@@ -24,12 +24,7 @@ def now():
 
 def run(cmd, timeout=20, cwd=None):
     p = subprocess.run(cmd, text=True, capture_output=True, timeout=timeout, cwd=cwd)
-    return {
-        "cmd": cmd,
-        "rc": p.returncode,
-        "stdout": p.stdout.strip()[-4000:],
-        "stderr": p.stderr.strip()[-4000:],
-    }
+    return {"cmd": cmd, "rc": p.returncode, "stdout": p.stdout.strip()[-4000:], "stderr": p.stderr.strip()[-4000:]}
 
 
 def rish(command):
@@ -47,17 +42,14 @@ def append_receipt(event):
 def phone_health():
     probe = rish("id")
     shizuku_ok = probe["rc"] == 0
-    event = {"kind": "phone.shizuku.probe", "ok": shizuku_ok, "result": probe}
-    append_receipt(event)
+    append_receipt({"kind": "phone.shizuku.probe", "ok": shizuku_ok, "result": probe})
     if not shizuku_ok:
         return False
-
     wifi = rish("cmd wifi status")
     text = (wifi["stdout"] + "\n" + wifi["stderr"]).lower()
     enabled = "wifi is enabled" in text or "enabled: true" in text
     connected = any(k in text for k in ("connected", "ssid", "networkid")) and "disconnected" not in text
     append_receipt({"kind": "phone.wlan.probe", "ok": wifi["rc"] == 0, "enabled": enabled, "connected": connected, "result": wifi})
-
     if not enabled:
         repair = rish("cmd wifi set-wifi-enabled enabled")
         append_receipt({"kind": "phone.wlan.enable", "ok": repair["rc"] == 0, "result": repair})
@@ -89,28 +81,19 @@ def ensure_operator_overlay(repo_root):
     append_receipt({"kind": "operator.overlay.probe", "ok": healthy, "result": query})
     if healthy:
         return True
-
     current = now()
     if current - _last_overlay_recovery() < max(30, OVERLAY_RECOVERY_COOLDOWN):
         append_receipt({"kind": "operator.overlay.recovery", "ok": False, "state": "cooldown"})
         return False
-
     _set_overlay_recovery(current)
     script = Path(repo_root) / "tools" / "recover_adam_overlay_phone.sh"
     if not script.is_file():
         append_receipt({"kind": "operator.overlay.recovery", "ok": False, "state": "script_missing", "script": str(script)})
         return False
-
     result = run(["bash", str(script)], timeout=600, cwd=repo_root)
     verify = rish(f"content query --uri {shlex.quote(OPERATOR_STATE_URI)}")
     recovered = result["rc"] == 0 and verify["rc"] == 0 and "control_enabled=" in verify["stdout"]
-    append_receipt({
-        "kind": "operator.overlay.recovery",
-        "ok": recovered,
-        "state": "recovered" if recovered else "failed",
-        "result": result,
-        "verify": verify,
-    })
+    append_receipt({"kind": "operator.overlay.recovery", "ok": recovered, "state": "recovered" if recovered else "failed", "result": result, "verify": verify})
     return recovered
 
 
@@ -120,22 +103,12 @@ def _operator_field(raw, name, default=""):
 
 
 def operator_heartbeat():
-    result = rish(
-        "am broadcast --receiver-foreground "
-        "-a com.homecenter.operatoroverlay.HEARTBEAT "
-        f"-n {OPERATOR_RECEIVER}"
-    )
+    result = rish("am broadcast --receiver-foreground -a com.homecenter.operatoroverlay.HEARTBEAT " f"-n {OPERATOR_RECEIVER}")
     append_receipt({"kind": "adam.overlay.heartbeat", "ok": result["rc"] == 0, "result": result})
 
 
 def operator_update(text, source):
-    command = (
-        "am broadcast --receiver-foreground "
-        "-a com.homecenter.operatoroverlay.UPDATE "
-        f"-n {OPERATOR_RECEIVER} "
-        f"--es latestText {shlex.quote(str(text)[:8000])} "
-        f"--es source {shlex.quote(str(source)[:80])}"
-    )
+    command = ("am broadcast --receiver-foreground -a com.homecenter.operatoroverlay.UPDATE " f"-n {OPERATOR_RECEIVER} " f"--es latestText {shlex.quote(str(text)[:8000])} " f"--es source {shlex.quote(str(source)[:80])}")
     return rish(command)
 
 
@@ -164,7 +137,6 @@ def process_adam_overlay(repo_root):
         return
     if request_id <= 0 or request_id <= _last_adam_request_id():
         return
-
     mode = _operator_field(raw, "adam_request_mode", "terminal")
     payload = _operator_field(raw, "adam_request_payload_b64", "")
     _set_last_adam_request_id(request_id)
@@ -175,12 +147,7 @@ def process_adam_overlay(repo_root):
         append_receipt(event)
         operator_update(event["error"], f"Adam/{mode}")
         return
-
-    result = run(
-        ["python3", str(Path(repo_root) / "tools" / "adam.py"), mode, text, "--cwd", repo_root],
-        timeout=240,
-        cwd=repo_root,
-    )
+    result = run(["python3", str(Path(repo_root) / "tools" / "adam.py"), mode, text, "--cwd", repo_root], timeout=240, cwd=repo_root)
     display = result["stdout"] or result["stderr"] or f"Adam {mode} exited {result['rc']}"
     try:
         parsed = json.loads(result["stdout"])
@@ -190,14 +157,7 @@ def process_adam_overlay(repo_root):
     except Exception:
         pass
     update = operator_update(display, f"Adam/{mode}")
-    append_receipt({
-        "kind": "adam.request",
-        "ok": result["rc"] == 0 and update["rc"] == 0,
-        "requestId": request_id,
-        "mode": mode,
-        "result": result,
-        "overlayUpdate": update,
-    })
+    append_receipt({"kind": "adam.request", "ok": result["rc"] == 0 and update["rc"] == 0, "requestId": request_id, "mode": mode, "result": result, "overlayUpdate": update})
 
 
 def process_review_inbox(repo_root):
@@ -212,16 +172,9 @@ def process_review_inbox(repo_root):
         head = data.get("head", "HEAD")
         acceptance = data.get("acceptance", "")
         receipt_path = done / (job.stem + ".receipt.json")
-        cmd = [
-            "python3", str(Path(repo_root) / "tools" / "venice_review.py"),
-            "--repo", repo,
-            "--base", base,
-            "--head", head,
-            "--acceptance", acceptance,
-            "--receipt", str(receipt_path),
-        ]
-        result = run(cmd, timeout=int(data.get("timeout", 180)))
-        append_receipt({"kind": "venice.review", "job": job.name, "ok": result["rc"] == 0, "result": result, "receipt": str(receipt_path)})
+        cmd = ["bash", str(Path(repo_root) / "tools" / "venice_review_selfheal.sh"), "--repo", repo, "--base", base, "--head", head, "--acceptance", acceptance, "--receipt", str(receipt_path)]
+        result = run(cmd, timeout=int(data.get("timeout", 600)))
+        append_receipt({"kind": "venice.review", "job": job.name, "ok": result["rc"] == 0, "result": result, "receipt": str(receipt_path), "selfHeal": True})
         job.rename(done / job.name)
 
 
