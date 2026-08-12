@@ -13,9 +13,11 @@ STATE_DIR = Path(os.path.expanduser(os.environ.get("HC_STATE_DIR", "~/.local/sta
 MEMORY_PATH = Path(os.path.expanduser(os.environ.get("VENICE_REVIEW_MEMORY", str(STATE_DIR / "review-memory.jsonl"))))
 LATEST_PATH = Path(os.path.expanduser(os.environ.get("VENICE_REVIEW_MEMORY_LATEST", str(STATE_DIR / "review-memory-latest.json"))))
 MAX_PROMPT_ENTRIES = int(os.environ.get("VENICE_REVIEW_MEMORY_MAX_PROMPT", "24"))
+PASS_DIRECTIVES = {"STOP_ALLOWED", "PLAN_ALLOWED"}
 
 CATEGORY_RULES = (
-    ("venice_bypass", re.compile(r"venice|review receipt|self-certif|stop gate", re.I)),
+    ("venice_bypass", re.compile(r"venice|review receipt|self-certif|stop gate|plan gate", re.I)),
+    ("plan_failure", re.compile(r"plan|research|antagon|judgment jar|replan", re.I)),
     ("premature_stop", re.compile(r"premature|stop early|not done|continue|required", re.I)),
     ("code_review_omission", re.compile(r"code review|diff|regression|test coverage", re.I)),
     ("codex_bootstrap_omission", re.compile(r"codex|AGENTS\.md|MEMORIES\.md|SKILLS\.md|bootstrap|steering", re.I)),
@@ -37,7 +39,8 @@ def classify_finding(text: str) -> str:
 
 def prevention_rule(category: str, finding: str) -> str:
     rules = {
-        "venice_bypass": "No worker may terminate without a fresh durable Venice review receipt for the current slice.",
+        "venice_bypass": "No worker may begin substantive execution or terminate without the fresh Venice review receipt required for that gate.",
+        "plan_failure": "Research, plan, select relevant Judgment Jars, antagonize, and obtain Venice PLAN_ALLOWED before substantive execution.",
         "premature_stop": "Treat unfinished work and transient blockers as continuation conditions, not completion.",
         "code_review_omission": "Review the actual current delta and prioritize correctness/regression findings before style.",
         "codex_bootstrap_omission": "Load applicable Codex steering documents before planning, execution, or stop review.",
@@ -52,7 +55,7 @@ def prevention_rule(category: str, finding: str) -> str:
 
 
 def regression_target(category: str) -> str:
-    return f"future worker test/contract rejects recurrence category={category} before STOP_ALLOWED"
+    return f"future worker test/contract rejects recurrence category={category} before Venice allows the relevant gate"
 
 
 def _read_entries() -> list[dict]:
@@ -94,7 +97,7 @@ def render_memory(repo: str | None = None, limit: int = MAX_PROMPT_ENTRIES) -> s
 def persist_review(receipt: dict) -> list[dict]:
     directive = str(receipt.get("directive") or "")
     findings = [str(x).strip() for x in (receipt.get("findings") or []) if str(x).strip()]
-    if directive == "STOP_ALLOWED" and not findings:
+    if directive in PASS_DIRECTIVES and not findings:
         return []
     if not findings:
         findings = [f"review directive {directive} without explicit finding"]
