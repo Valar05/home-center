@@ -24,14 +24,13 @@ python3 tools/test_adam_cli_contract.py
 python3 tools/test_adam_codex_phone.py
 python3 -m py_compile tools/adam.py tools/adam_codex_phone.py tools/accept_adam_executive_phone.py
 
-# Keep the already-working explicit overlay transport contract. Bare Adam and
-# ordinary text args use the new Codex-shaped phone worker. Explicit legacy body
-# modes remain available only as body transports for overlay/runtime compatibility.
+# Native Termux launcher. Explicit overlay/body modes retain their names; every
+# other invocation, including bare `adam`, enters the Codex-shaped worker.
 TMP_TARGET="$TARGET.tmp.$$"
 cat > "$TMP_TARGET" <<EOF
 #!/data/data/com.termux/files/usr/bin/bash
 case "\${1:-}" in
-  terminal|chat|continue|vlad|shell)
+  terminal|chat|continue|vlad)
     exec "$PYTHON_BIN" "$ROUTER" "\$@"
     ;;
   *)
@@ -43,16 +42,12 @@ chmod 755 "$TMP_TARGET"
 mv -f "$TMP_TARGET" "$TARGET"
 hash -r 2>/dev/null || true
 
-# Body transport canary: preserve the overlay's proven terminal route.
 CANARY="$($TARGET terminal 'printf ADAM_BODY_OK' --cwd "$ROOT" --timeout 10)"
 printf '%s\n' "$CANARY" | grep -q 'ADAM_BODY_OK' || { echo 'BLOCKED: Adam body transport canary failed.' >&2; exit 4; }
 
-# The worker uses the existing phone-local model only as planner/classifier.
 bash tools/ensure_adam_phone_brain.sh | tee "$BRAIN_RECEIPT"
 grep -q '"ok":true' "$BRAIN_RECEIPT" || { echo 'BLOCKED: Adam phone model did not become healthy.' >&2; exit 5; }
 
-# Live proof: Jar-loaded Codex worker must produce a governed owner-aware reply;
-# raw model prose cannot pass this acceptance because the worker suppresses it.
 python3 tools/accept_adam_executive_phone.py | tee "$ACCEPT_RECEIPT"
 grep -q '"ok": true' "$ACCEPT_RECEIPT" || { echo 'BLOCKED: Adam Codex phone worker acceptance failed.' >&2; exit 6; }
 
