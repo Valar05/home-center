@@ -4,83 +4,54 @@
   "owner": "Drew Clarke",
   "branch": "feat/fortress-cockpit-android",
   "pullRequest": 244,
-  "updatedAt": "2026-08-11T21:26:00-05:00",
-  "mission": "Turn the Android Fortress Cockpit into a deterministic, config-driven, phone-resident combined-arms multimedia/game-generation console wrapping Venice, Media Forge/FFmpeg, Blender, Godot, and local/fleet compute while preserving rare APK deploys.",
+  "updatedAt": "2026-08-12T07:09:00-05:00",
+  "mission": "Make the Android phone the sovereign deterministic Home Center control plane: persist state and scheduling locally, continue useful work offline, orchestrate local/browser/Gemini/fleet/cloud capability only through explicit adapters, and use Ollama only as a gated fallback classifier when deterministic routing cannot resolve a task.",
   "constraints": [
+    "phone is sovereign control plane; cloud is optional muscle",
     "Termux is execution substrate, not the primary UX",
+    "SQLite is local queue/event truth",
     "Fish/Python deterministic compiler remains the execution grammar",
     "behavior and controls evolve primarily through config",
-    "no model required for command interpretation",
+    "offline local jobs continue; network jobs defer durably",
+    "Ollama disabled by default and never used as scheduler or execution truth",
     "no raw shell hidden behind natural-language commands",
-    "no silent cloud escalation",
+    "no silent cloud escalation or paid fallback",
+    "browser/Gemini/fleet outputs require deterministic artifact verification",
     "use phone compute aggressively but thermally humanely",
-    "route unavailable heavy GPU work to explicit local/fleet capability rather than laundering phone capability",
     "keep requested, implemented, tested, deployed, callable, delivered, and accepted distinct",
     "physical phone receipts are required for phone deployment acceptance"
   ],
   "capabilityState": {
-    "deterministicPromptCompiler": {
+    "phoneSovereignKernel": {
       "requested": true,
-      "implemented": true,
-      "tested": "CI queued on current lineage",
+      "implemented": "SQLite WAL job/event kernel, config-driven lane registry, offline deferral, receipts, deterministic tick/daemon, Termux:Boot installer",
+      "tested": "unit/CI verification wired; current branch CI result pending",
       "deployed": false,
       "callable": false,
       "delivered": false,
       "accepted": false
     },
-    "androidCockpit": {
-      "requested": true,
-      "implemented": true,
-      "tested": "Android CI queued",
-      "deployed": false,
-      "callable": false,
-      "delivered": false,
-      "accepted": false
-    },
-    "combinedArmsMultimedia": {
-      "requested": true,
-      "implemented": true,
-      "tested": "routing/unit/smoke validation wired; CI queued",
-      "deployed": false,
-      "callable": false,
-      "delivered": false,
-      "accepted": false
-    },
-    "veniceReactorIntegration": {
-      "requested": true,
-      "implemented": true,
-      "tested": "existing deterministic reactor present; cockpit integration awaits CI/runtime acceptance",
-      "deployed": false,
-      "callable": false,
-      "delivered": false,
-      "accepted": false
-    },
-    "fleetGpuRouting": {
-      "requested": true,
-      "implemented": "planner and capability routing present",
-      "tested": "plan smoke test wired; live remote GPU reachability not proven",
-      "deployed": false,
-      "callable": false,
-      "delivered": false,
-      "accepted": false
-    }
+    "deterministicPromptCompiler": {"requested":true,"implemented":true,"tested":"CI result pending on current lineage","deployed":false,"callable":false,"delivered":false,"accepted":false},
+    "androidCockpit": {"requested":true,"implemented":true,"tested":"Android CI result pending","deployed":false,"callable":false,"delivered":false,"accepted":false},
+    "combinedArmsMultimedia": {"requested":true,"implemented":true,"tested":"routing/unit/smoke validation wired","deployed":false,"callable":false,"delivered":false,"accepted":false},
+    "veniceReactorIntegration": {"requested":true,"implemented":true,"tested":"existing deterministic reactor present; runtime acceptance pending","deployed":false,"callable":false,"delivered":false,"accepted":false},
+    "fleetGpuRouting": {"requested":true,"implemented":"planner/capability routing present","tested":"live remote reachability not proven","deployed":false,"callable":false,"delivered":false,"accepted":false},
+    "chatgptBrowserFreeCompute": {"requested":true,"implemented":"existing Chromium Throne branch is known but not yet wired as a proven phone-kernel adapter on this lineage","tested":false,"deployed":false,"callable":false,"delivered":false,"accepted":false},
+    "geminiFreeCompute": {"requested":true,"implemented":"lane reserved; adapter intentionally blocks until authoritative free-quota worker exists","tested":false,"deployed":false,"callable":false,"delivered":false,"accepted":false},
+    "ollamaFallback": {"requested":true,"implemented":"config gate present, disabled by default; execution lane rejected","tested":"kernel test asserts disabled/rejected behavior","deployed":false,"callable":false,"delivered":false,"accepted":false}
   },
   "evidence": {
     "pullRequest": 244,
-    "headBeforeThisReceipt": "269a66344928ea5b970d4e47879ad0ef889e341e",
-    "knownWorkflowState": [
-      "Build Android queued",
-      "Fortress Prompt queued",
-      "Home Center CI queued",
-      "Fortress Cockpit Android queued"
-    ]
+    "headBeforeBeachhead": "0818ead1a483cd4d6c083d46501a6d08eb36e352",
+    "beachheadCommits": ["027b2f98a7a532f705a4478f7d4e662a04faba27","dda712b70f08d2a05f192496e72a7d72f7591237","73120b4089ad9e432a105056fc9fc5ff5d0ed4f8","c07f3cad2d21f23ec08ef8c1690e8fbdd593c2a4","baea7ea5095f648c1487e05857b0c9cdba18e779","2add4e09adaf2eb2f673450941823fa698cf9c7e"]
   },
-  "nextAction": "Consume CI results when state changes; repair concrete failures; then produce a phone-install/runtime acceptance handoff only when repository evidence is green enough to make that physical step meaningful.",
+  "nextAction": "Consume current CI. If green, wire the existing Chromium Throne branch behind a deterministic phone-kernel adapter and add a real free-Gemini adapter only after authoritative quota verification. Then perform phone install/runtime acceptance through the authorized phone lane.",
   "blockedBy": [
-    "CI currently queued",
+    "current branch CI not yet consumed",
+    "kernel not installed on primary phone",
     "Cockpit not installed on primary phone",
-    "RUN_COMMAND permission not physically granted",
-    "live fleet GPU/Blender/Godot reachability not yet proven from Cockpit"
+    "Chromium Throne adapter not yet integrated into this branch",
+    "Gemini free quota/capability not yet verified into an adapter"
   ],
-  "updatePolicy": "Append or replace this campaign state on every material transition, correction, failure, verification, deployment, callable proof, delivery, or acceptance event. Never advance a capability state without state-specific evidence."
+  "updatePolicy": "Update on every material transition. Never advance capability state without state-specific external evidence."
 }
