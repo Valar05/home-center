@@ -86,7 +86,26 @@ fi
 . "$ENV_FILE"
 export HC_PHONE_HANDS_TOKEN
 export HC_PHONE_HANDS_PORT="${HC_PHONE_HANDS_PORT:-$PORT}"
-export RISH="$RISH_BIN"
+
+# The Python bridge launches RISH as an executable. When Shizuku exported rish
+# to shared storage, give the bridge an executable wrapper in Termux internal
+# storage so the noexec mount cannot break runtime commands after startup.
+case "$RISH_BIN" in
+  /storage/*)
+    RISH_WRAPPER="$CONFIG_DIR/rish-wrapper"
+    cat > "$RISH_WRAPPER" <<'EOF'
+#!/data/data/com.termux/files/usr/bin/sh
+exec sh "$RISH_SHARED_PATH" "$@"
+EOF
+    chmod 700 "$RISH_WRAPPER"
+    export RISH_SHARED_PATH="$RISH_BIN"
+    export RISH="$RISH_WRAPPER"
+    ;;
+  *)
+    export RISH="$RISH_BIN"
+    ;;
+esac
+
 if [ "$ENABLE_SHELL" = "1" ]; then
   export HC_PHONE_HANDS_ALLOW_SHELL=1
 else
