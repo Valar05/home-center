@@ -2,10 +2,10 @@
 """Adam body router for Home Center.
 
 This file intentionally contains no conversational personality runtime.
-Bare `adam` is installed to tools/adam_codex_phone.py. The Android overlay keeps
-its historical TERM/CHAT/CONT/VLAD transport names; CHAT/CONT/VLAD are translated
-into bounded commissions for the same Jar-governed Codex-shaped phone worker.
-Only terminal is an exact no-interpretation shell body lane.
+Bare `adam` is installed to tools/adam_venice_reviewed.py. The Android overlay
+keeps TERM/CHAT/CONT/VLAD transport names; CHAT/CONT/VLAD become bounded
+commissions for the same Jar-governed Codex worker, with Venice reviewing every
+terminal response. Only terminal is an exact no-interpretation shell body lane.
 """
 from __future__ import annotations
 
@@ -16,7 +16,7 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-WORKER = ROOT / "tools" / "adam_codex_phone.py"
+WORKER = ROOT / "tools" / "adam_venice_reviewed.py"
 ONE_SHOT_MODES = ("terminal", "chat", "continue", "vlad")
 MAX_RECEIPT_TEXT = 6000
 
@@ -27,7 +27,7 @@ def tail(value: str, limit: int = MAX_RECEIPT_TEXT) -> str:
 
 
 def receipt(mode: str, ok: bool, **data) -> int:
-    print(json.dumps({"schema": "adam-body-router-v1", "mode": mode, "ok": bool(ok), **data}, ensure_ascii=False, sort_keys=True))
+    print(json.dumps({"schema": "adam-body-router-v2", "mode": mode, "ok": bool(ok), **data}, ensure_ascii=False, sort_keys=True))
     return 0 if ok else 1
 
 
@@ -35,15 +35,7 @@ def run_terminal(text: str, cwd: str, timeout: int) -> int:
     if not text.strip():
         return receipt("terminal", False, error="empty_request")
     p = subprocess.run(["bash", "-lc", text], cwd=cwd, text=True, capture_output=True, timeout=timeout)
-    return receipt(
-        "terminal",
-        p.returncode == 0,
-        command=tail(text, 1000),
-        cwd=str(Path(cwd).resolve()),
-        rc=p.returncode,
-        stdout=tail(p.stdout),
-        stderr=tail(p.stderr),
-    )
+    return receipt("terminal", p.returncode == 0, command=tail(text, 1000), cwd=str(Path(cwd).resolve()), rc=p.returncode, stdout=tail(p.stdout), stderr=tail(p.stderr))
 
 
 def worker_commission(mode: str, text: str) -> str:
@@ -62,25 +54,10 @@ def run_worker(mode: str, text: str, cwd: str, timeout: int) -> int:
     if not text.strip():
         return receipt(mode, False, error="empty_request")
     commission = worker_commission(mode, text)
-    try:
-        p = subprocess.run(
-            [sys.executable, str(WORKER), commission],
-            cwd=cwd,
-            text=True,
-            capture_output=True,
-            timeout=timeout,
-        )
-    except subprocess.TimeoutExpired as exc:
-        return receipt(mode, False, error="worker_timeout", stdout=tail(exc.stdout or ""), stderr=tail(exc.stderr or ""))
-    return receipt(
-        mode,
-        p.returncode == 0,
-        worker="codex-phone",
-        jarGoverned=True,
-        rc=p.returncode,
-        stdout=tail(p.stdout),
-        stderr=tail(p.stderr),
-    )
+    # Do not impose a short router timeout on a daemon-governed worker. The
+    # worker itself backs off transient dependencies and Venice owns stopping.
+    p = subprocess.run([sys.executable, str(WORKER), commission], cwd=cwd, text=True, capture_output=True)
+    return receipt(mode, p.returncode == 0, worker="codex-phone-venice-reviewed", jarGoverned=True, veniceReviewed=True, daemonBackoff=True, rc=p.returncode, stdout=tail(p.stdout), stderr=tail(p.stderr))
 
 
 def run_mode(mode: str, text: str, cwd: str, timeout: int) -> int:
