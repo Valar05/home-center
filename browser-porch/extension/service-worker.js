@@ -3,7 +3,9 @@
 
 const CHATGPT_ORIGIN = 'https://chatgpt.com';
 const BOOT_PHRASE = 'PORTCULLIS LOCKED';
-const BOOT_ENVELOPE = `${BOOT_PHRASE}.\nYou are an execution worker, not a brainstorming partner. The commission below is binding.\n\nExecution rules:\n- Preserve the requested outcome, owner, tool, execution lane, exclusions, evidence standard, and delivery surface.\n- Do not silently substitute adjacent tools, architectures, workflows, or weaker evidence.\n- Creativity is allowed only inside the commission boundary; prefer the simplest implementation that satisfies it.\n- Keep requested capability, implemented capability, deployed capability, and proposed capability distinct.\n- Carry every earlier constraint forward when revising. Never fix one thing by resurrecting a rejected approach.\n- Continue until the requested artifact and acceptance evidence exist, or until a real external/user action is strictly required.\n- If blocked, report the exact boundary and the smallest required human action. Do not manufacture a substitute success.\n- Do not stop merely because one unit of work completed; re-read the commission and advance the next unmet acceptance criterion.\n- Keep prose terse. Spend effort on execution and verification.\n\nCOMMISSION:\n`;
+const BOOT_ENVELOPE = `${BOOT_PHRASE}.\nYou are an execution worker, not a brainstorming partner. The commission below is binding.\n\nExecution rules:\n- Preserve the requested outcome, owner, tool, execution lane, exclusions, evidence standard, and delivery surface.\n- Do not silently substitute adjacent tools, architectures, workflows, or weaker evidence.\n- Creativity is allowed only inside the commission boundary; prefer the simplest implementation that satisfies it.\n- Keep requested capability, implemented capability, tested capability, deployed capability, callable capability, delivered capability, and accepted capability distinct.\n- Carry every earlier constraint forward when revising. Never fix one thing by resurrecting a rejected approach.\n- Before asking Drew to execute anything, enumerate and exhaust authorized existing body lanes that can perform it. Computer Hands is the desktop body; Phone Hands is the phone body. Drew's hands are the final fallback.\n- Continue until the requested artifact and acceptance evidence exist, or until a real external/user action is strictly required.\n- If blocked, report the exact boundary and the smallest irreducible human action. Do not manufacture a substitute success.\n- Do not stop merely because one unit of work completed; re-read the campaign state and commission and advance the next unmet acceptance criterion.\n- Never use ChatGPT-local scratch/container execution as proof of anything on Drew's hardware.\n- Keep prose terse. Spend effort on execution and verification.\n`;
+
+const DEFAULT_CAMPAIGN_CONTEXT = `CAMPAIGN: Chromium Throne\nOWNER: Drew Clarke\nMISSION: Deliver a desktop workflow organ that orchestrates ChatGPT work from one visible browser tab plus one Chromium extension.\nPRIMARY ARCHITECTURE: local/phone coding remains independently functional; Chromium Throne is optional supplemental desktop ChatGPT compute. Visible browser processes are allowed. No headless browser farm, hidden-process requirement, API-token compute, account rotation, or substitute agent framework.\nCANONICAL REPO: Valar05/home-center\nCURRENT IMPLEMENTATION: browser-porch/extension is the Chromium Throne MV3 extension; tools/install_chromium_throne.ps1 is the installer; PORTCULLIS LOCKED is the worker boot phrase.\nBODY-LANE DOCTRINE: before operator handoff, exhaust configured authorized execution organs. Desktop -> Computer Hands. Phone -> Phone Hands. Browser semantic work -> Browser Nerve when applicable. Operator execution is only for genuine irreducible human boundaries.\nEVIDENCE DOCTRINE: distinguish requested / implemented / tested / deployed / callable / delivered / accepted. Real-machine claims require authoritative real-machine receipts, not local scratch.\nFAILURE GUARD: available_body_lane_ignored is a Fortress failure. Never ask Drew to run a command that an authorized configured body lane can execute.\nCURRENT ACCEPTANCE TARGET: Chromium Throne visibly running on the real workstation, extension loaded, one ChatGPT tab visible, side panel open, harmless PORTCULLIS LOCKED commission dispatched, response checkpoint captured, authoritative receipt returned.\n`;
 
 chrome.sidePanel.setPanelBehavior({openPanelOnActionClick: true}).catch(() => {});
 
@@ -14,12 +16,17 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
 async function handle(message = {}) {
   switch (message.type) {
-    case 'throne.status':
-      return {ok: true, bootPhrase: BOOT_PHRASE, tab: await chatTabSummary()};
+    case 'throne.status': {
+      const {throneContext = DEFAULT_CAMPAIGN_CONTEXT} = await chrome.storage.local.get('throneContext');
+      return {ok: true, bootPhrase: BOOT_PHRASE, defaultContext: DEFAULT_CAMPAIGN_CONTEXT, context: throneContext, tab: await chatTabSummary()};
+    }
     case 'throne.run':
-      return runCommission(String(message.commission || ''), message.newWorker !== false);
+      return runCommission(String(message.commission || ''), message.newWorker !== false, String(message.context || ''));
     case 'throne.capture':
       return captureLatest();
+    case 'throne.resetContext':
+      await chrome.storage.local.set({throneContext: DEFAULT_CAMPAIGN_CONTEXT});
+      return {ok: true, context: DEFAULT_CAMPAIGN_CONTEXT};
     case 'throne.stop':
       await chrome.storage.session.set({throneStopped: true});
       return {ok: true, stopped: true};
@@ -31,18 +38,20 @@ async function handle(message = {}) {
   }
 }
 
-async function runCommission(commission, newWorker) {
+async function runCommission(commission, newWorker, suppliedContext) {
   if (!commission.trim()) throw new Error('Commission is empty');
   const {throneStopped = false} = await chrome.storage.session.get('throneStopped');
   if (throneStopped) throw new Error('Chromium Throne is stopped');
   const tab = await requireChatTab();
+  const stored = await chrome.storage.local.get('throneContext');
+  const context = suppliedContext.trim() || String(stored.throneContext || DEFAULT_CAMPAIGN_CONTEXT).trim();
 
   if (newWorker) {
     await chrome.tabs.update(tab.id, {url: `${CHATGPT_ORIGIN}/`});
     await waitForTabComplete(tab.id, 15000);
   }
 
-  const prompt = `${BOOT_ENVELOPE}${commission.trim()}`;
+  const prompt = `${BOOT_ENVELOPE}\nDURABLE CAMPAIGN CONTEXT:\n${context}\n\nCOMMISSION:\n${commission.trim()}`;
   const [result] = await chrome.scripting.executeScript({
     target: {tabId: tab.id},
     func: submitChatGptPrompt,
@@ -57,6 +66,7 @@ async function runCommission(commission, newWorker) {
     url: `${CHATGPT_ORIGIN}/`,
     bootPhrase: BOOT_PHRASE,
     commission,
+    contextChars: context.length,
     promptChars: prompt.length,
   };
   await appendReceipt(receipt);
