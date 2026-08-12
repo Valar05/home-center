@@ -8,6 +8,7 @@ provider = (ROOT / "android/operator-overlay/app/src/main/java/com/homecenter/op
 daemon = (ROOT / "tools/vlad_swarm_daemon.py").read_text(encoding="utf-8")
 router = (ROOT / "tools/adam.py").read_text(encoding="utf-8")
 worker = (ROOT / "tools/adam_codex_phone.py").read_text(encoding="utf-8")
+reviewed = (ROOT / "tools/adam_venice_reviewed.py").read_text(encoding="utf-8")
 
 for token in [
     'adamModeButton("TERM", "terminal"',
@@ -28,12 +29,12 @@ for token in ["adam_request_id", "adam_request_mode", "adam_request_payload_b64"
 for token in ["process_adam_overlay", "adam-last-request-id", "base64.b64decode", "operator_update", "ADAM_POLL_SECONDS"]:
     assert token in daemon, f"daemon missing {token}"
 
-# Overlay transport names are preserved, but only terminal remains a direct body
-# lane. CHAT/CONT/VLAD must enter the same Jar-governed Codex worker.
 for token in [
     'ONE_SHOT_MODES = ("terminal", "chat", "continue", "vlad")',
-    'WORKER = ROOT / "tools" / "adam_codex_phone.py"',
+    'WORKER = ROOT / "tools" / "adam_venice_reviewed.py"',
     'jarGoverned=True',
+    'veniceReviewed=True',
+    'daemonBackoff=True',
     'def run_worker(',
     'def run_mode(',
 ]:
@@ -45,8 +46,9 @@ assert 'return run_worker(mode, text, cwd, timeout)' in router
 assert 'ollama_generate' not in router
 assert 'local_exec_plan' not in router
 
-# Personality output is impossible without loading active Jars in the worker.
 assert 'ACTIVE JUDGEMENT JARS (binding)' in worker
 assert 'def active_jars(' in worker
 assert 'Unstructured model prose is never shown' in worker
-print("Adam overlay transport / Codex-worker contract: PASS")
+assert 'Venice reviews every stop' in reviewed
+assert 'Daemon Persistence and Connector Backoff' in reviewed
+print("Adam overlay transport / reviewed Codex-worker contract: PASS")
