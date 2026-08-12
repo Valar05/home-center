@@ -6,6 +6,7 @@ const {StreamableHTTPServerTransport} = require('@modelcontextprotocol/sdk/serve
 const {APP_CONTROL_COLLECTIONS, APP_CONTROL_DEFAULT_SEEDS, appControlProfileObjectId, appControlProfilePath} = require('./app_control_cloud');
 const {registerCommandCenterPhoneTools, enqueuePhoneCommand, getPhoneCommand, listPhoneDevices} = require('./phone_hands_relay');
 const {enqueueBrowserNerveTicket} = require('./browser_nerve_api');
+const {scopeBucketQuery, compareBucketObjects} = require('./command_center_bucket_query');
 
 const DEFAULT_COMMAND_CENTER_PUBLIC_BASE = 'https://us-central1-home-center-dclar.cloudfunctions.net/commandCenterMcp';
 const COMMAND_CENTER_PUBLIC_BASE = process.env.COMMAND_CENTER_MCP_PUBLIC_BASE || DEFAULT_COMMAND_CENTER_PUBLIC_BASE;
@@ -406,7 +407,15 @@ async function listBucketObjects(admin, args = {}, caller = null) {
   const repository = safeText(args.repository, 240);
   const tag = safeText(args.tag, 120);
   const limit = Math.max(1, Math.min(Number(args.limit) || 50, 100));
-  const snap = await collection(admin, COMMAND_CENTER_COLLECTIONS.bucketObjects).limit(250).get();
+  // Scope at the database query before any bounded result window. The old
+  // implementation read an arbitrary first 250 documents and only then
+  // applied owner/project filters, which made valid objects disappear as the
+  // bucket grew. Never reintroduce post-limit authorization/filtering.
+  const query = scopeBucketQuery(collection(admin, COMMAND_CENTER_COLLECTIONS.bucketObjects), {
+    ownerKey: caller ? ownerKeyFromCaller(caller) : '',
+    projectId,
+  });
+  const snap = await query.get();
   const objects = [];
   snap.forEach((doc) => {
     const object = doc.data() || {};
@@ -418,7 +427,7 @@ async function listBucketObjects(admin, args = {}, caller = null) {
     if (tag && !(Array.isArray(object.tags) && object.tags.includes(tag))) return;
     objects.push(object);
   });
-  objects.sort((a, b) => Number(b.updatedAtMs || 0) - Number(a.updatedAtMs || 0));
+  objects.sort(compareBucketObjects);
   return {bucketId, objects: objects.slice(0, limit), layout: COMMAND_CENTER_BUCKET_LAYOUT};
 }
 
