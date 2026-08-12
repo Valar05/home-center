@@ -27,6 +27,20 @@ DANGEROUS = re.compile(
     r"pm\s+uninstall\b|settings\s+put\s+secure\b|chmod\s+777\b)",
     re.I,
 )
+# Model-inferred shell is deliberately inspection/validation oriented. Mutating
+# repository/filesystem operations must use the typed write tool or an explicit
+# operator-selected terminal lane; this prevents a tiny model from smuggling a
+# mutation through shell syntax.
+MUTATING_SHELL = re.compile(
+    r"(?:^|[;&|]\s*)(?:"
+    r"rm\b|mv\b|cp\b|install\b|truncate\b|touch\b|mkdir\b|rmdir\b|"
+    r"sed\s+-[^\n]*i\b|perl\s+-[^\n]*i\b|tee\b|"
+    r"git\s+(?:add|commit|reset|clean|checkout|restore|switch|merge|rebase|cherry-pick|revert|tag|push|pull)\b|"
+    r"npm\s+(?:install|uninstall|update)\b|pnpm\s+(?:add|remove|install|update)\b|yarn\s+(?:add|remove|install|upgrade)\b|"
+    r"pip(?:3)?\s+install\b|pkg\s+(?:install|uninstall|upgrade)\b|apt(?:-get)?\s+(?:install|remove|upgrade)\b"
+    r")|(?:^|[^<])>>?|\b(?:echo|printf)\b[^\n]*>\s*[^&]",
+    re.I,
+)
 
 SYSTEM = r'''You are Adam, Drew's local phone worker. Work like Codex, not like a generic chatbot.
 
@@ -51,7 +65,7 @@ Allowed objects:
 {"tool":"read_file","path":"relative/path","start":1,"lines":220}
 {"tool":"list_dir","path":"relative/path"}
 {"tool":"search_files","query":"literal or regex","path":"relative/path"}
-{"tool":"run_command","command":"bounded shell command","timeout":120}
+{"tool":"run_command","command":"inspection/build/test command","timeout":120}
 {"tool":"write_file","path":"relative/path","content":"complete UTF-8 content"}
 {"tool":"phone_intent","intent":"bounded Android UI/device intent"}
 {"tool":"respond","text":"governed conversational response candidate"}
@@ -60,7 +74,8 @@ Allowed objects:
 RULES
 - One tool action per turn.
 - Use read/list/search before editing unfamiliar code.
-- Use run_command for git status, tests, builds, inspection, and other bounded commands.
+- run_command is for inspection, builds, tests, and validation; it cannot directly mutate files/repository state.
+- Use write_file for model-authored file changes. Exact operator-requested raw shell belongs to the explicit terminal lane.
 - write_file may only write inside the current workspace.
 - phone_intent delegates to the existing phone body helper.
 - respond/finish are proposals only; the reviewed launcher sends them through Venice before they can terminate.
@@ -164,6 +179,8 @@ def run_command(workspace: Path, obj: dict) -> dict:
         return {"ok": False, "error": "empty command"}
     if DANGEROUS.search(command):
         return {"ok": False, "error": "blocked destructive/privileged command", "command": command}
+    if MUTATING_SHELL.search(command):
+        return {"ok": False, "error": "model-generated shell is inspection/validation-only; use write_file or the explicit terminal lane for intentional mutation", "command": command}
     timeout = min(900, max(1, int(obj.get("timeout", 120))))
     try:
         p = subprocess.run(["bash", "-lc", command], cwd=workspace, text=True, capture_output=True, timeout=timeout)
