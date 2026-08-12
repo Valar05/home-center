@@ -6,6 +6,7 @@ CONFIG_DIR="${HOME_CENTER_CONFIG_DIR:-$HOME/.config/home-center}"
 ENDPOINT_FILE="$CONFIG_DIR/shizuku-adb-endpoint"
 LOG="$STATE_DIR/shizuku-recover.log"
 SHIZUKU_START="/sdcard/Android/data/moe.shizuku.privileged.api/start.sh"
+WAIT_SECONDS="${HC_SHIZUKU_RECOVER_WAIT_SECONDS:-90}"
 mkdir -p "$STATE_DIR" "$CONFIG_DIR"
 exec > >(tee -a "$LOG") 2>&1
 
@@ -42,6 +43,47 @@ start_via_target() {
   probe_rish
 }
 
+try_adb_targets() {
+  local target state line port
+  if [ -s "$ENDPOINT_FILE" ]; then
+    target="$(head -1 "$ENDPOINT_FILE" | tr -d '\r\n')"
+    start_via_target "$target" && return 0
+  fi
+
+  while read -r target state _; do
+    [ "$state" = device ] || continue
+    case "$target" in
+      *:*) start_via_target "$target" && return 0 ;;
+    esac
+  done < <(adb devices | tail -n +2)
+
+  if adb mdns services >/dev/null 2>&1; then
+    while read -r line; do
+      target="$(printf '%s\n' "$line" | sed -nE 's/.*[[:space:]]([^[:space:]]+:[0-9]+)[[:space:]]*$/\1/p')"
+      [ -n "$target" ] || continue
+      start_via_target "$target" && return 0
+    done < <(adb mdns services 2>/dev/null | grep '_adb-tls-connect\._tcp' || true)
+  fi
+
+  if command -v ss >/dev/null 2>&1; then
+    while read -r port; do
+      [ -n "$port" ] || continue
+      start_via_target "127.0.0.1:$port" && return 0
+    done < <(ss -ltn 2>/dev/null | sed -nE 's/.*[:.]([0-9]{4,5})[[:space:]].*/\1/p' | sort -u)
+  fi
+  return 1
+}
+
+open_wireless_debugging_gate() {
+  say "Android hid adbd. Opening Wireless debugging so the only required human action is the system toggle."
+  # Pixel/AOSP builds commonly resolve this direct action; fall back to the
+  # required platform Developer options action when they do not.
+  if am start -a android.settings.WIRELESS_DEBUGGING_SETTINGS >/dev/null 2>&1; then
+    return 0
+  fi
+  am start -a android.settings.APPLICATION_DEVELOPMENT_SETTINGS >/dev/null 2>&1 || return 1
+}
+
 say "Checking current Shizuku/rish state"
 if probe_rish; then
   say "Shizuku already healthy"
@@ -53,57 +95,26 @@ if ! command -v adb >/dev/null 2>&1; then
   pkg install -y android-tools
 fi
 
-# First reuse the last endpoint that actually worked. This survives ordinary
-# Wi-Fi changes when adbd remains alive and the endpoint is localhost-reachable.
-if [ -s "$ENDPOINT_FILE" ]; then
-  target="$(head -1 "$ENDPOINT_FILE" | tr -d '\r\n')"
-  if start_via_target "$target"; then
-    say "Recovered Shizuku through remembered ADB endpoint"
+if try_adb_targets; then
+  say "Recovered Shizuku automatically"
+  exit 0
+fi
+
+open_wireless_debugging_gate || true
+say "Waiting up to ${WAIT_SECONDS}s for Wireless debugging/adbd to reappear. Turn Wireless debugging ON if Android shows it off; no same-Wi-Fi requirement is being imposed by Home Center."
+deadline=$((SECONDS + WAIT_SECONDS))
+while [ "$SECONDS" -lt "$deadline" ]; do
+  if probe_rish; then
+    say "Shizuku became healthy"
     exit 0
   fi
-fi
+  if try_adb_targets; then
+    say "Recovered Shizuku after Android debugging gate reopened"
+    exit 0
+  fi
+  sleep 2
+done
 
-# Reuse any ADB connection Termux already knows about.
-while read -r target state _; do
-  [ "$state" = device ] || continue
-  case "$target" in
-    *:*)
-      if start_via_target "$target"; then
-        say "Recovered Shizuku through existing ADB connection"
-        exit 0
-      fi
-      ;;
-  esac
-done < <(adb devices | tail -n +2)
-
-# Android 11+ Wireless Debugging advertises a TLS connect service while it is
-# available. This avoids hard-coding a Wi-Fi address and also works when the
-# service is discoverable locally after a network transition.
-if adb mdns services >/dev/null 2>&1; then
-  while read -r line; do
-    target="$(printf '%s\n' "$line" | sed -nE 's/.*[[:space:]]([^[:space:]]+:[0-9]+)[[:space:]]*$/\1/p')"
-    [ -n "$target" ] || continue
-    if start_via_target "$target"; then
-      say "Recovered Shizuku through mDNS-discovered ADB"
-      exit 0
-    fi
-  done < <(adb mdns services 2>/dev/null | grep '_adb-tls-connect\._tcp' || true)
-fi
-
-# Last cheap local attempt: if Android still has adbd listening on a local TCP
-# socket, ss exposes the port without requiring us to scan the whole network.
-if command -v ss >/dev/null 2>&1; then
-  while read -r port; do
-    [ -n "$port" ] || continue
-    target="127.0.0.1:$port"
-    if start_via_target "$target"; then
-      say "Recovered Shizuku through localhost adbd"
-      exit 0
-    fi
-  done < <(ss -ltn 2>/dev/null | sed -nE 's/.*[:.]([0-9]{4,5})[[:space:]].*/\1/p' | sort -u)
-fi
-
-say "Automatic recovery exhausted. Android has killed or hidden adbd, so an unprivileged Termux process cannot recreate Shizuku by itself."
-say "Open Shizuku and start via Wireless debugging (or reconnect USB ADB once), then rerun this script. Pairing should not be required again unless Android revoked it."
-say "After recovery, keep Developer options + USB debugging enabled and enable 'Disable adb authorization timeout' to reduce future drops."
+say "Still blocked at Android's privilege boundary: Wireless debugging/adbd did not become reachable before timeout."
+say "Leave this script running while you enable Wireless debugging, or rerun it afterward. Pairing should not be required unless Android revoked the pairing."
 exit 2
