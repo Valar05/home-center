@@ -9,10 +9,13 @@ OUTDIR="$APP/build/outputs/apk/debug"
 WORK="$HOME/.cache/home-center/operator-overlay-termux-build"
 PLATFORM_DIR="$HOME/.cache/home-center/android-platform-35"
 ANDROID_JAR="${HC_ANDROID_JAR:-$PLATFORM_DIR/android.jar}"
+FRAMEWORK_RES="${HC_FRAMEWORK_RES_APK:-$WORK/framework-res.apk}"
 KEYSTORE="$HOME/.local/state/home-center/adam-overlay-debug.keystore"
 APK="$OUTDIR/app-debug.apk"
 META_URL="${HC_ANDROID_REPOSITORY_XML:-https://dl.google.com/android/repository/repository2-1.xml}"
 PACKAGE_NAME="com.homecenter.operatoroverlay"
+RISH_BIN="${RISH:-$(command -v rish 2>/dev/null || true)}"
+[ -n "$RISH_BIN" ] || RISH_BIN="$HOME/bin/rish"
 
 mkdir -p "$OUTDIR" "$WORK" "$PLATFORM_DIR" "$(dirname "$KEYSTORE")"
 
@@ -49,6 +52,7 @@ install_termux_tools() {
     echo "Current repositories may not expose the package that provides them; no alternate toolchain was substituted." >&2
     exit 30
   }
+  [ -x "$RISH_BIN" ] || { echo 'BLOCKED: rish missing; live Android framework resources cannot be read.' >&2; exit 34; }
 }
 
 valid_android_jar() {
@@ -66,7 +70,7 @@ ensure_android_jar() {
     echo "[build] Cached android.jar is invalid; replacing it: $ANDROID_JAR"
     rm -f "$ANDROID_JAR"
   fi
-  echo '[build] Resolving platforms;android-35 from Google SDK repository metadata'
+  echo '[build] Resolving platforms;android-35 class jar from Google SDK repository metadata'
   local xml="$WORK/repository2-1.xml" info="$WORK/platform35.json" zipfile="$WORK/platform35.zip"
   curl -fL --retry 3 --retry-delay 2 "$META_URL" -o "$xml"
   python - "$xml" "$info" <<'PY'
@@ -113,7 +117,16 @@ PY
   found="$(find "$PLATFORM_DIR.unpack" -type f -name android.jar | head -1)"
   [ -s "$found" ] || { echo 'BLOCKED: downloaded Android platform archive has no android.jar' >&2; exit 32; }
   cp "$found" "$ANDROID_JAR"
-  valid_android_jar || { echo "BLOCKED: extracted Android platform jar is not a valid API-35 android.jar: $ANDROID_JAR" >&2; exit 33; }
+  valid_android_jar || { echo "BLOCKED: extracted Android platform jar is not a valid API-35 class jar: $ANDROID_JAR" >&2; exit 33; }
+}
+
+ensure_framework_resources() {
+  echo '[build] Reading live Android framework resource table through Shizuku/rish'
+  rm -f "$FRAMEWORK_RES"
+  "$RISH_BIN" -c 'cat /system/framework/framework-res.apk' > "$FRAMEWORK_RES"
+  [ -s "$FRAMEWORK_RES" ] || { echo 'BLOCKED: framework-res.apk read produced no bytes.' >&2; exit 35; }
+  unzip -tqq "$FRAMEWORK_RES" >/dev/null 2>&1 || { echo 'BLOCKED: copied framework-res.apk is not a valid APK/ZIP.' >&2; exit 36; }
+  aapt2 dump resources "$FRAMEWORK_RES" >/dev/null 2>&1 || { echo 'BLOCKED: live framework-res.apk has no readable Android resource table.' >&2; exit 37; }
 }
 
 ensure_keystore() {
@@ -139,17 +152,18 @@ PY
 
 install_termux_tools
 ensure_android_jar
+ensure_framework_resources
 ensure_keystore
 
 rm -rf "$WORK/classes" "$WORK/dex" "$WORK/package" "$WORK/base-unsigned.apk" "$WORK/base-signed.apk"
 mkdir -p "$WORK/classes" "$WORK/dex" "$WORK/package"
 BUILD_MANIFEST="$(prepare_manifest)"
 
-# This project intentionally uses framework resources only, so there is no app res/ tree to compile.
+# AAPT2 consumes the live framework resource table; javac/d8 consume the API-35 SDK class jar.
 echo '[build] Packaging manifest/resources table'
-aapt2 link -o "$WORK/base-unsigned.apk" -I "$ANDROID_JAR" --manifest "$BUILD_MANIFEST" --min-sdk-version 26 --target-sdk-version 35 --version-code 3 --version-name 1.2.0
+aapt2 link -o "$WORK/base-unsigned.apk" -I "$FRAMEWORK_RES" --manifest "$BUILD_MANIFEST" --min-sdk-version 26 --target-sdk-version 35 --version-code 3 --version-name 1.2.0
 
-echo '[build] Compiling Java against API 35 framework'
+echo '[build] Compiling Java against API 35 framework classes'
 find "$SRC" -name '*.java' -print0 | xargs -0 javac --release 17 -classpath "$ANDROID_JAR" -d "$WORK/classes"
 
 echo '[build] Dexing classes for minSdk 26'
@@ -164,4 +178,4 @@ apksigner sign --ks "$KEYSTORE" --ks-key-alias androiddebugkey --ks-pass pass:an
 apksigner verify --verbose "$APK" >/dev/null
 
 sha256sum "$APK"
-echo "TERMUX OVERLAY APK BUILT apk=$APK androidJar=$ANDROID_JAR"
+echo "TERMUX OVERLAY APK BUILT apk=$APK androidJar=$ANDROID_JAR frameworkRes=$FRAMEWORK_RES"
