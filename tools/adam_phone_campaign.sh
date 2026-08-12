@@ -34,17 +34,11 @@ EOF
   bash "$ROOT/tools/home_center_status_menu.sh" >/dev/null 2>&1 || true
 }
 
-status(){
-  [ -f "$STATE" ] && cat "$STATE" || printf '{"schema":"adam-phone-campaign-v1","stage":"never-run","status":"idle"}\n'
-}
+status(){ [ -f "$STATE" ] && cat "$STATE" || printf '{"schema":"adam-phone-campaign-v1","stage":"never-run","status":"idle"}\n'; }
 receipts(){
   status
   [ -f "$LATEST" ] && { echo "===== $LATEST ====="; cat "$LATEST"; }
-  for f in \
-    "$HOME/.local/state/home-center/adam-cli-install-receipt.json" \
-    "$HOME/.local/state/home-center/adam-phone-worker-acceptance.json" \
-    "$HOME/.local/state/home-center/adam-daemon/venice-plan-review-last.json" \
-    "$HOME/.local/state/home-center/adam-daemon/venice-review-last.json"; do
+  for f in "$HOME/.local/state/home-center/adam-cli-install-receipt.json" "$HOME/.local/state/home-center/adam-phone-worker-acceptance.json" "$HOME/.local/state/home-center/adam-daemon/venice-plan-review-last.json" "$HOME/.local/state/home-center/adam-daemon/venice-review-last.json"; do
     [ -f "$f" ] && { echo "===== $f ====="; cat "$f"; }
   done
 }
@@ -74,25 +68,33 @@ restore_local(){
 repair_with_adam(){
   local failure_log="$1"
   json_state repair running "planned Adam self-heal repairing failed campaign stage"
-  python3 "$ROOT/tools/adam_planned_venice.py" \
-    "Repair the Adam phone campaign from the current repository/runtime evidence. This is a continuing-value campaign, not a one-off. Read the failing log at $failure_log, preserve campaign doctrine, fix the smallest root cause, run relevant tests, and obtain Venice plan and completion review. Do not ask Drew to paste another diagnostic chain." \
-    >>"$LOG" 2>&1
+  python3 "$ROOT/tools/adam_planned_venice.py" "Repair the Adam phone campaign from the current repository/runtime evidence. This is a continuing-value campaign, not a one-off. Read the failing log at $failure_log, preserve campaign doctrine, fix the smallest root cause, run relevant tests, and obtain Venice plan and completion review. Do not ask Drew to paste another diagnostic chain." >>"$LOG" 2>&1
 }
 
 persist_repairs(){
-  [ -n "$(git -C "$ROOT" status --porcelain)" ] || return 0
-  json_state persist-repair running "persisting campaign self-heal to canonical main"
-  git -C "$ROOT" add -A >>"$LOG" 2>&1 || return 1
-  if ! git -C "$ROOT" diff --cached --quiet; then
-    git -C "$ROOT" commit -m "Self-heal Adam phone campaign" >>"$LOG" 2>&1 || return 1
+  json_state persist-repair running "persisting campaign state/repairs to canonical main"
+  if [ -n "$(git -C "$ROOT" status --porcelain)" ]; then
+    git -C "$ROOT" add -A >>"$LOG" 2>&1 || return 1
+    if ! git -C "$ROOT" diff --cached --quiet; then git -C "$ROOT" commit -m "Self-heal Adam phone campaign" >>"$LOG" 2>&1 || return 1; fi
   fi
   git -C "$ROOT" fetch origin main >>"$LOG" 2>&1 || return 1
-  if ! git -C "$ROOT" rebase origin/main >>"$LOG" 2>&1; then
-    git -C "$ROOT" rebase --abort >>"$LOG" 2>&1 || true
-    return 1
-  fi
+  if ! git -C "$ROOT" rebase origin/main >>"$LOG" 2>&1; then git -C "$ROOT" rebase --abort >>"$LOG" 2>&1 || true; return 1; fi
   git -C "$ROOT" push origin HEAD:main >>"$LOG" 2>&1 || return 1
-  return 0
+}
+
+write_acceptance(){
+  local menu_ok="$1"
+  python3 - "$LATEST" "$menu_ok" <<'PY'
+import json,os,sys,time
+home=os.path.expanduser('~/.local/state/home-center'); menu_ok=sys.argv[2]=='1'
+paths={'install':home+'/adam-cli-install-receipt.json','plan':home+'/adam-daemon/venice-plan-review-last.json','stop':home+'/adam-daemon/venice-review-last.json'}
+try:data={k:json.load(open(v,encoding='utf-8')) for k,v in paths.items()}
+except Exception as e:
+ print(json.dumps({'ok':False,'error':str(e),'paths':paths}));raise SystemExit(2)
+ok=(data['install'].get('ok') is True and data['plan'].get('directive')=='PLAN_ALLOWED' and data['plan'].get('planPermissionGranted') is True and data['stop'].get('directive')=='STOP_ALLOWED' and data['stop'].get('externalReviewGateSatisfied') is True and menu_ok)
+obj={'schema':'adam-phone-campaign-receipt-v2','ok':ok,'paths':paths,'verifiedAtEpoch':int(time.time()),'continuingValue':{'stableCommand':'adam-campaign','commands':['run','resume','status','receipts','menu','overlay','phone-hands'],'state':home+'/adam-campaign/state.json','history':home+'/adam-campaign/history.jsonl','notificationMenu':menu_ok,'notificationMenuProbe':home+'/adam-campaign/menu-probe.log','overlayRecovery':True,'phoneHandsRecovery':True,'selfHeal':True,'daemonBackoff':True}}
+open(sys.argv[1],'w',encoding='utf-8').write(json.dumps(obj,indent=2,sort_keys=True)+'\n');print(json.dumps(obj,indent=2,sort_keys=True));raise SystemExit(0 if ok else 2)
+PY
 }
 
 run_campaign(){
@@ -103,7 +105,6 @@ run_campaign(){
   PRESERVED_STASH=""
   json_state bootstrap running "starting/resuming Adam phone campaign; continuing service already installed"
   preserve_local || { json_state preserve-failed blocked "could not preserve local phone work"; return 3; }
-
   json_state sync running "syncing canonical main"
   git fetch origin main >>"$LOG" 2>&1 || { restore_local || true; json_state sync-failed degraded "git fetch failed; adam-campaign resume will retry"; return 4; }
   git checkout main >>"$LOG" 2>&1 || { restore_local || true; json_state sync-failed blocked "cannot checkout main"; return 5; }
@@ -111,41 +112,31 @@ run_campaign(){
 
   local round=0
   while true; do
-    round=$((round+1))
-    json_state contracts running "local deterministic contract round $round"
+    round=$((round+1));json_state contracts running "local deterministic contract round $round"
     if bash tools/run_fortress_local_contracts.sh >"$STATE_ROOT/contracts.log" 2>&1; then break; fi
-    json_state contracts-failed repairing "contract round $round failed; invoking governed repair"
-    repair_with_adam "$STATE_ROOT/contracts.log" || true
-    backoff "$round"
+    json_state contracts-failed repairing "contract round $round failed; invoking governed repair";repair_with_adam "$STATE_ROOT/contracts.log" || true;backoff "$round"
   done
 
   round=0
   while true; do
-    round=$((round+1))
-    json_state install running "Adam install/runtime acceptance round $round"
+    round=$((round+1));json_state install running "Adam install/runtime acceptance round $round"
     if bash tools/install_adam_cli.sh >"$STATE_ROOT/install.log" 2>&1; then break; fi
-    json_state install-failed repairing "install/runtime round $round failed; invoking governed repair"
-    repair_with_adam "$STATE_ROOT/install.log" || true
-    backoff "$round"
+    json_state install-failed repairing "install/runtime round $round failed; invoking governed repair";repair_with_adam "$STATE_ROOT/install.log" || true;backoff "$round"
   done
 
-  json_state verify running "verifying plan/completion receipts and continuing control surface"
-  if bash "$ROOT/tools/home_center_status_menu.sh" probe >"$STATE_ROOT/menu-probe.log" 2>&1; then MENU_OK=1; else MENU_OK=0; fi
-  python3 - "$LATEST" "$MENU_OK" <<'PY'
-import json,os,sys,time
-home=os.path.expanduser('~/.local/state/home-center'); menu_ok=sys.argv[2]=='1'
-paths={'install':home+'/adam-cli-install-receipt.json','plan':home+'/adam-daemon/venice-plan-review-last.json','stop':home+'/adam-daemon/venice-review-last.json'}
-data={k:json.load(open(v,encoding='utf-8')) for k,v in paths.items()}
-ok=(data['install'].get('ok') is True and data['plan'].get('directive')=='PLAN_ALLOWED' and data['plan'].get('planPermissionGranted') is True and data['stop'].get('directive')=='STOP_ALLOWED' and data['stop'].get('externalReviewGateSatisfied') is True and menu_ok)
-obj={'schema':'adam-phone-campaign-receipt-v2','ok':ok,'paths':paths,'verifiedAtEpoch':int(time.time()),'continuingValue':{'stableCommand':'adam-campaign','commands':['run','resume','status','receipts','menu','overlay','phone-hands'],'state':home+'/adam-campaign/state.json','history':home+'/adam-campaign/history.jsonl','notificationMenu':menu_ok,'notificationMenuProbe':home+'/adam-campaign/menu-probe.log','overlayRecovery':True,'phoneHandsRecovery':True,'selfHeal':True,'daemonBackoff':True}}
-open(sys.argv[1],'w',encoding='utf-8').write(json.dumps(obj,indent=2,sort_keys=True)+'\n')
-print(json.dumps(obj,indent=2,sort_keys=True))
-raise SystemExit(0 if ok else 2)
-PY
-  local verify_rc=$?
-  if [ "$verify_rc" -ne 0 ]; then json_state verify-failed repairing "receipts or continuing notification control surface not proven"; restore_local || true; return "$verify_rc"; fi
+  round=0
+  while true; do
+    round=$((round+1));json_state verify running "continuing-value acceptance round $round"
+    if bash "$ROOT/tools/home_center_status_menu.sh" probe >"$STATE_ROOT/menu-probe.log" 2>&1; then MENU_OK=1; else MENU_OK=0; fi
+    if write_acceptance "$MENU_OK" >"$STATE_ROOT/verify.log" 2>&1; then break; fi
+    json_state verify-failed repairing "plan/stop receipts or notification control surface not proven; invoking governed repair"
+    repair_with_adam "$STATE_ROOT/verify.log" || true
+    backoff "$round"
+    bash tools/run_fortress_local_contracts.sh >"$STATE_ROOT/contracts.log" 2>&1 || true
+    bash tools/install_adam_cli.sh >"$STATE_ROOT/install.log" 2>&1 || true
+  done
 
-  persist_repairs || { json_state persist-failed degraded "self-heal passed locally but canonical push failed; adam-campaign resume will retry persistence"; restore_local || true; return 21; }
+  persist_repairs || { json_state persist-failed degraded "accepted locally but canonical persistence failed; adam-campaign resume will retry"; restore_local || true; return 21; }
   restore_local || return 20
   install_service
   json_state healthy healthy "Adam campaign accepted; persistent self-heal/status/menu remain installed"
