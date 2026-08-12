@@ -16,7 +16,10 @@ public class OperatorStateProvider extends ContentProvider {
             "screen_active_until_ms",
             "screen_yield_until_ms",
             "panel_collapsed",
-            "overlay_hidden"
+            "overlay_hidden",
+            "adam_request_id",
+            "adam_request_mode",
+            "adam_request_payload_b64"
     };
 
     @Override
@@ -36,7 +39,10 @@ public class OperatorStateProvider extends ContentProvider {
                 OperatorState.screenActiveUntilMs(getContext()),
                 OperatorState.screenYieldUntilMs(getContext()),
                 OperatorState.panelCollapsed(getContext()) ? 1 : 0,
-                OperatorState.overlayHidden(getContext()) ? 1 : 0
+                OperatorState.overlayHidden(getContext()) ? 1 : 0,
+                OperatorState.adamRequestId(getContext()),
+                OperatorState.adamRequestMode(getContext()),
+                OperatorState.adamRequestPayloadB64(getContext())
         });
         return cursor;
     }
