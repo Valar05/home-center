@@ -37,6 +37,19 @@ def library_dirs()->list[str]:
     return sorted(set(dirs))
 
 
+def attempt(demo:Path, req:dict, intermediate:Path, outdir:Path, env:dict, backend:int):
+    intermediate.unlink(missing_ok=True)
+    cmd=[str(demo),str(MODEL_DIR),'0','0',str(backend),str(req['steps']),str(req['seed']),str(intermediate),str(req['prompt'])]
+    started=time.monotonic()
+    try:
+        proc=subprocess.run(cmd,cwd=str(outdir),env=env,text=True,capture_output=True,timeout=MAX_SECONDS)
+        elapsed=time.monotonic()-started
+        ok=proc.returncode==0 and intermediate.is_file() and intermediate.stat().st_size>0
+        return {'ok':ok,'backend':backend,'cmd':cmd,'rc':proc.returncode,'stdout':proc.stdout[-6000:],'stderr':proc.stderr[-6000:],'elapsedSeconds':elapsed}
+    except subprocess.TimeoutExpired as exc:
+        return {'ok':False,'backend':backend,'cmd':cmd,'rc':124,'stdout':str(exc.stdout or '')[-6000:],'stderr':str(exc.stderr or '')[-6000:],'elapsedSeconds':time.monotonic()-started,'timeout':True}
+
+
 def main():
     ap=argparse.ArgumentParser(prog='vlad-pixel-generate-mnn')
     ap.add_argument('request')
@@ -61,20 +74,24 @@ def main():
     intermediate=outdir/'neural.jpg'
     canonical=outdir/'sprite.vpx'
     receipt_path=outdir/'generation.json'
-    intermediate.unlink(missing_ok=True)
 
-    # MNN 3.4.1 official diffusion_demo contract: resource, SD1.5 model type 0,
-    # memory-saving mode 0, OpenCL backend 3, iterations, seed, output, prompt.
     env=os.environ.copy()
     dirs=library_dirs()
     inherited=env.get('LD_LIBRARY_PATH','')
     env['LD_LIBRARY_PATH']=':'.join(dirs+([inherited] if inherited else []))
-    cmd=[str(demo),str(MODEL_DIR),'0','0','3',str(req['steps']),str(req['seed']),str(intermediate),str(req['prompt'])]
-    started=time.monotonic()
-    proc=subprocess.run(cmd,cwd=str(outdir),env=env,text=True,capture_output=True,timeout=MAX_SECONDS)
-    elapsed=time.monotonic()-started
-    if proc.returncode!=0 or not intermediate.is_file() or intermediate.stat().st_size<=0:
-        receipt={'schema':'vlad.pixel.generate.v2','ok':False,'request':req,'cmd':cmd,'rc':proc.returncode,'stdout':proc.stdout[-6000:],'stderr':proc.stderr[-6000:],'elapsedSeconds':elapsed,'ldLibraryDirs':dirs,'device':'primary-phone','ciUsed':False}
+
+    # Prefer OpenCL (3). If the Android GPU path is unavailable or rejects this
+    # model, retry once on CPU (0). This is a bounded execution fallback, not a
+    # different model/runtime architecture.
+    attempts=[]
+    for backend in (3,0):
+        row=attempt(demo,req,intermediate,outdir,env,backend)
+        attempts.append(row)
+        if row['ok']:
+            break
+    chosen=attempts[-1]
+    if not chosen['ok']:
+        receipt={'schema':'vlad.pixel.generate.v3','ok':False,'request':req,'attempts':attempts,'ldLibraryDirs':dirs,'device':'primary-phone','ciUsed':False,'godotRuntimeUsed':False,'recordedAtEpoch':int(time.time())}
         receipt_path.write_text(json.dumps(receipt,indent=2,sort_keys=True)+'\n',encoding='utf-8')
         print(json.dumps(receipt,indent=2,sort_keys=True))
         return 20
@@ -87,8 +104,8 @@ def main():
     packed=json.loads(pack_receipt.read_text(encoding='utf-8')) if pack_receipt.is_file() else {}
     ok=pack.returncode==0 and canonical.is_file() and packed.get('intermediateDeleted') is True and not intermediate.exists()
     receipt={
-        'schema':'vlad.pixel.generate.v2','ok':ok,'request':req,'cmd':cmd,'rc':proc.returncode,
-        'stdout':proc.stdout[-6000:],'stderr':proc.stderr[-6000:],'elapsedSeconds':elapsed,'ldLibraryDirs':dirs,
+        'schema':'vlad.pixel.generate.v3','ok':ok,'request':req,'attempts':attempts,'backendUsed':chosen['backend'],
+        'elapsedSeconds':sum(float(x.get('elapsedSeconds') or 0) for x in attempts),'ldLibraryDirs':dirs,
         'canonical':str(canonical),'canonicalBytes':canonical.stat().st_size if canonical.is_file() else 0,
         'pack':packed,'packRc':pack.returncode,'packStdout':pack.stdout[-3000:],'packStderr':pack.stderr[-3000:],
         'intermediateDeleted':not intermediate.exists(),'device':'primary-phone','ciUsed':False,'godotRuntimeUsed':False,
