@@ -69,6 +69,16 @@ def ensure_audio_lab(repo_root):
   result=run(["python3",str(Path(repo_root)/"tools"/"adam_audio_lab.py"),"start"],timeout=30,cwd=repo_root)
   append_receipt({"kind":"adam.audio.ensure","ok":result["rc"]==0,"result":result})
 
+def drain_hands(repo_root,limit=4):
+ result=run(["python3",str(Path(repo_root)/"tools"/"hands_router.py"),"drain","--limit",str(limit)],timeout=360,cwd=repo_root)
+ if result["rc"]!=0:
+  append_receipt({"kind":"hands.drain","ok":False,"result":result})
+  return
+ try:rows=json.loads(result["stdout"] or '[]')
+ except Exception:
+  rows=[]
+ if rows:append_receipt({"kind":"hands.drain","ok":True,"count":len(rows),"receipts":rows})
+
 def _route_overlay(repo_root,mode,text):
  clean=text.strip(); lower=clean.lower()
  if lower=="hands status":return run(["python3",str(Path(repo_root)/"tools"/"hands_router.py"),"status"],timeout=30,cwd=repo_root),"Hands"
@@ -115,7 +125,9 @@ def main():
  STATE_DIR.mkdir(parents=True,exist_ok=True); append_receipt({"kind":"swarm.start","ok":True,"repo":repo_root,"interval":args.interval}); ensure_audio_lab(repo_root); next_heartbeat=0.0
  while True:
   try:
-   process_adam_overlay(repo_root); current=time.monotonic()
+   process_adam_overlay(repo_root)
+   drain_hands(repo_root)
+   current=time.monotonic()
    if current>=next_heartbeat:heartbeat(repo_root); next_heartbeat=current+max(5,args.interval)
   except Exception as exc:append_receipt({"kind":"swarm.error","ok":False,"error":f"{type(exc).__name__}: {exc}"})
   if args.once:return 0
