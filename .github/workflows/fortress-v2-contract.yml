@@ -6,14 +6,16 @@ on:
     paths:
       - 'functions/fortress_v2*'
       - 'tools/fortress_online_v2_boot*'
+      - 'tools/fortress_v2_shadow_acceptance.mjs'
       - '.github/workflows/fortress-v2-contract.yml'
-      - 'docs/FORTRESS_ONLINE_V2.md'
+      - 'docs/FORTRESS_ONLINE_V2*.md'
   pull_request:
     paths:
       - 'functions/fortress_v2*'
       - 'tools/fortress_online_v2_boot*'
+      - 'tools/fortress_v2_shadow_acceptance.mjs'
       - '.github/workflows/fortress-v2-contract.yml'
-      - 'docs/FORTRESS_ONLINE_V2.md'
+      - 'docs/FORTRESS_ONLINE_V2*.md'
 permissions:
   contents: read
 jobs:
@@ -41,6 +43,7 @@ jobs:
           node --check functions/fortress_v2_request_budget.test.js
           node --check tools/fortress_online_v2_boot.mjs
           node --check tools/fortress_online_v2_boot.test.mjs
+          node --check tools/fortress_v2_shadow_acceptance.mjs
       - name: Run deterministic V2 suites
         working-directory: .
         run: |
@@ -53,3 +56,4 @@ jobs:
           do
             node --test "$t"
           done
+          node tools/fortress_v2_shadow_acceptance.mjs
