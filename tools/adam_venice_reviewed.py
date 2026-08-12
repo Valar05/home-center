@@ -1,21 +1,25 @@
 #!/usr/bin/env python3
-"""Venice-reviewed wrapper around the Codex-shaped Adam phone worker.
+"""Venice-reviewed, daemon-persistent wrapper for the Codex-shaped Adam phone worker.
 
-This module makes completion review a runtime invariant rather than a prompt
-suggestion. Any terminal `finish` or `respond` proposed by Adam is intercepted,
-reviewed by a separate Venice pass using the active Judgement Jars, and denied
-unless Venice explicitly approves stopping.
+Any terminal `finish` or `respond` proposed by Adam is intercepted and reviewed
+by a separate Venice pass using the active Judgement Jars. Transient local-model
+failures use bounded exponential backoff instead of becoming an excuse to quit.
 """
 from __future__ import annotations
 
 import json
+import random
 import subprocess
 import sys
+import time
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "tools"))
 import adam_codex_phone as worker
+
+DEFAULT_STEPS = int(worker.os.environ.get("HC_ADAM_REVIEWED_MAX_STEPS", "96"))
+BACKOFF_SECONDS = (1, 2, 4, 8, 15, 30)
 
 VENICE_SYSTEM = r'''You are Venice acting as an independent completion reviewer for Drew.
 You are not Adam and you do not protect Adam's feelings. Apply the supplied active Judgement Jars.
@@ -30,6 +34,24 @@ Return exactly one JSON object and nothing else:
 
 Approve only when the current bounded slice is genuinely allowed to stop. If work is incomplete, weakly verified, self-congratulatory, or source-only while claiming runtime success, return continue. Drew remains final acceptance authority.
 '''
+
+
+def resilient_call_model(original, messages: list[dict], timeout: int = 120) -> str:
+    """Retry transient phone-model failures gently; never busy-loop."""
+    last = None
+    for attempt, delay in enumerate((0, *BACKOFF_SECONDS)):
+        if delay:
+            # Small jitter prevents synchronized local/connector workers from thundering.
+            time.sleep(delay + random.uniform(0, min(1.0, delay * 0.2)))
+        try:
+            return original(messages, timeout=timeout)
+        except Exception as exc:
+            last = exc
+            # Syntax/protocol failures are handled by the worker's FORMAT_ERROR loop;
+            # this retry layer is only for actual request/runtime exceptions.
+            if attempt >= len(BACKOFF_SECONDS):
+                break
+    raise RuntimeError(f"phone model unavailable after daemon backoff burst: {last}") from last
 
 
 def git_evidence(workspace: Path) -> dict:
@@ -82,18 +104,11 @@ def parse_review(raw: str) -> dict | None:
     return obj
 
 
-def venice_review(task: str, workspace: Path, proposal: dict, jars: str, attempts: int = 3) -> dict:
+def venice_review(task: str, workspace: Path, proposal: dict, jars: str, attempts: int = 4) -> dict:
     evidence = git_evidence(workspace)
     messages = [
         {"role": "system", "content": VENICE_SYSTEM + "\n\nACTIVE JUDGEMENT JARS (binding):\n" + jars},
-        {
-            "role": "user",
-            "content": "REVIEW THIS WORKER STOP PROPOSAL:\n" + json.dumps({
-                "taskFromDrew": task,
-                "proposedTerminalAction": proposal,
-                "freshEvidence": evidence,
-            }, ensure_ascii=False),
-        },
+        {"role": "user", "content": "REVIEW THIS WORKER STOP PROPOSAL:\n" + json.dumps({"taskFromDrew": task, "proposedTerminalAction": proposal, "freshEvidence": evidence}, ensure_ascii=False)},
     ]
     for _ in range(max(1, attempts)):
         raw = worker.call_model(messages, timeout=120)
@@ -107,19 +122,18 @@ def venice_review(task: str, workspace: Path, proposal: dict, jars: str, attempt
             return review
         messages.append({"role": "assistant", "content": raw})
         messages.append({"role": "user", "content": "REVIEW_FORMAT_ERROR: Return exactly the Venice review JSON object. No prose outside JSON."})
-    return {
-        "verdict": "continue",
-        "quality": "poor",
-        "code_review_first": bool(evidence.get("codeChanged")),
-        "critique": "Venice review protocol failed to return a valid governed verdict; stopping is denied.",
-        "next": "Recover the Venice review path and retry completion review.",
-        "freshEvidence": evidence,
-    }
+    return {"verdict": "continue", "quality": "poor", "code_review_first": bool(evidence.get("codeChanged")), "critique": "Venice review protocol did not return a valid governed verdict; stopping is denied.", "next": "Recover the Venice review path and retry completion review.", "freshEvidence": evidence}
 
 
-def run_task(task: str, workspace: Path, max_steps: int = worker.MAX_STEPS) -> int:
+def run_task(task: str, workspace: Path, max_steps: int = DEFAULT_STEPS) -> int:
     jars = worker.active_jars()
+    if "Venice Completion and Code Review Gate" not in jars:
+        raise RuntimeError("Venice completion-review Jar is not loaded; stopping is disabled")
+    if "Daemon Persistence and Connector Backoff" not in jars:
+        raise RuntimeError("daemon/backoff Jar is not loaded; worker persistence contract unavailable")
+
     original_execute = worker.execute_tool
+    original_call = worker.call_model
 
     def reviewed_execute(ws: Path, action: dict):
         tool = str(action.get("tool") or "").strip()
@@ -127,42 +141,29 @@ def run_task(task: str, workspace: Path, max_steps: int = worker.MAX_STEPS) -> i
             return original_execute(ws, action)
         review = venice_review(task, ws, action, jars)
         if review.get("verdict") != "approve":
-            return False, {
-                "ok": False,
-                "reviewGate": "venice",
-                "verdict": "continue",
-                "quality": review.get("quality"),
-                "codeReviewFirst": review.get("code_review_first"),
-                "critique": review.get("critique"),
-                "next": review.get("next"),
-                "message": "Venice denied stopping. Continue the worker loop and address this review.",
-            }
+            return False, {"ok": False, "reviewGate": "venice", "verdict": "continue", "quality": review.get("quality"), "codeReviewFirst": review.get("code_review_first"), "critique": review.get("critique"), "next": review.get("next"), "message": "Venice denied stopping. Continue the worker loop and address this review."}
         terminal, result = original_execute(ws, action)
         result = dict(result)
-        result["veniceReview"] = {
-            "verdict": "approve",
-            "quality": review.get("quality"),
-            "codeReviewFirst": review.get("code_review_first"),
-            "critique": review.get("critique"),
-        }
-        # Keep the user-visible finish concise but prove the gate happened.
+        result["veniceReview"] = {"verdict": "approve", "quality": review.get("quality"), "codeReviewFirst": review.get("code_review_first"), "critique": review.get("critique")}
         if result.get("terminal") == "finish":
             text = result.get("text", "")
             result["text"] = f"{text}\nVenice review: approved ({review.get('quality')}). {review.get('critique')}".strip()
         return terminal, result
 
     worker.execute_tool = reviewed_execute
+    worker.call_model = lambda messages, timeout=120: resilient_call_model(original_call, messages, timeout)
     try:
         return worker.run_task(task, workspace, max_steps=max_steps)
     finally:
         worker.execute_tool = original_execute
+        worker.call_model = original_call
 
 
 def run_interactive(cwd: str | None = None) -> int:
     workspace = Path(cwd or Path.cwd()).expanduser().resolve()
     if not workspace.is_dir():
         workspace = ROOT
-    print("Adam worker online. Codex loop. Jar-governed. Venice reviews every stop.")
+    print("Adam worker online. Codex loop. Jar-governed. Daemon backoff. Venice reviews every stop.")
     while True:
         try:
             text = input(f"adam {workspace}$ ")
@@ -178,17 +179,18 @@ def run_interactive(cwd: str | None = None) -> int:
         if stripped in {":exit", ":quit"}:
             return 0
         if stripped == ":help":
-            print(worker.help_text() + "\nEvery terminal response is independently reviewed by Venice before Adam may stop.")
+            print(worker.help_text() + "\nEvery terminal response is independently reviewed by Venice. Transient model failures back off instead of ending the mission.")
             continue
         if stripped == ":status":
             try:
                 jars = worker.active_jars()
-                gate = "Venice Completion and Code Review Gate" in jars
+                venice = "Venice Completion and Code Review Gate" in jars
+                daemon = "Daemon Persistence and Connector Backoff" in jars
                 error = ""
             except Exception as exc:
-                gate = False
+                venice = daemon = False
                 error = str(exc)
-            print(json.dumps({"schema":"adam-venice-reviewed-status-v1","workspace":str(workspace),"model":worker.PHONE_LLM_MODEL,"jarGate":gate,"veniceStopReview":gate,"error":error}, indent=2))
+            print(json.dumps({"schema":"adam-venice-reviewed-status-v2","workspace":str(workspace),"model":worker.PHONE_LLM_MODEL,"jarGate":venice and daemon,"veniceStopReview":venice,"daemonBackoff":daemon,"maxSteps":DEFAULT_STEPS,"backoffSeconds":list(BACKOFF_SECONDS),"error":error}, indent=2))
             continue
         if stripped == ":cwd" or stripped.startswith(":cwd "):
             raw = stripped[len(":cwd"):].strip()
@@ -202,7 +204,7 @@ def run_interactive(cwd: str | None = None) -> int:
         try:
             run_task(text, workspace)
         except Exception as exc:
-            print(f"Adam [blocked]: worker runtime failure: {exc}")
+            print(f"Adam [blocked]: worker runtime failure after daemon recovery attempts: {exc}")
 
 
 def main(argv=None) -> int:
