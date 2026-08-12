@@ -6,21 +6,21 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "tools"))
-import adam
+import adam_exec_compat as compat
 
 
 def main() -> int:
     cwd = str(ROOT)
-    plan = adam.local_exec_plan([], "hello", cwd, 45)
+    plan = compat.compatible_local_exec_plan([], "hello", cwd, 45)
     ok = plan.get("kind") == "say" and bool(str(plan.get("say") or "").strip()) and not str(plan.get("payload") or "").strip()
     receipt = {
-        "schema": "adam-executive-phone-acceptance-v1",
+        "schema": "adam-executive-phone-acceptance-v2",
         "ok": ok,
         "input": "hello",
         "expectedKind": "say",
         "plan": plan,
-        "localExecutive": adam.PHONE_LLM_URL,
-        "model": adam.PHONE_LLM_MODEL,
+        "localExecutive": compat.adam.PHONE_LLM_URL,
+        "model": compat.adam.PHONE_LLM_MODEL,
         "cwd": cwd,
     }
     print(json.dumps(receipt, ensure_ascii=False, indent=2, sort_keys=True))
