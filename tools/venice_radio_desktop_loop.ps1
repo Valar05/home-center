@@ -5,7 +5,8 @@ param(
   [string]$StateDir = $(Join-Path $env:LOCALAPPDATA 'HomeCenter\venice-radio'),
   [int]$SegmentMs = 4000,
   [int]$RetentionSegments = 30,
-  [int]$CacheSegments = 75
+  [int]$CacheSegments = 75,
+  [int]$MaxSegments = 0
 )
 
 $ErrorActionPreference = 'Stop'
@@ -16,6 +17,7 @@ New-Item -ItemType Directory -Force $cache | Out-Null
 $log = Join-Path $StateDir 'radio.log'
 $stateFile = Join-Path $StateDir 'state.json'
 $stopFile = Join-Path $StateDir 'STOP'
+$script:AccessToken = ''
 
 function Log([string]$message) {
   $line = "$(Get-Date -Format o) $message"
@@ -24,12 +26,14 @@ function Log([string]$message) {
 }
 
 function Get-AccessToken {
-  if ($env:VENICE_RADIO_ACCESS_TOKEN) { return $env:VENICE_RADIO_ACCESS_TOKEN }
+  if ($script:AccessToken) { return $script:AccessToken }
+  if ($env:VENICE_RADIO_ACCESS_TOKEN) { $script:AccessToken = $env:VENICE_RADIO_ACCESS_TOKEN; return $script:AccessToken }
   $gcloud = Get-Command gcloud -ErrorAction SilentlyContinue
   if (-not $gcloud) { throw 'gcloud unavailable and VENICE_RADIO_ACCESS_TOKEN not set' }
   $token = (& gcloud auth print-access-token 2>$null | Select-Object -First 1).Trim()
   if (-not $token) { throw 'gcloud did not return an access token' }
-  return $token
+  $script:AccessToken = $token
+  return $script:AccessToken
 }
 
 function Invoke-Radio([hashtable]$body) {
@@ -58,6 +62,7 @@ if (Test-Path $stopFile) { Remove-Item $stopFile -Force }
 $begin = Invoke-Radio @{ action='radio.station.publish_begin'; stationId=$StationId; reset=$false; retentionSegments=$RetentionSegments; segmentDurationTargetMs=$SegmentMs }
 $generation = [int]$begin.generation
 $sequence = [int]$begin.headSequence
+$publishedCount = 0
 Log "station=$StationId generation=$generation head=$sequence endpoint=$Endpoint"
 
 while (-not (Test-Path $stopFile)) {
@@ -101,11 +106,15 @@ while (-not (Test-Path $stopFile)) {
   Write-State $snapshot
   Log "published seq=$sequence mode=$($snapshot.mode) sha=$sha bytes=$($bytes.Length)"
   Trim-Cache
+  $publishedCount += 1
+  if ($MaxSegments -gt 0 -and $publishedCount -ge $MaxSegments) { Log "max-segments reached count=$publishedCount"; break }
 
   $elapsed = ((Get-Date) - $started).TotalMilliseconds
   $sleepMs = [Math]::Max(250, $SegmentMs - [int]$elapsed)
   Start-Sleep -Milliseconds $sleepMs
 }
 
-Invoke-Radio @{ action='radio.station.stop'; stationId=$StationId } | Out-Null
-Log 'station stopped by STOP file'
+if (Test-Path $stopFile) {
+  Invoke-Radio @{ action='radio.station.stop'; stationId=$StationId } | Out-Null
+  Log 'station stopped by STOP file'
+}
