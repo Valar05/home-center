@@ -6,26 +6,31 @@ STATE="${HC_STATE_DIR:-$HOME/.local/state/home-center}"
 BIN_DIR="${HC_ADAM_BIN_DIR:-${PREFIX:-$HOME/.local}/bin}"
 TARGET="$BIN_DIR/adam"
 SOURCE="$ROOT/tools/adam.py"
+COMPAT="$ROOT/tools/adam_exec_compat.py"
 RECEIPT="$STATE/adam-cli-install-receipt.json"
 EXEC_RECEIPT="$STATE/adam-executive-acceptance.json"
 BRAIN_RECEIPT="$STATE/adam-phone-brain-receipt.json"
 
 mkdir -p "$STATE" "$BIN_DIR"
 [ -f "$SOURCE" ] || { echo "BLOCKED: Adam router missing: $SOURCE" >&2; exit 2; }
+[ -f "$COMPAT" ] || { echo "BLOCKED: Adam executive compatibility layer missing: $COMPAT" >&2; exit 2; }
 PYTHON_BIN="$(command -v python3 || true)"
 [ -n "$PYTHON_BIN" ] || { echo 'BLOCKED: python3 missing.' >&2; exit 3; }
 
 cd "$ROOT"
 python3 tools/test_adam_overlay_contract.py
 python3 tools/test_adam_cli_contract.py
-python3 -m py_compile tools/adam.py tools/accept_adam_executive_phone.py
+python3 -m py_compile tools/adam.py tools/adam_exec_compat.py tools/accept_adam_executive_phone.py
 
-# Android shared storage is commonly mounted noexec. Do not symlink an executable
-# entrypoint to the repo there. Install a tiny executable wrapper in Termux's
-# native prefix and invoke the shared-storage source through Python explicitly.
+# Android shared storage is commonly mounted noexec. Install a native Termux
+# wrapper. Bare Adam uses the tiny-model compatibility executive; explicit
+# one-shot modes continue to hit the canonical overlay router directly.
 TMP_TARGET="$TARGET.tmp.$$"
 cat > "$TMP_TARGET" <<EOF
 #!/data/data/com.termux/files/usr/bin/bash
+if [ "\$#" -eq 0 ]; then
+  exec "$PYTHON_BIN" "$COMPAT"
+fi
 exec "$PYTHON_BIN" "$SOURCE" "\$@"
 EOF
 chmod 755 "$TMP_TARGET"
@@ -35,13 +40,9 @@ hash -r 2>/dev/null || true
 CANARY="$($TARGET terminal 'printf ADAM_CLI_OK' --cwd "$ROOT" --timeout 10)"
 printf '%s\n' "$CANARY" | grep -q 'ADAM_CLI_OK' || { echo 'BLOCKED: Adam CLI terminal canary failed.' >&2; exit 4; }
 
-# Bare Adam depends on the already-existing local phone brain. Health-check it and
-# start that existing daemon when necessary before exercising the chatbot path.
 bash tools/ensure_adam_phone_brain.sh | tee "$BRAIN_RECEIPT"
 grep -q '"ok":true' "$BRAIN_RECEIPT" || { echo 'BLOCKED: Adam phone brain did not become healthy.' >&2; exit 5; }
 
-# Bare Adam is a chatbot/executive, not a Bash prompt. Prove the live local model
-# resolves a greeting to conversation before declaring the install usable.
 python3 tools/accept_adam_executive_phone.py | tee "$EXEC_RECEIPT"
 grep -q '"ok": true' "$EXEC_RECEIPT" || { echo 'BLOCKED: Adam conversational executive canary failed.' >&2; exit 6; }
 
@@ -57,13 +58,13 @@ path,source_commit,adam_sha,target,source,canary,exec_receipt,brain_receipt=sys.
 executive=json.load(open(exec_receipt,encoding='utf-8'))
 brain=json.load(open(brain_receipt,encoding='utf-8'))
 obj={
-  'schema':'adam-cli-install-v3',
+  'schema':'adam-cli-install-v4',
   'ok':True,
   'sourceCommit':source_commit,
   'adamSha256':adam_sha,
   'target':target,
   'source':source,
-  'launcher':'termux-native-wrapper',
+  'launcher':'termux-native-wrapper-with-safe-prose-fallback',
   'oneShotModes':['terminal','chat','continue','vlad'],
   'interactiveMode':'conversational-executive',
   'terminalCanary':'ADAM_CLI_OK' in canary,
@@ -71,6 +72,7 @@ obj={
   'phoneBrainStatus':brain.get('status'),
   'chatbotCanary':executive.get('ok') is True,
   'chatbotKind':executive.get('plan',{}).get('kind'),
+  'chatbotStructure':executive.get('plan',{}).get('structure'),
   'localExecutive':executive.get('localExecutive'),
   'installedAtEpoch':int(time.time()),
 }
