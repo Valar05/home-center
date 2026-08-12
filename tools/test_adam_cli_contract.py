@@ -6,29 +6,42 @@ adam = (ROOT / "tools/adam.py").read_text(encoding="utf-8")
 
 required = [
     'ONE_SHOT_MODES = ("terminal", "chat", "continue", "vlad")',
+    'EXEC_KINDS = ("say", "terminal", "continue", "phone", "vlad")',
     'ONE_SHOT_MODES + ("shell",)',
     'def run_shell(',
     'def run_mode(',
-    'def shell_help(',
-    'def resolve_cwd(',
-    ':mode terminal|chat|continue|vlad',
-    'No auto-routing.',
+    'def local_exec_plan(',
+    'def execute_plan(',
+    'def explicit_command(',
+    'Adam online. Chat naturally; :help for exact controls.',
+    ':sh COMMAND',
+    ':continue PROMPT',
+    ':phone INTENT',
+    ':vlad QUESTION',
+    ':chat TEXT',
+    'response_format',
+    'DANGEROUS_SHELL',
     'interactive_tty_required',
-    'shell_does_not_accept_text',
 ]
 for token in required:
     assert token in adam, f"Adam CLI missing {token}"
 
-# Shell requests must flow through the same explicit one-shot router the overlay uses.
-assert 'run_mode(lane, text, current_cwd, timeout)' in adam
-# The shell may change lanes only from explicit :mode input; it must not inspect text to pick one.
-assert 'if stripped.startswith(":mode")' in adam
-for forbidden in [
-    'classify_intent(',
-    'choose_mode(',
-    'auto_route(',
-    'cloudFallback=True',
-]:
-    assert forbidden not in adam, f"Adam CLI contains forbidden auto-routing token {forbidden}"
+# Overlay one-shot modes remain explicit and unchanged.
+for mode in ('terminal', 'chat', 'continue', 'vlad'):
+    assert f'if mode == "{mode}"' in adam or mode == 'vlad'
 
-print("Adam deterministic interactive CLI contract: PASS")
+# Bare conversational turns must be planned into a typed action, not sent to Bash.
+assert 'plan = local_exec_plan(history, text, current_cwd, timeout)' in adam
+assert 'execute_plan(plan, current_cwd, timeout)' in adam
+assert 'run_mode("terminal", text' not in adam
+
+# Exact controls bypass model interpretation.
+assert 'handled, _ = explicit_command(text, current_cwd, timeout)' in adam
+assert '(":sh", "terminal")' in adam
+assert '(":continue", "continue")' in adam
+
+# Runtime blocks known high-risk model-generated shell patterns and has no cloud fallback.
+for forbidden in ['cloudFallback=True', 'rm -rf "$HOME"']:
+    assert forbidden not in adam, f"Adam CLI contains forbidden token {forbidden}"
+
+print("Adam conversational executive CLI contract: PASS")
