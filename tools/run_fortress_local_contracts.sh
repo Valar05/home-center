@@ -7,5 +7,10 @@ python3 tools/test_vlad_overlay_self_heal_contract.py
 python3 tools/test_venice_selfheal_contract.py
 python3 tools/test_adam_cli_contract.py
 python3 tools/test_adam_overlay_contract.py
-python3 -m py_compile tools/vlad_swarm_daemon.py tools/vlad_pixel_forge_probe.py tools/stage_vlad_pixel_model_phone.py tools/venice_review.py
+python3 -m py_compile \
+  tools/vlad_swarm_daemon.py \
+  tools/vlad_pixel_forge_probe.py \
+  tools/stage_vlad_pixel_model_phone.py \
+  tools/venice_review.py \
+  tools/fortress_venice_loop.py
 printf 'FORTRESS LOCAL CONTRACTS PASS\n'
