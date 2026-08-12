@@ -12,18 +12,19 @@ ACCEPT_RECEIPT="$STATE/adam-phone-worker-acceptance.json"
 BRAIN_RECEIPT="$STATE/adam-phone-brain-receipt.json"
 
 mkdir -p "$STATE" "$BIN_DIR"
-for f in "$ROUTER" "$WORKER" "$ROOT/tools/adam_codex_phone.py"; do
-  [ -f "$f" ] || { echo "BLOCKED: Adam component missing: $f" >&2; exit 2; }
+for f in "$ROUTER" "$WORKER" "$ROOT/tools/adam_codex_phone.py" "$ROOT/AGENTS.md"; do
+  [ -f "$f" ] || { echo "BLOCKED: Adam/Codex component missing: $f" >&2; exit 2; }
 done
 PYTHON_BIN="$(command -v python3 || true)"
 [ -n "$PYTHON_BIN" ] || { echo 'BLOCKED: python3 missing.' >&2; exit 3; }
 
 cd "$ROOT"
 python3 tools/test_adam_overlay_contract.py
+python3 tools/test_adam_overlay_delivery_state.py
 python3 tools/test_adam_cli_contract.py
 python3 tools/test_adam_codex_phone.py
 python3 tools/test_adam_venice_review_gate.py
-python3 -m py_compile tools/adam.py tools/adam_codex_phone.py tools/adam_venice_reviewed.py tools/accept_adam_executive_phone.py
+python3 -m py_compile tools/adam.py tools/adam_codex_phone.py tools/adam_venice_reviewed.py tools/accept_adam_executive_phone.py tools/vlad_swarm_daemon.py
 
 TMP_TARGET="$TARGET.tmp.$$"
 cat > "$TMP_TARGET" <<EOF
@@ -62,7 +63,7 @@ path,source_commit,worker_sha,target,worker,canary,accept_path,brain_path=sys.ar
 accept=json.load(open(accept_path,encoding='utf-8'))
 brain=json.load(open(brain_path,encoding='utf-8'))
 obj={
-  'schema':'adam-cli-install-v8-codex-venice-daemon',
+  'schema':'adam-cli-install-v9-codex-local-venice-daemon',
   'ok':True,
   'sourceCommit':source_commit,
   'workerSha256':worker_sha,
@@ -70,6 +71,8 @@ obj={
   'worker':worker,
   'launcher':'termux-native-codex-worker-venice-reviewed',
   'interactiveMode':'codex-worker-loop',
+  'codexLocalDocs':accept.get('codexLocalDocs',[]),
+  'codexLocalDocsLoaded':accept.get('codexLocalDocsLoaded') is True,
   'jarPersonalityGate':accept.get('jarGate') is True,
   'veniceStopReview':accept.get('veniceStopReview') is True,
   'daemonBackoff':accept.get('daemonBackoff') is True,
@@ -84,4 +87,4 @@ open(path,'w',encoding='utf-8').write(json.dumps(obj,indent=2,sort_keys=True)+'\
 print(json.dumps(obj,indent=2,sort_keys=True))
 PY
 
-echo "ADAM CODEX/VENICE/DAEMON PHONE WORKER INSTALLED receipt=$RECEIPT"
+echo "ADAM CODEX-LOCAL/VENICE/DAEMON PHONE WORKER INSTALLED receipt=$RECEIPT"
