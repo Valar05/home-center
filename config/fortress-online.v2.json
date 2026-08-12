@@ -1,6 +1,6 @@
 {
   "kind": "fortress.online.v2.config.v1",
-  "version": 1,
+  "version": 2,
   "boot": {
     "capsuleKind": "fortress.online.v2.boot-capsule.v4",
     "requiredSkillDocuments": ["fortress-core", "phone-runtime"],
@@ -14,6 +14,15 @@
     "completionStates": ["delivered", "accepted"],
     "defaultOwner": "Drew Clarke"
   },
+  "campaign": {
+    "enabled": true,
+    "ledgerPath": "~/.local/state/fortress-online/campaign.json",
+    "historyPath": "~/.local/state/fortress-online/campaign-history.jsonl",
+    "oneHandoffAtATime": true,
+    "requireExecutableOperatorHandoff": true,
+    "consumeReceiptBeforeNextHandoff": true,
+    "resumeFromLedgerBeforeConversationSummary": true
+  },
   "requestBudget": {
     "reuseFreshResults": true,
     "blindRetryForbidden": true,
@@ -24,6 +33,10 @@
   "learning": {
     "isolation": "fortress-online-v2",
     "mayMutateV1": false,
+    "persist": true,
+    "incidentLedgerPath": "~/.local/state/fortress-online/incidents.jsonl",
+    "learnedOverlayPath": "~/.config/fortress-online/learned.json",
+    "applyPromotedRulesToConfig": true,
     "promotionRequirements": ["candidate regression encoded", "full V2 suite green", "no earlier lock regressed"],
     "classifiers": [
       {"kind":"retrieval_failure","pattern":"assum|didn.?t look|context|lookup|retrieve|look things up"},
@@ -31,7 +44,9 @@
       {"kind":"boundary_substitution","pattern":"wrong tool|substitut|different lane|adjacent tool|not the lane"},
       {"kind":"correction_regression","pattern":"again|regression|forgot|lost context|reintroduced|borked"},
       {"kind":"capability_laundering","pattern":"claimed|said.*done|not actually|stub|zero faith|not live|not there"},
-      {"kind":"transport_failure","pattern":"quot|parser|shell|powershell|syntax|escaped|encoded command|lfs|smudge"}
+      {"kind":"transport_failure","pattern":"quot|parser|shell|powershell|syntax|escaped|encoded command|lfs|smudge"},
+      {"kind":"handoff_failure","pattern":"didn.?t give.*script|no executable handoff|command not found|vlad: command not found"},
+      {"kind":"learning_persistence_failure","pattern":"failed to learn|update the ledger|forgot.*learning|learn.*not persist"}
     ],
     "recipes": {
       "retrieval_failure": {"rule":"material uncertainty creates a required lookup before execution","regression":"mission with unresolved required lookup must choose retrieve","autoAction":"add_required_lookup_heuristic"},
@@ -40,6 +55,8 @@
       "correction_regression": {"rule":"new corrections must preserve every earlier non-conflicting lock","regression":"dropping an earlier correction must fail cumulative diff","autoAction":"add_constraint_regression"},
       "capability_laundering": {"rule":"never advance capability state without state-specific external evidence","regression":"implementation evidence alone cannot prove delivery","autoAction":"add_evidence_regression"},
       "transport_failure": {"rule":"after a transport failure, switch to a safer deterministic transport and retain the failed form as a regression","regression":"known-fragile transport must be rejected or transformed before dispatch","autoAction":"add_transport_guard"},
+      "handoff_failure": {"rule":"a genuine operator boundary must emit exactly one directly executable handoff using known runtime context","regression":"Vlad phone deployment boundary restores to one runnable Termux command","autoAction":"add_executable_handoff_guard"},
+      "learning_persistence_failure": {"rule":"every correction and promoted lesson must persist to the durable ledger/config before the turn can complete","regression":"learned correction survives process restart and changes next boot policy","autoAction":"persist_learning_overlay"},
       "unknown_failure": {"rule":"unclassified failures become explicit candidate incidents rather than disappearing","regression":"unknown incident remains pending classification and cannot auto-promote policy","autoAction":"queue_for_classification"}
     }
   },
@@ -56,6 +73,8 @@
     {"id":"computer-hands","required":true,"purpose":"bounded workstation body lane when the commissioned lane is desktop"},
     {"id":"browser-nerve","required":true,"purpose":"semantic browser/page body lane; separate from machine body"},
     {"id":"venice-nerve","required":true,"purpose":"local Venice speech/collaboration lane; speech remains separate from body actions"},
-    {"id":"local-code-continue","required":true,"purpose":"local coding continuation when cloud inference is unavailable"}
+    {"id":"local-code-continue","required":true,"purpose":"local coding continuation when cloud inference is unavailable"},
+    {"id":"campaign-resume","required":true,"purpose":"restore durable campaign state and emit the next concrete action without requiring the user to restate context"},
+    {"id":"learning-persistence","required":true,"purpose":"write corrections, incidents and promoted rules into durable ledger/config so learning survives restart"}
   ]
 }
