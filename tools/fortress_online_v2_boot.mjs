@@ -28,7 +28,7 @@ const CORE_SKILLS = Object.freeze([
 function sha256(text){ return crypto.createHash('sha256').update(text).digest('hex'); }
 function uniq(xs){ return [...new Set(xs)]; }
 function splitRoots(raw){ return uniq(String(raw||'').split(path.delimiter).map(x=>x.trim()).filter(Boolean)); }
-function defaultSkillRoots(extra=[]){ return uniq([REPO_ROOT,...extra].map(path.resolve)); }
+function defaultSkillRoots(extra=[]){ return uniq([REPO_ROOT,...extra].map(x=>path.resolve(x))); }
 function walkSkillFiles(root){
   const out=[];
   if(!fs.existsSync(root)) return out;
