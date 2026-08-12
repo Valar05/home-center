@@ -20,6 +20,7 @@ PYTHON_BIN="$(command -v python3 || true)"
 cd "$ROOT"
 python3 tools/test_adam_overlay_contract.py
 python3 tools/test_adam_cli_contract.py
+python3 tools/test_adam_judgement_runtime.py
 python3 -m py_compile tools/adam.py tools/adam_runtime.py tools/adam_judgement_db.py tools/accept_adam_executive_phone.py
 
 TMP_TARGET="$TARGET.tmp.$$"
@@ -51,7 +52,7 @@ python3 - "$RECEIPT" "$SOURCE_SHA" "$ADAM_SHA" "$TARGET" "$RUNTIME" "$CANARY" "$
 import json,sys,time
 path,source_commit,adam_sha,target,source,canary,exec_receipt,brain_receipt=sys.argv[1:]
 executive=json.load(open(exec_receipt,encoding='utf-8')); brain=json.load(open(brain_receipt,encoding='utf-8'))
-obj={'schema':'adam-cli-install-v5','ok':True,'sourceCommit':source_commit,'adamSha256':adam_sha,'target':target,'source':source,'launcher':'termux-native-persistent-adam-runtime','oneShotModes':['terminal','chat','continue','vlad'],'interactiveMode':'judgement-jar-rpg-runtime','terminalCanary':'ADAM_CLI_OK' in canary,'phoneBrainHealthy':brain.get('ok') is True,'phoneBrainStatus':brain.get('status'),'runtimeAcceptance':executive.get('ok') is True,'knowsUser':executive.get('knowsUser') is True,'sqlite':executive.get('database'),'installedAtEpoch':int(time.time())}
+obj={'schema':'adam-cli-install-v6','ok':True,'sourceCommit':source_commit,'adamSha256':adam_sha,'target':target,'source':source,'launcher':'termux-native-persistent-adam-runtime','oneShotModes':['terminal','chat','continue','vlad'],'interactiveMode':'judgement-jar-rpg-runtime','terminalCanary':'ADAM_CLI_OK' in canary,'phoneBrainHealthy':brain.get('ok') is True,'phoneBrainStatus':brain.get('status'),'runtimeAcceptance':executive.get('ok') is True,'knowsUser':executive.get('knowsUser') is True,'sqlite':executive.get('database'),'installedAtEpoch':int(time.time())}
 open(path,'w',encoding='utf-8').write(json.dumps(obj,indent=2,sort_keys=True)+'\n'); print(json.dumps(obj,indent=2,sort_keys=True))
 PY
 
