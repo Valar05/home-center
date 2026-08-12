@@ -5,13 +5,20 @@ on:
     paths:
       - 'tools/hands_router.py'
       - 'tools/hands_overlay.py'
+      - 'tools/hands_transport_ssh.py'
+      - 'tools/hands_transport_computer.py'
       - 'tools/vlad_swarm_daemon.py'
       - 'tools/adam_audio_lab.py'
       - 'tools/adam_contextual.py'
+      - 'tools/adam_login.py'
       - 'tools/test_hands_router.py'
       - 'tools/test_hands_overlay.py'
       - 'tools/test_adam_audio_lab.py'
+      - 'tools/test_adam_login.py'
       - 'tools/android_phone_hands_bridge.py'
+      - 'browser-nerve/windows/adam-autofill-login.mjs'
+      - 'browser-nerve/windows/adam-autofill-login.ps1'
+      - 'browser-nerve/windows/install.ps1'
       - 'docs/ADAM_HANDS_AUDIO_AUTH_CONTRACT.md'
       - '.github/workflows/hands-router-contract.yml'
   workflow_dispatch:
@@ -32,18 +39,26 @@ jobs:
           python -m py_compile \
             tools/hands_router.py \
             tools/hands_overlay.py \
+            tools/hands_transport_ssh.py \
+            tools/hands_transport_computer.py \
             tools/vlad_swarm_daemon.py \
             tools/adam_audio_lab.py \
             tools/adam_contextual.py \
+            tools/adam_login.py \
             tools/test_hands_router.py \
             tools/test_hands_overlay.py \
-            tools/test_adam_audio_lab.py
+            tools/test_adam_audio_lab.py \
+            tools/test_adam_login.py
+      - name: Browser autofill syntax
+        run: node --check browser-nerve/windows/adam-autofill-login.mjs
       - name: Hands router contract
         run: python tools/test_hands_router.py
       - name: Overlay compiler contract
         run: python tools/test_hands_overlay.py
       - name: Audio graph contract
         run: python tools/test_adam_audio_lab.py
+      - name: Login lease contract
+        run: python tools/test_adam_login.py
       - name: No model in executor vocabulary
         run: |
           python - <<'PY'
@@ -55,5 +70,16 @@ jobs:
           bad=[op for op in hr.OPS if any(word in op for word in forbidden)]
           assert not bad, bad
           assert 'phone.open_uri' in hr.OPS
-          print('finite executor vocabulary ok')
+          assert hr.TRANSPORTS == ('ssh','wlan','computer_hands')
+          print('finite executor vocabulary and transport order ok')
+          PY
+      - name: Credential receipts cannot return secrets
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          text=Path('browser-nerve/windows/adam-autofill-login.mjs').read_text()
+          for anchor in ('secretsReturned: false','cookiesReturned: false','valuesReturned: false'):
+            assert anchor in text, anchor
+          assert 'adam-login-lease-v1' in text
+          print('autofill redaction anchors ok')
           PY
