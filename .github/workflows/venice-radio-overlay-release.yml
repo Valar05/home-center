@@ -1,0 +1,56 @@
+name: Venice Radio Overlay Release
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Build overlay
+        shell: bash
+        run: |
+          set -euo pipefail
+          SDK_ROOT="${ANDROID_SDK_ROOT:-${ANDROID_HOME:-/usr/local/lib/android/sdk}}"
+          export ANDROID_SDK_ROOT="$SDK_ROOT"
+          export ANDROID_HOME="$SDK_ROOT"
+          SDKMANAGER="$SDK_ROOT/cmdline-tools/latest/bin/sdkmanager"
+          if [ ! -x "$SDKMANAGER" ]; then SDKMANAGER="$(find "$SDK_ROOT/cmdline-tools" -type f -name sdkmanager -perm -111 | head -1)"; fi
+          yes | "$SDKMANAGER" --licenses >/dev/null 2>&1 || true
+          "$SDKMANAGER" 'platforms;android-35' 'build-tools;35.0.0' >/dev/null
+          GRADLE_HOME=/tmp/gradle-8.9
+          curl -fsSL https://services.gradle.org/distributions/gradle-8.9-bin.zip -o /tmp/gradle.zip
+          unzip -q /tmp/gradle.zip -d /tmp
+          cd android/operator-overlay
+          "$GRADLE_HOME/bin/gradle" :app:testDebugUnitTest :app:assembleDebug --no-daemon
+      - name: Publish verified APK
+        shell: bash
+        env:
+          SOURCE_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          APK=android/operator-overlay/app/build/outputs/apk/debug/app-debug.apk
+          test -s "$APK"
+          SHA=$(sha256sum "$APK" | awk '{print $1}')
+          BYTES=$(stat -c '%s' "$APK")
+          TMP=$(mktemp -d)
+          cp "$APK" "$TMP/operator-overlay-debug.apk"
+          printf '{"schemaVersion":"home-center.operator-overlay-build.v1","sourceCommit":"%s","sha256":"%s","byteCount":%s,"feature":"venice-radio-overlay-controls"}\n' "$SOURCE_SHA" "$SHA" "$BYTES" > "$TMP/operator-overlay-receipt.json"
+          git config user.name home-center-overlay-builder
+          git config user.email actions@users.noreply.github.com
+          git switch --orphan generated-operator-overlay-apk
+          git rm -rf . >/dev/null 2>&1 || true
+          cp "$TMP/operator-overlay-debug.apk" .
+          cp "$TMP/operator-overlay-receipt.json" .
+          git add operator-overlay-debug.apk operator-overlay-receipt.json
+          git commit -m "Publish Venice Radio overlay for $SOURCE_SHA"
+          git push --force origin HEAD:refs/heads/generated/operator-overlay-apk
