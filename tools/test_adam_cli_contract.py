@@ -2,46 +2,46 @@
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-adam = (ROOT / "tools/adam.py").read_text(encoding="utf-8")
+router = (ROOT / "tools/adam.py").read_text(encoding="utf-8")
+worker = (ROOT / "tools/adam_codex_phone.py").read_text(encoding="utf-8")
+installer = (ROOT / "tools/install_adam_cli.sh").read_text(encoding="utf-8")
 
-required = [
+for token in [
     'ONE_SHOT_MODES = ("terminal", "chat", "continue", "vlad")',
-    'EXEC_KINDS = ("say", "terminal", "continue", "phone", "vlad")',
-    'ONE_SHOT_MODES + ("shell",)',
-    'def run_shell(',
-    'def run_mode(',
-    'def local_exec_plan(',
-    'def execute_plan(',
-    'def explicit_command(',
-    'Adam online. Chat naturally; :help for exact controls.',
-    ':sh COMMAND',
-    ':continue PROMPT',
-    ':phone INTENT',
-    ':vlad QUESTION',
-    ':chat TEXT',
-    'response_format',
-    'DANGEROUS_SHELL',
-    'interactive_tty_required',
-]
-for token in required:
-    assert token in adam, f"Adam CLI missing {token}"
+    'def run_terminal(',
+    'def run_worker(',
+    'def worker_commission(',
+]:
+    assert token in router, f"Adam router missing {token}"
 
-# Overlay one-shot modes remain explicit and unchanged.
-for mode in ('terminal', 'chat', 'continue', 'vlad'):
-    assert f'if mode == "{mode}"' in adam or mode == 'vlad'
+for token in [
+    'CORE LOOP',
+    'Inspect real workspace state.',
+    'Choose ONE typed tool action.',
+    'write_file',
+    'run_command',
+    'phone_intent',
+    'respond',
+    'finish',
+    'def active_jars(',
+    'def run_task(',
+    'FORMAT_ERROR',
+]:
+    assert token in worker, f"Adam Codex worker missing {token}"
 
-# Bare conversational turns must be planned into a typed action, not sent to Bash.
-assert 'plan = local_exec_plan(history, text, current_cwd, timeout)' in adam
-assert 'execute_plan(plan, current_cwd, timeout)' in adam
-assert 'run_mode("terminal", text' not in adam
+# Bare Adam and natural-language argv must enter the Codex worker. Only the
+# explicit overlay/body mode names enter the transport router.
+assert 'exec "$PYTHON_BIN" "$WORKER" "$@"' in installer
+assert 'terminal|chat|continue|vlad)' in installer
+assert '|shell)' not in installer
 
-# Exact controls bypass model interpretation.
-assert 'handled, _ = explicit_command(text, current_cwd, timeout)' in adam
-assert '(":sh", "terminal")' in adam
-assert '(":continue", "continue")' in adam
+# Old interactive persona/executive machinery must not survive in the router.
+for forbidden in ['def run_shell(', 'local_exec_plan', 'execute_plan', 'Adam online. Chat naturally', 'ollama_generate']:
+    assert forbidden not in router, f"retired Adam machinery survived: {forbidden}"
 
-# Runtime blocks known high-risk model-generated shell patterns and has no cloud fallback.
-for forbidden in ['cloudFallback=True', 'rm -rf "$HOME"']:
-    assert forbidden not in adam, f"Adam CLI contains forbidden token {forbidden}"
+# Raw prose from the local model cannot be emitted as a response/action.
+assert 'action = parse_action(raw)' in worker
+assert 'Output was not one valid JSON object' in worker
+assert 'print(raw)' not in worker
 
-print("Adam conversational executive CLI contract: PASS")
+print("Adam Codex-shaped CLI contract: PASS")
