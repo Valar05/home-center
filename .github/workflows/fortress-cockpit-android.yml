@@ -10,6 +10,8 @@ on:
       - 'tools/fortress_phone_kernel.py'
       - 'tools/fortress_phone_kernel_test.py'
       - 'tools/fortress_cli.py'
+      - 'tools/fortress_read_aloud.py'
+      - 'tools/android_phone_status_tts.py'
       - 'tools/setup_fortress_cockpit.sh'
       - 'tools/setup_fortress_phone_kernel.sh'
       - 'config/fortress-prompt.json'
@@ -27,15 +29,32 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
-      - name: Verify compiler, phone kernel, CLI, multimedia arsenal, and Android build
+      - name: Verify compiler, phone kernel, CLI, read aloud, multimedia arsenal, and Android build
         shell: bash
         run: |
           set -euo pipefail
-          python -m py_compile tools/fortress_prompt.py tools/fortress_multimedia.py tools/fortress_multimedia_test.py tools/fortress_phone_kernel.py tools/fortress_phone_kernel_test.py tools/fortress_cli.py
+          python -m py_compile tools/fortress_prompt.py tools/fortress_multimedia.py tools/fortress_multimedia_test.py tools/fortress_phone_kernel.py tools/fortress_phone_kernel_test.py tools/fortress_cli.py tools/fortress_read_aloud.py tools/android_phone_status_tts.py
           python tools/fortress_multimedia_test.py
           python tools/fortress_phone_kernel_test.py
           HOME="$(mktemp -d)" FORTRESS_HOME_CENTER="$PWD" python tools/fortress_cli.py --status >/tmp/fortress-cli-status.json
           HOME="$(mktemp -d)" FORTRESS_HOME_CENTER="$PWD" python tools/fortress_cli.py -c 'fortress status' >/tmp/fortress-cli-command.txt
+          python tools/fortress_read_aloud.py --doctor >/tmp/fortress-read-doctor.json
+          python - <<'PY'
+          import importlib.util, pathlib
+          p=pathlib.Path('tools/fortress_read_aloud.py')
+          s=importlib.util.spec_from_file_location('r',p); m=importlib.util.module_from_spec(s); s.loader.exec_module(m)
+          text=('Sentence one. ' * 120).strip()
+          chunks=list(m.chunks_from_text(text))
+          assert chunks and max(map(len,chunks)) <= m.MAX_CHUNK + 1
+          assert ''.join(chunks)
+          tmp=pathlib.Path('/tmp/fortress-read-long.txt')
+          tmp.write_text(('Paragraph words. '*100+'\n\n')*50)
+          count=0
+          for chunk in m.chunks_from_file(str(tmp)):
+              assert len(chunk) <= m.MAX_CHUNK + 1
+              count += 1
+          assert count > 20
+          PY
           FORTRESS_HOME_CENTER="$PWD" python tools/fortress_multimedia.py profile >/tmp/fortress-device-profile.json
           FORTRESS_HOME_CENTER="$PWD" python tools/fortress_multimedia.py plan >/tmp/fortress-combined-arms-plan.json
           python -m json.tool config/fortress-prompt.json >/dev/null
