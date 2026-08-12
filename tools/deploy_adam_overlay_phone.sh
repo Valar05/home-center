@@ -16,6 +16,7 @@ git pull --ff-only origin main
 SOURCE_SHA="$(git rev-parse HEAD)"
 
 python tools/test_adam_overlay_contract.py
+python tools/test_adam_cli_contract.py
 python -m py_compile tools/adam.py tools/vlad_swarm_daemon.py
 
 install_generated() {
@@ -109,5 +110,8 @@ else
   install_local_apk "$LOCAL_APK"
 fi
 
+# CLI and overlay intentionally share tools/adam.py. Installing the command here
+# adds no second daemon/service and leaves the overlay request protocol unchanged.
+bash tools/install_adam_cli.sh
 bash tools/setup_vlad_swarm_daemon.sh
-echo "ADAM OVERLAY DEPLOYED receipt=$RECEIPT"
+echo "ADAM OVERLAY + CLI DEPLOYED overlay_receipt=$RECEIPT cli_receipt=$STATE/adam-cli-install-receipt.json"
