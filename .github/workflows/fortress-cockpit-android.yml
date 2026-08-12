@@ -7,9 +7,13 @@ on:
       - 'tools/fortress_prompt.py'
       - 'tools/fortress_multimedia.py'
       - 'tools/fortress_multimedia_test.py'
+      - 'tools/fortress_phone_kernel.py'
+      - 'tools/fortress_phone_kernel_test.py'
       - 'tools/setup_fortress_cockpit.sh'
+      - 'tools/setup_fortress_phone_kernel.sh'
       - 'config/fortress-prompt.json'
       - 'config/fortress-multimedia.json'
+      - 'config/fortress-phone-kernel.json'
       - '.github/workflows/fortress-cockpit-android.yml'
   workflow_dispatch:
 
@@ -22,17 +26,19 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
-      - name: Verify compiler, multimedia arsenal, and Android build
+      - name: Verify compiler, phone kernel, multimedia arsenal, and Android build
         shell: bash
         run: |
           set -euo pipefail
-          python -m py_compile tools/fortress_prompt.py tools/fortress_multimedia.py tools/fortress_multimedia_test.py
+          python -m py_compile tools/fortress_prompt.py tools/fortress_multimedia.py tools/fortress_multimedia_test.py tools/fortress_phone_kernel.py tools/fortress_phone_kernel_test.py
           python tools/fortress_multimedia_test.py
+          python tools/fortress_phone_kernel_test.py
           FORTRESS_HOME_CENTER="$PWD" python tools/fortress_multimedia.py profile >/tmp/fortress-device-profile.json
           FORTRESS_HOME_CENTER="$PWD" python tools/fortress_multimedia.py plan >/tmp/fortress-combined-arms-plan.json
           python -m json.tool config/fortress-prompt.json >/dev/null
           python -m json.tool config/fortress-multimedia.json >/dev/null
-          bash -n tools/setup_fortress_cockpit.sh
+          python -m json.tool config/fortress-phone-kernel.json >/dev/null
+          bash -n tools/setup_fortress_cockpit.sh tools/setup_fortress_phone_kernel.sh
           git diff --check
 
           SDK_ROOT="${ANDROID_SDK_ROOT:-${ANDROID_HOME:-/usr/local/lib/android/sdk}}"
