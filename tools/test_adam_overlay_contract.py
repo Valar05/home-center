@@ -26,9 +26,17 @@ for token in ["adam_request_id", "adam_request_mode", "adam_request_payload_b64"
     assert token in provider, f"provider missing {token}"
 for token in ["process_adam_overlay", "adam-last-request-id", "base64.b64decode", "operator_update", "ADAM_POLL_SECONDS"]:
     assert token in daemon, f"daemon missing {token}"
-for token in ['choices=("terminal", "chat", "continue", "vlad")', "cloudFallback=False", "HC_ADAM_CONTINUE_CMD", "qwen2.5-coder:1.5b"]:
+for token in [
+    'ONE_SHOT_MODES = ("terminal", "chat", "continue", "vlad")',
+    "cloudFallback=False",
+    "HC_ADAM_CONTINUE_CMD",
+    "qwen2.5-coder:1.5b",
+    "def run_mode(",
+]:
     assert token in adam, f"adam router missing {token}"
 
+# The Android overlay still submits only the four original explicit modes.
+assert '"shell"' not in service
 # No automatic route selection: each model lane is entered only by its explicit mode.
 assert 'run_chat(text' in adam and 'run_vlad(text' in adam and 'run_continue(text' in adam
 assert 'cloudFallback=True' not in adam
