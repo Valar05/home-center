@@ -26,7 +26,8 @@ for token in [
     'repair_with_adam', 'persist_repairs', 'while true', 'backoff',
     'install_service', 'run|resume', 'status)', 'receipts)', 'overlay)', 'phone-hands)',
     'PLAN_ALLOWED', 'STOP_ALLOWED', 'Self-heal Adam phone campaign',
-    'git rebase --abort',
+    'git rebase --abort', 'home_center_status_menu.sh" probe',
+    "'notificationMenu':menu_ok", "adam-phone-campaign-receipt-v2",
 ]:
     assert token in campaign, token
 
@@ -39,10 +40,11 @@ assert 'git push origin HEAD:main' in campaign
 for token in [
     "--ongoing true", "Resume Adam", "Status", "Recovery", "Overlay on", "Phone Hands", "Receipts", "Back",
     'recover_adam_overlay_phone.sh', 'phone_hands_watchdog.sh', 'adam-campaign run',
-    'case "$MODE" in', 'recovery)', 'status)', 'receipts)'
+    'case "$MODE" in', 'recovery)', 'status)', 'receipts)', 'MODE="${1:-main}"',
+    '[ "$MODE" = "probe" ]', 'command -v termux-notification',
 ]:
     assert token in menu, token
 
 assert 'install-service' in bootstrap
 assert 'adam-campaign" run' in bootstrap
-print('Adam continuing-value campaign + nested notification menu contract: PASS')
+print('Adam continuing-value campaign + proven nested notification menu contract: PASS')
