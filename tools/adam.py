@@ -2,7 +2,7 @@
 """Adam: explicit, no-agent console router for Home Center.
 
 Modes are user-selected. Nothing loops, delegates, or chooses another lane on its own.
-Every invocation prints one JSON receipt and exits.
+Every invocation prints one bounded JSON receipt and exits.
 """
 from __future__ import annotations
 
@@ -19,6 +19,13 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_MODEL = os.environ.get("HC_ADAM_MODEL", "qwen2.5-coder:1.5b")
 DEFAULT_OLLAMA = os.environ.get("OLLAMA_HOST", "http://127.0.0.1:11434").rstrip("/")
+MAX_RECEIPT_TEXT = int(os.environ.get("HC_ADAM_RECEIPT_TEXT", "1400"))
+MAX_MODEL_TEXT = int(os.environ.get("HC_ADAM_MODEL_TEXT", "2600"))
+
+
+def tail(value: str, limit: int = MAX_RECEIPT_TEXT) -> str:
+    text = str(value or "")
+    return text if len(text) <= limit else text[-limit:]
 
 
 def receipt(mode: str, ok: bool, **data):
@@ -38,11 +45,11 @@ def run_terminal(text: str, cwd: str, timeout: int):
     return receipt(
         "terminal",
         p.returncode == 0,
-        command=text,
+        command=tail(text, 600),
         cwd=str(Path(cwd).resolve()),
         rc=p.returncode,
-        stdout=p.stdout[-8000:],
-        stderr=p.stderr[-8000:],
+        stdout=tail(p.stdout),
+        stderr=tail(p.stderr),
     )
 
 
@@ -67,12 +74,12 @@ def ollama_generate(mode: str, text: str, system: str, timeout: int):
             mode,
             False,
             error="local_model_unavailable",
-            detail=str(exc),
+            detail=tail(str(exc)),
             model=DEFAULT_MODEL,
             ollama=DEFAULT_OLLAMA,
             cloudFallback=False,
         )
-    answer = str(body.get("response") or "").strip()
+    answer = tail(str(body.get("response") or "").strip(), MAX_MODEL_TEXT)
     return receipt(
         mode,
         bool(answer),
@@ -136,8 +143,8 @@ def run_continue(text: str, cwd: str, timeout: int):
         p.returncode == 0,
         adapter=adapter,
         rc=p.returncode,
-        stdout=p.stdout[-12000:],
-        stderr=p.stderr[-12000:],
+        stdout=tail(p.stdout),
+        stderr=tail(p.stderr),
         cloudFallback=False,
     )
 
