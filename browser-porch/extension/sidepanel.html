@@ -10,7 +10,9 @@
     header { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
     h1 { font-size: 16px; margin: 0; }
     #status { font-size: 12px; opacity: .75; }
-    textarea { width: 100%; min-height: 150px; box-sizing: border-box; resize: vertical; padding: 10px; }
+    textarea { width: 100%; box-sizing: border-box; resize: vertical; padding: 10px; }
+    #context { min-height: 220px; }
+    #commission { min-height: 150px; }
     .row { display: flex; gap: 8px; flex-wrap: wrap; }
     button { padding: 8px 10px; cursor: pointer; }
     button.primary { font-weight: 700; }
@@ -18,11 +20,20 @@
     .job { border: 1px solid currentColor; border-radius: 6px; padding: 8px; opacity: .9; }
     .job strong { display: block; margin-bottom: 4px; }
     #output { white-space: pre-wrap; max-height: 35vh; overflow: auto; border: 1px solid currentColor; border-radius: 6px; padding: 8px; font-size: 12px; }
-    label { font-size: 12px; }
+    label, .hint { font-size: 12px; }
+    .hint { opacity: .7; }
   </style>
 </head>
 <body>
   <header><h1>Chromium Throne</h1><span id="status">checking…</span></header>
+
+  <label for="context">Durable campaign context</label>
+  <textarea id="context" placeholder="Mission, architecture, constraints, capability state, body lanes, evidence standard"></textarea>
+  <div class="row">
+    <button id="resetContext">Reset to Fortress campaign seed</button>
+  </div>
+  <div class="hint">This context is injected into every worker. Queued jobs snapshot it so later edits cannot silently rewrite an already-commissioned task.</div>
+
   <label for="commission">Commission</label>
   <textarea id="commission" placeholder="Exact work to hand to the ChatGPT worker"></textarea>
   <label><input id="newWorker" type="checkbox" checked> Start as a fresh worker conversation</label>
