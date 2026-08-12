@@ -5001,6 +5001,7 @@ function driveOperationRegistry() {
     invocationTool: 'drive_operation',
     cachePolicy: 'New bridge and simulation operations should be invokable through drive_operation so ChatGPT does not need a top-level MCP tool refresh for every backend code change. Cartesia TTS is a direct Home Center MCP provider operation; it must not be routed through Command Center jobs or workers.',
     operations: {
+      'time.now': {summary: 'Return the current Home Center runtime time.', write: false, requiredScopes: [], input: {}},
       ...artifactOperationEntries(),
       ...tvtroperOperationEntries(),
       ...blenderWorkspaceOperationEntries(),
@@ -5952,6 +5953,10 @@ async function driveOperationRunOperation({google, admin, auth, user, extra = nu
   }
   const registry = driveOperationRegistry();
   if (!registry.operations[operation]) throw Object.assign(new Error('Unsupported drive_operation operation: ' + operation), {status: 400});
+  if (operation === 'time.now') {
+    const now = new Date();
+    return {operation, registryVersion: registry.version, completed: true, result: {utcIso: now.toISOString(), unixMs: now.getTime()}};
+  }
   if (tvtroperOperationEntries()[operation]) {
     const result = await tvTroperRetrievalOperation({google, args: safeObject(args.args)});
     return {operation, registryVersion: registry.version, completed: true, result};
