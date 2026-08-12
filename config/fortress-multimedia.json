@@ -1,0 +1,90 @@
+{
+  "schemaVersion": "home-center.fortress-multimedia.v1",
+  "policy": {
+    "localFirst": true,
+    "cloudEscalation": false,
+    "preferHardwareCodecs": true,
+    "phoneControlsFleet": true,
+    "artifactConcurrencyPerLane": 1,
+    "maxPhoneLoad": "thermal-aware",
+    "rawShell": false
+  },
+  "organs": {
+    "venice": {
+      "label": "Venice",
+      "role": "audio perception, reaction, narration and humane presentation",
+      "localEntrypoint": ["python", "{repo}/tools/venice_reactor.py"],
+      "capabilities": ["audio-analysis", "reaction", "event-mining", "presentation"],
+      "preferredLane": "phone-local"
+    },
+    "media": {
+      "label": "Media Forge",
+      "role": "audio/video transcode, mux, preview, stems and final assembly",
+      "capabilities": ["ffmpeg", "ffplay", "hardware-codec", "audio", "video"],
+      "preferredLane": "phone-media"
+    },
+    "blender": {
+      "label": "Blender Forge",
+      "role": "geometry, rigging, animation, scene inspection and deterministic export",
+      "capabilities": ["blender", "gpu-render", "geometry", "rigging", "animation"],
+      "preferredLane": "fleet-gpu",
+      "contract": "docs/BLENDER_WORKSPACES.md"
+    },
+    "game": {
+      "label": "Game Forge",
+      "role": "Godot project generation, validation, preview and package orchestration",
+      "capabilities": ["godot", "game", "html5", "preview"],
+      "preferredLane": "phone-or-fleet"
+    }
+  },
+  "lanes": {
+    "phone-local": {
+      "requires": ["python"],
+      "prefers": ["termux", "big-little-cpu"],
+      "uses": ["cpu", "memory", "storage", "audio", "sensors"],
+      "purpose": "control, deterministic planning, audio analysis, lightweight generation and receipts"
+    },
+    "phone-media": {
+      "requiresAny": ["ffmpeg", "android-media"],
+      "prefers": ["mediacodec", "hardware-codec"],
+      "uses": ["cpu", "gpu", "dsp", "hardware-codec", "storage"],
+      "purpose": "preview, transcode, mux, waveform, thumbnail and artifact assembly"
+    },
+    "fleet-gpu": {
+      "requiresAny": ["blender", "remote-blender-worker"],
+      "prefers": ["gpu", "cauldron", "workstation"],
+      "uses": ["gpu", "cpu", "memory"],
+      "purpose": "Blender geometry, animation and heavy rendering"
+    },
+    "phone-or-fleet": {
+      "requiresAny": ["godot", "remote-godot-worker"],
+      "prefers": ["phone-preview", "workstation-build"],
+      "uses": ["cpu", "gpu", "memory", "storage"],
+      "purpose": "Godot generation, runtime preview, export and packaging"
+    }
+  },
+  "recipes": {
+    "venice-status": {
+      "organ": "venice",
+      "description": "Inspect Venice reactor state without recording audio",
+      "action": "venice-json",
+      "payload": {"action": "status"}
+    },
+    "venice-mine": {
+      "organ": "venice",
+      "description": "Summarize recent audio-shape events without retaining raw audio",
+      "action": "venice-json",
+      "payload": {"action": "mine", "limit": 200}
+    },
+    "device-profile": {
+      "organ": "media",
+      "description": "Inventory CPU, memory, storage, thermal, battery, media and GPU-adjacent capabilities",
+      "action": "profile"
+    },
+    "combined-arms-plan": {
+      "organ": "game",
+      "description": "Produce a deterministic lane plan for multimedia game generation",
+      "action": "plan"
+    }
+  }
+}
