@@ -10,14 +10,25 @@ RECEIPT="$STATE/adam-cli-install-receipt.json"
 
 mkdir -p "$STATE" "$BIN_DIR"
 [ -f "$SOURCE" ] || { echo "BLOCKED: Adam router missing: $SOURCE" >&2; exit 2; }
-command -v python3 >/dev/null 2>&1 || { echo 'BLOCKED: python3 missing.' >&2; exit 3; }
+PYTHON_BIN="$(command -v python3 || true)"
+[ -n "$PYTHON_BIN" ] || { echo 'BLOCKED: python3 missing.' >&2; exit 3; }
 
 cd "$ROOT"
 python3 tools/test_adam_overlay_contract.py
 python3 tools/test_adam_cli_contract.py
 python3 -m py_compile tools/adam.py
-chmod +x "$SOURCE"
-ln -sfn "$SOURCE" "$TARGET"
+
+# Android shared storage is commonly mounted noexec. Do not symlink an executable
+# entrypoint to the repo there. Install a tiny executable wrapper in Termux's
+# native prefix and invoke the shared-storage source through Python explicitly.
+TMP_TARGET="$TARGET.tmp.$$"
+cat > "$TMP_TARGET" <<EOF
+#!/data/data/com.termux/files/usr/bin/bash
+exec "$PYTHON_BIN" "$SOURCE" "\$@"
+EOF
+chmod 755 "$TMP_TARGET"
+mv -f "$TMP_TARGET" "$TARGET"
+hash -r 2>/dev/null || true
 
 CANARY="$($TARGET terminal 'printf ADAM_CLI_OK' --cwd "$ROOT" --timeout 10)"
 printf '%s\n' "$CANARY" | grep -q 'ADAM_CLI_OK' || { echo 'BLOCKED: Adam CLI terminal canary failed.' >&2; exit 4; }
@@ -38,6 +49,7 @@ obj={
   'adamSha256':adam_sha,
   'target':target,
   'source':source,
+  'launcher':'termux-native-wrapper',
   'oneShotModes':['terminal','chat','continue','vlad'],
   'interactiveMode':'shell',
   'terminalCanary':'ADAM_CLI_OK' in canary,
