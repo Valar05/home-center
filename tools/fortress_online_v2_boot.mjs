@@ -4,7 +4,10 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
-import { pathToFileURL } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
+
+const SCRIPT_DIR = path.dirname(fileURLToPath(import.meta.url));
+const REPO_ROOT = path.resolve(SCRIPT_DIR, '..');
 
 const CORE_SKILLS = Object.freeze([
   { id:'mission-kernel', required:true, purpose:'preserve outcome/owner/lane/exclusions/evidence/delivery' },
@@ -25,6 +28,7 @@ const CORE_SKILLS = Object.freeze([
 function sha256(text){ return crypto.createHash('sha256').update(text).digest('hex'); }
 function uniq(xs){ return [...new Set(xs)]; }
 function splitRoots(raw){ return uniq(String(raw||'').split(path.delimiter).map(x=>x.trim()).filter(Boolean)); }
+function defaultSkillRoots(extra=[]){ return uniq([REPO_ROOT,...extra].map(path.resolve)); }
 function walkSkillFiles(root){
   const out=[];
   if(!fs.existsSync(root)) return out;
@@ -35,7 +39,7 @@ function walkSkillFiles(root){
     try { entries=fs.readdirSync(cur,{withFileTypes:true}); } catch { continue; }
     for(const e of entries){
       const p=path.join(cur,e.name);
-      if(e.isDirectory()) stack.push(p);
+      if(e.isDirectory() && !['.git','node_modules'].includes(e.name)) stack.push(p);
       else if(e.isFile() && e.name.toLowerCase()==='skill.md') out.push(p);
     }
   }
@@ -45,30 +49,45 @@ function loadDiscoveredSkills(roots){
   const files=uniq(roots.flatMap(walkSkillFiles));
   return files.map(file=>{ const content=fs.readFileSync(file,'utf8'); return {id:path.basename(path.dirname(file)),file,sha256:sha256(content),content}; });
 }
-function buildBootCapsule({skillRoots=[], extraSkills=[]}={}){
-  const discovered=loadDiscoveredSkills(skillRoots);
-  const ids=new Set([...CORE_SKILLS.map(x=>x.id),...discovered.map(x=>x.id),...extraSkills.map(x=>x.id)]);
-  const requiredMissing=CORE_SKILLS.filter(x=>x.required&&!ids.has(x.id)).map(x=>x.id);
+function renderCoreSkill(skill){
+  const ops=skill.operations?.length?`\noperations: ${skill.operations.join(', ')}`:'';
+  const inv=skill.invariants?.length?`\ninvariants:\n- ${skill.invariants.join('\n- ')}`:'';
+  return `# CORE SKILL: ${skill.id}\nrequired: ${skill.required===true}\npurpose: ${skill.purpose}${ops}${inv}`;
+}
+function buildBootCapsule({skillRoots, extraSkills=[]}={}){
+  const roots=skillRoots===undefined?defaultSkillRoots():defaultSkillRoots(skillRoots);
+  const discovered=loadDiscoveredSkills(roots);
   const phone=CORE_SKILLS.find(x=>x.id==='phone-hands');
+  const requiredMissing=[];
   if(!phone || !phone.operations?.includes('phone_hands.devices') || !phone.operations?.includes('phone_hands.enqueue') || !phone.operations?.includes('phone_hands.get')) requiredMissing.push('phone-hands-contract');
   if(requiredMissing.length) throw new Error(`FORTRESS_BOOT_MISSING_REQUIRED_SKILLS:${uniq(requiredMissing).join(',')}`);
+
+  const loadedSkills=[
+    ...CORE_SKILLS.map(skill=>({id:skill.id,source:'core',required:true,sha256:sha256(renderCoreSkill(skill)),content:renderCoreSkill(skill)})),
+    ...discovered.map(skill=>({...skill,source:'SKILL.md',required:false})),
+    ...extraSkills.map(skill=>({id:skill.id||'extra',source:'extra',required:skill.required===true,sha256:sha256(String(skill.content||'')),content:String(skill.content||'')})),
+  ];
+  const bootPrompt=loadedSkills.map(skill=>`\n--- FORTRESS SKILL ${skill.id} | ${skill.source} | sha256:${skill.sha256} ---\n${skill.content}`).join('\n');
   return {
-    kind:'fortress.online.v2.boot-capsule.v1',
+    kind:'fortress.online.v2.boot-capsule.v2',
     isolation:'fortress-online-v2',
-    policy:'load every discovered SKILL.md; never first-match and stop',
-    coreSkills:CORE_SKILLS,
-    discoveredSkills:discovered.map(({content,...meta})=>meta),
-    loadedSkillCount:CORE_SKILLS.length+discovered.length+extraSkills.length,
+    policy:'load every discovered SKILL.md content; never first-match and stop',
+    skillRoots:roots,
+    coreSkillCount:CORE_SKILLS.length,
+    discoveredSkillCount:discovered.length,
+    loadedSkillCount:loadedSkills.length,
+    loadedSkills,
+    bootPrompt,
+    bootPromptSha256:sha256(bootPrompt),
     phoneHands:{required:true,operations:phone.operations,invariants:phone.invariants},
-    skillRoots:skillRoots.map(path.resolve),
   };
 }
 
 const invokedAsScript=process.argv[1] && import.meta.url===pathToFileURL(path.resolve(process.argv[1])).href;
 if(invokedAsScript){
-  const roots=splitRoots(process.env.FORTRESS_SKILL_ROOTS);
-  const capsule=buildBootCapsule({skillRoots:roots});
+  const configured=splitRoots(process.env.FORTRESS_SKILL_ROOTS);
+  const capsule=buildBootCapsule({skillRoots:configured});
   process.stdout.write(JSON.stringify(capsule,null,2)+'\n');
 }
 
-export { CORE_SKILLS, splitRoots, walkSkillFiles, loadDiscoveredSkills, buildBootCapsule };
+export { REPO_ROOT, CORE_SKILLS, splitRoots, defaultSkillRoots, walkSkillFiles, loadDiscoveredSkills, buildBootCapsule };
