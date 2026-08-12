@@ -62,8 +62,11 @@ for token in [
 ]:
     assert token in reviewed, f"reviewed execution entrypoint missing {token}"
 
-assert 'exec "$PYTHON_BIN" "$WORKER" "$@"' in installer
+# The installer writes a shell wrapper through a heredoc, so $@ is escaped in
+# the installer source and becomes literal $@ in the installed wrapper.
 assert 'WORKER="$ROOT/tools/adam_planned_venice.py"' in installer
+assert 'exec "$PYTHON_BIN" "$WORKER" "\\$@"' in installer
+assert 'exec "$PYTHON_BIN" "$ROOT/tools/adam_venice_reviewed.py"' not in installer
 assert 'venicePlanReviewReceiptVerified' in installer
 assert 'veniceStopReviewReceiptVerified' in installer
 assert 'terminal|chat|continue|vlad)' in installer
