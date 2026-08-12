@@ -18,8 +18,24 @@ assert embedded and embedded["tool"] == "respond"
 
 with tempfile.TemporaryDirectory() as td:
     ws = Path(td).resolve()
-    _, blocked = worker.execute_tool(ws, {"tool":"run_command","command":"rm -rf /"})
-    assert blocked.get("ok") is False
+    # Dangerous and ordinary mutating shell are both denied to model inference.
+    for command in (
+        "rm -rf /",
+        "rm a.txt",
+        "git reset --hard HEAD~1",
+        "git clean -fd",
+        "git add .",
+        "printf hacked > a.txt",
+        "touch new.txt",
+        "mv a b",
+    ):
+        _, blocked = worker.execute_tool(ws, {"tool":"run_command","command":command})
+        assert blocked.get("ok") is False, (command, blocked)
+
+    # Inspection/validation shell remains usable.
+    _, inspected = worker.execute_tool(ws, {"tool":"run_command","command":"printf inspect-only"})
+    assert inspected.get("ok") is True and "inspect-only" in inspected.get("stdout", "")
+
     _, wrote = worker.execute_tool(ws, {"tool":"write_file","path":"a.txt","content":"alpha\nbeta\n"})
     assert wrote.get("ok") is True
     _, read = worker.execute_tool(ws, {"tool":"read_file","path":"a.txt","start":1,"lines":5})
@@ -34,4 +50,4 @@ with tempfile.TemporaryDirectory() as td:
     terminal, response = worker.execute_tool(ws, {"tool":"respond","text":"Hey Drew."})
     assert terminal is True and response.get("text") == "Hey Drew."
 
-print("Adam Codex-shaped phone worker contract: PASS")
+print("Adam deterministic core / inferred-shell boundary contract: PASS")
