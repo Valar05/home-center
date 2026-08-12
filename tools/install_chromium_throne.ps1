@@ -4,7 +4,7 @@ param(
 )
 
 $ErrorActionPreference = 'Stop'
-$PinnedExtensionCommit = 'b50ec4cdc3551380182030db60205029bd987de0'
+$PinnedExtensionCommit = '220d8cdfa155bd3a789c204196221d094975eaf3'
 $ExtensionDir = Join-Path $Root 'extension'
 $BrowserRoot = Join-Path $Root 'chrome-for-testing'
 $ProfileDir = Join-Path $Root 'profile'
@@ -22,8 +22,8 @@ foreach ($name in $Files) {
 }
 
 $manifest = Get-Content (Join-Path $ExtensionDir 'manifest.json') -Raw | ConvertFrom-Json
-if ($manifest.name -ne 'Chromium Throne' -or [int]$manifest.manifest_version -ne 3 -or $manifest.version -ne '0.3.0') {
-  throw 'Downloaded extension is not the expected Chromium Throne 0.3.0 MV3 package.'
+if ($manifest.name -ne 'Chromium Throne' -or [int]$manifest.manifest_version -ne 3 -or $manifest.version -ne '0.4.0') {
+  throw 'Downloaded extension is not the expected Chromium Throne 0.4.0 MV3 package.'
 }
 
 # Official Chrome removed --load-extension from branded builds starting in Chrome 137.
@@ -66,6 +66,10 @@ $receipt = [ordered]@{
   extensionVersion = $manifest.version
   manifestVersion = $manifest.manifest_version
   campaignContextBuiltIn = $true
+  workerModel = 'ChatGPT chat-mode Instant'
+  workerSlicePolicy = 'one bounded feature/proof slice at a time'
+  threadChokePolicy = 'compact handoff then fresh thread'
+  greatWarPrompts = $false
   browser = 'Chrome for Testing'
   browserVersion = $stable.version
   browserExe = $BrowserExe
@@ -82,7 +86,7 @@ $receipt | ConvertTo-Json -Depth 6 | Set-Content $ReceiptPath -Encoding UTF8
 Write-Host "[Chromium Throne] READY"
 Write-Host "[Chromium Throne] Desktop launcher: $desktopLauncher"
 Write-Host "[Chromium Throne] Receipt: $ReceiptPath"
-Write-Host '[Chromium Throne] Campaign context is built into every worker packet.'
+Write-Host '[Chromium Throne] Campaign context and Instant-worker babysitting are built into every worker packet.'
 Write-Host '[Chromium Throne] First launch requires signing into ChatGPT once in this dedicated profile.'
 
 if ($Launch) { Start-Process -FilePath $desktopLauncher }
