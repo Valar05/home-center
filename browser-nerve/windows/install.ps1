@@ -17,6 +17,8 @@ if (-not [Environment]::UserInteractive) { throw 'Run this once from the normal 
 $Root = Join-Path $env:LOCALAPPDATA 'HomeCenter\BrowserNerve'
 $WorkerPath = Join-Path $Root 'home-center-browser-nerve.ps1'
 $ExecutorPath = Join-Path $Root 'browser-action.mjs'
+$AutofillExecutorPath = Join-Path $Root 'adam-autofill-login.mjs'
+$AutofillWrapperPath = Join-Path $Root 'adam-autofill-login.ps1'
 $ConfigPath = Join-Path $Root 'config.json'
 $TokenPath = Join-Path $Root 'worker-token.dpapi'
 $LogPath = Join-Path $Root 'worker.log'
@@ -32,19 +34,30 @@ if ([string]::IsNullOrWhiteSpace($SourceDirectory)) {
   Write-Host "Home Center Browser Nerve: installing from $Repository@$Ref"
   Invoke-WebRequest -UseBasicParsing -Uri "$base/home-center-browser-nerve.ps1" -OutFile "$WorkerPath.download"
   Invoke-WebRequest -UseBasicParsing -Uri "$base/browser-action.mjs" -OutFile "$ExecutorPath.download"
+  Invoke-WebRequest -UseBasicParsing -Uri "$base/adam-autofill-login.mjs" -OutFile "$AutofillExecutorPath.download"
+  Invoke-WebRequest -UseBasicParsing -Uri "$base/adam-autofill-login.ps1" -OutFile "$AutofillWrapperPath.download"
 } else {
   $SourceDirectory = [IO.Path]::GetFullPath($SourceDirectory)
   $sourceWorker = Join-Path $SourceDirectory 'home-center-browser-nerve.ps1'
   $sourceExecutor = Join-Path $SourceDirectory 'browser-action.mjs'
+  $sourceAutofillExecutor = Join-Path $SourceDirectory 'adam-autofill-login.mjs'
+  $sourceAutofillWrapper = Join-Path $SourceDirectory 'adam-autofill-login.ps1'
   if (-not (Test-Path -LiteralPath $sourceWorker -PathType Leaf)) { throw "Pre-staged Browser Nerve worker is missing: $sourceWorker" }
   if (-not (Test-Path -LiteralPath $sourceExecutor -PathType Leaf)) { throw "Pre-staged Browser Nerve executor is missing: $sourceExecutor" }
+  if (-not (Test-Path -LiteralPath $sourceAutofillExecutor -PathType Leaf)) { throw "Pre-staged Adam autofill executor is missing: $sourceAutofillExecutor" }
+  if (-not (Test-Path -LiteralPath $sourceAutofillWrapper -PathType Leaf)) { throw "Pre-staged Adam autofill wrapper is missing: $sourceAutofillWrapper" }
   Write-Host "Home Center Browser Nerve: installing from authenticated pre-staged source $SourceDirectory ($Repository@$Ref)"
   Copy-Item -LiteralPath $sourceWorker -Destination "$WorkerPath.download" -Force
   Copy-Item -LiteralPath $sourceExecutor -Destination "$ExecutorPath.download" -Force
+  Copy-Item -LiteralPath $sourceAutofillExecutor -Destination "$AutofillExecutorPath.download" -Force
+  Copy-Item -LiteralPath $sourceAutofillWrapper -Destination "$AutofillWrapperPath.download" -Force
 }
 if ((Get-Item "$WorkerPath.download").Length -lt 4000 -or (Get-Item "$ExecutorPath.download").Length -lt 6000) { throw 'Browser Nerve source files are unexpectedly small; refusing installation.' }
+if ((Get-Item "$AutofillExecutorPath.download").Length -lt 3000 -or (Get-Item "$AutofillWrapperPath.download").Length -lt 1200) { throw 'Adam autofill source files are unexpectedly small; refusing installation.' }
 Move-Item -Force "$WorkerPath.download" $WorkerPath
 Move-Item -Force "$ExecutorPath.download" $ExecutorPath
+Move-Item -Force "$AutofillExecutorPath.download" $AutofillExecutorPath
+Move-Item -Force "$AutofillWrapperPath.download" $AutofillWrapperPath
 
 $health = Invoke-RestMethod -Method Get -Uri "$Origin/browser-nerve/v1/health" -TimeoutSec 30
 if (-not $health.ok -or $health.contractVersion -ne 'home-center.browser-nerve-contract.v1') { throw 'Browser Nerve cloud health contract mismatch.' }
@@ -93,7 +106,7 @@ if ($needsToken) {
 
 $config = [ordered]@{
   schemaVersion='home-center.browser-nerve-windows-config.v1';origin=$Origin;workerId=$WorkerId;tokenPath=$TokenPath;
-  executorPath=$ExecutorPath;nodePath=$node;logPath=$LogPath;progressPath=$ProgressPath;browserProfile=$BrowserProfile;debugPort=9223;
+  executorPath=$ExecutorPath;autofillExecutorPath=$AutofillExecutorPath;autofillWrapperPath=$AutofillWrapperPath;nodePath=$node;logPath=$LogPath;progressPath=$ProgressPath;browserProfile=$BrowserProfile;debugPort=9223;
   selectorPolicy='aria_role_name_then_testid_id_css_then_text';repository=$Repository;ref=$Ref;installedAt=(Get-Date).ToUniversalTime().ToString('o')
 }
 $config | ConvertTo-Json -Depth 6 | Set-Content -LiteralPath $ConfigPath -Encoding UTF8
@@ -112,6 +125,6 @@ $taskInfo = Get-ScheduledTaskInfo -TaskName $TaskName
 
 [ordered]@{
   ok=$true;task=$TaskName;taskState=[string]$task.State;lastTaskResult=$taskInfo.LastTaskResult;workerId=$WorkerId;origin=$Origin;
-  workerPath=$WorkerPath;executorPath=$ExecutorPath;browserProfile=$BrowserProfile;debugPort=9223;tokenProtectedBy='Windows DPAPI current user';
+  workerPath=$WorkerPath;executorPath=$ExecutorPath;autofillExecutorPath=$AutofillExecutorPath;autofillWrapperPath=$AutofillWrapperPath;browserProfile=$BrowserProfile;debugPort=9223;tokenProtectedBy='Windows DPAPI current user';
   selectorPolicy='aria_role_name_then_testid_id_css_then_text';sourceDirectory=if($SourceDirectory){$SourceDirectory}else{$null};next='Verify browser_nerve.worker.status through Home Center, then run browser.navigate and browser.observe acceptance.'
 } | ConvertTo-Json -Depth 6
