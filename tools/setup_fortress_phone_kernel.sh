@@ -5,12 +5,16 @@ STATE="$HOME/.local/state/home-center/fortress-phone-kernel"
 BIN="$HOME/bin"
 BOOT="$HOME/.termux/boot"
 mkdir -p "$STATE" "$BIN" "$BOOT" "$HOME/.config/home-center"
-python -m py_compile "$REPO/tools/fortress_phone_kernel.py"
+python -m py_compile "$REPO/tools/fortress_phone_kernel.py" "$REPO/tools/fortress_cli.py"
 cat > "$BIN/fortress-kernel" <<EOF
 #!/data/data/com.termux/files/usr/bin/bash
 exec python "$REPO/tools/fortress_phone_kernel.py" "\$@"
 EOF
-chmod 700 "$BIN/fortress-kernel"
+cat > "$BIN/fortress" <<EOF
+#!/data/data/com.termux/files/usr/bin/bash
+exec python "$REPO/tools/fortress_cli.py" "\$@"
+EOF
+chmod 700 "$BIN/fortress-kernel" "$BIN/fortress"
 cat > "$BOOT/30-fortress-phone-kernel" <<EOF
 #!/data/data/com.termux/files/usr/bin/bash
 set -eu
@@ -24,4 +28,4 @@ EOF
 chmod 700 "$BOOT/30-fortress-phone-kernel"
 "$BOOT/30-fortress-phone-kernel"
 sleep 1
-"$BIN/fortress-kernel" status
+"$BIN/fortress" --status
