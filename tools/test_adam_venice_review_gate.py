@@ -15,11 +15,17 @@ assert "Venice Completion and Code Review Gate" in jars
 assert "Daemon Persistence and Connector Backoff" in jars
 
 agents = (ROOT / "AGENTS.md").read_text(encoding="utf-8")
+assert "Pre-execution planning — all agents and workers" in agents
+assert "Research" in agents and "Plan" in agents and "Select Judgment Jars" in agents and "Antagonize" in agents and "Ask Venice" in agents
+assert "Execute only after `PLAN_ALLOWED`" in agents
+assert "REPLAN_REQUIRED" in agents
+assert "The worker chooses whichever jars it thinks the task needs" in agents
 assert "Venice completion review — all agents and workers" in agents
 assert "No agent or worker may certify its own completion" in agents
 assert "This requirement applies to **all work**" in agents
 assert "CONTINUE_REQUIRED" in agents and "HALT_REQUIRED" in agents and "STOP_ALLOWED" in agents
 assert "Non-code and conversational work" in agents
+assert "Venice must take durable notes" in agents
 assert "Failure or latency in the Venice path is not permission to bypass Venice" in agents
 
 verdict, directive, findings, _ = canonical.parse_review(
@@ -93,6 +99,19 @@ for token in [
 ]:
     assert token in source, f"reviewed worker missing {token}"
 
+planned = (ROOT / "tools/adam_planned_venice.py").read_text(encoding="utf-8")
+for token in [
+    'def preflight(',
+    'submit_plan',
+    'selectedJars',
+    'jarRationale',
+    'antagonism',
+    'PLAN_ALLOWED',
+    'REPLAN_REQUIRED',
+    'review_plan_phone(',
+]:
+    assert token in planned, f"planned worker missing {token}"
+
 assert 'step budget exhausted' not in source
 assert 'raise RuntimeError(f"phone model unavailable after daemon backoff burst' not in source
-print("Adam global Venice / Codex-local / receipt / nonterminal-daemon contract: PASS")
+print("Adam global plan + Venice / Codex-local / receipt / nonterminal-daemon contract: PASS")
