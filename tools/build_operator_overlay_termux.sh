@@ -12,6 +12,7 @@ ANDROID_JAR="${HC_ANDROID_JAR:-$PLATFORM_DIR/android.jar}"
 KEYSTORE="$HOME/.local/state/home-center/adam-overlay-debug.keystore"
 APK="$OUTDIR/app-debug.apk"
 META_URL="${HC_ANDROID_REPOSITORY_XML:-https://dl.google.com/android/repository/repository2-1.xml}"
+PACKAGE_NAME="com.homecenter.operatoroverlay"
 
 mkdir -p "$OUTDIR" "$WORK" "$PLATFORM_DIR" "$(dirname "$KEYSTORE")"
 
@@ -29,7 +30,6 @@ install_termux_tools() {
   need_cmd curl || packages+=(curl)
 
   if [ ${#packages[@]} -gt 0 ]; then
-    # Deduplicate package names without assuming associative arrays on every shell build.
     local unique=() p seen q
     for p in "${packages[@]}"; do
       seen=0
@@ -51,8 +51,21 @@ install_termux_tools() {
   }
 }
 
+valid_android_jar() {
+  [ -s "$ANDROID_JAR" ] || return 1
+  unzip -tqq "$ANDROID_JAR" >/dev/null 2>&1 || return 1
+  unzip -l "$ANDROID_JAR" android/Manifest.class 2>/dev/null | grep -q 'android/Manifest.class' || return 1
+  return 0
+}
+
 ensure_android_jar() {
-  [ -s "$ANDROID_JAR" ] && return 0
+  if valid_android_jar; then
+    return 0
+  fi
+  if [ -e "$ANDROID_JAR" ]; then
+    echo "[build] Cached android.jar is invalid; replacing it: $ANDROID_JAR"
+    rm -f "$ANDROID_JAR"
+  fi
   echo '[build] Resolving platforms;android-35 from Google SDK repository metadata'
   local xml="$WORK/repository2-1.xml" info="$WORK/platform35.json" zipfile="$WORK/platform35.zip"
   curl -fL --retry 3 --retry-delay 2 "$META_URL" -o "$xml"
@@ -100,6 +113,7 @@ PY
   found="$(find "$PLATFORM_DIR.unpack" -type f -name android.jar | head -1)"
   [ -s "$found" ] || { echo 'BLOCKED: downloaded Android platform archive has no android.jar' >&2; exit 32; }
   cp "$found" "$ANDROID_JAR"
+  valid_android_jar || { echo "BLOCKED: extracted Android platform jar is not a valid API-35 android.jar: $ANDROID_JAR" >&2; exit 33; }
 }
 
 ensure_keystore() {
@@ -108,16 +122,32 @@ ensure_keystore() {
     -alias androiddebugkey -dname 'CN=Android Debug,O=Home Center,C=US' -keyalg RSA -keysize 2048 -validity 10000
 }
 
+prepare_manifest() {
+  local out="$WORK/AndroidManifest.xml"
+  python - "$MANIFEST" "$out" "$PACKAGE_NAME" <<'PY'
+import re,sys
+src,out,pkg=sys.argv[1:]
+text=open(src,encoding='utf-8').read()
+if re.search(r'<manifest\b[^>]*\bpackage\s*=', text):
+    rendered=text
+else:
+    rendered=re.sub(r'<manifest\b', f'<manifest package="{pkg}"', text, count=1)
+open(out,'w',encoding='utf-8').write(rendered)
+PY
+  printf '%s\n' "$out"
+}
+
 install_termux_tools
 ensure_android_jar
 ensure_keystore
 
 rm -rf "$WORK/classes" "$WORK/dex" "$WORK/package" "$WORK/base-unsigned.apk" "$WORK/base-signed.apk"
 mkdir -p "$WORK/classes" "$WORK/dex" "$WORK/package"
+BUILD_MANIFEST="$(prepare_manifest)"
 
 # This project intentionally uses framework resources only, so there is no app res/ tree to compile.
 echo '[build] Packaging manifest/resources table'
-aapt2 link -o "$WORK/base-unsigned.apk" -I "$ANDROID_JAR" --manifest "$MANIFEST" --min-sdk-version 26 --target-sdk-version 35 --version-code 3 --version-name 1.2.0
+aapt2 link -o "$WORK/base-unsigned.apk" -I "$ANDROID_JAR" --manifest "$BUILD_MANIFEST" --min-sdk-version 26 --target-sdk-version 35 --version-code 3 --version-name 1.2.0
 
 echo '[build] Compiling Java against API 35 framework'
 find "$SRC" -name '*.java' -print0 | xargs -0 javac --release 17 -classpath "$ANDROID_JAR" -d "$WORK/classes"
