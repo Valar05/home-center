@@ -6,13 +6,13 @@ STATE="${HC_STATE_DIR:-$HOME/.local/state/home-center}"
 BIN_DIR="${HC_ADAM_BIN_DIR:-${PREFIX:-$HOME/.local}/bin}"
 TARGET="$BIN_DIR/adam"
 ROUTER="$ROOT/tools/adam.py"
-WORKER="$ROOT/tools/adam_codex_phone.py"
+WORKER="$ROOT/tools/adam_venice_reviewed.py"
 RECEIPT="$STATE/adam-cli-install-receipt.json"
 ACCEPT_RECEIPT="$STATE/adam-phone-worker-acceptance.json"
 BRAIN_RECEIPT="$STATE/adam-phone-brain-receipt.json"
 
 mkdir -p "$STATE" "$BIN_DIR"
-for f in "$ROUTER" "$WORKER"; do
+for f in "$ROUTER" "$WORKER" "$ROOT/tools/adam_codex_phone.py"; do
   [ -f "$f" ] || { echo "BLOCKED: Adam component missing: $f" >&2; exit 2; }
 done
 PYTHON_BIN="$(command -v python3 || true)"
@@ -22,10 +22,9 @@ cd "$ROOT"
 python3 tools/test_adam_overlay_contract.py
 python3 tools/test_adam_cli_contract.py
 python3 tools/test_adam_codex_phone.py
-python3 -m py_compile tools/adam.py tools/adam_codex_phone.py tools/accept_adam_executive_phone.py
+python3 tools/test_adam_venice_review_gate.py
+python3 -m py_compile tools/adam.py tools/adam_codex_phone.py tools/adam_venice_reviewed.py tools/accept_adam_executive_phone.py
 
-# Native Termux launcher. Explicit overlay/body modes retain their names; every
-# other invocation, including bare `adam`, enters the Codex-shaped worker.
 TMP_TARGET="$TARGET.tmp.$$"
 cat > "$TMP_TARGET" <<EOF
 #!/data/data/com.termux/files/usr/bin/bash
@@ -49,7 +48,7 @@ bash tools/ensure_adam_phone_brain.sh | tee "$BRAIN_RECEIPT"
 grep -q '"ok":true' "$BRAIN_RECEIPT" || { echo 'BLOCKED: Adam phone model did not become healthy.' >&2; exit 5; }
 
 python3 tools/accept_adam_executive_phone.py | tee "$ACCEPT_RECEIPT"
-grep -q '"ok": true' "$ACCEPT_RECEIPT" || { echo 'BLOCKED: Adam Codex phone worker acceptance failed.' >&2; exit 6; }
+grep -q '"ok": true' "$ACCEPT_RECEIPT" || { echo 'BLOCKED: Adam Venice-reviewed Codex worker acceptance failed.' >&2; exit 6; }
 
 SOURCE_SHA="unknown"
 if command -v git >/dev/null 2>&1 && git -C "$ROOT" rev-parse HEAD >/dev/null 2>&1; then
@@ -63,15 +62,17 @@ path,source_commit,worker_sha,target,worker,canary,accept_path,brain_path=sys.ar
 accept=json.load(open(accept_path,encoding='utf-8'))
 brain=json.load(open(brain_path,encoding='utf-8'))
 obj={
-  'schema':'adam-cli-install-v7-codex-phone',
+  'schema':'adam-cli-install-v8-codex-venice-daemon',
   'ok':True,
   'sourceCommit':source_commit,
   'workerSha256':worker_sha,
   'target':target,
   'worker':worker,
-  'launcher':'termux-native-codex-shaped-phone-worker',
+  'launcher':'termux-native-codex-worker-venice-reviewed',
   'interactiveMode':'codex-worker-loop',
   'jarPersonalityGate':accept.get('jarGate') is True,
+  'veniceStopReview':accept.get('veniceStopReview') is True,
+  'daemonBackoff':accept.get('daemonBackoff') is True,
   'knowsOwner':accept.get('knowsOwner') is True,
   'genericAssistantLeak':accept.get('genericAssistantLeak') is True,
   'bodyTransportCanary':'ADAM_BODY_OK' in canary,
@@ -83,4 +84,4 @@ open(path,'w',encoding='utf-8').write(json.dumps(obj,indent=2,sort_keys=True)+'\
 print(json.dumps(obj,indent=2,sort_keys=True))
 PY
 
-echo "ADAM CODEX-SHAPED PHONE WORKER INSTALLED receipt=$RECEIPT"
+echo "ADAM CODEX/VENICE/DAEMON PHONE WORKER INSTALLED receipt=$RECEIPT"
