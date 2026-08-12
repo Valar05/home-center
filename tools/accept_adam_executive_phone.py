@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 import contextlib
+import hashlib
 import io
 import json
 import os
@@ -12,6 +13,8 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "tools"))
 import adam_codex_phone as core
 import adam_venice_reviewed as worker
+
+PROBE = "This is an acceptance probe, not a coding task. Respond to Drew with one short greeting that makes clear you know his name. Do not run commands or edit files."
 
 
 def _timeout(_signum, _frame):
@@ -36,6 +39,13 @@ def main() -> int:
         loaded = []
         codex_ok = False
 
+    # Delete only the last-pointer so stale Venice proof cannot satisfy this run.
+    last_review = worker.STATE_DIR / "venice-review-last.json"
+    try:
+        last_review.unlink()
+    except FileNotFoundError:
+        pass
+
     buf = io.StringIO()
     rc = 99
     timed_out = False
@@ -43,12 +53,7 @@ def main() -> int:
     signal.alarm(max(30, int(os.environ.get("HC_ADAM_ACCEPT_TIMEOUT", "240"))))
     try:
         with contextlib.redirect_stdout(buf):
-            rc = worker.run_task(
-                "This is an acceptance probe, not a coding task. Respond to Drew with one short greeting that makes clear you know his name. Do not run commands or edit files.",
-                ROOT,
-                max_steps=8,
-                stop_after_steps=12,
-            )
+            rc = worker.run_task(PROBE, ROOT, max_steps=8, stop_after_steps=12)
     except TimeoutError as exc:
         timed_out = True
         buf.write(f"{exc}\n")
@@ -60,12 +65,26 @@ def main() -> int:
     output = buf.getvalue().strip()
     knows = "drew" in output.lower()
     generic = "how can i assist" in output.lower() or "hello, adam" in output.lower()
-    ok = rc == 0 and not timed_out and jar_ok and venice_ok and daemon_ok and codex_ok and knows and not generic
+    try:
+        venice_receipt = json.loads(last_review.read_text(encoding="utf-8"))
+    except Exception:
+        venice_receipt = {}
+    venice_receipt_ok = (
+        venice_receipt.get("schema") == "adam-venice-stop-review-v1"
+        and venice_receipt.get("taskSha256") == hashlib.sha256(PROBE.encode("utf-8")).hexdigest()
+        and venice_receipt.get("stopPermissionGranted") is True
+        and venice_receipt.get("externalReviewGateSatisfied") is True
+        and venice_receipt.get("directive") == "STOP_ALLOWED"
+    )
+    ok = rc == 0 and not timed_out and jar_ok and venice_ok and daemon_ok and codex_ok and venice_receipt_ok and knows and not generic
     receipt = {
-        "schema": "adam-phone-codex-worker-acceptance-v5",
+        "schema": "adam-phone-codex-worker-acceptance-v6",
         "ok": ok,
         "jarGate": jar_ok,
         "veniceStopReview": venice_ok,
+        "veniceReviewReceipt": str(last_review),
+        "veniceReviewReceiptVerified": venice_receipt_ok,
+        "veniceDirective": venice_receipt.get("directive"),
         "daemonBackoff": daemon_ok,
         "codexLocalDocs": loaded,
         "codexLocalDocsLoaded": codex_ok,
