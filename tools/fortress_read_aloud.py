@@ -1,15 +1,34 @@
 #!/usr/bin/env python3
 from __future__ import annotations
-import argparse, json, os, re, shutil, subprocess, sys
+import argparse, json, os, shutil, subprocess, sys
 from pathlib import Path
 from typing import Iterable, Iterator
 
-MAX_CHUNK=int(os.environ.get('FORTRESS_READ_ALOUD_CHUNK','700'))
-VOICE=os.environ.get('FORTRESS_POCKET_TTS_VOICE','alba')
-LANGUAGE=os.environ.get('FORTRESS_POCKET_TTS_LANGUAGE','english')
+REPO=Path(os.environ.get('FORTRESS_HOME_CENTER','/storage/emulated/0/Documents/GodotProjects/home-center'))
+VOICE_CONFIG=Path(os.environ.get('FORTRESS_ADAM_VOICE_CONFIG',str(REPO/'config/fortress-adam-voice.json')))
+DEFAULT_CHUNK=700
+
+
+def profile():
+    raw=json.loads(VOICE_CONFIG.read_text(encoding='utf-8')) if VOICE_CONFIG.exists() else {}
+    delivery=raw.get('delivery',{})
+    voice=raw.get('voice',{})
+    return {
+        'id':raw.get('id','adam-phone'),
+        'displayName':raw.get('displayName','Adam'),
+        'language':raw.get('language','english'),
+        'voiceKind':voice.get('kind','builtin'),
+        'voiceValue':voice.get('value','michael'),
+        'chunkChars':int(os.environ.get('FORTRESS_READ_ALOUD_CHUNK',delivery.get('chunkChars',DEFAULT_CHUNK))),
+        'tempo':float(delivery.get('tempo',1.0)),
+        'volume':float(delivery.get('volume',1.0)),
+        'prefetchChunks':int(delivery.get('prefetchChunks',0)),
+        'style':delivery.get('style',''),
+    }
 
 
 def doctor():
+    p=profile()
     try:
         import pocket_tts  # noqa: F401
         pocket=True
@@ -20,10 +39,11 @@ def doctor():
     return {
       'ok': bool((pocket and ffplay) or termux),
       'preferred': 'pocket-stream' if pocket and ffplay else ('termux' if termux else ''),
+      'voiceProfile':p,
       'pocketPython': pocket,
       'ffplay': ffplay or '',
       'termux': termux or '',
-      'textChunkChars': MAX_CHUNK,
+      'textChunkChars': p['chunkChars'],
       'prefetchChunks': 0,
       'batching': False,
       'cloudFallback': False,
@@ -31,18 +51,19 @@ def doctor():
 
 
 def chunk_text_piece(text:str) -> Iterator[str]:
+    limit=profile()['chunkChars']
     text=' '.join(str(text or '').split()).strip()
     while text:
-        if len(text)<=MAX_CHUNK:
+        if len(text)<=limit:
             yield text
             return
-        window=text[:MAX_CHUNK+1]
+        window=text[:limit+1]
         cuts=[window.rfind(x) for x in ('. ','? ','! ','; ',': ', ', ')]
         cut=max(cuts)
-        if cut < MAX_CHUNK//3:
+        if cut < limit//3:
             cut=window.rfind(' ')
-        if cut < MAX_CHUNK//3:
-            cut=MAX_CHUNK
+        if cut < limit//3:
+            cut=limit
         else:
             cut += 1
         yield text[:cut].strip()
@@ -57,9 +78,8 @@ def chunks_from_file(path:str) -> Iterator[str]:
     p=Path(path).expanduser()
     if not p.is_absolute(): p=(Path.cwd()/p).resolve()
     if not p.exists() or not p.is_file(): raise FileNotFoundError(path)
-    # Never read the whole document. Accumulate only enough prose to make one
-    # bounded synthesis chunk, yield it, then forget it.
     buf=''
+    limit=profile()['chunkChars']
     with p.open('r',encoding='utf-8',errors='replace') as f:
         for raw in f:
             line=raw.strip()
@@ -69,7 +89,7 @@ def chunks_from_file(path:str) -> Iterator[str]:
                     buf=''
                 continue
             candidate=(buf+' '+line).strip()
-            if len(candidate)>=MAX_CHUNK:
+            if len(candidate)>=limit:
                 yield from chunk_text_piece(candidate)
                 buf=''
             else:
@@ -80,6 +100,7 @@ def chunks_from_file(path:str) -> Iterator[str]:
 
 def chunks_from_stdin() -> Iterator[str]:
     buf=''
+    limit=profile()['chunkChars']
     for raw in sys.stdin:
         line=raw.strip()
         if not line:
@@ -87,31 +108,39 @@ def chunks_from_stdin() -> Iterator[str]:
                 yield from chunk_text_piece(buf); buf=''
             continue
         candidate=(buf+' '+line).strip()
-        if len(candidate)>=MAX_CHUNK:
+        if len(candidate)>=limit:
             yield from chunk_text_piece(candidate); buf=''
         else:
             buf=candidate
     if buf: yield from chunk_text_piece(buf)
 
 
+def _voice_prompt(model,p):
+    value=p['voiceValue']
+    # Pocket accepts built-in voice names, local wav/audio references, or exported
+    # safetensors voice states through the same prompt-loading API.
+    return model.get_state_for_audio_prompt(value)
+
+
 def speak_pocket(chunks:Iterable[str]):
     from pocket_tts import TTSModel
+    p=profile()
     ffplay=shutil.which('ffplay')
     if not ffplay: raise RuntimeError('ffplay unavailable for Pocket streaming playback')
-    model=TTSModel.load_model(language=LANGUAGE)
-    voice=model.get_state_for_audio_prompt(VOICE)
-    player=subprocess.Popen(
-        [ffplay,'-loglevel','error','-nodisp','-autoexit','-f','f32le','-ar',str(model.sample_rate),'-ac','1','pipe:0'],
-        stdin=subprocess.PIPE, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE,
-    )
+    model=TTSModel.load_model(language=p['language'])
+    voice=_voice_prompt(model,p)
+    filters=[]
+    if abs(p['tempo']-1.0)>0.001: filters.append(f"atempo={max(0.5,min(p['tempo'],2.0)):.3f}")
+    if abs(p['volume']-1.0)>0.001: filters.append(f"volume={max(0.0,min(p['volume'],2.0)):.3f}")
+    cmd=[ffplay,'-loglevel','error','-nodisp','-autoexit','-f','f32le','-ar',str(model.sample_rate),'-ac','1']
+    if filters: cmd += ['-af',','.join(filters)]
+    cmd += ['pipe:0']
+    player=subprocess.Popen(cmd,stdin=subprocess.PIPE,stdout=subprocess.DEVNULL,stderr=subprocess.PIPE)
     count=0; chars=0; audio_chunks=0
     try:
         assert player.stdin is not None
         for text_chunk in chunks:
             count+=1; chars+=len(text_chunk)
-            # generate_audio_stream yields bounded PCM tensors. Writing each one
-            # directly to ffplay provides natural backpressure: no audio batch,
-            # no giant WAV, no unbounded prefetch queue.
             for pcm in model.generate_audio_stream(voice,text_chunk,copy_state=True):
                 raw=pcm.detach().cpu().float().numpy().tobytes()
                 player.stdin.write(raw)
@@ -126,7 +155,7 @@ def speak_pocket(chunks:Iterable[str]):
         try: player.kill()
         except Exception: pass
         raise
-    return {'ok':True,'provider':'pocket-stream','textChunks':count,'audioChunks':audio_chunks,'characters':chars,'batching':False,'prefetchChunks':0}
+    return {'ok':True,'provider':'pocket-stream','voiceProfile':p['id'],'voice':p['voiceValue'],'textChunks':count,'audioChunks':audio_chunks,'characters':chars,'batching':False,'prefetchChunks':0}
 
 
 def speak_termux(chunks:Iterable[str]):
@@ -137,7 +166,7 @@ def speak_termux(chunks:Iterable[str]):
         count+=1; chars+=len(chunk)
         p=subprocess.run([exe,chunk],text=True,capture_output=True,timeout=90,check=False)
         if p.returncode: raise RuntimeError((p.stderr or p.stdout or f'Termux TTS failed ({p.returncode})')[-3000:])
-    return {'ok':True,'provider':'termux','textChunks':count,'characters':chars,'batching':False,'prefetchChunks':0}
+    return {'ok':True,'provider':'termux','voiceProfile':'system-fallback','textChunks':count,'characters':chars,'batching':False,'prefetchChunks':0}
 
 
 def speak(chunks:Iterable[str],provider='auto'):
@@ -150,14 +179,17 @@ def speak(chunks:Iterable[str],provider='auto'):
 
 
 def main():
-    ap=argparse.ArgumentParser(prog='fortress-read',description='Pocket-first bounded streaming read aloud for Fortress')
+    ap=argparse.ArgumentParser(prog='fortress-read',description='Adam: Pocket-first bounded streaming read aloud for Fortress')
     ap.add_argument('--doctor',action='store_true')
+    ap.add_argument('--profile',action='store_true')
     ap.add_argument('--file')
     ap.add_argument('--provider',choices=['auto','pocket','termux'],default='auto')
     ap.add_argument('text',nargs='*')
     a=ap.parse_args()
     if a.doctor:
         out=doctor()
+    elif a.profile:
+        out=profile()
     elif a.file:
         out=speak(chunks_from_file(a.file),a.provider)
     elif a.text:
