@@ -16,6 +16,7 @@ Whenever the user must touch Termux manually, the handoff is not complete until 
 - A shebang does not save an explicitly wrong invocation. `sh ./script.sh` ignores a Bash shebang for language semantics.
 - User-facing recovery commands should be minimal and copy-pasteable. Avoid requiring them to infer working directory, executable bit, branch state, or interpreter.
 - If a handed-off command fails, fix the canonical script or command in the repository first, update this skill with the lesson, then give the corrected executable handoff. Do not leave the fix only in chat.
+- Do not paste multi-screen heredocs or installers into the user's interactive Termux shell. Long scripts belong in the durable repository and must be delivered by a short pull-and-run command or by Phone Hands. Chat is not a file-transfer protocol.
 
 ## One-command relay recovery
 When the primary phone still appears registered but `lastSeenAtMs` stops advancing and newly enqueued commands remain untouched, treat that as a relay-consumption failure rather than repeatedly polling stale command records.
