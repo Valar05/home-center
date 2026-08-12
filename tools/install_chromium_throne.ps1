@@ -4,12 +4,12 @@ param(
 )
 
 $ErrorActionPreference = 'Stop'
-$PinnedExtensionCommit = 'db877a8bb5ad627e689244d0137c6185a2e58827'
+$PinnedExtensionCommit = 'eca3705f3e99dbdd5b735234444422f286e29f21'
 $ExtensionDir = Join-Path $Root 'extension'
 $BrowserRoot = Join-Path $Root 'chrome-for-testing'
 $ProfileDir = Join-Path $Root 'profile'
 $ReceiptPath = Join-Path $Root 'install-receipt.json'
-$Files = @('manifest.json','service-worker.js','sidepanel.html','sidepanel.js')
+$Files = @('manifest.json','service-worker.js','sidepanel.html','throne-panel.mjs','swarm-core.mjs')
 $RawBase = "https://raw.githubusercontent.com/Valar05/home-center/$PinnedExtensionCommit/browser-porch/extension"
 
 Write-Host '[Chromium Throne] Installing real desktop runtime'
@@ -26,9 +26,6 @@ if ($manifest.name -ne 'Chromium Throne' -or [int]$manifest.manifest_version -ne
   throw 'Downloaded extension is not the expected Chromium Throne 0.5.0 MV3 package.'
 }
 
-# Official Chrome removed --load-extension from branded builds starting in Chrome 137.
-# Chrome for Testing keeps the development/testing path we need, so we vendor it instead
-# of pretending a stock Chrome command-line launch still works.
 $versions = Invoke-RestMethod -Uri 'https://googlechromelabs.github.io/chrome-for-testing/last-known-good-versions-with-downloads.json'
 $stable = $versions.channels.Stable
 $download = $stable.downloads.chrome | Where-Object { $_.platform -eq 'win64' } | Select-Object -First 1
@@ -71,6 +68,10 @@ $receipt = [ordered]@{
   threadChokePolicy = 'strict six-field handoff -> durable merge -> fresh worker'
   automaticSwarmBabysitting = $true
   maxSwarmSlices = 12
+  swarmTerminalState = 'awaiting_venice_review'
+  externalReviewer = 'Venice local CLI via Ollama'
+  externalReviewReceiptField = 'externalReviewGateSatisfied'
+  chatGptMayApproveSwarm = $false
   greatWarPrompts = $false
   browser = 'Chrome for Testing'
   browserVersion = $stable.version
@@ -88,7 +89,7 @@ $receipt | ConvertTo-Json -Depth 6 | Set-Content $ReceiptPath -Encoding UTF8
 Write-Host "[Chromium Throne] READY"
 Write-Host "[Chromium Throne] Desktop launcher: $desktopLauncher"
 Write-Host "[Chromium Throne] Receipt: $ReceiptPath"
-Write-Host '[Chromium Throne] Campaign context, Instant-worker babysitting, and automatic choke rotation are installed.'
+Write-Host '[Chromium Throne] ChatGPT workers cannot close a swarm. Final acceptance requires a Venice local-review PASS receipt.'
 Write-Host '[Chromium Throne] First launch requires signing into ChatGPT once in this dedicated profile.'
 
 if ($Launch) { Start-Process -FilePath $desktopLauncher }
