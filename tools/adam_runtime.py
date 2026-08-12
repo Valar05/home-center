@@ -19,6 +19,25 @@ If you cannot reliably produce JSON, reply in plain prose; the runtime will trea
 Never claim success before runtime evidence exists.
 '''
 
+def identity_reflex(db,text):
+    s=' '.join(text.lower().strip().split())
+    if s in {'hello','hi','hey','yo','sup','good morning','good afternoon','good evening'}:
+        return "Hey Drew. Adam online. What are we breaking constructively?"
+    if s in {'who am i','who am i?','what is my name','what is my name?','whats my name','what\'s my name'}:
+        row=db.execute("SELECT value FROM identity WHERE key='user_name'").fetchone()
+        return f"You're {row['value'] if row else 'Drew'}. I am Adam. Tiny model does not get a vote."
+    if s in {'who are you','who are you?','what are you','what are you?','what is your name','what is your name?'}:
+        return "I'm Adam: your local conversational executive, controller, memory goblin, and bounded executor. The language model is just one organ."
+    return None
+
+def sanitize_say(text):
+    out=(text or '').strip()
+    if not out: return 'Yep.'
+    bad=(r'\bhello,?\s+adam\b',r'\bhi,?\s+adam\b',r'how can i assist you today\??',r'how may i assist you\??')
+    if any(re.search(p,out,re.I) for p in bad):
+        return "Hey Drew. Adam here. The tiny model tried to swap our nametags again; denied."
+    return out
+
 def request_plan(history,text,cwd,context,timeout):
     messages=[{'role':'system','content':SYSTEM_BASE+'\nDURABLE ADAM CONTEXT:\n'+context}]
     messages.extend(history[-10:])
@@ -38,16 +57,16 @@ def request_plan(history,text,cwd,context,timeout):
             try: plan=json.loads(m.group(0))
             except Exception: plan=None
     if not isinstance(plan,dict):
-        return {'kind':'say','say':raw,'payload':'','category':'conversation','structured':False}
+        return {'kind':'say','say':sanitize_say(raw),'payload':'','category':'conversation','structured':False}
     kind=str(plan.get('kind') or '').strip().lower()
-    say=str(plan.get('say') or '').strip()
+    say=sanitize_say(str(plan.get('say') or '').strip())
     payload=str(plan.get('payload') or '').strip()
     category=str(plan.get('category') or ('conversation' if kind=='say' else 'execution')).strip().lower()
     if kind not in EXEC_KINDS:
-        return {'kind':'say','say':say or raw,'payload':'','category':'conversation','structured':False}
+        return {'kind':'say','say':say or sanitize_say(raw),'payload':'','category':'conversation','structured':False}
     if kind=='say': payload=''
     elif not payload:
-        return {'kind':'say','say':say or raw,'payload':'','category':'conversation','structured':False}
+        return {'kind':'say','say':say or sanitize_say(raw),'payload':'','category':'conversation','structured':False}
     if kind=='terminal' and adam.DANGEROUS_SHELL.search(payload):
         return {'kind':'say','say':'I am not executing that from model inference. Use :sh explicitly if you really intend it.','payload':'','category':'restraint','structured':True}
     return {'kind':kind,'say':say,'payload':payload,'category':category,'structured':True}
@@ -55,19 +74,18 @@ def request_plan(history,text,cwd,context,timeout):
 def execute(plan,cwd,timeout,db,user_text):
     kind=plan['kind']; say=plan.get('say',''); payload=plan.get('payload',''); cat=plan.get('category','execution')
     if kind=='say':
-        print(say or 'Yep.')
+        say=sanitize_say(say)
+        print(say)
         memory.event(db,'turn','conversation',user_text,json.dumps(plan,ensure_ascii=False),say,True,2)
         return
     if say: print(say)
     memory.event(db,'decision',cat,user_text,json.dumps(plan,ensure_ascii=False),'dispatched',None,1)
-    before_count=db.execute('select count(*) n from events').fetchone()['n']
     if kind=='terminal': rc=adam.run_terminal(payload,cwd,timeout)
     elif kind=='continue': rc=adam.run_continue(payload,cwd,timeout)
     elif kind=='phone': rc=adam.run_phone(payload,timeout)
     else: rc=adam.run_vlad(payload,timeout)
     ok=(rc==0)
     memory.event(db,'outcome',cat,user_text,payload,f'{kind} rc={rc}',ok,8 if ok else 5)
-    # Global adaptive scars: failed route becomes a weighted caution jar; successes reinforce a route jar.
     key=f'route-{kind}'
     value=f'{kind} route has runtime evidence: '+('successful recently' if ok else 'failed recently; verify substrate before repeating')
     memory.remember(db,key,value,jar='experience',weight=1.4 if ok else 2.2,source='runtime')
@@ -129,7 +147,12 @@ def run(cwd=None,timeout=180):
             except Exception as exc: print(f'Adam: {exc}')
             continue
         if exact_command(text,current,timeout,db): continue
-        # Critique is captured before planning so the current response can already use it.
+        reflex=identity_reflex(db,text)
+        if reflex is not None:
+            print(reflex)
+            memory.event(db,'reflex','conversation',text,'identity_reflex',reflex,True,3)
+            history.append({'role':'user','content':text}); history.append({'role':'assistant','content':reflex})
+            continue
         if memory.detect_critique(text):
             memory.critique(db,text,category='judgment',severity=3)
         memory.event(db,'input','conversation',text,success=None,xp=1)
