@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "fortress.voice-profile.v1",
+  "id": "adam-phone",
+  "displayName": "Adam",
+  "home": "phone",
+  "engine": "pocket-tts",
+  "language": "english",
+  "voice": {
+    "kind": "builtin",
+    "value": "michael",
+    "referencePolicy": "Only replace with a local reference or exported voice state that the owner is authorized to use."
+  },
+  "delivery": {
+    "tempo": 0.96,
+    "volume": 0.92,
+    "chunkChars": 700,
+    "prefetchChunks": 0,
+    "style": "calm, concise, grounded; phone command voice distinct from desktop Venice"
+  },
+  "boundaries": {
+    "desktopVeniceVoice": false,
+    "cloudFallback": false,
+    "impersonateRealPerson": false
+  }
+}
