@@ -46,19 +46,30 @@ Required operations are `phone_hands.devices`, `phone_hands.enqueue`, and `phone
 
 For screen work, observation and actuation are distinct. Do not infer screen state from stale context when `observe` is available. For long phone jobs, one lease receipt proves start; do not hammer `get` while the command is leased.
 
-## 10. Computer Hands
+## 10. SSH Axis
+SSH Axis is a first-class control-plane invariant, not an anecdotal setup step. Its two intended bodies are the Android phone and THECAULDRON workstation. Configuration, a running `sshd`, a remembered IP address, or the existence of a key never proves callability.
+
+An SSH Axis endpoint is `callable` only after an end-to-end noninteractive probe proves all of: transport reachability, host resolution/address validity, key authentication, remote command execution, and a matching command receipt. Use `tools/ssh_axis.py check` as the deterministic gate wherever a local runtime can execute it. A failed or stale probe must downgrade the endpoint immediately; never continue reporting the Axis as available from historical setup evidence.
+
+The canonical states are: `not_configured`, `transport_failed`, `ssh_client_missing`, `auth_or_command_timeout`, `authentication_failed`, `command_failed`, and `callable`. Only `callable` may satisfy a commission requiring direct SSH access.
+
+The phone's Home Center `phone_shell` path and OpenSSH are separate capabilities. A live `phone_shell` receipt proves the bounded Home Center shell lane only; it does not prove inbound OpenSSH to the phone. Likewise, THECAULDRON `sshd` being healthy proves only the server process, not network or authentication.
+
+When an endpoint is not callable, diagnose and repair the failed layer rather than silently substituting GitHub Actions, local scratch, manual user commands, browser control, or another machine. If a one-time OS privilege boundary such as UAC is the only remaining blocker, finish every independent repair first and request exactly that operator action.
+
+## 11. Computer Hands
 Use the workstation body only when desktop execution is the commissioned lane or a permitted independent test lane. Keep machine-body actions bounded and inspectable. A desktop proof cannot silently replace phone proof, browser proof, or another commissioned surface.
 
-## 11. Browser Nerve
+## 12. Browser Nerve
 Treat browser semantics separately from whole-machine control. Prefer DOM/accessibility/browser-native observation for page state, with screenshots only when visual reorientation is materially useful. Preserve identity/session boundaries and do not turn browser automation into an excuse for uncontrolled desktop input.
 
-## 12. Venice nerve
+## 13. Venice nerve
 Conversation/speech is a nerve, not the body. Keep composition, speech, media presence, and actuation as separate structured actions with receipts. Venice may interpret and converse; deterministic known actions should remain deterministic rather than routing through a model unnecessarily.
 
-## 13. Local code continuation
+## 14. Local code continuation
 When cloud coding quota is unavailable, continue through bounded local coding tools and deterministic scripts when capable. Do not substitute an unverified local output for persistent delivery. Changes still require repository persistence and the same regression/evidence gates.
 
-## 14. Self-improvement quarantine
+## 15. Self-improvement quarantine
 Every failure or user correction becomes an incident candidate. Classify it, derive the smallest reusable policy change, encode a regression, run the complete V2 suite, and check that no earlier lock regressed. Only then may the rule become active inside Fortress V2.
 
 Automatic learning may never mutate Fortress V1 or alter the user's mission boundary. Promotion from V2 to V1 requires the commissioned acceptance gate and explicit user acceptance.
