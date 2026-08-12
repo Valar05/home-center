@@ -1,5 +1,6 @@
 param(
   [string]$Root = "$env:LOCALAPPDATA\HomeCenter\ChromiumThrone",
+  [string]$SourceRepo = '',
   [switch]$Launch
 )
 
@@ -15,9 +16,21 @@ $RawBase = "https://raw.githubusercontent.com/Valar05/home-center/$PinnedExtensi
 Write-Host '[Chromium Throne] Installing real desktop runtime'
 New-Item -ItemType Directory -Force -Path $Root,$ExtensionDir,$BrowserRoot,$ProfileDir | Out-Null
 
+$LocalExtensionDir = $null
+if ($SourceRepo) {
+  $candidate = Join-Path $SourceRepo 'browser-porch\extension'
+  if (Test-Path $candidate) { $LocalExtensionDir = $candidate }
+}
+
 foreach ($name in $Files) {
   $dest = Join-Path $ExtensionDir $name
-  Invoke-WebRequest -UseBasicParsing -Uri "$RawBase/$name" -OutFile $dest
+  if ($LocalExtensionDir) {
+    $source = Join-Path $LocalExtensionDir $name
+    if (!(Test-Path $source)) { throw "Missing extension source file: $source" }
+    Copy-Item -Path $source -Destination $dest -Force
+  } else {
+    Invoke-WebRequest -UseBasicParsing -Uri "$RawBase/$name" -OutFile $dest
+  }
   if (!(Test-Path $dest) -or (Get-Item $dest).Length -lt 10) { throw "Failed to vendor extension file: $name" }
 }
 
@@ -61,6 +74,7 @@ Copy-Item $launcher $desktopLauncher -Force
 $receipt = [ordered]@{
   installedAt = (Get-Date).ToString('o')
   extensionCommit = $PinnedExtensionCommit
+  extensionSource = $(if ($LocalExtensionDir) { $LocalExtensionDir } else { $RawBase })
   extensionDir = $ExtensionDir
   extensionName = $manifest.name
   extensionVersion = $manifest.version
