@@ -1,5 +1,5 @@
 {
-  "version": 2,
+  "version": 3,
   "cockpit": {
     "title": "Fortress Cockpit",
     "subtitle": "Phone command center — deterministic, local, config-driven"
@@ -15,6 +15,42 @@
       "phrases": ["status", "fortress status", "what is alive", "what's alive"],
       "argv": ["python", "{repo}/tools/fortress_prompt.py", "--self-status"],
       "ui": {"label": "Fortress status", "group": "Fortress", "prominent": true, "description": "Compiler, config, and grammar health"}
+    },
+    {
+      "name": "multimedia-status",
+      "phrases": ["multimedia status", "arsenal status", "forge status"],
+      "argv": ["python", "{repo}/tools/fortress_multimedia.py", "status"],
+      "ui": {"label": "Arsenal status", "group": "Create", "prominent": true, "description": "Profile this device and show available Venice, media, Blender, and game lanes"}
+    },
+    {
+      "name": "multimedia-profile",
+      "phrases": ["profile device", "device profile", "use the whole device"],
+      "argv": ["python", "{repo}/tools/fortress_multimedia.py", "profile"],
+      "ui": {"label": "Profile device", "group": "Create", "description": "CPU, memory, storage, battery, thermal, codecs, and GPU-adjacent capability probe"}
+    },
+    {
+      "name": "combined-arms-plan",
+      "phrases": ["combined arms", "multimedia plan", "game generation plan", "forge a game"],
+      "argv": ["python", "{repo}/tools/fortress_multimedia.py", "plan"],
+      "ui": {"label": "Combined arms", "group": "Create", "prominent": true, "description": "Route multimedia game generation across phone, media, Venice, Blender, and fleet GPU lanes"}
+    },
+    {
+      "name": "venice-media-status",
+      "phrases": ["venice status", "venice media status", "is venice listening"],
+      "argv": ["python", "{repo}/tools/fortress_multimedia.py", "run", "venice-status"],
+      "ui": {"label": "Venice status", "group": "Venice", "description": "Inspect reactor state; no raw audio or speech recognition"}
+    },
+    {
+      "name": "venice-media-mine",
+      "phrases": ["mine venice", "venice mine", "mine audio shape"],
+      "argv": ["python", "{repo}/tools/fortress_multimedia.py", "run", "venice-mine"],
+      "ui": {"label": "Mine audio shape", "group": "Venice", "description": "Summarize recent audio-shape events without retaining raw audio"}
+    },
+    {
+      "name": "multimedia-catalog",
+      "phrases": ["arsenal", "multimedia catalog", "show creative tools"],
+      "argv": ["python", "{repo}/tools/fortress_multimedia.py", "catalog"],
+      "ui": {"label": "Creative arsenal", "group": "Create", "description": "Show registered organs, lanes, and deterministic recipes"}
     },
     {
       "name": "git-status",
