@@ -32,17 +32,19 @@
   <div class="row">
     <button id="resetContext">Reset to Fortress campaign seed</button>
   </div>
-  <div class="hint">This context is injected into every worker. Queued jobs snapshot it so later edits cannot silently rewrite an already-commissioned task.</div>
+  <div class="hint">Throne owns memory. Instant workers get one bounded slice. Queued jobs snapshot context; choke handoffs rotate into fresh threads.</div>
 
   <label for="commission">Commission</label>
-  <textarea id="commission" placeholder="Exact work to hand to the ChatGPT worker"></textarea>
+  <textarea id="commission" placeholder="Exact bounded feature, repair, proof, or acceptance slice"></textarea>
   <label><input id="newWorker" type="checkbox" checked> Start as a fresh worker conversation</label>
   <div class="row">
     <button id="enqueue">Queue</button>
     <button id="run" class="primary">Run now</button>
     <button id="runNext">Run next</button>
+    <button id="runSwarm" class="primary">Run bounded swarm</button>
     <button id="capture">Checkpoint</button>
   </div>
+  <div class="hint">Bounded swarm runs at most 12 slices. A valid six-field HANDOFF is consumed automatically, merged into durable context, and dispatched to a fresh thread.</div>
   <div class="row">
     <button id="stop">Stop dispatch</button>
     <button id="resume">Resume</button>
