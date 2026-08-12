@@ -22,7 +22,6 @@ say "Refreshing commissioned branch"
 cd "$ROOT"
 git fetch origin "$BRANCH"
 
-# First preference: exact CI artifact from latest successful Operator Overlay Android run on this branch.
 RUN_ID="$(gh run list --repo "$REPO" --workflow 'Operator Overlay Android' --branch "$BRANCH" --limit 20 --json databaseId,conclusion,event --jq '[.[] | select(.conclusion=="success")][0].databaseId // empty' 2>/dev/null || true)"
 if [ -n "$RUN_ID" ]; then
   rm -rf "$TMP/artifact"
@@ -36,7 +35,6 @@ if [ -n "$RUN_ID" ]; then
   fi
 fi
 
-# Second preference: reviewed generated artifact branch. This may lag Venice controls; use only if source receipt matches current branch ancestry.
 if [ ! -s "$APK" ]; then
   say "No usable CI artifact yet; checking reviewed generated artifact branch"
   if git fetch origin generated/operator-overlay-apk >/dev/null 2>&1; then
@@ -66,7 +64,6 @@ PY
   fi
 fi
 
-# Third preference: workstation forge. Ask the already-running Computer Hands path indirectly through a durable job marker if present.
 if [ ! -s "$APK" ]; then
   say "No current built APK is available yet. Creating an exact handoff receipt and stopping before installation."
   cat > "$STATE/venice-radio-overlay-handoff.json" <<JSON
@@ -79,13 +76,11 @@ SHA="$(sha256sum "$APK" | awk '{print $1}')"
 BYTES="$(wc -c < "$APK")"
 say "APK ready sha256=$SHA bytes=$BYTES"
 
-# Normal Android installer, no Shizuku. Termux must be allowed to request package installs.
 URI="content://com.termux.fileprovider$(python - "$APK" <<'PY'
 import sys,urllib.parse
 print(urllib.parse.quote(sys.argv[1], safe='/'))
 PY
 )"
-# Try FileProvider URI first, then ACTION_VIEW file URI fallback handled by Android/Termux.
 am start -a android.intent.action.VIEW -d "$URI" -t application/vnd.android.package-archive --grant-read-uri-permission >/dev/null 2>&1 || \
 am start -a android.intent.action.VIEW -d "file://$APK" -t application/vnd.android.package-archive >/dev/null 2>&1 || \
 fail "Could not launch Android package installer"
@@ -97,9 +92,7 @@ for _ in $(seq 1 120); do
 done
 pm path "$PKG" >/dev/null 2>&1 || fail "package was not installed within 120 seconds"
 
-# Open exact overlay permission screen. This is a system-owned human gate.
-am start -a android.settings.action.MANAGE_OVERLAY_PERMISSION -d "package:$PKG" >/dev/null 2>&1 || 
-am start -a android.settings.MANAGE_OVERLAY_PERMISSION -d "package:$PKG" >/dev/null 2>&1 || true
+am start -a android.settings.action.MANAGE_OVERLAY_PERMISSION -d "package:$PKG" >/dev/null 2>&1 || true
 say "ANDROID GATE: enable 'Display over other apps' for Home Center Operator Overlay. Waiting..."
 for _ in $(seq 1 120); do
   if appops get "$PKG" SYSTEM_ALERT_WINDOW 2>/dev/null | grep -Eq 'allow|foreground'; then break; fi
@@ -107,7 +100,6 @@ for _ in $(seq 1 120); do
 done
 appops get "$PKG" SYSTEM_ALERT_WINDOW 2>/dev/null | grep -Eq 'allow|foreground' || fail "overlay permission was not granted within 120 seconds"
 
-# Start through ordinary Android app/service path.
 am start -n "$PKG/.MainActivity" >/dev/null 2>&1 || true
 sleep 1
 am start-foreground-service -n "$PKG/.OperatorOverlayService" >/dev/null 2>&1 || true
