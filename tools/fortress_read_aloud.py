@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 from __future__ import annotations
-import argparse, json, os, shutil, struct, subprocess, sys, time, wave
+import argparse, json, os, shlex, struct, subprocess, sys, time, wave
 from pathlib import Path
 from typing import Iterable, Iterator
 
@@ -8,8 +8,23 @@ REPO=Path(os.environ.get('FORTRESS_HOME_CENTER','/storage/emulated/0/Documents/G
 VOICE_CONFIG=Path(os.environ.get('FORTRESS_ADAM_VOICE_CONFIG',str(REPO/'config/fortress-adam-voice.json')))
 AUDIO_ROOT=Path('/storage/emulated/0/Documents/FortressAudio')
 POCKET_PHONE=Path.home()/'bin/pocket-tts-phone'
-AM=Path('/system/bin/am')
 DEFAULT_CHUNK=700
+
+
+def find_rish()->Path|None:
+    candidates=[
+        os.environ.get('RISH',''),
+        str(Path.home()/'bin/rish'),
+        str(Path.home()/'rish'),
+        '/storage/emulated/0/Android/data/moe.shizuku.privileged.api/files/rish',
+        '/storage/emulated/0/Documents/rish',
+        '/storage/emulated/0/Download/rish',
+    ]
+    for raw in candidates:
+        if raw:
+            p=Path(raw).expanduser()
+            if p.is_file(): return p
+    return None
 
 
 def profile():
@@ -17,7 +32,7 @@ def profile():
     delivery=raw.get('delivery',{}); voice=raw.get('voice',{})
     return {
         'id':raw.get('id','adam-phone'),'displayName':raw.get('displayName','Adam'),
-        'language':raw.get('language','english'),'engine':'pocket-tts-phone+home-center-playback',
+        'language':raw.get('language','english'),'engine':'pocket-tts-phone+home-center-playback+rish',
         'voiceKind':voice.get('kind','builtin'),'voiceValue':voice.get('value','michael'),
         'chunkChars':int(os.environ.get('FORTRESS_READ_ALOUD_CHUNK',delivery.get('chunkChars',DEFAULT_CHUNK))),
         'tempo':float(delivery.get('tempo',1.0)),'volume':float(delivery.get('volume',1.0)),
@@ -27,11 +42,11 @@ def profile():
 
 
 def doctor():
-    p=profile(); pocket=POCKET_PHONE.is_file() and os.access(POCKET_PHONE,os.X_OK); am=AM.is_file() and os.access(AM,os.X_OK)
-    ok=bool(pocket and am)
+    p=profile(); pocket=POCKET_PHONE.is_file() and os.access(POCKET_PHONE,os.X_OK); rish=find_rish()
+    ok=bool(pocket and rish)
     return {'ok':ok,'preferred':'pocket-home-center' if ok else '','canonicalProvider':'pocket-home-center','voiceProfile':p,
-            'pocketPhone':str(POCKET_PHONE) if pocket else '','homeCenterPlaybackCommand':str(AM) if am else '',
-            'systemFallbackAllowed':False,'blockedReason':'' if ok else ('pocket-tts-phone missing' if not pocket else 'Android am unavailable'),
+            'pocketPhone':str(POCKET_PHONE) if pocket else '','androidLaunchTransport':'shizuku-rish','rish':str(rish) if rish else '',
+            'systemFallbackAllowed':False,'blockedReason':'' if ok else ('pocket-tts-phone missing' if not pocket else 'Shizuku rish unavailable'),
             'textChunkChars':p['chunkChars'],'prefetchChunks':0,'batching':False,'cloudFallback':False}
 
 
@@ -109,13 +124,19 @@ def synthesize_chunk(text:str,index:int,p:dict)->Path:
     return final
 
 
+def run_rish(command:str,timeout:float=20.0)->str:
+    rish=find_rish()
+    if not rish: raise RuntimeError('ADAM VOICE BLOCKED: Shizuku rish unavailable')
+    proc=subprocess.run([str(rish),'-c',command],text=True,capture_output=True,timeout=timeout,check=False)
+    if proc.returncode: raise RuntimeError((proc.stderr or proc.stdout or f'rish failed ({proc.returncode})')[-3000:])
+    return proc.stdout
+
+
 def play_home_center(path:Path)->float:
     seconds=duration(path)
-    cmd=[str(AM),'start','-W','-n','com.dclar.homecenter/.PocketTtsPlaybackActivity','--es','file',str(path)]
-    proc=subprocess.run(cmd,text=True,capture_output=True,timeout=15,check=False)
-    if proc.returncode: raise RuntimeError((proc.stderr or proc.stdout or f'Home Center playback launch failed ({proc.returncode})')[-3000:])
-    # Activity playback is asynchronous. Wait only for this bounded chunk before synthesizing the next,
-    # preserving zero-prefetch/backpressure and avoiding superseding the current speech.
+    component='com.dclar.homecenter/.PocketTtsPlaybackActivity'
+    command='am start -W -n '+shlex.quote(component)+' --es file '+shlex.quote(str(path))
+    run_rish(command,20)
     time.sleep(max(0.05,seconds+0.12))
     return seconds
 
@@ -132,7 +153,7 @@ def speak(chunks:Iterable[str],provider='auto'):
             seconds+=play_home_center(wav)
             try: wav.unlink()
             except OSError: pass
-        return {'ok':True,'provider':'pocket-home-center','voiceProfile':p['id'],'voice':p['voiceValue'],
+        return {'ok':True,'provider':'pocket-home-center','transport':'shizuku-rish','voiceProfile':p['id'],'voice':p['voiceValue'],
                 'textChunks':count,'characters':chars,'audioSeconds':round(seconds,3),'batching':False,'prefetchChunks':0}
     finally:
         for wav in files:
@@ -141,7 +162,7 @@ def speak(chunks:Iterable[str],provider='auto'):
 
 
 def main():
-    ap=argparse.ArgumentParser(prog='fortress-read',description='Adam: Pocket TTS through the proven Home Center phone playback transport')
+    ap=argparse.ArgumentParser(prog='fortress-read',description='Adam: Pocket TTS through Home Center playback launched via Shizuku/rish')
     ap.add_argument('--doctor',action='store_true'); ap.add_argument('--profile',action='store_true'); ap.add_argument('--file')
     ap.add_argument('--provider',choices=['auto','pocket','termux'],default='auto'); ap.add_argument('text',nargs='*'); a=ap.parse_args()
     if a.doctor: out=doctor()
