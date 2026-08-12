@@ -47,13 +47,22 @@ RISH_BIN="$(find_rish 2>/dev/null || true)"
 [ -n "$RISH_BIN" ] || { echo "BLOCKED: rish not found. Export rish from Shizuku into Termux." >&2; exit 2; }
 chmod +x "$RISH_BIN" 2>/dev/null || true
 
-if ! "$RISH_BIN" -c 'id; dumpsys window 2>/dev/null | grep -E "mCurrentFocus|mFocusedApp" | head -1' >/dev/null 2>&1; then
+# Android shared storage is commonly mounted noexec. Never infer that chmod makes
+# a shared-storage rish directly executable; run it through Termux sh instead.
+rish_exec() {
+  case "$RISH_BIN" in
+    /storage/*) sh "$RISH_BIN" "$@" ;;
+    *) "$RISH_BIN" "$@" ;;
+  esac
+}
+
+if ! rish_exec -c 'id; dumpsys window 2>/dev/null | grep -E "mCurrentFocus|mFocusedApp" | head -1' >/dev/null 2>&1; then
   echo "BLOCKED: Shizuku/rish probe failed. Start Shizuku and authorize Termux." >&2
   exit 3
 fi
 
-if ! "$RISH_BIN" -c 'pm path com.tailscale.ipn 2>/dev/null || pm list packages | grep -i tailscale' | grep -q 'package:'; then
-  echo "BLOCKED: Tailscale Android app was not found on the phone." >&2
+if ! rish_exec -c 'pm list packages 2>/dev/null | grep -i tailscale' | grep -q 'package:'; then
+  echo "BLOCKED: Tailscale Android app was not found through Android package state." >&2
   exit 4
 fi
 
@@ -77,7 +86,26 @@ fi
 . "$ENV_FILE"
 export HC_PHONE_HANDS_TOKEN
 export HC_PHONE_HANDS_PORT="${HC_PHONE_HANDS_PORT:-$PORT}"
-export RISH="$RISH_BIN"
+
+# The Python bridge launches RISH as an executable. When Shizuku exported rish
+# to shared storage, give the bridge an executable wrapper in Termux internal
+# storage so the noexec mount cannot break runtime commands after startup.
+case "$RISH_BIN" in
+  /storage/*)
+    RISH_WRAPPER="$CONFIG_DIR/rish-wrapper"
+    cat > "$RISH_WRAPPER" <<'EOF'
+#!/data/data/com.termux/files/usr/bin/sh
+exec sh "$RISH_SHARED_PATH" "$@"
+EOF
+    chmod 700 "$RISH_WRAPPER"
+    export RISH_SHARED_PATH="$RISH_BIN"
+    export RISH="$RISH_WRAPPER"
+    ;;
+  *)
+    export RISH="$RISH_BIN"
+    ;;
+esac
+
 if [ "$ENABLE_SHELL" = "1" ]; then
   export HC_PHONE_HANDS_ALLOW_SHELL=1
 else
@@ -87,7 +115,7 @@ fi
 BRIDGE="$ROOT/tools/android_phone_hands_bridge.py"
 [ -f "$BRIDGE" ] || { echo "BLOCKED: $BRIDGE is missing" >&2; exit 5; }
 
-TAILSCALE_STATE="$($RISH_BIN -c 'dumpsys connectivity 2>/dev/null | grep -i tailscale | head -4' 2>/dev/null || true)"
+TAILSCALE_STATE="$(rish_exec -c 'dumpsys connectivity 2>/dev/null | grep -i tailscale | head -4' 2>/dev/null || true)"
 if [ -z "$TAILSCALE_STATE" ]; then
   echo "WARNING: Tailscale package exists, but active VPN state could not be proven from dumpsys."
   echo "Open Tailscale and make sure this phone is connected before remote verification."
