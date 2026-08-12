@@ -3,6 +3,8 @@ from __future__ import annotations
 import contextlib
 import io
 import json
+import os
+import signal
 import sys
 from pathlib import Path
 
@@ -12,6 +14,10 @@ import adam_codex_phone as core
 import adam_venice_reviewed as worker
 
 
+def _timeout(_signum, _frame):
+    raise TimeoutError("acceptance probe exceeded its bounded harness window")
+
+
 def main() -> int:
     jars = core.active_jars()
     jar_ok = "Adam Personality Gate" in jars and "Repository Truth and Evidence" in jars
@@ -19,26 +25,38 @@ def main() -> int:
     daemon_ok = "Daemon Persistence and Connector Backoff" in jars
 
     buf = io.StringIO()
-    with contextlib.redirect_stdout(buf):
-        rc = worker.run_task(
-            "This is an acceptance probe, not a coding task. Respond to Drew with one short greeting that makes clear you know his name. Do not run commands or edit files.",
-            ROOT,
-            max_steps=12,
-        )
+    rc = 99
+    timed_out = False
+    old_handler = signal.signal(signal.SIGALRM, _timeout)
+    signal.alarm(max(30, int(os.environ.get("HC_ADAM_ACCEPT_TIMEOUT", "240"))))
+    try:
+        with contextlib.redirect_stdout(buf):
+            rc = worker.run_task(
+                "This is an acceptance probe, not a coding task. Respond to Drew with one short greeting that makes clear you know his name. Do not run commands or edit files.",
+                ROOT,
+                max_steps=12,
+            )
+    except TimeoutError as exc:
+        timed_out = True
+        buf.write(f"{exc}\n")
+        rc = 3
+    finally:
+        signal.alarm(0)
+        signal.signal(signal.SIGALRM, old_handler)
+
     output = buf.getvalue().strip()
     knows = "drew" in output.lower()
     generic = "how can i assist" in output.lower() or "hello, adam" in output.lower()
-    # For a respond action Venice approval is not printed separately, so the
-    # runtime invariant is proved by loading the gate + using reviewed.run_task.
-    ok = rc == 0 and jar_ok and venice_ok and daemon_ok and knows and not generic
+    ok = rc == 0 and not timed_out and jar_ok and venice_ok and daemon_ok and knows and not generic
     receipt = {
-        "schema": "adam-phone-codex-worker-acceptance-v2",
+        "schema": "adam-phone-codex-worker-acceptance-v3",
         "ok": ok,
         "jarGate": jar_ok,
         "veniceStopReview": venice_ok,
         "daemonBackoff": daemon_ok,
         "knowsOwner": knows,
         "genericAssistantLeak": generic,
+        "timedOut": timed_out,
         "workerRc": rc,
         "output": output,
         "model": core.PHONE_LLM_MODEL,
