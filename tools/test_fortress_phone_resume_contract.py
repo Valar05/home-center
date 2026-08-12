@@ -9,6 +9,10 @@ required_resume = [
     'recover_adam_overlay_phone.sh',
     'vlad_pixel_forge_probe.py',
     'bootstrap_vlad_pixel_forge_mnn_phone.sh',
+    'stage_vlad_pixel_model_phone.py',
+    'vlad_pixel_request.py',
+    'vlad_pixel_generate_mnn_phone.py',
+    'intermediateDeleted',
     'fortress_venice_loop.py',
     'git pull --ff-only origin main',
 ]
@@ -28,4 +32,4 @@ for forbidden in ['workflow_dispatch', 'gh workflow', 'github actions', 'godot -
     assert forbidden.lower() not in resume.lower(), f'forbidden execution lane: {forbidden}'
 assert 'fortress-resume' in installer
 assert 'fortress_phone_resume.sh' in installer
-print('Fortress phone resume + Venice repair loop contract: PASS')
+print('Fortress phone resume + real Pixel Forge smoke + Venice repair loop contract: PASS')
