@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { CORE_SKILLS, walkSkillFiles, loadDiscoveredSkills, buildBootCapsule } from './fortress_online_v2_boot.mjs';
+import { REPO_ROOT, CORE_SKILLS, defaultSkillRoots, walkSkillFiles, loadDiscoveredSkills, buildBootCapsule } from './fortress_online_v2_boot.mjs';
 
 test('Phone Hands is mandatory core boot skill with full operation triplet',()=>{
   const p=CORE_SKILLS.find(x=>x.id==='phone-hands');
@@ -12,10 +12,15 @@ test('Phone Hands is mandatory core boot skill with full operation triplet',()=>
   assert.match(p.purpose,/Shizuku\/rish/);
 });
 
+test('default boot roots always include repository root',()=>{
+  assert.ok(defaultSkillRoots().includes(REPO_ROOT));
+  assert.ok(defaultSkillRoots(['/tmp/example']).includes(REPO_ROOT));
+});
+
 test('boot discovers every nested SKILL.md rather than first match',()=>{
   const root=fs.mkdtempSync(path.join(os.tmpdir(),'fortress-skills-'));
   for(const rel of ['alpha/SKILL.md','nested/beta/SKILL.md','nested/deeper/gamma/SKILL.md']){
-    const p=path.join(root,rel); fs.mkdirSync(path.dirname(p),{recursive:true}); fs.writeFileSync(p,`# ${rel}\n`);
+    const p=path.join(root,rel); fs.mkdirSync(path.dirname(p),{recursive:true}); fs.writeFileSync(p,`# ${rel}\nBODY:${rel}\n`);
   }
   fs.writeFileSync(path.join(root,'nested','IGNORE.md'),'nope');
   const found=walkSkillFiles(root);
@@ -23,21 +28,26 @@ test('boot discovers every nested SKILL.md rather than first match',()=>{
   const loaded=loadDiscoveredSkills([root]);
   assert.deepEqual(loaded.map(x=>x.id).sort(),['alpha','beta','gamma']);
   assert.ok(loaded.every(x=>x.sha256.length===64));
+  assert.ok(loaded.every(x=>x.content.includes('BODY:')));
 });
 
-test('boot capsule carries all discovered skills plus core skills',()=>{
+test('boot capsule contains actual discovered skill bodies, not metadata only',()=>{
   const root=fs.mkdtempSync(path.join(os.tmpdir(),'fortress-capsule-'));
-  for(const name of ['one','two']){const p=path.join(root,name,'SKILL.md');fs.mkdirSync(path.dirname(p),{recursive:true});fs.writeFileSync(p,`# ${name}\n`);}
+  const marker='PHONE-HANDS-STYLE-SKILL-BODY-UNIQUE-MARKER';
+  const p=path.join(root,'proof-skill','SKILL.md'); fs.mkdirSync(path.dirname(p),{recursive:true}); fs.writeFileSync(p,`# Proof\n${marker}\n`);
   const c=buildBootCapsule({skillRoots:[root]});
-  assert.equal(c.discoveredSkills.length,2);
-  assert.equal(c.loadedSkillCount,CORE_SKILLS.length+2);
+  const proof=c.loadedSkills.find(x=>x.id==='proof-skill');
+  assert.ok(proof); assert.match(proof.content,new RegExp(marker));
+  assert.match(c.bootPrompt,new RegExp(marker));
+  assert.equal(c.bootPromptSha256.length,64);
   assert.equal(c.phoneHands.required,true);
-  assert.equal(c.policy,'load every discovered SKILL.md; never first-match and stop');
+  assert.ok(c.loadedSkills.some(x=>x.id==='phone-hands' && x.source==='core'));
 });
 
-test('missing skill roots are tolerated without dropping mandatory core contracts',()=>{
+test('missing configured roots do not drop repo scan or mandatory core contracts',()=>{
   const c=buildBootCapsule({skillRoots:['/definitely/not/a/real/skill/root']});
-  assert.equal(c.discoveredSkills.length,0);
-  assert.ok(c.coreSkills.some(x=>x.id==='phone-hands'));
-  assert.ok(c.coreSkills.some(x=>x.id==='request-budget'));
+  assert.ok(c.skillRoots.includes(REPO_ROOT));
+  assert.ok(c.loadedSkills.some(x=>x.id==='phone-hands'));
+  assert.ok(c.loadedSkills.some(x=>x.id==='request-budget'));
+  assert.equal(c.loadedSkillCount,c.loadedSkills.length);
 });
