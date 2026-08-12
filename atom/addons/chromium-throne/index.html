@@ -3,9 +3,11 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#111117">
+<link rel="manifest" href="/manifest.webmanifest">
 <title>Atom · Chromium Throne</title>
 <style>
-:root{color-scheme:dark;font:16px/1.45 system-ui,sans-serif;background:#0d0d11;color:#f4f0ea}*{box-sizing:border-box}body{margin:0;padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom);background:#0d0d11}header{position:sticky;top:0;padding:14px 16px;background:#111117f2;border-bottom:1px solid #34343c;z-index:2}h1{font-size:1.15rem;margin:0}.sub{color:#b8b5bd;font-size:.82rem}.status{margin-top:8px;display:flex;gap:8px;flex-wrap:wrap}.pill{border:1px solid #45454f;border-radius:999px;padding:3px 8px;font-size:.78rem}main{padding:14px;max-width:900px;margin:auto}.card{border:1px solid #353540;border-radius:16px;background:#18181f;padding:14px;margin-bottom:12px}textarea{width:100%;min-height:112px;background:#0e0e13;color:inherit;border:1px solid #4a4a55;border-radius:12px;padding:12px;font:inherit}button{min-height:48px;border:1px solid #555560;border-radius:12px;background:#25252d;color:inherit;padding:10px 14px;font-weight:650}button:focus-visible,textarea:focus-visible{outline:3px solid #c6b3ff;outline-offset:2px}.row{display:flex;gap:8px;flex-wrap:wrap}.row button{flex:1}.primary{background:#332e48}.danger{background:#40272a}.list{display:grid;gap:8px}.item{border:1px solid #383842;border-radius:12px;padding:10px}.meta{font-size:.78rem;color:#b8b5bd}.tabs{display:flex;gap:6px;overflow:auto;margin-bottom:10px}.tabs button{min-height:40px;white-space:nowrap}.tabs button[aria-selected=true]{border-color:#c6b3ff}.hidden{display:none}.offline{border-color:#d99165}.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}
+:root{color-scheme:dark;font:16px/1.45 system-ui,sans-serif;background:#0d0d11;color:#f4f0ea}*{box-sizing:border-box}body{margin:0;padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom);background:#0d0d11}header{position:sticky;top:0;padding:14px 16px;background:#111117f2;border-bottom:1px solid #34343c;z-index:2}h1{font-size:1.15rem;margin:0}.sub{color:#b8b5bd;font-size:.82rem}.status{margin-top:8px;display:flex;gap:8px;flex-wrap:wrap}.pill{border:1px solid #45454f;border-radius:999px;padding:3px 8px;font-size:.78rem}main{padding:14px;max-width:900px;margin:auto}.card{border:1px solid #353540;border-radius:16px;background:#18181f;padding:14px;margin-bottom:12px}textarea{width:100%;min-height:112px;background:#0e0e13;color:inherit;border:1px solid #4a4a55;border-radius:12px;padding:12px;font:inherit}button{min-height:48px;border:1px solid #555560;border-radius:12px;background:#25252d;color:inherit;padding:10px 14px;font-weight:650}button:focus-visible,textarea:focus-visible{outline:3px solid #c6b3ff;outline-offset:2px}.row{display:flex;gap:8px;flex-wrap:wrap}.row button{flex:1}.primary{background:#332e48}.list{display:grid;gap:8px}.item{border:1px solid #383842;border-radius:12px;padding:10px}.meta{font-size:.78rem;color:#b8b5bd}.tabs{display:flex;gap:6px;overflow:auto;margin-bottom:10px}.tabs button{min-height:40px;white-space:nowrap}.tabs button[aria-selected=true]{border-color:#c6b3ff}.hidden{display:none}.offline{border-color:#d99165}.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}
 </style>
 </head>
 <body>
@@ -20,5 +22,6 @@
 <div id="live" class="sr" aria-live="assertive"></div>
 </main>
 <script type="module" src="./addon.mjs"></script>
+<script>if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js').catch(()=>{})}</script>
 </body>
 </html>
