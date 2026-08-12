@@ -5,12 +5,11 @@ from pathlib import Path
 STATE=Path(os.environ.get('HC_HANDS_ROUTER_STATE','~/.local/state/home-center/hands-router')).expanduser()
 KEY=Path(os.environ.get('HC_HANDS_ROUTER_KEY','~/.config/home-center/hands-router.key')).expanduser()
 TOGGLE=STATE/'enabled'; QUEUE=STATE/'queue'; DONE=STATE/'done'; RECEIPTS=STATE/'receipts.jsonl'
-PRODUCERS={'vlad','venice','adam','fortress'}
+PRODUCERS={'drew','vlad','venice','adam','fortress'}
 TRANSPORTS=('ssh','wlan','computer_hands')
 MAX_STEPS=int(os.environ.get('HC_HANDS_MAX_STEPS','64'))
 MAX_JOB_BYTES=int(os.environ.get('HC_HANDS_MAX_JOB_BYTES','65536'))
 MAX_RUNTIME=int(os.environ.get('HC_HANDS_MAX_RUNTIME','300'))
-# Hands is an executor, never an agent. These are finite operations, not goals.
 OPS={
  'system.status','screen.capture','window.list','process.list','window.focus','input.type','input.key','input.mouse',
  'process.start','process.stop','shell.exec','clipboard.get','clipboard.set',
@@ -51,7 +50,6 @@ def validate(job):
  return None
 
 def objectively_harmful(job):
- # Deliberately narrow: only explicit/high-confidence destructive mechanics are blocked.
  for step in job.get('steps') or []:
   if step.get('args',{}).get('harm') is True: return 'explicit_harm_flag'
   text=json.dumps(step.get('args') or {},sort_keys=True).lower()
@@ -120,5 +118,5 @@ def main(default_producer=None):
  if a.cmd=='drain': print(json.dumps(drain(a.limit),indent=2)); return 0
  if a.cmd=='on':set_enabled(True)
  if a.cmd=='off':set_enabled(False)
- print(json.dumps({'enabled':enabled(),'state':str(STATE),'queue':len(list(QUEUE.glob('*.json'))) if QUEUE.exists() else 0,'contract':'finite-script-v2','maxSteps':MAX_STEPS,'maxRuntimeSeconds':MAX_RUNTIME},indent=2)); return 0
-if __name__=='__main__':raise SystemExit(main())
+ print(json.dumps({'enabled':enabled(),'state':str(STATE),'queue':len(list(QUEUE.glob('*.json'))) if QUEUE.exists() else 0,'contract':'finite-script-v2','primaryProducer':'drew','maxSteps':MAX_STEPS,'maxRuntimeSeconds':MAX_RUNTIME},indent=2)); return 0
+if __name__=='__main__':raise SystemExit(main(default_producer='drew'))
