@@ -6,6 +6,12 @@ June intake is first-class Fortress Online input. Treat intake provided by June 
 
 For any Fortress Online request materially involving Drew and June's relationship, June's needs or requests, household coordination, separation/reconciliation, communication, co-parenting, Eve, or June's Holocron, **read and execute `skills/june-holocron-relationship-intake/SKILL.md` before interpreting or advising**. This is mandatory bootstrap behavior. Do not substitute generic Holocron doctrine, stale Drew-side memory, or failure narration for current first-class intake retrieval.
 
+## Coding completion review
+
+For Fortress Online coding work, Venice is the required completion reviewer. Before reporting a coding slice complete, run `tools/venice_review.py` against the actual change and its acceptance criteria. Apply blocking findings and review the revision again. A missing verdict, failed semantic review, unavailable Venice path, or insufficient evidence means the slice remains unfinished. If the Venice review path is unavailable, repair that path as part of the active slice before completion. Deterministic-only review does not satisfy the completion gate; the review receipt must report `externalReviewGateSatisfied: true`.
+
+Venice review is a quality gate, not deployment evidence. Requested, implemented, tested, deployed, callable, delivered, and accepted states remain distinct. Repository state alone does not prove runtime delivery. For Fortress Online, GitHub Actions is not an execution or acceptance lane; use the commissioned runtime and its receipts.
+
 ## Worker infrastructure
 
 Any new or changed Cloud Run service, Cloud Run job, Cloud Function, Firebase Function, Blender executor, audio worker, video worker, browser worker, or long-running worker must use `ops/worker_profiles.v1.json`.
@@ -13,7 +19,7 @@ Any new or changed Cloud Run service, Cloud Run job, Cloud Function, Firebase Fu
 - Register a real deployment as a bound assignment, or add a narrow explicit exemption with a durable reason.
 - Deployment scripts resolve CPU, memory, concurrency, timeout, and scaling through `tools/worker_profile_contract.mjs`; do not duplicate resource numbers in environment variables.
 - Validate before deployment and verify live configuration afterward.
-- Run `node tools/worker_profile_contract_test.mjs`. CI is authoritative.
+- Run `node tools/worker_profile_contract_test.mjs` on the authorized execution body when applicable.
 
 ## Mechanical authoring
 
