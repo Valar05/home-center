@@ -21,8 +21,8 @@ need gcloud
 mkdir -p "$WORK_ROOT"
 trap 'status=$?; if [ "$status" -eq 0 ]; then rm -rf "$WORK"; else echo "WORKDIR PRESERVED: $WORK" >&2; fi; exit "$status"' EXIT INT TERM
 
-echo "[1/8] Clone authoritative main without GitHub Actions"
-git clone --depth 1 --branch main "$REPO_URL" "$WORK"
+echo "[1/8] Clone authoritative main without GitHub Actions or LFS smudge"
+GIT_LFS_SKIP_SMUDGE=1 git clone --depth 1 --branch main "$REPO_URL" "$WORK"
 cd "$WORK"
 
 echo "[2/8] Confirm direct GCP identity"
