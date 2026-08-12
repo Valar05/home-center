@@ -15,6 +15,7 @@ INTERVAL = int(os.environ.get("HC_SWARM_INTERVAL", "30"))
 ADAM_POLL_SECONDS = float(os.environ.get("HC_ADAM_POLL_SECONDS", "1.0"))
 OPERATOR_STATE_URI = "content://com.homecenter.operatoroverlay.state/state"
 OPERATOR_RECEIVER = "com.homecenter.operatoroverlay/.OverlayUpdateReceiver"
+OVERLAY_RECOVERY_COOLDOWN = int(os.environ.get("HC_OVERLAY_RECOVERY_COOLDOWN", "120"))
 
 
 def now():
@@ -64,6 +65,53 @@ def phone_health():
         scan = rish("cmd wifi start-scan")
         append_receipt({"kind": "phone.wlan.scan", "ok": scan["rc"] == 0, "result": scan})
     return True
+
+
+def _overlay_recovery_stamp():
+    return STATE_DIR / "overlay-last-recovery-epoch"
+
+
+def _last_overlay_recovery():
+    try:
+        return int(_overlay_recovery_stamp().read_text(encoding="utf-8").strip())
+    except Exception:
+        return 0
+
+
+def _set_overlay_recovery(value):
+    STATE_DIR.mkdir(parents=True, exist_ok=True)
+    _overlay_recovery_stamp().write_text(str(int(value)) + "\n", encoding="utf-8")
+
+
+def ensure_operator_overlay(repo_root):
+    query = rish(f"content query --uri {shlex.quote(OPERATOR_STATE_URI)}")
+    healthy = query["rc"] == 0 and "control_enabled=" in query["stdout"]
+    append_receipt({"kind": "operator.overlay.probe", "ok": healthy, "result": query})
+    if healthy:
+        return True
+
+    current = now()
+    if current - _last_overlay_recovery() < max(30, OVERLAY_RECOVERY_COOLDOWN):
+        append_receipt({"kind": "operator.overlay.recovery", "ok": False, "state": "cooldown"})
+        return False
+
+    _set_overlay_recovery(current)
+    script = Path(repo_root) / "tools" / "recover_adam_overlay_phone.sh"
+    if not script.is_file():
+        append_receipt({"kind": "operator.overlay.recovery", "ok": False, "state": "script_missing", "script": str(script)})
+        return False
+
+    result = run(["bash", str(script)], timeout=600, cwd=repo_root)
+    verify = rish(f"content query --uri {shlex.quote(OPERATOR_STATE_URI)}")
+    recovered = result["rc"] == 0 and verify["rc"] == 0 and "control_enabled=" in verify["stdout"]
+    append_receipt({
+        "kind": "operator.overlay.recovery",
+        "ok": recovered,
+        "state": "recovered" if recovered else "failed",
+        "result": result,
+        "verify": verify,
+    })
+    return recovered
 
 
 def _operator_field(raw, name, default=""):
@@ -119,7 +167,6 @@ def process_adam_overlay(repo_root):
 
     mode = _operator_field(raw, "adam_request_mode", "terminal")
     payload = _operator_field(raw, "adam_request_payload_b64", "")
-    # Claim before execution: a daemon restart must not replay a terminal command.
     _set_last_adam_request_id(request_id)
     try:
         text = base64.b64decode(payload, validate=True).decode("utf-8")
@@ -180,9 +227,11 @@ def process_review_inbox(repo_root):
 
 def heartbeat(repo_root):
     shizuku_ok = phone_health()
-    operator_heartbeat()
+    overlay_ok = ensure_operator_overlay(repo_root) if shizuku_ok else False
+    if overlay_ok:
+        operator_heartbeat()
     process_review_inbox(repo_root)
-    append_receipt({"kind": "swarm.heartbeat", "ok": True, "shizuku": shizuku_ok})
+    append_receipt({"kind": "swarm.heartbeat", "ok": True, "shizuku": shizuku_ok, "overlay": overlay_ok})
 
 
 def main():
