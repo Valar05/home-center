@@ -14,6 +14,8 @@ git checkout "origin/$BRANCH" -- \
   tools/fortress_prompt.py \
   tools/fortress_cli.py \
   tools/fortress_phone_kernel.py \
+  tools/fortress_read_aloud.py \
+  tools/android_phone_status_tts.py \
   config/fortress-prompt.json \
   config/fortress-phone-kernel.json
 
@@ -21,6 +23,8 @@ for required in \
   tools/fortress_prompt.py \
   tools/fortress_cli.py \
   tools/fortress_phone_kernel.py \
+  tools/fortress_read_aloud.py \
+  tools/android_phone_status_tts.py \
   config/fortress-prompt.json \
   config/fortress-phone-kernel.json; do
   test -s "$REPO/$required" || { echo "BLOCKED: missing runtime file: $required" >&2; exit 2; }
@@ -30,7 +34,9 @@ mkdir -p "$STATE" "$BIN" "$BOOT" "$HOME/.config/home-center"
 python -m py_compile \
   "$REPO/tools/fortress_prompt.py" \
   "$REPO/tools/fortress_phone_kernel.py" \
-  "$REPO/tools/fortress_cli.py"
+  "$REPO/tools/fortress_cli.py" \
+  "$REPO/tools/fortress_read_aloud.py" \
+  "$REPO/tools/android_phone_status_tts.py"
 python -m json.tool "$REPO/config/fortress-prompt.json" >/dev/null
 python -m json.tool "$REPO/config/fortress-phone-kernel.json" >/dev/null
 
@@ -42,7 +48,11 @@ cat > "$BIN/fortress" <<EOF
 #!/data/data/com.termux/files/usr/bin/bash
 exec python "$REPO/tools/fortress_cli.py" "\$@"
 EOF
-chmod 700 "$BIN/fortress-kernel" "$BIN/fortress"
+cat > "$BIN/fortress-read" <<EOF
+#!/data/data/com.termux/files/usr/bin/bash
+exec python "$REPO/tools/fortress_read_aloud.py" "\$@"
+EOF
+chmod 700 "$BIN/fortress-kernel" "$BIN/fortress" "$BIN/fortress-read"
 
 cat > "$BOOT/30-fortress-phone-kernel" <<EOF
 #!/data/data/com.termux/files/usr/bin/bash
@@ -59,3 +69,4 @@ chmod 700 "$BOOT/30-fortress-phone-kernel"
 sleep 1
 hash -r 2>/dev/null || true
 "$BIN/fortress" --status
+"$BIN/fortress-read" --doctor
