@@ -26,12 +26,31 @@ for token in ["KEY_ADAM_REQUEST_ID", "KEY_ADAM_REQUEST_MODE", "KEY_ADAM_REQUEST_
     assert token in state, f"state missing {token}"
 for token in ["adam_request_id", "adam_request_mode", "adam_request_payload_b64"]:
     assert token in provider, f"provider missing {token}"
-for token in ["process_adam_overlay", "adam-last-request-id", "base64.b64decode", "operator_update", "ADAM_POLL_SECONDS", "timeout=None", '"daemonWait":True']:
+for token in [
+    "process_adam_overlay",
+    "adam-last-request-id",
+    "base64.b64decode",
+    "operator_update",
+    "ADAM_POLL_SECONDS",
+    "timeout=None",
+    "_save_pending_response",
+    "_deliver_pending_responses",
+    "adam-overlay-pending-response-v1",
+    "nextAttemptEpoch",
+    "backoffSeconds",
+    '"daemonWait":True',
+]:
     assert token in daemon, f"daemon missing {token}"
 
 run_idx = daemon.index('result=run(["python3",str(Path(repo_root)/"tools"/"adam.py")')
-ack_idx = daemon.index('_set_last_adam_request_id(request_id)', run_idx)
-assert ack_idx > run_idx, "valid Adam overlay request is acknowledged before reviewed worker returns"
+pending_idx = daemon.index('pending_path=_save_pending_response(pending)', run_idx)
+assert pending_idx > run_idx, "Adam result is not persisted after execution"
+# The execution branch must not acknowledge directly; only successful pending
+# delivery may advance adam-last-request-id.
+assert daemon.find('_set_last_adam_request_id(request_id)', run_idx) == -1
+success_idx = daemon.index('if update["rc"]==0:')
+ack_idx = daemon.index('_set_last_adam_request_id(request_id)', success_idx)
+assert ack_idx > success_idx, "pending response acknowledged before overlay delivery succeeds"
 assert 'payload=_operator_field(raw,"adam_request_payload_b64","");_set_last_adam_request_id(request_id)' not in daemon
 
 for token in [
@@ -56,4 +75,4 @@ assert 'def active_jars(' in worker
 assert 'Unstructured model prose is never shown' in worker
 assert 'Canonical Venice reviews every stop' in reviewed
 assert 'Daemon Persistence and Connector Backoff' in reviewed
-print("Adam overlay transport / reviewed daemon Codex-worker contract: PASS")
+print("Adam overlay transport / reviewed daemon durable-delivery contract: PASS")
