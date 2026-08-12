@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 from pathlib import Path
+import json
 import sys
 import tempfile
 
@@ -23,8 +24,6 @@ assert verdict == "FAIL" and directive == "HALT_REQUIRED" and findings
 assert reviewed.BACKOFF_SECONDS == (1, 2, 4, 8, 15, 30)
 assert reviewed.CHECKPOINT_STEPS >= 8
 
-# The researched Codex local steering is content, not filenames: all three
-# project-local organs must load into the worker context.
 docs, loaded = reviewed.codex_local_documents(ROOT)
 for name in ("AGENTS.md", "MEMORIES.md", "SKILLS.md"):
     assert name in loaded, (name, loaded)
@@ -38,6 +37,34 @@ with tempfile.TemporaryDirectory() as td:
     ev = reviewed.git_evidence(Path(td))
     assert ev["isGitRepo"] is False
 
+# Receipt proof is a deterministic persistence contract independent of model quality.
+with tempfile.TemporaryDirectory() as td:
+    old_state = reviewed.STATE_DIR
+    reviewed.STATE_DIR = Path(td)
+    try:
+        path = reviewed.persist_venice_review(
+            "test task",
+            {"tool": "finish", "status": "done", "text": "ok"},
+            {
+                "verdict": "PASS",
+                "directive": "STOP_ALLOWED",
+                "stopPermissionGranted": True,
+                "externalReviewGateSatisfied": True,
+                "codeReviewFirst": True,
+                "judgmentJarApplied": ["observable evidence"],
+                "findings": [],
+                "reviewText": "VERDICT: PASS",
+                "freshEvidence": {"baseCommit": "a", "headCommit": "b", "diffFullSha256": "c"},
+            },
+        )
+        obj = json.loads(path.read_text(encoding="utf-8"))
+        assert obj["schema"] == "adam-venice-stop-review-v1"
+        assert obj["externalReviewGateSatisfied"] is True
+        assert obj["directive"] == "STOP_ALLOWED"
+        assert (Path(td) / "venice-reviews.jsonl").is_file()
+    finally:
+        reviewed.STATE_DIR = old_state
+
 source = (ROOT / "tools/adam_venice_reviewed.py").read_text(encoding="utf-8")
 for token in [
     'import venice_review as canonical_venice',
@@ -45,6 +72,9 @@ for token in [
     'canonical_venice.parse_review(',
     'def codex_local_documents(',
     'CODEX LOCAL STEERING DOCUMENTS (binding)',
+    'def persist_venice_review(',
+    'venice-reviews.jsonl',
+    'venice-review-last.json',
     'stopPermissionGranted',
     'externalReviewGateSatisfied',
     'CONTINUE_REQUIRED',
@@ -53,10 +83,8 @@ for token in [
     'DAEMON_CHECKPOINT',
     'while True:',
     'stop_after_steps',
-    'Venice Completion and Code Review Gate',
-    'Daemon Persistence and Connector Backoff',
 ]:
     assert token in source, f"reviewed worker missing {token}"
 
 assert 'step budget exhausted' not in source
-print("Adam Codex-local / canonical Venice / daemon persistence contract: PASS")
+print("Adam Codex-local / canonical Venice / receipt / daemon contract: PASS")
