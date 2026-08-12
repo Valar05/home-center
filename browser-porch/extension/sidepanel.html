@@ -29,9 +29,7 @@
 
   <label for="context">Durable campaign context</label>
   <textarea id="context" placeholder="Mission, architecture, constraints, capability state, body lanes, evidence standard"></textarea>
-  <div class="row">
-    <button id="resetContext">Reset to Fortress campaign seed</button>
-  </div>
+  <div class="row"><button id="resetContext">Reset to Fortress campaign seed</button></div>
   <div class="hint">Throne owns memory. Instant workers get one bounded slice. Queued jobs snapshot context; choke handoffs rotate into fresh threads.</div>
 
   <label for="commission">Commission</label>
@@ -45,18 +43,9 @@
     <button id="capture">Checkpoint</button>
   </div>
   <div class="hint">Bounded swarm runs at most 12 slices. A valid six-field HANDOFF is consumed automatically, merged into durable context, and dispatched to a fresh thread.</div>
-  <div class="row">
-    <button id="stop">Stop dispatch</button>
-    <button id="resume">Resume</button>
-  </div>
-  <section>
-    <strong>Queue</strong>
-    <div id="queue"></div>
-  </section>
-  <section>
-    <strong>Latest receipt</strong>
-    <div id="output">No receipt yet.</div>
-  </section>
-  <script src="sidepanel.js"></script>
+  <div class="row"><button id="stop">Stop dispatch</button><button id="resume">Resume</button></div>
+  <section><strong>Queue</strong><div id="queue"></div></section>
+  <section><strong>Latest receipt</strong><div id="output">No receipt yet.</div></section>
+  <script type="module" src="throne-panel.mjs"></script>
 </body>
 </html>
