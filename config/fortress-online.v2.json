@@ -1,12 +1,12 @@
 {
   "kind": "fortress.online.v2.config.v1",
-  "version": 5,
+  "version": 6,
   "boot": {
     "capsuleKind": "fortress.online.v2.boot-capsule.v4",
-    "requiredSkillDocuments": ["fortress-core", "phone-runtime"],
+    "requiredSkillDocuments": ["fortress-core", "phone-runtime", "venice-stop-gate", "venice-review-memory"],
     "scanRepoSkills": true,
     "excludedDirectories": [".git", "node_modules"],
-    "policy": "load every discovered SKILL.md content; canonical skill books are boot-required; never first-match and stop"
+    "policy": "load every discovered SKILL.md content; fortress-core, phone-runtime, venice-stop-gate, and venice-review-memory are boot-required; never first-match and stop"
   },
   "mission": {
     "states": ["requested", "implemented", "tested", "deployed", "callable", "delivered", "accepted"],
@@ -24,7 +24,9 @@
     "resumeFromLedgerBeforeConversationSummary": true,
     "exhaustConfiguredBodyLanesBeforeOperatorHandoff": true,
     "incidentLoggingNeverStopsMission": true,
-    "resumeImmediatelyAfterIncidentPersistence": true
+    "resumeImmediatelyAfterIncidentPersistence": true,
+    "veniceStopReviewRequired": true,
+    "veniceReviewMemoryRequired": true
   },
   "requestBudget": {
     "reuseFreshResults": true,
@@ -51,7 +53,8 @@
       {"kind":"handoff_failure","pattern":"didn.?t give.*script|no executable handoff|command not found|vlad: command not found"},
       {"kind":"available_body_lane_ignored","pattern":"you can do it|do it yourself|desktop hands|computer hands|phone hands|stop telling me to do|shell access|could fall back"},
       {"kind":"proven_organ_bypass","pattern":"already works|existing .* works|don.?t duplicate|duplicate effort|reuse .* existing|proven .* path|why .* invent"},
-      {"kind":"learning_persistence_failure","pattern":"failed to learn|update the ledger|forgot.*learning|learn.*not persist"}
+      {"kind":"learning_persistence_failure","pattern":"failed to learn|update the ledger|forgot.*learning|learn.*not persist"},
+      {"kind":"venice_bypass","pattern":"did not talk to Venice|didn.?t ask Venice|Venice jars|self-certif|no Venice receipt"}
     ],
     "recipes": {
       "retrieval_failure": {"rule":"material uncertainty creates a required lookup before execution","regression":"mission with unresolved required lookup must choose retrieve","autoAction":"add_required_lookup_heuristic"},
@@ -64,6 +67,7 @@
       "available_body_lane_ignored": {"rule":"before asking Drew to execute anything, enumerate and attempt every configured authorized body lane that can perform it; a missing convenience connector or local shell is not itself an operator boundary","regression":"a desktop PowerShell install with Computer Hands configured must choose computer-hands shell.exec and receipt polling before any operator handoff","autoAction":"add_body_lane_exhaustion_guard"},
       "proven_organ_bypass": {"rule":"before designing or deploying a new implementation for a capability, retrieve durable evidence for existing implementations and proven runtime paths; if a proven organ already satisfies the required seam, reuse or extend it rather than inventing an adjacent transport, daemon, player, wrapper, or execution lane","regression":"when Venice/Pocket phone playback is already proven through pocket-tts-phone plus Home Center playback and Shizuku/rish, an Adam voice change may alter voice profile or shared adapter behavior but must not introduce ffplay, system TTS fallback, raw Termux am identity, or a second playback stack without explicit evidence that the proven organ cannot satisfy the requirement","autoAction":"add_proven_organ_reuse_guard"},
       "learning_persistence_failure": {"rule":"every correction and promoted lesson must persist to the durable ledger/config before the turn can complete","regression":"learned correction survives process restart and changes next boot policy","autoAction":"persist_learning_overlay"},
+      "venice_bypass": {"rule":"no agent or worker may stop without a fresh durable Venice Judgment Jar review receipt; CONTINUE_REQUIRED means continue the same mission and persist the finding into Venice review memory","regression":"a worker terminal path without Venice receipt fails closed and future boot loads the persisted Venice scar","autoAction":"require_venice_stop_and_memory_gate"},
       "unknown_failure": {"rule":"unclassified failures become explicit candidate incidents rather than disappearing","regression":"unknown incident remains pending classification and cannot auto-promote policy","autoAction":"queue_for_classification"}
     }
   },
@@ -80,6 +84,8 @@
     {"id":"computer-hands","required":true,"purpose":"bounded workstation body lane when the commissioned lane is desktop","operations":["system.status","screen.capture","window.list","process.list","window.focus","input.type","input.key","input.mouse","process.start","process.stop","shell.exec","clipboard.get","clipboard.set"],"invariants":["attempt Computer Hands before asking Drew to run a desktop command","shell.exec requires high-risk approval and must return a Computer Hands receipt","absence of a convenience connector does not erase the configured workstation body lane"]},
     {"id":"browser-nerve","required":true,"purpose":"semantic browser/page body lane; separate from machine body"},
     {"id":"venice-nerve","required":true,"purpose":"local Venice speech/collaboration lane; speech remains separate from body actions"},
+    {"id":"venice-stop-gate","required":true,"purpose":"fresh external Venice review receipt required before any worker stops"},
+    {"id":"venice-review-memory","required":true,"purpose":"persist Venice blocking findings and inject reviewer precedent into future worker boots"},
     {"id":"local-code-continue","required":true,"purpose":"local coding continuation when cloud inference is unavailable"},
     {"id":"campaign-resume","required":true,"purpose":"restore durable campaign state and emit the next concrete action without requiring the user to restate context"},
     {"id":"learning-persistence","required":true,"purpose":"write corrections, incidents and promoted rules into durable ledger/config so learning survives restart, then resume the interrupted mission"}
