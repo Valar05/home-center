@@ -7,8 +7,6 @@ BIN="$HOME/bin"
 BOOT="$HOME/.termux/boot"
 
 cd "$REPO"
-# The installer is the deployment boundary: make it self-contained instead of
-# assuming an earlier partial checkout happened to include every runtime organ.
 git fetch origin "$BRANCH"
 git checkout "origin/$BRANCH" -- \
   tools/fortress_prompt.py \
@@ -31,6 +29,19 @@ for required in \
   config/fortress-adam-voice.json; do
   test -s "$REPO/$required" || { echo "BLOCKED: missing runtime file: $required" >&2; exit 2; }
 done
+
+# Adam's canonical voice is Pocket. Provision local PCM playback rather than
+# silently swapping to Android system TTS when ffplay is absent.
+if python - <<'PY'
+import importlib.util,sys
+sys.exit(0 if importlib.util.find_spec('pocket_tts') else 1)
+PY
+then
+  if ! command -v ffplay >/dev/null 2>&1; then
+    echo '[fortress] Pocket TTS present; provisioning ffmpeg/ffplay playback...'
+    pkg install -y ffmpeg
+  fi
+fi
 
 mkdir -p "$STATE" "$BIN" "$BOOT" "$HOME/.config/home-center"
 python -m py_compile \
@@ -72,5 +83,12 @@ chmod 700 "$BOOT/30-fortress-phone-kernel"
 sleep 1
 hash -r 2>/dev/null || true
 "$BIN/fortress" --status
-"$BIN/fortress-read" --doctor
+VOICE_DOCTOR="$($BIN/fortress-read --doctor)"
+echo "$VOICE_DOCTOR"
+python - "$VOICE_DOCTOR" <<'PY'
+import json,sys
+r=json.loads(sys.argv[1])
+if not r.get('ok') or r.get('preferred')!='pocket-stream':
+    raise SystemExit('BLOCKED: Adam canonical Pocket voice is not callable: '+str(r.get('blockedReason') or r))
+PY
 "$BIN/fortress-read" --profile
