@@ -3,13 +3,24 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { REPO_ROOT, CORE_SKILLS, defaultSkillRoots, walkSkillFiles, loadDiscoveredSkills, buildBootCapsule } from './fortress_online_v2_boot.mjs';
+import { REPO_ROOT, REQUIRED_SKILL_DOCUMENTS, CORE_SKILLS, defaultSkillRoots, walkSkillFiles, loadDiscoveredSkills, buildBootCapsule } from './fortress_online_v2_boot.mjs';
 
 test('Phone Hands is mandatory core boot skill with full operation triplet',()=>{
   const p=CORE_SKILLS.find(x=>x.id==='phone-hands');
   assert.ok(p); assert.equal(p.required,true);
   assert.deepEqual(p.operations,['phone_hands.devices','phone_hands.enqueue','phone_hands.get']);
   assert.match(p.purpose,/Shizuku\/rish/);
+});
+
+test('canonical skill books are boot-required',()=>{
+  assert.deepEqual(REQUIRED_SKILL_DOCUMENTS,['fortress-core','phone-runtime']);
+  const c=buildBootCapsule();
+  for(const id of REQUIRED_SKILL_DOCUMENTS){
+    const skill=c.loadedSkills.find(x=>x.id===id && x.source==='SKILL.md');
+    assert.ok(skill,`missing canonical skill ${id}`);
+    assert.equal(skill.required,true);
+    assert.ok(skill.content.length>100,`${id} is suspiciously empty`);
+  }
 });
 
 test('default boot roots always include repository root',()=>{
@@ -33,6 +44,9 @@ test('boot discovers every nested SKILL.md rather than first match',()=>{
 
 test('boot capsule contains actual discovered skill bodies, not metadata only',()=>{
   const root=fs.mkdtempSync(path.join(os.tmpdir(),'fortress-capsule-'));
+  for(const id of REQUIRED_SKILL_DOCUMENTS){
+    const p=path.join(root,id,'SKILL.md'); fs.mkdirSync(path.dirname(p),{recursive:true}); fs.writeFileSync(p,`# ${id}\n${'BODY '.repeat(30)}\n`);
+  }
   const marker='PHONE-HANDS-STYLE-SKILL-BODY-UNIQUE-MARKER';
   const p=path.join(root,'proof-skill','SKILL.md'); fs.mkdirSync(path.dirname(p),{recursive:true}); fs.writeFileSync(p,`# Proof\n${marker}\n`);
   const c=buildBootCapsule({skillRoots:[root]});
@@ -41,10 +55,10 @@ test('boot capsule contains actual discovered skill bodies, not metadata only',(
   assert.match(c.bootPrompt,new RegExp(marker));
   assert.equal(c.bootPromptSha256.length,64);
   assert.equal(c.phoneHands.required,true);
-  assert.ok(c.loadedSkills.some(x=>x.id==='phone-hands' && x.source==='core'));
+  assert.ok(c.loadedSkills.some(x=>x.id==='phone-hands' && x.source==='core-contract'));
 });
 
-test('default capsule includes every repository SKILL.md body',()=>{
+test('default capsule includes every repository SKILL.md body exactly',()=>{
   const repoSkillFiles=walkSkillFiles(REPO_ROOT);
   const c=buildBootCapsule();
   assert.equal(c.discoveredSkillCount,repoSkillFiles.length);
