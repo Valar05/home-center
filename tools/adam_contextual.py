@@ -16,7 +16,7 @@ sys.path.insert(0,str(ROOT/'tools'))
 import hands_router as hands
 
 OLLAMA=os.environ.get('OLLAMA_HOST','http://127.0.0.1:11434').rstrip('/')
-MODEL=os.environ.get('HC_ADAM_CONTEXT_MODEL','qwen2.5:1.5b')
+MODEL=os.environ.get('HC_ADAM_CONTEXT_MODEL',os.environ.get('HC_ADAM_MODEL','qwen2.5-coder:1.5b'))
 MAX_FILES=int(os.environ.get('HC_ADAM_CONTEXT_FILES','18'))
 MAX_FILE_CHARS=int(os.environ.get('HC_ADAM_CONTEXT_FILE_CHARS','5000'))
 MAX_CONTEXT_CHARS=int(os.environ.get('HC_ADAM_CONTEXT_CHARS','24000'))
@@ -100,7 +100,6 @@ RECENT DURABLE CONTEXT:
 '''
  choice=parse_choice(ask_model(prompt))
  if choice['package'] and choice['package'] not in packages:
-  # Do not trust a hallucinated package identifier. Android VIEW may still resolve the URI normally.
   choice['package']=''
  steps=[{'op':'phone.open_uri','args':{'uri':choice['uri'],**({'package':choice['package']} if choice['package'] else {})}}]
  job=hands.enqueue('adam','primary-phone',steps,max_runtime=45)
