@@ -7,6 +7,8 @@ PLAN="$STATE/adam-daemon/venice-plan-review-last.json"
 STOP="$STATE/adam-daemon/venice-review-last.json"
 ID=6410
 MODE="${1:-main}"
+PROBE=0
+[ "$MODE" = "probe" ] && { PROBE=1; MODE=main; }
 mkdir -p "$STATE/adam-campaign"
 
 campaign_summary="Home Center ready"
@@ -22,7 +24,7 @@ PY
 )"
 fi
 review_summary="$(python3 - "$PLAN" "$STOP" <<'PY'
-import json,sys,os
+import json,sys
 vals=[]
 for label,path in [('plan',sys.argv[1]),('stop',sys.argv[2])]:
  try:
@@ -32,13 +34,13 @@ print(' '.join(vals))
 PY
 )"
 
-command -v termux-notification >/dev/null 2>&1 || exit 0
+command -v termux-notification >/dev/null 2>&1 || exit 3
 q(){ printf "%q" "$1"; }
 action(){ printf "bash -l -c '%s'" "$1"; }
 SELF="cd $(q "$ROOT") && bash tools/home_center_status_menu.sh"
 CAMPAIGN="adam-campaign run >>\"$STATE/adam-campaign/background.log\" 2>&1 &"
-OVERLAY="cd $(q "$ROOT") && bash tools/recover_adam_overlay_phone.sh >>\"$STATE/adam-campaign/overlay-recover.log\" 2>&1"
-HANDS="cd $(q "$ROOT") && bash tools/phone_hands_watchdog.sh diagnose >>\"$STATE/phone-hands-watchdog.log\" 2>&1"
+OVERLAY="cd $(q "$ROOT") && bash tools/recover_adam_overlay_phone.sh >>\"$STATE/adam-campaign/overlay-recover.log\" 2>&1 && bash tools/home_center_status_menu.sh main"
+HANDS="cd $(q "$ROOT") && bash tools/phone_hands_watchdog.sh diagnose >>\"$STATE/phone-hands-watchdog.log\" 2>&1 && bash tools/home_center_status_menu.sh main"
 
 case "$MODE" in
   main)
@@ -72,6 +74,7 @@ case "$MODE" in
   *) exec bash "$0" main ;;
 esac
 
+set +e
 termux-notification \
   --id "$ID" \
   --title "$title" \
@@ -80,4 +83,8 @@ termux-notification \
   --ongoing true \
   --button1 "$b1" --button1-action "$a1" \
   --button2 "$b2" --button2-action "$a2" \
-  --button3 "$b3" --button3-action "$a3" >/dev/null 2>&1 || true
+  --button3 "$b3" --button3-action "$a3" >/dev/null 2>&1
+rc=$?
+set -e
+[ "$PROBE" -eq 1 ] && exit "$rc"
+exit 0
