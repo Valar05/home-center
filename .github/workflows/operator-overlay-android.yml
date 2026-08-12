@@ -79,6 +79,13 @@ jobs:
           "$GRADLE_HOME/bin/gradle" :app:assembleDebug --no-daemon --stacktrace
           test -s app/build/outputs/apk/debug/app-debug.apk
 
+      - name: Upload Venice Radio overlay APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: venice-radio-operator-overlay-apk
+          path: android/operator-overlay/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
+
       - name: Create immutable build receipt
         id: receipt
         env:
