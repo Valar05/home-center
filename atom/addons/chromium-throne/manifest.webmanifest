@@ -1,0 +1,12 @@
+{
+  "name": "Atom Command Center",
+  "short_name": "Atom",
+  "description": "Phone-resident command center with Chromium Throne as an inspectable browser organ.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#0d0d11",
+  "theme_color": "#111117",
+  "categories": ["productivity", "developer"]
+}
