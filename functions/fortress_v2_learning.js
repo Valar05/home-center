@@ -7,6 +7,7 @@ function stableId(parts) { return crypto.createHash('sha256').update(parts.join(
 const CLASSIFIERS = [
   { kind: 'retrieval_failure', test: (x) => /assum|didn.?t look|context|lookup|retrieve|look things up/i.test(x) },
   { kind: 'premature_stop', test: (x) => /stop early|quit|documented failure|gave up|came early|one poke|forbid.*stop/i.test(x) },
+  { kind: 'handoff_fanout', test: (x) => /multiple scripts|multiple commands|more than one (?:script|command|handoff)|one (?:script|command|handoff) at a time|wait for (?:the )?(?:receipt|output)|consume (?:the )?(?:receipt|output) before|stacked scripts|downstream command/i.test(x) },
   { kind: 'boundary_substitution', test: (x) => /wrong tool|substitut|different lane|adjacent tool|not the lane/i.test(x) },
   { kind: 'correction_regression', test: (x) => /again|regression|forgot|lost context|reintroduced|borked/i.test(x) },
   { kind: 'capability_laundering', test: (x) => /claimed|said.*done|not actually|stub|zero faith|not live|not there/i.test(x) },
@@ -15,6 +16,7 @@ const CLASSIFIERS = [
 const DEFAULT_RECIPES = Object.freeze({
   retrieval_failure: {rule:'material uncertainty creates a required lookup before execution', regression:'mission with unresolved required lookup must choose retrieve', autoAction:'add_required_lookup_heuristic'},
   premature_stop: {rule:'unfinished work cannot stop without a genuine external boundary requiring operator input', regression:'non-boundary stop reason must choose continue', autoAction:'add_stop_reason_regression'},
+  handoff_fanout: {rule:'at a genuine operator-input boundary emit exactly one executable handoff and consume its receipt before another', regression:'operator boundary may expose at most one executable handoff and no downstream executable handoff before receipt consumption', autoAction:'set_single_handoff_gate'},
   boundary_substitution: {rule:'boundary-changing implementation remains proposed until approved', regression:'unapproved lane/tool change must continue original mission', autoAction:'add_boundary_regression'},
   correction_regression: {rule:'new corrections must preserve every earlier non-conflicting lock', regression:'dropping an earlier correction must fail cumulative diff', autoAction:'add_constraint_regression'},
   capability_laundering: {rule:'never advance capability state without state-specific external evidence', regression:'implementation evidence alone cannot prove delivery', autoAction:'add_evidence_regression'},
