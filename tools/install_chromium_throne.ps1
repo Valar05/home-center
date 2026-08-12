@@ -18,14 +18,10 @@ New-Item -ItemType Directory -Force -Path $Root,$ExtensionDir,$BrowserRoot,$Prof
 
 $UseLocalGit = $false
 if ($SourceRepo -and (Test-Path (Join-Path $SourceRepo '.git'))) {
-  & cmd.exe /d /c "git -C `"$SourceRepo`" cat-file -e $PinnedExtensionCommit^{commit} >nul 2>&1"
-  if ($LASTEXITCODE -ne 0) {
-    Write-Host "[Chromium Throne] Fetching pinned extension commit through authenticated git"
-    & git -C $SourceRepo fetch origin $PinnedExtensionCommit
-    if ($LASTEXITCODE -ne 0) { throw "Failed to fetch pinned extension commit: $PinnedExtensionCommit" }
-  }
-  & cmd.exe /d /c "git -C `"$SourceRepo`" cat-file -e $PinnedExtensionCommit^{commit} >nul 2>&1"
-  if ($LASTEXITCODE -eq 0) { $UseLocalGit = $true }
+  Write-Host "[Chromium Throne] Fetching pinned extension commit through authenticated git"
+  & git -C $SourceRepo fetch origin $PinnedExtensionCommit
+  if ($LASTEXITCODE -ne 0) { throw "Failed to fetch pinned extension commit: $PinnedExtensionCommit" }
+  $UseLocalGit = $true
 }
 
 foreach ($name in $Files) {
