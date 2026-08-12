@@ -1,0 +1,37 @@
+{
+  "kind": "home-center.acceptance.issue-48.v1",
+  "issue": 48,
+  "title": "safe rename and move for writing documents",
+  "acceptedAt": "2026-08-12",
+  "provider": "Google Drive",
+  "fixture": {
+    "beforeName": "Writing Note Before Rename",
+    "afterName": "Writing Note After Rename",
+    "destinationFolderName": "Destination",
+    "sameFileIdAfterMutation": true,
+    "contentPreservedAfterMutation": true,
+    "destinationParentVerified": true
+  },
+  "providerMutation": {
+    "rename": true,
+    "move": true,
+    "metadataReadback": true,
+    "contentReadback": true
+  },
+  "plannerContract": {
+    "tool": "drive.update_metadata",
+    "naturalMoveRegression": "Move HomeCenter into that folder.",
+    "workingMemoryResolvesDestinationFolder": true,
+    "confirmationUsesHumanNames": true,
+    "focusedRegression": "tools/drive_rename_move_contract_test.mjs"
+  },
+  "cleanup": {
+    "scratchDocumentDeleted": true,
+    "destinationFolderDeleted": true,
+    "sandboxFolderDeleted": true
+  },
+  "notes": [
+    "Raw provider IDs intentionally omitted from the durable acceptance receipt.",
+    "GitHub Actions contract execution is currently unavailable because the repository Actions budget prevents runners from starting; this is recorded separately and is not represented as a green CI result."
+  ]
+}
