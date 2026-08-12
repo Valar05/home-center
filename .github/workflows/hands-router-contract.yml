@@ -7,6 +7,7 @@ on:
       - 'tools/hands_overlay.py'
       - 'tools/vlad_swarm_daemon.py'
       - 'tools/adam_audio_lab.py'
+      - 'tools/adam_contextual.py'
       - 'tools/test_hands_router.py'
       - 'tools/test_hands_overlay.py'
       - 'tools/test_adam_audio_lab.py'
@@ -33,6 +34,7 @@ jobs:
             tools/hands_overlay.py \
             tools/vlad_swarm_daemon.py \
             tools/adam_audio_lab.py \
+            tools/adam_contextual.py \
             tools/test_hands_router.py \
             tools/test_hands_overlay.py \
             tools/test_adam_audio_lab.py
