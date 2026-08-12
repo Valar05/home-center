@@ -7,6 +7,7 @@ import {fileURLToPath} from 'node:url';
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const worker = fs.readFileSync(path.join(HERE, 'service-worker.js'), 'utf8');
 const panel = fs.readFileSync(path.join(HERE, 'sidepanel.js'), 'utf8');
+const html = fs.readFileSync(path.join(HERE, 'sidepanel.html'), 'utf8');
 const manifest = JSON.parse(fs.readFileSync(path.join(HERE, 'manifest.json'), 'utf8'));
 
 test('worker boot locks operator-handoff and evidence doctrine', () => {
@@ -32,6 +33,7 @@ test('choked threads must emit compact handoff and rotate', () => {
   assert.match(worker, /do not keep wrestling the same thread/);
   for (const field of ['DURABLE CONTEXT', 'COMPLETED EVIDENCE', 'CURRENT SLICE', 'UNMET ACCEPTANCE', 'ACTIVE CONSTRAINTS', 'EXACT NEXT ACTION']) {
     assert.match(worker, new RegExp(field));
+    assert.match(panel, new RegExp(field));
   }
   assert.match(worker, /continue the work in a fresh thread/);
 });
@@ -43,13 +45,30 @@ test('every worker packet includes durable campaign context before bounded commi
 });
 
 test('queued work snapshots context instead of reading mutable context later', () => {
-  assert.match(panel, /context: campaignContext/);
+  assert.match(panel, /context: String\(campaignContext/);
   assert.match(panel, /job\.context \|\| context\.value/);
   assert.match(panel, /context locked/);
 });
 
-test('manifest identifies babysitting release', () => {
-  assert.equal(manifest.version, '0.4.0');
-  assert.match(manifest.description, /bounded slices/i);
-  assert.match(manifest.description, /handoff babysitting/i);
+test('bounded swarm consumes handoff into a fresh worker instead of wrestling a choked thread', () => {
+  assert.match(html, /id="runSwarm"/);
+  assert.match(panel, /MAX_SWARM_SLICES = 12/);
+  assert.match(panel, /function parseHandoff/);
+  assert.match(panel, /mergeHandoffContext/);
+  assert.match(panel, /newJob\(handoff\['EXACT NEXT ACTION'\], nextContext, true, 'handoff'\)/);
+  assert.match(panel, /state: 'handed_off'/);
+  assert.match(panel, /assistant_completion_timeout/);
+});
+
+test('malformed handoffs cannot auto-dispatch', () => {
+  assert.match(panel, /if \(!start\) return null/);
+  assert.match(panel, /if \(!found\) return null/);
+  assert.match(panel, /if \(!value\) return null/);
+  assert.match(panel, /Object\.keys\(values\)\.length === HANDOFF_FIELDS\.length/);
+});
+
+test('manifest identifies automatic swarm babysitting release', () => {
+  assert.equal(manifest.version, '0.5.0');
+  assert.match(manifest.description, /bounded swarm babysitting/i);
+  assert.match(manifest.description, /automatic choke handoff rotation/i);
 });
