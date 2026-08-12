@@ -23,6 +23,12 @@ def main() -> int:
     jar_ok = "Adam Personality Gate" in jars and "Repository Truth and Evidence" in jars
     venice_ok = "Venice Completion and Code Review Gate" in jars
     daemon_ok = "Daemon Persistence and Connector Backoff" in jars
+    try:
+        codex_docs, loaded = worker.codex_local_documents(ROOT)
+        codex_ok = "AGENTS.md" in loaded and "Repository Agent Instructions" in codex_docs
+    except Exception:
+        loaded = []
+        codex_ok = False
 
     buf = io.StringIO()
     rc = 99
@@ -34,7 +40,8 @@ def main() -> int:
             rc = worker.run_task(
                 "This is an acceptance probe, not a coding task. Respond to Drew with one short greeting that makes clear you know his name. Do not run commands or edit files.",
                 ROOT,
-                max_steps=12,
+                max_steps=8,
+                stop_after_steps=12,
             )
     except TimeoutError as exc:
         timed_out = True
@@ -47,13 +54,15 @@ def main() -> int:
     output = buf.getvalue().strip()
     knows = "drew" in output.lower()
     generic = "how can i assist" in output.lower() or "hello, adam" in output.lower()
-    ok = rc == 0 and not timed_out and jar_ok and venice_ok and daemon_ok and knows and not generic
+    ok = rc == 0 and not timed_out and jar_ok and venice_ok and daemon_ok and codex_ok and knows and not generic
     receipt = {
-        "schema": "adam-phone-codex-worker-acceptance-v3",
+        "schema": "adam-phone-codex-worker-acceptance-v4",
         "ok": ok,
         "jarGate": jar_ok,
         "veniceStopReview": venice_ok,
         "daemonBackoff": daemon_ok,
+        "codexLocalDocs": loaded,
+        "codexLocalDocsLoaded": codex_ok,
         "knowsOwner": knows,
         "genericAssistantLeak": generic,
         "timedOut": timed_out,
