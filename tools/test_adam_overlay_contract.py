@@ -8,6 +8,7 @@ provider = (ROOT / "android/operator-overlay/app/src/main/java/com/homecenter/op
 daemon = (ROOT / "tools/vlad_swarm_daemon.py").read_text(encoding="utf-8")
 router = (ROOT / "tools/adam.py").read_text(encoding="utf-8")
 core = (ROOT / "tools/adam_codex_phone.py").read_text(encoding="utf-8")
+planned = (ROOT / "tools/adam_planned_venice.py").read_text(encoding="utf-8")
 reviewed = (ROOT / "tools/adam_venice_reviewed.py").read_text(encoding="utf-8")
 
 for token in [
@@ -54,8 +55,9 @@ assert 'payload=_operator_field(raw,"adam_request_payload_b64","");_set_last_ada
 
 for token in [
     'ONE_SHOT_MODES = ("terminal", "chat", "continue", "vlad")',
-    'WORKER = ROOT / "tools" / "adam_venice_reviewed.py"',
+    'WORKER = ROOT / "tools" / "adam_planned_venice.py"',
     'jarGoverned=True',
+    'preExecutionPlanReview=True',
     'veniceReviewed=True',
     'daemonBackoff=True',
     'def run_worker(',
@@ -69,13 +71,21 @@ assert 'return run_worker(mode, text, cwd, timeout)' in router
 assert 'ollama_generate' not in router
 assert 'local_exec_plan' not in router
 
-# Core primitives load Jars but cannot run an unreviewed agent loop.
 assert 'def active_jars(' in core
 assert 'def run_task(' not in core
 assert 'internal core; use bare `adam`' in core
 
-# The only stop-capable worker loads Codex steering and canonical Venice.
+for token in [
+    'def preflight(',
+    'PLAN_ALLOWED',
+    'REPLAN_REQUIRED',
+    'selectedJars',
+    'antagonism',
+    'review_plan_phone(',
+]:
+    assert token in planned, f"planned worker missing {token}"
+
 assert 'CODEX LOCAL STEERING DOCUMENTS (binding)' in reviewed
 assert 'canonical_venice_review(' in reviewed
 assert 'Daemon Persistence and Connector Backoff' in reviewed
-print("Adam overlay transport / reviewed-only durable-delivery contract: PASS")
+print("Adam overlay transport / planned + Venice-reviewed durable-delivery contract: PASS")
