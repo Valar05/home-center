@@ -1,21 +1,15 @@
 #!/usr/bin/env python3
-"""Adam phone worker: Codex-shaped local execution loop.
+"""Internal deterministic primitives for the phone-local Adam worker.
 
-Bare `adam` launches this worker. It is intentionally not a persona runtime.
-The local model proposes one typed tool action at a time; deterministic Python
-executes the action, returns real observations, and the model iterates until it
-emits `finish` or `respond`.
-
-Personality/conversational output is legal only because active repo Judgement
-Jars are loaded into every model turn. Unstructured model prose is never shown
-and never authorizes execution.
+This module is deliberately NOT an agent entrypoint. `adam_venice_reviewed.py`
+owns the Codex loop, daemon persistence, local steering, and Venice stop gate.
+This file only provides bounded tools, model transport, parsing, and shared law.
 """
 from __future__ import annotations
 
 import json
 import os
 import re
-import shlex
 import subprocess
 import sys
 import urllib.error
@@ -25,7 +19,6 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 PHONE_LLM_URL = os.environ.get("HC_PHONE_LLM_URL", "http://127.0.0.1:8790/v1/chat/completions")
 PHONE_LLM_MODEL = os.environ.get("HC_PHONE_LLM_MODEL", "local-phone")
-MAX_STEPS = int(os.environ.get("HC_ADAM_MAX_STEPS", "24"))
 MAX_OUTPUT = int(os.environ.get("HC_ADAM_TOOL_OUTPUT", "12000"))
 MAX_FILE_WRITE = int(os.environ.get("HC_ADAM_MAX_WRITE", str(256 * 1024)))
 
@@ -42,7 +35,7 @@ CORE LOOP
 2. Choose ONE typed tool action.
 3. Read its observation.
 4. Continue until the requested outcome is actually verified.
-5. Finish with exact evidence and unresolved blockers.
+5. Propose a terminal response only when evidence supports it; Venice owns stop permission.
 
 AUTHORITY
 - Repository/runtime evidence outranks confidence.
@@ -61,8 +54,8 @@ Allowed objects:
 {"tool":"run_command","command":"bounded shell command","timeout":120}
 {"tool":"write_file","path":"relative/path","content":"complete UTF-8 content"}
 {"tool":"phone_intent","intent":"bounded Android UI/device intent"}
-{"tool":"respond","text":"governed conversational response"}
-{"tool":"finish","status":"done|blocked|partial","text":"concise evidence-grounded result"}
+{"tool":"respond","text":"governed conversational response candidate"}
+{"tool":"finish","status":"done|blocked|partial","text":"evidence-grounded result candidate"}
 
 RULES
 - One tool action per turn.
@@ -70,9 +63,10 @@ RULES
 - Use run_command for git status, tests, builds, inspection, and other bounded commands.
 - write_file may only write inside the current workspace.
 - phone_intent delegates to the existing phone body helper.
-- `respond` and personality-bearing `finish` are legal ONLY because the active Judgement Jars supplied below govern them. Never emit generic customer-service filler.
-- Do not emit plain prose outside JSON. If a prior observation says FORMAT_ERROR, correct the format.
-- If blocked, inspect alternate authorized existing routes before finishing blocked.
+- respond/finish are proposals only; the reviewed launcher sends them through Venice before they can terminate.
+- Never emit generic customer-service filler.
+- Do not emit plain prose outside JSON.
+- If blocked, inspect alternate authorized existing routes before proposing blocked.
 '''
 
 
@@ -87,11 +81,9 @@ def active_jars() -> str:
     rule_dir = ROOT / ".continue" / "rules"
     if not rule_dir.is_dir():
         raise RuntimeError(f"Judgement Jar directory missing: {rule_dir}")
-    docs = []
+    docs: list[str] = []
     for path in sorted(rule_dir.glob("*judgement-jar*.md")):
-        text = path.read_text(encoding="utf-8", errors="replace")
-        docs.append(f"\n--- {path.relative_to(ROOT)} ---\n{text}")
-    # Personality is an explicit gate and must never be omitted by a filename filter mistake.
+        docs.append(f"\n--- {path.relative_to(ROOT)} ---\n{path.read_text(encoding='utf-8', errors='replace')}")
     personality = rule_dir / "60-adam-personality-gate.md"
     if personality.exists() and all("60-adam-personality-gate.md" not in d for d in docs):
         docs.append(f"\n--- {personality.relative_to(ROOT)} ---\n{personality.read_text(encoding='utf-8', errors='replace')}")
@@ -122,14 +114,7 @@ def read_file(workspace: Path, obj: dict) -> dict:
     lines = path.read_text(encoding="utf-8", errors="replace").splitlines()
     chunk = lines[start - 1 : start - 1 + count]
     rendered = "\n".join(f"{i}: {line}" for i, line in enumerate(chunk, start=start))
-    return {
-        "ok": True,
-        "path": str(path.relative_to(workspace)),
-        "start": start,
-        "returned": len(chunk),
-        "totalLines": len(lines),
-        "content": clipped(rendered),
-    }
+    return {"ok": True, "path": str(path.relative_to(workspace)), "start": start, "returned": len(chunk), "totalLines": len(lines), "content": clipped(rendered)}
 
 
 def list_dir(workspace: Path, obj: dict) -> dict:
@@ -181,20 +166,8 @@ def run_command(workspace: Path, obj: dict) -> dict:
         return {"ok": False, "error": "blocked destructive/privileged command", "command": command}
     timeout = min(900, max(1, int(obj.get("timeout", 120))))
     try:
-        p = subprocess.run(
-            ["bash", "-lc", command],
-            cwd=workspace,
-            text=True,
-            capture_output=True,
-            timeout=timeout,
-        )
-        return {
-            "ok": p.returncode == 0,
-            "command": command,
-            "rc": p.returncode,
-            "stdout": clipped(p.stdout),
-            "stderr": clipped(p.stderr),
-        }
+        p = subprocess.run(["bash", "-lc", command], cwd=workspace, text=True, capture_output=True, timeout=timeout)
+        return {"ok": p.returncode == 0, "command": command, "rc": p.returncode, "stdout": clipped(p.stdout), "stderr": clipped(p.stderr)}
     except subprocess.TimeoutExpired as exc:
         return {"ok": False, "error": "timeout", "command": command, "stdout": clipped(exc.stdout or ""), "stderr": clipped(exc.stderr or "")}
 
@@ -211,13 +184,7 @@ def write_file(workspace: Path, obj: dict) -> dict:
     existed = path.exists()
     before = path.read_text(encoding="utf-8", errors="replace") if existed and path.is_file() and path.stat().st_size <= MAX_FILE_WRITE else None
     path.write_text(content, encoding="utf-8")
-    return {
-        "ok": True,
-        "path": str(path.relative_to(workspace)),
-        "bytes": size,
-        "created": not existed,
-        "changed": before != content,
-    }
+    return {"ok": True, "path": str(path.relative_to(workspace)), "bytes": size, "created": not existed, "changed": before != content}
 
 
 def phone_intent(workspace: Path, obj: dict) -> dict:
@@ -241,27 +208,11 @@ def initial_observation(workspace: Path) -> str:
         data["gitStatus"] = clipped(p.stdout + p.stderr, 4000)
     except Exception as exc:
         data["gitStatus"] = f"unavailable: {exc}"
-    candidates = []
-    for parent in [workspace, *workspace.parents]:
-        if parent == parent.parent:
-            break
-        for name in ("AGENTS.md", "MEMORIES.md", "SKILLS.md"):
-            p = parent / name
-            if p.is_file():
-                candidates.append(str(p))
-        if parent == ROOT:
-            break
-    data["localContinuityDocs"] = candidates
     return json.dumps(data, ensure_ascii=False)
 
 
 def call_model(messages: list[dict], timeout: int = 120) -> str:
-    payload = json.dumps({
-        "model": PHONE_LLM_MODEL,
-        "messages": messages,
-        "temperature": 0,
-        "max_tokens": 700,
-    }).encode("utf-8")
+    payload = json.dumps({"model": PHONE_LLM_MODEL, "messages": messages, "temperature": 0, "max_tokens": 700}).encode("utf-8")
     req = urllib.request.Request(PHONE_LLM_URL, data=payload, headers={"Content-Type": "application/json"})
     try:
         with urllib.request.urlopen(req, timeout=timeout) as response:
@@ -284,7 +235,6 @@ def parse_action(raw: str) -> dict | None:
         value = json.loads(raw)
         return value if isinstance(value, dict) else None
     except json.JSONDecodeError:
-        # Accept a JSON object embedded in reasoning noise, but never expose the noise.
         decoder = json.JSONDecoder()
         for i, ch in enumerate(raw):
             if ch != "{":
@@ -300,132 +250,30 @@ def parse_action(raw: str) -> dict | None:
 
 def execute_tool(workspace: Path, action: dict) -> tuple[bool, dict]:
     tool = str(action.get("tool") or "").strip()
-    if tool == "read_file":
-        return False, read_file(workspace, action)
-    if tool == "list_dir":
-        return False, list_dir(workspace, action)
-    if tool == "search_files":
-        return False, search_files(workspace, action)
-    if tool == "run_command":
-        return False, run_command(workspace, action)
-    if tool == "write_file":
-        return False, write_file(workspace, action)
-    if tool == "phone_intent":
-        return False, phone_intent(workspace, action)
+    if tool == "read_file": return False, read_file(workspace, action)
+    if tool == "list_dir": return False, list_dir(workspace, action)
+    if tool == "search_files": return False, search_files(workspace, action)
+    if tool == "run_command": return False, run_command(workspace, action)
+    if tool == "write_file": return False, write_file(workspace, action)
+    if tool == "phone_intent": return False, phone_intent(workspace, action)
     if tool == "respond":
-        text = str(action.get("text") or "").strip()
-        return True, {"terminal": "respond", "text": text or "Adam: governed response was empty."}
+        return True, {"terminal": "respond", "text": str(action.get("text") or "").strip()}
     if tool == "finish":
         status = str(action.get("status") or "partial").strip().lower()
-        if status not in {"done", "blocked", "partial"}:
-            status = "partial"
+        if status not in {"done", "blocked", "partial"}: status = "partial"
         return True, {"terminal": "finish", "status": status, "text": str(action.get("text") or "").strip()}
     return False, {"ok": False, "error": f"unknown tool: {tool!r}"}
 
 
-def run_task(task: str, workspace: Path, max_steps: int = MAX_STEPS) -> int:
-    jars = active_jars()
-    messages = [
-        {"role": "system", "content": SYSTEM + "\n\nACTIVE JUDGEMENT JARS (binding):\n" + jars},
-        {"role": "user", "content": f"TASK FROM DREW:\n{task}\n\nINITIAL OBSERVATION:\n{initial_observation(workspace)}"},
-    ]
-    format_failures = 0
-    for step in range(1, max_steps + 1):
-        raw = call_model(messages)
-        action = parse_action(raw)
-        if action is None:
-            format_failures += 1
-            messages.append({"role": "assistant", "content": raw})
-            messages.append({"role": "user", "content": "FORMAT_ERROR: Output was not one valid JSON object. Do not talk. Emit exactly one allowed tool JSON object."})
-            if format_failures >= 4:
-                print("Adam worker blocked: local model repeatedly violated the typed tool protocol. Raw prose was suppressed by the Jar gate.")
-                return 2
-            continue
-        messages.append({"role": "assistant", "content": json.dumps(action, ensure_ascii=False)})
-        terminal, observation = execute_tool(workspace, action)
-        if terminal:
-            text = observation.get("text", "")
-            if observation.get("terminal") == "finish":
-                status = observation.get("status", "partial")
-                print(f"Adam [{status}]: {text}")
-                return 0 if status == "done" else 2 if status == "blocked" else 1
-            print(text)
-            return 0
-        messages.append({"role": "user", "content": "TOOL OBSERVATION:\n" + json.dumps(observation, ensure_ascii=False)})
-    print(f"Adam [partial]: step budget exhausted after {max_steps} actions; no completion claim emitted.")
-    return 1
-
-
 def help_text() -> str:
-    return """Adam phone worker (Codex-shaped)
+    return """Adam phone worker
 
-Type a task in natural language. Adam will inspect, act, verify, and report.
-Special commands:
-  :cwd PATH   change workspace
-  :status     show worker/model/jar status
-  :help       show this text
-  :exit       return to Termux
-
-There is no chat mode. Conversational/personality responses are explicit governed worker actions and cannot bypass Judgement Jars.
+Type a natural-language task. The reviewed launcher loads Codex local steering,
+executes bounded tools, checkpoints long work, and requires Venice permission to stop.
+Special commands: :cwd PATH, :status, :help, :exit.
 """
 
 
-def run_interactive(cwd: str | None = None) -> int:
-    workspace = Path(cwd or os.getcwd()).expanduser().resolve()
-    if not workspace.is_dir():
-        workspace = ROOT
-    print("Adam worker online. Codex loop. Jar-governed. Phone-local.")
-    while True:
-        try:
-            text = input(f"adam {workspace}$ ")
-        except EOFError:
-            print()
-            return 0
-        except KeyboardInterrupt:
-            print("\n^C")
-            continue
-        stripped = text.strip()
-        if not stripped:
-            continue
-        if stripped in {":exit", ":quit"}:
-            return 0
-        if stripped == ":help":
-            print(help_text())
-            continue
-        if stripped == ":status":
-            try:
-                jars = active_jars()
-                jar_count = jars.count("\n--- ")
-                jar_ok = True
-                jar_error = ""
-            except Exception as exc:
-                jar_count = 0
-                jar_ok = False
-                jar_error = str(exc)
-            print(json.dumps({"schema": "adam-phone-worker-status-v1", "workspace": str(workspace), "model": PHONE_LLM_MODEL, "endpoint": PHONE_LLM_URL, "jarGate": jar_ok, "jarCount": jar_count, "jarError": jar_error}, indent=2))
-            continue
-        if stripped == ":cwd" or stripped.startswith(":cwd "):
-            raw = stripped[len(":cwd") :].strip()
-            target = (workspace / raw).resolve() if raw and not Path(raw).expanduser().is_absolute() else Path(raw or workspace).expanduser().resolve()
-            if not target.is_dir():
-                print(f"Adam: not a directory: {target}")
-            else:
-                workspace = target
-                print(f"Adam: workspace {workspace}")
-            continue
-        try:
-            run_task(text, workspace)
-        except Exception as exc:
-            print(f"Adam [blocked]: worker runtime failure: {exc}")
-
-
-def main(argv: list[str] | None = None) -> int:
-    argv = list(sys.argv[1:] if argv is None else argv)
-    if argv:
-        workspace = Path(os.getcwd()).resolve()
-        return run_task(" ".join(argv), workspace)
-    return run_interactive()
-
-
 if __name__ == "__main__":
-    raise SystemExit(main())
+    print("adam_codex_phone.py is an internal core; use bare `adam` / adam_venice_reviewed.py", file=sys.stderr)
+    raise SystemExit(2)
