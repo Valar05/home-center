@@ -17,6 +17,14 @@ ensure_ipv6(){
   fi
   ok "Phone IPv6 path proven"
 }
+ensure_phone_key(){
+  mkdir -p "$HOME/.ssh"
+  chmod 700 "$HOME/.ssh"
+  if [ ! -f "$HOME/.ssh/id_ed25519" ]; then
+    ssh-keygen -q -t ed25519 -f "$HOME/.ssh/id_ed25519" -N '' -C home-center-phone
+  fi
+  [ -s "$HOME/.ssh/id_ed25519.pub" ] || fail "Phone SSH public key is missing."
+}
 ensure_gcloud(){
   if have gcloud; then GCLOUD=termux; ok "Existing gcloud found"; return; fi
   have pkg || fail "Run this from Termux."
@@ -51,7 +59,9 @@ choose_project(){
   if [ -z "$project" ]; then
     projects=$(run_gcloud projects list --filter='lifecycleState:ACTIVE' --format='value(projectId)' 2>/dev/null || true)
     count=$(printf '%s\n' "$projects" | sed '/^$/d' | wc -l | tr -d ' ')
-    if [ "$count" = 1 ]; then project=$(printf '%s\n' "$projects" | sed -n '1p'); else
+    if [ "$count" = 1 ]; then
+      project=$(printf '%s\n' "$projects" | sed -n '1p')
+    else
       printf '\nAvailable GCP projects:\n%s\n' "$projects"
       printf 'Project ID for Home Center forge: '
       IFS= read -r project || true
@@ -61,6 +71,22 @@ choose_project(){
   run_gcloud config set project "$project" >/dev/null
   PROJECT_ID=$project
   ok "Project: $PROJECT_ID"
+}
+make_startup_script(){
+  STARTUP="$STATE_DIR/gcp-forge-startup.sh"
+  PHONE_KEY=$(cat "$HOME/.ssh/id_ed25519.pub")
+  cat > "$STARTUP" <<EOF
+#!/bin/sh
+set -eu
+id forge >/dev/null 2>&1 || useradd -m -s /bin/bash forge
+install -d -m 700 -o forge -g forge /home/forge/.ssh
+printf '%s\n' '$PHONE_KEY' > /home/forge/.ssh/authorized_keys
+chown forge:forge /home/forge/.ssh/authorized_keys
+chmod 600 /home/forge/.ssh/authorized_keys
+printf '%s\n' 'forge ALL=(ALL) NOPASSWD:ALL' > /etc/sudoers.d/90-home-center-forge
+chmod 440 /etc/sudoers.d/90-home-center-forge
+EOF
+  chmod 600 "$STARTUP"
 }
 ensure_resources(){
   REGION=us-central1
@@ -82,16 +108,17 @@ ensure_resources(){
     run_gcloud compute firewall-rules create home-center-forge-ipv6 --network="$NETWORK" --direction=INGRESS --action=ALLOW --rules=tcp:22,tcp:3000,tcp:2222 --source-ranges='::/0'
   fi
   if ! run_gcloud compute instances describe "$INSTANCE" --zone="$ZONE" >/dev/null 2>&1; then
+    make_startup_script
     say "Creating Always Free-sized e2-micro with NO external IPv4"
-    run_gcloud compute instances create "$INSTANCE" --zone="$ZONE" --machine-type=e2-micro --boot-disk-type=pd-standard --boot-disk-size=10GB --image-family=debian-12 --image-project=debian-cloud --network-interface="network=$NETWORK,subnet=$SUBNET,stack-type=IPV4_IPV6,ipv6-network-tier=PREMIUM,no-address"
+    run_gcloud compute instances create "$INSTANCE" --zone="$ZONE" --machine-type=e2-micro --boot-disk-type=pd-standard --boot-disk-size=10GB --image-family=debian-12 --image-project=debian-cloud --network-interface="network=$NETWORK,subnet=$SUBNET,stack-type=IPV4_IPV6,ipv6-network-tier=PREMIUM,no-address" --metadata-from-file="startup-script=$STARTUP"
   else
     ok "Existing forge VM preserved"
   fi
   HOST=$(run_gcloud compute instances describe "$INSTANCE" --zone="$ZONE" --format='value(networkInterfaces[0].ipv6AccessConfigs[0].externalIpv6)' | tr -d '\r')
   [ -n "$HOST" ] || fail "VM exists but no external IPv6 was discoverable. No paid IPv4 fallback was attempted."
-  printf '%s\n' "FORGE_HOST=$HOST" "FORGE_USER=$(whoami)" "FORGE_PORT=22" "GCP_PROJECT=$PROJECT_ID" "GCP_ZONE=$ZONE" > "$STATE_DIR/gcp-provisioned.env"
+  printf '%s\n' "FORGE_HOST=$HOST" "FORGE_USER=forge" "FORGE_PORT=22" "GCP_PROJECT=$PROJECT_ID" "GCP_ZONE=$ZONE" > "$STATE_DIR/gcp-provisioned.env"
   ok "Forge VM IPv6: $HOST"
-  printf 'FORGE_HOST=%s\nFORGE_USER=%s\nFORGE_PORT=22\n' "$HOST" "$(whoami)"
+  printf 'FORGE_HOST=%s\nFORGE_USER=forge\nFORGE_PORT=22\n' "$HOST"
 }
-main(){ ensure_ipv6; ensure_gcloud; ensure_auth; choose_project; ensure_resources; }
+main(){ ensure_ipv6; ensure_phone_key; ensure_gcloud; ensure_auth; choose_project; ensure_resources; }
 main "$@"
