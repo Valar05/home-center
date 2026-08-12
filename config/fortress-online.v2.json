@@ -1,6 +1,6 @@
 {
   "kind": "fortress.online.v2.config.v1",
-  "version": 4,
+  "version": 5,
   "boot": {
     "capsuleKind": "fortress.online.v2.boot-capsule.v4",
     "requiredSkillDocuments": ["fortress-core", "phone-runtime"],
@@ -22,7 +22,9 @@
     "requireExecutableOperatorHandoff": true,
     "consumeReceiptBeforeNextHandoff": true,
     "resumeFromLedgerBeforeConversationSummary": true,
-    "exhaustConfiguredBodyLanesBeforeOperatorHandoff": true
+    "exhaustConfiguredBodyLanesBeforeOperatorHandoff": true,
+    "incidentLoggingNeverStopsMission": true,
+    "resumeImmediatelyAfterIncidentPersistence": true
   },
   "requestBudget": {
     "reuseFreshResults": true,
@@ -41,7 +43,7 @@
     "promotionRequirements": ["candidate regression encoded", "full V2 suite green", "no earlier lock regressed"],
     "classifiers": [
       {"kind":"retrieval_failure","pattern":"assum|didn.?t look|context|lookup|retrieve|look things up"},
-      {"kind":"premature_stop","pattern":"stop early|quit|documented failure|gave up|came early|one poke|forbid.*stop"},
+      {"kind":"premature_stop","pattern":"stop early|quit|documented failure|gave up|came early|one poke|forbid.*stop|failure persists|record.*failure.*stop"},
       {"kind":"boundary_substitution","pattern":"wrong tool|substitut|different lane|adjacent tool|not the lane"},
       {"kind":"correction_regression","pattern":"again|regression|forgot|lost context|reintroduced|borked"},
       {"kind":"capability_laundering","pattern":"claimed|said.*done|not actually|stub|zero faith|not live|not there"},
@@ -53,7 +55,7 @@
     ],
     "recipes": {
       "retrieval_failure": {"rule":"material uncertainty creates a required lookup before execution","regression":"mission with unresolved required lookup must choose retrieve","autoAction":"add_required_lookup_heuristic"},
-      "premature_stop": {"rule":"unfinished work cannot stop without a genuine external boundary requiring operator input","regression":"non-boundary stop reason must choose continue","autoAction":"add_stop_reason_regression"},
+      "premature_stop": {"rule":"unfinished work cannot stop without a genuine external boundary requiring operator input; persisting or reporting the failure is bookkeeping and MUST be followed by immediate resumed execution","regression":"after recording a premature_stop incident, the next action must continue the same mission unless completion evidence or an operator boundary exists","autoAction":"persist_incident_then_resume_same_mission"},
       "boundary_substitution": {"rule":"boundary-changing implementation remains proposed until approved","regression":"unapproved lane/tool change must continue original mission","autoAction":"add_boundary_regression"},
       "correction_regression": {"rule":"new corrections must preserve every earlier non-conflicting lock","regression":"dropping an earlier correction must fail cumulative diff","autoAction":"add_constraint_regression"},
       "capability_laundering": {"rule":"never advance capability state without state-specific external evidence","regression":"implementation evidence alone cannot prove delivery","autoAction":"add_evidence_regression"},
@@ -68,7 +70,7 @@
   "skills": [
     {"id":"mission-kernel","required":true,"purpose":"preserve outcome/owner/lane/exclusions/evidence/delivery"},
     {"id":"tetsuya-judgement","required":true,"purpose":"deterministic precedent and correction judgement"},
-    {"id":"motivated-continuation","required":true,"purpose":"continue until direct operator input or verified completion"},
+    {"id":"motivated-continuation","required":true,"purpose":"continue until direct operator input or verified completion; incident persistence is never completion"},
     {"id":"authoritative-retrieval","required":true,"purpose":"look up materially uncertain state before acting"},
     {"id":"cumulative-context","required":true,"purpose":"preserve all earlier non-conflicting locks and corrections"},
     {"id":"evidence-truth","required":true,"purpose":"separate requested/implemented/tested/deployed/callable/delivered/accepted"},
@@ -80,6 +82,6 @@
     {"id":"venice-nerve","required":true,"purpose":"local Venice speech/collaboration lane; speech remains separate from body actions"},
     {"id":"local-code-continue","required":true,"purpose":"local coding continuation when cloud inference is unavailable"},
     {"id":"campaign-resume","required":true,"purpose":"restore durable campaign state and emit the next concrete action without requiring the user to restate context"},
-    {"id":"learning-persistence","required":true,"purpose":"write corrections, incidents and promoted rules into durable ledger/config so learning survives restart"}
+    {"id":"learning-persistence","required":true,"purpose":"write corrections, incidents and promoted rules into durable ledger/config so learning survives restart, then resume the interrupted mission"}
   ]
 }
