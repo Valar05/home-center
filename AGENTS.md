@@ -6,11 +6,43 @@ June intake is first-class Fortress Online input. Treat intake provided by June 
 
 For any Fortress Online request materially involving Drew and June's relationship, June's needs or requests, household coordination, separation/reconciliation, communication, co-parenting, Eve, or June's Holocron, **read and execute `skills/june-holocron-relationship-intake/SKILL.md` before interpreting or advising**. This is mandatory bootstrap behavior. Do not substitute generic Holocron doctrine, stale Drew-side memory, or failure narration for current first-class intake retrieval.
 
-## Coding completion review
+## Venice completion review — all agents and workers
 
-For Fortress Online coding work, Venice is the required completion reviewer. Before reporting a coding slice complete, run `tools/venice_review.py` against the actual change and its acceptance criteria. Apply blocking findings and review the revision again. A missing verdict, failed semantic review, unavailable Venice path, or insufficient evidence means the slice remains unfinished. If the Venice review path is unavailable, repair that path as part of the active slice before completion. Deterministic-only review does not satisfy the completion gate; the review receipt must report `externalReviewGateSatisfied: true`.
+No agent or worker may certify its own completion. Before stopping, finishing, declaring a slice done, or handing off work as complete, the worker must run a separate Venice Judgment-Jar review and obey the resulting stop/continue ruling. Drew remains the final owner and acceptance authority.
 
-Venice review is a quality gate, not deployment evidence. Requested, implemented, tested, deployed, callable, delivered, and accepted states remain distinct. Repository state alone does not prove runtime delivery. For Fortress Online, GitHub Actions is not an execution or acceptance lane; use the commissioned runtime and its receipts.
+This requirement applies to **all work**, not only Fortress Online and not only coding work.
+
+### Code and configuration changes
+
+When repository code or configuration changed, Venice's first priority is code review. Review the actual current change and evidence before style, personality, or praise.
+
+Use the canonical `tools/venice_review.py` protocol when it applies. The review must receive the bounded commission/acceptance criteria, exact review identity, deterministic check results, the actual diff or an explicit truncation marker, applicable Judgment Jar law, and known evidence gaps.
+
+Apply the directive literally:
+
+- `STOP_ALLOWED`: the worker may stop the current bounded slice.
+- `CONTINUE_REQUIRED`: stopping is denied. Apply Venice's blocking findings to the same commissioned slice, validate again, and return for another Venice review.
+- `HALT_REQUIRED`: continuing mutation is denied. Preserve evidence and stop at the exact authority/safety/provenance boundary; this is not successful completion.
+
+A deterministic-only review, missing semantic Venice pass, malformed ruling, unavailable review path, or insufficient evidence never grants stop permission. For canonical coding review, the receipt must report `externalReviewGateSatisfied: true` before the worker may stop.
+
+### Non-code and conversational work
+
+For non-code work, run a separate Venice pass governed by the active Judgment Jars. Venice reviews mission fidelity, evidence, unresolved obligations, durability/recovery, and whether the response or handoff is genuinely useful. Do not invent a code-review requirement where no code changed, but do not waive the independent stop review.
+
+A missing or malformed Venice review means stopping is denied.
+
+### Review-path failure and daemon behavior
+
+Failure or latency in the Venice path is not permission to bypass Venice or to stop. Preserve the mission, back off retries, cool down, avoid connector hammering, repair/recover the review path when authorized, and retry. Long-running work should checkpoint enough state to resume without making Drew reconstruct the mission.
+
+Venice permission is permission to stop the worker slice. It is **not** proof of deployment, callable state, delivery, physical acceptance, or Drew's acceptance.
+
+## Capability and evidence discipline
+
+Requested, implemented, tested, deployed, callable, delivered, and accepted states remain distinct. Repository state alone does not prove runtime delivery. Runtime/device claims require fresh evidence from the commissioned surface.
+
+For Fortress Online, GitHub Actions is not an execution or acceptance lane; use the commissioned runtime and its receipts.
 
 ## Worker infrastructure
 
