@@ -22,13 +22,15 @@ for token in [
     assert token in skill, token
 
 for token in [
-    'adam-campaign', 'history.jsonl', 'preserve_local', 'restore_local',
+    'adam-campaign', 'history.jsonl', 'preserve_workspace', 'restore_workspace',
+    'original-ref', 'symbolic-ref --short -q HEAD',
     'repair_with_adam', 'persist_repairs', 'write_acceptance', 'while true', 'backoff',
     'install_service', 'run|resume', 'status)', 'receipts)', 'overlay)', 'phone-hands)',
     'PLAN_ALLOWED', 'STOP_ALLOWED', 'Self-heal Adam phone campaign',
     'git rebase --abort', 'home_center_status_menu.sh" probe',
     "'notificationMenu':menu_ok", "adam-phone-campaign-receipt-v2",
-    'verify-failed repairing', 'repair_with_adam "$STATE_ROOT/verify.log"',
+    "'workspacePreservation':True", 'verify-failed repairing',
+    'repair_with_adam "$STATE_ROOT/verify.log"',
     'accepted locally but canonical persistence failed; adam-campaign resume will retry',
 ]:
     assert token in campaign, token
