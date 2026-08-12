@@ -17,7 +17,8 @@ SOURCE_SHA="$(git rev-parse HEAD)"
 
 python tools/test_adam_overlay_contract.py
 python tools/test_adam_cli_contract.py
-python -m py_compile tools/adam.py tools/vlad_swarm_daemon.py
+python tools/test_fortress_phone_resume_contract.py
+python -m py_compile tools/adam.py tools/vlad_swarm_daemon.py tools/vlad_pixel_forge_probe.py tools/stage_vlad_pixel_model_phone.py
 
 install_generated() {
   local build_receipt="$STATE/adam-overlay-build-receipt.json"
@@ -103,16 +104,15 @@ PY
 else
   LOCAL_APK="${HC_ADAM_OVERLAY_APK:-$ROOT/android/operator-overlay/app/build/outputs/apk/debug/app-debug.apk}"
   if [ ! -s "$LOCAL_APK" ]; then
-    echo '[deploy] No current generated APK; recovering THECAULDRON SSH Axis and forging there.'
-    bash tools/build_operator_overlay_cauldron.sh
+    echo '[deploy] No current generated APK; forging locally on phone.'
+    bash tools/recover_adam_overlay_phone.sh
+  else
+    install_local_apk "$LOCAL_APK"
   fi
-  [ -s "$LOCAL_APK" ] || { echo "BLOCKED: THECAULDRON did not produce $LOCAL_APK" >&2; exit 21; }
-  install_local_apk "$LOCAL_APK"
 fi
 
-# CLI and overlay intentionally share tools/adam.py. Installing the command here
-# adds no second daemon/service and leaves the overlay request protocol unchanged.
 bash tools/install_adam_cli.sh
+bash tools/install_fortress_resume_phone.sh
 bash tools/setup_vlad_swarm_daemon.sh
 bash tools/accept_adam_cli_phone.sh
-echo "ADAM OVERLAY + CLI ACCEPTED overlay_receipt=$RECEIPT cli_receipt=$STATE/adam-cli-install-receipt.json acceptance=$STATE/adam-cli-phone-acceptance.json"
+echo "ADAM OVERLAY + CLI ACCEPTED overlay_receipt=$RECEIPT cli_receipt=$STATE/adam-cli-install-receipt.json acceptance=$STATE/adam-cli-phone-acceptance.json fortress_resume=$STATE/fortress-resume-install.json"
