@@ -115,6 +115,30 @@ def git_evidence(workspace: Path, base_commit: str | None = None) -> dict:
     return evidence
 
 
+def parse_canonical_review_compat(raw: str):
+    """Canonical parser first; tolerate JSON transport without weakening semantics."""
+    verdict, directive, findings, jars = canonical_venice.parse_review(raw)
+    malformed = {"reviewer_output_missing_strict_verdict", "reviewer_output_missing_strict_directive", "inconsistent_pass_directive", "fail_cannot_allow_stop"}
+    if not any(f in malformed for f in findings):
+        return verdict, directive, findings, jars, raw
+    obj = worker.parse_action(raw)
+    if not isinstance(obj, dict):
+        return verdict, directive, findings, jars, raw
+    v = str(obj.get("verdict") or "").upper()
+    d = str(obj.get("directive") or "").upper()
+    if v not in {"PASS", "FAIL"} or d not in canonical_venice.DIRECTIVES:
+        return verdict, directive, findings, jars, raw
+    jar_value = obj.get("jar") or obj.get("judgmentJar") or obj.get("criterion") or "observable evidence"
+    finding_value = obj.get("finding") or ""
+    note_value = obj.get("note") or obj.get("critique") or ""
+    normalized = f"VERDICT: {v}\nDIRECTIVE: {d}\nJAR: {jar_value}\n"
+    if finding_value:
+        normalized += f"FINDING: {finding_value}\n"
+    normalized += f"NOTE: {note_value}"
+    verdict, directive, findings, jars = canonical_venice.parse_review(normalized)
+    return verdict, directive, findings, jars, normalized
+
+
 def canonical_venice_review(task: str, workspace: Path, proposal: dict, jars: str, recent_messages: list[dict], task_base_commit: str | None, attempts: int = 4) -> dict:
     ev = git_evidence(workspace, task_base_commit)
     code_changed = bool(ev.get("codeChanged"))
@@ -136,12 +160,12 @@ def canonical_venice_review(task: str, workspace: Path, proposal: dict, jars: st
     if code_changed:
         prompt += "\n\nPRIORITY OVERRIDE: repository code/config changed. Perform code review first and name the most important correctness/regression issue before any style observation."
     messages = [
-        {"role": "system", "content": "You are Venice executing the canonical repository code-review/stop protocol. Return exactly the required VERDICT/DIRECTIVE/JAR/FINDING/NOTE text format."},
+        {"role": "system", "content": "You are Venice executing the canonical repository code-review/stop protocol. Return exactly the required VERDICT/DIRECTIVE/JAR/FINDING/NOTE text format. JSON with equivalent verdict/directive fields is tolerated by the transport shim but the canonical semantics do not change."},
         {"role": "user", "content": prompt},
     ]
     for _ in range(max(1, attempts)):
         raw = worker.call_model(messages, timeout=120)
-        verdict, directive, findings, jar_applied = canonical_venice.parse_review(raw)
+        verdict, directive, findings, jar_applied, normalized = parse_canonical_review_compat(raw)
         malformed = {"reviewer_output_missing_strict_verdict", "reviewer_output_missing_strict_directive", "inconsistent_pass_directive", "fail_cannot_allow_stop"}
         valid = not any(f in malformed for f in findings)
         if valid:
@@ -156,7 +180,7 @@ def canonical_venice_review(task: str, workspace: Path, proposal: dict, jars: st
                 "externalReviewGateSatisfied": stop,
                 "judgmentJarApplied": jar_applied,
                 "findings": findings,
-                "reviewText": raw,
+                "reviewText": normalized,
                 "codeReviewFirst": code_changed,
                 "freshEvidence": ev,
             }
@@ -221,6 +245,23 @@ def run_task(task: str, workspace: Path, max_steps: int | None = None) -> int:
             action = worker.parse_action(raw)
             if action is None:
                 format_failures += 1
+                # Tiny models sometimes ignore the JSON envelope. Prose may only
+                # become a conversational candidate; Venice still decides whether
+                # it is good enough to terminate. It can never authorize execution.
+                if format_failures >= 2 and raw.strip():
+                    candidate = {"tool": "respond", "text": raw.strip()}
+                    review = canonical_venice_review(task, workspace, candidate, jars, messages, task_base_commit)
+                    if review.get("stopPermissionGranted"):
+                        print(raw.strip())
+                        return 0
+                    if review.get("continuationRequired"):
+                        messages.append({"role": "assistant", "content": raw})
+                        messages.append({"role": "user", "content": "VENICE REVIEW: stopping denied. " + json.dumps({"findings": review.get("findings"), "reviewText": review.get("reviewText")}, ensure_ascii=False) + "\nNow emit one valid typed tool JSON action. Raw prose can only be a reviewed response, never execution."})
+                        format_failures = 0
+                        continue
+                    path = checkpoint(task, workspace, step, messages, task_base_commit)
+                    print(f"Adam [halted]: canonical Venice review could not authorize the prose fallback. Mission checkpoint preserved at {path}. Findings: {review.get('findings')}")
+                    return 2
                 messages.append({"role": "assistant", "content": raw})
                 messages.append({"role": "user", "content": "FORMAT_ERROR: Output was not one valid JSON object. Do not talk. Emit exactly one allowed tool JSON object."})
                 if format_failures % 4 == 0:
@@ -303,7 +344,7 @@ def run_interactive(cwd: str | None = None) -> int:
             except Exception as exc:
                 venice = daemon = False
                 error = str(exc)
-            print(json.dumps({"schema":"adam-venice-reviewed-status-v5","workspace":str(workspace),"model":worker.PHONE_LLM_MODEL,"jarGate":venice and daemon,"veniceProtocol":"tools/venice_review.py","veniceStopReview":venice,"daemonPersistence":daemon,"checkpointSteps":CHECKPOINT_STEPS,"checkpoint":str(STATE_DIR / 'current.json'),"backoffSeconds":list(BACKOFF_SECONDS),"error":error}, indent=2))
+            print(json.dumps({"schema":"adam-venice-reviewed-status-v6","workspace":str(workspace),"model":worker.PHONE_LLM_MODEL,"jarGate":venice and daemon,"veniceProtocol":"tools/venice_review.py","veniceStopReview":venice,"daemonPersistence":daemon,"checkpointSteps":CHECKPOINT_STEPS,"checkpoint":str(STATE_DIR / 'current.json'),"backoffSeconds":list(BACKOFF_SECONDS),"error":error}, indent=2))
             continue
         if stripped == ":cwd" or stripped.startswith(":cwd "):
             raw = stripped[len(":cwd"):].strip()
@@ -317,10 +358,8 @@ def run_interactive(cwd: str | None = None) -> int:
         try:
             run_task(text, workspace)
         except Exception as exc:
-            base = None
             ev = git_evidence(workspace)
-            if ev.get("isGitRepo"):
-                base = str(ev.get("headCommit") or "")
+            base = str(ev.get("headCommit") or "") if ev.get("isGitRepo") else None
             path = checkpoint(text, workspace, -1, [{"role":"system","content":"runtime exception"},{"role":"user","content":str(exc)}], base)
             print(f"Adam [blocked-current-process]: runtime failed after daemon recovery attempts; mission checkpoint preserved at {path}: {exc}")
 
