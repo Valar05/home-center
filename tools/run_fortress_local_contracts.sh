@@ -4,6 +4,7 @@ ROOT="${HC_REPO_ROOT:-$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)}"
 cd "$ROOT"
 python3 tools/test_fortress_phone_resume_contract.py
 python3 tools/test_vlad_pixel_mnn_contract.py
+python3 tools/test_fortress_phone_evidence.py
 python3 tools/test_vlad_overlay_self_heal_contract.py
 python3 tools/test_venice_selfheal_contract.py
 python3 tools/test_adam_cli_contract.py
