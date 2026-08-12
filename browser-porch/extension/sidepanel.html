@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Chromium Throne</title>
+  <style>
+    :root { font-family: system-ui, sans-serif; color-scheme: light dark; }
+    body { margin: 0; padding: 12px; display: grid; gap: 10px; }
+    header { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+    h1 { font-size: 16px; margin: 0; }
+    #status { font-size: 12px; opacity: .75; }
+    textarea { width: 100%; min-height: 150px; box-sizing: border-box; resize: vertical; padding: 10px; }
+    .row { display: flex; gap: 8px; flex-wrap: wrap; }
+    button { padding: 8px 10px; cursor: pointer; }
+    button.primary { font-weight: 700; }
+    #queue { display: grid; gap: 6px; }
+    .job { border: 1px solid currentColor; border-radius: 6px; padding: 8px; opacity: .9; }
+    .job strong { display: block; margin-bottom: 4px; }
+    #output { white-space: pre-wrap; max-height: 35vh; overflow: auto; border: 1px solid currentColor; border-radius: 6px; padding: 8px; font-size: 12px; }
+    label { font-size: 12px; }
+  </style>
+</head>
+<body>
+  <header><h1>Chromium Throne</h1><span id="status">checking…</span></header>
+  <label for="commission">Commission</label>
+  <textarea id="commission" placeholder="Exact work to hand to the ChatGPT worker"></textarea>
+  <label><input id="newWorker" type="checkbox" checked> Start as a fresh worker conversation</label>
+  <div class="row">
+    <button id="enqueue">Queue</button>
+    <button id="run" class="primary">Run now</button>
+    <button id="runNext">Run next</button>
+    <button id="capture">Checkpoint</button>
+  </div>
+  <div class="row">
+    <button id="stop">Stop dispatch</button>
+    <button id="resume">Resume</button>
+  </div>
+  <section>
+    <strong>Queue</strong>
+    <div id="queue"></div>
+  </section>
+  <section>
+    <strong>Latest receipt</strong>
+    <div id="output">No receipt yet.</div>
+  </section>
+  <script src="sidepanel.js"></script>
+</body>
+</html>
