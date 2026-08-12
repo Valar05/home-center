@@ -119,7 +119,6 @@ def process_adam_overlay(repo_root):
 
     mode = _operator_field(raw, "adam_request_mode", "terminal")
     payload = _operator_field(raw, "adam_request_payload_b64", "")
-    # Claim before execution: a daemon restart must not replay a terminal command.
     _set_last_adam_request_id(request_id)
     try:
         text = base64.b64decode(payload, validate=True).decode("utf-8")
@@ -178,10 +177,83 @@ def process_review_inbox(repo_root):
         job.rename(done / job.name)
 
 
+def _pixel_python(repo_root):
+    override = os.environ.get("HC_PIXEL_PYTHON")
+    if override:
+        return override
+    root = Path(repo_root)
+    candidates = [
+        root / ".venv-pixel-forge" / "bin" / "python",
+        root / ".venv-pixel-forge" / "Scripts" / "python.exe",
+    ]
+    for candidate in candidates:
+        if candidate.exists():
+            return str(candidate)
+    return "python3"
+
+
+def process_pixel_inbox(repo_root):
+    inbox = STATE_DIR / "pixel-inbox"
+    done = STATE_DIR / "pixel-done"
+    inbox.mkdir(parents=True, exist_ok=True)
+    done.mkdir(parents=True, exist_ok=True)
+    for job in sorted(inbox.glob("*.json")):
+        claimed = inbox / (job.stem + ".running.json")
+        try:
+            job.replace(claimed)
+        except FileNotFoundError:
+            continue
+        receipt_path = done / (job.stem + ".receipt.json")
+        try:
+            data = json.loads(claimed.read_text(encoding="utf-8"))
+            if data.get("kind") != "pixel.forge.job.v1":
+                raise ValueError("unsupported pixel forge job kind")
+            prompt = str(data.get("prompt") or "").strip()
+            output = str(data.get("output") or "").strip()
+            if not prompt or not output:
+                raise ValueError("pixel forge job requires prompt and output")
+            cmd = [
+                _pixel_python(repo_root),
+                str(Path(repo_root) / "tools" / "pixel_forge.py"),
+                "generate",
+                prompt,
+                "--output", output,
+                "--receipt", str(receipt_path),
+                "--size", str(int(data.get("size", 64))),
+                "--colors", str(int(data.get("colors", 32))),
+                "--format", str(data.get("format", "png")),
+                "--seed", str(int(data.get("seed", 1337))),
+                "--steps", str(int(data.get("steps", 28))),
+                "--guidance", str(float(data.get("guidance", 7.5))),
+                "--render-size", str(int(data.get("renderSize", 512))),
+            ]
+            if data.get("negative"):
+                cmd.extend(["--negative", str(data["negative"])])
+            result = run(cmd, timeout=int(data.get("timeout", 900)), cwd=repo_root)
+            append_receipt({
+                "kind": "pixel.forge",
+                "job": job.name,
+                "ok": result["rc"] == 0,
+                "result": result,
+                "receipt": str(receipt_path),
+            })
+        except Exception as exc:
+            append_receipt({
+                "kind": "pixel.forge",
+                "job": job.name,
+                "ok": False,
+                "error": f"{type(exc).__name__}: {exc}",
+                "receipt": str(receipt_path),
+            })
+        finally:
+            claimed.replace(done / job.name)
+
+
 def heartbeat(repo_root):
     shizuku_ok = phone_health()
     operator_heartbeat()
     process_review_inbox(repo_root)
+    process_pixel_inbox(repo_root)
     append_receipt({"kind": "swarm.heartbeat", "ok": True, "shizuku": shizuku_ok})
 
 
