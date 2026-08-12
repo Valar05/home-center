@@ -1,0 +1,21 @@
+{
+  "schema": "tristanline.v0",
+  "device_id": "primary-phone",
+  "tick_seconds": 30,
+  "default_profile": "normal",
+  "profiles": {
+    "normal": {},
+    "demo": {
+      "go_home": true
+    },
+    "focus": {
+      "screen_timeout_ms": 600000,
+      "media_volume": 5
+    },
+    "quiet": {
+      "screen_timeout_ms": 60000,
+      "media_volume": 2
+    }
+  },
+  "schedule": []
+}
