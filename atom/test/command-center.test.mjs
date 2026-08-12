@@ -25,6 +25,14 @@ async function waitFor(url, timeoutMs = 8000) {
   throw last || new Error('Atom did not become ready');
 }
 
+async function stopChild(child) {
+  if (child.exitCode !== null) return;
+  const exited = new Promise(resolve => child.once('exit', resolve));
+  child.kill();
+  await Promise.race([exited, new Promise(resolve => setTimeout(resolve, 2000))]);
+  if (child.exitCode === null) child.kill('SIGKILL');
+}
+
 test('Atom owns the phone command surface and fails closed', async t => {
   const stateDir = await mkdtemp(join(tmpdir(), 'atom-command-center-test-'));
   const port = 18000 + (process.pid % 1000);
@@ -37,8 +45,7 @@ test('Atom owns the phone command surface and fails closed', async t => {
   let stderr = '';
   child.stderr.on('data', chunk => { stderr += chunk; });
   t.after(async () => {
-    if (child.exitCode === null) child.kill('SIGTERM');
-    await new Promise(resolve => child.once('exit', resolve));
+    await stopChild(child);
     await rm(stateDir, { recursive: true, force: true });
   });
 
@@ -80,8 +87,6 @@ test('Atom owns the phone command surface and fails closed', async t => {
     headers: { 'content-type': 'application/json' },
     body: '{}',
   })).json();
-  // A non-phone test host has no installed watchdog. That must be a blocker,
-  // never laundered into a successful diagnostic.
   assert.equal(diagnostic.kind, 'diagnostic');
   assert.equal(diagnostic.state, 'blocked');
 
