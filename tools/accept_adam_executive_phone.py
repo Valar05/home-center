@@ -17,8 +17,12 @@ import adam_venice_reviewed as worker
 PROBE = "This is an acceptance probe, not a coding task. Respond to Drew with one short greeting that makes clear you know his name. Do not run commands or edit files."
 
 
+class AcceptanceTimeout(BaseException):
+    """Explicit bounded-test cancellation; production daemon retries do not catch it."""
+
+
 def _timeout(_signum, _frame):
-    raise TimeoutError("acceptance probe exceeded its bounded harness window")
+    raise AcceptanceTimeout("acceptance probe exceeded its bounded harness window")
 
 
 def main() -> int:
@@ -39,7 +43,6 @@ def main() -> int:
         loaded = []
         codex_ok = False
 
-    # Delete only the last-pointer so stale Venice proof cannot satisfy this run.
     last_review = worker.STATE_DIR / "venice-review-last.json"
     try:
         last_review.unlink()
@@ -54,7 +57,7 @@ def main() -> int:
     try:
         with contextlib.redirect_stdout(buf):
             rc = worker.run_task(PROBE, ROOT, max_steps=8, stop_after_steps=12)
-    except TimeoutError as exc:
+    except AcceptanceTimeout as exc:
         timed_out = True
         buf.write(f"{exc}\n")
         rc = 3
@@ -78,7 +81,7 @@ def main() -> int:
     )
     ok = rc == 0 and not timed_out and jar_ok and venice_ok and daemon_ok and codex_ok and venice_receipt_ok and knows and not generic
     receipt = {
-        "schema": "adam-phone-codex-worker-acceptance-v6",
+        "schema": "adam-phone-codex-worker-acceptance-v7",
         "ok": ok,
         "jarGate": jar_ok,
         "veniceStopReview": venice_ok,
