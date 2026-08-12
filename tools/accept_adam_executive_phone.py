@@ -1,25 +1,48 @@
 #!/usr/bin/env python3
 from __future__ import annotations
-import json,sys
+import contextlib
+import io
+import json
+import sys
 from pathlib import Path
 
-ROOT=Path(__file__).resolve().parents[1]
-sys.path.insert(0,str(ROOT/'tools'))
-import adam_judgement_db as memory
-import adam_runtime as runtime
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / "tools"))
+import adam_codex_phone as worker
 
 
-def main():
-    db=memory.connect()
-    hello=runtime.identity_reflex(db,'hello')
-    who=runtime.identity_reflex(db,'what is my name?')
-    sheet=memory.sheet(db)
-    projection=memory.projection(db)
-    knows=bool(hello and 'Drew' in hello and who and 'Drew' in who and 'Adam' in who)
-    sqlite_ok=Path(memory.DB_PATH).exists() and sheet.get('name')=='Adam' and sheet.get('player')=='Drew'
-    jars_ok='user_name=Drew' in projection and 'assistant_name=Adam' in projection
-    ok=knows and sqlite_ok and jars_ok
-    receipt={'schema':'adam-executive-phone-acceptance-v3','ok':ok,'knowsUser':knows,'hello':hello,'identityProbe':who,'database':str(memory.DB_PATH),'sqlite':sqlite_ok,'jarsProjected':jars_ok,'characterSheet':sheet}
-    print(json.dumps(receipt,ensure_ascii=False,indent=2,sort_keys=True)); db.close(); return 0 if ok else 2
+def main() -> int:
+    jars = worker.active_jars()
+    jar_ok = "Adam Personality Gate" in jars and "Repository Truth and Evidence" in jars
 
-if __name__=='__main__': raise SystemExit(main())
+    # Live worker proof. The local model may need several correction turns, but
+    # raw prose is suppressed by run_task; only a governed respond/finish may
+    # reach stdout.
+    buf = io.StringIO()
+    with contextlib.redirect_stdout(buf):
+        rc = worker.run_task(
+            "This is an acceptance probe, not a coding task. Respond to Drew with one short greeting that makes clear you know his name. Do not run commands or edit files.",
+            ROOT,
+            max_steps=8,
+        )
+    output = buf.getvalue().strip()
+    knows = "drew" in output.lower()
+    generic = "how can i assist" in output.lower() or "hello, adam" in output.lower()
+    ok = rc == 0 and jar_ok and knows and not generic
+    receipt = {
+        "schema": "adam-phone-codex-worker-acceptance-v1",
+        "ok": ok,
+        "jarGate": jar_ok,
+        "knowsOwner": knows,
+        "genericAssistantLeak": generic,
+        "workerRc": rc,
+        "output": output,
+        "model": worker.PHONE_LLM_MODEL,
+        "endpoint": worker.PHONE_LLM_URL,
+    }
+    print(json.dumps(receipt, ensure_ascii=False, indent=2, sort_keys=True))
+    return 0 if ok else 2
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
