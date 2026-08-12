@@ -1,0 +1,27 @@
+name: Home Center Offline Coding
+version: 1.0.0
+schema: v1
+
+# Deliberately local-only. Do not add cloud providers or remote MCPs here.
+models:
+  - name: Home Center Qwen2.5 Coder 7B 8K
+    provider: ollama
+    model: home-center-qwen-coder:7b-8k
+    apiBase: http://127.0.0.1:11434
+    roles:
+      - chat
+      - edit
+      - apply
+    defaultCompletionOptions:
+      # The derived local Ollama model pins num_ctx=8192 at runtime. Continue's
+      # contextLength is kept identical so validation and inference agree.
+      contextLength: 8192
+
+  - name: Qwen2.5 Coder 1.5B Local Autocomplete
+    provider: ollama
+    model: qwen2.5-coder:1.5b
+    apiBase: http://127.0.0.1:11434
+    roles:
+      - autocomplete
+    defaultCompletionOptions:
+      contextLength: 2048

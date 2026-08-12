@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 import argparse
+import base64
 import json
 import os
+import re
 import shlex
 import subprocess
 import time
@@ -10,14 +12,17 @@ from pathlib import Path
 STATE_DIR = Path(os.environ.get("HC_SWARM_STATE_DIR", "~/.local/state/home-center/vlad-swarm")).expanduser()
 RISH = os.environ.get("HC_RISH", "rish")
 INTERVAL = int(os.environ.get("HC_SWARM_INTERVAL", "30"))
+ADAM_POLL_SECONDS = float(os.environ.get("HC_ADAM_POLL_SECONDS", "1.0"))
+OPERATOR_STATE_URI = "content://com.homecenter.operatoroverlay.state/state"
+OPERATOR_RECEIVER = "com.homecenter.operatoroverlay/.OverlayUpdateReceiver"
 
 
 def now():
     return int(time.time())
 
 
-def run(cmd, timeout=20):
-    p = subprocess.run(cmd, text=True, capture_output=True, timeout=timeout)
+def run(cmd, timeout=20, cwd=None):
+    p = subprocess.run(cmd, text=True, capture_output=True, timeout=timeout, cwd=cwd)
     return {
         "cmd": cmd,
         "rc": p.returncode,
@@ -61,6 +66,93 @@ def phone_health():
     return True
 
 
+def _operator_field(raw, name, default=""):
+    match = re.search(rf"\b{re.escape(name)}=([^,\n]*)", raw)
+    return match.group(1).strip() if match else default
+
+
+def operator_heartbeat():
+    result = rish(
+        "am broadcast --receiver-foreground "
+        "-a com.homecenter.operatoroverlay.HEARTBEAT "
+        f"-n {OPERATOR_RECEIVER}"
+    )
+    append_receipt({"kind": "adam.overlay.heartbeat", "ok": result["rc"] == 0, "result": result})
+
+
+def operator_update(text, source):
+    command = (
+        "am broadcast --receiver-foreground "
+        "-a com.homecenter.operatoroverlay.UPDATE "
+        f"-n {OPERATOR_RECEIVER} "
+        f"--es latestText {shlex.quote(str(text)[:8000])} "
+        f"--es source {shlex.quote(str(source)[:80])}"
+    )
+    return rish(command)
+
+
+def _last_adam_request_id():
+    path = STATE_DIR / "adam-last-request-id"
+    try:
+        return int(path.read_text(encoding="utf-8").strip())
+    except Exception:
+        return 0
+
+
+def _set_last_adam_request_id(value):
+    STATE_DIR.mkdir(parents=True, exist_ok=True)
+    (STATE_DIR / "adam-last-request-id").write_text(str(int(value)) + "\n", encoding="utf-8")
+
+
+def process_adam_overlay(repo_root):
+    query = rish(f"content query --uri {shlex.quote(OPERATOR_STATE_URI)}")
+    if query["rc"] != 0:
+        return
+    raw = query["stdout"]
+    request_text = _operator_field(raw, "adam_request_id", "0")
+    try:
+        request_id = int(request_text or "0")
+    except ValueError:
+        return
+    if request_id <= 0 or request_id <= _last_adam_request_id():
+        return
+
+    mode = _operator_field(raw, "adam_request_mode", "terminal")
+    payload = _operator_field(raw, "adam_request_payload_b64", "")
+    # Claim before execution: a daemon restart must not replay a terminal command.
+    _set_last_adam_request_id(request_id)
+    try:
+        text = base64.b64decode(payload, validate=True).decode("utf-8")
+    except Exception as exc:
+        event = {"kind": "adam.request", "ok": False, "requestId": request_id, "mode": mode, "error": f"invalid_payload: {exc}"}
+        append_receipt(event)
+        operator_update(event["error"], f"Adam/{mode}")
+        return
+
+    result = run(
+        ["python3", str(Path(repo_root) / "tools" / "adam.py"), mode, text, "--cwd", repo_root],
+        timeout=240,
+        cwd=repo_root,
+    )
+    display = result["stdout"] or result["stderr"] or f"Adam {mode} exited {result['rc']}"
+    try:
+        parsed = json.loads(result["stdout"])
+        display = parsed.get("response") or parsed.get("stdout") or parsed.get("detail") or parsed.get("error") or display
+        if parsed.get("stderr"):
+            display = (str(display) + "\n" + str(parsed["stderr"])).strip()
+    except Exception:
+        pass
+    update = operator_update(display, f"Adam/{mode}")
+    append_receipt({
+        "kind": "adam.request",
+        "ok": result["rc"] == 0 and update["rc"] == 0,
+        "requestId": request_id,
+        "mode": mode,
+        "result": result,
+        "overlayUpdate": update,
+    })
+
+
 def process_review_inbox(repo_root):
     inbox = STATE_DIR / "review-inbox"
     done = STATE_DIR / "review-done"
@@ -88,6 +180,7 @@ def process_review_inbox(repo_root):
 
 def heartbeat(repo_root):
     shizuku_ok = phone_health()
+    operator_heartbeat()
     process_review_inbox(repo_root)
     append_receipt({"kind": "swarm.heartbeat", "ok": True, "shizuku": shizuku_ok})
 
@@ -101,14 +194,19 @@ def main():
     repo_root = str(Path(args.repo).resolve())
     STATE_DIR.mkdir(parents=True, exist_ok=True)
     append_receipt({"kind": "swarm.start", "ok": True, "repo": repo_root, "interval": args.interval})
+    next_heartbeat = 0.0
     while True:
         try:
-            heartbeat(repo_root)
+            process_adam_overlay(repo_root)
+            current = time.monotonic()
+            if current >= next_heartbeat:
+                heartbeat(repo_root)
+                next_heartbeat = current + max(5, args.interval)
         except Exception as exc:
             append_receipt({"kind": "swarm.error", "ok": False, "error": f"{type(exc).__name__}: {exc}"})
         if args.once:
             return 0
-        time.sleep(max(5, args.interval))
+        time.sleep(max(0.25, ADAM_POLL_SECONDS))
 
 
 if __name__ == "__main__":

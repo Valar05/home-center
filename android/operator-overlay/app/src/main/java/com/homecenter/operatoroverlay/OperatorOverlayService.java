@@ -27,6 +27,7 @@ import android.view.WindowInsets;
 import android.view.WindowManager;
 import android.view.WindowMetrics;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -60,6 +61,8 @@ public class OperatorOverlayService extends Service {
     private Button compactControlButton;
     private Button muteButton;
     private Button controlButton;
+    private EditText adamInput;
+    private String adamMode = "terminal";
     private boolean expandedText;
     private boolean confirmDisable;
     private float downRawX;
@@ -271,11 +274,43 @@ public class OperatorOverlayService extends Service {
         latest.setBackground(background(Color.rgb(39, 42, 49), Color.rgb(67, 73, 86)));
         latest.setVerticalScrollBarEnabled(true);
         latest.setMovementMethod(ScrollingMovementMethod.getInstance());
-        latest.setContentDescription("Latest ChatGPT message. Tap to expand or collapse text.");
+        latest.setContentDescription("Latest Home Center or Adam message. Tap to expand or collapse text.");
         latest.setOnClickListener(v -> {
             expandedText = !expandedText;
             applyExpandedTextState();
         });
+
+        LinearLayout adamModeRow = new LinearLayout(this);
+        adamModeRow.setOrientation(LinearLayout.HORIZONTAL);
+        adamModeRow.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
+        adamModeRow.setPadding(0, dp(6), 0, dp(2));
+        adamModeRow.addView(adamModeButton("TERM", "terminal", "Adam terminal executor mode"));
+        adamModeRow.addView(adamModeButton("CHAT", "chat", "Adam local chatbot mode"));
+        adamModeRow.addView(adamModeButton("CONT", "continue", "Adam Continue consumer mode"));
+        adamModeRow.addView(adamModeButton("VLAD", "vlad", "Ask Vlad for a bounded consultation"));
+
+        LinearLayout adamInputRow = new LinearLayout(this);
+        adamInputRow.setOrientation(LinearLayout.HORIZONTAL);
+        adamInputRow.setGravity(Gravity.CENTER_VERTICAL);
+
+        adamInput = new EditText(this);
+        adamInput.setTextColor(Color.WHITE);
+        adamInput.setHintTextColor(Color.rgb(155, 165, 182));
+        adamInput.setHint("Adam — terminal");
+        adamInput.setTextSize(14f);
+        adamInput.setSingleLine(false);
+        adamInput.setMaxLines(4);
+        adamInput.setMinHeight(dp(OverlayUiPolicy.MIN_TOUCH_TARGET_DP));
+        adamInput.setPadding(dp(8), dp(4), dp(8), dp(4));
+        adamInput.setBackground(background(Color.rgb(32, 35, 42), Color.rgb(78, 88, 105)));
+        adamInput.setContentDescription("Adam input. Current mode terminal.");
+        adamInputRow.addView(adamInput, new LinearLayout.LayoutParams(
+                0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
+
+        Button adamSendButton = button("Send");
+        adamSendButton.setContentDescription("Send request to Adam using the selected explicit mode");
+        adamSendButton.setOnClickListener(v -> submitAdamRequest());
+        adamInputRow.addView(adamSendButton);
 
         LinearLayout actionRow = new LinearLayout(this);
         actionRow.setOrientation(LinearLayout.HORIZONTAL);
@@ -299,6 +334,8 @@ public class OperatorOverlayService extends Service {
         details.addView(screenBadge);
         details.addView(meta);
         details.addView(latest);
+        details.addView(adamModeRow);
+        details.addView(adamInputRow);
         details.addView(actionRow);
         root.addView(titleRow);
         root.addView(details);
@@ -424,6 +461,10 @@ public class OperatorOverlayService extends Service {
         collapseButton.setText(collapsed ? "+" : "−");
         collapseButton.setContentDescription(collapsed ? "Expand overlay" : "Shrink overlay");
         windowParams.width = collapsed ? WindowManager.LayoutParams.WRAP_CONTENT : expandedWidthPx;
+        int focusFlags = WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN | WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL;
+        if (collapsed) focusFlags |= WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE;
+        windowParams.flags = focusFlags;
+        if (collapsed && adamInput != null) adamInput.clearFocus();
         windowManager.updateViewLayout(root, windowParams);
         root.requestLayout();
         root.post(this::clampAndPersistPosition);
@@ -587,6 +628,30 @@ public class OperatorOverlayService extends Service {
         meta.setText(source + " • " + age(now, lastUpdate) + lease +
                 (expandedText ? " • tap message to collapse" : " • tap message to expand"));
         latest.setText(OperatorState.latestText(this));
+    }
+
+    private Button adamModeButton(String label, String mode, String description) {
+        Button value = button(label);
+        value.setContentDescription(description);
+        value.setOnClickListener(v -> {
+            adamMode = mode;
+            if (adamInput != null) {
+                adamInput.setHint("Adam — " + mode);
+                adamInput.setContentDescription("Adam input. Current mode " + mode + ".");
+                adamInput.requestFocus();
+            }
+        });
+        return value;
+    }
+
+    private void submitAdamRequest() {
+        if (adamInput == null) return;
+        String text = adamInput.getText().toString().trim();
+        if (text.isEmpty()) return;
+        OperatorState.submitAdamRequest(this, adamMode, text, System.currentTimeMillis());
+        adamInput.setText("");
+        adamInput.setHint("Adam — " + adamMode + " • sent");
+        adamInput.announceForAccessibility("Sent to Adam " + adamMode);
     }
 
     private void recomputeExpandedWidth() {
