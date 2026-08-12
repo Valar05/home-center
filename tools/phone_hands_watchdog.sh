@@ -69,7 +69,8 @@ start_worker(){
   local f="$1" pid
   case "$f" in
     *.js) nohup node "$f" >>"$WORKER_LOG" 2>&1 & ;;
-    *) chmod +x "$f" 2>/dev/null || true; nohup "$f" >>"$WORKER_LOG" 2>&1 & ;;
+    *.sh) nohup bash "$f" >>"$WORKER_LOG" 2>&1 & ;;
+    *) nohup "$f" >>"$WORKER_LOG" 2>&1 & ;;
   esac
   pid=$!
   printf '%s\n' "$pid" > "$PIDFILE"
@@ -77,7 +78,14 @@ start_worker(){
   kill -0 "$pid" 2>/dev/null
 }
 
-network_ok(){ ip route 2>/dev/null | grep -q '^default '; }
+network_probe(){
+  # Android/Termux may hide routing details from `ip route`; treat network as advisory.
+  # Return success when any cheap direct signal works. Failure must never block worker start.
+  if command -v curl >/dev/null 2>&1 && curl -fsSIL --max-time 4 https://www.google.com/generate_204 >/dev/null 2>&1; then return 0; fi
+  if command -v getent >/dev/null 2>&1 && getent hosts github.com >/dev/null 2>&1; then return 0; fi
+  if command -v ping >/dev/null 2>&1 && ping -c 1 -W 2 1.1.1.1 >/dev/null 2>&1; then return 0; fi
+  return 1
+}
 
 shizuku_ok(){
   if command -v rish >/dev/null 2>&1 && rish -c 'id' >/dev/null 2>&1; then return 0; fi
@@ -90,45 +98,40 @@ run_once(){
     mkdir "$RUN_LOCK" 2>/dev/null || exit 0
     trap 'rmdir "$RUN_LOCK" 2>/dev/null || true' EXIT INT TERM
     termux-wake-lock >/dev/null 2>&1 || true
-    local worker
+    local worker network_state='unknown'
 
-    if ! network_ok; then
-      log 'DEGRADED no default network route'
-      post_diagnostic_button 'DEGRADED — no network route. Tap Diagnose & repair.'
-      state_notice 'no-network' 'Home Center degraded' 'No network route. Automatic recovery will keep retrying.' high
-      exit 10
-    fi
+    if network_probe; then network_state='reachable'; else network_state='unverified'; fi
 
     if ! shizuku_ok; then
-      log 'HUMAN_REQUIRED Shizuku/rish unavailable'
+      log "HUMAN_REQUIRED Shizuku/rish unavailable network=$network_state"
       post_diagnostic_button 'ACTION NEEDED — Android authority unavailable.'
       state_notice 'shizuku-required' 'Phone Hands needs Android authority' 'Tap Diagnose & repair. If Android still blocks it, Wireless Debugging is the remaining operator step.' max
       exit 20
     fi
 
     if worker_alive; then
-      log 'HEALTHY worker already alive'
-      post_diagnostic_button 'HEALTHY — Phone Hands is online.'
+      log "HEALTHY worker already alive network=$network_state"
+      post_diagnostic_button "HEALTHY — Phone Hands is online. Network $network_state."
       state_notice 'healthy' 'Phone Hands online' 'Control lane healthy.' low
       exit 0
     fi
 
     worker="$(find_worker || true)"
     if [ -z "$worker" ]; then
-      log 'DEGRADED worker executable not found'
+      log "DEGRADED worker executable not found network=$network_state"
       post_diagnostic_button 'DEGRADED — worker missing. Tap Diagnose & repair.'
       state_notice 'worker-missing' 'Phone Hands degraded' 'Worker executable not found.' high
       exit 30
     fi
 
     if start_worker "$worker"; then
-      log "RECOVERED worker=$worker pid=$(cat "$PIDFILE")"
-      post_diagnostic_button 'RECOVERED — Phone Hands restarted itself.'
+      log "RECOVERED worker=$worker pid=$(cat "$PIDFILE") network=$network_state"
+      post_diagnostic_button "RECOVERED — Phone Hands restarted itself. Network $network_state."
       state_notice 'recovered' 'Phone Hands recovered' 'Worker restarted automatically. No terminal paste required.' default
       exit 0
     fi
 
-    log "DEGRADED failed to start worker=$worker"
+    log "DEGRADED failed to start worker=$worker network=$network_state"
     post_diagnostic_button 'DEGRADED — restart failed. Tap Diagnose & repair.'
     state_notice 'start-failed' 'Phone Hands restart failed' 'Recovery failed; logs preserved for inspection.' high
     exit 40
