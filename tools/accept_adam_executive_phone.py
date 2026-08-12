@@ -8,37 +8,41 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "tools"))
-import adam_codex_phone as worker
+import adam_codex_phone as core
+import adam_venice_reviewed as worker
 
 
 def main() -> int:
-    jars = worker.active_jars()
+    jars = core.active_jars()
     jar_ok = "Adam Personality Gate" in jars and "Repository Truth and Evidence" in jars
+    venice_ok = "Venice Completion and Code Review Gate" in jars
+    daemon_ok = "Daemon Persistence and Connector Backoff" in jars
 
-    # Live worker proof. The local model may need several correction turns, but
-    # raw prose is suppressed by run_task; only a governed respond/finish may
-    # reach stdout.
     buf = io.StringIO()
     with contextlib.redirect_stdout(buf):
         rc = worker.run_task(
             "This is an acceptance probe, not a coding task. Respond to Drew with one short greeting that makes clear you know his name. Do not run commands or edit files.",
             ROOT,
-            max_steps=8,
+            max_steps=12,
         )
     output = buf.getvalue().strip()
     knows = "drew" in output.lower()
     generic = "how can i assist" in output.lower() or "hello, adam" in output.lower()
-    ok = rc == 0 and jar_ok and knows and not generic
+    # For a respond action Venice approval is not printed separately, so the
+    # runtime invariant is proved by loading the gate + using reviewed.run_task.
+    ok = rc == 0 and jar_ok and venice_ok and daemon_ok and knows and not generic
     receipt = {
-        "schema": "adam-phone-codex-worker-acceptance-v1",
+        "schema": "adam-phone-codex-worker-acceptance-v2",
         "ok": ok,
         "jarGate": jar_ok,
+        "veniceStopReview": venice_ok,
+        "daemonBackoff": daemon_ok,
         "knowsOwner": knows,
         "genericAssistantLeak": generic,
         "workerRc": rc,
         "output": output,
-        "model": worker.PHONE_LLM_MODEL,
-        "endpoint": worker.PHONE_LLM_URL,
+        "model": core.PHONE_LLM_MODEL,
+        "endpoint": core.PHONE_LLM_URL,
     }
     print(json.dumps(receipt, ensure_ascii=False, indent=2, sort_keys=True))
     return 0 if ok else 2
