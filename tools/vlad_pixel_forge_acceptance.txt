@@ -1,0 +1,13 @@
+VLAD PIXEL FORGE PHONE ACCEPTANCE
+
+PASS requires all of the following on the primary phone:
+1. Adam overlay visible and provider-readable after Vlad self-heal or explicit fortress-resume.
+2. Local Fortress contract runner passes without GitHub Actions/CI.
+3. Pixel Forge capability probe receipt exists with memory/storage/thermal observations.
+4. MNN pixel model bundle is staged within bounded phone storage with hashes.
+5. One real prompt produces an image through the phone-native MNN path.
+6. The generated intermediate is reduced to a tiny indexed canonical artifact and deleted unless debug retention is explicitly requested.
+7. The artifact receipt records seed, dimensions, palette size, canonical byte count, model hashes, wall time, and intermediate deletion.
+8. Venice reviews the actual change against these criteria and externalReviewGateSatisfied is true.
+
+Repository state, PR state, and CI state are not delivery evidence.
