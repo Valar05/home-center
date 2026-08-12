@@ -2,10 +2,10 @@
 """Adam body router for Home Center.
 
 This file intentionally contains no conversational personality runtime.
-Bare `adam` is installed to tools/adam_venice_reviewed.py. The Android overlay
+Bare `adam` is installed to tools/adam_planned_venice.py. The Android overlay
 keeps TERM/CHAT/CONT/VLAD transport names; CHAT/CONT/VLAD become bounded
-commissions for the same Jar-governed Codex worker, with Venice reviewing every
-terminal response. Only terminal is an exact no-interpretation shell body lane.
+commissions for the same planned, Jar-governed Codex worker. Only terminal is
+an exact no-interpretation shell body lane.
 """
 from __future__ import annotations
 
@@ -16,7 +16,7 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-WORKER = ROOT / "tools" / "adam_venice_reviewed.py"
+WORKER = ROOT / "tools" / "adam_planned_venice.py"
 ONE_SHOT_MODES = ("terminal", "chat", "continue", "vlad")
 MAX_RECEIPT_TEXT = 6000
 
@@ -27,7 +27,7 @@ def tail(value: str, limit: int = MAX_RECEIPT_TEXT) -> str:
 
 
 def receipt(mode: str, ok: bool, **data) -> int:
-    print(json.dumps({"schema": "adam-body-router-v2", "mode": mode, "ok": bool(ok), **data}, ensure_ascii=False, sort_keys=True))
+    print(json.dumps({"schema": "adam-body-router-v3", "mode": mode, "ok": bool(ok), **data}, ensure_ascii=False, sort_keys=True))
     return 0 if ok else 1
 
 
@@ -40,11 +40,11 @@ def run_terminal(text: str, cwd: str, timeout: int) -> int:
 
 def worker_commission(mode: str, text: str) -> str:
     if mode == "chat":
-        return f"Conversational request from Drew. Respond usefully through the active Judgement Jars. Do not execute unless Drew's text clearly requests action. Drew said: {text}"
+        return f"Conversational request from Drew. Research any material unknowns, make a bounded plan, select relevant Judgment Jars, antagonize the plan, obtain Venice PLAN_ALLOWED, then respond usefully. Do not execute unless Drew's text clearly requests action. Drew said: {text}"
     if mode == "continue":
-        return f"Coding/work commission from Drew. Work Codex-style: inspect repository truth, make the smallest coherent changes, validate them, and report exact evidence. Commission: {text}"
+        return f"Coding/work commission from Drew. Research repository truth, plan, select relevant Judgment Jars, antagonize, obtain Venice PLAN_ALLOWED, then work Codex-style, validate, and return exact evidence after Venice completion/code review. Commission: {text}"
     if mode == "vlad":
-        return f"Drew explicitly requests an independent critical second opinion in Vlad's role. Apply the active Judgement Jars, challenge weak assumptions, and return a concise governed response. Question: {text}"
+        return f"Drew explicitly requests an independent critical second opinion in Vlad's role. Research material unknowns, plan the bounded analysis, select relevant Judgment Jars, antagonize assumptions, obtain Venice PLAN_ALLOWED, then return a concise governed response. Question: {text}"
     raise ValueError(mode)
 
 
@@ -54,10 +54,8 @@ def run_worker(mode: str, text: str, cwd: str, timeout: int) -> int:
     if not text.strip():
         return receipt(mode, False, error="empty_request")
     commission = worker_commission(mode, text)
-    # Do not impose a short router timeout on a daemon-governed worker. The
-    # worker itself backs off transient dependencies and Venice owns stopping.
     p = subprocess.run([sys.executable, str(WORKER), commission], cwd=cwd, text=True, capture_output=True)
-    return receipt(mode, p.returncode == 0, worker="codex-phone-venice-reviewed", jarGoverned=True, veniceReviewed=True, daemonBackoff=True, rc=p.returncode, stdout=tail(p.stdout), stderr=tail(p.stderr))
+    return receipt(mode, p.returncode == 0, worker="codex-phone-planned-venice-reviewed", jarGoverned=True, preExecutionPlanReview=True, veniceReviewed=True, daemonBackoff=True, rc=p.returncode, stdout=tail(p.stdout), stderr=tail(p.stderr))
 
 
 def run_mode(mode: str, text: str, cwd: str, timeout: int) -> int:
