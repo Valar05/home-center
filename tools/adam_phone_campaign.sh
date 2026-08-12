@@ -22,11 +22,24 @@ PY
   bash "$ROOT/tools/home_center_status_menu.sh" >/dev/null 2>&1 || true
 }
 
+install_service(){
+  local bindir="${PREFIX:-$HOME/.local}/bin" target
+  target="$bindir/adam-campaign"
+  mkdir -p "$bindir"
+  cat >"$target" <<EOF
+#!/data/data/com.termux/files/usr/bin/bash
+exec bash "$ROOT/tools/adam_phone_campaign.sh" "\$@"
+EOF
+  chmod 755 "$target"
+  bash "$ROOT/tools/home_center_status_menu.sh" >/dev/null 2>&1 || true
+}
+
 status(){
   [ -f "$STATE" ] && cat "$STATE" || printf '{"schema":"adam-phone-campaign-v1","stage":"never-run","status":"idle"}\n'
 }
 receipts(){
   status
+  [ -f "$LATEST" ] && { echo "===== $LATEST ====="; cat "$LATEST"; }
   for f in \
     "$HOME/.local/state/home-center/adam-cli-install-receipt.json" \
     "$HOME/.local/state/home-center/adam-phone-worker-acceptance.json" \
@@ -66,18 +79,32 @@ repair_with_adam(){
     >>"$LOG" 2>&1
 }
 
+persist_repairs(){
+  [ -n "$(git -C "$ROOT" status --porcelain)" ] || return 0
+  json_state persist-repair running "persisting campaign self-heal to canonical main"
+  git -C "$ROOT" add -A >>"$LOG" 2>&1 || return 1
+  if ! git -C "$ROOT" diff --cached --quiet; then
+    git -C "$ROOT" commit -m "Self-heal Adam phone campaign" >>"$LOG" 2>&1 || return 1
+  fi
+  git -C "$ROOT" fetch origin main >>"$LOG" 2>&1 || return 1
+  git -C "$ROOT" rebase origin/main >>"$LOG" 2>&1 || return 1
+  git -C "$ROOT" push origin HEAD:main >>"$LOG" 2>&1 || return 1
+  return 0
+}
+
 run_campaign(){
-  mkdir "$LOCK" 2>/dev/null || { json_state already-running healthy "campaign already active"; return 0; }
+  install_service
+  mkdir "$LOCK" 2>/dev/null || { json_state already-running healthy "campaign already active; stable command/menu remain callable"; return 0; }
   trap 'rmdir "$LOCK" 2>/dev/null || true' EXIT INT TERM
   cd "$ROOT" || return 2
   PRESERVED_STASH=""
-  json_state bootstrap running "starting/resuming Adam phone campaign"
+  json_state bootstrap running "starting/resuming Adam phone campaign; continuing service already installed"
   preserve_local || { json_state preserve-failed blocked "could not preserve local phone work"; return 3; }
 
   json_state sync running "syncing canonical main"
-  git fetch origin main >>"$LOG" 2>&1 || { restore_local || true; json_state sync-failed degraded "git fetch failed; future run will retry"; return 4; }
+  git fetch origin main >>"$LOG" 2>&1 || { restore_local || true; json_state sync-failed degraded "git fetch failed; adam-campaign resume will retry"; return 4; }
   git checkout main >>"$LOG" 2>&1 || { restore_local || true; json_state sync-failed blocked "cannot checkout main"; return 5; }
-  git pull --ff-only origin main >>"$LOG" 2>&1 || { restore_local || true; json_state sync-failed degraded "fast-forward pull failed; preserved state retained"; return 6; }
+  git pull --ff-only origin main >>"$LOG" 2>&1 || { restore_local || true; json_state sync-failed degraded "fast-forward pull failed; preserved state retained for resume"; return 6; }
 
   local round=0
   while true; do
@@ -101,15 +128,12 @@ run_campaign(){
 
   json_state verify running "verifying plan and completion receipts"
   python3 - "$LATEST" <<'PY'
-import json,os,sys,time,hashlib
+import json,os,sys,time
 home=os.path.expanduser('~/.local/state/home-center')
-paths={
- 'install':home+'/adam-cli-install-receipt.json',
- 'plan':home+'/adam-daemon/venice-plan-review-last.json',
- 'stop':home+'/adam-daemon/venice-review-last.json'}
+paths={'install':home+'/adam-cli-install-receipt.json','plan':home+'/adam-daemon/venice-plan-review-last.json','stop':home+'/adam-daemon/venice-review-last.json'}
 data={k:json.load(open(v,encoding='utf-8')) for k,v in paths.items()}
 ok=(data['install'].get('ok') is True and data['plan'].get('directive')=='PLAN_ALLOWED' and data['plan'].get('planPermissionGranted') is True and data['stop'].get('directive')=='STOP_ALLOWED' and data['stop'].get('externalReviewGateSatisfied') is True)
-obj={'schema':'adam-phone-campaign-receipt-v1','ok':ok,'paths':paths,'verifiedAtEpoch':int(time.time()),'continuingValue':{'stableCommand':'adam-campaign','state':home+'/adam-campaign/state.json','history':home+'/adam-campaign/history.jsonl','notificationMenu':True,'overlayRecovery':True,'phoneHandsRecovery':True}}
+obj={'schema':'adam-phone-campaign-receipt-v1','ok':ok,'paths':paths,'verifiedAtEpoch':int(time.time()),'continuingValue':{'stableCommand':'adam-campaign','commands':['run','resume','status','receipts','menu','overlay','phone-hands'],'state':home+'/adam-campaign/state.json','history':home+'/adam-campaign/history.jsonl','notificationMenu':True,'overlayRecovery':True,'phoneHandsRecovery':True,'selfHeal':True,'daemonBackoff':True}}
 open(sys.argv[1],'w',encoding='utf-8').write(json.dumps(obj,indent=2,sort_keys=True)+'\n')
 print(json.dumps(obj,indent=2,sort_keys=True))
 raise SystemExit(0 if ok else 2)
@@ -117,18 +141,10 @@ PY
   local verify_rc=$?
   if [ "$verify_rc" -ne 0 ]; then json_state verify-failed repairing "receipts did not prove PLAN_ALLOWED + STOP_ALLOWED"; restore_local || true; return "$verify_rc"; fi
 
-  json_state service running "installing continuing campaign command and notification menu"
-  local bindir="${PREFIX:-$HOME/.local}/bin"
-  mkdir -p "$bindir"
-  cat >"$bindir/adam-campaign" <<EOF
-#!/data/data/com.termux/files/usr/bin/bash
-exec bash "$ROOT/tools/adam_phone_campaign.sh" "\$@"
-EOF
-  chmod 755 "$bindir/adam-campaign"
-  bash "$ROOT/tools/home_center_status_menu.sh" >/dev/null 2>&1 || true
-
+  persist_repairs || { json_state persist-failed degraded "self-heal passed locally but canonical push failed; adam-campaign resume will retry persistence"; restore_local || true; return 21; }
   restore_local || return 20
-  json_state healthy healthy "Adam campaign accepted; continuing service/menu installed"
+  install_service
+  json_state healthy healthy "Adam campaign accepted; persistent self-heal/status/menu remain installed"
   cat "$LATEST"
 }
 
@@ -136,8 +152,9 @@ case "${1:-run}" in
   run|resume) run_campaign ;;
   status) status ;;
   receipts) receipts ;;
-  menu) bash "$ROOT/tools/home_center_status_menu.sh" ;;
+  menu) install_service; bash "$ROOT/tools/home_center_status_menu.sh" ;;
   overlay) bash "$ROOT/tools/recover_adam_overlay_phone.sh" ;;
   phone-hands) bash "$ROOT/tools/phone_hands_watchdog.sh" diagnose ;;
-  *) echo 'usage: adam-campaign [run|resume|status|receipts|menu|overlay|phone-hands]' >&2; exit 64 ;;
+  install-service) install_service; json_state service-installed healthy "stable command and notification menu installed" ;;
+  *) echo 'usage: adam-campaign [run|resume|status|receipts|menu|overlay|phone-hands|install-service]' >&2; exit 64 ;;
 esac
