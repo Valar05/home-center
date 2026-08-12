@@ -44,6 +44,16 @@ test('boot capsule contains actual discovered skill bodies, not metadata only',(
   assert.ok(c.loadedSkills.some(x=>x.id==='phone-hands' && x.source==='core'));
 });
 
+test('default capsule includes every repository SKILL.md body',()=>{
+  const repoSkillFiles=walkSkillFiles(REPO_ROOT);
+  const c=buildBootCapsule();
+  assert.equal(c.discoveredSkillCount,repoSkillFiles.length);
+  for(const file of repoSkillFiles){
+    const expected=fs.readFileSync(file,'utf8');
+    assert.ok(c.loadedSkills.some(x=>x.file===file && x.content===expected),`missing skill body ${file}`);
+  }
+});
+
 test('missing configured roots do not drop repo scan or mandatory core contracts',()=>{
   const c=buildBootCapsule({skillRoots:['/definitely/not/a/real/skill/root']});
   assert.ok(c.skillRoots.includes(REPO_ROOT));
