@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { REPO_ROOT, REQUIRED_SKILL_DOCUMENTS, CORE_SKILLS, defaultSkillRoots, walkSkillFiles, loadDiscoveredSkills, buildBootCapsule } from './fortress_online_v2_boot.mjs';
+import { REPO_ROOT, CONFIG_PATH, REQUIRED_SKILL_DOCUMENTS, CORE_SKILLS, defaultSkillRoots, loadRuntimeConfig, walkSkillFiles, loadDiscoveredSkills, buildBootCapsule } from './fortress_online_v2_boot.mjs';
 
 test('Phone Hands is mandatory core boot skill with full operation triplet',()=>{
   const p=CORE_SKILLS.find(x=>x.id==='phone-hands');
@@ -21,6 +21,28 @@ test('canonical skill books are boot-required',()=>{
     assert.equal(skill.required,true);
     assert.ok(skill.content.length>100,`${id} is suspiciously empty`);
   }
+});
+
+test('runtime configuration telemetry is mandatory and enforces single handoff',()=>{
+  const cfg=loadRuntimeConfig();
+  assert.equal(cfg.path,CONFIG_PATH);
+  assert.equal(cfg.value.operatorHandoff.maxExecutableHandoffsPerTurn,1);
+  assert.equal(cfg.value.operatorHandoff.requireReceiptBeforeNextHandoff,true);
+  assert.equal(cfg.value.operatorHandoff.forbidDownstreamCommandsBeforeReceipt,true);
+  assert.ok(cfg.value.telemetry.incidents.some(x=>x.kind==='handoff_fanout'));
+  const c=buildBootCapsule();
+  assert.equal(c.kind,'fortress.online.v2.boot-capsule.v4');
+  assert.equal(c.configurationTelemetry.sha256, cfg.sha256);
+  assert.equal(c.configurationTelemetry.operatorHandoff.maxExecutableHandoffsPerTurn,1);
+  assert.ok(c.loadedSkills.some(x=>x.id==='runtime-config' && x.required===true));
+  assert.match(c.bootPrompt,/handoff_fanout/);
+});
+
+test('invalid handoff configuration fails boot instead of silently degrading',()=>{
+  const root=fs.mkdtempSync(path.join(os.tmpdir(),'fortress-config-'));
+  const p=path.join(root,'config.json');
+  fs.writeFileSync(p,JSON.stringify({schema:'fortress.online.v2.config.v1',operatorHandoff:{maxExecutableHandoffsPerTurn:2,requireReceiptBeforeNextHandoff:true,forbidDownstreamCommandsBeforeReceipt:true}}));
+  assert.throws(()=>loadRuntimeConfig(p),/FORTRESS_BOOT_INVALID_HANDOFF_POLICY/);
 });
 
 test('default boot roots always include repository root',()=>{
