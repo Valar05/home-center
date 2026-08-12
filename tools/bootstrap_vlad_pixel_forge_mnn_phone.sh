@@ -10,11 +10,14 @@ python3 "$ROOT/tools/vlad_pixel_forge_probe.py" > "$STATE/probe.stdout.json"
 record(){ local ok="$1" state="$2" detail="$3" demo="${4:-}"; python3 - "$RECEIPT" "$ok" "$state" "$detail" "$MNN_ROOT" "$demo" "$MNN_REF" <<'PY'
 import json,sys,time
 path,ok,state,detail,mnn,demo,ref=sys.argv[1:]
-obj={'schema':'vlad.pixel-forge.mnn-bootstrap.v3','ok':ok=='1','state':state,'detail':detail,'mnnRoot':mnn,'mnnRef':ref,'diffusionDemo':demo or None,'device':'primary-phone','ciUsed':False,'godotPolicy':'forge-only-not-delivery-runtime','recordedAtEpoch':int(time.time())}
+obj={'schema':'vlad.pixel-forge.mnn-bootstrap.v4','ok':ok=='1','state':state,'detail':detail,'mnnRoot':mnn,'mnnRef':ref,'diffusionDemo':demo or None,'device':'primary-phone','ciUsed':False,'godotPolicy':'forge-only-not-delivery-runtime','recordedAtEpoch':int(time.time())}
 open(path,'w',encoding='utf-8').write(json.dumps(obj,indent=2,sort_keys=True)+'\n'); print(json.dumps(obj,indent=2,sort_keys=True))
 PY
 }
 for tool in git cmake ninja clang python3; do command -v "$tool" >/dev/null 2>&1 || { record 0 BLOCKED "missing phone tool: $tool"; exit 10; }; done
+python3 - <<'PY' >/dev/null 2>&1 || { record 0 BLOCKED 'Python Pillow is required for canonical VPX packing; install it on the phone before Pixel Forge.'; exit 16; }
+from PIL import Image
+PY
 FREE_KB="$(df -Pk "$HOME" | awk 'NR==2 {print $4}')"; MIN_FREE_KB="${HC_PIXEL_FORGE_MIN_FREE_KB:-8388608}"
 [ "$FREE_KB" -ge "$MIN_FREE_KB" ] || { record 0 BLOCKED "insufficient free storage: ${FREE_KB}KiB; require ${MIN_FREE_KB}KiB"; exit 11; }
 NDK="${ANDROID_NDK:-${ANDROID_NDK_HOME:-}}"
@@ -23,6 +26,9 @@ if [ -z "$NDK" ]; then for p in "$HOME/android-sdk/ndk"/* "$PREFIX/share/android
 export ANDROID_NDK="$NDK"
 if [ ! -d "$MNN_ROOT/.git" ]; then
   git clone --filter=blob:none --no-checkout https://github.com/alibaba/MNN.git "$MNN_ROOT"
+else
+  DIRTY="$(git -C "$MNN_ROOT" status --porcelain)"
+  [ -z "$DIRTY" ] || { record 0 BLOCKED 'Existing MNN checkout is dirty; refusing to overwrite unrelated local work.'; exit 17; }
 fi
 git -C "$MNN_ROOT" fetch --depth 1 origin "refs/tags/$MNN_REF:refs/tags/$MNN_REF"
 git -C "$MNN_ROOT" checkout --detach "$MNN_REF"
