@@ -11,11 +11,16 @@
     "referencePolicy": "Only replace with a local reference or exported voice state that the owner is authorized to use."
   },
   "delivery": {
-    "tempo": 0.96,
-    "volume": 0.92,
+    "tempo": 0.90,
+    "volume": 0.96,
+    "pitchSemitones": -4.0,
     "chunkChars": 700,
     "prefetchChunks": 0,
-    "style": "calm, concise, grounded; phone command voice distinct from desktop Venice"
+    "style": "unmistakably adult male; low register; chesty and grounded; dry command voice; restrained warmth; never breathy, bright, youthful, or falsetto; clearly distinct from desktop Venice"
+  },
+  "acceptance": {
+    "mustReadAs": "adult male",
+    "rejectIf": ["female-coded", "falsetto", "breathy", "high-register", "Venice-like"]
   },
   "boundaries": {
     "desktopVeniceVoice": false,
