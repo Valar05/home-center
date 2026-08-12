@@ -9,6 +9,7 @@ PROMPT="${HC_PIXEL_FORGE_SMOKE_PROMPT:-tiny one-screen fleshpunk farm creature, 
 REQUEST="$PIXEL_STATE/smoke-request.json"
 OVERLAY_RECEIPT="$HOME/.local/state/home-center/adam-overlay-recovery.json"
 MNN_RECEIPT="$PIXEL_STATE/mnn-bootstrap.json"
+MODEL_RECEIPT="$PIXEL_STATE/model-stage.json"
 mkdir -p "$STATE" "$PIXEL_STATE" "$(dirname "$OUT")"
 cd "$ROOT"
 
@@ -17,13 +18,14 @@ cd "$ROOT"
 bash tools/recover_adam_overlay_phone.sh
 python3 tools/vlad_pixel_forge_probe.py | tee "$STATE/$STAMP.pixel-probe.json"
 bash tools/bootstrap_vlad_pixel_forge_mnn_phone.sh
-python3 tools/stage_vlad_pixel_model_phone.py | tee "$STATE/$STAMP.model-stage.json"
+python3 tools/stage_vlad_pixel_model_phone.py | tee "$STATE/$STAMP.model-stage.stdout.json"
 python3 tools/vlad_pixel_request.py "$PROMPT" --seed 42 --width 512 --height 512 --steps 4 --cfg 1.0 --out "$REQUEST"
 python3 tools/vlad_pixel_generate_mnn_phone.py "$REQUEST" --canonical-size 32 --colors 16 | tee "$STATE/$STAMP.pixel-generate.json"
 python3 tools/fortress_collect_phone_evidence.py \
   --overlay "$OVERLAY_RECEIPT" \
   --probe "$STATE/$STAMP.pixel-probe.json" \
   --mnn "$MNN_RECEIPT" \
+  --model "$MODEL_RECEIPT" \
   --generation "$STATE/$STAMP.pixel-generate.json" \
   --out "$OUT"
 printf 'FORTRESS PHONE EVIDENCE REFRESHED %s\n' "$OUT"
