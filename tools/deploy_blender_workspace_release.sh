@@ -7,6 +7,7 @@ OLD_QUEUE="foundryAssetWorker"
 HEAD_SHA="$(git -C "$ROOT" rev-parse HEAD)"
 PUBLIC_MANIFEST_SHA256="$(node -e "const m=require(process.argv[1]);process.stdout.write(m.manifestSha256)" "$ROOT/contracts/home-center-public-tool-manifest.v1.json")"
 sh "$ROOT/tools/assert_home_center_mcp_main_release.sh" "$ROOT"
+node "$ROOT/tools/install_time_now_runtime_patch.mjs"
 node "$ROOT/tools/deploy_firestore_config_gcloud.mjs" "$PROJECT"
 sh "$ROOT/tools/setup_generated_artifact_bucket.sh" "$PROJECT"
 if gcloud tasks queues describe "$OLD_QUEUE" --project="$PROJECT" --location="$REGION" >/dev/null 2>&1; then gcloud tasks queues pause "$OLD_QUEUE" --project="$PROJECT" --location="$REGION" >/dev/null || true; fi
@@ -30,6 +31,7 @@ VENICE_NERVE_HEALTH_URL="https://${REGION}-${PROJECT}.cloudfunctions.net/veniceN
 VENICE_NERVE_HEALTH_JSON="$(curl --fail --silent --show-error "$VENICE_NERVE_HEALTH_URL")"
 VENICE_NERVE_HEALTH_JSON="$VENICE_NERVE_HEALTH_JSON" node -e 'const p=JSON.parse(process.env.VENICE_NERVE_HEALTH_JSON);if(!p.ok||p.service!=="venice-nerve"||p.apiVersion!=="home-center.venice-nerve-api.v1"||p.contractVersion!=="venice-nerve-silk.transport.v1"||p.fileLayer!=="drive_sync"||!Array.isArray(p.capabilities)||!p.capabilities.includes("venice.turn"))throw new Error("venice nerve deployment health mismatch");console.log(JSON.stringify(p))'
 HOME_CENTER_MCP_URL="https://${REGION}-${PROJECT}.cloudfunctions.net/homeCenterMcp/mcp" HOME_CENTER_EXPECTED_SOURCE_COMMIT="$HEAD_SHA" node "$ROOT/tools/home_center_production_catalog_test.mjs"
+HOME_CENTER_MCP_URL="https://${REGION}-${PROJECT}.cloudfunctions.net/homeCenterMcp/mcp" node "$ROOT/tools/time_now_live_test.mjs"
 if gcloud functions describe foundryAssetWorker --gen2 --project="$PROJECT" --region="$REGION" >/dev/null 2>&1; then gcloud functions delete foundryAssetWorker --gen2 --project="$PROJECT" --region="$REGION" --quiet; fi
 if gcloud tasks queues describe "$OLD_QUEUE" --project="$PROJECT" --location="$REGION" >/dev/null 2>&1; then gcloud tasks queues delete "$OLD_QUEUE" --project="$PROJECT" --location="$REGION" --quiet; fi
 node "$ROOT/tools/publish_foundry_retirement_record.mjs" "$PROJECT" "$REGION" "$HEAD_SHA" "$BLENDER_WORKSPACE_TASK_URL"
