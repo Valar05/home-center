@@ -6,16 +6,18 @@ RUN="$STATE/run"
 mkdir -p "$RUN"
 case "${1:-start}" in
   start)
-    printf '1\n' > "$STATE/enabled"
+    # First install defaults on. A persisted user `hands off` survives process/service restarts.
+    if [ ! -f "$STATE/enabled" ]; then printf '1\n' > "$STATE/enabled"; fi
     if [ -f "$RUN/pid" ] && kill -0 "$(cat "$RUN/pid")" 2>/dev/null; then
       echo "hands-router already running pid=$(cat "$RUN/pid")"
       exit 0
     fi
     nohup sh -c 'ROOT="$1"; while :; do python3 "$ROOT/tools/hands_router.py" drain --limit 8 >/dev/null 2>&1 || true; sleep "${HC_HANDS_POLL_SECONDS:-1}"; done' sh "$ROOT" >"$RUN/router.log" 2>&1 &
     echo $! > "$RUN/pid"
-    echo "hands-router started pid=$!"
+    echo "hands-router started pid=$! enabled=$(cat "$STATE/enabled" 2>/dev/null || echo 1)"
     ;;
   stop)
+    # Stop is also a kill switch and persists disabled state.
     printf '0\n' > "$STATE/enabled"
     if [ -f "$RUN/pid" ] && kill -0 "$(cat "$RUN/pid")" 2>/dev/null; then kill "$(cat "$RUN/pid")" || true; fi
     rm -f "$RUN/pid"
