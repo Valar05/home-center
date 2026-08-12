@@ -23,14 +23,11 @@ def now(): return int(time.time())
 def run(cmd, timeout=20, cwd=None):
     p=subprocess.run(cmd,text=True,capture_output=True,timeout=timeout,cwd=cwd)
     return {"cmd":cmd,"rc":p.returncode,"stdout":p.stdout.strip()[-4000:],"stderr":p.stderr.strip()[-4000:]}
-
 def rish(command): return run([RISH,"-c",command])
-
 def append_receipt(event):
     STATE_DIR.mkdir(parents=True,exist_ok=True);event={"at":now(),**event}
     with (STATE_DIR/"receipts.jsonl").open("a",encoding="utf-8") as f:f.write(json.dumps(event,sort_keys=True)+"\n")
     (STATE_DIR/"last.json").write_text(json.dumps(event,indent=2,sort_keys=True)+"\n",encoding="utf-8")
-
 def phone_health():
     probe=rish("id");ok=probe["rc"]==0;append_receipt({"kind":"phone.shizuku.probe","ok":ok,"result":probe})
     if not ok:return False
@@ -41,7 +38,6 @@ def phone_health():
     elif not connected:
         scan=rish("cmd wifi start-scan");append_receipt({"kind":"phone.wlan.scan","ok":scan["rc"]==0,"result":scan})
     return True
-
 def _overlay_recovery_stamp(): return STATE_DIR/"overlay-last-recovery-epoch"
 def _last_overlay_recovery():
     try:return int(_overlay_recovery_stamp().read_text(encoding="utf-8").strip())
@@ -55,7 +51,6 @@ def ensure_operator_overlay(repo_root):
     _set_overlay_recovery(current);script=Path(repo_root)/"tools"/"recover_adam_overlay_phone.sh"
     if not script.is_file():append_receipt({"kind":"operator.overlay.recovery","ok":False,"state":"script_missing","script":str(script)});return False
     result=run(["bash",str(script)],timeout=600,cwd=repo_root);verify=rish(f"content query --uri {shlex.quote(OPERATOR_STATE_URI)}");recovered=result["rc"]==0 and verify["rc"]==0 and "control_enabled=" in verify["stdout"];append_receipt({"kind":"operator.overlay.recovery","ok":recovered,"state":"recovered" if recovered else "failed","result":result,"verify":verify});return recovered
-
 def _operator_field(raw,name,default=""):
     m=re.search(rf"\b{re.escape(name)}=([^,\n]*)",raw);return m.group(1).strip() if m else default
 def operator_heartbeat():
@@ -73,24 +68,27 @@ def process_adam_overlay(repo_root):
     try:request_id=int(_operator_field(raw,"adam_request_id","0") or "0")
     except ValueError:return
     if request_id<=0 or request_id<=_last_adam_request_id():return
-    mode=_operator_field(raw,"adam_request_mode","terminal");payload=_operator_field(raw,"adam_request_payload_b64","");_set_last_adam_request_id(request_id)
+    mode=_operator_field(raw,"adam_request_mode","terminal");payload=_operator_field(raw,"adam_request_payload_b64","")
     try:text=base64.b64decode(payload,validate=True).decode("utf-8")
     except Exception as exc:
-        event={"kind":"adam.request","ok":False,"requestId":request_id,"mode":mode,"error":f"invalid_payload: {exc}"};append_receipt(event);operator_update(event["error"],f"Adam/{mode}");return
-    result=run(["python3",str(Path(repo_root)/"tools"/"adam.py"),mode,text,"--cwd",repo_root],timeout=240,cwd=repo_root);display=result["stdout"] or result["stderr"] or f"Adam {mode} exited {result['rc']}"
+        event={"kind":"adam.request","ok":False,"requestId":request_id,"mode":mode,"error":f"invalid_payload: {exc}"};append_receipt(event);operator_update(event["error"],f"Adam/{mode}");_set_last_adam_request_id(request_id);return
+    # Adam is daemon-governed. Do not impose a short caller timeout: the worker
+    # itself backs off transient dependencies, checkpoints long work, and may
+    # stop only through canonical Venice review. If this process dies mid-run,
+    # the request remains unacknowledged and will be retried after restart.
+    result=run(["python3",str(Path(repo_root)/"tools"/"adam.py"),mode,text,"--cwd",repo_root],timeout=None,cwd=repo_root);display=result["stdout"] or result["stderr"] or f"Adam {mode} exited {result['rc']}"
     try:
         parsed=json.loads(result["stdout"]);display=parsed.get("response") or parsed.get("stdout") or parsed.get("detail") or parsed.get("error") or display
         if parsed.get("stderr"):display=(str(display)+"\n"+str(parsed["stderr"])).strip()
     except Exception:pass
-    update=operator_update(display,f"Adam/{mode}");append_receipt({"kind":"adam.request","ok":result["rc"]==0 and update["rc"]==0,"requestId":request_id,"mode":mode,"result":result,"overlayUpdate":update})
+    update=operator_update(display,f"Adam/{mode}");append_receipt({"kind":"adam.request","ok":result["rc"]==0 and update["rc"]==0,"requestId":request_id,"mode":mode,"result":result,"overlayUpdate":update,"daemonWait":True})
+    _set_last_adam_request_id(request_id)
 
 def _review_bucket(name):
     p=STATE_DIR/name;p.mkdir(parents=True,exist_ok=True);return p
-
 def _load_review_receipt(path):
     try:return json.loads(path.read_text(encoding="utf-8"))
     except Exception as exc:return {"directive":"HALT_REQUIRED","verdict":"FAIL","findings":[f"invalid_review_receipt:{exc}"],"externalReviewGateSatisfied":False}
-
 def process_review_inbox(repo_root):
     inbox=_review_bucket("review-inbox");done=_review_bucket("review-done");cont=_review_bucket("review-continue");halt=_review_bucket("review-halt")
     for job in sorted(inbox.glob("*.json")):
@@ -110,7 +108,6 @@ def process_review_inbox(repo_root):
         if target.exists():target.unlink()
         job.rename(target)
         append_receipt({"kind":"venice.review.directive","job":job.name,"ok":ok,"directive":directive,"state":state,"receipt":str(receipt_path),"decision":str(bucket/(job.stem+".decision.json")),"selfHeal":True,"result":result})
-
 def heartbeat(repo_root):
     shizuku_ok=phone_health();overlay_ok=ensure_operator_overlay(repo_root) if shizuku_ok else False
     if overlay_ok:operator_heartbeat()
