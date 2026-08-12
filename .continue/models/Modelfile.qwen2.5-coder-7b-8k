@@ -1,0 +1,5 @@
+# Home Center offline Continue runtime model.
+# Reuses the already-installed base weights; ollama create does not need a
+# network download when qwen2.5-coder:7b is present locally.
+FROM qwen2.5-coder:7b
+PARAMETER num_ctx 8192
