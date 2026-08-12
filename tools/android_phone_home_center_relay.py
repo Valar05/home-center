@@ -15,9 +15,9 @@ from android_phone_termux_shell import execute as termux_shell_execute
 from android_phone_diagnostics import execute as diagnostics_execute
 from android_operator_overlay import execute as overlay_execute, heartbeat as overlay_heartbeat, control_gate as overlay_control_gate, screen_activity as overlay_screen_activity
 from venice_reactor import execute as venice_execute
-FACTORY_ACTIONS={'file_stat','file_hash','file_list','file_mkdir','file_copy','file_move','armory_inventory','armory_ingest'}; ARMORY_ACTIONS={'armory_doctor','armory_slice'}; WINDOW_ACTIONS={'window_status','window_probe','window_compose','window_focus','window_swap'}; STATUS_TTS_ACTIONS={'status_tts_doctor','status_say'}; TERMUX_SHELL_ACTIONS={'phone_shell'}; DIAGNOSTIC_ACTIONS={'phone_diagnostics'}; OVERLAY_ACTIONS={'operator_overlay_status','operator_overlay_start','operator_overlay_update'}; VENICE_ACTIONS={'venice_ingest','venice_mine','venice_status'}
+FACTORY_ACTIONS={'file_stat','file_hash','file_list','file_mkdir','file_copy','file_move','armory_inventory','armory_ingest'}; ARMORY_ACTIONS={'armory_doctor','armory_slice'}; WINDOW_ACTIONS={'window_status','window_probe','window_compose','window_focus','window_swap'}; STATUS_TTS_ACTIONS={'status_tts_doctor','status_say'}; TERMUX_SHELL_ACTIONS={'phone_shell'}; DIAGNOSTIC_ACTIONS={'phone_diagnostics'}; OVERLAY_ACTIONS={'operator_overlay_status','operator_overlay_start','operator_overlay_update'}; VENICE_ACTIONS={'venice_ingest','venice_observe','venice_mine','venice_status'}
 SCREEN_DIRECT_ACTIONS={'tap','swipe','text','keyevent','home','back','recents','launch','force_stop'}; SCREEN_WINDOW_ACTIONS={'window_compose','window_focus','window_swap'}
-DEVICE_CAPABILITIES=['phone_hands','phone_files','armory_worker','window_composer','status_tts','termux_shell','operator_overlay','local_qwen','coding_dungeon','voice','phone_diagnostics_readonly','venice_reactor']
+DEVICE_CAPABILITIES=['phone_hands','phone_files','armory_worker','window_composer','status_tts','termux_shell','operator_overlay','local_qwen','coding_dungeon','voice','phone_diagnostics_readonly','venice_reactor','venice_audio_features']
 def http(path,body=None,token=''):
  data=None if body is None else json.dumps(body).encode(); req=urllib.request.Request(BASE+path,data=data,method='GET' if body is None else 'POST'); req.add_header('Content-Type','application/json');
  if token:req.add_header('Authorization','Bearer '+token)
@@ -54,7 +54,7 @@ def dispatch(a):
  if k=='observe':return hands_observe(bool(a.get('ui',True)),bool(a.get('screen',False)))
  if k=='local_ask':return local_execute(str(a.get('intent') or a.get('prompt') or 'What is on my screen?'))
  if k=='dungeon_run':return dungeon_run(a)
- if k in VENICE_ACTIONS:return venice_execute({'action':k.replace('venice_',''),'text':a.get('text',''),'source':a.get('source','phone-audio'),'speak':a.get('speak',True),'limit':a.get('limit',200)})
+ if k in VENICE_ACTIONS:return venice_execute({'action':'observe' if k in {'venice_ingest','venice_observe'} else k.replace('venice_',''),'features':a.get('features') or a.get('audio') or {},'source':a.get('source','phone-playback'),'speak':a.get('speak',True),'limit':a.get('limit',200)})
  if k in FACTORY_ACTIONS:return factory_execute(a)
  if k in ARMORY_ACTIONS:return armory_execute(a)
  if k in WINDOW_ACTIONS:return window_execute(a)
