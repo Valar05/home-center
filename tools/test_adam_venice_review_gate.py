@@ -23,11 +23,16 @@ assert verdict == "FAIL" and directive == "HALT_REQUIRED" and findings
 assert reviewed.BACKOFF_SECONDS == (1, 2, 4, 8, 15, 30)
 assert reviewed.CHECKPOINT_STEPS >= 8
 
-# Codex local documents are actually read, not merely named in an observation.
+# The researched Codex local steering is content, not filenames: all three
+# project-local organs must load into the worker context.
 docs, loaded = reviewed.codex_local_documents(ROOT)
-assert "AGENTS.md" in loaded, loaded
+for name in ("AGENTS.md", "MEMORIES.md", "SKILLS.md"):
+    assert name in loaded, (name, loaded)
 assert "Repository Agent Instructions" in docs
-assert "Coding completion review" in docs
+assert "Codex Local Memory" in docs
+assert "Codex Local Skills" in docs
+assert "Agent Handoff And Session Memory" in docs
+assert "Venice Completion / Code Review" in docs
 
 with tempfile.TemporaryDirectory() as td:
     ev = reviewed.git_evidence(Path(td))
