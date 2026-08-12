@@ -1,6 +1,6 @@
 {
   "kind": "fortress.online.v2.config.v1",
-  "version": 3,
+  "version": 4,
   "boot": {
     "capsuleKind": "fortress.online.v2.boot-capsule.v4",
     "requiredSkillDocuments": ["fortress-core", "phone-runtime"],
@@ -48,6 +48,7 @@
       {"kind":"transport_failure","pattern":"quot|parser|shell|powershell|syntax|escaped|encoded command|lfs|smudge"},
       {"kind":"handoff_failure","pattern":"didn.?t give.*script|no executable handoff|command not found|vlad: command not found"},
       {"kind":"available_body_lane_ignored","pattern":"you can do it|do it yourself|desktop hands|computer hands|phone hands|stop telling me to do|shell access|could fall back"},
+      {"kind":"proven_organ_bypass","pattern":"already works|existing .* works|don.?t duplicate|duplicate effort|reuse .* existing|proven .* path|why .* invent"},
       {"kind":"learning_persistence_failure","pattern":"failed to learn|update the ledger|forgot.*learning|learn.*not persist"}
     ],
     "recipes": {
@@ -59,6 +60,7 @@
       "transport_failure": {"rule":"after a transport failure, switch to a safer deterministic transport and retain the failed form as a regression","regression":"known-fragile transport must be rejected or transformed before dispatch","autoAction":"add_transport_guard"},
       "handoff_failure": {"rule":"a genuine operator boundary must emit exactly one directly executable handoff using known runtime context","regression":"Vlad phone deployment boundary restores to one runnable Termux command","autoAction":"add_executable_handoff_guard"},
       "available_body_lane_ignored": {"rule":"before asking Drew to execute anything, enumerate and attempt every configured authorized body lane that can perform it; a missing convenience connector or local shell is not itself an operator boundary","regression":"a desktop PowerShell install with Computer Hands configured must choose computer-hands shell.exec and receipt polling before any operator handoff","autoAction":"add_body_lane_exhaustion_guard"},
+      "proven_organ_bypass": {"rule":"before designing or deploying a new implementation for a capability, retrieve durable evidence for existing implementations and proven runtime paths; if a proven organ already satisfies the required seam, reuse or extend it rather than inventing an adjacent transport, daemon, player, wrapper, or execution lane","regression":"when Venice/Pocket phone playback is already proven through pocket-tts-phone plus Home Center playback and Shizuku/rish, an Adam voice change may alter voice profile or shared adapter behavior but must not introduce ffplay, system TTS fallback, raw Termux am identity, or a second playback stack without explicit evidence that the proven organ cannot satisfy the requirement","autoAction":"add_proven_organ_reuse_guard"},
       "learning_persistence_failure": {"rule":"every correction and promoted lesson must persist to the durable ledger/config before the turn can complete","regression":"learned correction survives process restart and changes next boot policy","autoAction":"persist_learning_overlay"},
       "unknown_failure": {"rule":"unclassified failures become explicit candidate incidents rather than disappearing","regression":"unknown incident remains pending classification and cannot auto-promote policy","autoAction":"queue_for_classification"}
     }
