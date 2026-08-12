@@ -2,9 +2,23 @@
 
 ## Product center
 
-Hands is Drew's deterministic remote execution tool first. Vlad, Venice, Adam, and Fortress are secondary producer adapters over the same contract.
+Hands is Drew's deterministic remote execution tool first. Adam's existing overlay is Drew's primary surface. Vlad, Venice, Adam, and Fortress are secondary producer adapters over the same execution contract.
 
-The primary interface is `hands`.
+The CLI remains the durable contract and debugging surface; it is not the primary UX.
+
+## Contextual intent seam
+
+Natural-language requests belong above Hands.
+
+Example: `find me something to watch`.
+
+Adam may use current conversation context, durable Drive context, deterministic device/app inventory, and current public catalog data when needed to choose an appropriate title and service. That reasoning produces a concrete plan before execution.
+
+The plan is then compiled to a finite Hands job such as an explicit Android VIEW/deep-link operation against a selected package. Hands does not decide what to watch, search screenshots, browse menus, or reinterpret the request.
+
+This separation is mandatory:
+
+`human intent -> contextual planner -> concrete choice -> finite signed Hands job -> deterministic transport -> executor -> receipt`
 
 ## Execution seam
 
@@ -44,7 +58,11 @@ The router blocks only explicit/high-confidence objectively destructive mechanic
 
 `hands off` pauses queued jobs without deleting them. `hands on` resumes. The daemon can also be stopped entirely.
 
-## User CLI
+## User surfaces
+
+Primary: Adam overlay natural language.
+
+Durable/debug CLI:
 
 - `hands status`
 - `hands on`
@@ -54,6 +72,19 @@ The router blocks only explicit/high-confidence objectively destructive mechanic
 - `hands run TARGET job.json`
 
 Direct user jobs have producer identity `drew`.
+
+## Media example
+
+For `find me something to watch`:
+
+1. Adam gathers relevant current-chat and Drive context.
+2. Adam reads deterministic installed-media-app capability/inventory data.
+3. Adam chooses a title/service, using current catalog lookup only if availability is uncertain.
+4. Adam resolves the selection to an explicit app package plus URI/deep link.
+5. Hands receives only the bounded open operation.
+6. Phone Hands executes it and returns a receipt including resulting foreground package/activity.
+
+If no deterministic launch/deep-link route exists, the plan stops at that exact boundary or emits a new explicit bounded script. It does not fall back to screenshot-driven wandering.
 
 ## Adapters
 
