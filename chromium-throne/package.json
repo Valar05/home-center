@@ -6,8 +6,8 @@
   "description": "Bare-metal local Chromium command center that uses ordinary ChatGPT tabs as replaceable cognition workers.",
   "scripts": {
     "start": "node src/throne.mjs",
-    "check": "node --check src/protocol.mjs && node --check src/throne.mjs && node --test src/protocol.test.mjs",
-    "test": "node --test src/protocol.test.mjs"
+    "check": "node --check src/protocol.mjs && node --check src/throne.mjs && node --test src/*.test.mjs",
+    "test": "node --test src/*.test.mjs"
   },
   "dependencies": {
     "puppeteer-core": "24.16.0"
