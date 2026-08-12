@@ -1,0 +1,86 @@
+{
+  "kind": "fortress.online.campaign-state.v1",
+  "campaign": "fortress-cockpit-combined-arms",
+  "owner": "Drew Clarke",
+  "branch": "feat/fortress-cockpit-android",
+  "pullRequest": 244,
+  "updatedAt": "2026-08-11T21:26:00-05:00",
+  "mission": "Turn the Android Fortress Cockpit into a deterministic, config-driven, phone-resident combined-arms multimedia/game-generation console wrapping Venice, Media Forge/FFmpeg, Blender, Godot, and local/fleet compute while preserving rare APK deploys.",
+  "constraints": [
+    "Termux is execution substrate, not the primary UX",
+    "Fish/Python deterministic compiler remains the execution grammar",
+    "behavior and controls evolve primarily through config",
+    "no model required for command interpretation",
+    "no raw shell hidden behind natural-language commands",
+    "no silent cloud escalation",
+    "use phone compute aggressively but thermally humanely",
+    "route unavailable heavy GPU work to explicit local/fleet capability rather than laundering phone capability",
+    "keep requested, implemented, tested, deployed, callable, delivered, and accepted distinct",
+    "physical phone receipts are required for phone deployment acceptance"
+  ],
+  "capabilityState": {
+    "deterministicPromptCompiler": {
+      "requested": true,
+      "implemented": true,
+      "tested": "CI queued on current lineage",
+      "deployed": false,
+      "callable": false,
+      "delivered": false,
+      "accepted": false
+    },
+    "androidCockpit": {
+      "requested": true,
+      "implemented": true,
+      "tested": "Android CI queued",
+      "deployed": false,
+      "callable": false,
+      "delivered": false,
+      "accepted": false
+    },
+    "combinedArmsMultimedia": {
+      "requested": true,
+      "implemented": true,
+      "tested": "routing/unit/smoke validation wired; CI queued",
+      "deployed": false,
+      "callable": false,
+      "delivered": false,
+      "accepted": false
+    },
+    "veniceReactorIntegration": {
+      "requested": true,
+      "implemented": true,
+      "tested": "existing deterministic reactor present; cockpit integration awaits CI/runtime acceptance",
+      "deployed": false,
+      "callable": false,
+      "delivered": false,
+      "accepted": false
+    },
+    "fleetGpuRouting": {
+      "requested": true,
+      "implemented": "planner and capability routing present",
+      "tested": "plan smoke test wired; live remote GPU reachability not proven",
+      "deployed": false,
+      "callable": false,
+      "delivered": false,
+      "accepted": false
+    }
+  },
+  "evidence": {
+    "pullRequest": 244,
+    "headBeforeThisReceipt": "269a66344928ea5b970d4e47879ad0ef889e341e",
+    "knownWorkflowState": [
+      "Build Android queued",
+      "Fortress Prompt queued",
+      "Home Center CI queued",
+      "Fortress Cockpit Android queued"
+    ]
+  },
+  "nextAction": "Consume CI results when state changes; repair concrete failures; then produce a phone-install/runtime acceptance handoff only when repository evidence is green enough to make that physical step meaningful.",
+  "blockedBy": [
+    "CI currently queued",
+    "Cockpit not installed on primary phone",
+    "RUN_COMMAND permission not physically granted",
+    "live fleet GPU/Blender/Godot reachability not yet proven from Cockpit"
+  ],
+  "updatePolicy": "Append or replace this campaign state on every material transition, correction, failure, verification, deployment, callable proof, delivery, or acceptance event. Never advance a capability state without state-specific evidence."
+}
