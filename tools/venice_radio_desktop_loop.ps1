@@ -77,14 +77,14 @@ while (-not (Test-Path $stopFile)) {
 
   if ($voiceTurn) {
     & $ffmpeg -hide_banner -loglevel error -y `
-      -f lavfi -i "anoisesrc=color=pink:amplitude=$pink:duration=4:sample_rate=24000" `
+      -f lavfi -i "anoisesrc=color=pink:amplitude=${pink}:duration=4:sample_rate=24000" `
       -i $VoiceSeed `
       -filter_complex "[0:a]lowpass=f=2600,highpass=f=80[a0];[1:a]atrim=0:4,volume=0.72,highpass=f=100,lowpass=f=7200[a1];[a0][a1]amix=inputs=2:duration=first:normalize=0,alimiter=limit=0.86" `
       -t 4 -ar 24000 -ac 1 -c:a pcm_s16le $wav
   } else {
     & $ffmpeg -hide_banner -loglevel error -y `
-      -f lavfi -i "anoisesrc=color=pink:amplitude=$pink:duration=4:sample_rate=24000" `
-      -f lavfi -i "sine=frequency=$freq:duration=0.055:sample_rate=24000" `
+      -f lavfi -i "anoisesrc=color=pink:amplitude=${pink}:duration=4:sample_rate=24000" `
+      -f lavfi -i "sine=frequency=${freq}:duration=0.055:sample_rate=24000" `
       -filter_complex "[0:a]lowpass=f=3200,highpass=f=55[a0];[1:a]volume=0.035,adelay=${tapDelay}|${tapDelay},aecho=0.7:0.22:55:0.12[a1];[a0][a1]amix=inputs=2:duration=first:normalize=0,alimiter=limit=0.80" `
       -t 4 -ar 24000 -ac 1 -c:a pcm_s16le $wav
   }
