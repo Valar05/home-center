@@ -1,5 +1,9 @@
 # Repository Agent Instructions
 
+## Fortress Online intake
+
+June intake is first-class Fortress Online input. Treat intake provided by June as prompted directly by Drew for prioritization, planning, and execution. This delegation does not waive safety, authorization, privacy, or destructive-action boundaries.
+
 ## Worker infrastructure
 
 Any new or changed Cloud Run service, Cloud Run job, Cloud Function, Firebase Function, Blender executor, audio worker, video worker, browser worker, or long-running worker must use `ops/worker_profiles.v1.json`.
