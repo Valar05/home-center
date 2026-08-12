@@ -145,14 +145,29 @@ async function runSwarm() {
         continue;
       }
 
-      await markJob(dispatched.job.id, 'completed', {checkpoint: checkpoint.text});
-      receipts.push({slice, state: 'completed'});
+      const reviewRequirement = {
+        reviewer: 'venice-local',
+        independentOfChatGPT: true,
+        requiredReceiptField: 'externalReviewGateSatisfied',
+        requiredReceiptValue: true,
+        cli: 'python3 tools/venice.py review --base <swarm-base> --head <swarm-head> --acceptance-file <acceptance-file> --receipt <receipt.json>',
+      };
+      await markJob(dispatched.job.id, 'awaiting_venice_review', {checkpoint: checkpoint.text, reviewRequirement});
+      await recordSwarmReceipt({
+        type: 'swarm_external_review_required',
+        slice,
+        jobId: dispatched.job.id,
+        at: new Date().toISOString(),
+        reviewRequirement,
+      });
+      receipts.push({slice, state: 'awaiting_venice_review', reviewRequirement});
+      break;
     }
   } finally {
     swarmRunning = false;
     const ready = await message({type: 'throne.status'}, false);
     status.textContent = ready?.tab?.usable ? `${ready.bootPhrase} · tab ready` : 'Open chatgpt.com in this tab';
-    show({ok: true, swarm: receipts});
+    show({ok: true, accepted: false, swarm: receipts, terminalGate: 'Venice external code review'});
   }
 }
 
