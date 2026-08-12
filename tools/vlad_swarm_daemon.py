@@ -64,6 +64,11 @@ def _set_last_adam_request_id(value):STATE_DIR.mkdir(parents=True,exist_ok=True)
 def _pending_response_path(request_id):
     STATE_DIR.mkdir(parents=True,exist_ok=True)
     return STATE_DIR/f"adam-pending-response-{int(request_id):020d}.json"
+def _delivery_halt_path():
+    STATE_DIR.mkdir(parents=True,exist_ok=True)
+    return STATE_DIR/"adam-delivery-halt.json"
+def _save_delivery_halt(reason,path=None):
+    halt={"schema":"adam-delivery-halt-v1","reason":str(reason),"pendingPath":str(path) if path else None,"createdAtEpoch":now()};p=_delivery_halt_path();tmp=p.with_suffix(".tmp");tmp.write_text(json.dumps(halt,indent=2,sort_keys=True)+"\n",encoding="utf-8");tmp.replace(p);append_receipt({"kind":"adam.delivery.halt","ok":False,**halt});return p
 def _save_pending_response(data):
     p=_pending_response_path(data["requestId"]);tmp=p.with_suffix(".tmp");tmp.write_text(json.dumps(data,indent=2,sort_keys=True)+"\n",encoding="utf-8");tmp.replace(p);return p
 def _pending_response_paths():
@@ -75,15 +80,22 @@ def _load_pending_response(path):
         return None
 def _deliver_pending_responses():
     """Preserve request ordering: do not start newer work until older output is delivered."""
+    if _delivery_halt_path().exists():return False
     for path in _pending_response_paths():
         data=_load_pending_response(path)
         if not data:
-            # Move corrupt state outside the pending glob so it cannot loop.
             bad=path.with_name("quarantine-"+path.name)
             try:path.replace(bad)
             except Exception:pass
+            _save_delivery_halt("corrupt_pending_response",bad)
             return False
         request_id=int(data.get("requestId") or 0);mode=str(data.get("mode") or "unknown")
+        if request_id<=0:
+            bad=path.with_name("quarantine-"+path.name)
+            try:path.replace(bad)
+            except Exception:pass
+            _save_delivery_halt("pending_response_missing_request_id",bad)
+            return False
         if request_id<=_last_adam_request_id():
             try:path.unlink()
             except Exception:pass
@@ -113,7 +125,7 @@ def process_adam_overlay(repo_root):
     mode=_operator_field(raw,"adam_request_mode","terminal");payload=_operator_field(raw,"adam_request_payload_b64","")
     try:text=base64.b64decode(payload,validate=True).decode("utf-8")
     except Exception as exc:
-        event={"kind":"adam.request","ok":False,"requestId":request_id,"mode":mode,"error":f"invalid_payload: {exc}"};append_receipt(event);operator_update(event["error"],f"Adam/{mode}");_set_last_adam_request_id(request_id);return
+        display=f"invalid_payload: {exc}";pending={"schema":"adam-overlay-pending-response-v1","requestId":request_id,"mode":mode,"display":display[:8000],"taskRc":2,"taskResult":{"error":display},"attempts":0,"nextAttemptEpoch":0,"createdAtEpoch":now()};pending_path=_save_pending_response(pending);append_receipt({"kind":"adam.request.invalid","ok":False,"requestId":request_id,"mode":mode,"error":display,"pending":str(pending_path)});_deliver_pending_responses();return
     # No short caller timeout. Adam owns transient backoff/checkpoints and may
     # stop only through canonical Venice review. If this process dies mid-run,
     # the request stays unacknowledged and is retried after restart.
