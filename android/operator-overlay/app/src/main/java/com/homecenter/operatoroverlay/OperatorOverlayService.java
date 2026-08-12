@@ -5,6 +5,7 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.media.AudioManager;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Color;
@@ -20,6 +21,7 @@ import android.provider.Settings;
 import android.text.TextUtils;
 import android.text.method.ScrollingMovementMethod;
 import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
@@ -60,6 +62,8 @@ public class OperatorOverlayService extends Service {
     private Button compactControlButton;
     private Button muteButton;
     private Button controlButton;
+    private Button radioPlayPauseButton;
+    private Button radioStopButton;
     private boolean expandedText;
     private boolean confirmDisable;
     private float downRawX;
@@ -286,6 +290,26 @@ public class OperatorOverlayService extends Service {
         });
         actionRow.addView(muteButton);
 
+        LinearLayout radioRow = new LinearLayout(this);
+        radioRow.setOrientation(LinearLayout.HORIZONTAL);
+        radioRow.setGravity(Gravity.CENTER_VERTICAL);
+        radioRow.setPadding(0, dp(4), 0, 0);
+
+        TextView radioLabel = textView(12f, true);
+        radioLabel.setText("VENICE RADIO");
+        radioLabel.setContentDescription("Venice ASMR Radio media controls");
+        radioRow.addView(radioLabel, new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
+
+        radioPlayPauseButton = button("Play / pause");
+        radioPlayPauseButton.setContentDescription("Play or pause Venice Radio");
+        radioPlayPauseButton.setOnClickListener(v -> dispatchMediaKey(KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE));
+        radioRow.addView(radioPlayPauseButton);
+
+        radioStopButton = button("Stop");
+        radioStopButton.setContentDescription("Stop Venice Radio");
+        radioStopButton.setOnClickListener(v -> dispatchMediaKey(KeyEvent.KEYCODE_MEDIA_STOP));
+        radioRow.addView(radioStopButton);
+
         Button hideFullButton = button("Hide overlay");
         hideFullButton.setContentDescription("Hide overlay and disable control; restore from notification");
         hideFullButton.setOnClickListener(v -> hideOverlay());
@@ -295,6 +319,7 @@ public class OperatorOverlayService extends Service {
         details.addView(screenBadge);
         details.addView(meta);
         details.addView(latest);
+        details.addView(radioRow);
         details.addView(actionRow);
         root.addView(titleRow);
         root.addView(details);
@@ -639,6 +664,15 @@ public class OperatorOverlayService extends Service {
         long minutes = seconds / 60L;
         if (minutes < 60) return minutes + "m ago";
         return (minutes / 60L) + "h ago";
+    }
+
+    private void dispatchMediaKey(int keyCode) {
+        lastInteractionMs = System.currentTimeMillis();
+        AudioManager audioManager = (AudioManager) getSystemService(AUDIO_SERVICE);
+        if (audioManager == null) return;
+        long eventTime = android.os.SystemClock.uptimeMillis();
+        audioManager.dispatchMediaKeyEvent(new KeyEvent(eventTime, eventTime, KeyEvent.ACTION_DOWN, keyCode, 0));
+        audioManager.dispatchMediaKeyEvent(new KeyEvent(eventTime, eventTime, KeyEvent.ACTION_UP, keyCode, 0));
     }
 
     private TextView textView(float sp, boolean bold) {
