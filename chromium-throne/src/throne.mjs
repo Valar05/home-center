@@ -30,6 +30,11 @@ async function ensureToken() { await fs.mkdir(stateRoot, {recursive: true}); try
 function lanAddresses() { const out = []; for (const rows of Object.values(os.networkInterfaces())) for (const row of rows || []) if (row.family === 'IPv4' && !row.internal && !row.address.startsWith('169.254.')) out.push(row.address); return [...new Set(out)]; }
 function tokenEqual(candidate) { const a = Buffer.from(String(candidate || '')); const b = Buffer.from(mobileToken); return a.length === b.length && a.length > 0 && timingSafeEqual(a, b); }
 function authorized(req, url) { const remote = req.socket.remoteAddress || ''; if (remote === '127.0.0.1' || remote === '::1' || remote === '::ffff:127.0.0.1') return true; return tokenEqual(url.searchParams.get('token')) || tokenEqual(req.headers['x-throne-token']); }
+function resumeContext(task) {
+  if (!Array.isArray(task.steps) || !task.steps.length) return '';
+  const compact = task.steps.slice(-20).map((step) => ({index: step.index, action: step.action, result: step.result}));
+  return `\n\nDURABLE RESUME: Chromium Throne recovered this task after interruption. Do not repeat completed work unless verification requires it. Here are the most recent persisted actions/results:\n${safeText(JSON.stringify(compact, null, 2), 18000)}`;
+}
 
 async function findBrowserExecutable() {
   const candidates = [process.env.CHROMIUM_THRONE_CHROME_PATH, process.env.PROGRAMFILES && path.join(process.env.PROGRAMFILES, 'Google', 'Chrome', 'Application', 'chrome.exe'), process.env['PROGRAMFILES(X86)'] && path.join(process.env['PROGRAMFILES(X86)'], 'Google', 'Chrome', 'Application', 'chrome.exe'), process.env.LOCALAPPDATA && path.join(process.env.LOCALAPPDATA, 'Google', 'Chrome', 'Application', 'chrome.exe'), process.env.PROGRAMFILES && path.join(process.env.PROGRAMFILES, 'Microsoft', 'Edge', 'Application', 'msedge.exe'), process.env['PROGRAMFILES(X86)'] && path.join(process.env['PROGRAMFILES(X86)'], 'Microsoft', 'Edge', 'Application', 'msedge.exe')].filter(Boolean);
@@ -60,7 +65,7 @@ async function executeTask(task) {
   const browser = await connectBrowser();
   try {
     const page = await getWorkerPage(browser, task.id); if (!page.url().startsWith('https://chatgpt.com/')) await page.goto(chatUrl, {waitUntil: 'domcontentloaded', timeout: 30000});
-    let response = await sendAndWait(page, workerInstruction({task: task.prompt, repoRoot: task.repoRoot}));
+    let response = await sendAndWait(page, workerInstruction({task: task.prompt, repoRoot: task.repoRoot}) + resumeContext(task));
     for (let index = task.steps.length; index < MAX_STEPS; index += 1) {
       const action = extractAction(response); if (!action) { response = await sendAndWait(page, 'Your previous response did not end with a valid <THRONE_ACTION> JSON envelope. Continue the task and end with exactly one valid action.'); continue; }
       let result; try { result = await executeAction(task.repoRoot, action); } catch (error) { result = {ok: false, type: action.type || '', error: safeText(error?.stack || error)}; }
