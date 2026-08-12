@@ -17,7 +17,8 @@ git checkout "origin/$BRANCH" -- \
   tools/fortress_read_aloud.py \
   tools/android_phone_status_tts.py \
   config/fortress-prompt.json \
-  config/fortress-phone-kernel.json
+  config/fortress-phone-kernel.json \
+  config/fortress-adam-voice.json
 
 for required in \
   tools/fortress_prompt.py \
@@ -26,7 +27,8 @@ for required in \
   tools/fortress_read_aloud.py \
   tools/android_phone_status_tts.py \
   config/fortress-prompt.json \
-  config/fortress-phone-kernel.json; do
+  config/fortress-phone-kernel.json \
+  config/fortress-adam-voice.json; do
   test -s "$REPO/$required" || { echo "BLOCKED: missing runtime file: $required" >&2; exit 2; }
 done
 
@@ -39,6 +41,7 @@ python -m py_compile \
   "$REPO/tools/android_phone_status_tts.py"
 python -m json.tool "$REPO/config/fortress-prompt.json" >/dev/null
 python -m json.tool "$REPO/config/fortress-phone-kernel.json" >/dev/null
+python -m json.tool "$REPO/config/fortress-adam-voice.json" >/dev/null
 
 cat > "$BIN/fortress-kernel" <<EOF
 #!/data/data/com.termux/files/usr/bin/bash
@@ -70,3 +73,4 @@ sleep 1
 hash -r 2>/dev/null || true
 "$BIN/fortress" --status
 "$BIN/fortress-read" --doctor
+"$BIN/fortress-read" --profile
