@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 from __future__ import annotations
-import argparse, base64, hashlib, hmac, json, os, secrets, shlex, subprocess, time
+import argparse, base64, hashlib, hmac, json, os, secrets, shlex, subprocess, sys, time
 from pathlib import Path
 
+TOOL_DIR=Path(__file__).resolve().parent
 STATE=Path(os.environ.get('HC_HANDS_ROUTER_STATE','~/.local/state/home-center/hands-router')).expanduser()
 KEY=Path(os.environ.get('HC_HANDS_ROUTER_KEY','~/.config/home-center/hands-router.key')).expanduser()
 TOGGLE=STATE/'enabled'; QUEUE=STATE/'queue'; DONE=STATE/'done'; RECEIPTS=STATE/'receipts.jsonl'
@@ -21,7 +22,6 @@ PHONE_ACTIONS={
  'phone.tap':'tap','phone.swipe':'swipe','phone.text':'text','phone.keyevent':'keyevent','phone.home':'home',
  'phone.back':'back','phone.recents':'recents','phone.launch':'launch','phone.open_uri':'open_uri','phone.force_stop':'force_stop'
 }
-# Structured high-confidence destructive token signatures. No model judgement.
 HARMFUL_TOKENS=(
  ('rm','-rf','/'),('mkfs',),('wipefs',),('dd','if=','of=/dev/'),('shutdown',),('poweroff',),('reboot',),
  ('format','c:'),('diskpart',),('bcdedit','/delete'),('cipher','/w:')
@@ -105,13 +105,38 @@ def _local_phone(job):
   if mismatch:return {'rc':65,'stdout':'','stderr':mismatch,'steps':results}
  return {'rc':0,'stdout':json.dumps(results,ensure_ascii=False),'stderr':'','steps':results}
 
+def _job_blob(job):return base64.urlsafe_b64encode(json.dumps(job,separators=(',',':')).encode()).decode()
+
+def _parse_last_json(text):
+ for line in reversed(str(text or '').splitlines()):
+  try:
+   value=json.loads(line.strip())
+   if isinstance(value,dict):return value
+  except Exception:pass
+ return None
+
 def _run_template(env_name,job):
  template=os.environ.get(env_name,'').strip()
  if not template:return None
- blob=base64.urlsafe_b64encode(json.dumps(job,separators=(',',':')).encode()).decode()
+ blob=_job_blob(job)
  cmd=template.replace('{job_b64}',shlex.quote(blob)).replace('{target}',shlex.quote(str(job['target'])))
- p=subprocess.run(cmd,shell=True,text=True,capture_output=True,timeout=int(job['maxRuntimeSeconds']))
- return {'rc':p.returncode,'stdout':p.stdout[-8000:],'stderr':p.stderr[-8000:]}
+ p=subprocess.run(cmd,shell=True,text=True,capture_output=True,timeout=int(job['maxRuntimeSeconds'])+20)
+ structured=_parse_last_json(p.stdout)
+ return {'rc':p.returncode,'stdout':p.stdout[-12000:],'stderr':p.stderr[-8000:],'structured':structured,'safeToFallback':bool(structured and structured.get('safeToFallback') is True)}
+
+def _run_builtin(script_name,job):
+ script=TOOL_DIR/script_name
+ if not script.exists():return None
+ p=subprocess.run([sys.executable,str(script),'--job-b64',_job_blob(job)],text=True,capture_output=True,timeout=int(job['maxRuntimeSeconds'])+25)
+ structured=_parse_last_json(p.stdout)
+ return {'rc':p.returncode,'stdout':p.stdout[-12000:],'stderr':p.stderr[-8000:],'structured':structured,'safeToFallback':bool(structured and structured.get('safeToFallback') is True)}
+
+def _transport(transport,job):
+ envs={'ssh':'HC_HANDS_SSH_DISPATCH','wlan':'HC_HANDS_WLAN_DISPATCH','computer_hands':'HC_HANDS_COMPUTER_DISPATCH'}
+ if os.environ.get(envs[transport],'').strip():return _run_template(envs[transport],job)
+ if transport=='ssh':return _run_builtin('hands_transport_ssh.py',job)
+ if transport=='computer_hands':return _run_builtin('hands_transport_computer.py',job)
+ return None
 
 def dispatch(job):
  if not enabled():return _receipt(job,'paused')
@@ -127,15 +152,17 @@ def dispatch(job):
  if local is not None:
   attempts.append({'transport':'local_phone',**local})
   return _receipt(job,'completed' if local['rc']==0 else 'failed',transport='local_phone',attempts=attempts)
- envs={'ssh':'HC_HANDS_SSH_DISPATCH','wlan':'HC_HANDS_WLAN_DISPATCH','computer_hands':'HC_HANDS_COMPUTER_DISPATCH'}
- for t in job.get('transports') or TRANSPORTS:
-  if t not in envs:continue
-  try:r=_run_template(envs[t],job)
-  except Exception as e:r={'rc':125,'stderr':f'{type(e).__name__}: {e}','stdout':''}
-  if r is None:attempts.append({'transport':t,'status':'unconfigured'});continue
-  attempts.append({'transport':t,**r})
-  if r['rc']==0:return _receipt(job,'completed',transport=t,attempts=attempts)
- return _receipt(job,'failed',attempts=attempts)
+ for transport in job.get('transports') or TRANSPORTS:
+  if transport not in TRANSPORTS:continue
+  try:result=_transport(transport,job)
+  except subprocess.TimeoutExpired as exc:result={'rc':124,'stdout':'','stderr':f'{transport} adapter timeout: {exc}','safeToFallback':False}
+  except Exception as exc:result={'rc':125,'stdout':'','stderr':f'{type(exc).__name__}: {exc}','safeToFallback':False}
+  if result is None:
+   attempts.append({'transport':transport,'status':'unconfigured','safeToFallback':True});continue
+  attempts.append({'transport':transport,**result})
+  if result['rc']==0:return _receipt(job,'completed',transport=transport,attempts=attempts)
+  if not result.get('safeToFallback',False):return _receipt(job,'failed',transport=transport,attempts=attempts,reason='transport_execution_started_or_ambiguous')
+ return _receipt(job,'failed',attempts=attempts,reason='all_transports_unavailable_before_execution')
 
 def drain(limit=8):
  _mkdirs(); out=[]
@@ -148,7 +175,9 @@ def drain(limit=8):
 
 def status():
  _mkdirs(); return {'enabled':enabled(),'state':str(STATE),'queue':len(list(QUEUE.glob('*.json'))),'done':len(list(DONE.glob('*.json'))),
-                    'contract':'finite-script-v2','primaryProducer':'drew','maxSteps':MAX_STEPS,'maxRuntimeSeconds':MAX_RUNTIME,'modelInExecutor':False}
+                    'contract':'finite-script-v2','primaryProducer':'drew','maxSteps':MAX_STEPS,'maxRuntimeSeconds':MAX_RUNTIME,'modelInExecutor':False,
+                    'transportOrder':list(TRANSPORTS),'builtIn':{'ssh':(TOOL_DIR/'hands_transport_ssh.py').exists(),'wlan':False,'computer_hands':(TOOL_DIR/'hands_transport_computer.py').exists()},
+                    'wlanConfigured':bool(os.environ.get('HC_HANDS_WLAN_DISPATCH','').strip())}
 
 def main(default_producer=None):
  ap=argparse.ArgumentParser(prog='hands-router'); sub=ap.add_subparsers(dest='cmd',required=True)
