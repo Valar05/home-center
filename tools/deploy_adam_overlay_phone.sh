@@ -15,10 +15,7 @@ git checkout main >/dev/null 2>&1 || true
 git pull --ff-only origin main
 SOURCE_SHA="$(git rev-parse HEAD)"
 
-python tools/test_adam_overlay_contract.py
-python tools/test_adam_cli_contract.py
-python tools/test_fortress_phone_resume_contract.py
-python -m py_compile tools/adam.py tools/vlad_swarm_daemon.py tools/vlad_pixel_forge_probe.py tools/stage_vlad_pixel_model_phone.py
+bash tools/run_fortress_local_contracts.sh
 
 install_generated() {
   local build_receipt="$STATE/adam-overlay-build-receipt.json"
