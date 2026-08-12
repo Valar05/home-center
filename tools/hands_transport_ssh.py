@@ -7,8 +7,6 @@ import json
 import os
 import re
 import subprocess
-import sys
-from pathlib import Path
 
 WINDOWS_TARGETS={'THECAULDRON'}
 
@@ -17,12 +15,8 @@ def decode_job(value):
  return json.loads(base64.urlsafe_b64decode((value+padding).encode()).decode())
 
 def env_key(target): return re.sub(r'[^A-Za-z0-9]+','_',target).upper()
-
-def host_for(target):
- return os.environ.get(f'HC_HANDS_SSH_HOST_{env_key(target)}',target).strip()
-
-def encoded_ps(script):
- return base64.b64encode(script.encode('utf-16le')).decode('ascii')
+def host_for(target): return os.environ.get(f'HC_HANDS_SSH_HOST_{env_key(target)}',target).strip()
+def encoded_ps(script): return base64.b64encode(script.encode('utf-16le')).decode('ascii')
 
 def run_ps(host,script,timeout):
  ssh=os.environ.get('HC_HANDS_SSH_BIN','ssh')
@@ -72,26 +66,30 @@ def expectation_failure(step,result):
 
 def execute(job):
  target=str(job.get('target') or '')
- if target not in WINDOWS_TARGETS:return {'rc':78,'status':'unconfigured','reason':'ssh_target_unsupported'}
+ if target not in WINDOWS_TARGETS:return {'rc':78,'status':'unconfigured','reason':'ssh_target_unsupported','safeToFallback':True}
  host=host_for(target)
- if not host:return {'rc':78,'status':'unconfigured','reason':'ssh_host_missing'}
- timeout=max(5,min(int(job.get('maxRuntimeSeconds') or 120),300)); results=[]
- for index,step in enumerate(job.get('steps') or []):
-  try:script=step_script(step)
-  except NotImplementedError:
-   return {'rc':78,'status':'unsupported','reason':f"ssh_op_unsupported:{step.get('op')}",'steps':results}
-  except Exception as exc:
-   return {'rc':64,'status':'invalid','reason':f'{type(exc).__name__}: {exc}','steps':results}
+ if not host:return {'rc':78,'status':'unconfigured','reason':'ssh_host_missing','safeToFallback':True}
+ timeout=max(5,min(int(job.get('maxRuntimeSeconds') or 120),300)); results=[]; scripts=[]
+ # Preflight the complete operation vocabulary before any remote side effect.
+ for step in job.get('steps') or []:
+  try:scripts.append(step_script(step))
+  except NotImplementedError:return {'rc':78,'status':'unsupported','reason':f"ssh_op_unsupported:{step.get('op')}",'safeToFallback':True}
+  except Exception as exc:return {'rc':64,'status':'invalid','reason':f'{type(exc).__name__}: {exc}','safeToFallback':False}
+ try:
+  probe=run_ps(host,"[ordered]@{ok=$true;probe='hands-router'}|ConvertTo-Json -Compress",min(timeout,15))
+ except FileNotFoundError:return {'rc':78,'status':'unconfigured','reason':'ssh_binary_missing','safeToFallback':True}
+ except subprocess.TimeoutExpired:return {'rc':78,'status':'unavailable','reason':'ssh_probe_timeout','safeToFallback':True}
+ if probe['rc']!=0:return {'rc':78,'status':'unavailable','reason':'ssh_probe_failed','probe':probe,'safeToFallback':True}
+ for index,(step,script) in enumerate(zip(job.get('steps') or [],scripts)):
   try:result=run_ps(host,script,timeout)
-  except FileNotFoundError:return {'rc':78,'status':'unconfigured','reason':'ssh_binary_missing','steps':results}
-  except subprocess.TimeoutExpired:return {'rc':124,'status':'timeout','reason':'ssh_timeout','steps':results}
+  except subprocess.TimeoutExpired:return {'rc':124,'status':'timeout','reason':'ssh_timeout_after_execution_started','steps':results,'safeToFallback':False}
   mismatch=expectation_failure(step,result); row={'index':index,'op':step.get('op'),**result,'expectFailure':mismatch}; results.append(row)
-  if result['rc']!=0 or mismatch:return {'rc':result['rc'] or 65,'status':'failed','steps':results,'reason':mismatch or 'remote_step_failed'}
- return {'rc':0,'status':'completed','host':host,'steps':results}
+  if result['rc']!=0 or mismatch:return {'rc':result['rc'] or 65,'status':'failed','steps':results,'reason':mismatch or 'remote_step_failed','safeToFallback':False}
+ return {'rc':0,'status':'completed','host':host,'steps':results,'safeToFallback':False}
 
 def main():
  ap=argparse.ArgumentParser(); ap.add_argument('--job-b64',required=True); args=ap.parse_args()
  try:result=execute(decode_job(args.job_b64))
- except Exception as exc:result={'rc':125,'status':'failed','reason':f'{type(exc).__name__}: {exc}'}
+ except Exception as exc:result={'rc':125,'status':'failed','reason':f'{type(exc).__name__}: {exc}','safeToFallback':False}
  print(json.dumps(result,ensure_ascii=False,sort_keys=True)); return int(result.get('rc') or 0)
 if __name__=='__main__':raise SystemExit(main())
