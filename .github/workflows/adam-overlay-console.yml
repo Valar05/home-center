@@ -1,0 +1,44 @@
+name: Adam overlay console
+
+on:
+  push:
+    branches:
+      - feature/adam-overlay-console
+
+permissions:
+  contents: write
+
+jobs:
+  graft-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Apply exact overlay graft
+        run: python tools/patch_adam_overlay_console.py
+      - name: Adam contract
+        run: python tools/test_adam_overlay_contract.py
+      - name: Existing Phone Hands and overlay contract
+        run: node tools/phone_hands_relay_contract_test.mjs
+      - name: Python syntax
+        run: python -m py_compile tools/adam.py tools/vlad_swarm_daemon.py tools/patch_adam_overlay_console.py tools/test_adam_overlay_contract.py
+      - name: Commit generated graft
+        shell: bash
+        run: |
+          if git diff --quiet; then
+            echo "graft already committed"
+            exit 0
+          fi
+          git config user.name "home-center-github-admin[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorState.java \
+                  android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorStateProvider.java \
+                  android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java \
+                  tools/vlad_swarm_daemon.py
+          git commit -m "Build Adam console into operator overlay"
+          git push origin HEAD:feature/adam-overlay-console
