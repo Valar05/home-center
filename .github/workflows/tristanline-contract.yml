@@ -1,0 +1,33 @@
+name: Tristanline contract
+
+on:
+  pull_request:
+    paths:
+      - 'tools/tristanline.py'
+      - 'tools/tristanline_contract_test.py'
+      - 'tools/setup_tristanline_phone.sh'
+      - 'config/tristanline/**'
+      - '.github/workflows/tristanline-contract.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'tools/tristanline.py'
+      - 'tools/tristanline_contract_test.py'
+      - 'tools/setup_tristanline_phone.sh'
+      - 'config/tristanline/**'
+      - '.github/workflows/tristanline-contract.yml'
+
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Syntax
+        run: |
+          python -m py_compile tools/tristanline.py tools/tristanline_contract_test.py
+          bash -n tools/setup_tristanline_phone.sh
+      - name: Deterministic contract
+        run: python tools/tristanline_contract_test.py
