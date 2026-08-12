@@ -8,6 +8,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const SCRIPT_DIR = path.dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = path.resolve(SCRIPT_DIR, '..');
+const REQUIRED_SKILL_DOCUMENTS = Object.freeze(['fortress-core','phone-runtime']);
 
 const CORE_SKILLS = Object.freeze([
   { id:'mission-kernel', required:true, purpose:'preserve outcome/owner/lane/exclusions/evidence/delivery' },
@@ -57,22 +58,24 @@ function renderCoreSkill(skill){
 function buildBootCapsule({skillRoots, extraSkills=[]}={}){
   const roots=skillRoots===undefined?defaultSkillRoots():defaultSkillRoots(skillRoots);
   const discovered=loadDiscoveredSkills(roots);
+  const discoveredIds=new Set(discovered.map(x=>x.id));
+  const requiredMissing=REQUIRED_SKILL_DOCUMENTS.filter(id=>!discoveredIds.has(id));
   const phone=CORE_SKILLS.find(x=>x.id==='phone-hands');
-  const requiredMissing=[];
   if(!phone || !phone.operations?.includes('phone_hands.devices') || !phone.operations?.includes('phone_hands.enqueue') || !phone.operations?.includes('phone_hands.get')) requiredMissing.push('phone-hands-contract');
   if(requiredMissing.length) throw new Error(`FORTRESS_BOOT_MISSING_REQUIRED_SKILLS:${uniq(requiredMissing).join(',')}`);
 
   const loadedSkills=[
-    ...CORE_SKILLS.map(skill=>({id:skill.id,source:'core',required:true,sha256:sha256(renderCoreSkill(skill)),content:renderCoreSkill(skill)})),
-    ...discovered.map(skill=>({...skill,source:'SKILL.md',required:false})),
+    ...CORE_SKILLS.map(skill=>({id:skill.id,source:'core-contract',required:true,sha256:sha256(renderCoreSkill(skill)),content:renderCoreSkill(skill)})),
+    ...discovered.map(skill=>({...skill,source:'SKILL.md',required:REQUIRED_SKILL_DOCUMENTS.includes(skill.id)})),
     ...extraSkills.map(skill=>({id:skill.id||'extra',source:'extra',required:skill.required===true,sha256:sha256(String(skill.content||'')),content:String(skill.content||'')})),
   ];
   const bootPrompt=loadedSkills.map(skill=>`\n--- FORTRESS SKILL ${skill.id} | ${skill.source} | sha256:${skill.sha256} ---\n${skill.content}`).join('\n');
   return {
-    kind:'fortress.online.v2.boot-capsule.v2',
+    kind:'fortress.online.v2.boot-capsule.v3',
     isolation:'fortress-online-v2',
-    policy:'load every discovered SKILL.md content; never first-match and stop',
+    policy:'load every discovered SKILL.md content; canonical skill books are boot-required; never first-match and stop',
     skillRoots:roots,
+    requiredSkillDocuments:REQUIRED_SKILL_DOCUMENTS,
     coreSkillCount:CORE_SKILLS.length,
     discoveredSkillCount:discovered.length,
     loadedSkillCount:loadedSkills.length,
@@ -90,4 +93,4 @@ if(invokedAsScript){
   process.stdout.write(JSON.stringify(capsule,null,2)+'\n');
 }
 
-export { REPO_ROOT, CORE_SKILLS, splitRoots, defaultSkillRoots, walkSkillFiles, loadDiscoveredSkills, buildBootCapsule };
+export { REPO_ROOT, REQUIRED_SKILL_DOCUMENTS, CORE_SKILLS, splitRoots, defaultSkillRoots, walkSkillFiles, loadDiscoveredSkills, buildBootCapsule };
