@@ -10,9 +10,11 @@ required_resume = [
     'fortress_refresh_phone_evidence.sh',
     'fortress_venice_loop.py',
     '--evidence-file "$EVIDENCE"',
+    'HC_FORTRESS_VENICE_ROUNDS:-0',
     'git pull --ff-only origin main',
     'git status --porcelain',
     'artifacts/fortress/phone',
+    'compact acceptance receipt unexpectedly exceeds 32 KiB',
 ]
 for token in required_resume:
     assert token in resume, f'missing resume token: {token}'
@@ -36,13 +38,17 @@ required_loop = [
     "['git','commit'",
     "['git','push','origin','HEAD:main']",
     'preexisting_dirty_tree_requires_preservation',
+    "default=0, help='0 means continue until Venice PASS or a real execution boundary'",
+    'while True:',
+    'repair_touched_forbidden_paths',
 ]
 for token in required_loop:
     assert token in loop, f'missing Venice loop token: {token}'
+assert 'for round_no in range' not in loop, 'Venice loop still has an implicit bounded-for retry ceiling'
 for text in (resume,refresh,loop):
     low=text.lower()
     for forbidden in ['workflow_dispatch', 'gh workflow', 'github actions', 'godot --path']:
         assert forbidden not in low, f'forbidden execution lane: {forbidden}'
 assert 'fortress-resume' in installer
 assert 'fortress_phone_resume.sh' in installer
-print('Fortress phone resume + fresh evidence + Venice repair loop contract: PASS')
+print('Fortress phone resume + fresh evidence + unlimited Venice repair loop contract: PASS')
