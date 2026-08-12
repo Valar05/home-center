@@ -9,8 +9,10 @@ python3 tools/test_vlad_overlay_self_heal_contract.py
 python3 tools/test_venice_selfheal_contract.py
 python3 tools/test_venice_review_memory.py
 python3 tools/test_venice_plan_review.py
+python3 tools/test_venice_review.py
 python3 tools/test_adam_cli_contract.py
 python3 tools/test_adam_overlay_contract.py
+python3 tools/test_adam_venice_review_gate.py
 node --test tools/fortress_online_v2_boot.test.mjs
 python3 -m py_compile \
   tools/vlad_swarm_daemon.py \
@@ -20,6 +22,7 @@ python3 -m py_compile \
   tools/vlad_pixel_generate_mnn_phone.py \
   tools/vlad_pixel_pack.py \
   tools/fortress_collect_phone_evidence.py \
+  tools/adam_planned_venice.py \
   tools/venice_review.py \
   tools/venice_review_memory.py \
   tools/venice_plan_review.py \
