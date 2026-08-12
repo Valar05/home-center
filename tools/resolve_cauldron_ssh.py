@@ -17,7 +17,7 @@ def wifi_reconnect():
     rish=os.environ.get('RISH') or shutil_which('rish') or str(Path.home()/'bin/rish')
     if not Path(rish).exists() and not shutil_which(rish):
         return {'attempted':False,'ok':False,'detail':'rish missing'}
-    p=run([rish,'-c','svc wifi enable; cmd wifi reconnect >/dev/null 2>&1 || true; ip route'],10)
+    p=run([rish,'-c','svc wifi enable; cmd wifi reconnect >/dev/null 2>&1 || true; ip -4 route'],10)
     return {'attempted':True,'ok':p.returncode==0,'detail':(p.stdout+p.stderr)[-1200:]}
 
 
@@ -26,26 +26,43 @@ def shutil_which(name):
     return shutil.which(name)
 
 
-def local_networks():
-    p=run(['ip','-4','route'],4)
+def parse_networks(route_text):
     nets=[]
-    for line in p.stdout.splitlines():
+    src_ips=[]
+    for line in route_text.splitlines():
         parts=line.split()
-        if not parts: continue
+        if not parts:
+            continue
+        if 'src' in parts:
+            try:
+                src=parts[parts.index('src')+1]
+                src_ips.append(ipaddress.ip_address(src))
+            except (ValueError,IndexError):
+                pass
         try:
             if '/' in parts[0]:
                 net=ipaddress.ip_network(parts[0],strict=False)
                 if net.version==4 and net.is_private:
                     nets.append(net)
-        except ValueError: pass
-    # Keep discovery bounded. Collapse larger LANs to the phone's /24 when src is known.
+        except ValueError:
+            pass
+    # Android can hide normal routing output from the Termux app while rish can see it.
+    # If the connected-route token is absent but a private src address is visible, derive
+    # the bounded /24 containing that src rather than reporting no_private_lan.
+    if not nets:
+        for src in src_ips:
+            if src.version==4 and src.is_private:
+                nets.append(ipaddress.ip_network(f'{src}/24',strict=False))
     bounded=[]
     for net in nets:
         if net.prefixlen>=24:
             bounded.append(net)
         else:
-            bounded.extend(list(net.subnets(new_prefix=24))[:16])
-    # Prefer directly-connected, unique networks.
+            matching=[src for src in src_ips if src in net]
+            if matching:
+                bounded.append(ipaddress.ip_network(f'{matching[0]}/24',strict=False))
+            else:
+                bounded.extend(list(net.subnets(new_prefix=24))[:16])
     out=[]
     seen=set()
     for n in bounded:
@@ -53,6 +70,12 @@ def local_networks():
         if s not in seen:
             seen.add(s); out.append(n)
     return out[:16]
+
+
+def local_networks(privileged_route_text=''):
+    p=run(['ip','-4','route'],4)
+    route_text='\n'.join(x for x in [p.stdout,privileged_route_text] if x)
+    return parse_networks(route_text)
 
 
 def port22(ip):
@@ -76,15 +99,13 @@ def verify(ip):
 
 def main():
     wifi=wifi_reconnect()
-    # Let Android finish reassociation without turning this into an unbounded wait.
     time.sleep(1.5)
-    nets=local_networks()
+    nets=local_networks(wifi.get('detail',''))
     if not nets:
         print(json.dumps({'ok':False,'state':'no_private_lan','wifi':wifi},indent=2)); return 2
     hosts=[]
     for net in nets:
         hosts.extend(list(net.hosts()))
-    # Hard safety bound even if routing is weird.
     hosts=hosts[:4096]
     open_ips=[]
     with ThreadPoolExecutor(max_workers=96) as ex:
