@@ -41,12 +41,99 @@ def profile():
     }
 
 
+def classify_rish_failure(text:str)->dict:
+    message=' '.join(str(text or '').split())[-1200:]
+    lowered=message.lower()
+    if 'server is not running' in lowered:
+        return {
+            'kind':'bridge_server_not_running',
+            'message':'Fortress Bridge server is not running',
+            'recoveryRoute':'trusted-wireless-debugging-bootstrap',
+            'physicalActionRequired':'conditional',
+        }
+    if 'permission denied' in lowered:
+        return {
+            'kind':'bridge_client_permission_denied',
+            'message':'Fortress Bridge client was denied',
+            'recoveryRoute':'bridge-authorization-check',
+            'physicalActionRequired':'conditional',
+        }
+    return {
+        'kind':'bridge_client_failed',
+        'message':message or 'Fortress Bridge client failed',
+        'recoveryRoute':'bridge-diagnostics',
+        'physicalActionRequired':'unknown',
+    }
+
+
+def bridge_status()->dict:
+    rish=find_rish()
+    base={
+        'clientPresent':bool(rish),
+        'clientPath':str(rish) if rish else '',
+        'serverRunning':False,
+        'shellIdentityAvailable':False,
+        'clientCallable':False,
+        'shellIdentity':'',
+        'failureKind':'',
+        'message':'',
+        'recoveryRoute':'',
+        'physicalActionRequired':False,
+    }
+    if not rish:
+        base.update({
+            'failureKind':'bridge_client_missing',
+            'message':'Fortress Bridge rish client is unavailable',
+            'recoveryRoute':'bridge-install-or-export-client',
+            'physicalActionRequired':'conditional',
+        })
+        return base
+    try:
+        proc=subprocess.run([str(rish),'-c','id'],text=True,capture_output=True,timeout=8,check=False)
+    except subprocess.TimeoutExpired:
+        base.update({
+            'failureKind':'bridge_probe_timeout',
+            'message':'Fortress Bridge probe timed out',
+            'recoveryRoute':'bridge-recover-with-backoff',
+            'physicalActionRequired':False,
+        })
+        return base
+    if proc.returncode:
+        failure=classify_rish_failure(proc.stderr or proc.stdout or f'rish failed ({proc.returncode})')
+        base.update({
+            'failureKind':failure['kind'],
+            'message':failure['message'],
+            'recoveryRoute':failure['recoveryRoute'],
+            'physicalActionRequired':failure['physicalActionRequired'],
+        })
+        return base
+    identity=' '.join((proc.stdout or '').split())
+    shell=('uid=2000(' in identity or 'uid=2000 ' in identity or identity.startswith('uid=2000'))
+    base.update({
+        'serverRunning':True,
+        'shellIdentityAvailable':shell,
+        'clientCallable':True,
+        'shellIdentity':identity,
+        'failureKind':'' if shell else 'bridge_unexpected_identity',
+        'message':'' if shell else 'Bridge responded but did not report Android shell identity',
+        'recoveryRoute':'' if shell else 'bridge-identity-diagnostics',
+        'physicalActionRequired':False,
+    })
+    return base
+
+
 def doctor():
-    p=profile(); pocket=POCKET_PHONE.is_file() and os.access(POCKET_PHONE,os.X_OK); rish=find_rish()
-    ok=bool(pocket and rish)
+    p=profile(); pocket=POCKET_PHONE.is_file() and os.access(POCKET_PHONE,os.X_OK); bridge=bridge_status()
+    ok=bool(pocket and bridge['clientCallable'] and bridge['shellIdentityAvailable'])
+    if not pocket:
+        blocked='pocket-tts-phone missing'
+    elif bridge['failureKind']:
+        blocked=bridge['message']
+    else:
+        blocked=''
     return {'ok':ok,'preferred':'pocket-home-center' if ok else '','canonicalProvider':'pocket-home-center','voiceProfile':p,
-            'pocketPhone':str(POCKET_PHONE) if pocket else '','androidLaunchTransport':'shizuku-rish','rish':str(rish) if rish else '',
-            'systemFallbackAllowed':False,'blockedReason':'' if ok else ('pocket-tts-phone missing' if not pocket else 'Shizuku rish unavailable'),
+            'pocketPhone':str(POCKET_PHONE) if pocket else '','androidLaunchTransport':'shizuku-rish','rish':bridge['clientPath'],
+            'bridge':bridge,'systemFallbackAllowed':False,'blockedReason':blocked,
             'textChunkChars':p['chunkChars'],'prefetchChunks':0,'batching':False,'cloudFallback':False}
 
 
@@ -126,9 +213,11 @@ def synthesize_chunk(text:str,index:int,p:dict)->Path:
 
 def run_rish(command:str,timeout:float=20.0)->str:
     rish=find_rish()
-    if not rish: raise RuntimeError('ADAM VOICE BLOCKED: Shizuku rish unavailable')
+    if not rish: raise RuntimeError('ADAM VOICE BLOCKED: bridge_client_missing: Fortress Bridge rish client is unavailable')
     proc=subprocess.run([str(rish),'-c',command],text=True,capture_output=True,timeout=timeout,check=False)
-    if proc.returncode: raise RuntimeError((proc.stderr or proc.stdout or f'rish failed ({proc.returncode})')[-3000:])
+    if proc.returncode:
+        failure=classify_rish_failure(proc.stderr or proc.stdout or f'rish failed ({proc.returncode})')
+        raise RuntimeError(f"ADAM VOICE BLOCKED: {failure['kind']}: {failure['message']}; recovery={failure['recoveryRoute']}; physicalActionRequired={failure['physicalActionRequired']}")
     return proc.stdout
 
 
@@ -163,9 +252,10 @@ def speak(chunks:Iterable[str],provider='auto'):
 
 def main():
     ap=argparse.ArgumentParser(prog='fortress-read',description='Adam: Pocket TTS through Home Center playback launched via Shizuku/rish')
-    ap.add_argument('--doctor',action='store_true'); ap.add_argument('--profile',action='store_true'); ap.add_argument('--file')
+    ap.add_argument('--doctor',action='store_true'); ap.add_argument('--bridge-status',action='store_true'); ap.add_argument('--profile',action='store_true'); ap.add_argument('--file')
     ap.add_argument('--provider',choices=['auto','pocket','termux'],default='auto'); ap.add_argument('text',nargs='*'); a=ap.parse_args()
-    if a.doctor: out=doctor()
+    if a.bridge_status: out=bridge_status()
+    elif a.doctor: out=doctor()
     elif a.profile: out=profile()
     elif a.file: out=speak(chunks_from_file(a.file),a.provider)
     elif a.text: out=speak(chunks_from_text(' '.join(a.text)),a.provider)
