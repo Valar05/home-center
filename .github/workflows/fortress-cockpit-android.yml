@@ -9,6 +9,7 @@ on:
       - 'tools/fortress_multimedia_test.py'
       - 'tools/fortress_phone_kernel.py'
       - 'tools/fortress_phone_kernel_test.py'
+      - 'tools/fortress_cli.py'
       - 'tools/setup_fortress_cockpit.sh'
       - 'tools/setup_fortress_phone_kernel.sh'
       - 'config/fortress-prompt.json'
@@ -26,13 +27,15 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
-      - name: Verify compiler, phone kernel, multimedia arsenal, and Android build
+      - name: Verify compiler, phone kernel, CLI, multimedia arsenal, and Android build
         shell: bash
         run: |
           set -euo pipefail
-          python -m py_compile tools/fortress_prompt.py tools/fortress_multimedia.py tools/fortress_multimedia_test.py tools/fortress_phone_kernel.py tools/fortress_phone_kernel_test.py
+          python -m py_compile tools/fortress_prompt.py tools/fortress_multimedia.py tools/fortress_multimedia_test.py tools/fortress_phone_kernel.py tools/fortress_phone_kernel_test.py tools/fortress_cli.py
           python tools/fortress_multimedia_test.py
           python tools/fortress_phone_kernel_test.py
+          HOME="$(mktemp -d)" FORTRESS_HOME_CENTER="$PWD" python tools/fortress_cli.py --status >/tmp/fortress-cli-status.json
+          HOME="$(mktemp -d)" FORTRESS_HOME_CENTER="$PWD" python tools/fortress_cli.py -c 'fortress status' >/tmp/fortress-cli-command.txt
           FORTRESS_HOME_CENTER="$PWD" python tools/fortress_multimedia.py profile >/tmp/fortress-device-profile.json
           FORTRESS_HOME_CENTER="$PWD" python tools/fortress_multimedia.py plan >/tmp/fortress-combined-arms-plan.json
           python -m json.tool config/fortress-prompt.json >/dev/null
