@@ -9,6 +9,7 @@ VOICE_CONFIG=Path(os.environ.get('FORTRESS_ADAM_VOICE_CONFIG',str(REPO/'config/f
 AUDIO_ROOT=Path('/storage/emulated/0/Documents/FortressAudio')
 POCKET_PHONE=Path.home()/'bin/pocket-tts-phone'
 DEFAULT_CHUNK=700
+MAX_CHUNK=DEFAULT_CHUNK
 
 
 def find_rish()->Path|None:
