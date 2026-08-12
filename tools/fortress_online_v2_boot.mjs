@@ -10,7 +10,7 @@ const require=createRequire(import.meta.url);
 const {loadConfig}=require('../functions/fortress_v2_config');
 const SCRIPT_DIR=path.dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT=path.resolve(SCRIPT_DIR,'..');
-const HARD_REQUIRED_SKILL_DOCUMENTS=['venice-stop-gate','venice-review-memory'];
+const HARD_REQUIRED_SKILL_DOCUMENTS=['fortress-plan-gate','venice-stop-gate','venice-review-memory'];
 function sha256(text){return crypto.createHash('sha256').update(text).digest('hex');}
 function uniq(xs){return [...new Set(xs)];}
 function splitRoots(raw){return uniq(String(raw||'').split(path.delimiter).map(x=>x.trim()).filter(Boolean));}
