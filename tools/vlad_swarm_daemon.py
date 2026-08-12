@@ -78,9 +78,8 @@ def _deliver_pending_responses():
     for path in _pending_response_paths():
         data=_load_pending_response(path)
         if not data:
-            # Corrupt delivery state is a real halt for this item; quarantine it
-            # rather than rerunning the potentially side-effecting task.
-            bad=path.with_suffix(".invalid.json")
+            # Move corrupt state outside the pending glob so it cannot loop.
+            bad=path.with_name("quarantine-"+path.name)
             try:path.replace(bad)
             except Exception:pass
             return False
