@@ -102,19 +102,12 @@ PY
 else
   LOCAL_APK="${HC_ADAM_OVERLAY_APK:-$ROOT/android/operator-overlay/app/build/outputs/apk/debug/app-debug.apk}"
   if [ ! -s "$LOCAL_APK" ]; then
-    echo '[deploy] No current generated APK; trying THECAULDRON SSH forge first.'
-    if bash tools/build_operator_overlay_cauldron.sh; then
-      echo '[deploy] THECAULDRON returned an APK.'
-    else
-      echo '[deploy] THECAULDRON forge unavailable; falling back to the phone-native builder.'
-      bash tools/build_operator_overlay_termux.sh
-    fi
+    echo '[deploy] No current generated APK; recovering THECAULDRON SSH Axis and forging there.'
+    bash tools/build_operator_overlay_cauldron.sh
   fi
-  [ -s "$LOCAL_APK" ] || { echo "BLOCKED: no authorized builder produced $LOCAL_APK" >&2; exit 21; }
+  [ -s "$LOCAL_APK" ] || { echo "BLOCKED: THECAULDRON did not produce $LOCAL_APK" >&2; exit 21; }
   install_local_apk "$LOCAL_APK"
 fi
 
-# Restart the already-installed swarm daemon so it consumes Adam overlay requests.
 bash tools/setup_vlad_swarm_daemon.sh
-
 echo "ADAM OVERLAY DEPLOYED receipt=$RECEIPT"
