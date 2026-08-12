@@ -4,6 +4,7 @@ ROOT=Path(__file__).resolve().parents[1]
 boot=(ROOT/'tools/bootstrap_vlad_pixel_forge_mnn_phone.sh').read_text(encoding='utf-8')
 gen=(ROOT/'tools/vlad_pixel_generate_mnn_phone.py').read_text(encoding='utf-8')
 resume=(ROOT/'tools/fortress_phone_resume.sh').read_text(encoding='utf-8')
+refresh=(ROOT/'tools/fortress_refresh_phone_evidence.sh').read_text(encoding='utf-8')
 collector=(ROOT/'tools/fortress_collect_phone_evidence.py').read_text(encoding='utf-8')
 loop=(ROOT/'tools/fortress_venice_loop.py').read_text(encoding='utf-8')
 
@@ -24,19 +25,16 @@ for token in [
     'intermediateDeleted',
     'vlad.pixel.generate.v3',
 ]: assert token in gen, f'MNN generator missing {token}'
-for token in [
-    'fortress_collect_phone_evidence.py',
-    '--evidence-file "$EVIDENCE"',
-    'stage_vlad_pixel_model_phone.py',
-    'vlad_pixel_generate_mnn_phone.py',
-    'git push origin HEAD:main',
-]: assert token in resume, f'Fortress resume missing {token}'
+for token in ['fortress_refresh_phone_evidence.sh','--evidence-file "$EVIDENCE"','git push origin HEAD:main']:
+    assert token in resume, f'Fortress resume missing {token}'
+for token in ['stage_vlad_pixel_model_phone.py','vlad_pixel_generate_mnn_phone.py','fortress_collect_phone_evidence.py']:
+    assert token in refresh, f'phone evidence refresh missing {token}'
 for token in ['fortress.phone-evidence.v1','intermediateDeleted','mnnRef','canonicalBytes']:
     assert token in collector, f'evidence collector missing {token}'
-for token in ['--evidence-file','RUNTIME EVIDENCE','repairPush',"['git','push','origin','HEAD:main']"]:
+for token in ['--evidence-file','RUNTIME EVIDENCE','repairPush',"['git','push','origin','HEAD:main']",'fortress_refresh_phone_evidence.sh']:
     assert token in loop, f'Venice loop missing {token}'
-for text in (boot,gen,resume,collector,loop):
+for text in (boot,gen,resume,refresh,collector,loop):
     low=text.lower()
     assert 'workflow_dispatch' not in low
     assert 'gh workflow' not in low
-print('Vlad Pixel Forge MNN + runtime evidence contract: PASS')
+print('Vlad Pixel Forge MNN + fresh runtime evidence contract: PASS')
