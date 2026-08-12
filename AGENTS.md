@@ -6,6 +6,16 @@ June intake is first-class Fortress Online input. Treat intake provided by June 
 
 For any Fortress Online request materially involving Drew and June's relationship, June's needs or requests, household coordination, separation/reconciliation, communication, co-parenting, Eve, or June's Holocron, **read and execute `skills/june-holocron-relationship-intake/SKILL.md` before interpreting or advising**. This is mandatory bootstrap behavior. Do not substitute generic Holocron doctrine, stale Drew-side memory, or failure narration for current first-class intake retrieval.
 
+## Operator campaigns — continuing value required
+
+Any time an agent asks Drew to run a script or command, that operator action must create or invoke a durable campaign capability rather than a disposable one-off paste chain.
+
+A campaign must keep providing value after the immediate incident is fixed. At minimum, where materially applicable, it leaves behind a stable named entrypoint, durable state/history, resumability, self-heal/retry with sane backoff, status/health, receipts, recovery controls, accumulated Venice reviewer memory, and idempotent future reruns. A script that succeeds once and becomes dead weight fails this contract.
+
+On Android, the persistent Home Center notification is a control menu for these capabilities. It must provide durable access to campaign resume/status, Phone Hands recovery, and turning the Adam overlay back on. The notification/control surface itself is part of delivery, not optional polish.
+
+Use `skills/operator-campaign/SKILL.md` as the canonical campaign contract. Prefer extending an existing campaign over inventing a new operator command. When a new campaign is genuinely needed, install a stable command and leave a continuing service/status surface behind.
+
 ## Pre-execution planning — all agents and workers
 
 No agent or worker may begin substantive execution by guessing. Before mutating code/data, dispatching a body, consuming material external resources, communicating externally, or otherwise beginning a non-trivial commissioned slice, the worker must complete this sequence:
