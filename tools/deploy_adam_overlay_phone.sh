@@ -20,7 +20,6 @@ python -m py_compile tools/adam.py tools/vlad_swarm_daemon.py
 
 install_generated() {
   local build_receipt="$STATE/adam-overlay-build-receipt.json"
-  local apk="$HOME/storage/downloads/home-center-operator-overlay.apk"
   git show "origin/generated/operator-overlay-apk:operator-overlay-receipt.json" > "$build_receipt" 2>/dev/null || return 1
   local artifact_source
   artifact_source="$(python - "$build_receipt" <<'PY'
@@ -39,12 +38,30 @@ install_local_apk() {
   [ -x "$RISH_BIN" ] || { echo 'BLOCKED: rish missing; Shizuku authority required.' >&2; return 2; }
   [ -s "$apk" ] || { echo "BLOCKED: APK missing: $apk" >&2; return 3; }
   local staged="/data/local/tmp/home-center-operator-overlay.apk"
-  local real_apk sha staged_sha
+  local real_apk sha staged_sha install_out
   real_apk="$(readlink -f "$apk")"
   sha="$(sha256sum "$real_apk" | awk '{print $1}')"
   staged_sha="$("$RISH_BIN" -c "set -e; cp '$real_apk' '$staged'; chmod 644 '$staged'; sha256sum '$staged'" 2>&1 | grep -Eo '[0-9a-f]{64}' | tail -1)"
   [ "$sha" = "$staged_sha" ] || { echo 'BLOCKED: staged APK hash mismatch.' >&2; return 4; }
-  "$RISH_BIN" -c "pm install -r '$staged'" | tee "$STATE/adam-overlay-install.txt"
+
+  set +e
+  install_out="$("$RISH_BIN" -c "pm install -r '$staged'" 2>&1)"
+  local install_rc=$?
+  set -e
+  printf '%s\n' "$install_out" | tee "$STATE/adam-overlay-install.txt"
+  if [ $install_rc -ne 0 ] || ! printf '%s\n' "$install_out" | grep -q 'Success'; then
+    if printf '%s\n' "$install_out" | grep -Eqi 'UPDATE_INCOMPATIBLE|signatures do not match|incompatible'; then
+      echo '[deploy] Existing overlay uses another signing key; replacing only com.homecenter.operatoroverlay.'
+      "$RISH_BIN" -c "am force-stop $PACKAGE 2>/dev/null || true; pm uninstall $PACKAGE" | tee "$STATE/adam-overlay-uninstall.txt"
+      install_out="$("$RISH_BIN" -c "pm install '$staged'" 2>&1)"
+      printf '%s\n' "$install_out" | tee "$STATE/adam-overlay-install-after-replace.txt"
+      printf '%s\n' "$install_out" | grep -q 'Success' || { echo 'BLOCKED: replacement install failed.' >&2; return 5; }
+    else
+      echo 'BLOCKED: Android package install failed for a reason other than signing-key replacement.' >&2
+      return 5
+    fi
+  fi
+
   "$RISH_BIN" -c "appops set $PACKAGE SYSTEM_ALERT_WINDOW allow"
   "$RISH_BIN" -c "pm grant $PACKAGE android.permission.POST_NOTIFICATIONS 2>/dev/null || true"
   "$RISH_BIN" -c "am force-stop $PACKAGE; am start-foreground-service -n $PACKAGE/.OperatorOverlayService >/dev/null 2>&1 || am start -n $PACKAGE/.MainActivity >/dev/null"
@@ -52,7 +69,7 @@ install_local_apk() {
   "$RISH_BIN" -c "rm -f '$staged'" || true
   local state
   state="$("$RISH_BIN" -c "content query --uri content://com.homecenter.operatoroverlay.state/state" 2>&1)"
-  printf '%s\n' "$state" | grep -q 'adam_request_id=' || { echo 'BLOCKED: installed overlay does not expose Adam request state.' >&2; return 5; }
+  printf '%s\n' "$state" | grep -q 'adam_request_id=' || { echo 'BLOCKED: installed overlay does not expose Adam request state.' >&2; return 6; }
   python - "$RECEIPT" "$SOURCE_SHA" "$sha" "$state" <<'PY'
 import json,sys,time
 path,source,sha,state=sys.argv[1:]
@@ -84,18 +101,12 @@ print(json.dumps(obj,indent=2,sort_keys=True))
 PY
 else
   LOCAL_APK="${HC_ADAM_OVERLAY_APK:-$ROOT/android/operator-overlay/app/build/outputs/apk/debug/app-debug.apk}"
-  if [ -s "$LOCAL_APK" ]; then
-    install_local_apk "$LOCAL_APK"
-  else
-    cat >&2 <<EOF
-BLOCKED: no current generated Adam overlay artifact and no locally built APK exists.
-Source is ready at: $SOURCE_SHA
-Expected local APK: $LOCAL_APK
-GitHub hosted Android build has failed before runner execution, so this script refuses to install a stale overlay.
-Build the existing android/operator-overlay project on any authorized Android-capable workstation, place app-debug.apk at the path above (or set HC_ADAM_OVERLAY_APK), then rerun this same command. No source changes are required.
-EOF
-    exit 21
+  if [ ! -s "$LOCAL_APK" ]; then
+    echo '[deploy] No current generated APK; building the existing overlay project natively on this phone.'
+    bash tools/build_operator_overlay_termux.sh
   fi
+  [ -s "$LOCAL_APK" ] || { echo "BLOCKED: phone-native builder did not produce $LOCAL_APK" >&2; exit 21; }
+  install_local_apk "$LOCAL_APK"
 fi
 
 # Restart the already-installed swarm daemon so it consumes Adam overlay requests.
