@@ -8,6 +8,7 @@ TARGET="$BIN_DIR/adam"
 SOURCE="$ROOT/tools/adam.py"
 RECEIPT="$STATE/adam-cli-install-receipt.json"
 EXEC_RECEIPT="$STATE/adam-executive-acceptance.json"
+BRAIN_RECEIPT="$STATE/adam-phone-brain-receipt.json"
 
 mkdir -p "$STATE" "$BIN_DIR"
 [ -f "$SOURCE" ] || { echo "BLOCKED: Adam router missing: $SOURCE" >&2; exit 2; }
@@ -34,10 +35,15 @@ hash -r 2>/dev/null || true
 CANARY="$($TARGET terminal 'printf ADAM_CLI_OK' --cwd "$ROOT" --timeout 10)"
 printf '%s\n' "$CANARY" | grep -q 'ADAM_CLI_OK' || { echo 'BLOCKED: Adam CLI terminal canary failed.' >&2; exit 4; }
 
+# Bare Adam depends on the already-existing local phone brain. Health-check it and
+# start that existing daemon when necessary before exercising the chatbot path.
+bash tools/ensure_adam_phone_brain.sh | tee "$BRAIN_RECEIPT"
+grep -q '"ok":true' "$BRAIN_RECEIPT" || { echo 'BLOCKED: Adam phone brain did not become healthy.' >&2; exit 5; }
+
 # Bare Adam is a chatbot/executive, not a Bash prompt. Prove the live local model
 # resolves a greeting to conversation before declaring the install usable.
 python3 tools/accept_adam_executive_phone.py | tee "$EXEC_RECEIPT"
-grep -q '"ok": true' "$EXEC_RECEIPT" || { echo 'BLOCKED: Adam conversational executive canary failed.' >&2; exit 5; }
+grep -q '"ok": true' "$EXEC_RECEIPT" || { echo 'BLOCKED: Adam conversational executive canary failed.' >&2; exit 6; }
 
 SOURCE_SHA="unknown"
 if command -v git >/dev/null 2>&1 && git -C "$ROOT" rev-parse HEAD >/dev/null 2>&1; then
@@ -45,12 +51,13 @@ if command -v git >/dev/null 2>&1 && git -C "$ROOT" rev-parse HEAD >/dev/null 2>
 fi
 ADAM_SHA="$(sha256sum "$SOURCE" | awk '{print $1}')"
 
-python3 - "$RECEIPT" "$SOURCE_SHA" "$ADAM_SHA" "$TARGET" "$SOURCE" "$CANARY" "$EXEC_RECEIPT" <<'PY'
+python3 - "$RECEIPT" "$SOURCE_SHA" "$ADAM_SHA" "$TARGET" "$SOURCE" "$CANARY" "$EXEC_RECEIPT" "$BRAIN_RECEIPT" <<'PY'
 import json,sys,time
-path,source_commit,adam_sha,target,source,canary,exec_receipt=sys.argv[1:]
+path,source_commit,adam_sha,target,source,canary,exec_receipt,brain_receipt=sys.argv[1:]
 executive=json.load(open(exec_receipt,encoding='utf-8'))
+brain=json.load(open(brain_receipt,encoding='utf-8'))
 obj={
-  'schema':'adam-cli-install-v2',
+  'schema':'adam-cli-install-v3',
   'ok':True,
   'sourceCommit':source_commit,
   'adamSha256':adam_sha,
@@ -60,6 +67,8 @@ obj={
   'oneShotModes':['terminal','chat','continue','vlad'],
   'interactiveMode':'conversational-executive',
   'terminalCanary':'ADAM_CLI_OK' in canary,
+  'phoneBrainHealthy':brain.get('ok') is True,
+  'phoneBrainStatus':brain.get('status'),
   'chatbotCanary':executive.get('ok') is True,
   'chatbotKind':executive.get('plan',{}).get('kind'),
   'localExecutive':executive.get('localExecutive'),
