@@ -1,0 +1,85 @@
+{
+  "schema": "venice-plan-review-v2-judgment-jar-primary",
+  "createdAt": "2026-08-13T12:05:00Z",
+  "reviewer": "chatgpt-venice-judgment-jar",
+  "reviewerMode": "judgment_jar_emulation",
+  "reviewerSemantics": "primary-judgment-jar",
+  "independentReviewPass": true,
+  "commission": "Give Vlad fast access to every known Judgment Jar through Home Center, record a typed receipt for every Jar use describing the output it created, and remove Command Center as an active surface or architectural claim.",
+  "missionBoundary": {
+    "owner": "Drew Clarke",
+    "authorizedSurfaces": [
+      "judgment_jars",
+      "home_center",
+      "vlad"
+    ],
+    "forbiddenSubstitution": "Command Center is not an active surface and must not be introduced as a fourth control plane.",
+    "syncOwner": "existing vlad-swarm daemon via the existing vlad-jars sync heartbeat",
+    "delivery": "repository implementation and durable receipts; runtime deployment remains a separate capability state"
+  },
+  "research": {
+    "existingFastAccess": [
+      "config/judgment-jars.v1.json",
+      "tools/judgment_jars.py",
+      "tools/judgment_jar_registry.py",
+      "skills/vlad-judgment-jars/SKILL.md",
+      "atom/server.mjs"
+    ],
+    "existingReceiptGap": "Atom records only local context-access receipts and falsely labels them Home Center DELIVERED. CLI prompt/get/source and Venice review outputs are not uniformly typed or force-fed to a Home Center ledger.",
+    "homeCenterWriteLane": "Home Center MCP drive_operation supports docs.create, docs.update appendText, docs.read, drive.search, and drive.read_metadata.",
+    "daemonSeam": "tools/vlad_swarm_daemon.py already calls vlad-jars sync on heartbeat, so receipt flushing belongs inside the existing sync command rather than a second watcher."
+  },
+  "selectedJudgmentJars": [
+    {
+      "path": ".continue/rules/00-judgement-jar-mission-boundary.md",
+      "blobSha": "b30e41e961a143f8b9502c2830220d3a649f3df0",
+      "reason": "Preserve Home Center, Judgment Jars, and Vlad as the commissioned surfaces and reject Command Center substitution."
+    },
+    {
+      "path": ".continue/rules/20-judgement-jar-repository-truth.md",
+      "blobSha": "402939ff4e9a510038bfdb7c7f2f4d15f56d0b62",
+      "reason": "Separate repository implementation from deployed or callable phone behavior."
+    },
+    {
+      "path": ".continue/rules/30-judgement-jar-change-discipline.md",
+      "blobSha": "14f3733b26d663b66dc767e0eed6df57c3492fdc",
+      "reason": "Extend the existing registry, sync heartbeat, and receipt service instead of inventing parallel infrastructure."
+    },
+    {
+      "path": ".continue/rules/40-judgement-jar-failure-recovery.md",
+      "blobSha": "f1e06a14a02bd269ebac548c3169c6aeb8720105",
+      "reason": "Queue receipts on transient failure and retry without losing output provenance."
+    },
+    {
+      "path": ".continue/rules/80-judgement-jar-daemon-backoff-persistence.md",
+      "blobSha": "6a0afeff38720228dad56d31432871f8b4733cab",
+      "reason": "Use oldest-first durable outbox, bounded retry, and the existing daemon heartbeat."
+    }
+  ],
+  "plan": [
+    "Add a shared Python receipt/outbox module that validates output kinds, captures Jar identity, actor, intent, decision/action, input/output digests, and provenance.",
+    "Make vlad-jars get, source, and prompt emit context_packet receipts; add an explicit receipt command for answer, plan, decision, code change, test, review, artifact, handoff, execution, blocker, no-change, and mixed outputs.",
+    "Flush pending receipts to one append-only native Home Center document from the existing vlad-jars sync heartbeat, verifying every append by Home Center readback.",
+    "Correct Atom local receipt states so local capture is not mislabeled as Home Center delivery.",
+    "Instrument Venice plan/completion review entrypoints to record review_verdict output receipts for every selected/applied Jar.",
+    "Update Vlad, Jar, Atom, and bootstrap doctrine so Command Center is explicitly nonexistent and every Jar use requires a typed output receipt.",
+    "Add deterministic tests for validation, deduplication, oldest-first retry, Home Center readback, CLI receipt creation, and Atom receipt state truth."
+  ],
+  "antagonism": [
+    "A second watcher would violate the commission; flushing must ride the existing vlad-jars sync heartbeat.",
+    "A local JSONL receipt is not Home Center delivery; CAPTURED, PENDING_HOME_CENTER, and DELIVERED must remain distinct.",
+    "Recording only Jar lookup would not reveal what the Jar produced; context_packet access and final output receipts are distinct events.",
+    "A Home Center append without readback can duplicate after an ambiguous network failure; dedup fingerprints and source readback are required.",
+    "Renaming every historical command_center symbol would be an unrelated broad migration; only active user-facing contracts in this slice are corrected, while historical compatibility identifiers remain explicitly non-authoritative.",
+    "Receipt failure must not erase the work product; it must queue the receipt and surface pending delivery honestly."
+  ],
+  "verdict": "PASS",
+  "directive": "PLAN_ALLOWED",
+  "planPermissionGranted": true,
+  "output": {
+    "kind": "review_verdict",
+    "status": "created",
+    "summary": "Venice allowed the bounded typed-receipt and Home Center sync implementation without a duplicate watcher."
+  },
+  "note": "Proceed with the existing Vlad/Home Center/Jar architecture, fail closed on false delivery claims, and do not claim runtime deployment from repository commits."
+}
