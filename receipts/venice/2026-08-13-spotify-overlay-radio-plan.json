@@ -1,0 +1,67 @@
+{
+  "schema": "home-center.venice-judgment-jar-review.v1",
+  "reviewerRole": "venice-judgment-jar",
+  "reviewerMode": "judgment_jar",
+  "reviewType": "pre-execution-plan",
+  "commission": "Recover the existing Adam overlay radio lane on Drew's primary Android phone, begin with real Spotify control, create a real playlist, keep playback rolling, and make the lane promptable through the existing Adam overlay.",
+  "missionBoundary": {
+    "owner": "Drew Clarke",
+    "executionLane": "Home Center -> Command Center -> Phone Hands -> primary-phone",
+    "persistentImplementation": "Valar05/home-center plus the installed primary-phone runtime",
+    "deliverySurface": "the existing Home Center/Adam Android overlay and Spotify app",
+    "forbiddenSubstitutions": [
+      "a second overlay or dashboard",
+      "YouTube or local-file playback presented as Spotify",
+      "web-only playlist creation without phone readback",
+      "repository or APK existence presented as physical playback",
+      "scheduled intent presented as continuous radio"
+    ]
+  },
+  "selectedJars": [
+    "mission-boundary",
+    "execution-truth",
+    "phone-hands",
+    "embodied-communication",
+    "media-presence",
+    "accessibility-first",
+    "venice-stop-gate"
+  ],
+  "researchEvidence": [
+    "phone_hands.devices: primary-phone online with operator_overlay and termux_shell",
+    "spotify-radio-recon-20260813-01: Termux package query returned no Spotify package and no Spotify media session; package visibility remains untrusted until Android-body launch/readback",
+    "PR 249 archaeology: prior overlay radio candidate contained only generic media-key buttons and was not a promptable Spotify lane",
+    "PR 258 archaeology: prior Adam contextual/Hands candidate established the correct intent -> deterministic action separation but was not deployed Spotify radio",
+    "current main OperatorOverlayService: Adam input exists; dedicated radio controls are absent"
+  ],
+  "boundedPlan": [
+    "Prove Spotify installation/account/session state on primary-phone; install through the Play Store only if genuinely absent.",
+    "Create and read back a named Spotify playlist with at least one verified seed track; begin playback and verify Spotify owns the Android media session.",
+    "Implement a deterministic phone-local Spotify radio controller with explicit play, pause, next, previous, status, playlist, start, stop, and prompt parsing contracts.",
+    "Route radio/Spotify natural-language commands from the existing Adam overlay request consumer into that controller; do not add a parallel command surface.",
+    "Keep rolling only while persisted radio-enabled state is true; explicit stop/pause/off commands remain authoritative and must not be auto-undone.",
+    "Add overlay-accessible transport controls where they improve recovery, preserve Pocket Space TTS and existing safety controls, build/install on primary-phone, and verify prompt -> Spotify action -> media-session receipt.",
+    "Persist a reusable broad skill and obtain a fresh Venice completion review before stopping."
+  ],
+  "antagonism": {
+    "blockingRisks": [
+      "Spotify may not be installed or logged in.",
+      "Generic Android media keys can control the wrong active player unless package/media-session ownership is verified.",
+      "An always-resume monitor could violate an explicit human pause; keepalive must be governed by a persisted enabled state.",
+      "The phone repository is dirty and on a non-main branch; deployment must not discard unrelated work or use that dirty checkout as durable source truth.",
+      "Current remote main does not contain the previously proven Pocket Space playback activity, so overlay mutation must preserve the installed playback capability and reconcile durable source before replacement."
+    ],
+    "requiredMitigations": [
+      "Observe package/activity/media-session state after every material Spotify action.",
+      "Use exact idempotent command IDs and keep playlist creation separate from playback acceptance.",
+      "Do not replace the installed overlay until Pocket Space playback and existing overlay controls survive source diff and regression checks.",
+      "Use a clean source worktree or repository mutation lane; never reset or overwrite the dirty phone checkout.",
+      "Stop at a real Spotify login/MFA/subscription boundary only after all independent implementation is complete."
+    ]
+  },
+  "verdict": "PASS",
+  "directive": "PLAN_ALLOWED",
+  "planPermissionGranted": true,
+  "stopPermissionGranted": false,
+  "continuation": "CONTINUE_REQUIRED until a real Spotify playlist is created, playback is physically/media-session verified, and Adam-overlay prompts control it with durable receipts.",
+  "reviewedAt": "2026-08-13T11:45:00Z"
+}
