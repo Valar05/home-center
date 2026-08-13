@@ -86,13 +86,17 @@ restore_old() {
 }
 install_new() {
   for rel in "${FILES[@]}"; do
-    cp "$STAGE/$(basename "$rel")" "$REPO_ROOT/$rel.bootstrap-new"
-    chmod --reference="$REPO_ROOT/$rel" "$REPO_ROOT/$rel.bootstrap-new"
-    mv -f "$REPO_ROOT/$rel.bootstrap-new" "$REPO_ROOT/$rel"
+    cp "$STAGE/$(basename "$rel")" "$REPO_ROOT/$rel.bootstrap-new" || return 1
+    chmod --reference="$REPO_ROOT/$rel" "$REPO_ROOT/$rel.bootstrap-new" || return 1
+    mv -f "$REPO_ROOT/$rel.bootstrap-new" "$REPO_ROOT/$rel" || return 1
   done
 }
 
-install_new
+if ! install_new; then
+  restore_old
+  echo "BLOCKED: atomic module installation failed; original files restored." >&2
+  exit 8
+fi
 if (("${#RELAY_PIDS[@]}" == 1)); then
   kill "${RELAY_PIDS[0]}" 2>/dev/null || true
   for _ in 1 2 3 4 5; do
@@ -120,7 +124,7 @@ if ! kill -0 "$NEW_PID" 2>/dev/null || ! tail -n 120 "$LOG" | grep -q 'Home Cent
   exit 9
 fi
 
-python - "$NODE" <<'PY'
+if ! python - "$NODE" <<'PY'
 import json, pathlib, sys
 node = pathlib.Path(sys.argv[1])
 data = json.loads(node.read_text())
@@ -130,8 +134,15 @@ missing = sorted(required.difference(caps))
 if missing:
     raise SystemExit("BLOCKED: registered relay lacks capabilities: " + ",".join(missing))
 PY
+then
+  kill "$NEW_PID" 2>/dev/null || true
+  restore_old
+  start_relay
+  echo "BLOCKED: new capabilities were not registered; original files restored and restarted." >&2
+  exit 10
+fi
 
-python - "$RECEIPT" "$SOURCE_HEAD" "$MAIN_HEAD" "$REPO_ROOT" "$LIVE_SCRIPT" "$BACKUP" "$NEW_PID" "${FILES[@]}" <<'PY'
+if ! python - "$RECEIPT" "$SOURCE_HEAD" "$MAIN_HEAD" "$REPO_ROOT" "$LIVE_SCRIPT" "$BACKUP" "$NEW_PID" "${FILES[@]}" <<'PY'
 import hashlib, json, pathlib, sys, time
 receipt, source, main, root, live, backup, pid, *files = sys.argv[1:]
 root_path = pathlib.Path(root)
@@ -159,5 +170,12 @@ canonical = json.dumps(body, sort_keys=True, separators=(",", ":")).encode()
 body["receiptHash"] = hashlib.sha256(canonical).hexdigest()
 pathlib.Path(receipt).write_text(json.dumps(body, indent=2, sort_keys=True) + "\n")
 PY
+then
+  kill "$NEW_PID" 2>/dev/null || true
+  restore_old
+  start_relay
+  echo "BLOCKED: bootstrap receipt could not be written; original files restored and restarted." >&2
+  exit 11
+fi
 chmod 600 "$RECEIPT"
 printf 'NATIVE PHONE PLANE BOOTSTRAP VERIFIED\nRECEIPT=%s\n' "$RECEIPT"
