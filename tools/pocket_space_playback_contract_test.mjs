@@ -9,9 +9,12 @@ for (const required of [
   'android.permission.READ_MEDIA_AUDIO',
   'android:name=".PocketTtsPlaybackActivity"',
   'android:exported="true"',
-  'android:theme="@android:style/Theme.NoDisplay"',
+  'android:theme="@android:style/Theme.Translucent.NoTitleBar"',
 ]) {
   if (!manifest.includes(required)) throw new Error('Pocket Space manifest contract missing: ' + required);
+}
+if (manifest.includes('android:theme="@android:style/Theme.NoDisplay"')) {
+  throw new Error('Asynchronous Pocket Space playback must not use Theme.NoDisplay; Android requires that theme to finish before onResume completes.');
 }
 
 for (const required of [
@@ -60,4 +63,4 @@ for (const forbidden of [
   if (reader.includes(forbidden)) throw new Error('Pocket Space reader contains forbidden fallback: ' + forbidden);
 }
 
-console.log('Pocket Space synthesis -> Home Center Android playback -> audio focus -> completion-log receipt contract: PASS');
+console.log('Pocket Space synthesis -> lifecycle-safe Home Center Android playback -> audio focus -> completion-log receipt contract: PASS');
