@@ -1,0 +1,50 @@
+{
+  "schema": "home-center.spotify-radio-build-receipt.v1",
+  "observedAt": "2026-08-13T15:16:15Z",
+  "repository": "Valar05/home-center",
+  "branch": "feat/spotify-radio-background-widget-20260813",
+  "publishedHeadBeforeReceipt": "7b4ec908b2dafe177730b7e2e7204799c896ebd8",
+  "testedSourceCommit": "2eb9243f6ea91c076278fa192437d2823cfcbc34",
+  "execution": {
+    "lane": "Home Center -> Computer Hands -> windows-hands-01 -> isolated THECAULDRON worktree",
+    "ticketId": "hands-spotify-radio-focused-build-fix-20260813-01",
+    "workerId": "windows-hands-01",
+    "exitCode": 0
+  },
+  "checks": {
+    "pythonCompilation": true,
+    "spotifyControllerContracts": true,
+    "overlayIntegrationContract": true,
+    "backgroundScreenAuthorityContract": true,
+    "setupShellSyntax": true,
+    "gitDiffCheck": true,
+    "androidUnitTests": true,
+    "androidAssembleDebug": true
+  },
+  "apk": {
+    "name": "app-debug.apk",
+    "sha256": "5cd36444672d96d69e5a4971a32fa09a1fa7931339fc0ca565d4959b759fd800",
+    "byteCount": 36469,
+    "persistentArtifactDelivered": false
+  },
+  "architectureAssertions": {
+    "spotifyPackage": "com.spotify.music",
+    "foregroundLaunchFallbackPresent": false,
+    "exactPackageMediaBridge": true,
+    "foregroundStabilityRequired": true,
+    "callsAndCompetingMediaYield": true,
+    "screenControlGatesBackend": false,
+    "unknownAndInteractiveActionsFailClosed": true
+  },
+  "capabilityState": {
+    "implementedInRepository": true,
+    "testedOnAuthorizedDesktopBody": true,
+    "apkBuilt": true,
+    "deployedToPrimaryPhone": false,
+    "callableOnPrimaryPhone": false,
+    "backgroundPlaybackVerified": false,
+    "widgetPromptPathVerified": false,
+    "humanAccepted": false
+  },
+  "evidenceBoundary": "This is source and authorized desktop build evidence. The APK has not been delivered or installed on primary-phone, and this receipt does not prove phone callability, playback, rolling behavior, widget control, or human audible acceptance."
+}
