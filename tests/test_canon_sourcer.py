@@ -54,3 +54,11 @@ class CanonSourcerTests(unittest.TestCase):
 
 if __name__=="__main__":
     unittest.main()
+
+
+def test_adam_scene_keeps_she_raw_as_permanent_inner_world_gate():
+    adam = (ROOT / "tools" / "adam.py").read_text(encoding="utf-8")
+    assert "PERMANENT INNER-WORLD GATE:" in adam
+    assert "She-Raw — Ferociously Invitable is always present" in adam
+    assert "SHE_RAW_GATE: PASS|FAIL" in adam
+    assert 'sheRawGate="always-on-inner-world-threshold"' in adam
