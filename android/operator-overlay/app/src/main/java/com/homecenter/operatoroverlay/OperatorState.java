@@ -22,6 +22,10 @@ final class OperatorState {
     static final String KEY_ADAM_REQUEST_ID = "adam_request_id";
     static final String KEY_ADAM_REQUEST_MODE = "adam_request_mode";
     static final String KEY_ADAM_REQUEST_PAYLOAD_B64 = "adam_request_payload_b64";
+    static final String KEY_SPOTIFY_REQUEST_ID = "spotify_request_id";
+    static final String KEY_SPOTIFY_RECEIPT_B64 = "spotify_receipt_b64";
+    static final String KEY_SPOTIFY_SUMMARY = "spotify_summary";
+    static final String KEY_SPOTIFY_UPDATED_MS = "spotify_updated_ms";
 
     private OperatorState() {}
 
@@ -30,7 +34,6 @@ final class OperatorState {
     }
 
     static boolean controlEnabled(Context context) {
-        // The visible local switch is the authority. Missing state fails closed.
         return prefs(context).getBoolean(KEY_CONTROL_ENABLED, false);
     }
 
@@ -90,6 +93,22 @@ final class OperatorState {
         return prefs(context).getString(KEY_ADAM_REQUEST_PAYLOAD_B64, "");
     }
 
+    static long spotifyRequestId(Context context) {
+        return prefs(context).getLong(KEY_SPOTIFY_REQUEST_ID, 0L);
+    }
+
+    static String spotifyReceiptB64(Context context) {
+        return prefs(context).getString(KEY_SPOTIFY_RECEIPT_B64, "");
+    }
+
+    static String spotifySummary(Context context) {
+        return prefs(context).getString(KEY_SPOTIFY_SUMMARY, "Spotify • waiting");
+    }
+
+    static long spotifyUpdatedMs(Context context) {
+        return prefs(context).getLong(KEY_SPOTIFY_UPDATED_MS, 0L);
+    }
+
     static void setControlEnabled(Context context, boolean enabled) {
         SharedPreferences.Editor editor = prefs(context).edit()
                 .putBoolean(KEY_CONTROL_ENABLED, enabled);
@@ -121,18 +140,51 @@ final class OperatorState {
 
     static void submitAdamRequest(Context context, String mode, String text, long nowMs) {
         String cleanMode = mode == null ? "terminal" : mode.trim().toLowerCase();
-        if (!(cleanMode.equals("terminal") || cleanMode.equals("chat") || cleanMode.equals("continue") || cleanMode.equals("vlad"))) {
+        if (!(cleanMode.equals("terminal") || cleanMode.equals("chat")
+                || cleanMode.equals("continue") || cleanMode.equals("vlad")
+                || cleanMode.equals("radio"))) {
             throw new IllegalArgumentException("unsupported Adam mode");
         }
         String clean = text == null ? "" : text.trim();
         if (clean.isEmpty()) return;
         if (clean.length() > 12000) clean = clean.substring(0, 12000);
-        String payload = Base64.encodeToString(clean.getBytes(StandardCharsets.UTF_8), Base64.NO_WRAP);
+        String payload = Base64.encodeToString(
+                clean.getBytes(StandardCharsets.UTF_8), Base64.NO_WRAP);
         prefs(context).edit()
                 .putLong(KEY_ADAM_REQUEST_ID, Math.max(1L, nowMs))
                 .putString(KEY_ADAM_REQUEST_MODE, cleanMode)
                 .putString(KEY_ADAM_REQUEST_PAYLOAD_B64, payload)
                 .commit();
+    }
+
+    static void updateSpotifyReceipt(
+            Context context, long requestId, String receiptJson, String summary, long nowMs) {
+        String cleanReceipt = receiptJson == null ? "{}" : receiptJson.trim();
+        if (cleanReceipt.length() > 12000) cleanReceipt = cleanReceipt.substring(0, 12000);
+        String encoded = Base64.encodeToString(
+                cleanReceipt.getBytes(StandardCharsets.UTF_8), Base64.NO_WRAP);
+        String cleanSummary = sanitizeSpotifySummary(summary);
+        prefs(context).edit()
+                .putLong(KEY_SPOTIFY_REQUEST_ID, Math.max(1L, requestId))
+                .putString(KEY_SPOTIFY_RECEIPT_B64, encoded)
+                .putString(KEY_SPOTIFY_SUMMARY, cleanSummary)
+                .putLong(KEY_SPOTIFY_UPDATED_MS, Math.max(1L, nowMs))
+                .commit();
+    }
+
+    static void updateSpotifySummary(Context context, String summary, long nowMs) {
+        prefs(context).edit()
+                .putString(KEY_SPOTIFY_SUMMARY, sanitizeSpotifySummary(summary))
+                .putLong(KEY_SPOTIFY_UPDATED_MS, Math.max(1L, nowMs))
+                .commit();
+    }
+
+    private static String sanitizeSpotifySummary(String summary) {
+        String cleanSummary = summary == null ? "Spotify updated" : summary.trim();
+        cleanSummary = cleanSummary.replace('\r', ' ').replace('\n', ' ').replace(',', ' ');
+        if (cleanSummary.isEmpty()) cleanSummary = "Spotify updated";
+        if (cleanSummary.length() > 240) cleanSummary = cleanSummary.substring(0, 240);
+        return cleanSummary;
     }
 
     static void updateText(Context context, String source, String text, long nowMs) {

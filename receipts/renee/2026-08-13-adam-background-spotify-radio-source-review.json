@@ -1,0 +1,63 @@
+{
+    "acceptance":  [
+                       "19 deterministic Python contracts pass; 6 Android unit tests pass; Python and Bash syntax pass; Android debug APK assembles; exact Spotify targeting and absence of foreground or generic media fallback are statically checked."
+                   ],
+    "blockers":  [
+                     "unresolved material QA issue: Primary-phone installation and signer/update compatibility are unproven.",
+                     "unresolved material QA issue: Shizuku permission and media-session authority for this APK on the real Android build are unproven.",
+                     "unresolved material QA issue: Spotify PKCE authorization, playlist account readback, playback, rolling refill, foreground invariance, and human acceptance are unproven."
+                 ],
+    "can_grant_final_stop":  false,
+    "capability_state":  "tested",
+    "claim":  "The source implementation for Adam background Spotify radio at commit 18c30ab01baa443f46da54145364664391765e74 is tested on windows-hands-01. It is not installed, Spotify-authorized, session-callable, playlist-created, physically playing, delivered, or accepted.",
+    "created_at":  "2026-08-13T16:55:31.338656+00:00",
+    "dissent":  [
+                    "A debug APK is build evidence only and must not be installed or called deployable acceptance.",
+                    "Source-level negative contracts cannot prove Android or Spotify runtime behavior."
+                ],
+    "evidence":  [
+                     {
+                         "exists":  true,
+                         "path":  "C:\\Users\\dclar\\workspace\\home-center-worktrees\\spotify-radio-final-20260813\\receipts\\spotify-radio\\2026-08-13-source-verification.json",
+                         "size":  8407
+                     }
+                 ],
+    "evidence_refs":  [
+                          "hands-spotify-radio-final-reconciled-gates-20260813-01",
+                          "hands-spotify-radio-apk-inspect-20260813-01",
+                          "hands-spotify-radio-final-source-audit-20260813-01",
+                          "18c30ab01baa443f46da54145364664391765e74"
+                      ],
+    "next_gate":  "repair current QA slice",
+    "provenance":  "SYNTHETIC_RENEE",
+    "questions":  [
+                      "What exactly are we claiming?",
+                      "What evidence proves that exact claim on the commissioned surface?",
+                      "What reachable path did we not test?",
+                      "What happens when the dependency, input, user, network, state, or timing is wrong?",
+                      "Can another person reproduce the result from the receipt?",
+                      "Did we deliver the requested thing or an adjacent substitute?",
+                      "What changed, and what can regress because of it?",
+                      "Are we laundering intended, implemented, tested, deployed, callable, delivered, or accepted into one state?",
+                      "What dissent or uncertainty must remain attached to the claim?"
+                  ],
+    "reachable_failure_paths":  [
+                                    "Shizuku absent, permission missing, or Binder dead fails closed without a delayed surprise command.",
+                                    "Android media-session authority denied or exact com.spotify.music session absent returns explicit failure without Activity or generic-media fallback.",
+                                    "Spotify OAuth missing, expired, malformed, rate-limited, or candidate-poor paths are explicit and preserve current playback.",
+                                    "Rolling disabled and no stop-after-current state performs no Spotify client construction or network call."
+                                ],
+    "receipt_id":  "rqa-b715030a5cabec31f06e",
+    "receipt_path":  "C:\\Users\\dclar\\.home-center\\renee-qa\\receipts\\rqa-b715030a5cabec31f06e.json",
+    "reviewer":  "Rene QA",
+    "schema":  "home-center.renee-qa.review.v1",
+    "unresolved":  [
+                       "Primary-phone installation and signer/update compatibility are unproven.",
+                       "Shizuku permission and media-session authority for this APK on the real Android build are unproven.",
+                       "Spotify PKCE authorization, playlist account readback, playback, rolling refill, foreground invariance, and human acceptance are unproven."
+                   ],
+    "verdict":  "REVISE_REQUIRED",
+    "warnings":  [
+
+                 ]
+}
