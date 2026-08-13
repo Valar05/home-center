@@ -128,12 +128,13 @@ function compactProjection({observedAt=null,time={},daylight=null,weather={},pho
 
 function transitionEvents(previous={}, current={}, observedAt=iso()) {
   const out=[]; const emit=(type,from,to)=>out.push({event_type:type,from,to,observed_at:observedAt,receipt_id:hashReceipt({type,from,to,observedAt})});
-  if (previous.precipitation !== current.precipitation && current.precipitation != null) emit(current.precipitation === 'rain' ? 'rain.started' : 'weather.changed', previous.precipitation, current.precipitation);
-  if (previous.charging !== current.charging && current.charging != null) emit('phone.charging',previous.charging,current.charging);
-  if (previous.battery_pct !== current.battery_pct && Number(current.battery_pct) <= 15 && Number(previous.battery_pct) > 15) emit('phone.low_battery',previous.battery_pct,current.battery_pct);
-  if (previous.audio_route !== current.audio_route && current.audio_route != null) emit('audio.route_changed',previous.audio_route,current.audio_route);
-  if (previous.connectivity !== current.connectivity && current.connectivity != null) emit(current.connectivity === 'offline' ? 'connectivity.offline' : 'connectivity.restored',previous.connectivity,current.connectivity);
-  if (previous.daylight !== current.daylight && current.daylight === 'daylight') emit('sun.risen',previous.daylight,current.daylight);
+  const known=(key)=>hasOwn(previous,key) && previous[key] !== null && previous[key] !== undefined;
+  if (known('precipitation') && previous.precipitation !== current.precipitation && current.precipitation != null) emit(current.precipitation === 'rain' ? 'rain.started' : 'weather.changed', previous.precipitation, current.precipitation);
+  if (known('charging') && previous.charging !== current.charging && current.charging != null) emit('phone.charging',previous.charging,current.charging);
+  if (known('battery_pct') && previous.battery_pct !== current.battery_pct && Number(current.battery_pct) <= 15 && Number(previous.battery_pct) > 15) emit('phone.low_battery',previous.battery_pct,current.battery_pct);
+  if (known('audio_route') && previous.audio_route !== current.audio_route && current.audio_route != null) emit('audio.route_changed',previous.audio_route,current.audio_route);
+  if (known('connectivity') && previous.connectivity !== current.connectivity && current.connectivity != null) emit(current.connectivity === 'offline' ? 'connectivity.offline' : 'connectivity.restored',previous.connectivity,current.connectivity);
+  if (known('daylight') && previous.daylight !== current.daylight && current.daylight === 'daylight') emit('sun.risen',previous.daylight,current.daylight);
   return out;
 }
 
