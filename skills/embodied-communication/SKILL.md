@@ -93,24 +93,45 @@ If the effect-specific component does not expose a meaningful receipt, improve t
 ### 6. Perform a final health check
 After the physical effect, execute a bounded status or observation action. Verify that the target remains online, owner-scoped, readable, and safe to receive later work.
 
+## Stable phone runtime law
+A durable phone capability must not depend on the mutable contents of Drew's dirty working checkout.
+
+The reviewed Pocket Space source lives in `tools/fortress_read_aloud.py`. Install it into the stable Termux runtime with the exact reviewed installer:
+
+```sh
+sh tools/install_embodied_communication_phone.sh
+```
+
+The installer copies the source by SHA-verified readback to:
+
+`~/.local/lib/home-center/embodied-communication/fortress_read_aloud.py`
+
+and atomically points the human/runtime command:
+
+`~/bin/fortress-read`
+
+at that installed copy. The installer must return its source commit, source SHA-256, installed path, wrapper path, and a ready doctor receipt.
+
+A clean detached worktree containing exact reviewed source is the preferred deployment source when the ordinary phone checkout is dirty. Do not overwrite, reset, or use the dirty checkout as deployment evidence.
+
 ## Pocket Space TTS canonical phone path
 For current Fortress Android speech, use the existing Pocket Space pipeline rather than `$HOME/bin/pockettts-say` alone.
 
 `$HOME/bin/pockettts-say --text ...` synthesizes a WAV and prints its identity. It does **not** play it.
 
-The canonical end-to-end command is:
+The canonical installed end-to-end command is:
 
 ```sh
-python /storage/emulated/0/Documents/GodotProjects/home-center/tools/fortress_read_aloud.py 'EXACT TEXT'
+fortress-read 'EXACT TEXT'
 ```
 
-A clean detached worktree containing the exact deployed source is acceptable when the ordinary phone checkout is dirty, but the execution receipt must identify the exact source head used.
-
-The doctor command is:
+The canonical doctor is:
 
 ```sh
-python /storage/emulated/0/Documents/GodotProjects/home-center/tools/fortress_read_aloud.py --doctor
+fortress-read --doctor
 ```
+
+Direct execution of `tools/fortress_read_aloud.py` is a source/deployment canary, not the normal durable runtime surface. If used, the receipt must identify the exact source head and must not imply that `~/bin/fortress-read` was updated.
 
 A ready doctor must identify all of the following:
 
@@ -196,6 +217,8 @@ When output can affect ongoing media, use the intended audio-focus/ducking behav
 An automation may claim audible notification only when its run owns a real playback receipt from the required engine. Configuration that says `prefer audible` is intent, not delivery evidence.
 
 For every automated embodied effect, persist the exact run ID, target device, provider, payload identity, terminal state, playback-component start/completion evidence, and final status. Missing playback evidence must degrade the automation result to text-only, failed, or unverified according to its contract; it may not claim sound.
+
+Automations should invoke the stable installed `fortress-read` command. They must not call `pockettts-say` as though it performs playback and must not depend on a mutable repository checkout.
 
 ## Completion gate
 DONE requires the commissioned physical effect through the commissioned mechanism, an exact terminal receipt, mechanism-specific playback/presentation evidence, a final body health check, and human perceptual acceptance when that was part of the evidence standard.
