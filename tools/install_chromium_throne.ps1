@@ -4,7 +4,7 @@ param(
 )
 
 $ErrorActionPreference = 'Stop'
-$PinnedExtensionCommit = 'e0e4fa363a0308ade3fb7691656abb6d38b976a5'
+$PinnedExtensionCommit = 'b4da5d03743720d45d4a1e27de85aa7e3a435731'
 $ExtensionDir = Join-Path $Root 'extension'
 $BrowserRoot = Join-Path $Root 'chrome-for-testing'
 $ProfileDir = Join-Path $Root 'profile'
@@ -33,6 +33,7 @@ $workerText = Get-Content (Join-Path $ExtensionDir 'service-worker.js') -Raw
 if ($coreText -notmatch 'MAX_PARALLEL_WORKERS\s*=\s*8') { throw 'Parallel worker bound is missing or unexpected.' }
 if ($panelText -notmatch 'Promise\.all\(wave\.map') { throw 'Parallel wave dispatcher contract is missing.' }
 if ($workerText -notmatch 'chrome\.tabs\.create' -or $workerText -notmatch 'workerTabId' -or $workerText -notmatch 'throneWorkers') { throw 'Per-worker visible tab identity contract is incomplete.' }
+if ($workerText -notmatch 'baselineAssistantCount' -or $panelText -notmatch 'baselineAssistantCount') { throw 'Pre-dispatch assistant baseline contract is missing.' }
 
 $nodeTestState = 'not_run_node_missing'
 $node = Get-Command node.exe -ErrorAction SilentlyContinue
@@ -92,6 +93,7 @@ $receipt = [ordered]@{
   parallelWorkerPool = $true
   maxParallelWorkers = 8
   maxSwarmSlices = 12
+  preDispatchAssistantBaseline = $true
   visibleWorkerTabs = $true
   perWorkerJobAndTabReceipts = $true
   swarmTerminalState = 'awaiting_vlad_venice_review'
