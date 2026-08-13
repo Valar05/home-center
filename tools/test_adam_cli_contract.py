@@ -80,6 +80,7 @@ assert 'veniceStopReviewReceiptVerified' in installer
 assert 'terminal|chat|continue|vlad|scene|she-raw)' in installer
 assert 'tools/test_she_raw_cli.py' in installer
 assert 'config/she-raw-cli.v1.json' in installer
+assert 'config/she-raw-jar-cache.md' in installer
 assert 'innerFortressSceneRoute' in installer
 assert 'sheRawLocalOnly' in installer
 assert '$TARGET she-raw --doctor' in installer
