@@ -1,0 +1,1 @@
+Explicit overlay recovery restores visibility only. It does not remotely enable Home Center control.
