@@ -1,5 +1,7 @@
 export const MAX_SWARM_SLICES = 12;
 export const MAX_PARALLEL_WORKERS = 8;
+export const WORKER_REASONING_MODE = 'Pro reasoning';
+export const VENICE_REVIEW_MODE = 'judgment_jar';
 export const HANDOFF_FIELDS = Object.freeze([
   'DURABLE CONTEXT',
   'COMPLETED EVIDENCE',
@@ -8,6 +10,17 @@ export const HANDOFF_FIELDS = Object.freeze([
   'ACTIVE CONSTRAINTS',
   'EXACT NEXT ACTION',
 ]);
+
+export const WORKER_DOCTRINE = Object.freeze({
+  reasoningMode: WORKER_REASONING_MODE,
+  veniceReviewMode: VENICE_REVIEW_MODE,
+  planGate: 'PLAN_ALLOWED',
+  stopGate: 'STOP_ALLOWED',
+  continueDirective: 'CONTINUE_REQUIRED',
+  haltDirective: 'HALT_REQUIRED',
+  localVeniceRequired: false,
+  responseBoundaryIsStop: false,
+});
 
 export function newJob(text, campaignContext, fresh = true, source = 'manual', id = '') {
   const commission = String(text || '').trim();
@@ -20,6 +33,7 @@ export function newJob(text, campaignContext, fresh = true, source = 'manual', i
     source,
     state: 'queued',
     queuedAt: new Date().toISOString(),
+    workerDoctrine: WORKER_DOCTRINE,
   };
 }
 
@@ -60,7 +74,7 @@ export function mergeHandoffContext(base, handoff, maxChars = 24000) {
   if (!handoff || !HANDOFF_FIELDS.every((field) => String(handoff[field] || '').trim())) throw new Error('complete_handoff_required');
   const packet = HANDOFF_FIELDS.slice(0, 5).map((field) => `${field}: ${handoff[field]}`).join('\n');
   const combined = `${String(base || '').trim()}\n\nLATEST WORKER HANDOFF:\n${packet}`.trim();
-  return combined.length > maxChars ? combined.slice(combined.length - maxChars) : combined;
+  return tailBound(combined, maxChars);
 }
 
 export function planHandoffContinuation(baseContext, handoffText, id = '') {
@@ -69,6 +83,35 @@ export function planHandoffContinuation(baseContext, handoffText, id = '') {
   const context = mergeHandoffContext(baseContext, handoff);
   const job = newJob(handoff['EXACT NEXT ACTION'], context, true, 'handoff', id);
   return Object.freeze({handoff, context, job});
+}
+
+export function parseVeniceDirective(text) {
+  const source = String(text || '');
+  const matches = [...source.matchAll(/(?:^|\n)\s*DIRECTIVE\s*:\s*(STOP_ALLOWED|CONTINUE_REQUIRED|HALT_REQUIRED)\b/gi)];
+  return matches.length ? String(matches.at(-1)[1]).toUpperCase() : null;
+}
+
+export function mergeCheckpointContext(baseContext, checkpointText, maxChars = 24000) {
+  const checkpoint = String(checkpointText || '').trim();
+  const combined = `${String(baseContext || '').trim()}\n\nLATEST WORKER CHECKPOINT:\n${checkpoint}`.trim();
+  return tailBound(combined, maxChars);
+}
+
+export function planVeniceContinuation(baseContext, checkpointText, id = '') {
+  const directive = parseVeniceDirective(checkpointText);
+  if (directive === 'STOP_ALLOWED' || directive === 'HALT_REQUIRED') return Object.freeze({directive, job: null, context: mergeCheckpointContext(baseContext, checkpointText)});
+
+  const context = mergeCheckpointContext(baseContext, checkpointText);
+  const commission = directive === 'CONTINUE_REQUIRED'
+    ? 'Continue the SAME bounded commissioned slice. Apply Venice Judgment-Jar findings from the latest checkpoint, validate the repair, invoke Venice Judgment Jars again, and do not stop unless the fresh directive is STOP_ALLOWED or a true HALT_REQUIRED boundary exists.'
+    : 'The prior worker ended without a valid Venice completion directive. First execute Venice\'s applicable Judgment Jars over the latest checkpoint. If Venice returns CONTINUE_REQUIRED, continue the SAME bounded commissioned slice immediately, validate, and ask Venice again. Only STOP_ALLOWED permits normal stopping; HALT_REQUIRED stops mutation at the exact hard boundary.';
+  const job = newJob(commission, context, true, directive === 'CONTINUE_REQUIRED' ? 'venice-continue' : 'venice-missing-review', id);
+  return Object.freeze({directive: directive || 'MISSING', context, job});
+}
+
+function tailBound(value, maxChars) {
+  const text = String(value || '');
+  return text.length > maxChars ? text.slice(text.length - maxChars) : text;
 }
 
 function escapeRegex(value) {
