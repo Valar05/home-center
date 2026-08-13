@@ -10,6 +10,7 @@ LATEST="$STATE_ROOT/latest.json"
 LOCK="$STATE_ROOT/run.lock"
 LOG="$STATE_ROOT/campaign.log"
 BIN="${PREFIX:-$HOME/.local}/bin/fortress-campaign"
+VLAD_SERVICE_RECEIPT="${HC_SWARM_STATE_DIR:-$HOME/.local/state/home-center/vlad-swarm}/service-receipt.json"
 mkdir -p "$STATE_ROOT" "$(dirname "$RUNTIME_ROOT")" "$(dirname "$BIN")"
 
 record(){
@@ -52,21 +53,30 @@ probe_atom(){ curl -fsS http://127.0.0.1:8788/v1/atom/status; }
 probe_overlay(){ command -v rish >/dev/null 2>&1 && rish -c 'content query --uri content://com.homecenter.operatoroverlay.state/state' 2>/dev/null | grep -q 'control_enabled='; }
 probe_menu(){ bash "$RUNTIME_ROOT/tools/home_center_status_menu.sh" probe >/dev/null 2>&1; }
 probe_vlad(){ pgrep -f 'vlad_swarm_daemon.py' >/dev/null 2>&1; }
+probe_vlad_runtime(){
+  probe_vlad || return 1
+  python3 - "$VLAD_SERVICE_RECEIPT" "$RUNTIME_ROOT" <<'PY' >/dev/null 2>&1
+import json,os,sys
+p,root=sys.argv[1:]
+d=json.load(open(p,encoding='utf-8'))
+assert d.get('ok') is True and os.path.realpath(d.get('repoRoot',''))==os.path.realpath(root)
+PY
+}
 probe_hands(){ bash "$RUNTIME_ROOT/tools/phone_hands_watchdog.sh" diagnose >/dev/null 2>&1; }
 probe_ssh(){ bash "$RUNTIME_ROOT/tools/phone_ssh_service.sh" status >/dev/null 2>&1; }
 
 triage(){
-  record triage running "probing Atom, Vlad daemon, SSH, overlay, Phone Hands, notification menu, and SSH Axis"
+  record triage running "probing Atom, canonical Vlad daemon, SSH, overlay, Phone Hands, notification menu, and SSH Axis"
   local atom=0 vlad=0 ssh=0 overlay=0 hands=0 menu=0
   probe_atom >/dev/null 2>&1 && atom=1 || true
-  probe_vlad && vlad=1 || true
+  probe_vlad_runtime && vlad=1 || true
   probe_ssh && ssh=1 || true
   probe_overlay && overlay=1 || true
   probe_hands && hands=1 || true
   probe_menu && menu=1 || true
   python3 - "$STATE_ROOT/triage.json" "$atom" "$vlad" "$ssh" "$overlay" "$hands" "$menu" <<'PY'
 import json,sys,time,os
-p=sys.argv[1];vals=list(map(int,sys.argv[2:]));names=['atom','vladDaemon','sshLocal','overlay','phoneHands','notificationMenu']
+p=sys.argv[1];vals=list(map(int,sys.argv[2:]));names=['atom','vladCanonicalRuntime','sshLocal','overlay','phoneHands','notificationMenu']
 obj={'schema':'fortress-phone-triage-v1','atEpoch':int(time.time()),'checks':dict(zip(names,[bool(x) for x in vals]))}
 os.makedirs(os.path.dirname(p),exist_ok=True);open(p,'w',encoding='utf-8').write(json.dumps(obj,indent=2,sort_keys=True)+'\n');print(json.dumps(obj,sort_keys=True))
 PY
@@ -74,8 +84,10 @@ PY
 }
 
 repair_core(){
-  record repair-core running "repairing only failed existing organs"
-  if ! probe_atom >/dev/null 2>&1 || ! probe_vlad; then HC_REPO_ROOT="$RUNTIME_ROOT" bash "$RUNTIME_ROOT/tools/install_atom_vlad_phone.sh" >>"$LOG" 2>&1 || { record repair-core blocked "Atom/Vlad install or daemon recovery failed"; return 10; }; fi
+  record repair-core running "repairing failed organs and rebinding persistent Vlad to canonical runtime"
+  if ! probe_atom >/dev/null 2>&1; then HC_REPO_ROOT="$RUNTIME_ROOT" bash "$RUNTIME_ROOT/tools/install_atom_vlad_phone.sh" >>"$LOG" 2>&1 || { record repair-core blocked "Atom/Vlad install failed"; return 10; }; fi
+  HC_REPO_ROOT="$RUNTIME_ROOT" bash "$RUNTIME_ROOT/tools/setup_vlad_swarm_daemon.sh" restart >>"$LOG" 2>&1 || { record repair-core blocked "Vlad daemon could not restart on canonical runtime"; return 15; }
+  probe_vlad_runtime || { record repair-core blocked "Vlad daemon is alive but not bound to canonical runtime"; return 16; }
   if ! probe_ssh; then bash "$RUNTIME_ROOT/tools/phone_ssh_service.sh" repair >>"$LOG" 2>&1 || { record repair-core degraded "SSH local repair failed"; return 11; }; fi
   if ! probe_overlay; then bash "$RUNTIME_ROOT/tools/recover_adam_overlay_phone.sh" >>"$LOG" 2>&1 || { record repair-core degraded "overlay recovery failed"; return 12; }; fi
   if ! probe_hands; then
@@ -83,7 +95,7 @@ repair_core(){
     probe_hands || { record repair-core degraded "Phone Hands still unhealthy after bounded recovery"; return 13; }
   fi
   bash "$RUNTIME_ROOT/tools/home_center_status_menu.sh" main >/dev/null 2>&1 || { record repair-core degraded "notification/status surface unavailable"; return 14; }
-  record repair-core healthy "existing phone organs recovered without touching live worktree"
+  record repair-core healthy "existing phone organs recovered; Vlad rebound to canonical runtime; live worktree untouched"
 }
 
 verify_phone(){
@@ -95,7 +107,7 @@ import json,sys
 x=json.loads(sys.argv[1]);v=x.get('vlad') or {}
 assert x.get('ok') is True and x.get('service')=='Atom' and v.get('loaded') is True and v.get('defaultMode')=='deterministic' and v.get('ollamaDefault')=='disabled'
 PY
-  probe_vlad || { record verify-phone blocked "Vlad persistent daemon unavailable"; return 22; }
+  probe_vlad_runtime || { record verify-phone blocked "Vlad persistent daemon is not on canonical runtime"; return 22; }
   probe_ssh || { record verify-phone blocked "local SSH listener unavailable"; return 23; }
   probe_overlay || { record verify-phone blocked "operator overlay/status provider unavailable"; return 24; }
   probe_hands || { record verify-phone blocked "Phone Hands diagnose failed"; return 25; }
@@ -113,7 +125,7 @@ def load(name):
  p=os.path.join(state,name)
  try:return json.load(open(p,encoding='utf-8'))
  except Exception:return None
-obj={'schema':'fortress-phone-review-packet-v1','createdAtEpoch':int(time.time()),'runtimeRoot':root,'evidence':{'triage':load('triage.json'),'phoneSsh':load('../phone-ssh/latest.json'),'sshAxisCauldron':load('ssh-axis-cauldron.json')},'requiredGates':{'vlad':'GO or GO-WITH-SCAR','venice':'STOP_ALLOWED with externalReviewGateSatisfied=true','tetsuya':'RELEASE_ALLOWED'},'accepted':False}
+obj={'schema':'fortress-phone-review-packet-v1','createdAtEpoch':int(time.time()),'runtimeRoot':root,'evidence':{'triage':load('triage.json'),'phoneSsh':load('../phone-ssh/latest.json'),'sshAxisCauldron':load('ssh-axis-cauldron.json'),'vladService':load('../vlad-swarm/service-receipt.json')},'requiredGates':{'vlad':'GO or GO-WITH-SCAR','venice':'STOP_ALLOWED with externalReviewGateSatisfied=true','tetsuya':'RELEASE_ALLOWED'},'accepted':False}
 open(out,'w',encoding='utf-8').write(json.dumps(obj,indent=2,sort_keys=True)+'\n');print(json.dumps(obj,sort_keys=True))
 PY
   record review-packet awaiting-review "campaign is operational but cannot self-release; Vlad + Venice + Tetsuya gates remain"
@@ -136,11 +148,11 @@ receipts(){ status; [ -f "$STATE_ROOT/triage.json" ] && cat "$STATE_ROOT/triage.
 
 case "${1:-run}" in
   run|resume) run_campaign ;;
-  triage) sync_runtime; triage ;;
-  repair) sync_runtime; repair_core; triage; verify_phone ;;
-  ssh) sync_runtime; bash "$RUNTIME_ROOT/tools/phone_ssh_service.sh" repair; bash "$RUNTIME_ROOT/tools/home_center_status_menu.sh" main >/dev/null 2>&1 || true ;;
-  overlay) sync_runtime; bash "$RUNTIME_ROOT/tools/recover_adam_overlay_phone.sh" ;;
-  phone-hands) sync_runtime; bash "$RUNTIME_ROOT/tools/phone_hands_watchdog.sh" diagnose ;;
+  triage) sync_runtime; install_command; triage ;;
+  repair) sync_runtime; install_command; repair_core; triage; verify_phone ;;
+  ssh) sync_runtime; install_command; bash "$RUNTIME_ROOT/tools/phone_ssh_service.sh" repair; bash "$RUNTIME_ROOT/tools/home_center_status_menu.sh" main >/dev/null 2>&1 || true ;;
+  overlay) sync_runtime; install_command; bash "$RUNTIME_ROOT/tools/recover_adam_overlay_phone.sh" ;;
+  phone-hands) sync_runtime; install_command; bash "$RUNTIME_ROOT/tools/phone_hands_watchdog.sh" diagnose ;;
   status) status ;;
   receipts) receipts ;;
   *) echo 'usage: fortress-campaign [run|resume|triage|repair|ssh|overlay|phone-hands|status|receipts]' >&2; exit 64 ;;
