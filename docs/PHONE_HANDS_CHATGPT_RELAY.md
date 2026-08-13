@@ -16,7 +16,15 @@ Tailscale remains the direct peer-to-phone lane for devices already on the tailn
 - `command_center.phone_hands.enqueue` — enqueue one bounded Phone Hands action with idempotency and TTL.
 - `command_center.phone_hands.get` — read command status/result/failure.
 
-Allowed relay actions are intentionally bounded: observe, tap, swipe, text, keyevent, home, back, recents, launch, force_stop, local_ask, and dungeon_run. Arbitrary shell is not part of the cloud relay contract.
+The relay action allowlist includes `phone_shell` for bounded Termux commands as well as observe, tap, swipe, text, keyevent, home, back, recents, launch, force_stop, local_ask, dungeon_run, and the other explicitly registered Phone Hands actions. `phone_shell` executes through the phone-local Termux shell adapter; it is not equivalent to granting arbitrary Android/root authority.
+
+### ChatGPT ingress is mandatory
+
+If a ChatGPT worker needs a Termux command executed, it must attempt the existing Command Center `phone_shell` lane before asking Drew to paste anything. A manual Termux handoff is legal only after durable evidence shows the authorized phone execution lane is unavailable or requires operator-only authority.
+
+If the current ChatGPT surface does not expose/connect Command Center at all, classify that as a **ChatGPT phone-ingress failure**. Repair or reconnect the ingress. Do not reinterpret connector absence as proof that Phone Hands or `phone_shell` does not exist, and do not route around the missing ingress by turning Drew into the command transport.
+
+Any manual fallback that genuinely survives that exhaustion must be a fenced, immediately copy-pasteable command block.
 
 ## Phone authentication
 
@@ -45,8 +53,9 @@ It is **deployed** only when all of the following are observed through the autho
 1. `phoneHandsRelay` Cloud Function is ACTIVE.
 2. Command Center MCP advertises the three `command_center.phone_hands.*` tools.
 3. Android registers `primary-phone` and reports a recent `lastSeenAtMs`.
-4. ChatGPT enqueues `observe`; the phone executes it; ChatGPT reads the actual foreground state back.
-5. ChatGPT enqueues `home`; the phone changes to Home; a second `observe` confirms the mutation.
-6. Desktop is not part of the path during the test.
+4. ChatGPT enqueues a bounded `phone_shell` canary; the phone executes it; ChatGPT reads the actual stdout/exit receipt back.
+5. ChatGPT enqueues `observe`; the phone executes it; ChatGPT reads the actual foreground state back.
+6. ChatGPT enqueues `home`; the phone changes to Home; a second `observe` confirms the mutation.
+7. Desktop is not part of the path during the test.
 
 Repository files or local-only tests are not deployment proof.
