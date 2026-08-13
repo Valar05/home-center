@@ -1,0 +1,57 @@
+{
+  "schema": "venice-plan-review-v2-judgment-jar-primary",
+  "createdAt": "2026-08-13T20:30:00Z",
+  "reviewer": "chatgpt-venice-judgment-jar",
+  "reviewerMode": "judgment_jar_emulation",
+  "reviewerSemantics": "primary-judgment-jar",
+  "independentReviewPass": true,
+  "commission": "Make the existing local orchestration broker into a minimal runnable local swarm, then use that swarm to build broader swarm infrastructure while preserving work across transition of the live local dispatcher. Include the literal NS surface, Regnet QA, and Venice without inventing an expansion for NS.",
+  "missionBoundary": {
+    "owner": "Drew Clarke",
+    "executionOrder": ["NS", "local swarm", "Regnet QA", "Venice"],
+    "delivery": "current-main integration branch and draft pull request; phone installation and runtime callability remain separate states",
+    "forbiddenSubstitutions": [
+      "do not revive Command Center",
+      "do not create a second competing broker",
+      "do not claim phone or dispatcher deployment from source tests",
+      "do not silently expand or reinterpret NS"
+    ]
+  },
+  "research": {
+    "sourceRepository": "Valar05/home-center",
+    "mainObservedHead": "9e450a6fcf741256bdb1de9cc797adc1e4ceb4ad",
+    "existingBrokerBranch": "agent/local-orchestration-broker-p0-schemas-20260811",
+    "existingBrokerHead": "66e2354db5baf87e0a537d3fb87ffbf5554e8a71",
+    "existingGap": "The recovered broker has extensive contracts and tests but no proven minimal durable queue/lease runner or dispatcher-cutover continuity gate on current main.",
+    "governance": "AGENTS.md requires deterministic checks, Regnet QA, then a distinct Venice stop review for code/configuration changes."
+  },
+  "selectedJudgmentJars": [
+    {"path": ".continue/rules/00-judgement-jar-mission-boundary.md", "reason": "Preserve literal NS, local-first execution, and the requested gate order."},
+    {"path": ".continue/rules/20-judgement-jar-repository-truth.md", "reason": "Keep source-tested, deployed, callable, delivered, and accepted states separate."},
+    {"path": ".continue/rules/30-judgement-jar-change-discipline.md", "reason": "Extend the existing broker and Vlad seams instead of adding a parallel control plane."},
+    {"path": ".continue/rules/40-judgement-jar-failure-recovery.md", "reason": "Preserve queued and in-flight work across crashes and dispatcher replacement."},
+    {"path": ".continue/rules/70-judgement-jar-venice-review-gate.md", "reason": "Require Regnet QA before Venice and STOP_ALLOWED before normal completion."},
+    {"path": ".continue/rules/80-judgement-jar-daemon-backoff-persistence.md", "reason": "Use durable oldest-first state, bounded leases, retries, and resumability."}
+  ],
+  "plan": [
+    "Recover the existing local-orchestration-broker onto a fresh branch from current main.",
+    "Add a dependency-free local durable queue, worker lease, heartbeat, retry, receipt, and status CLI suitable for Termux and desktop Python 3.",
+    "Separate dispatcher identity from queue ownership using generation/epoch registration, drain, adoption, and expired-lease recovery so a replacement dispatcher can take over without losing work or double-completing it.",
+    "Make literal NS an explicit routing surface token without assigning an unsupported expansion; route Regnet QA and Venice as mandatory quality and final-stop gates.",
+    "Prove enqueue, parallel-safe claim, crash recovery, idempotent completion, old-dispatcher fencing, live handoff, and continued execution after cutover with deterministic local tests.",
+    "Run the recovered broker tests plus the new swarm tests; then record Regnet QA and Venice receipts against the exact tested source state.",
+    "Open a draft PR; do not merge, deploy, or claim phone callability without separate runtime evidence."
+  ],
+  "antagonism": [
+    "Keeping queue state inside the dispatcher process would lose the swarm during replacement.",
+    "A new dispatcher starting before the old one drains can duplicate side effects unless generation fencing and idempotency keys are enforced transactionally.",
+    "Blindly requeueing all running jobs can duplicate work whose external side effect succeeded before receipt persistence; completion must be idempotent and ambiguous jobs must remain inspectable.",
+    "Using the old isolated broker branch directly would mix stale repository state into current main; only its bounded broker files should be recovered.",
+    "Calling a contract-only package a working swarm would exceed evidence; the slice requires a runnable CLI and deterministic cutover test.",
+    "Regnet PASS cannot grant final stop, and Venice STOP_ALLOWED cannot launder failed deterministic checks."
+  ],
+  "verdict": "PASS",
+  "directive": "PLAN_ALLOWED",
+  "planPermissionGranted": true,
+  "note": "Proceed on current main with one durable state owner, generation fencing, reversible dispatcher handoff, literal NS preservation, and no runtime deployment claims."
+}
