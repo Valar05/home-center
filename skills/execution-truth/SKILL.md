@@ -51,6 +51,15 @@ When the requested lane fails, do not stop at `tool unavailable`.
 
 At a true operator boundary, name the exact failed transition, the terminal receipt, why automation cannot cross it, and the smallest human action that restores the commissioned lane. Do not ask the user to become a command transport when a first-class recovery control exists.
 
+## Motivation and handback discipline
+A remediable blocker is work, not a conversational stopping point. When the failure is caused by Home Center, Fortress code, configuration, routing, stale assumptions, or a regression inside an authorized lane, repair that failure before asking the user to intervene.
+
+Never hand a mission back merely because the first recovery attempt failed. Continue through the recovery ladder, inspect the exact implementation that produced the failure, patch durable source when authorized, add a regression, and seek a deployment path for the fix.
+
+Do not ask the user to toggle, paste, restart, re-pair, or manually transport a command merely to work around a defect that should not have required that operator action in the first place. First correct the defect and exhaust existing self-recovery surfaces. If an old deployed defect itself prevents installing its fix, state that circular bootstrap boundary precisely; do not mislabel it as the intended architecture.
+
+When the user explicitly orders continued execution or says not to talk until a reviewer permits it, response boundaries are not permission to stop. Keep working through authorized tools. A progress explanation is not a substitute for the next executable step.
+
 ## Queue and lease discipline
 Queueing proves only Requested/Queued. Poll the exact ticket until terminal state or until evidence proves a real external blocker. Do not spam polls. If queue starvation, stale tickets, lease expiration, idempotency collisions, or owner mismatch are plausible, inspect the actual relay contract and test that hypothesis with a bounded probe.
 
