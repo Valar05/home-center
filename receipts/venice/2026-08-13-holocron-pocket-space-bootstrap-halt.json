@@ -1,0 +1,52 @@
+{
+  "schema": "fortress.venice-review.v1",
+  "reviewerRole": "venice-judgment-jar",
+  "reviewerMode": "judgment_jar",
+  "workerIdentity": "ChatGPT GPT-5.6 Sol",
+  "commission": "Make primary-phone audibly speak exactly 'Holocron audio check. Pocket Space TTS is online.' through Pocket Space TTS via Home Center -> Command Center -> Phone Hands -> primary-phone, with playback and final-health receipts.",
+  "verdict": "FAIL",
+  "directive": "HALT_REQUIRED",
+  "selectedJars": [
+    "mission-boundary",
+    "execution-truth",
+    "evidence-truth",
+    "operator-authority",
+    "phone-runtime"
+  ],
+  "findings": [
+    "The commissioned playback has not occurred and must not be reported as done.",
+    "Canonical source was repaired so background phone_shell dispatches before overlay_control_gate, but the running phone relay still executes the older gate order; repository implementation is not runtime deployment.",
+    "Fresh primary-phone receipts show the old running relay terminal-fails phone_shell with 'Home Center control is disabled from the on-screen operator overlay'.",
+    "The operator overlay is installed, readable, and now deliberately surfaced; fresh state is controlEnabled=false, overlayHidden=false, panelCollapsed=true.",
+    "Remote enable/disable is intentionally absent: the provider is read-only and the architecture reserves re-enable to the on-screen user-owned control. Overlay maintenance can surface the UI but cannot restore control authority.",
+    "Read-only phone_diagnostics cannot write, execute subprocesses, use network, install, build, or mutate UI, so it cannot deploy the fixed relay.",
+    "The deployed Home Center operation registry exposes no callable SSH operation to primary-phone; tools/ssh_axis.py requires an executing runtime and an independently configured phone endpoint, neither of which is callable from this chat surface. Venice Nerve is not registered/online. No authorized non-operator recovery surface found can mutate the live relay while control is off.",
+    "This is a circular bootstrap boundary caused by a deployed defect, not the intended Phone Shell architecture. The smallest authority-restoring action is one local tap of Enable control on the now-visible Home Center overlay. After that, execution must resume immediately rather than treating the tap as completion."
+  ],
+  "evidence": {
+    "target": "primary-phone",
+    "overlaySurfaceCommandId": "000-surface-local-control-for-bootstrap-20260813-0535",
+    "overlaySurfaceTerminalStatus": "completed",
+    "overlayState": {
+      "installed": true,
+      "stateReadable": true,
+      "controlEnabled": false,
+      "overlayHidden": false,
+      "panelCollapsed": true
+    },
+    "latestPhoneShellFailure": "Home Center control is disabled from the on-screen operator overlay",
+    "canonicalRelayFixCommit": "09ee4efd6dc2490e54ed04ee47529e4ff35fc53d",
+    "executionTruthHardeningCommit": "5e875d64a97f0d69f03cd95e3bd0aaac4916331e"
+  },
+  "capabilityState": {
+    "requested": true,
+    "implementedCanonicalFix": true,
+    "deployedCanonicalFixOnPhone": false,
+    "phoneShellCallableUnderLiveRelay": false,
+    "pocketSpacePlaybackExecuted": false,
+    "accepted": false
+  },
+  "operatorAction": "Tap Enable control once on the now-visible Home Center overlay. No terminal command is required.",
+  "resumeRule": "Once controlEnabled becomes true, immediately resume the original commission: use Phone Shell to deploy/restart the corrected relay, prove Phone Shell independent of the overlay gate, locate/invoke Pocket Space TTS for the exact phrase, verify playback, and perform final phone health observation.",
+  "timestamp": "2026-08-13T05:36:00-05:00"
+}
