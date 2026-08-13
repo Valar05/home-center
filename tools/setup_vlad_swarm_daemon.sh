@@ -6,14 +6,20 @@ STATE_DIR="${HC_SWARM_STATE_DIR:-$HOME/.local/state/home-center/vlad-swarm}"
 JAR_CACHE="${HC_JUDGMENT_JARS_CACHE:-$STATE_DIR/judgment-jars.json}"
 JAR_CONFIG="${HC_JUDGMENT_JARS_CONFIG:-$REPO_ROOT/config/judgment-jars.v1.json}"
 JAR_SYNC_RECEIPT="$STATE_DIR/judgment-jars-initial-sync.json"
+JAR_USAGE_STATUS="$STATE_DIR/judgment-jar-usage-status.json"
 JAR_TOOL="$REPO_ROOT/tools/judgment_jars.py"
+VLAD_TOOL="$REPO_ROOT/tools/vlad.py"
+JAR_RECEIPT_TOOL="$REPO_ROOT/tools/jar_receipt.py"
+JAR_RECEIPTS="$REPO_ROOT/tools/judgment_jar_receipts.py"
 JAR_CLIENT="$REPO_ROOT/tools/home_center_mcp_client.py"
 JAR_COMMON="$REPO_ROOT/tools/judgment_jar_common.py"
 JAR_CABINET="$REPO_ROOT/tools/judgment_jar_cabinet.py"
 JAR_REGISTRY="$REPO_ROOT/tools/judgment_jar_registry.py"
 JAR_TEST="$REPO_ROOT/tools/test_judgment_jar_registry.py"
+JAR_RECEIPT_TEST="$REPO_ROOT/tools/test_judgment_jar_receipts.py"
 BIN_DIR="${HC_ADAM_BIN_DIR:-${PREFIX:-$HOME/.local}/bin}"
 JAR_BIN="$BIN_DIR/vlad-jars"
+VLAD_BIN="$BIN_DIR/vlad"
 SERVICE_DIR="$PREFIX/var/service/vlad-swarm"
 LOG_DIR="$PREFIX/var/log/vlad-swarm"
 MODE="${1:-ensure}"
@@ -22,16 +28,22 @@ DAEMON="$REPO_ROOT/tools/vlad_swarm_daemon.py"
 DAEMON_SHA_FILE="$STATE_DIR/daemon-source.sha256"
 
 mkdir -p "$STATE_DIR" "$LOG_DIR" "$BIN_DIR"
-for file in "$DAEMON" "$JAR_TOOL" "$JAR_CLIENT" "$JAR_COMMON" "$JAR_CABINET" "$JAR_REGISTRY" "$JAR_TEST" "$JAR_CONFIG"; do
-  [ -f "$file" ] || { echo "BLOCKED: Vlad component missing: $file" >&2; exit 4; }
+for file in \
+  "$DAEMON" "$JAR_TOOL" "$VLAD_TOOL" "$JAR_RECEIPT_TOOL" "$JAR_RECEIPTS" \
+  "$JAR_CLIENT" "$JAR_COMMON" "$JAR_CABINET" "$JAR_REGISTRY" \
+  "$JAR_TEST" "$JAR_RECEIPT_TEST" "$JAR_CONFIG"; do
+  [ -f "$file" ] || { echo "BLOCKED: Vlad/Judgment-Jar component missing: $file" >&2; exit 4; }
 done
 PYTHON_BIN="$(command -v python3 || true)"
 [ -n "$PYTHON_BIN" ] || { echo "BLOCKED: python3 missing." >&2; exit 5; }
-chmod +x "$DAEMON" "$JAR_TOOL" "$JAR_CLIENT"
+chmod +x "$DAEMON" "$JAR_TOOL" "$VLAD_TOOL" "$JAR_RECEIPT_TOOL" "$JAR_CLIENT"
 
 cd "$REPO_ROOT"
 python3 "$JAR_TEST"
-python3 -m py_compile "$DAEMON" "$JAR_TOOL" "$JAR_CLIENT" "$JAR_COMMON" "$JAR_CABINET" "$JAR_REGISTRY"
+python3 "$JAR_RECEIPT_TEST"
+python3 -m py_compile \
+  "$DAEMON" "$JAR_TOOL" "$VLAD_TOOL" "$JAR_RECEIPT_TOOL" "$JAR_RECEIPTS" \
+  "$JAR_CLIENT" "$JAR_COMMON" "$JAR_CABINET" "$JAR_REGISTRY"
 "$PYTHON_BIN" "$JAR_TOOL" \
   --root "$REPO_ROOT" \
   --cache "$JAR_CACHE" \
@@ -46,6 +58,7 @@ if receipt.get('ok') is not True:
 if int(receipt.get('localJarCount') or 0) < 1:
     raise SystemExit('BLOCKED: no repository operational Judgment Jars were compiled.')
 json.load(open(cache_path,encoding='utf-8'))
+usage=receipt.get('judgmentJarUsageReceipts') or {}
 print(json.dumps({
     'ok':True,
     'complete':receipt.get('complete') is True,
@@ -55,17 +68,53 @@ print(json.dumps({
     'unregisteredJarCount':receipt.get('unregisteredJarCount'),
     'homeCenterState':receipt.get('homeCenterState'),
     'homeCenterLastError':receipt.get('homeCenterLastError'),
+    'pendingUsageReceipts':usage.get('pending'),
+    'receiptFlushBlocked':usage.get('blocked'),
 },sort_keys=True))
 PY
 
 TMP_JAR_BIN="$JAR_BIN.tmp.$$"
 cat > "$TMP_JAR_BIN" <<EOF2
 #!/data/data/com.termux/files/usr/bin/bash
-exec "$PYTHON_BIN" "$JAR_TOOL" --root "$REPO_ROOT" --cache "$JAR_CACHE" --config "$JAR_CONFIG" "\$@"
+exec env \
+  HC_REPO_ROOT=$(printf '%q' "$REPO_ROOT") \
+  HC_JUDGMENT_JARS_CACHE=$(printf '%q' "$JAR_CACHE") \
+  HC_JUDGMENT_JARS_CONFIG=$(printf '%q' "$JAR_CONFIG") \
+  "$PYTHON_BIN" "$JAR_TOOL" "\$@"
 EOF2
 chmod 755 "$TMP_JAR_BIN"
 mv -f "$TMP_JAR_BIN" "$JAR_BIN"
+
+TMP_VLAD_BIN="$VLAD_BIN.tmp.$$"
+cat > "$TMP_VLAD_BIN" <<EOF2
+#!/data/data/com.termux/files/usr/bin/bash
+exec env \
+  HC_REPO_ROOT=$(printf '%q' "$REPO_ROOT") \
+  HC_JUDGMENT_JARS_CACHE=$(printf '%q' "$JAR_CACHE") \
+  HC_JUDGMENT_JARS_CONFIG=$(printf '%q' "$JAR_CONFIG") \
+  "$PYTHON_BIN" "$VLAD_TOOL" "\$@"
+EOF2
+chmod 755 "$TMP_VLAD_BIN"
+mv -f "$TMP_VLAD_BIN" "$VLAD_BIN"
+hash -r 2>/dev/null || true
+
 "$JAR_BIN" status >/dev/null
+"$VLAD_BIN" jars receipt-status > "$JAR_USAGE_STATUS"
+python3 - "$JAR_USAGE_STATUS" <<'PY'
+import json,sys
+value=json.load(open(sys.argv[1],encoding='utf-8'))
+assert value.get('schema') == 'home-center.judgment-jar-usage-status.v1', value
+assert (value.get('config') or {}).get('outputKinds'), value
+assert value.get('ledger'), value
+assert value.get('pending'), value
+print(json.dumps({
+  'ok':True,
+  'outputKinds':(value.get('config') or {}).get('outputKinds'),
+  'pendingUsageReceipts':(value.get('pending') or {}).get('count'),
+  'historyCount':value.get('historyCount'),
+  'ackCount':value.get('ackCount'),
+},sort_keys=True))
+PY
 
 DAEMON_SHA="$(sha256sum "$DAEMON" | awk '{print $1}')"
 INSTALLED_DAEMON_SHA="$(cat "$DAEMON_SHA_FILE" 2>/dev/null || true)"
@@ -74,16 +123,23 @@ SOURCE_CHANGED=0
 
 write_receipt(){
   local ok="$1" manager="$2" detail="$3"
-  python3 - "$RECEIPT" "$ok" "$manager" "$detail" "$REPO_ROOT" "$JAR_CACHE" "$JAR_CONFIG" "$JAR_SYNC_RECEIPT" "$JAR_BIN" "$DAEMON_SHA" <<'PY'
+  python3 - "$RECEIPT" "$ok" "$manager" "$detail" "$REPO_ROOT" "$JAR_CACHE" "$JAR_CONFIG" "$JAR_SYNC_RECEIPT" "$JAR_USAGE_STATUS" "$JAR_BIN" "$VLAD_BIN" "$DAEMON_SHA" <<'PY'
 import json,os,sys,time
-path,ok,manager,detail,root,jar_cache,jar_config,jar_sync_path,jar_bin,daemon_sha=sys.argv[1:]
+(path,ok,manager,detail,root,jar_cache,jar_config,jar_sync_path,
+ usage_path,jar_bin,vlad_bin,daemon_sha)=sys.argv[1:]
 try:
     jar_sync=json.load(open(jar_sync_path,encoding='utf-8'))
 except Exception as exc:
     jar_sync={'ok':False,'complete':False,'error':f'{type(exc).__name__}: {exc}'}
+try:
+    usage=json.load(open(usage_path,encoding='utf-8'))
+except Exception as exc:
+    usage={'schema':'error','error':f'{type(exc).__name__}: {exc}'}
+usage_config=usage.get('config') or {}
+pending=usage.get('pending') or {}
 obj={
-  'schema':'vlad-swarm-service-v4-home-center-judgment-jars',
-  'ok':ok=='1' and jar_sync.get('ok') is True,
+  'schema':'vlad-swarm-service-v5-home-center-judgment-jar-usage-receipts',
+  'ok':ok=='1' and jar_sync.get('ok') is True and usage.get('schema')=='home-center.judgment-jar-usage-status.v1',
   'manager':manager,
   'detail':detail,
   'repoRoot':root,
@@ -94,6 +150,7 @@ obj={
     'cachePath':jar_cache,
     'configPath':jar_config,
     'cli':jar_bin,
+    'vladCli':vlad_bin,
     'complete':jar_sync.get('complete') is True,
     'jarCount':jar_sync.get('jarCount'),
     'localJarCount':jar_sync.get('localJarCount'),
@@ -104,6 +161,19 @@ obj={
     'homeCenterState':jar_sync.get('homeCenterState'),
     'homeCenterLastError':jar_sync.get('homeCenterLastError'),
     'initialSyncCacheVerified':jar_sync.get('ok') is True,
+  },
+  'judgmentJarUsageReceipts':{
+    'schema':'home-center.judgment-jar-usage-receipt.v1',
+    'required':True,
+    'outputKindRequired':True,
+    'outputKinds':usage_config.get('outputKinds') or [],
+    'ledger':usage.get('ledger'),
+    'pendingDirectory':pending.get('directory'),
+    'pendingUsageReceipts':pending.get('count'),
+    'historyCount':usage.get('historyCount'),
+    'ackCount':usage.get('ackCount'),
+    'oldestPendingFirst':True,
+    'sameDaemonSync':True,
   },
 }
 os.makedirs(os.path.dirname(path),exist_ok=True)
@@ -142,7 +212,7 @@ EOF2
   sleep 1
   if sv status vlad-swarm 2>/dev/null | grep -q '^run:'; then
     mark_daemon_sha
-    write_receipt 1 runit "vlad-swarm running with repository + Home Center Judgment Jar sync"
+    write_receipt 1 runit "vlad-swarm running with Judgment Jar registry and usage-receipt sync"
   else
     write_receipt 0 runit "vlad-swarm is not running"
     exit 2
@@ -157,7 +227,7 @@ else
     sleep 1
   fi
   if [ -f "$PIDFILE" ] && kill -0 "$(cat "$PIDFILE")" 2>/dev/null; then
-    write_receipt 1 pidfile "vlad-swarm already running pid=$(cat "$PIDFILE") with current Judgment Jar cache"
+    write_receipt 1 pidfile "vlad-swarm already running pid=$(cat "$PIDFILE") with current Judgment Jar cache and receipt outbox"
     exit 0
   fi
   nohup env \
@@ -169,7 +239,7 @@ else
   sleep 1
   if kill -0 "$(cat "$PIDFILE")" 2>/dev/null; then
     mark_daemon_sha
-    write_receipt 1 pidfile "vlad-swarm started pid=$(cat "$PIDFILE") with repository + Home Center Judgment Jar sync"
+    write_receipt 1 pidfile "vlad-swarm started pid=$(cat "$PIDFILE") with Judgment Jar registry and usage-receipt sync"
   else
     write_receipt 0 pidfile "vlad-swarm exited during startup"
     exit 3
