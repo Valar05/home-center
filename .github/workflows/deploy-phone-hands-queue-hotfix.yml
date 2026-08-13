@@ -1,0 +1,103 @@
+name: Deploy Phone Hands queue hotfix
+
+on:
+  push:
+    branches:
+      - phone-hands-queue-starvation-hotfix-20260813
+    paths:
+      - .github/workflows/deploy-phone-hands-queue-hotfix.yml
+
+permissions:
+  contents: write
+  id-token: write
+
+concurrency:
+  group: deploy-phone-hands-queue-hotfix
+  cancel-in-progress: false
+
+env:
+  HC_FIREBASE_SA: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_HOME_CENTER_DCLAR }}
+  HC_GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
+  HC_GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
+  HC_FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+  HC_FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+  HC_WIF_PROVIDER: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+  HC_WIF_SERVICE_ACCOUNT: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+
+jobs:
+  deploy-and-record:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: phone-hands-queue-starvation-hotfix-20260813
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Ensure source repair exists
+        shell: bash
+        run: |
+          set -euo pipefail
+          if grep -Fq ".limit(10).get()" functions/phone_hands_relay.js; then
+            node tools/install_phone_hands_queue_starvation_fix.mjs
+          fi
+          node tools/phone_hands_queue_starvation_contract_test.mjs
+          git diff --check
+      - name: Authenticate with workload identity when configured
+        if: env.HC_WIF_PROVIDER != '' && env.HC_WIF_SERVICE_ACCOUNT != ''
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ env.HC_WIF_PROVIDER }}
+          service_account: ${{ env.HC_WIF_SERVICE_ACCOUNT }}
+      - name: Select Firebase credentials
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -n "${HC_WIF_PROVIDER}" ] && [ -n "${HC_WIF_SERVICE_ACCOUNT}" ]; then
+            echo 'AUTH_MODE=workload_identity' >> "$GITHUB_ENV"
+            exit 0
+          fi
+          credential=''
+          for candidate in "$HC_FIREBASE_SA" "$HC_GOOGLE_CREDENTIALS" "$HC_GCP_SA_KEY" "$HC_FIREBASE_SERVICE_ACCOUNT"; do
+            if [ -n "$candidate" ]; then credential="$candidate"; break; fi
+          done
+          if [ -n "$credential" ]; then
+            path="$RUNNER_TEMP/home-center-firebase-service-account.json"
+            printf '%s' "$credential" > "$path"
+            chmod 600 "$path"
+            echo "GOOGLE_APPLICATION_CREDENTIALS=$path" >> "$GITHUB_ENV"
+            echo 'AUTH_MODE=service_account_json' >> "$GITHUB_ENV"
+          elif [ -n "$HC_FIREBASE_TOKEN" ]; then
+            echo 'AUTH_MODE=firebase_token' >> "$GITHUB_ENV"
+          else
+            echo 'No recognized Firebase/GCP deployment credential is configured.' >&2
+            exit 41
+          fi
+      - name: Install function dependencies
+        run: npm ci --prefix functions
+      - name: Deploy only Phone Hands relay
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ "$AUTH_MODE" = 'firebase_token' ]; then
+            npx --yes firebase-tools@latest deploy --project home-center-dclar --only functions:phoneHandsRelay --non-interactive --token "$HC_FIREBASE_TOKEN"
+          else
+            npx --yes firebase-tools@latest deploy --project home-center-dclar --only functions:phoneHandsRelay --non-interactive
+          fi
+      - name: Commit repaired source and remove one-use machinery
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'home-center-github-admin[bot]'
+          git config user.email 'home-center-github-admin[bot]@users.noreply.github.com'
+          git rm --ignore-unmatch .github/workflows/deploy-phone-hands-queue-hotfix.yml
+          git rm --ignore-unmatch .github/workflows/apply-phone-hands-queue-starvation-hotfix.yml
+          git rm --ignore-unmatch tools/install_phone_hands_queue_starvation_fix.mjs
+          git add functions/phone_hands_relay.js tools/phone_hands_queue_starvation_contract_test.mjs
+          git diff --cached --check
+          if ! git diff --cached --quiet; then
+            git commit -m 'Deploy and retain Phone Hands queue starvation repair'
+            git push origin HEAD:phone-hands-queue-starvation-hotfix-20260813
+          fi
