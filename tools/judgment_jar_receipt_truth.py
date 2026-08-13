@@ -1,10 +1,5 @@
 #!/usr/bin/env python3
-"""Public receipt API with strict quarantine truth.
-
-The storage module preserves malformed shards in terminal quarantine. This
-facade ensures every CLI/daemon caller reports that quarantine as a failed
-state instead of rounding an otherwise empty pending queue up to DELIVERED.
-"""
+"""Public receipt API with strict delivery and quarantine truth."""
 from __future__ import annotations
 
 from typing import Any, Callable
@@ -29,13 +24,14 @@ def _strict(value: dict[str, Any]) -> dict[str, Any]:
     quarantined = int(value.get("quarantined") or 0)
     if quarantined <= 0:
         return value
-    blocked = value.get("blocked")
-    if not isinstance(blocked, dict):
-        blocked = {
-            "state": "QUARANTINED",
-            "count": quarantined,
-            "error": "One or more Judgment Jar receipt shards require explicit repair.",
-        }
+    prior_block = value.get("blocked") if isinstance(value.get("blocked"), dict) else None
+    blocked: dict[str, Any] = {
+        "state": "QUARANTINED",
+        "count": quarantined,
+        "error": "One or more Judgment Jar receipt shards require explicit repair.",
+    }
+    if prior_block:
+        blocked["alsoBlocked"] = prior_block
     return {
         **value,
         "ok": False,
@@ -50,12 +46,21 @@ def flush(
     client_factory: Callable[[], Any] | None = None,
     now_ms: int | None = None,
 ) -> dict[str, Any]:
-    return _strict(_flush(config, limit=limit, client_factory=client_factory, now_ms=now_ms))
+    value = _flush(config, limit=limit, client_factory=client_factory, now_ms=now_ms)
+    if (
+        value.get("state") == "DELIVERED"
+        and int(value.get("delivered") or 0) == 0
+        and int(value.get("pending") or 0) == 0
+    ):
+        value["state"] = "NO_CHANGE"
+    return _strict(value)
 
 
 def status(config: dict[str, Any]) -> dict[str, Any]:
     value = _status(config)
-    value.setdefault("state", "PENDING_HOME_CENTER" if int(value.get("pending") or 0) else "DELIVERED")
+    pending = int(value.get("pending") or 0)
+    delivered = int(value.get("delivered") or 0)
+    value["state"] = "PENDING_HOME_CENTER" if pending else ("DELIVERED" if delivered else "IDLE")
     return _strict(value)
 
 
