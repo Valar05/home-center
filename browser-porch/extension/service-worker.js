@@ -66,6 +66,8 @@ async function runCommission(commission, newWorker, suppliedContext, identity = 
   const stored = await chrome.storage.local.get('throneContext');
   const context = suppliedContext.trim() || String(stored.throneContext || DEFAULT_CAMPAIGN_CONTEXT).trim();
   const tab = newWorker ? await createWorkerTab() : await requireChatTab(identity.workerTabId);
+  const before = await inspectWorker(tab.id);
+  const baselineAssistantCount = Number(before.assistantCount || 0);
   const prompt = `${BOOT_ENVELOPE}\nDURABLE CAMPAIGN CONTEXT:\n${context}\n\nCOMMISSION — ONE BOUNDED SLICE:\n${commission.trim()}`;
   const [result] = await chrome.scripting.executeScript({
     target: {tabId: tab.id},
@@ -86,11 +88,12 @@ async function runCommission(commission, newWorker, suppliedContext, identity = 
     commission,
     contextChars: context.length,
     promptChars: prompt.length,
+    baselineAssistantCount,
     newWorker: Boolean(newWorker),
   };
-  await tagWorker(tab.id, {jobId: identity.jobId || '', commission, state: 'commissioned', commissionedAt: receipt.at});
+  await tagWorker(tab.id, {jobId: identity.jobId || '', commission, state: 'commissioned', baselineAssistantCount, commissionedAt: receipt.at});
   await appendReceipt(receipt);
-  return {ok: true, receipt, worker: {tabId: tab.id, jobId: identity.jobId || ''}};
+  return {ok: true, receipt, worker: {tabId: tab.id, jobId: identity.jobId || '', baselineAssistantCount}};
 }
 
 async function captureLatest(workerTabId = null, jobId = '') {
