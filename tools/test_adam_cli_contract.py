@@ -5,6 +5,7 @@ ROOT = Path(__file__).resolve().parents[1]
 router = (ROOT / "tools/adam.py").read_text(encoding="utf-8")
 core = (ROOT / "tools/adam_codex_phone.py").read_text(encoding="utf-8")
 planned = (ROOT / "tools/adam_planned_venice.py").read_text(encoding="utf-8")
+receipted = (ROOT / "tools/adam_planned_venice_receipted.py").read_text(encoding="utf-8")
 reviewed = (ROOT / "tools/adam_venice_reviewed.py").read_text(encoding="utf-8")
 installer = (ROOT / "tools/install_adam_cli.sh").read_text(encoding="utf-8")
 
@@ -13,8 +14,10 @@ for token in [
     'def run_terminal(',
     'def run_worker(',
     'def worker_commission(',
-    'WORKER = ROOT / "tools" / "adam_planned_venice.py"',
+    'WORKER = ROOT / "tools" / "adam_planned_venice_receipted.py"',
     'preExecutionPlanReview=True',
+    'jarUsageReceipts=True',
+    'jarOutputKindRequired=True',
 ]:
     assert token in router, f"Adam router missing {token}"
 
@@ -49,9 +52,21 @@ for token in [
 ]:
     assert token in planned, f"planned Adam entrypoint missing {token}"
 
+planning_line = next(line for line in planned.splitlines() if line.startswith('PLANNING_TOOLS'))
 for forbidden in ['"write_file"', '"phone_intent"', '"finish"', '"respond"']:
-    planning_line = next(line for line in planned.splitlines() if line.startswith('PLANNING_TOOLS'))
     assert forbidden not in planning_line, f"planning phase allows mutation/terminal tool {forbidden}"
+
+for token in [
+    'JUDGMENT JAR USAGE RECEIPT CONTRACT',
+    'outputKind',
+    'output_kind="context_packet"',
+    'output_kind="review_verdict"',
+    'output_kind=_CURRENT_OUTPUT_KIND',
+    'base.review_plan_phone = review_plan_phone',
+    'execution.worker.active_jars = active_jars_receipted',
+    'execution.canonical_venice_review = completion_review',
+]:
+    assert token in receipted, f"receipt-enforced Adam entrypoint missing {token}"
 
 for token in [
     'def run_task(',
@@ -62,17 +77,16 @@ for token in [
 ]:
     assert token in reviewed, f"reviewed execution entrypoint missing {token}"
 
-# The installer writes a shell wrapper through a heredoc, so $@ is escaped in
-# the installer source and becomes literal $@ in the installed wrapper.
-assert 'WORKER="$ROOT/tools/adam_planned_venice.py"' in installer
+assert 'WORKER="$ROOT/tools/adam_planned_venice_receipted.py"' in installer
 assert 'exec "$PYTHON_BIN" "$WORKER" "\\$@"' in installer
 assert 'exec "$PYTHON_BIN" "$ROOT/tools/adam_venice_reviewed.py"' not in installer
 assert 'venicePlanReviewReceiptVerified' in installer
 assert 'veniceStopReviewReceiptVerified' in installer
+assert 'terminalJarUsageReceiptVerified' in installer
 assert 'terminal|chat|continue|vlad)' in installer
 assert '|shell)' not in installer
 
 for forbidden in ['def run_shell(', 'local_exec_plan', 'execute_plan', 'Adam online. Chat naturally', 'ollama_generate']:
     assert forbidden not in router, f"retired Adam machinery survived: {forbidden}"
 
-print("Adam planned + Venice-reviewed Codex entrypoint contract: PASS")
+print("Adam planned + Venice-reviewed + Judgment-Jar-receipted entrypoint contract: PASS")
