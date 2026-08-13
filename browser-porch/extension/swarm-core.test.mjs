@@ -54,7 +54,8 @@ test('manual job requires a real bounded commission and carries worker doctrine'
   assert.equal(job.commission, 'prove one thing');
   assert.equal(job.context, 'ctx');
   assert.equal(job.workerDoctrine.reasoningMode, 'Pro reasoning');
-  assert.equal(job.workerDoctrine.veniceReviewMode, 'judgment_jar');
+  assert.equal(job.workerDoctrine.veniceReviewMode, 'judgment_jar_emulation');
+  assert.equal(job.workerDoctrine.veniceReviewSemantics, 'primary-judgment-jar');
   assert.equal(job.workerDoctrine.stopGate, 'STOP_ALLOWED');
   assert.equal(job.workerDoctrine.responseBoundaryIsStop, false);
   assert.equal(WORKER_REASONING_MODE, 'Pro reasoning');
@@ -94,6 +95,7 @@ test('STOP_ALLOWED and HALT_REQUIRED do not create continuation jobs', () => {
   assert.equal(halted.job, null);
 });
 
-test('swarm hard cap stays bounded', () => {
+test('swarm hard cap stays bounded without implying mission stop', () => {
   assert.equal(MAX_SWARM_SLICES, 12);
+  assert.equal(WORKER_DOCTRINE.responseBoundaryIsStop, false);
 });
