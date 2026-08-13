@@ -1,0 +1,82 @@
+{
+  "schema_version": 1,
+  "owner": "home-center",
+  "authority": {
+    "source": "home_center_drive_v2",
+    "daemon": "home-center",
+    "snapshot_operation": "judgment_jars.snapshot",
+    "receipt_operation": "judgment_jars.receipts.ingest",
+    "rule": "Home Center owns jar truth; Vlad owns only a verified read cache and a durable receipt outbox."
+  },
+  "discovery": {
+    "all_jars": true,
+    "title_patterns": [
+      "Judgment Jar",
+      "Judgement Jar"
+    ],
+    "metadata_types": [
+      "judgment_jar",
+      "judgement_jar"
+    ],
+    "include_explicit_registry_members": true,
+    "exclude_statuses": [
+      "deleted"
+    ]
+  },
+  "vlad": {
+    "database_env": "VLAD_JUDGMENT_JARS_DB",
+    "default_database": "~/.local/share/vlad/judgment-jars.sqlite3",
+    "local_http_host": "127.0.0.1",
+    "local_http_port": 8767,
+    "required_invocation_command": "use",
+    "receipts_required": true,
+    "lookup_order": [
+      "canonical_id",
+      "exact_alias",
+      "normalized_alias",
+      "full_text_search"
+    ]
+  },
+  "sync": {
+    "snapshot_url_env": "HOME_CENTER_JUDGMENT_JARS_SNAPSHOT_URL",
+    "receipt_url_env": "HOME_CENTER_JUDGMENT_JARS_RECEIPT_URL",
+    "bearer_token_env": "HOME_CENTER_TOKEN",
+    "poll_seconds": 300,
+    "timeout_seconds": 20,
+    "offline_policy": "serve_last_verified_snapshot_and_queue_receipts",
+    "snapshot_is_atomic": true,
+    "tombstone_missing_only_when_snapshot_complete": true,
+    "oldest_pending_receipt_first": true
+  },
+  "receipt_contract": {
+    "two_phase": true,
+    "open_fields": [
+      "receipt_id",
+      "jar_id",
+      "jar_revision",
+      "request_id",
+      "worker",
+      "campaign",
+      "input_sha256",
+      "opened_at"
+    ],
+    "close_fields": [
+      "output_kind",
+      "output_ref",
+      "output_sha256",
+      "status",
+      "closed_at"
+    ],
+    "accepted_output_kinds": [
+      "verdict",
+      "plan_review",
+      "completion_review",
+      "canon_review",
+      "rewrite",
+      "research_review",
+      "risk_review",
+      "routing_decision",
+      "other"
+    ]
+  }
+}
