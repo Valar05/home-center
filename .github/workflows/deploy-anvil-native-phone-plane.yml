@@ -1,0 +1,119 @@
+name: Deploy Anvil native phone plane
+
+on:
+  workflow_dispatch:
+    inputs:
+      source_head:
+        description: Exact merged main commit to deploy
+        required: true
+      confirm:
+        description: Type deploy-native-phone
+        required: true
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: deploy-anvil-native-phone-plane
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    if: ${{ inputs.confirm == 'deploy-native-phone' }}
+    runs-on: ubuntu-latest
+    env:
+      PROJECT: home-center-dclar
+      REGION: us-central1
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: refs/heads/main
+          fetch-depth: 0
+      - name: Enforce exact immutable main source
+        env:
+          EXPECTED_SOURCE_HEAD: ${{ inputs.source_head }}
+        run: |
+          test "$(git rev-parse HEAD)" = "$EXPECTED_SOURCE_HEAD"
+          sh tools/assert_home_center_mcp_main_release.sh "$GITHUB_WORKSPACE"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: functions/package-lock.json
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: npm --prefix functions ci
+      - name: Verify exact native phone contracts before deploy
+        run: |
+          node --check functions/home_center_mcp.js
+          node --check functions/phone_operation_surface.js
+          node --check functions/phone_hands_relay.js
+          node tools/phone_diagnostics_relay_test.mjs
+          node tools/phone_maintenance_relay_test.mjs
+          python -m py_compile tools/android_phone_home_center_relay.py tools/android_phone_diagnostics.py tools/android_anvil_shell_maintenance.py
+          bash -n tools/bootstrap_native_phone_plane.sh
+          grep -q "phone_maintenance_anvil_shell" tools/bootstrap_native_phone_plane.sh
+          ! grep -Eq "command_center|phone_shell|THECAULDRON" tools/bootstrap_native_phone_plane.sh
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GCP_DEPLOY_SERVICE_ACCOUNT }}
+      - uses: google-github-actions/setup-gcloud@v2
+      - name: Deploy native phone relay
+        run: |
+          gcloud functions deploy phoneHandsRelay \
+            --gen2 \
+            --project="$PROJECT" \
+            --region="$REGION" \
+            --runtime=nodejs22 \
+            --source="$GITHUB_WORKSPACE/functions" \
+            --entry-point=phoneHandsRelay \
+            --trigger-http \
+            --allow-unauthenticated \
+            --timeout=120s
+      - name: Deploy native Home Center MCP registry
+        env:
+          GCLOUD_FUNCTIONS_REGION: ${{ env.REGION }}
+          COMMAND_CENTER_MCP_URL: ""
+          HOME_CENTER_GITHUB_ADMIN_USER_PROFILES_B64: ${{ secrets.HOME_CENTER_GITHUB_ADMIN_USER_PROFILES_B64 }}
+        run: sh tools/deploy_functions_termux.sh "$PROJECT" homeCenterMcp
+      - name: Verify cloud functions and auth boundary
+        run: |
+          mkdir -p "$RUNNER_TEMP/anvil-native-phone-deploy"
+          gcloud functions describe phoneHandsRelay --gen2 --project="$PROJECT" --region="$REGION" --format=json > "$RUNNER_TEMP/anvil-native-phone-deploy/phoneHandsRelay.json"
+          gcloud functions describe homeCenterMcp --gen2 --project="$PROJECT" --region="$REGION" --format=json > "$RUNNER_TEMP/anvil-native-phone-deploy/homeCenterMcp.json"
+          URL="https://${REGION}-${PROJECT}.cloudfunctions.net/phoneHandsRelay/register"
+          BODY="$(mktemp)"
+          CODE="$(curl --silent --show-error -o "$BODY" -w '%{http_code}' -X POST -H 'Content-Type: application/json' -d '{}' "$URL")"
+          test "$CODE" = 401
+          grep -q 'missing bearer token' "$BODY"
+      - name: Write deployment state-boundary receipt
+        env:
+          SOURCE_HEAD: ${{ inputs.source_head }}
+        run: |
+          python - "$RUNNER_TEMP/anvil-native-phone-deploy/deployment-receipt.json" <<'PY'
+          import hashlib, json, os, pathlib, time
+          body = {
+              "schema": "home-center.anvil-native-phone-deployment.v1",
+              "repository": os.environ["GITHUB_REPOSITORY"],
+              "sourceHead": os.environ["SOURCE_HEAD"],
+              "workflowRun": f"https://github.com/{os.environ['GITHUB_REPOSITORY']}/actions/runs/{os.environ['GITHUB_RUN_ID']}",
+              "cloudDeployed": True,
+              "workerInstalled": False,
+              "phoneCallable": False,
+              "anvilInstalled": False,
+              "delivered": False,
+              "accepted": False,
+              "recordedAtMs": int(time.time() * 1000),
+          }
+          body["receiptHash"] = hashlib.sha256(json.dumps(body, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
+          pathlib.Path(os.sys.argv[1]).write_text(json.dumps(body, indent=2, sort_keys=True) + "\n")
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: anvil-native-phone-deployment-receipt
+          path: ${{ runner.temp }}/anvil-native-phone-deploy/
+          if-no-files-found: error
