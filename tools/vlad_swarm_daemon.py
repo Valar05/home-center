@@ -148,11 +148,25 @@ def _review_bucket(name):
 def _load_review_receipt(path):
     try:return json.loads(path.read_text(encoding="utf-8"))
     except Exception as exc:return {"directive":"HALT_REQUIRED","verdict":"FAIL","findings":[f"invalid_review_receipt:{exc}"],"externalReviewGateSatisfied":False}
+def _review_text_path(job,data):
+    raw=str(data.get("reviewTextPath") or "").strip()
+    return Path(raw).expanduser() if raw else job.with_suffix('.review.txt')
+def _authorized_primary_review_text(path):
+    if not path.is_file():return False
+    text=path.read_text(encoding="utf-8",errors="replace")
+    return bool(re.search(r"(?im)^VERDICT\s*:\s*(PASS|FAIL)\s*$",text) and re.search(r"(?im)^DIRECTIVE\s*:\s*(STOP_ALLOWED|CONTINUE_REQUIRED|HALT_REQUIRED)\s*$",text))
 def process_review_inbox(repo_root):
     inbox=_review_bucket("review-inbox");done=_review_bucket("review-done");cont=_review_bucket("review-continue");halt=_review_bucket("review-halt")
     for job in sorted(inbox.glob("*.json")):
         data=json.loads(job.read_text(encoding="utf-8"));repo=data.get("repo") or repo_root;base=data.get("base","HEAD~1");head=data.get("head","HEAD");acceptance=data.get("acceptance","");receipt_path=done/(job.stem+".receipt.json")
+        local_venice=data.get("localVenice") is True or data.get("reviewerMode")=="local_venice"
+        review_text=_review_text_path(job,data)
+        if not local_venice and not _authorized_primary_review_text(review_text):
+            append_receipt({"kind":"venice.review.awaiting_chatgpt_judgment_jar","job":job.name,"ok":False,"state":"awaiting_review","reviewTextPath":str(review_text),"reviewerMode":"judgment_jar_emulation"})
+            continue
         cmd=["bash",str(Path(repo_root)/"tools"/"venice_review_selfheal.sh"),"--repo",repo,"--base",base,"--head",head,"--acceptance",acceptance,"--receipt",str(receipt_path)]
+        if local_venice:cmd.append("--local-venice")
+        else:cmd.extend(["--review-text-file",str(review_text),"--reviewer",str(data.get("reviewer") or "chatgpt-venice-judgment-jar")])
         result=run(cmd,timeout=int(data.get("timeout",600)));receipt=_load_review_receipt(receipt_path) if receipt_path.exists() else {"directive":"HALT_REQUIRED","verdict":"FAIL","findings":["review_receipt_missing"],"externalReviewGateSatisfied":False}
         directive=receipt.get("directive") or "HALT_REQUIRED"
         if directive=="STOP_ALLOWED" and receipt.get("externalReviewGateSatisfied") is True:
@@ -161,12 +175,12 @@ def process_review_inbox(repo_root):
             bucket=cont;state="continue_required";ok=False
         else:
             bucket=halt;state="halt_required";ok=False
-        decision={"schema":"venice-swarm-decision-v1","job":data,"reviewReceipt":str(receipt_path),"directive":directive,"state":state,"findings":receipt.get("findings",[]),"reviewHead":head,"createdAtEpoch":now()}
+        decision={"schema":"venice-swarm-decision-v2","job":data,"reviewReceipt":str(receipt_path),"directive":directive,"state":state,"findings":receipt.get("findings",[]),"reviewHead":head,"reviewerMode":receipt.get("reviewerMode"),"createdAtEpoch":now()}
         (bucket/(job.stem+".decision.json")).write_text(json.dumps(decision,indent=2,sort_keys=True)+"\n",encoding="utf-8")
         target=bucket/job.name
         if target.exists():target.unlink()
         job.rename(target)
-        append_receipt({"kind":"venice.review.directive","job":job.name,"ok":ok,"directive":directive,"state":state,"receipt":str(receipt_path),"decision":str(bucket/(job.stem+".decision.json")),"selfHeal":True,"result":result})
+        append_receipt({"kind":"venice.review.directive","job":job.name,"ok":ok,"directive":directive,"state":state,"receipt":str(receipt_path),"decision":str(bucket/(job.stem+".decision.json")),"reviewerMode":receipt.get("reviewerMode"),"localVeniceExplicit":local_venice,"result":result})
 def heartbeat(repo_root):
     shizuku_ok=phone_health();ssh_ok=ensure_phone_ssh(repo_root);overlay_ok=ensure_operator_overlay(repo_root) if shizuku_ok else False
     if overlay_ok:operator_heartbeat()
