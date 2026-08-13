@@ -17,7 +17,8 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 WORKER = ROOT / "tools" / "adam_planned_venice.py"
-ONE_SHOT_MODES = ("terminal", "chat", "continue", "vlad")
+SHE_RAW_CLI = ROOT / "tools" / "she_raw_cli.py"
+ONE_SHOT_MODES = ("terminal", "chat", "continue", "vlad", "she-raw")
 MAX_RECEIPT_TEXT = 6000
 
 
@@ -58,11 +59,24 @@ def run_worker(mode: str, text: str, cwd: str, timeout: int) -> int:
     return receipt(mode, p.returncode == 0, worker="codex-phone-planned-venice-reviewed", jarGoverned=True, preExecutionPlanReview=True, veniceReviewed=True, daemonBackoff=True, rc=p.returncode, stdout=tail(p.stdout), stderr=tail(p.stderr))
 
 
+def run_she_raw(text: str, cwd: str) -> int:
+    """Enter the direct local character runtime without wrapping its exact speech."""
+    if not SHE_RAW_CLI.is_file():
+        print(f"BLOCKED: She Raw CLI missing: {SHE_RAW_CLI}", file=sys.stderr)
+        return 3
+    argv = [sys.executable, str(SHE_RAW_CLI)]
+    if text:
+        argv.append(text)
+    return subprocess.run(argv, cwd=cwd).returncode
+
+
 def run_mode(mode: str, text: str, cwd: str, timeout: int) -> int:
     if mode not in ONE_SHOT_MODES:
         return receipt(mode, False, error="unsupported_mode")
     if mode == "terminal":
         return run_terminal(text, cwd, timeout)
+    if mode == "she-raw":
+        return run_she_raw(text, cwd)
     return run_worker(mode, text, cwd, timeout)
 
 
