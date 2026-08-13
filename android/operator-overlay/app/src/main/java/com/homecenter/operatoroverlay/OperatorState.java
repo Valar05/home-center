@@ -121,7 +121,7 @@ final class OperatorState {
 
     static void submitAdamRequest(Context context, String mode, String text, long nowMs) {
         String cleanMode = mode == null ? "terminal" : mode.trim().toLowerCase();
-        if (!(cleanMode.equals("terminal") || cleanMode.equals("chat") || cleanMode.equals("continue") || cleanMode.equals("vlad"))) {
+        if (!(cleanMode.equals("terminal") || cleanMode.equals("chat") || cleanMode.equals("continue") || cleanMode.equals("vlad") || cleanMode.equals("radio"))) {
             throw new IllegalArgumentException("unsupported Adam mode");
         }
         String clean = text == null ? "" : text.trim();

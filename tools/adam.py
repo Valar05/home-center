@@ -11,13 +11,15 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import subprocess
 import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 WORKER = ROOT / "tools" / "adam_planned_venice.py"
-ONE_SHOT_MODES = ("terminal", "chat", "continue", "vlad")
+RADIO = ROOT / "tools" / "spotify_radio.py"
+ONE_SHOT_MODES = ("terminal", "chat", "continue", "vlad", "radio")
 MAX_RECEIPT_TEXT = 6000
 
 
@@ -27,8 +29,50 @@ def tail(value: str, limit: int = MAX_RECEIPT_TEXT) -> str:
 
 
 def receipt(mode: str, ok: bool, **data) -> int:
-    print(json.dumps({"schema": "adam-body-router-v3", "mode": mode, "ok": bool(ok), **data}, ensure_ascii=False, sort_keys=True))
+    print(json.dumps({"schema": "adam-body-router-v4", "mode": mode, "ok": bool(ok), **data}, ensure_ascii=False, sort_keys=True))
     return 0 if ok else 1
+
+
+def looks_like_radio(mode: str, text: str) -> bool:
+    if mode == "radio":
+        return True
+    lower = " ".join(str(text or "").lower().split())
+    provider = any(token in lower for token in ("spotify", "radio", "playlist"))
+    action = bool(re.search(r"\b(play|pause|resume|continue|next|skip|previous|stop|status|playing|rolling|queue)\b", lower))
+    return provider and action
+
+
+def run_radio(mode: str, text: str, cwd: str, timeout: int) -> int:
+    if not RADIO.is_file():
+        return receipt(mode, False, handledBy="spotify-radio", error="spotify_radio_controller_missing", controller=str(RADIO))
+    if not text.strip():
+        text = "status"
+    process = subprocess.run(
+        [sys.executable, str(RADIO), "prompt", text, "--mode", "radio" if mode == "radio" else mode],
+        cwd=cwd,
+        text=True,
+        capture_output=True,
+        timeout=timeout,
+    )
+    parsed = {}
+    try:
+        parsed = json.loads(process.stdout)
+    except Exception:
+        parsed = {}
+    response = parsed.get("response") or parsed.get("failureKind") or process.stderr or process.stdout or f"Spotify radio exited {process.returncode}"
+    return receipt(
+        mode,
+        process.returncode == 0 and parsed.get("ok") is True,
+        handledBy="spotify-radio",
+        deterministic=True,
+        provider="spotify-android",
+        response=tail(response),
+        action=parsed.get("action"),
+        radioReceipt=parsed.get("receipt"),
+        rc=process.returncode,
+        stdout=tail(process.stdout),
+        stderr=tail(process.stderr),
+    )
 
 
 def run_terminal(text: str, cwd: str, timeout: int) -> int:
@@ -61,6 +105,8 @@ def run_worker(mode: str, text: str, cwd: str, timeout: int) -> int:
 def run_mode(mode: str, text: str, cwd: str, timeout: int) -> int:
     if mode not in ONE_SHOT_MODES:
         return receipt(mode, False, error="unsupported_mode")
+    if looks_like_radio(mode, text):
+        return run_radio(mode, text, cwd, timeout)
     if mode == "terminal":
         return run_terminal(text, cwd, timeout)
     return run_worker(mode, text, cwd, timeout)
