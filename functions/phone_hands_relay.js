@@ -283,8 +283,20 @@ async function devicePull(admin, {deviceId, deviceToken, leaseMs = 30000} = {}) 
   const now = Date.now();
   await devRef.set({lastSeenAtMs: now, status: 'online'}, {merge: true});
   const query = await admin.firestore().collection(COLLECTIONS.commands)
-    .where('ownerKey','==',device.ownerKey).where('deviceId','==',id).where('status','==','queued').limit(10).get();
-  const candidates = query.docs.map((d) => d.data()).filter((x) => Number(x.expiresAtMs || 0) > now).sort((a,b) => a.createdAtMs-b.createdAtMs);
+    .where('ownerKey','==',device.ownerKey).where('deviceId','==',id).where('status','==','queued').limit(100).get();
+  const queued = query.docs.map((d) => d.data()).sort((a,b) => a.createdAtMs-b.createdAtMs);
+  const expired = queued.filter((x) => Number(x.expiresAtMs || 0) <= now);
+  if (expired.length) {
+    const batch = admin.firestore().batch();
+    for (const command of expired.slice(0, 80)) {
+      if (!command.commandId) continue;
+      batch.set(admin.firestore().collection(COLLECTIONS.commands).doc(command.commandId), {
+        status:'failed', error:'expired_before_lease', completedAtMs:now, updatedAtMs:now, leaseExpiresAtMs:0,
+      }, {merge:true});
+    }
+    await batch.commit();
+  }
+  const candidates = queued.filter((x) => Number(x.expiresAtMs || 0) > now);
   if (!candidates.length) return {ok: true, command: null};
   const chosen = candidates[0];
   const leaseOwner = `device:${id}`;
