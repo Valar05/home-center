@@ -84,7 +84,8 @@ A physical-effect receipt should contain, when available:
 - exact transport or output component;
 - exact payload or payload hash;
 - effect duration, byte count, frames, or equivalent bounded measurement;
-- downstream playback/presentation result;
+- downstream playback/presentation start and completion observations;
+- explicit fallback-used flags;
 - final body status.
 
 If the effect-specific component does not expose a meaningful receipt, improve that component rather than laundering a weaker upstream receipt into success.
@@ -103,6 +104,8 @@ The canonical end-to-end command is:
 python /storage/emulated/0/Documents/GodotProjects/home-center/tools/fortress_read_aloud.py 'EXACT TEXT'
 ```
 
+A clean detached worktree containing the exact deployed source is acceptable when the ordinary phone checkout is dirty, but the execution receipt must identify the exact source head used.
+
 The doctor command is:
 
 ```sh
@@ -115,12 +118,35 @@ A ready doctor must identify all of the following:
 - engine `pocket-tts-phone+home-center-playback+rish`;
 - existing `~/bin/pocket-tts-phone`;
 - Home Center playback transport through rish;
+- resolved component `com.dclar.homecenter/.PocketTtsPlaybackActivity`;
 - `systemFallbackAllowed: false`;
 - no cloud fallback.
 
-The playback path synthesizes with `pocket-tts-phone`, writes a bounded WAV under `Documents/FortressAudio`, launches `com.dclar.homecenter/.PocketTtsPlaybackActivity`, obtains transient accessibility speech audio focus, starts Android `MediaPlayer`, waits through the clip duration, then removes the temporary WAV.
+The playback path synthesizes with `pocket-tts-phone`, writes a bounded WAV under `Documents/FortressAudio`, launches `com.dclar.homecenter/.PocketTtsPlaybackActivity`, obtains transient accessibility-speech audio focus, starts Android `MediaPlayer`, observes component start and completed-playback logs, then removes the temporary WAV.
 
-A successful receipt must report `provider: pocket-home-center`, `transport: shizuku-rish`, nonzero `audioSeconds`, and terminal exit zero. A `POCKETTTS_OUT`/SHA receipt from `pockettts-say` alone proves rendering only and must be rejected as playback evidence.
+A successful machine receipt must include all of:
+
+- `provider: pocket-home-center`;
+- `engine: pocket-tts-phone`;
+- `transport: shizuku-rish`;
+- `outputComponent: com.dclar.homecenter/.PocketTtsPlaybackActivity`;
+- `playbackVerified: true`;
+- `activityLaunchAcknowledged: true`;
+- `playStartObserved: true`;
+- `playCompletedObserved: true`;
+- nonzero `audioSeconds`;
+- terminal exit zero;
+- `systemFallbackUsed: false`;
+- `cloudFallbackUsed: false`.
+
+A `POCKETTTS_OUT`/SHA receipt from `pockettts-say` alone proves rendering only and must be rejected as playback evidence. Provider and duration fields alone are also insufficient; the output component must independently prove start and completion.
+
+## Android playback lifecycle law
+Asynchronous playback must use an Activity or Service lifecycle that can remain alive until playback completion.
+
+`Theme.NoDisplay` is forbidden for `PocketTtsPlaybackActivity`. Android requires a `Theme.NoDisplay` activity to call `finish()` before `onResume()` completes, which crashes asynchronous MediaPlayer playback before sound begins. The current activity uses a lifecycle-safe translucent theme and finishes only after completion or error.
+
+The source regression at `tools/pocket_space_playback_contract_test.mjs` must continue to reject `Theme.NoDisplay`, require the playback component, require audio-focus ducking, and require completion-log verification.
 
 ## Exact phrase canary
 The accepted boring canary for the lane is:
@@ -128,6 +154,12 @@ The accepted boring canary for the lane is:
 `Holocron audio check. Pocket Space TTS is online.`
 
 Do not paraphrase it when testing exact speech delivery. The phrase is a canary, not a magical requirement for unrelated speech.
+
+The first accepted physical canary is durably recorded at:
+
+`receipts/embodied-communication/2026-08-13-holocron-pocket-space-audio-check.json`
+
+That receipt is evidence for that run only. Future audible claims require their own run-specific playback receipt.
 
 ## Queue and lease failure discipline
 A device can be online while a fresh command remains unleased. When that occurs:
@@ -147,7 +179,9 @@ Report the narrowest true boundary:
 - **render failure** — engine did not create valid media;
 - **transport failure** — media did not reach the output component;
 - **authority failure** — the exact downstream component lacked required OS authority;
-- **playback failure** — the output component rejected or errored;
+- **playback-component missing** — package exists but the required Activity/Service does not resolve;
+- **playback lifecycle failure** — the component launches but crashes or dies before playback;
+- **playback failure** — the output component rejects or errors;
 - **observation failure** — effect may have occurred but required receipt is missing;
 - **perceptual acceptance pending** — machine playback evidence exists, but human perception has not been confirmed.
 
@@ -161,10 +195,10 @@ When output can affect ongoing media, use the intended audio-focus/ducking behav
 ## Automation law
 An automation may claim audible notification only when its run owns a real playback receipt from the required engine. Configuration that says `prefer audible` is intent, not delivery evidence.
 
-For every automated embodied effect, persist the exact run ID, target device, provider, payload identity, terminal state, and final status. Missing playback evidence must degrade the automation result to text-only, failed, or unverified according to its contract; it may not claim sound.
+For every automated embodied effect, persist the exact run ID, target device, provider, payload identity, terminal state, playback-component start/completion evidence, and final status. Missing playback evidence must degrade the automation result to text-only, failed, or unverified according to its contract; it may not claim sound.
 
 ## Completion gate
-DONE requires the commissioned physical effect through the commissioned mechanism, an exact terminal receipt, mechanism-specific playback/presentation evidence, and a final body health check.
+DONE requires the commissioned physical effect through the commissioned mechanism, an exact terminal receipt, mechanism-specific playback/presentation evidence, a final body health check, and human perceptual acceptance when that was part of the evidence standard.
 
 Source existence, package installation, synthesis, a generated file, scheduler state, queue state, process launch, or chat narration cannot satisfy this gate.
 
