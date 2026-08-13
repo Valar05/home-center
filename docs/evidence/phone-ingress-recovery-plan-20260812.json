@@ -1,0 +1,42 @@
+{
+  "schema": "venice-plan-receipt.v1",
+  "reviewerRole": "venice-judgment-jar",
+  "commission": "Restore direct ChatGPT -> Command Center/Home Center -> primary-phone -> phone_shell -> Termux ingress and continue adam-campaign without Drew as transport.",
+  "research": {
+    "phoneDeviceId": "primary-phone",
+    "advertisedCapability": "termux_shell",
+    "deviceStatusField": "online",
+    "freshLiveness": false,
+    "lastSeenAtMs": 1786557628064,
+    "finding": "Phone relay heartbeat is stale; treat this as relay liveness failure, not missing phone_shell capability."
+  },
+  "plan": [
+    "Use Computer Hands only as an authorized recovery body to inspect existing ADB/phone relay state; do not invent a new transport.",
+    "Repair/restart the existing Phone Hands relay/agent if the exact runtime observation identifies a bounded repair.",
+    "Require a fresh primary-phone heartbeat before enqueueing acceptance probe.",
+    "Enqueue exactly one idempotent phone_shell acceptance probe: printf CHATGPT_PHONE_INGRESS_OK.",
+    "Read the same command receipt without re-enqueueing; stdout must equal CHATGPT_PHONE_INGRESS_OK and exitCode must be 0.",
+    "Then inspect adam-campaign status through phone_shell and continue through checkpointed execution without touching Drew's active feature checkout.",
+    "Perform Venice completion review after runtime evidence; CONTINUE_REQUIRED advances another checkpoint."
+  ],
+  "selectedJudgmentJars": [
+    "00-judgement-jar-mission-boundary",
+    "20-judgement-jar-repository-truth",
+    "40-judgement-jar-failure-recovery",
+    "70-judgement-jar-venice-review-gate",
+    "80-judgement-jar-daemon-backoff-persistence"
+  ],
+  "antagonism": [
+    "No proven-organ bypass: use existing Phone Hands/phone_shell and ADB recovery only.",
+    "No Drew command transport.",
+    "No repository evidence masquerading as phone runtime proof.",
+    "No duplicate shell enqueue; use idempotency and status reads.",
+    "No connector storm; inspect and back off on transient state.",
+    "Do not checkout/stash/switch Drew's active phone feature worktree to repair adam-campaign."
+  ],
+  "verdict": "PASS",
+  "directive": "PLAN_ALLOWED",
+  "planPermissionGranted": true,
+  "externalReviewGateSatisfied": true,
+  "createdAt": "2026-08-12T20:57:00-05:00"
+}
