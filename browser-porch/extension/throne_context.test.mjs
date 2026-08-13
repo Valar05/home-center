@@ -40,7 +40,8 @@ test('Judgment-Jar Venice is primary and response boundaries cannot stop workers
   assert.match(worker, /CONTINUE_REQUIRED forbids stopping/);
   assert.match(worker, /A response boundary is never equivalent to STOP_ALLOWED/);
   assert.match(worker, /local Venice model is optional specialized machinery/);
-  assert.match(core, /veniceReviewMode: VENICE_REVIEW_MODE/);
+  assert.match(core, /VENICE_REVIEW_MODE = 'judgment_jar_emulation'/);
+  assert.match(core, /veniceReviewSemantics: 'primary-judgment-jar'/);
   assert.match(core, /responseBoundaryIsStop: false/);
 });
 
@@ -68,8 +69,15 @@ test('service worker enforces Venice continuation mechanically', () => {
   assert.match(worker, /successorJobId/);
   assert.doesNotMatch(worker, /reviewer: 'venice-local'/);
   assert.match(worker, /reviewer: 'venice-judgment-jars'/);
-  assert.match(worker, /reviewerMode: 'judgment_jar'/);
+  assert.match(worker, /reviewerMode: WORKER_DOCTRINE\.veniceReviewMode/);
+  assert.match(worker, /reviewerSemantics: WORKER_DOCTRINE\.veniceReviewSemantics/);
   assert.match(worker, /localVeniceRequired: false/);
+});
+
+test('bounded scheduler wave is a checkpoint, never mission completion', () => {
+  assert.match(worker, /continuationPending/);
+  assert.match(worker, /type: 'swarm_run_checkpoint'/);
+  assert.doesNotMatch(worker, /type: 'swarm_run_complete'/);
 });
 
 test('every worker packet includes durable campaign context before bounded commission', () => {
