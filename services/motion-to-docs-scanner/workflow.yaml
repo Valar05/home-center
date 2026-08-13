@@ -107,6 +107,7 @@ main:
     - returnResult:
         return:
           scanId: ${scanResponse.body.scanId}
+          sourceSha256: ${scanResponse.body.sourceSha256}
           mode: ${scanResponse.body.mode}
           totalFrames: ${scanResponse.body.totalFrames}
           uniqueFrames: ${scanResponse.body.uniqueFrames}
