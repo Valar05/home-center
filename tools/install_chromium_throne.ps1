@@ -4,15 +4,15 @@ param(
 )
 
 $ErrorActionPreference = 'Stop'
-$PinnedExtensionCommit = 'eca3705f3e99dbdd5b735234444422f286e29f21'
+$PinnedExtensionCommit = 'e0e4fa363a0308ade3fb7691656abb6d38b976a5'
 $ExtensionDir = Join-Path $Root 'extension'
 $BrowserRoot = Join-Path $Root 'chrome-for-testing'
 $ProfileDir = Join-Path $Root 'profile'
 $ReceiptPath = Join-Path $Root 'install-receipt.json'
-$Files = @('manifest.json','service-worker.js','sidepanel.html','throne-panel.mjs','swarm-core.mjs')
+$Files = @('manifest.json','service-worker.js','sidepanel.html','throne-panel.mjs','swarm-core.mjs','throne_context.test.mjs')
 $RawBase = "https://raw.githubusercontent.com/Valar05/home-center/$PinnedExtensionCommit/browser-porch/extension"
 
-Write-Host '[Chromium Throne] Installing real desktop runtime'
+Write-Host '[Chromium Throne] Installing bounded parallel desktop runtime'
 New-Item -ItemType Directory -Force -Path $Root,$ExtensionDir,$BrowserRoot,$ProfileDir | Out-Null
 
 foreach ($name in $Files) {
@@ -22,8 +22,29 @@ foreach ($name in $Files) {
 }
 
 $manifest = Get-Content (Join-Path $ExtensionDir 'manifest.json') -Raw | ConvertFrom-Json
-if ($manifest.name -ne 'Chromium Throne' -or [int]$manifest.manifest_version -ne 3 -or $manifest.version -ne '0.5.0') {
-  throw 'Downloaded extension is not the expected Chromium Throne 0.5.0 MV3 package.'
+if ($manifest.name -ne 'Chromium Throne' -or [int]$manifest.manifest_version -ne 3 -or $manifest.version -ne '0.6.0') {
+  throw 'Downloaded extension is not the expected Chromium Throne 0.6.0 MV3 package.'
+}
+if (-not ($manifest.permissions -contains 'tabs')) { throw 'Chromium Throne 0.6.0 requires explicit tabs authority for visible worker allocation.' }
+
+$coreText = Get-Content (Join-Path $ExtensionDir 'swarm-core.mjs') -Raw
+$panelText = Get-Content (Join-Path $ExtensionDir 'throne-panel.mjs') -Raw
+$workerText = Get-Content (Join-Path $ExtensionDir 'service-worker.js') -Raw
+if ($coreText -notmatch 'MAX_PARALLEL_WORKERS\s*=\s*8') { throw 'Parallel worker bound is missing or unexpected.' }
+if ($panelText -notmatch 'Promise\.all\(wave\.map') { throw 'Parallel wave dispatcher contract is missing.' }
+if ($workerText -notmatch 'chrome\.tabs\.create' -or $workerText -notmatch 'workerTabId' -or $workerText -notmatch 'throneWorkers') { throw 'Per-worker visible tab identity contract is incomplete.' }
+
+$nodeTestState = 'not_run_node_missing'
+$node = Get-Command node.exe -ErrorAction SilentlyContinue
+if (-not $node) { $node = Get-Command node -ErrorAction SilentlyContinue }
+if ($node) {
+  Write-Host '[Chromium Throne] Running extension contract tests'
+  Push-Location $ExtensionDir
+  try {
+    & $node.Source --test throne_context.test.mjs
+    if ($LASTEXITCODE -ne 0) { throw "Chromium Throne contract tests failed with exit $LASTEXITCODE" }
+    $nodeTestState = 'passed'
+  } finally { Pop-Location }
 }
 
 $versions = Invoke-RestMethod -Uri 'https://googlechromelabs.github.io/chrome-for-testing/last-known-good-versions-with-downloads.json'
@@ -62,15 +83,21 @@ $receipt = [ordered]@{
   extensionName = $manifest.name
   extensionVersion = $manifest.version
   manifestVersion = $manifest.manifest_version
-  campaignContextBuiltIn = $true
+  sourceContractChecks = 'passed'
+  nodeContractTests = $nodeTestState
   workerModel = 'ChatGPT chat-mode Instant'
+  operatorSurface = 'Atom/Vlad on phone'
   workerSlicePolicy = 'one bounded feature/proof slice at a time'
   threadChokePolicy = 'strict six-field handoff -> durable merge -> fresh worker'
-  automaticSwarmBabysitting = $true
+  parallelWorkerPool = $true
+  maxParallelWorkers = 8
   maxSwarmSlices = 12
-  swarmTerminalState = 'awaiting_venice_review'
-  externalReviewer = 'Venice local CLI via Ollama'
-  externalReviewReceiptField = 'externalReviewGateSatisfied'
+  visibleWorkerTabs = $true
+  perWorkerJobAndTabReceipts = $true
+  swarmTerminalState = 'awaiting_vlad_venice_review'
+  vladReviewRequired = $true
+  veniceReviewRequired = $true
+  tetsuyaFinalReleaseRequired = $true
   chatGptMayApproveSwarm = $false
   greatWarPrompts = $false
   browser = 'Chrome for Testing'
@@ -86,10 +113,10 @@ $receipt = [ordered]@{
 }
 $receipt | ConvertTo-Json -Depth 6 | Set-Content $ReceiptPath -Encoding UTF8
 
-Write-Host "[Chromium Throne] READY"
+Write-Host '[Chromium Throne] READY FOR RUNTIME CANARY'
 Write-Host "[Chromium Throne] Desktop launcher: $desktopLauncher"
 Write-Host "[Chromium Throne] Receipt: $ReceiptPath"
-Write-Host '[Chromium Throne] ChatGPT workers cannot close a swarm. Final acceptance requires a Venice local-review PASS receipt.'
-Write-Host '[Chromium Throne] First launch requires signing into ChatGPT once in this dedicated profile.'
+Write-Host '[Chromium Throne] This proves installed source only. Real parallel ChatGPT worker receipts are still required.'
+Write-Host '[Chromium Throne] First launch may require signing into ChatGPT once in this dedicated profile.'
 
 if ($Launch) { Start-Process -FilePath $desktopLauncher }
