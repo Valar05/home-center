@@ -45,8 +45,8 @@ def settings(config: dict[str, Any]) -> dict[str, Any]:
     return {
         "root": root,
         "schema": str(raw.get("schema") or SCHEMA),
-        "kinds": {str(x) for x in raw.get("outputKinds") or []},
-        "surfaces": {str(x) for x in raw.get("surfaces") or sorted(SURFACES)},
+        "kinds": {str(value) for value in raw.get("outputKinds") or []},
+        "surfaces": {str(value) for value in raw.get("surfaces") or sorted(SURFACES)},
         "title": str(raw.get("homeCenterLedgerTitle") or "Judgment Jar Usage Receipts — Vlad and Home Center"),
         "fileIdEnv": str(raw.get("homeCenterLedgerFileIdEnv") or "HC_JUDGMENT_JAR_RECEIPT_LEDGER_FILE_ID"),
         "batch": max(1, min(int(raw.get("flushBatchSize") or 12), 100)),
@@ -66,6 +66,21 @@ def paths(config: dict[str, Any]) -> dict[str, Path]:
         "lastDelivered": root / "last-delivered.json",
         "ledger": root / "home-center-ledger.json",
     }
+
+
+def _pending_files(directory: Path) -> list[Path]:
+    if not directory.is_dir():
+        return []
+    return sorted(
+        path for path in directory.glob("*.json")
+        if path.is_file() and not path.name.startswith("quarantine-")
+    )
+
+
+def _quarantine_files(directory: Path) -> list[Path]:
+    if not directory.is_dir():
+        return []
+    return sorted(path for path in directory.glob("quarantine-*.json") if path.is_file())
 
 
 def resolve_jar(registry: dict[str, Any], reference: str) -> dict[str, Any] | None:
@@ -89,7 +104,9 @@ def jar_identity(registry: dict[str, Any], jar: dict[str, Any]) -> dict[str, Any
 
 
 def fingerprint(receipt: dict[str, Any]) -> str:
-    jar, invocation, output = receipt.get("jar") or {}, receipt.get("invocation") or {}, receipt.get("output") or {}
+    jar = receipt.get("jar") or {}
+    invocation = receipt.get("invocation") or {}
+    output = receipt.get("output") or {}
     basis = {
         "jar": [jar.get("id"), jar.get("sourceSha256"), jar.get("registryDigest")],
         "surface": receipt.get("surface"),
@@ -104,10 +121,22 @@ def fingerprint(receipt: dict[str, Any]) -> str:
 
 
 def build(
-    registry: dict[str, Any], jar: dict[str, Any], *, output_kind: str, output_text: str,
-    summary: str, actor: str, intent: str, surface: str, decision_action: str,
-    input_text: str = "", output_status: str = "created", request_id: str = "",
-    group_id: str = "", references: list[str] | None = None, source: str = "vlad-jars",
+    registry: dict[str, Any],
+    jar: dict[str, Any],
+    *,
+    output_kind: str,
+    output_text: str,
+    summary: str,
+    actor: str,
+    intent: str,
+    surface: str,
+    decision_action: str,
+    input_text: str = "",
+    output_status: str = "created",
+    request_id: str = "",
+    group_id: str = "",
+    references: list[str] | None = None,
+    source: str = "vlad-jars",
     metadata: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     receipt = {
@@ -136,7 +165,7 @@ def build(
             "summary": str(summary).strip(),
             "sha256": _sha(output_text),
             "bytes": len(str(output_text or "").encode("utf-8")),
-            "references": [str(x) for x in references or [] if str(x).strip()],
+            "references": [str(value) for value in references or [] if str(value).strip()],
         },
         "metadata": dict(metadata or {}),
     }
@@ -171,22 +200,38 @@ def _append(path: Path, value: dict[str, Any]) -> None:
 
 def capture(receipt: dict[str, Any], config: dict[str, Any]) -> dict[str, Any]:
     validate(receipt, config)
-    p = paths(config)
-    p["pending"].mkdir(parents=True, exist_ok=True)
-    p["delivered"].mkdir(parents=True, exist_ok=True)
+    state = paths(config)
+    state["pending"].mkdir(parents=True, exist_ok=True)
+    state["delivered"].mkdir(parents=True, exist_ok=True)
     receipt_id = _safe(receipt["receiptId"])
-    delivered = p["delivered"] / f"{receipt_id}.json"
+    delivered = state["delivered"] / f"{receipt_id}.json"
     if delivered.is_file():
-        return {"ok": True, "state": "DELIVERED", "duplicate": True, "receipt": json.loads(delivered.read_text(encoding="utf-8"))}
-    existing = sorted(p["pending"].glob(f"*-{receipt_id}.json"))
+        return {
+            "ok": True,
+            "state": "DELIVERED",
+            "duplicate": True,
+            "receipt": json.loads(delivered.read_text(encoding="utf-8")),
+        }
+    existing = [path for path in _pending_files(state["pending"]) if path.name.endswith(f"-{receipt_id}.json")]
     if existing:
-        return {"ok": True, "state": "PENDING_HOME_CENTER", "duplicate": True, "receipt": json.loads(existing[0].read_text(encoding="utf-8"))}
-    receipt = {**receipt, "capturedAt": _now(), "deliveryAttempts": 0, "nextAttemptEpochMs": 0}
-    pending = p["pending"] / f"{int(receipt['createdAtEpochMs']):016d}-{receipt_id}.json"
-    _append(p["captured"], receipt)
-    write_atomic(p["lastCaptured"], receipt)
-    write_atomic(pending, receipt)
-    return {"ok": True, "state": "PENDING_HOME_CENTER", "duplicate": False, "receipt": receipt, "path": str(pending)}
+        return {
+            "ok": True,
+            "state": "PENDING_HOME_CENTER",
+            "duplicate": True,
+            "receipt": json.loads(existing[0].read_text(encoding="utf-8")),
+        }
+    captured = {**receipt, "capturedAt": _now(), "deliveryAttempts": 0, "nextAttemptEpochMs": 0}
+    pending = state["pending"] / f"{int(captured['createdAtEpochMs']):016d}-{receipt_id}.json"
+    _append(state["captured"], captured)
+    write_atomic(state["lastCaptured"], captured)
+    write_atomic(pending, captured)
+    return {
+        "ok": True,
+        "state": "PENDING_HOME_CENTER",
+        "duplicate": False,
+        "receipt": captured,
+        "path": str(pending),
+    }
 
 
 def record(registry: dict[str, Any], jar: dict[str, Any], config: dict[str, Any], **kwargs: Any) -> dict[str, Any]:
@@ -206,25 +251,34 @@ def _file_id(value: dict[str, Any]) -> str:
 
 
 def _ledger(client: Any, config: dict[str, Any]) -> dict[str, Any]:
-    cfg, p = settings(config), paths(config)
+    cfg = settings(config)
+    state = paths(config)
     title = cfg["title"]
-    cached = json.loads(p["ledger"].read_text(encoding="utf-8")) if p["ledger"].is_file() else {}
+    cached = json.loads(state["ledger"].read_text(encoding="utf-8")) if state["ledger"].is_file() else {}
     for file_id in (os.environ.get(cfg["fileIdEnv"], ""), str(cached.get("fileId") or "")):
         if not file_id:
             continue
         try:
             if client.read_document(file_id, title).strip():
-                state = {**cached, "fileId": file_id, "title": title, "verifiedAt": _now()}
-                write_atomic(p["ledger"], state)
-                return state
+                value = {**cached, "fileId": file_id, "title": title, "verifiedAt": _now()}
+                write_atomic(state["ledger"], value)
+                return value
         except Exception:
             pass
-    exact = next((x for x in client.search_drive(title, 10) if str(x.get("name") or x.get("title") or "") == title), None)
+    exact = next(
+        (item for item in client.search_drive(title, 10) if str(item.get("name") or item.get("title") or "") == title),
+        None,
+    )
     if exact:
-        state = {"fileId": str(exact.get("id") or exact.get("fileId")), "title": title, "webViewLink": exact.get("webViewLink", ""), "verifiedAt": _now()}
-        if state["fileId"] and client.read_document(state["fileId"], title).strip():
-            write_atomic(p["ledger"], state)
-            return state
+        value = {
+            "fileId": str(exact.get("id") or exact.get("fileId")),
+            "title": title,
+            "webViewLink": exact.get("webViewLink", ""),
+            "verifiedAt": _now(),
+        }
+        if value["fileId"] and client.read_document(value["fileId"], title).strip():
+            write_atomic(state["ledger"], value)
+            return value
     parent = ""
     registry_id = str((config.get("homeCenter") or {}).get("registryFileId") or "")
     if registry_id:
@@ -233,29 +287,46 @@ def _ledger(client: Any, config: dict[str, Any]) -> dict[str, Any]:
             parent = str(parents[0]) if parents else ""
         except Exception:
             parent = ""
-    args = {"title": title, "body": f"# {title}\n\nAppend-only typed Judgment Jar usage receipts. CAPTURED is not DELIVERED.\n"}
+    args: dict[str, Any] = {
+        "title": title,
+        "body": f"# {title}\n\nAppend-only typed Judgment Jar usage receipts. CAPTURED is not DELIVERED.\n",
+    }
     if parent:
         args["folderId"] = parent
     created = client.drive_operation("docs.create", args)
     file_id = _file_id(created)
     if not file_id or title not in client.read_document(file_id, title):
         raise ReceiptError("Home Center receipt ledger creation failed readback")
-    state = {"fileId": file_id, "title": title, "webViewLink": _file(created).get("webViewLink", ""), "parentId": parent, "verifiedAt": _now()}
-    write_atomic(p["ledger"], state)
-    return state
+    value = {
+        "fileId": file_id,
+        "title": title,
+        "webViewLink": _file(created).get("webViewLink", ""),
+        "parentId": parent,
+        "verifiedAt": _now(),
+    }
+    write_atomic(state["ledger"], value)
+    return value
 
 
 def _block(receipt: dict[str, Any]) -> str:
-    jar, output, inv = receipt["jar"], receipt["output"], receipt["invocation"]
+    jar = receipt["jar"]
+    output = receipt["output"]
+    invocation = receipt["invocation"]
     canonical = json.dumps(receipt, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
     return (
         f"\n\n## {receipt['createdAt']} — {jar.get('title') or jar['id']} → {output['kind']}\n\n"
-        f"- receiptId: {receipt['receiptId']}\n- judgmentJarReceiptFingerprint: {receipt['dedupFingerprint']}\n"
-        f"- surface: {receipt['surface']}\n- actor: {receipt['actor']}\n- intent: {receipt['intent']}\n"
-        f"- decision/action: {receipt['decisionAction']}\n- requestId: {inv['requestId']}\n"
+        f"- receiptId: {receipt['receiptId']}\n"
+        f"- judgmentJarReceiptFingerprint: {receipt['dedupFingerprint']}\n"
+        f"- surface: {receipt['surface']}\n"
+        f"- actor: {receipt['actor']}\n"
+        f"- intent: {receipt['intent']}\n"
+        f"- decision/action: {receipt['decisionAction']}\n"
+        f"- requestId: {invocation['requestId']}\n"
         f"- Jar source: {jar.get('sourcePath') or jar.get('sourceFileId') or 'unknown'}\n"
-        f"- output status: {output['status']}\n- output summary: {output['summary']}\n"
-        f"- output sha256: {output['sha256']}\nRECEIPT_JSON: {canonical}\n"
+        f"- output status: {output['status']}\n"
+        f"- output summary: {output['summary']}\n"
+        f"- output sha256: {output['sha256']}\n"
+        f"RECEIPT_JSON: {canonical}\n"
     )
 
 
@@ -270,16 +341,30 @@ def _deliver(client: Any, config: dict[str, Any], receipt: dict[str, Any]) -> di
     after = client.read_document(ledger["fileId"], ledger["title"])
     if fingerprint_marker not in after or id_marker not in after:
         raise ReceiptError("Home Center receipt readback failed")
-    return {**ledger, "duplicate": duplicate, "readbackVerified": True, "fingerprint": receipt["dedupFingerprint"]}
+    return {
+        **ledger,
+        "duplicate": duplicate,
+        "readbackVerified": True,
+        "fingerprint": receipt["dedupFingerprint"],
+    }
 
 
-def flush(config: dict[str, Any], limit: int | None = None, client_factory: Callable[[], Any] | None = None, now_ms: int | None = None) -> dict[str, Any]:
-    cfg, p = settings(config), paths(config)
-    p["pending"].mkdir(parents=True, exist_ok=True)
-    p["delivered"].mkdir(parents=True, exist_ok=True)
-    pending = sorted(p["pending"].glob("*.json"))
+def flush(
+    config: dict[str, Any],
+    limit: int | None = None,
+    client_factory: Callable[[], Any] | None = None,
+    now_ms: int | None = None,
+) -> dict[str, Any]:
+    cfg = settings(config)
+    state = paths(config)
+    state["pending"].mkdir(parents=True, exist_ok=True)
+    state["delivered"].mkdir(parents=True, exist_ok=True)
+    pending = _pending_files(state["pending"])
     current = int(now_ms if now_ms is not None else time.time() * 1000)
-    delivered_count, duplicates, blocked, client = 0, 0, None, None
+    delivered_count = 0
+    duplicates = 0
+    blocked: dict[str, Any] | None = None
+    client: Any | None = None
     for path in pending[: max(1, int(limit or cfg["batch"]))]:
         try:
             receipt = json.loads(path.read_text(encoding="utf-8"))
@@ -287,10 +372,18 @@ def flush(config: dict[str, Any], limit: int | None = None, client_factory: Call
         except Exception as exc:
             quarantine = path.with_name("quarantine-" + path.name)
             path.replace(quarantine)
-            blocked = {"state": "QUARANTINED", "path": str(quarantine), "error": f"{type(exc).__name__}: {exc}"}
+            blocked = {
+                "state": "QUARANTINED",
+                "path": str(quarantine),
+                "error": f"{type(exc).__name__}: {exc}",
+            }
             break
         if int(receipt.get("nextAttemptEpochMs") or 0) > current:
-            blocked = {"state": "BACKOFF", "path": str(path), "nextAttemptEpochMs": receipt["nextAttemptEpochMs"]}
+            blocked = {
+                "state": "BACKOFF",
+                "path": str(path),
+                "nextAttemptEpochMs": receipt["nextAttemptEpochMs"],
+            }
             break
         try:
             if client is None:
@@ -300,25 +393,68 @@ def flush(config: dict[str, Any], limit: int | None = None, client_factory: Call
                     from home_center_mcp_client import HomeCenterMcp
                     client = HomeCenterMcp()
             home = _deliver(client, config, receipt)
-            delivered = {**receipt, "receiptDeliveryState": "DELIVERED", "homeCenterDeliveryState": "DELIVERED", "deliveredAt": _now(), "deliveryAttempts": int(receipt.get("deliveryAttempts") or 0) + 1, "nextAttemptEpochMs": 0, "lastDeliveryError": "", "homeCenter": home}
-            write_atomic(p["delivered"] / f"{_safe(receipt['receiptId'])}.json", delivered)
-            _append(p["deliveredLog"], delivered)
-            write_atomic(p["lastDelivered"], delivered)
+            delivered = {
+                **receipt,
+                "receiptDeliveryState": "DELIVERED",
+                "homeCenterDeliveryState": "DELIVERED",
+                "deliveredAt": _now(),
+                "deliveryAttempts": int(receipt.get("deliveryAttempts") or 0) + 1,
+                "nextAttemptEpochMs": 0,
+                "lastDeliveryError": "",
+                "homeCenter": home,
+            }
+            write_atomic(state["delivered"] / f"{_safe(receipt['receiptId'])}.json", delivered)
+            _append(state["deliveredLog"], delivered)
+            write_atomic(state["lastDelivered"], delivered)
             path.unlink(missing_ok=True)
             delivered_count += 1
             duplicates += int(bool(home.get("duplicate")))
         except Exception as exc:
             attempts = int(receipt.get("deliveryAttempts") or 0) + 1
             backoff = min(cfg["maxBackoff"], 2 ** min(attempts, 10))
-            receipt.update({"deliveryAttempts": attempts, "lastDeliveryAttemptAt": _now(), "lastDeliveryError": f"{type(exc).__name__}: {exc}", "nextAttemptEpochMs": current + backoff * 1000})
+            receipt.update({
+                "deliveryAttempts": attempts,
+                "lastDeliveryAttemptAt": _now(),
+                "lastDeliveryError": f"{type(exc).__name__}: {exc}",
+                "nextAttemptEpochMs": current + backoff * 1000,
+            })
             write_atomic(path, receipt)
-            blocked = {"state": "DELIVERY_FAILED", "path": str(path), "attempts": attempts, "backoffSeconds": backoff, "error": receipt["lastDeliveryError"]}
+            blocked = {
+                "state": "DELIVERY_FAILED",
+                "path": str(path),
+                "attempts": attempts,
+                "backoffSeconds": backoff,
+                "error": receipt["lastDeliveryError"],
+            }
             break
-    remaining = len(list(p["pending"].glob("*.json")))
-    return {"ok": blocked is None or delivered_count > 0, "state": "DELIVERED" if remaining == 0 and blocked is None else "PENDING_HOME_CENTER", "delivered": delivered_count, "duplicates": duplicates, "pending": remaining, "blocked": blocked, "stateDir": str(p["root"]), "ledger": json.loads(p["ledger"].read_text(encoding="utf-8")) if p["ledger"].is_file() else None}
+    remaining = len(_pending_files(state["pending"]))
+    quarantined = len(_quarantine_files(state["pending"]))
+    return {
+        "ok": blocked is None or delivered_count > 0,
+        "state": "DELIVERED" if remaining == 0 and blocked is None else "PENDING_HOME_CENTER",
+        "delivered": delivered_count,
+        "duplicates": duplicates,
+        "pending": remaining,
+        "quarantined": quarantined,
+        "blocked": blocked,
+        "stateDir": str(state["root"]),
+        "ledger": json.loads(state["ledger"].read_text(encoding="utf-8")) if state["ledger"].is_file() else None,
+    }
 
 
 def status(config: dict[str, Any]) -> dict[str, Any]:
-    cfg, p = settings(config), paths(config)
-    count = lambda path: len(list(path.glob("*.json"))) if path.is_dir() else 0
-    return {"ok": True, "schema": cfg["schema"], "outputKinds": sorted(cfg["kinds"]), "surfaces": sorted(cfg["surfaces"]), "pending": count(p["pending"]), "delivered": count(p["delivered"]), "stateDir": str(p["root"]), "homeCenterLedgerTitle": cfg["title"], "ledger": json.loads(p["ledger"].read_text(encoding="utf-8")) if p["ledger"].is_file() else None}
+    cfg = settings(config)
+    state = paths(config)
+    delivered = len(list(state["delivered"].glob("*.json"))) if state["delivered"].is_dir() else 0
+    return {
+        "ok": True,
+        "schema": cfg["schema"],
+        "outputKinds": sorted(cfg["kinds"]),
+        "surfaces": sorted(cfg["surfaces"]),
+        "pending": len(_pending_files(state["pending"])),
+        "quarantined": len(_quarantine_files(state["pending"])),
+        "delivered": delivered,
+        "stateDir": str(state["root"]),
+        "homeCenterLedgerTitle": cfg["title"],
+        "ledger": json.loads(state["ledger"].read_text(encoding="utf-8")) if state["ledger"].is_file() else None,
+    }
