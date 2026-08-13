@@ -1,0 +1,72 @@
+{
+    "schema":  "home-center.regnet-qa.review.v1",
+    "reviewer":  "Regnet QA",
+    "underlyingCli":  "tools/renee.py",
+    "underlyingReceipt":  {
+                              "acceptance":  [
+                                                 "Current PR head contains the reviewed source implementation, v2 source verification, Renee tested-source PASS, and Venice source-checkpoint PASS/STOP_ALLOWED. The exact source commit has 34 deterministic Python contracts passing, 6 Android unit tests passing, successful Android debug assembly, zero forbidden foreground/generic-control hits, zero fake-review markers, zero Spotify secret hits, and exact capability-state separation."
+                                             ],
+                              "blockers":  [
+
+                                           ],
+                              "can_grant_final_stop":  false,
+                              "capability_state":  "tested",
+                              "claim":  "Draft PR 282 at head 4eed27cc3bb9f897788646fba136cdfb086c5ce9 is eligible to leave draft and merge as a tested source checkpoint only. The merge must carry no installation, Shizuku authorization, Spotify authorization, playlist, playback, rolling-runtime, delivery, or acceptance claim.",
+                              "created_at":  "2026-08-13T18:15:56.965551+00:00",
+                              "dissent":  [
+                                              "Merge does not authorize phone interaction, APK installation, Spotify OAuth, playback, or playlist mutation.",
+                                              "The debug APK is not release-signing or update-compatibility evidence."
+                                          ],
+                              "evidence":  [
+                                               {
+                                                   "exists":  true,
+                                                   "path":  "C:\\Users\\dclar\\workspace\\home-center-worktrees\\spotify-radio-final-20260813\\receipts\\spotify-radio\\2026-08-13-source-verification-v2.json",
+                                                   "size":  10098
+                                               }
+                                           ],
+                              "evidence_refs":  [
+                                                    "PR-282",
+                                                    "github:Valar05/home-center@4eed27cc3bb9f897788646fba136cdfb086c5ce9/receipts/venice/2026-08-13-adam-background-spotify-radio-source-completion.json",
+                                                    "4eed27cc3bb9f897788646fba136cdfb086c5ce9",
+                                                    "7e0a9cf50323082e4aded0a65e59f245048a1f5e",
+                                                    "hands-spotify-radio-final-review-audit-20260813-01",
+                                                    "hands-spotify-radio-post-review-full-build-20260813-01"
+                                                ],
+                              "next_gate":  "Venice",
+                              "provenance":  "SYNTHETIC_RENEE",
+                              "questions":  [
+                                                "What exactly are we claiming?",
+                                                "What evidence proves that exact claim on the commissioned surface?",
+                                                "What reachable path did we not test?",
+                                                "What happens when the dependency, input, user, network, state, or timing is wrong?",
+                                                "Can another person reproduce the result from the receipt?",
+                                                "Did we deliver the requested thing or an adjacent substitute?",
+                                                "What changed, and what can regress because of it?",
+                                                "Are we laundering intended, implemented, tested, deployed, callable, delivered, or accepted into one state?",
+                                                "What dissent or uncertainty must remain attached to the claim?"
+                                            ],
+                              "reachable_failure_paths":  [
+                                                              "Draft status is a repository workflow state, not a runtime safety gate. It must be cleared before merge and cannot be used to bypass evidence review.",
+                                                              "No-check merge is acceptable only because the exact tested head is bound to durable authorized-body receipts; it does not waive runtime acceptance.",
+                                                              "Merge failure, head mismatch, or main divergence must stop the merge without rewriting history or force-pushing."
+                                                          ],
+                              "receipt_id":  "rqa-400a1b0372cc34c32ca5",
+                              "receipt_path":  "C:\\Users\\dclar\\.home-center\\renee-qa\\receipts\\rqa-400a1b0372cc34c32ca5.json",
+                              "reviewer":  "Rene QA",
+                              "schema":  "home-center.renee-qa.review.v1",
+                              "unresolved":  [
+
+                                             ],
+                              "verdict":  "PASS",
+                              "warnings":  [
+
+                                           ]
+                          },
+    "verdict":  "PASS",
+    "blockers":  [
+
+                 ],
+    "next":  "VENICE",
+    "reviewedHead":  "4eed27cc3bb9f897788646fba136cdfb086c5ce9",
+    "createdAt":  "2026-08-13T18:15:57.0430023Z"
+}

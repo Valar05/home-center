@@ -31,9 +31,15 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import org.json.JSONObject;
+
 public class OperatorOverlayService extends Service {
     public static final String ACTION_SCREEN_ACTIVITY = "com.homecenter.operatoroverlay.SCREEN_ACTIVITY";
     public static final String ACTION_RESTORE = "com.homecenter.operatoroverlay.RESTORE";
+    public static final String ACTION_SPOTIFY_COMMAND = "com.homecenter.operatoroverlay.SPOTIFY_COMMAND";
+    public static final String EXTRA_SPOTIFY_COMMAND = "spotify_command";
+    public static final String EXTRA_SPOTIFY_ARGUMENT = "spotify_argument";
+    public static final String EXTRA_SPOTIFY_REQUEST_ID = "spotify_request_id";
 
     private static final String CHANNEL_ID = "home_center_operator";
     private static final int NOTIFICATION_ID = 4107;
@@ -56,6 +62,8 @@ public class OperatorOverlayService extends Service {
     private TextView screenBadge;
     private TextView meta;
     private TextView latest;
+    private TextView spotifyStatus;
+    private SpotifyShizukuClient spotifyClient;
     private Button collapseButton;
     private Button hideButton;
     private Button compactControlButton;
@@ -88,6 +96,8 @@ public class OperatorOverlayService extends Service {
         super.onCreate();
         createNotificationChannel();
         startForeground(NOTIFICATION_ID, buildNotification());
+        spotifyClient = new SpotifyShizukuClient();
+        submitSpotifyCommand(0L, "status", "");
         if (!Settings.canDrawOverlays(this)) {
             stopSelf();
             return;
@@ -98,7 +108,12 @@ public class OperatorOverlayService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        if (intent != null && ACTION_SCREEN_ACTIVITY.equals(intent.getAction())) {
+        if (intent != null && ACTION_SPOTIFY_COMMAND.equals(intent.getAction())) {
+            String command = intent.getStringExtra(EXTRA_SPOTIFY_COMMAND);
+            String argument = intent.getStringExtra(EXTRA_SPOTIFY_ARGUMENT);
+            long requestId = intent.getLongExtra(EXTRA_SPOTIFY_REQUEST_ID, 0L);
+            submitSpotifyCommand(requestId, command, argument);
+        } else if (intent != null && ACTION_SCREEN_ACTIVITY.equals(intent.getAction())) {
             long now = System.currentTimeMillis();
             int leaseMs = clamp(intent.getIntExtra("leaseMs", 2500), MIN_SCREEN_LEASE_MS, MAX_SCREEN_LEASE_MS);
             int yieldMs = clamp(intent.getIntExtra("yieldMs", 0), 0, MAX_SCREEN_YIELD_MS);
@@ -130,9 +145,56 @@ public class OperatorOverlayService extends Service {
     @Override
     public void onDestroy() {
         handler.removeCallbacksAndMessages(null);
+        if (spotifyClient != null) spotifyClient.close();
         removeView(root);
         removeView(touchGuard);
         super.onDestroy();
+    }
+
+    private void submitSpotifyCommand(long requestId, String command, String argument) {
+        if (spotifyClient == null) return;
+        String boundedCommand = command == null ? "" : command.trim();
+        String boundedArgument = argument == null ? "" : argument;
+        if (boundedCommand.length() > 32 || boundedArgument.length() > 512 || requestId < 0L) {
+            handleSpotifyReceipt(requestId, "{\"ok\":false,\"error\":\"SPOTIFY_REQUEST_INVALID\"}");
+            return;
+        }
+        spotifyClient.execute(requestId, boundedCommand, boundedArgument, this::handleSpotifyReceipt);
+    }
+
+    private void handleSpotifyReceipt(long requestId, String receiptJson) {
+        String exactReceipt = receiptJson == null ? "{}" : receiptJson;
+        String summary;
+        try {
+            JSONObject receipt = new JSONObject(exactReceipt);
+            String error = receipt.optString("error", "").trim();
+            if (!error.isEmpty()) {
+                summary = "Spotify • " + error;
+            } else {
+                JSONObject after = receipt.optJSONObject("after");
+                if (after == null) after = receipt;
+                String artist = after.optString("artist", "").trim();
+                String title = after.optString("title", "").trim();
+                String track = artist.isEmpty() ? title
+                        : title.isEmpty() ? artist : artist + " — " + title;
+                String state = after.optBoolean("playing", false) ? "playing" : "paused";
+                summary = track.isEmpty() ? "Spotify • " + state
+                        : "Spotify • " + track + " • " + state;
+            }
+        } catch (Exception error) {
+            summary = "Spotify • invalid receipt";
+        }
+        long now = System.currentTimeMillis();
+        if (requestId > 0L) {
+            OperatorState.updateSpotifyReceipt(this, requestId, exactReceipt, summary, now);
+        } else {
+            OperatorState.updateSpotifySummary(this, summary, now);
+        }
+        if (spotifyStatus != null) spotifyStatus.setText(summary);
+        if (requestId > 0L && spotifyStatus != null) {
+            String announcement = summary.length() > 160 ? summary.substring(0, 160) : summary;
+            spotifyStatus.announceForAccessibility(announcement);
+        }
     }
 
     private void removeView(View view) {
@@ -237,6 +299,45 @@ public class OperatorOverlayService extends Service {
         hideButton.setOnClickListener(v -> hideOverlay());
         titleRow.addView(hideButton);
 
+        LinearLayout spotifyRow = new LinearLayout(this);
+        spotifyRow.setOrientation(LinearLayout.HORIZONTAL);
+        spotifyRow.setGravity(Gravity.CENTER_VERTICAL);
+
+        spotifyStatus = textView(12f, false);
+        spotifyStatus.setText(OperatorState.spotifySummary(this));
+        spotifyStatus.setContentDescription("Current Spotify playback status");
+        spotifyStatus.setSingleLine(true);
+        spotifyStatus.setEllipsize(TextUtils.TruncateAt.END);
+        spotifyStatus.setPadding(dp(4), 0, dp(4), 0);
+        spotifyRow.addView(spotifyStatus, new LinearLayout.LayoutParams(
+                0,
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                1f));
+
+        Button spotifyPreviousButton = button("Previous");
+        spotifyPreviousButton.setContentDescription("Play the previous Spotify track");
+        spotifyPreviousButton.setOnClickListener(v -> submitSpotifyCommand(
+                System.currentTimeMillis(), "previous", ""));
+        spotifyRow.addView(spotifyPreviousButton);
+
+        Button spotifyPlayPauseButton = button("Play or pause");
+        spotifyPlayPauseButton.setContentDescription("Play or pause Spotify playback");
+        spotifyPlayPauseButton.setOnClickListener(v -> submitSpotifyCommand(
+                System.currentTimeMillis(), "play_pause", ""));
+        spotifyRow.addView(spotifyPlayPauseButton);
+
+        Button spotifyNextButton = button("Next");
+        spotifyNextButton.setContentDescription("Play the next Spotify track");
+        spotifyNextButton.setOnClickListener(v -> submitSpotifyCommand(
+                System.currentTimeMillis(), "next", ""));
+        spotifyRow.addView(spotifyNextButton);
+
+        Button spotifyStatusButton = button("Status");
+        spotifyStatusButton.setContentDescription("Refresh the current Spotify playback status");
+        spotifyStatusButton.setOnClickListener(v -> submitSpotifyCommand(
+                System.currentTimeMillis(), "status", ""));
+        spotifyRow.addView(spotifyStatusButton);
+
         details = new LinearLayout(this);
         details.setOrientation(LinearLayout.VERTICAL);
 
@@ -288,6 +389,8 @@ public class OperatorOverlayService extends Service {
         adamModeRow.addView(adamModeButton("CHAT", "chat", "Adam local chatbot mode"));
         adamModeRow.addView(adamModeButton("CONT", "continue", "Adam Continue consumer mode"));
         adamModeRow.addView(adamModeButton("VLAD", "vlad", "Ask Vlad for a bounded consultation"));
+        adamModeRow.addView(adamModeButton(
+                "RADIO", "radio", "Adam mode for bounded background Spotify prompts"));
 
         LinearLayout adamInputRow = new LinearLayout(this);
         adamInputRow.setOrientation(LinearLayout.HORIZONTAL);
@@ -338,6 +441,7 @@ public class OperatorOverlayService extends Service {
         details.addView(adamInputRow);
         details.addView(actionRow);
         root.addView(titleRow);
+        root.addView(spotifyRow);
         root.addView(details);
 
         windowParams = new WindowManager.LayoutParams(
@@ -628,6 +732,10 @@ public class OperatorOverlayService extends Service {
         meta.setText(source + " • " + age(now, lastUpdate) + lease +
                 (expandedText ? " • tap message to collapse" : " • tap message to expand"));
         latest.setText(OperatorState.latestText(this));
+        String spotifySummary = OperatorState.spotifySummary(this);
+        if (spotifyStatus != null && !TextUtils.equals(spotifyStatus.getText(), spotifySummary)) {
+            spotifyStatus.setText(spotifySummary);
+        }
     }
 
     private Button adamModeButton(String label, String mode, String description) {

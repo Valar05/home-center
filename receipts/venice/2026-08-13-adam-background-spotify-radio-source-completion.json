@@ -1,0 +1,151 @@
+{
+  "schema": "home-center.venice-source-completion-review.v1",
+  "reviewId": "venice-adam-background-spotify-radio-source-completion-20260813",
+  "reviewerRole": "venice-judgment-jar",
+  "reviewerMode": "judgment_jar",
+  "reviewedPullRequest": 282,
+  "reviewedHead": "8cb23d753eea8a9649dc7abc8de1336fab44bf46",
+  "sourceCommit": "7e0a9cf50323082e4aded0a65e59f245048a1f5e",
+  "evidenceCommit": "8cb23d753eea8a9649dc7abc8de1336fab44bf46",
+  "commission": "Build a background Spotify radio lane in the existing Adam/Home Center Android overlay. Use Shizuku as the background body, target only Spotify package com.spotify.music, create or reuse the private Adam Radio — Rolling playlist, maintain a deterministic bounded tail, and accept bounded radio prompts through the Adam overlay. Do not foreground Spotify, click or automate the phone screen, dispatch generic media keys, substitute another playback body, or claim runtime behavior from source evidence.",
+  "reviewScope": "source implementation, source tests, Android unit tests, debug APK assembly, negative-path contracts, durable evidence, and capability-state truth",
+  "selectedJudgmentJars": [
+    {
+      "path": ".continue/rules/00-judgement-jar-mission-boundary.md",
+      "sha": "b30e41e961a143f8b9502c2830220d3a649f3df0",
+      "purpose": "Verify that the existing overlay, Shizuku body, exact Spotify target, background-only behavior, and no-phone checkpoint boundary were preserved."
+    },
+    {
+      "path": ".continue/rules/20-judgement-jar-repository-truth.md",
+      "sha": "402939ff4e9a510038bfdb7c7f2f4d15f56d0b62",
+      "purpose": "Prevent source, tests, or debug APK assembly from being reported as installation, callability, playback, delivery, or acceptance."
+    },
+    {
+      "path": ".continue/rules/30-judgement-jar-change-discipline.md",
+      "sha": "14f3733b26d663b66dc767e0eed6df57c3492fdc",
+      "purpose": "Review the isolated diff and reject stale foreground/generic-media implementations and unrelated branch content."
+    },
+    {
+      "path": ".continue/rules/40-judgement-jar-failure-recovery.md",
+      "sha": "f1e06a14a02bd269ebac548c3169c6aeb8720105",
+      "purpose": "Require explicit fail-closed paths for missing Shizuku authority, missing or ambiguous Spotify sessions, OAuth failure, provider rejection, locking, rate limiting, and playlist readback mismatch."
+    },
+    {
+      "path": "skills/background-media-control/SKILL.md",
+      "purpose": "Apply the reusable exact-provider, background-only, accessibility, account-plane separation, stable-runtime, and evidence contract introduced by this implementation."
+    }
+  ],
+  "evidence": {
+    "sourceVerification": {
+      "path": "receipts/spotify-radio/2026-08-13-source-verification-v2.json",
+      "sha256": "e0d0db71d78c39f1acb1b385bab8a6bad9600fa840b3fad19337c50a284a54b0",
+      "sourceCommit": "7e0a9cf50323082e4aded0a65e59f245048a1f5e"
+    },
+    "reneeReview": {
+      "path": "receipts/renee/2026-08-13-adam-background-spotify-radio-tested-source-review-v2.json",
+      "sha256": "9c294643c30f747194a34a976a06ca79f43a7e9969e6a0097278001416f75f4d",
+      "receiptId": "rqa-945d2c6818722f59f601",
+      "verdict": "PASS",
+      "claimState": "tested"
+    },
+    "workstationReceipts": [
+      "hands-spotify-radio-final-review-audit-20260813-01",
+      "hands-spotify-radio-post-review-full-build-20260813-01",
+      "hands-spotify-radio-inspect-timed-out-build-20260813-01",
+      "hands-spotify-radio-enforce-private-playlist-readback-20260813-01",
+      "hands-spotify-radio-stage-venice-repairs-20260813-01",
+      "hands-spotify-radio-push-fast-forward-head-20260813-02",
+      "hands-spotify-radio-push-v2-review-receipts-20260813-01"
+    ],
+    "tests": {
+      "pythonContracts": {
+        "passed": 34,
+        "failed": 0
+      },
+      "androidUnitTests": {
+        "passed": 6,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "pythonCompilation": "passed",
+      "bashSyntax": "passed",
+      "androidDebugAssembly": "passed",
+      "gitDiffCheck": "passed",
+      "forbiddenForegroundOrGenericControlHits": 0,
+      "fakeReviewReceiptHits": 0,
+      "spotifySecretHits": 0
+    },
+    "debugApk": {
+      "sha256": "e1867ab58855bce5c84dae118609a020bd6a043c8c6abf183e49822513331498",
+      "byteCount": 142206,
+      "package": "com.homecenter.operatoroverlay",
+      "versionName": "1.3.0",
+      "versionCode": 4,
+      "signerClass": "debug",
+      "deploymentEvidence": false
+    }
+  },
+  "blockingFindingsRepairedDuringReview": [
+    "Removed embedded source comments impersonating Venice and Renee receipts, including a static STOP_ALLOWED marker.",
+    "Added command-line identity checks for daemon and lock-owner PIDs so stale or reused PIDs cannot cause unrelated process termination or false running status.",
+    "Moved Spotify OAuth authorization code and state handling from command-line arguments to a bounded stdin callback parser.",
+    "Added an atomic, stale-recoverable, bounded cross-process operation lock for account and rolling mutations.",
+    "Replaced millisecond-only provider request IDs with collision-resistant positive signed-64-bit IDs.",
+    "Made provider accepted=false fail immediately instead of polling for a receipt that cannot arrive.",
+    "Required private-playlist provider readback of the exact ordered item URI sequence, count, and matching nonempty snapshot before state advances.",
+    "Required a verified playlist ID and policy hash before rolling may be enabled; disabling rolling remains local and network-free.",
+    "Kept the daemon alive with bounded degraded receipts on unexpected exceptions.",
+    "Corrected sparse, minimal, few, or light vocals prompts to bias instrumental and avoid vocals rather than adding vocals positively.",
+    "Rejected more than one exact Spotify MediaSession as ambiguous.",
+    "Required Shizuku API v13 for the Context-backed UserService, preserved explicit permission authority, and retained the daemon UserService when the overlay client unbinds.",
+    "Replaced one fixed post-command delay with bounded verification polling."
+  ],
+  "remainingReviewFindings": [
+    {
+      "severity": "runtime_gate",
+      "finding": "The debug APK is not reviewed release-signing or update-compatibility evidence and is not authorized for installation."
+    },
+    {
+      "severity": "runtime_gate",
+      "finding": "The primary phone has not granted this reviewed APK Shizuku authority, and real Android media-session authority for the exact Spotify session remains unproven."
+    },
+    {
+      "severity": "runtime_gate",
+      "finding": "Spotify PKCE authorization, private playlist creation/readback, playFromUri behavior, foreground invariance, physical track transitions, rolling refill, overlay prompt revision, interface-off continuity, final phone health, and Drew's perceptual acceptance remain unexecuted."
+    },
+    {
+      "severity": "scope_boundary",
+      "finding": "Drew explicitly prohibited further phone/interface actions during this checkpoint. Runtime continuation therefore requires a later explicit authorization; the source checkpoint may not route around that boundary."
+    }
+  ],
+  "capabilityState": {
+    "requested": true,
+    "implementedInRepository": true,
+    "sourceTested": true,
+    "debugApkBuilt": true,
+    "merged": false,
+    "installedOnPrimaryPhone": false,
+    "shizukuAuthorizedForReviewedApk": false,
+    "spotifyAccountAuthorized": false,
+    "spotifySessionCallable": false,
+    "playlistCreatedAndReadBack": false,
+    "backgroundPlaybackVerified": false,
+    "rollingRefillVerified": false,
+    "delivered": false,
+    "accepted": false,
+    "overallCommissionComplete": false
+  },
+  "phoneTouched": false,
+  "phoneHandsCommandsIssued": false,
+  "apkInstalled": false,
+  "spotifyAuthorizationAttempted": false,
+  "spotifyProviderCalled": false,
+  "playlistMutationAttempted": false,
+  "verdict": "PASS",
+  "directive": "STOP_ALLOWED",
+  "directiveScope": "reviewed source-implementation checkpoint only",
+  "nextCheckpointDirective": "HALT_REQUIRED",
+  "nextCheckpointReason": "Runtime execution is outside the current authorization because Drew explicitly turned off the interface and prohibited further phone interaction.",
+  "reviewedAtUtc": "2026-08-13T17:58:02.833Z"
+}

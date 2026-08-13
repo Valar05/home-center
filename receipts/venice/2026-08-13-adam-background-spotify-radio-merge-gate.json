@@ -1,0 +1,98 @@
+{
+    "schema":  "home-center.venice-judgment-jar.review.v1",
+    "reviewId":  "venice-adam-background-spotify-radio-merge-gate-20260813",
+    "reviewerRole":  "venice-judgment-jar",
+    "reviewerMode":  "judgment_jar",
+    "reviewedPullRequest":  282,
+    "reviewedHead":  "6ea1788c151c9c74a8f511d8c3aa966f376ef28a",
+    "commission":  "Merge the tested background Spotify radio source checkpoint without laundering it into runtime completion, then continue toward background-only deployment without touching the phone screen.",
+    "selectedJars":  [
+                         ".continue/rules/00-judgement-jar-mission-boundary.md",
+                         ".continue/rules/20-judgement-jar-repository-truth.md",
+                         ".continue/rules/30-judgement-jar-change-discipline.md",
+                         ".continue/rules/40-judgement-jar-failure-recovery.md",
+                         "skills/background-media-control/SKILL.md"
+                     ],
+    "regnet":  {
+                   "path":  "receipts/regnet/2026-08-13-adam-background-spotify-radio-merge-gate.json",
+                   "receiptId":  "rqa-400a1b0372cc34c32ca5",
+                   "verdict":  "PASS",
+                   "next":  "VENICE",
+                   "workstationReceipt":  "hands-spotify-radio-regnet-merge-gate-20260813-03"
+               },
+    "evidence":  [
+                     "receipts/spotify-radio/2026-08-13-source-verification-v2.json",
+                     "receipts/renee/2026-08-13-adam-background-spotify-radio-tested-source-review-v2.json",
+                     "receipts/venice/2026-08-13-adam-background-spotify-radio-source-completion.json",
+                     "receipts/regnet/2026-08-13-adam-background-spotify-radio-merge-gate.json",
+                     "PR-282",
+                     "7e0a9cf50323082e4aded0a65e59f245048a1f5e",
+                     "6ea1788c151c9c74a8f511d8c3aa966f376ef28a",
+                     "hands-spotify-radio-final-review-audit-20260813-01",
+                     "hands-spotify-radio-post-review-full-build-20260813-01",
+                     "workflow:31730149645",
+                     "workflow:31730149677",
+                     "workflow:31730149675"
+                 ],
+    "ciAssessment":  {
+                         "currentHead":  "6ea1788c151c9c74a8f511d8c3aa966f376ef28a",
+                         "runs":  [
+                                      {
+                                          "id":  31730149645,
+                                          "name":  "Build Android",
+                                          "conclusion":  "failure",
+                                          "durationSeconds":  4,
+                                          "steps":  0,
+                                          "logsAvailable":  false
+                                      },
+                                      {
+                                          "id":  31730149677,
+                                          "name":  "Operator Overlay Android",
+                                          "conclusion":  "failure",
+                                          "durationSeconds":  3,
+                                          "steps":  0,
+                                          "logsAvailable":  false
+                                      },
+                                      {
+                                          "id":  31730149675,
+                                          "name":  "Home Center CI",
+                                          "conclusion":  "failure",
+                                          "durationSeconds":  4,
+                                          "steps":  0,
+                                          "logsAvailable":  false
+                                      }
+                                  ],
+                         "finding":  "All current-head Actions jobs failed before executing any steps and produced no logs. They are infrastructure failures and provide no contradictory code-test evidence. They remain red and must be explicitly disclosed rather than called green."
+                     },
+    "findings":  [
+                     "The exact implementation source is bound to durable authorized windows-hands-01 receipts and passed 34 deterministic Python contracts, 6 Android unit tests, Android debug assembly, syntax checks, secret scan, forbidden-path scan, and diff check.",
+                     "The draft PR contains only the commissioned source implementation, evidence, Regnet/Renee QA, Venice reviews, and the reusable background-media skill.",
+                     "The debug APK remains build evidence only. Merge does not authorize installation, Shizuku permission, Spotify OAuth, playlist mutation, playback, or acceptance.",
+                     "The user reissued CONTINUE under Hairway operator mode, but the earlier no-click boundary remains controlling: no phone screen or foreground interaction is authorized.",
+                     "The red GitHub checks are zero-step infrastructure failures; merging may use the exact authorized-body evidence only if head identity remains exact and the failure is recorded."
+                 ],
+    "capabilityState":  {
+                            "requested":  true,
+                            "implementedInRepository":  true,
+                            "sourceTested":  true,
+                            "debugApkBuilt":  true,
+                            "merged":  false,
+                            "installed":  false,
+                            "shizukuAuthorized":  false,
+                            "spotifyAuthorized":  false,
+                            "sessionCallable":  false,
+                            "playlistCreated":  false,
+                            "playbackVerified":  false,
+                            "accepted":  false
+                        },
+    "verdict":  "PASS",
+    "directive":  "CONTINUE_REQUIRED",
+    "authorizedNext":  [
+                           "Mark PR 282 ready for review without changing its head.",
+                           "Merge PR 282 only if the exact head remains 6ea1788c151c9c74a8f511d8c3aa966f376ef28a and the merge is non-forced.",
+                           "Permit bypass of zero-step/no-log GitHub Actions only because exact authorized-body test receipts are durable and Regnet passed; do not report checks as green.",
+                           "After merge, continue the same commission through a new runtime/deployment checkpoint that preserves the no-click/no-foreground boundary."
+                       ],
+    "stopAllowed":  false,
+    "reviewedAtUtc":  "2026-08-13T18:21:33.6741482Z"
+}

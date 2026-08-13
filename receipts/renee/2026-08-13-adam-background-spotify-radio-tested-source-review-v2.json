@@ -1,0 +1,63 @@
+{
+    "acceptance":  [
+                       "The exact published commit is tied to 34 passing deterministic Python contracts, 6 passing Android unit tests, Python/Bash syntax success, successful Android debug assembly, zero forbidden foreground/generic-control hits, zero fake-review markers, zero Spotify secret hits, exact private-playlist provider readback contracts, and the recorded APK digest."
+                   ],
+    "blockers":  [
+
+                 ],
+    "can_grant_final_stop":  false,
+    "capability_state":  "tested",
+    "claim":  "Commit 7e0a9cf50323082e4aded0a65e59f245048a1f5e legitimately reaches the tested source state for the reviewed background Spotify radio implementation. The claim is limited to repository implementation, deterministic tests, Android unit tests, and debug APK assembly. It makes no installed, Shizuku-authorized, Spotify-authorized, session-callable, playlist-created, playback, rolling-runtime, delivered, accepted, merged, or final-completion claim.",
+    "created_at":  "2026-08-13T17:53:41.991847+00:00",
+    "dissent":  [
+                    "This tested-source judgment grants no deployment, merge, callability, playlist, playback, rolling-runtime, delivery, acceptance, or final STOP_ALLOWED state.",
+                    "The debug APK is build evidence only and uses a debug signer.",
+                    "Real Shizuku media-session authority and Spotify playFromUri behavior remain physical runtime gates."
+                ],
+    "evidence":  [
+                     {
+                         "exists":  true,
+                         "path":  "C:\\Users\\dclar\\workspace\\home-center-worktrees\\spotify-radio-final-20260813\\receipts\\spotify-radio\\2026-08-13-source-verification-v2.json",
+                         "size":  10098
+                     }
+                 ],
+    "evidence_refs":  [
+                          "hands-spotify-radio-final-review-audit-20260813-01",
+                          "hands-spotify-radio-post-review-full-build-20260813-01",
+                          "hands-spotify-radio-enforce-private-playlist-readback-20260813-01",
+                          "hands-spotify-radio-push-fast-forward-head-20260813-02",
+                          "PR-282",
+                          "7e0a9cf50323082e4aded0a65e59f245048a1f5e"
+                      ],
+    "next_gate":  "Venice",
+    "provenance":  "SYNTHETIC_RENEE",
+    "questions":  [
+                      "What exactly are we claiming?",
+                      "What evidence proves that exact claim on the commissioned surface?",
+                      "What reachable path did we not test?",
+                      "What happens when the dependency, input, user, network, state, or timing is wrong?",
+                      "Can another person reproduce the result from the receipt?",
+                      "Did we deliver the requested thing or an adjacent substitute?",
+                      "What changed, and what can regress because of it?",
+                      "Are we laundering intended, implemented, tested, deployed, callable, delivered, or accepted into one state?",
+                      "What dissent or uncertainty must remain attached to the claim?"
+                  ],
+    "reachable_failure_paths":  [
+                                    "Missing or old Shizuku, denied permission, dead Binder, unavailable media-session authority, absent exact Spotify session, or multiple exact Spotify sessions all fail closed without foreground or generic-media fallback.",
+                                    "OAuth code/state is stdin-only; malformed/denied callbacks, token failures, rate limits, operation-lock contention, and provider accepted=false are explicit.",
+                                    "Playlist mutation requires private exact ordered item/count/snapshot readback before durable state advances.",
+                                    "Stale or reused daemon/lock PIDs are identity-checked and rejected; no source comment impersonates Venice or Renee.",
+                                    "Rolling-disabled idle behavior is network-free; unexpected daemon exceptions produce bounded degraded receipts rather than process death."
+                                ],
+    "receipt_id":  "rqa-41afed64cc9f8826ea42",
+    "receipt_path":  "C:\\Users\\dclar\\.home-center\\renee-qa\\receipts\\rqa-41afed64cc9f8826ea42.json",
+    "reviewer":  "Rene QA",
+    "schema":  "home-center.renee-qa.review.v1",
+    "unresolved":  [
+
+                   ],
+    "verdict":  "PASS",
+    "warnings":  [
+
+                 ]
+}
