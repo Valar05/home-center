@@ -7,12 +7,23 @@ permissions:
   contents: read
 
 jobs:
-  validate:
+  python-syntax:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Validate relay syntax and Phone Shell control separation
-        run: |
-          python -m py_compile tools/android_phone_home_center_relay.py tools/android_phone_termux_shell.py
-          node tools/phone_shell_overlay_gate_contract_test.mjs
-          git diff --check
+      - name: Compile relay Python
+        run: python -m py_compile tools/android_phone_home_center_relay.py tools/android_phone_termux_shell.py
+
+  control-separation:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify Phone Shell bypasses interaction gate
+        run: node tools/phone_shell_overlay_gate_contract_test.mjs
+
+  diff-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check repository diff hygiene
+        run: git diff --check
