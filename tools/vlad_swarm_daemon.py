@@ -10,6 +10,9 @@ import time
 from pathlib import Path
 
 STATE_DIR = Path(os.environ.get("HC_SWARM_STATE_DIR", "~/.local/state/home-center/vlad-swarm")).expanduser()
+JAR_CACHE = Path(os.environ.get("HC_JUDGMENT_JARS_CACHE", str(STATE_DIR / "judgment-jars.json"))).expanduser()
+JAR_CONFIG = Path(os.environ.get("HC_JUDGMENT_JARS_CONFIG", "config/judgment-jars.v1.json")).expanduser()
+JAR_SYNC_TIMEOUT = int(os.environ.get("HC_JUDGMENT_JARS_SYNC_TIMEOUT", "90"))
 RISH = os.environ.get("HC_RISH", "rish")
 INTERVAL = int(os.environ.get("HC_SWARM_INTERVAL", "30"))
 ADAM_POLL_SECONDS = float(os.environ.get("HC_ADAM_POLL_SECONDS", "1.0"))
@@ -27,6 +30,52 @@ def append_receipt(event):
     STATE_DIR.mkdir(parents=True,exist_ok=True);event={"at":now(),**event}
     with (STATE_DIR/"receipts.jsonl").open("a",encoding="utf-8") as f:f.write(json.dumps(event,sort_keys=True)+"\n")
     (STATE_DIR/"last.json").write_text(json.dumps(event,indent=2,sort_keys=True)+"\n",encoding="utf-8")
+def sync_judgment_jars(repo_root):
+    script=Path(repo_root)/"tools"/"judgment_jars.py"
+    config=JAR_CONFIG if JAR_CONFIG.is_absolute() else Path(repo_root)/JAR_CONFIG
+    if not script.is_file():
+        summary={"ok":False,"complete":False,"state":"script_missing","cachePath":str(JAR_CACHE),"script":str(script)}
+        append_receipt({"kind":"vlad.judgment_jars.sync",**summary});return summary
+    if not config.is_file():
+        summary={"ok":False,"complete":False,"state":"config_missing","cachePath":str(JAR_CACHE),"config":str(config)}
+        append_receipt({"kind":"vlad.judgment_jars.sync",**summary});return summary
+    cmd=["python3",str(script),"--root",repo_root,"--cache",str(JAR_CACHE),"--config",str(config),"sync"]
+    try:
+        process=subprocess.run(cmd,text=True,capture_output=True,timeout=JAR_SYNC_TIMEOUT,cwd=repo_root)
+        full_stdout=process.stdout.strip();full_stderr=process.stderr.strip()
+        result={"cmd":cmd,"rc":process.returncode,"stdout":full_stdout[-4000:],"stderr":full_stderr[-4000:]}
+        payload=json.loads(full_stdout)
+    except subprocess.TimeoutExpired as exc:
+        result={"cmd":cmd,"rc":124,"stdout":str(exc.stdout or "")[-4000:],"stderr":str(exc.stderr or "")[-4000:]}
+        payload={"ok":False,"complete":False,"error":"judgment_jar_sync_timeout"}
+    except Exception as exc:
+        result={"cmd":cmd,"rc":2,"stdout":"","stderr":f"{type(exc).__name__}: {exc}"}
+        payload={"ok":False,"complete":False,"error":f"invalid_sync_receipt:{type(exc).__name__}:{exc}"}
+    ok=result["rc"]==0 and payload.get("ok") is True
+    complete=ok and payload.get("complete") is True
+    home_state=str(payload.get("homeCenterState") or "unavailable")
+    summary={
+        "ok":ok,
+        "complete":complete,
+        "state":"synced" if complete else ("stale" if ok and home_state=="stale" else "degraded" if ok else "failed"),
+        "cachePath":str(JAR_CACHE),
+        "configPath":str(config),
+        "jarCount":int(payload.get("jarCount") or 0),
+        "localJarCount":int(payload.get("localJarCount") or 0),
+        "cabinetJarCount":int(payload.get("cabinetJarCount") or 0),
+        "unregisteredJarCount":int(payload.get("unregisteredJarCount") or 0),
+        "registryDigest":payload.get("registryDigest"),
+        "sourceCommit":payload.get("sourceCommit"),
+        "homeCenterState":home_state,
+        "homeCenterLastError":payload.get("homeCenterLastError") or "",
+        "homeCenterAttempted":payload.get("homeCenterAttempted") is True,
+        "homeCenterFailed":payload.get("homeCenterFailed") is True,
+        "changed":payload.get("changed") is True,
+        "cacheRewritten":payload.get("cacheRewritten") is True,
+    }
+    if not ok or summary["changed"] or summary["cacheRewritten"] or summary["homeCenterFailed"]:
+        append_receipt({"kind":"vlad.judgment_jars.sync",**summary,"result":result})
+    return summary
 def phone_health():
     probe=rish("id");ok=probe["rc"]==0;append_receipt({"kind":"phone.shizuku.probe","ok":ok,"result":probe})
     if not ok:return False
@@ -182,11 +231,11 @@ def process_review_inbox(repo_root):
         job.rename(target)
         append_receipt({"kind":"venice.review.directive","job":job.name,"ok":ok,"directive":directive,"state":state,"receipt":str(receipt_path),"decision":str(bucket/(job.stem+".decision.json")),"reviewerMode":receipt.get("reviewerMode"),"localVeniceExplicit":local_venice,"result":result})
 def heartbeat(repo_root):
-    shizuku_ok=phone_health();ssh_ok=ensure_phone_ssh(repo_root);overlay_ok=ensure_operator_overlay(repo_root) if shizuku_ok else False
+    jars=sync_judgment_jars(repo_root);shizuku_ok=phone_health();ssh_ok=ensure_phone_ssh(repo_root);overlay_ok=ensure_operator_overlay(repo_root) if shizuku_ok else False
     if overlay_ok:operator_heartbeat()
-    process_review_inbox(repo_root);append_receipt({"kind":"swarm.heartbeat","ok":True,"shizuku":shizuku_ok,"ssh":ssh_ok,"overlay":overlay_ok})
+    process_review_inbox(repo_root);append_receipt({"kind":"swarm.heartbeat","ok":True,"shizuku":shizuku_ok,"ssh":ssh_ok,"overlay":overlay_ok,"judgmentJars":jars})
 def main():
-    ap=argparse.ArgumentParser(description="Deterministic Vlad swarm keeper");ap.add_argument("--repo",default=os.environ.get("HC_REPO_ROOT","."));ap.add_argument("--once",action="store_true");ap.add_argument("--interval",type=int,default=INTERVAL);args=ap.parse_args();repo_root=str(Path(args.repo).resolve());STATE_DIR.mkdir(parents=True,exist_ok=True);append_receipt({"kind":"swarm.start","ok":True,"repo":repo_root,"interval":args.interval});next_heartbeat=0.0
+    ap=argparse.ArgumentParser(description="Deterministic Vlad swarm keeper");ap.add_argument("--repo",default=os.environ.get("HC_REPO_ROOT","."));ap.add_argument("--once",action="store_true");ap.add_argument("--interval",type=int,default=INTERVAL);args=ap.parse_args();repo_root=str(Path(args.repo).resolve());STATE_DIR.mkdir(parents=True,exist_ok=True);append_receipt({"kind":"swarm.start","ok":True,"repo":repo_root,"interval":args.interval,"judgmentJarCache":str(JAR_CACHE)});next_heartbeat=0.0
     while True:
         try:
             process_adam_overlay(repo_root);current=time.monotonic()
