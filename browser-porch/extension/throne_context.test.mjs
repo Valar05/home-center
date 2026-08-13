@@ -21,12 +21,27 @@ test('worker boot locks operator-handoff and evidence doctrine', () => {
   assert.match(worker, /Never use ChatGPT-local scratch\/container execution as proof/);
 });
 
-test('Instant workers are bounded slices, not campaign brains', () => {
-  assert.match(worker, /chat-mode Instant execution worker/);
+test('Pro workers are bounded slices and Instant is not active doctrine', () => {
+  assert.match(worker, /ChatGPT Pro-reasoning execution worker/);
+  assert.match(worker, /WORKER MODEL: ChatGPT Pro reasoning/);
+  assert.doesNotMatch(worker, /chat-mode Instant execution worker/);
+  assert.doesNotMatch(worker, /WORKER MODEL: ChatGPT chat-mode Instant/);
   assert.match(worker, /one bounded bite/i);
   assert.match(worker, /Work ONE small feature, repair, proof, or acceptance slice at a time/);
   assert.match(worker, /No Great War/);
   assert.match(worker, /Be usefully needy/);
+});
+
+test('Judgment-Jar Venice is primary and response boundaries cannot stop workers', () => {
+  assert.match(worker, /Venice Judgment Jars are mandatory and PRIMARY/);
+  assert.match(worker, /not fallback emulation/);
+  assert.match(worker, /PLAN_ALLOWED/);
+  assert.match(worker, /STOP_ALLOWED is the only normal Venice permission/);
+  assert.match(worker, /CONTINUE_REQUIRED forbids stopping/);
+  assert.match(worker, /A response boundary is never equivalent to STOP_ALLOWED/);
+  assert.match(worker, /local Venice model is optional specialized machinery/);
+  assert.match(core, /veniceReviewMode: VENICE_REVIEW_MODE/);
+  assert.match(core, /responseBoundaryIsStop: false/);
 });
 
 test('service worker owns handoff rotation and the panel is only a client', () => {
@@ -40,6 +55,21 @@ test('service worker owns handoff rotation and the panel is only a client', () =
   assert.match(worker, /assistant_completion_timeout/);
   assert.match(panel, /type: 'throne\.swarm\.run'/);
   assert.doesNotMatch(panel, /Promise\.all\(wave\.map/);
+});
+
+test('service worker enforces Venice continuation mechanically', () => {
+  assert.match(core, /parseVeniceDirective/);
+  assert.match(core, /planVeniceContinuation/);
+  assert.match(worker, /planVeniceContinuation/);
+  assert.match(worker, /venice_continue_required/);
+  assert.match(worker, /venice_review_missing/);
+  assert.match(worker, /venice_stop_allowed/);
+  assert.match(worker, /halt_required/);
+  assert.match(worker, /successorJobId/);
+  assert.doesNotMatch(worker, /reviewer: 'venice-local'/);
+  assert.match(worker, /reviewer: 'venice-judgment-jars'/);
+  assert.match(worker, /reviewerMode: 'judgment_jar'/);
+  assert.match(worker, /localVeniceRequired: false/);
 });
 
 test('every worker packet includes durable campaign context before bounded commission', () => {
@@ -108,11 +138,8 @@ test('bounded swarm still uses modular handoff core', () => {
   assert.match(core, /mergeHandoffContext/);
 });
 
-test('ChatGPT cannot be the terminal review gate', () => {
+test('ChatGPT worker cannot self-accept or bypass final release', () => {
   assert.doesNotMatch(worker, /accepted: true/);
-  assert.match(worker, /awaiting_venice_review/);
-  assert.match(worker, /reviewer: 'venice-local'/);
-  assert.match(worker, /independentOfChatGPT: true/);
   assert.match(worker, /vladRequired: true/);
   assert.match(worker, /finalRelease: 'tetsuya'/);
   assert.match(worker, /accepted: false/);
