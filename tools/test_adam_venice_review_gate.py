@@ -20,13 +20,19 @@ assert "Research" in agents and "Plan" in agents and "Select Judgment Jars" in a
 assert "Execute only after `PLAN_ALLOWED`" in agents
 assert "REPLAN_REQUIRED" in agents
 assert "The worker chooses whichever jars it thinks the task needs" in agents
+assert "declares the controlled output kind" in agents
+assert "per-Jar context/review usage receipts" in agents
+assert "Judgment Jar usage receipts — all agents and workers" in agents
+assert "Every actual Jar use must emit one append-only usage receipt" in agents
+assert "CAPTURED" in agents and "DELIVERED" in agents
+assert "retry the oldest pending receipt first" in agents
 assert "Venice completion review — all agents and workers" in agents
 assert "No agent or worker may certify its own completion" in agents
 assert "This requirement applies to **all work**" in agents
 assert "CONTINUE_REQUIRED" in agents and "HALT_REQUIRED" in agents and "STOP_ALLOWED" in agents
 assert "Non-code and conversational work" in agents
 assert "Venice must take durable notes" in agents
-assert "Failure or latency in the Venice path is not permission to bypass Venice" in agents
+assert "Failure or latency in an optional live/local Venice path is not permission to bypass Venice" in agents
 
 verdict, directive, findings, _ = canonical.parse_review(
     "VERDICT: PASS\nDIRECTIVE: STOP_ALLOWED\nJAR: observable evidence\nNOTE: ok"
@@ -112,6 +118,16 @@ for token in [
 ]:
     assert token in planned, f"planned worker missing {token}"
 
+receipted = (ROOT / "tools/adam_planned_venice_receipted.py").read_text(encoding="utf-8")
+for token in [
+    'outputKind',
+    'output_kind="context_packet"',
+    'output_kind="review_verdict"',
+    'output_kind=_CURRENT_OUTPUT_KIND',
+    'execution.canonical_venice_review = completion_review',
+]:
+    assert token in receipted, f"receipt wrapper missing {token}"
+
 assert 'step budget exhausted' not in source
 assert 'raise RuntimeError(f"phone model unavailable after daemon backoff burst' not in source
-print("Adam global plan + Venice / Codex-local / receipt / nonterminal-daemon contract: PASS")
+print("Adam global plan + Renee/Venice + Judgment-Jar usage receipt + nonterminal-daemon contract: PASS")
