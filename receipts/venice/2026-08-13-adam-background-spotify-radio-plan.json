@@ -1,0 +1,143 @@
+{
+  "schema": "home-center.venice-plan-review.v1",
+  "reviewId": "venice-adam-background-spotify-radio-plan-20260813",
+  "reviewerRole": "venice-judgment-jar",
+  "reviewerMode": "judgment_jar",
+  "commissionHash": "acf5b696fc3e4365a6f974bed057faae6e0fd3c469b1afa73103967ee1e5547a",
+  "commission": "Build a background Spotify radio lane in the existing Adam/Home Center Android overlay. Use Shizuku as the background body, target Spotify specifically, create/reuse a rolling playlist, keep the unplayed tail replenished, and accept prompt revisions through the Adam overlay. Do not foreground Spotify, click the phone, use screen automation, generic media keys, phone.open_uri, or substitute another player/engine. During the current source/review phase, perform no phone actions because Drew turned off the interface.",
+  "planId": "adam-background-spotify-radio-plan-v1",
+  "selectedJudgmentJars": [
+    {
+      "path": ".continue/rules/00-judgement-jar-mission-boundary.md",
+      "sha": "b30e41e961a143f8b9502c2830220d3a649f3df0",
+      "reason": "Locks background-only Spotify, Shizuku, the existing Adam overlay, and the no-phone/no-foreground exclusions."
+    },
+    {
+      "path": ".continue/rules/20-judgement-jar-repository-truth.md",
+      "sha": "402939ff4e9a510038bfdb7c7f2f4d15f56d0b62",
+      "reason": "Separates repository implementation from Android deployment, Spotify authorization, playback, and physical acceptance."
+    },
+    {
+      "path": ".continue/rules/30-judgement-jar-change-discipline.md",
+      "sha": "14f3733b26d663b66dc767e0eed6df57c3492fdc",
+      "reason": "Forbids merging stale radio branches wholesale or mixing their unrelated overlay and deployment changes into this lane."
+    },
+    {
+      "path": ".continue/rules/40-judgement-jar-failure-recovery.md",
+      "sha": "f1e06a14a02bd269ebac548c3169c6aeb8720105",
+      "reason": "Requires exact authority and capability failures instead of falling back to foreground launch or untargeted media keys."
+    }
+  ],
+  "reviewerMemoryConsulted": {
+    "path": "skills/venice-review-memory/SKILL.md",
+    "sha": "fa86cbbe76ef4215712ab0233851459041c844e1",
+    "precedents": [
+      "planning bypass",
+      "repository evidence laundered into runtime proof",
+      "body-lane bypass",
+      "unsafe inferred authority",
+      "user correction regression"
+    ]
+  },
+  "evidence": [
+    {
+      "kind": "repository",
+      "path": "android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorOverlayService.java",
+      "sha": "ac495bf2f4a949f19612ad7e7027b39d59b1f53a",
+      "finding": "Current main has the persistent foreground overlay service and Adam prompt input, but no Spotify-specific controller."
+    },
+    {
+      "kind": "repository",
+      "path": "android/operator-overlay/app/src/main/AndroidManifest.xml",
+      "sha": "8085105bb246ced18c63921b18cd2a1734b0fdde",
+      "finding": "Current app has a special-use foreground service; a persistent background controller can live in the existing app without foregrounding Spotify."
+    },
+    {
+      "kind": "repository",
+      "path": "tools/adam.py",
+      "sha": "030b64db2bdb1a1a4bd24966682439bfe51754d7",
+      "finding": "Adam overlay requests already traverse explicit modes and a planned Venice-reviewed worker path; Spotify prompts need a typed deterministic adapter rather than prose execution."
+    },
+    {
+      "kind": "historical-branch",
+      "ref": "PR-249",
+      "finding": "The prior radio controls dispatch generic AudioManager media keys and cannot prove Spotify was targeted. The branch also mixes unrelated overlay and deployment changes and must not be merged wholesale."
+    },
+    {
+      "kind": "historical-branch",
+      "ref": "PR-258",
+      "finding": "The contextual media route uses phone.open_uri / Android VIEW and is explicitly forbidden because it foregrounds an app."
+    },
+    {
+      "kind": "platform-contract",
+      "ref": "https://developer.android.com/reference/android/media/session/MediaSessionManager",
+      "finding": "Enumerating active sessions requires MEDIA_CONTENT_CONTROL or enabled notification-listener authority."
+    },
+    {
+      "kind": "platform-contract",
+      "ref": "https://github.com/RikkaApps/Shizuku-API/blob/master/README.md",
+      "finding": "Shizuku UserService runs as shell/root, but ADB permissions vary by Android version and must be probed rather than assumed."
+    },
+    {
+      "kind": "provider-contract",
+      "ref": "https://developer.spotify.com/documentation/web-api/reference/add-items-to-playlist",
+      "finding": "Playlist mutation is a Spotify account-plane operation and uses the current /playlists/{playlist_id}/items endpoint."
+    }
+  ],
+  "antagonism": [
+    {
+      "severity": "blocking-unless-designed",
+      "finding": "Shizuku being alive does not prove the shell identity can enumerate or control Spotify MediaSessions on this Android build.",
+      "prevention": "Implement a first-class authority probe and fail with SPOTIFY_SESSION_AUTHORITY_UNAVAILABLE. Never fall back to generic media keys, phone.open_uri, Activity launch, or screen automation."
+    },
+    {
+      "severity": "blocking-unless-separated",
+      "finding": "Playlist creation, playlist mutation, playback transport, prompt interpretation, overlay presentation, and rolling-tail maintenance are different authority/evidence planes.",
+      "prevention": "Keep typed Spotify account, Shizuku session, Adam planner, rolling policy, and overlay state contracts separate with independent receipts."
+    },
+    {
+      "severity": "blocking-unless-tested",
+      "finding": "A background controller could accidentally foreground Spotify during authorization, playback activation, error recovery, or deep-link handling.",
+      "prevention": "Add negative source contracts forbidding Intent ACTION_VIEW, am start, monkey, phone.open_uri, input keyevents, and generic AudioManager dispatch inside the Spotify lane; later physical acceptance must prove foreground package unchanged."
+    },
+    {
+      "severity": "major",
+      "finding": "Current overlay hide behavior disables remote control. That must not be coupled to playback or rolling-session lifetime.",
+      "prevention": "Store radio state independently and keep the controller alive when the overlay is collapsed/hidden or remote control is disabled."
+    },
+    {
+      "severity": "major",
+      "finding": "A model-backed endless background loop would be fragile, expensive, and unverifiable.",
+      "prevention": "Use a bounded typed prompt-to-policy step only on explicit prompts; ordinary refills are deterministic and idempotent."
+    }
+  ],
+  "boundedPlan": [
+    "Create an isolated current-main branch. Do not merge stale PR 249 or PR 258.",
+    "Add source-level negative contracts and typed Spotify session/account/rolling receipt schemas first.",
+    "Add a Shizuku UserService integration that probes shell UID and exact media-session authority, targets only com.spotify.music, and fails closed without foreground fallback.",
+    "Add Spotify account-plane interfaces for one private stable playlist, current playlist-item endpoint use, idempotent snapshot handling, and explicit authorization state. No tokens in overlay state or receipts.",
+    "Extend the existing overlay with a Spotify-specific background widget and a Spotify prompt mode that submits through the existing Adam request mechanism.",
+    "Compile explicit prompts into spotify.plan.v1; execute only typed operations. Keep the current track unless Drew explicitly requests a skip.",
+    "Implement rolling-tail state as a deterministic bounded state machine with duplicate/artist windows, idempotent refill, rate-limit backoff, and no model loop.",
+    "Run source contracts and Android build on an authorized non-phone body when available. GitHub Actions are not acceptance evidence.",
+    "Do not touch the phone until a later explicitly authorized deployment/acceptance checkpoint. Physical acceptance must prove Spotify never foregrounded, exact package targeting, playlist identity, rolling refill, prompt revision, interface-off continuity, Shizuku fail-closed behavior, and final phone health."
+  ],
+  "conditions": [
+    "Shizuku is the commissioned local control body; Spotify Web API is limited to Spotify account/playlist operations and does not replace the body with another player or UI automation.",
+    "Spotify App Remote is not an automatic fallback. Introducing it as a control-body substitute requires a separate boundary proposal if the Shizuku authority probe fails.",
+    "No phone, Shizuku, overlay, Spotify, or screen action is authorized during the current source-only checkpoint.",
+    "No deployment, callability, playback, or acceptance claim may be made from repository changes or source tests."
+  ],
+  "capabilityState": {
+    "requested": true,
+    "planned": true,
+    "implemented": false,
+    "tested": false,
+    "deployed": false,
+    "callable": false,
+    "physicallyAccepted": false
+  },
+  "verdict": "PASS",
+  "directive": "PLAN_ALLOWED",
+  "reviewedAt": "2026-08-13T12:30:00Z"
+}
