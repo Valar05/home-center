@@ -1,0 +1,62 @@
+{
+  "schema": "home-center.venice-judgment-jar-review.v1",
+  "reviewerRole": "venice-judgment-jar",
+  "reviewerMode": "judgment_jar",
+  "reviewType": "authority-boundary-review",
+  "commission": "Recover the existing Adam overlay radio lane on Drew's primary Android phone, begin with Spotify control, create a Spotify playlist, keep it rolling while respecting pause/stop, and make it promptable through the Adam overlay.",
+  "selectedJars": [
+    "mission-boundary",
+    "execution-truth",
+    "phone-hands",
+    "overlay-radio",
+    "accessibility-first",
+    "operator-authority",
+    "venice-stop-gate"
+  ],
+  "evidence": {
+    "sourceHead": "6a1925ba7302566078517af2745b8c6b64e4696b",
+    "draftPullRequest": 274,
+    "sourceGateTicket": "hands-spotify-radio-final-source-gate-20260813-01",
+    "sourceTestsPassed": [
+      "spotify_radio_contract_test",
+      "spotify_overlay_radio_contract_test",
+      "spotify_overlay_deploy_contract_test",
+      "Python compilation",
+      "build/deploy/setup/bootstrap Bash syntax",
+      "git diff --check"
+    ],
+    "checkpointCommit": "9fbdb6868ec81f18fb609797debb21c19003dcad",
+    "phoneStatusCommandId": "spotify-overlay-control-recheck-20260813-11",
+    "phoneDeviceId": "primary-phone",
+    "phoneOnline": true,
+    "spotifyInstalled": true,
+    "spotifySessionObserved": true,
+    "spotifyState": "PAUSED",
+    "overlayInstalled": true,
+    "overlayVisible": true,
+    "overlayMuted": false,
+    "overlayControlEnabled": false
+  },
+  "capabilityJudgment": {
+    "requested": true,
+    "implemented": true,
+    "sourceValidated": true,
+    "deployed": false,
+    "playlistCreated": false,
+    "playbackVerified": false,
+    "promptVerified": false,
+    "continuityVerified": false,
+    "accepted": false
+  },
+  "finding": "All independent source, review, validation, checkpoint, and deployment preparation work is complete. The next transition requires the user-owned visible Home Center control switch to be enabled locally. The architecture deliberately exposes no remote enable action; routing around this switch would violate the commissioned safety lane.",
+  "exactOperatorAction": "Tap ENABLE once on the collapsed Home Center overlay.",
+  "terminalCommandRequired": false,
+  "shizukuActionRequired": false,
+  "remoteBypassAllowed": false,
+  "verdict": "PASS",
+  "directive": "HALT_REQUIRED",
+  "stopPermissionGranted": false,
+  "completionClaimAllowed": false,
+  "continuation": "After the local ENABLE tap, continue the same commission through Phone Hands: deploy exact source, create/read back the Spotify playlist, verify PLAYING, prove Adam prompts and transport controls, prove pause survives a monitor interval, resume, final health, and fresh Venice completion review.",
+  "reviewedAt": "2026-08-13T12:38:00Z"
+}
