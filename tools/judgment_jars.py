@@ -16,6 +16,7 @@ from judgment_jar_atom_import import import_atom_receipts
 from judgment_jar_common import CONFIG_PATH, DEFAULT_CACHE, LOCAL_ORIGIN, ROOT, RegistryError, read_config
 from judgment_jar_receipts import ReceiptError, flush as flush_receipts, record as record_receipt, status as receipt_status
 from judgment_jar_registry import ensure_registry, fetch_native_source, prompt_text, public_jar, resolve_jar, search_jars, summary
+from judgment_jar_review_import import import_review_receipts
 
 
 def parser() -> argparse.ArgumentParser:
@@ -69,6 +70,13 @@ def context_receipt(registry: dict, jar: dict, config: dict, output: str, source
         return {"ok": False, "state": "RECEIPT_CAPTURE_FAILED", "error": f"{type(exc).__name__}: {exc}"}
 
 
+def import_usage(registry: dict, config: dict) -> dict:
+    return {
+        "atom": import_atom_receipts(config),
+        "veniceReviews": import_review_receipts(registry, config),
+    }
+
+
 def main(argv: list[str] | None = None) -> int:
     args = parser().parse_args(argv)
     cache, config_path = Path(args.cache).expanduser(), Path(args.config).expanduser()
@@ -77,9 +85,10 @@ def main(argv: list[str] | None = None) -> int:
         if args.command == "receipt-status":
             print(json.dumps(receipt_status(config), ensure_ascii=False, indent=2, sort_keys=True)); return 0
         if args.command == "flush-receipts":
-            imported = import_atom_receipts(config)
+            registry, _ = ensure_registry(Path(args.root), cache, offline=True, config_path=config_path)
+            imports = import_usage(registry, config)
             result = flush_receipts(config, limit=args.limit)
-            result["atomImport"] = imported
+            result["imports"] = imports
             print(json.dumps(result, ensure_ascii=False, indent=2, sort_keys=True)); return 0 if result.get("blocked") is None else 1
         registry, sync_state = ensure_registry(
             Path(args.root), cache,
@@ -88,9 +97,9 @@ def main(argv: list[str] | None = None) -> int:
             offline=bool(args.offline), config_path=config_path,
         )
         if args.command == "sync":
-            imported = {"ok": True, "state": "SKIPPED_OFFLINE"} if args.offline else import_atom_receipts(config)
+            imports = import_usage(registry, config)
             usage = receipt_status(config) if args.offline else flush_receipts(config)
-            usage["atomImport"] = imported
+            usage["imports"] = imports
             print(json.dumps({**summary(registry, cache, sync_state), "judgmentJarUsageReceipts": usage}, ensure_ascii=False, sort_keys=True)); return 0
         if args.command == "status":
             print(json.dumps({**summary(registry, cache, sync_state), "judgmentJarUsageReceipts": receipt_status(config)}, ensure_ascii=False, sort_keys=True)); return 0
