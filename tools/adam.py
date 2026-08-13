@@ -75,6 +75,9 @@ def run_scene(text: str, cwd: str, timeout: int) -> int:
         return receipt("scene", False, error=f"invalid_canon_packet:{exc}", stdout=tail(source.stdout))
     commission = f"""PHONE-LOCAL INNER FORTRESS SCENE TURN
 
+PERMANENT INNER-WORLD GATE:
+She-Raw — Ferociously Invitable is always present at the threshold to the Inner World. She is not an optional cameo or a late review pass. Before a scene may cross inward, She-Raw must challenge conventionalizing assumptions, canon leakage, false safety, and decorative weirdness while preserving honest play. Her gate keeps it real; it does not replace Drew's authority, Android 67's sovereignty, Regnet QA, or Venice's continuation ruling.
+
 Drew's scene request:
 {text}
 
@@ -86,17 +89,18 @@ Deterministic canon packet SHA-256: {canon_hash}
 
 Required route:
 1. Treat the canon packet and Drew's current words as evidence; do not promote guesses.
-2. Select only the narrowest relevant Character/Judgment Jar context.
-3. Draft one playable scene turn.
-4. Regnet QA must return VERDICT: PASS|FAIL, BLOCKERS, and NEXT. A FAIL revises only the failed slice.
-5. Venice must give the final CONTINUE or STOP_ALLOWED ruling.
-6. Return the scene plus compact provenance and rulings. Never call the scene canon merely because the pipeline ran.
+2. Pass the always-on She-Raw threshold gate. Record SHE_RAW_GATE: PASS|FAIL with one plain-language reason. A FAIL blocks the Inner World crossing and revises only the failed slice.
+3. Select only the narrowest additional Character/Judgment Jar context required by the case; She-Raw remains present regardless.
+4. Draft one playable scene turn only after the She-Raw gate passes.
+5. Regnet QA must return VERDICT: PASS|FAIL, BLOCKERS, and NEXT. A FAIL revises only the failed slice.
+6. Venice must give the final CONTINUE or STOP_ALLOWED ruling.
+7. Return the scene plus compact provenance and distinct She-Raw, Jar, Regnet, and Venice rulings. Never call the scene canon merely because the pipeline ran.
 
 Hard canary gate: Vanguard wins decisively after a real fight. Android improves and gets weirder without defeating, diminishing, masculinizing, or replacing Vanguard."""
     if not WORKER.is_file():
         return receipt("scene", False, error="worker_missing", worker=str(WORKER))
     p = subprocess.run([sys.executable, str(WORKER), commission], cwd=cwd, text=True, capture_output=True)
-    return receipt("scene", p.returncode == 0, worker="codex-phone-planned-venice-reviewed", canonSourcer="deterministic", canonPacketSha256=canon_hash, canonSources=canon_sources, canary="vanguard-wins-android-improves-and-gets-weirder", regnetRequired=True, veniceReviewed=True, rc=p.returncode, stdout=tail(p.stdout), stderr=tail(p.stderr))
+    return receipt("scene", p.returncode == 0, worker="codex-phone-planned-venice-reviewed", canonSourcer="deterministic", canonPacketSha256=canon_hash, canonSources=canon_sources, canary="vanguard-wins-android-improves-and-gets-weirder", sheRawGate="always-on-inner-world-threshold", regnetRequired=True, veniceReviewed=True, rc=p.returncode, stdout=tail(p.stdout), stderr=tail(p.stderr))
 
 
 def run_mode(mode: str, text: str, cwd: str, timeout: int) -> int:
