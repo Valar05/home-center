@@ -8,6 +8,28 @@ Vlad is the deterministic terminal/control surface. Continue is a bounded coding
 
 The swarm may continue an authorized mission. It may not change owner, objective, execution lane, exclusions, evidence standard, or delivery surface without explicit approval.
 
+## Judgment Jar fast access and receipt contract
+
+The active Judgment Jar source of truth is the repository set matching `.continue/rules/*judgement-jar*.md`. Do not create a parallel Jar corpus or copy the 42-jar creative workbook into Vlad's runtime. Vlad exposes the source-backed set through:
+
+- `vlad jars` — list the exact current catalog and synchronize it with the Atom/Home Center daemon;
+- `vlad jar <id|order|path>` — load one exact Jar as a fast context packet;
+- `vlad jar receipt <jar> --output-kind <kind> --summary <text>` — receipt an already-completed Jar use;
+- Atom endpoints under `/v1/atom/vlad/jars` — the daemon-owned catalog, exact retrieval, synchronization, and receipt lane.
+
+Every explicit Jar load, selection, application, review, or Jar-governed terminal output must emit one append-only usage receipt per Jar. A generic daemon action receipt is not a substitute. Each usage receipt must preserve:
+
+- exact Jar id, repository path, title, order, byte count, and source SHA-256;
+- invocation source, request/group identity, and input hash/size;
+- **output kind** from the controlled taxonomy in `config/judgement-jar-runtime.v1.json`;
+- output status, concise summary, output hash/size, and durable references where available;
+- `CAPTURED` state when the local append-only receipt and outbox entry exist;
+- `DELIVERED` only after Atom/Home Center validates the Jar source and acknowledges the receipt.
+
+Omitted or invented output kinds fail closed. When several Jars govern one output, share one usage-group id but preserve an individual receipt for every Jar. When Home Center is unavailable, retain every receipt in the authorized local outbox, retry the oldest pending receipt first, and never overwrite or discard older pending material. Local capture is continuity evidence, not Home Center delivery proof.
+
+The output taxonomy describes what the Jar helped produce—such as a context packet, answer, analysis, plan, decision, routing action, code change, test result, review verdict, artifact, handoff, memory update, execution result, blocker, no-change result, or mixed output. It does not promote requested capability into deployed or accepted capability.
+
 ## Daemon doctrine
 
 When this skill is active, the swarm behaves as a daemon within the runtime that invoked it:
@@ -41,7 +63,7 @@ For coding work:
 - Continue receives bounded coding packets only.
 - Continue may edit/verify code but does not become orchestration truth.
 - Venice reviews code independently after deterministic checks and before a change advances through a review-required gate.
-- Existing `tools/venice_review.py` is the canonical Venice review organ unless durable evidence proves it cannot satisfy the mission.
+- Existing `tools/venice_review.py` is the canonical Venice review organ; `tools/venice_review_receipted.py` is its mandatory CLI envelope so the Jar application itself receives an output-kind receipt.
 - Venice review is Judgment-Jar governed. The reviewer must score evidence rather than confidence, preserve provenance, keep unknowns unknown, use minimum authority, account for aftermath, and fail closed on hard-gate breach.
 - Venice PASS is evidence for review only; it does not prove deployment or delivery.
 
@@ -53,7 +75,7 @@ Every semantic Venice review returns both a verdict and a machine-actionable dir
 - `CONTINUE_REQUIRED` — the worker is not done. Stopping is denied. Continue repairing the same commissioned slice without expanding scope, then obtain another Venice review.
 - `HALT_REQUIRED` — mutation must stop because a hard gate, authority boundary, or evidence boundary is broken. Surface the blocker; do not improvise around it.
 
-A review must contain repository, base, head, acceptance criteria, deterministic check results, Judgment Jar criteria applied, semantic verdict, directive, findings, and a durable receipt. Insufficient evidence is FAIL. Review is readonly with respect to the change under review.
+A review must contain repository, base, head, acceptance criteria, deterministic check results, Judgment Jar criteria applied, semantic verdict, directive, findings, a durable review receipt, and the separate Jar usage receipt naming `review_verdict` as its output kind. Insufficient evidence is FAIL. Review is readonly with respect to the change under review.
 
 Contradictory or malformed reviewer output fails closed to `HALT_REQUIRED`. Deterministic-only checks can never grant stopping permission; without semantic Venice review, the strongest non-error outcome is `CONTINUE_REQUIRED`.
 
