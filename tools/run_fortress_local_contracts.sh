@@ -15,9 +15,17 @@ python3 tools/test_adam_cli_contract.py
 python3 tools/test_adam_overlay_contract.py
 python3 tools/test_adam_venice_review_gate.py
 python3 tools/test_adam_campaign_contract.py
+python3 tools/test_judgment_jar_registry.py
 node --test tools/fortress_online_v2_boot.test.mjs
+node --test atom/test/judgment-jars.test.mjs
 python3 -m py_compile \
   tools/vlad_swarm_daemon.py \
+  tools/home_center_mcp_client.py \
+  tools/judgment_jar_common.py \
+  tools/judgment_jar_cabinet.py \
+  tools/judgment_jar_registry.py \
+  tools/judgment_jars.py \
+  tools/test_judgment_jar_registry.py \
   tools/queue_venice_review_phone.py \
   tools/vlad_pixel_forge_probe.py \
   tools/stage_vlad_pixel_model_phone.py \
