@@ -1,0 +1,18 @@
+{
+  "schema": "home-center.judgment-jars.config.v1",
+  "repositorySourcePattern": ".continue/rules/*judgement-jar*.md",
+  "homeCenter": {
+    "registryFileId": "1UixBuLJRw-x5BoMGx81YXRpuN66iZhGGJoz40Iqx48Q",
+    "registryTitle": "START HERE — Judgment Jar Registry",
+    "refreshSeconds": 300,
+    "minimumCabinetEntries": 20,
+    "sourceFetchMode": "registry-summary-on-sync; authoritative native source on demand",
+    "spreadsheetDefaultRange": "A1:ZZ1000",
+    "discoveryQueries": [
+      "Judgment Jar",
+      "Judgement Jar",
+      "Jar"
+    ],
+    "discoveryPageSize": 10
+  }
+}
