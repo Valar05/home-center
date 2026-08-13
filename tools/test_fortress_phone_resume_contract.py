@@ -41,14 +41,22 @@ required_loop = [
     "default=0, help='0 means continue until Venice PASS or a real execution boundary'",
     'while True:',
     'repair_touched_forbidden_paths',
+    'awaiting_chatgpt_judgment_jar',
+    'judgment_jar_emulation',
+    '--review-text-file',
+    'reviewTextPath',
+    'localVenice',
+    "data.get('directive') != 'CONTINUE_REQUIRED'",
 ]
 for token in required_loop:
     assert token in loop, f'missing Venice loop token: {token}'
 assert 'for round_no in range' not in loop, 'Venice loop still has an implicit bounded-for retry ceiling'
+assert "'--local-venice'" not in loop, 'Fortress primary loop must not silently opt into local Venice'
+assert loop.index('if not review_text.is_file()') < loop.index("'tools/adam.py','continue'"), 'repair lane is reachable before fresh ChatGPT Jar review exists'
 for text in (resume,refresh,loop):
     low=text.lower()
     for forbidden in ['workflow_dispatch', 'gh workflow', 'github actions', 'godot --path']:
         assert forbidden not in low, f'forbidden execution lane: {forbidden}'
 assert 'fortress-resume' in installer
 assert 'fortress_phone_resume.sh' in installer
-print('Fortress phone resume + fresh evidence + unlimited Venice repair loop contract: PASS')
+print('Fortress phone resume + fresh ChatGPT Jar gate + Venice repair loop contract: PASS')
