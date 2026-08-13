@@ -4,12 +4,25 @@ param(
 )
 
 $ErrorActionPreference = 'Stop'
-$PinnedExtensionCommit = 'b4da5d03743720d45d4a1e27de85aa7e3a435731'
+# Pinned to a canonical commit containing the 0.6.1 service-worker-owned swarm,
+# Pro-reasoning doctrine, and primary Judgment-Jar Venice continuation gate.
+$PinnedExtensionCommit = 'd6e74d776bd6aed29ed8f1da5af801601abf488d'
 $ExtensionDir = Join-Path $Root 'extension'
 $BrowserRoot = Join-Path $Root 'chrome-for-testing'
 $ProfileDir = Join-Path $Root 'profile'
 $ReceiptPath = Join-Path $Root 'install-receipt.json'
-$Files = @('manifest.json','service-worker.js','sidepanel.html','throne-panel.mjs','swarm-core.mjs','throne_context.test.mjs')
+$Files = @(
+  'manifest.json',
+  'service-worker.js',
+  'sidepanel.html',
+  'throne-panel.mjs',
+  'swarm-core.mjs',
+  'relay-config.mjs',
+  'throne_context.test.mjs',
+  'swarm-core.test.mjs',
+  'swarm-policy.md',
+  'babysitting-policy.md'
+)
 $RawBase = "https://raw.githubusercontent.com/Valar05/home-center/$PinnedExtensionCommit/browser-porch/extension"
 
 Write-Host '[Chromium Throne] Installing bounded parallel desktop runtime'
@@ -22,18 +35,36 @@ foreach ($name in $Files) {
 }
 
 $manifest = Get-Content (Join-Path $ExtensionDir 'manifest.json') -Raw | ConvertFrom-Json
-if ($manifest.name -ne 'Chromium Throne' -or [int]$manifest.manifest_version -ne 3 -or $manifest.version -ne '0.6.0') {
-  throw 'Downloaded extension is not the expected Chromium Throne 0.6.0 MV3 package.'
+if ($manifest.name -ne 'Chromium Throne' -or [int]$manifest.manifest_version -ne 3 -or $manifest.version -ne '0.6.1') {
+  throw 'Downloaded extension is not the expected Chromium Throne 0.6.1 MV3 package.'
 }
-if (-not ($manifest.permissions -contains 'tabs')) { throw 'Chromium Throne 0.6.0 requires explicit tabs authority for visible worker allocation.' }
+if (-not ($manifest.permissions -contains 'tabs')) { throw 'Chromium Throne 0.6.1 requires explicit tabs authority for visible worker allocation.' }
+if (-not ($manifest.permissions -contains 'alarms')) { throw 'Chromium Throne 0.6.1 requires alarms for relay polling/recovery.' }
 
 $coreText = Get-Content (Join-Path $ExtensionDir 'swarm-core.mjs') -Raw
 $panelText = Get-Content (Join-Path $ExtensionDir 'throne-panel.mjs') -Raw
 $workerText = Get-Content (Join-Path $ExtensionDir 'service-worker.js') -Raw
+$relayText = Get-Content (Join-Path $ExtensionDir 'relay-config.mjs') -Raw
+
 if ($coreText -notmatch 'MAX_PARALLEL_WORKERS\s*=\s*8') { throw 'Parallel worker bound is missing or unexpected.' }
-if ($panelText -notmatch 'Promise\.all\(wave\.map') { throw 'Parallel wave dispatcher contract is missing.' }
+if ($coreText -notmatch "WORKER_REASONING_MODE\s*=\s*'Pro reasoning'") { throw 'Pro reasoning worker doctrine is missing.' }
+if ($coreText -notmatch "VENICE_REVIEW_MODE\s*=\s*'judgment_jar'") { throw 'Primary Judgment-Jar Venice doctrine is missing.' }
+if ($coreText -notmatch 'planVeniceContinuation' -or $coreText -notmatch 'parseVeniceDirective') { throw 'Venice continuation core is missing.' }
+
+if ($panelText -notmatch "type:\s*'throne\.swarm\.run'") { throw 'Side panel is not a client of the service-worker swarm runtime.' }
+if ($panelText -match 'Promise\.all\(wave\.map') { throw 'Side panel still contains a competing swarm scheduler.' }
+
 if ($workerText -notmatch 'chrome\.tabs\.create' -or $workerText -notmatch 'workerTabId' -or $workerText -notmatch 'throneWorkers') { throw 'Per-worker visible tab identity contract is incomplete.' }
-if ($workerText -notmatch 'baselineAssistantCount' -or $panelText -notmatch 'baselineAssistantCount') { throw 'Pre-dispatch assistant baseline contract is missing.' }
+if ($workerText -notmatch 'baselineAssistantCount') { throw 'Pre-dispatch assistant baseline contract is missing.' }
+if ($workerText -notmatch 'Promise\.all\(wave\.map\(dispatchQueuedJob\)\)') { throw 'Service-worker parallel wave dispatcher contract is missing.' }
+if ($workerText -notmatch 'ChatGPT Pro-reasoning execution worker') { throw 'Worker boot envelope does not require Pro reasoning.' }
+if ($workerText -notmatch 'Venice Judgment Jars are mandatory and PRIMARY') { throw 'Worker boot envelope does not require primary Judgment-Jar Venice.' }
+if ($workerText -notmatch 'CONTINUE_REQUIRED forbids stopping') { throw 'Worker boot envelope does not preserve Venice continuation.' }
+if ($workerText -notmatch 'venice_continue_required' -or $workerText -notmatch 'venice_review_missing' -or $workerText -notmatch 'venice_stop_allowed') { throw 'Service worker does not mechanically enforce Venice continuation/stop states.' }
+if ($workerText -match 'chat-mode Instant execution worker' -or $workerText -match 'WORKER MODEL: ChatGPT chat-mode Instant') { throw 'Stale Instant worker doctrine is present.' }
+if ($workerText -match "reviewer:\s*'venice-local'") { throw 'Stale local-Venice terminal dependency is present.' }
+
+if ($relayText -notmatch 'enabled:\s*false' -or $relayText -notmatch "capability:\s*''") { throw 'Committed relay template must remain disabled and secret-free.' }
 
 $nodeTestState = 'not_run_node_missing'
 $node = Get-Command node.exe -ErrorAction SilentlyContinue
@@ -42,7 +73,7 @@ if ($node) {
   Write-Host '[Chromium Throne] Running extension contract tests'
   Push-Location $ExtensionDir
   try {
-    & $node.Source --test throne_context.test.mjs
+    & $node.Source --test throne_context.test.mjs swarm-core.test.mjs
     if ($LASTEXITCODE -ne 0) { throw "Chromium Throne contract tests failed with exit $LASTEXITCODE" }
     $nodeTestState = 'passed'
   } finally { Pop-Location }
@@ -86,7 +117,9 @@ $receipt = [ordered]@{
   manifestVersion = $manifest.manifest_version
   sourceContractChecks = 'passed'
   nodeContractTests = $nodeTestState
-  workerModel = 'ChatGPT chat-mode Instant'
+  workerModel = 'ChatGPT Pro reasoning'
+  workerModelDefault = 'Pro reasoning'
+  instantDefault = $false
   operatorSurface = 'Atom/Vlad on phone'
   workerSlicePolicy = 'one bounded feature/proof slice at a time'
   threadChokePolicy = 'strict six-field handoff -> durable merge -> fresh worker'
@@ -96,11 +129,15 @@ $receipt = [ordered]@{
   preDispatchAssistantBaseline = $true
   visibleWorkerTabs = $true
   perWorkerJobAndTabReceipts = $true
-  swarmTerminalState = 'awaiting_vlad_venice_review'
+  veniceReviewMode = 'judgment_jar'
+  veniceJudgmentJarPrimary = $true
+  localVeniceRequired = $false
+  stopAllowedRequiredForNormalStop = $true
+  continueRequiredAutomaticallyContinues = $true
+  responseBoundaryNeverStopsMission = $true
   vladReviewRequired = $true
-  veniceReviewRequired = $true
   tetsuyaFinalReleaseRequired = $true
-  chatGptMayApproveSwarm = $false
+  chatGptMaySelfAcceptSwarm = $false
   greatWarPrompts = $false
   browser = 'Chrome for Testing'
   browserVersion = $stable.version
