@@ -1,0 +1,201 @@
+name: Converge and deploy hardened Reality Membrane v3
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - reality-membrane-canary-20260813
+    paths:
+      - .github/workflows/converge-deploy-reality-membrane-v3.yml
+
+permissions:
+  contents: write
+  pull-requests: write
+  id-token: write
+
+concurrency:
+  group: converge-deploy-reality-membrane-v3
+  cancel-in-progress: false
+
+env:
+  BRANCH: reality-membrane-canary-20260813
+  TEST_COMMAND_ID: phc_reality_sourcev2_authorized_tests_20260813
+  HC_FIREBASE_SA: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_HOME_CENTER_DCLAR }}
+  HC_GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
+  HC_GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
+  HC_FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+  HC_FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+  HC_WIF_PROVIDER: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+  HC_WIF_SERVICE_ACCOUNT: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+  GH_TOKEN: ${{ github.token }}
+
+jobs:
+  gate-deploy-record:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: reality-membrane-canary-20260813
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Reset to current feature branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'home-center-github-admin[bot]'
+          git config user.email 'home-center-github-admin[bot]@users.noreply.github.com'
+          git fetch origin "$BRANCH"
+          git reset --hard "origin/$BRANCH"
+
+      - name: Authenticate with workload identity when configured
+        if: env.HC_WIF_PROVIDER != '' && env.HC_WIF_SERVICE_ACCOUNT != ''
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ env.HC_WIF_PROVIDER }}
+          service_account: ${{ env.HC_WIF_SERVICE_ACCOUNT }}
+
+      - name: Select Firebase credentials
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -n "${HC_WIF_PROVIDER}" ] && [ -n "${HC_WIF_SERVICE_ACCOUNT}" ]; then
+            echo 'AUTH_MODE=workload_identity' >> "$GITHUB_ENV"
+            exit 0
+          fi
+          credential=''
+          for candidate in "$HC_FIREBASE_SA" "$HC_GOOGLE_CREDENTIALS" "$HC_GCP_SA_KEY" "$HC_FIREBASE_SERVICE_ACCOUNT"; do
+            if [ -n "$candidate" ]; then credential="$candidate"; break; fi
+          done
+          if [ -n "$credential" ]; then
+            path="$RUNNER_TEMP/home-center-firebase-service-account.json"
+            printf '%s' "$credential" > "$path"
+            chmod 600 "$path"
+            echo "GOOGLE_APPLICATION_CREDENTIALS=$path" >> "$GITHUB_ENV"
+            echo 'AUTH_MODE=service_account_json' >> "$GITHUB_ENV"
+          elif [ -n "$HC_FIREBASE_TOKEN" ]; then
+            echo 'AUTH_MODE=firebase_token' >> "$GITHUB_ENV"
+          else
+            echo 'No recognized Firebase/GCP deployment credential is configured.' >&2
+            exit 41
+          fi
+
+      - name: Install function dependencies
+        run: npm ci --prefix functions
+
+      - name: Gate on the fresh terminal primary-phone suite
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd functions
+          node - <<'NODE'
+          const admin = require('firebase-admin');
+          if (!admin.apps.length) admin.initializeApp({projectId:'home-center-dclar'});
+          const db = admin.firestore();
+          const sleep = (ms) => new Promise((resolve) => setTimeout(resolve,ms));
+          (async () => {
+            const id = process.env.TEST_COMMAND_ID;
+            const deadline = Date.now() + 50 * 60 * 1000;
+            let command = null;
+            while (Date.now() < deadline) {
+              const snap = await db.collection('phoneHandsCommands').doc(id).get();
+              command = snap.exists ? snap.data() : null;
+              if (command && ['completed','failed'].includes(command.status)) break;
+              await sleep(5000);
+            }
+            const result = command && command.result || {};
+            const stdout = String(result.stdout || '');
+            const required = [
+              'Reality Membrane contract tests passed',
+              'Reality Membrane runtime patch contract tests passed',
+              'Reality Membrane observe contract tests passed',
+              'Reality Membrane observe wiring tests passed',
+              'Reality Membrane stale reconciliation and accessibility tests passed',
+              'Reality Membrane unknown/projection/accessibility tests passed',
+              'Inner Fortress Reality Membrane canary scene tests passed',
+              'Venice Reality Membrane review tests passed',
+              'REALITY_SOURCE_V2_AUTHORIZED_BODY_TESTS=passed',
+            ];
+            if (!command || command.status !== 'completed' || result.ok !== true || Number(result.exitCode) !== 0 || required.some((text) => !stdout.includes(text))) {
+              throw new Error('source_v2_phone_gate_failed:' + JSON.stringify(command));
+            }
+            console.log(JSON.stringify({commandId:id,status:command.status,completedAtMs:command.completedAtMs,stdout}));
+          })().catch((error) => { console.error(error.stack || error); process.exit(1); });
+          NODE
+
+      - name: Require mutation-free converged source and rerun all contracts
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch origin "$BRANCH"
+          git reset --hard "origin/$BRANCH"
+          node tools/install_reality_membrane_runtime_patch.mjs
+          node tools/install_reality_membrane_observe_patch.mjs
+          node tools/install_reality_membrane_stale_accessibility_patch.mjs
+          node tools/install_reality_membrane_unknown_projection_patch.mjs
+          node tools/reality_membrane_contract_test.mjs
+          node tools/reality_membrane_runtime_patch_test.mjs
+          node tools/reality_membrane_observe_contract_test.mjs
+          node tools/reality_membrane_observe_wiring_test.mjs
+          node tools/reality_membrane_stale_accessibility_test.mjs
+          node tools/reality_membrane_unknown_projection_test.mjs
+          node tools/inner_fortress_reality_canary_scene_test.mjs
+          node tools/reality_membrane_venice_review_test.mjs
+          git diff --check
+          if ! git diff --quiet; then
+            echo 'Feature branch is not converged to the phone-tested source.' >&2
+            git diff --stat
+            exit 43
+          fi
+          echo "DEPLOYED_SOURCE_SHA=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
+
+      - name: Deploy only Home Center MCP from the exact tested SHA
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$DEPLOYED_SOURCE_SHA"
+          if [ "$AUTH_MODE" = 'firebase_token' ]; then
+            npx --yes firebase-tools@latest deploy --project home-center-dclar --only functions:homeCenterMcp --non-interactive --token "$HC_FIREBASE_TOKEN"
+          else
+            npx --yes firebase-tools@latest deploy --project home-center-dclar --only functions:homeCenterMcp --non-interactive
+          fi
+
+      - name: Build immutable deployment receipt in temporary storage
+        shell: bash
+        run: |
+          node - <<'NODE'
+          const fs=require('node:fs'),crypto=require('node:crypto');
+          const receipt={schema:'home-center.reality-membrane.deployment.v3',recordedAt:new Date().toISOString(),repository:process.env.GITHUB_REPOSITORY,branch:process.env.BRANCH,deployedSourceSha:process.env.DEPLOYED_SOURCE_SHA,authorizedPhoneTestCommandId:process.env.TEST_COMMAND_ID,deployment:{project:'home-center-dclar',function:'homeCenterMcp',region:'us-central1'},surfaces:['reality.status','reality.observe','reality.history','reality.sources','reality.capabilities','reality.events'],sources:['home_center.runtime_clock','phone_hands.phone_shell','open_meteo.public_forecast','weather_gov.active_alerts'],contractCorrections:['unknown_remains_unavailable','full_compact_observation_contract','stale_reconciliation','active_alerts_not_replayed','natural_accessible_summary','explicit_time_bridge','fiction_separate'],stateLedger:{implemented:true,authorizedPhoneTestsPassed:true,deployed:true,postDeployFreshCanaryPending:true,accepted:false},evidenceBoundary:'This locks the exact phone-tested deployed SHA. A fresh post-deploy Home Center observation remains required.'};
+          receipt.receiptSha256=crypto.createHash('sha256').update(JSON.stringify(receipt)).digest('hex');
+          fs.writeFileSync(process.env.RUNNER_TEMP+'/reality-membrane-deployment-v3.json',JSON.stringify(receipt,null,2)+'\n');
+          NODE
+
+      - name: Commit the deployment receipt from a clean latest branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          for attempt in $(seq 1 8); do
+            git fetch origin "$BRANCH"
+            git reset --hard "origin/$BRANCH"
+            mkdir -p docs/evidence
+            cp "$RUNNER_TEMP/reality-membrane-deployment-v3.json" docs/evidence/reality-membrane-deployment-v3-20260813.json
+            git rm --ignore-unmatch .github/workflows/converge-deploy-reality-membrane.yml
+            git rm --ignore-unmatch .github/workflows/converge-deploy-reality-membrane-v3.yml
+            git add docs/evidence/reality-membrane-deployment-v3-20260813.json
+            git diff --cached --check
+            git commit -m 'Record exact phone-tested Reality Membrane deployment'
+            if git push origin HEAD:"$BRANCH"; then
+              echo 'REALITY_DEPLOYMENT_V3_RECEIPT_PUSHED'
+              break
+            fi
+            if [ "$attempt" -eq 8 ]; then exit 44; fi
+            sleep $((attempt * 3))
+          done
+
+      - name: Comment the deployed-state boundary on PR 267
+        shell: bash
+        run: |
+          gh pr comment 267 --repo "$GITHUB_REPOSITORY" --body 'Reality Membrane v3 was deployed from one exact source SHA only after the fresh terminal `primary-phone` suite passed all eight contracts. Receipt: `docs/evidence/reality-membrane-deployment-v3-20260813.json`. This is deployed state, not acceptance; the fresh post-deploy observation and Venice-reviewed scene remain pending.'
