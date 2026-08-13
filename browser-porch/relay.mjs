@@ -2,16 +2,32 @@ import http from 'node:http';
 import {randomUUID} from 'node:crypto';
 import {createEphemeralState, createPairReceipt, authorizeCommand, revokePairing, sha256, validatePairIntent} from './contract.mjs';
 
-const state = createEphemeralState();
-export function createRelay({host = '127.0.0.1', port = 9234, extensionOrigin = process.env.HOME_CENTER_BROWSER_PORCH_EXTENSION_ORIGIN, nerveCapability = process.env.HOME_CENTER_BROWSER_PORCH_NERVE_CAPABILITY, eventSink} = {}) {
+const THRONE_MAX_COMMANDS = 64;
+const THRONE_LEASE_MS = 90 * 1000;
+const THRONE_MAX_JOBS = 12;
+
+export function createRelay({
+  host = '127.0.0.1',
+  port = 9234,
+  extensionOrigin = process.env.HOME_CENTER_BROWSER_PORCH_EXTENSION_ORIGIN,
+  nerveCapability = process.env.HOME_CENTER_BROWSER_PORCH_NERVE_CAPABILITY,
+  throneCapability = process.env.HOME_CENTER_CHROMIUM_THRONE_CAPABILITY,
+  eventSink,
+} = {}) {
   if (!/^chrome-extension:\/\/[a-p]{32}$/.test(String(extensionOrigin || ''))) throw new Error('exact Browser Porch extension origin is required');
-  if (String(nerveCapability || '').length < 32) throw new Error('ephemeral Browser Nerve capability is required');
+  if (nerveCapability && String(nerveCapability).length < 32) throw new Error('ephemeral Browser Nerve capability must be at least 32 characters');
+  if (throneCapability && String(throneCapability).length < 32) throw new Error('Chromium Throne capability must be at least 32 characters');
+  if (!nerveCapability && !throneCapability) throw new Error('at least one local relay capability is required');
   if (typeof eventSink !== 'function') throw new Error('durable Home Center event sink integration is required');
+
   const state = createEphemeralState();
   const intents = new Map();
   const pending = new Map();
   const completions = new Map();
   const activeTabs = new Map();
+  const throneCommands = new Map();
+  let throneSnapshot = {atMs: 0, workers: [], queue: [], stopped: false};
+
   return http.createServer(async (req, res) => {
     try {
       const url = new URL(req.url, `http://${host}:${port}`);
@@ -21,6 +37,77 @@ export function createRelay({host = '127.0.0.1', port = 9234, extensionOrigin = 
         cors(res, extensionOrigin);
         return res.end();
       }
+
+      // Chromium Throne's long-lived command seam. It is deliberately separate
+      // from Browser Porch's short-lived per-tab pairing contract below.
+      if (req.method === 'POST' && url.pathname === '/v1/throne/command') {
+        requireThrone(req, throneCapability);
+        retireThrone(Date.now());
+        const command = validateThroneCommand(await body(req));
+        if (throneCommands.has(command.commandId)) {
+          const existing = throneCommands.get(command.commandId);
+          return send(res, 200, {ok: true, commandId: command.commandId, state: existing.state, duplicate: true});
+        }
+        if ([...throneCommands.values()].filter((row) => !['completed', 'failed', 'cancelled'].includes(row.state)).length >= THRONE_MAX_COMMANDS) {
+          return send(res, 429, {ok: false, error: 'THRONE_QUEUE_FULL'});
+        }
+        const row = {...command, state: 'queued', createdAtMs: Date.now(), lease: null, result: null};
+        throneCommands.set(command.commandId, row);
+        await eventSink({type: 'throne.command.queued', command: publicThroneCommand(row)});
+        return send(res, 202, {ok: true, commandId: command.commandId, state: row.state});
+      }
+      if (req.method === 'GET' && url.pathname === '/v1/throne/command') {
+        requireExtensionAndThrone(req, extensionOrigin, throneCapability);
+        const nowMs = Date.now();
+        retireThrone(nowMs);
+        const row = [...throneCommands.values()]
+          .filter((item) => item.state === 'queued' || (item.state === 'leased' && Number(item.lease?.expiresAtMs || 0) <= nowMs))
+          .sort((a, b) => a.createdAtMs - b.createdAtMs)[0];
+        if (!row) return send(res, 204, undefined, extensionOrigin);
+        row.state = 'leased';
+        row.lease = {leasedAtMs: nowMs, expiresAtMs: nowMs + THRONE_LEASE_MS};
+        await eventSink({type: 'throne.command.leased', command: publicThroneCommand(row)});
+        return send(res, 200, {command: publicThroneCommand(row)}, extensionOrigin);
+      }
+      if (req.method === 'POST' && url.pathname === '/v1/throne/complete') {
+        requireExtensionAndThrone(req, extensionOrigin, throneCapability);
+        const input = await body(req);
+        const commandId = safeCommandId(input.commandId);
+        const row = throneCommands.get(commandId);
+        if (!row) return send(res, 404, {ok: false, error: 'THRONE_COMMAND_UNKNOWN'}, extensionOrigin);
+        if (row.state !== 'leased') return send(res, 409, {ok: false, error: 'THRONE_COMMAND_NOT_LEASED'}, extensionOrigin);
+        row.state = input.ok === false ? 'failed' : 'completed';
+        row.result = sanitizeThroneResult(input.result);
+        row.completedAtMs = Date.now();
+        row.lease = null;
+        await eventSink({type: 'throne.command.completed', command: publicThroneCommand(row), result: row.result});
+        return send(res, 200, {ok: true, commandId, state: row.state}, extensionOrigin);
+      }
+      if (req.method === 'POST' && url.pathname === '/v1/throne/snapshot') {
+        requireExtensionAndThrone(req, extensionOrigin, throneCapability);
+        const input = await body(req);
+        throneSnapshot = sanitizeThroneSnapshot(input);
+        return send(res, 200, {ok: true, atMs: throneSnapshot.atMs}, extensionOrigin);
+      }
+      if (req.method === 'GET' && url.pathname === '/v1/throne/status') {
+        requireThrone(req, throneCapability);
+        retireThrone(Date.now());
+        const commands = [...throneCommands.values()].sort((a, b) => b.createdAtMs - a.createdAtMs).slice(0, 50).map(publicThroneCommand);
+        return send(res, 200, {ok: true, commands, snapshot: throneSnapshot});
+      }
+      if (req.method === 'POST' && url.pathname === '/v1/throne/cancel') {
+        requireThrone(req, throneCapability);
+        const input = await body(req);
+        const commandId = safeCommandId(input.commandId);
+        const row = throneCommands.get(commandId);
+        if (!row) return send(res, 404, {ok: false, error: 'THRONE_COMMAND_UNKNOWN'});
+        if (['completed', 'failed'].includes(row.state)) return send(res, 409, {ok: false, error: 'THRONE_COMMAND_TERMINAL'});
+        row.state = 'cancelled'; row.lease = null; row.cancelledAtMs = Date.now();
+        await eventSink({type: 'throne.command.cancelled', command: publicThroneCommand(row)});
+        return send(res, 200, {ok: true, commandId, state: row.state});
+      }
+
+      // Existing Browser Porch pairing protocol.
       if (req.method === 'POST' && url.pathname === '/v1/intent') {
         requireNerve(req, nerveCapability);
         const intent = validatePairIntent(await body(req));
@@ -128,14 +215,64 @@ export function createRelay({host = '127.0.0.1', port = 9234, extensionOrigin = 
       for (const [key, value] of activeTabs) if (value === pairingId) activeTabs.delete(key);
     }
   }
+
+  function retireThrone(nowMs) {
+    for (const row of throneCommands.values()) {
+      if (row.state === 'leased' && Number(row.lease?.expiresAtMs || 0) <= nowMs) {
+        row.state = 'queued'; row.lease = null;
+      }
+    }
+    const terminal = [...throneCommands.values()].filter((row) => ['completed', 'failed', 'cancelled'].includes(row.state)).sort((a, b) => Number(b.completedAtMs || b.cancelledAtMs || b.createdAtMs) - Number(a.completedAtMs || a.cancelledAtMs || a.createdAtMs));
+    for (const row of terminal.slice(THRONE_MAX_COMMANDS)) throneCommands.delete(row.commandId);
+  }
+}
+
+function safeCommandId(value) {
+  const text = String(value || '').trim();
+  if (!/^[A-Za-z0-9_.:-]{6,180}$/.test(text)) throw Object.assign(new Error('valid commandId required'), {code: 'THRONE_COMMAND_ID_INVALID', status: 400});
+  return text;
+}
+
+function validateThroneCommand(input = {}) {
+  const commandId = safeCommandId(input.commandId);
+  const action = String(input.action || '').trim();
+  if (!['swarm.enqueue', 'swarm.stop', 'swarm.resume', 'swarm.status'].includes(action)) throw Object.assign(new Error('unsupported throne action'), {code: 'THRONE_ACTION_UNSUPPORTED', status: 400});
+  const jobs = Array.isArray(input.jobs) ? input.jobs.slice(0, THRONE_MAX_JOBS).map((job, index) => {
+    const commission = String(job?.commission || '').trim();
+    if (!commission || commission.length > 32000) throw Object.assign(new Error(`job ${index + 1} commission invalid`), {code: 'THRONE_JOB_INVALID', status: 400});
+    return {jobId: safeCommandId(job.jobId || `${commandId}-job-${index + 1}`), commission, context: String(job.context || '').trim().slice(0, 24000)};
+  }) : [];
+  if (action === 'swarm.enqueue' && !jobs.length) throw Object.assign(new Error('swarm.enqueue requires at least one bounded job'), {code: 'THRONE_JOBS_REQUIRED', status: 400});
+  return {commandId, action, jobs, source: String(input.source || 'atom-vlad').slice(0, 120), createdAt: String(input.createdAt || '')};
+}
+
+function publicThroneCommand(row = {}) {
+  return {commandId: row.commandId, action: row.action, jobs: row.jobs || [], source: row.source || '', state: row.state || 'unknown', createdAtMs: Number(row.createdAtMs || 0), lease: row.lease || null, completedAtMs: Number(row.completedAtMs || 0), cancelledAtMs: Number(row.cancelledAtMs || 0)};
+}
+
+function sanitizeThroneResult(value) {
+  const text = JSON.stringify(value && typeof value === 'object' ? value : {value});
+  if (Buffer.byteLength(text, 'utf8') > 256 * 1024) throw Object.assign(new Error('throne result too large'), {code: 'THRONE_RESULT_TOO_LARGE', status: 413});
+  return JSON.parse(text);
+}
+
+function sanitizeThroneSnapshot(input = {}) {
+  const workers = Array.isArray(input.workers) ? input.workers.slice(0, 16).map((worker) => ({tabId: Number(worker?.tabId || 0), jobId: String(worker?.jobId || '').slice(0, 180), state: String(worker?.state || 'unknown').slice(0, 80), title: String(worker?.title || '').slice(0, 240), updatedAt: String(worker?.updatedAt || '')})) : [];
+  const queue = Array.isArray(input.queue) ? input.queue.slice(0, 64).map((job) => ({id: String(job?.id || '').slice(0, 180), state: String(job?.state || 'unknown').slice(0, 80), workerTabId: Number(job?.workerTabId || 0), source: String(job?.source || '').slice(0, 80)})) : [];
+  return {atMs: Date.now(), workers, queue, stopped: input.stopped === true};
 }
 
 function requireExtension(req, extensionOrigin) {
   if (req.headers.origin !== extensionOrigin) throw Object.assign(new Error('exact extension origin required'), {code: 'EXTENSION_ORIGIN_MISMATCH', status: 403});
 }
-
 function requireNerve(req, nerveCapability) {
-  if (req.headers.authorization !== `Bearer ${nerveCapability}`) throw Object.assign(new Error('Browser Nerve capability required'), {code: 'NERVE_CAPABILITY_MISMATCH', status: 403});
+  if (!nerveCapability || req.headers.authorization !== `Bearer ${nerveCapability}`) throw Object.assign(new Error('Browser Nerve capability required'), {code: 'NERVE_CAPABILITY_MISMATCH', status: 403});
+}
+function requireThrone(req, throneCapability) {
+  if (!throneCapability || req.headers.authorization !== `Bearer ${throneCapability}`) throw Object.assign(new Error('Chromium Throne capability required'), {code: 'THRONE_CAPABILITY_MISMATCH', status: 403});
+}
+function requireExtensionAndThrone(req, extensionOrigin, throneCapability) {
+  requireExtension(req, extensionOrigin); requireThrone(req, throneCapability);
 }
 
 async function body(req) {
@@ -143,19 +280,17 @@ async function body(req) {
   let bytes = 0;
   for await (const chunk of req) {
     bytes += chunk.length;
-    if (bytes > 64 * 1024) throw Object.assign(new Error('request too large'), {code: 'REQUEST_TOO_LARGE'});
+    if (bytes > 256 * 1024) throw Object.assign(new Error('request too large'), {code: 'REQUEST_TOO_LARGE'});
     chunks.push(chunk);
   }
   return JSON.parse(Buffer.concat(chunks).toString('utf8') || '{}');
 }
-
 function cors(res, origin) {
   res.setHeader('access-control-allow-origin', origin);
   res.setHeader('access-control-allow-methods', 'GET, POST, OPTIONS');
-  res.setHeader('access-control-allow-headers', 'content-type');
+  res.setHeader('access-control-allow-headers', 'content-type, authorization');
   res.setHeader('vary', 'Origin');
 }
-
 function send(res, status, value, origin) {
   res.statusCode = status;
   res.setHeader('content-type', 'application/json');
