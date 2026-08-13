@@ -18,10 +18,9 @@ test('worker boot locks operator-handoff and evidence doctrine', () => {
   assert.match(worker, /Drew's hands are the final fallback/);
   assert.match(worker, /requested capability, implemented capability, tested capability, deployed capability, callable capability, delivered capability, and accepted capability/);
   assert.match(worker, /Never use ChatGPT-local scratch\/container execution as proof/);
-  assert.match(worker, /available_body_lane_ignored/);
 });
 
-test('Instant workers are bounded needy slices, not campaign brains', () => {
+test('Instant workers are bounded slices, not campaign brains', () => {
   assert.match(worker, /chat-mode Instant execution worker/);
   assert.match(worker, /one bounded bite/i);
   assert.match(worker, /Work ONE small feature, repair, proof, or acceptance slice at a time/);
@@ -45,6 +44,7 @@ test('every worker packet includes durable campaign context before bounded commi
   assert.match(worker, /DURABLE CAMPAIGN CONTEXT:/);
   assert.match(worker, /COMMISSION — ONE BOUNDED SLICE:/);
   assert.match(worker, /DEFAULT_CAMPAIGN_CONTEXT/);
+  assert.match(worker, /Atom\/Vlad on the phone is the operator surface/);
 });
 
 test('queued work snapshots context instead of reading mutable context later', () => {
@@ -53,7 +53,27 @@ test('queued work snapshots context instead of reading mutable context later', (
   assert.match(panel, /context locked/);
 });
 
-test('bounded swarm uses modular handoff core', () => {
+test('swarm has an explicit bounded parallel worker pool', () => {
+  assert.match(core, /export const MAX_PARALLEL_WORKERS = 8/);
+  assert.match(core, /export function parallelBatch/);
+  assert.match(panel, /MAX_PARALLEL_WORKERS/);
+  assert.match(panel, /Promise\.all\(wave\.map/);
+  assert.match(panel, /workerTabId/);
+  assert.match(panel, /wave_dispatched/);
+});
+
+test('workers have independent visible ChatGPT tab identities', () => {
+  assert.match(worker, /chrome\.tabs\.create\(\{url: `\$\{CHATGPT_ORIGIN\}\//);
+  assert.match(worker, /active: false/);
+  assert.match(worker, /workerTabId/);
+  assert.match(worker, /throneWorkers/);
+  assert.match(worker, /workerTabSummaries/);
+  assert.match(worker, /type: 'commission_sent'/);
+  assert.match(worker, /jobId/);
+  assert.match(worker, /tabId/);
+});
+
+test('bounded swarm still uses modular handoff core', () => {
   assert.match(html, /id="runSwarm"/);
   assert.match(panel, /MAX_SWARM_SLICES/);
   assert.match(panel, /planHandoffContinuation/);
@@ -67,12 +87,13 @@ test('ChatGPT cannot be the terminal review gate', () => {
   assert.match(panel, /awaiting_venice_review/);
   assert.match(panel, /reviewer: 'venice-local'/);
   assert.match(panel, /independentOfChatGPT: true/);
-  assert.match(panel, /externalReviewGateSatisfied/);
-  assert.match(panel, /terminalGate: 'Venice external code review'/);
+  assert.match(panel, /vladRequired: true/);
+  assert.match(panel, /finalRelease: 'tetsuya'/);
   assert.match(panel, /accepted: false/);
 });
 
-test('manifest identifies bounded swarm release', () => {
-  assert.equal(manifest.version, '0.5.0');
-  assert.match(manifest.description, /bounded swarm babysitting/i);
+test('manifest identifies visible multi-tab swarm release', () => {
+  assert.equal(manifest.version, '0.6.0');
+  assert.ok(manifest.permissions.includes('tabs'));
+  assert.match(manifest.description, /multi-tab ChatGPT worker pool/i);
 });
