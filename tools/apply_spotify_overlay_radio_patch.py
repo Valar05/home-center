@@ -1,17 +1,30 @@
 #!/usr/bin/env python3
-"""Apply the bounded Spotify radio additions to the existing Adam overlay."""
+"""Apply the bounded Spotify radio additions to the existing Adam overlay.
+
+The patcher reads and writes explicit UTF-8/LF bytes so Windows validation
+cannot convert an otherwise small source change into a whole-file CRLF rewrite.
+"""
 from __future__ import annotations
 
 import argparse
 from pathlib import Path
 
 
+def read_utf8_lf(path: Path) -> str:
+    return path.read_bytes().decode("utf-8").replace("\r\n", "\n").replace("\r", "\n")
+
+
+def write_utf8_lf(path: Path, text: str) -> None:
+    normalized = text.replace("\r\n", "\n").replace("\r", "\n")
+    path.write_bytes(normalized.encode("utf-8"))
+
+
 def replace_once(path: Path, old: str, new: str) -> None:
-    text = path.read_text(encoding="utf-8")
+    text = read_utf8_lf(path)
     count = text.count(old)
     if count != 1:
         raise RuntimeError(f"{path}: expected one anchor, found {count}: {old[:120]!r}")
-    path.write_text(text.replace(old, new, 1), encoding="utf-8")
+    write_utf8_lf(path, text.replace(old, new, 1))
 
 
 def apply(root: Path) -> None:
@@ -31,17 +44,17 @@ def apply(root: Path) -> None:
         radioRow.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
         radioRow.setPadding(0, dp(4), 0, 0);
 
-        Button radioPreviousButton = button("⏮");
+        Button radioPreviousButton = button("Prev");
         radioPreviousButton.setContentDescription("Fortress Radio previous track");
         radioPreviousButton.setOnClickListener(v -> submitAdamQuickRequest("previous"));
         radioRow.addView(radioPreviousButton);
 
-        Button radioToggleButton = button("⏯");
+        Button radioToggleButton = button("Play/Pause");
         radioToggleButton.setContentDescription("Fortress Radio play or pause");
         radioToggleButton.setOnClickListener(v -> submitAdamQuickRequest("toggle"));
         radioRow.addView(radioToggleButton);
 
-        Button radioNextButton = button("⏭");
+        Button radioNextButton = button("Next");
         radioNextButton.setContentDescription("Fortress Radio next track");
         radioNextButton.setOnClickListener(v -> submitAdamQuickRequest("next"));
         radioRow.addView(radioNextButton);
