@@ -364,6 +364,14 @@ def session_snapshot() -> dict[str, Any]:
     }
 
 
+def _normalize_foreground(value: Any) -> str:
+    return " ".join(str(value or "").split())
+
+
+def _foreground_unchanged(before: dict[str, Any], after: dict[str, Any]) -> bool:
+    return _normalize_foreground(before.get("foreground")) == _normalize_foreground(after.get("foreground"))
+
+
 def _validate_spotify_uri(value: str, *, playlist_only: bool = False) -> str:
     uri = str(value or "").strip()
     if not uri:
@@ -505,11 +513,13 @@ def _dispatch_key(key: str, *, allow_inactive: bool = False) -> dict[str, Any]:
     bridge = _bridge(key)
     time.sleep(0.8 if key in {"play", "pause", "toggle", "stop"} else 1.2)
     after = session_snapshot()
+    foreground_unchanged = _foreground_unchanged(before, after)
     controlled = bool(
         bridge.get("ok") is True
         and after["media"]["spotify"].get("exists")
         and not after["media"].get("competingPlayingPackages")
         and (not after["media"].get("currentPackage") or after["media"].get("currentPackage") == PACKAGE)
+        and foreground_unchanged
     )
     row = receipt(
         f"media.{key}",
@@ -520,6 +530,9 @@ def _dispatch_key(key: str, *, allow_inactive: bool = False) -> dict[str, Any]:
         before=before,
         after=after,
         spotifyControlled=controlled,
+        foregroundBefore=before.get("foreground", ""),
+        foregroundAfter=after.get("foreground", ""),
+        foregroundUnchanged=foreground_unchanged,
         foregroundLaunchUsed=False,
     )
     if not controlled:
@@ -550,11 +563,13 @@ def play(uri: str = "", *, keep: bool = True) -> dict[str, Any]:
     bridge = _bridge("play-uri", target) if target else _bridge("play")
     time.sleep(0.9)
     after = session_snapshot()
+    foreground_unchanged = _foreground_unchanged(before, after)
     after_state = int(after["media"]["spotify"].get("state") or 0)
     ok = bool(
         bridge.get("ok") is True
         and after_state in {3, 6, 8}
         and not after["media"].get("competingPlayingPackages")
+        and foreground_unchanged
     )
     result = receipt(
         "media.play",
@@ -566,6 +581,9 @@ def play(uri: str = "", *, keep: bool = True) -> dict[str, Any]:
         before=before,
         after=after,
         spotifyControlled=ok,
+        foregroundBefore=before.get("foreground", ""),
+        foregroundAfter=after.get("foreground", ""),
+        foregroundUnchanged=foreground_unchanged,
         foregroundLaunchUsed=False,
     )
     if not ok:
@@ -633,7 +651,7 @@ def status() -> dict[str, Any]:
         },
         "response": (
             f"Spotify Radio: {spotify.get('stateName', 'none')}"
-            + (f" — {spotify.get('title')}" if spotify.get("title") else "")
+            + (f" â€” {spotify.get('title')}" if spotify.get("title") else "")
             + (f" by {spotify.get('artist')}" if spotify.get("artist") else "")
             + ("; keep rolling is on" if state.get("continuous") else "; keep rolling is off")
         ),

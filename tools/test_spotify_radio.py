@@ -69,6 +69,14 @@ def main() -> int:
 
     assert radio.parse_call_state("mMode=MODE_NORMAL", "")["active"] is False
     assert radio.parse_call_state("mMode=MODE_IN_CALL", "")["active"] is True
+    assert radio._foreground_unchanged(
+        {"foreground": "  mCurrentFocus=Window{abc com.example/.Main}  "},
+        {"foreground": "mCurrentFocus=Window{abc com.example/.Main}"},
+    ) is True
+    assert radio._foreground_unchanged(
+        {"foreground": "mCurrentFocus=Window{abc com.example/.Main}"},
+        {"foreground": "mCurrentFocus=Window{def com.spotify.music/.Main}"},
+    ) is False
 
     assert radio.compile_prompt("radio play") == ("play", {})
     assert radio.compile_prompt("Spotify next") == ("next", {})

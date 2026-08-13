@@ -49,10 +49,12 @@ def main() -> int:
     require(daemon, "SPOTIFY_RADIO_STABLE", "stable installed runtime preference")
 
     require(controller, 'PACKAGE = "com.spotify.music"', "Spotify package binding")
-    require(controller, "cmd media_session dispatch", "Android media-session transport")
+    require(controller, "SpotifyMediaBridge", "exact-package Android media-session bridge")
     require(controller, "competingPlayingPackages", "competing player guard")
     require(controller, "call_active", "call yield")
     require(controller, "spotifyControlled", "post-dispatch Spotify verification")
+    require(controller, "foregroundUnchanged", "foreground-stability acceptance gate")
+    require(controller, "_foreground_unchanged", "foreground comparison helper")
     require(controller, "compile_prompt", "bounded natural-language compiler")
     require(controller, "playlistUri", "durable playlist identity")
     forbid(controller, "input keyevent", "blind global keyevent transport")

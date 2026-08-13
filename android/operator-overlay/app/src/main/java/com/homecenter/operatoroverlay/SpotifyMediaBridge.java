@@ -217,7 +217,7 @@ public final class SpotifyMediaBridge {
             case "play-uri":
                 return afterState == PlaybackState.STATE_PLAYING
                         || afterState == PlaybackState.STATE_BUFFERING
-                        || afterState == PlaybackState.STATE_CONNECTING);
+                        || afterState == PlaybackState.STATE_CONNECTING;
             case "pause":
                 return afterState == PlaybackState.STATE_PAUSED;
             case "stop":
