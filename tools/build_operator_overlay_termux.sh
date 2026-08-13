@@ -17,6 +17,24 @@ PACKAGE_NAME="com.homecenter.operatoroverlay"
 RISH_BIN="${RISH:-$(command -v rish 2>/dev/null || true)}"
 [ -n "$RISH_BIN" ] || RISH_BIN="$HOME/bin/rish"
 
+GRADLE_CONFIG="$APP/build.gradle"
+BUILD_RECEIPT="$OUTDIR/operator-overlay-build-receipt.json"
+mapfile -t OVERLAY_VERSION < <(python - "$GRADLE_CONFIG" <<'PY'
+import re,sys
+text=open(sys.argv[1],encoding='utf-8').read()
+code=re.search(r'\bversionCode\s+(\d+)',text)
+name=re.search(r"\bversionName\s+'([^']+)'",text)
+if not code or not name:
+    raise SystemExit('operator overlay Gradle version is missing')
+print(code.group(1))
+print(name.group(1))
+PY
+)
+VERSION_CODE="${HC_OVERLAY_VERSION_CODE:-${OVERLAY_VERSION[0]}}"
+VERSION_NAME="${HC_OVERLAY_VERSION_NAME:-${OVERLAY_VERSION[1]}}"
+[[ "$VERSION_CODE" =~ ^[0-9]+$ ]] || { echo "BLOCKED: invalid overlay versionCode: $VERSION_CODE" >&2; exit 38; }
+[ -n "$VERSION_NAME" ] || { echo 'BLOCKED: empty overlay versionName.' >&2; exit 39; }
+
 mkdir -p "$OUTDIR" "$WORK" "$PLATFORM_DIR" "$(dirname "$KEYSTORE")"
 
 need_cmd() { command -v "$1" >/dev/null 2>&1; }
@@ -161,7 +179,7 @@ BUILD_MANIFEST="$(prepare_manifest)"
 
 # AAPT2 consumes the live framework resource table; javac/d8 consume the API-35 SDK class jar.
 echo '[build] Packaging manifest/resources table'
-aapt2 link -o "$WORK/base-unsigned.apk" -I "$FRAMEWORK_RES" --manifest "$BUILD_MANIFEST" --min-sdk-version 26 --target-sdk-version 35 --version-code 3 --version-name 1.2.0
+aapt2 link -o "$WORK/base-unsigned.apk" -I "$FRAMEWORK_RES" --manifest "$BUILD_MANIFEST" --min-sdk-version 26 --target-sdk-version 35 --version-code "$VERSION_CODE" --version-name "$VERSION_NAME"
 
 echo '[build] Compiling Java against API 35 framework classes'
 find "$SRC" -name '*.java' -print0 | xargs -0 javac --release 17 -classpath "$ANDROID_JAR" -d "$WORK/classes"
@@ -176,6 +194,31 @@ cp "$WORK/base-unsigned.apk" "$WORK/base-signed.apk"
 echo '[build] Signing APK'
 apksigner sign --ks "$KEYSTORE" --ks-key-alias androiddebugkey --ks-pass pass:android --key-pass pass:android --out "$APK" "$WORK/base-signed.apk"
 apksigner verify --verbose "$APK" >/dev/null
+SIGNER_INFO="$(apksigner verify --print-certs "$APK")"
+CERT_SHA="$(printf '%s\n' "$SIGNER_INFO" | sed -nE 's/^.*certificate SHA-256 digest:[[:space:]]*//p' | head -1)"
+[ -n "$CERT_SHA" ] || { echo 'BLOCKED: APK signer certificate digest missing.' >&2; exit 40; }
+APK_SHA="$(sha256sum "$APK" | awk '{print $1}')"
+APK_BYTES="$(stat -c '%s' "$APK")"
+SOURCE_COMMIT="$(git -C "$ROOT" rev-parse HEAD 2>/dev/null || true)"
+python - "$BUILD_RECEIPT" "$APK" "$APK_SHA" "$APK_BYTES" "$CERT_SHA" "$VERSION_CODE" "$VERSION_NAME" "$SOURCE_COMMIT" <<'PY'
+import json,os,sys,time
+path,apk,sha,byte_count,cert,version_code,version_name,source=sys.argv[1:]
+obj={
+  'schema':'home-center.operator-overlay-termux-build.v1',
+  'ok':True,
+  'artifact':apk,
+  'apkSha256':sha,
+  'byteCount':int(byte_count),
+  'signingCertificateSha256':cert,
+  'versionCode':int(version_code),
+  'versionName':version_name,
+  'sourceCommit':source,
+  'builtAtEpoch':int(time.time()),
+}
+os.makedirs(os.path.dirname(path),exist_ok=True)
+open(path,'w',encoding='utf-8').write(json.dumps(obj,indent=2,sort_keys=True)+'\n')
+print(json.dumps(obj,sort_keys=True))
+PY
 
 sha256sum "$APK"
-echo "TERMUX OVERLAY APK BUILT apk=$APK androidJar=$ANDROID_JAR frameworkRes=$FRAMEWORK_RES"
+echo "TERMUX OVERLAY APK BUILT apk=$APK versionCode=$VERSION_CODE versionName=$VERSION_NAME signer=$CERT_SHA androidJar=$ANDROID_JAR frameworkRes=$FRAMEWORK_RES receipt=$BUILD_RECEIPT"
