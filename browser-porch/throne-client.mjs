@@ -24,10 +24,18 @@ const text = await response.text();
 if (!response.ok) throw new Error(`relay HTTP ${response.status}: ${text.slice(0, 1000)}`);
 const accepted = text ? JSON.parse(text) : {};
 
-if (runtime.browserExe && runtime.profileDir && runtime.extensionId) {
+let wakeRequested = false;
+if (runtime.browserExe && runtime.profileDir && runtime.extensionDir && runtime.extensionId) {
   const wakeUrl = `chrome-extension://${runtime.extensionId}/wake.html`;
-  const child = spawn(runtime.browserExe, [`--user-data-dir=${runtime.profileDir}`, '--no-first-run', '--no-default-browser-check', wakeUrl], {detached: true, stdio: 'ignore'});
+  const child = spawn(runtime.browserExe, [
+    `--user-data-dir=${runtime.profileDir}`,
+    `--load-extension=${runtime.extensionDir}`,
+    '--no-first-run',
+    '--no-default-browser-check',
+    wakeUrl,
+  ], {detached: true, stdio: 'ignore'});
   child.unref();
+  wakeRequested = true;
 }
 
-console.log(JSON.stringify({ok: true, commandId: command.commandId, action: command.action, relay: accepted, wakeRequested: Boolean(runtime.browserExe && runtime.profileDir && runtime.extensionId)}));
+console.log(JSON.stringify({ok: true, commandId: command.commandId, action: command.action, relay: accepted, wakeRequested}));
