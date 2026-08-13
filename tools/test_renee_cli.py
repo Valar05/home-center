@@ -1,16 +1,21 @@
 #!/usr/bin/env python3
 import json, os, subprocess, sys, tempfile, unittest
 from pathlib import Path
-ROOT=Path(__file__).resolve().parents[1]; CLI=ROOT/"tools"/"renee.py"
+ROOT=Path(__file__).resolve().parents[1]; CLI=ROOT/"tools"/"renee.py"; SHELL=ROOT/"regnet.sh"
 
 def run_cli(*args, home):
     env=dict(os.environ); env["RENEE_QA_HOME"]=str(home)
     return subprocess.run([sys.executable,str(CLI),"--json",*args],cwd=ROOT,env=env,text=True,capture_output=True)
 
-class ReneeCliContract(unittest.TestCase):
+class RegnetCliContract(unittest.TestCase):
     def test_status_keyword(self):
         with tempfile.TemporaryDirectory() as td:
-            r=run_cli("status",home=td); self.assertEqual(r.returncode,0,r.stderr); self.assertEqual(json.loads(r.stdout)["keyword"],"Rene QA")
+            r=run_cli("status",home=td); self.assertEqual(r.returncode,0,r.stderr); self.assertEqual(json.loads(r.stdout)["keyword"],"Regnet QA")
+    def test_regnet_shell_entrypoint(self):
+        with tempfile.TemporaryDirectory() as td:
+            env=dict(os.environ); env["RENEE_QA_HOME"]=td
+            r=subprocess.run(["sh",str(SHELL),"--json","status"],cwd=ROOT,env=env,text=True,capture_output=True)
+            self.assertEqual(r.returncode,0,r.stderr); self.assertEqual(json.loads(r.stdout)["keyword"],"Regnet QA")
     def test_pass_writes_receipt_and_routes_to_venice(self):
         with tempfile.TemporaryDirectory() as td:
             r=run_cli("review","tool exists","--acceptance","repo file present","--failure-path","missing config",home=td); p=json.loads(r.stdout)
@@ -27,12 +32,12 @@ class ReneeCliContract(unittest.TestCase):
     def test_unresolved_forces_revision(self):
         with tempfile.TemporaryDirectory() as td:
             r=run_cli("review","tool exists","--acceptance","repo file present","--unresolved","cannot reproduce crash",home=td); self.assertEqual(r.returncode,2); self.assertTrue(any("cannot reproduce crash" in x for x in json.loads(r.stdout)["blockers"]))
-    def test_synthetic_cannot_claim_actual_renee(self):
+    def test_synthetic_cannot_claim_actual_regnet(self):
         with tempfile.TemporaryDirectory() as td:
-            r=run_cli("review","Renee approved","--acceptance","approval attributable","--actual-renee",home=td); self.assertEqual(r.returncode,2); self.assertTrue(any("actual-Renee attribution" in x for x in json.loads(r.stdout)["blockers"]))
+            r=run_cli("review","Regnet approved","--acceptance","approval attributable","--actual-regnet",home=td); self.assertEqual(r.returncode,2); self.assertTrue(any("Regnet attribution" in x for x in json.loads(r.stdout)["blockers"]))
     def test_drew_recall_cannot_be_laundered_as_direct_renee_statement(self):
         with tempfile.TemporaryDirectory() as td:
-            r=run_cli("review","Renee approved","--acceptance","approval attributable","--actual-renee","--provenance","DREW_RECALL",home=td); self.assertEqual(r.returncode,2); self.assertTrue(any("DREW_RECALL" in x for x in json.loads(r.stdout)["blockers"]))
+            r=run_cli("review","Regnet approved","--acceptance","approval attributable","--actual-regnet","--provenance","DREW_RECALL",home=td); self.assertEqual(r.returncode,2); self.assertTrue(any("DREW_RECALL" in x for x in json.loads(r.stdout)["blockers"]))
     def test_derived_rule_requires_sources(self):
         with tempfile.TemporaryDirectory() as td:
             r=run_cli("record","reachable states count","--provenance","DERIVED_RULE","--source","generalization",home=td); self.assertNotEqual(r.returncode,0)
