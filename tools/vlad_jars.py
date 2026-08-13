@@ -50,7 +50,7 @@ def _show(reference: str, as_json: bool = False) -> int:
         input_text=reference,
         output_text=str(item.get("text") or ""),
         output_refs=[str(item["path"])],
-        metadata={"access": "fast", "catalogSha256": jars._catalog_snapshot()["catalogSha256"]},
+        metadata={"access": "fast", "catalogSha256": jars.catalog_snapshot()["catalogSha256"]},
     )
     if as_json:
         print(json.dumps({"ok": True, "jar": item, "usage": usage}, ensure_ascii=False, indent=2, sort_keys=True))
@@ -93,10 +93,10 @@ def _jar_command(argv: list[str]) -> int:
     if not argv or argv[0] in {"list", "ls", "jars"}:
         return _print_catalog("--json" in argv)
     command = argv[0]
-    if command in {"sync"}:
+    if command == "sync":
         print(json.dumps({"pending": jars.sync_pending(), "catalog": jars.sync_catalog()}, ensure_ascii=False, indent=2, sort_keys=True))
         return 0
-    if command in {"status"}:
+    if command == "status":
         print(json.dumps(jars.status(), ensure_ascii=False, indent=2, sort_keys=True))
         return 0
     if command in {"receipt", "use"}:
