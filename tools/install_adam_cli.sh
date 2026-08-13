@@ -101,6 +101,9 @@ printf '%s\n' "$CANARY" | grep -q 'ADAM_BODY_OK' || { echo 'BLOCKED: Adam body t
 bash tools/ensure_adam_phone_brain.sh | tee "$BRAIN_RECEIPT"
 grep -q '"ok":true' "$BRAIN_RECEIPT" || { echo 'BLOCKED: Adam phone model did not become healthy.' >&2; exit 5; }
 
+SHE_RAW_CANARY="$($TARGET she-raw --doctor)"
+printf '%s\n' "$SHE_RAW_CANARY" | grep -q '"ready": true' || { echo 'BLOCKED: direct local She Raw runtime did not become ready.' >&2; exit 9; }
+
 python3 tools/accept_adam_receipted_phone.py | tee "$ACCEPT_RECEIPT"
 grep -q '"ok": true' "$ACCEPT_RECEIPT" || { echo 'BLOCKED: Adam planned/Venice-reviewed Codex worker acceptance failed.' >&2; exit 6; }
 grep -q '"venicePlanReviewReceiptVerified": true' "$ACCEPT_RECEIPT" || { echo 'BLOCKED: Adam pre-execution Venice plan receipt not verified.' >&2; exit 7; }
@@ -112,9 +115,9 @@ if command -v git >/dev/null 2>&1 && git -C "$ROOT" rev-parse HEAD >/dev/null 2>
 fi
 WORKER_SHA="$(sha256sum "$WORKER" | awk '{print $1}')"
 
-python3 - "$RECEIPT" "$SOURCE_SHA" "$WORKER_SHA" "$TARGET" "$WORKER" "$CANARY" "$ACCEPT_RECEIPT" "$BRAIN_RECEIPT" "$SHE_RAW_ALIAS_CONFIG" <<'PY'
+python3 - "$RECEIPT" "$SOURCE_SHA" "$WORKER_SHA" "$TARGET" "$WORKER" "$CANARY" "$ACCEPT_RECEIPT" "$BRAIN_RECEIPT" "$SHE_RAW_CANARY" "$SHE_RAW_ALIAS_CONFIG" <<'PY'
 import json,sys,time
-path,source_commit,worker_sha,target,worker,canary,accept_path,brain_path,alias_path=sys.argv[1:]
+path,source_commit,worker_sha,target,worker,canary,accept_path,brain_path,she_raw_canary,alias_path=sys.argv[1:]
 accept=json.load(open(accept_path,encoding='utf-8'))
 brain=json.load(open(brain_path,encoding='utf-8'))
 obj={
@@ -146,6 +149,7 @@ obj={
   'phoneModelHealthy':brain.get('ok') is True,
   'phoneModelStatus':brain.get('status'),
   'sheRawLocalOnly':True,
+  'sheRawDoctorReady':'"ready": true' in she_raw_canary,
   'sheRawAliasConfig':alias_path,
   'innerFortressSceneRoute':True,
   'installedAtEpoch':int(time.time()),
