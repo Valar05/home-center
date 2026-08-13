@@ -1,53 +1,56 @@
 # Chromium Throne / Browser Porch
 
-Status: **source implementation on branch; not yet installed or acceptance-proven on Drew's desktop.**
+Status: **parallel worker source implemented; not yet deployed or acceptance-proven on Drew's desktop.**
 
-Chromium Throne is the desktop ChatGPT workflow organ for Home Center. The current design deliberately uses **one ordinary visible ChatGPT tab plus one Chromium extension side panel**. It does not require hidden browser processes, a second dashboard tab, copied browser profiles, cookies, credentials, or a parallel agent framework.
+Chromium Throne is the visible desktop ChatGPT worker organ behind Atom/Vlad. **Atom on the phone is the command room.** ChatGPT tabs are disposable worker bodies and must not require Drew to code through ChatGPT or babysit threads.
 
-## Current boundary
+## Current contract
 
-This is a later compute organ, not the local-first bootstrap. Phone/Continue/Adam local coding must work independently first. Chromium Throne exists so that workflow can later borrow ordinary authenticated ChatGPT web capacity when useful.
+- One Atom/Vlad operator surface on the phone.
+- One Chromium Throne extension on the desktop.
+- Up to 8 visible ChatGPT worker tabs in one bounded parallel wave.
+- One bounded `PORTCULLIS LOCKED` commission per worker.
+- Every worker has a job ID and tab ID.
+- Worker checkpoints and handoffs are captured per tab.
+- Choked threads rotate through the strict six-field handoff packet.
+- ChatGPT cannot self-certify completion; Vlad + Venice review remain required and Tetsuya owns final release.
+- No API-token compute, hidden headless farm, account rotation, cookie scraping, or substitute agent framework.
 
-The extension currently provides:
+## Parallel worker behavior
 
-- one-tab ChatGPT targeting: the active tab must be exactly `https://chatgpt.com`;
-- a side-panel commission box, persistent local queue, `Run now`, `Run next`, stop/resume, and checkpoint capture;
-- fresh-worker mode, which reuses the **same browser tab** by navigating it to a fresh ChatGPT conversation before dispatch;
-- a deterministic worker boot envelope headed by **`PORTCULLIS LOCKED`**;
-- bounded local receipts for sent commissions and captured assistant checkpoints;
-- no rate-limit bypass, account rotation, hidden-tab swarm, credential scraping, or cookie access.
+`extension/swarm-core.mjs` defines `MAX_PARALLEL_WORKERS = 8` and selects only queued independent jobs for a wave. `extension/throne-panel.mjs` dispatches that wave concurrently. `extension/service-worker.js` creates a separate inactive `chatgpt.com` tab for each fresh worker, tags it with the job ID, records the tab ID in receipts, and can inspect/capture that specific worker without activating it.
+
+Parallelism remains intentionally bounded. A tightly coupled write must still be one worker. Independent archaeology, diagnosis, review preparation, test authoring, documentation, and other non-conflicting slices may fan out.
 
 ## Worker boot contract: `PORTCULLIS LOCKED`
 
-`PORTCULLIS LOCKED` is the execution-mode phrase. It intentionally reduces worker latitude rather than adding personality. Every fresh worker receives rules that:
+Every worker receives a fixed envelope that preserves outcome, owner, execution lane, exclusions, evidence standard, and delivery surface; separates capability truth states; forbids ChatGPT-local scratch as hardware proof; limits the worker to one bounded slice; and requires a strict handoff on context choke.
 
-1. preserve the requested outcome, owner, tool, execution lane, exclusions, evidence standard, and delivery surface;
-2. prohibit silent substitution of adjacent tools, architectures, workflows, or weaker evidence;
-3. allow creativity only inside the commission boundary;
-4. separate requested, implemented, deployed, and proposed capability;
-5. carry all earlier constraints through revisions;
-6. continue until artifact plus acceptance evidence exists or a real external/user action is strictly required;
-7. report the exact blocking boundary rather than manufacture substitute success;
-8. re-read the commission after each completed unit and advance the next unmet acceptance criterion.
+The phrase is a boot marker, not magic. Enforcement comes from extension behavior, bounded queues, receipts, and external review gates.
 
-The phrase is a boot marker, not magic. Enforcement comes from the fixed envelope plus deterministic extension behavior and receipts.
+## Important architecture boundary
 
-## Extension files
+Chromium Throne is not the phone command surface. The Atom Chromium-Throne add-on already exposes commands, missions, browser-tab inventory, receipts, and diagnostics on the phone. The remaining integration seam is routing Atom/Vlad mission commands through the existing Home Center/Browser Nerve/Computer Hands transport into this extension without creating a second control plane.
 
-- `extension/manifest.json` — MV3 declaration with `activeTab`, `scripting`, `sidePanel`, `storage`, and only `https://chatgpt.com/*` host authority.
-- `extension/service-worker.js` — boot envelope, exact-origin gate, single-tab dispatch, fresh-worker navigation, DOM prompt submission, checkpoint capture, and bounded receipt storage.
-- `extension/sidepanel.html` / `sidepanel.js` — one-panel queue/operator UI. No second web dashboard is required.
-- `contract.mjs` / `relay.mjs` — earlier Browser Porch lease/receipt work retained for Home Center integration. The standalone side-panel path does not claim that relay integration is deployed.
+## Capability truth
 
-## Desktop installation canary
+Implemented in repository source:
 
-1. Open Chromium/Chrome extensions and enable Developer mode.
-2. Load unpacked: `browser-porch/extension/`.
-3. Open exactly one normal authenticated `https://chatgpt.com/` tab.
-4. Click **Chromium Throne** to open its side panel.
-5. Enter a small observable commission and choose **Run now** with fresh worker enabled.
-6. Verify the same ChatGPT tab becomes a fresh conversation and receives a prompt beginning `PORTCULLIS LOCKED.` followed by the exact commission.
-7. After the response completes, press **Checkpoint** and verify the side panel shows the assistant text in a receipt.
-8. Queue two commissions and use **Run next** twice; verify the queue advances without opening another browser tab.
+- bounded parallel wave selection;
+- independent visible worker-tab creation;
+- per-worker job/tab identity;
+- per-tab inspection and checkpoint capture;
+- strict handoff rotation;
+- explicit Vlad/Venice/Tetsuya review metadata;
+- Atom/Vlad operator-surface doctrine.
 
-Until that canary is run on the real desktop, the correct status is **implemented source, not deployed/accepted**.
+Not yet claimed:
+
+- tests executed on authoritative desktop runtime;
+- extension reloaded on THECAULDRON;
+- multiple real ChatGPT workers concurrently commissioned;
+- Atom phone command routed end-to-end into the swarm;
+- live worker roster visible in Atom from actual desktop state;
+- accepted desktop swarm behavior.
+
+Those states require real Computer Hands / desktop / phone receipts. Repository commits are implementation evidence only.
