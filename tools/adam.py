@@ -11,7 +11,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 WORKER = ROOT / "tools" / "adam_planned_venice.py"
 CANON_SOURCER = ROOT / "tools" / "canon_sourcer.py"
-ONE_SHOT_MODES = ("terminal", "chat", "continue", "vlad", "scene")
+SHE_RAW_CLI = ROOT / "tools" / "she_raw_cli.py"
+ONE_SHOT_MODES = ("terminal", "chat", "continue", "vlad", "scene", "she-raw")
 MAX_RECEIPT_TEXT = 6000
 MAX_CANON_PACKET = 18000
 
@@ -103,6 +104,17 @@ Hard canary gate: Vanguard wins decisively after a real fight. Android improves 
     return receipt("scene", p.returncode == 0, worker="codex-phone-planned-venice-reviewed", canonSourcer="deterministic", canonPacketSha256=canon_hash, canonSources=canon_sources, canary="vanguard-wins-android-improves-and-gets-weirder", sheRawGate="always-on-inner-world-threshold", regnetRequired=True, veniceReviewed=True, rc=p.returncode, stdout=tail(p.stdout), stderr=tail(p.stderr))
 
 
+def run_she_raw(text: str, cwd: str) -> int:
+    """Direct local character speech; never wrap, rewrite, or execute it."""
+    if not SHE_RAW_CLI.is_file():
+        print(f"BLOCKED: She Raw CLI missing: {SHE_RAW_CLI}", file=sys.stderr)
+        return 3
+    argv = [sys.executable, str(SHE_RAW_CLI)]
+    if text:
+        argv.append(text)
+    return subprocess.run(argv, cwd=cwd).returncode
+
+
 def run_mode(mode: str, text: str, cwd: str, timeout: int) -> int:
     if mode not in ONE_SHOT_MODES:
         return receipt(mode, False, error="unsupported_mode")
@@ -110,6 +122,8 @@ def run_mode(mode: str, text: str, cwd: str, timeout: int) -> int:
         return run_terminal(text, cwd, timeout)
     if mode == "scene":
         return run_scene(text, cwd, timeout)
+    if mode == "she-raw":
+        return run_she_raw(text, cwd)
     return run_worker(mode, text, cwd)
 
 
