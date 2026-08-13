@@ -82,6 +82,9 @@ She-Raw — Ferociously Invitable is always present at the threshold to the Inne
 Drew's scene request:
 {text}
 
+Reality law:
+Use as little inference as possible while making the Inner Fortress disgustingly realistic and imaginative. Derive strangeness from observed bodies, appetite, material conditions, sensory consequence, and character choice. Label unsupported bridges UNKNOWN.
+
 Acceptance canary:
 {canary}
 
