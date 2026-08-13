@@ -1,0 +1,48 @@
+{
+  "schema": "venice.plan.receipt.v1",
+  "campaign": "anvil-shell-phone-authority",
+  "timestamp": "2026-08-13T14:25:04-05:00",
+  "source": {
+    "repository": "Valar05/home-center",
+    "base_commit": "1cce1f186fb6a97f33c9ee7e3fc466eadb409b9e",
+    "branch": "adam/anvil-phone-plane-20260813"
+  },
+  "commission": {
+    "owner": "Drew",
+    "operator": "Adam",
+    "outcome": "Replace fragile Termux dependence with Anvil Shell while preserving Termux capability, deterministic CLI tools, Hunger, Hyperbolic, team markers, Hugging Face research, and deterministic offline load-bearing quotations.",
+    "delivery_target": "exact primary-phone Android installation and readback",
+    "exclusions": [
+      "Command Center",
+      "THECAULDRON",
+      "generic shell substitution",
+      "cloud-only proof",
+      "raw shell execution",
+      "automatic replay of ambiguous maintenance"
+    ]
+  },
+  "selected_jars": [
+    "Venice — The Organism Keeps the Camera",
+    "Phone-first build and deployment law",
+    "Regnet receipt discipline"
+  ],
+  "plan": [
+    "Expose native Home Center phone.devices, phone.diagnostics.enqueue, and phone.operation.get operations using the typed read-only diagnostics contract.",
+    "Add a separate PHONE_MAINTENANCE plane with only the allowlisted anvil_shell.build_install.v1 operation.",
+    "Bind actor, exact device primary-phone, session, queue revision, lane, source repository/head, idempotency key, lease, approval, bounded argv, toolchain, APK hash, signer, install result, rollback artifact, and post-install readback in terminal receipts.",
+    "Reject raw shell, URLs, traversal, unresolved variables, provider fallback, stale capabilities, missing leases, and automatic replay of DISPATCHED or RECOVERABLE maintenance.",
+    "Run source tests, Regnet QA, Venice completion review, deploy the exact green Home Center revision, verify live capabilities, then execute the exact primary-phone diagnostic and Anvil build/install/readback canary."
+  ],
+  "antagonism": [
+    "Source proof is not runtime proof; repository green does not count as installed, callable, delivered, or accepted.",
+    "Read-only diagnostics and maintenance must remain separate authority planes.",
+    "Command Center phone_hands compatibility operations cannot satisfy native Home Center authority.",
+    "A successful build without APK digest, signer, install identity, rollback, and readback is incomplete.",
+    "Any disabled physical operator or deployment lane parks only that exact step; independently eligible work continues."
+  ],
+  "verdict": "PASS",
+  "directive": "PLAN_ALLOWED",
+  "provenance": "SYNTHETIC_VENICE",
+  "reviewer_mode": "judgment_jar_emulation",
+  "stop_scope": "none; campaign continues until exact phone acceptance or a genuine external authority blocker"
+}
