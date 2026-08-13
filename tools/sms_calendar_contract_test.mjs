@@ -6,6 +6,7 @@ const {
   REGISTRY_VERSION,
   auditDocumentId,
   hashObject,
+  memberTextMiningAuthorized,
   messageId,
   normalizedProposal,
   providerEventId,
@@ -17,6 +18,11 @@ const {
 
 const USER = {email: 'reviewer@example.com', authKind: 'home_center_mcp_oauth'};
 const MESSAGE_ID = `sms_${'a'.repeat(40)}`;
+
+assert.equal(memberTextMiningAuthorized({textMiningAuthorized: true}), true);
+assert.equal(memberTextMiningAuthorized({textMiningAuthorized: false}), false);
+assert.equal(memberTextMiningAuthorized({}), false);
+assert.equal(memberTextMiningAuthorized(null), false);
 
 function clone(value) {
   return JSON.parse(JSON.stringify(value));
