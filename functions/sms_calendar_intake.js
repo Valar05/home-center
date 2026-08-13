@@ -269,6 +269,11 @@ function actor(user) {
   return {email, authKind: text(user && user.authKind, 80) || 'google_oauth'};
 }
 
+function recordOwnedBy(record, user) {
+  const ownerEmail = normalizeEmail(record && record.createdByEmail);
+  return Boolean(ownerEmail) && ownerEmail === actor(user).email;
+}
+
 function redactSender(record) {
   const phone = text(record && record.senderAddress, 64).replace(/\D/g, '');
   if (phone) return `phone_ending_${phone.slice(-4)}`;
@@ -380,9 +385,11 @@ async function authorizedBucketIds(admin, user) {
   const ids = new Set();
   for (const doc of snapshot.docs || []) {
     const segments = doc.ref.path.split('/');
+    const member = doc.data && doc.data() || {};
+    if (member.textMiningAuthorized !== true) continue;
     if (segments.length === 4 && segments[0] === 'households' && segments[2] === 'members') ids.add(segments[1]);
   }
-  if (!ids.size) throw statusError(403, 'The connected Google identity is not a Home Center household member.');
+  if (!ids.size) throw statusError(403, 'Text message mining is not authorized for the connected Home Center identity.');
   return [...ids];
 }
 
@@ -407,7 +414,10 @@ function firestoreStore(admin, user, authorize = authorizedBucketIds) {
       for (const bucketId of await buckets()) {
         const ref = db.collection('households').doc(bucketId).collection('smsCalendarIntake').doc(id);
         const snap = await ref.get();
-        if (snap.exists) return {bucketId, id: snap.id, record: {id: snap.id, ...snap.data()}, ref};
+        if (snap.exists) {
+          const record = {id: snap.id, ...snap.data()};
+          if (recordOwnedBy(record, user)) return {bucketId, id: snap.id, record, ref};
+        }
       }
       throw statusError(404, 'SMS intake message was not found for the connected household.');
     },
@@ -417,6 +427,7 @@ function firestoreStore(admin, user, authorize = authorizedBucketIds) {
         const snapshot = await db.collection('households').doc(bucketId).collection('smsCalendarIntake').limit(100).get();
         for (const doc of snapshot.docs || []) {
           const record = {id: doc.id, ...doc.data()};
+          if (!recordOwnedBy(record, user)) continue;
           if (status && text(record.status, 60) !== status) continue;
           records.push({bucketId, id: doc.id, record, ref: doc.ref});
         }
@@ -906,6 +917,7 @@ module.exports = {
   normalizedProposal,
   providerEventId,
   publicRecord,
+  recordOwnedBy,
   registry,
   runOperation,
   searchQuery,
