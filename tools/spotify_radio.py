@@ -45,7 +45,18 @@ SCOPES = [
 ]
 TARGET_PACKAGE = "com.spotify.music"
 STATE_URI = "content://com.homecenter.operatoroverlay.state/state"
-FORBIDDEN_RECEIPT_KEYS = ("token", "secret", "verifier", "authorization", "clientsecret")
+SENSITIVE_RECEIPT_KEYS = frozenset({
+    "token",
+    "secret",
+    "verifier",
+    "authorization",
+    "accesstoken",
+    "refreshtoken",
+    "clientsecret",
+    "codeverifier",
+    "bearertoken",
+    "authorizationheader",
+})
 TERM_VOCABULARY = (
     "instrumental", "synth", "electronic", "ambient", "cinematic", "orchestral",
     "metal", "rock", "jazz", "blues", "folk", "acoustic", "techno", "house",
@@ -99,8 +110,8 @@ def redacted(value: Any) -> Any:
     if isinstance(value, dict):
         out = {}
         for key, item in value.items():
-            lower = str(key).lower().replace("_", "")
-            out[key] = "[REDACTED]" if any(part in lower for part in FORBIDDEN_RECEIPT_KEYS) else redacted(item)
+            normalized = re.sub(r"[^a-z0-9]+", "", str(key).lower())
+            out[key] = "[REDACTED]" if normalized in SENSITIVE_RECEIPT_KEYS else redacted(item)
         return out
     if isinstance(value, list):
         return [redacted(item) for item in value]
@@ -228,7 +239,24 @@ def auth_url(client_id: str = "", redirect_uri: str = "") -> dict[str, Any]:
         "code_challenge_method": "S256",
         "code_challenge": challenge,
     })
-    return emit("auth-url", "operator_authorization_required", "Open this URL in an ordinary browser and return the code", authorizationUrl=f"{AUTHORIZE_URL}?{query}", expiresAtMs=pending["expiresAtMs"])
+    authorization_url = f"{AUTHORIZE_URL}?{query}"
+    emit(
+        "auth-url",
+        "operator_authorization_required",
+        "Open the separately returned authorization URL in an ordinary browser and return the code",
+        expiresAtMs=pending["expiresAtMs"],
+        scopes=SCOPES,
+        authorizationUrlPersisted=False,
+        tokensExposed=False,
+    )
+    packet = {
+        "schema": "home-center.spotify-radio-auth-url.v1",
+        "authorizationUrl": authorization_url,
+        "expiresAtMs": pending["expiresAtMs"],
+        "persisted": False,
+    }
+    print(json.dumps(packet, ensure_ascii=False, sort_keys=True), flush=True)
+    return packet
 
 
 def auth_complete(code: str, state_value: str) -> dict[str, Any]:
@@ -432,9 +460,9 @@ def compile_prompt(text: str, prior: dict[str, Any] | None = None) -> dict[str, 
         return {"schema": "spotify.plan.v1", "kind": "transport", "action": transport[exact], "argument": "", "prompt": raw}
     if "stop after" in lower and ("track" in lower or "song" in lower or "this" in lower):
         return {"schema": "spotify.plan.v1", "kind": "stop_after_current", "prompt": raw}
-    if any(phrase in lower for phrase in ("stop rolling", "rolling off", "do not refill")):
+    if exact in {"stop rolling", "rolling off", "do not refill"}:
         return {"schema": "spotify.plan.v1", "kind": "rolling", "enabled": False, "prompt": raw}
-    if any(phrase in lower for phrase in ("keep it rolling", "keep rolling", "rolling on", "continue rolling")):
+    if exact in {"keep it rolling", "keep rolling", "rolling on", "continue rolling"}:
         return {"schema": "spotify.plan.v1", "kind": "rolling", "enabled": True, "prompt": raw}
 
     prior_policy = dict(prior or {})
@@ -552,7 +580,7 @@ def rish(command: str, timeout: int = 20) -> str:
 def parse_provider_row(raw: str) -> dict[str, str]:
     body = raw.split("Row:", 1)[-1]
     values: dict[str, str] = {}
-    for part in re.split(r",\s+(?=[a-z_]+=)", body):
+    for part in re.split(r",\s+(?=[a-z0-9_]+=)", body):
         if "=" in part:
             key, value = part.split("=", 1)
             values[key.strip().split()[-1]] = value.strip()
@@ -568,8 +596,8 @@ def transport(action: str, argument: str = "", timeout: int = 15) -> dict[str, A
     command = (
         "content call --uri " + shlex.quote(STATE_URI)
         + " --method spotify_control --arg " + shlex.quote(action)
-        + " --extra string:argument_b64:" + shlex.quote(argument_b64)
-        + " --extra long:request_id:" + str(request_id)
+        + " --extra argument_b64:s:" + shlex.quote(argument_b64)
+        + " --extra request_id:l:" + str(request_id)
     )
     accepted = rish(command, timeout=20)
     deadline = time.monotonic() + timeout
@@ -640,6 +668,8 @@ def create_or_revise(client: SpotifyClient, state: dict[str, Any], plan: dict[st
 
 
 def ensure_once(client: SpotifyClient, state: dict[str, Any]) -> dict[str, Any]:
+    if not state.get("rolling") and not state.get("stopAfterCurrent"):
+        return {"state": "rolling_disabled", "playlistId": str(state.get("playlistId") or "")}
     if not state.get("playlistId"):
         client.ensure_playlist(state)
     playlist_id = str(state["playlistId"])
@@ -657,8 +687,6 @@ def ensure_once(client: SpotifyClient, state: dict[str, Any]) -> dict[str, Any]:
             save_state(state)
             return {"state": "stopped_after_current", "pauseReceipt": pause}
 
-    if not state.get("rolling"):
-        return {"state": "rolling_disabled", "playlistId": playlist_id}
     if context_uri != f"spotify:playlist:{playlist_id}":
         return {"state": "playlist_not_active", "playlistId": playlist_id, "contextUri": context_uri}
 
@@ -744,7 +772,9 @@ def daemon(interval: int) -> int:
     last_signature = ""
     while True:
         try:
-            result = ensure_once(SpotifyClient(), load_state())
+            state = load_state()
+            client = None if not state.get("rolling") and not state.get("stopAfterCurrent") else SpotifyClient()
+            result = ensure_once(client, state)
             signature = json.dumps(result, sort_keys=True)
             if signature != last_signature or result.get("state") in {"refilled", "stopped_after_current"}:
                 emit("daemon", "healthy", "Rolling check complete", result=result)
@@ -793,7 +823,9 @@ def main() -> int:
         elif args.command == "transport":
             emit("transport", "completed", "Typed Spotify background command completed", transportReceipt=transport(args.action, args.argument))
         elif args.command == "ensure":
-            emit("ensure", "completed", "Rolling check complete", result=ensure_once(SpotifyClient(), load_state()))
+            state = load_state()
+            client = None if not state.get("rolling") and not state.get("stopAfterCurrent") else SpotifyClient()
+            emit("ensure", "completed", "Rolling check complete", result=ensure_once(client, state))
         else:
             return daemon(args.interval)
         return 0

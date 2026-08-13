@@ -1,11 +1,15 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 
+import contextlib
 import importlib.util
+import io
 import json
 import pathlib
+import sys
 import tempfile
 import unittest
+from unittest import mock
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 MODULE_PATH = ROOT / "tools" / "spotify_radio.py"
@@ -93,11 +97,44 @@ class SelectionContract(unittest.TestCase):
 
 
 class ReceiptContract(unittest.TestCase):
-    def test_secrets_are_redacted(self):
-        value = radio.redacted({"accessToken": "abc", "refresh_token": "def", "safe": "yes"})
+    def test_secrets_are_redacted_without_hiding_safe_metadata(self):
+        value = radio.redacted({
+            "accessToken": "abc",
+            "refresh_token": "def",
+            "authorization": "Bearer hidden",
+            "authorizationUrl": "https://accounts.spotify.com/authorize?safe=1",
+            "tokensExposed": False,
+            "safe": "yes",
+        })
         self.assertEqual("[REDACTED]", value["accessToken"])
         self.assertEqual("[REDACTED]", value["refresh_token"])
+        self.assertEqual("[REDACTED]", value["authorization"])
+        self.assertIn("accounts.spotify.com", value["authorizationUrl"])
+        self.assertFalse(value["tokensExposed"])
         self.assertEqual("yes", value["safe"])
+
+    def test_auth_url_is_returned_but_not_persisted(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = pathlib.Path(directory)
+            overrides = {
+                "CONFIG": root / "config.json",
+                "STATE_DIR": root,
+                "STATE": root / "state.json",
+                "OAUTH_PENDING": root / "oauth-pending.json",
+                "RECEIPTS": root / "receipts.jsonl",
+                "LATEST": root / "latest.json",
+            }
+            output = io.StringIO()
+            with mock.patch.multiple(radio, **overrides), contextlib.redirect_stdout(output):
+                packet = radio.auth_url("A" * 32, "https://example.com/callback")
+            durable = overrides["RECEIPTS"].read_text(encoding="utf-8") + overrides["LATEST"].read_text(encoding="utf-8")
+            rendered = output.getvalue()
+            self.assertNotIn("accounts.spotify.com", durable)
+            self.assertNotIn("verifier", durable.lower())
+            self.assertNotIn("verifier", rendered.lower())
+            self.assertIn("accounts.spotify.com", packet["authorizationUrl"])
+            self.assertFalse(packet["persisted"])
+            self.assertEqual("home-center.spotify-radio-auth-url.v1", packet["schema"])
 
     def test_provider_row_parser_keeps_base64(self):
         row = radio.parse_provider_row(
@@ -105,6 +142,35 @@ class ReceiptContract(unittest.TestCase):
         )
         self.assertEqual("123", row["spotify_request_id"])
         self.assertEqual("eyJvayI6dHJ1ZX0=", row["spotify_receipt_b64"])
+
+
+class IdleEnsureContract(unittest.TestCase):
+    def test_idle_ensure_calls_no_client_method(self):
+        class ExplodingClient:
+            def __getattr__(self, name):
+                raise AssertionError(f"client method accessed: {name}")
+
+        state = {"playlistId": "playlist-123", "rolling": False, "stopAfterCurrent": False}
+        self.assertEqual(
+            {"state": "rolling_disabled", "playlistId": "playlist-123"},
+            radio.ensure_once(ExplodingClient(), state),
+        )
+
+    def test_idle_daemon_does_not_construct_spotify_client(self):
+        idle = {"playlistId": "playlist-123", "rolling": False, "stopAfterCurrent": False}
+        with mock.patch.object(radio, "load_state", return_value=idle), \
+             mock.patch.object(radio, "SpotifyClient", side_effect=AssertionError("constructed")), \
+             mock.patch.object(radio, "emit", side_effect=KeyboardInterrupt):
+            self.assertEqual(0, radio.daemon(10))
+
+    def test_idle_cli_ensure_does_not_construct_spotify_client(self):
+        idle = {"playlistId": "playlist-123", "rolling": False, "stopAfterCurrent": False}
+        with mock.patch.object(radio, "load_state", return_value=idle), \
+             mock.patch.object(radio, "SpotifyClient", side_effect=AssertionError("constructed")), \
+             mock.patch.object(radio, "emit") as emit, \
+             mock.patch.object(sys, "argv", ["spotify-radio", "ensure"]):
+            self.assertEqual(0, radio.main())
+            self.assertEqual("rolling_disabled", emit.call_args.kwargs["result"]["state"])
 
 
 class SourceBoundaryContract(unittest.TestCase):
@@ -146,13 +212,18 @@ class SourceBoundaryContract(unittest.TestCase):
 
     def test_provider_ingress_is_typed_and_background_only(self):
         self.assertIn('METHOD_SPOTIFY_CONTROL = "spotify_control"', self.provider)
-        self.assertIn("OperatorOverlayService.ACTION_SPOTIFY_COMMAND", self.provider)
-        self.assertIn("startForegroundService(service)", self.provider)
+        self.assertIn("enforceCallingOrSelfPermission", self.provider)
+        self.assertIn("android.Manifest.permission.DUMP", self.provider)
+        self.assertIn("startForegroundService(", self.provider)
+        self.assertIn("OperatorOverlayService.class", self.provider)
+        self.assertIn("ACTION_SPOTIFY_COMMAND", self.provider)
         self.assertNotIn("startActivity", self.provider)
 
     def test_overlay_has_widget_and_radio_prompt_mode(self):
         self.assertIn("spotifyStatus", self.overlay)
-        self.assertIn('adamModeButton("RADIO", "radio"', self.overlay)
+        self.assertIn("adamModeButton(", self.overlay)
+        self.assertIn('"RADIO"', self.overlay)
+        self.assertIn('"radio"', self.overlay)
         self.assertIn("ACTION_SPOTIFY_COMMAND", self.overlay)
         self.assertIn("SpotifyShizukuClient", self.overlay)
 
@@ -161,6 +232,12 @@ class SourceBoundaryContract(unittest.TestCase):
         self.assertIn('f"/playlists/{playlist_id}/items"', self.python)
         self.assertNotIn('f"/playlists/{playlist_id}/tracks"', self.python)
         self.assertIn('"code_challenge_method": "S256"', self.python)
+
+    def test_android_content_extras_use_aosp_binding_order(self):
+        self.assertIn('" --extra argument_b64:s:"', self.python)
+        self.assertIn('" --extra request_id:l:"', self.python)
+        self.assertNotIn('" --extra string:argument_b64:"', self.python)
+        self.assertNotIn('" --extra long:request_id:"', self.python)
 
 
 if __name__ == "__main__":

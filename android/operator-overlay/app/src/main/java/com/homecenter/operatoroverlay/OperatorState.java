@@ -163,14 +163,28 @@ final class OperatorState {
         if (cleanReceipt.length() > 12000) cleanReceipt = cleanReceipt.substring(0, 12000);
         String encoded = Base64.encodeToString(
                 cleanReceipt.getBytes(StandardCharsets.UTF_8), Base64.NO_WRAP);
-        String cleanSummary = summary == null ? "Spotify • updated" : summary.trim();
-        if (cleanSummary.length() > 240) cleanSummary = cleanSummary.substring(0, 240);
+        String cleanSummary = sanitizeSpotifySummary(summary);
         prefs(context).edit()
                 .putLong(KEY_SPOTIFY_REQUEST_ID, Math.max(1L, requestId))
                 .putString(KEY_SPOTIFY_RECEIPT_B64, encoded)
                 .putString(KEY_SPOTIFY_SUMMARY, cleanSummary)
                 .putLong(KEY_SPOTIFY_UPDATED_MS, Math.max(1L, nowMs))
                 .commit();
+    }
+
+    static void updateSpotifySummary(Context context, String summary, long nowMs) {
+        prefs(context).edit()
+                .putString(KEY_SPOTIFY_SUMMARY, sanitizeSpotifySummary(summary))
+                .putLong(KEY_SPOTIFY_UPDATED_MS, Math.max(1L, nowMs))
+                .commit();
+    }
+
+    private static String sanitizeSpotifySummary(String summary) {
+        String cleanSummary = summary == null ? "Spotify updated" : summary.trim();
+        cleanSummary = cleanSummary.replace('\r', ' ').replace('\n', ' ').replace(',', ' ');
+        if (cleanSummary.isEmpty()) cleanSummary = "Spotify updated";
+        if (cleanSummary.length() > 240) cleanSummary = cleanSummary.substring(0, 240);
+        return cleanSummary;
     }
 
     static void updateText(Context context, String source, String text, long nowMs) {
