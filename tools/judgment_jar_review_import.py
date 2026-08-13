@@ -117,12 +117,18 @@ def import_review_receipts(registry: dict[str, Any], config: dict[str, Any]) -> 
 
     imported = duplicates = quarantined = 0
     source_results: list[dict[str, Any]] = []
+    cursor_resets: dict[str, str] = {}
     for source in _sources():
         if not source.is_file():
             source_results.append({"source": str(source), "state": "ABSENT"})
             continue
         lines = source.read_text(encoding="utf-8", errors="replace").splitlines()
         start = max(0, cursors.get(str(source), 0))
+        cursor_reset = ""
+        if start > len(lines):
+            start = 0
+            cursor_reset = "SOURCE_TRUNCATED_OR_REPLACED"
+            cursor_resets[str(source)] = cursor_reset
         source_imported = source_duplicates = source_quarantined = 0
         for index, raw in enumerate(lines[start:], start=start):
             if not raw.strip():
@@ -165,6 +171,7 @@ def import_review_receipts(registry: dict[str, Any], config: dict[str, Any]) -> 
                             "verdict": record.get("verdict"),
                             "directive": record.get("directive"),
                             "findings": record.get("findings") or [],
+                            "cursorReset": cursor_reset,
                         },
                     )
                     receipt["receiptId"] = str(uuid.uuid5(uuid.NAMESPACE_URL, f"{source}:{index + 1}:{source_hash}:{jar.get('id')}:review_verdict"))
@@ -184,21 +191,27 @@ def import_review_receipts(registry: dict[str, Any], config: dict[str, Any]) -> 
                     "source": str(source),
                     "line": index + 1,
                     "raw": raw,
+                    "cursorReset": cursor_reset,
                     "error": f"{type(exc).__name__}: {exc}",
                 })
             cursors[str(source)] = index + 1
+        if not lines:
+            cursors[str(source)] = 0
         source_results.append({
             "source": str(source),
             "state": "IMPORTED" if source_imported else "NO_CHANGE",
+            "cursorReset": cursor_reset,
             "imported": source_imported,
             "duplicates": source_duplicates,
             "quarantined": source_quarantined,
             "line": cursors.get(str(source), start),
+            "sourceLineCount": len(lines),
         })
 
     write_atomic(cursor_path, {
         "schema": "home-center.judgment-jar-review-import-cursors.v1",
         "lines": cursors,
+        "cursorResets": cursor_resets,
         "quarantine": str(quarantine_path),
     })
     return {
@@ -207,6 +220,7 @@ def import_review_receipts(registry: dict[str, Any], config: dict[str, Any]) -> 
         "imported": imported,
         "duplicates": duplicates,
         "quarantined": quarantined,
+        "cursorResets": cursor_resets,
         "cursor": str(cursor_path),
         "quarantine": str(quarantine_path),
         "sources": source_results,
