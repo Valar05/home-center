@@ -12,6 +12,13 @@ from pathlib import Path
 TOOLS = Path(__file__).resolve().parent
 ROOT = TOOLS.parent
 sys.path.insert(0, str(TOOLS))
+MODULES = (
+    "judgement_jar_runtime",
+    "adam_planned_venice_receipted",
+    "adam_planned_venice",
+    "adam_venice_reviewed",
+    "adam_codex_phone",
+)
 
 
 class AdamJarReceiptContractTest(unittest.TestCase):
@@ -19,7 +26,7 @@ class AdamJarReceiptContractTest(unittest.TestCase):
         self.temp = tempfile.TemporaryDirectory()
         os.environ["HC_STATE_DIR"] = self.temp.name
         os.environ["HC_ATOM_URL"] = "http://127.0.0.1:1"
-        for name in ("judgement_jar_runtime", "adam_planned_venice_receipted"):
+        for name in MODULES:
             sys.modules.pop(name, None)
         self.module = importlib.import_module("adam_planned_venice_receipted")
 
@@ -27,7 +34,7 @@ class AdamJarReceiptContractTest(unittest.TestCase):
         self.temp.cleanup()
         os.environ.pop("HC_STATE_DIR", None)
         os.environ.pop("HC_ATOM_URL", None)
-        for name in ("judgement_jar_runtime", "adam_planned_venice_receipted"):
+        for name in MODULES:
             sys.modules.pop(name, None)
 
     def packet(self, output_kind: str | None = "plan") -> dict:
