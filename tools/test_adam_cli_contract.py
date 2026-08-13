@@ -15,6 +15,7 @@ for token in [
     'def run_worker(',
     'def run_scene(',
     'def run_she_raw(',
+    'if args.mode == "she-raw":',
     'SHE_RAW_CLI = ROOT / "tools" / "she_raw_cli.py"',
     'Use as little inference as possible',
     'def worker_commission(',
@@ -81,6 +82,8 @@ assert 'tools/test_she_raw_cli.py' in installer
 assert 'config/she-raw-cli.v1.json' in installer
 assert 'innerFortressSceneRoute' in installer
 assert 'sheRawLocalOnly' in installer
+assert '$TARGET she-raw --doctor' in installer
+assert 'sheRawDoctorReady' in installer
 assert '|shell)' not in installer
 
 for forbidden in ['def run_shell(', 'local_exec_plan', 'execute_plan', 'Adam online. Chat naturally', 'ollama_generate']:
