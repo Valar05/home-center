@@ -65,6 +65,10 @@ def execute_action(a):
  k=a.get('action')
  if k in DIAGNOSTIC_ACTIONS:return diagnostics_execute(a)
  if k in OVERLAY_ACTIONS:return overlay_execute(a)
+ # Background Termux execution is a separate body lane. It does not touch the
+ # Android UI and therefore must not depend on Shizuku/rish or the user-owned
+ # screen-control overlay gate. Keep the gate only around interactive/UI paths.
+ if k in TERMUX_SHELL_ACTIONS:return termux_shell_execute(a)
  gate=overlay_control_gate()
  if k=='status_say' and gate.get('muted'):return {'ok':True,'action':'status_say','muted':True,'skipped':True}
  return dispatch(a)
