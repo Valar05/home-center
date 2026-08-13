@@ -43,6 +43,9 @@
     ],
     "stateDirEnv": "HC_JUDGMENT_JAR_RECEIPT_STATE_DIR",
     "stateDir": "~/.local/state/home-center/vlad-swarm/judgment-jar-receipts",
+    "atomStateDirEnv": "HC_ATOM_STATE_DIR",
+    "atomStateDir": "~/.local/state/atom",
+    "atomCapturedUsageFile": "judgment-jar-usage.jsonl",
     "homeCenterLedgerTitle": "Judgment Jar Usage Receipts — Vlad and Home Center",
     "homeCenterLedgerFileIdEnv": "HC_JUDGMENT_JAR_RECEIPT_LEDGER_FILE_ID",
     "flushBatchSize": 12,
@@ -54,6 +57,7 @@
     "appendOnly": true,
     "pendingOutboxOldestFirst": true,
     "homeCenterReadbackRequired": true,
-    "contextAccessAndCreatedOutputAreDistinctReceipts": true
+    "contextAccessAndCreatedOutputAreDistinctReceipts": true,
+    "commandCenterExists": false
   }
 }
