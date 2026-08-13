@@ -6,6 +6,20 @@ June intake is first-class Fortress Online input. Treat intake provided by June 
 
 For any Fortress Online request materially involving Drew and June's relationship, June's needs or requests, household coordination, separation/reconciliation, communication, co-parenting, Eve, or June's Holocron, **read and execute `skills/june-holocron-relationship-intake/SKILL.md` before interpreting or advising**. This is mandatory bootstrap behavior. Do not substitute generic Holocron doctrine, stale Drew-side memory, or failure narration for current first-class intake retrieval.
 
+## Rene QA authority — quality, validity, and evidence
+
+`Rene QA` is the canonical keyword and QA authority for repository code/configuration review, acceptance-test quality, evidence sufficiency, reproducibility, reachable failure paths, regression risk, and capability-state truth. Use `skills/renee-qa/SKILL.md`, `config/renee_qa.v1.json`, and `tools/renee.py` when its callable runtime is available.
+
+Rene QA and Venice are separate gates:
+
+1. deterministic checks establish mechanical facts;
+2. **Rene QA** reviews whether the artifact and its evidence actually earn the quality/validity claim;
+3. **Venice** performs the independent mission/taste/adversarial review and owns the normal final stop/continue directive.
+
+A Renee `PASS` never grants final stop permission. A Venice `STOP_ALLOWED` never launders a failed Renee QA gate. Where code/configuration or material validity changed, both gates must pass their own domains before the worker may claim the bounded slice complete.
+
+The human Renee remains authoritative about her own judgment. Synthetic Renee output is always `SYNTHETIC_RENEE`, may inform a review, and must never self-promote into evidence about the human Renee. Preserve provenance classes (`RENEE_DIRECT`, `RENEE_CORRECTION`, `DREW_RECALL`, `DERIVED_RULE`, `SYNTHETIC_RENEE`) and never invent private workplace evidence. This section supersedes older bootstrap language that assigned primary code/quality review to Venice; Venice remains the final adversarial/stop gate, not the primary QA persona.
+
 ## Operator campaigns — continuing value required
 
 Any time an agent asks Drew to run a script or command, that operator action must create or invoke a durable campaign capability rather than a disposable one-off paste chain.
@@ -53,21 +67,23 @@ This requirement applies to **all work**, not only Fortress Online and not only 
 
 ### Code and configuration changes
 
-When repository code or configuration changed, Venice's first priority is code review. Review the actual current change and evidence before style, personality, or praise.
+When repository code or configuration changed, **Rene QA owns the primary quality/code-review pass**. Review the actual current change, deterministic checks, acceptance criteria, evidence sufficiency, reproducibility, failure paths, regression risk, and capability-state claims before Venice reviews mission fidelity or style.
 
-The review must receive the bounded commission/acceptance criteria, exact review identity, deterministic check results, the actual diff or an explicit truncation marker, applicable Judgment Jar law, durable Venice reviewer precedent, and known evidence gaps. The primary reviewer mode is `judgment_jar`; `local_venice` is optional specialized machinery.
+The Renee QA review must receive the bounded commission/acceptance criteria, exact review identity, deterministic check results, actual diff or explicit truncation marker, applicable Renee QA law, attributable precedent, and known evidence gaps. `PASS` permits progression to Venice; `REVISE_REQUIRED` means continue the same slice; `BLOCKED_UNKNOWN` preserves the exact evidence gap; `STOP_SHIP` forbids promotion under the current claim.
 
-Apply the directive literally:
+After Rene QA passes, Venice performs a separate completion review using the bounded commission, exact change/evidence identity, Renee QA receipt, selected Judgment Jars, durable reviewer precedent, unresolved mission risks, and actual diff where code/configuration changed.
 
-- `STOP_ALLOWED`: the worker may stop the current bounded slice.
-- `CONTINUE_REQUIRED`: stopping is denied. Apply Venice's blocking findings to the same commissioned slice, validate again, and return for another Venice review.
+Apply Venice's directive literally:
+
+- `STOP_ALLOWED`: the worker may stop the current bounded slice only if all required Renee QA gates also pass.
+- `CONTINUE_REQUIRED`: stopping is denied. Apply Venice's blocking findings to the same commissioned slice, validate again, return to Renee QA when quality/evidence changed, and then ask Venice again.
 - `HALT_REQUIRED`: continuing mutation is denied. Preserve evidence and stop at the exact authority/safety/provenance boundary; this is not successful completion.
 
-A deterministic-only review, missing semantic Venice pass, malformed ruling, or insufficient evidence never grants stop permission. Review provenance must identify the actual ChatGPT worker and reviewer mode. Do not require a separate model/process merely to satisfy review independence.
+A deterministic-only review, missing Renee QA pass where QA is material, missing semantic Venice pass, malformed ruling, or insufficient evidence never grants stop permission. Review provenance must identify the actual ChatGPT worker and reviewer modes. Do not require a separate model/process merely to satisfy review independence.
 
 ### Non-code and conversational work
 
-For non-code work, run a separate Venice pass governed by the active Judgment Jars. Venice reviews mission fidelity, evidence, unresolved obligations, durability/recovery, and whether the response or handoff is genuinely useful. Do not invent a code-review requirement where no code changed, but do not waive the independent stop review.
+For non-code work, use Rene QA when quality/validity/evidence judgment is materially part of the commission, then run a separate Venice pass governed by the active Judgment Jars. Venice reviews mission fidelity, evidence, unresolved obligations, durability/recovery, and whether the response or handoff is genuinely useful. Do not invent a code-review requirement where no code changed, but do not waive the independent stop review.
 
 A missing or malformed Venice review means stopping is denied. If the work remains safely actionable, continue rather than turning missing review into a fake operator boundary.
 
@@ -75,13 +91,13 @@ A missing or malformed Venice review means stopping is denied. If the work remai
 
 Venice must take durable notes. Blocking findings and high-value reviewer lessons persist to the canonical reviewer-memory path and are loaded by future agents before planning and before stop review. Repeated equivalent failures increase occurrence count instead of disappearing into chat history.
 
-Reviewer memory distinguishes observation, inference, reusable rule, regression target, and capability state. It is precedent, not current-state proof, and it cannot silently change Drew's mission boundary.
+Rene QA corrections and precedent must preserve their own provenance and must not silently become Venice memory or human-Renee testimony. Reviewer memory distinguishes observation, inference, reusable rule, regression target, and capability state. It is precedent, not current-state proof, and it cannot silently change Drew's mission boundary.
 
 ### Review-path failure and daemon behavior
 
 Failure or latency in an optional live/local Venice path is not permission to bypass Venice or to stop; use the primary Judgment-Jar Venice path. If the Judgment-Jar corpus or required durable evidence itself is unavailable, preserve the mission, recover that exact path when authorized, and continue once repaired. Long-running work should checkpoint enough state to resume without making Drew reconstruct the mission.
 
-Venice permission is permission to begin or stop the worker slice at the relevant gate. It is **not** proof of deployment, callable state, delivery, physical acceptance, or Drew's acceptance.
+Renee QA pass and Venice permission are governance receipts. They are **not** proof of deployment, callable state, delivery, physical acceptance, or Drew's acceptance.
 
 ## Capability and evidence discipline
 
