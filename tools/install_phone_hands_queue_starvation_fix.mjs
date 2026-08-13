@@ -1,22 +1,24 @@
 #!/usr/bin/env node
 import fs from 'node:fs';
 import path from 'node:path';
-import {fileURLToPath} from 'node:url';
 
-const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+const root = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
 const target = path.join(root, 'functions', 'phone_hands_relay.js');
-const rawSource = fs.readFileSync(target, 'utf8');
-const eol = rawSource.includes('\r\n') ? '\r\n' : '\n';
-let source = rawSource.replace(/\r\n/g, '\n');
+let source = fs.readFileSync(target, 'utf8');
 
-const oldBlock = `  const query = await admin.firestore().collection(COLLECTIONS.commands)\n    .where('ownerKey','==',device.ownerKey).where('deviceId','==',id).where('status','==','queued').limit(10).get();\n  const candidates = query.docs.map((d) => d.data()).filter((x) => Number(x.expiresAtMs || 0) > now).sort((a,b) => a.createdAtMs-b.createdAtMs);\n  if (!candidates.length) return {ok: true, command: null};\n`;
-const newBlock = `  const query = await admin.firestore().collection(COLLECTIONS.commands)\n    .where('ownerKey','==',device.ownerKey).where('deviceId','==',id).where('status','==','queued').limit(100).get();\n  const queued = query.docs.map((d) => d.data()).sort((a,b) => a.createdAtMs-b.createdAtMs);\n  const expired = queued.filter((x) => Number(x.expiresAtMs || 0) <= now);\n  if (expired.length) {\n    const batch = admin.firestore().batch();\n    for (const command of expired.slice(0, 80)) {\n      if (!command.commandId) continue;\n      batch.set(admin.firestore().collection(COLLECTIONS.commands).doc(command.commandId), {\n        status:'failed', error:'expired_before_lease', completedAtMs:now, updatedAtMs:now, leaseExpiresAtMs:0,\n      }, {merge:true});\n    }\n    await batch.commit();\n  }\n  const candidates = queued.filter((x) => Number(x.expiresAtMs || 0) > now);\n  if (!candidates.length) return {ok: true, command: null};\n`;
+const originalBlock = `  const query = await admin.firestore().collection(COLLECTIONS.commands)\n    .where('ownerKey','==',device.ownerKey).where('deviceId','==',id).where('status','==','queued').limit(10).get();\n  const candidates = query.docs.map((d) => d.data()).filter((x) => Number(x.expiresAtMs || 0) > now).sort((a,b) => a.createdAtMs-b.createdAtMs);\n  if (!candidates.length) return {ok: true, command: null};\n  const chosen = candidates[0];\n  const leaseOwner = \`device:\${id}\`;\n  await admin.firestore().collection(COLLECTIONS.commands).doc(chosen.commandId).set({status:'leased', leaseOwner, leaseExpiresAtMs: now + Math.max(5000, Math.min(Number(leaseMs), 120000)), updatedAtMs: now}, {merge:true});\n  return {ok: true, command: {...chosen, status:'leased', leaseOwner}};\n`;
 
-if (source.includes(newBlock)) {
-  console.log('Phone Hands queue starvation fix already applied');
+const firstPatchBlock = `  const query = await admin.firestore().collection(COLLECTIONS.commands)\n    .where('ownerKey','==',device.ownerKey).where('deviceId','==',id).where('status','==','queued').limit(100).get();\n  const queued = query.docs.map((d) => d.data()).sort((a,b) => a.createdAtMs-b.createdAtMs);\n  const expired = queued.filter((x) => Number(x.expiresAtMs || 0) <= now);\n  if (expired.length) {\n    const batch = admin.firestore().batch();\n    for (const command of expired.slice(0, 80)) {\n      if (!command.commandId) continue;\n      batch.set(admin.firestore().collection(COLLECTIONS.commands).doc(command.commandId), {\n        status:'failed', error:'expired_before_lease', completedAtMs:now, updatedAtMs:now, leaseExpiresAtMs:0,\n      }, {merge:true});\n    }\n    await batch.commit();\n  }\n  const candidates = queued.filter((x) => Number(x.expiresAtMs || 0) > now);\n  if (!candidates.length) return {ok: true, command: null};\n  const chosen = candidates[0];\n  const leaseOwner = \`device:\${id}\`;\n  await admin.firestore().collection(COLLECTIONS.commands).doc(chosen.commandId).set({status:'leased', leaseOwner, leaseExpiresAtMs: now + Math.max(5000, Math.min(Number(leaseMs), 120000)), updatedAtMs: now}, {merge:true});\n  return {ok: true, command: {...chosen, status:'leased', leaseOwner}};\n`;
+
+const fixedBlock = `  const query = await admin.firestore().collection(COLLECTIONS.commands)\n    .where('ownerKey','==',device.ownerKey).where('deviceId','==',id).where('status','==','queued').limit(100).get();\n  const queued = query.docs.map((d) => d.data()).sort((a,b) => a.createdAtMs-b.createdAtMs);\n  const expired = queued.filter((x) => Number(x.expiresAtMs || 0) <= now);\n  if (expired.length) {\n    await admin.firestore().runTransaction(async (transaction) => {\n      const records = [];\n      for (const command of expired.slice(0, 80)) {\n        if (!command.commandId) continue;\n        const ref = admin.firestore().collection(COLLECTIONS.commands).doc(command.commandId);\n        records.push({ref, snapshot: await transaction.get(ref)});\n      }\n      for (const record of records) {\n        const current = record.snapshot.exists ? (record.snapshot.data() || {}) : {};\n        if (current.status !== 'queued' || Number(current.expiresAtMs || 0) > now) continue;\n        transaction.set(record.ref, {\n          status:'failed', error:'expired_before_lease', completedAtMs:now, updatedAtMs:now, leaseExpiresAtMs:0,\n        }, {merge:true});\n      }\n    });\n  }\n  const candidates = queued.filter((x) => Number(x.expiresAtMs || 0) > now);\n  for (const candidate of candidates) {\n    if (!candidate.commandId) continue;\n    const leased = await admin.firestore().runTransaction(async (transaction) => {\n      const ref = admin.firestore().collection(COLLECTIONS.commands).doc(candidate.commandId);\n      const snapshot = await transaction.get(ref);\n      if (!snapshot.exists) return null;\n      const current = snapshot.data() || {};\n      if (current.status !== 'queued' || Number(current.expiresAtMs || 0) <= now) return null;\n      const leaseOwner = \`device:\${id}\`;\n      transaction.set(ref, {\n        status:'leased', leaseOwner,\n        leaseExpiresAtMs:now + Math.max(5000, Math.min(Number(leaseMs), 120000)),\n        updatedAtMs:now,\n      }, {merge:true});\n      return {...current, status:'leased', leaseOwner};\n    });\n    if (leased) return {ok:true, command:leased};\n  }\n  return {ok:true, command:null};\n`;
+
+if (source.includes(fixedBlock)) {
+  console.log('Phone Hands queue starvation and lease-CAS fix already applied');
   process.exit(0);
 }
-if (!source.includes(oldBlock)) throw new Error('Phone Hands queue selection anchor not found');
-source = source.replace(oldBlock, newBlock);
-fs.writeFileSync(target, source.replace(/\n/g, eol));
-console.log('Phone Hands queue starvation fix applied');
+if (source.includes(firstPatchBlock)) source = source.replace(firstPatchBlock, fixedBlock);
+else if (source.includes(originalBlock)) source = source.replace(originalBlock, fixedBlock);
+else throw new Error('Phone Hands queue selection anchor not found');
+
+fs.writeFileSync(target, source);
+console.log('Phone Hands queue starvation and lease-CAS fix applied');
