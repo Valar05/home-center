@@ -132,10 +132,7 @@ def _bridge(action: str, uri: str = "") -> dict[str, Any]:
         f"{shlex.quote(BRIDGE_CLASS)} "
         + " ".join(shlex.quote(value) for value in argv)
     )
-    wrapped = (
-        "{ " + bridge_command
-        + "; rc=$?; printf '\\n__HC_RC=%s\\n' \"$rc\"; }"
-    )
+    wrapped = bridge_command + '; rc=$?; printf "\\\\n__HC_RC=%s\\\\n" "$rc"'
     output = run_rish(wrapped, timeout=45)
     bridge_rc = None
     payload = None
