@@ -1,7 +1,8 @@
 export const MAX_SWARM_SLICES = 12;
 export const MAX_PARALLEL_WORKERS = 8;
 export const WORKER_REASONING_MODE = 'Pro reasoning';
-export const VENICE_REVIEW_MODE = 'judgment_jar';
+// Stable compatibility wire ID. Primary semantics: direct ChatGPT Judgment-Jar Venice.
+export const VENICE_REVIEW_MODE = 'judgment_jar_emulation';
 export const HANDOFF_FIELDS = Object.freeze([
   'DURABLE CONTEXT',
   'COMPLETED EVIDENCE',
@@ -14,6 +15,7 @@ export const HANDOFF_FIELDS = Object.freeze([
 export const WORKER_DOCTRINE = Object.freeze({
   reasoningMode: WORKER_REASONING_MODE,
   veniceReviewMode: VENICE_REVIEW_MODE,
+  veniceReviewSemantics: 'primary-judgment-jar',
   planGate: 'PLAN_ALLOWED',
   stopGate: 'STOP_ALLOWED',
   continueDirective: 'CONTINUE_REQUIRED',
