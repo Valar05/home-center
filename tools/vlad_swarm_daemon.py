@@ -37,6 +37,14 @@ def phone_health():
     elif not connected:
         scan=rish("cmd wifi start-scan");append_receipt({"kind":"phone.wlan.scan","ok":scan["rc"]==0,"result":scan})
     return True
+def ensure_phone_ssh(repo_root):
+    script=Path(repo_root)/"tools"/"phone_ssh_service.sh"
+    if not script.is_file():
+        append_receipt({"kind":"phone.ssh.ensure","ok":False,"state":"script_missing","script":str(script)});return False
+    result=run(["bash",str(script),"ensure"],timeout=90,cwd=repo_root)
+    ok=result["rc"]==0
+    append_receipt({"kind":"phone.ssh.ensure","ok":ok,"state":"healthy" if ok else "failed","result":result})
+    return ok
 def _overlay_recovery_stamp(): return STATE_DIR/"overlay-last-recovery-epoch"
 def _last_overlay_recovery():
     try:return int(_overlay_recovery_stamp().read_text(encoding="utf-8").strip())
@@ -126,9 +134,6 @@ def process_adam_overlay(repo_root):
     try:text=base64.b64decode(payload,validate=True).decode("utf-8")
     except Exception as exc:
         display=f"invalid_payload: {exc}";pending={"schema":"adam-overlay-pending-response-v1","requestId":request_id,"mode":mode,"display":display[:8000],"taskRc":2,"taskResult":{"error":display},"attempts":0,"nextAttemptEpoch":0,"createdAtEpoch":now()};pending_path=_save_pending_response(pending);append_receipt({"kind":"adam.request.invalid","ok":False,"requestId":request_id,"mode":mode,"error":display,"pending":str(pending_path)});_deliver_pending_responses();return
-    # No short caller timeout. Adam owns transient backoff/checkpoints and may
-    # stop only through canonical Venice review. If this process dies mid-run,
-    # the request stays unacknowledged and is retried after restart.
     result=run(["python3",str(Path(repo_root)/"tools"/"adam.py"),mode,text,"--cwd",repo_root],timeout=None,cwd=repo_root);display=result["stdout"] or result["stderr"] or f"Adam {mode} exited {result['rc']}"
     try:
         parsed=json.loads(result["stdout"]);display=parsed.get("response") or parsed.get("stdout") or parsed.get("detail") or parsed.get("error") or display
@@ -163,9 +168,9 @@ def process_review_inbox(repo_root):
         job.rename(target)
         append_receipt({"kind":"venice.review.directive","job":job.name,"ok":ok,"directive":directive,"state":state,"receipt":str(receipt_path),"decision":str(bucket/(job.stem+".decision.json")),"selfHeal":True,"result":result})
 def heartbeat(repo_root):
-    shizuku_ok=phone_health();overlay_ok=ensure_operator_overlay(repo_root) if shizuku_ok else False
+    shizuku_ok=phone_health();ssh_ok=ensure_phone_ssh(repo_root);overlay_ok=ensure_operator_overlay(repo_root) if shizuku_ok else False
     if overlay_ok:operator_heartbeat()
-    process_review_inbox(repo_root);append_receipt({"kind":"swarm.heartbeat","ok":True,"shizuku":shizuku_ok,"overlay":overlay_ok})
+    process_review_inbox(repo_root);append_receipt({"kind":"swarm.heartbeat","ok":True,"shizuku":shizuku_ok,"ssh":ssh_ok,"overlay":overlay_ok})
 def main():
     ap=argparse.ArgumentParser(description="Deterministic Vlad swarm keeper");ap.add_argument("--repo",default=os.environ.get("HC_REPO_ROOT","."));ap.add_argument("--once",action="store_true");ap.add_argument("--interval",type=int,default=INTERVAL);args=ap.parse_args();repo_root=str(Path(args.repo).resolve());STATE_DIR.mkdir(parents=True,exist_ok=True);append_receipt({"kind":"swarm.start","ok":True,"repo":repo_root,"interval":args.interval});next_heartbeat=0.0
     while True:
