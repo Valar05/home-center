@@ -28,6 +28,7 @@ public final class SmsCalendarNotificationListener extends NotificationListenerS
     private static final String SOURCE_TRANSPORT = "android_google_messages_notification";
     private static final String PREFS = "home_center";
     private static final String KEY_BUCKET_CODE = "bucket_code";
+    private static final String KEY_TEXT_MINING_AUTHORIZED = "text_mining_authorized";
 
     @Override
     public void onNotificationPosted(StatusBarNotification sbn) {
@@ -44,12 +45,16 @@ public final class SmsCalendarNotificationListener extends NotificationListenerS
     }
 
     private void preserveThenClassify(StatusBarNotification sbn, NotificationMessage message) {
+        SharedPreferences prefs = getSharedPreferences(PREFS, Context.MODE_PRIVATE);
+        if (!prefs.getBoolean(KEY_TEXT_MINING_AUTHORIZED, false)) {
+            LocalLog.info("smsCalendar.drop", "reason=text_mining_not_authorized bodyPersisted=false");
+            return;
+        }
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if (user == null) {
             LocalLog.info("smsCalendar.drop", "reason=not_signed_in bodyPersisted=false");
             return;
         }
-        SharedPreferences prefs = getSharedPreferences(PREFS, Context.MODE_PRIVATE);
         String bucketId = normalizeBucketId(prefs.getString(KEY_BUCKET_CODE, ""));
         if (bucketId.isEmpty()) {
             LocalLog.info("smsCalendar.drop", "reason=missing_household bodyPersisted=false");
