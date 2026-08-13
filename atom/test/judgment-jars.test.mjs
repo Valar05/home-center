@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
-import { mkdtemp, writeFile, rm } from 'node:fs/promises';
+import { mkdtemp, readFile, writeFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -60,6 +60,8 @@ function registryFixture() {
       origin: 'home-center-cabinet',
       sourceAuthority: 'home-center-drive',
       sourceCompleteness: 'registry-summary',
+      sourcePath: 'home-center://drive/vlad-sheet',
+      sourceSha256: 'cabinet-sha',
       sourceFileId: 'vlad-sheet',
       sourceType: 'application/vnd.google-apps.spreadsheet',
       sourceUrl: 'https://docs.google.com/spreadsheets/d/vlad-sheet/edit',
@@ -74,6 +76,8 @@ function registryFixture() {
       origin: 'home-center-discovery',
       sourceAuthority: 'home-center-drive-search',
       sourceCompleteness: 'metadata-only',
+      sourcePath: 'home-center://drive/android67-sheet',
+      sourceSha256: 'discovery-sha',
       sourceFileId: 'android67-sheet',
       sourceType: 'application/vnd.google-apps.spreadsheet',
       aliases: ['android 67 judgment jar keep'],
@@ -109,17 +113,19 @@ function registryFixture() {
   };
 }
 
-test('Atom exposes Vlad fast access to repository and Home Center Judgment Jars', async t => {
+test('Atom exposes Vlad fast access and receipts every Judgment Jar output', async t => {
   const stateDir = await mkdtemp(join(tmpdir(), 'atom-vlad-jars-test-'));
+  const atomState = join(stateDir, 'atom');
   const cachePath = join(stateDir, 'judgment-jars.json');
-  await writeFile(cachePath, JSON.stringify(registryFixture(), null, 2));
+  const fixture = registryFixture();
+  await writeFile(cachePath, JSON.stringify(fixture, null, 2));
   const port = 19000 + (process.pid % 1000);
   const base = `http://127.0.0.1:${port}`;
   const child = spawn(process.execPath, [join(atomRoot, 'server.mjs')], {
     cwd: atomRoot,
     env: {
       ...process.env,
-      ATOM_STATE_DIR: join(stateDir, 'atom'),
+      ATOM_STATE_DIR: atomState,
       ATOM_PORT: String(port),
       HC_JUDGMENT_JARS_CACHE: cachePath,
     },
@@ -143,6 +149,8 @@ test('Atom exposes Vlad fast access to repository and Home Center Judgment Jars'
   assert.equal(status.vlad.judgmentJars.unregisteredJarCount, 1);
   assert.equal(status.vlad.judgmentJars.homeCenterState, 'synced');
   assert.deepEqual(status.vlad.judgmentJars.missingExecutableFunctions, ['Wardaddy', 'Quartermaster']);
+  assert.equal(status.vlad.judgmentJarReceipts.loaded, true);
+  assert.ok(status.vlad.judgmentJarReceipts.outputKinds.includes('review_verdict'));
 
   const list = await (await fetch(`${base}/v1/atom/vlad/jars`)).json();
   assert.equal(list.ok, true);
@@ -154,10 +162,84 @@ test('Atom exposes Vlad fast access to repository and Home Center Judgment Jars'
   assert.equal(one.ok, true);
   assert.equal(one.jar.id, 'mission-boundary');
   assert.match(one.jar.body, /Preserve the mission/);
+  assert.equal(one.usage.state, 'DELIVERED');
+  assert.equal(one.usage.receipt.output.kind, 'context_packet');
+  assert.equal(one.usage.receipt.jar.sourceSha256, 'local-sha');
 
   const search = await (await fetch(`${base}/v1/atom/vlad/jars?q=scarcity%20restart`)).json();
   assert.equal(search.ok, true);
   assert.equal(search.matches[0].id, 'vlad-the-adversary-keeps-the-edge');
   assert.equal(search.matches[0].sourceFileId, 'vlad-sheet');
+
+  const invalid = await fetch(`${base}/v1/atom/vlad/jars/receipts`, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ schema: 'home-center.judgment-jar-usage-receipt.v1', receiptId: 'missing-output-kind' }),
+  });
+  assert.equal(invalid.status, 400);
+
+  const local = fixture.jars[0];
+  const validReceipt = {
+    schema: 'home-center.judgment-jar-usage-receipt.v1',
+    receiptId: 'atom-test-jar-usage-1',
+    createdAt: new Date().toISOString(),
+    createdAtEpochMs: Date.now(),
+    captureState: 'CAPTURED',
+    homeCenterDeliveryState: 'PENDING',
+    jar: {
+      id: local.id,
+      origin: local.origin,
+      sourcePath: local.sourcePath,
+      sourceSha256: local.sourceSha256,
+      registryDigest: fixture.registryDigest,
+    },
+    invocation: {
+      source: 'atom.contract-test',
+      requestId: 'atom-test-request-1',
+      groupId: 'atom-test-request-1',
+      inputSha256: 'a'.repeat(64),
+      inputBytes: 12,
+    },
+    output: {
+      kind: 'plan',
+      status: 'created',
+      summary: 'Produced a bounded plan.',
+      sha256: 'b'.repeat(64),
+      bytes: 20,
+      references: ['receipt://plan'],
+    },
+    nativeSource: null,
+    metadata: {},
+  };
+  const acceptedResponse = await fetch(`${base}/v1/atom/vlad/jars/receipts`, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify(validReceipt),
+  });
+  assert.equal(acceptedResponse.status, 202);
+  const accepted = await acceptedResponse.json();
+  assert.equal(accepted.state, 'DELIVERED');
+  assert.equal(accepted.receipt.output.kind, 'plan');
+  assert.equal(accepted.receipt.homeCenterDeliveryState, 'DELIVERED');
+
+  const duplicateResponse = await fetch(`${base}/v1/atom/vlad/jars/receipts`, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify(validReceipt),
+  });
+  assert.equal(duplicateResponse.status, 200);
+  assert.equal((await duplicateResponse.json()).duplicate, true);
+
+  const receiptStatus = await (await fetch(`${base}/v1/atom/vlad/jars/receipts/status`)).json();
+  assert.equal(receiptStatus.ok, true);
+  assert.equal(receiptStatus.usage.usageReceiptCount, 2);
+  assert.ok(receiptStatus.usage.outputKinds.includes('plan'));
+
+  const receipts = await (await fetch(`${base}/v1/atom/receipts`)).json();
+  assert.ok(receipts.receipts.some(value => value.kind === 'judgment.jar.usage' && value.outputKind === 'context_packet'));
+  assert.ok(receipts.receipts.some(value => value.kind === 'judgment.jar.usage' && value.outputKind === 'plan'));
+
+  const usageLines = (await readFile(join(atomState, 'judgment-jar-usage.jsonl'), 'utf8')).trim().split('\n').map(JSON.parse);
+  assert.equal(usageLines.filter(value => value.receiptId === 'atom-test-jar-usage-1').length, 1);
   assert.equal(stderr, '');
 });
