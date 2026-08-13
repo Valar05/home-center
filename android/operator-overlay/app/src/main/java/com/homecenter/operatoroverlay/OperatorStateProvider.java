@@ -23,6 +23,20 @@ import java.util.Set;
 
 public class OperatorStateProvider extends ContentProvider {
     private static final String METHOD_SPOTIFY_CONTROL = "spotify_control";
+    private static final String METHOD_RESTORE_MIGRATION_STATE = "restore_migration_state";
+
+    private static final Set<String> MIGRATION_RESTORABLE_KEYS = new HashSet<>(Arrays.asList(
+            OperatorState.KEY_MUTED,
+            OperatorState.KEY_LAST_HEARTBEAT_MS,
+            OperatorState.KEY_LAST_UPDATE_MS,
+            OperatorState.KEY_LATEST_SOURCE,
+            OperatorState.KEY_PANEL_COLLAPSED,
+            OperatorState.KEY_OVERLAY_HIDDEN));
+
+    private static final Set<String> MIGRATION_GUARD_KEYS = new HashSet<>(Arrays.asList(
+            OperatorState.KEY_CONTROL_ENABLED,
+            OperatorState.KEY_SCREEN_ACTIVE_UNTIL_MS,
+            OperatorState.KEY_SCREEN_YIELD_UNTIL_MS));
 
     private static final String[] COLUMNS = new String[]{
             "control_enabled",
@@ -78,6 +92,9 @@ public class OperatorStateProvider extends ContentProvider {
 
     @Override
     public Bundle call(String method, String arg, Bundle extras) {
+        if (METHOD_RESTORE_MIGRATION_STATE.equals(method)) {
+            return restoreMigrationState(Objects.requireNonNull(getContext()), extras);
+        }
         if (!METHOD_SPOTIFY_CONTROL.equals(method)) {
             return super.call(method, arg, extras);
         }
@@ -115,6 +132,45 @@ public class OperatorStateProvider extends ContentProvider {
         result.putBoolean("generic_media_key_used", false);
         result.putBoolean("screen_automation_used", false);
         return result;
+    }
+
+    private static Bundle restoreMigrationState(Context context, Bundle extras) {
+        context.enforceCallingPermission(
+                android.Manifest.permission.DUMP,
+                "restore_migration_state requires android.permission.DUMP");
+        validateMigrationExtras(extras);
+        if (!OperatorState.restoreMigrationState(context, extras)) {
+            throw new IllegalStateException("migration state commit failed");
+        }
+
+        Bundle result = new Bundle();
+        result.putBoolean("restored", true);
+        result.putBoolean("control_enabled", false);
+        return result;
+    }
+
+    private static void validateMigrationExtras(Bundle extras) {
+        if (extras == null) return;
+        for (String key : extras.keySet()) {
+            if (!MIGRATION_RESTORABLE_KEYS.contains(key) && !MIGRATION_GUARD_KEYS.contains(key)) {
+                throw new IllegalArgumentException("unsupported migration field: " + key);
+            }
+        }
+
+        if (extras.containsKey(OperatorState.KEY_CONTROL_ENABLED)
+                && !Boolean.FALSE.equals(extras.get(OperatorState.KEY_CONTROL_ENABLED))) {
+            throw new IllegalArgumentException("migration cannot enable control");
+        }
+        rejectNonzeroLease(extras, OperatorState.KEY_SCREEN_ACTIVE_UNTIL_MS);
+        rejectNonzeroLease(extras, OperatorState.KEY_SCREEN_YIELD_UNTIL_MS);
+    }
+
+    private static void rejectNonzeroLease(Bundle extras, String key) {
+        if (!extras.containsKey(key)) return;
+        Object value = extras.get(key);
+        if (!(value instanceof Long) || ((Long) value) != 0L) {
+            throw new IllegalArgumentException("migration cannot restore screen leases");
+        }
     }
 
     private static String decodeSpotifyArgument(String encoded) {
