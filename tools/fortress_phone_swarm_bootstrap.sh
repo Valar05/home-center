@@ -4,14 +4,16 @@ set -euo pipefail
 REPO="${FORTRESS_HOME_CENTER:-/storage/emulated/0/Documents/GodotProjects/home-center}"
 BRANCH="${FORTRESS_SWARM_BRANCH:-feat/fortress-phone-swarm-campaign}"
 STATE="$HOME/.local/state/home-center/fortress-campaign"
+KERNEL_STATE="$HOME/.local/state/home-center/fortress-phone-kernel"
 BIN="$HOME/bin"
+BOOT="$HOME/.termux/boot"
 LOG="$STATE/bootstrap.log"
 SESSION="fortress-swarm"
 SELF_REL="tools/fortress_phone_swarm_bootstrap.sh"
 CAMPAIGN_REL="tools/fortress_campaign.py"
 KERNEL_SETUP_REL="tools/setup_fortress_phone_kernel.sh"
 
-mkdir -p "$STATE" "$BIN"
+mkdir -p "$STATE" "$KERNEL_STATE" "$BIN" "$BOOT"
 exec > >(tee -a "$LOG") 2>&1
 
 say(){ printf '\n=== %s ===\n' "$*"; }
@@ -37,7 +39,6 @@ command -v tmux >/dev/null || {
 cd "$REPO"
 
 say "1. Recover dirty tree"
-# Fetch only; do not mutate the working tree before rescue.
 retry 4 git fetch origin "$BRANCH"
 git show "origin/$BRANCH:$CAMPAIGN_REL" > "$STATE/fortress_campaign.py.tmp"
 python -m py_compile "$STATE/fortress_campaign.py.tmp"
@@ -50,7 +51,6 @@ if printf '%s\n' "$after" | grep -Ev '^# branch\.' | grep -q .; then
 fi
 
 say "2. Enter exact campaign branch without losing rescued work"
-# Dirty work is now durably stashed. Move the worktree to the fetched campaign head.
 if git show-ref --verify --quiet "refs/heads/$BRANCH"; then
   git checkout "$BRANCH"
   git reset --hard "origin/$BRANCH"
@@ -86,7 +86,20 @@ python -m json.tool "$REPO/config/fortress-phone-kernel.json" >/dev/null
 say "4. Install/repair existing Fortress phone kernel"
 FORTRESS_PHONE_BRANCH="$BRANCH" retry 3 bash "$REPO/$KERNEL_SETUP_REL"
 
-say "5. Install campaign command surface"
+say "5. Remove legacy split-brain supervisors"
+# The old kernel installer used nohup + its own Termux:Boot script. tmux now owns both persistent
+# organs, so stop only the PID recorded by that legacy installer and replace its boot entrypoint.
+if [ -s "$KERNEL_STATE/kernel.pid" ]; then
+  oldpid="$(cat "$KERNEL_STATE/kernel.pid" 2>/dev/null || true)"
+  if [ -n "$oldpid" ] && kill -0 "$oldpid" 2>/dev/null; then
+    kill "$oldpid" 2>/dev/null || true
+    for _ in 1 2 3 4 5; do kill -0 "$oldpid" 2>/dev/null || break; sleep 1; done
+  fi
+  rm -f "$KERNEL_STATE/kernel.pid"
+fi
+rm -f "$BOOT/30-fortress-phone-kernel" "$BOOT/35-fortress-campaign"
+
+say "6. Install campaign command surface"
 cat > "$BIN/fortress-campaign" <<EOF
 #!/data/data/com.termux/files/usr/bin/bash
 exec python "$REPO/$CAMPAIGN_REL" "\$@"
@@ -111,25 +124,32 @@ set -e
 tmux list-windows -t "$SESSION" -F '#{window_index}:#{window_name} pane=#{pane_pid} dead=#{pane_dead}' 2>/dev/null || true
 exec "$BIN/fortress-campaign" status
 EOF
-chmod 700 "$BIN/fortress-campaign" "$BIN/fortress-code" "$BIN/fortress-swarm-repair" "$BIN/fortress-swarm-attach" "$BIN/fortress-swarm-status"
+cat > "$BIN/fortress-swarm-diagnose" <<EOF
+#!/data/data/com.termux/files/usr/bin/bash
+exec "$BIN/fortress-campaign" diagnose --repair
+EOF
+chmod 700 "$BIN/fortress-campaign" "$BIN/fortress-code" "$BIN/fortress-swarm-repair" "$BIN/fortress-swarm-attach" "$BIN/fortress-swarm-status" "$BIN/fortress-swarm-diagnose"
 
-say "6. Start persistent tmux swarm"
-# tmux is the process supervisor. Re-running this bootstrap repairs missing/dead windows in place.
-if ! tmux has-session -t "$SESSION" 2>/dev/null; then
-  tmux new-session -d -s "$SESSION" -n kernel "cd '$REPO' && exec python '$REPO/tools/fortress_phone_kernel.py' daemon"
-  tmux new-window -t "$SESSION" -n campaign "cd '$REPO' && exec python '$REPO/$CAMPAIGN_REL' daemon"
+say "7. Install one Termux:Boot tmux supervisor"
+cat > "$BOOT/30-fortress-swarm" <<EOF
+#!/data/data/com.termux/files/usr/bin/bash
+set -eu
+export FORTRESS_HOME_CENTER='$REPO'
+SESSION='$SESSION'
+if ! command -v tmux >/dev/null 2>&1; then exit 0; fi
+if ! tmux has-session -t "\$SESSION" 2>/dev/null; then
+  tmux new-session -d -s "\$SESSION" -n kernel "cd '$REPO' && exec python '$REPO/tools/fortress_phone_kernel.py' daemon"
+  tmux new-window -t "\$SESSION" -n campaign "cd '$REPO' && exec python '$REPO/$CAMPAIGN_REL' daemon"
 else
-  if ! tmux list-windows -t "$SESSION" -F '#{window_name}' | grep -qx kernel; then
-    tmux new-window -t "$SESSION" -n kernel "cd '$REPO' && exec python '$REPO/tools/fortress_phone_kernel.py' daemon"
-  fi
-  if ! tmux list-windows -t "$SESSION" -F '#{window_name}' | grep -qx campaign; then
-    tmux new-window -t "$SESSION" -n campaign "cd '$REPO' && exec python '$REPO/$CAMPAIGN_REL' daemon"
-  fi
+  tmux list-windows -t "\$SESSION" -F '#{window_name}:#{pane_dead}' | grep -qx 'kernel:0' || { tmux kill-window -t "\$SESSION:kernel" 2>/dev/null || true; tmux new-window -t "\$SESSION" -n kernel "cd '$REPO' && exec python '$REPO/tools/fortress_phone_kernel.py' daemon"; }
+  tmux list-windows -t "\$SESSION" -F '#{window_name}:#{pane_dead}' | grep -qx 'campaign:0' || { tmux kill-window -t "\$SESSION:campaign" 2>/dev/null || true; tmux new-window -t "\$SESSION" -n campaign "cd '$REPO' && exec python '$REPO/$CAMPAIGN_REL' daemon"; }
 fi
+EOF
+chmod 700 "$BOOT/30-fortress-swarm"
+"$BOOT/30-fortress-swarm"
 sleep 1
 
-say "7. Diagnostics and self-repair proof"
-# A tmux window whose pane died is repaired once here; later re-running fortress-swarm-repair does the same.
+say "8. Diagnostics and self-repair proof"
 repair_window(){
   local name="$1" cmd="$2"
   if ! tmux list-windows -t "$SESSION" -F '#{window_name}:#{pane_dead}' | grep -qx "$name:0"; then
@@ -155,12 +175,18 @@ campaign_status="$($BIN/fortress-campaign status)" || {
 }
 echo "$campaign_status"
 
+say "9. Recover/prove Chromium Throne peer if possible"
+# This uses the existing SSH Axis as a recovery/discovery path. Failure is durable daemon state,
+# not bootstrap completion or permission to invent another remote-control architecture.
+"$BIN/fortress-campaign" diagnose --repair || true
+
 tmux list-windows -t "$SESSION" -F 'window=#{window_name} pid=#{pane_pid} dead=#{pane_dead}'
 
-say "8. Ready"
+say "10. Ready"
 echo "One prompt: fortress-code \"your coding commission\""
 echo "Attach live daemon: fortress-swarm-attach"
 echo "Status: fortress-swarm-status"
+echo "Diagnostics/peer repair: fortress-swarm-diagnose"
 echo "Repair/rebootstrap: fortress-swarm-repair"
 echo "tmux session: $SESSION"
 echo "Dirty-tree rescue is reversible and recorded in $STATE/campaign.sqlite3 + $STATE/campaign.jsonl"
