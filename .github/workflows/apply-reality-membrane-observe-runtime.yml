@@ -1,0 +1,63 @@
+name: Apply Reality Membrane observe runtime
+
+on:
+  push:
+    branches:
+      - reality-membrane-canary-20260813
+    paths:
+      - .github/workflows/apply-reality-membrane-observe-runtime.yml
+
+permissions:
+  contents: write
+
+concurrency:
+  group: apply-reality-membrane-observe-runtime
+  cancel-in-progress: false
+
+jobs:
+  apply-and-test:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: reality-membrane-canary-20260813
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Rebase completed branch work
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'home-center-github-admin[bot]'
+          git config user.email 'home-center-github-admin[bot]@users.noreply.github.com'
+          git fetch origin reality-membrane-canary-20260813
+          git rebase origin/reality-membrane-canary-20260813
+      - name: Apply canonical observe/history/events wiring
+        run: node tools/install_reality_membrane_observe_patch.mjs
+      - name: Run all deterministic membrane contracts
+        run: |
+          node tools/reality_membrane_contract_test.mjs
+          node tools/reality_membrane_runtime_patch_test.mjs
+          node tools/reality_membrane_observe_contract_test.mjs
+          node tools/reality_membrane_observe_wiring_test.mjs
+      - name: Validate source diff
+        run: git diff --check
+      - name: Rebase, reapply, commit, and remove one-use workflow
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch origin reality-membrane-canary-20260813
+          git rebase origin/reality-membrane-canary-20260813
+          node tools/install_reality_membrane_runtime_patch.mjs
+          node tools/install_reality_membrane_observe_patch.mjs
+          node tools/reality_membrane_contract_test.mjs
+          node tools/reality_membrane_runtime_patch_test.mjs
+          node tools/reality_membrane_observe_contract_test.mjs
+          node tools/reality_membrane_observe_wiring_test.mjs
+          git rm --ignore-unmatch .github/workflows/apply-reality-membrane-observe-runtime.yml
+          git add functions/home_center_mcp.js functions/reality_membrane.js functions/reality_membrane_runtime.js tools/install_reality_membrane_runtime_patch.mjs tools/install_reality_membrane_observe_patch.mjs tools/reality_membrane_contract_test.mjs tools/reality_membrane_runtime_patch_test.mjs tools/reality_membrane_observe_contract_test.mjs tools/reality_membrane_observe_wiring_test.mjs
+          git diff --cached --check
+          git commit -m 'Implement usable Reality Membrane observation runtime'
+          git push origin HEAD:reality-membrane-canary-20260813
