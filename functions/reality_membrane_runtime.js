@@ -65,7 +65,7 @@ function parseOpenMeteo(payload={}, {nowMs=Date.now(), region=DEFAULT_REGION}={}
   const weather=reality.weatherObservations(payloadForMembrane,{nowMs,observedAt,sourceTimestamp:observedAt,source:'open-meteo.forecast',locationScope:region.locationScope,confidence:0.9,receiptId});
   const sunrise=Array.isArray(daily.sunrise) ? daily.sunrise[0] : null; const sunset=Array.isArray(daily.sunset) ? daily.sunset[0] : null;
   const daylight=reality.daylightObservation({sunrise,sunset,nowMs,source:'open-meteo.sun',sourceTimestamp:safeText(payload.generationtime_ms ? observedAt : '',80) || observedAt,locationScope:region.locationScope});
-  return {weather,daylight,source:{id:'open-meteo.forecast',receipt_id:receiptId,observed_at:observedAt,location_scope:region.locationScope,region_label:region.label,cost:'zero',network:'required'}};
+  return {weather,daylight,source:{id:'open-meteo.forecast',receipt_id:receiptId,observed_at:observedAt,location_scope:region.locationScope,cost:'zero',network:'required'}};
 }
 
 function severityRank(value) { return {Extreme:4,Severe:3,Moderate:2,Minor:1,Unknown:0}[safeText(value,40)] ?? 0; }
@@ -99,7 +99,7 @@ async function fetchPublicEnvironment({nowMs=Date.now(),env=process.env,fetchImp
   catch (error) {
     const detail=safeText(error && error.message,200) || 'weather_refresh_failed';
     const weather=reality.weatherObservations({}, {nowMs,source:'open-meteo.forecast',locationScope:region.locationScope,error:detail});
-    parsed={weather,daylight:reality.unavailableObservation('environment.daylight',{source:'open-meteo.sun',privacy:reality.PRIVACY.PUBLIC,locationScope:region.locationScope,error:detail,nowMs}),source:{id:'open-meteo.forecast',state:'unavailable',error:detail,cost:'zero',network:'required'}};
+    parsed={weather,daylight:reality.unavailableObservation('environment.daylight',{source:'open-meteo.sun',privacy:reality.PRIVACY.PUBLIC,locationScope:region.locationScope,error:detail,nowMs}),source:{id:'open-meteo.forecast',state:'unavailable',error:detail,cost:'zero',network:'required',location_scope:region.locationScope}};
     unavailable.push('weather','daylight');
   }
   try {
@@ -112,7 +112,7 @@ async function fetchPublicEnvironment({nowMs=Date.now(),env=process.env,fetchImp
   return {...parsed,region:{id:region.id,label:region.label,location_scope:region.locationScope,declaration_source:region.declarationSource,configured_by:region.configuredBy,privacy:'PERSONAL'},unavailable:[...new Set(unavailable)]};
 }
 
-const PHONE_PROBE_PYTHON = String.raw`import json, os, shutil, subprocess
+const PHONE_PROBE_PYTHON = String.raw`import json, shutil, subprocess
 
 def read(path):
     try:
@@ -173,10 +173,10 @@ print(json.dumps({'battery_pct':battery,'charging':charging,'power_source':power
 function phoneProbeCommand() { return `python -c "import base64;exec(base64.b64decode('${Buffer.from(PHONE_PROBE_PYTHON,'utf8').toString('base64')}'))"`; }
 function parsePhoneShellResult(commandRecord={}, nowMs=Date.now()) {
   const commandId=safeText(commandRecord.commandId,180); const terminal=commandRecord.status === 'completed' || commandRecord.status === 'failed'; const shell=commandRecord.result && typeof commandRecord.result === 'object' ? commandRecord.result : {};
-  if (!terminal || shell.ok !== true || Number(shell.exitCode) !== 0) return {payload:{},meta:{nowMs,observedAt:new Date(nowMs).toISOString(),source:'phone_hands.phone_shell',receiptId:commandId ? `phone_hands:${commandId}` : undefined,error:safeText(commandRecord.error || shell.stderr || 'phone_observation_unavailable',300)},command:{commandId,status:commandRecord.status || 'unknown',terminal}};
+  if (!terminal || shell.ok !== true || Number(shell.exitCode) !== 0) return {payload:{},meta:{nowMs,observedAt:new Date(nowMs).toISOString(),source:'phone_hands.phone_shell',receiptId:commandId ? `phone_hands:${commandId}` : undefined,error:safeText(commandRecord.error || shell.stderr || 'phone_observation_unavailable',300)},command:{commandId,status:commandRecord.status || 'unknown',terminal,success:false,exitCode:Number.isFinite(Number(shell.exitCode)) ? Number(shell.exitCode) : null}};
   let payload={};
-  try { payload=JSON.parse(safeText(shell.stdout,10000)); } catch (error) { return {payload:{},meta:{nowMs,observedAt:new Date(commandRecord.completedAtMs || nowMs).toISOString(),source:'phone_hands.phone_shell',receiptId:`phone_hands:${commandId}`,error:'phone_observation_invalid_json'},command:{commandId,status:commandRecord.status,terminal:true}}; }
-  return {payload,meta:{nowMs,observedAt:new Date(commandRecord.completedAtMs || nowMs).toISOString(),source:'phone_hands.phone_shell',sourceTimestamp:new Date(commandRecord.completedAtMs || nowMs).toISOString(),receiptId:`phone_hands:${commandId}`,confidence:1},command:{commandId,status:commandRecord.status,terminal:true,exitCode:Number(shell.exitCode)}};
+  try { payload=JSON.parse(safeText(shell.stdout,10000)); } catch (error) { return {payload:{},meta:{nowMs,observedAt:new Date(commandRecord.completedAtMs || nowMs).toISOString(),source:'phone_hands.phone_shell',receiptId:`phone_hands:${commandId}`,error:'phone_observation_invalid_json'},command:{commandId,status:commandRecord.status,terminal:true,success:false,exitCode:Number(shell.exitCode)}}; }
+  return {payload,meta:{nowMs,observedAt:new Date(commandRecord.completedAtMs || nowMs).toISOString(),source:'phone_hands.phone_shell',sourceTimestamp:new Date(commandRecord.completedAtMs || nowMs).toISOString(),receiptId:`phone_hands:${commandId}`,confidence:1},command:{commandId,status:commandRecord.status,terminal:true,success:true,exitCode:Number(shell.exitCode)}};
 }
 
 function projectionState(projection={}) {
