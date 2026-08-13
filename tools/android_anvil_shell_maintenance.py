@@ -14,6 +14,8 @@ import re
 import shutil
 import subprocess
 import time
+import urllib.request
+import zipfile
 from pathlib import Path
 from typing import Any
 
@@ -33,6 +35,11 @@ REQUEST_KEYS = {
 }
 ROOT = Path(os.environ.get("HOME_CENTER_PHONE_ANVIL_ROOT", str(Path.home()/".home-center"/"anvil-shell-maintenance")))
 LOG_LIMIT = 12000
+GRADLE_URL = "https://services.gradle.org/distributions/gradle-8.13-bin.zip"
+GRADLE_SHA256 = "20f1b1176237254a6fc204d8434196fa11a4cfb387567519c61556e8710aed78"
+PLATFORM_URL = "https://dl.google.com/android/repository/platform-36_r02.zip"
+PLATFORM_SHA256 = "37607369a28c5b640b3a7998868d45898ebcb777565a0e85f9acf36f29631d2e"
+FIXED_TERMUX_PACKAGES = ("git","openjdk-21","aapt","apksigner","unzip")
 
 
 def canonical_bytes(value: Any) -> bytes:
@@ -51,9 +58,9 @@ def sha256_file(path: Path) -> str:
     return h.hexdigest()
 
 
-def run(argv: list[str], *, cwd: Path|None=None, timeout: int=120, check: bool=True) -> dict[str,Any]:
+def run(argv: list[str], *, cwd: Path|None=None, timeout: int=120, check: bool=True, env: dict[str,str]|None=None) -> dict[str,Any]:
     started=time.monotonic_ns()
-    proc=subprocess.run(argv,cwd=str(cwd) if cwd else None,text=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,timeout=timeout)
+    proc=subprocess.run(argv,cwd=str(cwd) if cwd else None,text=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,timeout=timeout,env=env)
     result={"argvIdentity":[Path(argv[0]).name,*argv[1:]],"exit":proc.returncode,"outputTail":proc.stdout[-LOG_LIMIT:],"elapsedMs":(time.monotonic_ns()-started)//1_000_000}
     if check and proc.returncode:
         raise RuntimeError(f"{Path(argv[0]).name} failed ({proc.returncode}): {proc.stdout[-2000:]}")
@@ -101,6 +108,91 @@ def version(argv: list[str]) -> str:
         return run(argv,timeout=20,check=False)["outputTail"].splitlines()[0][:500]
     except Exception as exc:
         return f"UNAVAILABLE:{type(exc).__name__}"
+
+
+def download_verified(url: str, expected_sha256: str, target: Path) -> dict[str,Any]:
+    target.parent.mkdir(parents=True,exist_ok=True)
+    if target.is_file() and sha256_file(target)==expected_sha256:
+        return {"urlIdentity":url.rsplit("/",1)[-1],"sha256":expected_sha256,"bytes":target.stat().st_size,"reused":True}
+    partial=target.with_suffix(target.suffix+".partial")
+    h=hashlib.sha256()
+    size=0
+    with urllib.request.urlopen(url,timeout=60) as response, partial.open("wb") as handle:
+        while True:
+            block=response.read(1024*1024)
+            if not block:
+                break
+            handle.write(block); h.update(block); size+=len(block)
+    actual=h.hexdigest()
+    if actual!=expected_sha256:
+        partial.unlink(missing_ok=True)
+        raise RuntimeError(f"fixed toolchain archive hash mismatch for {url.rsplit('/',1)[-1]}")
+    os.replace(partial,target)
+    return {"urlIdentity":url.rsplit("/",1)[-1],"sha256":actual,"bytes":size,"reused":False}
+
+
+def safe_extract(archive: Path, target: Path) -> None:
+    target.mkdir(parents=True,exist_ok=True)
+    root=target.resolve()
+    with zipfile.ZipFile(archive) as zf:
+        for info in zf.infolist():
+            candidate=(target/info.filename).resolve()
+            if os.path.commonpath((str(root),str(candidate)))!=str(root):
+                raise RuntimeError("toolchain archive contains path traversal")
+        zf.extractall(target)
+
+
+def ensure_toolchain(timeout: int) -> tuple[Path,Path,dict[str,Any]]:
+    ROOT.mkdir(parents=True,exist_ok=True)
+    bootstrap=[]
+    needed=("git","java","aapt2","apksigner","unzip")
+    if any(not shutil.which(name) for name in needed):
+        pkg=shutil.which("pkg")
+        if not pkg:
+            raise RuntimeError("fixed Termux package bootstrap is unavailable")
+        bootstrap.append(run([pkg,"install","-y",*FIXED_TERMUX_PACKAGES],timeout=timeout))
+    missing=[name for name in needed if not shutil.which(name)]
+    if missing:
+        raise RuntimeError("fixed Termux package bootstrap did not provide: "+",".join(missing))
+    downloads=ROOT/"downloads"
+    toolchains=ROOT/"toolchains"
+    gradle_archive=downloads/"gradle-8.13-bin.zip"
+    gradle_receipt=download_verified(GRADLE_URL,GRADLE_SHA256,gradle_archive)
+    gradle_home=toolchains/"gradle-8.13"
+    gradle=gradle_home/"bin"/"gradle"
+    if not gradle.is_file():
+        staging=toolchains/"gradle-staging"
+        if staging.exists(): shutil.rmtree(staging)
+        safe_extract(gradle_archive,staging)
+        unpacked=staging/"gradle-8.13"
+        if not unpacked.is_dir(): raise RuntimeError("verified Gradle archive layout mismatch")
+        gradle_home.parent.mkdir(parents=True,exist_ok=True)
+        if gradle_home.exists(): shutil.rmtree(gradle_home)
+        os.replace(unpacked,gradle_home)
+        shutil.rmtree(staging)
+    android_home=toolchains/"android-sdk"
+    platform=android_home/"platforms"/"android-36"
+    platform_archive=downloads/"platform-36_r02.zip"
+    platform_receipt=download_verified(PLATFORM_URL,PLATFORM_SHA256,platform_archive)
+    if not (platform/"android.jar").is_file():
+        staging=toolchains/"platform-staging"
+        if staging.exists(): shutil.rmtree(staging)
+        safe_extract(platform_archive,staging)
+        unpacked=staging/"android-36"
+        if not (unpacked/"android.jar").is_file(): raise RuntimeError("verified Android platform archive layout mismatch")
+        platform.parent.mkdir(parents=True,exist_ok=True)
+        if platform.exists(): shutil.rmtree(platform)
+        os.replace(unpacked,platform)
+        shutil.rmtree(staging)
+    package_receipt=run([shutil.which("dpkg") or "dpkg","-s",*FIXED_TERMUX_PACKAGES],timeout=60,check=False)
+    return gradle,android_home,{
+        "fixedPackages":list(FIXED_TERMUX_PACKAGES),
+        "packageMetadataDigest":hashlib.sha256(package_receipt["outputTail"].encode()).hexdigest(),
+        "bootstrapRan":bool(bootstrap),
+        "bootstrapOutputDigests":[hashlib.sha256(item["outputTail"].encode()).hexdigest() for item in bootstrap],
+        "gradleArchive":gradle_receipt,
+        "androidPlatformArchive":platform_receipt,
+    }
 
 
 def signer_sha256(apk: Path) -> tuple[str,str]:
@@ -183,19 +275,23 @@ def execute(action: dict[str,Any]) -> dict[str,Any]:
     validate(action)
     started=time.time_ns()
     timeout=int(action["timeoutSeconds"])
+    gradle,android_home,bootstrap=ensure_toolchain(timeout)
     checkout,source=prepare_source(action["sourceHead"],timeout)
     project=checkout/SOURCE_SUBDIR
     if not project.is_dir():
         raise RuntimeError("allowlisted Anvil source subdirectory is absent")
-    gradle=shutil.which("gradle")
-    if not gradle:
-        raise RuntimeError("phone Gradle toolchain is absent; typed maintenance cannot substitute a cloud build")
+    build_env=dict(os.environ)
+    build_env["ANDROID_HOME"]=str(android_home)
+    build_env["ANDROID_SDK_ROOT"]=str(android_home)
+    aapt2=shutil.which("aapt2")
     toolchain={
         "git":version([shutil.which("git") or "git","--version"]),
         "java":version([shutil.which("java") or "java","-version"]),
-        "gradle":version([gradle,"--version"]),
+        "gradle":version([str(gradle),"--version"]),
+        "aapt2":version([aapt2 or "aapt2","version"]),
         "apksigner":version([shutil.which("apksigner") or "apksigner","version"]),
-        "androidHome":str(Path(os.environ.get("ANDROID_HOME") or os.environ.get("ANDROID_SDK_ROOT") or "").resolve()) if (os.environ.get("ANDROID_HOME") or os.environ.get("ANDROID_SDK_ROOT")) else "",
+        "androidHome":str(android_home),
+        "bootstrap":bootstrap,
     }
     previous=installed_info()
     rollback_dir=ROOT/"rollback"
@@ -210,7 +306,7 @@ def execute(action: dict[str,Any]) -> dict[str,Any]:
                 rollback.update({"retained":True,"previousApkSha256":sha256_file(target),"path":str(target)})
         except (OSError,PermissionError):
             pass
-    build=run([gradle,"-p",str(project),":app:testDebugUnitTest",":app:assembleDebug","--no-daemon"],cwd=checkout,timeout=timeout)
+    build=run([str(gradle),"-p",str(project),f"-Pandroid.aapt2FromMavenOverride={aapt2}",":app:testDebugUnitTest",":app:assembleDebug","--no-daemon"],cwd=checkout,timeout=timeout,env=build_env)
     apk=project/"app"/"build"/"outputs"/"apk"/"debug"/"app-debug.apk"
     if not apk.is_file():
         raise RuntimeError("Anvil debug APK missing after successful build")
