@@ -79,7 +79,9 @@ $tempRoot = [System.IO.Path]::GetTempPath()
 $runId = [guid]::NewGuid().ToString('N')
 $jarContextPath = Join-Path $tempRoot "home-center-jars-$runId.md"
 $jarUsagePath = Join-Path $tempRoot "home-center-jar-context-receipts-$runId.json"
-$continueOutputPath = Join-Path $tempRoot "home-center-continue-output-$runId.log"
+$receiptArtifactDir = Join-Path $HOME '.local\state\home-center\vlad-swarm\judgment-jar-receipts\artifacts'
+New-Item -ItemType Directory -Force -Path $receiptArtifactDir | Out-Null
+$continueOutputPath = Join-Path $receiptArtifactDir "continue-output-$runId.log"
 
 $jarContext = & $pythonPath $vladJarsPath --root $repoRoot --offline prompt 2> $jarUsagePath
 if ($LASTEXITCODE -ne 0 -or -not $jarContext) {
@@ -142,11 +144,11 @@ $receiptArgs = @(
 $receiptExitCode = $LASTEXITCODE
 
 if ($receiptExitCode -eq 0) {
-    Remove-Item -Force -ErrorAction SilentlyContinue $jarContextPath, $jarUsagePath, $continueOutputPath
+    Remove-Item -Force -ErrorAction SilentlyContinue $jarContextPath, $jarUsagePath
 } else {
-    throw "Continue output exists at $continueOutputPath, but its typed Judgment Jar receipt capture failed with code $receiptExitCode."
+    throw "Continue output remains at $continueOutputPath, but its typed Judgment Jar receipt capture failed with code $receiptExitCode."
 }
 
 if ($continueExitCode -ne 0) {
-    throw "Continue CLI exited with code $continueExitCode after the failed result was receipted."
+    throw "Continue CLI exited with code $continueExitCode after the failed result was receipted at $continueOutputPath."
 }
