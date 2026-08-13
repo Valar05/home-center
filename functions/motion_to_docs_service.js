@@ -60,6 +60,10 @@ async function findOrCreateFolder({google, auth, outputFolderId = ''}) {
 }
 
 async function ensureWorkflowFolderAccess({google, auth, folderId, workflowServiceAccount = WORKFLOW_SERVICE_ACCOUNT}) {
+  if (!workflowServiceAccount) {
+    const projectId = process.env.GOOGLE_CLOUD_PROJECT || process.env.GCLOUD_PROJECT || '';
+    workflowServiceAccount = projectId ? `motion-docs-workflow@${projectId}.iam.gserviceaccount.com` : '';
+  }
   if (!workflowServiceAccount) throw Object.assign(new Error('MOTION_DOCS_WORKFLOW_SERVICE_ACCOUNT is not configured.'), {status: 503, code: 'motion_docs_workflow_identity_missing'});
   const drive = google.drive({version: 'v3', auth});
   const listed = await drive.permissions.list({fileId: folderId, fields: 'permissions(id,emailAddress,role,type)', supportsAllDrives: true});
