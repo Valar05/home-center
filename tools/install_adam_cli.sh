@@ -75,7 +75,7 @@ if [ ! -f "$SHE_RAW_ALIAS_CONFIG" ]; then
   chmod 600 "$SHE_RAW_ALIAS_CONFIG"
 fi
 
-TMP_TARGET="$TARGET.tmp.$"
+TMP_TARGET="$TARGET.tmp.$$"
 cat > "$TMP_TARGET" <<EOF
 #!/data/data/com.termux/files/usr/bin/bash
 case "\${1:-}" in
@@ -108,7 +108,7 @@ if command -v git >/dev/null 2>&1 && git -C "$ROOT" rev-parse HEAD >/dev/null 2>
 fi
 WORKER_SHA="$(sha256sum "$WORKER" | awk '{print $1}')"
 
-python3 - "$RECEIPT" "$SOURCE_SHA" "$WORKER_SHA" "$TARGET" "$WORKER" "$CANARY" "$ACCEPT_RECEIPT" "$BRAIN_RECEIPT" <<'PY'
+python3 - "$RECEIPT" "$SOURCE_SHA" "$WORKER_SHA" "$TARGET" "$WORKER" "$CANARY" "$ACCEPT_RECEIPT" "$BRAIN_RECEIPT" "$SHE_RAW_ALIAS_CONFIG" <<'PY'
 import json,sys,time
 path,source_commit,worker_sha,target,worker,canary,accept_path,brain_path,alias_path=sys.argv[1:]
 accept=json.load(open(accept_path,encoding='utf-8'))
@@ -141,6 +141,8 @@ obj={
   'bodyTransportCanary':'ADAM_BODY_OK' in canary,
   'phoneModelHealthy':brain.get('ok') is True,
   'phoneModelStatus':brain.get('status'),
+  'sheRawLocalOnly':True,
+  'sheRawAliasConfig':alias_path,
   'installedAtEpoch':int(time.time()),
 }
 open(path,'w',encoding='utf-8').write(json.dumps(obj,indent=2,sort_keys=True)+'\n')
