@@ -19,6 +19,9 @@ for f in \
   "$ROOT/tools/adam_planned_venice.py" \
   "$ROOT/tools/adam_venice_reviewed.py" \
   "$ROOT/tools/adam_codex_phone.py" \
+  "$ROOT/tools/she_raw_cli.py" \
+  "$ROOT/config/she-raw-cli.v1.json" \
+  "$ROOT/config/she-raw-aliases.example.json" \
   "$ROOT/tools/judgment_jar_runtime.py" \
   "$ROOT/tools/judgment_jars.py" \
   "$ROOT/tools/judgment_jar_receipts.py" \
@@ -40,6 +43,7 @@ python3 tools/test_adam_overlay_contract.py
 python3 tools/test_adam_overlay_delivery_state.py
 python3 tools/test_adam_cli_contract.py
 python3 tools/test_adam_codex_phone.py
+python3 tools/test_she_raw_cli.py
 python3 tools/test_adam_venice_review_gate.py
 python3 tools/test_venice_plan_review.py
 python3 tools/test_venice_review_memory.py
@@ -49,6 +53,7 @@ python3 -m py_compile \
   tools/adam_receipted_worker.py \
   tools/accept_adam_receipted_phone.py \
   tools/adam_codex_phone.py \
+  tools/she_raw_cli.py \
   tools/adam_venice_reviewed.py \
   tools/adam_planned_venice.py \
   tools/judgment_jar_runtime.py \
@@ -63,11 +68,18 @@ python3 -m py_compile \
   tools/accept_adam_executive_phone.py \
   tools/vlad_swarm_daemon.py
 
-TMP_TARGET="$TARGET.tmp.$$"
+SHE_RAW_ALIAS_CONFIG="${HC_SHE_RAW_ALIASES:-$HOME/.config/home-center/she-raw-aliases.json}"
+mkdir -p "$(dirname "$SHE_RAW_ALIAS_CONFIG")"
+if [ ! -f "$SHE_RAW_ALIAS_CONFIG" ]; then
+  cp "$ROOT/config/she-raw-aliases.example.json" "$SHE_RAW_ALIAS_CONFIG"
+  chmod 600 "$SHE_RAW_ALIAS_CONFIG"
+fi
+
+TMP_TARGET="$TARGET.tmp.$"
 cat > "$TMP_TARGET" <<EOF
 #!/data/data/com.termux/files/usr/bin/bash
 case "\${1:-}" in
-  terminal|chat|continue|vlad)
+  terminal|chat|continue|vlad|she-raw)
     exec "$PYTHON_BIN" "$ROUTER" "\$@"
     ;;
   *)
