@@ -40,6 +40,8 @@ def main() -> int:
         'details.addView(radioRow);',
         'OperatorState.setControlEnabled(this, false);',
         'OperatorState.setMuted(this',
+        'private void handleControlButton()',
+        'OperatorState.setControlEnabled(this, true);',
     ):
         require(service, marker)
 
@@ -50,12 +52,14 @@ def main() -> int:
     require(adam, 'handledBy="spotify-radio"')
     require(adam, 'provider="spotify-android"')
 
-    # Overlay buttons submit into the existing Adam provider. They do not
-    # bypass the prompt/receipt lane with anonymous global media controls.
+    # The visible local button remains the only enable authority. Radio
+    # controls submit through the existing Adam provider and do not bypass it
+    # with anonymous global media keys or a new remote-enable action.
     forbid(service, "dispatchMediaKeyEvent")
     forbid(service, "KEYCODE_MEDIA_NEXT")
     forbid(service, "KEYCODE_MEDIA_PLAY_PAUSE")
-    forbid(service, "setControlEnabled(this, true)")
+    forbid(service, "ACTION_ENABLE_CONTROL")
+    forbid(service, "REMOTE_ENABLE_CONTROL")
 
     print("spotify_overlay_radio_contract_test: PASS")
     return 0
