@@ -1,0 +1,104 @@
+name: Converge Reality Membrane source
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - reality-membrane-canary-20260813
+    paths:
+      - .github/workflows/converge-reality-membrane-source.yml
+
+permissions:
+  contents: write
+
+concurrency:
+  group: converge-reality-membrane-source
+  cancel-in-progress: false
+
+env:
+  BRANCH: reality-membrane-canary-20260813
+
+jobs:
+  converge:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: reality-membrane-canary-20260813
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Converge source, tests, and workflow cleanup
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'home-center-github-admin[bot]'
+          git config user.email 'home-center-github-admin[bot]@users.noreply.github.com'
+
+          apply_all() {
+            node tools/install_reality_membrane_runtime_patch.mjs
+            node tools/install_reality_membrane_observe_patch.mjs
+            node tools/install_reality_membrane_stale_accessibility_patch.mjs
+            node tools/install_reality_membrane_unknown_projection_patch.mjs
+            node tools/reality_membrane_contract_test.mjs
+            node tools/reality_membrane_runtime_patch_test.mjs
+            node tools/reality_membrane_observe_contract_test.mjs
+            node tools/reality_membrane_observe_wiring_test.mjs
+            node tools/reality_membrane_stale_accessibility_test.mjs
+            node tools/reality_membrane_unknown_projection_test.mjs
+            node tools/inner_fortress_reality_canary_scene_test.mjs
+            node tools/reality_membrane_venice_review_test.mjs
+            git diff --check
+          }
+
+          cleanup_workflows() {
+            for file in \
+              .github/workflows/apply-reality-membrane-runtime-wiring.yml \
+              .github/workflows/record-reality-membrane-authorized-body-checkpoint.yml \
+              .github/workflows/deploy-reality-membrane-status-checkpoint.yml \
+              .github/workflows/apply-reality-membrane-observe-runtime.yml \
+              .github/workflows/deploy-reality-membrane-observe-canary.yml \
+              .github/workflows/record-reality-membrane-boring-canary.yml \
+              .github/workflows/apply-reality-membrane-stale-accessibility.yml \
+              .github/workflows/deploy-reality-membrane-stale-accessibility.yml \
+              .github/workflows/apply-reality-membrane-unknown-projection.yml \
+              .github/workflows/deploy-reality-membrane-final-corrections.yml \
+              .github/workflows/deploy-reality-membrane-final2-corrections.yml \
+              .github/workflows/finalize-reality-membrane-canary-v2.yml \
+              .github/workflows/finalize-reality-membrane-canary-v3.yml \
+              .github/workflows/converge-reality-membrane-source.yml; do
+              git rm --ignore-unmatch "$file"
+            done
+          }
+
+          build_commit() {
+            apply_all
+            mkdir -p docs/evidence
+            node - <<'NODE'
+            const fs=require('node:fs'),crypto=require('node:crypto');const receipt={schema:'home-center.reality-membrane.source-convergence.v1',recordedAt:new Date().toISOString(),repository:process.env.GITHUB_REPOSITORY,branch:process.env.BRANCH,tests:['core','runtime_patch','observe_contract','observe_wiring','stale_accessibility','unknown_projection','inner_fortress_scene','venice_review'],result:'passed',stateLedger:{implementedOnBranch:true,deterministicTestsPassed:true,authorizedPhoneTestsPending:true,deployedCorrectedRuntimePending:true,canaryAccepted:false},evidenceBoundary:'Repository convergence and runner tests are implementation evidence only; primary-phone and deployed Home Center proof remain required.'};receipt.receiptSha256=crypto.createHash('sha256').update(JSON.stringify(receipt)).digest('hex');fs.writeFileSync('docs/evidence/reality-membrane-source-convergence-20260813.json',JSON.stringify(receipt,null,2)+'\n');
+            NODE
+            cleanup_workflows
+            git add functions/home_center_mcp.js functions/reality_membrane.js functions/reality_membrane_runtime.js docs/REALITY_MEMBRANE.md docs/evidence/reality-membrane-source-convergence-20260813.json tools/install_reality_membrane_runtime_patch.mjs tools/install_reality_membrane_observe_patch.mjs tools/install_reality_membrane_stale_accessibility_patch.mjs tools/install_reality_membrane_unknown_projection_patch.mjs tools/reality_membrane_contract_test.mjs tools/reality_membrane_runtime_patch_test.mjs tools/reality_membrane_observe_contract_test.mjs tools/reality_membrane_observe_wiring_test.mjs tools/reality_membrane_stale_accessibility_test.mjs tools/reality_membrane_unknown_projection_test.mjs tools/inner_fortress_reality_canary_scene.mjs tools/inner_fortress_reality_canary_scene_test.mjs tools/reality_membrane_venice_review.mjs tools/reality_membrane_venice_review_test.mjs
+            git diff --cached --check
+            if ! git diff --cached --quiet; then git commit -m 'Converge Reality Membrane source and contracts'; fi
+          }
+
+          git fetch origin "$BRANCH"
+          git reset --hard "origin/$BRANCH"
+          build_commit
+
+          for attempt in $(seq 1 8); do
+            if git push origin HEAD:"$BRANCH"; then
+              echo 'SOURCE_CONVERGENCE_PUSHED'
+              exit 0
+            fi
+            echo "Push race on attempt $attempt; resetting and deterministically rebuilding." >&2
+            git fetch origin "$BRANCH"
+            git reset --hard "origin/$BRANCH"
+            build_commit
+            sleep $((attempt * 3))
+          done
+          echo 'SOURCE_CONVERGENCE_EXHAUSTED' >&2
+          exit 42
