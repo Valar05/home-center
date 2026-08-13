@@ -17,6 +17,8 @@ from typing import Any
 ROOT = Path(__file__).resolve().parents[1]
 CONFIG_PATH = ROOT / "config" / "renee_qa.v1.json"
 DEFAULT_STATE = Path(os.environ.get("RENEE_QA_HOME", Path.home() / ".home-center" / "renee-qa"))
+HUMAN_PROVENANCE = {"RENEE_DIRECT", "RENEE_CORRECTION", "DREW_RECALL"}
+RECORDABLE_PROVENANCE = HUMAN_PROVENANCE | {"DERIVED_RULE"}
 
 
 def now() -> str:
@@ -58,6 +60,18 @@ def append_jsonl(path: Path, row: dict[str, Any]) -> None:
         fh.write(json.dumps(row, sort_keys=True) + "\n")
 
 
+def iter_jsonl(path: Path):
+    if not path.exists():
+        return
+    for line in path.read_text(encoding="utf-8").splitlines():
+        try:
+            row = json.loads(line)
+        except json.JSONDecodeError:
+            continue
+        if isinstance(row, dict):
+            yield row
+
+
 def digest(payload: Any) -> str:
     raw = json.dumps(payload, sort_keys=True, separators=(",", ":")).encode()
     return hashlib.sha256(raw).hexdigest()[:20]
@@ -88,17 +102,21 @@ def review(args: argparse.Namespace) -> int:
     warnings: list[str] = []
     if not args.claim.strip():
         blockers.append("claim is empty")
+    if not args.acceptance:
+        blockers.append("no explicit acceptance criterion supplied")
     if args.require_evidence and not evidence:
         blockers.append("evidence required but none supplied")
     missing = [e["path"] for e in evidence if not e["exists"]]
     if missing:
         blockers.append(f"missing evidence: {', '.join(missing)}")
-    if args.state in {"deployed", "callable", "delivered", "accepted"} and not evidence:
+    if args.state in {"tested", "deployed", "callable", "delivered", "accepted"} and not evidence:
         blockers.append(f"{args.state} claim has no supplied receipt/evidence")
-    if args.actual_renee and args.provenance not in {"RENEE_DIRECT", "RENEE_CORRECTION", "DREW_RECALL"}:
+    if args.actual_renee and args.provenance not in HUMAN_PROVENANCE:
         blockers.append("actual-Renee attribution requires human provenance; synthetic/derived provenance is forbidden")
-    if not args.acceptance:
-        warnings.append("no explicit acceptance criterion supplied")
+    if args.unresolved:
+        blockers.extend(f"unresolved material QA issue: {item}" for item in args.unresolved)
+    if not args.failure_path:
+        warnings.append("no reachable failure path recorded; confirm this is genuinely immaterial")
 
     verdict = "REVISE_REQUIRED" if blockers else "PASS"
     payload = {
@@ -110,6 +128,9 @@ def review(args: argparse.Namespace) -> int:
         "capability_state": args.state,
         "acceptance": args.acceptance or [],
         "evidence": evidence,
+        "reachable_failure_paths": args.failure_path or [],
+        "dissent": args.dissent or [],
+        "unresolved": args.unresolved or [],
         "blockers": blockers,
         "warnings": warnings,
         "questions": cfg["questions"],
@@ -125,10 +146,30 @@ def review(args: argparse.Namespace) -> int:
     return 0 if verdict == "PASS" else 2
 
 
+def record(args: argparse.Namespace) -> int:
+    if args.provenance not in RECORDABLE_PROVENANCE:
+        raise SystemExit("synthetic output cannot be recorded as calibration evidence")
+    if args.provenance == "DERIVED_RULE" and not args.derived_from:
+        raise SystemExit("DERIVED_RULE requires at least one --derived-from source fingerprint/locator")
+    row = {
+        "schema": "home-center.renee-qa.precedent.v1",
+        "created_at": now(),
+        "provenance": args.provenance,
+        "source": args.source,
+        "finding": args.finding,
+        "tags": sorted(set(args.tag or [])),
+        "derived_from": args.derived_from or [],
+        "authoritative_about_actual_renee": args.provenance in {"RENEE_DIRECT", "RENEE_CORRECTION"},
+    }
+    row["fingerprint"] = digest(row)
+    append_jsonl(Path(args.home) / "corpus.jsonl", row)
+    emit(row, args.json)
+    return 0
+
+
 def correct(args: argparse.Namespace) -> int:
-    allowed = {"RENEE_DIRECT", "RENEE_CORRECTION", "DREW_RECALL"}
-    if args.provenance not in allowed:
-        raise SystemExit(f"correction provenance must be one of: {', '.join(sorted(allowed))}")
+    if args.provenance not in HUMAN_PROVENANCE:
+        raise SystemExit(f"correction provenance must be one of: {', '.join(sorted(HUMAN_PROVENANCE))}")
     row = {
         "schema": "home-center.renee-qa.correction.v1",
         "created_at": now(),
@@ -136,6 +177,7 @@ def correct(args: argparse.Namespace) -> int:
         "provenance": args.provenance,
         "source": args.source,
         "correction": args.text,
+        "regression_target": args.regression_target,
         "authoritative_about_actual_renee": args.provenance in {"RENEE_DIRECT", "RENEE_CORRECTION"},
     }
     row["fingerprint"] = digest(row)
@@ -145,31 +187,30 @@ def correct(args: argparse.Namespace) -> int:
 
 
 def precedent(args: argparse.Namespace) -> int:
+    cfg = config()
     rows = []
     for path in [Path(args.home) / "corrections.jsonl", Path(args.home) / "corpus.jsonl"]:
-        if path.exists():
-            for line in path.read_text(encoding="utf-8").splitlines():
-                try:
-                    row = json.loads(line)
-                except json.JSONDecodeError:
-                    continue
-                hay = json.dumps(row).lower()
-                if args.query.lower() in hay:
-                    rows.append(row)
-    rows.sort(key=lambda r: config()["provenance_classes"].get(r.get("provenance"), {"rank": 0})["rank"], reverse=True)
+        for row in iter_jsonl(path) or []:
+            if args.query.lower() in json.dumps(row).lower():
+                rows.append(row)
+    rows.sort(key=lambda r: cfg["provenance_classes"].get(r.get("provenance"), {"rank": 0})["rank"], reverse=True)
     emit({"query": args.query, "matches": rows[: args.limit]}, args.json)
     return 0
 
 
 def explain(args: argparse.Namespace) -> int:
     cfg = config()
-    emit({"keyword": cfg["keyword"], "authority": cfg["authority"], "questions": cfg["questions"], "hard_gates": cfg["hard_gates"], "synthetic_policy": cfg["synthetic_policy"]}, args.json)
+    emit({"keyword": cfg["keyword"], "authority": cfg["authority"], "questions": cfg["questions"], "hard_gates": cfg["hard_gates"], "synthetic_policy": cfg["synthetic_policy"], "integration": cfg["integration"]}, args.json)
     return 0
 
 
 def status(args: argparse.Namespace) -> int:
     paths = state_paths(Path(args.home))
-    out = {"keyword": config()["keyword"], "config": str(CONFIG_PATH), "home": args.home, "paths": {k: str(v) for k, v in paths.items()}, "exists": {k: v.exists() for k, v in paths.items()}}
+    counts = {}
+    for name in ("corpus", "corrections"):
+        counts[name] = sum(1 for _ in (iter_jsonl(paths[name]) or []))
+    counts["receipts"] = len(list(paths["receipts"].glob("*.json"))) if paths["receipts"].exists() else 0
+    out = {"keyword": config()["keyword"], "config": str(CONFIG_PATH), "home": args.home, "paths": {k: str(v) for k, v in paths.items()}, "counts": counts}
     emit(out, args.json)
     return 0
 
@@ -188,13 +229,14 @@ def diff_judgment(args: argparse.Namespace) -> int:
 def regress(args: argparse.Namespace) -> int:
     home = Path(args.home)
     receipts = sorted((home / "receipts").glob("*.json")) if (home / "receipts").exists() else []
-    failures = []
+    non_pass = []
     for p in receipts:
         row = load_json(p, {})
         if row.get("verdict") != "PASS":
-            failures.append({"receipt_id": row.get("receipt_id"), "claim": row.get("claim"), "blockers": row.get("blockers", [])})
-    emit({"receipt_count": len(receipts), "non_pass_receipts": failures}, args.json)
-    return 0 if not failures else 3
+            non_pass.append({"receipt_id": row.get("receipt_id"), "claim": row.get("claim"), "blockers": row.get("blockers", [])})
+    corrections = [row for row in (iter_jsonl(home / "corrections.jsonl") or []) if row.get("regression_target")]
+    emit({"receipt_count": len(receipts), "non_pass_receipts": non_pass, "human_regression_targets": corrections}, args.json)
+    return 0 if not non_pass else 3
 
 
 def parser() -> argparse.ArgumentParser:
@@ -208,16 +250,28 @@ def parser() -> argparse.ArgumentParser:
     r.add_argument("--state", choices=["requested","intended","implemented","tested","deployed","callable","delivered","accepted"], default="implemented")
     r.add_argument("--acceptance", action="append")
     r.add_argument("--evidence", action="append")
+    r.add_argument("--failure-path", action="append", help="Reachable non-happy path considered by the review")
+    r.add_argument("--unresolved", action="append", help="Material unresolved QA issue; forces revision")
+    r.add_argument("--dissent", action="append", help="Preserved opposing judgment/uncertainty")
     r.add_argument("--require-evidence", action="store_true")
     r.add_argument("--actual-renee", action="store_true", help="Claim attributes judgment to actual Renee; requires human provenance")
     r.add_argument("--provenance", choices=["RENEE_DIRECT","RENEE_CORRECTION","DREW_RECALL","DERIVED_RULE","SYNTHETIC_RENEE"], default="SYNTHETIC_RENEE")
     r.set_defaults(func=review)
 
+    n = sub.add_parser("record", help="Record calibrated precedent; never accepts synthetic provenance")
+    n.add_argument("finding")
+    n.add_argument("--provenance", required=True, choices=sorted(RECORDABLE_PROVENANCE))
+    n.add_argument("--source", required=True, help="Attributable locator; prefer references/generalized notes over proprietary raw content")
+    n.add_argument("--tag", action="append")
+    n.add_argument("--derived-from", action="append")
+    n.set_defaults(func=record)
+
     c = sub.add_parser("correct")
     c.add_argument("receipt")
     c.add_argument("text")
-    c.add_argument("--provenance", required=True, choices=["RENEE_DIRECT","RENEE_CORRECTION","DREW_RECALL"])
+    c.add_argument("--provenance", required=True, choices=sorted(HUMAN_PROVENANCE))
     c.add_argument("--source", required=True, help="Attributable source locator; do not paste proprietary content by default")
+    c.add_argument("--regression-target", help="Generalized behavior that future Renee CLI reviews must not repeat")
     c.set_defaults(func=correct)
 
     e = sub.add_parser("explain")
