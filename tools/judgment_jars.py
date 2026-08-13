@@ -5,19 +5,16 @@ from __future__ import annotations
 import argparse
 import json
 import sys
+import uuid
 from pathlib import Path
 
 TOOLS_DIR = Path(__file__).resolve().parent
 if str(TOOLS_DIR) not in sys.path:
     sys.path.insert(0, str(TOOLS_DIR))
 
-from judgment_jar_common import (  # noqa: E402
-    CABINET_ORIGIN, CONFIG_PATH, DEFAULT_CACHE, DISCOVERY_ORIGIN, LOCAL_ORIGIN, ROOT,
-    RegistryError,
-)
-from judgment_jar_registry import (  # noqa: E402
-    ensure_registry, fetch_native_source, prompt_text, public_jar, resolve_jar, search_jars, summary,
-)
+from judgment_jar_common import CONFIG_PATH, DEFAULT_CACHE, LOCAL_ORIGIN, ROOT, RegistryError, read_config
+from judgment_jar_receipts import ReceiptError, flush as flush_receipts, record as record_receipt, status as receipt_status
+from judgment_jar_registry import ensure_registry, fetch_native_source, prompt_text, public_jar, resolve_jar, search_jars, summary
 
 
 def parser() -> argparse.ArgumentParser:
@@ -31,41 +28,99 @@ def parser() -> argparse.ArgumentParser:
     source = commands.add_parser("source"); source.add_argument("key"); source.add_argument("--refresh", action="store_true")
     search = commands.add_parser("search"); search.add_argument("query", nargs="+")
     prompt = commands.add_parser("prompt"); prompt.add_argument("--all", action="store_true", dest="include_all"); prompt.add_argument("keys", nargs="*")
-    commands.add_parser("registry")
+    commands.add_parser("registry"); commands.add_parser("receipt-status")
+    flushing = commands.add_parser("flush-receipts"); flushing.add_argument("--limit", type=int)
     return root
+
+
+def selected_prompt_jars(registry: dict, keys: list[str], include_all: bool) -> list[dict]:
+    if include_all:
+        return list(registry.get("jars") or [])
+    if not keys:
+        return [jar for jar in registry.get("jars") or [] if jar.get("origin") == LOCAL_ORIGIN and jar.get("status") == "active"]
+    selected, missing = [], []
+    for key in keys:
+        jar = resolve_jar(registry, key)
+        if jar is None:
+            missing.append(key)
+        elif jar.get("id") not in {item.get("id") for item in selected}:
+            selected.append(jar)
+    if missing:
+        raise RegistryError("unknown Judgment Jar(s): " + ", ".join(missing))
+    return selected
+
+
+def refs(jar: dict) -> list[str]:
+    return [str(value) for value in (jar.get("sourcePath"), jar.get("sourceUrl"), jar.get("sourceFileId")) if value]
+
+
+def context_receipt(registry: dict, jar: dict, config: dict, output: str, source: str, intent: str, action: str, input_text: str, request_id: str = "", group_id: str = "") -> dict:
+    try:
+        return record_receipt(
+            registry, jar, config,
+            output_kind="context_packet", output_text=output,
+            summary=f"Loaded Judgment Jar context: {jar.get('title') or jar.get('id')}",
+            actor="Vlad", intent=intent, surface="jar", decision_action=action,
+            input_text=input_text, request_id=request_id, group_id=group_id,
+            references=refs(jar), source=source,
+        )
+    except (ReceiptError, OSError, ValueError) as exc:
+        return {"ok": False, "state": "RECEIPT_CAPTURE_FAILED", "error": f"{type(exc).__name__}: {exc}"}
 
 
 def main(argv: list[str] | None = None) -> int:
     args = parser().parse_args(argv)
-    cache, config = Path(args.cache).expanduser(), Path(args.config).expanduser()
+    cache, config_path = Path(args.cache).expanduser(), Path(args.config).expanduser()
     try:
-        registry, sync = ensure_registry(Path(args.root), cache,
-            force=bool(getattr(args, "force", False)), force_home_center=bool(getattr(args, "force_home_center", False)),
-            offline=bool(args.offline), config_path=config)
-        if args.command in {"sync", "status"}:
-            print(json.dumps(summary(registry, cache, sync), ensure_ascii=False, sort_keys=True)); return 0
+        config = read_config(config_path)
+        if args.command == "receipt-status":
+            print(json.dumps(receipt_status(config), ensure_ascii=False, indent=2, sort_keys=True)); return 0
+        if args.command == "flush-receipts":
+            result = flush_receipts(config, limit=args.limit)
+            print(json.dumps(result, ensure_ascii=False, indent=2, sort_keys=True)); return 0 if result.get("blocked") is None else 1
+        registry, sync_state = ensure_registry(
+            Path(args.root), cache,
+            force=bool(getattr(args, "force", False)),
+            force_home_center=bool(getattr(args, "force_home_center", False)),
+            offline=bool(args.offline), config_path=config_path,
+        )
+        if args.command == "sync":
+            usage = receipt_status(config) if args.offline else flush_receipts(config)
+            print(json.dumps({**summary(registry, cache, sync_state), "judgmentJarUsageReceipts": usage}, ensure_ascii=False, sort_keys=True)); return 0
+        if args.command == "status":
+            print(json.dumps({**summary(registry, cache, sync_state), "judgmentJarUsageReceipts": receipt_status(config)}, ensure_ascii=False, sort_keys=True)); return 0
         if args.command == "list":
             print(json.dumps({**summary(registry, cache), "jars": [public_jar(jar) for jar in registry.get("jars", [])]}, ensure_ascii=False, indent=2, sort_keys=True)); return 0
         if args.command == "get":
             jar = resolve_jar(registry, args.key)
             if jar is None: raise RegistryError(f"unknown Judgment Jar: {args.key}")
-            print(json.dumps({**summary(registry, cache), "jar": public_jar(jar, True)}, ensure_ascii=False, indent=2, sort_keys=True)); return 0
+            packet = {**summary(registry, cache), "jar": public_jar(jar, True)}
+            raw = json.dumps(packet, ensure_ascii=False, sort_keys=True)
+            packet["usage"] = context_receipt(registry, jar, config, raw, "vlad-jars.get", "retrieve bounded Judgment Jar context", "returned cached Jar body and provenance", args.key)
+            print(json.dumps(packet, ensure_ascii=False, indent=2, sort_keys=True)); return 0
         if args.command == "source":
             jar = resolve_jar(registry, args.key)
             if jar is None: raise RegistryError(f"unknown Judgment Jar: {args.key}")
-            source = fetch_native_source(jar, config, cache, refresh=bool(args.refresh), offline=bool(args.offline))
-            print(json.dumps({**summary(registry, cache), "jar": public_jar(jar), "source": source}, ensure_ascii=False, indent=2, sort_keys=True)); return 0
+            native = fetch_native_source(jar, config, cache, refresh=bool(args.refresh), offline=bool(args.offline))
+            packet = {**summary(registry, cache), "jar": public_jar(jar), "source": native}
+            raw = json.dumps(packet, ensure_ascii=False, sort_keys=True)
+            packet["usage"] = context_receipt(registry, jar, config, raw, "vlad-jars.source", "retrieve authoritative native Judgment Jar source", "returned native source or explicit stale cache", args.key)
+            print(json.dumps(packet, ensure_ascii=False, indent=2, sort_keys=True)); return 0
         if args.command == "search":
             query = " ".join(args.query)
             print(json.dumps({**summary(registry, cache), "query": query, "matches": search_jars(registry, query)}, ensure_ascii=False, indent=2, sort_keys=True)); return 0
         if args.command == "prompt":
-            sys.stdout.write(prompt_text(registry, args.keys, args.include_all)); return 0
+            text = prompt_text(registry, args.keys, args.include_all)
+            group_id, request_id = str(uuid.uuid4()), str(uuid.uuid4())
+            usage = [context_receipt(registry, jar, config, text, "vlad-jars.prompt", "assemble bounded Judgment Jar prompt context", "included Jar in compiled context packet", " ".join(args.keys), request_id, group_id) for jar in selected_prompt_jars(registry, args.keys, args.include_all)]
+            print(json.dumps({"judgmentJarUsage": usage}, ensure_ascii=False, sort_keys=True), file=sys.stderr)
+            sys.stdout.write(text); return 0
         if args.command == "registry":
             text = (registry.get("homeCenter") or {}).get("registryText") or ""
             if not text: raise RegistryError("Home Center cabinet registry is not cached")
             sys.stdout.write(text.rstrip() + "\n"); return 0
         raise RegistryError(f"unsupported command: {args.command}")
-    except RegistryError as exc:
+    except (RegistryError, ReceiptError, OSError, ValueError) as exc:
         print(json.dumps({"ok": False, "error": str(exc), "cachePath": str(cache)}, sort_keys=True), file=sys.stderr)
         return 2
 
