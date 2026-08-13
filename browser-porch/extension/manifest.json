@@ -1,9 +1,9 @@
 {
   "manifest_version": 3,
   "name": "Chromium Throne",
-  "version": "0.5.0",
-  "description": "One-tab ChatGPT Instant workflow driver with durable context, bounded swarm babysitting, and automatic choke handoff rotation.",
-  "permissions": ["activeTab", "scripting", "sidePanel", "storage"],
+  "version": "0.6.0",
+  "description": "Visible multi-tab ChatGPT worker pool with bounded parallel swarm dispatch, per-worker receipts, and automatic handoff rotation.",
+  "permissions": ["activeTab", "tabs", "scripting", "sidePanel", "storage"],
   "host_permissions": ["https://chatgpt.com/*"],
   "action": {"default_title": "Open Chromium Throne"},
   "background": {"service_worker": "service-worker.js"},
