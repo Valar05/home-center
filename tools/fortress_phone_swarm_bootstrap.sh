@@ -7,13 +7,15 @@ STATE="$HOME/.local/state/home-center/fortress-campaign"
 KERNEL_STATE="$HOME/.local/state/home-center/fortress-phone-kernel"
 BIN="$HOME/bin"
 BOOT="$HOME/.termux/boot"
+CONFIG="$HOME/.config/home-center"
 LOG="$STATE/bootstrap.log"
 SESSION="fortress-swarm"
 SELF_REL="tools/fortress_phone_swarm_bootstrap.sh"
 CAMPAIGN_REL="tools/fortress_campaign.py"
+THRONE_ADAPTER_REL="tools/fortress_throne_adapter.py"
 KERNEL_SETUP_REL="tools/setup_fortress_phone_kernel.sh"
 
-mkdir -p "$STATE" "$KERNEL_STATE" "$BIN" "$BOOT"
+mkdir -p "$STATE" "$KERNEL_STATE" "$BIN" "$BOOT" "$CONFIG"
 exec > >(tee -a "$LOG") 2>&1
 
 say(){ printf '\n=== %s ===\n' "$*"; }
@@ -32,6 +34,7 @@ retry(){
 [ -d "$REPO/.git" ] || fail "$REPO is not a Home Center git worktree"
 command -v python >/dev/null || fail "python is required"
 command -v git >/dev/null || fail "git is required"
+command -v ssh >/dev/null || fail "OpenSSH client is required for SSH Axis"
 command -v tmux >/dev/null || {
   command -v pkg >/dev/null || fail "tmux missing and pkg unavailable"
   retry 3 pkg install -y tmux || fail "could not install tmux"
@@ -39,6 +42,7 @@ command -v tmux >/dev/null || {
 cd "$REPO"
 
 say "1. Recover dirty tree"
+# Fetch only. Do not mutate branch/index before the rescue receipt exists.
 retry 4 git fetch origin "$BRANCH"
 git show "origin/$BRANCH:$CAMPAIGN_REL" > "$STATE/fortress_campaign.py.tmp"
 python -m py_compile "$STATE/fortress_campaign.py.tmp"
@@ -69,26 +73,24 @@ say "3. Validate campaign runtime"
 for rel in \
   "$SELF_REL" \
   "$CAMPAIGN_REL" \
+  "$THRONE_ADAPTER_REL" \
   "$KERNEL_SETUP_REL" \
   tools/fortress_phone_kernel.py \
   tools/fortress_cli.py \
   tools/fortress_prompt.py \
-  tools/fortress_read_aloud.py \
   config/fortress-phone-kernel.json \
-  config/fortress-prompt.json \
-  config/fortress-adam-voice.json; do
+  config/fortress-prompt.json; do
   test -s "$REPO/$rel" || fail "campaign branch missing $rel"
 done
-chmod 700 "$REPO/$SELF_REL" "$REPO/$KERNEL_SETUP_REL" "$REPO/$CAMPAIGN_REL"
-python -m py_compile "$REPO/$CAMPAIGN_REL" "$REPO/tools/fortress_phone_kernel.py" "$REPO/tools/fortress_cli.py" "$REPO/tools/fortress_prompt.py"
+chmod 700 "$REPO/$SELF_REL" "$REPO/$KERNEL_SETUP_REL" "$REPO/$CAMPAIGN_REL" "$REPO/$THRONE_ADAPTER_REL"
+python -m py_compile "$REPO/$CAMPAIGN_REL" "$REPO/$THRONE_ADAPTER_REL" "$REPO/tools/fortress_phone_kernel.py" "$REPO/tools/fortress_cli.py" "$REPO/tools/fortress_prompt.py"
 python -m json.tool "$REPO/config/fortress-phone-kernel.json" >/dev/null
 
 say "4. Install/repair existing Fortress phone kernel"
+# This branch defaults the kernel installer to external supervision and no voice dependency.
 FORTRESS_PHONE_BRANCH="$BRANCH" retry 3 bash "$REPO/$KERNEL_SETUP_REL"
 
 say "5. Remove legacy split-brain supervisors"
-# The old kernel installer used nohup + its own Termux:Boot script. tmux now owns both persistent
-# organs, so stop only the PID recorded by that legacy installer and replace its boot entrypoint.
 if [ -s "$KERNEL_STATE/kernel.pid" ]; then
   oldpid="$(cat "$KERNEL_STATE/kernel.pid" 2>/dev/null || true)"
   if [ -n "$oldpid" ] && kill -0 "$oldpid" 2>/dev/null; then
@@ -99,7 +101,20 @@ if [ -s "$KERNEL_STATE/kernel.pid" ]; then
 fi
 rm -f "$BOOT/30-fortress-phone-kernel" "$BOOT/35-fortress-campaign"
 
-say "6. Install campaign command surface"
+say "6. Bind campaign to the phone-local Throne relay adapter"
+# The adapter is local-only. It transports through SSH Axis to THECAULDRON's existing
+# loopback Chromium Throne relay; capability secrets never need to leave THECAULDRON.
+cat > "$CONFIG/chromium-throne-peer.json" <<EOF
+{
+  "url": "http://127.0.0.1:17373",
+  "token": "",
+  "repoRoot": "operator-selected desktop workspace resolved from commission and durable evidence",
+  "transport": "SSH Axis -> THECAULDRON -> existing Chromium Throne relay"
+}
+EOF
+chmod 600 "$CONFIG/chromium-throne-peer.json"
+
+say "7. Install campaign command surface"
 cat > "$BIN/fortress-campaign" <<EOF
 #!/data/data/com.termux/files/usr/bin/bash
 exec python "$REPO/$CAMPAIGN_REL" "\$@"
@@ -109,6 +124,10 @@ cat > "$BIN/fortress-code" <<EOF
 set -euo pipefail
 [ "\$#" -gt 0 ] || { echo 'usage: fortress-code <prompt>' >&2; exit 2; }
 exec python "$REPO/$CAMPAIGN_REL" prompt "\$*"
+EOF
+cat > "$BIN/fortress-throne" <<EOF
+#!/data/data/com.termux/files/usr/bin/bash
+exec python "$REPO/$THRONE_ADAPTER_REL" "\$@"
 EOF
 cat > "$BIN/fortress-swarm-repair" <<EOF
 #!/data/data/com.termux/files/usr/bin/bash
@@ -126,11 +145,13 @@ exec "$BIN/fortress-campaign" status
 EOF
 cat > "$BIN/fortress-swarm-diagnose" <<EOF
 #!/data/data/com.termux/files/usr/bin/bash
+set -e
+"$BIN/fortress-throne" diagnose
 exec "$BIN/fortress-campaign" diagnose --repair
 EOF
-chmod 700 "$BIN/fortress-campaign" "$BIN/fortress-code" "$BIN/fortress-swarm-repair" "$BIN/fortress-swarm-attach" "$BIN/fortress-swarm-status" "$BIN/fortress-swarm-diagnose"
+chmod 700 "$BIN/fortress-campaign" "$BIN/fortress-code" "$BIN/fortress-throne" "$BIN/fortress-swarm-repair" "$BIN/fortress-swarm-attach" "$BIN/fortress-swarm-status" "$BIN/fortress-swarm-diagnose"
 
-say "7. Install one Termux:Boot tmux supervisor"
+say "8. Install one Termux:Boot tmux supervisor"
 cat > "$BOOT/30-fortress-swarm" <<EOF
 #!/data/data/com.termux/files/usr/bin/bash
 set -eu
@@ -139,17 +160,19 @@ SESSION='$SESSION'
 if ! command -v tmux >/dev/null 2>&1; then exit 0; fi
 if ! tmux has-session -t "\$SESSION" 2>/dev/null; then
   tmux new-session -d -s "\$SESSION" -n kernel "cd '$REPO' && exec python '$REPO/tools/fortress_phone_kernel.py' daemon"
+  tmux new-window -t "\$SESSION" -n throne "cd '$REPO' && exec python '$REPO/$THRONE_ADAPTER_REL' serve"
   tmux new-window -t "\$SESSION" -n campaign "cd '$REPO' && exec python '$REPO/$CAMPAIGN_REL' daemon"
 else
   tmux list-windows -t "\$SESSION" -F '#{window_name}:#{pane_dead}' | grep -qx 'kernel:0' || { tmux kill-window -t "\$SESSION:kernel" 2>/dev/null || true; tmux new-window -t "\$SESSION" -n kernel "cd '$REPO' && exec python '$REPO/tools/fortress_phone_kernel.py' daemon"; }
+  tmux list-windows -t "\$SESSION" -F '#{window_name}:#{pane_dead}' | grep -qx 'throne:0' || { tmux kill-window -t "\$SESSION:throne" 2>/dev/null || true; tmux new-window -t "\$SESSION" -n throne "cd '$REPO' && exec python '$REPO/$THRONE_ADAPTER_REL' serve"; }
   tmux list-windows -t "\$SESSION" -F '#{window_name}:#{pane_dead}' | grep -qx 'campaign:0' || { tmux kill-window -t "\$SESSION:campaign" 2>/dev/null || true; tmux new-window -t "\$SESSION" -n campaign "cd '$REPO' && exec python '$REPO/$CAMPAIGN_REL' daemon"; }
 fi
 EOF
 chmod 700 "$BOOT/30-fortress-swarm"
 "$BOOT/30-fortress-swarm"
-sleep 1
+sleep 2
 
-say "8. Diagnostics and self-repair proof"
+say "9. Diagnostics and self-repair proof"
 repair_window(){
   local name="$1" cmd="$2"
   if ! tmux list-windows -t "$SESSION" -F '#{window_name}:#{pane_dead}' | grep -qx "$name:0"; then
@@ -160,6 +183,7 @@ repair_window(){
   tmux list-windows -t "$SESSION" -F '#{window_name}:#{pane_dead}' | grep -qx "$name:0"
 }
 repair_window kernel "cd '$REPO' && exec python '$REPO/tools/fortress_phone_kernel.py' daemon" || fail "kernel tmux window is not alive"
+repair_window throne "cd '$REPO' && exec python '$REPO/$THRONE_ADAPTER_REL' serve" || fail "Throne adapter tmux window is not alive"
 repair_window campaign "cd '$REPO' && exec python '$REPO/$CAMPAIGN_REL' daemon" || fail "campaign tmux window is not alive"
 
 "$BIN/fortress" --status >/dev/null || {
@@ -168,6 +192,15 @@ repair_window campaign "cd '$REPO' && exec python '$REPO/$CAMPAIGN_REL' daemon" 
   "$BIN/fortress" --status >/dev/null || fail "phone kernel remains unhealthy after tmux respawn"
 }
 
+python - <<'PY'
+import json,urllib.request
+with urllib.request.urlopen('http://127.0.0.1:17373/health',timeout=4) as r:
+    x=json.load(r)
+if x.get('contract')!='home-center.chromium-throne.v1' or not x.get('adapter'):
+    raise SystemExit('Throne adapter health contract mismatch')
+print(json.dumps(x))
+PY
+
 campaign_status="$($BIN/fortress-campaign status)" || {
   tmux respawn-pane -k -t "$SESSION:campaign" "cd '$REPO' && exec python '$REPO/$CAMPAIGN_REL' daemon"
   sleep 1
@@ -175,21 +208,23 @@ campaign_status="$($BIN/fortress-campaign status)" || {
 }
 echo "$campaign_status"
 
-say "9. Recover/prove Chromium Throne peer if possible"
-# This uses the existing SSH Axis as a recovery/discovery path. Failure is durable daemon state,
-# not bootstrap completion or permission to invent another remote-control architecture.
-"$BIN/fortress-campaign" diagnose --repair || true
+say "10. Recover/prove THECAULDRON relay through SSH Axis"
+# Failure here does not destroy the daemon. It records the actual boundary and the tmux campaign
+# keeps retrying with backoff. When SSH Axis and the installed Throne are healthy, this also writes
+# the remote capability/runtime config, starts the existing loopback relay, and wakes the extension.
+"$BIN/fortress-throne" diagnose || true
 
 tmux list-windows -t "$SESSION" -F 'window=#{window_name} pid=#{pane_pid} dead=#{pane_dead}'
 
-say "10. Ready"
+say "11. Ready"
 echo "One prompt: fortress-code \"your coding commission\""
 echo "Attach live daemon: fortress-swarm-attach"
 echo "Status: fortress-swarm-status"
-echo "Diagnostics/peer repair: fortress-swarm-diagnose"
+echo "Diagnostics/repair: fortress-swarm-diagnose"
 echo "Repair/rebootstrap: fortress-swarm-repair"
-echo "tmux session: $SESSION"
+echo "tmux session: $SESSION (kernel + throne + campaign)"
 echo "Dirty-tree rescue is reversible and recorded in $STATE/campaign.sqlite3 + $STATE/campaign.jsonl"
 echo "Vlad jar cache is consumed when available; this bootstrap never relocates or rebuilds it."
+echo "Chromium Throne transport is the existing relay, reached through SSH Axis; no obsolete bare-metal API is required."
 echo "No Venice adapter/cache may ever fabricate STOP_ALLOWED."
 echo "FORTRESS_PHONE_SWARM_READY"
