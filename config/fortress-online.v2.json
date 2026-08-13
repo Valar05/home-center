@@ -1,12 +1,12 @@
 {
   "kind": "fortress.online.v2.config.v1",
-  "version": 8,
+  "version": 9,
   "boot": {
     "capsuleKind": "fortress.online.v2.boot-capsule.v4",
     "requiredSkillDocuments": ["fortress-core", "phone-runtime", "fortress-plan-gate", "operator-campaign", "venice-stop-gate", "venice-review-memory"],
     "scanRepoSkills": true,
     "excludedDirectories": [".git", "node_modules"],
-    "policy": "load every discovered SKILL.md content; fortress-core, phone-runtime, fortress-plan-gate, operator-campaign, venice-stop-gate, and venice-review-memory are boot-required; never first-match and stop"
+    "policy": "load every discovered SKILL.md content; fortress-core, phone-runtime, fortress-plan-gate, operator-campaign, venice-stop-gate, and venice-review-memory are boot-required; every ChatGPT worker uses Pro reasoning by default where configurable and primary Judgment-Jar Venice; never first-match and stop"
   },
   "mission": {
     "states": ["requested", "implemented", "tested", "deployed", "callable", "delivered", "accepted"],
@@ -28,6 +28,11 @@
     "preExecutionPlanReviewRequired": true,
     "veniceStopReviewRequired": true,
     "veniceReviewMemoryRequired": true,
+    "veniceJudgmentJarPrimary": true,
+    "localVeniceRequired": false,
+    "stopAllowedRequiredForNormalStop": true,
+    "continueRequiredAutomaticallyContinues": true,
+    "responseBoundaryNeverStopsMission": true,
     "continuingValueRequired": true,
     "notificationMenuRequiredOnPhone": true
   },
@@ -50,7 +55,7 @@
       {"kind":"retrieval_failure","pattern":"assum|didn.?t look|context|lookup|retrieve|look things up"},
       {"kind":"plan_bypass","pattern":"started guessing|no plan|didn.?t plan|plan first|antagoniz|consult.*jar|ask Venice before"},
       {"kind":"one_off_operator_script","pattern":"one-off|one off|paste this|random shit|random command|run this script|again and again|continuing value|campaign"},
-      {"kind":"premature_stop","pattern":"stop early|quit|documented failure|gave up|came early|one poke|forbid.*stop|failure persists|record.*failure.*stop"},
+      {"kind":"premature_stop","pattern":"stop early|quit|documented failure|gave up|came early|one poke|forbid.*stop|failure persists|record.*failure.*stop|Venice did not tell you to stop"},
       {"kind":"boundary_substitution","pattern":"wrong tool|substitut|different lane|adjacent tool|not the lane"},
       {"kind":"correction_regression","pattern":"again|regression|forgot|lost context|reintroduced|borked"},
       {"kind":"capability_laundering","pattern":"claimed|said.*done|not actually|stub|zero faith|not live|not there"},
@@ -59,31 +64,31 @@
       {"kind":"available_body_lane_ignored","pattern":"you can do it|do it yourself|desktop hands|computer hands|phone hands|stop telling me to do|shell access|could fall back"},
       {"kind":"proven_organ_bypass","pattern":"already works|existing .* works|don.?t duplicate|duplicate effort|reuse .* existing|proven .* path|why .* invent"},
       {"kind":"learning_persistence_failure","pattern":"failed to learn|update the ledger|forgot.*learning|learn.*not persist"},
-      {"kind":"venice_bypass","pattern":"did not talk to Venice|didn.?t ask Venice|Venice jars|self-certif|no Venice receipt"}
+      {"kind":"venice_bypass","pattern":"did not talk to Venice|didn.?t ask Venice|Venice jars|self-certif|no Venice receipt|local Venice unavailable|external Venice|required separate model"}
     ],
     "recipes": {
       "retrieval_failure": {"rule":"material uncertainty creates a required lookup before execution","regression":"mission with unresolved required lookup must choose retrieve","autoAction":"add_required_lookup_heuristic"},
-      "plan_bypass": {"rule":"before substantive execution every worker must research, create a bounded plan, select relevant Judgment Jars, antagonize the plan, and obtain a durable Venice PLAN_ALLOWED receipt","regression":"a mutating worker path without research+plan+jar selection+antagonism+Venice plan receipt fails closed","autoAction":"require_preexecution_plan_gate"},
+      "plan_bypass": {"rule":"before substantive execution every worker must research, create a bounded plan, select relevant Judgment Jars, antagonize the plan, and obtain a durable Venice Judgment-Jar PLAN_ALLOWED receipt","regression":"a mutating worker path without research+plan+jar selection+antagonism+Venice plan receipt fails closed","autoAction":"require_preexecution_plan_gate"},
       "one_off_operator_script": {"rule":"any operator-facing command must create or invoke a durable campaign with a stable entrypoint, durable state/history, self-heal/backoff, receipts, status/recovery, and continuing value after the immediate incident","regression":"a requested Drew-run script that has no reusable campaign command/status/history/recovery surface fails before handoff","autoAction":"require_continuing_value_campaign"},
-      "premature_stop": {"rule":"unfinished work cannot stop without a genuine external boundary requiring operator input; persisting or reporting the failure is bookkeeping and MUST be followed by immediate resumed execution","regression":"after recording a premature_stop incident, the next action must continue the same mission unless completion evidence or an operator boundary exists","autoAction":"persist_incident_then_resume_same_mission"},
+      "premature_stop": {"rule":"unfinished work cannot stop normally without a fresh Venice Judgment-Jar STOP_ALLOWED; CONTINUE_REQUIRED must resume the same mission; incident persistence and assistant response boundaries are never completion","regression":"after recording a premature_stop incident or receiving CONTINUE_REQUIRED, the next action must continue the same mission unless STOP_ALLOWED, HALT_REQUIRED, explicit operator stop, or a true operator-only boundary exists","autoAction":"persist_incident_then_resume_same_mission"},
       "boundary_substitution": {"rule":"boundary-changing implementation remains proposed until approved","regression":"unapproved lane/tool change must continue original mission","autoAction":"add_boundary_regression"},
       "correction_regression": {"rule":"new corrections must preserve every earlier non-conflicting lock","regression":"dropping an earlier correction must fail cumulative diff","autoAction":"add_constraint_regression"},
       "capability_laundering": {"rule":"never advance capability state without state-specific external evidence","regression":"implementation evidence alone cannot prove delivery","autoAction":"add_evidence_regression"},
-      "transport_failure": {"rule":"after a transport failure, switch to a safer deterministic transport and retain the failed form as a regression","regression":"known-fragile transport must be rejected or transformed before dispatch","autoAction":"add_transport_guard"},
+      "transport_failure": {"rule":"after a transport failure, switch to a safer deterministic transport inside the commissioned lane and retain the failed form as a regression","regression":"known-fragile transport must be rejected or transformed before dispatch","autoAction":"add_transport_guard"},
       "handoff_failure": {"rule":"a genuine operator boundary must emit exactly one directly executable handoff using known runtime context","regression":"Vlad phone deployment boundary restores to one runnable Termux command","autoAction":"add_executable_handoff_guard"},
       "available_body_lane_ignored": {"rule":"before asking Drew to execute anything, enumerate and attempt every configured authorized body lane that can perform it; a missing convenience connector or local shell is not itself an operator boundary","regression":"a desktop PowerShell install with Computer Hands configured must choose computer-hands shell.exec and receipt polling before any operator handoff","autoAction":"add_body_lane_exhaustion_guard"},
       "proven_organ_bypass": {"rule":"before designing or deploying a new implementation for a capability, retrieve durable evidence for existing implementations and proven runtime paths; if a proven organ already satisfies the required seam, reuse or extend it rather than inventing an adjacent transport, daemon, player, wrapper, or execution lane","regression":"when Venice/Pocket phone playback is already proven through pocket-tts-phone plus Home Center playback and Shizuku/rish, an Adam voice change may alter voice profile or shared adapter behavior but must not introduce ffplay, system TTS fallback, raw Termux am identity, or a second playback stack without explicit evidence that the proven organ cannot satisfy the requirement","autoAction":"add_proven_organ_reuse_guard"},
       "learning_persistence_failure": {"rule":"every correction and promoted lesson must persist to the durable ledger/config before the turn can complete","regression":"learned correction survives process restart and changes next boot policy","autoAction":"persist_learning_overlay"},
-      "venice_bypass": {"rule":"no agent or worker may begin substantive execution without a fresh durable Venice PLAN_ALLOWED receipt or stop without a fresh durable Venice Judgment Jar completion review receipt; Venice findings persist into reviewer memory","regression":"worker execution/terminal paths without the corresponding Venice receipt fail closed and future boot loads the persisted Venice scar","autoAction":"require_venice_plan_stop_and_memory_gates"},
+      "venice_bypass": {"rule":"every ChatGPT worker uses primary Judgment-Jar Venice: PLAN_ALLOWED before substantive execution and STOP_ALLOWED before normal stopping; same-worker Jar review is valid as a distinct adversarial provenance-marked pass; local Venice is optional; CONTINUE_REQUIRED must continue","regression":"worker execution/terminal paths without corresponding Judgment-Jar Venice receipts fail closed; missing local Venice never creates a halt while Jar review is available; future boot loads the persisted Venice scar","autoAction":"require_primary_judgment_jar_venice_plan_stop_and_memory_gates"},
       "unknown_failure": {"rule":"unclassified failures become explicit candidate incidents rather than disappearing","regression":"unknown incident remains pending classification and cannot auto-promote policy","autoAction":"queue_for_classification"}
     }
   },
   "skills": [
     {"id":"mission-kernel","required":true,"purpose":"preserve outcome/owner/lane/exclusions/evidence/delivery"},
     {"id":"tetsuya-judgement","required":true,"purpose":"deterministic precedent and correction judgement"},
-    {"id":"preexecution-plan-gate","required":true,"purpose":"research -> bounded plan -> relevant Judgment Jars -> antagonism -> Venice PLAN_ALLOWED before substantive execution"},
+    {"id":"preexecution-plan-gate","required":true,"purpose":"research -> bounded plan -> relevant Judgment Jars -> antagonism -> primary Venice Judgment-Jar PLAN_ALLOWED before substantive execution"},
     {"id":"operator-campaign","required":true,"purpose":"operator-facing commands become reusable self-healing campaigns with continuing value, durable state/status/recovery, and phone notification controls"},
-    {"id":"motivated-continuation","required":true,"purpose":"continue until direct operator input or verified completion; incident persistence is never completion"},
+    {"id":"motivated-continuation","required":true,"purpose":"continue until STOP_ALLOWED, true HALT/operator boundary, explicit operator stop, or verified completion; response boundaries and incident persistence are never completion"},
     {"id":"authoritative-retrieval","required":true,"purpose":"look up materially uncertain state before acting"},
     {"id":"cumulative-context","required":true,"purpose":"preserve all earlier non-conflicting locks and corrections"},
     {"id":"evidence-truth","required":true,"purpose":"separate requested/implemented/tested/deployed/callable/delivered/accepted"},
@@ -92,8 +97,8 @@
     {"id":"phone-hands","required":true,"purpose":"ChatGPT -> Home Center -> phone relay -> primary-phone agent -> Shizuku/rish -> Android -> receipt","operations":["phone_hands.devices","phone_hands.enqueue","phone_hands.get"],"invariants":["primary-phone receipt required","no desktop/GitHub/local-scratch substitution for phone proof","attempt before operator handoff when phone execution can satisfy the commission"]},
     {"id":"computer-hands","required":true,"purpose":"bounded workstation body lane when the commissioned lane is desktop","operations":["system.status","screen.capture","window.list","process.list","window.focus","input.type","input.key","input.mouse","process.start","process.stop","shell.exec","clipboard.get","clipboard.set"],"invariants":["attempt Computer Hands before asking Drew to run a desktop command","shell.exec requires high-risk approval and must return a Computer Hands receipt","absence of a convenience connector does not erase the configured workstation body lane"]},
     {"id":"browser-nerve","required":true,"purpose":"semantic browser/page body lane; separate from machine body"},
-    {"id":"venice-nerve","required":true,"purpose":"local Venice speech/collaboration lane; speech remains separate from body actions"},
-    {"id":"venice-stop-gate","required":true,"purpose":"fresh external Venice review receipt required before any worker stops"},
+    {"id":"venice-nerve","required":true,"purpose":"optional local Venice speech/collaboration lane; not the primary Judgment-Jar review dependency"},
+    {"id":"venice-stop-gate","required":true,"purpose":"primary Judgment-Jar Venice STOP_ALLOWED required before any normal worker stop; CONTINUE_REQUIRED resumes work; local Venice optional"},
     {"id":"venice-review-memory","required":true,"purpose":"persist Venice blocking findings and inject reviewer precedent into future worker boots"},
     {"id":"local-code-continue","required":true,"purpose":"local coding continuation when cloud inference is unavailable"},
     {"id":"campaign-resume","required":true,"purpose":"restore durable campaign state and emit the next concrete action without requiring the user to restate context"},
