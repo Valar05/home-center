@@ -54,6 +54,29 @@ sync_runtime(){
   fi
 }
 
+venice_plan_gate(){
+  json_state venice-plan running "Judgment Jars selected and Venice plan review required before substantive campaign mutation"
+  python3 - "$ROOT" "$STATE_ROOT/venice-startup-gate.json" <<'PY'
+import json,sys
+from pathlib import Path
+root=Path(sys.argv[1]).resolve(); out=Path(sys.argv[2])
+sys.path.insert(0,str(root/'tools'))
+import adam_planned_venice as av
+mission=(
+ "Continue the durable Adam phone-control campaign. Preserve the user's active worktree and all unrelated work. "
+ "Use the existing operator-campaign skill, active Judgment Jars, Home Center operator overlay, Phone Hands relay, watchdog, receipts, and persistent control surface. "
+ "The campaign must install itself into its own detached runtime, recover rather than drip-feed diagnostics, prove callable phone control with a harmless canary when available, and leave durable self-heal/status/recovery value after installation. "
+ "Do not make Tailscale a prerequisite unless runtime evidence proves the commissioned route requires it. Do not stop without Venice STOP_ALLOWED."
+)
+gate=av.preflight(mission,root,stop_after_steps=8)
+review=gate.get('review') or {}
+obj={'schema':'adam-campaign-venice-startup-v1','directive':review.get('directive'),'verdict':review.get('verdict'),'planPermissionGranted':review.get('planPermissionGranted') is True,'receipt':review.get('receipt'),'selectedJars':(gate.get('packet') or {}).get('selectedJars') or [],'plan':(gate.get('packet') or {}).get('plan') or []}
+out.write_text(json.dumps(obj,indent=2,sort_keys=True)+'\n',encoding='utf-8')
+print(json.dumps(obj,sort_keys=True))
+raise SystemExit(0 if obj['planPermissionGranted'] else 7)
+PY
+}
+
 repair_with_adam(){
   local failure_log="$1"
   json_state repair running "planned Adam self-heal repairing failed campaign stage"
@@ -76,11 +99,11 @@ write_acceptance(){
   python3 - "$LATEST" "$menu_ok" "$ROOT" <<'PY'
 import json,os,sys,time
 home=os.path.expanduser('~/.local/state/home-center'); menu_ok=sys.argv[2]=='1'; root=sys.argv[3]
-paths={'install':home+'/adam-cli-install-receipt.json','plan':home+'/adam-daemon/venice-plan-review-last.json','stop':home+'/adam-daemon/venice-review-last.json'}
+paths={'install':home+'/adam-cli-install-receipt.json','plan':home+'/adam-daemon/venice-plan-review-last.json','stop':home+'/adam-daemon/venice-review-last.json','startupGate':home+'/adam-campaign/venice-startup-gate.json'}
 try:data={k:json.load(open(v,encoding='utf-8')) for k,v in paths.items()}
 except Exception as e: print(json.dumps({'ok':False,'error':str(e),'paths':paths}));raise SystemExit(2)
-ok=(data['install'].get('ok') is True and data['plan'].get('directive')=='PLAN_ALLOWED' and data['plan'].get('planPermissionGranted') is True and data['stop'].get('directive')=='STOP_ALLOWED' and data['stop'].get('externalReviewGateSatisfied') is True and menu_ok)
-obj={'schema':'adam-phone-campaign-receipt-v3','ok':ok,'paths':paths,'verifiedAtEpoch':int(time.time()),'continuingValue':{'stableCommand':'adam-campaign','commands':['run','resume','status','receipts','menu','overlay','phone-hands'],'runtimeWorktree':root,'state':home+'/adam-campaign/state.json','history':home+'/adam-campaign/history.jsonl','notificationMenu':menu_ok,'notificationMenuProbe':home+'/adam-campaign/menu-probe.log','overlayRecovery':True,'phoneHandsRecovery':True,'selfHeal':True,'daemonBackoff':True,'activeWorktreeUntouched':True}}
+ok=(data['install'].get('ok') is True and data['plan'].get('directive')=='PLAN_ALLOWED' and data['plan'].get('planPermissionGranted') is True and data['startupGate'].get('directive')=='PLAN_ALLOWED' and data['startupGate'].get('planPermissionGranted') is True and data['stop'].get('directive')=='STOP_ALLOWED' and data['stop'].get('externalReviewGateSatisfied') is True and menu_ok)
+obj={'schema':'adam-phone-campaign-receipt-v4','ok':ok,'paths':paths,'verifiedAtEpoch':int(time.time()),'continuingValue':{'stableCommand':'adam-campaign','commands':['run','resume','status','receipts','menu','overlay','phone-hands'],'runtimeWorktree':root,'state':home+'/adam-campaign/state.json','history':home+'/adam-campaign/history.jsonl','notificationMenu':menu_ok,'notificationMenuProbe':home+'/adam-campaign/menu-probe.log','overlayRecovery':True,'phoneHandsRecovery':True,'selfHeal':True,'daemonBackoff':True,'activeWorktreeUntouched':True,'veniceStartupGate':True,'judgmentJarsRequired':True}}
 open(sys.argv[1],'w',encoding='utf-8').write(json.dumps(obj,indent=2,sort_keys=True)+'\n');print(json.dumps(obj,indent=2,sort_keys=True));raise SystemExit(0 if ok else 2)
 PY
 }
@@ -92,6 +115,7 @@ run_campaign(){
   cd "$ROOT" || return 2
   json_state bootstrap running "starting/resuming dedicated Adam campaign runtime"
   sync_runtime || { json_state sync-failed degraded "canonical fetch/detached sync failed; adam-campaign resume will retry"; return 4; }
+  venice_plan_gate >>"$LOG" 2>&1 || { json_state venice-plan-blocked blocked "Venice did not grant PLAN_ALLOWED; durable review receipt retained"; return 7; }
 
   local round=0
   while true; do
