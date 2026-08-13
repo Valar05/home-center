@@ -1,0 +1,157 @@
+name: Record Reality Membrane authorized-body checkpoint
+
+on:
+  push:
+    branches:
+      - reality-membrane-canary-20260813
+    paths:
+      - .github/workflows/record-reality-membrane-authorized-body-checkpoint.yml
+
+permissions:
+  contents: write
+  pull-requests: write
+  id-token: write
+
+concurrency:
+  group: record-reality-membrane-authorized-body-checkpoint
+  cancel-in-progress: false
+
+env:
+  REALITY_COMMAND_ID: phc_reality_membrane_authorized_tests_20260813
+  QUEUE_COMMAND_ID: phc_queue_recovery_canary2_20260813
+  HC_FIREBASE_SA: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_HOME_CENTER_DCLAR }}
+  HC_GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
+  HC_GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
+  HC_FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+  HC_WIF_PROVIDER: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+  HC_WIF_SERVICE_ACCOUNT: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+  GH_TOKEN: ${{ github.token }}
+
+jobs:
+  record-checkpoint:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: reality-membrane-canary-20260813
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Authenticate with workload identity when configured
+        if: env.HC_WIF_PROVIDER != '' && env.HC_WIF_SERVICE_ACCOUNT != ''
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ env.HC_WIF_PROVIDER }}
+          service_account: ${{ env.HC_WIF_SERVICE_ACCOUNT }}
+      - name: Select Firestore credentials
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -n "${HC_WIF_PROVIDER}" ] && [ -n "${HC_WIF_SERVICE_ACCOUNT}" ]; then exit 0; fi
+          credential=''
+          for candidate in "$HC_FIREBASE_SA" "$HC_GOOGLE_CREDENTIALS" "$HC_GCP_SA_KEY" "$HC_FIREBASE_SERVICE_ACCOUNT"; do
+            if [ -n "$candidate" ]; then credential="$candidate"; break; fi
+          done
+          if [ -z "$credential" ]; then echo 'No Firestore credential configured.' >&2; exit 41; fi
+          path="$RUNNER_TEMP/home-center-firestore-service-account.json"
+          printf '%s' "$credential" > "$path"
+          chmod 600 "$path"
+          echo "GOOGLE_APPLICATION_CREDENTIALS=$path" >> "$GITHUB_ENV"
+      - name: Install Firestore client dependencies
+        run: npm ci --prefix functions
+      - name: Wait for and validate actual Phone Hands receipts
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p docs/evidence
+          cd functions
+          node - <<'NODE'
+          const fs = require('node:fs');
+          const crypto = require('node:crypto');
+          const admin = require('firebase-admin');
+          if (!admin.apps.length) admin.initializeApp({projectId:'home-center-dclar'});
+          const db = admin.firestore();
+          const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+          async function terminal(id, deadline) {
+            let value = null;
+            while (Date.now() < deadline) {
+              const snap = await db.collection('phoneHandsCommands').doc(id).get();
+              value = snap.exists ? snap.data() : null;
+              if (value && ['completed','failed'].includes(value.status)) return value;
+              await sleep(5000);
+            }
+            throw new Error(`command_not_terminal:${id}:${value && value.status || 'missing'}`);
+          }
+          function clean(command) {
+            const result = command.result || {};
+            return {
+              commandId:command.commandId || '', deviceId:command.deviceId || '', status:command.status || '',
+              action:command.action && command.action.action || '', createdAtMs:Number(command.createdAtMs || 0),
+              updatedAtMs:Number(command.updatedAtMs || 0), completedAtMs:Number(command.completedAtMs || 0),
+              error:String(command.error || ''), result:{ok:result.ok === true,exitCode:Number(result.exitCode),stdout:String(result.stdout || '').trim(),stderr:String(result.stderr || '').trim()}
+            };
+          }
+          (async () => {
+            const deadline = Date.now() + 10 * 60 * 1000;
+            const queue = await terminal(process.env.QUEUE_COMMAND_ID, deadline);
+            const reality = await terminal(process.env.REALITY_COMMAND_ID, deadline);
+            const q = clean(queue), r = clean(reality);
+            if (q.status !== 'completed' || q.result.ok !== true || q.result.exitCode !== 0 || !q.result.stdout.includes('PHONE_HANDS_QUEUE_RECOVERED_2')) throw new Error(`queue_canary_invalid:${JSON.stringify(q)}`);
+            const required = ['Reality Membrane contract tests passed','Reality Membrane runtime patch contract tests passed','REALITY_AUTHORIZED_BODY_TESTS=passed'];
+            if (r.status !== 'completed' || r.result.ok !== true || r.result.exitCode !== 0 || required.some((text)=>!r.result.stdout.includes(text))) throw new Error(`reality_test_invalid:${JSON.stringify(r)}`);
+            const deviceSnap = await db.collection('phoneHandsDevices').doc('primary-phone').get();
+            if (!deviceSnap.exists) throw new Error('primary_phone_missing');
+            const device = deviceSnap.data() || {};
+            const heartbeatAgeMs = Date.now() - Number(device.lastSeenAtMs || 0);
+            if (device.status !== 'online' || heartbeatAgeMs > 120000) throw new Error(`primary_phone_not_fresh:${device.status}:${heartbeatAgeMs}`);
+            const receipt = {
+              schema:'home-center.reality-membrane.authorized-body-checkpoint.v1',
+              observedAt:new Date().toISOString(),
+              observationSource:'direct Firestore read of Phone Hands terminal command records',
+              queueRecovery:q,
+              authorizedBodyTest:r,
+              device:{deviceId:device.deviceId || 'primary-phone',status:device.status,lastSeenAtMs:Number(device.lastSeenAtMs || 0),heartbeatAgeMs,capabilities:Array.isArray(device.capabilities)?device.capabilities:[]},
+              branch:{name:'reality-membrane-canary-20260813',workflowSourceSha:process.env.GITHUB_SHA},
+              stateLedger:{core:'implemented_on_branch',canonicalWiring:'implemented_on_branch',deterministicTests:'passed_on_primary_phone',deployedRealitySurface:false,callableRealitySurface:false,canaryAccepted:false},
+              evidenceBoundary:'The command records are authorized-body evidence. The GitHub workflow merely validates and stores them; workflow success alone is not acceptance.'
+            };
+            const canonical = JSON.stringify(receipt);
+            receipt.receiptSha256 = crypto.createHash('sha256').update(canonical).digest('hex');
+            fs.writeFileSync('../docs/evidence/reality-membrane-authorized-body-checkpoint-20260813.json', JSON.stringify(receipt,null,2)+'\n');
+            console.log(JSON.stringify(receipt));
+          })().catch((error)=>{console.error(error.stack || error);process.exit(1);});
+          NODE
+      - name: Commit checkpoint and remove one-use workflow
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'home-center-github-admin[bot]'
+          git config user.email 'home-center-github-admin[bot]@users.noreply.github.com'
+          git rm --ignore-unmatch .github/workflows/record-reality-membrane-authorized-body-checkpoint.yml
+          git add docs/evidence/reality-membrane-authorized-body-checkpoint-20260813.json
+          git diff --cached --check
+          git commit -m 'Record Reality Membrane authorized-body checkpoint'
+          git push origin HEAD:reality-membrane-canary-20260813
+      - name: Comment durable checkpoint on PR 267
+        shell: bash
+        run: |
+          set -euo pipefail
+          body=$(cat <<'EOF'
+          ## Checkpoint 3 — authorized phone tests
+
+          Phone Hands queue recovery and the Reality Membrane deterministic contracts were verified from terminal command records produced by `primary-phone`. The committed receipt is `docs/evidence/reality-membrane-authorized-body-checkpoint-20260813.json`.
+
+          State remains deliberately separated:
+          - core: implemented on branch
+          - canonical read-only wiring: implemented on branch
+          - deterministic tests: passed on authorized phone body
+          - deployed `reality.*`: no
+          - callable canary: no
+          - accepted: no
+
+          Venice protocol: CONTINUE_REQUIRED. The next slice is deployed `reality.status/sources/capabilities`, then actual `reality.observe` sources and the boring canary. GitHub workflow status was not used as acceptance evidence; the receipt embeds the exact Phone Hands command and fresh device heartbeat read from runtime state.
+          EOF
+          )
+          gh pr comment 267 --repo "$GITHUB_REPOSITORY" --body "$body"
