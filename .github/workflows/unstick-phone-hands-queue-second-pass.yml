@@ -1,0 +1,91 @@
+name: Unstick Phone Hands queue second pass
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - phone-hands-queue-starvation-converged-20260813
+    paths:
+      - .github/workflows/unstick-phone-hands-queue-second-pass.yml
+
+permissions:
+  contents: write
+  id-token: write
+
+concurrency:
+  group: unstick-phone-hands-queue-second-pass
+  cancel-in-progress: false
+
+env:
+  BRANCH: phone-hands-queue-starvation-converged-20260813
+  HC_FIREBASE_SA: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_HOME_CENTER_DCLAR }}
+  HC_GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
+  HC_GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
+  HC_FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+  HC_WIF_PROVIDER: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+  HC_WIF_SERVICE_ACCOUNT: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+
+jobs:
+  clear-campaign-probe-clutter:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: phone-hands-queue-starvation-converged-20260813
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Authenticate with workload identity when configured
+        if: env.HC_WIF_PROVIDER != '' && env.HC_WIF_SERVICE_ACCOUNT != ''
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ env.HC_WIF_PROVIDER }}
+          service_account: ${{ env.HC_WIF_SERVICE_ACCOUNT }}
+      - name: Select Firestore credentials
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -n "${HC_WIF_PROVIDER}" ] && [ -n "${HC_WIF_SERVICE_ACCOUNT}" ]; then exit 0; fi
+          credential=''
+          for candidate in "$HC_FIREBASE_SA" "$HC_GOOGLE_CREDENTIALS" "$HC_GCP_SA_KEY" "$HC_FIREBASE_SERVICE_ACCOUNT"; do if [ -n "$candidate" ]; then credential="$candidate"; break; fi; done
+          if [ -z "$credential" ]; then echo 'No Firestore credential configured.' >&2; exit 41; fi
+          path="$RUNNER_TEMP/home-center-firestore-service-account.json"
+          printf '%s' "$credential" > "$path"
+          chmod 600 "$path"
+          echo "GOOGLE_APPLICATION_CREDENTIALS=$path" >> "$GITHUB_ENV"
+      - name: Install Firestore client dependencies
+        run: npm ci --prefix functions
+      - name: Preserve the two live gates and terminalize expired or superseded campaign probes
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd functions
+          node - <<'NODE'
+          const fs=require('node:fs'),crypto=require('node:crypto'),admin=require('firebase-admin');if(!admin.apps.length)admin.initializeApp({projectId:'home-center-dclar'});const db=admin.firestore();
+          const preserve=new Set(['phc_queue_recovery_canary4_20260813','phc_reality_sourcev2_authorized_tests_20260813']);
+          const knownSuperseded=new Set(['phc_reality_final2_authorized_tests_20260813','phc_reality_final_authorized_tests_20260813','phc_reality_stale_authorized_tests_20260813','phc_reality_observe_authorized_tests_20260813','phc_reality_membrane_authorized_tests_20260813','phc_queue_recovery_canary3_20260813','phc_queue_recovery_canary2_20260813','phc_queue_recovery_canary_20260813']);
+          (async()=>{const deviceSnap=await db.collection('phoneHandsDevices').doc('primary-phone').get();if(!deviceSnap.exists)throw new Error('primary_phone_missing');const device=deviceSnap.data()||{},ownerKey=device.ownerKey;if(!ownerKey)throw new Error('primary_phone_owner_missing');const snap=await db.collection('phoneHandsCommands').where('ownerKey','==',ownerKey).where('deviceId','==','primary-phone').where('status','==','queued').limit(400).get();const outcomes=[];
+            for(const doc of snap.docs){const value=doc.data()||{},id=value.commandId||doc.id;if(preserve.has(id))continue;const expired=Number(value.expiresAtMs||0)<=Date.now();const superseded=knownSuperseded.has(id)||id.startsWith('phc_reality_observe_');if(!expired&&!superseded)continue;const ref=doc.ref;const outcome=await db.runTransaction(async tx=>{const fresh=await tx.get(ref);if(!fresh.exists)return'missing';const current=fresh.data()||{};if(current.status!=='queued')return'already_'+String(current.status||'unknown');const expiredNow=Number(current.expiresAtMs||0)<=Date.now();const supersededNow=knownSuperseded.has(id)||id.startsWith('phc_reality_observe_');if(!expiredNow&&!supersededNow)return'preserved_fresh';tx.set(ref,{status:'failed',error:expiredNow?'expired_before_lease':'superseded_by_reality_membrane_checkpoint',completedAtMs:Date.now(),updatedAtMs:Date.now(),leaseExpiresAtMs:0,queueRepairReceipt:'phone-hands-queue-janitor-second-pass-20260813'},{merge:true});return expiredNow?'terminalized_expired':'terminalized_superseded';});outcomes.push({commandId:id,outcome});}
+            const receipt={schema:'home-center.phone-hands.queue-janitor.v2',executedAt:new Date().toISOString(),deviceId:'primary-phone',scannedQueued:snap.size,preserved:[...preserve],outcomes,checks:{deleteUsed:false,preservedQueueCanary4:!outcomes.some(x=>x.commandId==='phc_queue_recovery_canary4_20260813'),preservedSourceV2Tests:!outcomes.some(x=>x.commandId==='phc_reality_sourcev2_authorized_tests_20260813')},evidenceBoundary:'Second-pass cleanup only. Permanent deployed relay repair and live terminal canary remain required.'};receipt.receiptSha256=crypto.createHash('sha256').update(JSON.stringify(receipt)).digest('hex');fs.writeFileSync(process.env.RUNNER_TEMP+'/phone-hands-queue-janitor-v2.json',JSON.stringify(receipt,null,2)+'\n');console.log(JSON.stringify(receipt));})().catch(e=>{console.error(e.stack||e);process.exit(1)});
+          NODE
+      - name: Commit the second-pass janitor receipt from a clean branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'home-center-github-admin[bot]'
+          git config user.email 'home-center-github-admin[bot]@users.noreply.github.com'
+          for attempt in $(seq 1 8); do
+            git fetch origin "$BRANCH"
+            git reset --hard "origin/$BRANCH"
+            mkdir -p docs/evidence
+            cp "$RUNNER_TEMP/phone-hands-queue-janitor-v2.json" docs/evidence/phone-hands-queue-janitor-v2-20260813.json
+            git rm --ignore-unmatch .github/workflows/unstick-phone-hands-queue-second-pass.yml
+            git add docs/evidence/phone-hands-queue-janitor-v2-20260813.json
+            git diff --cached --check
+            git commit -m 'Record second Phone Hands queue janitor receipt'
+            if git push origin HEAD:"$BRANCH"; then exit 0; fi
+            if [ "$attempt" -eq 8 ]; then exit 44; fi
+            sleep $((attempt*3))
+          done
