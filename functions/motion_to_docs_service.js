@@ -69,6 +69,10 @@ async function ensureWorkflowFolderAccess({google, auth, folderId, workflowServi
   const listed = await drive.permissions.list({fileId: folderId, fields: 'permissions(id,emailAddress,role,type)', supportsAllDrives: true});
   const existing = (listed.data.permissions || []).find((permission) => text(permission.emailAddress, 320).toLowerCase() === workflowServiceAccount.toLowerCase());
   if (existing && ['writer', 'fileOrganizer', 'organizer', 'owner'].includes(existing.role)) return {permission: existing, reused: true};
+  if (existing) {
+    const upgraded = await drive.permissions.update({fileId: folderId, permissionId: existing.id, requestBody: {role: 'writer'}, supportsAllDrives: true, fields: 'id,emailAddress,role,type'});
+    return {permission: upgraded.data, reused: false};
+  }
   const created = await drive.permissions.create({
     fileId: folderId,
     requestBody: {type: 'user', role: 'writer', emailAddress: workflowServiceAccount},
