@@ -136,8 +136,12 @@ def main(argv=None) -> int:
     parser.add_argument("text", nargs="?", default="")
     parser.add_argument("--cwd", default=str(ROOT))
     parser.add_argument("--timeout", type=int, default=300)
+    parser.add_argument("--doctor", action="store_true", help="check the selected local runtime")
     args = parser.parse_args(argv)
-    text = args.text if args.text else sys.stdin.read()
+    if args.mode == "she-raw":
+        text = "--doctor" if args.doctor else args.text
+    else:
+        text = args.text if args.text else sys.stdin.read()
     return run_mode(args.mode, text, args.cwd, args.timeout)
 
 
