@@ -65,6 +65,10 @@ public final class SpotifyMediaBridge {
             }
 
             String beforeJson = controllerJson(before);
+            int beforeState = state(before);
+            String beforeTitle = title(before);
+            String beforeArtist = artist(before);
+            long beforePosition = position(before);
             if (!"status".equals(action)) {
                 MediaController.TransportControls controls = before.getTransportControls();
                 switch (action) {
@@ -108,13 +112,19 @@ public final class SpotifyMediaBridge {
                         "A competing package became active after command: " + String.join(",", afterCompetitors));
             }
 
-            boolean postcondition = postcondition(action, after);
+            int afterState = state(after);
+            boolean trackChanged = trackChanged(beforeTitle, beforeArtist, after);
+            boolean positionReset = position(after) + 1000L < beforePosition;
+            boolean postcondition = postcondition(
+                    action, beforeState, trackChanged, positionReset, afterState);
             String result = "{"
                     + "\"ok\":" + postcondition + ","
                     + "\"schema\":\"home-center.spotify-media-bridge.v1\","
                     + "\"action\":" + quote(action) + ","
                     + "\"targetPackage\":\"" + SPOTIFY_PACKAGE + "\","
                     + "\"requestedUri\":" + quote(uri) + ","
+                    + "\"trackChanged\":" + trackChanged + ","
+                    + "\"positionReset\":" + positionReset + ","
                     + "\"foregroundLaunchUsed\":false,"
                     + "\"competingPackages\":[],"
                     + "\"before\":" + beforeJson + ","
@@ -194,27 +204,63 @@ public final class SpotifyMediaBridge {
         return value == null ? PlaybackState.STATE_NONE : value.getState();
     }
 
-    private static boolean postcondition(String action, MediaController controller) {
-        int state = state(controller);
+    private static boolean postcondition(
+            String action,
+            int beforeState,
+            boolean trackChanged,
+            boolean positionReset,
+            int afterState) {
         switch (action) {
             case "status":
                 return true;
             case "play":
             case "play-uri":
-                return state == PlaybackState.STATE_PLAYING
-                        || state == PlaybackState.STATE_BUFFERING
-                        || state == PlaybackState.STATE_CONNECTING;
+                return afterState == PlaybackState.STATE_PLAYING
+                        || afterState == PlaybackState.STATE_BUFFERING
+                        || afterState == PlaybackState.STATE_CONNECTING);
             case "pause":
-                return state == PlaybackState.STATE_PAUSED;
+                return afterState == PlaybackState.STATE_PAUSED;
             case "stop":
-                return state == PlaybackState.STATE_STOPPED || state == PlaybackState.STATE_PAUSED;
+                return afterState == PlaybackState.STATE_STOPPED
+                        || afterState == PlaybackState.STATE_PAUSED;
             case "toggle":
+                return afterState != beforeState
+                        && afterState != PlaybackState.STATE_ERROR
+                       && afterState != PlaybackState.STATE_NONE;
             case "next":
+                return trackChanged;
             case "previous":
-                return state != PlaybackState.STATE_ERROR && state != PlaybackState.STATE_NONE;
+                return trackChanged || positionReset;
             default:
                 return false;
         }
+    }
+
+    private static String title(MediaController controller) {
+        MediaMetadata metadata = controller.getMetadata();
+        String value = metadata == null ? "" : metadata.getString(MediaMetadata.METADATA_KEY_TITLE);
+        return value == null ? "" : value;
+    }
+
+    private static String artist(MediaController controller) {
+        MediaMetadata metadata = controller.getMetadata();
+        String value = metadata == null ? "" : metadata.getString(MediaMetadata.METADATA_KEY_ARTIST);
+        return value == null ? "" : value;
+    }
+
+    private static long position(MediaController controller) {
+        PlaybackState playback = controller.getPlaybackState();
+        return playback == null ? 0L : playback.getPosition();
+    }
+
+    private static boolean trackChanged(
+            String beforeTitle,
+            String beforeArtist,
+            MediaController after) {
+        String afterTitle = title(after);
+        String afterArtist = artist(after);
+        if (afterTitle.isEmpty() && afterArtist.isEmpty()) return false;
+        return !beforeTitle.equals(afterTitle) || !beforeArtist.equals(afterArtist);
     }
 
     private static String controllerJson(MediaController controller) {
