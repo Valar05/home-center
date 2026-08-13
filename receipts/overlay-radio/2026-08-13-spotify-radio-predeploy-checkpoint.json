@@ -1,0 +1,78 @@
+{
+  "schema": "home-center.overlay-radio.checkpoint.v1",
+  "campaign": "spotify-overlay-radio-20260813",
+  "commission": "Recover the existing Adam overlay radio lane, begin with real Spotify control, create a real Spotify playlist, keep it rolling while respecting explicit pause/stop, and make it promptable through the existing Adam overlay.",
+  "capabilityState": {
+    "requested": true,
+    "implementedInRepository": true,
+    "sourceValidated": true,
+    "deployedToPrimaryPhone": false,
+    "spotifyPlaylistCreated": false,
+    "spotifyPlaybackVerified": false,
+    "adamOverlayPromptVerified": false,
+    "continuityVerified": false,
+    "humanAccepted": false
+  },
+  "source": {
+    "repository": "Valar05/home-center",
+    "branch": "feature/spotify-overlay-radio-20260813",
+    "head": "6a1925ba7302566078517af2745b8c6b64e4696b",
+    "draftPullRequest": 274,
+    "skill": "skills/overlay-radio/SKILL.md"
+  },
+  "sourceEvidence": {
+    "computerHandsTicket": "hands-spotify-radio-final-source-gate-20260813-01",
+    "tests": [
+      "spotify_radio_contract_test: PASS",
+      "spotify_overlay_radio_contract_test: PASS",
+      "spotify_overlay_deploy_contract_test: PASS",
+      "Python compilation: PASS",
+      "build/deploy/setup/bootstrap Bash syntax: PASS",
+      "git diff --check: PASS"
+    ],
+    "predeployReviewFixes": [
+      "Next/Previous requires a verified Spotify track change rather than session existence.",
+      "Operator overlay versionCode is 5 to avoid collision with the durable-signing candidate using versionCode 4.",
+      "Termux APK forge derives version identity from Gradle and emits APK hash, byte count, signer certificate, source commit, and build receipt.",
+      "Phone bootstrap uses a dedicated sparse Termux-private clone and explicitly refuses the dirty shared checkout."
+    ]
+  },
+  "phoneEvidence": {
+    "deviceId": "primary-phone",
+    "spotifyPackage": "com.spotify.music",
+    "spotifyVersionName": "9.1.72.1891",
+    "spotifySessionObserved": true,
+    "lastObservedSpotifyState": "PAUSED",
+    "overlayStatusCommandId": "spotify-overlay-control-recheck-20260813-10",
+    "overlayInstalled": true,
+    "overlayVisible": true,
+    "overlayMuted": false,
+    "overlayControlEnabled": false,
+    "overlayLatestSource": "Adam / Spotify Radio"
+  },
+  "blockedTransition": {
+    "from": "validated durable source and callable Phone Hands relay",
+    "to": "phone_shell deployment, Spotify playlist creation, and physical playback",
+    "reason": "The visible user-owned Home Center control switch is OFF. Remote re-enable is deliberately unavailable.",
+    "operatorAction": "Tap ENABLE once on the collapsed Home Center overlay.",
+    "terminalOrShizukuCommandRequired": false,
+    "remoteBypassAllowed": false
+  },
+  "nextAuthorizedExecution": {
+    "sourceCommitPin": "6a1925ba7302566078517af2745b8c6b64e4696b",
+    "entrypoint": "tools/bootstrap_spotify_overlay_radio_phone.sh",
+    "lane": "Home Center -> Command Center -> Phone Hands -> primary-phone",
+    "then": [
+      "prove Spotify PLAYING session from Battles by Alpine Universe",
+      "create and read back Fortress Radio — Rolling Forge in Spotify",
+      "build/install overlay 1.3.0 versionCode 5 with signer receipts",
+      "install stable fortress-radio controller and one monitor",
+      "prove Adam overlay prompt and transport controls",
+      "prove explicit pause survives a monitor interval",
+      "resume and verify final phone health",
+      "persist execution and Venice completion receipts"
+    ]
+  },
+  "directive": "CONTINUE_REQUIRED_AFTER_LOCAL_ENABLE",
+  "recordedAt": "2026-08-13T12:35:00Z"
+}
