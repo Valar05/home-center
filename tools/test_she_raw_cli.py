@@ -58,6 +58,8 @@ def main():
             sent = Handler.seen[-1]["messages"]
             assert sent[-1] == {"role": "user", "content": raw}
             private_system = "\n".join(x["content"] for x in sent if x["role"] == "system")
+            assert "Ferociously Invitable" in private_system
+            assert result["receipt"]["context"]["judgmentJarSha256"]
             assert "Rowan protects Mara" in private_system
             assert "Drew protects June" not in private_system
             assert result["receipt"]["speech"]["cloudFallback"] is False
