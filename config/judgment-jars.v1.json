@@ -18,6 +18,11 @@
   },
   "receipts": {
     "schema": "home-center.judgment-jar-usage-receipt.v1",
+    "surfaces": [
+      "jar",
+      "home_center",
+      "vlad"
+    ],
     "outputKinds": [
       "context_packet",
       "answer",
@@ -36,11 +41,19 @@
       "no_change",
       "mixed"
     ],
+    "stateDirEnv": "HC_JUDGMENT_JAR_RECEIPT_STATE_DIR",
+    "stateDir": "~/.local/state/home-center/vlad-swarm/judgment-jar-receipts",
+    "homeCenterLedgerTitle": "Judgment Jar Usage Receipts — Vlad and Home Center",
+    "homeCenterLedgerFileIdEnv": "HC_JUDGMENT_JAR_RECEIPT_LEDGER_FILE_ID",
+    "flushBatchSize": 12,
+    "maximumBackoffSeconds": 900,
     "atomBaseUrlEnv": "HC_ATOM_URL",
     "atomDefaultBaseUrl": "http://127.0.0.1:8788",
     "atomReceiptPath": "/v1/atom/vlad/jars/receipts",
     "timeoutSeconds": 1.5,
     "appendOnly": true,
-    "pendingOutboxOldestFirst": true
+    "pendingOutboxOldestFirst": true,
+    "homeCenterReadbackRequired": true,
+    "contextAccessAndCreatedOutputAreDistinctReceipts": true
   }
 }
