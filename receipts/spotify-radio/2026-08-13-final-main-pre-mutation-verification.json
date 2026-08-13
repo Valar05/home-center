@@ -1,0 +1,135 @@
+{
+  "schema": "home-center.spotify-radio-final-pre-mutation-verification.v1",
+  "receiptId": "spotify-radio-final-pre-mutation-verification-20260813",
+  "repository": "Valar05/home-center",
+  "branch": "runtime/spotify-radio-final-migration-20260813",
+  "sourceHead": "43701d1cb8c97c9a4f56e5b3c913f689c6215269",
+  "sourceIsMergedMain": true,
+  "commission": "Perform a screenless, rollback-safe signer migration of the existing Home Center operator overlay, preserving the foreground application and local control-off state. After migration, recover background Phone Hands and run read-only Shizuku and exact Spotify-session probes. Do not click or foreground the phone, authorize Spotify, create a playlist, or start playback in this checkpoint.",
+  "sourceGates": {
+    "spotifyContracts": {
+      "passed": 36,
+      "failed": 0,
+      "evidenceRef": "hands-spotify-radio-capture-final-main-test-failure-20260813-01"
+    },
+    "pythonCompilation": "passed",
+    "phoneHandsRelayContract": "PASS",
+    "windowsDurableSignerWrapperContract": "PASS",
+    "androidUnitTests": {
+      "passed": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "androidAssembly": "PASS"
+  },
+  "finalArtifact": {
+    "pathOnAuthorizedBuilder": "C:\\Users\\dclar\\workspace\\home-center-worktrees\\spotify-radio-runtime-exec-20260813\\build\\operator-overlay-final-main-signed\\operator-overlay-debug.apk",
+    "receiptPathOnAuthorizedBuilder": "C:\\Users\\dclar\\workspace\\home-center-worktrees\\spotify-radio-runtime-exec-20260813\\build\\operator-overlay-final-main-signed\\operator-overlay-receipt.json",
+    "package": "com.homecenter.operatoroverlay",
+    "versionName": "1.3.0",
+    "versionCode": 4,
+    "sourceCommit": "43701d1cb8c97c9a4f56e5b3c913f689c6215269",
+    "sha256": "5d01f34d41b875eea3de3f93135a63a0be52c4ab3ab24b4bf8c85d90f523ea5b",
+    "byteCount": 105873,
+    "signingCertificateSha256": "c0652840ce34ab4e957ac6c99698c21b694c4ca09c412c473b72c02005909400",
+    "signingKeySha256": "ac58f4935b2bcaf67026100cec558bf49e400343c684b99f9efc45640f55b42c",
+    "signingSourceRef": "origin/generated/operator-overlay-apk",
+    "durableSigningKey": true,
+    "installed": false,
+    "deploymentEvidence": false,
+    "phoneTouchedByBuild": false,
+    "screenInteractionUsedByBuild": false,
+    "evidenceRef": "hands-spotify-radio-check-final-main-output-identity-20260813-01"
+  },
+  "observedPhoneBaseline": {
+    "device": "Pixel 10 Pro XL",
+    "serial": "61070DLCQ00045",
+    "pairedAdbTarget": "192.168.1.3:36667",
+    "foregroundComponent": "com.google.android.inputmethod.latin/com.google.android.apps.inputmethod.latin.preference.SettingsActivity",
+    "installedPackage": "com.homecenter.operatoroverlay",
+    "installedVersionName": "1.0.0",
+    "installedVersionCode": 1,
+    "installedApkSha256": "c5bf50d5132d4644db01e9d65da2989e44244447594544b84e3265ce41fc26e5",
+    "installedSignerSha256": "be0cb034e5da28aa8aa776cf2d7e1bfb1f88f4cb1ce8f7ac220751218aa64b24",
+    "runAsPrivateStateAccess": true,
+    "controlEnabled": false,
+    "screenLeaseActive": false,
+    "shizukuServerAlive": true,
+    "termuxForegroundServiceAlive": true,
+    "spotifyVersion": "9.1.72.1891",
+    "spotifyExactSessionPresent": false
+  },
+  "screenlessMigrationTransaction": {
+    "preflight": [
+      "Reconnect the existing paired ADB target and require the exact device serial and authorized device state.",
+      "Re-read foreground component, installed package/version/signer/APK path and hash, bounded provider state, app-ops, notification permission, Shizuku server state, and Termux state. Any unexpected material change stops before package mutation."
+    ],
+    "backupAndReadback": [
+      "Force-stop only com.homecenter.operatoroverlay without launching an Activity.",
+      "Pull the installed base APK and require its local SHA-256 to equal the device sha256sum.",
+      "Generate a complete package-private tar using run-as after force-stop, plus a device-generated per-file SHA-256 manifest.",
+      "List and extract the local archive, then compare extracted file hashes to the device manifest before uninstall.",
+      "Preserve bounded provider state, app-ops, granted permissions, installed identity, foreground baseline, and all recovery hashes in one immutable migration receipt."
+    ],
+    "packageMutation": [
+      "Push the exact final APK to /data/local/tmp and require remote SHA-256 5d01f34d41b875eea3de3f93135a63a0be52c4ab3ab24b4bf8c85d90f523ea5b.",
+      "Uninstall the old signer package only after both old APK and private-state recovery artifacts verify.",
+      "Install the exact durable-signed package without launching any Activity.",
+      "Require version 1.3.0/code 4, installed APK hash readback, and certificate c0652840ce34ab4e957ac6c99698c21b694c4ca09c412c473b72c02005909400."
+    ],
+    "boundedStateRestore": [
+      "Restore only muted, heartbeat/update timestamps, latest_source, panel_collapsed, and overlay_hidden through the DUMP-protected restore_migration_state provider method.",
+      "Explicitly supply control_enabled=false and both screen leases as zero; the provider must reject any wider field.",
+      "Restore SYSTEM_ALERT_WINDOW and POST_NOTIFICATIONS when they were previously applicable.",
+      "Start only com.homecenter.operatoroverlay/.OperatorOverlayService as a foreground service."
+    ],
+    "verification": [
+      "Foreground component remains exactly equal to the preflight baseline.",
+      "Provider readback shows control_enabled=0 and both screen leases 0, with bounded state matching the preserved values.",
+      "No Activity launch, screen input, deep link, generic media key, Spotify OAuth, playlist mutation, or playback occurs.",
+      "Old APK, private-state archive, file-hash manifest, and app-op/permission records remain independently readable for rollback."
+    ],
+    "rollback": [
+      "On any post-uninstall failure, remove the new package if present, reinstall the preserved old APK, stream the preserved private-state tar through run-as, restore old app-ops and permissions, and start only the old OperatorOverlayService.",
+      "Require old version, signer, state, foreground component, and recovery hashes to read back before reporting rollback success."
+    ],
+    "postMigrationReadOnly": [
+      "Recover Phone Hands through the background shell lane.",
+      "Attempt existing screenless Android authority to grant or verify Shizuku API permission; never open a permission prompt or click.",
+      "Probe Shizuku binder/version/permission, exact Spotify-session visibility, and typed RADIO status only. An absent or ambiguous session fails closed."
+    ]
+  },
+  "excluded": [
+    "phone taps, coordinates, typing, or other screen input",
+    "Activity launch, foreground change, deep links, or browser playback",
+    "generic media keys, media-button broadcasts, or cmd media_session dispatch",
+    "Spotify OAuth, account consent, playlist creation or mutation",
+    "playback, skipping, rolling refill, App Remote, or substitute player"
+  ],
+  "stopConditions": [
+    "ADB serial or foreground baseline mismatch",
+    "old APK or complete private-state recovery artifacts fail independent hash/readback verification",
+    "final APK source, hash, version, or signer mismatch",
+    "foreground changes, an Activity launches, control becomes enabled, or a screen lease becomes nonzero",
+    "bounded state, app-op, notification, service-start, or rollback verification fails",
+    "Shizuku permission remains a genuine user-owned consent boundary after all existing screenless authority is exhausted"
+  ],
+  "capabilityState": {
+    "finalMainArtifactVerified": true,
+    "recoveryArtifactsVerified": false,
+    "packageMutationStarted": false,
+    "overlayMigrated": false,
+    "stateRestored": false,
+    "rollbackProven": false,
+    "phoneHandsRecovered": false,
+    "shizukuPermissionVerified": false,
+    "spotifySessionCallable": false,
+    "spotifyAuthorized": false,
+    "playlistCreated": false,
+    "playbackVerified": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "createdAtUtc": "2026-08-13T21:22:00Z"
+}
