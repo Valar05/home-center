@@ -17,7 +17,7 @@ if (!executeBody.includes('state=overlay_status()')) throw new Error('status spe
 if (!executeBody.includes("if state.get('muted'):return {'ok':True,'action':'status_say','muted':True,'skipped':True}")) throw new Error('muted status speech skip contract missing');
 if (!executeBody.includes('if k in DIAGNOSTIC_ACTIONS:return diagnostics_execute(a)')) throw new Error('readonly diagnostics bypass regressed');
 if (!executeBody.includes('if k in OVERLAY_ACTIONS:return overlay_execute(a)')) throw new Error('overlay maintenance bypass regressed');
-if (!executeBody.includes('overlay_control_gate()\n return dispatch(a)')) throw new Error('unknown and interactive actions must remain fail-closed');
+if (!/overlay_control_gate\(\)\s*\n\s*return dispatch\(a\)/.test(executeBody)) throw new Error('unknown and interactive actions must remain fail-closed');
 
 const declarationStart = agent.indexOf('BACKGROUND_ACTIONS=');
 const declarationEnd = agent.indexOf('DEVICE_CAPABILITIES=', declarationStart);
