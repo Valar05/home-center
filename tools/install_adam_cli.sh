@@ -39,6 +39,7 @@ python3 tools/judgment_jar_receipt_contract_check.py
 python3 tools/test_adam_overlay_contract.py
 python3 tools/test_adam_overlay_delivery_state.py
 python3 tools/test_adam_cli_contract.py
+python3 tools/test_adam_text_mode_contract.py
 python3 tools/test_adam_codex_phone.py
 python3 tools/test_adam_venice_review_gate.py
 python3 tools/test_venice_plan_review.py
@@ -67,7 +68,7 @@ TMP_TARGET="$TARGET.tmp.$$"
 cat > "$TMP_TARGET" <<EOF
 #!/data/data/com.termux/files/usr/bin/bash
 case "\${1:-}" in
-  terminal|chat|continue|vlad)
+  terminal|text|chat|continue|vlad)
     exec "$PYTHON_BIN" "$ROUTER" "\$@"
     ;;
   *)
