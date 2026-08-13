@@ -10,6 +10,7 @@ STATE="$HOME/.local/state/atom"
 [ -f "$ROOT/config/judgment-jars.v1.json" ] || { echo "BLOCKED: Judgment Jar config missing" >&2; exit 2; }
 [ -f "$ROOT/tools/setup_vlad_swarm_daemon.sh" ] || { echo "BLOCKED: Vlad daemon setup missing" >&2; exit 2; }
 [ -f "$ROOT/tools/venice_fleshpunk_phone.sh" ] || { echo "BLOCKED: Fleshpunk phone generator missing" >&2; exit 2; }
+[ -f "$ROOT/tools/accept_venice_fleshpunk_phone.sh" ] || { echo "BLOCKED: Fleshpunk phone acceptance gate missing" >&2; exit 2; }
 mkdir -p "$DEST" "$BIN" "$BOOT" "$STATE"
 rm -rf "$DEST.new"
 mkdir -p "$DEST.new"
@@ -18,6 +19,7 @@ mkdir -p "$DEST.new/config"
 cp "$ROOT/config/judgment-jars.v1.json" "$DEST.new/config/"
 mkdir -p "$DEST.new/tools"
 cp "$ROOT/tools/venice_fleshpunk_phone.sh" "$DEST.new/tools/"
+cp "$ROOT/tools/accept_venice_fleshpunk_phone.sh" "$DEST.new/tools/"
 cp "$ROOT/tools/ssh_axis.py" "$DEST.new/tools/"
 cp "$ROOT/tools/resolve_cauldron_ssh.py" "$DEST.new/tools/"
 rm -rf "$DEST.old"
@@ -41,6 +43,11 @@ cat > "$BIN/venice-image" <<'EOF'
 exec bash "$HOME/.local/share/atom/tools/venice_fleshpunk_phone.sh" "$@"
 EOF
 chmod 700 "$BIN/venice-image"
+cat > "$BIN/venice-image-accept" <<'EOF'
+#!/data/data/com.termux/files/usr/bin/sh
+exec bash "$HOME/.local/share/atom/tools/accept_venice_fleshpunk_phone.sh" "$@"
+EOF
+chmod 700 "$BIN/venice-image-accept"
 cat > "$BIN/venice-image-ui" <<'EOF'
 #!/data/data/com.termux/files/usr/bin/sh
 set -eu
@@ -92,4 +99,4 @@ if command -v termux-notification >/dev/null 2>&1; then
     --button3 'Fleshpunk Image' \
     --button3-action "bash -l -c '$HOME/bin/venice-image-ui'" >/dev/null 2>&1 || true
 fi
-printf 'ATOM_PHONE_INSTALLED root=%s ui=http://127.0.0.1:8788 notification=6500 judgment_jars=%s image_command=%s image_ui=%s\n' "$DEST" "$HOME/.local/state/home-center/vlad-swarm/judgment-jars.json" "$BIN/venice-image" "$BIN/venice-image-ui"
+printf 'ATOM_PHONE_INSTALLED root=%s ui=http://127.0.0.1:8788 notification=6500 judgment_jars=%s image_command=%s image_accept=%s image_ui=%s\n' "$DEST" "$HOME/.local/state/home-center/vlad-swarm/judgment-jars.json" "$BIN/venice-image" "$BIN/venice-image-accept" "$BIN/venice-image-ui"
