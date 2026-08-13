@@ -1,0 +1,142 @@
+name: Deploy final Reality Membrane contract corrections
+
+on:
+  push:
+    branches:
+      - reality-membrane-canary-20260813
+    paths:
+      - .github/workflows/deploy-reality-membrane-final-corrections.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+  id-token: write
+
+concurrency:
+  group: deploy-reality-membrane-final-corrections
+  cancel-in-progress: false
+
+env:
+  TEST_COMMAND_ID: phc_reality_final_authorized_tests_20260813
+  HC_FIREBASE_SA: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_HOME_CENTER_DCLAR }}
+  HC_GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
+  HC_GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
+  HC_FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+  HC_FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+  HC_WIF_PROVIDER: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+  HC_WIF_SERVICE_ACCOUNT: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+  GH_TOKEN: ${{ github.token }}
+
+jobs:
+  gate-test-deploy:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: reality-membrane-canary-20260813
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Rebase latest feature work
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'home-center-github-admin[bot]'
+          git config user.email 'home-center-github-admin[bot]@users.noreply.github.com'
+          git fetch origin reality-membrane-canary-20260813
+          git rebase origin/reality-membrane-canary-20260813
+      - name: Authenticate with workload identity when configured
+        if: env.HC_WIF_PROVIDER != '' && env.HC_WIF_SERVICE_ACCOUNT != ''
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ env.HC_WIF_PROVIDER }}
+          service_account: ${{ env.HC_WIF_SERVICE_ACCOUNT }}
+      - name: Select Firebase credentials
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -n "${HC_WIF_PROVIDER}" ] && [ -n "${HC_WIF_SERVICE_ACCOUNT}" ]; then echo 'AUTH_MODE=workload_identity' >> "$GITHUB_ENV"; exit 0; fi
+          credential=''
+          for candidate in "$HC_FIREBASE_SA" "$HC_GOOGLE_CREDENTIALS" "$HC_GCP_SA_KEY" "$HC_FIREBASE_SERVICE_ACCOUNT"; do if [ -n "$candidate" ]; then credential="$candidate"; break; fi; done
+          if [ -n "$credential" ]; then
+            path="$RUNNER_TEMP/home-center-firebase-service-account.json"
+            printf '%s' "$credential" > "$path"
+            chmod 600 "$path"
+            echo "GOOGLE_APPLICATION_CREDENTIALS=$path" >> "$GITHUB_ENV"
+            echo 'AUTH_MODE=service_account_json' >> "$GITHUB_ENV"
+          elif [ -n "$HC_FIREBASE_TOKEN" ]; then echo 'AUTH_MODE=firebase_token' >> "$GITHUB_ENV"
+          else echo 'No recognized Firebase/GCP deployment credential is configured.' >&2; exit 41; fi
+      - name: Install function dependencies
+        run: npm ci --prefix functions
+      - name: Gate on terminal primary-phone final test receipt
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd functions
+          node - <<'NODE'
+          const admin=require('firebase-admin');if(!admin.apps.length)admin.initializeApp({projectId:'home-center-dclar'});const db=admin.firestore(),sleep=ms=>new Promise(r=>setTimeout(r,ms));
+          (async()=>{const id=process.env.TEST_COMMAND_ID,deadline=Date.now()+25*60*1000;let c=null;while(Date.now()<deadline){const s=await db.collection('phoneHandsCommands').doc(id).get();c=s.exists?s.data():null;if(c&&['completed','failed'].includes(c.status))break;await sleep(5000);}const r=c&&c.result||{},out=String(r.stdout||'');const required=['Reality Membrane contract tests passed','Reality Membrane runtime patch contract tests passed','Reality Membrane observe contract tests passed','Reality Membrane observe wiring tests passed','Reality Membrane stale reconciliation and accessibility tests passed','Reality Membrane unknown/projection/accessibility tests passed','Inner Fortress Reality Membrane canary scene tests passed','Venice Reality Membrane review tests passed','REALITY_FINAL_AUTHORIZED_BODY_TESTS=passed'];if(!c||c.status!=='completed'||r.ok!==true||Number(r.exitCode)!==0||required.some(x=>!out.includes(x)))throw new Error('final_phone_gate_failed:'+JSON.stringify(c));console.log(JSON.stringify({commandId:id,status:c.status,completedAtMs:c.completedAtMs,stdout:out}));})().catch(e=>{console.error(e.stack||e);process.exit(1)});
+          NODE
+      - name: Apply all canonical corrections and rerun complete suite
+        run: |
+          node tools/install_reality_membrane_runtime_patch.mjs
+          node tools/install_reality_membrane_observe_patch.mjs
+          node tools/install_reality_membrane_stale_accessibility_patch.mjs
+          node tools/install_reality_membrane_unknown_projection_patch.mjs
+          node tools/reality_membrane_contract_test.mjs
+          node tools/reality_membrane_runtime_patch_test.mjs
+          node tools/reality_membrane_observe_contract_test.mjs
+          node tools/reality_membrane_observe_wiring_test.mjs
+          node tools/reality_membrane_stale_accessibility_test.mjs
+          node tools/reality_membrane_unknown_projection_test.mjs
+          node tools/inner_fortress_reality_canary_scene_test.mjs
+          node tools/reality_membrane_venice_review_test.mjs
+          git diff --check
+      - name: Deploy only Home Center MCP
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ "$AUTH_MODE" = 'firebase_token' ]; then
+            npx --yes firebase-tools@latest deploy --project home-center-dclar --only functions:homeCenterMcp --non-interactive --token "$HC_FIREBASE_TOKEN"
+          else
+            npx --yes firebase-tools@latest deploy --project home-center-dclar --only functions:homeCenterMcp --non-interactive
+          fi
+      - name: Record final-corrections deployment boundary
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p docs/evidence
+          node - <<'NODE'
+          const fs=require('node:fs'),crypto=require('node:crypto');const receipt={schema:'home-center.reality-membrane.final-corrections-deployment.v1',recordedAt:new Date().toISOString(),repository:process.env.GITHUB_REPOSITORY,branch:'reality-membrane-canary-20260813',sourceSha:process.env.GITHUB_SHA,authorizedPhoneTestCommandId:process.env.TEST_COMMAND_ID,deployment:{project:'home-center-dclar',function:'homeCenterMcp',region:'us-central1'},corrections:['null_is_unavailable','compact_projection_retains_complete_observation_contract','natural_am_pm_speech','unavailable_audio_and_connectivity_spoken_explicitly','stale_reconciliation_capability_truth'],stateLedger:{implemented:true,testedOnAuthorizedPhone:true,deployed:true,callableProofPending:true,canaryV3Accepted:false},evidenceBoundary:'A fresh post-deploy Home Center reality.observe request and Venice-approved downstream scene remain required.'};receipt.receiptSha256=crypto.createHash('sha256').update(JSON.stringify(receipt)).digest('hex');fs.writeFileSync('docs/evidence/reality-membrane-final-corrections-deployment-20260813.json',JSON.stringify(receipt,null,2)+'\n');
+          NODE
+      - name: Rebase, retain final source and receipt, remove one-use workflows
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch origin reality-membrane-canary-20260813
+          git rebase origin/reality-membrane-canary-20260813
+          node tools/install_reality_membrane_runtime_patch.mjs
+          node tools/install_reality_membrane_observe_patch.mjs
+          node tools/install_reality_membrane_stale_accessibility_patch.mjs
+          node tools/install_reality_membrane_unknown_projection_patch.mjs
+          node tools/reality_membrane_contract_test.mjs
+          node tools/reality_membrane_runtime_patch_test.mjs
+          node tools/reality_membrane_observe_contract_test.mjs
+          node tools/reality_membrane_observe_wiring_test.mjs
+          node tools/reality_membrane_stale_accessibility_test.mjs
+          node tools/reality_membrane_unknown_projection_test.mjs
+          node tools/inner_fortress_reality_canary_scene_test.mjs
+          node tools/reality_membrane_venice_review_test.mjs
+          git rm --ignore-unmatch .github/workflows/apply-reality-membrane-unknown-projection.yml
+          git rm --ignore-unmatch .github/workflows/deploy-reality-membrane-final-corrections.yml
+          git add functions/home_center_mcp.js functions/reality_membrane.js functions/reality_membrane_runtime.js tools/install_reality_membrane_runtime_patch.mjs tools/install_reality_membrane_observe_patch.mjs tools/install_reality_membrane_stale_accessibility_patch.mjs tools/install_reality_membrane_unknown_projection_patch.mjs tools/reality_membrane_contract_test.mjs tools/reality_membrane_runtime_patch_test.mjs tools/reality_membrane_observe_contract_test.mjs tools/reality_membrane_observe_wiring_test.mjs tools/reality_membrane_stale_accessibility_test.mjs tools/reality_membrane_unknown_projection_test.mjs tools/inner_fortress_reality_canary_scene.mjs tools/inner_fortress_reality_canary_scene_test.mjs tools/reality_membrane_venice_review.mjs tools/reality_membrane_venice_review_test.mjs docs/evidence/reality-membrane-final-corrections-deployment-20260813.json
+          git diff --cached --check
+          if ! git diff --cached --quiet; then git commit -m 'Deploy final Reality Membrane contract corrections'; fi
+          git push origin HEAD:reality-membrane-canary-20260813
+      - name: Comment deployed boundary on PR 267
+        shell: bash
+        run: |
+          gh pr comment 267 --repo "$GITHUB_REPOSITORY" --body 'Final contract corrections deployed after the complete terminal `primary-phone` test suite: null now means unavailable, compact projections retain every required observation field, spoken summaries use natural AM/PM and name unavailable route/connectivity, and offline capability reporting matches stale reconciliation. Receipt: `docs/evidence/reality-membrane-final-corrections-deployment-20260813.json`. Fresh canary v3 remains required.'
