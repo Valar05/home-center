@@ -4,6 +4,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 BUILD = ROOT / "tools/build_operator_overlay_termux.sh"
 DEPLOY = ROOT / "tools/deploy_spotify_overlay_radio_phone.sh"
+BOOTSTRAP = ROOT / "tools/bootstrap_spotify_overlay_radio_phone.sh"
 SETUP = ROOT / "tools/setup_spotify_radio.sh"
 
 
@@ -18,6 +19,7 @@ def forbid(text: str, needle: str) -> None:
 def main() -> int:
     build = BUILD.read_text(encoding="utf-8")
     deploy = DEPLOY.read_text(encoding="utf-8")
+    bootstrap = BOOTSTRAP.read_text(encoding="utf-8")
     setup = SETUP.read_text(encoding="utf-8")
 
     for marker in (
@@ -56,6 +58,21 @@ def main() -> int:
     forbid(deploy, "setControlEnabled")
     forbid(deploy, "control_enabled=1")
     forbid(deploy, "pm uninstall com.dclar.homecenter")
+
+    for marker in (
+        "spotify-overlay-radio-src",
+        "GIT_LFS_SKIP_SMUDGE=1",
+        "--filter=blob:none --no-checkout --single-branch",
+        "sparse-checkout set android/operator-overlay tools skills config .continue",
+        "HC_SPOTIFY_RADIO_EXPECTED_COMMIT",
+        "dedicatedGeneratedClone",
+        "dirtySharedCheckoutUsed",
+        "exec bash \"$DEST/tools/deploy_spotify_overlay_radio_phone.sh\"",
+    ):
+        require(bootstrap, marker)
+    forbid(bootstrap, "/storage/emulated/0/Documents/GodotProjects/home-center")
+    forbid(bootstrap, "git -C /storage/emulated/0/Documents")
+
     require(setup, "home-center.spotify-radio.install-receipt.v1")
     require(setup, "spotifyCredentialsStored")
     require(setup, "spotifyWebApiUsed")
