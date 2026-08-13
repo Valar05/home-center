@@ -135,6 +135,25 @@ def main() -> int:
         assert jars.resolve_jar(first, "ANDROID 67 Judgment Jar KEEP")["status"] == "unregistered"
         assert jars.search_jars(first, "restart scarcity")[0]["id"] == "vlad-the-adversary-keeps-the-edge"
 
+        vlad = jars.resolve_jar(first, "Vlad — The Adversary Keeps the Edge")
+        native = jars.fetch_native_source(
+            vlad, config, cache, refresh=True,
+            fetcher=lambda jar, _cfg: {
+                "spreadsheetId": jar["sourceFileId"],
+                "range": "A1:C3",
+                "values": [["Criterion", "Gate"], ["Restart", "PASS"]],
+            },
+        )
+        assert native["state"] == "synced"
+        assert native["sourceFileId"] == "vlad-sheet"
+        assert native["sheet"]["values"][1] == ["Restart", "PASS"]
+        native_stale = jars.fetch_native_source(
+            vlad, config, cache, refresh=True,
+            fetcher=lambda _jar, _cfg: (_ for _ in ()).throw(RuntimeError("native source offline")),
+        )
+        assert native_stale["state"] == "stale"
+        assert native_stale["sheet"]["values"][1] == ["Restart", "PASS"]
+
         # A connector failure never destroys the last complete cabinet snapshot.
         def broken(_config):
             raise RuntimeError("connector unavailable")
@@ -182,6 +201,8 @@ def main() -> int:
                 "dynamicRepositoryDiscovery": True,
                 "homeCenterCabinetSync": True,
                 "homeCenterDiscoveryOfUnregisteredJars": True,
+                "nativeSourceOnDemand": True,
+                "nativeSourceStaleCachePreservation": True,
                 "staleCachePreservation": True,
                 "americanBritishAliasCompatibility": True,
                 "atomicCache": True,
