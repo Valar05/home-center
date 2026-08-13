@@ -1,0 +1,44 @@
+{
+  "schema": "home-center.spotify-playlist-account-receipt.v1",
+  "observedAt": "2026-08-13T15:00:00Z",
+  "provider": "spotify",
+  "account": {
+    "displayIdentity": "dclarke1005",
+    "authenticationSource": "existing authenticated Spotify Premium desktop session",
+    "credentialsReadOrExported": false
+  },
+  "playlist": {
+    "name": "Adam Radio - Rolling",
+    "owner": "dclarke1005",
+    "description": "Background build radio curated and controlled by Adam. Promptable through the Home Center overlay.",
+    "trackCount": 6,
+    "duration": "23:57",
+    "tracks": [
+      {"position": 1, "title": "Battles", "artist": "Alpine Universe"},
+      {"position": 2, "title": "Turbo Killer", "artist": "Carpenter Brut"},
+      {"position": 3, "title": "Future Club", "artist": "Perturbator"},
+      {"position": 4, "title": "Infinite Ammo", "artist": "Le Castle Vania"},
+      {"position": 5, "title": "Switchback", "artist": "Celldweller"},
+      {"position": 6, "title": "The Empire of Winds", "artist": "Alpine Universe"}
+    ],
+    "publicUri": "",
+    "publicUriVerified": false
+  },
+  "observation": {
+    "lane": "Home Center -> Computer Hands -> THECAULDRON -> Windows UI Automation -> authenticated Spotify desktop app",
+    "windowTitle": "Spotify Premium",
+    "workerId": "windows-hands-01",
+    "ticketId": "hands-spotify-desktop-uia-readonly-20260813-05",
+    "playlistAccountReadbackVerified": true
+  },
+  "capabilityState": {
+    "playlistRequested": true,
+    "playlistExistsInProviderAccount": true,
+    "playlistPopulated": true,
+    "publicUriCaptured": false,
+    "phoneWidgetDeployed": false,
+    "phoneBackgroundPlaybackVerified": false,
+    "humanAudibleAcceptance": false
+  },
+  "evidenceBoundary": "This receipt proves the named playlist and six-track contents were read from Drew's authenticated Spotify account. It does not prove a public URI, phone deployment, background playback, widget control, rolling recovery, or human audible acceptance."
+}
