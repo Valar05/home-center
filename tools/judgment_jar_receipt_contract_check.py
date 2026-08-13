@@ -11,4 +11,17 @@ assert "context_packet" in receipts["outputKinds"]
 assert "review_verdict" in receipts["outputKinds"]
 assert receipts["homeCenterReadbackRequired"] is True
 assert receipts["contextAccessAndCreatedOutputAreDistinctReceipts"] is True
+
+strict_module = ROOT / "tools/judgment_jar_receipt_truth.py"
+quarantine_test = ROOT / "tools/test_judgment_jar_receipt_quarantine_truth.py"
+assert strict_module.is_file()
+assert quarantine_test.is_file()
+
+vlad_cli = (ROOT / "tools/judgment_jars.py").read_text(encoding="utf-8")
+receipt_cli = (ROOT / "tools/jar_receipt.py").read_text(encoding="utf-8")
+assert "from judgment_jar_receipt_truth import" in vlad_cli
+assert "from judgment_jar_receipt_truth import" in receipt_cli
+assert "apply_import_truth" in vlad_cli
+assert "IMPORT_QUARANTINED" in vlad_cli
+
 print("judgment_jar_receipt_contract: PASS")
