@@ -1,0 +1,139 @@
+name: Deploy Reality Membrane status checkpoint
+
+on:
+  push:
+    branches:
+      - reality-membrane-canary-20260813
+    paths:
+      - .github/workflows/deploy-reality-membrane-status-checkpoint.yml
+
+permissions:
+  contents: write
+  pull-requests: write
+  id-token: write
+
+concurrency:
+  group: deploy-reality-membrane-status-checkpoint
+  cancel-in-progress: false
+
+env:
+  REALITY_COMMAND_ID: phc_reality_membrane_authorized_tests_20260813
+  HC_FIREBASE_SA: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_HOME_CENTER_DCLAR }}
+  HC_GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
+  HC_GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
+  HC_FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+  HC_FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+  HC_WIF_PROVIDER: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+  HC_WIF_SERVICE_ACCOUNT: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+  GH_TOKEN: ${{ github.token }}
+
+jobs:
+  gate-test-deploy:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: reality-membrane-canary-20260813
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Rebase completed branch work
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'home-center-github-admin[bot]'
+          git config user.email 'home-center-github-admin[bot]@users.noreply.github.com'
+          git fetch origin reality-membrane-canary-20260813
+          git rebase origin/reality-membrane-canary-20260813
+      - name: Authenticate with workload identity when configured
+        if: env.HC_WIF_PROVIDER != '' && env.HC_WIF_SERVICE_ACCOUNT != ''
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ env.HC_WIF_PROVIDER }}
+          service_account: ${{ env.HC_WIF_SERVICE_ACCOUNT }}
+      - name: Select Firebase credentials
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -n "${HC_WIF_PROVIDER}" ] && [ -n "${HC_WIF_SERVICE_ACCOUNT}" ]; then echo 'AUTH_MODE=workload_identity' >> "$GITHUB_ENV"; exit 0; fi
+          credential=''
+          for candidate in "$HC_FIREBASE_SA" "$HC_GOOGLE_CREDENTIALS" "$HC_GCP_SA_KEY" "$HC_FIREBASE_SERVICE_ACCOUNT"; do
+            if [ -n "$candidate" ]; then credential="$candidate"; break; fi
+          done
+          if [ -n "$credential" ]; then
+            path="$RUNNER_TEMP/home-center-firebase-service-account.json"
+            printf '%s' "$credential" > "$path"
+            chmod 600 "$path"
+            echo "GOOGLE_APPLICATION_CREDENTIALS=$path" >> "$GITHUB_ENV"
+            echo 'AUTH_MODE=service_account_json' >> "$GITHUB_ENV"
+          elif [ -n "$HC_FIREBASE_TOKEN" ]; then
+            echo 'AUTH_MODE=firebase_token' >> "$GITHUB_ENV"
+          else
+            echo 'No recognized Firebase/GCP deployment credential is configured.' >&2
+            exit 41
+          fi
+      - name: Install function dependencies
+        run: npm ci --prefix functions
+      - name: Gate on actual primary-phone test command
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd functions
+          node - <<'NODE'
+          const admin=require('firebase-admin');if(!admin.apps.length)admin.initializeApp({projectId:'home-center-dclar'});const db=admin.firestore();const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+          (async()=>{const deadline=Date.now()+12*60*1000,id=process.env.REALITY_COMMAND_ID;let c=null;while(Date.now()<deadline){const s=await db.collection('phoneHandsCommands').doc(id).get();c=s.exists?s.data():null;if(c&&['completed','failed'].includes(c.status))break;await sleep(5000);}const r=c&&c.result||{};const out=String(r.stdout||'');const required=['Reality Membrane contract tests passed','Reality Membrane runtime patch contract tests passed','REALITY_AUTHORIZED_BODY_TESTS=passed'];if(!c||c.status!=='completed'||r.ok!==true||Number(r.exitCode)!==0||required.some(x=>!out.includes(x)))throw new Error('authorized_phone_gate_failed:'+JSON.stringify(c));console.log(JSON.stringify({commandId:id,status:c.status,completedAtMs:c.completedAtMs,stdout:out}));})().catch(e=>{console.error(e.stack||e);process.exit(1)});
+          NODE
+      - name: Apply canonical wiring and run deterministic contracts
+        shell: bash
+        run: |
+          set -euo pipefail
+          node tools/install_reality_membrane_runtime_patch.mjs
+          node tools/reality_membrane_contract_test.mjs
+          node tools/reality_membrane_runtime_patch_test.mjs
+          git diff --check
+      - name: Deploy only Home Center MCP
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ "$AUTH_MODE" = 'firebase_token' ]; then
+            npx --yes firebase-tools@latest deploy --project home-center-dclar --only functions:homeCenterMcp --non-interactive --token "$HC_FIREBASE_TOKEN"
+          else
+            npx --yes firebase-tools@latest deploy --project home-center-dclar --only functions:homeCenterMcp --non-interactive
+          fi
+      - name: Record deployed function metadata
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p docs/evidence
+          if command -v gcloud >/dev/null 2>&1; then
+            gcloud functions describe homeCenterMcp --gen2 --region us-central1 --project home-center-dclar --format=json > "$RUNNER_TEMP/function.json"
+          else
+            printf '{}' > "$RUNNER_TEMP/function.json"
+          fi
+          node - <<'NODE'
+          const fs=require('node:fs'),crypto=require('node:crypto');let fn={};try{fn=JSON.parse(fs.readFileSync(process.env.RUNNER_TEMP+'/function.json','utf8'))}catch{}
+          const receipt={schema:'home-center.reality-membrane.status-deployment.v1',recordedAt:new Date().toISOString(),repository:process.env.GITHUB_REPOSITORY,branch:'reality-membrane-canary-20260813',sourceSha:process.env.GITHUB_SHA,phoneTestCommandId:process.env.REALITY_COMMAND_ID,deployment:{project:'home-center-dclar',function:'homeCenterMcp',region:'us-central1',state:fn.state||'deployed_by_firebase_cli',updateTime:fn.updateTime||'',uri:fn.serviceConfig&&fn.serviceConfig.uri||'',service:fn.serviceConfig&&fn.serviceConfig.service||'',revision:fn.serviceConfig&&fn.serviceConfig.revision||''},surface:['reality.status','reality.sources','reality.capabilities'],stateLedger:{implemented:true,testedOnAuthorizedPhone:true,deployed:true,callableProofPending:true,observeImplemented:false,canaryAccepted:false},evidenceBoundary:'Deployment metadata is not callable proof. Home Center must invoke the operations after this deployment.'};receipt.receiptSha256=crypto.createHash('sha256').update(JSON.stringify(receipt)).digest('hex');fs.writeFileSync('docs/evidence/reality-membrane-status-deployment-20260813.json',JSON.stringify(receipt,null,2)+'\n');
+          NODE
+      - name: Rebase, commit deployed source and remove one-use workflows
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch origin reality-membrane-canary-20260813
+          git rebase origin/reality-membrane-canary-20260813
+          node tools/install_reality_membrane_runtime_patch.mjs
+          node tools/reality_membrane_contract_test.mjs
+          node tools/reality_membrane_runtime_patch_test.mjs
+          git rm --ignore-unmatch .github/workflows/apply-reality-membrane-runtime-wiring.yml
+          git rm --ignore-unmatch .github/workflows/record-reality-membrane-authorized-body-checkpoint.yml
+          git rm --ignore-unmatch .github/workflows/deploy-reality-membrane-status-checkpoint.yml
+          git add functions/home_center_mcp.js functions/reality_membrane.js tools/install_reality_membrane_runtime_patch.mjs tools/reality_membrane_contract_test.mjs tools/reality_membrane_runtime_patch_test.mjs docs/evidence/reality-membrane-status-deployment-20260813.json
+          git diff --cached --check
+          if ! git diff --cached --quiet; then git commit -m 'Deploy Reality Membrane status surfaces'; fi
+          git push origin HEAD:reality-membrane-canary-20260813
+      - name: Comment deployment boundary on PR 267
+        shell: bash
+        run: |
+          set -euo pipefail
+          gh pr comment 267 --repo "$GITHUB_REPOSITORY" --body 'Read-only `reality.status`, `reality.sources`, and `reality.capabilities` were deployed only after the terminal `primary-phone` deterministic test command passed. Deployment receipt: `docs/evidence/reality-membrane-status-deployment-20260813.json`. This is deployed state, not callable proof and not canary acceptance; Home Center must now invoke all three operations through `drive_operation`.'

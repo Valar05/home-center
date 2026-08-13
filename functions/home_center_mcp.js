@@ -19,6 +19,7 @@ const {CARTESIA_DEFAULT_MODEL_ID, CARTESIA_DEFAULT_VOICE_NAME, listCartesiaVoice
 const {refreshGeminiCatalog} = require('./gemini_speech_provider');
 const {synthesizeGeminiArtifact} = require('./gemini_tts_artifact_service');
 const voiceTierPolicy = require('./voice_tier_policy');
+const realityMembraneService = require('./reality_membrane_service');
 const {preflightArtifactEnvelope} = require('./artifact_transport');
 const {openAiFileParamJsonSchema, openAiFileParamZodSchema, materializeOpenAiHostFile, materializeOpenAiHostFileToTemp} = require('./host_file_ingress');
 const {
@@ -5001,6 +5002,7 @@ function driveOperationRegistry() {
     invocationTool: 'drive_operation',
     cachePolicy: 'New bridge and simulation operations should be invokable through drive_operation so ChatGPT does not need a top-level MCP tool refresh for every backend code change. Cartesia TTS is a direct Home Center MCP provider operation; it must not be routed through Command Center jobs or workers.',
     operations: {
+      ...realityMembraneService.operationEntries(),
       'time.now': {summary: 'Return the current Home Center runtime time.', write: false, requiredScopes: [], input: {}},
       ...artifactOperationEntries(),
       ...tvtroperOperationEntries(),
@@ -5966,6 +5968,19 @@ async function driveOperationRunOperation({google, admin, auth, user, extra = nu
   delete operationArgs.type;
   delete operationArgs.toolName;
   delete operationArgs.args;
+  if (realityMembraneService.operationEntries()[operation]) {
+    const result = await realityMembraneService.runOperation({
+      operation, admin, user, args: operationArgs,
+      callCommandCenter: async (commandCenterOperation, commandCenterArgs) => {
+        const response = await commandCenterOperationRunOperation({
+          google, admin, googleClientId, googleClientSecret, extra,
+          args: {operation: commandCenterOperation, args: commandCenterArgs},
+        });
+        return response.result;
+      },
+    });
+    return {operation, registryVersion: registry.version, completed: true, result};
+  }
   if (localVoiceOperationEntries()[operation]) {
     requireCreditGatedEmail(user && user.email, operation);
     const result = await localVoiceOperationRunOperation({admin, user, operation, args: operationArgs});

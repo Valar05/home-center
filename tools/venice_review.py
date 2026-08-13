@@ -70,11 +70,35 @@ def deterministic_checks(root, base_commit, head_commit):
     names = [x for x in git_text(root, "diff", "--name-only", f"{base_commit}..{head_commit}").splitlines() if x.strip()]
     conflict, secrets = [], []
     for name in names:
-        try: text = git_text(root, "show", f"{head_commit}:{name}")
+        try: head_text = git_text(root, "show", f"{head_commit}:{name}")
         except Exception: continue
-        for lineno, line in enumerate(text.splitlines(), 1):
+        for lineno, line in enumerate(head_text.splitlines(), 1):
             if line.startswith(("<<<<<<<", "=======", ">>>>>>>")): conflict.append(f"{name}:{lineno}")
-            if re.search(r"(?i)(api[_-]?key|secret|token|password)\s*[:=]\s*['\"][^'\"]{12,}", line): secrets.append(f"{name}:{lineno}")
+
+    # Secret detection is mutation-scoped. Scanning every line in every changed
+    # file produces false positives from old schema prose such as
+    # `repositoryToken: 'short-lived credential description'`. Review added
+    # lines only, while conflict markers remain a whole-file safety check.
+    patch = git_text(root, "diff", "--unified=0", "--no-ext-diff", f"{base_commit}..{head_commit}")
+    current_name = ""
+    new_lineno = 0
+    for line in patch.splitlines():
+        if line.startswith("+++ b/"):
+            current_name = line[6:]
+            continue
+        if line.startswith("@@"):
+            match = re.search(r"\+(\d+)(?:,(\d+))?", line)
+            new_lineno = int(match.group(1)) if match else 0
+            continue
+        if line.startswith("+") and not line.startswith("+++"):
+            added = line[1:]
+            if re.search(r"(?i)(api[_-]?key|secret|token|password)\s*[:=]\s*['\"][^'\"]{12,}", added):
+                secrets.append(f"{current_name}:{new_lineno}")
+            new_lineno += 1
+        elif line.startswith("-") and not line.startswith("---"):
+            continue
+        elif new_lineno:
+            new_lineno += 1
     checks.append({"name":"conflict_markers","ok":not conflict,"detail":", ".join(conflict[:20])})
     checks.append({"name":"obvious_embedded_secrets","ok":not secrets,"detail":", ".join(secrets[:20])})
     return checks, names

@@ -283,13 +283,46 @@ async function devicePull(admin, {deviceId, deviceToken, leaseMs = 30000} = {}) 
   const now = Date.now();
   await devRef.set({lastSeenAtMs: now, status: 'online'}, {merge: true});
   const query = await admin.firestore().collection(COLLECTIONS.commands)
-    .where('ownerKey','==',device.ownerKey).where('deviceId','==',id).where('status','==','queued').limit(10).get();
-  const candidates = query.docs.map((d) => d.data()).filter((x) => Number(x.expiresAtMs || 0) > now).sort((a,b) => a.createdAtMs-b.createdAtMs);
-  if (!candidates.length) return {ok: true, command: null};
-  const chosen = candidates[0];
-  const leaseOwner = `device:${id}`;
-  await admin.firestore().collection(COLLECTIONS.commands).doc(chosen.commandId).set({status:'leased', leaseOwner, leaseExpiresAtMs: now + Math.max(5000, Math.min(Number(leaseMs), 120000)), updatedAtMs: now}, {merge:true});
-  return {ok: true, command: {...chosen, status:'leased', leaseOwner}};
+    .where('ownerKey','==',device.ownerKey).where('deviceId','==',id).where('status','==','queued').limit(100).get();
+  const queued = query.docs.map((d) => d.data()).sort((a,b) => a.createdAtMs-b.createdAtMs);
+  const expired = queued.filter((x) => Number(x.expiresAtMs || 0) <= now);
+  if (expired.length) {
+    await admin.firestore().runTransaction(async (transaction) => {
+      const records = [];
+      for (const command of expired.slice(0, 80)) {
+        if (!command.commandId) continue;
+        const ref = admin.firestore().collection(COLLECTIONS.commands).doc(command.commandId);
+        records.push({ref, snapshot: await transaction.get(ref)});
+      }
+      for (const record of records) {
+        const current = record.snapshot.exists ? (record.snapshot.data() || {}) : {};
+        if (current.status !== 'queued' || Number(current.expiresAtMs || 0) > now) continue;
+        transaction.set(record.ref, {
+          status:'failed', error:'expired_before_lease', completedAtMs:now, updatedAtMs:now, leaseExpiresAtMs:0,
+        }, {merge:true});
+      }
+    });
+  }
+  const candidates = queued.filter((x) => Number(x.expiresAtMs || 0) > now);
+  for (const candidate of candidates) {
+    if (!candidate.commandId) continue;
+    const leased = await admin.firestore().runTransaction(async (transaction) => {
+      const ref = admin.firestore().collection(COLLECTIONS.commands).doc(candidate.commandId);
+      const snapshot = await transaction.get(ref);
+      if (!snapshot.exists) return null;
+      const current = snapshot.data() || {};
+      if (current.status !== 'queued' || Number(current.expiresAtMs || 0) <= now) return null;
+      const leaseOwner = `device:${id}`;
+      transaction.set(ref, {
+        status:'leased', leaseOwner,
+        leaseExpiresAtMs:now + Math.max(5000, Math.min(Number(leaseMs), 120000)),
+        updatedAtMs:now,
+      }, {merge:true});
+      return {...current, status:'leased', leaseOwner};
+    });
+    if (leased) return {ok:true, command:leased};
+  }
+  return {ok:true, command:null};
 }
 async function deviceComplete(admin, {deviceId, deviceToken, commandId, status, result, error} = {}) {
   const id = cleanDeviceId(deviceId);
