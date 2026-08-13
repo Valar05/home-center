@@ -1,0 +1,107 @@
+{
+  "schema": "fortress.venice-judgment-jar-receipt.v1",
+  "reviewerRole": "venice-judgment-jar",
+  "reviewerMode": "judgment_jar",
+  "commission": "Make Drew's primary Android phone audibly speak through the existing Pocket Space TTS implementation exactly: Holocron audio check. Pocket Space TTS is online. Then make the method a durable, reusable, broadly scoped skill.",
+  "verdict": "PASS",
+  "directive": "STOP_ALLOWED",
+  "selectedJars": [
+    "mission-boundary",
+    "execution-truth",
+    "mechanism-identity",
+    "physical-effect-evidence",
+    "accessibility",
+    "failure-recovery",
+    "cumulative-corrections",
+    "durability",
+    "completion-gate"
+  ],
+  "evidenceReviewed": {
+    "targetIdentity": {
+      "deviceId": "primary-phone",
+      "label": "Drew Android Phone",
+      "ownerKey": "owner_4d27b7e75b7c82c17ff779ccbbd24137",
+      "finalStatus": "online",
+      "finalLastSeenAtMs": 1786619336159
+    },
+    "physicalExecution": {
+      "commandId": "000-holocron-pocket-space-verified-playback-20260813-0633",
+      "terminalStatus": "completed",
+      "exitCode": 0,
+      "exactPhrase": "Holocron audio check. Pocket Space TTS is online.",
+      "provider": "pocket-home-center",
+      "engine": "pocket-tts-phone",
+      "transport": "shizuku-rish",
+      "outputComponent": "com.dclar.homecenter/.PocketTtsPlaybackActivity",
+      "playbackVerified": true,
+      "activityLaunchAcknowledged": true,
+      "playStartObserved": true,
+      "playCompletedObserved": true,
+      "audioSeconds": 4.36,
+      "systemFallbackUsed": false,
+      "cloudFallbackUsed": false
+    },
+    "humanAcceptance": {
+      "acceptedBy": "Drew Clarke",
+      "statement": "It worked",
+      "accepted": true
+    },
+    "finalPhoneObservation": {
+      "commandId": "000-final-embodied-phone-status-20260813-0647",
+      "terminalStatus": "completed",
+      "stateReadable": true,
+      "controlEnabled": true,
+      "muted": false,
+      "screenLeaseActive": false
+    },
+    "stableRuntime": {
+      "installCommandId": "000-install-stable-embodied-runtime-20260813-0642",
+      "doctorCommandId": "000-stable-fortress-read-doctor-20260813-0646",
+      "wrapper": "/data/data/com.termux/files/home/bin/fortress-read",
+      "installedSource": "/data/data/com.termux/files/home/.local/lib/home-center/embodied-communication/fortress_read_aloud.py",
+      "doctorReady": true,
+      "independentOfDirtyCheckout": true
+    },
+    "durableArtifacts": {
+      "executionReceipt": "receipts/embodied-communication/2026-08-13-holocron-pocket-space-audio-check.json",
+      "executionReceiptCommit": "742073f74c0b0ae863fddae3db93f74e9468a315",
+      "skill": "skills/embodied-communication/SKILL.md",
+      "skillCommit": "9515ef29f928a56a0bf02672174d57a5e87b24d4",
+      "promotedSkillObjectId": "bucket_e17bcd3879faeb5798aafddc93ab7948",
+      "contractTest": "tools/pocket_space_playback_contract_test.mjs",
+      "stableInstaller": "tools/install_embodied_communication_phone.sh"
+    }
+  },
+  "adversarialFindings": [
+    {
+      "finding": "The first apparent success was synthesis-only because pockettts-say generated a WAV without playback.",
+      "resolution": "Rejected as insufficient; the accepted run uses the full Pocket Space synthesis-to-Android-playback path with component start and completion evidence."
+    },
+    {
+      "finding": "The Home Center APK initially lacked the required PocketTtsPlaybackActivity.",
+      "resolution": "Restored, built, signed, installed, permission-granted, and component-resolved on primary-phone."
+    },
+    {
+      "finding": "Theme.NoDisplay crashed asynchronous playback before sound began.",
+      "resolution": "Replaced with a lifecycle-safe translucent theme and locked with deterministic regression coverage."
+    },
+    {
+      "finding": "The ordinary repository checkout is dirty and unsuitable as a stable runtime dependency.",
+      "resolution": "Installed the reviewed reader by SHA to a stable Termux library path and atomically repointed fortress-read."
+    }
+  ],
+  "capabilityJudgment": {
+    "requested": true,
+    "implemented": true,
+    "tested": true,
+    "deployed": true,
+    "callable": true,
+    "executed": true,
+    "physicalPlaybackVerified": true,
+    "delivered": true,
+    "accepted": true,
+    "durableSkillPromoted": true
+  },
+  "note": "No substitute engine, scheduler, notification, browser speech, system TTS, or chat-only output was credited. The physical commission and the requested durability work are both complete.",
+  "reviewedAtMs": 1786619366649
+}
