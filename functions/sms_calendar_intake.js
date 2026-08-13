@@ -379,6 +379,10 @@ function publicRecord(record) {
   };
 }
 
+function memberTextMiningAuthorized(member) {
+  return Boolean(member) && member.textMiningAuthorized === true;
+}
+
 async function authorizedBucketIds(admin, user) {
   const email = actor(user).email;
   const snapshot = await admin.firestore().collectionGroup('members').where('email', '==', email).get();
@@ -386,7 +390,7 @@ async function authorizedBucketIds(admin, user) {
   for (const doc of snapshot.docs || []) {
     const segments = doc.ref.path.split('/');
     const member = doc.data && doc.data() || {};
-    if (member.textMiningAuthorized !== true) continue;
+    if (!memberTextMiningAuthorized(member)) continue;
     if (segments.length === 4 && segments[0] === 'households' && segments[2] === 'members') ids.add(segments[1]);
   }
   if (!ids.size) throw statusError(403, 'Text message mining is not authorized for the connected Home Center identity.');
@@ -913,6 +917,7 @@ module.exports = {
   extractAliases,
   firestoreStore,
   hashObject,
+  memberTextMiningAuthorized,
   messageId,
   normalizedProposal,
   providerEventId,
