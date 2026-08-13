@@ -1,0 +1,43 @@
+{
+  "schema": "venice-judgment-jar-receipt.v1",
+  "reviewer": "adam-as-venice",
+  "reviewerMode": "judgment_jar_emulation",
+  "commission": "Continue the Fortress phone campaign after fresh triage found sshLocal=false and repair-core failed at local SSH repair, without touching Drew's dirty live worktree.",
+  "evidence": {
+    "runtimeRevision": "8b0093af7b949755cc21299d0928db063605a6b0",
+    "phoneTriage": {
+      "atom": true,
+      "notificationMenu": false,
+      "overlay": true,
+      "phoneHands": true,
+      "sshLocal": false,
+      "vladCanonicalRuntime": false,
+      "runtimeUpgradePending": true
+    },
+    "failure": "repair-core degraded: SSH local repair failed",
+    "sourceInspected": "tools/phone_ssh_service.sh"
+  },
+  "selectedJudgmentJars": [
+    "observable evidence outranks confidence",
+    "unknowns remain unknown",
+    "failure closes toward autonomy, not improvisation",
+    "appetite has an invoice",
+    "aftermath exists",
+    "Vlad phone scarcity/restart doctrine"
+  ],
+  "verdict": "PASS",
+  "directive": "CONTINUE_REQUIRED",
+  "planPermissionGranted": true,
+  "findings": [
+    "Current SSH helper suppresses sshd launch/config diagnostics, so another blind retry would violate observable-evidence doctrine.",
+    "Local listener health must remain distinct from external SSH Axis callability.",
+    "Repair must remain bounded and deterministic; no new daemon or model-based recovery loop is justified."
+  ],
+  "approvedPlan": [
+    "Improve the existing phone_ssh_service.sh only: preserve sshd diagnostics, validate sshd configuration, use Termux-aware process/listener probes, and keep bounded receipt history.",
+    "Do not mutate the dirty phone worktree; land source canonically and let fortress-campaign refresh its isolated runtime.",
+    "Resume the same campaign and use the resulting phone receipt to choose the next bounded repair."
+  ],
+  "note": "This is the explicitly authorized Venice Judgment-Jar emulation mode, not a local Venice model response. Stopping is denied; continue the same campaign.",
+  "createdAt": "2026-08-12T21:21:00-05:00"
+}
