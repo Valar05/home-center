@@ -20,6 +20,38 @@
     "mayOwnSchedulerTruth": false,
     "maySelfCertifyCompletion": false
   },
+  "judgmentJars": {
+    "schema": "home-center.judgment-jars.registry.v2",
+    "authorities": {
+      "repositoryOperationalCore": ".continue/rules/*judgement-jar*.md",
+      "homeCenterCabinetRegistry": {
+        "title": "START HERE — Judgment Jar Registry",
+        "fileId": "1UixBuLJRw-x5BoMGx81YXRpuN66iZhGGJoz40Iqx48Q",
+        "role": "cabinet index and jurisdiction routes; not a replacement for native project-local Jar sources"
+      },
+      "homeCenterDiscovery": "Drive title search for new Jar artifacts not yet indexed by the cabinet"
+    },
+    "discovery": "dynamic; never a hard-coded subset",
+    "syncOwner": "existing Home Center vlad-swarm daemon; no duplicate watcher",
+    "configPath": "config/judgment-jars.v1.json",
+    "cachePath": "~/.local/state/home-center/vlad-swarm/judgment-jars.json",
+    "cli": "vlad-jars",
+    "atomEndpoint": "/v1/atom/vlad/jars",
+    "americanBritishAliasCompatibility": true,
+    "cacheMustPreserve": [
+      "full body for repository operational Jars",
+      "cabinet summary and jurisdiction route for registered Home Center Jars",
+      "metadata route for newly discovered unregistered Home Center Jars",
+      "source path or file ID",
+      "source authority and completeness",
+      "source sha256 and registry digest",
+      "source commit and Home Center freshness state"
+    ],
+    "nativeSourceRule": "A cabinet summary makes a Jar discoverable and routable. Exact scoring, criteria, formulas, or case execution must read the linked native Sheet or Doc.",
+    "failureMode": "preserve the previous valid Home Center cabinet snapshot, rebuild local operational Jars, label the cache stale/degraded, and never erase a Jar because a connector is temporarily unavailable",
+    "nativeSourceCommand": "vlad-jars source <id-or-alias>",
+    "nativeSourceCache": "~/.local/state/home-center/vlad-swarm/judgment-jar-sources/<jar-id>.json"
+  },
   "questions": [
     "What breaks after process death?",
     "What hidden state exists?",
@@ -30,7 +62,12 @@
     "Is an existing proven organ being bypassed?",
     "Is the operator being asked to do work an authorized body can do?"
   ],
-  "verdicts": ["GO", "GO-WITH-SCAR", "REJECT", "NEED-EVIDENCE"],
+  "verdicts": [
+    "GO",
+    "GO-WITH-SCAR",
+    "REJECT",
+    "NEED-EVIDENCE"
+  ],
   "consultation": {
     "veniceMayAskAtAnyCodingSeam": true,
     "transfersCodingOwnership": false,
@@ -43,7 +80,17 @@
     "maxParallelWorkers": 8,
     "workerBoot": "PORTCULLIS LOCKED",
     "conversationBulkLivesOnDesktop": true,
-    "phoneStores": ["mission", "job", "worker id", "tab id", "state", "receipt pointer", "handoff", "review state"],
+    "phoneStores": [
+      "mission",
+      "job",
+      "worker id",
+      "tab id",
+      "state",
+      "receipt pointer",
+      "handoff",
+      "review state",
+      "Judgment Jar registry digest"
+    ],
     "chatgptIsOperatorSurface": false
   },
   "stopLaw": {
