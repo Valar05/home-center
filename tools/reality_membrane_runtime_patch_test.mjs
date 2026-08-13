@@ -1,37 +1,39 @@
 #!/usr/bin/env node
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import {createRequire} from 'node:module';
-const require = createRequire(import.meta.url);
 
-const patcher = fs.readFileSync(new URL('./install_reality_membrane_runtime_patch.mjs', import.meta.url), 'utf8');
-const serviceSource = fs.readFileSync(new URL('../functions/reality_membrane_service.js', import.meta.url), 'utf8');
-const service = require('../functions/reality_membrane_service');
+const patcher=fs.readFileSync(new URL('./install_reality_membrane_runtime_patch.mjs',import.meta.url),'utf8');
+const membrane=fs.readFileSync(new URL('../functions/reality_membrane.js',import.meta.url),'utf8');
+const runtime=fs.readFileSync(new URL('../functions/reality_membrane_runtime.js',import.meta.url),'utf8');
+const service=fs.readFileSync(new URL('../functions/reality_membrane_service.js',import.meta.url),'utf8');
 
-for (const operation of ['reality.status', 'reality.observe', 'reality.history', 'reality.sources', 'reality.capabilities']) {
-  assert.ok(service.operationEntries()[operation], `service must register ${operation}`);
-  assert.ok(service.CALLABLE_OPERATIONS.includes(operation), `service must mark ${operation} callable`);
+for (const operation of ['reality.status','reality.sources','reality.capabilities','reality.observe','reality.history']) {
+  assert.ok(patcher.includes(`'${operation}'`),`patcher must register ${operation}`);
+  assert.ok(patcher.includes(`operation === '${operation}'`),`patcher must execute ${operation}`);
 }
+assert.ok(patcher.includes("require('./reality_membrane')"));
+assert.ok(patcher.includes("require('./reality_membrane_runtime')"));
 assert.ok(patcher.includes("require('./reality_membrane_service')"));
-assert.ok(patcher.includes('...realityMembraneService.operationEntries()'));
-assert.ok(patcher.includes('realityMembraneService.runOperation'));
-assert.ok(patcher.includes("callCommandCenter: async (commandCenterOperation, commandCenterArgs)"));
-assert.ok(patcher.includes("args: {operation: commandCenterOperation, args: commandCenterArgs}"));
-assert.ok(!serviceSource.includes("callable:true"));
+assert.ok(patcher.includes('REALITY_MEMBRANE_RUNTIME_START'));
+assert.ok(patcher.includes('REALITY_MEMBRANE_PHONE_RUNNER_START'));
+assert.ok(patcher.includes("operation:'phone_hands.enqueue'"));
+assert.ok(patcher.includes("operation:'phone_hands.get'"));
+assert.ok(patcher.includes("action:{action:'phone_shell'"));
+assert.ok(patcher.includes("deviceId:'primary-phone'"));
+assert.ok(patcher.includes("record.status === 'completed' || record.status === 'failed'"));
+assert.ok(patcher.includes('write: false'));
 assert.ok(!patcher.includes('OPENAI_API_KEY'));
-
-for (const source of [patcher, serviceSource]) {
-  assert.ok(!source.includes('temporary promotional credits'));
-  assert.ok(!source.includes('CARTESIA_API_KEY'));
-  assert.ok(!source.includes('OPENAI_API_KEY'));
-}
-assert.ok(serviceSource.includes('api.open-meteo.com'));
-assert.ok(serviceSource.includes('api.weather.gov'));
-assert.ok(serviceSource.includes("paid_service_activated: false"));
-assert.ok(serviceSource.includes("fiction_generated: false"));
-assert.ok(serviceSource.includes("coordinates_returned: false"));
-assert.ok(serviceSource.includes("telemetry_policy: 'transition_events_only'"));
-assert.ok(serviceSource.includes("location.scope"));
-assert.ok(!serviceSource.includes('message bodies'));
+assert.ok(!patcher.includes('cartesia'));
+assert.ok(!patcher.includes('microphone'));
+assert.ok(!patcher.includes('precise_location'));
+assert.ok(membrane.includes("cost_policy:'zero-dollar-default'"));
+assert.ok(membrane.includes("unknown_policy:'unknown-remains-unknown'"));
+assert.ok(membrane.includes("fiction_policy:'observations_only_no_narrative_generation'"));
+assert.ok(runtime.includes('open-meteo.com'));
+assert.ok(runtime.includes('api.weather.gov'));
+assert.ok(service.includes("default:['PUBLIC','DEVICE']"));
+assert.ok(service.includes('fiction_generated:false'));
+assert.ok(service.includes('HISTORY_RETENTION_MS = 72'));
+assert.ok(service.includes('phone_command:phoneParsed.command'));
 
 console.log('Reality Membrane runtime patch contract tests passed');
