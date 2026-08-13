@@ -1,12 +1,5 @@
 #!/usr/bin/env python3
-"""Adam body router for Home Center.
-
-This file intentionally contains no conversational personality runtime.
-Bare `adam` is installed to tools/adam_planned_venice.py. The Android overlay
-keeps TERM/CHAT/CONT/VLAD transport names; CHAT/CONT/VLAD become bounded
-commissions for the same planned, Jar-governed Codex worker. Only terminal is
-an exact no-interpretation shell body lane.
-"""
+"""Adam body router for Home Center and the phone-local governed scene loop."""
 from __future__ import annotations
 
 import argparse
@@ -17,8 +10,11 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 WORKER = ROOT / "tools" / "adam_planned_venice.py"
-ONE_SHOT_MODES = ("terminal", "chat", "continue", "vlad")
+CANON_SOURCER = ROOT / "tools" / "canon_sourcer.py"
+SHE_RAW_CLI = ROOT / "tools" / "she_raw_cli.py"
+ONE_SHOT_MODES = ("terminal", "chat", "continue", "vlad", "scene", "she-raw")
 MAX_RECEIPT_TEXT = 6000
+MAX_CANON_PACKET = 18000
 
 
 def tail(value: str, limit: int = MAX_RECEIPT_TEXT) -> str:
@@ -27,7 +23,7 @@ def tail(value: str, limit: int = MAX_RECEIPT_TEXT) -> str:
 
 
 def receipt(mode: str, ok: bool, **data) -> int:
-    print(json.dumps({"schema": "adam-body-router-v3", "mode": mode, "ok": bool(ok), **data}, ensure_ascii=False, sort_keys=True))
+    print(json.dumps({"schema": "adam-body-router-v4", "mode": mode, "ok": bool(ok), **data}, ensure_ascii=False, sort_keys=True))
     return 0 if ok else 1
 
 
@@ -40,22 +36,86 @@ def run_terminal(text: str, cwd: str, timeout: int) -> int:
 
 def worker_commission(mode: str, text: str) -> str:
     if mode == "chat":
-        return f"Conversational request from Drew. Research any material unknowns, make a bounded plan, select relevant Judgment Jars, antagonize the plan, obtain Venice PLAN_ALLOWED, then respond usefully. Do not execute unless Drew's text clearly requests action. Drew said: {text}"
+        return f"Conversational request from Drew. Research material unknowns, make a bounded plan, select relevant Judgment Jars, antagonize the plan, obtain Venice PLAN_ALLOWED, then respond usefully. Do not execute unless Drew clearly requests action. Drew said: {text}"
     if mode == "continue":
         return f"Coding/work commission from Drew. Research repository truth, plan, select relevant Judgment Jars, antagonize, obtain Venice PLAN_ALLOWED, then work Codex-style, validate, and return exact evidence after Venice completion/code review. Commission: {text}"
     if mode == "vlad":
-        return f"Drew explicitly requests an independent critical second opinion in Vlad's role. Research material unknowns, plan the bounded analysis, select relevant Judgment Jars, antagonize assumptions, obtain Venice PLAN_ALLOWED, then return a concise governed response. Question: {text}"
+        return f"Drew requests an independent critical second opinion in Vlad's role. Research material unknowns, plan the bounded analysis, select relevant Judgment Jars, antagonize assumptions, obtain Venice PLAN_ALLOWED, then return a concise governed response. Question: {text}"
     raise ValueError(mode)
 
 
-def run_worker(mode: str, text: str, cwd: str, timeout: int) -> int:
+def run_worker_commission(mode: str, commission: str, cwd: str) -> int:
     if not WORKER.is_file():
         return receipt(mode, False, error="worker_missing", worker=str(WORKER))
-    if not text.strip():
-        return receipt(mode, False, error="empty_request")
-    commission = worker_commission(mode, text)
     p = subprocess.run([sys.executable, str(WORKER), commission], cwd=cwd, text=True, capture_output=True)
     return receipt(mode, p.returncode == 0, worker="codex-phone-planned-venice-reviewed", jarGoverned=True, preExecutionPlanReview=True, veniceReviewed=True, daemonBackoff=True, rc=p.returncode, stdout=tail(p.stdout), stderr=tail(p.stderr))
+
+
+def run_worker(mode: str, text: str, cwd: str) -> int:
+    if not text.strip():
+        return receipt(mode, False, error="empty_request")
+    return run_worker_commission(mode, worker_commission(mode, text), cwd)
+
+
+def run_scene(text: str, cwd: str, timeout: int) -> int:
+    if not text.strip():
+        return receipt("scene", False, error="empty_request")
+    if not CANON_SOURCER.is_file():
+        return receipt("scene", False, error="canon_sourcer_missing", sourcer=str(CANON_SOURCER))
+    canary = "Vanguard kicks Android 67's ass proper. Android puts up a good fight, visibly improves, and gets weirder. Vanguard remains a woman, Alexis De’arc, and her established authority, grounded Zornhau, and victory may not be flattened or transferred to Android."
+    query = f"Vanguard Alexis De’arc Android 67 Zornhau Fleshpunk spar canon {text}"
+    source = subprocess.run([sys.executable, str(CANON_SOURCER), "packet", query], cwd=cwd, text=True, capture_output=True, timeout=timeout)
+    if source.returncode != 0:
+        return receipt("scene", False, error="canon_packet_failed", rc=source.returncode, stdout=tail(source.stdout), stderr=tail(source.stderr))
+    try:
+        packet = json.loads(source.stdout)
+        canon_text = str(packet["text"])[:MAX_CANON_PACKET]
+        canon_hash = str(packet["sha256"])
+        canon_sources = packet["sources"]
+    except (KeyError, TypeError, json.JSONDecodeError) as exc:
+        return receipt("scene", False, error=f"invalid_canon_packet:{exc}", stdout=tail(source.stdout))
+    commission = f"""PHONE-LOCAL INNER FORTRESS SCENE TURN
+
+PERMANENT INNER-WORLD GATE:
+She-Raw — Ferociously Invitable is always present at the threshold to the Inner World. She is not an optional cameo or a late review pass. Before a scene may cross inward, She-Raw must challenge conventionalizing assumptions, canon leakage, false safety, and decorative weirdness while preserving honest play. Her gate keeps it real; it does not replace Drew's authority, Android 67's sovereignty, Regnet QA, or Venice's continuation ruling.
+
+Drew's scene request:
+{text}
+
+Reality law:
+Use as little inference as possible while making the Inner Fortress disgustingly realistic and imaginative. Derive strangeness from observed bodies, appetite, material conditions, sensory consequence, and character choice. Label unsupported bridges UNKNOWN.
+
+Acceptance canary:
+{canary}
+
+Deterministic canon packet SHA-256: {canon_hash}
+{canon_text}
+
+Required route:
+1. Treat the canon packet and Drew's current words as evidence; do not promote guesses.
+2. Pass the always-on She-Raw threshold gate. Record SHE_RAW_GATE: PASS|FAIL with one plain-language reason. A FAIL blocks the Inner World crossing and revises only the failed slice.
+3. Select only the narrowest additional Character/Judgment Jar context required by the case; She-Raw remains present regardless.
+4. Draft one playable scene turn only after the She-Raw gate passes.
+5. Regnet QA must return VERDICT: PASS|FAIL, BLOCKERS, and NEXT. A FAIL revises only the failed slice.
+6. Venice must give the final CONTINUE or STOP_ALLOWED ruling.
+7. Return the scene plus compact provenance and distinct She-Raw, Jar, Regnet, and Venice rulings. Never call the scene canon merely because the pipeline ran.
+
+Hard canary gate: Vanguard wins decisively after a real fight. Android improves and gets weirder without defeating, diminishing, masculinizing, or replacing Vanguard."""
+    if not WORKER.is_file():
+        return receipt("scene", False, error="worker_missing", worker=str(WORKER))
+    p = subprocess.run([sys.executable, str(WORKER), commission], cwd=cwd, text=True, capture_output=True)
+    return receipt("scene", p.returncode == 0, worker="codex-phone-planned-venice-reviewed", canonSourcer="deterministic", canonPacketSha256=canon_hash, canonSources=canon_sources, canary="vanguard-wins-android-improves-and-gets-weirder", sheRawGate="always-on-inner-world-threshold", regnetRequired=True, veniceReviewed=True, rc=p.returncode, stdout=tail(p.stdout), stderr=tail(p.stderr))
+
+
+def run_she_raw(text: str, cwd: str) -> int:
+    """Direct local character speech; never wrap, rewrite, or execute it."""
+    if not SHE_RAW_CLI.is_file():
+        print(f"BLOCKED: She Raw CLI missing: {SHE_RAW_CLI}", file=sys.stderr)
+        return 3
+    argv = [sys.executable, str(SHE_RAW_CLI)]
+    if text:
+        argv.append(text)
+    return subprocess.run(argv, cwd=cwd).returncode
 
 
 def run_mode(mode: str, text: str, cwd: str, timeout: int) -> int:
@@ -63,7 +123,11 @@ def run_mode(mode: str, text: str, cwd: str, timeout: int) -> int:
         return receipt(mode, False, error="unsupported_mode")
     if mode == "terminal":
         return run_terminal(text, cwd, timeout)
-    return run_worker(mode, text, cwd, timeout)
+    if mode == "scene":
+        return run_scene(text, cwd, timeout)
+    if mode == "she-raw":
+        return run_she_raw(text, cwd)
+    return run_worker(mode, text, cwd)
 
 
 def main(argv=None) -> int:
@@ -72,8 +136,12 @@ def main(argv=None) -> int:
     parser.add_argument("text", nargs="?", default="")
     parser.add_argument("--cwd", default=str(ROOT))
     parser.add_argument("--timeout", type=int, default=300)
+    parser.add_argument("--doctor", action="store_true", help="check the selected local runtime")
     args = parser.parse_args(argv)
-    text = args.text if args.text else sys.stdin.read()
+    if args.mode == "she-raw":
+        text = "--doctor" if args.doctor else args.text
+    else:
+        text = args.text if args.text else sys.stdin.read()
     return run_mode(args.mode, text, args.cwd, args.timeout)
 
 

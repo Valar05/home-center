@@ -6,12 +6,18 @@ router = (ROOT / "tools/adam.py").read_text(encoding="utf-8")
 core = (ROOT / "tools/adam_codex_phone.py").read_text(encoding="utf-8")
 planned = (ROOT / "tools/adam_planned_venice.py").read_text(encoding="utf-8")
 reviewed = (ROOT / "tools/adam_venice_reviewed.py").read_text(encoding="utf-8")
+receipted = (ROOT / "tools/adam_receipted_worker.py").read_text(encoding="utf-8")
 installer = (ROOT / "tools/install_adam_cli.sh").read_text(encoding="utf-8")
 
 for token in [
-    'ONE_SHOT_MODES = ("terminal", "chat", "continue", "vlad")',
+    'ONE_SHOT_MODES = ("terminal", "chat", "continue", "vlad", "scene", "she-raw")',
     'def run_terminal(',
     'def run_worker(',
+    'def run_scene(',
+    'def run_she_raw(',
+    'if args.mode == "she-raw":',
+    'SHE_RAW_CLI = ROOT / "tools" / "she_raw_cli.py"',
+    'Use as little inference as possible',
     'def worker_commission(',
     'WORKER = ROOT / "tools" / "adam_planned_venice.py"',
     'preExecutionPlanReview=True',
@@ -64,12 +70,21 @@ for token in [
 
 # The installer writes a shell wrapper through a heredoc, so $@ is escaped in
 # the installer source and becomes literal $@ in the installed wrapper.
-assert 'WORKER="$ROOT/tools/adam_planned_venice.py"' in installer
+assert 'WORKER="$ROOT/tools/adam_receipted_worker.py"' in installer
+assert "import adam_planned_venice as worker" in receipted
+assert "return worker.main(" in receipted
 assert 'exec "$PYTHON_BIN" "$WORKER" "\\$@"' in installer
 assert 'exec "$PYTHON_BIN" "$ROOT/tools/adam_venice_reviewed.py"' not in installer
 assert 'venicePlanReviewReceiptVerified' in installer
 assert 'veniceStopReviewReceiptVerified' in installer
-assert 'terminal|chat|continue|vlad)' in installer
+assert 'terminal|chat|continue|vlad|scene|she-raw)' in installer
+assert 'tools/test_she_raw_cli.py' in installer
+assert 'config/she-raw-cli.v1.json' in installer
+assert 'config/she-raw-jar-cache.md' in installer
+assert 'innerFortressSceneRoute' in installer
+assert 'sheRawLocalOnly' in installer
+assert '$TARGET she-raw --doctor' in installer
+assert 'sheRawDoctorReady' in installer
 assert '|shell)' not in installer
 
 for forbidden in ['def run_shell(', 'local_exec_plan', 'execute_plan', 'Adam online. Chat naturally', 'ollama_generate']:

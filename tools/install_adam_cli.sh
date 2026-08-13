@@ -19,6 +19,12 @@ for f in \
   "$ROOT/tools/adam_planned_venice.py" \
   "$ROOT/tools/adam_venice_reviewed.py" \
   "$ROOT/tools/adam_codex_phone.py" \
+  "$ROOT/tools/she_raw_cli.py" \
+  "$ROOT/tools/canon_sourcer.py" \
+  "$ROOT/config/she-raw-cli.v1.json" \
+  "$ROOT/config/she-raw-jar-cache.md" \
+  "$ROOT/config/she-raw-aliases.example.json" \
+  "$ROOT/config/canon-sources.v1.json" \
   "$ROOT/tools/judgment_jar_runtime.py" \
   "$ROOT/tools/judgment_jars.py" \
   "$ROOT/tools/judgment_jar_receipts.py" \
@@ -40,6 +46,8 @@ python3 tools/test_adam_overlay_contract.py
 python3 tools/test_adam_overlay_delivery_state.py
 python3 tools/test_adam_cli_contract.py
 python3 tools/test_adam_codex_phone.py
+python3 tools/test_she_raw_cli.py
+python3 -m unittest tests.test_canon_sourcer
 python3 tools/test_adam_venice_review_gate.py
 python3 tools/test_venice_plan_review.py
 python3 tools/test_venice_review_memory.py
@@ -49,6 +57,8 @@ python3 -m py_compile \
   tools/adam_receipted_worker.py \
   tools/accept_adam_receipted_phone.py \
   tools/adam_codex_phone.py \
+  tools/she_raw_cli.py \
+  tools/canon_sourcer.py \
   tools/adam_venice_reviewed.py \
   tools/adam_planned_venice.py \
   tools/judgment_jar_runtime.py \
@@ -63,11 +73,18 @@ python3 -m py_compile \
   tools/accept_adam_executive_phone.py \
   tools/vlad_swarm_daemon.py
 
-TMP_TARGET="$TARGET.tmp.$$"
+SHE_RAW_ALIAS_CONFIG="${HC_SHE_RAW_ALIASES:-$HOME/.config/home-center/she-raw-aliases.json}"
+mkdir -p "$(dirname "$SHE_RAW_ALIAS_CONFIG")"
+if [ ! -f "$SHE_RAW_ALIAS_CONFIG" ]; then
+  cp "$ROOT/config/she-raw-aliases.example.json" "$SHE_RAW_ALIAS_CONFIG"
+  chmod 600 "$SHE_RAW_ALIAS_CONFIG"
+fi
+
+TMP_TARGET="$TARGET.tmp.$"
 cat > "$TMP_TARGET" <<EOF
 #!/data/data/com.termux/files/usr/bin/bash
 case "\${1:-}" in
-  terminal|chat|continue|vlad)
+  terminal|chat|continue|vlad|scene|she-raw)
     exec "$PYTHON_BIN" "$ROUTER" "\$@"
     ;;
   *)
@@ -85,6 +102,9 @@ printf '%s\n' "$CANARY" | grep -q 'ADAM_BODY_OK' || { echo 'BLOCKED: Adam body t
 bash tools/ensure_adam_phone_brain.sh | tee "$BRAIN_RECEIPT"
 grep -q '"ok":true' "$BRAIN_RECEIPT" || { echo 'BLOCKED: Adam phone model did not become healthy.' >&2; exit 5; }
 
+SHE_RAW_CANARY="$($TARGET she-raw --doctor)"
+printf '%s\n' "$SHE_RAW_CANARY" | grep -q '"ready": true' || { echo 'BLOCKED: direct local She Raw runtime did not become ready.' >&2; exit 9; }
+
 python3 tools/accept_adam_receipted_phone.py | tee "$ACCEPT_RECEIPT"
 grep -q '"ok": true' "$ACCEPT_RECEIPT" || { echo 'BLOCKED: Adam planned/Venice-reviewed Codex worker acceptance failed.' >&2; exit 6; }
 grep -q '"venicePlanReviewReceiptVerified": true' "$ACCEPT_RECEIPT" || { echo 'BLOCKED: Adam pre-execution Venice plan receipt not verified.' >&2; exit 7; }
@@ -96,9 +116,9 @@ if command -v git >/dev/null 2>&1 && git -C "$ROOT" rev-parse HEAD >/dev/null 2>
 fi
 WORKER_SHA="$(sha256sum "$WORKER" | awk '{print $1}')"
 
-python3 - "$RECEIPT" "$SOURCE_SHA" "$WORKER_SHA" "$TARGET" "$WORKER" "$CANARY" "$ACCEPT_RECEIPT" "$BRAIN_RECEIPT" <<'PY'
+python3 - "$RECEIPT" "$SOURCE_SHA" "$WORKER_SHA" "$TARGET" "$WORKER" "$CANARY" "$ACCEPT_RECEIPT" "$BRAIN_RECEIPT" "$SHE_RAW_CANARY" "$SHE_RAW_ALIAS_CONFIG" <<'PY'
 import json,sys,time
-path,source_commit,worker_sha,target,worker,canary,accept_path,brain_path=sys.argv[1:]
+path,source_commit,worker_sha,target,worker,canary,accept_path,brain_path,she_raw_canary,alias_path=sys.argv[1:]
 accept=json.load(open(accept_path,encoding='utf-8'))
 brain=json.load(open(brain_path,encoding='utf-8'))
 obj={
@@ -129,6 +149,10 @@ obj={
   'bodyTransportCanary':'ADAM_BODY_OK' in canary,
   'phoneModelHealthy':brain.get('ok') is True,
   'phoneModelStatus':brain.get('status'),
+  'sheRawLocalOnly':True,
+  'sheRawDoctorReady':'"ready": true' in she_raw_canary,
+  'sheRawAliasConfig':alias_path,
+  'innerFortressSceneRoute':True,
   'installedAtEpoch':int(time.time()),
 }
 open(path,'w',encoding='utf-8').write(json.dumps(obj,indent=2,sort_keys=True)+'\n')
