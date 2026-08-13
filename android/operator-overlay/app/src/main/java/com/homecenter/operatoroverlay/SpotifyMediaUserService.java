@@ -24,7 +24,8 @@ import java.util.Locale;
 public final class SpotifyMediaUserService extends ISpotifyMediaControl.Stub {
     static final String TARGET_PACKAGE = "com.spotify.music";
     static final String BACKEND = "shizuku-user-service";
-    private static final int VERIFY_SETTLE_MS = 450;
+    private static final int VERIFY_POLL_MS = 100;
+    private static final int VERIFY_TIMEOUT_MS = 4000;
 
     private final Context context;
 
@@ -79,6 +80,7 @@ public final class SpotifyMediaUserService extends ISpotifyMediaControl.Stub {
         JSONObject receipt = baseReceipt(normalized);
         receipt.put("mediaSessionAuthority", lookup.authority);
         receipt.put("activeSessionCount", lookup.activeSessionCount);
+        receipt.put("spotifySessionCount", lookup.spotifySessionCount);
         receipt.put("spotifySessionPresent", lookup.controller != null);
         receipt.put("authorityError", lookup.authorityError);
         JSONObject before = sessionState(lookup.controller);
@@ -88,6 +90,12 @@ public final class SpotifyMediaUserService extends ISpotifyMediaControl.Stub {
             receipt.put("ok", false);
             receipt.put("verified", false);
             receipt.put("error", "SPOTIFY_SESSION_AUTHORITY_UNAVAILABLE");
+            return receipt;
+        }
+        if (lookup.spotifySessionCount > 1) {
+            receipt.put("ok", false);
+            receipt.put("verified", false);
+            receipt.put("error", "SPOTIFY_SESSION_AMBIGUOUS");
             return receipt;
         }
         if (lookup.controller == null) {
@@ -144,9 +152,17 @@ public final class SpotifyMediaUserService extends ISpotifyMediaControl.Stub {
                 return failure("SPOTIFY_ACTION_UNSUPPORTED", normalized);
         }
 
-        SystemClock.sleep(VERIFY_SETTLE_MS);
-        JSONObject after = sessionState(lookup.controller);
-        boolean verified = verifies(normalized, before, after);
+        long verificationStartedAtMs = SystemClock.elapsedRealtime();
+        JSONObject after = before;
+        boolean verified = false;
+        do {
+            SystemClock.sleep(VERIFY_POLL_MS);
+            after = sessionState(lookup.controller);
+            verified = verifies(normalized, before, after);
+        } while (!verified
+                && SystemClock.elapsedRealtime() - verificationStartedAtMs < VERIFY_TIMEOUT_MS);
+        receipt.put("verificationElapsedMs",
+                SystemClock.elapsedRealtime() - verificationStartedAtMs);
         receipt.put("commandAccepted", true);
         receipt.put("verified", verified);
         receipt.put("ok", verified);
@@ -157,26 +173,29 @@ public final class SpotifyMediaUserService extends ISpotifyMediaControl.Stub {
 
     private SessionLookup lookupSpotifySession() {
         if (context == null) {
-            return new SessionLookup(false, 0, null, "user_service_context_unavailable");
+            return new SessionLookup(false, 0, 0, null, "user_service_context_unavailable");
         }
         MediaSessionManager manager =
                 (MediaSessionManager) context.getSystemService(Context.MEDIA_SESSION_SERVICE);
         if (manager == null) {
-            return new SessionLookup(false, 0, null, "media_session_manager_unavailable");
+            return new SessionLookup(false, 0, 0, null, "media_session_manager_unavailable");
         }
         try {
             List<MediaController> controllers = manager.getActiveSessions(null);
             MediaController spotify = null;
+            int spotifySessionCount = 0;
             for (MediaController controller : controllers) {
                 if (TARGET_PACKAGE.equals(controller.getPackageName())) {
-                    spotify = controller;
-                    break;
+                    spotifySessionCount += 1;
+                    if (spotify == null) spotify = controller;
                 }
             }
-            return new SessionLookup(true, controllers.size(), spotify, "");
+            return new SessionLookup(
+                    true, controllers.size(), spotifySessionCount, spotify, "");
         } catch (SecurityException error) {
             return new SessionLookup(
                     false,
+                    0,
                     0,
                     null,
                     error.getClass().getSimpleName() + ": " + safeMessage(error));
@@ -320,13 +339,16 @@ public final class SpotifyMediaUserService extends ISpotifyMediaControl.Stub {
     private static final class SessionLookup {
         final boolean authority;
         final int activeSessionCount;
+        final int spotifySessionCount;
         final MediaController controller;
         final String authorityError;
 
         SessionLookup(boolean authority, int activeSessionCount,
-                      MediaController controller, String authorityError) {
+                      int spotifySessionCount, MediaController controller,
+                      String authorityError) {
             this.authority = authority;
             this.activeSessionCount = activeSessionCount;
+            this.spotifySessionCount = spotifySessionCount;
             this.controller = controller;
             this.authorityError = authorityError;
         }

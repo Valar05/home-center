@@ -40,7 +40,7 @@ Adam overlay prompt
   -> exact Shizuku Spotify MediaController play_context
 ```
 
-The Shizuku service performs a first-class capability probe. A running Shizuku binder is not sufficient evidence that Android grants shell/root access to active media sessions on this build.
+The Shizuku service performs a first-class capability probe. A running Shizuku binder is not sufficient evidence that Android grants shell/root access to active media sessions on this build. Shizuku API v13 or later is required for the Context-backed UserService. Zero exact Spotify sessions fails as absent; more than one fails as ambiguous. Mutating commands use bounded post-command polling rather than a single fixed-delay guess.
 
 ## Typed operations
 
@@ -60,7 +60,7 @@ The Shizuku service performs a first-class capability probe. A running Shizuku b
 
 ## Account and secret boundary
 
-Spotify OAuth uses Authorization Code with PKCE. Client ID, verifier, access token, refresh token, and expiry remain in owner-private local configuration. None may appear in overlay preferences, provider rows, Adam receipts, Home Center logs, GitHub, or Drive documents.
+Spotify OAuth uses Authorization Code with PKCE. Client ID, verifier, access token, refresh token, and expiry remain in owner-private local configuration. None may appear in overlay preferences, provider rows, Adam receipts, Home Center logs, GitHub, or Drive documents. The authorization callback URL or query is accepted only over stdin; authorization codes and state values are forbidden from process arguments. Account and rolling mutations share one atomic, stale-recoverable, bounded cross-process lock.
 
 Current Spotify playlist routes used by this implementation are:
 
@@ -75,7 +75,7 @@ The retired `/playlists/{id}/tracks` routes are forbidden.
 
 Rolling is deterministic and bounded. Explicit prompts may compile a policy once. Ordinary refill never calls a model.
 
-Persistent non-secret state contains playlist ID, snapshot ID, policy, recent track/artist windows, rolling flag, stop-after-current state, and minimum/refill tail sizes. At or below the refill threshold, the account adapter appends a bounded batch idempotently. Rate limits back off. A refill failure never pauses current playback.
+Persistent non-secret state contains playlist ID, snapshot ID, policy, recent track/artist windows, rolling flag, stop-after-current state, and minimum/refill tail sizes. At or below the refill threshold, the account adapter appends a bounded batch idempotently. Rate limits back off. A refill failure never pauses current playback. Playlist mutation is not success until Spotify readback proves a private playlist, the exact ordered item URI sequence and count, and a nonempty matching snapshot ID.
 
 ## Evidence contract
 

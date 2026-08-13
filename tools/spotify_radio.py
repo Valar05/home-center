@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import argparse
 import base64
+from contextlib import contextmanager
 import hashlib
 import json
 import os
@@ -32,7 +33,8 @@ STATE = STATE_DIR / "state.json"
 OAUTH_PENDING = STATE_DIR / "oauth-pending.json"
 RECEIPTS = STATE_DIR / "receipts.jsonl"
 LATEST = STATE_DIR / "latest.json"
-PLAYLIST_NAME = "Adam Radio — Rolling"
+OPERATION_LOCK = STATE_DIR / "operation.lock"
+PLAYLIST_NAME = "Adam Radio â€” Rolling"
 SPOTIFY_API = "https://api.spotify.com/v1"
 TOKEN_URL = "https://accounts.spotify.com/api/token"
 AUTHORIZE_URL = "https://accounts.spotify.com/authorize"
@@ -169,6 +171,104 @@ def load_state() -> dict[str, Any]:
 def save_state(state: dict[str, Any]) -> None:
     state["updatedAtMs"] = now_ms()
     write_json(STATE, state)
+
+
+def process_alive(pid: int) -> bool:
+    if pid < 1:
+        return False
+    if os.name == "nt":
+        import ctypes
+        process_query_limited_information = 0x1000
+        handle = ctypes.windll.kernel32.OpenProcess(
+            process_query_limited_information, False, int(pid)
+        )
+        if not handle:
+            return False
+        ctypes.windll.kernel32.CloseHandle(handle)
+        return True
+    try:
+        os.kill(pid, 0)
+        return True
+    except OSError:
+        return False
+
+
+def read_lock_owner() -> dict[str, Any]:
+    value = read_json(OPERATION_LOCK, {})
+    return value if isinstance(value, dict) else {}
+
+
+def remove_operation_lock(expected_token: str = "") -> None:
+    owner = read_lock_owner()
+    if expected_token and not secrets.compare_digest(str(owner.get("token") or ""), expected_token):
+        return
+    try:
+        OPERATION_LOCK.unlink()
+    except FileNotFoundError:
+        pass
+
+
+@contextmanager
+def operation_lock(purpose: str, timeout: float = 12.0):
+    mkdirs()
+    token = secrets.token_urlsafe(18)
+    deadline = time.monotonic() + max(0.5, timeout)
+    while True:
+        owner = {"pid": os.getpid(), "token": token, "purpose": str(purpose)[:80], "createdAtMs": now_ms()}
+        payload = (json.dumps(owner, sort_keys=True) + "\n").encode("utf-8")
+        try:
+            descriptor = os.open(OPERATION_LOCK, os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o600)
+        except FileExistsError:
+            current = read_lock_owner()
+            pid = int(current.get("pid") or 0)
+            created = int(current.get("createdAtMs") or 0)
+            try:
+                age = now_ms() - (created or int(OPERATION_LOCK.stat().st_mtime * 1000))
+            except FileNotFoundError:
+                continue
+            if (pid and not process_alive(pid)) or age > 10 * 60 * 1000:
+                remove_operation_lock()
+                continue
+            if time.monotonic() >= deadline:
+                raise RadioError("SPOTIFY_OPERATION_BUSY", str(current.get("purpose") or "unknown"))
+            time.sleep(0.1)
+            continue
+        try:
+            os.write(descriptor, payload)
+            os.fsync(descriptor)
+        finally:
+            os.close(descriptor)
+        break
+    try:
+        yield
+    finally:
+        remove_operation_lock(token)
+
+
+def next_request_id() -> int:
+    value = (now_ms() << 20) | secrets.randbits(20)
+    if value < 1 or value > (1 << 63) - 1:
+        raise RadioError("SPOTIFY_REQUEST_ID_OVERFLOW")
+    return value
+
+
+def parse_oauth_callback(value: str) -> tuple[str, str]:
+    raw = str(value or "").strip()
+    if not raw or len(raw) > 8192:
+        raise RadioError("SPOTIFY_AUTH_CALLBACK_INVALID")
+    parsed = urllib.parse.urlparse(raw)
+    query = parsed.query if parsed.scheme or parsed.netloc else raw.lstrip("?")
+    values = urllib.parse.parse_qs(query, keep_blank_values=True)
+    error = (values.get("error") or [""])[0]
+    if error:
+        raise RadioError("SPOTIFY_AUTHORIZATION_DENIED", error)
+    codes = values.get("code") or []
+    states = values.get("state") or []
+    if len(codes) != 1 or len(states) != 1 or not codes[0] or not states[0]:
+        raise RadioError("SPOTIFY_AUTH_CALLBACK_INVALID")
+    if len(codes[0]) > 4096 or len(states[0]) > 512:
+        raise RadioError("SPOTIFY_AUTH_CALLBACK_INVALID")
+    return codes[0], states[0]
 
 
 def form_request(url: str, fields: dict[str, Any]) -> dict[str, Any]:
@@ -337,6 +437,33 @@ class SpotifyClient:
     def me(self) -> dict[str, Any]:
         return self.api("GET", "/me")
 
+    def playlist_details(self, playlist_id: str) -> dict[str, Any]:
+        return self.api("GET", f"/playlists/{playlist_id}", {
+            "fields": "id,name,public,snapshot_id,owner(id),items(total)"
+        })
+
+    def verify_playlist_items(self, playlist_id: str, expected_uris: list[str], expected_snapshot: str = "") -> dict[str, Any]:
+        details = self.playlist_details(playlist_id)
+        actual = self.playlist_items(playlist_id)
+        actual_uris = [item["uri"] for item in actual]
+        snapshot = str(details.get("snapshot_id") or "")
+        matches = actual_uris == expected_uris and bool(snapshot) and details.get("public") is False
+        if expected_snapshot:
+            matches = matches and snapshot == expected_snapshot
+        if not matches:
+            digest = lambda values: hashlib.sha256("\n".join(values).encode("utf-8")).hexdigest()
+            raise RadioError("SPOTIFY_PLAYLIST_READBACK_MISMATCH", json.dumps({
+                "playlistId": playlist_id,
+                "expectedCount": len(expected_uris),
+                "actualCount": len(actual_uris),
+                "expectedDigest": digest(expected_uris),
+                "actualDigest": digest(actual_uris),
+                "expectedSnapshot": expected_snapshot,
+                "actualSnapshot": snapshot,
+                "public": details.get("public"),
+            }, sort_keys=True))
+        return {"snapshotId": snapshot, "itemCount": len(actual_uris), "private": True}
+
     def ensure_playlist(self, state: dict[str, Any]) -> dict[str, Any]:
         me = self.me()
         owner_id = str(me.get("id") or "")
@@ -345,8 +472,10 @@ class SpotifyClient:
         existing_id = str(state.get("playlistId") or "")
         if existing_id:
             try:
-                playlist = self.api("GET", f"/playlists/{existing_id}", {"fields": "id,name,snapshot_id,owner(id),items(total)"})
-                if playlist.get("name") == PLAYLIST_NAME and str(playlist.get("owner", {}).get("id") or "") == owner_id:
+                playlist = self.api("GET", f"/playlists/{existing_id}", {"fields": "id,name,public,snapshot_id,owner(id),items(total)"})
+                if (playlist.get("name") == PLAYLIST_NAME
+                        and playlist.get("public") is False
+                        and str(playlist.get("owner", {}).get("id") or "") == owner_id):
                     state["snapshotId"] = str(playlist.get("snapshot_id") or state.get("snapshotId") or "")
                     return playlist
             except RadioError as error:
@@ -357,7 +486,9 @@ class SpotifyClient:
             page = self.api("GET", "/me/playlists", {"limit": 50, "offset": offset})
             items = page.get("items") or []
             for playlist in items:
-                if playlist.get("name") == PLAYLIST_NAME and str(playlist.get("owner", {}).get("id") or "") == owner_id:
+                if (playlist.get("name") == PLAYLIST_NAME
+                        and playlist.get("public") is False
+                        and str(playlist.get("owner", {}).get("id") or "") == owner_id):
                     state["playlistId"] = str(playlist.get("id") or "")
                     state["snapshotId"] = str(playlist.get("snapshot_id") or "")
                     save_state(state)
@@ -373,7 +504,7 @@ class SpotifyClient:
         })
         state["playlistId"] = str(playlist.get("id") or "")
         state["snapshotId"] = str(playlist.get("snapshot_id") or "")
-        if not state["playlistId"]:
+        if not state["playlistId"] or playlist.get("public") is not False:
             raise RadioError("SPOTIFY_PLAYLIST_CREATE_UNVERIFIED")
         save_state(state)
         return playlist
@@ -471,13 +602,22 @@ def compile_prompt(text: str, prior: dict[str, Any] | None = None) -> dict[str, 
         phrase = match.group(1).strip()
         if phrase and phrase not in avoid:
             avoid.append(phrase)
+    low_bias: list[str] = []
+    for match in re.finditer(r"\b(?:sparse|minimal|few|light)\s+(vocals?|lyrics?|choir)\b", lower):
+        noun = match.group(1)
+        canonical = "vocals" if noun.startswith("vocal") or noun.startswith("lyric") else "choir"
+        if canonical not in avoid:
+            avoid.append(canonical)
+        if canonical == "vocals" and "instrumental" not in low_bias:
+            low_bias.append("instrumental")
     positive = [term for term in TERM_VOCABULARY if re.search(rf"\b{re.escape(term)}\b", lower) and not any(term in item for item in avoid)]
     quoted = [match.strip() for match in re.findall(r"[\"']([^\"']{2,80})[\"']", raw)]
-    stripped = re.sub(r"(?:less|fewer|no|avoid|without)\s+[a-z0-9_-]+(?:\s+[a-z0-9_-]+){0,2}", " ", lower)
+    stripped = re.sub(r"\b(?:sparse|minimal|few|light)\s+(?:vocals?|lyrics?|choir)\b", " ", lower)
+    stripped = re.sub(r"(?:less|fewer|no|avoid|without)\s+[a-z0-9_-]+(?:\s+[a-z0-9_-]+){0,2}", " ", stripped)
     stripped = re.sub(r"\b(?:make|create|build|start|playlist|radio|keep|rolling|more|please|me|a|an|the|with|and)\b", " ", stripped)
     stripped = " ".join(stripped.split())[:160]
     queries: list[str] = []
-    for value in quoted + ([stripped] if stripped else []) + positive:
+    for value in quoted + low_bias + ([stripped] if stripped else []) + positive:
         clean = " ".join(value.split())
         if clean and clean not in queries:
             queries.append(clean)
@@ -591,7 +731,7 @@ def transport(action: str, argument: str = "", timeout: int = 15) -> dict[str, A
     allowed = {"probe", "status", "play", "pause", "play_pause", "next", "previous", "stop", "play_context"}
     if action not in allowed:
         raise RadioError("SPOTIFY_ACTION_UNSUPPORTED", action)
-    request_id = now_ms()
+    request_id = next_request_id()
     argument_b64 = base64.urlsafe_b64encode(argument.encode("utf-8")).decode().rstrip("=")
     command = (
         "content call --uri " + shlex.quote(STATE_URI)
@@ -600,6 +740,9 @@ def transport(action: str, argument: str = "", timeout: int = 15) -> dict[str, A
         + " --extra request_id:l:" + str(request_id)
     )
     accepted = rish(command, timeout=20)
+    accepted_match = re.search(r"\baccepted=(true|false)\b", accepted, re.IGNORECASE)
+    if accepted_match and accepted_match.group(1).lower() == "false":
+        raise RadioError("SPOTIFY_PROVIDER_REJECTED", accepted[-1000:])
     deadline = time.monotonic() + timeout
     while time.monotonic() < deadline:
         row = parse_provider_row(rish("content query --uri " + shlex.quote(STATE_URI), timeout=15))
@@ -640,7 +783,10 @@ def create_or_revise(client: SpotifyClient, state: dict[str, Any], plan: dict[st
     preserve = bool(policy.get("preserveCurrentTrack")) and active_context and current_index >= 0
     prefix = existing[:current_index + 1] if preserve else []
     final = prefix + candidates
-    snapshot = client.replace_items(playlist_id, [item["uri"] for item in final])
+    expected_uris = [item["uri"] for item in final]
+    mutation_snapshot = client.replace_items(playlist_id, expected_uris)
+    readback = client.verify_playlist_items(playlist_id, expected_uris, mutation_snapshot)
+    snapshot = str(readback["snapshotId"])
     state.update({
         "snapshotId": snapshot,
         "policy": policy,
@@ -659,8 +805,9 @@ def create_or_revise(client: SpotifyClient, state: dict[str, Any], plan: dict[st
         "playlistId": playlist_id,
         "playlistName": playlist.get("name") or PLAYLIST_NAME,
         "snapshotId": snapshot,
-        "itemCount": len(final),
+        "itemCount": int(readback["itemCount"]),
         "preservedPrefixCount": len(prefix),
+        "providerReadbackVerified": True,
         "rolling": state["rolling"],
         "policyHash": state["policyHash"],
         "playbackReceipt": playback,
@@ -708,14 +855,17 @@ def ensure_once(client: SpotifyClient, state: dict[str, Any]) -> dict[str, Any]:
     chosen = choose_tracks(client, policy, state, [value["uri"] for value in items], count)
     if not chosen:
         raise RadioError("SPOTIFY_REFILL_CANDIDATES_EXHAUSTED")
-    snapshot = client.add_items(playlist_id, [value["uri"] for value in chosen])
+    expected_uris = [value["uri"] for value in items] + [value["uri"] for value in chosen]
+    mutation_snapshot = client.add_items(playlist_id, [value["uri"] for value in chosen])
+    readback = client.verify_playlist_items(playlist_id, expected_uris, mutation_snapshot)
+    snapshot = str(readback["snapshotId"])
     state["snapshotId"] = snapshot
     state["lastRefillAtMs"] = now_ms()
     state["lastCurrentUri"] = item["uri"]
     state["recentTrackUris"] = (list(state.get("recentTrackUris") or []) + [value["uri"] for value in chosen])[-40:]
     state["recentArtistIds"] = (list(state.get("recentArtistIds") or []) + sum([value.get("artistIds") or [] for value in chosen], []))[-40:]
     save_state(state)
-    return {"state": "refilled", "added": len(chosen), "remainingBefore": remaining, "snapshotId": snapshot, "playlistId": playlist_id}
+    return {"state": "refilled", "added": len(chosen), "remainingBefore": remaining, "snapshotId": snapshot, "playlistId": playlist_id, "providerReadbackVerified": True, "providerItemCount": int(readback["itemCount"])}
 
 
 def handle_prompt(text: str) -> dict[str, Any]:
@@ -723,14 +873,17 @@ def handle_prompt(text: str) -> dict[str, Any]:
     plan = compile_prompt(text, state.get("policy") or {})
     if plan["kind"] == "transport":
         return emit("prompt", "completed", "Typed Spotify transport command completed", plan=plan, transportReceipt=transport(plan["action"], plan.get("argument", "")))
-    client = SpotifyClient()
     if plan["kind"] == "rolling":
-        state["rolling"] = bool(plan["enabled"])
-        if not state["rolling"]:
+        enabled = bool(plan["enabled"])
+        if enabled and (not state.get("playlistId") or not state.get("policyHash")):
+            raise RadioError("SPOTIFY_RADIO_POLICY_REQUIRED", "Create or revise Adam Radio before enabling rolling")
+        state["rolling"] = enabled
+        if not enabled:
             state["stopAfterCurrent"] = False
             state["stopAfterUri"] = ""
         save_state(state)
         return emit("prompt", "completed", "Rolling state changed", plan=plan, rolling=state["rolling"])
+    client = SpotifyClient()
     if plan["kind"] == "stop_after_current":
         current = current_track(client.currently_playing())
         if not current["uri"]:
@@ -773,8 +926,13 @@ def daemon(interval: int) -> int:
     while True:
         try:
             state = load_state()
-            client = None if not state.get("rolling") and not state.get("stopAfterCurrent") else SpotifyClient()
-            result = ensure_once(client, state)
+            if not state.get("rolling") and not state.get("stopAfterCurrent"):
+                result = ensure_once(None, state)
+            else:
+                with operation_lock("daemon-ensure"):
+                    state = load_state()
+                    client = None if not state.get("rolling") and not state.get("stopAfterCurrent") else SpotifyClient()
+                    result = ensure_once(client, state)
             signature = json.dumps(result, sort_keys=True)
             if signature != last_signature or result.get("state") in {"refilled", "stopped_after_current"}:
                 emit("daemon", "healthy", "Rolling check complete", result=result)
@@ -789,6 +947,11 @@ def daemon(interval: int) -> int:
             if error.retry_after:
                 time.sleep(min(300, max(interval, error.retry_after)))
                 continue
+        except Exception as error:
+            signature = f"SPOTIFY_RADIO_DAEMON_ERROR:{type(error).__name__}:{error}"
+            if signature != last_signature:
+                emit("daemon", "degraded", f"{type(error).__name__}: {error}", error="SPOTIFY_RADIO_DAEMON_ERROR")
+                last_signature = signature
         time.sleep(interval)
 
 
@@ -799,9 +962,7 @@ def main() -> int:
     auth = sub.add_parser("auth-url")
     auth.add_argument("--client-id", default="")
     auth.add_argument("--redirect-uri", default="")
-    complete = sub.add_parser("auth-complete")
-    complete.add_argument("--code", required=True)
-    complete.add_argument("--state", required=True)
+    sub.add_parser("auth-complete", help="Read the Spotify callback URL or query string from stdin")
     prompt = sub.add_parser("prompt")
     prompt.add_argument("text", nargs="+")
     transport_parser = sub.add_parser("transport")
@@ -815,17 +976,25 @@ def main() -> int:
         if args.command == "doctor":
             doctor()
         elif args.command == "auth-url":
-            auth_url(args.client_id, args.redirect_uri)
+            with operation_lock("auth-url"):
+                auth_url(args.client_id, args.redirect_uri)
         elif args.command == "auth-complete":
-            auth_complete(args.code, args.state)
+            callback = sys.stdin.readline(8193)
+            if len(callback) > 8192:
+                raise RadioError("SPOTIFY_AUTH_CALLBACK_INVALID")
+            code, state_value = parse_oauth_callback(callback)
+            with operation_lock("auth-complete"):
+                auth_complete(code, state_value)
         elif args.command == "prompt":
-            handle_prompt(" ".join(args.text))
+            with operation_lock("prompt"):
+                handle_prompt(" ".join(args.text))
         elif args.command == "transport":
             emit("transport", "completed", "Typed Spotify background command completed", transportReceipt=transport(args.action, args.argument))
         elif args.command == "ensure":
-            state = load_state()
-            client = None if not state.get("rolling") and not state.get("stopAfterCurrent") else SpotifyClient()
-            emit("ensure", "completed", "Rolling check complete", result=ensure_once(client, state))
+            with operation_lock("ensure"):
+                state = load_state()
+                client = None if not state.get("rolling") and not state.get("stopAfterCurrent") else SpotifyClient()
+                emit("ensure", "completed", "Rolling check complete", result=ensure_once(client, state))
         else:
             return daemon(args.interval)
         return 0

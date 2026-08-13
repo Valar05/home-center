@@ -1,8 +1,5 @@
 #!/data/data/com.termux/files/usr/bin/bash
 set -euo pipefail
-# Venice plan receipt: {"schema":"venice-plan-review-v1","reviewerRole":"venice-judgment-jar","reviewerMode":"judgment_jar","worker":"ChatGPT Codex /root","commission":"create-only-tools/setup_spotify_radio.sh-termux-installer","evidenceIdentity":"AGENTS.md+tools/spotify_radio.py+git-status@2026-08-13","selectedJars":["mission-boundary","repository-truth","change-discipline","failure-recovery","daemon-backoff-persistence","venice-review-gate"],"antagonism":["concurrent duplicate starts","stale PID or lock","partial installation","forbidden foreground side effects","runtime evidence laundering"],"directive":"PLAN_ALLOWED","verdict":"PASS","timestamp":"2026-08-13T00:00:00-05:00"}
-# Rene QA receipt: {"schema":"renee-qa-review-v1","reviewer":"SYNTHETIC_RENEE","claim":"requested Termux installer is implemented in one new file","state":"syntax-checked","acceptance":"commissioned installer contract and exclusions","evidence":"tools/setup_spotify_radio.sh; Git Bash bash -n exit 0","failurePaths":["stale PID","concurrent start","failed launch","stop timeout","SHA256 mismatch"],"verdict":"PASS","timestamp":"2026-08-13T00:00:00-05:00"}
-# Venice completion receipt: {"schema":"venice-completion-review-v1","reviewerRole":"venice-judgment-jar","reviewerMode":"judgment_jar","worker":"ChatGPT Codex /root","commission":"create-only-tools/setup_spotify_radio.sh-termux-installer","evidenceIdentity":"tools/setup_spotify_radio.sh; bash-n=exit-0","reneeVerdict":"PASS","selectedJars":["mission-boundary","repository-truth","change-discipline","failure-recovery","daemon-backoff-persistence","venice-review-gate"],"capabilityState":"implemented-and-syntax-checked; not-installed-or-runtime-tested","findings":[],"directive":"STOP_ALLOWED","verdict":"PASS","timestamp":"2026-08-13T00:00:00-05:00"}
 
 umask 077
 
@@ -25,6 +22,15 @@ fi
 
 PYTHONPYCACHEPREFIX="${TMPDIR:-${HOME}/.cache}/home-center-pycache" \
   python3 -m py_compile "${SOURCE_FILE}"
+
+cleanup_install_temps() {
+  rm -f -- \
+    "${INSTALLED_FILE}.tmp.$$" \
+    "${RADIO_FILE}.tmp.$$" \
+    "${SERVICE_FILE}.tmp.$$" \
+    "${BOOT_FILE}.tmp.$$"
+}
+trap cleanup_install_temps EXIT
 
 mkdir -p "${LIB_DIR}" "${BIN_DIR}" "${SERVICE_STATE_DIR}" "${BOOT_DIR}"
 chmod 700 "${LIB_DIR}" "${BIN_DIR}" "${SERVICE_STATE_DIR}" "${BOOT_DIR}"
@@ -68,6 +74,28 @@ pid_is_running() {
   [[ "${pid}" =~ ^[1-9][0-9]*$ ]] && kill -0 "${pid}" 2>/dev/null
 }
 
+read_process_cmdline() {
+  local pid="${1:-}"
+  [[ -r "/proc/${pid}/cmdline" ]] || return 1
+  tr '\000' ' ' <"/proc/${pid}/cmdline" 2>/dev/null
+}
+
+pid_is_service() {
+  local pid="${1:-}"
+  local command_line=""
+  pid_is_running "${pid}" || return 1
+  command_line="$(read_process_cmdline "${pid}")" || return 1
+  [[ "${command_line}" == *"${HOME}/.local/lib/home-center/spotify-radio/spotify_radio.py daemon"* ]]
+}
+
+pid_is_lock_owner() {
+  local pid="${1:-}"
+  local command_line=""
+  pid_is_running "${pid}" || return 1
+  command_line="$(read_process_cmdline "${pid}")" || return 1
+  [[ "${command_line}" == *"${HOME}/bin/spotify-radio-service"* ]]
+}
+
 read_service_pid() {
   local pid=""
   if [[ -f "${PID_FILE}" ]]; then
@@ -90,7 +118,7 @@ acquire_lock() {
     if [[ -f "${LOCK_OWNER}" ]]; then
       IFS= read -r owner <"${LOCK_OWNER}" || true
     fi
-    if pid_is_running "${owner}"; then
+    if pid_is_lock_owner "${owner}"; then
       printf '{"schema":"home-center.spotify-radio-service.v1","status":"busy"}\n' >&2
       return 1
     fi
@@ -114,9 +142,12 @@ start_service() {
   ensure_private_layout
   acquire_lock
   pid="$(read_service_pid)"
-  if pid_is_running "${pid}"; then
+  if pid_is_service "${pid}"; then
     printf '{"schema":"home-center.spotify-radio-service.v1","status":"already_running","pid":%s}\n' "${pid}"
     return 0
+  fi
+  if pid_is_running "${pid}"; then
+    printf '{"schema":"home-center.spotify-radio-service.v1","status":"stale_pid_rejected","pid":%s}\n' "${pid}" >&2
   fi
 
   rm -f -- "${PID_FILE}"
@@ -127,7 +158,7 @@ start_service() {
   mv -f -- "${PID_FILE}.tmp.$$" "${PID_FILE}"
 
   sleep 1
-  if ! kill -0 "${launched_pid}" 2>/dev/null; then
+  if ! pid_is_service "${launched_pid}"; then
     rm -f -- "${PID_FILE}"
     printf '{"schema":"home-center.spotify-radio-service.v1","status":"start_failed"}\n' >&2
     return 1
@@ -148,13 +179,18 @@ stop_service() {
     printf '{"schema":"home-center.spotify-radio-service.v1","status":"already_stopped"}\n'
     return 0
   fi
+  if ! pid_is_service "${pid}"; then
+    rm -f -- "${PID_FILE}"
+    printf '{"schema":"home-center.spotify-radio-service.v1","status":"stale_pid_rejected","pid":%s}\n' "${pid}"
+    return 0
+  fi
 
   kill "${pid}"
-  while pid_is_running "${pid}" && (( attempt < 50 )); do
+  while pid_is_service "${pid}" && (( attempt < 50 )); do
     sleep 0.1
     ((attempt += 1))
   done
-  if pid_is_running "${pid}"; then
+  if pid_is_service "${pid}"; then
     printf '{"schema":"home-center.spotify-radio-service.v1","status":"stop_timeout","pid":%s}\n' "${pid}" >&2
     return 1
   fi
@@ -169,9 +205,14 @@ status_service() {
   ensure_private_layout
   acquire_lock
   pid="$(read_service_pid)"
-  if pid_is_running "${pid}"; then
+  if pid_is_service "${pid}"; then
     printf '{"schema":"home-center.spotify-radio-service.v1","status":"running","pid":%s}\n' "${pid}"
     return 0
+  fi
+  if pid_is_running "${pid}"; then
+    rm -f -- "${PID_FILE}"
+    printf '{"schema":"home-center.spotify-radio-service.v1","status":"stale_pid_rejected","pid":%s}\n' "${pid}"
+    return 3
   fi
 
   rm -f -- "${PID_FILE}"
@@ -216,5 +257,5 @@ fi
 
 "${SERVICE_FILE}" start >/dev/null
 
-printf '{"schema":"home-center.spotify-radio-install.v1","sourceSha256":"%s","installedSha256":"%s","sha256Equal":true,"backgroundDaemon":true,"termuxBoot":true,"activityLaunchUsed":false,"genericMediaKeyUsed":false,"screenAutomationUsed":false}\n' \
+printf '{"schema":"home-center.spotify-radio-install.v1","sourceSha256":"%s","installedSha256":"%s","sha256Equal":true,"backgroundDaemon":true,"termuxBoot":true,"activityLaunchUsed":false,"genericMediaKeyUsed":false,"screenAutomationUsed":false,"pidIdentityVerified":true}\n' \
   "${SOURCE_SHA256}" "${INSTALLED_SHA256}"

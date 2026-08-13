@@ -20,6 +20,7 @@ import rikka.shizuku.Shizuku;
 /** Bounded client for the Spotify-only Shizuku UserService. */
 public final class SpotifyShizukuClient implements AutoCloseable {
     public static final String CLIENT_SCHEMA = "home-center.spotify-shizuku-client.v1";
+    private static final int MIN_SHIZUKU_VERSION = 13;
 
     private static final Set<String> ACTIONS = Set.of(
             "probe", "status", "play", "pause", "play_pause", "next", "previous",
@@ -44,6 +45,11 @@ public final class SpotifyShizukuClient implements AutoCloseable {
     private final ServiceConnection serviceConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder binder) {
+            if (binder == null || !binder.isBinderAlive()) {
+                service = null;
+                binding.set(false);
+                return;
+            }
             service = ISpotifyMediaControl.Stub.asInterface(binder);
             binding.set(false);
         }
@@ -104,6 +110,13 @@ public final class SpotifyShizukuClient implements AutoCloseable {
             deliver(requestId, failure("SHIZUKU_BINDER_UNAVAILABLE", ""), callback);
             return;
         }
+        int shizukuVersion = Shizuku.getVersion();
+        if (shizukuVersion < MIN_SHIZUKU_VERSION) {
+            deliver(requestId, failure(
+                    "SHIZUKU_VERSION_UNSUPPORTED",
+                    "required=" + MIN_SHIZUKU_VERSION + " actual=" + shizukuVersion), callback);
+            return;
+        }
         if (Shizuku.checkSelfPermission() != PackageManager.PERMISSION_GRANTED) {
             deliver(requestId, failure("SHIZUKU_PERMISSION_REQUIRED", ""), callback);
             return;
@@ -136,6 +149,7 @@ public final class SpotifyShizukuClient implements AutoCloseable {
 
     private void startBinding() {
         if (closed.get() || !Shizuku.pingBinder()) return;
+        if (Shizuku.getVersion() < MIN_SHIZUKU_VERSION) return;
         if (Shizuku.checkSelfPermission() != PackageManager.PERMISSION_GRANTED) return;
         if (!binding.compareAndSet(false, true)) return;
         try {
@@ -199,7 +213,7 @@ public final class SpotifyShizukuClient implements AutoCloseable {
         Shizuku.removeRequestPermissionResultListener(permissionResultListener);
         if (binding.get() || service != null) {
             try {
-                Shizuku.unbindUserService(userServiceArgs, serviceConnection, true);
+                Shizuku.unbindUserService(userServiceArgs, serviceConnection, false);
             } catch (Throwable ignored) {
                 // Cleanup remains idempotent if Shizuku has already disconnected.
             }
