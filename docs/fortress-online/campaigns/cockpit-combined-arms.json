@@ -4,7 +4,7 @@
   "owner": "Drew Clarke",
   "branch": "feat/fortress-cockpit-android",
   "pullRequest": 244,
-  "updatedAt": "2026-08-13T07:05:51-05:00",
+  "updatedAt": "2026-08-13T08:06:00-05:00",
   "mission": "Make the Android phone the sovereign deterministic Home Center control plane: persist state and scheduling locally, continue useful work offline, orchestrate local/browser/Gemini/fleet/cloud capability only through explicit adapters, and use Ollama only as a gated fallback classifier when deterministic routing cannot resolve a task.",
   "constraints": [
     "phone is sovereign control plane; cloud is optional muscle",
@@ -134,6 +134,15 @@
       "callable": false,
       "delivered": false,
       "accepted": false
+    },
+    "persistentRecoveryControls": {
+      "requested": true,
+      "implemented": "Ongoing Android notification surface provides SSH Repair, Relay Repair, and Fortress Status actions without opening Termux. Retired Command Center naming introduced at dd30795297037c6111e3952e34ef7bfa76cfb053 was removed under Drew's binding architecture correction in exact source commit 43fd61566e7592faae40cff4ec9c3c54c680a251.",
+      "tested": "UNKNOWN: source correction is committed, but GitHub Actions remains an untrusted startup-failure lane; native Android build and phone notification/action receipts are required.",
+      "deployed": false,
+      "callable": false,
+      "delivered": false,
+      "accepted": false
     }
   },
   "evidence": {
@@ -157,42 +166,9 @@
       "upstreamBootReceiver": "On Android 13+ with WRITE_SECURE_SETTINGS and last launch mode ADB, BootCompleteReceiver enables adb_wifi_enabled and ADB_ENABLED, sets adb_allowed_connection_time to 0, discovers TLS ADB via mDNS, reuses persisted ADB key, and runs Starter.internalCommand through localhost ADB.",
       "implication": "Fortress Bridge should preserve and instrument this proven boot organ rather than invent another privilege transport."
     },
-    "latestHead": "6f90f9624ba1090222dab5b982798f0935c43b16",
-    "ciObservation": "GitHub Actions attempted exact head 6f90f9624ba1090222dab5b982798f0935c43b16: Fortress Prompt 31698249652, Judgment Jars 31698249761, Build Android 31698249648, Fortress Cockpit Android 31698249762, and Home Center CI 31698249663 all completed failure. Judgment Jars job 94440902743 and Fortress Cockpit job 94440903211 exposed no executed step summaries; this does not prove repository source tests ran. CI remains POISONED/UNTRUSTED for source capability promotion or rejection.",
-    "ciRunsAtLatestHead": [
-      {
-        "name": "Fortress Prompt",
-        "runId": 31698249652,
-        "conclusion": "failure",
-        "sourceTestsProven": false
-      },
-      {
-        "name": "Judgment Jars",
-        "runId": 31698249761,
-        "jobId": 94440902743,
-        "conclusion": "failure",
-        "sourceTestsProven": false
-      },
-      {
-        "name": "Build Android",
-        "runId": 31698249648,
-        "conclusion": "failure",
-        "sourceTestsProven": false
-      },
-      {
-        "name": "Fortress Cockpit Android",
-        "runId": 31698249762,
-        "jobId": 94440903211,
-        "conclusion": "failure",
-        "sourceTestsProven": false
-      },
-      {
-        "name": "Home Center CI",
-        "runId": 31698249663,
-        "conclusion": "failure",
-        "sourceTestsProven": false
-      }
-    ],
+    "latestHead": "43fd61566e7592faae40cff4ec9c3c54c680a251",
+    "ciObservation": "At pre-repair head dd30795297037c6111e3952e34ef7bfa76cfb053, Fortress Cockpit Android 31700135784, Build Android 31700135768, Fortress Prompt 31700135759, Home Center CI 31700135707, and Judgment Jars 31700135757 all completed failure. This repeated poisoned control-plane pattern does not prove source tests executed. Source correction 43fd61566e7592faae40cff4ec9c3c54c680a251 has not been promoted to tested; native deterministic verification still governs.",
+    "ciRunsAtLatestHead": [],
     "ciAuthority": "GitHub Actions is not an acceptance lane for this campaign while the control plane fails before meaningful execution. Native phone/laptop deterministic receipts govern tested/deployed/callable states.",
     "judgmentJarRegistrySourceHead": "6f90f9624ba1090222dab5b982798f0935c43b16",
     "judgmentJarRegistrySourceEvidence": [
@@ -203,16 +179,60 @@
       "tools/vlad_judgment_jars_test.py",
       "docs/JUDGMENT_JARS_FAST_ACCESS.md",
       ".github/workflows/judgment-jars.yml"
+    ],
+    "persistentRecoveryControls": {
+      "introducedAt": "dd30795297037c6111e3952e34ef7bfa76cfb053",
+      "hardGate": "Command Center is retired/nonexistent for active architecture.",
+      "correctedAt": "43fd61566e7592faae40cff4ec9c3c54c680a251",
+      "sourcePath": "android/fortress-cockpit/app/src/main/java/com/homecenter/fortresscockpit/FortressNotification.java",
+      "correctedSurface": "Fortress Recovery Controls",
+      "actions": [
+        "SSH Repair",
+        "Relay Repair",
+        "Fortress Status"
+      ]
+    },
+    "ciRunsAtPreRepairHead": [
+      {
+        "name": "Fortress Cockpit Android",
+        "runId": 31700135784,
+        "conclusion": "failure",
+        "sourceTestsProven": false
+      },
+      {
+        "name": "Build Android",
+        "runId": 31700135768,
+        "conclusion": "failure",
+        "sourceTestsProven": false
+      },
+      {
+        "name": "Fortress Prompt",
+        "runId": 31700135759,
+        "conclusion": "failure",
+        "sourceTestsProven": false
+      },
+      {
+        "name": "Home Center CI",
+        "runId": 31700135707,
+        "conclusion": "failure",
+        "sourceTestsProven": false
+      },
+      {
+        "name": "Judgment Jars",
+        "runId": 31700135757,
+        "conclusion": "failure",
+        "sourceTestsProven": false
+      }
     ]
   },
-  "nextAction": "Do not repair source from poisoned GitHub Actions. Through the first callable authorized native body (primary-phone Fortress/Continue lane or THECAULDRON Computer Hands), run the narrow deterministic Cockpit/kernel/bridge/Judgment Jar tests against exact head 6f90f9624ba1090222dab5b982798f0935c43b16, persist receipts, then update this ledger before any tested/callable capability promotion. If no body is callable, remain parked without asking Drew to become command transport.",
+  "nextAction": "Do not repair source from poisoned GitHub Actions. Through the first callable authorized native body, build exact head 43fd61566e7592faae40cff4ec9c3c54c680a251, install only when a phone deployment lane is authorized, and capture separate notification visibility plus SSH Repair / Relay Repair / Fortress Status action receipts. In the same native checkpoint, run the narrow kernel/bridge/Judgment Jar tests; do not promote tested, deployed, callable, delivered, or accepted without state-specific receipts.",
   "blockedBy": [
     "genuine Valar05/Shizuku fork bootstrap has not yet executed on THECAULDRON",
     "current worker surface still does not expose the existing Home Center/Computer Hands invocation operation directly",
     "kernel not installed on primary phone",
     "Cockpit not installed on primary phone",
     "physical-phone bridge/playback acceptance still pending",
-    "GitHub Actions control plane is poisoned on head 6f90f9624ba1090222dab5b982798f0935c43b16; five workflows failed without trustworthy source-execution evidence and cannot promote or reject source capability"
+    "GitHub Actions control plane remains poisoned; the last observed five workflows failed without trustworthy source-execution evidence, so native verification is required for exact head 43fd61566e7592faae40cff4ec9c3c54c680a251"
   ],
   "updatePolicy": "Update on every material transition. Never advance capability state without state-specific external evidence. Daemon loops back off and sleep on unchanged state instead of hammering connectors."
 }
