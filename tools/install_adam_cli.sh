@@ -83,7 +83,7 @@ EOF
 chmod 755 "$TMP_TARGET"
 mv -f "$TMP_TARGET" "$TARGET"
 
-TMP_VLAD_TEXT_TARGET="$VLAD_TEXT_TARGET.tmp.$"
+TMP_VLAD_TEXT_TARGET="$VLAD_TEXT_TARGET.tmp.$$"
 cat > "$TMP_VLAD_TEXT_TARGET" <<EOF
 #!/data/data/com.termux/files/usr/bin/bash
 exec "$PYTHON_BIN" "$VLAD_TEXT_ROUTER" "\$@"
