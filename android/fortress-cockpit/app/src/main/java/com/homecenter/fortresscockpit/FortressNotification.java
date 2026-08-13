@@ -6,10 +6,9 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
-import android.os.Build;
 
 public final class FortressNotification {
-    public static final String CHANNEL = "fortress-command-center";
+    public static final String CHANNEL = "fortress-recovery-controls";
     public static final int ID = 6701;
 
     private FortressNotification() {}
@@ -22,7 +21,7 @@ public final class FortressNotification {
 
     public static void post(Context context, String status) {
         NotificationManager nm = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-        NotificationChannel ch = new NotificationChannel(CHANNEL, "Fortress Command Center", NotificationManager.IMPORTANCE_LOW);
+        NotificationChannel ch = new NotificationChannel(CHANNEL, "Fortress Recovery Controls", NotificationManager.IMPORTANCE_LOW);
         ch.setDescription("Persistent recovery controls for Fortress, SSH, and the Home Center relay");
         ch.setShowBadge(false);
         nm.createNotificationChannel(ch);
@@ -37,7 +36,7 @@ public final class FortressNotification {
 
         android.app.Notification.Builder b = new android.app.Notification.Builder(context, CHANNEL)
                 .setSmallIcon(android.R.drawable.stat_sys_warning)
-                .setContentTitle("Fortress Command Center")
+                .setContentTitle("Fortress Recovery Controls")
                 .setContentText(text)
                 .setStyle(new android.app.Notification.BigTextStyle().bigText(text))
                 .setContentIntent(openPi)
