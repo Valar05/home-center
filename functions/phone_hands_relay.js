@@ -520,6 +520,15 @@ function createPhoneHandsRelayHandler(admin) {
   };
 }
 
+function rejectNativeMaintenanceFromCommandCenter(args = {}) {
+  const action=safeObject(args.action);
+  if(safeText(action.action,80)==='anvil_shell_build_install'){
+    const err=new Error('Anvil phone maintenance is native Home Center authority. Use drive_operation phone.maintenance.enqueue.');
+    err.status=410;
+    err.code='capability_retired.command_center_phone_maintenance';
+    throw err;
+  }
+}
 function registerCommandCenterPhoneTools(server, {admin, z, textResult, callerFromExtra}) {
   server.registerTool('command_center.phone_hands.devices', {
     title:'List Android Phone Hands devices', description:'List owner-scoped Android Phone Hands relay devices and live last-seen state.', inputSchema:{}
@@ -527,10 +536,13 @@ function registerCommandCenterPhoneTools(server, {admin, z, textResult, callerFr
   server.registerTool('command_center.phone_hands.enqueue', {
     title:'Enqueue Android Phone Hands action', description:'Send a bounded action to an owner-scoped Android phone through the Home Center relay. The phone executes it locally through Phone Hands.',
     inputSchema:{idempotencyKey:z.string(),deviceId:z.string().optional(),commandId:z.string().optional(),action:z.record(z.string(),z.any()),ttlMs:z.number().optional()}
-  }, async (args,extra)=>textResult(await enqueuePhoneCommand(admin,await callerFromExtra(admin,extra),args||{})));
+  }, async (args,extra)=>{
+    rejectNativeMaintenanceFromCommandCenter(args||{});
+    return textResult(await enqueuePhoneCommand(admin,await callerFromExtra(admin,extra),args||{}));
+  });
   server.registerTool('command_center.phone_hands.get', {
     title:'Read Android Phone Hands command', description:'Read status, result, or failure for one owner-scoped phone action.', inputSchema:{commandId:z.string()}
   }, async (args,extra)=>textResult(await getPhoneCommand(admin,await callerFromExtra(admin,extra),args||{})));
 }
 
-module.exports = {COLLECTIONS, enqueuePhoneCommand, getPhoneCommand, listPhoneDevices, registerDevice, devicePull, deviceComplete, cleanAction, cleanPhoneDiagnostics, cleanAnvilMaintenance, diagnosticChunkHash, diagnosticReceiptHash, maintenanceReceiptHash, hashText, ownerKeyFromActor, createPhoneHandsRelayHandler, registerCommandCenterPhoneTools};
+module.exports = {COLLECTIONS, enqueuePhoneCommand, getPhoneCommand, listPhoneDevices, registerDevice, devicePull, deviceComplete, cleanAction, cleanPhoneDiagnostics, cleanAnvilMaintenance, diagnosticChunkHash, diagnosticReceiptHash, maintenanceReceiptHash, hashText, ownerKeyFromActor, rejectNativeMaintenanceFromCommandCenter, createPhoneHandsRelayHandler, registerCommandCenterPhoneTools};
