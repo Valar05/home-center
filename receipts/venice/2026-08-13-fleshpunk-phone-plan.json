@@ -1,0 +1,47 @@
+{
+  "schema": "venice-plan-receipt.v1",
+  "reviewerRole": "venice-judgment-jar",
+  "reviewerMode": "judgment_jar",
+  "commission": "Make existing local Fleshpunk LoRA image generation genuinely usable from primary-phone without Command Center and without substituting local Venice runtime for Judgment-Jar Venice.",
+  "selectedJudgmentJars": [
+    "00-judgement-jar-mission-boundary",
+    "20-judgement-jar-repository-truth",
+    "40-judgement-jar-failure-recovery",
+    "70-judgement-jar-venice-review-gate"
+  ],
+  "evidence": [
+    "skills/venice-governed-campaign/SKILL.md",
+    "skills/venice-stop-gate/SKILL.md",
+    "tools/ssh_axis.py",
+    "tools/build_operator_overlay_cauldron.sh",
+    "Drive Venice Reconstruction evidence: Phase 3 bridge contract live green and Fleshpunk LoRA training receipt"
+  ],
+  "antagonism": [
+    "Do not use Command Center as a required transport.",
+    "Do not treat local Venice runtime as the reviewer.",
+    "Do not expose ComfyUI port 8188 beyond THECAULDRON loopback.",
+    "Do not copy bridge credentials to the phone when SSH can execute loopback generation remotely.",
+    "Do not call source implementation deployed or phone-usable until a real phone run returns a PNG plus matching receipt/hash.",
+    "Do not replace the proven SD1.5 + drw_fleshpunk_v1 LoRA organ with cloud image generation."
+  ],
+  "plan": [
+    "Reuse the existing Termux-to-THECAULDRON SSH Axis transport pattern.",
+    "Invoke THECAULDRON localhost ComfyUI from a bounded remote PowerShell payload.",
+    "Explicitly load v1-5-pruned-emaonly.safetensors and drw_fleshpunk_v1.safetensors.",
+    "Record LoRA SHA-256, prompt id, seed, output SHA-256 and request-derived accessible text.",
+    "Copy the generated PNG and receipt back to phone and verify the phone-side byte hash.",
+    "Return to Venice for completion review; require fresh phone/runtime evidence before STOP_ALLOWED."
+  ],
+  "verdict": "PASS",
+  "directive": "PLAN_ALLOWED",
+  "capabilityState": {
+    "requested": true,
+    "implemented": false,
+    "tested": false,
+    "deployed": false,
+    "callable": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "createdAt": "2026-08-13T06:02:00-05:00"
+}
