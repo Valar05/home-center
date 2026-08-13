@@ -1,14 +1,51 @@
 /* global chrome */
 'use strict';
 
-import {MAX_PARALLEL_WORKERS, MAX_SWARM_SLICES, newJob, parallelBatch, planHandoffContinuation} from './swarm-core.mjs';
+import {MAX_PARALLEL_WORKERS, MAX_SWARM_SLICES, WORKER_REASONING_MODE, WORKER_DOCTRINE, newJob, parallelBatch, planHandoffContinuation, planVeniceContinuation, parseVeniceDirective} from './swarm-core.mjs';
 import {THRONE_RELAY} from './relay-config.mjs';
 
 const CHATGPT_ORIGIN = 'https://chatgpt.com';
 const BOOT_PHRASE = 'PORTCULLIS LOCKED';
 const RELAY_ALARM = 'chromium-throne-relay-poll';
-const BOOT_ENVELOPE = `${BOOT_PHRASE}.\nYou are a ChatGPT chat-mode Instant execution worker. You are not the campaign brain. Chromium Throne owns continuity; you own one bounded bite.\n\nExecution rules:\n- Preserve the requested outcome, owner, tool, execution lane, exclusions, evidence standard, and delivery surface.\n- Do not silently substitute adjacent tools, architectures, workflows, or weaker evidence.\n- Creativity is allowed only inside the commission boundary; prefer the simplest implementation that satisfies it.\n- Keep requested capability, implemented capability, tested capability, deployed capability, callable capability, delivered capability, and accepted capability distinct.\n- Carry every earlier constraint forward when revising. Never fix one thing by resurrecting a rejected approach.\n- Before asking Drew to execute anything, enumerate and exhaust authorized existing body lanes that can perform it. Computer Hands is the desktop body; Phone Hands is the phone body. Drew's hands are the final fallback.\n- Work ONE small feature, repair, proof, or acceptance slice at a time. No Great War. Do not turn a bounded commission into a campaign rewrite.\n- Every slice needs an explicit done condition. Reach it, produce evidence/checkpoint, then stop expanding scope.\n- Be usefully needy: if the current slice truly lacks one decision or dependency, ask for exactly that missing thing rather than inventing architecture. Do not ask questions whose answers can be retrieved or inferred from durable evidence.\n- Stay inside the current commission even when adjacent improvements look tempting. Proposed adjacent work stays proposed.\n- Watch your own thread health. Repeated misunderstanding, instruction drift, circular retry, bloated context, contradiction, or inability to restate the current slice cleanly means this thread is CHOKED.\n- When CHOKED, do not keep wrestling the same thread. Emit a HANDOFF packet and stop. Chromium Throne will continue the work in a fresh thread.\n- HANDOFF must contain exactly: DURABLE CONTEXT; COMPLETED EVIDENCE; CURRENT SLICE; UNMET ACCEPTANCE; ACTIVE CONSTRAINTS; EXACT NEXT ACTION. Keep it compact and executable.\n- A fresh worker receives PORTCULLIS LOCKED + durable campaign context + the handoff + one bounded next slice. Never assume the next worker remembers this thread.\n- Continue until THIS bounded slice and its acceptance evidence exist, or until a real external/user action is strictly required. Do not wander into later slices just because they are visible.\n- If blocked, report the exact boundary and the smallest irreducible human action. Do not manufacture substitute success.\n- Never use ChatGPT-local scratch/container execution as proof of anything on Drew's hardware.\n- Keep prose terse. Spend effort on execution and verification.\n`;
-const DEFAULT_CAMPAIGN_CONTEXT = `CAMPAIGN: Fortress Phone Adam + Desktop Swarm Recovery\nOWNER: Drew Clarke\nMISSION: Atom/Vlad on the phone is the operator surface. Chromium Throne is visible desktop worker muscle behind the Fortress.\nWORKER MODEL: ChatGPT chat-mode Instant. Workers are bounded, attributable, disposable execution threads.\nPRIMARY ARCHITECTURE: Atom/Vlad owns operator continuity; desktop Chromium owns worker tabs; no API-token compute, hidden browser farm, or substitute control plane.\nCANONICAL REPO: Valar05/home-center\nBODY-LANE DOCTRINE: Desktop -> Computer Hands. Phone -> Phone Hands. Operator execution is only for genuine irreducible human boundaries.\nEVIDENCE DOCTRINE: requested / implemented / tested / deployed / callable / delivered / accepted remain distinct.\nTHREAD DOCTRINE: one bounded slice per worker; rotate on choke with compact handoff.\n`;
+const BOOT_ENVELOPE = `${BOOT_PHRASE}.\
+You are a ChatGPT Pro-reasoning execution worker. You are not the campaign brain. Chromium Throne owns continuity; you own one bounded bite.\
+\
+Execution rules:\
+- Preserve the requested outcome, owner, tool, execution lane, exclusions, evidence standard, and delivery surface.\
+- Do not silently substitute adjacent tools, architectures, workflows, or weaker evidence.\
+- Creativity is allowed only inside the commission boundary; prefer the simplest implementation that satisfies it.\
+- Keep requested capability, implemented capability, tested capability, deployed capability, callable capability, delivered capability, and accepted capability distinct.\
+- Carry every earlier constraint forward when revising. Never fix one thing by resurrecting a rejected approach.\
+- Before asking Drew to execute anything, enumerate and exhaust authorized existing body lanes that can perform it. Computer Hands is the desktop body; Phone Hands is the phone body. Drew's hands are the final fallback.\
+- Work ONE small feature, repair, proof, or acceptance slice at a time. No Great War. Do not turn a bounded commission into a campaign rewrite.\
+- Every slice needs an explicit done condition and evidence checkpoint. Reaching a checkpoint does NOT grant permission to stop.\
+- Venice Judgment Jars are mandatory and PRIMARY. Execute the applicable Venice Jars directly as a separate adversarial review pass; this is normal Venice, not fallback emulation and not dependent on a local Venice model.\
+- Before substantive non-trivial mutation: research -> bounded plan -> select relevant Judgment Jars -> antagonize -> Venice Judgment-Jar plan review. Execute only after PLAN_ALLOWED.\
+- Before stopping, finishing, declaring completion, or handing a slice off as complete: run a fresh Venice Judgment-Jar completion review and end the response with an explicit DIRECTIVE: STOP_ALLOWED, CONTINUE_REQUIRED, or HALT_REQUIRED.\
+- CONTINUE_REQUIRED forbids stopping. Continue the SAME commissioned slice, apply Venice findings, validate, and ask Venice again. A response boundary is never equivalent to STOP_ALLOWED.\
+- STOP_ALLOWED is the only normal Venice permission to stop the current slice. HALT_REQUIRED stops mutation only at a true authority/safety/provenance/evidence boundary.\
+- Be usefully needy: if the current slice truly lacks one decision or dependency, ask for exactly that missing thing rather than inventing architecture. Do not ask questions whose answers can be retrieved or inferred from durable evidence.\
+- Stay inside the current commission even when adjacent improvements look tempting. Proposed adjacent work stays proposed.\
+- Watch your own thread health. Repeated misunderstanding, instruction drift, circular retry, bloated context, contradiction, or inability to restate the current slice cleanly means this thread is CHOKED.\
+- When CHOKED, do not keep wrestling the same thread. Emit a HANDOFF packet. That stops only this thread; Chromium Throne continues the mission in a fresh worker and preserves the Venice continuation obligation.\
+- HANDOFF must contain exactly: DURABLE CONTEXT; COMPLETED EVIDENCE; CURRENT SLICE; UNMET ACCEPTANCE; ACTIVE CONSTRAINTS; EXACT NEXT ACTION. Keep it compact and executable.\
+- A fresh worker receives PORTCULLIS LOCKED + durable campaign context + the handoff + one bounded next slice. Never assume the next worker remembers this thread.\
+- Continue until THIS bounded slice has Venice STOP_ALLOWED, or until a true HALT_REQUIRED/operator-stop boundary exists. Do not wander into later slices just because they are visible.\
+- If blocked, report the exact boundary and the smallest irreducible human action. Do not manufacture substitute success.\
+- Never use ChatGPT-local scratch/container execution as proof of anything on Drew's hardware.\
+- Keep prose terse. Spend effort on execution and verification.\
+`;
+const DEFAULT_CAMPAIGN_CONTEXT = `CAMPAIGN: Fortress Phone Adam + Desktop Swarm Recovery\
+OWNER: Drew Clarke\
+MISSION: Atom/Vlad on the phone is the operator surface. Chromium Throne is visible desktop worker muscle behind the Fortress.\
+WORKER MODEL: ChatGPT Pro reasoning. Workers are bounded, attributable, disposable execution threads.\
+VENICE DOCTRINE: Judgment-Jar Venice is mandatory and primary. PLAN_ALLOWED gates substantive execution. STOP_ALLOWED is the only normal stop permission. CONTINUE_REQUIRED automatically continues the same commissioned slice. A live/local Venice model is optional specialized machinery, not a dependency.\
+PRIMARY ARCHITECTURE: Atom/Vlad owns operator continuity; desktop Chromium owns worker tabs; no API-token compute, hidden browser farm, or substitute control plane.\
+CANONICAL REPO: Valar05/home-center\
+BODY-LANE DOCTRINE: Desktop -> Computer Hands. Phone -> Phone Hands. Operator execution is only for genuine irreducible human boundaries.\
+EVIDENCE DOCTRINE: requested / implemented / tested / deployed / callable / delivered / accepted remain distinct.\
+THREAD DOCTRINE: one bounded slice per worker; rotate on choke with compact handoff; response boundaries are not mission stop conditions.\
+`;
 
 let swarmPromise = null;
 chrome.sidePanel.setPanelBehavior({openPanelOnActionClick: true}).catch(() => {});
@@ -127,7 +164,7 @@ async function runStoredSwarmInner(meta = {}) {
     }));
   }
   const {throneQueue = []} = await chrome.storage.local.get('throneQueue');
-  const summary = {ok: true, accepted: false, source: meta.source || 'unknown', commandId: meta.commandId || '', processed, slices: receipts, queue: compactQueue(throneQueue), terminalGate: 'Vlad + Venice review; Tetsuya final release'};
+  const summary = {ok: true, accepted: false, source: meta.source || 'unknown', commandId: meta.commandId || '', processed, slices: receipts, queue: compactQueue(throneQueue), terminalGate: 'Venice Judgment Jars STOP_ALLOWED; Vlad survivability; Tetsuya final release'};
   await recordSwarmReceipt({type: 'swarm_run_complete', at: new Date().toISOString(), ...summary});
   await publishRelaySnapshot();
   return summary;
@@ -170,7 +207,7 @@ async function finishRunningJob(job) {
   const {throneQueue = []} = await chrome.storage.local.get('throneQueue');
   const current = throneQueue.find((row) => row.id === job.id) || job;
   const continuation = planHandoffContinuation(current.context || DEFAULT_CAMPAIGN_CONTEXT, checkpoint.text);
-  await recordSwarmReceipt({type: 'swarm_checkpoint', at: new Date().toISOString(), jobId: job.id, tabId: job.workerTabId, text: checkpoint.text, handoff: continuation?.handoff || null});
+  await recordSwarmReceipt({type: 'swarm_checkpoint', at: new Date().toISOString(), jobId: job.id, tabId: job.workerTabId, text: checkpoint.text, handoff: continuation?.handoff || null, veniceDirective: parseVeniceDirective(checkpoint.text)});
   if (continuation) {
     const fresh = (await chrome.storage.local.get('throneQueue')).throneQueue || [];
     if (!fresh.some((row) => row.id === continuation.job.id)) fresh.push(continuation.job);
@@ -178,10 +215,27 @@ async function finishRunningJob(job) {
     await markJob(job.id, 'handed_off', {handoff: continuation.handoff, checkpoint: checkpoint.text});
     return {jobId: job.id, tabId: job.workerTabId, state: 'handed_off', next: continuation.job.commission};
   }
-  const reviewRequirement = {reviewer: 'venice-local', independentOfChatGPT: true, requiredReceiptField: 'externalReviewGateSatisfied', requiredReceiptValue: true, vladRequired: true, finalRelease: 'tetsuya'};
-  await markJob(job.id, 'awaiting_venice_review', {checkpoint: checkpoint.text, reviewRequirement, finishedAt: new Date().toISOString()});
-  await recordSwarmReceipt({type: 'swarm_external_review_required', at: new Date().toISOString(), jobId: job.id, tabId: job.workerTabId, reviewRequirement});
-  return {jobId: job.id, tabId: job.workerTabId, state: 'awaiting_venice_review'};
+
+  const venice = planVeniceContinuation(current.context || DEFAULT_CAMPAIGN_CONTEXT, checkpoint.text);
+  if (venice.directive === 'STOP_ALLOWED') {
+    const reviewRequirement = {reviewer: 'venice-judgment-jars', reviewerMode: 'judgment_jar', stopPermission: 'STOP_ALLOWED', localVeniceRequired: false, vladRequired: true, finalRelease: 'tetsuya'};
+    await markJob(job.id, 'venice_stop_allowed', {checkpoint: checkpoint.text, reviewRequirement, finishedAt: new Date().toISOString()});
+    await recordSwarmReceipt({type: 'swarm_venice_stop_allowed', at: new Date().toISOString(), jobId: job.id, tabId: job.workerTabId, reviewRequirement});
+    return {jobId: job.id, tabId: job.workerTabId, state: 'venice_stop_allowed', directive: 'STOP_ALLOWED'};
+  }
+  if (venice.directive === 'HALT_REQUIRED') {
+    await markJob(job.id, 'halt_required', {checkpoint: checkpoint.text, veniceDirective: 'HALT_REQUIRED', finishedAt: new Date().toISOString()});
+    await recordSwarmReceipt({type: 'swarm_halt_required', at: new Date().toISOString(), jobId: job.id, tabId: job.workerTabId});
+    return {jobId: job.id, tabId: job.workerTabId, state: 'halt_required', directive: 'HALT_REQUIRED'};
+  }
+
+  const fresh = (await chrome.storage.local.get('throneQueue')).throneQueue || [];
+  fresh.push(venice.job);
+  await chrome.storage.local.set({throneQueue: fresh, throneContext: venice.context});
+  const state = venice.directive === 'CONTINUE_REQUIRED' ? 'venice_continue_required' : 'venice_review_missing';
+  await markJob(job.id, state, {checkpoint: checkpoint.text, veniceDirective: venice.directive, successorJobId: venice.job.id, finishedAt: new Date().toISOString()});
+  await recordSwarmReceipt({type: state, at: new Date().toISOString(), jobId: job.id, tabId: job.workerTabId, successorJobId: venice.job.id});
+  return {jobId: job.id, tabId: job.workerTabId, state, next: venice.job.commission};
 }
 
 async function waitForCompletedAssistant(workerTabId, baselineAssistantCount, timeoutMs = 10 * 60 * 1000) {
@@ -202,13 +256,13 @@ async function waitForCompletedAssistant(workerTabId, baselineAssistantCount, ti
 
 async function throneStatus() {
   const {throneContext = DEFAULT_CAMPAIGN_CONTEXT, throneQueue = []} = await chrome.storage.local.get(['throneContext', 'throneQueue']);
-  return {ok: true, bootPhrase: BOOT_PHRASE, defaultContext: DEFAULT_CAMPAIGN_CONTEXT, context: throneContext, tab: await chatTabSummary(), workers: await workerTabSummaries(), queue: compactQueue(throneQueue), stopped: await isStopped(), relayEnabled: relayEnabled()};
+  return {ok: true, bootPhrase: BOOT_PHRASE, workerDoctrine: WORKER_DOCTRINE, defaultContext: DEFAULT_CAMPAIGN_CONTEXT, context: throneContext, tab: await chatTabSummary(), workers: await workerTabSummaries(), queue: compactQueue(throneQueue), stopped: await isStopped(), relayEnabled: relayEnabled()};
 }
 async function publishRelaySnapshot() {
   if (!relayEnabled()) return;
   try {
     const state = await throneStatus();
-    await fetch(`${THRONE_RELAY.baseUrl}/snapshot`, {method: 'POST', headers: relayHeaders(), body: JSON.stringify({workers: state.workers, queue: state.queue, stopped: state.stopped})});
+    await fetch(`${THRONE_RELAY.baseUrl}/snapshot`, {method: 'POST', headers: relayHeaders(), body: JSON.stringify({workers: state.workers, queue: state.queue, stopped: state.stopped, workerDoctrine: state.workerDoctrine})});
   } catch (_) {}
 }
 function compactQueue(queue = []) { return queue.slice(-100).map((job) => ({id: job.id, state: job.state, workerTabId: Number(job.workerTabId || 0), source: job.source || '', commission: String(job.commission || '').slice(0, 240)})); }
@@ -234,10 +288,15 @@ async function runCommission(commission, newWorker, suppliedContext, identity = 
   const tab = newWorker ? await createWorkerTab() : await requireChatTab(identity.workerTabId);
   const before = await inspectWorker(tab.id);
   const baselineAssistantCount = Number(before.assistantCount || 0);
-  const prompt = `${BOOT_ENVELOPE}\nDURABLE CAMPAIGN CONTEXT:\n${context}\n\nCOMMISSION — ONE BOUNDED SLICE:\n${commission.trim()}`;
+  const prompt = `${BOOT_ENVELOPE}\
+DURABLE CAMPAIGN CONTEXT:\
+${context}\
+\
+COMMISSION — ONE BOUNDED SLICE:\
+${commission.trim()}`;
   const [result] = await chrome.scripting.executeScript({target: {tabId: tab.id}, func: submitChatGptPrompt, args: [prompt]});
   if (!result?.result?.ok) throw new Error(result?.result?.error || 'Prompt injection failed');
-  const receipt = {type: 'commission_sent', at: new Date().toISOString(), jobId: identity.jobId || '', tabId: tab.id, url: tab.url || `${CHATGPT_ORIGIN}/`, bootPhrase: BOOT_PHRASE, workerModel: 'chat-mode Instant', slicePolicy: 'one-bounded-slice', commission, contextChars: context.length, promptChars: prompt.length, baselineAssistantCount, newWorker: Boolean(newWorker)};
+  const receipt = {type: 'commission_sent', at: new Date().toISOString(), jobId: identity.jobId || '', tabId: tab.id, url: tab.url || `${CHATGPT_ORIGIN}/`, bootPhrase: BOOT_PHRASE, workerModel: `ChatGPT ${WORKER_REASONING_MODE}`, workerDoctrine: WORKER_DOCTRINE, slicePolicy: 'one-bounded-slice', commission, contextChars: context.length, promptChars: prompt.length, baselineAssistantCount, newWorker: Boolean(newWorker)};
   await tagWorker(tab.id, {jobId: identity.jobId || '', commission, state: 'commissioned', baselineAssistantCount, commissionedAt: receipt.at});
   await appendReceipt(receipt);
   return {ok: true, receipt, worker: {tabId: tab.id, jobId: identity.jobId || '', baselineAssistantCount}};
