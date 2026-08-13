@@ -1,0 +1,82 @@
+{
+    "schema":  "home-center.regnet-qa.review.v1",
+    "reviewer":  "Regnet QA",
+    "reviewMode":  "deterministic_cli",
+    "underlyingCli":  "tools/renee.py",
+    "underlyingReceipt":  {
+                              "acceptance":  [
+                                                 "36 deterministic contracts pass; Phone Hands relay contract passes; Windows durable-signer wrapper contract passes; 6 Android unit tests pass; Android assembly succeeds; APK SHA 5d01f34d41b875eea3de3f93135a63a0be52c4ab3ab24b4bf8c85d90f523ea5b is bound to exact source head and durable certificate c0652840ce34ab4e957ac6c99698c21b694c4ca09c412c473b72c02005909400. Paired screenless ADB and old-package run-as state access are already observed."
+                                             ],
+                              "blockers":  [
+
+                                           ],
+                              "can_grant_final_stop":  false,
+                              "capability_state":  "tested",
+                              "claim":  "Exact runtime-preparation source head 4b86e729f03c63c07f34bc88c5e48180aec209e5 may advance to a screenless signer migration checkpoint only. It has current main integrated, green source/relay/Android tests, and an exact durable-signed APK. The checkpoint must preserve the installed APK and private state, foreground invariance, control-off state, zero screen lease, rollback capability, and the prohibition on Spotify authorization, playlist mutation, playback, Activity launch, screen input, generic media keys, or substitute control bodies.",
+                              "created_at":  "2026-08-13T21:00:32.166570+00:00",
+                              "dissent":  [
+                                              "Durable signing and paired ADB do not authorize Spotify OAuth, playlist mutation, playback, or human acceptance.",
+                                              "Package installation alone is not migration success; backup/readback, state restore, app-op restoration, foreground invariance, zero lease, and rollback evidence are all mandatory."
+                                          ],
+                              "evidence":  [
+                                               {
+                                                   "exists":  true,
+                                                   "path":  "C:\\Users\\dclar\\workspace\\home-center-worktrees\\spotify-radio-runtime-exec-20260813\\receipts\\spotify-radio\\2026-08-13-runtime-preparation-verification.json",
+                                                   "size":  6449
+                                               },
+                                               {
+                                                   "exists":  true,
+                                                   "path":  "C:\\Users\\dclar\\workspace\\home-center-worktrees\\spotify-radio-runtime-exec-20260813\\receipts\\regnet\\2026-08-13-adam-background-spotify-radio-runtime-plan.json",
+                                                   "size":  2562
+                                               },
+                                               {
+                                                   "exists":  true,
+                                                   "path":  "C:\\Users\\dclar\\workspace\\home-center-worktrees\\spotify-radio-runtime-exec-20260813\\receipts\\venice\\2026-08-13-adam-background-spotify-radio-runtime-plan.json",
+                                                   "size":  5533
+                                               }
+                                           ],
+                              "evidence_refs":  [
+                                                    "hands-spotify-radio-runtime-prep-full-gate-20260813-02",
+                                                    "hands-spotify-radio-build-durable-signed-integrated-head-20260813-01",
+                                                    "4b86e729f03c63c07f34bc88c5e48180aec209e5"
+                                                ],
+                              "next_gate":  "Venice",
+                              "provenance":  "SYNTHETIC_REGNET",
+                              "questions":  [
+                                                "What exactly are we claiming?",
+                                                "What evidence proves that exact claim on the commissioned surface?",
+                                                "What reachable path did we not test?",
+                                                "What happens when the dependency, input, user, network, state, or timing is wrong?",
+                                                "Can another person reproduce the result from the receipt?",
+                                                "Did we deliver the requested thing or an adjacent substitute?",
+                                                "What changed, and what can regress because of it?",
+                                                "Are we laundering intended, implemented, tested, deployed, callable, delivered, or accepted into one state?",
+                                                "What dissent or uncertainty must remain attached to the claim?"
+                                            ],
+                              "reachable_failure_paths":  [
+                                                              "Old APK and debuggable private-state backup must be independently hashed and read back before uninstall; failure blocks migration.",
+                                                              "Foreground package change, Activity launch, nonzero screen lease, control re-enable, signer mismatch, state-restore mismatch, or rollback failure blocks advancement.",
+                                                              "Absent or ambiguous exact Spotify session remains an explicit read-only probe result and cannot trigger deep-link, App Remote, media-key, or foreground fallback.",
+                                                              "Shizuku permission that cannot be recovered through existing background authority remains a genuine user-owned consent boundary after every screenless route is exhausted."
+                                                          ],
+                              "receipt_id":  "rqa-54964e000057bcc59a3d",
+                              "receipt_path":  "C:\\Users\\dclar\\.home-center\\renee-qa\\receipts\\rqa-54964e000057bcc59a3d.json",
+                              "reviewer":  "Regnet QA",
+                              "schema":  "home-center.regnet-qa.review.v1",
+                              "unresolved":  [
+
+                                             ],
+                              "verdict":  "PASS",
+                              "warnings":  [
+
+                                           ]
+                          },
+    "verdict":  "PASS",
+    "blockers":  [
+
+                 ],
+    "next":  "VENICE",
+    "reviewedSourceHead":  "4b86e729f03c63c07f34bc88c5e48180aec209e5",
+    "canGrantFinalStop":  false,
+    "createdAtUtc":  "2026-08-13T21:00:32.2120039Z"
+}

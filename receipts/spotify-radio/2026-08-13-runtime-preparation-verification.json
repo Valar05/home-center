@@ -1,0 +1,99 @@
+{
+    "schema":  "home-center.spotify-radio-runtime-preparation-verification.v1",
+    "receiptId":  "spotify-radio-runtime-preparation-verification-20260813",
+    "repository":  "Valar05/home-center",
+    "branch":  "feat/spotify-radio-runtime-prep-20260813",
+    "sourceHead":  "4b86e729f03c63c07f34bc88c5e48180aec209e5",
+    "mainIntegrated":  "75407a9cda496539d7a1107c4b0c75c3e295a280",
+    "integrationCommit":  "4b86e729f03c63c07f34bc88c5e48180aec209e5",
+    "commission":  "Prepare a background-only, screenless migration of the Home Center operator overlay carrying exact Spotify control. Preserve old package/state and foreground; do not authorize Spotify or start playback.",
+    "sourceGates":  {
+                        "pythonContracts":  {
+                                                "passed":  36,
+                                                "failed":  0,
+                                                "durationSeconds":  0.717
+                                            },
+                        "pythonCompilation":  "passed",
+                        "phoneHandsRelayContract":  "PASS",
+                        "windowsSignerWrapperContract":  "PASS",
+                        "androidUnitTests":  {
+                                                 "passed":  6,
+                                                 "failures":  0,
+                                                 "errors":  0,
+                                                 "skipped":  0
+                                             },
+                        "androidAssembly":  "BUILD SUCCESSFUL",
+                        "gitDiffCheck":  "passed"
+                    },
+    "durableSignedApk":  {
+                             "path":  "build/operator-overlay-runtime-integrated-signed/operator-overlay-debug.apk",
+                             "sha256":  "5d01f34d41b875eea3de3f93135a63a0be52c4ab3ab24b4bf8c85d90f523ea5b",
+                             "byteCount":  105873,
+                             "package":  "com.homecenter.operatoroverlay",
+                             "versionName":  "1.3.0",
+                             "versionCode":  4,
+                             "sourceCommit":  "4b86e729f03c63c07f34bc88c5e48180aec209e5",
+                             "signingCertificateSha256":  "c0652840ce34ab4e957ac6c99698c21b694c4ca09c412c473b72c02005909400",
+                             "signingKeySha256":  "ac58f4935b2bcaf67026100cec558bf49e400343c684b99f9efc45640f55b42c",
+                             "signingSourceRef":  "origin/generated/operator-overlay-apk",
+                             "durableSigningKey":  true,
+                             "installed":  false,
+                             "deploymentEvidence":  false
+                         },
+    "observedPhonePreflight":  {
+                                   "device":  "Pixel 10 Pro XL",
+                                   "serial":  "61070DLCQ00045",
+                                   "adbTarget":  "192.168.1.3:36667",
+                                   "pairedAuthorizedShell":  true,
+                                   "foreground":  "com.google.android.inputmethod.latin/com.google.android.apps.inputmethod.latin.preference.SettingsActivity",
+                                   "installedOverlayVersion":  "1.0.0",
+                                   "installedOverlayVersionCode":  1,
+                                   "installedApkSha256":  "c5bf50d5132d4644db01e9d65da2989e44244447594544b84e3265ce41fc26e5",
+                                   "installedSignerSha256":  "be0cb034e5da28aa8aa776cf2d7e1bfb1f88f4cb1ce8f7ac220751218aa64b24",
+                                   "runAsPrivateStateAccess":  true,
+                                   "controlEnabled":  false,
+                                   "screenLeaseActive":  false,
+                                   "shizukuServerAlive":  true,
+                                   "termuxForegroundServiceAlive":  true,
+                                   "spotifyVersion":  "9.1.72.1891",
+                                   "spotifyExactSessionPresent":  false
+                               },
+    "migrationSource":  {
+                            "screenlessStateRestore":  true,
+                            "restoreMethod":  "content call restore_migration_state",
+                            "restorePermission":  "android.permission.DUMP",
+                            "controlForcedOff":  true,
+                            "screenLeasesForcedZero":  true,
+                            "backgroundPhoneShellLeaseFree":  true,
+                            "activityLaunchFallbackForbidden":  true,
+                            "signerMismatchBackupRequired":  true
+                        },
+    "evidenceRefs":  [
+                         "hands-spotify-radio-runtime-prep-full-gate-20260813-02",
+                         "hands-spotify-radio-build-durable-signed-integrated-head-20260813-01",
+                         "hands-spotify-radio-adb-runtime-preflight-20260813-01",
+                         "hands-spotify-radio-compare-generated-signing-key-20260813-02",
+                         "receipts/regnet/2026-08-13-adam-background-spotify-radio-runtime-plan.json",
+                         "receipts/venice/2026-08-13-adam-background-spotify-radio-runtime-plan.json"
+                     ],
+    "capabilityState":  {
+                            "sourceMerged":  true,
+                            "currentMainIntegrated":  true,
+                            "runtimePrepSourceTested":  true,
+                            "durableSignedApkBuilt":  true,
+                            "recoveryArtifactsVerified":  false,
+                            "overlayMigrated":  false,
+                            "stateRestored":  false,
+                            "phoneHandsRecovered":  false,
+                            "shizukuPermissionVerified":  false,
+                            "spotifySessionCallable":  false,
+                            "spotifyAuthorized":  false,
+                            "playlistCreated":  false,
+                            "playbackVerified":  false,
+                            "accepted":  false
+                        },
+    "phoneTouchedByBuild":  false,
+    "screenInteractionUsed":  false,
+    "spotifyProviderCalled":  false,
+    "createdAtUtc":  "2026-08-13T21:00:31.8433362Z"
+}
