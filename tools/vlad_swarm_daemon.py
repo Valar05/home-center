@@ -19,6 +19,14 @@ ADAM_POLL_SECONDS = float(os.environ.get("HC_ADAM_POLL_SECONDS", "1.0"))
 OPERATOR_STATE_URI = "content://com.homecenter.operatoroverlay.state/state"
 OPERATOR_RECEIVER = "com.homecenter.operatoroverlay/.OverlayUpdateReceiver"
 OVERLAY_RECOVERY_COOLDOWN = int(os.environ.get("HC_OVERLAY_RECOVERY_COOLDOWN", "120"))
+SPOTIFY_RADIO_STABLE = Path(os.environ.get(
+    "HC_SPOTIFY_RADIO_SCRIPT",
+    "~/.local/lib/home-center/spotify-radio/spotify_radio.py",
+)).expanduser()
+SPOTIFY_RADIO_STATE = Path(os.environ.get(
+    "HC_SPOTIFY_RADIO_STATE",
+    "~/.local/state/home-center/spotify-radio/state.json",
+)).expanduser()
 
 
 def now(): return int(time.time())
@@ -113,6 +121,39 @@ def operator_heartbeat():
     result=rish("am broadcast --receiver-foreground -a com.homecenter.operatoroverlay.HEARTBEAT "+f"-n {OPERATOR_RECEIVER}");append_receipt({"kind":"adam.overlay.heartbeat","ok":result["rc"]==0,"result":result})
 def operator_update(text,source):
     return rish("am broadcast --receiver-foreground -a com.homecenter.operatoroverlay.UPDATE "+f"-n {OPERATOR_RECEIVER} --es latestText {shlex.quote(str(text)[:8000])} --es source {shlex.quote(str(source)[:80])}")
+
+def _spotify_radio_script(repo_root):
+    candidates = [
+        SPOTIFY_RADIO_STABLE,
+        Path(repo_root)/"tools"/"spotify_radio.py",
+    ]
+    for candidate in candidates:
+        if candidate.is_file():
+            return candidate
+    return None
+
+def run_spotify_radio(repo_root,text,timeout=120):
+    script=_spotify_radio_script(repo_root)
+    if not script:
+        return {"cmd":[],"rc":2,"stdout":"","stderr":"Spotify Radio runtime is not installed."}
+    return run(["python3",str(script),"prompt",text],timeout=timeout,cwd=repo_root)
+
+def ensure_spotify_radio(repo_root):
+    script=_spotify_radio_script(repo_root)
+    if not script:
+        return {"ok":False,"state":"runtime_missing"}
+    try:
+        state=json.loads(SPOTIFY_RADIO_STATE.read_text(encoding="utf-8")) if SPOTIFY_RADIO_STATE.is_file() else {}
+    except Exception:
+        state={}
+    if state.get("continuous") is not True:
+        return {"ok":True,"state":"idle","continuous":False}
+    result=run(["python3",str(script),"ensure"],timeout=30,cwd=repo_root)
+    ok=result["rc"]==0
+    summary={"ok":ok,"state":"running" if ok else "failed","continuous":True,"result":result}
+    append_receipt({"kind":"spotify.radio.ensure",**summary})
+    return summary
+
 def _last_adam_request_id():
     try:return int((STATE_DIR/"adam-last-request-id").read_text(encoding="utf-8").strip())
     except Exception:return 0
@@ -183,7 +224,11 @@ def process_adam_overlay(repo_root):
     try:text=base64.b64decode(payload,validate=True).decode("utf-8")
     except Exception as exc:
         display=f"invalid_payload: {exc}";pending={"schema":"adam-overlay-pending-response-v1","requestId":request_id,"mode":mode,"display":display[:8000],"taskRc":2,"taskResult":{"error":display},"attempts":0,"nextAttemptEpoch":0,"createdAtEpoch":now()};pending_path=_save_pending_response(pending);append_receipt({"kind":"adam.request.invalid","ok":False,"requestId":request_id,"mode":mode,"error":display,"pending":str(pending_path)});_deliver_pending_responses();return
-    result=run(["python3",str(Path(repo_root)/"tools"/"adam.py"),mode,text,"--cwd",repo_root],timeout=None,cwd=repo_root);display=result["stdout"] or result["stderr"] or f"Adam {mode} exited {result['rc']}"
+    if mode=="radio":
+        result=run_spotify_radio(repo_root,text)
+    else:
+        result=run(["python3",str(Path(repo_root)/"tools"/"adam.py"),mode,text,"--cwd",repo_root],timeout=None,cwd=repo_root)
+    display=result["stdout"] or result["stderr"] or f"Adam {mode} exited {result['rc']}"
     try:
         parsed=json.loads(result["stdout"]);display=parsed.get("response") or parsed.get("stdout") or parsed.get("detail") or parsed.get("error") or display
         if parsed.get("stderr"):display=(str(display)+"\n"+str(parsed["stderr"])).strip()
@@ -233,7 +278,8 @@ def process_review_inbox(repo_root):
 def heartbeat(repo_root):
     jars=sync_judgment_jars(repo_root);shizuku_ok=phone_health();ssh_ok=ensure_phone_ssh(repo_root);overlay_ok=ensure_operator_overlay(repo_root) if shizuku_ok else False
     if overlay_ok:operator_heartbeat()
-    process_review_inbox(repo_root);append_receipt({"kind":"swarm.heartbeat","ok":True,"shizuku":shizuku_ok,"ssh":ssh_ok,"overlay":overlay_ok,"judgmentJars":jars})
+    radio=ensure_spotify_radio(repo_root) if shizuku_ok else {"ok":False,"state":"shizuku_unavailable"}
+    process_review_inbox(repo_root);append_receipt({"kind":"swarm.heartbeat","ok":True,"shizuku":shizuku_ok,"ssh":ssh_ok,"overlay":overlay_ok,"spotifyRadio":radio,"judgmentJars":jars})
 def main():
     ap=argparse.ArgumentParser(description="Deterministic Vlad swarm keeper");ap.add_argument("--repo",default=os.environ.get("HC_REPO_ROOT","."));ap.add_argument("--once",action="store_true");ap.add_argument("--interval",type=int,default=INTERVAL);args=ap.parse_args();repo_root=str(Path(args.repo).resolve());STATE_DIR.mkdir(parents=True,exist_ok=True);append_receipt({"kind":"swarm.start","ok":True,"repo":repo_root,"interval":args.interval,"judgmentJarCache":str(JAR_CACHE)});next_heartbeat=0.0
     while True:

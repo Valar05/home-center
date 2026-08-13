@@ -63,6 +63,7 @@ public class OperatorOverlayService extends Service {
     private Button controlButton;
     private EditText adamInput;
     private String adamMode = "terminal";
+    private long lastRadioRequestAtMs;
     private boolean expandedText;
     private boolean confirmDisable;
     private float downRawX;
@@ -237,6 +238,24 @@ public class OperatorOverlayService extends Service {
         hideButton.setOnClickListener(v -> hideOverlay());
         titleRow.addView(hideButton);
 
+        LinearLayout radioRow = new LinearLayout(this);
+        radioRow.setOrientation(LinearLayout.HORIZONTAL);
+        radioRow.setGravity(Gravity.CENTER_VERTICAL);
+        radioRow.setPadding(0, dp(4), 0, dp(2));
+        radioRow.setContentDescription("Spotify Radio background controls");
+
+        TextView radioLabel = textView(12f, true);
+        radioLabel.setText("SPOTIFY");
+        radioLabel.setContentDescription("Spotify Radio");
+        radioLabel.setGravity(Gravity.CENTER_VERTICAL);
+        radioLabel.setPadding(dp(8), 0, dp(8), 0);
+        radioRow.addView(radioLabel, new LinearLayout.LayoutParams(
+                0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
+        radioRow.addView(radioButton("Prev", "previous", "Play the previous Spotify track"));
+        radioRow.addView(radioButton("Play", "toggle", "Play or pause Spotify"));
+        radioRow.addView(radioButton("Next", "next", "Skip to the next Spotify track"));
+        radioRow.addView(radioButton("Stop", "stop", "Stop Spotify Radio and disable keep rolling"));
+
         details = new LinearLayout(this);
         details.setOrientation(LinearLayout.VERTICAL);
 
@@ -288,6 +307,7 @@ public class OperatorOverlayService extends Service {
         adamModeRow.addView(adamModeButton("CHAT", "chat", "Adam local chatbot mode"));
         adamModeRow.addView(adamModeButton("CONT", "continue", "Adam Continue consumer mode"));
         adamModeRow.addView(adamModeButton("VLAD", "vlad", "Ask Vlad for a bounded consultation"));
+        adamModeRow.addView(adamModeButton("RADIO", "radio", "Control Spotify Radio with a bounded prompt"));
 
         LinearLayout adamInputRow = new LinearLayout(this);
         adamInputRow.setOrientation(LinearLayout.HORIZONTAL);
@@ -338,6 +358,7 @@ public class OperatorOverlayService extends Service {
         details.addView(adamInputRow);
         details.addView(actionRow);
         root.addView(titleRow);
+        root.addView(radioRow);
         root.addView(details);
 
         windowParams = new WindowManager.LayoutParams(
@@ -628,6 +649,24 @@ public class OperatorOverlayService extends Service {
         meta.setText(source + " • " + age(now, lastUpdate) + lease +
                 (expandedText ? " • tap message to collapse" : " • tap message to expand"));
         latest.setText(OperatorState.latestText(this));
+    }
+
+    private Button radioButton(String label, String command, String description) {
+        Button value = button(label);
+        value.setContentDescription(description);
+        value.setOnClickListener(v -> submitRadioRequest(command));
+        return value;
+    }
+
+    private void submitRadioRequest(String command) {
+        long now = System.currentTimeMillis();
+        long requestId = Math.max(now, lastRadioRequestAtMs + 1L);
+        lastRadioRequestAtMs = requestId;
+        OperatorState.submitAdamRequest(this, "radio", command, requestId);
+        if (adamInput != null) {
+            adamInput.setHint("Adam — radio • " + command);
+            adamInput.announceForAccessibility("Spotify Radio " + command + " requested");
+        }
     }
 
     private Button adamModeButton(String label, String mode, String description) {
