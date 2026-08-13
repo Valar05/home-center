@@ -103,7 +103,7 @@ async function fetchPublicEnvironment({nowMs=Date.now(),env=process.env,fetchImp
     unavailable.push('weather','daylight');
   }
   try {
-    const alerts=parseNwsAlerts(await fetchJson(nwsAlertsUrl(region),{fetchImpl,headers:{'User-Agent':'Home Center Reality Membrane (owner-operated; dclarke1005@gmail.com)','Accept':'application/geo+json'}}));
+    const alerts=parseNwsAlerts(await fetchJson(nwsAlertsUrl(region),{fetchImpl,headers:{'User-Agent':'HomeCenterRealityMembrane/1.0 (https://github.com/Valar05/home-center)','Accept':'application/geo+json'}}));
     parsed.weather.alert=reality.observation({observation_type:'weather.alert',value:alerts,observed_at:new Date(nowMs).toISOString(),source:'weather.gov.alerts',source_timestamp:new Date(nowMs).toISOString(),privacy:reality.PRIVACY.PUBLIC,location_scope:region.locationScope,confidence:1,receipt_id:sourceReceipt('weather_nws_alerts',alerts),max_age_ms:10*60*1000},nowMs);
   } catch (error) {
     parsed.weather.alert=reality.unavailableObservation('weather.alert',{source:'weather.gov.alerts',privacy:reality.PRIVACY.PUBLIC,locationScope:region.locationScope,error:safeText(error && error.message,200)||'alerts_unavailable',nowMs});
