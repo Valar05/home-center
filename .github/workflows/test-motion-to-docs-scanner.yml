@@ -43,3 +43,5 @@ jobs:
           assert workflow['main']['params'] == ['args']
           assert workflow['main']['steps'][-1]['returnResult']['return']['document']['webViewLink']
           PY
+      - name: Test Work Mode upload contract
+        run: node --test tools/motion_to_docs_contract_test.mjs
