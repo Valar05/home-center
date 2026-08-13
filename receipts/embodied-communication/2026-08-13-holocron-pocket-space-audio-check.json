@@ -7,7 +7,7 @@
     "label": "Drew Android Phone",
     "ownerKey": "owner_4d27b7e75b7c82c17ff779ccbbd24137",
     "statusAfter": "online",
-    "lastSeenAtMsAfter": 1786618882059
+    "lastSeenAtMsAfter": 1786619336159
   },
   "executionLane": [
     "Home Center",
@@ -55,18 +55,24 @@
     "lifecycleRepair": "PocketTtsPlaybackActivity uses Theme.Translucent.NoTitleBar; Theme.NoDisplay was rejected because asynchronous playback crashed before onResume completed."
   },
   "stableRuntime": {
-    "commandId": "000-install-stable-embodied-runtime-20260813-0642",
-    "status": "completed",
-    "exitCode": 0,
+    "installCommandId": "000-install-stable-embodied-runtime-20260813-0642",
+    "installStatus": "completed",
+    "installExitCode": 0,
     "sourceCommit": "ed321c2548b62938f2bb8636e223cf834fdf0f71",
     "sourceSha256": "010329b742f9bada950548e7e4ba5788a31b77d91ef83f98ec56fe89bf532c7c",
     "installedPath": "/data/data/com.termux/files/home/.local/lib/home-center/embodied-communication/fortress_read_aloud.py",
     "wrapperPath": "/data/data/com.termux/files/home/bin/fortress-read",
+    "doctorCommandId": "000-stable-fortress-read-doctor-20260813-0646",
+    "doctorStatus": "completed",
+    "doctorExitCode": 0,
     "doctorReady": true,
+    "playbackComponentAvailable": true,
+    "systemFallbackAllowed": false,
+    "cloudFallback": false,
     "independentOfDirtyCheckout": true
   },
   "finalObservation": {
-    "commandId": "000-holocron-post-playback-status-20260813-0634",
+    "commandId": "000-final-embodied-phone-status-20260813-0647",
     "status": "completed",
     "overlayInstalled": true,
     "overlayPackage": "com.homecenter.operatoroverlay",
@@ -75,7 +81,9 @@
     "muted": false,
     "screenActiveUntilMs": 0,
     "screenYieldUntilMs": 0,
-    "completedAtMs": 1786618873685
+    "completedAtMs": 1786619324346,
+    "deviceStatus": "online",
+    "deviceLastSeenAtMs": 1786619336159
   },
   "humanAcceptance": {
     "accepted": true,
@@ -102,6 +110,7 @@
     "callable": true,
     "executed": true,
     "physicalPlaybackVerified": true,
+    "finalBodyHealthy": true,
     "humanAccepted": true
   }
 }
