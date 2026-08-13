@@ -12,16 +12,19 @@ Venice does not take orchestration ownership. The mission owner and commission r
 
 ## Reviewer modes and precedence
 
-### `judgment_jar`
+### `judgment_jar_emulation`
 
-Primary mode. The current authorized ChatGPT worker executes Venice's durable Judgment Jars as a separate adversarial review pass.
+**Primary mode and stable wire identifier.** The current authorized ChatGPT worker executes Venice's durable Judgment Jars as a separate adversarial review pass.
+
+The identifier is retained for compatibility with existing receipts and parsers. Its historical word `emulation` does **not** mean fallback, degraded, simulated, or second-class Venice. The semantics are primary Judgment-Jar Venice.
 
 This is a real Venice judgment. Provenance must identify the actual worker that executed the jars, for example:
 
 ```json
 {
   "reviewer": "chatgpt-worker-7",
-  "reviewerMode": "judgment_jar"
+  "reviewerMode": "judgment_jar_emulation",
+  "reviewerSemantics": "primary-judgment-jar"
 }
 ```
 
@@ -67,7 +70,7 @@ Completion/code review returns:
 ```text
 VERDICT: PASS|FAIL
 DIRECTIVE: STOP_ALLOWED|CONTINUE_REQUIRED|HALT_REQUIRED
-REVIEWER_MODE: judgment_jar|local_venice
+REVIEWER_MODE: judgment_jar_emulation|local_venice
 JAR: <criterion applied>
 FINDING: <blocking issue, if any>
 NOTE: <short rationale>
@@ -113,7 +116,7 @@ Project-specific Judgment Jars may strengthen these defaults but may not weaken 
 - `FAIL + STOP_ALLOWED` becomes `FAIL + HALT_REQUIRED`.
 - Missing verdict/directive/reviewer mode never grants permission.
 - Mechanical checks alone never grant stop permission.
-- Missing live/local Venice is **not** a review-path failure when `judgment_jar` mode is available.
+- Missing live/local Venice is **not** a review-path failure when `judgment_jar_emulation` mode is available.
 - A worker may not claim `local_venice` provenance for a Judgment-Jar review.
 
 ## Loop contract
@@ -133,4 +136,4 @@ research / bounded work
 
 ## Canonical implementation
 
-Any authorized ChatGPT worker may execute the primary `judgment_jar` path directly if it loads the applicable Jars and emits provenance-preserving review receipts. `tools/venice_review.py` remains the optional local-model implementation for `local_venice` mode.
+Any authorized ChatGPT worker may execute the primary `judgment_jar_emulation` path directly if it loads the applicable Jars and emits provenance-preserving review receipts. `tools/venice_review.py` and `tools/venice_plan_review.py` are canonical validators/persistence harnesses for this primary path. Their local-model mode is explicit opt-in only.
