@@ -1,0 +1,187 @@
+name: Unstick Phone Hands queue once
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - phone-hands-queue-starvation-converged-20260813
+    paths:
+      - .github/workflows/unstick-phone-hands-queue-once.yml
+
+permissions:
+  contents: write
+  id-token: write
+
+concurrency:
+  group: unstick-phone-hands-queue-once
+  cancel-in-progress: false
+
+env:
+  BRANCH: phone-hands-queue-starvation-converged-20260813
+  HC_FIREBASE_SA: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_HOME_CENTER_DCLAR }}
+  HC_GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
+  HC_GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
+  HC_FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+  HC_WIF_PROVIDER: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+  HC_WIF_SERVICE_ACCOUNT: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+
+jobs:
+  terminalize-expired-and-superseded:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: phone-hands-queue-starvation-converged-20260813
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Authenticate with workload identity when configured
+        if: env.HC_WIF_PROVIDER != '' && env.HC_WIF_SERVICE_ACCOUNT != ''
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ env.HC_WIF_PROVIDER }}
+          service_account: ${{ env.HC_WIF_SERVICE_ACCOUNT }}
+
+      - name: Select Firestore credentials
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -n "${HC_WIF_PROVIDER}" ] && [ -n "${HC_WIF_SERVICE_ACCOUNT}" ]; then exit 0; fi
+          credential=''
+          for candidate in "$HC_FIREBASE_SA" "$HC_GOOGLE_CREDENTIALS" "$HC_GCP_SA_KEY" "$HC_FIREBASE_SERVICE_ACCOUNT"; do
+            if [ -n "$candidate" ]; then credential="$candidate"; break; fi
+          done
+          if [ -z "$credential" ]; then echo 'No Firestore credential configured.' >&2; exit 41; fi
+          path="$RUNNER_TEMP/home-center-firestore-service-account.json"
+          printf '%s' "$credential" > "$path"
+          chmod 600 "$path"
+          echo "GOOGLE_APPLICATION_CREDENTIALS=$path" >> "$GITHUB_ENV"
+
+      - name: Install Firestore client dependencies
+        run: npm ci --prefix functions
+
+      - name: Terminalize only expired or campaign-superseded queued records
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd functions
+          node - <<'NODE'
+          const fs = require('node:fs');
+          const crypto = require('node:crypto');
+          const admin = require('firebase-admin');
+          if (!admin.apps.length) admin.initializeApp({projectId:'home-center-dclar'});
+          const db = admin.firestore();
+          const now = Date.now();
+          const preserve = new Set([
+            'phc_queue_recovery_canary4_20260813',
+            'phc_reality_sourcev2_authorized_tests_20260813',
+          ]);
+          const supersededExact = new Set([
+            'phc_9cde2d7d-db5a-4ae5-9f72-42d4a63e650f',
+            'phc_fa9edcf6-406e-470e-aaf4-60512e582d61',
+            'phc_phone_hands_hotfix_apply_20260813',
+            'phc_queue_recovery_canary_20260813',
+            'phc_queue_recovery_canary2_20260813',
+            'phc_queue_recovery_canary3_20260813',
+            'phc_reality_membrane_authorized_tests_20260813',
+            'phc_reality_observe_authorized_tests_20260813',
+            'phc_reality_stale_authorized_tests_20260813',
+            'phc_reality_final_authorized_tests_20260813',
+            'phc_reality_final2_authorized_tests_20260813',
+            'phc_reality_phone_observe_canary_20260813',
+          ]);
+          (async () => {
+            const deviceSnap = await db.collection('phoneHandsDevices').doc('primary-phone').get();
+            if (!deviceSnap.exists) throw new Error('primary_phone_missing');
+            const device = deviceSnap.data() || {};
+            const ownerKey = device.ownerKey;
+            if (!ownerKey) throw new Error('primary_phone_owner_missing');
+            const queuedSnap = await db.collection('phoneHandsCommands')
+              .where('ownerKey','==',ownerKey)
+              .where('deviceId','==','primary-phone')
+              .where('status','==','queued')
+              .limit(300)
+              .get();
+            const candidates = [];
+            for (const doc of queuedSnap.docs) {
+              const command = doc.data() || {};
+              const id = command.commandId || doc.id;
+              if (preserve.has(id)) continue;
+              const expired = Number(command.expiresAtMs || 0) <= now;
+              const campaignProbe = id.startsWith('phc_reality_observe_');
+              const superseded = supersededExact.has(id) || campaignProbe;
+              if (expired || superseded) candidates.push({id,expired,superseded,campaignProbe,createdAtMs:Number(command.createdAtMs || 0),expiresAtMs:Number(command.expiresAtMs || 0)});
+            }
+            const terminalized = [];
+            for (const candidate of candidates.slice(0,240)) {
+              const ref = db.collection('phoneHandsCommands').doc(candidate.id);
+              const outcome = await db.runTransaction(async (tx) => {
+                const fresh = await tx.get(ref);
+                if (!fresh.exists) return 'missing';
+                const value = fresh.data() || {};
+                if (value.status !== 'queued') return `already_${value.status || 'unknown'}`;
+                const expiredNow = Number(value.expiresAtMs || 0) <= Date.now();
+                const supersededNow = supersededExact.has(candidate.id) || candidate.id.startsWith('phc_reality_observe_');
+                if (!expiredNow && !supersededNow) return 'preserved_fresh';
+                tx.set(ref,{
+                  status:'failed',
+                  error:expiredNow ? 'expired_before_lease' : 'superseded_by_reality_membrane_checkpoint',
+                  completedAtMs:Date.now(),
+                  updatedAtMs:Date.now(),
+                  leaseExpiresAtMs:0,
+                  queueRepairReceipt:'phone-hands-queue-janitor-20260813',
+                },{merge:true});
+                return expiredNow ? 'terminalized_expired' : 'terminalized_superseded';
+              });
+              terminalized.push({...candidate,outcome});
+            }
+            const afterSnap = await db.collection('phoneHandsCommands')
+              .where('ownerKey','==',ownerKey)
+              .where('deviceId','==','primary-phone')
+              .where('status','==','queued')
+              .limit(30)
+              .get();
+            const remaining = afterSnap.docs.map((doc) => {
+              const value = doc.data() || {};
+              return {commandId:value.commandId || doc.id,createdAtMs:Number(value.createdAtMs || 0),expiresAtMs:Number(value.expiresAtMs || 0)};
+            }).sort((a,b) => a.createdAtMs - b.createdAtMs);
+            const receipt = {
+              schema:'home-center.phone-hands.queue-janitor.v1',
+              executedAt:new Date().toISOString(),
+              deviceId:'primary-phone',
+              ownerKey,
+              policy:{deleteUsed:false,preserveIds:[...preserve],supersedeScope:'known campaign commands plus queued phc_reality_observe_* probes'},
+              scannedQueued:queuedSnap.size,
+              terminalized,
+              remainingOldest:remaining,
+              checks:{noDelete:true,preservedQueueCanary4:!terminalized.some((entry) => entry.id === 'phc_queue_recovery_canary4_20260813'),preservedSourceV2Tests:!terminalized.some((entry) => entry.id === 'phc_reality_sourcev2_authorized_tests_20260813')},
+              evidenceBoundary:'This is a one-time queue repair, not permanent relay acceptance. The deployed source fix and live canary remain required.',
+            };
+            receipt.receiptSha256 = crypto.createHash('sha256').update(JSON.stringify(receipt)).digest('hex');
+            fs.writeFileSync(process.env.RUNNER_TEMP + '/phone-hands-queue-janitor.json',JSON.stringify(receipt,null,2)+'\n');
+            console.log(JSON.stringify(receipt));
+          })().catch((error) => { console.error(error.stack || error); process.exit(1); });
+          NODE
+
+      - name: Commit janitor receipt without deleting command evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'home-center-github-admin[bot]'
+          git config user.email 'home-center-github-admin[bot]@users.noreply.github.com'
+          for attempt in $(seq 1 8); do
+            git fetch origin "$BRANCH"
+            git reset --hard "origin/$BRANCH"
+            mkdir -p docs/evidence
+            cp "$RUNNER_TEMP/phone-hands-queue-janitor.json" docs/evidence/phone-hands-queue-janitor-20260813.json
+            git rm --ignore-unmatch .github/workflows/unstick-phone-hands-queue-once.yml
+            git add docs/evidence/phone-hands-queue-janitor-20260813.json
+            git diff --cached --check
+            git commit -m 'Record one-time Phone Hands queue janitor receipt'
+            if git push origin HEAD:"$BRANCH"; then exit 0; fi
+            if [ "$attempt" -eq 8 ]; then exit 44; fi
+            sleep $((attempt * 3))
+          done
