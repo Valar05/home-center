@@ -1,0 +1,40 @@
+{
+  "schema": "venice-stop-review.v1",
+  "reviewerRole": "venice-judgment-jar",
+  "reviewerMode": "judgment_jar",
+  "commission": "Make the existing local Fleshpunk LoRA image generator genuinely usable from primary-phone.",
+  "selectedJudgmentJars": [
+    "00-judgement-jar-mission-boundary",
+    "20-judgement-jar-repository-truth",
+    "40-judgement-jar-failure-recovery",
+    "70-judgement-jar-venice-review-gate"
+  ],
+  "evidenceReviewed": [
+    "tools/venice_fleshpunk_phone.sh @ commit 15ec7fa4b5a6fb1c63dba4a44f897a08bb281bfd",
+    "tools/install_atom_phone.sh @ commit f3bc9101cc0c852b3ec125063c3eeae3245baa4c",
+    "tools/ssh_axis.py",
+    "tools/resolve_cauldron_ssh.py",
+    "Drive Venice Reconstruction evidence for live ComfyUI bridge and drw_fleshpunk_v1 training output"
+  ],
+  "findings": [
+    "PASS: implementation reuses the existing Termux-to-THECAULDRON SSH Axis rather than requiring Command Center.",
+    "PASS: ComfyUI remains localhost-only on THECAULDRON; no bridge or model credential is copied to the phone.",
+    "PASS: generation explicitly selects v1-5-pruned-emaonly.safetensors and drw_fleshpunk_v1.safetensors and records the live LoRA SHA-256 at execution time.",
+    "PASS: phone receipt requires a returned PNG whose phone-side SHA-256 matches the remote receipt.",
+    "PASS: Atom installation exposes a persistent phone UI button plus command-line entrypoint and request-derived accessible text whose provenance is not misrepresented as visual inspection.",
+    "BLOCKING: no fresh primary-phone execution receipt proves the updated Atom package is installed, the SSH Axis is currently callable, the ComfyUI workflow succeeds with the LoRA, or the PNG actually returns to the phone. Repository implementation is not deployment proof."
+  ],
+  "capabilityState": {
+    "requested": true,
+    "implemented": true,
+    "tested": false,
+    "deployed": false,
+    "callable": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "verdict": "FAIL",
+  "directive": "CONTINUE_REQUIRED",
+  "nextBoundedSlice": "Through an authorized primary-phone execution body, update/install Atom from current Home Center main, invoke venice-image generate with one benign Fleshpunk Venice acceptance prompt, require SSH Axis receipt, ComfyUI promptId, live LoRA SHA-256, returned PNG, matching phone SHA-256, accessible request-derived text, then return to Venice for another stop review.",
+  "createdAt": "2026-08-13T06:02:00-05:00"
+}
