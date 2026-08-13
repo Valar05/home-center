@@ -22,9 +22,9 @@ Turn one Work Mode video upload into ordered, unique-frame contact sheets and pl
 
 - Requested: yes.
 - Implemented: scanner service, contact-sheet composer, unique-frame ZIP, manifest, Google Workflow, deployment workflow.
-- Tested: local unit and synthetic-MP4 pipeline tests pass; remote CI not yet observed.
+- Tested: six local Python tests and three local Node contract tests pass. The first remote PR run failed before any step started; all six unrelated PR workflows failed the same way with empty step lists, so remote test execution remains unproved pending runner recovery.
 - Deployed: no.
-- Callable from Work Mode video upload: no; top-level `motion_to_docs_scan` tool wiring remains the active implementation gate.
+- Callable from Work Mode video upload: no; top-level `motion_to_docs_scan` is implemented and published in the branch contract, but the Home Center revision is not deployed.
 - Delivered as a Google Document: no.
 - Accepted: no.
 
@@ -50,9 +50,10 @@ Turn one Work Mode video upload into ordered, unique-frame contact sheets and pl
 ## Evidence
 
 - Branch: `feature/motion-to-docs-scanner`
+- Draft PR: `https://github.com/Valar05/home-center/pull/289`
 - Local test: six tests passed, including an FFmpeg-generated MP4 decoded into two unique frames and one contact sheet.
 - Current hardening commits include `f6b548a14387b65f7406171e2a125f4ffb1231d4`, `9b4a5a9ac7af2ba9f7ac22acded8ab20da87857b`, `1d52fc58769a0bc0a364447ce34cfdef5e600eb1`, and `7f4ea01827df57d955b46bd7efc48be715d38845`.
 
 ## Active gate and next authorized action
 
-Add and contract-test the first-class Work Mode file-bound tool that reuses Home Center host-file ingress, invokes the deployed Google Workflow with the uploaded video, and returns the observed Google Document link. Then obtain remote CI, Regnet QA, deployment, callable canary, Drive readback, and Venice stop judgment in that order.
+Restore or bypass the repository runner only through an authorized existing lane, obtain a real remote test execution, then Regnet QA. After PASS: merge, deploy scanner/workflow and Home Center, invoke a synthetic-video Work Mode canary, read the Google Document back, and consult Venice for stop permission.
