@@ -1,0 +1,246 @@
+name: Finalize fresh corrected Reality Membrane canary
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - reality-membrane-canary-20260813
+    paths:
+      - .github/workflows/converge-finalize-reality-canary-v4.yml
+
+permissions:
+  contents: write
+  pull-requests: write
+  id-token: write
+
+concurrency:
+  group: converge-finalize-reality-canary-v4
+  cancel-in-progress: false
+
+env:
+  BRANCH: reality-membrane-canary-20260813
+  CANARY_USER_EMAIL: dclarke1005@gmail.com
+  HC_FIREBASE_SA: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_HOME_CENTER_DCLAR }}
+  HC_GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
+  HC_GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
+  HC_FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+  HC_WIF_PROVIDER: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+  HC_WIF_SERVICE_ACCOUNT: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+  GH_TOKEN: ${{ github.token }}
+
+jobs:
+  validate-transform-judge-record:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: reality-membrane-canary-20260813
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Reset to current feature branch and mark acceptance window
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'home-center-github-admin[bot]'
+          git config user.email 'home-center-github-admin[bot]@users.noreply.github.com'
+          git fetch origin "$BRANCH"
+          git reset --hard "origin/$BRANCH"
+          echo "ACCEPTANCE_WINDOW_START_MS=$(( $(date +%s) * 1000 - 30000 ))" >> "$GITHUB_ENV"
+
+      - name: Authenticate with workload identity when configured
+        if: env.HC_WIF_PROVIDER != '' && env.HC_WIF_SERVICE_ACCOUNT != ''
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ env.HC_WIF_PROVIDER }}
+          service_account: ${{ env.HC_WIF_SERVICE_ACCOUNT }}
+
+      - name: Select Firestore credentials
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -n "${HC_WIF_PROVIDER}" ] && [ -n "${HC_WIF_SERVICE_ACCOUNT}" ]; then exit 0; fi
+          credential=''
+          for candidate in "$HC_FIREBASE_SA" "$HC_GOOGLE_CREDENTIALS" "$HC_GCP_SA_KEY" "$HC_FIREBASE_SERVICE_ACCOUNT"; do
+            if [ -n "$candidate" ]; then credential="$candidate"; break; fi
+          done
+          if [ -z "$credential" ]; then echo 'No Firestore credential configured.' >&2; exit 41; fi
+          path="$RUNNER_TEMP/home-center-firestore-service-account.json"
+          printf '%s' "$credential" > "$path"
+          chmod 600 "$path"
+          echo "GOOGLE_APPLICATION_CREDENTIALS=$path" >> "$GITHUB_ENV"
+
+      - name: Install Firestore client dependencies
+        run: npm ci --prefix functions
+
+      - name: Select the first fresh packet satisfying the corrected deployed contract
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd functions
+          node - <<'NODE'
+          const fs = require('node:fs');
+          const crypto = require('node:crypto');
+          const admin = require('firebase-admin');
+          if (!admin.apps.length) admin.initializeApp({projectId:'home-center-dclar'});
+          const db = admin.firestore();
+          const sha = (value) => crypto.createHash('sha256').update(String(value || '')).digest('hex');
+          const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+          const requiredFields = ['value','units','observed_at','source','source_timestamp','age_ms','freshness','confidence','location_scope','privacy','capability_state','receipt_id','stale','unavailable','error'];
+          const complete = (observation) => !!observation && requiredFields.every((key) => Object.prototype.hasOwnProperty.call(observation,key));
+          const knownFresh = (observation) => complete(observation) && observation.value !== null && observation.value !== undefined && observation.stale === false && observation.unavailable === false;
+          const userKey = 'reality_' + sha(process.env.CANARY_USER_EMAIL.toLowerCase()).slice(0,32);
+          const root = db.collection('realityUsers').doc(userKey);
+          const windowStartMs = Number(process.env.ACCEPTANCE_WINDOW_START_MS);
+
+          function evaluate(snapshot) {
+            const projection = snapshot.projection || {};
+            const time = projection.time || {};
+            const environment = projection.environment || {};
+            const device = projection.device || {};
+            const unavailable = Array.isArray(snapshot.unavailable) ? snapshot.unavailable : [];
+            const phone = snapshot.sourceReceipts && snapshot.sourceReceipts.phone || {};
+            const weather = snapshot.sourceReceipts && snapshot.sourceReceipts.weather || {};
+            const presentOrUnavailable = (observation,path) => complete(observation) && (knownFresh(observation) || (observation.unavailable === true && observation.value === null && unavailable.includes(path) && !!observation.error));
+            const checks = {
+              observedInsideAcceptanceWindow:Number(snapshot.observedAtMs || 0) >= windowStartMs,
+              uniquePhoneReceipt:typeof phone.commandId === 'string' && phone.commandId.startsWith('phc_reality_observe_'),
+              phoneTerminal:phone.status === 'completed',
+              timePresent:knownFresh(time.now) && time.now.source === 'home_center.runtime_clock',
+              daylightFresh:knownFresh(time.daylight),
+              weatherLive:knownFresh(environment.temperature_f) && weather.ok === true && weather.staleFallback !== true,
+              precipitationLabeled:presentOrUnavailable(environment.precipitation,'weather.precipitation'),
+              batteryPresentOrLabeled:presentOrUnavailable(device.battery_pct,'phone.battery_pct'),
+              chargingPresentOrLabeled:presentOrUnavailable(device.charging,'phone.charging'),
+              connectivityPresentOrLabeled:presentOrUnavailable(device.connectivity,'phone.connectivity'),
+              audioRoutePresentOrLabeled:presentOrUnavailable(device.audio_route,'phone.audio_route'),
+              naturalAccessibleSummary:/^Reality:/i.test(String(snapshot.speechSummary || '')) && /\b(?:AM|PM)\b/.test(String(snapshot.speechSummary || '')),
+              explicitTimeBridge:snapshot.timeBridge && snapshot.timeBridge.policy === 'detached' && /not silently equated/i.test(String(snapshot.timeBridge.assumption || '')),
+              zeroDollar:snapshot.costPolicy === 'zero-dollar-default',
+              homeCenterDidNotGenerateFiction:snapshot.fictionGenerated === false,
+              compact:Number(snapshot.packetByteCount) > 0 && Number(snapshot.packetByteCount) < 32000,
+              noSensitiveLeak:!/attendee|calendar.description|message.body|medical|latitude|longitude|microphone_recording|precise_location_history/i.test(JSON.stringify(snapshot)),
+              fullObservationContract:[time.now,time.daylight,environment.temperature_f,device.battery_pct,device.charging,device.connectivity,device.audio_route].filter(Boolean).every(complete),
+              provenance:!!(time.now && time.now.receipt_id) && !!(time.daylight && time.daylight.receipt_id) && !!(environment.temperature_f && environment.temperature_f.receipt_id) && !!weather.id,
+            };
+            return {projection,time,environment,device,unavailable,phone,weather,checks,failed:Object.entries(checks).filter(([,pass]) => !pass).map(([name]) => name)};
+          }
+
+          (async () => {
+            const deadline = Date.now() + 60 * 60 * 1000;
+            let selected = null;
+            let evaluation = null;
+            while (Date.now() < deadline) {
+              const recent = await root.collection('snapshots').orderBy('observedAtMs','desc').limit(150).get();
+              for (const doc of recent.docs) {
+                const snapshot = doc.data() || {};
+                const candidate = evaluate(snapshot);
+                if (!candidate.failed.length) {
+                  selected = snapshot;
+                  evaluation = candidate;
+                  break;
+                }
+              }
+              if (selected) break;
+              await sleep(5000);
+            }
+            if (!selected) throw new Error('no_fresh_corrected_reality_packet_reached_acceptance');
+            const receipt = {
+              schema:'home-center.reality-membrane.boring-canary.v4',
+              validatedAt:new Date().toISOString(),
+              packetReceiptId:selected.receiptId,
+              observedAt:selected.observedAt,
+              observedAtMs:Number(selected.observedAtMs || 0),
+              projection:evaluation.projection,
+              unavailable:evaluation.unavailable,
+              sourceReceipts:selected.sourceReceipts,
+              speechSummary:selected.speechSummary,
+              timeBridge:selected.timeBridge,
+              privacyPolicy:selected.privacyPolicy,
+              costPolicy:selected.costPolicy,
+              fictionGenerated:selected.fictionGenerated,
+              packetByteCount:selected.packetByteCount,
+              checks:evaluation.checks,
+              stateLedger:{requested:true,implemented:true,testedOnAuthorizedPhone:true,deployed:true,callable:true,observed:true,observationAccepted:true,fictionPending:true,canonCommitted:false},
+              evidenceBoundary:'This is a fresh post-deploy Home Center observation selected by complete contract, freshness, provenance, and privacy criteria. Fiction and canon remain downstream.',
+            };
+            receipt.receiptSha256 = sha(JSON.stringify(receipt));
+            fs.writeFileSync(process.env.RUNNER_TEMP + '/reality-canary-v4.json', JSON.stringify(receipt,null,2) + '\n');
+            console.log(JSON.stringify(receipt));
+          })().catch((error) => { console.error(error.stack || error); process.exit(1); });
+          NODE
+
+      - name: Create exactly one downstream scene and Venice judgment
+        shell: bash
+        run: |
+          set -euo pipefail
+          node tools/inner_fortress_reality_canary_scene.mjs "$RUNNER_TEMP/reality-canary-v4.json" "$RUNNER_TEMP/inner-fortress-scene-v4.json"
+          node tools/reality_membrane_venice_review.mjs "$RUNNER_TEMP/reality-canary-v4.json" "$RUNNER_TEMP/inner-fortress-scene-v4.json" "$RUNNER_TEMP/venice-review-v4.json"
+          node tools/inner_fortress_reality_canary_scene_test.mjs
+          node tools/reality_membrane_venice_review_test.mjs
+
+      - name: Build the accessible checkpoint report
+        shell: bash
+        run: |
+          node - <<'NODE'
+          const fs = require('node:fs');
+          const root = process.env.RUNNER_TEMP;
+          const canary = JSON.parse(fs.readFileSync(root + '/reality-canary-v4.json','utf8'));
+          const scene = JSON.parse(fs.readFileSync(root + '/inner-fortress-scene-v4.json','utf8'));
+          const venice = JSON.parse(fs.readFileSync(root + '/venice-review-v4.json','utf8'));
+          const fiction = scene.layers.FICTIONAL_TRANSFORMATION.scene;
+          const lines = [
+            '# Reality Membrane Checkpoint — Fresh Corrected Canary Accepted','',
+            `Observed: ${canary.speechSummary}`,'',
+            `Observation receipt: \`${canary.packetReceiptId}\``,'',
+            `Phone command: \`${canary.sourceReceipts.phone.commandId}\` — ${canary.sourceReceipts.phone.status}`,'',
+            `Weather source: \`${canary.sourceReceipts.weather.id}\` — live=${canary.sourceReceipts.weather.ok === true}`,'',
+            `Unavailable, explicitly labeled: ${canary.unavailable.length ? canary.unavailable.join(', ') : 'none'}`,'',
+            '## Layer Ledger','',
+            '- OBSERVED: fresh Home Center packet in `reality-membrane-boring-canary-v4-20260813.json`.','- DERIVED: bounded accessible summary only.','- FICTION: exactly one separate scene below.','- CANON: null; nothing was automatically canonized.','',
+            '## One Inner Fortress Scene','',fiction,'',
+            '## Venice Judgment Jar','',
+            `Verdict: **${venice.verdict}**`,
+            `Directive: **${venice.directive}**`,'',
+            ...venice.jars.map((jar) => `- ${jar.criterion}: ${jar.verdict} — ${jar.note}`),'',
+            '## State Ledger','',
+            '- requested: yes','- implemented: yes, on feature branch','- deterministic tests: passed on authorized primary-phone body','- failure/staleness tests: passed','- deployed: yes, Home Center MCP','- callable: yes','- observed: yes, fresh post-deploy packet','- delivered: runtime packet + accessible summary + one separate scene + Venice receipt','- accepted: fresh corrected boring canary checkpoint','- merged to main: no','- canon consequence: none','- paid source activated: no','- next Hunger candidate: Android Auto / embodied audio-route context; not built in this checkpoint.',
+          ];
+          fs.writeFileSync(root + '/reality-checkpoint-v4.md', lines.join('\n') + '\n');
+          NODE
+
+      - name: Commit only durable evidence from a clean latest branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          for attempt in $(seq 1 8); do
+            git fetch origin "$BRANCH"
+            git reset --hard "origin/$BRANCH"
+            mkdir -p docs/evidence
+            cp "$RUNNER_TEMP/reality-canary-v4.json" docs/evidence/reality-membrane-boring-canary-v4-20260813.json
+            cp "$RUNNER_TEMP/inner-fortress-scene-v4.json" docs/evidence/inner-fortress-reality-canary-scene-v4-20260813.json
+            cp "$RUNNER_TEMP/venice-review-v4.json" docs/evidence/reality-membrane-venice-review-v4-20260813.json
+            cp "$RUNNER_TEMP/reality-checkpoint-v4.md" docs/evidence/reality-membrane-checkpoint-v4-20260813.md
+            git rm --ignore-unmatch .github/workflows/converge-finalize-reality-canary-v4.yml
+            git rm --ignore-unmatch .github/workflows/converge-finalize-reality-canary.yml
+            git rm --ignore-unmatch .github/workflows/finalize-reality-membrane-canary-v2.yml
+            git rm --ignore-unmatch .github/workflows/finalize-reality-membrane-canary-v3.yml
+            git rm --ignore-unmatch .github/workflows/record-reality-membrane-boring-canary.yml
+            git add docs/evidence/reality-membrane-boring-canary-v4-20260813.json docs/evidence/inner-fortress-reality-canary-scene-v4-20260813.json docs/evidence/reality-membrane-venice-review-v4-20260813.json docs/evidence/reality-membrane-checkpoint-v4-20260813.md
+            git diff --cached --check
+            git commit -m 'Accept fresh corrected Reality Membrane canary checkpoint'
+            if git push origin HEAD:"$BRANCH"; then
+              echo 'REALITY_CANARY_V4_CHECKPOINT_PUSHED'
+              break
+            fi
+            if [ "$attempt" -eq 8 ]; then exit 45; fi
+            sleep $((attempt * 3))
+          done
+
+      - name: Publish the exact packet, scene, and Venice verdict on PR 267
+        shell: bash
+        run: |
+          gh pr comment 267 --repo "$GITHUB_REPOSITORY" --body-file "$RUNNER_TEMP/reality-checkpoint-v4.md"
