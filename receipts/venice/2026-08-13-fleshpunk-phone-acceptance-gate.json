@@ -1,0 +1,39 @@
+{
+  "schema": "venice-stop-review.v1",
+  "reviewerRole": "venice-judgment-jar",
+  "reviewerMode": "judgment_jar",
+  "campaign": "venice-fleshpunk-phone-image-gen",
+  "evidence": {
+    "generatorCommit": "15ec7fa4b5a6fb1c63dba4a44f897a08bb281bfd",
+    "atomSurfaceCommit": "f3bc9101cc0c852b3ec125063c3eeae3245baa4c",
+    "acceptanceHarnessCommit": "bbd8f8f3b32ca353ce4daba09fa3a9f7c9b5f0a5",
+    "acceptanceInstallCommit": "68f17f07304025e3bad2c71ebd845b135e990478"
+  },
+  "selectedJars": [
+    "00-judgement-jar-mission-boundary",
+    "20-judgement-jar-repository-truth",
+    "40-judgement-jar-failure-recovery",
+    "70-judgement-jar-venice-review-gate",
+    "80-judgement-jar-daemon-backoff-persistence"
+  ],
+  "findings": [
+    "PASS: direct phone -> SSH Axis -> THECAULDRON -> localhost ComfyUI -> Fleshpunk LoRA -> SCP phone artifact preserves the commissioned execution lane and excludes Command Center.",
+    "PASS: acceptance refuses to promote success unless the installed LoRA is observed with SHA-256, ComfyUI returns a promptId, a non-empty PNG returns to primary-phone, and remote/phone hashes match.",
+    "PASS: Drew perceptual acceptance remains explicitly false and separate from runtime acceptance.",
+    "PASS: phone UI and acceptance command are installed by Atom as durable first-class commands rather than chat-only shell fragments.",
+    "OPEN: no fresh primary-phone execution receipt exists for the newly installed source in this review aperture. Repository commits prove implementation only."
+  ],
+  "capabilityState": {
+    "requested": true,
+    "implemented": true,
+    "tested": false,
+    "deployed": false,
+    "callable": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "directive": "CONTINUE_REQUIRED",
+  "nextBoundedSlice": "On the first authorized primary-phone execution aperture, update/install current Home Center Atom source, run ~/bin/venice-image-accept exactly once, read ~/.local/state/home-center/venice-fleshpunk-image/acceptance-latest.json, and promote only the states supported by that receipt. Do not re-enqueue or rerender if the acceptance receipt already passes for the current installed source.",
+  "stopAllowed": false,
+  "createdAt": "2026-08-13T06:44:00-05:00"
+}
