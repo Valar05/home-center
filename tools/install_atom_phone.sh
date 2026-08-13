@@ -7,10 +7,15 @@ BIN="$HOME/bin"
 BOOT="$HOME/.termux/boot"
 STATE="$HOME/.local/state/atom"
 [ -f "$SRC/server.mjs" ] || { echo "BLOCKED: Atom source missing at $SRC" >&2; exit 2; }
+[ -f "$ROOT/tools/venice_fleshpunk_phone.sh" ] || { echo "BLOCKED: Fleshpunk phone generator missing" >&2; exit 2; }
 mkdir -p "$DEST" "$BIN" "$BOOT" "$STATE"
 rm -rf "$DEST.new"
 mkdir -p "$DEST.new"
 cp -R "$SRC/." "$DEST.new/"
+mkdir -p "$DEST.new/tools"
+cp "$ROOT/tools/venice_fleshpunk_phone.sh" "$DEST.new/tools/"
+cp "$ROOT/tools/ssh_axis.py" "$DEST.new/tools/"
+cp "$ROOT/tools/resolve_cauldron_ssh.py" "$DEST.new/tools/"
 rm -rf "$DEST.old"
 [ ! -d "$DEST" ] || mv "$DEST" "$DEST.old"
 mv "$DEST.new" "$DEST"
@@ -26,6 +31,33 @@ if command -v termux-open-url >/dev/null 2>&1; then exec termux-open-url "$URL";
 exec am start -a android.intent.action.VIEW -d "$URL"
 EOF
 chmod 700 "$BIN/atom-open"
+cat > "$BIN/venice-image" <<'EOF'
+#!/data/data/com.termux/files/usr/bin/sh
+exec bash "$HOME/.local/share/atom/tools/venice_fleshpunk_phone.sh" "$@"
+EOF
+chmod 700 "$BIN/venice-image"
+cat > "$BIN/venice-image-ui" <<'EOF'
+#!/data/data/com.termux/files/usr/bin/sh
+set -eu
+STATE="${HC_STATE_DIR:-$HOME/.local/state/home-center}/venice-fleshpunk-image"
+if ! command -v termux-dialog >/dev/null 2>&1; then
+  echo 'BLOCKED: Termux:API termux-dialog is unavailable. Use: venice-image generate "prompt"' >&2
+  exit 2
+fi
+RAW="$(termux-dialog text -t 'Fleshpunk image' -i 'Describe the image to generate on THECAULDRON')"
+PROMPT="$(printf '%s' "$RAW" | python -c 'import json,sys; d=json.load(sys.stdin); print(d.get("text","") if int(d.get("code",-2)) in (-1,0) else "")')"
+[ -n "$PROMPT" ] || exit 0
+if "$HOME/bin/venice-image" generate "$PROMPT"; then
+  [ ! -f "$STATE/latest.json" ] || cat "$STATE/latest.json"
+  if command -v termux-toast >/dev/null 2>&1; then termux-toast 'Fleshpunk image generated and returned to phone' >/dev/null 2>&1 || true; fi
+  if command -v termux-open >/dev/null 2>&1 && [ -f "$STATE/latest.png" ]; then termux-open "$STATE/latest.png" >/dev/null 2>&1 || true; fi
+else
+  rc=$?
+  if command -v termux-toast >/dev/null 2>&1; then termux-toast "Fleshpunk image generation failed. Exit $rc. Open receipts for details." >/dev/null 2>&1 || true; fi
+  exit "$rc"
+fi
+EOF
+chmod 700 "$BIN/venice-image-ui"
 cat > "$BOOT/15-atom" <<'EOF'
 #!/data/data/com.termux/files/usr/bin/sh
 STATE="$HOME/.local/state/atom"
@@ -46,10 +78,12 @@ if command -v termux-notification >/dev/null 2>&1; then
     --ongoing true \
     --priority high \
     --title 'Atom Command Center' \
-    --content 'Command the Fortress from the phone. Chromium Throne is inside.' \
+    --content 'Command the Fortress from the phone. Chromium Throne and Fleshpunk image generation are ready here.' \
     --button1 'Open Atom' \
     --button1-action "bash -l -c '$HOME/bin/atom-open'" \
     --button2 'Diagnose & repair' \
-    --button2-action "bash -l -c '$HOME/bin/phone-hands-watchdog diagnose'" >/dev/null 2>&1 || true
+    --button2-action "bash -l -c '$HOME/bin/phone-hands-watchdog diagnose'" \
+    --button3 'Fleshpunk Image' \
+    --button3-action "bash -l -c '$HOME/bin/venice-image-ui'" >/dev/null 2>&1 || true
 fi
-printf 'ATOM_PHONE_INSTALLED root=%s ui=http://127.0.0.1:8788 notification=6500\n' "$DEST"
+printf 'ATOM_PHONE_INSTALLED root=%s ui=http://127.0.0.1:8788 notification=6500 image_command=%s image_ui=%s\n' "$DEST" "$BIN/venice-image" "$BIN/venice-image-ui"
