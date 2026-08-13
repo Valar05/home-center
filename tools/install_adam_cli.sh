@@ -5,7 +5,9 @@ ROOT="${HC_REPO_ROOT:-$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)}"
 STATE="${HC_STATE_DIR:-$HOME/.local/state/home-center}"
 BIN_DIR="${HC_ADAM_BIN_DIR:-${PREFIX:-$HOME/.local}/bin}"
 TARGET="$BIN_DIR/adam"
+VLAD_TEXT_TARGET="$BIN_DIR/vlad-text"
 ROUTER="$ROOT/tools/adam.py"
+VLAD_TEXT_ROUTER="$ROOT/tools/vlad_text.py"
 WORKER="$ROOT/tools/adam_receipted_worker.py"
 RECEIPT="$STATE/adam-cli-install-receipt.json"
 ACCEPT_RECEIPT="$STATE/adam-phone-worker-acceptance.json"
@@ -14,6 +16,7 @@ BRAIN_RECEIPT="$STATE/adam-phone-brain-receipt.json"
 mkdir -p "$STATE" "$BIN_DIR"
 for f in \
   "$ROUTER" \
+  "$VLAD_TEXT_ROUTER" \
   "$WORKER" \
   "$ROOT/tools/accept_adam_receipted_phone.py" \
   "$ROOT/tools/adam_planned_venice.py" \
@@ -39,6 +42,7 @@ python3 tools/judgment_jar_receipt_contract_check.py
 python3 tools/test_adam_overlay_contract.py
 python3 tools/test_adam_overlay_delivery_state.py
 python3 tools/test_adam_cli_contract.py
+python3 tools/test_adam_text_mode_contract.py
 python3 tools/test_adam_codex_phone.py
 python3 tools/test_adam_venice_review_gate.py
 python3 tools/test_venice_plan_review.py
@@ -46,6 +50,7 @@ python3 tools/test_venice_review_memory.py
 node --test tools/fortress_online_v2_boot.test.mjs
 python3 -m py_compile \
   tools/adam.py \
+  tools/vlad_text.py \
   tools/adam_receipted_worker.py \
   tools/accept_adam_receipted_phone.py \
   tools/adam_codex_phone.py \
@@ -67,7 +72,7 @@ TMP_TARGET="$TARGET.tmp.$$"
 cat > "$TMP_TARGET" <<EOF
 #!/data/data/com.termux/files/usr/bin/bash
 case "\${1:-}" in
-  terminal|chat|continue|vlad)
+  terminal|text|chat|continue|vlad)
     exec "$PYTHON_BIN" "$ROUTER" "\$@"
     ;;
   *)
@@ -77,6 +82,14 @@ esac
 EOF
 chmod 755 "$TMP_TARGET"
 mv -f "$TMP_TARGET" "$TARGET"
+
+TMP_VLAD_TEXT_TARGET="$VLAD_TEXT_TARGET.tmp.$$"
+cat > "$TMP_VLAD_TEXT_TARGET" <<EOF
+#!/data/data/com.termux/files/usr/bin/bash
+exec "$PYTHON_BIN" "$VLAD_TEXT_ROUTER" "\$@"
+EOF
+chmod 755 "$TMP_VLAD_TEXT_TARGET"
+mv -f "$TMP_VLAD_TEXT_TARGET" "$VLAD_TEXT_TARGET"
 hash -r 2>/dev/null || true
 
 CANARY="$($TARGET terminal 'printf ADAM_BODY_OK' --cwd "$ROOT" --timeout 10)"

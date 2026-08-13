@@ -76,6 +76,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.SetOptions;
 
 import org.json.JSONObject;
 
@@ -141,6 +142,7 @@ public final class MainActivity extends Activity implements RecognitionListener,
     private static final String PREFS = "home_center";
     private static final String KEY_TICKTICK_TOKEN = "ticktick_token";
     private static final String KEY_BUCKET_CODE = "bucket_code";
+    private static final String KEY_TEXT_MINING_AUTHORIZED = "text_mining_authorized";
     private static final String KEY_DEFAULT_LIST = "default_list";
     private static final String KEY_DRAFT_MESSAGE = "draft_message";
     private static final String KEY_GEMINI_API_KEY = "gemini_api_key";
@@ -2679,6 +2681,10 @@ public final class MainActivity extends Activity implements RecognitionListener,
         Button shizukuAutomation = button("Enable Shizuku Automation", 16, "Install and verify Termux, Codex, Shizuku, and rish automation");
         Button termuxPair = button("Pair Termux Codex", 16, "Approve a Termux Codex pairing code for Home Center tools");
         Button household = button("Household and list", 16, "Set household bucket and default list");
+        boolean textMiningAuthorized = getSharedPreferences(PREFS, MODE_PRIVATE).getBoolean(KEY_TEXT_MINING_AUTHORIZED, false);
+        Button textMining = button(textMiningAuthorized ? "Stop text mining" : "Allow Adam & Vlad to mine my texts", 16,
+                textMiningAuthorized ? "Revoke Adam and Vlad access to this signed-in person's captured text messages"
+                        : "Authorize read-only Adam and Vlad access to this signed-in person's future captured text messages");
         Button ticktick = button("TickTick token", 16, "Set TickTick fallback token");
         Button cartReview = button("Walmart cart review", 16, "Import a Walmart cart review bundle");
         Button cartHelper = button("Cart helper settings", 16, "Open Android accessibility settings for the cart helper");
@@ -2691,6 +2697,7 @@ public final class MainActivity extends Activity implements RecognitionListener,
         panel.addView(shizukuAutomation, matchHeight(dp(56)));
         panel.addView(termuxPair, matchHeight(dp(56)));
         panel.addView(household, matchHeight(dp(52)));
+        panel.addView(textMining, matchHeight(dp(60)));
         panel.addView(ticktick, matchHeight(dp(52)));
         panel.addView(cartReview, matchHeight(dp(52)));
         panel.addView(cartHelper, matchHeight(dp(52)));
@@ -2722,6 +2729,10 @@ public final class MainActivity extends Activity implements RecognitionListener,
         household.setOnClickListener(v -> {
             dialog.dismiss();
             showHouseholdSettings();
+        });
+        textMining.setOnClickListener(v -> {
+            dialog.dismiss();
+            toggleTextMiningAuthorization();
         });
         ticktick.setOnClickListener(v -> {
             dialog.dismiss();
@@ -2760,6 +2771,44 @@ public final class MainActivity extends Activity implements RecognitionListener,
             compactConversation();
         });
         dialog.show();
+    }
+
+    private void toggleTextMiningAuthorization() {
+        if (!hasSignedInHomeUser()) {
+            showAssistantMessage("Sign in with Google before authorizing text message mining.");
+            startGoogleSignIn();
+            return;
+        }
+        String bucket = bucketValue();
+        if (bucket.isEmpty()) {
+            showAssistantMessage("Select a household before authorizing text message mining.");
+            return;
+        }
+        FirebaseUser user = firebaseAuth == null ? null : firebaseAuth.getCurrentUser();
+        if (user == null || firestore == null) {
+            showAssistantMessage("Home Center identity is not ready.");
+            return;
+        }
+        SharedPreferences prefs = getSharedPreferences(PREFS, MODE_PRIVATE);
+        boolean authorize = !prefs.getBoolean(KEY_TEXT_MINING_AUTHORIZED, false);
+        java.util.Map<String, Object> patch = new java.util.HashMap<>();
+        patch.put("email", user.getEmail() == null ? "" : user.getEmail().trim().toLowerCase(Locale.US));
+        patch.put("textMiningAuthorized", authorize);
+        patch.put("textMiningAuthorizedAtMs", System.currentTimeMillis());
+        patch.put("textMiningAuthorizedByUid", user.getUid());
+        firestore.collection("households").document(bucket).collection("members").document(user.getUid())
+                .set(patch, SetOptions.merge())
+                .addOnSuccessListener(ignored -> {
+                    prefs.edit().putBoolean(KEY_TEXT_MINING_AUTHORIZED, authorize).apply();
+                    LocalLog.info("textMining.authorization", "authorized=" + authorize + " uid=" + user.getUid());
+                    showAssistantMessage(authorize
+                            ? "Text mining authorized for Adam and Vlad. Only this signed-in person's messages are available."
+                            : "Text mining revoked. New messages will not be captured for Adam or Vlad.");
+                })
+                .addOnFailureListener(error -> {
+                    LocalLog.error("textMining.authorization", "write_failed", error);
+                    showAssistantMessage("Text mining authorization failed: " + shortMessage(error == null ? "" : error.getMessage()));
+                });
     }
 
     private void showHouseholdSettings() {

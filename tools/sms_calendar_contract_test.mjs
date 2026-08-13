@@ -6,16 +6,23 @@ const {
   REGISTRY_VERSION,
   auditDocumentId,
   hashObject,
+  memberTextMiningAuthorized,
   messageId,
   normalizedProposal,
   providerEventId,
   publicRecord,
+  recordOwnedBy,
   registry,
   runOperation,
 } = require('../functions/sms_calendar_intake.js');
 
 const USER = {email: 'reviewer@example.com', authKind: 'home_center_mcp_oauth'};
 const MESSAGE_ID = `sms_${'a'.repeat(40)}`;
+
+assert.equal(memberTextMiningAuthorized({textMiningAuthorized: true}), true);
+assert.equal(memberTextMiningAuthorized({textMiningAuthorized: false}), false);
+assert.equal(memberTextMiningAuthorized({}), false);
+assert.equal(memberTextMiningAuthorized(null), false);
 
 function clone(value) {
   return JSON.parse(JSON.stringify(value));
@@ -260,6 +267,9 @@ assert.deepEqual(operations['sms_calendar.reconcile'].requiredScopes, [
   'https://www.googleapis.com/auth/calendar.events',
 ]);
 assert.throws(() => messageId('eve'), /Home Center SMS intake id/);
+assert.equal(recordOwnedBy({createdByEmail: 'Reviewer@Example.com'}, USER), true);
+assert.equal(recordOwnedBy({createdByEmail: 'other@example.com'}, USER), false);
+assert.equal(recordOwnedBy({}, USER), false);
 assert.equal(messageId(MESSAGE_ID), MESSAGE_ID);
 assert.notEqual(
   auditDocumentId('sms_calendar.approve', 'house', MESSAGE_ID, 'same-request'),
