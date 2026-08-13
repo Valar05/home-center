@@ -1,544 +1,187 @@
-const crypto = require('node:crypto');
-const membrane = require('./reality_membrane');
-const {enqueuePhoneCommand, getPhoneCommand} = require('./phone_hands_relay');
+const {createHash} = require('node:crypto');
+const reality = require('./reality_membrane');
 
-const CONTRACT = 'home-center.reality.v1';
-const EVENT_RETENTION_MS = 72 * 60 * 60 * 1000;
-const DEFAULT_TIME_ZONE = process.env.HOME_CENTER_REALITY_TIMEZONE || 'America/Chicago';
-const DEFAULT_LOCATION = Object.freeze({
-  latitude: Number(process.env.HOME_CENTER_REALITY_LATITUDE || 34.8),
-  longitude: Number(process.env.HOME_CENTER_REALITY_LONGITUDE || -92.3),
-  scope: process.env.HOME_CENTER_REALITY_LOCATION_SCOPE || 'central_arkansas_coarse_0.1deg',
+const DEFAULT_REGION = Object.freeze({
+  id:'central_arkansas',
+  latitude:34.85,
+  longitude:-92.30,
+  locationScope:'coarse_locality',
+  label:'Central Arkansas',
+  declarationSource:'owner_declared_coarse_region',
 });
 
-function safeText(value, max = 12000) {
-  const text = typeof value === 'string' ? value.trim() : '';
-  return text.length > max ? text.slice(0, max) : text;
-}
-function safeObject(value) { return value && typeof value === 'object' && !Array.isArray(value) ? value : {}; }
-function boundedNumber(value, fallback, min, max) {
-  const number = Number(value);
-  if (!Number.isFinite(number)) return fallback;
-  return Math.max(min, Math.min(max, number));
-}
-function sha256(value) { return crypto.createHash('sha256').update(String(value || '')).digest('hex'); }
-function ownerKeyFromEmail(email) { return `owner_${sha256(safeText(email, 320).toLowerCase() || 'anonymous').slice(0, 32)}`; }
-function realityUserKey(user = {}) { return `reality_${sha256(safeText(user.email || user.uid, 320).toLowerCase() || 'anonymous').slice(0, 32)}`; }
-function packetReceipt(value) { return `reality_packet_${sha256(JSON.stringify(value)).slice(0, 24)}`; }
-function iso(ms = Date.now()) { return new Date(ms).toISOString(); }
-function sleep(ms) { return new Promise((resolve) => setTimeout(resolve, ms)); }
-function locationConfig(args = {}) {
-  const supplied = safeObject(args.location);
-  const latitude = boundedNumber(supplied.latitude, DEFAULT_LOCATION.latitude, -90, 90);
-  const longitude = boundedNumber(supplied.longitude, DEFAULT_LOCATION.longitude, -180, 180);
+function safeText(value, max=500) { const text=typeof value === 'string' ? value.trim() : ''; return text.length > max ? text.slice(0,max) : text; }
+function finite(value) { const number=Number(value); return Number.isFinite(number) ? number : null; }
+function sourceReceipt(prefix, value) { return `${prefix}_${createHash('sha256').update(JSON.stringify(value)).digest('hex').slice(0,24)}`; }
+function regionConfig(env=process.env) {
+  const latitude=finite(env.HOME_CENTER_REALITY_COARSE_LATITUDE); const longitude=finite(env.HOME_CENTER_REALITY_COARSE_LONGITUDE);
   return {
-    latitude: Math.round(latitude * 10) / 10,
-    longitude: Math.round(longitude * 10) / 10,
-    scope: safeText(supplied.scope, 120) || DEFAULT_LOCATION.scope,
+    ...DEFAULT_REGION,
+    latitude:latitude === null ? DEFAULT_REGION.latitude : latitude,
+    longitude:longitude === null ? DEFAULT_REGION.longitude : longitude,
+    label:safeText(env.HOME_CENTER_REALITY_COARSE_LABEL,120) || DEFAULT_REGION.label,
+    id:safeText(env.HOME_CENTER_REALITY_COARSE_ID,80) || DEFAULT_REGION.id,
+    configuredBy:latitude === null || longitude === null ? 'bounded_owner_default' : 'runtime_environment',
   };
 }
 
-async function fetchJson(url, options = {}) {
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), boundedNumber(options.timeoutMs, 8000, 1000, 20000));
+function weatherCodeKind(code) {
+  const n=Number(code);
+  if ([95,96,99].includes(n)) return 'thunderstorm';
+  if ([71,73,75,77,85,86].includes(n)) return 'snow';
+  if ([51,53,55,56,57,61,63,65,66,67,80,81,82].includes(n)) return 'rain';
+  if ([45,48].includes(n)) return 'fog';
+  return 'none';
+}
+
+function nearestHourlyProbability(hourly={}, nowMs=Date.now()) {
+  const times=Array.isArray(hourly.time) ? hourly.time : []; const probabilities=Array.isArray(hourly.precipitation_probability) ? hourly.precipitation_probability : [];
+  let best=null;
+  for (let index=0; index<Math.min(times.length,probabilities.length); index+=1) {
+    const at=Date.parse(times[index]); const probability=finite(probabilities[index]);
+    if (!Number.isFinite(at) || probability === null || at < nowMs-60*60*1000 || at > nowMs+3*60*60*1000) continue;
+    if (!best || Math.abs(at-nowMs) < Math.abs(best.at-nowMs)) best={at,probability};
+  }
+  return best ? best.probability : undefined;
+}
+
+function parseOpenMeteo(payload={}, {nowMs=Date.now(), region=DEFAULT_REGION}={}) {
+  const current=payload && typeof payload.current === 'object' ? payload.current : {};
+  const daily=payload && typeof payload.daily === 'object' ? payload.daily : {};
+  const observedAt=safeText(current.time,80) || new Date(nowMs).toISOString();
+  const code=finite(current.weather_code);
+  const precipitationAmount=finite(current.precipitation);
+  const rainAmount=finite(current.rain);
+  const kind=rainAmount !== null && rainAmount > 0 ? 'rain' : precipitationAmount !== null && precipitationAmount > 0 ? weatherCodeKind(code) === 'none' ? 'precipitation' : weatherCodeKind(code) : weatherCodeKind(code);
+  const payloadForMembrane={
+    temperature_f:finite(current.temperature_2m),
+    feels_like_f:finite(current.apparent_temperature),
+    precipitation:kind,
+    precipitation_probability_pct:nearestHourlyProbability(payload.hourly || {},nowMs),
+    humidity_pct:finite(current.relative_humidity_2m),
+    wind_mph:finite(current.wind_speed_10m),
+  };
+  const receiptId=sourceReceipt('weather_open_meteo',{observedAt,payload:payloadForMembrane,region:region.id});
+  const weather=reality.weatherObservations(payloadForMembrane,{nowMs,observedAt,sourceTimestamp:observedAt,source:'open-meteo.forecast',locationScope:region.locationScope,confidence:0.9,receiptId});
+  const sunrise=Array.isArray(daily.sunrise) ? daily.sunrise[0] : null; const sunset=Array.isArray(daily.sunset) ? daily.sunset[0] : null;
+  const daylight=reality.daylightObservation({sunrise,sunset,nowMs,source:'open-meteo.sun',sourceTimestamp:safeText(payload.generationtime_ms ? observedAt : '',80) || observedAt,locationScope:region.locationScope});
+  return {weather,daylight,source:{id:'open-meteo.forecast',receipt_id:receiptId,observed_at:observedAt,location_scope:region.locationScope,region_label:region.label,cost:'zero',network:'required'}};
+}
+
+function severityRank(value) { return {Extreme:4,Severe:3,Moderate:2,Minor:1,Unknown:0}[safeText(value,40)] ?? 0; }
+function parseNwsAlerts(payload={}) {
+  const features=Array.isArray(payload.features) ? payload.features : [];
+  const alerts=features.map((feature)=>feature && feature.properties || {}).filter(Boolean).map((properties)=>({event:safeText(properties.event,120),severity:safeText(properties.severity,40)||'Unknown',urgency:safeText(properties.urgency,40)||'Unknown',headline:safeText(properties.headline,240),sent:safeText(properties.sent,80),expires:safeText(properties.expires,80)}));
+  alerts.sort((a,b)=>severityRank(b.severity)-severityRank(a.severity));
+  return alerts.length ? {active:true,count:alerts.length,highest_severity:alerts[0].severity,events:alerts.slice(0,3)} : {active:false,count:0,highest_severity:'none',events:[]};
+}
+
+async function fetchJson(url,{fetchImpl=globalThis.fetch,timeoutMs=8000,headers={}}={}) {
+  if (typeof fetchImpl !== 'function') throw new Error('fetch_unavailable');
+  const controller=new AbortController(); const timer=setTimeout(()=>controller.abort(),timeoutMs);
   try {
-    const response = await fetch(url, {headers: options.headers || {}, signal: controller.signal});
-    const text = await response.text();
-    let json = null;
-    try { json = text ? JSON.parse(text) : null; } catch (_) { json = null; }
-    if (!response.ok || !json) return {ok:false, status:response.status, error:`http_${response.status}`, detail:safeText(text, 500)};
-    return {ok:true, status:response.status, json, receivedAt:iso()};
+    const response=await fetchImpl(url,{headers,signal:controller.signal});
+    const text=await response.text();
+    if (!response.ok) throw new Error(`http_${response.status}:${text.slice(0,160)}`);
+    return JSON.parse(text);
+  } finally { clearTimeout(timer); }
+}
+
+function openMeteoUrl(region) {
+  const params=new URLSearchParams({latitude:String(region.latitude),longitude:String(region.longitude),current:'temperature_2m,apparent_temperature,precipitation,rain,relative_humidity_2m,wind_speed_10m,weather_code',hourly:'precipitation_probability',daily:'sunrise,sunset',temperature_unit:'fahrenheit',wind_speed_unit:'mph',precipitation_unit:'inch',timezone:'UTC',forecast_days:'1'});
+  return `https://api.open-meteo.com/v1/forecast?${params}`;
+}
+function nwsAlertsUrl(region) { return `https://api.weather.gov/alerts/active?point=${encodeURIComponent(region.latitude)},${encodeURIComponent(region.longitude)}`; }
+
+async function fetchPublicEnvironment({nowMs=Date.now(),env=process.env,fetchImpl=globalThis.fetch}={}) {
+  const region=regionConfig(env); const unavailable=[]; let parsed;
+  try { parsed=parseOpenMeteo(await fetchJson(openMeteoUrl(region),{fetchImpl}),{nowMs,region}); }
+  catch (error) {
+    const detail=safeText(error && error.message,200) || 'weather_refresh_failed';
+    const weather=reality.weatherObservations({}, {nowMs,source:'open-meteo.forecast',locationScope:region.locationScope,error:detail});
+    parsed={weather,daylight:reality.unavailableObservation('environment.daylight',{source:'open-meteo.sun',privacy:reality.PRIVACY.PUBLIC,locationScope:region.locationScope,error:detail,nowMs}),source:{id:'open-meteo.forecast',state:'unavailable',error:detail,cost:'zero',network:'required'}};
+    unavailable.push('weather','daylight');
+  }
+  try {
+    const alerts=parseNwsAlerts(await fetchJson(nwsAlertsUrl(region),{fetchImpl,headers:{'User-Agent':'Home Center Reality Membrane (owner-operated; dclarke1005@gmail.com)','Accept':'application/geo+json'}}));
+    parsed.weather.alert=reality.observation({observation_type:'weather.alert',value:alerts,observed_at:new Date(nowMs).toISOString(),source:'weather.gov.alerts',source_timestamp:new Date(nowMs).toISOString(),privacy:reality.PRIVACY.PUBLIC,location_scope:region.locationScope,confidence:1,receipt_id:sourceReceipt('weather_nws_alerts',alerts),max_age_ms:10*60*1000},nowMs);
   } catch (error) {
-    return {ok:false, status:0, error:error && error.name === 'AbortError' ? 'timeout' : 'network_error', detail:safeText(error && error.message, 500)};
-  } finally {
-    clearTimeout(timeout);
+    parsed.weather.alert=reality.unavailableObservation('weather.alert',{source:'weather.gov.alerts',privacy:reality.PRIVACY.PUBLIC,locationScope:region.locationScope,error:safeText(error && error.message,200)||'alerts_unavailable',nowMs});
+    unavailable.push('weather.alert');
   }
+  return {...parsed,region:{id:region.id,label:region.label,location_scope:region.locationScope,declaration_source:region.declarationSource,configured_by:region.configuredBy,privacy:'PERSONAL'},unavailable:[...new Set(unavailable)]};
 }
 
-function unavailableObservation(type, {source, privacy = membrane.PRIVACY.PUBLIC, locationScope = null, error, nowMs = Date.now()} = {}) {
-  return membrane.observation({
-    observation_type:type,
-    unavailable:true,
-    capability_state:membrane.CAPABILITY.UNAVAILABLE,
-    source:source || 'unknown',
-    privacy,
-    location_scope:locationScope,
-    error:error || 'unavailable',
-  }, nowMs);
-}
+const PHONE_PROBE_PYTHON = String.raw`import json, os, shutil, subprocess
 
-function unavailableWeather(source, locationScope, error, nowMs) {
-  return {
-    temperature_f:unavailableObservation('weather.temperature_f',{source,locationScope,error,nowMs}),
-    feels_like_f:unavailableObservation('weather.feels_like_f',{source,locationScope,error,nowMs}),
-    precipitation:unavailableObservation('weather.precipitation',{source,locationScope,error,nowMs}),
-    precipitation_probability_pct:unavailableObservation('weather.precipitation_probability_pct',{source,locationScope,error,nowMs}),
-    humidity_pct:unavailableObservation('weather.humidity_pct',{source,locationScope,error,nowMs}),
-    wind_mph:unavailableObservation('weather.wind_mph',{source,locationScope,error,nowMs}),
-    alert:unavailableObservation('weather.alert',{source,locationScope,error,nowMs}),
-  };
-}
-
-function precipitationKind(current = {}) {
-  if (Number(current.snowfall || 0) > 0) return 'snow';
-  if (Number(current.rain || 0) > 0) return 'rain';
-  if (Number(current.precipitation || 0) > 0) return 'precipitation';
-  if ([current.snowfall, current.rain, current.precipitation].some((value) => Number.isFinite(Number(value)))) return 'none';
-  return undefined;
-}
-
-function nearTermProbability(hourly = {}, currentEpochSeconds = 0) {
-  const times = Array.isArray(hourly.time) ? hourly.time : [];
-  const probabilities = Array.isArray(hourly.precipitation_probability) ? hourly.precipitation_probability : [];
-  const values = [];
-  for (let index = 0; index < times.length && index < probabilities.length; index += 1) {
-    const time = Number(times[index]);
-    if (!Number.isFinite(time) || time < currentEpochSeconds || time > currentEpochSeconds + 3 * 3600) continue;
-    const probability = Number(probabilities[index]);
-    if (Number.isFinite(probability)) values.push(probability);
-  }
-  return values.length ? Math.max(...values) : undefined;
-}
-
-async function publicWeather({nowMs = Date.now(), timeZone = DEFAULT_TIME_ZONE, location = DEFAULT_LOCATION} = {}) {
-  const params = new URLSearchParams({
-    latitude:String(location.latitude),
-    longitude:String(location.longitude),
-    current:'temperature_2m,apparent_temperature,relative_humidity_2m,precipitation,rain,snowfall,weather_code,wind_speed_10m',
-    hourly:'precipitation_probability',
-    daily:'sunrise,sunset',
-    temperature_unit:'fahrenheit',
-    wind_speed_unit:'mph',
-    precipitation_unit:'inch',
-    timeformat:'unixtime',
-    timezone:timeZone,
-    forecast_days:'1',
-  });
-  const forecast = await fetchJson(`https://api.open-meteo.com/v1/forecast?${params.toString()}`, {timeoutMs:9000});
-  if (!forecast.ok) {
-    return {
-      weather:unavailableWeather('open_meteo.public_forecast', location.scope, forecast.error, nowMs),
-      daylight:unavailableObservation('environment.daylight',{source:'open_meteo.public_forecast',locationScope:location.scope,error:forecast.error,nowMs}),
-      source:{id:'open_meteo.public_forecast',ok:false,error:forecast.error,status:forecast.status},
-    };
-  }
-  const data = safeObject(forecast.json);
-  const current = safeObject(data.current);
-  const currentEpoch = Number(current.time || 0);
-  const sourceTimestamp = Number.isFinite(currentEpoch) && currentEpoch > 0 ? iso(currentEpoch * 1000) : null;
-  const payload = {
-    temperature_f:current.temperature_2m,
-    feels_like_f:current.apparent_temperature,
-    precipitation:precipitationKind(current),
-    precipitation_probability_pct:nearTermProbability(safeObject(data.hourly), currentEpoch),
-    humidity_pct:current.relative_humidity_2m,
-    wind_mph:current.wind_speed_10m,
-    alert:undefined,
-  };
-  const weather = membrane.weatherObservations(payload, {
-    nowMs,
-    observedAt:sourceTimestamp || iso(nowMs),
-    source:'open_meteo.public_forecast',
-    sourceTimestamp,
-    maxAgeMs:20 * 60 * 1000,
-    locationScope:location.scope,
-    confidence:0.9,
-  });
-
-  const alertsUrl = `https://api.weather.gov/alerts/active?point=${encodeURIComponent(location.latitude + ',' + location.longitude)}`;
-  const alertsResponse = await fetchJson(alertsUrl, {
-    timeoutMs:7000,
-    headers:{'User-Agent':'HomeCenter-RealityMembrane/1.0 (github.com/Valar05/home-center)','Accept':'application/geo+json'},
-  });
-  if (alertsResponse.ok) {
-    const features = Array.isArray(alertsResponse.json.features) ? alertsResponse.json.features : [];
-    const alerts = features.slice(0, 5).map((feature) => {
-      const properties = safeObject(feature && feature.properties);
-      return {
-        event:safeText(properties.event, 160),
-        severity:safeText(properties.severity, 80),
-        urgency:safeText(properties.urgency, 80),
-        certainty:safeText(properties.certainty, 80),
-        headline:safeText(properties.headline, 300),
-        effective:safeText(properties.effective, 80),
-        expires:safeText(properties.expires, 80),
-      };
-    });
-    weather.alert = membrane.observation({
-      observation_type:'weather.alert', value:alerts, observed_at:iso(nowMs), source:'weather_gov.active_alerts',
-      source_timestamp:alertsResponse.receivedAt, max_age_ms:10 * 60 * 1000, privacy:membrane.PRIVACY.PUBLIC,
-      location_scope:location.scope, confidence:1,
-    }, nowMs);
-  } else {
-    weather.alert = unavailableObservation('weather.alert',{source:'weather_gov.active_alerts',locationScope:location.scope,error:alertsResponse.error,nowMs});
-  }
-
-  const daily = safeObject(data.daily);
-  const sunriseEpoch = Array.isArray(daily.sunrise) ? Number(daily.sunrise[0]) : NaN;
-  const sunsetEpoch = Array.isArray(daily.sunset) ? Number(daily.sunset[0]) : NaN;
-  const daylight = membrane.daylightObservation({
-    sunrise:Number.isFinite(sunriseEpoch) ? iso(sunriseEpoch * 1000) : null,
-    sunset:Number.isFinite(sunsetEpoch) ? iso(sunsetEpoch * 1000) : null,
-    nowMs,
-    source:'open_meteo.public_forecast',
-    locationScope:location.scope,
-  });
-  return {
-    weather,
-    daylight,
-    source:{id:'open_meteo.public_forecast',ok:true,status:forecast.status,receivedAt:forecast.receivedAt,sourceTimestamp},
-    alertSource:{id:'weather_gov.active_alerts',ok:alertsResponse.ok,status:alertsResponse.status,error:alertsResponse.error || ''},
-  };
-}
-
-const PHONE_OBSERVE_COMMAND = String.raw`python - <<'PY'
-import json, shutil, subprocess, time
-
-def run(cmd, timeout=8):
+def read(path):
     try:
-        p=subprocess.run(cmd,shell=True,text=True,capture_output=True,timeout=timeout)
-        return {'ok':p.returncode==0,'exit_code':p.returncode,'stdout':p.stdout.strip()[:12000],'stderr':p.stderr.strip()[:1200]}
-    except Exception as e:
-        return {'ok':False,'exit_code':None,'stdout':'','stderr':type(e).__name__+': '+str(e)}
+        with open(path, encoding='utf-8') as handle: return handle.read().strip()
+    except Exception: return None
 
-def json_cmd(name):
-    if not shutil.which(name): return None, name+'_unavailable'
-    result=run(name)
-    if not result['ok']: return None, name+'_failed:'+result['stderr'][:200]
-    try: return json.loads(result['stdout']), ''
-    except Exception as e: return None, name+'_invalid_json:'+str(e)
+def run(command, timeout=3):
+    try:
+        return subprocess.run(command, capture_output=True, text=True, timeout=timeout, check=False).stdout.strip()
+    except Exception: return ''
 
-battery,battery_error=json_cmd('termux-battery-status')
-wifi,wifi_error=json_cmd('termux-wifi-connectioninfo')
-route=run('ip route show default')
+battery_raw=read('/sys/class/power_supply/battery/capacity')
+try: battery=int(battery_raw) if battery_raw is not None else None
+except Exception: battery=None
+status=(read('/sys/class/power_supply/battery/status') or '').lower()
+charging=status in ('charging','full') if status else None
+power_source=None
+for name,label in [('wireless','wireless'),('usb','usb'),('ac','ac')]:
+    if read('/sys/class/power_supply/%s/online' % name) == '1': power_source=label; break
+
 connectivity=None
-if wifi and wifi.get('ssid') and str(wifi.get('ssid')).lower() not in ('<unknown ssid>','unknown'):
-    connectivity='wifi'
-elif route['ok'] and route['stdout']:
-    connectivity='connected_unknown'
-audio=run("dumpsys audio 2>/dev/null | grep -E 'mDevice|mRoute|route|WIRED|BLUETOOTH|SPEAKER|USB' | head -80")
-raw=audio['stdout'].upper() if audio['ok'] else ''
+if shutil.which('termux-wifi-connectioninfo'):
+    raw=run(['termux-wifi-connectioninfo'])
+    try:
+        wifi=json.loads(raw or '{}')
+        state=str(wifi.get('supplicant_state') or '').upper()
+        if state in ('COMPLETED','ASSOCIATED'): connectivity='wifi'
+    except Exception: pass
+if connectivity is None:
+    network_type=run(['getprop','gsm.network.type']) if shutil.which('getprop') else ''
+    if network_type and network_type.lower() not in ('unknown','none'): connectivity='cellular'
+if connectivity is None:
+    route=run(['sh','-c','ip route 2>/dev/null | head -1'])
+    connectivity='connected' if route else 'offline'
+
 audio_route=None
-if 'BLUETOOTH' in raw or 'A2DP' in raw: audio_route='bluetooth'
-elif 'WIRED_HEAD' in raw or 'HEADPHONE' in raw: audio_route='wired_headphones'
-elif 'USB' in raw: audio_route='usb_audio'
-elif 'SPEAKER' in raw: audio_route='speaker'
-status=str((battery or {}).get('status','')).upper()
-plugged=(battery or {}).get('plugged')
-charging=True if status in ('CHARGING','FULL') else (False if status in ('DISCHARGING','NOT_CHARGING') else None)
-receipt={'schema':'home-center.reality.phone-observation.v1','observed_at_unix_ms':int(time.time()*1000),'battery_pct':(battery or {}).get('percentage'),'charging':charging,'power_source':plugged,'connectivity':connectivity,'audio_route':audio_route,'battery_error':battery_error or None,'connectivity_error':wifi_error or (None if route['ok'] else route['stderr'][:200]),'audio_route_error':None if audio_route else (audio['stderr'][:200] or 'audio_route_unknown'),'tools':{'termux_battery_status':bool(shutil.which('termux-battery-status')),'termux_wifi_connectioninfo':bool(shutil.which('termux-wifi-connectioninfo')),'dumpsys':bool(shutil.which('dumpsys'))}}
-print(json.dumps(receipt,separators=(',',':')))
-PY`;
+h2w=read('/sys/class/switch/h2w/state')
+if h2w and h2w != '0': audio_route='wired_headphones'
+try:
+    cards=read('/proc/asound/cards') or ''
+    if audio_route is None and 'USB' in cards.upper(): audio_route='usb_audio'
+except Exception: pass
+if audio_route is None and shutil.which('rish'):
+    audio=run(['rish','-c','dumpsys audio'],4).lower()
+    if 'bluetooth_a2dp' in audio and ('active' in audio or 'selected' in audio): audio_route='bluetooth'
+    elif 'wired_head' in audio and ('active' in audio or 'selected' in audio): audio_route='wired_headphones'
+    elif 'usb' in audio and ('active' in audio or 'selected' in audio): audio_route='usb_audio'
+    elif 'speaker' in audio and ('active' in audio or 'selected' in audio): audio_route='speaker'
 
-function parsePhoneStdout(stdout) {
-  const lines = String(stdout || '').split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
-  for (let index = lines.length - 1; index >= 0; index -= 1) {
-    try {
-      const value = JSON.parse(lines[index]);
-      if (value && value.schema === 'home-center.reality.phone-observation.v1') return value;
-    } catch (_) {}
-  }
-  return null;
+screen_state=None
+if shutil.which('rish'):
+    power=run(['rish','-c','dumpsys power'],3)
+    if 'Display Power: state=ON' in power or 'mWakefulness=Awake' in power: screen_state='on'
+    elif 'Display Power: state=OFF' in power or 'mWakefulness=Asleep' in power: screen_state='off'
+
+print(json.dumps({'battery_pct':battery,'charging':charging,'power_source':power_source,'connectivity':connectivity,'audio_route':audio_route,'screen_state':screen_state}, separators=(',',':')))`;
+
+function phoneProbeCommand() { return `python -c "import base64;exec(base64.b64decode('${Buffer.from(PHONE_PROBE_PYTHON,'utf8').toString('base64')}'))"`; }
+function parsePhoneShellResult(commandRecord={}, nowMs=Date.now()) {
+  const commandId=safeText(commandRecord.commandId,180); const terminal=commandRecord.status === 'completed' || commandRecord.status === 'failed'; const shell=commandRecord.result && typeof commandRecord.result === 'object' ? commandRecord.result : {};
+  if (!terminal || shell.ok !== true || Number(shell.exitCode) !== 0) return {payload:{},meta:{nowMs,observedAt:new Date(nowMs).toISOString(),source:'phone_hands.phone_shell',receiptId:commandId ? `phone_hands:${commandId}` : undefined,error:safeText(commandRecord.error || shell.stderr || 'phone_observation_unavailable',300)},command:{commandId,status:commandRecord.status || 'unknown',terminal}};
+  let payload={};
+  try { payload=JSON.parse(safeText(shell.stdout,10000)); } catch (error) { return {payload:{},meta:{nowMs,observedAt:new Date(commandRecord.completedAtMs || nowMs).toISOString(),source:'phone_hands.phone_shell',receiptId:`phone_hands:${commandId}`,error:'phone_observation_invalid_json'},command:{commandId,status:commandRecord.status,terminal:true}}; }
+  return {payload,meta:{nowMs,observedAt:new Date(commandRecord.completedAtMs || nowMs).toISOString(),source:'phone_hands.phone_shell',sourceTimestamp:new Date(commandRecord.completedAtMs || nowMs).toISOString(),receiptId:`phone_hands:${commandId}`,confidence:1},command:{commandId,status:commandRecord.status,terminal:true,exitCode:Number(shell.exitCode)}};
 }
 
-async function observePhone({admin, user, requestId, nowMs = Date.now(), timeoutMs = 25000} = {}) {
-  const email = safeText(user && user.email, 320).toLowerCase();
-  if (!email) return {payload:{}, error:'owner_email_unavailable', command:null};
-  const caller = {actor:email, ownerKey:ownerKeyFromEmail(email)};
-  const identity = safeText(requestId, 160) || crypto.randomUUID();
-  const commandId = `phc_reality_observe_${sha256(identity).slice(0, 24)}`;
-  let command;
-  try {
-    command = await enqueuePhoneCommand(admin, caller, {
-      idempotencyKey:`reality.observe:${identity}`,
-      commandId,
-      deviceId:'primary-phone',
-      ttlMs:60000,
-      action:{action:'phone_shell',command:PHONE_OBSERVE_COMMAND},
-    });
-  } catch (error) {
-    return {payload:{}, error:`phone_enqueue_failed:${safeText(error && error.message, 300)}`, command:null};
-  }
-  const deadline = Date.now() + boundedNumber(timeoutMs, 25000, 1000, 45000);
-  while (Date.now() < deadline) {
-    try { command = await getPhoneCommand(admin, caller, {commandId:command.commandId || commandId}); } catch (_) {}
-    if (command && ['completed','failed'].includes(command.status)) break;
-    await sleep(1000);
-  }
-  if (!command || command.status !== 'completed') {
-    return {payload:{}, error:`phone_command_${command && command.status || 'unknown'}:${safeText(command && command.error, 200)}`, command};
-  }
-  const result = safeObject(command.result);
-  if (result.ok !== true || Number(result.exitCode) !== 0) {
-    return {payload:{}, error:`phone_shell_failed:${safeText(result.stderr, 300)}`, command};
-  }
-  const payload = parsePhoneStdout(result.stdout);
-  return payload ? {payload, error:'', command} : {payload:{}, error:'phone_observation_invalid_json', command};
+function projectionState(projection={}) {
+  const value=(slot)=>slot && !slot.unavailable ? slot.value : null;
+  return {precipitation:value(projection.environment && projection.environment.precipitation),charging:value(projection.device && projection.device.charging),battery_pct:value(projection.device && projection.device.battery_pct),audio_route:value(projection.device && projection.device.audio_route),connectivity:value(projection.device && projection.device.connectivity),daylight:value(projection.time && projection.time.daylight)};
 }
 
-function phoneObservationGroup(phoneResult, nowMs) {
-  const payload = safeObject(phoneResult && phoneResult.payload);
-  const observedAtMs = Number(payload.observed_at_unix_ms || nowMs);
-  const observedAt = Number.isFinite(observedAtMs) ? iso(observedAtMs) : iso(nowMs);
-  const source = phoneResult && phoneResult.command && phoneResult.command.commandId ? `phone_hands:${phoneResult.command.commandId}` : 'phone_hands';
-  const normalized = membrane.phoneObservations({
-    battery_pct:payload.battery_pct,
-    charging:payload.charging,
-    power_source:payload.power_source,
-    connectivity:payload.connectivity,
-    audio_route:payload.audio_route,
-  }, {nowMs, observedAt, source, maxAgeMs:2 * 60 * 1000});
-  const error = safeText(phoneResult && phoneResult.error, 500);
-  if (error) {
-    for (const [key, observation] of Object.entries(normalized)) {
-      if (observation.value === null || observation.unavailable) {
-        normalized[key] = unavailableObservation(observation.observation_type,{source,privacy:membrane.PRIVACY.DEVICE,error,nowMs});
-      }
-    }
-  }
-  return normalized;
-}
-
-function observationUnavailableList(groups = {}) {
-  const unavailable = [];
-  for (const [groupName, group] of Object.entries(groups)) {
-    if (!group || typeof group !== 'object') continue;
-    for (const [name, observation] of Object.entries(group)) {
-      if (observation && (observation.unavailable || observation.capability_state === membrane.CAPABILITY.UNAVAILABLE)) unavailable.push(`${groupName}.${name}`);
-    }
-  }
-  return unavailable;
-}
-
-function simpleState({weather = {}, phone = {}, daylight = null} = {}) {
-  return {
-    precipitation:weather.precipitation && weather.precipitation.value,
-    charging:phone.charging && phone.charging.value,
-    audio_route:phone.audio_route && phone.audio_route.value,
-    connectivity:phone.connectivity && phone.connectivity.value,
-    battery_pct:phone.battery_pct && phone.battery_pct.value,
-    daylight:daylight && daylight.value,
-  };
-}
-
-function extendedEvents(previous = {}, current = {}, observedAt) {
-  const events = membrane.transitionEvents(previous, current, observedAt);
-  const emit = (eventType, from, to) => events.push({event_type:eventType,from,to,observed_at:observedAt,receipt_id:`reality_${sha256(JSON.stringify({eventType,from,to,observedAt})).slice(0,24)}`});
-  if (previous.daylight !== current.daylight && current.daylight === 'daylight') emit('sun.risen', previous.daylight, current.daylight);
-  if (previous.daylight === 'daylight' && current.daylight && current.daylight !== 'daylight') emit('sun.set', previous.daylight, current.daylight);
-  if (Number(previous.battery_pct) >= 20 && Number(current.battery_pct) < 20) emit('phone.low_battery', previous.battery_pct, current.battery_pct);
-  return events;
-}
-
-async function cleanupCollection(collection, cutoffMs) {
-  const snapshot = await collection.where('observedAtMs','<',cutoffMs).limit(40).get();
-  if (snapshot.empty) return 0;
-  const batch = collection.firestore.batch();
-  snapshot.docs.forEach((doc) => batch.delete(doc.ref));
-  await batch.commit();
-  return snapshot.size;
-}
-
-async function persistPacket({admin, user, packet, state, nowMs}) {
-  const userKey = realityUserKey(user);
-  const root = admin.firestore().collection('realityUsers').doc(userKey);
-  const latestRef = root.collection('state').doc('latest');
-  const latest = await latestRef.get();
-  const previous = latest.exists ? safeObject(latest.data().state) : {};
-  const events = extendedEvents(previous, state, packet.observed_at);
-  const batch = admin.firestore().batch();
-  batch.set(latestRef,{state,packetReceiptId:packet.receipt_id,observedAtMs:nowMs,updatedAtMs:Date.now()},{merge:false});
-  batch.set(root.collection('snapshots').doc(packet.receipt_id),{
-    receiptId:packet.receipt_id, observedAtMs:nowMs, observedAt:packet.observed_at,
-    projection:packet.projection, unavailable:packet.unavailable, sourceReceipts:packet.source_receipts,
-  },{merge:false});
-  events.forEach((event) => batch.set(root.collection('events').doc(event.receipt_id),{...event,observedAtMs:Date.parse(event.observed_at) || nowMs},{merge:false}));
-  await batch.commit();
-  const cutoff = nowMs - EVENT_RETENTION_MS;
-  await cleanupCollection(root.collection('events'), cutoff).catch(() => 0);
-  await cleanupCollection(root.collection('snapshots'), cutoff).catch(() => 0);
-  return events;
-}
-
-function valueText(observation, suffix = '') {
-  if (!observation || observation.unavailable || observation.value === null || observation.value === undefined) return '';
-  return `${observation.value}${suffix || (observation.units ? ` ${observation.units}` : '')}`;
-}
-
-function speechSummary({time, daylight, weather, phone}) {
-  const parts = [];
-  const local = time && time.now && time.now.value;
-  if (local) {
-    const match = String(local).match(/T(\d{2}):(\d{2})/);
-    parts.push(match ? `${match[1]}:${match[2]}` : String(local));
-  }
-  if (daylight && daylight.value) {
-    if (daylight.value === 'daylight') parts.push('daylight');
-    else if (daylight.value === 'dark_before_sunrise') parts.push('still dark');
-    else if (daylight.value === 'dark_after_sunset') parts.push('dark after sunset');
-  }
-  const temperature = valueText(weather && weather.temperature_f, ' degrees Fahrenheit');
-  if (temperature) parts.push(temperature);
-  const precipitation = weather && weather.precipitation && weather.precipitation.value;
-  if (precipitation && precipitation !== 'none') parts.push(String(precipitation));
-  const battery = valueText(phone && phone.battery_pct, ' percent battery');
-  if (battery) parts.push(battery);
-  if (phone && phone.charging && phone.charging.value === true) parts.push('charging');
-  const route = phone && phone.audio_route && phone.audio_route.value;
-  if (route) parts.push(`${String(route).replace(/_/g,' ')} audio`);
-  const connectivity = phone && phone.connectivity && phone.connectivity.value;
-  if (connectivity) parts.push(String(connectivity).replace(/_/g,' '));
-  return parts.length ? `Reality: ${parts.join('. ')}.` : 'Reality: current observations are unavailable.';
-}
-
-function timeBridge(args, time, nowMs) {
-  const allowed = new Set(['realtime','paused','compressed','explicitly_advanced','detached']);
-  const policy = allowed.has(safeText(args.timePolicy, 40)) ? safeText(args.timePolicy, 40) : 'detached';
-  const checkpoint = safeText(args.lastSceneCheckpoint, 100);
-  const checkpointMs = Date.parse(checkpoint);
-  return {
-    REAL_NOW:time && time.now || null,
-    SCENE_TIME:safeText(args.sceneTime, 100) || null,
-    LAST_SCENE_CHECKPOINT:checkpoint || null,
-    ELAPSED_REAL_TIME_MS:Number.isFinite(checkpointMs) ? Math.max(0, nowMs - checkpointMs) : null,
-    ELAPSED_WORLD_TIME_MS:Number.isFinite(Number(args.elapsedWorldTimeMs)) ? Number(args.elapsedWorldTimeMs) : null,
-    policy,
-    assumption:'real time is not silently equated to fictional scene time',
-  };
-}
-
-async function observeReality({admin, user, args = {}}) {
-  const nowMs = Date.now();
-  const timeZone = safeText(args.timeZone, 120) || DEFAULT_TIME_ZONE;
-  const location = locationConfig(args);
-  const include = new Set(Array.isArray(args.include) && args.include.length ? args.include.map((value) => safeText(value, 40)) : ['time','daylight','weather','phone']);
-  const time = include.has('time') ? membrane.timeObservations({nowMs,timeZone}) : {};
-  const weatherPromise = include.has('weather') || include.has('daylight') ? publicWeather({nowMs,timeZone,location}) : Promise.resolve({weather:{},daylight:null,source:null});
-  const phonePromise = include.has('phone') ? observePhone({admin,user,requestId:args.requestId,nowMs,timeoutMs:args.phoneTimeoutMs}) : Promise.resolve({payload:{},error:'phone_not_requested',command:null});
-  const [publicResult, phoneResult] = await Promise.all([weatherPromise, phonePromise]);
-  const weather = include.has('weather') ? publicResult.weather : {};
-  const daylight = include.has('daylight') ? publicResult.daylight : null;
-  const phone = include.has('phone') ? phoneObservationGroup(phoneResult, nowMs) : {};
-  const groups = {time,weather,phone,daylight:daylight ? {state:daylight} : {}};
-  const unavailable = observationUnavailableList(groups);
-  const projection = membrane.compactProjection({time,daylight,weather,phone,unavailable});
-  const sourceReceipts = {
-    runtime_clock:time.now && time.now.receipt_id || null,
-    weather:publicResult.source || null,
-    alerts:publicResult.alertSource || null,
-    phone:phoneResult.command ? {commandId:phoneResult.command.commandId,status:phoneResult.command.status,completedAtMs:phoneResult.command.completedAtMs || 0,error:phoneResult.error || ''} : {commandId:null,status:'unavailable',error:phoneResult.error || ''},
-  };
-  const packet = {
-    contract:CONTRACT,
-    observed_at:iso(nowMs),
-    projection,
-    observations:{time,daylight,weather,phone},
-    source_receipts:sourceReceipts,
-    unavailable,
-    speech_summary:speechSummary({time,daylight,weather,phone}),
-    time_bridge:timeBridge(args,time,nowMs),
-    privacy_policy:{default:['PUBLIC','DEVICE'],excluded:['PERSONAL','SENSITIVE']},
-    cost_policy:'zero-dollar-default',
-    fiction_generated:false,
-  };
-  packet.receipt_id = packetReceipt(packet);
-  const state = simpleState({weather,phone,daylight});
-  const events = args.persist === false ? [] : await persistPacket({admin,user,packet,state,nowMs}).catch((error) => {
-    packet.history_error = safeText(error && error.message, 500);
-    return [];
-  });
-  packet.changes_since_checkpoint = events;
-  packet.projection.changes_since_checkpoint = events.slice(-20);
-  return packet;
-}
-
-async function realityHistory({admin, user, args = {}}) {
-  const userKey = realityUserKey(user);
-  const root = admin.firestore().collection('realityUsers').doc(userKey);
-  const limit = Math.floor(boundedNumber(args.limit, 30, 1, 100));
-  const sinceMs = Number.isFinite(Number(args.sinceMs)) ? Number(args.sinceMs) : (safeText(args.since, 100) ? Date.parse(args.since) : NaN);
-  let eventQuery = root.collection('events').orderBy('observedAtMs','desc').limit(limit);
-  if (Number.isFinite(sinceMs)) eventQuery = eventQuery.where('observedAtMs','>=',sinceMs);
-  const eventsSnap = await eventQuery.get();
-  const snapshotsSnap = args.includeSnapshots === true ? await root.collection('snapshots').orderBy('observedAtMs','desc').limit(Math.min(limit,20)).get() : null;
-  return {
-    contract:CONTRACT,
-    retention_ms:EVENT_RETENTION_MS,
-    events:eventsSnap.docs.map((doc) => doc.data()),
-    snapshots:snapshotsSnap ? snapshotsSnap.docs.map((doc) => doc.data()) : [],
-    high_frequency_telemetry_retained:false,
-  };
-}
-
-async function realityStatus({admin, user}) {
-  const email = safeText(user && user.email, 320).toLowerCase();
-  const ownerKey = ownerKeyFromEmail(email);
-  const devices = await admin.firestore().collection('phoneHandsDevices').where('ownerKey','==',ownerKey).limit(20).get();
-  const phone = devices.docs.map((doc) => doc.data()).find((device) => device.deviceId === 'primary-phone') || null;
-  const now = Date.now();
-  return {
-    contract:CONTRACT,
-    callable:true,
-    accepted:false,
-    observationPolicy:'unknown-remains-unknown',
-    defaultPrivacy:['PUBLIC','DEVICE'],
-    sources:{
-      time:{state:'available',network:'none',cost:'zero'},
-      phone:{state:phone && phone.status === 'online' && now - Number(phone.lastSeenAtMs || 0) < 120000 ? 'available' : 'degraded',lastSeenAtMs:phone && phone.lastSeenAtMs || 0},
-      weather:{state:'available_on_observe',network:'required',cost:'zero_only'},
-      daylight:{state:'available_on_observe',network:'required',cost:'zero_only'},
-      alerts:{state:'available_on_observe',network:'required',cost:'zero_only'},
-    },
-    history:{state:'available',retentionMs:EVENT_RETENTION_MS},
-    fictionGenerated:false,
-  };
-}
-
-function realitySources() {
-  return {
-    contract:CONTRACT,
-    sources:[
-      {id:'home_center.runtime_clock',privacy:'PUBLIC',network:'none',cost:'zero',retention:'packet_and_transition_history'},
-      {id:'phone_hands.phone_shell',privacy:'DEVICE',network:'home_center_relay',cost:'zero',retention:'packet_and_transition_history',rawCommandOutputExposed:false},
-      {id:'open_meteo.public_forecast',privacy:'PUBLIC',network:'required',cost:'zero_only',locationPrecision:'coarse_0.1_degree'},
-      {id:'weather_gov.active_alerts',privacy:'PUBLIC',network:'required',cost:'zero_only',locationPrecision:'coarse_0.1_degree'},
-    ],
-    excludedByDefault:['calendar_content','message_bodies','precise_location_history','microphone_recordings','medical_data'],
-  };
-}
-
-function realityCapabilities() {
-  return {
-    ...membrane.realityCapabilities(),
-    implemented:{status:true,observe:true,history:true,sources:true,capabilities:true,events:true,subscribe:false},
-    projection:'inner_fortress_compact_v1',
-    accessibility:{speech_summary:true,screen_reader_structured:true},
-    offline:{local_time:true,phone_when_relay_available:true,last_weather_stale_reconciliation:'history_available_live_cache_pending'},
-  };
-}
-
-async function runRealityOperation({operation, admin, user, args = {}}) {
-  if (!admin) throw Object.assign(new Error('Reality Membrane requires Home Center Firestore runtime.'), {status:500});
-  if (operation === 'reality.status') return realityStatus({admin,user,args});
-  if (operation === 'reality.sources') return realitySources();
-  if (operation === 'reality.capabilities') return realityCapabilities();
-  if (operation === 'reality.observe') return observeReality({admin,user,args});
-  if (operation === 'reality.history' || operation === 'reality.events') return realityHistory({admin,user,args});
-  throw Object.assign(new Error(`Unsupported Reality Membrane operation: ${operation}`), {status:400});
-}
-
-module.exports = {
-  CONTRACT,
-  EVENT_RETENTION_MS,
-  DEFAULT_LOCATION,
-  fetchJson,
-  precipitationKind,
-  nearTermProbability,
-  parsePhoneStdout,
-  phoneObservationGroup,
-  speechSummary,
-  timeBridge,
-  realitySources,
-  realityCapabilities,
-  runRealityOperation,
-};
+module.exports={DEFAULT_REGION,regionConfig,weatherCodeKind,nearestHourlyProbability,parseOpenMeteo,parseNwsAlerts,fetchJson,openMeteoUrl,nwsAlertsUrl,fetchPublicEnvironment,phoneProbeCommand,parsePhoneShellResult,projectionState,sourceReceipt};
