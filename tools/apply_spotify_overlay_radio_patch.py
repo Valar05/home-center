@@ -101,7 +101,7 @@ def apply(root: Path) -> None:
         'cleanMode.equals("continue") || cleanMode.equals("vlad") || cleanMode.equals("radio")))',
     )
 
-    replace_once(build, "        versionCode 3\n", "        versionCode 4\n")
+    replace_once(build, "        versionCode 3\n", "        versionCode 5\n")
     replace_once(build, "        versionName '1.2.0'\n", "        versionName '1.3.0'\n")
 
 

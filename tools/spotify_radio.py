@@ -342,16 +342,44 @@ def stop_radio() -> dict[str, Any]:
     return {"ok": True, "action": "stop", "response": result_response("Fortress Radio stopped", session), "receipt": receipt}
 
 
+def track_identity(session: dict[str, Any]) -> tuple[str, str, str]:
+    return (
+        str(session.get("title") or ""),
+        str(session.get("artist") or ""),
+        str(session.get("album") or ""),
+    )
+
+
+def track_change_verified(before: dict[str, Any], after: dict[str, Any]) -> bool:
+    if after.get("found") is not True:
+        return False
+    before_identity = track_identity(before)
+    after_identity = track_identity(after)
+    if any(before_identity) and any(after_identity) and before_identity != after_identity:
+        return True
+    before_position = int(before.get("positionMs") or 0)
+    after_position = int(after.get("positionMs") or 0)
+    return before_position >= 5000 and 0 <= after_position < before_position - 3000
+
+
 def skip_track(direction: str) -> dict[str, Any]:
     key = "KEYCODE_MEDIA_NEXT" if direction == "next" else "KEYCODE_MEDIA_PREVIOUS"
     before = ensure_session()
-    old_identity = (before.get("title"), before.get("artist"), before.get("positionMs"))
-    keyed = send_media_key(key, timeout_seconds=2.0)
-    after = wait_for_session(lambda value: (value.get("title"), value.get("artist"), value.get("positionMs")) != old_identity or value.get("state") in PLAYING_STATES, timeout_seconds=6.0)
-    verified = after.get("found") is True
+    send_media_key(key, timeout_seconds=2.0)
+    after = wait_for_session(lambda value: track_change_verified(before, value), timeout_seconds=8.0)
+    verified = track_change_verified(before, after)
     config = update_action_config(direction, enabled=True, suspended=False, session=after)
-    receipt = write_receipt(direction, verified, before=before, session=after, config=config, spotifySessionOwned=verified)
-    return {"ok": verified, "action": direction, "response": result_response(f"Spotify {direction}", after), "receipt": receipt}
+    receipt = write_receipt(
+        direction,
+        verified,
+        before=before,
+        session=after,
+        config=config,
+        spotifySessionOwned=after.get("found") is True,
+        trackChangeVerified=verified,
+    )
+    response = result_response(f"Spotify {direction}", after) if verified else f"Spotify {direction} was dispatched, but a track change was not verified."
+    return {"ok": verified, "action": direction, "response": response, "receipt": receipt}
 
 
 def toggle_radio() -> dict[str, Any]:

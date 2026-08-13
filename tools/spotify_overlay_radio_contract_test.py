@@ -46,7 +46,7 @@ def main() -> int:
         require(service, marker)
 
     require(state, 'cleanMode.equals("radio")')
-    require(build, "versionCode 4")
+    require(build, "versionCode 5")
     require(build, "versionName '1.3.0'")
     require(adam, 'ONE_SHOT_MODES = ("terminal", "chat", "continue", "vlad", "radio")')
     require(adam, 'handledBy="spotify-radio"')

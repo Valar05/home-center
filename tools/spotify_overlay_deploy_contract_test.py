@@ -45,6 +45,7 @@ def main() -> int:
         "packageOnlyReplacement",
         "SYSTEM_ALERT_WINDOW allow",
         "versionName=1.3.0",
+        "versionCode=5",
         "setup_spotify_radio.sh",
         "setup_vlad_swarm_daemon.sh",
         "visibleLocalEnableStillAuthoritative",

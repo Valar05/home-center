@@ -85,7 +85,8 @@ $RISH_BIN -c "cat '$INSTALLED_BASE_PATH'" > "$INSTALLED_APK"
 INSTALLED_SIGNER="$(apksigner verify --print-certs "$INSTALLED_APK" | sed -nE 's/^.*certificate SHA-256 digest:[[:space:]]*//p' | head -1)"
 [ "$INSTALLED_SIGNER" = "$NEW_SIGNER" ] || { echo 'BLOCKED: installed APK signer does not match built APK.' >&2; exit 12; }
 printf '%s\n' "$INSTALLED_VERSION" | grep -q 'versionName=1.3.0' || { echo 'BLOCKED: installed overlay versionName is not 1.3.0.' >&2; exit 13; }
-printf '%s\n' "$INSTALLED_STATE" | grep -q 'adam_request_mode=' || { echo 'BLOCKED: installed overlay Adam provider state is unreadable.' >&2; exit 14; }
+printf '%s\n' "$INSTALLED_VERSION" | grep -Eq 'versionCode=5([[:space:]]|$)' || { echo 'BLOCKED: installed overlay versionCode is not 5.' >&2; exit 14; }
+printf '%s\n' "$INSTALLED_STATE" | grep -q 'adam_request_mode=' || { echo 'BLOCKED: installed overlay Adam provider state is unreadable.' >&2; exit 15; }
 
 RADIO_INSTALL_JSON="$(bash "$ROOT/tools/setup_spotify_radio.sh")"
 RADIO_DOCTOR_JSON="$("$HOME/bin/fortress-radio" doctor)"

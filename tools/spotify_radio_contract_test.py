@@ -69,6 +69,15 @@ def main() -> int:
     assert session["album"] == "Akoustik Vol. 2"
     assert radio.parse_session("no sessions")["found"] is False
 
+    before_track = {"found": True, "title": "Battles", "artist": "Alpine Universe", "album": "Akoustik", "positionMs": 120000}
+    changed_track = {"found": True, "title": "The Empire of Winds", "artist": "Alpine Universe", "album": "Akoustik", "positionMs": 1000}
+    reset_track = {"found": True, "title": "Battles", "artist": "Alpine Universe", "album": "Akoustik", "positionMs": 500}
+    unchanged_track = {"found": True, "title": "Battles", "artist": "Alpine Universe", "album": "Akoustik", "positionMs": 121000}
+    assert radio.track_change_verified(before_track, changed_track) is True
+    assert radio.track_change_verified(before_track, reset_track) is True
+    assert radio.track_change_verified(before_track, unchanged_track) is False
+    assert radio.track_change_verified(before_track, {"found": False}) is False
+
     now = 1_000_000
     base = radio.default_config()
     base.update({"enabled": True, "suspended": False, "lastVerifiedPlayingAtMs": now - (radio.RECOVERY_GRACE_SECONDS + 1) * 1000})
