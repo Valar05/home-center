@@ -6,6 +6,7 @@ router = (ROOT / "tools/adam.py").read_text(encoding="utf-8")
 core = (ROOT / "tools/adam_codex_phone.py").read_text(encoding="utf-8")
 planned = (ROOT / "tools/adam_planned_venice.py").read_text(encoding="utf-8")
 reviewed = (ROOT / "tools/adam_venice_reviewed.py").read_text(encoding="utf-8")
+receipted = (ROOT / "tools/adam_receipted_worker.py").read_text(encoding="utf-8")
 installer = (ROOT / "tools/install_adam_cli.sh").read_text(encoding="utf-8")
 
 for token in [
@@ -68,7 +69,9 @@ for token in [
 
 # The installer writes a shell wrapper through a heredoc, so $@ is escaped in
 # the installer source and becomes literal $@ in the installed wrapper.
-assert 'WORKER="$ROOT/tools/adam_planned_venice.py"' in installer
+assert 'WORKER="$ROOT/tools/adam_receipted_worker.py"' in installer
+assert "import adam_planned_venice as worker" in receipted
+assert "return worker.main(" in receipted
 assert 'exec "$PYTHON_BIN" "$WORKER" "\\$@"' in installer
 assert 'exec "$PYTHON_BIN" "$ROOT/tools/adam_venice_reviewed.py"' not in installer
 assert 'venicePlanReviewReceiptVerified' in installer
