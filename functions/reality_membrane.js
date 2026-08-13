@@ -221,7 +221,7 @@ function weatherObservations(payload = {}, meta = {}) {
     humidity_pct: numeric('weather.humidity_pct', payload.humidity_pct, '%'),
     wind_mph: numeric('weather.wind_mph', payload.wind_mph, 'mph'),
     severe_alerts: Array.isArray(payload.severe_alerts)
-      ? observation({observation_type: 'weather.severe_alerts', value: payload.severe_alerts.slice(0, 8), units: 'alerts', ...common}, nowMs)
+      ? observation({observation_type: 'weather.severe_alerts', value: payload.severe_alerts.slice(0, 8), units: 'alerts', ...common, source: meta.alertSource || source}, nowMs)
       : unavailableObservation({type: 'weather.severe_alerts', source: meta.alertSource || source, privacy: PRIVACY.PUBLIC, locationScope, error: meta.alertError || 'alerts_unavailable'}, nowMs),
   };
 }

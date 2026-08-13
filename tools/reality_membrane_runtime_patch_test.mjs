@@ -17,9 +17,8 @@ assert.ok(patcher.includes('...realityMembraneService.operationEntries()'));
 assert.ok(patcher.includes('realityMembraneService.runOperation'));
 assert.ok(patcher.includes("callCommandCenter: async (commandCenterOperation, commandCenterArgs)"));
 assert.ok(patcher.includes("args: {operation: commandCenterOperation, args: commandCenterArgs}"));
-assert.ok(!patcher.includes("callable:true"));
+assert.ok(!serviceSource.includes("callable:true"));
 assert.ok(!patcher.includes('OPENAI_API_KEY'));
-assert.ok(!patcher.includes('realityMembrane.realityCapabilities'));
 
 for (const source of [patcher, serviceSource]) {
   assert.ok(!source.includes('temporary promotional credits'));

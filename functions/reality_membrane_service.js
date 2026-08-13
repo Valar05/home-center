@@ -268,7 +268,16 @@ async function fetchWeatherBundle(location, {fetchImpl = global.fetch, nowMs = D
 }
 
 function boolText(value) {
-  return String(value || '').toLowerCase() === 'true';
+  return /^true(?:\s|$)/i.test(String(value || '').trim());
+}
+
+function embeddedBatteryNumber(battery, key) {
+  const direct = safeNumber(battery && battery[key]);
+  if (direct !== null) return direct;
+  const escaped = String(key).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const haystack = Object.entries(safeObject(battery)).map(([name, value]) => `${name}: ${value}`).join('  ');
+  const match = haystack.match(new RegExp(`(?:^|\\s{2,})${escaped}:\\s*(-?\\d+(?:\\.\\d+)?)`, 'i'));
+  return match ? safeNumber(match[1]) : null;
 }
 
 function normalizePhoneReceipt(command = {}, nowMs = Date.now()) {
@@ -277,7 +286,7 @@ function normalizePhoneReceipt(command = {}, nowMs = Date.now()) {
     return {ok: false, error: safeText(command.error || result.stderr || 'phone_observe_failed', 500), commandId: safeText(command.commandId, 180)};
   }
   const battery = safeObject(result.battery);
-  const status = safeNumber(battery.status);
+  const status = embeddedBatteryNumber(battery, 'status');
   const powered = ['AC powered', 'USB powered', 'Wireless powered'].some((key) => boolText(battery[key]));
   let powerSource = '';
   if (boolText(battery['Wireless powered'])) powerSource = 'wireless';
@@ -291,7 +300,7 @@ function normalizePhoneReceipt(command = {}, nowMs = Date.now()) {
     commandId: safeText(command.commandId, 180),
     observedAtMs,
     payload: {
-      battery_pct: safeNumber(battery.level),
+      battery_pct: embeddedBatteryNumber(battery, 'level'),
       charging: status === null ? undefined : ([2, 5].includes(status) || powered),
       power_source: powerSource || undefined,
       connectivity: safeText(result.connectivity, 80) || 'home_center_relay_online',
@@ -373,6 +382,7 @@ async function persistObservation(admin, user, packet) {
     projection: packet.projection,
     summary: packet.summary,
     source_states: packet.source_states,
+    transition_values: packet.transition_values,
     updatedAtMs: Date.now(),
   }, {merge: false});
   for (const event of packet.events.slice(0, 20)) {
@@ -483,7 +493,7 @@ async function runObserve({admin, user, args = {}, callCommandCenter, fetchImpl 
     phone,
     changes: events,
     unavailable: collectUnavailable({time, weather, phone, daylight: {daylight}}),
-    timeBridge: Object.keys(bridge).length ? core.timeBridge({realNow: nowMs, ...bridge}) : null,
+    timeBridge: Object.keys(bridge).length ? core.timeBridge({...bridge, realNow: nowMs}) : null,
   });
   const packet = {
     contract: CONTRACT,

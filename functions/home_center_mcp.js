@@ -19,7 +19,7 @@ const {CARTESIA_DEFAULT_MODEL_ID, CARTESIA_DEFAULT_VOICE_NAME, listCartesiaVoice
 const {refreshGeminiCatalog} = require('./gemini_speech_provider');
 const {synthesizeGeminiArtifact} = require('./gemini_tts_artifact_service');
 const voiceTierPolicy = require('./voice_tier_policy');
-const realityMembrane = require('./reality_membrane');
+const realityMembraneService = require('./reality_membrane_service');
 const {preflightArtifactEnvelope} = require('./artifact_transport');
 const {openAiFileParamJsonSchema, openAiFileParamZodSchema, materializeOpenAiHostFile, materializeOpenAiHostFileToTemp} = require('./host_file_ingress');
 const {
@@ -5002,9 +5002,7 @@ function driveOperationRegistry() {
     invocationTool: 'drive_operation',
     cachePolicy: 'New bridge and simulation operations should be invokable through drive_operation so ChatGPT does not need a top-level MCP tool refresh for every backend code change. Cartesia TTS is a direct Home Center MCP provider operation; it must not be routed through Command Center jobs or workers.',
     operations: {
-      'reality.capabilities': {summary: 'Return the Reality Membrane contract, privacy classes, and zero-dollar policy.', write: false, requiredScopes: [], input: {}},
-      'reality.status': {summary: 'Return bounded Reality Membrane source/capability status without inventing unavailable observations.', write: false, requiredScopes: [], input: {}},
-      'reality.sources': {summary: 'List Reality Membrane source classes and their privacy/network policy.', write: false, requiredScopes: [], input: {}},
+      ...realityMembraneService.operationEntries(),
       'time.now': {summary: 'Return the current Home Center runtime time.', write: false, requiredScopes: [], input: {}},
       ...artifactOperationEntries(),
       ...tvtroperOperationEntries(),
@@ -5957,15 +5955,6 @@ async function driveOperationRunOperation({google, admin, auth, user, extra = nu
   }
   const registry = driveOperationRegistry();
   if (!registry.operations[operation]) throw Object.assign(new Error('Unsupported drive_operation operation: ' + operation), {status: 400});
-  if (operation === 'reality.capabilities') {
-    return {operation, registryVersion: registry.version, completed: true, result: realityMembrane.realityCapabilities()};
-  }
-  if (operation === 'reality.sources') {
-    return {operation, registryVersion: registry.version, completed: true, result: {contract:'home-center.reality.v1', sources:[{id:'home_center.runtime_clock',privacy:'PUBLIC',network:'none',cost:'zero',state:'available'},{id:'phone_hands',privacy:'DEVICE',network:'home_center_relay',cost:'zero',state:'adapter_pending'},{id:'weather.public_free',privacy:'PUBLIC',network:'required',cost:'zero_only',state:'adapter_pending'},{id:'sunrise_sunset',privacy:'PUBLIC',network:'optional',cost:'zero_only',state:'adapter_pending'}]}};
-  }
-  if (operation === 'reality.status') {
-    return {operation, registryVersion: registry.version, completed: true, result: {contract:'home-center.reality.v1', callable:true, accepted:false, observationPolicy:'unknown-remains-unknown', defaultPrivacy:['PUBLIC','DEVICE'], sources:{time:'available',phone:'adapter_pending',weather:'adapter_pending',daylight:'adapter_pending'}, note:'Status is capability truth only; it is not an observation packet.'}};
-  }
   if (operation === 'time.now') {
     const now = new Date();
     return {operation, registryVersion: registry.version, completed: true, result: {utcIso: now.toISOString(), unixMs: now.getTime()}};
@@ -5979,6 +5968,19 @@ async function driveOperationRunOperation({google, admin, auth, user, extra = nu
   delete operationArgs.type;
   delete operationArgs.toolName;
   delete operationArgs.args;
+  if (realityMembraneService.operationEntries()[operation]) {
+    const result = await realityMembraneService.runOperation({
+      operation, admin, user, args: operationArgs,
+      callCommandCenter: async (commandCenterOperation, commandCenterArgs) => {
+        const response = await commandCenterOperationRunOperation({
+          google, admin, googleClientId, googleClientSecret, extra,
+          args: {operation: commandCenterOperation, args: commandCenterArgs},
+        });
+        return response.result;
+      },
+    });
+    return {operation, registryVersion: registry.version, completed: true, result};
+  }
   if (localVoiceOperationEntries()[operation]) {
     requireCreditGatedEmail(user && user.email, operation);
     const result = await localVoiceOperationRunOperation({admin, user, operation, args: operationArgs});

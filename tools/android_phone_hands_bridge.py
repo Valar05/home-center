@@ -14,6 +14,7 @@ import hmac
 import ipaddress
 import json
 import os
+import re
 import shlex
 import shutil
 import subprocess
@@ -87,14 +88,26 @@ def display_size() -> str:
     return str(run_rish("wm size | tail -1")).strip()
 
 
+BATTERY_KEYS = ("AC powered", "USB powered", "Wireless powered", "status", "level", "temperature")
+BATTERY_PATTERN = re.compile(
+    r"(AC powered|USB powered|Wireless powered|status|level|temperature):\s*(.*?)"
+    r"(?=\s+(?:AC powered|USB powered|Wireless powered|status|level|temperature):|$)",
+    re.IGNORECASE | re.DOTALL,
+)
+
+
+def parse_battery_dump(raw: str) -> dict[str, str]:
+    canonical = {key.lower(): key for key in BATTERY_KEYS}
+    parsed: dict[str, str] = {}
+    for match in BATTERY_PATTERN.finditer(str(raw or "")):
+        key = canonical.get(match.group(1).lower(), match.group(1))
+        parsed[key] = match.group(2).strip()
+    return parsed
+
+
 def battery() -> dict[str, str]:
     raw = str(run_rish("dumpsys battery | grep -E 'level:|status:|temperature:|powered:'"))
-    parsed: dict[str, str] = {}
-    for line in raw.splitlines():
-        if ":" in line:
-            key, value = line.strip().split(":", 1)
-            parsed[key.strip()] = value.strip()
-    return parsed
+    return parse_battery_dump(raw)
 
 
 def ui_dump() -> str:
