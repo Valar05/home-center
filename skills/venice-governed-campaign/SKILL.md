@@ -12,6 +12,11 @@ A campaign is not a script and is not a sequence of diagnostic pastes. It is a p
 3. Venice judges plan and stopping. Adam executes authorized work. Drew is not the debugging transport.
 4. Prefer minimal stupid obvious compute. Do not spend model/cloud compute rediscovering repository/runtime facts deterministic tools can answer.
 
+## Transport minimality
+When the commissioned need is transport, build transport rather than a new campaign architecture. A request for SSH means a reusable SSH layer first: configured targets, bounded command execution, liveness probe, existing-key use, and receipts. Do not silently expand that into VM provisioning, Gemini workers, cloud control planes, orchestration frameworks, Tailscale, public addressing, or always-online infrastructure. Those are separate capabilities and require separate approval or an already-authorized campaign requirement.
+
+Generic SSH is infrastructure, not a provider contract. It must not assume GCP, IPv4, IPv6, public reachability, a specific remote service, or a specific machine role. Higher layers may compose SSH without changing its contract.
+
 ## Campaign shape
 Every campaign must install or reuse one stable entrypoint and aggressively preserve itself. It must provide:
 - durable mission/constraint ledger;
