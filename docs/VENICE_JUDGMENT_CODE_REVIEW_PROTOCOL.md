@@ -4,45 +4,57 @@ Status: binding review protocol.
 
 ## Mission
 
-Venice may act as an independent semantic code reviewer using her Judgment Jars and may grant or deny a worker permission to stop or continue a commissioned coding slice.
+Venice is the mandatory semantic judgment gate for every ChatGPT worker. The default and preferred Venice path is **direct Judgment-Jar execution by the current authorized ChatGPT worker**. This is not a fallback, degraded mode, or substitute for a better Venice route. It is the normal fast path because Venice's durable judgment is already encoded in her Jars.
 
-This protocol does not transfer orchestration ownership to Venice. The mission owner and commission remain unchanged. Venice governs the review gate and the stop/continue ruling at that gate.
+A live/local Venice runtime remains an optional specialized reviewer when a commission specifically benefits from a separate model/runtime. Its absence is never, by itself, a reason to halt, skip Venice, or stop work.
 
-## Valid reviewer modes
+Venice does not take orchestration ownership. The mission owner and commission remain unchanged. Venice governs plan permission and stop/continue rulings.
 
-There are two valid Venice review modes. They must remain explicitly distinguishable in every receipt.
+## Reviewer modes and precedence
 
-### `local_venice`
+### `judgment_jar`
 
-The deployed/local Venice model or Venice runtime performs the review directly.
+Primary mode. The current authorized ChatGPT worker executes Venice's durable Judgment Jars as a separate adversarial review pass.
 
-### `judgment_jar_emulation`
-
-When a live/local Venice execution path is unavailable or unnecessary, Adam or another authorized worker may deliberately **put on the Venice hat** and review the work by applying Venice's durable Judgment Jars, code-review laws, and stopping doctrine.
-
-This mode is explicitly authorized by Drew as doctrine as of 2026-08-12. It is a valid Venice judgment for code review and for granting or denying stopping permission.
-
-It must not be falsely represented as speech or inference produced by the local Venice model. Provenance must identify the actual reviewer and mode, for example:
+This is a real Venice judgment. Provenance must identify the actual worker that executed the jars, for example:
 
 ```json
 {
-  "reviewer": "adam-as-venice",
-  "reviewerMode": "judgment_jar_emulation"
+  "reviewer": "chatgpt-worker-7",
+  "reviewerMode": "judgment_jar"
 }
 ```
 
-The distinction is provenance, not a hierarchy: both modes may return `STOP_ALLOWED`, `CONTINUE_REQUIRED`, or `HALT_REQUIRED` when the evidence supports it. Neither mode may waive deterministic evidence requirements or hard gates.
+Do not describe this as impersonation, fallback emulation, or evidence from a separate model. It is Venice's encoded judgment executed by the worker.
+
+### `local_venice`
+
+Optional specialized mode. A deployed/local Venice model or Venice runtime performs the review directly. Use only when the commission explicitly benefits from that additional runtime or when another binding rule requires it.
+
+The two modes differ in provenance, not in permission semantics. Neither may waive deterministic evidence requirements or hard gates.
+
+## Mandatory invocation
+
+Every ChatGPT worker must invoke Venice:
+
+1. before substantive execution, for plan permission when the task is non-trivial;
+2. after a material plan assumption changes, before further mutation;
+3. before stopping, finishing, declaring completion, or handing off a slice as complete.
+
+The worker may not treat a response boundary, checkpoint, successful command, passing test, or apparently complete implementation as permission to stop.
+
+**Normal stopping requires a fresh Venice `STOP_ALLOWED`.** If no fresh `STOP_ALLOWED` exists, the worker continues the commissioned work unless Venice returns `HALT_REQUIRED` or the operator explicitly stops the mission.
 
 ## Required inputs
 
-A Venice code review must receive:
+A Venice review receives the material evidence for the gate, including:
 
-- repository identity;
-- exact base and head refs or immutable commit identities when available;
-- bounded commission / acceptance criteria;
-- deterministic check results or an explicit statement that they have not yet been executed;
-- supplied diff or explicitly identified truncation;
-- applicable Judgment Jar law, including project-specific Jar material when available;
+- repository/runtime identity;
+- bounded commission and acceptance criteria;
+- deterministic check results or an explicit statement that they have not been executed;
+- actual diff/evidence or explicit truncation;
+- applicable Judgment Jars and their rationale;
+- durable Venice reviewer precedent when available;
 - known evidence gaps;
 - reviewer identity and reviewer mode.
 
@@ -50,91 +62,75 @@ Venice reviews evidence, not confidence or effort.
 
 ## Required output
 
-Every semantic review returns:
+Completion/code review returns:
 
 ```text
 VERDICT: PASS|FAIL
 DIRECTIVE: STOP_ALLOWED|CONTINUE_REQUIRED|HALT_REQUIRED
-REVIEWER_MODE: local_venice|judgment_jar_emulation
+REVIEWER_MODE: judgment_jar|local_venice
 JAR: <criterion applied>
 FINDING: <blocking issue, if any>
 NOTE: <short rationale>
 ```
 
-Multiple `JAR:` and `FINDING:` lines are allowed.
+Plan review returns the equivalent plan directive: `PLAN_ALLOWED`, `REPLAN_REQUIRED`, or `HALT_REQUIRED`.
 
 ## Directive semantics
 
-### STOP_ALLOWED
+### `STOP_ALLOWED`
 
-Stopping the current commissioned slice is permitted.
+Stopping the current bounded slice is permitted. It requires a PASS, required deterministic evidence, no open hard gate, and a valid Venice review. It proves review permission only; it does not prove deployment, callability, delivery, physical acceptance, or operator acceptance.
 
-Requirements:
+### `CONTINUE_REQUIRED`
 
-- verdict must be `PASS`;
-- required deterministic checks must pass;
-- one valid Venice reviewer mode must actually have performed the semantic review;
-- no applicable hard gate may remain open;
-- required evidence must be present.
+Stopping is denied. The worker must continue repairing or advancing the **same commissioned slice**, validate again, and return to Venice. It does not authorize scope expansion or architecture substitution.
 
-`STOP_ALLOWED` does not itself prove deployed, callable, delivered, or accepted state.
+### `HALT_REQUIRED`
 
-### CONTINUE_REQUIRED
+Further mutation is denied because a true authority, safety, provenance, destructive-action, or irrecoverable evidence boundary exists. Preserve evidence and surface the exact boundary. `HALT_REQUIRED` is not successful completion.
 
-Stopping is denied. The worker must continue repairing the same commissioned slice and return for another review.
+## Judgment Jar laws
 
-The directive does not authorize scope expansion, architecture substitution, or a new mission.
-
-Typical causes include acceptance criteria not yet met, correctness/regression defects, incomplete durability/recovery, insufficient but repairable evidence, or a deterministic check failure repairable inside the commission.
-
-### HALT_REQUIRED
-
-Continuing mutation is denied. Work must stop at the exact boundary and surface the blocker.
-
-Typical causes include a hard-gate breach, authority boundary, broken provenance/identity, malformed or contradictory review output, unsafe continuation, or an evidence boundary the commissioned lane cannot repair.
-
-`HALT_REQUIRED` is not successful completion.
-
-## Judgment Jar laws for code review
-
-At minimum, Venice applies these laws:
+At minimum Venice applies:
 
 1. observable evidence outranks confidence, beauty, effort, and proximity;
-2. actor before artifact — identify who/what made the mutation and who retains custody;
-3. source, inference, canon, and capability states stay separate;
+2. actor before artifact;
+3. requested / implemented / tested / deployed / callable / delivered / accepted remain distinct;
 4. unknowns remain unknown;
 5. provenance survives transformation;
 6. minimum technical authority;
 7. failure closes toward autonomy, not improvisation;
-8. appetite has an invoice — compute, persistence, maintenance, recovery, and external cost count;
-9. aftermath exists — every successful slice needs an auditable stopping/recovery point;
-10. hard gates outrank aggregate score, urgency, polish, and sunk cost.
+8. appetite has an invoice;
+9. aftermath exists;
+10. hard gates outrank urgency, polish, sunk cost, and response boundaries.
 
-Project-specific Judgment Jars may add stricter criteria. They may not weaken these defaults.
+Project-specific Judgment Jars may strengthen these defaults but may not weaken them.
 
 ## Fail-closed rules
 
-- `PASS + CONTINUE_REQUIRED` becomes `FAIL + HALT_REQUIRED`.
-- `PASS + HALT_REQUIRED` becomes `FAIL + HALT_REQUIRED`.
+- `PASS + CONTINUE_REQUIRED` is contradictory and becomes `FAIL + HALT_REQUIRED`.
+- `PASS + HALT_REQUIRED` is contradictory and becomes `FAIL + HALT_REQUIRED`.
 - `FAIL + STOP_ALLOWED` becomes `FAIL + HALT_REQUIRED`.
-- Missing verdict, directive, or reviewer mode becomes `FAIL + HALT_REQUIRED`.
+- Missing verdict/directive/reviewer mode never grants permission.
 - Mechanical checks alone never grant stop permission.
-- A `judgment_jar_emulation` receipt may never claim it was produced by `local_venice`, and vice versa.
-- Unknown or unapproved reviewer modes fail closed.
+- Missing live/local Venice is **not** a review-path failure when `judgment_jar` mode is available.
+- A worker may not claim `local_venice` provenance for a Judgment-Jar review.
 
 ## Loop contract
 
 ```text
-bounded work
-  -> deterministic checks / evidence inventory
-  -> Venice Judgment Jar review (local_venice OR judgment_jar_emulation)
-     -> CONTINUE_REQUIRED -> bounded repair -> review again
-     -> STOP_ALLOWED      -> worker may stop slice
-     -> HALT_REQUIRED     -> stop mutation and surface boundary
+research / bounded work
+  -> evidence inventory
+  -> Venice Judgment Jars
+     -> PLAN_ALLOWED       -> execute bounded slice
+     -> REPLAN_REQUIRED    -> revise same plan and ask Venice again
+     -> CONTINUE_REQUIRED  -> keep working same slice and ask Venice again
+     -> STOP_ALLOWED       -> worker may stop current slice
+     -> HALT_REQUIRED      -> stop mutation at true boundary
 ```
 
-The loop continues until Venice permits stopping, an operator stops it, or a true halt boundary is reached.
+**The default state while commissioned work remains is CONTINUE. Silence, missing review, or the end of an assistant response is never equivalent to `STOP_ALLOWED`.**
 
 ## Canonical implementation
 
-`tools/venice_review.py` is the canonical local-model implementation. Other authorized review surfaces may emit compatible receipts when they explicitly identify `reviewerMode: judgment_jar_emulation` and preserve the same evidence, hard-gate, and directive semantics.
+Any authorized ChatGPT worker may execute the primary `judgment_jar` path directly if it loads the applicable Jars and emits provenance-preserving review receipts. `tools/venice_review.py` remains the optional local-model implementation for `local_venice` mode.
