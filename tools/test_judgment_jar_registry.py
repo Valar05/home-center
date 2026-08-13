@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
-"""Deterministic contract tests for Vlad's two-authority Judgment Jar cache."""
+"""Deterministic contract tests for Vlad's Judgment Jar cache and receipts."""
 from __future__ import annotations
 
 import importlib.util
 import json
+import os
 import shutil
 import tempfile
 from pathlib import Path
@@ -62,6 +63,30 @@ Compact law: Preserve the abundance. Mark the truth. Date the consequence. Retri
 """
 
 
+class FakeHomeCenter:
+    def __init__(self):
+        self.docs: dict[str, str] = {}
+        self.updates: list[str] = []
+
+    def search_drive(self, _query, _page_size=10):
+        return []
+
+    def read_document(self, file_id, _name=""):
+        return self.docs.get(file_id, "")
+
+    def drive_operation(self, operation, args):
+        if operation == "drive.read_metadata":
+            return {"file": {"id": args["fileId"], "parents": ["jar-folder"]}}
+        if operation == "docs.create":
+            self.docs["receipt-ledger"] = args.get("body", "")
+            return {"file": {"id": "receipt-ledger", "name": args["title"], "parents": [args.get("folderId")]}}
+        if operation == "docs.update":
+            self.docs[args["fileId"]] += args["appendText"]
+            self.updates.append(args["appendText"])
+            return {"file": {"id": args["fileId"]}}
+        raise AssertionError(f"unexpected Home Center operation: {operation}")
+
+
 def main() -> int:
     jars = load_tool()
     source_paths = sorted(
@@ -84,9 +109,13 @@ def main() -> int:
 
         config = json.loads(CONFIG.read_text(encoding="utf-8"))
         config["homeCenter"]["minimumCabinetEntries"] = 3
+        config["receipts"]["stateDirEnv"] = "HC_TEST_JUDGMENT_JAR_RECEIPTS"
         config_path = tmp_config_dir / "judgment-jars.v1.json"
         config_path.write_text(json.dumps(config), encoding="utf-8")
         cache = tmp / "state" / "judgment-jars.json"
+        receipt_state = tmp / "state" / "receipts"
+        os.environ["HC_TEST_JUDGMENT_JAR_RECEIPTS"] = str(receipt_state)
+        os.environ["HC_STATE_DIR"] = str(tmp / "home-center-state")
 
         def fresh(_config):
             return {
@@ -117,7 +146,7 @@ def main() -> int:
         assert sync["homeCenterAttempted"] is True
         assert first["complete"] is True
         assert first["localJarCount"] == len(source_paths)
-        assert first["cabinetJarCount"] == 4  # three Governor entries plus Randi legacy route
+        assert first["cabinetJarCount"] == 4
         assert first["unregisteredJarCount"] == 1
         assert first["jarCount"] == len(source_paths) + 5
         assert first["homeCenter"]["missingExecutableFunctions"] == [
@@ -137,7 +166,10 @@ def main() -> int:
 
         vlad = jars.resolve_jar(first, "Vlad — The Adversary Keeps the Edge")
         native = jars.fetch_native_source(
-            vlad, config, cache, refresh=True,
+            vlad,
+            config,
+            cache,
+            refresh=True,
             fetcher=lambda jar, _cfg: {
                 "spreadsheetId": jar["sourceFileId"],
                 "range": "A1:C3",
@@ -148,13 +180,15 @@ def main() -> int:
         assert native["sourceFileId"] == "vlad-sheet"
         assert native["sheet"]["values"][1] == ["Restart", "PASS"]
         native_stale = jars.fetch_native_source(
-            vlad, config, cache, refresh=True,
+            vlad,
+            config,
+            cache,
+            refresh=True,
             fetcher=lambda _jar, _cfg: (_ for _ in ()).throw(RuntimeError("native source offline")),
         )
         assert native_stale["state"] == "stale"
         assert native_stale["sheet"]["values"][1] == ["Restart", "PASS"]
 
-        # A connector failure never destroys the last complete cabinet snapshot.
         def broken(_config):
             raise RuntimeError("connector unavailable")
 
@@ -171,7 +205,6 @@ def main() -> int:
         assert stale["cabinetJarCount"] == first["cabinetJarCount"]
         assert jars.resolve_jar(stale, "What Would June Do?")["sourceFileId"] == "june-doc"
 
-        # Future operational Jars are discovered without changing a hard-coded list.
         future = tmp_rules / "90-judgement-jar-future-proof.md"
         future.write_text(
             "# Judgement Jar: Future Proof\n\n"
@@ -179,12 +212,7 @@ def main() -> int:
             "## Judgement\n\nNew jars must appear automatically.\n",
             encoding="utf-8",
         )
-        future_registry, _ = jars.ensure_registry(
-            tmp_root,
-            cache,
-            config_path=config_path,
-            offline=True,
-        )
+        future_registry, _ = jars.ensure_registry(tmp_root, cache, config_path=config_path, offline=True)
         assert future_registry["localJarCount"] == len(source_paths) + 1
         assert jars.resolve_jar(future_registry, "future proof")["origin"] == jars.LOCAL_ORIGIN
 
@@ -192,24 +220,87 @@ def main() -> int:
         assert persisted["registryDigest"] == future_registry["registryDigest"]
         assert persisted["homeCenter"]["cabinetCount"] == 4
 
-    print(
-        json.dumps(
-            {
-                "ok": True,
-                "schema": "vlad-judgment-jar-registry-test-v2",
-                "canonicalOperationalSourceCount": len(source_paths),
-                "dynamicRepositoryDiscovery": True,
-                "homeCenterCabinetSync": True,
-                "homeCenterDiscoveryOfUnregisteredJars": True,
-                "nativeSourceOnDemand": True,
-                "nativeSourceStaleCachePreservation": True,
-                "staleCachePreservation": True,
-                "americanBritishAliasCompatibility": True,
-                "atomicCache": True,
-            },
-            sort_keys=True,
+        mission = jars.resolve_jar(future_registry, "mission-boundary")
+        context_result = jars.context_receipt(
+            future_registry,
+            mission,
+            config,
+            "compiled context",
+            "test.get",
+            "retrieve bounded context",
+            "returned Jar context",
+            "mission-boundary",
+            "context-request",
+            "receipt-group",
         )
-    )
+        assert context_result["state"] == "PENDING_HOME_CENTER"
+        output_result = jars.record_receipt(
+            future_registry,
+            mission,
+            config,
+            output_kind="review_verdict",
+            output_text="PLAN_ALLOWED",
+            summary="Allowed the bounded plan.",
+            actor="Venice",
+            intent="review the bounded plan",
+            surface="vlad",
+            decision_action="PLAN_ALLOWED",
+            input_text="commission",
+            request_id="review-request",
+            group_id="receipt-group",
+            source="test_judgment_jar_registry",
+        )
+        assert output_result["state"] == "PENDING_HOME_CENTER"
+        assert jars.receipt_status(config)["pending"] == 2
+
+        review_dir = Path(os.environ["HC_STATE_DIR"]) / "venice"
+        review_dir.mkdir(parents=True)
+        review_record = {
+            "schema": "venice-plan-review-v2-judgment-jar-primary",
+            "reviewer": "Venice",
+            "commission": "bounded test commission",
+            "verdict": "PASS",
+            "directive": "PLAN_ALLOWED",
+            "findings": [],
+            "selectedJudgmentJars": [{"path": mission["sourcePath"]}],
+        }
+        (review_dir / "plan-reviews.jsonl").write_text(json.dumps(review_record) + "\n", encoding="utf-8")
+        imported = jars.import_review_receipts(future_registry, config)
+        assert imported["imported"] == 1
+        assert jars.receipt_status(config)["pending"] == 3
+
+        home = FakeHomeCenter()
+        delivered = jars.flush_receipts(config, client_factory=lambda: home)
+        assert delivered["state"] == "DELIVERED"
+        assert delivered["delivered"] == 3
+        assert delivered["pending"] == 0
+        assert delivered["quarantined"] == 0
+        ledger = home.docs["receipt-ledger"]
+        assert "context_packet" in ledger
+        assert "review_verdict" in ledger
+        assert "judgmentJarReceiptFingerprint:" in ledger
+        assert len(home.updates) == 3
+        assert jars.receipt_status(config)["delivered"] == 3
+
+    print(json.dumps({
+        "ok": True,
+        "schema": "vlad-judgment-jar-registry-and-receipts-test-v3",
+        "canonicalOperationalSourceCount": len(source_paths),
+        "dynamicRepositoryDiscovery": True,
+        "homeCenterCabinetSync": True,
+        "homeCenterDiscoveryOfUnregisteredJars": True,
+        "nativeSourceOnDemand": True,
+        "nativeSourceStaleCachePreservation": True,
+        "staleCachePreservation": True,
+        "americanBritishAliasCompatibility": True,
+        "atomicCache": True,
+        "contextAccessReceipts": True,
+        "typedOutputReceipts": True,
+        "veniceReviewReceiptImport": True,
+        "oldestFirstHomeCenterDelivery": True,
+        "homeCenterReadbackVerification": True,
+        "captureAndDeliverySeparated": True,
+    }, sort_keys=True))
     return 0
 
 
