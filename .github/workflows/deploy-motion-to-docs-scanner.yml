@@ -1,0 +1,78 @@
+name: Deploy Motion-to-Docs Scanner
+
+on:
+  workflow_dispatch:
+    inputs:
+      project:
+        description: GCP project id
+        required: true
+        default: home-center-dclar
+      region:
+        description: GCP region
+        required: true
+        default: us-central1
+      confirm:
+        description: Type deploy to confirm
+        required: true
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: deploy-motion-to-docs-scanner
+  cancel-in-progress: false
+
+jobs:
+  test-and-deploy:
+    if: ${{ inputs.confirm == 'deploy' }}
+    runs-on: ubuntu-latest
+    env:
+      PROJECT: ${{ inputs.project }}
+      REGION: ${{ inputs.region }}
+      SERVICE: motion-to-docs-scanner
+      WORKFLOW: motion-to-docs
+      BUCKET: ${{ inputs.project }}-motion-scans
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: refs/heads/main
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: services/motion-to-docs-scanner/requirements.txt
+      - name: Test scanner
+        working-directory: services/motion-to-docs-scanner
+        run: |
+          pip install -r requirements.txt
+          python -m unittest -v test_service.py
+          python -m py_compile service.py
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GCP_DEPLOY_SERVICE_ACCOUNT }}
+      - uses: google-github-actions/setup-gcloud@v2
+      - name: Ensure APIs, bucket, and service accounts
+        run: |
+          gcloud services enable run.googleapis.com cloudbuild.googleapis.com workflows.googleapis.com docs.googleapis.com drive.googleapis.com iamcredentials.googleapis.com --project="$PROJECT"
+          gcloud storage buckets describe "gs://$BUCKET" --project="$PROJECT" >/dev/null 2>&1 || gcloud storage buckets create "gs://$BUCKET" --project="$PROJECT" --location="$REGION" --uniform-bucket-level-access
+          gcloud iam service-accounts describe "motion-scanner@$PROJECT.iam.gserviceaccount.com" --project="$PROJECT" >/dev/null 2>&1 || gcloud iam service-accounts create motion-scanner --project="$PROJECT"
+          gcloud iam service-accounts describe "motion-docs-workflow@$PROJECT.iam.gserviceaccount.com" --project="$PROJECT" >/dev/null 2>&1 || gcloud iam service-accounts create motion-docs-workflow --project="$PROJECT"
+          gcloud projects add-iam-policy-binding "$PROJECT" --member="serviceAccount:motion-scanner@$PROJECT.iam.gserviceaccount.com" --role="roles/storage.objectAdmin" --condition=None
+          gcloud iam service-accounts add-iam-policy-binding "motion-scanner@$PROJECT.iam.gserviceaccount.com" --project="$PROJECT" --member="serviceAccount:motion-scanner@$PROJECT.iam.gserviceaccount.com" --role="roles/iam.serviceAccountTokenCreator"
+      - name: Deploy scanner
+        run: |
+          gcloud run deploy "$SERVICE" --project="$PROJECT" --region="$REGION" --source=services/motion-to-docs-scanner --service-account="motion-scanner@$PROJECT.iam.gserviceaccount.com" --set-env-vars="MOTION_SCANNER_BUCKET=$BUCKET" --memory=4Gi --cpu=2 --timeout=900 --no-allow-unauthenticated --quiet
+          URL="$(gcloud run services describe "$SERVICE" --project="$PROJECT" --region="$REGION" --format='value(status.url)')"
+          echo "SCANNER_URL=$URL" >> "$GITHUB_ENV"
+          gcloud run services add-iam-policy-binding "$SERVICE" --project="$PROJECT" --region="$REGION" --member="serviceAccount:motion-docs-workflow@$PROJECT.iam.gserviceaccount.com" --role="roles/run.invoker"
+      - name: Deploy Google Workflow
+        run: |
+          gcloud workflows deploy "$WORKFLOW" --project="$PROJECT" --location="$REGION" --source=services/motion-to-docs-scanner/workflow.yaml --service-account="motion-docs-workflow@$PROJECT.iam.gserviceaccount.com" --set-env-vars="MOTION_SCANNER_URL=$SCANNER_URL" --quiet
+      - name: Verify deployed surfaces
+        run: |
+          gcloud run services describe "$SERVICE" --project="$PROJECT" --region="$REGION" --format=json
+          gcloud workflows describe "$WORKFLOW" --project="$PROJECT" --location="$REGION" --format=json
