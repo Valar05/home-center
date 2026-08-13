@@ -34,6 +34,11 @@ function diagnosticChunkHash(result) {
   delete payload.byteCount;
   return hashText(canonicalJson(payload));
 }
+function maintenanceReceiptHash(receipt) {
+  const body = {...receipt};
+  delete body.receiptHash;
+  return hashText(canonicalJson(body));
+}
 function shortHash(value, n = 32) { return hashText(value).slice(0, n); }
 function ownerKeyFromActor(actor) { return `owner_${shortHash(safeText(actor, 320).toLowerCase() || 'anonymous', 32)}`; }
 function cleanDeviceId(value) {
@@ -133,6 +138,58 @@ function cleanPhoneDiagnostics(body) {
     ...(extensions === undefined ? {} : {extensions:[...extensions]}),
   };
 }
+const ANVIL_MAINTENANCE_KEYS = new Set([
+  'action','schema','operation','automaticReplay','deviceId','packageId','workerId',
+  'queueDocId','queueRevision','commissionHash','laneId','sessionId','approvalId',
+  'leaseId','sourceRepository','sourceHead','sourceSubdir','expectedVersionName',
+  'expectedSignerSha256','timeoutSeconds','networkPolicy','rollbackPolicy',
+]);
+function cleanAnvilMaintenance(body) {
+  const unknown = Object.keys(body).filter((key) => !ANVIL_MAINTENANCE_KEYS.has(key));
+  if (unknown.length) throw Object.assign(new Error(`anvil maintenance rejects unknown field: ${unknown[0]}`), {status:400});
+  if (body.schema !== 'phone.maintenance.anvil-shell.v1') throw Object.assign(new Error('anvil maintenance schema mismatch'), {status:400});
+  if (body.operation && body.operation !== 'anvil_shell.build_install.v1') throw Object.assign(new Error('unsupported phone maintenance operation'), {status:400});
+  const deviceId = cleanDeviceId(body.deviceId);
+  if (deviceId !== 'primary-phone') throw Object.assign(new Error('anvil maintenance is bound to primary-phone'), {status:400});
+  const required = (key,max=320) => {
+    const value=safeText(body[key],max);
+    if(!value) throw Object.assign(new Error(`anvil maintenance requires ${key}`),{status:400});
+    return value;
+  };
+  const packageId=required('packageId',160);
+  const workerId=required('workerId',160);
+  const queueDocId=required('queueDocId',200);
+  const queueRevision=required('queueRevision',320);
+  const commissionHash=required('commissionHash',64).toLowerCase();
+  const laneId=required('laneId',80);
+  const sessionId=required('sessionId',200);
+  const approvalId=required('approvalId',200);
+  const leaseId=required('leaseId',200);
+  const sourceRepository=required('sourceRepository',200);
+  const sourceHead=required('sourceHead',40).toLowerCase();
+  const sourceSubdir=required('sourceSubdir',120);
+  const expectedVersionName=required('expectedVersionName',120);
+  const expectedSignerSha256=safeText(body.expectedSignerSha256,64).toLowerCase();
+  if(packageId!=='com.continuecontinue.anvilshell' || workerId!=='phone-relay:primary-phone') throw Object.assign(new Error('anvil maintenance package or worker identity mismatch'),{status:400});
+  if(laneId!=='PHONE_MAINTENANCE') throw Object.assign(new Error('anvil maintenance lane must be PHONE_MAINTENANCE'),{status:400});
+  if(sourceRepository!=='Valar05/continue-continue' || sourceSubdir!=='edge/android-shell') throw Object.assign(new Error('anvil maintenance source is not allowlisted'),{status:400});
+  if(expectedVersionName!=='0.1.0-checkpoint') throw Object.assign(new Error('anvil maintenance version identity mismatch'),{status:400});
+  if(!/^[0-9a-f]{64}$/.test(commissionHash) || !/^[0-9a-f]{40}$/.test(sourceHead)) throw Object.assign(new Error('anvil maintenance source or commission hash is invalid'),{status:400});
+  if(expectedSignerSha256 && !/^[0-9a-f]{64}$/.test(expectedSignerSha256)) throw Object.assign(new Error('expectedSignerSha256 must be SHA-256'),{status:400});
+  const timeoutSeconds=Number(body.timeoutSeconds == null ? 1800 : body.timeoutSeconds);
+  if(!Number.isInteger(timeoutSeconds)||timeoutSeconds<60||timeoutSeconds>3600) throw Object.assign(new Error('anvil maintenance timeoutSeconds must be 60..3600'),{status:400});
+  if(body.automaticReplay!==false) throw Object.assign(new Error('anvil maintenance automatic replay must be false'),{status:400});
+  const networkPolicy=required('networkPolicy',80);
+  const rollbackPolicy=required('rollbackPolicy',120);
+  if(networkPolicy!=='bootstrap-and-build' || rollbackPolicy!=='retain_previous_apk_if_present') throw Object.assign(new Error('anvil maintenance network or rollback policy mismatch'),{status:400});
+  return {
+    action:'anvil_shell_build_install',schema:body.schema,operation:'anvil_shell.build_install.v1',
+    automaticReplay:false,deviceId,packageId,workerId,queueDocId,queueRevision,
+    commissionHash,laneId,sessionId,approvalId,leaseId,sourceRepository,sourceHead,
+    sourceSubdir,expectedVersionName,...(expectedSignerSha256?{expectedSignerSha256}:{}),
+    timeoutSeconds,networkPolicy,rollbackPolicy,
+  };
+}
 function cleanAction(value) {
   const body = safeObject(value);
   const action = safeText(body.action, 80);
@@ -141,10 +198,11 @@ function cleanAction(value) {
     'file_stat','file_hash','file_list','file_mkdir','file_copy','file_move','armory_inventory','armory_ingest','armory_doctor','armory_slice',
     'window_status','window_probe','window_compose','window_focus','window_swap',
     'status_tts_doctor','status_say',
-    'operator_overlay_status','operator_overlay_start','operator_overlay_update','phone_diagnostics',
+    'operator_overlay_status','operator_overlay_start','operator_overlay_update','phone_diagnostics','anvil_shell_build_install',
   ]);
   if (!allowed.has(action)) throw Object.assign(new Error(`unsupported phone action: ${action}`), {status: 400});
   if (action === 'phone_diagnostics') return cleanPhoneDiagnostics({...body, action});
+  if (action === 'anvil_shell_build_install') return cleanAnvilMaintenance({...body, action});
   return {...body, action};
 }
 function ownerKey(caller = {}) {
@@ -238,6 +296,37 @@ async function enqueuePhoneCommand(admin, caller, args = {}) {
       return record;
     });
   }
+  if (action.action === 'anvil_shell_build_install') {
+    if (action.deviceId !== deviceId) throw Object.assign(new Error('anvil maintenance deviceId does not match command device'), {status:400});
+    const requestHash=hashText(canonicalJson(action));
+    const commandId=safeText(args.commandId,160)||`phc_${randomUUID()}`;
+    const now=Date.now();
+    const record={
+      commandId,deviceId,ownerKey:owner,action,status:'queued',createdAtMs:now,updatedAtMs:now,
+      expiresAtMs:now+Math.max(60000,Math.min(Number(args.ttlMs||action.timeoutSeconds*1000+300000),7200000)),
+      requestedBy:safeText(caller.actor,320),result:null,error:'',leaseOwner:'',leaseExpiresAtMs:0,
+      replayPolicy:'NEVER_AUTOMATIC',
+    };
+    const commandRef=admin.firestore().collection(COLLECTIONS.commands).doc(commandId);
+    const deviceRef=admin.firestore().collection(COLLECTIONS.devices).doc(deviceId);
+    return admin.firestore().runTransaction(async(transaction)=>{
+      const prior=await transaction.get(idemRef);
+      if(prior.exists){
+        if(prior.data().requestHash!==requestHash) throw Object.assign(new Error('anvil maintenance idempotency key is bound to a different request'),{status:409});
+        const priorRef=admin.firestore().collection(COLLECTIONS.commands).doc(prior.data().commandId);
+        const priorCommand=await transaction.get(priorRef);
+        return priorCommand.exists?priorCommand.data():{commandId:prior.data().commandId,status:'unknown'};
+      }
+      const device=await transaction.get(deviceRef);
+      const deviceData=device.exists?(device.data()||{}):{};
+      if(!device.exists||deviceData.ownerKey!==owner||!Array.isArray(deviceData.capabilities)||!deviceData.capabilities.includes('phone_maintenance_anvil_shell')){
+        throw Object.assign(new Error('anvil maintenance capability is not registered for this owner and device'),{status:409});
+      }
+      transaction.create(commandRef,record);
+      transaction.create(idemRef,{commandId,ownerKey:owner,requestHash,createdAtMs:now});
+      return record;
+    });
+  }
   const prior = await idemRef.get();
   if (prior.exists) {
     const commandId = prior.data().commandId;
@@ -288,7 +377,10 @@ async function devicePull(admin, {deviceId, deviceToken, leaseMs = 30000} = {}) 
   if (!candidates.length) return {ok: true, command: null};
   const chosen = candidates[0];
   const leaseOwner = `device:${id}`;
-  await admin.firestore().collection(COLLECTIONS.commands).doc(chosen.commandId).set({status:'leased', leaseOwner, leaseExpiresAtMs: now + Math.max(5000, Math.min(Number(leaseMs), 120000)), updatedAtMs: now}, {merge:true});
+  const isMaintenance=chosen.action&&chosen.action.action==='anvil_shell_build_install';
+  const requestedLease=isMaintenance?(Number(chosen.action.timeoutSeconds||1800)*1000+120000):Number(leaseMs);
+  const leaseDuration=Math.max(5000,Math.min(requestedLease,isMaintenance?3720000:120000));
+  await admin.firestore().collection(COLLECTIONS.commands).doc(chosen.commandId).set({status:'leased', leaseOwner, leaseExpiresAtMs: now + leaseDuration, updatedAtMs: now}, {merge:true});
   return {ok: true, command: {...chosen, status:'leased', leaseOwner}};
 }
 async function deviceComplete(admin, {deviceId, deviceToken, commandId, status, result, error} = {}) {
@@ -360,6 +452,44 @@ async function deviceComplete(admin, {deviceId, deviceToken, commandId, status, 
     });
     return {ok:true, commandId:record.commandId, status:finalStatus};
   }
+  if(record.action&&record.action.action==='anvil_shell_build_install'){
+    const action=record.action;
+    const fresh=await ref.get();
+    const freshRecord=fresh.data()||{};
+    if(freshRecord.status!=='leased'||freshRecord.leaseOwner!==`device:${id}`||Number(freshRecord.leaseExpiresAtMs||0)<Date.now()){
+      throw Object.assign(new Error('anvil maintenance completion requires the exact unexpired device lease'),{status:409});
+    }
+    if(finalStatus==='completed'){
+      const sha=(value)=>/^[0-9a-f]{64}$/.test(safeText(value,64).toLowerCase());
+      if(!cleanResult||cleanResult.schema!=='phone.maintenance.anvil-shell.receipt.v1'||
+        cleanResult.requestHash!==hashText(canonicalJson(action))||
+        cleanResult.operation!==action.operation||cleanResult.deviceId!==id||
+        cleanResult.packageId!==action.packageId||cleanResult.workerId!==action.workerId||
+        cleanResult.queueDocId!==action.queueDocId||cleanResult.queueRevision!==action.queueRevision||
+        cleanResult.commissionHash!==action.commissionHash||cleanResult.laneId!==action.laneId||
+        cleanResult.sessionId!==action.sessionId||cleanResult.approvalId!==action.approvalId||
+        cleanResult.leaseId!==action.leaseId||cleanResult.sourceRepository!==action.sourceRepository||
+        cleanResult.sourceHead!==action.sourceHead||cleanResult.sourceSubdir!==action.sourceSubdir||
+        cleanResult.expectedVersionName!==action.expectedVersionName||
+        cleanResult.automaticReplay!==false||cleanResult.writeUsed!==true||
+        cleanResult.subprocessUsed!==true||cleanResult.buildUsed!==true||
+        cleanResult.installUsed!==true||cleanResult.readbackVerified!==true||
+        cleanResult.testsPassed!==true||cleanResult.buildExit!==0||cleanResult.installExit!==0||
+        cleanResult.status!=='INSTALLED_READBACK_VERIFIED'||!sha(cleanResult.apkSha256)||
+        !sha(cleanResult.signerSha256)||!sha(cleanResult.installedApkSha256)||
+        cleanResult.installedApkSha256!==cleanResult.apkSha256||
+        cleanResult.installedPackageId!==action.packageId||
+        cleanResult.installedVersionName!==action.expectedVersionName||
+        !cleanResult.rollback||cleanResult.rollback.policy!==action.rollbackPolicy||
+        (action.expectedSignerSha256&&cleanResult.signerSha256!==action.expectedSignerSha256)||
+        !cleanResult.toolchain||typeof cleanResult.toolchain!=='object'||
+        !sha(cleanResult.receiptHash)||maintenanceReceiptHash(cleanResult)!==cleanResult.receiptHash){
+        throw Object.assign(new Error('anvil maintenance receipt identity, signer, install, or hash is invalid'),{status:400});
+      }
+    }
+    await ref.set({status:finalStatus,result:cleanResult,error:safeText(error,4000),completedAtMs:Date.now(),updatedAtMs:Date.now(),leaseExpiresAtMs:0},{merge:true});
+    return {ok:true,commandId:record.commandId,status:finalStatus};
+  }
   await ref.set({status: finalStatus, result: cleanResult, error: safeText(error,4000), completedAtMs: Date.now(), updatedAtMs: Date.now(), leaseExpiresAtMs:0}, {merge:true});
   return {ok:true, commandId:record.commandId, status:finalStatus};
 }
@@ -390,6 +520,15 @@ function createPhoneHandsRelayHandler(admin) {
   };
 }
 
+function rejectNativeMaintenanceFromCommandCenter(args = {}) {
+  const action=safeObject(args.action);
+  if(safeText(action.action,80)==='anvil_shell_build_install'){
+    const err=new Error('Anvil phone maintenance is native Home Center authority. Use drive_operation phone.maintenance.enqueue.');
+    err.status=410;
+    err.code='capability_retired.command_center_phone_maintenance';
+    throw err;
+  }
+}
 function registerCommandCenterPhoneTools(server, {admin, z, textResult, callerFromExtra}) {
   server.registerTool('command_center.phone_hands.devices', {
     title:'List Android Phone Hands devices', description:'List owner-scoped Android Phone Hands relay devices and live last-seen state.', inputSchema:{}
@@ -397,10 +536,13 @@ function registerCommandCenterPhoneTools(server, {admin, z, textResult, callerFr
   server.registerTool('command_center.phone_hands.enqueue', {
     title:'Enqueue Android Phone Hands action', description:'Send a bounded action to an owner-scoped Android phone through the Home Center relay. The phone executes it locally through Phone Hands.',
     inputSchema:{idempotencyKey:z.string(),deviceId:z.string().optional(),commandId:z.string().optional(),action:z.record(z.string(),z.any()),ttlMs:z.number().optional()}
-  }, async (args,extra)=>textResult(await enqueuePhoneCommand(admin,await callerFromExtra(admin,extra),args||{})));
+  }, async (args,extra)=>{
+    rejectNativeMaintenanceFromCommandCenter(args||{});
+    return textResult(await enqueuePhoneCommand(admin,await callerFromExtra(admin,extra),args||{}));
+  });
   server.registerTool('command_center.phone_hands.get', {
     title:'Read Android Phone Hands command', description:'Read status, result, or failure for one owner-scoped phone action.', inputSchema:{commandId:z.string()}
   }, async (args,extra)=>textResult(await getPhoneCommand(admin,await callerFromExtra(admin,extra),args||{})));
 }
 
-module.exports = {COLLECTIONS, enqueuePhoneCommand, getPhoneCommand, listPhoneDevices, registerDevice, devicePull, deviceComplete, cleanAction, cleanPhoneDiagnostics, diagnosticChunkHash, diagnosticReceiptHash, hashText, createPhoneHandsRelayHandler, registerCommandCenterPhoneTools};
+module.exports = {COLLECTIONS, enqueuePhoneCommand, getPhoneCommand, listPhoneDevices, registerDevice, devicePull, deviceComplete, cleanAction, cleanPhoneDiagnostics, cleanAnvilMaintenance, diagnosticChunkHash, diagnosticReceiptHash, maintenanceReceiptHash, hashText, ownerKeyFromActor, rejectNativeMaintenanceFromCommandCenter, createPhoneHandsRelayHandler, registerCommandCenterPhoneTools};

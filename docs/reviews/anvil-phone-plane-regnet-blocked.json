@@ -1,0 +1,52 @@
+{
+  "schema": "home-center.regnet-blocked-review.v1",
+  "reviewSystem": "Regnet CLI",
+  "reviewClass": "SYNTHETIC_REGNET_BLOCKED",
+  "repository": "Valar05/home-center",
+  "pullRequest": 280,
+  "blockedAttempt": {
+    "sourceHead": "575145451b4eb5d6e681a0ccea160636cc593ee4",
+    "workflowRunId": 31721084239,
+    "workflowRunUrl": "https://github.com/Valar05/home-center/actions/runs/31721084239",
+    "jobId": 94517947320,
+    "runnerId": 0,
+    "stepsStarted": 0,
+    "providerAnnotation": "The job was not started because an Actions budget is preventing further use."
+  },
+  "determinations": {
+    "codeFailureObserved": false,
+    "exactHeadSourceTested": false,
+    "deployed": false,
+    "workerInstalled": false,
+    "phoneCallable": false,
+    "anvilInstalled": false,
+    "delivered": false,
+    "accepted": false,
+    "subsequentSourceHeadsUntested": true
+  },
+  "directive": "CONTINUE_REQUIRED",
+  "stopAuthority": false,
+  "blocker": {
+    "class": "EXTERNAL_TEST_LANE_BUDGET",
+    "owner": "GitHub Actions account budget",
+    "clearsWhen": "An exact current PR-head workflow starts and all required steps pass.",
+    "doesNotAuthorize": [
+      "merge",
+      "deploy",
+      "generic phone shell substitution",
+      "Command Center substitution",
+      "claiming source tested",
+      "claiming phone acceptance"
+    ]
+  },
+  "independentWorkContinues": [
+    "close the exact-commit fixed-file phone worker bootstrap gap",
+    "add a native cloud deployment workflow",
+    "harden bootstrap and deployment contract tests",
+    "preserve the complete source-to-phone acceptance runbook"
+  ],
+  "dissent": [
+    "An empty-step budget rejection is neither a test pass nor a code failure.",
+    "A source checkpoint cannot terminate a campaign whose installed, callable, delivered, and accepted states remain false."
+  ]
+}

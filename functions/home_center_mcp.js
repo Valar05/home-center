@@ -32,6 +32,7 @@ const {renderAudioOperation, audioRenderStatusOperation, inspectAudioArtifactsOp
 const {recoverAudioRenderRegistrationOperation, linkDriveAudioToReaderStageOperation} = require('./audio_catalog_service');
 const {localVoiceOperationEntries, localVoiceOperationRunOperation} = require('./local_voice_farm_api');
 const {computerHandsOperationEntries, computerHandsOperationRunOperation} = require('./computer_hands_api');
+const phoneOperationSurface = require('./phone_operation_surface');
 const {browserNerveOperationEntries, browserNerveOperationRunOperation} = require('./browser_nerve_api');
 const {veniceBodyOperationEntries, veniceBodyOperationRunOperation} = require('./venice_body_router');
 const {veniceNerveOperationEntries, veniceNerveOperationRunOperation} = require('./venice_nerve_api');
@@ -90,8 +91,8 @@ const DEFAULT_MCP_PUBLIC_BASE = 'https://us-central1-home-center-dclar.cloudfunc
 const DEFAULT_MCP_AUTHORIZATION_SERVER_BASE = 'https://homecentermcp-vxybsaualq-uc.a.run.app';
 const MCP_PUBLIC_BASE = process.env.HOME_CENTER_MCP_PUBLIC_BASE || DEFAULT_MCP_PUBLIC_BASE;
 const MCP_AUTHORIZATION_SERVER_BASE = process.env.HOME_CENTER_MCP_AUTHORIZATION_SERVER_BASE || DEFAULT_MCP_AUTHORIZATION_SERVER_BASE;
-const HOME_CENTER_MCP_SERVER_VERSION = '0.3.0';
-const HOME_CENTER_CONNECTOR_SCHEMA_REVISION = '2026-08-03.voice-tiers-host-file-v1';
+const HOME_CENTER_MCP_SERVER_VERSION = '0.4.0';
+const HOME_CENTER_CONNECTOR_SCHEMA_REVISION = '2026-08-13.native-phone-plane-v1';
 const HOME_CENTER_REGISTRY_VERSION = HOME_CENTER_CONNECTOR_SCHEMA_REVISION;
 const HOME_CENTER_DIRECT_FILE_TOOLS = Object.freeze(['drive_ingest_file', 'storage_ingest_artifact']);
 const MCP_RESOURCE = `${MCP_AUTHORIZATION_SERVER_BASE}/mcp`;
@@ -5367,6 +5368,7 @@ function driveOperationRegistry() {
         input: {fileId: 'string', newName: 'string', requestId: 'string', callerNote: 'optional string'},
       },
       ...localVoiceOperationEntries(),
+    ...phoneOperationSurface.operationEntries(),
     ...computerHandsOperationEntries(),
     ...browserNerveOperationEntries(),
     ...veniceBodyOperationEntries(),
@@ -5970,6 +5972,11 @@ async function driveOperationRunOperation({google, admin, auth, user, extra = nu
     requireCreditGatedEmail(user && user.email, operation);
     const result = await localVoiceOperationRunOperation({admin, user, operation, args: operationArgs});
     return {operation, registryVersion: registry.version, completed: true, result};
+  }
+  if (phoneOperationSurface.operationEntries()[operation]) {
+    requireCreditGatedEmail(user && user.email, operation);
+    const result = await phoneOperationSurface.runOperation({admin, user, operation, args: operationArgs});
+    return {operation, registryVersion: registry.version, completed: operation === 'phone.devices' || operation === 'phone.operation.get', result};
   }
   if (computerHandsOperationEntries()[operation]) {
     requireCreditGatedEmail(user && user.email, operation);
