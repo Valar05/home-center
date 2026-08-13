@@ -47,6 +47,8 @@ for (const s of ['build_operator_overlay_signed.ps1','origin/generated/operator-
 for (const s of ['ExpectedSourceSha','Source SHA mismatch','GeneratedSigningRef','operator-overlay-debug.keystore','git','archive','Get-CertificateSha256','Find-ApkSigner','APK signer mismatch','signingCertificateSha256','signingKeySha256','signingSourceRef','durableSigningKey = $true','installed = $false','deploymentEvidence = $false','phoneTouched = $false','screenInteractionUsed = $false','ExportKeystore','versionNameMatch','versionCodeMatch','app/build.gradle','finally','debugBackup','localPropertiesBackup']) if (!overlaySignedBuilder.includes(s)) throw new Error('operator overlay signed builder contract missing '+s);
 if (!overlaySignedBuilder.includes('if ($ExpectedSourceSha -and $sourceSha -ne $ExpectedSourceSha)')) throw new Error('signed overlay build must bind to the exact expected source');
 if (!overlaySignedBuilder.includes('if ($apkCertificateSha -ne $signingCertificateSha)')) throw new Error('signed overlay build must verify APK/key certificate equality');
+if (/^\s*\$home\s*=/mi.test(overlaySignedBuilder)) throw new Error('signed overlay builder must not overwrite PowerShell read-only HOME');
+if (!overlaySignedBuilder.includes('$userHome =')) throw new Error('signed overlay builder must use a non-reserved user-home variable');
 for (const forbidden of ['keytool -genkeypair','keytool -genkey','genkeypair']) {
   if (overlayWorkflow.includes(forbidden) || overlaySignedBuilder.includes(forbidden)) throw new Error('workflow/builder must never generate or rotate a signing key: '+forbidden);
 }
