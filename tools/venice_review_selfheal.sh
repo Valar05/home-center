@@ -13,4 +13,4 @@ done
 if [ "$local_requested" -eq 1 ]; then
   bash "$ROOT/tools/ensure_venice_local.sh"
 fi
-exec python3 "$ROOT/tools/venice_review.py" "$@"
+exec python3 "$ROOT/tools/venice_review_receipted.py" "$@"
