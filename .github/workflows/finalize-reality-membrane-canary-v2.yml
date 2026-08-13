@@ -1,0 +1,120 @@
+name: Finalize Reality Membrane canary v2
+
+on:
+  push:
+    branches:
+      - reality-membrane-canary-20260813
+    paths:
+      - .github/workflows/finalize-reality-membrane-canary-v2.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+  id-token: write
+
+concurrency:
+  group: finalize-reality-membrane-canary-v2
+  cancel-in-progress: false
+
+env:
+  CANARY_REQUEST_ID: inner-fortress-boring-canary-v2-20260813
+  CANARY_USER_EMAIL: dclarke1005@gmail.com
+  HC_FIREBASE_SA: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_HOME_CENTER_DCLAR }}
+  HC_GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
+  HC_GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
+  HC_FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+  HC_WIF_PROVIDER: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+  HC_WIF_SERVICE_ACCOUNT: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+  GH_TOKEN: ${{ github.token }}
+
+jobs:
+  validate-transform-judge-checkpoint:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: reality-membrane-canary-20260813
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Rebase latest feature work
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'home-center-github-admin[bot]'
+          git config user.email 'home-center-github-admin[bot]@users.noreply.github.com'
+          git fetch origin reality-membrane-canary-20260813
+          git rebase origin/reality-membrane-canary-20260813
+      - name: Authenticate with workload identity when configured
+        if: env.HC_WIF_PROVIDER != '' && env.HC_WIF_SERVICE_ACCOUNT != ''
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ env.HC_WIF_PROVIDER }}
+          service_account: ${{ env.HC_WIF_SERVICE_ACCOUNT }}
+      - name: Select Firestore credentials
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -n "${HC_WIF_PROVIDER}" ] && [ -n "${HC_WIF_SERVICE_ACCOUNT}" ]; then exit 0; fi
+          credential=''
+          for candidate in "$HC_FIREBASE_SA" "$HC_GOOGLE_CREDENTIALS" "$HC_GCP_SA_KEY" "$HC_FIREBASE_SERVICE_ACCOUNT"; do if [ -n "$candidate" ]; then credential="$candidate"; break; fi; done
+          if [ -z "$credential" ]; then echo 'No Firestore credential configured.' >&2; exit 41; fi
+          path="$RUNNER_TEMP/home-center-firestore-service-account.json"
+          printf '%s' "$credential" > "$path"
+          chmod 600 "$path"
+          echo "GOOGLE_APPLICATION_CREDENTIALS=$path" >> "$GITHUB_ENV"
+      - name: Install Firestore client dependencies
+        run: npm ci --prefix functions
+      - name: Validate exact post-deploy Home Center packet
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p docs/evidence
+          cd functions
+          node - <<'NODE'
+          const fs=require('node:fs'),crypto=require('node:crypto'),admin=require('firebase-admin');if(!admin.apps.length)admin.initializeApp({projectId:'home-center-dclar'});const db=admin.firestore();
+          const sha=value=>crypto.createHash('sha256').update(String(value||'')).digest('hex');const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+          (async()=>{const userKey='reality_'+sha(process.env.CANARY_USER_EMAIL.toLowerCase()).slice(0,32);const expectedPhoneCommand='phc_reality_observe_'+sha(process.env.CANARY_REQUEST_ID).slice(0,24);const root=db.collection('realityUsers').doc(userKey);const deadline=Date.now()+30*60*1000;let snapshot=null;
+            while(Date.now()<deadline){const recent=await root.collection('snapshots').orderBy('observedAtMs','desc').limit(50).get();for(const doc of recent.docs){const value=doc.data()||{},phone=value.sourceReceipts&&value.sourceReceipts.phone;if(phone&&phone.commandId===expectedPhoneCommand){snapshot=value;break;}}if(snapshot&&snapshot.speechSummary&&snapshot.costPolicy&&snapshot.timeBridge)break;snapshot=null;await sleep(5000);}
+            if(!snapshot)throw new Error('exact_canary_v2_snapshot_missing_or_pre_accessibility_schema');const p=snapshot.projection||{},t=p.time||{},e=p.environment||{},d=p.device||{},u=Array.isArray(snapshot.unavailable)?snapshot.unavailable:[],phone=snapshot.sourceReceipts&&snapshot.sourceReceipts.phone||{},weather=snapshot.sourceReceipts&&snapshot.sourceReceipts.weather||{};
+            const knownFresh=o=>!!o&&o.value!==null&&o.value!==undefined&&o.stale===false;const presentOrUnavailable=(o,path)=>knownFresh(o)||u.includes(path);
+            const checks={exactPhoneCommand:phone.commandId===expectedPhoneCommand,phoneTerminal:phone.status==='completed',timePresent:knownFresh(t.now)&&t.now.source==='home_center.runtime_clock',daylightFresh:knownFresh(t.daylight),weatherLive:knownFresh(e.temperature_f)&&weather.ok===true&&weather.staleFallback!==true,precipitationLabeled:presentOrUnavailable(e.precipitation,'weather.precipitation'),batteryPresentOrLabeled:presentOrUnavailable(d.battery_pct,'phone.battery_pct'),chargingPresentOrLabeled:presentOrUnavailable(d.charging,'phone.charging'),connectivityPresentOrLabeled:presentOrUnavailable(d.connectivity,'phone.connectivity'),audioRoutePresentOrLabeled:presentOrUnavailable(d.audio_route,'phone.audio_route'),speechSummary:/^Reality:/i.test(String(snapshot.speechSummary||'')),timeBridge:snapshot.timeBridge&&snapshot.timeBridge.policy==='detached'&&/not silently equated/i.test(String(snapshot.timeBridge.assumption||'')),zeroDollar:snapshot.costPolicy==='zero-dollar-default',homeCenterDidNotGenerateFiction:snapshot.fictionGenerated===false,compact:Number(snapshot.packetByteCount)>0&&Number(snapshot.packetByteCount)<32000,noSensitiveLeak:!/attendee|calendar.description|message.body|medical|latitude|longitude|microphone_recording|precise_location_history/i.test(JSON.stringify(snapshot)),provenance:!!(t.now&&t.now.receipt_id)&&!!(t.daylight&&t.daylight.receipt_id)&&!!(e.temperature_f&&e.temperature_f.receipt_id)&&!!weather.id};
+            const failed=Object.entries(checks).filter(([,ok])=>!ok).map(([name])=>name);if(failed.length)throw new Error('canary_v2_checks_failed:'+failed.join(',')+':'+JSON.stringify({projection:p,unavailable:u,sourceReceipts:snapshot.sourceReceipts,speechSummary:snapshot.speechSummary,timeBridge:snapshot.timeBridge,costPolicy:snapshot.costPolicy,fictionGenerated:snapshot.fictionGenerated,packetByteCount:snapshot.packetByteCount}));
+            const receipt={schema:'home-center.reality-membrane.boring-canary.v2',validatedAt:new Date().toISOString(),requestId:process.env.CANARY_REQUEST_ID,packetReceiptId:snapshot.receiptId,observedAt:snapshot.observedAt,projection:p,unavailable:u,sourceReceipts:snapshot.sourceReceipts,speechSummary:snapshot.speechSummary,timeBridge:snapshot.timeBridge,privacyPolicy:snapshot.privacyPolicy,costPolicy:snapshot.costPolicy,fictionGenerated:snapshot.fictionGenerated,packetByteCount:snapshot.packetByteCount,checks,stateLedger:{requested:true,implemented:true,testedOnAuthorizedPhone:true,deployed:true,callable:true,observed:true,observationAccepted:true,fictionPending:true,canonCommitted:false},evidenceBoundary:'This is the actual post-deploy Home Center observation. Fiction and canon are separate downstream records.'};receipt.receiptSha256=sha(JSON.stringify(receipt));fs.writeFileSync('../docs/evidence/reality-membrane-boring-canary-v2-20260813.json',JSON.stringify(receipt,null,2)+'\n');console.log(JSON.stringify(receipt));
+          })().catch(e=>{console.error(e.stack||e);process.exit(1)});
+          NODE
+      - name: Create exactly one downstream Inner Fortress scene
+        run: node tools/inner_fortress_reality_canary_scene.mjs docs/evidence/reality-membrane-boring-canary-v2-20260813.json docs/evidence/inner-fortress-reality-canary-scene-20260813.json
+      - name: Run Venice Judgment Jar review
+        run: node tools/reality_membrane_venice_review.mjs docs/evidence/reality-membrane-boring-canary-v2-20260813.json docs/evidence/inner-fortress-reality-canary-scene-20260813.json docs/evidence/reality-membrane-venice-review-20260813.json
+      - name: Run separation and judgment tests
+        run: |
+          node tools/inner_fortress_reality_canary_scene_test.mjs
+          node tools/reality_membrane_venice_review_test.mjs
+      - name: Build accessible checkpoint report
+        shell: bash
+        run: |
+          node - <<'NODE'
+          const fs=require('node:fs');const canary=JSON.parse(fs.readFileSync('docs/evidence/reality-membrane-boring-canary-v2-20260813.json','utf8'));const scene=JSON.parse(fs.readFileSync('docs/evidence/inner-fortress-reality-canary-scene-20260813.json','utf8'));const venice=JSON.parse(fs.readFileSync('docs/evidence/reality-membrane-venice-review-20260813.json','utf8'));const fiction=scene.layers.FICTIONAL_TRANSFORMATION.scene;
+          const lines=['# Reality Membrane Checkpoint 4 — Canary Accepted','',`Observed: ${canary.speechSummary}`,'',`Observation receipt: \`${canary.packetReceiptId}\``,'',`Phone command: \`${canary.sourceReceipts.phone.commandId}\` — ${canary.sourceReceipts.phone.status}`,'',`Weather source: \`${canary.sourceReceipts.weather.id}\` — live=${canary.sourceReceipts.weather.ok===true}`,'','## Layer Ledger','','- OBSERVED: Home Center packet in `reality-membrane-boring-canary-v2-20260813.json`.','- DERIVED: bounded plain-language summary only.','- FICTION: one scene below, stored separately.','- CANON: null; nothing was automatically canonized.','','## One Inner Fortress Scene','',fiction,'','## Venice Judgment Jar',``,`Verdict: **${venice.verdict}**`,`Directive: **${venice.directive}**`,'',...venice.jars.map(j=>`- ${j.criterion}: ${j.verdict} — ${j.note}`),'','## State Ledger','','- requested: yes','- implemented: yes, on feature branch','- deterministic tests: passed on authorized phone body','- deployed: yes, Home Center MCP','- callable: yes, post-deploy `reality.observe` packet validated','- observed: yes','- delivered: PR evidence + runtime packet + accessible summary','- accepted: boring canary only','- merged to main: no','- next sense: Android Auto / embodied audio-route context remains the leading Hunger candidate; not built in this checkpoint.'];fs.writeFileSync('docs/evidence/reality-membrane-checkpoint4-20260813.md',lines.join('\n')+'\n');
+          NODE
+      - name: Rebase, commit durable checkpoint, remove one-use finalizers
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch origin reality-membrane-canary-20260813
+          git rebase origin/reality-membrane-canary-20260813
+          git rm --ignore-unmatch .github/workflows/finalize-reality-membrane-canary-v2.yml
+          git rm --ignore-unmatch .github/workflows/record-reality-membrane-boring-canary.yml
+          git add tools/inner_fortress_reality_canary_scene.mjs tools/inner_fortress_reality_canary_scene_test.mjs tools/reality_membrane_venice_review.mjs tools/reality_membrane_venice_review_test.mjs docs/evidence/reality-membrane-boring-canary-v2-20260813.json docs/evidence/inner-fortress-reality-canary-scene-20260813.json docs/evidence/reality-membrane-venice-review-20260813.json docs/evidence/reality-membrane-checkpoint4-20260813.md
+          git diff --cached --check
+          git commit -m 'Accept Reality Membrane boring canary checkpoint'
+          git push origin HEAD:reality-membrane-canary-20260813
+      - name: Publish checkpoint and exact scene on PR 267
+        shell: bash
+        run: |
+          set -euo pipefail
+          gh pr comment 267 --repo "$GITHUB_REPOSITORY" --body-file docs/evidence/reality-membrane-checkpoint4-20260813.md
