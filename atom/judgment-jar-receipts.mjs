@@ -50,8 +50,8 @@ function jarIdentity(registry, jar) {
   };
 }
 
-export async function createJudgmentJarReceiptService({ repoRoot, cachePath, stateDir, emitReceipt }) {
-  const config = JSON.parse(await readFile(join(repoRoot, 'config', 'judgment-jars.v1.json'), 'utf8'));
+export async function createJudgmentJarReceiptService({ configPath, cachePath, stateDir, emitReceipt }) {
+  const config = JSON.parse(await readFile(configPath, 'utf8'));
   const receiptConfig = config.receipts || {};
   const schema = receiptConfig.schema || 'home-center.judgment-jar-usage-receipt.v1';
   const outputKinds = new Set(receiptConfig.outputKinds || []);
