@@ -62,23 +62,14 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 async function handle(message = {}) {
   switch (message.type) {
     case 'throne.status': return throneStatus();
-    case 'throne.run':
-      return runCommission(String(message.commission || ''), message.newWorker !== false, String(message.context || ''), {jobId: String(message.jobId || ''), workerTabId: Number(message.workerTabId || 0) || null});
+    case 'throne.run': return runCommission(String(message.commission || ''), message.newWorker !== false, String(message.context || ''), {jobId: String(message.jobId || ''), workerTabId: Number(message.workerTabId || 0) || null});
     case 'throne.swarm.run': return runStoredSwarm({source: String(message.source || 'sidepanel')});
     case 'throne.relay.poll': return pollRelay();
     case 'throne.capture': return captureLatest(Number(message.workerTabId || 0) || null, String(message.jobId || ''));
     case 'throne.inspect': return inspectWorker(Number(message.workerTabId || 0) || null);
-    case 'throne.resetContext':
-      await chrome.storage.local.set({throneContext: DEFAULT_CAMPAIGN_CONTEXT});
-      return {ok: true, context: DEFAULT_CAMPAIGN_CONTEXT};
-    case 'throne.stop':
-      await chrome.storage.session.set({throneStopped: true});
-      await publishRelaySnapshot();
-      return {ok: true, stopped: true};
-    case 'throne.resume':
-      await chrome.storage.session.set({throneStopped: false});
-      await publishRelaySnapshot();
-      return {ok: true, stopped: false};
+    case 'throne.resetContext': await chrome.storage.local.set({throneContext: DEFAULT_CAMPAIGN_CONTEXT}); return {ok: true, context: DEFAULT_CAMPAIGN_CONTEXT};
+    case 'throne.stop': await chrome.storage.session.set({throneStopped: true}); await publishRelaySnapshot(); return {ok: true, stopped: true};
+    case 'throne.resume': await chrome.storage.session.set({throneStopped: false}); await publishRelaySnapshot(); return {ok: true, stopped: false};
     case 'throne.closeWorker': {
       const tabId = Number(message.workerTabId || 0);
       if (!tabId) throw new Error('worker_tab_id_required');
@@ -147,10 +138,7 @@ async function runStoredSwarmInner(meta = {}) {
     const {throneQueue = []} = await chrome.storage.local.get('throneQueue');
     const running = throneQueue.filter((job) => job.state === 'running' && Number(job.workerTabId) > 0).slice(0, MAX_PARALLEL_WORKERS);
     if (running.length) {
-      await Promise.all(running.map(async (job) => {
-        const outcome = await finishRunningJob(job);
-        receipts.push(outcome); processed += 1;
-      }));
+      await Promise.all(running.map(async (job) => { const outcome = await finishRunningJob(job); receipts.push(outcome); processed += 1; }));
       continue;
     }
     const wave = parallelBatch(throneQueue, Math.min(MAX_PARALLEL_WORKERS, MAX_SWARM_SLICES - processed));
@@ -158,14 +146,12 @@ async function runStoredSwarmInner(meta = {}) {
     const dispatched = (await Promise.all(wave.map(dispatchQueuedJob))).filter(Boolean);
     if (!dispatched.length) break;
     receipts.push({state: 'wave_dispatched', workers: dispatched.map((entry) => ({jobId: entry.job.id, tabId: entry.workerTabId}))});
-    await Promise.all(dispatched.map(async (entry) => {
-      const outcome = await finishRunningJob({...entry.job, workerTabId: entry.workerTabId, baselineAssistantCount: entry.baselineAssistantCount});
-      receipts.push(outcome); processed += 1;
-    }));
+    await Promise.all(dispatched.map(async (entry) => { const outcome = await finishRunningJob({...entry.job, workerTabId: entry.workerTabId, baselineAssistantCount: entry.baselineAssistantCount}); receipts.push(outcome); processed += 1; }));
   }
   const {throneQueue = []} = await chrome.storage.local.get('throneQueue');
-  const summary = {ok: true, accepted: false, source: meta.source || 'unknown', commandId: meta.commandId || '', processed, slices: receipts, queue: compactQueue(throneQueue), terminalGate: 'Venice Judgment Jars STOP_ALLOWED; Vlad survivability; Tetsuya final release'};
-  await recordSwarmReceipt({type: 'swarm_run_complete', at: new Date().toISOString(), ...summary});
+  const continuationPending = throneQueue.some((job) => ['queued','dispatching','running','venice_continue_required','venice_review_missing','handed_off'].includes(job.state));
+  const summary = {ok: true, accepted: false, source: meta.source || 'unknown', commandId: meta.commandId || '', processed, continuationPending, slices: receipts, queue: compactQueue(throneQueue), terminalGate: 'Venice Judgment Jars STOP_ALLOWED; Vlad survivability; Tetsuya final release'};
+  await recordSwarmReceipt({type: 'swarm_run_checkpoint', at: new Date().toISOString(), ...summary});
   await publishRelaySnapshot();
   return summary;
 }
@@ -218,7 +204,7 @@ async function finishRunningJob(job) {
 
   const venice = planVeniceContinuation(current.context || DEFAULT_CAMPAIGN_CONTEXT, checkpoint.text);
   if (venice.directive === 'STOP_ALLOWED') {
-    const reviewRequirement = {reviewer: 'venice-judgment-jars', reviewerMode: 'judgment_jar', stopPermission: 'STOP_ALLOWED', localVeniceRequired: false, vladRequired: true, finalRelease: 'tetsuya'};
+    const reviewRequirement = {reviewer: 'venice-judgment-jars', reviewerMode: WORKER_DOCTRINE.veniceReviewMode, reviewerSemantics: WORKER_DOCTRINE.veniceReviewSemantics, stopPermission: 'STOP_ALLOWED', localVeniceRequired: false, vladRequired: true, finalRelease: 'tetsuya'};
     await markJob(job.id, 'venice_stop_allowed', {checkpoint: checkpoint.text, reviewRequirement, finishedAt: new Date().toISOString()});
     await recordSwarmReceipt({type: 'swarm_venice_stop_allowed', at: new Date().toISOString(), jobId: job.id, tabId: job.workerTabId, reviewRequirement});
     return {jobId: job.id, tabId: job.workerTabId, state: 'venice_stop_allowed', directive: 'STOP_ALLOWED'};
