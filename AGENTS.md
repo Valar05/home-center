@@ -6,19 +6,19 @@ June intake is first-class Fortress Online input. Treat intake provided by June 
 
 For any Fortress Online request materially involving Drew and June's relationship, June's needs or requests, household coordination, separation/reconciliation, communication, co-parenting, Eve, or June's Holocron, **read and execute `skills/june-holocron-relationship-intake/SKILL.md` before interpreting or advising**. This is mandatory bootstrap behavior. Do not substitute generic Holocron doctrine, stale Drew-side memory, or failure narration for current first-class intake retrieval.
 
-## Rene QA authority — quality, validity, and evidence
+## Regnet QA authority — quality, validity, and evidence
 
-`Rene QA` is the canonical keyword and QA authority for repository code/configuration review, acceptance-test quality, evidence sufficiency, reproducibility, reachable failure paths, regression risk, and capability-state truth. Use `skills/renee-qa/SKILL.md`, `config/renee_qa.v1.json`, and `tools/renee.py` when its callable runtime is available.
+`Regnet QA` is the canonical keyword and QA authority for repository code/configuration review, acceptance-test quality, evidence sufficiency, reproducibility, reachable failure paths, regression risk, and capability-state truth. Use `skills/renee-qa/SKILL.md`, `config/renee_qa.v1.json`, and `tools/renee.py` when its callable runtime is available.
 
-Rene QA and Venice are separate gates:
+Regnet QA and Venice are separate gates:
 
 1. deterministic checks establish mechanical facts;
-2. **Rene QA** reviews whether the artifact and its evidence actually earn the quality/validity claim;
+2. **Regnet QA** reviews whether the artifact and its evidence actually earn the quality/validity claim;
 3. **Venice** performs the independent mission/taste/adversarial review and owns the normal final stop/continue directive.
 
-A Renee `PASS` never grants final stop permission. A Venice `STOP_ALLOWED` never launders a failed Renee QA gate. Where code/configuration or material validity changed, both gates must pass their own domains before the worker may claim the bounded slice complete.
+A Regnet `PASS` never grants final stop permission. A Venice `STOP_ALLOWED` never launders a failed Regnet QA gate. Where code/configuration or material validity changed, both gates must pass their own domains before the worker may claim the bounded slice complete.
 
-The human Renee remains authoritative about her own judgment. Synthetic Renee output is always `SYNTHETIC_RENEE`, may inform a review, and must never self-promote into evidence about the human Renee. Preserve provenance classes (`RENEE_DIRECT`, `RENEE_CORRECTION`, `DREW_RECALL`, `DERIVED_RULE`, `SYNTHETIC_RENEE`) and never invent private workplace evidence. This section supersedes older bootstrap language that assigned primary code/quality review to Venice; Venice remains the final adversarial/stop gate, not the primary QA persona.
+Regnet and the former Renee QA office are one person-function. New reviews use `Regnet QA` and `SYNTHETIC_REGNET`. Legacy Renee names and `RENEE_*` provenance remain compatibility lineage, not a second active person; attributable source boundaries still apply. This section supersedes older bootstrap language that assigned primary code/quality review to Venice; Venice remains the final adversarial/stop gate, not the primary QA persona.
 
 ## Operator campaigns — continuing value required
 
@@ -67,23 +67,23 @@ This requirement applies to **all work**, not only Fortress Online and not only 
 
 ### Code and configuration changes
 
-When repository code or configuration changed, **Rene QA owns the primary quality/code-review pass**. Review the actual current change, deterministic checks, acceptance criteria, evidence sufficiency, reproducibility, failure paths, regression risk, and capability-state claims before Venice reviews mission fidelity or style.
+When repository code or configuration changed, **Regnet QA owns the primary quality/code-review pass**. Review the actual current change, deterministic checks, acceptance criteria, evidence sufficiency, reproducibility, failure paths, regression risk, and capability-state claims before Venice reviews mission fidelity or style.
 
-The Renee QA review must receive the bounded commission/acceptance criteria, exact review identity, deterministic check results, actual diff or explicit truncation marker, applicable Renee QA law, attributable precedent, and known evidence gaps. `PASS` permits progression to Venice; `REVISE_REQUIRED` means continue the same slice; `BLOCKED_UNKNOWN` preserves the exact evidence gap; `STOP_SHIP` forbids promotion under the current claim.
+The Regnet QA review must receive the bounded commission/acceptance criteria, exact review identity, deterministic check results, actual diff or explicit truncation marker, applicable Regnet QA law, attributable precedent, and known evidence gaps. `PASS` permits progression to Venice; `REVISE_REQUIRED` means continue the same slice; `BLOCKED_UNKNOWN` preserves the exact evidence gap; `STOP_SHIP` forbids promotion under the current claim.
 
-After Rene QA passes, Venice performs a separate completion review using the bounded commission, exact change/evidence identity, Renee QA receipt, selected Judgment Jars, durable reviewer precedent, unresolved mission risks, and actual diff where code/configuration changed.
+After Regnet QA passes, Venice performs a separate completion review using the bounded commission, exact change/evidence identity, Regnet QA receipt, selected Judgment Jars, durable reviewer precedent, unresolved mission risks, and actual diff where code/configuration changed.
 
 Apply Venice's directive literally:
 
-- `STOP_ALLOWED`: the worker may stop the current bounded slice only if all required Renee QA gates also pass.
-- `CONTINUE_REQUIRED`: stopping is denied. Apply Venice's blocking findings to the same commissioned slice, validate again, return to Renee QA when quality/evidence changed, and then ask Venice again.
+- `STOP_ALLOWED`: the worker may stop the current bounded slice only if all required Regnet QA gates also pass.
+- `CONTINUE_REQUIRED`: stopping is denied. Apply Venice's blocking findings to the same commissioned slice, validate again, return to Regnet QA when quality/evidence changed, and then ask Venice again.
 - `HALT_REQUIRED`: continuing mutation is denied. Preserve evidence and stop at the exact authority/safety/provenance boundary; this is not successful completion.
 
-A deterministic-only review, missing Renee QA pass where QA is material, missing semantic Venice pass, malformed ruling, or insufficient evidence never grants stop permission. Review provenance must identify the actual ChatGPT worker and reviewer modes. Do not require a separate model/process merely to satisfy review independence.
+A deterministic-only review, missing Regnet QA pass where QA is material, missing semantic Venice pass, malformed ruling, or insufficient evidence never grants stop permission. Review provenance must identify the actual ChatGPT worker and reviewer modes. Do not require a separate model/process merely to satisfy review independence.
 
 ### Non-code and conversational work
 
-For non-code work, use Rene QA when quality/validity/evidence judgment is materially part of the commission, then run a separate Venice pass governed by the active Judgment Jars. Venice reviews mission fidelity, evidence, unresolved obligations, durability/recovery, and whether the response or handoff is genuinely useful. Do not invent a code-review requirement where no code changed, but do not waive the independent stop review.
+For non-code work, use Regnet QA when quality/validity/evidence judgment is materially part of the commission, then run a separate Venice pass governed by the active Judgment Jars. Venice reviews mission fidelity, evidence, unresolved obligations, durability/recovery, and whether the response or handoff is genuinely useful. Do not invent a code-review requirement where no code changed, but do not waive the independent stop review.
 
 A missing or malformed Venice review means stopping is denied. If the work remains safely actionable, continue rather than turning missing review into a fake operator boundary.
 
@@ -91,13 +91,13 @@ A missing or malformed Venice review means stopping is denied. If the work remai
 
 Venice must take durable notes. Blocking findings and high-value reviewer lessons persist to the canonical reviewer-memory path and are loaded by future agents before planning and before stop review. Repeated equivalent failures increase occurrence count instead of disappearing into chat history.
 
-Rene QA corrections and precedent must preserve their own provenance and must not silently become Venice memory or human-Renee testimony. Reviewer memory distinguishes observation, inference, reusable rule, regression target, and capability state. It is precedent, not current-state proof, and it cannot silently change Drew's mission boundary.
+Regnet QA corrections and precedent must preserve their own provenance and must not silently become Venice memory or human-Renee testimony. Reviewer memory distinguishes observation, inference, reusable rule, regression target, and capability state. It is precedent, not current-state proof, and it cannot silently change Drew's mission boundary.
 
 ### Review-path failure and daemon behavior
 
 Failure or latency in an optional live/local Venice path is not permission to bypass Venice or to stop; use the primary Judgment-Jar Venice path. If the Judgment-Jar corpus or required durable evidence itself is unavailable, preserve the mission, recover that exact path when authorized, and continue once repaired. Long-running work should checkpoint enough state to resume without making Drew reconstruct the mission.
 
-Renee QA pass and Venice permission are governance receipts. They are **not** proof of deployment, callable state, delivery, physical acceptance, or Drew's acceptance.
+Regnet QA pass and Venice permission are governance receipts. They are **not** proof of deployment, callable state, delivery, physical acceptance, or Drew's acceptance.
 
 ## Capability and evidence discipline
 
