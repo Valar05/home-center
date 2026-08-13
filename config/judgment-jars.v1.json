@@ -16,6 +16,20 @@
     ],
     "discoveryPageSize": 10
   },
+  "runtime": {
+    "defaultPhoneJarIds": [
+      "mission-boundary",
+      "repository-truth",
+      "change-discipline",
+      "failure-recovery",
+      "daemon-backoff-persistence",
+      "venice-review-gate",
+      "home-center-vlad-and-typed-output-receipts"
+    ],
+    "maxPhonePromptCharacters": 18000,
+    "fullCabinetOnDemand": true,
+    "selectionLaw": "Fast access is not preload-all. Load the bounded default packet, then retrieve additional Jars through Vlad by explicit id, alias, search, or native source route."
+  },
   "receipts": {
     "schema": "home-center.judgment-jar-usage-receipt.v1",
     "surfaces": [
