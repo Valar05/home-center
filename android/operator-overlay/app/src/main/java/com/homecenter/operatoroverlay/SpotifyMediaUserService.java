@@ -10,8 +10,6 @@ import android.os.Bundle;
 import android.os.SystemClock;
 import android.system.Os;
 
-import androidx.annotation.Keep;
-
 import org.json.JSONObject;
 
 import java.util.List;
@@ -31,13 +29,11 @@ public final class SpotifyMediaUserService extends ISpotifyMediaControl.Stub {
     private final Context context;
 
     /** Required by Shizuku; v13 normally prefers the Context constructor. */
-    @Keep
     public SpotifyMediaUserService() {
         this.context = null;
     }
 
     /** Context constructor supported by Shizuku API v13. */
-    @Keep
     public SpotifyMediaUserService(Context context) {
         this.context = context;
     }
