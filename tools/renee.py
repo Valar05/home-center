@@ -18,6 +18,7 @@ ROOT = Path(__file__).resolve().parents[1]
 CONFIG_PATH = ROOT / "config" / "renee_qa.v1.json"
 DEFAULT_STATE = Path(os.environ.get("RENEE_QA_HOME", Path.home() / ".home-center" / "renee-qa"))
 HUMAN_PROVENANCE = {"RENEE_DIRECT", "RENEE_CORRECTION", "DREW_RECALL"}
+DIRECT_RENEE_PROVENANCE = {"RENEE_DIRECT", "RENEE_CORRECTION"}
 RECORDABLE_PROVENANCE = HUMAN_PROVENANCE | {"DERIVED_RULE"}
 
 
@@ -89,16 +90,18 @@ def review(args: argparse.Namespace) -> int:
     for item in args.evidence or []:
         p = Path(item)
         evidence.append({"path": str(p), "exists": p.exists(), "size": p.stat().st_size if p.exists() else None})
+    evidence_refs = [ref.strip() for ref in (args.evidence_ref or []) if ref.strip()]
+    has_evidence = bool(evidence or evidence_refs)
     blockers, warnings = [], []
     if not args.claim.strip(): blockers.append("claim is empty")
     if not args.acceptance: blockers.append("no explicit acceptance criterion supplied")
-    if args.require_evidence and not evidence: blockers.append("evidence required but none supplied")
+    if args.require_evidence and not has_evidence: blockers.append("evidence required but none supplied")
     missing = [e["path"] for e in evidence if not e["exists"]]
     if missing: blockers.append(f"missing evidence: {', '.join(missing)}")
-    if args.state in {"tested", "deployed", "callable", "delivered", "accepted"} and not evidence:
+    if args.state in {"tested", "deployed", "callable", "delivered", "accepted"} and not has_evidence:
         blockers.append(f"{args.state} claim has no supplied receipt/evidence")
-    if args.actual_renee and args.provenance not in HUMAN_PROVENANCE:
-        blockers.append("actual-Renee attribution requires human provenance; synthetic/derived provenance is forbidden")
+    if args.actual_renee and args.provenance not in DIRECT_RENEE_PROVENANCE:
+        blockers.append("direct actual-Renee attribution requires RENEE_DIRECT or RENEE_CORRECTION; DREW_RECALL must remain explicitly Drew-reported")
     if args.unresolved:
         blockers.extend(f"unresolved material QA issue: {item}" for item in args.unresolved)
     if not args.failure_path:
@@ -106,7 +109,7 @@ def review(args: argparse.Namespace) -> int:
     verdict = "REVISE_REQUIRED" if blockers else "PASS"
     payload = {
         "schema":"home-center.renee-qa.review.v1","reviewer":"Rene QA","provenance":"SYNTHETIC_RENEE","created_at":now(),
-        "claim":args.claim,"capability_state":args.state,"acceptance":args.acceptance or [],"evidence":evidence,
+        "claim":args.claim,"capability_state":args.state,"acceptance":args.acceptance or [],"evidence":evidence,"evidence_refs":evidence_refs,
         "reachable_failure_paths":args.failure_path or [],"dissent":args.dissent or [],"unresolved":args.unresolved or [],
         "blockers":blockers,"warnings":warnings,"questions":cfg["questions"],"verdict":verdict,
         "can_grant_final_stop":False,"next_gate":"Venice" if verdict == "PASS" else "repair current QA slice"
@@ -122,14 +125,14 @@ def record(args: argparse.Namespace) -> int:
     if args.provenance == "DERIVED_RULE" and not args.derived_from: raise SystemExit("DERIVED_RULE requires at least one --derived-from source fingerprint/locator")
     row = {"schema":"home-center.renee-qa.precedent.v1","created_at":now(),"provenance":args.provenance,"source":args.source,
            "finding":args.finding,"tags":sorted(set(args.tag or [])),"derived_from":args.derived_from or [],
-           "authoritative_about_actual_renee":args.provenance in {"RENEE_DIRECT","RENEE_CORRECTION"}}
+           "authoritative_about_actual_renee":args.provenance in DIRECT_RENEE_PROVENANCE}
     row["fingerprint"] = digest(row); append_jsonl(Path(args.home) / "corpus.jsonl", row); emit(row, args.json); return 0
 
 
 def correct(args: argparse.Namespace) -> int:
     row = {"schema":"home-center.renee-qa.correction.v1","created_at":now(),"receipt_id":args.receipt,"provenance":args.provenance,
            "source":args.source,"correction":args.text,"regression_target":args.regression_target,
-           "authoritative_about_actual_renee":args.provenance in {"RENEE_DIRECT","RENEE_CORRECTION"}}
+           "authoritative_about_actual_renee":args.provenance in DIRECT_RENEE_PROVENANCE}
     row["fingerprint"] = digest(row); append_jsonl(Path(args.home) / "corrections.jsonl", row); emit(row, args.json); return 0
 
 
@@ -172,7 +175,7 @@ def regress(args: argparse.Namespace) -> int:
 
 def parser() -> argparse.ArgumentParser:
     p=argparse.ArgumentParser(prog="renee",description="Deterministic Renee QA interface"); p.add_argument("--home",default=str(DEFAULT_STATE)); p.add_argument("--json",action="store_true"); sub=p.add_subparsers(dest="command",required=True)
-    r=sub.add_parser("review"); r.add_argument("claim"); r.add_argument("--state",choices=["requested","intended","implemented","tested","deployed","callable","delivered","accepted"],default="implemented"); r.add_argument("--acceptance",action="append"); r.add_argument("--evidence",action="append"); r.add_argument("--failure-path",action="append"); r.add_argument("--unresolved",action="append"); r.add_argument("--dissent",action="append"); r.add_argument("--require-evidence",action="store_true"); r.add_argument("--actual-renee",action="store_true"); r.add_argument("--provenance",choices=["RENEE_DIRECT","RENEE_CORRECTION","DREW_RECALL","DERIVED_RULE","SYNTHETIC_RENEE"],default="SYNTHETIC_RENEE"); r.set_defaults(func=review)
+    r=sub.add_parser("review"); r.add_argument("claim"); r.add_argument("--state",choices=["requested","intended","implemented","tested","deployed","callable","delivered","accepted"],default="implemented"); r.add_argument("--acceptance",action="append"); r.add_argument("--evidence",action="append",help="Local evidence file; existence is verified"); r.add_argument("--evidence-ref",action="append",help="External receipt/reference such as GitHub/Drive/runtime ID or URL; attribution is preserved but not fetched by this CLI"); r.add_argument("--failure-path",action="append"); r.add_argument("--unresolved",action="append"); r.add_argument("--dissent",action="append"); r.add_argument("--require-evidence",action="store_true"); r.add_argument("--actual-renee",action="store_true",help="Directly attributes judgment to actual Renee; requires direct/correction provenance"); r.add_argument("--provenance",choices=["RENEE_DIRECT","RENEE_CORRECTION","DREW_RECALL","DERIVED_RULE","SYNTHETIC_RENEE"],default="SYNTHETIC_RENEE"); r.set_defaults(func=review)
     n=sub.add_parser("record"); n.add_argument("finding"); n.add_argument("--provenance",required=True,choices=sorted(RECORDABLE_PROVENANCE)); n.add_argument("--source",required=True); n.add_argument("--tag",action="append"); n.add_argument("--derived-from",action="append"); n.set_defaults(func=record)
     c=sub.add_parser("correct"); c.add_argument("receipt"); c.add_argument("text"); c.add_argument("--provenance",required=True,choices=sorted(HUMAN_PROVENANCE)); c.add_argument("--source",required=True); c.add_argument("--regression-target"); c.set_defaults(func=correct)
     e=sub.add_parser("explain"); e.set_defaults(func=explain)
