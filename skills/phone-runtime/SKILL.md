@@ -6,6 +6,15 @@ Operate the primary Android phone through the authorized Home Center -> Phone Ha
 ## Authorized execution lane
 Use Home Center `command_center.phone_hands.*` against `primary-phone`. Prefer bounded `phone_shell` actions for Termux work. Do not substitute desktop, local scratch, Codex, or another device as deployment proof.
 
+## Control-separation invariant
+`phone_shell` is background Termux execution. It is not an Android UI action and must not depend on Shizuku/rish, Wireless Debugging, screen leases, or the user-owned interactive overlay control toggle.
+
+The local relay must dispatch `TERMUX_SHELL_ACTIONS` before `overlay_control_gate()`. The overlay gate remains authoritative for remote UI/input actions that can interfere with the user's screen. Read-only diagnostics and overlay-maintenance actions retain their explicit bypasses.
+
+Never diagnose a failed `phone_shell` command as a Shizuku failure merely because the same phone also uses Shizuku for UI control. Read the terminal command receipt and identify the exact transition that failed.
+
+If source inspection shows `phone_shell` is incorrectly behind an interaction gate, fix the canonical relay and regression test. Repository repair proves implementation only; the phone still requires the corrected relay source to be present and the relay process to be restarted before runtime callability is restored.
+
 ## Executable handoff standard
 Whenever the user must touch Termux manually, the handoff is not complete until it contains one exact command they can paste and run immediately from their current shell.
 
