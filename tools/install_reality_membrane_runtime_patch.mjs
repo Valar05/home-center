@@ -5,7 +5,9 @@ import {fileURLToPath} from 'node:url';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const target = path.join(root, 'functions', 'home_center_mcp.js');
-let source = fs.readFileSync(target, 'utf8');
+const rawSource = fs.readFileSync(target, 'utf8');
+const eol = rawSource.includes('\r\n') ? '\r\n' : '\n';
+let source = rawSource.replace(/\r\n/g, '\n');
 
 const requireLine = "const realityMembrane = require('./reality_membrane');\n";
 if (!source.includes(requireLine.trim())) {
@@ -54,5 +56,5 @@ for (const branch of branches) {
   }
 }
 
-fs.writeFileSync(target, source);
+fs.writeFileSync(target, source.replace(/\n/g, eol));
 console.log('Reality Membrane registry/status/capabilities/sources patch applied');
