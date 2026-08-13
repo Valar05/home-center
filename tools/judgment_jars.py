@@ -14,7 +14,7 @@ if str(TOOLS_DIR) not in sys.path:
 
 from judgment_jar_atom_import import import_atom_receipts
 from judgment_jar_common import CONFIG_PATH, DEFAULT_CACHE, LOCAL_ORIGIN, ROOT, RegistryError, read_config
-from judgment_jar_receipts import ReceiptError, flush as flush_receipts, record as record_receipt, status as receipt_status
+from judgment_jar_receipt_truth import ReceiptError, flush as flush_receipts, record as record_receipt, status as receipt_status
 from judgment_jar_registry import ensure_registry, fetch_native_source, prompt_text, public_jar, resolve_jar, search_jars, summary
 from judgment_jar_review_import import import_review_receipts
 
@@ -70,11 +70,41 @@ def context_receipt(registry: dict, jar: dict, config: dict, output: str, source
         return {"ok": False, "state": "RECEIPT_CAPTURE_FAILED", "error": f"{type(exc).__name__}: {exc}"}
 
 
+def _quarantine_count(path_value: object) -> int:
+    path = Path(str(path_value or "")).expanduser()
+    if not path.is_file():
+        return 0
+    return sum(1 for line in path.read_text(encoding="utf-8", errors="replace").splitlines() if line.strip())
+
+
 def import_usage(registry: dict, config: dict) -> dict:
-    return {
+    values = {
         "atom": import_atom_receipts(config),
         "veniceReviews": import_review_receipts(registry, config),
     }
+    for value in values.values():
+        count = _quarantine_count(value.get("quarantine"))
+        value["quarantineCount"] = count
+        if count:
+            value["ok"] = False
+            value["state"] = "QUARANTINED"
+    return values
+
+
+def apply_import_truth(usage: dict, imports: dict) -> dict:
+    failures = {name: value for name, value in imports.items() if value.get("ok") is not True}
+    value = {**usage, "imports": imports}
+    if failures:
+        value.update({
+            "ok": False,
+            "state": "IMPORT_QUARANTINED",
+            "blocked": {
+                "state": "IMPORT_QUARANTINED",
+                "imports": failures,
+                "error": "One or more Judgment Jar usage sources require explicit quarantine repair.",
+            },
+        })
+    return value
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -83,13 +113,13 @@ def main(argv: list[str] | None = None) -> int:
     try:
         config = read_config(config_path)
         if args.command == "receipt-status":
-            print(json.dumps(receipt_status(config), ensure_ascii=False, indent=2, sort_keys=True)); return 0
+            result = receipt_status(config)
+            print(json.dumps(result, ensure_ascii=False, indent=2, sort_keys=True)); return 0 if result.get("ok") is True else 1
         if args.command == "flush-receipts":
             registry, _ = ensure_registry(Path(args.root), cache, offline=True, config_path=config_path)
             imports = import_usage(registry, config)
-            result = flush_receipts(config, limit=args.limit)
-            result["imports"] = imports
-            print(json.dumps(result, ensure_ascii=False, indent=2, sort_keys=True)); return 0 if result.get("blocked") is None else 1
+            result = apply_import_truth(flush_receipts(config, limit=args.limit), imports)
+            print(json.dumps(result, ensure_ascii=False, indent=2, sort_keys=True)); return 0 if result.get("ok") is True else 1
         registry, sync_state = ensure_registry(
             Path(args.root), cache,
             force=bool(getattr(args, "force", False)),
@@ -99,8 +129,8 @@ def main(argv: list[str] | None = None) -> int:
         if args.command == "sync":
             imports = import_usage(registry, config)
             usage = receipt_status(config) if args.offline else flush_receipts(config)
-            usage["imports"] = imports
-            print(json.dumps({**summary(registry, cache, sync_state), "judgmentJarUsageReceipts": usage}, ensure_ascii=False, sort_keys=True)); return 0
+            usage = apply_import_truth(usage, imports)
+            print(json.dumps({**summary(registry, cache, sync_state), "judgmentJarUsageReceipts": usage}, ensure_ascii=False, sort_keys=True)); return 0 if usage.get("ok") is True else 1
         if args.command == "status":
             print(json.dumps({**summary(registry, cache, sync_state), "judgmentJarUsageReceipts": receipt_status(config)}, ensure_ascii=False, sort_keys=True)); return 0
         if args.command == "list":
@@ -111,7 +141,7 @@ def main(argv: list[str] | None = None) -> int:
             packet = {**summary(registry, cache), "jar": public_jar(jar, True)}
             raw = json.dumps(packet, ensure_ascii=False, sort_keys=True)
             packet["usage"] = context_receipt(registry, jar, config, raw, "vlad-jars.get", "retrieve bounded Judgment Jar context", "returned cached Jar body and provenance", args.key)
-            print(json.dumps(packet, ensure_ascii=False, indent=2, sort_keys=True)); return 0
+            print(json.dumps(packet, ensure_ascii=False, indent=2, sort_keys=True)); return 0 if packet["usage"].get("ok") is True else 1
         if args.command == "source":
             jar = resolve_jar(registry, args.key)
             if jar is None: raise RegistryError(f"unknown Judgment Jar: {args.key}")
@@ -119,7 +149,7 @@ def main(argv: list[str] | None = None) -> int:
             packet = {**summary(registry, cache), "jar": public_jar(jar), "source": native}
             raw = json.dumps(packet, ensure_ascii=False, sort_keys=True)
             packet["usage"] = context_receipt(registry, jar, config, raw, "vlad-jars.source", "retrieve authoritative native Judgment Jar source", "returned native source or explicit stale cache", args.key)
-            print(json.dumps(packet, ensure_ascii=False, indent=2, sort_keys=True)); return 0
+            print(json.dumps(packet, ensure_ascii=False, indent=2, sort_keys=True)); return 0 if packet["usage"].get("ok") is True else 1
         if args.command == "search":
             query = " ".join(args.query)
             print(json.dumps({**summary(registry, cache), "query": query, "matches": search_jars(registry, query)}, ensure_ascii=False, indent=2, sort_keys=True)); return 0
@@ -128,6 +158,8 @@ def main(argv: list[str] | None = None) -> int:
             group_id, request_id = str(uuid.uuid4()), str(uuid.uuid4())
             usage = [context_receipt(registry, jar, config, text, "vlad-jars.prompt", "assemble bounded Judgment Jar prompt context", "included Jar in compiled context packet", " ".join(args.keys), request_id, group_id) for jar in selected_prompt_jars(registry, args.keys, args.include_all)]
             print(json.dumps({"judgmentJarUsage": usage}, ensure_ascii=False, sort_keys=True), file=sys.stderr)
+            if not all(result.get("ok") is True for result in usage):
+                raise ReceiptError("one or more Judgment Jar context receipts failed capture")
             sys.stdout.write(text); return 0
         if args.command == "registry":
             text = (registry.get("homeCenter") or {}).get("registryText") or ""

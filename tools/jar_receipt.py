@@ -13,7 +13,7 @@ if str(TOOLS) not in sys.path:
     sys.path.insert(0, str(TOOLS))
 
 from judgment_jar_common import CONFIG_PATH, DEFAULT_CACHE, RegistryError, read_config, read_registry
-from judgment_jar_receipts import ReceiptError, flush, record, resolve_jar, status
+from judgment_jar_receipt_truth import ReceiptError, flush, record, resolve_jar, status
 
 
 def parser() -> argparse.ArgumentParser:
@@ -56,7 +56,7 @@ def main(argv: list[str] | None = None) -> int:
         if args.command == "flush":
             result = flush(config, limit=args.limit)
             print(json.dumps(result, ensure_ascii=False, indent=2, sort_keys=True))
-            return 0 if result.get("blocked") is None else 1
+            return 0 if result.get("ok") is True else 1
         registry = read_registry(Path(args.cache).expanduser())
         if registry is None:
             raise ReceiptError("Judgment Jar cache is unavailable; run vlad-jars sync first")
