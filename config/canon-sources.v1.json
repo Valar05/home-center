@@ -1,0 +1,48 @@
+{
+  "schema": "home-center.canon-sources.config.v1",
+  "cacheDir": "~/.local/state/home-center/canon",
+  "maximumPacketCharacters": 18000,
+  "sources": [
+    {
+      "id": "judgment-jar-registry",
+      "title": "START HERE — Judgment Jar Registry",
+      "classification": "canon",
+      "syncPolicy": "always",
+      "sourceType": "document",
+      "sourceFileId": "1UixBuLJRw-x5BoMGx81YXRpuN66iZhGGJoz40Iqx48Q",
+      "entities": ["Judgment Jar", "Regnet QA", "Venice"],
+      "keywords": ["routing", "governance", "stop", "continue"]
+    },
+    {
+      "id": "harroway-fleshpunk-campaign",
+      "title": "JUDGMENT JAR — Harroway × Fleshpunk Campaign — The Cord Must Come Out",
+      "classification": "canon",
+      "syncPolicy": "always",
+      "sourceType": "spreadsheet",
+      "sourceFileId": "1d76iWouS1mw_4vAy0IQTe2dlVRQRUaby2EheycljOU4",
+      "range": "A1:ZZ1000",
+      "entities": ["Vanguard", "Android 67", "Fleshpunk", "Harroway"],
+      "keywords": ["spar", "campaign", "character", "canon"]
+    },
+    {
+      "id": "fleshpunk-art-bible",
+      "title": "Fortress_Online_Medieval_Fleshpunk_Art_Bible.pdf",
+      "classification": "canon",
+      "syncPolicy": "always",
+      "sourceType": "drive_text",
+      "resolveExactTitle": true,
+      "entities": ["Vanguard", "Alexis De’arc", "Android 67", "Fleshpunk"],
+      "keywords": ["authority body", "Zornhau", "longsword", "Great War"]
+    },
+    {
+      "id": "vanguard-pose-lab-guide",
+      "title": "Vanguard_Pose_Lab_Vibe_VFX_Guide.docx",
+      "classification": "canon",
+      "syncPolicy": "always",
+      "sourceType": "drive_text",
+      "resolveExactTitle": true,
+      "entities": ["Vanguard", "Alexis De’arc"],
+      "keywords": ["Zornhau", "grounded weight", "attack chronology", "blade path"]
+    }
+  ]
+}
