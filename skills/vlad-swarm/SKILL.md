@@ -19,6 +19,17 @@ When this skill is active, the swarm behaves as a daemon within the runtime that
 5. Persist receipts and state transitions for every action.
 6. Never claim deployed/callable/delivered/accepted from implementation evidence alone.
 
+## Judgment Jar fast access
+
+The existing `vlad-swarm` daemon is the sole sync owner for Vlad's Judgment Jar cache. Load `skills/vlad-judgment-jars/SKILL.md` and maintain the two-authority registry at `~/.local/state/home-center/vlad-swarm/judgment-jars.json`:
+
+- complete repository operational bodies from `.continue/rules/*judgement-jar*.md`;
+- the authoritative Home Center cabinet from `START HERE — Judgment Jar Registry` plus metadata-only discovery of Jar artifacts not yet registered.
+
+Do not create a parallel watcher. Preserve source authority and completeness. A Home Center cabinet summary routes to a native project-local Sheet or Doc; it does not replace that source. On connector failure, keep the previous valid cabinet snapshot, rebuild local operational Jars, mark freshness honestly, and continue offline.
+
+Vlad retrieves routes through `vlad-jars` or Atom `/v1/atom/vlad/jars`. Exact native criteria use `vlad-jars source <id-or-alias>`, which keeps the last verified Sheet/Doc snapshot for stale or offline fallback. British and American spellings must resolve identically. Any unregistered discovery remains explicitly unregistered until the cabinet records it.
+
 ## Phone recovery loop
 
 Shizuku/rish is a first-class phone capability. The daemon must continuously keep these on its recovery list:
