@@ -15,8 +15,17 @@ The repository already contains a phone-local `phone_shell` executor and the clo
 1. Determine whether Command Center is exposed on the current ChatGPT surface.
 2. If exposed, list/resolve `primary-phone`, enqueue the bounded `phone_shell` action with idempotency, and consume the result receipt.
 3. If Command Center is absent or disconnected, classify `chatgpt_phone_ingress_failure` and repair/reconnect that ingress before creating a manual Termux handoff.
-4. Only an actual operator-only boundary or proven ingress unavailability after authorized recovery permits a manual command.
-5. Any surviving manual command must be in a fenced copy-pasteable block and must invoke a durable campaign/capability rather than a disposable diagnostic chain.
+4. Before proposing a custom MCP reconnect, verify the current ChatGPT plan supports the required action class. Read/fetch-only MCP availability is not sufficient for `phone_shell` or any other write/modify action.
+5. Only an actual operator-only boundary or proven ingress unavailability after authorized recovery permits a manual command.
+6. Any surviving manual command must be in a fenced copy-pasteable block and must invoke a durable campaign/capability rather than a disposable diagnostic chain.
+
+## Current platform scar — 2026-08-13
+
+OpenAI's current ChatGPT MCP documentation states that Pro users may connect custom MCP apps with read/fetch permissions, while full MCP write/modify actions are available to Business and Enterprise/Edu workspaces. `command_center.phone_hands.enqueue` / `phone_shell` is a write/action capability, so a missing Home Center write connector on a Pro chat cannot currently be repaired by simply creating a custom MCP app in Developer Mode.
+
+Treat this as a ChatGPT product-surface capability boundary, not a missing Phone Hands capability. Re-check current official OpenAI documentation before relying on this scar later because plan capabilities can change.
+
+Do not silently substitute API-token execution, a different transport, GitHub as command transport, a visible phone UI, or Drew's hands unless the commission explicitly authorizes that boundary change.
 
 ## Venice review requirement
 
@@ -28,5 +37,6 @@ This failure is a proven-organ bypass: the worker ignored an existing execution 
 
 - Repository evidence proves `phone_shell` is implemented/allowed.
 - Command Center exposure proves the ChatGPT ingress is callable only when the connector/tool is actually present.
+- MCP plan availability proves only the action classes the current ChatGPT plan can invoke; read/fetch MCP does not prove write-action callability.
 - A phone command receipt proves execution on `primary-phone`.
 - No other state may be rounded upward to phone execution.
