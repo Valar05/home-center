@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Deterministic Renee QA CLI.
+"""Deterministic Regnet QA CLI.
 
 Renee CLI is a quality/evidence interface, not a counterfeit of the human Renee.
 Synthetic output is always marked SYNTHETIC_RENEE and can never self-promote.
@@ -43,7 +43,7 @@ def write_json(path: Path, value: Any) -> None:
 def config() -> dict[str, Any]:
     data = load_json(CONFIG_PATH, None)
     if not isinstance(data, dict):
-        raise SystemExit(f"Renee QA config missing or invalid: {CONFIG_PATH}")
+        raise SystemExit(f"Regnet QA config missing or invalid: {CONFIG_PATH}")
     return data
 
 
@@ -108,7 +108,7 @@ def review(args: argparse.Namespace) -> int:
         warnings.append("no reachable failure path recorded; confirm this is genuinely immaterial")
     verdict = "REVISE_REQUIRED" if blockers else "PASS"
     payload = {
-        "schema":"home-center.renee-qa.review.v1","reviewer":"Rene QA","provenance":"SYNTHETIC_RENEE","created_at":now(),
+        "schema":"home-center.regnet-qa.review.v1","reviewer":"Regnet QA","provenance":"SYNTHETIC_REGNET","created_at":now(),
         "claim":args.claim,"capability_state":args.state,"acceptance":args.acceptance or [],"evidence":evidence,"evidence_refs":evidence_refs,
         "reachable_failure_paths":args.failure_path or [],"dissent":args.dissent or [],"unresolved":args.unresolved or [],
         "blockers":blockers,"warnings":warnings,"questions":cfg["questions"],"verdict":verdict,
@@ -123,14 +123,14 @@ def review(args: argparse.Namespace) -> int:
 def record(args: argparse.Namespace) -> int:
     if args.provenance not in RECORDABLE_PROVENANCE: raise SystemExit("synthetic output cannot be recorded as calibration evidence")
     if args.provenance == "DERIVED_RULE" and not args.derived_from: raise SystemExit("DERIVED_RULE requires at least one --derived-from source fingerprint/locator")
-    row = {"schema":"home-center.renee-qa.precedent.v1","created_at":now(),"provenance":args.provenance,"source":args.source,
+    row = {"schema":"home-center.regnet-qa.precedent.v1","created_at":now(),"provenance":args.provenance,"source":args.source,
            "finding":args.finding,"tags":sorted(set(args.tag or [])),"derived_from":args.derived_from or [],
            "authoritative_about_actual_renee":args.provenance in DIRECT_RENEE_PROVENANCE}
     row["fingerprint"] = digest(row); append_jsonl(Path(args.home) / "corpus.jsonl", row); emit(row, args.json); return 0
 
 
 def correct(args: argparse.Namespace) -> int:
-    row = {"schema":"home-center.renee-qa.correction.v1","created_at":now(),"receipt_id":args.receipt,"provenance":args.provenance,
+    row = {"schema":"home-center.regnet-qa.correction.v1","created_at":now(),"receipt_id":args.receipt,"provenance":args.provenance,
            "source":args.source,"correction":args.text,"regression_target":args.regression_target,
            "authoritative_about_actual_renee":args.provenance in DIRECT_RENEE_PROVENANCE}
     row["fingerprint"] = digest(row); append_jsonl(Path(args.home) / "corrections.jsonl", row); emit(row, args.json); return 0
@@ -174,8 +174,8 @@ def regress(args: argparse.Namespace) -> int:
 
 
 def parser() -> argparse.ArgumentParser:
-    p=argparse.ArgumentParser(prog="renee",description="Deterministic Renee QA interface"); p.add_argument("--home",default=str(DEFAULT_STATE)); p.add_argument("--json",action="store_true"); sub=p.add_subparsers(dest="command",required=True)
-    r=sub.add_parser("review"); r.add_argument("claim"); r.add_argument("--state",choices=["requested","intended","implemented","tested","deployed","callable","delivered","accepted"],default="implemented"); r.add_argument("--acceptance",action="append"); r.add_argument("--evidence",action="append",help="Local evidence file; existence is verified"); r.add_argument("--evidence-ref",action="append",help="External receipt/reference such as GitHub/Drive/runtime ID or URL; attribution is preserved but not fetched by this CLI"); r.add_argument("--failure-path",action="append"); r.add_argument("--unresolved",action="append"); r.add_argument("--dissent",action="append"); r.add_argument("--require-evidence",action="store_true"); r.add_argument("--actual-renee",action="store_true",help="Directly attributes judgment to actual Renee; requires direct/correction provenance"); r.add_argument("--provenance",choices=["RENEE_DIRECT","RENEE_CORRECTION","DREW_RECALL","DERIVED_RULE","SYNTHETIC_RENEE"],default="SYNTHETIC_RENEE"); r.set_defaults(func=review)
+    p=argparse.ArgumentParser(prog="regnet",description="Deterministic Regnet QA interface"); p.add_argument("--home",default=str(DEFAULT_STATE)); p.add_argument("--json",action="store_true"); sub=p.add_subparsers(dest="command",required=True)
+    r=sub.add_parser("review"); r.add_argument("claim"); r.add_argument("--state",choices=["requested","intended","implemented","tested","deployed","callable","delivered","accepted"],default="implemented"); r.add_argument("--acceptance",action="append"); r.add_argument("--evidence",action="append",help="Local evidence file; existence is verified"); r.add_argument("--evidence-ref",action="append",help="External receipt/reference such as GitHub/Drive/runtime ID or URL; attribution is preserved but not fetched by this CLI"); r.add_argument("--failure-path",action="append"); r.add_argument("--unresolved",action="append"); r.add_argument("--dissent",action="append"); r.add_argument("--require-evidence",action="store_true"); r.add_argument("--actual-renee",action="store_true",help="Directly attributes judgment to actual Renee; requires direct/correction provenance"); r.add_argument("--provenance",choices=["RENEE_DIRECT","RENEE_CORRECTION","DREW_RECALL","DERIVED_RULE","SYNTHETIC_RENEE"],default="SYNTHETIC_REGNET"); r.set_defaults(func=review)
     n=sub.add_parser("record"); n.add_argument("finding"); n.add_argument("--provenance",required=True,choices=sorted(RECORDABLE_PROVENANCE)); n.add_argument("--source",required=True); n.add_argument("--tag",action="append"); n.add_argument("--derived-from",action="append"); n.set_defaults(func=record)
     c=sub.add_parser("correct"); c.add_argument("receipt"); c.add_argument("text"); c.add_argument("--provenance",required=True,choices=sorted(HUMAN_PROVENANCE)); c.add_argument("--source",required=True); c.add_argument("--regression-target"); c.set_defaults(func=correct)
     e=sub.add_parser("explain"); e.set_defaults(func=explain)
