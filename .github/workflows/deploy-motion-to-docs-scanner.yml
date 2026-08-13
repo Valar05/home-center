@@ -49,6 +49,8 @@ jobs:
           pip install -r requirements.txt
           python -m unittest -v test_service.py
           python -m py_compile service.py
+          cd ../..
+          node --test tools/motion_to_docs_contract_test.mjs
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v2
         with:
@@ -72,6 +74,9 @@ jobs:
       - name: Deploy Google Workflow
         run: |
           gcloud workflows deploy "$WORKFLOW" --project="$PROJECT" --location="$REGION" --source=services/motion-to-docs-scanner/workflow.yaml --service-account="motion-docs-workflow@$PROJECT.iam.gserviceaccount.com" --set-env-vars="MOTION_SCANNER_URL=$SCANNER_URL" --quiet
+          HOME_CENTER_RUNTIME_SA="$(gcloud run services describe homecentermcp --project="$PROJECT" --region="$REGION" --format='value(spec.template.spec.serviceAccountName)')"
+          test -n "$HOME_CENTER_RUNTIME_SA"
+          gcloud projects add-iam-policy-binding "$PROJECT" --member="serviceAccount:$HOME_CENTER_RUNTIME_SA" --role="roles/workflows.invoker" --condition=None
       - name: Verify deployed surfaces
         run: |
           gcloud run services describe "$SERVICE" --project="$PROJECT" --region="$REGION" --format=json
