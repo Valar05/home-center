@@ -1,5 +1,6 @@
 param(
   [string]$Root = "$env:LOCALAPPDATA\HomeCenter\ChromiumThrone",
+  [string]$SourceRepo = '',
   [switch]$Launch
 )
 
@@ -29,9 +30,23 @@ $RawBase = "https://raw.githubusercontent.com/Valar05/home-center/$PinnedExtensi
 Write-Host '[Chromium Throne] Installing bounded parallel desktop runtime'
 New-Item -ItemType Directory -Force -Path $Root,$ExtensionDir,$BrowserRoot,$ProfileDir | Out-Null
 
+$UseLocalGit = $false
+if ($SourceRepo -and (Test-Path (Join-Path $SourceRepo '.git'))) {
+  Write-Host "[Chromium Throne] Fetching pinned extension commit through authenticated git"
+  & git -C $SourceRepo fetch origin $PinnedExtensionCommit
+  if ($LASTEXITCODE -ne 0) { throw "Failed to fetch pinned extension commit: $PinnedExtensionCommit" }
+  $UseLocalGit = $true
+}
+
 foreach ($name in $Files) {
   $dest = Join-Path $ExtensionDir $name
-  Invoke-WebRequest -UseBasicParsing -Uri "$RawBase/$name" -OutFile $dest
+  if ($UseLocalGit) {
+    $gitObject = "$PinnedExtensionCommit`:browser-porch/extension/$name"
+    & cmd.exe /d /c "git -C `"$SourceRepo`" show $gitObject > `"$dest`""
+    if ($LASTEXITCODE -ne 0) { throw "Failed to read pinned extension object: $gitObject" }
+  } else {
+    Invoke-WebRequest -UseBasicParsing -Uri "$RawBase/$name" -OutFile $dest
+  }
   if (!(Test-Path $dest) -or (Get-Item $dest).Length -lt 10) { throw "Failed to vendor extension file: $name" }
 }
 
@@ -112,6 +127,7 @@ Copy-Item $launcher $desktopLauncher -Force
 $receipt = [ordered]@{
   installedAt = (Get-Date).ToString('o')
   extensionCommit = $PinnedExtensionCommit
+  extensionSource = $(if ($UseLocalGit) { "git:$SourceRepo@$PinnedExtensionCommit" } else { $RawBase })
   extensionDir = $ExtensionDir
   extensionName = $manifest.name
   extensionVersion = $manifest.version
