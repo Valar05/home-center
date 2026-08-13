@@ -1,0 +1,20 @@
+{
+  "schema": "fortress-incident.v1",
+  "createdAt": "2026-08-13T05:43:00-05:00",
+  "campaign": "venice-fleshpunk-phone-image-gen",
+  "kind": "venice_bypass",
+  "status": "PERSISTED_CONTINUE_REQUIRED",
+  "correction": "When Drew says Venice or Venice jars in Fortress governance, use primary Judgment-Jar Venice / review gate. Do not substitute or conflate the local Venice runtime, Venice Nerve, speech runtime, or image runtime with the reviewer.",
+  "doctrineEvidence": {
+    "veniceJudgmentJarPrimary": true,
+    "localVeniceRequired": false,
+    "veniceNerveRole": "optional local Venice speech/collaboration lane; not the primary Judgment-Jar review dependency"
+  },
+  "campaignApplication": {
+    "reviewer": "primary Judgment-Jar Venice",
+    "executionOrgan": "THECAULDRON local Fleshpunk ComfyUI / Venice Image Bridge",
+    "executionBody": "existing authorized phone/computer body lanes as actually available",
+    "forbiddenSubstitution": "local Venice runtime as reviewer"
+  },
+  "directive": "CONTINUE_REQUIRED"
+}
