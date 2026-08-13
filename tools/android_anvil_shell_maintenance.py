@@ -257,18 +257,33 @@ def prepare_source(head: str, timeout: int) -> tuple[Path,dict[str,Any]]:
     return checkout,{"fetch":fetch,"actualHead":actual,"dirty":dirty}
 
 
-def install_apk(apk: Path, timeout: int) -> tuple[dict[str,Any],str]:
+def install_apk(apk: Path, source_head: str, timeout: int) -> tuple[dict[str,Any],str]:
     pm=shutil.which("pm") or "/system/bin/pm"
+    attempts=[]
     direct=run([pm,"install","-r",str(apk)],timeout=timeout,check=False)
+    attempts.append(("pm",direct))
     if direct["exit"]==0 and "Success" in direct["outputTail"]:
         return direct,"pm"
+    rish=shutil.which("rish")
+    downloads=Path.home()/"storage"/"downloads"
+    if rish and downloads.is_dir():
+        shared=downloads/f"AnvilShell-{source_head}.apk"
+        shutil.copy2(apk,shared)
+        resolved=str(shared.resolve())
+        if not re.fullmatch(r"/storage/emulated/[0-9]+/Download/AnvilShell-[0-9a-f]{40}\.apk",resolved):
+            raise RuntimeError("fixed shared installer path resolved outside the allowlist")
+        elevated=run([rish,"-c",f"pm install -r --user 0 {resolved}"],timeout=timeout,check=False)
+        attempts.append(("rish-pm",elevated))
+        if elevated["exit"]==0 and "Success" in elevated["outputTail"]:
+            return elevated,"rish-pm"
     adb=shutil.which("adb")
     if adb:
         fallback=run([adb,"install","-r",str(apk)],timeout=timeout,check=False)
+        attempts.append(("adb",fallback))
         if fallback["exit"]==0 and "Success" in fallback["outputTail"]:
             return fallback,"adb"
-        direct["outputTail"]+="\nADB_FALLBACK:\n"+fallback["outputTail"]
-    raise RuntimeError("fixed Anvil install strategies failed: "+direct["outputTail"][-2000:])
+    detail="\n".join(f"{name}: {result['outputTail'][-800:]}" for name,result in attempts)
+    raise RuntimeError("fixed Anvil install strategies failed: "+detail[-2400:])
 
 
 def execute(action: dict[str,Any]) -> dict[str,Any]:
@@ -315,7 +330,7 @@ def execute(action: dict[str,Any]) -> dict[str,Any]:
     expected=action.get("expectedSignerSha256")
     if expected and signer!=expected:
         raise RuntimeError("Anvil APK signer does not match the approved signer digest")
-    install,strategy=install_apk(apk,timeout)
+    install,strategy=install_apk(apk,action["sourceHead"],timeout)
     installed=installed_info()
     installed_hash=readable_installed_hash(installed["paths"])
     if installed["versionName"]!=VERSION_NAME or not installed["paths"]:
