@@ -1,0 +1,47 @@
+name: Judgment Jars
+
+on:
+  pull_request:
+    paths:
+      - "config/judgment-jars.v1.json"
+      - "functions/judgment_jar_registry.js"
+      - "functions/judgment_jar_registry.test.js"
+      - "tools/vlad_judgment_jars.py"
+      - "tools/vlad_judgment_jars_test.py"
+      - "docs/JUDGMENT_JARS_FAST_ACCESS.md"
+      - ".github/workflows/judgment-jars.yml"
+  push:
+    paths:
+      - "config/judgment-jars.v1.json"
+      - "functions/judgment_jar_registry.js"
+      - "functions/judgment_jar_registry.test.js"
+      - "tools/vlad_judgment_jars.py"
+      - "tools/vlad_judgment_jars_test.py"
+      - "docs/JUDGMENT_JARS_FAST_ACCESS.md"
+      - ".github/workflows/judgment-jars.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Validate JSON contract
+        run: python -m json.tool config/judgment-jars.v1.json >/dev/null
+      - name: Test Vlad SQLite cache and receipts
+        working-directory: tools
+        run: python -m unittest -v vlad_judgment_jars_test.py
+      - name: Test Home Center snapshot and receipt service
+        run: node --test functions/judgment_jar_registry.test.js
+      - name: Compile Python
+        run: python -m py_compile tools/vlad_judgment_jars.py tools/vlad_judgment_jars_test.py
