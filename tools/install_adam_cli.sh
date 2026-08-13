@@ -15,6 +15,7 @@ mkdir -p "$STATE" "$BIN_DIR"
 for f in \
   "$ROUTER" \
   "$WORKER" \
+  "$ROOT/tools/accept_adam_receipted_phone.py" \
   "$ROOT/tools/adam_planned_venice.py" \
   "$ROOT/tools/adam_venice_reviewed.py" \
   "$ROOT/tools/adam_codex_phone.py" \
@@ -22,6 +23,7 @@ for f in \
   "$ROOT/tools/judgment_jars.py" \
   "$ROOT/tools/judgment_jar_receipts.py" \
   "$ROOT/tools/judgment_jar_atom_import.py" \
+  "$ROOT/tools/judgment_jar_review_import.py" \
   "$ROOT/tools/jar_receipt.py" \
   "$ROOT/tools/venice_plan_review.py" \
   "$ROOT/tools/venice_review.py" \
@@ -45,6 +47,7 @@ node --test tools/fortress_online_v2_boot.test.mjs
 python3 -m py_compile \
   tools/adam.py \
   tools/adam_receipted_worker.py \
+  tools/accept_adam_receipted_phone.py \
   tools/adam_codex_phone.py \
   tools/adam_venice_reviewed.py \
   tools/adam_planned_venice.py \
@@ -52,6 +55,7 @@ python3 -m py_compile \
   tools/judgment_jars.py \
   tools/judgment_jar_receipts.py \
   tools/judgment_jar_atom_import.py \
+  tools/judgment_jar_review_import.py \
   tools/jar_receipt.py \
   tools/venice_plan_review.py \
   tools/venice_review.py \
@@ -81,7 +85,7 @@ printf '%s\n' "$CANARY" | grep -q 'ADAM_BODY_OK' || { echo 'BLOCKED: Adam body t
 bash tools/ensure_adam_phone_brain.sh | tee "$BRAIN_RECEIPT"
 grep -q '"ok":true' "$BRAIN_RECEIPT" || { echo 'BLOCKED: Adam phone model did not become healthy.' >&2; exit 5; }
 
-python3 tools/accept_adam_executive_phone.py | tee "$ACCEPT_RECEIPT"
+python3 tools/accept_adam_receipted_phone.py | tee "$ACCEPT_RECEIPT"
 grep -q '"ok": true' "$ACCEPT_RECEIPT" || { echo 'BLOCKED: Adam planned/Venice-reviewed Codex worker acceptance failed.' >&2; exit 6; }
 grep -q '"venicePlanReviewReceiptVerified": true' "$ACCEPT_RECEIPT" || { echo 'BLOCKED: Adam pre-execution Venice plan receipt not verified.' >&2; exit 7; }
 grep -q '"veniceStopReviewReceiptVerified": true' "$ACCEPT_RECEIPT" || { echo 'BLOCKED: Adam completion Venice receipt not verified.' >&2; exit 8; }
