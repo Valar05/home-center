@@ -1,7 +1,7 @@
 import { appendFile, mkdir, readFile, readdir, rename, writeFile } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { createHash } from 'node:crypto';
-import { join } from 'node:path';
+import { dirname, join } from 'node:path';
 
 function sha256(value) {
   return createHash('sha256').update(value).digest('hex');
@@ -17,8 +17,15 @@ function titleOf(text, fallback) {
   return fallback;
 }
 
+function catalogSha256(jars) {
+  return sha256([...jars]
+    .sort((a, b) => a.order - b.order || a.id.localeCompare(b.id))
+    .map(jar => `${jar.path}:${jar.sha256}`)
+    .join('\n'));
+}
+
 async function atomicJson(path, value) {
-  await mkdir(join(path, '..'), { recursive: true }).catch(() => {});
+  await mkdir(dirname(path), { recursive: true });
   const temp = `${path}.tmp`;
   await writeFile(temp, `${JSON.stringify(value, null, 2)}\n`, 'utf8');
   await rename(temp, path);
@@ -39,6 +46,7 @@ export async function createJudgementJarService({ repoRoot, stateDir, emitReceip
   const configPath = join(repoRoot, 'config', 'judgement-jar-runtime.v1.json');
   const config = JSON.parse(await readFile(configPath, 'utf8'));
   const outputKinds = new Set(config.outputKinds || []);
+  const receiptSchema = config.receipt?.schema || 'home-center.judgement-jar-usage-receipt.v1';
   const ruleDir = join(repoRoot, '.continue', 'rules');
   const catalogPath = join(stateDir, 'judgement-jars.json');
   const usagePath = join(stateDir, 'judgement-jar-usage.jsonl');
@@ -67,14 +75,13 @@ export async function createJudgementJarService({ repoRoot, stateDir, emitReceip
       jars.push(jar);
     }
     jars.sort((a, b) => a.order - b.order || a.id.localeCompare(b.id));
-    const catalogSha256 = sha256(JSON.stringify(jars));
     return {
       schema: 'home-center.judgement-jar-catalog.v1',
       generatedAt: new Date().toISOString(),
       source: 'repository:.continue/rules/*judgement-jar*.md',
       count: jars.length,
       jars,
-      catalogSha256,
+      catalogSha256: catalogSha256(jars),
     };
   }
 
@@ -118,13 +125,11 @@ export async function createJudgementJarService({ repoRoot, stateDir, emitReceip
 
   async function get(reference) {
     const repository = await discover({ includeText: true });
-    const jar = resolveFrom(repository, reference);
-    if (!jar) return null;
-    return jar;
+    return resolveFrom(repository, reference);
   }
 
   async function recordUsage(input) {
-    if (!input || input.schema !== 'home-center.judgement-jar-usage-receipt.v1') {
+    if (!input || input.schema !== receiptSchema) {
       return { ok: false, status: 400, error: 'INVALID_RECEIPT_SCHEMA' };
     }
     const receiptId = String(input.receiptId || '').trim();
