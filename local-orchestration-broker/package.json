@@ -1,0 +1,14 @@
+{
+  "name": "home-center-local-orchestration-broker-contracts",
+  "version": "0.3.0",
+  "private": true,
+  "description": "Fail-closed contracts plus a minimal durable local swarm that survives dispatcher cutover.",
+  "bin": {
+    "home-center-swarm": "swarm"
+  },
+  "scripts": {
+    "test": "node --test test/*.test.js",
+    "check": "node --check src/contracts.js && node --check src/guards.js && node --check src/probes.js && node --check src/adapters.js && node --check src/continuity.js && node --check src/voice.js && node --check src/mobile.js && node --check src/providers.js && python3 -m py_compile swarm.py",
+    "test:swarm": "python3 -m unittest test/test_swarm.py"
+  }
+}
