@@ -7,11 +7,15 @@ BIN="$HOME/bin"
 BOOT="$HOME/.termux/boot"
 STATE="$HOME/.local/state/atom"
 [ -f "$SRC/server.mjs" ] || { echo "BLOCKED: Atom source missing at $SRC" >&2; exit 2; }
+[ -f "$ROOT/config/judgment-jars.v1.json" ] || { echo "BLOCKED: Judgment Jar config missing" >&2; exit 2; }
+[ -f "$ROOT/tools/setup_vlad_swarm_daemon.sh" ] || { echo "BLOCKED: Vlad daemon setup missing" >&2; exit 2; }
 [ -f "$ROOT/tools/venice_fleshpunk_phone.sh" ] || { echo "BLOCKED: Fleshpunk phone generator missing" >&2; exit 2; }
 mkdir -p "$DEST" "$BIN" "$BOOT" "$STATE"
 rm -rf "$DEST.new"
 mkdir -p "$DEST.new"
 cp -R "$SRC/." "$DEST.new/"
+mkdir -p "$DEST.new/config"
+cp "$ROOT/config/judgment-jars.v1.json" "$DEST.new/config/"
 mkdir -p "$DEST.new/tools"
 cp "$ROOT/tools/venice_fleshpunk_phone.sh" "$DEST.new/tools/"
 cp "$ROOT/tools/ssh_axis.py" "$DEST.new/tools/"
@@ -19,10 +23,11 @@ cp "$ROOT/tools/resolve_cauldron_ssh.py" "$DEST.new/tools/"
 rm -rf "$DEST.old"
 [ ! -d "$DEST" ] || mv "$DEST" "$DEST.old"
 mv "$DEST.new" "$DEST"
-cat > "$BIN/atom" <<'EOF'
+cat > "$BIN/atom" <<'ATOM_WRAPPER'
 #!/data/data/com.termux/files/usr/bin/sh
+export HC_JUDGMENT_JARS_CONFIG="${HC_JUDGMENT_JARS_CONFIG:-$HOME/.local/share/atom/config/judgment-jars.v1.json}"
 exec node "$HOME/.local/share/atom/server.mjs" "$@"
-EOF
+ATOM_WRAPPER
 chmod 700 "$BIN/atom"
 cat > "$BIN/atom-open" <<'EOF'
 #!/data/data/com.termux/files/usr/bin/sh
@@ -67,6 +72,7 @@ nohup "$HOME/bin/atom" >>"$STATE/server.log" 2>&1 &
 echo $! > "$STATE/server.pid"
 EOF
 chmod 700 "$BOOT/15-atom"
+bash "$ROOT/tools/setup_vlad_swarm_daemon.sh" ensure
 "$BOOT/15-atom"
 sleep 1
 if command -v curl >/dev/null 2>&1; then
@@ -78,7 +84,7 @@ if command -v termux-notification >/dev/null 2>&1; then
     --ongoing true \
     --priority high \
     --title 'Atom Command Center' \
-    --content 'Command the Fortress from the phone. Chromium Throne and Fleshpunk image generation are ready here.' \
+    --content 'Command the Fortress from the phone. Chromium Throne, Judgment Jars, and Fleshpunk image generation are ready here.' \
     --button1 'Open Atom' \
     --button1-action "bash -l -c '$HOME/bin/atom-open'" \
     --button2 'Diagnose & repair' \
@@ -86,4 +92,4 @@ if command -v termux-notification >/dev/null 2>&1; then
     --button3 'Fleshpunk Image' \
     --button3-action "bash -l -c '$HOME/bin/venice-image-ui'" >/dev/null 2>&1 || true
 fi
-printf 'ATOM_PHONE_INSTALLED root=%s ui=http://127.0.0.1:8788 notification=6500 image_command=%s image_ui=%s\n' "$DEST" "$BIN/venice-image" "$BIN/venice-image-ui"
+printf 'ATOM_PHONE_INSTALLED root=%s ui=http://127.0.0.1:8788 notification=6500 judgment_jars=%s image_command=%s image_ui=%s\n' "$DEST" "$HOME/.local/state/home-center/vlad-swarm/judgment-jars.json" "$BIN/venice-image" "$BIN/venice-image-ui"
