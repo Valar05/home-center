@@ -43,6 +43,12 @@ assert.equal(phone.battery_pct.value,61);
 assert.equal(phone.battery_pct.receipt_id,'phone_hands:canary');
 const partialPhone = r.phoneObservations({battery_pct:61},{nowMs:NOW});
 assert.equal(partialPhone.audio_route.unavailable,true);
+const malformedPhone = r.phoneObservations({battery_pct:'not-a-number',charging:false},{nowMs:NOW});
+assert.equal(malformedPhone.battery_pct.unavailable,true);
+assert.equal(malformedPhone.battery_pct.value,null);
+assert.equal(malformedPhone.battery_pct.capability_state,'unavailable');
+assert.equal(malformedPhone.charging.value,false);
+assert.equal(malformedPhone.charging.unavailable,false);
 
 const dark = r.daylightObservation({sunrise:'2026-08-13T11:30:00.000Z',sunset:'2026-08-14T01:00:00.000Z',dawn:'2026-08-13T11:00:00.000Z',dusk:'2026-08-14T01:30:00.000Z',nowMs:NOW});
 assert.equal(dark.value,'dark_before_dawn');
@@ -65,6 +71,8 @@ assert.equal(projection2.place.also_forbidden,undefined);
 assert.equal(projection2.time.now,null);
 assert.ok(!JSON.stringify(projection2).includes('private'));
 
+const baselineCurrent={precipitation:'rain',charging:true,battery_pct:15,audio_route:'headphones',connectivity:'wifi',daylight:'daylight'};
+assert.deepEqual(r.transitionEvents({},baselineCurrent,OBSERVED),[]);
 const events = r.transitionEvents({precipitation:'none',charging:false,battery_pct:16,audio_route:'speaker',connectivity:'wifi',daylight:'dawn'},{precipitation:'rain',charging:true,battery_pct:15,audio_route:'headphones',connectivity:'offline',daylight:'daylight'},OBSERVED);
 assert.deepEqual(events.map((event)=>event.event_type),['rain.started','phone.charging','phone.low_battery','audio.route_changed','connectivity.offline','sun.risen']);
 assert.ok(events.every((event)=>event.receipt_id.startsWith('reality_')));
