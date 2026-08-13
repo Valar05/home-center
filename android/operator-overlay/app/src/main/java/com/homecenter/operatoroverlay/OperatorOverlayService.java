@@ -314,6 +314,14 @@ public class OperatorOverlayService extends Service {
                 LinearLayout.LayoutParams.WRAP_CONTENT,
                 1f));
 
+        Button spotifyPermissionButton = button("Allow");
+        spotifyPermissionButton.setContentDescription("Allow Home Center Operator to control Spotify through Shizuku");
+        spotifyPermissionButton.setOnClickListener(v -> {
+            spotifyStatus.setText("Spotify • waiting for permission");
+            spotifyClient.requestPermission(System.currentTimeMillis(), this::handleSpotifyReceipt);
+        });
+        spotifyRow.addView(spotifyPermissionButton);
+
         Button spotifyPreviousButton = button("Previous");
         spotifyPreviousButton.setContentDescription("Play the previous Spotify track");
         spotifyPreviousButton.setOnClickListener(v -> submitSpotifyCommand(
