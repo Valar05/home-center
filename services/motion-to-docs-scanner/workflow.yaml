@@ -1,0 +1,92 @@
+main:
+  params: [args]
+  steps:
+    - validate:
+        switch:
+          - condition: ${not("sourceUrl" in args)}
+            raise: "sourceUrl is required"
+          - condition: ${not("outputFolderId" in args)}
+            raise: "outputFolderId is required"
+    - scanVideo:
+        call: http.post
+        args:
+          url: ${sys.get_env("MOTION_SCANNER_URL") + "/scan"}
+          auth:
+            type: OIDC
+          timeout: 1800
+          body:
+            sourceUrl: ${args.sourceUrl}
+            scanId: ${default(map.get(args, "scanId"), sys.get_env("GOOGLE_CLOUD_WORKFLOW_EXECUTION_ID"))}
+            distanceThreshold: ${default(map.get(args, "distanceThreshold"), 6)}
+        result: scanResponse
+    - initialize:
+        assign:
+          - createdDocuments: []
+          - sheetNumber: 0
+    - createDocuments:
+        for:
+          value: artifact
+          in: ${scanResponse.body.artifacts}
+          steps:
+            - sheetOnly:
+                switch:
+                  - condition: ${text.match_regex(artifact.object, ".*contact_sheet_[0-9]+[.]jpg$")}
+                    steps:
+                      - incrementSheet:
+                          assign:
+                            - sheetNumber: ${sheetNumber + 1}
+                      - createDoc:
+                          call: http.post
+                          args:
+                            url: "https://docs.googleapis.com/v1/documents"
+                            auth:
+                              type: OAuth2
+                              scopes:
+                                - "https://www.googleapis.com/auth/documents"
+                                - "https://www.googleapis.com/auth/drive"
+                            body:
+                              title: ${"Motion Scan " + scanResponse.body.scanId + " — Sheet " + string(sheetNumber)}
+                          result: documentResponse
+                      - writeDoc:
+                          call: http.post
+                          args:
+                            url: ${"https://docs.googleapis.com/v1/documents/" + documentResponse.body.documentId + ":batchUpdate"}
+                            auth:
+                              type: OAuth2
+                              scopes:
+                                - "https://www.googleapis.com/auth/documents"
+                                - "https://www.googleapis.com/auth/drive"
+                            body:
+                              requests:
+                                - insertText:
+                                    location:
+                                      index: 1
+                                    text: ${"Motion-to-Docs Scan\nScan ID: " + scanResponse.body.scanId + "\nSource SHA-256: " + scanResponse.body.sourceSha256 + "\nUnique frames: " + string(scanResponse.body.uniqueFrames) + " of " + string(scanResponse.body.totalFrames) + "\nPerceptual threshold: " + string(scanResponse.body.distanceThreshold) + "\n\n"}
+                                - insertInlineImage:
+                                    endOfSegmentLocation: {}
+                                    uri: ${artifact.signedUrl}
+                                    objectSize:
+                                      width:
+                                        magnitude: 7.0
+                                        unit: "IN"
+                          result: writeResponse
+                      - moveDoc:
+                          call: http.patch
+                          args:
+                            url: ${"https://www.googleapis.com/drive/v3/files/" + documentResponse.body.documentId + "?addParents=" + args.outputFolderId + "&fields=id,parents,webViewLink"}
+                            auth:
+                              type: OAuth2
+                              scopes:
+                                - "https://www.googleapis.com/auth/drive"
+                          result: driveResponse
+                      - recordDoc:
+                          assign:
+                            - createdDocuments: ${list.concat(createdDocuments, [{"documentId": documentResponse.body.documentId, "sheetObject": artifact.object}])}
+    - returnResult:
+        return:
+          scanId: ${scanResponse.body.scanId}
+          totalFrames: ${scanResponse.body.totalFrames}
+          uniqueFrames: ${scanResponse.body.uniqueFrames}
+          duplicateFrames: ${scanResponse.body.duplicateFrames}
+          documents: ${createdDocuments}
+          artifacts: ${scanResponse.body.artifacts}
