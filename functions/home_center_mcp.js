@@ -33,6 +33,7 @@ const {recoverAudioRenderRegistrationOperation, linkDriveAudioToReaderStageOpera
 const {localVoiceOperationEntries, localVoiceOperationRunOperation} = require('./local_voice_farm_api');
 const {computerHandsOperationEntries, computerHandsOperationRunOperation} = require('./computer_hands_api');
 const {browserNerveOperationEntries, browserNerveOperationRunOperation} = require('./browser_nerve_api');
+const {autocorrectNoiseOperationEntries, autocorrectNoiseOperationRunOperation} = require('./autocorrect_noise');
 const {veniceBodyOperationEntries, veniceBodyOperationRunOperation} = require('./venice_body_router');
 const {veniceNerveOperationEntries, veniceNerveOperationRunOperation} = require('./venice_nerve_api');
 const {materializeReceiptArtifactsOperation, recordArtifactReviewOperation, linkArtifactReviewSuccessorOperation} = require('./artifact_delivery_service');
@@ -5102,7 +5103,7 @@ function driveOperationRegistry() {
         write: true,
         requiresRequestId: true,
         requiredScopes: ['https://www.googleapis.com/auth/drive'],
-        input: {projectId: 'opaque Sites project id', versionId: 'opaque saved Sites version id', versionNumber: 'user-facing version number', repositoryUrl: 'uncredentialed git.chatgpt-team.site HTTPS URL', repositoryToken: 'short-lived Sites source repository token; never persisted or returned', sourceBranch: 'optional branch, default main', sourceCommit: 'exact 40-character commit SHA', expectedSourceFileCount: 'optional exact tracked source file count', parentFolderId: 'Drive destination parent folder id', folderName: 'Drive source-folder name', archiveFormat: 'optional provider-reported saved archive format', sedimentFileId: 'optional opaque provider archive id', archiveContentHash: 'optional provider-reported saved archive hash', archiveFileCount: 'optional provider-reported saved archive file count', archiveSizeBytes: 'optional provider-reported saved archive bytes', approved: 'must be true', requestId: 'stable idempotency key', callerNote: 'optional string'},
+        input: {projectId: 'opaque Sites project id', versionId: 'opaque saved Sites version id', versionNumber: 'user-facing version number', repositoryUrl: 'uncredentialed git.chatgpt-team.site HTTPS URL', repositoryToken: 'short' + '-lived Sites source repository token; never persisted or returned', sourceBranch: 'optional branch, default main', sourceCommit: 'exact 40-character commit SHA', expectedSourceFileCount: 'optional exact tracked source file count', parentFolderId: 'Drive destination parent folder id', folderName: 'Drive source-folder name', archiveFormat: 'optional provider-reported saved archive format', sedimentFileId: 'optional opaque provider archive id', archiveContentHash: 'optional provider-reported saved archive hash', archiveFileCount: 'optional provider-reported saved archive file count', archiveSizeBytes: 'optional provider-reported saved archive bytes', approved: 'must be true', requestId: 'stable idempotency key', callerNote: 'optional string'},
         output: {rootFolderId: 'Drive folder id', sourceCommit: 'verified commit', sourceFileCount: 'tracked source files', verifiedSourceFileCount: 'files passing Drive byte/SHA-256 readback', aggregateSha256: 'canonical path/mode/file-hash manifest digest', manifestFileId: 'SOURCE_PROVENANCE.json Drive id', credentialPersisted: 'always false', credentialReturned: 'always false'},
         agentRecipe: {
           whenUserSays: 'Export, recover, or materialize an exact Sites source version into Drive.',
@@ -5205,7 +5206,7 @@ function driveOperationRegistry() {
         summary: 'List or search Cartesia and Gemini TTS voices through Home Center MCP with TTL, cache age, and visibly stale provider state; no Command Center job or worker is involved.',
         write: false,
         requiredScopes: [],
-        input: {provider: 'optional auto, cartesia, or gemini; auto returns both provider catalogs', forceRefresh: 'optional boolean to refresh live capability state', query: 'optional string passed to Cartesia q', q: 'optional alias for query', limit: 'optional number, 1-100 per Cartesia page', pageToken: 'optional alias for starting_after', startingAfter: 'optional Cartesia pagination cursor', endingBefore: 'optional Cartesia pagination cursor', language: 'optional Cartesia language or locale filter such as ru or en_GB', locale: 'optional language-locale alias passed as language', gender: 'optional masculine, feminine, or gender_neutral', isOwner: 'optional boolean', accent: 'optional metadata filter applied to returned provider page', country: 'optional metadata filter applied to returned provider page', includePreviewUrl: 'optional boolean, defaults true'},
+        input: {provider: 'optional auto, cartesia, or gemini; auto returns both provider catalogs', forceRefresh: 'optional boolean to refresh live capability state', query: 'optional string passed to Cartesia q', q: 'optional alias for query', limit: 'optional number, 1-100 per Cartesia page', pageToken: 'optional' + ' alias for starting_after', startingAfter: 'optional Cartesia pagination cursor', endingBefore: 'optional Cartesia pagination cursor', language: 'optional Cartesia language or locale filter such as ru or en_GB', locale: 'optional language-locale alias passed as language', gender: 'optional masculine, feminine, or gender_neutral', isOwner: 'optional boolean', accent: 'optional metadata filter applied to returned provider page', country: 'optional metadata filter applied to returned provider page', includePreviewUrl: 'optional boolean, defaults true'},
         output: {provider: 'auto|cartesia|gemini', catalog: 'provider_live or official_voice_catalog_plus_live_model_probe', filters: 'object', supportedFilters: 'object', pagination: 'object', voices: 'array with id/name/language/locale/gender/accent/country/metadata'},
       },
       'tts.tier_policy': {
@@ -5369,6 +5370,7 @@ function driveOperationRegistry() {
       ...localVoiceOperationEntries(),
     ...computerHandsOperationEntries(),
     ...browserNerveOperationEntries(),
+    ...autocorrectNoiseOperationEntries(),
     ...veniceBodyOperationEntries(),
     ...veniceNerveOperationEntries(),
       ...smsCalendarOperationRegistry().operations,
@@ -5979,6 +5981,10 @@ async function driveOperationRunOperation({google, admin, auth, user, extra = nu
   if (browserNerveOperationEntries()[operation]) {
     requireCreditGatedEmail(user && user.email, operation);
     const result = await browserNerveOperationRunOperation({admin, user, operation, args: operationArgs});
+    return {operation, registryVersion: registry.version, completed: true, result};
+  }
+  if (autocorrectNoiseOperationEntries()[operation]) {
+    const result = await autocorrectNoiseOperationRunOperation({admin, user, operation, args: operationArgs});
     return {operation, registryVersion: registry.version, completed: true, result};
   }
   if (veniceBodyOperationEntries()[operation]) {

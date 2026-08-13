@@ -20,6 +20,13 @@ The original shopping-list slice remains supported:
 - TickTick remains a masked legacy fallback when Firebase sync is not configured or the user is not signed in.
 
 
+
+## User-scoped autocorrect-noise learning
+
+Home Center learns recurring correction patterns without globalizing one person's dialect. The authenticated user's profile separates candidate, good, gold, and rejected evidence. Good remains advisory; eligible gold applies only when explicitly requested. Raw messages are not retained, and commands, paths, identifiers, URLs, handles, conflicts, and protected vocabulary fail closed.
+
+Use the stable drive_operation surface with autocorrect_noise.observe, autocorrect_noise.resolve, autocorrect_noise.feedback, and autocorrect_noise.profile. See docs/AUTOCORRECT_NOISE.md.
+
 ## Doctrine
 
 Home Center's repo-local product doctrine lives in `docs/HOME_CENTER_DOCTRINE.md`. Read it before changing agent behavior, memory, research, writing, life-organization, Netrunner, provider tools, or skill/simulation features. The app should not depend on a web request or external doctrine store to know its own purpose.
