@@ -112,11 +112,53 @@ def difference_hash(image: Image.Image) -> int:
     return value
 
 
+class HammingBKTree:
+    def __init__(self):
+        self.root = None
+
+    @staticmethod
+    def distance(left: int, right: int) -> int:
+        return (left ^ right).bit_count()
+
+    def add(self, fingerprint: int, kept_index: int) -> None:
+        node = [fingerprint, kept_index, {}]
+        if self.root is None:
+            self.root = node
+            return
+        current = self.root
+        while True:
+            distance = self.distance(fingerprint, current[0])
+            child = current[2].get(distance)
+            if child is None:
+                current[2][distance] = node
+                return
+            current = child
+
+    def nearest_within(self, fingerprint: int, threshold: int):
+        if self.root is None:
+            return None, None
+        best_index = None
+        best_distance = threshold + 1
+        stack = [self.root]
+        while stack:
+            node = stack.pop()
+            distance = self.distance(fingerprint, node[0])
+            if distance < best_distance:
+                best_index, best_distance = node[1], distance
+                if distance == 0:
+                    break
+            lower = distance - threshold
+            upper = distance + threshold
+            stack.extend(child for edge, child in node[2].items() if lower <= edge <= upper)
+        return (best_index, best_distance) if best_index is not None else (None, None)
+
+
 def choose_unique_frames(frame_paths, mode: str, threshold: int, fps: float) -> tuple[list, list, list]:
     kept = []
     manifest = []
     fingerprints = []
     exact_index = {}
+    perceptual_index = HammingBKTree()
     duplicate_counts = []
     for source_index, path in enumerate(frame_paths):
         with Image.open(path) as image:
@@ -132,12 +174,7 @@ def choose_unique_frames(frame_paths, mode: str, threshold: int, fps: float) -> 
             nearest_index = exact_index.get(fingerprint)
             nearest_distance = 0 if nearest_index is not None else None
         else:
-            for index, prior in enumerate(fingerprints):
-                distance = (fingerprint ^ prior).bit_count()
-                if nearest_distance is None or distance < nearest_distance:
-                    nearest_index, nearest_distance = index, distance
-                    if distance == 0:
-                        break
+            nearest_index, nearest_distance = perceptual_index.nearest_within(fingerprint, threshold)
 
         duplicate = nearest_index is not None and (mode == "exact" or nearest_distance <= threshold)
         hash_value = fingerprint if mode == "exact" else f"{fingerprint:064x}"
@@ -147,6 +184,8 @@ def choose_unique_frames(frame_paths, mode: str, threshold: int, fps: float) -> 
             fingerprints.append(fingerprint)
             if mode == "exact":
                 exact_index[fingerprint] = kept_index
+            else:
+                perceptual_index.add(fingerprint, kept_index)
             duplicate_counts.append(0)
             manifest.append({
                 "sourceFrame": source_index,
