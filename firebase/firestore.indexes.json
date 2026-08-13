@@ -96,31 +96,68 @@
       "collectionGroup": "gcsFilesystemPaths",
       "queryScope": "COLLECTION",
       "fields": [
-        {"fieldPath": "ownerHash", "order": "ASCENDING"},
-        {"fieldPath": "state", "order": "ASCENDING"},
-        {"fieldPath": "path", "order": "ASCENDING"}
+        {
+          "fieldPath": "ownerHash",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "state",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "path",
+          "order": "ASCENDING"
+        }
       ]
     },
     {
       "collectionGroup": "gcsFilesystemTrashEntries",
       "queryScope": "COLLECTION",
       "fields": [
-        {"fieldPath": "ownerHash", "order": "ASCENDING"},
-        {"fieldPath": "state", "order": "ASCENDING"},
-        {"fieldPath": "path", "order": "ASCENDING"}
+        {
+          "fieldPath": "ownerHash",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "state",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "path",
+          "order": "ASCENDING"
+        }
       ]
     },
     {
       "collectionGroup": "gcsFilesystemVersions",
       "queryScope": "COLLECTION",
       "fields": [
-        {"fieldPath": "ownerHash", "order": "ASCENDING"},
-        {"fieldPath": "fileId", "order": "ASCENDING"},
-        {"fieldPath": "ordinal", "order": "DESCENDING"}
+        {
+          "fieldPath": "ownerHash",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "fileId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "ordinal",
+          "order": "DESCENDING"
+        }
       ]
     }
   ],
   "fieldOverrides": [
+    {
+      "collectionGroup": "members",
+      "fieldPath": "email",
+      "indexes": [
+        {
+          "order": "ASCENDING",
+          "queryScope": "COLLECTION_GROUP"
+        }
+      ]
+    },
     {
       "collectionGroup": "gcsFilesystemTrashEntries",
       "fieldPath": "expiresAt",
