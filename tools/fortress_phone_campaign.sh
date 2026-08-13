@@ -11,6 +11,7 @@ LOCK="$STATE_ROOT/run.lock"
 LOG="$STATE_ROOT/campaign.log"
 BIN="${PREFIX:-$HOME/.local}/bin/fortress-campaign"
 VLAD_SERVICE_RECEIPT="${HC_SWARM_STATE_DIR:-$HOME/.local/state/home-center/vlad-swarm}/service-receipt.json"
+RUNTIME_REVISION_FILE="$STATE_ROOT/runtime-revision"
 mkdir -p "$STATE_ROOT" "$(dirname "$RUNTIME_ROOT")" "$(dirname "$BIN")"
 
 record(){
@@ -49,6 +50,11 @@ sync_runtime(){
   record runtime-sync healthy "isolated runtime tracks origin/main; live phone worktree untouched"
 }
 
+runtime_revision(){ git -C "$RUNTIME_ROOT" rev-parse HEAD 2>/dev/null || true; }
+installed_revision(){ [ -f "$RUNTIME_REVISION_FILE" ] && cat "$RUNTIME_REVISION_FILE" || true; }
+mark_runtime_revision(){ runtime_revision >"$RUNTIME_REVISION_FILE"; }
+runtime_changed(){ [ -n "$(runtime_revision)" ] && [ "$(runtime_revision)" != "$(installed_revision)" ]; }
+
 probe_atom(){ curl -fsS http://127.0.0.1:8788/v1/atom/status; }
 probe_overlay(){ command -v rish >/dev/null 2>&1 && rish -c 'content query --uri content://com.homecenter.operatoroverlay.state/state' 2>/dev/null | grep -q 'control_enabled='; }
 probe_menu(){ bash "$RUNTIME_ROOT/tools/home_center_status_menu.sh" probe >/dev/null 2>&1; }
@@ -74,19 +80,25 @@ triage(){
   probe_overlay && overlay=1 || true
   probe_hands && hands=1 || true
   probe_menu && menu=1 || true
-  python3 - "$STATE_ROOT/triage.json" "$atom" "$vlad" "$ssh" "$overlay" "$hands" "$menu" <<'PY'
+  python3 - "$STATE_ROOT/triage.json" "$atom" "$vlad" "$ssh" "$overlay" "$hands" "$menu" "$(runtime_revision)" "$(installed_revision)" <<'PY'
 import json,sys,time,os
-p=sys.argv[1];vals=list(map(int,sys.argv[2:]));names=['atom','vladCanonicalRuntime','sshLocal','overlay','phoneHands','notificationMenu']
-obj={'schema':'fortress-phone-triage-v1','atEpoch':int(time.time()),'checks':dict(zip(names,[bool(x) for x in vals]))}
+p=sys.argv[1];vals=list(map(int,sys.argv[2:8]));runtime=sys.argv[8];installed=sys.argv[9];names=['atom','vladCanonicalRuntime','sshLocal','overlay','phoneHands','notificationMenu']
+obj={'schema':'fortress-phone-triage-v1','atEpoch':int(time.time()),'checks':dict(zip(names,[bool(x) for x in vals])),'runtimeRevision':runtime,'installedRevision':installed,'runtimeUpgradePending':bool(runtime and runtime!=installed)}
 os.makedirs(os.path.dirname(p),exist_ok=True);open(p,'w',encoding='utf-8').write(json.dumps(obj,indent=2,sort_keys=True)+'\n');print(json.dumps(obj,sort_keys=True))
 PY
   record triage healthy "fresh subsystem triage receipt written"
 }
 
 repair_core(){
-  record repair-core running "repairing failed organs and rebinding persistent Vlad to canonical runtime"
-  if ! probe_atom >/dev/null 2>&1; then HC_REPO_ROOT="$RUNTIME_ROOT" bash "$RUNTIME_ROOT/tools/install_atom_vlad_phone.sh" >>"$LOG" 2>&1 || { record repair-core blocked "Atom/Vlad install failed"; return 10; }; fi
-  HC_REPO_ROOT="$RUNTIME_ROOT" bash "$RUNTIME_ROOT/tools/setup_vlad_swarm_daemon.sh" restart >>"$LOG" 2>&1 || { record repair-core blocked "Vlad daemon could not restart on canonical runtime"; return 15; }
+  record repair-core running "repairing failed organs; upgrades occur only when canonical runtime changed"
+  local upgrade=0
+  runtime_changed && upgrade=1 || true
+  if [ "$upgrade" -eq 1 ] || ! probe_atom >/dev/null 2>&1; then
+    HC_REPO_ROOT="$RUNTIME_ROOT" bash "$RUNTIME_ROOT/tools/install_atom_vlad_phone.sh" >>"$LOG" 2>&1 || { record repair-core blocked "Atom/Vlad install failed"; return 10; }
+  fi
+  if [ "$upgrade" -eq 1 ] || ! probe_vlad_runtime; then
+    HC_REPO_ROOT="$RUNTIME_ROOT" bash "$RUNTIME_ROOT/tools/setup_vlad_swarm_daemon.sh" restart >>"$LOG" 2>&1 || { record repair-core blocked "Vlad daemon could not restart on canonical runtime"; return 15; }
+  fi
   probe_vlad_runtime || { record repair-core blocked "Vlad daemon is alive but not bound to canonical runtime"; return 16; }
   if ! probe_ssh; then bash "$RUNTIME_ROOT/tools/phone_ssh_service.sh" repair >>"$LOG" 2>&1 || { record repair-core degraded "SSH local repair failed"; return 11; }; fi
   if ! probe_overlay; then bash "$RUNTIME_ROOT/tools/recover_adam_overlay_phone.sh" >>"$LOG" 2>&1 || { record repair-core degraded "overlay recovery failed"; return 12; }; fi
@@ -95,7 +107,8 @@ repair_core(){
     probe_hands || { record repair-core degraded "Phone Hands still unhealthy after bounded recovery"; return 13; }
   fi
   bash "$RUNTIME_ROOT/tools/home_center_status_menu.sh" main >/dev/null 2>&1 || { record repair-core degraded "notification/status surface unavailable"; return 14; }
-  record repair-core healthy "existing phone organs recovered; Vlad rebound to canonical runtime; live worktree untouched"
+  mark_runtime_revision
+  record repair-core healthy "phone organs healthy on current canonical runtime; live worktree untouched"
 }
 
 verify_phone(){
@@ -112,6 +125,7 @@ PY
   probe_overlay || { record verify-phone blocked "operator overlay/status provider unavailable"; return 24; }
   probe_hands || { record verify-phone blocked "Phone Hands diagnose failed"; return 25; }
   probe_menu || { record verify-phone blocked "notification menu probe failed"; return 26; }
+  [ "$(runtime_revision)" = "$(installed_revision)" ] || { record verify-phone blocked "canonical runtime revision is not marked installed"; return 27; }
   python3 "$RUNTIME_ROOT/tools/ssh_axis.py" check --target cauldron --json >"$STATE_ROOT/ssh-axis-cauldron.json" 2>&1 || true
   record verify-phone healthy "phone-local acceptance passed; external phone SSH callability remains separate evidence"
 }
