@@ -15,5 +15,32 @@
       "Jar"
     ],
     "discoveryPageSize": 10
+  },
+  "receipts": {
+    "schema": "home-center.judgment-jar-usage-receipt.v1",
+    "outputKinds": [
+      "context_packet",
+      "answer",
+      "analysis",
+      "plan",
+      "decision",
+      "routing_action",
+      "code_change",
+      "test_result",
+      "review_verdict",
+      "artifact",
+      "handoff",
+      "memory_update",
+      "execution_result",
+      "blocker",
+      "no_change",
+      "mixed"
+    ],
+    "atomBaseUrlEnv": "HC_ATOM_URL",
+    "atomDefaultBaseUrl": "http://127.0.0.1:8788",
+    "atomReceiptPath": "/v1/atom/vlad/jars/receipts",
+    "timeoutSeconds": 1.5,
+    "appendOnly": true,
+    "pendingOutboxOldestFirst": true
   }
 }
