@@ -9,9 +9,13 @@ reviewed = (ROOT / "tools/adam_venice_reviewed.py").read_text(encoding="utf-8")
 installer = (ROOT / "tools/install_adam_cli.sh").read_text(encoding="utf-8")
 
 for token in [
-    'ONE_SHOT_MODES = ("terminal", "chat", "continue", "vlad")',
+    'ONE_SHOT_MODES = ("terminal", "chat", "continue", "vlad", "scene", "she-raw")',
     'def run_terminal(',
     'def run_worker(',
+    'def run_scene(',
+    'def run_she_raw(',
+    'SHE_RAW_CLI = ROOT / "tools" / "she_raw_cli.py"',
+    'Use as little inference as possible',
     'def worker_commission(',
     'WORKER = ROOT / "tools" / "adam_planned_venice.py"',
     'preExecutionPlanReview=True',
@@ -69,7 +73,11 @@ assert 'exec "$PYTHON_BIN" "$WORKER" "\\$@"' in installer
 assert 'exec "$PYTHON_BIN" "$ROOT/tools/adam_venice_reviewed.py"' not in installer
 assert 'venicePlanReviewReceiptVerified' in installer
 assert 'veniceStopReviewReceiptVerified' in installer
-assert 'terminal|chat|continue|vlad)' in installer
+assert 'terminal|chat|continue|vlad|scene|she-raw)' in installer
+assert 'tools/test_she_raw_cli.py' in installer
+assert 'config/she-raw-cli.v1.json' in installer
+assert 'innerFortressSceneRoute' in installer
+assert 'sheRawLocalOnly' in installer
 assert '|shell)' not in installer
 
 for forbidden in ['def run_shell(', 'local_exec_plan', 'execute_plan', 'Adam online. Chat naturally', 'ollama_generate']:
