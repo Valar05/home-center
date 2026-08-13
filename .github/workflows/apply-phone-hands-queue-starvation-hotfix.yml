@@ -1,0 +1,47 @@
+name: Apply Phone Hands queue starvation hotfix
+
+on:
+  push:
+    branches:
+      - phone-hands-queue-starvation-hotfix-20260813
+    paths:
+      - tools/install_phone_hands_queue_starvation_fix.mjs
+      - .github/workflows/apply-phone-hands-queue-starvation-hotfix.yml
+
+permissions:
+  contents: write
+
+concurrency:
+  group: phone-hands-queue-starvation-hotfix-20260813
+  cancel-in-progress: false
+
+jobs:
+  apply-and-test:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: phone-hands-queue-starvation-hotfix-20260813
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Apply bounded source repair
+        run: node tools/install_phone_hands_queue_starvation_fix.mjs
+      - name: Run deterministic contract test
+        run: node tools/phone_hands_queue_starvation_contract_test.mjs
+      - name: Validate diff
+        run: git diff --check
+      - name: Replace bootstrap machinery with repaired source
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'home-center-github-admin[bot]'
+          git config user.email 'home-center-github-admin[bot]@users.noreply.github.com'
+          git rm --ignore-unmatch .github/workflows/apply-phone-hands-queue-starvation-hotfix.yml
+          git rm --ignore-unmatch tools/install_phone_hands_queue_starvation_fix.mjs
+          git add functions/phone_hands_relay.js tools/phone_hands_queue_starvation_contract_test.mjs
+          git diff --cached --check
+          git commit -m 'Fix expired-command starvation in Phone Hands relay'
+          git push origin HEAD:phone-hands-queue-starvation-hotfix-20260813
