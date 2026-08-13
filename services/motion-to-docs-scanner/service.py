@@ -5,6 +5,8 @@ import subprocess
 import tempfile
 import urllib.request
 import uuid
+from datetime import timedelta
+from fractions import Fraction
 from pathlib import Path
 
 from flask import Flask, jsonify, request
@@ -55,7 +57,7 @@ def hamming(a, b) -> int:
     return a - b
 
 
-def choose_unique_frames(frame_paths, threshold: int) -> tuple[list, list]:
+def choose_unique_frames(frame_paths, threshold: int, fps: float) -> tuple[list, list]:
     kept = []
     manifest = []
     hashes = []
@@ -78,6 +80,7 @@ def choose_unique_frames(frame_paths, threshold: int) -> tuple[list, list]:
             duplicate_counts.append(0)
             manifest.append({
                 "sourceFrame": source_index,
+                "timestampSeconds": round(source_index / fps, 6),
                 "keptIndex": kept_index,
                 "perceptualHash": str(fingerprint),
                 "nearestDistance": nearest_distance,
@@ -87,6 +90,7 @@ def choose_unique_frames(frame_paths, threshold: int) -> tuple[list, list]:
             duplicate_counts[nearest_index] += 1
             manifest.append({
                 "sourceFrame": source_index,
+                "timestampSeconds": round(source_index / fps, 6),
                 "keptIndex": None,
                 "perceptualHash": str(fingerprint),
                 "nearestDistance": nearest_distance,
@@ -95,7 +99,7 @@ def choose_unique_frames(frame_paths, threshold: int) -> tuple[list, list]:
     return kept, manifest, duplicate_counts
 
 
-def make_contact_sheets(kept, duplicate_counts, output_dir: Path, columns=4, rows=4):
+def make_contact_sheets(kept, kept_rows, duplicate_counts, output_dir: Path, columns=4, rows=4):
     sheets = []
     per_sheet = columns * rows
     thumb_w, thumb_h, label_h = 480, 270, 34
@@ -113,7 +117,7 @@ def make_contact_sheets(kept, duplicate_counts, output_dir: Path, columns=4, row
                 canvas.paste(image, (x, y))
             draw.text(
                 ((local_index % columns) * thumb_w + 8, y + thumb_h + 7),
-                f"Unique {kept_index:05d} | collapsed {duplicate_counts[kept_index]} duplicates",
+                f"Frame {kept_rows[kept_index]['sourceFrame']:09d} | {kept_rows[kept_index]['timestampSeconds']:.3f}s | collapsed {duplicate_counts[kept_index]}",
                 fill="black",
             )
         sheet_path = output_dir / f"contact_sheet_{sheet_index // per_sheet:04d}.jpg"
@@ -126,12 +130,15 @@ def upload_file(path: Path, object_name: str, content_type: str) -> dict:
     blob = storage_client.bucket(OUTPUT_BUCKET).blob(object_name)
     blob.upload_from_filename(path, content_type=content_type)
     blob.reload()
+    signed_url = blob.generate_signed_url(version="v4", expiration=timedelta(minutes=30), method="GET")
     return {
         "bucket": OUTPUT_BUCKET,
         "object": object_name,
         "generation": str(blob.generation),
         "size": int(blob.size),
         "sha256": hashlib.sha256(path.read_bytes()).hexdigest(),
+        "signedUrl": signed_url,
+        "signedUrlExpiresMinutes": 30,
     }
 
 
@@ -156,8 +163,11 @@ def scan():
         probe = probe_video(video)
         extract_frames(video, frames_dir)
         frame_paths = sorted(frames_dir.glob("frame_*.png"))
-        kept, manifest_rows, duplicate_counts = choose_unique_frames(frame_paths, threshold)
-        sheets = make_contact_sheets(kept, duplicate_counts, output_dir)
+        rate = Fraction(probe.get("avg_frame_rate") or "1/1")
+        fps = float(rate) if rate else 1.0
+        kept, manifest_rows, duplicate_counts = choose_unique_frames(frame_paths, threshold, fps)
+        kept_rows = [row for row in manifest_rows if row["keptIndex"] is not None]
+        sheets = make_contact_sheets(kept, kept_rows, duplicate_counts, output_dir)
         manifest = {
             "schema": "home-center.motion-to-docs.v1",
             "scanId": scan_id,
