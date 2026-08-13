@@ -10,10 +10,13 @@ on:
       - "tools/android_phone_home_center_relay.py"
       - "tools/android_phone_diagnostics.py"
       - "tools/android_anvil_shell_maintenance.py"
+      - "tools/bootstrap_native_phone_plane.sh"
       - "tools/phone_diagnostics_relay_test.mjs"
       - "tools/phone_maintenance_relay_test.mjs"
       - "docs/reviews/anvil-phone-plane-*.json"
+      - "docs/runbooks/anvil-native-phone-plane.md"
       - ".github/workflows/anvil-phone-plane.yml"
+      - ".github/workflows/deploy-anvil-native-phone-plane.yml"
 
 permissions:
   contents: read
@@ -36,9 +39,13 @@ jobs:
           node --check functions/phone_hands_relay.js
           node tools/phone_diagnostics_relay_test.mjs
           node tools/phone_maintenance_relay_test.mjs
+          ! grep -Eq "command_center|phone_shell|THECAULDRON" functions/phone_operation_surface.js
       - name: Verify phone worker modules and fixed maintenance request
         run: |
-          python -m py_compile             tools/android_phone_home_center_relay.py             tools/android_phone_diagnostics.py             tools/android_anvil_shell_maintenance.py
+          python -m py_compile \
+            tools/android_phone_home_center_relay.py \
+            tools/android_phone_diagnostics.py \
+            tools/android_anvil_shell_maintenance.py
           python - <<'PY'
           from tools.android_anvil_shell_maintenance import validate
           request={
@@ -68,6 +75,7 @@ jobs:
           for field,value in (
               ("command","id"),
               ("argv",["sh","-c","id"]),
+              ("url","https://example.invalid/payload"),
               ("sourceSubdir","../escape"),
               ("deviceId","other-phone"),
               ("automaticReplay",True),
@@ -80,6 +88,18 @@ jobs:
               raise AssertionError(f"unsafe request accepted: {field}")
           print("phone maintenance Python executor validation: PASS")
           PY
+      - name: Verify one-time bootstrap and native deploy contracts
+        run: |
+          bash -n tools/bootstrap_native_phone_plane.sh
+          grep -q 'SOURCE_HEAD.*40' tools/bootstrap_native_phone_plane.sh
+          grep -q 'merge-base --is-ancestor' tools/bootstrap_native_phone_plane.sh
+          grep -q 'phone_maintenance_anvil_shell' tools/bootstrap_native_phone_plane.sh
+          grep -q 'android_anvil_shell_maintenance.py' tools/bootstrap_native_phone_plane.sh
+          grep -q 'automaticReplay.*False' tools/bootstrap_native_phone_plane.sh
+          ! grep -Eq 'command_center|phone_shell|THECAULDRON' tools/bootstrap_native_phone_plane.sh
+          grep -q 'phoneHandsRelay' .github/workflows/deploy-anvil-native-phone-plane.yml
+          grep -q 'homeCenterMcp' .github/workflows/deploy-anvil-native-phone-plane.yml
+          ! grep -Eq 'deploy commandCenterMcp|entry-point=commandCenterMcp' .github/workflows/deploy-anvil-native-phone-plane.yml
       - name: Verify canonical Regnet CLI
         run: python tools/test_renee_cli.py
       - name: Issue synthetic Regnet QA receipt
@@ -104,6 +124,8 @@ jobs:
                   "lease and idempotency enforcement",
                   "terminal APK signer/install/readback receipt validation",
                   "phone worker Python compilation",
+                  "exact-commit fixed-file owner bootstrap",
+                  "native deployment workflow excludes Command Center deployment",
               ],
               "stateBoundary":{
                   "sourceTested":True,
@@ -116,7 +138,23 @@ jobs:
               },
           },indent=2,sort_keys=True)+"\n")
           PY
-          python tools/renee.py --home "$REGNET_HOME" --json review             "Native Home Center phone source exposes bounded read-only diagnostics and one lease-bound Anvil build/install operation without Command Center or generic shell substitution."             --state tested             --acceptance "phone.* operations are present in the drive_operation registry"             --acceptance "raw command, argv, URL, arbitrary path, identity drift, automatic replay, and forged receipts are rejected"             --acceptance "maintenance binds exact source commit, APK hash, signer, install result, rollback, and package readback"             --acceptance "repository proof remains below deployment and phone callability"             --evidence "$REGNET_HOME/evidence/native-phone-plane.json"             --evidence "docs/reviews/anvil-phone-plane-venice-plan.json"             --evidence-ref "https://github.com/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"             --failure-path "deployed registry does not expose the new phone operations"             --failure-path "primary-phone worker does not advertise phone_maintenance_anvil_shell"             --failure-path "phone toolchain, signer verification, install authority, or byte readback fails"             --dissent "SYNTHETIC_REGNET cannot grant Venice stop authority or phone acceptance."             --dissent "Source tests are not deployment, worker installation, or Anvil phone installation."             --require-evidence | tee "$REGNET_OUT/regnet-output.json"
+          python tools/renee.py --home "$REGNET_HOME" --json review \
+            "Native Home Center phone source exposes bounded read-only diagnostics and one lease-bound Anvil build/install operation without Command Center or generic shell substitution." \
+            --state tested \
+            --acceptance "phone.* operations are present in the drive_operation registry" \
+            --acceptance "raw command, argv, URL, arbitrary path, identity drift, automatic replay, and forged receipts are rejected" \
+            --acceptance "maintenance binds exact source commit, APK hash, signer, install result, rollback, and package readback" \
+            --acceptance "one-time bootstrap binds an exact merged Home Center commit and a fixed three-file worker manifest" \
+            --acceptance "repository proof remains below deployment and phone callability" \
+            --evidence "$REGNET_HOME/evidence/native-phone-plane.json" \
+            --evidence "docs/reviews/anvil-phone-plane-venice-plan.json" \
+            --evidence-ref "https://github.com/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}" \
+            --failure-path "deployed registry does not expose the new phone operations" \
+            --failure-path "primary-phone worker does not advertise phone_maintenance_anvil_shell" \
+            --failure-path "phone toolchain, signer verification, install authority, or byte readback fails" \
+            --dissent "SYNTHETIC_REGNET cannot grant Venice stop authority or phone acceptance." \
+            --dissent "Source tests are not deployment, worker installation, or Anvil phone installation." \
+            --require-evidence | tee "$REGNET_OUT/regnet-output.json"
           cp "$REGNET_HOME"/receipts/*.json "$REGNET_OUT/"
       - uses: actions/upload-artifact@v4
         with:
