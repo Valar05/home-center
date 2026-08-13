@@ -81,12 +81,14 @@ async function dispatchQueuedJob(original) {
     return null;
   }
   const workerTabId = Number(result.receipt?.tabId || result.worker?.tabId || 0);
+  const baselineAssistantCount = Number(result.receipt?.baselineAssistantCount ?? result.worker?.baselineAssistantCount ?? 0);
   await markJob(original.id, 'running', {
     dispatchReceipt: result.receipt || null,
     workerTabId,
+    baselineAssistantCount,
     dispatchedAt: new Date().toISOString(),
   });
-  return {job: {...original, workerTabId}, receipt: result.receipt, workerTabId};
+  return {job: {...original, workerTabId, baselineAssistantCount}, receipt: result.receipt, workerTabId, baselineAssistantCount};
 }
 
 async function dispatch(text, fresh, campaignContext, clear = true, jobId = '') {
@@ -127,10 +129,10 @@ async function runSwarm() {
         receipts.push({state: 'dispatch_wave_failed'});
         break;
       }
-      receipts.push({state: 'wave_dispatched', workers: dispatched.map((x) => ({jobId: x.job.id, tabId: x.workerTabId}))});
+      receipts.push({state: 'wave_dispatched', workers: dispatched.map((x) => ({jobId: x.job.id, tabId: x.workerTabId, baselineAssistantCount: x.baselineAssistantCount}))});
 
       await Promise.all(dispatched.map(async (entry) => {
-        const checkpoint = await waitForCompletedAssistant(entry.workerTabId);
+        const checkpoint = await waitForCompletedAssistant(entry.workerTabId, entry.baselineAssistantCount);
         if (!checkpoint.ok) {
           await markJob(entry.job.id, 'choked_unreadable', {error: checkpoint.error});
           receipts.push({jobId: entry.job.id, tabId: entry.workerTabId, state: 'choked_unreadable', error: checkpoint.error});
@@ -206,20 +208,17 @@ async function capture() {
   return result;
 }
 
-async function waitForCompletedAssistant(workerTabId, timeoutMs = 10 * 60 * 1000) {
+async function waitForCompletedAssistant(workerTabId, baselineAssistantCount, timeoutMs = 10 * 60 * 1000) {
   const started = Date.now();
-  let baselineCount = null;
+  const baselineCount = Number(baselineAssistantCount || 0);
   let lastText = '';
   let stablePolls = 0;
   while (Date.now() - started < timeoutMs && swarmRunning) {
     const peek = await inspectConversation(workerTabId);
-    if (peek.ok) {
-      if (baselineCount === null) baselineCount = Number(peek.assistantCount || 0);
-      if (peek.assistantCount > baselineCount && peek.text) {
-        stablePolls = !peek.generating && peek.text === lastText ? stablePolls + 1 : 0;
-        lastText = peek.text;
-        if (!peek.generating && stablePolls >= 1) return {ok: true, text: peek.text, assistantCount: peek.assistantCount};
-      }
+    if (peek.ok && peek.assistantCount > baselineCount && peek.text) {
+      stablePolls = !peek.generating && peek.text === lastText ? stablePolls + 1 : 0;
+      lastText = peek.text;
+      if (!peek.generating && stablePolls >= 1) return {ok: true, text: peek.text, assistantCount: peek.assistantCount};
     }
     await sleep(1800);
   }
