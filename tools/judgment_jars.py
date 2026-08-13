@@ -55,17 +55,17 @@ def refs(jar: dict) -> list[str]:
 
 
 def context_receipt(registry: dict, jar: dict, config: dict, output: str, source: str, intent: str, action: str, input_text: str, request_id: str = "", group_id: str = "") -> dict:
-    try:
-        return record_receipt(
-            registry, jar, config,
-            output_kind="context_packet", output_text=output,
-            summary=f"Loaded Judgment Jar context: {jar.get('title') or jar.get('id')}",
-            actor="Vlad", intent=intent, surface="jar", decision_action=action,
-            input_text=input_text, request_id=request_id, group_id=group_id,
-            references=refs(jar), source=source,
-        )
-    except (ReceiptError, OSError, ValueError) as exc:
-        return {"ok": False, "state": "RECEIPT_CAPTURE_FAILED", "error": f"{type(exc).__name__}: {exc}"}
+    result = record_receipt(
+        registry, jar, config,
+        output_kind="context_packet", output_text=output,
+        summary=f"Loaded Judgment Jar context: {jar.get('title') or jar.get('id')}",
+        actor="Vlad", intent=intent, surface="jar", decision_action=action,
+        input_text=input_text, request_id=request_id, group_id=group_id,
+        references=refs(jar), source=source,
+    )
+    if result.get("ok") is not True or not (result.get("receipt") or {}).get("receiptId"):
+        raise ReceiptError(f"Judgment Jar usage receipt capture failed: {result}")
+    return result
 
 
 def main(argv: list[str] | None = None) -> int:
