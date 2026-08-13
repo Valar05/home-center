@@ -78,6 +78,20 @@ rc, unsupported = invoke('send hello')
 assert rc == 1 and unsupported['error'] == 'unsupported_text_command'
 assert unsupported['usage'].startswith('TEXT: recent')
 
+# Vlad is a read-only alias over the exact same Home Center text gate.
+sys.modules['adam'] = adam
+vlad_spec = importlib.util.spec_from_file_location('vlad_text_contract_target', ROOT / 'tools' / 'vlad_text.py')
+vlad = importlib.util.module_from_spec(vlad_spec)
+vlad_spec.loader.exec_module(vlad)
+buf = io.StringIO()
+with contextlib.redirect_stdout(buf):
+    rc = vlad.main(['recent', '2'])
+vlad_recent = json.loads(buf.getvalue())
+assert rc == 0 and vlad_recent['ok'] is True
+assert FakeMcp.calls[-1] == ('sms_calendar.inbox', {'limit': 2})
+assert vlad_recent['readOnly'] is True
+assert vlad_recent['outboundAuthority'] is False
+
 router = (ROOT / 'tools' / 'adam.py').read_text(encoding='utf-8')
 assert 'ONE_SHOT_MODES = ("terminal", "text", "chat", "continue", "vlad")' in router
 assert 'drive_operation("sms_calendar.inbox"' in router
