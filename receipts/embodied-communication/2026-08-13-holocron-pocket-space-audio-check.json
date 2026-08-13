@@ -54,6 +54,17 @@
     "componentResolved": true,
     "lifecycleRepair": "PocketTtsPlaybackActivity uses Theme.Translucent.NoTitleBar; Theme.NoDisplay was rejected because asynchronous playback crashed before onResume completed."
   },
+  "stableRuntime": {
+    "commandId": "000-install-stable-embodied-runtime-20260813-0642",
+    "status": "completed",
+    "exitCode": 0,
+    "sourceCommit": "ed321c2548b62938f2bb8636e223cf834fdf0f71",
+    "sourceSha256": "010329b742f9bada950548e7e4ba5788a31b77d91ef83f98ec56fe89bf532c7c",
+    "installedPath": "/data/data/com.termux/files/home/.local/lib/home-center/embodied-communication/fortress_read_aloud.py",
+    "wrapperPath": "/data/data/com.termux/files/home/bin/fortress-read",
+    "doctorReady": true,
+    "independentOfDirtyCheckout": true
+  },
   "finalObservation": {
     "commandId": "000-holocron-post-playback-status-20260813-0634",
     "status": "completed",
@@ -74,10 +85,12 @@
   },
   "durability": {
     "skillPath": "skills/embodied-communication/SKILL.md",
-    "skillCommit": "ebf0e0b50684a638c23a0ea88b9c2917afdf39f7",
+    "skillCommit": "9515ef29f928a56a0bf02672174d57a5e87b24d4",
     "promotedSkillObjectId": "bucket_e17bcd3879faeb5798aafddc93ab7948",
     "contractTestPath": "tools/pocket_space_playback_contract_test.mjs",
     "contractTestHead": "0a1ca16c3e53546b01b85c9ca48e2fad5c1d3cbf",
+    "installerPath": "tools/install_embodied_communication_phone.sh",
+    "installerCommit": "ed321c2548b62938f2bb8636e223cf834fdf0f71",
     "authorizedBodyTest": "PASS"
   },
   "capabilityStates": {
@@ -85,6 +98,7 @@
     "implemented": true,
     "testedOnPrimaryPhone": true,
     "deployedOnPrimaryPhone": true,
+    "stableRuntimeInstalled": true,
     "callable": true,
     "executed": true,
     "physicalPlaybackVerified": true,
