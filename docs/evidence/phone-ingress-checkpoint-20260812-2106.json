@@ -1,0 +1,63 @@
+{
+  "schema": "fortress-checkpoint.v1",
+  "campaign": "chatgpt-phone-ingress-adam",
+  "checkpoint": "phone-body-unreachable-by-execution-lanes",
+  "status": "CONTINUE_REQUIRED",
+  "research": {
+    "phoneHands": {
+      "deviceId": "primary-phone",
+      "advertisesTermuxShell": true,
+      "lastSeenAtMs": 1786557628064,
+      "fresh": false
+    },
+    "computerHands": {
+      "workerId": "windows-hands-01",
+      "fresh": true
+    },
+    "adb": {
+      "serverRunning": true,
+      "devices": [],
+      "mdnsServices": []
+    },
+    "tailscale": {
+      "phoneName": "pixel-10-pro-xl",
+      "phoneIp": "100.117.17.119",
+      "reachable": true,
+      "transport": "DERP(dfw)"
+    },
+    "ports": {
+      "100.117.17.119:8022": false,
+      "100.117.17.119:22": false,
+      "100.117.17.119:5555": false
+    },
+    "phoneLink": {
+      "processPresent": true,
+      "controllableWindowPresent": false
+    }
+  },
+  "selectedJudgmentJars": [
+    "00-judgement-jar-mission-boundary",
+    "20-judgement-jar-repository-truth",
+    "40-judgement-jar-failure-recovery",
+    "70-judgement-jar-venice-review-gate",
+    "80-judgement-jar-daemon-backoff-persistence"
+  ],
+  "venice": {
+    "reviewerRole": "venice-judgment-jar",
+    "verdict": "FAIL",
+    "directive": "CONTINUE_REQUIRED",
+    "finding": "The phone is network-reachable but every currently authorized remote execution ingress is unavailable; a minimal on-device recovery action is required before the campaign can continue through phone_shell.",
+    "externalReviewGateSatisfied": false
+  },
+  "nextBoundedSlice": "After on-device recovery restores either Phone Hands heartbeat or Wireless Debugging/ADB, immediately re-check primary-phone, run exactly one idempotent phone_shell probe `printf CHATGPT_PHONE_INGRESS_OK`, read the receipt, then continue adam-campaign through that same lane.",
+  "capabilityState": {
+    "requested": true,
+    "backendImplemented": true,
+    "phoneNetworkReachable": true,
+    "chatgptCallableBackend": true,
+    "freshPhoneExecutionCallable": false,
+    "endToEndDelivered": false,
+    "drewAccepted": false
+  },
+  "createdAt": "2026-08-12T21:06:00-05:00"
+}
