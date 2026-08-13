@@ -18,6 +18,9 @@ class ReneeCliContract(unittest.TestCase):
     def test_tested_requires_evidence(self):
         with tempfile.TemporaryDirectory() as td:
             r=run_cli("review","tests passed","--state","tested","--acceptance","tests pass",home=td); self.assertEqual(r.returncode,2); self.assertTrue(any("tested claim" in x for x in json.loads(r.stdout)["blockers"]))
+    def test_external_receipt_counts_as_evidence_without_pretending_to_fetch_it(self):
+        with tempfile.TemporaryDirectory() as td:
+            r=run_cli("review","runtime callable","--state","callable","--acceptance","runtime receipt exists","--evidence-ref","phone-ticket:abc123","--failure-path","phone offline",home=td); self.assertEqual(r.returncode,0,r.stderr); p=json.loads(r.stdout); self.assertEqual(p["evidence_refs"],["phone-ticket:abc123"])
     def test_missing_acceptance_blocks(self):
         with tempfile.TemporaryDirectory() as td:
             r=run_cli("review","tool exists",home=td); self.assertEqual(r.returncode,2); self.assertTrue(any("acceptance criterion" in x for x in json.loads(r.stdout)["blockers"]))
@@ -27,6 +30,9 @@ class ReneeCliContract(unittest.TestCase):
     def test_synthetic_cannot_claim_actual_renee(self):
         with tempfile.TemporaryDirectory() as td:
             r=run_cli("review","Renee approved","--acceptance","approval attributable","--actual-renee",home=td); self.assertEqual(r.returncode,2); self.assertTrue(any("actual-Renee attribution" in x for x in json.loads(r.stdout)["blockers"]))
+    def test_drew_recall_cannot_be_laundered_as_direct_renee_statement(self):
+        with tempfile.TemporaryDirectory() as td:
+            r=run_cli("review","Renee approved","--acceptance","approval attributable","--actual-renee","--provenance","DREW_RECALL",home=td); self.assertEqual(r.returncode,2); self.assertTrue(any("DREW_RECALL" in x for x in json.loads(r.stdout)["blockers"]))
     def test_derived_rule_requires_sources(self):
         with tempfile.TemporaryDirectory() as td:
             r=run_cli("record","reachable states count","--provenance","DERIVED_RULE","--source","generalization",home=td); self.assertNotEqual(r.returncode,0)
