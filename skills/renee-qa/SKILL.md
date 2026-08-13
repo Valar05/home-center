@@ -30,7 +30,7 @@ Human-Renee-specific assertions require `RENEE_DIRECT`, `RENEE_CORRECTION`, or c
 
 `python tools/renee.py review "<exact claim>" --state tested --acceptance "<criterion>" --evidence <receipt>`
 
-`python tools/renee.py correct <receipt-id> "<correction>" --provenance RENE[E]_... --source <attributable-locator>`
+`python tools/renee.py correct <receipt-id> "<correction>" --provenance RENEE_DIRECT --source <attributable-locator>`
 
 `python tools/renee.py precedent "<question>"`
 
