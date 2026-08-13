@@ -65,6 +65,9 @@ def execute_action(a):
  k=a.get('action')
  if k in DIAGNOSTIC_ACTIONS:return diagnostics_execute(a)
  if k in OVERLAY_ACTIONS:return overlay_execute(a)
+ # Authenticated Termux commands are a separate body lane. The on-screen
+ # overlay governs Android UI/screen authority; it must not disable phone_shell.
+ if k in TERMUX_SHELL_ACTIONS:return termux_shell_execute(a)
  gate=overlay_control_gate()
  if k=='status_say' and gate.get('muted'):return {'ok':True,'action':'status_say','muted':True,'skipped':True}
  return dispatch(a)
