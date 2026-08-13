@@ -9,6 +9,7 @@ daemon = (ROOT / "tools/vlad_swarm_daemon.py").read_text(encoding="utf-8")
 router = (ROOT / "tools/adam.py").read_text(encoding="utf-8")
 core = (ROOT / "tools/adam_codex_phone.py").read_text(encoding="utf-8")
 planned = (ROOT / "tools/adam_planned_venice.py").read_text(encoding="utf-8")
+receipted = (ROOT / "tools/adam_planned_venice_receipted.py").read_text(encoding="utf-8")
 reviewed = (ROOT / "tools/adam_venice_reviewed.py").read_text(encoding="utf-8")
 
 for token in [
@@ -41,6 +42,7 @@ for token in [
     "nextAttemptEpoch",
     "backoffSeconds",
     '"daemonWait":True',
+    "sync_judgment_jars(repo_root)",
 ]:
     assert token in daemon, f"daemon missing {token}"
 
@@ -55,8 +57,10 @@ assert 'payload=_operator_field(raw,"adam_request_payload_b64","");_set_last_ada
 
 for token in [
     'ONE_SHOT_MODES = ("terminal", "chat", "continue", "vlad")',
-    'WORKER = ROOT / "tools" / "adam_planned_venice.py"',
+    'WORKER = ROOT / "tools" / "adam_planned_venice_receipted.py"',
     'jarGoverned=True',
+    'jarUsageReceipts=True',
+    'jarOutputKindRequired=True',
     'preExecutionPlanReview=True',
     'veniceReviewed=True',
     'daemonBackoff=True',
@@ -85,7 +89,18 @@ for token in [
 ]:
     assert token in planned, f"planned worker missing {token}"
 
+for token in [
+    'JUDGMENT JAR USAGE RECEIPT CONTRACT',
+    'outputKind',
+    'adam.preflight.selected-jar-context',
+    'adam.execution.active-jar-context',
+    'adam.preflight.venice-plan-review',
+    'adam.completion.venice-review',
+    'adam.task.output',
+]:
+    assert token in receipted, f"receipt-enforced worker missing {token}"
+
 assert 'CODEX LOCAL STEERING DOCUMENTS (binding)' in reviewed
 assert 'canonical_venice_review(' in reviewed
 assert 'Daemon Persistence and Connector Backoff' in reviewed
-print("Adam overlay transport / planned + Venice-reviewed durable-delivery contract: PASS")
+print("Adam overlay / planned + Venice-reviewed + Judgment-Jar-receipted delivery contract: PASS")
