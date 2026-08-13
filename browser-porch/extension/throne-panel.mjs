@@ -1,7 +1,14 @@
 /* global chrome */
 'use strict';
 
-import {MAX_SWARM_SLICES, newJob, parseHandoff, planHandoffContinuation} from './swarm-core.mjs';
+import {
+  MAX_PARALLEL_WORKERS,
+  MAX_SWARM_SLICES,
+  newJob,
+  parallelBatch,
+  parseHandoff,
+  planHandoffContinuation,
+} from './swarm-core.mjs';
 
 const $ = (id) => document.getElementById(id);
 const context = $('context');
@@ -36,7 +43,7 @@ async function init() {
   if (result?.ok) {
     context.value = saved.throneContext || result.context || result.defaultContext || '';
     if (!saved.throneContext && context.value) await chrome.storage.local.set({throneContext: context.value});
-    status.textContent = result.tab?.usable ? `${result.bootPhrase} · tab ready` : 'Open chatgpt.com in this tab';
+    status.textContent = `${result.bootPhrase} · ${result.workers?.length || 0} worker tabs`;
   }
 }
 
@@ -58,32 +65,31 @@ async function enqueue() {
 
 async function runNext(fromSwarm = false) {
   const {throneQueue = []} = await chrome.storage.local.get('throneQueue');
-  const index = throneQueue.findIndex((job) => job.state === 'queued');
-  if (index < 0) {
+  const original = throneQueue.find((job) => job.state === 'queued');
+  if (!original) {
     if (!fromSwarm) show('Queue is empty.');
     return null;
   }
-  const original = throneQueue[index];
-  throneQueue[index] = {...original, state: 'dispatching', startedAt: new Date().toISOString()};
-  await chrome.storage.local.set({throneQueue});
-  await renderQueue(throneQueue);
-
-  const result = await dispatch(original.commission, original.newWorker, original.context || context.value, false);
-  const refreshed = (await chrome.storage.local.get('throneQueue')).throneQueue || throneQueue;
-  const row = refreshed.findIndex((job) => job.id === original.id);
-  if (row >= 0) refreshed[row] = {
-    ...refreshed[row],
-    state: result?.ok ? 'sent' : 'failed',
-    dispatchReceipt: result?.receipt || null,
-    finishedAt: new Date().toISOString(),
-    error: result?.error || '',
-  };
-  await chrome.storage.local.set({throneQueue: refreshed});
-  await renderQueue(refreshed);
-  return result?.ok && row >= 0 ? {job: refreshed[row], receipt: result.receipt} : null;
+  return dispatchQueuedJob(original);
 }
 
-async function dispatch(text, fresh, campaignContext, clear = true) {
+async function dispatchQueuedJob(original) {
+  await markJob(original.id, 'dispatching', {startedAt: new Date().toISOString()});
+  const result = await dispatch(original.commission, original.newWorker, original.context || context.value, false, original.id);
+  if (!result?.ok) {
+    await markJob(original.id, 'failed', {error: result?.error || 'dispatch_failed', finishedAt: new Date().toISOString()});
+    return null;
+  }
+  const workerTabId = Number(result.receipt?.tabId || result.worker?.tabId || 0);
+  await markJob(original.id, 'running', {
+    dispatchReceipt: result.receipt || null,
+    workerTabId,
+    dispatchedAt: new Date().toISOString(),
+  });
+  return {job: {...original, workerTabId}, receipt: result.receipt, workerTabId};
+}
+
+async function dispatch(text, fresh, campaignContext, clear = true, jobId = '') {
   const value = String(text || '').trim();
   if (!value) return showAndReturn('Commission is empty.');
   const result = await message({
@@ -91,6 +97,7 @@ async function dispatch(text, fresh, campaignContext, clear = true) {
     commission: value,
     context: String(campaignContext || '').trim(),
     newWorker: fresh,
+    jobId,
   });
   if (result?.ok && clear) {
     commission.value = '';
@@ -102,78 +109,82 @@ async function dispatch(text, fresh, campaignContext, clear = true) {
 async function runSwarm() {
   if (swarmRunning) return show('Swarm already running.');
   swarmRunning = true;
-  status.textContent = 'swarm running · bounded Instant slices';
+  status.textContent = `swarm running · up to ${MAX_PARALLEL_WORKERS} parallel Instant workers`;
   const receipts = [];
+  let totalSlices = 0;
   try {
-    for (let slice = 1; slice <= MAX_SWARM_SLICES && swarmRunning; slice += 1) {
-      const queued = await firstQueuedJob();
-      if (!queued) {
-        receipts.push({slice, state: 'queue_empty'});
-        break;
-      }
-      const before = queued.newWorker ? {assistantCount: 0} : await inspectConversation();
-      const dispatched = await runNext(true);
-      if (!dispatched) {
-        receipts.push({slice, state: 'dispatch_failed'});
-        break;
-      }
-      const checkpoint = await waitForCompletedAssistant(Number(before.assistantCount || 0));
-      if (!checkpoint.ok) {
-        await markJob(dispatched.job.id, 'choked_unreadable', {error: checkpoint.error});
-        receipts.push({slice, state: 'choked_unreadable', error: checkpoint.error});
+    while (swarmRunning && totalSlices < MAX_SWARM_SLICES) {
+      const {throneQueue = []} = await chrome.storage.local.get('throneQueue');
+      const wave = parallelBatch(throneQueue, Math.min(MAX_PARALLEL_WORKERS, MAX_SWARM_SLICES - totalSlices));
+      if (!wave.length) {
+        receipts.push({state: 'queue_empty'});
         break;
       }
 
-      const continuation = planHandoffContinuation(dispatched.job.context || context.value, checkpoint.text);
-      await recordSwarmReceipt({
-        type: 'swarm_checkpoint',
-        slice,
-        jobId: dispatched.job.id,
-        at: new Date().toISOString(),
-        text: checkpoint.text,
-        handoff: continuation?.handoff || null,
-      });
-
-      if (continuation) {
-        context.value = continuation.context;
-        const {throneQueue = []} = await chrome.storage.local.get('throneQueue');
-        throneQueue.push(continuation.job);
-        await chrome.storage.local.set({throneQueue, throneContext: continuation.context});
-        await markJob(dispatched.job.id, 'handed_off', {handoff: continuation.handoff});
-        await renderQueue(throneQueue);
-        receipts.push({slice, state: 'handed_off', next: continuation.job.commission});
-        continue;
+      const dispatched = (await Promise.all(wave.map((job) => dispatchQueuedJob(job)))).filter(Boolean);
+      totalSlices += dispatched.length;
+      if (!dispatched.length) {
+        receipts.push({state: 'dispatch_wave_failed'});
+        break;
       }
+      receipts.push({state: 'wave_dispatched', workers: dispatched.map((x) => ({jobId: x.job.id, tabId: x.workerTabId}))});
 
-      const reviewRequirement = {
-        reviewer: 'venice-local',
-        independentOfChatGPT: true,
-        requiredReceiptField: 'externalReviewGateSatisfied',
-        requiredReceiptValue: true,
-        cli: 'python3 tools/venice.py review --base <swarm-base> --head <swarm-head> --acceptance-file <acceptance-file> --receipt <receipt.json>',
-      };
-      await markJob(dispatched.job.id, 'awaiting_venice_review', {checkpoint: checkpoint.text, reviewRequirement});
-      await recordSwarmReceipt({
-        type: 'swarm_external_review_required',
-        slice,
-        jobId: dispatched.job.id,
-        at: new Date().toISOString(),
-        reviewRequirement,
-      });
-      receipts.push({slice, state: 'awaiting_venice_review', reviewRequirement});
-      break;
+      await Promise.all(dispatched.map(async (entry) => {
+        const checkpoint = await waitForCompletedAssistant(entry.workerTabId);
+        if (!checkpoint.ok) {
+          await markJob(entry.job.id, 'choked_unreadable', {error: checkpoint.error});
+          receipts.push({jobId: entry.job.id, tabId: entry.workerTabId, state: 'choked_unreadable', error: checkpoint.error});
+          return;
+        }
+
+        const continuation = planHandoffContinuation(entry.job.context || context.value, checkpoint.text);
+        await recordSwarmReceipt({
+          type: 'swarm_checkpoint',
+          jobId: entry.job.id,
+          tabId: entry.workerTabId,
+          at: new Date().toISOString(),
+          text: checkpoint.text,
+          handoff: continuation?.handoff || null,
+        });
+
+        if (continuation) {
+          context.value = continuation.context;
+          const {throneQueue: currentQueue = []} = await chrome.storage.local.get('throneQueue');
+          currentQueue.push(continuation.job);
+          await chrome.storage.local.set({throneQueue: currentQueue, throneContext: continuation.context});
+          await markJob(entry.job.id, 'handed_off', {handoff: continuation.handoff});
+          receipts.push({jobId: entry.job.id, tabId: entry.workerTabId, state: 'handed_off', next: continuation.job.commission});
+          return;
+        }
+
+        const reviewRequirement = {
+          reviewer: 'venice-local',
+          independentOfChatGPT: true,
+          requiredReceiptField: 'externalReviewGateSatisfied',
+          requiredReceiptValue: true,
+          vladRequired: true,
+          finalRelease: 'tetsuya',
+        };
+        await markJob(entry.job.id, 'awaiting_venice_review', {checkpoint: checkpoint.text, reviewRequirement});
+        await recordSwarmReceipt({
+          type: 'swarm_external_review_required',
+          jobId: entry.job.id,
+          tabId: entry.workerTabId,
+          at: new Date().toISOString(),
+          reviewRequirement,
+        });
+        receipts.push({jobId: entry.job.id, tabId: entry.workerTabId, state: 'awaiting_venice_review'});
+      }));
+
+      const updated = (await chrome.storage.local.get('throneQueue')).throneQueue || [];
+      await renderQueue(updated);
     }
   } finally {
     swarmRunning = false;
     const ready = await message({type: 'throne.status'}, false);
-    status.textContent = ready?.tab?.usable ? `${ready.bootPhrase} · tab ready` : 'Open chatgpt.com in this tab';
-    show({ok: true, accepted: false, swarm: receipts, terminalGate: 'Venice external code review'});
+    status.textContent = ready?.ok ? `${ready.bootPhrase} · ${ready.workers?.length || 0} worker tabs` : 'Chromium Throne unavailable';
+    show({ok: true, accepted: false, swarm: receipts, terminalGate: 'Vlad + Venice review; Tetsuya final release'});
   }
-}
-
-async function firstQueuedJob() {
-  const {throneQueue = []} = await chrome.storage.local.get('throneQueue');
-  return throneQueue.find((job) => job.state === 'queued') || null;
 }
 
 async function markJob(jobId, state, extra = {}) {
@@ -185,58 +196,44 @@ async function markJob(jobId, state, extra = {}) {
 }
 
 async function capture() {
-  const result = await message({type: 'throne.capture'});
+  const {throneQueue = []} = await chrome.storage.local.get('throneQueue');
+  const selected = throneQueue.find((job) => Number(job.workerTabId) > 0 && ['running', 'awaiting_venice_review', 'handed_off'].includes(job.state));
+  const result = await message({type: 'throne.capture', workerTabId: selected?.workerTabId || null, jobId: selected?.id || ''});
   if (result?.ok) {
     const handoff = parseHandoff(result.receipt?.text || '');
-    if (handoff) show({ok: true, checkpoint: result.receipt, handoff});
+    show({ok: true, checkpoint: result.receipt, handoff});
   }
   return result;
 }
 
-async function waitForCompletedAssistant(baselineCount, timeoutMs = 10 * 60 * 1000) {
+async function waitForCompletedAssistant(workerTabId, timeoutMs = 10 * 60 * 1000) {
   const started = Date.now();
+  let baselineCount = null;
   let lastText = '';
   let stablePolls = 0;
   while (Date.now() - started < timeoutMs && swarmRunning) {
-    const peek = await inspectConversation();
-    if (peek.ok && peek.assistantCount > baselineCount && peek.text) {
-      stablePolls = !peek.generating && peek.text === lastText ? stablePolls + 1 : 0;
-      lastText = peek.text;
-      if (!peek.generating && stablePolls >= 1) return {ok: true, text: peek.text, assistantCount: peek.assistantCount};
+    const peek = await inspectConversation(workerTabId);
+    if (peek.ok) {
+      if (baselineCount === null) baselineCount = Number(peek.assistantCount || 0);
+      if (peek.assistantCount > baselineCount && peek.text) {
+        stablePolls = !peek.generating && peek.text === lastText ? stablePolls + 1 : 0;
+        lastText = peek.text;
+        if (!peek.generating && stablePolls >= 1) return {ok: true, text: peek.text, assistantCount: peek.assistantCount};
+      }
     }
     await sleep(1800);
   }
   return {ok: false, error: swarmRunning ? 'assistant_completion_timeout' : 'swarm_stopped'};
 }
 
-async function inspectConversation() {
-  try {
-    const [tab] = await chrome.tabs.query({active: true, currentWindow: true});
-    if (!tab?.id) return {ok: false, error: 'active_tab_missing'};
-    const [result] = await chrome.scripting.executeScript({target: {tabId: tab.id}, func: inspectChatGpt});
-    return result?.result || {ok: false, error: 'conversation_probe_failed'};
-  } catch (error) {
-    return {ok: false, error: error.message};
-  }
-}
-
-function inspectChatGpt() {
-  const selectors = ['[data-message-author-role="assistant"]', 'article[data-turn="assistant"]'];
-  let nodes = [];
-  for (const selector of selectors) {
-    nodes = [...document.querySelectorAll(selector)];
-    if (nodes.length) break;
-  }
-  const node = nodes.at(-1);
-  const text = (node?.innerText || node?.textContent || '').trim();
-  const generating = Boolean(document.querySelector('button[data-testid="stop-button"], button[aria-label*="stop generating" i], button[aria-label*="stop streaming" i]'));
-  return {ok: true, assistantCount: nodes.length, text: text.slice(0, 120000), generating};
+async function inspectConversation(workerTabId) {
+  return message({type: 'throne.inspect', workerTabId}, false);
 }
 
 async function recordSwarmReceipt(receipt) {
   const {throneSwarmReceipts = []} = await chrome.storage.local.get('throneSwarmReceipts');
   throneSwarmReceipts.push(receipt);
-  if (throneSwarmReceipts.length > 200) throneSwarmReceipts.splice(0, throneSwarmReceipts.length - 200);
+  if (throneSwarmReceipts.length > 500) throneSwarmReceipts.splice(0, throneSwarmReceipts.length - 500);
   await chrome.storage.local.set({throneSwarmReceipts});
 }
 
@@ -268,7 +265,7 @@ async function renderQueue(queue) {
     const row = document.createElement('div');
     row.className = 'job';
     const title = document.createElement('strong');
-    title.textContent = `${index + 1}. ${job.state}${job.context ? ' · context locked' : ''}${job.source === 'handoff' ? ' · rotated' : ''}`;
+    title.textContent = `${index + 1}. ${job.state}${job.workerTabId ? ` · tab ${job.workerTabId}` : ''}${job.context ? ' · context locked' : ''}${job.source === 'handoff' ? ' · rotated' : ''}`;
     const body = document.createElement('div');
     body.textContent = job.commission.length > 220 ? `${job.commission.slice(0, 220)}…` : job.commission;
     row.append(title, body);
