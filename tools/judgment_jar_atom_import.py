@@ -18,25 +18,46 @@ def _source(config: dict[str, Any]) -> Path:
     return state_dir / "judgment-jar-usage.jsonl"
 
 
-def _cursor(config: dict[str, Any]) -> Path:
+def _receipt_root(config: dict[str, Any]) -> Path:
     receipts = config.get("receipts") or {}
     env_name = str(receipts.get("stateDirEnv") or "HC_JUDGMENT_JAR_RECEIPT_STATE_DIR")
-    state_dir = Path(os.environ.get(env_name, str(receipts.get("stateDir") or "~/.local/state/home-center/vlad-swarm/judgment-jar-receipts"))).expanduser()
-    return state_dir / "atom-import-cursor.json"
+    return Path(os.environ.get(env_name, str(receipts.get("stateDir") or "~/.local/state/home-center/vlad-swarm/judgment-jar-receipts"))).expanduser()
+
+
+def _append(path: Path, value: dict[str, Any]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("a", encoding="utf-8") as handle:
+        handle.write(json.dumps(value, ensure_ascii=False, sort_keys=True) + "\n")
 
 
 def import_atom_receipts(config: dict[str, Any]) -> dict[str, Any]:
-    source, cursor_path = _source(config), _cursor(config)
+    root = _receipt_root(config)
+    source = _source(config)
+    cursor_path = root / "atom-import-cursor.json"
+    quarantine_path = root / "atom-import-quarantine.jsonl"
     if not source.is_file():
-        return {"ok": True, "state": "NO_ATOM_LOG", "source": str(source), "imported": 0, "duplicates": 0, "rejected": 0}
+        return {
+            "ok": True,
+            "state": "NO_ATOM_LOG",
+            "source": str(source),
+            "cursor": str(cursor_path),
+            "quarantine": str(quarantine_path),
+            "imported": 0,
+            "duplicates": 0,
+            "rejected": 0,
+        }
     cursor = {"line": 0}
     if cursor_path.is_file():
         try:
             cursor = json.loads(cursor_path.read_text(encoding="utf-8"))
         except (OSError, json.JSONDecodeError):
             cursor = {"line": 0}
-    start = max(0, int(cursor.get("line") or 0))
     lines = source.read_text(encoding="utf-8", errors="replace").splitlines()
+    start = max(0, int(cursor.get("line") or 0))
+    cursor_reset = ""
+    if start > len(lines):
+        start = 0
+        cursor_reset = "SOURCE_TRUNCATED_OR_REPLACED"
     imported = duplicates = rejected = 0
     errors: list[dict[str, Any]] = []
     consumed = start
@@ -61,13 +82,23 @@ def import_atom_receipts(config: dict[str, Any]) -> dict[str, Any]:
             imported += int(not result.get("duplicate"))
         except Exception as exc:
             rejected += 1
-            errors.append({"line": index + 1, "error": f"{type(exc).__name__}: {exc}"})
+            error = {"line": index + 1, "error": f"{type(exc).__name__}: {exc}"}
+            errors.append(error)
+            _append(quarantine_path, {
+                "schema": "home-center.judgment-jar-atom-import-quarantine.v1",
+                "source": str(source),
+                "line": index + 1,
+                "raw": line,
+                **error,
+            })
         consumed = index + 1
     write_atomic(cursor_path, {
         "schema": "home-center.judgment-jar-atom-import-cursor.v1",
         "source": str(source),
         "line": consumed,
         "sourceLineCount": len(lines),
+        "cursorReset": cursor_reset,
+        "quarantine": str(quarantine_path),
         "lastErrors": errors[-10:],
     })
     return {
@@ -75,6 +106,8 @@ def import_atom_receipts(config: dict[str, Any]) -> dict[str, Any]:
         "state": "IMPORTED" if imported else "NO_CHANGE",
         "source": str(source),
         "cursor": str(cursor_path),
+        "quarantine": str(quarantine_path),
+        "cursorReset": cursor_reset,
         "imported": imported,
         "duplicates": duplicates,
         "rejected": rejected,
