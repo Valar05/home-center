@@ -15,10 +15,18 @@ from service import (
     make_unique_frame_archive,
     probe_video,
     validate_source_url,
+    HammingBKTree,
 )
 
 
 class ScannerTests(unittest.TestCase):
+    def test_hamming_tree_finds_only_values_inside_threshold(self):
+        tree = HammingBKTree()
+        tree.add(0b0000, 0)
+        tree.add(0b1111, 1)
+        self.assertEqual((0, 1), tree.nearest_within(0b0001, 1))
+        self.assertEqual((None, None), tree.nearest_within(0b0011, 1))
+
     def make_frames(self, root):
         paths = []
         for index, x in enumerate((8, 8, 42)):
