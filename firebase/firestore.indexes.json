@@ -122,6 +122,13 @@
   ],
   "fieldOverrides": [
     {
+      "collectionGroup": "members",
+      "fieldPath": "email",
+      "indexes": [
+        {"order": "ASCENDING", "queryScope": "COLLECTION_GROUP"}
+      ]
+    },
+    {
       "collectionGroup": "gcsFilesystemTrashEntries",
       "fieldPath": "expiresAt",
       "ttl": true,
