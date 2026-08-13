@@ -33,6 +33,7 @@ const {recoverAudioRenderRegistrationOperation, linkDriveAudioToReaderStageOpera
 const {localVoiceOperationEntries, localVoiceOperationRunOperation} = require('./local_voice_farm_api');
 const {computerHandsOperationEntries, computerHandsOperationRunOperation} = require('./computer_hands_api');
 const {browserNerveOperationEntries, browserNerveOperationRunOperation} = require('./browser_nerve_api');
+const {autocorrectNoiseOperationEntries, autocorrectNoiseOperationRunOperation} = require('./autocorrect_noise');
 const {veniceBodyOperationEntries, veniceBodyOperationRunOperation} = require('./venice_body_router');
 const {veniceNerveOperationEntries, veniceNerveOperationRunOperation} = require('./venice_nerve_api');
 const {materializeReceiptArtifactsOperation, recordArtifactReviewOperation, linkArtifactReviewSuccessorOperation} = require('./artifact_delivery_service');
@@ -5369,6 +5370,7 @@ function driveOperationRegistry() {
       ...localVoiceOperationEntries(),
     ...computerHandsOperationEntries(),
     ...browserNerveOperationEntries(),
+    ...autocorrectNoiseOperationEntries(),
     ...veniceBodyOperationEntries(),
     ...veniceNerveOperationEntries(),
       ...smsCalendarOperationRegistry().operations,
@@ -5979,6 +5981,10 @@ async function driveOperationRunOperation({google, admin, auth, user, extra = nu
   if (browserNerveOperationEntries()[operation]) {
     requireCreditGatedEmail(user && user.email, operation);
     const result = await browserNerveOperationRunOperation({admin, user, operation, args: operationArgs});
+    return {operation, registryVersion: registry.version, completed: true, result};
+  }
+  if (autocorrectNoiseOperationEntries()[operation]) {
+    const result = await autocorrectNoiseOperationRunOperation({admin, user, operation, args: operationArgs});
     return {operation, registryVersion: registry.version, completed: true, result};
   }
   if (veniceBodyOperationEntries()[operation]) {
