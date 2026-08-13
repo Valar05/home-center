@@ -93,7 +93,7 @@ assert vlad_recent['readOnly'] is True
 assert vlad_recent['outboundAuthority'] is False
 
 router = (ROOT / 'tools' / 'adam.py').read_text(encoding='utf-8')
-assert 'ONE_SHOT_MODES = ("terminal", "text", "chat", "continue", "vlad")' in router
+assert 'ONE_SHOT_MODES = ("terminal", "text", "chat", "continue", "vlad", "radio")' in router
 assert 'drive_operation("sms_calendar.inbox"' in router
 assert 'drive_operation("sms_calendar.get"' in router
 assert 'sms_calendar.approve' not in router
