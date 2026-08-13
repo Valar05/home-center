@@ -4,6 +4,7 @@ set -euo pipefail
 STATE_ROOT="${HC_STATE_DIR:-$HOME/.local/state/home-center}/phone-ssh"
 RECEIPTS="$STATE_ROOT/receipts.jsonl"
 LATEST="$STATE_ROOT/latest.json"
+DIAG="$STATE_ROOT/diagnostic.txt"
 PORT="${FORTRESS_PHONE_SSH_PORT:-8022}"
 mkdir -p "$STATE_ROOT"
 
@@ -25,54 +26,72 @@ PY
 
 listener_ok(){
   if command -v ss >/dev/null 2>&1; then
-    ss -ltn 2>/dev/null | grep -Eq "[:.]${PORT}[[:space:]]"
+    ss -ltn 2>/dev/null | grep -Eq "[:.]${PORT}([[:space:]]|$)"
+  elif command -v netstat >/dev/null 2>&1; then
+    netstat -ltn 2>/dev/null | grep -Eq "[:.]${PORT}[[:space:]]"
   else
-    pgrep -x sshd >/dev/null 2>&1
+    # On stripped Termux installs, process presence is the strongest local-only
+    # observation available. External SSH Axis remains the callability gate.
+    pgrep -f '(^|/)sshd([[:space:]]|$)' >/dev/null 2>&1
   fi
 }
 
-healthy_local(){ pgrep -x sshd >/dev/null 2>&1 && listener_ok; }
+process_ok(){ pgrep -f '(^|/)sshd([[:space:]]|$)' >/dev/null 2>&1; }
+healthy_local(){ process_ok && listener_ok; }
 
 status(){
   if healthy_local; then emit status 1 listening "sshd process and local listener present"; return 0; fi
-  if pgrep -x sshd >/dev/null 2>&1; then emit status 0 process_without_listener "sshd exists but port ${PORT} is not listening"; return 2; fi
+  if process_ok; then emit status 0 process_without_listener "sshd exists but port ${PORT} is not proven listening"; return 2; fi
   emit status 0 stopped "sshd is not running"; return 2
 }
 
 install_deps(){
   command -v sshd >/dev/null 2>&1 && return 0
   command -v pkg >/dev/null 2>&1 || { emit ensure 0 openssh_missing "sshd missing and pkg unavailable"; return 3; }
-  pkg install -y openssh >/dev/null
+  pkg install -y openssh >"$DIAG" 2>&1 || { emit ensure 0 openssh_install_failed "$(tail -c 1200 "$DIAG" 2>/dev/null || true)"; return 3; }
+}
+
+config_check(){
+  : >"$DIAG"
+  sshd -t >"$DIAG" 2>&1 || { emit diagnose 0 config_invalid "$(tail -c 1600 "$DIAG" 2>/dev/null || true)"; return 1; }
 }
 
 start_sshd(){
-  mkdir -p "$HOME/.ssh"
-  chmod 700 "$HOME/.ssh"
-  ssh-keygen -A >/dev/null 2>&1 || true
+  mkdir -p "$HOME/.ssh"; chmod 700 "$HOME/.ssh"
+  ssh-keygen -A >>"$DIAG" 2>&1 || true
+  config_check || return 1
   if command -v sv >/dev/null 2>&1 && [ -d "${PREFIX:-}/var/service/sshd" ]; then
-    sv up sshd >/dev/null 2>&1 || true
-  else
-    sshd >/dev/null 2>&1 || true
+    sv up sshd >>"$DIAG" 2>&1 || true
   fi
-  for _ in 1 2 3 4 5; do listener_ok && return 0; sleep 1; done
+  if ! process_ok; then
+    sshd >>"$DIAG" 2>&1 || true
+  fi
+  for _ in 1 2 3 4 5; do healthy_local && return 0; sleep 1; done
   return 1
+}
+
+failure_detail(){
+  local proc='absent' listener='absent'
+  process_ok && proc='present' || true
+  listener_ok && listener='present' || true
+  printf 'process=%s listener=%s port=%s; %s' "$proc" "$listener" "$PORT" "$(tail -c 1600 "$DIAG" 2>/dev/null || true)"
 }
 
 ensure(){
   if healthy_local; then emit ensure 1 listening "sshd remains healthy on port ${PORT}"; return 0; fi
   install_deps || return $?
   if start_sshd; then emit ensure 1 listening "sshd started and port ${PORT} is listening"; return 0; fi
-  emit ensure 0 start_failed "sshd could not establish listener on port ${PORT}"; return 4
+  emit ensure 0 start_failed "$(failure_detail)"; return 4
 }
 
 repair(){
   if healthy_local; then emit repair 1 healthy "SSH already healthy; no restart required"; return 0; fi
   install_deps || return $?
   if start_sshd; then emit repair 1 recovered "SSH recovered without destructive restart"; return 0; fi
-  pkill -TERM -x sshd >/dev/null 2>&1 || true
+  pkill -TERM -f '(^|/)sshd([[:space:]]|$)' >/dev/null 2>&1 || true
   sleep 1
   if start_sshd; then emit repair 1 recovered "sshd restarted and listener restored"; return 0; fi
-  emit repair 0 failed "restart did not restore listener on port ${PORT}"; return 5
+  emit repair 0 failed "$(failure_detail)"; return 5
 }
 
 case "${1:-status}" in
