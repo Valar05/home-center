@@ -85,7 +85,7 @@ def _title(text: str, fallback: str) -> str:
 
 def catalog(*, include_text: bool = False, sync: bool = False) -> list[dict[str, Any]]:
     pattern = str(CONFIG.get("sourceGlob") or ".continue/rules/*judgement-jar*.md")
-    jars: list[dict[str, Any]] = []
+    values: list[dict[str, Any]] = []
     for path in sorted(ROOT.glob(pattern)):
         if not path.is_file():
             continue
@@ -103,19 +103,40 @@ def catalog(*, include_text: bool = False, sync: bool = False) -> list[dict[str,
         }
         if include_text:
             item["text"] = text
-        jars.append(item)
-    jars.sort(key=lambda item: (int(item["order"]), str(item["id"])))
+        values.append(item)
+    values.sort(key=lambda item: (int(item["order"]), str(item["id"])))
     if sync:
-        sync_catalog(jars)
-    return jars
+        sync_catalog(values)
+    return values
+
+
+def catalog_sha256(values: Iterable[dict[str, Any]]) -> str:
+    canonical = "\n".join(
+        f"{item['path']}:{item['sha256']}"
+        for item in sorted(values, key=lambda item: (int(item["order"]), str(item["id"])))
+    )
+    return _sha_text(canonical)
+
+
+def catalog_snapshot(values: list[dict[str, Any]] | None = None) -> dict[str, Any]:
+    jars = values if values is not None else catalog(include_text=False)
+    return {
+        "schema": "home-center.judgement-jar-catalog.v1",
+        "generatedAt": _now_iso(),
+        "source": "repository:.continue/rules/*judgement-jar*.md",
+        "count": len(jars),
+        "jars": jars,
+        "catalogSha256": catalog_sha256(jars),
+    }
 
 
 def resolve_jar(reference: str, *, include_text: bool = True) -> dict[str, Any]:
     needle = str(reference or "").strip().lower()
     if not needle:
         raise KeyError("Judgment Jar reference is required")
+    values = catalog(include_text=include_text)
     matches: list[dict[str, Any]] = []
-    for item in catalog(include_text=include_text):
+    for item in values:
         aliases = {
             str(item["id"]).lower(),
             str(item["order"]),
@@ -127,12 +148,11 @@ def resolve_jar(reference: str, *, include_text: bool = True) -> dict[str, Any]:
         if needle in aliases:
             matches.append(item)
     if not matches:
-        prefix = [
-            item for item in catalog(include_text=include_text)
+        matches = [
+            item for item in values
             if str(item["id"]).lower().startswith(needle)
             or str(item["filename"]).lower().startswith(needle)
         ]
-        matches = prefix
     if len(matches) != 1:
         raise KeyError(f"Judgment Jar reference {reference!r} resolved to {len(matches)} jars")
     return matches[0]
@@ -167,20 +187,8 @@ def _post(path: str, payload: dict[str, Any]) -> dict[str, Any]:
         return {"ok": False, "error": f"{type(exc).__name__}: {exc}"}
 
 
-def _catalog_snapshot(jars: list[dict[str, Any]] | None = None) -> dict[str, Any]:
-    values = jars if jars is not None else catalog(include_text=False)
-    return {
-        "schema": "home-center.judgement-jar-catalog.v1",
-        "generatedAt": _now_iso(),
-        "source": "repository:.continue/rules/*judgement-jar*.md",
-        "count": len(values),
-        "jars": values,
-        "catalogSha256": _sha_text(json.dumps(values, ensure_ascii=False, sort_keys=True)),
-    }
-
-
-def sync_catalog(jars: list[dict[str, Any]] | None = None) -> dict[str, Any]:
-    snapshot = _catalog_snapshot(jars)
+def sync_catalog(values: list[dict[str, Any]] | None = None) -> dict[str, Any]:
+    snapshot = catalog_snapshot(values)
     _atomic_json(CATALOG_PATH, snapshot)
     _, _, catalog_endpoint, _ = _daemon_contract()
     result = _post(catalog_endpoint, snapshot)
@@ -245,7 +253,14 @@ def sync_pending() -> dict[str, Any]:
             catalog_result = {"ok": True, "state": "DELIVERED", "daemon": posted}
         else:
             catalog_result = {"ok": False, "state": "PENDING", "daemon": posted}
-    return {"ok": not OUTBOX_DIR.glob("*.json"), "state": "DELIVERED" if not list(OUTBOX_DIR.glob("*.json")) else "PENDING", "delivered": delivered, "catalog": catalog_result}
+    remaining = sorted(OUTBOX_DIR.glob("*.json"))
+    return {
+        "ok": not remaining,
+        "state": "DELIVERED" if not remaining else "PENDING",
+        "delivered": delivered,
+        "remaining": len(remaining),
+        "catalog": catalog_result,
+    }
 
 
 def record_usage(
@@ -299,12 +314,17 @@ def record_usage(
     _atomic_json(LAST_PATH, receipt)
     outbox_path = _receipt_outbox_path(receipt_id, created_epoch_ms)
     _atomic_json(outbox_path, receipt)
-    delivered = _deliver_receipt_file(outbox_path)
+    sync_result = sync_pending()
+    delivered = not outbox_path.exists()
     return {
         "receipt": receipt,
         "capturePath": str(RECEIPTS_PATH),
-        "outboxPath": str(outbox_path) if outbox_path.exists() else None,
-        "homeCenter": delivered,
+        "outboxPath": None if delivered else str(outbox_path),
+        "homeCenter": {
+            "ok": delivered,
+            "state": "DELIVERED" if delivered else "PENDING",
+            "sync": sync_result,
+        },
     }
 
 
@@ -348,12 +368,13 @@ def record_many(
 
 
 def status() -> dict[str, Any]:
-    jars = catalog(include_text=False)
+    values = catalog(include_text=False)
     pending = sorted(OUTBOX_DIR.glob("*.json")) if OUTBOX_DIR.exists() else []
     return {
         "schema": "home-center.judgement-jar-runtime-status.v1",
         "ok": True,
-        "jarCount": len(jars),
+        "jarCount": len(values),
+        "catalogSha256": catalog_sha256(values),
         "outputKinds": sorted(OUTPUT_KINDS),
         "catalogPath": str(CATALOG_PATH),
         "usageReceiptsPath": str(RECEIPTS_PATH),
