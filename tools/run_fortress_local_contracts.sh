@@ -3,6 +3,7 @@ set -euo pipefail
 ROOT="${HC_REPO_ROOT:-$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)}"
 cd "$ROOT"
 python3 tools/test_fortress_phone_resume_contract.py
+python3 tools/test_vlad_swarm_venice_directive.py
 python3 tools/test_vlad_pixel_mnn_contract.py
 python3 tools/test_fortress_phone_evidence.py
 python3 tools/test_vlad_overlay_self_heal_contract.py
@@ -17,6 +18,7 @@ python3 tools/test_adam_campaign_contract.py
 node --test tools/fortress_online_v2_boot.test.mjs
 python3 -m py_compile \
   tools/vlad_swarm_daemon.py \
+  tools/queue_venice_review_phone.py \
   tools/vlad_pixel_forge_probe.py \
   tools/stage_vlad_pixel_model_phone.py \
   tools/vlad_pixel_request.py \
