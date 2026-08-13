@@ -87,9 +87,9 @@ Invoke-Checked git @('-C', $repo, 'cat-file', '-e', $keySpec)
 $tempRoot = Join-Path ([IO.Path]::GetTempPath()) ('home-center-overlay-signing-' + [Guid]::NewGuid().ToString('N'))
 $tarPath = Join-Path $tempRoot 'signing.tar'
 $signingKey = Join-Path $tempRoot 'operator-overlay-debug.keystore'
-$home = [Environment]::GetFolderPath('UserProfile')
-if (-not $home) { $home = $HOME }
-$androidHome = Join-Path $home '.android'
+$userHome = [Environment]::GetFolderPath('UserProfile')
+$userHome = if ($userHome) { $userHome } else { $HOME }
+$androidHome = Join-Path $userHome '.android'
 $debugKey = Join-Path $androidHome 'debug.keystore'
 $debugBackup = Join-Path $tempRoot 'original-debug.keystore'
 $hadDebugKey = Test-Path -LiteralPath $debugKey
