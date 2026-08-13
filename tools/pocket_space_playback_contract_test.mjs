@@ -15,7 +15,8 @@ for (const required of [
 }
 
 for (const required of [
-  'Documents/FortressAudio',
+  'Environment.DIRECTORY_DOCUMENTS',
+  '"FortressAudio"',
   'READ_MEDIA_AUDIO is not granted',
   'USAGE_ASSISTANCE_ACCESSIBILITY',
   'AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK',
@@ -31,24 +32,32 @@ for (const required of [
 for (const forbidden of [
   'Environment.getExternalStorageDirectory()',
   'setDataSource(supplied)',
-  'AUDIOFOCUS_GAIN',
+  'AUDIOFOCUS_GAIN)',
 ]) {
   if (activity.includes(forbidden)) throw new Error('Pocket Space Android playback contract contains forbidden broad behavior: ' + forbidden);
 }
 
 for (const required of [
-  "POCKET_PHONE=Path.home()/'bin/pocket-tts-phone'",
-  "'engine':'pocket-tts-phone+home-center-playback+rish'",
-  "component='com.dclar.homecenter/.PocketTtsPlaybackActivity'",
-  "if provider=='termux': raise RuntimeError('BLOCKED: system TTS is not Adam')",
-  "'provider':'pocket-home-center'",
-  "'transport':'shizuku-rish'",
-  'seconds+=play_home_center(wav)',
+  'POCKET_PHONE = Path.home() / "bin/pocket-tts-phone"',
+  '"engine": "pocket-tts-phone+home-center-playback+rish"',
+  'PLAYBACK_COMPONENT = "com.dclar.homecenter/.PocketTtsPlaybackActivity"',
+  'if provider == "termux":',
+  'BLOCKED: system TTS is not Adam',
+  '"provider": "pocket-home-center"',
+  '"transport": "shizuku-rish"',
+  '"playbackVerified":',
+  'play_finish reason=completed',
+  'verify_playback_log(path)',
 ]) {
   if (!reader.includes(required)) throw new Error('Pocket Space end-to-end reader contract missing: ' + required);
 }
 
-const synthesisOnly = '$HOME/bin/pockettts-say --text';
-if (reader.includes(synthesisOnly)) throw new Error('End-to-end reader must not delegate completion to the synthesis-only helper.');
+for (const forbidden of [
+  'subprocess.run(["termux-tts-speak"',
+  'provider == "system"',
+  'cloudFallbackUsed": True',
+]) {
+  if (reader.includes(forbidden)) throw new Error('Pocket Space reader contains forbidden fallback: ' + forbidden);
+}
 
-console.log('Pocket Space synthesis -> Home Center Android playback -> audio focus -> completion contract: PASS');
+console.log('Pocket Space synthesis -> Home Center Android playback -> audio focus -> completion-log receipt contract: PASS');
