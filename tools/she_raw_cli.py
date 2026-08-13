@@ -25,6 +25,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 STATE_ROOT = Path(os.path.expanduser(os.environ.get("HC_STATE_DIR", "~/.local/state/home-center"))) / "she-raw-cli"
 CONFIG_PATH = ROOT / "config" / "she-raw-cli.v1.json"
+JAR_CACHE_PATH = ROOT / "config" / "she-raw-jar-cache.md"
 DEFAULT_URL = os.environ.get("HC_SHE_RAW_LLM_URL", os.environ.get("HC_PHONE_LLM_URL", "http://127.0.0.1:8790/v1/chat/completions"))
 DEFAULT_MODEL = os.environ.get("HC_SHE_RAW_MODEL", os.environ.get("HC_PHONE_LLM_MODEL", "local-phone"))
 PRIVATE_CONTEXT = Path(os.path.expanduser(os.environ.get("HC_SHE_RAW_PRIVATE_CONTEXT", str(ROOT / "MEMORIES.md"))))
@@ -84,14 +85,20 @@ def private_context() -> tuple[str, dict]:
 
 def system_messages(config: dict) -> tuple[list[dict], dict]:
     canon = str(config["systemPrompt"])
+    if not JAR_CACHE_PATH.is_file():
+        raise RuntimeError(f"She Raw Judgment Jar cache missing: {JAR_CACHE_PATH}")
+    jar = JAR_CACHE_PATH.read_text(encoding="utf-8", errors="replace")
     private, private_meta = private_context()
-    messages = [{"role": "system", "content": canon}]
+    messages = [
+        {"role": "system", "content": canon},
+        {"role": "system", "content": "BINDING SHE RAW JUDGMENT JAR (bounded offline cache; source metadata preserved):\n\n" + jar},
+    ]
     if private:
         messages.append({
             "role": "system",
             "content": "PRIVATE-LIFE CONTEXT, PSEUDONYMIZED LOCALLY. Treat aliases as the only names. Use this as lived context, never expose source names or claim ownership of the people described.\n\n" + private,
         })
-    return messages, {"canonSha256": sha256(canon), "privateContext": private_meta}
+    return messages, {"canonSha256": sha256(canon), "judgmentJarSha256": sha256(jar), "judgmentJarPath": str(JAR_CACHE_PATH), "privateContext": private_meta}
 
 
 def call_local(messages: list[dict], url: str, model: str, timeout: int) -> tuple[str, dict]:
@@ -173,6 +180,7 @@ def doctor(args, config: dict) -> int:
         "endpoint": args.url,
         "model": args.model,
         "canon": {"ok": CONFIG_PATH.is_file(), "path": str(CONFIG_PATH), "source": config.get("canonSource")},
+        "judgmentJar": {"ok": JAR_CACHE_PATH.is_file(), "path": str(JAR_CACHE_PATH)},
         "privateContext": private_context()[1],
         "cloudFallback": False,
         "applicationContentFilter": False,
@@ -183,7 +191,7 @@ def doctor(args, config: dict) -> int:
         request = urllib.request.Request(args.url, data=json.dumps({"model": args.model, "messages": [{"role": "user", "content": "Return exactly: SHE_RAW_LOCAL_OK"}], "max_tokens": 16}).encode(), headers={"Content-Type": "application/json"})
         with urllib.request.urlopen(request, timeout=min(args.timeout, 20)) as response:
             report["endpointStatus"] = response.status
-        report["ready"] = report["endpointStatus"] == 200 and report["canon"]["ok"]
+        report["ready"] = report["endpointStatus"] == 200 and report["canon"]["ok"] and report["judgmentJar"]["ok"]
     except Exception as exc:
         report["error"] = str(exc)
     print(json.dumps(report, ensure_ascii=False, indent=2, sort_keys=True))
