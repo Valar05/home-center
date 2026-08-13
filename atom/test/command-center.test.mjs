@@ -33,7 +33,7 @@ async function stopChild(child) {
   if (child.exitCode === null) child.kill('SIGKILL');
 }
 
-test('Atom owns the phone command surface and fails closed', async t => {
+test('Atom owns the phone command surface and loads Vlad deterministically', async t => {
   const stateDir = await mkdtemp(join(tmpdir(), 'atom-command-center-test-'));
   const port = 18000 + (process.pid % 1000);
   const base = `http://127.0.0.1:${port}`;
@@ -56,6 +56,21 @@ test('Atom owns the phone command surface and fails closed', async t => {
   assert.equal(status.service, 'Atom');
   assert.equal(status.offlinePrepared, true);
   assert.equal(status.terminalRequired, false);
+  assert.equal(status.vlad.loaded, true);
+  assert.equal(status.vlad.identity, 'Vlad');
+  assert.equal(status.vlad.state, 'deterministic');
+  assert.equal(status.vlad.ollamaDefault, 'disabled');
+  assert.equal(status.vlad.maxParallelWorkers, 8);
+  assert.equal(status.vlad.codingOwner, 'Venice');
+  assert.equal(status.vlad.finalRelease, 'Tetsuya');
+
+  const vladResponse = await fetch(`${base}/v1/atom/vlad`);
+  assert.equal(vladResponse.status, 200);
+  const vlad = await vladResponse.json();
+  assert.equal(vlad.vlad.loaded, true);
+  assert.equal(vlad.contract.kind, 'fortress.vlad.operating-contract.v1');
+  assert.equal(vlad.contract.swarm.chatgptIsOperatorSurface, false);
+  assert.equal(vlad.contract.inferencePolicy.mayOwnSchedulerTruth, false);
 
   const acceptedResponse = await fetch(`${base}/v1/atom/commands`, {
     method: 'POST',
@@ -71,6 +86,8 @@ test('Atom owns the phone command surface and fails closed', async t => {
   const accepted = await acceptedResponse.json();
   assert.equal(accepted.mission.state, 'QUEUED');
   assert.equal(accepted.receipt.kind, 'command.accepted');
+  assert.equal(accepted.receipt.orchestrator, 'Vlad');
+  assert.equal(accepted.receipt.mode, 'deterministic');
 
   const rejected = await fetch(`${base}/v1/atom/commands`, {
     method: 'POST',
@@ -99,5 +116,6 @@ test('Atom owns the phone command surface and fails closed', async t => {
   assert.equal(addon.includes('chatgpt.com'), false);
   assert.equal(addon.includes('input.type'), false);
   assert.equal(addon.includes('shell.exec'), false);
+  assert.match(addon, /Vlad:/);
   assert.equal(stderr, '');
 });
