@@ -1,4 +1,5 @@
 export const MAX_SWARM_SLICES = 12;
+export const MAX_PARALLEL_WORKERS = 8;
 export const HANDOFF_FIELDS = Object.freeze([
   'DURABLE CONTEXT',
   'COMPLETED EVIDENCE',
@@ -20,6 +21,11 @@ export function newJob(text, campaignContext, fresh = true, source = 'manual', i
     state: 'queued',
     queuedAt: new Date().toISOString(),
   };
+}
+
+export function parallelBatch(queue, limit = MAX_PARALLEL_WORKERS) {
+  const bounded = Math.max(1, Math.min(MAX_PARALLEL_WORKERS, Number(limit) || MAX_PARALLEL_WORKERS));
+  return (queue || []).filter((job) => job?.state === 'queued').slice(0, bounded);
 }
 
 export function parseHandoff(text) {
