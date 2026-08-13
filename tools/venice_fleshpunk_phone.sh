@@ -41,8 +41,6 @@ PY
 fi
 case "$SEED" in (*[!0-9]*|'') echo 'SEED must be an integer' >&2; exit 64;; esac
 
-# Prove the endpoint before sending any work. If the cached/default address is
-# stale, reuse the existing authenticated WLAN rediscovery path.
 if ! python "$ROOT/tools/ssh_axis.py" check --target cauldron --json >"$STATE/ssh-axis.json"; then
   if [ ! -f "$ROOT/tools/resolve_cauldron_ssh.py" ]; then
     cat "$STATE/ssh-axis.json" >&2
@@ -126,9 +124,11 @@ $src=if ($subfolder) { Join-Path (Join-Path $outputRoot $subfolder) $filename } 
 if (-not (Test-Path $src)) { throw "Generated image missing: $src" }
 Copy-Item -Force $src 'C:\Users\Public\venice-fleshpunk-latest.png'
 $pngSha=(Get-FileHash -Algorithm SHA256 'C:\Users\Public\venice-fleshpunk-latest.png').Hash.ToLowerInvariant()
+$spokenSummary = "Generated Fleshpunk image for requested scene: $([string]$req.prompt). Seed $([int64]$req.seed). Model $checkpoint with LoRA $lora. This summary describes the request and generation settings, not an independent visual inspection of the rendered pixels."
 $result=[ordered]@{
   schema='venice-fleshpunk-phone-receipt.v1'; ok=$true; prompt=[string]$req.prompt; seed=[int64]$req.seed;
   checkpoint=$checkpoint; lora=$lora; loraSha256=$loraSha; promptId=$promptId;
+  requestDerivedAltText=$spokenSummary; altTextProvenance='request_and_generation_settings_not_visual_inspection';
   remoteOutput='C:\Users\Public\venice-fleshpunk-latest.png'; pngSha256=$pngSha; generatedAt=(Get-Date).ToString('o')
 }
 $result | ConvertTo-Json -Depth 8 | Set-Content -Encoding UTF8 'C:\Users\Public\venice-fleshpunk-result.json'
@@ -154,5 +154,6 @@ if not r.get('ok') or h != r.get('pngSha256'):
     raise SystemExit(f"receipt mismatch remote={r.get('pngSha256')} local={h}")
 r['phonePath']=sys.argv[2]; r['phoneSha256']=h
 open(sys.argv[1],'w',encoding='utf-8').write(json.dumps(r,indent=2,ensure_ascii=False)+'\n')
+print(r.get('requestDerivedAltText',''))
 print(json.dumps(r,ensure_ascii=False))
 PY
