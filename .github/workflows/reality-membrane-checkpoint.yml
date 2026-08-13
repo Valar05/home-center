@@ -1,0 +1,85 @@
+name: Reality Membrane Checkpoint
+
+on:
+  workflow_dispatch:
+    inputs:
+      deploy:
+        description: "Deploy repaired Home Center functions after tests"
+        required: false
+        default: false
+        type: boolean
+
+permissions:
+  contents: write
+
+concurrency:
+  group: reality-membrane-checkpoint-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  patch-test-commit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out commissioned branch
+        uses: actions/checkout@v4
+        with:
+          ref: reality-membrane-canary-20260813
+          fetch-depth: 0
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Apply canonical source patches
+        run: |
+          node tools/install_phone_hands_queue_starvation_fix.mjs
+          node tools/install_reality_membrane_runtime_patch.mjs
+
+      - name: Prove patcher idempotency
+        run: |
+          node tools/install_phone_hands_queue_starvation_fix.mjs
+          node tools/install_reality_membrane_runtime_patch.mjs
+
+      - name: Run deterministic contracts
+        run: |
+          node tools/phone_hands_queue_starvation_contract_test.mjs
+          node tools/reality_membrane_contract_test.mjs
+          node tools/reality_membrane_runtime_patch_test.mjs
+          node --check functions/phone_hands_relay.js
+          node --check functions/home_center_mcp.js
+          node --check functions/reality_membrane.js
+
+      - name: Enforce bounded mutation set
+        shell: bash
+        run: |
+          mapfile -t changed < <(git diff --name-only)
+          printf '%s\n' "${changed[@]}"
+          for path in "${changed[@]}"; do
+            case "$path" in
+              functions/phone_hands_relay.js|functions/home_center_mcp.js) ;;
+              *) echo "Unexpected mutation: $path" >&2; exit 1 ;;
+            esac
+          done
+          test "${#changed[@]}" -eq 2
+
+      - name: Commit applied source changes
+        shell: bash
+        run: |
+          git config user.name "home-center-reality-membrane[bot]"
+          git config user.email "home-center-reality-membrane[bot]@users.noreply.github.com"
+          git add functions/phone_hands_relay.js functions/home_center_mcp.js
+          if git diff --cached --quiet; then
+            echo "Canonical source patches were already committed."
+          else
+            git commit -m "Apply Reality Membrane registry and Phone Hands queue repair"
+            git push origin HEAD:reality-membrane-canary-20260813
+          fi
+
+      - name: Record deployment boundary
+        if: ${{ inputs.deploy }}
+        run: |
+          echo "Deployment intentionally not performed by this checkpoint job."
+          echo "A repository test runner is not acceptance evidence. Runtime deployment must use the existing authorized Firebase lane and be followed by live Home Center and Phone Hands receipts."
+          exit 1
