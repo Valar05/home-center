@@ -17,6 +17,7 @@ python3 tools/test_adam_venice_review_gate.py
 python3 tools/test_adam_campaign_contract.py
 python3 tools/judgment_jar_receipt_contract_check.py
 python3 tools/test_judgment_jar_registry.py
+python3 tools/test_judgment_jar_receipt_quarantine_truth.py
 node --test tools/fortress_online_v2_boot.test.mjs
 node --test atom/test/judgment-jars.test.mjs
 python3 -m py_compile \
@@ -27,6 +28,7 @@ python3 -m py_compile \
   tools/judgment_jar_registry.py \
   tools/judgment_jars.py \
   tools/judgment_jar_receipts.py \
+  tools/judgment_jar_receipt_truth.py \
   tools/judgment_jar_atom_import.py \
   tools/judgment_jar_review_import.py \
   tools/judgment_jar_runtime.py \
@@ -34,6 +36,7 @@ python3 -m py_compile \
   tools/adam_receipted_worker.py \
   tools/accept_adam_receipted_phone.py \
   tools/test_judgment_jar_registry.py \
+  tools/test_judgment_jar_receipt_quarantine_truth.py \
   tools/queue_venice_review_phone.py \
   tools/vlad_pixel_forge_probe.py \
   tools/stage_vlad_pixel_model_phone.py \
