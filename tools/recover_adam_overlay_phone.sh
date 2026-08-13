@@ -21,7 +21,7 @@ record() {
   python3 - "$RECEIPT" "$ok" "$mode" "$detail" <<'PY'
 import json,sys,time
 path,ok,mode,detail=sys.argv[1:]
-obj={'schema':'adam-overlay-recovery-v1','ok':ok=='1','mode':mode,'detail':detail,'verifiedAtEpoch':int(time.time()),'device':'primary-phone','runtime':'android-native-overlay','ciUsed':False,'godotRuntimeUsed':False}
+obj={'schema':'adam-overlay-recovery-v2','ok':ok=='1','mode':mode,'detail':detail,'verifiedAtEpoch':int(time.time()),'device':'primary-phone','runtime':'android-native-overlay','visible':ok=='1','controlEnabled':False if ok=='1' else None,'ciUsed':False,'godotRuntimeUsed':False}
 open(path,'w',encoding='utf-8').write(json.dumps(obj,indent=2,sort_keys=True)+'\n')
 print(json.dumps(obj,indent=2,sort_keys=True))
 PY
@@ -33,19 +33,26 @@ verify_overlay() {
   printf '%s\n' "$state" > "$STATE/adam-overlay-recovery-state.txt"
   printf '%s\n' "$state" | grep -q "package:$PACKAGE" || return 1
   printf '%s\n' "$state" | grep -q 'SYSTEM_ALERT_WINDOW: allow' || return 1
-  printf '%s\n' "$state" | grep -q 'control_enabled=' || return 1
+  # Explicit Overlay On / recovery means a visible local panel, but it never
+  # means remote body authority. ACTION_RESTORE intentionally forces control off.
+  printf '%s\n' "$state" | grep -q 'overlay_hidden=0' || return 1
+  printf '%s\n' "$state" | grep -q 'control_enabled=0' || return 1
 }
 
-start_overlay() {
+start_and_restore_overlay() {
   rish "appops set $PACKAGE SYSTEM_ALERT_WINDOW allow" >/dev/null
   rish "pm grant $PACKAGE android.permission.POST_NOTIFICATIONS 2>/dev/null || true" >/dev/null || true
   rish "am force-stop $PACKAGE 2>/dev/null || true; am start-foreground-service -n $PACKAGE/.OperatorOverlayService >/dev/null 2>&1 || am start -n $PACKAGE/.MainActivity >/dev/null" >/dev/null
-  sleep 2
+  sleep 1
+  # This is the service's existing local restore contract. It makes the panel
+  # visible and deliberately resets control_enabled=false; it is not an enable bypass.
+  rish "am start-foreground-service -a com.homecenter.operatoroverlay.RESTORE -n $PACKAGE/.OperatorOverlayService >/dev/null 2>&1" >/dev/null
+  sleep 1
 }
 
 if rish "pm list packages $PACKAGE" 2>/dev/null | grep -q "package:$PACKAGE"; then
-  start_overlay
-  if verify_overlay; then record 1 restart 'Existing overlay package restarted and verified on phone.'; exit 0; fi
+  start_and_restore_overlay
+  if verify_overlay; then record 1 restart 'Existing overlay package restored visible with control OFF and verified on phone.'; exit 0; fi
 fi
 
 echo '[overlay] package missing or unhealthy; forging locally on phone'
@@ -73,7 +80,7 @@ if [ $INSTALL_RC -ne 0 ] || ! printf '%s\n' "$INSTALL_OUT" | grep -q 'Success'; 
     printf '%s\n' "$INSTALL_OUT" | grep -q 'Success' || { record 0 blocked 'Replacement install failed.'; exit 7; }
   else record 0 blocked "Android install failed: ${INSTALL_OUT:0:1000}"; exit 8; fi
 fi
-start_overlay
+start_and_restore_overlay
 rish "rm -f '$STAGED'" >/dev/null 2>&1 || true
-verify_overlay || { record 0 blocked 'Overlay installed but verification failed.'; exit 9; }
-record 1 local_build "Built and installed locally on phone; sha256=$SHA"
+verify_overlay || { record 0 blocked 'Overlay installed but visible/control-off verification failed.'; exit 9; }
+record 1 local_build "Built, installed, restored visible with control OFF, and verified locally on phone; sha256=$SHA"
