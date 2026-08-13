@@ -1,0 +1,93 @@
+{
+  "schema": "fortress.embodied-communication-receipt.v1",
+  "mission": "Make Drew's primary Android phone audibly speak through Pocket Space TTS exactly: Holocron audio check. Pocket Space TTS is online.",
+  "requestedState": "physical audible playback now",
+  "target": {
+    "deviceId": "primary-phone",
+    "label": "Drew Android Phone",
+    "ownerKey": "owner_4d27b7e75b7c82c17ff779ccbbd24137",
+    "statusAfter": "online",
+    "lastSeenAtMsAfter": 1786618882059
+  },
+  "executionLane": [
+    "Home Center",
+    "Command Center",
+    "Phone Hands",
+    "primary-phone",
+    "Termux Phone Shell",
+    "Pocket TTS",
+    "Home Center PocketTtsPlaybackActivity"
+  ],
+  "exactPhrase": "Holocron audio check. Pocket Space TTS is online.",
+  "rendering": {
+    "engine": "pocket-tts-phone",
+    "voiceProfile": "adam-phone",
+    "voice": "michael",
+    "textChunks": 1,
+    "characters": 49,
+    "systemFallbackUsed": false,
+    "cloudFallbackUsed": false
+  },
+  "physicalPlayback": {
+    "commandId": "000-holocron-pocket-space-verified-playback-20260813-0633",
+    "status": "completed",
+    "exitCode": 0,
+    "provider": "pocket-home-center",
+    "transport": "shizuku-rish",
+    "outputComponent": "com.dclar.homecenter/.PocketTtsPlaybackActivity",
+    "playbackVerified": true,
+    "audioSeconds": 4.36,
+    "activityLaunchAcknowledged": true,
+    "playStartObserved": true,
+    "playCompletedObserved": true,
+    "androidLogTag": "PocketTtsDuck",
+    "completedAtMs": 1786618818857
+  },
+  "deployedRepair": {
+    "sourceHead": "0a1ca16c3e53546b01b85c9ca48e2fad5c1d3cbf",
+    "apkSha256": "15c24dbb19f73869bdcdc137e8ba36f29a2296f2e15c9a34f108e8994810dc27",
+    "apkBytes": 6503536,
+    "apkSignatureSchemeV2Verified": true,
+    "installResult": "Success",
+    "permission": "android.permission.READ_MEDIA_AUDIO",
+    "permissionGranted": true,
+    "componentResolved": true,
+    "lifecycleRepair": "PocketTtsPlaybackActivity uses Theme.Translucent.NoTitleBar; Theme.NoDisplay was rejected because asynchronous playback crashed before onResume completed."
+  },
+  "finalObservation": {
+    "commandId": "000-holocron-post-playback-status-20260813-0634",
+    "status": "completed",
+    "overlayInstalled": true,
+    "overlayPackage": "com.homecenter.operatoroverlay",
+    "stateReadable": true,
+    "controlEnabled": true,
+    "muted": false,
+    "screenActiveUntilMs": 0,
+    "screenYieldUntilMs": 0,
+    "completedAtMs": 1786618873685
+  },
+  "humanAcceptance": {
+    "accepted": true,
+    "acceptedBy": "Drew Clarke",
+    "statement": "It worked",
+    "recordedAfterCommandId": "000-holocron-pocket-space-verified-playback-20260813-0633"
+  },
+  "durability": {
+    "skillPath": "skills/embodied-communication/SKILL.md",
+    "skillCommit": "ebf0e0b50684a638c23a0ea88b9c2917afdf39f7",
+    "promotedSkillObjectId": "bucket_e17bcd3879faeb5798aafddc93ab7948",
+    "contractTestPath": "tools/pocket_space_playback_contract_test.mjs",
+    "contractTestHead": "0a1ca16c3e53546b01b85c9ca48e2fad5c1d3cbf",
+    "authorizedBodyTest": "PASS"
+  },
+  "capabilityStates": {
+    "requested": true,
+    "implemented": true,
+    "testedOnPrimaryPhone": true,
+    "deployedOnPrimaryPhone": true,
+    "callable": true,
+    "executed": true,
+    "physicalPlaybackVerified": true,
+    "humanAccepted": true
+  }
+}
