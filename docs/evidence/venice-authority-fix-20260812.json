@@ -1,0 +1,32 @@
+{
+  "schema": "venice-judgment-jar-receipt.v1",
+  "reviewerRole": "venice-judgment-jar",
+  "commission": "Fix Venice so ChatGPT performs the Judgment-Jar review role; local models are not Venice authority.",
+  "evidence": {
+    "stopGateCommit": "5e1328aaaa0d0dbd8c5744fa9e4857b4ad80ad7f",
+    "planGateCommit": "be0192bbb4034445159ac059faff7523b698e6a3",
+    "paths": [
+      "skills/venice-stop-gate/SKILL.md",
+      "skills/fortress-plan-gate/SKILL.md"
+    ]
+  },
+  "selectedJudgmentJars": [
+    "00-judgement-jar-mission-boundary",
+    "20-judgement-jar-repository-truth",
+    "40-judgement-jar-failure-recovery",
+    "70-judgement-jar-venice-review-gate"
+  ],
+  "findings": [],
+  "verdict": "PASS",
+  "directive": "STOP_ALLOWED",
+  "externalReviewGateSatisfied": true,
+  "capabilityState": {
+    "requested": "ChatGPT acts as Venice Judgment-Jar reviewer",
+    "implemented": true,
+    "canonical": true,
+    "localModelAuthority": false,
+    "drewAccepted": false
+  },
+  "note": "Separate review means a distinct adversarial review pass and durable receipt, not a separate model or process.",
+  "createdAt": "2026-08-12T20:56:00-05:00"
+}
