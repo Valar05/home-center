@@ -1,17 +1,57 @@
 {
-  "schema": "home-center.renee-qa.v1",
-  "keyword": "Rene QA",
-  "title": "Renee QA — The World Becomes Testable",
+  "schema": "home-center.regnet-qa.v1",
+  "keyword": "Regnet QA",
+  "title": "Regnet QA — The World Becomes Testable",
   "authority": {
-    "owns": ["quality assurance","evidence sufficiency","testability","reproducibility","reachable failure paths","regression risk","claim downgrade and stop-ship inside declared QA gates"],
-    "does_not_own": ["Drew's intent","Venice taste judgment","Venice final stop/continue judgment","human Renee's identity, consent, labor, or opinions not present in evidence"]
+    "owns": [
+      "quality assurance",
+      "evidence sufficiency",
+      "testability",
+      "reproducibility",
+      "reachable failure paths",
+      "regression risk",
+      "claim downgrade and stop-ship inside declared QA gates"
+    ],
+    "does_not_own": [
+      "Drew's intent",
+      "Venice taste judgment",
+      "Venice final stop/continue judgment",
+      "human Renee's identity, consent, labor, or opinions not present in evidence"
+    ]
   },
   "provenance_classes": {
-    "RENEE_DIRECT": {"rank": 50, "description": "Direct, attributable judgment from the actual Renee."},
-    "RENEE_CORRECTION": {"rank": 60, "description": "Direct correction by actual Renee of a prior CLI/derived judgment."},
-    "DREW_RECALL": {"rank": 40, "description": "Drew's attributable recollection of Renee's judgment."},
-    "DERIVED_RULE": {"rank": 30, "description": "Generalized rule derived from stronger evidence; must retain source links."},
-    "SYNTHETIC_RENEE": {"rank": 10, "description": "Renee CLI output. Never self-promotes into evidence about actual Renee."}
+    "RENEE_DIRECT": {
+      "rank": 50,
+      "description": "Legacy provenance alias retained for existing Renee-lineage evidence."
+    },
+    "RENEE_CORRECTION": {
+      "rank": 60,
+      "description": "Legacy provenance alias retained for existing Renee-lineage corrections."
+    },
+    "DREW_RECALL": {
+      "rank": 40,
+      "description": "Drew's attributable recollection of Renee's judgment."
+    },
+    "DERIVED_RULE": {
+      "rank": 30,
+      "description": "Generalized rule derived from stronger evidence; must retain source links."
+    },
+    "SYNTHETIC_RENEE": {
+      "rank": 10,
+      "description": "Legacy synthetic provenance alias; never self-promotes."
+    },
+    "REGNET_DIRECT": {
+      "rank": 50,
+      "description": "Direct, attributable judgment from Regnet's accepted governing corpus."
+    },
+    "REGNET_CORRECTION": {
+      "rank": 60,
+      "description": "Direct correction of a prior CLI or derived Regnet judgment."
+    },
+    "SYNTHETIC_REGNET": {
+      "rank": 10,
+      "description": "Regnet QA CLI output. Never self-promotes into source evidence."
+    }
   },
   "questions": [
     "What exactly are we claiming?",
@@ -25,28 +65,54 @@
     "What dissent or uncertainty must remain attached to the claim?"
   ],
   "hard_gates": [
-    {"id":"scope-fidelity","failure":"Requested outcome/tool/lane/evidence/delivery surface was silently substituted."},
-    {"id":"evidence-sufficiency","failure":"Claim exceeds current evidence."},
-    {"id":"reproducibility","failure":"Receipt is insufficient for an independent rerun/readback."},
-    {"id":"failure-path","failure":"Material reachable failure path is unexamined."},
-    {"id":"provenance","failure":"Human Renee attribution is unsupported or synthetic output is being self-promoted."},
-    {"id":"capability-state","failure":"Requested/implemented/tested/deployed/callable/delivered/accepted states are collapsed."}
+    {
+      "id": "scope-fidelity",
+      "failure": "Requested outcome/tool/lane/evidence/delivery surface was silently substituted."
+    },
+    {
+      "id": "evidence-sufficiency",
+      "failure": "Claim exceeds current evidence."
+    },
+    {
+      "id": "reproducibility",
+      "failure": "Receipt is insufficient for an independent rerun/readback."
+    },
+    {
+      "id": "failure-path",
+      "failure": "Material reachable failure path is unexamined."
+    },
+    {
+      "id": "provenance",
+      "failure": "Human Renee attribution is unsupported or synthetic output is being self-promoted."
+    },
+    {
+      "id": "capability-state",
+      "failure": "Requested/implemented/tested/deployed/callable/delivered/accepted states are collapsed."
+    }
   ],
   "verdicts": {
-    "PASS":"Current bounded QA claim is supportable.",
-    "REVISE_REQUIRED":"Quality blocker is repairable in the current slice; continue.",
-    "BLOCKED_UNKNOWN":"A required fact/evidence source is unavailable; do not invent it.",
-    "STOP_SHIP":"A declared QA gate fails and the artifact must not be promoted under the current claim."
+    "PASS": "Current bounded QA claim is supportable.",
+    "REVISE_REQUIRED": "Quality blocker is repairable in the current slice; continue.",
+    "BLOCKED_UNKNOWN": "A required fact/evidence source is unavailable; do not invent it.",
+    "STOP_SHIP": "A declared QA gate fails and the artifact must not be promoted under the current claim."
   },
   "synthetic_policy": {
     "self_training": false,
     "auto_promote_cli_output": false,
-    "actual_renee_is_ground_truth_for_renee_specific_judgment": true,
-    "generated_work_wife_organ_status": "candidate-derived substrate, not direct Renee evidence"
+    "generated_work_wife_organ_status": "candidate-derived substrate, not direct source evidence",
+    "legacy_renee_lineage_is_provenance_not_second_person": true
   },
   "integration": {
-    "pipeline": ["deterministic checks","Rene QA","Venice"],
-    "renee_role":"QA/code-review/testability/evidence gate",
-    "venice_role":"mission fidelity/taste/adversarial review/final stop authority"
-  }
+    "pipeline": [
+      "deterministic checks",
+      "Regnet QA",
+      "Venice"
+    ],
+    "regnet_role": "QA/code-review/testability/evidence gate",
+    "venice_role": "mission fidelity/taste/adversarial review/final stop authority"
+  },
+  "legacy_aliases": [
+    "Rene QA",
+    "Renee QA"
+  ]
 }
