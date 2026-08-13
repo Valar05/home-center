@@ -2,6 +2,7 @@ package com.homecenter.operatoroverlay;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.os.Bundle;
 import android.util.Base64;
 import java.nio.charset.StandardCharsets;
 
@@ -117,6 +118,41 @@ final class OperatorState {
                     .putLong(KEY_SCREEN_YIELD_UNTIL_MS, 0L);
         }
         editor.commit();
+    }
+
+    static boolean restoreMigrationState(Context context, Bundle extras) {
+        SharedPreferences.Editor editor = prefs(context).edit()
+                .putBoolean(KEY_CONTROL_ENABLED, false)
+                .putLong(KEY_SCREEN_ACTIVE_UNTIL_MS, 0L)
+                .putLong(KEY_SCREEN_YIELD_UNTIL_MS, 0L);
+        if (extras != null && extras.containsKey(KEY_MUTED)) {
+            editor.putBoolean(KEY_MUTED, extras.getBoolean(KEY_MUTED));
+        }
+        if (extras != null && extras.containsKey(KEY_LAST_HEARTBEAT_MS)) {
+            editor.putLong(KEY_LAST_HEARTBEAT_MS, extras.getLong(KEY_LAST_HEARTBEAT_MS));
+        }
+        if (extras != null && extras.containsKey(KEY_LAST_UPDATE_MS)) {
+            editor.putLong(KEY_LAST_UPDATE_MS, extras.getLong(KEY_LAST_UPDATE_MS));
+        }
+        if (extras != null && extras.containsKey(KEY_LATEST_SOURCE)) {
+            editor.putString(KEY_LATEST_SOURCE, sanitizeMigrationSource(
+                    extras.getString(KEY_LATEST_SOURCE)));
+        }
+        if (extras != null && extras.containsKey(KEY_PANEL_COLLAPSED)) {
+            editor.putBoolean(KEY_PANEL_COLLAPSED, extras.getBoolean(KEY_PANEL_COLLAPSED));
+        }
+        if (extras != null && extras.containsKey(KEY_OVERLAY_HIDDEN)) {
+            editor.putBoolean(KEY_OVERLAY_HIDDEN, extras.getBoolean(KEY_OVERLAY_HIDDEN));
+        }
+        return editor.commit();
+    }
+
+    private static String sanitizeMigrationSource(String source) {
+        String clean = source == null ? "ChatGPT" : source.trim();
+        clean = clean.replace('\r', ' ').replace('\n', ' ').replace(',', ' ');
+        if (clean.isEmpty()) clean = "ChatGPT";
+        if (clean.length() > 80) clean = clean.substring(0, 80);
+        return clean;
     }
 
     static void setMuted(Context context, boolean muted) {

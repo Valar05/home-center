@@ -1,0 +1,41 @@
+{
+  "schema": "home-center.regnet-qa.review.v1",
+  "reviewId": "regnet-adam-background-spotify-radio-runtime-plan-20260813",
+  "reviewer": "Regnet QA",
+  "reviewMode": "deterministic_cli",
+  "underlyingCli": "tools/renee.py / regnet compatibility surface",
+  "underlyingReceiptId": "rqa-3367ba3c0afd10a5de43",
+  "underlyingReceiptPath": "C:\\Users\\dclar\\.home-center\\renee-qa\\receipts\\rqa-3367ba3c0afd10a5de43.json",
+  "provenance": "SYNTHETIC_REGNET",
+  "workstationReceipt": "hands-spotify-radio-regnet-runtime-plan-20260813-02",
+  "claim": "Runtime preparation for the merged background Spotify radio may proceed only through screenless paired ADB, durable-signer build verification, state-preserving overlay migration, backend relay recovery, and read-only Shizuku/Spotify capability probes. No Activity, screen input, Spotify authorization, playlist mutation, or playback belongs to this checkpoint.",
+  "capabilityState": "tested",
+  "acceptance": [
+    "Exact Pixel 10 Pro XL serial 61070DLCQ00045 is paired over the existing wireless-ADB identity.",
+    "Installed overlay is version 1.0.0, signer be0cb034e5da28aa8aa776cf2d7e1bfb1f88f4cb1ce8f7ac220751218aa64b24, and run-as private-state access succeeds.",
+    "Shizuku server and Termux foreground service are alive.",
+    "The foreground is Gboard Settings and must remain unchanged.",
+    "The existing durable Home Center signer is c0652840ce34ab4e957ac6c99698c21b694c4ca09c412c473b72c02005909400.",
+    "Merged Spotify-radio source is 9e450a6fcf741256bdb1de9cc797adc1e4ceb4ad."
+  ],
+  "evidenceRefs": [
+    "hands-spotify-radio-adb-connect-existing-pairing-20260813-01",
+    "hands-spotify-radio-adb-runtime-preflight-20260813-01",
+    "hands-spotify-radio-compare-generated-signing-key-20260813-02",
+    "9e450a6fcf741256bdb1de9cc797adc1e4ceb4ad"
+  ],
+  "reachableFailurePaths": [
+    "Signer, state-backup, foreground-invariance, reinstall, restore, or backend-recovery verification failure blocks advancement without a success claim.",
+    "A missing exact Spotify session does not permit media-key, deep-link, App Remote, or foreground fallback."
+  ],
+  "dissent": [
+    "The existing auto-replacement and MainActivity fallback deployment paths are not authorized for this checkpoint.",
+    "Paired ADB is background authority only and grants no screen or Spotify-account consent."
+  ],
+  "blockers": [],
+  "warnings": [],
+  "verdict": "PASS",
+  "nextGate": "VENICE",
+  "canGrantFinalStop": false,
+  "createdAtUtc": "2026-08-13T18:53:40.301657Z"
+}

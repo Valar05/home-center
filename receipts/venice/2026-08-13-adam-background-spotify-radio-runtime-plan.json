@@ -1,0 +1,92 @@
+{
+  "schema": "home-center.venice-judgment-jar.review.v1",
+  "reviewId": "venice-adam-background-spotify-radio-runtime-plan-20260813",
+  "reviewerRole": "venice-judgment-jar",
+  "reviewerMode": "judgment_jar",
+  "commission": "Advance the merged background Spotify radio through a screenless runtime-preparation checkpoint. Preserve the existing Adam overlay surface, exact Spotify package target, Shizuku body, foreground invariance, user state, and the explicit prohibition on phone clicks or foreground launch.",
+  "regnet": {
+    "path": "receipts/regnet/2026-08-13-adam-background-spotify-radio-runtime-plan.json",
+    "receiptId": "rqa-3367ba3c0afd10a5de43",
+    "verdict": "PASS",
+    "nextGate": "VENICE",
+    "workstationReceipt": "hands-spotify-radio-regnet-runtime-plan-20260813-02"
+  },
+  "evidence": [
+    "hands-spotify-radio-adb-connect-existing-pairing-20260813-01",
+    "hands-spotify-radio-adb-runtime-preflight-20260813-01",
+    "hands-spotify-radio-compare-generated-signing-key-20260813-02",
+    "9e450a6fcf741256bdb1de9cc797adc1e4ceb4ad"
+  ],
+  "observedReality": {
+    "device": "Pixel 10 Pro XL",
+    "serial": "61070DLCQ00045",
+    "adbTarget": "192.168.1.3:36667",
+    "adbIdentity": "existing paired and authorized shell",
+    "foreground": "com.google.android.inputmethod.latin/com.google.android.apps.inputmethod.latin.preference.SettingsActivity",
+    "installedOverlay": {
+      "versionName": "1.0.0",
+      "versionCode": 1,
+      "apkSha256": "c5bf50d5132d4644db01e9d65da2989e44244447594544b84e3265ce41fc26e5",
+      "signingCertificateSha256": "be0cb034e5da28aa8aa776cf2d7e1bfb1f88f4cb1ce8f7ac220751218aa64b24",
+      "runAsPrivateStateAccess": true,
+      "controlEnabled": false,
+      "screenLeaseActive": false
+    },
+    "durableHomeCenterSigner": "c0652840ce34ab4e957ac6c99698c21b694c4ca09c412c473b72c02005909400",
+    "shizukuServerAlive": true,
+    "termuxForegroundServiceAlive": true,
+    "spotifyVersion": "9.1.72.1891",
+    "spotifyExactSessionPresent": false,
+    "competingSession": "Audible session exists but playback state is NONE"
+  },
+  "adversarialFindings": [
+    "The signer mismatch makes an in-place update impossible. Automatic package replacement without prior APK and private-state backups would violate survivability and evidence truth.",
+    "The current deploy scripts are rejected unchanged because they automatically uninstall on signer mismatch and may launch MainActivity as a fallback.",
+    "Paired ADB is a background body, not permission to touch the screen, change foreground, or consent to Spotify OAuth.",
+    "A successful package install does not prove state restoration, Shizuku permission, exact Spotify-session authority, playlist creation, or playback.",
+    "Spotify session absence is not permission to use media keys, deep links, App Remote, browser playback, or foreground launch."
+  ],
+  "authorizedCheckpoint": [
+    "Build an exact merged-source APK with the existing durable Home Center signer and verify the APK certificate equals c0652840ce34ab4e957ac6c99698c21b694c4ca09c412c473b72c02005909400.",
+    "Before package mutation, preserve the installed 1.0.0 APK and the debuggable overlay private state as separately hashed, read-back-verified recovery artifacts.",
+    "Perform a screenless signer migration only after both recovery artifacts are verified. Never launch an Activity.",
+    "Restore private state, required app-ops and notification permission, then start only OperatorOverlayService as a foreground service.",
+    "Verify package/version/signer, state-provider fields, foreground invariance, zero screen lease, and the ability to roll back to the preserved package/state.",
+    "Recover the existing Termux Phone Hands background relay through an existing background command surface when possible; paired ADB remains an authorized recovery body if the relay is unavailable.",
+    "Probe Shizuku binder/version/permission, exact Spotify-session visibility, and overlay RADIO ingress without Spotify account mutation or playback."
+  ],
+  "stopConditions": [
+    "Durable-signed APK certificate mismatch.",
+    "Old APK or private-state backup cannot be hashed and read back before migration.",
+    "Foreground package changes, an Activity launches, or a screen lease becomes active.",
+    "Package migration or state restore fails and cannot be rolled back to the preserved old package/state.",
+    "Required Shizuku permission is a genuine user-owned consent boundary after every background authority route is exhausted."
+  ],
+  "excludedFromCheckpoint": [
+    "Spotify OAuth or account authorization",
+    "playlist creation or mutation",
+    "starting playback",
+    "track skipping or transport mutation",
+    "rolling refill acceptance",
+    "phone taps, screen input, Activity launch, deep links, media keys, App Remote, or substitute player"
+  ],
+  "capabilityState": {
+    "sourceMerged": true,
+    "pairedBackgroundBodyRecovered": true,
+    "durableSignedApkBuilt": false,
+    "recoveryArtifactsVerified": false,
+    "overlayMigrated": false,
+    "stateRestored": false,
+    "phoneHandsRecovered": false,
+    "shizukuPermissionVerified": false,
+    "spotifySessionCallable": false,
+    "spotifyAuthorized": false,
+    "playlistCreated": false,
+    "playbackVerified": false,
+    "accepted": false
+  },
+  "verdict": "PASS",
+  "directive": "CONTINUE_REQUIRED",
+  "stopAllowed": false,
+  "reviewedAtUtc": "2026-08-13T18:56:30Z"
+}

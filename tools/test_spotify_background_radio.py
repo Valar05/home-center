@@ -180,6 +180,7 @@ class SourceBoundaryContract(unittest.TestCase):
         self.service = (self.android_root / "java" / "com" / "homecenter" / "operatoroverlay" / "SpotifyMediaUserService.java").read_text(encoding="utf-8")
         self.client = (self.android_root / "java" / "com" / "homecenter" / "operatoroverlay" / "SpotifyShizukuClient.java").read_text(encoding="utf-8")
         self.provider = (self.android_root / "java" / "com" / "homecenter" / "operatoroverlay" / "OperatorStateProvider.java").read_text(encoding="utf-8")
+        self.operator_state = (self.android_root / "java" / "com" / "homecenter" / "operatoroverlay" / "OperatorState.java").read_text(encoding="utf-8")
         self.overlay = (self.android_root / "java" / "com" / "homecenter" / "operatoroverlay" / "OperatorOverlayService.java").read_text(encoding="utf-8")
         self.installer = (ROOT / "tools" / "setup_spotify_radio.sh").read_text(encoding="utf-8")
 
@@ -227,6 +228,73 @@ class SourceBoundaryContract(unittest.TestCase):
         self.assertIn("OperatorOverlayService.class", self.provider)
         self.assertIn("ACTION_SPOTIFY_COMMAND", self.provider)
         self.assertNotIn("startActivity", self.provider)
+
+    def test_migration_restore_is_dump_protected_and_screenless(self):
+        self.assertIn('METHOD_RESTORE_MIGRATION_STATE = "restore_migration_state"', self.provider)
+        start = self.provider.index("private static Bundle restoreMigrationState")
+        end = self.provider.index("private static void validateMigrationExtras", start)
+        restore = self.provider[start:end]
+        self.assertIn("context.enforceCallingPermission(", restore)
+        self.assertIn("android.Manifest.permission.DUMP", restore)
+        self.assertLess(
+            restore.index("context.enforceCallingPermission("),
+            restore.index("OperatorState.restoreMigrationState("),
+        )
+        self.assertIn('result.putBoolean("restored", true)', restore)
+        self.assertIn('result.putBoolean("control_enabled", false)', restore)
+        self.assertNotIn("startService", restore)
+        self.assertNotIn("startForegroundService", restore)
+        self.assertNotIn("startActivity", restore)
+
+    def test_migration_restore_has_bounded_fields_and_fail_closed_guards(self):
+        allowed = {
+            "KEY_MUTED",
+            "KEY_LAST_HEARTBEAT_MS",
+            "KEY_LAST_UPDATE_MS",
+            "KEY_LATEST_SOURCE",
+            "KEY_PANEL_COLLAPSED",
+            "KEY_OVERLAY_HIDDEN",
+        }
+        restorable_start = self.provider.index("MIGRATION_RESTORABLE_KEYS")
+        restorable_end = self.provider.index("MIGRATION_GUARD_KEYS", restorable_start)
+        restorable = self.provider[restorable_start:restorable_end]
+        for key in allowed:
+            self.assertIn(key, restorable)
+        for key in (
+            "KEY_LATEST_TEXT",
+            "KEY_ADAM_REQUEST_PAYLOAD_B64",
+            "KEY_SPOTIFY_RECEIPT_B64",
+            "credentials",
+        ):
+            self.assertNotIn(key, restorable)
+
+        validation_start = self.provider.index("private static void validateMigrationExtras")
+        validation_end = self.provider.index("private static String decodeSpotifyArgument", validation_start)
+        validation = self.provider[validation_start:validation_end]
+        self.assertIn("unsupported migration field", validation)
+        self.assertIn("!Boolean.FALSE.equals", validation)
+        self.assertIn("rejectNonzeroLease", validation)
+        self.assertIn("migration cannot enable control", validation)
+        self.assertIn("migration cannot restore screen leases", validation)
+
+        state_start = self.operator_state.index("static boolean restoreMigrationState")
+        state_end = self.operator_state.index("private static String sanitizeMigrationSource", state_start)
+        state_restore = self.operator_state[state_start:state_end]
+        self.assertIn(".putBoolean(KEY_CONTROL_ENABLED, false)", state_restore)
+        self.assertIn(".putLong(KEY_SCREEN_ACTIVE_UNTIL_MS, 0L)", state_restore)
+        self.assertIn(".putLong(KEY_SCREEN_YIELD_UNTIL_MS, 0L)", state_restore)
+        self.assertIn("return editor.commit()", state_restore)
+        self.assertNotIn("KEY_LATEST_TEXT", state_restore)
+        self.assertNotIn("KEY_ADAM_REQUEST", state_restore)
+        self.assertNotIn("KEY_SPOTIFY", state_restore)
+
+        sanitizer_start = self.operator_state.index("private static String sanitizeMigrationSource")
+        sanitizer_end = self.operator_state.index("static void setMuted", sanitizer_start)
+        sanitizer = self.operator_state[sanitizer_start:sanitizer_end]
+        self.assertIn("replace('\\r', ' ')", sanitizer)
+        self.assertIn("replace('\\n', ' ')", sanitizer)
+        self.assertIn("replace(',', ' ')", sanitizer)
+        self.assertIn("clean.length() > 80", sanitizer)
 
     def test_overlay_has_widget_and_radio_prompt_mode(self):
         self.assertIn("spotifyStatus", self.overlay)

@@ -18,6 +18,11 @@ from venice_reactor import execute as venice_execute
 FACTORY_ACTIONS={'file_stat','file_hash','file_list','file_mkdir','file_copy','file_move','armory_inventory','armory_ingest'}; ARMORY_ACTIONS={'armory_doctor','armory_slice'}; WINDOW_ACTIONS={'window_status','window_probe','window_compose','window_focus','window_swap'}; STATUS_TTS_ACTIONS={'status_tts_doctor','status_say'}; TERMUX_SHELL_ACTIONS={'phone_shell'}; DIAGNOSTIC_ACTIONS={'phone_diagnostics'}; OVERLAY_ACTIONS={'operator_overlay_status','operator_overlay_start','operator_overlay_update'}; VENICE_ACTIONS={'venice_ingest','venice_observe','venice_mine','venice_status'}
 SCREEN_DIRECT_ACTIONS={'tap','swipe','text','keyevent','home','back','recents','launch','force_stop'}; SCREEN_WINDOW_ACTIONS={'window_compose','window_focus','window_swap'}
 DEVICE_CAPABILITIES=['phone_hands','phone_files','armory_worker','window_composer','status_tts','termux_shell','operator_overlay','local_qwen','coding_dungeon','voice','phone_diagnostics_readonly','venice_reactor','venice_audio_features']
+def _screen_profile(action):
+ k=str((action or {}).get('action') or '')
+ if k in SCREEN_WINDOW_ACTIONS:return {'leaseMs':2500,'yieldMs':0}
+ if k in SCREEN_DIRECT_ACTIONS:return {'leaseMs':2500,'yieldMs':900}
+ return None
 def http(path,body=None,token=''):
  data=None if body is None else json.dumps(body).encode(); req=urllib.request.Request(BASE+path,data=data,method='GET' if body is None else 'POST'); req.add_header('Content-Type','application/json');
  if token:req.add_header('Authorization','Bearer '+token)
@@ -71,6 +76,8 @@ def execute_action(a):
  if k in TERMUX_SHELL_ACTIONS:return termux_shell_execute(a)
  gate=overlay_control_gate()
  if k=='status_say' and gate.get('muted'):return {'ok':True,'action':'status_say','muted':True,'skipped':True}
+ screen=_screen_profile(a)
+ if screen:overlay_screen_activity(screen['leaseMs'],screen['yieldMs'])
  return dispatch(a)
 def loop(once=False):
  dev=ensure_device();did=dev['deviceId'];secret=dev['deviceToken'];print(f'Home Center phone relay online: {did}',flush=True);last=0.0
