@@ -6,6 +6,7 @@ CAMPAIGN_STATE="$STATE/fortress-campaign/state.json"
 [ -f "$CAMPAIGN_STATE" ] || CAMPAIGN_STATE="$STATE/adam-campaign/state.json"
 PLAN="$STATE/adam-daemon/venice-plan-review-last.json"
 STOP="$STATE/adam-daemon/venice-review-last.json"
+FORGE_STATE="$STATE/forge-campaign/latest.json"
 ID=6410
 MODE="${1:-main}"
 PROBE=0
@@ -41,6 +42,13 @@ try:
 except Exception: print('ssh=?')
 PY
 )"
+forge_summary="$(python3 - "$FORGE_STATE" <<'PY'
+import json,sys
+try:
+ d=json.load(open(sys.argv[1],encoding='utf-8')); print('forge='+str(d.get('stage','?'))+'/'+str(d.get('status','?')))
+except Exception: print('forge=?')
+PY
+)"
 
 command -v termux-notification >/dev/null 2>&1 || exit 3
 q(){ printf "%q" "$1"; }
@@ -51,42 +59,51 @@ OVERLAY="fortress-campaign overlay >>\"$STATE/fortress-campaign/overlay-recover.
 SSH="fortress-campaign ssh >>\"$STATE/fortress-campaign/ssh-recover.log\" 2>&1; $SELF recovery"
 HANDS="fortress-campaign phone-hands >>\"$STATE/fortress-campaign/phone-hands.log\" 2>&1; $SELF recovery-more"
 REPAIR="fortress-campaign repair >>\"$STATE/fortress-campaign/repair.log\" 2>&1 &"
+FORGE="home-center-forge resume >>\"$STATE/forge-campaign/menu.log\" 2>&1 &"
+FORGE_STATUS="home-center-forge status >\"$STATE/forge-campaign/menu-status.log\" 2>&1; $SELF forge"
 
 case "$MODE" in
   main)
     title='Fortress'
-    content="$campaign_summary — $ssh_summary — $review_summary"
+    content="$campaign_summary — $ssh_summary — $forge_summary — $review_summary"
     b1='Resume'; a1="$(action "$CAMPAIGN")"
     b2='Status'; a2="$(action "$SELF status")"
     b3='Recovery'; a3="$(action "$SELF recovery")"
     ;;
   status)
     title='Fortress status'
-    content="$campaign_summary — $ssh_summary — $review_summary"
+    content="$campaign_summary — $ssh_summary — $forge_summary — $review_summary"
     b1='Refresh'; a1="$(action "$SELF status")"
-    b2='Receipts'; a2="$(action "$SELF receipts")"
+    b2='Forge'; a2="$(action "$SELF forge")"
     b3='Back'; a3="$(action "$SELF main")"
+    ;;
+  forge)
+    title='Home Center forge'
+    content="$forge_summary — always-online free-tier body"
+    b1='Resume forge'; a1="$(action "$FORGE")"
+    b2='Refresh'; a2="$(action "$FORGE_STATUS")"
+    b3='Back'; a3="$(action "$SELF status")"
     ;;
   receipts)
     title='Fortress receipts'
-    content="campaign=$([ -f "$STATE/fortress-campaign/latest.json" ] && echo yes || echo no) ssh=$([ -f "$STATE/phone-ssh/latest.json" ] && echo yes || echo no) — $review_summary"
+    content="campaign=$([ -f "$STATE/fortress-campaign/latest.json" ] && echo yes || echo no) ssh=$([ -f "$STATE/phone-ssh/latest.json" ] && echo yes || echo no) forge=$([ -f "$FORGE_STATE" ] && echo yes || echo no) — $review_summary"
     b1='Status'; a1="$(action "$SELF status")"
     b2='Recovery'; a2="$(action "$SELF recovery")"
     b3='Back'; a3="$(action "$SELF main")"
     ;;
   recovery)
     title='Fortress recovery'
-    content="Persistent body recovery — $ssh_summary"
+    content="Persistent body recovery — $ssh_summary — $forge_summary"
     b1='SSH repair'; a1="$(action "$SSH")"
-    b2='Overlay on'; a2="$(action "$OVERLAY")"
+    b2='Forge repair'; a2="$(action "$FORGE")"
     b3='More'; a3="$(action "$SELF recovery-more")"
     ;;
   recovery-more)
     title='Fortress recovery · more'
-    content='Phone Hands and full deterministic repair'
+    content='Phone Hands, overlay, and full deterministic repair'
     b1='Phone Hands'; a1="$(action "$HANDS")"
-    b2='Repair all'; a2="$(action "$REPAIR")"
-    b3='Back'; a3="$(action "$SELF recovery")"
+    b2='Overlay on'; a2="$(action "$OVERLAY")"
+    b3='Repair all'; a3="$(action "$REPAIR")"
     ;;
   *) exec bash "$0" main ;;
 esac
