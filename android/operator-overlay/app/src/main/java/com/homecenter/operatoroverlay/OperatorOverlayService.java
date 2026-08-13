@@ -288,6 +288,7 @@ public class OperatorOverlayService extends Service {
         adamModeRow.addView(adamModeButton("CHAT", "chat", "Adam local chatbot mode"));
         adamModeRow.addView(adamModeButton("CONT", "continue", "Adam Continue consumer mode"));
         adamModeRow.addView(adamModeButton("VLAD", "vlad", "Ask Vlad for a bounded consultation"));
+        adamModeRow.addView(adamModeButton("RADIO", "radio", "Control promptable Spotify Fortress Radio"));
 
         LinearLayout adamInputRow = new LinearLayout(this);
         adamInputRow.setOrientation(LinearLayout.HORIZONTAL);
@@ -311,6 +312,31 @@ public class OperatorOverlayService extends Service {
         adamSendButton.setContentDescription("Send request to Adam using the selected explicit mode");
         adamSendButton.setOnClickListener(v -> submitAdamRequest());
         adamInputRow.addView(adamSendButton);
+
+        LinearLayout radioRow = new LinearLayout(this);
+        radioRow.setOrientation(LinearLayout.HORIZONTAL);
+        radioRow.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
+        radioRow.setPadding(0, dp(4), 0, 0);
+
+        Button radioPreviousButton = button("Prev");
+        radioPreviousButton.setContentDescription("Fortress Radio previous track");
+        radioPreviousButton.setOnClickListener(v -> submitAdamQuickRequest("previous"));
+        radioRow.addView(radioPreviousButton);
+
+        Button radioToggleButton = button("Play/Pause");
+        radioToggleButton.setContentDescription("Fortress Radio play or pause");
+        radioToggleButton.setOnClickListener(v -> submitAdamQuickRequest("toggle"));
+        radioRow.addView(radioToggleButton);
+
+        Button radioNextButton = button("Next");
+        radioNextButton.setContentDescription("Fortress Radio next track");
+        radioNextButton.setOnClickListener(v -> submitAdamQuickRequest("next"));
+        radioRow.addView(radioNextButton);
+
+        Button radioStatusButton = button("Radio status");
+        radioStatusButton.setContentDescription("Read Fortress Radio Spotify status");
+        radioStatusButton.setOnClickListener(v -> submitAdamQuickRequest("status"));
+        radioRow.addView(radioStatusButton);
 
         LinearLayout actionRow = new LinearLayout(this);
         actionRow.setOrientation(LinearLayout.HORIZONTAL);
@@ -336,6 +362,7 @@ public class OperatorOverlayService extends Service {
         details.addView(latest);
         details.addView(adamModeRow);
         details.addView(adamInputRow);
+        details.addView(radioRow);
         details.addView(actionRow);
         root.addView(titleRow);
         root.addView(details);
@@ -642,6 +669,17 @@ public class OperatorOverlayService extends Service {
             }
         });
         return value;
+    }
+
+    private void submitAdamQuickRequest(String text) {
+        OperatorState.submitAdamRequest(this, "radio", text, System.currentTimeMillis());
+        adamMode = "radio";
+        if (adamInput != null) {
+            adamInput.setText("");
+            adamInput.setHint("Adam — radio • sent");
+            adamInput.setContentDescription("Adam input. Current mode radio.");
+            adamInput.announceForAccessibility("Sent to Adam radio");
+        }
     }
 
     private void submitAdamRequest() {
