@@ -73,6 +73,17 @@ test('workers have independent visible ChatGPT tab identities', () => {
   assert.match(worker, /tabId/);
 });
 
+test('completion watcher uses immutable pre-dispatch assistant baseline', () => {
+  const inspectIndex = worker.indexOf('const before = await inspectWorker(tab.id)');
+  const submitIndex = worker.indexOf('func: submitChatGptPrompt');
+  assert.ok(inspectIndex >= 0, 'worker must inspect before dispatch');
+  assert.ok(submitIndex > inspectIndex, 'baseline inspection must precede prompt submission');
+  assert.match(worker, /baselineAssistantCount/);
+  assert.match(panel, /result\.receipt\?\.baselineAssistantCount/);
+  assert.match(panel, /waitForCompletedAssistant\(entry\.workerTabId, entry\.baselineAssistantCount\)/);
+  assert.match(panel, /const baselineCount = Number\(baselineAssistantCount \|\| 0\)/);
+});
+
 test('bounded swarm still uses modular handoff core', () => {
   assert.match(html, /id="runSwarm"/);
   assert.match(panel, /MAX_SWARM_SLICES/);
