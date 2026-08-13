@@ -15,6 +15,9 @@ receipts,latest,action,ok,state,detail,port=sys.argv[1:]
 obj={'schema':'fortress-phone-ssh-v1','atEpoch':int(time.time()),'action':action,'ok':ok=='1','state':state,'detail':detail,'port':int(port)}
 os.makedirs(os.path.dirname(latest),exist_ok=True)
 with open(receipts,'a',encoding='utf-8') as f:f.write(json.dumps(obj,sort_keys=True)+'\n')
+if os.path.getsize(receipts)>512*1024:
+ lines=open(receipts,encoding='utf-8').read().splitlines()[-1000:]
+ tmp=receipts+'.tmp';open(tmp,'w',encoding='utf-8').write('\n'.join(lines)+'\n');os.replace(tmp,receipts)
 tmp=latest+'.tmp';open(tmp,'w',encoding='utf-8').write(json.dumps(obj,indent=2,sort_keys=True)+'\n');os.replace(tmp,latest)
 print(json.dumps(obj,sort_keys=True))
 PY
@@ -28,12 +31,11 @@ listener_ok(){
   fi
 }
 
+healthy_local(){ pgrep -x sshd >/dev/null 2>&1 && listener_ok; }
+
 status(){
-  local proc=0 listen=0
-  pgrep -x sshd >/dev/null 2>&1 && proc=1 || true
-  listener_ok && listen=1 || true
-  if [ "$proc" -eq 1 ] && [ "$listen" -eq 1 ]; then emit status 1 listening "sshd process and local listener present"; return 0; fi
-  if [ "$proc" -eq 1 ]; then emit status 0 process_without_listener "sshd exists but port ${PORT} is not listening"; return 2; fi
+  if healthy_local; then emit status 1 listening "sshd process and local listener present"; return 0; fi
+  if pgrep -x sshd >/dev/null 2>&1; then emit status 0 process_without_listener "sshd exists but port ${PORT} is not listening"; return 2; fi
   emit status 0 stopped "sshd is not running"; return 2
 }
 
@@ -57,14 +59,16 @@ start_sshd(){
 }
 
 ensure(){
-  if status >/dev/null 2>&1; then status; return 0; fi
+  if healthy_local; then emit ensure 1 listening "sshd remains healthy on port ${PORT}"; return 0; fi
   install_deps || return $?
   if start_sshd; then emit ensure 1 listening "sshd started and port ${PORT} is listening"; return 0; fi
   emit ensure 0 start_failed "sshd could not establish listener on port ${PORT}"; return 4
 }
 
 repair(){
-  if ensure >/dev/null 2>&1; then emit repair 1 healthy "SSH already healthy or recovered without destructive restart"; return 0; fi
+  if healthy_local; then emit repair 1 healthy "SSH already healthy; no restart required"; return 0; fi
+  install_deps || return $?
+  if start_sshd; then emit repair 1 recovered "SSH recovered without destructive restart"; return 0; fi
   pkill -TERM -x sshd >/dev/null 2>&1 || true
   sleep 1
   if start_sshd; then emit repair 1 recovered "sshd restarted and listener restored"; return 0; fi
