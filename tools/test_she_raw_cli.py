@@ -10,6 +10,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 CLI = ROOT / "tools" / "she_raw_cli.py"
+ADAM = ROOT / "tools" / "adam.py"
 
 
 class Handler(BaseHTTPRequestHandler):
@@ -64,6 +65,15 @@ def main():
             assert "Drew protects June" not in private_system
             assert result["receipt"]["speech"]["cloudFallback"] is False
             assert Path(result["receiptPath"]).is_file()
+
+            routed = subprocess.run([sys.executable, str(ADAM), "she-raw", "router raw"], cwd=ROOT, env=env, text=True, capture_output=True)
+            assert routed.returncode == 0, routed.stderr
+            assert routed.stdout == "RAW She Raw bytes — unchanged."
+            assert "speech sha256" in routed.stderr
+
+            repl = subprocess.run([sys.executable, str(ADAM), "she-raw"], cwd=ROOT, env=env, input="/quit\n", text=True, capture_output=True, timeout=5)
+            assert repl.returncode == 0, repl.stderr
+            assert "She Raw local." in repl.stdout
 
             bad = subprocess.run([sys.executable, str(CLI), "--url", "https://example.com/v1/chat/completions", "hello"], cwd=ROOT, env=env, text=True, capture_output=True)
             assert bad.returncode == 3
