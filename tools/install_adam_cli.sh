@@ -110,7 +110,7 @@ WORKER_SHA="$(sha256sum "$WORKER" | awk '{print $1}')"
 
 python3 - "$RECEIPT" "$SOURCE_SHA" "$WORKER_SHA" "$TARGET" "$WORKER" "$CANARY" "$ACCEPT_RECEIPT" "$BRAIN_RECEIPT" <<'PY'
 import json,sys,time
-path,source_commit,worker_sha,target,worker,canary,accept_path,brain_path=sys.argv[1:]
+path,source_commit,worker_sha,target,worker,canary,accept_path,brain_path,alias_path=sys.argv[1:]
 accept=json.load(open(accept_path,encoding='utf-8'))
 brain=json.load(open(brain_path,encoding='utf-8'))
 obj={
