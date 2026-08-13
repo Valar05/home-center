@@ -1,0 +1,14 @@
+{
+  "schema": "home-center-ssh-targets-v1",
+  "targets": {
+    "example": {
+      "host": "192.0.2.10",
+      "user": "drew",
+      "port": 22,
+      "identityFile": "~/.ssh/id_ed25519",
+      "connectTimeoutSeconds": 10,
+      "commandTimeoutSeconds": 120,
+      "options": []
+    }
+  }
+}
