@@ -91,7 +91,7 @@ jobs:
       - name: Verify one-time bootstrap and native deploy contracts
         run: |
           bash -n tools/bootstrap_native_phone_plane.sh
-          grep -q 'SOURCE_HEAD.*40' tools/bootstrap_native_phone_plane.sh
+          grep -Fq '[[ "$SOURCE_HEAD" =~ ^[0-9a-f]{40}$ ]]' tools/bootstrap_native_phone_plane.sh
           grep -q 'merge-base --is-ancestor' tools/bootstrap_native_phone_plane.sh
           grep -q 'phone_maintenance_anvil_shell' tools/bootstrap_native_phone_plane.sh
           grep -q 'android_anvil_shell_maintenance.py' tools/bootstrap_native_phone_plane.sh
