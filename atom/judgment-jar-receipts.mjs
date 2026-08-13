@@ -93,17 +93,19 @@ export async function createJudgmentJarReceiptService({ configPath, cachePath, s
     const checked = await validate(input);
     if (!checked.ok) return checked;
     const existing = (await jsonLines(usagePath)).find(value => value.receiptId === checked.receiptId);
-    if (existing) return { ok: true, status: 200, state: 'DELIVERED', duplicate: true, receipt: existing };
-    const delivered = {
+    if (existing) return { ok: true, status: 200, state: existing.receiptDeliveryState || 'PENDING_HOME_CENTER', duplicate: true, receipt: existing };
+    const captured = {
       ...input,
-      homeCenterDeliveryState: 'DELIVERED',
-      deliveredAt: new Date().toISOString(),
+      captureState: 'CAPTURED',
+      receiptDeliveryState: 'PENDING_HOME_CENTER',
+      homeCenterDeliveryState: 'PENDING',
+      capturedAt: new Date().toISOString(),
       daemon: 'Atom',
     };
-    await appendFile(usagePath, `${JSON.stringify(delivered)}\n`, 'utf8');
-    await atomicJson(lastUsagePath, delivered);
-    const daemonReceipt = await emitReceipt('judgment.jar.usage', `${checked.jar.id} produced ${checked.outputKind}.`, {
-      state: 'delivered',
+    await appendFile(usagePath, `${JSON.stringify(captured)}\n`, 'utf8');
+    await atomicJson(lastUsagePath, captured);
+    const daemonReceipt = await emitReceipt('judgment.jar.usage.captured', `${checked.jar.id} produced ${checked.outputKind}; Home Center delivery pending.`, {
+      state: 'captured',
       usageReceiptId: checked.receiptId,
       jarId: checked.jar.id,
       jarOrigin: checked.jar.origin,
@@ -113,8 +115,9 @@ export async function createJudgmentJarReceiptService({ configPath, cachePath, s
       outputKind: checked.outputKind,
       outputStatus: input.output?.status || 'created',
       requestId: input.invocation?.requestId || null,
+      homeCenterDeliveryState: 'PENDING',
     });
-    return { ok: true, status: 202, state: 'DELIVERED', duplicate: false, receipt: delivered, daemonReceipt };
+    return { ok: true, status: 202, state: 'PENDING_HOME_CENTER', duplicate: false, receipt: captured, daemonReceipt };
   }
 
   async function recordContextAccess(current, jar, source, inputText, outputText) {
@@ -125,7 +128,12 @@ export async function createJudgmentJarReceiptService({ configPath, cachePath, s
       createdAt: new Date(now).toISOString(),
       createdAtEpochMs: now,
       captureState: 'CAPTURED',
+      receiptDeliveryState: 'PENDING_HOME_CENTER',
       homeCenterDeliveryState: 'PENDING',
+      surface: 'jar',
+      actor: 'Vlad',
+      intent: 'retrieve bounded Judgment Jar context',
+      decisionAction: 'returned cached Jar body and provenance through Atom fast access',
       jar: jarIdentity(current, jar),
       invocation: {
         source,
@@ -140,7 +148,7 @@ export async function createJudgmentJarReceiptService({ configPath, cachePath, s
         summary: `Atom loaded Judgment Jar context: ${jar.title}`,
         sha256: sha256(outputText),
         bytes: Buffer.byteLength(String(outputText || '')),
-        references: [jar.sourcePath].filter(Boolean),
+        references: [jar.sourcePath, jar.sourceUrl, jar.sourceFileId].filter(Boolean),
       },
       nativeSource: null,
       metadata: { access: 'atom-fast-path' },
@@ -156,6 +164,7 @@ export async function createJudgmentJarReceiptService({ configPath, cachePath, s
       schema,
       outputKinds: [...outputKinds].sort(),
       usageReceiptCount: values.length,
+      pendingHomeCenterReceiptCount: values.filter(value => value.homeCenterDeliveryState !== 'DELIVERED').length,
       lastUsageReceiptId: values.at(-1)?.receiptId || null,
       registryDigest: current?.registryDigest || null,
       cachePath,
