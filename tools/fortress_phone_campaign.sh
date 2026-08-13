@@ -27,20 +27,37 @@ print(json.dumps(obj,sort_keys=True))
 PY
 }
 
+is_git_repo(){ git -C "$1" rev-parse --git-dir >/dev/null 2>&1; }
+
 install_command(){
+  local live_q runtime_q tmp_q
+  printf -v live_q '%q' "$LIVE_REPO"
+  printf -v runtime_q '%q' "$RUNTIME_ROOT"
+  printf -v tmp_q '%q' "${PREFIX:-$HOME/.local}/tmp/fortress_phone_campaign_bootstrap.sh"
   cat >"$BIN" <<EOF
 #!/data/data/com.termux/files/usr/bin/bash
-exec bash "$RUNTIME_ROOT/tools/fortress_phone_campaign.sh" "\$@"
+set -euo pipefail
+RUNTIME=$runtime_q
+LIVE=$live_q
+if [ -f "\$RUNTIME/tools/fortress_phone_campaign.sh" ]; then
+  exec env HC_LIVE_REPO="\$LIVE" bash "\$RUNTIME/tools/fortress_phone_campaign.sh" "\$@"
+fi
+TMP=$tmp_q
+mkdir -p "\$(dirname "\$TMP")"
+git -C "\$LIVE" fetch origin main
+git -C "\$LIVE" show origin/main:tools/fortress_phone_campaign.sh >"\$TMP"
+exec env HC_LIVE_REPO="\$LIVE" bash "\$TMP" "\$@"
 EOF
   chmod 755 "$BIN"
 }
 
 sync_runtime(){
   record runtime-sync running "refreshing isolated canonical runtime; live phone worktree is untouched"
-  [ -d "$LIVE_REPO/.git" ] || { record runtime-sync blocked "live repository metadata not found at $LIVE_REPO"; return 2; }
-  git -C "$LIVE_REPO" fetch origin main >>"$LOG" 2>&1 || { record runtime-sync degraded "fetch origin/main failed; existing runtime will be used if present"; [ -d "$RUNTIME_ROOT/.git" ] && return 0 || return 3; }
-  if [ ! -d "$RUNTIME_ROOT/.git" ]; then
+  is_git_repo "$LIVE_REPO" || { record runtime-sync blocked "Git repository not callable at $LIVE_REPO"; return 2; }
+  git -C "$LIVE_REPO" fetch origin main >>"$LOG" 2>&1 || { record runtime-sync degraded "fetch origin/main failed; existing runtime will be used if present"; is_git_repo "$RUNTIME_ROOT" && return 0 || return 3; }
+  if ! is_git_repo "$RUNTIME_ROOT"; then
     git -C "$LIVE_REPO" worktree prune >>"$LOG" 2>&1 || true
+    rm -rf "$RUNTIME_ROOT" 2>/dev/null || true
     git -C "$LIVE_REPO" worktree add --detach "$RUNTIME_ROOT" origin/main >>"$LOG" 2>&1 || { record runtime-sync blocked "could not create isolated runtime worktree"; return 4; }
   else
     git -C "$RUNTIME_ROOT" fetch origin main >>"$LOG" 2>&1 || true
@@ -146,6 +163,7 @@ PY
 }
 
 run_campaign(){
+  install_command
   mkdir "$LOCK" 2>/dev/null || { record lock healthy "campaign already running"; return 0; }
   trap 'rmdir "$LOCK" 2>/dev/null || true' EXIT INT TERM
   sync_runtime
@@ -162,11 +180,11 @@ receipts(){ status; [ -f "$STATE_ROOT/triage.json" ] && cat "$STATE_ROOT/triage.
 
 case "${1:-run}" in
   run|resume) run_campaign ;;
-  triage) sync_runtime; install_command; triage ;;
-  repair) sync_runtime; install_command; repair_core; triage; verify_phone ;;
-  ssh) sync_runtime; install_command; bash "$RUNTIME_ROOT/tools/phone_ssh_service.sh" repair; bash "$RUNTIME_ROOT/tools/home_center_status_menu.sh" main >/dev/null 2>&1 || true ;;
-  overlay) sync_runtime; install_command; bash "$RUNTIME_ROOT/tools/recover_adam_overlay_phone.sh" ;;
-  phone-hands) sync_runtime; install_command; bash "$RUNTIME_ROOT/tools/phone_hands_watchdog.sh" diagnose ;;
+  triage) install_command; sync_runtime; install_command; triage ;;
+  repair) install_command; sync_runtime; install_command; repair_core; triage; verify_phone ;;
+  ssh) install_command; sync_runtime; install_command; bash "$RUNTIME_ROOT/tools/phone_ssh_service.sh" repair; bash "$RUNTIME_ROOT/tools/home_center_status_menu.sh" main >/dev/null 2>&1 || true ;;
+  overlay) install_command; sync_runtime; install_command; bash "$RUNTIME_ROOT/tools/recover_adam_overlay_phone.sh" ;;
+  phone-hands) install_command; sync_runtime; install_command; bash "$RUNTIME_ROOT/tools/phone_hands_watchdog.sh" diagnose ;;
   status) status ;;
   receipts) receipts ;;
   *) echo 'usage: fortress-campaign [run|resume|triage|repair|ssh|overlay|phone-hands|status|receipts]' >&2; exit 64 ;;
