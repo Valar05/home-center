@@ -1,0 +1,138 @@
+{
+    "schema":  "home-center.spotify-radio-source-verification.v1",
+    "receiptId":  "spotify-radio-source-verification-20260813",
+    "repository":  "Valar05/home-center",
+    "branch":  "feat/adam-background-spotify-radio",
+    "sourceCommit":  "18c30ab01baa443f46da54145364664391765e74",
+    "commission":  {
+                       "surface":  "existing Adam/Home Center Android overlay",
+                       "provider":  "Spotify",
+                       "targetPackage":  "com.spotify.music",
+                       "body":  "Shizuku UserService",
+                       "playlistName":  "Adam Radio — Rolling",
+                       "backgroundOnly":  true,
+                       "phoneInteractionAllowedInCheckpoint":  false
+                   },
+    "capabilityState":  {
+                            "requested":  true,
+                            "implementedInRepository":  true,
+                            "sourceTested":  true,
+                            "debugApkBuilt":  true,
+                            "installedOnPrimaryPhone":  false,
+                            "shizukuAuthorizedForThisApk":  false,
+                            "spotifyAccountAuthorized":  false,
+                            "spotifySessionCallable":  false,
+                            "playlistCreated":  false,
+                            "physicalPlaybackVerified":  false,
+                            "delivered":  false,
+                            "accepted":  false
+                        },
+    "tests":  {
+                  "pythonContracts":  {
+                                          "command":  "python tools/test_spotify_background_radio.py",
+                                          "passed":  19,
+                                          "failed":  0
+                                      },
+                  "pythonCompilation":  {
+                                            "command":  "python -m py_compile tools/spotify_radio.py tools/test_spotify_background_radio.py tools/adam.py",
+                                            "exitCode":  0
+                                        },
+                  "bashSyntax":  {
+                                     "command":  "bash -n tools/setup_spotify_radio.sh",
+                                     "exitCode":  0
+                                 },
+                  "androidUnitTests":  {
+                                           "task":  ":app:testDebugUnitTest",
+                                           "tests":  6,
+                                           "failures":  0,
+                                           "errors":  0,
+                                           "skipped":  0
+                                       },
+                  "androidAssembly":  {
+                                          "task":  ":app:assembleDebug",
+                                          "exitCode":  0,
+                                          "build":  "BUILD SUCCESSFUL"
+                                      },
+                  "diffCheck":  {
+                                    "command":  "git diff --check",
+                                    "exitCode":  0
+                                },
+                  "forbiddenImplementationScan":  {
+                                                      "hits":  0,
+                                                      "needles":  [
+                                                                      "Intent.ACTION_VIEW",
+                                                                      "phone.open_uri",
+                                                                      "dispatchMediaKeyEvent",
+                                                                      "cmd media_session dispatch",
+                                                                      "input keyevent",
+                                                                      "monkey -p",
+                                                                      "startActivity(",
+                                                                      "startActivityForResult("
+                                                                  ]
+                                                  },
+                  "secretScan":  {
+                                     "hits":  0,
+                                     "categories":  [
+                                                        "Spotify access token",
+                                                        "refresh token",
+                                                        "client secret",
+                                                        "literal client ID",
+                                                        "Bearer credential"
+                                                    ]
+                                 }
+              },
+    "apk":  {
+                "path":  "android/operator-overlay/app/build/outputs/apk/debug/app-debug.apk",
+                "sha256":  "15c2886567fc12986602f4d23e2d51c007efdec47a225255dea66419faf8b916",
+                "bytes":  104501,
+                "package":  "com.homecenter.operatoroverlay",
+                "versionCode":  4,
+                "versionName":  "1.3.0",
+                "minSdk":  26,
+                "targetSdk":  35,
+                "signer":  "Android Debug",
+                "signerCertificateSha256":  "f15309ec4265acea1d5f02e80a5bff4c2e81790ea4bf2f4e94e4cb4f9ac6103a",
+                "deploymentProof":  false
+            },
+    "evidenceRefs":  [
+                         "hands-spotify-radio-final-reconciled-gates-20260813-01",
+                         "hands-spotify-radio-apk-inspect-20260813-01",
+                         "hands-spotify-radio-final-source-audit-20260813-01",
+                         "hands-spotify-radio-fast-forward-push-20260813-02",
+                         "venice-adam-background-spotify-radio-plan-20260813"
+                     ],
+    "failurePathsExamined":  [
+                                 "Shizuku binder absent or dead",
+                                 "Shizuku permission absent without automatic prompt",
+                                 "Android media-session authority denied",
+                                 "exact Spotify session absent",
+                                 "unverified play/pause/track transition",
+                                 "invalid Spotify playlist URI",
+                                 "malformed or expired PKCE state",
+                                 "Spotify authorization missing",
+                                 "Spotify HTTP error and 429 Retry-After",
+                                 "insufficient deterministic catalog candidates",
+                                 "rolling disabled idle path makes no Spotify client or network call",
+                                 "current track absent from commissioned playlist",
+                                 "foreground/generic media fallback statically forbidden"
+                             ],
+    "unresolvedRuntimeGates":  [
+                                   "install reviewed APK on primary-phone",
+                                   "grant Home Center Shizuku permission if not already granted",
+                                   "prove shell/root can enumerate exact Spotify MediaSession on this Android build",
+                                   "complete owner Spotify PKCE authorization",
+                                   "create and read back Adam Radio — Rolling in the Spotify account",
+                                   "prove foreground package unchanged during controls",
+                                   "prove two real transitions and bounded refill",
+                                   "prove Adam overlay prompt revision changes only upcoming items",
+                                   "prove interface-off continuity and Shizuku fail-closed recovery",
+                                   "observe final phone health and obtain Drew acceptance"
+                               ],
+    "phoneTouched":  false,
+    "phoneHandsCommandsIssued":  false,
+    "apkInstalled":  false,
+    "spotifyAuthorizationAttempted":  false,
+    "playlistMutationAttempted":  false,
+    "runtimeClaim":  "none",
+    "createdAt":  "2026-08-13T13:12:00-05:00"
+}
