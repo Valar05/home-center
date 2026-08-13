@@ -1,0 +1,142 @@
+name: Reality Membrane Deploy
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: write
+  id-token: write
+
+concurrency:
+  group: reality-membrane-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      HC_FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_HOME_CENTER_DCLAR }}
+      HC_GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
+      HC_GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
+      HC_GOOGLE_APPLICATION_CREDENTIALS_JSON: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS_JSON }}
+      HC_GCLOUD_SERVICE_ACCOUNT_KEY: ${{ secrets.GCLOUD_SERVICE_ACCOUNT_KEY }}
+      HC_FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+    steps:
+      - name: Check out commissioned branch
+        uses: actions/checkout@v4
+        with:
+          ref: reality-membrane-canary-20260813
+          fetch-depth: 0
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Verify canonical implementation and contracts
+        run: |
+          grep -q "reality.capabilities" functions/home_center_mcp.js
+          grep -q "expired_before_lease" functions/phone_hands_relay.js
+          node tools/phone_hands_queue_starvation_contract_test.mjs
+          node tools/reality_membrane_contract_test.mjs
+          node tools/reality_membrane_runtime_patch_test.mjs
+          node --check functions/phone_hands_relay.js
+          node --check functions/home_center_mcp.js
+          node --check functions/reality_membrane.js
+
+      - name: Select configured noninteractive Firebase credential
+        id: auth
+        shell: bash
+        run: |
+          set -euo pipefail
+          credential=""
+          source_name=""
+          for pair in \
+            "FIREBASE_SERVICE_ACCOUNT_HOME_CENTER_DCLAR|$HC_FIREBASE_SERVICE_ACCOUNT" \
+            "GCP_SA_KEY|$HC_GCP_SA_KEY" \
+            "GOOGLE_CREDENTIALS|$HC_GOOGLE_CREDENTIALS" \
+            "GOOGLE_APPLICATION_CREDENTIALS_JSON|$HC_GOOGLE_APPLICATION_CREDENTIALS_JSON" \
+            "GCLOUD_SERVICE_ACCOUNT_KEY|$HC_GCLOUD_SERVICE_ACCOUNT_KEY"; do
+            name="${pair%%|*}"
+            value="${pair#*|}"
+            if [ -n "$value" ]; then credential="$value"; source_name="$name"; break; fi
+          done
+          if [ -n "$credential" ]; then
+            if printf '%s' "$credential" | grep -q '^{' ; then
+              printf '%s' "$credential" > /tmp/home-center-deploy-key.json
+            else
+              printf '%s' "$credential" | base64 --decode > /tmp/home-center-deploy-key.json
+            fi
+            chmod 600 /tmp/home-center-deploy-key.json
+            python - <<'PY'
+import json
+with open('/tmp/home-center-deploy-key.json', encoding='utf-8') as f:
+    data = json.load(f)
+assert data.get('type') == 'service_account'
+assert data.get('project_id') == 'home-center-dclar'
+PY
+            echo "mode=service_account" >> "$GITHUB_OUTPUT"
+            echo "source_name=$source_name" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          if [ -n "$HC_FIREBASE_TOKEN" ]; then
+            echo "mode=firebase_token" >> "$GITHUB_OUTPUT"
+            echo "source_name=FIREBASE_TOKEN" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          echo "No supported existing deploy credential is configured." >&2
+          exit 42
+
+      - name: Install Firebase CLI
+        run: npm install --global firebase-tools@latest
+
+      - name: Deploy only commissioned functions
+        shell: bash
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: /tmp/home-center-deploy-key.json
+        run: |
+          set -euo pipefail
+          args=(deploy --project home-center-dclar --only functions:phoneHandsRelay,functions:homeCenterMcp --non-interactive --force)
+          if [ "${{ steps.auth.outputs.mode }}" = "firebase_token" ]; then
+            args+=(--token "$HC_FIREBASE_TOKEN")
+            unset GOOGLE_APPLICATION_CREDENTIALS
+          fi
+          firebase "${args[@]}" | tee /tmp/reality-deploy.log
+
+      - name: Publish durable deployment receipt
+        if: success()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          {
+            echo "## Reality Membrane bounded deployment PASS"
+            echo
+            echo "- Deployed source SHA: \`$(git rev-parse HEAD)\`"
+            echo "- Project: \`home-center-dclar\`"
+            echo "- Functions: \`phoneHandsRelay\`, \`homeCenterMcp\`"
+            echo "- Credential lane: \`${{ steps.auth.outputs.mode }}\` via configured secret name \`${{ steps.auth.outputs.source_name }}\` (value never exposed)"
+            echo "- Deterministic contracts and syntax: PASS before deploy"
+            echo "- Workflow run: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+            echo "- Acceptance boundary: deployment is not live canary acceptance; Home Center and primary-phone receipts are still required"
+          } > /tmp/reality-deploy-comment.md
+          gh pr comment 267 --repo Valar05/home-center --body-file /tmp/reality-deploy-comment.md
+
+      - name: Publish exact deployment failure boundary
+        if: failure()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          {
+            echo "## Reality Membrane bounded deployment FAILED"
+            echo
+            echo "- Source SHA: \`$(git rev-parse HEAD)\`"
+            echo "- Intended functions: \`phoneHandsRelay\`, \`homeCenterMcp\`"
+            echo "- Failed transition: authorized GitHub runner -> Firebase deployment"
+            echo "- Workflow run: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+            echo "- No deployment or canary success is claimed. Inspect the failing step before retrying."
+          } > /tmp/reality-deploy-failure.md
+          gh pr comment 267 --repo Valar05/home-center --body-file /tmp/reality-deploy-failure.md || true
