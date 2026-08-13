@@ -31,8 +31,11 @@ def test_dirty_tree_rescue_is_lossless_and_oid_stable():
         (root / "untracked.txt").write_text("treasure\n", encoding="utf-8")
 
         state = Path(td) / "state"
-        old = (fc.REPO, fc.STATE, fc.DB, fc.LOG)
+        old = (fc.REPO, fc.STATE, fc.DB, fc.LOG, fc.run.__defaults__)
         fc.REPO, fc.STATE, fc.DB, fc.LOG = root, state, state/"campaign.sqlite3", state/"campaign.jsonl"
+        # run() intentionally defaults to the production REPO object; redirect that captured default
+        # only inside this isolated regression fixture.
+        fc.run.__defaults__ = (root, 60)
         try:
             with fc.connect() as con:
                 receipt = fc.dirty_tree_recovery(con)
@@ -43,14 +46,13 @@ def test_dirty_tree_rescue_is_lossless_and_oid_stable():
             assert status == ""
             names = sh(root, "git", "stash", "show", "--include-untracked", "--name-only", oid).stdout
             assert "tracked.txt" in names and "untracked.txt" in names
-            # Move the stash stack to prove the recorded OID, not stash@{0}, is the durable identity.
             (root / "second.txt").write_text("second\n", encoding="utf-8")
             sh(root, "git", "stash", "push", "-u", "-m", "second")
             sh(root, "git", "stash", "apply", "--index", oid)
             assert (root / "tracked.txt").read_text(encoding="utf-8") == "after\n"
             assert (root / "untracked.txt").read_text(encoding="utf-8") == "treasure\n"
         finally:
-            fc.REPO, fc.STATE, fc.DB, fc.LOG = old
+            fc.REPO, fc.STATE, fc.DB, fc.LOG, fc.run.__defaults__ = old
 
 
 def test_mobile_url_parsing_keeps_secret_separate():
@@ -77,11 +79,19 @@ def test_missing_venice_cache_cannot_authorize_stop():
 def test_bootstrap_orders_dirty_recovery_before_branch_switch_and_uses_tmux():
     text = (HERE / "fortress_phone_swarm_bootstrap.sh").read_text(encoding="utf-8")
     assert text.index('say "1. Recover dirty tree"') < text.index('say "2. Enter exact campaign branch')
-    assert "git stash apply" not in text  # bootstrap preserves; it never blindly reapplies onto a different lineage
+    assert "git stash apply" not in text
     assert 'SESSION="fortress-swarm"' in text
     assert "tmux new-session" in text and "tmux new-window" in text
     assert 'rm -f "$BOOT/30-fortress-phone-kernel"' in text
     assert "diagnose --repair" in text
+
+
+def test_kernel_setup_does_not_make_coding_depend_on_voice_or_nohup():
+    text = (HERE / "setup_fortress_phone_kernel.sh").read_text(encoding="utf-8")
+    assert 'REQUIRE_VOICE="${FORTRESS_REQUIRE_VOICE:-0}"' in text
+    assert 'SUPERVISOR="${FORTRESS_KERNEL_SUPERVISOR:-external}"' in text
+    assert 'if [ "$REQUIRE_VOICE" = "1" ]' in text
+    assert 'if [ "$SUPERVISOR" = "legacy" ]' in text
 
 
 def main():
