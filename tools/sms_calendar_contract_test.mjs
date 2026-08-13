@@ -10,6 +10,7 @@ const {
   normalizedProposal,
   providerEventId,
   publicRecord,
+  recordOwnedBy,
   registry,
   runOperation,
 } = require('../functions/sms_calendar_intake.js');
@@ -260,6 +261,9 @@ assert.deepEqual(operations['sms_calendar.reconcile'].requiredScopes, [
   'https://www.googleapis.com/auth/calendar.events',
 ]);
 assert.throws(() => messageId('eve'), /Home Center SMS intake id/);
+assert.equal(recordOwnedBy({createdByEmail: 'Reviewer@Example.com'}, USER), true);
+assert.equal(recordOwnedBy({createdByEmail: 'other@example.com'}, USER), false);
+assert.equal(recordOwnedBy({}, USER), false);
 assert.equal(messageId(MESSAGE_ID), MESSAGE_ID);
 assert.notEqual(
   auditDocumentId('sms_calendar.approve', 'house', MESSAGE_ID, 'same-request'),
