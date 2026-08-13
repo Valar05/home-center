@@ -4,7 +4,7 @@ import {createRequire} from 'node:module';
 
 const require=createRequire(import.meta.url);
 const {
-  cleanAction,enqueuePhoneCommand,devicePull,deviceComplete,maintenanceReceiptHash,hashText,COLLECTIONS,
+  cleanAction,enqueuePhoneCommand,devicePull,deviceComplete,maintenanceReceiptHash,hashText,COLLECTIONS,rejectNativeMaintenanceFromCommandCenter,
 }=require('../functions/phone_hands_relay.js');
 const phoneSurface=require('../functions/phone_operation_surface.js');
 
@@ -43,6 +43,11 @@ for(const bad of [
   action({sourceHead:'main'}),action({commissionHash:'bad'}),
   action({networkPolicy:'offline'}),action({timeoutSeconds:3601}),
 ]) assert.throws(()=>cleanAction(bad));
+assert.throws(
+  ()=>rejectNativeMaintenanceFromCommandCenter({action:action()}),
+  (error)=>error&&error.status===410&&error.code==='capability_retired.command_center_phone_maintenance',
+);
+assert.doesNotThrow(()=>rejectNativeMaintenanceFromCommandCenter({action:{action:'phone_diagnostics'}}));
 
 class Snap{constructor(value){this.value=value;this.exists=value!==undefined;}data(){return this.value;}}
 class Ref{
