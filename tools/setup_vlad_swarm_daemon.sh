@@ -5,6 +5,7 @@ REPO_ROOT="${HC_REPO_ROOT:-$(cd "$(dirname "$0")/.." && pwd)}"
 STATE_DIR="${HC_SWARM_STATE_DIR:-$HOME/.local/state/home-center/vlad-swarm}"
 BIN_DIR="${HC_VLAD_BIN_DIR:-${PREFIX:-$HOME/.local}/bin}"
 VLAD_TARGET="$BIN_DIR/vlad"
+DAEMON="$REPO_ROOT/tools/vlad_swarm_daemon_receipted.py"
 SERVICE_DIR="$PREFIX/var/service/vlad-swarm"
 LOG_DIR="$PREFIX/var/log/vlad-swarm"
 MODE="${1:-ensure}"
@@ -14,12 +15,13 @@ JAR_RECEIPT="$STATE_DIR/judgement-jar-bootstrap.json"
 mkdir -p "$STATE_DIR" "$LOG_DIR" "$BIN_DIR"
 for file in \
   "$REPO_ROOT/tools/vlad_swarm_daemon.py" \
+  "$DAEMON" \
   "$REPO_ROOT/tools/vlad_jars.py" \
   "$REPO_ROOT/tools/judgement_jar_runtime.py" \
   "$REPO_ROOT/config/judgement-jar-runtime.v1.json"; do
   [ -f "$file" ] || { echo "BLOCKED: required Vlad/Jar component missing: $file" >&2; exit 2; }
 done
-chmod +x "$REPO_ROOT/tools/vlad_swarm_daemon.py" "$REPO_ROOT/tools/vlad_jars.py"
+chmod +x "$REPO_ROOT/tools/vlad_swarm_daemon.py" "$DAEMON" "$REPO_ROOT/tools/vlad_jars.py"
 
 TMP_VLAD="$VLAD_TARGET.tmp.$$"
 cat > "$TMP_VLAD" <<EOF
@@ -43,21 +45,24 @@ PY
 
 write_receipt(){
   local ok="$1" manager="$2" detail="$3"
-  python3 - "$RECEIPT" "$ok" "$manager" "$detail" "$REPO_ROOT" "$VLAD_TARGET" "$JAR_RECEIPT" <<'PY'
+  python3 - "$RECEIPT" "$ok" "$manager" "$detail" "$REPO_ROOT" "$VLAD_TARGET" "$JAR_RECEIPT" "$DAEMON" <<'PY'
 import json,os,sys,time
-path,ok,manager,detail,root,vlad_target,jar_receipt=sys.argv[1:]
+path,ok,manager,detail,root,vlad_target,jar_receipt,daemon=sys.argv[1:]
 jar=json.load(open(jar_receipt,encoding='utf-8'))
 obj={
-  'schema':'vlad-swarm-service-v3-judgement-jar-receipts',
+  'schema':'vlad-swarm-service-v4-judgement-jar-heartbeat-sync',
   'ok':ok=='1',
   'manager':manager,
   'detail':detail,
   'repoRoot':root,
+  'daemonEntrypoint':daemon,
   'vladTarget':vlad_target,
   'jarCount':jar.get('count'),
   'jarCatalogSyncState':jar.get('catalogSync',{}).get('state'),
   'jarUsageReceiptsRequired':True,
   'jarOutputKindRequired':True,
+  'jarPendingOutboxOldestFirst':True,
+  'jarSyncUsesExistingDaemonHeartbeat':True,
   'jarBootstrapReceipt':jar_receipt,
   'atEpoch':int(time.time()),
 }
@@ -73,7 +78,7 @@ if command -v sv >/dev/null 2>&1 && [ -d "$PREFIX/var/service" ]; then
   mkdir -p "$SERVICE_DIR/log"
   cat > "$SERVICE_DIR/run" <<EOF
 #!/data/data/com.termux/files/usr/bin/bash
-exec env HC_REPO_ROOT=$(printf '%q' "$REPO_ROOT") python3 $(printf '%q' "$REPO_ROOT/tools/vlad_swarm_daemon.py") 2>&1
+exec env HC_REPO_ROOT=$(printf '%q' "$REPO_ROOT") python3 $(printf '%q' "$DAEMON") 2>&1
 EOF
   cat > "$SERVICE_DIR/log/run" <<EOF
 #!/data/data/com.termux/files/usr/bin/bash
@@ -87,7 +92,7 @@ EOF
   fi
   sleep 1
   if sv status vlad-swarm 2>/dev/null | grep -q '^run:'; then
-    write_receipt 1 runit "vlad-swarm running; fast Jar access installed"
+    write_receipt 1 runit "vlad-swarm running; fast Jar access and heartbeat sync installed"
   else
     write_receipt 0 runit "vlad-swarm is not running"
     exit 2
@@ -102,11 +107,11 @@ else
     write_receipt 1 pidfile "vlad-swarm already running pid=$(cat "$PIDFILE"); fast Jar access installed"
     exit 0
   fi
-  nohup env HC_REPO_ROOT="$REPO_ROOT" python3 "$REPO_ROOT/tools/vlad_swarm_daemon.py" >>"$STATE_DIR/daemon.log" 2>&1 </dev/null &
+  nohup env HC_REPO_ROOT="$REPO_ROOT" python3 "$DAEMON" >>"$STATE_DIR/daemon.log" 2>&1 </dev/null &
   echo $! > "$PIDFILE"
   sleep 1
   if kill -0 "$(cat "$PIDFILE")" 2>/dev/null; then
-    write_receipt 1 pidfile "vlad-swarm started pid=$(cat "$PIDFILE"); fast Jar access installed"
+    write_receipt 1 pidfile "vlad-swarm started pid=$(cat "$PIDFILE"); fast Jar access and heartbeat sync installed"
   else
     write_receipt 0 pidfile "vlad-swarm exited during startup"
     exit 3
