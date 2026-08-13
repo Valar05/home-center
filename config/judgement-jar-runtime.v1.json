@@ -1,0 +1,35 @@
+{
+  "schema": "home-center.judgement-jar-runtime.v1",
+  "sourceGlob": ".continue/rules/*judgement-jar*.md",
+  "outputKinds": [
+    "context_packet",
+    "answer",
+    "analysis",
+    "plan",
+    "decision",
+    "routing_action",
+    "code_change",
+    "test_result",
+    "review_verdict",
+    "artifact",
+    "handoff",
+    "memory_update",
+    "execution_result",
+    "blocker",
+    "no_change",
+    "mixed"
+  ],
+  "homeCenterDaemon": {
+    "baseUrlEnv": "HC_ATOM_URL",
+    "defaultBaseUrl": "http://127.0.0.1:8788",
+    "catalogPath": "/v1/atom/vlad/jars/sync",
+    "receiptPath": "/v1/atom/vlad/jars/receipts",
+    "timeoutSeconds": 1.5
+  },
+  "receipt": {
+    "schema": "home-center.judgement-jar-usage-receipt.v1",
+    "requireOutputKind": true,
+    "appendOnly": true,
+    "pendingOutboxOldestFirst": true
+  }
+}
