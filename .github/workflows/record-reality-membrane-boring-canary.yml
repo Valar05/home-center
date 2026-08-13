@@ -1,0 +1,96 @@
+name: Record Reality Membrane boring canary
+
+on:
+  push:
+    branches:
+      - reality-membrane-canary-20260813
+    paths:
+      - .github/workflows/record-reality-membrane-boring-canary.yml
+
+permissions:
+  contents: write
+  pull-requests: write
+  id-token: write
+
+concurrency:
+  group: record-reality-membrane-boring-canary
+  cancel-in-progress: false
+
+env:
+  CANARY_REQUEST_ID: inner-fortress-boring-canary-20260813
+  CANARY_USER_EMAIL: dclarke1005@gmail.com
+  HC_FIREBASE_SA: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_HOME_CENTER_DCLAR }}
+  HC_GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
+  HC_GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
+  HC_FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+  HC_WIF_PROVIDER: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+  HC_WIF_SERVICE_ACCOUNT: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+  GH_TOKEN: ${{ github.token }}
+
+jobs:
+  validate-and-record:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: reality-membrane-canary-20260813
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Authenticate with workload identity when configured
+        if: env.HC_WIF_PROVIDER != '' && env.HC_WIF_SERVICE_ACCOUNT != ''
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ env.HC_WIF_PROVIDER }}
+          service_account: ${{ env.HC_WIF_SERVICE_ACCOUNT }}
+      - name: Select Firestore credentials
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -n "${HC_WIF_PROVIDER}" ] && [ -n "${HC_WIF_SERVICE_ACCOUNT}" ]; then exit 0; fi
+          credential=''
+          for candidate in "$HC_FIREBASE_SA" "$HC_GOOGLE_CREDENTIALS" "$HC_GCP_SA_KEY" "$HC_FIREBASE_SERVICE_ACCOUNT"; do if [ -n "$candidate" ]; then credential="$candidate"; break; fi; done
+          if [ -z "$credential" ]; then echo 'No Firestore credential configured.' >&2; exit 41; fi
+          path="$RUNNER_TEMP/home-center-firestore-service-account.json"
+          printf '%s' "$credential" > "$path"
+          chmod 600 "$path"
+          echo "GOOGLE_APPLICATION_CREDENTIALS=$path" >> "$GITHUB_ENV"
+      - name: Install Firestore client dependencies
+        run: npm ci --prefix functions
+      - name: Read and validate the exact persisted canary packet
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p docs/evidence
+          cd functions
+          node - <<'NODE'
+          const fs=require('node:fs'),crypto=require('node:crypto'),admin=require('firebase-admin');if(!admin.apps.length)admin.initializeApp({projectId:'home-center-dclar'});const db=admin.firestore();
+          const sha=value=>crypto.createHash('sha256').update(String(value||'')).digest('hex');const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+          (async()=>{const userKey='reality_'+sha(process.env.CANARY_USER_EMAIL.toLowerCase()).slice(0,32);const expectedPhoneCommand='phc_reality_observe_'+sha(process.env.CANARY_REQUEST_ID).slice(0,24);const root=db.collection('realityUsers').doc(userKey);const deadline=Date.now()+12*60*1000;let latest=null,snapshot=null;
+            while(Date.now()<deadline){const ls=await root.collection('state').doc('latest').get();latest=ls.exists?ls.data():null;if(latest&&latest.packetReceiptId){const ss=await root.collection('snapshots').doc(latest.packetReceiptId).get();snapshot=ss.exists?ss.data():null;if(snapshot&&snapshot.sourceReceipts&&snapshot.sourceReceipts.phone&&snapshot.sourceReceipts.phone.commandId===expectedPhoneCommand)break;}await sleep(5000);}
+            if(!snapshot)throw new Error('exact_canary_snapshot_missing');const p=snapshot.projection||{},t=p.time||{},e=p.environment||{},d=p.device||{},u=Array.isArray(snapshot.unavailable)?snapshot.unavailable:[];
+            const checks={exactPhoneCommand:snapshot.sourceReceipts.phone.commandId===expectedPhoneCommand,timePresent:!!(t.now&&t.now.value&&t.now.source==='home_center.runtime_clock'),daylightPresent:!!(t.daylight&&t.daylight.value),weatherPresent:Number.isFinite(Number(e.temperature_f&&e.temperature_f.value))&&!!(e.temperature_f&&e.temperature_f.source),weatherFresh:e.temperature_f&&e.temperature_f.stale===false,phoneReceiptTerminal:snapshot.sourceReceipts.phone.status==='completed',batteryPresentOrLabeled:!!(d.battery_pct&&Number.isFinite(Number(d.battery_pct.value)))||u.includes('phone.battery_pct'),chargingPresentOrLabeled:!!(d.charging&&typeof d.charging.value==='boolean')||u.includes('phone.charging'),connectivityPresentOrLabeled:!!(d.connectivity&&d.connectivity.value)||u.includes('phone.connectivity'),audioRoutePresentOrLabeled:!!(d.audio_route&&d.audio_route.value)||u.includes('phone.audio_route'),compact:Buffer.byteLength(JSON.stringify(p),'utf8')<16000,noSensitiveLeak:!/attendee|calendar.description|message.body|medical|latitude|longitude|microphone_recording/i.test(JSON.stringify(snapshot)),provenancePresent:!!(t.now&&t.now.receipt_id)&&!!(e.temperature_f&&e.temperature_f.receipt_id)&&!!snapshot.sourceReceipts.weather};
+            const failed=Object.entries(checks).filter(([,ok])=>!ok).map(([name])=>name);if(failed.length)throw new Error('canary_checks_failed:'+failed.join(',')+':'+JSON.stringify({projection:p,unavailable:u,sourceReceipts:snapshot.sourceReceipts}));
+            const receipt={schema:'home-center.reality-membrane.boring-canary.v1',validatedAt:new Date().toISOString(),requestId:process.env.CANARY_REQUEST_ID,packetReceiptId:latest.packetReceiptId,observedAt:snapshot.observedAt,projection:p,unavailable:u,sourceReceipts:snapshot.sourceReceipts,checks,stateLedger:{observationsReal:true,fictionalTransformationStored:false,sensitiveLeak:false,staleLabelingVerified:true,paidServiceActivated:false,compact:true,scenePending:true},evidenceBoundary:'This receipt validates the Home Center observation packet only. Inner Fortress fiction must remain a separate downstream record.'};receipt.receiptSha256=sha(JSON.stringify(receipt));fs.writeFileSync('../docs/evidence/reality-membrane-boring-canary-20260813.json',JSON.stringify(receipt,null,2)+'\n');console.log(JSON.stringify(receipt));
+          })().catch(e=>{console.error(e.stack||e);process.exit(1)});
+          NODE
+      - name: Rebase, commit canary receipt, and remove one-use workflow
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'home-center-github-admin[bot]'
+          git config user.email 'home-center-github-admin[bot]@users.noreply.github.com'
+          git fetch origin reality-membrane-canary-20260813
+          git rebase origin/reality-membrane-canary-20260813
+          git rm --ignore-unmatch .github/workflows/record-reality-membrane-boring-canary.yml
+          git add docs/evidence/reality-membrane-boring-canary-20260813.json
+          git diff --cached --check
+          git commit -m 'Record Reality Membrane boring canary observation'
+          git push origin HEAD:reality-membrane-canary-20260813
+      - name: Comment exact observation checkpoint on PR 267
+        shell: bash
+        run: |
+          set -euo pipefail
+          gh pr comment 267 --repo "$GITHUB_REPOSITORY" --body-file docs/evidence/reality-membrane-boring-canary-20260813.json
