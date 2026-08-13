@@ -27,13 +27,21 @@ PLAN_LAST = STATE_DIR / "plan-review-last.json"
 PLAN_DIRECTIVES = {"PLAN_ALLOWED", "REPLAN_REQUIRED", "HALT_REQUIRED"}
 PRIMARY_REVIEWER_MODE = venice_review.PRIMARY_REVIEWER_MODE
 LOCAL_REVIEWER_MODE = venice_review.LOCAL_REVIEWER_MODE
+AUTHORIZED_REVIEWER_MODES = {PRIMARY_REVIEWER_MODE, LOCAL_REVIEWER_MODE}
 
 
 def sha(text: str) -> str:
     return hashlib.sha256(text.encode("utf-8")).hexdigest()
 
 
-def parse_plan_review(text: str):
+def parse_plan_review(text: str, reviewer_mode: str | None = None):
+    """Parse a Venice ruling only when the caller carries explicit reviewer authority.
+
+    Formatting alone never grants Venice authority. This prevents a generic/local
+    planning model from writing `PLAN_ALLOWED` and thereby authorizing itself.
+    """
+    if reviewer_mode not in AUTHORIZED_REVIEWER_MODES:
+        return "FAIL", "HALT_REQUIRED", ["plan_reviewer_authority_missing_or_invalid"], []
     vm = re.search(r"(?im)^VERDICT\s*:\s*(PASS|FAIL)\s*$", text)
     dm = re.search(r"(?im)^DIRECTIVE\s*:\s*(PLAN_ALLOWED|REPLAN_REQUIRED|HALT_REQUIRED)\s*$", text)
     findings, jars = [], []
@@ -154,13 +162,13 @@ def main(argv=None) -> int:
         raw=Path(args.review_text_file).read_text(encoding="utf-8", errors="replace")
 
     if raw.strip():
-        verdict, directive, findings, applied = parse_plan_review(raw)
+        verdict, directive, findings, applied = parse_plan_review(raw, reviewer_mode)
     else:
         verdict, directive, findings, applied = "FAIL", "REPLAN_REQUIRED", ["judgment_jar_plan_review_text_required"], ["Venice is always consulted"]
     allowed = verdict == "PASS" and directive == "PLAN_ALLOWED"
     receipt = {
         "schema":"venice-plan-review-v2-judgment-jar-primary", "createdAtEpoch":int(time.time()),
-        "reviewer":reviewer, "reviewerMode":reviewer_mode, "independentReviewPass":True, "independentOfWorker":True,
+        "reviewer":reviewer, "reviewerMode":reviewer_mode, "reviewerSemantics":"primary-judgment-jar" if reviewer_mode == PRIMARY_REVIEWER_MODE else "optional-local-venice", "independentReviewPass":True,
         "repo":str(root), "commission":args.commission, "commissionSha256":sha(args.commission), "researchSha256":sha(research),
         "planSha256":sha(plan), "antagonismSha256":sha(antagonism), "selectedJudgmentJars":jar_manifest,
         "jarSelectionRationale":args.jar_rationale, "reviewerPrecedentSha256":sha(precedent), "verdict":verdict, "directive":directive,
