@@ -1,0 +1,144 @@
+name: Reconcile Phone Hands queue hotfix checkpoint
+
+on:
+  push:
+    branches:
+      - phone-hands-queue-starvation-hotfix-20260813
+    paths:
+      - .github/workflows/reconcile-phone-hands-queue-hotfix-checkpoint.yml
+
+permissions:
+  contents: write
+  pull-requests: write
+  id-token: write
+
+concurrency:
+  group: phone-hands-queue-hotfix-finalizer
+  cancel-in-progress: false
+
+env:
+  HOTFIX_BRANCH: phone-hands-queue-starvation-hotfix-20260813
+  CANARY_COMMAND_ID: phc_queue_recovery_canary2_20260813
+  HC_FIREBASE_SA: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_HOME_CENTER_DCLAR }}
+  HC_GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
+  HC_GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
+  HC_FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+  HC_FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+  HC_WIF_PROVIDER: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+  HC_WIF_SERVICE_ACCOUNT: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+  GH_TOKEN: ${{ github.token }}
+
+jobs:
+  reconcile-deploy-prove-merge:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: phone-hands-queue-starvation-hotfix-20260813
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Rebase over any completed one-use job
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'home-center-github-admin[bot]'
+          git config user.email 'home-center-github-admin[bot]@users.noreply.github.com'
+          git fetch origin "$HOTFIX_BRANCH"
+          git rebase "origin/$HOTFIX_BRANCH"
+      - name: Ensure repaired source and deterministic test
+        shell: bash
+        run: |
+          set -euo pipefail
+          if grep -Fq ".limit(10).get()" functions/phone_hands_relay.js; then
+            node tools/install_phone_hands_queue_starvation_fix.mjs
+          fi
+          node tools/phone_hands_queue_starvation_contract_test.mjs
+          git diff --check
+      - name: Authenticate with workload identity when configured
+        if: env.HC_WIF_PROVIDER != '' && env.HC_WIF_SERVICE_ACCOUNT != ''
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ env.HC_WIF_PROVIDER }}
+          service_account: ${{ env.HC_WIF_SERVICE_ACCOUNT }}
+      - name: Select Firebase credentials
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -n "${HC_WIF_PROVIDER}" ] && [ -n "${HC_WIF_SERVICE_ACCOUNT}" ]; then echo 'AUTH_MODE=workload_identity' >> "$GITHUB_ENV"; exit 0; fi
+          credential=''
+          for candidate in "$HC_FIREBASE_SA" "$HC_GOOGLE_CREDENTIALS" "$HC_GCP_SA_KEY" "$HC_FIREBASE_SERVICE_ACCOUNT"; do
+            if [ -n "$candidate" ]; then credential="$candidate"; break; fi
+          done
+          if [ -n "$credential" ]; then
+            path="$RUNNER_TEMP/home-center-firebase-service-account.json"
+            printf '%s' "$credential" > "$path"
+            chmod 600 "$path"
+            echo "GOOGLE_APPLICATION_CREDENTIALS=$path" >> "$GITHUB_ENV"
+            echo 'AUTH_MODE=service_account_json' >> "$GITHUB_ENV"
+          elif [ -n "$HC_FIREBASE_TOKEN" ]; then
+            echo 'AUTH_MODE=firebase_token' >> "$GITHUB_ENV"
+          else
+            echo 'No recognized Firebase/GCP deployment credential is configured.' >&2
+            exit 41
+          fi
+      - name: Install function dependencies
+        run: npm ci --prefix functions
+      - name: Deploy only Phone Hands relay
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ "$AUTH_MODE" = 'firebase_token' ]; then
+            npx --yes firebase-tools@latest deploy --project home-center-dclar --only functions:phoneHandsRelay --non-interactive --token "$HC_FIREBASE_TOKEN"
+          else
+            npx --yes firebase-tools@latest deploy --project home-center-dclar --only functions:phoneHandsRelay --non-interactive
+          fi
+      - name: Read live canary and phone heartbeat
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p docs/evidence
+          cd functions
+          node - <<'NODE'
+          const fs=require('node:fs'); const crypto=require('node:crypto'); const admin=require('firebase-admin');
+          if(!admin.apps.length)admin.initializeApp({projectId:'home-center-dclar'}); const db=admin.firestore();
+          const sleep=(ms)=>new Promise(r=>setTimeout(r,ms));
+          (async()=>{const id=process.env.CANARY_COMMAND_ID,deadline=Date.now()+8*60*1000;let c=null;
+            while(Date.now()<deadline){const s=await db.collection('phoneHandsCommands').doc(id).get();c=s.exists?s.data():null;if(c&&['completed','failed'].includes(c.status))break;await sleep(5000);}
+            const result=c&&c.result||{};if(!c||c.status!=='completed'||result.ok!==true||Number(result.exitCode)!==0||!String(result.stdout||'').includes('PHONE_HANDS_QUEUE_RECOVERED_2'))throw new Error('live_queue_canary_invalid:'+JSON.stringify(c));
+            const ds=await db.collection('phoneHandsDevices').doc('primary-phone').get();if(!ds.exists)throw new Error('primary_phone_missing');const d=ds.data()||{},age=Date.now()-Number(d.lastSeenAtMs||0);if(d.status!=='online'||age>120000)throw new Error('primary_phone_not_fresh:'+d.status+':'+age);
+            const receipt={schema:'home-center.phone-hands-queue-hotfix-receipt.v2',observedAt:new Date().toISOString(),source:'live_firestore_command_and_device_read',command:{commandId:id,deviceId:c.deviceId||'',status:c.status,action:c.action&&c.action.action||'',createdAtMs:Number(c.createdAtMs||0),updatedAtMs:Number(c.updatedAtMs||0),completedAtMs:Number(c.completedAtMs||0),result:{ok:true,exitCode:Number(result.exitCode),stdout:String(result.stdout||'').trim(),stderr:String(result.stderr||'').trim()}},device:{deviceId:d.deviceId||'primary-phone',status:d.status,lastSeenAtMs:Number(d.lastSeenAtMs||0),heartbeatAgeMs:age,capabilities:Array.isArray(d.capabilities)?d.capabilities:[]},deployment:{project:'home-center-dclar',function:'phoneHandsRelay',runId:process.env.GITHUB_RUN_ID,sourceSha:process.env.GITHUB_SHA},evidenceBoundary:'Phone terminal command and heartbeat are acceptance evidence; workflow status is not.'};
+            receipt.receiptSha256=crypto.createHash('sha256').update(JSON.stringify(receipt)).digest('hex');fs.writeFileSync('../docs/evidence/phone-hands-queue-hotfix-receipt-20260813.json',JSON.stringify(receipt,null,2)+'\n');console.log(JSON.stringify(receipt));
+          })().catch(e=>{console.error(e.stack||e);process.exit(1)});
+          NODE
+      - name: Rebase, retain only durable source/test/receipt, and push
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch origin "$HOTFIX_BRANCH"
+          git rebase "origin/$HOTFIX_BRANCH"
+          if grep -Fq ".limit(10).get()" functions/phone_hands_relay.js; then node tools/install_phone_hands_queue_starvation_fix.mjs; fi
+          node tools/phone_hands_queue_starvation_contract_test.mjs
+          git rm --ignore-unmatch .github/workflows/apply-phone-hands-queue-starvation-hotfix.yml
+          git rm --ignore-unmatch .github/workflows/deploy-phone-hands-queue-hotfix.yml
+          git rm --ignore-unmatch .github/workflows/finish-phone-hands-queue-hotfix-checkpoint.yml
+          git rm --ignore-unmatch .github/workflows/reconcile-phone-hands-queue-hotfix-checkpoint.yml
+          git rm --ignore-unmatch tools/install_phone_hands_queue_starvation_fix.mjs
+          git add functions/phone_hands_relay.js tools/phone_hands_queue_starvation_contract_test.mjs docs/evidence/phone-hands-queue-hotfix-receipt-20260813.json
+          git diff --cached --check
+          if ! git diff --cached --quiet; then git commit -m 'Prove and retain Phone Hands queue starvation repair'; fi
+          git push origin HEAD:$HOTFIX_BRANCH
+      - name: Open and merge isolated hotfix
+        shell: bash
+        run: |
+          set -euo pipefail
+          pr=$(gh pr list --repo "$GITHUB_REPOSITORY" --head "$HOTFIX_BRANCH" --state open --json number --jq '.[0].number // empty')
+          if [ -z "$pr" ]; then
+            gh pr create --repo "$GITHUB_REPOSITORY" --base main --head "$HOTFIX_BRANCH" --title 'Fix expired-command starvation in Phone Hands relay' --body 'Isolated relay hotfix with deterministic source test and live primary-phone terminal execution receipt. Reality Membrane PR #267 remains separate and unmerged.'
+            pr=$(gh pr list --repo "$GITHUB_REPOSITORY" --head "$HOTFIX_BRANCH" --state open --json number --jq '.[0].number')
+          fi
+          gh pr comment "$pr" --repo "$GITHUB_REPOSITORY" --body-file docs/evidence/phone-hands-queue-hotfix-receipt-20260813.json
+          head_sha=$(git rev-parse HEAD)
+          gh api --method PUT "repos/$GITHUB_REPOSITORY/pulls/$pr/merge" -f merge_method=squash -f sha="$head_sha" | jq -e '.merged == true'
