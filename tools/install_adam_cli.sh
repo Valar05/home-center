@@ -22,6 +22,7 @@ for f in \
   "$ROOT/tools/she_raw_cli.py" \
   "$ROOT/tools/canon_sourcer.py" \
   "$ROOT/config/she-raw-cli.v1.json" \
+  "$ROOT/config/she-raw-jar-cache.md" \
   "$ROOT/config/she-raw-aliases.example.json" \
   "$ROOT/config/canon-sources.v1.json" \
   "$ROOT/tools/judgment_jar_runtime.py" \
