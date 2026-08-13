@@ -42,6 +42,50 @@ test('loopback relay requires ephemeral proof and enforces one pending writer', 
   assert.match(preflight.headers.get('access-control-allow-methods'), /POST/);
 });
 
+test('throne queue is separately authenticated, origin-bound, leased, and durably receipted', async (t) => {
+  const extensionOrigin = `chrome-extension://${'j'.repeat(32)}`;
+  const throneCapability = 't'.repeat(48);
+  const durableEvents = [];
+  const server = createRelay({port: 0, extensionOrigin, throneCapability, eventSink: async (event) => durableEvents.push(event)});
+  await new Promise((resolve) => server.once('listening', resolve));
+  t.after(() => server.close());
+  const base = `http://127.0.0.1:${server.address().port}/v1/throne`;
+  const auth = {authorization: `Bearer ${throneCapability}`};
+  const extension = {...auth, origin: extensionOrigin};
+  const wrongOrigin = {...auth, origin: `chrome-extension://${'k'.repeat(32)}`};
+  const command = {commandId: 'atom-swarm-command-001', action: 'swarm.enqueue', source: 'atom-vlad', jobs: [
+    {jobId: 'atom-job-001', commission: 'Inspect SSH recovery only.', context: 'FORTRESS campaign'},
+    {jobId: 'atom-job-002', commission: 'Inspect overlay recovery only.', context: 'FORTRESS campaign'},
+  ]};
+
+  assert.equal((await post(`${base}/command`, command)).status, 403);
+  assert.equal((await post(`${base}/command`, command, auth)).status, 202);
+  assert.equal((await post(`${base}/command`, command, auth)).status, 200, 'idempotent duplicate should not duplicate work');
+  assert.equal(durableEvents[0].type, 'throne.command.queued');
+
+  assert.equal((await fetch(`${base}/command`, {headers: auth})).status, 403, 'worker poll also needs exact extension origin');
+  assert.equal((await fetch(`${base}/command`, {headers: wrongOrigin})).status, 403);
+  const leased = await fetch(`${base}/command`, {headers: extension});
+  assert.equal(leased.status, 200);
+  const leasedJson = await leased.json();
+  assert.equal(leasedJson.command.commandId, command.commandId);
+  assert.equal(leasedJson.command.state, 'leased');
+  assert.equal(leasedJson.command.jobs.length, 2);
+  assert.equal((await fetch(`${base}/command`, {headers: extension})).status, 204, 'active lease must not be handed out twice');
+  assert.equal(durableEvents.at(-1).type, 'throne.command.leased');
+
+  assert.equal((await post(`${base}/complete`, {commandId: command.commandId, ok: true, result: {accepted: false}}, auth)).status, 403);
+  const complete = await post(`${base}/complete`, {commandId: command.commandId, ok: true, result: {accepted: false, workerCount: 2}}, extension);
+  assert.equal(complete.status, 200);
+  assert.equal(durableEvents.at(-1).type, 'throne.command.completed');
+
+  const status = await fetch(`${base}/status`, {headers: auth});
+  assert.equal(status.status, 200);
+  const statusJson = await status.json();
+  assert.equal(statusJson.commands[0].state, 'completed');
+  assert.equal(statusJson.commands[0].commandId, command.commandId);
+});
+
 test('relay server-minted tab fence rejects a second live receipt for one document', async (t) => {
   const extensionOrigin = `chrome-extension://${'b'.repeat(32)}`;
   const nerveCapability = 'c'.repeat(48);
