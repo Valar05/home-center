@@ -19,12 +19,12 @@
   "runtime": {
     "defaultPhoneJarIds": [
       "mission-boundary",
+      "home-center-vlad-receipts",
       "repository-truth",
       "change-discipline",
       "failure-recovery",
-      "daemon-backoff-persistence",
       "venice-review-gate",
-      "home-center-vlad-and-typed-output-receipts"
+      "daemon-backoff-persistence"
     ],
     "maxPhonePromptCharacters": 18000,
     "fullCabinetOnDemand": true,
