@@ -62,10 +62,10 @@ if (overlayState.includes('getBoolean(KEY_CONTROL_ENABLED, true)')) throw new Er
 for (const s of ['screen_active_until_ms','screen_yield_until_ms','panel_collapsed','overlay_hidden']) if (!overlayProvider.includes(s)) throw new Error('operator state provider bounded state contract missing '+s);
 for (const s of ['MIN_TOUCH_TARGET_DP = 48','touchGuardActive','controlEnabled && online && screenActive && !screenYield','clampPosition','isDrag','nextHidden']) if (!overlayPolicy.includes(s)) throw new Error('operator overlay pure policy contract missing '+s);
 for (const s of ['gestureThresholdSeparatesTapFromDrag','dragArbitrationWorksInBothAxes','hideAndRestoreAreExplicitTransitions','guardNeedsEveryLeasePrecondition','positionClampsToInsetsAndEveryEdge','oversizedPanelStillLeavesLocalEscapeCornerReachable']) if (!overlayPolicyTest.includes(s)) throw new Error('operator overlay policy regression coverage missing '+s);
-if (!agent.includes("if kind=='status_say' and gate.get('muted')")) throw new Error('mute must suppress status speech at the relay');
-if (!agent.includes("if kind in OVERLAY_ACTIONS")) throw new Error('overlay status/update actions must remain reachable when control is disabled');
+if (!agent.includes("if k=='status_say' and gate.get('muted')")) throw new Error('mute must suppress status speech at the relay');
+if (!agent.includes("if k in OVERLAY_ACTIONS")) throw new Error('overlay status/update actions must remain reachable when control is disabled');
 if (!agent.includes('gate=overlay_control_gate()')) throw new Error('ordinary remote phone actions must pass the user-owned overlay control gate');
-for (const s of ['overlay_screen_activity','SCREEN_DIRECT_ACTIONS','SCREEN_WINDOW_ACTIONS','_screen_profile','screen=_screen_profile(action)',"if kind in TERMUX_SHELL_ACTIONS: return termux_shell_execute(action)","return {'leaseMs':2500,'yieldMs':0}","return {'leaseMs':2500,'yieldMs':900}"]) if (!agent.includes(s)) throw new Error('phone relay active-screen lease contract missing '+s);
+for (const s of ['overlay_screen_activity','SCREEN_DIRECT_ACTIONS','SCREEN_WINDOW_ACTIONS','_screen_profile','screen=_screen_profile(a)',"if k in TERMUX_SHELL_ACTIONS:return termux_shell_execute(a)","return {'leaseMs':2500,'yieldMs':0}","return {'leaseMs':2500,'yieldMs':900}"]) if (!agent.includes(s)) throw new Error('phone relay active-screen lease contract missing '+s);
 if (agent.includes("SCREEN_DIRECT_ACTIONS={'phone_shell'")) throw new Error('background phone_shell must never activate the screen guard');
 
 const factoryActions=['file_stat','file_hash','file_list','file_mkdir','file_copy','file_move','armory_inventory','armory_ingest'];
