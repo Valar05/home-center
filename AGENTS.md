@@ -16,6 +16,16 @@ On Android, the persistent Home Center notification is a control menu for these 
 
 Use `skills/operator-campaign/SKILL.md` as the canonical campaign contract. Prefer extending an existing campaign over inventing a new operator command. When a new campaign is genuinely needed, install a stable command and leave a continuing service/status surface behind.
 
+## Venice Judgment-Jar authority — all ChatGPT workers
+
+Every ChatGPT worker must use Venice. The primary and preferred Venice path is **direct execution of Venice's applicable Judgment Jars by the current authorized ChatGPT worker as a separate adversarial review pass**. This is normal Venice, not fallback emulation and not a degraded substitute for a live/local Venice model.
+
+A live/local Venice runtime is optional specialized machinery when a commission specifically benefits from it. Its absence is not a blocker while Judgment-Jar Venice is available.
+
+The same ChatGPT worker may execute the Venice pass, but the pass must be explicitly separated from execution reasoning, adversarial rather than self-congratulatory, evidence-based, provenance-marked, and durably receipted. A worker merely repeating its own conclusion without actually applying the Jars does not count as Venice.
+
+For stopping semantics, **`STOP_ALLOWED` is the only normal Venice permission to stop a commissioned slice**. `CONTINUE_REQUIRED` explicitly means continue the same slice, validate again, and ask Venice again. A response boundary, checkpoint, successful tool call, passing test, implementation milestone, or handoff boundary is never implicitly `STOP_ALLOWED`. `HALT_REQUIRED` stops mutation only at a true authority/safety/provenance/evidence boundary and is not successful completion.
+
 ## Pre-execution planning — all agents and workers
 
 No agent or worker may begin substantive execution by guessing. Before mutating code/data, dispatching a body, consuming material external resources, communicating externally, or otherwise beginning a non-trivial commissioned slice, the worker must complete this sequence:
@@ -24,12 +34,12 @@ No agent or worker may begin substantive execution by guessing. Before mutating 
 2. **Plan** a bounded slice preserving outcome, owner, execution lane/tool, exclusions, evidence standard, delivery surface, risks, and done condition.
 3. **Select Judgment Jars** relevant to the commission. The worker chooses whichever jars it thinks the task needs and records what was selected and why. Do not blindly load everything and do not consult none when judgment is material.
 4. **Antagonize** the plan. Attack assumptions, hidden substitutions, body-lane omissions, evidence laundering, unsafe authority, retry storms, duplicate side effects, recovery gaps, and relevant durable Venice reviewer scars.
-5. **Ask Venice** in a separate pre-execution review. Venice receives the research, plan, selected jars and rationale, antagonism, evidence identity, and durable reviewer precedent.
+5. **Ask Venice** in a separate pre-execution Judgment-Jar review. Venice receives the research, plan, selected jars and rationale, antagonism, evidence identity, and durable reviewer precedent.
 6. **Execute only after `PLAN_ALLOWED`** and a durable plan-review receipt.
 
 `REPLAN_REQUIRED` forbids substantive execution. Venice's findings become plan constraints and the worker repeats research/planning/jar selection/antagonism as needed. `HALT_REQUIRED` forbids mutation until the authority/safety/evidence boundary is repaired or Drew supplies required operator authority.
 
-A missing, malformed, stale, or self-authored plan review never grants execution permission. Use `tools/venice_plan_review.py` when its runtime applies. Plan reviews must persist selected Judgment Jars, rationale, antagonism, evidence identity, directive, and reviewer-memory identity.
+A missing, malformed, or stale plan review never grants execution permission. A same-worker Venice review is valid when it is a distinct Judgment-Jar pass with explicit reviewer provenance and durable receipt; a bare self-assertion that the plan is good is not. Use `tools/venice_plan_review.py` only when its runtime is specifically useful; it is not required for ordinary Judgment-Jar Venice. Plan reviews must persist selected Judgment Jars, rationale, antagonism, evidence identity, directive, and reviewer-memory identity.
 
 A truly atomic, exact, read-only task with no material unknowns may state in its plan why external research is unnecessary. The plan still exists. This exception does not permit mutating code/config/user data, external communication, material resource consumption, or body dispatch to bypass Venice.
 
@@ -45,7 +55,7 @@ This requirement applies to **all work**, not only Fortress Online and not only 
 
 When repository code or configuration changed, Venice's first priority is code review. Review the actual current change and evidence before style, personality, or praise.
 
-Use the canonical `tools/venice_review.py` protocol when it applies. The review must receive the bounded commission/acceptance criteria, exact review identity, deterministic check results, the actual diff or an explicit truncation marker, applicable Judgment Jar law, durable Venice reviewer precedent, and known evidence gaps.
+The review must receive the bounded commission/acceptance criteria, exact review identity, deterministic check results, the actual diff or an explicit truncation marker, applicable Judgment Jar law, durable Venice reviewer precedent, and known evidence gaps. The primary reviewer mode is `judgment_jar`; `local_venice` is optional specialized machinery.
 
 Apply the directive literally:
 
@@ -53,13 +63,13 @@ Apply the directive literally:
 - `CONTINUE_REQUIRED`: stopping is denied. Apply Venice's blocking findings to the same commissioned slice, validate again, and return for another Venice review.
 - `HALT_REQUIRED`: continuing mutation is denied. Preserve evidence and stop at the exact authority/safety/provenance boundary; this is not successful completion.
 
-A deterministic-only review, missing semantic Venice pass, malformed ruling, unavailable review path, or insufficient evidence never grants stop permission. For canonical coding review, the receipt must report `externalReviewGateSatisfied: true` before the worker may stop.
+A deterministic-only review, missing semantic Venice pass, malformed ruling, or insufficient evidence never grants stop permission. Review provenance must identify the actual ChatGPT worker and reviewer mode. Do not require a separate model/process merely to satisfy review independence.
 
 ### Non-code and conversational work
 
 For non-code work, run a separate Venice pass governed by the active Judgment Jars. Venice reviews mission fidelity, evidence, unresolved obligations, durability/recovery, and whether the response or handoff is genuinely useful. Do not invent a code-review requirement where no code changed, but do not waive the independent stop review.
 
-A missing or malformed Venice review means stopping is denied.
+A missing or malformed Venice review means stopping is denied. If the work remains safely actionable, continue rather than turning missing review into a fake operator boundary.
 
 ### Review memory
 
@@ -69,7 +79,7 @@ Reviewer memory distinguishes observation, inference, reusable rule, regression 
 
 ### Review-path failure and daemon behavior
 
-Failure or latency in the Venice path is not permission to bypass Venice or to stop. Preserve the mission, back off retries, cool down, avoid connector hammering, repair/recover the review path when authorized, and retry. Long-running work should checkpoint enough state to resume without making Drew reconstruct the mission.
+Failure or latency in an optional live/local Venice path is not permission to bypass Venice or to stop; use the primary Judgment-Jar Venice path. If the Judgment-Jar corpus or required durable evidence itself is unavailable, preserve the mission, recover that exact path when authorized, and continue once repaired. Long-running work should checkpoint enough state to resume without making Drew reconstruct the mission.
 
 Venice permission is permission to begin or stop the worker slice at the relevant gate. It is **not** proof of deployment, callable state, delivery, physical acceptance, or Drew's acceptance.
 
