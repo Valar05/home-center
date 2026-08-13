@@ -12,8 +12,9 @@ $ErrorActionPreference = 'Stop'
 
 $repoRoot = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
 $configPath = Join-Path $repoRoot '.continue\offline-config.yaml'
-$rulesPath = Join-Path $repoRoot '.continue\rules'
 $modelFilePath = Join-Path $repoRoot '.continue\models\Modelfile.qwen2.5-coder-7b-8k'
+$vladJarsPath = Join-Path $repoRoot 'tools\judgment_jars.py'
+$jarReceiptPath = Join-Path $repoRoot 'tools\jar_receipt.py'
 $baseModel = 'qwen2.5-coder:7b'
 $runtimeModel = 'home-center-qwen-coder:7b-8k'
 $autocompleteModel = 'qwen2.5-coder:1.5b'
@@ -28,11 +29,16 @@ if (-not $cnCommand) {
 }
 $cnPath = $cnCommand.Source
 
-if (-not (Test-Path $configPath)) {
-    throw "Offline Continue config is missing: $configPath"
+$pythonCommand = Get-Command python -ErrorAction SilentlyContinue
+if (-not $pythonCommand) {
+    throw "Required local command 'python' is not available on PATH. Judgment Jar use may not bypass Vlad's receipt outbox."
 }
-if (-not (Test-Path $modelFilePath)) {
-    throw "Offline Qwen Modelfile is missing: $modelFilePath"
+$pythonPath = $pythonCommand.Source
+
+foreach ($required in @($configPath, $modelFilePath, $vladJarsPath, $jarReceiptPath)) {
+    if (-not (Test-Path $required)) {
+        throw "Required offline Continue/Judgment Jar component is missing: $required"
+    }
 }
 
 function Get-LocalOllamaTags {
@@ -69,13 +75,33 @@ if ([string]$runtimeDetails.parameters -notmatch '(?m)^num_ctx\s+8192\s*$') {
     throw "Pinned local Ollama runtime model '$runtimeModel' does not declare num_ctx 8192."
 }
 
-$cnArgs = @('--config', $configPath)
-Get-ChildItem -Path $rulesPath -Filter '*judgement-jar*.md' -File |
-    Sort-Object Name |
-    ForEach-Object {
-        $cnArgs += @('--rule', $_.FullName)
-    }
+$tempRoot = [System.IO.Path]::GetTempPath()
+$runId = [guid]::NewGuid().ToString('N')
+$jarContextPath = Join-Path $tempRoot "home-center-jars-$runId.md"
+$jarUsagePath = Join-Path $tempRoot "home-center-jar-context-receipts-$runId.json"
+$continueOutputPath = Join-Path $tempRoot "home-center-continue-output-$runId.log"
 
+$jarContext = & $pythonPath $vladJarsPath --root $repoRoot --offline prompt 2> $jarUsagePath
+if ($LASTEXITCODE -ne 0 -or -not $jarContext) {
+    throw "Receipt-governed Judgment Jar context failed. See $jarUsagePath"
+}
+Set-Content -Path $jarContextPath -Value ($jarContext -join [Environment]::NewLine) -Encoding UTF8 -NoNewline
+
+$registryJson = & $pythonPath $vladJarsPath --root $repoRoot --offline list
+if ($LASTEXITCODE -ne 0 -or -not $registryJson) {
+    throw "Could not resolve the receipted Judgment Jar registry."
+}
+$registry = ($registryJson -join [Environment]::NewLine) | ConvertFrom-Json
+$activeJarIds = @(
+    $registry.jars |
+        Where-Object { $_.origin -eq 'repository-operational-core' -and $_.status -eq 'active' } |
+        ForEach-Object { [string]$_.id }
+)
+if ($activeJarIds.Count -eq 0) {
+    throw "No active repository Judgment Jars resolved for the offline Continue run."
+}
+
+$cnArgs = @('--config', $configPath, '--rule', $jarContextPath)
 if ($Readonly) {
     $cnArgs += '--readonly'
 }
@@ -92,8 +118,35 @@ if ($ExtraArgs) {
     $cnArgs += $ExtraArgs
 }
 
-& $cnPath @cnArgs
+& $cnPath @cnArgs 2>&1 | Tee-Object -FilePath $continueOutputPath
 $continueExitCode = $LASTEXITCODE
+$outputStatus = if ($continueExitCode -eq 0) { 'completed' } else { 'failed' }
+
+$receiptArgs = @(
+    $jarReceiptPath,
+    'record'
+) + $activeJarIds + @(
+    '--output-kind', 'execution_result',
+    '--actor', 'Continue offline worker',
+    '--intent', 'execute a bounded local coding task under the active Judgment Jars',
+    '--surface', 'vlad',
+    '--decision-action', "Continue exited with code $continueExitCode",
+    '--summary', "Offline Continue created an execution_result with status $outputStatus",
+    '--input-text', $Prompt,
+    '--output-file', $continueOutputPath,
+    '--output-status', $outputStatus,
+    '--reference', $continueOutputPath,
+    '--reference', $jarUsagePath
+)
+& $pythonPath @receiptArgs
+$receiptExitCode = $LASTEXITCODE
+
+if ($receiptExitCode -eq 0) {
+    Remove-Item -Force -ErrorAction SilentlyContinue $jarContextPath, $jarUsagePath, $continueOutputPath
+} else {
+    throw "Continue output exists at $continueOutputPath, but its typed Judgment Jar receipt capture failed with code $receiptExitCode."
+}
+
 if ($continueExitCode -ne 0) {
-    throw "Continue CLI exited with code $continueExitCode."
+    throw "Continue CLI exited with code $continueExitCode after the failed result was receipted."
 }
