@@ -6,6 +6,8 @@ STATE_DIR="${HC_PHONE_STATE_DIR:-$HOME/.local/state/home-center}"
 LOG="$STATE_DIR/phone-relay.log"
 PIDFILE="$STATE_DIR/phone-relay.pid"
 HEARTBEAT="${HC_PHONE_RELAY_HEARTBEAT:-$STATE_DIR/phone-relay-heartbeat.json}"
+RECEIPTS="$STATE_DIR/phone-relay-recovery-receipts.jsonl"
+LATEST="$STATE_DIR/phone-relay-recovery-latest.json"
 MAX_HEARTBEAT_AGE="${HC_PHONE_RELAY_HEALTH_MAX_AGE_SECONDS:-15}"
 PYTHON="${HC_PHONE_PYTHON:-python}"
 RELAY="$ROOT/tools/android_phone_home_center_relay.py"
@@ -27,7 +29,7 @@ heartbeat_ok() {
   wanted_pid="$1"
   [ -f "$HEARTBEAT" ] || return 1
   "$PYTHON" - "$HEARTBEAT" "$wanted_pid" "$MAX_HEARTBEAT_AGE" <<'PY' >/dev/null 2>&1
-import json,os,sys,time
+import json,sys,time
 path,pid,max_age=sys.argv[1],int(sys.argv[2]),int(sys.argv[3])
 try:
     data=json.load(open(path,encoding='utf-8'))
@@ -63,26 +65,46 @@ wait_for_heartbeat() {
 print_receipt() {
   status="$1"
   pids="$(relay_pids | tr '\n' ' ' | sed 's/[[:space:]]*$//')"
-  hb_state="missing"
-  hb_age=""
-  if [ -f "$HEARTBEAT" ]; then
-    hb_state="$($PYTHON - "$HEARTBEAT" <<'PY' 2>/dev/null || printf invalid
-import json,sys,time
-try:d=json.load(open(sys.argv[1],encoding='utf-8'))
-except Exception:raise SystemExit(1)
-print(str(d.get('state') or 'unknown'))
+  "$PYTHON" - "$status" "$ROOT" "$RELAY" "$pids" "$HEARTBEAT" "$LOG" "$RECEIPTS" "$LATEST" <<'PY'
+import json,os,sys,time
+status,root,relay,pids,heartbeat,log,receipts,latest=sys.argv[1:]
+now=int(time.time())
+hb={'present':False}
+if os.path.isfile(heartbeat):
+    hb['present']=True
+    try:
+        raw=json.load(open(heartbeat,encoding='utf-8'))
+        hb.update({
+            'schema':raw.get('schema'),
+            'deviceId':raw.get('deviceId'),
+            'pid':raw.get('pid'),
+            'state':raw.get('state'),
+            'lastSuccessAtEpoch':raw.get('lastSuccessAtEpoch'),
+            'ageSeconds':max(0,now-int(raw.get('lastSuccessAtEpoch') or 0)),
+        })
+    except Exception as exc:
+        hb['parseError']=type(exc).__name__
+obj={
+    'schema':'home-center-phone-relay-recovery-v1',
+    'checkedAtEpoch':now,
+    'status':status,
+    'deviceId':'primary-phone',
+    'repo':root,
+    'relay':relay,
+    'pids':pids.split() if pids else [],
+    'heartbeatPath':heartbeat,
+    'heartbeat':hb,
+    'log':log,
+}
+os.makedirs(os.path.dirname(receipts),exist_ok=True)
+with open(receipts,'a',encoding='utf-8') as f:
+    f.write(json.dumps(obj,sort_keys=True)+'\n')
+if os.path.getsize(receipts)>512*1024:
+    lines=open(receipts,encoding='utf-8').read().splitlines()[-1000:]
+    tmp=receipts+'.tmp';open(tmp,'w',encoding='utf-8').write('\n'.join(lines)+'\n');os.replace(tmp,receipts)
+tmp=latest+'.tmp';open(tmp,'w',encoding='utf-8').write(json.dumps(obj,indent=2,sort_keys=True)+'\n');os.replace(tmp,latest)
+print(json.dumps(obj,sort_keys=True))
 PY
-)"
-    hb_age="$($PYTHON - "$HEARTBEAT" <<'PY' 2>/dev/null || true
-import json,sys,time
-try:d=json.load(open(sys.argv[1],encoding='utf-8'))
-except Exception:raise SystemExit(1)
-print(max(0,int(time.time())-int(d.get('lastSuccessAtEpoch') or 0)))
-PY
-)"
-  fi
-  printf '{"status":"%s","repo":"%s","relay":"%s","pids":"%s","heartbeat":"%s","heartbeatState":"%s","heartbeatAgeSeconds":"%s","log":"%s","checkedAt":"%s"}\n' \
-    "$status" "$ROOT" "$RELAY" "$pids" "$HEARTBEAT" "$hb_state" "$hb_age" "$LOG" "$(date -Iseconds)"
 }
 
 if [ ! -f "$RELAY" ]; then
