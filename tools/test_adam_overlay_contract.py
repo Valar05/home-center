@@ -22,6 +22,8 @@ for token in [
     'FLAG_NOT_TOUCH_MODAL',
 ]:
     assert token in service, f"overlay missing {token}"
+assert 'never owns an invisible full-screen input surface' in service
+assert 'WindowManager.LayoutParams.MATCH_PARENT,\n                WindowManager.LayoutParams.MATCH_PARENT' not in service
 for token in ["KEY_ADAM_REQUEST_ID", "KEY_ADAM_REQUEST_MODE", "KEY_ADAM_REQUEST_PAYLOAD_B64", "Base64.NO_WRAP"]:
     assert token in state, f"state missing {token}"
 for token in ["adam_request_id", "adam_request_mode", "adam_request_payload_b64"]:
