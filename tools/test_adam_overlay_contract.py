@@ -11,6 +11,7 @@ core = (ROOT / "tools/adam_codex_phone.py").read_text(encoding="utf-8")
 planned = (ROOT / "tools/adam_planned_venice.py").read_text(encoding="utf-8")
 reviewed = (ROOT / "tools/adam_venice_reviewed.py").read_text(encoding="utf-8")
 phone_ops = (ROOT / "tools/fortress_phone_ops.sh").read_text(encoding="utf-8")
+chromium = (ROOT / "tools/android_chromium_control.py").read_text(encoding="utf-8")
 recovery = (ROOT / "tools/recover_adam_overlay_phone.sh").read_text(encoding="utf-8")
 
 for token in [
@@ -29,7 +30,7 @@ for token in ["KEY_ADAM_REQUEST_ID", "KEY_ADAM_REQUEST_MODE", "KEY_ADAM_REQUEST_
 for token in ["adam_request_id", "adam_request_mode", "adam_request_payload_b64"]:
     assert token in provider, f"provider missing {token}"
 
-# Deterministic, no-inference quick ops available through the existing TERM input.
+# Deterministic, no-inference quick ops available through the existing overlay request path.
 for token in [
     'deterministicTerminalAlias',
     'bash tools/fortress_phone_ops.sh overlay-restart',
@@ -39,15 +40,52 @@ for token in [
     'bash tools/fortress_phone_ops.sh canary',
 ]:
     assert token in state, f"state missing deterministic quick op {token}"
+
+# Phone-ops v2 delegates Chromium truth to the dedicated observed-state controller.
 for token in [
-    'fortress.phone-ops.v1',
+    'fortress.phone-ops.v2',
+    'android_chromium_control.py',
     'chrome_open()',
     'chrome_reload()',
+    'chrome_back()',
     'overlay_restart()',
-    'dumpsys activity activities',
-    'accept_adam_cli_phone.sh',
+    'exec python3 "$CHROMIUM" canary',
 ]:
     assert token in phone_ops, f"phone ops missing {token}"
+for token in [
+    'fortress.android-chromium-control.v1',
+    'fortress.android-chromium-canary.v1',
+    'dumpsys activity activities',
+    'browserWasForceStopped',
+    'secondExplicitNavigationObserved',
+    'finalChromiumStateObserved',
+    'requested browser state was not independently observed',
+]:
+    assert token in chromium, f"chromium controller missing {token}"
+
+# Night Core is a cheap, deterministic phone policy surface: battery + overlay + relay,
+# with no inference and no Chromium screenshot/UI dump.
+for token in [
+    'night_status()',
+    'dumpsys battery',
+    'fortress.night-core.status.v1',
+    'CHARGE_RECOVERY',
+    'POWERED_ACTIVE',
+    'BATTERY_ACTIVE',
+    'BATTERY_BALANCED',
+    'BATTERY_CONSERVE',
+    'recommendedPollSeconds',
+    'heavyWorkAllowed',
+    'night-status|night|night-core',
+]:
+    assert token in phone_ops, f"Night Core phone policy missing {token}"
+night_start = phone_ops.index('night_status()')
+night_end = phone_ops.index('overlay_restart()', night_start)
+night_body = phone_ops[night_start:night_end]
+assert 'android_chromium_control.py' not in night_body
+assert 'screencap' not in night_body
+assert 'ui_dump' not in night_body
+
 # Overlay recovery must never destroy a working install to force a signer migration.
 assert 'existing package preserved' in recovery
 assert 'pm uninstall $PACKAGE' not in recovery
@@ -114,4 +152,4 @@ for token in [
 assert 'CODEX LOCAL STEERING DOCUMENTS (binding)' in reviewed
 assert 'canonical_venice_review(' in reviewed
 assert 'Daemon Persistence and Connector Backoff' in reviewed
-print("Adam overlay transport / deterministic quick ops / planned + Venice-reviewed durable-delivery contract: PASS")
+print("Adam overlay transport / Chromium v2 / Night Core / durable-delivery contract: PASS")
