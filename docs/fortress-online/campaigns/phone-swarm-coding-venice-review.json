@@ -1,0 +1,82 @@
+{
+  "kind": "fortress.judgment-jar.review.v1",
+  "campaign": "phone-swarm-coding",
+  "reviewer": "Venice",
+  "reviewMode": "primary-judgment-jar",
+  "provenance": "same-worker adversarial pass, explicitly separated from implementation pass",
+  "reviewedHeadBeforeReceipt": "cfe1b15480acb588f0f68c20fc17c66bd1f3b899",
+  "verdict": "PASS_WITH_RUNTIME_GATE",
+  "directive": "HALT_REQUIRED",
+  "haltScope": "acceptance only; no further speculative source mutation is justified before native phone evidence",
+  "commissionPreserved": {
+    "phoneOperatorSurface": true,
+    "oneCommandBootstrap": true,
+    "dirtyTreeRecoveryIsStepOne": true,
+    "tmuxDaemonMode": true,
+    "continuousNotScheduled": true,
+    "existingPhoneKernelReused": true,
+    "existingChromiumThroneReused": true,
+    "sshAxisFastPath": true,
+    "vladLocalJarCacheConsumedNotMoved": true,
+    "veniceStopGate": true,
+    "githubActionsNotAcceptance": true
+  },
+  "blockingFindingsResolved": [
+    {
+      "finding": "Initial adapter targeted an older bare-metal Chromium Throne HTTP daemon rather than the currently-landed extension relay architecture.",
+      "resolution": "Added a phone-local compatibility adapter that translates onto the existing browser-porch Throne relay through SSH Axis and THECAULDRON throne-client; no second browser control plane remains in the active path."
+    },
+    {
+      "finding": "Legacy kernel nohup supervision would have competed with tmux and produced split-brain queue ownership.",
+      "resolution": "Coding-mode kernel setup defaults to external supervision; bootstrap removes legacy PID/boot entries and installs one Termux:Boot tmux session."
+    },
+    {
+      "finding": "PocketTTS was an accidental hard dependency for a coding daemon.",
+      "resolution": "Voice is optional in coding mode; the proven voice organ remains available when explicitly requested but cannot block swarm bootstrap."
+    },
+    {
+      "finding": "tmux panes alone do not restart crashed long-lived roles.",
+      "resolution": "Each kernel/throne/campaign tmux window now runs through fortress_supervise.sh with logged bounded exponential restart backoff."
+    },
+    {
+      "finding": "Dirty-tree handling risked lineage mutation before unique local work was durably preserved.",
+      "resolution": "Bootstrap first captures porcelain-v2 state, stashes tracked+untracked work, records exact stash OID/stat/restore command, proves a clean worktree, and only then changes branches."
+    },
+    {
+      "finding": "Parallel Vlad Judgment Jar work could be duplicated or overwritten.",
+      "resolution": "Campaign only consumes VLAD_JUDGMENT_JARS or discovered local cache paths; missing cache/adapter produces CONTINUE_REQUIRED and can never synthesize STOP_ALLOWED."
+    },
+    {
+      "finding": "A successful enqueue could be mistaken for completed coding.",
+      "resolution": "Phone campaign tracks actual remote worker task state, commissions builder then repair-reviewer then Venice-directed repair passes, and only promotes mission acceptance after Venice STOP_ALLOWED."
+    }
+  ],
+  "remainingEvidenceGate": {
+    "requiredBody": "primary Android phone / Termux",
+    "requiredAction": "execute the canonical one-command bootstrap from the existing Home Center worktree",
+    "requiredReceipts": [
+      "dirty-tree rescue receipt or explicit clean-tree receipt",
+      "campaign branch head receipt",
+      "tmux kernel/throne/campaign supervisor liveness",
+      "phone kernel status",
+      "phone-local Throne adapter health",
+      "SSH Axis THECAULDRON receipt",
+      "THECAULDRON existing Throne relay callable receipt",
+      "at least one real fortress-code commission accepted by Chromium Throne",
+      "real worker checkpoint/completion receipts returned to phone campaign",
+      "Venice mission-level continuation/stop receipt"
+    ]
+  },
+  "stateRuling": {
+    "requested": true,
+    "implemented": true,
+    "tested": "deterministic source fixtures exist; native execution unproven",
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "receiptBacked": false,
+    "delivered": true,
+    "accepted": false
+  },
+  "note": "HALT_REQUIRED is not permission to declare success. It marks the exact operator-only runtime boundary created by this ChatGPT surface lacking callable Phone Hands/Computer Hands. Once the bootstrap is executed on the phone, the installed daemon owns continuation and must not stop normally without Venice STOP_ALLOWED."
+}

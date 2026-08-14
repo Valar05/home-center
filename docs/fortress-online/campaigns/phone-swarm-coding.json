@@ -1,0 +1,62 @@
+{
+  "kind": "fortress.online.campaign-state.v1",
+  "campaign": "phone-swarm-coding",
+  "owner": "Drew Clarke",
+  "mission": "From the Android phone, enter one coding prompt and have a durable Fortress campaign continuously execute, review, repair, verify, and persist coding work through the existing phone kernel and Chromium Throne desktop swarm until Venice permits STOP.",
+  "portcullis": "LOCKED",
+  "entrypoint": {
+    "bootstrap": "cd /storage/emulated/0/Documents/GodotProjects/home-center && git fetch origin feat/fortress-phone-swarm-campaign && git show origin/feat/fortress-phone-swarm-campaign:tools/fortress_phone_swarm_bootstrap.sh | bash",
+    "prompt": "fortress-code \"<coding commission>\"",
+    "status": "fortress-swarm-status",
+    "diagnose": "fortress-swarm-diagnose",
+    "attach": "fortress-swarm-attach",
+    "repair": "fortress-swarm-repair"
+  },
+  "stepOne": "Before branch mutation or daemon install, capture git status --porcelain=v2 --branch, stash tracked and untracked work with a fortress-rescue timestamp, prove the stash OID/stat, prove the worktree is clean, and persist the reversible restore receipt. Never reset a dirty tree before this receipt exists.",
+  "processModel": {
+    "supervisor": "tmux",
+    "session": "fortress-swarm",
+    "windows": ["kernel", "throne", "campaign"],
+    "roleSupervisor": "each tmux role runs through fortress_supervise.sh; crashes are logged and restarted with bounded exponential backoff",
+    "boot": "single Termux:Boot tmux supervisor; legacy nohup PID supervisor is removed to prevent split brain",
+    "loop": "observe -> compare -> decide -> act -> verify -> persist -> backoff -> observe"
+  },
+  "execution": {
+    "phoneTruth": "SQLite/WAL campaign, kernel, and Throne-adapter state in Termux",
+    "phoneAdapter": "loopback compatibility adapter at 127.0.0.1:17373; it contains no ChatGPT/browser implementation and only translates the campaign task contract onto the existing Throne relay",
+    "desktopMuscle": "current Chromium Throne extension swarm: service-worker-owned parallel visible ChatGPT workers, Pro reasoning doctrine, primary Judgment-Jar Venice, durable continuation/handoff states",
+    "transport": "phone-local adapter -> SSH Axis -> THECAULDRON -> existing browser-porch/throne-client.mjs + loopback browser-porch relay -> Chromium Throne extension",
+    "secretBoundary": "relay capability is generated/stored/used on THECAULDRON; it is not copied to the phone",
+    "peerRecovery": "SSH Axis proves THECAULDRON, repairs/starts the existing loopback relay, writes the installed extension relay config, and wakes the dedicated Throne browser; no parallel remote-control architecture",
+    "workerLifecycle": ["builder", "repair-reviewer", "Venice-directed repair passes"],
+    "workerMode": "Chat mode; Pro reasoning where configurable; PORTCULLIS LOCKED",
+    "githubActionsAcceptance": false
+  },
+  "judgment": {
+    "codingOwner": "Venice",
+    "vladLocalJarCache": "consume if present via VLAD_JUDGMENT_JARS or discovered local cache; never relocate/rebuild it from this campaign",
+    "missingJarBehavior": "CONTINUE_REQUIRED; never fabricate STOP_ALLOWED",
+    "stopRule": "Only a durable Venice STOP_ALLOWED or HALT_REQUIRED can terminate normal work. A worker finishing or a ChatGPT response boundary cannot.",
+    "extensionGate": "Chromium Throne workers independently enforce Judgment-Jar Venice PLAN_ALLOWED/STOP_ALLOWED/CONTINUE_REQUIRED inside each bounded slice; the phone campaign adds a mission-level Venice stop gate on top."
+  },
+  "dirtyTree": {
+    "policy": "unique dirty/untracked work is treasure and must be preserved before infrastructure changes",
+    "restore": "receipt stores the exact stash OID; restoration uses git stash apply --index <oid> rather than assuming stash@{0} remains stable"
+  },
+  "capabilityState": {
+    "requested": true,
+    "implemented": true,
+    "tested": "source review and deterministic regression fixtures present; native phone execution still required",
+    "deployed": false,
+    "callable": false,
+    "executed": false,
+    "receiptBacked": false,
+    "delivered": true,
+    "accepted": false
+  },
+  "durableDesktopEvidence": "THECAULDRON previously accepted the Chromium Throne visible single-tab scaffold through Computer Hands. Current main has since evolved the extension to 0.6.1 service-worker parallel swarm + relay; this campaign does not promote that newer relay path to deployed/callable until the phone bootstrap produces fresh receipts.",
+  "knownRuntimeBoundary": "This ChatGPT surface currently lacks callable Home Center Phone Hands/Computer Hands, so repository implementation cannot be promoted to deployed/callable. The bootstrap is intentionally executable directly from the existing dirty phone worktree and owns continued recovery once invoked.",
+  "parallelWorkConstraint": "A separate campaign is moving Judgment Jars to fast local Vlad access. This campaign consumes that cache opportunistically and must never duplicate, relocate, or overwrite it.",
+  "branch": "feat/fortress-phone-swarm-campaign",
+  "pullRequest": 268
+}
