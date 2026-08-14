@@ -43,7 +43,7 @@ start_overlay() {
   sleep 2
 }
 
-if rish "pm list packages $PACKAGE" 2>/dev/null | grep -q "package:$PACKAGE"; then
+if [ "${HC_FORCE_BUILD:-0}" != "1" ] && rish "pm list packages $PACKAGE" 2>/dev/null | grep -q "package:$PACKAGE"; then
   start_overlay
   if verify_overlay; then record 1 restart 'Existing overlay package restarted and verified on phone.'; exit 0; fi
 fi
