@@ -1,0 +1,150 @@
+  $browserExe = Resolve-BrowserExe
+  if (-not $browserExe) {
+    & powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File $installer -Root $ThroneRoot | Out-Host
+    if ($LASTEXITCODE -ne 0) { throw "Chromium Throne base installer failed: $LASTEXITCODE" }
+    $browserExe = Resolve-BrowserExe
+  }
+  if (-not $browserExe) { throw 'Chrome for Testing executable is still missing.' }
+
+  $sourceExtension = Join-Path $RuntimeRoot 'browser-porch\extension'
+  if (-not (Test-Path -LiteralPath (Join-Path $sourceExtension 'manifest.json'))) {
+    throw "Current Chromium Throne extension source is missing: $sourceExtension"
+  }
+  New-Item -ItemType Directory -Force -Path $ExtensionDir | Out-Null
+  Copy-Item -Path (Join-Path $sourceExtension '*') -Destination $ExtensionDir -Recurse -Force
+
+  $manifest = Get-Content -LiteralPath (Join-Path $ExtensionDir 'manifest.json') -Raw | ConvertFrom-Json
+  if ($manifest.name -ne 'Chromium Throne' -or [int]$manifest.manifest_version -ne 3) {
+    throw 'Installed extension manifest is not Chromium Throne MV3.'
+  }
+  if (-not ($manifest.permissions -contains 'tabs') -or -not ($manifest.permissions -contains 'alarms')) {
+    throw 'Installed extension lacks tabs/alarms authority required for bounded visible workers.'
+  }
+
+  $node = (Get-Command node.exe -ErrorAction SilentlyContinue)
+  if (-not $node) { $node = Get-Command node -ErrorAction Stop }
+  Push-Location $ExtensionDir
+  try {
+    & $node.Source --test throne_context.test.mjs swarm-core.test.mjs | Out-Host
+    if ($LASTEXITCODE -ne 0) { throw "Chromium Throne contract tests failed: $LASTEXITCODE" }
+  } finally { Pop-Location }
+
+  foreach ($name in @('relay.mjs','contract.mjs','throne-relay-runner.mjs','throne-client.mjs')) {
+    $source = Join-Path (Join-Path $RuntimeRoot 'browser-porch') $name
+    if (-not (Test-Path -LiteralPath $source)) { throw "Chromium Throne relay source missing: $name" }
+    Copy-Item -LiteralPath $source -Destination (Join-Path $ThroneRoot $name) -Force
+  }
+
+  $capability = New-RelayCapability
+  $escapedCapability = $capability.Replace("'","")
+  $relayConfig = @"
+export const THRONE_RELAY = Object.freeze({
+  enabled: true,
+  baseUrl: '$RelayBase',
+  capability: '$escapedCapability',
+  pollSeconds: 5,
+});
+"@
+  [IO.File]::WriteAllText((Join-Path $ExtensionDir 'relay-config.mjs'), $relayConfig, [Text.UTF8Encoding]::new($false))
+
+  $launcher = Join-Path $ThroneRoot 'launch-chromium-throne.cmd'
+  $launcherText = @"
+@echo off
+start "Chromium Throne" "$browserExe" --user-data-dir="$ThroneProfile" --load-extension="$ExtensionDir" --no-first-run --no-default-browser-check "chrome-extension://$ExtensionId/wake.html"
+"@
+  Set-Content -LiteralPath $launcher -Value $launcherText -Encoding ASCII
+
+  $runtime = [ordered]@{
+    schema = 'fortress.chromium-throne.runtime.v1'
+    root = $ThroneRoot
+    relayBase = $RelayBase
+    relayPort = 9234
+    browserExe = $browserExe
+    browserVersion = $null
+    profileDir = $ThroneProfile
+    extensionDir = $ExtensionDir
+    extensionId = $ExtensionId
+    workerModelDefault = 'ChatGPT Pro reasoning'
+    instantDefault = $false
+    visibleWorkers = $true
+    maxParallelWorkers = 8
+    installedRevision = (Invoke-External -File (Get-Command git.exe).Source -Arguments @('-C',$RuntimeRoot,'rev-parse','HEAD')).Trim()
+  }
+  [IO.File]::WriteAllText($RuntimeConfigPath, (($runtime | ConvertTo-Json -Depth 8) + [Environment]::NewLine), [Text.UTF8Encoding]::new($false))
+  return $runtime
+}
+
+function Install-ThroneCommandWrapper {
+  $scriptText = @'
+[CmdletBinding()]
+param(
+  [string]$CommandB64 = '',
+  [string]$CommandFile = ''
+)
+$ErrorActionPreference = 'Stop'
+Set-StrictMode -Version Latest
+$Local = [Environment]::GetFolderPath('LocalApplicationData')
+$FortressRoot = Join-Path $Local 'HomeCenter\Fortress'
+$ThroneRoot = Join-Path $Local 'HomeCenter\ChromiumThrone'
+$PendingRoot = Join-Path $FortressRoot 'spool\pending'
+$CompletedRoot = Join-Path $FortressRoot 'spool\completed'
+$Client = Join-Path $ThroneRoot 'throne-client.mjs'
+$Node = (Get-Command node.exe -ErrorAction SilentlyContinue)
+if (-not $Node) { $Node = Get-Command node -ErrorAction Stop }
+New-Item -ItemType Directory -Force -Path $PendingRoot,$CompletedRoot | Out-Null
+
+function Decode-B64Url([string]$Value) {
+  $value = $Value.Replace('-','+').Replace('_','/')
+  switch ($value.Length % 4) {
+    0 {}
+    2 { $value += '==' }
+    3 { $value += '=' }
+    default { throw 'Invalid base64url command packet.' }
+  }
+  return [Text.Encoding]::UTF8.GetString([Convert]::FromBase64String($value))
+}
+function Encode-B64Url([string]$Value) {
+  return [Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes($Value)).TrimEnd('=').Replace('+','-').Replace('/','_')
+}
+if ($CommandFile) {
+  $raw = Get-Content -LiteralPath $CommandFile -Raw
+  $CommandB64 = Encode-B64Url $raw
+} elseif ($CommandB64) {
+  $raw = Decode-B64Url $CommandB64
+} else {
+  throw 'CommandB64 or CommandFile is required.'
+}
+$command = $raw | ConvertFrom-Json
+$commandId = [string]$command.commandId
+$action = [string]$command.action
+if ($commandId -notmatch '^[A-Za-z0-9_.:-]{6,180}$') { throw 'Invalid commandId.' }
+if ($action -notin @('swarm.enqueue','swarm.stop','swarm.resume','swarm.status')) { throw 'Unsupported throne action.' }
+$jobs = @($command.jobs)
+if ($action -eq 'swarm.enqueue') {
+  if ($jobs.Count -lt 1 -or $jobs.Count -gt 12) { throw 'swarm.enqueue requires 1-12 jobs.' }
+  foreach ($job in $jobs) {
+    if ([string]::IsNullOrWhiteSpace([string]$job.commission) -or ([string]$job.commission).Length -gt 32000) {
+      throw 'Invalid job commission.'
+    }
+  }
+}
+$path = Join-Path $PendingRoot ($commandId + '.json')
+$completed = Join-Path $CompletedRoot ($commandId + '.json')
+if (Test-Path -LiteralPath $completed) {
+  @{ok=$true;commandId=$commandId;state='completed';idempotent=$true;path=$completed}|ConvertTo-Json -Compress
+  exit 0
+}
+if (-not (Test-Path -LiteralPath $path)) {
+  $tmp = "$path.tmp"
+  [IO.File]::WriteAllText($tmp, ($command | ConvertTo-Json -Depth 20), [Text.UTF8Encoding]::new($false))
+  Move-Item -LiteralPath $tmp -Destination $path -Force
+}
+$output = & $Node.Source $Client --root $ThroneRoot --command-b64 $CommandB64 2>&1 | Out-String
+$code = $LASTEXITCODE
+$parsed = $null
+try { $parsed = ($output.Trim().Split([Environment]::NewLine)[-1] | ConvertFrom-Json) } catch {}
+$receipt = [ordered]@{
+  ok = ($code -eq 0)
+  commandId = $commandId
+  action = $action
+  state = $(if ($code -eq 0) {'spooled_and_relay_accepted'} else {'spooled_relay_unavailable'})
