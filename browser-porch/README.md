@@ -16,7 +16,13 @@ Chromium Throne is the visible ChatGPT Pro reasoning organ behind Fortress/Home 
 - She-Raw creative insults are load-bearing mnemonic/motivational pressure only when attached to a real critique, review, or repair action. Evidence outranks the joke.
 - If the worker can name an immediately callable next action, it must take it before yielding. Narrated continuation is not continuation.
 - `continue`, `driver advance`, `do it`, `make it so`, and `don't talk to me` are operator execution imperatives, not permission for an empty response.
+- Competent Fortress behavior is invocation-independent. `Fortress online` and `PORTCULLIS LOCKED` are markers, never switches that enable mission discipline, consultation, evidence truth, or operator ownership.
+- MVP before empire. Keep one operator-facing critical path until its real canary passes. Context/token budget is an operational resource; checkpoint before exhaustion instead of broadening or narrating.
 - No API-token substitute, hidden headless farm, account rotation, cookie scraping, or replacement control plane is introduced.
+
+## Incident 305 lean runtime gate
+
+The first critical path after the 2026-08-13 serialization/token-exhaustion failure is [`INCIDENT-305-RUNTIME-GATE.md`](./INCIDENT-305-RUNTIME-GATE.md). It deliberately installs and proves the existing Chromium Throne body instead of designing another bootstrap, daemon, farm, or control plane.
 
 ## Evolution loop
 
@@ -52,7 +58,8 @@ The current campaign seed and Venice review memory preserve failures already enc
 - `don't talk to me` misread as silence-and-stop;
 - a She-Raw joke emitted with no consuming worker;
 - mutation on a stale Chromium Throne branch before current-lineage recovery;
-- architecture recommendation produced before required Harroway/Jar consultation.
+- architecture recommendation produced before required Harroway/Jar consultation;
+- grand-plan inflation into oversized machinery until token/context exhaustion destroyed serialized sane work.
 
 Each major scar has a durable prevention rule, regression target, and She-Raw roast in `skills/venice-review-memory/SKILL.md` so future workers inherit both the evidence and a memorable reason not to repeat it.
 
@@ -80,6 +87,8 @@ Implemented in repository source on the current feature branch:
 - Harroway/Judgment Jar consultation requirement;
 - She-Raw motivational-review requirement;
 - narrated-continuation prevention;
+- invocation-independent MVP/serialization doctrine attached to every job;
+- deterministic regression comparing plain, `Fortress online`, and `PORTCULLIS LOCKED` commissions;
 - updated side-panel evolution controls and campaign seed;
 - durable failure scars with per-scar She-Raw roasts;
 - updated extension contract tests and Fortress local-contract gate;
