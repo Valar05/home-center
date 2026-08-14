@@ -1,0 +1,36 @@
+name: Inner Fortress canary
+
+on:
+  pull_request:
+    paths:
+      - 'tools/adam.py'
+      - 'tools/adam_inner_fortress.py'
+      - 'tools/adam_observation_ledger.py'
+      - 'tools/test_adam_inner_fortress.py'
+      - 'tools/test_adam_inner_fortress_integration.py'
+      - 'tools/test_adam_observation_ledger.py'
+      - '.github/workflows/inner-fortress-canary.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  canary:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify exact invoke, restart continuity, and ledger boundary
+        run: |
+          set -euo pipefail
+          python3 -m py_compile \
+            tools/adam.py \
+            tools/adam_inner_fortress.py \
+            tools/adam_observation_ledger.py \
+            tools/test_adam_inner_fortress.py \
+            tools/test_adam_inner_fortress_integration.py \
+            tools/test_adam_observation_ledger.py
+          python3 tools/test_adam_inner_fortress.py
+          python3 tools/test_adam_inner_fortress_integration.py
+          python3 tools/test_adam_observation_ledger.py
+          git diff --check
