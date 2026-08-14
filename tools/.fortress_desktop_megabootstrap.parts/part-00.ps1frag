@@ -24,6 +24,7 @@ param(
 
 $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
+$env:GIT_LFS_SKIP_SMUDGE = '1'
 
 $Version = '2026.08.13.1'
 $Repository = 'Valar05/home-center'
