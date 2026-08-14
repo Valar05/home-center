@@ -1,0 +1,23 @@
+name: Fortress Continuation Gate
+
+on:
+  push:
+    paths:
+      - 'tools/fortress_continuation_gate.py'
+      - '.github/workflows/fortress-continuation-gate.yml'
+  pull_request:
+    paths:
+      - 'tools/fortress_continuation_gate.py'
+      - '.github/workflows/fortress-continuation-gate.yml'
+  workflow_dispatch:
+
+jobs:
+  continuation-gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Reject final while runnable
+        run: python tools/fortress_continuation_gate.py
