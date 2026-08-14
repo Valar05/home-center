@@ -1,0 +1,63 @@
+{
+  "schema": "venice-completion-review.v1",
+  "reviewerRole": "venice-judgment-jar",
+  "commission": "Harden the existing primary-phone ingress/recovery lane without changing its architecture, then continue to physical Phone Hands acceptance.",
+  "planReceipt": "receipts/venice/2026-08-14-phone-ingress-health-truth-plan.json",
+  "reviewedBranch": "fix/phone-ingress-health-review-20260814",
+  "reviewedHeadBeforeReceipt": "30219801e7f740fb126c310a2ef6b50e37ef8f2e",
+  "reviewedSources": [
+    {
+      "path": "tools/phone_ssh_service.sh",
+      "blob": "492f215b15ba7528760e62628faf38583cd817bf",
+      "finding": "Local SSH health requires both an sshd process and a successful SSH protocol identification banner; PID or generic TCP-listener evidence alone is no longer accepted."
+    },
+    {
+      "path": "tools/android_phone_home_center_relay.py",
+      "blob": "ad90eb2a02bc9baea3202ae72e55ccec052d33d0",
+      "finding": "The established relay emits a non-secret heartbeat only after a successful Home Center pull or a successfully reported command completion/failure."
+    },
+    {
+      "path": "tools/home_center_phone_relay_recover.sh",
+      "blob": "7fa71e21b6971b5fcfff5cc4a22408a14a39aa70",
+      "finding": "Recovery requires a fresh heartbeat bound to primary-phone and the exact relay PID, records the recovery reason in an append-only/local latest receipt, fails closed on unconfirmed startup, and uses 90s health / 120s startup bounds compatible with the relay's 45s request timeout."
+    }
+  ],
+  "selectedJudgmentJars": [
+    "00-judgement-jar-mission-boundary",
+    "20-judgement-jar-repository-truth",
+    "40-judgement-jar-failure-recovery",
+    "70-judgement-jar-venice-review-gate",
+    "80-judgement-jar-daemon-backoff-persistence"
+  ],
+  "adversarialFindings": [
+    "No new daemon, queue, cloud service, browser implementation, or user-command transport was introduced.",
+    "A healthy result cannot be manufactured from a process alone: SSH requires protocol proof and relay requires a fresh successful Home Center poll.",
+    "The relay heartbeat and recovery receipt contain no bearer token, device secret, refresh token, or pairing material.",
+    "The earlier 15-second relay threshold was shorter than a legitimate 45-second network request and could create restart churn; this review hardens it to bounded 90/120-second timing.",
+    "Repository source and review receipts still do not prove the physical phone is callable. The required devices -> phone_shell -> observe -> home -> observe round-trip remains outstanding."
+  ],
+  "sourceVerdict": "PASS",
+  "integrationDirective": "MERGE_ALLOWED",
+  "directive": "CONTINUE_REQUIRED",
+  "continuation": {
+    "nextGate": "Home Center physical primary-phone acceptance",
+    "requiredSequence": [
+      "phone_hands.devices confirms recent primary-phone",
+      "one idempotent phone_shell canary returns exact stdout and exit receipt",
+      "observe returns current foreground state",
+      "home returns completed receipt",
+      "second observe proves Home transition",
+      "recovery status/receipt is read back after a bounded relay recovery test when needed"
+    ],
+    "currentSurfaceConstraint": "This ChatGPT surface does not expose the authenticated Command Center/Home Center MCP or a direct phone SSH action. That is CAPABILITY_UNAVAILABLE_ON_THIS_SURFACE, not proof that the phone ingress is globally unavailable.",
+    "forbiddenSubstitutes": [
+      "generic Google Drive",
+      "GitHub Actions as phone proof",
+      "desktop proof",
+      "ChatGPT-local execution",
+      "Drew typing recovery commands"
+    ]
+  },
+  "stopAllowed": false,
+  "createdAt": "2026-08-14T00:25:00-05:00"
+}
