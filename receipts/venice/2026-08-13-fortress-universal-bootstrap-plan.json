@@ -1,0 +1,96 @@
+{
+  "schema": "home-center.venice-plan-review.v1",
+  "mission": "Deliver one durable bootstrap program that runs on Drew's Android Termux phone and desktop environments, installs a locked-down local Fortress control plane, and remains useful after cloud-token exhaustion without using ChatGPT browser orchestration.",
+  "owner": "Drew Clarke",
+  "requestedOutcome": {
+    "artifact": "one cross-platform bootstrap program",
+    "authorizedPlatforms": [
+      "Android Termux",
+      "Windows desktop",
+      "WSL",
+      "Linux desktop",
+      "macOS desktop"
+    ],
+    "executionLane": "machine-local user account; repository-backed Home Center runtime",
+    "exclusions": [
+      "ChatGPT browser orchestration",
+      "cloud-token dependency",
+      "remote command listener",
+      "root takeover",
+      "security-control disablement",
+      "destructive active-worktree replacement",
+      "battery governor implementation in this slice"
+    ],
+    "evidenceStandard": "repository artifact plus deterministic self-test and review receipts; real phone/desktop deployment remains a separate runtime claim",
+    "deliverySurface": "Valar05/home-center tools/fortress_bootstrap.py with a stable fortress command"
+  },
+  "research": {
+    "sourceCommit": "43701d1cb8c97c9a4f56e5b3c913f689c6215269",
+    "facts": [
+      "The current Adam installer and campaign scripts use Termux-specific shebangs.",
+      "The phone local-brain path uses llama-server on loopback port 8790.",
+      "The existing Vlad daemon supplies Android overlay and receipt integration when rish is callable.",
+      "Repository doctrine requires a durable campaign, protected active worktrees, resumability, backoff, status, receipts, and explicit capability-state separation.",
+      "Drew explicitly deferred battery charge-rate governance; only a disabled configuration placeholder may be retained."
+    ]
+  },
+  "selectedJudgmentJars": [
+    {
+      "id": "mission-boundary",
+      "reason": "Preserve one-script, phone-and-desktop, local-first, no-browser-orchestration boundaries."
+    },
+    {
+      "id": "repository-truth",
+      "reason": "Extend Home Center's actual Adam, llama.cpp, Vlad, and overlay bodies rather than inventing a detached demo."
+    },
+    {
+      "id": "change-discipline",
+      "reason": "Use a dedicated runtime clone and refuse destructive active-worktree replacement."
+    },
+    {
+      "id": "failure-recovery",
+      "reason": "Require idempotent reruns, atomic queue claims, bounded retries, status, doctor, and receipts."
+    },
+    {
+      "id": "daemon-backoff-persistence",
+      "reason": "Install user-level persistence and prevent retry storms or duplicate workers."
+    },
+    {
+      "id": "home-center-vlad-receipts",
+      "reason": "Retain Android overlay/Vlad integration where the phone body actually exposes rish."
+    },
+    {
+      "id": "venice-review-gate",
+      "reason": "Forbid completion claims without deterministic checks, Regnet QA, and a separate Venice stop review."
+    }
+  ],
+  "plan": [
+    "Implement one Python 3 standard-library file with install, sync, start, stop, restart, status, doctor, enqueue, run, ask, receipts, daemon, and contract-test commands.",
+    "Detect Termux, Windows, WSL, Linux, and macOS without requiring a second platform script.",
+    "Install into a protected per-user Fortress directory, create platform-native user-level persistence, and expose a stable fortress command.",
+    "Use a dedicated fast-forward-only Home Center runtime clone; never reset or overwrite Drew's active checkout.",
+    "Run a local filesystem queue with atomic claims, bounded retries, per-job receipts, and no network command listener.",
+    "Prefer existing loopback llama.cpp or Ollama for prompt jobs; keep deterministic command jobs callable when no model exists; never execute model output as commands.",
+    "On Termux, integrate the existing Vlad swarm daemon when rish and its repository body are available; absence degrades honestly instead of killing the control plane.",
+    "Record the battery governor as disabled and deferred, with no worker scaling based on battery in this slice.",
+    "Run the embedded contract test, inspect the exact diff, obtain Regnet QA, then obtain Venice completion permission before promotion."
+  ],
+  "antagonism": [
+    "A shell-only bootstrap would silently exclude native Windows; use Python, which Drew's known phone and desktop both have.",
+    "Automatic model downloads can be large or impossible offline; model provisioning must be optional and failure must preserve deterministic execution.",
+    "A remote HTTP command server would expand attack surface; use an owner-local protected filesystem queue only.",
+    "An arbitrary-command queue is dangerous if writable by other users; protect directories and files and never accept unauthenticated network input.",
+    "Starting multiple daemons can duplicate side effects; use a PID/lock contract and atomic queue moves.",
+    "Blind git reset/pull can destroy work; only mutate the dedicated runtime clone and fast-forward or preserve current state.",
+    "Termux:Boot, systemd, launchd, and Task Scheduler can be absent or disabled; start immediately and report persistence state separately.",
+    "Repository and self-test evidence cannot prove either physical device is deployed; final reporting must keep implemented, tested, merged, installed, callable, and accepted distinct.",
+    "Battery tuning is tempting scope bait; preserve only the deferred hook requested by Drew."
+  ],
+  "directive": "PLAN_ALLOWED",
+  "verdict": "PASS",
+  "planPermissionGranted": true,
+  "reviewer": "GPT-5.6 Pro",
+  "reviewerMode": "chatgpt-venice-judgment-jar",
+  "reviewProvenance": "Separate adversarial plan pass over repository evidence and the selected Judgment Jars.",
+  "reviewedAt": "2026-08-13T22:00:00-05:00"
+}
