@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
+import inspect
 import json
 import tempfile
 from pathlib import Path
 
+import fortress_night_status as night_status
 import vlad_swarm_daemon as daemon
 
 
@@ -41,18 +43,29 @@ def main():
         assert events[-1]["kind"] == "swarm.heartbeat"
         assert events[-1]["contextSenses"]["wakeReasons"] == ["context_changed"]
 
+        # Context cadence must reuse Night Core battery truth and never call the
+        # daemon's generic 20-second rish helper for dumpsys battery.
+        original_battery = night_status.battery
         original_rish = daemon.rish
         try:
-            daemon.rish = lambda _cmd: {"rc": 0, "stdout": "level: 80\nUSB powered: true\nstatus: 2\n", "stderr": ""}
+            daemon.rish = lambda _cmd: (_ for _ in ()).throw(AssertionError("context cadence called generic rish"))
+            night_status.battery = lambda: {"source": "termux-battery-status", "level": 80, "plugged": True, "status": "charging"}
             assert daemon.context_sensor_delay() == max(30, daemon.CONTEXT_SENSOR_CHARGING_INTERVAL)
-            daemon.rish = lambda _cmd: {"rc": 0, "stdout": "level: 35\nUSB powered: false\nstatus: 3\n", "stderr": ""}
+            night_status.battery = lambda: {"source": "sysfs", "level": 35, "plugged": False, "status": "discharging"}
             assert daemon.context_sensor_delay() == max(60, daemon.CONTEXT_SENSOR_LOW_BATTERY_INTERVAL)
-            daemon.rish = lambda _cmd: {"rc": 0, "stdout": "level: 15\nUSB powered: false\nstatus: 3\n", "stderr": ""}
+            night_status.battery = lambda: {"source": "rish-dumpsys", "level": 15, "plugged": False, "status": "discharging"}
             assert daemon.context_sensor_delay() == max(60, daemon.CONTEXT_SENSOR_CRITICAL_BATTERY_INTERVAL)
         finally:
+            night_status.battery = original_battery
             daemon.rish = original_rish
 
-    print("PASS Vlad context integration: same daemon heartbeat, deferred sensing, battery-aware cadence")
+        cadence_source = inspect.getsource(daemon.context_sensor_delay)
+        assert "dumpsys battery" not in cadence_source
+        assert "rish(" not in cadence_source
+        fallback_source = inspect.getsource(night_status.rish_battery)
+        assert 'run([rish, "-c", "dumpsys battery"], 3)' in fallback_source
+
+    print("PASS Vlad context integration: same daemon heartbeat, deferred sensing, bounded Night Core battery cadence")
     return 0
 
 
