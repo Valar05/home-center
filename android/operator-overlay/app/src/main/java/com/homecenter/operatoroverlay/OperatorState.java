@@ -96,9 +96,36 @@ final class OperatorState {
         } catch (java.security.NoSuchAlgorithmException impossible) { throw new IllegalStateException(impossible); }
     }
 
+    private static String encodedUrlCommand(String operation, String url) {
+        String exact = url == null ? "" : url.trim();
+        String lower = exact.toLowerCase(Locale.ROOT);
+        if (!(lower.startsWith("https://") || lower.startsWith("http://"))) return "";
+        if (exact.length() > 2048) return "";
+        String encoded = Base64.encodeToString(exact.getBytes(StandardCharsets.UTF_8), Base64.NO_WRAP);
+        return "bash tools/fortress_phone_ops.sh " + operation + "-b64 " + encoded;
+    }
+
+    private static String prefixedUrlAlias(String exact, String lower) {
+        String[] openPrefixes = {"chrome ", "chromium ", "open chrome ", "open chromium "};
+        for (String prefix : openPrefixes) {
+            if (lower.startsWith(prefix)) {
+                return encodedUrlCommand("chrome-open", exact.substring(prefix.length()));
+            }
+        }
+        String[] navigatePrefixes = {"navigate ", "navigate chrome ", "navigate chromium ", "go ", "go chrome ", "go chromium "};
+        for (String prefix : navigatePrefixes) {
+            if (lower.startsWith(prefix)) {
+                return encodedUrlCommand("chrome-navigate", exact.substring(prefix.length()));
+            }
+        }
+        return "";
+    }
+
     private static String deterministicTerminalAlias(String text) {
         String exact = text == null ? "" : text.trim();
         String key = exact.toLowerCase(Locale.ROOT).replaceAll("\\s+", " ");
+        String urlAlias = prefixedUrlAlias(exact, exact.toLowerCase(Locale.ROOT));
+        if (!urlAlias.isEmpty()) return urlAlias;
         if (key.equals("restart") || key.equals("restart hc") || key.equals("restart home center") || key.equals("restart overlay") || key.equals("repair overlay")) {
             return "bash tools/fortress_phone_ops.sh overlay-restart";
         }
@@ -111,7 +138,10 @@ final class OperatorState {
         if (key.equals("reload") || key.equals("reload chrome") || key.equals("reload chromium")) {
             return "bash tools/fortress_phone_ops.sh chrome-reload";
         }
-        if (key.equals("canary") || key.equals("phone canary") || key.equals("test phone") || key.equals("test overlay")) {
+        if (key.equals("back") || key.equals("back chrome") || key.equals("chrome back")) {
+            return "bash tools/fortress_phone_ops.sh chrome-back";
+        }
+        if (key.equals("canary") || key.equals("phone canary") || key.equals("test phone") || key.equals("test overlay") || key.equals("test chrome") || key.equals("chrome canary")) {
             return "bash tools/fortress_phone_ops.sh canary";
         }
         return exact;

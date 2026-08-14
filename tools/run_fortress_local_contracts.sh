@@ -14,6 +14,7 @@ python3 tools/test_venice_plan_review.py
 python3 tools/test_venice_review.py
 python3 tools/test_adam_cli_contract.py
 python3 tools/test_adam_overlay_contract.py
+python3 tools/test_android_chromium_control_contract.py
 python3 tools/test_adam_overlay_majestic_prompt.py
 python3 tools/test_adam_venice_review_gate.py
 python3 tools/test_adam_campaign_contract.py
@@ -27,6 +28,7 @@ python3 -m py_compile \
   tools/fortress_bootstrap.py \
   tools/vlad_swarm_daemon.py \
   tools/home_center_mcp_client.py \
+  tools/android_chromium_control.py \
   tools/judgment_jar_common.py \
   tools/judgment_jar_cabinet.py \
   tools/judgment_jar_registry.py \

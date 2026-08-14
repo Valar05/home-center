@@ -1,0 +1,60 @@
+{
+  "schema": "venice-plan-receipt.v1",
+  "reviewerRole": "venice-judgment-jar",
+  "reviewerMode": "judgment_jar",
+  "commission": "Implement the smallest deterministic physical-phone Chromium control surface using existing Home Center / Phone Hands / Shizuku-compatible mechanisms, with open URL, a second navigation action, browser-death recovery, and physical-phone receipts; do not substitute desktop Chromium or claim acceptance from repository evidence.",
+  "reviewContext": "Recovery review after a process regression: implementation commits were made before this required durable plan-review receipt. This receipt does not retroactively legitimize those commits; it authorizes only continued validation, repair, dispatch, and evidence collection after reviewing the current diff.",
+  "selectedJudgmentJars": [
+    "00-judgement-jar-mission-boundary",
+    "20-judgement-jar-repository-truth",
+    "40-judgement-jar-failure-recovery",
+    "70-judgement-jar-venice-review-gate"
+  ],
+  "evidence": [
+    "skills/fortress-core/SKILL.md",
+    "tools/android_phone_hands_bridge.py",
+    "tools/android_window_composer.py",
+    "functions/app_control_seed/com.android.chrome.150.0.7871.114+787111433.json",
+    "tools/fortress_phone_ops.sh",
+    "android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorState.java",
+    "PR #315 current branch diff"
+  ],
+  "antagonism": [
+    "Do not assume Android Chrome supports the desktop Chromium Throne extension.",
+    "Do not introduce a new transport when Home Center Phone Hands and the existing Shizuku/rish substrate already own the phone body.",
+    "Do not use coordinate taps for the required open/navigate canary when Android VIEW intents and package/task/UI observation can express the transition deterministically.",
+    "Do not call an intent dispatch or keyevent a successful browser transition without independent foreground/task/UI evidence.",
+    "Do not claim reload content changed unless observation changes; foreground survival alone may only prove dispatch/focus survival.",
+    "Do not pass user-supplied URLs through unescaped shell text; encode overlay URL arguments and validate absolute http(s) URLs at the controller boundary.",
+    "Do not claim physical-phone acceptance from GitHub commits, CI, a queued ticket, or a phone-local file that has not been returned through the authorized ingress.",
+    "Do not ask Drew to type commands into Termux while an authorized Phone Hands / durable device-command route exists or may be recovered.",
+    "Browser death recovery is part of the canary: force-stop must be observed before the first reopen.",
+    "The second canary action must be an explicit second URL navigation so success is not inferred from an unverifiable refresh keypress."
+  ],
+  "plan": [
+    "Keep the implementation isolated in PR #315 until deterministic contract checks pass.",
+    "Use tools/android_chromium_control.py as the single Android Chromium controller over existing run_rish/ui_dump primitives.",
+    "Route existing fortress_phone_ops Chromium commands through that controller and compile simple overlay phrases to safe base64 URL arguments.",
+    "Run the repository contract suite/CI and repair deterministic failures without widening scope.",
+    "Through the owning Home Center Phone Hands ingress, execute the exact phone canary from a repo revision containing PR #315: bash tools/fortress_phone_ops.sh canary.",
+    "Require the returned primary-phone receipt to show browser force-stop, reopen to URL 1, explicit navigation to URL 2, final Chromium foreground/state evidence, and device-side UI/screenshot/task evidence.",
+    "Only after physical readback may the lane advance from implemented/tested toward callable/delivered; return to Venice for completion review before normal stop."
+  ],
+  "verdict": "PASS_WITH_PROCESS_SCAR",
+  "directive": "PLAN_ALLOWED",
+  "capabilityState": {
+    "requested": true,
+    "implemented": true,
+    "tested": false,
+    "deployed": false,
+    "callable": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "processScar": {
+    "kind": "plan_bypass",
+    "regression": "Substantive code mutation occurred before a durable Venice PLAN_ALLOWED receipt.",
+    "repair": "Persist this recovery review, continue only under its gates, and preserve the violation rather than rewriting history."
+  },
+  "createdAt": "2026-08-14T00:17:00-05:00"
+}
