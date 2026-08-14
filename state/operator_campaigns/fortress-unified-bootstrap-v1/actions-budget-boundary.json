@@ -1,0 +1,20 @@
+{
+  "schema": "home-center.operator-boundary.v1",
+  "campaignId": "fortress-unified-bootstrap-v1",
+  "recordedAt": "2026-08-13T22:58:00-05:00",
+  "boundary": "github-hosted-actions-budget",
+  "status": "OPERATOR_BOUNDARY",
+  "evidence": {
+    "workflowRunId": 31770514731,
+    "jobId": 94675292585,
+    "annotation": "The job was not started because your account is locked due to a billing issue.",
+    "repository": "Valar05/home-center",
+    "branch": "fortress-unified-bootstrap"
+  },
+  "effect": [
+    "Hosted CI cannot execute until the GitHub account budget or billing lock is cleared.",
+    "Source bytes may still be committed and read back through the authorized GitHub repository lane.",
+    "No CI-green, phone-deployed, or Windows-deployed claim is authorized by this receipt."
+  ],
+  "recovery": "Clear the GitHub Actions billing/budget lock, then run tools/test_fortress_bootstrap.py on both hosted Windows and Linux runners or approved self-hosted runners."
+}
