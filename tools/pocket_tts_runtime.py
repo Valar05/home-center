@@ -466,6 +466,9 @@ class Job:
     first_play_at: float = 0.0
     completed_at: float = 0.0
     done: threading.Event = field(default_factory=threading.Event)
+    synthesis_done: threading.Event = field(default_factory=threading.Event)
+    playback_done: threading.Event = field(default_factory=threading.Event)
+    terminal_requested: str = ""
 
 
 class PocketTtsRuntime:
@@ -540,6 +543,7 @@ class PocketTtsRuntime:
             elif state == "running":
                 job.status = "running"
             else:
+                job.terminal_requested = "stopped"
                 job.status = "stopping"
             self._write_status(job)
             # Publish the requested state before waking the worker. The worker's
@@ -568,10 +572,15 @@ class PocketTtsRuntime:
             try:
                 self._run_synthesis(job)
             except InterruptedError:
-                self._finish(job, "stopped")
+                self._request_terminal(job, job.terminal_requested or "stopped")
             except Exception as error:
-                job.error = str(error)[-3000:]
-                self._finish(job, "failed")
+                self._request_terminal(job, "failed", str(error)[-3000:])
+            finally:
+                job.synthesis_done.set()
+                # The playback worker owns its own quiescence marker. Always
+                # send the boundary, including on synthesis failure/stop.
+                self._playback_queue.put({"job": job, "kind": QUEUE_END})
+                self._maybe_finish_terminal(job)
 
     def _run_synthesis(self, job: Job) -> None:
         profile = self.registry.get(job.voice_id)
@@ -588,6 +597,9 @@ class PocketTtsRuntime:
                 with tempfile.TemporaryDirectory(prefix="pocket-tts-render-") as temp_root:
                     rendered = Path(temp_root) / "chunk.wav"
                     render_metrics = engine.render(text_chunk, profile, rendered)
+                    # A playback failure may arrive while an engine call is in
+                    # flight. Do not cache, publish, or enqueue that result.
+                    job.control.checkpoint()
                     wav_path, receipt = self.cache.put(key, rendered, {
                         "engine": profile.engine,
                         "voiceId": profile.id,
@@ -595,19 +607,26 @@ class PocketTtsRuntime:
                         "textSha256": sha256_text(text_chunk),
                         "renderMs": render_metrics.get("renderMs", 0.0),
                     })
+            job.control.checkpoint()
             item = {"job": job, "index": index, "path": wav_path, "receipt": receipt}
             job.receipts.append({"index": index, **receipt})
             self._write_status(job)
+            job.control.checkpoint()
             self._playback_queue.put(item)
         job.render_finished_at = time.perf_counter()
-        self._playback_queue.put({"job": job, "kind": QUEUE_END})
 
     def _playback_loop(self) -> None:
         while True:
             item = self._playback_queue.get()
             job: Job = item["job"]
+            if job.done.is_set():
+                continue
             try:
                 if item.get("kind") is QUEUE_END:
+                    job.playback_done.set()
+                    if job.terminal_requested:
+                        self._maybe_finish_terminal(job)
+                        continue
                     if job.mode == "render":
                         output = job.output or (self.state_root / "renders" / f"{job.id}.wav")
                         stitch_pcm16([Path(receipt["path"]) if "path" in receipt else self.cache.root / receipt["cacheKey"][:2] / f"{receipt['cacheKey']}.wav" for receipt in job.receipts], output)
@@ -615,6 +634,8 @@ class PocketTtsRuntime:
                         job.output = output
                         job.playback.append({"renderOutput": str(output), **metrics, "glitches": 0})
                     self._finish(job, "completed")
+                    continue
+                if job.terminal_requested or job.control.state == "stopping":
                     continue
                 job.control.checkpoint()
                 if job.mode == "speak":
@@ -624,10 +645,32 @@ class PocketTtsRuntime:
                     job.playback.append({"index": item["index"], **playback})
                     self._write_status(job)
             except InterruptedError:
-                self._finish(job, "stopped")
+                self._request_terminal(job, job.terminal_requested or "stopped")
+                job.playback_done.set()
+                self._maybe_finish_terminal(job)
             except Exception as error:
-                job.error = str(error)[-3000:]
-                self._finish(job, "failed")
+                self._request_terminal(job, "failed", str(error)[-3000:])
+                job.playback_done.set()
+                self._maybe_finish_terminal(job)
+
+    def _request_terminal(self, job: Job, status: str, error: str = "") -> None:
+        if job.done.is_set():
+            return
+        if status not in {"failed", "stopped"}:
+            raise PocketTtsError(f"invalid terminal request: {status}")
+        # Failure outranks a concurrent ordinary stop because it carries the
+        # causal receipt that must not be erased.
+        if status == "failed" or not job.terminal_requested:
+            job.terminal_requested = status
+        if error:
+            job.error = error
+        job.status = "failing" if job.terminal_requested == "failed" else "stopping"
+        self._write_status(job)
+        job.control.set("stopping")
+
+    def _maybe_finish_terminal(self, job: Job) -> None:
+        if job.terminal_requested and job.synthesis_done.is_set() and job.playback_done.is_set():
+            self._finish(job, job.terminal_requested)
 
     def _finish(self, job: Job, status: str) -> None:
         if job.done.is_set():
