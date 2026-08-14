@@ -11,10 +11,16 @@ RECEIPTS = STATE/'receipts'; RECEIPTS.mkdir(exist_ok=True)
 QUEUE = STATE/'queue.json'; EVENTS=STATE/'events.jsonl'; RELEASE=STATE/'RELEASED'
 MOCK_HEARTBEAT=STATE/'mockray_heartbeat.json'; MOCK_LOG=STATE/'mockray-supervised.log'; MOCK_RELEASE=STATE/'mockray.release'
 
+# EAT THE WHALE is a kernel invariant: one bounded bite per cycle.
+# Giant commissions are containers, not executable work. They must expose bites.
+MAX_BITE_SECONDS = int(os.environ.get('WDT_MAX_BITE_SECONDS', '120'))
+
 DEFAULT_QUEUE = [
   {'id':'home-center-restart-button','priority':1000,'kind':'commission','status':'owed',
-   'acceptance':'physical-phone evidence: visible dedicated RESTART HC/TURN HC ON control, tap attempts recovery, truthful result'},
-  {'id':'time-now-skill-census','priority':700,'kind':'campaign','status':'owed'},
+   'acceptance':'physical-phone evidence: visible dedicated RESTART HC/TURN HC ON control, tap attempts recovery, truthful result',
+   'bites':[{'id':'recover-home-center','status':'owed','executor':'home_center_recovery'}]},
+  {'id':'time-now-skill-census','priority':700,'kind':'campaign','status':'owed',
+   'bites':[{'id':'run-time-now-census','status':'owed','executor':'time_now'}]},
 ]
 
 def write_json(path,obj):
@@ -28,6 +34,8 @@ def emit(kind, task_id, **extra):
 def load_queue():
     if not QUEUE.exists(): write_json(QUEUE,DEFAULT_QUEUE)
     return json.loads(QUEUE.read_text())
+
+def save_queue(q): write_json(QUEUE,q)
 
 def battery():
     p=Path('/sys/class/power_supply/battery/capacity')
@@ -49,11 +57,11 @@ def charging():
 
 def tremorcle(kind='tick'):
     if not shutil.which('termux-vibrate'):return
-    ms={'tick':18,'success':70,'warn':140,'blocked':220,'recovery':95}.get(kind,18)
+    ms={'tick':18,'success':70,'warn':140,'blocked':220,'recovery':95,'bite':42}.get(kind,18)
     try:subprocess.run(['termux-vibrate','-d',str(ms),'-f'],timeout=2,check=False,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
     except Exception:pass
 
-def run(cmd,timeout=300):
+def run(cmd,timeout=MAX_BITE_SECONDS):
     started=time.time(); p=subprocess.run(cmd,cwd=ROOT,text=True,capture_output=True,timeout=timeout)
     return {'cmd':cmd,'rc':p.returncode,'stdout':p.stdout[-12000:],'stderr':p.stderr[-12000:],'seconds':round(time.time()-started,2)}
 
@@ -74,39 +82,72 @@ def home_center_recovery_bite():
     candidates=[['bash','tools/fortress_now_phone.sh'],['bash','tools/recover_adam_overlay_phone.sh']]
     for cmd in candidates:
         if (ROOT/cmd[1]).exists():
-            tremorcle('recovery'); emit('dispatch','home-center-restart-button',verified=True,command=cmd)
-            return run(cmd,timeout=900)
+            tremorcle('recovery')
+            return run(cmd)
     return {'rc':127,'stderr':'no recovery primitive found'}
 
 def time_now_bite():
     p=ROOT/'tools/time_now_whale_swarm.sh'
-    if p.exists(): return run(['bash',str(p)],timeout=60)
+    if p.exists(): return run(['bash',str(p)])
     return {'rc':127,'stderr':'time_now_whale_swarm.sh absent'}
 
-def choose(q):
+def choose_whale(q):
     owed=[x for x in q if x.get('status') not in {'accepted','released','superseded'}]
     return max(owed,key=lambda x:x.get('priority',0)) if owed else None
 
+def choose_bite(whale):
+    bites=whale.get('bites') or []
+    for bite in bites:
+        if bite.get('status') not in {'accepted','released','superseded'}:
+            return bite
+    # Legacy work without explicit bites becomes exactly one bounded bite.
+    return {'id':whale['id']+'-bite-1','status':'owed','executor':'legacy'}
+
+def execute_bite(whale,bite):
+    executor=bite.get('executor')
+    if executor=='home_center_recovery' or (executor=='legacy' and whale['id']=='home-center-restart-button'):
+        return home_center_recovery_bite()
+    if executor=='time_now' or (executor=='legacy' and whale['id']=='time-now-skill-census'):
+        return time_now_bite()
+    return {'rc':126,'stderr':'no executor registered for bite'}
+
+def mark_bite(q,whale_id,bite_id,status):
+    for whale in q:
+        if whale.get('id')!=whale_id: continue
+        bites=whale.get('bites') or []
+        for bite in bites:
+            if bite.get('id')==bite_id: bite['status']=status
+        if bites and all(b.get('status') in {'accepted','released','superseded'} for b in bites):
+            whale['status']='accepted'
+    save_queue(q)
+
 def tick():
-    mock=ensure_mockray(); q=load_queue(); item=choose(q); b=battery(); c=charging()
-    if item is None:return {'status':'idle','battery':b,'charging':c,'mockery_forge':mock}
+    mock=ensure_mockray(); q=load_queue(); whale=choose_whale(q); b=battery(); c=charging()
+    if whale is None:return {'status':'idle','battery':b,'charging':c,'mockery_forge':mock}
+    bite=choose_bite(whale); bite_id=bite['id']
     if b<35 and not c:
-        tremorcle('warn'); emit('blocked',item['id'],verified=True,reason='phone battery governor',battery=b)
-        return {'status':'throttled','item':item['id'],'battery':b,'charging':c,'reason':'phone battery governor','mockery_forge':mock}
-    emit('working',item['id'],verified=True,battery=b,charging=c)
-    if item['id']=='home-center-restart-button': result=home_center_recovery_bite()
-    elif item['id']=='time-now-skill-census': result=time_now_bite()
-    else: result={'rc':126,'stderr':'no executor registered'}
-    receipt={'ts':time.time(),'item':item,'battery':b,'charging':c,'result':result,'mockery_forge':mock}
-    path=RECEIPTS/f"{int(receipt['ts']*1000)}-{item['id']}.json"; write_json(path,receipt)
+        tremorcle('warn'); emit('blocked',bite_id,verified=True,whale_id=whale['id'],reason='phone battery governor',battery=b)
+        return {'status':'throttled','whale':whale['id'],'bite':bite_id,'battery':b,'charging':c,'reason':'phone battery governor','mockery_forge':mock}
+
+    # One bite. No clump execution. No second bite in the same tick.
+    tremorcle('bite')
+    emit('whale_bite',bite_id,verified=True,whale_id=whale['id'],message='Eat the Whale: exactly one bounded bite selected')
+    emit('working',bite_id,verified=True,whale_id=whale['id'],battery=b,charging=c)
+    try:
+        result=execute_bite(whale,bite)
+    except subprocess.TimeoutExpired as e:
+        result={'rc':124,'stderr':f'bite exceeded {MAX_BITE_SECONDS}s bound','seconds':MAX_BITE_SECONDS}
+    receipt={'ts':time.time(),'whale':whale,'bite':bite,'battery':b,'charging':c,'result':result,'mockery_forge':mock}
+    path=RECEIPTS/f"{int(receipt['ts']*1000)}-{bite_id}.json"; write_json(path,receipt)
     ok=result.get('rc')==0
-    emit('receipt',item['id'],verified=True,receipt=str(path),rc=result.get('rc'))
-    emit('canary_pass' if ok else 'canary_fail',item['id'],verified=ok,receipt=str(path))
+    emit('receipt',bite_id,verified=True,whale_id=whale['id'],receipt=str(path),rc=result.get('rc'))
+    emit('canary_pass' if ok else 'canary_fail',bite_id,verified=ok,whale_id=whale['id'],receipt=str(path))
+    if ok: mark_bite(q,whale['id'],bite_id,'accepted')
     tremorcle('success' if ok else 'blocked')
     return receipt
 
 def main():
-    tremorcle('tick'); ensure_mockray(); emit('dispatch','wdt-kernel',verified=True,message='Wizard DNS Tango kernel online')
+    tremorcle('tick'); ensure_mockray(); emit('dispatch','wdt-kernel',verified=True,message='Wizard DNS Tango kernel online; Eat the Whale invariant active')
     while not RELEASE.exists():
         try: print(json.dumps(tick(),sort_keys=True),flush=True)
         except Exception as e:
