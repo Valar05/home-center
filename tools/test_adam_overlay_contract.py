@@ -59,7 +59,8 @@ assert ack_idx > success_idx
 assert 'payload=_operator_field(raw,"adam_request_payload_b64","");_set_last_adam_request_id(request_id)' not in daemon
 
 for token in [
-    'ONE_SHOT_MODES = ("auto", "terminal", "text", "chat", "continue", "vlad", "radio")',
+    'ONE_SHOT_MODES = ("auto", "observation", "terminal", "text", "chat", "continue", "vlad", "radio")',
+    'OBSERVATION_SOURCE = ROOT / "tools" / "adam_observation_ledger.py"',
     'WORKER = ROOT / "tools" / "adam_planned_venice.py"',
     'jarGoverned=True',
     'preExecutionPlanReview=True',
@@ -121,4 +122,7 @@ assert classify("play music for dinner")[0] == "radio"
 assert classify("recent text messages")[0] == "text"
 assert classify("ask Vlad for a second opinion")[0] == "vlad"
 assert classify("how does this work?")[0] == "chat"
+assert classify("log three more drops")[0] == "observation"
+assert classify("log two puffs of weed")[0] == "observation"
+assert classify("pills taken")[0] == "observation"
 print("Adam Beard one-input routing / durable-delivery contract: PASS")
