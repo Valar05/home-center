@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Base64;
 import java.nio.charset.StandardCharsets;
+import java.util.Locale;
 
 final class OperatorState {
     static final String PREFS = "home_center_operator_state";
@@ -95,11 +96,33 @@ final class OperatorState {
         } catch (java.security.NoSuchAlgorithmException impossible) { throw new IllegalStateException(impossible); }
     }
 
+    private static String deterministicTerminalAlias(String text) {
+        String exact = text == null ? "" : text.trim();
+        String key = exact.toLowerCase(Locale.ROOT).replaceAll("\\s+", " ");
+        if (key.equals("restart") || key.equals("restart hc") || key.equals("restart home center") || key.equals("restart overlay") || key.equals("repair overlay")) {
+            return "bash tools/fortress_phone_ops.sh overlay-restart";
+        }
+        if (key.equals("status") || key.equals("phone status") || key.equals("fortress status")) {
+            return "bash tools/fortress_phone_ops.sh status";
+        }
+        if (key.equals("chrome") || key.equals("chromium") || key.equals("open chrome") || key.equals("open chromium")) {
+            return "bash tools/fortress_phone_ops.sh chrome-open";
+        }
+        if (key.equals("reload") || key.equals("reload chrome") || key.equals("reload chromium")) {
+            return "bash tools/fortress_phone_ops.sh chrome-reload";
+        }
+        if (key.equals("canary") || key.equals("phone canary") || key.equals("test phone") || key.equals("test overlay")) {
+            return "bash tools/fortress_phone_ops.sh canary";
+        }
+        return exact;
+    }
+
     static void submitAdamRequest(Context context, String mode, String text, long nowMs) {
         String cleanMode = mode == null ? "terminal" : mode.trim().toLowerCase();
         if (!(cleanMode.equals("terminal") || cleanMode.equals("chat") || cleanMode.equals("continue") || cleanMode.equals("vlad") || cleanMode.equals("radio"))) throw new IllegalArgumentException("unsupported Adam mode");
         String exact = text == null ? "" : text;
         if (exact.trim().isEmpty()) return;
+        if (cleanMode.equals("terminal")) exact = deterministicTerminalAlias(exact);
         byte[] bytes = exact.getBytes(StandardCharsets.UTF_8);
         String payload = Base64.encodeToString(bytes, Base64.NO_WRAP);
         prefs(context).edit()
