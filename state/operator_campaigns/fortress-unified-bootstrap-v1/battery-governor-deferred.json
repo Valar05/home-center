@@ -1,0 +1,8 @@
+{
+  "schema": "home-center.deferred-requirement.v1",
+  "campaignId": "fortress-unified-bootstrap-v1",
+  "requirement": "Watch battery level and charging headroom so orchestration does not outpace charging and does not underperform when power is available.",
+  "status": "deferred_by_owner",
+  "scopeDecision": "recorded but not implemented in the unified bootstrap slice",
+  "mustNotBeMisreportedAs": ["implemented", "deployed", "verified"]
+}
