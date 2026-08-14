@@ -15,6 +15,7 @@ import hashlib
 import json
 import os
 import re
+import signal
 import shutil
 import subprocess
 import sys
@@ -82,6 +83,8 @@ def clean_text(value: Any, key: str, minimum: int = 1, maximum: int = 1200) -> s
     out = value.strip()
     if not minimum <= len(out) <= maximum:
         raise DungeonError(f"{key} must contain {minimum}-{maximum} characters")
+    if re.search(r"[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]", out):
+        raise DungeonError(f"{key} contains unsupported control characters")
     return out
 
 
@@ -194,8 +197,16 @@ def slug(value: str, fallback: str = "campaign") -> str:
 def atomic_write(path: Path, value: dict[str, Any]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     tmp = path.with_suffix(path.suffix + f".{os.getpid()}.tmp")
-    tmp.write_text(json.dumps(value, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    with tmp.open("w", encoding="utf-8") as handle:
+        handle.write(json.dumps(value, ensure_ascii=False, indent=2) + "\n")
+        handle.flush()
+        os.fsync(handle.fileno())
     os.replace(tmp, path)
+    directory = os.open(path.parent, os.O_RDONLY)
+    try:
+        os.fsync(directory)
+    finally:
+        os.close(directory)
 
 
 def append_event(state_root: Path, job_id: str, kind: str, **data: Any) -> None:
@@ -204,6 +215,8 @@ def append_event(state_root: Path, job_id: str, kind: str, **data: Any) -> None:
     event = {"atMs": epoch_ms(), "kind": kind, **data}
     with ledger.open("a", encoding="utf-8") as handle:
         handle.write(json.dumps(event, ensure_ascii=False, separators=(",", ":")) + "\n")
+        handle.flush()
+        os.fsync(handle.fileno())
 
 
 def job_path(state_root: Path, job_id: str) -> Path:
@@ -225,6 +238,8 @@ def load_job(state_root: Path, job_id: str) -> dict[str, Any]:
 def transition(state_root: Path, job: dict[str, Any], state: str, stage: str, note: str, **updates: Any) -> dict[str, Any]:
     if state not in VISIBLE_STATES:
         raise DungeonError(f"unsupported dungeon state: {state}")
+    if job.get("state") in TERMINAL_STATES and state != job.get("state"):
+        raise DungeonError("terminal dungeon jobs cannot transition back into execution")
     now = epoch_ms()
     history = list(job.get("history") or [])[-199:]
     history.append({"atMs": now, "state": state, "stage": stage, "note": note[:1000]})
@@ -263,25 +278,52 @@ def run_process(argv: list[str], cwd: Path, timeout: int, output_path: Path) -> 
         raise DungeonError("internal argv is invalid")
     output_path.parent.mkdir(parents=True, exist_ok=True)
     started = epoch_ms()
-    try:
-        completed = subprocess.run(
-            argv,
-            cwd=cwd,
-            text=True,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
-            timeout=timeout,
-            shell=False,
-            check=False,
-        )
-        output = completed.stdout or ""
-        output_path.write_text(output[-200_000:], encoding="utf-8")
-        return {"argv0": Path(argv[0]).name, "exit": completed.returncode, "timedOut": False, "startedAtMs": started, "endedAtMs": epoch_ms(), "outputTail": output[-12000:]}
-    except subprocess.TimeoutExpired as exc:
-        raw = exc.stdout or ""
-        output = raw.decode("utf-8", "replace") if isinstance(raw, bytes) else str(raw)
-        output_path.write_text(output[-200_000:], encoding="utf-8")
-        return {"argv0": Path(argv[0]).name, "exit": None, "timedOut": True, "startedAtMs": started, "endedAtMs": epoch_ms(), "outputTail": output[-12000:]}
+    timed_out = False
+    with output_path.open("wb") as output_handle:
+        try:
+            process = subprocess.Popen(
+                argv,
+                cwd=cwd,
+                stdout=output_handle,
+                stderr=subprocess.STDOUT,
+                start_new_session=True,
+                shell=False,
+            )
+        except OSError as exc:
+            output_handle.write(f"executor unavailable: {exc}\n".encode("utf-8", "replace"))
+            output_handle.flush()
+            os.fsync(output_handle.fileno())
+            return {"argv0": Path(argv[0]).name, "exit": 127, "timedOut": False, "startedAtMs": started, "endedAtMs": epoch_ms(), "outputTail": f"executor unavailable: {exc}"}
+        try:
+            exit_code = process.wait(timeout=timeout)
+        except subprocess.TimeoutExpired:
+            timed_out = True
+            try:
+                os.killpg(process.pid, signal.SIGTERM)
+            except ProcessLookupError:
+                pass
+            try:
+                process.wait(timeout=5)
+            except subprocess.TimeoutExpired:
+                try:
+                    os.killpg(process.pid, signal.SIGKILL)
+                except ProcessLookupError:
+                    pass
+                process.wait(timeout=5)
+            exit_code = None
+        output_handle.flush()
+        os.fsync(output_handle.fileno())
+    with output_path.open("rb") as output_handle:
+        size = output_handle.seek(0, os.SEEK_END)
+        output_handle.seek(max(0, size - 200_000))
+        tail_bytes = output_handle.read()
+        output = tail_bytes.decode("utf-8", "replace")
+    if size > 200_000:
+        with output_path.open("wb") as output_handle:
+            output_handle.write(tail_bytes)
+            output_handle.flush()
+            os.fsync(output_handle.fileno())
+    return {"argv0": Path(argv[0]).name, "exit": exit_code, "timedOut": timed_out, "startedAtMs": started, "endedAtMs": epoch_ms(), "outputTail": output[-12000:]}
 
 
 def git(root: Path, *args: str, timeout: int = 120) -> str:
@@ -309,11 +351,17 @@ def mutation_evidence(worktree: Path, baseline_head: str) -> dict[str, Any]:
 def prepare_worktree(state_root: Path, job: dict[str, Any], workspace: dict[str, Any]) -> tuple[Path, str, str]:
     source = workspace["root"]
     git(source, "rev-parse", "--is-inside-work-tree")
-    baseline_head = git(source, "rev-parse", workspace["baseRef"])
+    stored_baseline = str(job.get("baselineHead") or "")
+    baseline_head = stored_baseline if re.fullmatch(r"[0-9a-f]{40}", stored_baseline) else git(source, "rev-parse", workspace["baseRef"])
     branch = f"fortress/{slug(job['action']['campaignId'])}-{job['jobId'][-10:]}"
     worktree = (state_root / "worktrees" / job["jobId"]).resolve()
     if worktree.is_dir():
         git(worktree, "rev-parse", "--is-inside-work-tree")
+        active_branch = git(worktree, "rev-parse", "--abbrev-ref", "HEAD")
+        if active_branch != branch:
+            raise DungeonError("deterministic worktree is attached to an unexpected branch")
+        if not stored_baseline:
+            baseline_head = git(worktree, "rev-parse", "HEAD")
         return worktree, branch, baseline_head
     worktree.parent.mkdir(parents=True, exist_ok=True)
     exists = subprocess.run(
@@ -372,10 +420,17 @@ def clean_verification_commands(workspace: dict[str, Any], profile: str) -> list
     return commands
 
 
-def verify(worktree: Path, workspace: dict[str, Any], profile: str, state_root: Path, job_id: str) -> dict[str, Any]:
+def remaining_seconds(deadline: float, cap: int) -> int:
+    return max(0, min(cap, int(deadline - time.monotonic())))
+
+
+def verify(worktree: Path, workspace: dict[str, Any], profile: str, state_root: Path, job_id: str, deadline: float) -> dict[str, Any]:
     results = []
     for index, argv in enumerate(clean_verification_commands(workspace, profile)):
-        result = run_process(argv, worktree, 30 * 60, state_root / "runs" / job_id / f"verify-{index}.log")
+        timeout = remaining_seconds(deadline, 30 * 60)
+        if timeout <= 0:
+            return {"ok": False, "budgetExhausted": True, "results": results}
+        result = run_process(argv, worktree, timeout, state_root / "runs" / job_id / f"verify-{index}.log")
         results.append({"argv": argv, **result})
         if result["exit"] != 0:
             return {"ok": False, "results": results}
@@ -408,47 +463,51 @@ def submit(action_value: Any, state_root: Path | None = None, registry_path: Pat
     root.mkdir(parents=True, exist_ok=True)
     job_id = job_id_for(action["requestId"])
     digest = input_hash(action)
-    path = job_path(root, job_id)
-    attached = False
-    if path.exists():
-        job = load_job(root, job_id)
-        if job.get("inputHash") != digest:
-            raise DungeonConflict("requestId is already bound to a different dungeon intent")
-        attached = True
-    else:
-        now = epoch_ms()
-        job = {
-            "schema": "home-center.dungeon-job.v2",
-            "jobId": job_id,
+    admission_lock_path = root / "locks" / f"admit-{job_id}.lock"
+    admission_lock_path.parent.mkdir(parents=True, exist_ok=True)
+    with admission_lock_path.open("a+", encoding="utf-8") as admission_lock:
+        fcntl.flock(admission_lock.fileno(), fcntl.LOCK_EX)
+        path = job_path(root, job_id)
+        attached = False
+        if path.exists():
+            job = load_job(root, job_id)
+            if job.get("inputHash") != digest:
+                raise DungeonConflict("requestId is already bound to a different dungeon intent")
+            attached = True
+        else:
+            now = epoch_ms()
+            job = {
+                "schema": "home-center.dungeon-job.v2",
+                "jobId": job_id,
+                "requestId": action["requestId"],
+                "inputHash": digest,
+                "tmuxSession": session_for(action["requestId"]),
+                "action": action,
+                "state": "ACCEPTED",
+                "stage": "admitted",
+                "acceptedAtMs": now,
+                "updatedAtMs": now,
+                "history": [{"atMs": now, "state": "ACCEPTED", "stage": "admitted", "note": "Exact typed intent durably admitted."}],
+            }
+            atomic_write(path, job)
+            append_event(root, job_id, "accepted", requestId=action["requestId"], inputHash=digest, lane=action["lane"])
+        if job["state"] not in TERMINAL_STATES:
+            start = launcher or launch_tmux
+            launched = start(root, registry, job)
+            if not launched.get("ok"):
+                job = transition(root, job, "FAILED", "tmux_admission", str(launched.get("error") or "tmux admission failed"), reason=str(launched.get("error") or "tmux admission failed"))
+            elif launched.get("attached"):
+                attached = True
+        return {
+            "schema": "home-center.dungeon-submit-receipt.v2",
             "requestId": action["requestId"],
             "inputHash": digest,
-            "tmuxSession": session_for(action["requestId"]),
-            "action": action,
-            "state": "ACCEPTED",
-            "stage": "admitted",
-            "acceptedAtMs": now,
-            "updatedAtMs": now,
-            "history": [{"atMs": now, "state": "ACCEPTED", "stage": "admitted", "note": "Exact typed intent durably admitted."}],
+            "jobId": job_id,
+            "tmuxSession": job["tmuxSession"],
+            "state": job["state"],
+            "attached": attached,
+            "statusRef": f"phone-state://coding-dungeon-v2/jobs/{job_id}",
         }
-        atomic_write(path, job)
-        append_event(root, job_id, "accepted", requestId=action["requestId"], inputHash=digest, lane=action["lane"])
-    if job["state"] not in TERMINAL_STATES:
-        start = launcher or launch_tmux
-        launched = start(root, registry, job)
-        if not launched.get("ok"):
-            job = transition(root, job, "FAILED", "tmux_admission", str(launched.get("error") or "tmux admission failed"), reason=str(launched.get("error") or "tmux admission failed"))
-        elif launched.get("attached"):
-            attached = True
-    return {
-        "schema": "home-center.dungeon-submit-receipt.v2",
-        "requestId": action["requestId"],
-        "inputHash": digest,
-        "jobId": job_id,
-        "tmuxSession": job["tmuxSession"],
-        "state": job["state"],
-        "attached": attached,
-        "statusRef": f"phone-state://coding-dungeon-v2/jobs/{job_id}",
-    }
 
 
 def launch_tmux(state_root: Path, registry_path: Path, job: dict[str, Any]) -> dict[str, Any]:
@@ -506,6 +565,7 @@ def run_job(state_root: Path, registry_path: Path, job_id: str) -> int:
         if job["state"] in TERMINAL_STATES:
             return 0
         action = normalize_run_action(job["action"])
+        deadline = time.monotonic() + BUDGETS[action["budgetProfile"]]["wallSeconds"]
         if input_hash(action) != job["inputHash"]:
             transition(root, job, "QUARANTINED", "identity", "Stored action hash mismatch.", reason="stored action hash mismatch")
             return 4
@@ -513,11 +573,11 @@ def run_job(state_root: Path, registry_path: Path, job_id: str) -> int:
         lane_lock_path = root / "locks" / lane_lock_name
         with lane_lock_path.open("a+", encoding="utf-8") as lane_lock:
             fcntl.flock(lane_lock.fileno(), fcntl.LOCK_EX)
-            if action["lane"] == "standard":
-                os.nice(5)
-            elif action["lane"] == "background":
-                os.nice(10)
             try:
+                if action["lane"] == "standard":
+                    os.nice(5)
+                elif action["lane"] == "background":
+                    os.nice(10)
                 workspace = load_workspace(registry, action["workspaceId"])
                 worktree, branch, baseline_head = prepare_worktree(root, job, workspace)
                 job = transition(root, job, "RUNNING", "deterministic_preflight", "Isolated worktree and branch resolved.", branch=branch, baselineHead=baseline_head, worktreeRef=f"phone-state://coding-dungeon-v2/worktrees/{job_id}")
@@ -526,10 +586,11 @@ def run_job(state_root: Path, registry_path: Path, job_id: str) -> int:
                 executor = ""
                 result: dict[str, Any] | None = None
                 codex = shutil.which("codex")
-                if codex:
+                codex_timeout = remaining_seconds(deadline, stage_timeout)
+                if codex and codex_timeout > 0:
                     argv = codex_argv(prompt)
                     argv[0] = codex
-                    result = run_process(argv, worktree, stage_timeout, root / "runs" / job_id / "codex.jsonl")
+                    result = run_process(argv, worktree, codex_timeout, root / "runs" / job_id / "codex.jsonl")
                     append_event(root, job_id, "executor", executor="codex_exec", exit=result["exit"], timedOut=result["timedOut"])
                     evidence = mutation_evidence(worktree, baseline_head)
                     if result["exit"] == 0:
@@ -539,8 +600,9 @@ def run_job(state_root: Path, registry_path: Path, job_id: str) -> int:
                         return 4
                 if not executor:
                     local_argv = local_adam_argv(worktree, prompt)
-                    if local_argv:
-                        result = run_process(local_argv, worktree, stage_timeout, root / "runs" / job_id / "local-adam.log")
+                    local_timeout = remaining_seconds(deadline, stage_timeout)
+                    if local_argv and local_timeout > 0:
+                        result = run_process(local_argv, worktree, local_timeout, root / "runs" / job_id / "local-adam.log")
                         append_event(root, job_id, "executor", executor="local_adam", exit=result["exit"], timedOut=result["timedOut"])
                         evidence = mutation_evidence(worktree, baseline_head)
                         if result["exit"] == 0:
@@ -550,9 +612,10 @@ def run_job(state_root: Path, registry_path: Path, job_id: str) -> int:
                             return 4
                 if not executor:
                     low = shutil.which("home-center-phone-ask")
-                    if low:
+                    low_timeout = remaining_seconds(deadline, 120)
+                    if low and low_timeout > 0:
                         low_prompt = "Classify this failed coding campaign without proposing commands. Return JSON with decision HOLD or VERIFY and one reason. Objective: " + action["objective"][:1200]
-                        low_result = run_process([low, low_prompt], worktree, min(120, stage_timeout), root / "runs" / job_id / "low-local.log")
+                        low_result = run_process([low, low_prompt], worktree, low_timeout, root / "runs" / job_id / "low-local.log")
                         append_event(root, job_id, "low_local_judge", exit=low_result["exit"], timedOut=low_result["timedOut"])
                     evidence = mutation_evidence(worktree, baseline_head)
                     transition(root, job, "FAILED", "deterministic_closeout", "No mutating executor completed; low local inference was advisory only.", executor="deterministic_only", mutation=evidence, reason="no mutating executor completed")
@@ -562,7 +625,7 @@ def run_job(state_root: Path, registry_path: Path, job_id: str) -> int:
                     transition(root, job, "FAILED", "deterministic_closeout", "The executor returned success without a repository mutation for a mutating task.", executor=executor, mutation=evidence, reason="successful executor produced no mutation")
                     return 2
                 job = transition(root, job, "CHECKPOINTED", "verification", "Executor stopped cleanly; deterministic verification began.", executor=executor, mutation=evidence)
-                verification = verify(worktree, workspace, action["verificationProfile"], root, job_id)
+                verification = verify(worktree, workspace, action["verificationProfile"], root, job_id, deadline)
                 final_evidence = mutation_evidence(worktree, baseline_head)
                 if not verification["ok"]:
                     transition(root, job, "FAILED", "verification", "Trusted verification failed; isolated worktree was preserved.", verification=verification, mutation=final_evidence, reason="trusted verification failed")

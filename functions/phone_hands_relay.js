@@ -378,10 +378,18 @@ async function devicePull(admin, {deviceId, deviceToken, leaseMs = 30000} = {}) 
   const leaseOwner = `device:${id}`;
   const leaseId = `lease_${randomUUID()}`;
   const leaseExpiresAtMs = now + Math.max(5000, Math.min(Number(leaseMs), 120000));
-  await admin.firestore().collection(COLLECTIONS.commands).doc(chosen.commandId).set({
-    status:'leased', leaseOwner, leaseId, leaseExpiresAtMs, updatedAtMs:now,
-  }, {merge:true});
-  return {ok:true, command:{...chosen, status:'leased', leaseOwner, leaseId, leaseExpiresAtMs}};
+  const chosenRef = admin.firestore().collection(COLLECTIONS.commands).doc(chosen.commandId);
+  const leased = await admin.firestore().runTransaction(async (transaction) => {
+    const fresh = await transaction.get(chosenRef);
+    const record = fresh.exists ? (fresh.data() || {}) : {};
+    if (record.status !== 'queued' || Number(record.expiresAtMs || 0) <= now) return null;
+    transaction.set(chosenRef, {
+      status:'leased', leaseOwner, leaseId, leaseExpiresAtMs,
+      leaseAttempt:Number(record.leaseAttempt || 0) + 1, updatedAtMs:now,
+    }, {merge:true});
+    return {...record, status:'leased', leaseOwner, leaseId, leaseExpiresAtMs};
+  });
+  return {ok:true, command:leased};
 }
 async function deviceComplete(admin, {deviceId, deviceToken, commandId, leaseId, status, result, error} = {}) {
   const id = cleanDeviceId(deviceId);

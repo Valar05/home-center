@@ -32,6 +32,7 @@ function text(value, key, {min = 1, max = 1200, pattern = null} = {}) {
   if (typeof value !== 'string') fail(`${key} must be a string`);
   const out = value.trim();
   if (out.length < min || out.length > max) fail(`${key} must contain ${min}-${max} characters`);
+  if (/[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/.test(out)) fail(`${key} contains unsupported control characters`);
   if (pattern && !pattern.test(out)) fail(`${key} contains unsupported characters`);
   return out;
 }

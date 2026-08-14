@@ -44,6 +44,7 @@ assert.throws(() => cleanDungeonRun({...request, criticalReason: undefined}), /c
 assert.throws(() => cleanDungeonRun({...request, inferencePolicy: 'maximum-cloud'}), /inferencePolicy must/);
 assert.throws(() => cleanDungeonRun({...request, publicationPolicy: 'push-main'}), /publicationPolicy must/);
 assert.throws(() => cleanDungeonRun({...request, acceptance: []}), /must not be empty/);
+assert.throws(() => cleanDungeonRun({...request, objective: 'Valid prefix\u0000invalid control'}), /control characters/);
 
 const hash = dungeonRequestHash(action);
 assert.doesNotThrow(() => validateDungeonDeviceReceipt(action, {

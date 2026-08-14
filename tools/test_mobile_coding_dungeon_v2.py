@@ -62,6 +62,12 @@ try:
 except dungeon.DungeonError:
     pass
 
+try:
+    dungeon.normalize_run_action(request(objective="Valid prefix\x00invalid control"))
+    raise AssertionError("control characters should fail")
+except dungeon.DungeonError:
+    pass
+
 argv = dungeon.codex_argv("bounded objective")
 assert argv == ["codex", "exec", "--sandbox", "workspace-write", "--ask-for-approval", "never", "--json", "bounded objective"]
 assert all(part not in {"bash", "sh", "-lc"} for part in argv)
@@ -113,5 +119,7 @@ with tempfile.TemporaryDirectory() as td:
     (worktree / "new.txt").write_text("checkpoint\n", encoding="utf-8")
     evidence = dungeon.mutation_evidence(worktree, baseline)
     assert evidence["changed"] is True and evidence["dirty"] is True
+    missing = dungeon.run_process(["definitely-not-a-real-dungeon-executable"], worktree, 1, state / "runs" / first["jobId"] / "missing.log")
+    assert missing["exit"] == 127 and missing["timedOut"] is False
 
 print("Mobile Coding Dungeon v2 contract: PASS")
