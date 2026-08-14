@@ -70,7 +70,7 @@ public class OperatorOverlayService extends Service {
     private Button muteButton;
     private Button controlButton;
     private EditText adamInput;
-    private String adamMode = "terminal";
+    private String adamMode = "auto";
     private boolean expandedText;
     private boolean confirmDisable;
     private float downRawX;
@@ -399,19 +399,19 @@ public class OperatorOverlayService extends Service {
         adamInput = new EditText(this);
         adamInput.setTextColor(Color.WHITE);
         adamInput.setHintTextColor(Color.rgb(155, 165, 182));
-        adamInput.setHint("Adam — terminal");
+        adamInput.setHint("Talk to Adam…");
         adamInput.setTextSize(14f);
         adamInput.setSingleLine(false);
         adamInput.setMaxLines(4);
         adamInput.setMinHeight(dp(OverlayUiPolicy.MIN_TOUCH_TARGET_DP));
         adamInput.setPadding(dp(8), dp(4), dp(8), dp(4));
         adamInput.setBackground(background(Color.rgb(32, 35, 42), Color.rgb(78, 88, 105)));
-        adamInput.setContentDescription("Adam input. Current mode terminal.");
+        adamInput.setContentDescription("Talk to Adam naturally. Routing is automatic.");
         adamInputRow.addView(adamInput, new LinearLayout.LayoutParams(
                 0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
 
-        Button adamSendButton = button("Send");
-        adamSendButton.setContentDescription("Send request to Adam using the selected explicit mode");
+        Button adamSendButton = button("Ask");
+        adamSendButton.setContentDescription("Send this natural-language request to Adam");
         adamSendButton.setOnClickListener(v -> submitAdamRequest());
         adamInputRow.addView(adamSendButton);
 
@@ -437,11 +437,9 @@ public class OperatorOverlayService extends Service {
         details.addView(screenBadge);
         details.addView(meta);
         details.addView(latest);
-        details.addView(adamModeRow);
         details.addView(adamInputRow);
         details.addView(actionRow);
         root.addView(titleRow);
-        root.addView(spotifyRow);
         root.addView(details);
 
         windowParams = new WindowManager.LayoutParams(
@@ -758,7 +756,7 @@ public class OperatorOverlayService extends Service {
         if (text.isEmpty()) return;
         OperatorState.submitAdamRequest(this, adamMode, text, System.currentTimeMillis());
         adamInput.setText("");
-        adamInput.setHint("Adam — " + adamMode + " • sent");
+        adamInput.setHint("Talk to Adam…");
         adamInput.announceForAccessibility("Sent to Adam " + adamMode);
     }
 
