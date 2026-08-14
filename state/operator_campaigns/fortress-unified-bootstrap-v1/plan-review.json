@@ -1,0 +1,100 @@
+{
+  "schema": "home-center.fortress-plan-review.v1",
+  "campaignId": "fortress-unified-bootstrap-v1",
+  "commissionIdentity": "one cross-platform phone-and-desktop bootstrap; no ChatGPT browser orchestration; battery governor deferred",
+  "commissionSha256": "9cb9df935b9d8e84e61053d08201069fed93b5097be3ad7d0175e5e29fb7d35a",
+  "reviewedAt": "2026-08-13T22:18:54-05:00",
+  "reviewerRole": "venice-judgment-jar",
+  "directive": "PLAN_ALLOWED",
+  "planIdentity": "fortress-unified-bootstrap-python-dispatcher-v1",
+  "mission": {
+    "outcome": "Add one Python bootstrap entrypoint that detects Android/Termux or Windows, installs and repairs the existing Home Center machine bodies, establishes local-inference continuity, configures deterministic startup, and emits durable receipts.",
+    "owner": "Drew Clarke",
+    "repository": "Valar05/home-center",
+    "executionLane": "repository implementation now; phone and Windows execution only through their native local shells or an existing callable Home Center body",
+    "deliverySurface": "one repository script plus tests, documentation, and campaign receipts",
+    "exclusions": [
+      "ChatGPT browser or tab orchestration",
+      "a second swarm daemon or fourth operator surface",
+      "automatic credential invention or secret logging",
+      "battery/charge-aware workload governing in this slice",
+      "unbounded Windows battery power-policy changes",
+      "claims that either physical device was updated without fresh device receipts"
+    ]
+  },
+  "selectedJudgmentJars": [
+    {
+      "id": "mission-boundary",
+      "source": ".continue/rules/00-judgement-jar-mission-boundary.md",
+      "reason": "Preserve the requested single-script, native-machine, non-browser lane."
+    },
+    {
+      "id": "home-center-vlad-receipts",
+      "source": ".continue/rules/05-judgement-jar-home-center-vlad-receipts.md",
+      "reason": "Reuse Home Center and Vlad; do not create a duplicate watcher; keep capture and delivery truth separate."
+    },
+    {
+      "id": "local-first",
+      "source": ".continue/rules/10-judgement-jar-local-first.md",
+      "reason": "Provide local inference and deterministic operation without cloud-model fallback."
+    },
+    {
+      "id": "repository-truth",
+      "source": ".continue/rules/20-judgement-jar-repository-truth.md",
+      "reason": "Separate source validation from physical deployment and acceptance."
+    },
+    {
+      "id": "change-discipline",
+      "source": ".continue/rules/30-judgement-jar-change-discipline.md",
+      "reason": "Wrap existing machine bodies instead of replacing them."
+    },
+    {
+      "id": "failure-recovery",
+      "source": ".continue/rules/40-judgement-jar-failure-recovery.md",
+      "reason": "Classify failures, preserve exact errors, and avoid blind retry loops."
+    },
+    {
+      "id": "venice-review-gate",
+      "source": ".continue/rules/70-judgement-jar-venice-review-gate.md",
+      "reason": "Require independent plan and completion review."
+    },
+    {
+      "id": "daemon-backoff-persistence",
+      "source": ".continue/rules/80-judgement-jar-daemon-backoff-persistence.md",
+      "reason": "Use native startup and bounded repair rather than token-burning observation."
+    }
+  ],
+  "evidenceIdentity": [
+    "AGENTS.md@main",
+    "skills/fortress-plan-gate/SKILL.md@main",
+    "skills/operator-campaign/SKILL.md@main",
+    "tools/setup_android_phone_autonomous_node.sh@c01f11f76ed13e469a561a84f91d01f790520809",
+    "tools/ensure_adam_phone_brain.sh@2d64e8129b2ca75a00efb7f2dabda7a61c990c19",
+    "tools/setup_vlad_swarm_daemon.sh@385d07704bc7a733952ead084cefa7fb7a40e0c5",
+    "tools/install_adam_cli.sh@0d6064f97b2109273119d8d4d3a2e7c7b5616232",
+    "computer-hands/windows/install.ps1@980cebb885beaeca6a0322c41495100897b3dbfb",
+    ".continue/offline-config.yaml@1b57e7424aea309021f767b124bd6dedcd21357e",
+    "tools/cn-offline.ps1@c79b745a5bfe7bc7ad5e6da6a08b13d4f95ce992"
+  ],
+  "antagonismFindings": [
+    "A second worker architecture would strand the existing bodies again; the patch must dispatch and repair, not replace.",
+    "A repository commit proves source only; phone and Windows deployment require their own receipts.",
+    "Screen lock is supportable through native services/tasks. Closed-lid execution is physically impossible while Windows sleeps, so this slice may only preserve AC-side wake policy with an explicit reversible mechanism.",
+    "Secrets must enter through environment or explicit prompt and must never appear in command logs or receipts.",
+    "First-install package/model downloads may require network, but runtime inference must have no cloud fallback.",
+    "Battery workload governing is recorded as deferred work and must not metastasize into this bootstrap patch."
+  ],
+  "veniceFindings": [
+    "One Python entrypoint is appropriate because both commissioned machines already have Python; shell-specific actions remain behind bounded adapters.",
+    "Android should invoke the existing llama.cpp phone setup, Adam installer, and Vlad daemon setup, then use Termux:Boot and wake lock.",
+    "Windows should preserve the existing Computer Hands worker contract, ensure the canonical Ollama models, and use Scheduled Tasks for local repair without browser automation.",
+    "The script needs install, repair, status, and doctor paths, atomic receipts, an interprocess lock, dry-run support, and exact failure reporting.",
+    "PLAN_ALLOWED only for the bounded repository slice; no device deployment claim is authorized without native receipts."
+  ],
+  "reviewerMemoryConsulted": [
+    "durable Fortress plan-gate doctrine",
+    "mission-boundary and repository-truth scars",
+    "existing Vlad receipt and daemon ownership law",
+    "prior repeated failure mode: building adjacent surfaces instead of wiring the requested body"
+  ]
+}
