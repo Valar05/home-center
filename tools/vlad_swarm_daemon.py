@@ -104,17 +104,23 @@ def context_sensor_delay():
     if 0<=level<=20:return max(60,CONTEXT_SENSOR_CRITICAL_BATTERY_INTERVAL)
     if 0<=level<=40:return max(60,CONTEXT_SENSOR_LOW_BATTERY_INTERVAL)
     return max(30,CONTEXT_SENSOR_INTERVAL)
-
 def sense_context(repo_root):
     script=Path(repo_root)/"tools"/"fortress_context_sensors.py"
     if not script.is_file():
         summary={"ok":False,"state":"script_missing","script":str(script)}
         append_receipt({"kind":"context.sensors","ok":False,**summary});return summary
-    result=run(["python3",str(script)],timeout=45,cwd=repo_root)
-    if result["rc"]!=0:
+    cmd=["python3",str(script)]
+    try:
+        process=subprocess.run(cmd,text=True,capture_output=True,timeout=45,cwd=repo_root)
+        full_stdout=process.stdout.strip();full_stderr=process.stderr.strip()
+    except subprocess.TimeoutExpired as exc:
+        summary={"ok":False,"state":"timeout","result":{"cmd":cmd,"rc":124,"stdout":str(exc.stdout or "")[-4000:],"stderr":str(exc.stderr or "")[-4000:]}}
+        append_receipt({"kind":"context.sensors","ok":False,**summary});return summary
+    result={"cmd":cmd,"rc":process.returncode,"stdout":full_stdout[-4000:],"stderr":full_stderr[-4000:]}
+    if process.returncode!=0:
         summary={"ok":False,"state":"failed","result":result}
         append_receipt({"kind":"context.sensors","ok":False,**summary});return summary
-    try:payload=json.loads(result["stdout"])
+    try:payload=json.loads(full_stdout)
     except Exception as exc:
         summary={"ok":False,"state":"invalid_receipt","error":f"{type(exc).__name__}: {exc}","result":result}
         append_receipt({"kind":"context.sensors","ok":False,**summary});return summary
