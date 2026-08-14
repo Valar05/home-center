@@ -1,5 +1,5 @@
 export const MAX_SWARM_SLICES = 12;
-export const MAX_PARALLEL_WORKERS = 8;
+export const MAX_PARALLEL_WORKERS = 1;
 export const WORKER_REASONING_MODE = 'Pro reasoning';
 // Stable compatibility wire ID. Primary semantics: direct ChatGPT Judgment-Jar Venice.
 export const VENICE_REVIEW_MODE = 'judgment_jar_emulation';
@@ -14,6 +14,7 @@ export const HANDOFF_FIELDS = Object.freeze([
 
 export const WORKER_DOCTRINE = Object.freeze({
   reasoningMode: WORKER_REASONING_MODE,
+  singlePersistentProWorker: true,
   veniceReviewMode: VENICE_REVIEW_MODE,
   veniceReviewSemantics: 'primary-judgment-jar',
   planGate: 'PLAN_ALLOWED',
@@ -22,16 +23,21 @@ export const WORKER_DOCTRINE = Object.freeze({
   haltDirective: 'HALT_REQUIRED',
   localVeniceRequired: false,
   responseBoundaryIsStop: false,
+  phoneSovereign: true,
+  phoneControlFromProWorker: false,
+  harrowayConsultationRequired: true,
+  sheRawMotivationRequired: true,
+  narratedContinuationForbidden: true,
 });
 
-export function newJob(text, campaignContext, fresh = true, source = 'manual', id = '') {
+export function newJob(text, campaignContext, fresh = false, source = 'manual', id = '') {
   const commission = String(text || '').trim();
   if (!commission) throw new Error('commission_required');
   return {
     id: id || globalThis.crypto?.randomUUID?.() || `job-${Date.now()}`,
     commission,
     context: String(campaignContext || '').trim(),
-    newWorker: fresh !== false,
+    newWorker: fresh === true,
     source,
     state: 'queued',
     queuedAt: new Date().toISOString(),
@@ -83,7 +89,7 @@ export function planHandoffContinuation(baseContext, handoffText, id = '') {
   const handoff = parseHandoff(handoffText);
   if (!handoff) return null;
   const context = mergeHandoffContext(baseContext, handoff);
-  const job = newJob(handoff['EXACT NEXT ACTION'], context, true, 'handoff', id);
+  const job = newJob(handoff['EXACT NEXT ACTION'], context, false, 'handoff', id);
   return Object.freeze({handoff, context, job});
 }
 
@@ -105,9 +111,9 @@ export function planVeniceContinuation(baseContext, checkpointText, id = '') {
 
   const context = mergeCheckpointContext(baseContext, checkpointText);
   const commission = directive === 'CONTINUE_REQUIRED'
-    ? 'Continue the SAME bounded commissioned slice. Apply Venice Judgment-Jar findings from the latest checkpoint, validate the repair, invoke Venice Judgment Jars again, and do not stop unless the fresh directive is STOP_ALLOWED or a true HALT_REQUIRED boundary exists.'
-    : 'The prior worker ended without a valid Venice completion directive. First execute Venice\'s applicable Judgment Jars over the latest checkpoint. If Venice returns CONTINUE_REQUIRED, continue the SAME bounded commissioned slice immediately, validate, and ask Venice again. Only STOP_ALLOWED permits normal stopping; HALT_REQUIRED stops mutation at the exact hard boundary.';
-  const job = newJob(commission, context, true, directive === 'CONTINUE_REQUIRED' ? 'venice-continue' : 'venice-missing-review', id);
+    ? 'Continue the SAME bounded commissioned slice in this same Pro worker conversation. Apply Venice Judgment-Jar findings from the latest checkpoint, validate the repair, invoke Venice Judgment Jars again, and do not stop unless the fresh directive is STOP_ALLOWED or a true HALT_REQUIRED boundary exists. If you can name the next callable action, take it now instead of narrating it. She-Raw should creatively roast any evasive or brittle reasoning, but the insult must drive a real repair action.'
+    : 'The prior worker ended without a valid Venice completion directive. In this same Pro worker conversation, first execute Venice\'s applicable Judgment Jars over the latest checkpoint. If Venice returns CONTINUE_REQUIRED, continue the SAME bounded commissioned slice immediately, validate, and ask Venice again. Only STOP_ALLOWED permits normal stopping; HALT_REQUIRED stops mutation at the exact hard boundary. Do not unlock or puppet the phone; consume phone-local Home Center/tmux receipts. If you merely narrate the next action, She-Raw should roast that failure and force the action through the authorized lane.';
+  const job = newJob(commission, context, false, directive === 'CONTINUE_REQUIRED' ? 'venice-continue' : 'venice-missing-review', id);
   return Object.freeze({directive: directive || 'MISSING', context, job});
 }
 
