@@ -1,0 +1,65 @@
+{
+  "schema": "fortress.failover-receipt.v1",
+  "capturedAtUtc": "2026-08-14T18:48:40.947Z",
+  "event": "primary_phone_power_loss",
+  "operatorReport": {
+    "device": "primary-phone",
+    "state": "dead_and_charging",
+    "authority": "direct_operator_observation"
+  },
+  "liveFailoverSpine": {
+    "homeCenterDriveBridge": {
+      "state": "online",
+      "evidence": "health ok; service home-center-drive-bridge; version 0.3.0"
+    },
+    "desktop": {
+      "workerId": "windows-hands-01",
+      "state": "online_idle",
+      "lastSeenAtMs": 1786733254919,
+      "queueDepth": 2,
+      "activeLanes": ["lane-reality-membrane", "lane-spotify-radio"],
+      "capabilities": ["system.status", "screen.capture", "window.list", "process.list", "clipboard.get", "window.focus", "input.type", "input.key", "input.mouse", "process.start", "process.stop", "shell.exec", "clipboard.set"]
+    },
+    "github": {
+      "repo": "Valar05/home-center",
+      "branch": "fortress/swarm-failover-lights",
+      "state": "durable_branch_created"
+    }
+  },
+  "staleOrContradictoryEvidence": {
+    "commandCenterPhoneRecord": {
+      "reportedState": "online",
+      "lastSeenAtMs": 1786702699477,
+      "ruling": "stale_registry_record_does_not_overrule_operator_power_observation"
+    }
+  },
+  "continuityLaw": {
+    "phoneLossDoesNotPauseWork": true,
+    "failOverToSurvivingBodies": true,
+    "preserveReceipts": true,
+    "doNotUsePhoneUntilPowerReturns": true,
+    "batteryRecoveryIsFirstClass": true,
+    "noTickingClockPressure": true,
+    "visibleStatusMayBeJoyful": true
+  },
+  "lightShow": {
+    "mode": "receipt_backed_snapshot",
+    "notClaimed": "live_scheduler_telemetry",
+    "bulbs": [
+      {"id":"phone","state":"charging_dead","meaning":"Phone is unavailable; charging recovery owns this lane."},
+      {"id":"desktop","state":"online","meaning":"THECAULDRON worker is online and idle."},
+      {"id":"bridge","state":"online","meaning":"Home Center Drive bridge answered health."},
+      {"id":"drive","state":"available","meaning":"Durable Home Center writes remain available."},
+      {"id":"github","state":"available","meaning":"Failover branch and receipt are durable."},
+      {"id":"queue","state":"busy","meaning":"Desktop reports queue depth two."},
+      {"id":"swarm","state":"continuing","meaning":"Continuity transferred to surviving bodies."},
+      {"id":"phone_return","state":"waiting","meaning":"Phone rejoins only after power and fresh receipt."}
+    ]
+  },
+  "acceptance": {
+    "durableReceipt": true,
+    "desktopVisibleLightShow": false,
+    "liveSchedulerIntegration": false,
+    "phoneRecovered": false
+  }
+}
