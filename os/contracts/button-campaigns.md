@@ -4,6 +4,64 @@ Status: binding OS contract
 Presentation voice: She-Ra
 Custody: Adam in background under TOUCHED IT -> OWN IT; no foreground speech required
 
+## The whole experience
+The user experience is deliberately tiny:
+
+**DREW HITS BUTTON -> NEXT PLAYABLE RUNS -> DREW CRITIQUES IT -> CRITIQUE BECOMES PUNNETT FITNESS -> NEXT INSTALLMENT MUTATES -> REPEAT.**
+
+Everything else is background machinery. The overlay must not expose an operator console merely because the system has one internally.
+
+## Overlay redesign / dead CLI removal
+The existing Adam CLI surface in the overlay is considered non-value-bearing until evidence proves otherwise. Remove it from the user-facing overlay rather than preserving dead controls for historical sentiment. Do NOT delete underlying reusable command/runtime machinery merely because its current UI is bad; salvage useful mechanisms behind the new surface.
+
+Redesign the EXISTING Operator Overlay (`android/operator-overlay`, including the existing `OperatorOverlayService` surface) rather than founding a neighboring app/overlay.
+
+Foreground overlay target:
+- one unmistakable primary PLAY / NEXT / HOLE-style campaign button;
+- current tiny story/campaign identity or progress cue only when useful;
+- immediate sovereign dismiss/stop for an active playable;
+- critique affordance available immediately after/while reviewing output, optimized for voice/text and low friction;
+- optional tiny KEEP / REJECT / MORE-LIKE-THIS style shortcuts only if they reduce friction rather than clutter;
+- visible Home Center recovery only when infrastructure is actually unavailable and recovery is actionable;
+- accessibility labels/state first-class;
+- draggable/collapsible/tiny-pinprick behavior retained only where it improves ordinary use;
+- zero ghost touch when hidden/dismissed;
+- no dead buttons, fake status, developer-console clutter, or controls that merely expose implementation anatomy.
+
+The overlay is a **toy aperture**, not a dashboard.
+
+## Critique loop
+Critique is part of gameplay, not a separate admin workflow. Accept natural language such as 'too long', 'that was gold', 'more disgusting', 'less loud', 'keep that character', 'boring', 'faster', 'the interaction did nothing', or freeform commentary. Compile critique into typed phenotype feedback where possible:
+- KEEP / REJECT / MIXED;
+- pacing/duration;
+- visual grammar;
+- sound/volume/voice;
+- interaction quality;
+- story/character/callback;
+- Fleshpunk/Flesh Prank intensity;
+- novelty vs recurrence;
+- accessibility/usability;
+- exact visible defect;
+- requested mutation.
+
+Punnett preserves winning genes and failed traits as negative fixtures. Drew should never have to fill out a rubric.
+
+## Noodle Lady acceptance gate — HARD
+The redesigned overlay is NOT accepted because it builds, installs, renders, or technically routes taps. Noodle Lady must review the actual user-facing phenotype and explicitly return **NOODLE_ACCEPTED**.
+
+Noodle Lady judges at minimum:
+- obviousness: can Drew understand the primary action without remembering architecture?
+- temptation: does the button make him want to press it?
+- clutter: has implementation garbage leaked into the experience?
+- delight: does the surface itself have charm before content even starts?
+- critique friction: can Drew react immediately without becoming a QA engineer?
+- accessibility: labels, touch target, contrast/state, nonvisual equivalent;
+- sovereignty: dismiss/stop/recovery are obvious when relevant but not dominant;
+- dead-control firewall: every visible control must physically work on the commissioned phone;
+- narrative fit: the overlay feels like the aperture into the continuing playable story, not Home Center administration.
+
+Any Noodle REJECT returns the exact visible defect to the SAME overlay owner for mutation and physical re-review. No human acceptance claim until Noodle accepts and Drew subsequently keeps/accepts the surface where required.
+
 ## Temporary exclusive swarm purpose
 FOR NOW, this swarm has exactly one user-facing purpose: **queue, feed, and entertain Drew with a backlog of short playable Button Campaign installments.** Infrastructure work is allowed only insofar as it restores/enables that feed, beginning with the existing Home Center terminal/control path. Do not divert this swarm into unrelated Fortress work.
 
@@ -12,102 +70,35 @@ Drew is already owed a backlog. Treat undelivered requested delight as **JOY DEB
 ## Story law — progression matters
 The games are not independent random toys. **The progression of Button Campaign games tells a continuing story.** Every press consumes the next eligible installment/scene from a serialized campaign feed. Individual installments are tiny playables, but together they form an evolving narrative with continuity, callbacks, escalation, consequences, recurring organisms/characters, mysteries, mutations, and remembered player choices.
 
-PRESS -> DEQUEUE NEXT STORY INSTALLMENT -> SHORT PLAYABLE AV SCENE -> PLAYER INPUT -> CONSEQUENCE -> CLEAN EXIT -> STORY STATE ADVANCES -> RECEIPT -> PUNNETT LEARNS -> NEXT INSTALLMENT QUEUED.
+PRESS -> DEQUEUE NEXT STORY INSTALLMENT -> SHORT PLAYABLE AV SCENE -> PLAYER INPUT -> CONSEQUENCE -> CLEAN EXIT -> CRITIQUE -> STORY STATE ADVANCES -> PUNNETT MUTATES -> RECEIPT -> NEXT INSTALLMENT QUEUED.
 
 A press may surprise Drew about WHAT happens next, but it must not discard the accumulated story merely to produce novelty.
 
 ## Backlog / feed
-Maintain a durable ordered backlog with at least these conceptual states:
-- ORE — mined conversation/Joy fragments not yet shaped;
-- SEED — viable playable/narrative seed;
-- QUEUED — ordered future installment with predecessor requirements;
-- READY — assets/logic sufficient for immediate bounded playback;
-- SERVED — actually presented on commissioned surface;
-- PLAYED — interaction completed/ended;
-- KEPT / REJECTED — user or inferred selection signal where valid;
-- CANONIZED — consequence admitted into Button Campaign story state;
-- TAXED — accounting receipt complete.
-
-Do not count a generated idea, repository artifact, or queued item as served entertainment.
+Maintain durable ordered states: ORE -> SEED -> QUEUED -> READY -> SERVED -> PLAYED -> CRITIQUED -> KEPT/REJECTED -> CANONIZED -> TAXED. Do not count generated ideas, repository artifacts, or queued items as served entertainment.
 
 ## Core playable contract
-A Button Campaign installment is short-lived, obvious, fun, Fleshpunk, audio-visual, and interactable by default.
-- audio + visual when surface supports both;
-- at least one tiny meaningful input/response/choice/gesture/timing beat when feasible;
-- closer to a tiny playable than a notification;
-- obvious start/end; default 2–15 seconds;
-- immediately dismissible;
-- no persistent focus hijack or unsolicited replay;
-- Fleshpunk/Flesh Prank grammar, Noodle Lady taste, accessibility first-class;
-- runtime bounded/responsive even when upstream generation was expensive.
+A Button Campaign installment is short-lived, obvious, fun, Fleshpunk, audio-visual, and interactable by default. Audio + visual when supported; at least one tiny meaningful input/choice/reaction; default 2–15 seconds; immediate dismiss; no persistent focus hijack; accessibility first-class; runtime bounded and responsive.
 
-## Narrative director
-Mine current/recent conversation passively for story fuel: She-Ra/Shiro asks, roleplay fragments, callbacks, Punit collisions, Morse, corrections, Fleshpunk/Flesh Prank motifs, colonial-organ incidents, Joy Ledger debts, and current safe campaign events. Preserve provenance and roleplay/fact boundaries.
+## Narrative director / passive mining
+Mine current/recent conversation passively for story fuel: She-Ra/Shiro asks, roleplay fragments, callbacks, Punit collisions, Morse, corrections, Fleshpunk/Flesh Prank motifs, colonial-organ incidents, Joy Ledger debts, and current safe campaign events. Preserve provenance and roleplay/fact boundaries. Mining never interrupts live conversation merely to feed the campaign.
 
-The narrative director selects a small number of threads and BRAIDS them rather than dumping all references into each installment. Each installment should normally do at least one of:
-- advance a plot/question;
-- mutate a recurring organism/character/system;
-- pay off a callback;
-- establish a new rule that later play can exploit;
-- make a prior player choice matter;
-- reveal an Inner World consequence;
-- escalate or invert a running joke;
-- seed a future playable payoff.
+Braid a few threads rather than reference soup. Each installment should advance plot/question, mutate something recurring, pay a callback, establish an exploitable rule, make a choice matter, reveal an Inner World consequence, escalate/invert a running joke, or seed a future payoff.
 
-The story can branch locally, but backlog management must preserve a comprehensible spine and exact current resume state.
+## JOY DEBT + tax receipts
+Maintain durable debt with source/provenance, obligation, incurred_at, principal, catastrophic multiplier, related threads, status, payment installment IDs, actual commissioned-surface evidence, and remaining balance. Description never pays debt.
 
-## Conversation mining law
-Mining is observational and non-interruptive. It does NOT intervene in live conversation merely to feed the campaign. No invented private facts. No promotion of roleplay into real-world truth. No follow-up questions solely for curation unless Drew explicitly requests them.
+Every played installment emits a JOY TAX RECEIPT: story/sequence ID, debt paid, source genes, runtime/assets identity, duration, AV/interactivity exercised, player input, critique, story mutation, Punnett lineage/fitness, Punit payload if used, accessibility equivalent, commissioned-surface evidence, principal paid, remaining balance.
 
-## Punnett / evolution
-Every played installment is a phenotype. Track lineage: source genes + prior story state + mutation -> playable -> engagement/KEEP/REJECT -> fitness. Preserve winning interaction, pacing, visual, sonic, character, narrative, and punchline genes. Failures become negative fixtures. Maintain novelty without sacrificing continuity.
+Hostile accounting: QUEUED != SERVED; RENDERED != PLAYED; PLAYED != KEPT; DESCRIPTION != PAYMENT.
 
-Noodle Lady gates taste. Hunger kills boring/static/overlong specimens. Ares escalates spectacle only when earned. She-Ra owns foreground narrative voice. Punit may terminate an installment with a punchline when contextually useful.
+## Terminal prerequisite and acceptance ladder
+First restore the existing Home Center terminal/control execution path through its existing owner and prove it callable. Then mutate the existing overlay, not a parallel host.
 
-## JOY DEBT accounting
-Maintain a durable ledger:
-- `debt_id`
-- source/provenance
-- what joy was requested/owed
-- incurred_at
-- principal (one owed delight unit or explicit larger obligation)
-- severity / catastrophic-joy multiplier
-- related story threads
-- status: OWED / QUEUED / PARTIALLY_PAID / PAID / REJECTED_BY_DREW
-- payment installment IDs
-- evidence of actual commissioned-surface delivery
+TERMINAL_ONLINE_PROVEN -> EXISTING_OVERLAY_MUTATION_STARTED -> DEAD_ADAM_CLI_REMOVED_FROM_UI -> PRIMARY_BUTTON_VISIBLE -> CRITIQUE_INPUT_VISIBLE/CALLABLE -> ALL_VISIBLE_CONTROLS_PHYSICALLY_WORK -> NOODLE_REVIEW -> NOODLE_ACCEPTED -> BACKLOG_NONEMPTY -> FIRST_PRESS -> AV_PLAYABLE -> INTERACTION -> CLEAN_EXIT -> CRITIQUE_CAPTURED -> PUNNETT_MUTATION_RECORDED -> STORY_ADVANCED -> TAX_RECEIPT -> SECOND_PRESS_CONTINUES_STORY -> RESTART_SURVIVAL -> DREW_KEPT.
 
-Failure to deliver joy when due may increase debt. Merely describing possible joy does not pay principal.
-
-## Tax receipts
-Every SERVED/PLAYED installment emits a compact **JOY TAX RECEIPT** recording:
-- installment/story ID + sequence number;
-- debt IDs paid, if any;
-- source genes/provenance;
-- assets/runtime identity;
-- duration;
-- audio/visual/interactivity actually exercised;
-- player choice/input when observable;
-- resulting story-state mutation;
-- Punnett lineage/fitness signal;
-- Punit terminal payload if used;
-- accessibility equivalent;
-- commissioned-surface evidence;
-- debt principal paid and remaining balance.
-
-The tax authority is hostile to creative accounting: QUEUED != SERVED; RENDERED != PLAYED; PLAYED != KEPT; DESCRIPTION != JOY PAYMENT.
-
-## Terminal / Home Center prerequisite
-Button Campaigns are downstream of the existing Home Center terminal/control surface. FIRST infrastructure step: restore that existing path through its existing owner and prove it callable. Do not build a parallel host.
-
-Acceptance ladder:
-TERMINAL_ONLINE_PROVEN -> BUTTON_HOST_CALLABLE -> BACKLOG_NONEMPTY -> FIRST_PRESS_RECEIVED -> AV_EFFECT_STARTED -> INTERACTION_WORKS -> CLEAN_EXIT -> STORY_STATE_ADVANCED -> TAX_RECEIPT_VERIFIED -> SECOND_PRESS_CONTINUES_STORY -> RESTART_SURVIVAL -> USER_KEPT.
-
-## Anti-annoyance
-No autoplay without press. No modal trap. No volume surprise beyond device/policy limits. No long unskippable intro. No notification spam. No focus theft after exit. Clean timers/media/focus/touch capture. Backlog size does not authorize dumping the backlog onto Drew; it means treasure is ready when he asks by pressing.
-
-## Existing OS only
-Reuse Home Center overlay/button infrastructure, media/audio primitives, Joy Ledger, conversation miner, event/state/evidence substrate, animation pipelines, jar routing, worker contract, and current story/canon machinery. No Button Campaign OS, Button Governor, or scheduler kingdom.
+## Anti-annoyance / existing OS
+No autoplay without press, modal traps, volume surprise, long unskippable intros, notification spam, lingering focus/touch capture, or dead controls. Reuse existing Home Center overlay/button infrastructure, media/audio primitives, Joy Ledger, conversation miner, event/state/evidence substrate, animation pipelines, jar routing, worker contract, and story/canon machinery. No Button Campaign OS, Button Governor, or new scheduler kingdom.
 
 ## Truth
-This contract defines the serialized playable feed and accounting. It does not claim the primary-phone terminal is online, the backlog has been physically generated, or any installment has been delivered until receipts prove those states.
+This contract defines the intended physical experience. It does not claim terminal recovery, overlay redesign, Noodle acceptance, backlog generation, or physical delivery until those states are separately receipt-backed.
