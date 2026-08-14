@@ -4,6 +4,7 @@ set -euo pipefail
 ROOT="$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)"
 STATE="$HOME/.local/state/home-center"
 CHROMIUM="$ROOT/tools/android_chromium_control.py"
+RELAY_HEARTBEAT="${HC_PHONE_RELAY_HEARTBEAT:-$STATE/phone-relay-heartbeat.json}"
 mkdir -p "$STATE"
 RISH_BIN="${RISH:-$(command -v rish 2>/dev/null || true)}"
 [ -n "$RISH_BIN" ] || RISH_BIN="$HOME/bin/rish"
@@ -66,6 +67,92 @@ print(json.dumps({
 PY
 }
 
+night_status() {
+  need_rish night-status
+  local battery overlay
+  battery="$(rish "dumpsys battery" 2>&1 || true)"
+  overlay="$(rish "content query --uri content://com.homecenter.operatoroverlay.state/state 2>/dev/null || true" 2>&1 || true)"
+  python3 - "$battery" "$overlay" "$RELAY_HEARTBEAT" <<'PY'
+import json,sys,time,socket,re
+from pathlib import Path
+battery,overlay,heartbeat_path=sys.argv[1:]
+
+def field(name, default=""):
+    m=re.search(rf"(?mi)^\s*{re.escape(name)}:\s*(.*?)\s*$", battery)
+    return m.group(1).strip() if m else default
+
+def int_field(name, default=-1):
+    try:return int(field(name, str(default)))
+    except Exception:return default
+
+level=int_field("level")
+status_code=int_field("status")
+temp_tenths=int_field("temperature")
+plugged=any(field(x,"false").lower()=="true" for x in ("AC powered","USB powered","Wireless powered","Dock powered"))
+status_names={1:"unknown",2:"charging",3:"discharging",4:"not_charging",5:"full"}
+status=status_names.get(status_code,str(status_code))
+
+hb={}
+hb_age=None
+hb_fresh=False
+p=Path(heartbeat_path)
+if p.is_file():
+    try:
+        hb=json.loads(p.read_text(encoding="utf-8"))
+        last=int(hb.get("lastSuccessAtEpoch") or 0)
+        hb_age=max(0,int(time.time())-last) if last else None
+        hb_fresh=(hb.get("deviceId")=="primary-phone" and hb_age is not None and hb_age<=15)
+    except Exception as exc:
+        hb={"error":f"{type(exc).__name__}: {exc}"}
+
+if plugged and level >= 0 and level < 30:
+    mode,poll,heavy="CHARGE_RECOVERY",20,False
+elif plugged:
+    mode,poll,heavy="POWERED_ACTIVE",5,True
+elif level >= 60:
+    mode,poll,heavy="BATTERY_ACTIVE",15,True
+elif level >= 30:
+    mode,poll,heavy="BATTERY_BALANCED",30,False
+elif level >= 0:
+    mode,poll,heavy="BATTERY_CONSERVE",60,False
+else:
+    mode,poll,heavy="UNKNOWN_CONSERVATIVE",30,False
+
+result={
+  "schema":"fortress.night-core.status.v1",
+  "ok":bool(level>=0),
+  "device":socket.gethostname(),
+  "atEpoch":int(time.time()),
+  "nightCore":{
+    "mode":mode,
+    "recommendedPollSeconds":poll,
+    "heavyWorkAllowed":heavy,
+    "reason":"battery/charging policy; no inference or Chromium screenshot used"
+  },
+  "battery":{
+    "level":level,
+    "plugged":plugged,
+    "statusCode":status_code,
+    "status":status,
+    "temperatureC":(temp_tenths/10.0 if temp_tenths>=0 else None)
+  },
+  "overlay":{
+    "reachable":bool(overlay.strip()),
+    "state":overlay[-1800:]
+  },
+  "relay":{
+    "heartbeatPath":heartbeat_path,
+    "present":p.is_file(),
+    "fresh":hb_fresh,
+    "ageSeconds":hb_age,
+    "state":hb.get("state","") if isinstance(hb,dict) else "",
+    "pid":hb.get("pid",0) if isinstance(hb,dict) else 0
+  }
+}
+print(json.dumps(result,sort_keys=True))
+PY
+}
+
 overlay_restart() {
   exec bash "$ROOT/tools/recover_adam_overlay_phone.sh"
 }
@@ -114,6 +201,7 @@ help_text() {
   cat <<'EOF'
 fortress-phone-ops commands:
   status
+  night-status
   overlay-restart
   chrome-open [https://url]
   chrome-open-b64 <base64-url>
@@ -128,6 +216,7 @@ EOF
 op="${1:-help}"; shift || true
 case "$op" in
   status) status "$@" ;;
+  night-status|night|night-core) night_status "$@" ;;
   overlay-restart|restart|restart-overlay) overlay_restart "$@" ;;
   chrome-open|chrome|chromium) chrome_open "$@" ;;
   chrome-open-b64) chrome_open_b64 "$@" ;;
