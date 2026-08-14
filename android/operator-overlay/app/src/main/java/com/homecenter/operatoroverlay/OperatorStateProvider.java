@@ -22,6 +22,7 @@ import java.util.Objects;
 import java.util.Set;
 
 public class OperatorStateProvider extends ContentProvider {
+    private static final int STATE_SCHEMA_VERSION = 2;
     private static final String METHOD_SPOTIFY_CONTROL = "spotify_control";
     private static final String METHOD_RESTORE_MIGRATION_STATE = "restore_migration_state";
 
@@ -31,7 +32,9 @@ public class OperatorStateProvider extends ContentProvider {
             OperatorState.KEY_LAST_UPDATE_MS,
             OperatorState.KEY_LATEST_SOURCE,
             OperatorState.KEY_PANEL_COLLAPSED,
-            OperatorState.KEY_OVERLAY_HIDDEN));
+            OperatorState.KEY_OVERLAY_HIDDEN,
+            OperatorState.KEY_OVERLAY_X,
+            OperatorState.KEY_OVERLAY_Y));
 
     private static final Set<String> MIGRATION_GUARD_KEYS = new HashSet<>(Arrays.asList(
             OperatorState.KEY_CONTROL_ENABLED,
@@ -39,6 +42,8 @@ public class OperatorStateProvider extends ContentProvider {
             OperatorState.KEY_SCREEN_YIELD_UNTIL_MS));
 
     private static final String[] COLUMNS = new String[]{
+            "state_schema_version",
+            "feature_quit_kit_dial_v1",
             "control_enabled",
             "muted",
             "last_heartbeat_ms",
@@ -48,6 +53,8 @@ public class OperatorStateProvider extends ContentProvider {
             "screen_yield_until_ms",
             "panel_collapsed",
             "overlay_hidden",
+            "overlay_x",
+            "overlay_y",
             "adam_request_id",
             "adam_request_mode",
             "adam_request_payload_b64",
@@ -70,6 +77,8 @@ public class OperatorStateProvider extends ContentProvider {
     public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
         MatrixCursor cursor = new MatrixCursor(COLUMNS);
         cursor.addRow(new Object[]{
+                STATE_SCHEMA_VERSION,
+                1,
                 OperatorState.controlEnabled(getContext()) ? 1 : 0,
                 OperatorState.muted(getContext()) ? 1 : 0,
                 OperatorState.lastHeartbeatMs(getContext()),
@@ -79,6 +88,8 @@ public class OperatorStateProvider extends ContentProvider {
                 OperatorState.screenYieldUntilMs(getContext()),
                 OperatorState.panelCollapsed(getContext()) ? 1 : 0,
                 OperatorState.overlayHidden(getContext()) ? 1 : 0,
+                OperatorState.overlayX(getContext()),
+                OperatorState.overlayY(getContext()),
                 OperatorState.adamRequestId(getContext()),
                 OperatorState.adamRequestMode(getContext()),
                 OperatorState.adamRequestPayloadB64(getContext()),

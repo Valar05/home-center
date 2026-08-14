@@ -5,6 +5,7 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Color;
@@ -16,6 +17,7 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
+import android.net.Uri;
 import android.provider.Settings;
 import android.text.TextUtils;
 import android.text.method.ScrollingMovementMethod;
@@ -30,12 +32,12 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.json.JSONObject;
 
 public class OperatorOverlayService extends Service {
     public static final String ACTION_SCREEN_ACTIVITY = "com.homecenter.operatoroverlay.SCREEN_ACTIVITY";
-    public static final String ACTION_RESTORE = "com.homecenter.operatoroverlay.RESTORE";
     public static final String ACTION_SPOTIFY_COMMAND = "com.homecenter.operatoroverlay.SPOTIFY_COMMAND";
     public static final String EXTRA_SPOTIFY_COMMAND = "spotify_command";
     public static final String EXTRA_SPOTIFY_ARGUMENT = "spotify_argument";
@@ -49,12 +51,11 @@ public class OperatorOverlayService extends Service {
     private static final int MIN_SCREEN_LEASE_MS = 250;
     private static final int MAX_SCREEN_LEASE_MS = 15000;
     private static final int MAX_SCREEN_YIELD_MS = 12000;
+    private static final String QUIT_SUPPORT_URI = "tel:+18332839355";
 
     private final Handler handler = new Handler(Looper.getMainLooper());
     private WindowManager windowManager;
     private WindowManager.LayoutParams windowParams;
-    private WindowManager.LayoutParams guardParams;
-    private View touchGuard;
     private LinearLayout root;
     private LinearLayout details;
     private TextView dragHandle;
@@ -123,9 +124,8 @@ public class OperatorOverlayService extends Service {
             } else {
                 OperatorState.clearScreenActivity(this);
             }
-        } else if (intent != null && ACTION_RESTORE.equals(intent.getAction())) {
-            restoreOverlay();
         }
+        applyPersistedVisibility();
         refreshUi();
         return START_STICKY;
     }
@@ -147,7 +147,6 @@ public class OperatorOverlayService extends Service {
         handler.removeCallbacksAndMessages(null);
         if (spotifyClient != null) spotifyClient.close();
         removeView(root);
-        removeView(touchGuard);
         super.onDestroy();
     }
 
@@ -216,13 +215,7 @@ public class OperatorOverlayService extends Service {
     }
 
     private Notification buildNotification() {
-        Intent open = new Intent(this, MainActivity.class);
-        open.setAction(ACTION_RESTORE);
-        PendingIntent pending = PendingIntent.getActivity(
-                this,
-                0,
-                open,
-                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+        PendingIntent pending = LocalRestoreReceiver.notificationRestoreIntent(this);
         String content = OperatorState.overlayHidden(this)
                 ? "Overlay hidden and control off — tap to restore"
                 : "Tap to restore or bring the local controls forward";
@@ -245,22 +238,6 @@ public class OperatorOverlayService extends Service {
                 dp(OverlayUiPolicy.DRAG_THRESHOLD_DP),
                 ViewConfiguration.get(this).getScaledTouchSlop());
         recomputeExpandedWidth();
-
-        // This separate guard is inert by default and becomes touchable only for
-        // a bounded, explicit visible-screen operation lease.
-        touchGuard = new View(this);
-        touchGuard.setContentDescription("Remote input active");
-        touchGuard.setOnTouchListener((view, event) -> true);
-        guardParams = new WindowManager.LayoutParams(
-                WindowManager.LayoutParams.MATCH_PARENT,
-                WindowManager.LayoutParams.MATCH_PARENT,
-                WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
-                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE |
-                        WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE |
-                        WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN,
-                PixelFormat.TRANSLUCENT);
-        guardParams.gravity = Gravity.TOP | Gravity.START;
-        windowManager.addView(touchGuard, guardParams);
 
         root = new LinearLayout(this);
         root.setOrientation(LinearLayout.VERTICAL);
@@ -285,6 +262,12 @@ public class OperatorOverlayService extends Service {
                 0,
                 LinearLayout.LayoutParams.WRAP_CONTENT,
                 1f));
+
+        Button quitSupportButton = button("FREE QUIT KIT");
+        quitSupportButton.setContentDescription(
+                "Open Arkansas quit support number in the dialer. Does not place a call.");
+        quitSupportButton.setOnClickListener(v -> openQuitSupportDialer());
+        titleRow.addView(quitSupportButton);
 
         collapseButton = iconButton("−", "Shrink overlay");
         collapseButton.setOnClickListener(v -> setCollapsed(!OperatorState.panelCollapsed(this)));
@@ -313,6 +296,15 @@ public class OperatorOverlayService extends Service {
                 0,
                 LinearLayout.LayoutParams.WRAP_CONTENT,
                 1f));
+
+        Button spotifyPermissionButton = button("Allow");
+        spotifyPermissionButton.setContentDescription(
+                "Allow Home Center Operator to control Spotify through Shizuku");
+        spotifyPermissionButton.setOnClickListener(v -> {
+            spotifyStatus.setText("Spotify • waiting for permission");
+            spotifyClient.requestPermission(System.currentTimeMillis(), this::handleSpotifyReceipt);
+        });
+        spotifyRow.addView(spotifyPermissionButton);
 
         Button spotifyPreviousButton = button("Previous");
         spotifyPreviousButton.setContentDescription("Play the previous Spotify track");
@@ -583,20 +575,15 @@ public class OperatorOverlayService extends Service {
         OperatorState.setOverlayHidden(this, OverlayUiPolicy.nextHidden(
                 false,
                 OverlayUiPolicy.VisibilityAction.HIDE));
-        syncTouchGuard(false);
         root.setVisibility(View.GONE);
         updateNotification();
     }
 
-    private void restoreOverlay() {
-        OperatorState.setControlEnabled(this, false);
-        OperatorState.setOverlayHidden(this, OverlayUiPolicy.nextHidden(
-                true,
-                OverlayUiPolicy.VisibilityAction.RESTORE));
-        if (root != null) {
-            root.setVisibility(View.VISIBLE);
-            applyPresentationState();
-        }
+    private void applyPersistedVisibility() {
+        if (root == null) return;
+        boolean hidden = OperatorState.overlayHidden(this);
+        root.setVisibility(hidden ? View.GONE : View.VISIBLE);
+        if (!hidden) applyPresentationState();
         updateNotification();
     }
 
@@ -619,7 +606,6 @@ public class OperatorOverlayService extends Service {
         }
         confirmDisable = false;
         OperatorState.setControlEnabled(this, false);
-        syncTouchGuard(false);
         refreshUi();
     }
 
@@ -639,18 +625,6 @@ public class OperatorOverlayService extends Service {
         latest.post(this::clampAndPersistPosition);
     }
 
-    private void syncTouchGuard(boolean active) {
-        if (windowManager == null || touchGuard == null || guardParams == null) return;
-        int flags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE |
-                WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN;
-        if (!active) flags |= WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE;
-        if (guardParams.flags != flags) {
-            guardParams.flags = flags;
-            windowManager.updateViewLayout(touchGuard, guardParams);
-        }
-        touchGuard.setBackgroundColor(active ? Color.argb(10, 12, 32, 52) : Color.TRANSPARENT);
-    }
-
     private void refreshUi() {
         if (root == null) return;
         long now = System.currentTimeMillis();
@@ -662,15 +636,6 @@ public class OperatorOverlayService extends Service {
         boolean online = heartbeat > 0 && now - heartbeat <= ONLINE_WINDOW_MS;
         boolean screenActive = screenActiveUntil > now;
         boolean screenYield = screenYieldUntil > now;
-        boolean hidden = OperatorState.overlayHidden(this);
-
-        boolean guardActive = OverlayUiPolicy.touchGuardActive(
-                enabled,
-                online,
-                screenActive,
-                screenYield) && !hidden;
-        syncTouchGuard(guardActive);
-
         String state;
         String compactState;
         int stateColor;
@@ -703,7 +668,7 @@ public class OperatorOverlayService extends Service {
             screenBadge.setVisibility(View.VISIBLE);
             screenBadge.setText(screenYield
                     ? "REMOTE INPUT • action pulse — your touch remains available"
-                    : "REMOTE INPUT • local screen input temporarily reserved");
+                    : "REMOTE INPUT • active — touches outside controls pass through");
         } else {
             screenBadge.setVisibility(View.GONE);
         }
@@ -760,6 +725,20 @@ public class OperatorOverlayService extends Service {
         adamInput.setText("");
         adamInput.setHint("Adam — " + adamMode + " • sent");
         adamInput.announceForAccessibility("Sent to Adam " + adamMode);
+    }
+
+    private void openQuitSupportDialer() {
+        Intent dial = new Intent(Intent.ACTION_DIAL, Uri.parse(QUIT_SUPPORT_URI));
+        dial.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        if (dial.resolveActivity(getPackageManager()) == null) {
+            Toast.makeText(this, "No dialer is available", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        try {
+            startActivity(dial);
+        } catch (ActivityNotFoundException unavailable) {
+            Toast.makeText(this, "No dialer is available", Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void recomputeExpandedWidth() {

@@ -10,7 +10,6 @@ from android_phone_hands_bridge import run_rish
 
 PACKAGE = 'com.homecenter.operatoroverlay'
 SERVICE = PACKAGE + '/.OperatorOverlayService'
-ACTIVITY = PACKAGE + '/.MainActivity'
 RECEIVER = PACKAGE + '/.OverlayUpdateReceiver'
 STATE_URI = 'content://com.homecenter.operatoroverlay.state/state'
 ACTION_UPDATE = 'com.homecenter.operatoroverlay.UPDATE'
@@ -112,14 +111,6 @@ def status() -> dict[str, Any]:
         }
 
 
-def start() -> dict[str, Any]:
-    if not installed():
-        raise RuntimeError('Home Center operator overlay APK is not installed')
-    launch = _shell(f'am start -n {shlex.quote(ACTIVITY)}')
-    _start_service()
-    return {'ok': True, 'action': 'operator_overlay_start', 'launch': launch[-1600:], 'status': status()}
-
-
 def heartbeat() -> dict[str, Any]:
     if not installed():
         return {'ok': True, 'installed': False, 'sent': False}
@@ -189,7 +180,10 @@ def execute(action: dict[str, Any]) -> dict[str, Any]:
     if kind == 'operator_overlay_status':
         return status()
     if kind == 'operator_overlay_start':
-        return start()
+        raise PermissionError(
+            'operator_overlay_start is retired; restore requires the physical '
+            'notification action or explicit launcher confirmation'
+        )
     if kind == 'operator_overlay_update':
         return update(str(action.get('latestText') or action.get('text') or ''), str(action.get('source') or 'ChatGPT'))
     raise ValueError(f'unsupported operator overlay action: {kind}')

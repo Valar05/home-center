@@ -5,6 +5,7 @@ ROOT="$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)"
 APP="$ROOT/android/operator-overlay/app"
 SRC="$APP/src/main/java"
 MANIFEST="$APP/src/main/AndroidManifest.xml"
+GRADLE_CONFIG="$APP/build.gradle"
 OUTDIR="$APP/build/outputs/apk/debug"
 WORK="$HOME/.cache/home-center/operator-overlay-termux-build"
 PLATFORM_DIR="$HOME/.cache/home-center/android-platform-35"
@@ -16,6 +17,26 @@ META_URL="${HC_ANDROID_REPOSITORY_XML:-https://dl.google.com/android/repository/
 PACKAGE_NAME="com.homecenter.operatoroverlay"
 RISH_BIN="${RISH:-$(command -v rish 2>/dev/null || true)}"
 [ -n "$RISH_BIN" ] || RISH_BIN="$HOME/bin/rish"
+
+VERSION_LINE="$(python - "$GRADLE_CONFIG" <<'PY'
+import re,sys
+text=open(sys.argv[1],encoding='utf-8').read()
+codes=re.findall(r'(?m)^\s*versionCode\s+(\d+)\s*$',text)
+names=re.findall(r"(?m)^\s*versionName\s+'([^']+)'\s*$",text)
+if len(codes)!=1 or len(names)!=1:
+    raise SystemExit('BLOCKED: build.gradle must define exactly one versionCode and versionName')
+print(codes[0]+'\t'+names[0])
+PY
+)"
+IFS=$'\t' read -r VERSION_CODE VERSION_NAME <<<"$VERSION_LINE"
+[[ "$VERSION_CODE" =~ ^[1-9][0-9]*$ ]] || {
+  echo "BLOCKED: invalid versionCode from build.gradle: $VERSION_CODE" >&2
+  exit 38
+}
+[[ "$VERSION_NAME" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || {
+  echo "BLOCKED: invalid versionName from build.gradle: $VERSION_NAME" >&2
+  exit 39
+}
 
 mkdir -p "$OUTDIR" "$WORK" "$PLATFORM_DIR" "$(dirname "$KEYSTORE")"
 
@@ -161,7 +182,7 @@ BUILD_MANIFEST="$(prepare_manifest)"
 
 # AAPT2 consumes the live framework resource table; javac/d8 consume the API-35 SDK class jar.
 echo '[build] Packaging manifest/resources table'
-aapt2 link -o "$WORK/base-unsigned.apk" -I "$FRAMEWORK_RES" --manifest "$BUILD_MANIFEST" --min-sdk-version 26 --target-sdk-version 35 --version-code 3 --version-name 1.2.0
+aapt2 link -o "$WORK/base-unsigned.apk" -I "$FRAMEWORK_RES" --manifest "$BUILD_MANIFEST" --min-sdk-version 26 --target-sdk-version 35 --version-code "$VERSION_CODE" --version-name "$VERSION_NAME"
 
 echo '[build] Compiling Java against API 35 framework classes'
 find "$SRC" -name '*.java' -print0 | xargs -0 javac --release 17 -classpath "$ANDROID_JAR" -d "$WORK/classes"

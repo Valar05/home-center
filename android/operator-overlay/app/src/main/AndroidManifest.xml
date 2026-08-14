@@ -26,6 +26,7 @@
         <receiver android:name=".OverlayUpdateReceiver" android:exported="true" android:permission="android.permission.DUMP">
             <intent-filter><action android:name="com.homecenter.operatoroverlay.UPDATE" /><action android:name="com.homecenter.operatoroverlay.HEARTBEAT" /></intent-filter>
         </receiver>
+        <receiver android:name=".LocalRestoreReceiver" android:exported="false" />
         <receiver android:name=".BootReceiver" android:exported="false"><intent-filter><action android:name="android.intent.action.BOOT_COMPLETED" /></intent-filter></receiver>
         <provider android:name=".OperatorStateProvider" android:authorities="com.homecenter.operatoroverlay.state" android:exported="true" android:readPermission="android.permission.DUMP" android:grantUriPermissions="false" />
     </application>

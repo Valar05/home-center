@@ -11,6 +11,7 @@ on:
       - 'tools/android_operator_overlay.py'
       - 'tools/android_phone_home_center_relay.py'
       - 'tools/setup_android_operator_overlay.sh'
+      - 'tools/build_operator_overlay_termux.sh'
       - 'tools/build_operator_overlay_signed.ps1'
       - 'tools/phone_hands_relay_contract_test.mjs'
       - 'functions/phone_hands_relay.js'
@@ -22,6 +23,7 @@ on:
       - 'tools/android_operator_overlay.py'
       - 'tools/android_phone_home_center_relay.py'
       - 'tools/setup_android_operator_overlay.sh'
+      - 'tools/build_operator_overlay_termux.sh'
       - 'tools/build_operator_overlay_signed.ps1'
       - 'tools/phone_hands_relay_contract_test.mjs'
       - 'functions/phone_hands_relay.js'
@@ -74,6 +76,7 @@ jobs:
         run: |
           set -euo pipefail
           python -m py_compile tools/android_operator_overlay.py tools/android_phone_home_center_relay.py
+          python android/operator-overlay/verify_source_contract.py
           python tools/test_spotify_background_radio.py
           node --check functions/phone_hands_relay.js
           node tools/phone_hands_relay_contract_test.mjs

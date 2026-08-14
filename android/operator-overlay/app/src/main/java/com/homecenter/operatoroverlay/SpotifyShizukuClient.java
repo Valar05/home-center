@@ -21,6 +21,7 @@ import rikka.shizuku.Shizuku;
 public final class SpotifyShizukuClient implements AutoCloseable {
     public static final String CLIENT_SCHEMA = "home-center.spotify-shizuku-client.v1";
     private static final int MIN_SHIZUKU_VERSION = 13;
+    private static final int PERMISSION_REQUEST_CODE = 4108;
 
     private static final Set<String> ACTIONS = Set.of(
             "probe", "status", "play", "pause", "play_pause", "next", "previous",
@@ -41,6 +42,8 @@ public final class SpotifyShizukuClient implements AutoCloseable {
             .version(BuildConfig.VERSION_CODE);
 
     private volatile ISpotifyMediaControl service;
+    private volatile long pendingPermissionRequestId;
+    private volatile ReceiptCallback pendingPermissionCallback;
 
     private final ServiceConnection serviceConnection = new ServiceConnection() {
         @Override
@@ -80,13 +83,68 @@ public final class SpotifyShizukuClient implements AutoCloseable {
     };
     private final Shizuku.OnRequestPermissionResultListener permissionResultListener =
             (requestCode, grantResult) -> {
-                if (grantResult == PackageManager.PERMISSION_GRANTED) startBinding();
+                if (requestCode != PERMISSION_REQUEST_CODE) return;
+                long requestId = pendingPermissionRequestId;
+                ReceiptCallback callback = pendingPermissionCallback;
+                pendingPermissionRequestId = 0L;
+                pendingPermissionCallback = null;
+                if (grantResult == PackageManager.PERMISSION_GRANTED) {
+                    startBinding();
+                    if (callback != null) {
+                        deliver(requestId, success("SHIZUKU_PERMISSION_GRANTED"), callback);
+                    }
+                } else if (callback != null) {
+                    deliver(requestId, failure("SHIZUKU_PERMISSION_DENIED", ""), callback);
+                }
             };
 
     public SpotifyShizukuClient() {
         Shizuku.addBinderReceivedListenerSticky(binderReceivedListener);
         Shizuku.addBinderDeadListener(binderDeadListener);
         Shizuku.addRequestPermissionResultListener(permissionResultListener);
+    }
+
+    public void requestPermission(long requestId, ReceiptCallback callback) {
+        if (callback == null) throw new IllegalArgumentException("callback is required");
+        mainHandler.post(() -> {
+            if (closed.get()) {
+                deliver(requestId, failure("SHIZUKU_CLIENT_CLOSED", ""), callback);
+                return;
+            }
+            if (!Shizuku.pingBinder()) {
+                deliver(requestId, failure("SHIZUKU_BINDER_UNAVAILABLE", ""), callback);
+                return;
+            }
+            if (Shizuku.getVersion() < MIN_SHIZUKU_VERSION) {
+                deliver(requestId, failure(
+                        "SHIZUKU_VERSION_UNSUPPORTED",
+                        "required=" + MIN_SHIZUKU_VERSION + " actual=" + Shizuku.getVersion()), callback);
+                return;
+            }
+            if (Shizuku.checkSelfPermission() == PackageManager.PERMISSION_GRANTED) {
+                startBinding();
+                deliver(requestId, success("SHIZUKU_PERMISSION_ALREADY_GRANTED"), callback);
+                return;
+            }
+            if (Shizuku.shouldShowRequestPermissionRationale()) {
+                deliver(requestId, failure("SHIZUKU_PERMISSION_DENIED", "Open Shizuku to allow Home Center Operator."), callback);
+                return;
+            }
+            if (pendingPermissionCallback != null) {
+                deliver(requestId, failure("SHIZUKU_PERMISSION_REQUEST_PENDING", ""), callback);
+                return;
+            }
+            pendingPermissionRequestId = requestId;
+            pendingPermissionCallback = callback;
+            try {
+                Shizuku.requestPermission(PERMISSION_REQUEST_CODE);
+            } catch (Throwable error) {
+                pendingPermissionRequestId = 0L;
+                pendingPermissionCallback = null;
+                deliver(requestId, failure(
+                        "SHIZUKU_PERMISSION_REQUEST_FAILED", error.getClass().getSimpleName()), callback);
+            }
+        });
     }
 
     public void execute(long requestId, String action, String argument, ReceiptCallback callback) {
@@ -186,6 +244,19 @@ public final class SpotifyShizukuClient implements AutoCloseable {
         }
     }
 
+    private static JSONObject success(String state) {
+        JSONObject receipt = new JSONObject();
+        try {
+            receipt.put("ok", true);
+            receipt.put("verified", true);
+            receipt.put("permissionState", state);
+            receipt.put("clientSchema", CLIENT_SCHEMA);
+        } catch (Exception ignored) {
+            // Constants and primitive values cannot fail normal JSONObject insertion.
+        }
+        return receipt;
+    }
+
     private static JSONObject failure(String code, String detail) {
         return failure(code, detail, null);
     }
@@ -223,3 +294,4 @@ public final class SpotifyShizukuClient implements AutoCloseable {
         executor.shutdownNow();
     }
 }
+

@@ -1,6 +1,7 @@
 package com.homecenter.operatoroverlay;
 
 import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -29,12 +30,8 @@ public class OverlayUiPolicyTest {
     }
 
     @Test
-    public void guardNeedsEveryLeasePrecondition() {
-        assertTrue(OverlayUiPolicy.touchGuardActive(true, true, true, false));
-        assertFalse(OverlayUiPolicy.touchGuardActive(false, true, true, false));
-        assertFalse(OverlayUiPolicy.touchGuardActive(true, false, true, false));
-        assertFalse(OverlayUiPolicy.touchGuardActive(true, true, false, false));
-        assertFalse(OverlayUiPolicy.touchGuardActive(true, true, true, true));
+    public void localControlsMeetMinimumTouchTarget() {
+        assertEquals(48, OverlayUiPolicy.MIN_TOUCH_TARGET_DP);
     }
 
     @Test

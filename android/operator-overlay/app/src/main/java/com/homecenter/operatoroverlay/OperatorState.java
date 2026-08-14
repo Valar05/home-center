@@ -144,6 +144,12 @@ final class OperatorState {
         if (extras != null && extras.containsKey(KEY_OVERLAY_HIDDEN)) {
             editor.putBoolean(KEY_OVERLAY_HIDDEN, extras.getBoolean(KEY_OVERLAY_HIDDEN));
         }
+        if (extras != null && extras.containsKey(KEY_OVERLAY_X)) {
+            editor.putInt(KEY_OVERLAY_X, extras.getInt(KEY_OVERLAY_X));
+        }
+        if (extras != null && extras.containsKey(KEY_OVERLAY_Y)) {
+            editor.putInt(KEY_OVERLAY_Y, extras.getInt(KEY_OVERLAY_Y));
+        }
         return editor.commit();
     }
 

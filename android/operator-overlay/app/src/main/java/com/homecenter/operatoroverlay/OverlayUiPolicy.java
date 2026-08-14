@@ -24,14 +24,6 @@ final class OverlayUiPolicy {
         return action == VisibilityAction.HIDE;
     }
 
-    static boolean touchGuardActive(
-            boolean controlEnabled,
-            boolean online,
-            boolean screenActive,
-            boolean screenYield) {
-        return controlEnabled && online && screenActive && !screenYield;
-    }
-
     static int[] clampPosition(
             int proposedX,
             int proposedY,
