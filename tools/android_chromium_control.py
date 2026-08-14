@@ -62,7 +62,7 @@ def snapshot(package: str, expected_url: str | None = None) -> dict:
     pid = rish(f"pidof {q(package)} 2>/dev/null || true")
     task = rish(
         "dumpsys activity activities 2>/dev/null "
-        f"| grep -F {q(package)} -A 10 -B 4 | head -160"
+        f"| grep -F -A 10 -B 4 -- {q(package)} | head -160"
     )
     exact_task = ""
     if expected_url:
