@@ -8,7 +8,11 @@ PIDFILE="$STATE_DIR/phone-relay.pid"
 HEARTBEAT="${HC_PHONE_RELAY_HEARTBEAT:-$STATE_DIR/phone-relay-heartbeat.json}"
 RECEIPTS="$STATE_DIR/phone-relay-recovery-receipts.jsonl"
 LATEST="$STATE_DIR/phone-relay-recovery-latest.json"
-MAX_HEARTBEAT_AGE="${HC_PHONE_RELAY_HEALTH_MAX_AGE_SECONDS:-15}"
+# The relay's Home Center requests may legitimately block for up to 45 seconds.
+# Health therefore allows a bounded margin beyond one request, while first boot
+# gets enough time for token refresh + registration + the first successful pull.
+MAX_HEARTBEAT_AGE="${HC_PHONE_RELAY_HEALTH_MAX_AGE_SECONDS:-90}"
+STARTUP_WAIT_SECONDS="${HC_PHONE_RELAY_STARTUP_WAIT_SECONDS:-120}"
 PYTHON="${HC_PHONE_PYTHON:-python}"
 RELAY="$ROOT/tools/android_phone_home_center_relay.py"
 
@@ -51,7 +55,7 @@ PY
 
 wait_for_heartbeat() {
   wanted_pid="$1"
-  tries="${2:-10}"
+  tries="${2:-$STARTUP_WAIT_SECONDS}"
   i=0
   while [ "$i" -lt "$tries" ]; do
     kill -0 "$wanted_pid" 2>/dev/null || return 1
@@ -133,7 +137,7 @@ nohup "$PYTHON" "$RELAY" >> "$LOG" 2>&1 < /dev/null &
 pid=$!
 printf '%s\n' "$pid" > "$PIDFILE"
 
-if wait_for_heartbeat "$pid" 15; then
+if wait_for_heartbeat "$pid" "$STARTUP_WAIT_SECONDS"; then
   say "relay started and completed a fresh Home Center poll"
   print_receipt "recovered"
   exit 0
