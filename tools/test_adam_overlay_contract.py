@@ -54,7 +54,7 @@ assert ack_idx > success_idx
 assert 'payload=_operator_field(raw,"adam_request_payload_b64","");_set_last_adam_request_id(request_id)' not in daemon
 
 for token in [
-    'ONE_SHOT_MODES = ("terminal", "chat", "continue", "vlad")',
+    'ONE_SHOT_MODES = ("auto", "terminal", "text", "chat", "continue", "vlad", "radio")',
     'WORKER = ROOT / "tools" / "adam_planned_venice.py"',
     'jarGoverned=True',
     'preExecutionPlanReview=True',
@@ -66,6 +66,17 @@ for token in [
     assert token in router, f"adam body router missing {token}"
 
 assert '"shell"' not in service
+assert 'private String adamMode = "auto";' in service
+assert 'Talk to Adam…' in service
+assert 'details.addView(adamModeRow);' not in service
+assert 'root.addView(spotifyRow);' not in service
+assert 'cleanMode.equals("auto")' in state
+assert 'def classify_mode(' in router
+assert '"quit silent hunt" in lowered' in router
+assert 'no paid provider or new credit spend without explicit authorization' in router
+assert 'uncensored language is the default' in router
+assert 'explicit sexual content appears only by Drew\'s request' in router
+assert 'if mode == "auto"' in router
 assert 'if mode == "terminal"' in router
 assert 'return run_worker(mode, text, cwd, timeout)' in router
 assert 'ollama_generate' not in router
@@ -88,4 +99,13 @@ for token in [
 assert 'CODEX LOCAL STEERING DOCUMENTS (binding)' in reviewed
 assert 'canonical_venice_review(' in reviewed
 assert 'Daemon Persistence and Connector Backoff' in reviewed
-print("Adam overlay transport / planned + Venice-reviewed durable-delivery contract: PASS")
+namespace = {}
+exec(compile(router, "tools/adam.py", "exec"), namespace)
+classify = namespace["classify_mode"]
+assert classify("quit Silent Hunt")[0] == "continue"
+assert classify("stop spend but keep working")[0] == "continue"
+assert classify("play music for dinner")[0] == "radio"
+assert classify("recent text messages")[0] == "text"
+assert classify("ask Vlad for a second opinion")[0] == "vlad"
+assert classify("how does this work?")[0] == "chat"
+print("Adam Beard one-input routing / durable-delivery contract: PASS")
