@@ -9,6 +9,7 @@ invokes a conversational worker, generic media key, Activity, or screen path.
 from __future__ import annotations
 
 import argparse
+import importlib.util
 import json
 import os
 import re
@@ -20,7 +21,9 @@ ROOT = Path(__file__).resolve().parents[1]
 WORKER = ROOT / "tools" / "adam_planned_venice.py"
 RADIO_SOURCE = ROOT / "tools" / "spotify_radio.py"
 RADIO_INSTALLED = Path(os.environ.get("HC_SPOTIFY_RADIO_BIN", "~/bin/spotify-radio")).expanduser()
-ONE_SHOT_MODES = ("terminal", "text", "chat", "continue", "vlad", "radio")
+INNER_FORTRESS_SOURCE = ROOT / "tools" / "adam_inner_fortress.py"
+OBSERVATION_SOURCE = ROOT / "tools" / "adam_observation_ledger.py"
+ONE_SHOT_MODES = ("terminal", "text", "chat", "continue", "vlad", "radio", "inner-fortress", "observation")
 MAX_RECEIPT_TEXT = 6000
 SMS_ID = re.compile(r"^sms_[a-f0-9]{32,64}$")
 
@@ -172,6 +175,85 @@ def _last_json_line(stdout: str) -> dict:
     return {}
 
 
+def _load_inner_fortress():
+    if not INNER_FORTRESS_SOURCE.is_file():
+        return None
+    spec = importlib.util.spec_from_file_location("adam_inner_fortress", INNER_FORTRESS_SOURCE)
+    if spec is None or spec.loader is None:
+        return None
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def inner_should_intercept(text: str) -> bool:
+    if str(text if text is not None else "").strip() == "Inner Fortress":
+        return True
+    if not INNER_FORTRESS_SOURCE.is_file():
+        return False
+    try:
+        module = _load_inner_fortress()
+        return bool(module and module.should_intercept(text))
+    except Exception:
+        # The aperture exists but cannot prove its state.  Keep CHAT from
+        # escaping into a different identity/cognition path.
+        return True
+
+
+def _run_json_script(
+    mode: str,
+    source: Path,
+    text: str,
+    cwd: str,
+    timeout: int,
+    request_option: str,
+) -> int:
+    if not source.is_file():
+        return receipt(mode, False, error=f"{mode}_source_missing", source=str(source))
+    command = [sys.executable, str(source)]
+    request_id = str(os.environ.get("HC_COMMAND_ID") or os.environ.get("ADAM_EVENT_ID") or "").strip()
+    if request_id:
+        command.extend([request_option, request_id])
+    try:
+        process = subprocess.run(
+            command,
+            cwd=cwd,
+            input=str(text if text is not None else ""),
+            text=True,
+            capture_output=True,
+            timeout=timeout,
+        )
+    except subprocess.TimeoutExpired as exc:
+        return receipt(
+            mode, False, error=f"{mode}_timeout",
+            stdout=tail(exc.stdout or ""), stderr=tail(exc.stderr or ""),
+        )
+    parsed = _last_json_line(process.stdout)
+    return receipt(
+        mode,
+        process.returncode == 0 and bool(parsed.get("ok")),
+        response=parsed,
+        exactInputPreserved=True,
+        authoritativeCharacter=False,
+        judgmentJarApplied=False,
+        chatgptRehearsal=mode == "inner-fortress",
+        rc=process.returncode,
+        stderr=tail(process.stderr),
+    )
+
+
+def run_inner_fortress(text: str, cwd: str, timeout: int) -> int:
+    return _run_json_script(
+        "inner-fortress", INNER_FORTRESS_SOURCE, text, cwd, timeout, "--request-id"
+    )
+
+
+def run_observation(text: str, cwd: str, timeout: int) -> int:
+    return _run_json_script(
+        "observation", OBSERVATION_SOURCE, text, cwd, timeout, "--event-id"
+    )
+
+
 def run_radio(text: str, cwd: str, timeout: int) -> int:
     if not text.strip():
         return receipt("radio", False, error="empty_request")
@@ -210,6 +292,12 @@ def run_radio(text: str, cwd: str, timeout: int) -> int:
 def run_mode(mode: str, text: str, cwd: str, timeout: int) -> int:
     if mode not in ONE_SHOT_MODES:
         return receipt(mode, False, error="unsupported_mode")
+    if mode == "inner-fortress":
+        return run_inner_fortress(text, cwd, timeout)
+    if mode == "observation":
+        return run_observation(text, cwd, timeout)
+    if mode == "chat" and inner_should_intercept(text):
+        return run_inner_fortress(text, cwd, timeout)
     if mode == "terminal":
         return run_terminal(text, cwd, timeout)
     if mode == "text":
