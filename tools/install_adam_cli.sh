@@ -28,6 +28,7 @@ for f in \
   "$ROOT/tools/judgment_jar_atom_import.py" \
   "$ROOT/tools/judgment_jar_review_import.py" \
   "$ROOT/tools/jar_receipt.py" \
+  "$ROOT/tools/test_adam_nicotine_tracker_contract.py" \
   "$ROOT/tools/venice_plan_review.py" \
   "$ROOT/tools/venice_review.py" \
   "$ROOT/tools/venice_review_memory.py" \
@@ -40,6 +41,7 @@ PYTHON_BIN="$(command -v python3 || true)"
 cd "$ROOT"
 python3 tools/judgment_jar_receipt_contract_check.py
 python3 tools/test_adam_overlay_contract.py
+python3 tools/test_adam_nicotine_tracker_contract.py
 python3 tools/test_adam_overlay_delivery_state.py
 python3 tools/test_adam_cli_contract.py
 python3 tools/test_adam_text_mode_contract.py
@@ -50,6 +52,7 @@ python3 tools/test_venice_review_memory.py
 node --test tools/fortress_online_v2_boot.test.mjs
 python3 -m py_compile \
   tools/adam.py \
+  tools/test_adam_nicotine_tracker_contract.py \
   tools/vlad_text.py \
   tools/adam_receipted_worker.py \
   tools/accept_adam_receipted_phone.py \
@@ -72,7 +75,7 @@ TMP_TARGET="$TARGET.tmp.$$"
 cat > "$TMP_TARGET" <<EOF
 #!/data/data/com.termux/files/usr/bin/bash
 case "\${1:-}" in
-  terminal|text|chat|continue|vlad)
+  auto|terminal|text|chat|continue|vlad|radio)
     exec "$PYTHON_BIN" "$ROUTER" "\$@"
     ;;
   *)

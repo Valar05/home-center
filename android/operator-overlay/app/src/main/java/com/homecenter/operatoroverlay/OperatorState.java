@@ -175,6 +175,10 @@ final class OperatorState {
     }
 
     static void submitAdamRequest(Context context, String mode, String text, long nowMs) {
+        NicotineTrackerContract.ParseResult tracker = NicotineTrackerContract.parse(text);
+        if (tracker.state != NicotineTrackerContract.State.NOT_TRACKER) {
+            return;
+        }
         String cleanMode = mode == null ? "auto" : mode.trim().toLowerCase();
         if (!(cleanMode.equals("auto") || cleanMode.equals("terminal") || cleanMode.equals("chat")
                 || cleanMode.equals("continue") || cleanMode.equals("vlad")

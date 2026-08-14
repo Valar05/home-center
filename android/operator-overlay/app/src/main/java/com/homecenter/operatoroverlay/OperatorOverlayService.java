@@ -17,6 +17,7 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
 import android.provider.Settings;
+import android.text.InputFilter;
 import android.text.TextUtils;
 import android.text.method.ScrollingMovementMethod;
 import android.view.Gravity;
@@ -49,12 +50,14 @@ public class OperatorOverlayService extends Service {
     private static final int MIN_SCREEN_LEASE_MS = 250;
     private static final int MAX_SCREEN_LEASE_MS = 15000;
     private static final int MAX_SCREEN_YIELD_MS = 12000;
+    private static final long LOCAL_SAVE_NOTICE_MS = 5000L;
 
     private final Handler handler = new Handler(Looper.getMainLooper());
     private WindowManager windowManager;
     private WindowManager.LayoutParams windowParams;
     private LinearLayout root;
     private LinearLayout details;
+    private MaxHeightScrollView detailsScroll;
     private TextView dragHandle;
     private TextView status;
     private TextView screenBadge;
@@ -68,6 +71,14 @@ public class OperatorOverlayService extends Service {
     private Button muteButton;
     private Button controlButton;
     private EditText adamInput;
+    private LinearLayout trackerReviewCard;
+    private TextView trackerReviewState;
+    private TextView trackerReviewSummary;
+    private TextView trackerExposureHelp;
+    private EditText trackerNote;
+    private Button trackerSaveButton;
+    private NicotineTrackerContract.Draft trackerDraft;
+    private String trackerIdempotencyKey;
     private String adamMode = "auto";
     private boolean expandedText;
     private boolean confirmDisable;
@@ -80,6 +91,7 @@ public class OperatorOverlayService extends Service {
     private int expandedWidthPx;
     private int lastMeasuredWidth;
     private int lastMeasuredHeight;
+    private long localSaveNoticeUntilMs;
 
     private final Runnable refresh = new Runnable() {
         @Override
@@ -220,9 +232,11 @@ public class OperatorOverlayService extends Service {
                 0,
                 open,
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
-        String content = OperatorState.overlayHidden(this)
-                ? "Overlay hidden and control off — tap to restore"
-                : "Tap to restore or bring the local controls forward";
+        String content = localSaveNoticeActive()
+                ? "Entry saved"
+                : OperatorState.overlayHidden(this)
+                        ? "Overlay hidden and control off — tap to restore"
+                        : "Tap to restore or bring the local controls forward";
         return new Notification.Builder(this, CHANNEL_ID)
                 .setSmallIcon(android.R.drawable.stat_notify_sync_noanim)
                 .setContentTitle("Home Center operator control")
@@ -396,6 +410,70 @@ public class OperatorOverlayService extends Service {
         adamSendButton.setOnClickListener(v -> submitAdamRequest());
         adamInputRow.addView(adamSendButton);
 
+        trackerReviewCard = new LinearLayout(this);
+        trackerReviewCard.setOrientation(LinearLayout.VERTICAL);
+        trackerReviewCard.setPadding(dp(10), dp(8), dp(10), dp(8));
+        trackerReviewCard.setBackground(
+                background(Color.rgb(34, 43, 52), Color.rgb(104, 139, 166)));
+        trackerReviewCard.setVisibility(View.GONE);
+        trackerReviewCard.setContentDescription(
+                "Local tracker review. Nothing is saved until Save entry is pressed.");
+
+        trackerReviewState = textView(14f, true);
+        trackerReviewState.setText("UNSAVED LOCAL DRAFT");
+        trackerReviewState.setContentDescription("Unsaved local tracker draft");
+        trackerReviewCard.addView(trackerReviewState);
+
+        trackerReviewSummary = textView(14f, false);
+        trackerReviewSummary.setPadding(0, dp(5), 0, dp(5));
+        trackerReviewSummary.setContentDescription("Local tracker draft summary");
+        trackerReviewCard.addView(trackerReviewSummary);
+
+        trackerExposureHelp = textView(12f, false);
+        trackerExposureHelp.setPadding(dp(8), dp(6), dp(8), dp(6));
+        trackerExposureHelp.setBackground(
+                background(Color.rgb(54, 47, 38), Color.rgb(170, 142, 91)));
+        trackerExposureHelp.setText(
+                "Exposure entry only. This records the selected category and does not determine risk or safety.");
+        trackerExposureHelp.setContentDescription(
+                "Neutral exposure note. The entry records a category and makes no safety conclusion.");
+        trackerExposureHelp.setVisibility(View.GONE);
+        trackerReviewCard.addView(trackerExposureHelp);
+
+        trackerNote = new EditText(this);
+        trackerNote.setHint("Optional local note");
+        trackerNote.setTextColor(Color.WHITE);
+        trackerNote.setHintTextColor(Color.rgb(170, 181, 198));
+        trackerNote.setTextSize(14f);
+        trackerNote.setMinHeight(dp(OverlayUiPolicy.MIN_TOUCH_TARGET_DP));
+        trackerNote.setMinimumHeight(dp(OverlayUiPolicy.MIN_TOUCH_TARGET_DP));
+        trackerNote.setMaxLines(4);
+        trackerNote.setFilters(new InputFilter[]{
+                new InputFilter.LengthFilter(NicotineTrackerContract.MAX_NOTE_CHARS)
+        });
+        trackerNote.setContentDescription(
+                "Optional note stored only with this local entry. Maximum 240 characters.");
+        trackerReviewCard.addView(trackerNote, new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT));
+
+        LinearLayout trackerActions = new LinearLayout(this);
+        trackerActions.setOrientation(LinearLayout.HORIZONTAL);
+        trackerActions.setGravity(Gravity.END | Gravity.CENTER_VERTICAL);
+
+        Button trackerCancelButton = button("Cancel");
+        trackerCancelButton.setContentDescription(
+                "Cancel this unsaved local tracker draft");
+        trackerCancelButton.setOnClickListener(v -> cancelTrackerDraft());
+        trackerActions.addView(trackerCancelButton);
+
+        trackerSaveButton = button("Save entry");
+        trackerSaveButton.setContentDescription(
+                "Save this reviewed entry to app-private local storage");
+        trackerSaveButton.setOnClickListener(v -> saveTrackerDraft());
+        trackerActions.addView(trackerSaveButton);
+        trackerReviewCard.addView(trackerActions);
+
         LinearLayout actionRow = new LinearLayout(this);
         actionRow.setOrientation(LinearLayout.HORIZONTAL);
         actionRow.setGravity(Gravity.END | Gravity.CENTER_VERTICAL);
@@ -419,9 +497,12 @@ public class OperatorOverlayService extends Service {
         details.addView(meta);
         details.addView(latest);
         details.addView(adamInputRow);
+        details.addView(trackerReviewCard);
         details.addView(actionRow);
         root.addView(titleRow);
-        root.addView(details);
+        detailsScroll = new MaxHeightScrollView(this);
+        detailsScroll.addView(details);
+        root.addView(detailsScroll);
 
         windowParams = new WindowManager.LayoutParams(
                 expandedWidthPx,
@@ -538,7 +619,11 @@ public class OperatorOverlayService extends Service {
     private void applyPresentationState() {
         if (root == null || windowParams == null) return;
         boolean collapsed = OperatorState.panelCollapsed(this);
-        details.setVisibility(collapsed ? View.GONE : View.VISIBLE);
+        detailsScroll.setVisibility(collapsed ? View.GONE : View.VISIBLE);
+        Rect visible = visibleBounds();
+        detailsScroll.setMaxHeightPx(Math.max(
+                dp(144),
+                visible.height() - dp(96)));
         hideButton.setVisibility(collapsed ? View.GONE : View.VISIBLE);
         compactControlButton.setVisibility(collapsed ? View.VISIBLE : View.GONE);
         collapseButton.setText(collapsed ? "+" : "−");
@@ -597,7 +682,6 @@ public class OperatorOverlayService extends Service {
         }
         confirmDisable = false;
         OperatorState.setControlEnabled(this, false);
-        syncTouchGuard(false);
         refreshUi();
     }
 
@@ -653,8 +737,9 @@ public class OperatorOverlayService extends Service {
         if (muted) state += " • MUTED";
         status.setText(state);
         status.setTextColor(stateColor);
+        boolean localSaveNotice = localSaveNoticeActive();
         dragHandle.setText(OperatorState.panelCollapsed(this)
-                ? "☰  " + compactState
+                ? localSaveNotice ? "Entry saved" : "☰  " + compactState
                 : "☰  HOME CENTER");
         dragHandle.setTextColor(stateColor);
 
@@ -690,7 +775,7 @@ public class OperatorOverlayService extends Service {
                 : " • screen idle";
         meta.setText(source + " • " + age(now, lastUpdate) + lease +
                 (expandedText ? " • tap message to collapse" : " • tap message to expand"));
-        latest.setText(OperatorState.latestText(this));
+        latest.setText(localSaveNotice ? "Entry saved" : OperatorState.latestText(this));
         String spotifySummary = OperatorState.spotifySummary(this);
         if (spotifyStatus != null && !TextUtils.equals(spotifyStatus.getText(), spotifySummary)) {
             spotifyStatus.setText(spotifySummary);
@@ -713,12 +798,126 @@ public class OperatorOverlayService extends Service {
 
     private void submitAdamRequest() {
         if (adamInput == null) return;
-        String text = adamInput.getText().toString().trim();
+        String raw = adamInput.getText().toString();
+        NicotineTrackerContract.ParseResult tracker =
+                NicotineTrackerContract.parse(raw);
+        if (tracker.state == NicotineTrackerContract.State.VALID) {
+            showTrackerReview(tracker.draft);
+            return;
+        }
+        if (tracker.state == NicotineTrackerContract.State.UNSAVED_LOCAL_DRAFT) {
+            showInvalidTrackerDraft();
+            return;
+        }
+
+        String text = raw.trim();
         if (text.isEmpty()) return;
         OperatorState.submitAdamRequest(this, adamMode, text, System.currentTimeMillis());
         adamInput.setText("");
         adamInput.setHint("Talk to Adam…");
         adamInput.announceForAccessibility("Sent to Adam " + adamMode);
+    }
+
+    private void showTrackerReview(NicotineTrackerContract.Draft draft) {
+        trackerDraft = draft;
+        trackerIdempotencyKey = NicotineTrackerStore.newLocalIdempotencyKey();
+        trackerReviewState.setText("UNSAVED LOCAL DRAFT");
+        trackerReviewSummary.setText(localDraftSummary(draft));
+        trackerReviewSummary.setContentDescription(
+                "Review " + localDraftSummary(draft) + ". Nothing has been saved.");
+        trackerExposureHelp.setVisibility(
+                draft.kind == NicotineTrackerContract.Kind.EXPOSURE
+                        ? View.VISIBLE : View.GONE);
+        trackerNote.setText("");
+        trackerNote.setVisibility(View.VISIBLE);
+        trackerSaveButton.setEnabled(true);
+        trackerReviewCard.setVisibility(View.VISIBLE);
+        trackerReviewCard.announceForAccessibility(
+                "Unsaved local draft. Review it, add an optional local note, then Save entry or Cancel.");
+        detailsScroll.post(() -> detailsScroll.fullScroll(View.FOCUS_DOWN));
+    }
+
+    private void showInvalidTrackerDraft() {
+        trackerDraft = null;
+        trackerIdempotencyKey = null;
+        trackerReviewState.setText("UNSAVED LOCAL DRAFT");
+        trackerReviewSummary.setText(
+                "Not saved. Use exactly /track hunger, tank, puffs, or exposure with one allowed value.");
+        trackerReviewSummary.setContentDescription(
+                "Invalid local tracker draft. The text was not sent anywhere and was not saved.");
+        trackerExposureHelp.setVisibility(View.GONE);
+        trackerNote.setText("");
+        trackerNote.setVisibility(View.GONE);
+        trackerSaveButton.setEnabled(false);
+        trackerReviewCard.setVisibility(View.VISIBLE);
+        trackerReviewCard.announceForAccessibility(
+                "Invalid local tracker draft. Nothing was sent and nothing was saved.");
+        detailsScroll.post(() -> detailsScroll.fullScroll(View.FOCUS_DOWN));
+    }
+
+    private void cancelTrackerDraft() {
+        trackerDraft = null;
+        trackerIdempotencyKey = null;
+        trackerNote.setText("");
+        trackerReviewCard.setVisibility(View.GONE);
+        if (adamInput != null) {
+            adamInput.requestFocus();
+            adamInput.announceForAccessibility("Local tracker draft canceled. Nothing was saved.");
+        }
+    }
+
+    private void saveTrackerDraft() {
+        if (trackerDraft == null || trackerIdempotencyKey == null) return;
+        trackerSaveButton.setEnabled(false);
+        try {
+            NicotineTrackerStore.saveFromLocalReview(
+                    this,
+                    trackerDraft,
+                    trackerNote.getText().toString(),
+                    trackerIdempotencyKey);
+        } catch (Exception unavailable) {
+            trackerReviewState.setText("UNSAVED LOCAL DRAFT");
+            trackerReviewSummary.setText(
+                    "Not saved. App-private local storage was unavailable.");
+            trackerSaveButton.setEnabled(true);
+            trackerReviewCard.announceForAccessibility(
+                    "Entry not saved. The local draft remains available.");
+            return;
+        }
+
+        trackerDraft = null;
+        trackerIdempotencyKey = null;
+        trackerNote.setText("");
+        trackerReviewCard.setVisibility(View.GONE);
+        adamInput.setText("");
+        adamInput.setHint("Talk to Adam…");
+        localSaveNoticeUntilMs = System.currentTimeMillis() + LOCAL_SAVE_NOTICE_MS;
+        refreshUi();
+        updateNotification();
+        root.announceForAccessibility("Entry saved");
+        handler.postDelayed(() -> {
+            refreshUi();
+            updateNotification();
+        }, LOCAL_SAVE_NOTICE_MS + 50L);
+    }
+
+    private String localDraftSummary(NicotineTrackerContract.Draft draft) {
+        switch (draft.kind) {
+            case HUNGER:
+                return "Hunger: " + draft.value;
+            case TANK:
+                return "Tank reserve: " + draft.value;
+            case PUFFS:
+                return "Puffs since last entry: " + draft.value;
+            case EXPOSURE:
+                return "Exposure: " + draft.value;
+            default:
+                throw new IllegalArgumentException("unsupported local tracker event");
+        }
+    }
+
+    private boolean localSaveNoticeActive() {
+        return System.currentTimeMillis() < localSaveNoticeUntilMs;
     }
 
     private void recomputeExpandedWidth() {

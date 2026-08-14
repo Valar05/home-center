@@ -6,11 +6,16 @@ on:
       - main
       - feature/operator-overlay-v1
       - feat/spotify-radio-runtime-prep-20260813
+      - feat/adam-nicotine-tank-tracker
     paths:
       - 'android/operator-overlay/**'
       - 'tools/android_operator_overlay.py'
       - 'tools/android_phone_home_center_relay.py'
       - 'tools/setup_android_operator_overlay.sh'
+      - 'tools/adam.py'
+      - 'tools/vlad_swarm_daemon.py'
+      - 'tools/install_adam_cli.sh'
+      - 'tools/test_adam_nicotine_tracker_contract.py'
       - 'tools/build_operator_overlay_signed.ps1'
       - 'tools/phone_hands_relay_contract_test.mjs'
       - 'functions/phone_hands_relay.js'
@@ -22,6 +27,10 @@ on:
       - 'tools/android_operator_overlay.py'
       - 'tools/android_phone_home_center_relay.py'
       - 'tools/setup_android_operator_overlay.sh'
+      - 'tools/adam.py'
+      - 'tools/vlad_swarm_daemon.py'
+      - 'tools/install_adam_cli.sh'
+      - 'tools/test_adam_nicotine_tracker_contract.py'
       - 'tools/build_operator_overlay_signed.ps1'
       - 'tools/phone_hands_relay_contract_test.mjs'
       - 'functions/phone_hands_relay.js'
@@ -73,8 +82,9 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          python -m py_compile tools/android_operator_overlay.py tools/android_phone_home_center_relay.py tools/adam.py
+          python -m py_compile tools/android_operator_overlay.py tools/android_phone_home_center_relay.py tools/adam.py tools/vlad_swarm_daemon.py tools/test_adam_nicotine_tracker_contract.py
           python tools/test_adam_overlay_contract.py
+          python tools/test_adam_nicotine_tracker_contract.py
           python tools/test_spotify_background_radio.py
           node --check functions/phone_hands_relay.js
           node tools/phone_hands_relay_contract_test.mjs

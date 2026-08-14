@@ -19,6 +19,14 @@ ADAM_POLL_SECONDS = float(os.environ.get("HC_ADAM_POLL_SECONDS", "1.0"))
 OPERATOR_STATE_URI = "content://com.homecenter.operatoroverlay.state/state"
 OPERATOR_RECEIVER = "com.homecenter.operatoroverlay/.OverlayUpdateReceiver"
 OVERLAY_RECOVERY_COOLDOWN = int(os.environ.get("HC_OVERLAY_RECOVERY_COOLDOWN", "120"))
+LOCAL_TRACKER_LIKE = re.compile(
+    r"^(?:/track\b|track(?:er|ing)?\b|hunger\b|tank\b|puffs?\b|exposure\b)",
+    re.IGNORECASE,
+)
+LOCAL_TRACKER_DRAFT_MESSAGE = (
+    "UNSAVED LOCAL DRAFT. Use the on-phone Review/Save controls; "
+    "nothing was sent or saved."
+)
 
 
 def now(): return int(time.time())
@@ -100,15 +108,19 @@ def _last_overlay_recovery():
     except Exception:return 0
 def _set_overlay_recovery(value):STATE_DIR.mkdir(parents=True,exist_ok=True);_overlay_recovery_stamp().write_text(str(int(value))+"\n",encoding="utf-8")
 def ensure_operator_overlay(repo_root):
-    query=rish(f"content query --uri {shlex.quote(OPERATOR_STATE_URI)}");healthy=query["rc"]==0 and "control_enabled=" in query["stdout"];append_receipt({"kind":"operator.overlay.probe","ok":healthy,"result":query})
+    query=rish(f"content query --uri {shlex.quote(OPERATOR_STATE_URI)}");healthy=query["rc"]==0 and "control_enabled=" in query["stdout"];append_receipt({"kind":"operator.overlay.probe","ok":healthy,"result":_operator_probe_summary(query)})
     if healthy:return True
     current=now()
     if current-_last_overlay_recovery()<max(30,OVERLAY_RECOVERY_COOLDOWN):append_receipt({"kind":"operator.overlay.recovery","ok":False,"state":"cooldown"});return False
     _set_overlay_recovery(current);script=Path(repo_root)/"tools"/"recover_adam_overlay_phone.sh"
     if not script.is_file():append_receipt({"kind":"operator.overlay.recovery","ok":False,"state":"script_missing","script":str(script)});return False
-    result=run(["bash",str(script)],timeout=600,cwd=repo_root);verify=rish(f"content query --uri {shlex.quote(OPERATOR_STATE_URI)}");recovered=result["rc"]==0 and verify["rc"]==0 and "control_enabled=" in verify["stdout"];append_receipt({"kind":"operator.overlay.recovery","ok":recovered,"state":"recovered" if recovered else "failed","result":result,"verify":verify});return recovered
+    result=run(["bash",str(script)],timeout=600,cwd=repo_root);verify=rish(f"content query --uri {shlex.quote(OPERATOR_STATE_URI)}");recovered=result["rc"]==0 and verify["rc"]==0 and "control_enabled=" in verify["stdout"];append_receipt({"kind":"operator.overlay.recovery","ok":recovered,"state":"recovered" if recovered else "failed","result":result,"verify":_operator_probe_summary(verify)});return recovered
 def _operator_field(raw,name,default=""):
     m=re.search(rf"\b{re.escape(name)}=([^,\n]*)",raw);return m.group(1).strip() if m else default
+def _operator_probe_summary(result):
+    """Return status only; provider rows can contain private pending request payloads."""
+    return {"rc":int(result.get("rc") or 0),"stateReadable":"control_enabled=" in str(result.get("stdout") or "")}
+def _looks_local_tracker_text(text):return bool(LOCAL_TRACKER_LIKE.match(str(text or "").strip()))
 def operator_heartbeat():
     result=rish("am broadcast --receiver-foreground -a com.homecenter.operatoroverlay.HEARTBEAT "+f"-n {OPERATOR_RECEIVER}");append_receipt({"kind":"adam.overlay.heartbeat","ok":result["rc"]==0,"result":result})
 def operator_update(text,source):
@@ -183,6 +195,11 @@ def process_adam_overlay(repo_root):
     try:text=base64.b64decode(payload,validate=True).decode("utf-8")
     except Exception as exc:
         display=f"invalid_payload: {exc}";pending={"schema":"adam-overlay-pending-response-v1","requestId":request_id,"mode":mode,"display":display[:8000],"taskRc":2,"taskResult":{"error":display},"attempts":0,"nextAttemptEpoch":0,"createdAtEpoch":now()};pending_path=_save_pending_response(pending);append_receipt({"kind":"adam.request.invalid","ok":False,"requestId":request_id,"mode":mode,"error":display,"pending":str(pending_path)});_deliver_pending_responses();return
+    if _looks_local_tracker_text(text):
+        pending={"schema":"adam-overlay-pending-response-v1","requestId":request_id,"mode":"local_tracker_guard","display":LOCAL_TRACKER_DRAFT_MESSAGE,"taskRc":1,"taskResult":{"state":"UNSAVED_LOCAL_DRAFT","persisted":False,"workerInvoked":False,"providerMutation":False},"attempts":0,"nextAttemptEpoch":0,"createdAtEpoch":now()}
+        pending_path=_save_pending_response(pending)
+        append_receipt({"kind":"adam.request.local_tracker_quarantined","ok":False,"requestId":request_id,"mode":"local_tracker_guard","state":"UNSAVED_LOCAL_DRAFT","persisted":False,"workerInvoked":False,"providerMutation":False,"pending":str(pending_path)})
+        _deliver_pending_responses();return
     result=run(["python3",str(Path(repo_root)/"tools"/"adam.py"),mode,text,"--cwd",repo_root],timeout=None,cwd=repo_root);display=result["stdout"] or result["stderr"] or f"Adam {mode} exited {result['rc']}"
     try:
         parsed=json.loads(result["stdout"]);display=parsed.get("response") or parsed.get("stdout") or parsed.get("detail") or parsed.get("error") or display

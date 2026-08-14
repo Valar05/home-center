@@ -23,6 +23,10 @@ RADIO_INSTALLED = Path(os.environ.get("HC_SPOTIFY_RADIO_BIN", "~/bin/spotify-rad
 ONE_SHOT_MODES = ("auto", "terminal", "text", "chat", "continue", "vlad", "radio")
 MAX_RECEIPT_TEXT = 6000
 SMS_ID = re.compile(r"^sms_[a-f0-9]{32,64}$")
+LOCAL_TRACKER_LIKE = re.compile(
+    r"^(?:/track\b|track(?:er|ing)?\b|hunger\b|tank\b|puffs?\b|exposure\b)",
+    re.IGNORECASE,
+)
 
 
 def tail(value: str, limit: int = MAX_RECEIPT_TEXT) -> str:
@@ -33,6 +37,27 @@ def tail(value: str, limit: int = MAX_RECEIPT_TEXT) -> str:
 def receipt(mode: str, ok: bool, **data) -> int:
     print(json.dumps({"schema": "adam-body-router-v4", "mode": mode, "ok": bool(ok), **data}, ensure_ascii=False, sort_keys=True))
     return 0 if ok else 1
+
+
+def local_tracker_guard(text: str) -> bool:
+    """Quarantine local tracker-shaped text before every router lane."""
+    return bool(LOCAL_TRACKER_LIKE.match(str(text or "").strip()))
+
+
+def unsaved_local_tracker_receipt() -> int:
+    return receipt(
+        "local_tracker_guard",
+        False,
+        state="UNSAVED_LOCAL_DRAFT",
+        persisted=False,
+        requiresOnPhoneReview=True,
+        workerInvoked=False,
+        providerMutation=False,
+        response=(
+            "UNSAVED LOCAL DRAFT. Use the on-phone Review/Save controls; "
+            "nothing was sent or saved."
+        ),
+    )
 
 
 def run_terminal(text: str, cwd: str, timeout: int) -> int:
@@ -231,6 +256,8 @@ def run_radio(text: str, cwd: str, timeout: int) -> int:
 
 
 def run_mode(mode: str, text: str, cwd: str, timeout: int) -> int:
+    if local_tracker_guard(text):
+        return unsaved_local_tracker_receipt()
     if mode not in ONE_SHOT_MODES:
         return receipt(mode, False, error="unsupported_mode")
     if mode == "auto":
