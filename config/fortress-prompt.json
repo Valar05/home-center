@@ -1,0 +1,65 @@
+{
+  "version": 1,
+  "places": {
+    "home": "$HOME",
+    "home-center": "/storage/emulated/0/Documents/GodotProjects/home-center",
+    "projects": "/storage/emulated/0/Documents/GodotProjects"
+  },
+  "intents": [
+    {
+      "name": "fortress-status",
+      "phrases": ["status", "fortress status", "what is alive", "what's alive"],
+      "argv": ["python", "{repo}/tools/fortress_prompt.py", "--self-status"]
+    },
+    {
+      "name": "git-status",
+      "phrases": ["git status", "repo status", "is this dirty"],
+      "argv": ["git", "status", "--short", "--branch"]
+    },
+    {
+      "name": "git-pull",
+      "phrases": ["git pull", "pull", "update this repo"],
+      "argv": ["git", "pull", "--ff-only"]
+    },
+    {
+      "name": "git-clean-preview",
+      "phrases": ["git clean", "clean preview", "what is junk"],
+      "argv": ["git", "clean", "-nd"]
+    },
+    {
+      "name": "phone-relay-status",
+      "phrases": ["phone relay status", "relay status", "is phone relay alive"],
+      "argv": ["sh", "{repo}/tools/home_center_phone_relay_recover.sh", "status"]
+    },
+    {
+      "name": "phone-relay-recover",
+      "phrases": ["recover phone relay", "fix phone relay", "relay recover"],
+      "argv": ["sh", "{repo}/tools/home_center_phone_relay_recover.sh"]
+    },
+    {
+      "name": "eve-status",
+      "phrases": ["eve status", "weed schedule status", "session status"],
+      "argv": ["{home}/bin/eve-session", "status"]
+    },
+    {
+      "name": "eve-begin",
+      "phrases": ["eve begin", "begin session", "start session"],
+      "argv": ["{home}/bin/eve-session", "begin"]
+    },
+    {
+      "name": "eve-end",
+      "phrases": ["eve end", "end session", "stop session"],
+      "argv": ["{home}/bin/eve-session", "end"]
+    },
+    {
+      "name": "eve-skip",
+      "phrases": ["eve skip", "skip tonight", "skip session"],
+      "argv": ["{home}/bin/eve-session", "skip"]
+    },
+    {
+      "name": "continue-here",
+      "phrases": ["continue here", "code here", "continue"],
+      "argv": ["cn"]
+    }
+  ]
+}

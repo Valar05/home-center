@@ -1,0 +1,29 @@
+name: Fortress Prompt
+
+on:
+  pull_request:
+    paths:
+      - 'config/fortress-prompt.json'
+      - 'tools/fortress_prompt.py'
+      - 'tools/test_fortress_prompt.py'
+      - 'tools/setup_fortress_fish.sh'
+      - '.github/workflows/fortress-prompt.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Python syntax
+        run: python -m py_compile tools/fortress_prompt.py tools/test_fortress_prompt.py
+      - name: Deterministic grammar tests
+        run: python tools/test_fortress_prompt.py
+      - name: Installer syntax
+        run: bash -n tools/setup_fortress_fish.sh
