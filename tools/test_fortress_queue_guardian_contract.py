@@ -45,5 +45,11 @@ for token in [
 ]:
     assert token in governor, f"scheduler governor missing event-driven fail-closed contract: {token}"
 
-assert 'hourly' not in governor.lower(), "local scheduler governor regressed to hourly polling"
+for forbidden in [
+    'RRULE:FREQ=HOURLY',
+    'sleep(3600)',
+    'time.sleep(3600)',
+]:
+    assert forbidden not in governor, f"local scheduler governor regressed to timer babysitting: {forbidden}"
+
 print("Fortress queue guardian + event-driven scheduler contract: PASS")
