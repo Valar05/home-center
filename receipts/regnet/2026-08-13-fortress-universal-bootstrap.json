@@ -1,0 +1,113 @@
+{
+  "schema": "home-center.regnet-qa.v1",
+  "commission": "One bootstrap program for Android Termux and desktop that installs a locked-down, local-first Fortress control plane without ChatGPT browser orchestration or cloud-token dependence; preserve battery governance as a deferred note.",
+  "reviewedHead": "ccf0a2be4ef4b9d80f4e156d741edec03dcd469f",
+  "reviewBase": "8caa95edbd8a6546421d770297526c9179015c37",
+  "reviewedFiles": [
+    "tools/fortress_bootstrap.py",
+    "tools/run_fortress_local_contracts.sh",
+    "receipts/venice/2026-08-13-fortress-universal-bootstrap-plan.json"
+  ],
+  "artifactIdentity": {
+    "path": "tools/fortress_bootstrap.py",
+    "gitBlobSha": "5e8c12b915ebfa4e69d0a72129f8b67d1965ecd6",
+    "sha256": "4c12413f153e2ad06f7227390c686a97f19978c18fb6544fa4930c8d0513330e",
+    "mode": "100755",
+    "version": "1.0.0"
+  },
+  "deterministicChecks": [
+    {
+      "name": "python syntax",
+      "result": "PASS",
+      "evidence": "python3 -m py_compile completed successfully against the exact source bytes later stored as Git blob 5e8c12b915ebfa4e69d0a72129f8b67d1965ecd6",
+      "environment": "isolated ChatGPT execution container; not phone or desktop deployment proof"
+    },
+    {
+      "name": "embedded universal contract",
+      "result": "PASS",
+      "evidence": "self-test passed isolated install, deterministic zero-token command execution, safe no-model failure, disabled battery governor, Termux/Linux/WSL/macOS/Windows persistence rendering, and closed-control-plane assertions",
+      "environment": "isolated ChatGPT execution container; not phone or desktop deployment proof"
+    },
+    {
+      "name": "daemon end-to-end",
+      "result": "PASS",
+      "evidence": "isolated install, daemon start, queued argv command, END_TO_END_OK readback, status readback, and daemon stop completed",
+      "environment": "isolated ChatGPT execution container; not phone or desktop deployment proof"
+    },
+    {
+      "name": "future Fortress regression gate",
+      "result": "PASS",
+      "evidence": "tools/run_fortress_local_contracts.sh now invokes tools/fortress_bootstrap.py self-test and compiles the file"
+    }
+  ],
+  "reviewFindings": [
+    {
+      "area": "mission boundary",
+      "result": "PASS",
+      "detail": "One Python standard-library artifact detects Termux, Windows, WSL, Linux, and macOS. It does not use ChatGPT browser orchestration."
+    },
+    {
+      "area": "closed local control plane",
+      "result": "PASS",
+      "detail": "No network command listener is created. Jobs enter through an owner-local filesystem queue. POSIX installation refuses root."
+    },
+    {
+      "area": "command execution",
+      "result": "PASS",
+      "detail": "Commands are stored and executed as argv arrays with shell=False semantics. Model output is returned as data and is never executed."
+    },
+    {
+      "area": "token exhaustion behavior",
+      "result": "PASS",
+      "detail": "Deterministic command jobs remain callable with no model and no cloud token. Prompt jobs use only loopback llama.cpp or Ollama and fail explicitly when neither is callable."
+    },
+    {
+      "area": "durability",
+      "result": "PASS",
+      "detail": "The artifact installs a stable fortress command, dedicated state/history/receipts, restart/status/doctor/sync surfaces, atomic queue claims, bounded exponential retries, tmux use where present, and platform persistence definitions."
+    },
+    {
+      "area": "repository safety",
+      "result": "PASS",
+      "detail": "The active checkout is not reset or replaced. Fortress owns a dedicated runtime clone, refuses dirty-runtime mutation, and permits only fast-forward synchronization."
+    },
+    {
+      "area": "Home Center integration",
+      "result": "PASS_WITH_RUNTIME_CONDITION",
+      "detail": "Termux starts the existing Vlad swarm daemon only when the dedicated Home Center runtime, rish, and the daemon body are actually present. Absence is reported as unavailable rather than laundered as success."
+    },
+    {
+      "area": "battery governance",
+      "result": "PASS",
+      "detail": "Battery/charging-slope scaling is recorded but disabled exactly as ordered. Worker counts do not depend on battery in this slice."
+    }
+  ],
+  "knownEvidenceGaps": [
+    "No command in this review ran on Drew's physical Android phone.",
+    "No command in this review ran on Drew's physical desktop.",
+    "Termux:Boot, systemd user services, launchd, and Windows Task Scheduler were rendered in isolation but not accepted on their real platforms.",
+    "The bootstrap detects existing loopback llama.cpp or Ollama; it does not claim a model is installed or callable on either machine.",
+    "Owner-local permissions are best-effort through each OS user boundary; this does not claim whole-OS hardening or root ownership.",
+    "The installed command directory may need to be added to PATH on a desktop shell; the installer reports its exact path."
+  ],
+  "capabilityState": {
+    "requested": true,
+    "implementedInRepository": true,
+    "isolatedContractTested": true,
+    "mergedToMain": false,
+    "installedOnPhone": false,
+    "installedOnDesktop": false,
+    "callableOnPhone": false,
+    "callableOnDesktop": false,
+    "localModelProvisioned": false,
+    "batteryGovernorActive": false,
+    "deliveredToOwner": false,
+    "acceptedByOwner": false
+  },
+  "verdict": "PASS",
+  "directive": "PROCEED_TO_VENICE",
+  "reviewer": "Regnet QA",
+  "reviewerMode": "SYNTHETIC_REGNET",
+  "reviewProvenance": "Separate quality, validity, evidence, failure-path, and capability-state review of the exact committed diff.",
+  "reviewedAt": "2026-08-14T04:08:00Z"
+}

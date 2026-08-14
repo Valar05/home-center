@@ -2,6 +2,7 @@
 set -euo pipefail
 ROOT="${HC_REPO_ROOT:-$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)}"
 cd "$ROOT"
+python3 tools/fortress_bootstrap.py self-test
 python3 tools/test_fortress_phone_resume_contract.py
 python3 tools/test_vlad_swarm_venice_directive.py
 python3 tools/test_vlad_pixel_mnn_contract.py
@@ -22,6 +23,7 @@ python3 tools/test_judgment_jar_receipt_quarantine_truth.py
 node --test tools/fortress_online_v2_boot.test.mjs
 node --test atom/test/judgment-jars.test.mjs
 python3 -m py_compile \
+  tools/fortress_bootstrap.py \
   tools/vlad_swarm_daemon.py \
   tools/home_center_mcp_client.py \
   tools/judgment_jar_common.py \

@@ -1,0 +1,87 @@
+{
+  "schema": "home-center.venice-completion-review.v1",
+  "commission": "Deliver one bootstrap script that works on Drew's Android Termux phone and desktop, owns a closed local user-space control plane, survives cloud-token exhaustion, and does not use ChatGPT browser orchestration. Preserve battery-aware scaling only as a later note.",
+  "reviewedHead": "1d5d30cc75bba45b4688a0b142bd70d3cdf62780",
+  "reviewBase": "8caa95edbd8a6546421d770297526c9179015c37",
+  "artifact": {
+    "path": "tools/fortress_bootstrap.py",
+    "gitBlobSha": "5e8c12b915ebfa4e69d0a72129f8b67d1965ecd6",
+    "sha256": "4c12413f153e2ad06f7227390c686a97f19978c18fb6544fa4930c8d0513330e",
+    "stableCommand": "fortress"
+  },
+  "regnetReceipt": "receipts/regnet/2026-08-13-fortress-universal-bootstrap.json",
+  "regnetVerdict": "PASS",
+  "selectedJudgmentJars": [
+    "mission-boundary",
+    "repository-truth",
+    "change-discipline",
+    "failure-recovery",
+    "daemon-backoff-persistence",
+    "home-center-vlad-receipts",
+    "venice-review-gate"
+  ],
+  "adversarialReview": [
+    {
+      "question": "Did the implementation silently split back into separate phone and desktop artifacts?",
+      "answer": "No. The same Python file detects Termux, Windows, WSL, Linux, and macOS and installs the same fortress command contract."
+    },
+    {
+      "question": "Did the worker substitute ChatGPT browser tabs, cloud agents, or a remote command service?",
+      "answer": "No. The control plane is an owner-local filesystem queue with no network command listener and no browser-orchestration dependency."
+    },
+    {
+      "question": "Does zero remaining cloud credit make the machine useless?",
+      "answer": "No. Argv command jobs, queueing, retries, receipts, status, synchronization, and recovery remain deterministic and token-free. Local prompt work degrades explicitly when neither loopback llama.cpp nor Ollama is callable."
+    },
+    {
+      "question": "Does the script seize root, weaken the OS, or overwrite Drew's active worktree?",
+      "answer": "No. POSIX root execution is refused, OS security controls are not disabled, and repository work occurs in a dedicated fast-forward-only runtime that preserves dirty state."
+    },
+    {
+      "question": "Does 'locked and closed' become security cosplay?",
+      "answer": "The bounded claim is owner-local user-space control: protected files where supported, no inbound listener, no cloud provider, and no model-output execution. It does not falsely claim whole-OS hardening or root ownership."
+    },
+    {
+      "question": "Did battery monitoring become another cathedral before the entrance worked?",
+      "answer": "No. The configuration records the charging-slope requirement with enabled=false and deferred-by-owner."
+    },
+    {
+      "question": "Is this merely a one-shot installer?",
+      "answer": "No. It leaves a stable command, persistence definitions, tmux integration where available, durable queue state, bounded retries, receipts, status, doctor, sync, start, stop, restart, run, queue, ask, and self-test surfaces."
+    },
+    {
+      "question": "Are physical deployment claims being laundered through repository tests?",
+      "answer": "No. The capability ledger explicitly leaves phone installation, desktop installation, live persistence, model callability, delivery, and Drew's acceptance unproven."
+    }
+  ],
+  "tasteVerdict": "The entrance is blunt and useful: one body, one command vocabulary, no tab farm, no token hostage situation, no decorative swarm costume. It extends Home Center and Vlad when those bodies are real, but keeps deterministic hands when inference disappears.",
+  "blockingFindings": [],
+  "nonBlockingRuntimeChecks": [
+    "Run install/status/doctor on Drew's phone and retain the resulting receipt.",
+    "Run install/status/doctor on Drew's desktop and retain the resulting receipt.",
+    "Treat local-model callability as optional until either machine proves llama.cpp or Ollama health.",
+    "Implement battery/charging-slope worker governance only in the later authorized slice."
+  ],
+  "capabilityState": {
+    "requestedArtifact": "one universal bootstrap script",
+    "implemented": true,
+    "isolatedContractTested": true,
+    "regnetPassed": true,
+    "mergedToMain": false,
+    "phoneInstalled": false,
+    "desktopInstalled": false,
+    "phoneCallable": false,
+    "desktopCallable": false,
+    "ownerDelivered": false,
+    "ownerAccepted": false,
+    "batteryGovernor": "deferred-disabled"
+  },
+  "verdict": "PASS",
+  "directive": "STOP_ALLOWED",
+  "stopScope": "Repository implementation, deterministic contract, and review slice only. Merge and physical-device checkpoints remain separately provable states.",
+  "externalReviewGateSatisfied": true,
+  "reviewer": "Venice",
+  "reviewerMode": "chatgpt-venice-judgment-jar",
+  "reviewProvenance": "Separate adversarial mission, durability, substitution, evidence, and taste review after Regnet QA.",
+  "reviewedAt": "2026-08-14T04:12:00Z"
+}
