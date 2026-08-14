@@ -42,6 +42,19 @@ test('worker rotation is explicit recovery only', () => {
   assert.doesNotMatch(html, /id="newWorker"[^>]*checked/i);
   assertContains(html, 'Explicit recovery only: rotate into a fresh worker conversation');
   assertContains(panel, "newWorker.checked ? 'explicit-recovery' : 'manual'");
+  assertContains(serviceWorker, "message.newWorker === true");
+  assertContains(serviceWorker, "newJob(job.commission, job.context || '', false, 'atom-relay'");
+});
+
+test('service worker binds continuation to a durable persistent ChatGPT tab identity', () => {
+  assertContains(serviceWorker, 'thronePersistentWorkerTabId');
+  assertContains(serviceWorker, 'resolvePersistentWorker');
+  assertContains(serviceWorker, 'persistentWorkerTabId: tab.id');
+  assertContains(serviceWorker, 'continuation.job.workerTabId = job.workerTabId');
+  assertContains(serviceWorker, 'venice.job.workerTabId = job.workerTabId');
+  assertContains(serviceWorker, "slicePolicy: 'persistent-pro-evolution-slice'");
+  assert.doesNotMatch(serviceWorker, /You are not the campaign brain/i);
+  assert.doesNotMatch(serviceWorker, /disposable execution threads/i);
 });
 
 test('handoff and Venice continuation stay in the same Pro conversation', () => {
@@ -65,6 +78,14 @@ test('campaign seed binds the actual evolution loop and phone sovereignty', () =
     'Prove at least two successful generations',
     'GitHub source is not phone-runtime proof',
   ]) assertContains(panel, phrase);
+  for (const phrase of [
+    'single persistent ChatGPT Pro-reasoning worker',
+    'The phone is sovereign',
+    'Harroway/operator consultation',
+    'She-Raw creative insults are load-bearing motivational pressure',
+    'Narrating the next action is not continuation',
+    "don't talk to me mean execute",
+  ]) assertContains(serviceWorker, phrase);
 });
 
 test('all paid-for failures are durable scars with She-Raw pressure', () => {
@@ -92,7 +113,7 @@ test('all paid-for failures are durable scars with She-Raw pressure', () => {
   assertContains(memory, 'tiny emperor');
 });
 
-test('current service worker still consumes single-worker core rather than a replacement control plane', () => {
+test('current service worker still consumes existing relay and swarm body rather than a replacement control plane', () => {
   assert.match(serviceWorker, /MAX_PARALLEL_WORKERS/);
   assert.match(serviceWorker, /parallelBatch\(throneQueue, Math\.min\(MAX_PARALLEL_WORKERS/);
   assert.match(serviceWorker, /THRONE_RELAY/);
@@ -104,4 +125,5 @@ test('Harroway semantics remain consequence without confiscation and proof laund
   assert.match(panel, /GOVERNANCE: Harroway\/operator consultation/i);
   assert.match(panel, /requested \/ implemented \/ tested \/ deployed \/ callable \/ delivered \/ accepted remain distinct/i);
   assert.match(panel, /Home Center\/Termux\/tmux\/local authorized machinery performs phone actions/i);
+  assert.match(serviceWorker, /Drew is the operator, never command transport/i);
 });
