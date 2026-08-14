@@ -44,8 +44,7 @@ try {
 
     $sequence = $priorSequence + 1
     $pulseUtc = (Get-Date).ToUniversalTime().ToString('o')
-    $task = Get-ScheduledTask -TaskName $TaskName -ErrorAction SilentlyContinue
-    $taskState = if ($null -ne $task) { 'SCHEDULED' } else { 'DIRECT_RUN' }
+    $taskState = 'SCHEDULED'
 
     $template = [System.IO.File]::ReadAllText($templatePath, $utf8)
     $rendered = $template.Replace('__PULSE_UTC__', $pulseUtc)
