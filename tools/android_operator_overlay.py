@@ -12,6 +12,7 @@ PACKAGE = 'com.homecenter.operatoroverlay'
 SERVICE = PACKAGE + '/.OperatorOverlayService'
 RECEIVER = PACKAGE + '/.OverlayUpdateReceiver'
 STATE_URI = 'content://com.homecenter.operatoroverlay.state/state'
+MAINTENANCE_URI = 'content://com.homecenter.operatoroverlay.state/maintenance'
 ACTION_UPDATE = 'com.homecenter.operatoroverlay.UPDATE'
 ACTION_HEARTBEAT = 'com.homecenter.operatoroverlay.HEARTBEAT'
 ACTION_SCREEN_ACTIVITY = 'com.homecenter.operatoroverlay.SCREEN_ACTIVITY'
@@ -80,6 +81,35 @@ def _read_state() -> str:
         if attempt + 1 < STATE_READ_ATTEMPTS:
             time.sleep(STATE_READ_DELAY_SECONDS)
     raise RuntimeError(last_error)
+
+
+def maintenance_status() -> dict[str, Any]:
+    raw = _shell(f'content query --uri {shlex.quote(MAINTENANCE_URI)}', timeout=15)
+    required = (
+        'state_schema_version=2',
+        'feature_quit_kit_dial_v1=1',
+        f'package_name={PACKAGE}',
+        'version_code=',
+        'version_name=',
+        'control_enabled=',
+        'muted=',
+        'panel_collapsed=',
+        'overlay_hidden=',
+        'overlay_x=',
+        'overlay_y=',
+    )
+    if not all(field in raw for field in required):
+        raise RuntimeError('maintenance snapshot returned an incomplete release proof')
+    for forbidden in ('adam_request', 'spotify_', 'receipt', 'payload', 'latest_text'):
+        if forbidden in raw:
+            raise RuntimeError(f'maintenance snapshot leaked forbidden field: {forbidden}')
+    return {
+        'ok': True,
+        'package': PACKAGE,
+        'stateSchemaVersion': 2,
+        'featureQuitKitDialV1': True,
+        'raw': raw[-2000:],
+    }
 
 
 def status() -> dict[str, Any]:
@@ -179,6 +209,8 @@ def execute(action: dict[str, Any]) -> dict[str, Any]:
     kind = str(action.get('action') or '')
     if kind == 'operator_overlay_status':
         return status()
+    if kind == 'operator_overlay_maintenance_status':
+        return maintenance_status()
     if kind == 'operator_overlay_start':
         raise PermissionError(
             'operator_overlay_start is retired; restore requires the physical '

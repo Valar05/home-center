@@ -119,9 +119,39 @@ def verify_maintenance_proof() -> None:
         '"overlay_y"',
     ):
         require(field in PROVIDER, f"maintenance proof field missing: {field}")
+    maintenance_columns = PROVIDER[
+        PROVIDER.index("private static final String[] MAINTENANCE_COLUMNS")
+        : PROVIDER.index("};", PROVIDER.index("private static final String[] MAINTENANCE_COLUMNS"))
+    ]
+    for forbidden in (
+        "latest_source",
+        "adam_request",
+        "spotify_",
+        "receipt",
+        "payload",
+        "latest_text",
+    ):
+        require(
+            forbidden not in maintenance_columns,
+            f"maintenance projection leaks generic state: {forbidden}",
+        )
+    require(
+        'MAINTENANCE_PATH = "maintenance"' in PROVIDER,
+        "dedicated /maintenance provider path is required",
+    )
+    require(
+        "enforceCallingOrSelfPermission(" in PROVIDER
+        and "android.Manifest.permission.DUMP" in PROVIDER,
+        "maintenance snapshot must retain the DUMP permission boundary",
+    )
     require(
         "STATE_SCHEMA_VERSION = 2" in PROVIDER,
         "state provider schema must be version 2",
+    )
+    require(
+        "operator_overlay_maintenance_status" in OPERATOR
+        and "MAINTENANCE_URI" in OPERATOR,
+        "maintenance client must target the privacy-minimal projection",
     )
     migration = method_body(
         STATE,

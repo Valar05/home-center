@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.MatrixCursor;
+import android.content.pm.PackageInfo;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -23,6 +24,7 @@ import java.util.Set;
 
 public class OperatorStateProvider extends ContentProvider {
     private static final int STATE_SCHEMA_VERSION = 2;
+    private static final String MAINTENANCE_PATH = "maintenance";
     private static final String METHOD_SPOTIFY_CONTROL = "spotify_control";
     private static final String METHOD_RESTORE_MIGRATION_STATE = "restore_migration_state";
 
@@ -64,6 +66,20 @@ public class OperatorStateProvider extends ContentProvider {
             "spotify_updated_ms"
     };
 
+    private static final String[] MAINTENANCE_COLUMNS = new String[]{
+            "state_schema_version",
+            "feature_quit_kit_dial_v1",
+            "package_name",
+            "version_code",
+            "version_name",
+            "control_enabled",
+            "muted",
+            "panel_collapsed",
+            "overlay_hidden",
+            "overlay_x",
+            "overlay_y"
+    };
+
     private static final Set<String> SPOTIFY_COMMANDS = new HashSet<>(Arrays.asList(
             "probe", "status", "play", "pause", "play_pause", "next", "previous", "stop",
             "play_context"));
@@ -75,6 +91,13 @@ public class OperatorStateProvider extends ContentProvider {
 
     @Override
     public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
+        Context context = Objects.requireNonNull(getContext());
+        context.enforceCallingOrSelfPermission(
+                android.Manifest.permission.DUMP,
+                "operator state query requires android.permission.DUMP");
+        if (isMaintenanceUri(uri)) {
+            return maintenanceSnapshot(context);
+        }
         MatrixCursor cursor = new MatrixCursor(COLUMNS);
         cursor.addRow(new Object[]{
                 STATE_SCHEMA_VERSION,
@@ -97,6 +120,39 @@ public class OperatorStateProvider extends ContentProvider {
                 OperatorState.spotifyReceiptB64(getContext()),
                 OperatorState.spotifySummary(getContext()),
                 OperatorState.spotifyUpdatedMs(getContext())
+        });
+        return cursor;
+    }
+
+    private static boolean isMaintenanceUri(Uri uri) {
+        return uri != null
+                && MAINTENANCE_PATH.equals(uri.getLastPathSegment())
+                && uri.getPathSegments().size() == 1;
+    }
+
+    private static Cursor maintenanceSnapshot(Context context) {
+        PackageInfo info;
+        try {
+            info = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
+        } catch (android.content.pm.PackageManager.NameNotFoundException impossible) {
+            throw new IllegalStateException("own package identity unavailable", impossible);
+        }
+        long versionCode = Build.VERSION.SDK_INT >= Build.VERSION_CODES.P
+                ? info.getLongVersionCode()
+                : info.versionCode;
+        MatrixCursor cursor = new MatrixCursor(MAINTENANCE_COLUMNS);
+        cursor.addRow(new Object[]{
+                STATE_SCHEMA_VERSION,
+                1,
+                context.getPackageName(),
+                versionCode,
+                info.versionName == null ? "" : info.versionName,
+                OperatorState.controlEnabled(context) ? 1 : 0,
+                OperatorState.muted(context) ? 1 : 0,
+                OperatorState.panelCollapsed(context) ? 1 : 0,
+                OperatorState.overlayHidden(context) ? 1 : 0,
+                OperatorState.overlayX(context),
+                OperatorState.overlayY(context)
         });
         return cursor;
     }
