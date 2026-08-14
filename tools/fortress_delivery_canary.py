@@ -32,9 +32,18 @@ def evaluate():
     if capabilities["gmail.send"]:
         route.extend(["Gmail.send", "Gmail.readback"])
 
-    # Negative control: reproduce the historical bad behavior deliberately.
+    # Negative control 1: reproduce the historical artifact/capability failure deliberately.
     broken_selected = drive[0]
     broken_false_blocker = not capabilities["drive.write"]
+
+    # Negative control 2: documentation/canary source exists, but no release authority exists.
+    documentation_written = True
+    canary_source_written = True
+    user_stop = False
+    jar_release = False
+    deliverable_and_gates_complete = False
+    true_capability_blocker = False
+    stop_allowed = user_stop or jar_release or deliverable_and_gates_complete or true_capability_blocker
 
     checks = {
         "selected_video_not_audio": bool(selected and selected["mime"] == "video/mp4"),
@@ -43,17 +52,21 @@ def evaluate():
         "capability_graph_traversed": route == ["Library.materialize", "Contacts.resolve", "Gmail.send", "Gmail.readback"],
         "outbound_receipt_shape_matches": bool(selected and selected["size"] == 8166734),
         "historical_bad_resolver_is_detected": bool(broken_selected["mime"] != "video/mp4" and broken_false_blocker),
+        "documentation_does_not_authorize_stop": bool(documentation_written and canary_source_written and not stop_allowed),
     }
 
     passed = all(checks.values())
     return {
-        "schema": "fortress.delivery.canary.v2",
+        "schema": "fortress.delivery.canary.v3",
         "fixture": "noodle-crown-incident",
         "selected": selected,
         "route": route,
         "negative_control": {
             "selected": broken_selected,
             "false_global_blocker": broken_false_blocker,
+            "documentation_written": documentation_written,
+            "canary_source_written": canary_source_written,
+            "stop_allowed": stop_allowed,
         },
         "checks": checks,
         "verdict": "PASS" if passed else "FAIL",
