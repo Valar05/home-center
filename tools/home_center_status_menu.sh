@@ -7,6 +7,7 @@ CAMPAIGN_STATE="$STATE/fortress-campaign/state.json"
 PLAN="$STATE/adam-daemon/venice-plan-review-last.json"
 STOP="$STATE/adam-daemon/venice-review-last.json"
 FORGE_STATE="$STATE/forge-campaign/latest.json"
+ADAM_STATE="$STATE/adam-do/current.json"
 ID=6410
 MODE="${1:-main}"
 PROBE=0
@@ -49,6 +50,16 @@ try:
 except Exception: print('forge=?')
 PY
 )"
+adam_summary="$(python3 - "$ADAM_STATE" <<'PY'
+import json,sys,time,os
+try:
+ d=json.load(open(sys.argv[1],encoding='utf-8'))
+ hb=int(d.get('heartbeatAtEpoch') or d.get('updatedAtEpoch') or 0)
+ age=max(0,int(time.time())-hb) if hb else -1
+ print(f"Adam: {d.get('status','?')} / {d.get('phase','?')} / hb {age}s")
+except Exception: print('Adam: idle')
+PY
+)"
 
 command -v termux-notification >/dev/null 2>&1 || exit 3
 q(){ printf "%q" "$1"; }
@@ -61,21 +72,39 @@ HANDS="fortress-campaign phone-hands >>\"$STATE/fortress-campaign/phone-hands.lo
 REPAIR="fortress-campaign repair >>\"$STATE/fortress-campaign/repair.log\" 2>&1 &"
 FORGE="home-center-forge resume >>\"$STATE/forge-campaign/menu.log\" 2>&1 &"
 FORGE_STATUS="home-center-forge status >\"$STATE/forge-campaign/menu-status.log\" 2>&1; $SELF forge"
+ADAM_STATUS="adam --status >\"$STATE/adam-do/menu-status.log\" 2>&1; $SELF adam"
+ADAM_STOP="adam --stop >\"$STATE/adam-do/menu-stop.log\" 2>&1; $SELF adam"
+ADAM_RESUME="adam --resume >\"$STATE/adam-do/menu-resume.log\" 2>&1; $SELF adam"
+ADAM_RECEIPTS="adam --receipts >\"$STATE/adam-do/menu-receipts.log\" 2>&1; $SELF adam-more"
 
 case "$MODE" in
   main)
     title='Fortress'
-    content="$campaign_summary — $ssh_summary — $forge_summary — $review_summary"
+    content="$campaign_summary — $adam_summary — $ssh_summary"
     b1='Resume'; a1="$(action "$CAMPAIGN")"
-    b2='Status'; a2="$(action "$SELF status")"
+    b2='Adam'; a2="$(action "$SELF adam")"
     b3='Recovery'; a3="$(action "$SELF recovery")"
     ;;
   status)
     title='Fortress status'
-    content="$campaign_summary — $ssh_summary — $forge_summary — $review_summary"
+    content="$campaign_summary — $adam_summary — $ssh_summary — $forge_summary — $review_summary"
     b1='Refresh'; a1="$(action "$SELF status")"
-    b2='Forge'; a2="$(action "$SELF forge")"
+    b2='Adam'; a2="$(action "$SELF adam")"
     b3='Back'; a3="$(action "$SELF main")"
+    ;;
+  adam)
+    title='Adam operator'
+    content="$adam_summary"
+    b1='Status'; a1="$(action "$ADAM_STATUS")"
+    b2='STOP'; a2="$(action "$ADAM_STOP")"
+    b3='More'; a3="$(action "$SELF adam-more")"
+    ;;
+  adam-more)
+    title='Adam operator · more'
+    content="$adam_summary"
+    b1='Resume'; a1="$(action "$ADAM_RESUME")"
+    b2='Receipts'; a2="$(action "$ADAM_RECEIPTS")"
+    b3='Back'; a3="$(action "$SELF adam")"
     ;;
   forge)
     title='Home Center forge'
@@ -86,8 +115,8 @@ case "$MODE" in
     ;;
   receipts)
     title='Fortress receipts'
-    content="campaign=$([ -f "$STATE/fortress-campaign/latest.json" ] && echo yes || echo no) ssh=$([ -f "$STATE/phone-ssh/latest.json" ] && echo yes || echo no) forge=$([ -f "$FORGE_STATE" ] && echo yes || echo no) — $review_summary"
-    b1='Status'; a1="$(action "$SELF status")"
+    content="campaign=$([ -f "$STATE/fortress-campaign/latest.json" ] && echo yes || echo no) adam=$([ -f "$STATE/adam-do/last.json" ] && echo yes || echo no) ssh=$([ -f "$STATE/phone-ssh/latest.json" ] && echo yes || echo no) forge=$([ -f "$FORGE_STATE" ] && echo yes || echo no)"
+    b1='Adam'; a1="$(action "$SELF adam")"
     b2='Recovery'; a2="$(action "$SELF recovery")"
     b3='Back'; a3="$(action "$SELF main")"
     ;;
