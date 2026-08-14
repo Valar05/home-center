@@ -47,7 +47,7 @@ final class OperatorState {
     static int overlayX(Context context) { return prefs(context).getInt(KEY_OVERLAY_X, 8); }
     static int overlayY(Context context) { return prefs(context).getInt(KEY_OVERLAY_Y, 28); }
     static long adamRequestId(Context context) { return prefs(context).getLong(KEY_ADAM_REQUEST_ID, 0L); }
-    static String adamRequestMode(Context context) { return prefs(context).getString(KEY_ADAM_REQUEST_MODE, "terminal"); }
+    static String adamRequestMode(Context context) { return prefs(context).getString(KEY_ADAM_REQUEST_MODE, "auto"); }
     static String adamRequestPayloadB64(Context context) { return prefs(context).getString(KEY_ADAM_REQUEST_PAYLOAD_B64, ""); }
     static long adamRequestBytes(Context context) { return prefs(context).getLong(KEY_ADAM_REQUEST_BYTES, 0L); }
     static String adamRequestSha256(Context context) { return prefs(context).getString(KEY_ADAM_REQUEST_SHA256, ""); }
@@ -132,6 +132,9 @@ final class OperatorState {
         if (key.equals("status") || key.equals("phone status") || key.equals("fortress status")) {
             return "bash tools/fortress_phone_ops.sh status";
         }
+        if (key.equals("night") || key.equals("night status") || key.equals("night core") || key.equals("night core status")) {
+            return "bash tools/fortress_phone_ops.sh night-status";
+        }
         if (key.equals("chrome") || key.equals("chromium") || key.equals("open chrome") || key.equals("open chromium")) {
             return "bash tools/fortress_phone_ops.sh chrome-open";
         }
@@ -148,11 +151,21 @@ final class OperatorState {
     }
 
     static void submitAdamRequest(Context context, String mode, String text, long nowMs) {
-        String cleanMode = mode == null ? "terminal" : mode.trim().toLowerCase();
-        if (!(cleanMode.equals("terminal") || cleanMode.equals("chat") || cleanMode.equals("continue") || cleanMode.equals("vlad") || cleanMode.equals("radio"))) throw new IllegalArgumentException("unsupported Adam mode");
+        String cleanMode = mode == null ? "auto" : mode.trim().toLowerCase(Locale.ROOT);
+        if (!(cleanMode.equals("auto") || cleanMode.equals("terminal") || cleanMode.equals("chat") || cleanMode.equals("continue") || cleanMode.equals("vlad") || cleanMode.equals("radio"))) throw new IllegalArgumentException("unsupported Adam mode");
         String exact = text == null ? "" : text;
         if (exact.trim().isEmpty()) return;
-        if (cleanMode.equals("terminal")) exact = deterministicTerminalAlias(exact);
+
+        if (cleanMode.equals("auto")) {
+            String quick = deterministicTerminalAlias(exact);
+            if (!quick.equals(exact.trim())) {
+                exact = quick;
+                cleanMode = "terminal";
+            }
+        } else if (cleanMode.equals("terminal")) {
+            exact = deterministicTerminalAlias(exact);
+        }
+
         byte[] bytes = exact.getBytes(StandardCharsets.UTF_8);
         String payload = Base64.encodeToString(bytes, Base64.NO_WRAP);
         prefs(context).edit()
