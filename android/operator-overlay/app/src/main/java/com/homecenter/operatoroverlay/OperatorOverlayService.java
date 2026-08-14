@@ -252,8 +252,8 @@ public class OperatorOverlayService extends Service {
         touchGuard.setContentDescription("Remote input active");
         touchGuard.setOnTouchListener((view, event) -> true);
         guardParams = new WindowManager.LayoutParams(
-                WindowManager.LayoutParams.MATCH_PARENT,
-                WindowManager.LayoutParams.MATCH_PARENT,
+                1,
+                1,
                 WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
                 WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE |
                         WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE |
@@ -639,14 +639,16 @@ public class OperatorOverlayService extends Service {
 
     private void syncTouchGuard(boolean active) {
         if (windowManager == null || touchGuard == null || guardParams == null) return;
+        // The overlay never owns an invisible full-screen input surface. Remote
+        // actions remain bounded by the visible local consent state.
         int flags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE |
+                WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE |
                 WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN;
-        if (!active) flags |= WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE;
         if (guardParams.flags != flags) {
             guardParams.flags = flags;
             windowManager.updateViewLayout(touchGuard, guardParams);
         }
-        touchGuard.setBackgroundColor(active ? Color.argb(10, 12, 32, 52) : Color.TRANSPARENT);
+        touchGuard.setBackgroundColor(Color.TRANSPARENT);
     }
 
     private void refreshUi() {
