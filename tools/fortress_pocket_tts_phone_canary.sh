@@ -23,24 +23,34 @@ if ! timeout 30 git -C "$REPO" fetch --no-tags --quiet origin "$REMOTE_BRANCH" 2
   cat "$CAND/fetch.err" >&2
   fail git_fetch
 fi
-HEAD="$(git -C "$REPO" rev-parse FETCH_HEAD)"
+HEAD="$(timeout 5 git -C "$REPO" rev-parse FETCH_HEAD)" || fail git_rev_parse
 if [ -n "$EXPECTED_HEAD" ] && [ "$HEAD" != "$EXPECTED_HEAD" ]; then
   fail unexpected_head
 fi
 
-git -C "$REPO" show "$HEAD:tools/fortress_status_read.py" > "$CAND/fortress_status_read.py"
-git -C "$REPO" show "$HEAD:config/fortress-pocket-tts-performance.json" > "$CAND/fortress-pocket-tts-performance.json"
-git -C "$REPO" show "$HEAD:docs/evidence/nightcore-design/hunger-hyperbolic-profile-20260814.json" > "$CAND/hunger-hyperbolic-profile.json"
+# All repository extraction is local and independently bounded so a missing or
+# promisor object cannot strand the physical queue consumer.
+timeout 10 git -C "$REPO" show "$HEAD:tools/fortress_status_read.py" > "$CAND/fortress_status_read.py" || fail extract_status_read
+timeout 10 git -C "$REPO" show "$HEAD:config/fortress-pocket-tts-performance.json" > "$CAND/fortress-pocket-tts-performance.json" || fail extract_performance_config
+timeout 10 git -C "$REPO" show "$HEAD:docs/evidence/nightcore-design/hunger-hyperbolic-profile-20260814.json" > "$CAND/hunger-hyperbolic-profile.json" || fail extract_design_profile
 chmod 700 "$CAND/fortress_status_read.py"
 
 # Candidate evaluation MUST NOT mutate the tracked last-known-good config.
 # Compile the design-side first canary into only this ephemeral copy, preserving
 # engine/provider/playback locks and the evidence-before-promotion law.
-python3 - "$CAND/fortress-pocket-tts-performance.json" "$CAND/hunger-hyperbolic-profile.json" "$CAND/candidate.json" <<'PY'
+timeout 30 python3 - "$CAND/fortress-pocket-tts-performance.json" "$CAND/hunger-hyperbolic-profile.json" "$CAND/candidate.json" <<'PY' || fail candidate_compile
 import copy,hashlib,json,sys
 config_path,design_path,out_path=sys.argv[1:]
 config=json.load(open(config_path,encoding='utf-8'))
 design=json.load(open(design_path,encoding='utf-8'))
+if config.get('engineLock') != 'pocket-tts-phone':
+    raise SystemExit('engine lock violated')
+if config.get('providerLock') != 'pocket-home-center':
+    raise SystemExit('provider lock violated')
+if config.get('playbackLock') != 'com.dclar.homecenter/.PocketTtsPlaybackActivity':
+    raise SystemExit('playback lock violated')
+if config.get('systemFallbackAllowed') is not False or config.get('cloudFallbackAllowed') is not False:
+    raise SystemExit('forbidden fallback enabled')
 candidate_id=design.get('implementationReadyProfile',{}).get('firstCanary')
 if not candidate_id:
     raise SystemExit('design artifact missing implementationReadyProfile.firstCanary')
@@ -81,7 +91,7 @@ PY
 export FORTRESS_HOME_CENTER="$REPO"
 export FORTRESS_POCKET_TTS_PERFORMANCE_CONFIG="$CAND/fortress-pocket-tts-performance.json"
 
-python3 - "$CAND/device.json" <<'PY'
+timeout 15 python3 - "$CAND/device.json" <<'PY' || fail device_identity
 import json,subprocess,sys
 
 def cmd(args):
@@ -100,25 +110,33 @@ obj={
 open(sys.argv[1],"w",encoding="utf-8").write(json.dumps(obj,sort_keys=True)+"\n")
 PY
 
-timeout 45 python3 "$CAND/fortress_status_read.py" --doctor --persona orandroid67 > "$CAND/doctor-orandroid.json"
-timeout 45 python3 "$CAND/fortress_status_read.py" --doctor --persona she-ra > "$CAND/doctor-shera.json"
-python3 - "$CAND/doctor-orandroid.json" "$CAND/doctor-shera.json" <<'PY'
+timeout 45 python3 "$CAND/fortress_status_read.py" --doctor --persona orandroid67 > "$CAND/doctor-orandroid.json" || fail doctor_orandroid
+timeout 45 python3 "$CAND/fortress_status_read.py" --doctor --persona she-ra > "$CAND/doctor-shera.json" || fail doctor_shera
+timeout 15 python3 - "$CAND/doctor-orandroid.json" "$CAND/doctor-shera.json" <<'PY' || fail doctor_validation
 import json,sys
 for path in sys.argv[1:]:
     data=json.load(open(path,encoding='utf-8'))
     if data.get('ok') is not True:
         raise SystemExit(f"doctor failed: {path}: {data}")
+    if data.get('provider') != 'pocket-home-center':
+        raise SystemExit(f"provider lock failed: {path}: {data.get('provider')}")
+    if data.get('engine') != 'pocket-tts-phone':
+        raise SystemExit(f"engine lock failed: {path}: {data.get('engine')}")
+    if data.get('outputComponent') != 'com.dclar.homecenter/.PocketTtsPlaybackActivity':
+        raise SystemExit(f"playback lock failed: {path}: {data.get('outputComponent')}")
+    if data.get('systemFallbackAllowed') is not False or data.get('cloudFallbackAllowed') is not False:
+        raise SystemExit(f"forbidden fallback reported by doctor: {path}")
 PY
 
 timeout 240 python3 "$CAND/fortress_status_read.py" --persona orandroid67 \
   "Pocket TTS physical canary. Verifying Nightcore playback on the primary phone. No operator action required." \
-  > "$CAND/orandroid.json"
+  > "$CAND/orandroid.json" || fail playback_orandroid
 timeout 240 python3 "$CAND/fortress_status_read.py" --persona she-ra \
   "She-Ra canary. Playback verification follows. You very small administrative tragedy." \
-  > "$CAND/shera.json"
-timeout 45 "$HOME/bin/fortress-read" --doctor > "$CAND/final-health.json"
+  > "$CAND/shera.json" || fail playback_shera
+timeout 45 "$HOME/bin/fortress-read" --doctor > "$CAND/final-health.json" || fail final_health
 
-python3 - "$ID" "$HEAD" "$CAND" <<'PY'
+timeout 30 python3 - "$ID" "$HEAD" "$CAND" <<'PY'
 import hashlib,json,pathlib,sys
 ID,head,cand=sys.argv[1:]
 p=pathlib.Path(cand)
