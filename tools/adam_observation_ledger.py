@@ -63,6 +63,8 @@ def parse_observation(text: str) -> dict[str, Any]:
         raise ObservationError("empty observation")
     if re.match(r"^(stage|direction|direct|camera|scene|she-ra)\b", lowered):
         raise ObservationError("fictional direction is outside the real observation ledger")
+    if re.search(r"\b(in the story|in this scene|the character|she says|he says)\b", lowered):
+        raise ObservationError("fictional narration is outside the real observation ledger")
     if re.search(
         r"\b(should i|can i|may i|shall i|how many|what dose|next dose|"
         r"take next|use next|plan to (?:take|use)|want to (?:take|use)|"
@@ -80,12 +82,14 @@ def parse_observation(text: str) -> dict[str, Any]:
         return {"eventType": "commitment", "substance": "nicotine", "commitment": "no_more_tonight"}
     if re.search(
         r"\b(pills?|meds?|medication)\s+(?:are\s+)?(taken|done)\b|"
-        r"\b(i|i've|ive)\s+(took|have taken)\s+(my\s+)?(pills?|meds?|medication)\b",
+        r"\bi\s+(?:took|have taken)\s+(?:my\s+)?(?:pills?|meds?|medication)\b|"
+        r"\b(?:i've|ive)\s+taken\s+(?:my\s+)?(?:pills?|meds?|medication)\b",
         lowered,
     ):
         return {"eventType": "medication_adherence", "status": "confirmed_taken"}
     if re.search(
         r"\bshowered\b|\b(?:i\s+)?(?:already\s+)?took (?:my|a) shower\b|"
+        r"\b(?:i\s+have\s+)?already taken a shower\b|"
         r"\b(?:my\s+)?shower (?:is\s+)?(?:complete|done)\b",
         lowered,
     ):
