@@ -3,6 +3,7 @@ set -euo pipefail
 
 ROOT="$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)"
 STATE="$HOME/.local/state/home-center"
+CHROMIUM="$ROOT/tools/android_chromium_control.py"
 mkdir -p "$STATE"
 RISH_BIN="${RISH:-$(command -v rish 2>/dev/null || true)}"
 [ -n "$RISH_BIN" ] || RISH_BIN="$HOME/bin/rish"
@@ -13,7 +14,7 @@ json_receipt() {
 import json,sys,time,socket
 ok,op,detail=sys.argv[1:]
 print(json.dumps({
-  "schema":"fortress.phone-ops.v1",
+  "schema":"fortress.phone-ops.v2",
   "ok":ok=="1",
   "operation":op,
   "detail":detail,
@@ -29,12 +30,35 @@ need_rish() {
 
 rish() { "$RISH_BIN" -c "$1"; }
 
+need_chromium_controller() {
+  [ -f "$CHROMIUM" ] || { json_receipt 0 "$1" "android_chromium_control.py missing"; exit 3; }
+}
+
 status() {
   need_rish status
-  local out
-  out="$(rish "pm list packages com.homecenter.operatoroverlay; appops get com.homecenter.operatoroverlay SYSTEM_ALERT_WINDOW 2>/dev/null || true; content query --uri content://com.homecenter.operatoroverlay.state/state 2>/dev/null || true; pidof com.android.chrome 2>/dev/null || true" 2>&1 || true)"
-  printf '%s\n' "$out" > "$STATE/fortress-phone-ops-status.txt"
-  json_receipt 1 status "$(printf '%s' "$out" | tr '\n' ' ' | cut -c1-900)"
+  local overlay chromium
+  overlay="$(rish "pm list packages com.homecenter.operatoroverlay; appops get com.homecenter.operatoroverlay SYSTEM_ALERT_WINDOW 2>/dev/null || true; content query --uri content://com.homecenter.operatoroverlay.state/state 2>/dev/null || true" 2>&1 || true)"
+  if [ -f "$CHROMIUM" ]; then
+    chromium="$(python3 "$CHROMIUM" status 2>&1 || true)"
+  else
+    chromium='{"ok":false,"error":"android_chromium_control.py missing"}'
+  fi
+  printf '%s\n' "$overlay" > "$STATE/fortress-phone-ops-status.txt"
+  printf '%s\n' "$chromium" > "$STATE/fortress-phone-ops-chromium-status.json"
+  python3 - "$overlay" "$chromium" <<'PY'
+import json,sys,time,socket
+overlay,chromium=sys.argv[1:]
+try: browser=json.loads(chromium.splitlines()[-1])
+except Exception: browser={"ok":False,"raw":chromium[-2000:]}
+print(json.dumps({
+  "schema":"fortress.phone-ops.status.v2",
+  "ok":bool("com.homecenter.operatoroverlay" in overlay and browser.get("ok")),
+  "device":socket.gethostname(),
+  "atEpoch":int(time.time()),
+  "overlay":overlay[-2200:],
+  "chromium":browser,
+}, sort_keys=True))
+PY
 }
 
 overlay_restart() {
@@ -42,36 +66,29 @@ overlay_restart() {
 }
 
 chrome_open() {
-  need_rish chrome-open
-  local url="${1:-https://chatgpt.com/}"
-  case "$url" in http://*|https://*) ;; *) json_receipt 0 chrome-open "URL must be http(s)"; exit 3;; esac
-  local pkg=""
-  for candidate in com.android.chrome com.chrome.beta com.chrome.dev org.chromium.chrome; do
-    if rish "pm list packages $candidate" 2>/dev/null | grep -q "package:$candidate"; then pkg="$candidate"; break; fi
-  done
-  [ -n "$pkg" ] || { json_receipt 0 chrome-open "No supported Chromium package found"; exit 4; }
-  rish "am start -a android.intent.action.VIEW -d '$url' -p '$pkg'" >/dev/null
-  sleep 1
-  local top
-  top="$(rish "dumpsys activity activities | grep -m1 mResumedActivity" 2>/dev/null || true)"
-  printf '%s\n' "$top" | grep -q "$pkg" || { json_receipt 0 chrome-open "launch attempted but resumed activity was: $top"; exit 5; }
-  json_receipt 1 chrome-open "foreground=$pkg url=$url"
+  need_chromium_controller chrome-open
+  exec python3 "$CHROMIUM" open "${1:-https://chatgpt.com/}"
+}
+
+chrome_navigate() {
+  need_chromium_controller chrome-navigate
+  [ "$#" -ge 1 ] || { json_receipt 0 chrome-navigate "URL required"; exit 64; }
+  exec python3 "$CHROMIUM" navigate "$1"
 }
 
 chrome_reload() {
-  need_rish chrome-reload
-  # Android keyevent 285 is KEYCODE_REFRESH on modern Android. If the active
-  # browser ignores it, the canary will fail rather than pretending success.
-  rish "input keyevent 285" >/dev/null
-  json_receipt 1 chrome-reload "KEYCODE_REFRESH dispatched to foreground app"
+  need_chromium_controller chrome-reload
+  exec python3 "$CHROMIUM" reload
+}
+
+chrome_back() {
+  need_chromium_controller chrome-back
+  exec python3 "$CHROMIUM" back
 }
 
 canary() {
-  if [ -x "$ROOT/tools/accept_adam_cli_phone.sh" ]; then
-    exec bash "$ROOT/tools/accept_adam_cli_phone.sh"
-  fi
-  json_receipt 0 canary "accept_adam_cli_phone.sh missing"
-  exit 6
+  need_chromium_controller canary
+  exec python3 "$CHROMIUM" canary
 }
 
 help_text() {
@@ -80,7 +97,9 @@ fortress-phone-ops commands:
   status
   overlay-restart
   chrome-open [https://url]
+  chrome-navigate <https://url>
   chrome-reload
+  chrome-back
   canary
 EOF
 }
@@ -90,8 +109,10 @@ case "$op" in
   status) status "$@" ;;
   overlay-restart|restart|restart-overlay) overlay_restart "$@" ;;
   chrome-open|chrome|chromium) chrome_open "$@" ;;
+  chrome-navigate|navigate) chrome_navigate "$@" ;;
   chrome-reload|reload) chrome_reload "$@" ;;
-  canary|test) canary "$@" ;;
+  chrome-back|back) chrome_back "$@" ;;
+  canary|test|chrome-canary) canary "$@" ;;
   help|-h|--help) help_text ;;
   *) json_receipt 0 "$op" "unsupported operation"; help_text >&2; exit 64 ;;
 esac
