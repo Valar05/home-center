@@ -32,6 +32,21 @@ Observation: workers repeatedly stopped after describing implementation or failu
 Rule: no Venice receipt, no stop. `CONTINUE_REQUIRED` means continue the same commissioned slice.
 Regression target: every terminal worker path proves a fresh Venice completion receipt.
 
+### Narrated continuation substituted for execution
+Observation: after being corrected for stopping, Adam explicitly described the next consultation/recovery action, described why stopping was wrong, and then stopped again without taking the callable action.
+Rule: a worker that can name an immediately callable next action has proved the slice is not at a checkpoint. Narration, apology, issue filing, or self-diagnosis does not satisfy continuation.
+Regression target: reject worker responses that end with an unperformed callable next action, including patterns such as `next I will`, `the next target is`, `I should not have stopped`, or equivalent.
+
+### Dead joke substituted for worker motivation
+Observation: She-Raw delivered a theatrical insult in chat, but no worker prompt, campaign state, review gate, or execution path consumed it, so the joke produced zero operational effect.
+Rule: motivational roast must be attached to a real worker/reviewer invocation or durable campaign prompt. A joke with no consuming execution body is decoration, not motivation.
+Regression target: when She-Raw motivation is required, prove the active worker packet contains the roast/critique instruction and that the worker advances after receiving it.
+
+### Operator imperative misread as permission to stop
+Observation: `don't talk to me` was interpreted as silence rather than as an operator-mode continuation command, causing an empty response and no execution.
+Rule: in an active operator campaign, `continue`, `driver advance`, `do it`, `make it so`, and `don't talk to me` mean use the authorized execution lane without a conversational interlude.
+Regression target: operator-imperative fixtures must produce a tool/action attempt or a proven boundary, never an empty response.
+
 ### Venice treated as optional discovery
 Observation: Fortress boot discovered Venice-related skills but did not require them, allowing workers to boot without the stop gate.
 Rule: `venice-stop-gate` and `venice-review-memory` are boot-critical, not optional flavor.
@@ -75,6 +90,9 @@ Regression target: preflight mutation/dispatch is blocked and tested.
 ## High-priority categories
 - plan bypass / research omission / weak antagonism
 - premature stop / self-certification
+- narrated continuation / apology-as-action
+- dead motivational joke / unconsumed critique
+- operator-imperative misrouting
 - Venice bypass / missing review receipt
 - code-review omission
 - Codex steering or bootstrap omission
