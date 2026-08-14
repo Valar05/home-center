@@ -5,8 +5,9 @@ param(
 
 $ErrorActionPreference = 'Stop'
 # Pinned to the reviewed extension commit containing the 0.7.0 single-Pro
-# Fortress evolution body. This pin covers every vendored extension file below.
-$PinnedExtensionCommit = '3f4567d767a57fe532858c9f96576af8d973b8b4'
+# Fortress evolution body plus invocation-independent lean serialization doctrine.
+# This pin covers every vendored extension file below.
+$PinnedExtensionCommit = '9c6936c9fea465ee60cce8d5a33d697b7e658be0'
 $ExtensionDir = Join-Path $Root 'extension'
 $BrowserRoot = Join-Path $Root 'chrome-for-testing'
 $ProfileDir = Join-Path $Root 'profile'
@@ -51,6 +52,11 @@ if ($coreText -notmatch 'phoneSovereign:\s*true' -or $coreText -notmatch 'phoneC
 if ($coreText -notmatch 'harrowayConsultationRequired:\s*true') { throw 'Harroway consultation requirement is missing.' }
 if ($coreText -notmatch 'sheRawMotivationRequired:\s*true') { throw 'She-Raw motivational pressure requirement is missing.' }
 if ($coreText -notmatch 'narratedContinuationForbidden:\s*true') { throw 'Narrated-continuation guard is missing.' }
+if ($coreText -notmatch 'competenceInvocationIndependent:\s*true') { throw 'Invocation-independent competence doctrine is missing.' }
+if ($coreText -notmatch 'mvpBeforeEmpire:\s*true') { throw 'MVP-before-empire doctrine is missing.' }
+if ($coreText -notmatch 'oneActiveCriticalPath:\s*true') { throw 'Single critical-path doctrine is missing.' }
+if ($coreText -notmatch 'contextBudgetIsOperationalResource:\s*true') { throw 'Context-budget doctrine is missing.' }
+if ($coreText -notmatch 'promiseInflationForbidden:\s*true') { throw 'Promise-inflation guard is missing.' }
 if ($coreText -notmatch "VENICE_REVIEW_MODE\s*=\s*'judgment_jar_emulation'") { throw 'Stable Judgment-Jar Venice reviewer wire ID is missing.' }
 if ($coreText -notmatch "veniceReviewSemantics:\s*'primary-judgment-jar'") { throw 'Primary Judgment-Jar Venice semantics are missing.' }
 if ($coreText -notmatch 'planVeniceContinuation' -or $coreText -notmatch 'parseVeniceDirective') { throw 'Venice continuation core is missing.' }
@@ -139,6 +145,11 @@ $receipt = [ordered]@{
   harrowayConsultationRequired = $true
   sheRawMotivationRequired = $true
   narratedContinuationForbidden = $true
+  competenceInvocationIndependent = $true
+  mvpBeforeEmpire = $true
+  oneActiveCriticalPath = $true
+  contextBudgetIsOperationalResource = $true
+  promiseInflationForbidden = $true
   explicitWorkerRotationOnly = $true
   operatorSurface = 'Home Center / Adam overlay + notifications; Chromium Throne is Pro reasoning organ'
   workerSlicePolicy = 'persistent conversation advances one evidence-backed evolution slice at a time'

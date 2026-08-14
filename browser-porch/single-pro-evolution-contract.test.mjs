@@ -35,6 +35,22 @@ test('Chromium Throne has exactly one normal Pro worker lane', () => {
   assert.equal(parallelBatch(jobs, 99).length, 1);
 });
 
+test('Fortress competence and lean serialization do not depend on a magic invocation phrase', () => {
+  const plain = newJob('Enable the Chromium Throne MVP.', 'ctx', false, 'manual', 'plain');
+  const fortress = newJob('Fortress online. Enable the Chromium Throne MVP.', 'ctx', false, 'manual', 'fortress');
+  const portcullis = newJob('PORTCULLIS LOCKED. Enable the Chromium Throne MVP.', 'ctx', false, 'manual', 'portcullis');
+  for (const job of [plain, fortress, portcullis]) {
+    assert.equal(job.workerDoctrine, WORKER_DOCTRINE);
+    assert.equal(job.workerDoctrine.competenceInvocationIndependent, true);
+    assert.equal(job.workerDoctrine.mvpBeforeEmpire, true);
+    assert.equal(job.workerDoctrine.oneActiveCriticalPath, true);
+    assert.equal(job.workerDoctrine.contextBudgetIsOperationalResource, true);
+    assert.equal(job.workerDoctrine.promiseInflationForbidden, true);
+    assert.equal(job.workerDoctrine.harrowayConsultationRequired, true);
+    assert.equal(job.workerDoctrine.narratedContinuationForbidden, true);
+  }
+});
+
 test('worker rotation is explicit recovery only', () => {
   assert.equal(newJob('normal', 'ctx', true, 'manual').newWorker, false);
   assert.equal(newJob('relay', 'ctx', true, 'atom-relay').newWorker, false);
@@ -104,13 +120,17 @@ test('all paid-for failures are durable scars with She-Raw pressure', () => {
     'Narrated continuation substituted for execution',
     'Dead joke substituted for worker motivation',
     'Operator imperative misread as permission to stop',
+    'Grand-plan inflation starved the usable MVP',
   ];
   for (const scar of scars) assertContains(memory, `### ${scar}`);
   const roastCount = (memory.match(/She-Raw roast:/g) || []).length;
-  assert.ok(roastCount >= 14, `expected >=14 load-bearing roasts, got ${roastCount}`);
+  assert.ok(roastCount >= 15, `expected >=15 load-bearing roasts, got ${roastCount}`);
   assertContains(memory, 'A cattle prod wired to nothing is just an ugly stick');
   assertContains(memory, 'museum butcher');
   assertContains(memory, 'tiny emperor');
+  assertContains(memory, 'cathedral turnip');
+  assertContains(memory, 'MVP before empire');
+  assertContains(memory, 'Context/token budget is an operational resource');
 });
 
 test('current service worker still consumes existing relay and swarm body rather than a replacement control plane', () => {

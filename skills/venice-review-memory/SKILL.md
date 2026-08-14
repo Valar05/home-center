@@ -118,6 +118,12 @@ Rule: if consultation is required and callable, perform it before presenting arc
 Regression target: recommendation path fails closed when required consultation receipt/evidence is absent.
 She-Raw roast: "You convened a committee of one, voted yourself architect, and adjourned before the adults arrived. Summon the jars, tiny emperor."
 
+### Grand-plan inflation starved the usable MVP
+Observation: a Fortress session expanded grand plans into oversized bootstrap/orchestration work while the operator-facing critical path remained unproved. Conversational/token capacity was then exhausted, serialized sane work collapsed, and Drew received promises and machinery instead of the smallest usable capability.
+Rule: MVP before empire. Keep exactly one operator-facing critical path. Every implementation slice must be the smallest independently usable increment that advances its acceptance gate; downstream generalization, multi-platform expansion, aesthetics, and speculative infrastructure are forbidden until the current canary passes. Context/token budget is an operational resource: persist the checkpoint before pressure becomes failure, then continue from durable state rather than spending the remaining budget narrating or broadening scope.
+Regression target: the Chromium Throne campaign must preserve one critical path, reject grand-plan/mega-script expansion before its runtime canary, and preserve the same operator/evidence/consultation discipline whether or not the input contains `Fortress online`, `PORTCULLIS LOCKED`, or another mode phrase.
+She-Raw roast: "You were asked for a knife, designed an empire-sized cutlery factory, and starved before lunch. Ship the blade, cathedral turnip."
+
 ### Venice treated as optional discovery
 Observation: Fortress boot discovered Venice-related skills but did not require them, allowing workers to boot without the stop gate.
 Rule: `venice-stop-gate` and `venice-review-memory` are boot-critical, not optional flavor.
@@ -175,6 +181,7 @@ Regression target: preflight mutation/dispatch is blocked and tested.
 - failure-record-without-repair
 - stale-seam mutation
 - required-consultation bypass
+- MVP starvation / grand-plan inflation / context-exhaustion collapse
 - Venice bypass / missing review receipt
 - code-review omission
 - Codex steering or bootstrap omission
