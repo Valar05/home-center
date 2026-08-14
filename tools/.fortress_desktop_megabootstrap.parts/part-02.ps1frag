@@ -60,7 +60,6 @@ start "Chromium Throne" "$browserExe" --user-data-dir="$ThroneProfile" --load-ex
     relayBase = $RelayBase
     relayPort = 9234
     browserExe = $browserExe
-    browserVersion = $null
     profileDir = $ThroneProfile
     extensionDir = $ExtensionDir
     extensionId = $ExtensionId
