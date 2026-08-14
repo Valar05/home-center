@@ -52,12 +52,16 @@ async function resetContext() {
   show({ok: true, context: SINGLE_PRO_CONTEXT, source: 'single-pro-fortress-evolution-seed'});
 }
 
+function sourceForRotation() {
+  return newWorker.checked ? 'explicit-recovery' : 'manual';
+}
+
 async function enqueue() {
   const text = commission.value.trim();
   if (!text) return show('Commission is empty.');
   const campaignContext = context.value.trim() || SINGLE_PRO_CONTEXT;
   const {throneQueue = []} = await chrome.storage.local.get('throneQueue');
-  throneQueue.push(newJob(text, campaignContext, newWorker.checked, 'manual'));
+  throneQueue.push(newJob(text, campaignContext, newWorker.checked, sourceForRotation()));
   await chrome.storage.local.set({throneQueue, throneDraft: '', throneContext: campaignContext});
   commission.value = '';
   await renderQueue(throneQueue);
@@ -68,7 +72,7 @@ async function runSingle() {
   if (!text) return show('Commission is empty.');
   const campaignContext = context.value.trim() || SINGLE_PRO_CONTEXT;
   const {throneQueue = []} = await chrome.storage.local.get('throneQueue');
-  throneQueue.push(newJob(text, campaignContext, newWorker.checked, 'manual'));
+  throneQueue.push(newJob(text, campaignContext, newWorker.checked, sourceForRotation()));
   await chrome.storage.local.set({throneQueue, throneDraft: '', throneContext: campaignContext});
   commission.value = '';
   return runSwarm();
@@ -108,7 +112,7 @@ async function renderQueue(queue) {
   for (const [index, job] of queue.entries()) {
     const row = document.createElement('div'); row.className = 'job';
     const title = document.createElement('strong');
-    title.textContent = `${index + 1}. ${job.state}${job.workerTabId ? ` · tab ${job.workerTabId}` : ''}${job.context ? ' · context locked' : ''}${job.source === 'handoff' ? ' · continued' : ''}`;
+    title.textContent = `${index + 1}. ${job.state}${job.workerTabId ? ` · tab ${job.workerTabId}` : ''}${job.context ? ' · context locked' : ''}${job.source === 'handoff' ? ' · continued' : ''}${job.source === 'explicit-recovery' ? ' · rotated' : ''}`;
     const body = document.createElement('div'); body.textContent = job.commission.length > 220 ? `${job.commission.slice(0, 220)}…` : job.commission;
     row.append(title, body); queueNode.append(row);
   }
