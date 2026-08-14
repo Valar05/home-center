@@ -1,9 +1,13 @@
 #!/data/data/com.termux/files/usr/bin/python
 from __future__ import annotations
 
+import json
+import os
 import re
 import shlex
+import subprocess
 import time
+from pathlib import Path
 from typing import Any
 
 from android_phone_hands_bridge import run_rish
@@ -20,6 +24,9 @@ MAX_TEXT_CHARS = 8000
 STATE_READ_ATTEMPTS = 3
 STATE_READ_DELAY_SECONDS = 0.12
 SCREEN_ACTIVITY_SETTLE_SECONDS = 0.24
+BUILD_INSTALL_TIMEOUT_SECONDS = 1200
+RECOVERY_SCRIPT = Path(__file__).resolve().with_name('recover_adam_overlay_phone.sh')
+RECOVERY_RECEIPT = Path.home() / '.local/state/home-center/adam-overlay-recovery.json'
 
 
 def _shell(command: str, timeout: float = 20) -> str:
@@ -173,6 +180,39 @@ def update(text: str, source: str = 'ChatGPT') -> dict[str, Any]:
     }
 
 
+def build_install() -> dict[str, Any]:
+    """Run the one fixed overlay recovery path; no caller-supplied command exists."""
+    if not RECOVERY_SCRIPT.is_file():
+        raise RuntimeError(f'operator overlay recovery script is missing: {RECOVERY_SCRIPT}')
+    env = os.environ.copy()
+    env['HC_FORCE_BUILD'] = '1'
+    run = subprocess.run(
+        ['bash', str(RECOVERY_SCRIPT)],
+        cwd=str(RECOVERY_SCRIPT.parent.parent),
+        env=env,
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        timeout=BUILD_INSTALL_TIMEOUT_SECONDS,
+        check=False,
+    )
+    output = run.stdout[-12000:]
+    if run.returncode != 0:
+        raise RuntimeError(f'operator overlay build/install failed ({run.returncode}): {output}')
+    receipt: dict[str, Any] = {}
+    if RECOVERY_RECEIPT.is_file():
+        receipt = json.loads(RECOVERY_RECEIPT.read_text(encoding='utf-8'))
+    if not receipt.get('ok'):
+        raise RuntimeError('operator overlay recovery did not produce a successful receipt')
+    return {
+        'ok': True,
+        'action': 'operator_overlay_build_install',
+        'receipt': receipt,
+        'output': output,
+        'status': status(),
+    }
+
+
 def control_gate() -> dict[str, Any]:
     state = status()
     if not state.get('installed'):
@@ -192,6 +232,8 @@ def execute(action: dict[str, Any]) -> dict[str, Any]:
         return start()
     if kind == 'operator_overlay_update':
         return update(str(action.get('latestText') or action.get('text') or ''), str(action.get('source') or 'ChatGPT'))
+    if kind == 'operator_overlay_build_install':
+        return build_install()
     raise ValueError(f'unsupported operator overlay action: {kind}')
 
 
