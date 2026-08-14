@@ -99,7 +99,7 @@ for token in [
 assert 'CODEX LOCAL STEERING DOCUMENTS (binding)' in reviewed
 assert 'canonical_venice_review(' in reviewed
 assert 'Daemon Persistence and Connector Backoff' in reviewed
-namespace = {}
+namespace = {"__name__": "adam_beard_test", "__file__": str(ROOT / "tools" / "adam.py")}
 exec(compile(router, "tools/adam.py", "exec"), namespace)
 classify = namespace["classify_mode"]
 assert classify("quit Silent Hunt")[0] == "continue"
