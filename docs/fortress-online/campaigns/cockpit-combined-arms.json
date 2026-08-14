@@ -4,7 +4,7 @@
   "owner": "Drew Clarke",
   "branch": "feat/fortress-cockpit-android",
   "pullRequest": 244,
-  "updatedAt": "2026-08-13T08:06:00-05:00",
+  "updatedAt": "2026-08-13T19:17:56.787-05:00",
   "mission": "Make the Android phone the sovereign deterministic Home Center control plane: persist state and scheduling locally, continue useful work offline, orchestrate local/browser/Gemini/fleet/cloud capability only through explicit adapters, and use Ollama only as a gated fallback classifier when deterministic routing cannot resolve a task.",
   "constraints": [
     "phone is sovereign control plane; cloud is optional muscle",
@@ -223,16 +223,45 @@
         "conclusion": "failure",
         "sourceTestsProven": false
       }
-    ]
+    ],
+    "adamCliPhoneRecovery": {
+      "observedAt": "2026-08-13T19:17:56.787-05:00",
+      "pr244Head": "2358355f3df3b60e25019b668ddb2edc8f353061",
+      "phoneRegistryLastSeenAtMs": 1786627600085,
+      "registryVerdict": "STALE_DO_NOT_TRUST_ONLINE_LABEL",
+      "expiredTicket": {
+        "commandId": "fortress-adam-hands-inspect-20260813-v1",
+        "status": "queued",
+        "leaseOwner": "",
+        "result": null,
+        "retryForbidden": true
+      },
+      "recoveryInventory": {
+        "ticketId": "hands-adam-cli-phone-poller-inventory-20260813-v1",
+        "status": "completed",
+        "exitCode": 0,
+        "pixelAdbEndpoint": "192.168.1.3:36667",
+        "pixelAdbState": "device",
+        "tailscalePeer": "pixel-10-pro-xl",
+        "tailscaleAddress": "100.117.17.119"
+      },
+      "pollerObservation": {
+        "ticketId": "hands-adam-cli-phone-poller-observe-20260813-v1",
+        "status": "cancelled",
+        "reason": "No result or progress update after bounded 10s, 20s, 40s, and 60s observation backoff.",
+        "capabilityPromotion": false
+      }
+    }
   },
-  "nextAction": "Do not repair source from poisoned GitHub Actions. Through the first callable authorized native body, build exact head 43fd61566e7592faae40cff4ec9c3c54c680a251, install only when a phone deployment lane is authorized, and capture separate notification visibility plus SSH Repair / Relay Repair / Fortress Status action receipts. In the same native checkpoint, run the narrow kernel/bridge/Judgment Jar tests; do not promote tested, deployed, callable, delivered, or accepted without state-specific receipts.",
+  "nextAction": "Use the verified attached-phone ADB route only to reobserve or restore the existing Phone Hands/Termux poller without visible UI. Require a newer lastSeenAtMs plus an exact claimed/completed Phone Hands receipt before enqueueing exactly one new idempotent read-only phone_shell inspection. Never retry fortress-adam-hands-inspect-20260813-v1 and do not create a parallel conductor.",
   "blockedBy": [
     "genuine Valar05/Shizuku fork bootstrap has not yet executed on THECAULDRON",
     "current worker surface still does not expose the existing Home Center/Computer Hands invocation operation directly",
     "kernel not installed on primary phone",
     "Cockpit not installed on primary phone",
     "physical-phone bridge/playback acceptance still pending",
-    "GitHub Actions control plane remains poisoned; the last observed five workflows failed without trustworthy source-execution evidence, so native verification is required for exact head 43fd61566e7592faae40cff4ec9c3c54c680a251"
+    "GitHub Actions control plane remains poisoned; the last observed five workflows failed without trustworthy source-execution evidence, so native verification is required for exact head 43fd61566e7592faae40cff4ec9c3c54c680a251",
+    "Primary phone is reachable over ADB/Tailscale, but the Home Center Phone Hands heartbeat remains stale and the bounded poller observation was cancelled without a result; no installed/callable Adam CLI state may be promoted."
   ],
   "updatePolicy": "Update on every material transition. Never advance capability state without state-specific external evidence. Daemon loops back off and sleep on unchanged state instead of hammering connectors."
 }
