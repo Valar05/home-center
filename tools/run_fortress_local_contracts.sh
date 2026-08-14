@@ -13,6 +13,7 @@ python3 tools/test_venice_plan_review.py
 python3 tools/test_venice_review.py
 python3 tools/test_adam_cli_contract.py
 python3 tools/test_adam_overlay_contract.py
+python3 tools/test_adam_overlay_majestic_prompt.py
 python3 tools/test_adam_venice_review_gate.py
 python3 tools/test_adam_campaign_contract.py
 python3 tools/judgment_jar_receipt_contract_check.py
