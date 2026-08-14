@@ -14,6 +14,8 @@ phone_ops = (ROOT / "tools/fortress_phone_ops.sh").read_text(encoding="utf-8")
 chromium = (ROOT / "tools/android_chromium_control.py").read_text(encoding="utf-8")
 recovery = (ROOT / "tools/recover_adam_overlay_phone.sh").read_text(encoding="utf-8")
 
+# Dormant explicit-mode plumbing is deliberately preserved for minimum-risk surgery,
+# but the visible Beard surface is one natural-language input with AUTO routing.
 for token in [
     'adamModeButton("TERM", "terminal"',
     'adamModeButton("CHAT", "chat"',
@@ -24,7 +26,28 @@ for token in [
     'Latest Home Center or Adam message',
     'FLAG_NOT_TOUCH_MODAL',
 ]:
-    assert token in service, f"overlay missing {token}"
+    assert token in service, f"overlay missing preserved contract {token}"
+for token in [
+    'private String adamMode = "auto";',
+    'adamInput.setHint("Talk to Adam…");',
+    'Button adamSendButton = button("Ask");',
+    'quickRequestButton("Restart", "restart"',
+    'quickRequestButton("Night", "night"',
+    'quickRequestButton("Chrome", "chrome"',
+    'quickRequestButton("Canary", "canary"',
+    'OperatorState.submitAdamRequest(this, "auto", request, System.currentTimeMillis())',
+    'private View touchGuard;',
+    'private void syncTouchGuard(boolean active)',
+    'OverlayUiPolicy.touchGuardActive(',
+    'FLAG_NOT_TOUCH_MODAL',
+]:
+    assert token in service, f"one-input Beard overlay missing {token}"
+for forbidden in [
+    'details.addView(adamModeRow);',
+    'root.addView(spotifyRow);',
+]:
+    assert forbidden not in service, f"one-input Beard overlay still exposes {forbidden}"
+
 for token in ["KEY_ADAM_REQUEST_ID", "KEY_ADAM_REQUEST_MODE", "KEY_ADAM_REQUEST_PAYLOAD_B64", "Base64.NO_WRAP"]:
     assert token in state, f"state missing {token}"
 for token in ["adam_request_id", "adam_request_mode", "adam_request_payload_b64"]:
@@ -152,4 +175,4 @@ for token in [
 assert 'CODEX LOCAL STEERING DOCUMENTS (binding)' in reviewed
 assert 'canonical_venice_review(' in reviewed
 assert 'Daemon Persistence and Connector Backoff' in reviewed
-print("Adam overlay transport / Chromium v2 / Night Core / durable-delivery contract: PASS")
+print("Adam one-input Beard / Chromium v2 / Night Core / durable-delivery contract: PASS")
