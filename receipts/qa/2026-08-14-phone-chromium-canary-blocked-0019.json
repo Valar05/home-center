@@ -1,0 +1,43 @@
+{
+  "schema": "fortress.phone-chromium-qa.blocked.v1",
+  "recordedAt": "2026-08-14T00:23:00-05:00",
+  "owner": "Phone Canary Swarm",
+  "requestedAcceptance": {
+    "remoteDurableCommandArrivesWithoutDrewTypingInTermux": true,
+    "chromiumForegrounds": true,
+    "deterministicUrlOpens": true,
+    "secondNavigationOccurs": true,
+    "browserDeathRecoveryTestedWhenSafe": true,
+    "durableReceiptIncludesDeviceAndStateTransitions": true
+  },
+  "sourceState": {
+    "chromiumControllerCommit": "80efd21c288eb99c786006627b0bc82f15c39756",
+    "ingressHealthCommit": "d0348a84080416b88293d99135d512ea565bfdf0",
+    "chromiumController": "tools/android_chromium_control.py",
+    "phoneOps": "tools/fortress_phone_ops.sh"
+  },
+  "physicalIngressEvidence": {
+    "bootstrapReceipt": "bootstrap-20260814T051735Z.json",
+    "bootstrapReceiptState": "ONLINE",
+    "bootstrapReceiptTransport": "google-drive-command-queue",
+    "bootstrapReceiptExecutor": "termux-tmux",
+    "note": "This receipt proves the user-run bootstrap reached the physical Termux environment and uploaded its own receipt. It does not prove a remotely submitted canary command was consumed."
+  },
+  "attempt": {
+    "candidateTask": "fortress-phone-canary-20260814-0019.task",
+    "candidateAction": "bash tools/fortress_phone_ops.sh canary",
+    "result": "BLOCKED_BEFORE_PHONE_EXECUTION",
+    "observedQueueTransition": "none",
+    "runningReceiptObserved": false,
+    "outboxReceiptObserved": false,
+    "chromiumActionAttemptedByCanary": false,
+    "cleanup": "non-executing native Google document candidate removed from inbox after proving it was not consumed"
+  },
+  "exactFailingGate": {
+    "gate": "remote_durable_command_arrival",
+    "detail": "On this ChatGPT surface the established Home Center / Command Center phone dispatch connector is not callable. The fallback queue bootstrap only consumes raw .sh/.task files, while the available Google Drive connector could create/edit a native document but could not egress/upload a generated raw task file (BLOCKED_FILE_REFERENCE). The candidate never moved from inbox to running and no phone execution receipt returned.",
+    "whyThisIsNotAcceptance": "Repository commits, bootstrap receipt, scheduler execution, queue presence, and intent creation are all insufficient under the acceptance contract."
+  },
+  "nextValidEdge": "Use the established Home Center/Command Center dispatch surface when it is callable, or another already-authorized transport that can deliver a raw task to the existing executor without Drew acting as command transport. Then run the exact physical canary and require the returned fortress.android-chromium-canary.v1 receipt before PASS.",
+  "verdict": "BLOCKED_NOT_ACCEPTED"
+}
