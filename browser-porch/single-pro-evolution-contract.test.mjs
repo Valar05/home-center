@@ -16,7 +16,7 @@ const html = readFileSync(new URL('./extension/sidepanel.html', import.meta.url)
 const memory = readFileSync(new URL('../skills/venice-review-memory/SKILL.md', import.meta.url), 'utf8');
 const serviceWorker = readFileSync(new URL('./extension/service-worker.js', import.meta.url), 'utf8');
 
-const HANDOFF = `DURABLE CONTEXT:\nctx\nCOMPLETED EVIDENCE:\nevidence\nCURRENT SLICE:\nslice\nUNMET ACCEPTANCE:\nunmet\nACTIVE CONSTRAINTS:\nconstraints\nEXACT NEXT ACTION:\nadvance`; 
+const HANDOFF = `DURABLE CONTEXT:\nctx\nCOMPLETED EVIDENCE:\nevidence\nCURRENT SLICE:\nslice\nUNMET ACCEPTANCE:\nunmet\nACTIVE CONSTRAINTS:\nconstraints\nEXACT NEXT ACTION:\nadvance`;
 
 function assertContains(haystack, needle) {
   assert.ok(haystack.includes(needle), `missing: ${needle}`);
@@ -41,7 +41,7 @@ test('worker rotation is explicit recovery only', () => {
   assert.equal(newJob('recovery', 'ctx', true, 'explicit-recovery').newWorker, true);
   assert.doesNotMatch(html, /id="newWorker"[^>]*checked/i);
   assertContains(html, 'Explicit recovery only: rotate into a fresh worker conversation');
-  assertContains(panel, "source === 'explicit-recovery'");
+  assertContains(panel, "newWorker.checked ? 'explicit-recovery' : 'manual'");
 });
 
 test('handoff and Venice continuation stay in the same Pro conversation', () => {
@@ -58,13 +58,13 @@ test('handoff and Venice continuation stay in the same Pro conversation', () => 
 test('campaign seed binds the actual evolution loop and phone sovereignty', () => {
   for (const phrase of [
     'one visible authenticated ChatGPT Pro worker',
-    'phone never owns an unlock/continuous-phone-control loop',
+    'Pro worker never owns an unlock/continuous-phone-control loop',
     'Harroway/operator consultation',
     'creative insults are load-bearing motivational pressure',
     "don't talk to me means execute",
     'Prove at least two successful generations',
     'GitHub source is not phone-runtime proof',
-  ]) assert.match(panel, new RegExp(phrase.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i'));
+  ]) assertContains(panel, phrase);
 });
 
 test('all paid-for failures are durable scars with She-Raw pressure', () => {
