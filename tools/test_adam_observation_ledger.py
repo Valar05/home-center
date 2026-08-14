@@ -14,6 +14,8 @@ spec.loader.exec_module(obs)
 assert obs.parse_observation("Pills taken") == {
     "eventType": "medication_adherence", "status": "confirmed_taken",
 }
+assert obs.parse_observation("I've taken my pills")["status"] == "confirmed_taken"
+assert obs.parse_observation("I have already taken a shower")["activity"] == "shower"
 assert obs.parse_observation("Log three more drops")["count"] == 3
 assert obs.parse_observation("No more nicotine tonight")["eventType"] == "commitment"
 assert obs.parse_observation("Log two puffs of weed")["substance"] == "cannabis"
@@ -30,6 +32,7 @@ for rejected in [
     "I am going to take two puffs of weed",
     "Take two puffs",
     "Take two puffs of weed",
+    "In the story, she says no more nicotine",
 ]:
     assert obs.looks_like_observation(rejected) is False, rejected
     try:
