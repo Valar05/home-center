@@ -70,7 +70,7 @@ public class OperatorOverlayService extends Service {
     private Button muteButton;
     private Button controlButton;
     private EditText adamInput;
-    private String adamMode = "terminal";
+    private String adamMode = "auto";
     private boolean expandedText;
     private boolean confirmDisable;
     private float downRawX;
@@ -399,19 +399,19 @@ public class OperatorOverlayService extends Service {
         adamInput = new EditText(this);
         adamInput.setTextColor(Color.WHITE);
         adamInput.setHintTextColor(Color.rgb(155, 165, 182));
-        adamInput.setHint("Adam — terminal");
+        adamInput.setHint("Talk to Adam…");
         adamInput.setTextSize(14f);
         adamInput.setSingleLine(false);
         adamInput.setMaxLines(4);
         adamInput.setMinHeight(dp(OverlayUiPolicy.MIN_TOUCH_TARGET_DP));
         adamInput.setPadding(dp(8), dp(4), dp(8), dp(4));
         adamInput.setBackground(background(Color.rgb(32, 35, 42), Color.rgb(78, 88, 105)));
-        adamInput.setContentDescription("Adam input. Current mode terminal.");
+        adamInput.setContentDescription("Talk to Adam naturally. Routing is automatic; fixed phone commands stay deterministic.");
         adamInputRow.addView(adamInput, new LinearLayout.LayoutParams(
                 0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
 
-        Button adamSendButton = button("Send");
-        adamSendButton.setContentDescription("Send request to Adam using the selected explicit mode");
+        Button adamSendButton = button("Ask");
+        adamSendButton.setContentDescription("Send a natural-language request to Adam using automatic routing");
         adamSendButton.setOnClickListener(v -> submitAdamRequest());
         adamInputRow.addView(adamSendButton);
 
@@ -433,15 +433,23 @@ public class OperatorOverlayService extends Service {
         hideFullButton.setOnClickListener(v -> hideOverlay());
         actionRow.addView(hideFullButton);
 
+        LinearLayout quickActionRow = new LinearLayout(this);
+        quickActionRow.setOrientation(LinearLayout.HORIZONTAL);
+        quickActionRow.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
+        quickActionRow.setPadding(0, dp(4), 0, dp(2));
+        quickActionRow.addView(quickRequestButton("Restart", "restart", "Restart or repair Home Center overlay"));
+        quickActionRow.addView(quickRequestButton("Night", "night", "Read cheap Night Core battery and relay status"));
+        quickActionRow.addView(quickRequestButton("Chrome", "chrome", "Open Chromium through the deterministic phone controller"));
+        quickActionRow.addView(quickRequestButton("Canary", "canary", "Run the physical phone acceptance canary"));
+
         details.addView(statusRow);
+        details.addView(quickActionRow);
         details.addView(screenBadge);
         details.addView(meta);
         details.addView(latest);
-        details.addView(adamModeRow);
         details.addView(adamInputRow);
         details.addView(actionRow);
         root.addView(titleRow);
-        root.addView(spotifyRow);
         root.addView(details);
 
         windowParams = new WindowManager.LayoutParams(
@@ -738,6 +746,19 @@ public class OperatorOverlayService extends Service {
         }
     }
 
+    private Button quickRequestButton(String label, String request, String description) {
+        Button value = button(label);
+        value.setContentDescription(description);
+        value.setOnClickListener(v -> {
+            OperatorState.submitAdamRequest(this, "auto", request, System.currentTimeMillis());
+            if (adamInput != null) {
+                adamInput.setHint("Talk to Adam…");
+                adamInput.announceForAccessibility(label + " sent to Adam");
+            }
+        });
+        return value;
+    }
+
     private Button adamModeButton(String label, String mode, String description) {
         Button value = button(label);
         value.setContentDescription(description);
@@ -758,8 +779,8 @@ public class OperatorOverlayService extends Service {
         if (text.isEmpty()) return;
         OperatorState.submitAdamRequest(this, adamMode, text, System.currentTimeMillis());
         adamInput.setText("");
-        adamInput.setHint("Adam — " + adamMode + " • sent");
-        adamInput.announceForAccessibility("Sent to Adam " + adamMode);
+        adamInput.setHint("Talk to Adam…");
+        adamInput.announceForAccessibility("Sent to Adam");
     }
 
     private void recomputeExpandedWidth() {
