@@ -1,5 +1,5 @@
 {
-  "version": 1,
+  "version": 2,
   "updated": "2026-08-14",
   "rules": {
     "proof_first": true,
@@ -45,6 +45,39 @@
     "operator_burden": {
       "do_not_ask_when_inspection_or_bounded_experiment_can_answer": true,
       "do_not_require_user_to_reteach_promoted_lessons": true
+    },
+    "black_terminal_window_hell": {
+      "wound_class": "operator_foreground_hijack_and_opaque_execution",
+      "terminal_is_not_operator_interface": true,
+      "no_foreground_hijack": true,
+      "no_spawned_console_windows_by_default": true,
+      "no_always_on_top_terminal": true,
+      "no_window_proliferation": true,
+      "background_or_headless_execution_default": true,
+      "single_operator_surface": "Home Center overlay or equivalent commissioned control surface",
+      "status_shape": ["current_state", "last_meaningful_transition", "blocked_reason", "next_automatic_action"],
+      "details_and_logs_on_demand": true,
+      "durable_logs_required": true,
+      "visible_liveness_without_scrolling_terminal": true,
+      "sovereign_controls": ["pause", "stop", "restart", "dismiss", "details"],
+      "terminal_fallback_if_unavoidable": {
+        "one_window_max": true,
+        "explicit_purpose_label": true,
+        "bounded_execution": true,
+        "timeouts": true,
+        "fail_visible": true,
+        "safe_to_minimize_or_dismiss": true,
+        "resume_receipt": true
+      },
+      "graduation_rule": "Repeated terminal operation must become a daemon, profile, button, or deterministic background organ.",
+      "termux_role": "bootstrap_and_diagnostics_not_primary_interface",
+      "clock_and_performance_anxiety": {
+        "ticking_time_is_not_progress": true,
+        "no_countdown_pressure_by_default": true,
+        "clock_visibility_operator_controlled": true,
+        "prefer_phase_and_last_transition_over_elapsed_time": true
+      },
+      "acceptance": "No unexpected black terminal window appears or steals focus during normal operation; work remains observable and controllable from the commissioned surface."
     }
   }
 }
