@@ -16,6 +16,10 @@ JAR_SYNC_TIMEOUT = int(os.environ.get("HC_JUDGMENT_JARS_SYNC_TIMEOUT", "90"))
 RISH = os.environ.get("HC_RISH", "rish")
 INTERVAL = int(os.environ.get("HC_SWARM_INTERVAL", "30"))
 ADAM_POLL_SECONDS = float(os.environ.get("HC_ADAM_POLL_SECONDS", "1.0"))
+CONTEXT_SENSOR_INTERVAL = int(os.environ.get("HC_CONTEXT_SENSOR_INTERVAL", "120"))
+CONTEXT_SENSOR_CHARGING_INTERVAL = int(os.environ.get("HC_CONTEXT_SENSOR_CHARGING_INTERVAL", "60"))
+CONTEXT_SENSOR_LOW_BATTERY_INTERVAL = int(os.environ.get("HC_CONTEXT_SENSOR_LOW_BATTERY_INTERVAL", "300"))
+CONTEXT_SENSOR_CRITICAL_BATTERY_INTERVAL = int(os.environ.get("HC_CONTEXT_SENSOR_CRITICAL_BATTERY_INTERVAL", "600"))
 OPERATOR_STATE_URI = "content://com.homecenter.operatoroverlay.state/state"
 OPERATOR_RECEIVER = "com.homecenter.operatoroverlay/.OverlayUpdateReceiver"
 OVERLAY_RECOVERY_COOLDOWN = int(os.environ.get("HC_OVERLAY_RECOVERY_COOLDOWN", "120"))
@@ -76,6 +80,7 @@ def sync_judgment_jars(repo_root):
     if not ok or summary["changed"] or summary["cacheRewritten"] or summary["homeCenterFailed"]:
         append_receipt({"kind":"vlad.judgment_jars.sync",**summary,"result":result})
     return summary
+
 def phone_health():
     probe=rish("id");ok=probe["rc"]==0;append_receipt({"kind":"phone.shizuku.probe","ok":ok,"result":probe})
     if not ok:return False
@@ -86,6 +91,54 @@ def phone_health():
     elif not connected:
         scan=rish("cmd wifi start-scan");append_receipt({"kind":"phone.wlan.scan","ok":scan["rc"]==0,"result":scan})
     return True
+
+def context_sensor_delay():
+    """Keep local sensing responsive while charging and cheap on low battery."""
+    result=rish("dumpsys battery")
+    if result["rc"]!=0:return max(30,CONTEXT_SENSOR_INTERVAL)
+    text=result["stdout"]+"\n"+result["stderr"]
+    level_match=re.search(r"(?im)^\s*level:\s*(\d+)\s*$",text)
+    level=int(level_match.group(1)) if level_match else -1
+    charging=bool(re.search(r"(?im)^\s*(AC|USB|Wireless) powered:\s*true\s*$",text)) or bool(re.search(r"(?im)^\s*status:\s*(2|5)\s*$",text))
+    if charging:return max(30,CONTEXT_SENSOR_CHARGING_INTERVAL)
+    if 0<=level<=20:return max(60,CONTEXT_SENSOR_CRITICAL_BATTERY_INTERVAL)
+    if 0<=level<=40:return max(60,CONTEXT_SENSOR_LOW_BATTERY_INTERVAL)
+    return max(30,CONTEXT_SENSOR_INTERVAL)
+
+def sense_context(repo_root):
+    script=Path(repo_root)/"tools"/"fortress_context_sensors.py"
+    if not script.is_file():
+        summary={"ok":False,"state":"script_missing","script":str(script)}
+        append_receipt({"kind":"context.sensors","ok":False,**summary});return summary
+    result=run(["python3",str(script)],timeout=45,cwd=repo_root)
+    if result["rc"]!=0:
+        summary={"ok":False,"state":"failed","result":result}
+        append_receipt({"kind":"context.sensors","ok":False,**summary});return summary
+    try:payload=json.loads(result["stdout"])
+    except Exception as exc:
+        summary={"ok":False,"state":"invalid_receipt","error":f"{type(exc).__name__}: {exc}","result":result}
+        append_receipt({"kind":"context.sensors","ok":False,**summary});return summary
+    summary={
+        "ok":True,
+        "state":"wake_emitted" if payload.get("wakeEmitted") else "quiet",
+        "meaningfulDigest":payload.get("meaningfulDigest"),
+        "changed":payload.get("changed") is True,
+        "wakeRequired":payload.get("wakeRequired") is True,
+        "wakeEmitted":payload.get("wakeEmitted") is True,
+        "wakePending":payload.get("wakePending") is True,
+        "wakeReasons":payload.get("wakeReasons") or [],
+        "staleWorkerIds":((payload.get("chatgptShell") or {}).get("staleWorkerIds") or []),
+        "blockedWorkerIds":((payload.get("chatgptShell") or {}).get("blockedWorkerIds") or []),
+    }
+    refresh=payload.get("refresh") or {}
+    refresh_failures={name:value for name,value in refresh.items() if value.get("attempted") and value.get("ok") is False}
+    if refresh_failures:
+        summary["refreshFailures"]=refresh_failures
+        append_receipt({"kind":"context.sensors.refresh","ok":False,**summary})
+    if summary["wakeEmitted"]:
+        append_receipt({"kind":"context.scheduler.wake","ok":True,**summary})
+    return summary
+
 def ensure_phone_ssh(repo_root):
     script=Path(repo_root)/"tools"/"phone_ssh_service.sh"
     if not script.is_file():
@@ -230,16 +283,22 @@ def process_review_inbox(repo_root):
         if target.exists():target.unlink()
         job.rename(target)
         append_receipt({"kind":"venice.review.directive","job":job.name,"ok":ok,"directive":directive,"state":state,"receipt":str(receipt_path),"decision":str(bucket/(job.stem+".decision.json")),"reviewerMode":receipt.get("reviewerMode"),"localVeniceExplicit":local_venice,"result":result})
-def heartbeat(repo_root):
+def heartbeat(repo_root,context_due=False):
     jars=sync_judgment_jars(repo_root);shizuku_ok=phone_health();ssh_ok=ensure_phone_ssh(repo_root);overlay_ok=ensure_operator_overlay(repo_root) if shizuku_ok else False
     if overlay_ok:operator_heartbeat()
-    process_review_inbox(repo_root);append_receipt({"kind":"swarm.heartbeat","ok":True,"shizuku":shizuku_ok,"ssh":ssh_ok,"overlay":overlay_ok,"judgmentJars":jars})
+    context=sense_context(repo_root) if context_due else {"ok":True,"state":"deferred"}
+    process_review_inbox(repo_root)
+    summary={"kind":"swarm.heartbeat","ok":True,"shizuku":shizuku_ok,"ssh":ssh_ok,"overlay":overlay_ok,"judgmentJars":jars,"contextSenses":context}
+    append_receipt(summary);return summary
 def main():
-    ap=argparse.ArgumentParser(description="Deterministic Vlad swarm keeper");ap.add_argument("--repo",default=os.environ.get("HC_REPO_ROOT","."));ap.add_argument("--once",action="store_true");ap.add_argument("--interval",type=int,default=INTERVAL);args=ap.parse_args();repo_root=str(Path(args.repo).resolve());STATE_DIR.mkdir(parents=True,exist_ok=True);append_receipt({"kind":"swarm.start","ok":True,"repo":repo_root,"interval":args.interval,"judgmentJarCache":str(JAR_CACHE)});next_heartbeat=0.0
+    ap=argparse.ArgumentParser(description="Deterministic Vlad swarm keeper");ap.add_argument("--repo",default=os.environ.get("HC_REPO_ROOT","."));ap.add_argument("--once",action="store_true");ap.add_argument("--interval",type=int,default=INTERVAL);args=ap.parse_args();repo_root=str(Path(args.repo).resolve());STATE_DIR.mkdir(parents=True,exist_ok=True);append_receipt({"kind":"swarm.start","ok":True,"repo":repo_root,"interval":args.interval,"contextSensorInterval":CONTEXT_SENSOR_INTERVAL,"judgmentJarCache":str(JAR_CACHE)});next_heartbeat=0.0;next_context_sense=0.0
     while True:
         try:
             process_adam_overlay(repo_root);current=time.monotonic()
-            if current>=next_heartbeat:heartbeat(repo_root);next_heartbeat=current+max(5,args.interval)
+            if current>=next_heartbeat:
+                context_due=current>=next_context_sense
+                heartbeat(repo_root,context_due=context_due);next_heartbeat=current+max(5,args.interval)
+                if context_due:next_context_sense=current+context_sensor_delay()
         except Exception as exc:append_receipt({"kind":"swarm.error","ok":False,"error":f"{type(exc).__name__}: {exc}"})
         if args.once:return 0
         time.sleep(max(.25,ADAM_POLL_SECONDS))

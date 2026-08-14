@@ -12,6 +12,9 @@ JAR_COMMON="$REPO_ROOT/tools/judgment_jar_common.py"
 JAR_CABINET="$REPO_ROOT/tools/judgment_jar_cabinet.py"
 JAR_REGISTRY="$REPO_ROOT/tools/judgment_jar_registry.py"
 JAR_TEST="$REPO_ROOT/tools/test_judgment_jar_registry.py"
+CONTEXT_SENSOR="$REPO_ROOT/tools/fortress_context_sensors.py"
+CONTEXT_SENSOR_TEST="$REPO_ROOT/tools/test_fortress_context_sensors.py"
+CONTEXT_INTEGRATION_TEST="$REPO_ROOT/tools/test_vlad_context_organs_contract.py"
 BIN_DIR="${HC_ADAM_BIN_DIR:-${PREFIX:-$HOME/.local}/bin}"
 JAR_BIN="$BIN_DIR/vlad-jars"
 SERVICE_DIR="$PREFIX/var/service/vlad-swarm"
@@ -22,16 +25,18 @@ DAEMON="$REPO_ROOT/tools/vlad_swarm_daemon.py"
 DAEMON_SHA_FILE="$STATE_DIR/daemon-source.sha256"
 
 mkdir -p "$STATE_DIR" "$LOG_DIR" "$BIN_DIR"
-for file in "$DAEMON" "$JAR_TOOL" "$JAR_CLIENT" "$JAR_COMMON" "$JAR_CABINET" "$JAR_REGISTRY" "$JAR_TEST" "$JAR_CONFIG"; do
+for file in "$DAEMON" "$CONTEXT_SENSOR" "$CONTEXT_SENSOR_TEST" "$CONTEXT_INTEGRATION_TEST" "$JAR_TOOL" "$JAR_CLIENT" "$JAR_COMMON" "$JAR_CABINET" "$JAR_REGISTRY" "$JAR_TEST" "$JAR_CONFIG"; do
   [ -f "$file" ] || { echo "BLOCKED: Vlad component missing: $file" >&2; exit 4; }
 done
 PYTHON_BIN="$(command -v python3 || true)"
 [ -n "$PYTHON_BIN" ] || { echo "BLOCKED: python3 missing." >&2; exit 5; }
-chmod +x "$DAEMON" "$JAR_TOOL" "$JAR_CLIENT"
+chmod +x "$DAEMON" "$CONTEXT_SENSOR" "$JAR_TOOL" "$JAR_CLIENT"
 
 cd "$REPO_ROOT"
 python3 "$JAR_TEST"
-python3 -m py_compile "$DAEMON" "$JAR_TOOL" "$JAR_CLIENT" "$JAR_COMMON" "$JAR_CABINET" "$JAR_REGISTRY"
+python3 "$CONTEXT_SENSOR_TEST"
+python3 "$CONTEXT_INTEGRATION_TEST"
+python3 -m py_compile "$DAEMON" "$CONTEXT_SENSOR" "$CONTEXT_SENSOR_TEST" "$CONTEXT_INTEGRATION_TEST" "$JAR_TOOL" "$JAR_CLIENT" "$JAR_COMMON" "$JAR_CABINET" "$JAR_REGISTRY"
 "$PYTHON_BIN" "$JAR_TOOL" \
   --root "$REPO_ROOT" \
   --cache "$JAR_CACHE" \
@@ -67,28 +72,38 @@ chmod 755 "$TMP_JAR_BIN"
 mv -f "$TMP_JAR_BIN" "$JAR_BIN"
 "$JAR_BIN" status >/dev/null
 
-DAEMON_SHA="$(sha256sum "$DAEMON" | awk '{print $1}')"
+CONTEXT_SENSOR_SHA="$(sha256sum "$CONTEXT_SENSOR" | awk '{print $1}')"
+DAEMON_SHA="$(cat "$DAEMON" "$CONTEXT_SENSOR" | sha256sum | awk '{print $1}')"
 INSTALLED_DAEMON_SHA="$(cat "$DAEMON_SHA_FILE" 2>/dev/null || true)"
 SOURCE_CHANGED=0
 [ "$DAEMON_SHA" = "$INSTALLED_DAEMON_SHA" ] || SOURCE_CHANGED=1
 
 write_receipt(){
   local ok="$1" manager="$2" detail="$3"
-  python3 - "$RECEIPT" "$ok" "$manager" "$detail" "$REPO_ROOT" "$JAR_CACHE" "$JAR_CONFIG" "$JAR_SYNC_RECEIPT" "$JAR_BIN" "$DAEMON_SHA" <<'PY'
+  python3 - "$RECEIPT" "$ok" "$manager" "$detail" "$REPO_ROOT" "$JAR_CACHE" "$JAR_CONFIG" "$JAR_SYNC_RECEIPT" "$JAR_BIN" "$DAEMON_SHA" "$CONTEXT_SENSOR_SHA" <<'PY'
 import json,os,sys,time
-path,ok,manager,detail,root,jar_cache,jar_config,jar_sync_path,jar_bin,daemon_sha=sys.argv[1:]
+path,ok,manager,detail,root,jar_cache,jar_config,jar_sync_path,jar_bin,daemon_sha,context_sensor_sha=sys.argv[1:]
 try:
     jar_sync=json.load(open(jar_sync_path,encoding='utf-8'))
 except Exception as exc:
     jar_sync={'ok':False,'complete':False,'error':f'{type(exc).__name__}: {exc}'}
 obj={
-  'schema':'vlad-swarm-service-v4-home-center-judgment-jars',
+  'schema':'vlad-swarm-service-v5-context-organs',
   'ok':ok=='1' and jar_sync.get('ok') is True,
   'manager':manager,
   'detail':detail,
   'repoRoot':root,
-  'daemonSha256':daemon_sha,
+  'daemonBundleSha256':daemon_sha,
+  'contextSensorSha256':context_sensor_sha,
   'atEpoch':int(time.time()),
+  'contextOrgans':{
+    'schema':'fortress.context-senses.v2',
+    'stateDir':os.path.join(os.environ.get('HC_SWARM_STATE_DIR',os.path.expanduser('~/.local/state/home-center/vlad-swarm')),'context'),
+    'wakeRequest':'scheduler-wake-request.json',
+    'wakeReceipts':'scheduler-wake-receipts.jsonl',
+    'mutationAuthority':'chatgpt_scheduler_or_chromium_actuator_only',
+    'testsPassed':ok=='1',
+  },
   'judgmentJars':{
     'schema':'home-center.judgment-jars.registry.v2',
     'cachePath':jar_cache,
@@ -127,6 +142,12 @@ exec env \
   HC_REPO_ROOT=$(printf '%q' "$REPO_ROOT") \
   HC_JUDGMENT_JARS_CACHE=$(printf '%q' "$JAR_CACHE") \
   HC_JUDGMENT_JARS_CONFIG=$(printf '%q' "$JAR_CONFIG") \
+  HC_LIBRARY_SENSOR_CMD=$(printf '%q' "${HC_LIBRARY_SENSOR_CMD:-}") \
+  HC_CHATGPT_SHELL_SENSOR_CMD=$(printf '%q' "${HC_CHATGPT_SHELL_SENSOR_CMD:-}") \
+  HC_CONTEXT_SENSOR_INTERVAL=$(printf '%q' "${HC_CONTEXT_SENSOR_INTERVAL:-120}") \
+  HC_CONTEXT_SENSOR_CHARGING_INTERVAL=$(printf '%q' "${HC_CONTEXT_SENSOR_CHARGING_INTERVAL:-60}") \
+  HC_CONTEXT_SENSOR_LOW_BATTERY_INTERVAL=$(printf '%q' "${HC_CONTEXT_SENSOR_LOW_BATTERY_INTERVAL:-300}") \
+  HC_CONTEXT_SENSOR_CRITICAL_BATTERY_INTERVAL=$(printf '%q' "${HC_CONTEXT_SENSOR_CRITICAL_BATTERY_INTERVAL:-600}") \
   python3 $(printf '%q' "$DAEMON") 2>&1
 EOF2
   cat > "$SERVICE_DIR/log/run" <<EOF2
@@ -142,7 +163,7 @@ EOF2
   sleep 1
   if sv status vlad-swarm 2>/dev/null | grep -q '^run:'; then
     mark_daemon_sha
-    write_receipt 1 runit "vlad-swarm running with repository + Home Center Judgment Jar sync"
+    write_receipt 1 runit "vlad-swarm running with deterministic context organs + Home Center Judgment Jar sync"
   else
     write_receipt 0 runit "vlad-swarm is not running"
     exit 2
@@ -157,19 +178,25 @@ else
     sleep 1
   fi
   if [ -f "$PIDFILE" ] && kill -0 "$(cat "$PIDFILE")" 2>/dev/null; then
-    write_receipt 1 pidfile "vlad-swarm already running pid=$(cat "$PIDFILE") with current Judgment Jar cache"
+    write_receipt 1 pidfile "vlad-swarm already running pid=$(cat "$PIDFILE") with current context organs"
     exit 0
   fi
   nohup env \
     HC_REPO_ROOT="$REPO_ROOT" \
     HC_JUDGMENT_JARS_CACHE="$JAR_CACHE" \
     HC_JUDGMENT_JARS_CONFIG="$JAR_CONFIG" \
+    HC_LIBRARY_SENSOR_CMD="${HC_LIBRARY_SENSOR_CMD:-}" \
+    HC_CHATGPT_SHELL_SENSOR_CMD="${HC_CHATGPT_SHELL_SENSOR_CMD:-}" \
+    HC_CONTEXT_SENSOR_INTERVAL="${HC_CONTEXT_SENSOR_INTERVAL:-120}" \
+    HC_CONTEXT_SENSOR_CHARGING_INTERVAL="${HC_CONTEXT_SENSOR_CHARGING_INTERVAL:-60}" \
+    HC_CONTEXT_SENSOR_LOW_BATTERY_INTERVAL="${HC_CONTEXT_SENSOR_LOW_BATTERY_INTERVAL:-300}" \
+    HC_CONTEXT_SENSOR_CRITICAL_BATTERY_INTERVAL="${HC_CONTEXT_SENSOR_CRITICAL_BATTERY_INTERVAL:-600}" \
     python3 "$DAEMON" >>"$STATE_DIR/daemon.log" 2>&1 </dev/null &
   echo $! > "$PIDFILE"
   sleep 1
   if kill -0 "$(cat "$PIDFILE")" 2>/dev/null; then
     mark_daemon_sha
-    write_receipt 1 pidfile "vlad-swarm started pid=$(cat "$PIDFILE") with repository + Home Center Judgment Jar sync"
+    write_receipt 1 pidfile "vlad-swarm started pid=$(cat "$PIDFILE") with deterministic context organs"
   else
     write_receipt 0 pidfile "vlad-swarm exited during startup"
     exit 3

@@ -1,13 +1,12 @@
 #!/usr/bin/env python3
 """Deterministic, read-only context organs for the Fortress phone daemon.
 
-The daemon must be able to decide whether ChatGPT needs waking without spending
-inference or depending on an hourly poll.  Sensors are deliberately provider-
-agnostic: a local/browser/Drive adapter may refresh the raw snapshots, while
-this module normalizes them, fingerprints meaningful state, and emits a bounded
-wake request only on change, staleness, or an explicit unresolved transition.
+Raw adapters may refresh Library and ChatGPT/scheduler snapshots. This module
+normalizes them, fingerprints only meaningful state, and emits a durable,
+one-shot scheduler wake request when local evidence says the ChatGPT actuator
+needs to observe or repair state.
 
-No sensor mutates ChatGPT, Library, scheduler tasks, or project state.
+Sensors never mutate ChatGPT, Library, scheduler tasks, or project state.
 """
 from __future__ import annotations
 
@@ -46,6 +45,12 @@ def atomic_json(path: Path, value: Any) -> None:
     tmp.replace(path)
 
 
+def append_jsonl(path: Path, value: Any) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("a", encoding="utf-8") as handle:
+        handle.write(json.dumps(value, sort_keys=True, ensure_ascii=False) + "\n")
+
+
 def read_json(path: Path) -> dict[str, Any]:
     try:
         if not path.is_file() or path.stat().st_size > MAX_BYTES:
@@ -60,10 +65,16 @@ def refresh_snapshot(command: str, destination: Path, source: str) -> dict[str, 
     if not command:
         return {"attempted": False, "source": source}
     try:
-        p = subprocess.run(command, shell=True, text=True, capture_output=True, timeout=30)
-        if p.returncode != 0:
-            return {"attempted": True, "ok": False, "source": source, "rc": p.returncode, "stderr": p.stderr[-2000:]}
-        payload = json.loads(p.stdout)
+        process = subprocess.run(command, shell=True, text=True, capture_output=True, timeout=30)
+        if process.returncode != 0:
+            return {
+                "attempted": True,
+                "ok": False,
+                "source": source,
+                "rc": process.returncode,
+                "stderr": process.stderr[-2000:],
+            }
+        payload = json.loads(process.stdout)
         if not isinstance(payload, dict):
             raise ValueError("sensor command must emit one JSON object")
         payload.setdefault("observedAtEpoch", now())
@@ -75,8 +86,6 @@ def refresh_snapshot(command: str, destination: Path, source: str) -> dict[str, 
 
 
 def normalize_library(raw: dict[str, Any]) -> dict[str, Any]:
-    # Expected adapters may provide richer fields.  Keep only state that matters
-    # to resumption and avoid mirroring an entire Library corpus into daemon RAM.
     bootstrap = raw.get("bootstrap") or raw.get("fortressBootstrap") or {}
     index = raw.get("index") or raw.get("libraryIndex") or {}
     campaigns = raw.get("activeCampaigns") or raw.get("campaigns") or []
@@ -98,7 +107,10 @@ def _worker_state(worker: dict[str, Any], current: int) -> dict[str, Any]:
     enabled = worker.get("enabled", True) is not False
     terminal = bool(worker.get("terminal") or worker.get("accepted") or worker.get("complete"))
     blocked = bool(worker.get("blocked"))
-    stale = enabled and not terminal and ((last > 0 and current - last > STALE_SECONDS) or (last <= 0 and next_due > 0 and current > next_due + 60))
+    stale = enabled and not terminal and (
+        (last > 0 and current - last > STALE_SECONDS)
+        or (last <= 0 and next_due > 0 and current > next_due + 60)
+    )
     return {
         "id": worker.get("id") or worker.get("taskId") or worker.get("title"),
         "title": worker.get("title") or worker.get("name"),
@@ -115,15 +127,15 @@ def _worker_state(worker: dict[str, Any], current: int) -> dict[str, Any]:
 
 def normalize_shell(raw: dict[str, Any], current: int) -> dict[str, Any]:
     workers_raw = raw.get("workers") or raw.get("tasks") or raw.get("automations") or []
-    workers = [_worker_state(w, current) for w in workers_raw if isinstance(w, dict)]
+    workers = [_worker_state(worker, current) for worker in workers_raw if isinstance(worker, dict)]
     return {
         "available": bool(raw),
         "observedAtEpoch": int(raw.get("observedAtEpoch") or raw.get("at") or 0),
         "surface": raw.get("surface") or "chatgpt",
         "session": raw.get("session") or raw.get("conversation"),
         "workers": workers,
-        "staleWorkerIds": [w["id"] for w in workers if w["stale"]],
-        "blockedWorkerIds": [w["id"] for w in workers if w["blocked"] and not w["terminal"]],
+        "staleWorkerIds": [worker["id"] for worker in workers if worker["stale"]],
+        "blockedWorkerIds": [worker["id"] for worker in workers if worker["blocked"] and not worker["terminal"]],
         "pendingUserBoundary": raw.get("pendingUserBoundary"),
         "schedulerReachable": raw.get("schedulerReachable"),
         "actuatorReachable": raw.get("actuatorReachable"),
@@ -135,12 +147,51 @@ def load_previous() -> dict[str, Any]:
 
 
 def meaningful_projection(context: dict[str, Any]) -> dict[str, Any]:
-    """Exclude observation timestamps so unchanged polling stays silent."""
-    lib = dict(context["library"])
-    shell = dict(context["chatgptShell"])
-    lib.pop("observedAtEpoch", None)
-    shell.pop("observedAtEpoch", None)
-    return {"library": lib, "chatgptShell": shell}
+    """Drop observation clocks and due/run timestamps so polling itself is quiet."""
+    library = dict(context["library"])
+    library.pop("observedAtEpoch", None)
+
+    shell = context["chatgptShell"]
+    workers = []
+    for worker in shell.get("workers", []):
+        workers.append(
+            {
+                "id": worker.get("id"),
+                "title": worker.get("title"),
+                "enabled": worker.get("enabled"),
+                "terminal": worker.get("terminal"),
+                "blocked": worker.get("blocked"),
+                "stale": worker.get("stale"),
+                "lastResult": worker.get("lastResult"),
+                "receipt": worker.get("receipt"),
+            }
+        )
+    shell_projection = {
+        "available": shell.get("available"),
+        "surface": shell.get("surface"),
+        "workers": workers,
+        "staleWorkerIds": shell.get("staleWorkerIds", []),
+        "blockedWorkerIds": shell.get("blockedWorkerIds", []),
+        "pendingUserBoundary": shell.get("pendingUserBoundary"),
+        "schedulerReachable": shell.get("schedulerReachable"),
+        "actuatorReachable": shell.get("actuatorReachable"),
+    }
+    return {"library": library, "chatgptShell": shell_projection}
+
+
+def _wake_reasons(library: dict[str, Any], shell: dict[str, Any], changed: bool, had_previous: bool) -> list[str]:
+    reasons: list[str] = []
+    if shell["staleWorkerIds"]:
+        reasons.append("stale_workers")
+    if shell["blockedWorkerIds"]:
+        reasons.append("blocked_workers")
+    if shell.get("pendingUserBoundary"):
+        reasons.append("operator_boundary")
+    if library.get("pendingOutboxes"):
+        reasons.append("pending_outbox")
+    if changed and had_previous:
+        reasons.append("context_changed")
+    return reasons
 
 
 def sense() -> dict[str, Any]:
@@ -153,58 +204,78 @@ def sense() -> dict[str, Any]:
     library = normalize_library(read_json(LIBRARY_SNAPSHOT))
     shell = normalize_shell(read_json(SHELL_SNAPSHOT), current)
     context = {
-        "schema": "fortress.context-senses.v1",
+        "schema": "fortress.context-senses.v2",
         "observedAtEpoch": current,
         "library": library,
         "chatgptShell": shell,
         "refresh": refresh,
     }
-    projection = meaningful_projection(context)
-    digest = stable_digest(projection)
+    digest = stable_digest(meaningful_projection(context))
     previous = load_previous()
     previous_digest = previous.get("meaningfulDigest")
     changed = digest != previous_digest
-
-    reasons: list[str] = []
-    if shell["staleWorkerIds"]:
-        reasons.append("stale_workers")
-    if shell["blockedWorkerIds"]:
-        reasons.append("blocked_workers")
-    if shell.get("pendingUserBoundary"):
-        reasons.append("operator_boundary")
-    if library.get("pendingOutboxes"):
-        reasons.append("pending_outbox")
-    if changed and previous_digest:
-        reasons.append("context_changed")
-
-    context["meaningfulDigest"] = digest
-    context["changed"] = changed
-    context["wakeRequired"] = bool(reasons)
-    context["wakeReasons"] = reasons
-    atomic_json(CONTEXT_DIR / "normalized.json", context)
+    reasons = _wake_reasons(library, shell, changed, bool(previous_digest))
 
     wake_path = CONTEXT_DIR / "scheduler-wake-request.json"
-    if reasons:
+    ledger_path = CONTEXT_DIR / "scheduler-wake-ledger.json"
+    ledger = read_json(ledger_path)
+    # context_changed is a transition marker, not a persistent condition. If a
+    # stronger condition exists (stale/blocked/outbox/boundary), key the wake on
+    # that condition so the next quiet poll cannot emit a second copy merely
+    # because context_changed dropped out of the reason list.
+    persistent_reasons = [reason for reason in reasons if reason != "context_changed"]
+    key_reasons = persistent_reasons or reasons
+    wake_key = stable_digest(
+        {
+            "meaningfulDigest": digest,
+            "reasons": key_reasons,
+            "staleWorkerIds": shell["staleWorkerIds"],
+            "blockedWorkerIds": shell["blockedWorkerIds"],
+        }
+    ) if reasons else ""
+    emitted = False
+    if reasons and ledger.get("lastEmittedKey") != wake_key:
         wake = {
-            "schema": "fortress.scheduler-wake.v1",
+            "schema": "fortress.scheduler-wake.v2",
             "createdAtEpoch": current,
+            "wakeKey": wake_key,
             "meaningfulDigest": digest,
             "reasons": reasons,
             "staleWorkerIds": shell["staleWorkerIds"],
             "blockedWorkerIds": shell["blockedWorkerIds"],
             "requestedAction": "observe_and_repair_scheduler_state",
+            "authority": "chatgpt_scheduler_or_chromium_actuator_only",
             "consumeOnce": True,
         }
         atomic_json(wake_path, wake)
-    elif wake_path.exists():
-        wake_path.unlink()
+        atomic_json(
+            ledger_path,
+            {
+                "schema": "fortress.scheduler-wake-ledger.v1",
+                "lastEmittedAtEpoch": current,
+                "lastEmittedKey": wake_key,
+                "meaningfulDigest": digest,
+                "reasons": key_reasons,
+            },
+        )
+        append_jsonl(CONTEXT_DIR / "scheduler-wake-receipts.jsonl", wake)
+        emitted = True
+
+    context["meaningfulDigest"] = digest
+    context["changed"] = changed
+    context["wakeRequired"] = bool(reasons)
+    context["wakeReasons"] = reasons
+    context["wakeEmitted"] = emitted
+    context["wakeKey"] = wake_key or None
+    context["wakePending"] = wake_path.exists()
+    atomic_json(CONTEXT_DIR / "normalized.json", context)
     return context
 
 
 def main() -> int:
-    ap = argparse.ArgumentParser(description="Fortress deterministic context sensory organs")
-    ap.add_argument("--pretty", action="store_true")
-    args = ap.parse_args()
+    parser = argparse.ArgumentParser(description="Fortress deterministic context sensory organs")
+    parser.add_argument("--pretty", action="store_true")
+    args = parser.parse_args()
     result = sense()
     print(json.dumps(result, indent=2 if args.pretty else None, sort_keys=True))
     return 0
