@@ -10,6 +10,8 @@ router = (ROOT / "tools/adam.py").read_text(encoding="utf-8")
 core = (ROOT / "tools/adam_codex_phone.py").read_text(encoding="utf-8")
 planned = (ROOT / "tools/adam_planned_venice.py").read_text(encoding="utf-8")
 reviewed = (ROOT / "tools/adam_venice_reviewed.py").read_text(encoding="utf-8")
+phone_ops = (ROOT / "tools/fortress_phone_ops.sh").read_text(encoding="utf-8")
+recovery = (ROOT / "tools/recover_adam_overlay_phone.sh").read_text(encoding="utf-8")
 
 for token in [
     'adamModeButton("TERM", "terminal"',
@@ -26,6 +28,29 @@ for token in ["KEY_ADAM_REQUEST_ID", "KEY_ADAM_REQUEST_MODE", "KEY_ADAM_REQUEST_
     assert token in state, f"state missing {token}"
 for token in ["adam_request_id", "adam_request_mode", "adam_request_payload_b64"]:
     assert token in provider, f"provider missing {token}"
+
+# Deterministic, no-inference quick ops available through the existing TERM input.
+for token in [
+    'deterministicTerminalAlias',
+    'bash tools/fortress_phone_ops.sh overlay-restart',
+    'bash tools/fortress_phone_ops.sh status',
+    'bash tools/fortress_phone_ops.sh chrome-open',
+    'bash tools/fortress_phone_ops.sh chrome-reload',
+    'bash tools/fortress_phone_ops.sh canary',
+]:
+    assert token in state, f"state missing deterministic quick op {token}"
+for token in [
+    'fortress.phone-ops.v1',
+    'chrome_open()',
+    'chrome_reload()',
+    'overlay_restart()',
+    'dumpsys activity activities',
+    'accept_adam_cli_phone.sh',
+]:
+    assert token in phone_ops, f"phone ops missing {token}"
+# Overlay recovery must never destroy a working install to force a signer migration.
+assert 'existing package preserved' in recovery
+assert 'pm uninstall $PACKAGE' not in recovery
 
 for token in [
     "process_adam_overlay",
@@ -54,7 +79,6 @@ assert ack_idx > success_idx
 assert 'payload=_operator_field(raw,"adam_request_payload_b64","");_set_last_adam_request_id(request_id)' not in daemon
 
 for token in [
-    'ONE_SHOT_MODES = ("terminal", "chat", "continue", "vlad")',
     'WORKER = ROOT / "tools" / "adam_planned_venice.py"',
     'jarGoverned=True',
     'preExecutionPlanReview=True',
@@ -64,6 +88,8 @@ for token in [
     'def run_mode(',
 ]:
     assert token in router, f"adam body router missing {token}"
+for mode in ['"terminal"', '"chat"', '"continue"', '"vlad"', '"radio"']:
+    assert mode in router, f"adam router missing mode {mode}"
 
 assert '"shell"' not in service
 assert 'if mode == "terminal"' in router
@@ -88,4 +114,4 @@ for token in [
 assert 'CODEX LOCAL STEERING DOCUMENTS (binding)' in reviewed
 assert 'canonical_venice_review(' in reviewed
 assert 'Daemon Persistence and Connector Backoff' in reviewed
-print("Adam overlay transport / planned + Venice-reviewed durable-delivery contract: PASS")
+print("Adam overlay transport / deterministic quick ops / planned + Venice-reviewed durable-delivery contract: PASS")
