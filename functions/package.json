@@ -11,7 +11,8 @@
     "test:venice-discord": "node --test venice_discord.test.js",
     "test:venice-mcp": "node --test venice_home_center_mcp.test.js",
     "test:fortress-home-center": "node --test home_center_fortress.test.js",
-    "test:sites-drive": "node --test home_center_sites_drive_test.js"
+    "test:sites-drive": "node --test home_center_sites_drive_test.js",
+    "test:fortress-dungeon": "node dungeon_run_contract.test.js"
   },
   "dependencies": {
     "@gltf-transform/core": "4.4.2",

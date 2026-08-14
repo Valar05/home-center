@@ -145,6 +145,36 @@
           "order": "DESCENDING"
         }
       ]
+    },
+    {
+      "collectionGroup": "phoneHandsCommands",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "ownerKey",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "deviceId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "status",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "priorityRank",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "createdAtMs",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "commandId",
+          "order": "ASCENDING"
+        }
+      ]
     }
   ],
   "fieldOverrides": [

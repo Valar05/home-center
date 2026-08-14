@@ -1,4 +1,13 @@
 const {createHash, randomUUID} = require('node:crypto');
+const {
+  DUNGEON_CAPABILITY,
+  cleanDungeonRun,
+  cleanDungeonStatus,
+  dungeonRequestHash,
+  dungeonPriority,
+  dungeonAdmissionTtlMs,
+  validateDungeonDeviceReceipt,
+} = require('./dungeon_run_contract');
 
 const COLLECTIONS = Object.freeze({
   devices: 'phoneHandsDevices',
@@ -137,7 +146,7 @@ function cleanAction(value) {
   const body = safeObject(value);
   const action = safeText(body.action, 80);
   const allowed = new Set([
-    'observe','tap','swipe','text','keyevent','home','back','recents','launch','force_stop','dungeon_run','local_ask','phone_shell',
+    'observe','tap','swipe','text','keyevent','home','back','recents','launch','force_stop','dungeon_run','dungeon_status','local_ask','phone_shell',
     'file_stat','file_hash','file_list','file_mkdir','file_copy','file_move','armory_inventory','armory_ingest','armory_doctor','armory_slice',
     'window_status','window_probe','window_compose','window_focus','window_swap',
     'status_tts_doctor','status_say',
@@ -145,6 +154,8 @@ function cleanAction(value) {
   ]);
   if (!allowed.has(action)) throw Object.assign(new Error(`unsupported phone action: ${action}`), {status: 400});
   if (action === 'phone_diagnostics') return cleanPhoneDiagnostics({...body, action});
+  if (action === 'dungeon_run') return cleanDungeonRun({...body, action});
+  if (action === 'dungeon_status') return cleanDungeonStatus({...body, action});
   return {...body, action};
 }
 function ownerKey(caller = {}) {
@@ -176,6 +187,74 @@ async function enqueuePhoneCommand(admin, caller, args = {}) {
   const owner = ownerKey(caller);
   const idemId = hashText(`${owner}:${idem}`);
   const idemRef = admin.firestore().collection(COLLECTIONS.idempotency).doc(idemId);
+  if (action.action === 'dungeon_run' || action.action === 'dungeon_status') {
+    if (action.deviceId !== deviceId) {
+      throw Object.assign(new Error('dungeon action deviceId does not match command device'), {status:400});
+    }
+    if (idem !== action.requestId) {
+      throw Object.assign(new Error('dungeon idempotencyKey must equal the typed requestId'), {status:400});
+    }
+    const requestHash = dungeonRequestHash(action);
+    const commandId = `phd_${hashText(`${owner}:${action.requestId}`).slice(0, 32)}`;
+    const now = Date.now();
+    const record = {
+      commandId, deviceId, ownerKey:owner, action, requestHash,
+      priorityRank:dungeonPriority(action), status:'queued',
+      createdAtMs:now, updatedAtMs:now,
+      expiresAtMs:now + dungeonAdmissionTtlMs(action),
+      requestedBy:safeText(caller.actor,320), result:null, error:'',
+      leaseOwner:'', leaseId:'', leaseExpiresAtMs:0, recoveryCount:0, attached:false,
+    };
+    const commandRef = admin.firestore().collection(COLLECTIONS.commands).doc(commandId);
+    const deviceRef = admin.firestore().collection(COLLECTIONS.devices).doc(deviceId);
+    return admin.firestore().runTransaction(async (transaction) => {
+      const prior = await transaction.get(idemRef);
+      if (prior.exists) {
+        if (prior.data().requestHash !== requestHash) {
+          throw Object.assign(new Error('dungeon requestId is bound to a different exact intent'), {status:409});
+        }
+        const priorRef = admin.firestore().collection(COLLECTIONS.commands).doc(prior.data().commandId);
+        const priorCommand = await transaction.get(priorRef);
+        if (!priorCommand.exists) {
+          throw Object.assign(new Error('dungeon idempotency receipt is missing its command'), {status:409});
+        }
+        const priorData = priorCommand.data() || {};
+        const admissionExpired =
+          (priorData.status === 'queued' && Number(priorData.expiresAtMs || 0) <= now) ||
+          (priorData.status === 'failed' && priorData.failureCode === 'ADMISSION_EXPIRED');
+        if (admissionExpired) {
+          const device = await transaction.get(deviceRef);
+          const deviceData = device.exists ? (device.data() || {}) : {};
+          if (!device.exists || deviceData.ownerKey !== owner ||
+              !Array.isArray(deviceData.capabilities) || !deviceData.capabilities.includes(DUNGEON_CAPABILITY)) {
+            throw Object.assign(new Error('coding_dungeon_v2 capability is not registered for this owner'), {status:409});
+          }
+          const renewed = {
+            status:'queued', priorityRank:dungeonPriority(action),
+            expiresAtMs:now + dungeonAdmissionTtlMs(action), updatedAtMs:now,
+            error:'', failureCode:'', completedAtMs:0,
+            leaseOwner:'', leaseId:'', leaseExpiresAtMs:0,
+            recoveryCount:Number(priorData.recoveryCount || 0) + 1,
+            lastRecoveryReason:'exact owner replay renewed expired admission',
+          };
+          transaction.set(priorRef, renewed, {merge:true});
+          return {...priorData, ...renewed, attached:true};
+        }
+        return {...priorData, attached:true};
+      }
+      const device = await transaction.get(deviceRef);
+      const deviceData = device.exists ? (device.data() || {}) : {};
+      if (!device.exists || deviceData.ownerKey !== owner ||
+          !Array.isArray(deviceData.capabilities) || !deviceData.capabilities.includes(DUNGEON_CAPABILITY)) {
+        throw Object.assign(new Error('coding_dungeon_v2 capability is not registered for this owner'), {status:409});
+      }
+      transaction.create(commandRef, record);
+      transaction.create(idemRef, {
+        commandId, ownerKey:owner, requestHash, action:action.action, createdAtMs:now,
+      });
+      return record;
+    });
+  }
   if (action.action === 'phone_diagnostics') {
     const requestHash = hashText(canonicalJson(action));
     const streamScopeHash = hashText(canonicalJson({
@@ -188,7 +267,7 @@ async function enqueuePhoneCommand(admin, caller, args = {}) {
     const now = Date.now();
     const record = {
       commandId, deviceId, ownerKey: owner, action,
-      status: 'queued', createdAtMs: now, updatedAtMs: now,
+      priorityRank:dungeonPriority(action), status: 'queued', createdAtMs: now, updatedAtMs: now,
       expiresAtMs: now + Math.max(30000, Math.min(Number(args.ttlMs || 300000), 3600000)),
       requestedBy: safeText(caller.actor, 320), result: null, error: '', leaseOwner: '', leaseExpiresAtMs: 0,
     };
@@ -248,7 +327,7 @@ async function enqueuePhoneCommand(admin, caller, args = {}) {
   const now = Date.now();
   const record = {
     commandId, deviceId, ownerKey: owner, action,
-    status: 'queued', createdAtMs: now, updatedAtMs: now,
+    priorityRank:dungeonPriority(action), status: 'queued', createdAtMs: now, updatedAtMs: now,
     expiresAtMs: now + Math.max(30000, Math.min(Number(args.ttlMs || 300000), 3600000)),
     requestedBy: safeText(caller.actor, 320), result: null, error: '', leaseOwner: '', leaseExpiresAtMs: 0,
   };
@@ -273,6 +352,60 @@ async function listPhoneDevices(admin, caller) {
   return snap.docs.map((doc) => { const x=doc.data()||{}; return {...x, tokenHash: x.tokenHash ? '[stored-digest]' : ''}; });
 }
 
+function selectQueuedCommand(records, now = Date.now()) {
+  return records
+    .filter((record) => Number(record.expiresAtMs || 0) > now)
+    .sort((a,b) => {
+      const priority = Number.isFinite(Number(a.priorityRank)) ? Number(a.priorityRank) : dungeonPriority(a.action);
+      const other = Number.isFinite(Number(b.priorityRank)) ? Number(b.priorityRank) : dungeonPriority(b.action);
+      return priority - other || Number(a.createdAtMs || 0) - Number(b.createdAtMs || 0) ||
+        String(a.commandId || '').localeCompare(String(b.commandId || ''));
+    })[0] || null;
+}
+async function recoverStaleDungeonLeases(admin, owner, deviceId, now) {
+  const leased = await admin.firestore().collection(COLLECTIONS.commands)
+    .where('ownerKey','==',owner).where('deviceId','==',deviceId).where('status','==','leased').limit(50).get();
+  for (const doc of leased.docs) {
+    const candidate = doc.data() || {};
+    if (!candidate.action || !['dungeon_run','dungeon_status'].includes(candidate.action.action) ||
+        Number(candidate.leaseExpiresAtMs || 0) > now) continue;
+    await admin.firestore().runTransaction(async (transaction) => {
+      const fresh = await transaction.get(doc.ref);
+      const record = fresh.exists ? (fresh.data() || {}) : {};
+      if (record.status !== 'leased' || Number(record.leaseExpiresAtMs || 0) > now ||
+          !record.action || !['dungeon_run','dungeon_status'].includes(record.action.action)) return;
+      transaction.set(doc.ref, {
+        status:'queued', leaseOwner:'', leaseId:'', leaseExpiresAtMs:0,
+        recoveryCount:Number(record.recoveryCount || 0) + 1,
+        lastRecoveryReason:'expired admission lease; reattach exact local job',
+        updatedAtMs:now,
+      }, {merge:true});
+    });
+  }
+}
+async function expireQueuedCommands(admin, docs, now) {
+  for (const doc of docs) {
+    const candidate = doc.data() || {};
+    if (candidate.status !== 'queued' || Number(candidate.expiresAtMs || 0) > now) continue;
+    const diagnostic = candidate.action && candidate.action.action === 'phone_diagnostics';
+    const streamRef = diagnostic ? admin.firestore().collection(COLLECTIONS.diagnosticStreams)
+      .doc(hashText(`${candidate.ownerKey}:${candidate.deviceId}:${candidate.action.streamId}`)) : null;
+    await admin.firestore().runTransaction(async (transaction) => {
+      const fresh = await transaction.get(doc.ref);
+      const stream = streamRef ? await transaction.get(streamRef) : null;
+      const record = fresh.exists ? (fresh.data() || {}) : {};
+      if (record.status !== 'queued' || Number(record.expiresAtMs || 0) > now) return;
+      if (streamRef && stream && stream.exists && stream.data().inflightCommandId === record.commandId) {
+        transaction.set(streamRef, {inflightCommandId:'', updatedAtMs:now}, {merge:true});
+      }
+      transaction.set(doc.ref, {
+        status:'failed', error:'admission expired before a device lease',
+        failureCode:'ADMISSION_EXPIRED', completedAtMs:now, updatedAtMs:now,
+        leaseOwner:'', leaseId:'', leaseExpiresAtMs:0,
+      }, {merge:true});
+    });
+  }
+}
 async function devicePull(admin, {deviceId, deviceToken, leaseMs = 30000} = {}) {
   const id = cleanDeviceId(deviceId);
   const devRef = admin.firestore().collection(COLLECTIONS.devices).doc(id);
@@ -282,16 +415,30 @@ async function devicePull(admin, {deviceId, deviceToken, leaseMs = 30000} = {}) 
   if (hashText(deviceToken) !== device.tokenHash) throw Object.assign(new Error('device unauthorized'), {status: 401});
   const now = Date.now();
   await devRef.set({lastSeenAtMs: now, status: 'online'}, {merge: true});
+  await recoverStaleDungeonLeases(admin, device.ownerKey, id, now);
   const query = await admin.firestore().collection(COLLECTIONS.commands)
-    .where('ownerKey','==',device.ownerKey).where('deviceId','==',id).where('status','==','queued').limit(10).get();
-  const candidates = query.docs.map((d) => d.data()).filter((x) => Number(x.expiresAtMs || 0) > now).sort((a,b) => a.createdAtMs-b.createdAtMs);
-  if (!candidates.length) return {ok: true, command: null};
-  const chosen = candidates[0];
+    .where('ownerKey','==',device.ownerKey).where('deviceId','==',id).where('status','==','queued')
+    .orderBy('priorityRank','asc').orderBy('createdAtMs','asc').orderBy('commandId','asc').limit(50).get();
+  await expireQueuedCommands(admin, query.docs, now);
+  const chosen = selectQueuedCommand(query.docs.map((d) => d.data()), now);
+  if (!chosen) return {ok: true, command: null};
   const leaseOwner = `device:${id}`;
-  await admin.firestore().collection(COLLECTIONS.commands).doc(chosen.commandId).set({status:'leased', leaseOwner, leaseExpiresAtMs: now + Math.max(5000, Math.min(Number(leaseMs), 120000)), updatedAtMs: now}, {merge:true});
-  return {ok: true, command: {...chosen, status:'leased', leaseOwner}};
+  const leaseId = `lease_${randomUUID()}`;
+  const leaseExpiresAtMs = now + Math.max(5000, Math.min(Number(leaseMs), 120000));
+  const chosenRef = admin.firestore().collection(COLLECTIONS.commands).doc(chosen.commandId);
+  const leased = await admin.firestore().runTransaction(async (transaction) => {
+    const fresh = await transaction.get(chosenRef);
+    const record = fresh.exists ? (fresh.data() || {}) : {};
+    if (record.status !== 'queued' || Number(record.expiresAtMs || 0) <= now) return null;
+    transaction.set(chosenRef, {
+      status:'leased', leaseOwner, leaseId, leaseExpiresAtMs,
+      leaseAttempt:Number(record.leaseAttempt || 0) + 1, updatedAtMs:now,
+    }, {merge:true});
+    return {...record, status:'leased', leaseOwner, leaseId, leaseExpiresAtMs};
+  });
+  return {ok:true, command:leased};
 }
-async function deviceComplete(admin, {deviceId, deviceToken, commandId, status, result, error} = {}) {
+async function deviceComplete(admin, {deviceId, deviceToken, commandId, leaseId, status, result, error} = {}) {
   const id = cleanDeviceId(deviceId);
   const devSnap = await admin.firestore().collection(COLLECTIONS.devices).doc(id).get();
   if (!devSnap.exists) throw Object.assign(new Error('device not registered'), {status: 404});
@@ -303,7 +450,26 @@ async function deviceComplete(admin, {deviceId, deviceToken, commandId, status, 
   const record = snap.data() || {};
   if (record.ownerKey !== device.ownerKey || record.deviceId !== id) throw Object.assign(new Error('command not found'), {status:404});
   const finalStatus = status === 'completed' ? 'completed' : 'failed';
-  const cleanResult = JSON.parse(JSON.stringify(result == null ? null : result));
+  let cleanResult = JSON.parse(JSON.stringify(result == null ? null : result));
+  if (record.action && ['dungeon_run','dungeon_status'].includes(record.action.action)) {
+    if (finalStatus === 'completed') cleanResult = validateDungeonDeviceReceipt(record.action, cleanResult);
+    await admin.firestore().runTransaction(async (transaction) => {
+      const fresh = await transaction.get(ref);
+      const freshRecord = fresh.exists ? (fresh.data() || {}) : {};
+      if (!fresh.exists || freshRecord.status !== 'leased' ||
+          freshRecord.leaseOwner !== `device:${id}` ||
+          !safeText(leaseId,120) || freshRecord.leaseId !== safeText(leaseId,120)) {
+        throw Object.assign(new Error('dungeon completion requires the exact live admission lease'), {status:409});
+      }
+      const completedAtMs = Date.now();
+      transaction.set(ref, {
+        status:finalStatus, result:cleanResult, error:safeText(error,4000),
+        completedAtMs, updatedAtMs:completedAtMs,
+        leaseOwner:'', leaseId:'', leaseExpiresAtMs:0,
+      }, {merge:true});
+    });
+    return {ok:true, commandId:record.commandId, status:finalStatus};
+  }
   if (record.action && record.action.action === 'phone_diagnostics') {
     const action = record.action;
     const streamRef = admin.firestore().collection(COLLECTIONS.diagnosticStreams)
@@ -403,4 +569,4 @@ function registerCommandCenterPhoneTools(server, {admin, z, textResult, callerFr
   }, async (args,extra)=>textResult(await getPhoneCommand(admin,await callerFromExtra(admin,extra),args||{})));
 }
 
-module.exports = {COLLECTIONS, enqueuePhoneCommand, getPhoneCommand, listPhoneDevices, registerDevice, devicePull, deviceComplete, cleanAction, cleanPhoneDiagnostics, diagnosticChunkHash, diagnosticReceiptHash, hashText, createPhoneHandsRelayHandler, registerCommandCenterPhoneTools};
+module.exports = {COLLECTIONS, enqueuePhoneCommand, getPhoneCommand, listPhoneDevices, registerDevice, devicePull, deviceComplete, cleanAction, cleanPhoneDiagnostics, diagnosticChunkHash, diagnosticReceiptHash, selectQueuedCommand, recoverStaleDungeonLeases, expireQueuedCommands, hashText, createPhoneHandsRelayHandler, registerCommandCenterPhoneTools};
