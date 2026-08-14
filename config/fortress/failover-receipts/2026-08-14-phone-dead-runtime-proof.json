@@ -1,0 +1,129 @@
+{
+  "schema": "fortress.failover-runtime-proof.v1",
+  "capturedDate": "2026-08-14",
+  "event": "primary_phone_power_loss",
+  "operatorTruth": {
+    "deviceId": "primary-phone",
+    "state": "dead_and_charging",
+    "authority": "direct_operator_observation",
+    "ruling": "stale online registry state does not overrule observed power loss"
+  },
+  "survivingSpine": {
+    "homeCenterDriveBridge": {
+      "state": "online",
+      "service": "home-center-drive-bridge",
+      "version": "0.3.0"
+    },
+    "desktop": {
+      "workerId": "windows-hands-01",
+      "state": "online_idle",
+      "queueDepthAtFailover": 2,
+      "activeLanesAtFailover": [
+        "lane-reality-membrane",
+        "lane-spotify-radio"
+      ]
+    },
+    "durableState": {
+      "repo": "Valar05/home-center",
+      "branch": "fortress/swarm-failover-lights",
+      "predecessorReceiptCommit": "fc1058bcdc0b54873a68f12705a49db400713d71"
+    }
+  },
+  "scheduler": {
+    "taskName": "Fortress Swarm Continuity Lights",
+    "enabled": true,
+    "stateCode": 3,
+    "stateMeaning": "READY",
+    "execution": "powershell.exe",
+    "arguments": "-NoProfile -NonInteractive -WindowStyle Hidden -ExecutionPolicy Bypass -File C:\\Users\\dclar\\AppData\\Local\\HomeCenter\\swarm-failover-lights.ps1",
+    "interval": "PT5M",
+    "hiddenExecution": true,
+    "lastRunTimeUtc": "2026-08-14T19:06:05Z",
+    "nextRunTimeObservedUtc": "2026-08-14T19:10:00Z",
+    "lastTaskResult": 0,
+    "missedRuns": 0,
+    "naturalSchedulerPulseObserved": true
+  },
+  "pulseReceipts": [
+    {
+      "sequence": 1,
+      "pulseUtc": "2026-08-14T19:01:17.9273236Z",
+      "ok": true
+    },
+    {
+      "sequence": 2,
+      "pulseUtc": "2026-08-14T19:01:25.8033243Z",
+      "ok": true
+    },
+    {
+      "sequence": 3,
+      "pulseUtc": "2026-08-14T19:02:36.8202188Z",
+      "ok": true
+    },
+    {
+      "sequence": 4,
+      "pulseUtc": "2026-08-14T19:06:08.5477308Z",
+      "ok": true,
+      "provenance": "natural scheduled run aligned with Task Scheduler last-run receipt"
+    },
+    {
+      "sequence": 5,
+      "pulseUtc": "2026-08-14T19:06:58.2651725Z",
+      "ok": true,
+      "provenance": "bounded direct canary"
+    }
+  ],
+  "renderedLightShow": {
+    "localRuntimePath": "C:\\Users\\dclar\\AppData\\Local\\HomeCenter\\swarm-failover-lights.html",
+    "sha256": "8eaf1cad19983108a1525696890004981e1493d7cebd596790df14c225921b21",
+    "byteCount": 7435,
+    "windowTitle": "Fortress Swarm Continuity Lights - Google Chrome",
+    "observedTopLevelWindowsWithTitle": 2,
+    "accessibleExplanation": true,
+    "prefersReducedMotionSupported": true,
+    "countdown": false,
+    "clockPressure": false
+  },
+  "visualReceipt": {
+    "captureState": "completed",
+    "mimeType": "image/jpeg",
+    "width": 1600,
+    "height": 1067,
+    "byteCount": 163033,
+    "source": "windows-hands-01 screen.capture"
+  },
+  "woundsPreserved": [
+    {
+      "name": "black_terminal_window_hell",
+      "evidence": "older PowerShell/terminal windows were observed during foreground verification",
+      "consequence": "the continuity pulse runs hidden and the light show is the operator-facing surface"
+    },
+    {
+      "name": "scheduler_self_query_deadlock",
+      "evidence": "early pulse attempted scheduler self-inspection and exceeded bounded wait",
+      "consequence": "self-query removed; install, registration, pulse, and proof were split into independent bounded steps"
+    },
+    {
+      "name": "stale_phone_registry",
+      "evidence": "registry still reported online after direct operator report of power loss",
+      "consequence": "operator power observation controls until a fresh phone receipt proves return"
+    }
+  ],
+  "acceptance": {
+    "durableFailoverCheckpoint": true,
+    "desktopFailoverUsed": true,
+    "visibleChristmasLightShow": true,
+    "liveWindowsSchedulerInstalled": true,
+    "naturalScheduledPulseProven": true,
+    "schedulerReceiptsProven": true,
+    "visualCaptureReceiptProven": true,
+    "phoneRecovered": false,
+    "phoneRejoined": false,
+    "operatorAccepted": false
+  },
+  "resumeBoundary": {
+    "phoneLane": "charging_recovery",
+    "rejoinCondition": "power returns and a fresh device receipt agrees",
+    "continuity": "desktop scheduler, Home Center bridge, Drive, and GitHub continue without phone transport"
+  }
+}
