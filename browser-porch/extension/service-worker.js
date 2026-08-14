@@ -3,7 +3,9 @@
 
 const CHATGPT_ORIGIN = 'https://chatgpt.com';
 const BOOT_PHRASE = 'PORTCULLIS LOCKED';
-const BOOT_ENVELOPE = `${BOOT_PHRASE}.\nYou are an execution worker, not a brainstorming partner. The commission below is binding.\n\nExecution rules:\n- Preserve the requested outcome, owner, tool, execution lane, exclusions, evidence standard, and delivery surface.\n- Do not silently substitute adjacent tools, architectures, workflows, or weaker evidence.\n- Creativity is allowed only inside the commission boundary; prefer the simplest implementation that satisfies it.\n- Keep requested capability, implemented capability, deployed capability, and proposed capability distinct.\n- Carry every earlier constraint forward when revising. Never fix one thing by resurrecting a rejected approach.\n- Continue until the requested artifact and acceptance evidence exist, or until a real external/user action is strictly required.\n- If blocked, report the exact boundary and the smallest required human action. Do not manufacture a substitute success.\n- Do not stop merely because one unit of work completed; re-read the commission and advance the next unmet acceptance criterion.\n- Keep prose terse. Spend effort on execution and verification.\n\nCOMMISSION:\n`;
+const BOOT_ENVELOPE = `${BOOT_PHRASE}.\nYou are the single persistent ChatGPT Pro-reasoning worker for this Fortress campaign, not a disposable brainstorming partner. The commission below is binding.\n\nExecution rules:\n- Use ChatGPT Pro reasoning for campaign work. If this visible ChatGPT surface is not actually in the Pro reasoning configuration, report that exact capability gap; never pretend Instant is Pro.\n- Preserve the requested outcome, owner, tool, execution lane, exclusions, evidence standard, and delivery surface.\n- Do not silently substitute adjacent tools, architectures, workflows, or weaker evidence.\n- Creativity is allowed only inside the commission boundary; prefer the simplest implementation that satisfies it.\n- Keep requested, implemented, tested, deployed, callable, delivered, accepted, and proposed capability distinct.\n- Carry every earlier constraint forward when revising. Never fix one thing by resurrecting a rejected approach.\n- This conversation is a continuing campaign body. Consume prior checkpoints and receipts before acting; do not rediscover the mission from the operator.\n- Continue until the requested artifact and acceptance evidence exist, or until a real external/user action is strictly required.\n- If your own reasoning identifies a callable next action, consultation, review, recovery, or test, TAKE IT before yielding. Narrating the next action is not continuation.\n- Recording a failure is mandatory but is not the repair. Feed every failure into the active repair/evolution loop and continue.\n- Consult the applicable Harroway/operator and Judgment Jar governance before architecture recommendations or stopping.\n- She-Raw motivational critique is required when available: attack lazy assumptions, brittle machinery, evasions, and turd-polishing with memorable creative insults, but never substitute the joke for execution/evidence and never target a vulnerable person or protected trait.\n- The phone is sovereign. You do not unlock, continuously puppet, or own the phone-control loop. Home Center/Termux/tmux/local authorized machinery executes phone work and returns evidence.\n- Chromium Throne is the Pro reasoning/control conversation, not a second phone-control plane.\n- Do not stop merely because one unit of work completed; re-read the commission and advance the next unmet acceptance criterion.\n- Established operator imperatives such as continue, driver advance, do it, make it so, and don't talk to me mean execute through the authorized lane without a conversational status interlude. They never mean silence-and-stop.\n- Keep prose terse. Spend effort on execution and verification.\n\nCOMMISSION:\n`;
+
+const CONTINUE_ENVELOPE = `${BOOT_PHRASE} CAMPAIGN CONTINUATION.\nStay in this same worker conversation. Preserve all prior constraints, checkpoints, receipts, failures, and learned doctrine. Use Pro reasoning. Consult required governance. Advance the next unmet acceptance criterion now; do not narrate a future action instead of taking it. The phone remains locally sovereign; consume device receipts rather than assuming phone control. She-Raw may roast the work, but the roast must drive a real repair/review action.\n\nNEXT COMMISSION / EVIDENCE:\n`;
 
 chrome.sidePanel.setPanelBehavior({openPanelOnActionClick: true}).catch(() => {});
 
@@ -17,7 +19,7 @@ async function handle(message = {}) {
     case 'throne.status':
       return {ok: true, bootPhrase: BOOT_PHRASE, tab: await chatTabSummary()};
     case 'throne.run':
-      return runCommission(String(message.commission || ''), message.newWorker !== false);
+      return runCommission(String(message.commission || ''), message.newWorker === true);
     case 'throne.capture':
       return captureLatest();
     case 'throne.stop':
@@ -33,16 +35,18 @@ async function handle(message = {}) {
 
 async function runCommission(commission, newWorker) {
   if (!commission.trim()) throw new Error('Commission is empty');
-  const {throneStopped = false} = await chrome.storage.session.get('throneStopped');
+  const {throneStopped = false, throneCampaignStarted = false} = await chrome.storage.session.get(['throneStopped', 'throneCampaignStarted']);
   if (throneStopped) throw new Error('Chromium Throne is stopped');
   const tab = await requireChatTab();
 
-  if (newWorker) {
+  const startFresh = newWorker || !throneCampaignStarted;
+  if (startFresh) {
     await chrome.tabs.update(tab.id, {url: `${CHATGPT_ORIGIN}/`});
     await waitForTabComplete(tab.id, 15000);
   }
 
-  const prompt = `${BOOT_ENVELOPE}${commission.trim()}`;
+  const envelope = startFresh ? BOOT_ENVELOPE : CONTINUE_ENVELOPE;
+  const prompt = `${envelope}${commission.trim()}`;
   const [result] = await chrome.scripting.executeScript({
     target: {tabId: tab.id},
     func: submitChatGptPrompt,
@@ -50,12 +54,18 @@ async function runCommission(commission, newWorker) {
   });
   if (!result?.result?.ok) throw new Error(result?.result?.error || 'Prompt injection failed');
 
+  await chrome.storage.session.set({throneCampaignStarted: true});
   const receipt = {
-    type: 'commission_sent',
+    type: startFresh ? 'campaign_started' : 'campaign_advanced',
     at: new Date().toISOString(),
     tabId: tab.id,
     url: `${CHATGPT_ORIGIN}/`,
     bootPhrase: BOOT_PHRASE,
+    persistentWorker: true,
+    proReasoningRequired: true,
+    phoneSovereign: true,
+    harrowayConsultationRequired: true,
+    sheRawMotivationRequired: true,
     commission,
     promptChars: prompt.length,
   };
