@@ -9,6 +9,8 @@ import subprocess
 import time
 from pathlib import Path
 
+import fortress_night_status as night_status
+
 STATE_DIR = Path(os.environ.get("HC_SWARM_STATE_DIR", "~/.local/state/home-center/vlad-swarm")).expanduser()
 JAR_CACHE = Path(os.environ.get("HC_JUDGMENT_JARS_CACHE", str(STATE_DIR / "judgment-jars.json"))).expanduser()
 JAR_CONFIG = Path(os.environ.get("HC_JUDGMENT_JARS_CONFIG", "config/judgment-jars.v1.json")).expanduser()
@@ -93,17 +95,22 @@ def phone_health():
     return True
 
 def context_sensor_delay():
-    """Keep local sensing responsive while charging and cheap on low battery."""
-    result=rish("dumpsys battery")
-    if result["rc"]!=0:return max(30,CONTEXT_SENSOR_INTERVAL)
-    text=result["stdout"]+"\n"+result["stderr"]
-    level_match=re.search(r"(?im)^\s*level:\s*(\d+)\s*$",text)
-    level=int(level_match.group(1)) if level_match else -1
-    charging=bool(re.search(r"(?im)^\s*(AC|USB|Wireless) powered:\s*true\s*$",text)) or bool(re.search(r"(?im)^\s*status:\s*(2|5)\s*$",text))
-    if charging:return max(30,CONTEXT_SENSOR_CHARGING_INTERVAL)
-    if 0<=level<=20:return max(60,CONTEXT_SENSOR_CRITICAL_BATTERY_INTERVAL)
-    if 0<=level<=40:return max(60,CONTEXT_SENSOR_LOW_BATTERY_INTERVAL)
-    return max(30,CONTEXT_SENSOR_INTERVAL)
+    """Keep local sensing responsive while charging and cheap on low battery.
+
+    Battery truth is delegated to the bounded Night Core probe: Termux API/sysfs
+    first, with rish dumpsys as a <=3 second fallback. Never use generic rish()
+    here; its wider timeout is for unrelated phone operations.
+    """
+    started=time.monotonic();battery=night_status.battery();latency_ms=int((time.monotonic()-started)*1000)
+    try:level=int(battery.get("level",-1))
+    except (TypeError,ValueError):level=-1
+    charging=bool(battery.get("plugged"));source=str(battery.get("source") or "unavailable")
+    if charging:delay=max(30,CONTEXT_SENSOR_CHARGING_INTERVAL)
+    elif 0<=level<=20:delay=max(60,CONTEXT_SENSOR_CRITICAL_BATTERY_INTERVAL)
+    elif 0<=level<=40:delay=max(60,CONTEXT_SENSOR_LOW_BATTERY_INTERVAL)
+    else:delay=max(30,CONTEXT_SENSOR_INTERVAL)
+    append_receipt({"kind":"context.battery.cadence","ok":level>=0,"source":source,"level":level,"plugged":charging,"latencyMs":latency_ms,"delaySeconds":delay,"boundedNightCoreProbe":True})
+    return delay
 def sense_context(repo_root):
     script=Path(repo_root)/"tools"/"fortress_context_sensors.py"
     if not script.is_file():
