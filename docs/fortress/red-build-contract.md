@@ -27,6 +27,18 @@ Do not ask Drew a question that can be answered by inspection, probing, safe bou
 
 RED BUILD inherits WORK + JOY + HARVEST + TRUTH. Joy is load-bearing but cannot falsify execution state or delay the artery. Harvest useful creative/system discoveries rather than evaporating them in transient chat.
 
+## Waltz successor
+
+After every material transition, the same existing worker immediately performs:
+
+`WORK → EVIDENCE → JOY OWNER LOOKUP → FEEDBACK/HARVEST → NEXT WORK`
+
+This successor is continuation inside the already-running worker. It does not create, schedule, or substitute a new worker and it does not steal ownership from an existing conductor.
+
+If durable Home Center/scheduler evidence identifies an existing dedicated Joy synthesis owner, hand the just-completed work plus its evidence to that existing owner and harvest the returned feedback before selecting the next work item. If no dedicated Joy synthesis owner is evidenced, preserve `JOY_OWNER_UNRESOLVED` and continue non-Joy work; never invent a Joy owner, fabricate a handoff, or create a scheduled worker to satisfy the loop.
+
+P0 Fortress Swarm Scheduler remains sole conductor for Home Center recovery. RED BUILD may inspect that artery read-only for dependency/evidence state but may not retask, replace, wake, or seize the recovery chain unless Drew explicitly changes conductor authority.
+
 ## Slash-a-Rat
 
 A rat is ceremony between commission and delivered evidence that no longer buys useful information, safety, control, or capability. Slash it. Examples: duplicate workers, scheduler-as-progress, skill-fetch dependency for baseline judgment, prose-as-execution, repeated rediscovery of known blockers, and user-as-command-bus.
