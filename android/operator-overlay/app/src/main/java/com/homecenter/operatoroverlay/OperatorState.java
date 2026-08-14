@@ -91,7 +91,20 @@ final class OperatorState {
     }
 
     static String adamRequestPayloadB64(Context context) {
-        return prefs(context).getString(KEY_ADAM_REQUEST_PAYLOAD_B64, "");
+        String encoded = prefs(context).getString(KEY_ADAM_REQUEST_PAYLOAD_B64, "");
+        return adamRequestNeedsLocalReview(context) ? "" : encoded;
+    }
+
+    static boolean adamRequestNeedsLocalReview(Context context) {
+        String encoded = prefs(context).getString(KEY_ADAM_REQUEST_PAYLOAD_B64, "");
+        if (encoded == null || encoded.isEmpty()) return false;
+        try {
+            String decoded = new String(
+                    Base64.decode(encoded, Base64.NO_WRAP), StandardCharsets.UTF_8);
+            return NicotineTrackerContract.isTrackerLike(decoded);
+        } catch (IllegalArgumentException invalidPayload) {
+            return false;
+        }
     }
 
     static long spotifyRequestId(Context context) {

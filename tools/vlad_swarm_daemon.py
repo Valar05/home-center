@@ -9,6 +9,8 @@ import subprocess
 import time
 from pathlib import Path
 
+from nicotine_tracker_guard import is_local_tracker_like
+
 STATE_DIR = Path(os.environ.get("HC_SWARM_STATE_DIR", "~/.local/state/home-center/vlad-swarm")).expanduser()
 JAR_CACHE = Path(os.environ.get("HC_JUDGMENT_JARS_CACHE", str(STATE_DIR / "judgment-jars.json"))).expanduser()
 JAR_CONFIG = Path(os.environ.get("HC_JUDGMENT_JARS_CONFIG", "config/judgment-jars.v1.json")).expanduser()
@@ -19,10 +21,6 @@ ADAM_POLL_SECONDS = float(os.environ.get("HC_ADAM_POLL_SECONDS", "1.0"))
 OPERATOR_STATE_URI = "content://com.homecenter.operatoroverlay.state/state"
 OPERATOR_RECEIVER = "com.homecenter.operatoroverlay/.OverlayUpdateReceiver"
 OVERLAY_RECOVERY_COOLDOWN = int(os.environ.get("HC_OVERLAY_RECOVERY_COOLDOWN", "120"))
-LOCAL_TRACKER_LIKE = re.compile(
-    r"^(?:/track\b|track(?:er|ing)?\b|hunger\b|tank\b|puffs?\b|exposure\b)",
-    re.IGNORECASE,
-)
 LOCAL_TRACKER_DRAFT_MESSAGE = (
     "UNSAVED LOCAL DRAFT. Use the on-phone Review/Save controls; "
     "nothing was sent or saved."
@@ -120,7 +118,7 @@ def _operator_field(raw,name,default=""):
 def _operator_probe_summary(result):
     """Return status only; provider rows can contain private pending request payloads."""
     return {"rc":int(result.get("rc") or 0),"stateReadable":"control_enabled=" in str(result.get("stdout") or "")}
-def _looks_local_tracker_text(text):return bool(LOCAL_TRACKER_LIKE.match(str(text or "").strip()))
+def _looks_local_tracker_text(text):return is_local_tracker_like(text)
 def operator_heartbeat():
     result=rish("am broadcast --receiver-foreground -a com.homecenter.operatoroverlay.HEARTBEAT "+f"-n {OPERATOR_RECEIVER}");append_receipt({"kind":"adam.overlay.heartbeat","ok":result["rc"]==0,"result":result})
 def operator_update(text,source):
@@ -183,6 +181,12 @@ def _deliver_pending_responses():
         return False
     return True
 
+def _quarantine_local_tracker_request(request_id):
+    pending={"schema":"adam-overlay-pending-response-v1","requestId":request_id,"mode":"local_tracker_guard","display":LOCAL_TRACKER_DRAFT_MESSAGE,"taskRc":1,"taskResult":{"state":"UNSAVED_LOCAL_DRAFT","persisted":False,"workerInvoked":False,"providerMutation":False},"attempts":0,"nextAttemptEpoch":0,"createdAtEpoch":now()}
+    pending_path=_save_pending_response(pending)
+    append_receipt({"kind":"adam.request.local_tracker_quarantined","ok":False,"requestId":request_id,"mode":"local_tracker_guard","state":"UNSAVED_LOCAL_DRAFT","persisted":False,"workerInvoked":False,"providerMutation":False,"pending":str(pending_path)})
+    _deliver_pending_responses()
+
 def process_adam_overlay(repo_root):
     if not _deliver_pending_responses():return
     query=rish(f"content query --uri {shlex.quote(OPERATOR_STATE_URI)}")
@@ -191,15 +195,14 @@ def process_adam_overlay(repo_root):
     try:request_id=int(_operator_field(raw,"adam_request_id","0") or "0")
     except ValueError:return
     if request_id<=0 or request_id<=_last_adam_request_id():return
-    mode=_operator_field(raw,"adam_request_mode","terminal");payload=_operator_field(raw,"adam_request_payload_b64","")
+    mode=_operator_field(raw,"adam_request_mode","terminal");local_review_required=_operator_field(raw,"adam_request_local_review_required","0")=="1";payload=_operator_field(raw,"adam_request_payload_b64","")
+    if local_review_required:
+        _quarantine_local_tracker_request(request_id);return
     try:text=base64.b64decode(payload,validate=True).decode("utf-8")
     except Exception as exc:
         display=f"invalid_payload: {exc}";pending={"schema":"adam-overlay-pending-response-v1","requestId":request_id,"mode":mode,"display":display[:8000],"taskRc":2,"taskResult":{"error":display},"attempts":0,"nextAttemptEpoch":0,"createdAtEpoch":now()};pending_path=_save_pending_response(pending);append_receipt({"kind":"adam.request.invalid","ok":False,"requestId":request_id,"mode":mode,"error":display,"pending":str(pending_path)});_deliver_pending_responses();return
     if _looks_local_tracker_text(text):
-        pending={"schema":"adam-overlay-pending-response-v1","requestId":request_id,"mode":"local_tracker_guard","display":LOCAL_TRACKER_DRAFT_MESSAGE,"taskRc":1,"taskResult":{"state":"UNSAVED_LOCAL_DRAFT","persisted":False,"workerInvoked":False,"providerMutation":False},"attempts":0,"nextAttemptEpoch":0,"createdAtEpoch":now()}
-        pending_path=_save_pending_response(pending)
-        append_receipt({"kind":"adam.request.local_tracker_quarantined","ok":False,"requestId":request_id,"mode":"local_tracker_guard","state":"UNSAVED_LOCAL_DRAFT","persisted":False,"workerInvoked":False,"providerMutation":False,"pending":str(pending_path)})
-        _deliver_pending_responses();return
+        _quarantine_local_tracker_request(request_id);return
     result=run(["python3",str(Path(repo_root)/"tools"/"adam.py"),mode,text,"--cwd",repo_root],timeout=None,cwd=repo_root);display=result["stdout"] or result["stderr"] or f"Adam {mode} exited {result['rc']}"
     try:
         parsed=json.loads(result["stdout"]);display=parsed.get("response") or parsed.get("stdout") or parsed.get("detail") or parsed.get("error") or display

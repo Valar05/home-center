@@ -16,6 +16,8 @@ import subprocess
 import sys
 from pathlib import Path
 
+from nicotine_tracker_guard import is_local_tracker_like
+
 ROOT = Path(__file__).resolve().parents[1]
 WORKER = ROOT / "tools" / "adam_planned_venice.py"
 RADIO_SOURCE = ROOT / "tools" / "spotify_radio.py"
@@ -23,10 +25,6 @@ RADIO_INSTALLED = Path(os.environ.get("HC_SPOTIFY_RADIO_BIN", "~/bin/spotify-rad
 ONE_SHOT_MODES = ("auto", "terminal", "text", "chat", "continue", "vlad", "radio")
 MAX_RECEIPT_TEXT = 6000
 SMS_ID = re.compile(r"^sms_[a-f0-9]{32,64}$")
-LOCAL_TRACKER_LIKE = re.compile(
-    r"^(?:/track\b|track(?:er|ing)?\b|hunger\b|tank\b|puffs?\b|exposure\b)",
-    re.IGNORECASE,
-)
 
 
 def tail(value: str, limit: int = MAX_RECEIPT_TEXT) -> str:
@@ -41,7 +39,7 @@ def receipt(mode: str, ok: bool, **data) -> int:
 
 def local_tracker_guard(text: str) -> bool:
     """Quarantine local tracker-shaped text before every router lane."""
-    return bool(LOCAL_TRACKER_LIKE.match(str(text or "").strip()))
+    return is_local_tracker_like(text)
 
 
 def unsaved_local_tracker_receipt() -> int:

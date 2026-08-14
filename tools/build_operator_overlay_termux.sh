@@ -1,181 +1,95 @@
 #!/data/data/com.termux/files/usr/bin/bash
 set -euo pipefail
 
+# Strict release build: all tools, SDK bytes, caches, and signer must already
+# exist and be pinned. This script never installs packages, downloads bytes, or
+# generates a signing identity.
 ROOT="$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)"
-APP="$ROOT/android/operator-overlay/app"
-SRC="$APP/src/main/java"
-MANIFEST="$APP/src/main/AndroidManifest.xml"
-OUTDIR="$APP/build/outputs/apk/debug"
-WORK="$HOME/.cache/home-center/operator-overlay-termux-build"
-PLATFORM_DIR="$HOME/.cache/home-center/android-platform-35"
-ANDROID_JAR="${HC_ANDROID_JAR:-$PLATFORM_DIR/android.jar}"
-FRAMEWORK_RES="${HC_FRAMEWORK_RES_APK:-$WORK/framework-res.apk}"
-KEYSTORE="$HOME/.local/state/home-center/adam-overlay-debug.keystore"
-APK="$OUTDIR/app-debug.apk"
-META_URL="${HC_ANDROID_REPOSITORY_XML:-https://dl.google.com/android/repository/repository2-1.xml}"
-PACKAGE_NAME="com.homecenter.operatoroverlay"
-RISH_BIN="${RISH:-$(command -v rish 2>/dev/null || true)}"
-[ -n "$RISH_BIN" ] || RISH_BIN="$HOME/bin/rish"
+PROJECT="$ROOT/android/operator-overlay"
+APP="$PROJECT/app"
+GRADLE_FILE="$APP/build.gradle"
+APK="$APP/build/outputs/apk/debug/app-debug.apk"
+GRADLE_BIN="${HC_GRADLE:-}"
+GRADLE_SHA256="${HC_GRADLE_SHA256:-}"
+SDK_ROOT="${HC_ANDROID_SDK_ROOT:-${ANDROID_SDK_ROOT:-${ANDROID_HOME:-}}}"
+ANDROID_JAR_SHA256="${HC_ANDROID_JAR_SHA256:-}"
+ANDROID_USER_HOME="${HC_ANDROID_USER_HOME:-${ANDROID_USER_HOME:-$HOME/.android}}"
+KEYSTORE="$ANDROID_USER_HOME/debug.keystore"
+KEYSTORE_SHA256="${HC_OPERATOR_OVERLAY_KEYSTORE_SHA256:-}"
+SIGNER_SHA256="${HC_OPERATOR_OVERLAY_SIGNER_SHA256:-}"
 
-mkdir -p "$OUTDIR" "$WORK" "$PLATFORM_DIR" "$(dirname "$KEYSTORE")"
-
-need_cmd() { command -v "$1" >/dev/null 2>&1; }
-
-install_termux_tools() {
-  local packages=()
-  need_cmd javac || packages+=(openjdk-17)
-  need_cmd keytool || packages+=(openjdk-17)
-  need_cmd aapt2 || packages+=(aapt2)
-  need_cmd d8 || packages+=(d8)
-  need_cmd apksigner || packages+=(apksigner)
-  need_cmd zip || packages+=(zip)
-  need_cmd unzip || packages+=(unzip)
-  need_cmd curl || packages+=(curl)
-
-  if [ ${#packages[@]} -gt 0 ]; then
-    local unique=() p seen q
-    for p in "${packages[@]}"; do
-      seen=0
-      for q in "${unique[@]:-}"; do [ "$q" = "$p" ] && seen=1 && break; done
-      [ "$seen" -eq 1 ] || unique+=("$p")
-    done
-    echo "[build] Installing missing Termux packages: ${unique[*]}"
-    pkg install -y "${unique[@]}"
-  fi
-
-  local missing=()
-  for c in javac aapt2 d8 apksigner zip unzip curl keytool; do
-    need_cmd "$c" || missing+=("$c")
-  done
-  [ ${#missing[@]} -eq 0 ] || {
-    echo "BLOCKED: required Termux build commands still unavailable after package install: ${missing[*]}" >&2
-    echo "Current repositories may not expose the package that provides them; no alternate toolchain was substituted." >&2
-    exit 30
-  }
-  [ -x "$RISH_BIN" ] || { echo 'BLOCKED: rish missing; live Android framework resources cannot be read.' >&2; exit 34; }
+block() { printf 'BLOCKED: %s\n' "$*" >&2; exit 30; }
+need_cmd() { command -v "$1" >/dev/null 2>&1 || block "preexisting tool missing: $1"; }
+require_pin() { [ -n "$2" ] || block "required release pin missing: $1"; }
+verify_sha256() {
+  local label="$1" path="$2" expected="$3" actual
+  [ -f "$path" ] || block "$label missing: $path"
+  actual="$(sha256sum "$path" | awk '{print $1}')"
+  [ "$actual" = "${expected,,}" ] || block "$label SHA-256 mismatch expected=${expected,,} actual=$actual"
 }
 
-valid_android_jar() {
-  [ -s "$ANDROID_JAR" ] || return 1
-  unzip -tqq "$ANDROID_JAR" >/dev/null 2>&1 || return 1
-  unzip -l "$ANDROID_JAR" android/Manifest.class 2>/dev/null | grep -q 'android/Manifest.class' || return 1
-  return 0
-}
+need_cmd python3
+need_cmd sha256sum
+need_cmd aapt2
+need_cmd apksigner
+require_pin HC_GRADLE "$GRADLE_BIN"
+require_pin HC_GRADLE_SHA256 "$GRADLE_SHA256"
+require_pin HC_ANDROID_SDK_ROOT "$SDK_ROOT"
+require_pin HC_ANDROID_JAR_SHA256 "$ANDROID_JAR_SHA256"
+require_pin HC_OPERATOR_OVERLAY_KEYSTORE_SHA256 "$KEYSTORE_SHA256"
+require_pin HC_OPERATOR_OVERLAY_SIGNER_SHA256 "$SIGNER_SHA256"
+[ -x "$GRADLE_BIN" ] || block "pinned Gradle executable is unavailable: $GRADLE_BIN"
+[ -d "$SDK_ROOT" ] || block "pinned Android SDK is unavailable: $SDK_ROOT"
+[ -d "${GRADLE_USER_HOME:-$HOME/.gradle}/caches" ] || block "preexisting Gradle dependency cache missing"
+[ -f "$GRADLE_FILE" ] || block "Gradle metadata source missing: $GRADLE_FILE"
 
-ensure_android_jar() {
-  if valid_android_jar; then
-    return 0
-  fi
-  if [ -e "$ANDROID_JAR" ]; then
-    echo "[build] Cached android.jar is invalid; replacing it: $ANDROID_JAR"
-    rm -f "$ANDROID_JAR"
-  fi
-  echo '[build] Resolving platforms;android-35 class jar from Google SDK repository metadata'
-  local xml="$WORK/repository2-1.xml" info="$WORK/platform35.json" zipfile="$WORK/platform35.zip"
-  curl -fL --retry 3 --retry-delay 2 "$META_URL" -o "$xml"
-  python - "$xml" "$info" <<'PY'
-import json,sys,xml.etree.ElementTree as ET
-root=ET.parse(sys.argv[1]).getroot()
-def local(tag): return tag.rsplit('}',1)[-1]
-for pkg in root.iter():
-    if local(pkg.tag)!='remotePackage' or pkg.attrib.get('path')!='platforms;android-35':
-        continue
-    archives=None
-    for child in pkg:
-        if local(child.tag)=='archives': archives=child; break
-    if archives is None: continue
-    for archive in archives:
-        complete=None
-        for child in archive:
-            if local(child.tag)=='complete': complete=child; break
-        if complete is None: continue
-        url=checksum=size=None; ctype='sha1'
-        for child in complete:
-            name=local(child.tag)
-            if name=='url': url=(child.text or '').strip()
-            elif name=='checksum':
-                checksum=(child.text or '').strip(); ctype=child.attrib.get('type','sha1').lower()
-            elif name=='size': size=(child.text or '').strip()
-        if url and checksum:
-            json.dump({'url':url,'checksum':checksum,'checksumType':ctype,'size':size},open(sys.argv[2],'w'))
-            raise SystemExit(0)
-raise SystemExit('platforms;android-35 archive not found in repository metadata')
-PY
-  local rel checksum ctype
-  rel="$(python -c 'import json,sys;print(json.load(open(sys.argv[1]))["url"])' "$info")"
-  checksum="$(python -c 'import json,sys;print(json.load(open(sys.argv[1]))["checksum"])' "$info")"
-  ctype="$(python -c 'import json,sys;print(json.load(open(sys.argv[1]))["checksumType"])' "$info")"
-  curl -fL --retry 3 --retry-delay 2 "https://dl.google.com/android/repository/$rel" -o "$zipfile"
-  case "$ctype" in
-    sha256) printf '%s  %s\n' "$checksum" "$zipfile" | sha256sum -c - ;;
-    sha1) printf '%s  %s\n' "$checksum" "$zipfile" | sha1sum -c - ;;
-    *) echo "BLOCKED: unsupported Android repository checksum type: $ctype" >&2; exit 31 ;;
-  esac
-  rm -rf "$PLATFORM_DIR.unpack" && mkdir -p "$PLATFORM_DIR.unpack"
-  unzip -q "$zipfile" -d "$PLATFORM_DIR.unpack"
-  local found
-  found="$(find "$PLATFORM_DIR.unpack" -type f -name android.jar | head -1)"
-  [ -s "$found" ] || { echo 'BLOCKED: downloaded Android platform archive has no android.jar' >&2; exit 32; }
-  cp "$found" "$ANDROID_JAR"
-  valid_android_jar || { echo "BLOCKED: extracted Android platform jar is not a valid API-35 class jar: $ANDROID_JAR" >&2; exit 33; }
-}
+verify_sha256 "Gradle executable" "$GRADLE_BIN" "$GRADLE_SHA256"
+ANDROID_JAR="$SDK_ROOT/platforms/android-35/android.jar"
+verify_sha256 "Android API 35 jar" "$ANDROID_JAR" "$ANDROID_JAR_SHA256"
+verify_sha256 "overlay signing keystore" "$KEYSTORE" "$KEYSTORE_SHA256"
 
-ensure_framework_resources() {
-  echo '[build] Reading live Android framework resource table through Shizuku/rish'
-  rm -f "$FRAMEWORK_RES"
-  "$RISH_BIN" -c 'cat /system/framework/framework-res.apk' > "$FRAMEWORK_RES"
-  [ -s "$FRAMEWORK_RES" ] || { echo 'BLOCKED: framework-res.apk read produced no bytes.' >&2; exit 35; }
-  unzip -tqq "$FRAMEWORK_RES" >/dev/null 2>&1 || { echo 'BLOCKED: copied framework-res.apk is not a valid APK/ZIP.' >&2; exit 36; }
-  aapt2 dump resources "$FRAMEWORK_RES" >/dev/null 2>&1 || { echo 'BLOCKED: live framework-res.apk has no readable Android resource table.' >&2; exit 37; }
-}
-
-ensure_keystore() {
-  [ -s "$KEYSTORE" ] && return 0
-  keytool -genkeypair -noprompt -keystore "$KEYSTORE" -storepass android -keypass android \
-    -alias androiddebugkey -dname 'CN=Android Debug,O=Home Center,C=US' -keyalg RSA -keysize 2048 -validity 10000
-}
-
-prepare_manifest() {
-  local out="$WORK/AndroidManifest.xml"
-  python - "$MANIFEST" "$out" "$PACKAGE_NAME" <<'PY'
+read -r MIN_SDK TARGET_SDK VERSION_CODE VERSION_NAME < <(python3 - "$GRADLE_FILE" <<'PY'
 import re,sys
-src,out,pkg=sys.argv[1:]
-text=open(src,encoding='utf-8').read()
-if re.search(r'<manifest\b[^>]*\bpackage\s*=', text):
-    rendered=text
-else:
-    rendered=re.sub(r'<manifest\b', f'<manifest package="{pkg}"', text, count=1)
-open(out,'w',encoding='utf-8').write(rendered)
+text=open(sys.argv[1],encoding='utf-8').read()
+def exactly(pattern,name):
+    values=re.findall(pattern,text,re.MULTILINE)
+    if len(values)!=1: raise SystemExit(f"BLOCKED: expected one Gradle {name}, found {len(values)}")
+    return values[0]
+print(
+    exactly(r'^\s*minSdk\s+(\d+)\s*$', 'minSdk'),
+    exactly(r'^\s*targetSdk\s+(\d+)\s*$', 'targetSdk'),
+    exactly(r'^\s*versionCode\s+(\d+)\s*$', 'versionCode'),
+    exactly(r'^\s*versionName\s+[\'\"]([^\'\"]+)[\'\"]\s*$', 'versionName'),
+)
 PY
-  printf '%s\n' "$out"
-}
+)
+[ -n "$MIN_SDK" ] && [ -n "$TARGET_SDK" ] && [ -n "$VERSION_CODE" ] && [ -n "$VERSION_NAME" ] \
+  || block "Gradle version metadata parse failed"
 
-install_termux_tools
-ensure_android_jar
-ensure_framework_resources
-ensure_keystore
+export ANDROID_HOME="$SDK_ROOT"
+export ANDROID_SDK_ROOT="$SDK_ROOT"
+export ANDROID_USER_HOME
 
-rm -rf "$WORK/classes" "$WORK/dex" "$WORK/package" "$WORK/base-unsigned.apk" "$WORK/base-signed.apk"
-mkdir -p "$WORK/classes" "$WORK/dex" "$WORK/package"
-BUILD_MANIFEST="$(prepare_manifest)"
+"$GRADLE_BIN" --offline --no-daemon --console=plain -p "$PROJECT" \
+  testDebugUnitTest assembleDebug
+[ -f "$APK" ] || block "Gradle completed without the expected APK: $APK"
 
-# AAPT2 consumes the live framework resource table; javac/d8 consume the API-35 SDK class jar.
-echo '[build] Packaging manifest/resources table'
-aapt2 link -o "$WORK/base-unsigned.apk" -I "$FRAMEWORK_RES" --manifest "$BUILD_MANIFEST" --min-sdk-version 26 --target-sdk-version 35 --version-code 3 --version-name 1.2.0
+BADGING="$(aapt2 dump badging "$APK")"
+APK_VERSION_CODE="$(printf '%s\n' "$BADGING" | sed -n "s/^package:.*versionCode='\([^']*\)'.*/\1/p" | head -1)"
+APK_VERSION_NAME="$(printf '%s\n' "$BADGING" | sed -n "s/^package:.*versionName='\([^']*\)'.*/\1/p" | head -1)"
+APK_MIN_SDK="$(printf '%s\n' "$BADGING" | sed -n "s/^sdkVersion:'\([^']*\)'.*/\1/p" | head -1)"
+APK_TARGET_SDK="$(printf '%s\n' "$BADGING" | sed -n "s/^targetSdkVersion:'\([^']*\)'.*/\1/p" | head -1)"
+[ "$APK_VERSION_CODE" = "$VERSION_CODE" ] || block "APK versionCode diverges from Gradle"
+[ "$APK_VERSION_NAME" = "$VERSION_NAME" ] || block "APK versionName diverges from Gradle"
+[ "$APK_MIN_SDK" = "$MIN_SDK" ] || block "APK minSdk diverges from Gradle"
+[ "$APK_TARGET_SDK" = "$TARGET_SDK" ] || block "APK targetSdk diverges from Gradle"
 
-echo '[build] Compiling Java against API 35 framework classes'
-find "$SRC" -name '*.java' -print0 | xargs -0 javac --release 17 -classpath "$ANDROID_JAR" -d "$WORK/classes"
+ACTUAL_SIGNER="$(apksigner verify --print-certs "$APK" \
+  | sed -n 's/^Signer #1 certificate SHA-256 digest: //p' | head -1 | tr '[:upper:]' '[:lower:]')"
+[ "$ACTUAL_SIGNER" = "${SIGNER_SHA256,,}" ] \
+  || block "APK signer mismatch expected=${SIGNER_SHA256,,} actual=$ACTUAL_SIGNER"
 
-echo '[build] Dexing classes for minSdk 26'
-d8 --lib "$ANDROID_JAR" --min-api 26 --output "$WORK/dex" $(find "$WORK/classes" -name '*.class' -print)
+APK_SHA256="$(sha256sum "$APK" | awk '{print $1}')"
+printf 'TERMUX OVERLAY APK BUILT sha256=%s versionCode=%s versionName=%s minSdk=%s targetSdk=%s signer=%s apk=%s\n' \
+  "$APK_SHA256" "$VERSION_CODE" "$VERSION_NAME" "$MIN_SDK" "$TARGET_SDK" "$ACTUAL_SIGNER" "$APK"
 
-echo '[build] Injecting classes.dex'
-cp "$WORK/base-unsigned.apk" "$WORK/base-signed.apk"
-(cd "$WORK/dex" && zip -q -u "$WORK/base-signed.apk" classes.dex)
-
-echo '[build] Signing APK'
-apksigner sign --ks "$KEYSTORE" --ks-key-alias androiddebugkey --ks-pass pass:android --key-pass pass:android --out "$APK" "$WORK/base-signed.apk"
-apksigner verify --verbose "$APK" >/dev/null
-
-sha256sum "$APK"
-echo "TERMUX OVERLAY APK BUILT apk=$APK androidJar=$ANDROID_JAR frameworkRes=$FRAMEWORK_RES"

@@ -1,0 +1,28 @@
+# expected<TAB>escaped text<TAB>private token
+QUARANTINE	/track hunger strong	strong
+QUARANTINE	please /track hunger strong	strong
+QUARANTINE	please track hunger strong	strong
+QUARANTINE	nicotine tank low	low
+QUARANTINE	I want to track exposure mouth	mouth
+QUARANTINE	please TRACKER tank high	high
+QUARANTINE	tracking my hunger moderate	moderate
+QUARANTINE	hunger overwhelming	overwhelming
+QUARANTINE	tank about-half	about-half
+QUARANTINE	puffs: 4	4
+QUARANTINE	exposure skin	skin
+QUARANTINE	Please log /track exposure eye now	eye
+QUARANTINE	please /tracking tank empty	empty
+QUARANTINE	\u200b/track puffs 4	4
+QUARANTINE	\ufeff/track puffs 4	4
+QUARANTINE	\u2060/track puffs 4	4
+QUARANTINE	\u200e/track puffs 4	4
+QUARANTINE	\u202e/track puffs 4	4
+QUARANTINE	/\u200btrack puffs 4	4
+QUARANTINE	I want to tr\u2060ack exposure unknown	unknown
+ORDINARY	Please keep working on the overlay.	-
+ORDINARY	Track the package delivery.	-
+ORDINARY	The game has a hunger mechanic.	-
+ORDINARY	The fuel tank is low.	-
+ORDINARY	What does nicotine do?	-
+ORDINARY	Please review the exposure settings in the camera.	-
+ORDINARY	How does this work?	-

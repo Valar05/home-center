@@ -13,6 +13,7 @@ on:
       - 'tools/android_phone_home_center_relay.py'
       - 'tools/setup_android_operator_overlay.sh'
       - 'tools/adam.py'
+      - 'tools/nicotine_tracker_guard.py'
       - 'tools/vlad_swarm_daemon.py'
       - 'tools/install_adam_cli.sh'
       - 'tools/test_adam_nicotine_tracker_contract.py'
@@ -28,6 +29,7 @@ on:
       - 'tools/android_phone_home_center_relay.py'
       - 'tools/setup_android_operator_overlay.sh'
       - 'tools/adam.py'
+      - 'tools/nicotine_tracker_guard.py'
       - 'tools/vlad_swarm_daemon.py'
       - 'tools/install_adam_cli.sh'
       - 'tools/test_adam_nicotine_tracker_contract.py'
@@ -82,7 +84,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          python -m py_compile tools/android_operator_overlay.py tools/android_phone_home_center_relay.py tools/adam.py tools/vlad_swarm_daemon.py tools/test_adam_nicotine_tracker_contract.py
+          python -m py_compile tools/android_operator_overlay.py tools/android_phone_home_center_relay.py tools/nicotine_tracker_guard.py tools/adam.py tools/vlad_swarm_daemon.py tools/test_adam_nicotine_tracker_contract.py
           python tools/test_adam_overlay_contract.py
           python tools/test_adam_nicotine_tracker_contract.py
           python tools/test_spotify_background_radio.py

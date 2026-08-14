@@ -15,34 +15,35 @@ import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.Locale;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
  * App-private, append-only event ledger.
  *
- * Each event is a separate immutable file committed by an atomic same-directory
- * move. There is no network, provider, exported component, or worker entrypoint.
+ * Every append first parses and cryptographically verifies the complete chain.
+ * Each new event is committed by one same-directory atomic move.
  */
 final class NicotineTrackerLedger {
     static final String DIRECTORY_NAME = "nicotine-tracker-v1";
     private static final String EVENT_SCHEMA = "adam-nicotine-tracker-event-v1";
     private static final String SOURCE_LOCAL = "local";
+    private static final String GENESIS_DIGEST =
+            "0000000000000000000000000000000000000000000000000000000000000000";
     private static final Pattern IDEMPOTENCY =
             Pattern.compile("^idem_[a-f0-9]{32}$");
     private static final Pattern EVENT_ID =
             Pattern.compile("^evt_[a-f0-9]{32}$");
+    private static final Pattern DIGEST =
+            Pattern.compile("^[a-f0-9]{64}$");
     private static final Pattern EVENT_FILE =
             Pattern.compile("^(\\d{20})-(evt_[a-f0-9]{32})\\.json$");
-    private static final Pattern JSON_IDEMPOTENCY =
-            Pattern.compile("\\\"idempotencyKey\\\":\\\"(idem_[a-f0-9]{32})\\\"");
-    private static final Pattern JSON_REQUEST_DIGEST =
-            Pattern.compile("\\\"requestDigest\\\":\\\"([a-f0-9]{64})\\\"");
-    private static final Pattern JSON_EVENT_DIGEST =
-            Pattern.compile("\\\"eventDigest\\\":\\\"([a-f0-9]{64})\\\"");
     private static final SecureRandom SECURE_RANDOM = new SecureRandom();
     private static final int MAX_EVENT_BYTES = 8192;
+    private static final int MAX_EVENT_ID_ATTEMPTS = 8;
 
     interface Clock {
         long wallTimeMillis();
@@ -91,6 +92,23 @@ final class NicotineTrackerLedger {
             this.requestDigest = requestDigest;
             this.eventDigest = eventDigest;
         }
+    }
+
+    private static final class ParsedEvent {
+        String schema;
+        String eventId;
+        long monotonicOrder;
+        String previousEventDigest;
+        long wallTimeEpochMs;
+        String wallTimeZone;
+        long monotonicNanos;
+        String source;
+        String kind;
+        String value;
+        String note;
+        String idempotencyKey;
+        String requestDigest;
+        String eventDigest;
     }
 
     private NicotineTrackerLedger() {}
@@ -148,22 +166,14 @@ final class NicotineTrackerLedger {
             throw new IOException("app-private tracker directory unavailable");
         }
         File lockFile = new File(root, "ledger.lock");
-        String requestDigest = digest(
-                "request-v1",
-                draft.kind.wireName,
-                draft.value,
-                cleanNote,
-                idempotencyKey,
-                SOURCE_LOCAL);
+        String requestDigest = requestDigest(draft, cleanNote, idempotencyKey);
 
         try (RandomAccessFile lockAccess = new RandomAccessFile(lockFile, "rw");
                 FileChannel lockChannel = lockAccess.getChannel();
                 FileLock ignored = lockChannel.lock()) {
             cleanupPending(events);
             Existing[] existing = scan(events);
-            long maxOrder = 0L;
             for (Existing event : existing) {
-                maxOrder = Math.max(maxOrder, event.monotonicOrder);
                 if (!idempotencyKey.equals(event.idempotencyKey)) continue;
                 if (!requestDigest.equals(event.requestDigest)) {
                     throw new IllegalStateException(
@@ -173,33 +183,36 @@ final class NicotineTrackerLedger {
                         false, event.monotonicOrder, event.eventId, event.eventDigest);
             }
 
-            long order = Math.addExact(maxOrder, 1L);
-            String eventId = ids.eventId();
-            if (!EVENT_ID.matcher(String.valueOf(eventId)).matches()) {
-                throw new IllegalArgumentException("invalid random event id");
-            }
+            long order = Math.addExact(existing.length, 1L);
+            String previousEventDigest = existing.length == 0
+                    ? GENESIS_DIGEST
+                    : existing[existing.length - 1].eventDigest;
+            String eventId = uniqueEventId(existing, ids);
             long wallTimeMillis = clock.wallTimeMillis();
             long monotonicNanos = clock.monotonicNanos();
-            String eventDigest = digest(
-                    EVENT_SCHEMA,
+            if (wallTimeMillis < 0L || monotonicNanos < 0L) {
+                throw new IllegalArgumentException("local event clocks must be nonnegative");
+            }
+            String eventDigest = eventDigest(
                     eventId,
-                    Long.toString(order),
-                    Long.toString(wallTimeMillis),
+                    order,
+                    previousEventDigest,
+                    wallTimeMillis,
                     zone,
-                    Long.toString(monotonicNanos),
-                    SOURCE_LOCAL,
-                    draft.kind.wireName,
-                    draft.value,
+                    monotonicNanos,
+                    draft,
                     cleanNote,
                     idempotencyKey,
                     requestDigest);
             String record = eventJson(
                     eventId,
                     order,
+                    previousEventDigest,
                     wallTimeMillis,
                     zone,
                     monotonicNanos,
-                    draft,
+                    draft.kind.wireName,
+                    draft.value,
                     cleanNote,
                     idempotencyKey,
                     requestDigest,
@@ -212,7 +225,7 @@ final class NicotineTrackerLedger {
             File destination = new File(
                     events, String.format(Locale.ROOT, "%020d-%s.json", order, eventId));
             if (destination.exists()) {
-                throw new IllegalStateException("random event id collision");
+                throw new IllegalStateException("local event destination collision");
             }
             File pending = new File(events, ".pending-" + randomHex(16));
             try {
@@ -220,17 +233,47 @@ final class NicotineTrackerLedger {
                     output.write(bytes);
                     output.getFD().sync();
                 }
-                atomicCommit.commit(pending, destination);
-                if (!destination.isFile()) {
-                    throw new IOException("atomic local event commit did not materialize");
+                try {
+                    atomicCommit.commit(pending, destination);
+                    if (!destination.isFile()) {
+                        throw new IOException("atomic local event commit did not materialize");
+                    }
+                    Existing[] verified = scan(events);
+                    Existing last = verified.length == 0 ? null : verified[verified.length - 1];
+                    if (verified.length != existing.length + 1
+                            || last == null
+                            || last.monotonicOrder != order
+                            || !eventId.equals(last.eventId)
+                            || !eventDigest.equals(last.eventDigest)) {
+                        throw new IOException("atomic local event postcondition failed");
+                    }
+                } catch (IOException | RuntimeException failure) {
+                    if (destination.exists() && !destination.delete()) {
+                        failure.addSuppressed(
+                                new IOException("failed to remove an unverified local event"));
+                    }
+                    throw failure;
                 }
             } finally {
                 if (pending.exists() && !pending.delete()) {
-                    pending.deleteOnExit();
+                    throw new IOException("failed to remove local pending event");
                 }
             }
             return new SaveResult(true, order, eventId, eventDigest);
         }
+    }
+
+    private static String uniqueEventId(Existing[] existing, IdSource ids) throws IOException {
+        Set<String> used = new HashSet<>();
+        for (Existing event : existing) used.add(event.eventId);
+        for (int attempt = 0; attempt < MAX_EVENT_ID_ATTEMPTS; attempt++) {
+            String candidate = ids.eventId();
+            if (!EVENT_ID.matcher(String.valueOf(candidate)).matches()) {
+                throw new IllegalArgumentException("invalid random event id");
+            }
+            if (!used.contains(candidate)) return candidate;
+        }
+        throw new IOException("random event id collision retry limit reached");
     }
 
     private static Existing[] scan(File events) throws IOException {
@@ -238,38 +281,273 @@ final class NicotineTrackerLedger {
         if (files == null) throw new IOException("app-private event directory unreadable");
         Arrays.sort(files, Comparator.comparing(File::getName));
         Existing[] result = new Existing[files.length];
-        long previousOrder = 0L;
+        Set<String> eventIds = new HashSet<>();
+        long expectedOrder = 1L;
+        String expectedPreviousDigest = GENESIS_DIGEST;
         for (int index = 0; index < files.length; index++) {
             File file = files[index];
             if (file.length() <= 0L || file.length() > MAX_EVENT_BYTES) {
                 throw new IOException("invalid immutable local event length");
             }
-            String name = file.getName();
-            Matcher filename = EVENT_FILE.matcher(name);
+            Matcher filename = EVENT_FILE.matcher(file.getName());
             if (!filename.matches()) throw new IOException("invalid immutable event filename");
-            long order = Long.parseLong(filename.group(1));
-            String eventId = filename.group(2);
-            if (order <= previousOrder) {
-                throw new IOException("local monotonic event order is not strictly increasing");
+            long filenameOrder;
+            try {
+                filenameOrder = Long.parseLong(filename.group(1));
+            } catch (NumberFormatException invalidOrder) {
+                throw new IOException("invalid immutable event order", invalidOrder);
             }
-            previousOrder = order;
-            String json = new String(Files.readAllBytes(file.toPath()), StandardCharsets.UTF_8);
-            if (!json.endsWith("\n")
-                    || !json.contains("\"schema\":\"" + EVENT_SCHEMA + "\"")
-                    || !json.contains("\"source\":\"" + SOURCE_LOCAL + "\"")) {
-                throw new IOException("invalid immutable local event");
+            String filenameEventId = filename.group(2);
+            if (filenameOrder != expectedOrder) {
+                throw new IOException("local monotonic event order has a deletion or gap");
             }
-            String idempotencyKey = extract(JSON_IDEMPOTENCY, json);
-            String requestDigest = extract(JSON_REQUEST_DIGEST, json);
-            String eventDigest = extract(JSON_EVENT_DIGEST, json);
-            if (!json.contains("\"eventId\":\"" + eventId + "\"")
-                    || !json.contains("\"monotonicOrder\":" + order + ",")) {
-                throw new IOException("local event identity mismatch");
+
+            String stored = new String(
+                    Files.readAllBytes(file.toPath()), StandardCharsets.UTF_8);
+            if (!stored.endsWith("\n") || stored.length() < 2) {
+                throw new IOException("truncated immutable local event");
+            }
+            String body = stored.substring(0, stored.length() - 1);
+            if (body.indexOf('\n') >= 0 || body.indexOf('\r') >= 0) {
+                throw new IOException("invalid immutable local event framing");
+            }
+            ParsedEvent event = parseEvent(body);
+            validateEvent(
+                    event,
+                    body,
+                    filenameOrder,
+                    filenameEventId,
+                    expectedPreviousDigest);
+            if (!eventIds.add(event.eventId)) {
+                throw new IOException("duplicate immutable local event id");
             }
             result[index] = new Existing(
-                    order, eventId, idempotencyKey, requestDigest, eventDigest);
+                    event.monotonicOrder,
+                    event.eventId,
+                    event.idempotencyKey,
+                    event.requestDigest,
+                    event.eventDigest);
+            expectedPreviousDigest = event.eventDigest;
+            expectedOrder = Math.addExact(expectedOrder, 1L);
         }
         return result;
+    }
+
+    private static void validateEvent(
+            ParsedEvent event,
+            String body,
+            long filenameOrder,
+            String filenameEventId,
+            String expectedPreviousDigest) throws IOException {
+        if (!EVENT_SCHEMA.equals(event.schema) || !SOURCE_LOCAL.equals(event.source)) {
+            throw new IOException("invalid immutable local event identity");
+        }
+        if (!EVENT_ID.matcher(event.eventId).matches()
+                || !event.eventId.equals(filenameEventId)
+                || event.monotonicOrder != filenameOrder) {
+            throw new IOException("immutable local event filename mismatch");
+        }
+        if (!IDEMPOTENCY.matcher(event.idempotencyKey).matches()
+                || !DIGEST.matcher(event.requestDigest).matches()
+                || !DIGEST.matcher(event.eventDigest).matches()
+                || !DIGEST.matcher(event.previousEventDigest).matches()) {
+            throw new IOException("invalid immutable local event cryptographic field");
+        }
+        if (!expectedPreviousDigest.equals(event.previousEventDigest)) {
+            throw new IOException("immutable local event digest chain mismatch");
+        }
+        if (event.wallTimeEpochMs < 0L || event.monotonicNanos < 0L
+                || event.wallTimeZone.isEmpty() || event.wallTimeZone.length() > 80
+                || event.note.length() > NicotineTrackerContract.MAX_NOTE_CHARS) {
+            throw new IOException("invalid immutable local event value");
+        }
+        NicotineTrackerContract.ParseResult allowed = NicotineTrackerContract.parse(
+                "/track " + event.kind + " " + event.value);
+        if (allowed.state != NicotineTrackerContract.State.VALID
+                || allowed.draft == null
+                || !event.kind.equals(allowed.draft.kind.wireName)
+                || !event.value.equals(allowed.draft.value)) {
+            throw new IOException("invalid immutable local event kind or value");
+        }
+        String expectedRequestDigest = digest(
+                "request-v1",
+                event.kind,
+                event.value,
+                event.note,
+                event.idempotencyKey,
+                SOURCE_LOCAL);
+        if (!expectedRequestDigest.equals(event.requestDigest)) {
+            throw new IOException("immutable local request digest mismatch");
+        }
+        String expectedEventDigest = digest(
+                EVENT_SCHEMA,
+                event.eventId,
+                Long.toString(event.monotonicOrder),
+                event.previousEventDigest,
+                Long.toString(event.wallTimeEpochMs),
+                event.wallTimeZone,
+                Long.toString(event.monotonicNanos),
+                SOURCE_LOCAL,
+                event.kind,
+                event.value,
+                event.note,
+                event.idempotencyKey,
+                event.requestDigest);
+        if (!expectedEventDigest.equals(event.eventDigest)) {
+            throw new IOException("immutable local event digest mismatch");
+        }
+        String canonical = eventJson(
+                event.eventId,
+                event.monotonicOrder,
+                event.previousEventDigest,
+                event.wallTimeEpochMs,
+                event.wallTimeZone,
+                event.monotonicNanos,
+                event.kind,
+                event.value,
+                event.note,
+                event.idempotencyKey,
+                event.requestDigest,
+                event.eventDigest);
+        if (!canonical.equals(body)) {
+            throw new IOException("immutable local event is not canonical");
+        }
+    }
+
+    private static ParsedEvent parseEvent(String body) throws IOException {
+        JsonCursor cursor = new JsonCursor(body);
+        ParsedEvent event = new ParsedEvent();
+        cursor.expect('{');
+        event.schema = cursor.stringField("schema");
+        cursor.expect(',');
+        event.eventId = cursor.stringField("eventId");
+        cursor.expect(',');
+        event.monotonicOrder = cursor.longField("monotonicOrder");
+        cursor.expect(',');
+        event.previousEventDigest = cursor.stringField("previousEventDigest");
+        cursor.expect(',');
+        event.wallTimeEpochMs = cursor.longField("wallTimeEpochMs");
+        cursor.expect(',');
+        event.wallTimeZone = cursor.stringField("wallTimeZone");
+        cursor.expect(',');
+        event.monotonicNanos = cursor.longField("monotonicNanos");
+        cursor.expect(',');
+        event.source = cursor.stringField("source");
+        cursor.expect(',');
+        event.kind = cursor.stringField("kind");
+        cursor.expect(',');
+        event.value = cursor.stringField("value");
+        cursor.expect(',');
+        event.note = cursor.stringField("note");
+        cursor.expect(',');
+        event.idempotencyKey = cursor.stringField("idempotencyKey");
+        cursor.expect(',');
+        event.requestDigest = cursor.stringField("requestDigest");
+        cursor.expect(',');
+        event.eventDigest = cursor.stringField("eventDigest");
+        cursor.expect('}');
+        cursor.requireEnd();
+        return event;
+    }
+
+    private static final class JsonCursor {
+        private final String value;
+        private int index;
+
+        JsonCursor(String value) {
+            this.value = value;
+        }
+
+        String stringField(String expectedName) throws IOException {
+            String actualName = readString();
+            if (!expectedName.equals(actualName)) {
+                throw new IOException("unexpected immutable local event field");
+            }
+            expect(':');
+            return readString();
+        }
+
+        long longField(String expectedName) throws IOException {
+            String actualName = readString();
+            if (!expectedName.equals(actualName)) {
+                throw new IOException("unexpected immutable local event field");
+            }
+            expect(':');
+            int start = index;
+            if (index < value.length() && value.charAt(index) == '-') index++;
+            int digits = index;
+            while (index < value.length()
+                    && value.charAt(index) >= '0'
+                    && value.charAt(index) <= '9') {
+                index++;
+            }
+            if (digits == index) throw new IOException("immutable local event number missing");
+            try {
+                return Long.parseLong(value.substring(start, index));
+            } catch (NumberFormatException invalidNumber) {
+                throw new IOException("immutable local event number invalid", invalidNumber);
+            }
+        }
+
+        String readString() throws IOException {
+            expect('"');
+            StringBuilder decoded = new StringBuilder();
+            while (index < value.length()) {
+                char character = value.charAt(index++);
+                if (character == '"') return decoded.toString();
+                if (character < 0x20) {
+                    throw new IOException("unescaped control in immutable local event");
+                }
+                if (character != '\\') {
+                    decoded.append(character);
+                    continue;
+                }
+                if (index >= value.length()) {
+                    throw new IOException("truncated immutable local event escape");
+                }
+                char escape = value.charAt(index++);
+                switch (escape) {
+                    case '"': decoded.append('"'); break;
+                    case '\\': decoded.append('\\'); break;
+                    case '/': decoded.append('/'); break;
+                    case 'b': decoded.append('\b'); break;
+                    case 'f': decoded.append('\f'); break;
+                    case 'n': decoded.append('\n'); break;
+                    case 'r': decoded.append('\r'); break;
+                    case 't': decoded.append('\t'); break;
+                    case 'u':
+                        if (index + 4 > value.length()) {
+                            throw new IOException("truncated immutable local event unicode escape");
+                        }
+                        try {
+                            decoded.append((char) Integer.parseInt(
+                                    value.substring(index, index + 4), 16));
+                        } catch (NumberFormatException invalidEscape) {
+                            throw new IOException(
+                                    "invalid immutable local event unicode escape",
+                                    invalidEscape);
+                        }
+                        index += 4;
+                        break;
+                    default:
+                        throw new IOException("invalid immutable local event escape");
+                }
+            }
+            throw new IOException("truncated immutable local event string");
+        }
+
+        void expect(char expected) throws IOException {
+            if (index >= value.length() || value.charAt(index) != expected) {
+                throw new IOException("invalid immutable local event syntax");
+            }
+            index++;
+        }
+
+        void requireEnd() throws IOException {
+            if (index != value.length()) {
+                throw new IOException("unexpected immutable local event suffix");
+            }
+        }
     }
 
     private static void cleanupPending(File events) throws IOException {
@@ -281,19 +559,55 @@ final class NicotineTrackerLedger {
         }
     }
 
-    private static String extract(Pattern pattern, String json) throws IOException {
-        Matcher matcher = pattern.matcher(json);
-        if (!matcher.find()) throw new IOException("immutable local event field missing");
-        return matcher.group(1);
+    private static String requestDigest(
+            NicotineTrackerContract.Draft draft,
+            String note,
+            String idempotencyKey) {
+        return digest(
+                "request-v1",
+                draft.kind.wireName,
+                draft.value,
+                note,
+                idempotencyKey,
+                SOURCE_LOCAL);
+    }
+
+    private static String eventDigest(
+            String eventId,
+            long order,
+            String previousEventDigest,
+            long wallTimeMillis,
+            String zone,
+            long monotonicNanos,
+            NicotineTrackerContract.Draft draft,
+            String note,
+            String idempotencyKey,
+            String requestDigest) {
+        return digest(
+                EVENT_SCHEMA,
+                eventId,
+                Long.toString(order),
+                previousEventDigest,
+                Long.toString(wallTimeMillis),
+                zone,
+                Long.toString(monotonicNanos),
+                SOURCE_LOCAL,
+                draft.kind.wireName,
+                draft.value,
+                note,
+                idempotencyKey,
+                requestDigest);
     }
 
     private static String eventJson(
             String eventId,
             long order,
+            String previousEventDigest,
             long wallTimeMillis,
             String zone,
             long monotonicNanos,
-            NicotineTrackerContract.Draft draft,
+            String kind,
+            String value,
             String note,
             String idempotencyKey,
             String requestDigest,
@@ -302,12 +616,13 @@ final class NicotineTrackerLedger {
                 + "\"schema\":\"" + EVENT_SCHEMA + "\","
                 + "\"eventId\":\"" + eventId + "\","
                 + "\"monotonicOrder\":" + order + ","
+                + "\"previousEventDigest\":\"" + previousEventDigest + "\","
                 + "\"wallTimeEpochMs\":" + wallTimeMillis + ","
                 + "\"wallTimeZone\":\"" + jsonEscape(zone) + "\","
                 + "\"monotonicNanos\":" + monotonicNanos + ","
                 + "\"source\":\"" + SOURCE_LOCAL + "\","
-                + "\"kind\":\"" + draft.kind.wireName + "\","
-                + "\"value\":\"" + jsonEscape(draft.value) + "\","
+                + "\"kind\":\"" + kind + "\","
+                + "\"value\":\"" + jsonEscape(value) + "\","
                 + "\"note\":\"" + jsonEscape(note) + "\","
                 + "\"idempotencyKey\":\"" + idempotencyKey + "\","
                 + "\"requestDigest\":\"" + requestDigest + "\","
@@ -318,8 +633,8 @@ final class NicotineTrackerLedger {
     private static String jsonEscape(String value) {
         StringBuilder out = new StringBuilder(value.length() + 16);
         for (int index = 0; index < value.length(); index++) {
-            char ch = value.charAt(index);
-            switch (ch) {
+            char character = value.charAt(index);
+            switch (character) {
                 case '"': out.append("\\\""); break;
                 case '\\': out.append("\\\\"); break;
                 case '\b': out.append("\\b"); break;
@@ -328,10 +643,10 @@ final class NicotineTrackerLedger {
                 case '\r': out.append("\\r"); break;
                 case '\t': out.append("\\t"); break;
                 default:
-                    if (ch < 0x20) {
-                        out.append(String.format(Locale.ROOT, "\\u%04x", (int) ch));
+                    if (character < 0x20) {
+                        out.append(String.format(Locale.ROOT, "\\u%04x", (int) character));
                     } else {
-                        out.append(ch);
+                        out.append(character);
                     }
             }
         }
@@ -342,9 +657,9 @@ final class NicotineTrackerLedger {
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
             for (String field : fields) {
-                byte[] value = String.valueOf(field).getBytes(StandardCharsets.UTF_8);
-                digest.update(ByteBuffer.allocate(4).putInt(value.length).array());
-                digest.update(value);
+                byte[] encoded = String.valueOf(field).getBytes(StandardCharsets.UTF_8);
+                digest.update(ByteBuffer.allocate(4).putInt(encoded.length).array());
+                digest.update(encoded);
             }
             return hex(digest.digest());
         } catch (NoSuchAlgorithmException impossible) {
@@ -366,3 +681,4 @@ final class NicotineTrackerLedger {
         return out.toString();
     }
 }
+

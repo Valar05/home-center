@@ -16,6 +16,7 @@ BRAIN_RECEIPT="$STATE/adam-phone-brain-receipt.json"
 mkdir -p "$STATE" "$BIN_DIR"
 for f in \
   "$ROUTER" \
+  "$ROOT/tools/nicotine_tracker_guard.py" \
   "$VLAD_TEXT_ROUTER" \
   "$WORKER" \
   "$ROOT/tools/accept_adam_receipted_phone.py" \
@@ -52,6 +53,7 @@ python3 tools/test_venice_review_memory.py
 node --test tools/fortress_online_v2_boot.test.mjs
 python3 -m py_compile \
   tools/adam.py \
+  tools/nicotine_tracker_guard.py \
   tools/test_adam_nicotine_tracker_contract.py \
   tools/vlad_text.py \
   tools/adam_receipted_worker.py \

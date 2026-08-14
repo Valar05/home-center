@@ -22,7 +22,16 @@ final class MaxHeightScrollView extends ScrollView {
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        int boundedHeight = MeasureSpec.makeMeasureSpec(maxHeightPx, MeasureSpec.AT_MOST);
+        int incomingMode = MeasureSpec.getMode(heightMeasureSpec);
+        int incomingSize = MeasureSpec.getSize(heightMeasureSpec);
+        int boundedSize = incomingMode == MeasureSpec.UNSPECIFIED
+                ? maxHeightPx
+                : Math.min(incomingSize, maxHeightPx);
+        int boundedMode = incomingMode == MeasureSpec.EXACTLY
+                && incomingSize <= maxHeightPx
+                ? MeasureSpec.EXACTLY
+                : MeasureSpec.AT_MOST;
+        int boundedHeight = MeasureSpec.makeMeasureSpec(boundedSize, boundedMode);
         super.onMeasure(widthMeasureSpec, boundedHeight);
     }
 }

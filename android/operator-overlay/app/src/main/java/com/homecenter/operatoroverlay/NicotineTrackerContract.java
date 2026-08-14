@@ -1,6 +1,5 @@
 package com.homecenter.operatoroverlay;
 
-import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -69,8 +68,12 @@ final class NicotineTrackerContract {
 
     private static final Pattern EXACT = Pattern.compile(
             "^/track (hunger|tank|puffs|exposure) ([a-z0-9-]+)$");
-    private static final Pattern TRACKER_LIKE = Pattern.compile(
-            "^(?:/track\\b|track(?:er|ing)?\\b|hunger\\b|tank\\b|puffs?\\b|exposure\\b).*",
+    private static final Pattern TRACKING_WORD = Pattern.compile(
+            "\\btrack(?:er|ing)?\\b", Pattern.CASE_INSENSITIVE);
+    private static final Pattern EVENT_KIND = Pattern.compile(
+            "\\b(?:hunger|tank|puffs?|exposure)\\b", Pattern.CASE_INSENSITIVE);
+    private static final Pattern LEADING_EVENT_KIND = Pattern.compile(
+            "^(?:nicotine\\s+)?(?:hunger|tank|puffs?|exposure)\\b",
             Pattern.CASE_INSENSITIVE);
     private static final Pattern PUFF_COUNT = Pattern.compile("^(?:0|[1-9][0-9]?|100)$");
 
@@ -101,12 +104,35 @@ final class NicotineTrackerContract {
             }
         }
 
-        String trimmed = exact.trim();
-        if (!trimmed.isEmpty()
-                && TRACKER_LIKE.matcher(trimmed.toLowerCase(Locale.ROOT)).matches()) {
+        if (isTrackerLike(exact)) {
             return ParseResult.unsaved("tracker_grammar_not_exact");
         }
         return ParseResult.notTracker();
+    }
+
+    static boolean isTrackerLike(String raw) {
+        String normalized = withoutFormatControls(raw).trim();
+        if (normalized.toLowerCase(java.util.Locale.ROOT).contains("/track")) {
+            return true;
+        }
+        if (TRACKING_WORD.matcher(normalized).find()
+                && EVENT_KIND.matcher(normalized).find()) {
+            return true;
+        }
+        return LEADING_EVENT_KIND.matcher(normalized).find();
+    }
+
+    private static String withoutFormatControls(String raw) {
+        String value = raw == null ? "" : raw;
+        StringBuilder normalized = new StringBuilder(value.length());
+        for (int offset = 0; offset < value.length();) {
+            int codePoint = value.codePointAt(offset);
+            if (Character.getType(codePoint) != Character.FORMAT) {
+                normalized.appendCodePoint(codePoint);
+            }
+            offset += Character.charCount(codePoint);
+        }
+        return normalized.toString();
     }
 
     private static ParseResult oneOf(
