@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "Chromium Throne",
-  "version": "0.6.1",
-  "description": "Visible multi-tab ChatGPT worker pool with bounded parallel swarm dispatch, per-worker receipts, automatic handoff rotation, and an Atom/Vlad local relay seam.",
+  "version": "0.7.0",
+  "description": "One visible persistent ChatGPT Pro campaign worker for Fortress interface evolution, with durable context, Venice/Judgment Jar continuation, She-Raw motivational review pressure, and the existing Atom/Vlad relay seam.",
   "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAzE3IGwGpxJk0Hq1+17a6XJvngWHT/IPIAfG9DN6nCMU/JMS+iywOvSx5x5kx5PZ1NhQ+oDsohibTaRZShZh8tKmT7LIRuXfPBQSGL4Lfg7IthTlhLQttrv5VWU793oLzLnaN70O6lS79LJoF6msRdggYCpD/Rb6O/NG3wG1rUdv7FQwfQI2Z26lsp5bNwdEpxGliARy0DnEFEO6tGOU70EM8hrX0V5Vkp1Faym/h6Olxg2+DQO+PsXnY1UNRT5AQ8Avitaz2567+/cxdfzga7MzPugA/2vnH0bIgKfyxO7apzWGwVLGMXyCxEPd33KT/KSS1OS13yCs2sY0W6Ed1BQIDAQAB",
   "permissions": ["activeTab", "tabs", "scripting", "sidePanel", "storage", "alarms"],
   "host_permissions": ["https://chatgpt.com/*", "http://127.0.0.1:9234/*"],

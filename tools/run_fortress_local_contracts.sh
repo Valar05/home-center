@@ -21,6 +21,7 @@ python3 tools/judgment_jar_receipt_contract_check.py
 python3 tools/test_judgment_jar_registry.py
 python3 tools/test_judgment_jar_receipt_quarantine_truth.py
 node --test tools/fortress_online_v2_boot.test.mjs
+node --test browser-porch/single-pro-evolution-contract.test.mjs
 node --test atom/test/judgment-jars.test.mjs
 python3 -m py_compile \
   tools/fortress_bootstrap.py \

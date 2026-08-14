@@ -14,117 +14,120 @@ const manifest = JSON.parse(fs.readFileSync(path.join(HERE, 'manifest.json'), 'u
 
 test('worker boot locks operator-handoff and evidence doctrine', () => {
   assert.match(worker, /PORTCULLIS LOCKED/);
-  assert.match(worker, /Computer Hands is the desktop body/);
-  assert.match(worker, /Phone Hands is the phone body/);
-  assert.match(worker, /Drew's hands are the final fallback/);
+  assert.match(worker, /Drew is the operator, never command transport/);
   assert.match(worker, /requested capability, implemented capability, tested capability, deployed capability, callable capability, delivered capability, and accepted capability/);
   assert.match(worker, /Never use ChatGPT-local scratch\/container execution as proof/);
 });
 
-test('Pro workers are bounded slices and Instant is not active doctrine', () => {
-  assert.match(worker, /ChatGPT Pro-reasoning execution worker/);
-  assert.match(worker, /WORKER MODEL: ChatGPT Pro reasoning/);
+test('one persistent Pro worker is the campaign reasoning body', () => {
+  assert.match(worker, /single persistent ChatGPT Pro-reasoning worker/i);
+  assert.match(worker, /same Pro conversation/i);
+  assert.match(worker, /Fresh-worker rotation is explicit recovery only/i);
+  assert.match(core, /MAX_PARALLEL_WORKERS = 1/);
+  assert.match(core, /singlePersistentProWorker: true/);
+  assert.doesNotMatch(worker, /disposable execution threads/i);
+  assert.doesNotMatch(worker, /one bounded bite/i);
   assert.doesNotMatch(worker, /chat-mode Instant execution worker/);
-  assert.doesNotMatch(worker, /WORKER MODEL: ChatGPT chat-mode Instant/);
-  assert.match(worker, /one bounded bite/i);
-  assert.match(worker, /Work ONE small feature, repair, proof, or acceptance slice at a time/);
-  assert.match(worker, /No Great War/);
-  assert.match(worker, /Be usefully needy/);
 });
 
-test('Judgment-Jar Venice is primary and response boundaries cannot stop workers', () => {
+test('phone remains sovereign and Pro cannot own unlock loop', () => {
+  assert.match(worker, /The phone is sovereign/i);
+  assert.match(worker, /do not own an unlock loop or continuously puppet the phone/i);
+  assert.match(worker, /Home Center\/Termux\/tmux\/local authorized machinery performs phone work/i);
+  assert.match(core, /phoneSovereign: true/);
+  assert.match(core, /phoneControlFromProWorker: false/);
+});
+
+test('Harroway, Judgment Jars, Venice, and She-Raw are mandatory governance', () => {
+  assert.match(worker, /Harroway\/operator consultation and applicable Judgment Jars are required/i);
   assert.match(worker, /Venice Judgment Jars are mandatory and PRIMARY/);
-  assert.match(worker, /not fallback emulation/);
   assert.match(worker, /PLAN_ALLOWED/);
   assert.match(worker, /STOP_ALLOWED is the only normal Venice permission/);
   assert.match(worker, /CONTINUE_REQUIRED forbids stopping/);
-  assert.match(worker, /A response boundary is never equivalent to STOP_ALLOWED/);
-  assert.match(worker, /local Venice model is optional specialized machinery/);
-  assert.match(core, /VENICE_REVIEW_MODE = 'judgment_jar_emulation'/);
-  assert.match(core, /veniceReviewSemantics: 'primary-judgment-jar'/);
-  assert.match(core, /responseBoundaryIsStop: false/);
+  assert.match(worker, /She-Raw creative insults are load-bearing motivational pressure/);
+  assert.match(worker, /Evidence outranks the joke/);
+  assert.match(core, /harrowayConsultationRequired: true/);
+  assert.match(core, /sheRawMotivationRequired: true/);
 });
 
-test('service worker owns handoff rotation and the panel is only a client', () => {
-  for (const field of ['DURABLE CONTEXT', 'COMPLETED EVIDENCE', 'CURRENT SLICE', 'UNMET ACCEPTANCE', 'ACTIVE CONSTRAINTS', 'EXACT NEXT ACTION']) {
-    assert.match(worker, new RegExp(field));
-    assert.match(core, new RegExp(field));
-  }
-  assert.match(core, /planHandoffContinuation/);
-  assert.match(worker, /planHandoffContinuation/);
-  assert.match(worker, /state: 'handed_off'/);
-  assert.match(worker, /assistant_completion_timeout/);
-  assert.match(panel, /type: 'throne\.swarm\.run'/);
-  assert.doesNotMatch(panel, /Promise\.all\(wave\.map/);
+test('narrated continuation and empty operator responses are forbidden', () => {
+  assert.match(worker, /TAKE IT before yielding/);
+  assert.match(worker, /Narrating the next action is not continuation/);
+  assert.match(worker, /Recording a failure is required; recording it is not repairing it/);
+  assert.match(worker, /don't talk to me mean execute/i);
+  assert.match(core, /narratedContinuationForbidden: true/);
 });
 
-test('service worker enforces Venice continuation mechanically', () => {
+test('service worker persists one ChatGPT tab identity across continuation', () => {
+  assert.match(worker, /thronePersistentWorkerTabId/);
+  assert.match(worker, /resolvePersistentWorker/);
+  assert.match(worker, /persistentWorkerTabId: tab\.id/);
+  assert.match(worker, /continuation\.job\.workerTabId = job\.workerTabId/);
+  assert.match(worker, /venice\.job\.workerTabId = job\.workerTabId/);
+  assert.match(worker, /slicePolicy: 'persistent-pro-evolution-slice'/);
+});
+
+test('fresh worker creation is explicit recovery rather than queue default', () => {
+  assert.match(core, /const explicitRecovery = source === 'explicit-recovery'/);
+  assert.match(core, /newWorker: explicitRecovery && fresh === true/);
+  assert.match(worker, /message\.newWorker === true/);
+  assert.match(worker, /newJob\(job\.commission, job\.context \|\| '', false, 'atom-relay'/);
+  assert.doesNotMatch(html, /id="newWorker"[^>]*checked/i);
+  assert.match(html, /Explicit recovery only/i);
+});
+
+test('service worker mechanically continues Venice in same worker', () => {
   assert.match(core, /parseVeniceDirective/);
   assert.match(core, /planVeniceContinuation/);
-  assert.match(worker, /planVeniceContinuation/);
   assert.match(worker, /venice_continue_required/);
   assert.match(worker, /venice_review_missing/);
   assert.match(worker, /venice_stop_allowed/);
   assert.match(worker, /halt_required/);
-  assert.match(worker, /successorJobId/);
-  assert.doesNotMatch(worker, /reviewer: 'venice-local'/);
   assert.match(worker, /reviewer: 'venice-judgment-jars'/);
-  assert.match(worker, /reviewerMode: WORKER_DOCTRINE\.veniceReviewMode/);
-  assert.match(worker, /reviewerSemantics: WORKER_DOCTRINE\.veniceReviewSemantics/);
   assert.match(worker, /localVeniceRequired: false/);
 });
 
-test('bounded scheduler wave is a checkpoint, never mission completion', () => {
+test('bounded scheduler checkpoint is never campaign completion', () => {
   assert.match(worker, /continuationPending/);
   assert.match(worker, /type: 'swarm_run_checkpoint'/);
   assert.doesNotMatch(worker, /type: 'swarm_run_complete'/);
 });
 
-test('every worker packet includes durable campaign context before bounded commission', () => {
+test('every worker packet includes durable campaign context and evolution slice', () => {
   assert.match(worker, /DURABLE CAMPAIGN CONTEXT:/);
-  assert.match(worker, /COMMISSION — ONE BOUNDED SLICE:/);
+  assert.match(worker, /CURRENT EVOLUTION SLICE \/ EVIDENCE:/);
   assert.match(worker, /DEFAULT_CAMPAIGN_CONTEXT/);
-  assert.match(worker, /Atom\/Vlad on the phone is the operator surface/);
+  assert.match(worker, /Fortress Interface Evolution/);
+  assert.match(worker, /Prove at least two real generations/i);
 });
 
-test('queued work snapshots context and remains durable in storage', () => {
+test('queued work snapshots context and interrupted dispatch recovers', () => {
   assert.match(core, /context: String\(campaignContext \|\| ''\)\.trim\(\)/);
   assert.match(panel, /context locked/);
   assert.match(worker, /chrome\.storage\.local\.get\('throneQueue'\)/);
   assert.match(worker, /recoverInterruptedDispatches/);
 });
 
-test('swarm has an explicit bounded parallel worker pool in the service worker', () => {
-  assert.match(core, /export const MAX_PARALLEL_WORKERS = 8/);
+test('single worker scheduler still uses existing service-worker and relay architecture', () => {
   assert.match(core, /export function parallelBatch/);
   assert.match(worker, /MAX_PARALLEL_WORKERS/);
   assert.match(worker, /Promise\.all\(wave\.map\(dispatchQueuedJob\)\)/);
-  assert.match(worker, /workerTabId/);
+  assert.match(worker, /THRONE_RELAY/);
+  assert.match(worker, /runStoredSwarm/);
   assert.match(worker, /wave_dispatched/);
 });
 
-test('workers have independent visible ChatGPT tab identities', () => {
-  assert.match(worker, /chrome\.tabs\.create\(\{url: `\$\{CHATGPT_ORIGIN\}\//);
-  assert.match(worker, /active: false/);
-  assert.match(worker, /throneWorkers/);
-  assert.match(worker, /workerTabSummaries/);
-  assert.match(worker, /type: 'commission_sent'/);
-  assert.match(worker, /jobId/);
-  assert.match(worker, /tabId/);
-});
-
-test('completion watcher uses immutable pre-dispatch assistant baseline and restart recovery', () => {
+test('completion watcher uses immutable pre-dispatch assistant baseline and recovery', () => {
   const inspectIndex = worker.indexOf('const before = await inspectWorker(tab.id)');
   const submitIndex = worker.indexOf('func: submitChatGptPrompt');
-  assert.ok(inspectIndex >= 0, 'worker must inspect before dispatch');
-  assert.ok(submitIndex > inspectIndex, 'baseline inspection must precede prompt submission');
+  assert.ok(inspectIndex >= 0);
+  assert.ok(submitIndex > inspectIndex);
   assert.match(worker, /baselineAssistantCount/);
   assert.match(worker, /finishRunningJob/);
   assert.match(worker, /recoverInterruptedDispatches/);
-  assert.match(worker, /job\.state === 'running'/);
 });
 
-test('Atom relay is capability-gated and disabled in repository template', () => {
+test('Atom relay remains capability-gated and disabled in repository template', () => {
   assert.match(worker, /THRONE_RELAY/);
   assert.match(worker, /authorization: `Bearer \$\{THRONE_RELAY\.capability\}`/);
   assert.match(worker, /\/command/);
@@ -137,13 +140,12 @@ test('Atom relay is capability-gated and disabled in repository template', () =>
   assert.equal(manifest.background.type, 'module');
 });
 
-test('bounded swarm still uses modular handoff core', () => {
-  assert.match(html, /id="runSwarm"/);
-  assert.match(worker, /MAX_SWARM_SLICES/);
-  assert.match(worker, /planHandoffContinuation/);
-  assert.match(core, /export const MAX_SWARM_SLICES = 12/);
-  assert.match(core, /parseHandoff/);
-  assert.match(core, /mergeHandoffContext/);
+test('panel exposes evolution controls rather than disposable-worker swarm language', () => {
+  assert.match(html, /Advance campaign/);
+  assert.match(html, /Run evolution loop/);
+  assert.match(html, /She-Raw insults are load-bearing/i);
+  assert.match(panel, /single Pro campaign/);
+  assert.match(panel, /single-pro-evolution-loop/);
 });
 
 test('ChatGPT worker cannot self-accept or bypass final release', () => {
@@ -153,10 +155,10 @@ test('ChatGPT worker cannot self-accept or bypass final release', () => {
   assert.match(worker, /accepted: false/);
 });
 
-test('manifest pins one visible multi-tab swarm identity', () => {
-  assert.equal(manifest.version, '0.6.1');
+test('manifest identifies the single-Pro evolution organ', () => {
+  assert.equal(manifest.version, '0.7.0');
   assert.ok(manifest.permissions.includes('tabs'));
-  assert.match(manifest.description, /multi-tab ChatGPT worker pool/i);
+  assert.match(manifest.description, /single persistent ChatGPT Pro/i);
   assert.match(manifest.key, /^MIIB/);
   assert.equal(manifest.background.type, 'module');
 });
