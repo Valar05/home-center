@@ -52,6 +52,45 @@ for forbidden in [
 ]:
     assert forbidden not in service, f"one-input Beard overlay still exposes {forbidden}"
 
+# The main/compact control is sovereign HC recovery while control is enabled but
+# the relay-derived heartbeat is stale. Recovery request feedback must never mint
+# its own heartbeat; a genuine online state keeps the Disable/STOP semantics.
+for token in [
+    'private static final long RECOVERY_FEEDBACK_MS = 8000L;',
+    'private long homeCenterRecoveryRequestedAtMs;',
+    'compactControlButton.setOnClickListener(v -> handleMainControlButton(v));',
+    'controlButton.setOnClickListener(v -> handleMainControlButton(v));',
+    'private boolean homeCenterOnline(long now)',
+    'private void handleMainControlButton(View source)',
+    'enabled && !homeCenterOnline(now)',
+    'OperatorState.submitAdamRequest(this, "auto", "restart hc", now);',
+    'Home Center recovery requested; waiting for fresh heartbeat.',
+    'Still offline until a fresh heartbeat arrives.',
+    'fullControlLabel = "TURN HC ON";',
+    'compactControlLabel = "RESTART HC";',
+    'fullControlLabel = "Recovery requested";',
+    'compactControlLabel = "REQUESTED";',
+    'fullControlLabel = "Disable control";',
+    'compactControlLabel = "STOP";',
+    'Request Home Center recovery. Home Center remains offline until a fresh heartbeat arrives.',
+]:
+    assert token in service, f"HC offline recovery control missing {token}"
+main_control_start = service.index('private void handleMainControlButton(View source)')
+legacy_control_start = service.index('private void handleControlButton()', main_control_start)
+main_control_body = service[main_control_start:legacy_control_start]
+assert 'OperatorState.heartbeat' not in main_control_body
+assert 'OperatorState.setControlEnabled' not in main_control_body
+assert 'OperatorState.updateText(' in main_control_body
+refresh_start = service.index('private void refreshUi()')
+quick_request_start = service.index('private Button quickRequestButton(', refresh_start)
+refresh_body = service[refresh_start:quick_request_start]
+assert 'boolean online = homeCenterOnline(now);' in refresh_body
+assert 'OverlayUiPolicy.touchGuardActive(' in refresh_body
+assert 'if (!enabled || online) homeCenterRecoveryRequestedAtMs = 0L;' in refresh_body
+assert 'if (recoveryRequested) state += " • RECOVERY REQUESTED";' in refresh_body
+assert 'OperatorState.heartbeat' not in refresh_body
+assert 'quickRequestButton("Restart", "restart", "Request Home Center relay recovery")' in service
+
 for token in ["KEY_ADAM_REQUEST_ID", "KEY_ADAM_REQUEST_MODE", "KEY_ADAM_REQUEST_PAYLOAD_B64", "Base64.NO_WRAP"]:
     assert token in state, f"state missing {token}"
 for token in ["adam_request_id", "adam_request_mode", "adam_request_payload_b64"]:
@@ -214,4 +253,4 @@ for token in [
 assert 'CODEX LOCAL STEERING DOCUMENTS (binding)' in reviewed
 assert 'canonical_venice_review(' in reviewed
 assert 'Daemon Persistence and Connector Backoff' in reviewed
-print("Adam one-input Beard / HC relay truth + recovery / Chromium v2 / Night Core / durable-delivery contract: PASS")
+print("Adam one-input Beard / sovereign HC offline recovery / relay truth / Chromium v2 / Night Core / durable-delivery contract: PASS")
