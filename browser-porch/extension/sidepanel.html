@@ -30,19 +30,19 @@
   <label for="context">Durable campaign context</label>
   <textarea id="context" placeholder="Mission, architecture, constraints, capability state, body lanes, evidence standard"></textarea>
   <div class="row"><button id="resetContext">Reset to Fortress campaign seed</button></div>
-  <div class="hint">Throne owns memory. Instant workers get one bounded slice. Queued jobs snapshot context; choke handoffs rotate into fresh threads.</div>
+  <div class="hint">One visible ChatGPT Pro worker owns the evolving campaign conversation. Home Center/Termux/tmux owns phone execution. Throne carries corrections, evidence, She-Raw pressure, Harroway/Jar consultation, and the next unmet acceptance target forward.</div>
 
-  <label for="commission">Commission</label>
-  <textarea id="commission" placeholder="Exact bounded feature, repair, proof, or acceptance slice"></textarea>
-  <label><input id="newWorker" type="checkbox" checked> Start as a fresh worker conversation</label>
+  <label for="commission">Commission / correction / evidence</label>
+  <textarea id="commission" placeholder="Give the persistent Pro worker the next commission, correction, evidence packet, failure scar, or acceptance target"></textarea>
+  <label><input id="newWorker" type="checkbox"> Explicit recovery only: rotate into a fresh worker conversation</label>
   <div class="row">
     <button id="enqueue">Queue</button>
-    <button id="run" class="primary">Run now</button>
-    <button id="runNext">Run next</button>
-    <button id="runSwarm" class="primary">Run bounded swarm</button>
+    <button id="run" class="primary">Advance campaign</button>
+    <button id="runNext">Advance next</button>
+    <button id="runSwarm" class="primary">Run evolution loop</button>
     <button id="capture">Checkpoint</button>
   </div>
-  <div class="hint">Bounded swarm runs at most 12 slices. A valid six-field HANDOFF is consumed automatically, merged into durable context, and dispatched to a fresh thread.</div>
+  <div class="hint">Default behavior reuses one Pro worker. Rotation is an explicit recovery action, not the normal loop. A checkpoint is not stop authority. She-Raw insults are load-bearing only when attached to a real critique/repair action.</div>
   <div class="row"><button id="stop">Stop dispatch</button><button id="resume">Resume</button></div>
   <section><strong>Queue</strong><div id="queue"></div></section>
   <section><strong>Latest receipt</strong><div id="output">No receipt yet.</div></section>
