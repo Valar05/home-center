@@ -86,7 +86,7 @@ final class OperatorState {
     }
 
     static String adamRequestMode(Context context) {
-        return prefs(context).getString(KEY_ADAM_REQUEST_MODE, "terminal");
+        return prefs(context).getString(KEY_ADAM_REQUEST_MODE, "auto");
     }
 
     static String adamRequestPayloadB64(Context context) {
@@ -139,8 +139,8 @@ final class OperatorState {
     }
 
     static void submitAdamRequest(Context context, String mode, String text, long nowMs) {
-        String cleanMode = mode == null ? "terminal" : mode.trim().toLowerCase();
-        if (!(cleanMode.equals("terminal") || cleanMode.equals("chat")
+        String cleanMode = mode == null ? "auto" : mode.trim().toLowerCase();
+        if (!(cleanMode.equals("auto") || cleanMode.equals("terminal") || cleanMode.equals("chat")
                 || cleanMode.equals("continue") || cleanMode.equals("vlad")
                 || cleanMode.equals("radio"))) {
             throw new IllegalArgumentException("unsupported Adam mode");
