@@ -1,0 +1,22 @@
+{
+  "schema": "home-center.device-acceptance-required.v1",
+  "campaignId": "fortress-unified-bootstrap-v1",
+  "requestedCapability": "one native bootstrap entrypoint for Android/Termux and Windows that survives native startup and avoids ChatGPT browser orchestration",
+  "sourceCapability": "pending final payload merge and remote blob verification",
+  "deployedCapability": {
+    "androidTermux": false,
+    "windowsDesktop": false
+  },
+  "verifiedCapability": {
+    "repositorySource": false,
+    "androidTermux": false,
+    "windowsDesktop": false
+  },
+  "requiredNativeEvidence": [
+    "Android last-receipt.json produced by the phone after install or repair",
+    "Windows last-receipt.json produced by the desktop after install or repair",
+    "readback of local inference, startup body, and machine-specific continuity fields"
+  ],
+  "batteryGovernor": "deferred_by_owner",
+  "browserOrchestration": false
+}
