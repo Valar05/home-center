@@ -64,8 +64,10 @@ SHA="$(sha256sum "$REAL_APK" | awk '{print $1}')"
 STAGED_SHA="$(rish "set -e; cp '$REAL_APK' '$STAGED'; chmod 644 '$STAGED'; sha256sum '$STAGED'" 2>&1 | grep -Eo '[0-9a-f]{64}' | tail -1)"
 [ "$SHA" = "$STAGED_SHA" ] || { record 0 blocked 'Staged APK hash mismatch.'; exit 6; }
 OLD_APK_PATH="$(rish "pm path '$PACKAGE' 2>/dev/null | sed -n 's/^package://p' | head -1" 2>/dev/null || true)"
+OLD_APK_SHA=""
 if [ -n "$OLD_APK_PATH" ]; then
-  rish "cp '$OLD_APK_PATH' '$PRIOR_APK'; chmod 600 '$PRIOR_APK'" >/dev/null
+  OLD_APK_SHA="$(rish "set -e; cp '$OLD_APK_PATH' '$PRIOR_APK'; chmod 600 '$PRIOR_APK'; sha256sum '$PRIOR_APK'" 2>&1 | grep -Eo '[0-9a-f]{64}' | tail -1)"
+  [ -n "$OLD_APK_SHA" ] || { record 0 blocked 'Could not preserve and hash the exact prior APK; candidate was not installed.'; exit 7; }
 fi
 set +e
 INSTALL_OUT="$(rish "pm install -r '$STAGED'" 2>&1)"; INSTALL_RC=$?
@@ -77,11 +79,30 @@ if [ $INSTALL_RC -ne 0 ] || ! printf '%s\n' "$INSTALL_OUT" | grep -q 'Success'; 
 fi
 start_overlay
 if ! verify_overlay; then
-  if [ -n "$OLD_APK_PATH" ]; then
-    rish "pm install -r '$PRIOR_APK'" >/dev/null 2>&1 || true
-    start_overlay || true
+  if [ -z "$OLD_APK_PATH" ] || [ -z "$OLD_APK_SHA" ]; then
+    record 0 rollback_unavailable 'Candidate verification failed and no accepted prior APK existed to restore.'
+    exit 9
   fi
-  record 0 rolled_back 'Candidate installed but verification failed; exact prior APK rollback attempted.'
+  set +e
+  ROLLBACK_OUT="$(rish "pm install -r -d '$PRIOR_APK'" 2>&1)"; ROLLBACK_RC=$?
+  set -e
+  printf '%s\n' "$ROLLBACK_OUT" > "$STATE/adam-overlay-recovery-rollback.txt"
+  if [ $ROLLBACK_RC -ne 0 ] || ! printf '%s\n' "$ROLLBACK_OUT" | grep -q 'Success'; then
+    record 0 rollback_failed "Candidate verification failed and exact-prior reinstall failed: ${ROLLBACK_OUT:0:1000}"
+    exit 10
+  fi
+  if ! start_overlay || ! verify_overlay; then
+    record 0 rollback_failed 'Exact prior APK reinstalled but prior runtime verification failed.'
+    exit 11
+  fi
+  RESTORED_APK_PATH="$(rish "pm path '$PACKAGE' 2>/dev/null | sed -n 's/^package://p' | head -1" 2>/dev/null || true)"
+  RESTORED_APK_SHA="$(rish "sha256sum '$RESTORED_APK_PATH'" 2>&1 | grep -Eo '[0-9a-f]{64}' | tail -1)"
+  if [ "$RESTORED_APK_SHA" != "$OLD_APK_SHA" ]; then
+    record 0 rollback_failed "Prior runtime returned but installed APK hash did not match preserved prior: expected=$OLD_APK_SHA actual=$RESTORED_APK_SHA"
+    exit 12
+  fi
+  rish "rm -f '$STAGED' '$PRIOR_APK'" >/dev/null 2>&1 || true
+  record 0 rolled_back "Candidate verification failed; exact prior APK restored and hash-verified: sha256=$OLD_APK_SHA"
   exit 9
 fi
 rish "rm -f '$STAGED' '$PRIOR_APK'" >/dev/null 2>&1 || true
