@@ -1,0 +1,22 @@
+{
+  "schema": "home-center.fortress-source-assembly.v1",
+  "campaignId": "fortress-unified-bootstrap-v1",
+  "repository": "Valar05/home-center",
+  "branch": "fortress-unified-bootstrap",
+  "entrypoint": "tools/fortress_bootstrap.py",
+  "implementationSha256": "fa8f821bb6a615b5f64f4a96b7f73a768b6e9777ffe27ec9a629250709422295",
+  "expectedFinalEntrypointGitBlobSha": "6da761d91e1b4092faf3ef9722b91016e10160dc",
+  "assemblyMethod": "four non-overlapping payload-line merges into one self-verifying Python source file",
+  "partBlobShas": [
+    "2ecd9a0761ee64d67296a694cfbd8e64cb1604aa",
+    "96f00883e8672f5e23566bd496478d521d2496c3",
+    "1442f19f4848bce40975c3ea1c7e927df127598e",
+    "e4ea41c863fdee8990b66dfc54acc5df2ab5556a"
+  ],
+  "constraints": {
+    "oneEntrypointForPhoneAndWindows": true,
+    "chatGptBrowserOrchestration": false,
+    "batteryGovernor": "deferred_by_owner"
+  },
+  "acceptance": "The final entrypoint is source-assembled only after its remote Git blob SHA equals expectedFinalEntrypointGitBlobSha. Device deployment remains a separate receipt class."
+}
