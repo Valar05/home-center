@@ -18,7 +18,7 @@ $receiptPath = Join-Path $HomeCenterDir 'swarm-failover-scheduler-receipts.jsonl
 New-Item -ItemType Directory -Force -Path $HomeCenterDir | Out-Null
 
 function Write-ReceiptLine {
-    param([Parameter(Mandatory)][hashtable]$Receipt)
+    param([Parameter(Mandatory)][System.Collections.IDictionary]$Receipt)
     $line = $Receipt | ConvertTo-Json -Depth 8 -Compress
     [System.IO.File]::AppendAllText($receiptPath, $line + [Environment]::NewLine, $utf8)
     return $line
@@ -94,10 +94,10 @@ try {
     $line = Write-ReceiptLine -Receipt $receipt
 
     if ($Open) {
-        $chromeCandidates = @(
+        $chromeCandidates = @(@(
             (Join-Path $env:ProgramFiles 'Google\Chrome\Application\chrome.exe'),
             (Join-Path ${env:ProgramFiles(x86)} 'Google\Chrome\Application\chrome.exe')
-        ) | Where-Object { $_ -and (Test-Path -LiteralPath $_) }
+        ) | Where-Object { $_ -and (Test-Path -LiteralPath $_) })
         if ($chromeCandidates.Count -gt 0) {
             $url = 'file:///' + (($outputPath -replace '\\', '/') -replace ' ', '%20')
             Start-Process -FilePath $chromeCandidates[0] -ArgumentList @('--new-window', $url) | Out-Null
