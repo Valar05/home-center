@@ -10,6 +10,8 @@ router = (ROOT / "tools/adam.py").read_text(encoding="utf-8")
 core = (ROOT / "tools/adam_codex_phone.py").read_text(encoding="utf-8")
 planned = (ROOT / "tools/adam_planned_venice.py").read_text(encoding="utf-8")
 reviewed = (ROOT / "tools/adam_venice_reviewed.py").read_text(encoding="utf-8")
+overlay_driver = (ROOT / "tools/android_operator_overlay.py").read_text(encoding="utf-8")
+phone_relay = (ROOT / "tools/android_phone_home_center_relay.py").read_text(encoding="utf-8")
 
 for token in [
     'adamModeButton("TERM", "terminal"',
@@ -84,6 +86,14 @@ assert 'if mode == "terminal"' in router
 assert 'return run_worker(mode, text, cwd, timeout)' in router
 assert 'ollama_generate' not in router
 assert 'local_exec_plan' not in router
+
+assert "'operator_overlay_build_install'" in phone_relay
+assert "if k in OVERLAY_ACTIONS:return overlay_execute(a)" in phone_relay
+assert "def build_install()" in overlay_driver
+assert "['bash', str(RECOVERY_SCRIPT)]" in overlay_driver
+assert "env['HC_FORCE_BUILD'] = '1'" in overlay_driver
+assert "action.get('command')" not in overlay_driver
+assert "if kind == 'operator_overlay_build_install':" in overlay_driver
 
 assert 'def active_jars(' in core
 assert 'def run_task(' not in core
