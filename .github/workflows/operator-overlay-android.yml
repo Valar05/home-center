@@ -68,7 +68,8 @@ jobs:
             unzip -q /tmp/gradle.zip -d /tmp
           fi
 
-          python -m py_compile tools/android_operator_overlay.py tools/android_phone_home_center_relay.py
+          python -m py_compile tools/android_operator_overlay.py tools/android_phone_home_center_relay.py tools/adam.py
+          python tools/test_adam_overlay_contract.py
           node --check functions/phone_hands_relay.js
           node tools/phone_hands_relay_contract_test.mjs
           git diff --check
