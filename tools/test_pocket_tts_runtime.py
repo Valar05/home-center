@@ -62,6 +62,14 @@ class FakePlayer:
         return {"playMs": (time.perf_counter() - started) * 1000, "glitches": 0}
 
 
+class FailOncePlayer(FakePlayer):
+    def play(self, path, control):
+        self.starts += 1
+        if self.starts == 1:
+            raise runtime_module.PocketTtsError("deterministic playback failure")
+        return super().play(path, control)
+
+
 class PocketRuntimeTest(unittest.TestCase):
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()
@@ -163,6 +171,22 @@ class PocketRuntimeTest(unittest.TestCase):
         }), "utf-8")
         with self.assertRaises(runtime_module.PocketTtsError):
             runtime_module.VoiceRegistry(bad)
+
+    def test_terminal_playback_failure_stops_both_workers_before_receipt(self):
+        engine = FakeEngine(0.04)
+        player = FailOncePlayer(0.01)
+        runtime, _ = self.make_runtime(engine=engine, player=player)
+        text = "A bounded failure must stop later sound and later rendering. " * 12
+        runtime.start("speak", text, "companion-test", max_chars=80)
+        receipt = runtime.wait(5)
+        self.assertEqual(receipt["status"], "failed")
+        calls_at_terminal = engine.calls
+        plays_at_terminal = player.starts
+        time.sleep(0.25)
+        self.assertEqual(engine.calls, calls_at_terminal)
+        self.assertEqual(player.starts, plays_at_terminal)
+        self.assertEqual(player.starts, 1)
+        self.assertEqual(json.loads((runtime.state_root / "status.json").read_text("utf-8"))["status"], "failed")
 
 
 if __name__ == "__main__":
