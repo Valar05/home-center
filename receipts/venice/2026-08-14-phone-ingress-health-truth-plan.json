@@ -1,0 +1,79 @@
+{
+  "schema": "venice-plan-receipt.v1",
+  "reviewerRole": "venice-judgment-jar",
+  "commission": "Harden the existing primary-phone ingress/recovery path so SSH and Home Center relay health cannot report false green before the Chromium phone campaign consumes the lane.",
+  "commissionBoundary": {
+    "owner": "Phone Ingress Swarm",
+    "executionLane": "existing Home Center Phone Hands / phone SSH guardian / relay recovery only",
+    "mutableSurface": [
+      "tools/phone_ssh_service.sh",
+      "tools/android_phone_home_center_relay.py",
+      "tools/home_center_phone_relay_recover.sh"
+    ],
+    "excluded": [
+      "browser features",
+      "replacement control plane",
+      "desktop proof as phone proof",
+      "Drew as command transport",
+      "runtime success claims from repository state"
+    ],
+    "evidenceStandard": "Repository readback proves source repair only. Physical acceptance still requires primary-phone devices -> phone_shell -> observe -> home -> observe receipts through Home Center."
+  },
+  "research": {
+    "bootstrap": "FORTRESS_ONLINE_LIBRARY_BOOTSTRAP.md",
+    "priorPlanReceipt": "docs/evidence/phone-ingress-recovery-plan-20260812.json",
+    "priorPlanDirective": "PLAN_ALLOWED",
+    "controlPlaneDeployRun": 31435133098,
+    "controlPlaneDeployConclusion": "success",
+    "sourceFindings": [
+      "phone_ssh_service.sh could fall back from listener proof to sshd process presence on stripped Termux",
+      "home_center_phone_relay_recover.sh could return success for a process without current Home Center poll proof and could accept a stale historical online log line"
+    ],
+    "currentChatGptIngress": "Command Center/Home Center connector is not callable on this ChatGPT surface; this is CAPABILITY_UNAVAILABLE_ON_THIS_SURFACE, not proof that Phone Hands is absent"
+  },
+  "selectedJudgmentJars": [
+    "00-judgement-jar-mission-boundary",
+    "20-judgement-jar-repository-truth",
+    "40-judgement-jar-failure-recovery",
+    "70-judgement-jar-venice-review-gate",
+    "80-judgement-jar-daemon-backoff-persistence"
+  ],
+  "selectedJarRationale": {
+    "00-judgement-jar-mission-boundary": "Prevent a new ingress/control architecture or browser work from leaking into this lane.",
+    "20-judgement-jar-repository-truth": "Keep source implementation evidence separate from physical phone callability.",
+    "40-judgement-jar-failure-recovery": "Require bounded restart and fail-closed health instead of PID theater.",
+    "70-judgement-jar-venice-review-gate": "Repair the process-gate regression before integration.",
+    "80-judgement-jar-daemon-backoff-persistence": "Make daemon liveness depend on fresh successful work rather than process existence."
+  },
+  "antagonism": [
+    "An sshd PID is not an SSH listener and must never satisfy listener health.",
+    "A relay PID is not Home Center connectivity and must never satisfy relay health.",
+    "A stale old 'online' log line must not validate a new relay process.",
+    "Relay heartbeat must contain no reusable device secret, bearer token, or pairing material.",
+    "Heartbeat must bind to primary-phone, exact PID, recent successful Home Center poll, and bounded age.",
+    "Recovery may restart an unproven duplicate relay but may not create a neighboring daemon or queue.",
+    "Repository mutation and a PR remain candidate implementation only until physical phone receipts exist.",
+    "GitHub Actions budget failure cannot be treated as phone failure and cannot be used as phone acceptance."
+  ],
+  "quarantine": {
+    "candidateBranch": "fix/phone-ingress-health-truth-20260814",
+    "candidatePr": 314,
+    "note": "Initial candidate commits were created before this explicit addendum receipt. They remain quarantined candidate source and are not eligible for merge/deploy until reviewed against this receipt."
+  },
+  "veniceReview": {
+    "findings": [
+      "The requested repair stays inside the established phone ingress lane.",
+      "Listener/banner proof and fresh poll heartbeats directly repair known false-green failure modes.",
+      "No secret needs to enter the heartbeat or receipt.",
+      "Physical canary remains mandatory and cannot be replaced by source review."
+    ],
+    "directive": "PLAN_ALLOWED",
+    "conditions": [
+      "Review the candidate diff against this exact receipt before merge.",
+      "Fail closed when listener or Home Center poll liveness cannot be proven.",
+      "Preserve physical primary-phone canary as the deployment/callability gate.",
+      "Do not ask Drew to type a recovery command while an authorized machine lane remains available."
+    ]
+  },
+  "createdAt": "2026-08-14T00:18:00-05:00"
+}
