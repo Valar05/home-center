@@ -68,10 +68,17 @@ set -e
 printf '%s\n' "$INSTALL_OUT" > "$STATE/adam-overlay-recovery-install.txt"
 if [ $INSTALL_RC -ne 0 ] || ! printf '%s\n' "$INSTALL_OUT" | grep -q 'Success'; then
   if printf '%s\n' "$INSTALL_OUT" | grep -Eqi 'UPDATE_INCOMPATIBLE|signatures do not match|incompatible'; then
-    rish "am force-stop $PACKAGE 2>/dev/null || true; pm uninstall $PACKAGE" >/dev/null
-    INSTALL_OUT="$(rish "pm install '$STAGED'" 2>&1)"
-    printf '%s\n' "$INSTALL_OUT" | grep -q 'Success' || { record 0 blocked 'Replacement install failed.'; exit 7; }
-  else record 0 blocked "Android install failed: ${INSTALL_OUT:0:1000}"; exit 8; fi
+    # Fail closed. Never uninstall the user's working overlay merely to make a
+    # candidate signer fit. Preserve the installed APK and surface the exact
+    # signer mismatch for a deliberate migration path.
+    rish "rm -f '$STAGED'" >/dev/null 2>&1 || true
+    record 0 signer_mismatch 'Candidate APK signer differs from installed overlay; existing package preserved. Re-sign with the installed key or use an explicitly approved migration.'
+    exit 7
+  else
+    rish "rm -f '$STAGED'" >/dev/null 2>&1 || true
+    record 0 blocked "Android install failed: ${INSTALL_OUT:0:1000}"
+    exit 8
+  fi
 fi
 start_overlay
 rish "rm -f '$STAGED'" >/dev/null 2>&1 || true
