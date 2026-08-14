@@ -20,7 +20,8 @@ ROOT = Path(__file__).resolve().parents[1]
 WORKER = ROOT / "tools" / "adam_planned_venice.py"
 RADIO_SOURCE = ROOT / "tools" / "spotify_radio.py"
 RADIO_INSTALLED = Path(os.environ.get("HC_SPOTIFY_RADIO_BIN", "~/bin/spotify-radio")).expanduser()
-ONE_SHOT_MODES = ("auto", "terminal", "text", "chat", "continue", "vlad", "radio")
+OBSERVATION_SOURCE = ROOT / "tools" / "adam_observation_ledger.py"
+ONE_SHOT_MODES = ("auto", "observation", "terminal", "text", "chat", "continue", "vlad", "radio")
 MAX_RECEIPT_TEXT = 6000
 SMS_ID = re.compile(r"^sms_[a-f0-9]{32,64}$")
 
@@ -133,6 +134,8 @@ def run_text(text: str, cwd: str, timeout: int) -> int:
 def classify_mode(text: str) -> tuple[str, str]:
     """Deterministic Beard routing. Raw text is preserved; classification grants no new authority."""
     lowered = " ".join(str(text or "").lower().split())
+    if re.search(r"\b(drops?|drips?|nicotine|vape|weed|cannabis|marijuana|puffs?|hits?|dabs?|gummies?|hunger|craving|pills?|meds?|medication|shower|going to bed|went to bed|no more nicotine)\b", lowered):
+        return "observation", "bounded_health_observation"
     if re.search(r"\b(vlad|second opinion|independent critique)\b", lowered):
         return "vlad", "explicit_second_opinion"
     if re.search(r"\b(spotify|radio|playlist|play music|music for)\b", lowered):
@@ -171,6 +174,29 @@ def run_worker(mode: str, text: str, cwd: str, timeout: int) -> int:
     commission = worker_commission(mode, text)
     p = subprocess.run([sys.executable, str(WORKER), commission], cwd=cwd, text=True, capture_output=True)
     return receipt(mode, p.returncode == 0, worker="codex-phone-planned-venice-reviewed", jarGoverned=True, preExecutionPlanReview=True, veniceReviewed=True, daemonBackoff=True, rc=p.returncode, stdout=tail(p.stdout), stderr=tail(p.stderr))
+
+
+def run_observation(text: str, cwd: str, timeout: int) -> int:
+    if not OBSERVATION_SOURCE.is_file():
+        return receipt("observation", False, error="observation_logger_missing")
+    if not text.strip():
+        return receipt("observation", False, error="empty_request")
+    env = os.environ.copy()
+    p = subprocess.run(
+        [sys.executable, str(OBSERVATION_SOURCE), text],
+        cwd=cwd, text=True, capture_output=True, timeout=timeout, env=env,
+    )
+    parsed = _last_json_line(p.stdout)
+    return receipt(
+        "observation", p.returncode == 0 and bool(parsed.get("ok")),
+        response=parsed,
+        deterministic=True,
+        observationOnly=True,
+        doseRecommendation=False,
+        rawTextPreserved=True,
+        rc=p.returncode,
+        stderr=tail(p.stderr),
+    )
 
 
 def _radio_command(text: str) -> list[str] | None:
@@ -237,6 +263,8 @@ def run_mode(mode: str, text: str, cwd: str, timeout: int) -> int:
         mode, _reason = classify_mode(text)
     if mode == "terminal":
         return run_terminal(text, cwd, timeout)
+    if mode == "observation":
+        return run_observation(text, cwd, timeout)
     if mode == "text":
         return run_text(text, cwd, timeout)
     if mode == "radio":
