@@ -46,25 +46,60 @@ assert.throws(() => cleanDungeonRun({...request, publicationPolicy: 'push-main'}
 assert.throws(() => cleanDungeonRun({...request, acceptance: []}), /must not be empty/);
 assert.throws(() => cleanDungeonRun({...request, objective: 'Valid prefix\u0000invalid control'}), /control characters/);
 
+const unicodeFixture = cleanDungeonRun({
+  requestId:'fortress-unicode-fixture-0001', campaignId:'fortress-online', workspaceId:'home-center',
+  objective:'Map Ω "star" \\ path\nwithout shell.', acceptance:['Preserve 🌟 exactly.'],
+  constraints:['Keep tabs\tinside evidence.'], taskKind:'verify', lane:'standard',
+  budgetProfile:'probe', verificationProfile:'fast',
+});
+assert.equal(dungeonRequestHash(unicodeFixture), '5a380184616f6e0abc66e8b6d358d5b4d0f3b5fab9231ba04bb97830c2e3651d');
+
 const hash = dungeonRequestHash(action);
 assert.doesNotThrow(() => validateDungeonDeviceReceipt(action, {
   schema: 'home-center.dungeon-submit-receipt.v2',
   requestId: action.requestId,
   inputHash: hash,
   jobId: 'dng_0123456789abcdef01234567',
-  tmuxSession: 'hc-dng-0123456789abcdef',
+  tmuxSession: 'hc-dng-0123456789abcdef01234567',
   state: 'ACCEPTED',
   attached: false,
+  statusRef: 'phone-state://coding-dungeon-v2/jobs/dng_0123456789abcdef01234567',
 }));
 assert.throws(() => validateDungeonDeviceReceipt(action, {
   schema: 'home-center.dungeon-submit-receipt.v2', requestId: action.requestId,
   inputHash: '0'.repeat(64), jobId: 'dng_0123456789abcdef01234567',
-  tmuxSession: 'hc-dng-0123456789abcdef', state: 'ACCEPTED', attached: false,
+  tmuxSession: 'hc-dng-0123456789abcdef01234567', state: 'ACCEPTED', attached: false,
+  statusRef: 'phone-state://coding-dungeon-v2/jobs/dng_0123456789abcdef01234567',
 }), /identity is invalid/);
+assert.throws(() => validateDungeonDeviceReceipt(action, {
+  schema: 'home-center.dungeon-submit-receipt.v2', requestId: action.requestId,
+  inputHash: hash, jobId: 'dng_0123456789abcdef01234567',
+  tmuxSession: 'hc-dng-0123456789abcdef01234567', state: 'ACCEPTED', attached: false,
+  statusRef: 'phone-state://coding-dungeon-v2/jobs/dng_0123456789abcdef01234567',
+  phonePath: '/data/data/com.termux/files/home/private',
+}), /rejects unknown field/);
 
 const status = cleanDungeonStatus({requestId: 'fortress-status-0001', jobId: 'dng_0123456789abcdef01234567'});
 assert.equal(status.action, 'dungeon_status');
 assert.equal(dungeonPriority(status), -1);
 assert.throws(() => cleanDungeonStatus({...status, path: '/tmp/no'}), /rejects unknown field/);
+const statusReceipt = validateDungeonDeviceReceipt(status, {
+  schema:'home-center.dungeon-status-receipt.v2', requestId:status.requestId,
+  jobId:status.jobId, inputHash:'a'.repeat(64), state:'SUCCEEDED',
+  statusRef:`phone-state://coding-dungeon-v2/jobs/${status.jobId}`,
+  job:{
+    jobId:status.jobId, campaignId:'fortress-online', workspaceId:'home-center',
+    taskKind:'verify', lane:'standard', state:'SUCCEEDED', stage:'checkpoint_only',
+    acceptedAtMs:100, updatedAtMs:200, branch:`fortress/fortress-online-${status.jobId.slice(4)}`,
+    executor:'codex_exec', executorSummary:'Verified.', executorOutputBytes:1200,
+    executorOutputTruncated:false,
+    executorLogRef:`phone-state://coding-dungeon-v2/runs/${status.jobId}/codex.jsonl`,
+    reason:'verified checkpoint ready', verificationOk:true,
+  },
+});
+assert.equal(statusReceipt.job.executorSummary, 'Verified.');
+assert.throws(() => validateDungeonDeviceReceipt(status, {
+  ...statusReceipt, job:{...statusReceipt.job, arbitraryPhoneData:'must not cross'},
+}), /rejects unknown field/);
 
 console.log('Dungeon ingress contract: PASS');

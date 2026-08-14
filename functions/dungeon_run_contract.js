@@ -18,6 +18,19 @@ const LANES = new Set(['critical', 'standard', 'background']);
 const BUDGETS = new Set(['probe', 'standard', 'long']);
 const VERIFICATION_PROFILES = new Set(['fast', 'default', 'full']);
 const TASK_KINDS = new Set(['implement', 'repair', 'verify', 'review', 'research']);
+const JOB_STATES = new Set(['ACCEPTED', 'RUNNING', 'CHECKPOINTED', 'SUCCEEDED', 'FAILED', 'QUARANTINED']);
+const EXECUTORS = new Set(['', 'codex_exec', 'local_adam', 'low_local_judge', 'deterministic_only']);
+const JOB_STAGES = new Set([
+  'admitted', 'tmux_admission', 'identity', 'deterministic_preflight', 'codex_exec',
+  'workspace_identity', 'local_adam', 'deterministic_closeout', 'verification', 'checkpoint_only', 'coordinator',
+]);
+const SUBMIT_RECEIPT_KEYS = new Set(['schema', 'requestId', 'inputHash', 'jobId', 'tmuxSession', 'state', 'attached', 'statusRef']);
+const STATUS_RECEIPT_KEYS = new Set(['schema', 'requestId', 'jobId', 'inputHash', 'state', 'job', 'statusRef']);
+const STATUS_JOB_KEYS = new Set([
+  'jobId', 'campaignId', 'workspaceId', 'taskKind', 'lane', 'state', 'stage',
+  'acceptedAtMs', 'updatedAtMs', 'branch', 'executor', 'executorSummary',
+  'executorOutputBytes', 'executorOutputTruncated', 'executorLogRef', 'reason', 'verificationOk',
+]);
 
 function fail(message, status = 400, code = 'DUNGEON_CONTRACT_INVALID') {
   throw Object.assign(new Error(message), {status, code});
@@ -60,6 +73,25 @@ function stringList(value, key, {required = false, maxItems = 24, maxText = 600}
 function rejectUnknown(body, allowed, action) {
   const unknown = Object.keys(body).filter((key) => !allowed.has(key));
   if (unknown.length) fail(`${action} rejects unknown field: ${unknown[0]}`);
+}
+
+function nonnegativeInteger(value, key) {
+  if (!Number.isSafeInteger(value) || value < 0) fail(`${key} must be a nonnegative safe integer`);
+  return value;
+}
+
+function boolean(value, key) {
+  if (typeof value !== 'boolean') fail(`${key} must be boolean`);
+  return value;
+}
+
+function optionalText(value, key, max) {
+  return text(value == null ? '' : value, key, {min: 0, max});
+}
+
+function campaignSlug(value) {
+  const out = String(value || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+  return (out || 'campaign').slice(0, 40);
 }
 
 function canonicalJson(value) {
@@ -149,19 +181,76 @@ function validateDungeonDeviceReceipt(action, result) {
   const body = object(result);
   const requestHash = dungeonRequestHash(action);
   if (action.action === 'dungeon_run') {
+    rejectUnknown(body, SUBMIT_RECEIPT_KEYS, 'dungeon_run receipt');
     if (body.schema !== 'home-center.dungeon-submit-receipt.v2') fail('dungeon_run returned an invalid receipt schema');
     if (body.requestId !== action.requestId || body.inputHash !== requestHash) fail('dungeon_run receipt identity is invalid');
-    if (!/^dng_[0-9a-f]{24}$/.test(String(body.jobId || ''))) fail('dungeon_run receipt jobId is invalid');
-    if (!/^hc-dng-[0-9a-f]{16}$/.test(String(body.tmuxSession || ''))) fail('dungeon_run receipt tmuxSession is invalid');
-    if (!['ACCEPTED', 'RUNNING', 'CHECKPOINTED', 'SUCCEEDED', 'FAILED', 'QUARANTINED'].includes(body.state)) fail('dungeon_run receipt state is invalid');
-    if (typeof body.attached !== 'boolean') fail('dungeon_run receipt attached must be boolean');
-    return body;
+    const jobId = text(body.jobId, 'dungeon_run receipt jobId', {min:28, max:28, pattern:/^dng_[0-9a-f]{24}$/});
+    const tmuxSession = text(body.tmuxSession, 'dungeon_run receipt tmuxSession', {min:31, max:31, pattern:/^hc-dng-[0-9a-f]{24}$/});
+    if (!JOB_STATES.has(body.state)) fail('dungeon_run receipt state is invalid');
+    const statusRef = text(body.statusRef, 'dungeon_run receipt statusRef', {min:40, max:120});
+    if (statusRef !== `phone-state://coding-dungeon-v2/jobs/${jobId}`) fail('dungeon_run receipt statusRef is invalid');
+    return {
+      schema:'home-center.dungeon-submit-receipt.v2', requestId:action.requestId,
+      inputHash:requestHash, jobId, tmuxSession, state:body.state,
+      attached:boolean(body.attached, 'dungeon_run receipt attached'), statusRef,
+    };
   }
+  rejectUnknown(body, STATUS_RECEIPT_KEYS, 'dungeon_status receipt');
   if (body.schema !== 'home-center.dungeon-status-receipt.v2') fail('dungeon_status returned an invalid receipt schema');
   if (body.requestId !== action.requestId || body.jobId !== action.jobId) fail('dungeon_status receipt identity is invalid');
   if (!/^[0-9a-f]{64}$/.test(String(body.inputHash || ''))) fail('dungeon_status receipt inputHash is invalid');
-  if (!['ACCEPTED', 'RUNNING', 'CHECKPOINTED', 'SUCCEEDED', 'FAILED', 'QUARANTINED'].includes(body.state)) fail('dungeon_status receipt state is invalid');
-  return body;
+  if (!JOB_STATES.has(body.state)) fail('dungeon_status receipt state is invalid');
+  const statusRef = text(body.statusRef, 'dungeon_status receipt statusRef', {min:40, max:120});
+  if (statusRef !== `phone-state://coding-dungeon-v2/jobs/${action.jobId}`) fail('dungeon_status receipt statusRef is invalid');
+  const job = object(body.job);
+  rejectUnknown(job, STATUS_JOB_KEYS, 'dungeon_status job');
+  if (job.jobId !== action.jobId || job.state !== body.state) fail('dungeon_status job identity is invalid');
+  const taskKind = text(job.taskKind, 'dungeon_status job taskKind', {max:20});
+  const lane = text(job.lane, 'dungeon_status job lane', {max:20});
+  const executor = optionalText(job.executor, 'dungeon_status job executor', 40);
+  if (!TASK_KINDS.has(taskKind) || !LANES.has(lane) || !EXECUTORS.has(executor)) fail('dungeon_status job enum is invalid');
+  const campaignId = id(job.campaignId, 'dungeon_status job campaignId', 100).toLowerCase();
+  const stage = optionalText(job.stage, 'dungeon_status job stage', 100);
+  if (!JOB_STAGES.has(stage)) fail('dungeon_status job stage is invalid');
+  const branch = optionalText(job.branch, 'dungeon_status job branch', 220);
+  if (branch && branch !== `fortress/${campaignSlug(campaignId)}-${action.jobId.slice(4)}`) {
+    fail('dungeon_status job branch is invalid');
+  }
+  const executorLogRef = optionalText(job.executorLogRef, 'dungeon_status job executorLogRef', 500);
+  if (executorLogRef && !new RegExp(`^phone-state://coding-dungeon-v2/runs/${action.jobId}/(?:codex\\.jsonl|local-adam\\.log|low-local\\.log)$`).test(executorLogRef)) {
+    fail('dungeon_status job executorLogRef is invalid');
+  }
+  const cleanJob = {
+    jobId: action.jobId,
+    campaignId,
+    workspaceId: id(job.workspaceId, 'dungeon_status job workspaceId', 100).toLowerCase(),
+    taskKind,
+    lane,
+    state: body.state,
+    stage,
+    acceptedAtMs: nonnegativeInteger(job.acceptedAtMs, 'dungeon_status job acceptedAtMs'),
+    updatedAtMs: nonnegativeInteger(job.updatedAtMs, 'dungeon_status job updatedAtMs'),
+    branch,
+    executor,
+    executorSummary: optionalText(job.executorSummary, 'dungeon_status job executorSummary', 6000),
+    executorOutputBytes: nonnegativeInteger(job.executorOutputBytes, 'dungeon_status job executorOutputBytes'),
+    executorOutputTruncated: boolean(job.executorOutputTruncated, 'dungeon_status job executorOutputTruncated'),
+    executorLogRef,
+    reason: optionalText(job.reason, 'dungeon_status job reason', 1000),
+    verificationOk: boolean(job.verificationOk, 'dungeon_status job verificationOk'),
+  };
+  if (cleanJob.updatedAtMs < cleanJob.acceptedAtMs) fail('dungeon_status job timestamps are invalid');
+  if ((executor === 'codex_exec' && !executorLogRef.endsWith('/codex.jsonl')) ||
+      (executor === 'local_adam' && !executorLogRef.endsWith('/local-adam.log')) ||
+      (executor === 'low_local_judge' && !executorLogRef.endsWith('/low-local.log')) ||
+      (executor === '' && executorLogRef)) fail('dungeon_status job executor log identity is invalid');
+  if (cleanJob.verificationOk !== (body.state === 'SUCCEEDED')) {
+    fail('dungeon_status job verification state is invalid');
+  }
+  return {
+    schema:'home-center.dungeon-status-receipt.v2', requestId:action.requestId,
+    jobId:action.jobId, inputHash:body.inputHash, state:body.state, job:cleanJob, statusRef,
+  };
 }
 
 module.exports = {

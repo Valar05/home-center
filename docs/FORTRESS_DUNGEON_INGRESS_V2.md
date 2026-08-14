@@ -32,11 +32,15 @@ The selected budget begins only after the campaign acquires its phone-local exec
 
 1. **Deterministic coordinator** validates exact intent, resolves the trusted local workspace registry, creates the durable job, computes all paths/names, and creates the isolated worktree.
 2. **Codex CLI** runs with fixed argv: `codex exec --sandbox workspace-write --ask-for-approval never --json <objective packet>`.
-3. If Codex is unavailable or fails without mutating the worktree, the same exact objective decays through `dungeon_local_adam.py` to the existing phone-local Adam/Venice worker. The adapter structurally disables model-chosen shell execution and every Phone Hands/UI/device intent; local inference retains only bounded worktree read, list, search, write, and Venice stop review.
-4. If that worker is unavailable or fails cleanly, the tiny local judge may classify `HOLD` versus `VERIFY`; it receives no mutation authority and cannot select commands.
+3. If Codex is unavailable or fails without mutating the worktree, the same exact objective decays through `dungeon_local_adam.py` to the existing phone-local Adam/Venice worker. The adapter structurally disables model-chosen shell execution and every Phone Hands/UI/device intent; its wrapper allows only bounded worktree read, list, search, write, and Venice-reviewed terminal actions. Any future worker tool is denied until explicitly added to that allowlist.
+4. If that worker is unavailable or fails cleanly, the tiny local judge may classify `HOLD` versus `VERIFY`; it receives no mutation authority and cannot select commands. The coordinator checks the worktree afterward and quarantines the campaign if the advisory executable violates that contract.
 5. Trusted phone-local argv arrays perform deterministic verification. No verification command crosses the remote boundary.
 
 Any timed-out or failed inference stage that may have changed the worktree enters `QUARANTINED`. The coordinator never retries an ambiguous mutation automatically.
+
+Installation requires the reviewed `main` branch, refuses tracked checkout changes, and freezes the registry's `sourceBranch`, `baseRef`, and `sourceCommit` to that exact installed 40-character Git commit. It does not chmod a tracked runner. The Android relay advertises `coding_dungeon_v2` only when the coordinator doctor validates Python, Git, tmux, a nonempty registry, every frozen clean checkout/branch, all three local-decay worker files, the Venice completion gate, the daemon persistence doctrine, and every registered root; a merely existing JSON file is insufficient.
+
+Admission also stores a hash of the exact workspace root, installed commit, selected verification profile, and cleaned trusted verification argv. The coordinator recomputes that binding before worktree creation. A checkout, registry, or verification-policy change after admission quarantines the job as `workspace_identity` drift instead of silently running a different campaign.
 
 ## Truth and recovery
 
@@ -52,6 +56,8 @@ Firestore owns relay admission and exact-intent idempotency. The phone owns camp
 
 An expired relay admission lease requeues only the same typed command. A new lease ID prevents a late, stale device completion from overwriting the recovered admission. Replaying the same `requestId` and input hash attaches to the same local job and tmux session. Reusing a request ID for different intent fails closed.
 
+The job ID, tmux suffix, and branch suffix all retain the same 96-bit request digest. The coordinator does not collapse branch or session identity to a shorter collision domain.
+
 ## Operations
 
 - `dungeon_run` — enqueue exact campaign admission.
@@ -60,6 +66,10 @@ An expired relay admission lease requeues only the same typed command. A new lea
 - `dungeon_command_status` — read that status command and its bounded campaign receipt.
 
 Each `dungeon_status` poll uses a fresh `requestId`: the request identity names one immutable status snapshot. Reusing that ID deliberately attaches to the same snapshot instead of silently changing its meaning.
+
+The bounded job receipt includes the executor identity, a sanitized final summary (including the final Codex `agent_message` when JSONL is available), byte/truncation evidence, and an opaque phone-local log reference. Research and review campaigns therefore return a usable result without exposing an arbitrary phone path or the full log.
+
+Phone completion is not trusted wholesale. Both submit and status receipts reject unknown fields, validate exact job/request/hash/state/reference relationships, bound every string and integer, constrain enums, and replace the received object with the sanitized contract value before Firestore storage. A phone cannot smuggle an arbitrary path, payload, or extra nested field through the dungeon result.
 
 `SUCCEEDED` means the trusted verification profile passed and the checkpoint remains isolated. It does not mean pushed, merged, deployed, installed, or human-accepted.
 

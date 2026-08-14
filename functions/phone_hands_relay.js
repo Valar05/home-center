@@ -450,9 +450,9 @@ async function deviceComplete(admin, {deviceId, deviceToken, commandId, leaseId,
   const record = snap.data() || {};
   if (record.ownerKey !== device.ownerKey || record.deviceId !== id) throw Object.assign(new Error('command not found'), {status:404});
   const finalStatus = status === 'completed' ? 'completed' : 'failed';
-  const cleanResult = JSON.parse(JSON.stringify(result == null ? null : result));
+  let cleanResult = JSON.parse(JSON.stringify(result == null ? null : result));
   if (record.action && ['dungeon_run','dungeon_status'].includes(record.action.action)) {
-    if (finalStatus === 'completed') validateDungeonDeviceReceipt(record.action, cleanResult);
+    if (finalStatus === 'completed') cleanResult = validateDungeonDeviceReceipt(record.action, cleanResult);
     await admin.firestore().runTransaction(async (transaction) => {
       const fresh = await transaction.get(ref);
       const freshRecord = fresh.exists ? (fresh.data() || {}) : {};

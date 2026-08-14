@@ -189,7 +189,7 @@ def job_id_for(request_id: str) -> str:
 
 
 def session_for(request_id: str) -> str:
-    return "hc-dng-" + hashlib.sha256(request_id.encode("utf-8")).hexdigest()[:16]
+    return "hc-dng-" + hashlib.sha256(request_id.encode("utf-8")).hexdigest()[:24]
 
 
 def slug(value: str, fallback: str = "campaign") -> str:
@@ -273,7 +273,73 @@ def load_workspace(registry_path: Path, workspace_id: str) -> dict[str, Any]:
     verification = entry.get("verification") or {}
     if not isinstance(verification, dict):
         raise DungeonError("registered verification map is invalid")
-    return {"root": root, "baseRef": base_ref, "verification": verification}
+    source_commit = str(entry.get("sourceCommit") or "").strip().lower()
+    if source_commit and not re.fullmatch(r"[0-9a-f]{40}", source_commit):
+        raise DungeonError("registered sourceCommit is invalid")
+    source_branch = str(entry.get("sourceBranch") or "").strip()
+    if source_branch and (not REF_RE.fullmatch(source_branch) or source_branch.startswith("-") or "@{" in source_branch):
+        raise DungeonError("registered sourceBranch is invalid")
+    return {"root": root, "baseRef": base_ref, "sourceCommit": source_commit, "sourceBranch": source_branch, "verification": verification}
+
+
+def validate_installed_workspace(workspace: dict[str, Any]) -> None:
+    source_commit = workspace.get("sourceCommit") or ""
+    source_branch = workspace.get("sourceBranch") or ""
+    if not re.fullmatch(r"[0-9a-f]{40}", source_commit) or workspace.get("baseRef") != source_commit or not source_branch:
+        raise DungeonError("workspace is not frozen to its installed sourceCommit")
+    root = workspace["root"]
+    head = subprocess.run(
+        ["git", "-C", str(root), "rev-parse", "HEAD"], text=True,
+        stdout=subprocess.PIPE, stderr=subprocess.STDOUT, timeout=30, shell=False, check=False,
+    )
+    tracked = subprocess.run(
+        ["git", "-C", str(root), "status", "--porcelain=v1", "--untracked-files=no"], text=True,
+        stdout=subprocess.PIPE, stderr=subprocess.STDOUT, timeout=30, shell=False, check=False,
+    )
+    if head.returncode != 0 or (head.stdout or "").strip() != source_commit:
+        raise DungeonError("workspace checkout HEAD differs from installed sourceCommit")
+    branch = subprocess.run(
+        ["git", "-C", str(root), "symbolic-ref", "--quiet", "--short", "HEAD"], text=True,
+        stdout=subprocess.PIPE, stderr=subprocess.STDOUT, timeout=30, shell=False, check=False,
+    )
+    if branch.returncode != 0 or (branch.stdout or "").strip() != source_branch:
+        raise DungeonError("workspace checkout branch differs from installed sourceBranch")
+    if tracked.returncode != 0 or (tracked.stdout or "").strip():
+        raise DungeonError("workspace checkout has unreviewed tracked changes")
+    required_workers = (
+        "tools/dungeon_local_adam.py",
+        "tools/adam_venice_reviewed.py",
+        "tools/adam_codex_phone.py",
+    )
+    missing = [relative for relative in required_workers if not (root / relative).is_file()]
+    if missing:
+        raise DungeonError(f"workspace local decay worker is missing: {missing[0]}")
+    rule_dir = root / ".continue" / "rules"
+    jar_paths = sorted(rule_dir.glob("*judgement-jar*.md")) if rule_dir.is_dir() else []
+    jar_text = "\n".join(path.read_text(encoding="utf-8", errors="replace")[:100_000] for path in jar_paths[:100])
+    for marker in ("Venice Completion and Code Review Gate", "Daemon Persistence and Connector Backoff"):
+        if marker not in jar_text:
+            raise DungeonError(f"workspace local decay doctrine is missing: {marker}")
+
+
+def registry_health(registry_path: Path) -> dict[str, Any]:
+    try:
+        registry = json.loads(registry_path.read_text(encoding="utf-8"))
+        workspaces = registry.get("workspaces") if isinstance(registry, dict) else None
+        if registry.get("schema") != WORKSPACE_REGISTRY_SCHEMA or not isinstance(workspaces, dict) or not workspaces:
+            raise DungeonError("trusted workspace registry schema is invalid or empty")
+        for workspace_id, entry in sorted(workspaces.items()):
+            clean_id(workspace_id, "workspaceId", 100)
+            if not isinstance(entry, dict):
+                raise DungeonError(f"workspace {workspace_id} entry is invalid")
+            workspace = load_workspace(registry_path, workspace_id)
+            source_commit = str(entry.get("sourceCommit") or "").strip().lower()
+            if not re.fullmatch(r"[0-9a-f]{40}", source_commit) or workspace["baseRef"] != source_commit:
+                raise DungeonError(f"workspace {workspace_id} is not frozen to its installed sourceCommit")
+            validate_installed_workspace(workspace)
+        return {"ok": True, "workspaceCount": len(workspaces), "error": ""}
+    except Exception as exc:
+        return {"ok": False, "workspaceCount": 0, "error": str(exc)[:1000]}
 
 
 def run_process(argv: list[str], cwd: Path, timeout: int, output_path: Path) -> dict[str, Any]:
@@ -285,6 +351,7 @@ def run_process(argv: list[str], cwd: Path, timeout: int, output_path: Path) -> 
     tail = bytearray()
     total_read = 0
     head_written = 0
+    omitted_bytes = 0
     drain_errors: list[str] = []
     with output_path.open("wb") as output_handle:
         try:
@@ -354,7 +421,8 @@ def run_process(argv: list[str], cwd: Path, timeout: int, output_path: Path) -> 
             tail_start = max(0, total_read - len(tail))
             nonoverlap = max(0, head_written - tail_start)
             suffix = bytes(tail[nonoverlap:])
-            marker = f"\n...[output bounded; totalBytes={total_read}; preserved head and tail]...\n".encode("utf-8")
+            omitted_bytes = max(0, total_read - head_written - len(suffix))
+            marker = f"\n...[output bounded; totalBytes={total_read}; omittedBytes={omitted_bytes}; preserved head and tail]...\n".encode("utf-8")
             output_handle.write(marker)
             output_handle.write(suffix)
         if drain_errors:
@@ -362,7 +430,42 @@ def run_process(argv: list[str], cwd: Path, timeout: int, output_path: Path) -> 
         output_handle.flush()
         os.fsync(output_handle.fileno())
     output = bytes(tail).decode("utf-8", "replace")
-    return {"argv0": Path(argv[0]).name, "exit": exit_code, "timedOut": timed_out, "startedAtMs": started, "endedAtMs": epoch_ms(), "outputBytes": total_read, "outputTruncated": total_read > head_written, "outputTail": output[-12000:]}
+    return {"argv0": Path(argv[0]).name, "exit": exit_code, "timedOut": timed_out, "startedAtMs": started, "endedAtMs": epoch_ms(), "outputBytes": total_read, "outputTruncated": omitted_bytes > 0, "outputTail": output[-12000:]}
+
+
+def executor_receipt(result: dict[str, Any] | None) -> dict[str, Any]:
+    value = result or {}
+    raw = str(value.get("outputTail") or "")
+    summary = ""
+    for line in reversed(raw.splitlines()):
+        try:
+            event = json.loads(line)
+        except (json.JSONDecodeError, TypeError):
+            continue
+        if not isinstance(event, dict):
+            continue
+        item = event.get("item")
+        if event.get("type") == "item.completed" and isinstance(item, dict) and item.get("type") == "agent_message":
+            text = item.get("text")
+            if isinstance(text, str) and text.strip():
+                summary = text.strip()
+                break
+    if not summary:
+        summary = raw.strip()
+    summary = re.sub(r"[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]", "", summary)[-6000:]
+    output_bytes = value.get("outputBytes")
+    return {
+        "exit": value.get("exit"),
+        "timedOut": bool(value.get("timedOut")),
+        "outputBytes": output_bytes if isinstance(output_bytes, int) and output_bytes >= 0 else 0,
+        "outputTruncated": bool(value.get("outputTruncated")),
+        "summary": summary,
+    }
+
+
+def executor_log_ref(job_id: str, executor: str) -> str:
+    name = "codex.jsonl" if executor == "codex_exec" else "low-local.log" if executor == "low_local_judge" else "local-adam.log"
+    return f"phone-state://coding-dungeon-v2/runs/{job_id}/{name}"
 
 
 def git(root: Path, *args: str, timeout: int = 120) -> str:
@@ -392,7 +495,7 @@ def prepare_worktree(state_root: Path, job: dict[str, Any], workspace: dict[str,
     git(source, "rev-parse", "--is-inside-work-tree")
     stored_baseline = str(job.get("baselineHead") or "")
     baseline_head = stored_baseline if re.fullmatch(r"[0-9a-f]{40}", stored_baseline) else git(source, "rev-parse", workspace["baseRef"])
-    branch = f"fortress/{slug(job['action']['campaignId'])}-{job['jobId'][-10:]}"
+    branch = f"fortress/{slug(job['action']['campaignId'])}-{job['jobId'][4:]}"
     worktree = (state_root / "worktrees" / job["jobId"]).resolve()
     if worktree.is_dir():
         git(worktree, "rev-parse", "--is-inside-work-tree")
@@ -461,6 +564,19 @@ def clean_verification_commands(workspace: dict[str, Any], profile: str) -> list
     return commands
 
 
+def workspace_binding(workspace: dict[str, Any], profile: str) -> dict[str, Any]:
+    validate_installed_workspace(workspace)
+    value = {
+        "root": str(workspace["root"]),
+        "baseRef": workspace["baseRef"],
+        "sourceCommit": workspace["sourceCommit"],
+        "sourceBranch": workspace["sourceBranch"],
+        "verificationProfile": profile,
+        "verificationCommands": clean_verification_commands(workspace, profile),
+    }
+    return {"sourceCommit": workspace["sourceCommit"], "hash": hashlib.sha256(canonical_json(value).encode("utf-8")).hexdigest()}
+
+
 def remaining_seconds(deadline: float, cap: int) -> int:
     return max(0, min(cap, int(deadline - time.monotonic())))
 
@@ -479,6 +595,7 @@ def verify(worktree: Path, workspace: dict[str, Any], profile: str, state_root: 
 
 
 def bounded_job(job: dict[str, Any]) -> dict[str, Any]:
+    receipt = job.get("executorReceipt") if isinstance(job.get("executorReceipt"), dict) else {}
     return {
         "jobId": job["jobId"],
         "campaignId": job["action"]["campaignId"],
@@ -491,6 +608,10 @@ def bounded_job(job: dict[str, Any]) -> dict[str, Any]:
         "updatedAtMs": job["updatedAtMs"],
         "branch": job.get("branch", ""),
         "executor": job.get("executor", ""),
+        "executorSummary": str(receipt.get("summary") or "")[-6000:],
+        "executorOutputBytes": receipt.get("outputBytes") if isinstance(receipt.get("outputBytes"), int) else 0,
+        "executorOutputTruncated": bool(receipt.get("outputTruncated")),
+        "executorLogRef": str(job.get("executorLogRef") or "")[:500],
         "reason": str(job.get("reason") or "")[:1000],
         "verificationOk": bool((job.get("verification") or {}).get("ok")),
     }
@@ -500,7 +621,8 @@ def submit(action_value: Any, state_root: Path | None = None, registry_path: Pat
     action = normalize_run_action(action_value)
     root = (state_root or default_state_root()).expanduser().resolve()
     registry = (registry_path or default_registry_path()).expanduser().resolve()
-    load_workspace(registry, action["workspaceId"])
+    workspace = load_workspace(registry, action["workspaceId"])
+    binding = workspace_binding(workspace, action["verificationProfile"])
     root.mkdir(parents=True, exist_ok=True)
     job_id = job_id_for(action["requestId"])
     digest = input_hash(action)
@@ -514,6 +636,8 @@ def submit(action_value: Any, state_root: Path | None = None, registry_path: Pat
             job = load_job(root, job_id)
             if job.get("inputHash") != digest:
                 raise DungeonConflict("requestId is already bound to a different dungeon intent")
+            if job.get("state") not in TERMINAL_STATES and job.get("workspaceBindingHash") != binding["hash"]:
+                job = transition(root, job, "QUARANTINED", "workspace_identity", "The installed workspace or verification policy changed after admission.", reason="workspace binding changed after admission")
             attached = True
         else:
             now = epoch_ms()
@@ -524,6 +648,8 @@ def submit(action_value: Any, state_root: Path | None = None, registry_path: Pat
                 "inputHash": digest,
                 "tmuxSession": session_for(action["requestId"]),
                 "action": action,
+                "workspaceCommit": binding["sourceCommit"],
+                "workspaceBindingHash": binding["hash"],
                 "state": "ACCEPTED",
                 "stage": "admitted",
                 "acceptedAtMs": now,
@@ -624,53 +750,71 @@ def run_job(state_root: Path, registry_path: Path, job_id: str) -> int:
                     os.nice(5)
                 elif action["lane"] == "background":
                     os.nice(10)
-                workspace = load_workspace(registry, action["workspaceId"])
+                try:
+                    workspace = load_workspace(registry, action["workspaceId"])
+                    binding = workspace_binding(workspace, action["verificationProfile"])
+                except DungeonError as exc:
+                    transition(root, job, "QUARANTINED", "workspace_identity", str(exc), reason="installed workspace identity is invalid")
+                    return 4
+                if job.get("workspaceCommit") != binding["sourceCommit"] or job.get("workspaceBindingHash") != binding["hash"]:
+                    transition(root, job, "QUARANTINED", "workspace_identity", "The installed workspace or verification policy changed after admission.", reason="workspace binding changed after admission")
+                    return 4
                 worktree, branch, baseline_head = prepare_worktree(root, job, workspace)
                 job = transition(root, job, "RUNNING", "deterministic_preflight", "Isolated worktree and branch resolved.", branch=branch, baselineHead=baseline_head, worktreeRef=f"phone-state://coding-dungeon-v2/worktrees/{job_id}")
                 prompt = build_prompt(action)
                 stage_timeout = BUDGETS[action["budgetProfile"]]["stageSeconds"]
                 executor = ""
+                last_attempt = ""
                 result: dict[str, Any] | None = None
                 codex = shutil.which("codex")
                 codex_timeout = remaining_seconds(deadline, stage_timeout)
                 if codex and codex_timeout > 0:
                     argv = codex_argv(prompt)
                     argv[0] = codex
+                    last_attempt = "codex_exec"
                     result = run_process(argv, worktree, codex_timeout, root / "runs" / job_id / "codex.jsonl")
                     append_event(root, job_id, "executor", executor="codex_exec", exit=result["exit"], timedOut=result["timedOut"])
                     evidence = mutation_evidence(worktree, baseline_head)
                     if result["exit"] == 0:
                         executor = "codex_exec"
                     elif evidence["changed"]:
-                        transition(root, job, "QUARANTINED", "codex_exec", "Codex stopped ambiguously after mutating the isolated worktree.", executor="codex_exec", mutation=evidence, reason="ambiguous Codex outcome after mutation")
+                        transition(root, job, "QUARANTINED", "codex_exec", "Codex stopped ambiguously after mutating the isolated worktree.", executor="codex_exec", executorReceipt=executor_receipt(result), executorLogRef=executor_log_ref(job_id, "codex_exec"), mutation=evidence, reason="ambiguous Codex outcome after mutation")
                         return 4
                 if not executor:
                     local_argv = local_adam_argv(worktree, prompt)
                     local_timeout = remaining_seconds(deadline, stage_timeout)
                     if local_argv and local_timeout > 0:
+                        last_attempt = "local_adam"
                         result = run_process(local_argv, worktree, local_timeout, root / "runs" / job_id / "local-adam.log")
                         append_event(root, job_id, "executor", executor="local_adam", exit=result["exit"], timedOut=result["timedOut"])
                         evidence = mutation_evidence(worktree, baseline_head)
                         if result["exit"] == 0:
                             executor = "local_adam"
                         elif evidence["changed"]:
-                            transition(root, job, "QUARANTINED", "local_adam", "Local inference stopped ambiguously after mutating the isolated worktree.", executor="local_adam", mutation=evidence, reason="ambiguous local-inference outcome after mutation")
+                            transition(root, job, "QUARANTINED", "local_adam", "Local inference stopped ambiguously after mutating the isolated worktree.", executor="local_adam", executorReceipt=executor_receipt(result), executorLogRef=executor_log_ref(job_id, "local_adam"), mutation=evidence, reason="ambiguous local-inference outcome after mutation")
                             return 4
                 if not executor:
                     low = shutil.which("home-center-phone-ask")
                     low_timeout = remaining_seconds(deadline, 120)
+                    low_result: dict[str, Any] | None = None
                     if low and low_timeout > 0:
                         low_prompt = "Classify this failed coding campaign without proposing commands. Return JSON with decision HOLD or VERIFY and one reason. Objective: " + action["objective"][:1200]
                         low_result = run_process([low, low_prompt], worktree, low_timeout, root / "runs" / job_id / "low-local.log")
                         append_event(root, job_id, "low_local_judge", exit=low_result["exit"], timedOut=low_result["timedOut"])
                     evidence = mutation_evidence(worktree, baseline_head)
-                    transition(root, job, "FAILED", "deterministic_closeout", "No mutating executor completed; low local inference was advisory only.", executor="deterministic_only", mutation=evidence, reason="no mutating executor completed")
+                    if low_result is not None and evidence["changed"]:
+                        transition(root, job, "QUARANTINED", "low_local_judge", "The advisory low-local judge violated its no-mutation contract; the worktree was quarantined.", executor="low_local_judge", executorReceipt=executor_receipt(low_result), executorLogRef=executor_log_ref(job_id, "low_local_judge"), mutation=evidence, reason="low-local judge mutated the isolated worktree")
+                        return 4
+                    close_executor = "low_local_judge" if low_result is not None else "deterministic_only"
+                    close_result = low_result if low_result is not None else result
+                    close_log_ref = executor_log_ref(job_id, close_executor) if low_result is not None else executor_log_ref(job_id, last_attempt) if last_attempt else ""
+                    transition(root, job, "FAILED", "deterministic_closeout", "No mutating executor completed; low local inference was advisory only.", executor=close_executor, executorReceipt=executor_receipt(close_result), executorLogRef=close_log_ref, mutation=evidence, reason="no mutating executor completed")
                     return 2
                 evidence = mutation_evidence(worktree, baseline_head)
                 if action["taskKind"] in {"implement", "repair"} and not evidence["changed"]:
-                    transition(root, job, "FAILED", "deterministic_closeout", "The executor returned success without a repository mutation for a mutating task.", executor=executor, mutation=evidence, reason="successful executor produced no mutation")
+                    transition(root, job, "FAILED", "deterministic_closeout", "The executor returned success without a repository mutation for a mutating task.", executor=executor, executorReceipt=executor_receipt(result), executorLogRef=executor_log_ref(job_id, executor), mutation=evidence, reason="successful executor produced no mutation")
                     return 2
-                job = transition(root, job, "CHECKPOINTED", "verification", "Executor stopped cleanly; deterministic verification began.", executor=executor, mutation=evidence)
+                job = transition(root, job, "CHECKPOINTED", "verification", "Executor stopped cleanly; deterministic verification began.", executor=executor, executorReceipt=executor_receipt(result), executorLogRef=executor_log_ref(job_id, executor), mutation=evidence)
                 verification = verify(worktree, workspace, action["verificationProfile"], root, job_id, deadline)
                 final_evidence = mutation_evidence(worktree, baseline_head)
                 if not verification["ok"]:
@@ -691,8 +835,16 @@ def run_job(state_root: Path, registry_path: Path, job_id: str) -> int:
 def doctor(registry_path: Path | None = None) -> dict[str, Any]:
     registry = (registry_path or default_registry_path()).expanduser().resolve()
     checks = {name: bool(shutil.which(name)) for name in ("python", "git", "tmux", "codex")}
-    checks["workspaceRegistry"] = registry.is_file()
-    return {"schema": "home-center.dungeon-doctor.v2", "ok": checks["python"] and checks["git"] and checks["tmux"] and checks["workspaceRegistry"], "checks": checks, "registry": str(registry)}
+    registry_check = registry_health(registry)
+    checks["workspaceRegistry"] = registry_check["ok"]
+    return {
+        "schema": "home-center.dungeon-doctor.v2",
+        "ok": checks["python"] and checks["git"] and checks["tmux"] and checks["workspaceRegistry"],
+        "checks": checks,
+        "workspaceCount": registry_check["workspaceCount"],
+        "registryError": registry_check["error"],
+        "registry": str(registry),
+    }
 
 
 def main(argv: list[str] | None = None) -> int:

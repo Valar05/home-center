@@ -15,11 +15,13 @@ from android_phone_termux_shell import execute as termux_shell_execute
 from android_phone_diagnostics import execute as diagnostics_execute
 from android_operator_overlay import execute as overlay_execute, heartbeat as overlay_heartbeat, control_gate as overlay_control_gate, screen_activity as overlay_screen_activity
 from venice_reactor import execute as venice_execute
-from mobile_coding_dungeon_v2 import execute as dungeon_execute
+from mobile_coding_dungeon_v2 import doctor as dungeon_doctor, execute as dungeon_execute
 FACTORY_ACTIONS={'file_stat','file_hash','file_list','file_mkdir','file_copy','file_move','armory_inventory','armory_ingest'}; ARMORY_ACTIONS={'armory_doctor','armory_slice'}; WINDOW_ACTIONS={'window_status','window_probe','window_compose','window_focus','window_swap'}; STATUS_TTS_ACTIONS={'status_tts_doctor','status_say'}; TERMUX_SHELL_ACTIONS={'phone_shell'}; DUNGEON_ACTIONS={'dungeon_run','dungeon_status'}; DIAGNOSTIC_ACTIONS={'phone_diagnostics'}; OVERLAY_ACTIONS={'operator_overlay_status','operator_overlay_start','operator_overlay_update'}; VENICE_ACTIONS={'venice_ingest','venice_observe','venice_mine','venice_status'}
 SCREEN_DIRECT_ACTIONS={'tap','swipe','text','keyevent','home','back','recents','launch','force_stop'}; SCREEN_WINDOW_ACTIONS={'window_compose','window_focus','window_swap'}
 DUNGEON_V2_REGISTRY=CFG/'dungeon-workspaces.v2.json'
-def dungeon_v2_ready():return bool(shutil.which('python') and shutil.which('git') and shutil.which('tmux') and DUNGEON_V2_REGISTRY.is_file())
+def dungeon_v2_ready():
+ try:return bool(dungeon_doctor(DUNGEON_V2_REGISTRY).get('ok'))
+ except Exception:return False
 DEVICE_CAPABILITIES=['phone_hands','phone_files','armory_worker','window_composer','status_tts','termux_shell','operator_overlay','local_qwen','coding_dungeon','voice','phone_diagnostics_readonly','venice_reactor','venice_audio_features']+(['coding_dungeon_v2'] if dungeon_v2_ready() else [])
 def _screen_profile(action):
  k=str((action or {}).get('action') or '')

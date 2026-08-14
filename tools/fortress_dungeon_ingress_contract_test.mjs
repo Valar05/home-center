@@ -11,6 +11,7 @@ const mcp = fs.readFileSync('functions/home_center_mcp.js', 'utf8');
 const phone = fs.readFileSync('tools/android_phone_home_center_relay.py', 'utf8');
 const runner = fs.readFileSync('tools/mobile_coding_dungeon_v2.py', 'utf8');
 const localAdapter = fs.readFileSync('tools/dungeon_local_adam.py', 'utf8');
+const installer = fs.readFileSync('tools/setup_mobile_coding_dungeon_v2.sh', 'utf8');
 const firestoreIndexes = JSON.parse(fs.readFileSync('firebase/firestore.indexes.json', 'utf8'));
 
 for (const needle of [
@@ -18,6 +19,7 @@ for (const needle of [
   'priorityRank', 'leaseId', 'recoverStaleDungeonLeases', 'expireQueuedCommands',
   "orderBy('priorityRank','asc')", "orderBy('createdAtMs','asc')", "orderBy('commandId','asc')",
   'ADMISSION_EXPIRED', 'exact owner replay renewed expired admission', 'exact live admission lease',
+  'cleanResult = validateDungeonDeviceReceipt',
 ]) if (!relay.includes(needle)) throw new Error(`typed relay boundary missing ${needle}`);
 
 const queueIndex = firestoreIndexes.indexes.find((index) => index.collectionGroup === 'phoneHandsCommands');
@@ -41,7 +43,7 @@ if (!operation.includes('fresh unique snapshot id for each poll')) {
 }
 
 for (const needle of [
-  'mobile_coding_dungeon_v2', 'DUNGEON_ACTIONS', 'coding_dungeon_v2',
+  'mobile_coding_dungeon_v2', 'dungeon_doctor', 'DUNGEON_ACTIONS', 'coding_dungeon_v2',
   "if k in DUNGEON_ACTIONS:return dispatch(a)", "'leaseId':cmd.get('leaseId','')",
 ]) if (!phone.includes(needle)) throw new Error(`phone relay v2 integration missing ${needle}`);
 if (phone.includes("p.get('manifest')") || phone.includes("dungeon_run requires manifest")) {
@@ -54,13 +56,20 @@ if (phone.indexOf("if k in DUNGEON_ACTIONS:return dispatch(a)") > phone.indexOf(
 for (const needle of [
   'shell=False', 'codex-local-low-deterministic-v1', 'workspace-write',
   'ask-for-approval', 'checkpoint-only', 'prepare_worktree', 'launch_tmux',
-  'QUARANTINED', 'phone-state://coding-dungeon-v2',
+  'QUARANTINED', 'phone-state://coding-dungeon-v2', 'registry_health', 'sourceCommit',
+  'validate_installed_workspace', 'workspace_binding', 'workspaceBindingHash', 'workspace_identity',
 ]) if (!runner.includes(needle)) throw new Error(`phone-local coordinator missing ${needle}`);
 for (const forbidden of ["shell=True", "subprocess.run(cmd", "get('manifest')", "get(\"manifest\")"] ) {
   if (runner.includes(forbidden)) throw new Error(`v2 coordinator contains forbidden execution surface: ${forbidden}`);
 }
-for (const needle of ['disabled_run_command', 'disabled_phone_intent', 'worker.run_command =', 'worker.phone_intent =']) {
+for (const needle of ['disabled_run_command', 'disabled_phone_intent', 'confined_execute_tool', 'ALLOWED_TOOLS', 'worker.run_command =', 'worker.phone_intent =', 'worker.execute_tool =']) {
   if (!localAdapter.includes(needle)) throw new Error(`local inference confinement missing ${needle}`);
+}
+for (const needle of ['SOURCE_COMMIT', 'SOURCE_BRANCH', "requires the reviewed main branch", '--untracked-files=no', "'baseRef': source_commit", "'sourceCommit': source_commit", "'sourceBranch': source_branch", 'os.fsync']) {
+  if (!installer.includes(needle)) throw new Error(`exact phone installer gate missing ${needle}`);
+}
+if (installer.includes('chmod +x "$HOME/bin/dungeon-v2" "$ROOT/tools/mobile_coding_dungeon_v2.py"')) {
+  throw new Error('installer must not mutate the tracked runner mode');
 }
 
 const critical = contract.cleanDungeonRun({
@@ -171,8 +180,13 @@ const liveLease=pulled.command.leaseId;
 const submitReceipt={
   schema:'home-center.dungeon-submit-receipt.v2',requestId:critical.requestId,
   inputHash:contract.dungeonRequestHash(critical),jobId:'dng_0123456789abcdef01234567',
-  tmuxSession:'hc-dng-0123456789abcdef',state:'ACCEPTED',attached:false,
+  tmuxSession:'hc-dng-0123456789abcdef01234567',state:'ACCEPTED',attached:false,
+  statusRef:'phone-state://coding-dungeon-v2/jobs/dng_0123456789abcdef01234567',
 };
+await assertRejects(()=>relayModule.deviceComplete(admin,{
+  deviceId:'primary-phone',deviceToken:token,commandId:admitted.commandId,leaseId:liveLease,
+  status:'completed',result:{...submitReceipt,phonePath:'/data/data/com.termux/files/home/private'},
+}),/rejects unknown field/);
 await assertRejects(()=>relayModule.deviceComplete(admin,{
   deviceId:'primary-phone',deviceToken:token,commandId:admitted.commandId,leaseId:'lease-stale',status:'completed',result:submitReceipt,
 }),/exact live admission lease/);
