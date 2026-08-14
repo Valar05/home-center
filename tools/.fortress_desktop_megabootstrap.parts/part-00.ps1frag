@@ -1,0 +1,176 @@
+#Requires -Version 5.1
+<#
+Fortress Online — THECAULDRON continuous creation megabootstrap.
+
+One idempotent entrypoint. It installs/repairs Computer Hands and Browser Nerve,
+vendors a dedicated visible Chromium Throne, installs a loopback-only durable
+command spool, keeps the machine awake without forcing the display on, and
+seeds the first bounded Pro-reasoning creation wave.
+
+This script does not scrape cookies, rotate accounts, use API-token compute,
+run a hidden headless farm, or grant remote arbitrary shell authority to Atom.
+The phone may submit only validated Chromium Throne command packets.
+#>
+[CmdletBinding()]
+param(
+  [ValidateSet('Ensure','Repair','Status','Stop')]
+  [string]$Mode = 'Ensure',
+  [string]$RepoPath = '',
+  [string]$Ref = 'main',
+  [string]$ComputerHandsBootstrapCode = '',
+  [switch]$NoLaunch,
+  [switch]$SkipOpenSsh
+)
+
+$ErrorActionPreference = 'Stop'
+Set-StrictMode -Version Latest
+
+$Version = '2026.08.13.1'
+$Repository = 'Valar05/home-center'
+$Owner = 'Drew Clarke'
+$WorkerUser = "$env:USERDOMAIN\$env:USERNAME"
+$Local = [Environment]::GetFolderPath('LocalApplicationData')
+$FortressRoot = Join-Path $Local 'HomeCenter\Fortress'
+$RuntimeRoot = Join-Path $FortressRoot 'runtime'
+$StateRoot = Join-Path $FortressRoot 'state'
+$SpoolRoot = Join-Path $FortressRoot 'spool'
+$PendingRoot = Join-Path $SpoolRoot 'pending'
+$CompletedRoot = Join-Path $SpoolRoot 'completed'
+$FailedRoot = Join-Path $SpoolRoot 'failed'
+$LogPath = Join-Path $StateRoot 'fortress-desktop.log'
+$LatestReceipt = Join-Path $StateRoot 'latest.json'
+$HistoryPath = Join-Path $StateRoot 'history.jsonl'
+$ThroneRoot = Join-Path $Local 'HomeCenter\ChromiumThrone'
+$ExtensionDir = Join-Path $ThroneRoot 'extension'
+$ThroneProfile = Join-Path $ThroneRoot 'profile'
+$RelayCapabilityPath = Join-Path $ThroneRoot 'relay-capability.txt'
+$RuntimeConfigPath = Join-Path $ThroneRoot 'runtime-config.json'
+$RelayEventLog = Join-Path $ThroneRoot 'relay-events.jsonl'
+$ThroneClient = Join-Path $ThroneRoot 'throne-client.mjs'
+$RelayRunner = Join-Path $ThroneRoot 'throne-relay-runner.mjs'
+$ThroneCommandScript = Join-Path $FortressRoot 'fortress-throne.ps1'
+$SupervisorScript = Join-Path $FortressRoot 'fortress-supervisor.ps1'
+$StatusScript = Join-Path $FortressRoot 'fortress-status.ps1'
+$UserThroneWrapper = Join-Path ([Environment]::GetFolderPath('UserProfile')) 'fortress-throne.cmd'
+$TaskRelay = 'HomeCenterChromiumThroneRelay'
+$TaskSupervisor = 'HomeCenterFortressContinuousCreation'
+$TaskHands = 'HomeCenterComputerHands'
+$TaskBrowser = 'HomeCenterBrowserNerve'
+$ExtensionId = 'lccnchjcenaomhnjjaomabpajagenkaf'
+$RelayBase = 'http://127.0.0.1:9234/v1/throne'
+$Mutex = $null
+$Scars = New-Object System.Collections.Generic.List[string]
+
+New-Item -ItemType Directory -Force -Path `
+  $FortressRoot,$StateRoot,$SpoolRoot,$PendingRoot,$CompletedRoot,$FailedRoot,$ThroneRoot,$ExtensionDir,$ThroneProfile | Out-Null
+
+function Write-Log {
+  param([string]$Message)
+  $line = '{0} {1}' -f (Get-Date).ToString('o'), $Message
+  Add-Content -LiteralPath $LogPath -Value $line -Encoding UTF8
+  Write-Host $line
+}
+
+function Write-Receipt {
+  param(
+    [string]$Phase,
+    [string]$Status,
+    [string]$Detail,
+    [hashtable]$Extra = @{}
+  )
+  $obj = [ordered]@{
+    schema = 'fortress.desktop.megabootstrap.receipt.v1'
+    version = $Version
+    owner = $Owner
+    phase = $Phase
+    status = $Status
+    detail = $Detail
+    at = (Get-Date).ToUniversalTime().ToString('o')
+    machine = $env:COMPUTERNAME
+    user = $WorkerUser
+  }
+  foreach ($key in $Extra.Keys) { $obj[$key] = $Extra[$key] }
+  $json = $obj | ConvertTo-Json -Depth 12
+  $tmp = "$LatestReceipt.tmp"
+  [IO.File]::WriteAllText($tmp, $json + [Environment]::NewLine, [Text.UTF8Encoding]::new($false))
+  Move-Item -LiteralPath $tmp -Destination $LatestReceipt -Force
+  Add-Content -LiteralPath $HistoryPath -Value (($obj | ConvertTo-Json -Compress -Depth 12)) -Encoding UTF8
+  return $obj
+}
+
+function Add-Scar {
+  param([string]$Scar)
+  if (-not [string]::IsNullOrWhiteSpace($Scar)) {
+    $Scars.Add($Scar)
+    Write-Log "SCAR $Scar"
+  }
+}
+
+function Enter-Lock {
+  $script:Mutex = New-Object Threading.Mutex($false, 'Local\HomeCenterFortressMegabootstrap')
+  if (-not $script:Mutex.WaitOne(0)) {
+    if (Test-Path -LiteralPath $LatestReceipt) { Get-Content -LiteralPath $LatestReceipt -Raw }
+    else { '{"status":"already_running"}' }
+    exit 0
+  }
+}
+
+function Exit-Lock {
+  if ($script:Mutex) {
+    try { $script:Mutex.ReleaseMutex() | Out-Null } catch {}
+    $script:Mutex.Dispose()
+  }
+}
+
+function Invoke-External {
+  param(
+    [Parameter(Mandatory=$true)][string]$File,
+    [string[]]$Arguments = @(),
+    [string]$WorkingDirectory = ''
+  )
+  Write-Log ("EXEC {0} {1}" -f $File, ($Arguments -join ' '))
+  if ($WorkingDirectory) { Push-Location $WorkingDirectory }
+  try {
+    $output = & $File @Arguments 2>&1 | Out-String
+    $code = $LASTEXITCODE
+  } finally {
+    if ($WorkingDirectory) { Pop-Location }
+  }
+  if ($code -ne 0) { throw "Command failed ($code): $File $($Arguments -join ' ')`n$output" }
+  return $output.Trim()
+}
+
+function Resolve-Repository {
+  if ($RepoPath -and (Test-Path -LiteralPath (Join-Path $RepoPath '.git'))) {
+    return [IO.Path]::GetFullPath($RepoPath)
+  }
+
+  $scriptParent = Split-Path -Parent $PSCommandPath
+  $scriptCandidate = Split-Path -Parent $scriptParent
+  $candidates = @(
+    $scriptCandidate,
+    (Join-Path ([Environment]::GetFolderPath('UserProfile')) 'home-center'),
+    (Join-Path ([Environment]::GetFolderPath('MyDocuments')) 'GitHub\home-center'),
+    (Join-Path ([Environment]::GetFolderPath('UserProfile')) 'source\repos\home-center'),
+    (Join-Path ([Environment]::GetFolderPath('MyDocuments')) 'GodotProjects\home-center')
+  ) | Select-Object -Unique
+
+  foreach ($candidate in $candidates) {
+    if ($candidate -and (Test-Path -LiteralPath (Join-Path $candidate '.git'))) {
+      return [IO.Path]::GetFullPath($candidate)
+    }
+  }
+
+  $gh = Get-Command gh.exe -ErrorAction SilentlyContinue
+  if (-not $gh) { $gh = Get-Command gh -ErrorAction SilentlyContinue }
+  if ($gh) {
+    $clone = Join-Path $FortressRoot 'source'
+    if (-not (Test-Path -LiteralPath (Join-Path $clone '.git'))) {
+      Invoke-External -File $gh.Source -Arguments @('repo','clone',$Repository,$clone)
+    }
+    if (Test-Path -LiteralPath (Join-Path $clone '.git')) { return $clone }
+  }
+
+  throw 'Authenticated home-center clone was not found. Pass -RepoPath or authenticate gh once.'
+}
+
