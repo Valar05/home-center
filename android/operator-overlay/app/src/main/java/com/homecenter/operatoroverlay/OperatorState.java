@@ -198,7 +198,7 @@ final class OperatorState {
     static void updateText(Context context, String source, String text, long nowMs) {
         String clean = text == null ? "" : text.trim(); if (clean.length() > 8000) clean = clean.substring(0, 8000);
         String cleanSource = source == null || source.trim().isEmpty() ? "ChatGPT" : source.trim(); if (cleanSource.length() > 80) cleanSource = cleanSource.substring(0, 80);
-        prefs(context).edit().putString(KEY_LATEST_TEXT, clean).putString(KEY_LATEST_SOURCE, cleanSource).putLong(KEY_LAST_UPDATE_MS, nowMs).putLong(KEY_LAST_HEARTBEAT_MS, nowMs).apply();
+        prefs(context).edit().putString(KEY_LATEST_TEXT, clean).putString(KEY_LATEST_SOURCE, cleanSource).putLong(KEY_LAST_UPDATE_MS, nowMs).apply();
     }
     static void heartbeat(Context context, long nowMs) { prefs(context).edit().putLong(KEY_LAST_HEARTBEAT_MS, nowMs).apply(); }
     static void setScreenActivity(Context context, long activeUntilMs, long yieldUntilMs) { prefs(context).edit().putLong(KEY_SCREEN_ACTIVE_UNTIL_MS, Math.max(0L, activeUntilMs)).putLong(KEY_SCREEN_YIELD_UNTIL_MS, Math.max(0L, yieldUntilMs)).apply(); }
