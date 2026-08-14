@@ -1,0 +1,58 @@
+{
+  "schema": "venice-completion-review.v1",
+  "reviewerRole": "venice-judgment-jar",
+  "reviewerMode": "judgment_jar",
+  "commission": "Physical-phone Chromium control implementation lane: foreground/open URL, second navigation action, recovery after browser death, and primary-phone receipts through existing Home Center ingress.",
+  "reviewedImplementation": {
+    "mergeSha": "80efd21c288eb99c786006627b0bc82f15c39756",
+    "pr": 315,
+    "files": [
+      "tools/android_chromium_control.py",
+      "tools/fortress_phone_ops.sh",
+      "android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorState.java",
+      "tools/test_android_chromium_control_contract.py",
+      "tools/run_fortress_local_contracts.sh"
+    ]
+  },
+  "durableDispatchHandoff": "docs/evidence/phone-chromium-control-dispatch-20260814.json",
+  "findings": [
+    {
+      "severity": "PASS",
+      "finding": "Implementation stays inside the existing Phone Hands/Shizuku Android lane and does not assume Android desktop-extension support."
+    },
+    {
+      "severity": "PASS",
+      "finding": "Required canary uses browser force-stop, explicit URL reopen, explicit second URL navigation, and independent foreground/task/UI evidence instead of treating intent dispatch as success."
+    },
+    {
+      "severity": "PASS",
+      "finding": "Overlay URL commands are base64-encoded before shell transport and validated as bounded absolute http(s) URLs at the Android controller boundary."
+    },
+    {
+      "severity": "BLOCK",
+      "finding": "GitHub Actions did not execute any tests. Build Android, Operator Overlay Android, and Home Center CI were prevented from starting by the Actions budget; this is BLOCKED_UNEXECUTED, not a test failure and not a pass."
+    },
+    {
+      "severity": "BLOCK",
+      "finding": "No Home Center phone_hands write connector is exposed on this ChatGPT worker surface, so the durable dispatch handoff remains NOT_ENQUEUED."
+    },
+    {
+      "severity": "BLOCK",
+      "finding": "No primary-phone receipt exists yet proving Chrome force-stop/reopen, URL-1 observation, URL-2 navigation observation, or final browser state."
+    }
+  ],
+  "capabilityState": {
+    "requested": true,
+    "implemented": true,
+    "merged": true,
+    "tested": false,
+    "deployed": false,
+    "callable": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "directive": "CONTINUE_REQUIRED",
+  "stopPermission": "DENIED",
+  "nextTransition": "A worker with callable Home Center phone_hands write operations must consume docs/evidence/phone-chromium-control-dispatch-20260814.json, resolve primary-phone, enqueue its exact idempotent phone_shell payload once, then read the terminal receipt with phone_hands.get. On PASS, persist the physical receipt and rerun Venice completion review.",
+  "createdAt": "2026-08-14T00:23:00-05:00"
+}
