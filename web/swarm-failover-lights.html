@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Fortress Swarm Continuity Lights</title>
+<style>
+  :root { color-scheme: dark; font-family: system-ui, sans-serif; }
+  * { box-sizing: border-box; }
+  body { margin: 0; min-height: 100vh; background: #090b10; color: #f5f7fb; display: grid; place-items: center; padding: 24px; }
+  main { width: min(980px, 100%); border: 1px solid #343a46; border-radius: 22px; background: #11151d; padding: 24px; box-shadow: 0 18px 70px #000; }
+  h1 { margin: 0 0 8px; font-size: clamp(1.6rem, 5vw, 3.4rem); letter-spacing: .04em; }
+  .lede { margin: 0 0 22px; color: #cbd3df; font-size: 1.05rem; }
+  .garland { display: grid; grid-template-columns: repeat(8, minmax(56px,1fr)); gap: 10px; align-items: start; padding: 24px 8px 32px; border-top: 2px solid #3b4250; }
+  .node { display: grid; justify-items: center; gap: 8px; text-align: center; min-width: 0; }
+  .wire { width: 2px; height: 22px; background: #697386; }
+  .bulb { width: clamp(34px, 6vw, 58px); aspect-ratio: 1; border-radius: 50% 50% 46% 46%; border: 2px solid #aeb7c5; box-shadow: 0 0 7px currentColor, 0 0 20px currentColor; animation: dance 1.8s ease-in-out infinite alternate; }
+  .node:nth-child(2n) .bulb { animation-delay: -.55s; }
+  .node:nth-child(3n) .bulb { animation-delay: -1.1s; }
+  .dead { color: #f05b61; background: #6a171b; animation-name: breathe; }
+  .charging { color: #ffb347; background: #764514; }
+  .online { color: #70e28b; background: #155928; }
+  .busy { color: #56c9ff; background: #145a74; }
+  .waiting { color: #c493ff; background: #4d2873; }
+  .label { font-weight: 800; overflow-wrap: anywhere; }
+  .state { color: #b7c0ce; font-size: .82rem; overflow-wrap: anywhere; }
+  .receipt { display: grid; gap: 10px; background: #090c12; border: 1px solid #2b3240; border-radius: 16px; padding: 18px; }
+  .receipt strong { font-size: 1.12rem; }
+  #explanation { min-height: 3em; color: #e9edf4; font-size: 1.05rem; }
+  .plain { margin-top: 16px; display: grid; gap: 7px; padding-left: 1.2rem; color: #cbd3df; }
+  .proof { display: inline-block; margin-top: 18px; padding: 8px 12px; border-radius: 999px; background: #202838; color: #fff; font-weight: 800; }
+  .note { margin-top: 14px; color: #9fa9b8; font-size: .9rem; }
+  @keyframes dance { from { transform: translateY(0) rotate(-4deg) scale(.86); opacity: .55; } to { transform: translateY(7px) rotate(5deg) scale(1.06); opacity: 1; } }
+  @keyframes breathe { from { opacity: .25; box-shadow: 0 0 2px currentColor; } to { opacity: .72; box-shadow: 0 0 12px currentColor; } }
+  @media (prefers-reduced-motion: reduce) { .bulb { animation: none; } }
+  @media (max-width: 720px) { .garland { grid-template-columns: repeat(4, 1fr); } }
+</style>
+</head>
+<body>
+<main>
+  <h1>SWARM CONTINUITY</h1>
+  <p class="lede">The phone is dead and charging. The Fortress did not stop.</p>
+
+  <section class="garland" aria-label="Receipt-backed continuity lights">
+    <div class="node"><div class="wire"></div><div class="bulb dead" role="img" aria-label="Phone dead and charging"></div><div class="label">PHONE</div><div class="state">CHARGING / DEAD</div></div>
+    <div class="node"><div class="wire"></div><div class="bulb online" role="img" aria-label="Desktop online"></div><div class="label">DESKTOP</div><div class="state">ONLINE / IDLE</div></div>
+    <div class="node"><div class="wire"></div><div class="bulb online" role="img" aria-label="Home Center bridge online"></div><div class="label">BRIDGE</div><div class="state">HEALTH OK</div></div>
+    <div class="node"><div class="wire"></div><div class="bulb online" role="img" aria-label="Drive available"></div><div class="label">DRIVE</div><div class="state">DURABLE</div></div>
+    <div class="node"><div class="wire"></div><div class="bulb online" role="img" aria-label="GitHub receipt committed"></div><div class="label">GITHUB</div><div class="state">RECEIPT SAVED</div></div>
+    <div class="node"><div class="wire"></div><div class="bulb busy" role="img" aria-label="Desktop queue depth two"></div><div class="label">QUEUE</div><div class="state">2 ITEMS</div></div>
+    <div class="node"><div class="wire"></div><div class="bulb busy" role="img" aria-label="Swarm continuing through surviving bodies"></div><div class="label">SWARM</div><div class="state">CONTINUING</div></div>
+    <div class="node"><div class="wire"></div><div class="bulb waiting" role="img" aria-label="Waiting for phone power recovery"></div><div class="label">RETURN</div><div class="state">FRESH RECEIPT REQUIRED</div></div>
+  </section>
+
+  <section class="receipt" aria-live="polite">
+    <strong>Always explain</strong>
+    <div id="explanation">Phone loss transferred continuity to the verified desktop, Home Center bridge, Drive, and GitHub.</div>
+  </section>
+
+  <span class="proof">PROOF LIGHT: fc1058bc</span>
+  <ul class="plain">
+    <li>Operator observation owns phone power truth; the old online registry entry is stale.</li>
+    <li>THECAULDRON worker was verified online and idle with queue depth two.</li>
+    <li>Home Center Drive bridge answered health successfully.</li>
+    <li>The failover receipt is durable on <code>fortress/swarm-failover-lights</code>.</li>
+    <li>No phone work resumes until power returns and a fresh device receipt agrees.</li>
+  </ul>
+  <p class="note">These dancing bulbs visualize a verified snapshot. They do not pretend to be live scheduler telemetry. No countdown; no clock whip.</p>
+</main>
+<script>
+const lines = [
+  'PHONE: dead and charging. That lane is protected, not pressured.',
+  'DESKTOP: online and idle. The surviving body carries continuity.',
+  'BRIDGE: Home Center health replied OK.',
+  'DRIVE + GITHUB: durable receipts survive the dead phone and this chat.',
+  'QUEUE: two desktop items remain visible; activity is not confused with delivery.',
+  'SWARM: failover means work changes bodies instead of demanding operator transport.',
+  'RETURN: the phone rejoins only after power and a fresh receipt.',
+  'CHRISTMAS RULING: joy may dance; truth may not.'
+];
+let i = 0;
+setInterval(() => {
+  i = (i + 1) % lines.length;
+  document.getElementById('explanation').textContent = lines[i];
+}, 4200);
+</script>
+</body>
+</html>
