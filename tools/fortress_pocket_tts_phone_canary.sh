@@ -30,7 +30,53 @@ fi
 
 git -C "$REPO" show "$HEAD:tools/fortress_status_read.py" > "$CAND/fortress_status_read.py"
 git -C "$REPO" show "$HEAD:config/fortress-pocket-tts-performance.json" > "$CAND/fortress-pocket-tts-performance.json"
+git -C "$REPO" show "$HEAD:docs/evidence/nightcore-design/hunger-hyperbolic-profile-20260814.json" > "$CAND/hunger-hyperbolic-profile.json"
 chmod 700 "$CAND/fortress_status_read.py"
+
+# Candidate evaluation MUST NOT mutate the tracked last-known-good config.
+# Compile the design-side first canary into only this ephemeral copy, preserving
+# engine/provider/playback locks and the evidence-before-promotion law.
+python3 - "$CAND/fortress-pocket-tts-performance.json" "$CAND/hunger-hyperbolic-profile.json" "$CAND/candidate.json" <<'PY'
+import copy,hashlib,json,sys
+config_path,design_path,out_path=sys.argv[1:]
+config=json.load(open(config_path,encoding='utf-8'))
+design=json.load(open(design_path,encoding='utf-8'))
+candidate_id=design.get('implementationReadyProfile',{}).get('firstCanary')
+if not candidate_id:
+    raise SystemExit('design artifact missing implementationReadyProfile.firstCanary')
+candidates={c.get('id'):c for c in design.get('candidates',[]) if isinstance(c,dict)}
+candidate=candidates.get(candidate_id)
+if not candidate:
+    raise SystemExit(f'design candidate missing: {candidate_id}')
+compiled=copy.deepcopy(config)
+for target,source_key in [('orandroid67','orandroid67'),('she-ra','sheRa')]:
+    src=candidate[source_key]
+    dst=compiled['personas'][target]
+    dst['status']='CANDIDATE_PHYSICAL_CANARY'
+    dst['tempo']=float(src['rate'])
+    dst['pitchSemitones']=float(src['pitchSemitones'])
+    dst['pauseDensity']=float(src['pauseDensity'])
+    dst['utteranceMaxChars']=int(src['utteranceMaxChars'])
+    dst['roastDensity']=float(src['roastDensity'])
+    dst['postProcessing']={'kind':'ffmpeg-nightcore','reversible':True}
+compiled['activeCandidate']={
+    'id':candidate_id,
+    'source':'docs/evidence/nightcore-design/hunger-hyperbolic-profile-20260814.json',
+    'runtimeStatus':'CANDIDATE_NOT_PROMOTED',
+    'physicalEvidenceRequired':True,
+}
+open(config_path,'w',encoding='utf-8').write(json.dumps(compiled,indent=2,sort_keys=True)+'\n')
+raw=open(design_path,'rb').read()
+out={
+  'candidateId':candidate_id,
+  'runtimeStatus':'CANDIDATE_NOT_PROMOTED',
+  'designArtifactSha256':hashlib.sha256(raw).hexdigest(),
+  'orandroid67':candidate['orandroid67'],
+  'sheRa':candidate['sheRa'],
+  'promotionRule':design.get('implementationReadyProfile',{}).get('promotionRule'),
+}
+open(out_path,'w',encoding='utf-8').write(json.dumps(out,indent=2,sort_keys=True)+'\n')
+PY
 
 export FORTRESS_HOME_CENTER="$REPO"
 export FORTRESS_POCKET_TTS_PERFORMANCE_CONFIG="$CAND/fortress-pocket-tts-performance.json"
@@ -65,11 +111,10 @@ for path in sys.argv[1:]:
 PY
 
 timeout 240 python3 "$CAND/fortress_status_read.py" --persona orandroid67 \
-  "Fortress online. Nightcore ASMR canary. Pocket TTS is speaking on the primary phone." \
+  "Pocket TTS physical canary. Verifying Nightcore playback on the primary phone. No operator action required." \
   > "$CAND/orandroid.json"
-
 timeout 240 python3 "$CAND/fortress_status_read.py" --persona she-ra \
-  "She-Ra canary. Squeak report: Pocket TTS reached the phone; playback receipts are under inspection." \
+  "She-Ra canary. Playback verification follows. You very small administrative tragedy." \
   > "$CAND/shera.json"
 timeout 45 "$HOME/bin/fortress-read" --doctor > "$CAND/final-health.json"
 
@@ -103,17 +148,19 @@ def slim(d):
       "cloudFallbackUsed":d.get("cloudFallbackUsed"),
     }
 dev=load("device.json"); do=load("doctor-orandroid.json"); ds=load("doctor-shera.json")
-o=load("orandroid.json"); s=load("shera.json"); fh=load("final-health.json")
+o=load("orandroid.json"); s=load("shera.json"); fh=load("final-health.json"); candidate=load("candidate.json")
 ok=(do.get('ok') is True and ds.get('ok') is True and o.get('playbackVerified') is True and s.get('playbackVerified') is True and fh.get('ok') is True)
 script=(p/'fortress_status_read.py').read_bytes(); cfg=(p/'fortress-pocket-tts-performance.json').read_bytes()
 print(json.dumps({
   "schema":"fortress.pocket-tts-nightcore.physical-canary.v1",
   "commandId":ID,"ok":ok,
-  "source":{"repo":"Valar05/home-center","pr":317,"head":head,"scriptSha256":hashlib.sha256(script).hexdigest(),"configSha256":hashlib.sha256(cfg).hexdigest()},
+  "source":{"repo":"Valar05/home-center","pr":317,"head":head,"scriptSha256":hashlib.sha256(script).hexdigest(),"ephemeralConfigSha256":hashlib.sha256(cfg).hexdigest()},
+  "candidate":candidate,
   "device":dev,
   "doctor":{"orandroid67":{"ok":do.get('ok'),"corePath":do.get('corePath'),"ffmpeg":do.get('ffmpeg'),"provider":do.get('provider'),"engine":do.get('engine'),"outputComponent":do.get('outputComponent')},"she-ra":{"ok":ds.get('ok'),"corePath":ds.get('corePath'),"ffmpeg":ds.get('ffmpeg'),"provider":ds.get('provider'),"engine":ds.get('engine'),"outputComponent":ds.get('outputComponent')}},
   "orandroid67":slim(o),"she-ra":slim(s),
   "finalHealth":{"ok":fh.get('ok'),"preferred":fh.get('preferred'),"canonicalProvider":fh.get('canonicalProvider'),"playbackComponent":fh.get('playbackComponent'),"systemFallbackAllowed":fh.get('systemFallbackAllowed'),"cloudFallback":fh.get('cloudFallback')},
+  "trackedLastKnownGoodMutated":False,
   "holocronAcknowledged":False,
 },separators=(',',':'),ensure_ascii=False))
 raise SystemExit(0 if ok else 2)
