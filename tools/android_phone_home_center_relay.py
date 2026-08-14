@@ -89,12 +89,14 @@ def loop(once=False):
  dev=ensure_device();did=dev['deviceId'];secret=dev['deviceToken'];print(f'Home Center phone relay online: {did}',flush=True);last=0.0
  while True:
   try:
+   pulled=http('/pull',{'deviceId':did,'deviceToken':secret,'leaseMs':90000});cmd=pulled.get('command');write_heartbeat(did,'poll_ok',cmd.get('commandId') if isinstance(cmd,dict) else '')
+   # Only a successful Home Center pull earns the UI's HC-online heartbeat.
+   # Overlay/worker process liveness alone is intentionally insufficient.
    now=time.monotonic()
    if now-last>=OVERLAY_HEARTBEAT_SECONDS:
     try:overlay_heartbeat()
     except Exception as exc:print('operator-overlay heartbeat warning: '+str(exc),file=sys.stderr,flush=True)
     last=now
-   pulled=http('/pull',{'deviceId':did,'deviceToken':secret,'leaseMs':90000});cmd=pulled.get('command');write_heartbeat(did,'poll_ok',cmd.get('commandId') if isinstance(cmd,dict) else '')
    if cmd:
     cid=cmd['commandId']
     try:result=execute_action(cmd.get('action') or {});http('/complete',{'deviceId':did,'deviceToken':secret,'commandId':cid,'status':'completed','result':result});write_heartbeat(did,'command_completed',cid);print(json.dumps({'commandId':cid,'status':'completed'}),flush=True)
