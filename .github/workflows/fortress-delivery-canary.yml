@@ -1,0 +1,20 @@
+name: Fortress Delivery Canary
+
+on:
+  push:
+    paths:
+      - 'tools/fortress_delivery_canary.py'
+      - '.github/workflows/fortress-delivery-canary.yml'
+  pull_request:
+    paths:
+      - 'tools/fortress_delivery_canary.py'
+      - '.github/workflows/fortress-delivery-canary.yml'
+  workflow_dispatch:
+
+jobs:
+  delivery-canary:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run Noodle Crown delivery regression gate
+        run: python3 tools/fortress_delivery_canary.py
