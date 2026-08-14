@@ -80,6 +80,12 @@ const {
   homeCenterWorkStatusOperation,
 } = require('./home_center_fortress');
 const {
+  dungeonOperationEntries,
+  dungeonRunOperation,
+  dungeonStatusOperation,
+  dungeonCommandStatusOperation,
+} = require('./dungeon_run_operation');
+const {
   CALENDAR_SCOPE: SMS_CALENDAR_SCOPE,
   GMAIL_SCOPE: SMS_GMAIL_SCOPE,
   registry: smsCalendarOperationRegistry,
@@ -90,9 +96,9 @@ const DEFAULT_MCP_PUBLIC_BASE = 'https://us-central1-home-center-dclar.cloudfunc
 const DEFAULT_MCP_AUTHORIZATION_SERVER_BASE = 'https://homecentermcp-vxybsaualq-uc.a.run.app';
 const MCP_PUBLIC_BASE = process.env.HOME_CENTER_MCP_PUBLIC_BASE || DEFAULT_MCP_PUBLIC_BASE;
 const MCP_AUTHORIZATION_SERVER_BASE = process.env.HOME_CENTER_MCP_AUTHORIZATION_SERVER_BASE || DEFAULT_MCP_AUTHORIZATION_SERVER_BASE;
-const HOME_CENTER_MCP_SERVER_VERSION = '0.3.0';
+const HOME_CENTER_MCP_SERVER_VERSION = '0.3.1';
 const HOME_CENTER_CONNECTOR_SCHEMA_REVISION = '2026-08-03.voice-tiers-host-file-v1';
-const HOME_CENTER_REGISTRY_VERSION = HOME_CENTER_CONNECTOR_SCHEMA_REVISION;
+const HOME_CENTER_REGISTRY_VERSION = '2026-08-13.fortress-dungeon-v2';
 const HOME_CENTER_DIRECT_FILE_TOOLS = Object.freeze(['drive_ingest_file', 'storage_ingest_artifact']);
 const MCP_RESOURCE = `${MCP_AUTHORIZATION_SERVER_BASE}/mcp`;
 const MCP_LEGACY_RESOURCE = `${MCP_PUBLIC_BASE}/mcp`;
@@ -1223,7 +1229,7 @@ function oauthProtectedResourceMetadata() {
     service_version: HOME_CENTER_MCP_SERVER_VERSION,
     registry_version: HOME_CENTER_REGISTRY_VERSION,
     connector_schema_revision: HOME_CENTER_CONNECTOR_SCHEMA_REVISION,
-    catalog_cache_key: HOME_CENTER_CONNECTOR_SCHEMA_REVISION,
+    catalog_cache_key: HOME_CENTER_REGISTRY_VERSION,
     direct_file_tools: HOME_CENTER_DIRECT_FILE_TOOLS,
     authorization_servers: [MCP_AUTHORIZATION_SERVER_BASE],
     scopes_supported: MCP_REQUIRED_SCOPES,
@@ -5006,6 +5012,7 @@ function driveOperationRegistry() {
       ...tvtroperOperationEntries(),
       ...blenderWorkspaceOperationEntries(),
       ...filesystemOperationEntries(),
+      ...dungeonOperationEntries(),
       'artifact.delivery.materialize_receipt': {
         summary: 'Materialize supported artifacts named by one owner-scoped terminal producer receipt as hash-verified private Drive resource links without rerendering or changing human acceptance.',
         write: true,
@@ -5966,6 +5973,18 @@ async function driveOperationRunOperation({google, admin, auth, user, extra = nu
   delete operationArgs.type;
   delete operationArgs.toolName;
   delete operationArgs.args;
+  if (dungeonOperationEntries()[operation]) {
+    requireCreditGatedEmail(user && user.email, operation);
+    let result;
+    if (operation === 'dungeon_run') result = await dungeonRunOperation({admin, user, args:operationArgs});
+    if (operation === 'dungeon_status') result = await dungeonStatusOperation({admin, user, args:operationArgs});
+    if (operation === 'dungeon_command_status') result = await dungeonCommandStatusOperation({admin, user, args:operationArgs});
+    return {
+      operation, registryVersion:registry.version,
+      completed:operation === 'dungeon_command_status' && result.state === 'completed',
+      result,
+    };
+  }
   if (localVoiceOperationEntries()[operation]) {
     requireCreditGatedEmail(user && user.email, operation);
     const result = await localVoiceOperationRunOperation({admin, user, operation, args: operationArgs});

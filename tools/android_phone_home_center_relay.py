@@ -1,6 +1,6 @@
 #!/data/data/com.termux/files/usr/bin/python
 from __future__ import annotations
-import json, os, secrets, subprocess, sys, time, urllib.request, urllib.error
+import json, os, secrets, shutil, subprocess, sys, time, urllib.request, urllib.error
 from pathlib import Path
 CFG=Path(os.path.expanduser('~/.config/home-center')); PAIR=CFG/'codex-hub.json'; NODE=CFG/'phone-relay.json'
 BASE=os.getenv('HC_PHONE_RELAY_BASE','https://us-central1-home-center-dclar.cloudfunctions.net/phoneHandsRelay'); DEVICE_ID=os.getenv('HC_PHONE_DEVICE_ID','primary-phone'); POLL=float(os.getenv('HC_PHONE_RELAY_POLL_SECONDS','2.0')); OVERLAY_HEARTBEAT_SECONDS=float(os.getenv('HC_OPERATOR_OVERLAY_HEARTBEAT_SECONDS','10.0'))
@@ -15,9 +15,12 @@ from android_phone_termux_shell import execute as termux_shell_execute
 from android_phone_diagnostics import execute as diagnostics_execute
 from android_operator_overlay import execute as overlay_execute, heartbeat as overlay_heartbeat, control_gate as overlay_control_gate, screen_activity as overlay_screen_activity
 from venice_reactor import execute as venice_execute
-FACTORY_ACTIONS={'file_stat','file_hash','file_list','file_mkdir','file_copy','file_move','armory_inventory','armory_ingest'}; ARMORY_ACTIONS={'armory_doctor','armory_slice'}; WINDOW_ACTIONS={'window_status','window_probe','window_compose','window_focus','window_swap'}; STATUS_TTS_ACTIONS={'status_tts_doctor','status_say'}; TERMUX_SHELL_ACTIONS={'phone_shell'}; DIAGNOSTIC_ACTIONS={'phone_diagnostics'}; OVERLAY_ACTIONS={'operator_overlay_status','operator_overlay_start','operator_overlay_update'}; VENICE_ACTIONS={'venice_ingest','venice_observe','venice_mine','venice_status'}
+from mobile_coding_dungeon_v2 import execute as dungeon_execute
+FACTORY_ACTIONS={'file_stat','file_hash','file_list','file_mkdir','file_copy','file_move','armory_inventory','armory_ingest'}; ARMORY_ACTIONS={'armory_doctor','armory_slice'}; WINDOW_ACTIONS={'window_status','window_probe','window_compose','window_focus','window_swap'}; STATUS_TTS_ACTIONS={'status_tts_doctor','status_say'}; TERMUX_SHELL_ACTIONS={'phone_shell'}; DUNGEON_ACTIONS={'dungeon_run','dungeon_status'}; DIAGNOSTIC_ACTIONS={'phone_diagnostics'}; OVERLAY_ACTIONS={'operator_overlay_status','operator_overlay_start','operator_overlay_update'}; VENICE_ACTIONS={'venice_ingest','venice_observe','venice_mine','venice_status'}
 SCREEN_DIRECT_ACTIONS={'tap','swipe','text','keyevent','home','back','recents','launch','force_stop'}; SCREEN_WINDOW_ACTIONS={'window_compose','window_focus','window_swap'}
-DEVICE_CAPABILITIES=['phone_hands','phone_files','armory_worker','window_composer','status_tts','termux_shell','operator_overlay','local_qwen','coding_dungeon','voice','phone_diagnostics_readonly','venice_reactor','venice_audio_features']
+DUNGEON_V2_REGISTRY=CFG/'dungeon-workspaces.v2.json'
+def dungeon_v2_ready():return bool(shutil.which('python') and shutil.which('git') and shutil.which('tmux') and DUNGEON_V2_REGISTRY.is_file())
+DEVICE_CAPABILITIES=['phone_hands','phone_files','armory_worker','window_composer','status_tts','termux_shell','operator_overlay','local_qwen','coding_dungeon','voice','phone_diagnostics_readonly','venice_reactor','venice_audio_features']+(['coding_dungeon_v2'] if dungeon_v2_ready() else [])
 def _screen_profile(action):
  k=str((action or {}).get('action') or '')
  if k in SCREEN_WINDOW_ACTIONS:return {'leaseMs':2500,'yieldMs':0}
@@ -50,15 +53,11 @@ def ensure_device():
    except Exception as exc:print('phone-relay registration refresh warning: '+str(exc),file=sys.stderr,flush=True)
    return data
  token=secrets.token_urlsafe(48);reg=http('/register',{'deviceId':DEVICE_ID,'deviceToken':token,'label':'Drew Android Phone','capabilities':DEVICE_CAPABILITIES},access_token());data={'deviceId':DEVICE_ID,'deviceToken':token,'registeredAt':time.time(),'registration':reg};NODE.write_text(json.dumps(data,indent=2)+'\n');os.chmod(NODE,0o600);return data
-def dungeon_run(p):
- m=str(p.get('manifest') or '').strip();
- if not m:raise RuntimeError('dungeon_run requires manifest')
- q=subprocess.run([os.path.expanduser('~/bin/dungeon'),'run',m],text=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,timeout=int(p.get('timeoutSeconds',600)));return {'exit':q.returncode,'output':q.stdout[-20000:]}
 def dispatch(a):
  k=a.get('action')
  if k=='observe':return hands_observe(bool(a.get('ui',True)),bool(a.get('screen',False)))
  if k=='local_ask':return local_execute(str(a.get('intent') or a.get('prompt') or 'What is on my screen?'))
- if k=='dungeon_run':return dungeon_run(a)
+ if k in DUNGEON_ACTIONS:return dungeon_execute(a)
  if k in VENICE_ACTIONS:return venice_execute({'action':'observe' if k in {'venice_ingest','venice_observe'} else k.replace('venice_',''),'features':a.get('features') or a.get('audio') or {},'source':a.get('source','phone-playback'),'speak':a.get('speak',True),'limit':a.get('limit',200)})
  if k in FACTORY_ACTIONS:return factory_execute(a)
  if k in ARMORY_ACTIONS:return armory_execute(a)
@@ -74,6 +73,7 @@ def execute_action(a):
  # Android UI and therefore must not depend on Shizuku/rish or the user-owned
  # screen-control overlay gate. Keep the gate only around interactive/UI paths.
  if k in TERMUX_SHELL_ACTIONS:return termux_shell_execute(a)
+ if k in DUNGEON_ACTIONS:return dispatch(a)
  gate=overlay_control_gate()
  if k=='status_say' and gate.get('muted'):return {'ok':True,'action':'status_say','muted':True,'skipped':True}
  screen=_screen_profile(a)
@@ -91,8 +91,8 @@ def loop(once=False):
    pulled=http('/pull',{'deviceId':did,'deviceToken':secret,'leaseMs':90000});cmd=pulled.get('command')
    if cmd:
     cid=cmd['commandId']
-    try:result=execute_action(cmd.get('action') or {});http('/complete',{'deviceId':did,'deviceToken':secret,'commandId':cid,'status':'completed','result':result});print(json.dumps({'commandId':cid,'status':'completed'}),flush=True)
-    except Exception as exc:http('/complete',{'deviceId':did,'deviceToken':secret,'commandId':cid,'status':'failed','error':str(exc)[:4000]});print(json.dumps({'commandId':cid,'status':'failed','error':str(exc)}),flush=True)
+    try:result=execute_action(cmd.get('action') or {});http('/complete',{'deviceId':did,'deviceToken':secret,'commandId':cid,'leaseId':cmd.get('leaseId',''),'status':'completed','result':result});print(json.dumps({'commandId':cid,'status':'completed'}),flush=True)
+    except Exception as exc:http('/complete',{'deviceId':did,'deviceToken':secret,'commandId':cid,'leaseId':cmd.get('leaseId',''),'status':'failed','error':str(exc)[:4000]});print(json.dumps({'commandId':cid,'status':'failed','error':str(exc)}),flush=True)
    if once:return
   except KeyboardInterrupt:raise
   except Exception as exc:
