@@ -37,6 +37,11 @@ def load_module(name: str, path: Path):
 
 
 def decode_escapes(value: str) -> str:
+    value = re.sub(
+        r"\\U([0-9a-fA-F]{8})",
+        lambda match: chr(int(match.group(1), 16)),
+        value,
+    )
     return re.sub(
         r"\\u([0-9a-fA-F]{4})",
         lambda match: chr(int(match.group(1), 16)),
@@ -52,7 +57,7 @@ def adversarial_vectors() -> list[tuple[str, str, str]]:
         fields = line.split("\t")
         assert len(fields) == 3, f"invalid shared corpus row: {line!r}"
         rows.append((fields[0], decode_escapes(fields[1]), fields[2]))
-    assert len(rows) == 27
+    assert len(rows) == 31
     return rows
 
 
@@ -83,6 +88,19 @@ def assert_java_contract() -> None:
     assert parser.count("enum Kind") == 1
     enum_body = parser.split("enum Kind", 1)[1].split(";", 1)[0]
     assert enum_body.count("(\"") == 4, "event kind count changed"
+    for token in (
+        "Normalizer.Form.NFKD",
+        "Character.FORMAT",
+        "Character.NON_SPACING_MARK",
+        "Character.ENCLOSING_MARK",
+        "isDefaultIgnorable(codePoint)",
+        "compatibility.codePointAt(offset)",
+    ):
+        assert token in parser, f"Unicode classification contract missing {token!r}"
+    guard = read(TOOLS / "nicotine_tracker_guard.py")
+    assert 'unicodedata.normalize("NFKD"' in guard
+    assert '{"Cf", "Mn", "Me"}' in guard
+    assert "_default_ignorable(ord(character))" in guard
 
     parse_at = service.index("NicotineTrackerContract.parse(raw)")
     dispatch_at = service.index("OperatorState.submitAdamRequest")
@@ -117,7 +135,7 @@ def assert_java_contract() -> None:
         "output.getFD().sync()",
     ):
         assert field in ledger, f"ledger contract missing {field}"
-    assert "StandardCopyOption.REPLACE_EXISTING" not in ledger
+    assert ledger.count("StandardCopyOption.REPLACE_EXISTING") == 1
     for integrity_token in (
         "parseEvent(body)",
         "expectedRequestDigest",
@@ -128,6 +146,15 @@ def assert_java_contract() -> None:
         "MAX_EVENT_ID_ATTEMPTS = 8",
         "uniqueEventId(existing, ids)",
         "atomic local event postcondition failed",
+        "HEAD_SCHEMA = \"adam-nicotine-tracker-head-v1\"",
+        "HEAD_FILE_NAME = \"head.json\"",
+        "MAX_PENDING_FILES = 16",
+        "unexpected entry in immutable local events directory",
+        "verifyHead(root, result, allowSingleEventHeadRecovery)",
+        "head.eventCount + 1L == events.length",
+        "durable local ledger head does not match immutable events",
+        "fsyncDirectory(events)",
+        "fsyncDirectory(root)",
     ):
         assert integrity_token in ledger
     assert "nicotine-tracker-v1" in ledger
@@ -216,6 +243,11 @@ def assert_java_contract() -> None:
         "deletedEventCreatesGapAndBlocksAppend",
         "truncatedEventBlocksAppend",
         "partialDestinationFromBrokenCommitIsRemoved",
+        "deletedLastTailIsDetectedByDurableHead",
+        "renamedEventBackupIsUnexpectedAndBlocksAppend",
+        "missingHeadWithEventsBlocksAppend",
+        "corruptHeadBlocksAppend",
+        "singleCrashEventCompletesHeadBeforeNextAppend",
     ):
         assert test_token in parser_test + ledger_test
 
@@ -252,6 +284,8 @@ def assert_adam_router_quarantine() -> None:
             assert receipt["requiresOnPhoneReview"] is True
             rendered = output.getvalue().lower()
             assert sample.lower() not in rendered
+            encoded = base64.b64encode(sample.encode("utf-8")).decode("ascii").lower()
+            assert encoded not in rendered
             if not private_token.isdigit():
                 assert private_token.lower() not in rendered
     assert calls == []
@@ -350,6 +384,7 @@ def assert_build_wiring() -> None:
     installer = read(TOOLS / "install_adam_cli.sh")
     workflow = read(ROOT / ".github/workflows/operator-overlay-android.yml")
     termux_builder = read(TOOLS / "build_operator_overlay_termux.sh")
+    gradle = read(ROOT / "android/operator-overlay/app/build.gradle")
     assert "tools/test_adam_nicotine_tracker_contract.py" in installer
     assert "tools/nicotine_tracker_guard.py" in installer
     assert "python3 tools/test_adam_nicotine_tracker_contract.py" in installer
@@ -358,11 +393,31 @@ def assert_build_wiring() -> None:
     assert "feat/adam-nicotine-tank-tracker" in workflow
     for token in (
         'GRADLE_FILE="$APP/build.gradle"',
-        "HC_GRADLE_SHA256",
+        "HC_OPERATOR_OVERLAY_SOURCE_SHA",
+        "status --porcelain=v1 --untracked-files=all",
+        "HC_GRADLE_DISTRIBUTION_SHA256",
+        "d725d707bfabd4dfdc958c624003b3c80accc03f7037b5122c4b1d0ef15cecab",
+        "HC_GRADLE_TREE_SHA256",
+        "HC_GRADLE_VERIFICATION_METADATA_SHA256",
+        "HC_GRADLE_LOCKFILE_SHA256",
+        "--dependency-verification=strict",
+        "HC_JAVA_BIN",
+        "HC_JAVAC_BIN",
+        "HC_JAVA_SHA256",
+        "HC_JAVAC_SHA256",
         "HC_ANDROID_JAR_SHA256",
+        "HC_ANDROID_BUILD_TOOLS_VERSION",
+        "HC_ANDROID_BUILD_TOOLS_TREE_SHA256",
+        "HC_AAPT2_PATH",
+        "HC_AAPT2_SHA256",
+        "HC_APKSIGNER_PATH",
+        "HC_APKSIGNER_SHA256",
         "HC_OPERATOR_OVERLAY_KEYSTORE_SHA256",
         "HC_OPERATOR_OVERLAY_SIGNER_SHA256",
         "--offline --no-daemon",
+        'EXPECTED_PACKAGE="com.homecenter.operatoroverlay"',
+        "APK package id diverges from release contract",
+        'python3 "$ROOT/tools/test_adam_nicotine_tracker_contract.py"',
         "testDebugUnitTest assembleDebug",
         "APK versionCode diverges from Gradle",
         "APK signer mismatch",
@@ -372,11 +427,19 @@ def assert_build_wiring() -> None:
         "pkg install",
         "curl ",
         "wget ",
+        "sdkmanager",
+        "--write-locks",
+        "--refresh-dependencies",
         "keytool -genkeypair",
         "--version-code 3",
         "--version-name 1.2.0",
     ):
         assert forbidden not in termux_builder
+    assert re.search(r"^\s*versionCode\s+5\s*$", gradle, re.MULTILINE)
+    assert re.search(r"^\s*versionName\s+['\"]1\.3\.1['\"]\s*$", gradle, re.MULTILINE)
+    assert "dependencyLocking" in gradle
+    assert "lockAllConfigurations()" in gradle
+    assert "lockMode = LockMode.STRICT" in gradle
 
 
 def main() -> int:

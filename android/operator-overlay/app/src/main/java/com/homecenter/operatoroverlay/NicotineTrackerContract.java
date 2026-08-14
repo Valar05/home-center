@@ -1,5 +1,6 @@
 package com.homecenter.operatoroverlay;
 
+import java.text.Normalizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -111,7 +112,7 @@ final class NicotineTrackerContract {
     }
 
     static boolean isTrackerLike(String raw) {
-        String normalized = withoutFormatControls(raw).trim();
+        String normalized = classificationText(raw).trim();
         if (normalized.toLowerCase(java.util.Locale.ROOT).contains("/track")) {
             return true;
         }
@@ -122,17 +123,44 @@ final class NicotineTrackerContract {
         return LEADING_EVENT_KIND.matcher(normalized).find();
     }
 
-    private static String withoutFormatControls(String raw) {
+    private static String classificationText(String raw) {
         String value = raw == null ? "" : raw;
-        StringBuilder normalized = new StringBuilder(value.length());
-        for (int offset = 0; offset < value.length();) {
-            int codePoint = value.codePointAt(offset);
-            if (Character.getType(codePoint) != Character.FORMAT) {
+        String compatibility = Normalizer.normalize(value, Normalizer.Form.NFKD);
+        StringBuilder normalized = new StringBuilder(compatibility.length());
+        for (int offset = 0; offset < compatibility.length();) {
+            int codePoint = compatibility.codePointAt(offset);
+            int type = Character.getType(codePoint);
+            if (type != Character.FORMAT
+                    && type != Character.NON_SPACING_MARK
+                    && type != Character.ENCLOSING_MARK
+                    && !isDefaultIgnorable(codePoint)) {
                 normalized.appendCodePoint(codePoint);
             }
             offset += Character.charCount(codePoint);
         }
         return normalized.toString();
+    }
+
+    private static boolean isDefaultIgnorable(int codePoint) {
+        return codePoint == 0x034F
+                || codePoint == 0x061C
+                || between(codePoint, 0x115F, 0x1160)
+                || between(codePoint, 0x17B4, 0x17B5)
+                || between(codePoint, 0x180B, 0x180F)
+                || between(codePoint, 0x200B, 0x200F)
+                || between(codePoint, 0x202A, 0x202E)
+                || between(codePoint, 0x2060, 0x206F)
+                || codePoint == 0x3164
+                || between(codePoint, 0xFE00, 0xFE0F)
+                || codePoint == 0xFEFF
+                || codePoint == 0xFFA0
+                || between(codePoint, 0x1BCA0, 0x1BCA3)
+                || between(codePoint, 0x1D173, 0x1D17A)
+                || between(codePoint, 0xE0000, 0xE0FFF);
+    }
+
+    private static boolean between(int value, int first, int last) {
+        return value >= first && value <= last;
     }
 
     private static ParseResult oneOf(

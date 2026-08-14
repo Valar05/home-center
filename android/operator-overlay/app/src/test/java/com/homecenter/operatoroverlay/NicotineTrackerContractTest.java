@@ -121,13 +121,19 @@ public class NicotineTrackerContractTest {
                 rows++;
             }
         }
-        assertEquals(27, rows);
+        assertEquals(31, rows);
     }
 
     private static String decodeEscapes(String value) {
         StringBuilder decoded = new StringBuilder(value.length());
         for (int index = 0; index < value.length();) {
-            if (index + 5 < value.length()
+            if (index + 9 < value.length()
+                    && value.charAt(index) == '\\'
+                    && value.charAt(index + 1) == 'U') {
+                decoded.appendCodePoint(Integer.parseInt(
+                        value.substring(index + 2, index + 10), 16));
+                index += 10;
+            } else if (index + 5 < value.length()
                     && value.charAt(index) == '\\'
                     && value.charAt(index + 1) == 'u') {
                 decoded.append((char) Integer.parseInt(

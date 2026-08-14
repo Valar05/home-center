@@ -10,6 +10,7 @@ import java.nio.channels.FileLock;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
+import java.nio.file.StandardOpenOption;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
@@ -30,6 +31,8 @@ import java.util.regex.Pattern;
 final class NicotineTrackerLedger {
     static final String DIRECTORY_NAME = "nicotine-tracker-v1";
     private static final String EVENT_SCHEMA = "adam-nicotine-tracker-event-v1";
+    private static final String HEAD_SCHEMA = "adam-nicotine-tracker-head-v1";
+    private static final String HEAD_FILE_NAME = "head.json";
     private static final String SOURCE_LOCAL = "local";
     private static final String GENESIS_DIGEST =
             "0000000000000000000000000000000000000000000000000000000000000000";
@@ -41,9 +44,14 @@ final class NicotineTrackerLedger {
             Pattern.compile("^[a-f0-9]{64}$");
     private static final Pattern EVENT_FILE =
             Pattern.compile("^(\\d{20})-(evt_[a-f0-9]{32})\\.json$");
+    private static final Pattern EVENT_PENDING_FILE =
+            Pattern.compile("^\\.pending-[a-f0-9]{32}$");
+    private static final Pattern HEAD_PENDING_FILE =
+            Pattern.compile("^\\.head-pending-[a-f0-9]{32}$");
     private static final SecureRandom SECURE_RANDOM = new SecureRandom();
     private static final int MAX_EVENT_BYTES = 8192;
     private static final int MAX_EVENT_ID_ATTEMPTS = 8;
+    private static final int MAX_PENDING_FILES = 16;
 
     interface Clock {
         long wallTimeMillis();
@@ -111,6 +119,15 @@ final class NicotineTrackerLedger {
         String eventDigest;
     }
 
+    private static final class HeadCheckpoint {
+        String schema;
+        long eventCount;
+        long lastMonotonicOrder;
+        String lastEventId;
+        String lastEventDigest;
+        String chainHeadDigest;
+    }
+
     private NicotineTrackerLedger() {}
 
     static String newIdempotencyKey() {
@@ -144,8 +161,28 @@ final class NicotineTrackerLedger {
             Clock clock,
             IdSource ids,
             AtomicCommit atomicCommit) throws IOException {
+        return save(
+                appFilesDirectory,
+                draft,
+                note,
+                idempotencyKey,
+                clock,
+                ids,
+                atomicCommit,
+                NicotineTrackerLedger::atomicReplace);
+    }
+
+    static SaveResult save(
+            File appFilesDirectory,
+            NicotineTrackerContract.Draft draft,
+            String note,
+            String idempotencyKey,
+            Clock clock,
+            IdSource ids,
+            AtomicCommit eventCommit,
+            AtomicCommit headCommit) throws IOException {
         if (appFilesDirectory == null || draft == null || draft.kind == null || clock == null
-                || ids == null || atomicCommit == null) {
+                || ids == null || eventCommit == null || headCommit == null) {
             throw new IllegalArgumentException("local save arguments are required");
         }
         String cleanNote = note == null ? "" : note;
@@ -171,8 +208,8 @@ final class NicotineTrackerLedger {
         try (RandomAccessFile lockAccess = new RandomAccessFile(lockFile, "rw");
                 FileChannel lockChannel = lockAccess.getChannel();
                 FileLock ignored = lockChannel.lock()) {
-            cleanupPending(events);
-            Existing[] existing = scan(events);
+            cleanupPending(root, events);
+            Existing[] existing = scan(root, events, true);
             for (Existing event : existing) {
                 if (!idempotencyKey.equals(event.idempotencyKey)) continue;
                 if (!requestDigest.equals(event.requestDigest)) {
@@ -234,11 +271,20 @@ final class NicotineTrackerLedger {
                     output.getFD().sync();
                 }
                 try {
-                    atomicCommit.commit(pending, destination);
+                    eventCommit.commit(pending, destination);
                     if (!destination.isFile()) {
                         throw new IOException("atomic local event commit did not materialize");
                     }
-                    Existing[] verified = scan(events);
+                    fsyncDirectory(events);
+                    writeHead(
+                            root,
+                            checkpoint(
+                                    existing.length + 1L,
+                                    order,
+                                    eventId,
+                                    eventDigest),
+                            headCommit);
+                    Existing[] verified = scan(root, events, false);
                     Existing last = verified.length == 0 ? null : verified[verified.length - 1];
                     if (verified.length != existing.length + 1
                             || last == null
@@ -251,6 +297,12 @@ final class NicotineTrackerLedger {
                     if (destination.exists() && !destination.delete()) {
                         failure.addSuppressed(
                                 new IOException("failed to remove an unverified local event"));
+                    }
+                    try {
+                        fsyncDirectory(events);
+                        writeHead(root, checkpoint(existing), NicotineTrackerLedger::atomicReplace);
+                    } catch (IOException rollbackFailure) {
+                        failure.addSuppressed(rollbackFailure);
                     }
                     throw failure;
                 }
@@ -276,9 +328,17 @@ final class NicotineTrackerLedger {
         throw new IOException("random event id collision retry limit reached");
     }
 
-    private static Existing[] scan(File events) throws IOException {
-        File[] files = events.listFiles((directory, name) -> EVENT_FILE.matcher(name).matches());
+    private static Existing[] scan(
+            File root, File events, boolean allowSingleEventHeadRecovery) throws IOException {
+        File[] files = events.listFiles();
         if (files == null) throw new IOException("app-private event directory unreadable");
+        for (File file : files) {
+            if (!file.isFile() || !EVENT_FILE.matcher(file.getName()).matches()) {
+                throw new IOException(
+                        "unexpected entry in immutable local events directory: "
+                                + file.getName());
+            }
+        }
         Arrays.sort(files, Comparator.comparing(File::getName));
         Existing[] result = new Existing[files.length];
         Set<String> eventIds = new HashSet<>();
@@ -330,6 +390,7 @@ final class NicotineTrackerLedger {
             expectedPreviousDigest = event.eventDigest;
             expectedOrder = Math.addExact(expectedOrder, 1L);
         }
+        verifyHead(root, result, allowSingleEventHeadRecovery);
         return result;
     }
 
@@ -450,6 +511,169 @@ final class NicotineTrackerLedger {
         return event;
     }
 
+    private static void verifyHead(
+            File root,
+            Existing[] events,
+            boolean allowSingleEventRecovery) throws IOException {
+        File headFile = new File(root, HEAD_FILE_NAME);
+        if (!headFile.exists()) {
+            if (events.length != 0 || !allowSingleEventRecovery) {
+                throw new IOException("durable local ledger head checkpoint missing");
+            }
+            writeHead(root, checkpoint(events), NicotineTrackerLedger::atomicReplace);
+        }
+        HeadCheckpoint head = readHead(headFile);
+        if (headMatchesPrefix(head, events, events.length)) return;
+        if (allowSingleEventRecovery
+                && head.eventCount >= 0L
+                && head.eventCount + 1L == events.length
+                && headMatchesPrefix(head, events, (int) head.eventCount)) {
+            HeadCheckpoint recovered = checkpoint(events);
+            writeHead(root, recovered, NicotineTrackerLedger::atomicReplace);
+            HeadCheckpoint verified = readHead(headFile);
+            if (headMatchesPrefix(verified, events, events.length)) return;
+            throw new IOException("durable local ledger head recovery postcondition failed");
+        }
+        throw new IOException("durable local ledger head does not match immutable events");
+    }
+
+    private static boolean headMatchesPrefix(
+            HeadCheckpoint head, Existing[] events, int count) {
+        if (count < 0 || count > events.length
+                || head.eventCount != count
+                || head.lastMonotonicOrder != count
+                || !HEAD_SCHEMA.equals(head.schema)) {
+            return false;
+        }
+        if (count == 0) {
+            return head.lastEventId.isEmpty()
+                    && GENESIS_DIGEST.equals(head.lastEventDigest)
+                    && GENESIS_DIGEST.equals(head.chainHeadDigest);
+        }
+        Existing last = events[count - 1];
+        return last.monotonicOrder == count
+                && last.eventId.equals(head.lastEventId)
+                && last.eventDigest.equals(head.lastEventDigest)
+                && last.eventDigest.equals(head.chainHeadDigest);
+    }
+
+    private static HeadCheckpoint checkpoint(Existing[] events) {
+        if (events.length == 0) {
+            return checkpoint(0L, 0L, "", GENESIS_DIGEST);
+        }
+        Existing last = events[events.length - 1];
+        return checkpoint(
+                events.length,
+                last.monotonicOrder,
+                last.eventId,
+                last.eventDigest);
+    }
+
+    private static HeadCheckpoint checkpoint(
+            long count, long order, String eventId, String eventDigest) {
+        HeadCheckpoint head = new HeadCheckpoint();
+        head.schema = HEAD_SCHEMA;
+        head.eventCount = count;
+        head.lastMonotonicOrder = order;
+        head.lastEventId = eventId;
+        head.lastEventDigest = eventDigest;
+        head.chainHeadDigest = eventDigest;
+        return head;
+    }
+
+    private static HeadCheckpoint readHead(File headFile) throws IOException {
+        if (!headFile.isFile() || headFile.length() <= 0L || headFile.length() > 2048L) {
+            throw new IOException("invalid durable local ledger head length");
+        }
+        String stored = new String(
+                Files.readAllBytes(headFile.toPath()), StandardCharsets.UTF_8);
+        if (!stored.endsWith("\n") || stored.length() < 2) {
+            throw new IOException("truncated durable local ledger head");
+        }
+        String body = stored.substring(0, stored.length() - 1);
+        try {
+            JsonCursor cursor = new JsonCursor(body);
+            HeadCheckpoint head = new HeadCheckpoint();
+            cursor.expect('{');
+            head.schema = cursor.stringField("schema");
+            cursor.expect(',');
+            head.eventCount = cursor.longField("eventCount");
+            cursor.expect(',');
+            head.lastMonotonicOrder = cursor.longField("lastMonotonicOrder");
+            cursor.expect(',');
+            head.lastEventId = cursor.stringField("lastEventId");
+            cursor.expect(',');
+            head.lastEventDigest = cursor.stringField("lastEventDigest");
+            cursor.expect(',');
+            head.chainHeadDigest = cursor.stringField("chainHeadDigest");
+            cursor.expect('}');
+            cursor.requireEnd();
+            if (!HEAD_SCHEMA.equals(head.schema)
+                    || head.eventCount < 0L
+                    || head.lastMonotonicOrder < 0L
+                    || head.eventCount != head.lastMonotonicOrder
+                    || !DIGEST.matcher(head.lastEventDigest).matches()
+                    || !DIGEST.matcher(head.chainHeadDigest).matches()
+                    || (head.eventCount == 0L
+                            ? !head.lastEventId.isEmpty()
+                            : !EVENT_ID.matcher(head.lastEventId).matches())) {
+                throw new IOException("invalid durable local ledger head value");
+            }
+            if (!headJson(head).equals(body)) {
+                throw new IOException("durable local ledger head is not canonical");
+            }
+            return head;
+        } catch (IOException invalid) {
+            throw new IOException("corrupt durable local ledger head", invalid);
+        }
+    }
+
+    private static void writeHead(
+            File root, HeadCheckpoint head, AtomicCommit headCommit) throws IOException {
+        File destination = new File(root, HEAD_FILE_NAME);
+        File pending = new File(root, ".head-pending-" + randomHex(16));
+        byte[] bytes = (headJson(head) + "\n").getBytes(StandardCharsets.UTF_8);
+        try {
+            try (FileOutputStream output = new FileOutputStream(pending, false)) {
+                output.write(bytes);
+                output.getFD().sync();
+            }
+            headCommit.commit(pending, destination);
+            if (!destination.isFile()) {
+                throw new IOException("atomic durable local ledger head commit missing");
+            }
+            fsyncDirectory(root);
+            HeadCheckpoint verified = readHead(destination);
+            if (!headMatchesCheckpoint(head, verified)) {
+                throw new IOException("atomic durable local ledger head postcondition failed");
+            }
+        } finally {
+            if (pending.exists() && !pending.delete()) {
+                throw new IOException("failed to remove local head pending file");
+            }
+        }
+    }
+
+    private static boolean headMatchesCheckpoint(
+            HeadCheckpoint expected, HeadCheckpoint actual) {
+        return expected.eventCount == actual.eventCount
+                && expected.lastMonotonicOrder == actual.lastMonotonicOrder
+                && expected.lastEventId.equals(actual.lastEventId)
+                && expected.lastEventDigest.equals(actual.lastEventDigest)
+                && expected.chainHeadDigest.equals(actual.chainHeadDigest);
+    }
+
+    private static String headJson(HeadCheckpoint head) {
+        return "{"
+                + "\"schema\":\"" + HEAD_SCHEMA + "\","
+                + "\"eventCount\":" + head.eventCount + ","
+                + "\"lastMonotonicOrder\":" + head.lastMonotonicOrder + ","
+                + "\"lastEventId\":\"" + head.lastEventId + "\","
+                + "\"lastEventDigest\":\"" + head.lastEventDigest + "\","
+                + "\"chainHeadDigest\":\"" + head.chainHeadDigest + "\""
+                + "}";
+    }
+
     private static final class JsonCursor {
         private final String value;
         private int index;
@@ -550,13 +774,52 @@ final class NicotineTrackerLedger {
         }
     }
 
-    private static void cleanupPending(File events) throws IOException {
-        File[] pending = events.listFiles(
-                (directory, name) -> name.startsWith(".pending-"));
-        if (pending == null) throw new IOException("app-private event directory unreadable");
-        for (File file : pending) {
-            if (!file.delete()) throw new IOException("stale local pending event cannot be removed");
+    private static void cleanupPending(File root, File events) throws IOException {
+        cleanupPendingDirectory(events, ".pending-", EVENT_PENDING_FILE);
+        cleanupPendingDirectory(root, ".head-pending-", HEAD_PENDING_FILE);
+    }
+
+    private static void cleanupPendingDirectory(
+            File directory, String prefix, Pattern allowedName) throws IOException {
+        File[] entries = directory.listFiles();
+        if (entries == null) throw new IOException("app-private tracker directory unreadable");
+        int count = 0;
+        boolean changed = false;
+        for (File entry : entries) {
+            if (!entry.getName().startsWith(prefix)) continue;
+            count++;
+            if (count > MAX_PENDING_FILES) {
+                throw new IOException("local pending cleanup bound exceeded");
+            }
+            if (!entry.isFile() || !allowedName.matcher(entry.getName()).matches()) {
+                throw new IOException("invalid local pending entry");
+            }
+            if (!entry.delete()) throw new IOException("stale local pending file cannot be removed");
+            changed = true;
         }
+        if (changed) fsyncDirectory(directory);
+    }
+
+    private static void fsyncDirectory(File directory) throws IOException {
+        try (FileChannel channel = FileChannel.open(
+                directory.toPath(), StandardOpenOption.READ)) {
+            channel.force(true);
+        }
+    }
+
+    private static void atomicMove(File pending, File destination) throws IOException {
+        Files.move(
+                pending.toPath(),
+                destination.toPath(),
+                StandardCopyOption.ATOMIC_MOVE);
+    }
+
+    private static void atomicReplace(File pending, File destination) throws IOException {
+        Files.move(
+                pending.toPath(),
+                destination.toPath(),
+                StandardCopyOption.ATOMIC_MOVE,
+                StandardCopyOption.REPLACE_EXISTING);
     }
 
     private static String requestDigest(
@@ -681,4 +944,3 @@ final class NicotineTrackerLedger {
         return out.toString();
     }
 }
-

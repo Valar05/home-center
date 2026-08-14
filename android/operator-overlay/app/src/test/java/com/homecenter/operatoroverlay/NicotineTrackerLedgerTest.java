@@ -57,6 +57,13 @@ public class NicotineTrackerLedgerTest {
                 "\"previousEventDigest\":\"0000000000000000000000000000000000000000000000000000000000000000\""));
         assertTrue(record.contains("\"requestDigest\":"));
         assertTrue(record.contains("\"eventDigest\":"));
+        String head = read(headFile(files));
+        assertTrue(head.contains("\"schema\":\"adam-nicotine-tracker-head-v1\""));
+        assertTrue(head.contains("\"eventCount\":1"));
+        assertTrue(head.contains("\"lastMonotonicOrder\":1"));
+        assertTrue(head.contains("\"lastEventId\":\"" + first.eventId + "\""));
+        assertTrue(head.contains("\"lastEventDigest\":\"" + first.eventDigest + "\""));
+        assertTrue(head.contains("\"chainHeadDigest\":\"" + first.eventDigest + "\""));
     }
 
     @Test
@@ -239,6 +246,89 @@ public class NicotineTrackerLedgerTest {
     }
 
     @Test
+    public void deletedLastTailIsDetectedByDurableHead() throws Exception {
+        File files = Files.createTempDirectory("tracker-tail-delete").toFile();
+        FakeClock clock = new FakeClock(1000L, 50L, "UTC");
+        save(files, "/track hunger mild", key(20), eventId(20), clock);
+        save(files, "/track tank high", key(21), eventId(21), clock);
+        File[] before = eventFiles(files);
+        assertTrue(before[1].delete());
+        assertAppendBlocked(files, clock, "durable local ledger head");
+        assertEquals(1, eventFiles(files).length);
+    }
+
+    @Test
+    public void renamedEventBackupIsUnexpectedAndBlocksAppend() throws Exception {
+        File files = Files.createTempDirectory("tracker-renamed-event").toFile();
+        FakeClock clock = new FakeClock(1000L, 50L, "UTC");
+        save(files, "/track tank low", key(22), eventId(22), clock);
+        File event = eventFiles(files)[0];
+        Files.move(
+                event.toPath(),
+                new File(event.getParentFile(), event.getName() + ".bak").toPath());
+        assertAppendBlocked(files, clock, "unexpected entry");
+        assertEquals(0, eventFiles(files).length);
+    }
+
+    @Test
+    public void missingHeadWithEventsBlocksAppend() throws Exception {
+        File files = Files.createTempDirectory("tracker-missing-head").toFile();
+        FakeClock clock = new FakeClock(1000L, 50L, "UTC");
+        save(files, "/track puffs 2", key(23), eventId(23), clock);
+        assertTrue(headFile(files).delete());
+        assertAppendBlocked(files, clock, "head checkpoint missing");
+        assertEquals(1, eventFiles(files).length);
+    }
+
+    @Test
+    public void corruptHeadBlocksAppend() throws Exception {
+        File files = Files.createTempDirectory("tracker-corrupt-head").toFile();
+        FakeClock clock = new FakeClock(1000L, 50L, "UTC");
+        save(files, "/track exposure skin", key(24), eventId(24), clock);
+        Files.write(
+                headFile(files).toPath(),
+                "{}\n".getBytes(StandardCharsets.UTF_8),
+                StandardOpenOption.TRUNCATE_EXISTING);
+        assertAppendBlocked(files, clock, "corrupt durable local ledger head");
+        assertEquals(1, eventFiles(files).length);
+    }
+
+    @Test
+    public void singleCrashEventCompletesHeadBeforeNextAppend() throws Exception {
+        File files = Files.createTempDirectory("tracker-head-recovery").toFile();
+        FakeClock clock = new FakeClock(1000L, 50L, "UTC");
+        save(files, "/track hunger mild", key(25), eventId(25), clock);
+        try {
+            NicotineTrackerLedger.save(
+                    files,
+                    NicotineTrackerContract.parse("/track tank about-half").draft,
+                    "",
+                    key(26),
+                    clock,
+                    () -> eventId(26),
+                    NicotineTrackerLedgerTest::atomicMove,
+                    (pending, destination) -> {
+                        throw new SimulatedCrash();
+                    });
+            fail("simulated event-written/head-not-updated crash did not occur");
+        } catch (SimulatedCrash expected) {
+            // Process death leaves one fully committed event beyond the old durable head.
+        }
+        assertEquals(2, eventFiles(files).length);
+        assertTrue(read(headFile(files)).contains("\"eventCount\":1"));
+
+        NicotineTrackerLedger.SaveResult third = save(
+                files, "/track puffs 3", key(27), eventId(27), clock);
+        assertEquals(3L, third.monotonicOrder);
+        assertEquals(3, eventFiles(files).length);
+        String recovered = read(headFile(files));
+        assertTrue(recovered.contains("\"eventCount\":3"));
+        assertTrue(recovered.contains("\"lastMonotonicOrder\":3"));
+        assertTrue(recovered.contains("\"lastEventId\":\"" + eventId(27) + "\""));
+        assertTrue(recovered.contains("\"chainHeadDigest\":\"" + third.eventDigest + "\""));
+    }
+
+    @Test
     public void truncatedEventBlocksAppend() throws Exception {
         File files = Files.createTempDirectory("tracker-truncated").toFile();
         FakeClock clock = new FakeClock(1000L, 50L, "UTC");
@@ -398,6 +488,12 @@ public class NicotineTrackerLedgerTest {
         return result;
     }
 
+    private static File headFile(File files) {
+        return new File(
+                new File(files, NicotineTrackerLedger.DIRECTORY_NAME),
+                "head.json");
+    }
+
     private static void atomicMove(File source, File destination) throws IOException {
         Files.move(
                 source.toPath(),
@@ -431,4 +527,6 @@ public class NicotineTrackerLedgerTest {
             return zone;
         }
     }
+
+    private static final class SimulatedCrash extends Error {}
 }
