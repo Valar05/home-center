@@ -1,0 +1,52 @@
+name: Materialize Fortress unified bootstrap
+
+"on":
+  push:
+    branches:
+      - fortress-unified-bootstrap
+    paths:
+      - '.github/workflows/materialize-fortress-unified-bootstrap.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: materialize-fortress-unified-bootstrap
+  cancel-in-progress: false
+
+jobs:
+  materialize:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: fortress-unified-bootstrap
+          fetch-depth: 0
+
+      - name: Materialize reviewed payload
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat state/operator_campaigns/fortress-unified-bootstrap-v1/payload/part-*.b64 > /tmp/fortress-payload.b64
+          base64 --decode /tmp/fortress-payload.b64 > /tmp/fortress-payload.tar.xz
+          echo "7810735707017c85a68e2615bd2fd4ec57c5a8c91fecc96f4a1ff3332d62a5e7  /tmp/fortress-payload.tar.xz" | sha256sum --check --strict
+          tar -xJf /tmp/fortress-payload.tar.xz -C .
+          rm -rf state/operator_campaigns/fortress-unified-bootstrap-v1/payload
+          rm -f .github/workflows/materialize-fortress-unified-bootstrap.yml
+          python -m py_compile tools/fortress_bootstrap.py tools/test_fortress_bootstrap.py
+          python tools/test_fortress_bootstrap.py
+
+      - name: Commit final source artifacts
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'Fortress Source Materializer'
+          git config user.email 'actions@users.noreply.github.com'
+          git add -A
+          if git diff --cached --quiet; then
+            echo 'No materialization changes to commit.'
+            exit 0
+          fi
+          git commit -m 'feat(fortress): add unified native bootstrap'
+          git push origin HEAD:fortress-unified-bootstrap
