@@ -1,0 +1,60 @@
+{
+  "schema": "fortress.phone-chromium.dispatch-handoff.v1",
+  "status": "NOT_ENQUEUED",
+  "reason": "This ChatGPT automation surface exposes GitHub but not the Home Center command_center.phone_hands.devices/enqueue/get write operations. Repository persistence is coordination evidence only and is not a substitute for Home Center queue delivery.",
+  "commission": "Physical-phone Chromium control canary for PR #315",
+  "repository": "Valar05/home-center",
+  "implementationPr": 315,
+  "reviewedCodeSha": "3c2b0a5b4c32e30a1ff3df7893e6a0b5e06bef92",
+  "device": "primary-phone",
+  "requiredIngress": "Home Center -> command_center.phone_hands.enqueue -> primary-phone -> phone_shell",
+  "enqueueArgs": {
+    "deviceId": "primary-phone",
+    "idempotencyKey": "fortress-chromium-pr315-3c2b0a5-canary-v1",
+    "commandId": "phc_fortress_chromium_pr315_3c2b0a5_canary_v1",
+    "ttlMs": 3600000,
+    "action": {
+      "action": "phone_shell",
+      "cwd": "~",
+      "timeoutSeconds": 180,
+      "command": "set -euo pipefail; repo=/storage/emulated/0/Documents/GodotProjects/home-center-phone-hands; sha=3c2b0a5b4c32e30a1ff3df7893e6a0b5e06bef92; wt=\"$HOME/.cache/fortress/chromium-pr315-${sha:0:8}\"; test -d \"$repo/.git\"; cd \"$repo\"; git fetch --no-tags origin agent/phone-chromium-control-20260814; git cat-file -e \"$sha^{commit}\"; mkdir -p \"$(dirname \"$wt\")\"; if [ ! -e \"$wt/.git\" ]; then git worktree add --detach \"$wt\" \"$sha\"; fi; cd \"$wt\"; test \"$(git rev-parse HEAD)\" = \"$sha\"; python3 tools/test_android_chromium_control_contract.py; bash tools/fortress_phone_ops.sh canary"
+    }
+  },
+  "expectedPhoneReceipt": {
+    "phoneShell": {
+      "ok": true,
+      "exitCode": 0,
+      "action": "phone_shell"
+    },
+    "chromiumCanarySchema": "fortress.android-chromium-canary.v1",
+    "requiredAcceptanceFields": {
+      "browserWasForceStopped": true,
+      "reopenedAfterDeath": true,
+      "secondExplicitNavigationObserved": true,
+      "finalChromiumStateObserved": true
+    },
+    "requiredObservation": [
+      "physical primary-phone identity from Phone Hands receipt",
+      "Chromium package foreground evidence",
+      "URL-1 observed by task or UI evidence after browser death",
+      "URL-2 observed by task or UI evidence after explicit second navigation",
+      "device-side screenshot/UI/task evidence hashes or excerpts"
+    ]
+  },
+  "capabilityState": {
+    "requested": true,
+    "implemented": true,
+    "tested": false,
+    "deployed": false,
+    "callable": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "ciState": {
+    "state": "BLOCKED_UNEXECUTED",
+    "detail": "GitHub Actions jobs were created for the reviewed SHA but all observed jobs were prevented from starting by the repository Actions budget. This is not a test failure and not a pass."
+  },
+  "nextOwner": "Phone Ingress Swarm / any worker with callable Home Center phone_hands write operations",
+  "nextTransition": "Resolve primary-phone, enqueue enqueueArgs exactly once, then consume commandId with phone_hands.get after a meaningful execution interval. Do not ask Drew to type the command into Termux.",
+  "createdAt": "2026-08-14T00:20:00-05:00"
+}
