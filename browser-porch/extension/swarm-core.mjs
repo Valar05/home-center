@@ -33,11 +33,12 @@ export const WORKER_DOCTRINE = Object.freeze({
 export function newJob(text, campaignContext, fresh = false, source = 'manual', id = '') {
   const commission = String(text || '').trim();
   if (!commission) throw new Error('commission_required');
+  const explicitRecovery = source === 'explicit-recovery';
   return {
     id: id || globalThis.crypto?.randomUUID?.() || `job-${Date.now()}`,
     commission,
     context: String(campaignContext || '').trim(),
-    newWorker: fresh === true,
+    newWorker: explicitRecovery && fresh === true,
     source,
     state: 'queued',
     queuedAt: new Date().toISOString(),
