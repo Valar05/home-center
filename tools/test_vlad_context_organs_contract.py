@@ -60,8 +60,8 @@ def main():
             daemon.rish = original_rish
 
         cadence_source = inspect.getsource(daemon.context_sensor_delay)
-        assert "dumpsys battery" not in cadence_source
-        assert "rish(" not in cadence_source
+        assert 'result=rish("dumpsys battery")' not in cadence_source
+        assert "night_status.battery()" in cadence_source
         fallback_source = inspect.getsource(night_status.rish_battery)
         assert 'run([rish, "-c", "dumpsys battery"], 3)' in fallback_source
 
