@@ -6,9 +6,16 @@ STATE_DIR="${HC_PHONE_STATE_DIR:-$HOME/.local/state/home-center}"
 LOG="$STATE_DIR/phone-relay.log"
 PIDFILE="$STATE_DIR/phone-relay.pid"
 HEARTBEAT="${HC_PHONE_RELAY_HEARTBEAT:-$STATE_DIR/phone-relay-heartbeat.json}"
-MAX_HEARTBEAT_AGE="${HC_PHONE_RELAY_HEALTH_MAX_AGE_SECONDS:-15}"
+RECEIPTS="$STATE_DIR/phone-relay-recovery-receipts.jsonl"
+LATEST="$STATE_DIR/phone-relay-recovery-latest.json"
+# Relay Home Center requests may legitimately block for up to 45 seconds.
+# Allow one bounded request margin, and enough first-boot time for token refresh,
+# registration, and the first successful pull before declaring startup unproven.
+MAX_HEARTBEAT_AGE="${HC_PHONE_RELAY_HEALTH_MAX_AGE_SECONDS:-90}"
+STARTUP_WAIT_SECONDS="${HC_PHONE_RELAY_STARTUP_WAIT_SECONDS:-120}"
 PYTHON="${HC_PHONE_PYTHON:-python}"
 RELAY="$ROOT/tools/android_phone_home_center_relay.py"
+RECOVERY_REASON="status_check"
 
 mkdir -p "$STATE_DIR"
 
@@ -27,7 +34,7 @@ heartbeat_ok() {
   wanted_pid="$1"
   [ -f "$HEARTBEAT" ] || return 1
   "$PYTHON" - "$HEARTBEAT" "$wanted_pid" "$MAX_HEARTBEAT_AGE" <<'PY' >/dev/null 2>&1
-import json,os,sys,time
+import json,sys,time
 path,pid,max_age=sys.argv[1],int(sys.argv[2]),int(sys.argv[3])
 try:
     data=json.load(open(path,encoding='utf-8'))
@@ -49,7 +56,7 @@ PY
 
 wait_for_heartbeat() {
   wanted_pid="$1"
-  tries="${2:-10}"
+  tries="${2:-$STARTUP_WAIT_SECONDS}"
   i=0
   while [ "$i" -lt "$tries" ]; do
     kill -0 "$wanted_pid" 2>/dev/null || return 1
@@ -63,29 +70,51 @@ wait_for_heartbeat() {
 print_receipt() {
   status="$1"
   pids="$(relay_pids | tr '\n' ' ' | sed 's/[[:space:]]*$//')"
-  hb_state="missing"
-  hb_age=""
-  if [ -f "$HEARTBEAT" ]; then
-    hb_state="$($PYTHON - "$HEARTBEAT" <<'PY' 2>/dev/null || printf invalid
-import json,sys,time
-try:d=json.load(open(sys.argv[1],encoding='utf-8'))
-except Exception:raise SystemExit(1)
-print(str(d.get('state') or 'unknown'))
+  "$PYTHON" - "$status" "$RECOVERY_REASON" "$ROOT" "$RELAY" "$pids" "$HEARTBEAT" "$LOG" "$RECEIPTS" "$LATEST" <<'PY'
+import json,os,sys,time
+status,recovery_reason,root,relay,pids,heartbeat,log,receipts,latest=sys.argv[1:]
+now=int(time.time())
+hb={'present':False}
+if os.path.isfile(heartbeat):
+    hb['present']=True
+    try:
+        raw=json.load(open(heartbeat,encoding='utf-8'))
+        hb.update({
+            'schema':raw.get('schema'),
+            'deviceId':raw.get('deviceId'),
+            'pid':raw.get('pid'),
+            'state':raw.get('state'),
+            'lastSuccessAtEpoch':raw.get('lastSuccessAtEpoch'),
+            'ageSeconds':max(0,now-int(raw.get('lastSuccessAtEpoch') or 0)),
+        })
+    except Exception as exc:
+        hb['parseError']=type(exc).__name__
+obj={
+    'schema':'home-center-phone-relay-recovery-v1',
+    'checkedAtEpoch':now,
+    'status':status,
+    'recoveryReason':recovery_reason,
+    'deviceId':'primary-phone',
+    'repo':root,
+    'relay':relay,
+    'pids':pids.split() if pids else [],
+    'heartbeatPath':heartbeat,
+    'heartbeat':hb,
+    'log':log,
+}
+os.makedirs(os.path.dirname(receipts),exist_ok=True)
+with open(receipts,'a',encoding='utf-8') as f:
+    f.write(json.dumps(obj,sort_keys=True)+'\n')
+if os.path.getsize(receipts)>512*1024:
+    lines=open(receipts,encoding='utf-8').read().splitlines()[-1000:]
+    tmp=receipts+'.tmp';open(tmp,'w',encoding='utf-8').write('\n'.join(lines)+'\n');os.replace(tmp,receipts)
+tmp=latest+'.tmp';open(tmp,'w',encoding='utf-8').write(json.dumps(obj,indent=2,sort_keys=True)+'\n');os.replace(tmp,latest)
+print(json.dumps(obj,sort_keys=True))
 PY
-)"
-    hb_age="$($PYTHON - "$HEARTBEAT" <<'PY' 2>/dev/null || true
-import json,sys,time
-try:d=json.load(open(sys.argv[1],encoding='utf-8'))
-except Exception:raise SystemExit(1)
-print(max(0,int(time.time())-int(d.get('lastSuccessAtEpoch') or 0)))
-PY
-)"
-  fi
-  printf '{"status":"%s","repo":"%s","relay":"%s","pids":"%s","heartbeat":"%s","heartbeatState":"%s","heartbeatAgeSeconds":"%s","log":"%s","checkedAt":"%s"}\n' \
-    "$status" "$ROOT" "$RELAY" "$pids" "$HEARTBEAT" "$hb_state" "$hb_age" "$LOG" "$(date -Iseconds)"
 }
 
 if [ ! -f "$RELAY" ]; then
+  RECOVERY_REASON="missing_relay_source"
   say "BLOCKED: relay script missing: $RELAY"
   print_receipt "blocked_missing_relay"
   exit 2
@@ -94,14 +123,18 @@ fi
 if relay_alive; then
   existing_pid="$(relay_pids | head -n1)"
   if heartbeat_ok "$existing_pid"; then
+    RECOVERY_REASON="fresh_home_center_heartbeat"
     say "relay process has a fresh Home Center poll heartbeat"
     printf '%s\n' "$existing_pid" > "$PIDFILE"
     print_receipt "healthy"
     exit 0
   fi
+  RECOVERY_REASON="stale_or_unproven_existing_relay"
   say "relay process exists but Home Center liveness is not proven; attempting bounded recovery"
   for pid in $(relay_pids); do kill "$pid" 2>/dev/null || true; done
   sleep 1
+else
+  RECOVERY_REASON="relay_absent"
 fi
 
 say "starting one fresh relay instance"
@@ -111,7 +144,7 @@ nohup "$PYTHON" "$RELAY" >> "$LOG" 2>&1 < /dev/null &
 pid=$!
 printf '%s\n' "$pid" > "$PIDFILE"
 
-if wait_for_heartbeat "$pid" 15; then
+if wait_for_heartbeat "$pid" "$STARTUP_WAIT_SECONDS"; then
   say "relay started and completed a fresh Home Center poll"
   print_receipt "recovered"
   exit 0
