@@ -122,44 +122,54 @@ use_existing_checkout_if_safe(){
   return 0
 }
 
-managed_marker(){ printf '%s/.home-center-bootstrap-managed' "$SAFE_ROOT"; }
+# Ownership evidence lives beside the managed checkout, never inside it, so the
+# marker cannot dirty Git status or be mistaken for user-authored repository data.
+managed_marker(){ printf '%s.managed' "$SAFE_ROOT"; }
 
 quarantine_managed_source(){
-  local reason="$1" destination
+  local reason="$1" marker destination destination_marker
   [ -e "$SAFE_ROOT" ] || return 0
-  [ -f "$(managed_marker)" ] || fail safe_source_collision "refusing to alter unmarked path $SAFE_ROOT" 30
+  marker="$(managed_marker)"
+  [ -f "$marker" ] || fail safe_source_collision "refusing to alter unmarked path $SAFE_ROOT" 30
   destination="$SAFE_ROOT.quarantine.$RUN_ID"
-  [ ! -e "$destination" ] || fail safe_source_collision "quarantine destination already exists: $destination" 31
+  destination_marker="$destination.managed"
+  [ ! -e "$destination" ] && [ ! -e "$destination_marker" ] \
+    || fail safe_source_collision "quarantine destination already exists: $destination" 31
   say "Preserving prior managed runtime source at $destination ($reason)."
   mv "$SAFE_ROOT" "$destination" || fail safe_source_quarantine "could not preserve $SAFE_ROOT at $destination" 32
+  mv "$marker" "$destination_marker" \
+    || fail safe_source_quarantine "managed source moved to $destination but its ownership marker could not be moved" 32
 }
 
 clone_managed_source(){
-  local parent temp marker
+  local parent temp temp_marker marker
   parent="$(dirname "$SAFE_ROOT")"
   temp="$SAFE_ROOT.tmp.$RUN_ID"
-  marker="$temp/.home-center-bootstrap-managed"
+  temp_marker="$temp.managed"
+  marker="$(managed_marker)"
   mkdir -p "$parent"
-  [ ! -e "$temp" ] || fail safe_source_collision "temporary managed source already exists: $temp" 33
+  [ ! -e "$temp" ] && [ ! -e "$temp_marker" ] \
+    || fail safe_source_collision "temporary managed source already exists: $temp" 33
+  [ ! -e "$SAFE_ROOT" ] && [ ! -e "$marker" ] \
+    || fail safe_source_collision "refusing to replace existing managed source path or marker: $SAFE_ROOT" 34
   say "Cloning isolated Home Center runtime source with LFS smudge disabled: $temp"
-  GIT_LFS_SKIP_SMUDGE=1 gh repo clone "$REPO" "$temp" >>"$LOG" 2>&1 || fail clone "could not obtain $REPO at isolated path $temp; partial path preserved" 20
+  GIT_LFS_SKIP_SMUDGE=1 gh repo clone "$REPO" "$temp" >>"$LOG" 2>&1 \
+    || fail clone "could not obtain $REPO at isolated path $temp; partial path preserved" 20
   [ -d "$temp/.git" ] || fail clone "clone completed without a Git checkout at $temp" 21
-  printf 'managed-by=tools/bootstrap_adam_phone.sh\ncreated=%s\n' "$RUN_ID" >"$marker"
-  [ ! -e "$SAFE_ROOT" ] || fail safe_source_collision "refusing to replace existing path $SAFE_ROOT" 34
+  printf 'managed-by=tools/bootstrap_adam_phone.sh\ncreated=%s\n' "$RUN_ID" >"$temp_marker"
   mv "$temp" "$SAFE_ROOT" || fail clone "could not activate managed runtime source at $SAFE_ROOT" 22
+  mv "$temp_marker" "$marker" \
+    || fail clone "runtime source activated at $SAFE_ROOT but ownership marker activation failed" 23
   R="$SAFE_ROOT"
   SOURCE_MODE="isolated-managed-clone"
 }
 
 prepare_managed_source(){
-  local branch
-  if [ -e "$SAFE_ROOT" ]; then
-    [ -f "$(managed_marker)" ] || fail safe_source_collision "refusing to alter unmarked path $SAFE_ROOT" 30
-    if [ ! -d "$SAFE_ROOT/.git" ]; then
-      quarantine_managed_source "missing .git"
-      clone_managed_source
-      return 0
-    fi
+  local branch marker
+  marker="$(managed_marker)"
+  if [ -e "$SAFE_ROOT" ] || [ -e "$marker" ]; then
+    [ -d "$SAFE_ROOT/.git" ] && [ -f "$marker" ] \
+      || fail safe_source_collision "managed source path/marker pair is incomplete; refusing to alter either: $SAFE_ROOT" 30
     branch="$(repo_branch "$SAFE_ROOT")"
     if repo_dirty "$SAFE_ROOT" || [ "$branch" != "main" ]; then
       quarantine_managed_source "dirty, detached, or non-main managed source"
