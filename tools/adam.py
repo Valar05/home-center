@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """Adam body router for Home Center.
 
-Bare `adam` is installed to tools/adam_planned_venice.py. The Android overlay
-keeps explicit TERM/CHAT/CONT/VLAD/RADIO modes. RADIO is deterministic: it
-passes Drew's exact prompt to the local Spotify radio policy/compiler and never
-invokes a conversational worker, generic media key, Activity, or screen path.
+Bare `adam` is installed to tools/adam_planned_venice.py. The Android Beard exposes
+one natural-language input. This deterministic router preserves Drew's exact text,
+selects the existing bounded lane, defaults to local/included execution, and never
+selects arbitrary shell execution from natural language. RADIO remains deterministic.
 """
 from __future__ import annotations
 
@@ -20,7 +20,8 @@ ROOT = Path(__file__).resolve().parents[1]
 WORKER = ROOT / "tools" / "adam_planned_venice.py"
 RADIO_SOURCE = ROOT / "tools" / "spotify_radio.py"
 RADIO_INSTALLED = Path(os.environ.get("HC_SPOTIFY_RADIO_BIN", "~/bin/spotify-radio")).expanduser()
-ONE_SHOT_MODES = ("terminal", "text", "chat", "continue", "vlad", "radio")
+OBSERVATION_SOURCE = ROOT / "tools" / "adam_observation_ledger.py"
+ONE_SHOT_MODES = ("auto", "observation", "terminal", "text", "chat", "continue", "vlad", "radio")
 MAX_RECEIPT_TEXT = 6000
 SMS_ID = re.compile(r"^sms_[a-f0-9]{32,64}$")
 
@@ -130,13 +131,38 @@ def run_text(text: str, cwd: str, timeout: int) -> int:
         return receipt("text", False, error="text_read_failed", detail=tail(f"{type(exc).__name__}: {exc}", 1500))
 
 
+def classify_mode(text: str) -> tuple[str, str]:
+    """Deterministic Beard routing. Raw text is preserved; classification grants no new authority."""
+    lowered = " ".join(str(text or "").lower().split())
+    if re.search(r"\b(drops?|drips?|nicotine|vape|weed|cannabis|marijuana|puffs?|hits?|dabs?|gummies?|hunger|craving|pills?|meds?|medication|shower|going to bed|went to bed|no more nicotine)\b", lowered):
+        return "observation", "bounded_health_observation"
+    if re.search(r"\b(vlad|second opinion|independent critique)\b", lowered):
+        return "vlad", "explicit_second_opinion"
+    if re.search(r"\b(spotify|radio|playlist|play music|music for)\b", lowered):
+        return "radio", "bounded_music_intent"
+    if re.search(r"\b(recent texts?|text messages?|sms|message inbox)\b", lowered):
+        return "text", "bounded_read_only_text_intent"
+    if "quit silent hunt" in lowered:
+        return "continue", "quit_silent_hunt_means_continue"
+    if re.search(r"\b(continue|advance|keep working|wire|build|make|fix|repair|implement|deploy|test|run|finish|ship)\b", lowered):
+        return "continue", "work_bearing_intent"
+    return "chat", "general_cognition"
+
+
 def worker_commission(mode: str, text: str) -> str:
+    policy = (
+        "Beard contract: preserve Drew's exact raw words beside every interpretation; "
+        "uncensored language is the default; explicit sexual content appears only by Drew's request; "
+        "no paid provider or new credit spend without explicit authorization; "
+        "do not infer permission to quit, cancel, or stop the mission; 'quit Silent Hunt' means "
+        "stop being silent and continue hunting. "
+    )
     if mode == "chat":
-        return f"Conversational request from Drew. Research any material unknowns, make a bounded plan, select relevant Judgment Jars, antagonize the plan, obtain Venice PLAN_ALLOWED, then respond usefully. Do not execute unless Drew's text clearly requests action. Drew said: {text}"
+        return policy + f"Conversational request from Drew. Research any material unknowns, make a bounded plan, select relevant Judgment Jars, antagonize the plan, obtain Venice PLAN_ALLOWED, then respond usefully. Do not execute unless Drew's text clearly requests action. Drew said: {text}"
     if mode == "continue":
-        return f"Coding/work commission from Drew. Research repository truth, plan, select relevant Judgment Jars, antagonize, obtain Venice PLAN_ALLOWED, then work Codex-style, validate, and return exact evidence after Venice completion/code review. Commission: {text}"
+        return policy + f"Coding/work commission from Drew. Research repository truth, plan, select relevant Judgment Jars, antagonize, obtain Venice PLAN_ALLOWED, then work Codex-style, validate, and return exact evidence after Venice completion/code review. Commission: {text}"
     if mode == "vlad":
-        return f"Drew explicitly requests an independent critical second opinion in Vlad's role. Research material unknowns, plan the bounded analysis, select relevant Judgment Jars, antagonize assumptions, obtain Venice PLAN_ALLOWED, then return a concise governed response. Question: {text}"
+        return policy + f"Drew explicitly requests an independent critical second opinion in Vlad's role. Research material unknowns, plan the bounded analysis, select relevant Judgment Jars, antagonize assumptions, obtain Venice PLAN_ALLOWED, then return a concise governed response. Question: {text}"
     raise ValueError(mode)
 
 
@@ -148,6 +174,29 @@ def run_worker(mode: str, text: str, cwd: str, timeout: int) -> int:
     commission = worker_commission(mode, text)
     p = subprocess.run([sys.executable, str(WORKER), commission], cwd=cwd, text=True, capture_output=True)
     return receipt(mode, p.returncode == 0, worker="codex-phone-planned-venice-reviewed", jarGoverned=True, preExecutionPlanReview=True, veniceReviewed=True, daemonBackoff=True, rc=p.returncode, stdout=tail(p.stdout), stderr=tail(p.stderr))
+
+
+def run_observation(text: str, cwd: str, timeout: int) -> int:
+    if not OBSERVATION_SOURCE.is_file():
+        return receipt("observation", False, error="observation_logger_missing")
+    if not text.strip():
+        return receipt("observation", False, error="empty_request")
+    env = os.environ.copy()
+    p = subprocess.run(
+        [sys.executable, str(OBSERVATION_SOURCE), text],
+        cwd=cwd, text=True, capture_output=True, timeout=timeout, env=env,
+    )
+    parsed = _last_json_line(p.stdout)
+    return receipt(
+        "observation", p.returncode == 0 and bool(parsed.get("ok")),
+        response=parsed,
+        deterministic=True,
+        observationOnly=True,
+        doseRecommendation=False,
+        rawTextPreserved=True,
+        rc=p.returncode,
+        stderr=tail(p.stderr),
+    )
 
 
 def _radio_command(text: str) -> list[str] | None:
@@ -210,8 +259,12 @@ def run_radio(text: str, cwd: str, timeout: int) -> int:
 def run_mode(mode: str, text: str, cwd: str, timeout: int) -> int:
     if mode not in ONE_SHOT_MODES:
         return receipt(mode, False, error="unsupported_mode")
+    if mode == "auto":
+        mode, _reason = classify_mode(text)
     if mode == "terminal":
         return run_terminal(text, cwd, timeout)
+    if mode == "observation":
+        return run_observation(text, cwd, timeout)
     if mode == "text":
         return run_text(text, cwd, timeout)
     if mode == "radio":

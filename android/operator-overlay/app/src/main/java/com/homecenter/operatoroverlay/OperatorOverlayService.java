@@ -53,8 +53,6 @@ public class OperatorOverlayService extends Service {
     private final Handler handler = new Handler(Looper.getMainLooper());
     private WindowManager windowManager;
     private WindowManager.LayoutParams windowParams;
-    private WindowManager.LayoutParams guardParams;
-    private View touchGuard;
     private LinearLayout root;
     private LinearLayout details;
     private TextView dragHandle;
@@ -70,7 +68,7 @@ public class OperatorOverlayService extends Service {
     private Button muteButton;
     private Button controlButton;
     private EditText adamInput;
-    private String adamMode = "terminal";
+    private String adamMode = "auto";
     private boolean expandedText;
     private boolean confirmDisable;
     private float downRawX;
@@ -147,7 +145,6 @@ public class OperatorOverlayService extends Service {
         handler.removeCallbacksAndMessages(null);
         if (spotifyClient != null) spotifyClient.close();
         removeView(root);
-        removeView(touchGuard);
         super.onDestroy();
     }
 
@@ -245,22 +242,6 @@ public class OperatorOverlayService extends Service {
                 dp(OverlayUiPolicy.DRAG_THRESHOLD_DP),
                 ViewConfiguration.get(this).getScaledTouchSlop());
         recomputeExpandedWidth();
-
-        // This separate guard is inert by default and becomes touchable only for
-        // a bounded, explicit visible-screen operation lease.
-        touchGuard = new View(this);
-        touchGuard.setContentDescription("Remote input active");
-        touchGuard.setOnTouchListener((view, event) -> true);
-        guardParams = new WindowManager.LayoutParams(
-                WindowManager.LayoutParams.MATCH_PARENT,
-                WindowManager.LayoutParams.MATCH_PARENT,
-                WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
-                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE |
-                        WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE |
-                        WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN,
-                PixelFormat.TRANSLUCENT);
-        guardParams.gravity = Gravity.TOP | Gravity.START;
-        windowManager.addView(touchGuard, guardParams);
 
         root = new LinearLayout(this);
         root.setOrientation(LinearLayout.VERTICAL);
@@ -399,19 +380,19 @@ public class OperatorOverlayService extends Service {
         adamInput = new EditText(this);
         adamInput.setTextColor(Color.WHITE);
         adamInput.setHintTextColor(Color.rgb(155, 165, 182));
-        adamInput.setHint("Adam — terminal");
+        adamInput.setHint("Talk to Adam…");
         adamInput.setTextSize(14f);
         adamInput.setSingleLine(false);
         adamInput.setMaxLines(4);
         adamInput.setMinHeight(dp(OverlayUiPolicy.MIN_TOUCH_TARGET_DP));
         adamInput.setPadding(dp(8), dp(4), dp(8), dp(4));
         adamInput.setBackground(background(Color.rgb(32, 35, 42), Color.rgb(78, 88, 105)));
-        adamInput.setContentDescription("Adam input. Current mode terminal.");
+        adamInput.setContentDescription("Talk to Adam naturally. Routing is automatic.");
         adamInputRow.addView(adamInput, new LinearLayout.LayoutParams(
                 0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
 
-        Button adamSendButton = button("Send");
-        adamSendButton.setContentDescription("Send request to Adam using the selected explicit mode");
+        Button adamSendButton = button("Ask");
+        adamSendButton.setContentDescription("Send this natural-language request to Adam");
         adamSendButton.setOnClickListener(v -> submitAdamRequest());
         adamInputRow.addView(adamSendButton);
 
@@ -437,11 +418,9 @@ public class OperatorOverlayService extends Service {
         details.addView(screenBadge);
         details.addView(meta);
         details.addView(latest);
-        details.addView(adamModeRow);
         details.addView(adamInputRow);
         details.addView(actionRow);
         root.addView(titleRow);
-        root.addView(spotifyRow);
         root.addView(details);
 
         windowParams = new WindowManager.LayoutParams(
@@ -583,7 +562,6 @@ public class OperatorOverlayService extends Service {
         OperatorState.setOverlayHidden(this, OverlayUiPolicy.nextHidden(
                 false,
                 OverlayUiPolicy.VisibilityAction.HIDE));
-        syncTouchGuard(false);
         root.setVisibility(View.GONE);
         updateNotification();
     }
@@ -639,18 +617,6 @@ public class OperatorOverlayService extends Service {
         latest.post(this::clampAndPersistPosition);
     }
 
-    private void syncTouchGuard(boolean active) {
-        if (windowManager == null || touchGuard == null || guardParams == null) return;
-        int flags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE |
-                WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN;
-        if (!active) flags |= WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE;
-        if (guardParams.flags != flags) {
-            guardParams.flags = flags;
-            windowManager.updateViewLayout(touchGuard, guardParams);
-        }
-        touchGuard.setBackgroundColor(active ? Color.argb(10, 12, 32, 52) : Color.TRANSPARENT);
-    }
-
     private void refreshUi() {
         if (root == null) return;
         long now = System.currentTimeMillis();
@@ -663,13 +629,6 @@ public class OperatorOverlayService extends Service {
         boolean screenActive = screenActiveUntil > now;
         boolean screenYield = screenYieldUntil > now;
         boolean hidden = OperatorState.overlayHidden(this);
-
-        boolean guardActive = OverlayUiPolicy.touchGuardActive(
-                enabled,
-                online,
-                screenActive,
-                screenYield) && !hidden;
-        syncTouchGuard(guardActive);
 
         String state;
         String compactState;
@@ -758,7 +717,7 @@ public class OperatorOverlayService extends Service {
         if (text.isEmpty()) return;
         OperatorState.submitAdamRequest(this, adamMode, text, System.currentTimeMillis());
         adamInput.setText("");
-        adamInput.setHint("Adam — " + adamMode + " • sent");
+        adamInput.setHint("Talk to Adam…");
         adamInput.announceForAccessibility("Sent to Adam " + adamMode);
     }
 

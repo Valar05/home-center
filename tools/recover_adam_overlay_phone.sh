@@ -8,6 +8,7 @@ STATE="$HOME/.local/state/home-center"
 RECEIPT="$STATE/adam-overlay-recovery.json"
 APK="$PROJECT/app/build/outputs/apk/debug/app-debug.apk"
 STAGED="/data/local/tmp/home-center-operator-overlay.apk"
+PRIOR_APK="/data/local/tmp/home-center-operator-overlay-prior.apk"
 mkdir -p "$STATE"
 
 RISH_BIN="${RISH:-$(command -v rish 2>/dev/null || true)}"
@@ -43,7 +44,7 @@ start_overlay() {
   sleep 2
 }
 
-if rish "pm list packages $PACKAGE" 2>/dev/null | grep -q "package:$PACKAGE"; then
+if [ "${HC_FORCE_BUILD:-0}" != "1" ] && rish "pm list packages $PACKAGE" 2>/dev/null | grep -q "package:$PACKAGE"; then
   start_overlay
   if verify_overlay; then record 1 restart 'Existing overlay package restarted and verified on phone.'; exit 0; fi
 fi
@@ -62,18 +63,47 @@ REAL_APK="$(readlink -f "$APK")"
 SHA="$(sha256sum "$REAL_APK" | awk '{print $1}')"
 STAGED_SHA="$(rish "set -e; cp '$REAL_APK' '$STAGED'; chmod 644 '$STAGED'; sha256sum '$STAGED'" 2>&1 | grep -Eo '[0-9a-f]{64}' | tail -1)"
 [ "$SHA" = "$STAGED_SHA" ] || { record 0 blocked 'Staged APK hash mismatch.'; exit 6; }
+OLD_APK_PATH="$(rish "pm path '$PACKAGE' 2>/dev/null | sed -n 's/^package://p' | head -1" 2>/dev/null || true)"
+OLD_APK_SHA=""
+if [ -n "$OLD_APK_PATH" ]; then
+  OLD_APK_SHA="$(rish "set -e; cp '$OLD_APK_PATH' '$PRIOR_APK'; chmod 600 '$PRIOR_APK'; sha256sum '$PRIOR_APK'" 2>&1 | grep -Eo '[0-9a-f]{64}' | tail -1)"
+  [ -n "$OLD_APK_SHA" ] || { record 0 blocked 'Could not preserve and hash the exact prior APK; candidate was not installed.'; exit 7; }
+fi
 set +e
 INSTALL_OUT="$(rish "pm install -r '$STAGED'" 2>&1)"; INSTALL_RC=$?
 set -e
 printf '%s\n' "$INSTALL_OUT" > "$STATE/adam-overlay-recovery-install.txt"
 if [ $INSTALL_RC -ne 0 ] || ! printf '%s\n' "$INSTALL_OUT" | grep -q 'Success'; then
-  if printf '%s\n' "$INSTALL_OUT" | grep -Eqi 'UPDATE_INCOMPATIBLE|signatures do not match|incompatible'; then
-    rish "am force-stop $PACKAGE 2>/dev/null || true; pm uninstall $PACKAGE" >/dev/null
-    INSTALL_OUT="$(rish "pm install '$STAGED'" 2>&1)"
-    printf '%s\n' "$INSTALL_OUT" | grep -q 'Success' || { record 0 blocked 'Replacement install failed.'; exit 7; }
-  else record 0 blocked "Android install failed: ${INSTALL_OUT:0:1000}"; exit 8; fi
+  record 0 blocked "Android install failed without uninstalling the accepted package: ${INSTALL_OUT:0:1000}"
+  exit 8
 fi
 start_overlay
-rish "rm -f '$STAGED'" >/dev/null 2>&1 || true
-verify_overlay || { record 0 blocked 'Overlay installed but verification failed.'; exit 9; }
+if ! verify_overlay; then
+  if [ -z "$OLD_APK_PATH" ] || [ -z "$OLD_APK_SHA" ]; then
+    record 0 rollback_unavailable 'Candidate verification failed and no accepted prior APK existed to restore.'
+    exit 9
+  fi
+  set +e
+  ROLLBACK_OUT="$(rish "pm install -r -d '$PRIOR_APK'" 2>&1)"; ROLLBACK_RC=$?
+  set -e
+  printf '%s\n' "$ROLLBACK_OUT" > "$STATE/adam-overlay-recovery-rollback.txt"
+  if [ $ROLLBACK_RC -ne 0 ] || ! printf '%s\n' "$ROLLBACK_OUT" | grep -q 'Success'; then
+    record 0 rollback_failed "Candidate verification failed and exact-prior reinstall failed: ${ROLLBACK_OUT:0:1000}"
+    exit 10
+  fi
+  if ! start_overlay || ! verify_overlay; then
+    record 0 rollback_failed 'Exact prior APK reinstalled but prior runtime verification failed.'
+    exit 11
+  fi
+  RESTORED_APK_PATH="$(rish "pm path '$PACKAGE' 2>/dev/null | sed -n 's/^package://p' | head -1" 2>/dev/null || true)"
+  RESTORED_APK_SHA="$(rish "sha256sum '$RESTORED_APK_PATH'" 2>&1 | grep -Eo '[0-9a-f]{64}' | tail -1)"
+  if [ "$RESTORED_APK_SHA" != "$OLD_APK_SHA" ]; then
+    record 0 rollback_failed "Prior runtime returned but installed APK hash did not match preserved prior: expected=$OLD_APK_SHA actual=$RESTORED_APK_SHA"
+    exit 12
+  fi
+  rish "rm -f '$STAGED' '$PRIOR_APK'" >/dev/null 2>&1 || true
+  record 0 rolled_back "Candidate verification failed; exact prior APK restored and hash-verified: sha256=$OLD_APK_SHA"
+  exit 9
+fi
+rish "rm -f '$STAGED' '$PRIOR_APK'" >/dev/null 2>&1 || true
 record 1 local_build "Built and installed locally on phone; sha256=$SHA"
