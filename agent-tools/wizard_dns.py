@@ -146,8 +146,14 @@ def _separation_score(probe: Probe, hypotheses: list[Hypothesis]) -> float:
     return (distinct * coverage) / max(probe.cost, 0.001)
 
 
-def choose_probe(case: Case) -> Probe | None:
-    """Android decision rule: choose, do not bounce implementation trivia to Drew."""
+def choose_probe(case: Case, *, require_separation: bool = False) -> Probe | None:
+    """Choose the best remaining probe.
+
+    Normal one-step use remains permissive so partially modeled cases can still
+    gather evidence. Stable-loop use is stricter: once no remaining probe can
+    separate the surviving hypotheses, return ``None`` instead of burning every
+    leftover probe merely because it exists.
+    """
     live = survivors(case)
     candidates = [p for p in case.probes if p.name not in case.observations]
     if not candidates:
@@ -157,11 +163,14 @@ def choose_probe(case: Case) -> Probe | None:
         key=lambda p: (_separation_score(p, live), -p.cost, p.name),
         reverse=True,
     )
-    return ranked[0]
+    best = ranked[0]
+    if require_separation and _separation_score(best, live) <= 0.0:
+        return None
+    return best
 
 
-def step(case: Case) -> tuple[Probe | None, Receipt | None]:
-    probe = choose_probe(case)
+def step(case: Case, *, require_separation: bool = False) -> tuple[Probe | None, Receipt | None]:
+    probe = choose_probe(case, require_separation=require_separation)
     if probe is None:
         return None, None
     receipt = run_probe(probe)
@@ -200,7 +209,7 @@ def main() -> int:
 
     case = load_case(json.loads(Path(ns.case).read_text()))
     while True:
-        probe, receipt = step(case)
+        probe, receipt = step(case, require_separation=ns.until_stable)
         print(plain_status(case, probe, receipt))
         if receipt and ns.receipts:
             with Path(ns.receipts).open("a", encoding="utf-8") as f:
