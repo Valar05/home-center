@@ -13,6 +13,7 @@ JAR_CABINET="$REPO_ROOT/tools/judgment_jar_cabinet.py"
 JAR_REGISTRY="$REPO_ROOT/tools/judgment_jar_registry.py"
 JAR_TEST="$REPO_ROOT/tools/test_judgment_jar_registry.py"
 CONTEXT_SENSOR="$REPO_ROOT/tools/fortress_context_sensors.py"
+NIGHT_STATUS="$REPO_ROOT/tools/fortress_night_status.py"
 CONTEXT_SENSOR_TEST="$REPO_ROOT/tools/test_fortress_context_sensors.py"
 CONTEXT_INTEGRATION_TEST="$REPO_ROOT/tools/test_vlad_context_organs_contract.py"
 BIN_DIR="${HC_ADAM_BIN_DIR:-${PREFIX:-$HOME/.local}/bin}"
@@ -25,18 +26,18 @@ DAEMON="$REPO_ROOT/tools/vlad_swarm_daemon.py"
 DAEMON_SHA_FILE="$STATE_DIR/daemon-source.sha256"
 
 mkdir -p "$STATE_DIR" "$LOG_DIR" "$BIN_DIR"
-for file in "$DAEMON" "$CONTEXT_SENSOR" "$CONTEXT_SENSOR_TEST" "$CONTEXT_INTEGRATION_TEST" "$JAR_TOOL" "$JAR_CLIENT" "$JAR_COMMON" "$JAR_CABINET" "$JAR_REGISTRY" "$JAR_TEST" "$JAR_CONFIG"; do
+for file in "$DAEMON" "$CONTEXT_SENSOR" "$NIGHT_STATUS" "$CONTEXT_SENSOR_TEST" "$CONTEXT_INTEGRATION_TEST" "$JAR_TOOL" "$JAR_CLIENT" "$JAR_COMMON" "$JAR_CABINET" "$JAR_REGISTRY" "$JAR_TEST" "$JAR_CONFIG"; do
   [ -f "$file" ] || { echo "BLOCKED: Vlad component missing: $file" >&2; exit 4; }
 done
 PYTHON_BIN="$(command -v python3 || true)"
 [ -n "$PYTHON_BIN" ] || { echo "BLOCKED: python3 missing." >&2; exit 5; }
-chmod +x "$DAEMON" "$CONTEXT_SENSOR" "$JAR_TOOL" "$JAR_CLIENT"
+chmod +x "$DAEMON" "$CONTEXT_SENSOR" "$NIGHT_STATUS" "$JAR_TOOL" "$JAR_CLIENT"
 
 cd "$REPO_ROOT"
 python3 "$JAR_TEST"
 python3 "$CONTEXT_SENSOR_TEST"
 python3 "$CONTEXT_INTEGRATION_TEST"
-python3 -m py_compile "$DAEMON" "$CONTEXT_SENSOR" "$CONTEXT_SENSOR_TEST" "$CONTEXT_INTEGRATION_TEST" "$JAR_TOOL" "$JAR_CLIENT" "$JAR_COMMON" "$JAR_CABINET" "$JAR_REGISTRY"
+python3 -m py_compile "$DAEMON" "$CONTEXT_SENSOR" "$NIGHT_STATUS" "$CONTEXT_SENSOR_TEST" "$CONTEXT_INTEGRATION_TEST" "$JAR_TOOL" "$JAR_CLIENT" "$JAR_COMMON" "$JAR_CABINET" "$JAR_REGISTRY"
 "$PYTHON_BIN" "$JAR_TOOL" \
   --root "$REPO_ROOT" \
   --cache "$JAR_CACHE" \
@@ -73,28 +74,30 @@ mv -f "$TMP_JAR_BIN" "$JAR_BIN"
 "$JAR_BIN" status >/dev/null
 
 CONTEXT_SENSOR_SHA="$(sha256sum "$CONTEXT_SENSOR" | awk '{print $1}')"
-DAEMON_SHA="$(cat "$DAEMON" "$CONTEXT_SENSOR" | sha256sum | awk '{print $1}')"
+NIGHT_STATUS_SHA="$(sha256sum "$NIGHT_STATUS" | awk '{print $1}')"
+DAEMON_SHA="$(cat "$DAEMON" "$CONTEXT_SENSOR" "$NIGHT_STATUS" | sha256sum | awk '{print $1}')"
 INSTALLED_DAEMON_SHA="$(cat "$DAEMON_SHA_FILE" 2>/dev/null || true)"
 SOURCE_CHANGED=0
 [ "$DAEMON_SHA" = "$INSTALLED_DAEMON_SHA" ] || SOURCE_CHANGED=1
 
 write_receipt(){
   local ok="$1" manager="$2" detail="$3"
-  python3 - "$RECEIPT" "$ok" "$manager" "$detail" "$REPO_ROOT" "$JAR_CACHE" "$JAR_CONFIG" "$JAR_SYNC_RECEIPT" "$JAR_BIN" "$DAEMON_SHA" "$CONTEXT_SENSOR_SHA" <<'PY'
+  python3 - "$RECEIPT" "$ok" "$manager" "$detail" "$REPO_ROOT" "$JAR_CACHE" "$JAR_CONFIG" "$JAR_SYNC_RECEIPT" "$JAR_BIN" "$DAEMON_SHA" "$CONTEXT_SENSOR_SHA" "$NIGHT_STATUS_SHA" <<'PY'
 import json,os,sys,time
-path,ok,manager,detail,root,jar_cache,jar_config,jar_sync_path,jar_bin,daemon_sha,context_sensor_sha=sys.argv[1:]
+path,ok,manager,detail,root,jar_cache,jar_config,jar_sync_path,jar_bin,daemon_sha,context_sensor_sha,night_status_sha=sys.argv[1:]
 try:
     jar_sync=json.load(open(jar_sync_path,encoding='utf-8'))
 except Exception as exc:
     jar_sync={'ok':False,'complete':False,'error':f'{type(exc).__name__}: {exc}'}
 obj={
-  'schema':'vlad-swarm-service-v5-context-organs',
+  'schema':'vlad-swarm-service-v6-context-organs-bounded-battery',
   'ok':ok=='1' and jar_sync.get('ok') is True,
   'manager':manager,
   'detail':detail,
   'repoRoot':root,
   'daemonBundleSha256':daemon_sha,
   'contextSensorSha256':context_sensor_sha,
+  'nightCoreBatterySha256':night_status_sha,
   'atEpoch':int(time.time()),
   'contextOrgans':{
     'schema':'fortress.context-senses.v2',
@@ -102,6 +105,7 @@ obj={
     'wakeRequest':'scheduler-wake-request.json',
     'wakeReceipts':'scheduler-wake-receipts.jsonl',
     'mutationAuthority':'chatgpt_scheduler_or_chromium_actuator_only',
+    'batteryCadence':'fortress_night_status.battery termux/sysfs first; rish fallback <=3s',
     'testsPassed':ok=='1',
   },
   'judgmentJars':{
@@ -163,7 +167,7 @@ EOF2
   sleep 1
   if sv status vlad-swarm 2>/dev/null | grep -q '^run:'; then
     mark_daemon_sha
-    write_receipt 1 runit "vlad-swarm running with deterministic context organs + Home Center Judgment Jar sync"
+    write_receipt 1 runit "vlad-swarm running with deterministic context organs + bounded Night Core battery cadence + Home Center Judgment Jar sync"
   else
     write_receipt 0 runit "vlad-swarm is not running"
     exit 2
@@ -196,7 +200,7 @@ else
   sleep 1
   if kill -0 "$(cat "$PIDFILE")" 2>/dev/null; then
     mark_daemon_sha
-    write_receipt 1 pidfile "vlad-swarm started pid=$(cat "$PIDFILE") with deterministic context organs"
+    write_receipt 1 pidfile "vlad-swarm started pid=$(cat "$PIDFILE") with deterministic context organs + bounded Night Core battery cadence"
   else
     write_receipt 0 pidfile "vlad-swarm exited during startup"
     exit 3
