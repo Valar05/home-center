@@ -94,6 +94,7 @@ def test_dirty_checkout_and_collision() -> None:
         (home / "bin").mkdir(parents=True)
         make_fake_gh(fake_bin)
         safe = home / ".local" / "share" / "home-center" / "runtime-source"
+        safe_marker = Path(str(safe) + ".managed")
         env = os.environ.copy()
         env.update({
             "HOME": str(home),
@@ -124,9 +125,20 @@ def test_dirty_checkout_and_collision() -> None:
         assert receipt["isolatedManagedSource"] is True
         assert receipt["destructiveUserResetUsed"] is False
         assert receipt["destructiveUserDeleteUsed"] is False
-        assert (safe / ".home-center-bootstrap-managed").is_file()
+        assert safe_marker.is_file()
+        assert not (safe / ".home-center-bootstrap-managed").exists()
+        assert run(["git", "status", "--porcelain=v1", "--untracked-files=all"], cwd=safe).stdout == ""
         assert run(["git", "rev-parse", "HEAD"], cwd=safe).stdout.strip() == origin_head
         assert (home / "bin" / "adam").is_file()
+
+        # A repeat run must reuse/fast-forward the marked source rather than
+        # quarantining it as dirty because of its own ownership marker.
+        run(["bash", str(BOOTSTRAP)], env=env)
+        repeat_receipt = json.loads(receipt_path.read_text(encoding="utf-8"))
+        assert repeat_receipt["ok"] is True
+        assert repeat_receipt["sourceMode"] == "isolated-managed-fast-forward"
+        assert not list(safe.parent.glob(safe.name + ".quarantine.*"))
+        assert run(["git", "status", "--porcelain=v1", "--untracked-files=all"], cwd=dirty).stdout == before_status
 
         collision = home / "collision"
         collision.mkdir()
