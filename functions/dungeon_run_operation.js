@@ -1,5 +1,6 @@
 'use strict';
 
+const {createHash} = require('node:crypto');
 const {enqueuePhoneCommand, getPhoneCommand} = require('./phone_hands_relay');
 const {callerFromHomeCenterUser} = require('./home_center_fortress');
 const {
@@ -26,8 +27,8 @@ function boundedCommand(record) {
   };
 }
 
-async function dungeonRunOperation({admin, user, args = {}} = {}) {
-  const caller = callerFromHomeCenterUser(user, 'Adam');
+async function dungeonRunOperation({admin, user, caller: suppliedCaller, args = {}} = {}) {
+  const caller = suppliedCaller || callerFromHomeCenterUser(user, 'Adam');
   const action = cleanDungeonRun({...args, action: 'dungeon_run', schema: args.schema || DUNGEON_RUN_SCHEMA});
   const record = await enqueuePhoneCommand(admin, caller, {
     idempotencyKey: action.requestId,
@@ -107,10 +108,112 @@ function dungeonOperationEntries() {
   };
 }
 
+
+const DUNGEON_WORK_ROUTE = 'fortress_dungeon_v2';
+
+function campaignIdFromProject(value) {
+  const cleaned = String(value || '').toLowerCase().replace(/[^a-z0-9._:-]+/g, '-').replace(/^-+|-+$/g, '');
+  return (cleaned.length >= 3 ? cleaned : 'fortress-online').slice(0, 100);
+}
+
+function compileDungeonWorkAction({caller, work, args = {}} = {}) {
+  if (!caller || !caller.ownerKey) throw Object.assign(new Error('dungeon work requires authenticated owner authority'), {status:401});
+  if (!work || work.route !== DUNGEON_WORK_ROUTE) throw Object.assign(new Error(`dungeon work route must be ${DUNGEON_WORK_ROUTE}`), {status:400});
+  if (typeof args.requestId !== 'string' || args.requestId.trim().length < 3) {
+    throw Object.assign(new Error('fortress_dungeon_v2 requires a stable home_center_work_request requestId'), {status:400});
+  }
+  const allowedKinds = new Set(['implement','repair','verify','review','research']);
+  const taskKind = args.dungeonTaskKind || (allowedKinds.has(work.taskKind) ? work.taskKind : 'implement');
+  const requestId = `hcw-${createHash('sha256').update(`${caller.ownerKey}:${args.requestId.trim()}:${work.taskId}:${work.requestHash}`).digest('hex').slice(0, 40)}`;
+  return cleanDungeonRun({
+    requestId,
+    deviceId: 'primary-phone',
+    campaignId: campaignIdFromProject(work.projectId),
+    workspaceId: args.dungeonWorkspaceId || 'home-center',
+    objective: work.requestText,
+    acceptance: args.acceptance,
+    constraints: args.constraints || [],
+    taskKind,
+    lane: args.dungeonLane || 'standard',
+    ...(args.dungeonCriticalReason ? {criticalReason:args.dungeonCriticalReason} : {}),
+    budgetProfile: args.dungeonBudgetProfile || 'standard',
+    verificationProfile: args.dungeonVerificationProfile || 'default',
+    inferencePolicy: DUNGEON_INFERENCE_POLICY,
+    publicationPolicy: DUNGEON_PUBLICATION_POLICY,
+  });
+}
+
+function advanceDungeonWork(work, state, note, updates = {}, now = Date.now()) {
+  const history = Array.isArray(work.stateHistory) ? work.stateHistory.slice(-119) : [];
+  history.push({state, atMs:now, note:String(note || '').slice(0, 1000)});
+  return {...work, ...updates, state, updatedAtMs:now, stateHistory:history};
+}
+
+function boundedDungeonAdmission(admission = {}) {
+  const result = admission && typeof admission.result === 'object' && admission.result ? admission.result : {};
+  return {
+    schema: 'home-center.fortress-dungeon-dispatch.v1',
+    route: DUNGEON_WORK_ROUTE,
+    commandId: String(admission.commandId || ''),
+    relayState: String(admission.state || ''),
+    requestHash: String(admission.requestHash || ''),
+    attached: Boolean(admission.attached),
+    jobId: String(result.jobId || ''),
+    dungeonState: String(result.state || ''),
+    tmuxSession: String(result.tmuxSession || ''),
+    statusRef: String(result.statusRef || ''),
+    inferencePolicy: DUNGEON_INFERENCE_POLICY,
+    publicationPolicy: DUNGEON_PUBLICATION_POLICY,
+    tokenDroughtControl: 'phone-local-fail-closed',
+    capabilityMeaning: 'A SUCCEEDED dungeon state means a verified isolated checkpoint only; it does not mean pushed, merged, deployed, installed, delivered, or human-accepted.',
+  };
+}
+
+async function executeDungeonWorkRequest({admin, caller, args = {}, work, now = Date.now(), runOperation = dungeonRunOperation} = {}) {
+  const action = compileDungeonWorkAction({caller, work, args});
+  let admission;
+  try {
+    admission = await runOperation({admin, caller, args:action});
+  } catch (error) {
+    const message = String(error && error.message || error || 'dungeon admission failed').slice(0, 1000);
+    return advanceDungeonWork(work, 'CONTINUE_REQUIRED', `Dungeon admission remains pending: ${message}`, {
+      resultSummary: `CONTINUE_REQUIRED: ${message}`,
+      result: {
+        schema:'home-center.fortress-dungeon-dispatch.v1', route:DUNGEON_WORK_ROUTE,
+        dungeonRequestId:action.requestId, relayState:'unavailable', error:message,
+        inferencePolicy:DUNGEON_INFERENCE_POLICY, publicationPolicy:DUNGEON_PUBLICATION_POLICY,
+        tokenDroughtControl:'phone-local-fail-closed',
+      },
+    }, now);
+  }
+  const bounded = boundedDungeonAdmission(admission);
+  let state = 'QUEUED';
+  if (bounded.relayState === 'leased') state = 'RUNNING';
+  if (bounded.relayState === 'completed') {
+    if (bounded.dungeonState === 'SUCCEEDED') state = 'SUCCEEDED';
+    else if (bounded.dungeonState === 'FAILED' || bounded.dungeonState === 'QUARANTINED') state = 'FAILED';
+    else state = 'RUNNING';
+  }
+  if (bounded.relayState === 'failed' || bounded.relayState === 'expired') state = 'CONTINUE_REQUIRED';
+  const refs = Array.from(new Set([...(work.subsystemRefs || []), ...(bounded.commandId ? [`home-center://dungeon-command/${bounded.commandId}`] : []), ...(bounded.statusRef ? [bounded.statusRef] : [])]));
+  const note = state === 'SUCCEEDED'
+    ? 'Phone-local deterministic verification produced an isolated checkpoint; publication and deployment remain separate.'
+    : `Dungeon relay=${bounded.relayState || 'unknown'} local=${bounded.dungeonState || 'not-yet-reported'}.`;
+  return advanceDungeonWork(work, state, note, {
+    subsystemRefs:refs,
+    resultSummary:note,
+    result:{...bounded, dungeonRequestId:action.requestId},
+  }, now);
+}
+
 module.exports = {
   dungeonOperationEntries,
   dungeonRunOperation,
   dungeonStatusOperation,
   dungeonCommandStatusOperation,
   boundedCommand,
+  DUNGEON_WORK_ROUTE,
+  compileDungeonWorkAction,
+  executeDungeonWorkRequest,
+  boundedDungeonAdmission,
 };

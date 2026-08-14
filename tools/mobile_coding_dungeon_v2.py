@@ -29,6 +29,8 @@ DUNGEON_STATUS_SCHEMA = "home-center.dungeon-status.v2"
 INFERENCE_POLICY = "codex-local-low-deterministic-v1"
 PUBLICATION_POLICY = "checkpoint-only"
 WORKSPACE_REGISTRY_SCHEMA = "home-center.dungeon-workspaces.v2"
+TOKEN_DROUGHT_SCHEMA = "home-center.fortress-token-drought.v1"
+TOKEN_DROUGHT_KEYS = {"schema", "enabled", "reason", "updatedAtMs"}
 RUN_KEYS = {
     "action", "schema", "requestId", "deviceId", "campaignId", "workspaceId",
     "objective", "acceptance", "constraints", "taskKind", "lane", "criticalReason",
@@ -70,6 +72,10 @@ def default_state_root() -> Path:
 
 def default_registry_path() -> Path:
     return Path(os.environ.get("HC_DUNGEON_V2_WORKSPACES", "~/.config/home-center/dungeon-workspaces.v2.json")).expanduser()
+
+
+def default_token_drought_path() -> Path:
+    return Path(os.environ.get("HC_FORTRESS_TOKEN_DROUGHT", "~/.config/home-center/fortress-token-drought.v1.json")).expanduser()
 
 
 def canonical_json(value: Any) -> str:
@@ -210,6 +216,80 @@ def atomic_write(path: Path, value: dict[str, Any]) -> None:
         os.fsync(directory)
     finally:
         os.close(directory)
+
+
+def bounded_token_drought(value: Any) -> dict[str, Any]:
+    body = value if isinstance(value, dict) else {}
+    return {
+        "schema": TOKEN_DROUGHT_SCHEMA,
+        "active": bool(body.get("active", False)),
+        "valid": bool(body.get("valid", True)),
+        "source": str(body.get("source") or "unknown")[:80],
+        "reason": str(body.get("reason") or "")[:600],
+        "updatedAtMs": int(body.get("updatedAtMs") or 0),
+    }
+
+
+def token_drought_status(path: Path | None = None) -> dict[str, Any]:
+    sentinel = (path or default_token_drought_path()).expanduser().resolve()
+    if not sentinel.exists():
+        return {
+            "schema": TOKEN_DROUGHT_SCHEMA,
+            "active": False,
+            "valid": True,
+            "source": "absent-default-off",
+            "reason": "No local token-drought sentinel is present.",
+            "updatedAtMs": 0,
+            "path": str(sentinel),
+        }
+    try:
+        value = json.loads(sentinel.read_text(encoding="utf-8"))
+        if not isinstance(value, dict) or set(value) != TOKEN_DROUGHT_KEYS:
+            raise ValueError("sentinel keys are invalid")
+        if value.get("schema") != TOKEN_DROUGHT_SCHEMA:
+            raise ValueError("sentinel schema is invalid")
+        if not isinstance(value.get("enabled"), bool):
+            raise ValueError("enabled must be boolean")
+        if not isinstance(value.get("reason"), str) or not 1 <= len(value["reason"].strip()) <= 600:
+            raise ValueError("reason is invalid")
+        if not isinstance(value.get("updatedAtMs"), int) or value["updatedAtMs"] < 0:
+            raise ValueError("updatedAtMs is invalid")
+    except Exception as exc:
+        return {
+            "schema": TOKEN_DROUGHT_SCHEMA,
+            "active": True,
+            "valid": False,
+            "source": "invalid-local-sentinel",
+            "reason": f"Invalid token-drought sentinel fails closed: {type(exc).__name__}.",
+            "updatedAtMs": 0,
+            "path": str(sentinel),
+        }
+    return {
+        "schema": TOKEN_DROUGHT_SCHEMA,
+        "active": value["enabled"],
+        "valid": True,
+        "source": "local-sentinel",
+        "reason": value["reason"].strip(),
+        "updatedAtMs": value["updatedAtMs"],
+        "path": str(sentinel),
+    }
+
+
+def set_token_drought(enabled: bool, reason: str, path: Path | None = None) -> dict[str, Any]:
+    sentinel = (path or default_token_drought_path()).expanduser().resolve()
+    payload = {
+        "schema": TOKEN_DROUGHT_SCHEMA,
+        "enabled": bool(enabled),
+        "reason": clean_text(reason, "reason", 4, 600),
+        "updatedAtMs": epoch_ms(),
+    }
+    atomic_write(sentinel, payload)
+    os.chmod(sentinel, 0o600)
+    return token_drought_status(sentinel)
+
+
+def paid_inference_allowed(path: Path | None = None) -> bool:
+    return not token_drought_status(path)["active"]
 
 
 def append_event(state_root: Path, job_id: str, kind: str, **data: Any) -> None:
@@ -479,6 +559,7 @@ def verify(worktree: Path, workspace: dict[str, Any], profile: str, state_root: 
 
 
 def bounded_job(job: dict[str, Any]) -> dict[str, Any]:
+    drought = bounded_token_drought(job.get("tokenDrought"))
     return {
         "jobId": job["jobId"],
         "campaignId": job["action"]["campaignId"],
@@ -493,6 +574,8 @@ def bounded_job(job: dict[str, Any]) -> dict[str, Any]:
         "executor": job.get("executor", ""),
         "reason": str(job.get("reason") or "")[:1000],
         "verificationOk": bool((job.get("verification") or {}).get("ok")),
+        "tokenDrought": drought,
+        "paidInferenceAllowed": not drought["active"],
     }
 
 
@@ -631,7 +714,16 @@ def run_job(state_root: Path, registry_path: Path, job_id: str) -> int:
                 stage_timeout = BUDGETS[action["budgetProfile"]]["stageSeconds"]
                 executor = ""
                 result: dict[str, Any] | None = None
-                codex = shutil.which("codex")
+                drought = token_drought_status()
+                bounded_drought = bounded_token_drought(drought)
+                job = transition(
+                    root, job, "RUNNING", "inference_policy",
+                    "Paid inference is disabled by the local token-drought sentinel." if drought["active"] else "Local inference policy permits the fixed Codex stage.",
+                    tokenDrought=bounded_drought, paidInferenceAllowed=not drought["active"],
+                )
+                if drought["active"]:
+                    append_event(root, job_id, "paid_inference_skipped", executor="codex_exec", reason=drought["reason"], valid=drought["valid"])
+                codex = None if drought["active"] else shutil.which("codex")
                 codex_timeout = remaining_seconds(deadline, stage_timeout)
                 if codex and codex_timeout > 0:
                     argv = codex_argv(prompt)
@@ -692,7 +784,15 @@ def doctor(registry_path: Path | None = None) -> dict[str, Any]:
     registry = (registry_path or default_registry_path()).expanduser().resolve()
     checks = {name: bool(shutil.which(name)) for name in ("python", "git", "tmux", "codex")}
     checks["workspaceRegistry"] = registry.is_file()
-    return {"schema": "home-center.dungeon-doctor.v2", "ok": checks["python"] and checks["git"] and checks["tmux"] and checks["workspaceRegistry"], "checks": checks, "registry": str(registry)}
+    drought = token_drought_status()
+    return {
+        "schema": "home-center.dungeon-doctor.v2",
+        "ok": checks["python"] and checks["git"] and checks["tmux"] and checks["workspaceRegistry"],
+        "checks": checks,
+        "registry": str(registry),
+        "tokenDrought": bounded_token_drought(drought),
+        "paidInferenceAllowed": not drought["active"],
+    }
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -704,9 +804,25 @@ def main(argv: list[str] | None = None) -> int:
     run.add_argument("--registry", required=True)
     check = sub.add_parser("doctor")
     check.add_argument("--registry")
+    drought = sub.add_parser("drought")
+    drought_sub = drought.add_subparsers(dest="drought_command", required=True)
+    drought_status = drought_sub.add_parser("status")
+    drought_status.add_argument("--path")
+    for name in ("on", "off"):
+        command = drought_sub.add_parser(name)
+        command.add_argument("--reason", required=True)
+        command.add_argument("--path")
     args = parser.parse_args(argv)
     if args.command == "run-job":
         return run_job(Path(args.state_root), Path(args.registry), args.job_id)
+    if args.command == "drought":
+        drought_path = Path(args.path) if args.path else None
+        if args.drought_command == "status":
+            result = token_drought_status(drought_path)
+        else:
+            result = set_token_drought(args.drought_command == "on", args.reason, drought_path)
+        print(json.dumps(result, indent=2))
+        return 0
     print(json.dumps(doctor(Path(args.registry) if args.registry else None), indent=2))
     return 0
 

@@ -5,6 +5,7 @@ import {createRequire} from 'node:module';
 const require = createRequire(import.meta.url);
 const contract = require('../functions/dungeon_run_contract');
 const relayModule = require('../functions/phone_hands_relay');
+const dungeonOperationModule = require('../functions/dungeon_run_operation');
 const relay = fs.readFileSync('functions/phone_hands_relay.js', 'utf8');
 const operation = fs.readFileSync('functions/dungeon_run_operation.js', 'utf8');
 const mcp = fs.readFileSync('functions/home_center_mcp.js', 'utf8');
@@ -28,13 +29,16 @@ if (queueFields !== 'ownerKey,deviceId,status,priorityRank,createdAtMs,commandId
 
 for (const needle of [
   'dungeon_run', 'dungeon_status', 'dungeon_command_status', 'enqueuePhoneCommand',
-  'callerFromHomeCenterUser', 'checkpoint-only',
+  'callerFromHomeCenterUser', 'checkpoint-only', 'fortress_dungeon_v2',
+  'compileDungeonWorkAction', 'executeDungeonWorkRequest', 'phone-local-fail-closed',
 ]) if (!operation.includes(needle)) throw new Error(`direct dungeon operation missing ${needle}`);
 
 for (const needle of [
   "require('./dungeon_run_operation')", '...dungeonOperationEntries()',
   "operation === 'dungeon_run'", "operation === 'dungeon_status'",
   "operation === 'dungeon_command_status'", '2026-08-13.fortress-dungeon-v2',
+  'DUNGEON_WORK_ROUTE', 'executeDungeonWorkRequest', 'defaultFortressWorkExecutor',
+  'dungeonBudgetProfile', 'dungeonVerificationProfile',
 ]) if (!mcp.includes(needle)) throw new Error(`stable drive_operation ingress missing ${needle}`);
 if (!operation.includes('fresh unique snapshot id for each poll')) {
   throw new Error('dungeon_status must advertise fresh immutable snapshot identity');
@@ -54,7 +58,8 @@ if (phone.indexOf("if k in DUNGEON_ACTIONS:return dispatch(a)") > phone.indexOf(
 for (const needle of [
   'shell=False', 'codex-local-low-deterministic-v1', 'workspace-write',
   'ask-for-approval', 'checkpoint-only', 'prepare_worktree', 'launch_tmux',
-  'QUARANTINED', 'phone-state://coding-dungeon-v2',
+  'QUARANTINED', 'phone-state://coding-dungeon-v2', 'TOKEN_DROUGHT_SCHEMA',
+  'paid_inference_skipped', 'codex = None if drought["active"]', 'drought_sub',
 ]) if (!runner.includes(needle)) throw new Error(`phone-local coordinator missing ${needle}`);
 for (const forbidden of ["shell=True", "subprocess.run(cmd", "get('manifest')", "get(\"manifest\")"] ) {
   if (runner.includes(forbidden)) throw new Error(`v2 coordinator contains forbidden execution surface: ${forbidden}`);
@@ -73,6 +78,42 @@ const standard = contract.cleanDungeonRun({
   objective:'Perform one ordinary bounded maintenance task.', acceptance:['Verification passes.'],
 });
 const status = contract.cleanDungeonStatus({requestId:'status-campaign-0001',jobId:'dng_0123456789abcdef01234567'});
+const work = {
+  taskId:'task-fortress-zero-token', ownerKey:'owner-test', projectId:'fortress-online',
+  route:'fortress_dungeon_v2', requestText:'Continue the exact Fortress mission without paid inference.',
+  requestHash:'a'.repeat(64), taskKind:'implement', stateHistory:[], subsystemRefs:[],
+};
+const workArgs = {
+  requestId:'fortress-work-zero-token-0001', acceptance:['A verified isolated checkpoint exists.'],
+  constraints:['Remote callers cannot clear local token drought.'], dungeonLane:'critical',
+  dungeonCriticalReason:'Paid inference is exhausted and deterministic continuation is required.',
+  dungeonBudgetProfile:'probe', dungeonVerificationProfile:'fast',
+};
+const compiledWork = dungeonOperationModule.compileDungeonWorkAction({caller:{ownerKey:'owner-test'},work,args:workArgs});
+if (compiledWork.inferencePolicy !== 'codex-local-low-deterministic-v1' || compiledWork.publicationPolicy !== 'checkpoint-only') {
+  throw new Error('work request did not preserve fixed inference/publication policy');
+}
+if ('tokenDrought' in compiledWork || 'paidInferenceAllowed' in compiledWork) {
+  throw new Error('remote work request gained token-drought mutation authority');
+}
+await assertRejects(async()=>dungeonOperationModule.compileDungeonWorkAction({
+  caller:{ownerKey:'owner-test'},work,args:{...workArgs,acceptance:undefined},
+}),/acceptance/);
+const queuedWork = await dungeonOperationModule.executeDungeonWorkRequest({
+  admin:{}, caller:{ownerKey:'owner-test'}, work, args:workArgs, now:1700000000000,
+  runOperation:async({args})=>({commandId:'phd_test',state:'queued',requestHash:contract.dungeonRequestHash(args),attached:false,result:null}),
+});
+if (queuedWork.state !== 'QUEUED' || queuedWork.result.commandId !== 'phd_test') throw new Error('work queue admission state is invalid');
+const checkpointWork = await dungeonOperationModule.executeDungeonWorkRequest({
+  admin:{}, caller:{ownerKey:'owner-test'}, work, args:workArgs, now:1700000000001,
+  runOperation:async({args})=>({
+    commandId:'phd_done',state:'completed',requestHash:contract.dungeonRequestHash(args),attached:true,
+    result:{jobId:'dng_0123456789abcdef01234567',state:'SUCCEEDED',tmuxSession:'hc-dng-0123456789abcdef',statusRef:'phone-state://coding-dungeon-v2/jobs/dng_0123456789abcdef01234567'},
+  }),
+});
+if (checkpointWork.state !== 'SUCCEEDED') throw new Error('verified checkpoint did not close the bounded work item');
+if (!checkpointWork.result.capabilityMeaning.includes('does not mean pushed, merged, deployed')) throw new Error('checkpoint truth boundary was lost');
+
 const now = Date.now();
 const chosen = relayModule.selectQueuedCommand([
   {commandId:'ordinary', action:standard, createdAtMs:now-1000, expiresAtMs:now+10000},

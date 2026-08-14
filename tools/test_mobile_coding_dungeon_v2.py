@@ -42,6 +42,22 @@ assert normalized["inferencePolicy"] == dungeon.INFERENCE_POLICY
 assert normalized["publicationPolicy"] == "checkpoint-only"
 assert dungeon.job_id_for(normalized["requestId"]) == dungeon.job_id_for(normalized["requestId"])
 assert dungeon.session_for(normalized["requestId"]).startswith("hc-dng-")
+assert "tokenDrought" not in dungeon.RUN_KEYS
+
+with tempfile.TemporaryDirectory() as drought_dir:
+    sentinel = Path(drought_dir) / "fortress-token-drought.v1.json"
+    absent = dungeon.token_drought_status(sentinel)
+    assert absent["active"] is False and absent["valid"] is True
+    assert dungeon.paid_inference_allowed(sentinel) is True
+    enabled = dungeon.set_token_drought(True, "All paid inference tokens are exhausted.", sentinel)
+    assert enabled["active"] is True and enabled["valid"] is True
+    assert dungeon.paid_inference_allowed(sentinel) is False
+    disabled = dungeon.set_token_drought(False, "Owner restored paid inference authority.", sentinel)
+    assert disabled["active"] is False and dungeon.paid_inference_allowed(sentinel) is True
+    sentinel.write_text("{not-json", encoding="utf-8")
+    invalid = dungeon.token_drought_status(sentinel)
+    assert invalid["active"] is True and invalid["valid"] is False
+    assert dungeon.paid_inference_allowed(sentinel) is False
 
 for field, value in {
     "manifest": "/tmp/attack.json",
@@ -51,6 +67,7 @@ for field, value in {
     "url": "https://example.invalid",
     "env": {"TOKEN": "secret"},
     "model": "caller-selected",
+    "tokenDrought": {"enabled": False},
 }.items():
     try:
         dungeon.normalize_run_action(request(**{field: value}))
