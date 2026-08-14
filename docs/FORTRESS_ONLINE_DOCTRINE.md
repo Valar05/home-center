@@ -45,6 +45,26 @@ When the operator explicitly demands proof, lead with the evidence/state transit
 
 Every work cycle seeks treasure: delivered capability, decisive evidence, eliminated false hypothesis, reusable primitive, accessibility improvement, deterministic recovery, useful delight, or another durable result that makes future work better. Activity and narration are not treasure.
 
+## Black Terminal Window Hell — operator wound
+
+A black terminal window is an implementation detail, not an operator interface. Unexpected console windows, foreground theft, scrolling opaque logs, window proliferation, always-on-top shells, and terminals that remain open without a clear state are first-class failures.
+
+Normal Fortress work must run in a background/headless body and expose one commissioned operator surface with:
+- current state;
+- last meaningful transition;
+- blocker, when one exists;
+- next automatic action;
+- sovereign Pause, Stop, Restart, Dismiss, and Details controls;
+- durable logs available on demand rather than forced into the foreground.
+
+Termux and desktop shells remain valid bootstrap, diagnostic, and bounded recovery organs. They are not the finished human interface. Any repeated terminal workflow must graduate into a daemon, app-control profile, overlay button, deterministic service, or equivalent durable background organ.
+
+When a terminal is genuinely unavoidable, use at most one clearly labeled window. It must be bounded, timeout-capable, fail-visible, safe to minimize or dismiss, and leave a durable receipt/resume point. It must not steal focus without an explicit operator request.
+
+A ticking clock, countdown, or constantly increasing elapsed-time display is not proof of progress. Time visibility is operator-controlled. Prefer phase, state, and last meaningful transition over a display that turns waiting into performance anxiety.
+
+Acceptance requires observed runtime behavior: ordinary operation produces no unexpected black terminal windows or foreground hijacking, while the commissioned surface still provides truthful liveness, controls, logs, and recovery. Doctrine or configuration alone is not acceptance.
+
 ## Acceptance
 
 This doctrine file is not itself runtime acceptance. Acceptance requires future agent/bootstrap behavior to inherit these laws without Drew having to re-teach them, plus regression fixtures for the concrete wounds that created them.
