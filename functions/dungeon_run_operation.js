@@ -11,16 +11,18 @@ const {
 } = require('./dungeon_run_contract');
 
 function boundedCommand(record) {
+  const expiresAtMs = Number(record.expiresAtMs || 0);
+  const admissionExpired = record.status === 'queued' && expiresAtMs > 0 && expiresAtMs <= Date.now();
   return {
     commandId: record.commandId,
     deviceId: record.deviceId,
-    state: record.status,
+    state: admissionExpired ? 'expired' : record.status,
     requestHash: record.requestHash || '',
     createdAtMs: Number(record.createdAtMs || 0),
     updatedAtMs: Number(record.updatedAtMs || 0),
-    expiresAtMs: Number(record.expiresAtMs || 0),
+    expiresAtMs,
     result: record.result == null ? null : record.result,
-    error: String(record.error || '').slice(0, 4000),
+    error: String(admissionExpired ? 'admission expired before a device lease; replay the same exact requestId to renew this command' : (record.error || '')).slice(0, 4000),
   };
 }
 
@@ -93,7 +95,7 @@ function dungeonOperationEntries() {
       write: true,
       requiresRequestId: true,
       requiredScopes: [],
-      input: {schema: DUNGEON_STATUS_SCHEMA, requestId: 'stable status request id', deviceId: 'optional registered phone id', jobId: 'opaque dng_ id'},
+      input: {schema: DUNGEON_STATUS_SCHEMA, requestId: 'fresh unique snapshot id for each poll', deviceId: 'optional registered phone id', jobId: 'opaque dng_ id'},
     },
     dungeon_command_status: {
       summary: 'Read one owner-scoped dungeon relay command admission or completion receipt without contacting tmux.',

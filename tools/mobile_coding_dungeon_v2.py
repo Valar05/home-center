@@ -19,6 +19,7 @@ import signal
 import shutil
 import subprocess
 import sys
+import threading
 import time
 from pathlib import Path
 from typing import Any
@@ -47,6 +48,8 @@ VISIBLE_STATES = {"ACCEPTED", "RUNNING", "CHECKPOINTED", *TERMINAL_STATES}
 ID_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._:-]*$")
 JOB_RE = re.compile(r"^dng_[0-9a-f]{24}$")
 REF_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._/-]{0,199}$")
+LOG_HEAD_BYTES = 80_000
+LOG_TAIL_BYTES = 100_000
 
 
 class DungeonError(RuntimeError):
@@ -279,21 +282,51 @@ def run_process(argv: list[str], cwd: Path, timeout: int, output_path: Path) -> 
     output_path.parent.mkdir(parents=True, exist_ok=True)
     started = epoch_ms()
     timed_out = False
+    tail = bytearray()
+    total_read = 0
+    head_written = 0
+    drain_errors: list[str] = []
     with output_path.open("wb") as output_handle:
         try:
             process = subprocess.Popen(
                 argv,
                 cwd=cwd,
-                stdout=output_handle,
+                stdout=subprocess.PIPE,
                 stderr=subprocess.STDOUT,
                 start_new_session=True,
                 shell=False,
+                bufsize=0,
             )
         except OSError as exc:
-            output_handle.write(f"executor unavailable: {exc}\n".encode("utf-8", "replace"))
+            message = f"executor unavailable: {exc}\n".encode("utf-8", "replace")
+            output_handle.write(message)
             output_handle.flush()
             os.fsync(output_handle.fileno())
-            return {"argv0": Path(argv[0]).name, "exit": 127, "timedOut": False, "startedAtMs": started, "endedAtMs": epoch_ms(), "outputTail": f"executor unavailable: {exc}"}
+            return {"argv0": Path(argv[0]).name, "exit": 127, "timedOut": False, "startedAtMs": started, "endedAtMs": epoch_ms(), "outputBytes": len(message), "outputTruncated": False, "outputTail": f"executor unavailable: {exc}"}
+
+        def drain_output() -> None:
+            nonlocal total_read, head_written
+            try:
+                assert process.stdout is not None
+                while True:
+                    chunk = process.stdout.read(64 * 1024)
+                    if not chunk:
+                        break
+                    total_read += len(chunk)
+                    remaining_head = max(0, LOG_HEAD_BYTES - head_written)
+                    if remaining_head:
+                        prefix = chunk[:remaining_head]
+                        output_handle.write(prefix)
+                        output_handle.flush()
+                        head_written += len(prefix)
+                    tail.extend(chunk)
+                    if len(tail) > LOG_TAIL_BYTES:
+                        del tail[:-LOG_TAIL_BYTES]
+            except Exception as exc:  # bounded evidence; coordinator still closes fail-safe
+                drain_errors.append(str(exc)[:1000])
+
+        drain_thread = threading.Thread(target=drain_output, name=f"dungeon-log-{Path(argv[0]).name}", daemon=True)
+        drain_thread.start()
         try:
             exit_code = process.wait(timeout=timeout)
         except subprocess.TimeoutExpired:
@@ -311,19 +344,25 @@ def run_process(argv: list[str], cwd: Path, timeout: int, output_path: Path) -> 
                     pass
                 process.wait(timeout=5)
             exit_code = None
+        drain_thread.join(timeout=10)
+        if drain_thread.is_alive() and process.stdout is not None:
+            process.stdout.close()
+            drain_thread.join(timeout=2)
+        if drain_thread.is_alive():
+            drain_errors.append("output drain did not stop after executor exit")
+        if total_read > head_written:
+            tail_start = max(0, total_read - len(tail))
+            nonoverlap = max(0, head_written - tail_start)
+            suffix = bytes(tail[nonoverlap:])
+            marker = f"\n...[output bounded; totalBytes={total_read}; preserved head and tail]...\n".encode("utf-8")
+            output_handle.write(marker)
+            output_handle.write(suffix)
+        if drain_errors:
+            output_handle.write(("\n...[output drain warning: " + "; ".join(drain_errors) + "]...\n").encode("utf-8", "replace"))
         output_handle.flush()
         os.fsync(output_handle.fileno())
-    with output_path.open("rb") as output_handle:
-        size = output_handle.seek(0, os.SEEK_END)
-        output_handle.seek(max(0, size - 200_000))
-        tail_bytes = output_handle.read()
-        output = tail_bytes.decode("utf-8", "replace")
-    if size > 200_000:
-        with output_path.open("wb") as output_handle:
-            output_handle.write(tail_bytes)
-            output_handle.flush()
-            os.fsync(output_handle.fileno())
-    return {"argv0": Path(argv[0]).name, "exit": exit_code, "timedOut": timed_out, "startedAtMs": started, "endedAtMs": epoch_ms(), "outputTail": output[-12000:]}
+    output = bytes(tail).decode("utf-8", "replace")
+    return {"argv0": Path(argv[0]).name, "exit": exit_code, "timedOut": timed_out, "startedAtMs": started, "endedAtMs": epoch_ms(), "outputBytes": total_read, "outputTruncated": total_read > head_written, "outputTail": output[-12000:]}
 
 
 def git(root: Path, *args: str, timeout: int = 120) -> str:
@@ -403,8 +442,10 @@ def codex_argv(prompt: str) -> list[str]:
 
 
 def local_adam_argv(worktree: Path, prompt: str) -> list[str] | None:
-    worker = worktree / "tools" / "adam_venice_reviewed.py"
-    return [sys.executable, str(worker), prompt] if worker.is_file() else None
+    adapter = worktree / "tools" / "dungeon_local_adam.py"
+    reviewed = worktree / "tools" / "adam_venice_reviewed.py"
+    core = worktree / "tools" / "adam_codex_phone.py"
+    return [sys.executable, str(adapter), prompt] if adapter.is_file() and reviewed.is_file() and core.is_file() else None
 
 
 def clean_verification_commands(workspace: dict[str, Any], profile: str) -> list[list[str]]:
@@ -510,6 +551,14 @@ def submit(action_value: Any, state_root: Path | None = None, registry_path: Pat
         }
 
 
+def tmux_argv(tmux: str, state_root: Path, registry_path: Path, job: dict[str, Any]) -> list[str]:
+    return [
+        tmux, "new-session", "-d", "-s", job["tmuxSession"], sys.executable,
+        str(Path(__file__).resolve()), "run-job", "--job-id", job["jobId"],
+        "--state-root", str(state_root), "--registry", str(registry_path),
+    ]
+
+
 def launch_tmux(state_root: Path, registry_path: Path, job: dict[str, Any]) -> dict[str, Any]:
     tmux = shutil.which("tmux")
     if not tmux:
@@ -518,11 +567,7 @@ def launch_tmux(state_root: Path, registry_path: Path, job: dict[str, Any]) -> d
     present = subprocess.run([tmux, "has-session", "-t", session], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, shell=False, check=False).returncode == 0
     if present:
         return {"ok": True, "attached": True}
-    argv = [
-        tmux, "new-session", "-d", "-s", session, "--", sys.executable,
-        str(Path(__file__).resolve()), "run-job", "--job-id", job["jobId"],
-        "--state-root", str(state_root), "--registry", str(registry_path),
-    ]
+    argv = tmux_argv(tmux, state_root, registry_path, job)
     completed = subprocess.run(argv, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, shell=False, check=False)
     return {"ok": completed.returncode == 0, "attached": False, "error": (completed.stdout or "")[-2000:]}
 
@@ -565,14 +610,15 @@ def run_job(state_root: Path, registry_path: Path, job_id: str) -> int:
         if job["state"] in TERMINAL_STATES:
             return 0
         action = normalize_run_action(job["action"])
-        deadline = time.monotonic() + BUDGETS[action["budgetProfile"]]["wallSeconds"]
         if input_hash(action) != job["inputHash"]:
             transition(root, job, "QUARANTINED", "identity", "Stored action hash mismatch.", reason="stored action hash mismatch")
             return 4
         lane_lock_name = "lane-critical.lock" if action["lane"] == "critical" else "lane-noncritical.lock"
         lane_lock_path = root / "locks" / lane_lock_name
         with lane_lock_path.open("a+", encoding="utf-8") as lane_lock:
+            append_event(root, job_id, "lane_wait", lane=action["lane"], lock=lane_lock_name)
             fcntl.flock(lane_lock.fileno(), fcntl.LOCK_EX)
+            deadline = time.monotonic() + BUDGETS[action["budgetProfile"]]["wallSeconds"]
             try:
                 if action["lane"] == "standard":
                     os.nice(5)

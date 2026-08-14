@@ -2,9 +2,11 @@
 from __future__ import annotations
 
 import json
+import importlib.util
 import subprocess
 import sys
 import tempfile
+import types
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -71,6 +73,40 @@ except dungeon.DungeonError:
 argv = dungeon.codex_argv("bounded objective")
 assert argv == ["codex", "exec", "--sandbox", "workspace-write", "--ask-for-approval", "never", "--json", "bounded objective"]
 assert all(part not in {"bash", "sh", "-lc"} for part in argv)
+adapter_source = (ROOT / "tools" / "dungeon_local_adam.py").read_text(encoding="utf-8")
+for marker in ("disabled_run_command", "disabled_phone_intent", "worker.run_command =", "worker.phone_intent ="):
+    assert marker in adapter_source
+
+worker_stub = types.ModuleType("adam_codex_phone")
+worker_stub.run_command = lambda _workspace, _obj: {"ok": True, "unsafe": "shell"}
+worker_stub.phone_intent = lambda _workspace, _obj: {"ok": True, "unsafe": "device"}
+reviewed_stub = types.ModuleType("adam_venice_reviewed")
+reviewed_calls = []
+reviewed_stub.run_task = lambda prompt, workspace: reviewed_calls.append((prompt, workspace)) or 0
+prior_worker = sys.modules.get("adam_codex_phone")
+prior_reviewed = sys.modules.get("adam_venice_reviewed")
+try:
+    sys.modules["adam_codex_phone"] = worker_stub
+    sys.modules["adam_venice_reviewed"] = reviewed_stub
+    adapter_spec = importlib.util.spec_from_file_location("dungeon_local_adam_contract", ROOT / "tools" / "dungeon_local_adam.py")
+    assert adapter_spec and adapter_spec.loader
+    adapter = importlib.util.module_from_spec(adapter_spec)
+    adapter_spec.loader.exec_module(adapter)
+    assert adapter.main(["bounded", "campaign"]) == 0
+    assert worker_stub.run_command is adapter.disabled_run_command
+    assert worker_stub.phone_intent is adapter.disabled_phone_intent
+    assert worker_stub.run_command(Path.cwd(), {"command": "anything"})["ok"] is False
+    assert worker_stub.phone_intent(Path.cwd(), {"intent": "anything"})["ok"] is False
+    assert reviewed_calls and reviewed_calls[0][0] == "bounded campaign"
+finally:
+    if prior_worker is None:
+        sys.modules.pop("adam_codex_phone", None)
+    else:
+        sys.modules["adam_codex_phone"] = prior_worker
+    if prior_reviewed is None:
+        sys.modules.pop("adam_venice_reviewed", None)
+    else:
+        sys.modules["adam_venice_reviewed"] = prior_reviewed
 
 with tempfile.TemporaryDirectory() as td:
     base = Path(td)
@@ -100,6 +136,10 @@ with tempfile.TemporaryDirectory() as td:
     second = dungeon.submit(request(), state, registry, fake_launcher)
     assert second["jobId"] == first["jobId"] and second["attached"] is True
     assert len(launches) == 2  # replay attaches/restarts only the same deterministic job
+    admitted_job = dungeon.load_job(state, first["jobId"])
+    tmux_argv = dungeon.tmux_argv("/usr/bin/tmux", state, registry, admitted_job)
+    assert tmux_argv[:5] == ["/usr/bin/tmux", "new-session", "-d", "-s", first["tmuxSession"]]
+    assert "--" not in tmux_argv and "sh" not in tmux_argv and "-lc" not in tmux_argv
     try:
         dungeon.submit(request(objective="A different exact intent with the same request identity."), state, registry, fake_launcher)
         raise AssertionError("conflicting replay should fail")
@@ -121,5 +161,10 @@ with tempfile.TemporaryDirectory() as td:
     assert evidence["changed"] is True and evidence["dirty"] is True
     missing = dungeon.run_process(["definitely-not-a-real-dungeon-executable"], worktree, 1, state / "runs" / first["jobId"] / "missing.log")
     assert missing["exit"] == 127 and missing["timedOut"] is False
+    flood_log = state / "runs" / first["jobId"] / "bounded.log"
+    flood = dungeon.run_process([sys.executable, "-c", "import sys; sys.stdout.write('x' * 350000)"], worktree, 10, flood_log)
+    assert flood["exit"] == 0 and flood["outputBytes"] == 350000 and flood["outputTruncated"] is True
+    assert flood_log.stat().st_size <= dungeon.LOG_HEAD_BYTES + dungeon.LOG_TAIL_BYTES + 2000
+    assert flood["outputTail"].endswith("x" * 100)
 
 print("Mobile Coding Dungeon v2 contract: PASS")

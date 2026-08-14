@@ -24,11 +24,15 @@ Unknown fields fail closed. In particular, the schema rejects manifest paths, fi
 
 The authenticated owner may use the critical lane only with a concrete `criticalReason`. Status reads outrank all mutation admissions; critical mutation admissions outrank standard and background work. Standard and background work share a serialized lane, while critical work has a separate tmux/process lane and retains normal CPU priority.
 
+Relay selection is ordered in Firestore by the explicit tuple `(priorityRank, createdAtMs, commandId)` under an owner/device/status index; it never depends on an arbitrary query subset. Expired queued commands become explicit failures. Replaying the same exact dungeon `requestId` renews that same command identity, while divergent intent still conflicts.
+
+The selected budget begins only after the campaign acquires its phone-local execution lane. That one monotonic deadline is then shared by every inference and verification stage; queue wait cannot silently consume execution time, and stage fallbacks cannot each reset the budget.
+
 ## Deterministic decay ladder
 
 1. **Deterministic coordinator** validates exact intent, resolves the trusted local workspace registry, creates the durable job, computes all paths/names, and creates the isolated worktree.
 2. **Codex CLI** runs with fixed argv: `codex exec --sandbox workspace-write --ask-for-approval never --json <objective packet>`.
-3. If Codex is unavailable or fails without mutating the worktree, the same exact objective decays to the existing phone-local Adam/Venice worker.
+3. If Codex is unavailable or fails without mutating the worktree, the same exact objective decays through `dungeon_local_adam.py` to the existing phone-local Adam/Venice worker. The adapter structurally disables model-chosen shell execution and every Phone Hands/UI/device intent; local inference retains only bounded worktree read, list, search, write, and Venice stop review.
 4. If that worker is unavailable or fails cleanly, the tiny local judge may classify `HOLD` versus `VERIFY`; it receives no mutation authority and cannot select commands.
 5. Trusted phone-local argv arrays perform deterministic verification. No verification command crosses the remote boundary.
 
@@ -55,6 +59,8 @@ An expired relay admission lease requeues only the same typed command. A new lea
 - `dungeon_status` — enqueue a typed read of the opaque local `jobId`.
 - `dungeon_command_status` — read that status command and its bounded campaign receipt.
 
+Each `dungeon_status` poll uses a fresh `requestId`: the request identity names one immutable status snapshot. Reusing that ID deliberately attaches to the same snapshot instead of silently changing its meaning.
+
 `SUCCEEDED` means the trusted verification profile passed and the checkpoint remains isolated. It does not mean pushed, merged, deployed, installed, or human-accepted.
 
 ## Source acceptance
@@ -63,16 +69,17 @@ An expired relay admission lease requeues only the same typed command. A new lea
 node functions/dungeon_run_contract.test.js
 node tools/fortress_dungeon_ingress_contract_test.mjs
 python3 tools/test_mobile_coding_dungeon_v2.py
-python3 -m py_compile tools/mobile_coding_dungeon_v2.py tools/android_phone_home_center_relay.py
+python3 -m py_compile tools/mobile_coding_dungeon_v2.py tools/test_mobile_coding_dungeon_v2.py tools/dungeon_local_adam.py tools/android_phone_home_center_relay.py
 ```
 
 ## Promotion gates
 
 1. Merge only after repository CI and human review.
-2. Deploy the Home Center MCP/phone relay from an exact clean main commit.
-3. Update the physical phone checkout from that exact commit.
-4. Run `tools/setup_mobile_coding_dungeon_v2.sh` on the phone.
-5. Verify the phone registers `coding_dungeon_v2`.
-6. Admit one probe campaign; read back the exact submit receipt, local ledger, isolated worktree, and terminal status.
-7. Deliberately replay the same intent, conflict the same request ID, expire an admission lease, and induce an ambiguous dirty timeout. Verify attach, conflict, same-command recovery, and quarantine respectively.
-8. Record device/runtime acceptance separately from source and mechanical receipts.
+2. Deploy the checked-in `phoneHandsCommands` Firestore queue index and wait until it is ready.
+3. Deploy the Home Center MCP/phone relay from an exact clean main commit.
+4. Update the physical phone checkout from that exact commit.
+5. Run `tools/setup_mobile_coding_dungeon_v2.sh` on the phone.
+6. Verify the phone registers `coding_dungeon_v2`.
+7. Admit one probe campaign; read back the exact submit receipt, local ledger, isolated worktree, and terminal status.
+8. Deliberately replay the same intent, conflict the same request ID, expire a queued admission and a leased admission, and induce an ambiguous dirty timeout. Verify same-command renewal, attach, conflict, same-command lease recovery, and quarantine respectively.
+9. Record device/runtime acceptance separately from source and mechanical receipts.
